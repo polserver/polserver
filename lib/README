@@ -1,0 +1,24 @@
+**********************************************************************
+* 	README file for POLServer Additional Libraries               *
+*                                                                    *
+**********************************************************************
+
+This directory contains STLport-4.6.2 and ZLib 1.2.3 releases.
+
+ZLib Windows & Linux Instructions:
+    * Nothing, no need to compile anything here.
+    
+STLport Windows Instructions:
+    * Go to STLport\src and copy "vc71.mak" to the file "makefile".
+    * Make sure your VS2003 (Compiler version 7.1) command variables
+      are loaded. Easiest way is to find the file "vcvars32.bat" in 
+      you VS install directory and run that batch file from the
+      command prompt before you copy the vc71.mak file.
+    * Run the command "nmake clean all" from the prompt.
+    * Run the command "mnake install" from the prompt.
+
+Additional Linux Libraries required, and their install notes:
+
+* Need to add these later. Blah.
+
+**********************************************************************
