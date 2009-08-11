@@ -19,6 +19,29 @@ STLport Windows Instructions:
 
 Additional Linux Libraries required, and their install notes:
 
-* Need to add these later. Blah.
+* libstdc++ 5.0.2
+* Glibc 2.3.2 (with --prefix=/usr --enable-threads=pthreads )
+* Linuxthreads 2.3.2
+* GCC 3.2.2 (or newer)
+* STLport 4.5.3 (why this version, when Win32 uses 4.6.2?)
+
+Install manuals/websites:
+Glibc: http://www.gnu.org/software/libc/libc.html
+Libstdc++: http://gcc.gnu.org/libstdc++/
+GCC: http://www.gnu.org/software/gcc/gcc.html
+STLport: http://www.stlport.com , INSTALL file in download
+
+Source:
+Glibc + linuxthreads: http://ftp.gnu.org/gnu/glibc/
+GCC: http://www.gnu.org/software/gcc/releases.html
+STLport: http://www.stlport.com/archive/STLport-4.5.3.tar.gz
+
+Order:
+1.glibc with linuxthreads
+2.libstdc++
+3.gcc
+4.stlport
+
+Follow the install docs for the respective libraries in Linux
 
 **********************************************************************
