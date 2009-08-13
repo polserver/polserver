@@ -1,0 +1,189 @@
+TO-DO before next release:
+==========================
+1. Linux: HTTP freeze http://groups.yahoo.com/group/pol-core-test/message/7138
+    (Approach: a separate thread that will watch a counter of the last time each thread passed its
+     game-lock checkpoint.  When no thread has obtained the lock for over 30 seconds, report
+     on their checkpoints.  This will tell which thread has the lock, and where it is)
+
+Other
+=====
+
+deal with NPC good/neutral/evil changing on npcdesc reload
+
+
+Planning
+========
+
+096 - Vestal Virgin
+    Syzygy
+        Look into what happens when an offline mobile is moved. (MoveCharacterToLocation)
+    Unknown
+        Full script interface to tip window? (blocking, a la gumps etc)
+        Admin login auto bumps timing-out characters (or ignores)
+    Syzygy
+        store 'gotten item' on a layer
+        Find memory leaks in ecompile
+        multi walkon scripts / registration management
+        given item contianer objtype
+
+097 - The Coregina
+    Slogan
+	"POL - Providing mature development for 7 years...
+	 Not sure what happened after that though.. now the drinkers have it... "
+
+098 - BAW (Beer and Waffles)
+	    
+099 - BEER - (Break Everything Even Rudders)
+    Unknown
+        Combat.cfg handling rewrote to add syshook ability within like repsys.cfg
+	UnKnown:
+		SQL Driver integration.
+	UnKnown:
+		SQL.EM (Sanitize everything!)
+	UnKnown:
+		SQL Data Saver using the driver. Modeled after other emulators already using this.
+	MuadDib:
+	    Look into Executor Instructions PC crashes. Could this be from a memory bug, where
+	    something is overwriting memory like the old config and packetobj unicode leaks?
+	Unknown:
+	    Total rewrite of internal gump handling. Utilizing an internal map with the PID
+	    as the key for reference. Storage can be done by reference to uoemod and the unique
+	    ID (GumpID) for the script. This would also allow us to let the scripter pass a
+	    GumpID for sending to the client. It optimizes the handling of gumps to scripts checks
+	    and allows for v5+ clients with POL to open on the same position they was closed in last
+	    by passing the same gump id as per OSI standards (scripter doing it).
+	Unknown:
+		KR crap.
+	MuadDib:
+		Item.Quality needs implemented for AOS Elemental also like it is for AR. Right
+		now, cannot see how Quality affects ANYTHING except reporting maxhp member o_O
+	Unknown:
+		Convert all spellbooks to create packets from the bitwise ALWAYS. This includes
+		oldschool magery books. If a spell is added to the SpellBits, then it needs to
+		be DELETED from the container (for backwards compatible data files that has books
+		with scrolls in them). The goal is to STOP having spellbooks eat up so much space
+		by having scrolls still exist inside them.
+	Unknown: (possibly Nando)
+		Rewrite SEND SKILLS (0x3A) message. (Should make a buffer instead of a big array of skills,
+		and just one packet struct instead of two.)
+	MuadDib:
+	    Overload for send_remove_object() etc, for using with Character class. To reduce manual
+	    builds of the Delete packet. Centralize damnit :P
+	Nando:
+		Cleanup spells.cpp, removing the client->chr->schedule_spell(spell) and replacing it with
+		spell->cast(client->chr). Clean the whole Spelltask class, as it's no longer used (it always
+		schedules for NOW). This includes the schedule_spell() method from Character class. For now,
+		they're only wasting space, memory and processing.
+	UnKnown:
+	    send_remove_object_to_inrange() needs to be used where necessary for object removal on clients
+	    instead of all the senseless loops and sending the norm. Optimize this shit :(
+	MuadDib:
+	    Process each packet to see if can use #define for "Type", "Flag" etc, to minimize using the number only
+	    when building them. Make it more user friendly to read.
+	MuadDib:
+	    Make sure all changes to color, graphic, etc are calling thier on_*_changed, to updated nearbly clients.
+	MuadDib:
+	    Organize Module code files into a new project, with EM files located in a subfolder. Remember to update mkdist and linux files.
+	MuadDib:
+	    Analyze all combat code to move into a centralized .cpp/.h for combat related only.
+    Unknown:
+        Packet Struct for 0x98 should be optimized into a single Struct design like other packets with different structures
+        based on what is being sent or recieved.
+    Unknown:
+        Packet Struct for 0x22 should be optimized into a single Struct design like other packets with different structures
+        based on what is being sent or recieved.
+    Unknown:
+        Packet Struct for 0x1A should be optimized into a single Struct design like other packets with different structures
+        based on what is being sent or recieved.
+    Unknown:
+        Update the version checks for LoginServer/Gameserver key to use a bitflag setup like expansions do.
+    Unknown:
+        send_menu( Client *client, Menu *menu ) Just is terrible I think. Hard on the eyes. Need to redo this and the packet.
+    Unknwon:
+        Add the two new Login Error reasons where needed.
+    Unknown:
+        Check all 0xA9 packet flags, make sure we have them all.
+    Unknown:
+        Add packet and escript function for 0x0B Damage packet, and the oldschool version, based on client version.
+    Unknown:
+        Implement packet 0x86 as it should be. Which client versions know this method?
+	Unknown:
+        ItemXLate.cfg :: Similar to animxlate.cfg, cept format is <itemid> <new_itemid> <stack_amount>. Purpose is to be used for
+        converting item id graphic by core, based on itemid, and if stack amount goes above or below the entered amounts. Ether that, or
+        something like
+        Objtype 0xEED
+        {
+			0xEED	1
+			0xEEE	6
+			0xEEF	65353
+		}
+		When it falls below it (but not 0, duh), change to previous entry. Otherwise, go to next if it goes above
+		To see the best method, may need to look over animxlate too.
+    Unknown:
+        Character::move( unsigned char i_dir ) - Does this need to have on_facing_change() added to it? Answer and resolve
+    Unknown:
+        Look into implementing 0xCB as a custom client packet for something new.
+    Unknown:
+        Review packet 0x66 to cleanup code if needed (including old code, that is commented out, blah).
+    Unknown:
+        Look at expanding regions to use XYZ XYZ instead of just XY XY
+    MuadDib:
+        Finish up the "FIXME: Add Grid" fixes, to fully have slotted containers supported.
+    Unknown
+        HOUSING.
+        Will require a special Character member to check in all kinds of places. Character.EditHouse=0/1
+        The purpose, is to make NPCs IGNORE THIS PERSON, and to NOT send ANY packets about this person
+        to ANYONE. This will also need to be checked when using all sorts of crap. Like when triggering
+        equip/insert/item use/etc. This char should be able to do NOTHING except edit the house when
+        in edit house mode, etc.
+        Enabling this mode can be internal only, simply by linking it with the Custom housing tool.
+        Have a script that can be made to run additional stuff with using the tool, so scripters can
+        check extra stuff if they want, etc, and that script's return decides if to activate the housing
+        tool. Should suffice.
+    Unknown
+        Finish Repsys hook. Current bug, when setting mob to criminal, it causes hook to exit.
+    UnKnown
+        Multi Walkon script support. Should remember it only needs checked when first walking onto
+        a multi/component, and no release their reference for it, until they walk off it. Handle this
+        similar to regional zones for best result maybe??
+    UnKnown
+        Rework sending items to client when they are on a multi (and not a component of the multi).
+        OSI handles this laggish issue by not sending items (Mobs and their equipped items they send though)
+        until the player has walked onto the multi or one of it's components. Helps blackholing and saves
+        bandwidth.
+    Unknown
+        Fix? clientinfo member on linux cores.
+    Unknown
+        Fix? Issue with timeout not working under linux cores (Inactivity timeout).
+	UnKnown:
+		Find remaining Memory Leaks in Executor.
+	UnKnown:
+		Find remaining Memory leaks in Config handling.
+	MuadDib:
+		Move existing servspecopt.cfg settings that are for CLIENT SPECIFIC STUFF to 
+		uoclient.cfg system and make them client specific members populated at creation
+		like StatCap already is!
+	MuadDib:
+		Throw Sheep at Nando!
+	MuadDib:
+	    uoclient::listener::UOFeatureEnable, moved from ssopt::UOFeatureEnable.
+	    Client->UOFeatureEnable, to access uoclient setting.
+	Nando:
+	    Speedhack block code. With ability to disable via ssopt.
+	MuadDib:
+	    Create a Privs Updater like concealed and hidden. To go through and refresh stuff around
+	    them based on the privs they have. Will fix bug of not seeing invis and hiddens until
+	    moved away and back.
+    Unknown:
+            Itemdesc::Container::Weightmod=None/Half/Double/Normal(default)    R/O
+            None = Items give no weight
+            Half = Items give half weight
+            Double = Items give double weight
+            Normal = Normal weight effect. Same as not using this entry at all.
+                For this to be R/W, would have to trigger resending the weight information to people
+                around it just as though something was inserted/removed etc. Would this be a pain in
+                the ass to make r/w more than maxweight etc?
+    UnKnown
+        systemfindobjectbyserial no longer finds multi's serials.
+    UnKnown
+        Support for new gump packets.

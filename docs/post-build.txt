@@ -1,0 +1,20 @@
+*****************************************************
+*                                                   *
+*      Post-Build Steps After Release Build         *
+*                                                   *
+*****************************************************
+
+Required Software
+-----------------
+* Compiler to execute the makefiles located .pol-core/dist (mkdist.bat for windows)
+* Commandline version of winzip installed. (Win32)
+
+Steps For Post-Build
+--------------------
+
+* Run "mkdist7 dist" in order to create the Release Zip File from command prompt.
+* Run "mkdist7 debug" in order to create the Debug Zip File from command prompt.
+* Create a new tag based on the release in the SVN with naming similar to the
+  following: "r2009-08-15". R is used for release, followed by year, month, day.
+* In the Tag itself, add the Debug zip files to "/tags/tagname/debug-zips"
+* Update official website and post release details on forums.
