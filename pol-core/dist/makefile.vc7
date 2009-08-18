@@ -58,33 +58,35 @@ debug:
     rmdir /S /Q debug-zip
 
 obj:
-    copy ..\pol\release\*.obj .
-    copy ..\pol\release\*.pdb .
-    copy ..\pol\release\*.idb .
-    copy ..\pol\release\*.map .
-    "c:\program files\winzip\wzzip" -ex -ybc -P pol-obj.zip @obj.lst
-    del *.obj
-    del *.pdb
-    del *.idb
-    del *.map
+    mkdir obj-zip
+    cd obj-zip
+    copy ..\..\pol\release\*.obj .
+    copy ..\..\pol\release\*.pdb .
+    copy ..\..\pol\release\*.idb .
+    copy ..\..\pol\release\*.map .
+    "c:\program files\winzip\wzzip" -ex -ybc -P ..\pol-obj.zip @..\obj.lst
+    cd ..
+    rmdir /S /Q obj-zip
 
 src:
-    xcopy /S ..\pol\*.cpp .
-    xcopy /S ..\pol\*.h .
-    "c:\program files\winzip\wzzip" -ex -ybc -P pol-src.zip @src.lst
-    del *.cpp
-    del *.h
-    rmdir /S /Q crypt
+    mkdir src-zip
+    cd src-zip
+    xcopy /S ..\..\pol\*.cpp .
+    xcopy /S ..\..\pol\*.h .
+    "c:\program files\winzip\wzzip" -ex -ybc -P ..\pol-src.zip @..\src.lst
+    cd ..
+    rmdir /S /Q src-zip
     
 lib:
-    -mkdir lib
-    xcopy /I /S /EXCLUDE:bscriptexclude.lst ..\bscript\* lib\bscript
-    xcopy /I /S /EXCLUDE:libexclude.lst ..\clib\* lib\clib
-    xcopy /I /S /EXCLUDE:libexclude.lst ..\ecompile\* lib\ecompile
-    xcopy /I /S /EXCLUDE:libexclude.lst ..\gp\* lib\gp
-    xcopy /I /S /EXCLUDE:libexclude.lst ..\plib\* lib\plib
-    xcopy /I /S /EXCLUDE:libexclude.lst ..\runecl\* lib\runecl
+    mkdir lib-zip
+    cd lib-zip
+    xcopy /I /S /EXCLUDE:..\bscriptexclude.lst ..\..\bscript\* lib\bscript
+    xcopy /I /S /EXCLUDE:..\libexclude.lst ..\..\clib\* lib\clib
+    xcopy /I /S /EXCLUDE:..\libexclude.lst ..\..\ecompile\* lib\ecompile
+    xcopy /I /S /EXCLUDE:..\libexclude.lst ..\..\gp\* lib\gp
+    xcopy /I /S /EXCLUDE:..\libexclude.lst ..\..\plib\* lib\plib
+    xcopy /I /S /EXCLUDE:..\libexclude.lst ..\..\runecl\* lib\runecl
     cd lib
     "c:\program files\winzip\wzzip" -ex -ybc -r -P ../pol-lib.zip *
     cd ..
-    rmdir /S /Q lib
+    rmdir /S /Q lib-zip

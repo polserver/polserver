@@ -2,4 +2,5 @@
 *.txt
 *.bak
 *.doc
-.svn
+\.svn\
+\Debug\
