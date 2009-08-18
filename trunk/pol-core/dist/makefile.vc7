@@ -1,0 +1,90 @@
+dist:
+	mkdir build
+	cd build
+	mkdir scripts\modules
+	copy ..\..\pol\release\pol.exe .
+	copy ..\..\uoconvert\release\uoconvert.exe .
+	copy ..\..\poltool\release\poltool.exe .
+	copy ..\..\uotool\release\uotool.exe .
+	copy ..\..\ecompile\release\ecompile.exe scripts
+	copy ..\..\runecl\release\runecl.exe scripts
+	copy ..\..\support\scripts\ecompile.cfg.example scripts\ecompile.cfg.example
+	copy ..\..\doc\core-changes.txt .
+	copy ..\..\doc\uoconvert.txt .
+	copy ..\..\doc\packethooks.txt .
+	copy ..\..\doc\packets.zip .
+	copy ..\..\support\uoconvert.cfg .
+	copy ..\..\support\scripts\basic.em scripts\modules
+	copy ..\..\support\scripts\basicio.em scripts\modules
+	copy ..\..\support\scripts\boat.em scripts\modules
+	copy ..\..\support\scripts\cfgfile.em scripts\modules
+	copy ..\..\support\scripts\datafile.em scripts\modules
+	copy ..\..\support\scripts\file.em scripts\modules
+	copy ..\..\support\scripts\http.em scripts\modules
+	copy ..\..\support\scripts\math.em scripts\modules
+	copy ..\..\support\scripts\npc.em scripts\modules
+	copy ..\..\support\scripts\os.em scripts\modules
+	copy ..\..\support\scripts\party.em scripts\modules
+	copy ..\..\support\scripts\polsys.em scripts\modules
+	copy ..\..\support\scripts\unicode.em scripts\modules
+	copy ..\..\support\scripts\uo.em scripts\modules
+	copy ..\..\support\scripts\util.em scripts\modules
+	copy ..\..\support\scripts\attributes.em scripts\modules
+	copy ..\..\support\scripts\cliloc.em scripts\modules
+	copy ..\..\support\scripts\guilds.em scripts\modules
+	copy ..\..\support\scripts\storage.em scripts\modules
+	copy ..\..\support\scripts\vitals.em scripts\modules
+	"c:\program files\winzip\wzzip" -ex -ybc -r -P ..\pol-core-.zip @..\core.lst
+	cd ..
+	rmdir /S /Q build
+
+debug:
+    mkdir debug-zip
+    cd debug-zip
+    xcopy /I /EXCLUDE:..\debug-exclude.lst ..\..\*
+    xcopy /I /S /EXCLUDE:..\debug-exclude.lst ..\..\bscript\* bscript
+    xcopy /I /S /EXCLUDE:..\debug-exclude.lst ..\..\clib\* clib
+    xcopy /I /S /EXCLUDE:..\debug-exclude.lst ..\..\ecompile\* ecompile
+    xcopy /I /S /EXCLUDE:..\debug-exclude.lst ..\..\gp\* gp
+    xcopy /I /S /EXCLUDE:..\debug-exclude.lst ..\..\plib\* plib
+    xcopy /I /S /EXCLUDE:..\debug-exclude.lst ..\..\pol\* pol
+    xcopy /I /S /EXCLUDE:..\debug-exclude.lst ..\..\poltool\* poltool
+    xcopy /I /S /EXCLUDE:..\debug-exclude.lst ..\..\runecl\* runecl
+    xcopy /I /S /EXCLUDE:..\debug-exclude.lst ..\..\support\* support
+    xcopy /I /S /EXCLUDE:..\debug-exclude.lst ..\..\uoconvert\* uoconvert
+    xcopy /I /S /EXCLUDE:..\debug-exclude.lst ..\..\uotool\* uotool
+    "c:\program files\winzip\wzzip" -ex -ybc -r -P ..\pol-debug-.zip  *
+    cd ..
+    rmdir /S /Q debug-zip
+
+obj:
+    copy ..\pol\release\*.obj .
+    copy ..\pol\release\*.pdb .
+    copy ..\pol\release\*.idb .
+    copy ..\pol\release\*.map .
+    "c:\program files\winzip\wzzip" -ex -ybc -P pol-obj.zip @obj.lst
+    del *.obj
+    del *.pdb
+    del *.idb
+    del *.map
+
+src:
+    xcopy /S ..\pol\*.cpp .
+    xcopy /S ..\pol\*.h .
+    "c:\program files\winzip\wzzip" -ex -ybc -P pol-src.zip @src.lst
+    del *.cpp
+    del *.h
+    rmdir /S /Q crypt
+    
+lib:
+    -mkdir lib
+    xcopy /I /S /EXCLUDE:bscriptexclude.lst ..\bscript\* lib\bscript
+    xcopy /I /S /EXCLUDE:libexclude.lst ..\clib\* lib\clib
+    xcopy /I /S /EXCLUDE:libexclude.lst ..\ecompile\* lib\ecompile
+    xcopy /I /S /EXCLUDE:libexclude.lst ..\gp\* lib\gp
+    xcopy /I /S /EXCLUDE:libexclude.lst ..\plib\* lib\plib
+    xcopy /I /S /EXCLUDE:libexclude.lst ..\runecl\* lib\runecl
+    cd lib
+    "c:\program files\winzip\wzzip" -ex -ybc -r -P ../pol-lib.zip *
+    cd ..
+    rmdir /S /Q lib

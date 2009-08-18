@@ -187,3 +187,7 @@ Planning
         systemfindobjectbyserial no longer finds multi's serials.
     UnKnown
         Support for new gump packets.
+    Unknown
+        Rewrite of 0x11 Status Packet. To include all message types, and settable based on Client Feature Settings so the server
+        automatically knows which kind of packet type to send for full system messages. Better handling this way, optimized,
+        and better support for all client versions dynamically.
