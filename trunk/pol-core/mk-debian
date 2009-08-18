@@ -1,0 +1,10 @@
+#!/bin/bash
+
+CC=gcc-3.0 LINKER=g++-3.0 LIBCRYPT="crypto" POL_BUILDTAG=debian CXX_MORE_OPTS="-DHAVE_OPENSSL -DNDEBUG -D_REENTRANT -DPOL_BUILDTAG=\\\"debian\\\"" make -f makefile3.gcc $*
+
+#until CC=gcc-3.0 LINKER=g++-3.0 LIBCRYPT="crypto" POL_BUILDTAG=debian CXX_MORE_OPTS="-DHAVE_OPENSSL -DNDEBUG -D_REENTRANT -DPOL_BUILDTAG=\\\"debian\\\"" make -f makefile3.gcc $*
+#do
+#    echo Tryinh again
+#    sleep 10
+#done
+

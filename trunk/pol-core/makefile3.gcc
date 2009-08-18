@@ -1,0 +1,420 @@
+###
+### POL makefile.gcc
+###
+
+###
+### normal build:
+### CC=gcc-3.0 make -f makefile.gcc
+###
+
+target: release dynrelease
+
+all: release debug dynrelease dyndebug
+
+dist: gzipfile gzipfile-dynamic
+
+# for debugging:
+# CXX_OPTS=-ggdb
+
+POL_RELEASE=097
+
+ifdef USE_STLPORT
+LIB_STL=stlport
+INC_STL=-I/usr/local/include/stlport
+else
+LIB_STL=stdc++
+INC_STL=-I.
+endif
+
+ifdef FREEBSD
+POL_BUILDNAME=freebsd
+LIB_MORE=-lexecinfo
+else
+POL_BUILDNAME=linux
+LIB_MORE=
+endif
+
+CXX_OPTS=-gstabs+ -DINC_PASSERT=1 -Wall -Werror $(CXX_MORE_OPTS) $(INC_STL)
+
+CXX_RELEASE_OPTS=$(CXX_OPTS)
+
+CXX_DEBUG_OPTS=$(CXX_OPTS)
+
+CXX_OPTS_NOWARN=-gstabs+ -DINC_PASSERT=1 $(CXX_MORE_OPTS) $(INC_STL)
+
+ifndef LINKER
+LINKER=g++
+endif
+
+cpp_sources = \
+    clib/progver.cpp plib/polver.cpp \
+	pol/account.cpp pol/accounts.cpp pol/acscrobj.cpp pol/allocd.cpp \
+	pol/armor.cpp pol/attack.cpp \
+	pol/attribute.cpp pol/auxclient.cpp \
+	pol/bannedips.cpp pol/boat.cpp pol/boatcomp.cpp pol/boatemod.cpp \
+	pol/bowsalut.cpp \
+	pol/binaryfilescrobj.cpp \
+	pol/cfgemod.cpp pol/cfgrepos.cpp pol/cgdata.cpp pol/charactr.cpp \
+	pol/checkpnt.cpp \
+	pol/chrcast.cpp pol/chrituse.cpp pol/chrskuse.cpp pol/client.cpp \
+	pol/clientio.cpp \
+	pol/cliface.cpp pol/cmbtcfg.cpp pol/cmdlevel.cpp pol/containr.cpp \
+	pol/console.cpp pol/core.cpp pol/corpse.cpp \
+	pol/create.cpp \
+	pol/cryptengine.cpp pol/crypt/cryptbase.cpp pol/crypt/cryptkey.cpp \
+	pol/crypt/nocrypt.cpp pol/crypt/blowfish.cpp pol/crypt/twofish.cpp \
+	pol/ctable.cpp \
+	pol/customhouses.cpp pol/customhousehelp.cpp \
+	pol/datastore.cpp pol/dblclick.cpp pol/decay.cpp pol/dice.cpp \
+	pol/door.cpp pol/dropitem.cpp \
+	pol/dye.cpp \
+	pol/eqpitem.cpp pol/equipdsc.cpp pol/equipmnt.cpp clib/esignal.cpp \
+	pol/exscrobj.cpp \
+	pol/extcmd.cpp \
+	pol/fileaccess.cpp pol/fnsearch.cpp \
+	pol/gameclck.cpp pol/getitem.cpp pol/getmsg.cpp pol/gflag.cpp \
+	pol/gprepos.cpp pol/guardrgn.cpp\
+	pol/guilds.cpp \
+	pol/help.cpp pol/house.cpp \
+	pol/iostats.cpp pol/irequest.cpp pol/item.cpp pol/item00.cpp \
+	pol/itemcr.cpp pol/itemdesc.cpp \
+	pol/landtile.cpp \
+	pol/listenpt.cpp pol/loadunld.cpp pol/lockable.cpp pol/logfiles.cpp \
+	pol/loaddata.cpp pol/login.cpp \
+	pol/menu.cpp pol/menusel.cpp pol/miscmsg.cpp \
+	pol/miscrgn.cpp pol/mkscrobj.cpp \
+	pol/movecost.cpp pol/movement.cpp pol/msgfiltr.cpp \
+	pol/multicfg.cpp pol/multicr.cpp pol/multidef.cpp pol/multis.cpp \
+	pol/multidef2.cpp \
+	pol/musicrgn.cpp \
+	pol/npc.cpp pol/npctmpl.cpp pol/npctemplates.cpp \
+	pol/objecthash.cpp \
+	pol/packethooks.cpp pol/packetscrobj.cpp party.cpp \
+	pol/pol.cpp pol/polcfg.cpp pol/polclock.cpp pol/poldbg.cpp \
+	pol/polfile2.cpp pol/polsem.cpp pol/polsig.cpp pol/polstats.cpp \
+	pol/polsystememod.cpp \
+	pol/poltest.cpp pol/polvar.cpp pol/polwww.cpp pol/profile.cpp \
+	pol/proplist.cpp \
+	pol/reftypes.cpp pol/readcfg.cpp pol/region.cpp pol/repsys.cpp \
+	pol/resource.cpp \
+	pol/realms.cpp \
+	pol/savedata.cpp \
+	pol/schedule.cpp pol/scrdef.cpp pol/scrsched.cpp pol/scrstore.cpp \
+	pol/skilladv.cpp \
+	pol/sngclick.cpp pol/sockio.cpp pol/speech.cpp pol/spelbook.cpp \
+	pol/spells.cpp pol/ssopt.cpp \
+	clib/socketsvc.cpp pol/stackcfg.cpp \
+	pol/startloc.cpp pol/statmsg.cpp pol/storage.cpp pol/syshook.cpp \
+	pol/systemhookscript.cpp \
+	pol/target.cpp pol/tasks.cpp plib/testenv.cpp pol/textcmd.cpp \
+	pol/tildecmd.cpp pol/tiles.cpp pol/tiplstwn.cpp \
+	pol/tips.cpp pol/tmpvars.cpp pol/tooltips.cpp \
+	pol/ucrypto.cpp pol/ufunc.cpp pol/ufunc2.cpp pol/uimport.cpp \
+	pol/umap.cpp pol/uniemod.cpp \
+	pol/uobjcnt.cpp pol/uobject.cpp pol/uobjhelp.cpp pol/uoclient.cpp \
+	pol/uoemod.cpp pol/uoemod2.cpp \
+	pol/uoemod3.cpp pol/uoemod4.cpp pol/uoexhelp.cpp \
+	pol/uolisten.cpp \
+	pol/uoscrobj.cpp pol/uoskills.cpp pol/useskill.cpp \
+	pol/utilemod.cpp \
+	pol/uvars.cpp pol/uworld.cpp \
+	pol/vital.cpp \
+	pol/weapon.cpp \
+	pol/zone.cpp \
+	pol/attributemod.cpp pol/clemod.cpp pol/clfunc.cpp pol/storagemod.cpp pol/vitalmod.cpp \
+	plib/mapfunc.cpp plib/mapserver.cpp plib/pkg.cpp plib/realm.cpp \
+	plib/filemapserver.cpp plib/inmemorymapserver.cpp \
+	plib/realmfunc.cpp \
+	plib/maptileserver.cpp plib/realmdescriptor.cpp plib/staticserver.cpp \
+	plib/testdrop1.cpp plib/testwalk1.cpp \
+	plib/testlos1.cpp plib/realmlos.cpp plib/realmlos2.cpp \
+	bscript/basicio.cpp bscript/basicmod.cpp bscript/berror.cpp \
+	bscript/blong.cpp bscript/bstruct.cpp \
+	bscript/compctx.cpp bscript/compilercfg.cpp bscript/eprog_read.cpp \
+	bscript/eprog2.cpp \
+	bscript/dbl.cpp bscript/dict.cpp bscript/eprog.cpp \
+	bscript/escrutil.cpp \
+	bscript/escript_config.cpp bscript/escriptv.cpp bscript/execmodl.cpp \
+	bscript/executor.cpp \
+	bscript/fmodule.cpp \
+	bscript/mathemod.cpp \
+	bscript/object.cpp bscript/ofstrm.cpp bscript/objstrm.cpp \
+	bscript/parser.cpp \
+	bscript/str.cpp bscript/symcont.cpp \
+	bscript/tkn_strm.cpp bscript/token.cpp \
+	bscript/userfunc.cpp \
+	clib/binaryfile.cpp clib/cfgfile.cpp clib/cfgsect.cpp \
+	clib/dirlist.cpp clib/dualbuf.cpp \
+	clib/fileutil.cpp clib/iohelp.cpp \
+	clib/kbhit.cpp \
+	clib/mlog.cpp clib/MD5.cpp \
+	clib/nlogfile.cpp \
+	clib/opnew.cpp \
+	clib/passert.cpp \
+	clib/rarray.cpp \
+	clib/sckutil.cpp clib/strexcpt.cpp clib/strset.cpp clib/strutil.cpp \
+	clib/threadhelp.cpp \
+	clib/tracebuf.cpp \
+	clib/endian.cpp clib/logfile.cpp clib/fdump.cpp clib/stracpy.cpp \
+	clib/random.cpp clib/cmdargs.cpp clib/wallclock.cpp \
+	clib/wnsckt.cpp \
+	clib/xmain.cpp \
+	clib/unicode.cpp \
+	gp/gendef.cpp gp/gphelp.cpp gp/gtree.cpp \
+	gp/treegen.cpp
+
+#	pol/crypt/crypt1264.cpp pol/crypt/crypt200.cpp pol/crypt/cryptignt.cpp \
+
+
+hold_cpp_sources = \
+	uvars.cpp target.cpp ufunc.cpp ucrypto.cpp \
+	speech.cpp tips.cpp login.cpp \
+		dropitem.cpp getitem.cpp eqpitem.cpp \
+		sockio.cpp clientio.cpp \
+		stubdata.cpp
+
+ecompile_sources=ecompile/ecompile.cpp \
+	plib/polver.cpp plib/pkg.cpp \
+	bscript/compilercfg.cpp bscript/compiler.cpp bscript/parser.cpp \
+	bscript/token.cpp bscript/symcont.cpp \
+	bscript/compctx.cpp bscript/tkn_strm.cpp \
+	bscript/eprog.cpp bscript/eprog2.cpp bscript/userfunc.cpp \
+	bscript/escriptv.cpp bscript/eprog3.cpp \
+	bscript/fmodule.cpp bscript/eprog_read.cpp \
+	clib/cfgfile.cpp \
+	clib/dirlist.cpp clib/esignal.cpp clib/fileutil.cpp \
+	clib/strutil.cpp clib/rarray.cpp clib/filecont.cpp \
+	clib/progver.cpp clib/passert.cpp clib/xmain.cpp \
+	clib/endian.cpp clib/logfile.cpp clib/fdump.cpp clib/stracpy.cpp \
+	clib/random.cpp clib/cmdargs.cpp \
+	clib/strexcpt.cpp  clib/threadhelp.cpp clib/wallclock.cpp
+
+runecl_sources=runecl/runecl.cpp \
+	bscript/executor.cpp bscript/execmodl.cpp bscript/dbl.cpp \
+	bscript/basicio.cpp bscript/basicmod.cpp bscript/berror.cpp \
+	bscript/blong.cpp bscript/bstruct.cpp bscript/compctx.cpp \
+	bscript/dict.cpp bscript/eprog.cpp bscript/eprog2.cpp \
+	bscript/eprog3.cpp bscript/eprog_read.cpp bscript/escript_config.cpp \
+	bscript/escriptv.cpp bscript/escrutil.cpp bscript/fmodule.cpp \
+	bscript/mathemod.cpp bscript/object.cpp bscript/objstrm.cpp \
+	bscript/ofstrm.cpp bscript/str.cpp bscript/symcont.cpp \
+	bscript/tkn_strm.cpp bscript/token.cpp bscript/userfunc.cpp \
+        bscript/parser.cpp bscript/compilercfg.cpp \
+	clib/passert.cpp clib/rarray.cpp clib/strutil.cpp  \
+	clib/endian.cpp clib/esignal.cpp clib/logfile.cpp clib/fdump.cpp \
+	clib/stracpy.cpp clib/cfgfile.cpp clib/fileutil.cpp \
+	clib/random.cpp clib/cmdargs.cpp clib/dirlist.cpp \
+	clib/progver.cpp \
+	clib/mlog.cpp  clib/xmain.cpp clib/strexcpt.cpp clib/threadhelp.cpp \
+	clib/wallclock.cpp
+
+uoconvert_sources=uoconvert/uoconvert.cpp  \
+	pol/uofile00.cpp pol/uofile01.cpp pol/uofile02.cpp \
+	pol/uofile07.cpp pol/uofile08.cpp \
+	pol/polfile1.cpp \
+	plib/mapfunc.cpp plib/mapwriter.cpp plib/realmdescriptor.cpp \
+	clib/cfgfile.cpp clib/cmdargs.cpp clib/strutil.cpp \
+	clib/fileutil.cpp clib/passert.cpp clib/dirlist.cpp clib/iohelp.cpp \
+	clib/logfile.cpp \
+	clib/progver.cpp clib/esignal.cpp clib/random.cpp clib/strexcpt.cpp \
+	clib/wallclock.cpp \
+	clib/xmain.cpp
+
+uotool_sources=uotool/uotool.cpp \
+	uotool/uofile04.cpp uotool/uofile05.cpp
+#	clib/esignal.cpp clib/fileutil.cpp \
+#	clib/cfgfile.cpp clib/fdump.cpp clib/strutil.cpp \
+#	clib/dirlist.cpp clib/passert.cpp clib/progver.cpp \
+#	clib/logfile.cpp \
+#	plib/realm.cpp plib/polver.cpp plib/realmdescriptor.cpp \
+#	plib/maptileserver.cpp plib/mapserver.cpp  plib/staticserver.cpp \
+#	plib/mapfunc.cpp plib/mapwriter.cpp  \
+#	pol/polcfg.cpp pol/polfile1.cpp pol/polfile2.cpp\
+#	pol/multidef.cpp \
+#	pol/uofile00.cpp pol/uofile01.cpp pol/uofile02.cpp pol/uofile03.cpp \
+#	pol/uofile06.cpp pol/uofile07.cpp pol/uofile08.cpp
+
+poltool_sources=poltool/poltool.cpp
+
+ecompile_objects=$(ecompile_sources:.cpp=.o) $(c_sources:.c=.o)
+
+runecl_objects=$(runecl_sources:.cpp=.o) $(c_sources:.c=.o)
+
+uoconvert_objects=$(uoconvert_sources:.cpp=.o) $(c_sources:.c=.o)
+
+uotool_objects=$(uotool_sources:.cpp=.o) $(c_sources:.c=.o) $(cpp_sources:.cpp=.o)
+
+poltool_objects=$(poltool_sources:.cpp=.o) $(c_sources:.c=.o)
+
+objects = $(cpp_sources:.cpp=.o) $(c_sources:.c=.o)
+
+objects_debug = $(cpp_sources:.cpp=.debug.o) $(c_sources:.c=.debug.o)
+
+ecompile: bin/ecompile
+
+runecl: bin/runecl
+
+uoconvert: bin/uoconvert
+
+release: bin/pol bin/ecompile bin/runecl bin/uoconvert
+
+dynrelease: bin/pol-dynamic bin/ecompile-dynamic bin/runecl-dynamic bin/uoconvert-dynamic
+
+bin/pol: $(objects)
+	$(LINKER) $(CXX_OPTS) -static -Xlinker -Map -Xlinker pol.map -o bin/pol $(objects) -l$(LIB_STL) -lpthread -lm -l$(LIBCRYPT) -lz $(LIB_MORE)
+
+bin/ecompile: $(ecompile_objects)
+	$(LINKER) $(CXX_OPTS) -static -o bin/ecompile $(ecompile_objects) -l$(LIB_STL) -lpthread -lm $(LIB_MORE)
+
+bin/runecl: $(runecl_objects)
+	$(LINKER) $(CXX_OPTS) -static -o bin/runecl $(runecl_objects) -l$(LIB_STL) -lpthread -lm $(LIB_MORE)
+
+bin/uoconvert: $(uoconvert_objects)
+	$(LINKER) $(CXX_OPTS) -static -o bin/uoconvert $(uoconvert_objects) -l$(LIB_STL) -lpthread -lm $(LIB_MORE)
+
+bin/uotool: $(uotool_objects)
+	$(LINKER) $(CXX_OPTS) -static -o bin/uotool $(uotool_objects) -l$(LIB_STL) -lpthread -lm $(LIB_MORE)
+
+bin/poltool: $(poltool_objects)
+	$(LINKER) $(CXX_OPTS) -static -o bin/poltool $(poltool_objects) -l$(LIB_STL) -lpthread -lm $(LIB_MORE)
+
+
+debug: $(objects_debug)
+	$(LINKER) $(CXX_OPTS) -static -Xlinker -Map -Xlinker poldebug.map -o bin/poldebug $(objects_debug) -l$(LIB_STL) -lpthread -lm -l$(LIBCRYPT) -lz $(LIB_MORE)
+
+# -lSegFault
+### DYNAMIC-LINK VERSIONS ###
+bin/pol-dynamic: $(objects)
+	$(LINKER) $(CXX_OPTS) -o bin/pol-dynamic $(objects) -l$(LIB_STL) -lpthread -lm -l$(LIBCRYPT) -lz $(LIB_MORE)
+
+bin/ecompile-dynamic: $(ecompile_objects)
+	$(LINKER) $(CXX_OPTS) -o bin/ecompile-dynamic $(ecompile_objects) -l$(LIB_STL) -lpthread -lm $(LIB_MORE)
+
+bin/runecl-dynamic: $(runecl_objects)
+	$(LINKER) $(CXX_OPTS) -o bin/runecl-dynamic $(runecl_objects) -l$(LIB_STL) -lpthread -lm $(LIB_MORE)
+
+bin/uoconvert-dynamic: $(uoconvert_objects)
+	$(LINKER) $(CXX_OPTS) -o bin/uoconvert-dynamic $(uoconvert_objects) -l$(LIB_STL) -lpthread -lm $(LIB_MORE)
+
+dyndebug: $(objects_debug)
+	$(LINKER) $(CXX_OPTS) -o bin/poldyndebug $(objects_debug) -l$(LIB_STL) -lpthread -lm -l$(LIBCRYPT) -lz $(LIB_MORE)
+
+clean:
+	rm -f $(objects) $(clib_objects) $(ecompile_objects) $(runecl_objects) $(uoconvert_objects)
+
+gzipfile: bin/pol bin/ecompile bin/runecl bin/uoconvert #bin/poltool bin/uotool
+	mkdir dist/scripts
+	mkdir dist/scripts/modules
+	strip -o dist/pol bin/pol
+	strip -o dist/scripts/ecompile bin/ecompile
+	strip -o dist/scripts/runecl bin/runecl
+	strip -o dist/uoconvert bin/uoconvert
+	cp support/scripts/*.em dist/scripts/modules
+	cp support/scripts/ecompile.cfg.example dist/scripts
+	cp doc/core-changes.txt dist
+	cp doc/uoconvert.txt dist
+	cp doc/packethooks.txt dist
+	cp doc/packets.zip dist
+	cp support/uoconvert.cfg dist
+	(cd dist ; tar -cvf pol-$(POL_BUILDNAME)bin-$(POL_RELEASE)-`date +%Y-%m-%d`-$(POL_BUILDTAG).tar pol uoconvert core-changes.txt uoconvert.txt uoconvert.cfg packethooks.txt packets.zip scripts ; gzip -9 pol-$(POL_BUILDNAME)bin-$(POL_RELEASE)-`date +%Y-%m-%d`-$(POL_BUILDTAG).tar )
+	rm -f dist/core-changes.txt dist/pol dist/uoconvert
+	rm -f dist/packethooks.txt
+	rm -f dist/packets.zip
+	rm -f dist/uoconvert.cfg
+	rm -rf dist/scripts
+
+gzipfile-dynamic: bin/pol-dynamic bin/ecompile-dynamic bin/runecl-dynamic bin/uoconvert-dynamic
+	mkdir dist/scripts
+	mkdir dist/scripts/modules
+	strip -o dist/pol bin/pol-dynamic
+	strip -o dist/scripts/ecompile bin/ecompile-dynamic
+	strip -o dist/scripts/runecl bin/runecl-dynamic
+	strip -o dist/uoconvert bin/uoconvert-dynamic
+	cp support/scripts/*.em dist/scripts/modules
+	cp support/scripts/ecompile.cfg.example dist/scripts
+	cp doc/core-changes.txt dist
+	cp doc/uoconvert.txt dist
+	cp doc/packethooks.txt dist
+	cp doc/packets.zip dist
+	cp support/uoconvert.cfg dist
+	(cd dist ; tar -cvf pol-$(POL_BUILDNAME)bin-$(POL_RELEASE)-`date +%Y-%m-%d`-$(POL_BUILDTAG)-dynamic.tar pol uoconvert core-changes.txt uoconvert.txt uoconvert.cfg packethooks.txt packets.zip scripts | gzip -9 pol-$(POL_BUILDNAME)bin-$(POL_RELEASE)-`date +%Y-%m-%d`-$(POL_BUILDTAG)-dynamic.tar )
+	rm -f dist/core-changes.txt dist/pol dist/uoconvert
+	rm -f dist/packethooks.txt
+	rm -f dist/packets.zip
+	rm -f dist/uoconvert.cfg
+	rm -rf dist/scripts
+
+#  $(clib_objects)
+
+clib_library:
+	$(MAKE) -C clib
+
+#include $(c_sources:.c=.d)
+#include $(cpp_sources:.cpp=.d)
+
+
+##
+## How to build C sources
+##
+%.o: %.c
+	$(CC) $(CXX_OPTS) -c -I . -o $@ $<
+
+##
+## How to build C++ sources
+##
+%.o: %.cpp
+	$(CC) -x c++ $(CXX_RELEASE_OPTS) -c -I. -o $@ $<
+
+%.debug.o: %.cpp
+	$(CC) -x c++ $(CXX_DEBUG_OPTS) -c -I. -o $@ $<
+
+pol/crypwrap.o: pol/crypwrap.cpp
+	$(CC) -x c++ $(CXX_OPTS_NOWARN) -c -I. -o $@ $<
+
+pol/crypt/nocrypt.o: pol/crypt/nocrypt.cpp
+	$(CC) -x c++ $(CXX_OPTS_NOWARN) -c -I. -o $@ $<
+
+pol/crypt/twofish.o: pol/crypt/twofish.cpp
+	$(CC) -x c++ $(CXX_OPTS_NOWARN) -c -I. -o $@ $<
+
+pol/crypt/blowfish.o: pol/crypt/blowfish.cpp
+	$(CC) -x c++ $(CXX_OPTS_NOWARN) -c -I. -o $@ $<
+
+pol/crypt/crypt1264.o: pol/crypt/crypt1264.cpp
+	$(CC) -x c++ $(CXX_OPTS_NOWARN) -c -I. -o $@ $<
+
+pol/crypt/crypt200.o: pol/crypt/crypt200.cpp
+	$(CC) -x c++ $(CXX_OPTS_NOWARN) -c -I. -o $@ $<
+
+pol/crypt/cryptignt.o: pol/crypt/cryptignt.cpp
+	$(CC) -x c++ $(CXX_OPTS_NOWARN) -c -I. -o $@ $<
+
+pol/crypwrap.debug.o: pol/crypwrap.cpp
+	$(CC) -x c++ $(CXX_OPTS_NOWARN) -c -I. -o $@ $<
+
+pol/crypt/nocrypt.debug.o: pol/crypt/nocrypt.cpp
+	$(CC) -x c++ $(CXX_OPTS_NOWARN) -c -I. -o $@ $<
+
+pol/crypt/crypt1264.debug.o: pol/crypt/crypt1264.cpp
+	$(CC) -x c++ $(CXX_OPTS_NOWARN) -c -I. -o $@ $<
+
+pol/crypt/crypt200.debug.o: pol/crypt/crypt200.cpp
+	$(CC) -x c++ $(CXX_OPTS_NOWARN) -c -I. -o $@ $<
+
+pol/crypt/cryptignt.debug.o: pol/crypt/cryptignt.cpp
+	$(CC) -x c++ $(CXX_OPTS_NOWARN) -c -I. -o $@ $<
+
+#		| sed 's#^$(@F)#$<#g'
+
+%.d: %.cpp
+	set -e; $(CC) -x c++ $(CPPFLAGS) -I. -MM $< \
+		| sed 's#\($(*F)\)\.o[ :]*#$(*D)/\1.o $@ : #g' > $@; \
+		[ -s $@ ] || rm -f $@
+
+%.d: %.c
+	set -e; $(CC) $(CPPFLAGS) -I. -MM $< \
+		| sed 's#\($(*F)\)\.o[ :]*#$(*D)/\1.o $@ : #g' > $@; \
+		[ -s $@ ] || rm -f $@
+
+
+include $(sort $(objects:.o=.d) $(ecompile_objects:.o=.d) $(runecl_objects:.o=.d) $(uoconvert_objects:.o=.d))
