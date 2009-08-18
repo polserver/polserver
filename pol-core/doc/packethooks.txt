@@ -1,0 +1,533 @@
+Packet Hook Implementation Notes
+--------------------------------
+WARNING: Packethooks all run as critical scripts. Be sure to consider this
+when using them for packets that are used a lot by the client or server!
+
+MuadDib 08/03/2009
+-Version 6
+uopacket.cfg option is6017 removed.
+uppacket.cfg options added. Version 1/2, and Client <string>
+
+MuadDib 03/20/2009
+-Version 5
+uopacket.cfg option is6017 0/1 added to packethook system.
+
+MuadDib 12/17/2008
+-Version 4
+All Set..() methods can now also return an Error Struct if you try to use
+an offset that is beyond the length of the packet. The Error given is
+"Offset value out of range on a fixed length packet"
+
+Racalac 4/17/2004
+-Version 3
+Added realm parameter to SendAreaPacket
+
+Racalac 8/12/2003
+-Version 2: 
+Offsets are now 0-based, changed example to reflect plus const offsets.
+encoded size for variable length packets is now maintained automatically
+changed CreatePacket param list
+Added SubPacket entry stuff and example
+
+Racalac 7/13/2003
+-Initial Version 1
+--------------------------------
+
+Packet Hooks allow the scripter to intercept incoming client messages and
+outgoing server messages. This allows the scripter to decide how to implement
+the UO client's feature-of-the-week, without having to wait for the POL team to
+create a customizable solution for each packet. You will need a UO Network
+Protocol document to successfully create packet hook scripts. We will try to
+provide one with our future releases that is more up to date than most. Note not 
+all client features can be completely implemented in packet hook scripts, some
+will require core support, which we will endevour to provide.
+
+
+Configuration:
+
+To define a packet hook, create a packaged uopacket.cfg: () = arbitrary value,
+[] = optional entry.
+Packet (packet ID byte)
+{
+  Length (fixed integer length or 'variable' without quotes)
+  [ReceiveFunction (scriptname:functionname)]
+  [SendFunction    (scriptname:functionname)]
+  [SubCommandOffset (integer)]
+  [SubCommandLength (1, 2 or 4)]
+  [Version (1 or 2)]
+  [Client (client version string)]
+}
+[Packet...]
+
+Packet ID must be a byte integer, i.e. 12 or 0xAE.
+
+Length MUST be exactly correct for fixed-length packets and in bytes (i.e.
+message 0x20 is 19 bytes), or the string 'variable' for variable-length packets
+(i.e. 0xAE unicode speech).
+
+ReceiveFunction is the function to intercept a packet coming from a client.
+
+SendFunction is to intercept an outgoing packet created by the core (i.e. player
+status update). Normally a Packet element will only define one of these two, 
+unless the packet is bi-directional AND the core currently sends the packet. For
+example, 0xB8 is the character profile packet, it is bi-directional with
+different structure for the client and server versions. Since the core currently
+never sends this packet, a SendFunction for this packet is meaningless. A
+ReceiveFunction is all you would need to implement the character profile (see
+below for example implementation). The method of specifying the function is
+exactly the same as vitals.cfg and the vital max, regen, etc functions.
+
+SubCommandOffset is the 0-based offset into the packet that contains the
+sub-command ID number, if applicable for this packet. SubCommandLength is the
+number of bytes to extract to determine the sub command (ex. 2 for 0xBF, 1 for 
+0x12).
+
+Version is used to define multiple packethooks of the same packet type. This is due
+to major packet changes by EA. It allows you to hook packets that have a different
+packet structure based on the client version. Default is 1. Max right now is 2.
+
+Client string is used to determine the minimum required client version for a
+packethook to work with. Note, all pre-login packets before 6.0.5.0 do not know
+the client's version number in the core.
+
+The example below, is how you can hook 0xB9 that was changed from 3 bytes to 5
+bytes in client 6.0.14.2. If you want a hook for the older version, just set
+Version to 1 as default Client is 1.25.25.0 and it will work on all previous
+client versions to your 6.0.14.2 hook.
+Packet 0xB9
+{
+  5
+  SendFunction    scriptname:functionname
+  Version 2
+  Client 6.0.14.2
+}
+
+To define a SubPacket (an entry for hooking a sub-command of a packet), put this
+in a packaged uopacket.cfg:
+
+SubPacket (main packet ID byte)
+{
+  SubCommandID (sub-command id)
+  [ReceiveFunction (scriptname:functionname)]
+  [SendFunction    (scriptname:functionname)]
+  [Version (integer)]
+}
+
+SubCommandID is the 2-byte ID to be found at the parent packet's SubCommandOffset.
+You need not define Receive and Send functions for the parent packet if you define
+subpacket entries. If a subcommand is received or being sent that is not hooked, 
+the default behavior will occur.
+As normal, the parent packet entry must only be defined once.
+Please do not try to hook Sub-Sub-Commands (like the 0xBF 0x06 Party System 
+subsubcommands), instead use a case statement in the subcommand hook.
+
+
+Script Prototype:
+
+As with other syshooks, you must define a "program" named scriptname (from above
+cfg examples) in the file scriptname. This program should perform any substantive
+initialization for supporting the individual packet hooks in the file. Return 1
+to install the hooks, or 0 to disable. This will be run only once on startup.
+
+A Packet Hook Script has the following prototype:
+
+exported function functionname( character, byref packet )
+
+If this is a ReceiveFunction, 'character' is a MobileRef (not and NPC) to the
+character that sent the packet. If it is a SendFunction, it is the character the 
+packet is being sent to. In either case, 'packet' is a Packet Object (detailed 
+below) that provides an interface to the data received or being sent. Also if 
+there is no character logged in yet for this client (i.e. you hooked a character 
+select packet) this can be uninitialized.
+
+This function should return 0 if you wish POL to perform its normal data
+processing on the packet (if any default packet handler exists for this packet
+ID), or 1 if you wish POL to do no processing on the packet (i.e. your script
+handled it fully). For example, the character profile packet has no internal
+packet handler, so returning 0 would have no effect.
+
+It is important that the packet be passed 'byref', especially if you wish POL to
+act on a modified packet. Also make sure it is passed byref to any helper
+functions you might write. If it is not passed byref, a copy is made, so any
+changes you might make to the packet would not be in the calling function's
+reference.
+
+Remember, these functions are Run-to-Completion, so be very careful about which
+packets you hook (i.e. Walk Request would be insane to hook), and write the
+fastest code you can manage to keep your sysload down.
+
+
+Packet Object Reference
+
+This object should totally replace the UO.EM::SendPacket function which forces 
+you to make a text representation of a packet. The packet object allows you to 
+set binary data without unnecessary text processing. The Packet Scripting Object 
+implements the following methods:
+
+SendPacket(character)
+  Sends this packet to character.
+  Returns 1 if sent, 0 if NPC or client not ready
+
+SendAreaPacket(x,y,range,realm)
+  Sends this packet to all the players in range of x,y
+  Returns integer number of clients this packet was successfully sent to
+ 
+GetSize()
+  Returns size of packet data in bytes
+
+GetInt8(offset)
+  Gets 8-bit (1 byte) value at offset (0-based).
+  Returns integer value, or error if offset too high.
+
+GetInt16(offset)
+  Gets 16-bit (2 byte) value at offset (0-based).
+  Returns integer value, or error if offset too high, or any of the bytes
+referenced are past the size of packet. Automatically converts to Big-Endian.
+ 
+GetInt32(offset)
+  Gets 32-bit (4 byte) value at offset (0-based).
+  Returns integer value, or error if offset too high, or any of the bytes
+referenced are past the size of packet. Automatically converts to Big-Endian.
+ 
+GetInt16Flipped(offset)
+  Gets 16-bit (2 byte) value at offset (0-based).
+  Returns integer value, or error if offset too high, or any of the bytes
+referenced are past the size of packet. Automatically converts to Little-Endian.
+ 
+GetInt32Flipped(offset)
+  Gets 32-bit (4 byte) value at offset (0-based).
+  Returns integer value, or error if offset too high, or any of the bytes
+referenced are past the size of packet. Automatically converts to Little-Endian.
+ 
+GetString(offset,length)
+  Gets a string (1-byte characters) at offset (0-based) for length characters.
+  Returns string, or error if offset too high, or any of the bytes referenced
+are past the size of packet.
+ 
+GetUnicodeString(offset,length)
+  Gets a 'unicode string' (2-byte characters) at offset (0-based) for length
+characters (NOT BYTES).
+  Returns a 'unicode string', or error if offset too high, or any of the bytes 
+referenced are past the size of packet. Automatically converts to Big-Endian.
+ 
+GetUnicodeStringFlipped(offset,length)
+  Gets a 'unicode string' (2-byte characters) at offset (0-based) for length
+characters (NOT BYTES).
+  Returns a 'unicode string', or error if offset too high, or any of the bytes 
+referenced are past the size of packet. Automatically converts to Little-Endian.
+ 
+SetSize(newsize)
+  Sets the new size of the packet, possibly destroying data if packet size was
+decreased. Updates the encoded size for variable length packets, not allowed
+for fixed-length packets and will result in returning an Error Struct.
+  Returns the old size of the packet.
+ 
+SetInt8(offset,value)
+  Sets an 8-bit (1-byte) value at offset (0-based). If offset is greater than
+current size, the packet is resized to fit the new data and the encoded size is 
+updated for variable length packets. Resizing is not allowed for fixed-length 
+packets and will result in returning an Error Struct.
+  Returns 1.
+
+SetInt16(offset,value)
+  Sets a 16-bit (2-byte) value at offset (0-based). If offset is greater than
+current size, the packet is resized to fit the new data and the encoded size is 
+updated for variable length packets. Resizing is not allowed for fixed-length 
+packets and will result in returning an Error Struct. Automatically converts to 
+Big-Endian.
+  Returns 1.
+ 
+SetInt32(offset,value)
+  Sets a 32-bit (4-byte) value at offset (0-based). If offset is greater than
+current size, the packet is resized to fit the new data and the encoded size is 
+updated for variable length packets. Resizing is not allowed for fixed-length 
+packets and will result in returning an Error Struct. Automatically converts to 
+Big-Endian. NOTE: currently there's a compiler problem setting 0xFFFFFFFF, it 
+gets converted to 0x7FFFFFFF. Use multiple SetInt16 or SetInt8 calls for now.
+  Returns 1.
+ 
+SetInt16Flipped(offset,value)
+  Sets a 16-bit (2-byte) value at offset (0-based). If offset is greater than
+current size, the packet is resized to fit the new data and the encoded size is 
+updated for variable length packets. Resizing is not allowed for fixed-length 
+packets and will result in returning an Error Struct. Automatically converts to 
+Little-Endian.
+  Returns 1.
+ 
+SetInt32Flipped(offset,value)
+  Sets a 32-bit (4-byte) value at offset (0-based). If offset is greater than
+current size, the packet is resized to fit the new data and the encoded size is 
+updated for variable length packets. Resizing is not allowed for fixed-length 
+packets and will result in returning an Error Struct. Automatically converts to 
+Little-Endian. NOTE: currently there's a compiler problem setting 0xFFFFFFFF, it 
+gets converted to 0x7FFFFFFF. Use multiple SetInt16 or SetInt8 calls for now.
+  Returns 1.
+ 
+SetString(offset,string,nullterminate)
+  Sets a string value at offset (0-based). If offset plus length of string is
+greater than current size, the packet is resized to fit the new data and the 
+encoded size is updated for variable length packets. Resizing is not allowed for 
+fixed-length packets and will result in returning an Error Struct. Set nullterminate 
+to 1 if you want to automatically append a 0 terminator.
+  Returns 1.
+ 
+SetUnicodeString(offset,unicode character array,nullterminate)
+  Sets a unicode string at offset (0-based). If offset plus length of string
+(2*number of members in the array) is greater than current size, the packet is
+resized to fit the new data and the encoded size is updated for variable length 
+packets. Resizing is not allowed for fixed-length packets and will result in 
+returning an Error Struct.Set nullterminate to 1 if you want to automatically 
+append a double 0 terminator. Unicode strings in eScript are arrays of 2-byte 
+values. See unicode.em for useful functions. CAscZ in basic.em is useful for 
+character sets that use the ascii/ansi standard. Automatically converts to 
+Big-Endian.
+  Returns 1.
+ 
+SetUnicodeStringFlipped(offset,unicode character array,nullterminate)
+  Sets a unicode string at offset (0-based). If offset plus length of string
+(2*number of members in the array) is greater than current size, the packet is
+resized to fit the new data and the encoded size is updated for variable length 
+packets. Resizing is not allowed for fixed-length packets and will result in
+returning an Error Struct. Set nullterminate to 1 if you want to automatically 
+append a double 0 terminator. Unicode strings in eScript are arrays of 2-byte
+values. See unicode.em for useful functions. CAscZ in basic.em is useful for 
+character sets that use the ascii/ansi standard. Automatically converts to 
+Little-Endian.
+  Returns 1.
+ 
+TypeOf(packet)
+  Returns "Packet"
+ 
+print(packet)
+  Returns string of packet contents, i.e. B800140012345678....
+ 
+polsys.em: CreatePacket(type, size)
+  Returns a new packet object. Type is the byte command id that always is set as
+the first byte (no need to set it yourself). Size is the fixed-length size for 
+this packet, or MSGLEN_VARIABLE if it is variable length (no need to figure out 
+the size in advance, the packet buffer will be resized as need by using the Set* 
+methods).
+
+
+Using the Packets: ReceiveFunction
+
+Here is a sample implementation of the character profile packet.
+
+Packet 0xB8
+{
+  Length variable
+  ReceiveFunction charprofile:HandleCharProfileRequest
+}
+
+use uo;
+use os;
+use polsys;
+use unicode;
+use util;
+
+program charprofile()
+  Print( "Hooking Character Profile..." );
+  return 1;
+endprogram
+
+const PROFILE_MSGTYPE := 0xB8;
+const PROFILE_TITLE := "Profile for ";
+const PROFILE_UPDATE_MODE := 1;
+const PROFILE_REQUEST_MODE := 0;
+const HEADER_SIZE := 7;
+const NULL_SIZE := 1;
+const UNULL_SIZE := 2;
+const UCHAR_SIZE := 2;
+
+const OFFSET_MSGTYPE := 0;
+const OFFSET_MSGLEN := 1;
+const OFFSET_MODE := 3;
+const OFFSET_SERIAL_OUT := 3;
+const OFFSET_SERIAL_IN := 4;
+const OFFSET_TITLE_STR := 7;
+const OFFSET_CMDTYPE := 8;
+const OFFSET_NEW_PROFILE_TEXTLEN := 10;
+const OFFSET_NEW_PROFILE := 12;
+
+exported function HandleCharProfileRequest( character, byref packet )
+  var size := packet.GetSize();
+  var mode := packet.GetInt8(OFFSET_MODE); //mode 0 for request, 1 for update
+  var id := packet.GetInt32(OFFSET_SERIAL_IN);  //serial of requested profile 
+                                                //character
+  var chr := SystemFindObjectBySerial(id);
+    if(!chr || !chr.isa(POLCLASS_MOBILE))
+      return; //don't bother working on nonexistant or items :P
+    endif 
+
+  if(mode == PROFILE_UPDATE_MODE)
+    //profile update
+    var cmdtype := packet.GetInt16(OFFSET_CMDTYPE); //only 1 command, update
+    
+    //number of unicode characters
+    var msglen := packet.GetInt16(OFFSET_NEW_PROFILE_TEXTLEN);
+    
+    //updated profile str
+    var uctext := packet.GetUnicodeString(OFFSET_NEW_PROFILE,msglen);
+    if(chr.serial == character.serial) //don't allow setting profile for others
+      SetObjProperty(chr,"profile_uctext",uctext); //set my profile
+    endif
+  elseif(mode == PROFILE_REQUEST_MODE)
+    //profile request, send profile back
+    var profile_uctext := GetObjProperty(chr,"profile_uctext");
+    if(profile_uctext == error)
+      profile_uctext := array; //empty array if no profile was set prev.
+    endif
+  
+    //create the response packet
+    var title_str := PROFILE_TITLE + chr.name; //goes at the top of scroll
+    
+    var outpkt := CreatePacket(PROFILE_MSGTYPE, MSGLEN_VARIABLE);
+                
+    outpkt.SetInt16(OFFSET_MSGLEN, outpkt.GetSize()); //set the size of the packet
+    outpkt.SetInt32(OFFSET_SERIAL_OUT, chr.serial); //set the serial of the character
+    outpkt.SetString(OFFSET_TITLE_STR,title_str,1); //set the title string+terminator
+  
+    //profile packet includes an uneditable string and an editable one.
+    //if this is "my" profile, put the profile text in the editable
+    //location. if this is another character's profile, put it in the
+    //uneditable location. This is why we reserved 2 bytes twice for the
+    //terminators. only one of the strings will be filled, the other will
+    //only include a 2-byte terminator.
+    var uneditable_profile_offset := OFFSET_TITLE_STR+len(title_str)+NULL_SIZE; //edit comes first
+    var editable_profile_offset;
+  
+    if(chr.serial != character.serial)
+      //not me, set the string at the uneditable offset
+      outpkt.SetUnicodeString(uneditable_profile_offset,profile_uctext,1);
+      //calculate the editable string offset
+      editable_profile_offset := uneditable_profile_offset +
+                                 (profile_uctext.size()*UCHAR_SIZE);
+      //set just a double terminator at the editable offset                  
+      outpkt.SetInt16(editable_profile_offset,0);
+    else
+      //it's my profile, no text at uneditable
+      outpkt.SetInt16(uneditable_profile_offset,0);
+      //editable offset past the 2 byte terminator
+      editable_profile_offset := uneditable_profile_offset + UNULL_SIZE;
+      //set the unicode text
+      outpkt.SetUnicodeString(editable_profile_offset,profile_uctext,1);
+    endif
+
+    //send the packet to the _requesting_ character, not the character
+    //whose profile this is.
+    outpkt.SendPacket(character);
+  else
+    SysLog("Unknown profile mode: " + mode);
+  endif
+ 
+  return 1;
+endfunction
+
+
+Using the Packets: SendFunction
+
+The SendFunction hook is for looking at or modifying a packet POL is sending
+before it is actually sent. You must be careful when using this function,
+especially making sure the packet's size (from CreatePacket, SetSize, or any of
+the Set data functions) is what you expect, as the packet's encoded length (for
+variable-length packets) will be set to this size. Also, you MUST NOT use the
+SendPacket or SendAreaPacket methods on the passed-in packet with SendFunction.
+Rather, edit the packet as you wish, and return 0. POL will send the packet as
+normal. You may create and send a different packet (NOT the same Packet ID, else
+the send functions will loop) from within this function, but note the sending
+order will be created packet, then hooked packet (if you return 0).
+
+The serial of the "source" object is often encoded into the packet. Extract the
+32-bit serial and use SystemFindObjectBySerial to get a reference to the object.
+
+Packets sent to all players in a certain area will have their SendFunction
+called multiple times. For example, when a player changes warmode, the update is
+sent to all the players around him. If you hook this packet with a SendFunction,
+it will be called for each player around the changing player.
+
+Example Implementation of Speech LOS Checking:
+
+Packet 0xAE
+{
+  Length variable
+  SendFunction speech_hooks:HandleUCOutgoing
+}
+
+use uo;
+
+program speech_hooks()
+  Print( "Hooking Outgoing Speech..." );
+  return 1;
+endprogram
+
+const OFFSET_SERIAL := 3;
+
+exported function HandleUCOutgoing( character, byref packet )
+  var serial := packet.GetInt32(OFFSET_SERIAL);
+  var source := SystemFindObjectBySerial(serial);
+  if(CheckLineOfSight(source, character))
+    return 0; //I didn't handle it, send this packet on to character
+  else
+    return 1; //I handled it, don't send the speech
+  endif
+endfunction
+
+
+
+Example of hooking subcommands:
+uopacket.cfg:
+Packet 0xBF
+{
+	Length variable
+	SubCommandOffset 3
+	ReceiveFunction command_bf:HandleBF  //not necessary, but you can do it
+}
+SubPacket 0xBF
+{
+	SubCommandID 0x5 //client screen size
+	ReceiveFunction command_bf:HandleSub5
+}
+SubPacket 0xBF
+{
+	SubCommandID 0x6 //party scroll commands
+	ReceiveFunction command_bf:HandlePartySystem
+}
+
+command_bf.src:
+
+use os;
+
+program command_bf()
+	Print( "Hooking Command 0xBF..." );
+	return 1;
+endprogram
+
+//the main HandleBF will catch any subcommand that are not hooked, but
+//since you should hook those seperately, it is a good idea to either
+//not define this, or simply return 0 to let POL handle it.
+exported function HandleBF( character, byref packet )
+	print(packet);
+	return 0;
+endfunction
+
+exported function HandleSub5( character, byref packet )
+	print("handled sub5");
+	return 1;
+endfunction
+
+const OFFSET_PARTY_CMD := 5;
+exported function HandlePartySystem( character, byref packet )
+	var party_cmd := packet.GetInt8(OFFSET_PARTY_CMD);
+	case(party_cmd)
+		//.....implementation
+	endcase
+	return 1;
+endfunction
+
+
+Things To Do:
+
+-packing a packet?
+-make uopacket.cfg and packet hook scripts unloadable
+-make sure negative numbers are handled correctly. What packet even expects
+negative number data?
