@@ -43,7 +43,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;E:\UOL\POL-CORE\STLPort5\stlport&quot;;.."
+				AdditionalIncludeDirectories="&quot;..\..\lib\STLport5\stlport&quot;;.."
 				PreprocessorDefinitions="WIN32,_DEBUG,_LIB,INC_PASSERT"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
@@ -118,7 +118,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="&quot;E:\UOL\POL-CORE\STLPort5\stlport&quot;;.."
+				AdditionalIncludeDirectories="&quot;..\..\lib\STLport5\stlport&quot;;.."
 				PreprocessorDefinitions="WIN32,NDEBUG,_LIB,INC_PASSERT"
 				StringPooling="true"
 				RuntimeLibrary="0"
