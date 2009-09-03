@@ -4,6 +4,7 @@
 	Version="9.00"
 	Name="support"
 	ProjectGUID="{D4F7092B-08EA-4CEF-94E8-3D1133CCA5B7}"
+	RootNamespace="support"
 	Keyword="MakeFileProj"
 	TargetFrameworkVersion="131072"
 	>
@@ -150,6 +151,10 @@
 				>
 			</File>
 		</Filter>
+		<File
+			RelativePath=".\pol.cfg"
+			>
+		</File>
 		<File
 			RelativePath="uoconvert.cfg"
 			>
