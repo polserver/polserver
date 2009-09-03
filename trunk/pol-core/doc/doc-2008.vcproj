@@ -4,6 +4,7 @@
 	Version="9.00"
 	Name="doc"
 	ProjectGUID="{701FAB6A-5BEA-49AA-8688-57F3637B2239}"
+	RootNamespace="doc"
 	Keyword="MakeFileProj"
 	TargetFrameworkVersion="131072"
 	>
@@ -61,80 +62,16 @@
 	<References>
 	</References>
 	<Files>
-		<Filter
-			Name="issues"
-			>
-			<File
-				RelativePath="issues\los.txt"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="proxy"
-			>
-			<File
-				RelativePath="proxy\UO_PRO_Saturday February 01 01_35_03 AM 2003.txt"
-				>
-			</File>
-			<File
-				RelativePath="proxy\UO_PRO_Saturday February 01 02_53_26 AM 2003.txt"
-				>
-			</File>
-		</Filter>
-		<File
-			RelativePath="bugs.txt"
-			>
-		</File>
-		<File
-			RelativePath="client-notes.txt"
-			>
-		</File>
-		<File
-			RelativePath="core-changes-old.txt"
-			>
-		</File>
 		<File
 			RelativePath=".\core-changes.txt"
 			>
 		</File>
 		<File
-			RelativePath="development-changes.txt"
+			RelativePath=".\packethooks.txt"
 			>
 		</File>
 		<File
-			RelativePath=".\gdb-debugging.txt"
-			>
-		</File>
-		<File
-			RelativePath="grouped-core-changes095.txt"
-			>
-		</File>
-		<File
-			RelativePath="loglines.txt"
-			>
-		</File>
-		<File
-			RelativePath=".\mapformat.txt"
-			>
-		</File>
-		<File
-			RelativePath=".\maps.txt"
-			>
-		</File>
-		<File
-			RelativePath="packethooks.txt"
-			>
-		</File>
-		<File
-			RelativePath="to-do.txt"
-			>
-		</File>
-		<File
-			RelativePath="unimplimented_packets.txt"
-			>
-		</File>
-		<File
-			RelativePath="upgrade-notes-095.txt"
+			RelativePath=".\uoconvert.txt"
 			>
 		</File>
 	</Files>

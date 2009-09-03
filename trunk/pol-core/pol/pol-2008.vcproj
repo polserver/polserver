@@ -1199,10 +1199,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\cryptengine.h"
-				>
-			</File>
-			<File
 				RelativePath=".\crypwrap.h"
 				>
 			</File>
@@ -1244,10 +1240,6 @@
 			</File>
 			<File
 				RelativePath=".\equipmnt.h"
-				>
-			</File>
-			<File
-				RelativePath=".\esignal.h"
 				>
 			</File>
 			<File
