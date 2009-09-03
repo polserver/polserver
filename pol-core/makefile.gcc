@@ -16,7 +16,7 @@ dist: gzipfile gzipfile-dynamic
 # for debugging:
 # CXX_OPTS=-ggdb
 
-POL_RELEASE=097
+POL_RELEASE=099
 
 ifdef USE_STLPORT
 LIB_STL=stlport
@@ -51,9 +51,8 @@ cpp_sources = \
 	pol/account.cpp pol/accounts.cpp pol/acscrobj.cpp pol/allocd.cpp \
 	pol/armor.cpp pol/attack.cpp \
 	pol/attribute.cpp pol/auxclient.cpp \
-	pol/bannedips.cpp pol/boat.cpp pol/boatcomp.cpp pol/boatemod.cpp \
-	pol/bowsalut.cpp \
-	pol/binaryfilescrobj.cpp \
+	pol/bannedips.cpp pol/binaryfilescrobj.cpp pol/boat.cpp pol/boatcomp.cpp \
+	pol/boatemod.cpp pol/bowsalut.cpp \
 	pol/cfgemod.cpp pol/cfgrepos.cpp pol/cgdata.cpp pol/charactr.cpp \
 	pol/checkpnt.cpp \
 	pol/chrcast.cpp pol/chrituse.cpp pol/chrskuse.cpp pol/client.cpp \
@@ -89,7 +88,7 @@ cpp_sources = \
 	pol/musicrgn.cpp \
 	pol/npc.cpp pol/npctmpl.cpp pol/npctemplates.cpp \
 	pol/objecthash.cpp \
-	pol/packethooks.cpp pol/packetscrobj.cpp party.cpp \
+	pol/packethooks.cpp pol/packetscrobj.cpp pol/party.cpp \
 	pol/pol.cpp pol/polcfg.cpp pol/polclock.cpp pol/poldbg.cpp \
 	pol/polfile2.cpp pol/polsem.cpp pol/polsig.cpp pol/polstats.cpp \
 	pol/polsystememod.cpp \
@@ -316,8 +315,8 @@ gzipfile: bin/pol bin/ecompile bin/runecl bin/uoconvert #bin/poltool bin/uotool
 	cp doc/packethooks.txt dist
 	cp doc/packets.zip dist
 	cp support/uoconvert.cfg dist
-	(cd dist ; tar -cvf pol-$(POL_BUILDNAME)bin-$(POL_RELEASE)-`date +%Y-%m-%d`-$(POL_BUILDTAG).tar pol uoconvert core-changes.txt uoconvert.txt uoconvert.cfg packethooks.txt packets.zip scripts ; gzip -9 pol-$(POL_BUILDNAME)bin-$(POL_RELEASE)-`date +%Y-%m-%d`-$(POL_BUILDTAG).tar )
-	rm -f dist/core-changes.txt dist/pol dist/uoconvert
+	(cd dist ; tar -cvf pol-$(POL_BUILDNAME)bin-$(POL_RELEASE)-`date +%Y-%m-%d`-$(POL_BUILDTAG).tar pol uoconvert core-changes.txt core-changes-old.txt uoconvert.txt uoconvert.cfg packethooks.txt packets.zip scripts ; gzip -9 pol-$(POL_BUILDNAME)bin-$(POL_RELEASE)-`date +%Y-%m-%d`-$(POL_BUILDTAG).tar )
+	rm -f dist/core-changes.txt dist/core-changes-old.txt dist/pol dist/uoconvert
 	rm -f dist/packethooks.txt
 	rm -f dist/packets.zip
 	rm -f dist/uoconvert.cfg
@@ -337,7 +336,7 @@ gzipfile-dynamic: bin/pol-dynamic bin/ecompile-dynamic bin/runecl-dynamic bin/uo
 	cp doc/packethooks.txt dist
 	cp doc/packets.zip dist
 	cp support/uoconvert.cfg dist
-	(cd dist ; tar -cvf pol-$(POL_BUILDNAME)bin-$(POL_RELEASE)-`date +%Y-%m-%d`-$(POL_BUILDTAG)-dynamic.tar pol uoconvert core-changes.txt uoconvert.txt uoconvert.cfg packethooks.txt packets.zip scripts | gzip -9 pol-$(POL_BUILDNAME)bin-$(POL_RELEASE)-`date +%Y-%m-%d`-$(POL_BUILDTAG)-dynamic.tar )
+	(cd dist ; tar -cvf pol-$(POL_BUILDNAME)bin-$(POL_RELEASE)-`date +%Y-%m-%d`-$(POL_BUILDTAG)-dynamic.tar pol uoconvert core-changes.txt core-changes-old.txt uoconvert.txt uoconvert.cfg packethooks.txt packets.zip scripts | gzip -9 pol-$(POL_BUILDNAME)bin-$(POL_RELEASE)-`date +%Y-%m-%d`-$(POL_BUILDTAG)-dynamic.tar )
 	rm -f dist/core-changes.txt dist/pol dist/uoconvert
 	rm -f dist/packethooks.txt
 	rm -f dist/packets.zip
