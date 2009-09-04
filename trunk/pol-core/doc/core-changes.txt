@@ -1,4 +1,7 @@
 -- POL099 --
+09-03-2009 MuadDib:
+   Changed: CoreHitSounds, ScriptedAttackChecks, ResetSwingOnTurn, SendSwingPacket all moved from SSOPT to Combat CFG.
+   
 08-19-2009 Turley:
     Added:  r/o member character.uo_expansion_client client sends this flag at packet 0x5D charselect and 0x00 createchar
     Note:   values are:
