@@ -203,60 +203,50 @@
 	<References>
 	</References>
 	<Files>
-		<Filter
-			Name="Source Files"
-			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
+		<File
+			RelativePath="..\pol\multi\multidef.cpp"
 			>
-			<File
-				RelativePath="..\pol\multi\multidef.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\pol\polfile1.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\pol\uofile00.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\pol\uofile01.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\pol\uofile02.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\uofile04.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\uofile05.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\pol\uofile06.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\pol\uofile07.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\pol\uofile08.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\uotool.cpp"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="Header Files"
-			Filter="h;hpp;hxx;hm;inl"
+		</File>
+		<File
+			RelativePath="..\pol\polfile1.cpp"
 			>
-		</Filter>
+		</File>
+		<File
+			RelativePath="..\pol\uofile00.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\pol\uofile01.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\pol\uofile02.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\uofile04.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\uofile05.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\pol\uofile06.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\pol\uofile07.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\pol\uofile08.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\uotool.cpp"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

@@ -203,52 +203,6 @@
 	</References>
 	<Files>
 		<Filter
-			Name="Source Files"
-			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
-			>
-			<File
-				RelativePath="..\pol\polfile1.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\uoconvert.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\uoconvert.rc"
-				>
-			</File>
-			<File
-				RelativePath="..\pol\uofile00.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\pol\uofile01.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\pol\uofile02.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\pol\uofile07.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\pol\uofile08.cpp"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="Header Files"
-			Filter="h;hpp;hxx;hm;inl"
-			>
-			<File
-				RelativePath=".\resource.h"
-				>
-			</File>
-		</Filter>
-		<Filter
 			Name="Resource Files"
 			Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 			>
@@ -256,7 +210,43 @@
 				RelativePath=".\uoconvert.ico"
 				>
 			</File>
+			<File
+				RelativePath=".\uoconvert.rc"
+				>
+			</File>
 		</Filter>
+		<File
+			RelativePath="..\pol\polfile1.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\resource.h"
+			>
+		</File>
+		<File
+			RelativePath=".\uoconvert.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\pol\uofile00.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\pol\uofile01.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\pol\uofile02.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\pol\uofile07.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\pol\uofile08.cpp"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>
