@@ -5,6 +5,8 @@ History
 2008/12/17 MuadDub:   Added item.tile_layer - returns layer entry from tiledata/tiles.cfg
 2009/08/06 MuadDib:   Added gotten_by code for items.
 2009/08/25 Shinigami: STLport-5.2.1 fix: new_ar not used
+2009/09/03 MuadDib:	  Changes for account related source file relocation
+                      Changes for multi related source file relocation
 
 Notes
 =======
@@ -48,7 +50,7 @@ Notes
 #include "clib/endian.h"
 
 #include "armor.h"
-#include "boat.h"
+#include "multi/boat.h"
 #include "door.h"
 #include "dye.h"
 #include "objtype.h"

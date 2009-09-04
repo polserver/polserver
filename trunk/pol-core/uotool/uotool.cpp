@@ -1,13 +1,14 @@
 /*
 History
 =======
+2009/09/03 MuadDib:   Relocation of multi related cpp/h
 
 Notes
 =======
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 #ifdef _WIN32
 #pragma warning( disable: 4786 )
 #endif
@@ -24,22 +25,22 @@ using namespace std;
 #include <stdio.h>
 #include <string.h>
 
-#include "bscript/config.h"
+#include "../bscript/config.h"
 
-#include "clib/cfgelem.h"
-#include "clib/cfgfile.h"
-#include "clib/fdump.h"
-#include "clib/strutil.h"
-#include "clib/dirlist.h"
+#include "../clib/cfgelem.h"
+#include "../clib/cfgfile.h"
+#include "../clib/fdump.h"
+#include "../clib/strutil.h"
+#include "../clib/dirlist.h"
 
-#include "pol/crypwrap.h"
-#include "pol/ustruct.h"
-#include "pol/polfile.h"
-#include "pol/uofile.h"
-#include "pol/uofilei.h"
-#include "pol/udatfile.h"
-#include "pol/polcfg.h"
-#include "pol/multidef.h"
+#include "../pol/crypwrap.h"
+#include "../pol/ustruct.h"
+#include "../pol/polfile.h"
+#include "../pol/uofile.h"
+#include "../pol/uofilei.h"
+#include "../pol/udatfile.h"
+#include "../pol/polcfg.h"
+#include "../pol/multi/multidef.h"
 
 unsigned long mapcache_misses;
 unsigned long mapcache_hits;

@@ -11,7 +11,7 @@ Notes
 #ifndef ACSCROBJ_H
 #define ACSCROBJ_H
 
-#include "reftypes.h"
+#include "../reftypes.h"
 
 class AccountPtrHolder
 {

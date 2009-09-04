@@ -4,6 +4,7 @@ History
 2005/05/24 Shinigami: added delete_account
 2005/05/25 Shinigami: added duplicate_account
 2007/06/17 Shinigami: added config.world_data_path
+2009/09/03 MuadDib:   Relocation of account related cpp/h
 
 Notes
 =======
@@ -26,10 +27,10 @@ Notes
 
 #include "account.h"
 #include "accounts.h"
-#include "polcfg.h"
-#include "polsig.h"
-#include "schedule.h"
-#include "uvars.h"
+#include "../polcfg.h"
+#include "../polsig.h"
+#include "../schedule.h"
+#include "../uvars.h"
 
 struct stat accounts_txt_stat;
 bool accounts_txt_dirty = false;

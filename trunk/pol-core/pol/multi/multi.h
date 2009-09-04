@@ -2,6 +2,7 @@
 History
 =======
 2005/06/06 Shinigami: added readobjects template - to get a list of statics
+2009/09/03 MuadDib:   Relocation of multi related cpp/h
 
 Notes
 =======
@@ -22,7 +23,7 @@ Notes
 // (relative signed x/y, -128 to +127
 // unsigned long is z << 16 | objtype
 
-#include "item.h"
+#include "../item.h"
 
 class MultiDef;
 class BObjectImp;

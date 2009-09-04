@@ -208,7 +208,7 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
-				RelativePath="..\pol\multidef.cpp"
+				RelativePath="..\pol\multi\multidef.cpp"
 				>
 			</File>
 			<File

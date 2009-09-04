@@ -18,6 +18,8 @@ History
 2009/08/09 MuadDib:   UpdateCharacterWeight() Rewritten to send stat msg intead of refreshar().
                       Refactor of Packet 0x25 for naming convention
 2009/08/14 Turley:    PKTOUT_B9_V2 removed unk u16 and changed flag to u32
+2009/09/03 MuadDib:   Relocation of account related cpp/h
+                      Relocation of multi related cpp/h
 
 Notes
 =======
@@ -39,7 +41,7 @@ Notes
 #include "plib/mapcell.h"
 #include "plib/realm.h"
 
-#include "account.h"
+#include "accounts/account.h"
 #include "charactr.h"
 #include "client.h"
 #include "equipmnt.h"
@@ -59,7 +61,7 @@ Notes
 #include "tooltips.h"
 #include "uconst.h"
 #include "ufunc.h"
-#include "multi.h"
+#include "multi/multi.h"
 #include "uobject.h"
 #include "uoclient.h"
 #include "uofile.h"
@@ -2055,7 +2057,7 @@ void move_boat_item( Item* item, unsigned short newx, unsigned short newy, signe
 
 }
 
-#include "multi.h"
+#include "multi/multi.h"
 void send_multi( Client* client, UMulti* multi )
 {
     static PKTOUT_1A_C msg;

@@ -3,6 +3,8 @@ History
 =======
 2005/01/23 Shinigami: for_all_mobiles, write_items & write_multis - Tokuno MapDimension doesn't fit blocks of 64x64 (WGRID_SIZE)
 2007/06/17 Shinigami: added config.world_data_path
+2009/09/03 MuadDib:   Relocation of account related cpp/h
+                      Relocation of multi related cpp/h
 
 Notes
 =======
@@ -31,7 +33,7 @@ Notes
 #include "plib/polver.h"
 #include "plib/realm.h"
 
-#include "account.h"
+#include "accounts/account.h"
 #include "charactr.h"
 #include "fnsearch.h"
 #include "gflag.h"
@@ -53,7 +55,7 @@ Notes
 #include "uvars.h"
 #include "ufunc.h"
 #include "uworld.h"
-#include "multi.h"
+#include "multi/multi.h"
 
 ////HASH
 #include "objecthash.h"

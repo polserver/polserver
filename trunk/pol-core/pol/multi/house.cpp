@@ -3,6 +3,7 @@ History
 =======
 2005/06/06 Shinigami: added readobjects - to get a list of statics
 2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
+2009/09/03 MuadDib:   Relocation of multi related cpp/h
 
 Notes
 =======
@@ -14,41 +15,41 @@ Notes
 
 #include <assert.h>
 
-#include "bscript/berror.h"
-#include "bscript/executor.h"
-#include "bscript/objmembers.h"
-#include "bscript/objmethods.h"
+#include "../../bscript/berror.h"
+#include "../../bscript/executor.h"
+#include "../../bscript/objmembers.h"
+#include "../../bscript/objmethods.h"
 
-#include "clib/cfgelem.h"
-#include "clib/endian.h"
-#include "clib/logfile.h"
-#include "clib/passert.h"
-#include "clib/stlutil.h"
-#include "clib/strutil.h"
+#include "../../clib/cfgelem.h"
+#include "../../clib/endian.h"
+#include "../../clib/logfile.h"
+#include "../../clib/passert.h"
+#include "../../clib/stlutil.h"
+#include "../../clib/strutil.h"
 
-#include "plib/mapcell.h"
-#include "plib/realm.h"
-#include "plib/mapshape.h"
+#include "../../plib/mapcell.h"
+#include "../../plib/realm.h"
+#include "../../plib/mapshape.h"
 
-#include "cgdata.h"
-#include "core.h"
-#include "fnsearch.h"
-#include "itemdesc.h"
+#include "../cgdata.h"
+#include "../core.h"
+#include "../fnsearch.h"
+#include "../itemdesc.h"
 #include "multidef.h"
-#include "objtype.h"
-#include "polcfg.h"
-#include "realms.h"
-#include "tiles.h"
-#include "ufunc.h"
-#include "uofile.h"
-#include "uoscrobj.h"
-#include "ustruct.h"
-#include "uvars.h"
-#include "uworld.h"
+#include "../objtype.h"
+#include "../polcfg.h"
+#include "../realms.h"
+#include "../tiles.h"
+#include "../ufunc.h"
+#include "../uofile.h"
+#include "../uoscrobj.h"
+#include "../ustruct.h"
+#include "../uvars.h"
+#include "../uworld.h"
 
 #include "house.h"
 
-#include "objecthash.h"
+#include "../objecthash.h"
 
 typedef list<Item*>         ItemList;
 typedef list<Character*>    MobileList;

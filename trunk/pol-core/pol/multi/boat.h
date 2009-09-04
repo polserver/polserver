@@ -2,6 +2,8 @@
 History
 =======
 2005/04/02 Shinigami: move_offline_mobiles - added realm param
+2009/09/03 MuadDib:	  Changes for account related source file relocation
+                      Changes for multi related source file relocation
 
 Notes
 =======
@@ -13,8 +15,8 @@ Notes
 #define BOAT_H
 
 #include "multi.h"
-#include "poltype.h"
-#include "reftypes.h"
+#include "../poltype.h"
+#include "../reftypes.h"
 
 struct BoatShape;
 class MultiDef;

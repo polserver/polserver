@@ -2,7 +2,8 @@
 History
 =======
 2008/12/17 MuadDub:   Added item.tile_layer - returns layer entry from tiledata/tiles.cfg
-
+2009/09/03 MuadDib:	  Changes for account related source file relocation
+                      Changes for multi related source file relocation
 
 Notes
 =======
@@ -11,7 +12,7 @@ Notes
 
 #include "clib/stl_inc.h"
 #ifdef _MSC_VER
-#pragma warning( disable: 4786 )
+#	pragma warning( disable: 4786 )
 #endif
 
 #include "clib/cfgfile.h"
@@ -21,14 +22,14 @@ Notes
 
 #include "armor.h"
 #include "armrtmpl.h"
-#include "boat.h"
-#include "boatcomp.h"
+#include "multi/boat.h"
+#include "multi/boatcomp.h"
 #include "charactr.h"
 #include "client.h"
 #include "containr.h"
 #include "door.h"
 #include "dye.h"
-#include "house.h"
+#include "multi/house.h"
 #include "item.h"
 #include "itemdesc.h"
 #include "lockable.h"

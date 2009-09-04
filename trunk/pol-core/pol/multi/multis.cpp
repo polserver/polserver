@@ -2,35 +2,35 @@
 History
 =======
 2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
+2009/09/03 MuadDib:   Relocation of multi related cpp/h
 
 Notes
 =======
 
 */
 
-#include "clib/stl_inc.h"
+#include "../../clib/stl_inc.h"
+
 #ifdef _MSC_VER
 #pragma warning( disable: 4786 )
 #endif
 
-#include "clib/passert.h"
-#include "clib/strutil.h"
+#include "../../clib/passert.h"
+#include "../../clib/strutil.h"
 
-#include "bscript/bstruct.h"
-#include "bscript/objmembers.h"
+#include "../../bscript/bstruct.h"
+#include "../../bscript/objmembers.h"
 
-#include "itemdesc.h"
-#include "objtype.h"
+#include "../itemdesc.h"
+#include "../objtype.h"
 
-#include "udatfile.h"
-#include "uobjcnt.h"
-#include "uobject.h"
-#include "uofilei.h"
-#include "uofile.h"
+#include "../udatfile.h"
+#include "../uobjcnt.h"
+#include "../uobject.h"
+#include "../uofilei.h"
+#include "../uofile.h"
 #include "multi.h"
-#include "ustruct.h"
-//#include "uworld.h"
-//#include "uobject.h"
+#include "../ustruct.h"
 
 UMulti::UMulti( const ItemDesc& itemdesc )
     : Item(itemdesc, CLASS_MULTI)

@@ -1,6 +1,7 @@
 /*
 History
 =======
+2009/09/03 MuadDib:   Relocation of multi related cpp/h
 
 
 Notes
@@ -23,7 +24,7 @@ Notes
 #include "udatfile.h"
 #include "ustruct.h"
 #include "uvars.h"
-#include "multi.h"
+#include "multi/multi.h"
 #include "uofile.h"
 #include "uofilei.h"
 #include "uworld.h"

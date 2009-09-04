@@ -25,7 +25,7 @@ Notes
 
 #include "bscript/berror.h"
 
-#include "account.h"
+#include "accounts/account.h"
 #include "cgdata.h"
 #include "charactr.h"
 #include "client.h"

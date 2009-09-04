@@ -1,7 +1,8 @@
 /*
 History
 =======
-2009/09/01 Turley:   VS2005/2008 Support moved inline MultiDef::getkey to .h
+2009/09/01 Turley:    VS2005/2008 Support moved inline MultiDef::getkey to .h
+2009/09/03 MuadDib:   Relocation of multi related cpp/h
 
 Notes
 =======
@@ -25,8 +26,9 @@ Notes
 
 #include <stdio.h>
 
-#include "udatfile.h"
-#include "clib/rawtypes.h"
+#include "../udatfile.h"
+#include "../../clib/rawtypes.h"
+
 class ConfigElem;
 class MapShapeList;
 

@@ -1,6 +1,7 @@
 /*
 History
 =======
+2009/09/03 MuadDib:   Relocation of multi related cpp/h
 
 Notes
 =======
@@ -18,7 +19,7 @@ Notes
 #include "itemdesc.h"
 #include "polsem.h"
 #include "polsystememod.h"
-#include "multi.h"
+#include "multi/multi.h"
 #include "realms.h"
 #include "ufunc.h"
 #include "uworld.h"

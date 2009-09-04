@@ -1,6 +1,7 @@
 /*
 History
 =======
+2009/09/03 MuadDib:   Relocation of multi related cpp/h
 
 Notes
 =======
@@ -18,7 +19,7 @@ Notes
 
 #include "cgdata.h"
 #include "fnsearch.h"
-#include "house.h"
+#include "multi/house.h"
 
 ClientGameData::ClientGameData() : 
     vendor(NULL),

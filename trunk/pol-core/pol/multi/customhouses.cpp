@@ -3,33 +3,35 @@ History
 =======
 2005/08/19 Shinigami: ZLib functionality linked directly into Core
 2005/09/26 Shinigami: wrong styled break condition in ::Compress
+2009/09/03 MuadDib:   Relocation of multi related cpp/h
+
 
 Notes
 =======
 
 */
 
-#include "clib/stl_inc.h"
-#include "clib/cfgelem.h"
-#include "clib/endian.h"
-#include "clib/stlutil.h"
+#include "../../clib/stl_inc.h"
+#include "../../clib/cfgelem.h"
+#include "../../clib/endian.h"
+#include "../../clib/stlutil.h"
 
-#include "../../lib/zlib/zlib.h"
+#include "../../../lib/zlib/zlib.h"
 
-#include "charactr.h"
-#include "cgdata.h"
-#include "client.h"
-#include "core.h"
-#include "uvars.h"
+#include "../charactr.h"
+#include "../cgdata.h"
+#include "../client.h"
+#include "../core.h"
+#include "../uvars.h"
 #include "house.h"
 #include "customhouses.h"
-#include "fnsearch.h"
+#include "../fnsearch.h"
 #include "multi.h"
 #include "multidef.h"
-#include "pktboth.h"
-#include "ufunc.h"
-#include "ustruct.h"
-#include "uworld.h"
+#include "../pktboth.h"
+#include "../ufunc.h"
+#include "../ustruct.h"
+#include "../uworld.h"
 
 //bytes per tile - currently only mode 0 works, meaning we send u16 graphic, s8 x,y,z offsets
 #define BYTES_PER_TILE 5

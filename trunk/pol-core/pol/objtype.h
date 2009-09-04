@@ -2,7 +2,9 @@
 History
 =======
 2006/05/16 Shinigami: UOBJ_*MALE_GHOST renamed to UOBJ_HUMAN_*MALE_GHOST
-added UOBJ_ELF_* constants
+                      added UOBJ_ELF_* constants
+2009/09/03 MuadDib:	  Changes for account related source file relocation
+					  Changes for multi related source file relocation
 
 
 Notes

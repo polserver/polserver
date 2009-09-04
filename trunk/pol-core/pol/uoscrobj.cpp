@@ -19,6 +19,8 @@ History
 2009/07/20 MuadDib:   ReAdded on_facing_change() to MBR_FACING: for items.
 2009/08/06 MuadDib:   Added gotten_by code for items.
 2009/08/31 MuadDib:   Changed layer check on graphic change, excluding mount layer entirely.
+2009/09/03 MuadDib:   Relocation of account related cpp/h
+                      Relocation of multi related cpp/h
 
 Notes
 =======
@@ -47,12 +49,12 @@ Notes
 
 #include "plib/realm.h"
 
-#include "account.h"
-#include "acscrobj.h"
+#include "accounts/account.h"
+#include "accounts/acscrobj.h"
 #include "armor.h"
 #include "armrtmpl.h"
 #include "attribute.h"
-#include "boatcomp.h"
+#include "multi/boatcomp.h"
 #include "charactr.h"
 #include "client.h"
 #include "cmdlevel.h"
@@ -60,7 +62,7 @@ Notes
 #include "exscrobj.h"
 #include "fnsearch.h"
 #include "guilds.h"
-#include "house.h"
+#include "multi/house.h"
 #include "item.h"
 #include "umap.h"
 #include "npc.h"

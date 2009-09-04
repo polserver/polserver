@@ -4,6 +4,7 @@ History
 2006/06/15 Austin:    Removed .set .priv and .priv
 2006/05/30 Shinigami: fixed a smaller mistype in textcmd_startlog()
                       set correct time stamp in textcmd_startlog() and textcmd_stoplog()
+					  2009/09/03 MuadDib:   Relocation of account related cpp/h
 
 Notes
 =======
@@ -34,7 +35,7 @@ Notes
 
 #include "plib/realm.h"
 
-#include "account.h"
+#include "accounts/account.h"
 #include "action.h"
 #include "allocd.h"
 #include "armor.h"

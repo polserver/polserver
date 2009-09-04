@@ -210,18 +210,6 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
-				RelativePath=".\account.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\accounts.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\acscrobj.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\allocd.cpp"
 				>
 			</File>
@@ -251,18 +239,6 @@
 			</File>
 			<File
 				RelativePath=".\binaryfilescrobj.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\boat.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\boatcomp.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\boatemod.cpp"
 				>
 			</File>
 			<File
@@ -322,6 +298,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\combat.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\console.cpp"
 				>
 			</File>
@@ -347,14 +327,6 @@
 			</File>
 			<File
 				RelativePath=".\ctable.cpp"
-				>
-			</File>
-			<File
-				RelativePath="customhousehelp.cpp"
-				>
-			</File>
-			<File
-				RelativePath="customhouses.cpp"
 				>
 			</File>
 			<File
@@ -439,10 +411,6 @@
 			</File>
 			<File
 				RelativePath=".\help.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\house.cpp"
 				>
 			</File>
 			<File
@@ -567,26 +535,6 @@
 			</File>
 			<File
 				RelativePath=".\msgfiltr.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\multicfg.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\multicr.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\multidef.cpp"
-				>
-			</File>
-			<File
-				RelativePath="multidef2.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\multis.cpp"
 				>
 			</File>
 			<File
@@ -1087,18 +1035,6 @@
 			Filter="h;hpp;hxx;hm;inl"
 			>
 			<File
-				RelativePath=".\account.h"
-				>
-			</File>
-			<File
-				RelativePath=".\accounts.h"
-				>
-			</File>
-			<File
-				RelativePath=".\acscrobj.h"
-				>
-			</File>
-			<File
 				RelativePath=".\action.h"
 				>
 			</File>
@@ -1132,18 +1068,6 @@
 			</File>
 			<File
 				RelativePath=".\binaryfilescrobj.h"
-				>
-			</File>
-			<File
-				RelativePath=".\boat.h"
-				>
-			</File>
-			<File
-				RelativePath=".\boatcomp.h"
-				>
-			</File>
-			<File
-				RelativePath=".\boatemod.h"
 				>
 			</File>
 			<File
@@ -1187,6 +1111,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\combat.h"
+				>
+			</File>
+			<File
 				RelativePath=".\config.h"
 				>
 			</File>
@@ -1204,10 +1132,6 @@
 			</File>
 			<File
 				RelativePath=".\ctable.h"
-				>
-			</File>
-			<File
-				RelativePath="customhouses.h"
 				>
 			</File>
 			<File
@@ -1291,10 +1215,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\house.h"
-				>
-			</File>
-			<File
 				RelativePath=".\iostats.h"
 				>
 			</File>
@@ -1364,14 +1284,6 @@
 			</File>
 			<File
 				RelativePath=".\msghandl.h"
-				>
-			</File>
-			<File
-				RelativePath=".\multi.h"
-				>
-			</File>
-			<File
-				RelativePath=".\multidef.h"
 				>
 			</File>
 			<File
@@ -1982,6 +1894,122 @@
 				RelativePath="poltray.ico"
 				>
 			</File>
+		</Filter>
+		<Filter
+			Name="accounts"
+			>
+			<File
+				RelativePath=".\accounts\account.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\accounts\account.h"
+				>
+			</File>
+			<File
+				RelativePath=".\accounts\accounts.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\accounts\accounts.h"
+				>
+			</File>
+			<File
+				RelativePath=".\accounts\acscrobj.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\accounts\acscrobj.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="mobile"
+			>
+		</Filter>
+		<Filter
+			Name="multi"
+			>
+			<File
+				RelativePath=".\multi\boat.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\multi\boat.h"
+				>
+			</File>
+			<File
+				RelativePath=".\multi\boatcomp.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\multi\boatcomp.h"
+				>
+			</File>
+			<File
+				RelativePath=".\multi\boatemod.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\multi\boatemod.h"
+				>
+			</File>
+			<File
+				RelativePath=".\multi\customhousehelp.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\multi\customhouses.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\multi\customhouses.h"
+				>
+			</File>
+			<File
+				RelativePath=".\multi\house.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\multi\house.h"
+				>
+			</File>
+			<File
+				RelativePath=".\multi\multi.h"
+				>
+			</File>
+			<File
+				RelativePath=".\multi\multicfg.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\multi\multicr.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\multi\multidef.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\multi\multidef.h"
+				>
+			</File>
+			<File
+				RelativePath=".\multi\multidef2.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\multi\multis.cpp"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="network"
+			>
+		</Filter>
+		<Filter
+			Name="region"
+			>
 		</Filter>
 	</Files>
 	<Globals>

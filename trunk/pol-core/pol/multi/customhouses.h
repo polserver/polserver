@@ -1,6 +1,7 @@
 /*
 History
 =======
+2009/09/03 MuadDib:   Relocation of multi related cpp/h
 
 
 Notes
@@ -11,12 +12,12 @@ Notes
 #ifndef _CUSTOMHOUSES_H
 #define _CUSTOMHOUSES_H
 
-#include "clib/stl_inc.h"
-#include "clib/cfgelem.h"
-#include "clib/rawtypes.h"
+#include "../../clib/stl_inc.h"
+#include "../../clib/cfgelem.h"
+#include "../../clib/rawtypes.h"
 
-#include "client.h"
-#include "pktboth.h"
+#include "../client.h"
+#include "../pktboth.h"
 
 #define CUSTOM_HOUSE_NUM_PLANES 5
 

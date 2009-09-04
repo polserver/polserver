@@ -38,6 +38,8 @@ History
                       Renamed secondary handler class to *_V2 for naming convention
 2009/08/14 Turley:    fixed definition of PKTIN_5D
 2009/08/19 Turley:    PKTIN_5D clientflag saved in client->UOExpansionFlagClient
+2009/09/03 MuadDib:   Relocation of account related cpp/h
+                      Changes for multi related source file relocation
 
 Notes
 =======
@@ -84,9 +86,9 @@ Notes
 #include "plib/pkg.h"
 #include "plib/realm.h"
 
-#include "account.h"
+#include "accounts/account.h"
 #include "allocd.h"
-#include "boat.h"
+#include "multi/boat.h"
 #include "cgdata.h"
 #include "charactr.h"
 #include "checkpnt.h"
@@ -107,7 +109,7 @@ Notes
 #include "msghandl.h"
 #include "msgfiltr.h"
 #include "musicrgn.h"
-#include "multi.h"
+#include "multi/multi.h"
 #include "objecthash.h"
 #include "objtype.h"
 #include "pktin.h"

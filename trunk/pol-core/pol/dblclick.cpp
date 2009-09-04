@@ -9,6 +9,7 @@ History
 2008/09/24 Luth:      If this is my paperdoll, tell me all about me otherwise tell less
 2008/09/xx Turley:    Paperdoll info decided with ssopt.cfg option (for luth's update)
 2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
+2009/09/03 MuadDib:   Relocation of multi related cpp/h
 
 Notes
 =======
@@ -37,7 +38,7 @@ Notes
 #include "scrstore.h"
 #include "ufunc.h"
 #include "uoscrobj.h"
-#include "multi.h"
+#include "multi/multi.h"
 #include "ssopt.h"
 
 void send_paperdoll( Client *client, Character *chr )

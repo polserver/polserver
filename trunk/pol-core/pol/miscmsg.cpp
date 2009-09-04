@@ -10,6 +10,8 @@ History
 2006/05/30 Shinigami: Changed params of character_race_changer_handler()
 2009/07/23 MuadDib:   updates for new Enum::Packet IDs
 2009/08/14 Turley:    Added PKTBI_BF::TYPE_SCREEN_SIZE & TYPE_CLOSED_STATUS_GUMP (anti spam)
+2009/09/03 MuadDib:   Relocation of account related cpp/h
+2009/09/03 MuadDib:   Relocation of multi related cpp/h
 
 Notes
 =======
@@ -31,14 +33,14 @@ Notes
 
 #include "clib/stlutil.h"
 
-#include "account.h"
+#include "accounts/account.h"
 #include "charactr.h"
 #include "client.h"
 #include "cmbtcfg.h"
-#include "customhouses.h"
+#include "multi/customhouses.h"
 #include "fnsearch.h"
 #include "msghandl.h"
-#include "multi.h"
+#include "multi/multi.h"
 #include "pktboth.h"
 #include "pktin.h"
 #include "spells.h"

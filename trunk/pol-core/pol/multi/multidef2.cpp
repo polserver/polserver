@@ -2,6 +2,7 @@
 History
 =======
 2006/12/05 Shinigami: removed dummy floor creation in ::readobjects and ::readshapes
+2009/09/03 MuadDib:   Relocation of multi related cpp/h
 
 Notes
 =======
@@ -16,25 +17,24 @@ Notes
 #include <algorithm>
 #include <iostream>
 
-#include "clib/cfgelem.h"
-#include "clib/cfgfile.h"
-#include "clib/passert.h"
-#include "clib/stlutil.h"
-#include "clib/strutil.h"
+#include "../../clib/cfgelem.h"
+#include "../../clib/cfgfile.h"
+#include "../../clib/passert.h"
+#include "../../clib/stlutil.h"
+#include "../../clib/strutil.h"
 
-#include "plib/mapcell.h"
-#include "plib/mapshape.h"
+#include "../../plib/mapcell.h"
+#include "../../plib/mapshape.h"
 
-#include "tiles.h"
-#include "itemdesc.h"
-#include "objtype.h"
-#include "udatfile.h"
-#include "uofilei.h"
-#include "uofile.h"
+#include "../tiles.h"
+#include "../itemdesc.h"
+#include "../objtype.h"
+#include "../udatfile.h"
+#include "../uofilei.h"
+#include "../uofile.h"
 #include "multidef.h"
-#include "ustruct.h"
-#include "uofilei.h"
-//#include "uobject.h"
+#include "../ustruct.h"
+#include "../uofilei.h"
 
 // 8/9/03 this seems to be used only by uofile03 -Syz
 bool MultiDef::readobjects( StaticList& vec, int x, int y, int zbase ) const

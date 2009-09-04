@@ -7,6 +7,8 @@ History
                       vitals too. Multidefs too. Oh well...
                       Moved objecthash.ClearCharacterAccountReferences() out of the realms' loop
                       Added clean_multidefs()
+2009/09/03 MuadDib:   Relocation of account related cpp/h
+                      Changes for multi related source file relocation
 
 Notes
 =======
@@ -24,9 +26,9 @@ Notes
 #include "clib/fileutil.h"
 #include "clib/stlutil.h"
 
-#include "account.h"
+#include "accounts/account.h"
 #include "attribute.h"
-#include "boat.h"
+#include "multi/boat.h"
 #include "charactr.h"
 #include "client.h"
 #include "cmdlevel.h"
@@ -35,7 +37,7 @@ Notes
 #include "item.h"
 #include "miscrgn.h"
 #include "musicrgn.h"
-#include "multi.h"
+#include "multi/multi.h"
 #include "objecthash.h"
 #include "packethooks.h"
 #include "polcfg.h"
@@ -51,7 +53,7 @@ Notes
 #include "watch.h"
 
 #include "vital.h"
-#include "multidef.h"
+#include "multi/multidef.h"
 
 
 Accounts accounts;

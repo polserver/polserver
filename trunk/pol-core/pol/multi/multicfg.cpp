@@ -1,20 +1,20 @@
 /*
 History
 =======
-
+2009/09/03 MuadDib:   Relocation of multi related cpp/h
 
 Notes
 =======
 
 */
 
-#include "clib/stl_inc.h"
-#include "clib/cfgfile.h"
-#include "clib/fileutil.h"
+#include "../../clib/stl_inc.h"
+#include "../../clib/cfgfile.h"
+#include "../../clib/fileutil.h"
 
-#include "plib/pkg.h"
+#include "../../plib/pkg.h"
 
-#include "cfgrepos.h"
+#include "../cfgrepos.h"
 
 void load_special_storedconfig( string cfgname )
 {

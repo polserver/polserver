@@ -3,6 +3,7 @@ History
 =======
 2005/01/23 Shinigami: check_item_integrity & check_character_integrity - fix for multi realm support (had used WGRID_X & WGRID_Y)
                       ClrCharacterWorldPosition - Tokuno MapDimension doesn't fit blocks of 64x64 (WGRID_SIZE)
+2009/09/03 MuadDib:   Relocation of multi related cpp/h
 
 Notes
 =======
@@ -19,7 +20,7 @@ Notes
 #include "plib/realm.h"
 #include "charactr.h"
 #include "item.h"
-#include "multi.h"
+#include "multi/multi.h"
 #include "realms.h"
 #include "uvars.h"
 #include "uworld.h"

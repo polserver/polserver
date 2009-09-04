@@ -8,6 +8,7 @@ History
                       no longer being used by ANYTHING in the core. So no longer will
                       require this file to run POL. Same with config/armrdesc.cfg
 2009/08/25 Shinigami: STLport-5.2.1 fix: init order changed of max_slots
+2009/09/03 MuadDib:   Relocation of multi related cpp/h
 
 Notes
 =======
@@ -41,7 +42,7 @@ Notes
 #include "clidata.h"
 #include "objtype.h"
 #include "itemdesc.h"
-#include "multidef.h"
+#include "multi/multidef.h"
 #include "plib/pkg.h"
 #include "resource.h"
 #include "ssopt.h"

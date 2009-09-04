@@ -5,6 +5,7 @@ History
                       added getstatics - to fill a list with statics
 2005/06/06 Shinigami: added readmultis derivative - to get a list of statics
 2005/09/03 Shinigami: fixed: Realm::walkheight ignored param doors_block
+2009/09/03 MuadDib:   Relocation of multi related cpp/h
 
 Notes
 =======
@@ -26,7 +27,7 @@ In standingheight checks there is a nasty bug. Items NOT locked down
 #include "pol/tiles.h"
 #include "pol/charactr.h"
 #include "pol/cgdata.h"
-#include "pol/customhouses.h"
+#include "pol/multi/customhouses.h"
 #include "pol/fnsearch.h"
 #include "pol/ssopt.h"
 #include "pol/uvars.h"
@@ -34,8 +35,8 @@ In standingheight checks there is a nasty bug. Items NOT locked down
 #include "pol/item.h"
 #include "pol/itemdesc.h"
 #include "pol/itemdesc.h"
-#include "pol/multi.h"
-#include "pol/house.h"
+#include "pol/multi/multi.h"
+#include "pol/multi/house.h"
 #include "pol/uconst.h"
 
 #define HULL_HEIGHT_BUFFER 2

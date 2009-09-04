@@ -42,6 +42,8 @@ History
 2009/08/08 MuadDib:   mf_SetRawSkill(),  mf_GetRawSkill(),  mf_ApplyRawDamage(), mf_GameStat(), 
                       mf_AwardRawPoints(), old replace_properties(), mf_GetSkill() cleaned out.
 2009/08/25 Shinigami: STLport-5.2.1 fix: additional parentheses in mf_ListMultisInBox
+2009/09/03 MuadDib:	  Changes for account related source file relocation
+                      Changes for multi related source file relocation
 
 Notes
 =======
@@ -86,7 +88,7 @@ Notes
 #include "plib/realm.h"
 
 #include "action.h"
-#include "boat.h"
+#include "multi/boat.h"
 #include "cfgemod.h"
 #include "cfgrepos.h"
 #include "cgdata.h"
@@ -100,7 +102,7 @@ Notes
 #include "listenpt.h"
 #include "los.h"
 #include "menu.h"
-#include "multidef.h"
+#include "multi/multidef.h"
 #include "npc.h"
 #include "objtype.h"
 #include "osemod.h"
@@ -4374,7 +4376,7 @@ BObjectImp* UOExecutorModule::mf_SendEvent()
         return new BError( "Invalid parameter" );
     }
 }
-#include "house.h"
+#include "multi/house.h"
 BObjectImp* UOExecutorModule::mf_DestroyMulti()
 {
     UMulti* multi;
