@@ -42,7 +42,7 @@ const char CustomHouseDesign::custom_house_z_xlate_table[CUSTOM_HOUSE_NUM_PLANES
 //translate z offset to floor number, use floor below passed-in z value, unless exact match
 char CustomHouseDesign::z_to_custom_house_table(char z)
 {
-    char i;
+    unsigned char i;
     for( i=0; i<CUSTOM_HOUSE_NUM_PLANES; i++)
         if( z == custom_house_z_xlate_table[i] )
             return i;
