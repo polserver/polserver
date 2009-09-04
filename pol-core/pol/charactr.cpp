@@ -22,7 +22,7 @@ History
 2009/02/25 MuadDib:   on_poison_changed() added UOKR Status bar update for poisoned. Booyah!
 2009/07/20 MuadDib:   Slot checks added to Character::Die()
 2009/07/25 MuadDib:   equippable() now checks if a twohanded is intrinsic or not also. Intrinsic gets ignored
-2009/07/31 Turley:    added check for ssopt::send_swing_packet & reset_swing_onturn
+2009/07/31 Turley:    added check for cmbtcfg::send_swing_packet & reset_swing_onturn
 2009/08/04 MuadDib:   calc_vital_stuff() now checks to see if a vital changed, before using tell_vital_changed()
 2009/08/06 MuadDib:   Addeed gotten_by code for items.
 2009/08/07 MuadDib:   Added new Corpse Layer code to character Die() to put equipped items on correct layer with
@@ -33,6 +33,7 @@ History
 2009/08/25 Shinigami: STLport-5.2.1 fix: corpseSlot not used
                       STLport-5.2.1 fix: init order changed of party_can_loot_, party_decline_timeout_ and skillcap_
 2009/08/28 Turley:    Crashfix for Character::on_poison_changed()
+2009/09/03 MuadDib:   Changed combat related ssopt stuff to combat_config.
 
 Notes
 =======
@@ -2618,7 +2619,7 @@ Character* Character::get_opponent() const
 bool Character::is_attackable( Character* who ) const
 {
 	passert( who != NULL );
-	if ( ssopt.scripted_attack_checks )
+	if ( combat_config.scripted_attack_checks )
 	{
 		dtrace(21) << "is_attackable(" << this << "," << who << "): will be handled by combat hook." << endl;
 		return true;
@@ -2930,7 +2931,7 @@ void Character::do_hit_failure_effects()
 
 void Character::do_imhit_effects()
 {
-	if ( ssopt.core_hit_sounds )
+	if ( combat_config.core_hit_sounds )
 	{
 		int sfx = 0;
 		if ( this->isa(UObject::CLASS_NPC) )
@@ -3106,7 +3107,7 @@ void Character::check_attack_after_move()
 		if (ready_to_swing)				 // and I can swing now,
 		{								   // do so.
 			FUNCTION_CHECKPOINT( check_attack_after_move, 4 );
-			if (ssopt.send_swing_packet && client != NULL)
+			if (combat_config.send_swing_packet && client != NULL)
 				send_fight_occuring( client, opponent );
 			attack( opponent );
 			FUNCTION_CHECKPOINT( check_attack_after_move, 5 );
@@ -3392,7 +3393,7 @@ bool Character::face( UFACING i_facing, long flags )
 	{
 		setfacing(static_cast<u8>(i_facing));
 
-		if (ssopt.reset_swing_onturn && !cached_settings.firewhilemoving && weapon->is_projectile())
+		if (combat_config.reset_swing_onturn && !cached_settings.firewhilemoving && weapon->is_projectile())
 			reset_swing_timer();
 		if (hidden() && (ssopt.hidden_turns_count))
 		{

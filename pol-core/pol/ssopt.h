@@ -8,7 +8,7 @@ History
 2005/12/05 MuadDib:   ServSpecOpt InvulTage using 0, 1, 2 for method of invul showing.
 2009/07/31 Turley:    ServSpecOpt ResetSwingOnTurn=true/false Should SwingTimer be reset with projectile weapon on facing change
                       ServSpecOpt SendSwingPacket=true/false Should packet 0x2F be send on swing.
-
+2009/09/03 MuadDib:   Moved combat related settings to Combat Config.
 
 Notes
 =======
@@ -40,15 +40,11 @@ struct ServSpecOpt {
 	unsigned short item_color_mask;
 	unsigned char default_max_slots;
     bool use_win_lfh;
-	bool core_hit_sounds;
-	bool scripted_attack_checks;
 	bool privacy_paperdoll;
 	bool force_new_objcache_packets;
 	bool allow_moving_trade;
 	bool core_handled_locks;
 	bool use_slot_index;
-	bool reset_swing_onturn;
-	bool send_swing_packet;
 	
 	bool use_edit_server;
 

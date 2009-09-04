@@ -1,8 +1,9 @@
 /*
 History
 =======
-2005/23/11 MuadDib: Added warmode_wait timer for changing war mode.
-                    Delay default is 1.
+2005/23/11 MuadDib:   Added warmode_wait timer for changing war mode.
+                      Delay default is 1.
+2009/09/03 MuadDib:   Moved combat related settings to Combat Config from SSOPT
 
 Notes
 =======
@@ -38,4 +39,9 @@ void read_combat_config()
 	combat_config.warmode_inhibits_regen = elem.remove_bool( "WarmodeInhibitsRegen", false );
 	combat_config.attack_self = elem.remove_bool( "SingleCombat", false );
 	combat_config.warmode_delay = elem.remove_ulong( "WarModeDelay", 1 );
+	combat_config.core_hit_sounds = elem.remove_bool("CoreHitSounds", false);
+	combat_config.scripted_attack_checks = elem.remove_bool("ScriptedAttackChecks", false);
+	combat_config.reset_swing_onturn = elem.remove_bool("ResetSwingOnTurn",false);
+	combat_config.send_swing_packet = elem.remove_bool("SendSwingPacket",true);
+
 }

@@ -8,6 +8,7 @@ History
 2005/12/05 MuadDib:   ServSpecOpt InvulTage using 0, 1, 2 for method of invul showing.
 2009/07/31 Turley:    ServSpecOpt ResetSwingOnTurn=true/false Should SwingTimer be reset with projectile weapon on facing change
                       ServSpecOpt SendSwingPacket=true/false Should packet 0x2F be send on swing.
+					  2009/09/03 MuadDib:   Moved combat related settings to Combat Config.
 
 Notes
 =======
@@ -59,8 +60,6 @@ void read_servspecopt()
 	ssopt.starting_gold = elem.remove_ushort("StartingGold", 100);
 	ssopt.item_color_mask = elem.remove_ushort("ItemColorMask", 0xFFF);
 	ssopt.use_win_lfh = elem.remove_bool( "UseWinLFH", false );
-	ssopt.core_hit_sounds = elem.remove_bool("CoreHitSounds", false);
-	ssopt.scripted_attack_checks = elem.remove_bool("ScriptedAttackChecks", false);
 	ssopt.privacy_paperdoll = elem.remove_bool("PrivacyPaperdoll",false);
 	ssopt.force_new_objcache_packets = elem.remove_bool("ForceNewObjCachePackets",false);
 	ssopt.allow_moving_trade = elem.remove_bool("AllowMovingTrade",false);
@@ -69,8 +68,6 @@ void read_servspecopt()
 	ssopt.default_max_slots = static_cast<unsigned char>(elem.remove_ushort("MaxContainerSlots", 125));
 	ssopt.use_slot_index = elem.remove_bool("UseContainerSlots",false);
 	ssopt.use_edit_server = elem.remove_bool("EditServer",false);
-	ssopt.reset_swing_onturn = elem.remove_bool("ResetSwingOnTurn",false);
-	ssopt.send_swing_packet = elem.remove_bool("SendSwingPacket",true);
 
 	ssopt.core_sends_caps = elem.remove_bool("CoreSendsCaps",false);
 	ssopt.send_stat_locks = elem.remove_bool("SendStatLocks",false);
