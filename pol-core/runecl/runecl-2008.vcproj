@@ -44,7 +44,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;E:\UOL\POL-CORE\STLPort5\stlport&quot;;.."
+				AdditionalIncludeDirectories="&quot;..\..\lib\STLPort5\stlport&quot;;.."
 				PreprocessorDefinitions="_DEBUG,WIN32,_CONSOLE,NOMINMAX,INC_PASSERT"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
@@ -204,20 +204,10 @@
 	<References>
 	</References>
 	<Files>
-		<Filter
-			Name="Source Files"
-			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
+		<File
+			RelativePath=".\runecl.cpp"
 			>
-			<File
-				RelativePath=".\runecl.cpp"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="Header Files"
-			Filter="h;hpp;hxx;hm;inl"
-			>
-		</Filter>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>
