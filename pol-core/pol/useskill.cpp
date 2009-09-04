@@ -1,6 +1,7 @@
 /*
 History
 =======
+2009/09/03 MuadDib:   Relocation of account related cpp/h
 
 
 Notes
@@ -14,7 +15,7 @@ Notes
 #include "bscript/eprog.h"
 
 #include "attribute.h"
-#include "account.h"
+#include "accounts/account.h"
 #include "charactr.h"
 #include "client.h"
 #include "extcmd.h"

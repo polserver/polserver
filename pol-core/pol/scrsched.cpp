@@ -7,6 +7,7 @@ History
 2006/09/17 Shinigami: ::signal_event() will return error on full evene queue
 2006/09/23 Shinigami: Script_Cycles, Sleep_Cycles and Script_passes uses 64bit now
 2009/07/28 MuadDib:   Packet Struct Refactoring
+2009/09/03 MuadDib:   Relocation of boat related cpp/h
 
 Notes
 =======
@@ -34,7 +35,7 @@ Notes
 #include "clib/unicode.h"
 
 #include "attributemod.h"
-#include "boatemod.h"
+#include "multi/boatemod.h"
 #include "cfgemod.h"
 #include "clemod.h"
 #include "charactr.h"

@@ -2,6 +2,7 @@
 History
 =======
 2005/06/06 Shinigami: added readobjects - to get a list of statics
+2009/09/03 MuadDib:   Relocation of multi related cpp/h
 
 Notes
 =======
@@ -11,7 +12,7 @@ Notes
 #ifndef _HOUSE_H
 #define _HOUSE_H
 
-#include "clib/stl_inc.h"
+#include "../../clib/stl_inc.h"
 #include "customhouses.h"
 #include "multi.h"
 

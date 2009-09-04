@@ -1,6 +1,7 @@
 /*
 History
 =======
+2009/09/03 MuadDib:   Relocation of multi related cpp/h
 
 
 Notes
@@ -17,7 +18,7 @@ Notes
 #include "charactr.h"
 #include "item.h"
 #include "storage.h"
-#include "multi.h"
+#include "multi/multi.h"
 #include "uworld.h"
 
 #include "objecthash.h"

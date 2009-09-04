@@ -13,12 +13,12 @@ Notes
 #ifndef ACCOUNT_H
 #define ACCOUNT_H
 
-#include "ucfg.h"
-#include "proplist.h"
-#include "reftypes.h"
+#include "../ucfg.h"
+#include "../proplist.h"
+#include "../reftypes.h"
 
-#include "clib/strset.h"
-#include "clib/refptr.h"
+#include "../../clib/strset.h"
+#include "../../clib/refptr.h"
 
 class Character;
 class Client;

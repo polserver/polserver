@@ -16,7 +16,7 @@ Notes
 #include "clib/logfile.h"
 #include "clib/passert.h"
 
-#include "account.h"
+#include "accounts/account.h"
 #include "charactr.h"
 #include "client.h"
 #include "msghandl.h"

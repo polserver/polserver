@@ -2,6 +2,8 @@
 History
 =======
 2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
+2009/09/03 MuadDib:   Relocation of account related cpp/h
+                      Relocation of multi related cpp/h
 
 Notes
 =======
@@ -17,7 +19,7 @@ Notes
 
 #include "plib/realm.h"
 
-#include "account.h"
+#include "accounts/account.h"
 #include "charactr.h"
 #include "client.h"
 #include "fnsearch.h"
@@ -29,7 +31,7 @@ Notes
 #include "realms.h"
 #include "ufunc.h"
 #include "uvars.h"
-#include "multi.h"
+#include "multi/multi.h"
 
 #include "target.h"
 #include "polclass.h"

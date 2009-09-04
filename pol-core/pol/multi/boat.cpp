@@ -6,6 +6,8 @@ History
 2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
 2009/08/25 Shinigami: STLport-5.2.1 fix: <cassert> removed
                       STLport-5.2.1 fix: boat_components changed little bit
+2009/09/03 MuadDib:	  Changes for account related source file relocation
+					  Changes for multi related source file relocation
 
 Notes
 =======
@@ -15,47 +17,47 @@ Notes
 #include "clib/stl_inc.h"
 
 #ifdef _MSC_VER
-#pragma warning( disable: 4786 )
+#	pragma warning( disable: 4786 )
 #endif
 
 #include <algorithm>
 #include <set>
 
-#include "bscript/berror.h"
+#include "../../bscript/berror.h"
 
-#include "clib/cfgelem.h"
-#include "clib/cfgfile.h"
-#include "clib/endian.h"
-#include "clib/passert.h"
-#include "clib/stlutil.h"
-#include "clib/strutil.h"
+#include "../../clib/cfgelem.h"
+#include "../../clib/cfgfile.h"
+#include "../../clib/endian.h"
+#include "../../clib/passert.h"
+#include "../../clib/stlutil.h"
+#include "../../clib/strutil.h"
 
-#include "uconst.h"
-#include "plib/realm.h"
+#include "../uconst.h"
+#include "../../plib/realm.h"
 
 #include "boat.h"
 #include "boatcomp.h"
-#include "charactr.h"
-#include "client.h"
-#include "core.h"
-#include "fnsearch.h"
-#include "itemdesc.h"
-#include "mdelta.h"
-#include "mkscrobj.h"
+#include "../charactr.h"
+#include "../client.h"
+#include "../core.h"
+#include "../fnsearch.h"
+#include "../itemdesc.h"
+#include "../mdelta.h"
+#include "../mkscrobj.h"
 #include "multi.h"
 #include "multidef.h"
-#include "objtype.h"
-#include "pktout.h"
-#include "realms.h"
-#include "scrsched.h"
-#include "tiles.h"
-#include "ufunc.h"
-#include "uofile.h"
-#include "ustruct.h"
-#include "uvars.h"
-#include "uworld.h"
+#include "../objtype.h"
+#include "../pktout.h"
+#include "../realms.h"
+#include "../scrsched.h"
+#include "../tiles.h"
+#include "../ufunc.h"
+#include "../uofile.h"
+#include "../ustruct.h"
+#include "../uvars.h"
+#include "../uworld.h"
 
-#include "objecthash.h"
+#include "../objecthash.h"
 
 
 //#define DEBUG_BOATS

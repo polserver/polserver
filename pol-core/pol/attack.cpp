@@ -18,7 +18,7 @@ Notes
 
 #include "clib/endian.h"
 
-#include "account.h"
+#include "accounts/account.h"
 #include "client.h"
 #include "charactr.h"
 #include "msghandl.h"

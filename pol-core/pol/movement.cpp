@@ -2,6 +2,7 @@
 History
 =======
 2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
+2009/09/03 MuadDib:   Relocation of multi related cpp/h
 
 Notes
 =======
@@ -15,14 +16,14 @@ Notes
 
 #include "charactr.h"
 #include "client.h"
-#include "customhouses.h"
-#include "house.h"
+#include "multi/customhouses.h"
+#include "multi/house.h"
 #include "msghandl.h"
 #include "pktin.h"
 #include "pktout.h"
 #include "pktboth.h"
 #include "uvars.h"
-#include "multi.h"
+#include "multi/multi.h"
 #include "ssopt.h"
 #include "ufunc.h"
 #include "uworld.h"

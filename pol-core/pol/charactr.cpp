@@ -34,7 +34,8 @@ History
                       STLport-5.2.1 fix: init order changed of party_can_loot_, party_decline_timeout_ and skillcap_
 2009/08/28 Turley:    Crashfix for Character::on_poison_changed()
 2009/09/03 MuadDib:   Changed combat related ssopt stuff to combat_config.
-
+                      Changes for account related source file relocation
+					  Changes for multi related source file relocation
 Notes
 =======
 
@@ -63,12 +64,12 @@ Notes
 #include "uconst.h"
 #include "plib/realm.h"
 
-#include "account.h"
+#include "accounts/account.h"
 #include "action.h"
 #include "anim.h"
 #include "armor.h"
 #include "attribute.h"
-#include "boat.h"
+#include "multi/boat.h"
 #include "cgdata.h"
 #include "checkpnt.h"
 #include "clidata.h"

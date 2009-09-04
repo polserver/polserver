@@ -1,28 +1,29 @@
 /*
 History
 =======
-
+2009/09/03 MuadDib:	  Changes for account related source file relocation
+                      Changes for multi related source file relocation
 
 Notes
 =======
 
 */
 
-#include "clib/stl_inc.h"
+#include "../../clib/stl_inc.h"
 
-#include "bscript/berror.h"
+#include "../../bscript/berror.h"
 
-#include "clib/endian.h"
-#include "clib/strutil.h"
+#include "../../clib/endian.h"
+#include "../../clib/strutil.h"
 
 #include "boat.h"
 #include "house.h"
-#include "itemdesc.h"
-#include "objtype.h"
-#include "ufunc.h"
-#include "uworld.h"
+#include "../itemdesc.h"
+#include "../objtype.h"
+#include "../ufunc.h"
+#include "../uworld.h"
 
-#include "objecthash.h"
+#include "../objecthash.h"
 
 bool isboat( u16 objtype )
 {
@@ -68,7 +69,7 @@ UMulti* UMulti::create( const ItemDesc& descriptor, u32 serial )
     return multi;
 }
 
-#include "uoscrobj.h"
+#include "../uoscrobj.h"
 BObjectImp* UMulti::scripted_create( const ItemDesc& descriptor, u16 x, u16 y, s8 z, Realm* realm, long flags )
 {
     if (descriptor.type == ItemDesc::BOATDESC)

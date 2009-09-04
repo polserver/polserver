@@ -48,11 +48,11 @@ endif
 
 cpp_sources = \
     clib/progver.cpp plib/polver.cpp \
-	pol/account.cpp pol/accounts.cpp pol/acscrobj.cpp pol/allocd.cpp \
+	pol/accounts/account.cpp pol/accounts/accounts.cpp pol/accounts/acscrobj.cpp pol/allocd.cpp \
 	pol/armor.cpp pol/attack.cpp \
 	pol/attribute.cpp pol/auxclient.cpp \
-	pol/bannedips.cpp pol/binaryfilescrobj.cpp pol/boat.cpp pol/boatcomp.cpp \
-	pol/boatemod.cpp pol/bowsalut.cpp \
+	pol/bannedips.cpp pol/binaryfilescrobj.cpp pol/multi/boat.cpp pol/multi/boatcomp.cpp \
+	pol/multi/boatemod.cpp pol/bowsalut.cpp \
 	pol/cfgemod.cpp pol/cfgrepos.cpp pol/cgdata.cpp pol/charactr.cpp \
 	pol/checkpnt.cpp \
 	pol/chrcast.cpp pol/chrituse.cpp pol/chrskuse.cpp pol/client.cpp \
@@ -63,7 +63,7 @@ cpp_sources = \
 	pol/cryptengine.cpp pol/crypt/cryptbase.cpp pol/crypt/cryptkey.cpp \
 	pol/crypt/nocrypt.cpp pol/crypt/blowfish.cpp pol/crypt/twofish.cpp \
 	pol/ctable.cpp \
-	pol/customhouses.cpp pol/customhousehelp.cpp \
+	pol/multi/customhouses.cpp pol/multi/customhousehelp.cpp \
 	pol/datastore.cpp pol/dblclick.cpp pol/decay.cpp pol/dice.cpp \
 	pol/door.cpp pol/dropitem.cpp \
 	pol/dye.cpp \
@@ -74,7 +74,7 @@ cpp_sources = \
 	pol/gameclck.cpp pol/getitem.cpp pol/getmsg.cpp pol/gflag.cpp \
 	pol/gprepos.cpp pol/guardrgn.cpp\
 	pol/guilds.cpp \
-	pol/help.cpp pol/house.cpp \
+	pol/help.cpp pol/multi/house.cpp \
 	pol/iostats.cpp pol/irequest.cpp pol/item.cpp pol/item00.cpp \
 	pol/itemcr.cpp pol/itemdesc.cpp \
 	pol/landtile.cpp \
@@ -83,8 +83,8 @@ cpp_sources = \
 	pol/menu.cpp pol/menusel.cpp pol/miscmsg.cpp \
 	pol/miscrgn.cpp pol/mkscrobj.cpp \
 	pol/movecost.cpp pol/movement.cpp pol/msgfiltr.cpp \
-	pol/multicfg.cpp pol/multicr.cpp pol/multidef.cpp pol/multis.cpp \
-	pol/multidef2.cpp \
+	pol/multi/multicfg.cpp pol/multi/multicr.cpp pol/multi/multidef.cpp pol/multi/multis.cpp \
+	pol/multi/multidef2.cpp \
 	pol/musicrgn.cpp \
 	pol/npc.cpp pol/npctmpl.cpp pol/npctemplates.cpp \
 	pol/objecthash.cpp \

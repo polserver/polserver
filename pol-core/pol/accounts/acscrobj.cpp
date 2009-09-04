@@ -14,6 +14,7 @@ History
 2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
 2006/05/16 Shinigami: account.Set_UO_Expansion( string ) - extended for Mondain's Legacy
 2009/08/06 MuadDib:   Removed PasswordOnlyHash support
+2009/09/03 MuadDib:   Relocation of account related cpp/h
 
 Notes
 =======
@@ -33,16 +34,16 @@ Notes
 #include "account.h"
 #include "accounts.h"
 #include "acscrobj.h"
-#include "charactr.h"
-#include "client.h"
-#include "cmdlevel.h"
-#include "core.h"
-#include "objecthash.h"
-#include "polcfg.h"
-#include "realms.h"
-#include "ufunc.h"
-#include "uoscrobj.h"
-#include "uoexhelp.h"
+#include "../charactr.h"
+#include "../client.h"
+#include "../cmdlevel.h"
+#include "../core.h"
+#include "../objecthash.h"
+#include "../polcfg.h"
+#include "../realms.h"
+#include "../ufunc.h"
+#include "../uoscrobj.h"
+#include "../uoexhelp.h"
 
 BApplicObjType accountobjimp_type;
 

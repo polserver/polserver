@@ -9,6 +9,9 @@ History
 2008/12/17 MuadDub:   unequipping item now resets item->layer to 0
 2009/08/06 MuadDib:   Added gotten_by code for items.
 2009/08/16 MuadDib:   Added Slot support to undo_get_item()
+2009/09/03 MuadDib:	  Changes for account related source file relocation
+                      Changes for multi related source file relocation
+
 Notes
 =======
 
@@ -23,7 +26,7 @@ Notes
 
 #include "plib/realm.h"
 
-#include "boat.h"
+#include "multi/boat.h"
 #include "charactr.h"
 #include "client.h"
 #include "los.h"

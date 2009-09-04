@@ -4,22 +4,23 @@ History
 2005/05/25 Shinigami: added void writeto( ConfigElem& elem )
 2005/05/25 Shinigami: added getnextfreeslot()
 2009/08/06 MuadDib:   Removed PasswordOnlyHash support
+2009/09/03 MuadDib:   Relocation of account related cpp/h
 
 Notes
 =======
 
 */
 
-#include "clib/stl_inc.h"
-#include "clib/cfgelem.h"
-#include "clib/MD5.h"
+#include "../../clib/stl_inc.h"
+#include "../../clib/cfgelem.h"
+#include "../../clib/MD5.h"
 
 #include "account.h"
 #include "accounts.h"
-#include "charactr.h"
-#include "client.h"
-#include "cmdlevel.h"
-#include "polcfg.h"
+#include "../charactr.h"
+#include "../client.h"
+#include "../cmdlevel.h"
+#include "../polcfg.h"
 
 Account::Account( ConfigElem& elem ) :
     active_character(NULL),

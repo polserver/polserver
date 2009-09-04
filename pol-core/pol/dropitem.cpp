@@ -13,6 +13,8 @@ History
 2009/08/09 MuadDib:   Refactor of Packet 0x25 for naming convention
 2009/08/16 MuadDib:   find_giveitem_container(), removed passert, made it return NULL to reject move instead of a crash.
                       Added slot support to find_giveitem_container()
+2009/09/03 MuadDib:	  Changes for account related source file relocation
+					  Changes for multi related source file relocation
 
 Notes
 =======
@@ -36,7 +38,7 @@ FIXME: Does STW use slots with KR or newest 2d? If so, we must do slot checks th
 
 #include "plib/realm.h"
 
-#include "boat.h"
+#include "multi/boat.h"
 #include "charactr.h"
 #include "client.h"
 #include "dtrace.h"

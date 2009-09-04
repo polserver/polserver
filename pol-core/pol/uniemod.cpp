@@ -2,6 +2,7 @@
 History
 =======
 2006/10/07 Shinigami: GCC 3.4.x fix - added "template<>" to TmplExecutorModule
+2009/09/03 MuadDib:   Relocation of account related cpp/h
 
 Notes
 =======
@@ -25,7 +26,7 @@ Notes
 #include "bscript/execmodl.h"
 #include "bscript/impstr.h"
 
-#include "account.h"
+#include "accounts/account.h"
 #include "cgdata.h"
 #include "charactr.h"
 #include "client.h"

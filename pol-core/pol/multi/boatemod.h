@@ -1,6 +1,8 @@
 /*
 History
 =======
+2009/09/03 MuadDib:	  Changes for account related source file relocation
+                      Changes for multi related source file relocation
 
 
 Notes
@@ -11,7 +13,7 @@ Notes
 #ifndef BOATEMOD_H
 #define BOATEMOD_H
 
-#include "bscript/execmodl.h"
+#include "../../bscript/execmodl.h"
 
 class BObject;
 

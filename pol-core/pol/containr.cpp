@@ -8,6 +8,7 @@ History
                       Create vector for item storage called layer_list_ for corpses, to work as storage to show
 					  items listed as "equipped". Also created necessary functions to make use of this like
 					  WornItem Container has.
+2009/09/03 MuadDib:   Relocation of multi related cpp/h
 
 Notes
 =======
@@ -35,7 +36,7 @@ Notes
 #include "equipmnt.h"
 #include "gflag.h"
 #include "itemdesc.h"
-#include "multi.h"
+#include "multi/multi.h"
 #include "profile.h"
 #include "statmsg.h"
 #include "ucfg.h"

@@ -1,38 +1,40 @@
 /*
 History
 =======
-2009/09/01 Turley:   VS2005/2008 Support moved inline MultiDef::getkey to .h
+2009/09/01 Turley:    VS2005/2008 Support moved inline MultiDef::getkey to .h
+2009/09/03 MuadDib:   Relocation of multi related cpp/h
 
 Notes
 =======
 
 */
 
-#include "clib/stl_inc.h"
+#include "../../clib/stl_inc.h"
+
 #ifdef _MSC_VER
-#pragma warning( disable: 4786 )
+#	pragma warning( disable: 4786 )
 #endif
 
 #include <algorithm>
 #include <iostream>
 
-#include "clib/cfgelem.h"
-#include "clib/cfgfile.h"
-#include "clib/passert.h"
-#include "clib/stlutil.h"
-#include "clib/strutil.h"
+#include "../../clib/cfgelem.h"
+#include "../../clib/cfgfile.h"
+#include "../../clib/passert.h"
+#include "../../clib/stlutil.h"
+#include "../../clib/strutil.h"
 
-#include "plib/mapcell.h"
-#include "plib/mapshape.h"
+#include "../../plib/mapcell.h"
+#include "../../plib/mapshape.h"
 
-#include "itemdesc.h"
-#include "objtype.h"
-#include "udatfile.h"
-#include "uofilei.h"
-#include "uofile.h"
+#include "../itemdesc.h"
+#include "../objtype.h"
+#include "../udatfile.h"
+#include "../uofilei.h"
+#include "../uofile.h"
 #include "multidef.h"
-#include "ustruct.h"
-#include "uofilei.h"
+#include "../ustruct.h"
+#include "../uofilei.h"
 
 bool BoatShapeExists( u16 graphic );
 

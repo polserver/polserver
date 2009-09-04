@@ -16,6 +16,8 @@ History
 2007/04/28 Shinigami: polcore().internal information will be logged in excel-friendly format too (leak.log)
 2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
 2009/08/06 MuadDib:   Removed PasswordOnlyHash support
+2009/09/03 MuadDib:   Relocation of account related cpp/h
+                      Relocation of multi related cpp/h
 
 Notes
 =======
@@ -50,7 +52,7 @@ Notes
 
 #include "plib/realm.h"
 
-#include "account.h"
+#include "accounts/account.h"
 #ifdef MEMORYLEAK
 #	include "cfgrepos.h"
 #endif
@@ -60,7 +62,7 @@ Notes
 #include "core.h"
 #include "exscrobj.h"
 #include "fnsearch.h"
-#include "house.h"
+#include "multi/house.h"
 #include "iostats.h"
 #include "itemdesc.h"
 #include "npc.h"
@@ -1518,9 +1520,9 @@ BObjectImp* MakeMapCacheImp( )
 	return arr;
 }
 
-#include "account.h"
-#include "accounts.h"
-#include "acscrobj.h"
+#include "accounts/account.h"
+#include "accounts/accounts.h"
+#include "accounts/acscrobj.h"
 BObjectImp* UOExecutorModule::mf_CreateAccount()
 {
 	const String* acctname;

@@ -2,33 +2,35 @@
 History
 =======
 2006/09/26 Shinigami: GCC 3.4.x fix - added "template<>" to TmplExecutorModule
+2009/09/03 MuadDib:	  Changes for account related source file relocation
+                      Changes for multi related source file relocation
 
 Notes
 =======
 
 */
 
-#include "clib/stl_inc.h"
+#include "../../clib/stl_inc.h"
+
 #ifdef _MSC_VER
-#pragma warning( disable: 4786 )
+#	pragma warning( disable: 4786 )
 #endif
 
+#include "../../bscript/berror.h"
+#include "../../bscript/bobject.h"
+#include "../../bscript/execmodl.h"
+#include "../../bscript/executor.h"
+#include "../../bscript/impstr.h"
 
-#include "bscript/berror.h"
-#include "bscript/bobject.h"
-#include "bscript/execmodl.h"
-#include "bscript/executor.h"
-#include "bscript/impstr.h"
-
-#include "clib/rawtypes.h"
-#include "plib/realm.h"
+#include "../../clib/rawtypes.h"
+#include "../../plib/realm.h"
 
 #include "boat.h"
 #include "boatemod.h"
-#include "item.h"
-#include "uoexhelp.h"
-#include "uoscrobj.h"
-#include "wrldsize.h"
+#include "../item.h"
+#include "../uoexhelp.h"
+#include "../uoscrobj.h"
+#include "../wrldsize.h"
 
 template<>
 TmplExecutorModule<UBoatExecutorModule>::FunctionDef   

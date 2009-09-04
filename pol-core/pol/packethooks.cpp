@@ -8,6 +8,7 @@ History
 2009/08/03 MuadDib:   Renaming of MSG_HANDLER_6017 and related, to MSG_HANDLER_V2 for better description
                       Renamed secondary handler class to *_V2 for naming convention
 2009/08/25 Shinigami: STLport-5.2.1 fix: params in call of Log2()
+2009/09/03 MuadDib:   Relocation of account related cpp/h
 
 Notes
 =======
@@ -31,7 +32,7 @@ new Handler added to the core needs a new Version number here. As of 8/3/09 ther
 
 #include "plib/pkg.h"
 
-#include "account.h"
+#include "accounts/account.h"
 #include "charactr.h"
 #include "client.h"
 #include "msghandl.h"
