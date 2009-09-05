@@ -3,6 +3,7 @@ History
 =======
 2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
 2008/02/11 Turley: BStruct::unpack() will accept zero length Structs
+2009/09/05 Turley: Added struct .? and .- as shortcut for .exists() and .erase()
 
 Notes
 =======
@@ -451,6 +452,20 @@ BObjectRef BStruct::operDotPlus( const char* name )
     {
         return BObjectRef( new BError( "Member already exists" ) );
     }
+}
+
+BObjectRef BStruct::operDotMinus( const char* name )
+{
+    string key(name);
+	contents_.erase( key );
+	return BObjectRef(new BLong(1));
+}
+
+BObjectRef BStruct::operDotQMark( const char* name )
+{
+    string key(name);
+	int count = contents_.count( key );
+	return BObjectRef(new BLong(count));
 }
 
 const BStruct::Contents& BStruct::contents() const

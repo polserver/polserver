@@ -3,6 +3,7 @@ History
 =======
 2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
 2008/02/11 Turley: ObjArray::unpack() will accept zero length Arrays and Erros from Array-Elements
+2009/09/05 Turley: Added struct .? and .- as shortcut for .exists() and .erase()
 
 Notes
 =======
@@ -420,6 +421,16 @@ bool BObjectImp::contains( const BObjectImp& imp ) const
 BObjectRef BObjectImp::operDotPlus( const char* name )
 {
 	return BObjectRef( new BError( "Operator .+ undefined" ) );
+}
+
+BObjectRef BObjectImp::operDotMinus( const char* name )
+{
+	return BObjectRef( new BError( "Operator .- undefined" ) );
+}
+
+BObjectRef BObjectImp::operDotQMark( const char* name )
+{
+	return BObjectRef( new BError( "Operator .? undefined" ) );
 }
 
 UninitObject* UninitObject::SharedInstance;
