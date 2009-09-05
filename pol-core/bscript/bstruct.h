@@ -1,6 +1,7 @@
 /*
 History
 =======
+2009/09/05 Turley: Added struct .? and .- as shortcut for .exists() and .erase()
 
 Notes
 =======
@@ -53,6 +54,8 @@ protected:
     virtual BObjectRef set_member( const char* membername, BObjectImp* value );
     virtual BObjectRef get_member( const char* membername );
     virtual BObjectRef operDotPlus( const char* name );
+	virtual BObjectRef operDotMinus( const char* name );
+	virtual BObjectRef operDotQMark( const char* name );
     virtual BObjectImp* array_assign( BObjectImp* idx, BObjectImp* target );
 
     friend class BStructIterator;

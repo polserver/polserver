@@ -2,6 +2,7 @@
 History
 =======
 2006/10/28 Shinigami: GCC 4.1.1 fix - invalid use of constructor as a template
+2009/09/05 Turley: Added struct .? and .- as shortcut for .exists() and .erase()
 
 Notes
 =======
@@ -125,6 +126,8 @@ public:
     virtual BObjectImp* bitnot() const;
 
     virtual BObjectRef operDotPlus( const char* name );
+	virtual BObjectRef operDotMinus( const char* name );
+	virtual BObjectRef operDotQMark( const char* name );
 
 	virtual void operInsertInto( BObject& obj, const BObjectImp& objimp );
     

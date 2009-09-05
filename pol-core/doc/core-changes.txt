@@ -1,4 +1,7 @@
 -- POL099 --
+09-05-2009 Turley: 
+    Added:  struct .? and .- as shortcut for .exists() and .erase()
+
 09-03-2009 MuadDib:
    Changed: CoreHitSounds, ScriptedAttackChecks, ResetSwingOnTurn, SendSwingPacket all moved from SSOPT to Combat CFG.
    

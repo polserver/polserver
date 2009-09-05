@@ -7,6 +7,7 @@ History
 2006/10/07 Shinigami: FreeBSD fix - changed __linux__ to __unix__
 2007/07/07 Shinigami: added code to analyze memoryleaks in initForFnCall() (needs defined MEMORYLEAK)
 2009/07/19 MuadDib: Executor::ins_member() Removed, due to no longer used since case optimization code added.
+2009/09/05 Turley: Added struct .? and .- as shortcut for .exists() and .erase()
 
 Notes
 =======
@@ -829,6 +830,30 @@ BObjectRef Executor::addmember( BObject& left, const BObject& right )
 	const String& varname = static_cast<const String&>(right.impref());
 
     return left.impref().operDotPlus( varname.data() );
+}
+
+BObjectRef Executor::removemember( BObject& left, const BObject& right )
+{
+    if (!right.isa( BObjectImp::OTString ))
+	{
+		return BObjectRef(left.clone());
+	}
+
+	const String& varname = static_cast<const String&>(right.impref());
+
+    return left.impref().operDotMinus( varname.data() );
+}
+
+BObjectRef Executor::checkmember( BObject& left, const BObject& right )
+{
+    if (!right.isa( BObjectImp::OTString ))
+	{
+		return BObjectRef(left.clone());
+	}
+
+	const String& varname = static_cast<const String&>(right.impref());
+
+    return left.impref().operDotQMark( varname.data() );
 }
 
 #include "contiter.h"
@@ -1826,6 +1851,40 @@ void Executor::ins_addmember( const Instruction& ins )
     leftref = addmember( left, right );
 }
 
+void Executor::ins_removemember( const Instruction& ins )
+{
+		/*
+			These each take two operands, and replace them with one.
+			We'll leave the second one on the value stack, and
+			just replace its object with the result
+		*/
+	BObjectRef rightref = ValueStack.top();
+    ValueStack.pop();
+    BObjectRef& leftref = ValueStack.top();
+
+    BObject& right = *rightref;
+    BObject& left = *leftref;
+			 
+    leftref = removemember( left, right );
+}
+
+void Executor::ins_checkmember( const Instruction& ins )
+{
+		/*
+			These each take two operands, and replace them with one.
+			We'll leave the second one on the value stack, and
+			just replace its object with the result
+		*/
+	BObjectRef rightref = ValueStack.top();
+    ValueStack.pop();
+    BObjectRef& leftref = ValueStack.top();
+
+    BObject& right = *rightref;
+    BObject& left = *leftref;
+			 
+    leftref = checkmember( left, right );
+}
+
 void Executor::ins_addmember2( const Instruction& ins )
 {
 	BObjectRef obref = ValueStack.top();
@@ -2629,8 +2688,8 @@ void Executor::innerExec(const Instruction& ins)
         case TOK_IN:            // ins_in
 
         case TOK_ARRAY_SUBSCRIPT:   // ins_arraysubscript
-        case TOK_DELMEMBER:         // na
-        case TOK_CHKMEMBER:         // na
+        case TOK_DELMEMBER:         // ins_removemember
+        case TOK_CHKMEMBER:         // ins_checkmember
         case TOK_ADDMEMBER:         // ins_addmember
         case TOK_MEMBER:            // ins_member
 		{
@@ -2746,6 +2805,12 @@ void Executor::innerExec(const Instruction& ins)
               case TOK_ARRAY_SUBSCRIPT: // ins_array_subscript
                 leftref = left.impptr()->OperSubscript( right );
                 return;
+			  case TOK_CHKMEMBER: // ins_checkmember
+				  leftref = checkmember( left, right );
+				  return;
+			  case TOK_DELMEMBER: //ins_removemember
+				  leftref = removemember( left, right );
+				  return;
 			  case TOK_ADDMEMBER:   // ins_addmember
                 leftref = addmember( left, right );
                 return;
@@ -2864,6 +2929,8 @@ ExecInstrFunc Executor::GetInstrFunc( const Token& token )
     case TOK_OR:                return &Executor::ins_logical_or;
 
     case TOK_ADDMEMBER:         return &Executor::ins_addmember;
+	case TOK_DELMEMBER:      return &Executor::ins_removemember;
+	case TOK_CHKMEMBER:      return &Executor::ins_checkmember;
     case INS_DICTIONARY_ADDMEMBER: return &Executor::ins_dictionary_addmember;
     case TOK_IN:                return &Executor::ins_in;
 	case INS_ADDMEMBER2:        return &Executor::ins_addmember2;
