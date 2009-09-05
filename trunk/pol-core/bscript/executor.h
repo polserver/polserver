@@ -1,6 +1,7 @@
 /*
 History
 =======
+2009/09/05 Turley: Added struct .? and .- as shortcut for .exists() and .erase()
 
 Notes
 =======
@@ -156,6 +157,8 @@ class Executor
     void pushArg( const BObjectRef& ref );
 
     BObjectRef addmember( BObject& left, const BObject& right );
+	BObjectRef removemember( BObject& left, const BObject& right);
+	BObjectRef checkmember( BObject& left, const BObject& right);
     void addmember2( BObject& left, const BObject& right );
 
     // execmodules: modules associated with the current program.  References modules owned by availmodules.
@@ -263,6 +266,8 @@ class Executor
     
     void ins_member( const Instruction& ins );
     void ins_addmember( const Instruction& ins );
+	void ins_removemember( const Instruction& ins );
+	void ins_checkmember( const Instruction& ins );
     void ins_dictionary_addmember( const Instruction& ins );
     void ins_addmember2( const Instruction& ins );
     void ins_addmember_assign( const Instruction& ins );
