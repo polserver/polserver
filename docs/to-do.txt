@@ -191,3 +191,13 @@ Planning
         Rewrite of 0x11 Status Packet. To include all message types, and settable based on Client Feature Settings so the server
         automatically knows which kind of packet type to send for full system messages. Better handling this way, optimized,
         and better support for all client versions dynamically.
+    Unknown
+        Merge BasicIO and Basic EM code into a single EM and cpp/h
+    Unknown
+        Reorganize entire Crypt system to POL/Crypt, etc
+    Unknown
+        Add TwoFish encrypt.decrypt along with encrypted connection handling for MD5 crypt, etc also, to support encrypted clients above 2.x
+    Unknown
+        Rewrite POL/Module code, to have a centralized Modules.cpp/h for the major assigning, and the actual Module code in the relative
+        cpp/h
+    
