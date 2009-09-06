@@ -70,6 +70,31 @@ PackageObjImp::PackageObjImp( const PackagePtrHolder& other ) :
 	  PackageObjImpBase(&packageobjimp_type, other )
 {
 }
+
+
+template<>
+TmplExecutorModule<PolSystemExecutorModule>::FunctionDef
+  TmplExecutorModule<PolSystemExecutorModule>::function_table[] =
+{
+  { "IncRevision",			&PolSystemExecutorModule::mf_IncRevision },
+  { "GetCmdLevelName",		&PolSystemExecutorModule::mf_GetCmdLevelName },
+  { "GetCmdLevelNumber",		&PolSystemExecutorModule::mf_GetCmdLevelNumber },
+  { "Packages",				&PolSystemExecutorModule::mf_Packages },
+  { "GetPackageByName",		&PolSystemExecutorModule::mf_GetPackageByName },
+  { "ListTextCommands",		&PolSystemExecutorModule::mf_ListTextCommands},
+  { "Realms",					&PolSystemExecutorModule::mf_Realms },
+  { "ReloadConfiguration",	&PolSystemExecutorModule::mf_ReloadConfiguration },
+  { "ReadMillisecondClock",	&PolSystemExecutorModule::mf_ReadMillisecondClock },
+  { "ListenPoints",			&PolSystemExecutorModule::mf_ListenPoints },
+  { "SetSysTrayPopupText",	&PolSystemExecutorModule::mf_SetSysTrayPopupText },
+  { "GetItemDescriptor",		&PolSystemExecutorModule::mf_GetItemDescriptor },
+  { "CreatePacket",			&PolSystemExecutorModule::mf_CreatePacket },
+  { "AddRealm",		        &PolSystemExecutorModule::mf_AddRealm },
+  { "DeleteRealm",			&PolSystemExecutorModule::mf_DeleteRealm }
+};
+template<>
+int TmplExecutorModule<PolSystemExecutorModule>::function_table_size = arsize(function_table);
+
 const char* PackageObjImp::typeOf() const
 {
 	return "Package";
@@ -108,30 +133,6 @@ BObjectRef PackageObjImp::get_member( const char* membername )
 		return BObjectRef( new BError( "Undefined member" ) );
 	}
 }
-
-template<>
-TmplExecutorModule<PolSystemExecutorModule>::FunctionDef
-	TmplExecutorModule<PolSystemExecutorModule>::function_table[] =
-{
-	{ "IncRevision",			&PolSystemExecutorModule::mf_IncRevision },
-	{ "GetCmdLevelName",		&PolSystemExecutorModule::mf_GetCmdLevelName },
-	{ "GetCmdLevelNumber",		&PolSystemExecutorModule::mf_GetCmdLevelNumber },
-	{ "Packages",				&PolSystemExecutorModule::mf_Packages },
-	{ "GetPackageByName",		&PolSystemExecutorModule::mf_GetPackageByName },
-	{ "ListTextCommands",		&PolSystemExecutorModule::mf_ListTextCommands},
-   	{ "Realms",					&PolSystemExecutorModule::mf_Realms },
-	{ "ReloadConfiguration",	&PolSystemExecutorModule::mf_ReloadConfiguration },
-	{ "ReadMillisecondClock",	&PolSystemExecutorModule::mf_ReadMillisecondClock },
-	{ "ListenPoints",			&PolSystemExecutorModule::mf_ListenPoints },
-	{ "SetSysTrayPopupText",	&PolSystemExecutorModule::mf_SetSysTrayPopupText },
-	{ "GetItemDescriptor",		&PolSystemExecutorModule::mf_GetItemDescriptor },
-	{ "CreatePacket",			&PolSystemExecutorModule::mf_CreatePacket },
-	{ "AddRealm",		        &PolSystemExecutorModule::mf_AddRealm },
-	{ "DeleteRealm",			&PolSystemExecutorModule::mf_DeleteRealm }
-};
-template<>
-int TmplExecutorModule<PolSystemExecutorModule>::function_table_size =
-	arsize(function_table);
 
 BObjectImp* PolSystemExecutorModule::mf_IncRevision( /* uobject */ )
 {

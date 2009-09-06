@@ -204,5 +204,7 @@ Planning
         Consolidate NPC Classed code to npc,cpp/h, instead of scattered around.
     Unknown
         Consolidate NPC Template Handling to npctmplate files, like npc base code.
-
-    
+    Unknown
+        Split fileaccess code out from the filemod.cpp/h code.
+        Split guilds and guildmod code apaart
+        

@@ -90,28 +90,21 @@ FileAccess
 
 */
 
-class FileAccess
+template<>
+TmplExecutorModule<FileAccessExecutorModule>::FunctionDef   
+TmplExecutorModule<FileAccessExecutorModule>::function_table[] = 
 {
-public:
-	explicit FileAccess( ConfigElem& elem );
-	bool AllowsAccessTo( const Package* pkg, const Package* filepackage ) const;
-	bool AppliesToPackage( const Package* pkg ) const;
-	bool AppliesToPath( const string& path ) const;
-
-	bool AllowWrite;
-	bool AllowAppend;
-	bool AllowRead;
-
-	bool AllowRemote;
-
-	bool AllPackages;
-	bool AllDirectories; // not used
-	bool AllExtensions;
-	
-	set<string, ci_cmp_pred> Packages;
-	vector< string > Directories; // not used
-	vector< string > Extensions;
+	{ "FileExists",		&FileAccessExecutorModule::mf_FileExists },
+	{ "ReadFile",		&FileAccessExecutorModule::mf_ReadFile },
+	{ "WriteFile",		&FileAccessExecutorModule::mf_WriteFile },
+	{ "AppendToFile",	&FileAccessExecutorModule::mf_AppendToFile },
+	{ "LogToFile",		&FileAccessExecutorModule::mf_LogToFile },
+	{ "OpenBinaryFile", &FileAccessExecutorModule::mf_OpenBinaryFile }
 };
+
+template<>
+int TmplExecutorModule<FileAccessExecutorModule>::function_table_size =
+arsize(function_table);
 
 FileAccess::FileAccess( ConfigElem& elem ) :
 	AllowWrite( elem.remove_bool( "AllowWrite", false ) ),
@@ -249,40 +242,10 @@ bool HasAppendAccess( const Package* pkg, const Package* filepackage, const stri
 	return false;
 }
 
-
-class FileAccessExecutorModule : public TmplExecutorModule<FileAccessExecutorModule>
-{
-public:
-	FileAccessExecutorModule( Executor& exec ) :
-		TmplExecutorModule<FileAccessExecutorModule>( "file", exec ) {}
-
-	BObjectImp* mf_FileExists();
-	BObjectImp* mf_ReadFile();
-	BObjectImp* mf_WriteFile();
-	BObjectImp* mf_AppendToFile();
-	BObjectImp* mf_LogToFile();
-	BObjectImp* mf_OpenBinaryFile();
-};
 ExecutorModule* CreateFileAccessExecutorModule( Executor& exec )
 {
 	return new FileAccessExecutorModule( exec );
 }
-
-template<>
-TmplExecutorModule<FileAccessExecutorModule>::FunctionDef   
-	TmplExecutorModule<FileAccessExecutorModule>::function_table[] = 
-{
-	{ "FileExists",		&FileAccessExecutorModule::mf_FileExists },
-	{ "ReadFile",		&FileAccessExecutorModule::mf_ReadFile },
-	{ "WriteFile",		&FileAccessExecutorModule::mf_WriteFile },
-	{ "AppendToFile",	&FileAccessExecutorModule::mf_AppendToFile },
-	{ "LogToFile",		&FileAccessExecutorModule::mf_LogToFile },
-	{ "OpenBinaryFile", &FileAccessExecutorModule::mf_OpenBinaryFile }
-};
-
-template<>
-int TmplExecutorModule<FileAccessExecutorModule>::function_table_size =
-	arsize(function_table);
 
 BObjectImp* FileAccessExecutorModule::mf_FileExists()
 {

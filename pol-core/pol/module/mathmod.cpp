@@ -33,6 +33,40 @@ initer::initer()
 }
 initer _initer;
 
+template<>
+TmplExecutorModule<MathExecutorModule>::FunctionDef   
+TmplExecutorModule<MathExecutorModule>::function_table[] = 
+{
+	{ "Sin",                    &MathExecutorModule::mf_Sin },
+	{ "Cos",                    &MathExecutorModule::mf_Cos },
+	{ "Tan",                    &MathExecutorModule::mf_Tan },
+	{ "ASin",                   &MathExecutorModule::mf_ASin },
+	{ "ACos",                   &MathExecutorModule::mf_ACos },
+	{ "ATan",                   &MathExecutorModule::mf_ATan },
+
+	{ "Min",                    &MathExecutorModule::mf_Min },
+	{ "Max",                    &MathExecutorModule::mf_Max },
+	{ "Pow",                    &MathExecutorModule::mf_Pow },
+	{ "Sqrt",                   &MathExecutorModule::mf_Sqrt },
+	{ "Root",                   &MathExecutorModule::mf_Root },
+	{ "Abs",                    &MathExecutorModule::mf_Abs },
+	{ "Log10",                  &MathExecutorModule::mf_Log10 },
+	{ "LogE",                   &MathExecutorModule::mf_LogE },
+
+	{ "DegToRad",               &MathExecutorModule::mf_DegToRad },
+	{ "RadToDeg",               &MathExecutorModule::mf_RadToDeg },
+
+	{ "Ceil",                   &MathExecutorModule::mf_Ceil },
+	{ "Floor",                  &MathExecutorModule::mf_Floor },
+
+	{ "ConstPi",                &MathExecutorModule::mf_ConstPi },
+	{ "ConstE",                 &MathExecutorModule::mf_ConstE },
+
+	{ "FormatRealToString",     &MathExecutorModule::mf_FormatRealToString }
+};
+
+template<>
+int TmplExecutorModule<MathExecutorModule>::function_table_size = arsize(function_table);
 
 BObjectImp* MathExecutorModule::mf_Sin()
 {
@@ -391,40 +425,3 @@ BObjectImp* MathExecutorModule::mf_Floor()
         return new BError( "Invalid parameter type" );
     }
 }
-
-
-template<>
-TmplExecutorModule<MathExecutorModule>::FunctionDef   
-    TmplExecutorModule<MathExecutorModule>::function_table[] = 
-{
-    { "Sin",                    &MathExecutorModule::mf_Sin },
-    { "Cos",                    &MathExecutorModule::mf_Cos },
-    { "Tan",                    &MathExecutorModule::mf_Tan },
-    { "ASin",                   &MathExecutorModule::mf_ASin },
-    { "ACos",                   &MathExecutorModule::mf_ACos },
-    { "ATan",                   &MathExecutorModule::mf_ATan },
-
-    { "Min",                    &MathExecutorModule::mf_Min },
-    { "Max",                    &MathExecutorModule::mf_Max },
-    { "Pow",                    &MathExecutorModule::mf_Pow },
-    { "Sqrt",                   &MathExecutorModule::mf_Sqrt },
-    { "Root",                   &MathExecutorModule::mf_Root },
-    { "Abs",                    &MathExecutorModule::mf_Abs },
-    { "Log10",                  &MathExecutorModule::mf_Log10 },
-    { "LogE",                   &MathExecutorModule::mf_LogE },
-
-    { "DegToRad",               &MathExecutorModule::mf_DegToRad },
-    { "RadToDeg",               &MathExecutorModule::mf_RadToDeg },
-
-    { "Ceil",                   &MathExecutorModule::mf_Ceil },
-    { "Floor",                  &MathExecutorModule::mf_Floor },
-    
-    { "ConstPi",                &MathExecutorModule::mf_ConstPi },
-    { "ConstE",                 &MathExecutorModule::mf_ConstE },
-    
-    { "FormatRealToString",     &MathExecutorModule::mf_FormatRealToString }
-};
-
-template<>
-int TmplExecutorModule<MathExecutorModule>::function_table_size =
-    arsize(function_table);

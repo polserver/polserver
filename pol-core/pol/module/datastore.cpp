@@ -161,6 +161,20 @@ virtual ~DataStoreFile();
 typedef std::map< string, DataStoreFile*, ci_cmp_pred > DataStore;
 DataStore datastore;
 
+template<>
+TmplExecutorModule<DataFileExecutorModule>::FunctionDef   
+TmplExecutorModule<DataFileExecutorModule>::function_table[] = 
+{
+	{ "ListDataFiles",			&DataFileExecutorModule::mf_ListDataFiles },
+	{ "CreateDataFile",		 &DataFileExecutorModule::mf_CreateDataFile },
+	{ "OpenDataFile",		   &DataFileExecutorModule::mf_OpenDataFile },
+	{ "UnloadDataFile",		 &DataFileExecutorModule::mf_UnloadDataFile }
+};
+
+template<>
+int TmplExecutorModule<DataFileExecutorModule>::function_table_size =
+arsize(function_table);
+
 DataFileContents::DataFileContents( DataStoreFile* dsf ) :
 	dsf(dsf),
 	dirty(false)
@@ -741,22 +755,6 @@ BObjectImp* DataFileExecutorModule::mf_UnloadDataFile()
 		return new BError( "Invalid parameter type" );
 	}
 }
-
-template<>
-TmplExecutorModule<DataFileExecutorModule>::FunctionDef   
-	TmplExecutorModule<DataFileExecutorModule>::function_table[] = 
-{
-	{ "ListDataFiles",			&DataFileExecutorModule::mf_ListDataFiles },
-	{ "CreateDataFile",		 &DataFileExecutorModule::mf_CreateDataFile },
-	{ "OpenDataFile",		   &DataFileExecutorModule::mf_OpenDataFile },
-	{ "UnloadDataFile",		 &DataFileExecutorModule::mf_UnloadDataFile }
-};
-
-template<>
-int TmplExecutorModule<DataFileExecutorModule>::function_table_size =
-	arsize(function_table);
-
-
 
 DataStoreFile::DataStoreFile( ConfigElem& elem ) :
 	descriptor( elem.remove_string( "Descriptor" ) ),
