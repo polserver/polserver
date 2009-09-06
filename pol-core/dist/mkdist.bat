@@ -1,1 +1,1 @@
-nmake -f makefile.vc7 %1
+nmake -f makefile.vc %1

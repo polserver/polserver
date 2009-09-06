@@ -1893,13 +1893,15 @@ int xmain_inner( int argc, char *argv[] )
 	// Added atexit() call to remove the tray icon.
 	atexit(ShutdownSystemTrayHandling);
 #else
-#ifdef PERGON
+#ifdef __linux__
 	ofstream polpid;
 
-	polpid.open( "pol.pid", ios::out|ios::app );
+	polpid.open( (config.pidfile_path+"pol.pid").c_str(), ios::out|ios::trunc );
 
 	if (polpid.is_open())
 		polpid << decint(getpid());
+	else
+		cout << "Cannot create pid file in " << config.pidfile_path << endl;
 
 	polpid.close();
 #endif
