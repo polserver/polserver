@@ -17,9 +17,9 @@ Notes
 #include "../mobile/charactr.h"
 #include "../client.h"
 #include "../uoexhelp.h"
+#include "../clfunc.h"
 
 #include "clmod.h"
-#include "../clfunc.h"
 
 template<>
 TmplExecutorModule<ClilocExecutorModule>::FunctionDef
@@ -31,6 +31,7 @@ TmplExecutorModule<ClilocExecutorModule>::FunctionDef
 	{ "PrintTextAbovePrivateCL",		&ClilocExecutorModule::mf_PrintTextAbovePrivateCL }
 
 };
+
 template<>
 int TmplExecutorModule<ClilocExecutorModule>::function_table_size =
 	arsize(function_table);
