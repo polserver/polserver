@@ -174,14 +174,6 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
-				RelativePath=".\basicio.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\basicmod.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\berror.cpp"
 				>
 			</File>
@@ -191,10 +183,6 @@
 			</File>
 			<File
 				RelativePath=".\bstruct.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\pol\clemod.cpp"
 				>
 			</File>
 			<File
@@ -262,10 +250,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\mathemod.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\object.cpp"
 				>
 			</File>
@@ -311,14 +295,6 @@
 			Filter="h;hpp;hxx;hm;inl"
 			>
 			<File
-				RelativePath=".\basicio.h"
-				>
-			</File>
-			<File
-				RelativePath=".\basicmod.h"
-				>
-			</File>
-			<File
 				RelativePath=".\berror.h"
 				>
 			</File>
@@ -328,10 +304,6 @@
 			</File>
 			<File
 				RelativePath=".\bstruct.h"
-				>
-			</File>
-			<File
-				RelativePath="..\pol\clemod.h"
 				>
 			</File>
 			<File
@@ -395,10 +367,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\fileemod.h"
-				>
-			</File>
-			<File
 				RelativePath=".\filefmt.h"
 				>
 			</File>
@@ -408,10 +376,6 @@
 			</File>
 			<File
 				RelativePath=".\impstr.h"
-				>
-			</File>
-			<File
-				RelativePath=".\mathemod.h"
 				>
 			</File>
 			<File

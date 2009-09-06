@@ -15,7 +15,7 @@ Notes
 
 #include "clib/stlutil.h"
 
-#include "charactr.h"
+#include "mobile/charactr.h"
 #include "item.h"
 #include "storage.h"
 #include "multi/multi.h"

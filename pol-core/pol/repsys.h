@@ -13,7 +13,7 @@ Notes
 
 #include "polclock.h"
 
-#include "charactr.h"
+#include "mobile/charactr.h"
 #include "npc.h"
 #include "party.h"
 

@@ -10,7 +10,7 @@ Notes
 #include "clib/stl_inc.h"
 #include "realm.h"
 #include "pol/los.h"
-#include "pol/charactr.h"
+#include "../pol/mobile/charactr.h"
 
 bool Realm::has_los( const UObject& iatt, const UObject& itgt ) const
 {

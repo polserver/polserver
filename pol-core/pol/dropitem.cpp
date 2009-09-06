@@ -39,7 +39,7 @@ FIXME: Does STW use slots with KR or newest 2d? If so, we must do slot checks th
 #include "plib/realm.h"
 
 #include "multi/boat.h"
-#include "charactr.h"
+#include "mobile/charactr.h"
 #include "client.h"
 #include "dtrace.h"
 #include "getitem.h"

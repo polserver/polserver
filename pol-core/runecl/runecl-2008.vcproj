@@ -205,6 +205,30 @@
 	</References>
 	<Files>
 		<File
+			RelativePath="..\pol\module\basiciomod.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\pol\module\basiciomod.h"
+			>
+		</File>
+		<File
+			RelativePath="..\pol\module\basicmod.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\pol\module\basicmod.h"
+			>
+		</File>
+		<File
+			RelativePath="..\pol\module\mathmod.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\pol\module\mathmod.h"
+			>
+		</File>
+		<File
 			RelativePath=".\runecl.cpp"
 			>
 		</File>

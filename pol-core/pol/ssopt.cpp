@@ -22,7 +22,7 @@ Notes
 #include "clib/logfile.h"
 #include "ssopt.h"
 
-#include "attribute.h"
+#include "mobile/attribute.h"
 
 ServSpecOpt ssopt;
 

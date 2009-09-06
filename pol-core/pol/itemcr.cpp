@@ -24,7 +24,7 @@ Notes
 #include "armrtmpl.h"
 #include "multi/boat.h"
 #include "multi/boatcomp.h"
-#include "charactr.h"
+#include "mobile/charactr.h"
 #include "client.h"
 #include "containr.h"
 #include "door.h"

@@ -18,7 +18,7 @@ Notes
 
 #include "../../../lib/zlib/zlib.h"
 
-#include "../charactr.h"
+#include "../mobile/charactr.h"
 #include "../cgdata.h"
 #include "../client.h"
 #include "../core.h"

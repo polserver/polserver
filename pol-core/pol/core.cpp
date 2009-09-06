@@ -12,13 +12,13 @@ Notes
 
 #include "plib/realm.h"
 
-#include "charactr.h"
+#include "mobile/charactr.h"
 #include "cgdata.h"
 #include "client.h"
 #include "core.h"
 #include "itemdesc.h"
 #include "polsem.h"
-#include "polsystememod.h"
+#include "module/polsystemmod.h"
 #include "multi/multi.h"
 #include "realms.h"
 #include "ufunc.h"

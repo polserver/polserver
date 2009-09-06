@@ -12,11 +12,11 @@ Notes
 #define H_NPC_H
 
 #ifndef __CHARACTR_H
-#include "charactr.h"
+#	include "mobile/charactr.h"
 #endif
 
 #ifdef _MSC_VER
-#pragma warning(disable:4786)
+#	pragma warning(disable:4786)
 #endif
 
 #include <iosfwd>

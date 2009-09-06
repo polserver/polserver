@@ -57,7 +57,7 @@ Notes
 #	include "cfgrepos.h"
 #endif
 #include "cgdata.h"
-#include "charactr.h"
+#include "mobile/charactr.h"
 #include "client.h"
 #include "core.h"
 #include "exscrobj.h"
@@ -67,7 +67,7 @@ Notes
 #include "itemdesc.h"
 #include "npc.h"
 #include "objtype.h"
-#include "osemod.h"
+#include "module/osmod.h"
 #include "pktboth.h"
 #include "pktin.h"
 #include "pktout.h"

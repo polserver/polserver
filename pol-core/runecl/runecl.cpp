@@ -8,13 +8,17 @@ Notes
 */
 
 #include "clib/stl_inc.h"
+
 #ifdef _WIN32
-#include <windows.h>
+#	include <windows.h>
 #endif
+
 #include <string.h>
+
 #ifdef WIN32
-#include <process.h>
+#	include <process.h>
 #endif
+
 #include <stdio.h>
 #include <time.h>
 
@@ -34,14 +38,15 @@ Notes
 #include "bscript/token.h"
 #include "bscript/execmodl.h"
 #include "bscript/executor.h"
-#include "bscript/basicmod.h"
-#include "bscript/basicio.h"
-#include "bscript/mathemod.h"
 
 #include "clib/cmdargs.h"
 
+#include "../pol/module/basicmod.h"
+#include "../pol/module/basiciomod.h"
+#include "../pol/module/mathmod.h"
+
 #if REFPTR_DEBUG
-unsigned int ref_counted::_ctor_calls;
+	unsigned int ref_counted::_ctor_calls;
 #endif
 
 int quiet = 0;

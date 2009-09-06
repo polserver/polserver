@@ -14,9 +14,9 @@ Notes
 
 #include "bscript/eprog.h"
 
-#include "attribute.h"
+#include "mobile/attribute.h"
 #include "accounts/account.h"
-#include "charactr.h"
+#include "mobile/charactr.h"
 #include "client.h"
 #include "extcmd.h"
 #include "pktin.h"

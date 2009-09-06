@@ -16,7 +16,7 @@ Notes
 
 #include "polopt.h"
 
-#include "osemod.h"
+#include "module/osmod.h"
 
 class Executor;
 class UOExecutor;
@@ -34,9 +34,6 @@ typedef std::set<UOExecutor*> NoTimeoutHoldList;
 extern HoldList holdlist;
 extern NoTimeoutHoldList notimeoutholdlist;
 extern NoTimeoutHoldList debuggerholdlist;
-
-typedef std::map<unsigned long, UOExecutor*> PidList;
-extern PidList pidlist;
 
 extern int priority_divide;
 
