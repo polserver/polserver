@@ -36,6 +36,31 @@ Notes
 BApplicObjType cfgfile_type;
 BApplicObjType cfgelem_type;
 
+template<>
+TmplExecutorModule<ConfigFileExecutorModule>::FunctionDef   
+TmplExecutorModule<ConfigFileExecutorModule>::function_table[] = 
+{
+	{ "ReadConfigFile",		 &ConfigFileExecutorModule::mf_ConfigFile },
+	{ "FindConfigElem",		 &ConfigFileExecutorModule::mf_FindConfigElement },
+	{ "GetElemProperty",		&ConfigFileExecutorModule::mf_GetConfigString },
+	{ "GetConfigString",		&ConfigFileExecutorModule::mf_GetConfigString },
+	{ "GetConfigStringArray",   &ConfigFileExecutorModule::mf_GetConfigStringArray },
+	{ "GetConfigStringDictionary",   &ConfigFileExecutorModule::mf_GetConfigStringDictionary },
+	{ "GetConfigInt",		   &ConfigFileExecutorModule::mf_GetConfigInt },
+	{ "GetConfigReal",		  &ConfigFileExecutorModule::mf_GetConfigReal },
+	{ "GetConfigMaxIntKey",	 &ConfigFileExecutorModule::mf_GetConfigMaxIntKey },
+	{ "GetConfigStringKeys",	&ConfigFileExecutorModule::mf_GetConfigStringKeys },
+	{ "GetConfigIntKeys",	   &ConfigFileExecutorModule::mf_GetConfigIntKeys },
+	{ "ListConfigElemProps",	&ConfigFileExecutorModule::mf_ListConfigElemProps },
+	{ "AppendConfigFileElem",   &ConfigFileExecutorModule::mf_AppendConfigFileElem },
+	{ "UnloadConfigFile",	   &ConfigFileExecutorModule::mf_UnloadConfigFile },
+	{ "LoadTusScpFile",		 &ConfigFileExecutorModule::mf_LoadTusScpFile }
+};
+
+template<>
+int TmplExecutorModule<ConfigFileExecutorModule>::function_table_size =
+arsize(function_table);
+
 EConfigFileRefObjImp::EConfigFileRefObjImp( ref_ptr<StoredConfigFile> rcfile ) :
 	EConfigFileRefObjImpBase( &cfgfile_type, rcfile )
 {
@@ -105,32 +130,6 @@ BObjectRef EConfigElemRefObjImp::get_member( const char* membername )
 
 	return BObjectRef(new UninitObject);
 }
-
-template<>
-TmplExecutorModule<ConfigFileExecutorModule>::FunctionDef   
-	TmplExecutorModule<ConfigFileExecutorModule>::function_table[] = 
-{
-	{ "ReadConfigFile",		 &ConfigFileExecutorModule::mf_ConfigFile },
-	{ "FindConfigElem",		 &ConfigFileExecutorModule::mf_FindConfigElement },
-	{ "GetElemProperty",		&ConfigFileExecutorModule::mf_GetConfigString },
-	{ "GetConfigString",		&ConfigFileExecutorModule::mf_GetConfigString },
-	{ "GetConfigStringArray",   &ConfigFileExecutorModule::mf_GetConfigStringArray },
-	{ "GetConfigStringDictionary",   &ConfigFileExecutorModule::mf_GetConfigStringDictionary },
-	{ "GetConfigInt",		   &ConfigFileExecutorModule::mf_GetConfigInt },
-	{ "GetConfigReal",		  &ConfigFileExecutorModule::mf_GetConfigReal },
-	{ "GetConfigMaxIntKey",	 &ConfigFileExecutorModule::mf_GetConfigMaxIntKey },
-	{ "GetConfigStringKeys",	&ConfigFileExecutorModule::mf_GetConfigStringKeys },
-	{ "GetConfigIntKeys",	   &ConfigFileExecutorModule::mf_GetConfigIntKeys },
-	{ "ListConfigElemProps",	&ConfigFileExecutorModule::mf_ListConfigElemProps },
-	{ "AppendConfigFileElem",   &ConfigFileExecutorModule::mf_AppendConfigFileElem },
-	{ "UnloadConfigFile",	   &ConfigFileExecutorModule::mf_UnloadConfigFile },
-	{ "LoadTusScpFile",		 &ConfigFileExecutorModule::mf_LoadTusScpFile }
-};
-
-template<>
-int TmplExecutorModule<ConfigFileExecutorModule>::function_table_size =
-	arsize(function_table);
-
 
 bool ConfigFileExecutorModule::get_cfgfilename( const string& cfgdesc, 
 												string* cfgfile,
