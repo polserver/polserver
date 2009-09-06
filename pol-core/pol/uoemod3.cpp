@@ -12,8 +12,8 @@ Notes
 #include "bscript/berror.h"
 #include "bscript/impstr.h"
 
-#include "attribute.h"
-#include "charactr.h"
+#include "mobile/attribute.h"
+#include "mobile/charactr.h"
 #include "cliface.h"
 #include "skills.h"
 #include "statmsg.h"

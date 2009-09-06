@@ -18,7 +18,7 @@ Notes
 #include "clib/strutil.h"
 
 #include "plib/realm.h"
-#include "charactr.h"
+#include "mobile/charactr.h"
 #include "item.h"
 #include "multi/multi.h"
 #include "realms.h"

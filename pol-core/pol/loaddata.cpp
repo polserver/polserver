@@ -17,7 +17,7 @@ Notes
 #include "clib/strutil.h"
 #include "clib/wallclock.h"
 
-#include "charactr.h"
+#include "mobile/charactr.h"
 #include "clidata.h"
 #include "gflag.h"
 #include "fnsearch.h"

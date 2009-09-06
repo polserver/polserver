@@ -10,7 +10,7 @@ Notes
 
 #include "clib/stl_inc.h"
 #include "uobject.h"
-#include "charactr.h"
+#include "mobile/charactr.h"
 #include "item.h"
 #include "npc.h"
 #include "reftypes.h"

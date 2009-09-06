@@ -499,7 +499,7 @@ bool getSkillIdParam( Executor& exec, unsigned param, USKILLID& skillid )
     }
 }
 
-#include "attribute.h"
+#include "mobile/attribute.h"
 bool getAttributeParam( Executor& exec, unsigned param, const Attribute*& attr )
 {
     const String* attrname;

@@ -14,7 +14,7 @@ Notes
 #include "clib/cfgelem.h"
 #include "clib/stlutil.h"
 
-#include "attribute.h"
+#include "mobile/attribute.h"
 #include "plib/pkg.h"
 #include "uoskills.h"
 #include "skillid.h"

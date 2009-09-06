@@ -27,8 +27,8 @@ Notes
 #include "plib/realm.h"
 
 #include "accounts/account.h"
-#include "attribute.h"
-#include "charactr.h"
+#include "mobile/attribute.h"
+#include "mobile/charactr.h"
 #include "clidata.h"
 #include "client.h"
 #include "gameclck.h"
@@ -52,7 +52,7 @@ Notes
 #include "uworld.h"
 
 #include "bscript/bobject.h"
-#include "osemod.h"
+#include "module/osmod.h"
 #include "scrsched.h"
 #include "scrstore.h"
 #include "uoexec.h"

@@ -34,7 +34,7 @@ Notes
 #include "plib/realm.h"
 
 #include "accounts/account.h"
-#include "charactr.h"
+#include "mobile/charactr.h"
 #include "fnsearch.h"
 #include "gflag.h"
 #include "gprops.h"

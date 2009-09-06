@@ -14,7 +14,7 @@ Notes
 
 #include "bscript/impstr.h"
 
-#include "charactr.h"
+#include "mobile/charactr.h"
 #include "guardrgn.h"
 #include "polcfg.h"
 #include "scrdef.h"

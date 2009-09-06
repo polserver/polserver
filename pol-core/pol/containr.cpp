@@ -31,7 +31,7 @@ Notes
 #include "clib/stlutil.h"
 
 #include "client.h"
-#include "charactr.h"
+#include "mobile/charactr.h"
 #include "core.h"
 #include "equipmnt.h"
 #include "gflag.h"

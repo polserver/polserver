@@ -34,7 +34,7 @@ Notes
 #include "containr.h"
 #include "ufunc.h"
 #include "client.h"
-#include "charactr.h"
+#include "mobile/charactr.h"
 #include "itemdesc.h"
 #include "objtype.h"
 #include "plib/pkg.h"

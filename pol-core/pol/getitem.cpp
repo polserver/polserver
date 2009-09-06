@@ -27,7 +27,7 @@ Notes
 #include "plib/realm.h"
 
 #include "multi/boat.h"
-#include "charactr.h"
+#include "mobile/charactr.h"
 #include "client.h"
 #include "los.h"
 #include "msghandl.h"

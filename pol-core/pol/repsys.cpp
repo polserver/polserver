@@ -18,9 +18,9 @@ Notes
 #include "clib/logfile.h"
 #include "clib/stlutil.h"
 
-#include "charactr.h"
+#include "mobile/charactr.h"
 #include "fnsearch.h"
-#include "guilds.h"
+#include "module/guildmod.h"
 #include "npc.h"
 #include "npctmpl.h"
 #include "polclock.h"

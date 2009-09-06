@@ -17,7 +17,7 @@ Notes
 #include "clib/passert.h"
 
 #include "accounts/account.h"
-#include "charactr.h"
+#include "mobile/charactr.h"
 #include "client.h"
 #include "msghandl.h"
 #include "pktin.h"

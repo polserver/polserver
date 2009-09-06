@@ -20,9 +20,9 @@ Notes
 #include "msghandl.h"
 
 #include "cgdata.h"
-#include "charactr.h"
+#include "mobile/charactr.h"
 #include "item.h"
-#include "osemod.h"
+#include "module/osmod.h"
 #include "pktboth.h"
 #include "ufunc.h"
 #include "uoexec.h"

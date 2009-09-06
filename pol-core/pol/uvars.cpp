@@ -27,9 +27,9 @@ Notes
 #include "clib/stlutil.h"
 
 #include "accounts/account.h"
-#include "attribute.h"
+#include "mobile/attribute.h"
 #include "multi/boat.h"
-#include "charactr.h"
+#include "mobile/charactr.h"
 #include "client.h"
 #include "cmdlevel.h"
 #include "gprops.h"

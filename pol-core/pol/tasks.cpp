@@ -19,7 +19,7 @@ Notes
 #include "clib/logfile.h"
 #include "plib/realm.h"
 
-#include "charactr.h"
+#include "mobile/charactr.h"
 #include "client.h"
 #include "cmbtcfg.h"
 #include "decay.h"
