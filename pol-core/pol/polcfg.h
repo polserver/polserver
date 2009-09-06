@@ -17,6 +17,7 @@ struct PolConfig {
 	std::string uo_datafile_root;
 	std::string world_data_path;
 	std::string realm_data_path;
+	std::string pidfile_path;
 	unsigned short listen_port;
 	bool verbose;
 	unsigned short loglevel; // 0=nothing 10=lots

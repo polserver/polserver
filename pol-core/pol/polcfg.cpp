@@ -59,7 +59,10 @@ void read_pol_config( bool initial_load )
 
 		config.realm_data_path = elem.remove_string( "RealmDataPath", "realm/" );
 		config.realm_data_path = normalized_dir_form( config.realm_data_path );
-   
+
+		config.pidfile_path = elem.remove_string( "PidFilePath", "./" );
+		config.pidfile_path = normalized_dir_form( config.pidfile_path );
+
         config.listen_port = elem.remove_ushort( "ListenPort", 0 );
         config.check_integrity = true; // elem.remove_bool( "CheckIntegrity", true );
         config.count_resource_tiles = elem.remove_bool( "CountResourceTiles", false );
