@@ -14,7 +14,7 @@ Notes
 #include "clib/clib.h"
 #include "clib/endian.h"
 
-#include "charactr.h"
+#include "mobile/charactr.h"
 #include "client.h"
 #include "sockio.h"
 #include "pktboth.h"

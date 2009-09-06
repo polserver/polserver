@@ -15,7 +15,7 @@ Notes
 #include "clib/stl_inc.h"
 #include "clib/endian.h"
 
-#include "charactr.h"
+#include "mobile/charactr.h"
 #include "client.h"
 #include "itemdesc.h"
 #include "msghandl.h"

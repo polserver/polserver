@@ -25,7 +25,7 @@ In standingheight checks there is a nasty bug. Items NOT locked down
 #include "maptileserver.h"
 
 #include "pol/tiles.h"
-#include "pol/charactr.h"
+#include "../pol/mobile/charactr.h"
 #include "pol/cgdata.h"
 #include "pol/multi/customhouses.h"
 #include "pol/fnsearch.h"

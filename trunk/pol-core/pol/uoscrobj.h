@@ -18,7 +18,7 @@ Notes
 #include "bscript/parser.h"
 #include "clib/passert.h"
 
-#include "charactr.h"
+#include "mobile/charactr.h"
 #include "item.h"
 #include "multi/boat.h"
 #include "uobjcnt.h"
@@ -29,7 +29,6 @@ extern BApplicObjType echaracterequipobjimp_type;
 extern BApplicObjType euboatrefobjimp_type;
 extern BApplicObjType emultirefobjimp_type;
 extern BApplicObjType storage_area_type;
-extern BApplicObjType bounding_box_type;
 extern BApplicObjType menu_type;
 
 class ExecutorModule;

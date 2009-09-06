@@ -27,7 +27,7 @@ Notes
 
 #include "accounts/account.h"
 #include "cgdata.h"
-#include "charactr.h"
+#include "mobile/charactr.h"
 #include "client.h"
 #include "cliface.h"
 #include "crypt/cryptengine.h"

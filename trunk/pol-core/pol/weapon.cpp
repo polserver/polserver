@@ -34,8 +34,8 @@ Notes
 #include "plib/realm.h"
 
 #include "action.h"
-#include "attribute.h"
-#include "charactr.h"
+#include "mobile/attribute.h"
+#include "mobile/charactr.h"
 #include "dtrace.h"
 #include "gflag.h"
 #include "los.h"

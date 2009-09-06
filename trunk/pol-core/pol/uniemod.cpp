@@ -28,14 +28,14 @@ Notes
 
 #include "accounts/account.h"
 #include "cgdata.h"
-#include "charactr.h"
+#include "mobile/charactr.h"
 #include "client.h"
 #include "msghandl.h"
 #include "pktboth.h"
 #include "sockio.h"
 #include "ufunc.h"
 
-#include "osemod.h"
+#include "module/osmod.h"
 #include "uniemod.h"
 
 //////////////////////////////////////////////////////////////////////////

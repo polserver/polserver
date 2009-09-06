@@ -212,22 +212,22 @@ Notes
 #	pragma warning( disable: 4100 ) //unreferenced formal parameter
 #   pragma warning( disable: 4505 ) //unreferenced local function has been removed, vs seems to have problems with region virtuals
 
-#if 0
-    // this is useful for finding memory leaks
-    #include <crtdbg.h>
-    #include "../bscript/bobject.h"
-    #ifdef _DEBUG
-    #define DEBUG_CLIENTBLOCK   new( _CLIENT_BLOCK, __FILE__, __LINE__)
-    #else
-    #define DEBUG_CLIENTBLOCK
-    #endif // _DEBUG
+#	if 0
+		// this is useful for finding memory leaks
+#		include <crtdbg.h>
+#		include "../bscript/bobject.h"
+#		ifdef _DEBUG
+#			define DEBUG_CLIENTBLOCK   new( _CLIENT_BLOCK, __FILE__, __LINE__)
+#		else
+#			define DEBUG_CLIENTBLOCK
+#		endif // _DEBUG
 
-    #ifdef _DEBUG
-    #define new DEBUG_CLIENTBLOCK
-    #endif
+#		ifdef _DEBUG
+#			define new DEBUG_CLIENTBLOCK
+#		endif
 
-    //#define _CRTDBG_MAP_ALLOC 1
-#endif
+		//#define _CRTDBG_MAP_ALLOC 1
+#	endif
 
 
 #endif

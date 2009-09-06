@@ -218,18 +218,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\attack.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\attribute.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\attributemod.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\auxclient.cpp"
 				>
 			</File>
@@ -246,10 +234,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\cfgemod.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\cfgrepos.cpp"
 				>
 			</File>
@@ -258,23 +242,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\charactr.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\checkpnt.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\chrcast.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\chrituse.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\chrskuse.cpp"
 				>
 			</File>
 			<File
@@ -298,10 +266,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\combat.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\console.cpp"
 				>
 			</File>
@@ -314,10 +278,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\corpse.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\create.cpp"
 				>
 			</File>
@@ -327,10 +287,6 @@
 			</File>
 			<File
 				RelativePath=".\ctable.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\datastore.cpp"
 				>
 			</File>
 			<File
@@ -374,10 +330,6 @@
 				>
 			</File>
 			<File
-				RelativePath="fileaccess.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\fnsearch.cpp"
 				>
 			</File>
@@ -403,10 +355,6 @@
 			</File>
 			<File
 				RelativePath=".\guardrgn.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\guilds.cpp"
 				>
 			</File>
 			<File
@@ -623,10 +571,6 @@
 			</File>
 			<File
 				RelativePath=".\polstats.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\polsystememod.cpp"
 				>
 			</File>
 			<File
@@ -1018,10 +962,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\vitalmod.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\weapon.cpp"
 				>
 			</File>
@@ -1055,14 +995,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\attribute.h"
-				>
-			</File>
-			<File
-				RelativePath=".\attributemod.h"
-				>
-			</File>
-			<File
 				RelativePath=".\bannedips.h"
 				>
 			</File>
@@ -1071,19 +1003,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\cfgemod.h"
-				>
-			</File>
-			<File
 				RelativePath=".\cfgrepos.h"
 				>
 			</File>
 			<File
 				RelativePath=".\cgdata.h"
-				>
-			</File>
-			<File
-				RelativePath=".\charactr.h"
 				>
 			</File>
 			<File
@@ -1111,10 +1035,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\combat.h"
-				>
-			</File>
-			<File
 				RelativePath=".\config.h"
 				>
 			</File>
@@ -1132,10 +1052,6 @@
 			</File>
 			<File
 				RelativePath=".\ctable.h"
-				>
-			</File>
-			<File
-				RelativePath=".\datastore.h"
 				>
 			</File>
 			<File
@@ -1179,10 +1095,6 @@
 				>
 			</File>
 			<File
-				RelativePath="fileaccess.h"
-				>
-			</File>
-			<File
 				RelativePath=".\fnsearch.h"
 				>
 			</File>
@@ -1208,10 +1120,6 @@
 			</File>
 			<File
 				RelativePath=".\guardrgn.h"
-				>
-			</File>
-			<File
-				RelativePath=".\guilds.h"
 				>
 			</File>
 			<File
@@ -1311,10 +1219,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\osemod.h"
-				>
-			</File>
-			<File
 				RelativePath="packethooks.h"
 				>
 			</File>
@@ -1396,10 +1300,6 @@
 			</File>
 			<File
 				RelativePath=".\polstats.h"
-				>
-			</File>
-			<File
-				RelativePath=".\polsystememod.h"
 				>
 			</File>
 			<File
@@ -1691,10 +1591,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\vitalmod.h"
-				>
-			</File>
-			<File
 				RelativePath=".\watch.h"
 				>
 			</File>
@@ -1926,6 +1822,62 @@
 		<Filter
 			Name="mobile"
 			>
+			<File
+				RelativePath=".\mobile\attack.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\mobile\attribute.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\mobile\attribute.h"
+				>
+			</File>
+			<File
+				RelativePath=".\mobile\boundbox.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\mobile\boundbox.h"
+				>
+			</File>
+			<File
+				RelativePath=".\mobile\charactr.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\mobile\charactr.h"
+				>
+			</File>
+			<File
+				RelativePath=".\mobile\chrcast.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\mobile\chrituse.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\mobile\chrskuse.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\mobile\combat.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\mobile\combat.h"
+				>
+			</File>
+			<File
+				RelativePath=".\mobile\corpse.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\mobile\ufacing.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="multi"
@@ -1944,14 +1896,6 @@
 			</File>
 			<File
 				RelativePath=".\multi\boatcomp.h"
-				>
-			</File>
-			<File
-				RelativePath=".\multi\boatemod.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\multi\boatemod.h"
 				>
 			</File>
 			<File
@@ -2010,6 +1954,130 @@
 		<Filter
 			Name="region"
 			>
+		</Filter>
+		<Filter
+			Name="module"
+			>
+			<File
+				RelativePath=".\module\attributemod.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\module\attributemod.h"
+				>
+			</File>
+			<File
+				RelativePath=".\module\basiciomod.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\module\basiciomod.h"
+				>
+			</File>
+			<File
+				RelativePath=".\module\basicmod.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\module\basicmod.h"
+				>
+			</File>
+			<File
+				RelativePath=".\module\boatmod.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\module\boatmod.h"
+				>
+			</File>
+			<File
+				RelativePath=".\module\cfgmod.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\module\cfgmod.h"
+				>
+			</File>
+			<File
+				RelativePath=".\module\clmod.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\module\clmod.h"
+				>
+			</File>
+			<File
+				RelativePath=".\module\datastore.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\module\datastore.h"
+				>
+			</File>
+			<File
+				RelativePath=".\module\filemod.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\module\filemod.h"
+				>
+			</File>
+			<File
+				RelativePath=".\module\guildmod.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\module\guildmod.h"
+				>
+			</File>
+			<File
+				RelativePath=".\module\httpmod.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\module\httpmod.h"
+				>
+			</File>
+			<File
+				RelativePath=".\module\mathmod.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\module\mathmod.h"
+				>
+			</File>
+			<File
+				RelativePath=".\module\npcmod.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\module\npcmod.h"
+				>
+			</File>
+			<File
+				RelativePath=".\module\osmod.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\module\osmod.h"
+				>
+			</File>
+			<File
+				RelativePath=".\module\polsystemmod.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\module\polsystemmod.h"
+				>
+			</File>
+			<File
+				RelativePath=".\module\vitalmod.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\module\vitalmod.h"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>

@@ -12,7 +12,7 @@ Notes
 
 #include "clib/cfgelem.h"
 
-#include "attribute.h"
+#include "mobile/attribute.h"
 #include "plib/pkg.h"
 #include "skillid.h"
 #include "uoclient.h"

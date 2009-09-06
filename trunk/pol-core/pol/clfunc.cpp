@@ -18,7 +18,7 @@ Notes
 #include "clib/logfile.h"
 #include "clib/passert.h"
 
-#include "charactr.h"
+#include "mobile/charactr.h"
 #include "client.h"
 #include "pktoutid.h"
 #include "sockio.h"

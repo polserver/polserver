@@ -53,15 +53,15 @@ Notes
 #include "accounts/acscrobj.h"
 #include "armor.h"
 #include "armrtmpl.h"
-#include "attribute.h"
+#include "mobile/attribute.h"
 #include "multi/boatcomp.h"
-#include "charactr.h"
+#include "mobile/charactr.h"
 #include "client.h"
 #include "cmdlevel.h"
 #include "door.h"
 #include "exscrobj.h"
 #include "fnsearch.h"
-#include "guilds.h"
+#include "module/guildmod.h"
 #include "multi/house.h"
 #include "item.h"
 #include "umap.h"
@@ -90,7 +90,6 @@ BApplicObjType eitemrefobjimp_type;
 BApplicObjType echaracterrefobjimp_type;
 BApplicObjType echaracterequipobjimp_type;
 BApplicObjType storage_area_type;
-BApplicObjType bounding_box_type;
 BApplicObjType menu_type;
 
 const char* ECharacterRefObjImp::typeOf() const

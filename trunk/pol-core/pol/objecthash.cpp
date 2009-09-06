@@ -215,7 +215,7 @@ void ObjectHash::Clear()
 //    hash.clear();
 }
 
-#include "charactr.h"
+#include "mobile/charactr.h"
 void ObjectHash::ClearCharacterAccountReferences()
 {
 	OH_const_iterator itr;

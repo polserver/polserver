@@ -33,7 +33,7 @@ new Handler added to the core needs a new Version number here. As of 8/3/09 ther
 #include "plib/pkg.h"
 
 #include "accounts/account.h"
-#include "charactr.h"
+#include "mobile/charactr.h"
 #include "client.h"
 #include "msghandl.h"
 #include "packethooks.h"

@@ -9,7 +9,7 @@ Notes
 */
 
 #include "clib/stl_inc.h"
-#include "charactr.h"
+#include "mobile/charactr.h"
 #include "client.h"
 #include "msghandl.h"
 #include "pktin.h"

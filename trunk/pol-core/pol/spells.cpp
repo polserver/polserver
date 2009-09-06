@@ -24,7 +24,7 @@ Notes
 #include "clib/fileutil.h"
 
 #include "action.h"
-#include "charactr.h"
+#include "mobile/charactr.h"
 #include "client.h"
 #include "extcmd.h"
 #include "itemdesc.h"

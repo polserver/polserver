@@ -11,8 +11,8 @@ Notes
 #include "clib/stl_inc.h"
 #include "clib/refptr.h"
 
-#include "charactr.h"
-#include "osemod.h"
+#include "mobile/charactr.h"
+#include "module/osmod.h"
 #include "uobject.h"
 #include "ufunc.h"
 #include "uoexec.h"

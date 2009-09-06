@@ -34,7 +34,7 @@ Notes
 #include "clib/stlutil.h"
 
 #include "accounts/account.h"
-#include "charactr.h"
+#include "mobile/charactr.h"
 #include "client.h"
 #include "cmbtcfg.h"
 #include "multi/customhouses.h"

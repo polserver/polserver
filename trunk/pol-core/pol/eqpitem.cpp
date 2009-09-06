@@ -18,7 +18,7 @@ Notes
 #include "clib/endian.h"
 #include "clib/logfile.h"
 
-#include "charactr.h"
+#include "mobile/charactr.h"
 #include "client.h"
 #include "msghandl.h"
 #include "pktin.h"

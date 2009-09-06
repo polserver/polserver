@@ -11,8 +11,8 @@ Notes
 #include "clib/stl_inc.h"
 #include "clib/endian.h"
 
-#include "attribute.h"
-#include "charactr.h"
+#include "mobile/attribute.h"
+#include "mobile/charactr.h"
 #include "client.h"
 #include "cliface.h"
 #include "party.h"
