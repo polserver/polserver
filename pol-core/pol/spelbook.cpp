@@ -12,7 +12,7 @@ Notes
 #include "clib/stl_inc.h"
 #include "clib/cfgelem.h"
 #include "clib/endian.h"
-#include "charactr.h"
+#include "mobile/charactr.h"
 #include "itemdesc.h"
 #include "spelbook.h"
 #include "objtype.h"

@@ -36,7 +36,7 @@ Notes
 #include "clib/fdump.h"
 
 #include "accounts/account.h"
-#include "charactr.h"
+#include "mobile/charactr.h"
 #include "client.h"
 #include "core.h"
 #include "msghandl.h"

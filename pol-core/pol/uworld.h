@@ -18,7 +18,7 @@ Notes
 
 #include "clib/passert.h"
 #include "plib/realm.h"
-#include "charactr.h"
+#include "mobile/charactr.h"
 #include "uvars.h"
 #include "zone.h"
 

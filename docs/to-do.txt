@@ -192,7 +192,7 @@ Planning
         automatically knows which kind of packet type to send for full system messages. Better handling this way, optimized,
         and better support for all client versions dynamically.
     Unknown
-        Merge BasicIO and Basic EM code into a single EM and cpp/h
+        Merge BasicIO and Basic EM code into a single EM and cpp/h. Or should Print() go to OS.EM since it fits those better? :D
     Unknown
         Reorganize entire Crypt system to POL/Crypt, etc
     Unknown
@@ -200,4 +200,9 @@ Planning
     Unknown
         Rewrite POL/Module code, to have a centralized Modules.cpp/h for the major assigning, and the actual Module code in the relative
         cpp/h
+    Unknown
+        Consolidate NPC Classed code to npc,cpp/h, instead of scattered around.
+    Unknown
+        Consolidate NPC Template Handling to npctmplate files, like npc base code.
+
     

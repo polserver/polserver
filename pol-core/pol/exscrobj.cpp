@@ -27,7 +27,7 @@ Notes
 #include "exscrobj.h"
 
 #include "polcfg.h"
-#include "osemod.h"
+#include "module/osmod.h"
 #include "uoexec.h"
 #include "uoemod.h"
 #include "uoscrobj.h"

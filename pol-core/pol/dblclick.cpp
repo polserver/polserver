@@ -29,7 +29,7 @@ Notes
 #include "eventid.h"
 #include "itemdesc.h"
 #include "msghandl.h"
-#include "charactr.h"
+#include "mobile/charactr.h"
 #include "los.h"
 #include "npc.h"
 #include "pktin.h"

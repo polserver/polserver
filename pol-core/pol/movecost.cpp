@@ -18,7 +18,7 @@ Notes
 #include "clib/stlutil.h"
 #include "clib/strutil.h"
 
-#include "pol/charactr.h"
+#include "mobile/charactr.h"
 #include "movecost.h"
 #include "polcfg.h"
 #include "ssopt.h"

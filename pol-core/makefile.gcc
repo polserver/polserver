@@ -49,13 +49,13 @@ endif
 cpp_sources = \
     clib/progver.cpp plib/polver.cpp \
 	pol/accounts/account.cpp pol/accounts/accounts.cpp pol/accounts/acscrobj.cpp pol/allocd.cpp \
-	pol/armor.cpp pol/attack.cpp \
-	pol/attribute.cpp pol/auxclient.cpp \
+	pol/armor.cpp pol/mobile/attack.cpp \
+	pol/mobile/attribute.cpp pol/auxclient.cpp \
 	pol/bannedips.cpp pol/binaryfilescrobj.cpp pol/multi/boat.cpp pol/multi/boatcomp.cpp \
-	pol/multi/boatemod.cpp pol/bowsalut.cpp \
-	pol/cfgemod.cpp pol/cfgrepos.cpp pol/cgdata.cpp pol/charactr.cpp \
+	pol/module/boatmod.cpp pol/mobile/boundbox.cpp pol/bowsalut.cpp \
+	pol/module/cfgmod.cpp pol/cfgrepos.cpp pol/cgdata.cpp pol/mobile/charactr.cpp \
 	pol/checkpnt.cpp \
-	pol/chrcast.cpp pol/chrituse.cpp pol/chrskuse.cpp pol/client.cpp \
+	pol/mobile/chrcast.cpp pol/mobile/chrituse.cpp pol/mobile/chrskuse.cpp pol/client.cpp \
 	pol/clientio.cpp \
 	pol/cliface.cpp pol/cmbtcfg.cpp pol/cmdlevel.cpp pol/containr.cpp \
 	pol/console.cpp pol/core.cpp pol/corpse.cpp \
@@ -64,35 +64,36 @@ cpp_sources = \
 	pol/crypt/nocrypt.cpp pol/crypt/blowfish.cpp pol/crypt/twofish.cpp \
 	pol/ctable.cpp \
 	pol/multi/customhouses.cpp pol/multi/customhousehelp.cpp \
-	pol/datastore.cpp pol/dblclick.cpp pol/decay.cpp pol/dice.cpp \
+	pol/module/datastore.cpp pol/dblclick.cpp pol/decay.cpp pol/dice.cpp \
 	pol/door.cpp pol/dropitem.cpp \
 	pol/dye.cpp \
 	pol/eqpitem.cpp pol/equipdsc.cpp pol/equipmnt.cpp clib/esignal.cpp \
 	pol/exscrobj.cpp \
 	pol/extcmd.cpp \
-	pol/fileaccess.cpp pol/fnsearch.cpp \
+	pol/mdoule/filemod.cpp pol/fnsearch.cpp \
 	pol/gameclck.cpp pol/getitem.cpp pol/getmsg.cpp pol/gflag.cpp \
 	pol/gprepos.cpp pol/guardrgn.cpp\
-	pol/guilds.cpp \
+	pol/module/guildmod.cpp \
+	pol/module/basiciomod.cpp pol/module/basicmod.cpp \
 	pol/help.cpp pol/multi/house.cpp \
 	pol/iostats.cpp pol/irequest.cpp pol/item.cpp pol/item00.cpp \
 	pol/itemcr.cpp pol/itemdesc.cpp \
 	pol/landtile.cpp \
 	pol/listenpt.cpp pol/loadunld.cpp pol/lockable.cpp pol/logfiles.cpp \
 	pol/loaddata.cpp pol/login.cpp \
-	pol/menu.cpp pol/menusel.cpp pol/miscmsg.cpp \
+	pol/module/mathmod.cpp pol/menu.cpp pol/menusel.cpp pol/miscmsg.cpp \
 	pol/miscrgn.cpp pol/mkscrobj.cpp \
 	pol/movecost.cpp pol/movement.cpp pol/msgfiltr.cpp \
 	pol/multi/multicfg.cpp pol/multi/multicr.cpp pol/multi/multidef.cpp pol/multi/multis.cpp \
 	pol/multi/multidef2.cpp \
 	pol/musicrgn.cpp \
-	pol/npc.cpp pol/npctmpl.cpp pol/npctemplates.cpp \
-	pol/objecthash.cpp \
+	pol/npc.cpp pol/npctmpl.cpp pol/npctemplates.cpp pol/module/mpcmod.cpp \
+	pol/objecthash.cpp pol/module/osmod.cpp \
 	pol/packethooks.cpp pol/packetscrobj.cpp pol/party.cpp \
 	pol/pol.cpp pol/polcfg.cpp pol/polclock.cpp pol/poldbg.cpp \
 	pol/polfile2.cpp pol/polsem.cpp pol/polsig.cpp pol/polstats.cpp \
-	pol/polsystememod.cpp \
-	pol/poltest.cpp pol/polvar.cpp pol/polwww.cpp pol/profile.cpp \
+	pol/module/polsystemmod.cpp \
+	pol/poltest.cpp pol/polvar.cpp pol/polwww.cpp pol/module/httpmod.cpp pol/profile.cpp \
 	pol/proplist.cpp \
 	pol/reftypes.cpp pol/readcfg.cpp pol/region.cpp pol/repsys.cpp \
 	pol/resource.cpp \
@@ -120,15 +121,14 @@ cpp_sources = \
 	pol/vital.cpp \
 	pol/weapon.cpp \
 	pol/zone.cpp \
-	pol/attributemod.cpp pol/clemod.cpp pol/clfunc.cpp pol/storagemod.cpp pol/vitalmod.cpp \
+	pol/module/attributemod.cpp pol/module/clmod.cpp pol/clfunc.cpp pol/storagemod.cpp pol/module/vitalmod.cpp \
 	plib/mapfunc.cpp plib/mapserver.cpp plib/pkg.cpp plib/realm.cpp \
 	plib/filemapserver.cpp plib/inmemorymapserver.cpp \
 	plib/realmfunc.cpp \
 	plib/maptileserver.cpp plib/realmdescriptor.cpp plib/staticserver.cpp \
 	plib/testdrop1.cpp plib/testwalk1.cpp \
 	plib/testlos1.cpp plib/realmlos.cpp plib/realmlos2.cpp \
-	bscript/basicio.cpp bscript/basicmod.cpp bscript/berror.cpp \
-	bscript/blong.cpp bscript/bstruct.cpp \
+	bscript/berror.cpp bscript/blong.cpp bscript/bstruct.cpp \
 	bscript/compctx.cpp bscript/compilercfg.cpp bscript/eprog_read.cpp \
 	bscript/eprog2.cpp \
 	bscript/dbl.cpp bscript/dict.cpp bscript/eprog.cpp \
@@ -136,7 +136,6 @@ cpp_sources = \
 	bscript/escript_config.cpp bscript/escriptv.cpp bscript/execmodl.cpp \
 	bscript/executor.cpp \
 	bscript/fmodule.cpp \
-	bscript/mathemod.cpp \
 	bscript/object.cpp bscript/ofstrm.cpp bscript/objstrm.cpp \
 	bscript/parser.cpp \
 	bscript/str.cpp bscript/symcont.cpp \
@@ -220,7 +219,8 @@ uoconvert_sources=uoconvert/uoconvert.cpp  \
 	clib/xmain.cpp
 
 uotool_sources=uotool/uotool.cpp \
-	uotool/uofile04.cpp uotool/uofile05.cpp
+	uotool/uofile04.cpp uotool/uofile05.cpp \
+	pol/module/basiciomod.cpp pol/module/basicmod.cpp pol/module/mathmod.cpp
 #	clib/esignal.cpp clib/fileutil.cpp \
 #	clib/cfgfile.cpp clib/fdump.cpp clib/strutil.cpp \
 #	clib/dirlist.cpp clib/passert.cpp clib/progver.cpp \

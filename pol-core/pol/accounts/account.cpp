@@ -17,7 +17,7 @@ Notes
 
 #include "account.h"
 #include "accounts.h"
-#include "../charactr.h"
+#include "../mobile/charactr.h"
 #include "../client.h"
 #include "../cmdlevel.h"
 #include "../polcfg.h"

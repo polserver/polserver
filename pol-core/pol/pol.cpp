@@ -90,7 +90,7 @@ Notes
 #include "allocd.h"
 #include "multi/boat.h"
 #include "cgdata.h"
-#include "charactr.h"
+#include "mobile/charactr.h"
 #include "checkpnt.h"
 #include "client.h"
 #include "cliface.h"

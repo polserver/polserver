@@ -20,7 +20,7 @@ Notes
 #include "plib/realm.h"
 
 #include "accounts/account.h"
-#include "charactr.h"
+#include "mobile/charactr.h"
 #include "client.h"
 #include "fnsearch.h"
 #include "itemdesc.h"

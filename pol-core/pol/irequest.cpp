@@ -14,8 +14,8 @@ Notes
 #include "clib/fdump.h"
 #include "clib/clib.h"
 
-#include "attribute.h"
-#include "charactr.h"
+#include "mobile/attribute.h"
+#include "mobile/charactr.h"
 #include "client.h"
 #include "msghandl.h"
 #include "pktboth.h"
