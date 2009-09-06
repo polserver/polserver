@@ -1,4 +1,7 @@
 -- POL099 --
+09-05-2009 MuadDib:
+    Added:  POL Linux builds will now create a PID file when loading. Patch submitted by Crazyman
+
 09-05-2009 Turley: 
     Added:  struct .? and .- as shortcut for .exists() and .erase()
 
