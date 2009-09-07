@@ -31,7 +31,7 @@ Notes
 #include "scrdef.h"
 #include "scrsched.h"
 #include "sockets.h"
-#include "uoemod.h"
+#include "module/uomod.h"
 #include "uoexec.h"
 
 class AuxClientThread;

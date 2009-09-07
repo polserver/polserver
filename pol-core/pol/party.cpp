@@ -41,7 +41,7 @@ Notes
 #include "clfunc.h"
 #include "target.h"
 #include "uobject.h"
-#include "uoemod.h"
+#include "module/uomod.h"
 #include "uoscrobj.h"
 #include "bscript/objmembers.h"
 #include "bscript/objmethods.h"

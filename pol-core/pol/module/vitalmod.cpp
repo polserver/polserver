@@ -19,7 +19,7 @@ Notes
 #include "../spells.h"
 #include "../statmsg.h"
 #include "../ufunc.h"
-#include "../uoemod.h"
+#include "uomod.h"
 #include "../uoexhelp.h"
 #include "../vital.h"
 #include "vitalmod.h"

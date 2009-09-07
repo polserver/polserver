@@ -762,22 +762,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\uoemod.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\uoemod2.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\uoemod3.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\uoemod4.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\uoexhelp.cpp"
 				>
 			</File>
@@ -1519,10 +1503,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\uoemod.h"
-				>
-			</File>
-			<File
 				RelativePath=".\uoexec.h"
 				>
 			</File>
@@ -2068,6 +2048,26 @@
 			</File>
 			<File
 				RelativePath=".\module\unimod.h"
+				>
+			</File>
+			<File
+				RelativePath=".\module\uomod.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\module\uomod.h"
+				>
+			</File>
+			<File
+				RelativePath=".\module\uomod2.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\module\uomod3.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\module\uomod4.cpp"
 				>
 			</File>
 			<File

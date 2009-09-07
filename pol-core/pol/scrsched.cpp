@@ -57,7 +57,7 @@ Notes
 #include "scrstore.h"
 #include "module/storagemod.h"
 #include "module/unimod.h"
-#include "uoemod.h"
+#include "module/uomod.h"
 #include "uoexec.h"
 #include "module/utilmod.h"
 #include "module/vitalmod.h"

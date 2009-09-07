@@ -67,7 +67,7 @@ Notes
 #include "uvars.h"
 #include "module/osmod.h"
 #include "uoexec.h"
-#include "uoemod.h"
+#include "module/uomod.h"
 #include "objtype.h"
 #include "ufunc.h"
 #include "module/unimod.h"
