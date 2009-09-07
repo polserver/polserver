@@ -58,7 +58,7 @@ cpp_sources = \
 	pol/mobile/chrcast.cpp pol/mobile/chrituse.cpp pol/mobile/chrskuse.cpp pol/client.cpp \
 	pol/clientio.cpp \
 	pol/cliface.cpp pol/cmbtcfg.cpp pol/cmdlevel.cpp pol/containr.cpp \
-	pol/console.cpp pol/core.cpp pol/corpse.cpp \
+	pol/console.cpp pol/core.cpp pol/mobile/corpse.cpp \
 	pol/create.cpp \
 	pol/cryptengine.cpp pol/crypt/cryptbase.cpp pol/crypt/cryptkey.cpp \
 	pol/crypt/nocrypt.cpp pol/crypt/blowfish.cpp pol/crypt/twofish.cpp \
@@ -189,15 +189,15 @@ ecompile_sources=ecompile/ecompile.cpp \
 
 runecl_sources=runecl/runecl.cpp \
 	bscript/executor.cpp bscript/execmodl.cpp bscript/dbl.cpp \
-	bscript/basicio.cpp bscript/basicmod.cpp bscript/berror.cpp \
+	pol/module/basiciomod.cpp pol/module/basicmod.cpp bscript/berror.cpp \
 	bscript/blong.cpp bscript/bstruct.cpp bscript/compctx.cpp \
 	bscript/dict.cpp bscript/eprog.cpp bscript/eprog2.cpp \
 	bscript/eprog3.cpp bscript/eprog_read.cpp bscript/escript_config.cpp \
 	bscript/escriptv.cpp bscript/escrutil.cpp bscript/fmodule.cpp \
-	bscript/mathemod.cpp bscript/object.cpp bscript/objstrm.cpp \
+	pol/module/mathmod.cpp bscript/object.cpp bscript/objstrm.cpp \
 	bscript/ofstrm.cpp bscript/str.cpp bscript/symcont.cpp \
 	bscript/tkn_strm.cpp bscript/token.cpp bscript/userfunc.cpp \
-        bscript/parser.cpp bscript/compilercfg.cpp \
+	bscript/parser.cpp bscript/compilercfg.cpp \
 	clib/passert.cpp clib/rarray.cpp clib/strutil.cpp  \
 	clib/endian.cpp clib/esignal.cpp clib/logfile.cpp clib/fdump.cpp \
 	clib/stracpy.cpp clib/cfgfile.cpp clib/fileutil.cpp \
