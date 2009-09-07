@@ -15,7 +15,7 @@ Notes
 #include "clib/endian.h"
 
 #include "mobile/charactr.h"
-#include "client.h"
+#include "network/client.h"
 #include "sockio.h"
 #include "pktboth.h"
 #include "ufunc.h"

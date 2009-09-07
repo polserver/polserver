@@ -19,8 +19,8 @@ Notes
 #include "../../../lib/zlib/zlib.h"
 
 #include "../mobile/charactr.h"
-#include "../cgdata.h"
-#include "../client.h"
+#include "../network/cgdata.h"
+#include "../network/client.h"
 #include "../core.h"
 #include "../uvars.h"
 #include "house.h"

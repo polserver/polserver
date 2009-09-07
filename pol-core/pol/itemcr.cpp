@@ -25,7 +25,7 @@ Notes
 #include "multi/boat.h"
 #include "multi/boatcomp.h"
 #include "mobile/charactr.h"
-#include "client.h"
+#include "network/client.h"
 #include "containr.h"
 #include "door.h"
 #include "dye.h"

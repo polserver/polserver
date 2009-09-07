@@ -14,7 +14,7 @@ Notes
 
 #include "../mobile/attribute.h"
 #include "../mobile/charactr.h"
-#include "../cliface.h"
+#include "../network/cliface.h"
 #include "../skills.h"
 #include "../statmsg.h"
 #include "uomod.h"

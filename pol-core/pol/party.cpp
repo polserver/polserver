@@ -26,7 +26,7 @@ Notes
 
 #include "plib/realm.h"
 #include "mobile/charactr.h"
-#include "client.h"
+#include "network/client.h"
 #include "fnsearch.h"
 #include "polcfg.h"
 #include "statmsg.h"

@@ -17,7 +17,7 @@ Notes
 #include "../mobile/attribute.h"
 #include "attributemod.h"
 #include "../mobile/charactr.h"
-#include "../cliface.h"
+#include "../network/cliface.h"
 #include "../skilladv.h"
 #include "../uoexhelp.h"
 

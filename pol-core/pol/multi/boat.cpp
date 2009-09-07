@@ -38,7 +38,7 @@ Notes
 #include "boat.h"
 #include "boatcomp.h"
 #include "../mobile/charactr.h"
-#include "../client.h"
+#include "../network/client.h"
 #include "../core.h"
 #include "../fnsearch.h"
 #include "../itemdesc.h"

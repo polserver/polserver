@@ -35,7 +35,7 @@ Notes
 #include "accounts.h"
 #include "acscrobj.h"
 #include "../mobile/charactr.h"
-#include "../client.h"
+#include "../network/client.h"
 #include "../cmdlevel.h"
 #include "../core.h"
 #include "../objecthash.h"

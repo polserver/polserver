@@ -14,7 +14,7 @@ In standingheight checks there is a nasty bug. Items NOT locked down
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
 #include "realm.h"
 #include "realmdescriptor.h"
@@ -24,20 +24,20 @@ In standingheight checks there is a nasty bug. Items NOT locked down
 #include "mapshape.h"
 #include "maptileserver.h"
 
-#include "pol/tiles.h"
+#include "../pol/tiles.h"
 #include "../pol/mobile/charactr.h"
-#include "pol/cgdata.h"
-#include "pol/multi/customhouses.h"
-#include "pol/fnsearch.h"
-#include "pol/ssopt.h"
-#include "pol/uvars.h"
-#include "pol/uworld.h"
-#include "pol/item.h"
-#include "pol/itemdesc.h"
-#include "pol/itemdesc.h"
-#include "pol/multi/multi.h"
-#include "pol/multi/house.h"
-#include "pol/uconst.h"
+#include "../pol/network/cgdata.h"
+#include "../pol/multi/customhouses.h"
+#include "../pol/fnsearch.h"
+#include "../pol/ssopt.h"
+#include "../pol/uvars.h"
+#include "../pol/uworld.h"
+#include "../pol/item.h"
+#include "../pol/itemdesc.h"
+#include "../pol/itemdesc.h"
+#include "../pol/multi/multi.h"
+#include "../pol/multi/house.h"
+#include "../pol/uconst.h"
 
 #define HULL_HEIGHT_BUFFER 2
 

@@ -25,7 +25,7 @@ Notes
 
 #include "action.h"
 #include "mobile/charactr.h"
-#include "client.h"
+#include "network/client.h"
 #include "extcmd.h"
 #include "itemdesc.h"
 #include "miscrgn.h"

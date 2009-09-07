@@ -19,7 +19,7 @@ Notes
 #include "clib/logfile.h"
 
 #include "mobile/charactr.h"
-#include "client.h"
+#include "network/client.h"
 #include "msghandl.h"
 #include "pktin.h"
 #include "ufunc.h"

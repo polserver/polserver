@@ -26,7 +26,7 @@ Notes
 #include "bscript/objmethods.h"
 
 #include "mobile/charactr.h"
-#include "client.h"
+#include "network/client.h"
 #include "packetscrobj.h"
 #include "polsem.h"
 #include "realms.h"
