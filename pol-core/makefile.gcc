@@ -116,7 +116,7 @@ cpp_sources = \
 	pol/uoemod3.cpp pol/uoemod4.cpp pol/uoexhelp.cpp \
 	pol/uolisten.cpp \
 	pol/uoscrobj.cpp pol/uoskills.cpp pol/useskill.cpp \
-	pol/utilemod.cpp \
+	pol/module/utilmod.cpp pol/module/sqlmod.cpp \
 	pol/uvars.cpp pol/uworld.cpp \
 	pol/vital.cpp \
 	pol/weapon.cpp \

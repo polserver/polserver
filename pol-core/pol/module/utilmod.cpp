@@ -11,17 +11,18 @@ Notes
 
 #include <time.h>
 
-#include "clib/stl_inc.h"
-#include "clib/random.h"
-#include "clib/rawtypes.h"
+#include "../../clib/stl_inc.h"
+#include "../../clib/random.h"
+#include "../../clib/rawtypes.h"
 
-#include "bscript/berror.h"
-#include "bscript/execmodl.h"
-#include "bscript/executor.h"
-#include "bscript/impstr.h"
+#include "../../bscript/berror.h"
+#include "../../bscript/execmodl.h"
+#include "../../bscript/executor.h"
+#include "../../bscript/impstr.h"
 
-#include "dice.h"
-#include "utilemod.h"
+#include "../dice.h"
+
+#include "utilmod.h"
 
 
 template<>

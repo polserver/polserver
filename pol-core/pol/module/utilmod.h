@@ -8,9 +8,8 @@ Notes
 
 */
 
-
-#ifndef UTILEMOD_H
-#define UTILEMOD_H
+#ifndef __UTILMOD_H
+#define __UTILMOD_H
 
 class UtilExecutorModule : public TmplExecutorModule<UtilExecutorModule>
 {
@@ -24,4 +23,5 @@ public:
 	BObjectImp* mf_RandomIntMinMax();
 };
 
-#endif
+#endif // UTILMOD_H
+
