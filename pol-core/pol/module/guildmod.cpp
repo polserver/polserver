@@ -33,7 +33,7 @@ Notes
 #include "../proplist.h"
 #include "../ufunc.h"
 #include "../uobject.h"
-#include "../uoemod.h"
+#include "uomod.h"
 #include "../uoscrobj.h"
 
 /// Guild Object

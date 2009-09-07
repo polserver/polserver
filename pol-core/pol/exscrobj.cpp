@@ -29,7 +29,7 @@ Notes
 #include "polcfg.h"
 #include "module/osmod.h"
 #include "uoexec.h"
-#include "uoemod.h"
+#include "module/uomod.h"
 #include "uoscrobj.h"
 
 BApplicObjType scriptexobjimp_type;

@@ -18,7 +18,7 @@ Notes
 #include "../scrsched.h"
 #include "../spells.h"
 
-#include "../uoemod.h"
+#include "../module/uomod.h"
 #include "../uoexec.h"
 
 #include "charactr.h"

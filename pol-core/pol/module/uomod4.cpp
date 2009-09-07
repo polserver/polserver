@@ -14,22 +14,22 @@ Notes
   Handles moving objects within a realm and from realm to realm.
 */
 
-#include "clib/stl_inc.h"
-#include "clib/strutil.h"
-#include "clib/stlutil.h"
+#include "../../clib/stl_inc.h"
+#include "../../clib/strutil.h"
+#include "../../clib/stlutil.h"
 
-#include "bscript/berror.h"
-#include "bscript/executor.h"
-#include "bscript/impstr.h"
+#include "../../bscript/berror.h"
+#include "../../bscript/executor.h"
+#include "../../bscript/impstr.h"
 
-#include "uoemod.h"
-#include "core.h"
-#include "exscrobj.h"
-#include "polclass.h"
-#include "realms.h"
-#include "ufunc.h"
-#include "uoscrobj.h"
-#include "uworld.h"
+#include "uomod.h"
+#include "../core.h"
+#include "../exscrobj.h"
+#include "../polclass.h"
+#include "../realms.h"
+#include "../ufunc.h"
+#include "../uoscrobj.h"
+#include "../uworld.h"
 
 BObjectImp* UOExecutorModule::mf_MoveObjectToLocation(/*object, x, y, z, realm, flags*/)
 {
