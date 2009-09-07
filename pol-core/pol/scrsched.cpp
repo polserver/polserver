@@ -59,7 +59,7 @@ Notes
 #include "uniemod.h"
 #include "uoemod.h"
 #include "uoexec.h"
-#include "utilemod.h"
+#include "module/utilmod.h"
 #include "module/vitalmod.h"
 #include "watch.h"
 
