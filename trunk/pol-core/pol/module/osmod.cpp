@@ -51,7 +51,7 @@ Notes
 #include "../uniemod.h"
 #include "../uoemod.h"
 #include "../uoexec.h"
-#include "../utilemod.h"
+#include "utilmod.h"
 #include "vitalmod.h"
 #include "../watch.h"
 

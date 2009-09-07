@@ -946,10 +946,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\utilemod.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\uvars.cpp"
 				>
 			</File>
@@ -1571,10 +1567,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\utilemod.h"
-				>
-			</File>
-			<File
 				RelativePath=".\utype.h"
 				>
 			</File>
@@ -2068,6 +2060,22 @@
 			</File>
 			<File
 				RelativePath=".\module\polsystemmod.h"
+				>
+			</File>
+			<File
+				RelativePath=".\module\sqlmod.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\module\sqlmod.h"
+				>
+			</File>
+			<File
+				RelativePath=".\module\utilmod.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\module\utilmod.h"
 				>
 			</File>
 			<File
