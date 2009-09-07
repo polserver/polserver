@@ -12,7 +12,7 @@ Notes
 #ifndef __TOOLTIPS_H
 #define __TOOLTIPS_H
 
-#include "client.h"
+#include "network/client.h"
 #include "uconst.h"
 #include "uobject.h"
 

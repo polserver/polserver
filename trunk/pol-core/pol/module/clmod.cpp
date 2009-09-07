@@ -15,7 +15,7 @@ Notes
 #include "../../bscript/berror.h"
 
 #include "../mobile/charactr.h"
-#include "../client.h"
+#include "../network/client.h"
 #include "../uoexhelp.h"
 #include "../clfunc.h"
 

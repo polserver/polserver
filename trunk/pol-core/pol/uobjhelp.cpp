@@ -19,7 +19,7 @@ Notes
 #include "ufuncstd.h"
 #include "uobjhelp.h"
 #include "uobject.h"
-#include "client.h"
+#include "network/client.h"
 
 void UObjectHelper::ShowProperties( Client* client, PropertyList& proplist )
 {

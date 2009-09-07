@@ -16,7 +16,7 @@ Notes
 #include "../../clib/cfgelem.h"
 #include "../../clib/rawtypes.h"
 
-#include "../client.h"
+#include "../network/client.h"
 #include "../pktboth.h"
 
 #define CUSTOM_HOUSE_NUM_PLANES 5

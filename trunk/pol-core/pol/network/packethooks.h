@@ -14,11 +14,11 @@ new Handler added to the core needs a new Version number here. As of 8/3/09 ther
 #ifndef PACKETHOOKS_H
 #define PACKETHOOKS_H
 
-#include "clib/stl_inc.h"
+#include "../../clib/stl_inc.h"
 
 #include "client.h"
-#include "packetscrobj.h"
-#include "syshook.h"
+#include "../packetscrobj.h"
+#include "../syshook.h"
 
 class PacketHookData 
 {

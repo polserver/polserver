@@ -20,7 +20,7 @@ Notes
 #include "plib/realm.h"
 
 #include "mobile/charactr.h"
-#include "client.h"
+#include "network/client.h"
 #include "cmbtcfg.h"
 #include "decay.h"
 #include "polcfg.h"

@@ -56,7 +56,7 @@ Notes
 #include "mobile/attribute.h"
 #include "multi/boatcomp.h"
 #include "mobile/charactr.h"
-#include "client.h"
+#include "network/client.h"
 #include "cmdlevel.h"
 #include "door.h"
 #include "exscrobj.h"

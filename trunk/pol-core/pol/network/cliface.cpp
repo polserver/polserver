@@ -8,21 +8,21 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
-#include "clib/endian.h"
+#include "../../clib/stl_inc.h"
+#include "../../clib/endian.h"
 
-#include "mobile/attribute.h"
-#include "mobile/charactr.h"
+#include "../mobile/attribute.h"
+#include "../mobile/charactr.h"
 #include "client.h"
 #include "cliface.h"
-#include "party.h"
-#include "pktboth.h"
-#include "ssopt.h"
-#include "statmsg.h"
-#include "ufunc.h"
-#include "uoclient.h"
-#include "uoskills.h"
-#include "vital.h"
+#include "../party.h"
+#include "../pktboth.h"
+#include "../ssopt.h"
+#include "../statmsg.h"
+#include "../ufunc.h"
+#include "../uoclient.h"
+#include "../uoskills.h"
+#include "../vital.h"
 
 UOClientInterface uo_client_interface;
 

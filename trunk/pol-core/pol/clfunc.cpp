@@ -19,7 +19,7 @@ Notes
 #include "clib/passert.h"
 
 #include "mobile/charactr.h"
-#include "client.h"
+#include "network/client.h"
 #include "pktoutid.h"
 #include "sockio.h"
 #include "clfunc.h"

@@ -45,7 +45,7 @@ Notes
 #include "plib/realm.h"
 
 #include "mobile/attribute.h"
-#include "client.h"
+#include "network/client.h"
 #include "dice.h"
 #include "eventid.h"
 #include "fnsearch.h"

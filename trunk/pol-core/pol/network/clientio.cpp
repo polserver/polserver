@@ -7,27 +7,27 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../../clib/stl_inc.h"
 
-#include "ctable.h"
-#include "uvars.h"
-#include "ucrypto.h"
-#include "sockio.h"
+#include "../ctable.h"
+#include "../uvars.h"
+#include "../ucrypto.h"
+#include "../sockio.h"
 
 #define OPT_LOG_CLIENT_DATA 0
 
-#include "config.h"
+#include "../config.h"
 
-#include "clib/logfile.h"
-#include "clib/fdump.h"
-#include "clib/passert.h"
+#include "../../clib/logfile.h"
+#include "../../clib/fdump.h"
+#include "../../clib/passert.h"
 
 #include "client.h"
 #include "iostats.h"
 #include "packethooks.h"
-#include "polsig.h"
-#include "polstats.h"
-#include "ucfg.h"
+#include "../polsig.h"
+#include "../polstats.h"
+#include "../ucfg.h"
 
 string Client::ipaddrAsString() const
 {
@@ -240,7 +240,7 @@ void Client::transmit_encrypted( const void *data, int len )
 	xmit( xoutbuffer, pch-xoutbuffer+1 );
     THREAD_CHECKPOINT( active_client, 116 );
 }
-#include "packetscrobj.h"
+#include "../packetscrobj.h"
 void Client::transmit( const void *data, int len )
 {
     ref_ptr<BPacket> p;

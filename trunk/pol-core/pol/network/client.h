@@ -23,13 +23,15 @@ Notes
 #include <memory>
 #include <string>
 
-#include "clib/rawtypes.h"
-#include "pktin.h"
-#include "sockets.h"
-#include "ucfg.h"
-#include "ucrypto.h"
-#include "crypt/cryptengine.h"
-#include "bscript/bstruct.h"
+#include "../../clib/rawtypes.h"
+
+#include "../../bscript/bstruct.h"
+
+#include "../pktin.h"
+#include "../sockets.h"
+#include "../ucfg.h"
+#include "../ucrypto.h"
+#include "../crypt/cryptengine.h"
 
 class MessageTypeFilter;
 class Account;

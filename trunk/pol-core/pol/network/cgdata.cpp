@@ -8,18 +8,18 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../../clib/stl_inc.h"
 
-#include "clib/unicode.h"
+#include "../../clib/unicode.h"
 
-#include "module/osmod.h"
-#include "module/unimod.h"
-#include "module/uomod.h"
-#include "uoexec.h"
+#include "../module/osmod.h"
+#include "../module/unimod.h"
+#include "../module/uomod.h"
+#include "../uoexec.h"
 
 #include "cgdata.h"
-#include "fnsearch.h"
-#include "multi/house.h"
+#include "../fnsearch.h"
+#include "../multi/house.h"
 
 ClientGameData::ClientGameData() : 
     vendor(NULL),
