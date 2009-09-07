@@ -21,7 +21,7 @@ Notes
 #include "bscript/objmethods.h"
 
 #include "plib/realm.h"
-#include "client.h"
+#include "network/client.h"
 #include "fnsearch.h"
 #include "itemdesc.h"
 #include "pktboth.h"

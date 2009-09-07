@@ -15,37 +15,37 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../../clib/stl_inc.h"
 
-#include "clib/fdump.h"
-#include "clib/logfile.h"
-#include "clib/stlutil.h"
-#include "clib/strutil.h" //CNXBUG
-#include "clib/unicode.h"
+#include "../../clib/fdump.h"
+#include "../../clib/logfile.h"
+#include "../../clib/stlutil.h"
+#include "../../clib/strutil.h" //CNXBUG
+#include "../../clib/unicode.h"
 
-#include "bscript/berror.h"
+#include "../../bscript/berror.h"
 
-#include "accounts/account.h"
+#include "../accounts/account.h"
 #include "cgdata.h"
-#include "mobile/charactr.h"
+#include "../mobile/charactr.h"
 #include "client.h"
 #include "cliface.h"
-#include "crypt/cryptengine.h"
-#include "msgfiltr.h"
-#include "pktin.h"
-#include "polcfg.h"
-#include "polsig.h"
-#include "polstats.h"
-#include "sockio.h"
-#include "ssopt.h"
-#include "module/unimod.h"
-#include "uoclient.h"
-#include "uvars.h"
-#include "uworld.h"
-#include "xbuffer.h"
+#include "../crypt/cryptengine.h"
+#include "../msgfiltr.h"
+#include "../pktin.h"
+#include "../polcfg.h"
+#include "../polsig.h"
+#include "../polstats.h"
+#include "../sockio.h"
+#include "../ssopt.h"
+#include "../module/unimod.h"
+#include "../uoclient.h"
+#include "../uvars.h"
+#include "../uworld.h"
+#include "../xbuffer.h"
 
 // only in here temporarily, until logout-on-disconnect stuff is removed
-#include "ufunc.h"
+#include "../ufunc.h"
 
 unsigned long Client::instance_counter_;
 

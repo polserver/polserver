@@ -21,7 +21,7 @@ Notes
 
 #include "accounts/account.h"
 #include "mobile/charactr.h"
-#include "client.h"
+#include "network/client.h"
 #include "fnsearch.h"
 #include "itemdesc.h"
 #include "los.h"
@@ -37,7 +37,7 @@ Notes
 #include "polclass.h"
 
 #include "guardrgn.h"
-#include "cgdata.h"
+#include "network/cgdata.h"
 
 #define MAX_CURSORS 500
 

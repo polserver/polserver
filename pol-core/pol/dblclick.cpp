@@ -25,7 +25,7 @@ Notes
 
 #include "plib/realm.h"
 
-#include "client.h"
+#include "network/client.h"
 #include "eventid.h"
 #include "itemdesc.h"
 #include "msghandl.h"

@@ -30,7 +30,7 @@ Notes
 #include "clib/random.h"
 #include "clib/stlutil.h"
 
-#include "client.h"
+#include "network/client.h"
 #include "mobile/charactr.h"
 #include "core.h"
 #include "equipmnt.h"

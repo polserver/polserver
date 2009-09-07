@@ -222,10 +222,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\bannedips.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\binaryfilescrobj.cpp"
 				>
 			</File>
@@ -238,23 +234,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\cgdata.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\checkpnt.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\client.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\clientio.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\cliface.cpp"
 				>
 			</File>
 			<File
@@ -359,10 +339,6 @@
 			</File>
 			<File
 				RelativePath=".\help.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\iostats.cpp"
 				>
 			</File>
 			<File
@@ -503,10 +479,6 @@
 			</File>
 			<File
 				RelativePath="objecthash.cpp"
-				>
-			</File>
-			<File
-				RelativePath="packethooks.cpp"
 				>
 			</File>
 			<File
@@ -967,10 +939,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\bannedips.h"
-				>
-			</File>
-			<File
 				RelativePath=".\binaryfilescrobj.h"
 				>
 			</File>
@@ -979,23 +947,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\cgdata.h"
-				>
-			</File>
-			<File
 				RelativePath=".\checkpnt.h"
 				>
 			</File>
 			<File
 				RelativePath=".\clidata.h"
-				>
-			</File>
-			<File
-				RelativePath=".\client.h"
-				>
-			</File>
-			<File
-				RelativePath=".\cliface.h"
 				>
 			</File>
 			<File
@@ -1095,10 +1051,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\iostats.h"
-				>
-			</File>
-			<File
 				RelativePath=".\item.h"
 				>
 			</File>
@@ -1188,10 +1140,6 @@
 			</File>
 			<File
 				RelativePath=".\objtype.h"
-				>
-			</File>
-			<File
-				RelativePath="packethooks.h"
 				>
 			</File>
 			<File
@@ -1906,6 +1854,58 @@
 		<Filter
 			Name="network"
 			>
+			<File
+				RelativePath=".\network\bannedips.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\network\bannedips.h"
+				>
+			</File>
+			<File
+				RelativePath=".\network\cgdata.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\network\cgdata.h"
+				>
+			</File>
+			<File
+				RelativePath=".\network\client.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\network\client.h"
+				>
+			</File>
+			<File
+				RelativePath=".\network\clientio.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\network\cliface.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\network\cliface.h"
+				>
+			</File>
+			<File
+				RelativePath=".\network\iostats.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\network\iostats.h"
+				>
+			</File>
+			<File
+				RelativePath=".\network\packethooks.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\network\packethooks.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="region"

@@ -40,7 +40,7 @@ Notes
 #include "allocd.h"
 #include "armor.h"
 #include "mobile/charactr.h"
-#include "client.h"
+#include "network/client.h"
 #include "cmdlevel.h"
 #include "itemdesc.h"
 #include "los.h"

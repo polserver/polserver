@@ -62,14 +62,14 @@ Notes
 #	include "cfgrepos.h"
 #endif
 
-#include "../cgdata.h"
+#include "../network/cgdata.h"
 #include "../mobile/charactr.h"
-#include "../client.h"
+#include "../network/client.h"
 #include "../core.h"
 #include "../exscrobj.h"
 #include "../fnsearch.h"
 #include "../multi/house.h"
-#include "../iostats.h"
+#include "../network/iostats.h"
 #include "../itemdesc.h"
 #include "../npc.h"
 #include "../objtype.h"

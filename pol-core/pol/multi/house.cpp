@@ -31,7 +31,7 @@ Notes
 #include "../../plib/realm.h"
 #include "../../plib/mapshape.h"
 
-#include "../cgdata.h"
+#include "../network/cgdata.h"
 #include "../core.h"
 #include "../fnsearch.h"
 #include "../itemdesc.h"

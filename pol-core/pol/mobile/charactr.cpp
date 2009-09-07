@@ -70,11 +70,11 @@ Notes
 #include "../armor.h"
 #include "attribute.h"
 #include "../multi/boat.h"
-#include "../cgdata.h"
+#include "../network/cgdata.h"
 #include "../checkpnt.h"
 #include "../clidata.h"
-#include "../client.h"
-#include "../cliface.h"
+#include "../network/client.h"
+#include "../network/cliface.h"
 #include "../cmdlevel.h"
 #include "../cmbtcfg.h"
 #include "../dtrace.h"
@@ -3129,7 +3129,7 @@ void Character::check_attack_after_move()
 #include "../guardrgn.h"
 #include "../miscrgn.h"
 #include "../musicrgn.h"
-#include "../cgdata.h"
+#include "../network/cgdata.h"
 
 void Character::check_light_region_change()
 {

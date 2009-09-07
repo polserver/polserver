@@ -15,7 +15,7 @@ Notes
 #include "../../bscript/impstr.h"
 
 #include "../mobile/charactr.h"
-#include "../cliface.h"
+#include "../network/cliface.h"
 #include "../spells.h"
 #include "../statmsg.h"
 #include "../ufunc.h"

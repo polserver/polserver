@@ -17,7 +17,7 @@ Notes
 #include "mobile/attribute.h"
 #include "accounts/account.h"
 #include "mobile/charactr.h"
-#include "client.h"
+#include "network/client.h"
 #include "extcmd.h"
 #include "pktin.h"
 #include "polclock.h"

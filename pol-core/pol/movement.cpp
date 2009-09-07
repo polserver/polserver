@@ -15,7 +15,7 @@ Notes
 #include "clib/stlutil.h"
 
 #include "mobile/charactr.h"
-#include "client.h"
+#include "network/client.h"
 #include "multi/customhouses.h"
 #include "multi/house.h"
 #include "msghandl.h"

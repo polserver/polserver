@@ -22,8 +22,8 @@ Notes
 #include "scrsched.h"
 #include "uoscrobj.h"
 
-#include "client.h"
-#include "cgdata.h"
+#include "network/client.h"
+#include "network/cgdata.h"
 
 JusticeRegion::JusticeRegion( ConfigElem& elem ) : 
 	Region(elem),

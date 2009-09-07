@@ -27,9 +27,9 @@ Notes
 #include "bscript/impstr.h"
 
 #include "../accounts/account.h"
-#include "../cgdata.h"
+#include "../network/cgdata.h"
 #include "../mobile/charactr.h"
-#include "../client.h"
+#include "../network/client.h"
 #include "../msghandl.h"
 #include "../pktboth.h"
 #include "../sockio.h"
