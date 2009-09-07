@@ -63,7 +63,7 @@ Notes
 #include "../uoemod.h"
 #include "../objtype.h"
 #include "../ufunc.h"
-#include "../uniemod.h"
+#include "unimod.h"
 #include "../uoexhelp.h"
 #include "../uoscrobj.h"
 #include "../watch.h"

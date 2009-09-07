@@ -9,34 +9,34 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../../clib/stl_inc.h"
 
 #ifdef _MSC_VER
-#pragma warning(disable:4786)
+#	pragma warning(disable:4786)
 #endif
 
-#include "clib/endian.h"
-#include "clib/logfile.h"
-#include "clib/stlutil.h"
-#include "clib/strutil.h"
-#include "clib/unicode.h"
+#include "../../clib/endian.h"
+#include "../../clib/logfile.h"
+#include "../../clib/stlutil.h"
+#include "../../clib/strutil.h"
+#include "../../clib/unicode.h"
 
 #include "bscript/berror.h"
 #include "bscript/bobject.h"
 #include "bscript/execmodl.h"
 #include "bscript/impstr.h"
 
-#include "accounts/account.h"
-#include "cgdata.h"
-#include "mobile/charactr.h"
-#include "client.h"
-#include "msghandl.h"
-#include "pktboth.h"
-#include "sockio.h"
-#include "ufunc.h"
+#include "../accounts/account.h"
+#include "../cgdata.h"
+#include "../mobile/charactr.h"
+#include "../client.h"
+#include "../msghandl.h"
+#include "../pktboth.h"
+#include "../sockio.h"
+#include "../ufunc.h"
 
-#include "module/osmod.h"
-#include "uniemod.h"
+#include "osmod.h"
+#include "unimod.h"
 
 //////////////////////////////////////////////////////////////////////////
 

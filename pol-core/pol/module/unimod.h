@@ -12,12 +12,12 @@ Notes
 #define H_UNIEMOD_H
 
 #ifndef __BSCRIPT_EXECMODL_H
-#include "bscript/execmodl.h"
+#	include "../../bscript/execmodl.h"
 #endif
 
-#include "pktdef.h"
-#include "uoexec.h"
-#include "uoexhelp.h"
+#include "../pktdef.h"
+#include "../uoexec.h"
+#include "../uoexhelp.h"
 
 extern u16 gwtext[ (SPEECH_MAX_LEN + 1) ];
 
