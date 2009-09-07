@@ -14,7 +14,7 @@ Notes
 #include "clib/endian.h"
 #include "clib/clib.h"
 
-#include "client.h"
+#include "network/client.h"
 #include "sockio.h"
 #include "menu.h"
 #include "pktout.h"

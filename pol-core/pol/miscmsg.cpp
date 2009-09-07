@@ -35,7 +35,7 @@ Notes
 
 #include "accounts/account.h"
 #include "mobile/charactr.h"
-#include "client.h"
+#include "network/client.h"
 #include "cmbtcfg.h"
 #include "multi/customhouses.h"
 #include "fnsearch.h"

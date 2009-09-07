@@ -16,7 +16,7 @@ Notes
 
 #include "mobile/attribute.h"
 #include "mobile/charactr.h"
-#include "client.h"
+#include "network/client.h"
 #include "msghandl.h"
 #include "pktboth.h"
 #include "pktin.h"

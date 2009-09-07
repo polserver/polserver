@@ -33,7 +33,7 @@ Notes
 #include "uofile.h"
 #include "containr.h"
 #include "ufunc.h"
-#include "client.h"
+#include "network/client.h"
 #include "mobile/charactr.h"
 #include "itemdesc.h"
 #include "objtype.h"

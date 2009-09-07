@@ -18,26 +18,26 @@ new Handler added to the core needs a new Version number here. As of 8/3/09 ther
 
 */
 
-#include "clib/stl_inc.h"
+#include "../../clib/stl_inc.h"
 
-#include "clib/cfgelem.h"
-#include "clib/cfgfile.h"
-#include "clib/endian.h"
-#include "clib/logfile.h"
-#include "clib/fileutil.h"
-#include "clib/strutil.h"
+#include "../../clib/cfgelem.h"
+#include "../../clib/cfgfile.h"
+#include "../../clib/endian.h"
+#include "../../clib/logfile.h"
+#include "../../clib/fileutil.h"
+#include "../../clib/strutil.h"
 
-#include "bscript/bobject.h"
-#include "bscript/impstr.h"
+#include "../../bscript/bobject.h"
+#include "../../bscript/impstr.h"
 
-#include "plib/pkg.h"
+#include "../../plib/pkg.h"
 
-#include "accounts/account.h"
-#include "mobile/charactr.h"
+#include "../accounts/account.h"
+#include "../mobile/charactr.h"
 #include "client.h"
-#include "msghandl.h"
+#include "../msghandl.h"
 #include "packethooks.h"
-#include "packetscrobj.h"
+#include "../packetscrobj.h"
 
 //stores information about each packet and its script & default handler
 std::vector<PacketHookData> packet_hook_data(256);

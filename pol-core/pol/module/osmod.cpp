@@ -56,7 +56,7 @@ Notes
 #include "../watch.h"
 
 #include "../mobile/charactr.h"
-#include "../client.h"
+#include "../network/client.h"
 
 #include "../scrsched.h"
 

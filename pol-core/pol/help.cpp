@@ -10,7 +10,7 @@ Notes
 
 #include "clib/stl_inc.h"
 #include "mobile/charactr.h"
-#include "client.h"
+#include "network/client.h"
 #include "msghandl.h"
 #include "pktin.h"
 #include "polcfg.h"

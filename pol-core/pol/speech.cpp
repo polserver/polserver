@@ -25,7 +25,7 @@ Notes
 #include "clib/strutil.h"
 
 #include "accounts/account.h"
-#include "client.h"
+#include "network/client.h"
 #include "listenpt.h"
 #include "mkscrobj.h"
 #include "msghandl.h"

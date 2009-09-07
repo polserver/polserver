@@ -20,7 +20,7 @@ Notes
 #include "../../clib/endian.h"
 
 #include "../accounts/account.h"
-#include "../client.h"
+#include "../network/client.h"
 #include "charactr.h"
 #include "../msghandl.h"
 #include "../pktin.h"
@@ -28,7 +28,7 @@ Notes
 
 #include "../cmbtcfg.h"
 #include "../guardrgn.h"
-#include "../cgdata.h"
+#include "../network/cgdata.h"
 
 void handle_attack( Client *client, PKTIN_05 *msg )
 {

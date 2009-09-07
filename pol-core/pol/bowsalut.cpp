@@ -18,7 +18,7 @@ Notes
 #include "clib/strutil.h"
 
 #include "mobile/charactr.h"
-#include "client.h"
+#include "network/client.h"
 #include "extcmd.h"
 #include "pktin.h"
 #include "uobject.h"

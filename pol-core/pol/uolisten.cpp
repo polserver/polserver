@@ -18,8 +18,8 @@ Notes
 #include "clib/strutil.h"
 #include "clib/threadhelp.h"
 
-#include "client.h"
-#include "cliface.h"
+#include "network/client.h"
+#include "network/cliface.h"
 #include "core.h"
 #include "uoclient.h"
 #include "polsem.h"

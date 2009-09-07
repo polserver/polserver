@@ -15,11 +15,11 @@ Notes
 #include "clib/endian.h"
 #include "clib/rawtypes.h"
 
-#include "client.h"
+#include "network/client.h"
 #include "sockio.h"
 #include "msghandl.h"
 
-#include "cgdata.h"
+#include "network/cgdata.h"
 #include "mobile/charactr.h"
 #include "item.h"
 #include "module/osmod.h"

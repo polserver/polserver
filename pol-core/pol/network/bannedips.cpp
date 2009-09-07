@@ -7,12 +7,12 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../../clib/stl_inc.h"
 
-#include "clib/cfgelem.h"
-#include "clib/cfgfile.h"
-#include "clib/fileutil.h"
-#include "client.h"
+#include "../../clib/cfgelem.h"
+#include "../../clib/cfgfile.h"
+#include "../../clib/fileutil.h"
+#include "../network/client.h"
 #include "bannedips.h"
 
 bool is_banned_ip(Client* client)

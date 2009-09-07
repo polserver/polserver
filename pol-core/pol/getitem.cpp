@@ -28,7 +28,7 @@ Notes
 
 #include "multi/boat.h"
 #include "mobile/charactr.h"
-#include "client.h"
+#include "network/client.h"
 #include "los.h"
 #include "msghandl.h"
 #include "pktin.h"

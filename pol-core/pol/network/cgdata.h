@@ -11,11 +11,11 @@ Notes
 #ifndef CGDATA_H
 #define CGDATA_H
 
-#include "clib/refptr.h"
+#include "../../clib/refptr.h"
 
-#include "containr.h"
-#include "npc.h"
-#include "reftypes.h"
+#include "../containr.h"
+#include "../npc.h"
+#include "../reftypes.h"
 
 class JusticeRegion;
 class LightRegion;

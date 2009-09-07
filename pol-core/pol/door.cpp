@@ -16,7 +16,7 @@ Notes
 #include "clib/endian.h"
 #include "clib/passert.h"
 
-#include "client.h"
+#include "network/client.h"
 #include "door.h"
 #include "itemdesc.h"
 #include "objtype.h"

@@ -30,7 +30,7 @@ Notes
 #include "mobile/attribute.h"
 #include "mobile/charactr.h"
 #include "clidata.h"
-#include "client.h"
+#include "network/client.h"
 #include "gameclck.h"
 #include "layers.h"
 #include "mkscrobj.h"

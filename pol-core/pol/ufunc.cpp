@@ -43,7 +43,7 @@ Notes
 
 #include "accounts/account.h"
 #include "mobile/charactr.h"
-#include "client.h"
+#include "network/client.h"
 #include "equipmnt.h"
 #include "fnsearch.h"
 #include "layers.h"
@@ -2075,7 +2075,8 @@ void send_multi( Client* client, UMulti* multi )
 
 #include "zone.h"
 #include "miscrgn.h"
-#include "cgdata.h"
+#include "network/cgdata.h"
+
 void update_lightregion( Client* client, LightRegion* lightregion )
 {
     if (!client->ready)
@@ -2090,7 +2091,6 @@ void SetRegionLightLevel( LightRegion* lightregion, int lightlevel )
     ForEach( clients, update_lightregion, lightregion );
 }
 
-#include "cgdata.h"
 void update_weatherregion( Client* client, WeatherRegion* weatherregion )
 {
     if (!client->ready)

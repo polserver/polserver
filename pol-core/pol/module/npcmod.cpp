@@ -38,7 +38,7 @@ Notes
 #include "../mobile/attribute.h"
 #include "../mobile/boundbox.h"
 #include "../mobile/ufacing.h"
-#include "../client.h"
+#include "../network/client.h"
 #include "../dice.h"
 #include "../eventid.h"
 #include "../fnsearch.h"
