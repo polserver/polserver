@@ -682,10 +682,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\storagemod.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\syshook.cpp"
 				>
 			</File>
@@ -747,10 +743,6 @@
 			</File>
 			<File
 				RelativePath=".\umap.cpp"
-				>
-			</File>
-			<File
-				RelativePath="uniemod.cpp"
 				>
 			</File>
 			<File
@@ -1427,10 +1419,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\storagemod.h"
-				>
-			</File>
-			<File
 				RelativePath=".\stubdata.h"
 				>
 			</File>
@@ -1512,10 +1500,6 @@
 			</File>
 			<File
 				RelativePath=".\umap.h"
-				>
-			</File>
-			<File
-				RelativePath="uniemod.h"
 				>
 			</File>
 			<File
@@ -2068,6 +2052,22 @@
 			</File>
 			<File
 				RelativePath=".\module\sqlmod.h"
+				>
+			</File>
+			<File
+				RelativePath=".\module\storagemod.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\module\storagemod.h"
+				>
+			</File>
+			<File
+				RelativePath=".\module\unimod.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\module\unimod.h"
 				>
 			</File>
 			<File

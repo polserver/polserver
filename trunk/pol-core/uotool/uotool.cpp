@@ -9,8 +9,9 @@ Notes
 */
 
 #include "../clib/stl_inc.h"
+
 #ifdef _WIN32
-#pragma warning( disable: 4786 )
+#	pragma warning( disable: 4786 )
 #endif
 
 #include <fstream>
