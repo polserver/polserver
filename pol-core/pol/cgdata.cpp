@@ -14,7 +14,7 @@ Notes
 
 #include "module/osmod.h"
 #include "module/unimod.h"
-#include "uoemod.h"
+#include "module/uomod.h"
 #include "uoexec.h"
 
 #include "cgdata.h"

@@ -56,7 +56,7 @@ Notes
 #include "scrsched.h"
 #include "scrstore.h"
 #include "uoexec.h"
-#include "uoemod.h"
+#include "module/uomod.h"
 
 #include "objecthash.h"
 

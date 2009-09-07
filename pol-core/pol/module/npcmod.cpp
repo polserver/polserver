@@ -60,7 +60,7 @@ Notes
 #include "../uvars.h"
 #include "osmod.h"
 #include "../uoexec.h"
-#include "../uoemod.h"
+#include "uomod.h"
 #include "../objtype.h"
 #include "../ufunc.h"
 #include "unimod.h"

@@ -37,7 +37,7 @@ Notes
 #include "scrstore.h"
 #include "sockio.h"
 #include "uoexec.h"
-#include "uoemod.h"
+#include "module/uomod.h"
 
 #include "polwww.h"
 #include "module/httpmod.h"

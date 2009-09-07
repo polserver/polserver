@@ -26,7 +26,7 @@ Notes
 #include "pktboth.h"
 #include "ufunc.h"
 #include "uoexec.h"
-#include "uoemod.h"
+#include "module/uomod.h"
 
 void send_prompt( Client* client, u32 serial )
 {

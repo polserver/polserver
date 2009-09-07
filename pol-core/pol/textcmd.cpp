@@ -65,7 +65,7 @@ Notes
 #include "ufuncstd.h"
 #include "uobjcnt.h"
 #include "uobjhelp.h"
-#include "uoemod.h"
+#include "module/uomod.h"
 #include "uoexec.h"
 #include "uofile.h"
 #include "uoscrobj.h"
