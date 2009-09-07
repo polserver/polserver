@@ -24,73 +24,79 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../../clib/stl_inc.h"
 
 /*
 	UOEMOD2.CPP - a nice place for the Buy/Sell Interface Functions
 */
 
-#include "uoemod.h"
+#include "uomod.h"
 
-#include "bscript/berror.h"
+#include "../../bscript/berror.h"
+
 #ifdef MEMORYLEAK
 #	include "bscript/bobject.h"
 #endif
-#include "bscript/executor.h"
-#include "bscript/impstr.h"
 
-#include "clib/endian.h"
-#include "clib/fdump.h"
-#include "clib/logfile.h"
+#include "../../bscript/executor.h"
+#include "../../bscript/impstr.h"
+
+#include "../../clib/endian.h"
+#include "../../clib/fdump.h"
+#include "../../clib/logfile.h"
+
 #ifdef MEMORYLEAK
 #	include "clib/opnew.h"
 #endif
-#include "clib/strutil.h"
-#include "clib/unicode.h"
-#include "clib/MD5.h"
-#include "clib/stlutil.h"
 
-#include "plib/realm.h"
+#include "../../clib/strutil.h"
+#include "../../clib/unicode.h"
+#include "../../clib/MD5.h"
+#include "../../clib/stlutil.h"
 
-#include "accounts/account.h"
+#include "../../plib/realm.h"
+
+#include "../accounts/account.h"
+
 #ifdef MEMORYLEAK
 #	include "cfgrepos.h"
 #endif
-#include "cgdata.h"
-#include "mobile/charactr.h"
-#include "client.h"
-#include "core.h"
-#include "exscrobj.h"
-#include "fnsearch.h"
-#include "multi/house.h"
-#include "iostats.h"
-#include "itemdesc.h"
-#include "npc.h"
-#include "objtype.h"
-#include "module/osmod.h"
-#include "pktboth.h"
-#include "pktin.h"
-#include "pktout.h"
-#include "plib/pkg.h"
-#include "polcfg.h"
-#include "polclass.h"
-#include "polstats.h"
-#include "poltimer.h"
-#include "plib/polver.h"
-#include "profile.h"
-#include "realms.h"
-#include "scrsched.h"
-#include "scrstore.h"
-#include "sockio.h"
-#include "statmsg.h"
-#include "syshook.h"
-#include "tooltips.h"
-#include "ufunc.h"
-#include "uoexec.h"
-#include "uofile.h"
-#include "uoscrobj.h"
-#include "uvars.h"
-#include "uworld.h"
+
+#include "../cgdata.h"
+#include "../mobile/charactr.h"
+#include "../client.h"
+#include "../core.h"
+#include "../exscrobj.h"
+#include "../fnsearch.h"
+#include "../multi/house.h"
+#include "../iostats.h"
+#include "../itemdesc.h"
+#include "../npc.h"
+#include "../objtype.h"
+#include "osmod.h"
+#include "../pktboth.h"
+#include "../pktin.h"
+#include "../pktout.h"
+#include "../../plib/pkg.h"
+#include "../polcfg.h"
+#include "../polclass.h"
+#include "../polstats.h"
+#include "../poltimer.h"
+#include "../../plib/polver.h"
+#include "../profile.h"
+#include "../realms.h"
+#include "../scrsched.h"
+#include "../scrstore.h"
+#include "../sockio.h"
+#include "../statmsg.h"
+#include "../syshook.h"
+#include "../tooltips.h"
+#include "../ufunc.h"
+#include "../uoexec.h"
+#include "../uofile.h"
+#include "../uoscrobj.h"
+#include "../uvars.h"
+#include "../uworld.h"
 
 static char buffer[ 65535 ];
 
@@ -307,7 +313,7 @@ void send_clear_vendorwindow( Client* client, Character* vendor )
 
 
 //#include "msgfiltr.h"
-#include "msghandl.h"
+#include "../msghandl.h"
 
 unsigned long calculate_cost( Character* vendor, UContainer* for_sale, PKTIN_3B *msg )
 {
@@ -1520,9 +1526,9 @@ BObjectImp* MakeMapCacheImp( )
 	return arr;
 }
 
-#include "accounts/account.h"
-#include "accounts/accounts.h"
-#include "accounts/acscrobj.h"
+#include "../accounts/account.h"
+#include "../accounts/accounts.h"
+#include "../accounts/acscrobj.h"
 BObjectImp* UOExecutorModule::mf_CreateAccount()
 {
 	const String* acctname;

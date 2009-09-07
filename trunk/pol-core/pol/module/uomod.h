@@ -24,17 +24,17 @@ Notes
 
 */
 
-#ifndef H_UOEMOD_H
-#define H_UOEMOD_H
+#ifndef H_UOMOD_H
+#define H_UOMOD_H
 
 class BObject;
 class UOExecutorModule;
 class UOExecutor;
 
-#include "bscript/execmodl.h"
-#include "uoexhelp.h"
-#include "reftypes.h"
-#include "poltype.h"
+#include "../../bscript/execmodl.h"
+#include "../uoexhelp.h"
+#include "../reftypes.h"
+#include "../poltype.h"
 
 //typedef BObject (UOExecutorModule::*UOExecutorModuleFn)();
 

@@ -8,19 +8,19 @@ Notes
 =======
 
 */
-#include "clib/stl_inc.h"
-#include "bscript/berror.h"
-#include "bscript/impstr.h"
+#include "../../clib/stl_inc.h"
+#include "../../bscript/berror.h"
+#include "../../bscript/impstr.h"
 
-#include "mobile/attribute.h"
-#include "mobile/charactr.h"
-#include "cliface.h"
-#include "skills.h"
-#include "statmsg.h"
-#include "uoemod.h"
+#include "../mobile/attribute.h"
+#include "../mobile/charactr.h"
+#include "../cliface.h"
+#include "../skills.h"
+#include "../statmsg.h"
+#include "uomod.h"
 
 // f'ed packing:
-#include "vital.h"
+#include "../vital.h"
 
 BObjectImp* UOExecutorModule::mf_SendStatus( /* mob */ )
 {

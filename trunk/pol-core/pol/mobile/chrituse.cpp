@@ -16,7 +16,7 @@ Notes
 #include "../module/osmod.h"
 #include "../polcfg.h"
 #include "../scrsched.h"
-#include "../uoemod.h"
+#include "../module/uomod.h"
 #include "../uoexec.h"
 #include "../uoscrobj.h"
 

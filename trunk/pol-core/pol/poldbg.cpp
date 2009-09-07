@@ -34,7 +34,7 @@ Notes
 #include "scrdef.h"
 #include "scrsched.h"
 #include "scrstore.h"
-#include "uoemod.h"
+#include "module/uomod.h"
 #include "uoexec.h"
 // 14 members
 const char* poldbg_base_members[] = {  "x", "y", "z", "name", "objtype", "graphic",

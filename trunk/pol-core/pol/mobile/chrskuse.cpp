@@ -12,7 +12,7 @@ Notes
 #include "../module/cfgmod.h"
 #include "../module/osmod.h"
 #include "../scrsched.h"
-#include "../uoemod.h"
+#include "../module/uomod.h"
 #include "../uoexec.h"
 
 #include "charactr.h"

@@ -50,10 +50,10 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../../clib/stl_inc.h"
 
 #ifdef _MSC_VER
-#pragma warning(disable:4786)
+#	pragma warning(disable:4786)
 #endif
 
 
@@ -63,78 +63,78 @@ Notes
 #include <limits.h>
 #include <math.h>
 
-#include "clib/cfgelem.h"
-#include "clib/cfgfile.h"
-#include "clib/clib.h"
-#include "clib/endian.h"
-#include "clib/esignal.h"
-#include "clib/logfile.h"
-#include "clib/mlog.h"
-#include "clib/passert.h"
-#include "clib/weakptr.h"
-#include "clib/stlutil.h"
-#include "clib/strutil.h"
+#include "../../clib/cfgelem.h"
+#include "../../clib/cfgfile.h"
+#include "../../clib/clib.h"
+#include "../../clib/endian.h"
+#include "../../clib/esignal.h"
+#include "../../clib/logfile.h"
+#include "../../clib/mlog.h"
+#include "../../clib/passert.h"
+#include "../../clib/weakptr.h"
+#include "../../clib/stlutil.h"
+#include "../../clib/strutil.h"
 
-#include "bscript/berror.h"
-#include "bscript/bobject.h"
-#include "bscript/execmodl.h"
-#include "bscript/impstr.h"
-#include "bscript/token.h"
-#include "bscript/dict.h"
+#include "../../bscript/berror.h"
+#include "../../bscript/bobject.h"
+#include "../../bscript/execmodl.h"
+#include "../../bscript/impstr.h"
+#include "../../bscript/token.h"
+#include "../../bscript/dict.h"
 
-#include "plib/mapcell.h"
-#include "plib/mapshape.h"
-#include "plib/maptile.h"
-#include "plib/realm.h"
+#include "../../plib/mapcell.h"
+#include "../../plib/mapshape.h"
+#include "../../plib/maptile.h"
+#include "../../plib/realm.h"
 
-#include "action.h"
-#include "multi/boat.h"
-#include "module/cfgmod.h"
-#include "cfgrepos.h"
-#include "cgdata.h"
-#include "mobile/charactr.h"
-#include "client.h"
-#include "core.h"
-#include "eventid.h"
-#include "fnsearch.h"
-#include "guardrgn.h"
-#include "itemdesc.h"
-#include "listenpt.h"
-#include "los.h"
-#include "menu.h"
-#include "multi/multidef.h"
-#include "npc.h"
-#include "objtype.h"
-#include "module/osmod.h"
-#include "pktboth.h"
-#include "pktin.h"
-#include "polcfg.h"
-#include "polclass.h"
-#include "polsig.h"
-#include "poltype.h"
-#include "profile.h"
-#include "realms.h"
-#include "savedata.h"
-#include "scrsched.h"
-#include "scrstore.h"
-#include "skilladv.h"
-#include "spells.h"
-#include "ssopt.h"
-#include "target.h"
-#include "ufunc.h"
-#include "umanip.h"
-#include "udatfile.h"
-#include "uofile.h"
-#include "uoscrobj.h"
-#include "ustruct.h"
-#include "uvars.h"
-#include "uworld.h"
-#include "uoexec.h"
-#include "uopathnode.h"
+#include "../action.h"
+#include "../multi/boat.h"
+#include "cfgmod.h"
+#include "../cfgrepos.h"
+#include "../cgdata.h"
+#include "../mobile/charactr.h"
+#include "../client.h"
+#include "../core.h"
+#include "../eventid.h"
+#include "../fnsearch.h"
+#include "../guardrgn.h"
+#include "../itemdesc.h"
+#include "../listenpt.h"
+#include "../los.h"
+#include "../menu.h"
+#include "../multi/multidef.h"
+#include "../npc.h"
+#include "../objtype.h"
+#include "osmod.h"
+#include "../pktboth.h"
+#include "../pktin.h"
+#include "../polcfg.h"
+#include "../polclass.h"
+#include "../polsig.h"
+#include "../poltype.h"
+#include "../profile.h"
+#include "../realms.h"
+#include "../savedata.h"
+#include "../scrsched.h"
+#include "../scrstore.h"
+#include "../skilladv.h"
+#include "../spells.h"
+#include "../ssopt.h"
+#include "../target.h"
+#include "../ufunc.h"
+#include "../umanip.h"
+#include "../udatfile.h"
+#include "../uofile.h"
+#include "../uoscrobj.h"
+#include "../ustruct.h"
+#include "../uvars.h"
+#include "../uworld.h"
+#include "../uoexec.h"
+#include "../uopathnode.h"
 
-#include "uoemod.h"
+#include "uomod.h"
 
-#include "objecthash.h"
+#include "../objecthash.h"
 
 #define CONST_DEFAULT_ZRANGE 19
 
@@ -1790,7 +1790,7 @@ BObjectImp* UOExecutorModule::mf_GetObjPropertyNames()
     }
 }
 
-#include "gprops.h"
+#include "../gprops.h"
 BObjectImp* UOExecutorModule::mf_GetGlobalProperty()
 {
     const String* propname_str;
@@ -3249,8 +3249,8 @@ BObjectImp* UOExecutorModule::mf_SystemFindObjectBySerial()
 }
 
 
-#include "uimport.h"
-#include "gameclck.h"
+#include "../uimport.h"
+#include "../gameclck.h"
 void cancel_all_trades();
 BObjectImp* UOExecutorModule::mf_SaveWorldState()
 {
@@ -3297,9 +3297,9 @@ BObjectImp* UOExecutorModule::mf_SaveWorldState()
     }
 }
 
-#include "zone.h"
-#include "lightlvl.h"
-#include "miscrgn.h"
+#include "../zone.h"
+#include "../lightlvl.h"
+#include "../miscrgn.h"
 
 BObjectImp* UOExecutorModule::mf_SetRegionLightLevel()
 {
@@ -3325,7 +3325,7 @@ BObjectImp* UOExecutorModule::mf_SetRegionLightLevel()
     SetRegionLightLevel( lightregion, lightlevel );
     return new BLong(1);
 }
-#include "wthrtype.h"
+#include "../wthrtype.h"
 BObjectImp* UOExecutorModule::mf_SetRegionWeatherLevel()
 {
     const String* region_name_str;
@@ -3792,7 +3792,7 @@ BObjectImp* UOExecutorModule::mf_RestartScript()
     }
 }
 
-#include "resource.h"
+#include "../resource.h"
 
 BObjectImp* UOExecutorModule::mf_GetHarvestDifficulty()
 {
@@ -4376,7 +4376,7 @@ BObjectImp* UOExecutorModule::mf_SendEvent()
         return new BError( "Invalid parameter" );
     }
 }
-#include "multi/house.h"
+#include "../multi/house.h"
 BObjectImp* UOExecutorModule::mf_DestroyMulti()
 {
     UMulti* multi;

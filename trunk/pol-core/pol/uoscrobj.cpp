@@ -77,7 +77,7 @@ Notes
 #include "uofile.h"
 #include "weapon.h"
 #include "wepntmpl.h"
-#include "uoemod.h"
+#include "module/uomod.h"
 #include "uoexhelp.h"
 #include "uworld.h"
 #include "party.h"
