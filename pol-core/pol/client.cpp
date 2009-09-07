@@ -38,7 +38,7 @@ Notes
 #include "polstats.h"
 #include "sockio.h"
 #include "ssopt.h"
-#include "uniemod.h"
+#include "module/unimod.h"
 #include "uoclient.h"
 #include "uvars.h"
 #include "uworld.h"

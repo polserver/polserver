@@ -8,17 +8,18 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../../clib/stl_inc.h"
 
-#include "bscript/bobject.h"
-#include "bscript/berror.h"
-#include "bscript/impstr.h"
+#include "../../bscript/bobject.h"
+#include "../../bscript/berror.h"
+#include "../../bscript/impstr.h"
 
-#include "realms.h"
-#include "storage.h"
 #include "storagemod.h"
-#include "uoexhelp.h"
-#include "uoscrobj.h"
+
+#include "../realms.h"
+#include "../storage.h"
+#include "../uoexhelp.h"
+#include "../uoscrobj.h"
 
 template<>
 TmplExecutorModule<StorageExecutorModule>::FunctionDef

@@ -13,7 +13,7 @@ Notes
 #include "clib/unicode.h"
 
 #include "module/osmod.h"
-#include "uniemod.h"
+#include "module/unimod.h"
 #include "uoemod.h"
 #include "uoexec.h"
 

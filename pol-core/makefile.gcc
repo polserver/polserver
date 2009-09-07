@@ -110,7 +110,7 @@ cpp_sources = \
 	pol/tildecmd.cpp pol/tiles.cpp pol/tiplstwn.cpp \
 	pol/tips.cpp pol/tmpvars.cpp pol/tooltips.cpp \
 	pol/ucrypto.cpp pol/ufunc.cpp pol/ufunc2.cpp pol/uimport.cpp \
-	pol/umap.cpp pol/uniemod.cpp \
+	pol/umap.cpp pol/module/unimod.cpp \
 	pol/uobjcnt.cpp pol/uobject.cpp pol/uobjhelp.cpp pol/uoclient.cpp \
 	pol/uoemod.cpp pol/uoemod2.cpp \
 	pol/uoemod3.cpp pol/uoemod4.cpp pol/uoexhelp.cpp \
@@ -121,7 +121,7 @@ cpp_sources = \
 	pol/vital.cpp \
 	pol/weapon.cpp \
 	pol/zone.cpp \
-	pol/module/attributemod.cpp pol/module/clmod.cpp pol/clfunc.cpp pol/storagemod.cpp pol/module/vitalmod.cpp \
+	pol/module/attributemod.cpp pol/module/clmod.cpp pol/clfunc.cpp pol/module/storagemod.cpp pol/module/vitalmod.cpp \
 	plib/mapfunc.cpp plib/mapserver.cpp plib/pkg.cpp plib/realm.cpp \
 	plib/filemapserver.cpp plib/inmemorymapserver.cpp \
 	plib/realmfunc.cpp \
