@@ -38,6 +38,7 @@ Notes
 #include "module/clmod.h"
 #include "mobile/charactr.h"
 #include "module/datastore.h"
+#include "module/sqlmod.h"
 #include "exscrobj.h"
 #include "module/filemod.h"
 #include "module/guildmod.h"
@@ -641,6 +642,7 @@ void add_common_exmods( Executor& ex )
 	ex.addModule( new GuildExecutorModule( ex ) );
 	ex.addModule( new UnicodeExecutorModule( ex ) );
 	ex.addModule( new PartyExecutorModule( ex ) );
+	ex.addModule( new SQLExecutorModule( ex ) );
 	ex.addModule( CreateFileAccessExecutorModule( ex ) );
 }
 

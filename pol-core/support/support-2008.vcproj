@@ -131,6 +131,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\scripts\sql.em"
+				>
+			</File>
+			<File
 				RelativePath=".\scripts\storage.em"
 				>
 			</File>
