@@ -68,7 +68,7 @@ Notes
 
 #include "scrsched.h"
 
-#include "party.h"
+#include "module/partymod.h"
 
 bool find_uoexec( unsigned long pid, UOExecutor** pp_uoexec )
 {
