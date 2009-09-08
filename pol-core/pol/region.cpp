@@ -60,11 +60,11 @@ RegionGroupBase::RegionGroupBase( const char* name ) :
 		unsigned int gridwidth = (*itr)->width() / ZONE_SIZE;
 		unsigned int gridheight = (*itr)->height() / ZONE_SIZE;
 
-    // Tokuno-Fix
-    if (gridwidth * ZONE_SIZE < (*itr)->width())
+    // Tokuno-Fix removed Turley, 2009/09/08 (for ZONE_SIZE 4 not needed)
+    /*if (gridwidth * ZONE_SIZE < (*itr)->width())
       gridwidth++;
     if (gridheight * ZONE_SIZE < (*itr)->height())
-      gridheight++;
+      gridheight++;*/
 
 		RegionId** zone = new RegionId*[gridwidth];
 
@@ -86,9 +86,9 @@ RegionGroupBase::~RegionGroupBase()
 	{
 		unsigned int gridwidth = itr->first->width() / ZONE_SIZE;
 
-    // Tokuno-Fix
-    if (gridwidth * ZONE_SIZE < itr->first->width())
-      gridwidth++;
+    // Tokuno-Fix removed Turley, 2009/09/08 (for ZONE_SIZE 4 not needed)
+    /*if (gridwidth * ZONE_SIZE < itr->first->width())
+      gridwidth++;*/
 
     for(unsigned int i=0; i<gridwidth; i++)
 			delete[] itr->second[i];
