@@ -78,7 +78,7 @@ bool Character::start_itemuse_script( EScriptProgram* prog, Item* item, bool sta
                          new EItemRefObjImp( item ) );
 }
 
-#include "../itemdesc.h"
+#include "../item/itemdesc.h"
 #include "../scrstore.h"
 void Item::walk_on( Character* chr )
 {

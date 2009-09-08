@@ -15,12 +15,12 @@ Notes
 #include <memory>
 #include <string>
 
-#include "action.h"
+#include "../action.h"
 
 #include "equipmnt.h"
 
-#include "scrdef.h"
-#include "skillid.h"
+#include "../scrdef.h"
+#include "../skillid.h"
 
 class Attribute;
 class Character;

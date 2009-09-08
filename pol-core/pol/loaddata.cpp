@@ -21,7 +21,7 @@ Notes
 #include "clidata.h"
 #include "gflag.h"
 #include "fnsearch.h"
-#include "item.h"
+#include "item/item.h"
 #include "objecthash.h"
 #include "polcfg.h"
 #include "poltype.h"

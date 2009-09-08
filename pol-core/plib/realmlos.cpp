@@ -16,7 +16,7 @@ Notes
 #include "mapshape.h"
 
 #include "pol/uworld.h" // TODO move 'world' into Realm
-#include "pol/item.h"
+#include "pol/item/item.h"
 #include "pol/udatfile.h"
 #include "pol/los.h"
 

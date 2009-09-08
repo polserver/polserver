@@ -15,7 +15,7 @@ Notes
 #include <set>
 
 #include "itemdesc.h"
-#include "equipdsc.h"
+#include "../equipdsc.h"
 
 class ConfigElem;
 

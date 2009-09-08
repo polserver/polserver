@@ -16,10 +16,10 @@ Notes
 #include <vector>
 
 
-#include "clib/rawtypes.h"
-#include "uobject.h"
-#include "proplist.h"
-#include "dice.h"
+#include "../../clib/rawtypes.h"
+#include "../uobject.h"
+#include "../proplist.h"
+#include "../dice.h"
 
 class BStruct;
 class ConfigElem;
@@ -27,7 +27,7 @@ class Package;
 class ResourceDef;
 class ExportScript;
 
-#include "scrdef.h"
+#include "../scrdef.h"
 
 struct ResourceComponent
 {

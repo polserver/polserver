@@ -13,39 +13,39 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../../clib/stl_inc.h"
+
 #ifdef _MSC_VER
-#pragma warning( disable: 4786 )
+#	pragma warning( disable: 4786 )
 #endif
 
+#include "../../bscript/berror.h"
 
-#include "bscript/berror.h"
+#include "../../clib/cfgelem.h"
+#include "../../clib/endian.h"
+#include "../../clib/strutil.h"
 
-#include "clib/cfgelem.h"
-#include "clib/endian.h"
-#include "clib/strutil.h"
-
-#include "plib/mapcell.h"
+#include "../../plib/mapcell.h"
 
 #include "item.h"
 #include "armor.h"
-#include "ustruct.h"
-#include "uofile.h"
-#include "containr.h"
-#include "ufunc.h"
-#include "network/client.h"
-#include "mobile/charactr.h"
-#include "itemdesc.h"
-#include "objtype.h"
-#include "plib/pkg.h"
-#include "polcfg.h"
-#include "resource.h"
-#include "scrsched.h"
-#include "scrstore.h"
-#include "stackcfg.h" //dave 1/26/3
-#include "tooltips.h"
-#include "uoscrobj.h"
-#include "ssopt.h"
+#include "../ustruct.h"
+#include "../uofile.h"
+#include "../containr.h"
+#include "../ufunc.h"
+#include "../network/client.h"
+#include "../mobile/charactr.h"
+#include "../item/itemdesc.h"
+#include "../objtype.h"
+#include "../../plib/pkg.h"
+#include "../polcfg.h"
+#include "../resource.h"
+#include "../scrsched.h"
+#include "../scrstore.h"
+#include "../stackcfg.h" //dave 1/26/3
+#include "../tooltips.h"
+#include "../uoscrobj.h"
+#include "../ssopt.h"
 /*
 #include "clib/endian.h"
 
@@ -861,7 +861,7 @@ unsigned long Item::item_count() const
 // Decay-related functions
 /////////////////////////////////////////////////////////////////////////////
 
-#include "gameclck.h"
+#include "../gameclck.h"
 void Item::set_decay_after( unsigned long seconds )
 {
     set_dirty();

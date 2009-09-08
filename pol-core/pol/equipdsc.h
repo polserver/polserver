@@ -11,7 +11,7 @@ Notes
 #ifndef EQUIPDSC_H
 #define EQUIPDSC_H
 
-#include "itemdesc.h"
+#include "item/itemdesc.h"
 
 class ConfigElem;
 class Package;

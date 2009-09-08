@@ -18,7 +18,7 @@ Notes
 
 #include "clib/strutil.h"
 
-#include "item.h"
+#include "item/item.h"
 #include "polcfg.h"
 //#include "poltest.h"
 #include "uobject.h"

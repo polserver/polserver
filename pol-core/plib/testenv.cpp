@@ -17,8 +17,8 @@ Notes
 #include "clib/passert.h"
 #include "plib/realm.h"
 
-#include "pol/item.h"
-#include "pol/itemdesc.h"
+#include "pol/item/item.h"
+#include "pol/item/itemdesc.h"
 #include "pol/multi/multi.h"
 #include "pol/npc.h"
 #include "pol/objecthash.h"

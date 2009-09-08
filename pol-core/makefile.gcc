@@ -49,8 +49,8 @@ endif
 cpp_sources = \
     clib/progver.cpp plib/polver.cpp \
 	pol/accounts/account.cpp pol/accounts/accounts.cpp pol/accounts/acscrobj.cpp pol/allocd.cpp \
-	pol/armor.cpp pol/mobile/attack.cpp \
-	pol/mobile/attribute.cpp pol/auxclient.cpp \
+	pol/item/armor.cpp pol/mobile/attack.cpp \
+	pol/mobile/attribute.cpp pol/network/auxclient.cpp \
 	pol/network/bannedips.cpp pol/binaryfilescrobj.cpp pol/multi/boat.cpp pol/multi/boatcomp.cpp \
 	pol/module/boatmod.cpp pol/mobile/boundbox.cpp pol/bowsalut.cpp \
 	pol/module/cfgmod.cpp pol/cfgrepos.cpp pol/network/cgdata.cpp pol/mobile/charactr.cpp \
@@ -67,7 +67,7 @@ cpp_sources = \
 	pol/module/datastore.cpp pol/dblclick.cpp pol/decay.cpp pol/dice.cpp \
 	pol/door.cpp pol/dropitem.cpp \
 	pol/dye.cpp \
-	pol/eqpitem.cpp pol/equipdsc.cpp pol/equipmnt.cpp clib/esignal.cpp \
+	pol/eqpitem.cpp pol/equipdsc.cpp pol/item/equipmnt.cpp clib/esignal.cpp \
 	pol/exscrobj.cpp \
 	pol/extcmd.cpp \
 	pol/module/filemod.cpp pol/fnsearch.cpp \
@@ -76,8 +76,8 @@ cpp_sources = \
 	pol/module/guildmod.cpp \
 	pol/module/basiciomod.cpp pol/module/basicmod.cpp \
 	pol/help.cpp pol/multi/house.cpp \
-	pol/network/iostats.cpp pol/irequest.cpp pol/item.cpp pol/item00.cpp \
-	pol/itemcr.cpp pol/itemdesc.cpp \
+	pol/network/iostats.cpp pol/irequest.cpp pol/item/item.cpp pol/item/item00.cpp \
+	pol/item/itemcr.cpp pol/item/itemdesc.cpp \
 	pol/landtile.cpp \
 	pol/listenpt.cpp pol/loadunld.cpp pol/lockable.cpp pol/logfiles.cpp \
 	pol/loaddata.cpp pol/login.cpp \
@@ -119,7 +119,7 @@ cpp_sources = \
 	pol/module/utilmod.cpp pol/module/sqlmod.cpp \
 	pol/uvars.cpp pol/uworld.cpp \
 	pol/vital.cpp \
-	pol/weapon.cpp \
+	pol/item/weapon.cpp \
 	pol/zone.cpp \
 	pol/module/attributemod.cpp pol/module/clmod.cpp pol/clfunc.cpp pol/module/storagemod.cpp pol/module/vitalmod.cpp \
 	plib/mapfunc.cpp plib/mapserver.cpp plib/pkg.cpp plib/realm.cpp \

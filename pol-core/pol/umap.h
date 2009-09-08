@@ -11,7 +11,7 @@ Notes
 #ifndef UMAP_H
 #define UMAP_H
 
-#include "item.h"
+#include "item/item.h"
 #include "pktboth.h"
 
 class BObjectImp;

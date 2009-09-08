@@ -25,7 +25,7 @@ Notes
 #include "clib/fileutil.h"
 #include "clib/stlutil.h"
 
-#include "itemdesc.h"
+#include "item/itemdesc.h"
 #include "menu.h"
 #include "polcfg.h"
 

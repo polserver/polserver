@@ -18,7 +18,7 @@ Notes
 
 #include "network/client.h"
 #include "door.h"
-#include "itemdesc.h"
+#include "item/itemdesc.h"
 #include "objtype.h"
 #include "ufunc.h"
 #include "uworld.h"

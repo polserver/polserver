@@ -20,7 +20,7 @@ Notes
 
 #include "realms.h"
 
-#include "item.h"
+#include "item/item.h"
 #include "los.h"
 #include "npc.h"
 #include "uofile.h"
