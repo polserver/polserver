@@ -51,7 +51,7 @@ void UoClientThread::run()
         PolLock lck;
         client = new Client( uo_client_interface, _def.encryption );
         client->csocket = _sck.release_handle(); // client cleans up its socket.
-        client->listen_port = static_cast<unsigned short>(_def.port);
+        client->listen_port = _def.port;
 		if ( _def.aosresist )
 			client->aosresist = true; // UOCLient.cfg Entry
 		// Added null setting for pre-char selection checks using NULL validation
