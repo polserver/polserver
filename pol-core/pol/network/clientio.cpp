@@ -237,7 +237,7 @@ void Client::transmit_encrypted( const void *data, int len )
 
     passert( pch-xoutbuffer+1 <= int(sizeof xoutbuffer) );
     THREAD_CHECKPOINT( active_client, 115 );
-	xmit( xoutbuffer, pch-xoutbuffer+1 );
+	xmit( xoutbuffer, static_cast<unsigned short>(pch-xoutbuffer+1) );
     THREAD_CHECKPOINT( active_client, 116 );
 }
 #include "../packetscrobj.h"
@@ -279,7 +279,7 @@ void Client::transmit( const void *data, int len )
 	}
 	else
 	{
-		xmit( data, len );
+		xmit( data, static_cast<unsigned short>(len) );
 		// _xmit( client->csocket, data, len );
 	}
 }
@@ -299,7 +299,7 @@ void Client::transmitmore( const void *data, int len )
 	}
 	else
 	{
-		xmit( data, len );
+		xmit( data, static_cast<unsigned short>(len) );
 		// _xmit( client->csocket, data, len );
 	}
 }

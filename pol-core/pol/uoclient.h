@@ -51,7 +51,7 @@ class UoClientListener
 public:
     UoClientListener( ConfigElem& elem );
 
-    unsigned port;
+    unsigned short port;
     string encryption;
 	bool aosresist;
 };
