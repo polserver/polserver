@@ -187,7 +187,7 @@ void RegionGroupBase::read_region( ConfigElem& elem )
     regions_.push_back( rgn );
     regions_byname_.insert( RegionsByName::value_type(elem.rest(), rgn) );
 
-    paint_zones( elem, regions_.size()-1 );
+    paint_zones( elem, static_cast<RegionId>(regions_.size()-1) );
     rgn->read_custom_config( elem );
 }
 
