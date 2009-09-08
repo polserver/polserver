@@ -14,7 +14,7 @@ Notes
 /*
 
 #ifndef ITEM_H
-#include "item.h"
+#include "item/item.h"
 #endif
 
 #define UOBJ_DYES       0xFA9

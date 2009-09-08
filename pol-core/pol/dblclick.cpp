@@ -27,7 +27,7 @@ Notes
 
 #include "network/client.h"
 #include "eventid.h"
-#include "itemdesc.h"
+#include "item/itemdesc.h"
 #include "msghandl.h"
 #include "mobile/charactr.h"
 #include "los.h"

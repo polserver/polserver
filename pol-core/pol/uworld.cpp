@@ -19,7 +19,7 @@ Notes
 
 #include "plib/realm.h"
 #include "mobile/charactr.h"
-#include "item.h"
+#include "item/item.h"
 #include "multi/multi.h"
 #include "realms.h"
 #include "uvars.h"

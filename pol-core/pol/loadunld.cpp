@@ -21,7 +21,7 @@ Notes
 #include "clib/stlutil.h"
 #include "clib/strutil.h"
 
-#include "armor.h"
+#include "item/armor.h"
 #include "checkpnt.h"
 #include "cmbtcfg.h"
 #include "objtype.h"
@@ -29,8 +29,8 @@ Notes
 #include "stackcfg.h" //dave 1/26/3
 #include "ufunc.h"
 #include "uvars.h"
-#include "weapon.h"
-#include "wepntmpl.h"
+#include "item/weapon.h"
+#include "item/wepntmpl.h"
 
 #include "loadunld.h"
 #include "objecthash.h"

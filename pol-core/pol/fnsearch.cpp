@@ -16,7 +16,7 @@ Notes
 #include "clib/stlutil.h"
 
 #include "mobile/charactr.h"
-#include "item.h"
+#include "item/item.h"
 #include "storage.h"
 #include "multi/multi.h"
 #include "uworld.h"

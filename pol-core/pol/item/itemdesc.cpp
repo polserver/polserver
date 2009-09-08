@@ -15,41 +15,40 @@ Notes
 
 */
 
+#include "../../clib/stl_inc.h"
 
-#include "clib/stl_inc.h"
 #ifdef _MSC_VER
-#pragma warning( disable: 4786 )
+#	pragma warning( disable: 4786 )
 #endif
 
+#include "../../bscript/bstruct.h"
+#include "../../bscript/dict.h"
+#include "../../bscript/escrutil.h"
+#include "../../bscript/impstr.h"
 
-#include "bscript/bstruct.h"
-#include "bscript/dict.h"
-#include "bscript/escrutil.h"
-#include "bscript/impstr.h"
+#include "../../clib/cfgelem.h"
+#include "../../clib/cfgfile.h"
+#include "../../clib/esignal.h"
+#include "../../clib/fileutil.h"
+#include "../../clib/rawtypes.h"
+#include "../../clib/passert.h"
+#include "../../clib/stlutil.h"
+#include "../../clib/strutil.h"
 
-#include "clib/cfgelem.h"
-#include "clib/cfgfile.h"
-#include "clib/esignal.h"
-#include "clib/fileutil.h"
-#include "clib/rawtypes.h"
-#include "clib/passert.h"
-#include "clib/stlutil.h"
-#include "clib/strutil.h"
+#include "../../plib/mapcell.h"
 
-#include "plib/mapcell.h"
-
-#include "cfgrepos.h"
-#include "clidata.h"
-#include "objtype.h"
+#include "../cfgrepos.h"
+#include "../clidata.h"
+#include "../objtype.h"
 #include "itemdesc.h"
-#include "multi/multidef.h"
-#include "plib/pkg.h"
-#include "resource.h"
-#include "ssopt.h"
-#include "syshookscript.h"
+#include "../multi/multidef.h"
+#include "../../plib/pkg.h"
+#include "../resource.h"
+#include "../ssopt.h"
+#include "../syshookscript.h"
 #include "wepntmpl.h"
 #include "armrtmpl.h"
-#include "ustruct.h"
+#include "../ustruct.h"
 
 typedef std::map<string,unsigned short, ci_cmp_pred> ObjtypeByNameMap;
 ObjtypeByNameMap objtype_byname;

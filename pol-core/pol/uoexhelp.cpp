@@ -22,7 +22,7 @@ Notes
 #include "clib/strutil.h"
 
 #include "fnsearch.h"
-#include "itemdesc.h"
+#include "item/itemdesc.h"
 #include "ssopt.h"
 #include "uoscrobj.h"
 #include "ufunc.h"

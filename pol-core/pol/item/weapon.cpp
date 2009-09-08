@@ -9,9 +9,10 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../../clib/stl_inc.h"
+
 #ifdef _MSC_VER
-#pragma warning( disable:4786 )
+#	pragma warning( disable:4786 )
 #endif
 
 #include <algorithm>
@@ -21,30 +22,30 @@ Notes
 
 #include <limits.h>
 
-#include "clib/cfgelem.h"
-#include "clib/cfgfile.h"
-#include "clib/endian.h"
-#include "clib/fileutil.h"
-#include "clib/random.h"
+#include "../../clib/cfgelem.h"
+#include "../../clib/cfgfile.h"
+#include "../../clib/endian.h"
+#include "../../clib/fileutil.h"
+#include "../../clib/random.h"
 
-#include "bscript/bstruct.h"
-#include "bscript/impstr.h"
+#include "../../bscript/bstruct.h"
+#include "../../bscript/impstr.h"
 
-#include "plib/pkg.h"
-#include "plib/realm.h"
+#include "../../plib/pkg.h"
+#include "../../plib/realm.h"
 
-#include "action.h"
-#include "mobile/attribute.h"
-#include "mobile/charactr.h"
-#include "dtrace.h"
-#include "gflag.h"
-#include "los.h"
-#include "objecthash.h"
-#include "realms.h"
-#include "skillid.h"
-#include "ufunc.h"
-#include "umanip.h"
-#include "uvars.h"
+#include "../action.h"
+#include "../mobile/attribute.h"
+#include "../mobile/charactr.h"
+#include "../dtrace.h"
+#include "../gflag.h"
+#include "../los.h"
+#include "../objecthash.h"
+#include "../realms.h"
+#include "../skillid.h"
+#include "../ufunc.h"
+#include "../umanip.h"
+#include "../uvars.h"
 #include "wepntmpl.h"
 
 #include "weapon.h"

@@ -30,7 +30,7 @@ Notes
 #include "plib/realmdescriptor.h"
 #include "plib/staticblock.h"
 
-#include "itemdesc.h"
+#include "item/itemdesc.h"
 #include "ustruct.h"
 
 #include "polfile.h"

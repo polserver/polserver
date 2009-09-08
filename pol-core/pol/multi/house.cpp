@@ -34,7 +34,7 @@ Notes
 #include "../network/cgdata.h"
 #include "../core.h"
 #include "../fnsearch.h"
-#include "../itemdesc.h"
+#include "../item/itemdesc.h"
 #include "multidef.h"
 #include "../objtype.h"
 #include "../polcfg.h"

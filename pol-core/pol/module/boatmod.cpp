@@ -27,7 +27,7 @@ Notes
 
 #include "../multi/boat.h"
 #include "boatmod.h"
-#include "../item.h"
+#include "../item/item.h"
 #include "../uoexhelp.h"
 #include "../uoscrobj.h"
 #include "../wrldsize.h"

@@ -28,7 +28,7 @@ Notes
 
 #include "../core.h"
 #include "../cmdlevel.h"
-#include "../itemdesc.h"
+#include "../item/itemdesc.h"
 #include "../listenpt.h"
 #include "polsystemmod.h"
 #include "../polclock.h"

@@ -27,7 +27,7 @@ Notes
 #include "../../plib/mapshape.h"
 
 #include "../tiles.h"
-#include "../itemdesc.h"
+#include "../item/itemdesc.h"
 #include "../objtype.h"
 #include "../udatfile.h"
 #include "../uofilei.h"

@@ -18,8 +18,8 @@ Notes
 
 #include "charactr.h"
 #include "core.h"
-#include "item.h"
-#include "itemdesc.h"
+#include "item/item.h"
+#include "item/itemdesc.h"
 #include "polcfg.h"
 #include "udatfile.h"
 #include "ustruct.h"

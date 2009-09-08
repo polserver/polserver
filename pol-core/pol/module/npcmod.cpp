@@ -67,7 +67,7 @@ Notes
 #include "../uoexhelp.h"
 #include "../uoscrobj.h"
 #include "../watch.h"
-#include "../weapon.h"
+#include "../item/weapon.h"
 #include "../wrldsize.h"
 
 NPCExecutorModule::NPCExecutorModule( Executor& ex, NPC& npc ) :

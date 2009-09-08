@@ -74,7 +74,7 @@ Notes
 #include "uoexhelp.h"
 #include "uoscrobj.h"
 #include "watch.h"
-#include "weapon.h"
+#include "item/weapon.h"
 #include "wrldsize.h"
 
 /* An area definition is as follows:

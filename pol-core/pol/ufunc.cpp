@@ -44,7 +44,7 @@ Notes
 #include "accounts/account.h"
 #include "mobile/charactr.h"
 #include "network/client.h"
-#include "equipmnt.h"
+#include "item/equipmnt.h"
 #include "fnsearch.h"
 #include "layers.h"
 #include "lightlvl.h"

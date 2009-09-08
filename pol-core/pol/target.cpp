@@ -23,7 +23,7 @@ Notes
 #include "mobile/charactr.h"
 #include "network/client.h"
 #include "fnsearch.h"
-#include "itemdesc.h"
+#include "item/itemdesc.h"
 #include "los.h"
 #include "msghandl.h"
 #include "objtype.h"

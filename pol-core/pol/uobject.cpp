@@ -21,8 +21,8 @@ Notes
 #include "clib/passert.h"
 
 #include "plib/realm.h"
-#include "item.h"
-#include "itemdesc.h"
+#include "item/item.h"
+#include "item/itemdesc.h"
 #include "objtype.h"
 #include "polclass.h"
 #include "realms.h"

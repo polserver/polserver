@@ -67,7 +67,7 @@ Notes
 #include "../accounts/account.h"
 #include "../action.h"
 #include "../anim.h"
-#include "../armor.h"
+#include "../item/armor.h"
 #include "attribute.h"
 #include "../multi/boat.h"
 #include "../network/cgdata.h"
@@ -120,8 +120,8 @@ Notes
 #include "../uworld.h"
 #include "../vital.h"
 #include "../watch.h"
-#include "../weapon.h"
-#include "../wepntmpl.h"
+#include "../item/weapon.h"
+#include "../item/wepntmpl.h"
 
 #include "charactr.h"
 

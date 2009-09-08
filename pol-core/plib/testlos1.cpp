@@ -12,7 +12,7 @@ Notes
 #include "pol/uobject.h"
 #include "pol/los.h"
 #include "pol/npc.h"
-#include "pol/item.h"
+#include "pol/item/item.h"
 
 #include "realm.h"
 #include "mapserver.h"
