@@ -23,7 +23,7 @@ Notes
 #include "plib/realm.h"
 #include "network/client.h"
 #include "fnsearch.h"
-#include "itemdesc.h"
+#include "item/itemdesc.h"
 #include "pktboth.h"
 #include "poltype.h"
 #include "sockio.h"

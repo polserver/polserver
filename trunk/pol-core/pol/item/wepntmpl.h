@@ -14,10 +14,10 @@ Notes
 
 #include <string>
 
-#include "action.h"
-#include "dice.h"
-#include "skillid.h"
-#include "equipdsc.h"
+#include "../action.h"
+#include "../dice.h"
+#include "../skillid.h"
+#include "../equipdsc.h"
 #include "itemdesc.h"
 
 class Attribute;

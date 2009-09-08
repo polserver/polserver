@@ -38,7 +38,7 @@ Notes
 #include "fnsearch.h"
 #include "gflag.h"
 #include "gprops.h"
-#include "itemdesc.h"
+#include "item/itemdesc.h"
 #include "loaddata.h"
 #include "objtype.h"
 #include "npc.h"

@@ -11,7 +11,7 @@ Notes
 #include "clib/stl_inc.h"
 #include "uobject.h"
 #include "mobile/charactr.h"
-#include "item.h"
+#include "item/item.h"
 #include "npc.h"
 #include "reftypes.h"
 

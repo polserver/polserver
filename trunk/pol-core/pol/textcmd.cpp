@@ -38,11 +38,11 @@ Notes
 #include "accounts/account.h"
 #include "action.h"
 #include "allocd.h"
-#include "armor.h"
+#include "item/armor.h"
 #include "mobile/charactr.h"
 #include "network/client.h"
 #include "cmdlevel.h"
-#include "itemdesc.h"
+#include "item/itemdesc.h"
 #include "los.h"
 #include "menu.h"
 #include "npc.h"
@@ -71,7 +71,7 @@ Notes
 #include "uoscrobj.h"
 #include "uvars.h"
 #include "uworld.h"
-#include "weapon.h"
+#include "item/weapon.h"
 
 #include "fnsearch.h"
 

@@ -9,15 +9,15 @@ Notes
 */
 
 
-#include "clib/stl_inc.h"
+#include "../../clib/stl_inc.h"
 
-#include "clib/cfgelem.h"
-#include "clib/random.h"
+#include "../../clib/cfgelem.h"
+#include "../../clib/random.h"
 
 #include "equipmnt.h"
-#include "equipdsc.h"
-#include "tooltips.h"
-#include "mobile/charactr.h"
+#include "../equipdsc.h"
+#include "../tooltips.h"
+#include "../mobile/charactr.h"
 
 Equipment::Equipment( const ItemDesc& itemdesc, UOBJ_CLASS uobj_class ) :
     Item( itemdesc, uobj_class ),

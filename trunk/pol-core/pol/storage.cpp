@@ -25,7 +25,7 @@ Notes
 
 #include "fnsearch.h"
 #include "gflag.h"
-#include "item.h"
+#include "item/item.h"
 #include "loaddata.h"
 #include "polcfg.h"
 #include "savedata.h"

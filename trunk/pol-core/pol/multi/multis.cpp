@@ -21,7 +21,7 @@ Notes
 #include "../../bscript/bstruct.h"
 #include "../../bscript/objmembers.h"
 
-#include "../itemdesc.h"
+#include "../item/itemdesc.h"
 #include "../objtype.h"
 
 #include "../udatfile.h"

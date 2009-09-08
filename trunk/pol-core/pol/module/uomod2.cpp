@@ -70,7 +70,7 @@ Notes
 #include "../fnsearch.h"
 #include "../multi/house.h"
 #include "../network/iostats.h"
-#include "../itemdesc.h"
+#include "../item/itemdesc.h"
 #include "../npc.h"
 #include "../objtype.h"
 #include "osmod.h"

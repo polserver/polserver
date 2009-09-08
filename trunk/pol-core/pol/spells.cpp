@@ -27,7 +27,7 @@ Notes
 #include "mobile/charactr.h"
 #include "network/client.h"
 #include "extcmd.h"
-#include "itemdesc.h"
+#include "item/itemdesc.h"
 #include "miscrgn.h"
 #include "mkscrobj.h"
 #include "objtype.h"

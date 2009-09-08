@@ -41,7 +41,7 @@ Notes
 #include "../network/client.h"
 #include "../core.h"
 #include "../fnsearch.h"
-#include "../itemdesc.h"
+#include "../item/itemdesc.h"
 #include "../mdelta.h"
 #include "../mkscrobj.h"
 #include "multi.h"

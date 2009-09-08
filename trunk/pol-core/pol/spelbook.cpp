@@ -13,7 +13,7 @@ Notes
 #include "clib/cfgelem.h"
 #include "clib/endian.h"
 #include "mobile/charactr.h"
-#include "itemdesc.h"
+#include "item/itemdesc.h"
 #include "spelbook.h"
 #include "objtype.h"
 #include "pktboth.h"

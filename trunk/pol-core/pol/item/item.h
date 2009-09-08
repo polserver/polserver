@@ -14,9 +14,9 @@ Notes
 #define __ITEM_H
 #define ITEM_H
 
-#include "uobject.h"
-#include "bscript/bobject.h"
-#include "ssopt.h"
+#include "../uobject.h"
+#include "../../bscript/bobject.h"
+#include "../ssopt.h"
 
 class Character;
 class UContainer;

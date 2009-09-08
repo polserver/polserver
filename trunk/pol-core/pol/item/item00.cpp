@@ -11,18 +11,18 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
-#include "clib/endian.h"
+#include "../../clib/stl_inc.h"
+#include "../../clib/endian.h"
 
-#include "gameclck.h"
+#include "../gameclck.h"
 #include "item.h"
 #include "itemdesc.h"
-#include "layers.h"
-#include "resource.h"
-#include "objtype.h"
-#include "uofile.h"
-#include "ustruct.h"
-#include "uobjcnt.h"
+#include "../layers.h"
+#include "../resource.h"
+#include "../objtype.h"
+#include "../uofile.h"
+#include "../ustruct.h"
+#include "../uobjcnt.h"
 
 Item::Item( const ItemDesc& id, UOBJ_CLASS uobj_class) :
 	UObject( id.objtype, uobj_class ),

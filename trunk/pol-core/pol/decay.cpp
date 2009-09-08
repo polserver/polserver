@@ -14,8 +14,8 @@ Notes
 #include "plib/realm.h"
 
 #include "core.h"
-#include "item.h"
-#include "itemdesc.h"
+#include "item/item.h"
+#include "item/itemdesc.h"
 #include "gameclck.h"
 #include "polclock.h"
 #include "polsem.h"

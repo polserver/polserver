@@ -25,7 +25,7 @@ Notes
 #include "plib/maptile.h"
 #include "plib/realm.h"
 
-#include "itemdesc.h"
+#include "item/itemdesc.h"
 #include "polcfg.h"
 #include "polclock.h"
 #include "polsig.h"

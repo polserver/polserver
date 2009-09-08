@@ -13,9 +13,10 @@ Notes
 
 #include <iosfwd>
 
+#include "../scrdef.h"
+
 #include "equipmnt.h"
 #include "item.h"
-#include "scrdef.h"
 #include "armrtmpl.h"
 
 
