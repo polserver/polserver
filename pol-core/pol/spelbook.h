@@ -15,7 +15,7 @@ Notes
 #include "containr.h"
 #endif
 
-#include "itemdesc.h"
+#include "item/itemdesc.h"
 #include "network/client.h"
 
 class Spellbook : public UContainer

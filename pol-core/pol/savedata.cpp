@@ -23,8 +23,8 @@ Notes
 #include "clib/strutil.h"
 #include "clib/wallclock.h"
 
-#include "item.h"
-#include "itemdesc.h"
+#include "item/item.h"
+#include "item/itemdesc.h"
 #include "loaddata.h"
 #include "objecthash.h"
 #include "polcfg.h"

@@ -23,7 +23,7 @@ Notes
 // (relative signed x/y, -128 to +127
 // unsigned long is z << 16 | objtype
 
-#include "../item.h"
+#include "../item/item.h"
 
 class MultiDef;
 class BObjectImp;

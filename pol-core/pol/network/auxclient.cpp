@@ -8,31 +8,31 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../../clib/stl_inc.h"
 
-#include "bscript/bobject.h"
-#include "bscript/berror.h"
-#include "bscript/bstruct.h"
-#include "bscript/impstr.h"
+#include "../../bscript/bobject.h"
+#include "../../bscript/berror.h"
+#include "../../bscript/bstruct.h"
+#include "../../bscript/impstr.h"
 
-#include "clib/cfgelem.h"
-#include "clib/esignal.h"
-#include "clib/sckutil.h"
-#include "clib/socketsvc.h"
-#include "clib/stlutil.h"
-#include "clib/strutil.h"
-#include "clib/threadhelp.h"
-#include "clib/weakptr.h"
+#include "../../clib/cfgelem.h"
+#include "../../clib/esignal.h"
+#include "../../clib/sckutil.h"
+#include "../../clib/socketsvc.h"
+#include "../../clib/stlutil.h"
+#include "../../clib/strutil.h"
+#include "../../clib/threadhelp.h"
+#include "../../clib/weakptr.h"
 
-#include "plib/pkg.h"
+#include "../../plib/pkg.h"
 
-#include "core.h"
-#include "polsem.h"
-#include "scrdef.h"
-#include "scrsched.h"
-#include "sockets.h"
-#include "module/uomod.h"
-#include "uoexec.h"
+#include "../core.h"
+#include "../polsem.h"
+#include "../scrdef.h"
+#include "../scrsched.h"
+#include "../sockets.h"
+#include "../module/uomod.h"
+#include "../uoexec.h"
 
 class AuxClientThread;
 

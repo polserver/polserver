@@ -8,27 +8,27 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../../clib/stl_inc.h"
 
 #ifdef _MSC_VER
 #pragma warning( disable: 4786 )
 #endif
 
-#include "bscript/bstruct.h"
-#include "bscript/impstr.h"
+#include "../../bscript/bstruct.h"
+#include "../../bscript/impstr.h"
 
-#include "clib/cfgelem.h"
-#include "clib/cistring.h"
-#include "clib/endian.h"
-#include "plib/pkg.h"
+#include "../../clib/cfgelem.h"
+#include "../../clib/cistring.h"
+#include "../../clib/endian.h"
+#include "../../plib/pkg.h"
+
+#include "../tiles.h"
+#include "../clidata.h"
+#include "../layers.h"
+#include "../ufunc.h"
 
 #include "armor.h"
-#include "tiles.h"
-#include "clidata.h"
 #include "itemdesc.h"
-#include "layers.h"
-#include "ufunc.h"
-
 
 
 unsigned short layer_to_zone( unsigned short layer );

@@ -27,7 +27,7 @@ Notes
 #include "../../plib/mapcell.h"
 #include "../../plib/mapshape.h"
 
-#include "../itemdesc.h"
+#include "../item/itemdesc.h"
 #include "../objtype.h"
 #include "../udatfile.h"
 #include "../uofilei.h"

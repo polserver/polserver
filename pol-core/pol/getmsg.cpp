@@ -21,7 +21,7 @@ Notes
 
 #include "network/cgdata.h"
 #include "mobile/charactr.h"
-#include "item.h"
+#include "item/item.h"
 #include "module/osmod.h"
 #include "pktboth.h"
 #include "ufunc.h"

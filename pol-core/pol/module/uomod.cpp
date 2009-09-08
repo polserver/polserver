@@ -98,7 +98,7 @@ Notes
 #include "../eventid.h"
 #include "../fnsearch.h"
 #include "../guardrgn.h"
-#include "../itemdesc.h"
+#include "../item/itemdesc.h"
 #include "../listenpt.h"
 #include "../los.h"
 #include "../menu.h"

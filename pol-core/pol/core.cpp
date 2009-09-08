@@ -16,7 +16,7 @@ Notes
 #include "network/cgdata.h"
 #include "network/client.h"
 #include "core.h"
-#include "itemdesc.h"
+#include "item/itemdesc.h"
 #include "polsem.h"
 #include "module/polsystemmod.h"
 #include "multi/multi.h"

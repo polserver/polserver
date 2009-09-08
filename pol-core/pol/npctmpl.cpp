@@ -17,7 +17,7 @@ Notes
 
 #include "npctmpl.h"
 #include "plib/pkg.h"
-#include "weapon.h"
+#include "item/weapon.h"
 
 struct TRANSLATION
 {

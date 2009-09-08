@@ -101,7 +101,7 @@ Notes
 #include "gflag.h"
 #include "guardrgn.h"
 #include "network/iostats.h"
-#include "itemdesc.h"
+#include "item/itemdesc.h"
 #include "lightlvl.h"
 #include "loadunld.h"
 #include "logfiles.h"

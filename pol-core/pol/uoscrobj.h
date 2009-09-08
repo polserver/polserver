@@ -19,7 +19,7 @@ Notes
 #include "clib/passert.h"
 
 #include "mobile/charactr.h"
-#include "item.h"
+#include "item/item.h"
 #include "multi/boat.h"
 #include "uobjcnt.h"
 

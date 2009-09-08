@@ -34,7 +34,7 @@ Notes
 #include "cmdlevel.h"
 #include "gprops.h"
 #include "guardrgn.h"
-#include "item.h"
+#include "item/item.h"
 #include "miscrgn.h"
 #include "musicrgn.h"
 #include "multi/multi.h"

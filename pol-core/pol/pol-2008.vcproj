@@ -214,14 +214,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\armor.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\auxclient.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\binaryfilescrobj.cpp"
 				>
 			</File>
@@ -298,10 +290,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\equipmnt.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\exscrobj.cpp"
 				>
 			</File>
@@ -343,22 +331,6 @@
 			</File>
 			<File
 				RelativePath=".\irequest.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\item.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\item00.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\itemcr.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\itemdesc.cpp"
 				>
 			</File>
 			<File
@@ -906,10 +878,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\weapon.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\zone.cpp"
 				>
 			</File>
@@ -928,14 +896,6 @@
 			</File>
 			<File
 				RelativePath=".\anim.h"
-				>
-			</File>
-			<File
-				RelativePath=".\armor.h"
-				>
-			</File>
-			<File
-				RelativePath=".\armrtmpl.h"
 				>
 			</File>
 			<File
@@ -1007,10 +967,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\equipmnt.h"
-				>
-			</File>
-			<File
 				RelativePath=".\eventid.h"
 				>
 			</File>
@@ -1048,14 +1004,6 @@
 			</File>
 			<File
 				RelativePath=".\guardrgn.h"
-				>
-			</File>
-			<File
-				RelativePath=".\item.h"
-				>
-			</File>
-			<File
-				RelativePath=".\itemdesc.h"
 				>
 			</File>
 			<File
@@ -1499,14 +1447,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\weapon.h"
-				>
-			</File>
-			<File
-				RelativePath=".\wepntmpl.h"
-				>
-			</File>
-			<File
 				RelativePath=".\wrldsize.h"
 				>
 			</File>
@@ -1855,6 +1795,10 @@
 			Name="network"
 			>
 			<File
+				RelativePath=".\network\auxclient.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\network\bannedips.cpp"
 				>
 			</File>
@@ -2084,6 +2028,66 @@
 			</File>
 			<File
 				RelativePath=".\module\vitalmod.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="item"
+			>
+			<File
+				RelativePath=".\item\armor.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\item\armor.h"
+				>
+			</File>
+			<File
+				RelativePath=".\item\armrtmpl.h"
+				>
+			</File>
+			<File
+				RelativePath=".\item\equipmnt.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\item\equipmnt.h"
+				>
+			</File>
+			<File
+				RelativePath=".\item\item.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\item\item.h"
+				>
+			</File>
+			<File
+				RelativePath=".\item\item00.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\item\itemcr.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\item\itemdesc.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\item\itemdesc.h"
+				>
+			</File>
+			<File
+				RelativePath=".\item\weapon.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\item\weapon.h"
+				>
+			</File>
+			<File
+				RelativePath=".\item\wepntmpl.h"
 				>
 			</File>
 		</Filter>
