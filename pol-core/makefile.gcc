@@ -89,7 +89,7 @@ cpp_sources = \
 	pol/musicrgn.cpp \
 	pol/npc.cpp pol/npctmpl.cpp pol/npctemplates.cpp pol/module/npcmod.cpp \
 	pol/objecthash.cpp pol/module/osmod.cpp \
-	pol/network/packethooks.cpp pol/packetscrobj.cpp pol/party.cpp \
+	pol/network/packethooks.cpp pol/packetscrobj.cpp pol/party.cpp pol/module/partymod.cpp \
 	pol/pol.cpp pol/polcfg.cpp pol/polclock.cpp pol/poldbg.cpp \
 	pol/polfile2.cpp pol/polsem.cpp pol/polsig.cpp pol/polstats.cpp \
 	pol/module/polsystemmod.cpp \

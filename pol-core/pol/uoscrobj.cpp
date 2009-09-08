@@ -80,7 +80,7 @@ Notes
 #include "module/uomod.h"
 #include "uoexhelp.h"
 #include "uworld.h"
-#include "party.h"
+#include "module/partymod.h"
 
 #include "uoscrobj.h"
 
