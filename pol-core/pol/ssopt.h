@@ -9,6 +9,7 @@ History
 2009/07/31 Turley:    ServSpecOpt ResetSwingOnTurn=true/false Should SwingTimer be reset with projectile weapon on facing change
                       ServSpecOpt SendSwingPacket=true/false Should packet 0x2F be send on swing.
 2009/09/03 MuadDib:   Moved combat related settings to Combat Config.
+2009/09/09 Turley:    ServSpecOpt CarryingCapacityMod as * modifier for Character::carrying_capacity()
 
 Notes
 =======
@@ -45,7 +46,7 @@ struct ServSpecOpt {
 	bool allow_moving_trade;
 	bool core_handled_locks;
 	bool use_slot_index;
-	
+	double carrying_capacity_mod;
 	bool use_edit_server;
 
 	unsigned short default_attribute_cap;

@@ -28,7 +28,7 @@ public:
 	virtual void PopulateStruct( BStruct* descriptor ) const;
 
     unsigned short ar;
-    std::set<unsigned> zones;
+    std::set<unsigned short> zones;
     ScriptDef on_hit_script;
 };
 
