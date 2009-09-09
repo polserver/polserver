@@ -36,6 +36,8 @@ History
 2009/09/03 MuadDib:   Changed combat related ssopt stuff to combat_config.
                       Changes for account related source file relocation
 					  Changes for multi related source file relocation
+2009/09/09 Turley:    ServSpecOpt CarryingCapacityMod as * modifier for Character::carrying_capacity()
+
 Notes
 =======
 
@@ -502,7 +504,7 @@ unsigned long Character::weight() const
 ///
 unsigned short Character::carrying_capacity() const
 {
-	return 40 + strength() * 7 / 2;
+	return static_cast<u16>(floor( (40 + strength() * 7 / 2) * ssopt.carrying_capacity_mod ));
 }
 
 int Character::charindex() const
@@ -2259,8 +2261,8 @@ void Character::refresh_ar()
 		if (item->isa( CLASS_ARMOR ))
 		{
 			UArmor* armor = static_cast<UArmor*>(item);
-			std::set<unsigned> tmplzones = armor->tmplzones();
-			std::set<unsigned>::iterator itr;
+			std::set<unsigned short> tmplzones = armor->tmplzones();
+			std::set<unsigned short>::iterator itr;
 			for ( itr = tmplzones.begin(); itr != tmplzones.end(); ++itr )
 			{
 				if ((armor_[*itr] == NULL) || (armor->ar() > armor_[*itr]->ar()))

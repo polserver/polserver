@@ -8,7 +8,8 @@ History
 2005/12/05 MuadDib:   ServSpecOpt InvulTage using 0, 1, 2 for method of invul showing.
 2009/07/31 Turley:    ServSpecOpt ResetSwingOnTurn=true/false Should SwingTimer be reset with projectile weapon on facing change
                       ServSpecOpt SendSwingPacket=true/false Should packet 0x2F be send on swing.
-					  2009/09/03 MuadDib:   Moved combat related settings to Combat Config.
+2009/09/03 MuadDib:   Moved combat related settings to Combat Config.
+2009/09/09 Turley:    ServSpecOpt CarryingCapacityMod as * modifier for Character::carrying_capacity()
 
 Notes
 =======
@@ -68,7 +69,7 @@ void read_servspecopt()
 	ssopt.default_max_slots = static_cast<unsigned char>(elem.remove_ushort("MaxContainerSlots", 125));
 	ssopt.use_slot_index = elem.remove_bool("UseContainerSlots",false);
 	ssopt.use_edit_server = elem.remove_bool("EditServer",false);
-
+    ssopt.carrying_capacity_mod = elem.remove_double("CarryingCapacityMod",1.0);
 	ssopt.core_sends_caps = elem.remove_bool("CoreSendsCaps",false);
 	ssopt.send_stat_locks = elem.remove_bool("SendStatLocks",false);
 	ssopt_parse_totalstats(elem);
