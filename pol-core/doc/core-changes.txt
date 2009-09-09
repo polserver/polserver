@@ -1,4 +1,10 @@
 -- POL099 --
+09-09-2009 Turley:
+    Added:  ServSpecOpt CarryingCapacityMod (double default 1.0) as * modifier for mobile max_weight
+    Note:   Formula is (40 + strength * 7 / 2) * ssopt.CarryingCapacityMod
+    Note:   Since ML max weight is send for statusgump
+    Note:   Patch submitted by Tomi
+    
 09-05-2009 MuadDib:
     Added:  POL Linux builds will now create a PID file when loading. Patch submitted by Crazyman
 

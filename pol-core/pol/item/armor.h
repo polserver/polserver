@@ -27,10 +27,10 @@ class UArmor : public Equipment
     typedef Equipment base;
 public:
     virtual unsigned short ar() const;
-    virtual bool covers( unsigned layer ) const;
+    virtual bool covers( unsigned short layer ) const;
     virtual Item* clone() const;
     void set_onhitscript( const string& scriptname );
-	std::set<unsigned> tmplzones();
+	std::set<unsigned short> tmplzones();
     
 protected:
     virtual void printProperties( std::ostream& os ) const;
@@ -58,7 +58,7 @@ private:
     ScriptDef onhitscript_;
 };
 
-inline std::set<unsigned> UArmor::tmplzones() { return tmpl->zones; }
+inline std::set<unsigned short> UArmor::tmplzones() { return tmpl->zones; }
 
 void load_armor_templates();
 void unload_armor_templates();
