@@ -83,7 +83,7 @@ void ArmorDesc::PopulateStruct( BStruct* descriptor ) const
 	descriptor->addMember( "AR", new BLong(ar) );
 
 	ObjArray* arr_zones = new ObjArray();
-	std::set<unsigned int>::const_iterator itr;
+	std::set<unsigned short>::const_iterator itr;
 	for(itr = zones.begin(); itr != zones.end(); ++itr)
 		arr_zones->addElement( new String( zone_to_zone_name(*itr) ) );
 
@@ -118,7 +118,7 @@ unsigned short UArmor::ar() const
 		return USHRT_MAX;
 }
 
-bool UArmor::covers( unsigned layer ) const
+bool UArmor::covers( unsigned short layer ) const
 {
 	return tmpl->zones.find( layer ) != tmpl->zones.end();
 }
