@@ -113,7 +113,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Build distribution archive"
-				CommandLine="cd $(SolutionDir)dist&#x0D;&#x0A;mkdist7.bat&#x0D;&#x0A;"
+				CommandLine="cd $(SolutionDir)dist&#x0D;&#x0A;mkdist.bat&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>
@@ -137,11 +137,11 @@
 			>
 		</File>
 		<File
-			RelativePath="makefile.vc7"
+			RelativePath=".\makefile.vc"
 			>
 		</File>
 		<File
-			RelativePath="mkdist7.bat"
+			RelativePath=".\mkdist.bat"
 			>
 		</File>
 		<File
