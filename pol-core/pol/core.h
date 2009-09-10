@@ -63,6 +63,7 @@ const long FP_IGNORE_MOBILES        = 0x01;
 const long FP_IGNORE_DOORS          = 0x02;
 
 const long VENDOR_SEND_AOS_TOOLTIP  = 0x01;
+const long SENDDIALOGMENU_FORCE_OLD = 0x01;
 
 const long SAVE_FULL                = 0x00;
 const long SAVE_INCREMENTAL         = 0x01;

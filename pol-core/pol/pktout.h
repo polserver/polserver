@@ -8,6 +8,7 @@ History
 2009/08/01 MuadDib:   Added packet 0x86, 0x9C. Completed moving all "Outbound only" Packet structs to here.
 2009/08/09 MuadDib:   Re factor of Packet 0x25, 0x11 for naming convention
 2009/08/14 Turley:    PKTOUT_B9_V2 removed unk u16 and changed flag to u32
+2009/09/10 Turley:    CompressedGump support (Grin)
 
 Notes
 =======
@@ -1199,6 +1200,31 @@ struct PKTOUT_DC {
 	u32 revision;
 };
 asserteql( sizeof(PKTOUT_DC), 9);
+
+struct PKTOUT_DD {
+   struct HEADER {
+      u8  msgtype;
+      u16 msglen;
+      u32 serial;
+      u32 dialog_id;
+      u32 dialog_x;
+      u32 dialog_y;
+   };
+   struct LAYOUT {
+      u32 layout_clen;
+      u32 layout_dlen;
+      u8  layout_cdata;
+   };
+   struct TEXT {
+      u32 lines;
+      u32 text_clen;
+      u32 text_dlen;
+      u8  text_cdata;
+   };
+};
+asserteql( sizeof(PKTOUT_DD::HEADER), 19 );
+asserteql( sizeof(PKTOUT_DD::LAYOUT), 9 );
+asserteql( sizeof(PKTOUT_DD::TEXT), 13 );
 
 struct PKTOUT_E3 {
 	u8  msgtype;

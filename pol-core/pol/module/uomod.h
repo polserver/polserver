@@ -18,6 +18,7 @@ added mf_GetStandingLayers - get layer a mobile can stand
 2008/07/08 Turley:    Added mf_IsStackable - Is item stackable?
 2009/08/08 MuadDib:   mf_SetRawSkill(),  mf_GetRawSkill(),  mf_ApplyRawDamage(), mf_GameStat(), 
                       mf_AwardRawPoints(), old replace_properties(), mf_GetSkill() cleaned out.
+2009/09/10 Turley:    CompressedGump support (Grin)
 
 Notes
 =======
@@ -305,6 +306,8 @@ protected:
 	BObjectImp* internal_MoveBoat(UBoat* boat, xcoord x, ycoord y, zcoord z, long flags, Realm* newrealm);
 	BObjectImp* internal_MoveContainer(UContainer* container, xcoord x, ycoord y, zcoord z, long flags, Realm* newrealm);
 	void internal_InBoxAreaChecks(unsigned short &x1, unsigned short &y1, short &z1, unsigned short &x2, unsigned short &y2, short &z2, Realm* realm);
+	BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu(Character* chr, ObjArray* layout_arr, ObjArray* data_arr, long x,long y);
+	BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu(Character* chr, ObjArray* layout_arr, ObjArray* data_arr, long x,long y);
 	
 private: // not implemented
 	UOExecutorModule( const UOExecutorModule& );
