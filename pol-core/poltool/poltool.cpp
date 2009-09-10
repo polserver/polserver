@@ -33,7 +33,7 @@ void usage()
 
 int mapdump( int argc, char* argv[] )
 {
-    int wxl = 5485, wxh = 5500, wyl=0, wyh=30;
+    short wxl = 5485, wxh = 5500, wyl=0, wyh=30;
 
 	char* realmname = "britannia";
 	if (argc >= 6)
@@ -47,13 +47,13 @@ int mapdump( int argc, char* argv[] )
     MapTileServer* mts = new MapTileServer(descriptor);
     if (argc >= 3)
     {
-        wxl = wxh = atoi( argv[1] );
-        wyl = wyh = atoi( argv[2] );
+        wxl = wxh = static_cast<short>(atoi( argv[1] ));
+        wyl = wyh = static_cast<short>(atoi( argv[2] ));
     }
     if (argc >= 5)
     {
-        wxh = atoi( argv[3] );
-        wyh = atoi( argv[4] );
+        wxh = static_cast<short>(atoi( argv[3] ));
+        wyh = static_cast<short>(atoi( argv[4] ));
     }
 
     ofstream ofs( "polmap.html" );
@@ -66,17 +66,17 @@ int mapdump( int argc, char* argv[] )
         ofs << "<td align=center>" << x << "</td>";
     }
     ofs << "</tr>" << endl;
-    for( int y = wyl; y <= wyh; ++y )
+    for( unsigned short y = wyl; y <= wyh; ++y )
     {
         ofs << "<tr><td valign=center>" << y << "</td>" << endl;
-        for( int x = wxl; x <= wxh; ++x )
+        for( unsigned short x = wxl; x <= wxh; ++x )
         {
             ofs << "<td align=left valign=top>";
         
             MAPCELL cell = mapserver->GetMapCell( x, y );
             MapShapeList mlist;
             mapserver->GetMapShapes( mlist, x, y, FLAG::ALL);
-MAPTILE_CELL tile = mts->GetMapTile( static_cast<unsigned short>(x), static_cast<unsigned short>(y) );
+MAPTILE_CELL tile = mts->GetMapTile( x, y );
 
 ofs << "landtile=" << int(tile.landtile) << "<br>";
 ofs << "tilez=" <<int(tile.z) << "<br>";

@@ -66,7 +66,7 @@ void MapWriter::WriteConfigFile()
     ofs_cfg << "}" << endl;
 }
 
-void MapWriter::CreateNewFiles(const string& realm_name, unsigned width, unsigned height)
+void MapWriter::CreateNewFiles(const string& realm_name, unsigned short width, unsigned short height)
 {
     _realm_name = realm_name;
     _width = width;
@@ -184,12 +184,12 @@ unsigned long MapWriter::total_maptile_blocks()
     return _width * _height / MAPTILE_CHUNK / MAPTILE_CHUNK;
 }
 
-void MapWriter::SetMapCell( unsigned x, unsigned y, MAPCELL cell )
+void MapWriter::SetMapCell( unsigned short x, unsigned short y, MAPCELL cell )
 {
-    unsigned xblock = x >>  MAPBLOCK_SHIFT;
-    unsigned xcell  = x &   MAPBLOCK_CELLMASK;
-    unsigned yblock = y >>  MAPBLOCK_SHIFT;
-    unsigned ycell  = y &   MAPBLOCK_CELLMASK;
+    unsigned short xblock = x >>  MAPBLOCK_SHIFT;
+    unsigned short xcell  = x &   MAPBLOCK_CELLMASK;
+    unsigned short yblock = y >>  MAPBLOCK_SHIFT;
+    unsigned short ycell  = y &   MAPBLOCK_CELLMASK;
 
     // doh, need to know map geometry here.
     long blockIdx = yblock * (_width >> MAPBLOCK_SHIFT) + xblock;
@@ -208,12 +208,12 @@ void MapWriter::SetMapCell( unsigned x, unsigned y, MAPCELL cell )
 
     _block.cell[xcell][ycell] = cell;
 }
-void MapWriter::SetMapTile( unsigned x, unsigned y, MAPTILE_CELL cell )
+void MapWriter::SetMapTile( unsigned short x, unsigned short y, MAPTILE_CELL cell )
 {
-    unsigned xblock = x >> MAPTILE_SHIFT;
-    unsigned xcell  = x &  MAPTILE_CELLMASK;
-    unsigned yblock = y >> MAPTILE_SHIFT;
-    unsigned ycell  = y &  MAPTILE_CELLMASK;
+    unsigned short xblock = x >> MAPTILE_SHIFT;
+    unsigned short xcell  = x &  MAPTILE_CELLMASK;
+    unsigned short yblock = y >> MAPTILE_SHIFT;
+    unsigned short ycell  = y &  MAPTILE_CELLMASK;
 
     // doh, need to know map geometry here.
     long blockIdx = yblock * (_width >> MAPTILE_SHIFT) + xblock;
@@ -276,7 +276,7 @@ void MapWriter::AppendSolidx2Elem( const SOLIDX2_ELEM& elem )
     _ofs_solidx2.write( reinterpret_cast<const char*>( &elem ), sizeof elem );
 }
 
-void MapWriter::SetSolidx2Offset( unsigned x_base, unsigned y_base, unsigned long offset )
+void MapWriter::SetSolidx2Offset( unsigned short x_base, unsigned short y_base, unsigned long offset )
 {
     unsigned long elems_per_row = (_width / SOLIDX_X_SIZE);
     unsigned long index = (y_base / SOLIDX_Y_SIZE) * elems_per_row

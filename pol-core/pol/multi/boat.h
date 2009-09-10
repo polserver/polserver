@@ -71,7 +71,7 @@ public:
     };
     static const char* component_names[ COMPONENT__COUNT ];
     virtual BObjectImp* make_ref();
-	static bool navigable( const MultiDef&, int x, int y, int z, Realm* realm);
+	static bool navigable( const MultiDef&, unsigned short x, unsigned short y, short z, Realm* realm);
 	void realm_changed();
 	void adjust_traveller_z(s8 delta_z);
 

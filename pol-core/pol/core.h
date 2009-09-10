@@ -37,7 +37,7 @@ void CoreSetSysTrayToolTip( const string& text, Priority pri );
 bool move_character_to( Character* chr, 
                        unsigned short x,
                         unsigned short y,
-                        int z,
+                        short z,
                         long flags,
 						Realm* oldrealm );
 
@@ -76,7 +76,7 @@ const long FINDSUBSTANCE_FIND_ALL      = 0x04;
 const long JOURNAL_PRINT_NAME			= 0x00;
 const long JOURNAL_PRINT_YOU_SEE		= 0x01;
 
-Item* find_walkon_item( Items& ivec, int z );
+Item* find_walkon_item( Items& ivec, short z );
 void atomic_cout( const string& msg );
 void restart_all_clients();
 

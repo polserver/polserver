@@ -55,10 +55,10 @@ std::set<unsigned long> StairTypes;
 std::set<unsigned long> MountTypes;
 
 PolConfig config;
-void safe_getmapinfo( unsigned short x, unsigned short y, int* z, USTRUCT_MAPINFO* mi );
+void safe_getmapinfo( unsigned short x, unsigned short y, short* z, USTRUCT_MAPINFO* mi );
 void generate_map();
-void create_map( const string& realm, unsigned width, unsigned height );
-void update_map( const string& realm, unsigned x, unsigned y );
+void create_map( const string& realm, unsigned short width, unsigned short height );
+void update_map( const string& realm, unsigned short x, unsigned short y );
 string flagstr( unsigned char flags );
 void create_multis_cfg();
 void create_tiles_cfg();
@@ -255,11 +255,11 @@ int xmain( int argc, char* argv[] )
 
         if (x >= 0 && y >= 0)
         {
-            update_map( realm, x, y );
+            update_map( realm, static_cast<u16>(x), static_cast<u16>(y) );
         }
         else
         {
-            create_map( realm, width, height);
+            create_map( realm, static_cast<unsigned short>(width), static_cast<unsigned short>(height));
         }
     }
     else if (command == "statics")
@@ -356,18 +356,18 @@ void create_maptile( const string& realmname )
     MapWriter writer;
     writer.OpenExistingFiles( realmname );
 
-    for( unsigned y_base = 0; y_base < uo_map_height; y_base += MAPTILE_CHUNK )
+    for( unsigned short y_base = 0; y_base < uo_map_height; y_base += MAPTILE_CHUNK )
     {
-        for( unsigned x_base = 0; x_base < uo_map_width; x_base += MAPTILE_CHUNK )
+        for( unsigned short x_base = 0; x_base < uo_map_width; x_base += MAPTILE_CHUNK )
         {
-            for( unsigned x_add = 0; x_add < MAPTILE_CHUNK; ++x_add )
+            for( unsigned short x_add = 0; x_add < MAPTILE_CHUNK; ++x_add )
             {
-                for( unsigned y_add = 0; y_add < MAPTILE_CHUNK; ++y_add )
+                for( unsigned short y_add = 0; y_add < MAPTILE_CHUNK; ++y_add )
                 {
-                    unsigned x = x_base + x_add;
-                    unsigned y = y_base + y_add;
+                    unsigned short x = x_base + x_add;
+                    unsigned short y = y_base + y_add;
 
-                    int z;
+                    short z;
                     USTRUCT_MAPINFO mi;
 
                     safe_getmapinfo( x, y, &z, &mi );
@@ -422,19 +422,19 @@ bool differby_exactly( unsigned char f1, unsigned char f2, unsigned char bits )
     return ((f1 ^ f2) == bits);
 }
 
-void ProcessSolidBlock( unsigned x_base, unsigned y_base, MapWriter& mapwriter );
+void ProcessSolidBlock( unsigned short x_base, unsigned short y_base, MapWriter& mapwriter );
 
     unsigned empty = 0, nonempty = 0;
     unsigned total_statics = 0;
     unsigned with_more_solids = 0;
 
-void update_map( const string& realm, unsigned x, unsigned y )
+void update_map( const string& realm, unsigned short x, unsigned short y )
 {
     MapWriter mapwriter;
     mapwriter.OpenExistingFiles(realm);
 
-    unsigned x_base = x / SOLIDX_X_SIZE * SOLIDX_X_SIZE;
-    unsigned y_base = y / SOLIDX_Y_SIZE * SOLIDX_Y_SIZE;
+    unsigned short x_base = x / SOLIDX_X_SIZE * SOLIDX_X_SIZE;
+    unsigned short y_base = y / SOLIDX_Y_SIZE * SOLIDX_Y_SIZE;
 
     ProcessSolidBlock( x_base, y_base, mapwriter );
 
@@ -443,7 +443,7 @@ void update_map( const string& realm, unsigned x, unsigned y )
     cout << "total statics=" << total_statics << endl;
 }
 
-void create_map( const string& realm, unsigned width, unsigned height )
+void create_map( const string& realm, unsigned short width, unsigned short height )
 {
     MapWriter mapwriter;
     cout << "Creating map base and solids files." << endl;
@@ -456,9 +456,9 @@ void create_map( const string& realm, unsigned width, unsigned height )
     cout << "Done." << endl;
 
     wallclock_t start = wallclock();
-    for( unsigned y_base = 0; y_base < height; y_base += SOLIDX_Y_SIZE )
+    for( unsigned short y_base = 0; y_base < height; y_base += SOLIDX_Y_SIZE )
     {
-        for( unsigned x_base = 0; x_base < width; x_base += SOLIDX_X_SIZE )
+        for( unsigned short x_base = 0; x_base < width; x_base += SOLIDX_X_SIZE )
         {
             ProcessSolidBlock( x_base, y_base, mapwriter );
         }
@@ -522,10 +522,10 @@ bool is_cave_shadow(USTRUCT_MAPINFO& mi)
 		   );
 }
 
-int get_lowestadjacentz(int x,int y, int z)
+short get_lowestadjacentz(unsigned short x,unsigned short y, short z)
 {	USTRUCT_MAPINFO mi;
-	int z0;
-	int lowest_z = z;
+	short z0;
+	short lowest_z = z;
 	bool cave_override = false;
 
 	if ((x-1 >= 0) && (y-1 >= 0))
@@ -662,30 +662,30 @@ int get_lowestadjacentz(int x,int y, int z)
 		return lowest_z;
 }
 
-void ProcessSolidBlock( unsigned x_base, unsigned y_base, MapWriter& mapwriter )
+void ProcessSolidBlock( unsigned short x_base, unsigned short y_base, MapWriter& mapwriter )
 {
     unsigned long idx2_offset = 0;
     SOLIDX2_ELEM idx2_elem;
     memset( &idx2_elem, 0, sizeof idx2_elem );
     idx2_elem.baseindex = mapwriter.NextSolidIndex();
 
-    unsigned x_add_max = SOLIDX_X_SIZE, y_add_max = SOLIDX_Y_SIZE;
+    unsigned short x_add_max = SOLIDX_X_SIZE, y_add_max = SOLIDX_Y_SIZE;
     if (x_base + x_add_max > uo_map_width)
       x_add_max = uo_map_width - x_base;
     if (y_base + y_add_max > uo_map_height)
       y_add_max = uo_map_height - y_base;
 
-    for( unsigned x_add = 0; x_add < x_add_max; ++x_add )
+    for( unsigned short x_add = 0; x_add < x_add_max; ++x_add )
     {
-        for( unsigned y_add = 0; y_add < y_add_max; ++y_add )
+        for( unsigned short y_add = 0; y_add < y_add_max; ++y_add )
         {
-            unsigned x = x_base + x_add;
-            unsigned y = y_base + y_add;
+            unsigned short x = x_base + x_add;
+            unsigned short y = y_base + y_add;
 
             StaticList statics;
 
             // read the map, and treat it like a static.
-            int z;
+            short z;
             USTRUCT_MAPINFO mi;
 
             safe_getmapinfo( x, y, &z, &mi );
@@ -696,8 +696,8 @@ void ProcessSolidBlock( unsigned x_base, unsigned y_base, MapWriter& mapwriter )
 			// for water, don't average with surrounding tiles.
             if (landtile_uoflags( mi.landtile ) & USTRUCT_TILE::FLAG_LIQUID)
                 z = mi.z;
-            int lt_height = 0;
-			int low_z = get_lowestadjacentz(x,y,z);
+            short lt_height = 0;
+			short low_z = get_lowestadjacentz(x,y,z);
 
 			lt_height = z - low_z;
 			z = low_z;
@@ -790,7 +790,7 @@ void ProcessSolidBlock( unsigned x_base, unsigned y_base, MapWriter& mapwriter )
                 addMap = false;
 
             if (addMap)
-                statics.push_back( StaticRec( 0, z, lt_flags, lt_height ) );
+                statics.push_back( StaticRec( 0, static_cast<signed char>(z), lt_flags, static_cast<char>(lt_height) ) );
 
             sort( statics.begin(), statics.end(), StaticsByZ() );
             reverse( statics.begin(), statics.end() );
@@ -866,7 +866,7 @@ void ProcessSolidBlock( unsigned x_base, unsigned y_base, MapWriter& mapwriter )
                     // things can't exist in the same place.
                     // shrink the bottom part of this shape.
                     // if that would give it negative height, then skip it.
-                    int height_remove = prev.z+prev.height-shape.z;
+                    short height_remove = prev.z+prev.height-shape.z;
                     if (height_remove <= shape.height)
                     {
                         shape.z += height_remove;
@@ -885,7 +885,7 @@ void ProcessSolidBlock( unsigned x_base, unsigned y_base, MapWriter& mapwriter )
                     (shape.z > prev.z+prev.height) &&
                     (shape.z <= prev.z+prev.height+4))
                 {
-                    int height_add = shape.z-prev.z-prev.height;
+                    short height_add = shape.z-prev.z-prev.height;
                     shape.z -= height_add;
                     shape.height += height_add;
                 }

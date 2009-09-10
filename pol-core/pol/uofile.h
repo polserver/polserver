@@ -25,7 +25,7 @@ class UMulti;
 class Item;
 
 extern signed char rawmapinfo( unsigned short x, unsigned short y, struct USTRUCT_MAPINFO* gi );
-void getmapinfo( unsigned short x, unsigned short y, int* z, USTRUCT_MAPINFO* mi );
+void getmapinfo( unsigned short x, unsigned short y, short* z, USTRUCT_MAPINFO* mi );
 void readtile(unsigned short tilenum, USTRUCT_TILE *tile);
 void readstaticblock( USTRUCT_STATIC** ppst, int* pnum, unsigned short x, unsigned short y );
 bool uo_passable( unsigned short x, unsigned short y );
@@ -42,8 +42,8 @@ void readlandtile( unsigned short tilenum, USTRUCT_LAND_TILE* landtile );
 
     // returns false if blocked.  new Z given new X, Y, and old Z.
 
-bool uo_walkheight(int x, int y, int oldz, 
-                int* newz, 
+bool uo_walkheight(unsigned short x, unsigned short y, short oldz, 
+                short* newz, 
                 UMulti** psupporting_multi,
                 Item** pwalkon_item,
                 bool doors_block = true,
@@ -52,18 +52,18 @@ bool uo_walkheight(int x, int y, int oldz,
     
     // does 'canmove' checking so GMs can walk through stuff
 bool uo_walkheight(const Character* chr,
-                int x, int y, int oldz, 
-                int* newz, 
+                unsigned short x, unsigned short y, short oldz, 
+                short* newz, 
                 UMulti** pmulti, Item** pwalkon);
 
-bool uo_dropheight(int x, int y, int oldz, 
-                int* newz, 
+bool uo_dropheight(unsigned short x, unsigned short y, short oldz, 
+                short* newz, 
                 UMulti** pmulti);
 
-UMulti* uo_find_supporting_multi( unsigned short x, unsigned short y, int z );
+UMulti* uo_find_supporting_multi( unsigned short x, unsigned short y, short z );
 //UMulti* uo_find_supporting_multi( MultiList& mvec, int z );
 
-bool uo_lowest_standheight( int x, int y, int* z );
+bool uo_lowest_standheight( unsigned short x, unsigned short y, short* z );
 
 void open_uo_data_files( void );
 void read_uo_data( void );

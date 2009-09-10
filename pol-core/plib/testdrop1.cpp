@@ -18,8 +18,8 @@ void inc_failures();
 extern Realm* p_test_realm;
 
 /* This code should mirror code in drop_item_on_ground */
-static void test_drop( int chrx, int chry, int chrz, 
-                int dropx, int dropy, int dropz, bool exp_result, int exp_z )
+static void test_drop( unsigned short chrx, unsigned short chry, short chrz, 
+                unsigned short dropx, unsigned short dropy, short dropz, bool exp_result, short exp_z )
 {
     if (p_test_realm == NULL)
         p_test_realm = new Realm("britannia");
@@ -28,7 +28,7 @@ static void test_drop( int chrx, int chry, int chrz,
                               << dropx << "," << dropy << "," << dropz << "): " 
          << "Expect " << exp_result << "," << exp_z << ": ";
 
-    int newz;
+    short newz;
     UMulti* multi;
     bool result = p_test_realm->dropheight( dropx,dropy,dropz, chrz, &newz, &multi );
     cout << "Got " << result << "," << newz << ": ";

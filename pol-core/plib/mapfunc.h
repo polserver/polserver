@@ -15,8 +15,8 @@ Notes
 
 class ConfigElem;
 
-u32 polflags_from_tileflags( unsigned tile, u32 uoflags, bool use_no_shoot, bool LOS_through_windows );
-u32 polflags_from_landtileflags( unsigned tile, u32 lt_flags );
+u32 polflags_from_tileflags( unsigned short tile, u32 uoflags, bool use_no_shoot, bool LOS_through_windows );
+u32 polflags_from_landtileflags( unsigned short tile, u32 lt_flags );
 
 unsigned long readflags( ConfigElem& elem );
 

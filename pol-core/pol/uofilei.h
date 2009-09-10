@@ -31,12 +31,12 @@ class Character;
 FILE *open_uo_file( const string& filename_part );
 
 bool check_verdata( unsigned long file, unsigned long block, const USTRUCT_VERSION*& vrec );
-bool statics_height( unsigned short x, unsigned short y, int oldz, int* newz );
+bool statics_height( unsigned short x, unsigned short y, short oldz, short* newz );
 
 #include "udatfile.h"
-void standheight( MOVEMODE movemode, StaticList& statics, unsigned short x, unsigned short y, int oldz, bool* result, int* newz );
-void statics_standheight( StaticList& statics, unsigned short x, unsigned short y, int oldz, bool* result_inout, int* newz_inout );
-void statics_dropheight( StaticList& statics, unsigned short x, unsigned short y, int oldz, bool* result_inout, int* newz_inout );
+void standheight( MOVEMODE movemode, StaticList& statics, unsigned short x, unsigned short y, short oldz, bool* result, short* newz );
+void statics_standheight( StaticList& statics, unsigned short x, unsigned short y, short oldz, bool* result_inout, short* newz_inout );
+void statics_dropheight( StaticList& statics, unsigned short x, unsigned short y, short oldz, bool* result_inout, short* newz_inout );
 
 #define VERFILE_MAP0_MUL        0x00
 #define VERFILE_STAIDX0_MUL     0x01

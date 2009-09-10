@@ -45,56 +45,56 @@ public:
 	Realm* baserealm;
 	const string shadowname;
 
-    unsigned width() const;
-    unsigned height() const;
+    unsigned short width() const;
+    unsigned short height() const;
 
 	unsigned season() const;
 
-    bool valid( unsigned x, unsigned y, int z ) const;
+    bool valid( unsigned short x, unsigned short y, short z ) const;
 	const string name() const;
 
-    bool walkheight(unsigned x, unsigned y, int oldz, 
-                    int* newz, 
+    bool walkheight(unsigned short x, unsigned short y, short oldz, 
+                    short* newz, 
                     UMulti** pmulti, Item** pwalkon,
                     bool doors_block,
                     MOVEMODE movemode,
 					int* gradual_boost = NULL);
-    bool walkheight( const Character* chr, unsigned x, unsigned y, int oldz, 
-                     int* newz, 
+    bool walkheight( const Character* chr, unsigned short x, unsigned short y, short oldz, 
+                     short* newz, 
                      UMulti** pmulti, Item** pwalkon,
 					 int* gradual_boost = NULL);
 
-	bool lowest_walkheight(	unsigned x, unsigned y, int oldz, 
-							int* newz, 
+	bool lowest_walkheight(	unsigned short x, unsigned short y, short oldz, 
+							short* newz, 
 							UMulti** pmulti, Item** pwalkon,
 							bool doors_block,
 							MOVEMODE movemode,
 							int* gradual_boost = NULL);
 
-    bool dropheight( unsigned dropx, 
-                     unsigned dropy, 
-                     int dropz,
-                     int chrz, 
-                     int* newz, 
+    bool dropheight( unsigned short dropx, 
+                     unsigned short dropy, 
+                     short dropz,
+                     short chrz, 
+                     short* newz, 
                      UMulti** pmulti );
 
     bool has_los( const LosObj& att, const LosObj& tgt ) const;
     bool has_los( const UObject& iatt, const UObject& itgt ) const;
     bool has_los( const Character& iatt, const UObject& itgt ) const;
 
-    bool navigable( unsigned x, unsigned y, int z, int height  ) const;
+    bool navigable( unsigned short x, unsigned short y, short z, short height  ) const;
 
-    UMulti* find_supporting_multi( unsigned x, unsigned y, int z );
+    UMulti* find_supporting_multi( unsigned short x, unsigned short y, short z );
 
-    bool lowest_standheight( unsigned x, unsigned y, int* z ) const;
-    bool findstatic( unsigned x, unsigned y, unsigned objtype ) const;
-    void getstatics( StaticEntryList& statics, unsigned x, unsigned y ) const;
-    bool groundheight( unsigned x, unsigned y, int* z ) const;
-    MAPTILE_CELL getmaptile( unsigned x, unsigned y ) const;
-    void getmapshapes( MapShapeList& shapes, unsigned x, unsigned y, unsigned long anyflags ) const;
-    void readmultis( MapShapeList& vec, unsigned x, unsigned y, unsigned long flags ) const;
-    void readmultis( MapShapeList& vec, unsigned x, unsigned y, unsigned long flags, MultiList& mvec );
-    void readmultis( StaticList& vec, unsigned x, unsigned y ) const;
+    bool lowest_standheight( unsigned short x, unsigned short y, short* z ) const;
+    bool findstatic( unsigned short x, unsigned short y, unsigned short objtype ) const;
+    void getstatics( StaticEntryList& statics, unsigned short x, unsigned short y ) const;
+    bool groundheight( unsigned short x, unsigned short y, short* z ) const;
+    MAPTILE_CELL getmaptile( unsigned short x, unsigned short y ) const;
+    void getmapshapes( MapShapeList& shapes, unsigned short x, unsigned short y, unsigned long anyflags ) const;
+    void readmultis( MapShapeList& vec, unsigned short x, unsigned short y, unsigned long flags ) const;
+    void readmultis( MapShapeList& vec, unsigned short x, unsigned short y, unsigned long flags, MultiList& mvec );
+    void readmultis( StaticList& vec, unsigned short x, unsigned short y ) const;
 
 	Zone** zone;
 	set<unsigned long> global_hulls; //xy-smashed together
@@ -110,35 +110,35 @@ public:
 protected:
     void standheight( MOVEMODE movemode, 
                       MapShapeList& shapes, 
-                      int oldz, bool* result, 
-                      int* newz,
+                      short oldz, bool* result, 
+                      short* newz,
 					  int* gradual_boost = NULL ) const;
 
 	 void lowest_standheight( MOVEMODE movemode, 
 							  MapShapeList& shapes, 
-							  int oldz, bool* result, 
-							  int* newz,
+							  short oldz, bool* result, 
+							  short* newz,
 							  int* gradual_boost = NULL ) const;
 
     bool dropheight( MapShapeList& shapes, 
-                     int dropz,
-                     int chrz, 
-                     int* newz ) const;
+                     short dropz,
+                     short chrz, 
+                     short* newz ) const;
 
     void readdynamics( MapShapeList& vec, 
-                       unsigned x, 
-                       unsigned y, 
+                       unsigned short x, 
+                       unsigned short y, 
                        Items& walkon_items, 
                        bool doors_block );
 
     bool dynamic_item_blocks_los( const LosObj& att, const LosObj& target, 
-                              unsigned x, unsigned y, int z ) const;
+                              unsigned short x, unsigned short y, short z ) const;
 
-    bool static_item_blocks_los( unsigned x, unsigned y, int z ) const;
+    bool static_item_blocks_los( unsigned short x, unsigned short y, short z ) const;
     bool los_blocked( const LosObj& att, const LosObj& target, 
-                  unsigned x, unsigned y, int z ) const;
+                  unsigned short x, unsigned short y, short z ) const;
 
-    UMulti* find_supporting_multi( MultiList& mvec, int z );
+    UMulti* find_supporting_multi( MultiList& mvec, short z );
 
 private:
     RealmDescriptor _descriptor;

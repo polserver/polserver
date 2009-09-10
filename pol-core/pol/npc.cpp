@@ -165,10 +165,10 @@ bool NPC::anchor_allows_move( UFACING dir ) const
 
 bool NPC::could_move( UFACING dir ) const
 {
-    unsigned newx = x + move_delta[ dir ].xmove;
-    unsigned newy = y + move_delta[ dir ].ymove;
+    unsigned short newx = x + move_delta[ dir ].xmove;
+    unsigned short newy = y + move_delta[ dir ].ymove;
     
-    int newz;
+    short newz;
     UMulti* supporting_multi;
     Item* walkon_item;
     return realm->walkheight( this, newx, newy, z, &newz, &supporting_multi, &walkon_item ) &&

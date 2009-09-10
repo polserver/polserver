@@ -28,10 +28,10 @@ MapTileServer::~MapTileServer()
 
 MAPTILE_CELL MapTileServer::GetMapTile( unsigned short x, unsigned short y )
 {
-    unsigned xblock = x >>  MAPTILE_SHIFT;
-    unsigned xcell  = x &   MAPTILE_CELLMASK;
-    unsigned yblock = y >>  MAPTILE_SHIFT;
-    unsigned ycell  = y &   MAPTILE_CELLMASK;
+    unsigned short xblock = x >>  MAPTILE_SHIFT;
+    unsigned short xcell  = x &   MAPTILE_CELLMASK;
+    unsigned short yblock = y >>  MAPTILE_SHIFT;
+    unsigned short ycell  = y &   MAPTILE_CELLMASK;
 
     long block_index = yblock * (_descriptor.width >> MAPTILE_SHIFT) + xblock;
     if (block_index != _cur_block_index)

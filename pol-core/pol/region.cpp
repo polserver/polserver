@@ -114,7 +114,7 @@ void RegionGroupBase::paint_zones( ConfigElem& elem, RegionId ridx )
 		elem.throw_error( "Realm not found" );
     while (elem.remove_prop( "Range", &zonestr ))
     {
-        unsigned xwest, ynorth, xeast, ysouth;
+        unsigned short xwest, ynorth, xeast, ysouth;
         ISTRINGSTREAM is(zonestr);
         if (is >> xwest >> ynorth >> xeast >> ysouth)
         {

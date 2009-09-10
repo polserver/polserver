@@ -41,7 +41,7 @@ In standingheight checks there is a nasty bug. Items NOT locked down
 
 #define HULL_HEIGHT_BUFFER 2
 
-bool Realm::lowest_standheight( unsigned x, unsigned y, int* z ) const
+bool Realm::lowest_standheight( unsigned short x, unsigned short y, short* z ) const
 {
     static MapShapeList vec;
     vec.clear();
@@ -54,11 +54,11 @@ bool Realm::lowest_standheight( unsigned x, unsigned y, int* z ) const
 
 void Realm::standheight( MOVEMODE movemode,
                   MapShapeList& shapes, 
-                  int oldz, 
-                  bool* result_out, int* newz_out, int* gradual_boost ) const
+                  short oldz, 
+                  bool* result_out, short * newz_out, int* gradual_boost ) const
 {
-    int lowest_blocking_z = 128;
-    int highest_blocking_z = -127;
+    short lowest_blocking_z = 128;
+    short highest_blocking_z = -127;
     bool land_ok = (movemode & MOVEMODE_LAND) ? true : false;
     bool sea_ok  = (movemode & MOVEMODE_SEA) ? true : false;
 	int the_boost = 0;
@@ -79,14 +79,14 @@ void Realm::standheight( MOVEMODE movemode,
     }
 
 
-    int newz = -200;
+    short newz = -200;
     bool result = false;
 
     for( MapShapeList::const_iterator itr = shapes.begin(); itr != shapes.end(); ++itr )
     {
         const MapShape& shape = (*itr);
         unsigned long flags = shape.flags;
-        int ztop = shape.z + shape.height;
+        short ztop = shape.z + shape.height;
 #if ENABLE_POLTEST_OUTPUT
         if (static_debug_on)
         {
@@ -178,8 +178,8 @@ void Realm::standheight( MOVEMODE movemode,
 
 void Realm::lowest_standheight( MOVEMODE movemode,
                   MapShapeList& shapes, 
-                  int minz, 
-                  bool* result_out, int* newz_out, int* gradual_boost ) const
+                  short minz, 
+                  bool* result_out, short* newz_out, int* gradual_boost ) const
 {
     bool land_ok = (movemode & MOVEMODE_LAND) ? true : false;
     bool sea_ok  = (movemode & MOVEMODE_SEA) ? true : false;
@@ -201,14 +201,14 @@ void Realm::lowest_standheight( MOVEMODE movemode,
     }
 
 
-    int newz = 255;
+    short newz = 255;
     bool result = false;
 
     for( MapShapeList::const_iterator itr = shapes.begin(); itr != shapes.end(); ++itr )
     {
         const MapShape& shape = (*itr);
         unsigned long flags = shape.flags;
-        int ztop = shape.z + shape.height;
+        short ztop = shape.z + shape.height;
 #if ENABLE_POLTEST_OUTPUT
         if (static_debug_on)
         {
@@ -283,10 +283,10 @@ void Realm::lowest_standheight( MOVEMODE movemode,
 }
 
 
-Item* find_walkon_item( Items& ivec, int z );
+Item* find_walkon_item( Items& ivec, short z );
 unsigned char flags_from_tileflags( unsigned long uoflags );
 
-void Realm::readdynamics( MapShapeList& vec, unsigned x, unsigned y, Items& walkon_items, bool doors_block )
+void Realm::readdynamics( MapShapeList& vec, unsigned short x, unsigned short y, Items& walkon_items, bool doors_block )
 {
     ZoneItems& witems = getzone(x,y,this).items;
     for (ZoneItems::const_iterator itr = witems.begin(); itr != witems.end(); ++itr )
@@ -313,11 +313,11 @@ void Realm::readdynamics( MapShapeList& vec, unsigned x, unsigned y, Items& walk
 		}
 	}
 }
-UMulti* find_supporting_multi( MultiList& mvec, int z );
+UMulti* find_supporting_multi( MultiList& mvec, short z );
 
 // new Z given new X, Y, and old Z.
-bool Realm::walkheight(unsigned x, unsigned y, int oldz, 
-                int* newz, 
+bool Realm::walkheight(unsigned short x, unsigned short y, short oldz, 
+                short * newz, 
                 UMulti** pmulti, Item** pwalkon,
                 bool doors_block,
                 MOVEMODE movemode,
@@ -373,8 +373,8 @@ bool Realm::walkheight(unsigned x, unsigned y, int oldz,
 
 // new Z given new X, Y, and old Z.
 //dave: todo: return false if walking onto a custom house and not in the list of editing players, and no cmdlevel
-bool Realm::walkheight( const Character* chr, unsigned x, unsigned y, int oldz, 
-                int* newz, 
+bool Realm::walkheight( const Character* chr, unsigned short x, unsigned short y, short oldz, 
+                short* newz, 
                 UMulti** pmulti, Item** pwalkon, int* gradual_boost)
 {
     static MapShapeList shapes;
@@ -443,8 +443,8 @@ bool Realm::walkheight( const Character* chr, unsigned x, unsigned y, int oldz,
 }
 
 
-bool Realm::lowest_walkheight(unsigned x, unsigned y, int oldz, 
-							int* newz, 
+bool Realm::lowest_walkheight(unsigned short x, unsigned short y, short oldz, 
+							short* newz, 
 							UMulti** pmulti, Item** pwalkon,
 							bool doors_block,
 							MOVEMODE movemode,
@@ -497,11 +497,11 @@ bool Realm::lowest_walkheight(unsigned x, unsigned y, int oldz,
 }
 
 
-bool Realm::dropheight( unsigned dropx, 
-                 unsigned dropy, 
-                 int dropz,
-                 int chrz, 
-                 int* newz, 
+bool Realm::dropheight( unsigned short dropx, 
+                 unsigned short dropy, 
+                 short dropz,
+                 short chrz, 
+                 short* newz, 
                  UMulti** pmulti )
 {
     static MapShapeList shapes;
@@ -538,18 +538,18 @@ bool Realm::dropheight( unsigned dropx,
 
 // used to be statics_dropheight
 bool Realm::dropheight( MapShapeList& shapes, 
-                 int dropz,
-                 int chrz, 
-                 int* newz ) const
+                 short dropz,
+                 short chrz, 
+                 short* newz ) const
 {
-    int z = -128;
+    short z = -128;
     bool result = false;
 
     for( MapShapeList::const_iterator itr = shapes.begin(); itr != shapes.end(); ++itr )
     {
         const MapShape& shape = (*itr);
         unsigned long flags = shape.flags;
-        int ztop = shape.z + shape.height;
+        short ztop = shape.z + shape.height;
 #if ENABLE_POLTEST_OUTPUT
         if (static_debug_on)
         {
@@ -583,7 +583,7 @@ bool Realm::dropheight( MapShapeList& shapes,
             const MapShape& shape = (*itr);
             if (shape.flags & FLAG::BLOCKING)
             {
-                int ztop = shape.z + shape.height;
+                short ztop = shape.z + shape.height;
 
                 if (shape.z <= z &&        // location blocked by some object
                                z < ztop)   
@@ -616,7 +616,7 @@ bool Realm::dropheight( MapShapeList& shapes,
 
 }
 
-void Realm::readmultis( MapShapeList& vec, unsigned x, unsigned y, unsigned long anyflags ) const
+void Realm::readmultis( MapShapeList& vec, unsigned short x, unsigned short y, unsigned long anyflags ) const
 {
     unsigned short wxL, wyL, wxH, wyH;
     zone_convert_clip( x-64, y-64, this, wxL, wyL );
@@ -634,18 +634,18 @@ void Realm::readmultis( MapShapeList& vec, unsigned x, unsigned y, unsigned long
                 UHouse* house = multi->as_house();
                 if( house != NULL && house->IsCustom() ) //readshapes switches to working design if the house is being edited, 
                                                          //everyone in the house would use it for walking...
-                    multi->readshapes( vec, int(x) - multi->x, int(y) - multi->y, multi->z );
+                    multi->readshapes( vec, s16(x) - multi->x, s16(y) - multi->y, multi->z );
                 else
                 {
                     const MultiDef& def = multi->multidef();
-                    def.readshapes( vec, int(x) - multi->x, int(y) - multi->y, multi->z, anyflags );
+                    def.readshapes( vec, s16(x) - multi->x, s16(y) - multi->y, multi->z, anyflags );
                 }
             }
         }
     }
 }
 
-void Realm::readmultis( MapShapeList& vec, unsigned x, unsigned y, unsigned long anyflags, MultiList& mvec )
+void Realm::readmultis( MapShapeList& vec, unsigned short x, unsigned short y, unsigned long anyflags, MultiList& mvec )
 {
     unsigned short wxL, wyL, wxH, wyH;
     zone_convert_clip( x-64, y-64, this, wxL, wyL );
@@ -663,13 +663,13 @@ void Realm::readmultis( MapShapeList& vec, unsigned x, unsigned y, unsigned long
                 UHouse* house = multi->as_house();
                 if( house != NULL && house->IsCustom() )
                 {
-                    if( multi->readshapes( vec, int(x) - multi->x, int(y) - multi->y, multi->z ) )
+                    if( multi->readshapes( vec, s16(x) - multi->x, s16(y) - multi->y, multi->z ) )
                         mvec.push_back( multi );
                 }
                 else
                 {
                     const MultiDef& def = multi->multidef();
-                    if (def.readshapes( vec, int(x) - multi->x, int(y) - multi->y, multi->z, anyflags ))
+                    if (def.readshapes( vec, s16(x) - multi->x, s16(y) - multi->y, multi->z, anyflags ))
                     {
                         mvec.push_back( multi );
                     }
@@ -679,7 +679,7 @@ void Realm::readmultis( MapShapeList& vec, unsigned x, unsigned y, unsigned long
     }
 }
 
-void Realm::readmultis( StaticList& vec, unsigned x, unsigned y ) const
+void Realm::readmultis( StaticList& vec, unsigned short x, unsigned short y ) const
 {
     unsigned short wxL, wyL, wxH, wyH;
     zone_convert_clip( x-64, y-64, this, wxL, wyL );
@@ -708,7 +708,7 @@ void Realm::readmultis( StaticList& vec, unsigned x, unsigned y ) const
     }
 }
 
-bool Realm::navigable( unsigned x, unsigned y, int z, int height = 0 ) const
+bool Realm::navigable( unsigned short x, unsigned short y, short z, short height = 0 ) const
 {
 
 	if (!valid( x,y,z ))
@@ -743,7 +743,7 @@ bool Realm::navigable( unsigned x, unsigned y, int z, int height = 0 ) const
     return onwater;
 }
 
-UMulti* Realm::find_supporting_multi( unsigned x, unsigned y, int z )
+UMulti* Realm::find_supporting_multi( unsigned short x, unsigned short y, short z )
 {
     if (!valid( x,y,z ))
     {
@@ -762,7 +762,7 @@ UMulti* Realm::find_supporting_multi( unsigned x, unsigned y, int z )
 /* The supporting multi is the highest multi that is below or equal
  * to the Z-coord of the supported object.
  */
-UMulti* Realm::find_supporting_multi( MultiList& mvec, int z )
+UMulti* Realm::find_supporting_multi( MultiList& mvec, short z )
 {
     UMulti* found = NULL;
     for( MultiList::const_iterator itr = mvec.begin(), end = mvec.end(); itr != end; ++itr )
@@ -780,7 +780,7 @@ UMulti* Realm::find_supporting_multi( MultiList& mvec, int z )
     return found;
 }
 
-bool Realm::findstatic( unsigned x, unsigned y, unsigned objtype ) const
+bool Realm::findstatic( unsigned short x, unsigned short y, unsigned short objtype ) const
 {
 	if (is_shadowrealm)
 		return baserealm->_staticserver->findstatic( x, y, objtype );
@@ -788,7 +788,7 @@ bool Realm::findstatic( unsigned x, unsigned y, unsigned objtype ) const
 		return _staticserver->findstatic( x, y, objtype );
 }
 
-void Realm::getstatics( StaticEntryList& statics, unsigned x, unsigned y ) const
+void Realm::getstatics( StaticEntryList& statics, unsigned short x, unsigned short y ) const
 {
 	if (is_shadowrealm)
 		return baserealm->_staticserver->getstatics( statics, x, y );
@@ -796,7 +796,7 @@ void Realm::getstatics( StaticEntryList& statics, unsigned x, unsigned y ) const
 		_staticserver->getstatics( statics, x, y );
 }
 
-bool Realm::groundheight( unsigned x, unsigned y, int* z ) const
+bool Realm::groundheight( unsigned short x, unsigned short y, short* z ) const
 {
     MAPTILE_CELL cell = _maptileserver->GetMapTile( x, y );
     *z = cell.z;
@@ -808,7 +808,7 @@ bool Realm::groundheight( unsigned x, unsigned y, int* z ) const
              ((landtile_flags(cell.landtile) & FLAG::BLOCKING) == 0) );
 }
 
-MAPTILE_CELL Realm::getmaptile( unsigned x, unsigned y ) const
+MAPTILE_CELL Realm::getmaptile( unsigned short x, unsigned short y ) const
 {
 	if (is_shadowrealm)
 		return baserealm->_maptileserver->GetMapTile( x, y );
@@ -816,7 +816,7 @@ MAPTILE_CELL Realm::getmaptile( unsigned x, unsigned y ) const
 		return _maptileserver->GetMapTile( x, y );
 }
 
-void Realm::getmapshapes( MapShapeList& shapes, unsigned x, unsigned y, unsigned long anyflags ) const
+void Realm::getmapshapes( MapShapeList& shapes, unsigned short x, unsigned short y, unsigned long anyflags ) const
 {
 	if (is_shadowrealm)
 		baserealm->_mapserver->GetMapShapes( shapes, x, y, anyflags );

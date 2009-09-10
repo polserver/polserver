@@ -23,12 +23,12 @@ public:
     MapWriter();
     ~MapWriter();
 
-    void SetMapCell( unsigned x, unsigned y, MAPCELL cell );
-    void SetMapTile( unsigned x, unsigned y, MAPTILE_CELL cell );
+    void SetMapCell( unsigned short x, unsigned short y, MAPCELL cell );
+    void SetMapTile( unsigned short x, unsigned short y, MAPTILE_CELL cell );
 
     void Flush();
 
-    void CreateNewFiles(const string& realm_name, unsigned width, unsigned height);
+    void CreateNewFiles(const string& realm_name, unsigned short width, unsigned short height);
     void OpenExistingFiles(const string& realm_name);
     void WriteConfigFile();
 
@@ -39,7 +39,7 @@ public:
 
     void AppendSolid( const SOLIDS_ELEM& solid );
     void AppendSolidx2Elem( const SOLIDX2_ELEM& elem );
-    void SetSolidx2Offset( unsigned x_base, unsigned y_base, unsigned long offset );
+    void SetSolidx2Offset( unsigned short x_base, unsigned short y_base, unsigned long offset );
 
     unsigned width() const { return _width; }
     unsigned height() const { return _height; }
@@ -55,8 +55,8 @@ private:
 
 private:
     string _realm_name;
-    unsigned _width;
-    unsigned _height;
+    unsigned short _width;
+    unsigned short _height;
     fstream _ofs_base;
     long _cur_mapblock_index;
     MAPBLOCK _block;

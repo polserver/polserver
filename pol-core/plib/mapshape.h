@@ -12,8 +12,8 @@ Notes
 
 struct MapShape
 {
-    int z;
-    int height;
+    short z;
+    short height;
     unsigned long flags;
 };
 

@@ -22,7 +22,7 @@ public:
     explicit FileMapServer( const RealmDescriptor& descriptor );
     virtual ~FileMapServer() { }
 
-    virtual MAPCELL GetMapCell( unsigned x, unsigned y ) const;
+    virtual MAPCELL GetMapCell( unsigned short x, unsigned short y ) const;
 
 protected:
     mutable BinaryFile _mapfile;

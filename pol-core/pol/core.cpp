@@ -42,12 +42,12 @@ void CoreSetSysTrayToolTip( const string& text, Priority priority )
 bool move_character_to( Character* chr, 
                         unsigned short x,
                         unsigned short y,
-                        int z,
+                        short z,
                         long flags,
 						Realm* oldrealm )
 {
        // FIXME consider consolidating with similar code in CHARACTER.CPP
-    int newz;
+    short newz;
     UMulti* supporting_multi = NULL;
     Item* walkon_item = NULL;
 	int new_boost = 0;
@@ -141,7 +141,7 @@ bool move_character_to( Character* chr,
    2) have a "walk on" script
 */
 
-Item* find_walkon_item( Items& ivec, int z )
+Item* find_walkon_item( Items& ivec, short z )
 {
     //cout << "find walkon item, z=" << z << endl;
     for( Items::const_iterator itr = ivec.begin(), end = ivec.end(); itr != end; ++itr )

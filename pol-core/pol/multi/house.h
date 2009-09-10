@@ -55,8 +55,8 @@ protected:
     virtual class BObjectImp* get_script_member_id( const int id ) const; ///id test
     virtual bool script_isa( unsigned isatype ) const;
     virtual class UHouse* as_house();
-    virtual bool readshapes( MapShapeList& vec, int x, int y, int zbase );
-    virtual bool readobjects( StaticList& vec, int x, int y, int zbase );
+    virtual bool readshapes( MapShapeList& vec, unsigned short x, unsigned short y, short zbase );
+    virtual bool readobjects( StaticList& vec, unsigned short x, unsigned short y, short zbase );
     ObjArray* component_list() const;
     ObjArray* items_list() const;
     ObjArray* mobiles_list() const;

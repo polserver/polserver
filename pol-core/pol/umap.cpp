@@ -180,7 +180,8 @@ BObjectImp* Map::script_method_id( const int id, Executor& ex )
         return imp;
 
     ObjArray* arr;
-    long idx, x, y, type;
+    long idx, type;
+	unsigned short x, y;
     switch(id)
     {
     case MTH_GETPINS:
@@ -205,8 +206,8 @@ BObjectImp* Map::script_method_id( const int id, Executor& ex )
 			pin_points_itr itr;
 
 			if(!realm->valid(x,y,0)) return new BError("Invalid Coordinates for Realm");
-			pp.x = (unsigned short) x;
-			pp.y = (unsigned short) y;
+			pp.x = x;
+			pp.y = y;
 
 			itr = pin_points.begin();
 			itr += idx;
@@ -227,8 +228,8 @@ BObjectImp* Map::script_method_id( const int id, Executor& ex )
         {
 			struct PinPoint pp;
 			if(!realm->valid(x,y,0)) return new BError("Invalid Coordinates for Realm");
-			pp.x = (unsigned short) x;
-			pp.y = (unsigned short) y;
+			pp.x = x;
+			pp.y = y;
             set_dirty();
 			pin_points.push_back(pp);
             return new BLong(1);

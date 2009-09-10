@@ -15,15 +15,15 @@ public:
 	class BlockNode
 	{
 	public :
-		int x;
-		int y;
-		int z;
+		short x;
+		short y;
+		short z;
 	};
 
 	typedef vector< BlockNode * > BlockNodeVector;
 
 public:
-	AStarBlockers(int xL, int xH, int yL, int yH)
+	AStarBlockers(short xL, short xH, short yL, short yH)
 	{
 		xLow = xL;
 		xHigh = xH;
@@ -31,7 +31,7 @@ public:
 		yHigh = yH;
 	}
 
-	void AddBlocker(int x, int y, int z)
+	void AddBlocker(short x, short y, short z)
 	{
 		BlockNode * theNode;
 
@@ -50,7 +50,7 @@ public:
 			delete (*blockNode);
 	}
 
-	bool IsBlocking(int x, int y, int z)
+	bool IsBlocking(short x, short y, short z)
 	{	BlockNode * theNode;
 		for( BlockNodeVector::iterator blockNode = m_List.begin(); blockNode != m_List.end(); blockNode ++ )
 		{
@@ -67,9 +67,9 @@ class UOPathState
 {
 public:
 	AStarBlockers * theBlockers;
-	int x;
-	int y;
-	int z;
+	short x;
+	short y;
+	short z;
 	Realm* realm;
 	char myName[80];
 
@@ -80,7 +80,7 @@ public:
 		z = 0;
 		realm = find_realm(string("britannia"));
 	};
-	UOPathState(int newx, int newy, int newz, Realm* newrealm, AStarBlockers * blockers)
+	UOPathState(short newx, short newy, short newz, Realm* newrealm, AStarBlockers * blockers)
 	{
 		x = newx;
 		y = newy;
@@ -126,8 +126,8 @@ char * UOPathState::Name()
 bool UOPathState::GetSuccessors( AStarSearch<UOPathState> *astarsearch, UOPathState *parent_node, bool doors_block )
 {
 	UOPathState * NewNode;
-	int i,j;
-	int newx, newy, newz;
+	short i,j;
+	short newx, newy, newz;
     UMulti* supporting_multi = NULL;
     Item* walkon_item = NULL;
 	bool blocked;

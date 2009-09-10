@@ -139,7 +139,7 @@ bool CustomHouseDesign::DeleteStairs( u16 id, s32 x, s32 y, s8 z )
 		y = yStart + (i * yInc);
 
 		for ( int j = 0; j <= i; ++j )
-            Erase(x,y,zStart + (j * 5), 2);
+            Erase(x,y,static_cast<u8>(zStart + (j * 5)), 2);
 
         ReplaceDirtFloor(x,y);
 	}

@@ -34,8 +34,8 @@ void display_test_results()
 class UMulti;
 class Item;
 
-bool pol_walkheight(int x, int y, int oldz, 
-                int* newz, 
+bool pol_walkheight(unsigned short x, unsigned short y, short oldz, 
+                short* newz, 
                 UMulti** psupporting_multi,
                 Item** pwalkon_item,
                 bool doors_block = true,
@@ -43,15 +43,15 @@ bool pol_walkheight(int x, int y, int oldz,
 
 Realm* p_test_realm;
 
-static void test_walk( int oldx, int oldy, int oldz, 
-                int newx, int newy, bool exp_result, int exp_z )
+static void test_walk( unsigned short oldx, unsigned short oldy, short oldz, 
+                unsigned short newx, unsigned short newy, bool exp_result, short exp_z )
 {
     RealmDescriptor r1 = RealmDescriptor::Load( "britannia" );
     RealmDescriptor r2 = RealmDescriptor::Load( "ilshenar" );
     if (p_test_realm == NULL)
         p_test_realm = new Realm("britannia");
 
-    int newz;
+    short newz;
     
     cout << "WalkHeight(" << newx << "," << newy << "," << oldz << "): " 
          << "Expect " << exp_result << "," << exp_z << ": ";
@@ -79,13 +79,13 @@ static void test_walk( int oldx, int oldy, int oldz,
     inc_successes();
     cout << "Ok!" << endl;
 }
-static void test_walk2( int oldx, int oldy, int oldz, 
-                int newx, int newy, bool doors_block, MOVEMODE movemode, bool exp_result, int exp_z )
+static void test_walk2( unsigned short oldx, unsigned short oldy, short oldz, 
+                unsigned short newx, unsigned short newy, bool doors_block, MOVEMODE movemode, bool exp_result, short exp_z )
 {
     if (p_test_realm == NULL)
         p_test_realm = new Realm("britannia");
 
-    int newz;
+    short newz;
     
     cout << "WalkHeight(" << newx << "," << newy << "," << oldz << "): " 
          << "Expect " << exp_result << "," << exp_z << ": ";

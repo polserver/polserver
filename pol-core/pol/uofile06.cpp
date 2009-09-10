@@ -34,14 +34,14 @@ inline bool flags_swimmable( unsigned long flags )
 }
 void standheight( MOVEMODE movemode,
                   StaticList& statics, 
-                  unsigned short x, unsigned short y, int oldz, 
-                  bool* result_out, int* newz_out )
+                  unsigned short x, unsigned short y, short oldz, 
+                  bool* result_out, short* newz_out )
 {
-    int lowest_blocking_z = 128;
-    int highest_blocking_z = -127;
+    short lowest_blocking_z = 128;
+    short highest_blocking_z = -127;
     
 
-    int mapz;
+    short mapz;
     USTRUCT_MAPINFO mi;
     getmapinfo( x, y, &mapz, &mi );
     unsigned long mapflags = landtile_uoflags( mi.landtile );
@@ -63,9 +63,9 @@ void standheight( MOVEMODE movemode,
 
     mapflags |= USTRUCT_TILE::FLAG_PLATFORM|USTRUCT_TILE::FLAG_FLOOR;
 
-    statics.push_back( StaticRec( 0, mapz-1, mapflags, 1 ) );
+    statics.push_back( StaticRec( 0, static_cast<signed char>(mapz-1), mapflags, 1 ) );
     
-    int newz = -127;
+    short newz = -127;
     bool result = false;
 
     for( StaticList::iterator itr = statics.begin(); itr != statics.end(); ++itr )
@@ -141,9 +141,9 @@ void standheight( MOVEMODE movemode,
 
 
 
-void statics_dropheight( StaticList& statics, unsigned short x, unsigned short y, int oldz, bool* result_inout, int* newz_inout )
+void statics_dropheight( StaticList& statics, unsigned short x, unsigned short y, short oldz, bool* result_inout, short* newz_inout )
 {
-    int z = *newz_inout;
+    short z = *newz_inout;
     bool result = *result_inout;
 
     for( StaticList::iterator itr = statics.begin(); itr != statics.end(); ++itr )
@@ -216,9 +216,9 @@ void statics_dropheight( StaticList& statics, unsigned short x, unsigned short y
 
 
 
-void statics_standheight( StaticList& statics, unsigned short x, unsigned short y, int oldz, bool* result_inout, int* newz_inout )
+void statics_standheight( StaticList& statics, unsigned short x, unsigned short y, short oldz, bool* result_inout, short* newz_inout )
 {
-   int z = *newz_inout;
+   short z = *newz_inout;
     bool result = *result_inout;
 
     for( StaticList::iterator itr = statics.begin(); itr != statics.end(); ++itr )

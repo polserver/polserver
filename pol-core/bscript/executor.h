@@ -122,9 +122,13 @@ class Executor
 
     bool getParam( unsigned param, unsigned& value );
 
-    bool getParam( unsigned param, unsigned short& value );
+	bool getParam( unsigned param, unsigned short& value );
     bool getParam( unsigned param, unsigned short& value, unsigned short maxval );
     bool getParam( unsigned param, unsigned short& value, unsigned short minval, unsigned short maxval );
+
+	bool getParam( unsigned param, short& value );
+	bool getParam( unsigned param, short& value, short maxval );
+	bool getParam( unsigned param, short& value, short minval, short maxval );
     
 	void* getApplicPtrParam( unsigned param, const BApplicObjType* pointer_type );
 	BApplicObjBase* getApplicObjParam( unsigned param, const BApplicObjType* object_type );

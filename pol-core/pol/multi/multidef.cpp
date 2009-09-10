@@ -112,7 +112,7 @@ MultiDef::~MultiDef()
 }
 
 bool MultiDef::findcomponents( Components::const_iterator& beg, Components::const_iterator& end,
-                            int rx, int ry ) const
+                            short rx, short ry ) const
 {
 
     ItrPair pr = components.equal_range( getkey(rx,ry) );
@@ -128,11 +128,11 @@ bool MultiDef::findcomponents( Components::const_iterator& beg, Components::cons
     }
 }
 
-bool MultiDef::body_contains( int rx, int ry ) const
+bool MultiDef::body_contains( short rx, short ry ) const
 {
     return (components.count( getkey(rx,ry) ) != 0);
 }
-const MULTI_ELEM* MultiDef::find_component( int rx, int ry ) const
+const MULTI_ELEM* MultiDef::find_component( short rx, short ry ) const
 {
     if (body_contains( rx,ry ))
         return (*components.find( getkey(rx,ry) )).second;
@@ -153,7 +153,7 @@ void MultiDef::add_to_hull( const MULTI_ELEM* elem )
     
     if (type == BOAT)
     {
-        int int_rx = elem->x, int_ry = elem->y;
+        short int_rx = elem->x, int_ry = elem->y;
         if ((multiid & 1) == 0) // N/S hull, so squeeze X
         {
             if (elem->x == minrx)
@@ -188,7 +188,7 @@ void MultiDef::add_to_internal_hull( const MULTI_ELEM* elem )
 
 void MultiDef::add_body_tohull()
 {
-    int rx, ry;
+    short rx, ry;
     for( ry = minry; ry <= maxry; ++ry )
     {
         for( rx = minrx; rx <= maxrx; ++rx )
@@ -278,12 +278,12 @@ static MultiDefs my_multidefs_by_graphic;
 MultiDefs multidefs_by_multiid;
 ObjtypeByMultiID objtype_by_multiid;
 
-int MultiDef::global_minrx;
-int MultiDef::global_minry;
-int MultiDef::global_minrz;
-int MultiDef::global_maxrx;
-int MultiDef::global_maxry;
-int MultiDef::global_maxrz;
+short MultiDef::global_minrx;
+short MultiDef::global_minry;
+short MultiDef::global_minrz;
+short MultiDef::global_maxrx;
+short MultiDef::global_maxry;
+short MultiDef::global_maxrz;
 
 bool MultiDefByGraphicExists( u16 graphic )
 {
