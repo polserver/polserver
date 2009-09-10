@@ -18,6 +18,7 @@ History
 2009/08/06 MuadDib:   Removed PasswordOnlyHash support
 2009/09/03 MuadDib:   Relocation of account related cpp/h
                       Relocation of multi related cpp/h
+2009/09/10 Turley:    CompressedGump support (Grin)
 
 Notes
 =======
@@ -97,6 +98,7 @@ Notes
 #include "../uoscrobj.h"
 #include "../uvars.h"
 #include "../uworld.h"
+#include "../../../lib/zlib/zlib.h"
 
 static char buffer[ 65535 ];
 
@@ -751,7 +753,7 @@ BObjectImp* UOExecutorModule::mf_SendGumpMenu( )
 					 const char* layout,
 					 const char* strings[]
 */
-	long x, y;
+	long x, y, flags;
 	Character* chr;
 	ObjArray* layout_arr;
 	ObjArray* data_arr;
@@ -759,7 +761,8 @@ BObjectImp* UOExecutorModule::mf_SendGumpMenu( )
 		   exec.getObjArrayParam( 1, layout_arr ) &&
 		   exec.getObjArrayParam( 2, data_arr ) &&
 		   exec.getParam( 3, x ) &&
-		   exec.getParam( 4, y )) )
+		   exec.getParam( 4, y ) &&
+		   exec.getParam( 5, flags )))
 	{
 		return new BError( "Invalid parameter" );
 	}
@@ -773,7 +776,15 @@ BObjectImp* UOExecutorModule::mf_SendGumpMenu( )
 		return new BError( "Client already has an active gump" );
 	}
 */
+	if ((!(flags & SENDDIALOGMENU_FORCE_OLD)) && (chr->client->compareVersion(CLIENT_VER_50000)))
+		return internal_SendCompressedGumpMenu(chr, layout_arr, data_arr, x, y);
+	else
+		return internal_SendUnCompressedGumpMenu(chr, layout_arr, data_arr, x, y);
+}
 
+
+BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu(Character* chr, ObjArray* layout_arr, ObjArray* data_arr, long x,long y)
+{
 	PKTOUT_B0::HEADER* hdr;
 	PKTOUT_B0::LAYOUT* playout;
 	unsigned playout_idx;
@@ -862,6 +873,97 @@ BObjectImp* UOExecutorModule::mf_SendGumpMenu( )
 
 	pdatahdr->numlines = ctBEu16( numlines );
 	hdr->msglen = ctBEu16( msglen );
+	chr->client->transmit( buffer, msglen );
+	chr->client->gd->add_gumpmod( this );
+	//old_gump_uoemod = this;
+	gump_chr = chr;
+	uoexec.os_module->suspend();
+	return new BLong(0);
+}
+
+BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu(Character* chr, ObjArray* layout_arr, ObjArray* data_arr, long x,long y)
+{
+	PKTOUT_DD::HEADER *header = (PKTOUT_DD::HEADER *)buffer;
+	header->dialog_x = x;
+	header->dialog_y = y;
+	header->msgtype = PKTOUT_DD_ID;
+	header->serial = chr->serial_ext;
+	header->dialog_id = ctBEu32( this->uoexec.os_module->pid() );
+	header->dialog_x = ctBEu32( header->dialog_x );
+	header->dialog_y = ctBEu32( header->dialog_y );
+
+	PKTOUT_DD::LAYOUT *playout = (PKTOUT_DD::LAYOUT *)((u32)header+sizeof(PKTOUT_DD::HEADER));
+	unsigned char *tempbufpos = bfr;
+	playout->layout_dlen = 0;
+
+	for( unsigned i = 0; i < layout_arr->ref_arr.size(); ++i )
+	{
+		BObject* bo = layout_arr->ref_arr[i].get();
+		if (bo == NULL)
+			continue;
+		BObjectImp* imp = bo->impptr();
+		std::string s = imp->getStringRep();
+
+		playout->layout_dlen += 4 + s.length();
+		if (playout->layout_dlen > sizeof(bfr))
+			return new BError( "Buffer length exceeded" );
+		*tempbufpos++ = '{';
+		*tempbufpos++ = ' ';
+		memcpy( tempbufpos, s.c_str(), s.length() );
+		tempbufpos += s.length();
+		*tempbufpos++ = ' ';
+		*tempbufpos++ = '}';
+	}
+	playout->layout_dlen++;
+	if (playout->layout_dlen > sizeof(bfr))
+		return new BError( "Buffer length exceeded" );
+	*tempbufpos++ = '\0';
+
+
+	playout->layout_clen = sizeof(bfr)*2;
+	if (compress(&playout->layout_cdata, &playout->layout_clen, bfr, playout->layout_dlen))   
+		return new BError( "Compression error" );
+	playout->layout_dlen = ctBEu32( playout->layout_dlen );
+
+
+	PKTOUT_DD::TEXT *ptext = (PKTOUT_DD::TEXT *)((u32)&playout->layout_cdata + playout->layout_clen);
+	playout->layout_clen = ctBEu32( playout->layout_clen+4 );
+
+	ptext->lines = 0;
+	ptext->text_dlen = 0;
+	u16 *tempwbufpos = (u16*)bfr;
+
+	for( unsigned i = 0; i < data_arr->ref_arr.size(); ++i )
+	{
+		BObject* bo = data_arr->ref_arr[i].get();
+		if (bo == NULL)
+			continue;
+		ptext->lines++;
+
+		BObjectImp* imp = bo->impptr();
+		std::string s = imp->getStringRep();
+		const char* string = s.c_str();
+		ptext->text_dlen += (s.length()+1)*2;
+
+		if (ptext->text_dlen > sizeof(bfr))
+			return new BError( "Buffer length exceeded" );
+
+		*tempwbufpos++ = ctBEu16((u16)s.length());
+		while (*string)
+			*tempwbufpos++ = (u16)(*string++) << 8;
+	}
+
+	ptext->lines = ctBEu32(ptext->lines);
+
+	ptext->text_clen = sizeof(bfr)*2;
+	if (compress(&ptext->text_cdata, &ptext->text_clen, bfr, ptext->text_dlen))   
+		return new BError( "Compression error" );
+
+	ptext->text_dlen = ctBEu32(ptext->text_dlen);
+	u16 msglen = (u16)((u32)&ptext->text_cdata - (u32)buffer + ptext->text_clen+1);
+	header->msglen = ctBEu16( msglen );
+	ptext->text_clen = ctBEu32(ptext->text_clen+4);
+
 	chr->client->transmit( buffer, msglen );
 	chr->client->gd->add_gumpmod( this );
 	//old_gump_uoemod = this;
