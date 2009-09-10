@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="pol"
 	ProjectGUID="{9931FF8E-092B-4E67-8E99-E237E1A481EB}"
 	RootNamespace="pol"
