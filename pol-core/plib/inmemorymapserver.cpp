@@ -30,14 +30,14 @@ InMemoryMapServer::~InMemoryMapServer()
 { 
 }
 
-MAPCELL InMemoryMapServer::GetMapCell( unsigned x, unsigned y ) const
+MAPCELL InMemoryMapServer::GetMapCell( unsigned short x, unsigned short y ) const
 {
     passert( x < _descriptor.width && y < _descriptor.height );
 
-    unsigned xblock = x >>  MAPBLOCK_SHIFT;
-    unsigned xcell  = x &   MAPBLOCK_CELLMASK;
-    unsigned yblock = y >>  MAPBLOCK_SHIFT;
-    unsigned ycell  = y &   MAPBLOCK_CELLMASK;
+    unsigned short xblock = x >>  MAPBLOCK_SHIFT;
+    unsigned short xcell  = x &   MAPBLOCK_CELLMASK;
+    unsigned short yblock = y >>  MAPBLOCK_SHIFT;
+    unsigned short ycell  = y &   MAPBLOCK_CELLMASK;
 
     long block_index = yblock * (_descriptor.width >> MAPBLOCK_SHIFT) + xblock;
     const MAPBLOCK& mapblock = _mapblocks[ block_index ];

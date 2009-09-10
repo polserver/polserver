@@ -95,6 +95,7 @@ public:
 	void add_prop( const char *propname, const char *str );
 	void add_prop( const char *propname, unsigned long lval );
 	void add_prop( const char *propname, unsigned short sval );
+	void add_prop( const char *propname, short sval );
 
     void throw_error( const string& errmsg ) const;
     void warn( const string& errmsg ) const;

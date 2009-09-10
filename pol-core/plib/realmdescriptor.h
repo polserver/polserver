@@ -21,8 +21,8 @@ public:
 
     const string name;
 	const string file_path;
-    const unsigned width;
-    const unsigned height;
+    const unsigned short width;
+    const unsigned short height;
     const unsigned uomapid;         // map[n].mul, need to be able to tell the client this.
     const bool uodif;               // use the *dif files?
 	const unsigned num_map_patches;

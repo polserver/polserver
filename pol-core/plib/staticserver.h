@@ -23,12 +23,12 @@ public:
     ~StaticServer();
 	StaticServer & operator=( const StaticServer & ) { return *this; }
 
-    bool findstatic( unsigned x, unsigned y, unsigned short objtype ) const;
-    void getstatics( StaticEntryList& statics, unsigned x, unsigned y ) const;
+    bool findstatic( unsigned short x, unsigned short y, unsigned short objtype ) const;
+    void getstatics( StaticEntryList& statics, unsigned short x, unsigned short y ) const;
 
 protected:
     void Validate() const;
-    void ValidateBlock( unsigned x, unsigned y ) const;
+    void ValidateBlock( unsigned short x, unsigned short y ) const;
 
 private:
     RealmDescriptor _descriptor;

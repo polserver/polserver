@@ -105,7 +105,7 @@ void MapServer::LoadFirstLevelIndex()
     }
 }
 
-void MapServer::GetMapShapes( MapShapeList& shapes, unsigned x, unsigned y, unsigned long anyflags ) const
+void MapServer::GetMapShapes( MapShapeList& shapes, unsigned short x, unsigned short y, unsigned long anyflags ) const
 {
     passert( x < _descriptor.width && y < _descriptor.height );
 
@@ -122,10 +122,10 @@ void MapServer::GetMapShapes( MapShapeList& shapes, unsigned x, unsigned y, unsi
 
     if (cell.flags & FLAG::MORE_SOLIDS)
     {
-        unsigned xblock = x >>  SOLIDX_X_SHIFT;
-        unsigned xcell  = x &   SOLIDX_X_CELLMASK;
-        unsigned yblock = y >>  SOLIDX_Y_SHIFT;
-        unsigned ycell  = y &   SOLIDX_Y_CELLMASK;
+        unsigned short xblock = x >>  SOLIDX_X_SHIFT;
+        unsigned short xcell  = x &   SOLIDX_X_CELLMASK;
+        unsigned short yblock = y >>  SOLIDX_Y_SHIFT;
+        unsigned short ycell  = y &   SOLIDX_Y_CELLMASK;
 
         long block = yblock * (_descriptor.width >> SOLIDX_X_SHIFT) + xblock;
         SOLIDX2_ELEM* pIndex2 = _index1[ block ];

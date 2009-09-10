@@ -335,7 +335,7 @@ void start_client_char( Client *client )
 	
 	UMulti* supporting_multi;
 	Item* walkon;
-	int newz;
+	short newz;
 	if (client->chr->realm->walkheight( client->chr, client->chr->x, client->chr->y, client->chr->z,
 					&newz, &supporting_multi, &walkon ))
 	{

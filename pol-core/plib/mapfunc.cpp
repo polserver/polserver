@@ -72,7 +72,7 @@ bool flags_clear( u32 value, u32 flags )
     return (~value & flags) == flags;
 }
 
-u32 polflags_from_tileflags( unsigned tile, u32 uoflags, bool use_no_shoot, bool LOS_through_windows )
+u32 polflags_from_tileflags( unsigned short tile, u32 uoflags, bool use_no_shoot, bool LOS_through_windows )
 {
     u32 mapflags = 0;
 
@@ -193,7 +193,7 @@ u32 polflags_from_tileflags( unsigned tile, u32 uoflags, bool use_no_shoot, bool
 	return mapflags;
 }
 
-u32 polflags_from_landtileflags( unsigned tile, u32 lt_flags )
+u32 polflags_from_landtileflags( unsigned short tile, u32 lt_flags )
 {
     if (~lt_flags & USTRUCT_TILE::FLAG_BLOCKING)
     {   // this seems to be the default.

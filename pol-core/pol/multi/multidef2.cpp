@@ -37,7 +37,7 @@ Notes
 #include "../uofilei.h"
 
 // 8/9/03 this seems to be used only by uofile03 -Syz
-bool MultiDef::readobjects( StaticList& vec, int x, int y, int zbase ) const
+bool MultiDef::readobjects( StaticList& vec, short x, short y, short zbase ) const
 {
     bool result = false;
     if (x >= minrx && x <= maxrx && y >= minry && y <= maxry)
@@ -53,7 +53,7 @@ bool MultiDef::readobjects( StaticList& vec, int x, int y, int zbase ) const
                 {
                     if (elem->is_static)
                     {
-                        vec.push_back( StaticRec( graphic, elem->z+zbase ) );
+                        vec.push_back( StaticRec( graphic, static_cast<signed char>(elem->z+zbase) ) );
                         result = true;
                     }
                     // Shinigami: removed. doesn't make sense. non-static
@@ -70,7 +70,7 @@ bool MultiDef::readobjects( StaticList& vec, int x, int y, int zbase ) const
     return result;
 }
 
-bool MultiDef::readshapes( MapShapeList& vec, int x, int y, int zbase, unsigned long anyflags ) const
+bool MultiDef::readshapes( MapShapeList& vec, short x, short y, short zbase, unsigned long anyflags ) const
 {
     bool result = false;
     if (x >= minrx && x <= maxrx && y >= minry && y <= maxry)

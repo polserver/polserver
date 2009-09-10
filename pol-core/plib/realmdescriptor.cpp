@@ -34,8 +34,8 @@ RealmDescriptor RealmDescriptor::Load( const string& realm_name, const string& r
 RealmDescriptor::RealmDescriptor( const string& realm_name, const string& realm_path, ConfigElem& elem ) :
 	name(realm_name),
 	file_path(realm_path),
-	width(elem.remove_unsigned( "width" )),
-	height(elem.remove_unsigned( "height" )),
+	width(elem.remove_ushort( "width" )),
+	height(elem.remove_ushort( "height" )),
 	uomapid(elem.remove_unsigned( "uomapid", 0 )),
 	uodif(elem.remove_bool( "uodif", false )),
 	num_map_patches(elem.remove_unsigned( "num_map_patches", 0 )),

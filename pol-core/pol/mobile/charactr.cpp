@@ -3437,10 +3437,10 @@ bool Character::move( unsigned char i_dir )
 	{
 		if (facing & 1) // check if diagonal movement is allowed -- Nando (2009-02-26)
 		{
-			int new_z;
+			short new_z;
 			u8 tmp_facing = (facing+1) & 0x7;
-			unsigned tmp_newx = x + move_delta[ tmp_facing ].xmove;
-			unsigned tmp_newy = y + move_delta[ tmp_facing ].ymove;
+			unsigned short tmp_newx = x + move_delta[ tmp_facing ].xmove;
+			unsigned short tmp_newy = y + move_delta[ tmp_facing ].ymove;
 
 			// needs to save because if only one direction is blocked, it shouldn't block ;)
 			bool walk1 = realm->walkheight(this, tmp_newx, tmp_newy, z, &new_z, NULL, NULL, NULL );
@@ -3453,11 +3453,11 @@ bool Character::move( unsigned char i_dir )
 				return false;
 		}
 
-		unsigned newx = x + move_delta[ facing ].xmove;
-		unsigned newy = y + move_delta[ facing ].ymove;
+		unsigned short newx = x + move_delta[ facing ].xmove;
+		unsigned short newy = y + move_delta[ facing ].ymove;
 		
 		// FIXME consider consolidating with similar code in UOEMOD.CPP
-		int newz;
+		short newz;
 		UMulti* supporting_multi;
 		Item* walkon_item;
 		//cout << "checking walkheight" << endl;

@@ -34,7 +34,9 @@ Notes
 BObjectImp* UOExecutorModule::mf_MoveObjectToLocation(/*object, x, y, z, realm, flags*/)
 {
 	UObject* obj;
-	long x, y, z, flags;
+	unsigned short x, y;
+	short z;
+	long flags;
 	const String* realm_name;
 
 	// Initialize variables
@@ -69,7 +71,7 @@ BObjectImp* UOExecutorModule::mf_MoveObjectToLocation(/*object, x, y, z, realm, 
 
 BObjectImp* UOExecutorModule::internal_MoveCharacter(Character* chr, xcoord x, ycoord y, zcoord z, long flags, Realm* newrealm)
 {
-	int newz;
+	short newz;
 	UMulti* supporting_multi = NULL;
 	Item* walkon_item = NULL;
 
@@ -83,7 +85,7 @@ BObjectImp* UOExecutorModule::internal_MoveCharacter(Character* chr, xcoord x, y
 	bool ok;
 	if ( newrealm == NULL || oldrealm == newrealm )
 	{	//Realm is staying the same, just changing X Y Z coordinates.
-		ok = move_character_to(chr, static_cast<unsigned short>(x), static_cast<unsigned short>(y), static_cast<signed char>(z), flags, NULL);
+		ok = move_character_to(chr, x, y, z, flags, NULL);
 	}
 	else
 	{	// Realm and X Y Z change.
@@ -95,7 +97,7 @@ BObjectImp* UOExecutorModule::internal_MoveCharacter(Character* chr, xcoord x, y
 		remove_objects_inrange( chr->client );
 		chr->realm = newrealm;
 		chr->realm_changed();
-		ok = move_character_to(chr, static_cast<unsigned short>(x), static_cast<unsigned short>(y), static_cast<signed char>(z), flags, oldrealm);
+		ok = move_character_to(chr, x, y, z, flags, oldrealm);
 	}
 
 	if ( ok )
@@ -119,7 +121,7 @@ BObjectImp* UOExecutorModule::internal_MoveBoat(UBoat* boat, xcoord x, ycoord y,
 	boat->z = (s8)z;
 	boat->adjust_traveller_z(deltaz);
 	boat->realm_changed();
-	bool ok = boat->move_xy((unsigned short)x, (unsigned short)y, flags, oldrealm);
+	bool ok = boat->move_xy(x, y, flags, oldrealm);
 	send_boat_to_inrange(boat);
 	return new BLong(ok);
 }
@@ -165,14 +167,14 @@ BObjectImp* UOExecutorModule::internal_MoveItem(Item* item, xcoord x, ycoord y, 
 	UMulti* multi = NULL;
 	if ( flags & MOVEITEM_FORCELOCATION )
 	{
-	    int newz;
+	    short newz;
 	    Item* walkon;
 	    item->realm->walkheight( x,y,z, &newz, &multi, &walkon, true, MOVEMODE_LAND );
 	    // note that newz is ignored...
 	}
 	else
 	{
-	    int newz;
+	    short newz;
 	    Item* walkon;
 	    if (!item->realm->walkheight( x,y,z, &newz, &multi, &walkon, true, MOVEMODE_LAND ))
 	    {
@@ -222,8 +224,8 @@ BObjectImp* UOExecutorModule::internal_MoveItem(Item* item, xcoord x, ycoord y, 
 		item->extricate();
 
 		// wherever it was, it wasn't in the world/on the ground
-	    item->x = static_cast<unsigned short>(oldroot->x);
-	    item->y = static_cast<unsigned short>(oldroot->y);
+	    item->x = oldroot->x;
+	    item->y = oldroot->y;
 	    // move_item calls MoveItemWorldLocation, so this gets it
 	    // in the right place to start with.
 		item->realm = oldrealm;
@@ -232,8 +234,8 @@ BObjectImp* UOExecutorModule::internal_MoveItem(Item* item, xcoord x, ycoord y, 
 	}
 
 	move_item( item,
-		    static_cast<unsigned short>(x),
-			static_cast<unsigned short>(y),
+		    x,
+			y,
 		    static_cast<signed char>(z), oldrealm );
 
 	if ( multi != NULL )

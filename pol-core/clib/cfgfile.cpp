@@ -555,6 +555,14 @@ void ConfigElem::add_prop( const char* propname, unsigned short sval )
 
     properties.insert( make_pair(string(propname), OSTRINGSTREAM_STR(os)) );
 }
+void ConfigElem::add_prop( const char* propname, short sval )
+{
+    OSTRINGSTREAM os;
+    os << sval;
+
+    properties.insert( make_pair(string(propname), OSTRINGSTREAM_STR(os)) );
+}
+
 void VectorConfigElem::add_prop( const char* propname, unsigned short sval )
 {
     ConfigProperty* prop;

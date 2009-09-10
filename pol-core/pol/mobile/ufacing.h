@@ -129,7 +129,7 @@ UFACING direction_away( const Character* src, const UObject* idst )
 	return away;
 }
 
-UFACING direction_away( const Character* src, long from_x, long from_y )
+UFACING direction_away( const Character* src, xcoord from_x, ycoord from_y )
 {
 	UFACING toward = direction_toward(src,from_x, from_y);
 	UFACING away = away_cvt[ static_cast<int>(toward) ];

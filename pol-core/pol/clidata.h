@@ -11,7 +11,7 @@ Notes
 #ifndef CLIDATA_H
 #define CLIDATA_H
 
-bool groundheight( unsigned short x, unsigned short y, int* z );
+bool groundheight( unsigned short x, unsigned short y, short* z );
 char tileheight(unsigned short tilenum);
 unsigned char tilelayer( unsigned short tilenum );
 unsigned long tile_flags( unsigned short tilenum ); // POL flags

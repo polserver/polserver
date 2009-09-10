@@ -54,6 +54,19 @@ public:
         return exec.getParam( param, value ); 
     }
 
+	bool getParam( unsigned param, short& value ) 
+    { 
+        return exec.getParam( param, value ); 
+    }
+	bool getParam( unsigned param, short& value, short maxval ) 
+    { 
+        return exec.getParam( param, value, maxval ); 
+    }
+	bool getParam( unsigned param, short& value, short minval, short maxval ) 
+    { 
+        return exec.getParam( param, value, minval, maxval ); 
+    }
+
     bool getParam( unsigned param, unsigned short& value ) 
     { 
         return exec.getParam( param, value ); 
