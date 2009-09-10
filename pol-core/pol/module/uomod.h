@@ -306,8 +306,8 @@ protected:
 	BObjectImp* internal_MoveBoat(UBoat* boat, xcoord x, ycoord y, zcoord z, long flags, Realm* newrealm);
 	BObjectImp* internal_MoveContainer(UContainer* container, xcoord x, ycoord y, zcoord z, long flags, Realm* newrealm);
 	void internal_InBoxAreaChecks(unsigned short &x1, unsigned short &y1, short &z1, unsigned short &x2, unsigned short &y2, short &z2, Realm* realm);
-	BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu(Character* chr, ObjArray* layout_arr, ObjArray* data_arr, long x,long y);
-	BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu(Character* chr, ObjArray* layout_arr, ObjArray* data_arr, long x,long y);
+	BObjectImp* internal_SendUnCompressedGumpMenu(Character* chr, ObjArray* layout_arr, ObjArray* data_arr, long x,long y);
+	BObjectImp* internal_SendCompressedGumpMenu(Character* chr, ObjArray* layout_arr, ObjArray* data_arr, long x,long y);
 	
 private: // not implemented
 	UOExecutorModule( const UOExecutorModule& );
