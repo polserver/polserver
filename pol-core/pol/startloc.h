@@ -19,9 +19,9 @@ class Coordinate
 public:
 	unsigned short x;
 	unsigned short y;
-	unsigned char z;
+	char z;
 
-	Coordinate( unsigned short i_x, unsigned short i_y, unsigned char i_z ) :
+	Coordinate( unsigned short i_x, unsigned short i_y, char i_z ) :
 		x(i_x), y(i_y), z(i_z) {}
     /*Coordinate( const Coordinate& );
     const Coordinate& operator=( const Coordinate& );*/

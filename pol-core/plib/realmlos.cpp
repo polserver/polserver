@@ -56,7 +56,7 @@ const int z_los_range = 60; // unused as yet
 /**************************** 3D LOS CHECKING *******************************/
 
 bool Realm::dynamic_item_blocks_los( const LosObj& att, const LosObj& target, 
-                              unsigned x, unsigned y, int z ) const
+                              unsigned short x, unsigned short y, short z ) const
 {
     ZoneItems& witems = getzone(x,y,const_cast<Realm*>(this)).items;
 
@@ -87,7 +87,7 @@ bool Realm::dynamic_item_blocks_los( const LosObj& att, const LosObj& target,
     return false;
 }
 
-bool Realm::static_item_blocks_los( unsigned x, unsigned y, int z ) const
+bool Realm::static_item_blocks_los( unsigned short x, unsigned short y, short z ) const
 {
     static MapShapeList shapes;
     shapes.clear();
@@ -97,8 +97,8 @@ bool Realm::static_item_blocks_los( unsigned x, unsigned y, int z ) const
     for( MapShapeList::const_iterator itr = shapes.begin(), end = shapes.end(); itr != end; ++itr )
     {
         const MapShape& shape = (*itr);
-        int ob_ht = shape.height;
-        int ob_z = shape.z;
+        short ob_ht = shape.height;
+        short ob_z = shape.z;
 #if ENABLE_POLTEST_OUTPUT
         cout << "static type " << hexint(itr->graphic) 
             << " (flags " << hexint( tile_flags( itr->graphic ) ) << ", ht=" << ob_ht << ")"
@@ -127,7 +127,7 @@ bool Realm::static_item_blocks_los( unsigned x, unsigned y, int z ) const
 
 // Is any object occupying point (x,y,z) that is neither attacker nor target?
 bool Realm::los_blocked( const LosObj& att, const LosObj& target, 
-                  unsigned x, unsigned y, int z ) const
+                  unsigned short x, unsigned short y, short z ) const
 {
     // if the target inhabits the location, LOS can't be blocked:
     if (att.x == x && 
@@ -157,13 +157,13 @@ bool Realm::los_blocked( const LosObj& att, const LosObj& target,
 
 bool Realm::has_los( const LosObj& att, const LosObj& tgt ) const
 {
-    int x1, y1, z1; // one of the endpoints
-    int x2, y2, z2; // the other endpoint
-    int xd, yd, zd;
-    int x, y, z;
-    int ax, ay, az;
-    int sx, sy, sz;
-    int dx, dy, dz;
+    short x1, y1, z1; // one of the endpoints
+    short x2, y2, z2; // the other endpoint
+    short xd, yd, zd;
+    short x, y, z;
+    short ax, ay, az;
+    short sx, sy, sz;
+    short dx, dy, dz;
 
     if ( (att.y < tgt.y) ||
          (att.y == tgt.y && att.z < tgt.z) )

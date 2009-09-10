@@ -1032,11 +1032,11 @@ BObjectImp* UOExecutorModule::mf_CreateItemInBackpack()
     }
 }
 
-BObjectImp* _complete_create_item_at_location( Item* item, long x, long y, long z, Realm* realm )
+BObjectImp* _complete_create_item_at_location( Item* item, unsigned short x, unsigned short y, short z, Realm* realm )
 {
 	//Dave moved these 3 lines up here 12/20 cuz x,y,z was uninit in the createscript.
-    item->x = static_cast<unsigned short>(x);
-    item->y = static_cast<unsigned short>(y);
+    item->x = x;
+    item->y = y;
     item->z = static_cast<signed char>(z);
 	item->realm = realm;
 
@@ -1064,7 +1064,8 @@ BObjectImp* _complete_create_item_at_location( Item* item, long x, long y, long 
 
 BObjectImp* UOExecutorModule::mf_CreateItemAtLocation(/* x,y,z,objtype,amount,realm */)
 {
-    long x, y, z;
+    unsigned short x, y;
+	short z;
     const ItemDesc* itemdesc;
     unsigned short amount;
 	const String* strrealm;
@@ -1103,7 +1104,8 @@ BObjectImp* UOExecutorModule::mf_CreateItemAtLocation(/* x,y,z,objtype,amount,re
 
 BObjectImp* UOExecutorModule::mf_CreateItemCopyAtLocation(/* x,y,z,item,realm */)
 {
-    long x, y, z;
+    unsigned short x, y;
+	short z;
     Item* origitem;
     const String* strrealm;
     if (getParam( 0, x ) &&
@@ -1138,7 +1140,8 @@ BObjectImp* UOExecutorModule::mf_CreateItemCopyAtLocation(/* x,y,z,item,realm */
 
 BObjectImp* UOExecutorModule::mf_CreateMultiAtLocation(/* x,y,z,objtype,flags,realm */)
 {
-    long x, y, z;
+    unsigned short x, y;
+	short z;
     const ItemDesc* descriptor;
     long flags = 0;
 	const String* strrealm;
@@ -1175,8 +1178,8 @@ BObjectImp* UOExecutorModule::mf_CreateMultiAtLocation(/* x,y,z,objtype,flags,re
     }
 
     return UMulti::scripted_create( *descriptor,
-                                    static_cast<unsigned short>(x),
-                                    static_cast<unsigned short>(y),
+                                    x,
+                                    y,
                                     static_cast<signed char>(z),
                                     realm, flags );
 }
@@ -1222,7 +1225,8 @@ bool FindNpcTemplate( const char* template_name, ConfigElem& elem );
 BObjectImp* UOExecutorModule::mf_CreateNpcFromTemplate()
 {
     const String* tmplname;
-    long x,y,z;
+    unsigned short x,y;
+	short z;
 	const String* strrealm;
 	Realm* realm = find_realm(string("britannia"));
 
@@ -1269,7 +1273,7 @@ BObjectImp* UOExecutorModule::mf_CreateNpcFromTemplate()
     }
     MOVEMODE movemode = Character::decode_movemode( elem.read_string( "MoveMode", "L" ) );
 
-    int newz;
+    short newz;
     UMulti* dummy_multi;
     Item* dummy_walkon;
     if (!realm->walkheight(x,y,z,&newz,&dummy_multi, &dummy_walkon, true, movemode))
@@ -1291,9 +1295,9 @@ BObjectImp* UOExecutorModule::mf_CreateNpcFromTemplate()
 
         elem.add_prop( "Serial", GetNextSerialNumber() );
         // FIXME sanity check
-        elem.add_prop( "X", static_cast<unsigned short>(x) );
-        elem.add_prop( "Y", static_cast<unsigned short>(y) );
-        elem.add_prop( "Z", static_cast<unsigned short>(z) );
+        elem.add_prop( "X", x );
+        elem.add_prop( "Y", y );
+        elem.add_prop( "Z", z );
 		elem.add_prop( "Realm", realm->name().c_str() );
         if (custom_struct != NULL)
             replace_properties( elem, custom_struct );
@@ -1311,7 +1315,7 @@ BObjectImp* UOExecutorModule::mf_CreateNpcFromTemplate()
         ForEach( clients, send_char_data, static_cast<Character*>(npc.get()) );
 
 		//dave added 2/3/3 send entered area events for npc create
-		ForEachMobileInRange( static_cast<unsigned short>(x),  static_cast<unsigned short>(y), realm, 32,
+		ForEachMobileInRange( x, y, realm, 32,
 			                  NpcPropagateMove, static_cast<Character*>(npc.get()) );
         if (dummy_multi)
             dummy_multi->register_object( npc.get() );
@@ -1449,7 +1453,8 @@ BObjectImp* UOExecutorModule::mf_PlaySoundEffectPrivate()
 
 BObjectImp* UOExecutorModule::mf_PlaySoundEffectXYZ()
 {
-    long cx,cy,cz;
+    unsigned short cx,cy;
+	short cz;
     long effect;
 	const String* strrealm;
 	Realm* realm = find_realm(string("britannia"));
@@ -1463,8 +1468,8 @@ BObjectImp* UOExecutorModule::mf_PlaySoundEffectXYZ()
 		if(!realm) return new BError("Realm not found");
 		if(!realm->valid(cx,cy,cz))
 			return new BError("Invalid Coordinates for realm");
-        play_sound_effect_xyz( static_cast<unsigned short>(cx),
-                           static_cast<unsigned short>(cy),
+        play_sound_effect_xyz( cx,
+                           cy,
                            static_cast<signed char>(cz),
 						   static_cast<u16>(effect),
 						   realm);
@@ -1884,8 +1889,9 @@ BObjectImp* UOExecutorModule::mf_PlayMovingEffect()
 
 BObjectImp* UOExecutorModule::mf_PlayMovingEffectXyz()
 {
-    long sx, sy, sz;
-    long dx, dy, dz;
+    unsigned short sx, sy;
+    unsigned short dx, dy;
+	short sz, dz;
 
     unsigned short effect;
     long speed;
@@ -1910,11 +1916,11 @@ BObjectImp* UOExecutorModule::mf_PlayMovingEffectXyz()
 		if(!realm) return new BError("Realm not found");
 		if(!realm->valid(sx,sy,sz) || !realm->valid(dx,dy,dz))
 			return new BError("Invalid Coordinates for realm");
-        play_moving_effect2( static_cast<unsigned short>(sx),
-                             static_cast<unsigned short>(sy),
+        play_moving_effect2( sx,
+                             sy,
                              static_cast<signed char>(sz),
-                             static_cast<unsigned short>(dx),
-                             static_cast<unsigned short>(dy),
+                             dx,
+                             dy,
                              static_cast<signed char>(dz),
                              effect,
                              static_cast<signed char>(speed),
@@ -1956,7 +1962,8 @@ BObjectImp* UOExecutorModule::mf_PlayObjectCenteredEffect()
 
 BObjectImp* UOExecutorModule::mf_PlayStationaryEffect()
 {
-    long x, y, z;
+    unsigned short x, y;
+	short z;
     unsigned short effect;
     long speed, loop, explode;
 	const String* strrealm;
@@ -1974,8 +1981,8 @@ BObjectImp* UOExecutorModule::mf_PlayStationaryEffect()
 		if(!realm) return new BError("Realm not found");
 		if(!realm->valid(x,y,z)) return new BError("Invalid Coordinates for realm");
 
-        play_stationary_effect( static_cast<unsigned short>(x),
-                                static_cast<unsigned short>(y),
+        play_stationary_effect( x,
+                                y,
                                 static_cast<signed char>(z),
                                 effect,
                                 static_cast<unsigned char>(speed),
@@ -2041,8 +2048,9 @@ BObjectImp* UOExecutorModule::mf_PlayMovingEffect_Ex()
 
 BObjectImp* UOExecutorModule::mf_PlayMovingEffectXyz_Ex()
 {
-    long sx, sy, sz;
-    long dx, dy, dz;
+    unsigned short sx, sy;
+    unsigned short dx, dy;
+	short sz,dz;
 	const String* strrealm;
 
     unsigned short effect;
@@ -2080,11 +2088,11 @@ BObjectImp* UOExecutorModule::mf_PlayMovingEffectXyz_Ex()
 		if(!realm) return new BError("Realm not found");
 		if(!realm->valid(sx,sy,sz) || !realm->valid(dx,dy,dz))
 			return new BError("Invalid Coordinates for realm");
-        play_moving_effect2_ex( static_cast<unsigned short>(sx),
-                             static_cast<unsigned short>(sy),
+        play_moving_effect2_ex( sx,
+                             sy,
                              static_cast<signed char>(sz),
-                             static_cast<unsigned short>(dx),
-                             static_cast<unsigned short>(dy),
+                             dx,
+                             dy,
                              static_cast<signed char>(dz),
 							 realm,
                              effect,
@@ -2143,7 +2151,8 @@ BObjectImp* UOExecutorModule::mf_PlayObjectCenteredEffect_Ex()
 
 BObjectImp* UOExecutorModule::mf_PlayStationaryEffect_Ex()
 {
-    long x, y, z;
+    unsigned short x, y;
+	short z;
 	const String* strrealm;
     unsigned short effect;
     long speed;
@@ -2168,8 +2177,8 @@ BObjectImp* UOExecutorModule::mf_PlayStationaryEffect_Ex()
 		if(!realm) return new BError("Realm not found");
 		if(!realm->valid(x,y,z)) return new BError("Invalid Coordinates for realm");
 
-        play_stationary_effect_ex( static_cast<unsigned short>(x),
-                                static_cast<unsigned short>(y),
+        play_stationary_effect_ex( x,
+                                y,
                                 static_cast<signed char>(z),
 								realm,
                                 effect,
@@ -2202,7 +2211,9 @@ BObjectImp* UOExecutorModule::mf_PlayLightningBoltEffect()
 
 BObjectImp* UOExecutorModule::mf_ListItemsNearLocation(/* x, y, z, range, realm */)
 {
-    long x, y, z, range;
+    unsigned short x, y;
+	long z;
+	short range;
 	const String* strrealm;
 	Realm* realm;
 
@@ -2223,7 +2234,7 @@ BObjectImp* UOExecutorModule::mf_ListItemsNearLocation(/* x, y, z, range, realm 
         }
         else
         {
-            if (!realm->valid(x, y, z))
+            if (!realm->valid(x, y, static_cast<short>(z)))
                 return new BError("Invalid Coordinates for realm");
         }
 
@@ -2255,7 +2266,7 @@ BObjectImp* UOExecutorModule::mf_ListItemsNearLocation(/* x, y, z, range, realm 
     return NULL;
 }
 
-void UOExecutorModule::internal_InBoxAreaChecks(long &x1, long &y1, long &z1, long &x2, long &y2, long &z2, Realm* realm)
+void UOExecutorModule::internal_InBoxAreaChecks(unsigned short &x1, unsigned short &y1, short &z1, unsigned short &x2, unsigned short &y2, short &z2, Realm* realm)
 {
 	if( x1 < 0 )
 		x1 = 0;
@@ -2264,9 +2275,9 @@ void UOExecutorModule::internal_InBoxAreaChecks(long &x1, long &y1, long &z1, lo
 	if ( z1 < WORLD_MIN_Z )
 		z1 = WORLD_MIN_Z;
 
-	if( unsigned(x2) >= realm->width() )
+	if( x2 >= realm->width() )
 		x2 = (realm->width()-1);
-	if ( unsigned(y2) >= realm->height() )
+	if ( y2 >= realm->height() )
 		y2 = (realm->height()-1);
 	if ( z2 > WORLD_MAX_Z )
 		z2 = WORLD_MAX_Z;
@@ -2274,8 +2285,10 @@ void UOExecutorModule::internal_InBoxAreaChecks(long &x1, long &y1, long &z1, lo
 
 BObjectImp* UOExecutorModule::mf_ListObjectsInBox(/* x1, y1, z1, x2, y2, z2, realm */)
 {
-    long x1, y1, z1;
-    long x2, y2, z2;
+    unsigned short x1, y1;
+	short z1;
+    unsigned short x2, y2;
+	short z2;
 	const String* strrealm;
 	Realm* realm;
 
@@ -2340,8 +2353,10 @@ BObjectImp* UOExecutorModule::mf_ListObjectsInBox(/* x1, y1, z1, x2, y2, z2, rea
 
 BObjectImp* UOExecutorModule::mf_ListMultisInBox(/* x1, y1, z1, x2, y2, z2, realm */)
 {
-    long x1, y1, z1;
-    long x2, y2, z2;
+    unsigned short x1, y1;
+	short z1;
+    unsigned short x2, y2;
+	short z2;
 	const String* strrealm;
 	Realm* realm;
 
@@ -2426,8 +2441,10 @@ BObjectImp* UOExecutorModule::mf_ListMultisInBox(/* x1, y1, z1, x2, y2, z2, real
 
 BObjectImp* UOExecutorModule::mf_ListStaticsInBox(/* x1, y1, z1, x2, y2, z2, flags, realm */)
 {
-    long x1, y1, z1;
-    long x2, y2, z2, flags;
+    unsigned short x1, y1;
+    unsigned short x2, y2;
+	short z1, z2;
+	long flags;
 	const String* strrealm;
 	Realm* realm;
 
@@ -2451,9 +2468,9 @@ BObjectImp* UOExecutorModule::mf_ListStaticsInBox(/* x1, y1, z1, x2, y2, z2, fla
 
 		auto_ptr<ObjArray> newarr( new ObjArray );
 
-        for( long wx = x1; wx <= x2; ++wx )
+        for( unsigned short wx = x1; wx <= x2; ++wx )
         {
-            for( long wy = y1; wy <= y2; ++wy )
+            for( unsigned short wy = y1; wy <= y2; ++wy )
             {
                 if (!( flags & ITEMS_IGNORE_STATICS ))
                 {
@@ -2504,7 +2521,8 @@ BObjectImp* UOExecutorModule::mf_ListStaticsInBox(/* x1, y1, z1, x2, y2, z2, fla
 
 BObjectImp* UOExecutorModule::mf_ListItemsNearLocationOfType(/* x, y, z, range, objtype, realm */)
 {
-    long x, y, z, range;
+    unsigned short x, y;
+	long z, range;
     unsigned short objtype;
 	const String* strrealm;
 	Realm* realm;
@@ -2529,7 +2547,7 @@ BObjectImp* UOExecutorModule::mf_ListItemsNearLocationOfType(/* x, y, z, range, 
         }
         else
         {
-            if (!realm->valid(x, y, z))
+            if (!realm->valid(x, y, static_cast<short>(z)))
                 return new BError("Invalid Coordinates for realm");
         }
 
@@ -2562,7 +2580,8 @@ BObjectImp* UOExecutorModule::mf_ListItemsNearLocationOfType(/* x, y, z, range, 
 
 BObjectImp* UOExecutorModule::mf_ListItemsAtLocation(/* x, y, z, realm */)
 {
-    long x, y, z;
+    unsigned short x, y;
+	long z;
 	const String* strrealm;
 	Realm* realm;
 
@@ -2582,7 +2601,7 @@ BObjectImp* UOExecutorModule::mf_ListItemsAtLocation(/* x, y, z, realm */)
         }
         else
         {
-            if (!realm->valid(x, y, z))
+            if (!realm->valid(x, y, static_cast<short>(z)))
                 return new BError("Invalid Coordinates for realm");
         }
 
@@ -2666,7 +2685,9 @@ const unsigned LMBLEX_FLAG_CONCEALED = 0x8;
 
 BObjectImp* UOExecutorModule::mf_ListMobilesNearLocationEx(/* x, y, z, range, flags, realm */)
 {
-    long x, y, z, range, flags;
+    unsigned short x, y;
+	long z, flags;
+	short range;
 	const String* strrealm;
 	Realm* realm;
 
@@ -2688,7 +2709,7 @@ BObjectImp* UOExecutorModule::mf_ListMobilesNearLocationEx(/* x, y, z, range, fl
         }
         else
         {
-            if (!realm->valid(x, y, z))
+            if (!realm->valid(x, y, static_cast<short>(z)))
                 return new BError("Invalid Coordinates for realm");
         }
 
@@ -2734,7 +2755,9 @@ BObjectImp* UOExecutorModule::mf_ListMobilesNearLocationEx(/* x, y, z, range, fl
 
 BObjectImp* UOExecutorModule::mf_ListMobilesNearLocation(/* x, y, z, range, realm */)
 {
-    long x, y, z, range;
+    unsigned short x, y;
+	long z;
+	short range;
 	const String* strrealm;
 	Realm* realm;
 
@@ -2755,7 +2778,7 @@ BObjectImp* UOExecutorModule::mf_ListMobilesNearLocation(/* x, y, z, range, real
         }
         else
         {
-            if (!realm->valid(x, y, z))
+            if (!realm->valid(x, y, static_cast<short>(z)))
                 return new BError("Invalid Coordinates for realm");
         }
 
@@ -2893,9 +2916,8 @@ BObjectImp* UOExecutorModule::mf_CheckLineOfSight()
 BObjectImp* UOExecutorModule::mf_CheckLosAt()
 {
     UObject* src;
-    long x;
-    long y;
-    long z;
+    unsigned short x, y;
+    short z;
     if (getUObjectParam( exec, 0, src ) &&
         getParam( 1, x ) &&
         getParam( 2, y ) &&
@@ -2903,9 +2925,7 @@ BObjectImp* UOExecutorModule::mf_CheckLosAt()
     {
 		if(!src->realm->valid(x,y,z)) return new BError("Invalid Coordinates for realm");
         LosObj att(*src);
-        LosObj tgt(static_cast<unsigned short>(x),
-                   static_cast<unsigned short>(y),
-                   static_cast<signed char>(z));
+        LosObj tgt(x,y,static_cast<signed char>(z));
         return new BLong( src->realm->has_los( att, tgt ) );
     }
     else
@@ -2916,9 +2936,9 @@ BObjectImp* UOExecutorModule::mf_CheckLosAt()
 
 BObjectImp* UOExecutorModule::mf_CheckLosBetween()
 {
-    long x1,x2;
-    long y1,y2;
-    long z1,z2;
+    unsigned short x1,x2;
+    unsigned short y1,y2;
+    short z1,z2;
     const String* strrealm;
     if (getParam( 0, x1 ) &&
         getParam( 1, y1 ) &&
@@ -2935,12 +2955,8 @@ BObjectImp* UOExecutorModule::mf_CheckLosBetween()
 		if ((!realm->valid(x1,y1,z1)) || (!realm->valid(x2,y2,z2)))
 			return new BError("Invalid Coordinates for Realm");
 
-        LosObj att(static_cast<unsigned short>(x1),
-                   static_cast<unsigned short>(y1),
-                   static_cast<signed char>(z1));
-        LosObj tgt(static_cast<unsigned short>(x2),
-                   static_cast<unsigned short>(y2),
-                   static_cast<signed char>(z2));
+        LosObj att(x1,y1,static_cast<signed char>(z1));
+        LosObj tgt(x2,y2,static_cast<signed char>(z2));
         return new BLong( realm->has_los( att, tgt ) );
     }
     else
@@ -3185,7 +3201,7 @@ BObjectImp* UOExecutorModule::mf_Resurrect()
             // we want doors to block ghosts in this case.
             bool doors_block = ! (chr->graphic == UOBJ_GAMEMASTER ||
                                   chr->cached_settings.ignoredoors);
-            int newz;
+            short newz;
             UMulti* supporting_multi;
             Item* walkon_item;
             if (!chr->realm->walkheight( chr->x, chr->y, chr->z, &newz, &supporting_multi, &walkon_item, doors_block, chr->movemode ))
@@ -3885,7 +3901,7 @@ BObjectImp* UOExecutorModule::mf_GetRegionName(/* objref */)
 
 BObjectImp* UOExecutorModule::mf_GetRegionNameAtLocation(/* x, y, realm */)
 {
-	long x, y;
+	unsigned short x, y;
 	const String* strrealm;
 	Realm* realm;
 
@@ -3937,7 +3953,7 @@ BObjectImp* UOExecutorModule::mf_GetRegionString()
 
 BObjectImp* UOExecutorModule::mf_GetRegionLightLevelAtLocation(/* x, y, realm */)
 {
-	long x, y;
+	unsigned short x, y;
 	const String* strrealm;
 	Realm* realm;
 
@@ -4088,7 +4104,8 @@ BObjectImp* UOExecutorModule::mf_SendQuestArrow()
 		}
 		else
 		{
-			if(!chr->realm->valid(x,y,0)) return new BError("Invalid Coordinates for Realm");
+			if(!chr->realm->valid(static_cast<unsigned short>(x),static_cast<unsigned short>(y),0))
+				return new BError("Invalid Coordinates for Realm");
 			msg.active = PKTOUT_BA::ARROW_ON;
 			msg.x_tgt = ctBEu16(static_cast<unsigned short>(x & 0xFFFF));
 			msg.y_tgt = ctBEu16(static_cast<unsigned short>(y & 0xFFFF));
@@ -4307,7 +4324,7 @@ BObjectImp* UOExecutorModule::mf_GetMapInfo()
 }
 BObjectImp* UOExecutorModule::mf_GetWorldHeight()
 {
-    unsigned x, y;
+    unsigned short x, y;
 	const String* strrealm;
 	Realm* realm = find_realm(string("britannia"));
     if (getParam( 0, x ) &&
@@ -4318,7 +4335,7 @@ BObjectImp* UOExecutorModule::mf_GetWorldHeight()
 		if(!realm) return new BError("Realm not found");
         if(!realm->valid(x,y,0)) return new BError("Invalid Coordinates for Realm");
 
-        int z = -255;
+        short z = -255;
         if (realm->lowest_standheight( x, y, &z ))
             return new BLong(z);
         else
@@ -4482,7 +4499,8 @@ BObjectImp* UOExecutorModule::mf_AssignMultiComponent()
 
 BObjectImp* UOExecutorModule::mf_GetStandingHeight()
 {
-    long x, y, z;
+    unsigned short x, y;
+	short z;
 	const String* strrealm;
 	Realm* realm = find_realm(string("britannia"));
     if (getParam( 0, x ) &&
@@ -4493,7 +4511,7 @@ BObjectImp* UOExecutorModule::mf_GetStandingHeight()
 		realm = find_realm(strrealm->value());
 		if(!realm) return new BError("Realm not found");
 		if(!realm->valid(x,y,z)) return new BError("Coordinates Invalid for Realm");
-        int newz;
+        short newz;
         UMulti* multi;
         Item* walkon;
         if (realm->lowest_walkheight( x, y, z, &newz, &multi, &walkon, true, MOVEMODE_LAND ))
@@ -4517,7 +4535,8 @@ BObjectImp* UOExecutorModule::mf_GetStandingHeight()
 
 BObjectImp* UOExecutorModule::mf_GetStandingLayers(/* x, y, flags, realm */)
 {
-    long x, y, flags;
+    unsigned short x, y;
+	long flags;
     const String* strrealm;
     Realm* realm;
     
@@ -4764,7 +4783,9 @@ BObjectImp* UOExecutorModule::mf_SendStringAsTipWindow()
 
 BObjectImp* UOExecutorModule::mf_ListItemsNearLocationWithFlag(/* x, y, z, range, flags, realm */) //DAVE
 {
-    long x, y, z, range, flags;
+    unsigned short x, y;
+	short range;
+	long z, flags;
 	const String* strrealm;
 	Realm* realm;
 
@@ -4786,7 +4807,7 @@ BObjectImp* UOExecutorModule::mf_ListItemsNearLocationWithFlag(/* x, y, z, range
         }
         else
         {
-            if (!realm->valid(x, y, z))
+            if (!realm->valid(x, y, static_cast<short>(z)))
                 return new BError("Invalid Coordinates for realm");
         }
 
@@ -4822,7 +4843,8 @@ BObjectImp* UOExecutorModule::mf_ListItemsNearLocationWithFlag(/* x, y, z, range
 
 BObjectImp* UOExecutorModule::mf_ListStaticsAtLocation(/* x, y, z, flags, realm */)
 {
-    long x, y, z, flags;
+    unsigned short x, y;
+	long z, flags;
     const String* strrealm;
     Realm* realm;
     
@@ -4843,7 +4865,7 @@ BObjectImp* UOExecutorModule::mf_ListStaticsAtLocation(/* x, y, z, flags, realm 
         }
         else
         {
-            if (!realm->valid(x, y, z))
+            if (!realm->valid(x, y, static_cast<short>(z)))
                 return new BError("Invalid Coordinates for realm");
         }
 
@@ -4896,7 +4918,9 @@ BObjectImp* UOExecutorModule::mf_ListStaticsAtLocation(/* x, y, z, flags, realm 
 
 BObjectImp* UOExecutorModule::mf_ListStaticsNearLocation(/* x, y, z, range, flags, realm */)
 {
-    long x, y, z, range, flags;
+    unsigned short x, y;
+	long z, flags;
+	short range;
     const String* strrealm;
     Realm* realm;
     
@@ -4918,13 +4942,13 @@ BObjectImp* UOExecutorModule::mf_ListStaticsNearLocation(/* x, y, z, range, flag
         }
         else
         {
-            if (!realm->valid(x, y, z))
+            if (!realm->valid(x, y, static_cast<short>(z)))
                 return new BError("Invalid Coordinates for realm");
         }
 
         auto_ptr<ObjArray> newarr( new ObjArray );
         
-        unsigned int wxL, wyL, wxH, wyH;
+        short wxL, wyL, wxH, wyH;
         wxL = x - range;
         if (wxL < 0)
             wxL = 0;
@@ -4938,9 +4962,9 @@ BObjectImp* UOExecutorModule::mf_ListStaticsNearLocation(/* x, y, z, range, flag
         if (wyH > realm->height()-1)
             wyH = realm->height()-1;
         
-        for( unsigned int wx = wxL; wx <= wxH; ++wx )
+        for( unsigned short wx = wxL; wx <= wxH; ++wx )
         {
-            for( unsigned int wy = wyL; wy <= wyH; ++wy )
+            for( unsigned short wy = wyL; wy <= wyH; ++wy )
             {
                 if (!( flags & ITEMS_IGNORE_STATICS ))
                 {
@@ -5083,11 +5107,11 @@ typedef AStarSearch<UOPathState> UOSearch;
 
 BObjectImp* UOExecutorModule::mf_FindPath()
 {
-    long x1, x2;
-    long y1, y2;
-    long z1, z2;
+    unsigned short x1, x2;
+    unsigned short y1, y2;
+    short z1, z2;
 	long flags;
-	long theSkirt;
+	short theSkirt;
 	const String* strrealm;
 	Realm* realm;
 	if (getParam( 0, x1 ) &&
@@ -5097,7 +5121,7 @@ BObjectImp* UOExecutorModule::mf_FindPath()
 		getParam( 4, y2) &&
         getParam( 5, z2, WORLD_MIN_Z, WORLD_MAX_Z ) )
     {
-		if (pol_distance((unsigned short) x1,(unsigned short) y1,(unsigned short) x2,(unsigned short) y2) > ssopt.max_pathfind_range)
+		if (pol_distance(x1, y1, x2, y2) > ssopt.max_pathfind_range)
 			return new BError("Beyond Max Range.");
 
 		if(!getStringParam(6,strrealm))
@@ -5119,7 +5143,7 @@ BObjectImp* UOExecutorModule::mf_FindPath()
 		UOSearch * astarsearch;
 		unsigned int SearchState;
         astarsearch = new UOSearch;
-		unsigned int xL, xH, yL, yH;
+		short xL, xH, yL, yH;
 
 		if (x1 < x2)
 		{

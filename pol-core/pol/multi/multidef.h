@@ -55,10 +55,10 @@ public:
 
     vector< MULTI_ELEM > elems;
 
-    int xbase;          // x[0] is really x[xbase]
-    int xsize;
-    int ybase;
-    int ysize;
+    short xbase;          // x[0] is really x[xbase]
+    short xsize;
+    short ybase;
+    short ysize;
     
     typedef vector<const MULTI_ELEM*> HullList;
     HullList hull;
@@ -70,34 +70,34 @@ public:
     typedef multimap<unsigned short, const MULTI_ELEM*> Components;
     typedef pair<Components::const_iterator,Components::const_iterator> ItrPair;
 
-        int minrx, minry, minrz; // minimum relative distances
-        int maxrx, maxry, maxrz;
+        short minrx, minry, minrz; // minimum relative distances
+        short maxrx, maxry, maxrz;
         Components components;
 
-        static int global_minrx;
-        static int global_minry;
-        static int global_minrz;
-        static int global_maxrx;
-        static int global_maxry;
-        static int global_maxrz;
+        static short global_minrx;
+        static short global_minry;
+        static short global_minrz;
+        static short global_maxrx;
+        static short global_maxry;
+        static short global_maxrz;
         
-    ItrPair findcomponents( int rx, int ry);
+    ItrPair findcomponents( short rx, short ry);
 
     bool findcomponents( Components::const_iterator& beg, Components::const_iterator& end,
-                         int rx, int ry) const;
+                         short rx, short ry) const;
 
-    unsigned short getkey( int rx, int ry ) const;
+    unsigned short getkey( short rx, short ry ) const;
 
         // returns true if it finds anything at this rx,ry
-    bool readobjects( StaticList& vec, int rx, int ry, int zbase ) const;
-    bool readshapes( MapShapeList& vec, int rx, int ry, int zbase, unsigned long anyflags ) const;
+    bool readobjects( StaticList& vec, short rx, short ry, short zbase ) const;
+    bool readshapes( MapShapeList& vec, short rx, short ry, short zbase, unsigned long anyflags ) const;
 
-    bool body_contains( int rx, int ry ) const;
-    const MULTI_ELEM* find_component( int rx, int ry ) const;
+    bool body_contains( short rx, short ry ) const;
+    const MULTI_ELEM* find_component( short rx, short ry ) const;
 
     void add_to_hull( const MULTI_ELEM* elem );
     void add_to_internal_hull( const MULTI_ELEM* elem );
-    void add_row_tohull( int y );
+    void add_row_tohull( short y );
     void add_body_tohull();
     void eliminate_hull_dupes();
     void computehull();
@@ -120,7 +120,7 @@ extern ObjtypeByMultiID objtype_by_multiid;
 
 void clean_multidefs();
 
-inline unsigned short MultiDef::getkey( int rx, int ry ) const
+inline unsigned short MultiDef::getkey( short rx, short ry ) const
 {
     unsigned char crx = static_cast<unsigned char>(rx);
     unsigned char cry = static_cast<unsigned char>(ry);

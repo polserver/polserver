@@ -634,9 +634,9 @@ void print_multihull( u16 i, MultiDef* multi)
     read_objinfo( i+0x4000, tile );
     cout << "Multi 0x" << hex << i+0x4000 << dec 
          << " -- " << tile.name << ":" << endl;
-    for( int y = multi->minry; y <= multi->maxry; ++y )
+    for( short y = multi->minry; y <= multi->maxry; ++y )
     {
-        for( int x = multi->minrx; x <= multi->maxrx; ++x )
+        for( short x = multi->minrx; x <= multi->maxrx; ++x )
         {
             unsigned short key = multi->getkey( x,y );
             bool external = multi->hull2.count(key) != 0;
@@ -668,9 +668,9 @@ void print_widedata( u16 i, MultiDef* multi )
     read_objinfo( i+0x4000, tile );
     cout << "Multi 0x" << hex << i+0x4000 << dec 
          << " -- " << tile.name << ":" << endl;
-    for( int y = multi->minry; y <= multi->maxry; ++y )
+    for( short y = multi->minry; y <= multi->maxry; ++y )
     {
-        for( int x = multi->minrx; x <= multi->maxrx; ++x )
+        for( short x = multi->minrx; x <= multi->maxrx; ++x )
         {
             const MULTI_ELEM* elem = multi->find_component( x, y );
             if (elem != NULL)
@@ -741,7 +741,7 @@ int z_histogram()
         for( u16 y = 0; y < 4095; ++y )
         {
             USTRUCT_MAPINFO mi;
-            int z;
+            short z;
             getmapinfo( x, y, &z, &mi );
             assert( z >= -128 && z <= 127 );
             ++zcount[ z+128 ];
@@ -799,7 +799,7 @@ int write_polmap( const char* filename, unsigned short xbegin, unsigned short xe
         cout << "\r" << percent << "%";
         for( u16 ys = 0; ys < 4096; ys += 8 )
         {
-            int z;
+            short z;
             USTRUCT_POL_MAPINFO_BLOCK blk;
             memset( &blk, 0, sizeof blk );
             for( u16 xi = 0; xi < 8; ++xi )
@@ -878,7 +878,7 @@ int water_search( int argc, char *argv[])
     return 0;
 }
 
-void safe_getmapinfo( unsigned short x, unsigned short y, int* z, USTRUCT_MAPINFO* mi );
+void safe_getmapinfo( unsigned short x, unsigned short y, short* z, USTRUCT_MAPINFO* mi );
 
 int mapdump( int argc, char* argv[] )
 {
@@ -886,13 +886,13 @@ int mapdump( int argc, char* argv[] )
 
     if (argc >= 4)
     {
-        wxl = wxh = atoi( argv[2] );
-        wyl = wyh = atoi( argv[3] );
+        wxl = wxh = static_cast<u16>(atoi( argv[2] ));
+        wyl = wyh = static_cast<u16>(atoi( argv[3] ));
     }
     if (argc >= 6)
     {
-        wxh = atoi( argv[4] );
-        wyh = atoi( argv[5] );
+        wxh = static_cast<u16>(atoi( argv[4] ));
+        wyh = static_cast<u16>(atoi( argv[5] ));
     }
 
     open_uo_data_files();
@@ -913,7 +913,7 @@ int mapdump( int argc, char* argv[] )
         for( u16 x = wxl; x <= wxh; ++x )
         {
             ofs << "<td align=left valign=top>";
-            int z;
+            short z;
             USTRUCT_MAPINFO mi;
             safe_getmapinfo( x, y, &z, &mi );
             USTRUCT_LAND_TILE landtile;
@@ -972,7 +972,7 @@ int contour( int argc, char **argv )
             readstatics( vec, x, y );
 
             bool result;
-            int newz;
+            short newz;
             standheight(MOVEMODE_LAND, vec, x, y, 127, 
                         &result, &newz);
             if (result)
@@ -1002,7 +1002,7 @@ int findlandtile( int argc, char **argv )
     {
         for( u16 x = 0; x < 6143; ++x )
         {
-            int z;
+            short z;
             USTRUCT_MAPINFO mi;
             safe_getmapinfo( x, y, &z, &mi );
             if (mi.landtile == landtile)
@@ -1057,7 +1057,7 @@ int findlandtileflags( int argc, char **argv )
     {
         for( u16 x = 0; x < 6143; ++x )
         {
-            int z;
+            short z;
             USTRUCT_MAPINFO mi;
             safe_getmapinfo( x, y, &z, &mi );
             if (landtile_uoflags( mi.landtile ) & flags)

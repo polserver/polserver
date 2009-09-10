@@ -290,7 +290,7 @@ bool drop_item_on_ground( Client *client, Item *item, u16 x, u16 y, s8 z )
 	Character* chr = client->chr;
 
     UMulti* multi;
-    int newz;
+    short newz;
 	if (!inrangex( chr, x, y, 2) && !client->chr->can_moveanydist())
     {
         Log("Client (Character %s) tried to drop an item out of range.\n",client->chr->name().c_str());

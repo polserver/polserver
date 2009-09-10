@@ -80,12 +80,12 @@ Realm::~Realm()
 	delete[] zone;
 }
 
-unsigned Realm::width() const
+unsigned short Realm::width() const
 {
 	return _Descriptor().width;
 }
 
-unsigned Realm::height() const
+unsigned short Realm::height() const
 {
     return _Descriptor().height;
 }
@@ -95,7 +95,7 @@ unsigned Realm::season() const
     return _Descriptor().season;
 }
 
-bool Realm::valid( unsigned x, unsigned y, int z ) const
+bool Realm::valid( unsigned short x, unsigned short y, short z ) const
 {
     return (x < _Descriptor().width && y < _Descriptor().height &&
             z >= -128 && z <= 127);

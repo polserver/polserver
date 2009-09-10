@@ -289,7 +289,7 @@ void UBoat::unregself()
 }
 
 // navigable: Can the ship sit here?  ie is every point on the hull on water,and not blocked?
-bool UBoat::navigable( const MultiDef& md, int x, int y, int z, Realm* realm) 
+bool UBoat::navigable( const MultiDef& md, unsigned short x, unsigned short y, short z, Realm* realm) 
 {
 
 	if (int(x + md.minrx) < int(WORLD_MIN_X) || int(x + md.maxrx) > int(realm->width()) ||
@@ -307,9 +307,9 @@ bool UBoat::navigable( const MultiDef& md, int x, int y, int z, Realm* realm)
          itr != end;
          ++itr )
     {
-        unsigned short ax = static_cast<u16>(x + (*itr)->x);
-        unsigned short ay = static_cast<u16>(y + (*itr)->y);
-		int az = z + (*itr)->z;
+        unsigned short ax = x + (*itr)->x;
+        unsigned short ay = y + (*itr)->y;
+		short az = z + (*itr)->z;
 #ifdef DEBUG_BOATS
 		cout << "[" << ax << "," << ay << "]";
 #endif
@@ -344,8 +344,8 @@ bool UBoat::on_ship( const BoatContext& bc, const UObject* obj )
         if (item->container != NULL)
             return false;
     }
-    int rx = obj->x - bc.x;
-    int ry = obj->y - bc.y;
+    short rx = obj->x - bc.x;
+    short ry = obj->y - bc.y;
 
     return bc.mdef.body_contains( rx, ry );
 }
@@ -655,8 +655,8 @@ void UBoat::move_offline_mobiles( xcoord x, ycoord y, zcoord z, Realm* realm )
             if (!chr->logged_in)
             {
                 chr->set_dirty();
-                chr->x = static_cast<unsigned short>(x);
-                chr->y = static_cast<unsigned short>(y);
+                chr->x = x;
+                chr->y = y;
                 chr->z = static_cast<signed char>(z);
                 chr->realm = realm;
                 chr->realm_changed(); // not sure if neccessary...

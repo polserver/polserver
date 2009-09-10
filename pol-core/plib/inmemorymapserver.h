@@ -18,7 +18,7 @@ public:
     explicit InMemoryMapServer( const RealmDescriptor& descriptor );
     virtual ~InMemoryMapServer();
 
-    virtual MAPCELL GetMapCell( unsigned x, unsigned y ) const;
+    virtual MAPCELL GetMapCell( unsigned short x, unsigned short y ) const;
 
 private:
     vector<MAPBLOCK> _mapblocks;

@@ -116,10 +116,10 @@ signed char rawmapinfo( unsigned short x, unsigned short y, USTRUCT_MAPINFO* gi 
     Simple averaging doesn't seem to work near cliffs and such.
     poltest has a unit test for this.
 */
-bool groundheight( unsigned short x, unsigned short y, int* z )
+bool groundheight( unsigned short x, unsigned short y, short* z )
 {
     USTRUCT_MAPINFO md, mi;
-    int z1, z2, z3, z4; // quadrants
+    short z1, z2, z3, z4; // quadrants
     
     z1 = rawmapinfo( x+1, y,   &md   );
     z2 = rawmapinfo( x,   y, &mi   );
@@ -138,17 +138,17 @@ bool groundheight( unsigned short x, unsigned short y, int* z )
              ((landtile_uoflags(mi.landtile) & USTRUCT_TILE::FLAG_BLOCKING) == 0) );
 }
 
-void getmapinfo( unsigned short x, unsigned short y, int* z, USTRUCT_MAPINFO* mi )
+void getmapinfo( unsigned short x, unsigned short y, short* z, USTRUCT_MAPINFO* mi )
 {
     USTRUCT_MAPINFO md;
-    int z1, z2, z3, z4; // quadrants
+    short z1, z2, z3, z4; // quadrants
     
     z1 = rawmapinfo( x+1, y, &md   );
     z2 = rawmapinfo( x,   y, mi   );
     z3 = rawmapinfo( x,   y+1, &md );
     z4 = rawmapinfo( x+1, y+1, &md );
 
-    int zsum;
+    short zsum;
 
     if (abs(z1-z3)<abs(z2-z4))
     {
@@ -168,10 +168,10 @@ void getmapinfo( unsigned short x, unsigned short y, int* z, USTRUCT_MAPINFO* mi
     }
 }
 
-void safe_getmapinfo( unsigned short x, unsigned short y, int* z, USTRUCT_MAPINFO* mi )
+void safe_getmapinfo( unsigned short x, unsigned short y, short* z, USTRUCT_MAPINFO* mi )
 {
     USTRUCT_MAPINFO md;
-    int z1, z2, z3, z4; // quadrants
+    short z1, z2, z3, z4; // quadrants
 
     if (x>=uo_map_width)
         x=uo_map_width-1;
@@ -187,7 +187,7 @@ void safe_getmapinfo( unsigned short x, unsigned short y, int* z, USTRUCT_MAPINF
     z3 = rawmapinfo( x, yp, &md );
     z4 = rawmapinfo( xp, yp, &md );
 
-    int zsum;
+    short zsum;
 
     if (abs(z1-z3)<abs(z2-z4))
     {
