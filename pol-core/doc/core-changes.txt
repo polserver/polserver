@@ -1,4 +1,10 @@
 -- POL099 --
+09-10-2009 Turley:
+    Added:  CompressedGump support packet 0xdd
+    Added:  flag param to SendDialogGump() SENDDIALOGMENU_FORCE_OLD/0 default 0
+    Note:   SendDialogGump sends compressed gump if !SENDDIALOGMENU_FORCE_OLD && clientversion >=5.0.0a else old uncompressed
+    Note:   Patch submitted by Grin
+
 09-09-2009 Turley:
     Added:  ServSpecOpt CarryingCapacityMod (double default 1.0) as * modifier for mobile max_weight
     Note:   Formula is (40 + strength * 7 / 2) * ssopt.CarryingCapacityMod
