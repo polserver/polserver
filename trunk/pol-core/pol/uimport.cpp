@@ -1402,7 +1402,7 @@ void read_starting_locations()
 			int x, y, z;
 			if (sscanf( coord.c_str(), "%d,%d,%d", &x, &y, &z ) == 3)
 			{
-				loc->coords.push_back( Coordinate(x,y,z) );
+				loc->coords.push_back( Coordinate(static_cast<u16>(x),static_cast<u16>(y),static_cast<s8>(z)) );
 			}
 			else
 			{
@@ -1491,10 +1491,10 @@ void read_gameservers()
 						<< endl;
 				throw runtime_error( "Configuration file error." );
 			}
-			svr->ip[0] = ip3;
-			svr->ip[1] = ip2;
-			svr->ip[2] = ip1;
-			svr->ip[3] = ip0;
+			svr->ip[0] = static_cast<unsigned char>(ip3);
+			svr->ip[1] = static_cast<unsigned char>(ip2);
+			svr->ip[2] = static_cast<unsigned char>(ip1);
+			svr->ip[3] = static_cast<unsigned char>(ip0);
 		}
 		else
 		{

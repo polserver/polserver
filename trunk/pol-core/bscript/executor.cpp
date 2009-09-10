@@ -601,6 +601,90 @@ bool Executor::getParam( unsigned param, unsigned& value )
     }
 }
 
+bool Executor::getParam( unsigned param, short& value )
+{
+    BObjectImp* imp = getParamImp2( param, BObjectImp::OTLong );
+    if (imp)
+    {
+        BLong* plong = explicit_cast<BLong*,BObjectImp*>(imp);
+
+        long longvalue = plong->value();
+        if (longvalue >= (long)SHRT_MIN && longvalue <= (long)SHRT_MAX)
+        {
+            value = static_cast<short>(longvalue);
+            return true;
+        }
+        else
+        {
+            string report = "Parameter " + decint(param) + " value " + decint(longvalue) + " out of expected range of [" + decint(SHRT_MIN) +".."
+                + decint(SHRT_MAX) + "]";
+            func_result_ = new BError( report );
+            return false;
+        }
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool Executor::getParam( unsigned param, short& value, short maxval )
+{
+    BObjectImp* imp = getParamImp2( param, BObjectImp::OTLong );
+    if (imp)
+    {
+        BLong* plong = explicit_cast<BLong*,BObjectImp*>(imp);
+
+        long longvalue = plong->value();
+        if (longvalue >= (long)SHRT_MIN && longvalue <= maxval)
+        {
+            value = static_cast<short>(longvalue);
+            return true;
+        }
+        else
+        {
+            string report = "Parameter " + decint(param) + " value " + decint(longvalue) + " out of expected range of [" + decint(SHRT_MIN) +".."
+                + decint(maxval) + "]";
+            func_result_ = new BError( report );
+            return false;
+        }
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool Executor::getParam( unsigned param, 
+                               short& value, 
+                               short minval, 
+                               short maxval )
+{
+    BObjectImp* imp = getParamImp2( param, BObjectImp::OTLong );
+    if (imp)
+    {
+        BLong* plong = explicit_cast<BLong*,BObjectImp*>(imp);
+
+        long longvalue = plong->value();
+        if (longvalue >= minval && longvalue <= maxval)
+        {
+            value = static_cast<short>(longvalue);
+            return true;
+        }
+        else
+        {
+            string report = "Parameter " + decint(param) + " value " + decint(longvalue) + " out of expected range of [" + decint(minval) +".."
+                + decint(maxval) + "]";
+            func_result_ = new BError( report );
+            return false;
+        }
+    }
+    else
+    {
+        return false;
+    }
+}
+
 
 BObjectRef& Executor::LocalVar( unsigned long varnum )
 {

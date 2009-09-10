@@ -304,7 +304,7 @@ protected:
 	BObjectImp* internal_MoveCharacter(Character* chr, xcoord x, ycoord y, zcoord z, long flags, Realm* newrealm);
 	BObjectImp* internal_MoveBoat(UBoat* boat, xcoord x, ycoord y, zcoord z, long flags, Realm* newrealm);
 	BObjectImp* internal_MoveContainer(UContainer* container, xcoord x, ycoord y, zcoord z, long flags, Realm* newrealm);
-	void internal_InBoxAreaChecks(long &x1, long &y1, long &z1, long &x2, long &y2, long &z2, Realm* realm);
+	void internal_InBoxAreaChecks(unsigned short &x1, unsigned short &y1, short &z1, unsigned short &x2, unsigned short &y2, short &z2, Realm* realm);
 	
 private: // not implemented
 	UOExecutorModule( const UOExecutorModule& );

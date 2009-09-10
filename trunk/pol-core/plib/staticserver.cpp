@@ -50,9 +50,9 @@ void StaticServer::Validate() const
 {
 	wallclock_t start = wallclock();
     cout << "Validating statics files: ";
-    for( unsigned y = 0; y < _descriptor.height; y += STATICBLOCK_CHUNK )
+    for( unsigned short y = 0; y < _descriptor.height; y += STATICBLOCK_CHUNK )
     {
-        for( unsigned x = 0; x < _descriptor.width; x += STATICBLOCK_CHUNK )
+        for( unsigned short x = 0; x < _descriptor.width; x += STATICBLOCK_CHUNK )
         {
             ValidateBlock( x, y );
         }
@@ -63,10 +63,10 @@ void StaticServer::Validate() const
     cout << "Completed in " << ms << " ms." << endl;
 }
 
-void StaticServer::ValidateBlock( unsigned x, unsigned y ) const
+void StaticServer::ValidateBlock( unsigned short x, unsigned short y ) const
 {
-    unsigned short x_block = static_cast<unsigned short>(x / STATICBLOCK_CHUNK);
-    unsigned short y_block = static_cast<unsigned short>(y / STATICBLOCK_CHUNK);
+    unsigned short x_block = x / STATICBLOCK_CHUNK;
+    unsigned short y_block = y / STATICBLOCK_CHUNK;
 
     unsigned long block_index = y_block * (_descriptor.width>>STATICBLOCK_SHIFT) + x_block;
     if (block_index+1 >= _index.size())
@@ -83,12 +83,12 @@ void StaticServer::ValidateBlock( unsigned x, unsigned y ) const
     }
 }
 
-bool StaticServer::findstatic( unsigned x, unsigned y, unsigned short objtype ) const
+bool StaticServer::findstatic( unsigned short x, unsigned short y, unsigned short objtype ) const
 {
     passert( x < _descriptor.width && y < _descriptor.height );
 
-    unsigned short x_block = static_cast<unsigned short>(x >> STATICBLOCK_SHIFT);
-    unsigned short y_block = static_cast<unsigned short>(y >> STATICBLOCK_SHIFT);
+    unsigned short x_block = x >> STATICBLOCK_SHIFT;
+    unsigned short y_block = y >> STATICBLOCK_SHIFT;
     unsigned short xy = ((x & STATICCELL_MASK) << 4) | (y & STATICCELL_MASK);
 
     unsigned long block_index = x_block + y_block * (_descriptor.width >> STATICBLOCK_SHIFT);
@@ -110,12 +110,12 @@ bool StaticServer::findstatic( unsigned x, unsigned y, unsigned short objtype ) 
     return false;
 }
 
-void StaticServer::getstatics( StaticEntryList& statics, unsigned x, unsigned y ) const
+void StaticServer::getstatics( StaticEntryList& statics, unsigned short x, unsigned short y ) const
 {
     passert( x < _descriptor.width && y < _descriptor.height );
 
-    unsigned short x_block = static_cast<unsigned short>(x >> STATICBLOCK_SHIFT);
-    unsigned short y_block = static_cast<unsigned short>(y >> STATICBLOCK_SHIFT);
+    unsigned short x_block = x >> STATICBLOCK_SHIFT;
+    unsigned short y_block = y >> STATICBLOCK_SHIFT;
     unsigned short xy = ((x & STATICCELL_MASK) << 4) | (y & STATICCELL_MASK);
 
     unsigned long block_index = x_block + y_block * (_descriptor.width >> STATICBLOCK_SHIFT);

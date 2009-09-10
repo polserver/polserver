@@ -38,40 +38,40 @@ Item* test_chest1;
 Item* test_chest2;
 NPC* test_orclord;
 
-Item* add_item( unsigned short objtype, int x, int y, int z )
+Item* add_item( unsigned short objtype, unsigned short x, unsigned short y, short z )
 {
     Item* item;
     item = Item::create( objtype );
     passert(item);
-    item->x = static_cast<u16>(x);
-    item->y = static_cast<u16>(y);
+    item->x = x;
+    item->y = y;
     item->z = static_cast<s8>(z);
 	item->realm = find_realm(string("britannia"));
     add_item_to_world( item );
     return item;
 }
 
-void add_multi( unsigned short objtype, int x, int y, int z )
+void add_multi( unsigned short objtype, unsigned short x, unsigned short y, short z )
 {
     UMulti* multi = UMulti::create( find_itemdesc(objtype) );
     passert(multi);
-    multi->x = static_cast<u16>(x);
-    multi->y = static_cast<u16>(y);
+    multi->x = x;
+    multi->y = y;
     multi->z = static_cast<s8>(z);
 	multi->realm = find_realm(string("britannia"));
     add_multi_to_world( multi );
 }
-void add_multi( unsigned short objtype, int x, int y, int z, long flags )
+void add_multi( unsigned short objtype, unsigned short x, unsigned short y, short z, long flags )
 {
 	Realm* realm = find_realm(string("britannia"));
-    BObject obj( UMulti::scripted_create( find_itemdesc(objtype), static_cast<u16>(x), static_cast<u16>(y), static_cast<s8>(z), realm, flags ) );
+    BObject obj( UMulti::scripted_create( find_itemdesc(objtype), x, y, static_cast<s8>(z), realm, flags ) );
 }
 
 bool FindNpcTemplate( const char *template_name,
                       ConfigFile& cfile,
                       ConfigElem& elem );
 
-NPC* add_npc( const char* npctype, int x, int y, int z )
+NPC* add_npc( const char* npctype, unsigned short x, unsigned short y, short z )
 {
     ConfigFile cfile;
     ConfigElem elem;
@@ -87,9 +87,9 @@ NPC* add_npc( const char* npctype, int x, int y, int z )
     elem.clear_prop( "Z" );
 
     elem.add_prop( "Serial", GetNextSerialNumber() );
-    elem.add_prop( "X", static_cast<unsigned short>(x) );
-    elem.add_prop( "Y", static_cast<unsigned short>(y) );
-    elem.add_prop( "Z", static_cast<unsigned short>(z) );
+    elem.add_prop( "X", x );
+    elem.add_prop( "Y", y );
+    elem.add_prop( "Z", z );
     npc->readPropertiesForNewNPC( elem );
 
     objecthash.Insert( npc );

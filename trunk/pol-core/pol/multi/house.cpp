@@ -60,8 +60,8 @@ void list_contents( const UHouse* house,
 {
     const MultiDef& md = house->multidef();
     unsigned short wxL, wyL, wxH, wyH;
-    int x1 = house->x + md.minrx, y1 = house->y + md.minry; 
-    int x2 = house->x + md.maxrx, y2 = house->y + md.maxry;
+    short x1 = house->x + md.minrx, y1 = house->y + md.minry; 
+    short x2 = house->x + md.maxrx, y2 = house->y + md.maxry;
     zone_convert_clip( x1, y1, house->realm, wxL, wyL );
     zone_convert_clip( x2, y2, house->realm, wxH, wyH );
     for( unsigned short wx = wxL; wx <= wxH; ++wx )
@@ -77,7 +77,7 @@ void list_contents( const UHouse* house,
                 {
                     Item* walkon;
                     UMulti* multi;
-                    int newz;
+                    short newz;
                     if (house->realm->walkheight( chr, chr->x, chr->y, chr->z, &newz, &multi, &walkon ))
                     {
                         if (const_cast<const UMulti*>(multi) == house)
@@ -95,7 +95,7 @@ void list_contents( const UHouse* house,
                 {
                     Item* walkon;
                     UMulti* multi;
-                    int newz;
+                    short newz;
                     unsigned short sx = item->x;
                     unsigned short sy = item->y;
                     item->x = 0;    // move 'self' a bit so it doesn't interfere with itself
@@ -386,12 +386,12 @@ void UHouse::readProperties( ConfigElem& elem )
     custom = elem.remove_bool("Custom",false);
     if(custom)
     {
-        int ysize,xsize,xbase,ybase;
+        short ysize,xsize,xbase,ybase;
         const MultiDef& def = multidef();
         ysize = def.maxry - def.minry + 1; //+1 to include offset 0 in -3..3
         xsize = def.maxrx - def.minrx + 1; //+1 to include offset 0 in -3..3
-        xbase = abs(def.minrx);
-        ybase = abs(def.minry);
+        xbase = (short)abs(def.minrx);
+        ybase = (short)abs(def.minry);
         CurrentDesign.InitDesign(ysize+1,xsize,xbase,ybase); //+1 for front steps outside multidef footprint
         WorkingDesign.InitDesign(ysize+1,xsize,xbase,ybase); //+1 for front steps outside multidef footprint
         BackupDesign.InitDesign(ysize+1,xsize,xbase,ybase); //+1 for front steps outside multidef footprint
@@ -441,7 +441,7 @@ void UHouse::destroy_components()
     }
 }
 
-bool UHouse::readshapes( MapShapeList& vec, int x, int y, int zbase )
+bool UHouse::readshapes( MapShapeList& vec, unsigned short x, unsigned short y, short zbase )
 {
     if(!custom)
         return false;
@@ -477,7 +477,7 @@ bool UHouse::readshapes( MapShapeList& vec, int x, int y, int zbase )
     
 }
 
-bool UHouse::readobjects( StaticList& vec, int x, int y, int zbase )
+bool UHouse::readobjects( StaticList& vec, unsigned short x, unsigned short y, short zbase )
 {
     if(!custom)
         return false;
@@ -496,7 +496,7 @@ bool UHouse::readobjects( StaticList& vec, int x, int y, int zbase )
         elems = design->Elements[i].GetElementsAt(x,y);
         for(itr = elems->begin(); itr != elems->end(); ++itr)
         {
-            StaticRec rec(itr->graphic, itr->z+zbase, tile_flags( itr->graphic ), tileheight( itr->graphic ));
+            StaticRec rec(itr->graphic, static_cast<signed char>(itr->z+zbase), tile_flags( itr->graphic ), tileheight( itr->graphic ));
             if (!rec.height)
             {
                 ++rec.height;
@@ -598,7 +598,7 @@ bool multis_exist_in( unsigned short mywest, unsigned short mynorth,
     return false;
 }
 
-bool objects_exist_in( int x1, int y1, int x2, int y2, Realm* realm )
+bool objects_exist_in( unsigned short x1, unsigned short y1, unsigned short x2, unsigned short y2, Realm* realm )
 {
     unsigned short wxL, wyL, wxH, wyH;
     zone_convert_clip( x1, y1, realm, wxL, wyL );
@@ -641,7 +641,7 @@ bool statics_cause_problems( unsigned short x1, unsigned short y1,
     {
         for( unsigned short y = y1; y <= y2; ++y )
         {
-            int newz;
+            short newz;
             UMulti* multi;
             Item* item;
             if (!realm->walkheight( x, y, z, &newz, &multi, &item, true, MOVEMODE_LAND ))
@@ -724,13 +724,13 @@ void move_to_ground( Item* item )
     item->movable(true);
     item->set_decay_after( 60 ); // just a dummy in case decay=0
     item->restart_decay_timer();
-    for( int xd = 0; xd < 5; ++xd )
+    for( unsigned short xd = 0; xd < 5; ++xd )
     {
-        for( int yd = 0; yd < 5; ++yd )
+        for( unsigned short yd = 0; yd < 5; ++yd )
         {
             Item* walkon;
             UMulti* multi;
-            int newz;
+            short newz;
             unsigned short sx = item->x;
             unsigned short sy = item->y;
             item->x = 0;    // move 'self' a bit so it doesn't interfere with itself
@@ -740,15 +740,15 @@ void move_to_ground( Item* item )
             item->y = sy;
             if (res)
             {
-                move_item( item, item->x+xd, item->y+yd, newz, NULL );
+                move_item( item, item->x+xd, item->y+yd, static_cast<signed char>(newz), NULL );
                 return;
             }
         }
     }
-    int newz;
+    short newz;
     if (item->realm->groundheight( item->x, item->y, &newz ))
     {
-        move_item( item, item->x, item->y, newz, NULL ); 
+        move_item( item, item->x, item->y, static_cast<signed char>(newz), NULL ); 
         return;
     }
 }

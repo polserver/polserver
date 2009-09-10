@@ -24,11 +24,11 @@ const unsigned WORLD_MAX_X = 6142;
 const unsigned WORLD_MIN_Y = 0;
 const unsigned WORLD_MAX_Y = 4094;
 
-inline bool VALID_WORLD_LOC( long x, long y, Realm* realm )
+inline bool VALID_WORLD_LOC( unsigned short x, unsigned short y, Realm* realm )
 {
 	return realm->valid(x,y,0);
 }
-inline bool VALID_WORLD_LOC( long x, long y, long z, Realm* realm )
+inline bool VALID_WORLD_LOC( unsigned short x, unsigned short y, short z, Realm* realm )
 {
 	return realm->valid(x,y,z);
 }

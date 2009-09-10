@@ -200,9 +200,9 @@ void ResourceDef::counttiles()
 	std::vector<Realm*>::iterator itr;
 	for( itr = Realms->begin(); itr != Realms->end(); ++itr )
 	{
-		for( unsigned x = 0; x < (*itr)->width(); ++x )
+		for( unsigned short x = 0; x < (*itr)->width(); ++x )
 		{
-			for( unsigned y = 0; y < (*itr)->height(); ++y )
+			for( unsigned short y = 0; y < (*itr)->height(); ++y )
 			{
 				MAPTILE_CELL cell = (*itr)->getmaptile( x, y );
 

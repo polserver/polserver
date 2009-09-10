@@ -60,8 +60,8 @@ public:
     virtual class BObjectImp* get_script_member_id( const int id ) const; 
 
 	BStruct* footprint() const;
-    virtual bool readshapes( MapShapeList& vec, int rx, int ry, int zbase ){return false;};
-    virtual bool readobjects( StaticList& vec, int rx, int ry, int zbase ){return false;};
+    virtual bool readshapes( MapShapeList& vec, s16 rx, s16 ry, s16 zbase ){return false;};
+    virtual bool readobjects( StaticList& vec, s16 rx, s16 ry, s16 zbase ){return false;};
 protected:
     explicit UMulti(const ItemDesc& itemdesc );
     virtual ~UMulti();
