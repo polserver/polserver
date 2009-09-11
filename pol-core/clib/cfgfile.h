@@ -12,15 +12,15 @@ Notes
 #define CLIB_CFGFILE_H
 
 #ifdef _MSC_VER
-#pragma warning( disable: 4786 )
+#	pragma warning( disable: 4786 )
 #endif
 
 #define CFGFILE_USES_IOSTREAMS 0
 
 #if CFGFILE_USES_IOSTREAMS
-#include <fstream>
+#	include <fstream>
 #else
-#include <stdio.h>
+#	include <stdio.h>
 #endif
 
 #include <set>

@@ -12,7 +12,6 @@ Notes
 
 #include <stdexcept>
 
-
 // set_terminate
 // set_unexpected
 // set_se_handler

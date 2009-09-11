@@ -13,21 +13,25 @@ Notes
 */
 
 #include "stl_inc.h"
+
 #ifdef MEMORYLEAK
-#include "mlog.h"
+#	include "mlog.h"
 #endif
 
 #include <stdexcept>
-#ifdef _WIN32
-#include <malloc.h>
-#endif
-#ifdef __linux__
-#include <malloc.h>
-#endif
-#ifdef MEMORYLEAK
-#include <time.h>
 
-#define MEMORYLOGBLOCKS 0
+#ifdef _WIN32
+#	include <malloc.h>
+#endif
+
+#ifdef __linux__
+#	include <malloc.h>
+#endif
+
+#ifdef MEMORYLEAK
+#	include <time.h>
+
+#	define MEMORYLOGBLOCKS 0
 #endif
 
 static unsigned long bytes_allocated       = 0;
