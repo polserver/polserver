@@ -11,7 +11,7 @@ Notes
 #ifndef REFTYPES_H
 #define REFTYPES_H
 
-#include "clib/refptr.h"
+#include "../clib/refptr.h"
 
 #ifdef NDEBUG
  // release mode

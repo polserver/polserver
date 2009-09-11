@@ -14,7 +14,7 @@ Notes
 #ifndef __BSCRIPT_FILEFMT_H
 #define __BSCRIPT_FILEFMT_H
 
-#include "clib/rawtypes.h"
+#include "../clib/rawtypes.h"
 
 #ifdef _MSC_VER
 #pragma pack(push,1)

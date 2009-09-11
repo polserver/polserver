@@ -18,7 +18,7 @@ This file is for packet structs who sent by server.
 #ifndef __PKTOUTH
 #define __PKTOUTH
 
-#include "clib/rawtypes.h"
+#include "../clib/rawtypes.h"
 #include "layers.h"
 #include "pktoutid.h"
 #include "pktdef.h"

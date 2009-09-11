@@ -12,7 +12,7 @@ Notes
 #define BSCRIPT_BSTRUCT_H
 
 #include "bobject.h"
-#include "clib/maputil.h"
+#include "../clib/maputil.h"
 
 class BStruct : public BObjectImp
 {

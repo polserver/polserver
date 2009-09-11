@@ -7,12 +7,12 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
 #include <stdlib.h>
 #include <string.h>
 
-#include "clib/stlutil.h"
+#include "../clib/stlutil.h"
 
 #include "berror.h"
 #include "bobject.h"

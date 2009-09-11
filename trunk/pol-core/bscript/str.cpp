@@ -10,7 +10,7 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
 #include <stdlib.h>
 #include <string.h>

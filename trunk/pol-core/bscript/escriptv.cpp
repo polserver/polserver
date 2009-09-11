@@ -8,9 +8,10 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
 #include "escriptv.h"
+
 bool ecompile_include_debug_sections;
 int include_debug;
 

@@ -14,14 +14,14 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
-#include "clib/clib.h"
-#include "clib/logfile.h"
-#include "clib/mlog.h"
-#include "clib/passert.h"
-#include "clib/stlutil.h"
-#include "clib/strutil.h"
+#include "../clib/clib.h"
+#include "../clib/logfile.h"
+#include "../clib/mlog.h"
+#include "../clib/passert.h"
+#include "../clib/stlutil.h"
+#include "../clib/strutil.h"
 
 #include "berror.h"
 #include "config.h"

@@ -7,12 +7,12 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
 // EPROG compiler-only functions
-#include "clib/clib.h"
-#include "clib/passert.h"
-#include "clib/stlutil.h"
+#include "../clib/clib.h"
+#include "../clib/passert.h"
+#include "../clib/stlutil.h"
 
 #include "escriptv.h"
 #include "filefmt.h"
