@@ -9,11 +9,12 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
+
 #include "dict.h"
 #include "executor.h"
 
-#include "clib/stlutil.h"
+#include "../clib/stlutil.h"
 
 #include "berror.h"
 #include "impstr.h"

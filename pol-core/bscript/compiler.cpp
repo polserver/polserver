@@ -20,7 +20,7 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
 #ifdef WIN32
 #	pragma warning(disable:4786)
@@ -34,13 +34,13 @@ Notes
 #	include <unistd.h>
 #endif
 
-#include "clib/clib.h"
-#include "clib/filecont.h"
-#include "clib/fileutil.h"
-#include "clib/stlutil.h"
-#include "clib/strutil.h"
+#include "../clib/clib.h"
+#include "../clib/filecont.h"
+#include "../clib/fileutil.h"
+#include "../clib/stlutil.h"
+#include "../clib/strutil.h"
 
-#include "plib/pkg.h"
+#include "../plib/pkg.h"
 
 #include "compctx.h"
 #include "compilercfg.h"
@@ -53,7 +53,7 @@ Notes
 #include "parser.h"
 #include "userfunc.h"
 #include "compiler.h"
-#include "clib/xmain.h"
+#include "../clib/xmain.h"
 
 #include "objmembers.h"
 

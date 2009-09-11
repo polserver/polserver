@@ -7,12 +7,12 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
-#include "clib/cfgfile.h"
-#include "clib/cfgelem.h"
-#include "clib/dirlist.h"
-#include "clib/xmain.h"
+#include "../clib/cfgfile.h"
+#include "../clib/cfgelem.h"
+#include "../clib/dirlist.h"
+#include "../clib/xmain.h"
 
 #include "compilercfg.h"
 

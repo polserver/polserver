@@ -12,7 +12,7 @@ Notes
 #define __UTYPE_H
 
 #ifndef CLIB_RAWTYPES_H
-#include "clib/rawtypes.h"
+#include "../clib/rawtypes.h"
 #endif
 
 // I'm thinking of using these as parameters to functions, and as the
