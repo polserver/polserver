@@ -25,7 +25,7 @@ Notes
 #endif
 
 #include "eprog.h"
-#include "clib/maputil.h"
+#include "../clib/maputil.h"
 
 #ifdef WIN32
 #pragma warning(disable:4786)

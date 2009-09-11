@@ -8,15 +8,15 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
 #include <assert.h>
 #include <stddef.h>
 
-#include "clib/clib.h"
-#include "clib/endian.h"
-#include "clib/logfile.h"
-#include "clib/passert.h"
+#include "../clib/clib.h"
+#include "../clib/endian.h"
+#include "../clib/logfile.h"
+#include "../clib/passert.h"
 
 #include "mobile/charactr.h"
 #include "network/client.h"

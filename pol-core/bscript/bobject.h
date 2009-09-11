@@ -17,11 +17,11 @@ Notes
 #pragma warning(disable:4786)
 #endif
 
-#include "clib/clib.h"
-#include "clib/fixalloc.h"
-#include "clib/passert.h"
+#include "../clib/clib.h"
+#include "../clib/fixalloc.h"
+#include "../clib/passert.h"
 
-#include "clib/refptr.h"
+#include "../clib/refptr.h"
 #include "escriptv.h"
 
 class BObjectImp;

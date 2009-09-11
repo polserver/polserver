@@ -13,7 +13,7 @@ Notes
 #define __UOBJECT_H
 
 #ifdef _MSC_VER
-#pragma warning( disable: 4786 )
+#	pragma warning( disable: 4786 )
 #endif
 
 #include <iosfwd>
@@ -23,14 +23,14 @@ Notes
 #define pf_endl '\n'
 
 #ifndef __UCONST_H
-#include "uconst.h"
+#	include "uconst.h"
 #endif
 
 #ifndef __CLIB_RAWTYPES_H
-#include "clib/rawtypes.h"
+#	include "clib/rawtypes.h"
 #endif
 
-#include "clib/refptr.h"
+#include "../clib/refptr.h"
 #include "proplist.h"
 
 class BObjectImp;
