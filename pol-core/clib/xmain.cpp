@@ -17,8 +17,8 @@ Notes
 #include "xmain.h"
 
 #ifdef _WIN32
-  #include <windows.h> // for GetModuleFileName
-  #include <crtdbg.h>
+#	include <windows.h> // for GetModuleFileName
+#	include <crtdbg.h>
 #endif
 
 unsigned long refptr_count;

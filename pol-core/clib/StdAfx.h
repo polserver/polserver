@@ -18,7 +18,7 @@ stdafx.h : include file for standard system include files,
 #	define AFX_STDAFX_H__A572F903_DA2C_11D6_BC99_00AA006409CA__INCLUDED_
 
 #	if _MSC_VER > 1000
-#	pragma once
+#		pragma once
 #	endif // _MSC_VER > 1000
 
 #	define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
