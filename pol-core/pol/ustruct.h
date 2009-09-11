@@ -11,15 +11,15 @@ Notes
 #ifndef __USTRUCT_H
 #define __USTRUCT_H
 
-#include "clib/rawtypes.h"
+#include "../clib/rawtypes.h"
 
 #ifdef _MSC_VER
-#pragma pack( push, 1 )
+#	pragma pack( push, 1 )
 #else
-/* Ok, my build of GCC supports this, yay! */
-#undef POSTSTRUCT_PACK
-#define POSTSTRUCT_PACK
-#pragma pack(1)
+	/* Ok, my build of GCC supports this, yay! */
+#	undef POSTSTRUCT_PACK
+#	define POSTSTRUCT_PACK
+#	pragma pack(1)
 #endif
 
 struct USTRUCT_VERSION

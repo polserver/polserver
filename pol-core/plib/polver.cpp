@@ -13,8 +13,8 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
-#include "clib/progver.h"
+#include "../clib/stl_inc.h"
+#include "../clib/progver.h"
 #include "polver.h"
 
 const char polverstr[] = "POL099beta-2009-04-14";

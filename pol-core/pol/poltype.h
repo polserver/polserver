@@ -11,7 +11,7 @@ Notes
 #ifndef POLTYPE_H
 #define POLTYPE_H
 
-#include "clib/rawtypes.h"
+#include "../clib/rawtypes.h"
 
 // X, Y minimums will always be zero.
 const short XCOORD_MIN = 0;

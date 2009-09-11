@@ -7,9 +7,10 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
+
 #ifdef _MSC_VER
-#pragma warning( disable: 4786 )
+#	pragma warning( disable: 4786 )
 #endif
 
 
@@ -18,9 +19,9 @@ Notes
 #include <string.h>
 #include <math.h>
 
-#include "clib/passert.h"
+#include "../clib/passert.h"
 
-#include "plib/mapfunc.h"
+#include "../plib/mapfunc.h"
 
 #include "objtype.h"
 #include "polcfg.h"

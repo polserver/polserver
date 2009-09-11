@@ -7,7 +7,7 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
 #include "maptile.h"
 #include "maptileserver.h"

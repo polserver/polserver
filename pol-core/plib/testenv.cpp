@@ -8,24 +8,24 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
 #include <assert.h>
 
-#include "clib/cfgfile.h"
-#include "clib/cfgelem.h"
-#include "clib/passert.h"
-#include "plib/realm.h"
+#include "../clib/cfgfile.h"
+#include "../clib/cfgelem.h"
+#include "../clib/passert.h"
+#include "../plib/realm.h"
 
-#include "pol/item/item.h"
-#include "pol/item/itemdesc.h"
-#include "pol/multi/multi.h"
-#include "pol/npc.h"
-#include "pol/objecthash.h"
-#include "pol/realms.h"
-#include "pol/ufunc.h"
-#include "pol/uvars.h"
-#include "pol/uworld.h"
+#include "../pol/item/item.h"
+#include "../pol/item/itemdesc.h"
+#include "../pol/multi/multi.h"
+#include "../pol/npc.h"
+#include "../pol/objecthash.h"
+#include "../pol/realms.h"
+#include "../pol/ufunc.h"
+#include "../pol/uvars.h"
+#include "../pol/uworld.h"
 
 NPC* test_banker;
 NPC* test_banker2;

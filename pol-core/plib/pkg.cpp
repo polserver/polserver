@@ -7,15 +7,15 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
-#include "clib/cfgelem.h"
-#include "clib/cfgfile.h"
-#include "clib/dirlist.h"
-#include "clib/fileutil.h"
-#include "clib/maputil.h"
-#include "clib/passert.h"
-#include "clib/stlutil.h"
-#include "clib/strutil.h"
+#include "../clib/stl_inc.h"
+#include "../clib/cfgelem.h"
+#include "../clib/cfgfile.h"
+#include "../clib/dirlist.h"
+#include "../clib/fileutil.h"
+#include "../clib/maputil.h"
+#include "../clib/passert.h"
+#include "../clib/stlutil.h"
+#include "../clib/strutil.h"
 
 #include "pkg.h"
 #include "polver.h"
