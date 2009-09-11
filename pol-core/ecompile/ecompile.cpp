@@ -7,32 +7,34 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
 #ifdef WIN32
-#pragma warning(disable:4786)
+#	pragma warning(disable:4786)
 #endif
+
+#include "../clib/xmain.h"
 
 #include <string.h>
 #include <stdio.h>
 #include <time.h>
 
-#include "clib/clib.h"
-#include "clib/dirlist.h"
-#include "clib/fileutil.h"
-#include "clib/mdump.h"
-#include "clib/progver.h"
-#include "clib/wallclock.h"
+#include "../clib/clib.h"
+#include "../clib/dirlist.h"
+#include "../clib/fileutil.h"
+#include "../clib/mdump.h"
+#include "../clib/progver.h"
+#include "../clib/wallclock.h"
 
-#include "plib/pkg.h"
+#include "../plib/pkg.h"
 
-#include "bscript/compilercfg.h"
-#include "bscript/filefmt.h"
-#include "bscript/userfunc.h"
-#include "bscript/compiler.h"
-#include "bscript/escriptv.h"
-#include "bscript/executor.h"
-#include "bscript/userfunc.h"
+#include "../bscript/compilercfg.h"
+#include "../bscript/filefmt.h"
+#include "../bscript/userfunc.h"
+#include "../bscript/compiler.h"
+#include "../bscript/escriptv.h"
+#include "../bscript/executor.h"
+#include "../bscript/userfunc.h"
 
 ExecInstrFunc Executor::GetInstrFunc( const Token& token )
 {
@@ -648,8 +650,6 @@ bool run(int argc, char **argv)
 
     return any;
 }
-
-#include "clib/xmain.h"
 
 void read_config_file( int argc, char* argv[])
 {

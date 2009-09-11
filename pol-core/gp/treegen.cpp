@@ -7,12 +7,12 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
 #include <math.h>
 
-#include "bscript/eprog.h"
-#include "clib/random.h"
+#include "../bscript/eprog.h"
+#include "../clib/random.h"
 
 #include "tree.h"
 #include "gphelp.h"

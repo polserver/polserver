@@ -1,3 +1,13 @@
+/*
+History
+=======
+
+
+Notes
+=======
+
+*/
+
 #ifndef CLIB_TRACEBUF_H
 #define CLIB_TRACEBUF_H
 

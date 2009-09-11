@@ -2,9 +2,9 @@
 #define __WNSCKT_H__
 
 #ifdef _WIN32
-#include <winsock.h>
+#	include <winsock.h>
 #else
-#include <sys/socket.h>
+#	include <sys/socket.h>
 #endif
 
 

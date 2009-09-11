@@ -11,7 +11,7 @@ Notes
 #define __DRARRAY_H
 
 #ifndef __STDIO_H
-#include <stdio.h>
+#	include <stdio.h>
 #endif
 
 /* GenDRArray - direct resizing array
