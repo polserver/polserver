@@ -12,7 +12,7 @@ so that something referencing the first element won't reference offset 0.
 #ifndef PLIB_MAPBLOB_H
 #define PLIB_MAPBLOB_H
 
-#include "clib/compileassert.h"
+#include "../clib/compileassert.h"
 
 #define SOLIDX_X_SIZE 16
 #define SOLIDX_X_SHIFT 4

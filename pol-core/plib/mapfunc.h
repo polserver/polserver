@@ -11,7 +11,7 @@ Notes
 #ifndef PLIB_MAPFUNC_H
 #define PLIB_MAPFUNC_H
 
-#include "clib/rawtypes.h"
+#include "../clib/rawtypes.h"
 
 class ConfigElem;
 

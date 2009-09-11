@@ -25,12 +25,12 @@ using std::string;
 #include <stdio.h>
 #include <string.h>
 
-#include "pol/polcfg.h"
-#include "pol/udatfile.h"
-#include "pol/ustruct.h"
+#include "../pol/polcfg.h"
+#include "../pol/udatfile.h"
+#include "../pol/ustruct.h"
 
-#include "pol/uofile.h"
-#include "pol/uofilei.h"
+#include "../pol/uofile.h"
+#include "../pol/uofilei.h"
 
 std::set<unsigned long> water;
 

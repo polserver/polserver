@@ -7,12 +7,12 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
 #include <stdio.h>
 #include <string.h>
 
-#include "clib/passert.h"
+#include "../clib/passert.h"
 
 #include "polcfg.h"
 #include "polfile.h"

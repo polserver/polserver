@@ -9,17 +9,17 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
-#include "clib/cfgelem.h"
-#include "clib/passert.h"
+#include "../clib/cfgelem.h"
+#include "../clib/passert.h"
 
-#include "plib/mapcell.h"
-#include "plib/mapshape.h"
-#include "plib/realm.h"
+#include "../plib/mapcell.h"
+#include "../plib/mapshape.h"
+#include "../plib/realm.h"
 
-#include "pol/uconst.h"
-#include "pol/ustruct.h"
+#include "../pol/uconst.h"
+#include "../pol/ustruct.h"
 
 #include "mapserver.h"
 
@@ -119,30 +119,54 @@ u32 polflags_from_tileflags( unsigned short tile, u32 uoflags, bool use_no_shoot
         mapflags |= FLAG::DESC_PREPEND_AN;
     }
 
-    if (use_no_shoot)
-	{
-		if ((uoflags & USTRUCT_TILE::FLAG_WALL) &&
-			(uoflags & (USTRUCT_TILE::FLAG_BLOCKING | USTRUCT_TILE::FLAG_DOOR))
-			)
-			mapflags |= FLAG::BLOCKSIGHT;
-      
-		if (uoflags & USTRUCT_TILE::FLAG_NO_SHOOT)
-			mapflags |= FLAG::BLOCKSIGHT;
-    
-		if (!LOS_through_windows)
-		{
-			if ((uoflags & USTRUCT_TILE::FLAG_WINDOW) &&
-				(uoflags & USTRUCT_TILE::FLAG_WALL)
-				)
-				mapflags |= FLAG::BLOCKSIGHT;
-		} else
-		{
-			if  (uoflags & USTRUCT_TILE::FLAG_WINDOW)
-				mapflags &= ~FLAG::BLOCKSIGHT;
-		}
-	}
-	else
-	{
+    if (use_no_shoot)
+
+	{
+
+		if ((uoflags & USTRUCT_TILE::FLAG_WALL) &&
+
+			(uoflags & (USTRUCT_TILE::FLAG_BLOCKING | USTRUCT_TILE::FLAG_DOOR))
+
+			)
+
+			mapflags |= FLAG::BLOCKSIGHT;
+
+      
+
+		if (uoflags & USTRUCT_TILE::FLAG_NO_SHOOT)
+
+			mapflags |= FLAG::BLOCKSIGHT;
+
+    
+
+		if (!LOS_through_windows)
+
+		{
+
+			if ((uoflags & USTRUCT_TILE::FLAG_WINDOW) &&
+
+				(uoflags & USTRUCT_TILE::FLAG_WALL)
+
+				)
+
+				mapflags |= FLAG::BLOCKSIGHT;
+
+		} else
+
+		{
+
+			if  (uoflags & USTRUCT_TILE::FLAG_WINDOW)
+
+				mapflags &= ~FLAG::BLOCKSIGHT;
+
+		}
+
+	}
+
+	else
+
+	{
+
 		if ((uoflags & USTRUCT_TILE::FLAG_WALL) &&
 			(~uoflags & USTRUCT_TILE::FLAG_BLOCKING) &&
 			(uoflags & USTRUCT_TILE::FLAG_DOOR))

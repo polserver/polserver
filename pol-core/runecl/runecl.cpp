@@ -7,7 +7,7 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
 #ifdef _WIN32
 #	include <windows.h>
@@ -25,21 +25,21 @@ Notes
 #include <iostream>
 #include <iomanip>
 
-#include "clib/clib.h"
-#include "clib/progver.h"
-#include "clib/rstack.h"
+#include "../clib/clib.h"
+#include "../clib/progver.h"
+#include "../clib/rstack.h"
 
-#include "bscript/config.h"
-#include "bscript/eprog.h"
-#include "bscript/escriptv.h"
-#include "bscript/filefmt.h"
-#include "bscript/tokens.h"
-#include "bscript/symcont.h"
-#include "bscript/token.h"
-#include "bscript/execmodl.h"
-#include "bscript/executor.h"
+#include "../bscript/config.h"
+#include "../bscript/eprog.h"
+#include "../bscript/escriptv.h"
+#include "../bscript/filefmt.h"
+#include "../bscript/tokens.h"
+#include "../bscript/symcont.h"
+#include "../bscript/token.h"
+#include "../bscript/execmodl.h"
+#include "../bscript/executor.h"
 
-#include "clib/cmdargs.h"
+#include "../clib/cmdargs.h"
 
 #include "../pol/module/basicmod.h"
 #include "../pol/module/basiciomod.h"

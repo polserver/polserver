@@ -14,7 +14,7 @@ Notes
 #include <string>
 #include <vector>
 
-#include "plib/realm.h"
+#include "../plib/realm.h"
 #include "poltype.h"
 #include "wrldsize.h"
 
