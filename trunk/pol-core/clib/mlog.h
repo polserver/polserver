@@ -13,6 +13,6 @@ Notes
 
 extern ofstream mlog;
 #ifdef MEMORYLEAK
-extern ofstream llog;
-extern bool memoryleak_debug;
+	extern ofstream llog;
+	extern bool memoryleak_debug;
 #endif

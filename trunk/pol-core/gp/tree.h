@@ -14,7 +14,7 @@ Notes
 #include <string>
 #include <vector>
 
-#include "bscript/token.h"
+#include "../bscript/token.h"
 
 extern long n_GIndividual;
 extern long n_GPopulation;

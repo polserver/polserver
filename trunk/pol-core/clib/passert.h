@@ -13,15 +13,15 @@ Notes
 #define CLIB_PASSERT_H
 
 #ifndef INC_PASSERT
-#define INC_PASSERT 0
+#	define INC_PASSERT 0
 #endif
 
 #ifndef INC_PASSERT_PARANOID
-#ifdef NDEBUG
-#define INC_PASSERT_PARANOID 0
-#else
-#define INC_PASSERT_PARANOID INC_PASSERT
-#endif
+#	ifdef NDEBUG
+#		define INC_PASSERT_PARANOID 0
+#	else
+#		define INC_PASSERT_PARANOID INC_PASSERT
+#	endif
 #endif
 
 extern bool passert_disabled;

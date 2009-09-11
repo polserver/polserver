@@ -1,13 +1,20 @@
-// History
-//   2006/09/16 Shinigami: fixed Memory Overwrite Bug in convertArrayToUC
+/*
+History
+=======
+2006/09/16 Shinigami: fixed Memory Overwrite Bug in convertArrayToUC
+
+Notes
+=======
+
+*/
 
 #ifndef CLIB_UNICODE_H
 #define CLIB_UNICODE_H
 
 #include <string>
 
-#include "bscript/bobject.h"
-#include "pol/utype.h"
+#include "../bscript/bobject.h"
+#include "../pol/utype.h"
 
 //std::string toascii( const std::wstring& wstr );
 //std::wstring tounicode( const std::string& str );

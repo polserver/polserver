@@ -20,8 +20,8 @@ Notes
 #include "threadhelp.h"
 
 #ifdef _WIN32
-#include <windows.h>
-#include "mdumpimp.h"    
+#	include <windows.h>
+#	include "mdumpimp.h"    
 #endif
 
 bool passert_disabled = true;

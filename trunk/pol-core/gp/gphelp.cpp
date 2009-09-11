@@ -7,10 +7,10 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
-#include "bscript/token.h"
+#include "../clib/stl_inc.h"
+#include "../bscript/token.h"
 
-#include "gp/gphelp.h"
+#include "gphelp.h"
 #include "tree.h"
 
 Token MakeFunctionToken( unsigned module, unsigned funcidx )

@@ -8,10 +8,10 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "stl_inc.h"
 
-#include "clib/endian.h"
-#include "clib/unicode.h"
+#include "endian.h"
+#include "unicode.h"
 
 // Warning: Make sure that your buffer if large enough! Don't forget to add space for null terminator if requested.
 bool convertArrayToUC(ObjArray*& in_text, u16* out_wtext,

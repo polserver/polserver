@@ -15,32 +15,32 @@ Notes
 #include <stdio.h>
 
 #ifdef _WIN32
-#include <windows.h>
-#include <winsock.h>
-#define SOCKET_ERRNO(x) WSA##x
-#define socket_errno WSAGetLastError()
-typedef int socklen_t;
+#	include <windows.h>
+#	include <winsock.h>
+#	define SOCKET_ERRNO(x) WSA##x
+#	define socket_errno WSAGetLastError()
+	typedef int socklen_t;
 
 #else
 
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#include <arpa/inet.h>
-#include <sys/socket.h>
-#include <sys/time.h>
-#include <sys/types.h>
-#include <netdb.h>
-#include <sys/time.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <errno.h>
-#define SOCKET_ERRNO(x) x
-#define socket_errno errno
+#	include <netinet/in.h>
+#	include <netinet/tcp.h>
+#	include <arpa/inet.h>
+#	include <sys/socket.h>
+#	include <sys/time.h>
+#	include <sys/types.h>
+#	include <netdb.h>
+#	include <sys/time.h>
+#	include <unistd.h>
+#	include <fcntl.h>
+#	include <errno.h>
+#	define SOCKET_ERRNO(x) x
+#	define socket_errno errno
 
-typedef int SOCKET;
-#ifndef INVALID_SOCKET
-#define INVALID_SOCKET (SOCKET)(-1)
-#endif
+	typedef int SOCKET;
+#	ifndef INVALID_SOCKET
+#		define INVALID_SOCKET (SOCKET)(-1)
+#	endif
 
 #endif
 
