@@ -17,7 +17,7 @@ class ExecutorModule;
 class UserFunction;
 
 #include "options.h"
-#include "clib/maputil.h"
+#include "../clib/maputil.h"
 
 
 class ModuleFunction

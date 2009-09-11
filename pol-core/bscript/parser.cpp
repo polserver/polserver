@@ -31,7 +31,7 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
 
 #include <stdlib.h>
@@ -40,10 +40,10 @@ Notes
 #include <stddef.h>
 #include <stdio.h>
 
-#include "clib/clib.h"
-#include "clib/maputil.h"
-#include "clib/rstack.h"
-#include "clib/strutil.h"
+#include "../clib/clib.h"
+#include "../clib/maputil.h"
+#include "../clib/rstack.h"
+#include "../clib/strutil.h"
 
 #include "compilercfg.h"
 #include "fmodule.h"

@@ -10,13 +10,11 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
-
-
-#include "clib/clib.h"
-#include "clib/stlutil.h"
-#include "clib/random.h"
+#include "../clib/clib.h"
+#include "../clib/stlutil.h"
+#include "../clib/random.h"
 
 #include "berror.h"
 #include "bobject.h"

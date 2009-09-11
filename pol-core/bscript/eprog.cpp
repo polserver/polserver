@@ -7,11 +7,11 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
 #include <stdio.h>
 
-#include "clib/stlutil.h"
+#include "../clib/stlutil.h"
 
 #include "filefmt.h"
 

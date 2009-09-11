@@ -10,11 +10,11 @@ Notes
 
 #include <math.h>
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
-#include "bscript/bobject.h"
-#include "bscript/escrutil.h"
-#include "bscript/impstr.h"
+#include "bobject.h"
+#include "escrutil.h"
+#include "impstr.h"
 
 bool could_be_a_number( const char* s )
 {

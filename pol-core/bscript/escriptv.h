@@ -11,7 +11,7 @@ Notes
 #ifndef BSCRIPT_ESCRIPTV_H
 #define BSCRIPT_ESCRIPTV_H
 
-#include "clib/rawtypes.h"
+#include "../clib/rawtypes.h"
 
 extern int include_debug;
 

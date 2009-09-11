@@ -13,5 +13,5 @@ Notes
 	stdafx.obj will contain the pre-compiled type information
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 

@@ -117,7 +117,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="&quot;..\..\lib\STLport5\stlport&quot;;.."
+				AdditionalIncludeDirectories="&quot;..\..\lib\STLport5\stlport&quot;;"
 				PreprocessorDefinitions="NDEBUG,WIN32,_LIB,INC_PASSERT"
 				StringPooling="true"
 				RuntimeLibrary="0"

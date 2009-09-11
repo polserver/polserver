@@ -14,7 +14,7 @@ This file is for packet structs who sent by client.
 #ifndef __PKTINH
 #define __PKTINH
 
-#include "clib/rawtypes.h"
+#include "../clib/rawtypes.h"
 #include "layers.h"
 #include "pktinid.h"
 #include "pktdef.h"

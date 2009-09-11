@@ -12,8 +12,8 @@ Notes
 
 #include <stdio.h>
 
-#include "clib/passert.h"
-#include "clib/rawtypes.h"
+#include "../clib/passert.h"
+#include "../clib/rawtypes.h"
 
 #ifndef __TOKENS_H
 #include "tokens.h"

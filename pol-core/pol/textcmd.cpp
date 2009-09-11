@@ -4,7 +4,8 @@ History
 2006/06/15 Austin:    Removed .set .priv and .priv
 2006/05/30 Shinigami: fixed a smaller mistype in textcmd_startlog()
                       set correct time stamp in textcmd_startlog() and textcmd_stoplog()
-					  2009/09/03 MuadDib:   Relocation of account related cpp/h
+2009/09/03 MuadDib:   Relocation of account related cpp/h
+2009/09/10 MuadDib:   Cleanup of depreciated internal text commands.
 
 Notes
 =======
@@ -697,18 +698,13 @@ bool start_textcmd_script( Client* client, const char *text,
 bool process_command( Client *client, const char *text,
 					  const u16* wtext /*NULL*/, const char* lang /*NULL*/)
 {
-	//cout << "process_command: " << text << endl;
 	static int init;
 	if (!init)
 	{
 		init = 1;
 		register_command( "armor", textcmd_listarmor );
 		register_command( "constat", textcmd_constat );
-			// register_command( "i_create", textcmd_create );
-			// register_command( "destroy", textcmd_destroy );
-			// register_command( "eobjcount", &textcmd_eobjcount );
 		register_command( "heapcheck", &textcmd_heapcheck );
-			// register_command( "i_help", textcmd_help );
 		register_command( "i_repdata", textcmd_repdata );
 		register_command( "t_ident", textcmd_ident );
 		register_command( "integ_item", textcmd_integ_item );
@@ -718,43 +714,15 @@ bool process_command( Client *client, const char *text,
 		register_command( "list_scripts", &textcmd_list_scripts );
 		register_command( "log_profile", &textcmd_log_profile );
 		register_command( "log_profile_clear", &textcmd_log_profile_clear );
-			// register_command( "los", &loscheck );
-			// register_command( "objcount", &textcmd_objcount );
-			// register_command( "t_online", &textcmd_online );
 		register_command( "orphans", &textcmd_orphans );
-			// register_command( "priv", &txtcmd_priv );
-			// register_command( "privs", &txtcmd_priv );
 		register_command( "procs", &textcmd_procs );
-			// register_command( "t_props", &textcmd_props );
-			// register_command( "res", &textcmd_resurrect );
 		register_command( "resendchars", &textcmd_resendchars );
-			// register_command( "resme", &textcmd_resme );
-			// register_command( "rpm", &textcmd_rpm );
-			// register_command( "set", &txtcmd_list_settings );
 		register_command( "shutdown", &textcmd_shutdown );
 		register_command( "startlog", &textcmd_startlog );
 		register_command( "stoplog", &textcmd_stoplog );
 		register_command( "threads", &textcmd_threads );
-			//register_command( "turn", &textcmd_turn );
-			// register_command( "unloadall", &textcmd_unload_all );
-
-			// register_command( "where", &textcmd_where );
-			//register_command( "wheretest", &wheretest );
-			//register_command( "xxexp", &textcmd_experimental );
-
-			// register_command( "action ", &textcmd_action );
-			// register_command( "armor ", &create_armor );
-			// register_command( "bcast ", &textcmd_bcast );
-			// register_command( "i_create ", &cmd_create );
-			// register_command( "i_createnpc ", &txtcmd_createnpc );
 		register_command( "flag1 ", &textcmd_flag1 );
 		register_command( "flag2 ", &textcmd_flag2 );
-			// register_command( "goto ", &textcmd_goto );
-			// register_command( "log ", &textcmd_log );
-			// register_command( "mycolor ", &txtcmd_mycolor );
-			// register_command( "set ", &txtcmd_set );
-			// register_command( "weapon ", &create_weapon );
-			// register_command( "unload ", &textcmd_unload );
 	}
 
 	++text; // skip the "/" or "."
