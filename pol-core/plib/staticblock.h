@@ -11,7 +11,7 @@ Notes
 #ifndef PLIB_STATICBLOCK_H
 #define PLIB_STATICBLOCK_H
 
-#include "clib/rawtypes.h"
+#include "../clib/rawtypes.h"
 
 struct STATIC_INDEX {
     u32 index;

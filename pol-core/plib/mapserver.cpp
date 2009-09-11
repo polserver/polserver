@@ -7,11 +7,11 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
-#include "clib/binaryfile.h"
-#include "clib/passert.h"
-#include "clib/strutil.h"
+#include "../clib/binaryfile.h"
+#include "../clib/passert.h"
+#include "../clib/strutil.h"
 
 #include "filemapserver.h"
 #include "inmemorymapserver.h"

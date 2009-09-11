@@ -12,7 +12,7 @@ This file is for packet structs who sent by both client and server.
 #ifndef __PKTBOTHH
 #define __PKTBOTHH
 
-#include "clib/rawtypes.h"
+#include "../clib/rawtypes.h"
 #include "pktbothid.h"
 #include "pktdef.h"
 

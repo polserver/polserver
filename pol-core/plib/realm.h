@@ -15,8 +15,8 @@ Notes
 
 #include "realmdescriptor.h"
 #include "staticblock.h"
-#include "pol/uconst.h" // for MOVEMODE under gcc, bleh
-#include "pol/udatfile.h"
+#include "../pol/uconst.h" // for MOVEMODE under gcc, bleh
+#include "../pol/udatfile.h"
 
 class Character;
 class Item;

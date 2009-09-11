@@ -10,7 +10,7 @@ Notes
 #ifndef PLIB_FILEMAPSERVER_H
 #define PLIB_FILEMAPSERVER_H
 
-#include "clib/binaryfile.h"
+#include "../clib/binaryfile.h"
 
 #include "mapblock.h"
 #include "mapcell.h"

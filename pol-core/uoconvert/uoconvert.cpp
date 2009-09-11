@@ -14,32 +14,33 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
 #include <time.h>
-#include "clib/stlutil.h"
-#include "clib/cfgelem.h"
-#include "clib/cfgfile.h"
-#include "clib/cmdargs.h"
-#include "clib/fileutil.h"
-#include "clib/passert.h"
-#include "clib/wallclock.h"
 
-#include "pol/uofile.h"
-#include "pol/objtype.h"
-#include "pol/polcfg.h"
-#include "pol/udatfile.h"
-#include "pol/polfile.h"
-#include "pol/uofilei.h"
+#include "../clib/stlutil.h"
+#include "../clib/cfgelem.h"
+#include "../clib/cfgfile.h"
+#include "../clib/cmdargs.h"
+#include "../clib/fileutil.h"
+#include "../clib/passert.h"
+#include "../clib/wallclock.h"
 
-#include "plib/mapcell.h"
-#include "plib/mapblock.h"
-#include "plib/mapsolid.h"
-#include "plib/mapfunc.h"
-#include "plib/mapserver.h"
-#include "plib/mapshape.h"
-#include "plib/mapwriter.h"
-#include "plib/realmdescriptor.h"
+#include "../pol/uofile.h"
+#include "../pol/objtype.h"
+#include "../pol/polcfg.h"
+#include "../pol/udatfile.h"
+#include "../pol/polfile.h"
+#include "../pol/uofilei.h"
+
+#include "../plib/mapcell.h"
+#include "../plib/mapblock.h"
+#include "../plib/mapsolid.h"
+#include "../plib/mapfunc.h"
+#include "../plib/mapserver.h"
+#include "../plib/mapshape.h"
+#include "../plib/mapwriter.h"
+#include "../plib/realmdescriptor.h"
 
 unsigned long mapcache_misses;
 unsigned long mapcache_hits;

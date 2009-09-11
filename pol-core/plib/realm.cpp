@@ -10,14 +10,14 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
 #include "realm.h"
 #include "realmdescriptor.h"
 #include "mapserver.h"
 #include "staticserver.h"
 #include "maptileserver.h"
-#include "pol/uworld.h"
+#include "../pol/uworld.h"
 
 Realm::Realm( const string& realm_name, const string& realm_path ) :
 	is_shadowrealm(false),

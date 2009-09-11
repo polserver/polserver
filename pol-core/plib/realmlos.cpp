@@ -7,7 +7,7 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
 #include "realm.h"
 #include "mapcell.h"
@@ -15,10 +15,10 @@ Notes
 #include "inmemorymapserver.h"
 #include "mapshape.h"
 
-#include "pol/uworld.h" // TODO move 'world' into Realm
-#include "pol/item/item.h"
-#include "pol/udatfile.h"
-#include "pol/los.h"
+#include "../pol/uworld.h" // TODO move 'world' into Realm
+#include "../pol/item/item.h"
+#include "../pol/udatfile.h"
+#include "../pol/los.h"
 
 const int los_range = 20;
 const int z_los_range = 60; // unused as yet

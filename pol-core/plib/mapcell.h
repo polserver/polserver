@@ -10,7 +10,7 @@ Notes
 #ifndef PLIB_MAPCELL_H
 #define PLIB_MAPCELL_H
 
-#include "clib/compileassert.h"
+#include "../clib/compileassert.h"
 
 struct FLAG
 {

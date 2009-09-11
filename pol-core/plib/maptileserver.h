@@ -10,7 +10,7 @@ Notes
 #ifndef PLIB_LANDTILESERVER_H
 #define PLIB_LANDTILESERVER_H
 
-#include "clib/binaryfile.h"
+#include "../clib/binaryfile.h"
 
 #include "maptile.h"
 #include "realmdescriptor.h"

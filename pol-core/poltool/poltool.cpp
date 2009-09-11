@@ -7,19 +7,19 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
-#include "clib/strutil.h"
+#include "../clib/strutil.h"
 
-#include "plib/mapcell.h"
-#include "plib/mapserver.h"
-#include "plib/filemapserver.h"
-#include "plib/mapshape.h"
-#include "plib/realmdescriptor.h"
+#include "../plib/mapcell.h"
+#include "../plib/mapserver.h"
+#include "../plib/filemapserver.h"
+#include "../plib/mapshape.h"
+#include "../plib/realmdescriptor.h"
 
-#include "plib/realm.h"
-#include "plib/maptile.h"
-#include "plib/maptileserver.h"
+#include "../plib/realm.h"
+#include "../plib/maptile.h"
+#include "../plib/maptileserver.h"
 
 void pol_walk_test();
 string flagstr( unsigned long flags );

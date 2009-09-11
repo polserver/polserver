@@ -10,7 +10,7 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
 #include <stdio.h>
 
@@ -18,17 +18,17 @@ Notes
 #include <unistd.h>
 #endif
 
-#include "clib/cfgelem.h"
-#include "clib/cfgfile.h"
-#include "clib/fileutil.h"
-#include "clib/passert.h"
-#include "clib/random.h"
-#include "clib/stlutil.h"
-#include "clib/strutil.h"
-#include "clib/wallclock.h"
+#include "../clib/cfgelem.h"
+#include "../clib/cfgfile.h"
+#include "../clib/fileutil.h"
+#include "../clib/passert.h"
+#include "../clib/random.h"
+#include "../clib/stlutil.h"
+#include "../clib/strutil.h"
+#include "../clib/wallclock.h"
 
-#include "plib/realmdescriptor.h"
-#include "plib/staticblock.h"
+#include "../plib/realmdescriptor.h"
+#include "../plib/staticblock.h"
 
 #include "item/itemdesc.h"
 #include "ustruct.h"

@@ -8,12 +8,12 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
-#include "clib/binaryfile.h"
-#include "clib/passert.h"
-#include "clib/stlutil.h"
-#include "clib/wallclock.h"
+#include "../clib/binaryfile.h"
+#include "../clib/passert.h"
+#include "../clib/stlutil.h"
+#include "../clib/wallclock.h"
 
 #include "staticblock.h"
 #include "staticserver.h"
