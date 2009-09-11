@@ -7,13 +7,13 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
 #include <stdio.h>
 #include <string.h>
 
-#include "clib/fileutil.h"
-#include "clib/stlutil.h"
+#include "../clib/fileutil.h"
+#include "../clib/stlutil.h"
 
 #include "polcfg.h"
 #include "polfile.h"

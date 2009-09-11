@@ -12,7 +12,7 @@ Notes
 #define PROFILE_H
 
 #include <time.h>
-#include "clib/rawtypes.h"
+#include "../clib/rawtypes.h"
 
 #define DEF_PROFILEVAR( counter ) \
     unsigned long prf_##counter,    \

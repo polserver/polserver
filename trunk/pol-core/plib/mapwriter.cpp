@@ -7,12 +7,12 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
-#include "clib/cfgelem.h"
-#include "clib/cfgfile.h"
-#include "clib/fileutil.h"
-#include "clib/iohelp.h"
+#include "../clib/cfgelem.h"
+#include "../clib/cfgfile.h"
+#include "../clib/fileutil.h"
+#include "../clib/iohelp.h"
 
 #include "mapblock.h"
 #include "mapserver.h"
@@ -20,7 +20,7 @@ Notes
 #include "mapsolid.h"
 #include "maptile.h"
 
-#include "pol/uofile.h"
+#include "../pol/uofile.h"
 
 
 extern unsigned int num_map_patches;

@@ -13,10 +13,10 @@ Notes
 #ifndef UOSCROBJ_H
 #define UOSCROBJ_H
 
-#include "bscript/bobject.h"
-#include "bscript/bstruct.h"
-#include "bscript/parser.h"
-#include "clib/passert.h"
+#include "../bscript/bobject.h"
+#include "../bscript/bstruct.h"
+#include "../bscript/parser.h"
+#include "../clib/passert.h"
 
 #include "mobile/charactr.h"
 #include "item/item.h"

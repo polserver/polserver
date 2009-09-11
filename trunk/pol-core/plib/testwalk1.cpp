@@ -7,9 +7,9 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
-#include "pol/uconst.h"
-#include "pol/uobject.h"
+#include "../clib/stl_inc.h"
+#include "../pol/uconst.h"
+#include "../pol/uobject.h"
 
 #include "realm.h"
 #include "mapserver.h"

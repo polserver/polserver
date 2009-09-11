@@ -16,8 +16,8 @@ Notes
 
 #include <assert.h>
 
-#include "clib/passert.h"
-#include "plib/realm.h"
+#include "../clib/passert.h"
+#include "../plib/realm.h"
 #include "mobile/charactr.h"
 #include "uvars.h"
 #include "zone.h"
