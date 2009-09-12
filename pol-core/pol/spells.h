@@ -14,7 +14,7 @@ Notes
 #include <string>
 #include <vector>
 
-#include "clib/refptr.h"
+#include "../clib/refptr.h"
 
 #include "action.h"
 #include "scrdef.h"

@@ -8,8 +8,8 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
-#include "clib/refptr.h"
+#include "../clib/stl_inc.h"
+#include "../clib/refptr.h"
 
 #include "mobile/charactr.h"
 #include "module/osmod.h"

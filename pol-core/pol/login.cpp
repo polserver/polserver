@@ -19,21 +19,21 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
+
 #ifdef _MSC_VER
-#pragma warning( disable: 4786 )
+#	pragma warning( disable: 4786 )
 #endif
 
-#include "clib/stlutil.h"
-#include "clib/MD5.h"
+#include "../clib/stlutil.h"
+#include "../clib/MD5.h"
 
 #include <string.h>
 
-
-#include "clib/clib.h"
-#include "clib/endian.h"
-#include "clib/logfile.h"
-#include "clib/fdump.h"
+#include "../clib/clib.h"
+#include "../clib/endian.h"
+#include "../clib/logfile.h"
+#include "../clib/fdump.h"
 
 #include "accounts/account.h"
 #include "mobile/charactr.h"

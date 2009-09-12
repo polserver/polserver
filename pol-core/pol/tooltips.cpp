@@ -12,8 +12,8 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
-#include "clib/endian.h"
+#include "../clib/stl_inc.h"
+#include "../clib/endian.h"
 
 #include "mobile/charactr.h"
 #include "network/client.h"

@@ -8,14 +8,14 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 #include <vector>
 
-#include "clib/cfgelem.h"
-#include "clib/stlutil.h"
+#include "../clib/cfgelem.h"
+#include "../clib/stlutil.h"
 
 #include "mobile/attribute.h"
-#include "plib/pkg.h"
+#include "../plib/pkg.h"
 #include "uoskills.h"
 #include "skillid.h"
 

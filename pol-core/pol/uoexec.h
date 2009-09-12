@@ -12,9 +12,10 @@ Notes
 #define __UOEXEC_H
 
 #ifndef __BSCRIPT_EXECUTOR_H
-#	include "bscript/executor.h"
+#	include "../bscript/executor.h"
 #endif
-#include "clib/weakptr.h"
+
+#include "../clib/weakptr.h"
 
 class OSExecutorModule;
 

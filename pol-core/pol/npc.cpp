@@ -17,32 +17,32 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 #ifdef _MSC_VER
 #pragma warning(disable:4786)
 #endif
 
 
-#include "clib/cfgelem.h"
-#include "clib/clib.h"
-#include "clib/endian.h"
-#include "clib/fileutil.h"
-#include "clib/logfile.h"
-#include "clib/mlog.h"
-#include "clib/passert.h"
-#include "clib/random.h"
-#include "clib/stlutil.h"
-#include "clib/strutil.h"
-#include "clib/unicode.h"
+#include "../clib/cfgelem.h"
+#include "../clib/clib.h"
+#include "../clib/endian.h"
+#include "../clib/fileutil.h"
+#include "../clib/logfile.h"
+#include "../clib/mlog.h"
+#include "../clib/passert.h"
+#include "../clib/random.h"
+#include "../clib/stlutil.h"
+#include "../clib/strutil.h"
+#include "../clib/unicode.h"
 
-#include "bscript/berror.h"
-#include "bscript/eprog.h"
-#include "bscript/executor.h"
-#include "bscript/execmodl.h"
-#include "bscript/modules.h"
-#include "bscript/impstr.h"
+#include "../bscript/berror.h"
+#include "../bscript/eprog.h"
+#include "../bscript/executor.h"
+#include "../bscript/execmodl.h"
+#include "../bscript/modules.h"
+#include "../bscript/impstr.h"
 
-#include "plib/realm.h"
+#include "../plib/realm.h"
 
 #include "mobile/attribute.h"
 #include "network/client.h"

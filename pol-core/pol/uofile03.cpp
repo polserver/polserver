@@ -9,12 +9,12 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
 #include <stdio.h>
 #include <string.h>
 
-#include "clib/strutil.h"
+#include "../clib/strutil.h"
 
 #include "charactr.h"
 #include "core.h"

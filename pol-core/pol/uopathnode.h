@@ -1,11 +1,21 @@
-// History
-//   2005/09/03 Shinigami: GetSuccessors - added support for non-blocking doors
+/*
+History
+=======
+2005/09/03 Shinigami: GetSuccessors - added support for non-blocking doors
+
+Notes
+=======
+
+*/
+
 
 // AStar search class
-#include "plib/stlastar.h"
-#include "plib/realm.h"
+#include "../plib/stlastar.h"
+#include "../plib/realm.h"
+
 #include "realms.h"
 #include "wrldsize.h"
+
 #define BORDER_SKIRT 5
 class AStarBlockers
 {

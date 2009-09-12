@@ -21,10 +21,10 @@ Notes
 #include "../../clib/strutil.h"
 #include "../../clib/unicode.h"
 
-#include "bscript/berror.h"
-#include "bscript/bobject.h"
-#include "bscript/execmodl.h"
-#include "bscript/impstr.h"
+#include "../../bscript/berror.h"
+#include "../../bscript/bobject.h"
+#include "../../bscript/execmodl.h"
+#include "../../bscript/impstr.h"
 
 #include "../accounts/account.h"
 #include "../network/cgdata.h"

@@ -9,18 +9,18 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
-#include "clib/cfgelem.h"
-#include "clib/endian.h"
-#include "clib/stlutil.h"
+#include "../clib/stl_inc.h"
+#include "../clib/cfgelem.h"
+#include "../clib/endian.h"
+#include "../clib/stlutil.h"
 
-#include "bscript/bobject.h"
-#include "bscript/bstruct.h"
-#include "bscript/executor.h"
-#include "bscript/berror.h"
-#include "bscript/objmethods.h"
+#include "../bscript/bobject.h"
+#include "../bscript/bstruct.h"
+#include "../bscript/executor.h"
+#include "../bscript/berror.h"
+#include "../bscript/objmethods.h"
 
-#include "plib/realm.h"
+#include "../plib/realm.h"
 #include "network/client.h"
 #include "fnsearch.h"
 #include "item/itemdesc.h"

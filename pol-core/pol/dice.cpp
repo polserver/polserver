@@ -9,10 +9,10 @@ Notes
 */
 
 
-#include "clib/stl_inc.h"
-#include "clib/stlutil.h"
-#include "clib/logfile.h"
-#include "clib/random.h"
+#include "../clib/stl_inc.h"
+#include "../clib/stlutil.h"
+#include "../clib/logfile.h"
+#include "../clib/random.h"
 
 #include "dice.h"
 

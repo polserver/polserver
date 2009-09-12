@@ -14,15 +14,15 @@ Notes
 */
 
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
-#include "bscript/berror.h"
-#include "bscript/dict.h"
-#include "bscript/impstr.h"
-#include "bscript/objmembers.h"
-#include "bscript/objmethods.h"
+#include "../bscript/berror.h"
+#include "../bscript/dict.h"
+#include "../bscript/impstr.h"
+#include "../bscript/objmembers.h"
+#include "../bscript/objmethods.h"
 
-#include "clib/strutil.h"
+#include "../clib/strutil.h"
 
 #include "exscrobj.h"
 

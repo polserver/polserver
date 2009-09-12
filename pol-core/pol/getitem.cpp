@@ -17,14 +17,15 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
+
 #include <stdio.h>
 
-#include "clib/endian.h"
-#include "clib/logfile.h"
-#include "clib/stlutil.h"
+#include "../clib/endian.h"
+#include "../clib/logfile.h"
+#include "../clib/stlutil.h"
 
-#include "plib/realm.h"
+#include "../plib/realm.h"
 
 #include "multi/boat.h"
 #include "mobile/charactr.h"
@@ -39,8 +40,6 @@ Notes
 #include "uofile.h"
 #include "uobject.h"
 #include "uworld.h"
-//#include "layers.h"
-
 
 /* How get_item works:
    when the client drags an item off the ground, 

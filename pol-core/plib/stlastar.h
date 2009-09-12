@@ -1,5 +1,13 @@
-// History
-//   2005/09/03 Shinigami: SearchStep - added support for non-blocking doors
+/*
+History
+=======
+2005/09/03 Shinigami: SearchStep - added support for non-blocking doors
+
+Notes
+=======
+
+*/
+
 
 // STL A* Search implementation
 // Copyright 2001 Justin Heyes-Jones
@@ -22,7 +30,7 @@
 using namespace std;
 
 // fast fixed size memory allocator, used for fast node memory management
-#include "plib/fsa.h"
+#include "fsa.h"
 
 // Fixed size memory allocator can be disabled to compare performance
 // Uses std new and delete instead if you turn it off
@@ -31,7 +39,7 @@ using namespace std;
 // disable warning that debugging information has lines that are truncated
 // occurs in stl headers
 #ifdef _MSC_VER
-#pragma warning(disable:4786)
+#	pragma warning(disable:4786)
 #endif
 
 // The AStar search class. UserState is the users state space type

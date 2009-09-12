@@ -10,14 +10,14 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
-#include "bscript/berror.h"
-#include "bscript/escriptv.h"
+#include "../bscript/berror.h"
+#include "../bscript/escriptv.h"
 
-#include "clib/endian.h"
-#include "clib/logfile.h"
-#include "plib/realm.h"
+#include "../clib/endian.h"
+#include "../clib/logfile.h"
+#include "../plib/realm.h"
 
 #include "mobile/charactr.h"
 #include "network/client.h"

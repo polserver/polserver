@@ -9,10 +9,10 @@ Notes
 
 */
 
-#include "clib/logfile.h"
-#include "clib/stl_inc.h"
+#include "../clib/logfile.h"
+#include "../clib/stl_inc.h"
 
-#include "bscript/eprog.h"
+#include "../bscript/eprog.h"
 
 #include "mobile/attribute.h"
 #include "accounts/account.h"

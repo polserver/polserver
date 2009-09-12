@@ -12,6 +12,7 @@ Notes
 #define SKILLID_H
 
 #include "uoclient.h"
+
 enum USKILLID {
 	SKILLID__LOWEST		= 0,
 	SKILLID__CLIENT_LOWEST		= 0,

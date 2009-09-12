@@ -4,6 +4,7 @@ History
 2007/12/09 Shinigami: removed ( is.peek() != EOF ) check from String::unpackWithLen()
                       will not work with Strings in Arrays, Dicts, etc.
 2008/02/08 Turley:    String::unpackWithLen() will accept zero length Strings
+2009/09/12 MuadDib:   Disabled 4244 in this file due to it being on a string iter. Makes no sense.
 
 Notes
 =======
@@ -23,6 +24,9 @@ Notes
 #include "bobject.h"
 #include "impstr.h"
 
+#ifdef _MSC_VER
+#	pragma warning( disable: 4244 )
+#endif
 
 String::String(BObjectImp& objimp) : BObjectImp( OTString )
 {
@@ -295,18 +299,10 @@ void String::toUpper( void )
 
 void String::toLower( void )
 {
-#if 0
-    // UNTESTED
-
-     using use_facet;
-    // FIXME: why no simply way to lower/upper a string? come on.
-    _USE( locale::locale(), ctype<char> ).tolower( value_.begin(), value_.end() );
-#else
     for( string::iterator itr = value_.begin(); itr != value_.end(); itr++ )
     {
         *itr = tolower(*itr);
     }
-#endif
 }
 
 BObjectImp* String::array_assign( BObjectImp* idx, BObjectImp* target )

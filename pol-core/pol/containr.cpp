@@ -15,20 +15,21 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
 #ifdef _MSC_VER
-#pragma warning( disable: 4786 )
+#	pragma warning( disable: 4786 )
 #endif
 
 #include <limits.h>
+#include <stddef.h>
 
-
-#include "clib/cfgfile.h"
-#include "clib/logfile.h"
-#include "clib/passert.h"
-#include "clib/random.h"
-#include "clib/stlutil.h"
+#include "../clib/endian.h"
+#include "../clib/cfgfile.h"
+#include "../clib/logfile.h"
+#include "../clib/passert.h"
+#include "../clib/random.h"
+#include "../clib/stlutil.h"
 
 #include "network/client.h"
 #include "mobile/charactr.h"
@@ -44,6 +45,9 @@ Notes
 #include "umanip.h"
 #include "uvars.h"
 #include "uworld.h"
+#include "objtype.h"
+#include "ufunc.h"
+#include "sockio.h"
 
 #include "containr.h"
 
@@ -632,12 +636,6 @@ UContainer::iterator UContainer::end()
 {
     return contents_.end();
 }
-
-#include <stddef.h>
-#include "clib/endian.h"
-#include "objtype.h"
-#include "ufunc.h"
-#include "sockio.h"
 
 void UContainer::builtin_on_use( Client *client )
 {

@@ -10,7 +10,7 @@
 **    TJ: up to 3.0.6j added
 **
 *********************************************************************/
-#include "clib/stl_inc.h"
+#include "../../clib/stl_inc.h"
 
 #include "cryptkey.h"
 

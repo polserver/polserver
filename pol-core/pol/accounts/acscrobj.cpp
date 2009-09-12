@@ -21,15 +21,15 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
-#include "clib/MD5.h"
+#include "../../clib/stl_inc.h"
+#include "../../clib/MD5.h"
 
-#include "bscript/berror.h"
-#include "bscript/bobject.h"
-#include "bscript/executor.h"
-#include "bscript/impstr.h"
-#include "bscript/objmembers.h"
-#include "bscript/objmethods.h"
+#include "../../bscript/berror.h"
+#include "../../bscript/bobject.h"
+#include "../../bscript/executor.h"
+#include "../../bscript/impstr.h"
+#include "../../bscript/objmembers.h"
+#include "../../bscript/objmethods.h"
 
 #include "account.h"
 #include "accounts.h"

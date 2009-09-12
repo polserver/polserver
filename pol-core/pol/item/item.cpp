@@ -19,11 +19,12 @@ Notes
 #	pragma warning( disable: 4786 )
 #endif
 
-#include "../../bscript/berror.h"
-
 #include "../../clib/cfgelem.h"
 #include "../../clib/endian.h"
 #include "../../clib/strutil.h"
+
+#include "../../bscript/berror.h"
+#include "../../bscript/bobject.h"
 
 #include "../../plib/mapcell.h"
 
@@ -902,7 +903,6 @@ void Item::disable_decay()
 /////////////////////////////////////////////////////////////////////////////
 // Equip-Script related functions
 /////////////////////////////////////////////////////////////////////////////
-#include "bscript/bobject.h"
 bool Item::has_equip_script() const
 {
     return !equip_script_.empty();

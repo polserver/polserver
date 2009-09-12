@@ -8,18 +8,18 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 #include <iostream>
 #include <map>
 
 
-#include "clib/cfgelem.h"
-#include "clib/maputil.h"
-#include "clib/passert.h"
+#include "../clib/cfgelem.h"
+#include "../clib/maputil.h"
+#include "../clib/passert.h"
 
 //nclude "charactr.h"
 #include "checkpnt.h"
-#include "plib/pkg.h"
+#include "../plib/pkg.h"
 #include "syshook.h"
 #include "vital.h"
 

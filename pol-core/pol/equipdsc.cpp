@@ -8,10 +8,10 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
-#include "clib/cfgelem.h"
+#include "../clib/stl_inc.h"
+#include "../clib/cfgelem.h"
 
-#include "bscript/bstruct.h"
+#include "../bscript/bstruct.h"
 
 #include "equipdsc.h"
 

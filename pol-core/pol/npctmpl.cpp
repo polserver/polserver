@@ -8,15 +8,15 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
 
-#include "clib/cfgelem.h"
-#include "clib/cfgfile.h"
-#include "clib/fileutil.h"
+#include "../clib/cfgelem.h"
+#include "../clib/cfgfile.h"
+#include "../clib/fileutil.h"
 
 #include "npctmpl.h"
-#include "plib/pkg.h"
+#include "../plib/pkg.h"
 #include "item/weapon.h"
 
 struct TRANSLATION

@@ -11,22 +11,22 @@ Notes
 */
 
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include "bscript/config.h"
+#include "../bscript/config.h"
 
-#include "clib/cfgelem.h"
-#include "clib/cfgfile.h"
-#include "clib/dirlist.h"
-#include "clib/logfile.h"
-#include "clib/mdump.h"
-#include "clib/mlog.h"
-#include "clib/passert.h"
-#include "clib/strutil.h"
+#include "../clib/cfgelem.h"
+#include "../clib/cfgfile.h"
+#include "../clib/dirlist.h"
+#include "../clib/logfile.h"
+#include "../clib/mdump.h"
+#include "../clib/mlog.h"
+#include "../clib/passert.h"
+#include "../clib/strutil.h"
 
 #include "core.h"
 #include "polcfg.h"

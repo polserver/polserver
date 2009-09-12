@@ -11,8 +11,8 @@ Notes
 #ifndef PACKETSCROBJ_H
 #define PACKETSCROBJ_H
 
-#include "bscript/bobject.h"
-#include "clib/rawtypes.h"
+#include "../bscript/bobject.h"
+#include "../clib/rawtypes.h"
 
 class BPacket : public BObjectImp
 {

@@ -13,23 +13,24 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
-#include "bscript/berror.h"
+#include "../bscript/berror.h"
 
-#include "clib/cfgelem.h"
-#include "clib/cfgfile.h"
-#include "clib/esignal.h"
-#include "clib/endian.h"
-#include "clib/fileutil.h"
-#include "clib/logfile.h"
-#include "clib/stlutil.h"
-#include "clib/strexcpt.h"
-#include "clib/strutil.h"
-#include "clib/threadhelp.h"
-#include "clib/wnsckt.h"
+#include "../clib/cfgelem.h"
+#include "../clib/cfgfile.h"
+#include "../clib/esignal.h"
+#include "../clib/endian.h"
+#include "../clib/fileutil.h"
+#include "../clib/logfile.h"
+#include "../clib/stlutil.h"
+#include "../clib/strexcpt.h"
+#include "../clib/strutil.h"
+#include "../clib/threadhelp.h"
+#include "../clib/wnsckt.h"
 
-#include "plib/pkg.h"
+#include "../plib/pkg.h"
+
 #include "polcfg.h"
 #include "polsem.h"
 #include "scrdef.h"

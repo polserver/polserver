@@ -9,18 +9,18 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 #ifdef _MSC_VER
 #pragma warning( disable: 4786 )
 #endif
 
 
-#include "clib/cfgelem.h"
-#include "clib/endian.h"
-#include "clib/logfile.h"
-#include "clib/passert.h"
+#include "../clib/cfgelem.h"
+#include "../clib/endian.h"
+#include "../clib/logfile.h"
+#include "../clib/passert.h"
 
-#include "plib/realm.h"
+#include "../plib/realm.h"
 #include "item/item.h"
 #include "item/itemdesc.h"
 #include "objtype.h"

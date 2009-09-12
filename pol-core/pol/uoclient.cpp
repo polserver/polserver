@@ -8,12 +8,12 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
-#include "clib/cfgelem.h"
+#include "../clib/cfgelem.h"
 
 #include "mobile/attribute.h"
-#include "plib/pkg.h"
+#include "../plib/pkg.h"
 #include "skillid.h"
 #include "uoclient.h"
 #include "vital.h"

@@ -8,18 +8,18 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
-#include "clib/stlutil.h"
+#include "../clib/stl_inc.h"
+#include "../clib/stlutil.h"
 
-#include "bscript/berror.h"
-#include "bscript/execmodl.h"
-#include "bscript/executor.h"
-#include "bscript/impstr.h"
-#include "bscript/objmethods.h"
+#include "../bscript/berror.h"
+#include "../bscript/execmodl.h"
+#include "../bscript/executor.h"
+#include "../bscript/impstr.h"
+#include "../bscript/objmethods.h"
 
-#include "clib/mlog.h"
-#include "clib/logfile.h"
-#include "clib/strutil.h"
+#include "../clib/mlog.h"
+#include "../clib/logfile.h"
+#include "../clib/strutil.h"
 
 #include "fnsearch.h"
 #include "item/itemdesc.h"

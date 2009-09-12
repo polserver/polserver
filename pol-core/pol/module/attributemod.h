@@ -13,7 +13,7 @@ add_common_exmods()
 #ifndef ATTRIBUTEEMOD_H
 #define ATTRIBUTEEMOD_H
 
-#include "bscript/execmodl.h"
+#include "../../bscript/execmodl.h"
 
 class AttributeExecutorModule : public TmplExecutorModule<AttributeExecutorModule>
 {

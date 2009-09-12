@@ -12,17 +12,17 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
 #include <stddef.h>
 #include <ctype.h>
 #include <wctype.h>
 
-#include "clib/endian.h"
-#include "clib/clib.h"
-#include "clib/logfile.h"
-#include "clib/random.h"
-#include "clib/strutil.h"
+#include "../clib/endian.h"
+#include "../clib/clib.h"
+#include "../clib/logfile.h"
+#include "../clib/random.h"
+#include "../clib/strutil.h"
 
 #include "accounts/account.h"
 #include "network/client.h"
@@ -41,8 +41,8 @@ Notes
 #include "ufunc.h"
 #include "ufuncstd.h"
 
-#include "clib/fdump.h"
-#include "bscript/impstr.h"
+#include "../clib/fdump.h"
+#include "../bscript/impstr.h"
 
 //static char buffer[1024];
 

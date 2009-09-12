@@ -8,12 +8,13 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
-#include "bscript/berror.h"
-#include "bscript/impstr.h"
+#include "../clib/stl_inc.h"
 
-#include "clib/endian.h"
-#include "clib/rawtypes.h"
+#include "../bscript/berror.h"
+#include "../bscript/impstr.h"
+
+#include "../clib/endian.h"
+#include "../clib/rawtypes.h"
 
 #include "network/client.h"
 #include "sockio.h"

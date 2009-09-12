@@ -8,13 +8,13 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 #include <assert.h>
 
-#include "clib/clib.h"
-#include "clib/endian.h"
-#include "clib/logfile.h"
-#include "clib/passert.h"
+#include "../clib/clib.h"
+#include "../clib/endian.h"
+#include "../clib/logfile.h"
+#include "../clib/passert.h"
 
 #include "accounts/account.h"
 #include "mobile/charactr.h"
