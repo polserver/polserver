@@ -8,16 +8,16 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
+
 #ifdef _MSC_VER
-#pragma warning( disable: 4786 )
+#	pragma warning( disable: 4786 )
 #endif
 
+#include "../bscript/fmodule.h"
 
-#include "bscript/fmodule.h"
-
-#include "gp/gphelp.h"
-#include "gp/tree.h"
+#include "../gp/gphelp.h"
+#include "../gp/tree.h"
 
 #include "gprepos.h"
 

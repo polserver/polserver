@@ -8,17 +8,17 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 #include <windows.h>
 #include <process.h>
 
-#include "clib/esignal.h"
-#include "clib/ntservice.h"
-#include "clib/progver.h"
-#include "clib/threadhelp.h"
-#include "clib/xmain.h"
+#include "../clib/esignal.h"
+#include "../clib/ntservice.h"
+#include "../clib/progver.h"
+#include "../clib/threadhelp.h"
+#include "../clib/xmain.h"
 
-#include "plib/polver.h"
+#include "../plib/polver.h"
 
 //#include "polver.h"
 

@@ -8,15 +8,15 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
-#include "clib/cfgelem.h"
-#include "clib/cfgfile.h"
-#include "clib/passert.h"
+#include "../clib/cfgelem.h"
+#include "../clib/cfgfile.h"
+#include "../clib/passert.h"
 
-#include "plib/mapcell.h"
-#include "plib/mapfunc.h"
-#include "plib/pkg.h"
+#include "../plib/mapcell.h"
+#include "../plib/mapfunc.h"
+#include "../plib/pkg.h"
 
 #include "tiles.h"
 

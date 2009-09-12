@@ -8,11 +8,11 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 #include <time.h>
 
-#include "clib/passert.h"
-#include "clib/tracebuf.h"
+#include "../clib/passert.h"
+#include "../clib/tracebuf.h"
 
 #include "dtrace.h"
 #include "polclock.h"

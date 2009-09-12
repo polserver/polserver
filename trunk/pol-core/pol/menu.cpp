@@ -8,12 +8,12 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 #include <string.h>
 #include <assert.h>
 
-#include "clib/clib.h"
-#include "clib/passert.h"
+#include "../clib/clib.h"
+#include "../clib/passert.h"
 
 #include "menu.h"
 

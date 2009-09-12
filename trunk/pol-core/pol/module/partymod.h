@@ -11,7 +11,7 @@ Notes
 #ifndef PARTYMOD_H
 #define PARTYMOD_H
 
-#include "bscript/execmodl.h"
+#include "../../bscript/execmodl.h"
 
 class PartyExecutorModule : public TmplExecutorModule<PartyExecutorModule>
 {

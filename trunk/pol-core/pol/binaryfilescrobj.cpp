@@ -7,18 +7,18 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
-#include "clib/strutil.h"
-#include "clib/endian.h"
+#include "../clib/stl_inc.h"
+#include "../clib/strutil.h"
+#include "../clib/endian.h"
+
 #include "binaryfilescrobj.h"
 
-
-#include "bscript/executor.h"
-#include "bscript/berror.h"
-#include "bscript/bobject.h"
-#include "bscript/impstr.h"
-#include "bscript/objmembers.h"
-#include "bscript/objmethods.h"
+#include "../bscript/executor.h"
+#include "../bscript/berror.h"
+#include "../bscript/bobject.h"
+#include "../bscript/impstr.h"
+#include "../bscript/objmembers.h"
+#include "../bscript/objmethods.h"
 
 
 

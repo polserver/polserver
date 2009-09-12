@@ -1,6 +1,7 @@
 /*
 History
 =======
+2009/09/12 MuadDib:   Disabled 4244 in this file due to it being on a string iter. Makes no sense.
 
 Notes
 =======
@@ -12,6 +13,10 @@ Notes
 #include "stlutil.h"
 #include "strutil.h"
 #include "unittest.h"
+
+#ifdef _MSC_VER
+#	pragma warning( disable: 4244 )
+#endif
 
 string hexint( unsigned short v )
 {

@@ -7,21 +7,21 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
 #ifdef _WIN32
-#include <conio.h>
+#	include <conio.h>
 #else
-#include "clib/kbhit.h"
-keyboard kb;
+#	include "clib/kbhit.h"
+	keyboard kb;
 #endif
 
-#include "bscript/impstr.h"
+#include "../bscript/impstr.h"
 
-#include "clib/cfgelem.h"
-#include "clib/cfgfile.h"
-#include "clib/fileutil.h"
-#include "clib/stlutil.h"
+#include "../clib/cfgelem.h"
+#include "../clib/cfgfile.h"
+#include "../clib/fileutil.h"
+#include "../clib/stlutil.h"
 
 #include "polcfg.h"
 #include "polsem.h"

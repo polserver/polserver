@@ -9,14 +9,15 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
+
 #include <assert.h>
 #include <stdio.h>
 
-#include "bscript/bobject.h"
+#include "../bscript/bobject.h"
 
-#include "clib/endian.h"
-#include "clib/logfile.h"
+#include "../clib/endian.h"
+#include "../clib/logfile.h"
 
 #include "mobile/charactr.h"
 #include "network/client.h"

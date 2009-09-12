@@ -7,10 +7,10 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
-#include "clib/logfile.h"
-#include "clib/strutil.h"
+#include "../clib/logfile.h"
+#include "../clib/strutil.h"
 
 #include "crypt/cryptengine.h"
 #include "crypt/nocrypt.h"

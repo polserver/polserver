@@ -16,11 +16,11 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
-#include "clib/cfgelem.h"
-#include "clib/cfgfile.h"
-#include "clib/fileutil.h"
-#include "clib/logfile.h"
+#include "../clib/stl_inc.h"
+#include "../clib/cfgelem.h"
+#include "../clib/cfgfile.h"
+#include "../clib/fileutil.h"
+#include "../clib/logfile.h"
 #include "ssopt.h"
 
 #include "mobile/attribute.h"

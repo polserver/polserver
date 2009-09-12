@@ -11,7 +11,7 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 #ifdef _MSC_VER
 #pragma warning( disable: 4786 )
 #endif
@@ -21,17 +21,17 @@ Notes
 #include <string.h>
 #include <errno.h>
 
-#include "clib/cfgelem.h"
-#include "clib/cfgfile.h"
-#include "clib/endian.h"
-#include "clib/fileutil.h"
-#include "clib/logfile.h"
-#include "clib/progver.h"
-#include "clib/stlutil.h"
-#include "clib/strutil.h"
+#include "../clib/cfgelem.h"
+#include "../clib/cfgfile.h"
+#include "../clib/endian.h"
+#include "../clib/fileutil.h"
+#include "../clib/logfile.h"
+#include "../clib/progver.h"
+#include "../clib/stlutil.h"
+#include "../clib/strutil.h"
 
-#include "plib/polver.h"
-#include "plib/realm.h"
+#include "../plib/polver.h"
+#include "../plib/realm.h"
 
 #include "accounts/account.h"
 #include "mobile/charactr.h"

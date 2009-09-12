@@ -8,16 +8,16 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
 #include <stdio.h>
 #include <string.h>
 
 #include "sockets.h"
 
-#include "clib/endian.h"
-#include "clib/clib.h"
-#include "clib/strutil.h"
+#include "../clib/endian.h"
+#include "../clib/clib.h"
+#include "../clib/strutil.h"
 
 #include "sockio.h"
 

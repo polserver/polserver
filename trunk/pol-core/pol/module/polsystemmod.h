@@ -11,7 +11,7 @@ Notes
 #ifndef POLSYSTEMEMOD_H
 #define POLSYSTEMEMOD_H
 
-#include "bscript/execmodl.h"
+#include "../../bscript/execmodl.h"
 
 class PolSystemExecutorModule : public TmplExecutorModule<PolSystemExecutorModule>
 {

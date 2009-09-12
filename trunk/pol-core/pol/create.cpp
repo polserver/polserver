@@ -10,21 +10,22 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
+
 #ifdef _MSC_VER
-#pragma warning( disable: 4786 )
+#	pragma warning( disable: 4786 )
 #endif
 
 #include <iostream>
 #include <string>
 
 
-#include "clib/endian.h"
-#include "clib/fdump.h"
-#include "clib/logfile.h"
-#include "clib/random.h"
+#include "../clib/endian.h"
+#include "../clib/fdump.h"
+#include "../clib/logfile.h"
+#include "../clib/random.h"
 
-#include "plib/realm.h"
+#include "../plib/realm.h"
 
 #include "accounts/account.h"
 #include "mobile/attribute.h"
@@ -51,7 +52,7 @@ Notes
 #include "uvars.h"
 #include "uworld.h"
 
-#include "bscript/bobject.h"
+#include "../bscript/bobject.h"
 #include "module/osmod.h"
 #include "scrsched.h"
 #include "scrstore.h"

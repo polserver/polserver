@@ -11,8 +11,8 @@ Notes
 #ifndef BINARYSCROBJ_H
 #define BINARYSCROBJ_H
 
-#include "bscript/bobject.h"
-#include "clib/rawtypes.h"
+#include "../bscript/bobject.h"
+#include "../clib/rawtypes.h"
 
 class BinFile
 {

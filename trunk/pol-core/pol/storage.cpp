@@ -8,7 +8,7 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
 #ifdef _MSC_VER
 #pragma warning(disable:4786)
@@ -17,11 +17,11 @@ Notes
 #include <stdio.h>
 #include <time.h>
 
-#include "clib/cfgelem.h"
-#include "clib/cfgfile.h"
-#include "clib/clib.h"
-#include "clib/stlutil.h"
-#include "clib/strutil.h"
+#include "../clib/cfgelem.h"
+#include "../clib/cfgfile.h"
+#include "../clib/clib.h"
+#include "../clib/stlutil.h"
+#include "../clib/strutil.h"
 
 #include "fnsearch.h"
 #include "gflag.h"
@@ -282,9 +282,9 @@ void Storage::clear()
 }
 Storage storage;
 
-#include "bscript/contiter.h"
-#include "bscript/impstr.h"
-#include "bscript/berror.h"
+#include "../bscript/contiter.h"
+#include "../bscript/impstr.h"
+#include "../bscript/berror.h"
 #include "mkscrobj.h"
 
 class StorageAreaIterator : public ContIterator

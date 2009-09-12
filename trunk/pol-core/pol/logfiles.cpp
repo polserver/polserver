@@ -8,9 +8,9 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
-#include "clib/dualbuf.h"
-#include "clib/nlogfile.h"
+#include "../clib/stl_inc.h"
+#include "../clib/dualbuf.h"
+#include "../clib/nlogfile.h"
 
 #include "logfiles.h"
 

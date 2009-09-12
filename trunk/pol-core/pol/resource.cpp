@@ -8,22 +8,22 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
-#include "bscript/berror.h"
-#include "bscript/bobject.h"
-#include "bscript/impstr.h"
+#include "../bscript/berror.h"
+#include "../bscript/bobject.h"
+#include "../bscript/impstr.h"
 
-#include "clib/cfgelem.h"
-#include "clib/cfgfile.h"
-#include "clib/fileutil.h"
-#include "clib/logfile.h"
-#include "clib/passert.h"
-#include "clib/random.h"
-#include "clib/stlutil.h"
+#include "../clib/cfgelem.h"
+#include "../clib/cfgfile.h"
+#include "../clib/fileutil.h"
+#include "../clib/logfile.h"
+#include "../clib/passert.h"
+#include "../clib/random.h"
+#include "../clib/stlutil.h"
 
-#include "plib/maptile.h"
-#include "plib/realm.h"
+#include "../plib/maptile.h"
+#include "../plib/realm.h"
 
 #include "item/itemdesc.h"
 #include "polcfg.h"

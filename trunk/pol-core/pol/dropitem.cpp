@@ -22,21 +22,21 @@ FIXME: Does STW use slots with KR or newest 2d? If so, we must do slot checks th
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
 #include <assert.h>
 #include <stdio.h>
 
-#include "clib/endian.h"
-#include "clib/logfile.h"
-#include "clib/passert.h"
-#include "clib/random.h"
-#include "clib/stlutil.h"
-#include "clib/strutil.h"
+#include "../clib/endian.h"
+#include "../clib/logfile.h"
+#include "../clib/passert.h"
+#include "../clib/random.h"
+#include "../clib/stlutil.h"
+#include "../clib/strutil.h"
 
-#include "bscript/berror.h"
+#include "../bscript/berror.h"
 
-#include "plib/realm.h"
+#include "../plib/realm.h"
 
 #include "multi/boat.h"
 #include "mobile/charactr.h"

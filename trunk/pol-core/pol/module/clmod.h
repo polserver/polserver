@@ -10,7 +10,7 @@ Notes
 #ifndef CLILOCEMOD_H
 #define CLILOCEMOD_H
 
-#include "bscript/execmodl.h"
+#include "../../bscript/execmodl.h"
 
 class ClilocExecutorModule : public TmplExecutorModule<ClilocExecutorModule>
 {

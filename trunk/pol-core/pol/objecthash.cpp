@@ -9,11 +9,11 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
-#include "clib/endian.h"
-#include "clib/passert.h"
-#include "clib/logfile.h"
+#include "../clib/endian.h"
+#include "../clib/passert.h"
+#include "../clib/logfile.h"
 
 #include "accounts/account.h"
 #include "objecthash.h"

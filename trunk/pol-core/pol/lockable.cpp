@@ -8,9 +8,9 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
+#include "../clib/cfgelem.h"
 
-#include "clib/cfgelem.h"
 #include "lockable.h"
 
 ULockable::ULockable( const ItemDesc& itemdesc, UOBJ_CLASS uobj_class ) :

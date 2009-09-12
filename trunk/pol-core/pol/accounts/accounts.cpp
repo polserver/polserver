@@ -11,7 +11,7 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../../clib/stl_inc.h"
 
 
 #include <sys/types.h>
@@ -19,11 +19,11 @@ Notes
 #include <stdio.h>
 #include <time.h>
 
-#include "clib/cfgfile.h"
-#include "clib/cfgelem.h"
-#include "clib/fileutil.h"
-#include "clib/passert.h"
-#include "clib/wallclock.h"
+#include "../../clib/cfgfile.h"
+#include "../../clib/cfgelem.h"
+#include "../../clib/fileutil.h"
+#include "../../clib/passert.h"
+#include "../../clib/wallclock.h"
 
 #include "account.h"
 #include "accounts.h"

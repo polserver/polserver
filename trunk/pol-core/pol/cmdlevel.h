@@ -11,7 +11,7 @@ Notes
 #include <string>
 #include <vector>
 
-#include "bscript/bobject.h"
+#include "../bscript/bobject.h"
 
 class ConfigElem;
 class Package;

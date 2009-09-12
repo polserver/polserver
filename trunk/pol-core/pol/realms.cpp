@@ -11,11 +11,11 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
-#include "clib/dirlist.h"
-#include "clib/passert.h"
-#include "clib/strutil.h"
-#include "plib/realm.h"
+#include "../clib/stl_inc.h"
+#include "../clib/dirlist.h"
+#include "../clib/passert.h"
+#include "../clib/strutil.h"
+#include "../plib/realm.h"
 #include "uofile.h"
 #include "los.h"
 #include "polcfg.h"
@@ -106,7 +106,7 @@ void remove_realm(const string name)
 	}
 }
 
-#include "plib/mapserver.h"
+#include "../plib/mapserver.h"
 
 UMulti* uo_find_supporting_multi( MultiList& mvec, int z );
 

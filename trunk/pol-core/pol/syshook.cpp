@@ -8,20 +8,20 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
-#include "bscript/eprog.h"
+#include "../bscript/eprog.h"
 
-#include "clib/cfgelem.h"
-#include "clib/cfgfile.h"
-#include "clib/fileutil.h"
+#include "../clib/cfgelem.h"
+#include "../clib/cfgfile.h"
+#include "../clib/fileutil.h"
 
 #include "scrdef.h"
 #include "scrsched.h"
 #include "scrstore.h"
 #include "syshook.h"
 #include "syshookscript.h"
-#include "plib/pkg.h"
+#include "../plib/pkg.h"
 #include "uoexec.h"
 
 /// SystemHookScript functions:

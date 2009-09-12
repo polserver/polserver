@@ -16,14 +16,14 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
 #include <string.h>
 
-#include "clib/clib.h"
-#include "clib/endian.h"
+#include "../clib/clib.h"
+#include "../clib/endian.h"
 
-#include "plib/realm.h"
+#include "../plib/realm.h"
 
 #include "network/client.h"
 #include "eventid.h"

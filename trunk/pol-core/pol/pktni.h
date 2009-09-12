@@ -13,7 +13,7 @@ This is where all the Not Implemented Packets belong.
 #define __PKTNI_H
 
 // Rawtypes is required when doing the Struct stuff, blah
-#include "clib/rawtypes.h"
+#include "../clib/rawtypes.h"
 
 #ifdef _MSC_VER
 /* Visual C++ 4.0 and above */

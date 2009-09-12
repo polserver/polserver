@@ -8,14 +8,14 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
-#include "bscript/berror.h"
-#include "bscript/impstr.h"
+#include "../clib/stl_inc.h"
+#include "../bscript/berror.h"
+#include "../bscript/impstr.h"
 
-#include "clib/cfgelem.h"
-#include "clib/cfgfile.h"
-#include "clib/fileutil.h"
-#include "clib/stlutil.h"
+#include "../clib/cfgelem.h"
+#include "../clib/cfgfile.h"
+#include "../clib/fileutil.h"
+#include "../clib/stlutil.h"
 
 #include "realms.h"
 #include "region.h"
