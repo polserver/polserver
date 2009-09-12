@@ -8,7 +8,7 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 #ifdef _MSC_VER
 #pragma warning( disable: 4786 )
 #endif
@@ -18,12 +18,12 @@ Notes
 #include <string.h>
 #include <ctype.h>
 
-#include "clib/cfgelem.h"
-#include "clib/cfgfile.h"
-#include "clib/cistring.h"
-#include "clib/clib.h"
-#include "clib/fileutil.h"
-#include "clib/stlutil.h"
+#include "../clib/cfgelem.h"
+#include "../clib/cfgfile.h"
+#include "../clib/cistring.h"
+#include "../clib/clib.h"
+#include "../clib/fileutil.h"
+#include "../clib/stlutil.h"
 
 #include "item/itemdesc.h"
 #include "menu.h"

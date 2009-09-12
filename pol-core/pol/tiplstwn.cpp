@@ -8,14 +8,14 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 #ifdef _MSC_VER
 #pragma warning( disable: 4786 )
 #endif
 
 #include <set>
 
-#include "clib/dirlist.h"
+#include "../clib/dirlist.h"
 
 #include "tiplist.h"
 

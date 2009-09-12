@@ -8,8 +8,8 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
-#include "clib/random.h"
+#include "../clib/stl_inc.h"
+#include "../clib/random.h"
 
 #include "startloc.h"
 

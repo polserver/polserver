@@ -7,9 +7,9 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
-#include "clib/logfile.h"
+#include "../clib/logfile.h"
 
 #include "polcfg.h"
 #include "checkpnt.h"

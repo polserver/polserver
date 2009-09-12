@@ -8,13 +8,13 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 #ifdef _MSC_VER
 #pragma warning( disable: 4786 )
 #endif
 
-#include "clib/endian.h"
-#include "clib/passert.h"
+#include "../clib/endian.h"
+#include "../clib/passert.h"
 
 #include "network/client.h"
 #include "door.h"

@@ -14,19 +14,19 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
 
-#include "bscript/berror.h"
-#include "bscript/bobject.h"
-#include "bscript/impstr.h"
+#include "../bscript/berror.h"
+#include "../bscript/bobject.h"
+#include "../bscript/impstr.h"
 
-#include "clib/esignal.h"
-#include "clib/sckutil.h"
-#include "clib/socketsvc.h"
-#include "clib/stlutil.h"
-#include "clib/strutil.h"
-#include "clib/wnsckt.h"
+#include "../clib/esignal.h"
+#include "../clib/sckutil.h"
+#include "../clib/socketsvc.h"
+#include "../clib/stlutil.h"
+#include "../clib/strutil.h"
+#include "../clib/wnsckt.h"
 
 #include "polcfg.h"
 #include "poldbg.h"

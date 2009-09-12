@@ -7,7 +7,7 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 #include "ctable.h"
 
 SVR_KEYDESC keydesc[ 257 ] = {

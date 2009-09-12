@@ -10,14 +10,14 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
 #include <stdio.h>
 
-#include "clib/endian.h"
-#include "clib/logfile.h"
+#include "../clib/endian.h"
+#include "../clib/logfile.h"
 
-#include "plib/realm.h"
+#include "../plib/realm.h"
 
 #include "accounts/account.h"
 #include "mobile/charactr.h"

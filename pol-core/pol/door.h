@@ -12,7 +12,7 @@ Notes
 #define __DOOR_H
 
 #ifndef __ITEM_H
-#include "lockable.h"
+#	include "lockable.h"
 #endif
 
 class Client;

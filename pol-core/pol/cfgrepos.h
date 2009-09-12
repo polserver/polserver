@@ -21,8 +21,8 @@ Notes
 #include <map>
 #include <string>
 
-#include "clib/maputil.h"
-#include "clib/refptr.h"
+#include "../clib/maputil.h"
+#include "../clib/refptr.h"
 
 class ConfigFile;
 class ConfigElem;

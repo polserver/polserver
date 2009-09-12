@@ -8,9 +8,9 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
-#include "bscript/berror.h"
+#include "../bscript/berror.h"
 
 #include "scrsched.h"
 #include "syshookscript.h"

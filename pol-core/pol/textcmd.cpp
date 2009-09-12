@@ -12,29 +12,29 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
 #ifdef _MSC_VER
 #pragma warning( disable: 4786 )
 #endif
 
-#include "bscript/berror.h"
-#include "bscript/impstr.h"
+#include "../bscript/berror.h"
+#include "../bscript/impstr.h"
 
-#include "clib/cfgelem.h"
-#include "clib/cfgfile.h"
-#include "clib/cistring.h"
-#include "clib/endian.h"
-#include "clib/esignal.h"
-#include "clib/fileutil.h"
-#include "clib/logfile.h"
-#include "clib/opnew.h"
-#include "clib/stlutil.h"
-#include "clib/strutil.h"
-#include "clib/threadhelp.h"
-#include "clib/unicode.h"
+#include "../clib/cfgelem.h"
+#include "../clib/cfgfile.h"
+#include "../clib/cistring.h"
+#include "../clib/endian.h"
+#include "../clib/esignal.h"
+#include "../clib/fileutil.h"
+#include "../clib/logfile.h"
+#include "../clib/opnew.h"
+#include "../clib/stlutil.h"
+#include "../clib/strutil.h"
+#include "../clib/threadhelp.h"
+#include "../clib/unicode.h"
 
-#include "plib/realm.h"
+#include "../plib/realm.h"
 
 #include "accounts/account.h"
 #include "action.h"
@@ -49,7 +49,7 @@ Notes
 #include "npc.h"
 #include "module/osmod.h"
 #include "pktboth.h"
-#include "plib/pkg.h"
+#include "../plib/pkg.h"
 #include "polcfg.h"
 #include "polclock.h"
 #include "polopt.h"

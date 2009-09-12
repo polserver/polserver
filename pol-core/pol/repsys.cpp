@@ -11,12 +11,12 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
-#include "clib/cfgelem.h"
-#include "clib/cfgfile.h"
-#include "clib/cfgsect.h"
-#include "clib/logfile.h"
-#include "clib/stlutil.h"
+#include "../clib/stl_inc.h"
+#include "../clib/cfgelem.h"
+#include "../clib/cfgfile.h"
+#include "../clib/cfgsect.h"
+#include "../clib/logfile.h"
+#include "../clib/stlutil.h"
 
 #include "mobile/charactr.h"
 #include "fnsearch.h"

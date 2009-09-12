@@ -9,9 +9,9 @@ Notes
 */
 
 
-#include "clib/stl_inc.h"
-#include "clib/esignal.h"
-#include "plib/realm.h"
+#include "../clib/stl_inc.h"
+#include "../clib/esignal.h"
+#include "../plib/realm.h"
 
 #include "core.h"
 #include "item/item.h"

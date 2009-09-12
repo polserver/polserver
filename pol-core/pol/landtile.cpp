@@ -9,13 +9,13 @@ Notes
 */
 
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
-#include "clib/cfgelem.h"
-#include "clib/passert.h"
+#include "../clib/cfgelem.h"
+#include "../clib/passert.h"
 
-#include "plib/mapfunc.h"
-#include "plib/pkg.h"
+#include "../plib/mapfunc.h"
+#include "../plib/pkg.h"
 
 const unsigned LANDTILE_COUNT = 0x4000;
 struct LandTile

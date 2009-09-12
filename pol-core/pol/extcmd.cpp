@@ -8,11 +8,12 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
+
 #include <stddef.h>
 
-#include "clib/fdump.h"
-#include "clib/endian.h"
+#include "../clib/fdump.h"
+#include "../clib/endian.h"
 
 #include "msghandl.h"
 #include "pktin.h"

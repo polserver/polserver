@@ -8,7 +8,7 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
 #ifdef _WIN32
 #	include <malloc.h>

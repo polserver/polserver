@@ -8,11 +8,11 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
-#include "clib/passert.h"
+#include "../clib/passert.h"
 
-#include "plib/mapcell.h"
+#include "../plib/mapcell.h"
 
 #include "tiles.h"
 

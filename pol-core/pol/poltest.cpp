@@ -8,15 +8,15 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
 
 #include <assert.h>
 
-#include "clib/passert.h"
+#include "../clib/passert.h"
 
-#include "plib/maptile.h"
-#include "plib/realm.h"
+#include "../plib/maptile.h"
+#include "../plib/realm.h"
 
 #include "realms.h"
 
@@ -28,7 +28,7 @@ Notes
 #include "udatfile.h"
 #include "uvars.h"
 #include "skilladv.h"
-#include "plib/testenv.h"
+#include "../plib/testenv.h"
 
 #include "poltest.h"
 

@@ -10,14 +10,14 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
-#include "clib/logfile.h"
-#include "clib/passert.h"
-#include "clib/stlutil.h"
-#include "clib/strutil.h"
+#include "../clib/logfile.h"
+#include "../clib/passert.h"
+#include "../clib/stlutil.h"
+#include "../clib/strutil.h"
 
-#include "plib/realm.h"
+#include "../plib/realm.h"
 #include "mobile/charactr.h"
 #include "item/item.h"
 #include "multi/multi.h"

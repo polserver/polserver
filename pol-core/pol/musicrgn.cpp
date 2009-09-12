@@ -8,10 +8,10 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
-#include "clib/cfgelem.h"
-#include "clib/random.h"
+#include "../clib/cfgelem.h"
+#include "../clib/random.h"
 
 #include "musicrgn.h"
 

@@ -19,7 +19,7 @@ Notes
 
 #include "../bscript/berror.h"
 #ifdef MEMORYLEAK
-#include "bscript/bobject.h"
+#include "../bscript/bobject.h"
 #endif
 #include "../clib/endian.h"
 #include "../clib/cfgelem.h"

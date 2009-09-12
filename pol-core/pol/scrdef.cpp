@@ -8,15 +8,15 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
-#include "bscript/eprog.h"
-#include "bscript/escrutil.h"
+#include "../bscript/eprog.h"
+#include "../bscript/escrutil.h"
 
-#include "clib/fileutil.h"
-#include "clib/refptr.h"
+#include "../clib/fileutil.h"
+#include "../clib/refptr.h"
 
-#include "plib/pkg.h"
+#include "../plib/pkg.h"
 #include "scrdef.h"
 #include "scrstore.h"
 

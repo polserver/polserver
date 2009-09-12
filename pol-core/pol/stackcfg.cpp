@@ -12,14 +12,14 @@ Notes
 #pragma warning( disable: 4786 )
 #endif
 
-#include "clib/stl_inc.h"
-#include "clib/fileutil.h"
-#include "clib/stlutil.h"
-#include "clib/strutil.h"
-#include "clib/cfgelem.h"
-#include "clib/cfgfile.h"
+#include "../clib/stl_inc.h"
+#include "../clib/fileutil.h"
+#include "../clib/stlutil.h"
+#include "../clib/strutil.h"
+#include "../clib/cfgelem.h"
+#include "../clib/cfgfile.h"
 
-#include "plib/pkg.h"
+#include "../plib/pkg.h"
 #include "stackcfg.h"
 
 PropSet Global_Ignore_CProps;

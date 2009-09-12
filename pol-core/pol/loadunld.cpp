@@ -9,17 +9,17 @@ Notes
 */
 
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
+
 #ifdef _MSC_VER
-#pragma warning( disable: 4786 )
+#	pragma warning( disable: 4786 )
 #endif
 
-
-#include "clib/cfgelem.h"
-#include "clib/cfgfile.h"
-#include "clib/fileutil.h"
-#include "clib/stlutil.h"
-#include "clib/strutil.h"
+#include "../clib/cfgelem.h"
+#include "../clib/cfgfile.h"
+#include "../clib/fileutil.h"
+#include "../clib/stlutil.h"
+#include "../clib/strutil.h"
 
 #include "item/armor.h"
 #include "checkpnt.h"
@@ -35,7 +35,7 @@ Notes
 #include "loadunld.h"
 #include "objecthash.h"
 
-#include "plib/pkg.h"
+#include "../plib/pkg.h"
 
 void initialize_client_interfaces();
 

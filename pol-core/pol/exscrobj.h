@@ -11,8 +11,8 @@ Notes
 #ifndef EXSCROBJ_H
 #define EXSCROBJ_H
 
-#include "bscript/bobject.h"
-#include "clib/weakptr.h"
+#include "../bscript/bobject.h"
+#include "../clib/weakptr.h"
 
 class UOExecutor;
 
