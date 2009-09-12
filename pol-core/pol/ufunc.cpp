@@ -26,20 +26,20 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
 #include <assert.h>
 #include <stddef.h>
 
-#include "clib/clib.h"
-#include "clib/endian.h"
-#include "clib/logfile.h"
-#include "clib/passert.h"
-#include "clib/stlutil.h"
-#include "clib/strutil.h"
+#include "../clib/clib.h"
+#include "../clib/endian.h"
+#include "../clib/logfile.h"
+#include "../clib/passert.h"
+#include "../clib/stlutil.h"
+#include "../clib/strutil.h"
 
-#include "plib/mapcell.h"
-#include "plib/realm.h"
+#include "../plib/mapcell.h"
+#include "../plib/realm.h"
 
 #include "accounts/account.h"
 #include "mobile/charactr.h"
@@ -69,7 +69,7 @@ Notes
 #include "uvars.h"
 #include "uworld.h"
 
-#include "bscript/impstr.h"
+#include "../bscript/impstr.h"
 
 #include "objecthash.h"
 

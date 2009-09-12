@@ -8,12 +8,12 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
-#include "clib/esignal.h"
-#include "clib/threadhelp.h"
+#include "../clib/esignal.h"
+#include "../clib/threadhelp.h"
 
-#include "bscript/eprog.h"
+#include "../bscript/eprog.h"
 
 #include "polsig.h"
 volatile bool reload_configuration_signalled = false;

@@ -15,28 +15,28 @@ Configuration File Repository
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
 #ifdef _MSC_VER
-#pragma warning( disable: 4786 )
+#	pragma warning( disable: 4786 )
 #endif
 
 #include <sys/stat.h>
 
-#include "bscript/bobject.h"
-#include "bscript/escrutil.h"
-#include "bscript/impstr.h"
+#include "../bscript/bobject.h"
+#include "../bscript/escrutil.h"
+#include "../bscript/impstr.h"
 
-#include "clib/cfgelem.h"
-#include "clib/cfgfile.h"
-#include "clib/fileutil.h"
-#include "clib/mlog.h"
-#include "clib/refptr.h"
-#include "clib/strutil.h"
+#include "../clib/cfgelem.h"
+#include "../clib/cfgfile.h"
+#include "../clib/fileutil.h"
+#include "../clib/mlog.h"
+#include "../clib/refptr.h"
+#include "../clib/strutil.h"
 
 #include "cfgrepos.h"
 #include "polcfg.h"
-#include "plib/pkg.h"
+#include "../plib/pkg.h"
 
 StoredConfigElem::StoredConfigElem( ConfigElem& elem )
 {

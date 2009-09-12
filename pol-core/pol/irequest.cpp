@@ -9,10 +9,10 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
-#include "clib/endian.h"
-#include "clib/fdump.h"
-#include "clib/clib.h"
+#include "../clib/stl_inc.h"
+#include "../clib/endian.h"
+#include "../clib/fdump.h"
+#include "../clib/clib.h"
 
 #include "mobile/attribute.h"
 #include "mobile/charactr.h"

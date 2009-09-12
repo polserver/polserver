@@ -15,7 +15,7 @@ Notes
 #pragma warning(disable:4786)
 #endif
 
-#include "clib/maputil.h"
+#include "../clib/maputil.h"
 
 class ConfigFile;
 class ConfigElem;

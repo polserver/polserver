@@ -8,7 +8,7 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 #ifdef _MSC_VER
  #pragma warning( disable: 4786 )
 #endif
@@ -18,10 +18,10 @@ Notes
 #include <stdlib.h>
 #include <time.h>
 
-#include "clib/cfgelem.h"
-#include "clib/cfgfile.h"
-#include "clib/endian.h"
-#include "clib/fileutil.h"
+#include "../clib/cfgelem.h"
+#include "../clib/cfgfile.h"
+#include "../clib/endian.h"
+#include "../clib/fileutil.h"
 
 #include "action.h"
 #include "mobile/charactr.h"
@@ -31,7 +31,7 @@ Notes
 #include "miscrgn.h"
 #include "mkscrobj.h"
 #include "objtype.h"
-#include "plib/pkg.h"
+#include "../plib/pkg.h"
 #include "pktin.h"
 #include "polcfg.h"
 #include "polclass.h"

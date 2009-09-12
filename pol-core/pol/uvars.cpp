@@ -15,16 +15,16 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 #ifdef _MSC_VER
 #pragma warning( disable: 4786 )
 #endif
 
 
-#include "clib/cfgelem.h"
-#include "clib/clib.h"
-#include "clib/fileutil.h"
-#include "clib/stlutil.h"
+#include "../clib/cfgelem.h"
+#include "../clib/clib.h"
+#include "../clib/fileutil.h"
+#include "../clib/stlutil.h"
 
 #include "accounts/account.h"
 #include "mobile/attribute.h"
@@ -180,7 +180,7 @@ void cleanup_vars()
 }
 
 
-#include "clib/cfgfile.h"
+#include "../clib/cfgfile.h"
 void set_watch_vars()
 {
 	ConfigFile cf;

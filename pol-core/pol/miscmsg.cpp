@@ -18,20 +18,20 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
 /* MISCMSG.CPP: Miscellaneous message handlers.  Handlers shouldn't stay here long, 
    only until they find a better home - but this is better than putting them in POL.CPP. */
 
 #include <stddef.h>
 
-#include "clib/clib.h"
-#include "clib/endian.h"
-#include "clib/fdump.h"
-#include "clib/logfile.h"
-#include "clib/strutil.h"
+#include "../clib/clib.h"
+#include "../clib/endian.h"
+#include "../clib/fdump.h"
+#include "../clib/logfile.h"
+#include "../clib/strutil.h"
 
-#include "clib/stlutil.h"
+#include "../clib/stlutil.h"
 
 #include "accounts/account.h"
 #include "mobile/charactr.h"

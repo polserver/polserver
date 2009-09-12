@@ -8,12 +8,12 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 #ifdef _MSC_VER
 #pragma warning( disable: 4786 )
 #endif
 
-#include "clib/stlutil.h"
+#include "../clib/stlutil.h"
 
 #include "ufunc.h"
 #include "ufuncstd.h"

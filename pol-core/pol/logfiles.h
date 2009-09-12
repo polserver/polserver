@@ -11,7 +11,7 @@ Notes
 #ifndef LOGFILES_H
 #define LOGFILES_H
 
-#include "clib/nlogfile.h"
+#include "../clib/nlogfile.h"
 
 extern LogFile script_log;
 

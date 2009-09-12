@@ -46,7 +46,7 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 #ifdef _MSC_VER
 #pragma warning( disable: 4786 )
 #endif
@@ -67,24 +67,24 @@ Notes
 #include <time.h>
 
 #include "dtrace.h"
-#include "clib/dualbuf.h"
-#include "clib/endian.h"
-#include "clib/esignal.h"
-#include "clib/fdump.h"
-#include "clib/fileutil.h"
-#include "clib/logfile.h"
-#include "clib/MD5.h"
-#include "clib/mlog.h"
-#include "clib/passert.h"
-#include "clib/random.h"
-#include "clib/stlutil.h"
-#include "clib/strexcpt.h"
-#include "clib/strutil.h"
-#include "clib/threadhelp.h"
-#include "clib/tracebuf.h"
+#include "../clib/dualbuf.h"
+#include "../clib/endian.h"
+#include "../clib/esignal.h"
+#include "../clib/fdump.h"
+#include "../clib/fileutil.h"
+#include "../clib/logfile.h"
+#include "../clib/MD5.h"
+#include "../clib/mlog.h"
+#include "../clib/passert.h"
+#include "../clib/random.h"
+#include "../clib/stlutil.h"
+#include "../clib/strexcpt.h"
+#include "../clib/strutil.h"
+#include "../clib/threadhelp.h"
+#include "../clib/tracebuf.h"
 
-#include "plib/pkg.h"
-#include "plib/realm.h"
+#include "../plib/pkg.h"
+#include "../plib/realm.h"
 
 #include "accounts/account.h"
 #include "allocd.h"
@@ -124,7 +124,7 @@ Notes
 #include "polfile.h"
 #include "polsig.h"
 #include "poltest.h"
-#include "plib/polver.h"
+#include "../plib/polver.h"
 #include "polwww.h"
 #include "profile.h"
 #include "readcfg.h"
@@ -1719,7 +1719,7 @@ void show_item( Item* item )
 {
 	cout << "Remaining item: " << item->serial << ": " << item->name() << endl;
 } 
-#include "bscript/escriptv.h"
+#include "../bscript/escriptv.h"
 void display_executor_instances();
 void display_unreaped_orphan_instances();
 void display_bobjectimp_instances();
@@ -1804,7 +1804,7 @@ void UnloadAllConfigFiles();
 void allocate_intrinsic_weapon_serials();
 
 #ifdef _WIN32
-#include "clib/mdump.h"
+#include "../clib/mdump.h"
 #endif
 
 #ifdef _WIN32

@@ -14,23 +14,23 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
 #include <time.h>
 
 #include "module/basiciomod.h"
 #include "module/basicmod.h"
-#include "bscript/berror.h"
-#include "bscript/eprog.h"
-#include "bscript/executor.h"
-#include "bscript/impstr.h"
+#include "../bscript/berror.h"
+#include "../bscript/eprog.h"
+#include "../bscript/executor.h"
+#include "../bscript/impstr.h"
 
-#include "clib/logfile.h"
-#include "clib/endian.h"
-#include "clib/passert.h"
-#include "clib/stlutil.h"
-#include "clib/strutil.h"
-#include "clib/unicode.h"
+#include "../clib/logfile.h"
+#include "../clib/endian.h"
+#include "../clib/passert.h"
+#include "../clib/stlutil.h"
+#include "../clib/strutil.h"
+#include "../clib/unicode.h"
 
 #include "module/attributemod.h"
 #include "module/boatmod.h"

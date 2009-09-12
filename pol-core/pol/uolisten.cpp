@@ -9,14 +9,14 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
-#include "clib/esignal.h"
-#include "clib/logfile.h"
-#include "clib/socketsvc.h"
-#include "clib/stlutil.h"
-#include "clib/strutil.h"
-#include "clib/threadhelp.h"
+#include "../clib/esignal.h"
+#include "../clib/logfile.h"
+#include "../clib/socketsvc.h"
+#include "../clib/stlutil.h"
+#include "../clib/strutil.h"
+#include "../clib/threadhelp.h"
 
 #include "network/client.h"
 #include "network/cliface.h"

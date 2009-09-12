@@ -8,7 +8,7 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
 #ifdef _WIN32
 # define WIN32_LEAN_AND_MEAN
@@ -17,7 +17,7 @@ Notes
 
 #include <assert.h>
 
-#include "clib/passert.h"
+#include "../clib/passert.h"
 #include "polclock.h"
 
 clock_t polclock_paused_at;

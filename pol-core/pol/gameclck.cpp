@@ -8,10 +8,11 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
+
 #include <time.h>
 
-#include "clib/stlutil.h"
+#include "../clib/stlutil.h"
 
 #include "gameclck.h"
 #include "gprops.h"

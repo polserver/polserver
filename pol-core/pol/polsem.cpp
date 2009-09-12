@@ -8,12 +8,12 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
-#include "clib/logfile.h"
-#include "clib/passert.h"
-#include "clib/strexcpt.h"
-#include "clib/threadhelp.h"
-#include "clib/tracebuf.h"
+#include "../clib/stl_inc.h"
+#include "../clib/logfile.h"
+#include "../clib/passert.h"
+#include "../clib/strexcpt.h"
+#include "../clib/threadhelp.h"
+#include "../clib/tracebuf.h"
 
 #include "checkpnt.h"
 #include "polsem.h"

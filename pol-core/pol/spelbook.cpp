@@ -9,9 +9,9 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
-#include "clib/cfgelem.h"
-#include "clib/endian.h"
+#include "../clib/stl_inc.h"
+#include "../clib/cfgelem.h"
+#include "../clib/endian.h"
 #include "mobile/charactr.h"
 #include "item/itemdesc.h"
 #include "spelbook.h"

@@ -8,7 +8,7 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 
 #ifdef __unix__
 #include <unistd.h>
@@ -16,12 +16,12 @@ Notes
 
 #include <errno.h>
 
-#include "clib/endian.h"
-#include "clib/fileutil.h"
-#include "clib/iohelp.h"
-#include "clib/logfile.h"
-#include "clib/strutil.h"
-#include "clib/wallclock.h"
+#include "../clib/endian.h"
+#include "../clib/fileutil.h"
+#include "../clib/iohelp.h"
+#include "../clib/logfile.h"
+#include "../clib/strutil.h"
+#include "../clib/wallclock.h"
 
 #include "item/item.h"
 #include "item/itemdesc.h"

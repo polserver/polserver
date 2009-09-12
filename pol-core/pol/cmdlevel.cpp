@@ -10,16 +10,19 @@ Notes
 
 #include <string>
 
-#include "clib/stl_inc.h"
-#include "clib/cfgfile.h"
-#include "clib/cfgelem.h"
-#include "clib/dirlist.h"
-#include "clib/fileutil.h"
-#include "clib/stlutil.h"
-#include "clib/strutil.h"
-#include "bscript/impstr.h"
-#include "bscript/bstruct.h"
-#include "plib/pkg.h"
+#include "../clib/stl_inc.h"
+#include "../clib/cfgfile.h"
+#include "../clib/cfgelem.h"
+#include "../clib/dirlist.h"
+#include "../clib/fileutil.h"
+#include "../clib/stlutil.h"
+#include "../clib/strutil.h"
+
+#include "../bscript/impstr.h"
+#include "../bscript/bstruct.h"
+
+#include "../plib/pkg.h"
+
 #include "cmdlevel.h"
 
 

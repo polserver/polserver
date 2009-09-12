@@ -27,27 +27,27 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 #ifdef _MSC_VER
 #pragma warning( disable: 4786 )
 #endif
 
 
-#include "bscript/berror.h"
-#include "bscript/dict.h"
-#include "bscript/escrutil.h"
-#include "bscript/execmodl.h"
-#include "bscript/impstr.h"
-#include "bscript/objmembers.h"
-#include "bscript/objmethods.h"
+#include "../bscript/berror.h"
+#include "../bscript/dict.h"
+#include "../bscript/escrutil.h"
+#include "../bscript/execmodl.h"
+#include "../bscript/impstr.h"
+#include "../bscript/objmembers.h"
+#include "../bscript/objmethods.h"
 
-#include "clib/endian.h"
-#include "clib/mlog.h"
-#include "clib/stlutil.h"
-#include "clib/strutil.h"
-#include "clib/unicode.h"
+#include "../clib/endian.h"
+#include "../clib/mlog.h"
+#include "../clib/stlutil.h"
+#include "../clib/strutil.h"
+#include "../clib/unicode.h"
 
-#include "plib/realm.h"
+#include "../plib/realm.h"
 
 #include "accounts/account.h"
 #include "accounts/acscrobj.h"

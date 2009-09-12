@@ -8,18 +8,18 @@ Notes
 
 */
 
-#include "clib/stl_inc.h"
+#include "../clib/stl_inc.h"
 #ifdef _MSC_VER
 #pragma warning( disable: 4786 )
 #endif
 
 
-#include "bscript/eprog.h"
+#include "../bscript/eprog.h"
 
-#include "clib/cistring.h"
-#include "clib/logfile.h"
-#include "clib/refptr.h"
-#include "clib/strutil.h"
+#include "../clib/cistring.h"
+#include "../clib/logfile.h"
+#include "../clib/refptr.h"
+#include "../clib/strutil.h"
 
 #include "polcfg.h"
 #include "profile.h"

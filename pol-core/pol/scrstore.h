@@ -14,9 +14,9 @@ Notes
 #include <map>
 #include <string>
 
-#include "bscript/eprog.h"
-#include "clib/refptr.h"
-#include "clib/maputil.h"
+#include "../bscript/eprog.h"
+#include "../clib/refptr.h"
+#include "../clib/maputil.h"
 
 typedef map< string, ref_ptr<EScriptProgram>, ci_cmp_pred > ScriptStorage;
 

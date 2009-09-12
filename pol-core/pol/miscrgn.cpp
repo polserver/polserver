@@ -9,10 +9,10 @@ Notes
 */
 
 
-#include "clib/stl_inc.h"
-#include "clib/cfgelem.h"
+#include "../clib/stl_inc.h"
+#include "../clib/cfgelem.h"
 
-#include "plib/realm.h"
+#include "../plib/realm.h"
 
 #include "region.h"
 #include "miscrgn.h"
