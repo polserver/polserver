@@ -74,9 +74,6 @@ Planning
 		spell->cast(client->chr). Clean the whole Spelltask class, as it's no longer used (it always
 		schedules for NOW). This includes the schedule_spell() method from Character class. For now,
 		they're only wasting space, memory and processing.
-	UnKnown:
-	    send_remove_object_to_inrange() needs to be used where necessary for object removal on clients
-	    instead of all the senseless loops and sending the norm. Optimize this shit :(
 	MuadDib:
 	    Process each packet to see if can use #define for "Type", "Flag" etc, to minimize using the number only
 	    when building them. Make it more user friendly to read.
