@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<DebugLogFileResults>
+  <Sheet_Information>
+    <Title>POL Debug.Log Parser Results File</Title>
+    <LogFile>Path/Log Filename</LogFile>
+    <Date>Date Information here</Date>
+  </Sheet_Information>
+  <Parse_Results>
+    <Script_Results>
+      <Script_Instance>
+        <Script></Script>
+        <LST_Line></LST_Line>
+        <Function_Name></Function_Name>
+        <Error_Return></Error_Return>
+      </Script_Instance>
+    </Script_Results>
+    <Config_Results>
+      <Missing_Config>
+        <Config></Config>
+      </Missing_Config>
+    </Config_Results>
+  </Parse_Results>
+</DebugLogFileResults>
