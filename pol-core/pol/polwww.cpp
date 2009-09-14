@@ -800,7 +800,9 @@ unsigned __stdcall http_conn_thread_stub( void *arg )
 
 void start_http_conn_thread( SOCKET client_socket )
 {
-	unsigned threadid;
+	// Code Analyze: C6001
+	//	unsigned threadid;
+	unsigned threadid = 0;
 	HANDLE h;
 
 	h = (HANDLE) _beginthreadex( NULL, 

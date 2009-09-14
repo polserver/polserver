@@ -757,6 +757,9 @@ void Item::saveonexit( bool newvalue )
 
 bool Item::setgraphic( u16 newgraphic )
 {
+	if (layer && layer != LAYER_MOUNT )
+		return false;
+
 	if (graphic <= UOBJ_ITEM__HIGHEST && newgraphic <= UOBJ_ITEM__HIGHEST)
     {
         set_dirty();
