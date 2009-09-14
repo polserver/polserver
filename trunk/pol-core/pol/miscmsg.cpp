@@ -353,6 +353,8 @@ void handle_ef_seed( Client *client, PKTIN_EF *msg )
 	client->setversiondetail(detail);
 	if (client->compareVersion(CLIENT_VER_60171)) //Grid-loc support
 		client->is_greq_6017=true;
+	if (detail.major >= 66) // UO:SA hack
+		client->isUOKR=true;
 
 	// detail->patch is since 5.0.7 always numeric, so no need to make it complicated
 	OSTRINGSTREAM os;
