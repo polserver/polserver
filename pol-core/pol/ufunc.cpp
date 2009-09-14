@@ -20,6 +20,8 @@ History
 2009/08/14 Turley:    PKTOUT_B9_V2 removed unk u16 and changed flag to u32
 2009/09/03 MuadDib:   Relocation of account related cpp/h
                       Relocation of multi related cpp/h
+2009/09/13 MuadDib:   Optimized send_remove_character_to_nearby_cansee, send_remove_character_to_nearby_cantsee, send_remove_character_to_nearby
+                      to build packet and handle iter internally. Packet built just once this way, and sent to those who need it.
 
 Notes
 =======
@@ -291,7 +293,24 @@ void send_remove_character_if_nearby( Client* client, const Character* chr )
 }
 void send_remove_character_to_nearby( const Character* chr )
 {
-    ForEach( clients, send_remove_character_if_nearby, chr );
+	PKTOUT_1D msg;
+	msg.msgtype = PKTOUT_1D_ID;
+	msg.serial = chr->serial_ext;
+
+	for( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
+	{
+		Client *client = *itr;
+		if (!client->ready)     /* if a client is just connecting, don't bother him. */
+			return;
+
+		if (!inrange( client->chr, chr))
+			return;
+
+		if (client->chr == chr)
+			return;
+
+		transmit( client, &msg, sizeof msg );
+	}
 }
 
 void send_remove_character_if_nearby_cantsee( Client* client, const Character* chr )
@@ -315,9 +334,30 @@ void send_remove_character_if_nearby_cantsee( Client* client, const Character* c
 }
 void send_remove_character_to_nearby_cantsee( const Character* chr )
 {
-    ForEach( clients, send_remove_character_if_nearby_cantsee, chr );
+	PKTOUT_1D msg;
+	msg.msgtype = PKTOUT_1D_ID;
+	msg.serial = chr->serial_ext;
+
+	for( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
+	{
+		Client *client = *itr;
+		if (!client->ready)     /* if a client is just connecting, don't bother him. */
+			return;
+
+		if (!inrange( client->chr, chr))
+			return;
+
+		if (client->chr == chr)
+			return;
+
+		if (!client->chr->is_visible_to_me( chr ))
+		{
+			transmit( client, &msg, sizeof msg );
+		}
+	}
 }
 
+// FIXME: This is depreciated unless we find a new place to use it.
 void send_remove_character_if_nearby_cansee( Client* client, const Character* chr )
 {
     if (client->ready &&
@@ -331,9 +371,24 @@ void send_remove_character_if_nearby_cansee( Client* client, const Character* ch
         transmit( client, &msg, sizeof msg );
     }
 }
+
 void send_remove_character_to_nearby_cansee( const Character* chr )
 {
-    ForEach( clients, send_remove_character_if_nearby_cansee, chr );
+	PKTOUT_1D msg;
+	msg.msgtype = PKTOUT_1D_ID;
+	msg.serial = chr->serial_ext;
+
+	for( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
+	{
+		Client *client = *itr;
+		if (client->ready &&
+			inrange( client->chr, chr) &&
+			client->chr != chr &&
+			client->chr->is_visible_to_me( chr ))
+		{
+			transmit( client, &msg, sizeof msg );
+		}
+	}
 }
 
 
