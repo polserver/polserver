@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<LogFileResults>
+  <Sheet_Information>
+    <Title>POL Log Parser Results File</Title>
+    <LogFile>Path/Log Filename</LogFile>
+    <Date>Date Information here</Date>
+  </Sheet_Information>
+  <Parse_Results>
+    <Instance>
+      <Keyword>Keyword Found</Keyword>
+      <Log_Line></Log_Line>
+    </Instance>
+  </Parse_Results>
+</LogFileResults>
