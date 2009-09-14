@@ -1,8 +1,8 @@
 /*
 History
 =======
-
 2009/08/25 Shinigami: STLport-5.2.1 fix: init order changed of realm and saveonexit_
+2009/09/14 MuadDib:   UObject::setgraphic added error printing.
 
 Notes
 =======
@@ -338,6 +338,7 @@ ostream& operator << (ostream& os, const UObject& obj)
 
 bool UObject::setgraphic( u16 newgraphic )
 {
+	cerr << "UOBject::SetGraphic used, object class does not have a graphic member! Object Serial: " << serial << endl;
     return false;
 }
 
