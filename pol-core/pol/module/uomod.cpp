@@ -1609,9 +1609,12 @@ void append_objtypes( ObjArray* objarr, Menu* menu )
 
         if (mi->submenu_id)
         {
-            Menu* menu = find_menu( mi->submenu_id );
-            if (menu != NULL)
-                append_objtypes( objarr, menu );
+// Code Analyze: Commented out and replaced with tmp_menu due to hiding
+// menu passed to function. 
+//            Menu* menu = find_menu( mi->submenu_id );
+            Menu* tmp_menu = find_menu( mi->submenu_id );
+			if (tmp_menu != NULL)
+                append_objtypes( objarr, tmp_menu );
         }
         else
         {
@@ -2408,11 +2411,13 @@ BObjectImp* UOExecutorModule::mf_ListMultisInBox(/* x1, y1, z1, x2, y2, z2, real
 
                 // some part of it is contained in the box.  Look at the individual statics, to see
                 // if any of them lie within.
-                for( MultiDef::Components::const_iterator citr = md.components.begin(), end = md.components.end();
-					 citr != end;
-					 ++citr )
+// Code Analyze: Commented and renaming due to C6246 Warning
+//				for( MultiDef::Components::const_iterator citr_2 = md.components.begin(), end = md.components.end();
+				for( MultiDef::Components::const_iterator citr_2 = md.components.begin(), end_2 = md.components.end();
+					 citr_2 != end_2;
+					 ++citr_2 )
                 {
-                    const MULTI_ELEM* elem = (*citr).second;
+                    const MULTI_ELEM* elem = (*citr_2).second;
                     int absx = multi->x + elem->x;
                     int absy = multi->y + elem->y;
                     int absz = multi->z + elem->z;
@@ -3295,11 +3300,13 @@ BObjectImp* UOExecutorModule::mf_SaveWorldState()
         }
         if (res == 0)
         {
-            BStruct* res = new BStruct();
-            res->addMember( "DirtyObjects", new BLong( dirty ) );
-            res->addMember( "CleanObjects", new BLong( clean ) );
-            res->addMember( "ElapsedMilliseconds", new BLong( elapsed_ms ) );
-            return res;
+// Code Analyze: C6246
+//			BStruct* res = new BStruct();
+			BStruct* ret = new BStruct();
+            ret->addMember( "DirtyObjects", new BLong( dirty ) );
+            ret->addMember( "CleanObjects", new BLong( clean ) );
+            ret->addMember( "ElapsedMilliseconds", new BLong( elapsed_ms ) );
+            return ret;
         }
         else
         {
