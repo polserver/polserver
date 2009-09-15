@@ -44,6 +44,7 @@ History
 2009/08/25 Shinigami: STLport-5.2.1 fix: additional parentheses in mf_ListMultisInBox
 2009/09/03 MuadDib:	  Changes for account related source file relocation
                       Changes for multi related source file relocation
+2009/09/14 MuadDib:   Slot support added to creation/move to container.
 
 Notes
 =======
@@ -363,6 +364,19 @@ BObjectImp* _create_item_in_container(
                 }
             }
 
+			// run before owner is found. No need to find owner if not even able to use slots.
+			u8 slotIndex = item->slot_index();
+			if (!cont->can_add_to_slot(slotIndex))
+			{
+				item->destroy();
+				return new BError( "No slots available in this container" );
+			}
+			if ( !item->slot_index(slotIndex) )
+			{
+				item->destroy();
+				return new BError( "Couldn't set slot index on item" );
+			}
+
 			//DAVE added this 11/17, call can/onInsert scripts for this container
 			Character* chr_owner = cont->GetCharacterOwner();
 			if(chr_owner == NULL)
@@ -379,8 +393,6 @@ BObjectImp* _create_item_in_container(
 				return new BError( "Item was destroyed in CanInsert Script" );
 			}
 
-			// FIXME : Add Grid Index Default Location Checks here.
-			// Remember, if index fails, move to the ground.
 			cont->add_at_random_location( item );
             update_item_to_inrange( item );
             //DAVE added this 11/17, refresh owner's weight on item insert
@@ -3638,6 +3650,18 @@ BObjectImp* UOExecutorModule::mf_MoveItemToContainer()
 		}
 	}
 
+	u8 slotIndex = item->slot_index();
+	if (!cont->can_add_to_slot(slotIndex))
+	{
+		item->destroy();
+		return new BError( "No slots available in new container" );
+	}
+	if ( !item->slot_index(slotIndex) )
+	{
+		item->destroy();
+		return new BError( "Couldn't set slot index on item" );
+	}
+
 	short x = static_cast<short>(px);
 	short y = static_cast<short>(py);
     if (/*x < 0 || y < 0 ||*/ !cont->is_legal_posn( item, x, y ))
@@ -3653,8 +3677,7 @@ BObjectImp* UOExecutorModule::mf_MoveItemToContainer()
     item->x = x;
     item->y = y;
     item->z = 0;
-	// FIXME : Add Grid Index Default Location Checks here.
-	// Remember, if index fails, move to the ground.
+
 	cont->add( item );
     update_item_to_inrange( item );
 	//DAVE added this 11/17: if in a Character's pack, update weight.
