@@ -53,6 +53,7 @@ Notes
 #include "../reftypes.h"
 
 #include "../ssopt.h"
+#include "../multi/house.h"
 
 class Account;
 class Attribute;
@@ -723,6 +724,8 @@ public:
 protected:
     ref_ptr<WornItemsContainer> wornitems_ref;
     WornItemsContainer& wornitems; 
+
+	u32 registered_house; 
 
 //    s16 strength_mod_;
 //    s16 intelligence_mod_;
