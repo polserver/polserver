@@ -43,6 +43,12 @@ public:
     bool editing;
     int editing_floor_num;
     u32 revision;
+
+	virtual void register_object( UObject* obj );
+	virtual void unregister_object( UObject* obj );
+
+	void ClearSquatters();
+
 protected:
     explicit UHouse( const ItemDesc& itemdesc );
     void create_components();
@@ -64,6 +70,10 @@ protected:
     friend class UMulti;
     bool custom;
 private:
+	typedef UObjectRef Squatter;
+	typedef std::vector< Squatter > Squatters;
+	Squatters squatters_;
+
     typedef ItemRef Component;
     typedef std::vector< Component > Components;
     Components components_;

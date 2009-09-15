@@ -97,6 +97,7 @@ bool move_character_to( Character* chr,
 
 	chr->gradual_boost = new_boost;
     chr->position_changed();
+	// FIXME: Need to add Walkon checks for multi right here if type is house.
     if (supporting_multi != NULL)
     {
         supporting_multi->register_object( chr );

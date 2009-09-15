@@ -3495,6 +3495,7 @@ bool Character::move( unsigned char i_dir )
 		y = static_cast<u16>(newy);
 		z = static_cast<s8>(newz);
 
+		// FIXME: Need to add Walkon checks for multi right here if type is house.
 		if (supporting_multi != NULL)
 		{
 			supporting_multi->register_object( this );
