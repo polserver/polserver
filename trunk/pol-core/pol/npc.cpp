@@ -18,10 +18,10 @@ Notes
 */
 
 #include "../clib/stl_inc.h"
-#ifdef _MSC_VER
-#pragma warning(disable:4786)
-#endif
 
+#ifdef _MSC_VER
+#	pragma warning(disable:4786)
+#endif
 
 #include "../clib/cfgelem.h"
 #include "../clib/clib.h"
@@ -76,6 +76,7 @@ Notes
 #include "watch.h"
 #include "item/weapon.h"
 #include "wrldsize.h"
+#include "multi/house.h"
 
 /* An area definition is as follows:
    pt: (x,y)
@@ -123,6 +124,17 @@ void NPC::destroy()
 {
    // stop_scripts();
     wornitems.destroy_contents();
+	if ( registered_house > 0 )
+	{
+		UMulti* multi = system_find_multi(registered_house);
+		if(multi != NULL)
+		{
+			UHouse* house = multi->as_house();
+			if(house != NULL)
+				house->unregister_object((UObject*)this);
+		}
+		registered_house = 0;
+	}
     base::destroy();
 }
 
