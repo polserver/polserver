@@ -788,8 +788,34 @@ BObjectImp* destroy_house( UHouse* house )
         chr_contents.pop_back();
     }
     
+	house->ClearSquatters();
+
     house->destroy();
     
     return new BLong(1);
 }
 
+void UHouse::register_object( UObject* obj )
+{ 
+	if (find( squatters_.begin(), squatters_.end(), obj ) == squatters_.end())
+	{
+		set_dirty();
+		squatters_.push_back( Squatter(obj) );
+	}
+}
+
+void UHouse::unregister_object( UObject* obj )
+{ 
+	Squatters::iterator this_squatter = find( squatters_.begin(), squatters_.end(), obj );
+
+	if ( this_squatter != squatters_.end())
+	{
+		set_dirty();
+		squatters_.erase( this_squatter );
+	}
+}
+
+void UHouse::ClearSquatters( )
+{ 
+	squatters_.clear();
+}
