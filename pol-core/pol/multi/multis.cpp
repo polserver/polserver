@@ -68,6 +68,10 @@ void UMulti::register_object( UObject* obj )
 {
 }
 
+void UMulti::unregister_object( UObject* obj )
+{
+}
+
 const char* UMulti::classname() const
 {
     return "MULTI";
