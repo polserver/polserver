@@ -1,7 +1,7 @@
 /*
 History
 =======
-
+2009/09/14 MuadDib:   CreateItem() now has slot support.
 
 Notes
 =======
@@ -977,10 +977,15 @@ BObjectImp* NPCExecutorModule::CreateItem()
 	if (!backpack->can_add( *item ))
 		return new BLong(0);
 
+	u8 slotIndex = item->slot_index();
+	if ( !backpack->can_add_to_slot(slotIndex) )
+		return new BLong(0);
+
+	if ( !item->slot_index(slotIndex) )
+		return new BLong(0);
+
 	u32 serial = item->serial;
 
-	// FIXME : Add Grid Index Default Location Checks here.
-	// Remember, if index fails, move to the ground.
 	backpack->add( item.release() );
 
 	return new BLong(serial);

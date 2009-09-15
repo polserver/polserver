@@ -1,4 +1,12 @@
 -- POL099 --
+09-14-2009 MuadDib:
+   Removed: All import abilities built in to core for UOX data files. O_O
+      Note: The file "import.txt" will be loaded each time POL loads, when found in the world data directory. This file's
+            format is the same as, for example, the ITEMS.TXT file POL saves. You can use this for example, to store all your
+            doors, decorations, etc, to ensure they are reloaded after a wipe, or loaded every time POL starts. These items
+            are added to the real world, and saved to items.txt. However, if on load the same objtype is found at the same
+            x y z as the item in IMPORT.TXT, it destroys that item, and loads the import one.
+            
 09-10-2009 Turley:
     Added:  CompressedGump support packet 0xdd
     Added:  flag param to SendDialogGump() SENDDIALOGMENU_FORCE_OLD/0 default 0
