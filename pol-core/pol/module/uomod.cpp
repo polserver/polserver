@@ -1329,7 +1329,8 @@ BObjectImp* UOExecutorModule::mf_CreateNpcFromTemplate()
 		//dave added 2/3/3 send entered area events for npc create
 		ForEachMobileInRange( x, y, realm, 32,
 			                  NpcPropagateMove, static_cast<Character*>(npc.get()) );
-        if (dummy_multi)
+		// FIXME: Need to add Walkon checks for multi right here if type is house.
+		if (dummy_multi)
             dummy_multi->register_object( npc.get() );
         return new ECharacterRefObjImp( npc.get() );
     }

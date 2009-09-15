@@ -50,6 +50,7 @@ public:
 
     virtual void double_click( Client* client );
     virtual void register_object( UObject* obj );
+	virtual void unregister_object( UObject* obj );
     virtual bool script_isa( unsigned isatype ) const;
 
     const MultiDef& multidef() const;

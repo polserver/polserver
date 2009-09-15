@@ -340,6 +340,7 @@ void start_client_char( Client *client )
 					&newz, &supporting_multi, &walkon ))
 	{
 		client->chr->z = static_cast<s8>(newz);
+		// FIXME: Need to add Walkon checks for multi right here if type is house.
 		if (supporting_multi != NULL)
 		{
 			supporting_multi->register_object( client->chr );
