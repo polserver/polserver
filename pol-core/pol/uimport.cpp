@@ -5,6 +5,7 @@ History
 2007/06/17 Shinigami: added config.world_data_path
 2009/09/03 MuadDib:   Relocation of account related cpp/h
                       Relocation of multi related cpp/h
+2009/09/14 MuadDib:   All UOX3 Import Code commented out. You can script this.
 
 Notes
 =======
@@ -67,6 +68,7 @@ ContItemArr contained_items;
 typedef std::vector<unsigned long> ContSerArr;
 ContSerArr  container_serials;
 
+/*
 void uox_place_contained_items( void )
 {
 	int any;
@@ -104,7 +106,7 @@ void uox_place_contained_items( void )
 				{
 					if (cont_item->isa(UObject::CLASS_CONTAINER))
 					{
-						// FIXME : Add Grid Index Default Location Checks here.
+						// FIXME : Add Slot Index Default Location Checks here.
 						// Remember, if index fails, move to the ground.
 						((UContainer* ) cont_item)->add( item );
 						contained_items[idx] = NULL;
@@ -154,10 +156,12 @@ void uox_place_contained_items( void )
 	contained_items.clear();
 	container_serials.clear();
 }
+*/
 
+/*
 void uox_read_character( ConfigElem& elem )
 {
-/*
+
 	unsigned long account;
 	if (!elem.remove_prop( "Account", &account ) ||
 		account != 0xFFffFFffLu)
@@ -198,9 +202,11 @@ void uox_read_character( ConfigElem& elem )
 
 	characters.push_back( chr );
 	SetCharacterWorldPosition( chr );
-*/
-}
 
+}
+*/
+
+/*
 void uox_read_item( ConfigElem& elem )
 {
 	u32 serial;
@@ -253,7 +259,9 @@ void uox_read_item( ConfigElem& elem )
 		container_serials.push_back( container_serial );
 	}
 }
+*/
 
+/*
 void import_wsc( void )
 {
 	string impworldfile = config.world_data_path + "impworld.wsc";
@@ -283,6 +291,7 @@ void import_wsc( void )
 		unlink( impworldfile.c_str() );
 	}
 }
+*/
 
 /****************** POL Native Files *******************/
 //Dave changed 3/8/3 to use objecthash
@@ -753,14 +762,11 @@ void import_new_data()
 
 	if (FileExists( importfile ))
 	{
-//		if (1)
+		ConfigFile cf( importfile, "ITEM" );
+		ConfigElem elem;
+		while (cf.read( elem ))
 		{
-			ConfigFile cf( importfile, "ITEM" );
-			ConfigElem elem;
-			while (cf.read( elem ))
-			{
-				import( elem );
-			}
+			import( elem );
 		}
 		unlink( importfile.c_str() );
 		cout << "Import Results: " << import_count << " imported, " << dupe_count << " duplicates." << endl;
@@ -896,7 +902,7 @@ int read_data()
 	clear_save_index();
 
 	import_new_data();
-	import_wsc();
+//	import_wsc();
 
 	//dave 3/9/3
 	if( stored_last_item_serial < GetCurrentItemSerialNumber() )
