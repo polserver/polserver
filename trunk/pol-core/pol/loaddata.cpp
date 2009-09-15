@@ -2,7 +2,8 @@
 History
 =======
 2007/06/17 Shinigami: added config.world_data_path
-2008/12/17 MuadDub: Added item.tile_layer - returns layer entry from tiledata/tiles.cfg
+2008/12/17 MuadDib:   Added item.tile_layer - returns layer entry from tiledata/tiles.cfg
+2009/09/14 MuadDib:   Added slot support to equip_loaded_item() and add_loaded_item()
 
 Notes
 =======
@@ -222,11 +223,10 @@ void equip_loaded_item( Character* chr, Item* item )
 		{
 			gflag_enforce_container_limits = false;
 			bool canadd = bp->can_add( *item );
-			if (canadd)
+			u8 slotIndex = item->slot_index();
+			bool add_to_slot = bp->can_add_to_slot(slotIndex);
+			if ( canadd && add_to_slot && item->slot_index(slotIndex) )
 			{
-				// FIXME : Add Grid Index Default Location Checks here.
-				// Remember, if index fails, move to the ground.
-				bp->add_at_random_location(item);
 				// leaving dirty
 				gflag_enforce_container_limits = true;
 				cerr << "I'm so cool, I put it in the character's backpack!" << endl;
@@ -256,15 +256,23 @@ void add_loaded_item( Item* cont_item, Item* item )
 		
 		gflag_enforce_container_limits = false;
 		bool canadd = cont->can_add( *item );
+		u8 slotIndex = item->slot_index();
+		bool add_to_slot = cont->can_add_to_slot(slotIndex);
 		if ( !canadd )
 		{
 			cerr << "Can't add Item " << hexint(item->serial)
 					<< " to container " << hexint(cont->serial) << endl;
 			throw runtime_error( "Data file error" );
 		}
-		
-		// FIXME : Add Grid Index Default Location Checks here.
-		// Remember, if index fails, move to the ground.
+
+		if ( !add_to_slot || !item->slot_index(slotIndex) )
+		{
+			cerr << "Can't add Item " << hexint(item->serial)
+				<< " to container " << hexint(cont->serial)
+				<< " at slot " << hexint(slotIndex) << endl;
+			throw runtime_error( "Data file error" );
+		}
+
 		cont->add( item );
 		item->clear_dirty(); // adding sets dirty
 
