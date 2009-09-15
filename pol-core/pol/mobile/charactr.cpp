@@ -124,6 +124,7 @@ Notes
 #include "../watch.h"
 #include "../item/weapon.h"
 #include "../item/wepntmpl.h"
+#include "../multi/house.h"
 
 #include "charactr.h"
 
@@ -327,6 +328,9 @@ Character::Character( u16 objtype, UOBJ_CLASS uobj_class ) :
 	party_can_loot_(false),
 	party_decline_timeout_(NULL),
 	murderer_(false),
+
+	registered_house( 0 ), 
+
 	langid_(0)
 {
 	gradual_boost = 0;
@@ -466,6 +470,17 @@ void Character::clear_gotten_item()
 void Character::destroy()
 {
 	stop_skill_script();
+	if ( registered_house > 0 )
+	{
+		UMulti* multi = system_find_multi(registered_house);
+		if(multi != NULL)
+		{
+			UHouse* house = multi->as_house();
+			if(house != NULL)
+				house->unregister_object((UObject*)this);
+		}
+		registered_house = 0;
+	}
 	base::destroy();
 }
 

@@ -99,8 +99,6 @@ public:
     void readPropertiesForNewNPC( ConfigElem& elem );
     virtual void destroy();
 
-	
-
     NpcTemplate::ALIGNMENT alignment() const;
 	
 	unsigned damaged_sound;
