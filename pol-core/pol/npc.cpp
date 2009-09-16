@@ -11,6 +11,7 @@ History
 2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
 2009/08/25 Shinigami: STLport-5.2.1 fix: params not used
                       STLport-5.2.1 fix: init order changed of damaged_sound
+2009/09/15 MuadDib:   Cleanup from registered houses on destroy
 
 Notes
 =======

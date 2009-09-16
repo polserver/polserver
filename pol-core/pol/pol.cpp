@@ -40,6 +40,7 @@ History
 2009/08/19 Turley:    PKTIN_5D clientflag saved in client->UOExpansionFlagClient
 2009/09/03 MuadDib:   Relocation of account related cpp/h
                       Changes for multi related source file relocation
+2009/09/15 MuadDib:   Multi registration/unregistration support added.
 
 Notes
 =======
@@ -97,6 +98,7 @@ Notes
 #include "core.h"
 #include "crypwrap.h"
 #include "decay.h"
+#include "fnsearch.h"
 #include "gameclck.h"
 #include "gflag.h"
 #include "guardrgn.h"
@@ -344,6 +346,22 @@ void start_client_char( Client *client )
 		if (supporting_multi != NULL)
 		{
 			supporting_multi->register_object( client->chr );
+			if ( supporting_multi->as_house() != NULL )
+				client->chr->registered_house = supporting_multi->serial;
+		}
+		else
+		{
+			if ( client->chr->registered_house > 0 )
+			{
+				UMulti* multi = system_find_multi(client->chr->registered_house);
+				if(multi != NULL)
+				{
+					UHouse* house = multi->as_house();
+					if(house != NULL)
+						house->unregister_object(client->chr);
+				}
+				client->chr->registered_house = 0;
+			}
 		}
 		client->chr->position_changed();
 	}

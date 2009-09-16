@@ -37,6 +37,9 @@ History
                       Changes for account related source file relocation
 					  Changes for multi related source file relocation
 2009/09/09 Turley:    ServSpecOpt CarryingCapacityMod as * modifier for Character::carrying_capacity()
+2009/09/15 MuadDib:   Cleanup from registered houses on destroy
+                      u32 registered_house added to store serial of registered multi.
+                      Multi registration/unregistration support added.
 
 Notes
 =======
@@ -3514,6 +3517,22 @@ bool Character::move( unsigned char i_dir )
 		if (supporting_multi != NULL)
 		{
 			supporting_multi->register_object( this );
+			if ( supporting_multi->as_house() != NULL )
+				registered_house = supporting_multi->serial;
+		}
+		else
+		{
+			if ( registered_house > 0 )
+			{
+				UMulti* multi = system_find_multi(registered_house);
+				if(multi != NULL)
+				{
+					UHouse* house = multi->as_house();
+					if(house != NULL)
+						house->unregister_object((UObject*)this);
+				}
+				registered_house = 0;
+			}
 		}
 
 		gradual_boost = current_boost;
