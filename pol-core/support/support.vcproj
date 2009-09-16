@@ -3,45 +3,61 @@
 	ProjectType="Visual C++"
 	Version="7.10"
 	Name="support"
-	ProjectGUID="{701FAB6A-5BEA-49AA-8688-57F3637B2239}"
-	SccProjectName=""
-	SccLocalPath=""
-	Keyword="MakeFileProj">
+	ProjectGUID="{D4F7092B-08EA-4CEF-94E8-3D1133CCA5B7}"
+	RootNamespace="support"
+	Keyword="MakeFileProj"
+	TargetFrameworkVersion="131072"
+	>
 	<Platforms>
 		<Platform
-			Name="Win32"/>
+			Name="Win32"
+		/>
 	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory=".\Debug"
 			IntermediateDirectory=".\Debug"
 			ConfigurationType="10"
-			UseOfMFC="0">
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			UseOfMFC="0"
+			>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCPreBuildEventTool"
+			/>
 			<Tool
-				Name="VCMIDLTool"/>
+				Name="VCCustomBuildTool"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCMIDLTool"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory=".\Release"
 			IntermediateDirectory=".\Release"
 			ConfigurationType="10"
-			UseOfMFC="0">
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			UseOfMFC="0"
+			>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCPreBuildEventTool"
+			/>
 			<Tool
-				Name="VCMIDLTool"/>
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				ExcludedFromBuild="FALSE"/>
-			<Tool
-				Name="VCPreBuildEventTool"/>
+				ExcludedFromBuild="false"
+			/>
 		</Configuration>
 	</Configurations>
 	<References>
@@ -49,76 +65,103 @@
 	<Files>
 		<Filter
 			Name="scripts"
-			Filter="">
+			>
 			<File
-				RelativePath=".\scripts\attributes.em">
+				RelativePath=".\scripts\attributes.em"
+				>
 			</File>
 			<File
-				RelativePath="scripts\basic.em">
+				RelativePath="scripts\basic.em"
+				>
 			</File>
 			<File
-				RelativePath="scripts\basicio.em">
+				RelativePath="scripts\basicio.em"
+				>
 			</File>
 			<File
-				RelativePath="scripts\boat.em">
+				RelativePath="scripts\boat.em"
+				>
 			</File>
 			<File
-				RelativePath="scripts\cfgfile.em">
+				RelativePath="scripts\cfgfile.em"
+				>
 			</File>
 			<File
-				RelativePath=".\scripts\cliloc.em">
+				RelativePath=".\scripts\cliloc.em"
+				>
 			</File>
 			<File
-				RelativePath="scripts\datafile.em">
+				RelativePath="scripts\datafile.em"
+				>
 			</File>
 			<File
-				RelativePath="scripts\ecompile.cfg.example">
+				RelativePath="scripts\ecompile.cfg.example"
+				>
 			</File>
 			<File
-				RelativePath="scripts\file.em">
+				RelativePath="scripts\file.em"
+				>
 			</File>
 			<File
-				RelativePath=".\scripts\guilds.em">
+				RelativePath=".\scripts\guilds.em"
+				>
 			</File>
 			<File
-				RelativePath="scripts\http.em">
+				RelativePath="scripts\http.em"
+				>
 			</File>
 			<File
-				RelativePath="scripts\math.em">
+				RelativePath="scripts\math.em"
+				>
 			</File>
 			<File
-				RelativePath="scripts\npc.em">
+				RelativePath="scripts\npc.em"
+				>
 			</File>
 			<File
-				RelativePath="scripts\os.em">
+				RelativePath="scripts\os.em"
+				>
 			</File>
 			<File
-				RelativePath="scripts\party.em">
+				RelativePath="scripts\party.em"
+				>
 			</File>
 			<File
-				RelativePath="scripts\polsys.em">
+				RelativePath="scripts\polsys.em"
+				>
 			</File>
 			<File
-				RelativePath=".\scripts\storage.em">
+				RelativePath=".\scripts\sql.em"
+				>
 			</File>
 			<File
-				RelativePath="scripts\unicode.em">
+				RelativePath=".\scripts\storage.em"
+				>
 			</File>
 			<File
-				RelativePath="scripts\uo.em">
+				RelativePath="scripts\unicode.em"
+				>
 			</File>
 			<File
-				RelativePath="scripts\util.em">
+				RelativePath="scripts\uo.em"
+				>
 			</File>
 			<File
-				RelativePath=".\scripts\vitals.em">
+				RelativePath="scripts\util.em"
+				>
+			</File>
+			<File
+				RelativePath=".\scripts\vitals.em"
+				>
 			</File>
 		</Filter>
 		<File
-			RelativePath="pol.cfg">
+			RelativePath=".\pol.cfg"
+			>
 		</File>
 		<File
-			RelativePath="uoconvert.cfg">
+			RelativePath="uoconvert.cfg"
+			>
 		</File>
 	</Files>
 	<Globals>

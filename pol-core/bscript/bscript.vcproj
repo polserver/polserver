@@ -4,116 +4,166 @@
 	Version="7.10"
 	Name="bscript"
 	ProjectGUID="{5005476B-7BD3-42A2-94CA-3AD2D0E2947C}"
-	SccProjectName=""
-	SccLocalPath="">
+	RootNamespace="bscript"
+	TargetFrameworkVersion="131072"
+	>
 	<Platforms>
 		<Platform
-			Name="Win32"/>
+			Name="Win32"
+		/>
 	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory=".\Executor\Debug"
 			IntermediateDirectory=".\Executor\Debug"
 			ConfigurationType="4"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="2">
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;E:\UOL\POL-CORE\STLport\stlport&quot;;.."
+				AdditionalIncludeDirectories="&quot;..\..\lib\STLport5\stlport&quot;;"
 				PreprocessorDefinitions="_DEBUG,WIN32,_LIB,INC_PASSERT"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
-				ForceConformanceInForLoopScope="TRUE"
+				ForceConformanceInForLoopScope="true"
 				PrecompiledHeaderFile=".\Executor\Debug/bscript_executor.pch"
 				AssemblerListingLocation=".\Debug/"
 				ObjectFile=".\Debug/"
 				ProgramDataBaseFileName=".\Debug/"
 				WarningLevel="3"
-				SuppressStartupBanner="TRUE"
+				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
-				CompileAs="0"/>
+				CompileAs="0"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
-			<Tool
-				Name="VCLibrarianTool"
-				OutputFile=".\Debug\bscript.lib"
-				SuppressStartupBanner="TRUE"/>
-			<Tool
-				Name="VCMIDLTool"/>
-			<Tool
-				Name="VCPostBuildEventTool"/>
-			<Tool
-				Name="VCPreBuildEventTool"/>
-			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
-				Culture="1033"/>
+				Culture="1033"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
+				Name="VCLibrarianTool"
+				OutputFile=".\Debug\bscript.lib"
+				SuppressStartupBanner="true"
+			/>
 			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory=".\Release"
 			IntermediateDirectory=".\Release"
 			ConfigurationType="4"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="2">
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="&quot;E:\UOL\POL-CORE\STLport\stlport&quot;;.."
+				AdditionalIncludeDirectories="&quot;..\..\lib\STLport5\stlport&quot;;"
 				PreprocessorDefinitions="NDEBUG,WIN32,_LIB,INC_PASSERT"
-				StringPooling="TRUE"
+				StringPooling="true"
 				RuntimeLibrary="0"
-				BufferSecurityCheck="FALSE"
-				EnableFunctionLevelLinking="TRUE"
-				ForceConformanceInForLoopScope="TRUE"
+				BufferSecurityCheck="false"
+				EnableFunctionLevelLinking="true"
+				ForceConformanceInForLoopScope="true"
 				PrecompiledHeaderFile=".\Release/bscript_executor.pch"
 				AssemblerListingLocation=".\Release/"
 				ObjectFile=".\Release/"
 				ProgramDataBaseFileName=".\Release/"
 				WarningLevel="3"
-				SuppressStartupBanner="TRUE"
+				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
-				CompileAs="0"/>
+				CompileAs="0"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
-			<Tool
-				Name="VCLibrarianTool"
-				OutputFile=".\Release\bscript.lib"
-				SuppressStartupBanner="TRUE"/>
-			<Tool
-				Name="VCMIDLTool"/>
-			<Tool
-				Name="VCPostBuildEventTool"/>
-			<Tool
-				Name="VCPreBuildEventTool"/>
-			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
-				Culture="1033"/>
+				Culture="1033"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
+				Name="VCLibrarianTool"
+				OutputFile=".\Release\bscript.lib"
+				SuppressStartupBanner="true"
+			/>
 			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 	</Configurations>
 	<References>
@@ -121,226 +171,264 @@
 	<Files>
 		<Filter
 			Name="Source Files"
-			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
+			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
+			>
 			<File
-				RelativePath=".\basicio.cpp">
+				RelativePath=".\berror.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\basicmod.cpp">
+				RelativePath=".\blong.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\berror.cpp">
+				RelativePath=".\bstruct.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\blong.cpp">
+				RelativePath="..\pol\clfunc.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\bstruct.cpp">
+				RelativePath=".\compctx.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\pol\clemod.cpp">
+				RelativePath="compiler.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\pol\clfunc.cpp">
+				RelativePath="compilercfg.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\compctx.cpp">
+				RelativePath=".\dbl.cpp"
+				>
 			</File>
 			<File
-				RelativePath="compiler.cpp">
+				RelativePath=".\dict.cpp"
+				>
 			</File>
 			<File
-				RelativePath="compilercfg.cpp">
+				RelativePath=".\eprog.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\dbl.cpp">
+				RelativePath=".\eprog2.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\dict.cpp">
+				RelativePath=".\eprog3.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\eprog.cpp">
+				RelativePath=".\eprog_read.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\eprog2.cpp">
+				RelativePath=".\escript_config.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\eprog3.cpp">
+				RelativePath=".\escriptv.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\eprog_read.cpp">
+				RelativePath=".\escrutil.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\escript_config.cpp">
+				RelativePath=".\execmodl.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\escriptv.cpp">
+				RelativePath=".\executor.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\escrutil.cpp">
+				RelativePath=".\fmodule.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\execmodl.cpp">
+				RelativePath=".\object.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\executor.cpp">
+				RelativePath=".\objstrm.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\fmodule.cpp">
+				RelativePath=".\ofstrm.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\mathemod.cpp">
+				RelativePath="parser.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\object.cpp">
+				RelativePath=".\StdAfx.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\objstrm.cpp">
+				RelativePath=".\str.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\ofstrm.cpp">
+				RelativePath=".\symcont.cpp"
+				>
 			</File>
 			<File
-				RelativePath="parser.cpp">
+				RelativePath=".\tkn_strm.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\StdAfx.cpp">
+				RelativePath=".\token.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\str.cpp">
-			</File>
-			<File
-				RelativePath=".\symcont.cpp">
-			</File>
-			<File
-				RelativePath=".\tkn_strm.cpp">
-			</File>
-			<File
-				RelativePath=".\token.cpp">
-			</File>
-			<File
-				RelativePath=".\userfunc.cpp">
+				RelativePath=".\userfunc.cpp"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
-			Filter="h;hpp;hxx;hm;inl">
+			Filter="h;hpp;hxx;hm;inl"
+			>
 			<File
-				RelativePath=".\basicio.h">
+				RelativePath=".\berror.h"
+				>
 			</File>
 			<File
-				RelativePath=".\basicmod.h">
+				RelativePath=".\bobject.h"
+				>
 			</File>
 			<File
-				RelativePath=".\berror.h">
+				RelativePath=".\bstruct.h"
+				>
 			</File>
 			<File
-				RelativePath=".\bobject.h">
+				RelativePath=".\compctx.h"
+				>
 			</File>
 			<File
-				RelativePath=".\bstruct.h">
+				RelativePath=".\compiler.h"
+				>
 			</File>
 			<File
-				RelativePath="..\pol\clemod.h">
+				RelativePath="compilercfg.h"
+				>
 			</File>
 			<File
-				RelativePath=".\compctx.h">
+				RelativePath=".\compmodl.h"
+				>
 			</File>
 			<File
-				RelativePath=".\compiler.h">
+				RelativePath=".\config.h"
+				>
 			</File>
 			<File
-				RelativePath="compilercfg.h">
+				RelativePath=".\contiter.h"
+				>
 			</File>
 			<File
-				RelativePath=".\compmodl.h">
+				RelativePath=".\dict.h"
+				>
 			</File>
 			<File
-				RelativePath=".\config.h">
+				RelativePath=".\eprog.h"
+				>
 			</File>
 			<File
-				RelativePath=".\contiter.h">
+				RelativePath=".\escript.h"
+				>
 			</File>
 			<File
-				RelativePath=".\dict.h">
+				RelativePath=".\escriptv.h"
+				>
 			</File>
 			<File
-				RelativePath=".\eprog.h">
+				RelativePath=".\escrutil.h"
+				>
 			</File>
 			<File
-				RelativePath=".\escript.h">
+				RelativePath=".\execmodl.h"
+				>
 			</File>
 			<File
-				RelativePath=".\escriptv.h">
+				RelativePath=".\exectype.h"
+				>
 			</File>
 			<File
-				RelativePath=".\escrutil.h">
+				RelativePath=".\executor.h"
+				>
 			</File>
 			<File
-				RelativePath=".\execmodl.h">
+				RelativePath=".\executortype.h"
+				>
 			</File>
 			<File
-				RelativePath=".\exectype.h">
+				RelativePath=".\filefmt.h"
+				>
 			</File>
 			<File
-				RelativePath=".\executor.h">
+				RelativePath=".\fmodule.h"
+				>
 			</File>
 			<File
-				RelativePath=".\executortype.h">
+				RelativePath=".\impstr.h"
+				>
 			</File>
 			<File
-				RelativePath=".\fileemod.h">
+				RelativePath=".\modules.h"
+				>
 			</File>
 			<File
-				RelativePath=".\filefmt.h">
+				RelativePath="objmembers.h"
+				>
 			</File>
 			<File
-				RelativePath=".\fmodule.h">
+				RelativePath="objmethods.h"
+				>
 			</File>
 			<File
-				RelativePath=".\impstr.h">
+				RelativePath=".\ofile.h"
+				>
 			</File>
 			<File
-				RelativePath=".\mathemod.h">
+				RelativePath=".\operator.h"
+				>
 			</File>
 			<File
-				RelativePath=".\modules.h">
+				RelativePath=".\options.h"
+				>
 			</File>
 			<File
-				RelativePath="objmembers.h">
+				RelativePath=".\parser.h"
+				>
 			</File>
 			<File
-				RelativePath="objmethods.h">
+				RelativePath=".\StdAfx.h"
+				>
 			</File>
 			<File
-				RelativePath=".\ofile.h">
+				RelativePath=".\symcont.h"
+				>
 			</File>
 			<File
-				RelativePath=".\operator.h">
+				RelativePath=".\token.h"
+				>
 			</File>
 			<File
-				RelativePath=".\options.h">
+				RelativePath=".\tokens.h"
+				>
 			</File>
 			<File
-				RelativePath=".\parser.h">
+				RelativePath=".\userfunc.h"
+				>
 			</File>
 			<File
-				RelativePath=".\StdAfx.h">
-			</File>
-			<File
-				RelativePath=".\symcont.h">
-			</File>
-			<File
-				RelativePath=".\token.h">
-			</File>
-			<File
-				RelativePath=".\tokens.h">
-			</File>
-			<File
-				RelativePath=".\userfunc.h">
-			</File>
-			<File
-				RelativePath=".\verbtbl.h">
+				RelativePath=".\verbtbl.h"
+				>
 			</File>
 		</Filter>
 	</Files>
