@@ -4,118 +4,168 @@
 	Version="7.10"
 	Name="clib"
 	ProjectGUID="{7CD5572B-8A78-46C5-AC2D-39EE47ACD01A}"
-	SccProjectName=""
-	SccLocalPath="">
+	RootNamespace="clib"
+	TargetFrameworkVersion="131072"
+	>
 	<Platforms>
 		<Platform
-			Name="Win32"/>
+			Name="Win32"
+		/>
 	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory=".\Release"
 			IntermediateDirectory=".\Release"
 			ConfigurationType="4"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="2">
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				InlineFunctionExpansion="1"
-				OmitFramePointers="TRUE"
-				AdditionalIncludeDirectories="&quot;E:\UOL\POL-CORE\STLport\stlport&quot;;.."
+				OmitFramePointers="true"
+				AdditionalIncludeDirectories="&quot;..\..\lib\STLport5\stlport&quot;;"
 				PreprocessorDefinitions="NDEBUG,WIN32,_LIB,NOMINMAX,INC_PASSERT"
-				StringPooling="TRUE"
-				ExceptionHandling="TRUE"
+				StringPooling="true"
+				ExceptionHandling="1"
 				RuntimeLibrary="0"
-				BufferSecurityCheck="FALSE"
-				EnableFunctionLevelLinking="TRUE"
-				ForceConformanceInForLoopScope="TRUE"
+				BufferSecurityCheck="false"
+				EnableFunctionLevelLinking="true"
+				ForceConformanceInForLoopScope="true"
 				PrecompiledHeaderFile=".\Release/clib.pch"
 				AssemblerListingLocation=".\Release/"
 				ObjectFile=".\Release/"
 				ProgramDataBaseFileName=".\Release/"
-				WarningLevel="3"
-				SuppressStartupBanner="TRUE"
-				DebugInformationFormat="3"/>
+				WarningLevel="1"
+				SuppressStartupBanner="true"
+				DebugInformationFormat="3"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
-			<Tool
-				Name="VCLibrarianTool"
-				OutputFile=".\Release\clib.lib"
-				SuppressStartupBanner="TRUE"/>
-			<Tool
-				Name="VCMIDLTool"/>
-			<Tool
-				Name="VCPostBuildEventTool"/>
-			<Tool
-				Name="VCPreBuildEventTool"/>
-			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
-				Culture="1033"/>
+				Culture="1033"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
+				Name="VCLibrarianTool"
+				OutputFile=".\Release\clib.lib"
+				SuppressStartupBanner="true"
+			/>
 			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory=".\Debug"
 			IntermediateDirectory=".\Debug"
 			ConfigurationType="4"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="2">
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/EHac"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;E:\UOL\POL-CORE\STLport\stlport&quot;;.."
+				AdditionalIncludeDirectories="&quot;..\..\lib\STLport5\stlport&quot;;"
 				PreprocessorDefinitions="_DEBUG,WIN32,_LIB,NOMINMAX,INC_PASSERT"
-				ExceptionHandling="FALSE"
+				ExceptionHandling="0"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
-				ForceConformanceInForLoopScope="TRUE"
+				ForceConformanceInForLoopScope="true"
 				PrecompiledHeaderFile=".\Debug/clib.pch"
 				AssemblerListingLocation=".\Debug/"
 				ObjectFile=".\Debug/"
 				ProgramDataBaseFileName=".\Debug/"
 				WarningLevel="3"
-				SuppressStartupBanner="TRUE"
-				DebugInformationFormat="3"/>
+				SuppressStartupBanner="true"
+				DebugInformationFormat="3"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
-			<Tool
-				Name="VCLibrarianTool"
-				OutputFile=".\Debug\clib.lib"
-				SuppressStartupBanner="TRUE"/>
-			<Tool
-				Name="VCMIDLTool"/>
-			<Tool
-				Name="VCPostBuildEventTool"/>
-			<Tool
-				Name="VCPreBuildEventTool"/>
-			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
-				Culture="1033"/>
+				Culture="1033"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
+				Name="VCLibrarianTool"
+				OutputFile=".\Debug\clib.lib"
+				SuppressStartupBanner="true"
+			/>
 			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 	</Configurations>
 	<References>
@@ -123,300 +173,398 @@
 	<Files>
 		<Filter
 			Name="Source Files"
-			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
+			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
+			>
 			<File
-				RelativePath="binaryfile.cpp">
+				RelativePath="binaryfile.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\cfgfile.cpp">
+				RelativePath=".\cfgfile.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="3"
-						PrecompiledHeaderThrough="stl_inc.h"/>
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="stl_inc.h"
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\cfgsect.cpp">
+				RelativePath=".\cfgsect.cpp"
+				>
 			</File>
 			<File
-				RelativePath="cmdargs.cpp">
+				RelativePath="cmdargs.cpp"
+				>
 			</File>
 			<File
-				RelativePath="dirfunc.cpp">
+				RelativePath="dirfunc.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\dirlist.cpp">
+				RelativePath=".\dirlist.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\dualbuf.cpp">
+				RelativePath=".\dualbuf.cpp"
+				>
 			</File>
 			<File
-				RelativePath="endian.cpp">
+				RelativePath="endian.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\esignal.cpp">
+				RelativePath=".\esignal.cpp"
+				>
 			</File>
 			<File
-				RelativePath="fdump.cpp">
+				RelativePath="fdump.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\filecont.cpp">
+				RelativePath=".\filecont.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\fileutil.cpp">
+				RelativePath=".\fileutil.cpp"
+				>
 			</File>
 			<File
-				RelativePath="forspcnt.cpp">
+				RelativePath="forspcnt.cpp"
+				>
 			</File>
 			<File
-				RelativePath="iohelp.cpp">
+				RelativePath="iohelp.cpp"
+				>
 			</File>
 			<File
-				RelativePath="logfile.cpp">
+				RelativePath="logfile.cpp"
+				>
 			</File>
 			<File
-				RelativePath="MD5.cpp">
+				RelativePath="MD5.cpp"
+				>
 			</File>
 			<File
-				RelativePath="mdump.cpp">
+				RelativePath="mdump.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\mlog.cpp">
+				RelativePath=".\mlog.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\msjexhnd.cpp">
+				RelativePath=".\msjexhnd.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\nlogfile.cpp">
+				RelativePath=".\nlogfile.cpp"
+				>
 			</File>
 			<File
-				RelativePath="NTService.cpp">
+				RelativePath="NTService.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\opnew.cpp">
+				RelativePath=".\opnew.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\passert.cpp">
+				RelativePath=".\passert.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\progver.cpp">
+				RelativePath=".\progver.cpp"
+				>
 			</File>
 			<File
-				RelativePath="random.cpp">
+				RelativePath="random.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\rarray.cpp">
+				RelativePath=".\rarray.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\sckutil.cpp">
+				RelativePath=".\sckutil.cpp"
+				>
 			</File>
 			<File
-				RelativePath="socketsvc.cpp">
+				RelativePath="socketsvc.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\StdAfx.cpp">
+				RelativePath=".\StdAfx.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="1"
-						PrecompiledHeaderThrough="stl_inc.h"/>
+						PrecompiledHeaderThrough="stl_inc.h"
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="stracpy.cpp">
+				RelativePath="stracpy.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\strexcpt.cpp">
+				RelativePath=".\strexcpt.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\strset.cpp">
+				RelativePath=".\strset.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\strutil.cpp">
+				RelativePath=".\strutil.cpp"
+				>
 			</File>
 			<File
-				RelativePath="threadhelp.cpp">
+				RelativePath="threadhelp.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\tracebuf.cpp">
+				RelativePath=".\tracebuf.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\unicode.cpp">
+				RelativePath=".\unicode.cpp"
+				>
 			</File>
 			<File
-				RelativePath="wallclock.cpp">
+				RelativePath="wallclock.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\wnsckt.cpp">
+				RelativePath=".\wnsckt.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\xmain.cpp">
+				RelativePath=".\xmain.cpp"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
-			Filter="h;hpp;hxx;hm;inl">
+			Filter="h;hpp;hxx;hm;inl"
+			>
 			<File
-				RelativePath="binaryfile.h">
+				RelativePath="binaryfile.h"
+				>
 			</File>
 			<File
-				RelativePath="bitutil.h">
+				RelativePath="bitutil.h"
+				>
 			</File>
 			<File
-				RelativePath=".\cfgelem.h">
+				RelativePath=".\cfgelem.h"
+				>
 			</File>
 			<File
-				RelativePath=".\cfgfile.h">
+				RelativePath=".\cfgfile.h"
+				>
 			</File>
 			<File
-				RelativePath=".\cfgsect.h">
+				RelativePath=".\cfgsect.h"
+				>
 			</File>
 			<File
-				RelativePath=".\cistring.h">
+				RelativePath=".\cistring.h"
+				>
 			</File>
 			<File
-				RelativePath=".\clib.h">
+				RelativePath=".\clib.h"
+				>
 			</File>
 			<File
-				RelativePath=".\clibopt.h">
+				RelativePath=".\clibopt.h"
+				>
 			</File>
 			<File
-				RelativePath="cmdargs.h">
+				RelativePath="cmdargs.h"
+				>
 			</File>
 			<File
-				RelativePath="compileassert.h">
+				RelativePath="compileassert.h"
+				>
 			</File>
 			<File
-				RelativePath=".\dirlist.h">
+				RelativePath=".\dirlist.h"
+				>
 			</File>
 			<File
-				RelativePath=".\drarray.h">
+				RelativePath=".\drarray.h"
+				>
 			</File>
 			<File
-				RelativePath=".\dualbuf.h">
+				RelativePath=".\dualbuf.h"
+				>
 			</File>
 			<File
-				RelativePath=".\endian.h">
+				RelativePath=".\endian.h"
+				>
 			</File>
 			<File
-				RelativePath=".\esignal.h">
+				RelativePath=".\esignal.h"
+				>
 			</File>
 			<File
-				RelativePath=".\fdump.h">
+				RelativePath=".\fdump.h"
+				>
 			</File>
 			<File
-				RelativePath=".\fileutil.h">
+				RelativePath=".\fileutil.h"
+				>
 			</File>
 			<File
-				RelativePath=".\fixalloc.h">
+				RelativePath=".\fixalloc.h"
+				>
 			</File>
 			<File
-				RelativePath="iohelp.h">
+				RelativePath="iohelp.h"
+				>
 			</File>
 			<File
-				RelativePath=".\logfile.h">
+				RelativePath=".\logfile.h"
+				>
 			</File>
 			<File
-				RelativePath=".\maputil.h">
+				RelativePath=".\maputil.h"
+				>
 			</File>
 			<File
-				RelativePath="MD5.h">
+				RelativePath="MD5.h"
+				>
 			</File>
 			<File
-				RelativePath="mdump.h">
+				RelativePath="mdump.h"
+				>
 			</File>
 			<File
-				RelativePath="mdumpimp.h">
+				RelativePath="mdumpimp.h"
+				>
 			</File>
 			<File
-				RelativePath=".\mlog.h">
+				RelativePath=".\mlog.h"
+				>
 			</File>
 			<File
-				RelativePath=".\msjexhnd.h">
+				RelativePath=".\msjexhnd.h"
+				>
 			</File>
 			<File
-				RelativePath=".\nlogfile.h">
+				RelativePath=".\nlogfile.h"
+				>
 			</File>
 			<File
-				RelativePath="NTService.h">
+				RelativePath="NTService.h"
+				>
 			</File>
 			<File
-				RelativePath=".\opnew.h">
+				RelativePath=".\opnew.h"
+				>
 			</File>
 			<File
-				RelativePath=".\passert.h">
+				RelativePath=".\passert.h"
+				>
 			</File>
 			<File
-				RelativePath=".\progver.h">
+				RelativePath=".\progver.h"
+				>
 			</File>
 			<File
-				RelativePath=".\random.h">
+				RelativePath=".\random.h"
+				>
 			</File>
 			<File
-				RelativePath=".\rarray.h">
+				RelativePath=".\rarray.h"
+				>
 			</File>
 			<File
-				RelativePath=".\rawtypes.h">
+				RelativePath=".\rawtypes.h"
+				>
 			</File>
 			<File
-				RelativePath=".\RefPtr.h">
+				RelativePath=".\RefPtr.h"
+				>
 			</File>
 			<File
-				RelativePath=".\sckutil.h">
+				RelativePath=".\sckutil.h"
+				>
 			</File>
 			<File
-				RelativePath="socketsvc.h">
+				RelativePath="socketsvc.h"
+				>
 			</File>
 			<File
-				RelativePath=".\StdAfx.h">
+				RelativePath=".\StdAfx.h"
+				>
 			</File>
 			<File
-				RelativePath=".\stl_inc.h">
+				RelativePath=".\stl_inc.h"
+				>
 			</File>
 			<File
-				RelativePath=".\stlutil.h">
+				RelativePath=".\stlutil.h"
+				>
 			</File>
 			<File
-				RelativePath=".\strexcpt.h">
+				RelativePath=".\strexcpt.h"
+				>
 			</File>
 			<File
-				RelativePath=".\strset.h">
+				RelativePath=".\strset.h"
+				>
 			</File>
 			<File
-				RelativePath=".\strutil.h">
+				RelativePath=".\strutil.h"
+				>
 			</File>
 			<File
-				RelativePath="threadhelp.h">
+				RelativePath="threadhelp.h"
+				>
 			</File>
 			<File
-				RelativePath=".\tracebuf.h">
+				RelativePath=".\tracebuf.h"
+				>
 			</File>
 			<File
-				RelativePath=".\unicode.h">
+				RelativePath=".\unicode.h"
+				>
 			</File>
 			<File
-				RelativePath=".\unittest.h">
+				RelativePath=".\unittest.h"
+				>
 			</File>
 			<File
-				RelativePath="wallclock.h">
+				RelativePath="wallclock.h"
+				>
 			</File>
 			<File
-				RelativePath=".\weakptr.h">
+				RelativePath=".\weakptr.h"
+				>
 			</File>
 			<File
-				RelativePath=".\wnsckt.h">
+				RelativePath=".\wnsckt.h"
+				>
 			</File>
 			<File
-				RelativePath="xerces_inc.h">
+				RelativePath="xerces_inc.h"
+				>
 			</File>
 			<File
-				RelativePath=".\xmain.h">
+				RelativePath=".\xmain.h"
+				>
 			</File>
 			<File
-				RelativePath="xmlutil.h">
+				RelativePath="xmlutil.h"
+				>
 			</File>
 		</Filter>
 	</Files>
