@@ -245,6 +245,7 @@ Character::Character( u16 objtype, UOBJ_CLASS uobj_class ) :
 	trade_accepted(false),
 	acct(NULL),
 	client(NULL),
+	registered_house( 0 ),
 	cmdlevel(0),
 	dir(0),
 	warmode(false),
@@ -332,8 +333,6 @@ Character::Character( u16 objtype, UOBJ_CLASS uobj_class ) :
 	party_can_loot_(false),
 	party_decline_timeout_(NULL),
 	murderer_(false),
-
-	registered_house( 0 ), 
 
 	langid_(0)
 {
