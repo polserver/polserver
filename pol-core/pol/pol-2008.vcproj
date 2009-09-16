@@ -85,6 +85,7 @@
 				GenerateMapFile="true"
 				MapFileName=".\Release/pol.map"
 				SubSystem="1"
+				LargeAddressAware="2"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 			/>
@@ -176,6 +177,7 @@
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\Debug/pol.pdb"
 				SubSystem="1"
+				LargeAddressAware="2"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 			/>
