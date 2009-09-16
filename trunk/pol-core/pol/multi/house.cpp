@@ -6,6 +6,7 @@ History
 2009/09/03 MuadDib:   Relocation of multi related cpp/h
 2009/09/14 MuadDib:   Squatters code added to register.unregister mobs.
 2009/09/15 MuadDib:   Better cleanup handling on house destroy. Alos clears registered_house off character.
+                      Houses now only allow mobiles to be registered. May add items later for other storage.
 
 Notes
 =======
@@ -804,6 +805,8 @@ BObjectImp* destroy_house( UHouse* house )
 
 void UHouse::register_object( UObject* obj )
 { 
+	if ( !obj->ismobile() )
+		return;
 	if (find( squatters_.begin(), squatters_.end(), obj ) == squatters_.end())
 	{
 		set_dirty();
