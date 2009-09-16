@@ -238,7 +238,6 @@ BObjectImp* UOExecutorModule::internal_MoveItem(Item* item, xcoord x, ycoord y, 
 			y,
 		    static_cast<signed char>(z), oldrealm );
 
-	// FIXME: Need to add Walkon checks for multi right here if type is house.
 	if ( multi != NULL )
 	{
 		multi->register_object(item);

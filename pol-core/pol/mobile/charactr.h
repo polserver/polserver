@@ -9,6 +9,8 @@ History
 2008/07/08 Turley:    get_flag1() changed to show WarMode of other player again
                       get_flag1_aos() removed
 2009/02/01 MuadDib:   Resistance storage added.
+2009/09/15 MuadDib:   Cleanup from registered houses on destroy
+                      u32 registered_house added to store serial of registered multi.
 
 Notes
 =======
@@ -628,6 +630,8 @@ public:
     AccountRef acct;
     Client* client;
 
+	u32 registered_house; 
+
     unsigned char cmdlevel;
     u8 dir;				// the entire 'dir' from their last MSG02_WALK 
     bool warmode;
@@ -724,8 +728,6 @@ public:
 protected:
     ref_ptr<WornItemsContainer> wornitems_ref;
     WornItemsContainer& wornitems; 
-
-	u32 registered_house; 
 
 //    s16 strength_mod_;
 //    s16 intelligence_mod_;
