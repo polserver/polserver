@@ -4,118 +4,168 @@
 	Version="7.10"
 	Name="plib"
 	ProjectGUID="{D45C6577-00E3-4995-A909-9C704A472565}"
-	SccProjectName=""
-	SccLocalPath="">
+	RootNamespace="plib"
+	TargetFrameworkVersion="131072"
+	>
 	<Platforms>
 		<Platform
-			Name="Win32"/>
+			Name="Win32"
+		/>
 	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory=".\Debug"
 			IntermediateDirectory=".\Debug"
 			ConfigurationType="4"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="2">
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;E:\UOL\POL-CORE\STLPort\stlport&quot;;.."
+				AdditionalIncludeDirectories="&quot;..\..\lib\STLport5\stlport&quot;;"
 				PreprocessorDefinitions="WIN32,_DEBUG,_LIB,INC_PASSERT"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
-				ForceConformanceInForLoopScope="TRUE"
+				ForceConformanceInForLoopScope="true"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile=".\Debug/plib.pch"
 				AssemblerListingLocation=".\Debug/"
 				ObjectFile=".\Debug/"
 				ProgramDataBaseFileName=".\Debug/"
 				WarningLevel="3"
-				SuppressStartupBanner="TRUE"
+				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
-				CompileAs="0"/>
+				CompileAs="0"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
-			<Tool
-				Name="VCLibrarianTool"
-				OutputFile=".\Debug\plib.lib"
-				SuppressStartupBanner="TRUE"/>
-			<Tool
-				Name="VCMIDLTool"/>
-			<Tool
-				Name="VCPostBuildEventTool"/>
-			<Tool
-				Name="VCPreBuildEventTool"/>
-			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
-				Culture="1033"/>
+				Culture="1033"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
+				Name="VCLibrarianTool"
+				OutputFile=".\Debug\plib.lib"
+				SuppressStartupBanner="true"
+			/>
 			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory=".\Release"
 			IntermediateDirectory=".\Release"
 			ConfigurationType="4"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="2">
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="&quot;E:\UOL\POL-CORE\STLPort\stlport&quot;;.."
+				AdditionalIncludeDirectories="&quot;..\..\lib\STLport5\stlport&quot;;"
 				PreprocessorDefinitions="WIN32,NDEBUG,_LIB,INC_PASSERT"
-				StringPooling="TRUE"
+				StringPooling="true"
 				RuntimeLibrary="0"
-				BufferSecurityCheck="FALSE"
-				EnableFunctionLevelLinking="TRUE"
-				ForceConformanceInForLoopScope="TRUE"
-				UsePrecompiledHeader="2"
+				BufferSecurityCheck="false"
+				EnableFunctionLevelLinking="true"
+				ForceConformanceInForLoopScope="true"
+				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile=".\Release/plib.pch"
 				AssemblerListingLocation=".\Release/"
 				ObjectFile=".\Release/"
 				ProgramDataBaseFileName=".\Release/"
-				WarningLevel="3"
-				SuppressStartupBanner="TRUE"
+				WarningLevel="1"
+				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
-				CompileAs="0"/>
+				CompileAs="0"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
-			<Tool
-				Name="VCLibrarianTool"
-				OutputFile=".\Release\plib.lib"
-				SuppressStartupBanner="TRUE"/>
-			<Tool
-				Name="VCMIDLTool"/>
-			<Tool
-				Name="VCPostBuildEventTool"/>
-			<Tool
-				Name="VCPreBuildEventTool"/>
-			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
-				Culture="1033"/>
+				Culture="1033"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
+				Name="VCLibrarianTool"
+				OutputFile=".\Release\plib.lib"
+				SuppressStartupBanner="true"
+			/>
 			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 	</Configurations>
 	<References>
@@ -123,121 +173,160 @@
 	<Files>
 		<Filter
 			Name="Source Files"
-			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
+			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
+			>
 			<File
-				RelativePath="filemapserver.cpp">
+				RelativePath="filemapserver.cpp"
+				>
 			</File>
 			<File
-				RelativePath="inmemorymapserver.cpp">
+				RelativePath="inmemorymapserver.cpp"
+				>
 			</File>
 			<File
-				RelativePath="mapfunc.cpp">
+				RelativePath="mapfunc.cpp"
+				>
 			</File>
 			<File
-				RelativePath="mapserver.cpp">
+				RelativePath="mapserver.cpp"
+				>
 			</File>
 			<File
-				RelativePath="maptileserver.cpp">
+				RelativePath="maptileserver.cpp"
+				>
 			</File>
 			<File
-				RelativePath="mapwriter.cpp">
+				RelativePath="mapwriter.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\pkg.cpp">
+				RelativePath=".\pkg.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\polver.cpp">
+				RelativePath=".\polver.cpp"
+				>
 			</File>
 			<File
-				RelativePath="realm.cpp">
+				RelativePath="realm.cpp"
+				>
 			</File>
 			<File
-				RelativePath="realmdescriptor.cpp">
+				RelativePath="realmdescriptor.cpp"
+				>
 			</File>
 			<File
-				RelativePath="realmfunc.cpp">
+				RelativePath="realmfunc.cpp"
+				>
 			</File>
 			<File
-				RelativePath="realmlos.cpp">
+				RelativePath="realmlos.cpp"
+				>
 			</File>
 			<File
-				RelativePath="realmlos2.cpp">
+				RelativePath="realmlos2.cpp"
+				>
 			</File>
 			<File
-				RelativePath="staticserver.cpp">
+				RelativePath="staticserver.cpp"
+				>
 			</File>
 			<File
-				RelativePath="testdrop1.cpp">
+				RelativePath="testdrop1.cpp"
+				>
 			</File>
 			<File
-				RelativePath="testenv.cpp">
+				RelativePath="testenv.cpp"
+				>
 			</File>
 			<File
-				RelativePath="testlos1.cpp">
+				RelativePath="testlos1.cpp"
+				>
 			</File>
 			<File
-				RelativePath="testwalk1.cpp">
+				RelativePath="testwalk1.cpp"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
-			Filter="h;hpp;hxx;hm;inl">
+			Filter="h;hpp;hxx;hm;inl"
+			>
 			<File
-				RelativePath="filemapserver.h">
+				RelativePath="filemapserver.h"
+				>
 			</File>
 			<File
-				RelativePath="inmemorymapserver.h">
+				RelativePath="inmemorymapserver.h"
+				>
 			</File>
 			<File
-				RelativePath="mapblob.h">
+				RelativePath="mapblob.h"
+				>
 			</File>
 			<File
-				RelativePath=".\mapblock.h">
+				RelativePath=".\mapblock.h"
+				>
 			</File>
 			<File
-				RelativePath=".\mapcell.h">
+				RelativePath=".\mapcell.h"
+				>
 			</File>
 			<File
-				RelativePath="mapfunc.h">
+				RelativePath="mapfunc.h"
+				>
 			</File>
 			<File
-				RelativePath=".\mapserver.h">
+				RelativePath=".\mapserver.h"
+				>
 			</File>
 			<File
-				RelativePath="mapshape.h">
+				RelativePath="mapshape.h"
+				>
 			</File>
 			<File
-				RelativePath="mapsolid.h">
+				RelativePath="mapsolid.h"
+				>
 			</File>
 			<File
-				RelativePath="maptile.h">
+				RelativePath="maptile.h"
+				>
 			</File>
 			<File
-				RelativePath="maptileserver.h">
+				RelativePath="maptileserver.h"
+				>
 			</File>
 			<File
-				RelativePath="mapwriter.h">
+				RelativePath="mapwriter.h"
+				>
 			</File>
 			<File
-				RelativePath=".\pkg.h">
+				RelativePath=".\pkg.h"
+				>
 			</File>
 			<File
-				RelativePath=".\polver.h">
+				RelativePath=".\polver.h"
+				>
 			</File>
 			<File
-				RelativePath="realm.h">
+				RelativePath="realm.h"
+				>
 			</File>
 			<File
-				RelativePath="realmdescriptor.h">
+				RelativePath="realmdescriptor.h"
+				>
 			</File>
 			<File
-				RelativePath="staticblock.h">
+				RelativePath="staticblock.h"
+				>
 			</File>
 			<File
-				RelativePath="staticserver.h">
+				RelativePath="staticserver.h"
+				>
 			</File>
 			<File
-				RelativePath="testenv.h">
+				RelativePath="testenv.h"
+				>
 			</File>
 		</Filter>
 	</Files>
