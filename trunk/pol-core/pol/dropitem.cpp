@@ -15,6 +15,7 @@ History
                       Added slot support to find_giveitem_container()
 2009/09/03 MuadDib:	  Changes for account related source file relocation
 					  Changes for multi related source file relocation
+2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
 
 Notes
 =======
@@ -379,7 +380,7 @@ void send_trade_container( Client* client,
                            Character* whos,
                            UContainer* cont )
 {
-	if ( client->is_greq_6017 )
+	if ( client->ClientType & CLIENTTYPE_6017 )
 	{
 		PKTOUT_25_V2 slot_buffer;
 		slot_buffer.msgtype = PKTOUT_25_V2_ID;

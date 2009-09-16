@@ -12,6 +12,8 @@ History
 2009/08/14 Turley:    Added PKTBI_BF::TYPE_SCREEN_SIZE & TYPE_CLOSED_STATUS_GUMP (anti spam)
 2009/09/03 MuadDib:   Relocation of account related cpp/h
 2009/09/03 MuadDib:   Relocation of multi related cpp/h
+2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
+                      Added 0xE1 packet (UO3D clienttype packet)
 
 Notes
 =======
@@ -174,8 +176,12 @@ void handle_client_version( Client* client, PKTBI_BD* msg )
 		client->itemizeclientversion(ver2, vers_det);
 		client->setversiondetail(vers_det);
 
-		if (client->compareVersion(CLIENT_VER_60171)) //Grid-loc support
-			client->is_greq_6017=true;
+		if (client->compareVersion(CLIENT_VER_60142))
+			client->setClientType(CLIENTTYPE_60142);
+		else if (client->compareVersion(CLIENT_VER_60171)) //Grid-loc support
+			client->setClientType(CLIENTTYPE_6017);
+		else if (client->compareVersion(CLIENT_VER_50000))
+			client->setClientType(CLIENTTYPE_5000);
 		send_season_info( client );	// Scott 10/11/2007 added for login fixes and handling 1.x clients.
 									// Season info needs to check client version to keep from crashing 1.x
 									// version not set until shortly after login complete.
@@ -351,10 +357,12 @@ void handle_ef_seed( Client *client, PKTIN_EF *msg )
 	detail.rev=cfBEu32(msg->ver_Revision);
 	detail.patch=cfBEu32(msg->ver_Patch);
 	client->setversiondetail(detail);
-	if (client->compareVersion(CLIENT_VER_60171)) //Grid-loc support
-		client->is_greq_6017=true;
-	if (detail.major >= 66) // UO:SA hack
-		client->isUOKR=true;
+	if (client->compareVersion(CLIENT_VER_60142))
+		client->setClientType(CLIENTTYPE_60142);
+	else if (client->compareVersion(CLIENT_VER_60171)) //Grid-loc support
+		client->setClientType(CLIENTTYPE_6017);
+	else if (client->compareVersion(CLIENT_VER_50000))
+		client->setClientType(CLIENTTYPE_5000);
 
 	// detail->patch is since 5.0.7 always numeric, so no need to make it complicated
 	OSTRINGSTREAM os;
@@ -362,6 +370,24 @@ void handle_ef_seed( Client *client, PKTIN_EF *msg )
 	client->setversion(OSTRINGSTREAM_STR(os));
 }
 MESSAGE_HANDLER( PKTIN_EF, handle_ef_seed );
+
+void handle_e1_clienttype( Client *client, PKTIN_E1 *msg )
+{
+	switch (cfBEu32(msg->clienttype))
+	{
+	case PKTIN_E1::CLIENTTYPE_KR:
+		client->setClientType(CLIENTTYPE_UOKR);
+		break;
+	case PKTIN_E1::CLIENTTYPE_SA:
+		client->setClientType(CLIENTTYPE_UOSA);
+		break;
+	default:
+		printf( "Unknown client type send with packet 0xE1 : 0x%x\n",cfBEu32(msg->clienttype));
+		break;
+	}
+}
+MESSAGE_HANDLER( PKTIN_E1, handle_e1_clienttype );
+
 
 void handle_aos_commands (Client *client, PKTBI_D7* msg)
 {

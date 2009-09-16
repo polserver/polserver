@@ -41,6 +41,7 @@ History
 2009/09/03 MuadDib:   Relocation of account related cpp/h
                       Changes for multi related source file relocation
 2009/09/15 MuadDib:   Multi registration/unregistration support added.
+2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
 
 Notes
 =======
@@ -680,7 +681,7 @@ bool process_data( Client *client )
 			return false;
 		}
 		// It's in the 6017 handlers
-		if ( (client->is_greq_6017) && (handler_v2[ msgtype ].msglen) )
+		if ( ( client->ClientType & CLIENTTYPE_6017 ) && (handler_v2[ msgtype ].msglen) )
 		{
 			if  ( (handler_v2[msgtype].msglen == MSGLEN_2BYTELEN_DATA) )
 			{
@@ -763,7 +764,7 @@ bool process_data( Client *client )
 			{
 				if (client->msgtype_filter->msgtype_allowed[msgtype])
 				{
-					if ( (client->is_greq_6017) && (handler_v2[ msgtype ].msglen) )
+					if ( ( client->ClientType & CLIENTTYPE_6017 ) && (handler_v2[ msgtype ].msglen) )
 					{
 						try {
 							dtrace(10) << "Client#" << client->instance_ << ": message " << hexint( static_cast<unsigned short>(msgtype)) << endl;
@@ -860,7 +861,7 @@ bool process_data( Client *client )
 					/* unknown_E[16]    */ {0x5a, 0xce, 0x3e, 0xe3, 0x97, 0x92, 0xe4, 0x8a, 0xf1, 0x9a, 0xd3, 0x04, 0x41, 0x03, 0xcb, 0x53}
 				};
 				
-				client->isUOKR = true; // UO:KR logging in
+				client->setClientType(CLIENTTYPE_UOKR); // UO:KR logging in
 				
 				client->transmit( &msg, sizeof msg );
 			}

@@ -5,6 +5,7 @@ History
 2006/09/16 Shinigami: New Version... Internal handling of UO.EM Function execution changed.
 2007/11/07 Shinigami: New Version... Removed some tokens like Left+Mid
 2009/08/27 Turley:    New Version Muad removed members/methods
+2009/09/16 Turley:    New Version removed member isUOKR
 
 Notes
 =======
@@ -36,6 +37,7 @@ Notes
 #define ESCRIPT_FILE_VER_0009		0x0009
 #define ESCRIPT_FILE_VER_000A		0x000A
 #define ESCRIPT_FILE_VER_000B		0x000B
+#define ESCRIPT_FILE_VER_000C		0x000C
 
 /*
 	NOTE: Update ESCRIPT_FILE_VER_CURRENT when you make a
@@ -43,7 +45,7 @@ Notes
 	and report this to users when an older compiled version
 	is attempted to be executed - TJ
 */
-#define ESCRIPT_FILE_VER_CURRENT	(ESCRIPT_FILE_VER_000B)
+#define ESCRIPT_FILE_VER_CURRENT	(ESCRIPT_FILE_VER_000C)
 
 struct BSCRIPT_FILE_HDR
 {

@@ -62,7 +62,7 @@ const char* poldbg_mobileref_members[] = { "warmode", "gender", "race", "trueobj
 											"reportables", "clientversion", "delay_mod",
 											"shield", "uclang", "clientver_detail", "clientinfo",
 											"createdat", "opponent", "connected", "trading_with",
-											"isuokr", "cursor", "gump", "prompt", "movemode",
+											"cursor", "gump", "prompt", "movemode",
 											"hitchance_mod", "evasionchance_mod", "resist_fire",
 											"resist_cold", "resist_energy", "resist_poison",
 											"resist_physical", "resist_fire_mod", "resist_cold_mod",
