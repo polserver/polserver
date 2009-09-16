@@ -28,6 +28,8 @@ const FP_IGNORE_DOORS           := 0x02;    // ignore Doors (you've to open door
 // Send*Window flags
 const VENDOR_SEND_AOS_TOOLTIP   := 0x01;    // send Item Description using AoS Tooltips
 
+const SENDDIALOGMENU_FORCE_OLD  := 0x01;    // send UnCompressed Gump
+
 // RegisterForSpeechEvents flags
 const LISTENPT_HEAR_GHOSTS      := 0x01;    // hear ghost speech in addition to living speech
 
@@ -323,7 +325,7 @@ SelectColor( character, item );
 SelectMenuItem2( character, menuname );
 SendBuyWindow( character, container, vendor, items, flags := 0 );
 SendCharacterRaceChanger( character );
-SendDialogGump( who, layout, textlines, x := 0, y := 0 );
+SendDialogGump( who, layout, textlines, x := 0, y := 0, flags := 0 );
 SendEvent( npc, event );
 SendInstaResDialog( character );
 SendOpenBook( character, book );
