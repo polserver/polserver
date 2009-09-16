@@ -382,7 +382,7 @@ void handle_e1_clienttype( Client *client, PKTIN_E1 *msg )
 		client->setClientType(CLIENTTYPE_UOSA);
 		break;
 	default:
-		printf( "Unknown client type send with packet 0xE1 : 0x%x\n",cfBEu32(msg->clienttype));
+		printf( "Unknown client type send with packet 0xE1 : 0x%lx\n",cfBEu32(msg->clienttype));
 		break;
 	}
 }
