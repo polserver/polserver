@@ -2,6 +2,7 @@
 History
 =======
 2009/09/03 MuadDib:   Relocation of multi related cpp/h
+2009/09/15 MuadDib:   Multi registration/unregistration support added.
 
 Notes
 =======
@@ -16,6 +17,7 @@ Notes
 #include "network/cgdata.h"
 #include "network/client.h"
 #include "core.h"
+#include "fnsearch.h"
 #include "item/itemdesc.h"
 #include "polsem.h"
 #include "module/polsystemmod.h"
@@ -101,7 +103,23 @@ bool move_character_to( Character* chr,
     if (supporting_multi != NULL)
     {
         supporting_multi->register_object( chr );
+		if ( supporting_multi->as_house() != NULL )
+			chr->registered_house = supporting_multi->serial;
     }
+	else
+	{
+		if ( chr->registered_house > 0 )
+		{
+			UMulti* multi = system_find_multi(chr->registered_house);
+			if(multi != NULL)
+			{
+				UHouse* house = multi->as_house();
+				if(house != NULL)
+					house->unregister_object(chr);
+			}
+			chr->registered_house = 0;
+		}
+	}
 
     // teleport( chr );
     if (chr->has_active_client())    
