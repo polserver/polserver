@@ -4,6 +4,8 @@ History
 2005/06/06 Shinigami: added readobjects - to get a list of statics
 2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
 2009/09/03 MuadDib:   Relocation of multi related cpp/h
+2009/09/14 MuadDib:   Squatters code added to register.unregister mobs.
+2009/09/15 MuadDib:   Better cleanup handling on house destroy. Alos clears registered_house off character.
 
 Notes
 =======
@@ -785,6 +787,7 @@ BObjectImp* destroy_house( UHouse* house )
     {
         Character* chr = chr_contents.back();
         move_to_ground( chr );
+		chr->registered_house = 0;
         chr_contents.pop_back();
     }
     

@@ -45,6 +45,7 @@ History
 2009/09/03 MuadDib:	  Changes for account related source file relocation
                       Changes for multi related source file relocation
 2009/09/14 MuadDib:   Slot support added to creation/move to container.
+2009/09/15 MuadDib:   Multi registration/unregistration support added.
 
 Notes
 =======
@@ -1331,7 +1332,26 @@ BObjectImp* UOExecutorModule::mf_CreateNpcFromTemplate()
 			                  NpcPropagateMove, static_cast<Character*>(npc.get()) );
 		// FIXME: Need to add Walkon checks for multi right here if type is house.
 		if (dummy_multi)
+		{
             dummy_multi->register_object( npc.get() );
+			if ( dummy_multi->as_house() != NULL )
+				npc->registered_house = dummy_multi->serial;
+		}
+		else
+		{
+			if ( npc->registered_house > 0 )
+			{
+				UMulti* multi = system_find_multi(npc->registered_house);
+				if(multi != NULL)
+				{
+					UHouse* house = multi->as_house();
+					if(house != NULL)
+						house->unregister_object(npc.get());
+				}
+				npc->registered_house = 0;
+			}
+		}
+
         return new ECharacterRefObjImp( npc.get() );
     }
     catch( std::exception& ex )
