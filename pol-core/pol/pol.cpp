@@ -346,8 +346,16 @@ void start_client_char( Client *client )
 		if (supporting_multi != NULL)
 		{
 			supporting_multi->register_object( client->chr );
-			if ( supporting_multi->as_house() != NULL )
-				client->chr->registered_house = supporting_multi->serial;
+			UHouse* this_house = supporting_multi->as_house();
+			if ( this_house != NULL )
+			{
+				if ( client->chr->registered_house == 0 )
+				{
+					client->chr->registered_house = supporting_multi->serial;
+					//cout << "walk on multi triggered" << endl;
+					this_house->walk_on( client->chr );
+				}
+			}
 		}
 		else
 		{

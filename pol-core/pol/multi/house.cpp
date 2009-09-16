@@ -41,9 +41,13 @@ Notes
 #include "../objtype.h"
 #include "../polcfg.h"
 #include "../realms.h"
+#include "../scrsched.h"
+#include "../scrstore.h"
 #include "../tiles.h"
 #include "../ufunc.h"
 #include "../uofile.h"
+#include "../uoexec.h"
+#include "../module/uomod.h"
 #include "../uoscrobj.h"
 #include "../ustruct.h"
 #include "../uvars.h"
@@ -821,4 +825,36 @@ void UHouse::unregister_object( UObject* obj )
 void UHouse::ClearSquatters( )
 { 
 	squatters_.clear();
+}
+
+void UHouse::walk_on( Character* chr )
+{
+	const ItemDesc& itemdesc = find_itemdesc( objtype_ );
+	if (!itemdesc.walk_on_script.empty())
+	{
+		ref_ptr<EScriptProgram> prog;
+		prog = find_script2( itemdesc.walk_on_script,
+			true, // complain if not found
+			config.cache_interactive_scripts);
+		if (prog.get() != NULL)
+		{
+			auto_ptr<UOExecutor> ex(create_script_executor());
+			ex->addModule( new UOExecutorModule( *ex ) );
+			if (prog->haveProgram)
+			{
+				ex->pushArg( new BLong( chr->lastz ) );
+				ex->pushArg( new BLong( chr->lasty ) );
+				ex->pushArg( new BLong( chr->lastx ) );
+				ex->pushArg( new EItemRefObjImp( this ) );
+				ex->pushArg( new ECharacterRefObjImp( chr ) );
+			}
+
+			ex->os_module->priority = 100;
+
+			if (ex->setProgram( prog.get() ))
+			{
+				schedule_executor( ex.release() );
+			}
+		}
+	}
 }

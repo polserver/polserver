@@ -47,6 +47,8 @@ public:
 	virtual void register_object( UObject* obj );
 	virtual void unregister_object( UObject* obj );
 
+	virtual void walk_on( Character* chr );
+
 	void ClearSquatters();
 
 protected:
