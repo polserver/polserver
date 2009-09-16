@@ -25,6 +25,7 @@ History
                       GetGottenBy Method
 2009/08/19 Turley:    Added character.uo_expansion_client
 2009/08/25 Shinigami: STLport-5.2.1 fix: ParseErrorStr and ReservedWord changed little bit
+2009/09/06 Turley:    Removed chr.isUOKR added chr.ClientType
 
 Notes
 =======
@@ -380,7 +381,6 @@ ObjMember object_members[] = {
 	{ MBR_TRADING_WITH, "trading_with", false},
 	{ MBR_TRADE_CONTAINER, "trade_container", false},
 	{ MBR_ALIGNMENT, "alignment", false},
-    { MBR_ISUOKR, "isuokr", true }, 
     { MBR_CURSOR, "cursor", false },//130
     { MBR_GUMP, "gump", false },
     { MBR_PROMPT, "prompt", false },
@@ -429,7 +429,8 @@ ObjMember object_members[] = {
 	{ MBR_AGGRESSORTO, "aggressorto", true},//175
 	{ MBR_LAWFULLYDAMAGED, "lawfullydamaged", true},
 	{ MBR_GETGOTTENBY, "getgottenby", true },
-	{ MBR_UO_EXPANSION_CLIENT, "uo_expansion_client", true }
+	{ MBR_UO_EXPANSION_CLIENT, "uo_expansion_client", true },
+	{ MBR_CLIENTTYPE, "clienttype", true },
 };
 int n_objmembers = sizeof object_members / sizeof object_members[0];
 ObjMember* getKnownObjMember(const char* token)

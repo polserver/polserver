@@ -19,6 +19,7 @@ History
 2009/09/03 MuadDib:   Relocation of account related cpp/h
                       Relocation of multi related cpp/h
 2009/09/10 Turley:    CompressedGump support (Grin)
+2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
 
 Notes
 =======
@@ -776,7 +777,7 @@ BObjectImp* UOExecutorModule::mf_SendGumpMenu( )
 		return new BError( "Client already has an active gump" );
 	}
 */
-	if ((chr->client->isUOKR) || ((!(flags & SENDDIALOGMENU_FORCE_OLD)) && (chr->client->compareVersion(CLIENT_VER_50000))))
+	if ((chr->client->ClientType & CLIENTTYPE_UOKR) || ((!(flags & SENDDIALOGMENU_FORCE_OLD)) && (chr->client->compareVersion(CLIENT_VER_50000))))
 		return internal_SendCompressedGumpMenu(chr, layout_arr, data_arr, x, y);
 	else
 		return internal_SendUnCompressedGumpMenu(chr, layout_arr, data_arr, x, y);

@@ -13,6 +13,7 @@ History
 2008/02/09 Shinigami: removed hardcoded MAX_CHARS from send_start()
 2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
 2009/08/06 MuadDib:   Removed PasswordOnlyHash support
+2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
 
 Notes
 =======
@@ -275,23 +276,11 @@ void select_server(Client *client, PKTIN_A0 *msg ) // Relay player to a certain 
 	// MuadDib Added new seed system. This is for transferring KR/6017/Normal client detection from loginserver
 	// to the gameserver. Allows keeping client flags from remote loginserver to gameserver for 6017 and kr
 	// packets.
-	// FIXME : in 099 Rewrite, upgrade this to some sort of bitflag setup?
 	rsp.unk7_00 = 0xFE; // This was set to 0xffffffff in the past but this will conflict with UO:KR detection
 	rsp.unk8_03 = 0xFE;
-	if ( client->compareVersion(CLIENT_VER_60142))
-		rsp.unk9_C3 = 0xFD;
-	else
-		rsp.unk9_C3 = 0xFE;
-	// 0xFE = Normal
-	// 0xFD = 6017+ client
-	// 0xFC = KR client
-	// FUCK EA :(
-	if ( client->isUOKR )
-		rsp.unk10_4B =0xFC;
-	else if ( client->is_greq_6017 )
-		rsp.unk10_4B =0xFD;
-	else
-		rsp.unk10_4B =0xFE;
+	rsp.unk9_C3 = 0xFE;
+	rsp.unk10_4B = client->ClientType;
+
 
 	client->transmit( &rsp, sizeof rsp );
 
@@ -382,12 +371,14 @@ void send_start( Client *client )
 
 	clientflag = ssopt.uo_feature_enable; // 'default' flags. Maybe auto-enable them according to the expansion?
 
+	clientflag |= startflags.FLAG_SEND_UO3D_TYPE; // Let UO3D (KR,SA) send 0xE1 packet
+
 	// Change this to a function for clarity? -- Nando
 	if (char_slots == 7) {
-		clientflag |= 0x1000; // 7th Character flag
+		clientflag |= startflags.FLAG_UPTO_SEVEN_CHARACTERS; // 7th Character flag
 	}
 	else if (char_slots == 6) {
-		clientflag |= 0x40; // 6th Character Flag
+		clientflag |= startflags.FLAG_UPTO_SIX_CHARACTERS; // 6th Character Flag
 	}
 	else if (char_slots == 1) {
 		clientflag |= 0x14; // Only one character (SIEGE (0x04) + LIMIT_CHAR (0x10))		
@@ -483,21 +474,7 @@ void login2(Client *client, PKTIN_91 *msg) // Gameserver login and character lis
 	// MuadDib Added new seed system. This is for transferring KR/6017/Normal client detection from loginserver
 	// to the gameserver. Allows keeping client flags from remote loginserver to gameserver for 6017 and kr
 	// packets.
-	// FIXME : in 099 Rewrite, upgrade this to some sort of bitflag setup?
-	// 0xFE = Normal
-	// 0xFD = 6017+ client
-	// 0xFC = KR client
-	// FUCK EA :(
-	if (msg->unk3==0xFD)
-		client->is_greq_60142=true;
-
-	switch ( msg->unk4 )
-	{
-		case 0xFC: client->isUOKR = true; break;
-		case 0xFD: client->is_greq_6017 = true; break;
-//	case 0xFE: 
-//	default:
-	}
+	client->ClientType=msg->unk4;
 
 	send_start( client );
 }

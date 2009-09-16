@@ -1,7 +1,8 @@
 /*
 History
 =======
-2009/07/26 MuadDib: Initial creation.
+2009/07/26 MuadDib:   Initial creation.
+2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
 
 Notes
 =======
@@ -55,6 +56,7 @@ enum PKTINID {
 	PKTIN_B5_ID = 0xB5,	// Chat Button
 	PKTIN_B6_ID = 0xB6,	// Request Tooltip
 	PKTIN_D9_ID = 0xD9,	// Client Machine's Details
+	PKTIN_E1_ID = 0xE1, // Client Type (UO3D)
 	PKTIN_E4_ID = 0xE4,	// KR Encryption Request
 	PKTIN_EF_ID = 0xEF	// Seed Packet, introduced 6.0.5.0
 

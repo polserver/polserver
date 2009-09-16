@@ -4,6 +4,7 @@ History
 2005/01/24 Shinigami: added packet 0xd9 (Spy on Client 2) to exceptions
 2005/08/29 Shinigami: SPY_ON_CLIENT renamed to CLIENT_INFO
 2007/07/08 Shinigami: added PKTIN_E4_ID to login_exceptions (used by UO:KR)
+2009/09/06 Turley:    Added 0xE1 packet
 
 Notes
 =======
@@ -47,6 +48,7 @@ int login_exceptions[] =
     PKTIN_A0_ID,
     PKTIN_A4_ID,
     PKTIN_D9_ID,
+	PKTIN_E1_ID, // Used by UO:KR & SA
 	PKTIN_E4_ID, // Used by UO:KR
     PKTIN_8D_ID,
     -1

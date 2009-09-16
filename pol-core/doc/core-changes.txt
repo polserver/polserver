@@ -1,4 +1,15 @@
 -- POL099 --
+09-16-2009 Turley:
+   Removed: char.isUOKR
+   Added:   char.ClientType r/o bitfield
+   Note:    current Flags are:
+            CLIENTTYPE_5000  := 0x1,
+	        CLIENTTYPE_6017  := 0x2,
+	        CLIENTTYPE_60142 := 0x4,
+	        CLIENTTYPE_UOKR  := 0x8,
+	        CLIENTTYPE_UOSA  := 0x10
+   Note:    Pol will be now compiled with flag /LARGEADDRESSAWARE (win only flag) pol should now be able to consume more memory
+
 09-14-2009 MuadDib:
    Removed: All import abilities built in to core for UOX data files. O_O
       Note: The file "import.txt" will be loaded each time POL loads, when found in the world data directory. This file's

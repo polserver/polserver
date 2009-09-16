@@ -9,6 +9,8 @@ History
 2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
 2009/08/25 Shinigami: STLport-5.2.1 fix: init order changed of aosresist
                       STLport-5.2.1 fix: params in call of Log2()
+2009/09/06 Turley:    Added u8 ClientType + FlagEnum
+                      Removed is*
 
 Notes
 =======
@@ -80,9 +82,8 @@ Client::Client( ClientInterface& aInterface, const string& encryption ) :
     last_msgtype(255),
     thread_pid(-1),
     UOExpansionFlag(0),
-	isUOKR(false),
-	is_greq_6017(false),
-	is_greq_60142(false),
+	UOExpansionFlagClient(0),
+	ClientType(0),
     paused_(false)
 {
 	// For bypassing cryptseed packet
@@ -320,6 +321,26 @@ bool Client::compareVersion(const VersionDetailStruct& ver2)
 		return false;
 	else
 		return true;
+}
+
+void Client::setClientType(ClientTypeFlag type)
+{
+	// with fall through !
+	switch (type)
+	{
+	case CLIENTTYPE_UOSA:
+		ClientType |= CLIENTTYPE_UOSA;
+	case CLIENTTYPE_UOKR:
+		ClientType |= CLIENTTYPE_UOKR;
+	case CLIENTTYPE_60142:
+		ClientType |= CLIENTTYPE_60142;
+	case CLIENTTYPE_6017:
+		ClientType |= CLIENTTYPE_6017;
+	case CLIENTTYPE_5000:
+		ClientType |= CLIENTTYPE_5000;
+	default:
+		break;
+	}
 }
 
 std::string Client::status() const
