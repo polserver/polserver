@@ -2,6 +2,7 @@
 History
 =======
 2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
+2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
 
 Notes
 =======
@@ -154,7 +155,7 @@ void send_open_gump( Client *client, const UContainer& cont )
 //dave changed 11/9/3, don't send invis items to those who can't see invis
 void send_container_contents( Client *client, const UContainer& cont, bool show_invis )
 {
-	if (client->is_greq_6017 || client->isUOKR)
+	if ( client->ClientType & CLIENTTYPE_6017 )
 	{
 		static PKTOUT_3C_6017 msg;
 

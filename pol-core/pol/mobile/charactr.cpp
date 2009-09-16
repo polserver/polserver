@@ -40,6 +40,7 @@ History
 2009/09/15 MuadDib:   Cleanup from registered houses on destroy
                       u32 registered_house added to store serial of registered multi.
                       Multi registration/unregistration support added.
+2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
 
 Notes
 =======
@@ -1556,7 +1557,7 @@ void Character::on_poison_changed()
 		if ( client )
 		{
 			send_goxyz( client, client->chr );
-			if ( client->isUOKR )
+			if ( client->ClientType & CLIENTTYPE_UOKR)
 			{
 				client->transmit(&msg, sizeof msg);
 			}

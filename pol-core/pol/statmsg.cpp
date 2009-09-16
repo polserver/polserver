@@ -4,6 +4,7 @@ History
 2006/05/23 Shinigami: send_full_statmsg() updated to support Elfs
 2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
 2009/08/09 MuadDib:   Re factor of Packet 0x25, 0x11 for naming convention
+2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
 
 Notes
 =======
@@ -33,7 +34,7 @@ void send_full_statmsg( Client *client, Character *chr )
 	// maintain this control with it. Unless they stick even more stuff mid-packet
 	// after KR (like in SA - Stygian Abyss), all newer supported stuff will go
 	// to the send_full_statmsg_new() function. Boooo to OSI!
-	if ( (client->UOExpansionFlag & ML) && (client->getversiondetail().major>=5 || client->isUOKR) )
+	if ( (client->UOExpansionFlag & ML) && (client->ClientType & CLIENTTYPE_5000) )
 		send_full_statmsg_new(client, chr);
 	else
 		send_full_statmsg_std(client, chr);

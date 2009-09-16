@@ -21,6 +21,7 @@ History
 2009/08/31 MuadDib:   Changed layer check on graphic change, excluding mount layer entirely.
 2009/09/03 MuadDib:   Relocation of account related cpp/h
                       Relocation of multi related cpp/h
+2009/09/06 Turley:    Removed isUOKR added ClientType
 
 Notes
 =======
@@ -1290,9 +1291,9 @@ BObjectImp* Character::get_script_member_id( const int id ) const
 					return new BError("Mobile is not currently trading with anyone.");
 			}
 			break;
-		case MBR_ISUOKR:
+		case MBR_CLIENTTYPE:
 			if (client != NULL)
-				return new BLong( client->isUOKR ? 1 : 0 );
+				return new BLong( client->ClientType );
 			else
 				return new BLong(0);
 			break;

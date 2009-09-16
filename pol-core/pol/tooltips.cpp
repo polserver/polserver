@@ -6,6 +6,7 @@ History
 2009/01/03 MuadDib:   Some generic recoding to remove useless code. O_O
 2009/01/27 MuadDib:   Rewrote Obj Cache Building/Sending.
 2009/07/26 MuadDib:   Packet struct refactoring.
+2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
 
 Notes
 =======
@@ -64,7 +65,7 @@ void send_object_cache(Client* client, const UObject* obj)
 {
 	if (ssopt.uo_feature_enable & PKTOUT_A9_START_FLAGS::FLAG_AOS_FEATURES)
 	{
-		if ((ssopt.force_new_objcache_packets) || (client->isUOKR) || (client->getversiondetail().major>=5))
+		if ((ssopt.force_new_objcache_packets) || (client->ClientType & CLIENTTYPE_5000))
 		{
 			unsigned char* uokr_buffer = BuildObjCache(obj, true);
 			client->transmit(uokr_buffer, 9);
@@ -102,7 +103,7 @@ void send_object_cache_to_inrange(const UObject* obj)
 				if (inrange(client2->chr, obj))
 				{
 					//send_object_cache(client2, obj);
-					if ((ssopt.force_new_objcache_packets) || (client2->isUOKR) || (client2->getversiondetail().major>=5))
+					if ((ssopt.force_new_objcache_packets) || (client2->ClientType & CLIENTTYPE_5000))
 					{
 						if (uokr_buffer == NULL)
 							uokr_buffer = BuildObjCache(obj, true);

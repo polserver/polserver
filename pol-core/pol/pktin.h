@@ -4,6 +4,7 @@ History
 2009/07/26 MuadDib:   Initial creation. This file is for packets sent by client only.
 2009/08/14 Turley:    fixed definition of PKTIN_5D
 2009/08/14 Turley:    fixed definition of PKTIN_00
+2009/09/06 Turley:    Added PKTIN_E1
 
 Notes
 =======
@@ -467,6 +468,18 @@ struct PKTIN_D9 {
 	u8 unknown2[64];           // Unknown
 };
 asserteql( sizeof(PKTIN_D9), 0x10C );
+
+struct PKTIN_E1 {
+	u8 msgtype;
+	u16 msglen;
+	u16 unknown_0x01;
+	u32 clienttype;
+	enum { 
+		CLIENTTYPE_KR = 0x2, 
+		CLIENTTYPE_SA = 0x3
+	};
+};
+asserteql(sizeof(PKTIN_E1),0x09);
 
 struct PKTIN_E4 {
 	u8  msgtype;
