@@ -10,6 +10,8 @@ History
 2007/07/09 Shinigami: added isUOKR [bool] - UO:KR client used?
 2009/08/10 MuadDib:   Added CLIENT_VER_50000 for v5.0.0x clients.
 2009/08/19 Turley:    Added u32 UOExpansionFlagClient
+2009/09/06 Turley:    Added u8 ClientType + FlagEnum
+                      Removed is*
 
 Notes
 =======
@@ -66,6 +68,16 @@ struct VersionDetailStruct
 const struct VersionDetailStruct CLIENT_VER_50000={5,0,0,0};
 const struct VersionDetailStruct CLIENT_VER_60171={6,0,1,7};
 const struct VersionDetailStruct CLIENT_VER_60142={6,0,14,2};
+const struct VersionDetailStruct CLIENT_VER_70000={7,0,0,0};
+
+enum ClientTypeFlag
+{
+	CLIENTTYPE_5000  = 0x1,
+	CLIENTTYPE_6017  = 0x2,
+	CLIENTTYPE_60142 = 0x4,
+	CLIENTTYPE_UOKR  = 0x8,
+	CLIENTTYPE_UOSA  = 0x10
+};
 
 class Client
 {
@@ -93,6 +105,7 @@ public:
 	void itemizeclientversion( const std::string& ver, VersionDetailStruct& detail );
 	bool compareVersion( const std::string& ver );
 	bool compareVersion(const VersionDetailStruct& ver2);
+	void setClientType(ClientTypeFlag type);
 
     void setclientinfo( const PKTIN_D9 *msg ) { memcpy( &clientinfo_, msg, sizeof(clientinfo_) ); }
     BStruct* getclientinfo() const;
@@ -179,9 +192,7 @@ public:
     int thread_pid;
     u16 UOExpansionFlag;
 	u32 UOExpansionFlagClient;
-	bool isUOKR;
-	bool is_greq_6017;
-	bool is_greq_60142;
+	u8 ClientType;
 	
 private:
     struct {

@@ -14,6 +14,7 @@ History
 2008/12/17 MuadDub:   Added item.tile_layer - returns layer entry from tiledata/tiles.cfg
 2009/08/06 MuadDib:   Removed PasswordOnlyHash support
 2009/08/19 Turley:    Added character.uo_expansion_client
+2009/09/06 Turley:    Removed chr.isUOKR added chr.ClientType
 
 Notes
 =======
@@ -156,7 +157,6 @@ enum MemberID
 	MBR_TRADING_WITH,
 	MBR_TRADE_CONTAINER,
 	MBR_ALIGNMENT,
-	MBR_ISUOKR,          //130
 	MBR_CURSOR,
 	MBR_GUMP,
 	MBR_PROMPT,
@@ -205,7 +205,8 @@ enum MemberID
 	MBR_AGGRESSORTO,
 	MBR_LAWFULLYDAMAGED,
 	MBR_GETGOTTENBY,
-	MBR_UO_EXPANSION_CLIENT
+	MBR_UO_EXPANSION_CLIENT,
+	MBR_CLIENTTYPE
 };
 
 

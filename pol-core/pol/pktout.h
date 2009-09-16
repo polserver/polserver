@@ -9,6 +9,7 @@ History
 2009/08/09 MuadDib:   Re factor of Packet 0x25, 0x11 for naming convention
 2009/08/14 Turley:    PKTOUT_B9_V2 removed unk u16 and changed flag to u32
 2009/09/10 Turley:    CompressedGump support (Grin)
+2009/09/06 Turley:    Added more known Flags to 0xA9
 
 Notes
 =======
@@ -932,7 +933,11 @@ struct PKTOUT_A9_START_FLAGS {
 		FLAG_AOS_FEATURES           = 0x0020, // Age of Shadows
 		FLAG_UPTO_SIX_CHARACTERS    = 0x0040, // Use up to 6 Characters (not only 5)
 		FLAG_SE_FEATURES            = 0x0080, // Samurai Empire
-		FLAG_ML_FEATURES            = 0x0100  // Mondain's Legacy
+		FLAG_ML_FEATURES            = 0x0100, // Mondain's Legacy
+		FLAG_SEND_UO3D_TYPE         = 0x0400, // KR and UO:SA will send 0xE1 packet
+		FLAG_UNK_0x0800             = 0x0800, // ?
+		FLAG_UPTO_SEVEN_CHARACTERS  = 0x1000, // Use up to 7 Characters
+		FLAG_UNK_0x2000             = 0x2000  // ?
 	};
 };
 

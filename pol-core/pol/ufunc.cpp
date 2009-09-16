@@ -22,6 +22,7 @@ History
                       Relocation of multi related cpp/h
 2009/09/13 MuadDib:   Optimized send_remove_character_to_nearby_cansee, send_remove_character_to_nearby_cantsee, send_remove_character_to_nearby
                       to build packet and handle iter internally. Packet built just once this way, and sent to those who need it.
+2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
 
 Notes
 =======
@@ -529,7 +530,7 @@ bool multi_inrange( unsigned short x1, unsigned short y1,
 
 void send_put_in_container( Client* client, const Item* item )
 {
-	if ( client->is_greq_6017 )
+	if ( client->ClientType & CLIENTTYPE_6017 )
 	{
 		PKTOUT_25_V2 slot_buffer;
 		BuildMsg25(item, &slot_buffer);
@@ -567,7 +568,7 @@ void send_put_in_container_to_inrange( const Item *item )
         if (client2->chr->mightsee( item->container ))
         {
             // FIXME if the container has an owner, and I'm not it, don't tell me?
-			if ( client2->is_greq_6017 )
+			if ( client2->ClientType & CLIENTTYPE_6017 )
 			{
 				if (!slot_built)
 					BuildMsg25(item, &slot_buffer);
@@ -1851,11 +1852,11 @@ void transmit_to_inrange( const UObject* center, const void* msg, unsigned msgle
 		{
             continue;
 		}
-		if (is_6017 && !client->is_greq_6017)
+		if (is_6017 && (!( client->ClientType & CLIENTTYPE_6017 )))
 		{
 			continue;
 		}
-		if (is_UOKR && !client->isUOKR)
+		if (is_UOKR && (!( client->ClientType & CLIENTTYPE_UOKR )))
 		{
 			continue;
 		}
@@ -1880,11 +1881,11 @@ void transmit_to_others_inrange( Character* center, const void* msg, unsigned ms
 		{
             continue;
 		}
-		if (is_6017 && !client->is_greq_6017)
+		if (is_6017 && (!( client->ClientType & CLIENTTYPE_6017 )))
 		{
 			continue;
 		}
-		if (is_UOKR && !client->isUOKR)
+		if (is_UOKR && (!( client->ClientType & CLIENTTYPE_UOKR )))
 		{
 			continue;
 		}
@@ -2413,7 +2414,7 @@ void send_feature_enable(Client* client)
 		}
 	}
 
-	if (client->is_greq_60142)
+	if ( client->ClientType & CLIENTTYPE_60142 )
 	{
 		PKTOUT_B9_V2 msg;
 		msg.msgtype = PKTOUT_B9_V2_ID;
