@@ -102,9 +102,17 @@ bool move_character_to( Character* chr,
 	// FIXME: Need to add Walkon checks for multi right here if type is house.
     if (supporting_multi != NULL)
     {
-        supporting_multi->register_object( chr );
-		if ( supporting_multi->as_house() != NULL )
-			chr->registered_house = supporting_multi->serial;
+		supporting_multi->register_object( chr );
+		UHouse* this_house = supporting_multi->as_house();
+		if ( this_house != NULL )
+		{
+			if ( chr->registered_house == 0 )
+			{
+				chr->registered_house = supporting_multi->serial;
+				//cout << "walk on multi triggered" << endl;
+				this_house->walk_on( chr );
+			}
+		}
     }
 	else
 	{
