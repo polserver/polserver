@@ -1333,9 +1333,17 @@ BObjectImp* UOExecutorModule::mf_CreateNpcFromTemplate()
 		// FIXME: Need to add Walkon checks for multi right here if type is house.
 		if (dummy_multi)
 		{
-            dummy_multi->register_object( npc.get() );
-			if ( dummy_multi->as_house() != NULL )
-				npc->registered_house = dummy_multi->serial;
+			dummy_multi->register_object( npc.get() );
+			UHouse* this_house = dummy_multi->as_house();
+			if ( this_house != NULL )
+			{
+				if ( npc->registered_house == 0 )
+				{
+					npc->registered_house = dummy_multi->serial;
+					//cout << "walk on multi triggered" << endl;
+					this_house->walk_on( npc.get() );
+				}
+			}
 		}
 		else
 		{

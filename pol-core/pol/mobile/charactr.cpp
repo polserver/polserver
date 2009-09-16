@@ -3517,8 +3517,16 @@ bool Character::move( unsigned char i_dir )
 		if (supporting_multi != NULL)
 		{
 			supporting_multi->register_object( this );
-			if ( supporting_multi->as_house() != NULL )
-				registered_house = supporting_multi->serial;
+			UHouse* this_house = supporting_multi->as_house();
+			if ( this_house != NULL )
+			{
+				if ( registered_house == 0 )
+				{
+					registered_house = supporting_multi->serial;
+					//cout << "walk on multi triggered" << endl;
+					this_house->walk_on( this );
+				}
+			}
 		}
 		else
 		{
