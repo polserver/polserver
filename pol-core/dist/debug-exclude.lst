@@ -7,4 +7,5 @@ TERM OF USE AGREEMENT
 *.bak
 *.doc
 \.svn\
+\CVS\
 \Debug\
