@@ -175,10 +175,10 @@ void loginserver_login( Client *client, PKTIN_80 *msg )
             if (he && he->h_addr_list[0])
             {
                 char* addr = he->h_addr_list[0];
-                server->ip[0] = addr[3];
-                server->ip[1] = addr[2];
-                server->ip[2] = addr[1];
-                server->ip[3] = addr[0];
+                server->ip[0] = addr[0];
+                server->ip[1] = addr[1];
+                server->ip[2] = addr[2];
+                server->ip[3] = addr[3];
             }
             else
             {
@@ -196,10 +196,10 @@ void loginserver_login( Client *client, PKTIN_80 *msg )
             pelem->servernum = ctBEu16( idx+1 );
 		    strzcpy( pelem->servername, server->name.c_str(), sizeof pelem->servername );
 		    pelem->servernum2 = ctBEu16( idx+1 );
-            pelem->ip[0] = server->ip[3];
-		    pelem->ip[1] = server->ip[2];
-		    pelem->ip[2] = server->ip[1];
-		    pelem->ip[3] = server->ip[0];
+            pelem->ip[0] = server->ip[0];
+		    pelem->ip[1] = server->ip[1];
+		    pelem->ip[2] = server->ip[2];
+		    pelem->ip[3] = server->ip[3];
             ++pelem;
             msglen += sizeof *pelem;
         }
