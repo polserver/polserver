@@ -229,6 +229,9 @@
              the next member becomes the leader
 
 -- POL098.2 --
+08-21-2009 Turley:
+    Fixed:   Regions where limited to 128 due to intern (char)id, changed to ushort
+
 07-31-2009 MuadDib:
     Fixed:   Cleanup crash in shutdown involving characters and combat. Now all clients and characters are disconnected by the
              core before any cleanup is intiated. This will begin the cleanup for client and character alike. 
