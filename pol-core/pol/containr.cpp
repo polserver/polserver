@@ -723,9 +723,12 @@ void UContainer::on_remove( Character* chr, Item* item, MoveType move )
 	if ( this->objtype_ == UOBJ_CORPSE )
 	{
 		UCorpse* corpse = static_cast<UCorpse*>(this);
-		if ( corpse->GetItemOnLayer(item->tile_layer)->serial == item->serial )
+		if ( corpse->GetItemOnLayer(item->tile_layer) != NULL )
 		{
-			corpse->RemoveItemFromLayer(item);
+			if ( corpse->GetItemOnLayer(item->tile_layer)->serial == item->serial )
+			{
+				corpse->RemoveItemFromLayer(item);
+			}
 		}
 	}
 	else
