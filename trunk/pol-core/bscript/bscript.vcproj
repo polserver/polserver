@@ -43,7 +43,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;..\..\lib\STLport\stlport&quot;;"
+				AdditionalIncludeDirectories="&quot;..\..\lib\STLport4\stlport&quot;;"
 				PreprocessorDefinitions="_DEBUG,WIN32,_LIB,INC_PASSERT"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
