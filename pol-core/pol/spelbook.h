@@ -1,6 +1,7 @@
 /*
 History
 =======
+2009/09/18 MuadDib:   Spellbook rewrite to deal with only bits, not scrolls inside them.
 
 
 Notes
