@@ -26,6 +26,7 @@ public:
 
     bool has_spellid( unsigned long spellid ) const;
 	u8 bitwise_contents[8];
+	u64 spellbook_contents;
 	short spell_school;
 	virtual void add( Item *item );
 	virtual void printProperties( ostream& os ) const;
@@ -33,6 +34,7 @@ public:
 	virtual void printOn( ostream& os ) const;
 	virtual void printSelfOn( ostream& os ) const;
 	virtual void double_click( Client* client );
+	void send_book_old( Client* client );
 	virtual bool script_isa( unsigned isatype ) const;
 
 private:
@@ -54,5 +56,7 @@ protected:
     friend Item* Item::create( const ItemDesc& itemdesc, u32 serial );
 private:
 };
+
+void send_spellbook_contents( Client *client, Spellbook& spellbook );
 
 #endif
