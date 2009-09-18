@@ -57,12 +57,6 @@ Planning
 	MuadDib:
 		Item.Quality needs implemented for AOS Elemental also like it is for AR. Right
 		now, cannot see how Quality affects ANYTHING except reporting maxhp member o_O
-	Unknown:
-		Convert all spellbooks to create packets from the bitwise ALWAYS. This includes
-		oldschool magery books. If a spell is added to the SpellBits, then it needs to
-		be DELETED from the container (for backwards compatible data files that has books
-		with scrolls in them). The goal is to STOP having spellbooks eat up so much space
-		by having scrolls still exist inside them.
 	Unknown: (possibly Nando)
 		Rewrite SEND SKILLS (0x3A) message. (Should make a buffer instead of a big array of skills,
 		and just one packet struct instead of two.)
@@ -92,8 +86,6 @@ Planning
     Unknown:
         Packet Struct for 0x1A should be optimized into a single Struct design like other packets with different structures
         based on what is being sent or recieved.
-    Unknown:
-        Update the version checks for LoginServer/Gameserver key to use a bitflag setup like expansions do.
     Unknown:
         send_menu( Client *client, Menu *menu ) Just is terrible I think. Hard on the eyes. Need to redo this and the packet.
     Unknwon:
@@ -140,26 +132,20 @@ Planning
     Unknown
         Finish Repsys hook. Current bug, when setting mob to criminal, it causes hook to exit.
     UnKnown
-        Multi Walkon script support. Should remember it only needs checked when first walking onto
-        a multi/component, and no release their reference for it, until they walk off it. Handle this
-        similar to regional zones for best result maybe??
-    UnKnown
         Rework sending items to client when they are on a multi (and not a component of the multi).
         OSI handles this laggish issue by not sending items (Mobs and their equipped items they send though)
         until the player has walked onto the multi or one of it's components. Helps blackholing and saves
         bandwidth.
     Unknown
-        Fix? clientinfo member on linux cores.
-    Unknown
         Fix? Issue with timeout not working under linux cores (Inactivity timeout).
-	UnKnown:
-		Find remaining Memory Leaks in Executor.
-	UnKnown:
-		Find remaining Memory leaks in Config handling.
-	MuadDib:
-		Move existing servspecopt.cfg settings that are for CLIENT SPECIFIC STUFF to 
-		uoclient.cfg system and make them client specific members populated at creation
-		like StatCap already is!
+    UnKnown:
+	Find remaining Memory Leaks in Executor.
+    UnKnown:
+	Find remaining Memory leaks in Config handling.
+    MuadDib:
+	Move existing servspecopt.cfg settings that are for CLIENT SPECIFIC STUFF to 
+	uoclient.cfg system and make them client specific members populated at creation
+	like StatCap already is!
 	MuadDib:
 		Throw Sheep at Nando!
 	MuadDib:
