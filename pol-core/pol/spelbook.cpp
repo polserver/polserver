@@ -3,6 +3,7 @@ History
 =======
 2005/02/14 Shinigami: double_click - simple logical error in layer_is_equipped check
 2009/07/26 MuadDib:   Packet struct refactoring.
+2009/09/17 MuadDib:   Spellbook::can_add upgraded to check bitflags instead of contents.
 
 Notes
 =======
@@ -62,10 +63,13 @@ void Spellbook::double_click( Client* client )
 		return;
 	}
 
+	if(bitwise_contents[0] == 0) //assume never been clicked using the new bitwise spell scheme
+		calc_current_bitwise_contents();
+
 	if( !(client->UOExpansionFlag & AOS) && 
 		     (spell_school == 0) )
 	{
-		 base::double_click(client);
+		 send_book_old(client);
 	}
 	else if( !(client->UOExpansionFlag & AOS) && 
 		     (spell_school == 1 || spell_school == 2))
@@ -95,12 +99,9 @@ void Spellbook::double_click( Client* client )
 		{
 			if ( config.loglevel > 1 )
 				cout << "Client with AOS Expansion Account using spellbook without UOFeatureEnable 0x20 Bitflag.\n";
-			base::double_click(client);
+			send_book_old(client);
 			return;
 		}
-
-		if(bitwise_contents[0] == 0) //assume never been clicked using the new bitwise spellscheme
-			calc_current_bitwise_contents();
 
 		send_open_gump(client, *this);
 		PKTBI_BF msg;
@@ -117,18 +118,21 @@ void Spellbook::double_click( Client* client )
 
 }
 
+// FIXME: Spell Upgrade, upgrade to use bits, not contents.
 bool Spellbook::has_spellid( unsigned long spellid ) const
 {
-    for( UContainer::const_iterator itr = begin(); itr != end(); ++itr )
-	{
-		const Item* scroll = GET_ITEM_PTR( itr );
-        if ( (unsigned long)(USpellScroll::convert_objtype_to_spellnum(scroll->objtype_, spell_school) + (spell_school * 100)) == spellid)
-			return true;
-	}
+	u16 spellnumber = static_cast<u16>(spellid);
+	u8  spellslot = spellnumber % 8;
+	if(spellslot == 0) spellslot = 8;
+	int bitcheck = ((bitwise_contents[ (spellnumber-1) / 8 ]) & (1 << (spellslot-1)));
+	cerr << "Bitcheck to cast and spellid: " << bitcheck << " " << spellid << endl;
+	if ( ((bitwise_contents[ (spellnumber-1) / 8 ]) & (1 << (spellslot-1))) != 0 )
+		return true;
 
 	return false;
 }
 
+// FIXME: Spell Upgrade, update to use new has_spellid instead of bitchecks.
 bool Spellbook::can_add( const Item& item ) const
 {
 	// note: item count maximums are implicitly checked for.
@@ -141,12 +145,11 @@ bool Spellbook::can_add( const Item& item ) const
 	}
 
 	// you can only add one of each kind of scroll to a spellbook.
-    for( UContainer::const_iterator itr = begin(); itr != end(); ++itr )
-	{
-		const Item* scroll = GET_ITEM_PTR( itr );
-		if (scroll->objtype_ == item.objtype_)
-			return false;
-	}
+	u16 spellnum = USpellScroll::convert_objtype_to_spellnum(item.objtype_, spell_school);
+	u8  spellslot = spellnum % 8;
+	if(spellslot == 0) spellslot = 8;
+	if ( bitwise_contents[ (spellnum-1) / 8 ] & (1 << (spellslot-1)) )
+		return false;
 
 	return true;
 }
@@ -164,6 +167,7 @@ void Spellbook::add( Item *item )
 	u8  spellslot = spellnum % 8;
 	if(spellslot == 0) spellslot = 8;
 	bitwise_contents[ (spellnum-1) / 8 ] |= 1 << (spellslot-1);
+	item->saveonexit(0);
 }
 
 void Spellbook::printProperties( ostream& os ) const
@@ -206,6 +210,13 @@ void Spellbook::calc_current_bitwise_contents()
 		if(spellslot == 0) spellslot = 8;
 		bitwise_contents[ (spellnum-1) / 8 ] |= 1 << (spellslot-1);
 	}	
+
+	// ok, it's been upgraded. Destroy everything inside it.
+	for( UContainer::iterator itr = begin(); itr != end(); ++itr )
+	{
+		Item* scroll = GET_ITEM_PTR( itr );
+		scroll->destroy();
+	}
 }
 
 USpellScroll::USpellScroll( const ItemDesc& itemdesc ) :
@@ -213,7 +224,6 @@ USpellScroll::USpellScroll( const ItemDesc& itemdesc ) :
 {
 }
 
-// See docs\spells.txt for what's going on here.
 u16 USpellScroll::convert_objtype_to_spellnum( u16 objtype, int school )
 {
 	u16 spellnum = objtype - spell_scroll_objtype_limits[school][0] + 1;
@@ -240,4 +250,98 @@ u16 USpellScroll::get_senditem_amount() const
     {
         return amount_;
     }
+}
+
+void Spellbook::send_book_old( Client *client )
+{
+	client->pause();
+
+	if (!locked_)
+	{
+		send_open_gump( client, *this );
+		send_spellbook_contents( client, *this );
+	}
+	else
+	{
+		send_sysmessage( client, "That is locked." );
+	}
+
+	client->restart();
+}
+
+void send_spellbook_contents( Client *client, Spellbook& spellbook )
+{
+	if ( client->ClientType & CLIENTTYPE_6017 )
+	{
+		static PKTOUT_3C_6017 msg;
+
+		msg.msgtype = PKTOUT_3C_ID;
+
+		int count = 0;
+		for ( u16 i = 0; i < 64; ++i )
+		{
+			u16 objtype = spell_scroll_objtype_limits[0][0] + i;
+			u16 spellnumber = USpellScroll::convert_objtype_to_spellnum( objtype, spellbook.spell_school );
+			u8  spellpos = spellnumber % 8; // spellpos is the spell's position it it's circle's array.
+			if(spellpos == 0) spellpos = 8;
+			if ( ((spellbook.bitwise_contents[ ((spellnumber-1) / 8) ]) & (1 << (spellpos-1))) != 0 )
+			{
+				msg.items[count].serial = 0x7FFFFFFF - spellnumber;
+				msg.items[count].graphic = ctBEu16(objtype);
+				msg.items[count].unk6_00 = 0x00;
+
+				msg.items[count].amount = ctBEu16( spellnumber );
+
+				msg.items[count].x = ctBEu16(1);
+				msg.items[count].y = ctBEu16(1);
+				msg.items[count].slot_index = 0x00;
+				msg.items[count].container_serial = spellbook.serial_ext;
+				msg.items[count].color = 0x00;
+				++count;
+			}
+		}
+
+		unsigned short msglen = static_cast<unsigned short>(offsetof( PKTOUT_3C_6017, items ) + 
+			count * sizeof msg.items[0]);
+		msg.msglen = ctBEu16( msglen );
+		msg.count = ctBEu16( count );
+
+		client->transmit( &msg, msglen );	
+	}
+	else
+	{
+		static PKTOUT_3C msg;
+
+		msg.msgtype = PKTOUT_3C_ID;
+
+		int count = 0;
+		for ( u16 i = 0; i < 64; ++i )
+		{
+			u16 objtype = spell_scroll_objtype_limits[0][0] + i;
+			u16 spellnumber = USpellScroll::convert_objtype_to_spellnum( objtype, spellbook.spell_school );
+			u8  spellpos = spellnumber % 8; // spellpos is the spell's position it it's circle's array.
+			if(spellpos == 0) spellpos = 8;
+			if ( ((spellbook.bitwise_contents[ ((spellnumber-1) / 8) ]) & (1 << (spellpos-1))) != 0 )
+			{
+				msg.items[count].serial = 0x7FFFFFFF - spellnumber;
+				msg.items[count].graphic = ctBEu16(objtype);
+				msg.items[count].unk6_00 = 0x00;
+
+				msg.items[count].amount = ctBEu16( spellnumber );
+
+				msg.items[count].x = ctBEu16(1);
+				msg.items[count].y = ctBEu16(1);
+				msg.items[count].container_serial = spellbook.serial_ext;
+				msg.items[count].color = 0x00;
+				++count;
+			}
+		}
+
+		unsigned short msglen = static_cast<unsigned short>(offsetof( PKTOUT_3C, items ) + 
+			count * sizeof msg.items[0]);
+		msg.msglen = ctBEu16( msglen );
+		msg.count = ctBEu16( count );
+
+		client->transmit( &msg, msglen );	
+	}
 }

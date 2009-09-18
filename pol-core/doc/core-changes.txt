@@ -1,4 +1,12 @@
 -- POL099 --
+09-17-2009 MuadDib:
+   Removed: Storing scrolls inside spellbooks. Destroyed after insert is complete.
+   Changed: Pre-AOS Clients still get the same packet they always did when opening a spellbook, built entirely
+            off the bitflag system for newer spellbooks. So no more keeping scrolls inside of books. :D
+      Note: As spellbooks are loaded for the first time with newer cores and as added to books, scrolls are
+            marked SaveOnExit 0. Temp solution until valid method of destroy can be done without intermittent
+            crashes.
+            
 09-16-2009 Turley:
    Removed: char.isUOKR
    Added:   char.ClientType r/o bitfield
