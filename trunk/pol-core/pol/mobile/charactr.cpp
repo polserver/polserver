@@ -563,6 +563,9 @@ void Character::printProperties( ostream& os ) const
 	os << "\tTrueColor\t0x" << hex << truecolor << dec << pf_endl;
 	os << "\tTrueObjtype\t0x" << hex << trueobjtype << dec << pf_endl;
 
+	if (registered_house)
+		os << "\tRegisteredHouse\t0x" << hex << registered_house << dec << pf_endl;
+
 	os << "\tGender\t" << static_cast<int>(gender) << pf_endl;
 	os << "\tRace\t" << static_cast<int>(race) << pf_endl;
 	
@@ -808,6 +811,8 @@ void Character::readCommonProperties( ConfigElem& elem )
 	trueobjtype = elem.remove_ushort( "TRUEOBJTYPE", objtype_ ); //dave 1/30/3
 	graphic = objtype_;
 	graphic_ext = ctBEu16( graphic );
+
+	registered_house = elem.remove_ulong( "REGISTEREDHOUSE", 0 );
 
 	base::readProperties( elem );
 
