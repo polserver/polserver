@@ -41,6 +41,7 @@ History
                       u32 registered_house added to store serial of registered multi.
                       Multi registration/unregistration support added.
 2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
+2009/09/18 MuadDib:   Adding save/load of registered house serial
 
 Notes
 =======
