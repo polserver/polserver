@@ -233,6 +233,9 @@ void NPC::printProperties( std::ostream& os ) const
 {
     base::printProperties( os );
 
+	if (registered_house)
+		os << "\tRegisteredHouse\t0x" << hex << registered_house << dec << pf_endl;
+
     if (npc_ar_)
         os << "\tAR\t" << npc_ar_ << pf_endl;
 
@@ -293,6 +296,8 @@ void NPC::printDebugProperties( std::ostream& os ) const
 
 void NPC::readNpcProperties( ConfigElem& elem )
 {
+	registered_house = elem.remove_ulong( "REGISTEREDHOUSE", 0 );
+
     UWeapon* wpn = find_intrinsic_weapon( elem.rest() );
     if (wpn == NULL)
     {
