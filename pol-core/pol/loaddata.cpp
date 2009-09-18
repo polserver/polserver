@@ -25,8 +25,10 @@ Notes
 #include "item/item.h"
 #include "objecthash.h"
 #include "polcfg.h"
+#include "polclass.h"
 #include "poltype.h"
 #include "loaddata.h"
+#include "spelbook.h"
 #include "uobject.h"
 
 unsigned incremental_save_count = 0;
@@ -248,10 +250,17 @@ void equip_loaded_item( Character* chr, Item* item )
 	}
 }
 
+extern u16 spell_scroll_objtype_limits[7][2];
+
 void add_loaded_item( Item* cont_item, Item* item )
 {
 	if (cont_item->isa(UObject::CLASS_CONTAINER))
 	{
+		// Convert spellbook to use bitwise system, not scrolls.
+		if ( cont_item->script_isa(POLCLASS_SPELLBOOK) )
+		{
+			item->saveonexit(0);
+		}
 		UContainer* cont = static_cast<UContainer*>(cont_item);
 		
 		gflag_enforce_container_limits = false;
