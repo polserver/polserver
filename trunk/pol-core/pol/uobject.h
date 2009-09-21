@@ -220,6 +220,12 @@ public:
     void clear_dirty() const;
     static unsigned long dirty_writes;
     static unsigned long clean_writes;
+
+	Resistances element_resist;
+	ElementDamages element_damage;
+	Resistances_Mods element_resist_mod;
+	ElementDamages_Mods element_damage_mod;
+
 protected:
 
     virtual void printProperties( std::ostream& os ) const;
