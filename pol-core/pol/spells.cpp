@@ -1,7 +1,7 @@
 /*
 History
 =======
-
+2009/09/20 MuadDib:   docast no longer unhides. Let scripts handle this.
 
 Notes
 =======
@@ -276,7 +276,14 @@ void USpell::consume_mana( Character *chr )
 
 void USpell::speak_power_words( Character* chr )
 {
-	say_above( chr, power_words_.c_str() );
+	if ( chr->client != NULL && chr->hidden() )
+	{
+		private_say_above(chr, chr, power_words_.c_str());
+	}
+	else if ( !chr->hidden() )
+	{
+		say_above( chr, power_words_.c_str() );
+	}
 }
 
 SpellTask::SpellTask( OneShotTask** handle, polclock_t run_when_clock, Character* caster, USpell* spell, bool dummy ) :
@@ -330,8 +337,9 @@ void do_cast( Client *client, unsigned long spellid )
 		return;
 	}
 
-	if (client->chr->hidden())
-		client->chr->unhide();
+// Let scripts handle this.
+//	if (client->chr->hidden())
+//		client->chr->unhide();
 
 	if (client->chr->frozen() || client->chr->paralyzed())
 	{
