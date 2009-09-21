@@ -192,11 +192,6 @@ public:
     u8 layer;
 	u8 tile_layer;
 
-	Resistances element_resist;
-    ElementDamages element_damage;
-	Resistances_Mods element_resist_mod;
-	ElementDamages_Mods element_damage_mod;
-
 	s16 calc_element_resist( unsigned element ) const;
 	s16 calc_element_damage( unsigned element ) const;
 	bool has_resistance(Character* chr);

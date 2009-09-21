@@ -718,9 +718,6 @@ public:
     string title_guild;
     string title_race;
 
-    Resistances element_resist;
-    ElementDamages element_damage;
-
 	Expanded_Statbar expanded_statbar;
 	u16 skillcap_;
 	MovementCost_Mod movement_cost;
@@ -737,8 +734,6 @@ protected:
 	s16 hitchance_mod_;
 	s16 evasionchance_mod_;
 
-	Resistances_Mods element_resist_mod;
-	ElementDamages_Mods element_damage_mod;
 
 	//u16 max_hits_;
     //u16 max_mana_;
