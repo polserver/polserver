@@ -321,7 +321,8 @@ asserteql( sizeof(PKTIN_8D), 146 );
 
 struct PKTIN_91 {
 	u8 msgtype;
-	u8 unk1, unk2, unk3, unk4;
+	u8 unk1, unk2;
+    u16 unk3_4_ClientType;
 	char name[30];
 	char password[30];
 };

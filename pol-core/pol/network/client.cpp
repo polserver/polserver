@@ -330,14 +330,22 @@ void Client::setClientType(ClientTypeFlag type)
 	{
 	case CLIENTTYPE_UOSA:
 		ClientType |= CLIENTTYPE_UOSA;
+    case CLIENTTYPE_7000:
+        ClientType |= CLIENTTYPE_7000;
 	case CLIENTTYPE_UOKR:
 		ClientType |= CLIENTTYPE_UOKR;
 	case CLIENTTYPE_60142:
 		ClientType |= CLIENTTYPE_60142;
 	case CLIENTTYPE_6017:
 		ClientType |= CLIENTTYPE_6017;
+    case CLIENTTYPE_5020:
+        ClientType |= CLIENTTYPE_5020;
 	case CLIENTTYPE_5000:
 		ClientType |= CLIENTTYPE_5000;
+    case CLIENTTYPE_4070:
+        ClientType |= CLIENTTYPE_4070;
+    case CLIENTTYPE_4000:
+        ClientType |= CLIENTTYPE_4000;
 	default:
 		break;
 	}
