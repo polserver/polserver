@@ -53,6 +53,7 @@ public:
 									const u16* wspeech, const char lang[4]);
 
 	virtual unsigned short ar() const;
+	virtual void refresh_ar();
 
     virtual void apply_raw_damage_hundredths( unsigned long damage, Character* source );
     virtual void inform_engaged( Character* engaged );
@@ -128,7 +129,13 @@ private: // REPUTATION SYSTEM:
 private:
     virtual ~NPC();
 	std::string script;
-    unsigned short npc_ar_;
+    
+	unsigned short npc_ar_;
+	Resistances element_resist_;
+	ElementDamages element_damage_;
+	void reset_element_resist( unsigned resist );
+	void reset_element_damage( unsigned damage );
+
     CharacterRef master_;
     const NpcTemplate& template_;
     struct {
