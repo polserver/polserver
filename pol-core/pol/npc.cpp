@@ -1000,11 +1000,11 @@ void NPC::reset_element_resist( unsigned resist )
 {
 	switch(resist)
 	{
-	case ELEMENTAL_FIRE: element_resist.fire = element_resist_.fire; break;
-	case ELEMENTAL_COLD: element_resist.cold = element_resist_.cold; break;
-	case ELEMENTAL_ENERGY: element_resist.energy = element_resist_.energy; break;
-	case ELEMENTAL_POISON: element_resist.poison = element_resist_.poison; break;
-	case ELEMENTAL_PHYSICAL: element_resist.physical = element_resist_.physical; break;
+	case ELEMENTAL_FIRE: element_resist.fire = element_resist_.fire + element_resist_mod.fire; break;
+	case ELEMENTAL_COLD: element_resist.cold = element_resist_.cold + element_resist_mod.cold; break;
+	case ELEMENTAL_ENERGY: element_resist.energy = element_resist_.energy + element_resist_mod.energy; break;
+	case ELEMENTAL_POISON: element_resist.poison = element_resist_.poison + element_resist_mod.poison; break;
+	case ELEMENTAL_PHYSICAL: element_resist.physical = element_resist_.physical + element_resist_mod.physical; break;
 	}
 }
 
@@ -1012,10 +1012,10 @@ void NPC::reset_element_damage( unsigned damage )
 {
 	switch(damage)
 	{
-	case ELEMENTAL_FIRE: element_damage.fire = element_damage_.fire; break;
-	case ELEMENTAL_COLD: element_damage.cold = element_damage_.cold; break;
-	case ELEMENTAL_ENERGY: element_damage.energy = element_damage_.energy; break;
-	case ELEMENTAL_POISON: element_damage.poison = element_damage_.poison; break;
-	case ELEMENTAL_PHYSICAL: element_damage.physical = element_damage_.physical; break;
+	case ELEMENTAL_FIRE: element_damage.fire = element_damage_.fire + element_damage_mod.fire; break;
+	case ELEMENTAL_COLD: element_damage.cold = element_damage_.cold + element_damage_mod.cold; break;
+	case ELEMENTAL_ENERGY: element_damage.energy = element_damage_.energy + element_damage_mod.energy; break;
+	case ELEMENTAL_POISON: element_damage.poison = element_damage_.poison + element_damage_mod.poison; break;
+	case ELEMENTAL_PHYSICAL: element_damage.physical = element_damage_.physical + element_damage_mod.physical; break;
 	}
 }
