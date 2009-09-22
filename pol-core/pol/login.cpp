@@ -278,9 +278,7 @@ void select_server(Client *client, PKTIN_A0 *msg ) // Relay player to a certain 
 	// packets.
 	rsp.unk7_00 = 0xFE; // This was set to 0xffffffff in the past but this will conflict with UO:KR detection
 	rsp.unk8_03 = 0xFE;
-	rsp.unk9_C3 = 0xFE;
-	rsp.unk10_4B = client->ClientType;
-
+    rsp.unk9_10_ClientType = client->ClientType;
 
 	client->transmit( &rsp, sizeof rsp );
 
@@ -474,7 +472,7 @@ void login2(Client *client, PKTIN_91 *msg) // Gameserver login and character lis
 	// MuadDib Added new seed system. This is for transferring KR/6017/Normal client detection from loginserver
 	// to the gameserver. Allows keeping client flags from remote loginserver to gameserver for 6017 and kr
 	// packets.
-	client->ClientType=msg->unk4;
+	client->ClientType=msg->unk3_4_ClientType;
 
 	send_start( client );
 }

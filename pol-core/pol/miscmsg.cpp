@@ -176,12 +176,21 @@ void handle_client_version( Client* client, PKTBI_BD* msg )
 		client->itemizeclientversion(ver2, vers_det);
 		client->setversiondetail(vers_det);
 
-		if (client->compareVersion(CLIENT_VER_60142))
+        if (client->compareVersion(CLIENT_VER_7000))
+            client->setClientType(CLIENTTYPE_7000);
+		else if (client->compareVersion(CLIENT_VER_60142))
 			client->setClientType(CLIENTTYPE_60142);
-		else if (client->compareVersion(CLIENT_VER_60171)) //Grid-loc support
+		else if (client->compareVersion(CLIENT_VER_6017)) //Grid-loc support
 			client->setClientType(CLIENTTYPE_6017);
-		else if (client->compareVersion(CLIENT_VER_50000))
+        else if (client->compareVersion(CLIENT_VER_5020))
+			client->setClientType(CLIENTTYPE_5020);
+		else if (client->compareVersion(CLIENT_VER_5000))
 			client->setClientType(CLIENTTYPE_5000);
+        else if (client->compareVersion(CLIENT_VER_4070))
+            client->setClientType(CLIENTTYPE_4070);
+        else if (client->compareVersion(CLIENT_VER_4000))
+            client->setClientType(CLIENTTYPE_4000);
+
 		send_season_info( client );	// Scott 10/11/2007 added for login fixes and handling 1.x clients.
 									// Season info needs to check client version to keep from crashing 1.x
 									// version not set until shortly after login complete.
@@ -357,12 +366,20 @@ void handle_ef_seed( Client *client, PKTIN_EF *msg )
 	detail.rev=cfBEu32(msg->ver_Revision);
 	detail.patch=cfBEu32(msg->ver_Patch);
 	client->setversiondetail(detail);
-	if (client->compareVersion(CLIENT_VER_60142))
+    if (client->compareVersion(CLIENT_VER_7000))
+        client->setClientType(CLIENTTYPE_7000);
+	else if (client->compareVersion(CLIENT_VER_60142))
 		client->setClientType(CLIENTTYPE_60142);
-	else if (client->compareVersion(CLIENT_VER_60171)) //Grid-loc support
+	else if (client->compareVersion(CLIENT_VER_6017)) //Grid-loc support
 		client->setClientType(CLIENTTYPE_6017);
-	else if (client->compareVersion(CLIENT_VER_50000))
+    else if (client->compareVersion(CLIENT_VER_5020))
+		client->setClientType(CLIENTTYPE_5020);
+	else if (client->compareVersion(CLIENT_VER_5000))
 		client->setClientType(CLIENTTYPE_5000);
+    else if (client->compareVersion(CLIENT_VER_4070))
+        client->setClientType(CLIENTTYPE_4070);
+    else if (client->compareVersion(CLIENT_VER_4000))
+        client->setClientType(CLIENTTYPE_4000);
 
 	// detail->patch is since 5.0.7 always numeric, so no need to make it complicated
 	OSTRINGSTREAM os;
