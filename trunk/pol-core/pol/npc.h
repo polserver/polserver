@@ -2,6 +2,7 @@
 History
 =======
 2006/09/17 Shinigami: send_event() will return error "Event queue is full, discarding event"
+2009/09/22 MuadDib:   Rewrite for Character/NPC to use ar(), ar_mod(), ar_mod(newvalue) virtuals.
 
 Notes
 =======
@@ -50,6 +51,8 @@ public:
 							  const u16* wspeech, const char lang[4]);
     virtual void on_ghost_pc_spoke( Character* src_chr, const char* speech, u8 texttype,
 									const u16* wspeech, const char lang[4]);
+
+	virtual unsigned short ar() const;
 
     virtual void apply_raw_damage_hundredths( unsigned long damage, Character* source );
     virtual void inform_engaged( Character* engaged );
@@ -159,4 +162,13 @@ inline void npc_spoke( NPC& npc, Character *chr, const char *text, int textlen, 
 	if ( npc.serial != chr->serial )
 		npc.on_pc_spoke( chr, text, texttype );
 }
+
+inline unsigned short NPC::ar() const
+{
+	if ( ar_ == 0 )
+		return npc_ar_;
+	else
+		return ar_;
+}
+
 #endif
