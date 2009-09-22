@@ -23,7 +23,6 @@ Planning
     Syzygy
         store 'gotten item' on a layer
         Find memory leaks in ecompile
-        multi walkon scripts / registration management
         given item contianer objtype
 
 097 - The Coregina
@@ -96,7 +95,7 @@ Planning
         Add packet and escript function for 0x0B Damage packet, and the oldschool version, based on client version.
     Unknown:
         Implement packet 0x86 as it should be. Which client versions know this method?
-	Unknown:
+    Unknown:
         ItemXLate.cfg :: Similar to animxlate.cfg, cept format is <itemid> <new_itemid> <stack_amount>. Purpose is to be used for
         converting item id graphic by core, based on itemid, and if stack amount goes above or below the entered amounts. Ether that, or
         something like
@@ -146,14 +145,14 @@ Planning
 	Move existing servspecopt.cfg settings that are for CLIENT SPECIFIC STUFF to 
 	uoclient.cfg system and make them client specific members populated at creation
 	like StatCap already is!
-	MuadDib:
+    MuadDib:
 		Throw Sheep at Nando!
-	MuadDib:
+    MuadDib:
 	    uoclient::listener::UOFeatureEnable, moved from ssopt::UOFeatureEnable.
 	    Client->UOFeatureEnable, to access uoclient setting.
-	Nando:
+    Nando:
 	    Speedhack block code. With ability to disable via ssopt.
-	MuadDib:
+    MuadDib:
 	    Create a Privs Updater like concealed and hidden. To go through and refresh stuff around
 	    them based on the privs they have. Will fix bug of not seeing invis and hiddens until
 	    moved away and back.
