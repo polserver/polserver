@@ -399,14 +399,6 @@ void start_client_char( Client *client )
 
 	send_season_info( client );
 
-	// Sending Season info resets light level in client, this fixes it during login
-	if (client->gd->weather_region != NULL &&
-		client->gd->weather_region->lightoverride != -1 &&
-		client->chr->lightoverride == -1)
-	{
-		send_light( client, client->gd->weather_region->lightoverride );
-	}
-
 	send_objects_newly_inrange( client );
 	
 	client->chr->send_highlight();
