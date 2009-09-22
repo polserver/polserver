@@ -47,6 +47,7 @@ Notes
 
 #include "../plib/realm.h"
 
+#include "item/armor.h"
 #include "mobile/attribute.h"
 #include "network/client.h"
 #include "dice.h"
@@ -259,26 +260,26 @@ void NPC::printProperties( std::ostream& os ) const
 	if (use_adjustments != true)
         os << "\tUseAdjustments\t" << use_adjustments << pf_endl;
 
-	if (element_resist.fire != 0)
+	if (element_resist_.fire != 0)
 		os << "\tFireResist\t" << static_cast<int>(element_resist.fire) << pf_endl;
-	if (element_resist.cold  != 0)
+	if (element_resist_.cold  != 0)
 		os << "\tColdResist\t" << static_cast<int>(element_resist.cold) << pf_endl;
-	if (element_resist.energy != 0)
+	if (element_resist_.energy != 0)
 		os << "\tEnergyResist\t" << static_cast<int>(element_resist.energy) << pf_endl;
-	if (element_resist.poison != 0)
+	if (element_resist_.poison != 0)
 		os << "\tPoisonResist\t" << static_cast<int>(element_resist.poison) << pf_endl;
-	if (element_resist.physical != 0)
+	if (element_resist_.physical != 0)
 		os << "\tPhysicalResist\t" << static_cast<int>(element_resist.physical) << pf_endl;
 
-	if (element_damage.fire != 0)
+	if (element_damage_.fire != 0)
 		os << "\tFireDamage\t" << static_cast<int>(element_damage.fire) << pf_endl;
-	if (element_damage.cold  != 0)
+	if (element_damage_.cold  != 0)
 		os << "\tColdDamage\t" << static_cast<int>(element_damage.cold) << pf_endl;
-	if (element_damage.energy != 0)
+	if (element_damage_.energy != 0)
 		os << "\tEnergyDamage\t" << static_cast<int>(element_damage.energy) << pf_endl;
-	if (element_damage.poison != 0)
+	if (element_damage_.poison != 0)
 		os << "\tPoisonDamage\t" << static_cast<int>(element_damage.poison) << pf_endl;
-	if (element_damage.physical != 0)
+	if (element_damage_.physical != 0)
 		os << "\tPhysicalDamage\t" << static_cast<int>(element_damage.physical) << pf_endl;
 
 }
@@ -308,6 +309,7 @@ void NPC::readNpcProperties( ConfigElem& elem )
     if ( wpn != NULL )
         weapon = wpn;
     
+	// Load the base, equiping items etc will refresh_ar() to update for reals.
 	for (int i = 0; i < 6; i++)
 	{
 		loadResistances( i, elem);
@@ -395,7 +397,7 @@ void NPC::loadResistances( int resistanceType, ConfigElem& elem )
     {
 		switch(resistanceType)
 		{
-			case 0:  npc_ar_ = 0; break;
+			case 0: npc_ar_ = 0; break;
 			case 1: element_resist.fire = 0; break;
 			case 2: element_resist.cold = 0; break;
 			case 3: element_resist.energy = 0; break;
@@ -891,4 +893,128 @@ UWeapon* NPC::intrinsic_weapon()
         return template_.intrinsic_weapon;
     else
         return wrestling_weapon;
+}
+
+struct ArmorZone {
+	string name;
+	double chance;
+	vector<unsigned short> layers;
+};
+typedef vector<ArmorZone> ArmorZones;
+extern ArmorZones armorzones;
+
+void NPC::refresh_ar()
+{
+	// This is an npc, we need to check to see if any armor is being wore
+	// otherwise we just reset this to the base values from their template.
+	bool hasArmor = false;
+	for( unsigned layer = LAYER_EQUIP__LOWEST; layer <= LAYER_EQUIP__HIGHEST; ++layer )
+	{
+		Item *item = wornitems.GetItemOnLayer( layer );
+		if (item == NULL)
+			continue;
+		if (item->isa( CLASS_ARMOR ))
+		{
+			// They have armor! So we use that instead of base.
+			hasArmor = true;
+			break;
+		}
+	}
+
+	if ( !hasArmor )
+	{
+		ar_ = 0;
+		for( unsigned element = 0; element <= ELEMENTAL_TYPE_MAX; ++element )
+		{
+			reset_element_resist(element);
+			reset_element_damage(element);
+		}
+		return;
+	}
+
+	for( unsigned zone = 0; zone < armorzones.size(); ++zone )
+		armor_[ zone ] = NULL;
+	// we need to reset each resist to 0, then add the base back using calc.
+	for( unsigned element = 0; element <= ELEMENTAL_TYPE_MAX; ++element )
+	{
+		refresh_element(element);
+	}
+
+	for( unsigned layer = LAYER_EQUIP__LOWEST; layer <= LAYER_EQUIP__HIGHEST; ++layer )
+	{
+		Item *item = wornitems.GetItemOnLayer( layer );
+		if (item == NULL)
+			continue;
+		// Let's check all items as base, and handle their element_resists.
+		for( unsigned element = 0; element <= ELEMENTAL_TYPE_MAX; ++element )
+		{
+			update_element(element, item);
+		}
+		if (item->isa( CLASS_ARMOR ))
+		{
+			UArmor* armor = static_cast<UArmor*>(item);
+			std::set<unsigned short> tmplzones = armor->tmplzones();
+			std::set<unsigned short>::iterator itr;
+			for ( itr = tmplzones.begin(); itr != tmplzones.end(); ++itr )
+			{
+				if ((armor_[*itr] == NULL) || (armor->ar() > armor_[*itr]->ar()))
+					armor_[*itr] = armor;
+			}
+		}
+	}
+
+	//	calculate_ar();	<-- MuadDib Commented out, mixed code within ported find_armor to reduce iter.
+	double new_ar = 0.0;
+	for( unsigned zone = 0; zone < armorzones.size(); ++zone )
+	{
+		UArmor* armor = armor_[ zone ];
+		if (armor != NULL)
+		{
+			new_ar += armor->ar() * armorzones[ zone ].chance;
+		}
+	}
+
+	/* add AR due to shield : parry skill / 2 is percent of AR */
+	// FIXME: Should we allow this to be adjustable via a prop? Hrmmmmm
+	if (shield != NULL)
+	{
+		double add = shield->ar() * attribute(pAttrParry->attrid).effective() * 0.5 * 0.01;
+		if (add > 1.0)
+			new_ar += add;
+		else
+			new_ar += 1.0;
+	}
+
+	new_ar += ar_mod();
+
+	short s_new_ar = static_cast<short>(new_ar);
+	if (s_new_ar >= 0)
+		ar_ = s_new_ar;
+	else
+		ar_ = 0;
+
+}
+
+void NPC::reset_element_resist( unsigned resist )
+{
+	switch(resist)
+	{
+	case ELEMENTAL_FIRE: element_resist.fire = element_resist_.fire; break;
+	case ELEMENTAL_COLD: element_resist.cold = element_resist_.cold; break;
+	case ELEMENTAL_ENERGY: element_resist.energy = element_resist_.energy; break;
+	case ELEMENTAL_POISON: element_resist.poison = element_resist_.poison; break;
+	case ELEMENTAL_PHYSICAL: element_resist.physical = element_resist_.physical; break;
+	}
+}
+
+void NPC::reset_element_damage( unsigned damage )
+{
+	switch(damage)
+	{
+	case ELEMENTAL_FIRE: element_damage.fire = element_damage_.fire; break;
+	case ELEMENTAL_COLD: element_damage.cold = element_damage_.cold; break;
+	case ELEMENTAL_ENERGY: element_damage.energy = element_damage_.energy; break;
+	case ELEMENTAL_POISON: element_damage.poison = element_damage_.poison; break;
+	case ELEMENTAL_PHYSICAL: element_damage.physical = element_damage_.physical; break;
+	}
 }

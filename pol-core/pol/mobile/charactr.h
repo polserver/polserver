@@ -356,7 +356,7 @@ public:
     virtual unsigned short ar() const;
 	virtual s16 ar_mod() const;
 	virtual s16 ar_mod( s16 new_value );
-	void refresh_ar();
+	virtual void refresh_ar();
     void refresh_element( unsigned element );
     void update_element( unsigned element, Item *item );
     s16 calc_element_resist( unsigned resist ) const;
