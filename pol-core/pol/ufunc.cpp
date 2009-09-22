@@ -23,6 +23,7 @@ History
 2009/09/13 MuadDib:   Optimized send_remove_character_to_nearby_cansee, send_remove_character_to_nearby_cantsee, send_remove_character_to_nearby
                       to build packet and handle iter internally. Packet built just once this way, and sent to those who need it.
 2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
+2009/09/22 MuadDib:   Adding resending of light level if override not in effect, to sending of season packet. Fixes EA client bug.
 
 Notes
 =======
@@ -2468,6 +2469,14 @@ void send_season_info( Client* client )
 		msg.playsound = PKTOUT_BC::PLAYSOUND_YES;
 
 		client->transmit( &msg, sizeof msg );
+
+		// Sending Season info resets light level in client, this fixes it during login
+		if (client->gd->weather_region != NULL &&
+			client->gd->weather_region->lightoverride != -1 &&
+			client->chr->lightoverride == -1)
+		{
+			send_light( client, client->gd->weather_region->lightoverride );
+		}
 	}
 }
 
