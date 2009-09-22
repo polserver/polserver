@@ -780,8 +780,7 @@ struct PKTOUT_8C {
     u16 port;
     u8 unk7_00;
     u8 unk8_03;
-    u8 unk9_C3;
-    u8 unk10_4B;
+    u16 unk9_10_ClientType;
 };
 asserteql( sizeof(PKTOUT_8C), 11 );
 
