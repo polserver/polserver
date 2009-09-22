@@ -11,6 +11,7 @@ History
 2009/02/01 MuadDib:   Resistance storage added.
 2009/09/15 MuadDib:   Cleanup from registered houses on destroy
                       u32 registered_house added to store serial of registered multi.
+2009/09/22 MuadDib:   Rewrite for Character/NPC to use ar(), ar_mod(), ar_mod(newvalue) virtuals.
 
 Notes
 =======
@@ -21,15 +22,8 @@ Notes
 #define __CHARACTR_H
 
 #ifdef _MSC_VER
-#pragma warning( disable: 4786 )
+#	pragma warning( disable: 4786 )
 #endif
-
-//#include "vital.h"
-
-//#include <iosfwd>
-//#include <memory>
-//#include <set>
-//#include <vector>
 
 #include <time.h>
 
@@ -343,7 +337,7 @@ public:
     Character* get_opponent() const;
     Character* get_attackable_opponent() const;
 
-        UArmor* choose_armor() const;
+    UArmor* choose_armor() const;
     virtual double armor_absorb_damage( double damage );
     virtual void get_hitscript_params( double damage,
                                        UArmor** parmor,
@@ -359,14 +353,16 @@ public:
     //void find_armor();
     //void calculate_ar();
 
-    void refresh_ar();
+    virtual unsigned short ar() const;
+	virtual s16 ar_mod() const;
+	virtual s16 ar_mod( s16 new_value );
+	void refresh_ar();
     void refresh_element( unsigned element );
     void update_element( unsigned element, Item *item );
     s16 calc_element_resist( unsigned resist ) const;
     s16 calc_element_damage( unsigned element ) const;
-    unsigned short ar() const;
 
-    virtual bool setgraphic( u16 newobjtype );
+	virtual bool setgraphic( u16 newobjtype );
     virtual void on_color_changed();
 	virtual void on_poison_changed(); //dave 12-24
     virtual void setfacing( u8 newfacing );
@@ -726,30 +722,11 @@ protected:
     ref_ptr<WornItemsContainer> wornitems_ref;
     WornItemsContainer& wornitems; 
 
-//    s16 strength_mod_;
-//    s16 intelligence_mod_;
-//    s16 dexterity_mod_;
+    unsigned short ar_;
     s16 ar_mod_;
     s16 delay_mod_;
 	s16 hitchance_mod_;
 	s16 evasionchance_mod_;
-
-
-	//u16 max_hits_;
-    //u16 max_mana_;
-    //u16 max_stamina_;
-
-
-//    unsigned char movement_carry_;
-/*
-    u16 strength_;
-    u16 intelligence_;
-    u16 dexterity_;
-
-    u32 raw_strength_;
-    u32 raw_intelligence_;
-    u32 raw_dexterity_;
-*/
 
     UWeapon* weapon;
     UArmor* shield;
@@ -788,8 +765,6 @@ protected: // was private, but hey, NPC will be okay, I think.
 		bool hiddenattack;
 		bool plogany;
     } cached_settings;
-
-    unsigned short ar_;
 
     UOExecutor* script_ex;
 
@@ -906,6 +881,17 @@ inline bool Character::paralyzed() const
 inline unsigned short Character::ar() const
 {
     return ar_;
+}
+
+inline s16 Character::ar_mod() const
+{
+	return ar_mod_;
+}
+
+inline s16 Character::ar_mod( s16 new_value )
+{
+	ar_mod_ = new_value;
+	return ar_mod_;
 }
 
 inline bool Character::skill_ex_active() const

@@ -1,4 +1,8 @@
 -- POL099 --
+09-22-2009 MuadDib:
+   Changed: NPC/Char ar/ar_mod internal handling rewrote.
+     Fixed: NPC Elemental Resist/Damage storage issues.
+     
 09-20-2009 MuadDib:
    Changed: Spell casting no longer unhides. Be sure to update your scripts to unhide.
    Changed: SpeakPowerWords() will now check if mob is hidden. If so, it uses Private Say Above.

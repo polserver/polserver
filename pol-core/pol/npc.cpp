@@ -13,6 +13,7 @@ History
                       STLport-5.2.1 fix: init order changed of damaged_sound
 2009/09/15 MuadDib:   Cleanup from registered houses on destroy
 2009/09/18 MuadDib:   Adding save/load of registered house serial
+2009/09/22 MuadDib:   Rewrite for Character/NPC to use ar(), ar_mod(), ar_mod(newvalue) virtuals.
 
 Notes
 =======
@@ -854,7 +855,7 @@ double NPC::armor_absorb_damage( double damage )
     }
     else
     {
-        int blocked = npc_ar_ + ar_mod_;
+        int blocked = npc_ar_ + ar_mod();
         if (blocked < 0) blocked = 0;
         int absorbed = blocked / 2;
         
@@ -880,7 +881,7 @@ void NPC::get_hitscript_params( double damage,
     }
     else
     {
-        *rawdamage = static_cast<unsigned short>(calc_thru_damage( damage, npc_ar_ + ar_mod_ ));
+        *rawdamage = static_cast<unsigned short>(calc_thru_damage( damage, npc_ar_ + ar_mod() ));
     }
 }
 
