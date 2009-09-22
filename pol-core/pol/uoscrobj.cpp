@@ -1513,7 +1513,9 @@ BObjectImp* Character::set_script_member_id( const int id, long value )
 		case MBR_TRUECOLOR:
 			return new BLong( truecolor = static_cast<unsigned short>(value) );
 		case MBR_AR_MOD:
-			return new BLong( ar_mod(static_cast<short>(value)) );
+			ar_mod(static_cast<short>(value));
+			refresh_ar();
+			return new BLong( ar_mod() );
 		case MBR_DELAY_MOD:
 			return new BLong( delay_mod_ = static_cast<short>(value) );
 		case MBR_HIDDEN:
