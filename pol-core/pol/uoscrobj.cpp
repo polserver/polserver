@@ -22,6 +22,7 @@ History
 2009/09/03 MuadDib:   Relocation of account related cpp/h
                       Relocation of multi related cpp/h
 2009/09/06 Turley:    Removed isUOKR added ClientType
+2009/09/22 MuadDib:   Rewrite for Character/NPC to use ar(), ar_mod(), ar_mod(newvalue) virtuals.
 
 Notes
 =======
@@ -1158,7 +1159,7 @@ BObjectImp* Character::get_script_member_id( const int id ) const
 		case MBR_RACE: return new BLong(race); break;
 		case MBR_TRUEOBJTYPE: return new BLong(trueobjtype); break;
 		case MBR_TRUECOLOR: return new BLong(truecolor); break;
-		case MBR_AR_MOD: return new BLong(ar_mod_); break;
+		case MBR_AR_MOD: return new BLong(ar_mod()); break;
 		case MBR_DELAY_MOD: return new BLong(delay_mod_); break;
 		case MBR_HIDDEN: return new BLong(hidden_ ? 1 : 0); break;
 		case MBR_CONCEALED: return new BLong(concealed_); break;
@@ -1168,7 +1169,7 @@ BObjectImp* Character::get_script_member_id( const int id ) const
 		case MBR_STEALTHSTEPS: return new BLong(stealthsteps_); break;
 		case MBR_SQUELCHED: return new BLong( squelched() ? 1 : 0 ); break;
 		case MBR_DEAD: return new BLong(dead_); break;
-		case MBR_AR: return new BLong(ar_); break;
+		case MBR_AR: return new BLong(ar()); break;
 		case MBR_BACKPACK:
 			bp = backpack();
 			if (bp != NULL)
@@ -1512,10 +1513,7 @@ BObjectImp* Character::set_script_member_id( const int id, long value )
 		case MBR_TRUECOLOR:
 			return new BLong( truecolor = static_cast<unsigned short>(value) );
 		case MBR_AR_MOD:
-			ar_mod_ = static_cast<short>(value);
-			if ( !this->isa(UObject::CLASS_NPC) )
-				refresh_ar();
-			return new BLong( ar_mod_ );
+			return new BLong( ar_mod(static_cast<short>(value)) );
 		case MBR_DELAY_MOD:
 			return new BLong( delay_mod_ = static_cast<short>(value) );
 		case MBR_HIDDEN:
@@ -1558,32 +1556,27 @@ BObjectImp* Character::set_script_member_id( const int id, long value )
 			return new BLong(1);
 		case MBR_FIRE_RESIST_MOD: 
 			element_resist_mod.fire = static_cast<short>(value);
-			if ( !this->isa(UObject::CLASS_NPC) )
-				refresh_ar();
+			refresh_ar();
 			return new BLong( element_resist_mod.fire );
 			break;
 		case MBR_COLD_RESIST_MOD: 
 			element_resist_mod.cold = static_cast<short>(value);
-			if ( !this->isa(UObject::CLASS_NPC) )
-				refresh_ar();
+			refresh_ar();
 			return new BLong( element_resist_mod.cold );
 			break;
 		case MBR_ENERGY_RESIST_MOD: 
 			element_resist_mod.energy = static_cast<short>(value);
-			if ( !this->isa(UObject::CLASS_NPC) )
-				refresh_ar();
+			refresh_ar();
 			return new BLong( element_resist_mod.energy );
 			break;
 		case MBR_POISON_RESIST_MOD: 
 			element_resist_mod.poison = static_cast<short>(value);
-			if ( !this->isa(UObject::CLASS_NPC) )
-				refresh_ar();
+			refresh_ar();
 			return new BLong( element_resist_mod.poison );
 			break;
 		case MBR_PHYSICAL_RESIST_MOD: 
 			element_resist_mod.physical = static_cast<short>(value);
-			if ( !this->isa(UObject::CLASS_NPC) )
-				refresh_ar();
+			refresh_ar();
 			return new BLong( element_resist_mod.physical );
 			break;
 		case MBR_STATCAP: 
@@ -1621,32 +1614,27 @@ BObjectImp* Character::set_script_member_id( const int id, long value )
 			break;
 		case MBR_FIRE_DAMAGE_MOD: 
 			element_damage_mod.fire = static_cast<short>(value);
-			if ( !this->isa(UObject::CLASS_NPC) )
-				refresh_ar();
+			refresh_ar();
 			return new BLong( element_damage_mod.fire );
 			break;
 		case MBR_COLD_DAMAGE_MOD: 
 			element_damage_mod.cold = static_cast<short>(value);
-			if ( !this->isa(UObject::CLASS_NPC) )
-				refresh_ar();
+			refresh_ar();
 			return new BLong( element_damage_mod.cold );
 			break;
 		case MBR_ENERGY_DAMAGE_MOD: 
 			element_damage_mod.energy = static_cast<short>(value);
-			if ( !this->isa(UObject::CLASS_NPC) )
-				refresh_ar();
+			refresh_ar();
 			return new BLong( element_damage_mod.energy );
 			break;
 		case MBR_POISON_DAMAGE_MOD: 
 			element_damage_mod.poison = static_cast<short>(value);
-			if ( !this->isa(UObject::CLASS_NPC) )
-				refresh_ar();
+			refresh_ar();
 			return new BLong( element_damage_mod.poison );
 			break;
 		case MBR_PHYSICAL_DAMAGE_MOD: 
 			element_damage_mod.physical = static_cast<short>(value);
-			if ( !this->isa(UObject::CLASS_NPC) )
-				refresh_ar();
+			refresh_ar();
 			return new BLong( element_damage_mod.physical );
 			break;
 		case MBR_MOVECOST_WALK: return new Double( (movement_cost.walk = double(value)) ); break;
@@ -2229,15 +2217,6 @@ ObjArray* Character::GetLawFullyDamaged() const
 
 BObjectImp* NPC::get_script_member_id( const int id ) const
 {
-	if ( id == MBR_AR )
-	{
-		//NPC armor retrieval is handled a bit differently because of intrinsic values.
-		if ( ar_ == 0 )
-			return new BLong(npc_ar_);
-		else
-			return new BLong(ar_);
-	}
-
 	BObjectImp* imp = base::get_script_member_id( id );
 	if (imp != NULL)
 		return imp;

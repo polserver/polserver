@@ -42,6 +42,7 @@ History
                       Multi registration/unregistration support added.
 2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
 2009/09/18 MuadDib:   Adding save/load of registered house serial
+2009/09/22 MuadDib:   Rewrite for Character/NPC to use ar(), ar_mod(), ar_mod(newvalue) virtuals.
 
 Notes
 =======
@@ -1684,8 +1685,8 @@ double Character::armor_absorb_damage( double damage )
 {
 	UArmor* armor = choose_armor();
 	if (armor != NULL)
-	{
-		damage = calc_thru_damage( damage, armor->ar() + ar_mod_ );
+	{ 
+		damage = calc_thru_damage( damage, armor->ar() + ar_mod() );
 		
 		armor->reduce_hp_from_hit();
 
@@ -1710,7 +1711,7 @@ void Character::get_hitscript_params( double damage,
 	UArmor* armor = choose_armor();
 	if (armor)
 	{
-		*rawdamage = calc_thru_damage( damage, armor->ar() + ar_mod_ );
+		*rawdamage = calc_thru_damage( damage, armor->ar() + ar_mod() );
 	}
 	else
 	{
@@ -2317,7 +2318,7 @@ void Character::refresh_ar()
 			new_ar += 1.0;
 	}
 
-	new_ar += ar_mod_;
+	new_ar += ar_mod();
 
 	short s_new_ar = static_cast<short>(new_ar);
 	if (s_new_ar >= 0)
