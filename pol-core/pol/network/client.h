@@ -65,18 +65,25 @@ struct VersionDetailStruct
 	int patch;
 };
 
-const struct VersionDetailStruct CLIENT_VER_50000={5,0,0,0};
-const struct VersionDetailStruct CLIENT_VER_60171={6,0,1,7};
+const struct VersionDetailStruct CLIENT_VER_4000 ={4,0,0,0};
+const struct VersionDetailStruct CLIENT_VER_4070 ={4,0,7,0};
+const struct VersionDetailStruct CLIENT_VER_5000 ={5,0,0,0};
+const struct VersionDetailStruct CLIENT_VER_5020 ={5,0,2,0};
+const struct VersionDetailStruct CLIENT_VER_6017 ={6,0,1,7};
 const struct VersionDetailStruct CLIENT_VER_60142={6,0,14,2};
-const struct VersionDetailStruct CLIENT_VER_70000={7,0,0,0};
+const struct VersionDetailStruct CLIENT_VER_7000 ={7,0,0,0};
 
 enum ClientTypeFlag
 {
-	CLIENTTYPE_5000  = 0x1,
-	CLIENTTYPE_6017  = 0x2,
-	CLIENTTYPE_60142 = 0x4,
-	CLIENTTYPE_UOKR  = 0x8,
-	CLIENTTYPE_UOSA  = 0x10
+    CLIENTTYPE_4000  = 0x1,  // 4.0.0a   (new spellbookcontent packet 0xbf:0x1b)
+    CLIENTTYPE_4070  = 0x2,  // 4.0.7a   (new damage packet 0x0b instead of 0xbf:0x22)
+	CLIENTTYPE_5000  = 0x4,  // 5.0.0a   (compressed gumps)
+    CLIENTTYPE_5020  = 0x8,  // 5.0.2a   (Buff/Debuff 0xdf)
+	CLIENTTYPE_6017  = 0x10, // 6.0.1.7  (Grid locs)
+	CLIENTTYPE_60142 = 0x20, // 6.0.14.2 (feature enable 0xb9 size change)
+	CLIENTTYPE_UOKR  = 0x40,
+    CLIENTTYPE_7000  = 0x80, // 7.0.0.0  (Gargoyle race)
+	CLIENTTYPE_UOSA  = 0x100
 };
 
 class Client
@@ -192,7 +199,7 @@ public:
     int thread_pid;
     u16 UOExpansionFlag;
 	u32 UOExpansionFlagClient;
-	u8 ClientType;
+	u16 ClientType;
 	
 private:
     struct {
