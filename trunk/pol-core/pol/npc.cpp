@@ -913,11 +913,13 @@ void NPC::refresh_ar()
 		Item *item = wornitems.GetItemOnLayer( layer );
 		if (item == NULL)
 			continue;
-		if (item->isa( CLASS_ARMOR ))
+		for( unsigned element = 0; element <= ELEMENTAL_TYPE_MAX; ++element )
 		{
-			// They have armor! So we use that instead of base.
-			hasArmor = true;
-			break;
+			if (item->calc_element_resist( element ) != 0 || item->calc_element_damage( element )!= 0 )
+			{
+				hasArmor = true;
+				break;
+				}
 		}
 	}
 
@@ -963,7 +965,6 @@ void NPC::refresh_ar()
 		}
 	}
 
-	//	calculate_ar();	<-- MuadDib Commented out, mixed code within ported find_armor to reduce iter.
 	double new_ar = 0.0;
 	for( unsigned zone = 0; zone < armorzones.size(); ++zone )
 	{
