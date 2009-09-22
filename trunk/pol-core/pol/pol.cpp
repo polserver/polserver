@@ -42,6 +42,7 @@ History
                       Changes for multi related source file relocation
 2009/09/15 MuadDib:   Multi registration/unregistration support added.
 2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
+2009/09/22 MuadDib:   Fix for lightlevel resets in client during login.
 
 Notes
 =======
@@ -395,7 +396,16 @@ void start_client_char( Client *client )
 	client->chr->tellmove();
 
 	client->chr->check_weather_region_change(true);
+
 	send_season_info( client );
+
+	// Sending Season info resets light level in client, this fixes it during login
+	if (client->gd->weather_region != NULL &&
+		client->gd->weather_region->lightoverride != -1 &&
+		client->chr->lightoverride == -1)
+	{
+		send_light( client, client->gd->weather_region->lightoverride );
+	}
 
 	send_objects_newly_inrange( client );
 	
