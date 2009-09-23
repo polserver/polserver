@@ -291,6 +291,7 @@ Character::Character( u16 objtype, UOBJ_CLASS uobj_class ) :
 	wornitems_ref( new WornItemsContainer ),// default objtype is in containr.cpp, WornItemsContainer class
 	wornitems( *wornitems_ref ), 
 	
+    ar_(0),
 	ar_mod_(0),
 	delay_mod_(0),
 	hitchance_mod_(0),
@@ -314,7 +315,6 @@ Character::Character( u16 objtype, UOBJ_CLASS uobj_class ) :
 	// settings default
 	// cached_settings struct
 
-	ar_(0),
 	script_ex(NULL),
 	opponent_(NULL),
 	// opponent_of default
