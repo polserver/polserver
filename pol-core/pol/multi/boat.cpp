@@ -1041,7 +1041,7 @@ BObjectImp* UBoat::scripted_create( const ItemDesc& descriptor, u16 x, u16 y, s8
 {
     unsigned short graphic = descriptor.graphic;
 	unsigned short graphic_offset = static_cast<unsigned short>((flags & CRMULTI_FACING_MASK) >> CRMULTI_FACING_SHIFT);
-	unsigned char facing = graphic_offset * 2;
+	unsigned char facing = static_cast<unsigned char>(graphic_offset * 2);
 	graphic += graphic_offset;
 
     const MultiDef* md = MultiDefByGraphic( graphic );
