@@ -828,7 +828,7 @@ BObjectImp* NPC::send_event( BObjectImp* event )
     }
 }
 
-void NPC::apply_raw_damage_hundredths( unsigned long damage, Character* source )
+void NPC::apply_raw_damage_hundredths( unsigned long damage, Character* source, bool userepsys )
 {
     if (ex != NULL)
     {
@@ -838,7 +838,7 @@ void NPC::apply_raw_damage_hundredths( unsigned long damage, Character* source )
         }
     }
 
-    base::apply_raw_damage_hundredths( damage, source );
+    base::apply_raw_damage_hundredths( damage, source, userepsys );
 }
 
 /*

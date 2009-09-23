@@ -12,6 +12,7 @@ History
 2009/09/15 MuadDib:   Cleanup from registered houses on destroy
                       u32 registered_house added to store serial of registered multi.
 2009/09/22 MuadDib:   Rewrite for Character/NPC to use ar(), ar_mod(), ar_mod(newvalue) virtuals.
+2009/09/22 Turley:    repsys param to applydamage
 
 Notes
 =======
@@ -404,8 +405,8 @@ public:
     void set_dexterity( u16 dexterity );
     void validate_stat_ranges();
 
-    virtual void apply_raw_damage_hundredths( unsigned long damage, Character* source );
-    double apply_damage( double damage, Character* source = NULL );
+    virtual void apply_raw_damage_hundredths( unsigned long damage, Character* source, bool userepsys = true );
+    double apply_damage( double damage, Character* source = NULL, bool userepsys = true );
     void heal_damage_hundredths( unsigned long damage );
     virtual void on_swing_failure( Character* attacker );
     void run_hit_script( Character* defender, double damage );
