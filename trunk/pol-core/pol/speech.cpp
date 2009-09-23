@@ -342,7 +342,17 @@ void SendUnicodeSpeech(Client *client, PKTIN_AD *msgin, u16* wtext, size_t wtext
 	sayto_listening_points( client->chr, ntext, ntextlen, msgin->type,
 							wtext, msgin->lang, wtextlen);
 }
-u16 Get12BitNumber(u8 * thearray, u16 theindex){	u16 theresult = 0;	int thenibble = theindex * 3;	int thebyte = thenibble / 2;	if (thenibble % 2)		theresult = cfBEu16(*((u16 *) (thearray + thebyte))) & 0x0FFF;	else		theresult = cfBEu16(*((u16 *) (thearray + thebyte))) >> 4;  	return theresult;}
+u16 Get12BitNumber(u8 * thearray, u16 theindex)
+{	
+    u16 theresult = 0;
+    int thenibble = theindex * 3;
+    int thebyte = thenibble / 2;
+    if (thenibble % 2)
+        theresult = cfBEu16(*((u16 *) (thearray + thebyte))) & 0x0FFF;
+    else
+        theresult = cfBEu16(*((u16 *) (thearray + thebyte))) >> 4;
+    return theresult;
+}
 
 int GetNextUTF8(u8 * bytemsg, int i,u16& unicodeChar)
 {	u16 result = 0;
@@ -386,7 +396,7 @@ void UnicodeSpeechHandler( Client *client, PKTIN_AD *msgin )
 	using std::wcout; // wcout.narrow() function r0x! :-)
 
 	int intextlen;
-	int numtokens = 0;
+	u16 numtokens = 0;
 	u16 * themsg = msgin->wtext;
 	u8 *  bytemsg = ((u8 *) themsg);
 	int bytemsglen;
@@ -451,7 +461,7 @@ void UnicodeSpeechHandler( Client *client, PKTIN_AD *msgin )
 	{
 		if(system_hooks.speechmul_hook != NULL)
 		{
-			for (int i = 0; i < numtokens; i++)
+			for (u16 i = 0; i < numtokens; i++)
 			{
 				if (speechtokens == NULL)
 					speechtokens = new ObjArray();
