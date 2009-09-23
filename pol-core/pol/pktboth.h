@@ -662,7 +662,7 @@ struct PKTBI_BF_20
 //displays damage amount over head
 struct PKTBI_BF_22
 {
-	u16 unk; //always 1
+	u8 unk; //always 1
 	u32 serial;
 	u8 damage_amt;
 };

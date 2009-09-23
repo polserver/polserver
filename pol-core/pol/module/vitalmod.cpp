@@ -2,6 +2,7 @@
 History
 =======
 2006/10/07 Shinigami: GCC 3.4.x fix - added "template<>" to TmplExecutorModule
+2009/09/22 Turley:    repsys param to applydamage
 
 Notes
 =======
@@ -48,13 +49,15 @@ BObjectImp* VitalExecutorModule::mf_ApplyRawDamage()
 {
 	Character* chr;
 	long damage;
+    long userepsys;
 	if ( getCharacterParam(exec, 0, chr) &&
 		getParam(1, damage) &&
+        getParam(2, userepsys) &&
 		damage >= 0 &&
 		damage <= USHRT_MAX )
 	{
 		chr->apply_raw_damage_hundredths(static_cast<unsigned long>(damage*100),
-							   GetUOController());
+            GetUOController(), userepsys>0?true:false);
 		return new BLong(1);
 	}
 	else
@@ -65,13 +68,15 @@ BObjectImp* VitalExecutorModule::mf_ApplyDamage()
 {
 	Character* chr;
 	double damage;
+    long userepsys;
 	if ( getCharacterParam(exec, 0, chr) &&
-		getRealParam( 1, damage) )
+		getRealParam( 1, damage) &&
+        getParam( 2, userepsys))
 	{
 		if ( damage >= 0.0 && damage <= 30000.0 )
     {
-      damage=chr->apply_damage(static_cast<unsigned short>(damage), GetUOController());
-			return new BLong(static_cast<long>(damage));
+      damage=chr->apply_damage(static_cast<unsigned short>(damage), GetUOController(),userepsys>0?true:false);
+      return new BLong(static_cast<long>(damage));
 		}
 		else
 			return new BError( "Damage is out of range" );

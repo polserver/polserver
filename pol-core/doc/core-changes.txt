@@ -1,4 +1,14 @@
 -- POL099 --
+09-22-2009 Turley:
+     Added: Combatcfg:SendDamagePacket 1/0 default 0 if set sends packet 0xB (0xBF sub 0x22 for clients<4.0.7a)
+            to attacker(ScriptController) and defender on ApplyDamage and ApplyRawDamage
+     Added: new param to ApplyDamage & ApplyDamage they are now:
+            ApplyDamage( mobile, damage, userepsys := DAMAGE_USE_REPSYS );
+            ApplyRawDamage( character, hits, userepsys := DAMAGE_USE_REPSYS );
+            const DAMAGE_USE_REPSYS := 1;
+            const DAMAGE_NO_REPSYS := 0;
+            If userepsys is set to DAMAGE_NO_REPSYS repsys system isnt called (on_attack & on_damage)
+ 
 09-22-2009 MuadDib:
    Changed: NPC/Char ar/ar_mod internal handling rewrote.
      Fixed: NPC Elemental Resist/Damage storage issues.

@@ -4,6 +4,7 @@ History
 2005/23/11 MuadDib:   Added warmode_wait timer for changing war mode.
                       Delay default is 1.
 2009/09/03 MuadDib:   Moved combat related settings to Combat Config from SSOPT
+2009/09/22 Turley:    Added DamagePacket support
 
 Notes
 =======
@@ -43,5 +44,5 @@ void read_combat_config()
 	combat_config.scripted_attack_checks = elem.remove_bool("ScriptedAttackChecks", false);
 	combat_config.reset_swing_onturn = elem.remove_bool("ResetSwingOnTurn",false);
 	combat_config.send_swing_packet = elem.remove_bool("SendSwingPacket",true);
-
+    combat_config.send_damage_packet = elem.remove_bool("SendDamagePacket",false);
 }

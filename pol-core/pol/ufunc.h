@@ -6,6 +6,7 @@ History
 2009/07/31 Turley:    added send_fight_occuring() for packet 0x2F
 2009/08/01 MuadDib:   Removed send_tech_stuff(), unused and obsolete.
 2009/08/09 MuadDib:   Refactor of Packet 0x25 for naming convention
+2009/09/22 Turley:    Added DamagePacket support
 
 Notes
 =======
@@ -266,5 +267,8 @@ void send_map_difs( Client* client );
 void send_season_info( Client* client );
 void send_new_subserver( Client* client );
 void send_fight_occuring( Client* client, Character* opponent );
+void send_damage( Character* attacker, Character* defender, u16 damage );
+void send_damage_old(Client* client, Character* defender, u16 damage);
+void send_damage_new(Client* client, Character* defender, u16 damage);
 
 #endif
