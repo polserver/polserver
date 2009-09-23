@@ -43,6 +43,8 @@ History
 2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
 2009/09/18 MuadDib:   Adding save/load of registered house serial
 2009/09/22 MuadDib:   Rewrite for Character/NPC to use ar(), ar_mod(), ar_mod(newvalue) virtuals.
+2009/09/22 Turley:    Added DamagePacket support & repsys param to applydamage
+
 
 Notes
 =======
@@ -1614,7 +1616,7 @@ u8 Character::get_flag1() const
 	return flag1;
 }
 
-void Character::apply_raw_damage_hundredths( unsigned long amount, Character* source )
+void Character::apply_raw_damage_hundredths( unsigned long amount, Character* source, bool userepsys )
 {
 	if (dead())
 	{
@@ -1622,7 +1624,7 @@ void Character::apply_raw_damage_hundredths( unsigned long amount, Character* so
 		return;
 	}
 
-	if (source)
+	if ((source) && (userepsys))
 		source->repsys_on_attack( this );
 
 	if ((amount == 0) || cached_settings.invul)
@@ -1631,6 +1633,16 @@ void Character::apply_raw_damage_hundredths( unsigned long amount, Character* so
 	set_dirty();
 	if (hidden())
 		unhide();
+
+    if (combat_config.send_damage_packet && source)
+    {
+        u16 showdmg;
+        if (amount > 6553500) // 0xFFFF*100
+            showdmg = 0xFFFF;
+        else
+            showdmg = static_cast<u16>(amount / 100);
+        send_damage( source, this, showdmg );
+    }
 	
 	paralyzed_ = false;
 
@@ -1642,7 +1654,7 @@ void Character::apply_raw_damage_hundredths( unsigned long amount, Character* so
 		amount=vv.current(); // be greedy with that last point
 	consume( pVitalLife, vv, amount );
 
-	if (source)
+	if ((source) && (userepsys))
 		source->repsys_on_damage( this );
 
 	send_update_hits_to_inrange( this );
@@ -1694,12 +1706,12 @@ double Character::armor_absorb_damage( double damage )
 	return damage;
 }
 
-double Character::apply_damage( double damage, Character* source )
+double Character::apply_damage( double damage, Character* source, bool userepsys )
 {
 	damage = armor_absorb_damage( damage );
 	if (watch.combat) cout << "Final damage: " << damage << endl;
 	do_imhit_effects();
-	apply_raw_damage_hundredths( static_cast<unsigned long>(damage*100), source );
+	apply_raw_damage_hundredths( static_cast<unsigned long>(damage*100), source, userepsys );
 
 	return damage;
 }

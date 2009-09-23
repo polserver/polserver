@@ -24,6 +24,7 @@ History
                       to build packet and handle iter internally. Packet built just once this way, and sent to those who need it.
 2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
 2009/09/22 MuadDib:   Adding resending of light level if override not in effect, to sending of season packet. Fixes EA client bug.
+2009/09/22 Turley:    Added DamagePacket support
 
 Notes
 =======
@@ -2505,7 +2506,47 @@ void send_fight_occuring( Client* client, Character* opponent )
 	msg.attacker_serial = client->chr->serial_ext;
 	msg.defender_serial = opponent->serial_ext;
 
-	client->transmit( &msg, sizeof msg );
+	client->transmit( &msg, 10 );
 }
 
+void send_damage( Character* attacker, Character* defender, u16 damage )
+{
+    if (attacker->client != NULL)
+    {
+        if (attacker->client->ClientType & CLIENTTYPE_4070)
+            send_damage_new(attacker->client, defender, damage);
+        else
+            send_damage_old(attacker->client, defender, damage);
+    }
+    if ((defender->client != NULL) && (attacker != defender))
+    {
+        if (defender->client->ClientType & CLIENTTYPE_4070)
+            send_damage_new(defender->client, defender, damage);
+        else
+            send_damage_old(defender->client, defender, damage);
+    }
+}
 
+void send_damage_new(Client* client, Character* defender, u16 damage)
+{
+    PKTOUT_0B msg;
+    msg.msgtype = PKTOUT_0B_ID;
+    msg.serial  = defender->serial_ext;
+    msg.damage  = ctBEu16(damage);
+    client->transmit( &msg, 7 );
+}
+
+void send_damage_old(Client* client, Character* defender, u16 damage)
+{
+    PKTBI_BF msg;
+    msg.msgtype = PKTBI_BF_ID;
+    msg.msglen  = ctBEu16(0xB);
+    msg.subcmd  = ctBEu16(PKTBI_BF::TYPE_DAMAGE);
+    msg.damage.unk = 1;
+    msg.damage.serial = defender->serial_ext;
+    if (damage > 0xFF)
+        msg.damage.damage_amt = 0xFF;
+    else
+        msg.damage.damage_amt = static_cast<u8>(damage);
+    client->transmit( &msg, 0xB );
+}

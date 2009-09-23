@@ -35,12 +35,12 @@ This file is for packet structs who sent by server.
 #	pragma pack(1)
 #endif
 
-struct PACKET_0B {
+struct PKTOUT_0B {
 	u8 msgtype;
 	u32 serial;
 	u16 damage;
 };
-asserteql( sizeof(PACKET_0B), 7 );
+asserteql( sizeof(PKTOUT_0B), 7 );
 
 struct PKTOUT_11_V1 {
     u8 msgtype;

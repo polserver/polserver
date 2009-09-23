@@ -16,7 +16,7 @@ This file is for packet structs who sent by server.
 #define __PKTOUTIDH
 
 enum PKTOUTID {
-	PACKET_0B_ID = 0x0B,	// Newer client damage display packet. since 4.0.7a client
+	PKTOUT_0B_ID = 0x0B,	// Newer client damage display packet. since 4.0.7a client
 
 	PKTOUT_11_V1_ID = 0x11,	// Status Message
 	PKTOUT_11_V2_ID = 0x11,	// Status Message
