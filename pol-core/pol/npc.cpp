@@ -386,11 +386,11 @@ void NPC::loadResistances( int resistanceType, ConfigElem& elem )
 		switch(resistanceType)
 		{
 			case 0: npc_ar_ = dice.roll(); break;
-			case 1: element_resist.fire = dice.roll(); break;
-			case 2: element_resist.cold = dice.roll(); break;
-			case 3: element_resist.energy = dice.roll(); break;
-			case 4: element_resist.poison = dice.roll(); break;
-			case 5: element_resist.physical = dice.roll(); break;
+			case 1: element_resist_.fire = element_resist.fire = dice.roll(); break;
+			case 2: element_resist_.cold = element_resist.cold = dice.roll(); break;
+			case 3: element_resist_.energy = element_resist.energy = dice.roll(); break;
+			case 4: element_resist_.poison = element_resist.poison = dice.roll(); break;
+			case 5: element_resist_.physical = element_resist.physical = dice.roll(); break;
 		}
     }
     else
@@ -398,11 +398,11 @@ void NPC::loadResistances( int resistanceType, ConfigElem& elem )
 		switch(resistanceType)
 		{
 			case 0: npc_ar_ = 0; break;
-			case 1: element_resist.fire = 0; break;
-			case 2: element_resist.cold = 0; break;
-			case 3: element_resist.energy = 0; break;
-			case 4: element_resist.poison = 0; break;
-			case 5: element_resist.physical = 0; break;
+			case 1: element_resist_.fire = element_resist.fire = 0; break;
+			case 2: element_resist_.cold = element_resist.cold = 0; break;
+			case 3: element_resist_.energy = element_resist.energy = 0; break;
+			case 4: element_resist_.poison = element_resist.poison = 0; break;
+			case 5: element_resist_.physical = element_resist.physical = 0; break;
 		}
     }
 }
@@ -437,22 +437,22 @@ void NPC::loadDamages( int damageType, ConfigElem& elem )
         }
 		switch(damageType)
 		{
-			case 1: element_damage.fire = dice.roll(); break;
-			case 2: element_damage.cold = dice.roll(); break;
-			case 3: element_damage.energy = dice.roll(); break;
-			case 4: element_damage.poison = dice.roll(); break;
-			case 5: element_damage.physical = dice.roll(); break;
+			case 1: element_damage_.fire = element_damage.fire = dice.roll(); break;
+			case 2: element_damage_.cold = element_damage.cold = dice.roll(); break;
+			case 3: element_damage_.energy = element_damage.energy = dice.roll(); break;
+			case 4: element_damage_.poison = element_damage.poison = dice.roll(); break;
+			case 5: element_damage_.physical = element_damage.physical = dice.roll(); break;
 		}
     }
     else
     {
 		switch(damageType)
 		{
-			case 1: element_damage.fire = 0; break;
-			case 2: element_damage.cold = 0; break;
-			case 3: element_damage.energy = 0; break;
-			case 4: element_damage.poison = 0; break;
-			case 5: element_damage.physical = 0; break;
+			case 1: element_damage_.fire = element_damage.fire = 0; break;
+			case 2: element_damage_.cold = element_damage.cold = 0; break;
+			case 3: element_damage_.energy = element_damage.energy = 0; break;
+			case 4: element_damage_.poison = element_damage.poison = 0; break;
+			case 5: element_damage_.physical = element_damage.physical = 0; break;
 		}
     }
 }
