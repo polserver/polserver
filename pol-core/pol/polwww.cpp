@@ -234,7 +234,7 @@ string http_decodestr( const string& s )
 				if (isdigit( chH ))
 					ch = (chH - '0') << 4;
 				else
-					ch = ((tolower(chH) - 'a') + 10) << 4;
+					ch = ((static_cast<char>(tolower(chH)) - 'a') + 10) << 4;
 				
 				if (isdigit(chL))
 					ch |= (chL - '0');
@@ -610,7 +610,7 @@ void send_binary( Socket& sck, const string& page, const string& filename, const
 		{		
 			ifs.read(bfr, sizeof(bfr));
 			cur_read += static_cast<unsigned long>(ifs.gcount());
-			sck.send(bfr, ifs.gcount());  // This was sizeof bfr, which would send garbage... fixed -- Nando, 2009-02-22
+			sck.send(bfr, static_cast<unsigned int>(ifs.gcount()));  // This was sizeof bfr, which would send garbage... fixed -- Nando, 2009-02-22
 		}		
 		// -------------
 	}
