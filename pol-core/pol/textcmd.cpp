@@ -575,7 +575,7 @@ string get_textcmd_help( Character* chr, const char* cmd )
 				do {
 					ifs.read( temp, sizeof temp );
 					if (ifs.gcount())
-						result.append( temp, ifs.gcount() );
+						result.append( temp, static_cast<size_t>(ifs.gcount()) );
 				} while (!ifs.eof());
 				return result;
 			}
