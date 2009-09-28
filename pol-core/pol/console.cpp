@@ -56,7 +56,7 @@ ConsoleCommand::ConsoleCommand( ConfigElem& elem, const std::string& cmd )
     }
     if (charspec[0] == '^' && charspec.size() == 2)
     {
-        ch = toupper( charspec[1] ) - 'A' + 1;
+        ch = static_cast<char>(toupper( charspec[1] )) - 'A' + 1;
     }
     else if (charspec.size() == 1)
     {
@@ -236,7 +236,7 @@ void check_console_commands()
 #ifdef _WIN32
     if (kbhit())
     {
-        exec_console_cmd( getch() );
+        exec_console_cmd( static_cast<char>(getch()) );
     }
 #else
     if (kb.kbhit())
