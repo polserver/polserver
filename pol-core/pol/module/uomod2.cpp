@@ -61,7 +61,7 @@ Notes
 #include "../accounts/account.h"
 
 #ifdef MEMORYLEAK
-#	include "cfgrepos.h"
+#	include "../cfgrepos.h"
 #endif
 
 #include "../network/cgdata.h"
