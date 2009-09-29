@@ -92,8 +92,6 @@ Planning
     Unknown:
         Check all 0xA9 packet flags, make sure we have them all.
     Unknown:
-        Add packet and escript function for 0x0B Damage packet, and the oldschool version, based on client version.
-    Unknown:
         Implement packet 0x86 as it should be. Which client versions know this method?
     Unknown:
         ItemXLate.cfg :: Similar to animxlate.cfg, cept format is <itemid> <new_itemid> <stack_amount>. Purpose is to be used for
