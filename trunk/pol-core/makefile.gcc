@@ -394,6 +394,12 @@ pol/crypwrap.debug.o: pol/crypwrap.cpp
 pol/crypt/nocrypt.debug.o: pol/crypt/nocrypt.cpp
 	$(CC) -x c++ $(CXX_OPTS_NOWARN) -c -I. -o $@ $<
 
+pol/crypt/twofish.debug.o: pol/crypt/twofish.cpp
+	$(CC) -x c++ $(CXX_OPTS_NOWARN) -c -I. -o $@ $<
+
+pol/crypt/blowfish.debug.o: pol/crypt/blowfish.cpp
+	$(CC) -x c++ $(CXX_OPTS_NOWARN) -c -I. -o $@ $<
+
 pol/crypt/crypt1264.debug.o: pol/crypt/crypt1264.cpp
 	$(CC) -x c++ $(CXX_OPTS_NOWARN) -c -I. -o $@ $<
 
