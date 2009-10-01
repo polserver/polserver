@@ -304,13 +304,13 @@ void send_remove_character_to_nearby( const Character* chr )
 	{
 		Client *client = *itr;
 		if (!client->ready)     /* if a client is just connecting, don't bother him. */
-			return;
+			continue;
 
 		if (!inrange( client->chr, chr))
-			return;
+			continue;
 
 		if (client->chr == chr)
-			return;
+			continue;
 
 		transmit( client, &msg, sizeof msg );
 	}
@@ -345,13 +345,13 @@ void send_remove_character_to_nearby_cantsee( const Character* chr )
 	{
 		Client *client = *itr;
 		if (!client->ready)     /* if a client is just connecting, don't bother him. */
-			return;
+			continue;
 
 		if (!inrange( client->chr, chr))
-			return;
+			continue;
 
 		if (client->chr == chr)
-			return;
+			continue;
 
 		if (!client->chr->is_visible_to_me( chr ))
 		{
