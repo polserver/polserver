@@ -261,27 +261,26 @@ void NPC::printProperties( std::ostream& os ) const
         os << "\tUseAdjustments\t" << use_adjustments << pf_endl;
 
 	if (element_resist_.fire != 0)
-		os << "\tFireResist\t" << static_cast<int>(element_resist.fire) << pf_endl;
+		os << "\tFireResist\t" << static_cast<int>(element_resist_.fire) << pf_endl;
 	if (element_resist_.cold  != 0)
-		os << "\tColdResist\t" << static_cast<int>(element_resist.cold) << pf_endl;
+		os << "\tColdResist\t" << static_cast<int>(element_resist_.cold) << pf_endl;
 	if (element_resist_.energy != 0)
-		os << "\tEnergyResist\t" << static_cast<int>(element_resist.energy) << pf_endl;
+		os << "\tEnergyResist\t" << static_cast<int>(element_resist_.energy) << pf_endl;
 	if (element_resist_.poison != 0)
-		os << "\tPoisonResist\t" << static_cast<int>(element_resist.poison) << pf_endl;
+		os << "\tPoisonResist\t" << static_cast<int>(element_resist_.poison) << pf_endl;
 	if (element_resist_.physical != 0)
-		os << "\tPhysicalResist\t" << static_cast<int>(element_resist.physical) << pf_endl;
+		os << "\tPhysicalResist\t" << static_cast<int>(element_resist_.physical) << pf_endl;
 
 	if (element_damage_.fire != 0)
-		os << "\tFireDamage\t" << static_cast<int>(element_damage.fire) << pf_endl;
+		os << "\tFireDamage\t" << static_cast<int>(element_damage_.fire) << pf_endl;
 	if (element_damage_.cold  != 0)
-		os << "\tColdDamage\t" << static_cast<int>(element_damage.cold) << pf_endl;
+		os << "\tColdDamage\t" << static_cast<int>(element_damage_.cold) << pf_endl;
 	if (element_damage_.energy != 0)
-		os << "\tEnergyDamage\t" << static_cast<int>(element_damage.energy) << pf_endl;
+		os << "\tEnergyDamage\t" << static_cast<int>(element_damage_.energy) << pf_endl;
 	if (element_damage_.poison != 0)
-		os << "\tPoisonDamage\t" << static_cast<int>(element_damage.poison) << pf_endl;
+		os << "\tPoisonDamage\t" << static_cast<int>(element_damage_.poison) << pf_endl;
 	if (element_damage_.physical != 0)
-		os << "\tPhysicalDamage\t" << static_cast<int>(element_damage.physical) << pf_endl;
-
+		os << "\tPhysicalDamage\t" << static_cast<int>(element_damage_.physical) << pf_endl;
 }
 
 void NPC::printDebugProperties( std::ostream& os ) const
@@ -356,104 +355,136 @@ void NPC::readNpcProperties( ConfigElem& elem )
 // This now handles all resistances, including AR to simplify the code.
 void NPC::loadResistances( int resistanceType, ConfigElem& elem )
 {
-	string tmp;
-	bool passed = false;
+    string tmp;
+    bool passed = false;
     Dice dice;
     string errmsg;
-	// 0 = AR
-	// 1 = Fire
-	// 2 = Cold
-	// 3 = Energy
-	// 4 = Poison
-	// 5 = Physical
-	switch(resistanceType)
-	{
-		case 0: passed = elem.remove_prop( "AR", &tmp ); break;
-		case 1: passed = elem.remove_prop( "FIRERESIST", &tmp ); break;
-		case 2: passed = elem.remove_prop( "COLDRESIST", &tmp ); break;
-		case 3: passed = elem.remove_prop( "ENERGYRESIST", &tmp ); break;
-		case 4: passed = elem.remove_prop( "POISONRESIST", &tmp ); break;
-		case 5: passed = elem.remove_prop( "PHYSICALRESIST", &tmp ); break;
-	}
+    // 0 = AR
+    // 1 = Fire
+    // 2 = Cold
+    // 3 = Energy
+    // 4 = Poison
+    // 5 = Physical
+    switch(resistanceType)
+    {
+        case 0: passed = elem.remove_prop( "AR", &tmp ); break;
+        case 1: passed = elem.remove_prop( "FIRERESIST", &tmp ); break;
+        case 2: passed = elem.remove_prop( "COLDRESIST", &tmp ); break;
+        case 3: passed = elem.remove_prop( "ENERGYRESIST", &tmp ); break;
+        case 4: passed = elem.remove_prop( "POISONRESIST", &tmp ); break;
+        case 5: passed = elem.remove_prop( "PHYSICALRESIST", &tmp ); break;
+    }
 
     if (passed)
     {
         if (!dice.load( tmp.c_str(), &errmsg ))
         {
-            cerr << "Error reading resistance "<< resistanceType << " for NPC: " << errmsg << endl;
-            throw runtime_error( "Error loading NPC" );
+            switch(resistanceType)
+            {
+                case 0: npc_ar_ = static_cast<u16>(atoi(tmp.c_str())); break;
+                case 1: element_resist_.fire = element_resist.fire = static_cast<s16>(atoi(tmp.c_str())); break;
+                case 2: element_resist_.cold = element_resist.cold = static_cast<s16>(atoi(tmp.c_str())); break;
+                case 3: element_resist_.energy = element_resist.energy = static_cast<s16>(atoi(tmp.c_str())); break;
+                case 4: element_resist_.poison = element_resist.poison = static_cast<s16>(atoi(tmp.c_str())); break;
+                case 5: element_resist_.physical = element_resist.physical = static_cast<s16>(atoi(tmp.c_str())); break;
+            }
         }
-		switch(resistanceType)
-		{
-			case 0: npc_ar_ = dice.roll(); break;
-			case 1: element_resist_.fire = element_resist.fire = dice.roll(); break;
-			case 2: element_resist_.cold = element_resist.cold = dice.roll(); break;
-			case 3: element_resist_.energy = element_resist.energy = dice.roll(); break;
-			case 4: element_resist_.poison = element_resist.poison = dice.roll(); break;
-			case 5: element_resist_.physical = element_resist.physical = dice.roll(); break;
-		}
+        switch(resistanceType)
+        {
+            case 0: npc_ar_ = dice.roll(); break;
+            case 1: element_resist_.fire = element_resist.fire = dice.roll(); break;
+            case 2: element_resist_.cold = element_resist.cold = dice.roll(); break;
+            case 3: element_resist_.energy = element_resist.energy = dice.roll(); break;
+            case 4: element_resist_.poison = element_resist.poison = dice.roll(); break;
+            case 5: element_resist_.physical = element_resist.physical = dice.roll(); break;
+        }
     }
     else
     {
-		switch(resistanceType)
-		{
-			case 0: npc_ar_ = 0; break;
-			case 1: element_resist_.fire = element_resist.fire = 0; break;
-			case 2: element_resist_.cold = element_resist.cold = 0; break;
-			case 3: element_resist_.energy = element_resist.energy = 0; break;
-			case 4: element_resist_.poison = element_resist.poison = 0; break;
-			case 5: element_resist_.physical = element_resist.physical = 0; break;
-		}
+        switch(resistanceType)
+        {
+            case 0: npc_ar_ = 0; break;
+            case 1: element_resist_.fire = element_resist.fire = 0; break;
+            case 2: element_resist_.cold = element_resist.cold = 0; break;
+            case 3: element_resist_.energy = element_resist.energy = 0; break;
+            case 4: element_resist_.poison = element_resist.poison = 0; break;
+            case 5: element_resist_.physical = element_resist.physical = 0; break;
+        }
+    }
+
+    switch(resistanceType)
+    {
+        case 0: break; // ArMod isnt saved
+        case 1: element_resist.fire += element_resist_mod.fire; break;
+        case 2: element_resist.cold += element_resist_mod.cold; break;
+        case 3: element_resist.energy += element_resist_mod.energy; break;
+        case 4: element_resist.poison += element_resist_mod.poison; break;
+        case 5: element_resist.physical += element_resist_mod.physical; break;
     }
 }
 
 // This now handles all resistances, including AR to simplify the code.
 void NPC::loadDamages( int damageType, ConfigElem& elem )
 {
-	string tmp;
-	bool passed = false;
+    string tmp;
+    bool passed = false;
     Dice dice;
     string errmsg;
-	// 1 = Fire
-	// 2 = Cold
-	// 3 = Energy
-	// 4 = Poison
-	// 5 = Physical
-	switch(damageType)
-	{
-		case 1: passed = elem.remove_prop( "FIREDAMAGE", &tmp ); break;
-		case 2: passed = elem.remove_prop( "COLDDAMAGE", &tmp ); break;
-		case 3: passed = elem.remove_prop( "ENERGYDAMAGE", &tmp ); break;
-		case 4: passed = elem.remove_prop( "POISONDAMAGE", &tmp ); break;
-		case 5: passed = elem.remove_prop( "PHYSICALDAMAGE", &tmp ); break;
-	}
+    // 1 = Fire
+    // 2 = Cold
+    // 3 = Energy
+    // 4 = Poison
+    // 5 = Physical
+    switch(damageType)
+    {
+        case 1: passed = elem.remove_prop( "FIREDAMAGE", &tmp ); break;
+        case 2: passed = elem.remove_prop( "COLDDAMAGE", &tmp ); break;
+        case 3: passed = elem.remove_prop( "ENERGYDAMAGE", &tmp ); break;
+        case 4: passed = elem.remove_prop( "POISONDAMAGE", &tmp ); break;
+        case 5: passed = elem.remove_prop( "PHYSICALDAMAGE", &tmp ); break;
+    }
 
     if (passed)
     {
         if (!dice.load( tmp.c_str(), &errmsg ))
         {
-            cerr << "Error reading damage "<< damageType << " for NPC: " << errmsg << endl;
-            throw runtime_error( "Error loading NPC" );
+            switch(damageType)
+            {
+                case 1: element_damage_.fire = element_damage.fire = static_cast<s16>(atoi(tmp.c_str())); break;
+                case 2: element_damage_.cold = element_damage.cold = static_cast<s16>(atoi(tmp.c_str())); break;
+                case 3: element_damage_.energy = element_damage.energy = static_cast<s16>(atoi(tmp.c_str())); break;
+                case 4: element_damage_.poison = element_damage.poison = static_cast<s16>(atoi(tmp.c_str())); break;
+                case 5: element_damage_.physical = element_damage.physical = static_cast<s16>(atoi(tmp.c_str())); break;
+            }
         }
-		switch(damageType)
-		{
-			case 1: element_damage_.fire = element_damage.fire = dice.roll(); break;
-			case 2: element_damage_.cold = element_damage.cold = dice.roll(); break;
-			case 3: element_damage_.energy = element_damage.energy = dice.roll(); break;
-			case 4: element_damage_.poison = element_damage.poison = dice.roll(); break;
-			case 5: element_damage_.physical = element_damage.physical = dice.roll(); break;
-		}
+        switch(damageType)
+        {
+            case 1: element_damage_.fire = element_damage.fire = dice.roll(); break;
+            case 2: element_damage_.cold = element_damage.cold = dice.roll(); break;
+            case 3: element_damage_.energy = element_damage.energy = dice.roll(); break;
+            case 4: element_damage_.poison = element_damage.poison = dice.roll(); break;
+            case 5: element_damage_.physical = element_damage.physical = dice.roll(); break;
+        }
     }
     else
     {
-		switch(damageType)
-		{
-			case 1: element_damage_.fire = element_damage.fire = 0; break;
-			case 2: element_damage_.cold = element_damage.cold = 0; break;
-			case 3: element_damage_.energy = element_damage.energy = 0; break;
-			case 4: element_damage_.poison = element_damage.poison = 0; break;
-			case 5: element_damage_.physical = element_damage.physical = 0; break;
-		}
+        switch(damageType)
+        {
+            case 1: element_damage_.fire = element_damage.fire = 0; break;
+            case 2: element_damage_.cold = element_damage.cold = 0; break;
+            case 3: element_damage_.energy = element_damage.energy = 0; break;
+            case 4: element_damage_.poison = element_damage.poison = 0; break;
+            case 5: element_damage_.physical = element_damage.physical = 0; break;
+        }
+    }
+
+    switch(damageType)
+    {
+        case 1: element_damage.fire += element_damage_mod.fire; break;
+        case 2: element_damage.cold += element_damage_mod.cold; break;
+        case 3: element_damage.energy += element_damage_mod.energy; break;
+        case 4: element_damage.poison += element_damage_mod.poison; break;
+        case 5: element_damage.physical += element_damage_mod.physical; break;
     }
 }
 
