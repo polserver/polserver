@@ -59,6 +59,7 @@ public:
 	ExportedFunction* speechmul_hook;
 	ExportedFunction* hitmiss_hook;
 	ExportedFunction* on_cast_hook;
+	ExportedFunction* can_decay;
 };
 extern SystemHooks system_hooks;
 

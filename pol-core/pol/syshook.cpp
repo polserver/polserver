@@ -101,7 +101,8 @@ SystemHooks::SystemHooks() :
 	pushthrough_hook(NULL),
 	speechmul_hook(NULL),
 	hitmiss_hook(NULL),
-	on_cast_hook(NULL)
+	on_cast_hook(NULL),
+	can_decay(NULL)
 {
 }
 
@@ -162,6 +163,11 @@ void hook( ExportScript* shs, const string& hookname, const string& exfuncname )
 	{
 		nargs = 2;
 		pphook = &system_hooks.on_cast_hook;
+	}
+	else if (hookname == "CanDecay")
+	{
+		nargs = 1;
+		pphook = &system_hooks.can_decay;
 	}
 	else
 	{
@@ -257,6 +263,8 @@ void unload_system_hooks()
 		delete system_hooks.speechmul_hook;
 	if (system_hooks.on_cast_hook != NULL)
 		delete system_hooks.on_cast_hook;
+	if (system_hooks.can_decay != NULL)
+		delete system_hooks.can_decay;
 }
 
 ExportScript* FindExportScript( const ScriptDef& sd )

@@ -21,6 +21,7 @@ Notes
 #include "polsem.h"
 #include "realms.h"
 #include "scrsched.h"
+#include "syshook.h"
 #include "ufunc.h"
 #include "uofile.h"
 #include "uoscrobj.h"
@@ -58,9 +59,17 @@ void decay_worldzone( unsigned wx, unsigned wy, Realm* realm )
         Item* item = zone.items[idx];
         if (item->should_decay( now ))
         {
-            const ItemDesc& descriptor = find_itemdesc( item->objtype_ );
+			// check the CanDecay syshook first if it returns 1 go over to other checks
+			if (system_hooks.can_decay)
+			{
+				bool candecay = system_hooks.can_decay->call(new EItemRefObjImp(item));
+				if (!candecay)
+					continue;
+			}
 
-	        UMulti* multi = realm->find_supporting_multi( item->x, item->y, item->z );
+			const ItemDesc& descriptor = find_itemdesc( item->objtype_ );
+			UMulti* multi = realm->find_supporting_multi( item->x, item->y, item->z );
+
 			// some things don't decay on multis:
             if (multi != NULL && !descriptor.decays_on_multis)
                 continue;
