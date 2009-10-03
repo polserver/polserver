@@ -1,4 +1,8 @@
 -- POL099 --
+10-03-2009 MuadDib:
+     Added: SysHook::CanDecay(item). Return 0, core decay will ignore item and continue on the cycler. If it
+            returns 1, core decay will handle the item as normal. - Patch submitted by Tomi
+            
 09-22-2009 Turley:
      Added: Combatcfg:SendDamagePacket 1/0 default 0 if set sends packet 0xB (0xBF sub 0x22 for clients<4.0.7a)
             to attacker(ScriptController) and defender on ApplyDamage and ApplyRawDamage
