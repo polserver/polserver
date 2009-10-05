@@ -119,21 +119,19 @@ void Spellbook::double_click( Client* client )
 
 }
 
-// FIXME: Spell Upgrade, upgrade to use bits, not contents.
 bool Spellbook::has_spellid( unsigned long spellid ) const
 {
 	u16 spellnumber = static_cast<u16>(spellid);
 	u8  spellslot = spellnumber % 8;
 	if(spellslot == 0) spellslot = 8;
+
 	int bitcheck = ((bitwise_contents[ (spellnumber-1) / 8 ]) & (1 << (spellslot-1)));
-	cerr << "Bitcheck to cast and spellid: " << bitcheck << " " << spellid << endl;
 	if ( ((bitwise_contents[ (spellnumber-1) / 8 ]) & (1 << (spellslot-1))) != 0 )
 		return true;
 
 	return false;
 }
 
-// FIXME: Spell Upgrade, update to use new has_spellid instead of bitchecks.
 bool Spellbook::can_add( const Item& item ) const
 {
 	// note: item count maximums are implicitly checked for.
@@ -163,12 +161,13 @@ void Spellbook::add_bulk( long /* item_count_delta */, long /* weight_delta */ )
 
 void Spellbook::add( Item *item )
 {
-	UContainer::add(item);
+//	UContainer::add(item);
 	u16 spellnum = USpellScroll::convert_objtype_to_spellnum(item->objtype_, spell_school);
 	u8  spellslot = spellnum % 8;
 	if(spellslot == 0) spellslot = 8;
 	bitwise_contents[ (spellnum-1) / 8 ] |= 1 << (spellslot-1);
-	item->saveonexit(0);
+	item->destroy();
+//	item->saveonexit(0);
 }
 
 void Spellbook::printProperties( ostream& os ) const

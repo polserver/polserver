@@ -31,8 +31,8 @@
    Changed: Pre-AOS Clients still get the same packet they always did when opening a spellbook, built entirely
             off the bitflag system for newer spellbooks. So no more keeping scrolls inside of books. :D
       Note: As spellbooks are loaded for the first time with newer cores and as added to books, scrolls are
-            marked SaveOnExit 0. Temp solution until valid method of destroy can be done without intermittent
-            crashes.
+            marked SaveOnExit 0. Newly inserted scrolls from then on, are destroyed during insertion after spell
+            contents are updated on the book.
             
 09-16-2009 Turley:
    Removed: char.isUOKR
