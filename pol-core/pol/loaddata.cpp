@@ -257,12 +257,28 @@ void add_loaded_item( Item* cont_item, Item* item )
 {
 	if (cont_item->isa(UObject::CLASS_CONTAINER))
 	{
-		// Convert spellbook to use bitwise system, not scrolls.
-		if ( cont_item->script_isa(POLCLASS_SPELLBOOK) )
-		{
-			item->saveonexit(0);
-		}
 		UContainer* cont = static_cast<UContainer*>(cont_item);
+
+		// Convert spellbook to use bitwise system, not scrolls.
+		if ( cont->script_isa(POLCLASS_SPELLBOOK) )
+		{
+			// if can't add, means spell already there.
+			if ( !cont->can_add( *item ) )
+			{
+				item->destroy();
+				return;
+			}
+			// this is an oldschool book, oldschool contents. We need to create the bitwise
+			// and handle for the first time before destroying the scrolls.
+			Spellbook* book = static_cast<Spellbook*>(cont);
+
+			u16 spellnum = USpellScroll::convert_objtype_to_spellnum(item->objtype_, book->spell_school);
+			u8  spellslot = spellnum % 8;
+			if(spellslot == 0) spellslot = 8;
+			book->bitwise_contents[ (spellnum-1) / 8 ] |= 1 << (spellslot-1);
+			item->destroy();
+			return;
+		}
 		
 		gflag_enforce_container_limits = false;
 		bool canadd = cont->can_add( *item );
