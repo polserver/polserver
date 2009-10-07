@@ -25,6 +25,7 @@ History
 2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
 2009/09/22 MuadDib:   Adding resending of light level if override not in effect, to sending of season packet. Fixes EA client bug.
 2009/09/22 Turley:    Added DamagePacket support
+2009/10/07 Turley:    Fixed DestroyItem while in hand
 
 Notes
 =======
@@ -1938,7 +1939,8 @@ void destroy_item( Item* item )
         ConstForEach( clients, send_remove_object_if_inrange, item );
         if (item->container == NULL) // on ground, easy.
         {
-            remove_item_from_world( item );
+            if (!item->is_gotten()) // and not in hand
+                remove_item_from_world( item );
         }
         else
         {

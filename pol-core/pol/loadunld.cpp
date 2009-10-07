@@ -44,7 +44,6 @@ void unload_repsys_cfg();
 
 void load_npc_templates();
 void load_resource_cfg();
-void load_gpdata();
 void load_itemdesc();
 void set_watch_vars();
 void load_skill_scripts();
