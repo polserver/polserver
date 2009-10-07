@@ -73,10 +73,7 @@ void createchar2(Account* acct, unsigned index);
 BObjectImp* AccountObjImp::call_method_id( const int id, Executor& ex )
 {
 	BObjectImp* result = NULL;
-	bool changed = false; // only set for proplist methods
 
-	long index;
-	Character* chr;
 	switch(id)
 	{
 	case MTH_GET_MEMBER:
@@ -279,10 +276,13 @@ BObjectImp* AccountObjImp::call_method_id( const int id, Executor& ex )
 	case MTH_SETPROP:
 	case MTH_ERASEPROP:
 	case MTH_PROPNAMES:
+    {
+        bool changed = false;
 		result = CallPropertyListMethod_id( obj_->props_, id, ex, changed );
 		if (result && !changed)
 			return result;
 		break;
+    }
 	case MTH_SETDEFAULTCMDLEVEL:
 	{
 		if ( ex.numParams() != 1 )
@@ -302,27 +302,30 @@ BObjectImp* AccountObjImp::call_method_id( const int id, Executor& ex )
 	/// account.GetCharacter( index : 1..5 ) : retrieve a reference to a character belonging to this account.
 	///	This reference may be used even if the character is offline.
 	case MTH_GETCHARACTER:
+    {
 		if (ex.numParams()!=1)
 			return new BError( "account.GetCharacter(index) requires a parameter." );
-
+        long index;
 		if (!ex.getParam( 0, index, 1, config.character_slots ))
 			return NULL;
-		chr = obj_->get_character( index-1 );
+		Character* chr = obj_->get_character( index-1 );
 
 		if (chr == NULL)
 			return new BError( "No such character on this account" );
 		return new EOfflineCharacterRefObjImp( chr );
+    }
 	///
 	/// account.DeleteCharacter( index : 1..5 ) : delete a character
 	///  character to be deleted cannot be logged in.
 	///
 	case MTH_DELETECHARACTER:
+    {
 		if (ex.numParams()!=1)
 			return new BError( "account.DeleteCharacter(index) requires a parameter." );
-
+        long index;
 		if (!ex.getParam( 0, index, 1, config.character_slots ))
 			return NULL;
-		chr = obj_->get_character( index-1 );
+		Character* chr = obj_->get_character( index-1 );
 
 		if (chr == NULL)
 			return new BError( "No such character on this account" );
@@ -338,6 +341,7 @@ BObjectImp* AccountObjImp::call_method_id( const int id, Executor& ex )
 			return new BError( "CanDelete blocks Character deletion." );
 		
 		break;
+    }
 	///
 	/// account.Set_UO_Expansion( string ) : recognized values: ML, SE, AOS, LBR, T2A (default)
 	///  this determines what flag is sent with packet 0xB9 during login.

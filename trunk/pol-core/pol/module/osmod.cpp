@@ -225,7 +225,6 @@ BObjectImp* OSExecutorModule::sleepms()
 
 BObjectImp* OSExecutorModule::wait_for_event()
 {
-	int nsecs;
 	if (!events_.empty())
 	{
 		BObjectImp* imp = events_.front();
@@ -234,7 +233,7 @@ BObjectImp* OSExecutorModule::wait_for_event()
 	}
 	else
 	{
-		nsecs = (int) exec.paramAsLong(0);
+		int nsecs = (int) exec.paramAsLong(0);
 
 		if (nsecs)
 		{
@@ -477,9 +476,9 @@ BObjectImp* OSExecutorModule::mf_set_script_option()
 {
 	long optnum;
 	long optval;
-	long oldval;
 	if (getParam( 0, optnum ) && getParam( 1, optval ))
 	{
+        long oldval;
 		switch( optnum )
 		{
 		case SCRIPTOPT_NO_INTERRUPT:

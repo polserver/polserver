@@ -415,15 +415,14 @@ void send_update_hits_to_inrange( Character *chr )
 	PKTOUT_A1 msg;
 	msg.msgtype = PKTOUT_A1_ID;
 	msg.serial = chr->serial_ext;
-	long h, mh;
     if (uoclient_general.hits.any)
     {
-        h = chr->vital(uoclient_general.hits.id).current_ones();
+        long h = chr->vital(uoclient_general.hits.id).current_ones();
         if (h > 0xFFFF)
             h = 0xFFFF;
         msg.hits = ctBEu16( static_cast<u16>(h) );
 
-        mh = chr->vital(uoclient_general.hits.id).maximum_ones();
+        long mh = chr->vital(uoclient_general.hits.id).maximum_ones();
         if (mh > 0xFFFF)
             mh = 0xFFFF;
         msg.max_hits = ctBEu16( static_cast<u16>(mh) );

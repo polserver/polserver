@@ -446,7 +446,6 @@ BObjectImp* BasicExecutorModule::mf_SplitWords()
 
 	// New delimiter support.
 	string new_string = source;
-	string tmp_string, add_string;
 	string::size_type found;
 	do
 	{
@@ -454,14 +453,14 @@ BObjectImp* BasicExecutorModule::mf_SplitWords()
 		if ( found == string::npos )
 			break;
 		
-		add_string = new_string.substr(0, found);
+		string add_string = new_string.substr(0, found);
 		
 		// Shinigami: will not hang server on queue of delimiter
 		// if ( add_string.empty() )
 		//	continue;
 		
 		objarr->addElement(new String(add_string));
-		tmp_string = new_string.substr(found+delimiter.length(), new_string.length());
+		string tmp_string = new_string.substr(found+delimiter.length(), new_string.length());
 		new_string = tmp_string;
 	}
 	while ( found != string::npos/*-1*/ );
