@@ -291,7 +291,7 @@ String *String::midstring(int begin, int len) const
 
 void String::toUpper( void )
 {
-    for( string::iterator itr = value_.begin(); itr != value_.end(); itr++ )
+    for( string::iterator itr = value_.begin(); itr != value_.end(); ++itr )
     {
         *itr = toupper(*itr);
     }
@@ -299,7 +299,7 @@ void String::toUpper( void )
 
 void String::toLower( void )
 {
-    for( string::iterator itr = value_.begin(); itr != value_.end(); itr++ )
+    for( string::iterator itr = value_.begin(); itr != value_.end(); ++itr )
     {
         *itr = tolower(*itr);
     }

@@ -539,13 +539,13 @@ void load_spell_data()
 void clean_spells()
 {
 	std::vector<SpellCircle*>::iterator c_iter = spellcircles.begin();
-	for ( ; c_iter != spellcircles.end(); c_iter++) {
+	for ( ; c_iter != spellcircles.end(); ++c_iter) {
 		delete *c_iter;
 		*c_iter=NULL;
 	}
 	spellcircles.clear();
 	std::vector<USpell*>::iterator s_iter = spells2.begin();
-	for ( ; s_iter != spells2.end(); s_iter++) {
+	for ( ; s_iter != spells2.end(); ++s_iter) {
 		delete *s_iter;
 		*s_iter=NULL;
 	}

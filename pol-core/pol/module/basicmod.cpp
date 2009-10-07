@@ -321,7 +321,7 @@ BObjectImp* BasicExecutorModule::mf_CChrZ()
 	ObjArray* arr = static_cast<ObjArray*>(exec.getParamImp( 0, BObjectImp::OTArray ));
 	if (!arr)
 		return new BError( "Invalid parameter type" );
-	for( ObjArray::const_iterator itr = arr->ref_arr.begin(); itr != arr->ref_arr.end(); itr++ )
+	for( ObjArray::const_iterator itr = arr->ref_arr.begin(); itr != arr->ref_arr.end(); ++itr )
 	{
 		BObjectImp* imp = (*itr).get()->impptr();
 		if (imp)

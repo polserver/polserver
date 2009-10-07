@@ -185,10 +185,9 @@ int Executor::getParams(unsigned howMany)
     return 0;
 }
 
-int Executor::cleanParams()
+void Executor::cleanParams()
 {
     fparams.clear();
-    return 0;
 }
 
 int Executor::makeString(unsigned param)

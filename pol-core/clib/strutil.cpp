@@ -247,7 +247,7 @@ UnitTest test_convertquotedstring_obj(test_convertquotedstring);
 
 void mklower( string& str )
 {
-    for( string::iterator itr = str.begin(); itr != str.end(); itr++ )
+    for( string::iterator itr = str.begin(); itr != str.end(); ++itr )
     {
         *itr = tolower(*itr);
     }
@@ -255,7 +255,7 @@ void mklower( string& str )
 
 void mkupper( string& str )
 {
-    for( string::iterator itr = str.begin(); itr != str.end(); itr++ )
+    for( string::iterator itr = str.begin(); itr != str.end(); ++itr )
     {
         *itr = toupper(*itr);
     }

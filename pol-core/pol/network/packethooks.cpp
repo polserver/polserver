@@ -493,7 +493,7 @@ void load_packet_hooks()
 
 PacketHookData::~PacketHookData() {
 	map<u32,PacketHookData*>::iterator itr = SubCommands.begin(), end = SubCommands.end();
-	for ( ; itr != end; itr++) {
+	for ( ; itr != end; ++itr) {
 		delete itr->second;
 	}
 	if (function != NULL)

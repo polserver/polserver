@@ -72,7 +72,7 @@ Vital::~Vital() {
 void clean_vitals()
 {
 	std::vector<Vital*>::iterator iter = vitals.begin();
-	for ( ; iter != vitals.end(); iter++) {
+	for ( ; iter != vitals.end(); ++iter) {
 		delete *iter;
 		*iter=NULL;
 	}
