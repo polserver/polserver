@@ -72,7 +72,7 @@ void PropertyList::clear()
 
 void PropertyList::getpropnames( std::vector< std::string >& propnames ) const
 {
-    for( Properties::const_iterator itr = properties.begin(); itr != properties.end(); itr++ )
+    for( Properties::const_iterator itr = properties.begin(); itr != properties.end(); ++itr )
     {
         const string& first = (*itr).first;
         propnames.push_back( first );
@@ -81,7 +81,7 @@ void PropertyList::getpropnames( std::vector< std::string >& propnames ) const
 
 void PropertyList::printProperties( ostream& os ) const
 {   
-    for( Properties::const_iterator itr = properties.begin(); itr != properties.end(); itr++ )
+    for( Properties::const_iterator itr = properties.begin(); itr != properties.end(); ++itr )
     {
         const string& first = (*itr).first;
         if (first[0] != '#')
@@ -92,7 +92,7 @@ void PropertyList::printProperties( ostream& os ) const
 }
 void PropertyList::printProperties( ConfigElem& elem ) const
 {   
-    for( Properties::const_iterator itr = properties.begin(); itr != properties.end(); itr++ )
+    for( Properties::const_iterator itr = properties.begin(); itr != properties.end(); ++itr )
     {
         const string& first = (*itr).first;
         if (first[0] != '#')
@@ -103,7 +103,7 @@ void PropertyList::printProperties( ConfigElem& elem ) const
 }
 void PropertyList::printPropertiesAsStrings( ostream& os ) const
 {   
-    for( Properties::const_iterator itr = properties.begin(); itr != properties.end(); itr++ )
+    for( Properties::const_iterator itr = properties.begin(); itr != properties.end(); ++itr )
     {
         const string& first = (*itr).first;
         if (first[0] != '#')
@@ -170,7 +170,7 @@ bool PropertyList::operator==(const PropertyList& plist) const
 PropertyList& PropertyList::operator-( const std::set<std::string>& CPropNames) //dave added 1/26/3
 {
 	std::set<std::string>::const_iterator itr;
-	for(itr = CPropNames.begin(); itr != CPropNames.end(); itr++)
+	for(itr = CPropNames.begin(); itr != CPropNames.end(); ++itr)
 	{
 		eraseprop(*itr);
 	}
@@ -181,7 +181,7 @@ PropertyList& PropertyList::operator-( const std::set<std::string>& CPropNames) 
 void PropertyList::operator-=( const std::set<std::string>& CPropNames)  //dave added 1/26/3
 {
 	std::set<std::string>::const_iterator itr;
-	for(itr = CPropNames.begin(); itr != CPropNames.end(); itr++)
+	for(itr = CPropNames.begin(); itr != CPropNames.end(); ++itr)
 	{
 		eraseprop(*itr);
 	}

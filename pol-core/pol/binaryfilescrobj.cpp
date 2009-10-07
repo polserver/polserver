@@ -79,41 +79,33 @@ BObjectImp* BBinaryfile::call_method( const char* methodname, Executor& ex )
 
 BObjectImp* BBinaryfile::call_method_id( const int id, Executor& ex )
 {
-    long value, type;
-    u32 _u32;
-    u16 _u16;
-    u8 _u8;
-    s32 _s32;
-    s16 _s16;
-    s8 _s8;
-    const char* _str;
-    vector<unsigned char> _char;
-    int len;
-    const String* text;
-	ios::seekdir seekdir = 0x0;
     switch(id)
     {
     case MTH_CLOSE:
         file.Close();
         return new BLong(1);
     case MTH_SIZE:
-		return new BLong(static_cast<long>(file.FileSize(ex)));
+        return new BLong(static_cast<long>(file.FileSize(ex)));
     case MTH_SEEK:
-        if(ex.numParams() != 2)
-            return new BError( "Seek requires 2 parameter." );
-        if((!ex.getParam( 0, value )) ||
-           (!ex.getParam( 1, type )))
-            return new BError("Invalid parameter");
-		// FIXME: ms::stl has different flag values then stlport :(
-		if (type & 0x01)
-			seekdir = ios::beg;
-		else if (type & 0x02)
-			seekdir = ios::cur;
-		else 
-			seekdir = ios::end;
-        if (!file.Seek(value,seekdir))
-            return new BLong(0);
-        return new BLong(1);
+        {
+            if(ex.numParams() != 2)
+                return new BError( "Seek requires 2 parameter." );
+            long value, type;
+            if((!ex.getParam( 0, value )) ||
+                (!ex.getParam( 1, type )))
+                return new BError("Invalid parameter");
+            // FIXME: ms::stl has different flag values then stlport :(
+            ios::seekdir seekdir = 0x0;
+            if (type & 0x01)
+                seekdir = ios::beg;
+            else if (type & 0x02)
+                seekdir = ios::cur;
+            else 
+                seekdir = ios::end;
+            if (!file.Seek(value,seekdir))
+                return new BLong(0);
+            return new BLong(1);
+        }
     case MTH_TELL:
         return new BLong(static_cast<long>(file.Tell()));
     case MTH_PEEK:
@@ -123,127 +115,170 @@ BObjectImp* BBinaryfile::call_method_id( const int id, Executor& ex )
         return new BLong(1);
 
     case MTH_GETINT32:
-        if (!file.Read(_u32))
-            return new BError("Failed to read");
-        if (bigendian)
-            _u32=cfBEu32(_u32);
-        return new BLong(_u32);
+        {
+            u32 _u32;
+            if (!file.Read(_u32))
+                return new BError("Failed to read");
+            if (bigendian)
+                _u32=cfBEu32(_u32);
+            return new BLong(_u32);
+        }
     case MTH_GETSINT32:
-        if (!file.Read(_s32))
-            return new BError("Failed to read");
-        if (bigendian)
-            _s32=cfBEu32(_s32);
-        return new BLong(_s32);
+        {
+            s32 _s32;
+            if (!file.Read(_s32))
+                return new BError("Failed to read");
+            if (bigendian)
+                _s32=cfBEu32(_s32);
+            return new BLong(_s32);
+        }
     case MTH_GETINT16:
-        if (!file.Read(_u16))
-            return new BError("Failed to read");
-        if (bigendian)
-            _u16=cfBEu16(_u16);
-        return new BLong(_u16);
+        {
+            u16 _u16;
+            if (!file.Read(_u16))
+                return new BError("Failed to read");
+            if (bigendian)
+                _u16=cfBEu16(_u16);
+            return new BLong(_u16);
+        }
     case MTH_GETSINT16:
-        if (!file.Read(_s16))
-            return new BError("Failed to read");
-        if (bigendian)
-            _s16=cfBEu16(_s16);
-        return new BLong(_s16);
+        {
+            s16 _s16;
+            if (!file.Read(_s16))
+                return new BError("Failed to read");
+            if (bigendian)
+                _s16=cfBEu16(_s16);
+            return new BLong(_s16);
+        }
     case MTH_GETINT8:
-        if (!file.Read(_u8))
-            return new BError("Failed to read");
-        return new BLong(_u8);
+        {
+            u8 _u8;
+            if (!file.Read(_u8))
+                return new BError("Failed to read");
+            return new BLong(_u8);
+        }
     case MTH_GETSINT8:
-        if (!file.Read(_s8))
-            return new BError("Failed to read");
-        return new BLong(_s8);
+        {
+            s8 _s8;
+            if (!file.Read(_s8))
+                return new BError("Failed to read");
+            return new BLong(_s8);
+        }
     case MTH_GETSTRING:
-        if(ex.numParams() != 1)
-            return new BError( "GetString requires 1 parameter." );
-        if(!ex.getParam( 0, value ))
-            return new BError("Invalid parameter");
-        _char.resize(value);
-        if (!file.Read(&_char[0],value))
-            return new BError("Failed to read");
-        len = 0;
-        _str = reinterpret_cast<const char*>(&_char[0]);
-        // Returns maximum of len characters or up to the first null-byte
-        while (len < value && *(_str+len))
-            len++;
-        return new String( _str, len);
+        {
+            if(ex.numParams() != 1)
+                return new BError( "GetString requires 1 parameter." );
+            long value;
+            if(!ex.getParam( 0, value ))
+                return new BError("Invalid parameter");
+            vector<unsigned char> _char;
+            _char.resize(value);
+            if (!file.Read(&_char[0],value))
+                return new BError("Failed to read");
+            int len = 0;
+            const char* _str = reinterpret_cast<const char*>(&_char[0]);
+            // Returns maximum of len characters or up to the first null-byte
+            while (len < value && *(_str+len))
+                len++;
+            return new String( _str, len);
+        }
 
     case MTH_SETINT32:
-        if(ex.numParams() != 1)
-            return new BError( "SetInt32 requires 1 parameter." );
-        if(!ex.getParam( 0, value ))
-            return new BError("Invalid parameter");
-        _u32=static_cast<u32>(value);
-        if (bigendian)
-            _u32=cfBEu32(_u32);
-        if (!file.Write(_u32))
-            return new BError("Failed to write");
-        return new BLong(1);
+        {
+            if(ex.numParams() != 1)
+                return new BError( "SetInt32 requires 1 parameter." );
+            long value;
+            if(!ex.getParam( 0, value ))
+                return new BError("Invalid parameter");
+            u32 _u32=static_cast<u32>(value);
+            if (bigendian)
+                _u32=cfBEu32(_u32);
+            if (!file.Write(_u32))
+                return new BError("Failed to write");
+            return new BLong(1);
+        }
     case MTH_SETSINT32:
-        if(ex.numParams() != 1)
-            return new BError( "SetSInt32 requires 1 parameter." );
-        if(!ex.getParam( 0, value ))
-            return new BError("Invalid parameter");
-        _s32=static_cast<s32>(value);
-        if (bigendian)
-            _s32=cfBEu32(_s32);
-        if (!file.Write(_s32))
-            return new BError("Failed to write");
-        return new BLong(1);
+        {
+            if(ex.numParams() != 1)
+                return new BError( "SetSInt32 requires 1 parameter." );
+            long value;
+            if(!ex.getParam( 0, value ))
+                return new BError("Invalid parameter");
+            s32 _s32=static_cast<s32>(value);
+            if (bigendian)
+                _s32=cfBEu32(_s32);
+            if (!file.Write(_s32))
+                return new BError("Failed to write");
+            return new BLong(1);
+        }
     case MTH_SETINT16:
-        if(ex.numParams() != 1)
-            return new BError( "SetInt16 requires 1 parameter." );
-        if(!ex.getParam( 0, value ))
-            return new BError("Invalid parameter");
-        _u16=static_cast<u16>(value);
-        if (bigendian)
-            _u16=cfBEu16(_u16);
-        if (!file.Write(_u16))
-            return new BError("Failed to write");
-        return new BLong(1);
+        {
+            if(ex.numParams() != 1)
+                return new BError( "SetInt16 requires 1 parameter." );
+            long value;
+            if(!ex.getParam( 0, value ))
+                return new BError("Invalid parameter");
+            u16 _u16=static_cast<u16>(value);
+            if (bigendian)
+                _u16=cfBEu16(_u16);
+            if (!file.Write(_u16))
+                return new BError("Failed to write");
+            return new BLong(1);
+        }
     case MTH_SETSINT16:
-        if(ex.numParams() != 1)
-            return new BError( "SetSInt16 requires 1 parameter." );
-        if(!ex.getParam( 0, value ))
-            return new BError("Invalid parameter");
-        _s16=static_cast<s16>(value);
-        if (bigendian)
-            _s16=cfBEu16(_s16);
-        if (!file.Write(_s16))
-            return new BError("Failed to write");
-        return new BLong(1);
+        {
+            if(ex.numParams() != 1)
+                return new BError( "SetSInt16 requires 1 parameter." );
+            long value;
+            if(!ex.getParam( 0, value ))
+                return new BError("Invalid parameter");
+            s16 _s16=static_cast<s16>(value);
+            if (bigendian)
+                _s16=cfBEu16(_s16);
+            if (!file.Write(_s16))
+                return new BError("Failed to write");
+            return new BLong(1);
+        }
     case MTH_SETINT8:
-        if(ex.numParams() != 1)
-            return new BError( "SetInt8 requires 1 parameter." );
-        if(!ex.getParam( 0, value ))
-            return new BError("Invalid parameter");
-        _u8=static_cast<u8>(value);
-        if (!file.Write(_u8))
-            return new BError("Failed to write");
-        return new BLong(1);
+        {
+            if(ex.numParams() != 1)
+                return new BError( "SetInt8 requires 1 parameter." );
+            long value;
+            if(!ex.getParam( 0, value ))
+                return new BError("Invalid parameter");
+            u8 _u8=static_cast<u8>(value);
+            if (!file.Write(_u8))
+                return new BError("Failed to write");
+            return new BLong(1);
+        }
     case MTH_SETSINT8:
-        if(ex.numParams() != 1)
-            return new BError( "SetSInt8 requires 1 parameter." );
-        if(!ex.getParam( 0, value ))
-            return new BError("Invalid parameter");
-        _s8=static_cast<s8>(value);
-        if (!file.Write(_s8))
-            return new BError("Failed to write");
-        return new BLong(1);
+        {
+            if(ex.numParams() != 1)
+                return new BError( "SetSInt8 requires 1 parameter." );
+            long value;
+            if(!ex.getParam( 0, value ))
+                return new BError("Invalid parameter");
+            s8 _s8=static_cast<s8>(value);
+            if (!file.Write(_s8))
+                return new BError("Failed to write");
+            return new BLong(1);
+        }
     case MTH_SETSTRING:
-        if(ex.numParams() != 2)
-            return new BError( "SetString requires 2 parameters." );
-        if((!ex.getStringParam( 0, text )) ||
-            (!ex.getParam( 1, value )) )
-            return new BError( "Invalid parameter" );
-        _str = text->value().c_str();
-        len=text->value().length();
-        if (value==1)
-            len++;
-        if (!file.WriteString(text->value().c_str(),len))
-            return new BError("Failed to write");
-        return new BLong(1);
+        {
+            if(ex.numParams() != 2)
+                return new BError( "SetString requires 2 parameters." );
+            long value;
+            const String* text;
+            if((!ex.getStringParam( 0, text )) ||
+                (!ex.getParam( 1, value )) )
+                return new BError( "Invalid parameter" );
+            int len=text->value().length();
+            if (value==1)
+                len++;
+            if (!file.WriteString(text->value().c_str(),len))
+                return new BError("Failed to write");
+            return new BLong(1);
+        }
 
     default:
         return NULL;

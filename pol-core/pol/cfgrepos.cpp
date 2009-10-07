@@ -84,7 +84,7 @@ BObjectImp* StoredConfigElem::listprops( ) const
 	ObjArray* objarr = new ObjArray;
 	String propname;
 	PropImpList::const_iterator itr;
-	for( itr = propimps_.begin(); itr != propimps_.end(); itr++ )
+	for( itr = propimps_.begin(); itr != propimps_.end(); ++itr )
 	{
 		propname = (*itr).first.c_str();
 		if ( !objarr->contains(propname) )

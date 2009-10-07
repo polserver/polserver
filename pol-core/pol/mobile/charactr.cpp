@@ -3711,7 +3711,7 @@ Item* Character::search_remote_containers( u32 serial, bool* isRemoteContainer )
 		*isRemoteContainer = false;
 	for( std::vector<ItemRef>::const_iterator itr = remote_containers_.begin();
 		 itr != remote_containers_.end();
-		 itr++ )
+		 ++itr )
 	{
 		Item* item = (*itr).get();
 		if (item->orphan())
@@ -3743,7 +3743,7 @@ bool Character::mightsee( const Item *item ) const
 	
 	for( std::vector<ItemRef>::const_iterator itr = remote_containers_.begin();
 		 itr != remote_containers_.end();
-		 itr++ )
+		 ++itr )
 	{
 		Item* additional_item = (*itr).get();
 		if (additional_item == item)

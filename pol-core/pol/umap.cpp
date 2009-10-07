@@ -91,7 +91,7 @@ void Map::printPinPoints( std::ostream& os ) const
 	int i=0;
 	os << "\tNumPins " << pin_points.size() << pf_endl;
 
-	for( itr = pin_points.begin(); itr != pin_points.end(); itr++, i++ )
+	for( itr = pin_points.begin(); itr != pin_points.end(); ++itr, ++i )
 	{
 		os << "\tPin" << i << " " << itr->x << "," << itr->y << pf_endl;
 	}

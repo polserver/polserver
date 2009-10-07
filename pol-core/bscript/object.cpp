@@ -484,7 +484,7 @@ ObjArray::ObjArray( const ObjArray& copyfrom ) :
 
 void ObjArray::deepcopy()
 {
-	for( iterator itr = ref_arr.begin(); itr != ref_arr.end(); itr++ )
+	for( iterator itr = ref_arr.begin(); itr != ref_arr.end(); ++itr )
 	{
 		if (itr->get())
 		{
@@ -494,6 +494,7 @@ void ObjArray::deepcopy()
 				No, we're making a copy, leaving the original be.
 				(SO, bno's refcount should be >1 here)
 			*/
+
 			BObject *bo = itr->get();
 			itr->set( new BObject( bo->impptr()->copy() ) );
 		}
@@ -986,7 +987,7 @@ BObjectImp* ObjArray::call_method( const char* methodname, Executor& ex )
 void ObjArray::packonto( ostream& os ) const
 {
 	os << "a" << ref_arr.size() << ":";
-	for( const_iterator itr = ref_arr.begin(); itr != ref_arr.end(); itr++ )
+	for( const_iterator itr = ref_arr.begin(); itr != ref_arr.end(); ++itr )
 	{
 		if (itr->get())
 		{

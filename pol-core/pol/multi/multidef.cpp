@@ -307,7 +307,7 @@ const MultiDef* MultiDefByGraphic( u16 graphic )
 void clean_multidefs() 
 {
 	MultiDefs::iterator iter = my_multidefs_by_graphic.begin();
-	for ( ; iter != my_multidefs_by_graphic.end(); iter++) {
+	for ( ; iter != my_multidefs_by_graphic.end(); ++iter) {
 		if (iter->second != NULL)
 			delete iter->second;
 		iter->second = NULL;
