@@ -180,11 +180,10 @@ void ObjectHash::Reap()
 void ObjectHash::Clear()
 {
     bool any;
-    unsigned skipped;
     do
     {
         any = false;
-        skipped = 0;
+        unsigned skipped = 0;
         for( OH_iterator itr = hash.begin(); itr != hash.end(); )
         {
             OH_iterator save_itr = itr;

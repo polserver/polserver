@@ -361,8 +361,6 @@ ItemDesc::ItemDesc( u16 objtype, ConfigElem& elem, Type type, const Package* pkg
 	{
 		string tmp;
 		bool passed = false;
-		Dice dice;
-		string errmsg;
 
 		switch(resist)
 		{
@@ -375,6 +373,8 @@ ItemDesc::ItemDesc( u16 objtype, ConfigElem& elem, Type type, const Package* pkg
 
 		if (passed)
 		{
+            Dice dice;
+		    string errmsg;
 			if (!dice.load( tmp.c_str(), &errmsg ))
 			{
 				cerr << "Error loading itemdesc.cfg Elemental Resistances for "<< objtype_description() << " : " << errmsg << endl;
@@ -406,10 +406,8 @@ ItemDesc::ItemDesc( u16 objtype, ConfigElem& elem, Type type, const Package* pkg
 	{
 		string tmp;
 		bool passed = false;
-		Dice dice;
-		string errmsg;
 
-		switch(edamage)
+        switch(edamage)
 		{
 			case ELEMENTAL_FIRE: passed = elem.remove_prop( "FIREDAMAGE", &tmp ); break;
 			case ELEMENTAL_COLD: passed = elem.remove_prop( "COLDDAMAGE", &tmp ); break;
@@ -420,6 +418,8 @@ ItemDesc::ItemDesc( u16 objtype, ConfigElem& elem, Type type, const Package* pkg
 
 		if (passed)
 		{
+            Dice dice;
+		    string errmsg;
 			if (!dice.load( tmp.c_str(), &errmsg ))
 			{
 				cerr << "Error loading itemdesc.cfg elemental damages for "<< objtype_description() << " : " << errmsg << endl;

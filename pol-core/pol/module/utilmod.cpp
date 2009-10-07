@@ -60,9 +60,9 @@ BObjectImp* UtilExecutorModule::mf_RandomInt()
 BObjectImp* UtilExecutorModule::mf_RandomIntMinMax()
 {
     long minvalue;
-	long maxvalue;
     if (exec.getParam( 0, minvalue, LONG_MIN, LONG_MAX ))
     {
+        long maxvalue;
 		if (exec.getParam( 1, maxvalue, LONG_MIN, LONG_MAX ))
 		{
 			if (maxvalue<minvalue)

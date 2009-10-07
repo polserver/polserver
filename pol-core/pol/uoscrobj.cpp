@@ -762,26 +762,27 @@ BObjectImp* UObject::set_script_member( const char *membername, const string& va
 
 BObjectImp* UObject::set_script_member_id( const int id, long value )
 {
-	if (orphan())
-		return new UninitObject;
+    if (orphan())
+        return new UninitObject;
 
-	set_dirty();
-	bool res;
-	switch(id)
-	{
-		case MBR_GRAPHIC:
-			setgraphic( static_cast<unsigned short>(value) );
-			return new BLong( graphic );
-		case MBR_COLOR:
-			res = setcolor( static_cast<unsigned short>(value) );
-			on_color_changed();
-			if (!res) // TODO log?
-				return new BError( "Invalid color value " + hexint(value) );
-			else
-				return new BLong( color );
-		default:
-			return NULL;
-	}
+    set_dirty();
+    switch(id)
+    {
+    case MBR_GRAPHIC:
+        setgraphic( static_cast<unsigned short>(value) );
+        return new BLong( graphic );
+    case MBR_COLOR:
+        {
+            bool res = setcolor( static_cast<unsigned short>(value) );
+            on_color_changed();
+            if (!res) // TODO log?
+                return new BError( "Invalid color value " + hexint(value) );
+            else
+                return new BLong( color );
+        }
+    default:
+        return NULL;
+    }
 }
 
 BObjectImp* UObject::set_script_member( const char *membername, long value )
@@ -1493,7 +1494,6 @@ BObjectImp* Character::set_script_member_id( const int id, long value )
 	if (imp != NULL)
 		return imp;
 
-	bool oldhidden;
 	switch(id)
 	{
 		case MBR_GENDER:
@@ -1519,12 +1519,14 @@ BObjectImp* Character::set_script_member_id( const int id, long value )
 		case MBR_DELAY_MOD:
 			return new BLong( delay_mod_ = static_cast<short>(value) );
 		case MBR_HIDDEN:
-			//FIXME: don't call on_change unless the value actually changed?
-			oldhidden = hidden_;
-			hidden_ = value?true:false;
-			if(oldhidden != hidden_)
-				HiddenUpdater::on_change( this );
-			return new BLong( hidden_ );
+            {
+			    //FIXME: don't call on_change unless the value actually changed?
+			    bool oldhidden = hidden_;
+			    hidden_ = value?true:false;
+			    if(oldhidden != hidden_)
+				    HiddenUpdater::on_change( this );
+			    return new BLong( hidden_ );
+            }
 		case MBR_CONCEALED:
 			concealed_ = static_cast<unsigned char>(value);
 			ConcealedUpdater::on_change( this );
@@ -1676,14 +1678,6 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 	if (imp != NULL)
 		return imp;
 
-	bool newval = true;
-	long lnewval = 1;
-	bool changed;
-	long level, duration;
-	const String* pstr;
-	long amt;
-	long serial;
-	long gameclock;
 	switch(id)
 	{
 		/*
@@ -1695,37 +1689,39 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 				 apply RepSystem rules (Mobile helps Mobile)
 		*/
 	case MTH_SETPOISONED:
-		if (ex.hasParams(1))
-		{
-			long lval;
-			if (!ex.getParam( 0, lval ))
-				return new BError( "Invalid parameter type" );
-			if (!lval)
-				newval = false;
-		}
-		changed = (newval != poisoned);
+        {
+            bool newval=true;
+		    if (ex.hasParams(1))
+		    {
+			    long lval;
+			    if (!ex.getParam( 0, lval ))
+				    return new BError( "Invalid parameter type" );
+			    if (!lval)
+				    newval = false;
+		    }
 
-		if (changed)
-		{
-			set_dirty();
-			poisoned = newval;
-			check_undamaged();
-			UOExecutorModule* uoexec = static_cast<UOExecutorModule*>(ex.findModule( "UO" ));
-			if (uoexec && uoexec->controller_.get())
-			{
-				Character* attacker = uoexec->controller_.get();
-				if (!attacker->orphan())
-				{
-					if (poisoned)
-						attacker->repsys_on_damage( this );
-					else
-						attacker->repsys_on_help( this );
-				}
-			}
-			on_poison_changed();
-		}
+		    if (newval != poisoned)
+		    {
+			    set_dirty();
+			    poisoned = newval;
+			    check_undamaged();
+			    UOExecutorModule* uoexec = static_cast<UOExecutorModule*>(ex.findModule( "UO" ));
+			    if (uoexec && uoexec->controller_.get())
+			    {
+				    Character* attacker = uoexec->controller_.get();
+				    if (!attacker->orphan())
+				    {
+					    if (poisoned)
+						    attacker->repsys_on_damage( this );
+					    else
+						    attacker->repsys_on_help( this );
+				    }
+			    }
+			    on_poison_changed();
+		    }
 
-		return new BLong(1);
+		    return new BLong(1);
+        }
 
 		/*
 		 mobile.SetParalyzed( isparalyzed := 1 )
@@ -1736,118 +1732,136 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 					 apply RepSystem rules (Mobile heals Mobile)
 		*/
 	case MTH_SETPARALYZED:
-		newval = true;
-		if (ex.hasParams(1))
-		{
-			long lval;
-			if (!ex.getParam( 0, lval ))
-				return new BError( "Invalid parameter type" );
-			if (!lval)
-				newval = false;
-		}
-		changed = (newval != paralyzed_);
+        {
+		    bool newval = true;
+		    if (ex.hasParams(1))
+		    {
+			    long lval;
+			    if (!ex.getParam( 0, lval ))
+				    return new BError( "Invalid parameter type" );
+			    if (!lval)
+				    newval = false;
+		    }
 
-		if (changed)
-		{
-			set_dirty();
-			paralyzed_ = newval;
-			check_undamaged();
-			UOExecutorModule* uoexec = static_cast<UOExecutorModule*>(ex.findModule( "UO" ));
-			if (uoexec && uoexec->controller_.get())
-			{
-				Character* attacker = uoexec->controller_.get();
-				if (!attacker->orphan())
-				{
-					if (paralyzed_)
-						attacker->repsys_on_damage( this );
-					else
-						attacker->repsys_on_help( this );
-				}
-			}
-		}
+		    if (newval != paralyzed_)
+		    {
+			    set_dirty();
+			    paralyzed_ = newval;
+			    check_undamaged();
+			    UOExecutorModule* uoexec = static_cast<UOExecutorModule*>(ex.findModule( "UO" ));
+			    if (uoexec && uoexec->controller_.get())
+			    {
+				    Character* attacker = uoexec->controller_.get();
+				    if (!attacker->orphan())
+				    {
+					    if (paralyzed_)
+						    attacker->repsys_on_damage( this );
+					    else
+						    attacker->repsys_on_help( this );
+				    }
+			    }
+		    }
 
-		return new BLong(1);
+		    return new BLong(1);
+        }
 
 		/*
 		 mobile.SetCriminal( level := 1 )
 		   if level is 0, clears the CriminalTimer
 		*/
 	case MTH_SETCRIMINAL:
-		level = 1;
-		if (ex.hasParams(1))
-		{
-			if (!ex.getParam( 0, level ))
-				return new BError( "Invalid parameter type" );
-			if (level < 0)
-				return new BError( "Level must be >= 0" );
-		}
-		set_dirty();
-		make_criminal( level );
-		return new BLong(1);
+        {
+		    long level = 1;
+		    if (ex.hasParams(1))
+		    {
+			    if (!ex.getParam( 0, level ))
+				    return new BError( "Invalid parameter type" );
+			    if (level < 0)
+				    return new BError( "Level must be >= 0" );
+		    }
+		    set_dirty();
+		    make_criminal( level );
+		    return new BLong(1);
+        }
 
 	case MTH_SETLIGHTLEVEL:
-		if (!ex.hasParams(2))
-			return new BError( "Not enough parameters" );
-		if (ex.getParam( 0, level ) &&
-			ex.getParam( 1, duration ))
-		{
-			lightoverride = level;
-			lightoverride_until = read_gameclock() + duration;
-			check_region_changes();
-			return new BLong(1);
-		}
+        {
+            long level,duration;
+		    if (!ex.hasParams(2))
+			    return new BError( "Not enough parameters" );
+		    if (ex.getParam( 0, level ) &&
+			    ex.getParam( 1, duration ))
+		    {
+			    lightoverride = level;
+			    lightoverride_until = read_gameclock() + duration;
+			    check_region_changes();
+			    return new BLong(1);
+		    }
+        }
 
 	case MTH_SQUELCH:
-		if (!ex.hasParams(1))
-			return new BError( "Not enough parameters" );
-		if (ex.getParam( 0, duration ))
-		{
-			set_dirty();
-			if (duration == -1)
-				squelched_until = ~0u;
-			else if (duration == 0)
-				squelched_until = 0;
-			else
-				squelched_until = read_gameclock() + duration;
-			return new BLong(1);
-		}
-		break;
+        {
+            long duration;
+		    if (!ex.hasParams(1))
+			    return new BError( "Not enough parameters" );
+		    if (ex.getParam( 0, duration ))
+		    {
+			    set_dirty();
+			    if (duration == -1)
+				    squelched_until = ~0u;
+			    else if (duration == 0)
+				    squelched_until = 0;
+			    else
+				    squelched_until = read_gameclock() + duration;
+			    return new BLong(1);
+		    }
+		    break;
+        }
 	case MTH_ENABLE:
-		if (!ex.hasParams(1))
-			return new BError( "Not enough parameters" );
-		if (ex.getStringParam( 0, pstr ))
-		{
-			if (has_privilege( pstr->data() ))
-			{
-				set_dirty();
-				set_setting( pstr->data(), true );
-				// Run the Priv Updater based on the priv
-				//PrivUpdater::on_enable( this, pstr->data() );
-				return new BLong(1);
-			}
-			else
-			{
-				return new BError( "Mobile doesn't have that privilege" );
-			}
-		}
+        {
+		    if (!ex.hasParams(1))
+			    return new BError( "Not enough parameters" );
+            const String* pstr;
+		    if (ex.getStringParam( 0, pstr ))
+		    {
+			    if (has_privilege( pstr->data() ))
+			    {
+				    set_dirty();
+				    set_setting( pstr->data(), true );
+				    // Run the Priv Updater based on the priv
+				    //PrivUpdater::on_enable( this, pstr->data() );
+				    return new BLong(1);
+			    }
+			    else
+			    {
+				    return new BError( "Mobile doesn't have that privilege" );
+			    }
+		    }
+        }
 
 	case MTH_DISABLE:
-		if (!ex.hasParams(1))
-			return new BError( "Not enough parameters" );
-		if (ex.getStringParam( 0, pstr ))
-		{
-			set_dirty();
-			set_setting( pstr->data(), false );
-			return new BLong(1);
-		}
+        {
+		    if (!ex.hasParams(1))
+			    return new BError( "Not enough parameters" );
+            const String* pstr;
+		    if (ex.getStringParam( 0, pstr ))
+		    {
+			    set_dirty();
+			    set_setting( pstr->data(), false );
+			    return new BLong(1);
+		    }
+        }
 
 	case MTH_ENABLED:
-		if (!ex.hasParams(1))
-			return new BError( "Not enough parameters" );
-		if (ex.getStringParam( 0, pstr ))
-		{
-			return new BLong( setting_enabled( pstr->data() ) ? 1 : 0);
-		}
+        {
+		    if (!ex.hasParams(1))
+			    return new BError( "Not enough parameters" );
+            const String* pstr;
+		    if (ex.getStringParam( 0, pstr ))
+		    {
+			    return new BLong( setting_enabled( pstr->data() ) ? 1 : 0);
+		    }
+        }
 
 	case MTH_PRIVILEGES:
 	{
@@ -1863,58 +1877,70 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 	}
 
 	case MTH_SETCMDLEVEL:
-		if (!ex.hasParams(1))
-			return new BError( "Not enough parameters" );
-		if (ex.getStringParam( 0, pstr ))
-		{
-			CmdLevel* pcmdlevel = find_cmdlevel( pstr->data() );
-			if (pcmdlevel)
-			{
-				set_dirty();
-				cmdlevel = static_cast<unsigned char>(pcmdlevel->cmdlevel);
-				return new BLong(1);
-			}
-			else
-			{
-				return new BError( "No such command level" );
-			}
-		}
-		break;
+        {
+		    if (!ex.hasParams(1))
+			    return new BError( "Not enough parameters" );
+            const String* pstr;
+		    if (ex.getStringParam( 0, pstr ))
+		    {
+			    CmdLevel* pcmdlevel = find_cmdlevel( pstr->data() );
+			    if (pcmdlevel)
+			    {
+				    set_dirty();
+				    cmdlevel = static_cast<unsigned char>(pcmdlevel->cmdlevel);
+				    return new BLong(1);
+			    }
+			    else
+			    {
+				    return new BError( "No such command level" );
+			    }
+		    }
+		    break;
+        }
 	case MTH_SPENDGOLD:
-		if (ex.numParams()!=1 ||
-			!ex.getParam( 0, amt ))
-			return new BError( "Invalid parameter type" );
+        {
+            long amt;
+		    if (ex.numParams()!=1 ||
+			    !ex.getParam( 0, amt ))
+			    return new BError( "Invalid parameter type" );
 
-		if (gold_carried() < static_cast<unsigned long>(amt))
-			return new BError( "Insufficient funds" );
+		    if (gold_carried() < static_cast<unsigned long>(amt))
+			    return new BError( "Insufficient funds" );
 
-		spend_gold( amt );
-		return new BLong( 1 );
+		    spend_gold( amt );
+		    return new BLong( 1 );
+        }
 
 	case MTH_SETMURDERER:
-		if (ex.hasParams(1))
-		{
-			if (!ex.getParam( 0, lnewval ))
-				return new BError( "Invalid parameter type" );
-		}
-		set_dirty();
-		make_murderer( lnewval?true:false );
-		return new BLong(1);
+        {
+            long lnewval = 1;
+		    if (ex.hasParams(1))
+		    {
+			    if (!ex.getParam( 0, lnewval ))
+				    return new BError( "Invalid parameter type" );
+		    }
+		    set_dirty();
+		    make_murderer( lnewval?true:false );
+		    return new BLong(1);
+        }
 	case MTH_REMOVEREPORTABLE:
-		if (!ex.hasParams(2))
-			return new BError( "Not enough parameters" );
-		if (ex.getParam( 0, serial ) &&
-			ex.getParam( 1, gameclock ))
-		{
-			set_dirty();
-			clear_reportable( serial, gameclock );
-			return new BLong(1);
-		}
-		else
-		{
-			return new BError( "Invalid parameter type" );
-		}
-		break;
+        {
+		    if (!ex.hasParams(2))
+			    return new BError( "Not enough parameters" );
+            long serial, gameclock;
+		    if (ex.getParam( 0, serial ) &&
+			    ex.getParam( 1, gameclock ))
+		    {
+			    set_dirty();
+			    clear_reportable( serial, gameclock );
+			    return new BLong(1);
+		    }
+		    else
+		    {
+			    return new BError( "Invalid parameter type" );
+		    }
+		    break;
+        }
 	case MTH_GETGOTTENITEM:
 		if( gotten_item != NULL )
 			return new EItemRefObjImp(gotten_item);
@@ -1931,22 +1957,24 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 			return new BError( "No Gotten Item" );
 		break;
 	case MTH_SETWARMODE:
-		long newmode;
-		if (!ex.hasParams(1))
-			return new BError( "Not enough parameters" );
-		if(ex.getParam(0, newmode,0,1))
-		{
-			set_warmode( (newmode==0) ? false : true );
-			// FIXME: Additional checks needed?
-			if(client)
-				send_warmode();
-			return new BLong( warmode );
-		}
-		else
-		{
-			return new BError("Invalid parameter type");
-		}
-		break;
+        {
+		    long newmode;
+		    if (!ex.hasParams(1))
+			    return new BError( "Not enough parameters" );
+		    if(ex.getParam(0, newmode,0,1))
+		    {
+			    set_warmode( (newmode==0) ? false : true );
+			    // FIXME: Additional checks needed?
+			    if(client)
+				    send_warmode();
+			    return new BLong( warmode );
+		    }
+		    else
+		    {
+			    return new BError("Invalid parameter type");
+		    }
+		    break;
+        }
 	case MTH_GETCORPSE:
 		{
 		UCorpse* corpse_obj = static_cast<UCorpse*>(system_find_item(last_corpse));
@@ -1957,51 +1985,55 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 		}
 		break;
 	case MTH_SET_SWINGTIMER:
-		long time;
-		if (!ex.hasParams(1))
-			return new BError( "Not enough parameters" );
-		if (ex.getParam(0,time))
-		{
-			if (time < 0)
-				return new BError( "Time must be >= 0" );
-			polclock_t clocks;
-			clocks = (time * POLCLOCKS_PER_SEC) / 1000;
-			return new BLong( manual_set_swing_timer(clocks) ? 1 : 0);
-		}
-		else
-			return new BError( "Invalid parameter type" );
-		break;
+        {
+		    long time;
+		    if (!ex.hasParams(1))
+			    return new BError( "Not enough parameters" );
+		    if (ex.getParam(0,time))
+		    {
+			    if (time < 0)
+				    return new BError( "Time must be >= 0" );
+			    polclock_t clocks;
+			    clocks = (time * POLCLOCKS_PER_SEC) / 1000;
+			    return new BLong( manual_set_swing_timer(clocks) ? 1 : 0);
+		    }
+		    else
+			    return new BError( "Invalid parameter type" );
+		    break;
+        }
 	case MTH_ATTACK_ONCE:
-		Character* chr;
-        if (ex.hasParams(1))
-		{
-		  if (getCharacterParam( ex, 0, chr ))
-		  {
-			  if (dead_)
-				  return new BError("Character is dead");
-			  if (is_attackable(chr))
-				  attack(chr);
-			  else
-				  return new BError("Opponent is not attackable");
-		  }
-		  else 
-			  return new BError("Invalid parameter type");
-		}
-		else
-		{
-			chr=get_attackable_opponent();
-			if (chr != NULL) 
-			{
-				if (!dead_)
-					attack(chr);
-				else
-					return new BError("Character is dead");
-			}
-			else
-				return new BError("No opponent");
-		}
-		return new BLong(1);
-		break;
+        {
+		    Character* chr;
+            if (ex.hasParams(1))
+		    {
+		      if (getCharacterParam( ex, 0, chr ))
+		      {
+			      if (dead_)
+				      return new BError("Character is dead");
+			      if (is_attackable(chr))
+				      attack(chr);
+			      else
+				      return new BError("Opponent is not attackable");
+		      }
+		      else 
+			      return new BError("Invalid parameter type");
+		    }
+		    else
+		    {
+			    chr=get_attackable_opponent();
+			    if (chr != NULL) 
+			    {
+				    if (!dead_)
+					    attack(chr);
+				    else
+					    return new BError("Character is dead");
+			    }
+			    else
+				    return new BError("No opponent");
+		    }
+		    return new BLong(1);
+		    break;
+        }
 	case MTH_KILL:
         if (ex.hasParams(1))
 		{
@@ -2047,6 +2079,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 		{
 			if (!ex.hasParams(1))
 				return new BError( "Not enough parameters" );
+            const String* pstr;
 			if (ex.getStringParam( 0, pstr ))
 				return new BLong(client->compareVersion(pstr->getStringRep()) ? 1:0);
 			else

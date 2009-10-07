@@ -61,8 +61,6 @@ BObjectImp* ScriptExObjImp::call_method_id( const int id, Executor& ex )
 	UOExecutor* uoexec = value().get_weakptr();
 	OSExecutorModule* osemod = uoexec->os_module;
 
-	BObjectImp* param0;
-	int res;
 	switch(id)
 	{
 	case MTH_GET_MEMBER:
@@ -93,13 +91,15 @@ BObjectImp* ScriptExObjImp::call_method_id( const int id, Executor& ex )
 		break;
 	}
 	case MTH_SENDEVENT:
+    {
 		if (!ex.hasParams(1))
 			return new BError( "Not enough parameters" );
-		param0 = ex.getParamImp( 0 );
+		BObjectImp* param0 = ex.getParamImp( 0 );
 		if (osemod->signal_event( param0->copy() ))
 			return new BLong(1);
 		else
 			return new BError( "Event queue is full, discarding event" );
+    }
 
 	case MTH_KILL:
 		uoexec->seterror(true);
@@ -112,8 +112,10 @@ BObjectImp* ScriptExObjImp::call_method_id( const int id, Executor& ex )
 		return new BLong(1);
 
 	case MTH_LOADSYMBOLS:
-		res = const_cast<EScriptProgram*>(uoexec->prog())->read_dbg_file();
+    {
+		int res = const_cast<EScriptProgram*>(uoexec->prog())->read_dbg_file();
 		return new BLong(!res);
+    }
 
 	case MTH_CLEAR_EVENT_QUEUE://DAVE added this 11/20
 		return (osemod->clear_event_queue());
@@ -159,7 +161,6 @@ BObjectRef ScriptExObjImp::get_member_id( const int id )
 	OSExecutorModule* osemod = uoexec->os_module;
 	UOExecutorModule* uoemod = static_cast<UOExecutorModule*>(uoexec->findModule( "UO" ));
 
-	u64 consec_cycles;
 	switch(id)
 	{
 	case MBR_PID:
@@ -173,11 +174,13 @@ BObjectRef ScriptExObjImp::get_member_id( const int id )
 	case MBR_SLEEP_CYCLES:
 		return BObjectRef( new Double( uoexec->sleep_cycles ) );
 	case MBR_CONSEC_CYCLES:
-		consec_cycles = uoexec->instr_cycles 
+    {
+		u64 consec_cycles = uoexec->instr_cycles 
 					   - (  uoexec->warn_runaway_on_cycle 
 						  - config.runaway_script_threshold) 
 					   + uoexec->runaway_cycles;
 		return BObjectRef( new Double( consec_cycles ) );
+    }
 	case MBR_PC:
 		return BObjectRef( new BLong( uoexec->PC ) );
 	case MBR_CALL_DEPTH:

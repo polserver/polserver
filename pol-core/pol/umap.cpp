@@ -179,91 +179,103 @@ BObjectImp* Map::script_method_id( const int id, Executor& ex )
     if (imp != NULL)
         return imp;
 
-    ObjArray* arr;
-    long idx, type;
-	unsigned short x, y;
     switch(id)
     {
     case MTH_GETPINS:
-		arr = new ObjArray;
-		for( PinPoints::iterator itr = pin_points.begin(); itr != pin_points.end(); ++itr )
-		{
+        {
+		    ObjArray* arr = new ObjArray;
+		    for( PinPoints::iterator itr = pin_points.begin(); itr != pin_points.end(); ++itr )
+		    {
 
-			BStruct* struc = new BStruct;
-			struc->addMember( "x", new BLong( itr->x) );
-			struc->addMember( "y", new BLong( itr->y) );		
-		
-			arr->addElement( struc );
-		}
-		return arr;
+			    BStruct* struc = new BStruct;
+			    struc->addMember( "x", new BLong( itr->x) );
+			    struc->addMember( "y", new BLong( itr->y) );		
+    		
+			    arr->addElement( struc );
+		    }
+		    return arr;
+        }
 
     case MTH_INSERTPIN:
-        if (ex.getParam( 0, idx, pin_points.size() ) &&
-            ex.getParam( 1, x ) &&
-            ex.getParam( 2, y ))
         {
-			struct PinPoint pp;
-			pin_points_itr itr;
+            long idx;
+	        unsigned short x, y;
+            if (ex.getParam( 0, idx, pin_points.size() ) &&
+                ex.getParam( 1, x ) &&
+                ex.getParam( 2, y ))
+            {
+			    struct PinPoint pp;
+			    pin_points_itr itr;
 
-			if(!realm->valid(x,y,0)) return new BError("Invalid Coordinates for Realm");
-			pp.x = x;
-			pp.y = y;
+			    if(!realm->valid(x,y,0)) return new BError("Invalid Coordinates for Realm");
+			    pp.x = x;
+			    pp.y = y;
 
-			itr = pin_points.begin();
-			itr += idx;
+			    itr = pin_points.begin();
+			    itr += idx;
 
-            set_dirty();
-			pin_points.insert(itr,pp);
+                set_dirty();
+			    pin_points.insert(itr,pp);
 
-            return new BLong(1);
-        }
-        else
-        {
-            return new BError( "Invalid parameter type" );
+                return new BLong(1);
+            }
+            else
+            {
+                return new BError( "Invalid parameter type" );
+            }
         }
 
     case MTH_APPENDPIN:
-        if (ex.getParam( 0, x ) &&
-            ex.getParam( 1, y ))
         {
-			struct PinPoint pp;
-			if(!realm->valid(x,y,0)) return new BError("Invalid Coordinates for Realm");
-			pp.x = x;
-			pp.y = y;
-            set_dirty();
-			pin_points.push_back(pp);
-            return new BLong(1);
-        }
-        else
-        {
-            return new BError( "Invalid parameter type" );
+            unsigned short x, y;
+            if (ex.getParam( 0, x ) &&
+                ex.getParam( 1, y ))
+            {
+			    struct PinPoint pp;
+			    if(!realm->valid(x,y,0)) return new BError("Invalid Coordinates for Realm");
+			    pp.x = x;
+			    pp.y = y;
+                set_dirty();
+			    pin_points.push_back(pp);
+                return new BLong(1);
+            }
+            else
+            {
+                return new BError( "Invalid parameter type" );
+            }
         }
 
     case MTH_ERASEPIN:
-        if (ex.getParam( 0, idx, pin_points.size()-1 ))
         {
-			pin_points_itr itr;
+            long idx;
+            if (ex.getParam( 0, idx, pin_points.size()-1 ))
+            {
+			    pin_points_itr itr;
 
-			itr = pin_points.begin();
-			itr += idx;
+			    itr = pin_points.begin();
+			    itr += idx;
 
-            set_dirty();
-			pin_points.erase(itr);
-            return new BLong(1);
-        }
-        else
-        {
-            return new BError( "Index Out of Range" );
+                set_dirty();
+			    pin_points.erase(itr);
+                return new BLong(1);
+            }
+            else
+            {
+                return new BError( "Index Out of Range" );
+            }
         }
 
     case MTH_ISA:
-        if (ex.getParam( 0, type ))
         {
-			return new BLong(script_isa(type));
-        }
-        else
-        {
-            return new BError( "Invalid Parameter" );
+            long type;
+            if (ex.getParam( 0, type ))
+            {
+			    return new BLong(script_isa(type));
+            }
+            else
+            {
+                return new BError( "Invalid Parameter" );
+            }
         }
 
     default:
