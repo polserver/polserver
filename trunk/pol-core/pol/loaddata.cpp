@@ -273,9 +273,9 @@ void add_loaded_item( Item* cont_item, Item* item )
 			Spellbook* book = static_cast<Spellbook*>(cont);
 
 			u16 spellnum = USpellScroll::convert_objtype_to_spellnum(item->objtype_, book->spell_school);
-			u8  spellslot = spellnum % 8;
+			u8  spellslot = spellnum & 7;
 			if(spellslot == 0) spellslot = 8;
-			book->bitwise_contents[ (spellnum-1) / 8 ] |= 1 << (spellslot-1);
+			book->bitwise_contents[ (spellnum-1) >> 3 ] |= 1 << (spellslot-1);
 			item->destroy();
 			return;
 		}

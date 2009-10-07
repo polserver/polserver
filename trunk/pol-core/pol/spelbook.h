@@ -27,8 +27,7 @@ public:
 
     bool has_spellid( unsigned long spellid ) const;
 	u8 bitwise_contents[8];
-	u64 spellbook_contents;
-	short spell_school;
+	u8 spell_school;
 	virtual void add( Item *item );
 	virtual void printProperties( ostream& os ) const;
 	virtual void readProperties( ConfigElem& elem );
@@ -51,7 +50,7 @@ class USpellScroll : public Item
 {
 public:
     virtual u16 get_senditem_amount() const;
-    static u16 convert_objtype_to_spellnum( u16 objtype, int school );
+    static u16 convert_objtype_to_spellnum( u16 objtype, u8 school );
 protected:
     explicit USpellScroll( const ItemDesc& descriptor );
     friend Item* Item::create( const ItemDesc& itemdesc, u32 serial );

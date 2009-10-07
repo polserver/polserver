@@ -1,4 +1,7 @@
 -- POL099 --
+10-07-2009 Turley:
+     Fixed: DestroyItem call inside CanInsert scripts
+
 10-03-2009 MuadDib:
      Added: SysHook::CanDecay(item). Return 0, core decay will ignore item and continue on the cycler. If it
             returns 1, core decay will handle the item as normal. - Patch submitted by Tomi

@@ -291,7 +291,7 @@ public:
 	bool has_active_prompt() const;
 	bool has_active_gump() const;
 
-    Spellbook* spellbook(int school) const;
+    Spellbook* spellbook(u8 school) const;
     UContainer *backpack() const;
     Item* wornitem( int layer ) const;
     unsigned long gold_carried() const;
