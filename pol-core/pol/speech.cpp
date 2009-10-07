@@ -399,12 +399,10 @@ void UnicodeSpeechHandler( Client *client, PKTIN_AD *msgin )
 	u16 numtokens = 0;
 	u16 * themsg = msgin->wtext;
 	u8 *  bytemsg = ((u8 *) themsg);
-	int bytemsglen;
 	int wtextoffset = 0;
 	ObjArray* speechtokens = NULL;
     BLong * atoken = NULL;
-	int i,j;
-	u16 unicodeChar;
+	int i;
 
 	u16 tempbuf[ SPEECH_MAX_LEN+1 ];
 
@@ -418,11 +416,12 @@ void UnicodeSpeechHandler( Client *client, PKTIN_AD *msgin )
 	{
 		numtokens = Get12BitNumber((u8 *) (msgin->wtext), 0);
 		wtextoffset = ((((numtokens+1)*3)/2) + ((numtokens+1) % 2));		bytemsg = (((u8*) themsg) + wtextoffset);
-		bytemsglen = cfBEu16(msgin->msglen) - wtextoffset - offsetof( PKTIN_AD, wtext ) - 1;
+		int bytemsglen = cfBEu16(msgin->msglen) - wtextoffset - offsetof( PKTIN_AD, wtext ) - 1;
         intextlen = 0;
 
 		i = 0;
-		j = 0;
+		int j = 0;
+        u16 unicodeChar;
 		while ((i < bytemsglen) && (i < SPEECH_MAX_LEN))
 		{
 			i = GetNextUTF8(bytemsg, i, unicodeChar);

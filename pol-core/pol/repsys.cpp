@@ -1082,11 +1082,9 @@ void Character::make_criminal( long level )
 	set_dirty();
 	bool was_criminal = is_criminal();
 
-	polclock_t timeout_at;
-
 	if (level)
 	{
-		timeout_at = polclock() + level * repsys_cfg.General.CriminalFlagInterval * POLCLOCKS_PER_SEC;
+		polclock_t timeout_at = polclock() + level * repsys_cfg.General.CriminalFlagInterval * POLCLOCKS_PER_SEC;
 	
 		restart_criminal_timer( timeout_at );
 		RepSystem::schedule_repsys_task( this, timeout_at+1 );

@@ -790,7 +790,6 @@ BObjectImp* NPCExecutorModule::SayUC()
 		npc.unhide();
 
 	ObjArray* oText;
-	string texttype_str;
 	const String* lang;
 	long doevent;
 
@@ -798,7 +797,7 @@ BObjectImp* NPCExecutorModule::SayUC()
 		getStringParam( 2, lang ) &&
 		getParam( 3, doevent))
 	{
-		texttype_str = strlower(exec.paramAsString(1));
+		string texttype_str = strlower(exec.paramAsString(1));
 		if ( texttype_str != "default" &&
 			texttype_str != "whisper" &&
 			texttype_str != "yell" )

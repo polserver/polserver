@@ -839,9 +839,9 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex )
 	case MTH_EXISTS:
 		if (name_arr.empty())
 		{
-			long idx;
 			if (ex.numParams() == 1)
 			{
+                long idx;
 				if (ex.getParam( 0, idx ) && idx >= 0)
 				{
 					bool exists = (idx <= (long)ref_arr.size());
