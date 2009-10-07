@@ -108,7 +108,6 @@ BoatShape::ComponentShape::ComponentShape() : graphic(0), xdelta(0),ydelta(0)   
 BoatShape::ComponentShape::ComponentShape( const string& str )
 {
     ISTRINGSTREAM is( str );
-    int xd, yd;
     string tmp;
      // gcc screws this up
     if (is >> tmp)
@@ -116,6 +115,7 @@ BoatShape::ComponentShape::ComponentShape( const string& str )
         graphic = static_cast<unsigned short>(strtoul( tmp.c_str(), NULL, 0 ));
         if (graphic)
         {
+            int xd, yd;
             if (is >> xd >> yd)
             {
                 xdelta = static_cast<signed char>(xd);

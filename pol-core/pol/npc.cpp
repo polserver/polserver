@@ -357,8 +357,6 @@ void NPC::loadResistances( int resistanceType, ConfigElem& elem )
 {
     string tmp;
     bool passed = false;
-    Dice dice;
-    string errmsg;
     // 0 = AR
     // 1 = Fire
     // 2 = Cold
@@ -377,6 +375,8 @@ void NPC::loadResistances( int resistanceType, ConfigElem& elem )
 
     if (passed)
     {
+        Dice dice;
+        string errmsg;
         if (!dice.load( tmp.c_str(), &errmsg ))
         {
             switch(resistanceType)
@@ -389,14 +389,17 @@ void NPC::loadResistances( int resistanceType, ConfigElem& elem )
                 case 5: element_resist_.physical = element_resist.physical = static_cast<s16>(atoi(tmp.c_str())); break;
             }
         }
-        switch(resistanceType)
+        else
         {
-            case 0: npc_ar_ = dice.roll(); break;
-            case 1: element_resist_.fire = element_resist.fire = dice.roll(); break;
-            case 2: element_resist_.cold = element_resist.cold = dice.roll(); break;
-            case 3: element_resist_.energy = element_resist.energy = dice.roll(); break;
-            case 4: element_resist_.poison = element_resist.poison = dice.roll(); break;
-            case 5: element_resist_.physical = element_resist.physical = dice.roll(); break;
+            switch(resistanceType)
+            {
+                case 0: npc_ar_ = dice.roll(); break;
+                case 1: element_resist_.fire = element_resist.fire = dice.roll(); break;
+                case 2: element_resist_.cold = element_resist.cold = dice.roll(); break;
+                case 3: element_resist_.energy = element_resist.energy = dice.roll(); break;
+                case 4: element_resist_.poison = element_resist.poison = dice.roll(); break;
+                case 5: element_resist_.physical = element_resist.physical = dice.roll(); break;
+            }
         }
     }
     else
@@ -428,8 +431,6 @@ void NPC::loadDamages( int damageType, ConfigElem& elem )
 {
     string tmp;
     bool passed = false;
-    Dice dice;
-    string errmsg;
     // 1 = Fire
     // 2 = Cold
     // 3 = Energy
@@ -446,6 +447,8 @@ void NPC::loadDamages( int damageType, ConfigElem& elem )
 
     if (passed)
     {
+        Dice dice;
+        string errmsg;
         if (!dice.load( tmp.c_str(), &errmsg ))
         {
             switch(damageType)
@@ -457,13 +460,16 @@ void NPC::loadDamages( int damageType, ConfigElem& elem )
                 case 5: element_damage_.physical = element_damage.physical = static_cast<s16>(atoi(tmp.c_str())); break;
             }
         }
-        switch(damageType)
+        else
         {
-            case 1: element_damage_.fire = element_damage.fire = dice.roll(); break;
-            case 2: element_damage_.cold = element_damage.cold = dice.roll(); break;
-            case 3: element_damage_.energy = element_damage.energy = dice.roll(); break;
-            case 4: element_damage_.poison = element_damage.poison = dice.roll(); break;
-            case 5: element_damage_.physical = element_damage.physical = dice.roll(); break;
+            switch(damageType)
+            {
+                case 1: element_damage_.fire = element_damage.fire = dice.roll(); break;
+                case 2: element_damage_.cold = element_damage.cold = dice.roll(); break;
+                case 3: element_damage_.energy = element_damage.energy = dice.roll(); break;
+                case 4: element_damage_.poison = element_damage.poison = dice.roll(); break;
+                case 5: element_damage_.physical = element_damage.physical = dice.roll(); break;
+            }
         }
     }
     else

@@ -436,10 +436,10 @@ BObjectImp* FileAccessExecutorModule::mf_LogToFile()
 { //
 	const String* filename;
 	const String* textline;
-	long flags;
 	if (getStringParam( 0, filename ) &&
 		getStringParam( 1, textline ))
 	{
+        long flags;
 		if (exec.fparams.size() >= 3)
 		{
 			if (!getParam( 2, flags ))

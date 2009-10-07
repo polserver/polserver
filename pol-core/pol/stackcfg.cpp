@@ -27,12 +27,11 @@ PropSet Global_Ignore_CProps;
 void read_stacking_cfg(ConfigFile& cf)
 {
 	ConfigElem elem;
-	string temp;
 	if( cf.read( elem ) )
 	{
 		if (elem.type_is( "Stacking" ))
 		{
-			temp = elem.remove_string( "IgnoreCprops" );
+			string temp = elem.remove_string( "IgnoreCprops" );
 			ISTRINGSTREAM is( temp );
 			string cprop_name;
 			while (is >> cprop_name)

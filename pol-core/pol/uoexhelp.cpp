@@ -535,64 +535,67 @@ bool getVitalParam( Executor& exec, unsigned param, const Vital*& vital )
 
 BObjectImp* CallPropertyListMethod_id( PropertyList& proplist, const int id, Executor& ex, bool& changed )
 {
-    std::string val;
-    const String* propname_str;
-    string propname;
-    BObjectImp* propval;
-    ObjArray* arr;
-    vector<string> propnames;
     switch(id)
     {
     case MTH_GETPROP:
-        if (!ex.hasParams(1))
-            return new BError( "Not enough parameters" );
+        {
+            if (!ex.hasParams(1))
+                return new BError( "Not enough parameters" );
+            const String* propname_str;
+            if (!ex.getStringParam( 0, propname_str ))
+                return new BError( "Invalid parameter type" );    
+            std::string val;
+            if (!proplist.getprop( propname_str->value(), val ))
+                return new BError( "Property not found" );
 
-        if (!ex.getStringParam( 0, propname_str ))
-            return new BError( "Invalid parameter type" );    
-
-        if (!proplist.getprop( propname_str->value(), val ))
-            return new BError( "Property not found" );
-
-        return BObjectImp::unpack( val.c_str() );
+            return BObjectImp::unpack( val.c_str() );
+        }
 
     case MTH_SETPROP:
-        if (!ex.hasParams(2))
-            return new BError( "Not enough parameters" );
-
-        if (!ex.getStringParam( 0, propname_str ))
-            return new BError( "Invalid parameter type" );    
-
-        propval = ex.getParamImp( 1 );
-        if (propval->isa( BObjectImp::OTError ))
         {
-			Log( "wtf, setprop w/ an error '%s' PC:%d\n",ex.scriptname().c_str(),ex.PC );
+            if (!ex.hasParams(2))
+                return new BError( "Not enough parameters" );
+            const String* propname_str;
+            if (!ex.getStringParam( 0, propname_str ))
+                return new BError( "Invalid parameter type" );    
+
+            BObjectImp* propval = ex.getParamImp( 1 );
+            if (propval->isa( BObjectImp::OTError ))
+            {
+			    Log( "wtf, setprop w/ an error '%s' PC:%d\n",ex.scriptname().c_str(),ex.PC );
+            }
+            string propname = propname_str->value();
+            proplist.setprop( propname, propval->pack() );
+            if (propname[0] != '#')
+                changed = true;
+            return new BLong(1);
         }
-        propname = propname_str->value();
-        proplist.setprop( propname, propval->pack() );
-        if (propname[0] != '#')
-            changed = true;
-        return new BLong(1);
 
     case MTH_ERASEPROP:
-        if (!ex.hasParams(1))
-            return new BError( "Not enough parameters" );
-
-        if (!ex.getStringParam( 0, propname_str ))
-            return new BError( "Invalid parameter type" );    
-        propname = propname_str->value();
-        proplist.eraseprop( propname );
-        if (propname[0] != '#')
-            changed = true;
-        return new BLong(1);
+        {
+            if (!ex.hasParams(1))
+                return new BError( "Not enough parameters" );
+            const String* propname_str;
+            if (!ex.getStringParam( 0, propname_str ))
+                return new BError( "Invalid parameter type" );    
+            string propname = propname_str->value();
+            proplist.eraseprop( propname );
+            if (propname[0] != '#')
+                changed = true;
+            return new BLong(1);
+        }
     
     case MTH_PROPNAMES:
-        proplist.getpropnames( propnames );
-        arr = new ObjArray;
-        for( unsigned i = 0; i < propnames.size(); ++i )
         {
-            arr->addElement( new String(propnames[i]) );
+            vector<string> propnames;
+            proplist.getpropnames( propnames );
+            ObjArray* arr = new ObjArray;
+            for( unsigned i = 0; i < propnames.size(); ++i )
+            {
+                arr->addElement( new String(propnames[i]) );
+            }
+            return arr;
         }
-        return arr;
 
     default:
         return NULL;
