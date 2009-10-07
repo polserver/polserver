@@ -67,7 +67,7 @@ Executor::Executor( ostream& cerr ) :
         debugging_(false),
         debug_state_(DEBUG_STATE_NONE),
         breakpoints_(),
-        bp_skip_(~0),
+        bp_skip_(~0u),
         func_result_(NULL)
 {
     ++executor_count;
@@ -3113,7 +3113,7 @@ void Executor::execInstr()
                 sethalt(true);
                 return;
             }
-            bp_skip_ = ~0;
+            bp_skip_ = ~0u;
         }
 
         ++ins.cycles;

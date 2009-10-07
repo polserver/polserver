@@ -124,7 +124,7 @@ inline bool VALID_SPELL_ID( long spellid )
     return (spellid >= 1 && spellid <= long(spells2.size()));
 }
 
-void do_cast( Client *client, unsigned long spellid );
+void do_cast( Client *client, u16 spellid );
 void clean_spells();
 
 

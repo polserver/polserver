@@ -19,7 +19,7 @@ Notes
 
 void invoke( Client* client, const char* spellidstr )
 {
-    unsigned long spellnum = strtoul( spellidstr, NULL, 0 );
+    u16 spellnum = static_cast<u16>(strtoul( spellidstr, NULL, 0 ));
     do_cast( client, spellnum );
 }
 
@@ -28,7 +28,7 @@ void invoke( Client* client, const u16* wspellidstr )
 	std::wstring wstr = L"";
 	for(size_t i = 0; wspellidstr[i] != L'\0'; i++)
 		wstr += static_cast<const wchar_t>(cfBEu16(wspellidstr[i]));
-    unsigned long spellnum = wcstoul( wstr.c_str(), NULL, 0 );
+    u16 spellnum = static_cast<u16>(wcstoul( wstr.c_str(), NULL, 0 ));
     do_cast( client, spellnum );
 }
 

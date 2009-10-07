@@ -1176,7 +1176,7 @@ UContainer* Character::backpack() const
 	return static_cast<UContainer*>(wornitems.GetItemOnLayer( LAYER_BACKPACK ) ); 
 }
 
-Spellbook* Character::spellbook(int school) const
+Spellbook* Character::spellbook(u8 school) const
 {
 	Item* item = wornitem( LAYER_HAND1 );
 	if (item != NULL && item->script_isa(POLCLASS_SPELLBOOK) )
