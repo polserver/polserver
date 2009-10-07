@@ -184,7 +184,7 @@ void read_boat_cfg(void)
 void clean_boatshapes()
 {
 	BoatShapes::iterator iter = boatshapes.begin();
-	for ( ; iter != boatshapes.end(); iter++) {
+	for ( ; iter != boatshapes.end(); ++iter) {
 		if (iter->second != NULL)
 			delete iter->second;
 		iter->second = NULL;

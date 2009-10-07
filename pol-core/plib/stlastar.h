@@ -154,7 +154,7 @@ public: // methods
 	bool InOpenList(UserState& theState)
 	{
 		NodeVectorIterator openlist_result;
-		for( openlist_result = m_OpenList.begin(); openlist_result != m_OpenList.end(); openlist_result ++ )
+		for( openlist_result = m_OpenList.begin(); openlist_result != m_OpenList.end(); ++openlist_result )
 		{
 			if( (*openlist_result)->m_UserState.IsSameState( theState ) )
 			{
@@ -170,7 +170,7 @@ public: // methods
 			return true;
 
 		NodeVectorIterator closedlist_result;
-		for( closedlist_result = m_ClosedList.begin(); closedlist_result != m_ClosedList.end(); closedlist_result ++ )
+		for( closedlist_result = m_ClosedList.begin(); closedlist_result != m_ClosedList.end(); ++closedlist_result )
 		{
 			if( (*closedlist_result)->m_UserState.IsSameState( theState ) )
 			{
@@ -183,7 +183,7 @@ public: // methods
 	bool AddToSolutionList(Node * theNode)
 	{
 		NodeVectorIterator solution_result;
-		for ( solution_result = m_SolutionList.begin(); solution_result != m_SolutionList.end(); solution_result ++)
+		for ( solution_result = m_SolutionList.begin(); solution_result != m_SolutionList.end(); ++solution_result)
 		{
 			if ((*solution_result) == theNode)
 				return false;
@@ -286,7 +286,7 @@ public: // methods
 			if( !ret )
 			{
 				// free the nodes that may previously have been added 
-				for( NodeVectorIterator successor = m_Successors.begin(); successor != m_Successors.end(); successor ++ )
+				for( NodeVectorIterator successor = m_Successors.begin(); successor != m_Successors.end(); ++successor )
 				{
 					FreeNode( (*successor) );
 				}
@@ -301,7 +301,7 @@ public: // methods
 			}
 			
 			// Now handle each successor to the current node ...
-			for( NodeVectorIterator successor = m_Successors.begin(); successor != m_Successors.end(); successor ++ )
+			for( NodeVectorIterator successor = m_Successors.begin(); successor != m_Successors.end(); ++successor )
 			{
 				// 	The g value for this successor ...
 				float newg = n->g + n->m_UserState.GetCost( (*successor)->m_UserState );
@@ -314,7 +314,7 @@ public: // methods
 
 				NodeVectorIterator openlist_result;
 
-				for( openlist_result = m_OpenList.begin(); openlist_result != m_OpenList.end(); openlist_result ++ )
+				for( openlist_result = m_OpenList.begin(); openlist_result != m_OpenList.end(); ++openlist_result )
 				{
 					if( (*openlist_result)->m_UserState.IsSameState( (*successor)->m_UserState ) )
 					{
@@ -337,7 +337,7 @@ public: // methods
 
 				NodeVectorIterator closedlist_result;
 
-				for( closedlist_result = m_ClosedList.begin(); closedlist_result != m_ClosedList.end(); closedlist_result ++ )
+				for( closedlist_result = m_ClosedList.begin(); closedlist_result != m_ClosedList.end(); ++closedlist_result )
 				{
 					if( (*closedlist_result)->m_UserState.IsSameState( (*successor)->m_UserState ) )
 					{
@@ -616,7 +616,7 @@ private: // methods
 			Node *n = (*iterOpen);
 			FreeNode( n );
 
-			iterOpen ++;
+			++iterOpen;
 		}
 
 		m_OpenList.clear();
@@ -624,7 +624,7 @@ private: // methods
 		// iterate closed list and delete unused nodes
 		NodeVectorIterator iterClosed;
 
-		for( iterClosed = m_ClosedList.begin(); iterClosed != m_ClosedList.end(); iterClosed ++ )
+		for( iterClosed = m_ClosedList.begin(); iterClosed != m_ClosedList.end(); ++iterClosed )
 		{
 			Node *n = (*iterClosed);
 			FreeNode( n );
@@ -653,13 +653,13 @@ private: // methods
 				FreeNode( n );
 				n = NULL;
 			}
-			iterOpen ++;
+			++iterOpen;
 		}
 		m_OpenList.clear();
 		// iterate closed list and delete unused nodes
 		NodeVectorIterator iterClosed;
 
-		for( iterClosed = m_ClosedList.begin(); iterClosed != m_ClosedList.end(); iterClosed ++ )
+		for( iterClosed = m_ClosedList.begin(); iterClosed != m_ClosedList.end(); ++iterClosed )
 		{
 			Node *n = (*iterClosed);
 

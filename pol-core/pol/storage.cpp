@@ -254,7 +254,7 @@ void Storage::print( ostream& os ) const
 {
     for( AreaCont::const_iterator itr  = areas.begin();
          itr != areas.end();
-         itr++ )
+         ++itr )
     {
         os << "StorageArea" << endl
            << "{" << endl

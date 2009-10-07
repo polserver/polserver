@@ -74,7 +74,7 @@ void read_movecost( ConfigElem& elem, MovementCost& movecost )
 		}
 	}
 
-	for(itr = Costs.begin(); itr != Costs.end(); itr++)
+	for(itr = Costs.begin(); itr != Costs.end(); ++itr)
 	{
 		perc = itr->first;
 		mult = itr->second;

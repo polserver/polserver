@@ -129,7 +129,7 @@ void ObjectHash::PrintContents( std::ostream& os ) const
 {
 	OH_const_iterator itr;
 	os << "Object Count: " << hash.size() <<endl;
-	for(itr = hash.begin(); itr != hash.end(); itr++)
+	for(itr = hash.begin(); itr != hash.end(); ++itr)
 	{
 		itr->second->printOn(os);
 	}
