@@ -41,7 +41,7 @@ Spellbook::Spellbook( const SpellbookDesc& descriptor ) :
 		spell_school = 5;
 	else if(descriptor.spelltype == "SpellWeaving")
 		spell_school = 6;
-	for(int i=0; i<8; i++)
+	for(int i=0; i<8; ++i)
 		bitwise_contents[i] = 0;
 }
 
@@ -122,11 +122,10 @@ void Spellbook::double_click( Client* client )
 bool Spellbook::has_spellid( unsigned long spellid ) const
 {
 	u16 spellnumber = static_cast<u16>(spellid);
-	u8  spellslot = spellnumber % 8;
+	u8  spellslot = spellnumber & 7;
 	if(spellslot == 0) spellslot = 8;
 
-	int bitcheck = ((bitwise_contents[ (spellnumber-1) / 8 ]) & (1 << (spellslot-1)));
-	if ( ((bitwise_contents[ (spellnumber-1) / 8 ]) & (1 << (spellslot-1))) != 0 )
+	if ( ((bitwise_contents[ (spellnumber-1) >> 3 ]) & (1 << (spellslot-1))) != 0 )
 		return true;
 
 	return false;
@@ -145,9 +144,9 @@ bool Spellbook::can_add( const Item& item ) const
 
 	// you can only add one of each kind of scroll to a spellbook.
 	u16 spellnum = USpellScroll::convert_objtype_to_spellnum(item.objtype_, spell_school);
-	u8  spellslot = spellnum % 8;
+	u8  spellslot = spellnum & 7;
 	if(spellslot == 0) spellslot = 8;
-	if ( bitwise_contents[ (spellnum-1) / 8 ] & (1 << (spellslot-1)) )
+	if ( bitwise_contents[ (spellnum-1) >> 3 ] & (1 << (spellslot-1)) )
 		return false;
 
 	return true;
@@ -163,9 +162,9 @@ void Spellbook::add( Item *item )
 {
 //	UContainer::add(item);
 	u16 spellnum = USpellScroll::convert_objtype_to_spellnum(item->objtype_, spell_school);
-	u8  spellslot = spellnum % 8;
+	u8  spellslot = spellnum & 7;
 	if(spellslot == 0) spellslot = 8;
-	bitwise_contents[ (spellnum-1) / 8 ] |= 1 << (spellslot-1);
+	bitwise_contents[ (spellnum-1) >> 3 ] |= 1 << (spellslot-1);
 	item->destroy();
 //	item->saveonexit(0);
 }
@@ -174,7 +173,7 @@ void Spellbook::printProperties( ostream& os ) const
 {
     base::printProperties(os);
 	
-	for(int i=0; i<8; i++)
+	for(int i=0; i<8; ++i)
 		os << "\tSpellbits" << i << "\t" << (int)bitwise_contents[i] << pf_endl;
 }
 
@@ -182,7 +181,7 @@ void Spellbook::readProperties( ConfigElem& elem )
 {
     base::readProperties( elem );
 	ostringstream os;
-	for(int i=0; i<8; i++)
+	for(int i=0; i<8; ++i)
 	{
 		os << "Spellbits" << i;
 		bitwise_contents[i] = (u8) elem.remove_ushort( os.str().c_str(), 0 );
@@ -206,9 +205,9 @@ void Spellbook::calc_current_bitwise_contents()
 	{
 		const Item* scroll = GET_ITEM_PTR( itr );
 		u16 spellnum = USpellScroll::convert_objtype_to_spellnum(scroll->objtype_, spell_school);
-		u8  spellslot = spellnum % 8;
+		u8  spellslot = spellnum & 7;
 		if(spellslot == 0) spellslot = 8;
-		bitwise_contents[ (spellnum-1) / 8 ] |= 1 << (spellslot-1);
+		bitwise_contents[ (spellnum-1) >> 3 ] |= 1 << (spellslot-1);
 	}	
 
 	// ok, it's been upgraded. Destroy everything inside it.
@@ -224,7 +223,7 @@ USpellScroll::USpellScroll( const ItemDesc& itemdesc ) :
 {
 }
 
-u16 USpellScroll::convert_objtype_to_spellnum( u16 objtype, int school )
+u16 USpellScroll::convert_objtype_to_spellnum( u16 objtype, u8 school )
 {
 	u16 spellnum = objtype - spell_scroll_objtype_limits[school][0] + 1;
 	if(school == 0) //weirdness in order of original spells
@@ -232,7 +231,7 @@ u16 USpellScroll::convert_objtype_to_spellnum( u16 objtype, int school )
 		if (spellnum == 1)
 			spellnum = 7;
 		else if (spellnum <= 7)
-			spellnum--;
+			--spellnum;
 	}
 	return spellnum;
 }
@@ -282,9 +281,9 @@ void send_spellbook_contents( Client *client, Spellbook& spellbook )
 		{
 			u16 objtype = spell_scroll_objtype_limits[0][0] + i;
 			u16 spellnumber = USpellScroll::convert_objtype_to_spellnum( objtype, spellbook.spell_school );
-			u8  spellpos = spellnumber % 8; // spellpos is the spell's position it it's circle's array.
+			u8  spellpos = spellnumber & 7; // spellpos is the spell's position it it's circle's array.
 			if(spellpos == 0) spellpos = 8;
-			if ( ((spellbook.bitwise_contents[ ((spellnumber-1) / 8) ]) & (1 << (spellpos-1))) != 0 )
+			if ( ((spellbook.bitwise_contents[ ((spellnumber-1) >> 3) ]) & (1 << (spellpos-1))) != 0 )
 			{
 				msg.items[count].serial = 0x7FFFFFFF - spellnumber;
 				msg.items[count].graphic = ctBEu16(objtype);
@@ -319,9 +318,9 @@ void send_spellbook_contents( Client *client, Spellbook& spellbook )
 		{
 			u16 objtype = spell_scroll_objtype_limits[0][0] + i;
 			u16 spellnumber = USpellScroll::convert_objtype_to_spellnum( objtype, spellbook.spell_school );
-			u8  spellpos = spellnumber % 8; // spellpos is the spell's position it it's circle's array.
+			u8  spellpos = spellnumber & 7; // spellpos is the spell's position it it's circle's array.
 			if(spellpos == 0) spellpos = 8;
-			if ( ((spellbook.bitwise_contents[ ((spellnumber-1) / 8) ]) & (1 << (spellpos-1))) != 0 )
+			if ( ((spellbook.bitwise_contents[ ((spellnumber-1) >> 3) ]) & (1 << (spellpos-1))) != 0 )
 			{
 				msg.items[count].serial = 0x7FFFFFFF - spellnumber;
 				msg.items[count].graphic = ctBEu16(objtype);

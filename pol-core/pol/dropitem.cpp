@@ -119,9 +119,12 @@ bool place_item_in_container( Client *client, Item *item, UContainer *cont, u16 
 
 	cont->add( item );
 	cont->restart_decay_timer();
-	send_put_in_container_to_inrange( item );
+    if (!item->orphan())
+    {
+	    send_put_in_container_to_inrange( item );
     
-    cont->on_insert_add_item( client->chr, UContainer::MT_PLAYER, item );
+        cont->on_insert_add_item( client->chr, UContainer::MT_PLAYER, item );
+    }
 
 	client->restart();
     return true;
@@ -214,6 +217,9 @@ bool add_item_to_stack( Client *client, Item *item, Item *target_item )
 		
         return false;
 	}
+
+    if (item->orphan())
+        return false;
 
 	/* At this point, we know:
 		 the object types match
@@ -756,14 +762,16 @@ void drop_item( Client *client, PKTIN_08_V1 *msg )
 		res = place_item( client, item, target_serial, x, y, 0);
 	}
 
-    if (!res)
+    if (!item->orphan())
     {
-		undo_get_item( client->chr, item );
+        if (!res)
+        {
+		    undo_get_item( client->chr, item );
+        }
+	    item->inuse(false);
+	    item->is_gotten(false);
+	    item->gotten_by = NULL;
     }
-	item->inuse(false);
-	item->is_gotten(false);
-	item->gotten_by = NULL;
-	
 	send_full_statmsg( client, client->chr );
 }
 
@@ -822,13 +830,16 @@ void drop_item_v2( Client *client, PKTIN_08_V2 *msg )
 		res = place_item( client, item, target_serial, x, y, slotIndex );
 	}
 
-    if (!res)
+    if (!item->orphan())
     {
-		undo_get_item( client->chr, item );
+        if (!res)
+        {
+		    undo_get_item( client->chr, item );
+        }
+	    item->inuse(false);
+	    item->is_gotten(false);
+	    item->gotten_by = NULL;
     }
-	item->inuse(false);
-	item->is_gotten(false);
-	item->gotten_by = NULL;
 
 	PKTOUT_29 drop_msg;
 	drop_msg.msgtype = PKTOUT_29_ID;

@@ -67,9 +67,9 @@ static bool nocast_here( Character* chr )
 	}
 }
 
-bool knows_spell( Character* chr, unsigned long spellid )
+bool knows_spell( Character* chr, u16 spellid )
 {
-	int school = spellid / 100;
+	u8 school = static_cast<u8>(spellid / 100);
 
 	//copied code from Character::spellbook to support multiple spellbooks in the pack
 	Item* item = chr->wornitem( LAYER_HAND1 );
@@ -318,7 +318,7 @@ void SpellTask::on_run()
 vector<USpell*> spells2;
 
 
-void do_cast( Client *client, unsigned long spellid )
+void do_cast( Client *client, u16 spellid )
 {
 	if (system_hooks.on_cast_hook != NULL)
 	{
@@ -384,7 +384,7 @@ void do_cast( Client *client, unsigned long spellid )
 
 void handle_cast_spell( Client *client, PKTIN_12 *msg )
 {
-	unsigned long spellnum = strtoul( (char*) msg->data, NULL, 10 );
+	u16 spellnum = static_cast<u16>(strtoul( (char*) msg->data, NULL, 10 ));
 
 	do_cast( client, spellnum );
 }

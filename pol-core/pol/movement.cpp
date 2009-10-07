@@ -29,8 +29,6 @@ Notes
 #include "uworld.h"
 
 
-char walkok[4]="\x22\x00\x41";
-
 void send_char_if_newly_inrange( Character *chr, Client *client	)
 {
 	if (  inrange( chr, client->chr ) &&  !inrange( chr->x, chr->y, client->chr->lastx, client->chr->lasty ) &&
