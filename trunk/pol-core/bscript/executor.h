@@ -99,7 +99,7 @@ class Executor
 
   protected:
     int getParams(unsigned howMany);
-    int cleanParams();
+    void cleanParams();
    
   public:
     int makeString(unsigned param);

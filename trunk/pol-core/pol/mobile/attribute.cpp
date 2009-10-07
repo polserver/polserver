@@ -111,7 +111,7 @@ void load_attributes_cfg()
 void clean_attributes()
 {
 	std::vector<Attribute*>::iterator iter = attributes.begin();
-	for ( ; iter != attributes.end(); iter++) {
+	for ( ; iter != attributes.end(); ++iter) {
 		delete *iter;
 		*iter=NULL;
 	}

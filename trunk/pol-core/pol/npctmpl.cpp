@@ -139,7 +139,7 @@ const NpcTemplate& find_npc_template( const ConfigElem& elem )
 void unload_npc_templates()
 {
     NpcTemplates::iterator iter = npc_templates.begin();
-	for ( ; iter != npc_templates.end(); iter++) {
+	for ( ; iter != npc_templates.end(); ++iter) {
 		if (iter->second != NULL)
 			delete iter->second;
 		iter->second = NULL;

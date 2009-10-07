@@ -97,7 +97,7 @@ RegionGroupBase::~RegionGroupBase()
 
 	// cleans the regions_ vector...
 	std::vector<Region*>::iterator reg_itr = regions_.begin(), reg_end = regions_.end();
-	for ( ; reg_itr != reg_end; reg_itr++) {
+	for ( ; reg_itr != reg_end; ++reg_itr) {
 			delete *reg_itr;
 	}
 	regions_.clear();
