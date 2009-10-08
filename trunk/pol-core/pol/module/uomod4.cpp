@@ -94,7 +94,8 @@ BObjectImp* UOExecutorModule::internal_MoveCharacter(Character* chr, xcoord x, y
 		ForEachMobileInRange(chr->lastx, chr->lasty, oldrealm, 32, NpcPropagateLeftArea, chr);
 			
 		send_remove_character_to_nearby(chr);
-		remove_objects_inrange( chr->client );
+        if (chr->client != NULL)
+            remove_objects_inrange( chr->client );
 		chr->realm = newrealm;
 		chr->realm_changed();
 		ok = move_character_to(chr, x, y, z, flags, oldrealm);
