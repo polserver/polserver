@@ -26,6 +26,7 @@ History
 2009/08/19 Turley:    Added character.uo_expansion_client
 2009/08/25 Shinigami: STLport-5.2.1 fix: ParseErrorStr and ReservedWord changed little bit
 2009/09/06 Turley:    Removed chr.isUOKR added chr.ClientType
+2009/10/09 Turley:    Added spellbook.spells() & .hasspell() methods
 
 Notes
 =======
@@ -566,7 +567,9 @@ ObjMethod object_methods[] = {
 	{ MTH_SETAGGRESSORTO, "setaggressorto" },
 	{ MTH_SETLAWFULLYDAMAGEDTO, "setlawfullydamagedto" },
 	{ MTH_CLEARAGGRESSORTO, "clearaggressorto" },
-	{ MTH_CLEARLAWFULLYDAMAGEDTO, "clearlawfullydamagedto" } //115
+	{ MTH_CLEARLAWFULLYDAMAGEDTO, "clearlawfullydamagedto" }, //115
+    { MTH_HASSPELL, "hasspell" },
+    { MTH_SPELLS, "spells" }
 
 };
 int n_objmethods = sizeof object_methods / sizeof object_methods[0];

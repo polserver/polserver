@@ -2,6 +2,7 @@
 History
 =======
 2009/09/18 MuadDib:   Spellbook rewrite to deal with only bits, not scrolls inside them.
+2009/10/09 Turley:    Added spellbook.spells() & .hasspell() methods
 
 
 Notes
@@ -36,6 +37,8 @@ public:
 	virtual void double_click( Client* client );
 	void send_book_old( Client* client );
 	virtual bool script_isa( unsigned isatype ) const;
+    virtual BObjectImp* script_method( const char* methodname, Executor& ex );
+    virtual BObjectImp* script_method_id( const int id, Executor& ex );
 
 private:
 	virtual bool can_add( const Item& item ) const;
