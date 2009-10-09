@@ -1,4 +1,9 @@
 -- POL099 --
+10-09-2009 Turley:
+     Added: new Spellbook methods
+            book.spells() returns Array of SpellIDs
+            book.hasspell(id) checks if SpellID is inside the spellbook returns 1/0
+
 10-07-2009 Turley:
      Fixed: DestroyItem call inside CanInsert scripts
 

@@ -9,6 +9,7 @@ History
 2005/09/12 Shinigami: added ObjMethods packet.GetIntxxFlipped and packet.SetIntxxFlipped (Byte Order)
 2006/09/16 Shinigami: added ObjMethods packet.GetUnicodeStringFlipped and packet.SetUnicodeStringFlipped (Byte Order)
 2009/08/06 MuadDib:   Added GetGottenBy to find who is holding the item. Returning char ref of course.
+2009/10/09 Turley:    Added spellbook.spells() & .hasspell() methods
 
 Notes
 =======
@@ -135,7 +136,9 @@ enum MethodID
 	MTH_SETAGGRESSORTO,
 	MTH_SETLAWFULLYDAMAGEDTO,
 	MTH_CLEARAGGRESSORTO,
-	MTH_CLEARLAWFULLYDAMAGEDTO
+	MTH_CLEARLAWFULLYDAMAGEDTO,
+    MTH_HASSPELL,
+    MTH_SPELLS
 };
 
 
