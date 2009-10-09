@@ -2474,10 +2474,9 @@ BObjectImp* Spellbook::script_method_id( const int id, Executor& ex )
                 return new BError( "Not enough parameters" );
             if (ex.getParam(0,id))
             {
-                if (id < 0)
-                    return new BError( "SpellID must be >= 0" );
-                u8 school = static_cast<u8>(id / 100);
-                if ((school == this->spell_school) && (this->has_spellid(static_cast<unsigned long>(id))))
+                if (id <= 0)
+                    return new BError( "SpellID must be >= 1" );
+                if (this->has_spellid(static_cast<unsigned long>(id)))
                     return new BLong(1);
                 else
                     return new BLong(0);
@@ -2491,7 +2490,7 @@ BObjectImp* Spellbook::script_method_id( const int id, Executor& ex )
             ObjArray* arr = new ObjArray;
             for ( u16 i = 0; i < 64; ++i )
             {
-                unsigned long id = this->spell_school + i;
+                unsigned long id = this->spell_school*100 + i + 1;
                 if (this->has_spellid(id))
                     arr->addElement(new BLong(id));
             }

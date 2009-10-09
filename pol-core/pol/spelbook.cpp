@@ -121,14 +121,17 @@ void Spellbook::double_click( Client* client )
 
 bool Spellbook::has_spellid( unsigned long spellid ) const
 {
-	u16 spellnumber = static_cast<u16>(spellid);
-	u8  spellslot = spellnumber & 7;
-	if(spellslot == 0) spellslot = 8;
+    u8 spellschool = static_cast<u8>(spellid / 100);
+    if (spellschool == this->spell_school)
+    {
+        u16 spellnumber = static_cast<u16>(spellid % 100);
+        u8  spellslot = spellnumber & 7;
+        if(spellslot == 0) spellslot = 8;
 
-	if ( ((bitwise_contents[ (spellnumber-1) >> 3 ]) & (1 << (spellslot-1))) != 0 )
-		return true;
-
-	return false;
+        if ( ((bitwise_contents[ (spellnumber-1) >> 3 ]) & (1 << (spellslot-1))) != 0 )
+            return true;
+    }
+    return false;
 }
 
 bool Spellbook::can_add( const Item& item ) const
