@@ -23,6 +23,7 @@ History
                       Relocation of multi related cpp/h
 2009/09/06 Turley:    Removed isUOKR added ClientType
 2009/09/22 MuadDib:   Rewrite for Character/NPC to use ar(), ar_mod(), ar_mod(newvalue) virtuals.
+2009/10/09 Turley:    Added spellbook.spells() & .hasspell() methods
 
 Notes
 =======
@@ -2456,6 +2457,61 @@ BObjectImp* UCorpse::get_script_member( const char *membername ) const
 		return this->get_script_member_id(objmember->id);
 	else
 		return NULL;
+}
+
+BObjectImp* Spellbook::script_method_id( const int id, Executor& ex )
+{
+    BObjectImp* imp = base::script_method_id( id, ex );
+    if (imp != NULL)
+        return imp;
+
+    switch(id)
+    {
+    case MTH_HASSPELL:
+        {
+            long id;
+            if (!ex.hasParams(1))
+                return new BError( "Not enough parameters" );
+            if (ex.getParam(0,id))
+            {
+                if (id < 0)
+                    return new BError( "SpellID must be >= 0" );
+                u8 school = static_cast<u8>(id / 100);
+                if ((school == this->spell_school) && (this->has_spellid(static_cast<unsigned long>(id))))
+                    return new BLong(1);
+                else
+                    return new BLong(0);
+            }
+            else
+                return new BError( "Invalid parameter type" );
+            break;
+        }
+    case MTH_SPELLS:
+        {
+            ObjArray* arr = new ObjArray;
+            for ( u16 i = 0; i < 64; ++i )
+            {
+                unsigned long id = this->spell_school + i;
+                if (this->has_spellid(id))
+                    arr->addElement(new BLong(id));
+            }
+            return arr;
+            break;
+        }
+
+    default:
+        return NULL;
+    }
+    return new BLong(1);
+}
+
+BObjectImp* Spellbook::script_method( const char* methodname, Executor& ex )
+{
+    ObjMethod* objmethod = getKnownObjMethod(methodname);
+    if ( objmethod != NULL )
+        return this->script_method_id(objmethod->id, ex);
+    else
+        return NULL;
 }
 
 BObjectImp* UBoat::make_ref()
