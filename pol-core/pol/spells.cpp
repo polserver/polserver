@@ -69,14 +69,12 @@ static bool nocast_here( Character* chr )
 
 bool knows_spell( Character* chr, u16 spellid )
 {
-	u8 school = static_cast<u8>(spellid / 100);
-
 	//copied code from Character::spellbook to support multiple spellbooks in the pack
 	Item* item = chr->wornitem( LAYER_HAND1 );
 	if (item != NULL && item->script_isa(POLCLASS_SPELLBOOK) )
 	{
 		Spellbook* book = static_cast<Spellbook*>(item);
-		if(book->spell_school == school && book->has_spellid( spellid ))
+		if(book->has_spellid( spellid ))
 			return true;
 	}
 
@@ -90,7 +88,7 @@ bool knows_spell( Character* chr, u16 spellid )
 			if(item != NULL && item->script_isa(POLCLASS_SPELLBOOK))
 			{
 				const Spellbook* book = static_cast<const Spellbook*>(item);
-				if(book->spell_school == school && book->has_spellid( spellid ))
+				if(book->has_spellid( spellid ))
 					return true;
 			}
 		}
