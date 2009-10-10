@@ -5,6 +5,7 @@ History
 2009/07/26 MuadDib:   Packet struct refactoring.
 2009/09/17 MuadDib:   Spellbook::can_add upgraded to check bitflags instead of contents.
 2009/09/18 MuadDib:   Spellbook rewrite to deal with only bits, not scrolls inside them.
+2009/10/10 Turley:    Added spellbook.addspell() & .removespell() methods
 
 Notes
 =======
@@ -130,6 +131,32 @@ bool Spellbook::has_spellid( unsigned long spellid ) const
 
         if ( ((bitwise_contents[ (spellnumber-1) >> 3 ]) & (1 << (spellslot-1))) != 0 )
             return true;
+    }
+    return false;
+}
+
+bool Spellbook::remove_spellid( unsigned long spellid )
+{
+    if (has_spellid(spellid))
+    {
+        u16 spellnumber = static_cast<u16>(spellid % 100);
+        u8  spellslot = spellnumber & 7;
+        if(spellslot == 0) spellslot = 8;
+        bitwise_contents[ (spellnumber-1) >> 3 ] &= ~(1 << (spellslot-1));
+        return true;
+    }
+    return false;
+}
+
+bool Spellbook::add_spellid( unsigned long spellid )
+{
+    if (!has_spellid(spellid))
+    {
+        u16 spellnumber = static_cast<u16>(spellid % 100);
+        u8  spellslot = spellnumber & 7;
+        if(spellslot == 0) spellslot = 8;
+        bitwise_contents[ (spellnumber-1) >> 3 ] |= 1 << (spellslot-1);
+        return true;
     }
     return false;
 }
