@@ -1,4 +1,9 @@
 -- POL099 --
+10-10-2009 Turley:
+     Added: new Spellbook methods
+            book.removespell(id) removes given spellid returns 1/0
+            book.addspell(id) adds given spellid returns 1/0
+
 10-09-2009 Turley:
      Added: new Spellbook methods
             book.spells() returns Array of SpellIDs
