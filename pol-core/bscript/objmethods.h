@@ -10,6 +10,7 @@ History
 2006/09/16 Shinigami: added ObjMethods packet.GetUnicodeStringFlipped and packet.SetUnicodeStringFlipped (Byte Order)
 2009/08/06 MuadDib:   Added GetGottenBy to find who is holding the item. Returning char ref of course.
 2009/10/09 Turley:    Added spellbook.spells() & .hasspell() methods
+2009/10/10 Turley:    Added spellbook.addspell() & .removespell() methods
 
 Notes
 =======
@@ -36,7 +37,7 @@ enum MethodID
     MTH_SPENDGOLD,
     MTH_SETMURDERER,
     MTH_REMOVEREPORTABLE,
-    MTH_GETGOTTENITEM,
+    MTH_GETGOTTENITEM,                  //15
     MTH_CLEARGOTTENITEM,
     MTH_SETWARMODE,
     MTH_SETMASTER,  //npc
@@ -131,14 +132,16 @@ enum MethodID
 	MTH_GETSINT16,
 	MTH_GETSINT32,
 	MTH_SETSINT8,
-	MTH_SETSINT16,
+	MTH_SETSINT16,                      //110
 	MTH_SETSINT32,
 	MTH_SETAGGRESSORTO,
 	MTH_SETLAWFULLYDAMAGEDTO,
 	MTH_CLEARAGGRESSORTO,
-	MTH_CLEARLAWFULLYDAMAGEDTO,
+	MTH_CLEARLAWFULLYDAMAGEDTO,         //115
     MTH_HASSPELL,
-    MTH_SPELLS
+    MTH_SPELLS,
+    MTH_REMOVESPELL,
+    MTH_ADDSPELL
 };
 
 
