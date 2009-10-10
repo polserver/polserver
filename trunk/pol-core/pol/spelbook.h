@@ -3,6 +3,7 @@ History
 =======
 2009/09/18 MuadDib:   Spellbook rewrite to deal with only bits, not scrolls inside them.
 2009/10/09 Turley:    Added spellbook.spells() & .hasspell() methods
+2009/10/10 Turley:    Added spellbook.addspell() & .removespell() methods
 
 
 Notes
@@ -27,6 +28,8 @@ public:
 	virtual ~Spellbook();
 
     bool has_spellid( unsigned long spellid ) const;
+    bool remove_spellid( unsigned long spellid );
+    bool add_spellid( unsigned long spellid );
 	u8 bitwise_contents[8];
 	u8 spell_school;
 	virtual void add( Item *item );

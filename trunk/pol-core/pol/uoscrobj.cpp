@@ -24,6 +24,7 @@ History
 2009/09/06 Turley:    Removed isUOKR added ClientType
 2009/09/22 MuadDib:   Rewrite for Character/NPC to use ar(), ar_mod(), ar_mod(newvalue) virtuals.
 2009/10/09 Turley:    Added spellbook.spells() & .hasspell() methods
+2009/10/10 Turley:    Added spellbook.addspell() & .removespell() methods
 
 Notes
 =======
@@ -2495,6 +2496,42 @@ BObjectImp* Spellbook::script_method_id( const int id, Executor& ex )
                     arr->addElement(new BLong(id));
             }
             return arr;
+            break;
+        }
+    case MTH_REMOVESPELL:
+        {
+            long id;
+            if (!ex.hasParams(1))
+                return new BError( "Not enough parameters" );
+            if (ex.getParam(0,id))
+            {
+                if (id <= 0)
+                    return new BError( "SpellID must be >= 1" );
+                if (this->remove_spellid(static_cast<unsigned long>(id)))
+                    return new BLong(1);
+                else
+                    return new BLong(0);
+            }
+            else
+                return new BError( "Invalid parameter type" );
+            break;
+        }
+    case MTH_ADDSPELL:
+        {
+            long id;
+            if (!ex.hasParams(1))
+                return new BError( "Not enough parameters" );
+            if (ex.getParam(0,id))
+            {
+                if (id <= 0)
+                    return new BError( "SpellID must be >= 1" );
+                if (this->add_spellid(static_cast<unsigned long>(id)))
+                    return new BLong(1);
+                else
+                    return new BLong(0);
+            }
+            else
+                return new BError( "Invalid parameter type" );
             break;
         }
 
