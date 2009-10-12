@@ -1,6 +1,7 @@
 /*
 History
 =======
+2009/12/10 Turley:   Method/Syshook definitions now supports :pkg: format
 
 
 Notes
@@ -19,8 +20,7 @@ ExportScript::ExportScript( const Package* pkg, std::string scriptname )
 {
     if (scriptname.find(".ecl") == string::npos)
         scriptname += ".ecl";
-    sd.quickconfig( pkg, scriptname );
-    
+    sd.config(scriptname, pkg, "", true);
 }
 
 ExportScript::ExportScript( const ScriptDef& isd ) :
