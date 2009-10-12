@@ -1,4 +1,7 @@
 -- POL099 --
+10-12-2009 Turley:
+   Changed: Method/Syshook definitions now supports :pkg: format - Tomi
+
 10-10-2009 Turley:
      Added: new Spellbook methods
             book.removespell(id) removes given spellid returns 1/0
