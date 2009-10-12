@@ -2,6 +2,7 @@
 History
 =======
 2006/05/16 Shinigami: added URACE with RACE_* Constants
+2009/10/12 Turley:    whisper/yell/say-range ssopt definition
 
 Notes
 =======
@@ -60,9 +61,6 @@ enum UTEXTTYPE {
 */
 #define RANGE_VISUAL                    18
 #define RANGE_VISUAL_LARGE_BUILDINGS    18 // 31?
-#define RANGE_WHISPER                   2 // DAVE changed this from 4. FIXME cfg-urable
-#define RANGE_SAY                       12
-#define RANGE_YELL                      25 // DAVE changed this from 18. FIXME cfg-urable
 
 
 const unsigned VALID_ITEM_COLOR_MASK = 0x0FFF;

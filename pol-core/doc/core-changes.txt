@@ -1,6 +1,10 @@
 -- POL099 --
 10-12-2009 Turley:
    Changed: Method/Syshook definitions now supports :pkg: format - Tomi
+     Added: ServSpecOpt SpeechRange default 12
+            ServSpecOpt WhisperRange default 2
+            ServSpecOpt YellRange default 25
+            - Tomi
 
 10-10-2009 Turley:
      Added: new Spellbook methods

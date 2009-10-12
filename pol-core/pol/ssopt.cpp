@@ -10,6 +10,7 @@ History
                       ServSpecOpt SendSwingPacket=true/false Should packet 0x2F be send on swing.
 2009/09/03 MuadDib:   Moved combat related settings to Combat Config.
 2009/09/09 Turley:    ServSpecOpt CarryingCapacityMod as * modifier for Character::carrying_capacity()
+2009/10/12 Turley:    whisper/yell/say-range ssopt definition
 
 Notes
 =======
@@ -72,6 +73,9 @@ void read_servspecopt()
     ssopt.carrying_capacity_mod = elem.remove_double("CarryingCapacityMod",1.0);
 	ssopt.core_sends_caps = elem.remove_bool("CoreSendsCaps",false);
 	ssopt.send_stat_locks = elem.remove_bool("SendStatLocks",false);
+    ssopt.speech_range = elem.remove_ushort("SpeechRange",12);
+    ssopt.whisper_range = elem.remove_ushort("WhisperRange",2);
+    ssopt.yell_range = elem.remove_ushort("YellRange",25);
 	ssopt_parse_totalstats(elem);
 
 	if ( ssopt.default_max_slots > 255 )
