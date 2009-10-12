@@ -3,6 +3,7 @@ History
 =======
 2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
 2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
+2009/10/12 Turley:    whisper/yell/say-range ssopt definition
 
 Notes
 =======
@@ -77,9 +78,9 @@ void for_nearby_npcs( void (*f)(NPC& npc, Character *chr, const char *text, int 
     int range;
     switch( texttype )
     {
-    case TEXTTYPE_WHISPER:  range = RANGE_WHISPER;  break;
-    case TEXTTYPE_YELL:     range = RANGE_YELL;     break;
-    default:                range = RANGE_SAY;      break;
+    case TEXTTYPE_WHISPER:  range = ssopt.whisper_range;  break;
+    case TEXTTYPE_YELL:     range = ssopt.yell_range;     break;
+    default:                range = ssopt.speech_range;   break;
     }
 
     unsigned short wxL, wyL, wxH, wyH;
@@ -114,9 +115,9 @@ void for_nearby_npcs( void (*f)(NPC& npc, Character *chr, const char *text, int 
     int range;
     switch( texttype )
     {
-    case TEXTTYPE_WHISPER:  range = RANGE_WHISPER;  break;
-    case TEXTTYPE_YELL:     range = RANGE_YELL;     break;
-    default:                range = RANGE_SAY;      break;
+    case TEXTTYPE_WHISPER:  range = ssopt.whisper_range;  break;
+    case TEXTTYPE_YELL:     range = ssopt.yell_range;     break;
+    default:                range = ssopt.speech_range;   break;
     }
 
     unsigned short wxL, wyL, wxH, wyH;

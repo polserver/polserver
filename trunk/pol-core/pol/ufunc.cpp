@@ -26,6 +26,7 @@ History
 2009/09/22 MuadDib:   Adding resending of light level if override not in effect, to sending of season packet. Fixes EA client bug.
 2009/09/22 Turley:    Added DamagePacket support
 2009/10/07 Turley:    Fixed DestroyItem while in hand
+2009/10/12 Turley:    whisper/yell/say-range ssopt definition
 
 Notes
 =======
@@ -506,15 +507,15 @@ unsigned short pol_distance( const Character* c1, const UObject* obj )
 
 bool in_say_range( const Character *c1, const Character *c2 )
 {
-    return inrangex( c1, c2, RANGE_SAY );
+    return inrangex( c1, c2, ssopt.speech_range );
 }
 bool in_yell_range( const Character *c1, const Character *c2 )
 {
-    return inrangex( c1, c2, RANGE_YELL );
+    return inrangex( c1, c2, ssopt.yell_range );
 }
 bool in_whisper_range( const Character *c1, const Character *c2 )
 {
-    return inrangex( c1, c2, RANGE_WHISPER );
+    return inrangex( c1, c2, ssopt.whisper_range );
 }
 
 bool inrange( unsigned short x1, unsigned short y1,
