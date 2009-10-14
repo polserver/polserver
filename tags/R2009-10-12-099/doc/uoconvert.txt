@@ -1,0 +1,41 @@
+UOConvert converts UO .mul files to POL-format files.
+
+The commands below will perform all the conversions appropriate for POL 096.
+The commands below will overwrite multis.cfg. tiles.cfg and landtiles.cfg
+are new. You have to use at least one map with mapid=0. You can use more maps.
+Mondain's Legacy use "width=7168" in Britannia Map.
+
+Use the commands in DOS-Console (e.g.: create a .bat file with following
+commands and execute the .bat file). 
+
+rem ==== cut ====
+uoconvert multis
+copy multis.cfg config
+
+uoconvert tiles
+copy tiles.cfg config
+
+uoconvert landtiles
+copy landtiles.cfg config
+
+rem Mondain's Legacy use "width=7168" here
+uoconvert map     realm=britannia mapid=0 usedif=1 width=6144 height=4096
+uoconvert statics realm=britannia
+uoconvert maptile realm=britannia
+
+rem Mondain's Legacy use "width=7168" here
+uoconvert map     realm=britannia_alt mapid=1 usedif=1 width=6144 height=4096
+uoconvert statics realm=britannia_alt
+uoconvert maptile realm=britannia_alt
+
+uoconvert map     realm=ilshenar mapid=2 usedif=1 width=2304 height=1600
+uoconvert statics realm=ilshenar
+uoconvert maptile realm=ilshenar
+
+uoconvert map     realm=malas mapid=3 usedif=1 width=2560 height=2048
+uoconvert statics realm=malas
+uoconvert maptile realm=malas
+
+uoconvert map     realm=tokuno mapid=4 usedif=1 width=1448 height=1448
+uoconvert statics realm=tokuno
+uoconvert maptile realm=tokuno
