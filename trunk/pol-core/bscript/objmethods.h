@@ -11,7 +11,7 @@ History
 2009/08/06 MuadDib:   Added GetGottenBy to find who is holding the item. Returning char ref of course.
 2009/10/09 Turley:    Added spellbook.spells() & .hasspell() methods
 2009/10/10 Turley:    Added spellbook.addspell() & .removespell() methods
-2009/10/14 Turley:    Added char.deaf() methods & char.deafed member
+2009/10/14 Turley:    Added char.deaf() methods & char.deafened member
 
 Notes
 =======

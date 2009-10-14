@@ -28,7 +28,7 @@ History
 2009/09/06 Turley:    Removed chr.isUOKR added chr.ClientType
 2009/10/09 Turley:    Added spellbook.spells() & .hasspell() methods
 2009/10/10 Turley:    Added spellbook.addspell() & .removespell() methods
-2009/10/14 Turley:    Added char.deaf() methods & char.deafed member
+2009/10/14 Turley:    Added char.deaf() methods & char.deafened member
 
 Notes
 =======
@@ -434,7 +434,7 @@ ObjMember object_members[] = {
 	{ MBR_GETGOTTENBY, "getgottenby", true },
 	{ MBR_UO_EXPANSION_CLIENT, "uo_expansion_client", true },
 	{ MBR_CLIENTTYPE, "clienttype", true }, //180
-    { MBR_DEAFED, "deafed", true},
+    { MBR_DEAFENED, "deafed", true},
 };
 int n_objmembers = sizeof object_members / sizeof object_members[0];
 ObjMember* getKnownObjMember(const char* token)

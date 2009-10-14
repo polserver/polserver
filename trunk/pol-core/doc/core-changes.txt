@@ -4,7 +4,7 @@
             With this privilege everybody can hear you even as a ghost (no 'oO' replacement) - Tomi
      Added: pol.cfg TimestampEveryLine 1/0 (default 0) if set every line in pol.log gets timestamp
      Added: char.deaf(duration) - duration in seconds.  -1=forever, 0=off
-     Added: char.deafed r/o
+     Added: char.deafened r/o
 
 10-12-2009 Turley:
    Changed: Method/Syshook definitions now supports :pkg: format - Tomi
