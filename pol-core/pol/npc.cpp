@@ -14,7 +14,7 @@ History
 2009/09/15 MuadDib:   Cleanup from registered houses on destroy
 2009/09/18 MuadDib:   Adding save/load of registered house serial
 2009/09/22 MuadDib:   Rewrite for Character/NPC to use ar(), ar_mod(), ar_mod(newvalue) virtuals.
-2009/10/14 Turley:    Added char.deaf() methods & char.deafed member
+2009/10/14 Turley:    Added char.deaf() methods & char.deafened member
 
 Notes
 =======
@@ -646,7 +646,7 @@ void NPC::on_pc_spoke( Character* src_chr, const char* speech, u8 texttype)
     {
 		if ((ex->eventmask & EVID_SPOKE) &&
             inrangex( this, src_chr, ex->speech_size ) &&
-            !deafed())
+            !deafened())
         {
             if ( (!ssopt.event_visibility_core_checks) || is_visible_to_me( src_chr ) )
 				ex->os_module->signal_event( new SpeechEvent( src_chr, speech,
@@ -661,7 +661,7 @@ void NPC::on_ghost_pc_spoke( Character* src_chr, const char* speech, u8 texttype
     {
         if ((ex->eventmask & EVID_GHOST_SPEECH) &&
             inrangex( this, src_chr, ex->speech_size ) &&
-            !deafed())
+            !deafened())
         {
             if ( (!ssopt.event_visibility_core_checks) || is_visible_to_me( src_chr ) )
 				ex->os_module->signal_event( new SpeechEvent( src_chr, speech,
@@ -677,7 +677,7 @@ void NPC::on_pc_spoke( Character *src_chr, const char *speech, u8 texttype,
     {
         if ((ex->eventmask & EVID_SPOKE) &&
             inrangex( this, src_chr, ex->speech_size ) &&
-            !deafed())
+            !deafened())
         {
             if ( (!ssopt.event_visibility_core_checks) || is_visible_to_me( src_chr ))
 				ex->os_module->signal_event( new UnicodeSpeechEvent( src_chr, speech,
@@ -694,7 +694,7 @@ void NPC::on_ghost_pc_spoke( Character* src_chr, const char* speech, u8 texttype
     {
         if ((ex->eventmask & EVID_GHOST_SPEECH) &&
             inrangex( this, src_chr, ex->speech_size ) &&
-            !deafed())
+            !deafened())
         {
             if ( (!ssopt.event_visibility_core_checks) || is_visible_to_me( src_chr ))
 				ex->os_module->signal_event( new UnicodeSpeechEvent( src_chr, speech,

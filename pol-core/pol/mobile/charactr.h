@@ -14,7 +14,7 @@ History
 2009/09/22 MuadDib:   Rewrite for Character/NPC to use ar(), ar_mod(), ar_mod(newvalue) virtuals.
 2009/09/22 Turley:    repsys param to applydamage
 2009/10/14 Turley:    new priv canbeheardasghost
-2009/10/14 Turley:    Added char.deaf() methods & char.deafed member
+2009/10/14 Turley:    Added char.deaf() methods & char.deafened member
 
 Notes
 =======
@@ -426,7 +426,7 @@ public:
     bool frozen() const;
     bool paralyzed() const;
     bool squelched() const;
-    bool deafed() const;
+    bool deafened() const;
 
         // if a move were made, what would the new position be?
     void getpos_ifmove( UFACING i_facing, unsigned short* px, unsigned short* py );
@@ -785,7 +785,7 @@ protected: // was private, but hey, NPC will be okay, I think.
 
     gameclock_t created_at;
     mutable gameclock_t squelched_until;
-    mutable gameclock_t deafed_until;
+    mutable gameclock_t deafened_until;
 
 private: // REPUTATION SYSTEM DATA:
     typedef map< CharacterRef, polclock_t > MobileCont;
