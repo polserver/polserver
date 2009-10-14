@@ -1,4 +1,7 @@
 -- POL099 --
+10-14-2009 MuadDib:
+   Changed: Methods Char.Squelch() and Char.Deaf() return the gameclock value they are in effect until.
+   
 10-14-2009 Turley:
      Added: char privilege "canbeheardasghost"
             With this privilege everybody can hear you even as a ghost (no 'oO' replacement) - Tomi

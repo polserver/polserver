@@ -26,7 +26,7 @@ History
 2009/10/09 Turley:    Added spellbook.spells() & .hasspell() methods
 2009/10/10 Turley:    Added spellbook.addspell() & .removespell() methods
 2009/10/14 Turley:    Added char.deaf() methods & char.deafened member
-
+           MuadDib:   Squelch and Deaf members set to return the gameclock they are in effect till.
 Notes
 =======
 
@@ -1813,12 +1813,15 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 		    {
 			    set_dirty();
 			    if (duration == -1)
+				{
 				    squelched_until = ~0u;
+					return new BLong(-1);
+				}
 			    else if (duration == 0)
 				    squelched_until = 0;
 			    else
 				    squelched_until = read_gameclock() + duration;
-			    return new BLong(1);
+			    return new BLong(squelched_until);
 		    }
 		    break;
         }
@@ -2162,12 +2165,15 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 		    {
 			    set_dirty();
 			    if (duration == -1)
+				{
 				    deafened_until = ~0u;
+					return new BLong(-1);
+				}
 			    else if (duration == 0)
 				    deafened_until = 0;
 			    else
 				    deafened_until = read_gameclock() + duration;
-			    return new BLong(1);
+			    return new BLong(deafened_until);
 		    }
 		    break;
         }
