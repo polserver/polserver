@@ -3,6 +3,8 @@ History
 =======
 
 2009/08/25 Shinigami: STLport-5.2.1 fix: Log and Log2 changed little bit
+2009/10/14 Turley:    added bool LogfileTimestampEveryLine
+
 
 Notes
 =======
@@ -18,6 +20,9 @@ Notes
 #include "logfile.h"
 
 FILE *logfile = NULL;
+
+bool LogfileTimestampEveryLine = false;
+
 static string namebase;
 static string log_filename;
 static time_t last_timestamp;
@@ -64,7 +69,7 @@ void Log( const char *fmt, ... )
     {
         va_list va;
         time_t now = time(NULL);
-        if (now != last_timestamp)
+        if ((now != last_timestamp) || (LogfileTimestampEveryLine))
         {
             char buffer[30];
 
@@ -104,7 +109,7 @@ void Log2( const char *fmt, ... )
     {
         va_list va;
         time_t now = time(NULL);
-        if (now != last_timestamp)
+        if ((now != last_timestamp) || (LogfileTimestampEveryLine))
         {
             char buffer[30];
 
