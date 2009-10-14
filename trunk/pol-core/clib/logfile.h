@@ -3,6 +3,7 @@ History
 =======
 
 2009/08/25 Shinigami: STLport-5.2.1 fix: Log and Log2 changed little bit
+2009/10/14 Turley:    added bool LogfileTimestampEveryLine
 
 Notes
 =======
@@ -14,7 +15,7 @@ Notes
 
 #include <stdio.h>
 
-
+extern bool LogfileTimestampEveryLine;
 extern FILE *logfile;
 int OpenLogFileName( const char* namebase, bool rollover );
 int OpenLogFile(void);

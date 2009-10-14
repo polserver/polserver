@@ -4,6 +4,7 @@ History
 2007/06/17 Shinigami: added config.world_data_path
 2009/08/06 MuadDib:   Removed PasswordOnlyHash support
                       ClearTextPasswords now default is False.
+2009/10/14 Turley:    added bool LogfileTimestampEveryLine
 
 Notes
 =======
@@ -189,6 +190,7 @@ void read_pol_config( bool initial_load )
 	config.max_clients_bypass_cmdlevel = elem.remove_ushort( "MaximumClientsBypassCmdLevel", 1);
 	config.minidump_type = elem.remove_string("MiniDumpType","variable");
 	config.retain_cleartext_passwords = elem.remove_bool( "RetainCleartextPasswords", false);
+    LogfileTimestampEveryLine = elem.remove_bool("TimestampEveryLine",false); // clib/logfile.h bool
 #ifdef _WIN32
     MiniDumper::SetMiniDumpType( config.minidump_type );
 #endif
