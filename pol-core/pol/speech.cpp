@@ -6,6 +6,7 @@ History
 2009/08/01 MuadDib:   Rewrote where needed to do away with TEXTDEF struct useage. Pointless.
 2009/08/25 Shinigami: STLport-5.2.1 fix: buffer not used
 2009/09/03 MuadDib:   Relocation of account related cpp/h
+2009/10/14 Turley:    new priv canbeheardasghost
 
 Notes
 =======
@@ -119,7 +120,7 @@ void handle_processed_speech( Client* client, char* textbuf, int textbuflen, cha
 	memcpy( talkmsg.text, textbuf, textbuflen );
 	transmit( client, &talkmsg, msglen );
 
-	if (client->chr->dead())
+	if (client->chr->dead() && !client->chr->can_be_heard_as_ghost())
     {
         memcpy( &ghostmsg, &talkmsg, sizeof ghostmsg );
         char* t = ghostmsg.text;
@@ -155,7 +156,8 @@ void handle_processed_speech( Client* client, char* textbuf, int textbuflen, cha
         {
             if (!client->chr->dead() || 
                  client2->chr->dead() || 
-                 client2->chr->can_hearghosts()  )
+                 client2->chr->can_hearghosts() ||
+                 client->chr->can_be_heard_as_ghost() )
             {
     			transmit( client2, &talkmsg, msglen );
             }
@@ -269,7 +271,7 @@ void SendUnicodeSpeech(Client *client, PKTIN_AD *msgin, u16* wtext, size_t wtext
 
 	transmit( client, &talkmsg, msglen ); // self
 
-	if (client->chr->dead())
+	if (client->chr->dead() && !client->chr->can_be_heard_as_ghost())
 	{
 		unsigned short msglen = static_cast<unsigned short>(offsetof( PKTOUT_AE, wtext ) + wtextlen*sizeof(ghostmsg.wtext[0]));
 		ghostmsg.msgtype         = PKTOUT_AE_ID;
@@ -321,7 +323,8 @@ void SendUnicodeSpeech(Client *client, PKTIN_AD *msgin, u16* wtext, size_t wtext
 		{
             if (!client->chr->dead() || 
 				client2->chr->dead() || 
-				client2->chr->can_hearghosts()  )
+				client2->chr->can_hearghosts() ||
+                client->chr->can_be_heard_as_ghost() )
 			{
     			transmit( client2, &talkmsg, msglen );
 			}

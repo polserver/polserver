@@ -44,6 +44,7 @@ History
 2009/09/18 MuadDib:   Adding save/load of registered house serial
 2009/09/22 MuadDib:   Rewrite for Character/NPC to use ar(), ar_mod(), ar_mod(newvalue) virtuals.
 2009/09/22 Turley:    Added DamagePacket support & repsys param to applydamage
+2009/10/14 Turley:    new priv canbeheardasghost
 
 
 Notes
@@ -1087,6 +1088,7 @@ void Character::refresh_cached_settings()
 	cached_settings.hiddenattack     = setting_enabled( "hiddenattack" );
 	cached_settings.plogany		     = setting_enabled( "plogany" );
 	cached_settings.moveanydist		 = setting_enabled( "moveanydist" );
+    cached_settings.canbeheardasghost = setting_enabled( "canbeheardasghost" );
 }
 
 void Character::set_setting( const char* setting, bool value )
@@ -1164,6 +1166,11 @@ bool Character::can_clothe( const Character* chr ) const
 bool Character::can_hearghosts() const
 {
 	return cached_settings.hearghosts;
+}
+
+bool Character::can_be_heard_as_ghost() const
+{
+	return cached_settings.canbeheardasghost;
 }
 
 bool Character::can_moveanydist() const
