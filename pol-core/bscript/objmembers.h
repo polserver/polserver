@@ -15,6 +15,7 @@ History
 2009/08/06 MuadDib:   Removed PasswordOnlyHash support
 2009/08/19 Turley:    Added character.uo_expansion_client
 2009/09/06 Turley:    Removed chr.isUOKR added chr.ClientType
+2009/10/14 Turley:    Added char.deaf() methods & char.deafed member
 
 Notes
 =======
@@ -206,7 +207,8 @@ enum MemberID
 	MBR_LAWFULLYDAMAGED,
 	MBR_GETGOTTENBY,
 	MBR_UO_EXPANSION_CLIENT,
-	MBR_CLIENTTYPE           //180
+	MBR_CLIENTTYPE,           //180
+    MBR_DEAFED
 };
 
 

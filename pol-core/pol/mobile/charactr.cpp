@@ -45,6 +45,7 @@ History
 2009/09/22 MuadDib:   Rewrite for Character/NPC to use ar(), ar_mod(), ar_mod(newvalue) virtuals.
 2009/09/22 Turley:    Added DamagePacket support & repsys param to applydamage
 2009/10/14 Turley:    new priv canbeheardasghost
+2009/10/14 Turley:    Added char.deaf() methods & char.deafed member
 
 
 Notes
@@ -326,6 +327,7 @@ Character::Character( u16 objtype, UOBJ_CLASS uobj_class ) :
 	spell_task(NULL),
 	created_at(0),
 	squelched_until(0),
+    deafed_until(0),
 
 	criminal_until_(0),
 	repsys_task_(NULL),
@@ -687,6 +689,8 @@ void Character::printProperties( ostream& os ) const
 
 	if (squelched_until)
 		os << "\tSquelchedUntil\t" << squelched_until << pf_endl;
+    if (deafed_until)
+		os << "\tDeafedUntil\t" << deafed_until << pf_endl;
 
 	if (!title_prefix.empty())
 		os << "\tTitlePrefix\t" << getencodedquotedstring(title_prefix) << pf_endl;
@@ -872,6 +876,7 @@ void Character::readCommonProperties( ConfigElem& elem )
    
 	created_at = elem.remove_ulong( "CreatedAt", 0 );
 	squelched_until = elem.remove_ulong( "SquelchedUntil", 0 );
+    deafed_until = elem.remove_ulong( "DeafedUntil", 0 );
 
 	title_prefix = elem.remove_string( "TITLEPREFIX", "" );
 	title_suffix = elem.remove_string( "TITLESUFFIX", "" );
@@ -3777,6 +3782,24 @@ bool Character::squelched() const
 	else
 	{
 		squelched_until = 0;
+		return false;
+	}
+}
+
+bool Character::deafed() const
+{
+	if (deafed_until == 0)
+		return false;
+	else if (deafed_until == ~0Lu)
+		return true;
+	
+	if (read_gameclock() < deafed_until)
+	{
+		return true;
+	}
+	else
+	{
+		deafed_until = 0;
 		return false;
 	}
 }

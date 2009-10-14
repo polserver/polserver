@@ -25,6 +25,7 @@ History
 2009/09/22 MuadDib:   Rewrite for Character/NPC to use ar(), ar_mod(), ar_mod(newvalue) virtuals.
 2009/10/09 Turley:    Added spellbook.spells() & .hasspell() methods
 2009/10/10 Turley:    Added spellbook.addspell() & .removespell() methods
+2009/10/14 Turley:    Added char.deaf() methods & char.deafed member
 
 Notes
 =======
@@ -1445,6 +1446,8 @@ BObjectImp* Character::get_script_member_id( const int id ) const
 				return new BLong(0);
 			break;
 
+        case MBR_DEAFED: return new BLong( deafed() ? 1 : 0 ); break;
+
 		default: 
 			return NULL;
 	}
@@ -2150,6 +2153,24 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 		else
 			return new BError( "Not enough parameters" );
 		break;
+    case MTH_DEAF:
+        {
+            long duration;
+		    if (!ex.hasParams(1))
+			    return new BError( "Not enough parameters" );
+		    if (ex.getParam( 0, duration ))
+		    {
+			    set_dirty();
+			    if (duration == -1)
+				    deafed_until = ~0u;
+			    else if (duration == 0)
+				    deafed_until = 0;
+			    else
+				    deafed_until = read_gameclock() + duration;
+			    return new BLong(1);
+		    }
+		    break;
+        }
 	default:
 		return NULL;
 	}

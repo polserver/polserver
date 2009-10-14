@@ -7,6 +7,7 @@ History
 2009/08/25 Shinigami: STLport-5.2.1 fix: buffer not used
 2009/09/03 MuadDib:   Relocation of account related cpp/h
 2009/10/14 Turley:    new priv canbeheardasghost
+2009/10/14 Turley:    Added char.deaf() methods & char.deafed member
 
 Notes
 =======
@@ -144,6 +145,7 @@ void handle_processed_speech( Client* client, char* textbuf, int textbuflen, cha
 		if (client == client2) continue;
         if (!client2->chr->is_visible_to_me( client->chr ))
             continue;
+        if (client2->chr->deafed()) continue;
 		
         bool rangeok;
         if (type == TEXTTYPE_WHISPER)
@@ -311,6 +313,7 @@ void SendUnicodeSpeech(Client *client, PKTIN_AD *msgin, u16* wtext, size_t wtext
 		if (client == client2) continue;
 		if (!client2->chr->is_visible_to_me( client->chr )) 
 			continue;
+        if (client2->chr->deafed()) continue;
 
         bool rangeok;
         if (msgin->type == TEXTTYPE_WHISPER)
