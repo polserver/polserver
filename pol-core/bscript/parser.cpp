@@ -28,6 +28,7 @@ History
 2009/09/06 Turley:    Removed chr.isUOKR added chr.ClientType
 2009/10/09 Turley:    Added spellbook.spells() & .hasspell() methods
 2009/10/10 Turley:    Added spellbook.addspell() & .removespell() methods
+2009/10/14 Turley:    Added char.deaf() methods & char.deafed member
 
 Notes
 =======
@@ -432,7 +433,8 @@ ObjMember object_members[] = {
 	{ MBR_LAWFULLYDAMAGED, "lawfullydamaged", true},
 	{ MBR_GETGOTTENBY, "getgottenby", true },
 	{ MBR_UO_EXPANSION_CLIENT, "uo_expansion_client", true },
-	{ MBR_CLIENTTYPE, "clienttype", true } //180
+	{ MBR_CLIENTTYPE, "clienttype", true }, //180
+    { MBR_DEAFED, "deafed", true},
 };
 int n_objmembers = sizeof object_members / sizeof object_members[0];
 ObjMember* getKnownObjMember(const char* token)
@@ -572,7 +574,8 @@ ObjMethod object_methods[] = {
     { MTH_HASSPELL, "hasspell" },
     { MTH_SPELLS, "spells" },
     { MTH_REMOVESPELL, "removespell" },
-    { MTH_ADDSPELL, "addspell" }
+    { MTH_ADDSPELL, "addspell" },
+    { MTH_DEAF, "deaf"}                                 //120
 
 };
 int n_objmethods = sizeof object_methods / sizeof object_methods[0];
