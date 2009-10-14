@@ -1,4 +1,8 @@
 -- POL099 --
+10-14-2009 Turley:
+     Added: char privilege "canbeheardasghost"
+            With this privilege everybody can hear you even as a ghost (no 'oO' replacement) - Tomi
+
 10-12-2009 Turley:
    Changed: Method/Syshook definitions now supports :pkg: format - Tomi
      Added: ServSpecOpt SpeechRange default 12

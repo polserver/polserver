@@ -13,6 +13,7 @@ History
                       u32 registered_house added to store serial of registered multi.
 2009/09/22 MuadDib:   Rewrite for Character/NPC to use ar(), ar_mod(), ar_mod(newvalue) virtuals.
 2009/09/22 Turley:    repsys param to applydamage
+2009/10/14 Turley:    new priv canbeheardasghost
 
 Notes
 =======
@@ -451,6 +452,7 @@ public:
     virtual bool can_be_renamed_by( const Character* chr ) const;
     bool can_clothe( const Character* chr ) const;
     bool can_hearghosts() const;
+    bool can_be_heard_as_ghost() const;
     bool can_seeinvisitems() const;
     bool can_dblclickany() const;
 	bool can_moveanydist() const;
@@ -765,6 +767,7 @@ protected: // was private, but hey, NPC will be okay, I think.
 		bool attackhidden;
 		bool hiddenattack;
 		bool plogany;
+        bool canbeheardasghost;
     } cached_settings;
 
     UOExecutor* script_ex;
