@@ -150,10 +150,6 @@ Planning
 	    Client->UOFeatureEnable, to access uoclient setting.
     Nando:
 	    Speedhack block code. With ability to disable via ssopt.
-    MuadDib:
-	    Create a Privs Updater like concealed and hidden. To go through and refresh stuff around
-	    them based on the privs they have. Will fix bug of not seeing invis and hiddens until
-	    moved away and back.
     Unknown:
             Itemdesc::Container::Weightmod=None/Half/Double/Normal(default)    R/O
             None = Items give no weight
@@ -164,9 +160,7 @@ Planning
                 around it just as though something was inserted/removed etc. Would this be a pain in
                 the ass to make r/w more than maxweight etc?
     UnKnown
-        systemfindobjectbyserial no longer finds multi's serials.
-    UnKnown
-        Support for new gump packets.
+        systemfindobjectbyserial no longer finds multi's serials. Verify if this is true in 099.
     Unknown
         Rewrite of 0x11 Status Packet. To include all message types, and settable based on Client Feature Settings so the server
         automatically knows which kind of packet type to send for full system messages. Better handling this way, optimized,
