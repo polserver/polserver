@@ -46,6 +46,8 @@ History
 2009/09/22 Turley:    Added DamagePacket support & repsys param to applydamage
 2009/10/14 Turley:    new priv canbeheardasghost
 2009/10/14 Turley:    Added char.deaf() methods & char.deafened member
+2009/10/17 Turley:    PrivUpdater for "seehidden", "seeghosts", "seeinvisitems" and "invul" - Tomi
+                      fixed "all" priv
 
 
 Notes
@@ -244,6 +246,357 @@ void unload_armor_zones()
 	armor_zone_chance_sum = 0;
 }
 
+class PrivUpdater
+{
+public:
+
+	static void on_change_see_hidden( Character* chr, bool enable )
+	{
+		if ( enable )
+		{
+			if ( chr->client)
+			{
+				if ( chr->client->ready )
+					on_enable_see_hidden( chr );
+			}
+			else if ( chr->isa( UObject::CLASS_NPC ) )
+			{
+					on_enable_see_hidden( chr );
+			}
+		}
+		else
+		{
+			if ( chr->client)
+			{
+				if ( chr->client->ready )
+					on_disable_see_hidden( chr );
+			}
+			else if ( chr->isa( UObject::CLASS_NPC ) )
+			{
+					on_disable_see_hidden( chr );
+			}
+		}
+	}
+	static void on_change_see_ghosts( Character* chr, bool enable )
+	{
+		if ( enable )
+		{
+			if ( chr->client)
+			{
+				if ( chr->client->ready )
+					on_enable_see_ghosts( chr );
+			}
+			else if ( chr->isa( UObject::CLASS_NPC ) )
+			{
+					on_enable_see_ghosts( chr );
+			}
+		}
+		else
+		{
+			if ( chr->client)
+			{
+				if ( chr->client->ready )
+					on_disable_see_ghosts( chr );
+			}
+			else if ( chr->isa( UObject::CLASS_NPC ) )
+			{
+					on_disable_see_ghosts( chr );
+			}
+		}
+	}
+	static void on_change_see_invis_items( Character* chr, bool enable )
+	{
+		if ( enable )
+		{
+			if ( chr->client && chr->client->ready )
+				on_enable_see_invis_items( chr );
+		}
+		else
+		{
+			if ( chr->client && chr->client->ready )
+				on_disable_see_invis_items( chr );
+		}
+	}
+	static void on_change_invul( Character* chr, bool enable )
+	{
+		if ( enable )
+		{
+            if ( chr->client)
+			{
+				if ( chr->client->ready )
+					on_enable_invul( chr );
+			}
+			else if ( chr->isa( UObject::CLASS_NPC ) )
+			{
+					on_enable_invul( chr );
+			}
+		}
+		else
+		{
+            if ( chr->client)
+			{
+				if ( chr->client->ready )
+					on_disable_invul( chr );
+			}
+			else if ( chr->isa( UObject::CLASS_NPC ) )
+			{
+					on_disable_invul( chr );
+			}
+		}
+	}
+
+private:
+
+	static void on_enable_see_hidden( Character* chr )
+	{
+		if ( chr != NULL )
+		{
+			unsigned short wxL, wyL, wxH, wyH;
+			zone_convert_clip( chr->x - RANGE_VISUAL, chr->y - RANGE_VISUAL, chr->realm, wxL, wyL );
+			zone_convert_clip( chr->x + RANGE_VISUAL, chr->y + RANGE_VISUAL, chr->realm, wxH, wyH );
+
+			for( unsigned short wx = wxL; wx <= wxH; ++wx )
+			{
+				for( unsigned short wy = wyL; wy <= wyH; ++wy )
+				{
+					ZoneCharacters& wchr = chr->realm->zone[wx][wy].characters;
+					for( ZoneCharacters::iterator itr = wchr.begin(), end = wchr.end(); itr != end; ++itr )
+					{
+						Character* in_range_chr = *itr;
+						if ( in_range_chr->hidden() && in_range_chr != chr )
+						{
+							if ( chr->client )
+							{
+								send_owncreate( chr->client, in_range_chr );
+							}
+							else if ( chr->isa( UObject::CLASS_NPC ) )
+							{
+								NPC* npc = static_cast<NPC*>(chr);
+								if ( npc->can_accept_event( EVID_ENTEREDAREA ) )
+								{
+									npc->send_event( new SourcedEvent( EVID_ENTEREDAREA, in_range_chr ) );
+								}	
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	static void on_disable_see_hidden( Character* chr )
+	{
+		if ( chr != NULL )
+		{
+			unsigned short wxL, wyL, wxH, wyH;
+			zone_convert_clip( chr->x - RANGE_VISUAL, chr->y - RANGE_VISUAL, chr->realm, wxL, wyL );
+			zone_convert_clip( chr->x + RANGE_VISUAL, chr->y + RANGE_VISUAL, chr->realm, wxH, wyH );
+
+			for( unsigned short wx = wxL; wx <= wxH; ++wx )
+			{
+				for( unsigned short wy = wyL; wy <= wyH; ++wy )
+				{
+					ZoneCharacters& wchr = chr->realm->zone[wx][wy].characters;
+					for( ZoneCharacters::iterator itr = wchr.begin(), end = wchr.end(); itr != end; ++itr )
+					{
+						Character* in_range_chr = *itr;
+						if ( in_range_chr->hidden() && in_range_chr != chr )
+						{
+							if ( chr->client )
+							{
+								send_remove_character( chr->client, in_range_chr );
+							}
+							else if ( chr->isa( UObject::CLASS_NPC ) )
+							{
+								NPC* npc = static_cast<NPC*>(chr);
+								if ( npc->can_accept_event( EVID_LEFTAREA ) )
+								{
+									npc->send_event( new SourcedEvent( EVID_LEFTAREA, in_range_chr ) );
+								}	
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	static void on_enable_see_ghosts( Character* chr )
+	{
+		if ( chr != NULL )
+		{
+			unsigned short wxL, wyL, wxH, wyH;
+			zone_convert_clip( chr->x - RANGE_VISUAL, chr->y - RANGE_VISUAL, chr->realm, wxL, wyL );
+			zone_convert_clip( chr->x + RANGE_VISUAL, chr->y + RANGE_VISUAL, chr->realm, wxH, wyH );
+
+			for( unsigned short wx = wxL; wx <= wxH; ++wx )
+			{
+				for( unsigned short wy = wyL; wy <= wyH; ++wy )
+				{
+					ZoneCharacters& wchr = chr->realm->zone[wx][wy].characters;
+					for( ZoneCharacters::iterator itr = wchr.begin(), end = wchr.end(); itr != end; ++itr )
+					{
+						Character* in_range_chr = *itr;
+						if ( in_range_chr->dead() && in_range_chr != chr )
+						{
+							if ( chr->client )
+							{
+								send_owncreate( chr->client, in_range_chr );
+							}
+							else if ( chr->isa( UObject::CLASS_NPC ) )
+							{
+								NPC* npc = static_cast<NPC*>(chr);
+								if ( npc->can_accept_event( EVID_ENTEREDAREA ) )
+								{
+									npc->send_event( new SourcedEvent( EVID_ENTEREDAREA, in_range_chr ) );
+								}	
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	static void on_disable_see_ghosts( Character* chr )
+	{
+		if ( chr != NULL )
+		{
+			unsigned short wxL, wyL, wxH, wyH;
+			zone_convert_clip( chr->x - RANGE_VISUAL, chr->y - RANGE_VISUAL, chr->realm, wxL, wyL );
+			zone_convert_clip( chr->x + RANGE_VISUAL, chr->y + RANGE_VISUAL, chr->realm, wxH, wyH );
+
+			for( unsigned short wx = wxL; wx <= wxH; ++wx )
+			{
+				for( unsigned short wy = wyL; wy <= wyH; ++wy )
+				{
+					ZoneCharacters& wchr = chr->realm->zone[wx][wy].characters;
+					for( ZoneCharacters::iterator itr = wchr.begin(), end = wchr.end(); itr != end; ++itr )
+					{
+						Character* in_range_chr = *itr;
+						if ( in_range_chr->dead() && in_range_chr != chr )
+						{
+							if ( chr->client )
+							{
+								send_remove_character( chr->client, in_range_chr );
+							}
+							else if ( chr->isa( UObject::CLASS_NPC ) )
+							{
+								NPC* npc = static_cast<NPC*>(chr);
+								if ( npc->can_accept_event( EVID_LEFTAREA ) )
+								{
+									npc->send_event( new SourcedEvent( EVID_LEFTAREA, in_range_chr ) );
+								}	
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	static void on_enable_see_invis_items( Character* chr )
+	{
+		if ( chr != NULL )
+		{
+			unsigned short wxL, wyL, wxH, wyH;
+			zone_convert_clip( chr->x - RANGE_VISUAL, chr->y - RANGE_VISUAL, chr->realm, wxL, wyL );
+			zone_convert_clip( chr->x + RANGE_VISUAL, chr->y + RANGE_VISUAL, chr->realm, wxH, wyH );
+
+			for( unsigned short wx = wxL; wx <= wxH; ++wx )
+			{
+				for( unsigned short wy = wyL; wy <= wyH; ++wy )
+				{
+					ZoneItems& witem = chr->realm->zone[wx][wy].items;
+					for( ZoneItems::iterator itr = witem.begin(), end = witem.end(); itr != end; ++itr )
+					{
+						Item* item = *itr;
+						if ( item->invisible() )
+                        {
+							if ( chr->client )
+                                send_item( chr->client, item );
+                        }
+					}
+				}
+			}
+		}
+	}
+	static void on_disable_see_invis_items( Character* chr )
+	{
+		if ( chr != NULL )
+		{
+			unsigned short wxL, wyL, wxH, wyH;
+			zone_convert_clip( chr->x - RANGE_VISUAL, chr->y - RANGE_VISUAL, chr->realm, wxL, wyL );
+			zone_convert_clip( chr->x + RANGE_VISUAL, chr->y + RANGE_VISUAL, chr->realm, wxH, wyH );
+
+			for( unsigned short wx = wxL; wx <= wxH; ++wx )
+			{
+				for( unsigned short wy = wyL; wy <= wyH; ++wy )
+				{
+					ZoneItems& witem = chr->realm->zone[wx][wy].items;
+					for( ZoneItems::iterator itr = witem.begin(), end = witem.end(); itr != end; ++itr )
+					{
+						Item* item = *itr;
+						if ( item->invisible() )
+                        {
+							if ( chr->client )
+								send_remove_object( chr->client, item );
+                        }
+					}
+				}
+			}
+		}
+	}
+	static void on_enable_invul( Character* chr )
+	{
+		if ( chr != NULL )
+		{
+			unsigned short wxL, wyL, wxH, wyH;
+			zone_convert_clip( chr->x - RANGE_VISUAL, chr->y - RANGE_VISUAL, chr->realm, wxL, wyL );
+			zone_convert_clip( chr->x + RANGE_VISUAL, chr->y + RANGE_VISUAL, chr->realm, wxH, wyH );
+
+			for( unsigned short wx = wxL; wx <= wxH; ++wx )
+			{
+				for( unsigned short wy = wyL; wy <= wyH; ++wy )
+				{
+					ZoneCharacters& wchr = chr->realm->zone[wx][wy].characters;
+					for( ZoneCharacters::iterator itr = wchr.begin(), end = wchr.end(); itr != end; ++itr )
+					{
+						Character* in_range_chr = *itr;
+						if ( in_range_chr->client && in_range_chr->client->ready ) 
+                        {
+							if ( in_range_chr != chr && in_range_chr->is_visible_to_me( chr ) )
+								send_owncreate( in_range_chr->client, chr );
+                        }
+					}
+				}
+			}
+		}
+	}
+	static void on_disable_invul( Character* chr )
+	{
+		if ( chr != NULL )
+		{
+			unsigned short wxL, wyL, wxH, wyH;
+			zone_convert_clip( chr->x - RANGE_VISUAL, chr->y - RANGE_VISUAL, chr->realm, wxL, wyL );
+			zone_convert_clip( chr->x + RANGE_VISUAL, chr->y + RANGE_VISUAL, chr->realm, wxH, wyH );
+
+			for( unsigned short wx = wxL; wx <= wxH; ++wx )
+			{
+				for( unsigned short wy = wyL; wy <= wyH; ++wy )
+				{
+					ZoneCharacters& wchr = chr->realm->zone[wx][wy].characters;
+					for( ZoneCharacters::iterator itr = wchr.begin(), end = wchr.end(); itr != end; ++itr )
+					{
+						Character* in_range_chr = *itr;
+						if ( in_range_chr->client && in_range_chr->client->ready ) 
+                        {
+							if ( in_range_chr != chr && in_range_chr->is_visible_to_me( chr ) )
+								send_owncreate( in_range_chr->client, chr );
+                        }
+					}
+				}
+			}
+		}
+	}
+};
+
 Character::Character( u16 objtype, UOBJ_CLASS uobj_class ) :
 	UObject( objtype, uobj_class ),
 	warmode_wait(0),
@@ -361,7 +714,7 @@ Character::Character( u16 objtype, UOBJ_CLASS uobj_class ) :
 	load_default_elements();
 
 	// vector
-	refresh_cached_settings();
+	refresh_cached_settings( false );
 	++ucharacter_count;
 }
 
@@ -1036,7 +1389,7 @@ bool Character::has_privilege( const char* priv ) const
 
 bool Character::setting_enabled( const char* setting ) const
 {
-	return settings.contains( setting );
+	return settings.contains( setting ) || cached_settings.all;
 }
 
 void Character::load_default_elements()
@@ -1074,18 +1427,34 @@ void Character::load_default_elements()
 	movement_cost.run_mounted = 1.0;
 }
 
-void Character::refresh_cached_settings()
+void Character::refresh_cached_settings( bool update )
 {
+	bool oldvalue;
+    cached_settings.all = false; // set it to false so setting_enabled() doesnt use the old value
+    cached_settings.all              = setting_enabled( "all" ); // its essential to be the first value
+
 	cached_settings.clotheany	     = setting_enabled( "clotheany" );
 	cached_settings.dblclickany	     = setting_enabled( "dblclickany" );
 	cached_settings.hearghosts	     = setting_enabled( "hearghosts" );
+	oldvalue = cached_settings.invul;
 	cached_settings.invul		     = setting_enabled( "invul" );
+	if ( oldvalue != cached_settings.invul && update )
+		PrivUpdater::on_change_invul( this, cached_settings.invul );
 	cached_settings.losany		     = setting_enabled( "losany" );
 	cached_settings.moveany		     = setting_enabled( "moveany" );
 	cached_settings.renameany	     = setting_enabled( "renameany" );
+	oldvalue = cached_settings.seeghosts;
 	cached_settings.seeghosts	     = setting_enabled( "seeghosts" );
+	if ( oldvalue != cached_settings.seeghosts && update )
+		PrivUpdater::on_change_see_ghosts( this, cached_settings.seeghosts );
+	oldvalue = cached_settings.seehidden;
 	cached_settings.seehidden	     = setting_enabled( "seehidden" );
+	if ( oldvalue != cached_settings.seehidden && update )
+		PrivUpdater::on_change_see_hidden( this, cached_settings.seehidden );
+	oldvalue = cached_settings.seeinvisitems;
 	cached_settings.seeinvisitems    = setting_enabled( "seeinvisitems" );
+	if ( oldvalue != cached_settings.seeinvisitems && update )
+		PrivUpdater::on_change_see_invis_items( this, cached_settings.seeinvisitems );
 	cached_settings.ignoredoors	     = setting_enabled( "ignoredoors" );
 	cached_settings.freemove		 = setting_enabled( "freemove" );
 	cached_settings.firewhilemoving = setting_enabled( "firewhilemoving" );
@@ -1181,6 +1550,11 @@ bool Character::can_be_heard_as_ghost() const
 bool Character::can_moveanydist() const
 {
 	return cached_settings.moveanydist;
+}
+
+bool Character::can_plogany() const
+{
+    return cached_settings.plogany;
 }
 
 UContainer* Character::backpack() const

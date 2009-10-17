@@ -6,6 +6,7 @@ History
                       set correct time stamp in textcmd_startlog() and textcmd_stoplog()
 2009/09/03 MuadDib:   Relocation of account related cpp/h
 2009/09/10 MuadDib:   Cleanup of depreciated internal text commands.
+2009/10/17 Turley:    check for priv "plogany" enabled instead of existence - Tomi
 
 Notes
 =======
@@ -366,7 +367,7 @@ NoLosCharacterCursor startlog_cursor( start_packetlog );
 
 void textcmd_startlog( Client* client )
 {
-	if (client->chr->has_privilege("plogany"))
+    if (client->chr->can_plogany())
 	{
 		send_sysmessage( client, "Please target a player to start packet logging for." );
 		startlog_cursor.send_object_cursor( client );
@@ -417,7 +418,7 @@ NoLosCharacterCursor stoplog_cursor( stop_packetlog );
 
 void textcmd_stoplog( Client* client )
 {
-	if (client->chr->has_privilege("plogany"))
+	if (client->chr->can_plogany())
 	{
 		send_sysmessage( client, "Please target a player to stop packet logging for." );
 		stoplog_cursor.send_object_cursor( client );
