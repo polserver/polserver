@@ -113,7 +113,7 @@ inline Zone& getzone( unsigned short x, unsigned short y, Realm* realm )
 }
 
 template <class A>
-void ForEachMobileInRange( int x, int y, Realm* realm, unsigned range,
+void ForEachMobileInRange( u16 x, u16 y, Realm* realm, unsigned range,
                           void (*f)(Character*, A* staticdata), A* staticdata )
 {
     unsigned short wxL, wyL, wxH, wyH;
@@ -144,7 +144,7 @@ void ForEachMobileInVisualRange( Character* chr,
 }
 
 template <class A>
-void ForEachItemInRange( int x, int y, Realm* realm, unsigned range,
+void ForEachItemInRange( u16 x, u16 y, Realm* realm, unsigned range,
                           void (*f)(Item*, A* staticdata), A* staticdata )
 {
     unsigned short wxL, wyL, wxH, wyH;
