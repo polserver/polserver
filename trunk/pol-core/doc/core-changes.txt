@@ -1,4 +1,10 @@
 -- POL099 --
+10-17-2009 Turley:
+     Added: PrivUpdater for "invul","seeghosts","seehidden" and "seeinvisitems" updates/sends/removes objects
+            in visual range on enable/remove - Tomi
+   Changed: .startlog/.stoplog checks now if priv "plogany" is enabled instead of only given - Tomi
+     Fixed: priv "all" now works as expected if enabled every other priv is also enabled
+
 10-14-2009 MuadDib:
    Changed: Methods Char.Squelch() and Char.Deaf() return the gameclock value they are in effect until.
    
