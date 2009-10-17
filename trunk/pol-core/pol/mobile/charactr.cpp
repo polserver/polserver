@@ -48,6 +48,7 @@ History
 2009/10/14 Turley:    Added char.deaf() methods & char.deafened member
 2009/10/17 Turley:    PrivUpdater for "seehidden", "seeghosts", "seeinvisitems" and "invul" - Tomi
                       fixed "all" priv
+                      PrivUpdater class cleanup, removed duplicate stuff
 
 
 Notes
@@ -250,351 +251,204 @@ class PrivUpdater
 {
 public:
 
-	static void on_change_see_hidden( Character* chr, bool enable )
-	{
-		if ( enable )
-		{
-			if ( chr->client)
-			{
-				if ( chr->client->ready )
-					on_enable_see_hidden( chr );
-			}
-			else if ( chr->isa( UObject::CLASS_NPC ) )
-			{
-					on_enable_see_hidden( chr );
-			}
-		}
-		else
-		{
-			if ( chr->client)
-			{
-				if ( chr->client->ready )
-					on_disable_see_hidden( chr );
-			}
-			else if ( chr->isa( UObject::CLASS_NPC ) )
-			{
-					on_disable_see_hidden( chr );
-			}
-		}
-	}
-	static void on_change_see_ghosts( Character* chr, bool enable )
-	{
-		if ( enable )
-		{
-			if ( chr->client)
-			{
-				if ( chr->client->ready )
-					on_enable_see_ghosts( chr );
-			}
-			else if ( chr->isa( UObject::CLASS_NPC ) )
-			{
-					on_enable_see_ghosts( chr );
-			}
-		}
-		else
-		{
-			if ( chr->client)
-			{
-				if ( chr->client->ready )
-					on_disable_see_ghosts( chr );
-			}
-			else if ( chr->isa( UObject::CLASS_NPC ) )
-			{
-					on_disable_see_ghosts( chr );
-			}
-		}
-	}
-	static void on_change_see_invis_items( Character* chr, bool enable )
-	{
-		if ( enable )
-		{
-			if ( chr->client && chr->client->ready )
-				on_enable_see_invis_items( chr );
-		}
-		else
-		{
-			if ( chr->client && chr->client->ready )
-				on_disable_see_invis_items( chr );
-		}
-	}
-	static void on_change_invul( Character* chr, bool enable )
-	{
-		if ( enable )
-		{
-            if ( chr->client)
-			{
-				if ( chr->client->ready )
-					on_enable_invul( chr );
-			}
-			else if ( chr->isa( UObject::CLASS_NPC ) )
-			{
-					on_enable_invul( chr );
-			}
-		}
-		else
-		{
-            if ( chr->client)
-			{
-				if ( chr->client->ready )
-					on_disable_invul( chr );
-			}
-			else if ( chr->isa( UObject::CLASS_NPC ) )
-			{
-					on_disable_invul( chr );
-			}
-		}
-	}
+    static void on_change_see_hidden( Character* chr, bool enable )
+    {
+        if ( enable )
+        {
+            if ( chr->client && chr->client->ready )
+                on_enable_see_hidden( chr );
+            else if ( chr->isa( UObject::CLASS_NPC ) )
+                on_enable_see_hidden( chr );
+        }
+        else
+        {
+            if ( chr->client && chr->client->ready )
+                on_disable_see_hidden( chr );
+            else if ( chr->isa( UObject::CLASS_NPC ) )
+                on_disable_see_hidden( chr );
+        }
+    }
+    static void on_change_see_ghosts( Character* chr, bool enable )
+    {
+        if ( enable )
+        {
+            if ( chr->client && chr->client->ready )
+                on_enable_see_ghosts( chr );
+            else if ( chr->isa( UObject::CLASS_NPC ) )
+                on_enable_see_ghosts( chr );
+        }
+        else
+        {
+            if ( chr->client && chr->client->ready )
+                on_disable_see_ghosts( chr );
+            else if ( chr->isa( UObject::CLASS_NPC ) )
+                on_disable_see_ghosts( chr );
+        }
+    }
+    static void on_change_see_invis_items( Character* chr, bool enable )
+    {
+        if ( enable )
+        {
+            if ( chr->client && chr->client->ready )
+                on_enable_see_invis_items( chr );
+        }
+        else
+        {
+            if ( chr->client && chr->client->ready )
+                on_disable_see_invis_items( chr );
+        }
+    }
+    static void on_change_invul( Character* chr, bool enable )
+    {
+        if ( enable )
+        {
+            if ( chr->client && chr->client->ready )
+                on_enable_invul( chr );
+            else if ( chr->isa( UObject::CLASS_NPC ) )
+                on_enable_invul( chr );
+        }
+        else
+        {
+            if ( chr->client && chr->client->ready )
+                on_disable_invul( chr );
+            else if ( chr->isa( UObject::CLASS_NPC ) )
+                on_disable_invul( chr );
+        }
+    }
 
 private:
 
 	static void on_enable_see_hidden( Character* chr )
 	{
 		if ( chr != NULL )
-		{
-			unsigned short wxL, wyL, wxH, wyH;
-			zone_convert_clip( chr->x - RANGE_VISUAL, chr->y - RANGE_VISUAL, chr->realm, wxL, wyL );
-			zone_convert_clip( chr->x + RANGE_VISUAL, chr->y + RANGE_VISUAL, chr->realm, wxH, wyH );
-
-			for( unsigned short wx = wxL; wx <= wxH; ++wx )
-			{
-				for( unsigned short wy = wyL; wy <= wyH; ++wy )
-				{
-					ZoneCharacters& wchr = chr->realm->zone[wx][wy].characters;
-					for( ZoneCharacters::iterator itr = wchr.begin(), end = wchr.end(); itr != end; ++itr )
-					{
-						Character* in_range_chr = *itr;
-						if ( in_range_chr->hidden() && in_range_chr != chr )
-						{
-							if ( chr->client )
-							{
-								send_owncreate( chr->client, in_range_chr );
-							}
-							else if ( chr->isa( UObject::CLASS_NPC ) )
-							{
-								NPC* npc = static_cast<NPC*>(chr);
-								if ( npc->can_accept_event( EVID_ENTEREDAREA ) )
-								{
-									npc->send_event( new SourcedEvent( EVID_ENTEREDAREA, in_range_chr ) );
-								}	
-							}
-						}
-					}
-				}
-			}
-		}
+            ForEachMobileInVisualRange( chr, enable_see_hidden, chr );
 	}
-	static void on_disable_see_hidden( Character* chr )
+    static void on_disable_see_hidden( Character* chr )
 	{
 		if ( chr != NULL )
-		{
-			unsigned short wxL, wyL, wxH, wyH;
-			zone_convert_clip( chr->x - RANGE_VISUAL, chr->y - RANGE_VISUAL, chr->realm, wxL, wyL );
-			zone_convert_clip( chr->x + RANGE_VISUAL, chr->y + RANGE_VISUAL, chr->realm, wxH, wyH );
-
-			for( unsigned short wx = wxL; wx <= wxH; ++wx )
-			{
-				for( unsigned short wy = wyL; wy <= wyH; ++wy )
-				{
-					ZoneCharacters& wchr = chr->realm->zone[wx][wy].characters;
-					for( ZoneCharacters::iterator itr = wchr.begin(), end = wchr.end(); itr != end; ++itr )
-					{
-						Character* in_range_chr = *itr;
-						if ( in_range_chr->hidden() && in_range_chr != chr )
-						{
-							if ( chr->client )
-							{
-								send_remove_character( chr->client, in_range_chr );
-							}
-							else if ( chr->isa( UObject::CLASS_NPC ) )
-							{
-								NPC* npc = static_cast<NPC*>(chr);
-								if ( npc->can_accept_event( EVID_LEFTAREA ) )
-								{
-									npc->send_event( new SourcedEvent( EVID_LEFTAREA, in_range_chr ) );
-								}	
-							}
-						}
-					}
-				}
-			}
-		}
+            ForEachMobileInVisualRange( chr, disable_see_hidden, chr );
 	}
+    static void enable_see_hidden( Character* in_range_chr, Character* chr )
+    {
+        if ( in_range_chr->hidden() && in_range_chr != chr )
+        {
+            if ( chr->client )
+                send_owncreate( chr->client, in_range_chr );
+            else if ( chr->isa( UObject::CLASS_NPC ) )
+            {
+                NPC* npc = static_cast<NPC*>(chr);
+                if ( npc->can_accept_event( EVID_ENTEREDAREA ) )
+                    npc->send_event( new SourcedEvent( EVID_ENTEREDAREA, in_range_chr ) );
+            }
+        }
+    }
+    static void disable_see_hidden( Character* in_range_chr, Character* chr )
+    {
+        if ( in_range_chr->hidden() && in_range_chr != chr )
+        {
+            if ( chr->client )
+                send_remove_character( chr->client, in_range_chr );
+            else if ( chr->isa( UObject::CLASS_NPC ) )
+            {
+                NPC* npc = static_cast<NPC*>(chr);
+                if ( npc->can_accept_event( EVID_LEFTAREA ) )
+                    npc->send_event( new SourcedEvent( EVID_LEFTAREA, in_range_chr ) );
+            }
+        }
+    }
+	
 	static void on_enable_see_ghosts( Character* chr )
 	{
 		if ( chr != NULL )
-		{
-			unsigned short wxL, wyL, wxH, wyH;
-			zone_convert_clip( chr->x - RANGE_VISUAL, chr->y - RANGE_VISUAL, chr->realm, wxL, wyL );
-			zone_convert_clip( chr->x + RANGE_VISUAL, chr->y + RANGE_VISUAL, chr->realm, wxH, wyH );
-
-			for( unsigned short wx = wxL; wx <= wxH; ++wx )
-			{
-				for( unsigned short wy = wyL; wy <= wyH; ++wy )
-				{
-					ZoneCharacters& wchr = chr->realm->zone[wx][wy].characters;
-					for( ZoneCharacters::iterator itr = wchr.begin(), end = wchr.end(); itr != end; ++itr )
-					{
-						Character* in_range_chr = *itr;
-						if ( in_range_chr->dead() && in_range_chr != chr )
-						{
-							if ( chr->client )
-							{
-								send_owncreate( chr->client, in_range_chr );
-							}
-							else if ( chr->isa( UObject::CLASS_NPC ) )
-							{
-								NPC* npc = static_cast<NPC*>(chr);
-								if ( npc->can_accept_event( EVID_ENTEREDAREA ) )
-								{
-									npc->send_event( new SourcedEvent( EVID_ENTEREDAREA, in_range_chr ) );
-								}	
-							}
-						}
-					}
-				}
-			}
-		}
+            ForEachMobileInVisualRange( chr, enable_see_ghosts, chr );
 	}
-	static void on_disable_see_ghosts( Character* chr )
+    static void on_disable_see_ghosts( Character* chr )
 	{
 		if ( chr != NULL )
-		{
-			unsigned short wxL, wyL, wxH, wyH;
-			zone_convert_clip( chr->x - RANGE_VISUAL, chr->y - RANGE_VISUAL, chr->realm, wxL, wyL );
-			zone_convert_clip( chr->x + RANGE_VISUAL, chr->y + RANGE_VISUAL, chr->realm, wxH, wyH );
-
-			for( unsigned short wx = wxL; wx <= wxH; ++wx )
-			{
-				for( unsigned short wy = wyL; wy <= wyH; ++wy )
-				{
-					ZoneCharacters& wchr = chr->realm->zone[wx][wy].characters;
-					for( ZoneCharacters::iterator itr = wchr.begin(), end = wchr.end(); itr != end; ++itr )
-					{
-						Character* in_range_chr = *itr;
-						if ( in_range_chr->dead() && in_range_chr != chr )
-						{
-							if ( chr->client )
-							{
-								send_remove_character( chr->client, in_range_chr );
-							}
-							else if ( chr->isa( UObject::CLASS_NPC ) )
-							{
-								NPC* npc = static_cast<NPC*>(chr);
-								if ( npc->can_accept_event( EVID_LEFTAREA ) )
-								{
-									npc->send_event( new SourcedEvent( EVID_LEFTAREA, in_range_chr ) );
-								}	
-							}
-						}
-					}
-				}
-			}
-		}
+            ForEachMobileInVisualRange( chr, disable_see_ghosts, chr );
 	}
+    static void enable_see_ghosts( Character* in_range_chr, Character* chr )
+    {
+        if ( in_range_chr->dead() && in_range_chr != chr )
+        {
+            if ( chr->client )
+                send_owncreate( chr->client, in_range_chr );
+            else if ( chr->isa( UObject::CLASS_NPC ) )
+            {
+                NPC* npc = static_cast<NPC*>(chr);
+                if ( npc->can_accept_event( EVID_ENTEREDAREA ) )
+                    npc->send_event( new SourcedEvent( EVID_ENTEREDAREA, in_range_chr ) );
+            }
+        }
+    }
+    static void disable_see_ghosts( Character* in_range_chr, Character* chr )
+    {
+        if ( in_range_chr->dead() && in_range_chr != chr )
+        {
+            if ( chr->client )
+                send_remove_character( chr->client, in_range_chr );
+            else if ( chr->isa( UObject::CLASS_NPC ) )
+            {
+                NPC* npc = static_cast<NPC*>(chr);
+                if ( npc->can_accept_event( EVID_LEFTAREA ) )
+                    npc->send_event( new SourcedEvent( EVID_LEFTAREA, in_range_chr ) );
+            }
+        }
+    }
+
 	static void on_enable_see_invis_items( Character* chr )
 	{
 		if ( chr != NULL )
-		{
-			unsigned short wxL, wyL, wxH, wyH;
-			zone_convert_clip( chr->x - RANGE_VISUAL, chr->y - RANGE_VISUAL, chr->realm, wxL, wyL );
-			zone_convert_clip( chr->x + RANGE_VISUAL, chr->y + RANGE_VISUAL, chr->realm, wxH, wyH );
-
-			for( unsigned short wx = wxL; wx <= wxH; ++wx )
-			{
-				for( unsigned short wy = wyL; wy <= wyH; ++wy )
-				{
-					ZoneItems& witem = chr->realm->zone[wx][wy].items;
-					for( ZoneItems::iterator itr = witem.begin(), end = witem.end(); itr != end; ++itr )
-					{
-						Item* item = *itr;
-						if ( item->invisible() )
-                        {
-							if ( chr->client )
-                                send_item( chr->client, item );
-                        }
-					}
-				}
-			}
-		}
+            ForEachItemInVisualRange( chr, enable_see_invis_items, chr );
 	}
-	static void on_disable_see_invis_items( Character* chr )
+    static void on_disable_see_invis_items( Character* chr )
 	{
 		if ( chr != NULL )
-		{
-			unsigned short wxL, wyL, wxH, wyH;
-			zone_convert_clip( chr->x - RANGE_VISUAL, chr->y - RANGE_VISUAL, chr->realm, wxL, wyL );
-			zone_convert_clip( chr->x + RANGE_VISUAL, chr->y + RANGE_VISUAL, chr->realm, wxH, wyH );
-
-			for( unsigned short wx = wxL; wx <= wxH; ++wx )
-			{
-				for( unsigned short wy = wyL; wy <= wyH; ++wy )
-				{
-					ZoneItems& witem = chr->realm->zone[wx][wy].items;
-					for( ZoneItems::iterator itr = witem.begin(), end = witem.end(); itr != end; ++itr )
-					{
-						Item* item = *itr;
-						if ( item->invisible() )
-                        {
-							if ( chr->client )
-								send_remove_object( chr->client, item );
-                        }
-					}
-				}
-			}
-		}
+            ForEachItemInVisualRange( chr, disable_see_invis_items, chr );
 	}
+    static void enable_see_invis_items( Item* in_range_item, Character* chr )
+    {
+        if ( in_range_item->invisible() )
+        {
+            if ( chr->client )
+                send_item( chr->client, in_range_item );
+        }
+    }
+    static void disable_see_invis_items( Item* in_range_item, Character* chr )
+    {
+        if ( in_range_item->invisible() )
+        {
+            if ( chr->client )
+                send_remove_object( chr->client, in_range_item );
+        }
+    }
+	
 	static void on_enable_invul( Character* chr )
 	{
 		if ( chr != NULL )
-		{
-			unsigned short wxL, wyL, wxH, wyH;
-			zone_convert_clip( chr->x - RANGE_VISUAL, chr->y - RANGE_VISUAL, chr->realm, wxL, wyL );
-			zone_convert_clip( chr->x + RANGE_VISUAL, chr->y + RANGE_VISUAL, chr->realm, wxH, wyH );
-
-			for( unsigned short wx = wxL; wx <= wxH; ++wx )
-			{
-				for( unsigned short wy = wyL; wy <= wyH; ++wy )
-				{
-					ZoneCharacters& wchr = chr->realm->zone[wx][wy].characters;
-					for( ZoneCharacters::iterator itr = wchr.begin(), end = wchr.end(); itr != end; ++itr )
-					{
-						Character* in_range_chr = *itr;
-						if ( in_range_chr->client && in_range_chr->client->ready ) 
-                        {
-							if ( in_range_chr != chr && in_range_chr->is_visible_to_me( chr ) )
-								send_owncreate( in_range_chr->client, chr );
-                        }
-					}
-				}
-			}
-		}
+            ForEachMobileInVisualRange( chr, enable_invul, chr );
 	}
-	static void on_disable_invul( Character* chr )
+    static void on_disable_invul( Character* chr )
 	{
 		if ( chr != NULL )
-		{
-			unsigned short wxL, wyL, wxH, wyH;
-			zone_convert_clip( chr->x - RANGE_VISUAL, chr->y - RANGE_VISUAL, chr->realm, wxL, wyL );
-			zone_convert_clip( chr->x + RANGE_VISUAL, chr->y + RANGE_VISUAL, chr->realm, wxH, wyH );
-
-			for( unsigned short wx = wxL; wx <= wxH; ++wx )
-			{
-				for( unsigned short wy = wyL; wy <= wyH; ++wy )
-				{
-					ZoneCharacters& wchr = chr->realm->zone[wx][wy].characters;
-					for( ZoneCharacters::iterator itr = wchr.begin(), end = wchr.end(); itr != end; ++itr )
-					{
-						Character* in_range_chr = *itr;
-						if ( in_range_chr->client && in_range_chr->client->ready ) 
-                        {
-							if ( in_range_chr != chr && in_range_chr->is_visible_to_me( chr ) )
-								send_owncreate( in_range_chr->client, chr );
-                        }
-					}
-				}
-			}
-		}
-	}
+            ForEachMobileInVisualRange( chr, disable_invul, chr );
+    }
+    static void enable_invul( Character* in_range_chr, Character* chr )
+    {
+        if ( in_range_chr->client && in_range_chr->client->ready ) 
+        {
+            if ( in_range_chr != chr && in_range_chr->is_visible_to_me( chr ) )
+                send_owncreate( in_range_chr->client, chr );
+        }
+    }
+    static void disable_invul( Character* in_range_chr, Character* chr )
+    {
+        if ( in_range_chr->client && in_range_chr->client->ready ) 
+        {
+            if ( in_range_chr != chr && in_range_chr->is_visible_to_me( chr ) )
+                send_owncreate( in_range_chr->client, chr );
+        }
+    }
 };
 
 Character::Character( u16 objtype, UOBJ_CLASS uobj_class ) :
