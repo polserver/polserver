@@ -2,6 +2,7 @@
 History
 =======
 2006/09/27 Shinigami: GCC 3.4.x fix - added "#include "charactr.h" because of ForEachMobileInVisualRange
+2009/10/17 Turley:    added ForEachItemInRange & ForEachItemInVisualRange
 
 Notes
 =======
@@ -140,6 +141,37 @@ void ForEachMobileInVisualRange( Character* chr,
                           void (*f)(Character*, A* staticdata), A* staticdata )
 {
     ForEachMobileInRange( chr->x, chr->y, chr->realm, RANGE_VISUAL, f, staticdata );
+}
+
+template <class A>
+void ForEachItemInRange( int x, int y, Realm* realm, unsigned range,
+                          void (*f)(Item*, A* staticdata), A* staticdata )
+{
+    unsigned short wxL, wyL, wxH, wyH;
+
+    zone_convert_clip( x - range, y - range, realm, wxL, wyL );
+    zone_convert_clip( x + range, y + range, realm, wxH, wyH );
+    passert( wxL <= wxH );
+    passert( wyL <= wyH );
+    for( unsigned short wx = wxL; wx <= wxH; ++wx )
+    {
+        for( unsigned short wy = wyL; wy <= wyH; ++wy )
+        {
+            ZoneItems& wchr = realm->zone[wx][wy].items;
+
+            for( ZoneItems::iterator itr = wchr.begin(), end = wchr.end(); itr != end; ++itr )
+            {
+                Item* item = *itr;
+                (*f)(item, staticdata);
+            }
+        }
+    }
+}
+template <class A>
+void ForEachItemInVisualRange( Character* chr,
+                          void (*f)(Item*, A* staticdata), A* staticdata )
+{
+    ForEachItemInRange( chr->x, chr->y, chr->realm, RANGE_VISUAL, f, staticdata );
 }
 
 #endif
