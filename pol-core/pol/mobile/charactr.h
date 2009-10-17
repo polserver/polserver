@@ -15,6 +15,8 @@ History
 2009/09/22 Turley:    repsys param to applydamage
 2009/10/14 Turley:    new priv canbeheardasghost
 2009/10/14 Turley:    Added char.deaf() methods & char.deafened member
+2009/10/17 Turley:    PrivUpdater for "seehidden", "seeghosts", "seeinvisitems" and "invul" - Tomi
+                      fixed "all" priv
 
 Notes
 =======
@@ -458,6 +460,7 @@ public:
     bool can_seeinvisitems() const;
     bool can_dblclickany() const;
 	bool can_moveanydist() const;
+    bool can_plogany() const;
 
     bool has_privilege( const char* priv ) const;
     bool setting_enabled( const char* setting ) const;
@@ -608,7 +611,7 @@ private:
 
 
 
-    void refresh_cached_settings();
+    void refresh_cached_settings( bool update = true );
     void load_default_elements();
 	friend void ClientCreateChar( Client* client, struct PKTIN_00* msg);
     friend void ClientCreateChar6017( Client* client, struct PKTIN_8D* msg);
@@ -752,6 +755,7 @@ protected: // was private, but hey, NPC will be okay, I think.
     StringSet settings;
 
     struct {
+        bool all;
         bool moveany;    // should everything be moveable?
 		bool moveanydist;
         bool renameany;  // should everything be renameable?
