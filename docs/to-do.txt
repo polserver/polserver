@@ -159,8 +159,6 @@ Planning
                 For this to be R/W, would have to trigger resending the weight information to people
                 around it just as though something was inserted/removed etc. Would this be a pain in
                 the ass to make r/w more than maxweight etc?
-    UnKnown
-        systemfindobjectbyserial no longer finds multi's serials. Verify if this is true in 099.
     Unknown
         Rewrite of 0x11 Status Packet. To include all message types, and settable based on Client Feature Settings so the server
         automatically knows which kind of packet type to send for full system messages. Better handling this way, optimized,

@@ -6,7 +6,7 @@ What client versions support weather, seasons etc?
 
 In theory the code knows about this stuff, but I would like a little more detail/explanation
 
-Sending Season packet RESETS the lightlevel in client to 0.
+Sending Season packet RESETS the lightlevel in client to 0. - issue resolved in 099
 
 UO:SA client will only show you loginservers who's ID is 0x3D.
 
