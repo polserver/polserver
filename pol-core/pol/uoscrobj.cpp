@@ -27,6 +27,8 @@ History
 2009/10/10 Turley:    Added spellbook.addspell() & .removespell() methods
 2009/10/14 Turley:    Added char.deaf() methods & char.deafened member
            MuadDib:   Squelch and Deaf members set to return the gameclock they are in effect till.
+2009/10/17 Turley:    Moved PrivUpdater to charactr.cpp - Tomi
+
 Notes
 =======
 
@@ -1042,49 +1044,6 @@ BObject Item::call_custom_method( const char* methodname, BObjectImpRefVec& pmor
 	}
 }
 
-class PrivUpdater
-{
-public:
-	static void on_enable( Character* chr, const char* pstr )
-	{
-		if ( chr != NULL )
-		{
-
-/*			if ( chr->client )
-			{
-				cached_settings.clotheany	     = setting_enabled( "clotheany" );
-				cached_settings.dblclickany	     = setting_enabled( "dblclickany" );
-				cached_settings.hearghosts	     = setting_enabled( "hearghosts" );
-				cached_settings.invul		     = setting_enabled( "invul" );
-				cached_settings.losany		     = setting_enabled( "losany" );
-				cached_settings.moveany		     = setting_enabled( "moveany" );
-				cached_settings.renameany	     = setting_enabled( "renameany" );
-				cached_settings.seeghosts	     = setting_enabled( "seeghosts" );
-				cached_settings.seehidden	     = setting_enabled( "seehidden" );
-				cached_settings.seeinvisitems    = setting_enabled( "seeinvisitems" );
-				cached_settings.ignoredoors	     = setting_enabled( "ignoredoors" );
-				cached_settings.freemove		 = setting_enabled( "freemove" );
-				cached_settings.firewhilemoving = setting_enabled( "firewhilemoving" );
-				cached_settings.attackhidden     = setting_enabled( "attackhidden" );
-				cached_settings.hiddenattack     = setting_enabled( "hiddenattack" );
-				cached_settings.plogany		     = setting_enabled( "plogany" );
-				cached_settings.moveanydist		 = setting_enabled( "moveanydist" );
-			}
-*/
-		}
-	}
-	static void on_disable( Character* chr, const char* pstr )
-	{
-		if ( chr != NULL )
-		{
-			if ( chr->client )
-			{
-				
-			}
-		}
-	}
-};
-
 class ARUpdater
 {
 public:
@@ -1836,8 +1795,6 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 			    {
 				    set_dirty();
 				    set_setting( pstr->data(), true );
-				    // Run the Priv Updater based on the priv
-				    //PrivUpdater::on_enable( this, pstr->data() );
 				    return new BLong(1);
 			    }
 			    else
