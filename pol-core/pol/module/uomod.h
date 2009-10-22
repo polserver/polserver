@@ -19,6 +19,7 @@ added mf_GetStandingLayers - get layer a mobile can stand
 2009/08/08 MuadDib:   mf_SetRawSkill(),  mf_GetRawSkill(),  mf_ApplyRawDamage(), mf_GameStat(), 
                       mf_AwardRawPoints(), old replace_properties(), mf_GetSkill() cleaned out.
 2009/09/10 Turley:    CompressedGump support (Grin)
+2009/10/22 Turley:    added CanWalk()
 
 Notes
 =======
@@ -260,6 +261,8 @@ public:
 
 	BObjectImp* mf_PlaySoundEffectXYZ(/*x,y,z,effect,realm*/);
 	BObjectImp* mf_PlayMusic(/*char, musicid*/);
+
+    BObjectImp* mf_CanWalk(/*movemode, x1, y1, z1, x2_or_dir, y2 := -1, realm := DEF*/);
 
 	UOExecutor& uoexec;
 	

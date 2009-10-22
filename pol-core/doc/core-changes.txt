@@ -1,4 +1,13 @@
 -- POL099 --
+10-22-2009 Turley:
+     Added: Syshook Ouch(mobile,lastx,lasty,lastz)
+            Called if mobile falls atleast 22 down (fixed Clientside value)
+     Added: uo::CanWalk(movemode, x1, y1, z1, x2_or_dir, y2 := -1, realm := _DEFAULT_REALM)
+            movemode is mobile.movemode string
+            if y2 is -1 x2 is considered as direction (0-7)
+            if x2 and y2 is given it calculates the needed direction
+            returns new z value or error
+            
 10-17-2009 Turley:
      Added: PrivUpdater for "invul","seeghosts","seehidden" and "seeinvisitems" updates/sends/removes objects
             in visual range on enable/disable - Tomi

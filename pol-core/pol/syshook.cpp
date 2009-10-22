@@ -1,6 +1,7 @@
 /*
 History
 =======
+2009/10/22 Turley:    added OuchHook
 
 
 Notes
@@ -102,7 +103,8 @@ SystemHooks::SystemHooks() :
 	speechmul_hook(NULL),
 	hitmiss_hook(NULL),
 	on_cast_hook(NULL),
-	can_decay(NULL)
+	can_decay(NULL),
+    ouch_hook(NULL)
 {
 }
 
@@ -169,6 +171,11 @@ void hook( ExportScript* shs, const string& hookname, const string& exfuncname )
 		nargs = 1;
 		pphook = &system_hooks.can_decay;
 	}
+    else if (hookname == "Ouch")
+    {
+        nargs = 4;
+        pphook = &system_hooks.ouch_hook;
+    }
 	else
 	{
 		cout << "Unknown SystemHook " << hookname << endl;
@@ -265,6 +272,8 @@ void unload_system_hooks()
 		delete system_hooks.on_cast_hook;
 	if (system_hooks.can_decay != NULL)
 		delete system_hooks.can_decay;
+    if (system_hooks.ouch_hook != NULL)
+		delete system_hooks.ouch_hook;
 }
 
 ExportScript* FindExportScript( const ScriptDef& sd )

@@ -215,6 +215,7 @@ AssignRectToWeatherRegion( region, xwest, ynorth, xeast, ysouth );
 Attach( character );
 Broadcast( text, font := _DEFAULT_TEXT_FONT, color := _DEFAULT_TEXT_COLOR );
 CancelTarget( of_whom );
+CanWalk(movemode, x1, y1, z1, x2_or_dir, y2 := -1, realm := _DEFAULT_REALM);
 CheckLineOfSight( object1, object2 );
 CheckLosAt( character, x, y, z );
 CheckLosBetween( x1, y1, z1, x2, y2, z2, realm := _DEFAULT_REALM );
