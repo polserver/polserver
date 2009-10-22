@@ -49,6 +49,7 @@ History
 2009/10/17 Turley:    PrivUpdater for "seehidden", "seeghosts", "seeinvisitems" and "invul" - Tomi
                       fixed "all" priv
                       PrivUpdater class cleanup, removed duplicate stuff
+2009/10/22 Turley:    added OuchHook call if lastz-z>21 (clientside value)
 
 
 Notes
@@ -3819,6 +3820,12 @@ bool Character::move( unsigned char i_dir )
 			else if (stealthsteps_)
 				--stealthsteps_;
 		}
+
+        if (system_hooks.ouch_hook != NULL)
+        {
+            if ((lastz-z) > 21)
+                system_hooks.ouch_hook->call( make_mobileref(this), new BLong(lastx),new BLong(lasty), new BLong(lastz) );
+        }
 	}
 
 	set_dirty();

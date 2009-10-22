@@ -46,6 +46,7 @@ History
                       Changes for multi related source file relocation
 2009/09/14 MuadDib:   Slot support added to creation/move to container.
 2009/09/15 MuadDib:   Multi registration/unregistration support added.
+2009/10/22 Turley:    added CanWalk()
 
 Notes
 =======
@@ -88,6 +89,9 @@ Notes
 #include "../../plib/mapshape.h"
 #include "../../plib/maptile.h"
 #include "../../plib/realm.h"
+
+#include "../../clib/random.h"
+#include "../mdelta.h"
 
 #include "../action.h"
 #include "../multi/boat.h"
@@ -137,6 +141,10 @@ Notes
 #include "uomod.h"
 
 #include "../objecthash.h"
+
+
+
+
 
 #define CONST_DEFAULT_ZRANGE 19
 
@@ -5492,6 +5500,110 @@ BObjectImp* UOExecutorModule::mf_UpdateMobile()
 
 }
 
+UFACING direction_toward( xcoord from_x, ycoord from_y, xcoord to_x, ycoord to_y );
+BObjectImp* UOExecutorModule::mf_CanWalk(/*movemode, x1, y1, z1, x2_or_dir, y2 := -1, realm := DEF*/)
+{
+    xcoord x;
+    ycoord y;
+    zcoord z;
+    long x2_or_dir, y2_;
+    const String* realm_name;
+    const String* movemode_name;
+
+    if ((getStringParam(0, movemode_name)) &&
+        (getParam(1,x)) &&
+        (getParam(2,y)) &&
+        (getParam(3,z)) &&
+        (getParam(4,x2_or_dir)) &&
+        (getParam(5,y2_)) &&
+        (getStringParam(6, realm_name)))
+    {
+        //FIXME c&p from Character::decode_movemode
+        MOVEMODE movemode = MOVEMODE_NONE;
+        if ((movemode_name->value()).find( 'L' ) != string::npos)
+            movemode = static_cast<MOVEMODE>(movemode + MOVEMODE_LAND);
+        if ((movemode_name->value()).find( 'S' ) != string::npos)
+            movemode = static_cast<MOVEMODE>(movemode + MOVEMODE_SEA);
+        if ((movemode_name->value()).find( 'A' ) != string::npos)
+            movemode = static_cast<MOVEMODE>(movemode + MOVEMODE_AIR);
+
+        Realm* realm = find_realm(realm_name->value());
+        if( !realm ) 
+            return new BError("Realm not found.");
+        else if( !realm->valid(x, y, z) ) 
+            return new BError("Invalid coordinates for realm.");
+        UFACING dir;
+        if (y2_ == -1)
+            dir=static_cast<UFACING>(x2_or_dir & 0x7);
+        else
+        {
+            if( !realm->valid(static_cast<xcoord>(x2_or_dir), static_cast<ycoord>(y2_), 0) ) 
+                return new BError("Invalid coordinates for realm.");
+            dir=direction_toward( x,y,static_cast<xcoord>(x2_or_dir),static_cast<ycoord>(y2_));
+        }
+
+        if (dir & 1) // check if diagonal movement is allowed
+        {
+            short new_z;
+            u8 tmp_facing = (dir+1) & 0x7;
+            unsigned short tmp_newx = x + move_delta[ tmp_facing ].xmove;
+            unsigned short tmp_newy = y + move_delta[ tmp_facing ].ymove;
+
+            // needs to save because if only one direction is blocked, it shouldn't block ;)
+            bool walk1 = realm->walkheight(x,y,z,&new_z,NULL,NULL,true,movemode,NULL);
+
+            tmp_facing = (dir-1) & 0x7;
+            tmp_newx = x + move_delta[ tmp_facing ].xmove;
+            tmp_newy = y + move_delta[ tmp_facing ].ymove;
+
+            if (!walk1 && !realm->walkheight(x,y,z,&new_z,NULL,NULL,true,movemode,NULL))
+                return new BError("Cannot walk there");
+        }
+
+        unsigned short newx = x + move_delta[ dir ].xmove;
+        unsigned short newy = y + move_delta[ dir ].ymove;
+        short newz;
+
+        if (!realm->walkheight(newx,newy,z,&newz,NULL,NULL,true,movemode,NULL))
+            return new BError("Cannot walk there");
+
+        return new BLong(newz);
+    }
+    else
+        return new BError("Invalid parameter");
+}
+
+//FIXME move ufacing.h functions into *.cpp then move this function there
+UFACING direction_toward( xcoord from_x, ycoord from_y, xcoord to_x, ycoord to_y )
+{
+    if (from_x < to_x)        // East to target
+    {
+        if (from_y < to_y)
+            return FACING_SE;
+        else if (from_y == to_y)
+            return FACING_E;
+        else /* from_y > to_y */
+            return FACING_NE;
+    }
+    else if (from_x == to_x)
+    {
+        if (from_y < to_y)
+            return FACING_S;
+        else if (from_y > to_y)
+            return FACING_N;
+    }
+    else /* from_x > to_x */  // West to target
+    {
+        if (from_y < to_y)
+            return FACING_SW;
+        else if (from_y == to_y)
+            return FACING_W;
+        else /* from_y > to_y */
+            return FACING_NW;
+    }
+    return FACING_N;
+}
+
 UOFunctionDef UOExecutorModule::function_table[] =
 {
 	{ "SendStatus",					&UOExecutorModule::mf_SendStatus },
@@ -5654,7 +5766,8 @@ UOFunctionDef UOExecutorModule::function_table[] =
 	{ "PlayMovingEffectXyzEx",  &UOExecutorModule::mf_PlayMovingEffectXyz_Ex },
 
 	{ "UpdateMobile",           &UOExecutorModule::mf_UpdateMobile },
-	{ "CheckLosBetween",        &UOExecutorModule::mf_CheckLosBetween }
+	{ "CheckLosBetween",        &UOExecutorModule::mf_CheckLosBetween },
+    { "CanWalk",                &UOExecutorModule::mf_CanWalk }
 
 };
 

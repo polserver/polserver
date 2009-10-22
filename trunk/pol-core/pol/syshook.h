@@ -1,6 +1,7 @@
 /*
 History
 =======
+2009/10/22 Turley:    added OuchHook
 
 
 Notes
@@ -60,6 +61,7 @@ public:
 	ExportedFunction* hitmiss_hook;
 	ExportedFunction* on_cast_hook;
 	ExportedFunction* can_decay;
+    ExportedFunction* ouch_hook;
 };
 extern SystemHooks system_hooks;
 
