@@ -15,6 +15,7 @@ History
 2009/09/18 MuadDib:   Adding save/load of registered house serial
 2009/09/22 MuadDib:   Rewrite for Character/NPC to use ar(), ar_mod(), ar_mod(newvalue) virtuals.
 2009/10/14 Turley:    Added char.deaf() methods & char.deafened member
+2009/10/23 Turley:    fixed OPPONENT_MOVED,LEFTAREA,ENTEREDAREA
 
 Notes
 =======
@@ -756,54 +757,49 @@ void NPC::inform_leftarea( Character* wholeft )
 
 void NPC::inform_moved( Character* moved )
 {
-	// 8-26-05    Austin
-	// Note: This does not look at realms at all, just X Y coords.
+    // 8-26-05    Austin
+    // Note: This does not look at realms at all, just X Y coords.
+    // ^is_visible_to_me checks realm - Turley
 
     if (ex != NULL)
     {
-        if ((moved == opponent_) && (ex->eventmask & (EVID_OPPONENT_MOVED)))
+        bool signaled=false;
+        passert( this != NULL );
+        passert( moved != NULL );
+        if ( ex->eventmask & (EVID_ENTEREDAREA | EVID_LEFTAREA) )
         {
-            if ( (!ssopt.event_visibility_core_checks) || is_visible_to_me( moved ) )
-                ex->os_module->signal_event( new SourcedEvent( EVID_OPPONENT_MOVED, moved ) );
-        }
-        else if ( ex->eventmask & (EVID_ENTEREDAREA) )
-        {
-            passert( this != NULL );
-            passert( moved != NULL );
                 // egcs may have a compiler bug when calling these as inlines
             bool are_inrange = (abs( x - moved->x ) <= ex->area_size) &&
                                (abs( y - moved->y ) <= ex->area_size);
 
                 // inrangex_inline( this, moved, ex->area_size );
             bool were_inrange =(abs( x - moved->lastx ) <= ex->area_size) &&
-		                       (abs( y - moved->lasty ) <= ex->area_size);
-                
-                // inrangex_inline( this, moved->lastx, moved->lasty, ex->area_size );
-            if ( are_inrange && !were_inrange && (ex->eventmask & (EVID_ENTEREDAREA)) )
+                               (abs( y - moved->lasty ) <= ex->area_size);
+
+            if ( (!ssopt.event_visibility_core_checks) || is_visible_to_me( moved ) )
+            {
+                if ( are_inrange && !were_inrange && (ex->eventmask & (EVID_ENTEREDAREA)) )
+                {
+                    ex->os_module->signal_event( new SourcedEvent( EVID_ENTEREDAREA, moved ) );
+                    signaled=true;
+                }
+                else if ( !are_inrange && were_inrange && (ex->eventmask & (EVID_LEFTAREA)) )
+                {
+                    ex->os_module->signal_event( new SourcedEvent( EVID_LEFTAREA, moved ) );
+                    signaled=true;
+                }
+            }
+        }
+
+        if (!signaled) // only send moved event if left/enteredarea wasnt send
+        {
+            if ((moved == opponent_) && (ex->eventmask & (EVID_OPPONENT_MOVED)))
             {
                 if ( (!ssopt.event_visibility_core_checks) || is_visible_to_me( moved ) )
-                        ex->os_module->signal_event( new SourcedEvent( EVID_ENTEREDAREA, moved ) );
+                    ex->os_module->signal_event( new SourcedEvent( EVID_OPPONENT_MOVED, moved ) );
             }
         }
-        else if ( ex->eventmask & (EVID_LEFTAREA) )
-        {
-            passert( this != NULL );
-            passert( moved != NULL );
-                // egcs may have a compiler bug when calling these as inlines
-            bool are_inrange = (abs( x - moved->x ) <= ex->area_size) &&
-                               (abs( y - moved->y ) <= ex->area_size);
-
-                // inrangex_inline( this, moved, ex->area_size );
-            bool were_inrange =(abs( x - moved->lastx ) <= ex->area_size) &&
-		                       (abs( y - moved->lasty ) <= ex->area_size);
-                
-            if ( !are_inrange && were_inrange && (ex->eventmask & (EVID_LEFTAREA)) )
-            {
-				if ( (!ssopt.event_visibility_core_checks) || is_visible_to_me( moved ) )
-                        ex->os_module->signal_event( new SourcedEvent( EVID_LEFTAREA, moved ) );
-            }
-		}
-	}
+    }
 }
 
 //
@@ -813,35 +809,29 @@ void NPC::inform_moved( Character* moved )
 
 void NPC::inform_imoved( Character* chr )
 {
-    if ( ex != NULL )
+    if (ex != NULL)
     {
         passert( this != NULL );
         passert( chr != NULL );
-
-		// egcs may have a compiler bug when calling these as inlines
-        bool are_inrange = (abs( x - chr->x ) <= ex->area_size) &&
-							(abs( y - chr->y ) <= ex->area_size);
-            
-        bool were_inrange =(abs( lastx - chr->x ) <= ex->area_size) &&
-							(abs( lasty - chr->y ) <= ex->area_size);
-
-		if ( ex->eventmask & (EVID_ENTEREDAREA) )
+        if ( ex->eventmask & (EVID_ENTEREDAREA | EVID_LEFTAREA) )
         {
-			if ( are_inrange && !were_inrange )
+                // egcs may have a compiler bug when calling these as inlines
+            bool are_inrange = (abs( x - chr->x ) <= ex->area_size) &&
+                               (abs( y - chr->y ) <= ex->area_size);
+
+                // inrangex_inline( this, moved, ex->area_size );
+            bool were_inrange =(abs( x - chr->lastx ) <= ex->area_size) &&
+                               (abs( y - chr->lasty ) <= ex->area_size);
+
+            if ( (!ssopt.event_visibility_core_checks) || is_visible_to_me( chr ) )
             {
-               if ( (!ssopt.event_visibility_core_checks) || is_visible_to_me( chr ) )
-                        ex->os_module->signal_event( new SourcedEvent( EVID_ENTEREDAREA, chr ) );
+                if ( are_inrange && !were_inrange && (ex->eventmask & (EVID_ENTEREDAREA)) )
+                    ex->os_module->signal_event( new SourcedEvent( EVID_ENTEREDAREA, chr ) );
+                else if ( !are_inrange && were_inrange && (ex->eventmask & (EVID_LEFTAREA)) )
+                    ex->os_module->signal_event( new SourcedEvent( EVID_LEFTAREA, chr ) );
             }
         }
-        else if ( ex->eventmask & (EVID_LEFTAREA) )
-        {
-            if (!are_inrange && were_inrange)
-            {
-                if ( (!ssopt.event_visibility_core_checks) || is_visible_to_me( chr ))
-                        ex->os_module->signal_event( new SourcedEvent( EVID_LEFTAREA, chr ) );
-            }
-        }
-	}
+    }
 }
 
 bool NPC::can_accept_event( EVENTID eventid )
