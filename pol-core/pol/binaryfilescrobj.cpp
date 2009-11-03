@@ -95,13 +95,13 @@ BObjectImp* BBinaryfile::call_method_id( const int id, Executor& ex )
                 (!ex.getParam( 1, type )))
                 return new BError("Invalid parameter");
             // FIXME: ms::stl has different flag values then stlport :(
-            ios::seekdir seekdir = 0x0;
+            ios::seekdir seekdir;
             if (type & 0x01)
-                seekdir = ios::beg;
-            else if (type & 0x02)
                 seekdir = ios::cur;
-            else 
+            else if (type & 0x02)
                 seekdir = ios::end;
+            else 
+                seekdir = ios::beg;
             if (!file.Seek(value,seekdir))
                 return new BLong(0);
             return new BLong(1);
