@@ -575,13 +575,19 @@ void send_put_in_container_to_inrange( const Item *item )
 			if ( client2->ClientType & CLIENTTYPE_6017 )
 			{
 				if (!slot_built)
+                {
 					BuildMsg25(item, &slot_buffer);
+                    slot_built=true;
+                }
 				client2->transmit(&slot_buffer, sizeof slot_buffer);
 			}
 			else
 			{
 				if (!legacy_built)
+                {
 					BuildMsg25(item, &legacy_buffer);
+                    legacy_built=true;
+                }
 				client2->transmit(&legacy_buffer, sizeof legacy_buffer);
 			}
 			if(client2->UOExpansionFlag & AOS)
