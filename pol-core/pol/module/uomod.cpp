@@ -2320,10 +2320,6 @@ BObjectImp* UOExecutorModule::mf_ListItemsNearLocation(/* x, y, z, range, realm 
 
 void UOExecutorModule::internal_InBoxAreaChecks(unsigned short &x1, unsigned short &y1, short &z1, unsigned short &x2, unsigned short &y2, short &z2, Realm* realm)
 {
-	if( x1 < 0 )
-		x1 = 0;
-	if ( y1 < 0 )
-		y1 = 0;
 	if ( z1 < WORLD_MIN_Z )
 		z1 = WORLD_MIN_Z;
 

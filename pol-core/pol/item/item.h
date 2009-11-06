@@ -264,7 +264,7 @@ inline bool Item::slot_index( u8 newvalue )
 {
 	if (ssopt.use_slot_index)
 	{
-		if (newvalue >= 0 && newvalue < ssopt.default_max_slots)
+		if (newvalue < ssopt.default_max_slots)
 		{
 			slot_index_ = newvalue;
 			return true;

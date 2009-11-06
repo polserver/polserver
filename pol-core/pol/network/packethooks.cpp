@@ -570,3 +570,4 @@ bool CompareVersionDetail(VersionDetailStruct ver1, VersionDetailStruct ver2)
 	else
 		return true;
 }
+

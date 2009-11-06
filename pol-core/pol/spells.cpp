@@ -549,3 +549,4 @@ void clean_spells()
 	}
 	spells2.clear();
 }
+

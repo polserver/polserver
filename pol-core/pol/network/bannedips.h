@@ -21,3 +21,4 @@ struct IPRule
 };
 
 std::vector< IPRule > banned_ips;
+
