@@ -137,3 +137,4 @@ UFACING direction_away( const Character* src, xcoord from_x, ycoord from_y )
 }
 
 #endif // UFACING_H
+

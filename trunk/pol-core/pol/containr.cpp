@@ -169,7 +169,7 @@ bool UContainer::can_add_to_slot( u8& slotIndex )
 {
 	if (ssopt.use_slot_index)
 	{
-		if ( slotIndex > MAX_SLOTS || slotIndex > desc.max_slots)
+		if ( slotIndex > desc.max_slots)
 			return false;
 
 		if ( is_slot_empty(slotIndex) )

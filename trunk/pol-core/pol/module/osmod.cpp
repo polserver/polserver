@@ -578,3 +578,4 @@ BObjectImp* OSExecutorModule::mf_OpenURL()
 		return new BError( "Invalid parameter type" );
 	}
 }
+

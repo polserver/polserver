@@ -476,3 +476,4 @@ BObjectImp* PartyExecutorModule::mf_SendPrivatePartyMsg()
 	else
 		return err;
 }
+

@@ -120,3 +120,4 @@ bool MultiDef::readshapes( MapShapeList& vec, short x, short y, short zbase, uns
     }
     return result;
 }
+
