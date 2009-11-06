@@ -215,3 +215,4 @@ void SendAOSTooltip(Client* client, UObject* obj, bool vendor_content)
 	delete [] buffer;
 	buffer = NULL;
 }
+

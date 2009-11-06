@@ -34,7 +34,7 @@ _filename( filename ),
 bigendian( _bigendian )
 {
 	//FIXME: ms::stl has different flag values then stlport :(
-	openmode=0x0;
+	openmode=static_cast<ios::openmode>(0x0);
 	if (mode & 0x01)
 		openmode |= ios::in;
 	if (mode & 0x02)
@@ -385,29 +385,29 @@ bool BinFile::WriteString(const char* chr, unsigned len)
 fstream::pos_type BinFile::FileSize(Executor& exec)
 {
     if (!_file.is_open() )
-        return NULL;
+        return fstream::pos_type(0);
 
     fstream::pos_type save_pos = _file.tellg();
     if (save_pos == fstream::pos_type(-1))
     {
         exec.setFunctionResult( new BError( "FileSize failed to determine current position."  ) );
-        return NULL;
+        return fstream::pos_type(0);
     }
     if (!_file.seekg( 0, ios::end ))
     {
         exec.setFunctionResult( new BError( "FileSize failed to seek to end of file."  ) );
-        return NULL;
+        return fstream::pos_type(0);
     }
     fstream::pos_type size = _file.tellg();
     if (size == fstream::pos_type(-1))
     {
         exec.setFunctionResult( new BError( "FileSize could not determine file size."  ) );
-        return NULL;
+        return fstream::pos_type(0);
     }
     if (!_file.seekg( save_pos ))
     {
         exec.setFunctionResult( new BError( "FileSize failed to seek to original position."  ) );
-        return NULL;
+        return fstream::pos_type(0);
     }
     return size;
 }

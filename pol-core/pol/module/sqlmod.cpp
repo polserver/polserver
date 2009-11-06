@@ -28,3 +28,4 @@ BObjectImp* SQLExecutorModule::mf_ConnectToDB()
 {
 	return new BLong(1);
 }
+

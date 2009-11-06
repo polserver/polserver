@@ -138,3 +138,4 @@ void equip_item( Client *client, PKTIN_13 *msg )
 }
 
 MESSAGE_HANDLER( PKTIN_13, equip_item );
+

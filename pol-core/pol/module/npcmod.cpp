@@ -1042,3 +1042,4 @@ BObjectImp* NPCExecutorModule::mf_SetWarMode()
 		return new BLong(0);
 	}
 }
+

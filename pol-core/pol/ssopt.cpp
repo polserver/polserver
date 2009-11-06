@@ -78,14 +78,15 @@ void read_servspecopt()
     ssopt.yell_range = elem.remove_ushort("YellRange",25);
 	ssopt_parse_totalstats(elem);
 
-	if ( ssopt.default_max_slots > 255 )
-	{
-		cerr << "Invalid MaxContainerSlots value '" 
-             << ssopt.default_max_slots << "', using '255'" << endl;
-        Log( "Invalid MaxContainerSlots value '%d', using '255'\n", 
-              ssopt.default_max_slots );
-		ssopt.default_max_slots = 255;
-	}
+// Turley 2009/11/06 u8 range...
+//	if ( ssopt.default_max_slots > 255 )
+//	{
+//		cerr << "Invalid MaxContainerSlots value '" 
+//             << ssopt.default_max_slots << "', using '255'" << endl;
+//        Log( "Invalid MaxContainerSlots value '%d', using '255'\n", 
+//              ssopt.default_max_slots );
+//		ssopt.default_max_slots = 255;
+//	}
 }
 
 void ssopt_parse_totalstats(ConfigElem& elem)

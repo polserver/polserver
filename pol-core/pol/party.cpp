@@ -288,7 +288,7 @@ bool Party::is_leader(u32 serial)
 u32 Party::get_member_at(unsigned short pos)
 {
 	if (_member_serials.size() < pos)
-		return NULL;
+		return 0;
 	return _member_serials[pos];
 
 }

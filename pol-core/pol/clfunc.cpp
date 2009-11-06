@@ -388,3 +388,4 @@ unsigned char* build_sysmessage_cl_affix(unsigned* msglen,unsigned int cliloc_nu
 	return tmp_msg;
 
 }
+

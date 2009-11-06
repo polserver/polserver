@@ -29,3 +29,5 @@ void BoundingBox::addarea( const Area& area )
 {
 	areas.push_back( area );
 }
+
+
