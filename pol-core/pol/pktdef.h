@@ -95,3 +95,4 @@ const u8 CHAR_FLAG1_NORMAL      = 0x00;
 #define RESPONSE_MAX_LEN 200
 
 #endif
+

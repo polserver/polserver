@@ -131,14 +131,14 @@ void svr_decrypt( unsigned char *dst, int *lenout,
 
 			bitcount += 1;
 
-			for( unsigned char i = 0; i <= 256; i++ )
+			for( int i = 0; i <= 256; ++i )
 			{
 				if (bitcount == keydesc[ i ].nbits)
 				{
 					if (keydesc[i].bits == cmpval)
 					{
 						if (i == 0x0100) return;
-						*dst = i;
+						*dst = (unsigned char)i;
 						dst++;
 						*lenout = *lenout + 1;
 						bitcount = 0;

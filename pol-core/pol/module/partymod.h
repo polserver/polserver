@@ -28,3 +28,4 @@ public:
 BObjectImp* CreatePartyRefObjImp( Party* party );
 
 #endif
+

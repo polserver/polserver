@@ -47,13 +47,13 @@ RealmDescriptor::RealmDescriptor( const string& realm_name, const string& realm_
 RealmDescriptor::RealmDescriptor():
 	name(""),
 	file_path(""),
-	width(NULL),
-	height(NULL),
-	uomapid(NULL),
-	uodif(NULL),
-	num_map_patches(NULL),
-	num_static_patches(NULL),
-	season(NULL),
+	width(0),
+	height(0),
+	uomapid(0),
+	uodif(false),
+	num_map_patches(0),
+	num_static_patches(0),
+	season(0),
 	mapserver_type("")
 {
 }

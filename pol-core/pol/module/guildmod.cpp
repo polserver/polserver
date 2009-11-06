@@ -1026,3 +1026,4 @@ bool AreEnemies( Guild* g1, Guild* g2 )
 {
     return g1->hasEnemy(g2);
 }
+

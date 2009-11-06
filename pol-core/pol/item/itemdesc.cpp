@@ -619,11 +619,11 @@ ContainerDesc::ContainerDesc( u16 objtype, ConfigElem& elem, const Package* pkg 
 {
 	// FIXME: in theory, should never happen due to conversion to u8. Maybe here as note during rewrite. Add a remove_uchar/remove_char for allowing
 	// use of max 0-255 integers control due to packet limits, in configuration files. Yay.
-	if ( max_slots > 255 )
-	{
-			cerr << "Warning! Container " << hexint( objtype ) << ": Invalid MaxSlots defined. MaxSlots max value is 255. Setting to 255." << endl;
-			max_slots = 255;
-	}
+//	if ( max_slots > 255 )
+//	{
+//			cerr << "Warning! Container " << hexint( objtype ) << ": Invalid MaxSlots defined. MaxSlots max value is 255. Setting to 255." << endl;
+//			max_slots = 255;
+//	}
 }
 
 void ContainerDesc::PopulateStruct( BStruct* descriptor ) const

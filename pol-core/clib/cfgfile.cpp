@@ -1129,3 +1129,4 @@ void StubConfigSource::display_error( const std::string& msg,
         << " reading configuration element:"
         << "\t" << msg << endl;
 }
+
