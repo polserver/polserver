@@ -867,7 +867,7 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex )
 				{ 
 					--idx;
 	// FIXME: 2008 Upgrades needed here? Make sure still working correctly under 2008
-#if defined(_WIN32) && _MSC_VER >= 1300
+#if (defined(_WIN32) && _MSC_VER >= 1300) || (!defined(USE_STLPORT) && __GNUC__)
 					BObjectRef tmp;
 					ref_arr.insert( ref_arr.begin() + idx, tmp );
 #else
