@@ -63,6 +63,12 @@ Notes
 #pragma warning( disable: 4786 )
 #endif
 
+#ifdef __GNUC__
+  #ifndef USE_STLPORT
+    #include <math.h>
+  #endif
+#endif
+
 #include <assert.h>
 
 #include "../../clib/endian.h"
