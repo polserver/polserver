@@ -213,7 +213,7 @@ void UContainer::add_bulk( long item_count_delta, long weight_delta )
     // cout << "Adding " << delta << " stones to container " << serial << endl;
     if (container != NULL)
     {
-        container->add_bulk( item_count_delta, weight_delta );
+        container->add_bulk( 0, weight_delta );
     }
 }
 
