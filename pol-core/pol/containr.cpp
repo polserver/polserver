@@ -196,11 +196,11 @@ void UContainer::add( Item *item )
 }
 void UContainer::add_bulk( const Item* item )
 {
-    add_bulk( item->item_count(), item->weight() );
+    add_bulk( 1, item->weight() );
 }
 void UContainer::remove_bulk( const Item* item )
 {
-    add_bulk( -static_cast<long>(item->item_count()), -static_cast<long>(item->weight()) );
+    add_bulk( -static_cast<long>(1), -static_cast<long>(item->weight()) );
 }
 
 void UContainer::add_bulk( long item_count_delta, long weight_delta )
