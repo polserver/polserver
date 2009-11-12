@@ -9,6 +9,7 @@ History
 					  items listed as "equipped". Also created necessary functions to make use of this like
 					  WornItem Container has.
 2009/09/03 MuadDib:   Relocation of multi related cpp/h
+2009/11/12 Turley:    Changed "can add"-functions to only check weight recursive
 
 Notes
 =======
@@ -138,7 +139,7 @@ bool UContainer::can_add_bulk( long tli_diff, long item_count_diff, long weight_
             return false;
 
         if (container != NULL)
-            return container->can_add_bulk( 0, item_count_diff, weight_diff );
+            return container->can_add_bulk( 0, 0, weight_diff );
         else
             return true;
     }
@@ -157,7 +158,7 @@ bool UContainer::can_add_bulk( long tli_diff, long item_count_diff, long weight_
 
 bool UContainer::can_add( const Item& item ) const
 {
-    return can_add_bulk( 1, item.item_count(), item.weight() );
+    return can_add_bulk( 1, 1, item.weight() );
 }
 
 bool UContainer::can_add( unsigned short more_weight ) const
