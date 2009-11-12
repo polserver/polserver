@@ -57,15 +57,17 @@ void Realm::standheight( MOVEMODE movemode,
                   short oldz, 
                   bool* result_out, short * newz_out, int* gradual_boost ) const
 {
-    short lowest_blocking_z = 128;
-    short highest_blocking_z = -127;
+    static MapShapeList possible_shapes;
+    possible_shapes.clear();
     bool land_ok = (movemode & MOVEMODE_LAND) ? true : false;
     bool sea_ok  = (movemode & MOVEMODE_SEA) ? true : false;
-	int the_boost = 0;
-	int new_boost = 0;
+    int the_boost = 0;
+    int new_boost = 0;
 
-	if (gradual_boost != NULL)
-		the_boost = *gradual_boost;
+    if (gradual_boost != NULL)
+        the_boost = *gradual_boost;
+    if (the_boost < 5)
+        the_boost = 5;
   
     if (shapes.size() == 1) //map only
     {
@@ -78,10 +80,9 @@ void Realm::standheight( MOVEMODE movemode,
         }
     }
 
-
     short newz = -200;
-    bool result = false;
 
+    // first check only possible walkon shapes and build a list
     for( MapShapeList::const_iterator itr = shapes.begin(); itr != shapes.end(); ++itr )
     {
         const MapShape& shape = (*itr);
@@ -96,15 +97,6 @@ void Realm::standheight( MOVEMODE movemode,
         }
 #endif
 
-		if (the_boost < 5)
-			the_boost = 5;
-
-
-        if (shape.z < lowest_blocking_z)
-            lowest_blocking_z = shape.z;
-        if (ztop > highest_blocking_z)
-            highest_blocking_z = ztop;
-
         if ( (land_ok && (flags&FLAG::MOVELAND)) ||
              (sea_ok && (flags&FLAG::MOVESEA)) )
         {
@@ -114,65 +106,86 @@ void Realm::standheight( MOVEMODE movemode,
 #if ENABLE_POLTEST_OUTPUT
                 if (static_debug_on) cout << "Setting Z to " << int(ztemp) << endl;
 #endif
+
+                MapShape pos_shape; // add it to the possible list
+                pos_shape.z = shape.z;
+                pos_shape.height = shape.height;
+                pos_shape.flags = shape.flags;
+                possible_shapes.push_back( pos_shape );
                 newz = ztop;
-                result = true;
-				if (flags&FLAG::GRADUAL)
-					new_boost = shape.height;
             }
         }
         if ( newz < shape.z &&
                     shape.z < newz+PLAYER_CHARACTER_HEIGHT)  // space too small to stand?
         {
-
-			result = false;
+            possible_shapes.pop_back(); // remove the last pos_shape
         }
     }
   
-
-    if (result)
+    bool ret_result=false;
+    short ret_newz = -200;
+    if (!possible_shapes.empty())
     {
-        for( MapShapeList::const_iterator itr = shapes.begin(); itr != shapes.end(); ++itr )
+        // loop through all possible shapes and test if other shape blocks
+        for (MapShapeList::const_iterator pos_itr=possible_shapes.begin(); pos_itr != possible_shapes.end(); ++pos_itr)
         {
-            const MapShape& shape = (*itr);
-            if ((shape.flags & (FLAG::MOVELAND|FLAG::MOVESEA|FLAG::BLOCKING)) == 0)
-                continue;
-            int shape_top = shape.z + shape.height;
-
-            if ( (newz < shape.z && 
-						//        Must be left lower than 15 height like
-						//        other checks, it will block char from walking down
-						//        ladders in homes/dungeons if over 9.
-					   shape.z <= oldz+9 /*PLAYER_CHARACTER_HEIGHT*/ && 
-                       shape_top > oldz)
-                    ||
-                 (shape.z < newz+PLAYER_CHARACTER_HEIGHT && shape_top > newz) )
-
+            bool result = true;
+            const MapShape& pos_shape = (*pos_itr);
+            newz = pos_shape.z + pos_shape.height;
+            for( MapShapeList::const_iterator itr = shapes.begin(); itr != shapes.end(); ++itr )
             {
-#if ENABLE_POLTEST_OUTPUT
-                if (static_debug_on)
+                const MapShape& shape = (*itr);
+                if ((shape.flags & (FLAG::MOVELAND|FLAG::MOVESEA|FLAG::BLOCKING)) == 0)
+                    continue;
+                int shape_top = shape.z + shape.height;
+
+                if ( (newz < shape.z && 
+                    //        Must be left lower than 15 height like
+                    //        other checks, it will block char from walking down
+                    //        ladders in homes/dungeons if over 9.
+                    shape.z <= oldz+9 /*PLAYER_CHARACTER_HEIGHT*/ && 
+                    shape_top > oldz)
+                    ||
+                    (shape.z < newz+PLAYER_CHARACTER_HEIGHT && shape_top > newz) )
+
                 {
-                    cout << "static: objtype=0x" << std::hex << srec.graphic << std::dec 
-                         << ", z=" << int(srec.z) 
-                         << ", ht=" << int(srec.height) 
-                         << " blocks movement to z=" << int(newz) << endl;
-                }
+#if ENABLE_POLTEST_OUTPUT
+                    if (static_debug_on)
+                    {
+                        cout << "static: objtype=0x" << std::hex << srec.graphic << std::dec 
+                            << ", z=" << int(srec.z) 
+                            << ", ht=" << int(srec.height) 
+                            << " blocks movement to z=" << int(newz) << endl;
+                    }
 #endif
 
-				result = false;
-                break;
+                    result = false;
+                    break;
+                }
+
+            }
+            if (result)
+            {
+                //if something was already found use the smallest step diff
+                if ((ret_result) && (labs(oldz-ret_newz) < labs(oldz-newz)))
+                    continue;
+                ret_result=true;
+                ret_newz=newz;
+                if (pos_shape.flags & FLAG::GRADUAL)
+                    new_boost = pos_shape.height;
             }
         }
     }
 
-    *result_out = result;
-    *newz_out = newz;
-	if (result && (gradual_boost != NULL))
-	{
-		if (new_boost > 11)
-			*gradual_boost = 11;
-		else
-			*gradual_boost = new_boost;
-	}
+    *result_out = ret_result;
+    *newz_out = ret_newz;
+    if (ret_result && (gradual_boost != NULL))
+    {
+        if (new_boost > 11)
+            *gradual_boost = 11;
+        else
+            *gradual_boost = new_boost;
+    }
 }
 
 
