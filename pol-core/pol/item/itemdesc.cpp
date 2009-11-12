@@ -611,7 +611,7 @@ ContainerDesc::ContainerDesc( u16 objtype, ConfigElem& elem, const Package* pkg 
 	maxy(elem.remove_ushort( "MAXY" )),
 	max_weight(elem.remove_ushort( "MAXWEIGHT", ssopt.default_container_max_weight )),
 	max_items(elem.remove_ushort( "MAXITEMS", ssopt.default_container_max_items )),
-	max_slots(static_cast<u8>(elem.remove_ushort( "MAXY", ssopt.default_max_slots ))),
+	max_slots(static_cast<u8>(elem.remove_ushort( "MAXSLOTS", ssopt.default_max_slots ))),
 	can_insert_script(elem.remove_string( "CANINSERTSCRIPT", "" ), pkg, "scripts/control/" ),
 	on_insert_script(elem.remove_string( "ONINSERTSCRIPT", "" ), pkg, "scripts/control/" ),
 	can_remove_script(elem.remove_string( "CANREMOVESCRIPT", "" ), pkg, "scripts/control/" ),
