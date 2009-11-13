@@ -6,6 +6,7 @@ History
 2005/06/06 Shinigami: added readmultis derivative - to get a list of statics
 2005/09/03 Shinigami: fixed: Realm::walkheight ignored param doors_block
 2009/09/03 MuadDib:   Relocation of multi related cpp/h
+2009/11/13 Turley:    Rewrote MovementCode
 
 Notes
 =======
@@ -118,7 +119,8 @@ void Realm::standheight( MOVEMODE movemode,
         if ( newz < shape.z &&
                     shape.z < newz+PLAYER_CHARACTER_HEIGHT)  // space too small to stand?
         {
-            possible_shapes.pop_back(); // remove the last pos_shape
+            if (!possible_shapes.empty())
+                possible_shapes.pop_back(); // remove the last pos_shape
         }
     }
   
@@ -143,11 +145,9 @@ void Realm::standheight( MOVEMODE movemode,
                     //        Must be left lower than 15 height like
                     //        other checks, it will block char from walking down
                     //        ladders in homes/dungeons if over 9.
-                    shape.z <= oldz+9 /*PLAYER_CHARACTER_HEIGHT*/ && 
-                    shape_top > oldz)
+                    shape.z <= oldz+9 /*PLAYER_CHARACTER_HEIGHT*/)
                     ||
                     (shape.z < newz+PLAYER_CHARACTER_HEIGHT && shape_top > newz) )
-
                 {
 #if ENABLE_POLTEST_OUTPUT
                     if (static_debug_on)
