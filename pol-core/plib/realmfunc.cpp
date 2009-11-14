@@ -70,17 +70,6 @@ void Realm::standheight( MOVEMODE movemode,
     if (the_boost < 5)
         the_boost = 5;
   
-    if (shapes.size() == 1) //map only
-    {
-        const MapShape& shape = shapes.at(0);
-        if ( land_ok && (shape.flags & (FLAG::MOVELAND)) )
-        {
-            *result_out = true;
-            *newz_out = shape.z + shape.height;
-            return;
-        }
-    }
-
     short newz = -200;
 
     // first check only possible walkon shapes and build a list
