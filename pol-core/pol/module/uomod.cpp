@@ -5546,13 +5546,13 @@ BObjectImp* UOExecutorModule::mf_CanWalk(/*movemode, x1, y1, z1, x2_or_dir, y2 :
             unsigned short tmp_newy = y + move_delta[ tmp_facing ].ymove;
 
             // needs to save because if only one direction is blocked, it shouldn't block ;)
-            bool walk1 = realm->walkheight(x,y,z,&new_z,NULL,NULL,true,movemode,NULL);
+            bool walk1 = realm->walkheight(tmp_newx,tmp_newy,z,&new_z,NULL,NULL,true,movemode,NULL);
 
             tmp_facing = (dir-1) & 0x7;
             tmp_newx = x + move_delta[ tmp_facing ].xmove;
             tmp_newy = y + move_delta[ tmp_facing ].ymove;
 
-            if (!walk1 && !realm->walkheight(x,y,z,&new_z,NULL,NULL,true,movemode,NULL))
+            if (!walk1 && !realm->walkheight(tmp_newx,tmp_newy,z,&new_z,NULL,NULL,true,movemode,NULL))
                 return new BError("Cannot walk there");
         }
 
