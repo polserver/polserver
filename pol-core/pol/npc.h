@@ -3,6 +3,7 @@ History
 =======
 2006/09/17 Shinigami: send_event() will return error "Event queue is full, discarding event"
 2009/09/22 MuadDib:   Rewrite for Character/NPC to use ar(), ar_mod(), ar_mod(newvalue) virtuals.
+2009/11/16 Turley:    added NpcPropagateEnteredArea()/inform_enteredarea() for event on resurrection
 
 Notes
 =======
@@ -60,6 +61,7 @@ public:
     virtual void inform_disengaged( Character* disengaged );
     virtual void inform_criminal( Character* thecriminal );
 	virtual void inform_leftarea( Character* wholeft );
+    virtual void inform_enteredarea( Character* whoentered );
 	virtual void inform_moved( Character* moved );
     virtual void inform_imoved( Character* chr );
     virtual bool can_be_renamed_by( const Character* chr ) const;
