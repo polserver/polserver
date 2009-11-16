@@ -16,6 +16,7 @@ History
 2009/09/22 MuadDib:   Rewrite for Character/NPC to use ar(), ar_mod(), ar_mod(newvalue) virtuals.
 2009/10/14 Turley:    Added char.deaf() methods & char.deafened member
 2009/10/23 Turley:    fixed OPPONENT_MOVED,LEFTAREA,ENTEREDAREA
+2009/11/16 Turley:    added NpcPropagateEnteredArea()/inform_enteredarea() for event on resurrection
 
 Notes
 =======
@@ -750,7 +751,25 @@ void NPC::inform_leftarea( Character* wholeft )
         if ( ex->eventmask & (EVID_LEFTAREA) )
         {
 			if ( pol_distance(this, wholeft) <= ex->area_size )
-                ex->os_module->signal_event( new SourcedEvent( EVID_LEFTAREA, wholeft ) );
+            {
+                if ( (!ssopt.event_visibility_core_checks) || is_visible_to_me( wholeft ) )
+                    ex->os_module->signal_event( new SourcedEvent( EVID_LEFTAREA, wholeft ) );
+            }
+        }
+	}
+}
+
+void NPC::inform_enteredarea( Character* whoentered )
+{
+	if (ex != NULL)
+    {
+        if ( ex->eventmask & (EVID_ENTEREDAREA) )
+        {
+			if ( pol_distance(this, whoentered) <= ex->area_size )
+            {
+                if ( (!ssopt.event_visibility_core_checks) || is_visible_to_me( whoentered ) )
+                    ex->os_module->signal_event( new SourcedEvent( EVID_ENTEREDAREA, whoentered ) );
+            }
         }
 	}
 }

@@ -17,6 +17,7 @@ History
 2009/10/14 Turley:    Added char.deaf() methods & char.deafened member
 2009/10/17 Turley:    PrivUpdater for "seehidden", "seeghosts", "seeinvisitems" and "invul" - Tomi
                       fixed "all" priv
+2009/11/16 Turley:    added NpcPropagateEnteredArea()/inform_enteredarea() for event on resurrection
 
 Notes
 =======
@@ -319,6 +320,7 @@ public:
     virtual void inform_engaged( Character* engaged );
     virtual void inform_criminal( Character* thecriminal );
 	virtual void inform_leftarea( Character* wholeft );
+    virtual void inform_enteredarea( Character* whoentered );
 	virtual void inform_moved( Character* moved );
     virtual void inform_imoved( Character* chr );
     void clear_opponent_of();
@@ -953,6 +955,14 @@ inline void NpcPropagateLeftArea( Character* chr, Character* wholeft )
 	if (chr != wholeft)
 	{
 		chr->inform_leftarea( wholeft );
+	}
+}
+
+inline void NpcPropagateEnteredArea( Character* chr, Character* whoentered )
+{
+	if (chr != whoentered)
+	{
+		chr->inform_enteredarea( whoentered );
 	}
 }
 

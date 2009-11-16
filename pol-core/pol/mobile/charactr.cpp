@@ -50,6 +50,7 @@ History
                       fixed "all" priv
                       PrivUpdater class cleanup, removed duplicate stuff
 2009/10/22 Turley:    added OuchHook call if lastz-z>21 (clientside value)
+2009/11/16 Turley:    added NpcPropagateEnteredArea()/inform_enteredarea() for event on resurrection
 
 
 Notes
@@ -2185,6 +2186,8 @@ void Character::resurrect()
 	// Tell other connected players, if in range, about this character.
 	send_remove_character_to_nearby_cansee( this );
 	send_create_mobile_to_nearby_cansee( this );
+
+    ForEachMobileInRange( x, y, realm, 32, NpcPropagateEnteredArea, this );
 }
 
 void Character::on_death( Item* corpse )
@@ -3005,6 +3008,11 @@ void Character::inform_criminal( Character* moved )
 }
 
 void Character::inform_leftarea( Character* wholeft )
+{
+	// virtual that does nothing at character level, but fires event for NPCs
+}
+
+void Character::inform_enteredarea( Character* whoentered )
 {
 	// virtual that does nothing at character level, but fires event for NPCs
 }

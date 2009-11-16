@@ -1,4 +1,7 @@
 -- POL099 --
+11-16-2009 Turley:
+     Added: NPCs receive EnteredArea event on char resurrect
+
 11-11-2009 Turley:
    Changed: intern container MaxItems too highest possible value (packet size) its now 3200
    Changed: container "can add"-functions to only check weight recursive
