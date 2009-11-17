@@ -10,6 +10,7 @@ History
 					  WornItem Container has.
 2009/09/03 MuadDib:   Relocation of multi related cpp/h
 2009/11/12 Turley:    Changed "can add"-functions to only check weight recursive
+2009/11/17 Turley:    Fixed problem with sending remove object packet
 
 Notes
 =======
@@ -493,13 +494,16 @@ void UContainer::remove( Item* item )
 	//DAVE added this 11/17. refresh owner's weight on delete
 	Character* chr_owner = item->GetCharacterOwner();
 
+    if(chr_owner != NULL && chr_owner->client != NULL)
+	{
+		send_remove_object_to_inrange( item );
+	}
     remove( itr );
 
 	item->slot_index(0);
 
-	if(chr_owner != NULL && chr_owner->client != NULL)
+    if(chr_owner != NULL && chr_owner->client != NULL)
 	{
-		send_remove_object_to_inrange( item );
 		send_full_statmsg( chr_owner->client, chr_owner );
 		//chr_owner->refresh_ar();
 	}
