@@ -1,4 +1,9 @@
 -- POL099 --
+11-17-2009 Turley:
+     Fixed: possible hang in party system
+            remove object packet send when container is on a character
+            several movement code bugs
+
 11-16-2009 Turley:
      Added: NPCs receive EnteredArea event on char resurrect
 
