@@ -9,6 +9,7 @@ History
 					  STLport-5.2.1 fix: illegal usage of NULL instead of 0
 					  STLport-5.2.1 fix: initialization of member in handle_party_msg()
 2009/08/26 Turley:    changed convertUCtoArray() to if check
+2009/11/17 Turley:    fixed hang due to illegal pointers
 
 Notes
 =======
@@ -769,7 +770,10 @@ void register_party_members()
 	while( itr != parties.end() )
 	{
 		if (!(*itr)->register_with_members())
+		{
+			(*itr)->disband();
 			itr = parties.erase( itr );
+		}
 		else
 			++itr;
 	}
