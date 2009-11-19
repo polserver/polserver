@@ -3428,7 +3428,7 @@ void Character::check_attack_after_move()
 
 void Character::check_light_region_change()
 {
-	if (lightoverride_until < read_gameclock() && lightoverride_until != (gameclock_t)-1)
+	if (lightoverride_until < read_gameclock() && lightoverride_until != ~0Lu)
 	{
 		lightoverride_until = 0;
 		lightoverride		= -1;
