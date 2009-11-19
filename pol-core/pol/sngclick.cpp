@@ -86,21 +86,18 @@ void singleclick( Client *client, PKTIN_09 *msg)
 
         if (chr && inrange( client->chr, chr ) && !client->chr->is_concealed_from_me(chr) )
         {
-            if (!chr->title_guild.empty())
+            if (!chr->title_guild.empty() && (ssopt.core_handled_tags & 0x1))
                 send_nametext( client, chr, "[" + chr->title_guild + "]" );
             send_nametext( client, chr, chr->name() );
             string tags;
-			if ( ssopt.core_handled_tags )
-			{
-				if (chr->frozen())
-					tags = "[frozen] ";
-				if (chr->paralyzed())
-					tags += "[paralyzed] ";
-				if (chr->squelched())
-					tags += "[squelched] ";
-				if (chr->deafened())
-					tags += "[deafened] ";
-			}
+			if (chr->frozen() && (ssopt.core_handled_tags & 0x2))
+				tags = "[frozen] ";
+			if (chr->paralyzed() && (ssopt.core_handled_tags & 0x4))
+				tags += "[paralyzed] ";
+			if (chr->squelched() && (ssopt.core_handled_tags & 0x8))
+				tags += "[squelched] ";
+			if (chr->deafened() && (ssopt.core_handled_tags & 0x10))
+				tags += "[deafened] ";
 
 			if (ssopt.invul_tag == 1) {
 				if (chr->invul())
