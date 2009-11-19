@@ -43,6 +43,7 @@ History
 2009/09/15 MuadDib:   Multi registration/unregistration support added.
 2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
 2009/09/22 MuadDib:   Fix for lightlevel resets in client during login.
+2009/11/19 Turley:    ssopt.core_sends_season & .core_handled_tags - Tomi
 
 Notes
 =======
@@ -380,7 +381,9 @@ void start_client_char( Client *client )
 
 	send_realm_change( client, client->chr->realm );
 	send_map_difs( client );
-	send_season_info( client );
+
+	if (ssopt.core_sends_season)
+        send_season_info( client );
 
 	client->chr->lastx = client->chr->lasty = client->chr->lastz = 0;
 
@@ -397,7 +400,8 @@ void start_client_char( Client *client )
 
 	client->chr->check_weather_region_change(true);
 
-	send_season_info( client );
+	if (ssopt.core_sends_season)
+		send_season_info( client );
 
 	send_objects_newly_inrange( client );
 	
