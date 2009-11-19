@@ -60,7 +60,7 @@ struct ServSpecOpt {
 	unsigned short yell_range;
 
 	bool core_sends_season;
-	bool core_handled_tags;
+	unsigned short core_handled_tags;
 
 	std::vector<std::string> total_stats_at_creation;
 };

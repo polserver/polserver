@@ -78,7 +78,7 @@ void read_servspecopt()
     ssopt.whisper_range = elem.remove_ushort("WhisperRange",2);
     ssopt.yell_range = elem.remove_ushort("YellRange",25);
 	ssopt.core_sends_season = elem.remove_bool("CoreSendsSeason",true);
-	ssopt.core_handled_tags = elem.remove_bool("CoreHandledTags",true);
+	ssopt.core_handled_tags = elem.remove_ushort("CoreHandledTags",0xFFFF);
 	ssopt_parse_totalstats(elem);
 
 // Turley 2009/11/06 u8 range...
