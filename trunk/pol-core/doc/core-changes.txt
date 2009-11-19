@@ -1,4 +1,19 @@
 -- POL099 --
+11-19-2009 Turley:
+   Changed: chr.setlightlevel() now supports endless duration (-1) return is the new gameclock value - Tomi
+     Added: [paralyzed] & [deafened] @ singleclick packet - Tomi
+     Added: ServSpecOpt CoreSendsSeason 1/0 (default 1)
+            Determines if the core should send season packet on char creation/logon/reconnect and realm 
+            change based on the season entry in realm.cfg.
+            ServSpecOpt CoreHandledTags 1/0 (default 1)
+            if true then core handles the tags in the name for singleclick packet when char is 
+            frozen, paralyzed, squelched or deafened. - Tomi
+   Removed: "You cannot insert that item into the container." sysmsg after container CanInsert script 
+            returns 0 - Tomi
+   Changed: uo::UpdateMobile(who, flags:=0)
+            if flags is 0 old behaviour it sends update Mobile packet 0x77, 
+            if set to 1 it sends recreate packet 0x78 - Tomi
+
 11-17-2009 Turley:
      Fixed: possible hang in party system
             remove object packet send when container is on a character

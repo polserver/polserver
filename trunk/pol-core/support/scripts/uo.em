@@ -354,6 +354,6 @@ SystemFindObjectBySerial( serial, sysfind_flags := 0 );
 Target( by_character, options := TGTOPT_CHECK_LOS+TGTOPT_NEUTRAL);
 TargetCoordinates( by_character );
 TargetMultiPlacement( character, objtype, flags := 0, xoffset := 0, yoffset := 0 );
-UpdateMobile( mobile );
+UpdateMobile( mobile, recreate := 0 );
 UseItem(item, character);
 POLCore();

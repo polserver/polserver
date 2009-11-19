@@ -11,6 +11,7 @@ History
 2009/09/03 MuadDib:   Moved combat related settings to Combat Config.
 2009/09/09 Turley:    ServSpecOpt CarryingCapacityMod as * modifier for Character::carrying_capacity()
 2009/10/12 Turley:    whisper/yell/say-range ssopt definition
+2009/11/19 Turley:    ssopt.core_sends_season & .core_handled_tags - Tomi
 
 Notes
 =======
@@ -76,6 +77,8 @@ void read_servspecopt()
     ssopt.speech_range = elem.remove_ushort("SpeechRange",12);
     ssopt.whisper_range = elem.remove_ushort("WhisperRange",2);
     ssopt.yell_range = elem.remove_ushort("YellRange",25);
+	ssopt.core_sends_season = elem.remove_bool("CoreSendsSeason",true);
+	ssopt.core_handled_tags = elem.remove_bool("CoreHandledTags",true);
 	ssopt_parse_totalstats(elem);
 
 // Turley 2009/11/06 u8 range...

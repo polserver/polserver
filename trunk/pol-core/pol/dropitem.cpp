@@ -16,6 +16,8 @@ History
 2009/09/03 MuadDib:	  Changes for account related source file relocation
 					  Changes for multi related source file relocation
 2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
+2009/11/19 Turley:    removed sysmsg after CanInsert call (let scripter handle it) - Tomi
+
 
 Notes
 =======
@@ -86,7 +88,6 @@ bool place_item_in_container( Client *client, Item *item, UContainer *cont, u16 
     if (!cont->can_insert_add_item( client->chr, UContainer::MT_PLAYER, item))
 	{
 		send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
-		send_sysmessage( client, "You cannot insert that item into the container." );
         return false;
 	}
 
