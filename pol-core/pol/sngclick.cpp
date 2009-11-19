@@ -2,6 +2,7 @@
 History
 =======
 2005/12/05 MuadDib:   Added check for invul_tag from ssopt. If not 1, don't add tag.
+2009/11/19 Turley:    ssopt.core_sends_season & .core_handled_tags - Tomi
 
 Notes
 =======
@@ -89,16 +90,22 @@ void singleclick( Client *client, PKTIN_09 *msg)
                 send_nametext( client, chr, "[" + chr->title_guild + "]" );
             send_nametext( client, chr, chr->name() );
             string tags;
-            if (chr->frozen())
-                tags = "[frozen] ";
-			if (ssopt.invul_tag == 1) {
-				if (chr->invul()) {
-					tags += "[invulnerable] ";
-				}
+			if ( ssopt.core_handled_tags )
+			{
+				if (chr->frozen())
+					tags = "[frozen] ";
+				if (chr->paralyzed())
+					tags += "[paralyzed] ";
+				if (chr->squelched())
+					tags += "[squelched] ";
+				if (chr->deafened())
+					tags += "[deafened] ";
 			}
 
-			if (chr->squelched())
-                tags += "[squelched]";
+			if (ssopt.invul_tag == 1) {
+				if (chr->invul())
+					tags += "[invulnerable]";
+			}
             if (!tags.empty())
                 send_nametext( client, chr, tags );
         }
