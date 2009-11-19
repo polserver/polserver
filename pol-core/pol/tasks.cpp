@@ -79,7 +79,7 @@ void regen_stats(void)
 
 					if (chr->lightoverride != -1)
 					{
-						if (chr->lightoverride_until < now_gameclock && chr->lightoverride_until != (gameclock_t)-1)
+						if (chr->lightoverride_until < now_gameclock && chr->lightoverride_until != ~0Lu)
 						{
 							chr->lightoverride = -1;
 							chr->lightoverride_until = 0;
