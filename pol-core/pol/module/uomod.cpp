@@ -47,6 +47,7 @@ History
 2009/09/14 MuadDib:   Slot support added to creation/move to container.
 2009/09/15 MuadDib:   Multi registration/unregistration support added.
 2009/10/22 Turley:    added CanWalk()
+2009/11/19 Turley:    added flag param to UpdateMobile controls if packet 0x78 or 0x77 should be send - Tomi
 
 Notes
 =======
@@ -5482,14 +5483,29 @@ BObjectImp* UOExecutorModule::mf_IsStackable()
 BObjectImp* UOExecutorModule::mf_UpdateMobile()
 {
 	Character* chr;
-	if (getCharacterParam(exec, 0, chr))
+	long flags;
+
+	if (getCharacterParam(exec, 0, chr) &&
+        getParam(1, flags))
 	{
-		if ((!chr->isa(UObject::CLASS_NPC)) && (chr->client))  // no npc and active client
-			send_move( chr->client, chr ); // inform self
-		if ((chr->isa(UObject::CLASS_NPC)) || (chr->client))  // npc or active client
-			send_move_mobile_to_nearby_cansee(chr); // inform other
+		if (flags == 1)
+		{
+			if ((!chr->isa(UObject::CLASS_NPC)) && (chr->client))  // no npc and active client
+				send_owncreate( chr->client, chr ); // inform self
+			if ((chr->isa(UObject::CLASS_NPC)) || (chr->client))  // npc or active client
+				send_create_mobile_to_nearby_cansee(chr); // inform other
+			else
+				return new BError("Mobile is offline");
+		}
 		else
-			return new BError("Mobile is offline");
+		{
+			if ((!chr->isa(UObject::CLASS_NPC)) && (chr->client))  // no npc and active client
+				send_move( chr->client, chr ); // inform self
+			if ((chr->isa(UObject::CLASS_NPC)) || (chr->client))  // npc or active client
+				send_move_mobile_to_nearby_cansee(chr); // inform other
+			else
+				return new BError("Mobile is offline");
+		}
 		return new BLong(1);
 	}
 	return new BLong(0);

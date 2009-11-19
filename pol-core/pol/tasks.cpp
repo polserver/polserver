@@ -4,6 +4,7 @@ History
 2005/01/23 Shinigami: regen_stats - Tokuno MapDimension doesn't fit blocks of 64x64 (WGRID_SIZE)
 2005/09/14 Shinigami: regen_stats - Vital.regen_while_dead implemented
 2006/09/23 Shinigami: wrong data type correction
+2009/11/19 Turley:    lightlevel now supports endless duration - Tomi
 
 Notes
 =======
@@ -78,7 +79,7 @@ void regen_stats(void)
 
 					if (chr->lightoverride != -1)
 					{
-						if (chr->lightoverride_until < now_gameclock)
+						if (chr->lightoverride_until < now_gameclock && chr->lightoverride_until != (gameclock_t)-1)
 						{
 							chr->lightoverride = -1;
 							chr->lightoverride_until = 0;

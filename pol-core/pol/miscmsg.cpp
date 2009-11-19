@@ -14,6 +14,7 @@ History
 2009/09/03 MuadDib:   Relocation of multi related cpp/h
 2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
                       Added 0xE1 packet (UO3D clienttype packet)
+2009/11/19 Turley:    ssopt.core_sends_season & .core_handled_tags - Tomi
 
 Notes
 =======
@@ -191,9 +192,10 @@ void handle_client_version( Client* client, PKTBI_BD* msg )
         else if (client->compareVersion(CLIENT_VER_4000))
             client->setClientType(CLIENTTYPE_4000);
 
-		send_season_info( client );	// Scott 10/11/2007 added for login fixes and handling 1.x clients.
-									// Season info needs to check client version to keep from crashing 1.x
-									// version not set until shortly after login complete.
+		if (ssopt.core_sends_season)
+			send_season_info( client );	// Scott 10/11/2007 added for login fixes and handling 1.x clients.
+										// Season info needs to check client version to keep from crashing 1.x
+										// version not set until shortly after login complete.
 		//send_feature_enable(client); //dave commented out 8/21/03, unexpected problems with people sending B9 via script with this too.
 		if( (client->UOExpansionFlag & AOS) )
 		{

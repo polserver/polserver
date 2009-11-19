@@ -28,6 +28,7 @@ History
 2009/10/14 Turley:    Added char.deaf() methods & char.deafened member
            MuadDib:   Squelch and Deaf members set to return the gameclock they are in effect till.
 2009/10/17 Turley:    Moved PrivUpdater to charactr.cpp - Tomi
+2009/11/19 Turley:    lightlevel now supports endless duration - Tomi
 
 Notes
 =======
@@ -1756,12 +1757,21 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 		    if (ex.getParam( 0, level ) &&
 			    ex.getParam( 1, duration ))
 		    {
-			    lightoverride = level;
-			    lightoverride_until = read_gameclock() + duration;
-			    check_region_changes();
-			    return new BLong(1);
-		    }
-        }
+				lightoverride = level;
+
+				if (duration == -1)
+					lightoverride_until = (gameclock_t)-1;
+				else if (duration == 0)
+					lightoverride_until = 0;
+				else
+					lightoverride_until = read_gameclock() + duration;
+
+				check_region_changes();
+                if (duration == -1)
+                    return new BLong(duration);
+				return new BLong(lightoverride_until);
+			}
+		}
 
 	case MTH_SQUELCH:
         {

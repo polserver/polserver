@@ -51,6 +51,7 @@ History
                       PrivUpdater class cleanup, removed duplicate stuff
 2009/10/22 Turley:    added OuchHook call if lastz-z>21 (clientside value)
 2009/11/16 Turley:    added NpcPropagateEnteredArea()/inform_enteredarea() for event on resurrection
+2009/11/19 Turley:    lightlevel now supports endless duration - Tomi
 
 
 Notes
@@ -3427,6 +3428,12 @@ void Character::check_attack_after_move()
 
 void Character::check_light_region_change()
 {
+	if (lightoverride_until < read_gameclock() && lightoverride_until != (gameclock_t)-1)
+	{
+		lightoverride_until = 0;
+		lightoverride		= -1;
+	}
+
 	if (client->gd->weather_region && 
 		client->gd->weather_region->lightoverride != -1 &&
 		lightoverride == -1)
@@ -3878,7 +3885,8 @@ void Character::realm_changed()
 		//these are important to keep here in this order
 		send_realm_change( client, realm );
 		send_map_difs( client );
-		send_season_info( client );
+		if (ssopt.core_sends_season)
+			send_season_info( client );
 		send_short_statmsg( client, this );
 		send_feature_enable( client );
 	}
