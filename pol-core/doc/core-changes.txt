@@ -1,4 +1,20 @@
 -- POL099 --
+11-20-2009 Turley:
+   Changed: RecalcVitals( character, calc_attribute := RECALC_INTRINSIC_MOD, calc_vital := RECALC_VITALS )
+            const RECALC_INTRINSIC_MOD    := 1;
+            const RECALC_NO_INTRINSIC_MOD := 0;
+            const RECALC_VITALS           := 1;
+            const RECALC_NO_VITALS        := 0;
+            possible values for calc_attribute:
+            RECALC_INTRINSIC_MOD - calls for every attribute the GetIntrinsicModFunction (old behaviour)
+            RECALC_NO_INTRINSIC_MOD - skips the GetIntrinsicModFunction calls
+            attribute name string - only calls the GetIntrinsicModFunction for given attribute
+            possible values for calc_vital:
+            RECALC_VITALS - calls for every vital the RegenRateFunction & MaximumFunction (old behaviour)
+            RECALC_NO_VITALS - skips the RegenRateFunction & MaximumFunction calls
+            vital name string - only calls the RegenRateFunction & MaximumFunction for given vital
+            - based on Tomi
+            
 11-19-2009 Turley:
    Changed: chr.setlightlevel() now supports endless duration (-1) return is the new gameclock value - Tomi
      Added: [paralyzed] & [deafened] @ singleclick packet - Tomi
@@ -7,9 +23,11 @@
             change based on the season entry in realm.cfg. - Tomi
    Removed: "You cannot insert that item into the container." sysmsg after container CanInsert script 
             returns 0 - Tomi
-   Changed: uo::UpdateMobile(who, flags:=0)
-            if flags is 0 old behaviour it sends update Mobile packet 0x77, 
-            if set to 1 it sends recreate packet 0x78 - Tomi
+   Changed: uo::UpdateMobile(who, flags:=UPDATEMOBILE_UPDATE)
+            const UPDATEMOBILE_RECREATE := 1;
+            const UPDATEMOBILE_UPDATE   := 0;
+            if flags is UPDATEMOBILE_UPDATE old behaviour it sends update Mobile packet 0x77, 
+            if set to UPDATEMOBILE_RECREATE it sends recreate packet 0x78 - Tomi
      Added: ServSpecOpt CoreHandledTags (default 0xffff)
             bitfield to determine which tags are displayed on singleclick, current used bits are:
             0x1  [title_guild]
@@ -33,9 +51,10 @@
 10-22-2009 Turley:
      Added: Syshook Ouch(mobile,lastx,lasty,lastz)
             Called if mobile falls atleast 22 down (fixed Clientside value)
-     Added: uo::CanWalk(movemode, x1, y1, z1, x2_or_dir, y2 := -1, realm := _DEFAULT_REALM)
+     Added: uo::CanWalk(movemode, x1, y1, z1, x2_or_dir, y2 := CANWALK_DIR, realm := _DEFAULT_REALM)
+            const CANWALK_DIR := -1;
             movemode is mobile.movemode string
-            if y2 is -1 x2 is considered as direction (0-7)
+            if y2 is CANWALK_DIR x2 is considered as direction (0-7)
             if x2 and y2 is given it calculates the needed direction
             returns new z value or error
             

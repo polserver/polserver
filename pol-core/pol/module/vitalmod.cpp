@@ -3,6 +3,7 @@ History
 =======
 2006/10/07 Shinigami: GCC 3.4.x fix - added "template<>" to TmplExecutorModule
 2009/09/22 Turley:    repsys param to applydamage
+2009/11/20 Turley:    RecalcVitals can update single Attributes/Vitals - based on Tomi
 
 Notes
 =======
@@ -16,6 +17,7 @@ Notes
 #include "../../bscript/impstr.h"
 
 #include "../mobile/charactr.h"
+#include "../mobile/attribute.h"
 #include "../network/cliface.h"
 #include "../spells.h"
 #include "../statmsg.h"
@@ -227,14 +229,46 @@ BObjectImp* VitalExecutorModule::mf_ConsumeVital( /* mob, vital, hundredths */ )
 		return new BError("Invalid parameter type");
 }
 
-BObjectImp* VitalExecutorModule::mf_RecalcVitals( /* mob */ )
+BObjectImp* VitalExecutorModule::mf_RecalcVitals( /* mob, attributes, vitals */ )
 {
 	Character* chr;
-	if ( getCharacterParam(exec, 0, chr) )
+	BObjectImp* param1 = getParamImp(1);
+	BObjectImp* param2 = getParamImp(2);
+
+	if ( getCharacterParam(exec, 0, chr) && param1 && param2 )
 	{
 		if ( chr->logged_in )
 		{
-			chr->calc_vital_stuff();
+            bool calc_attr=false;
+            bool calc_vital=false;
+
+            if (param1->isa( BObjectImp::OTLong ))
+                calc_attr = static_cast<BLong*>(param1)->isTrue();
+            else if (param1->isa( BObjectImp::OTString ))
+            {
+                String* attrname = static_cast<String*>(param1);
+                Attribute* attr = FindAttribute(attrname->value());
+                if (!attr)
+					return new BError( "Attribute not defined: " + attrname->value() );
+                chr->calc_single_attribute( attr );
+            }
+            else
+                return new BError("Invalid parameter type");
+
+            if (param2->isa( BObjectImp::OTLong ))
+                calc_vital = static_cast<BLong*>(param2)->isTrue();
+            else if (param2->isa( BObjectImp::OTString ))
+            {
+                String* vitalname = static_cast<String*>(param2);
+				Vital* vital = FindVital( vitalname->value() );
+				if (!vital)
+					return new BError( "Vital not defined: " + vitalname->value() );
+                chr->calc_single_vital( vital );
+            }
+            else
+                return new BError("Invalid parameter type");
+
+            chr->calc_vital_stuff( calc_attr, calc_vital );
 			return new BLong(1);
 		}
 		else

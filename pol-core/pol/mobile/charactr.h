@@ -18,6 +18,7 @@ History
 2009/10/17 Turley:    PrivUpdater for "seehidden", "seeghosts", "seeinvisitems" and "invul" - Tomi
                       fixed "all" priv
 2009/11/16 Turley:    added NpcPropagateEnteredArea()/inform_enteredarea() for event on resurrection
+2009/11/20 Turley:    RecalcVitals can update single Attributes/Vitals - based on Tomi
 
 Notes
 =======
@@ -846,7 +847,9 @@ public:
         return vitals[vitalid];
     }
     void regen_vital( const Vital* ); // throw()
-    void calc_vital_stuff(); // throw()
+    void calc_vital_stuff( bool i_mod = true, bool v_mod = true ); // throw()
+	void calc_single_vital( const Vital* pVital );
+	void calc_single_attribute( const Attribute* pAttr );
     void set_vitals_to_maximum(); // throw();
     void produce( const Vital* pVital, VitalValue& vv, unsigned long amt );
     bool consume( const Vital* pVital, VitalValue& vv, unsigned long amt );
