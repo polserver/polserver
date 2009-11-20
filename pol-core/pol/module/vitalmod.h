@@ -2,6 +2,7 @@
 History
 =======
 2006/10/28 Shinigami: GCC 4.1.1 fix - extra qualification in class removed
+2009/11/20 Turley:    RecalcVitals can update single Attributes/Vitals - based on Tomi
 
 Notes
 =======
@@ -30,7 +31,7 @@ public:
 	BObjectImp* mf_ConsumeMana();
 
 	BObjectImp* mf_ConsumeVital( /* mob, vital, hundredths */);
-	BObjectImp* mf_RecalcVitals( /* mob */ );
+	BObjectImp* mf_RecalcVitals( /* mob, attributes, vitals */ );
 
 	BObjectImp* mf_GetVitalName(/*alias_name*/);
 	

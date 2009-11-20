@@ -52,6 +52,7 @@ History
 2009/10/22 Turley:    added OuchHook call if lastz-z>21 (clientside value)
 2009/11/16 Turley:    added NpcPropagateEnteredArea()/inform_enteredarea() for event on resurrection
 2009/11/19 Turley:    lightlevel now supports endless duration - Tomi
+2009/11/20 Turley:    RecalcVitals can update single Attributes/Vitals - based on Tomi
 
 
 Notes
@@ -1713,53 +1714,69 @@ void Character::regen_vital( const Vital* pVital )
 	}
 }
 
-void Character::calc_vital_stuff()
+void Character::calc_vital_stuff( bool i_mod, bool v_mod )
 {
-	for( unsigned ai = 0; ai < numAttributes; ++ai )
+	if ( i_mod )
 	{
-		Attribute* pAttr = ::attributes[ai];
-		AttributeValue& av = attribute(ai);
-
-		if (pAttr->getintrinsicmod_func)
+		for( unsigned ai = 0; ai < numAttributes; ++ai )
 		{
-			long im = pAttr->getintrinsicmod_func->call_long( new ECharacterRefObjImp(this) );
-			if (im < ATTRIBUTE_MIN_INTRINSIC_MOD)
-				im = ATTRIBUTE_MIN_INTRINSIC_MOD;
-			if (im > ATTRIBUTE_MAX_INTRINSIC_MOD)
-				im = ATTRIBUTE_MAX_INTRINSIC_MOD;
-
-			av.intrinsic_mod(static_cast<short>(im));
-		}
+            calc_single_attribute( ::attributes[ai] );
+        }
 	}
 	
-	for( unsigned vi = 0; vi < numVitals; ++vi )
+	if ( v_mod )
 	{
-		Vital* pVital = ::vitals[vi];
-		VitalValue& vv = vital(vi);
-
-		long start_ones = vv.current_ones();
-
-		//dave change the order of maximum and regen function 3/19/3
-		long mv = pVital->get_maximum_func->call_long( new ECharacterRefObjImp(this) );
-		if (mv < static_cast<long>(VITAL_LOWEST_MAX_HUNDREDTHS))
-			mv = VITAL_LOWEST_MAX_HUNDREDTHS;
-		if (mv > static_cast<long>(VITAL_HIGHEST_MAX_HUNDREDTHS))
-			mv = VITAL_HIGHEST_MAX_HUNDREDTHS;
-		vv.maximum(mv);
-
-		long rr = pVital->get_regenrate_func->call_long( new ECharacterRefObjImp(this) );
-		if (rr < VITAL_LOWEST_REGENRATE)
-			rr = VITAL_LOWEST_REGENRATE;
-		if (rr > VITAL_HIGHEST_REGENRATE)
-			rr = VITAL_HIGHEST_REGENRATE;
-		vv.regenrate(rr);
-
-		if (start_ones != vv.current_ones())
+		for( unsigned vi = 0; vi < numVitals; ++vi )
 		{
-			ClientInterface::tell_vital_changed( this, pVital );
+            calc_single_vital( ::vitals[vi] );
 		}
 	}
+}
 
+void Character::calc_single_vital( const Vital* pVital )
+{
+    VitalValue& vv = vital(pVital->vitalid);
+
+    long start_ones = vv.current_ones();
+
+    //dave change the order of maximum and regen function 3/19/3
+    long mv = pVital->get_maximum_func->call_long( new ECharacterRefObjImp(this) );
+
+    if (mv < static_cast<long>(VITAL_LOWEST_MAX_HUNDREDTHS))
+        mv = VITAL_LOWEST_MAX_HUNDREDTHS;
+    if (mv > static_cast<long>(VITAL_HIGHEST_MAX_HUNDREDTHS))
+        mv = VITAL_HIGHEST_MAX_HUNDREDTHS;
+
+    vv.maximum(mv);
+
+    long rr = pVital->get_regenrate_func->call_long( new ECharacterRefObjImp(this) );
+
+    if (rr < VITAL_LOWEST_REGENRATE)
+        rr = VITAL_LOWEST_REGENRATE;
+    if (rr > VITAL_HIGHEST_REGENRATE)
+        rr = VITAL_HIGHEST_REGENRATE;
+
+    vv.regenrate(rr);
+
+    if (start_ones != vv.current_ones())
+        ClientInterface::tell_vital_changed( this, pVital );
+}
+
+void Character::calc_single_attribute( const Attribute* pAttr )
+{
+	AttributeValue& av = attribute(pAttr->attrid);
+
+	if (pAttr->getintrinsicmod_func)
+	{
+		long im = pAttr->getintrinsicmod_func->call_long( new ECharacterRefObjImp(this) );
+
+		if (im < ATTRIBUTE_MIN_INTRINSIC_MOD)
+			im = ATTRIBUTE_MIN_INTRINSIC_MOD;
+		if (im > ATTRIBUTE_MAX_INTRINSIC_MOD)
+			im = ATTRIBUTE_MAX_INTRINSIC_MOD;
+
+		av.intrinsic_mod(static_cast<short>(im));
+	}
 }
 
 void Character::set_vitals_to_maximum() // throw()

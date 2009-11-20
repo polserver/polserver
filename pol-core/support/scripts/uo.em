@@ -201,6 +201,13 @@ const ACTION_DIR_BACKWARD := 1;
 const ACTION_NOREPEAT     := 0;
 const ACTION_REPEAT       := 1;
 
+//CanWalk
+const CANWALK_DIR := -1;
+
+//UpdateMobile
+const UPDATEMOBILE_RECREATE := 1;
+const UPDATEMOBILE_UPDATE   := 0;
+
 ////////////////////////////////////////////////////////////////
 //
 //	FUNCTIONS
@@ -215,7 +222,7 @@ AssignRectToWeatherRegion( region, xwest, ynorth, xeast, ysouth );
 Attach( character );
 Broadcast( text, font := _DEFAULT_TEXT_FONT, color := _DEFAULT_TEXT_COLOR );
 CancelTarget( of_whom );
-CanWalk(movemode, x1, y1, z1, x2_or_dir, y2 := -1, realm := _DEFAULT_REALM);
+CanWalk(movemode, x1, y1, z1, x2_or_dir, y2 := CANWALK_DIR, realm := _DEFAULT_REALM);
 CheckLineOfSight( object1, object2 );
 CheckLosAt( character, x, y, z );
 CheckLosBetween( x1, y1, z1, x2, y2, z2, realm := _DEFAULT_REALM );
@@ -354,6 +361,6 @@ SystemFindObjectBySerial( serial, sysfind_flags := 0 );
 Target( by_character, options := TGTOPT_CHECK_LOS+TGTOPT_NEUTRAL);
 TargetCoordinates( by_character );
 TargetMultiPlacement( character, objtype, flags := 0, xoffset := 0, yoffset := 0 );
-UpdateMobile( mobile, recreate := 0 );
+UpdateMobile( mobile, recreate := UPDATEMOBILE_UPDATE );
 UseItem(item, character);
 POLCore();
