@@ -1,4 +1,7 @@
 -- POL099 --
+11-23-2009 Turley:
+     Added: uotool param staticdefrag [realm=britannia] to defrag/remove duplicate statics (like fiddler does)
+
 11-20-2009 Turley:
    Changed: RecalcVitals( character, calc_attribute := RECALC_INTRINSIC_MOD, calc_vital := RECALC_VITALS )
             const RECALC_INTRINSIC_MOD    := 1;
