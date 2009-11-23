@@ -39,7 +39,7 @@ unsigned long mapcache_misses;
 unsigned long mapcache_hits;
 bool BoatShapeExists(unsigned short graphic)
 {
-    return false;
+    return true;
 }
 
 PolConfig config;
