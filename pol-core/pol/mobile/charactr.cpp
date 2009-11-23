@@ -4165,7 +4165,9 @@ void Character::cancel_menu()
 
 bool Character::is_trading() const
 {
-	return (trading_with.get() != NULL);
+    if (trading_with!=NULL)
+        return (trading_with.get() != NULL);
+    return false;
 }
 
 void Character::create_trade_container()
