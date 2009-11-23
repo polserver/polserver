@@ -2,46 +2,38 @@
 History
 =======
 2009/09/03 MuadDib:   Relocation of multi related cpp/h
+2009/11/23 Turley:    added staticdefrag to defrag/remove duplicate statics
 
 Notes
 =======
 
 */
 
-#include "../clib/stl_inc.h"
-
 #ifdef _WIN32
 #	pragma warning( disable: 4786 )
 #endif
 
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-#include <string>
-
-using namespace std;
+#include "../clib/stl_inc.h"
 
 #include <assert.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 
-#include "../bscript/config.h"
-
+#include "../clib/stlutil.h"
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
+#include "../clib/cmdargs.h"
+#include "../clib/fileutil.h"
 #include "../clib/fdump.h"
+#include "../clib/passert.h"
 #include "../clib/strutil.h"
-#include "../clib/dirlist.h"
 
-#include "../pol/crypwrap.h"
-#include "../pol/ustruct.h"
-#include "../pol/polfile.h"
 #include "../pol/uofile.h"
-#include "../pol/uofilei.h"
-#include "../pol/udatfile.h"
 #include "../pol/polcfg.h"
+#include "../pol/polfile.h"
+#include "../pol/uofilei.h"
 #include "../pol/multi/multidef.h"
+
+#include "../plib/realmdescriptor.h"
+#include "../plib/staticblock.h"
 
 unsigned long mapcache_misses;
 unsigned long mapcache_hits;
@@ -143,6 +135,7 @@ int Usage( int ret )
     fprintf( stderr, "    sndlist                  prints sound list info\n" );
     fprintf( stderr, "    verlandtile              prints verdata landtile info\n" );
     fprintf( stderr, "    loschange                prints differences in LOS handling \n" );
+    fprintf( stderr, "    staticdefrag [realm=britannia]          recreates static files \n" );
     return ret;
 }
 #define TILES_START 0x68800
@@ -1074,9 +1067,113 @@ int findlandtileflags( int argc, char **argv )
     return 0;
 }
 
-
-int main( int argc, char **argv )
+int defragstatics( int argc, char **argv )
 {
+    const char* realm = FindArg2( "realm=", "britannia" );
+    RealmDescriptor descriptor = RealmDescriptor::Load( realm );
+
+    uo_mapid = descriptor.uomapid;
+    uo_usedif = descriptor.uodif;
+    uo_map_width = static_cast<unsigned short>(descriptor.width);
+    uo_map_height = static_cast<unsigned short>(descriptor.height);
+
+    open_uo_data_files();
+    read_uo_data();
+
+    string statidx = "staidx"+tostring(uo_mapid)+".mul";
+    string statics = "statics"+tostring(uo_mapid)+".mul";
+    RemoveFile( statidx );
+    RemoveFile( statics );
+
+    FILE* fidx = fopen( statidx.c_str(), "wb" );
+    FILE* fmul = fopen( statics.c_str(), "wb" );
+
+    int lastprogress = -1;
+    for( u16 x = 0; x < descriptor.width; x += STATICBLOCK_CHUNK )
+    {
+        int progress = x*100L/descriptor.width;
+        if (progress != lastprogress)
+        {
+             cout << "\rRewriting statics files: " << progress << "%";
+             lastprogress=progress;
+        }
+        for( u16 y = 0; y < descriptor.height; y += STATICBLOCK_CHUNK )
+        {
+            USTRUCT_STATIC* pstat;
+            int num;
+            vector<USTRUCT_STATIC> tilelist;
+            readstaticblock( &pstat, &num, x, y );
+            if (num>0)
+            {
+                long currwritepos = ftell(fmul);
+                for( int i = 0; i < num; ++i )
+                {
+                    USTRUCT_STATIC& tile =pstat[i];
+                    if (tile.graphic < 0x4000)
+                    {
+                        bool first = true;
+                        for( unsigned j = 0; j < tilelist.size(); ++j )
+                        {
+                            USTRUCT_STATIC& stile = tilelist[j];
+                            if ((tile.graphic==stile.graphic)
+                                && (tile.x_offset==stile.x_offset)
+                                && (tile.y_offset==stile.y_offset)
+                                && (tile.z==stile.z)
+                                && (tile.hue==stile.hue))
+                            {
+                                first = false;
+                                break;
+                            }
+                        }
+                        if (first)
+                        {
+                            USTRUCT_STATIC newtile;
+                            newtile.graphic=tile.graphic;
+                            newtile.x_offset=tile.x_offset;
+                            newtile.y_offset=tile.y_offset;
+                            newtile.z=tile.z;
+                            newtile.hue=tile.hue;
+                            tilelist.push_back(newtile);
+                        }
+                    }
+                }
+                USTRUCT_IDX idx;
+                idx.offset=~0uL;
+                idx.length=~0uL;
+                idx.unknown=~0uL;
+                if (tilelist.size()>0)
+                {
+                    idx.offset=currwritepos;
+                    for( unsigned i = 0; i < tilelist.size(); ++i )
+                    {
+                        fwrite( &tilelist[i],sizeof(USTRUCT_STATIC),1, fmul);
+                    }
+                    currwritepos=ftell(fmul)-currwritepos;
+                    idx.length=currwritepos;
+                    idx.unknown=0;
+                    tilelist.clear();
+                }
+                fwrite( &idx, sizeof idx, 1, fidx );
+            }
+            else
+            {
+                USTRUCT_IDX idx;
+                idx.offset = ~0uL;
+                idx.length = ~0uL;
+                idx.unknown = ~0uL;
+                fwrite( &idx, sizeof idx, 1, fidx );
+            }
+        }
+    }
+
+    cout << "\rRewriting statics files: Complete" << endl;
+    return 0;
+}
+
+
+int xmain( int argc, char* argv[] )
+{
+    StoreCmdArgs( argc, argv );
     ConfigFile cf( "pol.cfg" );
     ConfigElem elem;
 
@@ -1201,6 +1298,10 @@ int main( int argc, char **argv )
     else if (stricmp( argv[1], "findgraphic" ) == 0)
     {
         return findgraphic( argc-1, argv+1 );
+    }
+    else if (stricmp( argv[1], "defragstatics" ) == 0)
+    {
+        return defragstatics( argc-1, argv+1 );
     }
     
 	return 0;

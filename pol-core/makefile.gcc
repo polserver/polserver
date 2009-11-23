@@ -220,18 +220,15 @@ uoconvert_sources=uoconvert/uoconvert.cpp  \
 
 uotool_sources=uotool/uotool.cpp \
 	uotool/uofile04.cpp uotool/uofile05.cpp \
-	pol/module/basiciomod.cpp pol/module/basicmod.cpp pol/module/mathmod.cpp
-#	clib/esignal.cpp clib/fileutil.cpp \
-#	clib/cfgfile.cpp clib/fdump.cpp clib/strutil.cpp \
-#	clib/dirlist.cpp clib/passert.cpp clib/progver.cpp \
-#	clib/logfile.cpp \
-#	plib/realm.cpp plib/polver.cpp plib/realmdescriptor.cpp \
-#	plib/maptileserver.cpp plib/mapserver.cpp  plib/staticserver.cpp \
-#	plib/mapfunc.cpp plib/mapwriter.cpp  \
-#	pol/polcfg.cpp pol/polfile1.cpp pol/polfile2.cpp\
-#	pol/multidef.cpp \
-#	pol/uofile00.cpp pol/uofile01.cpp pol/uofile02.cpp pol/uofile03.cpp \
-#	pol/uofile06.cpp pol/uofile07.cpp pol/uofile08.cpp
+	pol/uofile00.cpp pol/uofile01.cpp pol/uofile02.cpp \
+	pol/uofile06.cpp pol/uofile07.cpp pol/uofile08.cpp \
+	pol/polfile1.cpp  pol/multi/multidef.cpp \
+	plib/mapfunc.cpp plib/mapwriter.cpp plib/realmdescriptor.cpp \
+  clib/cfgfile.cpp clib/cmdargs.cpp clib/strutil.cpp \
+  clib/fileutil.cpp clib/passert.cpp clib/dirlist.cpp clib/iohelp.cpp \
+  clib/logfile.cpp clib/fdump.cpp \
+  clib/progver.cpp clib/esignal.cpp clib/strexcpt.cpp \
+  clib/xmain.cpp
 
 poltool_sources=poltool/poltool.cpp
 
@@ -241,7 +238,7 @@ runecl_objects=$(runecl_sources:.cpp=.o) $(c_sources:.c=.o)
 
 uoconvert_objects=$(uoconvert_sources:.cpp=.o) $(c_sources:.c=.o)
 
-uotool_objects=$(uotool_sources:.cpp=.o) $(c_sources:.c=.o) $(cpp_sources:.cpp=.o)
+uotool_objects=$(uotool_sources:.cpp=.o) $(c_sources:.c=.o)
 
 poltool_objects=$(poltool_sources:.cpp=.o) $(c_sources:.c=.o)
 
@@ -255,9 +252,9 @@ runecl: bin/runecl
 
 uoconvert: bin/uoconvert
 
-release: bin/pol bin/ecompile bin/runecl bin/uoconvert
+release: bin/pol bin/ecompile bin/runecl bin/uoconvert bin/uotool
 
-dynrelease: bin/pol-dynamic bin/ecompile-dynamic bin/runecl-dynamic bin/uoconvert-dynamic
+dynrelease: bin/pol-dynamic bin/ecompile-dynamic bin/runecl-dynamic bin/uoconvert-dynamic bin/uotool-dynamic
 
 bin/pol: $(objects)
 	$(LINKER) $(CXX_OPTS) -static -Xlinker -Map -Xlinker pol.map -o bin/pol $(objects) -l$(LIB_STL) -lpthread -lm -l$(LIBCRYPT) -lz $(LIB_MORE)
@@ -294,6 +291,9 @@ bin/runecl-dynamic: $(runecl_objects)
 
 bin/uoconvert-dynamic: $(uoconvert_objects)
 	$(LINKER) $(CXX_OPTS) -o bin/uoconvert-dynamic $(uoconvert_objects) -l$(LIB_STL) -lpthread -lm $(LIB_MORE)
+
+bin/uotool-dynamic: $(uotool_objects)
+	$(LINKER) $(CXX_OPTS) -o bin/uotool-dynamic $(uotool_objects) -l$(LIB_STL) -lpthread -lm $(LIB_MORE)
 
 dyndebug: $(objects_debug)
 	$(LINKER) $(CXX_OPTS) -o bin/poldyndebug $(objects_debug) -l$(LIB_STL) -lpthread -lm -l$(LIBCRYPT) -lz $(LIB_MORE)
