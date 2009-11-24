@@ -1,6 +1,7 @@
 /*
 History
 =======
+2009/11/24 Turley:    Added realm check
 
 
 Notes
@@ -81,7 +82,7 @@ void sayto_listening_points( Character* speaker, const char* p_text, int p_textl
             if (!speaker->dead() || (lp->flags&LISTENPT_HEAR_GHOSTS))
             {
                 const UObject* toplevel = lp->object->toplevel_owner();
-                if (inrangex( speaker, toplevel->x, toplevel->y, lp->range ))
+                if ((speaker->realm == toplevel->realm) && (inrangex( speaker, toplevel->x, toplevel->y, lp->range )))
                 {
 					if ( p_wtext && p_lang && p_wtextlen > 0 )
 						lp->uoexec->os_module->signal_event( new UnicodeSpeechEvent(speaker,p_text,
