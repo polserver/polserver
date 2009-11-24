@@ -1,4 +1,7 @@
 -- POL099 --
+11-24-2009 Turley:
+     Fixed: missing realm check for ListenPoints
+
 11-23-2009 Turley:
      Added: uotool param staticdefrag [realm=britannia] to defrag/remove duplicate statics (like fiddler does)
 
