@@ -2,6 +2,7 @@
 History
 =======
 2009/10/22 Turley:    added OuchHook
+2009/11/26 Turley:    Syshook CanDie(mobile)
 
 
 Notes
@@ -104,7 +105,8 @@ SystemHooks::SystemHooks() :
 	hitmiss_hook(NULL),
 	on_cast_hook(NULL),
 	can_decay(NULL),
-    ouch_hook(NULL)
+    ouch_hook(NULL),
+    can_die(NULL)
 {
 }
 
@@ -175,6 +177,11 @@ void hook( ExportScript* shs, const string& hookname, const string& exfuncname )
     {
         nargs = 4;
         pphook = &system_hooks.ouch_hook;
+    }
+    else if (hookname == "CanDie")
+    {
+        nargs = 1;
+        pphook = &system_hooks.can_die;
     }
 	else
 	{
@@ -274,6 +281,8 @@ void unload_system_hooks()
 		delete system_hooks.can_decay;
     if (system_hooks.ouch_hook != NULL)
 		delete system_hooks.ouch_hook;
+    if (system_hooks.can_die != NULL)
+        delete system_hooks.can_die;
 }
 
 ExportScript* FindExportScript( const ScriptDef& sd )

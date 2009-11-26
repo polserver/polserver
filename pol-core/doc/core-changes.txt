@@ -1,4 +1,8 @@
 -- POL099 --
+11-26-2009 Turley:
+     Added: Syshook CanDie(mobile)
+            Called when the mobile is about to die, return 0 to stop death.
+
 11-24-2009 Turley:
      Fixed: missing realm check for ListenPoints
 
