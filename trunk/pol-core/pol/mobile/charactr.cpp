@@ -53,6 +53,7 @@ History
 2009/11/16 Turley:    added NpcPropagateEnteredArea()/inform_enteredarea() for event on resurrection
 2009/11/19 Turley:    lightlevel now supports endless duration - Tomi
 2009/11/20 Turley:    RecalcVitals can update single Attributes/Vitals - based on Tomi
+2009/11/26 Turley:    Syshook CanDie(mobile)
 
 
 Notes
@@ -2250,6 +2251,12 @@ void Character::clear_opponent_of()
 
 void Character::die()
 {
+    if (system_hooks.can_die != NULL)
+    {
+        if (!system_hooks.can_die->call(make_mobileref(this)))
+            return;
+    }
+
 	set_current_ones( pVitalLife, vital(pVitalLife->vitalid), 0);
 	clear_my_aggressors(); 
 	clear_my_lawful_damagers();
@@ -3272,8 +3279,7 @@ void Character::attack( Character* opponent )
 
 	if ( system_hooks.attack_hook )
 	{
-		bool rc = system_hooks.attack_hook->call( new ECharacterRefObjImp(this), new ECharacterRefObjImp(opponent) );
-		if ( rc )
+		if (system_hooks.attack_hook->call( new ECharacterRefObjImp(this), new ECharacterRefObjImp(opponent) ))
 			return;
 	}
 
@@ -3942,8 +3948,7 @@ bool Character::CheckPushthrough()
 		}
 		if(mobs != NULL)
 		{
-			bool result = system_hooks.pushthrough_hook->call( make_mobileref(this), mobs );
-			return result;
+			return system_hooks.pushthrough_hook->call( make_mobileref(this), mobs );
 		}
 		return true;
 

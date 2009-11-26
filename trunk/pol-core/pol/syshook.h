@@ -2,6 +2,7 @@
 History
 =======
 2009/10/22 Turley:    added OuchHook
+2009/11/26 Turley:    Syshook CanDie(mobile)
 
 
 Notes
@@ -62,6 +63,7 @@ public:
 	ExportedFunction* on_cast_hook;
 	ExportedFunction* can_decay;
     ExportedFunction* ouch_hook;
+    ExportedFunction* can_die;
 };
 extern SystemHooks system_hooks;
 

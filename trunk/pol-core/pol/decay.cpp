@@ -62,8 +62,7 @@ void decay_worldzone( unsigned wx, unsigned wy, Realm* realm )
 			// check the CanDecay syshook first if it returns 1 go over to other checks
 			if (system_hooks.can_decay)
 			{
-				bool candecay = system_hooks.can_decay->call(new EItemRefObjImp(item));
-				if (!candecay)
+				if (!system_hooks.can_decay->call(new EItemRefObjImp(item)))
 					continue;
 			}
 
