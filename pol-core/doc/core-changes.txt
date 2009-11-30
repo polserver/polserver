@@ -1,4 +1,7 @@
 -- POL099 --
+11-30-2009 Turley:
+     Added: polsys::MD5Encrypt(str) returns MD5 hash string.
+
 11-26-2009 Turley:
      Added: Syshook CanDie(mobile)
             Called when the mobile is about to die, return 0 to stop death.
