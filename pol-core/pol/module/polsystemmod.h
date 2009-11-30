@@ -1,6 +1,7 @@
 /*
 History
 =======
+2009/11/30 Turley:    added MD5Encrypt(string)
 
 
 Notes
@@ -34,6 +35,7 @@ public:
     BObjectImp* mf_CreatePacket();
 	BObjectImp* mf_AddRealm(/*name,base*/);
 	BObjectImp* mf_DeleteRealm(/*name*/);
+    BObjectImp* mf_MD5Encrypt(/*string*/);
 };
 
 #endif
