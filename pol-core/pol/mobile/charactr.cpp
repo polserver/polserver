@@ -54,6 +54,7 @@ History
 2009/11/19 Turley:    lightlevel now supports endless duration - Tomi
 2009/11/20 Turley:    RecalcVitals can update single Attributes/Vitals - based on Tomi
 2009/11/26 Turley:    Syshook CanDie(mobile)
+2009/11/30 Turley:    fixed calc_single_vital doesnt check changed maximum value
 
 
 Notes
@@ -1739,6 +1740,7 @@ void Character::calc_single_vital( const Vital* pVital )
     VitalValue& vv = vital(pVital->vitalid);
 
     long start_ones = vv.current_ones();
+    long start_max = vv.maximum_ones();
 
     //dave change the order of maximum and regen function 3/19/3
     long mv = pVital->get_maximum_func->call_long( new ECharacterRefObjImp(this) );
@@ -1759,7 +1761,7 @@ void Character::calc_single_vital( const Vital* pVital )
 
     vv.regenrate(rr);
 
-    if (start_ones != vv.current_ones())
+    if ((start_ones != vv.current_ones()) || (start_max != vv.maximum_ones()))
         ClientInterface::tell_vital_changed( this, pVital );
 }
 
