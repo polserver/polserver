@@ -1,6 +1,7 @@
 -- POL099 --
 11-30-2009 Turley:
      Added: polsys::MD5Encrypt(str) returns MD5 hash string.
+     Fixed: RecalcVitals function for vital changes doesnt check if maximum value changed
 
 11-26-2009 Turley:
      Added: Syshook CanDie(mobile)
