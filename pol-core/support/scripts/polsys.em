@@ -12,6 +12,7 @@ GetPackageByName(name);
 IncRevision(object);
 ListTextCommands();
 ListenPoints();
+MD5Encrypt(str);
 Packages();
 ReadMillisecondClock();
 Realms(realm:="");

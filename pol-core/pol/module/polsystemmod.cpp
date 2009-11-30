@@ -5,6 +5,7 @@ History
 2006/10/07 Shinigami: GCC 3.4.x fix - added "template<>" to TmplExecutorModule
 2007/04/08 MuadDib:   Changed Realms() to get BObject IMP, and check for string
                       explicitly.
+2009/11/30 Turley:    added MD5Encrypt(string)
 
 Notes
 =======
@@ -14,6 +15,7 @@ Notes
 #include "../../clib/stl_inc.h"
 #include "../../clib/dirlist.h"
 #include "../../clib/fileutil.h"
+#include "../../clib/MD5.h"
 #include "../../clib/strutil.h"
 #include "../../clib/threadhelp.h"
 
@@ -90,7 +92,8 @@ TmplExecutorModule<PolSystemExecutorModule>::FunctionDef
   { "GetItemDescriptor",		&PolSystemExecutorModule::mf_GetItemDescriptor },
   { "CreatePacket",			&PolSystemExecutorModule::mf_CreatePacket },
   { "AddRealm",		        &PolSystemExecutorModule::mf_AddRealm },
-  { "DeleteRealm",			&PolSystemExecutorModule::mf_DeleteRealm }
+  { "DeleteRealm",			&PolSystemExecutorModule::mf_DeleteRealm },
+  { "MD5Encrypt",           &PolSystemExecutorModule::mf_MD5Encrypt }
 };
 template<>
 int TmplExecutorModule<PolSystemExecutorModule>::function_table_size = arsize(function_table);
@@ -410,4 +413,17 @@ BObjectImp* PolSystemExecutorModule::mf_DeleteRealm(/*name*/)
 		return new BError("Items in Realm.");
 	remove_realm(realm_name->value());
 	return new BLong(1);
+}
+
+BObjectImp* PolSystemExecutorModule::mf_MD5Encrypt(/*string*/)
+{
+    const String* string;
+    if (!(getStringParam(0, string)))
+		return new BError("Invalid parameter");
+    if (string->length() < 1)
+        return new BError("String is empty");
+    std::string temp;
+    if (!MD5_Encrypt(string->value(),temp))
+        return new BError("Failed to encrypt");
+    return new String(temp);
 }
