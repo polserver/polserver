@@ -15,6 +15,7 @@ History
 2006/05/16 Shinigami: account.Set_UO_Expansion( string ) - extended for Mondain's Legacy
 2009/08/06 MuadDib:   Removed PasswordOnlyHash support
 2009/09/03 MuadDib:   Relocation of account related cpp/h
+2009/12/02 Turley:    added SA expansion - Tomi
 
 Notes
 =======
@@ -353,7 +354,7 @@ BObjectImp* AccountObjImp::call_method_id( const int id, Executor& ex )
 		const String* expansion_str;
 		if (ex.getStringParam( 0, expansion_str ))
 		{
-			if ( expansion_str->value().empty() || (expansion_str->value()=="KR") ||
+			if ( expansion_str->value().empty() || (expansion_str->value()=="SA") || (expansion_str->value()=="KR") ||
 			   (expansion_str->value()=="ML") || (expansion_str->value()=="SE") ||
 			   (expansion_str->value()=="AOS") || (expansion_str->value()=="LBR") ||
 			   (expansion_str->value()=="T2A") )
@@ -363,7 +364,7 @@ BObjectImp* AccountObjImp::call_method_id( const int id, Executor& ex )
 					send_feature_enable(obj_->active_character->client);
 			}
 			else
-				return new BError( "Invalid Parameter Value. Supported Values: \"\", T2A, LBR, AOS, SE, ML, KR" );
+				return new BError( "Invalid Parameter Value. Supported Values: \"\", T2A, LBR, AOS, SE, ML, KR, SA" );
 		}
 		else
 			return new BError("Invalid Parameter Type");

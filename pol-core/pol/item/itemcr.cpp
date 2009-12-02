@@ -4,6 +4,7 @@ History
 2008/12/17 MuadDub:   Added item.tile_layer - returns layer entry from tiledata/tiles.cfg
 2009/09/03 MuadDib:	  Changes for account related source file relocation
                       Changes for multi related source file relocation
+2009/12/02 Turley:    added config.max_tile_id - Tomi
 
 Notes
 =======
@@ -58,7 +59,7 @@ Item* Item::create( u16 objtype, u32 serial )
 	{
 		return create( id, serial );
 	}
-	else if (objtype < 0x4000)
+	else if (objtype <= config.max_tile_id)
 	{
 		temp_itemdesc.objtype = objtype;
 		temp_itemdesc.graphic = objtype;

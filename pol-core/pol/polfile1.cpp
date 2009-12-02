@@ -3,6 +3,7 @@ History
 =======
 2005/03/01 Shinigami: extended error message for passert(pstat[i].graphic < 0x4000)
 2005/07/16 Shinigami: added uoconvert.cfg flag ShowIllegalGraphicWarning
+2009/12/02 Turley:    added config.max_tile_id - Tomi
 
 
 Notes
@@ -33,6 +34,7 @@ Notes
 #include "item/itemdesc.h"
 #include "ustruct.h"
 
+#include "polcfg.h"
 #include "polfile.h"
 #include "profile.h"
 #include "uofilei.h"
@@ -47,7 +49,7 @@ bool newstat_dont_add( vector<STATIC_ENTRY>& vec, USTRUCT_STATIC* pstat)
     for( unsigned i = 0; i < vec.size(); ++i )
     {
         STATIC_ENTRY& prec = vec[i];
-        passert_always( prec.objtype < 0x4000 );
+        passert_always( prec.objtype <= config.max_tile_id );
         char height = tileheight( prec.objtype ); // TODO read from itemdesc?
         unsigned char xy = (pstat->x_offset << 4) | pstat->y_offset;
         if (// flags == pflags &&
@@ -109,7 +111,7 @@ int write_pol_static_files( const string& realm )
             readstaticblock( &pstat, &num, x, y );
             for( int i = 0; i < num; ++i )
             {
-                if (pstat[i].graphic < 0x4000)
+                if (pstat[i].graphic <= config.max_tile_id)
                 {
                     if (!newstat_dont_add(vec,&pstat[i]))
                     {

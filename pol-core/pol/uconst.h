@@ -3,6 +3,7 @@ History
 =======
 2006/05/16 Shinigami: added URACE with RACE_* Constants
 2009/10/12 Turley:    whisper/yell/say-range ssopt definition
+2009/12/02 Turley:    added gargoyle race
 
 Notes
 =======
@@ -19,7 +20,8 @@ enum UGENDER {
 
 enum URACE {
 	RACE_HUMAN		=	0,
-	RACE_ELF		=	1
+	RACE_ELF		=	1,
+    RACE_GARGOYLE   =   2
 };
 
 /* Character Facings:

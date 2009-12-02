@@ -8,6 +8,7 @@ History
 2005/07/16 Shinigami: added uoconvert.cfg flag ShowIllegalGraphicWarning
 2006/04/09 Shinigami: added uoconvert.cfg flag ShowRoofAndPlatformWarning
 2006/05/26 Shinigami: there was another part with ShowRoofAndPlatformWarning-check, commented out
+2009/12/02 Turley:    added config.max_tile_id & termur support - Tomi
 
 Notes
 =======
@@ -47,8 +48,6 @@ unsigned long mapcache_hits;
 
 bool cfg_use_no_shoot = 0;
 bool cfg_LOS_through_windows = 0;
-
-#define MAX_MAPTILE_ID 0x3fff
 
 std::set<unsigned long> HouseTypes;
 std::set<unsigned long> BoatTypes;
@@ -116,6 +115,13 @@ int xmain( int argc, char* argv[] )
         cf.readraw( elem );
         config.uo_datafile_root = elem.remove_string( "UoDataFileRoot" );
         config.uo_datafile_root = normalized_dir_form( config.uo_datafile_root );
+        
+        unsigned short max_tile = elem.remove_ushort( "MaxTileID", 0x3FFF );
+
+		if (max_tile != 0x3FFF && max_tile != 0x7FFF)
+			config.max_tile_id = 0x3FFF;
+		else
+			config.max_tile_id = max_tile;
     }
 
 
@@ -237,6 +243,10 @@ int xmain( int argc, char* argv[] )
             default_width = 1448;
             default_height = 1448;
             break;
+		case 5: // termur
+			default_width = 1280;
+			default_height = 4096;
+			break;
         }
         long width = LongArg2( "width=", default_width );
         long height = LongArg2( "height=", default_height );
@@ -253,6 +263,7 @@ int xmain( int argc, char* argv[] )
         // ilshenar: realm=ilshenar mapid=2 width=2304 height=1600
         // malas: realm=malas mapid=3 width=2560 height=2048
         // tokuno: realm=tokuno mapid=4 width=1448 height=1448
+		// termur: realm=termur mapid=5 width=1280 height=4096
 
         if (x >= 0 && y >= 0)
         {
@@ -327,7 +338,7 @@ int xmain( int argc, char* argv[] )
         cerr << "  landtiles {uodata=Dir}" << endl;
         return 1;
     }
-
+	clear_tiledata();
     return 0;
 }
 
@@ -373,7 +384,7 @@ void create_maptile( const string& realmname )
 
                     safe_getmapinfo( x, y, &z, &mi );
 
-					if (mi.landtile > MAX_MAPTILE_ID)
+					if (mi.landtile > 0x3FFF)
 						printf("Tile %d at (%d,%d,%d) is an invalid ID!\n", mi.landtile, x, y, z);
 
 					// for water, don't average with surrounding tiles.
@@ -691,7 +702,7 @@ void ProcessSolidBlock( unsigned short x_base, unsigned short y_base, MapWriter&
 
             safe_getmapinfo( x, y, &z, &mi );
 
-			if (mi.landtile > MAX_MAPTILE_ID)
+			if (mi.landtile > 0x3FFF)
 				printf("Tile %d at (%d,%d,%d) is an invalid ID!\n", mi.landtile, x, y, z);
 
 			// for water, don't average with surrounding tiles.
@@ -703,7 +714,7 @@ void ProcessSolidBlock( unsigned short x_base, unsigned short y_base, MapWriter&
 			lt_height = z - low_z;
 			z = low_z;
 
-			if (mi.landtile > MAX_MAPTILE_ID)
+			if (mi.landtile > 0x3FFF)
 				printf("Tile %d at (%d,%d,%d) is an invalid ID!\n", mi.landtile, x, y, z);
 
 			unsigned long lt_flags = landtile_uoflags( mi.landtile );
@@ -1027,7 +1038,7 @@ void write_multi( FILE* multis_cfg, unsigned id, FILE* multi_mul, unsigned long 
 
     fprintf( multis_cfg, "%s 0x%x\n", type.c_str(), id );
     fprintf( multis_cfg, "{\n" );
-    fprintf( multis_cfg, "    Graphic 0x%x\n", 0x4000+id );
+    fprintf( multis_cfg, "    Graphic 0x%x\n", (config.max_tile_id+1)+id );
 
     fseek( multi_mul, offset, SEEK_SET );
     bool first = true;
@@ -1125,7 +1136,7 @@ void create_tiles_cfg()
   char name[21];
 
     unsigned count = 0;
-	for( unsigned short graphic = 0; graphic < 0x4000; ++graphic )
+	for( unsigned short graphic = 0; graphic <= config.max_tile_id; ++graphic )
 	{
 	    USTRUCT_TILE tile;
 		read_objinfo( graphic, tile );
@@ -1165,7 +1176,7 @@ void create_tiles_cfg()
 	}
     fclose( fp );
 
-    cout << count << " tile definitions written to tiles.cfg" << endl;
+    cout << count << " tile definitions written to tiles.cfg " << endl;
 }
 
 void create_landtiles_cfg()
@@ -1173,7 +1184,7 @@ void create_landtiles_cfg()
     FILE* fp = fopen( "landtiles.cfg", "wt" );
     unsigned count = 0;
 
-    for( u16 i = 0; i < 0x4000; ++i )
+    for( u16 i = 0; i <= 0x3FFF; ++i )
     {
         USTRUCT_LAND_TILE landtile;
         readlandtile( i, &landtile );

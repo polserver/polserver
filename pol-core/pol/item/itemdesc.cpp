@@ -9,6 +9,7 @@ History
                       require this file to run POL. Same with config/armrdesc.cfg
 2009/08/25 Shinigami: STLport-5.2.1 fix: init order changed of max_slots
 2009/09/03 MuadDib:   Relocation of multi related cpp/h
+2009/12/02 Turley:    added config.max_tile_id - Tomi
 
 Notes
 =======
@@ -44,6 +45,7 @@ Notes
 #include "../multi/multidef.h"
 #include "../../plib/pkg.h"
 #include "../resource.h"
+#include "../polcfg.h"
 #include "../ssopt.h"
 #include "../syshookscript.h"
 #include "wepntmpl.h"
@@ -208,7 +210,7 @@ ItemDesc::ItemDesc( u16 objtype, ConfigElem& elem, Type type, const Package* pkg
 {
 	if (graphic == 0)
 	{
-		if (objtype <= UOBJ_ITEM__HIGHEST)
+		if (objtype <= config.max_tile_id)
 		{
 			graphic = objtype;
 		}
@@ -745,7 +747,7 @@ unsigned short getgraphic( unsigned short objtype )
 	{
 		return id.graphic;
 	}
-	else if (objtype <= 0x3fff)
+	else if (objtype <= config.max_tile_id)
 	{
 		return objtype;
 	}
@@ -1053,7 +1055,7 @@ void load_itemdesc()
 	ForEach( packages, load_package_itemdesc );
 
 	//unsigned count = 0;
-	//for( int i = 0; i < 0x4000; i++ )
+	//for( int i = 0; i <= config.max_tile_id; i++ )
 	//{
 	//	if (desctable[i] == &empty_itemdesc)
 	//		++count;

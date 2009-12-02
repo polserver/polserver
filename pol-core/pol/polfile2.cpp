@@ -1,6 +1,7 @@
 /*
 History
 =======
+2009/12/02 Turley:    added config.max_tile_id - Tomi
 
 
 Notes
@@ -15,10 +16,11 @@ Notes
 #include "../plib/mapcell.h"
 
 #include "tiles.h"
+#include "polcfg.h"
 
 unsigned char tilelayer( unsigned short tilenum )
 {
-    if ( tilenum < TILE_COUNT )
+    if ( tilenum <= config.max_tile_id )
     {
         return tile[ tilenum ].layer;
     }
@@ -30,7 +32,7 @@ unsigned char tilelayer( unsigned short tilenum )
 
 char tileheight(unsigned short tilenum)
 {
-    if ( tilenum < TILE_COUNT )
+    if ( tilenum <= config.max_tile_id )
     {
         char height = tile[ tilenum ].height;
         if (tile[tilenum].flags & FLAG::GRADUAL)
@@ -45,7 +47,7 @@ char tileheight(unsigned short tilenum)
 
 u32 tile_flags( unsigned short tilenum )
 {
-    if (tilenum < TILE_COUNT )
+    if (tilenum <= config.max_tile_id )
     {
         return tile[ tilenum ].flags;
     }
@@ -57,7 +59,7 @@ u32 tile_flags( unsigned short tilenum )
 
 u32 tile_uoflags( unsigned short tilenum )
 {
-    if (tilenum < TILE_COUNT )
+    if (tilenum <= config.max_tile_id )
     {
         return tile[ tilenum ].uoflags;
     }
@@ -69,7 +71,7 @@ u32 tile_uoflags( unsigned short tilenum )
 
 string tile_desc( unsigned short tilenum )
 {
-    if (tilenum < TILE_COUNT )
+    if (tilenum <= config.max_tile_id )
     {
         return tile[ tilenum ].desc;
     }
@@ -81,7 +83,7 @@ string tile_desc( unsigned short tilenum )
 
 unsigned short tileweight( unsigned short tilenum )
 {
-    if ( tilenum < TILE_COUNT )
+    if ( tilenum <= config.max_tile_id )
     {
         return tile[ tilenum ].weight;
     }

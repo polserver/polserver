@@ -7,6 +7,7 @@ History
 2009/08/25 Shinigami: STLport-5.2.1 fix: new_ar not used
 2009/09/03 MuadDib:	  Changes for account related source file relocation
                       Changes for multi related source file relocation
+2009/12/02 Turley:    added config.max_tile_id - Tomi
 
 Notes
 =======
@@ -760,7 +761,7 @@ bool Item::setgraphic( u16 newgraphic )
 	if (layer && layer != LAYER_MOUNT )
 		return false;
 
-	if (graphic <= UOBJ_ITEM__HIGHEST && newgraphic <= UOBJ_ITEM__HIGHEST)
+	if (graphic <= config.max_tile_id && newgraphic <= config.max_tile_id)
     {
         set_dirty();
         graphic = newgraphic;

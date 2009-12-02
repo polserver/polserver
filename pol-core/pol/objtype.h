@@ -5,7 +5,7 @@ History
                       added UOBJ_ELF_* constants
 2009/09/03 MuadDib:	  Changes for account related source file relocation
 					  Changes for multi related source file relocation
-
+2009/12/02 Turley:    Gargoyle support
 
 Notes
 =======
@@ -131,6 +131,11 @@ Notes
 #define UOBJ_ELF_MALE_GHOST      0x025F
 #define UOBJ_ELF_FEMALE_GHOST    0x0260
 
+#define UOBJ_GARGOYLE_MALE         0x029A
+#define UOBJ_GARGOYLE_FEMALE       0x029B
+#define UOBJ_GARGOYLE_MALE_GHOST   0x02B6
+#define UOBJ_GARGOYLE_FEMALE_GHOST 0x02B7
+
 #define UOBJ_HAT01               0x0194
 #define UOBJ_HAT02               0x0195
 #define UOBJ_HAT03               0x0196
@@ -216,9 +221,11 @@ Notes
 
 
 #define UOBJ_ITEM__LOWEST           0x0002
-#define UOBJ_ITEM__HIGHEST          0x3FFF
+// Using max_tile_id from polcfg.h instead of hardcoded value to fix SA objtype changes
+// #define UOBJ_ITEM__HIGHEST          0x3FFF
 
-#define EXTOBJ__LOWEST              0x5000
+// Using max_tile_id+0x1001 instead of hardcoded value to fix SA objtype changes
+// #define EXTOBJ__LOWEST              0x5000
 #define EXTOBJ__HIGHEST             0xFFFF
 
 // these must match enum BOAT_COMPONENT in boat.h
