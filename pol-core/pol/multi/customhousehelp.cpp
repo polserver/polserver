@@ -2,6 +2,7 @@
 History
 =======
 2009/09/03 MuadDib:   Relocation of multi related cpp/h
+2009/12/02 Turley:    added config.max_tile_id - Tomi
 
 Notes
 =======
@@ -9,6 +10,7 @@ Notes
 */
 
 #include "customhouses.h"
+#include "../polcfg.h"
 
 int BlockIDs[] = {  0x3EE, 0x709, 0x71E, 0x721,
 				    0x738, 0x750, 0x76C, 0x788,
@@ -22,7 +24,7 @@ int StairIDs[] = {  0x71F, 0x736, 0x737, 0x749,
 
 bool CustomHouseDesign::IsStairBlock( u16 id )
 {
-	id &= 0x3FFF;
+	id &= config.max_tile_id;
 	int delta = -1;
 
 	for ( unsigned int i = 0; delta < 0 && (i <  (sizeof BlockIDs) / (sizeof( int))); ++i )
@@ -33,7 +35,7 @@ bool CustomHouseDesign::IsStairBlock( u16 id )
 
 bool CustomHouseDesign::IsStair( u16 id, int& dir )
 {
-	id &= 0x3FFF;
+	id &= config.max_tile_id;
 	int delta = -4;
 
 	for ( unsigned int i = 0; delta < -3 && (i < (sizeof StairSeqs) / (sizeof (int))); ++i )

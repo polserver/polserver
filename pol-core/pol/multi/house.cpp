@@ -713,7 +713,8 @@ BObjectImp* UHouse::scripted_create( const ItemDesc& descriptor, u16 x, u16 y, s
     house->y = y;
     house->z = z;
 	house->realm = realm;
-    update_item_to_inrange( house );
+	send_multi_to_inrange( house );
+    // update_item_to_inrange( house );
     add_multi_to_world( house );
     house->create_components();
 

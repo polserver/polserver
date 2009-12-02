@@ -8,6 +8,7 @@ History
                       STLport-5.2.1 fix: boat_components changed little bit
 2009/09/03 MuadDib:	  Changes for account related source file relocation
 					  Changes for multi related source file relocation
+2009/12/02 Turley:    added 0xf3 packet - Tomi
 
 Notes
 =======
@@ -201,6 +202,7 @@ vector<Client*> boat_sent_to;
 
 void send_boat_to_inrange( const UBoat* item )
 {
+
 	PKTOUT_1A_C msg;
 	msg.msgtype = PKTOUT_1A_C_ID;
 	msg.msglen = ctBEu16(sizeof msg);
@@ -209,6 +211,23 @@ void send_boat_to_inrange( const UBoat* item )
 	msg.x = ctBEu16( item->x );
 	msg.y = ctBEu16( item->y );
 	msg.z = item->z;
+
+	// Client >= 7.0.0.0 ( SA )
+	PKTOUT_F3 msg2;
+	msg2.msgtype = PKTOUT_F3_ID;
+	msg2.unknown = ctBEu16( 0x1 );
+	msg2.datatype = 0x02;
+	msg2.serial = item->serial_ext;
+	msg2.graphic = ctBEu16( item->multidef().multiid );
+	msg2.facing = 0x00;
+	msg2.amount = ctBEu16( 0x1 );
+	msg2.amount_2 = ctBEu16( 0x1 );
+	msg2.x = ctBEu16( item->x );
+	msg2.y = ctBEu16( item->y );
+	msg2.z = item->z;
+	msg2.layer = 0x00;
+	msg2.color = 0x00;
+	msg2.flags = 0x00;
     
     for( Clients::iterator itr = clients.begin(); itr != clients.end(); ++itr )
 	{
@@ -219,7 +238,10 @@ void send_boat_to_inrange( const UBoat* item )
 		if (inrange( client->chr, item ))
         {
             client->pause();
-			client->transmit( &msg, sizeof msg );
+			if (client->ClientType & CLIENTTYPE_7000)
+				client->transmit( &msg2, sizeof msg2 );
+			else
+				client->transmit( &msg, sizeof msg );
             boat_sent_to.push_back( client );
         }
     }

@@ -27,6 +27,8 @@ History
 2009/09/22 Turley:    Added DamagePacket support
 2009/10/07 Turley:    Fixed DestroyItem while in hand
 2009/10/12 Turley:    whisper/yell/say-range ssopt definition
+2009/12/02 Turley:    0xf3 packet support - Tomi
+                      face support
 
 Notes
 =======
@@ -194,7 +196,7 @@ void send_owncreate( Client *client, const Character *chr )
     owncreate.facing = chr->facing;
     owncreate.skin = chr->color_ext;
 	// MuadDib changed to reflect true status for 0x20 packet. 1/4/2007
-	// Undo Chance
+	// Undo Change
 	owncreate.flag1 = chr->get_flag1();
     owncreate.hilite = chr->hilite_color_idx( client->chr ); 
 
@@ -204,6 +206,10 @@ void send_owncreate( Client *client, const Character *chr )
     {
         const Item *item = chr->wornitem( layer );
         if (item == NULL) 
+            continue;
+
+        // Dont send faces if older client or ssopt
+        if ((layer==LAYER_FACE) && ((ssopt.support_faces==0) || (!(client->ClientType & CLIENTTYPE_UOKR))))
             continue;
 
         if (item->color)
@@ -247,6 +253,8 @@ void send_owncreate( Client *client, const Character *chr )
 			const Item *item = chr->wornitem( layer );
 			if (item == NULL) 
 				continue;
+            if (layer == LAYER_FACE)
+                continue;
 			send_object_cache(client, dynamic_cast<const UObject*>(item));
 		}
 	}
@@ -689,42 +697,64 @@ void send_item( Client *client, const Item *item )
     u8 flags = 0;
     if (client->chr->can_move( item ))
         flags |= ITEM_FLAG_FORCE_MOVABLE;
-
-    if (item->facing == 0)
-    {
-        PKTOUT_1A_A msg;
-        // transmit item info
-        msg.msgtype = PKTOUT_1A_A_ID;
-        msg.msglen = ctBEu16( sizeof msg );
-           // If the 0x80000000 is left out, the item won't show up. 
-        msg.serial = ctBEu32( 0x80000000 | item->serial );
-        msg.graphic = item->graphic_ext;
-        msg.amount = ctBEu16( item->get_senditem_amount() );
-        msg.x = ctBEu16( item->x );
-        msg.y = ctBEu16( 0xC000 | item->y ); // dyeable and moveable?
-        msg.z = item->z;
-        msg.color = item->color_ext;
-        msg.flags = flags;
-        transmit( client, &msg, sizeof msg );
-    }
-    else
-    {
-        PKTOUT_1A_B msg;
-        // transmit item info
-        msg.msgtype = PKTOUT_1A_B_ID;
-        msg.msglen = ctBEu16( sizeof msg );
-           // If the 0x80000000 is left out, the item won't show up. 
-        msg.serial = ctBEu32( 0x80000000 | item->serial );
-        msg.graphic = item->graphic_ext;
-        msg.amount = ctBEu16( item->get_senditem_amount() );
-        msg.x = ctBEu16( 0x8000 | item->x );
-        msg.y = ctBEu16( 0xC000 | item->y ); // dyeable and moveable?
-        msg.facing = item->facing;
-        msg.z = item->z;
-        msg.color = item->color_ext;
-        msg.flags = flags;
-        transmit( client, &msg, sizeof msg );
-    }
+	if (client->ClientType & CLIENTTYPE_7000)
+	{
+		// Client >= 7.0.0.0 ( SA )
+		PKTOUT_F3 msg;
+		msg.msgtype = PKTOUT_F3_ID;
+		msg.unknown = ctBEu16( 0x1 );
+		msg.datatype = 0x00;
+		msg.serial = item->serial_ext;
+		msg.graphic = item->graphic_ext;
+		msg.facing = item->facing;
+		msg.amount = ctBEu16( item->get_senditem_amount() );
+		msg.amount_2 = ctBEu16( item->get_senditem_amount() );
+		msg.x = ctBEu16( item->x );
+		msg.y = ctBEu16( item->y );
+		msg.z = item->z;
+		msg.layer = item->layer;
+		msg.color = item->color_ext;
+		msg.flags = flags;
+		transmit( client, &msg, sizeof msg );
+	}
+	else
+	{
+		if (item->facing == 0)
+		{
+			PKTOUT_1A_A msg;
+			// transmit item info
+			msg.msgtype = PKTOUT_1A_A_ID;
+			msg.msglen = ctBEu16( sizeof msg );
+			   // If the 0x80000000 is left out, the item won't show up. 
+			msg.serial = ctBEu32( 0x80000000 | item->serial );
+			msg.graphic = item->graphic_ext;
+			msg.amount = ctBEu16( item->get_senditem_amount() );
+			msg.x = ctBEu16( item->x );
+			msg.y = ctBEu16( 0xC000 | item->y ); // dyeable and moveable?
+			msg.z = item->z;
+			msg.color = item->color_ext;
+			msg.flags = flags;
+			transmit( client, &msg, sizeof msg );
+		}
+		else
+		{
+			PKTOUT_1A_B msg;
+			// transmit item info
+			msg.msgtype = PKTOUT_1A_B_ID;
+			msg.msglen = ctBEu16( sizeof msg );
+			   // If the 0x80000000 is left out, the item won't show up. 
+			msg.serial = ctBEu32( 0x80000000 | item->serial );
+			msg.graphic = item->graphic_ext;
+			msg.amount = ctBEu16( item->get_senditem_amount() );
+			msg.x = ctBEu16( 0x8000 | item->x );
+			msg.y = ctBEu16( 0xC000 | item->y ); // dyeable and moveable?
+			msg.facing = item->facing;
+			msg.z = item->z;
+			msg.color = item->color_ext;
+			msg.flags = flags;
+			transmit( client, &msg, sizeof msg );
+		}
+	}
     
     // if the item is a corpse, transmit items contained by it
     if (item->objtype_ == UOBJ_CORPSE)
@@ -963,7 +993,7 @@ UContainer *find_legal_container( const Character *chr, u32 serial )
 	{
 		// Ignore these layers explicitly. Backpack especially since it was
 		// already checked above.
-		if (worn_item->layer != LAYER_HAIR && worn_item->layer != LAYER_BACKPACK_WTF && worn_item->layer != LAYER_BEARD
+		if (worn_item->layer != LAYER_HAIR && worn_item->layer != LAYER_FACE && worn_item->layer != LAYER_BEARD
 			&& worn_item->layer != LAYER_BACKPACK && worn_item->layer != LAYER_MOUNT)
 		{
 			UContainer* worn_cont = static_cast<UContainer*>(worn_item);
@@ -2098,6 +2128,23 @@ void move_boat_item( Item* item, unsigned short newx, unsigned short newy, signe
     msg.y = ctBEu16( item->y ); 
     msg.z = item->z;
 
+	// Client >= 7.0.0.0 ( SA )
+	PKTOUT_F3 msg2;
+	msg2.msgtype = PKTOUT_F3_ID;
+	msg2.unknown = ctBEu16( 0x1 );
+	msg2.datatype = 0x00;
+	msg2.serial = item->serial_ext;
+	msg2.graphic = item->graphic_ext;
+	msg2.facing = item->facing;
+	msg2.amount = ctBEu16( 0x1 );
+	msg2.amount_2 = ctBEu16( 0x1 );
+	msg2.x = ctBEu16( item->x );
+	msg2.y = ctBEu16( item->y );
+	msg2.z = item->z;
+	msg2.layer = 0x00;
+	msg2.color = item->color_ext;
+	msg2.flags = 0x00;
+
     PKTOUT_1D rmv_msg;
     rmv_msg.msgtype = PKTOUT_1D_ID;
     rmv_msg.serial = item->serial_ext;
@@ -2110,7 +2157,10 @@ void move_boat_item( Item* item, unsigned short newx, unsigned short newy, signe
 
         if (inrange( client->chr, item ))
         {
-            transmit( client, &msg, sizeof msg );
+			if (client->ClientType & CLIENTTYPE_7000)
+				client->transmit( &msg2, sizeof msg2 );
+			else
+				client->transmit( &msg, sizeof msg );
         }
         else // not in range.  If old loc was in range, send a delete.
         {
@@ -2125,8 +2175,9 @@ void move_boat_item( Item* item, unsigned short newx, unsigned short newy, signe
 }
 
 #include "multi/multi.h"
-void send_multi( Client* client, UMulti* multi )
+void send_multi( Client* client, const UMulti* multi )
 {
+
     static PKTOUT_1A_C msg;
     // transmit item info
     msg.msgtype = PKTOUT_1A_C_ID;
@@ -2137,7 +2188,43 @@ void send_multi( Client* client, UMulti* multi )
     msg.y = ctBEu16( multi->y );
     msg.z = multi->z;
 
-    client->transmit( &msg, sizeof msg );
+	// Client >= 7.0.0.0 ( SA )
+	static PKTOUT_F3 msg2;
+	msg2.msgtype = PKTOUT_F3_ID;
+	msg2.unknown = ctBEu16( 0x1 );
+	msg2.datatype = 0x02;
+	msg2.serial = multi->serial_ext;
+	msg2.graphic = ctBEu16( multi->multidef().multiid );
+	msg2.facing = 0x00;
+	msg2.amount = ctBEu16( 0x1 );
+	msg2.amount_2 = ctBEu16( 0x1 );
+	msg2.x = ctBEu16( multi->x );
+	msg2.y = ctBEu16( multi->y );
+	msg2.z = multi->z;
+	msg2.layer = 0x00;
+	msg2.color = 0x00;
+	msg2.flags = 0x00;
+
+	if (client->ClientType & CLIENTTYPE_7000)
+		client->transmit( &msg2, sizeof msg2 );
+	else
+		client->transmit( &msg, sizeof msg );
+}
+
+void send_multi_to_inrange( const UMulti* multi )
+{
+    // FIXME could use transmit_to_inrange, almost.
+    // (Character-specific flags, like can_move(), make it so we can't)
+	// However, could build main part of packet before for/loop, then
+	// adjust per client. Would this be a better solution?
+    for( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
+    {
+        Client *client = *itr;
+        if (!client->ready)
+            continue;
+        if (inrange( client->chr, multi ))
+				send_multi( client, multi );
+    }
 }
 
 #include "zone.h"
@@ -2420,9 +2507,14 @@ void login_complete(Client* c)
 
 void send_feature_enable(Client* client)
 {
-	u16 clientflag = 0;
+	u32 clientflag = 0;
 	string uo_expansion = client->acct->uo_expansion();
-	if(uo_expansion.find("KR") != string::npos)
+	if(uo_expansion.find("SA") != string::npos)
+	{
+		clientflag = 0x187DF;
+		client->UOExpansionFlag = SA | KR | ML | SE | AOS; // SA needs KR- ML- SE- and AOS- features (and used checks) too
+	}
+	else if(uo_expansion.find("KR") != string::npos)
 	{
 		clientflag = 0x86DB;
 		client->UOExpansionFlag = KR | ML | SE | AOS; // KR needs ML- SE- and AOS-features (and used checks) too
@@ -2465,18 +2557,25 @@ void send_feature_enable(Client* client)
 		}
 	}
 
+    // Roleplay faces?
+    if (client->UOExpansionFlag & KR)
+    {
+        if (ssopt.support_faces == 2)
+            clientflag |= 0x2000;
+    }
+
 	if ( client->ClientType & CLIENTTYPE_60142 )
 	{
 		PKTOUT_B9_V2 msg;
 		msg.msgtype = PKTOUT_B9_V2_ID;
-		msg.enable = ctBEu32((u32)clientflag);
+		msg.enable = ctBEu32(clientflag);
 		client->transmit(&msg, sizeof msg);
 	}
 	else
 	{
 		PKTOUT_B9 msg;
 		msg.msgtype = PKTOUT_B9_ID;
-		msg.enable = ctBEu16(clientflag);
+		msg.enable = ctBEu16(static_cast<u16>(clientflag));
 		client->transmit(&msg, sizeof msg);
 	}
 }

@@ -3,6 +3,7 @@ History
 =======
 2009/09/03 MuadDib:   Relocation of multi related cpp/h
 2009/11/23 Turley:    added staticdefrag to defrag/remove duplicate statics
+2009/12/02 Turley:    added config.max_tile_id - Tomi
 
 Notes
 =======
@@ -205,6 +206,7 @@ int vertile( int argc, char **argv )
 		read_objinfo( objtype, tile );
         display_tileinfo( objtype, tile );
 	}
+	clear_tiledata();
 	return 0;
 }
 
@@ -212,11 +214,11 @@ int verlandtile( int argc, char **argv )
 {
 	USTRUCT_LAND_TILE landtile;
     
-    open_uo_data_files();
-    read_uo_data();
+    	open_uo_data_files();
+    	read_uo_data();
 
 	int i;
-	for( i = 0; i < 0x4000; i++ )
+	for( i = 0; i <= 0x3FFF; i++ )
 	{
 		unsigned short objtype = (unsigned short) i;
 		readlandtile( objtype, &landtile );
@@ -228,6 +230,7 @@ int verlandtile( int argc, char **argv )
             cout << "\t name: " << landtile.name << endl;
         }
 	}
+	clear_tiledata();
 	return 0;
 }
 
@@ -253,7 +256,7 @@ int landtilehist( int argc, char **argv )
     {
         cout << (*itr).first << ": " << (*itr).second << endl;
     }
-
+	clear_tiledata();
 	return 0;
 }
 
@@ -279,7 +282,7 @@ int landtilecfg( int argc, char **argv )
     {
         cout << (*itr).first << ": " << (*itr).second << endl;
     }
-
+	clear_tiledata();
 	return 0;
 }
 
@@ -308,6 +311,7 @@ int flagsearch( int argc, char **argv )
             display_tileinfo( objtype, tile );
         }
 	}
+	clear_tiledata();
 	return 0;
 }
 
@@ -340,6 +344,7 @@ int landtileflagsearch( int argc, char **argv )
             cout << "\t name: " << landtile.name << endl;
         }
 	}
+	clear_tiledata();
 	return 0;
 }
 
@@ -369,6 +374,7 @@ int loschange( int argc, char **argv )
         }
          
 	}
+	clear_tiledata();
 	return 0;
 }
 
@@ -404,6 +410,7 @@ int print_verdata_info()
     }
     if (inv_filecount)
         cout << inv_filecount << " invalid file indexes" << endl;
+	clear_tiledata();
     return 0;
 }
 
@@ -451,6 +458,7 @@ int print_statics()
     cout << cnt << " statics exist." << endl;
     cout << water << " water tiles exist." << endl;
     cout << strange_water << " strange water tiles exist." << endl;
+	clear_tiledata();
     return 0;
 }
 
@@ -538,6 +546,7 @@ int test_new_statics()
             }
         }
     }
+	clear_tiledata();
     return 0;
 }
 #endif
@@ -624,8 +633,8 @@ void print_multihull( u16 i, MultiDef* multi)
         return;
 
     USTRUCT_TILE tile;
-    read_objinfo( i+0x4000, tile );
-    cout << "Multi 0x" << hex << i+0x4000 << dec 
+    read_objinfo( i+(config.max_tile_id+1), tile );
+    cout << "Multi 0x" << hex << i+i+(config.max_tile_id+1) << dec 
          << " -- " << tile.name << ":" << endl;
     for( short y = multi->minry; y <= multi->maxry; ++y )
     {
@@ -658,8 +667,8 @@ void print_widedata( u16 i, MultiDef* multi )
         return;
 
     USTRUCT_TILE tile;
-    read_objinfo( i+0x4000, tile );
-    cout << "Multi 0x" << hex << i+0x4000 << dec 
+    read_objinfo( i+(config.max_tile_id+1), tile );
+    cout << "Multi 0x" << hex << i+(config.max_tile_id+1) << dec 
          << " -- " << tile.name << ":" << endl;
     for( short y = multi->minry; y <= multi->maxry; ++y )
     {
@@ -686,8 +695,8 @@ void print_multidata( u16 i, MultiDef* multi )
         return;
 
     USTRUCT_TILE tile;
-    read_objinfo( i+0x4000, tile );
-    cout << "Multi 0x" << hex << i+0x4000 << dec 
+    read_objinfo( i+(config.max_tile_id+1), tile );
+    cout << "Multi 0x" << hex << i+(config.max_tile_id+1) << dec 
          << " -- " << tile.name << ":" << endl;
     
     for( MultiDef::Components::iterator itr = multi->components.begin(), end = multi->components.end();
@@ -717,7 +726,7 @@ int print_multis(void)
             print_multidata( i, multidefs_by_multiid[i] );
         }
     }
-
+	clear_tiledata();
     return 0;
 
 }
@@ -746,6 +755,7 @@ int z_histogram()
         if (zcount[i])
             cout << i-128 << ": " << zcount[i] << endl;
     }
+	clear_tiledata();
     return 0;
 }
 
@@ -778,6 +788,7 @@ int statics_histogram()
         if (counts[i])
             cout << i << ": " << counts[i] << endl;
     }
+	clear_tiledata();
     return 0;
 }
 
@@ -823,6 +834,7 @@ int write_polmap()
     read_uo_data();
     write_polmap( "dngnmap0.pol", 5120, 6144 );
     write_polmap( "map0.pol", 0, 6144 );
+	clear_tiledata();
     return 0;
 }
 
@@ -939,7 +951,7 @@ int mapdump( int argc, char* argv[] )
         ofs << "</tr>" << endl;
     }
     ofs << "</table>" << endl;
-
+	clear_tiledata();
     return 0;
 }
 
@@ -981,7 +993,7 @@ int contour( int argc, char **argv )
 
     ofstream ofs( "contour.dat", ios::trunc|ios::out|ios::binary );
     ofs.write( reinterpret_cast<const char*>(mc), sizeof(MapContour) );
-
+	clear_tiledata();
     return 0;
 }
 
@@ -1008,7 +1020,7 @@ int findlandtile( int argc, char **argv )
         }
     }
 
-
+	clear_tiledata();
     return 0;
 }
 
@@ -1036,7 +1048,7 @@ int findgraphic( int argc, char **argv )
             }
         }
     }
-
+	clear_tiledata();
     return 0;
 }
 
@@ -1063,7 +1075,7 @@ int findlandtileflags( int argc, char **argv )
         }
     }
 
-
+	clear_tiledata();
     return 0;
 }
 
@@ -1181,6 +1193,14 @@ int xmain( int argc, char* argv[] )
 
     config.uo_datafile_root = elem.remove_string( "UoDataFileRoot" );
     config.uo_datafile_root = normalized_dir_form( config.uo_datafile_root );
+
+	unsigned short max_tile = elem.remove_ushort( "MaxTileID", 0x3FFF );
+
+	if (max_tile != 0x3FFF && max_tile != 0x7FFF)
+		config.max_tile_id = 0x3FFF;
+	else
+		config.max_tile_id = max_tile;
+
 	if (argc <= 1)
 		return Usage(1);
 

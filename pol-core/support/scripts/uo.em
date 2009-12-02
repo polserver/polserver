@@ -180,8 +180,9 @@ const POLCLASS_ARMOR        := 15;
 const POLCLASS_WEAPON       := 16;
 
 // mobile.race constants
-const RACE_HUMAN := 0;
-const RACE_ELF   := 1;
+const RACE_HUMAN    := 0;
+const RACE_ELF      := 1;
+const RACE_GARGOYLE := 2;
 
 // Don't use these outside this file, use FONT_* from client.inc
 //  (and I don't know what for color)
@@ -194,6 +195,7 @@ const REALM_BRITANNIA := _DEFAULT_REALM;
 const REALM_ILSHENAR  := "ilshenar";
 const REALM_MALAS     := "malas";
 const REALM_TOKUNO    := "tokuno";
+const REALM_TERMUR    := "termur";
 
 //PerformAction
 const ACTION_DIR_FORWARD  := 0;

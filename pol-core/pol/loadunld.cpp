@@ -2,6 +2,7 @@
 History
 =======
 2009/1/24 MuadDib: Added read_bannedips_config() to reload_configuration.
+2009/12/02 Turley: config.max_tile_id
 
 Notes
 =======
@@ -80,6 +81,7 @@ void load_party_cfg( bool reload );
 void load_movecost( bool reload );
 
 void unload_npc_templates();
+void unload_tiles();
 
 void check_config()
 {
@@ -276,4 +278,6 @@ void unload_data()
 	unload_party();
 
 	unload_datastore();
+
+	unload_tiles();
 }

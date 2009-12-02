@@ -5,6 +5,7 @@ History
 2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
 2009/08/09 MuadDib:   Re factor of Packet 0x25, 0x11 for naming convention
 2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
+2009/12/02 Turley:    fixed 0x11 packet (race flag)
 
 Notes
 =======
@@ -106,9 +107,9 @@ void send_full_statmsg_std( Client *client, Character *chr )
 	
 	msg.renameable = 0; // (client->chr->can_rename( chr ) ? 0xFF : 0);
 
-	if (chr->race == RACE_ELF)
-		msg.gender = static_cast<u8>(chr->gender | FLAG_RACE);
-	else
+	//if (chr->race == RACE_ELF)
+	//	msg.gender = static_cast<u8>(chr->gender | FLAG_RACE);
+	//else
 		msg.gender = static_cast<u8>(chr->gender);
 	
     if (uoclient_general.strength.any)
@@ -255,9 +256,9 @@ void send_full_statmsg_new( Client *client, Character *chr )
 	
 	msg.renameable = 0; // (client->chr->can_rename( chr ) ? 0xFF : 0);
 
-	if (chr->race == RACE_ELF)
-		msg.gender = static_cast<u8>(chr->gender | FLAG_RACE);
-	else
+	//if (chr->race == RACE_ELF)
+	//	msg.gender = static_cast<u8>(chr->gender | FLAG_RACE);
+	//else
 		msg.gender = static_cast<u8>(chr->gender);
 	
     if (uoclient_general.strength.any)
@@ -365,7 +366,7 @@ void send_full_statmsg_new( Client *client, Character *chr )
 	if (msg.moreinfo >= 5)
 	{
 		msg.max_weight = ctBEu16(chr->carrying_capacity());
-		msg.race = static_cast<u8>(chr->race);
+		msg.race = static_cast<u8>(chr->race+1);
 	}
 
 	transmit(client, &msg, cfBEu16(msg.msglen) );

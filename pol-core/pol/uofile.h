@@ -27,6 +27,7 @@ class Item;
 extern signed char rawmapinfo( unsigned short x, unsigned short y, struct USTRUCT_MAPINFO* gi );
 void getmapinfo( unsigned short x, unsigned short y, short* z, USTRUCT_MAPINFO* mi );
 void readtile(unsigned short tilenum, USTRUCT_TILE *tile);
+void clear_tiledata();
 void readstaticblock( USTRUCT_STATIC** ppst, int* pnum, unsigned short x, unsigned short y );
 bool uo_passable( unsigned short x, unsigned short y );
 

@@ -48,6 +48,7 @@ History
 2009/09/15 MuadDib:   Multi registration/unregistration support added.
 2009/10/22 Turley:    added CanWalk()
 2009/11/19 Turley:    added flag param to UpdateMobile controls if packet 0x78 or 0x77 should be send - Tomi
+2009/12/02 Turley:    added config.max_tile_id - Tomi
 
 Notes
 =======
@@ -276,8 +277,8 @@ BObjectImp* UOExecutorModule::mf_Detach()
 
 static bool item_create_params_ok( long objtype, long amount )
 {
-    return ((objtype >= UOBJ_ITEM__LOWEST && objtype <= UOBJ_ITEM__HIGHEST) ||
-            (objtype >= EXTOBJ__LOWEST && objtype <= EXTOBJ__HIGHEST)) &&
+    return ((objtype >= UOBJ_ITEM__LOWEST && objtype <= config.max_tile_id) ||
+            (objtype >= (config.max_tile_id+0x1001) && objtype <= EXTOBJ__HIGHEST)) &&
            amount > 0 &&
            amount <= 60000L;
 }
