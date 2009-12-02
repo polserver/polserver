@@ -1,6 +1,7 @@
 /*
 History
 =======
+2009/12/02 Turley:    added config.max_tile_id - Tomi
 
 
 Notes
@@ -24,7 +25,6 @@ public:
     u8 weight; // todo mult, div
 };
 
-const unsigned TILE_COUNT = 0x4000;
-extern Tile tile[ TILE_COUNT ];
+extern Tile *tile;
 
 #endif

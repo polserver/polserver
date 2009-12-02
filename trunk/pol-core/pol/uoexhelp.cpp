@@ -2,6 +2,7 @@
 History
 =======
 2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
+2009/12/02 Turley:    added config.max_tile_id - Tomi
 
 Notes
 =======
@@ -23,6 +24,7 @@ Notes
 
 #include "fnsearch.h"
 #include "item/itemdesc.h"
+#include "polcfg.h"
 #include "ssopt.h"
 #include "uoscrobj.h"
 #include "ufunc.h"
@@ -343,7 +345,7 @@ bool getObjtypeParam( Executor& exec, unsigned param, unsigned short& objtype )
         return false;
     }
 
-    if (objtype_long >= EXTOBJ__LOWEST && objtype_long <= EXTOBJ__HIGHEST) 
+    if (objtype_long >= (config.max_tile_id+0x1001uL) && objtype_long <= EXTOBJ__HIGHEST) 
     {
         objtype = static_cast<unsigned short>(objtype_long);
         if (&find_itemdesc(objtype) != &empty_itemdesc)
@@ -357,7 +359,7 @@ bool getObjtypeParam( Executor& exec, unsigned param, unsigned short& objtype )
         }
 
     }
-    else if (objtype_long >= 0 && objtype_long < EXTOBJ__LOWEST )
+    else if (objtype_long >= 0 && objtype_long < (config.max_tile_id+0x1001uL) )
     {
         objtype = static_cast<unsigned short>(objtype_long);
         return true;
@@ -440,7 +442,7 @@ bool getObjtypeParam( Executor& exec, unsigned param, const ItemDesc*& itemdesc_
     }
 
     // we get here if the value passed was an integer - either a BLong, or a String containing a number.
-    if (objtype_long >= EXTOBJ__LOWEST && objtype_long <= EXTOBJ__HIGHEST)
+    if (objtype_long > (config.max_tile_id+0x1000) && objtype_long <= EXTOBJ__HIGHEST)
     {
         const ItemDesc* itemdesc = &find_itemdesc( static_cast<unsigned short>(objtype_long) );
 
@@ -456,7 +458,7 @@ bool getObjtypeParam( Executor& exec, unsigned param, const ItemDesc*& itemdesc_
         }
 
     }
-    else if (objtype_long >= 0 && objtype_long < EXTOBJ__LOWEST)
+    else if (objtype_long >= 0 && objtype_long < (config.max_tile_id+0x1001))
     {
         unsigned short objtype = static_cast<unsigned short>(objtype_long);
         itemdesc_out = &find_itemdesc( objtype );

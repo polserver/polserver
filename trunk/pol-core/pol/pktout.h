@@ -10,6 +10,7 @@ History
 2009/08/14 Turley:    PKTOUT_B9_V2 removed unk u16 and changed flag to u32
 2009/09/10 Turley:    CompressedGump support (Grin)
 2009/09/06 Turley:    Added more known Flags to 0xA9
+2009/12/02 Turley:    PKTOUT_F3 -Tomi
 
 Notes
 =======
@@ -1244,6 +1245,24 @@ struct PKTOUT_E3 {
 	u8  unknown_E[16];
 };
 asserteql( sizeof(PKTOUT_E3), 77 );
+
+struct PKTOUT_F3 {
+    u8 msgtype;
+    u16 unknown; // always 0x1
+	u8	datatype; // 0x00 for item and 0x02 for multi
+    u32 serial;
+    u16 graphic;
+	u8	facing; // 0x00 if multi
+    u16 amount; // 0x1 if multi
+	u16 amount_2; // 0x1 if multi
+    u16 x;
+    u16 y; 
+    u8	z;
+	u8	layer; // 0x00 if multi
+    u16 color; // 0x00 if multi
+    u8	flags; // 0x00 if multi 
+};
+asserteql( sizeof(PKTOUT_F3), 24 );
 
 #ifdef _MSC_VER     /* Visual C++ 4.0 + */
 #	pragma pack( pop )

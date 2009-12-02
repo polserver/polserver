@@ -12,6 +12,7 @@ History
 2009/09/09 Turley:    ServSpecOpt CarryingCapacityMod as * modifier for Character::carrying_capacity()
 2009/10/12 Turley:    whisper/yell/say-range ssopt definition
 2009/11/19 Turley:    ssopt.core_sends_season & .core_handled_tags - Tomi
+2009/12/02 Turley:    added ssopt.support_faces
 
 Notes
 =======
@@ -79,6 +80,7 @@ void read_servspecopt()
     ssopt.yell_range = elem.remove_ushort("YellRange",25);
 	ssopt.core_sends_season = elem.remove_bool("CoreSendsSeason",true);
 	ssopt.core_handled_tags = elem.remove_ushort("CoreHandledTags",0xFFFF);
+    ssopt.support_faces = static_cast<unsigned char>(elem.remove_ushort("SupportFaces",0));
 	ssopt_parse_totalstats(elem);
 
 // Turley 2009/11/06 u8 range...

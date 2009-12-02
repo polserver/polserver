@@ -12,6 +12,7 @@ History
 2009/08/19 Turley:    Added u32 UOExpansionFlagClient
 2009/09/06 Turley:    Added u8 ClientType + FlagEnum
                       Removed is*
+2009/12/02 Turley:    added SA expansion - Tomi
 
 Notes
 =======
@@ -51,7 +52,8 @@ const u16 LBR = 0x02;
 const u16 AOS = 0x04;
 const u16 SE  = 0x08; // set AOS-Flag in send_feature_enable() too for needed checks
 const u16 ML  = 0x10; // set SE- and AOS-Flag in send_feature_enable() too for needed checks
-const u16 KR  = 0x20; // set KR- and SE- and AOS-Flag in send_feature_enable() too for needed checks
+const u16 KR  = 0x20; // set KR- and ML- and SE- and AOS-Flag in send_feature_enable() too for needed checks
+const u16 SA  = 0x40; // set SA- and KR- and SE- and AOS-Flag in send_feature_enable() too for needed checks
 
 const u8 FLAG_GENDER = 0x01;
 const u8 FLAG_RACE   = 0x02;

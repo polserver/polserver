@@ -1,6 +1,7 @@
 /*
 History
 =======
+2009/12/02 Turley:    added config.max_tile_id - Tomi
 
 Notes
 =======
@@ -37,14 +38,12 @@ Notes
 #define VERFILE_TILEDATA 0x1E
 #define TILEDATA_TILES 0x68800
 
-#define N_TILEDATA 0x4000
-
 struct TileData {
     u8 height;
     u8 layer;
     u32 flags;
 };
-TileData tiledata[ N_TILEDATA ];
+TileData *tiledata;
 
 const unsigned N_LANDTILEDATA = 0x4000;
 unsigned long landtile_flags_arr[ N_LANDTILEDATA ];
@@ -104,7 +103,7 @@ static bool seekto_newer_version( unsigned long file, unsigned long block )
 
 void readtile(unsigned short tilenum, USTRUCT_TILE *tile)
 {
-    if (tilenum >= 0x4000)
+    if (tilenum > config.max_tile_id)
     {
         memset( tile, 0, sizeof *tile );
         sprintf(tile->name, "multi");
@@ -137,7 +136,7 @@ void readtile(unsigned short tilenum, USTRUCT_TILE *tile)
 
 void readlandtile( unsigned short tilenum, USTRUCT_LAND_TILE* landtile )
 {
-    if (tilenum < 0x4000)
+    if (tilenum <= 0x3FFF)
     {
         long int block;
         block = (tilenum / 32);
@@ -170,7 +169,7 @@ char tileheight(unsigned short tilenum)
     u8 height;
     u32 flags;
 
-    if (tilenum < N_TILEDATA)
+    if (tilenum <= config.max_tile_id)
     {
         height = tiledata[tilenum].height;
         flags = tiledata[tilenum].flags;
@@ -193,7 +192,7 @@ char tileheight(unsigned short tilenum)
 
 unsigned char tilelayer( unsigned short tilenum )
 {
-    if (tilenum < N_TILEDATA )
+    if (tilenum <= config.max_tile_id )
     {
         return tiledata[ tilenum ].layer;
     }
@@ -216,7 +215,7 @@ u16 tileweight( unsigned short tilenum )
 
 u32 tile_uoflags( unsigned short tilenum )
 {
-    if (tilenum < N_TILEDATA )
+    if (tilenum <= config.max_tile_id )
     {
         return tiledata[ tilenum ].flags;
     }
@@ -256,7 +255,9 @@ static void read_veridx()
 
 static void read_tiledata()
 {
-    for( u16 graphic = 0; graphic < N_TILEDATA; ++graphic )
+    tiledata = new TileData[config.max_tile_id+1];
+
+    for( u16 graphic = 0; graphic <= config.max_tile_id; ++graphic )
     {
         USTRUCT_TILE objinfo;
         memset( &objinfo, 0, sizeof objinfo );
@@ -268,9 +269,14 @@ static void read_tiledata()
     }
 }
 
+void clear_tiledata()
+{
+	delete[] tiledata;
+}
+
 static void read_landtiledata()
 {
-    for( u16 objtype = 0; objtype < N_TILEDATA; ++objtype )
+    for( u16 objtype = 0; objtype < N_LANDTILEDATA; ++objtype )
     {
         USTRUCT_LAND_TILE landtile;
         readlandtile( objtype, &landtile );

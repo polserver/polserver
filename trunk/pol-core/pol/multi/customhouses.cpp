@@ -4,6 +4,7 @@ History
 2005/08/19 Shinigami: ZLib functionality linked directly into Core
 2005/09/26 Shinigami: wrong styled break condition in ::Compress
 2009/09/03 MuadDib:   Relocation of multi related cpp/h
+2009/12/02 Turley:    added config.max_tile_id - Tomi
 
 
 Notes
@@ -28,6 +29,7 @@ Notes
 #include "../fnsearch.h"
 #include "multi.h"
 #include "multidef.h"
+#include "../polcfg.h"
 #include "../pktboth.h"
 #include "../ufunc.h"
 #include "../ustruct.h"
@@ -331,7 +333,7 @@ unsigned char CustomHouseDesign::NumUsedPlanes() const
 //Deleting stairs is handled explicitly (CustomHouseDesign::DeleteStairs).
 void CustomHouseDesign::AddMultiAtOffset(u16 graphic, s8 x, s8 y, s8 z)
 {
-    const MultiDef* multidef = MultiDefByGraphic(graphic | 0x4000);
+    const MultiDef* multidef = MultiDefByGraphic(graphic | (config.max_tile_id+1));
     if(multidef == NULL)
     {
         cerr << "Trying to add Multi to customhouse, graphic " << hex << graphic << dec << " multi definition doesn't exist!" << endl;
@@ -343,7 +345,7 @@ void CustomHouseDesign::AddMultiAtOffset(u16 graphic, s8 x, s8 y, s8 z)
          ++itr )
     {
         const MULTI_ELEM* m_elem = itr->second;
-        if( ((m_elem->objtype) & 0x3FFF) == 1 ) //don't add the invisible multi tile
+        if( ((m_elem->objtype) & config.max_tile_id) == 1 ) //don't add the invisible multi tile
             continue;
         //cout << "0x" << hex << m_elem->graphic
         //     << " 0x" << hex << m_elem->flags 

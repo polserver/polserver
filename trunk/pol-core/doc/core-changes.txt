@@ -1,4 +1,27 @@
 -- POL099 --
+12-02-2009 Turley:
+     Added: 0xF3 packet is send instead of 0x1A for clients >= 7 or UO:SA clients - Tomi
+     Added: polcfg Max_Tile_ID 0x3FFF / 0x7FFF (default 0x3FFF)
+            since client 7.0.0.0 item graphic can be definied up to 0x7FFF - Tomi
+     Added: "SA" for expansion type. This includes sending 0x187DF with packet 0xB9. - Tomi
+     Added: support of new map TerMur - Tomi
+      Note: uoconvert param: 
+            realm=termur mapid=5 width=1280 height=4096
+     Added: Gargoyle support (race = uo:RACE_GARGOYLE)
+      Note: graphics are: 
+            UOBJ_GARGOYLE_MALE         0x029A
+            UOBJ_GARGOYLE_FEMALE       0x029B
+            UOBJ_GARGOYLE_MALE_GHOST   0x02B6
+            UOBJ_GARGOYLE_FEMALE_GHOST 0x02B7
+     Added: support of UO:KR/SA char create packet 0x8D
+     Added: new gargoyle hair & beard 0x4258-0x425F & 0x42AD-0x42B0
+     Added: UO:KR/SA face support
+     Added: ssopt.SupportFaces 0/1/2 (default 0)
+            set it to 1 to support basic faces
+            set it to 2 to support roleplay faces (sets 0x2000 flag in 0xB9 packet)
+      Note: Faces are normal items (like hair/beard) with layer 15, objtype 0x3B44-0x3B57
+            roleplay faces 0x3B4E-0x3B57
+
 11-30-2009 Turley:
      Added: polsys::MD5Encrypt(str) returns MD5 hash string.
      Fixed: RecalcVitals function for vital changes doesnt check if maximum value changed

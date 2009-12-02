@@ -76,6 +76,7 @@ private:
 };
 
 
-void send_multi( Client* client, UMulti* multi );
+void send_multi( Client* client, const UMulti* multi );
+void send_multi_to_inrange( const UMulti* multi );
 
 #endif
