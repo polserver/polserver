@@ -1,6 +1,7 @@
 /*
 History
 =======
+2009/12/02 Turley:    added config.max_tile_id - Tomi
 
 
 Notes
@@ -553,17 +554,17 @@ void run_pol_tests()
 #ifdef POLTEST
 Item* Item::create( u16 objtype, u32 serial )
 {
-    passert( objtype < 0x4000 );
+    passert( objtype <= config.max_tile_id );
     return new Item(objtype, CLASS_ITEM);
 }
 
 UMulti* UMulti::create(  u16 objtype, u32 serial )
 {
     UMulti* multi = NULL;
-    if ( objtype < 0x4000 || objtype >= 0x5000)
+    if ( objtype <= config.max_tile_id || objtype > (config.max_tile_id+0x1000))
         return NULL;
 
-    if (defs[objtype-0x4000] != NULL)
+    if (defs[objtype-(config.max_tile_id+1)] != NULL)
     {
         multi = new UMulti( objtype );
     }
@@ -599,6 +600,7 @@ int main( int arc, char *argv[] )
     read_multidefs();
 
     run_pol_tests();
+	clear_tiledata();
     return 0;
 }
 #endif

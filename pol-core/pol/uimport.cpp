@@ -6,6 +6,7 @@ History
 2009/09/03 MuadDib:   Relocation of account related cpp/h
                       Relocation of multi related cpp/h
 2009/09/14 MuadDib:   All UOX3 Import Code commented out. You can script this.
+2009/12/02 Turley:    added config.max_tile_id - Tomi
 
 Notes
 =======
@@ -722,7 +723,7 @@ void import( ConfigElem& elem )
 {
 	u16 objtype;
 	objtype = elem.remove_ushort( "OBJTYPE" );
-	if (objtype > UOBJ_ITEM__HIGHEST)
+	if (objtype > config.max_tile_id)
 	{
 		cerr << "Importing file: " << hex << objtype << dec << " is out of range." << endl;
 		throw runtime_error( "Error while importing file." );

@@ -3,6 +3,7 @@ History
 =======
 2009/08/25 Shinigami: STLport-5.2.1 fix: init order changed of realm and saveonexit_
 2009/09/14 MuadDib:   UObject::setgraphic added error printing.
+2009/12/02 Turley:    added config.max_tile_id - Tomi
 
 Notes
 =======
@@ -25,6 +26,7 @@ Notes
 #include "item/itemdesc.h"
 #include "objtype.h"
 #include "polclass.h"
+#include "polcfg.h"
 #include "realms.h"
 #include "reftypes.h"
 #include "tooltips.h"
@@ -273,7 +275,7 @@ void UObject::readProperties( ConfigElem& elem )
 
     // serial, objtype extracted by caller
     graphic = elem.remove_ushort( "GRAPHIC", objtype_ );
-    if (graphic > 0x5fff)
+    if (graphic > (config.max_tile_id+0x2000))
     {
         graphic = GRAPHIC_NODRAW;
     }

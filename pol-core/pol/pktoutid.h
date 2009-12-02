@@ -5,6 +5,7 @@ History
 2009/08/01 MuadDib:   Completed moving all "Outbound only" Packet IDs to here.
 2009/08/09 MuadDib:   Re factor of Packet 0x25, 0x11 for naming convention
 2009/09/10 Turley:    CompressedGump support (Grin)
+2009/12/02 Turley:    PKTOUT_F3 -Tomi
 
 Notes
 =======
@@ -120,7 +121,8 @@ enum PKTOUTID {
 	PKTOUT_DC_ID = 0xDC,	// Object Cahce/Revision (SE Introduced version)
 	PKTOUT_DD_ID = 0xDD,    // Compressed Gump
 
-	PKTOUT_E3_ID = 0xE3	// KR Encryption Response
+	PKTOUT_E3_ID = 0xE3,	// KR Encryption Response
+	PKTOUT_F3_ID = 0xF3 // SA Object Information
 };
 
 #endif

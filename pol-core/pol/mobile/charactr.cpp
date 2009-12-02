@@ -55,6 +55,7 @@ History
 2009/11/20 Turley:    RecalcVitals can update single Attributes/Vitals - based on Tomi
 2009/11/26 Turley:    Syshook CanDie(mobile)
 2009/11/30 Turley:    fixed calc_single_vital doesnt check changed maximum value
+2009/12/02 Turley:    added gargoyle & face support
 
 
 Notes
@@ -1649,7 +1650,7 @@ Item *Character::find_wornitem( u32 serial ) const
 			// Using redundant null check.
 			if (item != NULL && item->script_isa(POLCLASS_CONTAINER) )
 			{
-				if (layer != LAYER_HAIR && layer != LAYER_BACKPACK_WTF && layer != LAYER_BEARD
+				if (layer != LAYER_HAIR && layer != LAYER_FACE && layer != LAYER_BEARD
 					&& layer != LAYER_BACKPACK && layer != LAYER_MOUNT)
 				{
 					UContainer* cont = static_cast<UContainer*>(item);
@@ -2154,6 +2155,11 @@ void Character::resurrect()
 		graphic = UOBJ_ELF_MALE;
 	else if (graphic == UOBJ_ELF_FEMALE_GHOST)
 		graphic = UOBJ_ELF_FEMALE;
+    else if (graphic == UOBJ_GARGOYLE_MALE_GHOST)
+        graphic = UOBJ_GARGOYLE_MALE;
+    else if (graphic == UOBJ_GARGOYLE_FEMALE_GHOST)
+        graphic = UOBJ_GARGOYLE_FEMALE;
+
 	graphic_ext = ctBEu16( graphic );
 
 	dead_ = false;
@@ -2268,7 +2274,8 @@ void Character::die()
 	u16 save_graphic = graphic;
 
 	if (graphic == UOBJ_HUMAN_MALE || graphic == UOBJ_HUMAN_FEMALE ||
-		graphic == UOBJ_ELF_MALE || graphic == UOBJ_ELF_FEMALE)
+		graphic == UOBJ_ELF_MALE || graphic == UOBJ_ELF_FEMALE ||
+        graphic == UOBJ_GARGOYLE_MALE || graphic == UOBJ_GARGOYLE_FEMALE )
 	{
 		if (gender == GENDER_MALE)
 		{
@@ -2277,11 +2284,16 @@ void Character::die()
 				graphic = UOBJ_HUMAN_MALE_GHOST;
 				graphic_ext = ctBEu16( UOBJ_HUMAN_MALE_GHOST );
 			}
-			else
+            else if (race == RACE_ELF)
 			{
 				graphic = UOBJ_ELF_MALE_GHOST;
 				graphic_ext = ctBEu16( UOBJ_ELF_MALE_GHOST );
 			}
+            else
+            {
+                graphic = UOBJ_GARGOYLE_MALE_GHOST;
+				graphic_ext = ctBEu16( UOBJ_GARGOYLE_MALE_GHOST );
+            }
 		}
 		else
 		{
@@ -2290,11 +2302,16 @@ void Character::die()
 				graphic = UOBJ_HUMAN_FEMALE_GHOST;
 				graphic_ext = ctBEu16( UOBJ_HUMAN_FEMALE_GHOST );
 			}
-			else
+			else if (race == RACE_ELF)
 			{
 				graphic = UOBJ_ELF_FEMALE_GHOST;
 				graphic_ext = ctBEu16( UOBJ_ELF_FEMALE_GHOST );
 			}
+            else
+            {
+                graphic = UOBJ_GARGOYLE_FEMALE_GHOST;
+				graphic_ext = ctBEu16( UOBJ_GARGOYLE_FEMALE_GHOST );
+            }
 		}
 	}
 	DECLARE_CHECKPOINT;
@@ -2361,7 +2378,7 @@ void Character::die()
 		if (item == NULL)
 			continue;
 
-		if (item->layer == LAYER_BEARD || item->layer == LAYER_HAIR)
+		if (item->layer == LAYER_BEARD || item->layer == LAYER_HAIR || item->layer == LAYER_FACE)
 		{
 			//Copies hair items onto the corpse
 			Item* copy = item->clone();
@@ -2486,6 +2503,7 @@ void Character::die()
 
 			if (item->layer == LAYER_BEARD || 
 				item->layer == LAYER_HAIR || 
+                item->layer == LAYER_FACE ||
 				item->layer == LAYER_BACKPACK)
 			{
 				continue;
@@ -3305,7 +3323,7 @@ void Character::attack( Character* opponent )
 					{
 						if (item != NULL && item->script_isa(POLCLASS_CONTAINER) )
 						{
-							if (layer != LAYER_HAIR && layer != LAYER_BACKPACK_WTF && layer != LAYER_BEARD
+							if (layer != LAYER_HAIR && layer != LAYER_FACE && layer != LAYER_BEARD
 								&& layer != LAYER_BACKPACK && layer != LAYER_MOUNT)
 							{
 								UContainer* cont = static_cast<UContainer*>(item);
@@ -3668,6 +3686,8 @@ bool Character::doors_block() const
 			  graphic == UOBJ_HUMAN_FEMALE_GHOST ||
 			  graphic == UOBJ_ELF_MALE_GHOST || 
 			  graphic == UOBJ_ELF_FEMALE_GHOST ||
+              graphic == UOBJ_GARGOYLE_MALE_GHOST ||
+              graphic == UOBJ_GARGOYLE_FEMALE_GHOST ||
 			  cached_settings.ignoredoors);
 }
 

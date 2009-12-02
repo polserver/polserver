@@ -2,6 +2,7 @@
 History
 =======
 2007/06/17 Shinigami: added config.world_data_path
+2009/12/02 Turley:    added MaxTileID -Tomi
 
 Notes
 =======
@@ -51,7 +52,8 @@ struct PolConfig {
 	unsigned short inactivity_warning_timeout;
 	unsigned short inactivity_disconnect_timeout;
 	unsigned short min_cmdlevel_to_login;
-	
+	unsigned short max_tile_id;
+
 	unsigned short max_clients;
 	unsigned short character_slots;
 	unsigned short max_clients_bypass_cmdlevel;

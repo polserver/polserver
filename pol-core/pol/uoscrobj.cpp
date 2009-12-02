@@ -29,6 +29,7 @@ History
            MuadDib:   Squelch and Deaf members set to return the gameclock they are in effect till.
 2009/10/17 Turley:    Moved PrivUpdater to charactr.cpp - Tomi
 2009/11/19 Turley:    lightlevel now supports endless duration - Tomi
+2009/12/02 Turley:    gargoyle race support
 
 Notes
 =======
@@ -1468,10 +1469,12 @@ BObjectImp* Character::set_script_member_id( const int id, long value )
 				gender = GENDER_MALE;
 			return new BLong( gender );
 		case MBR_RACE:
-			if (value == RACE_ELF)
+            if (value == RACE_HUMAN)
+                race = RACE_HUMAN;
+			else if (value == RACE_ELF)
 				race = RACE_ELF;
-			else
-				race = RACE_HUMAN;
+            else if (value == RACE_GARGOYLE)
+                race = RACE_GARGOYLE;
 			return new BLong( race );
 		case MBR_TRUEOBJTYPE:
 			return new BLong( trueobjtype = static_cast<unsigned short>(value) );

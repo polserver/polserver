@@ -2,6 +2,7 @@
 History
 =======
 2009/07/26 MuadDib:   updates for new Enum::Packet IDs
+2009/12/02 Turley:    layer 15 is face layer
 
 Notes
 =======
@@ -36,7 +37,7 @@ enum LAYER_DETAILED {
 	LAYER_HALFAPRON		= 12,
 	LAYER_CHEST_ARMOR	= 13,
 	LAYER_BRACELET		= 14,
-	LAYER_BACKPACK_WTF	= 15,
+	LAYER_FACE      	= 15, // UO:KR/SA Face item
 	LAYER_BEARD			= 16,
 	LAYER_TUNIC			= 17,
 	LAYER_EARRINGS		= 18,

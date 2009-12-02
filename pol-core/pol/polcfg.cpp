@@ -5,6 +5,7 @@ History
 2009/08/06 MuadDib:   Removed PasswordOnlyHash support
                       ClearTextPasswords now default is False.
 2009/10/14 Turley:    added bool LogfileTimestampEveryLine
+2009/12/02 Turley:    added MaxTileID -Tomi
 
 Notes
 =======
@@ -74,6 +75,13 @@ void read_pol_config( bool initial_load )
         config.multithread = elem.remove_ushort( "Multithread", 0 );
         config.web_server = elem.remove_bool( "WebServer", false );
         config.web_server_port = elem.remove_ushort( "WebServerPort", 8080 );
+
+		unsigned short max_tile = elem.remove_ushort( "MaxTileID", 0x3FFF );
+
+		if (max_tile != 0x3FFF && max_tile != 0x7FFF)
+			config.max_tile_id = 0x3FFF;
+		else
+			config.max_tile_id = max_tile;
 
         config.ignore_load_errors = elem.remove_bool( "IgnoreLoadErrors", false );
 

@@ -5,6 +5,7 @@ History
 2009/08/14 Turley:    fixed definition of PKTIN_5D
 2009/08/14 Turley:    fixed definition of PKTIN_00
 2009/09/06 Turley:    Added PKTIN_E1
+2009/12/02 Turley:    fixed definition of PKTIN_8D
 
 Notes
 =======
@@ -276,6 +277,7 @@ asserteql( sizeof(PKTIN_83), 39 );
 // FIXME DO NOT USE YET. This is untested, not validated. Must find out
 // correct packet structure before moving forward. Different emus and diff documents
 // show different structures. wtf?
+// Turley 09/12/02 should work
 struct PKTIN_8D {
 	u8 msgtype;			//0
 	u16 msglen;
@@ -286,7 +288,7 @@ struct PKTIN_8D {
 	u8 profession;		//71
 	u8 flags;			//72
 	u8 gender;			//73
-	u8 race;			//74   0=human/1=elf
+	u8 race;			//74   0=human/1=elf/2=gargoyle
 	u8 strength;		//75
 	u8 dexterity;		//76
 	u8 intelligence;	//77
@@ -302,9 +304,9 @@ struct PKTIN_8D {
 	u8 skillnumber4;	//94
 	u8 skillvalue4;		//95
 	char unk_4[25];		//96-121 all 00
-	u8 unk_5;			//122 Always 0x0B?
-	u16 hairstyle;		//133-134
-	u16 haircolor;		//135-136
+	u8 unk_5;    		//122 Always 0x0B?
+	u16 haircolor;		//133-134
+	u16 hairstyle;		//135-136
 	u8 unk_6;			//137 Always 0x0C?
 	u32 unk_7;			//138-141 0x00000000
 	u8 unk_8;			//142 Always 0x0D?
