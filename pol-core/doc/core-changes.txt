@@ -8,7 +8,7 @@
             renamed uo:TILEDATA_FLAG_NODIAGONAL to uo:TILEDATA_FLAG_HOVEROVER
 12-02-2009 Turley:
      Added: 0xF3 packet is send instead of 0x1A for clients >= 7 or UO:SA clients - Tomi
-     Added: polcfg Max_Tile_ID 0x3FFF / 0x7FFF (default 0x3FFF)
+     Added: polcfg MaxTileID 0x3FFF / 0x7FFF (default 0x3FFF)
             since client 7.0.0.0 item graphic can be definied up to 0x7FFF - Tomi
      Added: "SA" for expansion type. This includes sending 0x187DF with packet 0xB9. - Tomi
      Added: support of new map TerMur - Tomi
