@@ -3,6 +3,7 @@ History
 =======
 2006/04/09 Shinigami: added uoconvert.cfg flag ShowRoofAndPlatformWarning
 2006/05/30 Shinigami: fixed a bug with ShowRoofAndPlatformWarning - a missing expression
+2009/12/03 Turley:    added gargoyle flying flag (hoverover/overflight flag)
 
 Notes
 =======
@@ -92,6 +93,11 @@ u32 polflags_from_tileflags( unsigned short tile, u32 uoflags, bool use_no_shoot
         (uoflags & USTRUCT_TILE::FLAG_HALF_HEIGHT))
     {
         mapflags |= FLAG::GRADUAL;
+    }
+
+    if (uoflags & USTRUCT_TILE::FLAG_HOVEROVER)
+    {
+        mapflags |= FLAG::OVERFLIGHT;
     }
 
     if (uoflags & USTRUCT_TILE::FLAG_PLATFORM)
@@ -208,7 +214,7 @@ u32 polflags_from_tileflags( unsigned short tile, u32 uoflags, bool use_no_shoot
     // the following flags are probably not useful:
 
     // everything allows overflight above it.
-    mapflags |= FLAG::OVERFLIGHT;
+    //mapflags |= FLAG::OVERFLIGHT;
 
 	if (cfg_show_roof_and_platform_warning)
 		if ((mapflags & FLAG::BLOCKING) && (mapflags & (FLAG::MOVELAND|FLAG::MOVESEA)))

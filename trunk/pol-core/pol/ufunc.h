@@ -83,6 +83,8 @@ void send_move( Client *client, const Character *chr );
 void send_move_if_inrange( Client *client, const Character *chr );
 void send_objdesc( Client *client, Item *item );
 
+void send_poisonhealthbar( Client *client, const Character *chr );
+
 void send_item_to_inrange( const Item *item );
 void update_item_to_inrange( const Item* item );
 void send_put_in_container( Client* client, const Item* item );

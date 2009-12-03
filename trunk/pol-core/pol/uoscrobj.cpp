@@ -30,6 +30,7 @@ History
 2009/10/17 Turley:    Moved PrivUpdater to charactr.cpp - Tomi
 2009/11/19 Turley:    lightlevel now supports endless duration - Tomi
 2009/12/02 Turley:    gargoyle race support
+2009/12/03 Turley:    added gargoyle flying movemode
 
 Notes
 =======
@@ -1288,6 +1289,8 @@ BObjectImp* Character::get_script_member_id( const int id ) const
 		    mode+="S";
 		  if (movemode & MOVEMODE_AIR)
 		    mode+="A";
+          if (movemode & MOVEMODE_FLY)
+		    mode+="F";
 		  return new String( mode );
 		  break;
 	    case MBR_HITCHANCE_MOD: 
@@ -1475,6 +1478,8 @@ BObjectImp* Character::set_script_member_id( const int id, long value )
 				race = RACE_ELF;
             else if (value == RACE_GARGOYLE)
                 race = RACE_GARGOYLE;
+            if ((race != RACE_GARGOYLE) && (movemode & MOVEMODE_FLY)) // FIXME graphic based maybe?
+                movemode = (MOVEMODE)(movemode ^ MOVEMODE_FLY); //remove flying 
 			return new BLong( race );
 		case MBR_TRUEOBJTYPE:
 			return new BLong( trueobjtype = static_cast<unsigned short>(value) );

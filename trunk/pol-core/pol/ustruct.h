@@ -92,7 +92,7 @@ struct USTRUCT_TILE {
         FLAG_EQUIPPABLE         = 0x00400000,
         FLAG__LIGHTSOURCE       = 0x00800000,
         FLAG_ANIMATED           = 0x01000000,
-        FLAG_NO_DIAGONAL        = 0x02000000,
+        FLAG_HOVEROVER          = 0x02000000,
         FLAG__WALK              = 0x04000000,
         FLAG__WHOLE_BODY        = 0x08000000,
         FLAG_ROOF               = 0x10000000,

@@ -7,7 +7,7 @@ History
 2005/09/03 Shinigami: fixed: Realm::walkheight ignored param doors_block
 2009/09/03 MuadDib:   Relocation of multi related cpp/h
 2009/11/13 Turley:    Rewrote MovementCode
-
+2009/12/03 Turley:    basic gargoyle fly support
 Notes
 =======
 In standingheight checks there is a nasty bug. Items NOT locked down
@@ -62,6 +62,7 @@ void Realm::standheight( MOVEMODE movemode,
     possible_shapes.clear();
     bool land_ok = (movemode & MOVEMODE_LAND) ? true : false;
     bool sea_ok  = (movemode & MOVEMODE_SEA) ? true : false;
+    bool fly_ok  = (movemode & MOVEMODE_FLY) ? true : false;
     int the_boost = 0;
     int new_boost = 0;
 
@@ -88,9 +89,11 @@ void Realm::standheight( MOVEMODE movemode,
 #endif
 
         if ( (land_ok && (flags&FLAG::MOVELAND)) ||
-             (sea_ok && (flags&FLAG::MOVESEA)) )
+            (sea_ok && (flags&FLAG::MOVESEA)) ||
+            (fly_ok && (flags&FLAG::OVERFLIGHT)) )
         {
-            if ( ((ztop <= oldz+2+the_boost) || ((flags&FLAG::GRADUAL)&&(ztop <= oldz+15)) ) &&   // not too high to step onto
+            if ( ((ztop <= oldz+2+the_boost) || ((flags&FLAG::GRADUAL)&&(ztop <= oldz+15))   // not too high to step onto
+                 || (fly_ok && (flags&FLAG::OVERFLIGHT) && (ztop <= oldz+20))) && // seems that flying allows higher steps
                  (ztop >= newz) )     // but above or same as the highest yet seen
             {     
 #if ENABLE_POLTEST_OUTPUT
@@ -185,6 +188,7 @@ void Realm::lowest_standheight( MOVEMODE movemode,
 {
     bool land_ok = (movemode & MOVEMODE_LAND) ? true : false;
     bool sea_ok  = (movemode & MOVEMODE_SEA) ? true : false;
+    bool fly_ok  = (movemode & MOVEMODE_FLY) ? true : false;
 	int the_boost = 0;
 	int new_boost = 0;
 
@@ -224,7 +228,8 @@ void Realm::lowest_standheight( MOVEMODE movemode,
 			the_boost = 5;
 
         if ( (land_ok && (flags&FLAG::MOVELAND)) ||
-             (sea_ok && (flags&FLAG::MOVESEA)) )
+             (sea_ok && (flags&FLAG::MOVESEA)) ||
+             (fly_ok && (flags&FLAG::OVERFLIGHT)) )
         {
 			if( (ztop >= minz) &&	// higher than our base
 				(ztop < newz) )		// lower than we've seen before
@@ -341,8 +346,11 @@ bool Realm::walkheight(unsigned short x, unsigned short y, short oldz,
     walkon_items.clear();
     
     readdynamics( shapes, x, y, walkon_items, doors_block /* true */ );
-    readmultis( shapes, x, y, FLAG::MOVE_FLAGS, mvec );
-	getmapshapes( shapes, x, y, FLAG::MOVE_FLAGS );
+    unsigned long flags=FLAG::MOVE_FLAGS;
+    if (movemode & MOVEMODE_FLY)
+        flags |= FLAG::OVERFLIGHT;
+    readmultis( shapes, x, y, flags, mvec );
+	getmapshapes( shapes, x, y, flags );
 
     bool result;
     standheight(movemode, shapes, oldz, 
@@ -393,8 +401,11 @@ bool Realm::walkheight( const Character* chr, unsigned short x, unsigned short y
     walkon_items.clear();
     
     readdynamics( shapes, x, y, walkon_items, chr->doors_block() );
-    readmultis( shapes, x, y, FLAG::MOVE_FLAGS, mvec );
-    getmapshapes( shapes, x, y, FLAG::MOVE_FLAGS );
+    unsigned long flags=FLAG::MOVE_FLAGS;
+    if (chr->movemode & MOVEMODE_FLY)
+        flags |= FLAG::OVERFLIGHT;
+    readmultis( shapes, x, y, flags, mvec );
+    getmapshapes( shapes, x, y, flags );
 
     bool result;
     standheight(chr->movemode, shapes, oldz, 
@@ -467,8 +478,11 @@ bool Realm::lowest_walkheight(unsigned short x, unsigned short y, short oldz,
     walkon_items.clear();
     
     readdynamics( shapes, x, y, walkon_items, doors_block /* true */ );
-    readmultis( shapes, x, y, FLAG::MOVE_FLAGS, mvec );
-    getmapshapes( shapes, x, y, FLAG::MOVE_FLAGS );
+    unsigned long flags=FLAG::MOVE_FLAGS;
+    if (movemode & MOVEMODE_FLY)
+        flags |= FLAG::OVERFLIGHT;
+    readmultis( shapes, x, y, flags, mvec );
+    getmapshapes( shapes, x, y, flags );
 
     bool result;
     lowest_standheight(movemode, shapes, oldz, &result, newz, gradual_boost);

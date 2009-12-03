@@ -4,6 +4,7 @@ History
 2006/05/16 Shinigami: added URACE with RACE_* Constants
 2009/10/12 Turley:    whisper/yell/say-range ssopt definition
 2009/12/02 Turley:    added gargoyle race
+2009/12/03 Turley:    added MOVEMODE_FLY
 
 Notes
 =======
@@ -72,7 +73,8 @@ enum MOVEMODE {
     MOVEMODE_NONE   = 0,
     MOVEMODE_LAND   = 1, 
     MOVEMODE_SEA    = 2, 
-    MOVEMODE_AIR    = 4 
+    MOVEMODE_AIR    = 4,
+    MOVEMODE_FLY    = 8
 };
 
 #define PLAYER_CHARACTER_HEIGHT		15
