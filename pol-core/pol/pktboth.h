@@ -2,6 +2,7 @@
 History
 =======
 2009/07/23 MuadDib:   Initial creation.
+2009/12/03 Turley:    toggle gargoyle flying support
 
 Notes
 =======
@@ -697,6 +698,13 @@ struct PKTBI_BF_RACE_CHANGER_RESULT
 	};
 };
 
+// Toggle gargoyle flying
+struct PKTBI_BF_32
+{
+    u16 unk1; // always 0x0100 in my tests
+    u32 unk2; // always 0x0 in my tests
+};
+
 struct PKTBI_BF {
 	u8 msgtype;
 	u16 msglen;
@@ -726,6 +734,7 @@ struct PKTBI_BF {
 		PKTBI_BF_22 damage; //BF.22
 		u8 se_spam; //BF.24
 		PKTBI_BF_RACE_CHANGER_RESULT characterracechanger; //BF.2A
+        PKTBI_BF_32 toggleflying; // BF.32
 	};
 
 	enum {
@@ -754,7 +763,8 @@ struct PKTBI_BF {
 		TYPE_ACTIVATE_CUSTOM_HOUSE_TOOL = 0x20,
 		TYPE_DAMAGE                     = 0x22,
 		TYPE_SESPAM                     = 0x24,
-		TYPE_CHARACTER_RACE_CHANGER     = 0x2A
+		TYPE_CHARACTER_RACE_CHANGER     = 0x2A,
+        TYPE_TOGGLE_FLYING              = 0x32
 	};
 	enum {
 		CURSORHUE_FELUCCA = 0,
