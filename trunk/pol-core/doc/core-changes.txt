@@ -2,8 +2,10 @@
 12-03-2009 Turley:
      Added: basic gargoyle flying support (new movemode "F")
      Fixed: poison status for newer clients
-      Note: gargoyles can "fly" on tiles with tiledata flag HOVEROVER, rebuilding of all realms is required
+      Note: gargoyles can "fly" on tiles with tiledata flag HOVEROVER (MAPDATA_FLAG_OVERFLIGHT)
+            rebuilding of all realms is required
             currently flymode can only be activated clientside (0xBF:0x32) and if race=RACE_GARGOYLE
+            renamed uo:TILEDATA_FLAG_NODIAGONAL to uo:TILEDATA_FLAG_HOVEROVER
 12-02-2009 Turley:
      Added: 0xF3 packet is send instead of 0x1A for clients >= 7 or UO:SA clients - Tomi
      Added: polcfg Max_Tile_ID 0x3FFF / 0x7FFF (default 0x3FFF)
