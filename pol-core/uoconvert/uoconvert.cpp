@@ -735,7 +735,8 @@ void ProcessSolidBlock( unsigned short x_base, unsigned short y_base, MapWriter&
                          USTRUCT_TILE::FLAG_BLOCKING|
                          USTRUCT_TILE::FLAG_PLATFORM|
                          USTRUCT_TILE::FLAG_HALF_HEIGHT|
-                         USTRUCT_TILE::FLAG_LIQUID
+                         USTRUCT_TILE::FLAG_LIQUID|
+                         USTRUCT_TILE::FLAG_HOVEROVER
                          //USTRUCT_TILE::FLAG__WALK
                          );
 
@@ -748,7 +749,8 @@ void ProcessSolidBlock( unsigned short x_base, unsigned short y_base, MapWriter&
                 if ((~polflags & FLAG::MOVELAND) &&
                     (~polflags & FLAG::MOVESEA) &&
                     (~polflags & FLAG::BLOCKSIGHT) &&
-                    (~polflags & FLAG::BLOCKING))
+                    (~polflags & FLAG::BLOCKING) &&
+                    (~polflags & FLAG::OVERFLIGHT))
                 {
                     // remove it.  we'll re-sort later.
                     statics.erase( statics.begin() + i );
@@ -757,7 +759,8 @@ void ProcessSolidBlock( unsigned short x_base, unsigned short y_base, MapWriter&
                 if ( (~srec.flags & USTRUCT_TILE::FLAG_BLOCKING) &&
                     (~srec.flags & USTRUCT_TILE::FLAG_PLATFORM) &&
                     (~srec.flags & USTRUCT_TILE::FLAG_HALF_HEIGHT) &&
-                    (~srec.flags & USTRUCT_TILE::FLAG_LIQUID))
+                    (~srec.flags & USTRUCT_TILE::FLAG_LIQUID) &&
+                    (~srec.flags & USTRUCT_TILE::FLAG_HOVEROVER))
                     /*(~srec.flags & USTRUCT_TILE::FLAG__WALK)*/
                 {
                     // remove it.  we'll re-sort later.
@@ -819,7 +822,8 @@ void ProcessSolidBlock( unsigned short x_base, unsigned short y_base, MapWriter&
                 if ((~polflags & FLAG::MOVELAND) &&
                     (~polflags & FLAG::MOVESEA) &&
                     (~polflags & FLAG::BLOCKSIGHT) &&
-                    (~polflags & FLAG::BLOCKING))
+                    (~polflags & FLAG::BLOCKING) &&
+                    (~polflags & FLAG::OVERFLIGHT))
                 {
                     passert_always( 0 );
                     continue;
@@ -827,7 +831,8 @@ void ProcessSolidBlock( unsigned short x_base, unsigned short y_base, MapWriter&
                 if ( (~srec.flags & USTRUCT_TILE::FLAG_BLOCKING) &&
                     (~srec.flags & USTRUCT_TILE::FLAG_PLATFORM) &&
                     (~srec.flags & USTRUCT_TILE::FLAG_HALF_HEIGHT) &&
-                    (~srec.flags & USTRUCT_TILE::FLAG_LIQUID))
+                    (~srec.flags & USTRUCT_TILE::FLAG_LIQUID) &&
+                    (~srec.flags & USTRUCT_TILE::FLAG_HOVEROVER))
                     /*(~srec.flags & USTRUCT_TILE::FLAG__WALK)*/
                 {
                     passert_always( 0 );

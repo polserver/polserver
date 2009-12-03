@@ -29,6 +29,7 @@ History
 2009/10/12 Turley:    whisper/yell/say-range ssopt definition
 2009/12/02 Turley:    0xf3 packet support - Tomi
                       face support
+2009/12/03 Turley:    added 0x17 packet everywhere only send if poisoned, fixed get_flag1 (problem with poisoned & flying)
 
 Notes
 =======
@@ -148,7 +149,7 @@ void send_goxyz( Client *client, const Character *chr )
     msg.graphic = chr->graphic_ext;
     msg.unk7 = 0;
     msg.color = chr->color_ext;
-	msg.flag1 = chr->get_flag1();
+	msg.flag1 = chr->get_flag1(client);
     msg.x = ctBEu16( chr->x );
     msg.y = ctBEu16( chr->y );
     msg.unk15 = 0;
@@ -156,6 +157,9 @@ void send_goxyz( Client *client, const Character *chr )
     msg.dir = 0x80 | chr->facing; // is it always right to set this flag?
     msg.z = chr->z;
     transmit( client, &msg, sizeof msg );
+
+    if ((client->ClientType & CLIENTTYPE_UOKR) && (chr->poisoned)) //if poisoned send 0x17 for newer clients
+        send_poisonhealthbar( client, chr );
 }
 
 // Character chr has moved.  Tell a client about it.
@@ -175,9 +179,24 @@ void send_move( Client *client, const Character *chr )
     msg.z = chr->z;
     msg.dir = (chr->dir & 0x80) | chr->facing; // NOTE, this only includes mask 0x07 of the last MOVE message 
     msg.skin = chr->color_ext;
-	msg.flag1 = chr->get_flag1();
+	msg.flag1 = chr->get_flag1(client);
     msg.hilite = chr->hilite_color_idx( client->chr );
 
+    transmit( client, &msg, sizeof msg );
+
+    if ((client->ClientType & CLIENTTYPE_UOKR) && (chr->poisoned)) //if poisoned send 0x17 for newer clients
+        send_poisonhealthbar( client, chr );
+}
+
+void send_poisonhealthbar( Client *client, const Character *chr )
+{
+    PKTOUT_17 msg;
+	msg.msgtype = PKTOUT_17_ID;
+	msg.msglen = ctBEu16(sizeof msg);
+	msg.serial = chr->serial_ext;
+	msg.unk = ctBEu16(1);
+	msg.status_type = ctBEu16(1);
+	msg.flag = ( chr->poisoned ) ? 1 : 0;
     transmit( client, &msg, sizeof msg );
 }
 
@@ -197,7 +216,7 @@ void send_owncreate( Client *client, const Character *chr )
     owncreate.skin = chr->color_ext;
 	// MuadDib changed to reflect true status for 0x20 packet. 1/4/2007
 	// Undo Change
-	owncreate.flag1 = chr->get_flag1();
+	owncreate.flag1 = chr->get_flag1(client);
     owncreate.hilite = chr->hilite_color_idx( client->chr ); 
 
     
@@ -209,7 +228,7 @@ void send_owncreate( Client *client, const Character *chr )
             continue;
 
         // Dont send faces if older client or ssopt
-        if ((layer==LAYER_FACE) && ((ssopt.support_faces==0) || (!(client->ClientType & CLIENTTYPE_UOKR))))
+        if ((layer==LAYER_FACE) && ((ssopt.support_faces==0) || (~client->ClientType & CLIENTTYPE_UOKR)))
             continue;
 
         if (item->color)
@@ -258,6 +277,9 @@ void send_owncreate( Client *client, const Character *chr )
 			send_object_cache(client, dynamic_cast<const UObject*>(item));
 		}
 	}
+
+    if ((client->ClientType & CLIENTTYPE_UOKR) && (chr->poisoned)) //if poisoned send 0x17 for newer clients
+        send_poisonhealthbar( client, chr );
 }
 
 

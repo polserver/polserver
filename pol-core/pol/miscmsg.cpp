@@ -15,6 +15,7 @@ History
 2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
                       Added 0xE1 packet (UO3D clienttype packet)
 2009/11/19 Turley:    ssopt.core_sends_season & .core_handled_tags - Tomi
+2009/12/03 Turley:    toggle gargoyle flying support
 
 Notes
 =======
@@ -296,6 +297,15 @@ void handle_msg_BF( Client* client, PKTBI_BF* msg )
 		case PKTBI_BF::TYPE_SCREEN_SIZE:
 			return;
 			break;
+        case PKTBI_BF::TYPE_TOGGLE_FLYING:
+            if (client->chr->race==RACE_GARGOYLE)
+            {
+                // FIXME: add checks if its possible to stand with new movemode
+                client->chr->movemode = (MOVEMODE)(client->chr->movemode ^ MOVEMODE_FLY);
+                send_move_mobile_to_nearby_cansee( client->chr );
+                send_goxyz( client, client->chr );
+            }
+            break;
 		default:
             handle_unknown_packet( client );
     }

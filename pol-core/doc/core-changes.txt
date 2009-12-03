@@ -1,4 +1,9 @@
 -- POL099 --
+12-03-2009 Turley:
+     Added: basic gargoyle flying support (new movemode "F")
+     Fixed: poison status for newer clients
+      Note: gargoyles can "fly" on tiles with tiledata flag HOVEROVER, rebuilding of all realms is required
+            currently flymode can only be activated clientside (0xBF:0x32) and if race=RACE_GARGOYLE
 12-02-2009 Turley:
      Added: 0xF3 packet is send instead of 0x1A for clients >= 7 or UO:SA clients - Tomi
      Added: polcfg Max_Tile_ID 0x3FFF / 0x7FFF (default 0x3FFF)
@@ -7,6 +12,8 @@
      Added: support of new map TerMur - Tomi
       Note: uoconvert param: 
             realm=termur mapid=5 width=1280 height=4096
+            uoconvert.cfg new stairs since SA:
+            0x1de0 0x1de1 0x1de2 0x1de3 0x1de4 0x1de5 0x1de6 0x1de7 0x1de8 0x1de9 0x1dea 0x1deb
      Added: Gargoyle support (race = uo:RACE_GARGOYLE)
       Note: graphics are: 
             UOBJ_GARGOYLE_MALE         0x029A
