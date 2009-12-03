@@ -377,7 +377,7 @@ public:
     virtual void on_facing_changed();
     void on_aos_ext_stat_changed();
 
-    u8 get_flag1() const;
+    u8 get_flag1(Client *client) const;
 
     static MOVEMODE decode_movemode( const string& str );
     static string encode_movemode( MOVEMODE movemode );

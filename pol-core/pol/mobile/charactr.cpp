@@ -56,6 +56,7 @@ History
 2009/11/26 Turley:    Syshook CanDie(mobile)
 2009/11/30 Turley:    fixed calc_single_vital doesnt check changed maximum value
 2009/12/02 Turley:    added gargoyle & face support
+2009/12/03 Turley:    fixed client>=7 poison/flying flag, basic flying support
 
 
 Notes
@@ -972,6 +973,8 @@ MOVEMODE Character::decode_movemode( const string& str )
 		mm = static_cast<MOVEMODE>(mm + MOVEMODE_SEA);
 	if (str.find( 'A' ) != string::npos)
 		mm = static_cast<MOVEMODE>(mm + MOVEMODE_AIR);
+    if (str.find( 'F' ) != string::npos)
+		mm = static_cast<MOVEMODE>(mm + MOVEMODE_FLY);
 	return mm;
 }
 
@@ -984,6 +987,8 @@ string Character::encode_movemode( MOVEMODE mm )
 		res += "S";
 	if (mm & MOVEMODE_AIR)
 		res += "A";
+    if (mm & MOVEMODE_FLY)
+		res += "F";
 	return res;
 }
 
@@ -1819,31 +1824,33 @@ void Character::on_color_changed()
 
 void Character::on_poison_changed()
 {
-	send_move_mobile_to_nearby_cansee( this );
+    send_move_mobile_to_nearby_cansee( this );
 
-	// only if client is active or for npcs
-	if ( ( client ) || ( this->isa(UObject::CLASS_NPC) ) )
-	{
-		PKTOUT_17 msg;
-		msg.msgtype = PKTOUT_17_ID;
-		msg.msglen = ctBEu16(sizeof msg);
-		msg.serial = this->serial_ext;
-		msg.unk = ctBEu16(1);
-		msg.status_type = ctBEu16(1);
-		msg.flag = ( this->poisoned ) ? 1 : 0;
-
-		if ( client )
-		{
-			send_goxyz( client, client->chr );
-			if ( client->ClientType & CLIENTTYPE_UOKR)
-			{
-				client->transmit(&msg, sizeof msg);
-			}
-		}
-		// This is a KR only packet, so transmit it only to KR clients
-		// who are in range. 
-		transmit_to_inrange( this, &msg, sizeof msg, false, true );
-	}
+    // only if client is active or for npcs
+    if ( ( client ) || ( this->isa(UObject::CLASS_NPC) ) )
+    {
+        if ( client )
+        {
+            send_goxyz( client, client->chr );
+            // if poisoned send_goxyz handles 0x17 packet
+            if ((!poisoned) && ( client->ClientType & CLIENTTYPE_UOKR))
+                send_poisonhealthbar( client, client->chr );
+        }
+        // This is a KR only packet, so transmit it only to KR clients
+        // who are in range.
+        // if poisoned send_move_mobile_to_nearby_cansee handles 0x17 packet
+        if (!poisoned)
+        {
+            PKTOUT_17 msg;
+            msg.msgtype = PKTOUT_17_ID;
+            msg.msglen = ctBEu16(sizeof msg);
+            msg.serial = this->serial_ext;
+            msg.unk = ctBEu16(1);
+            msg.status_type = ctBEu16(1);
+            msg.flag = 0;
+            transmit_to_inrange( this, &msg, sizeof msg, false, true );
+        }
+    }
 }
 
 void Character::on_facing_changed()
@@ -1868,14 +1875,16 @@ void Character::setfacing( u8 newfacing )
 	facing = newfacing & 7;
 }
 
-u8 Character::get_flag1() const
+u8 Character::get_flag1(Client *client) const
 {
   // Breaks paperdoll 
 	u8 flag1 = 0;
 	if (gender)
 	  flag1 |= CHAR_FLAG1_GENDER;
-	if (poisoned)
+	if ((poisoned) && (~client->ClientType & CLIENTTYPE_7000)) // client >=7 receive the poisonflag with 0x17
 		flag1 |= CHAR_FLAG1_POISONED;
+    if ((movemode & MOVEMODE_FLY) && (client->ClientType & CLIENTTYPE_7000))
+        flag1 |= CHAR_FLAG1_FLYING;
 	if ((ssopt.invul_tag == 2) && (invul()))
 	  flag1 |= CHAR_FLAG1_YELLOWHEALTH;
 	if (warmode)
