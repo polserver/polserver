@@ -10,3 +10,11 @@ Sending Season packet RESETS the lightlevel in client to 0. - issue resolved in 
 
 UO:SA client will only show you loginservers who's ID is 0x3D. - only UO:SA beta
 
+CliLoc item names are:
+if (graphic < 0x4000)
+  1020000 + graphic 
+else
+  1095256 + graphic - 0x4000
+
+
+

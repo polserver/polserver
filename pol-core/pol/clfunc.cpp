@@ -2,6 +2,7 @@
 History
 =======
 2009-03-03 Nando - private_say_above_cl(), say_above_cl(), send_sysmessage_cl() Crash fix when arguments are NULL
+2009/12/04 Turley: if arguments are NULL still add the terminator
 
 Notes
 =======
@@ -41,6 +42,8 @@ void send_sysmessage_cl(Client *client, /*Character *chr_from, ObjArray* oText,*
 	if (textlen > (sizeof msg.arguments / sizeof(msg.arguments[0])))
 		textlen = (sizeof msg.arguments / sizeof(msg.arguments[0]));
 	msglen = offsetof( PKTOUT_C1, arguments ) + textlen*sizeof(msg.arguments[0]);
+    if (arguments == NULL)
+        msglen+=2;
 
 	if (msglen <= sizeof msg)
 	{
@@ -83,6 +86,8 @@ void say_above_cl(UObject *obj, unsigned int cliloc_num,
 	if (textlen > (sizeof msg.arguments / sizeof(msg.arguments[0])))
 		textlen = (sizeof msg.arguments / sizeof(msg.arguments[0]));
 	msglen = offsetof( PKTOUT_C1, arguments ) + textlen*sizeof(msg.arguments[0]);
+    if (arguments == NULL)
+        msglen+=2;
 
 	if (msglen <= sizeof msg)
 	{
@@ -127,6 +132,8 @@ void private_say_above_cl(Character *chr, const UObject* obj,
 	if (textlen > (sizeof msg.arguments / sizeof(msg.arguments[0])))
 		textlen = (sizeof msg.arguments / sizeof(msg.arguments[0]));
 	msglen = offsetof( PKTOUT_C1, arguments ) + textlen*sizeof(msg.arguments[0]);
+    if (arguments == NULL)
+        msglen+=2;
 
 	if (msglen <= sizeof msg)
 	{
@@ -173,6 +180,8 @@ void send_sysmessage_cl_affix(Client *client, unsigned int cliloc_num, const cha
 	size_t offset = offsetof( PKTOUT_CC, affix ); // Position of msg.affix
 
 	msglen = offset + affix_len*sizeof(msg.affix[0]) + textlen*sizeof(msg.arguments[0]);
+    if (arguments == NULL)
+        msglen+=2;
 
     msg.msgtype = PKTOUT_CC_ID;
 	msg.msglen = ctBEu16( msglen );
@@ -195,6 +204,7 @@ void send_sysmessage_cl_affix(Client *client, unsigned int cliloc_num, const cha
 	u16 *args = (u16*)(tmp_msg + offset + affix_len); // args will now point after the end of affix :)
 	for (unsigned i=0; i < textlen; i++)
 		args[i] = ctBEu16(arguments[i]);
+    args[textlen] = (u16)0L;
 
 	client->transmit(tmp_msg, msglen);
 
@@ -222,6 +232,8 @@ void say_above_cl_affix(UObject *obj, unsigned int cliloc_num, const char* affix
 	size_t offset = offsetof( PKTOUT_CC, affix ); // Position of msg.affix
 
 	msglen = offset + affix_len*sizeof(msg.affix[0]) + textlen*sizeof(msg.arguments[0]);
+    if (arguments == NULL)
+        msglen+=2;
 
     msg.msgtype = PKTOUT_CC_ID;
 	msg.msglen = ctBEu16( msglen );
@@ -244,6 +256,7 @@ void say_above_cl_affix(UObject *obj, unsigned int cliloc_num, const char* affix
 	u16 *args = (u16*)(tmp_msg + offset + affix_len); // args will now point after the end of affix :)
 	for (unsigned i=0; i < textlen; i++)
 		args[i] = ctBEu16(arguments[i]);
+    args[textlen] = (u16)0L;
 
 	// MuadDib - FIXME: only send to those that I'm visible to.
 	transmit_to_inrange( obj, tmp_msg, msglen, false, false );
@@ -272,6 +285,8 @@ void private_say_above_cl_affix(Character *chr, const UObject* obj, unsigned int
 	size_t offset = offsetof( PKTOUT_CC, affix ); // Position of msg.affix
 
 	msglen = offset + affix_len*sizeof(msg.affix[0]) + textlen*sizeof(msg.arguments[0]);
+    if (arguments == NULL)
+        msglen+=2;
 
     msg.msgtype = PKTOUT_CC_ID;
 	msg.msglen = ctBEu16( msglen );
@@ -294,6 +309,7 @@ void private_say_above_cl_affix(Character *chr, const UObject* obj, unsigned int
 	u16 *args = (u16*)(tmp_msg + offset + affix_len); // args will now point after the end of affix :)
 	for (unsigned i=0; i < textlen; i++)
 		args[i] = ctBEu16(arguments[i]);
+    args[textlen] = (u16)0L;
 
 	chr->client->transmit(tmp_msg, msglen);
 
@@ -316,6 +332,8 @@ unsigned char* build_sysmessage_cl(unsigned* msglen,unsigned int cliloc_num, con
 	if (textlen > (SPEECH_MAX_LEN+1))
 		textlen = SPEECH_MAX_LEN+1;
 	*msglen = offsetof( PKTOUT_C1, arguments ) + textlen*2;
+    if (arguments == NULL)
+        *msglen+=2;
 
 	PKTOUT_C1 msg;
 	msg.msgtype = PKTOUT_C1_ID;
@@ -338,6 +356,7 @@ unsigned char* build_sysmessage_cl(unsigned* msglen,unsigned int cliloc_num, con
 	u16 *args = (u16*)(tmp_msg + offsetof( PKTOUT_C1, arguments ));
 	for (unsigned i=0; i < textlen; i++)
 		args[i] = ctBEu16(arguments[i]);
+    args[textlen] = (u16)0L;
 
 	return tmp_msg;
 }
@@ -362,6 +381,8 @@ unsigned char* build_sysmessage_cl_affix(unsigned* msglen,unsigned int cliloc_nu
 	size_t offset = offsetof( PKTOUT_CC, affix ); // Position of msg.affix
 
 	*msglen = offset + affix_len*sizeof(msg.affix[0]) + textlen*sizeof(msg.arguments[0]);
+    if (arguments == NULL)
+        *msglen+=2;
 
     msg.msgtype = PKTOUT_CC_ID;
 	msg.msglen = ctBEu16( *msglen );
@@ -384,6 +405,7 @@ unsigned char* build_sysmessage_cl_affix(unsigned* msglen,unsigned int cliloc_nu
 	u16 *args = (u16*)(tmp_msg + offset + affix_len); // args will now point after the end of affix :)
 	for (unsigned i=0; i < textlen; i++)
 		args[i] = ctBEu16(arguments[i]);
+    args[textlen] = (u16)0L;
 
 	return tmp_msg;
 

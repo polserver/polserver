@@ -14,6 +14,7 @@ History
 2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
 2009/08/06 MuadDib:   Removed PasswordOnlyHash support
 2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
+2009/12/04 Turley:    Crypto cleanup - Tomi
 
 Notes
 =======
@@ -283,7 +284,6 @@ void select_server(Client *client, PKTIN_A0 *msg ) // Relay player to a certain 
 	client->transmit( &rsp, sizeof rsp );
 
     unsigned long nseed = 0xFFffFFffLu; // CRYPT_AUTOMASK;
-    client->clicrypt.setseed( client->cryptseed );
     client->cryptengine->Init( &nseed /*client->cryptseed*/ );
 }
 

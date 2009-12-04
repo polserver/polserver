@@ -1,4 +1,7 @@
 -- POL099 --
+12-04-2009 Turley:
+   Removed: depricated pol.cfg entries "MasterKey1","MasterKey2","ClientVersion","KeyFile" - Tomi
+     Added: Gargoyles count as mounted while flying
 12-03-2009 Turley:
      Added: basic gargoyle flying support (new movemode "F")
      Fixed: poison status for newer clients

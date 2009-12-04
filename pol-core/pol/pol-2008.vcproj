@@ -672,10 +672,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\ucrypto.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\ufunc.cpp"
 				>
 			</File>
@@ -1346,10 +1342,6 @@
 			</File>
 			<File
 				RelativePath=".\uconst.h"
-				>
-			</File>
-			<File
-				RelativePath=".\ucrypto.h"
 				>
 			</File>
 			<File
