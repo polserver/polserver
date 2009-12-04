@@ -109,7 +109,7 @@ cpp_sources = \
 	pol/target.cpp pol/tasks.cpp plib/testenv.cpp pol/textcmd.cpp \
 	pol/tildecmd.cpp pol/tiles.cpp pol/tiplstwn.cpp \
 	pol/tips.cpp pol/tmpvars.cpp pol/tooltips.cpp \
-	pol/ucrypto.cpp pol/ufunc.cpp pol/ufunc2.cpp pol/uimport.cpp \
+	pol/ufunc.cpp pol/ufunc2.cpp pol/uimport.cpp \
 	pol/umap.cpp pol/module/unimod.cpp \
 	pol/uobjcnt.cpp pol/uobject.cpp pol/uobjhelp.cpp pol/uoclient.cpp \
 	pol/module/uomod.cpp pol/module/uomod2.cpp \
@@ -165,7 +165,7 @@ cpp_sources = \
 
 
 hold_cpp_sources = \
-	uvars.cpp target.cpp ufunc.cpp ucrypto.cpp \
+	uvars.cpp target.cpp ufunc.cpp \
 	speech.cpp tips.cpp login.cpp \
 		dropitem.cpp getitem.cpp eqpitem.cpp \
 		sockio.cpp clientio.cpp \

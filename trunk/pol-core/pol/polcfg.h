@@ -3,6 +3,7 @@ History
 =======
 2007/06/17 Shinigami: added config.world_data_path
 2009/12/02 Turley:    added MaxTileID -Tomi
+2009/12/04 Turley:    cleanup "MasterKey1","MasterKey2","ClientVersion","KeyFile" - Tomi
 
 Notes
 =======
@@ -31,10 +32,6 @@ struct PolConfig {
 	bool inhibit_saves;
 	bool log_script_cycles;
 	bool count_resource_tiles;
-	unsigned short client_version;
-	unsigned long masterkey1;
-	unsigned long masterkey2;
-	std::string keyfile;
 	std::string client_encryption_version;
 	unsigned short multithread;
 	bool web_server;
