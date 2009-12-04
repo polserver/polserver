@@ -5516,74 +5516,67 @@ BObjectImp* UOExecutorModule::mf_UpdateMobile()
 UFACING direction_toward( xcoord from_x, ycoord from_y, xcoord to_x, ycoord to_y );
 BObjectImp* UOExecutorModule::mf_CanWalk(/*movemode, x1, y1, z1, x2_or_dir, y2 := -1, realm := DEF*/)
 {
-    xcoord x;
-    ycoord y;
-    zcoord z;
-    long x2_or_dir, y2_;
-    const String* realm_name;
-    const String* movemode_name;
+	xcoord x;
+	ycoord y;
+	zcoord z;
+	long x2_or_dir, y2_;
+	const String* realm_name;
+	const String* movemode_name;
 
-    if ((getStringParam(0, movemode_name)) &&
-        (getParam(1,x)) &&
-        (getParam(2,y)) &&
-        (getParam(3,z)) &&
-        (getParam(4,x2_or_dir)) &&
-        (getParam(5,y2_)) &&
-        (getStringParam(6, realm_name)))
-    {
-        //FIXME c&p from Character::decode_movemode
-        MOVEMODE movemode = MOVEMODE_NONE;
-        if ((movemode_name->value()).find( 'L' ) != string::npos)
-            movemode = static_cast<MOVEMODE>(movemode + MOVEMODE_LAND);
-        if ((movemode_name->value()).find( 'S' ) != string::npos)
-            movemode = static_cast<MOVEMODE>(movemode + MOVEMODE_SEA);
-        if ((movemode_name->value()).find( 'A' ) != string::npos)
-            movemode = static_cast<MOVEMODE>(movemode + MOVEMODE_AIR);
+	if ((getStringParam(0, movemode_name)) &&
+		(getParam(1,x)) &&
+		(getParam(2,y)) &&
+		(getParam(3,z)) &&
+		(getParam(4,x2_or_dir)) &&
+		(getParam(5,y2_)) &&
+		(getStringParam(6, realm_name)))
+	{
+		MOVEMODE movemode = Character::decode_movemode(movemode_name->value());
 
-        Realm* realm = find_realm(realm_name->value());
-        if( !realm ) 
-            return new BError("Realm not found.");
-        else if( !realm->valid(x, y, z) ) 
-            return new BError("Invalid coordinates for realm.");
-        UFACING dir;
-        if (y2_ == -1)
-            dir=static_cast<UFACING>(x2_or_dir & 0x7);
-        else
-        {
-            if( !realm->valid(static_cast<xcoord>(x2_or_dir), static_cast<ycoord>(y2_), 0) ) 
-                return new BError("Invalid coordinates for realm.");
-            dir=direction_toward( x,y,static_cast<xcoord>(x2_or_dir),static_cast<ycoord>(y2_));
-        }
+		Realm* realm = find_realm(realm_name->value());
+		if( !realm ) 
+			return new BError("Realm not found.");
+		else if( !realm->valid(x, y, z) ) 
+			return new BError("Invalid coordinates for realm.");
+		UFACING dir;
+		if (y2_ == -1)
+			dir=static_cast<UFACING>(x2_or_dir & 0x7);
+		else
+		{
+			if( !realm->valid(static_cast<xcoord>(x2_or_dir), static_cast<ycoord>(y2_), 0) ) 
+				return new BError("Invalid coordinates for realm.");
+			dir=direction_toward( x,y,static_cast<xcoord>(x2_or_dir),static_cast<ycoord>(y2_));
+		}
 
-        if (dir & 1) // check if diagonal movement is allowed
-        {
-            short new_z;
-            u8 tmp_facing = (dir+1) & 0x7;
-            unsigned short tmp_newx = x + move_delta[ tmp_facing ].xmove;
-            unsigned short tmp_newy = y + move_delta[ tmp_facing ].ymove;
+		if (dir & 1) // check if diagonal movement is allowed
+		{
+			short new_z;
+			u8 tmp_facing = (dir+1) & 0x7;
+			unsigned short tmp_newx = x + move_delta[ tmp_facing ].xmove;
+			unsigned short tmp_newy = y + move_delta[ tmp_facing ].ymove;
 
-            // needs to save because if only one direction is blocked, it shouldn't block ;)
-            bool walk1 = realm->walkheight(tmp_newx,tmp_newy,z,&new_z,NULL,NULL,true,movemode,NULL);
+			// needs to save because if only one direction is blocked, it shouldn't block ;)
+			bool walk1 = realm->walkheight(tmp_newx,tmp_newy,z,&new_z,NULL,NULL,true,movemode,NULL);
 
-            tmp_facing = (dir-1) & 0x7;
-            tmp_newx = x + move_delta[ tmp_facing ].xmove;
-            tmp_newy = y + move_delta[ tmp_facing ].ymove;
+			tmp_facing = (dir-1) & 0x7;
+			tmp_newx = x + move_delta[ tmp_facing ].xmove;
+			tmp_newy = y + move_delta[ tmp_facing ].ymove;
 
-            if (!walk1 && !realm->walkheight(tmp_newx,tmp_newy,z,&new_z,NULL,NULL,true,movemode,NULL))
-                return new BError("Cannot walk there");
-        }
+			if (!walk1 && !realm->walkheight(tmp_newx,tmp_newy,z,&new_z,NULL,NULL,true,movemode,NULL))
+				return new BError("Cannot walk there");
+		}
 
-        unsigned short newx = x + move_delta[ dir ].xmove;
-        unsigned short newy = y + move_delta[ dir ].ymove;
-        short newz;
+		unsigned short newx = x + move_delta[ dir ].xmove;
+		unsigned short newy = y + move_delta[ dir ].ymove;
+		short newz;
 
-        if (!realm->walkheight(newx,newy,z,&newz,NULL,NULL,true,movemode,NULL))
-            return new BError("Cannot walk there");
+		if (!realm->walkheight(newx,newy,z,&newz,NULL,NULL,true,movemode,NULL))
+			return new BError("Cannot walk there");
 
-        return new BLong(newz);
-    }
-    else
-        return new BError("Invalid parameter");
+		return new BLong(newz);
+	}
+	else
+		return new BError("Invalid parameter");
 }
 
 //FIXME move ufacing.h functions into *.cpp then move this function there
