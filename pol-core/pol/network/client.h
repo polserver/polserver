@@ -13,6 +13,7 @@ History
 2009/09/06 Turley:    Added u8 ClientType + FlagEnum
                       Removed is*
 2009/12/02 Turley:    added SA expansion - Tomi
+2009/12/04 Turley:    Crypto cleanup - Tomi
 
 Notes
 =======
@@ -33,7 +34,6 @@ Notes
 #include "../pktin.h"
 #include "../sockets.h"
 #include "../ucfg.h"
-#include "../ucrypto.h"
 #include "../crypt/cryptengine.h"
 
 class MessageTypeFilter;
@@ -151,8 +151,6 @@ public:
 	unsigned int message_length;		// how many bytes are expected for this message
 
 	struct sockaddr ipaddr;
-
-	ClientEncryptionEngine clicrypt;
 
     std::auto_ptr<CryptEngine> cryptengine;
 

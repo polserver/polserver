@@ -1,6 +1,7 @@
 /*
 History
 =======
+2009/12/04 Turley:    Crypto cleanup - Tomi
 
 Notes
 =======
@@ -11,7 +12,6 @@ Notes
 
 #include "../ctable.h"
 #include "../uvars.h"
-#include "../ucrypto.h"
 #include "../sockio.h"
 
 #define OPT_LOG_CLIENT_DATA 0
@@ -107,55 +107,7 @@ void Client::recv_remaining_nocrypt( int total_expected)
     }
 }
 
-void svr_decrypt( unsigned char *dst, int *lenout, 
-				  const unsigned char *src, int lenin )
-{
-	unsigned short cmpval;
-	unsigned char inmask;
-	int bitcount;
-
-	bitcount = 0;
-	*lenout = 0;
-	cmpval = 0;
-	while (lenin)
-	{
-		inmask = 0x80;
-		while (inmask)
-		{
-			cmpval <<= 1;
-			
-			if (*src & inmask)
-				cmpval |= 1;
-
-			inmask >>= 1;
-
-			bitcount += 1;
-
-			for( int i = 0; i <= 256; ++i )
-			{
-				if (bitcount == keydesc[ i ].nbits)
-				{
-					if (keydesc[i].bits == cmpval)
-					{
-						if (i == 0x0100) return;
-						*dst = (unsigned char)i;
-						dst++;
-						*lenout = *lenout + 1;
-						bitcount = 0;
-						cmpval = 0; 
-						break; // FIXME
-					}
-				}
-			}
-		}
-		src++;
-		lenin--;
-	}
-}
-
 unsigned char xoutbuffer[ 64000 ];
-
-
 
 /* NOTE: If this changes, code in client.cpp must change - pause() and restart() use
    pre-encrypted values of 33 00 and 33 01.

@@ -240,42 +240,42 @@ void ext_stats_in (Client* client, PKTBI_BF* msg)
 }
 
 void handle_msg_BF( Client* client, PKTBI_BF* msg )
-{
-    UObject* obj = NULL;
-    UMulti* multi = NULL;
-    UHouse* house = NULL;
-    switch(cfBEu16(msg->subcmd))
-    {
+	{
+	UObject* obj = NULL;
+	UMulti* multi = NULL;
+	UHouse* house = NULL;
+	switch(cfBEu16(msg->subcmd))
+		{
 		case PKTBI_BF::TYPE_CLIENT_LANGUAGE:
 			client->chr->uclang = strlower(msg->client_lang);
 			break;
-        case PKTBI_BF::TYPE_REQ_FULL_CUSTOM_HOUSE:
-            if( (client->UOExpansionFlag & AOS) == 0 )
-                return;
-            multi = system_find_multi(cfBEu32(msg->reqfullcustomhouse.house_serial));
-            if(multi != NULL)
-            {
-                house = multi->as_house();
-                if(house != NULL)
-                {
-					if(client->UOExpansionFlag & AOS)
+		case PKTBI_BF::TYPE_REQ_FULL_CUSTOM_HOUSE:
+			if( (client->UOExpansionFlag & AOS) == 0 )
+				return;
+			multi = system_find_multi(cfBEu32(msg->reqfullcustomhouse.house_serial));
+			if(multi != NULL)
+				{
+				house = multi->as_house();
+				if(house != NULL)
 					{
+					if(client->UOExpansionFlag & AOS)
+						{
 						send_object_cache(client, (UObject*)(house));
+						}
+					//consider sending working design to certain players, to assist building, or GM help
+					CustomHousesSendFull( house, client, HOUSE_DESIGN_CURRENT );
 					}
-                    //consider sending working design to certain players, to assist building, or GM help
-                    CustomHousesSendFull( house, client, HOUSE_DESIGN_CURRENT );
-                }
-            }
-            break;
-        case PKTBI_BF::TYPE_OBJECT_CACHE:
-            if( (client->UOExpansionFlag & AOS) == 0)
-                return;
-            obj = system_find_object(cfBEu32(msg->objectcache.serial));
-            if(obj != NULL)
-            {
-                SendAOSTooltip(client,obj);
-            }
-            break;
+				}
+			break;
+		case PKTBI_BF::TYPE_OBJECT_CACHE:
+			if( (client->UOExpansionFlag & AOS) == 0)
+				return;
+			obj = system_find_object(cfBEu32(msg->objectcache.serial));
+			if(obj != NULL)
+				{
+				SendAOSTooltip(client,obj);
+				}
+			break;
 		case PKTBI_BF::TYPE_SESPAM:
 			return;
 			break;
@@ -297,19 +297,22 @@ void handle_msg_BF( Client* client, PKTBI_BF* msg )
 		case PKTBI_BF::TYPE_SCREEN_SIZE:
 			return;
 			break;
-        case PKTBI_BF::TYPE_TOGGLE_FLYING:
-            if (client->chr->race==RACE_GARGOYLE)
-            {
-                // FIXME: add checks if its possible to stand with new movemode
-                client->chr->movemode = (MOVEMODE)(client->chr->movemode ^ MOVEMODE_FLY);
-                send_move_mobile_to_nearby_cansee( client->chr );
-                send_goxyz( client, client->chr );
-            }
-            break;
+		case PKTBI_BF::TYPE_TOGGLE_FLYING:
+			if (client->chr->race==RACE_GARGOYLE)
+				{
+				// FIXME: add checks if its possible to stand with new movemode
+				client->chr->movemode = (MOVEMODE)(client->chr->movemode ^ MOVEMODE_FLY);
+				send_move_mobile_to_nearby_cansee( client->chr );
+				send_goxyz( client, client->chr );
+				}
+			break;
+		case PKTBI_BF::TYPE_CLIENTTYPE:
+			client->UOExpansionFlagClient = ctBEu32( msg->clienttype.clientflag );
+			break;
 		default:
-            handle_unknown_packet( client );
-    }
-}
+			handle_unknown_packet( client );
+		}
+	}
 MESSAGE_HANDLER_VARLEN( PKTBI_BF, handle_msg_BF );
 
 void handle_unknown_C4( Client* client, PKTOUT_C4* msg )

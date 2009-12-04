@@ -536,6 +536,12 @@ struct PKTBI_BF_06
 	};
 };
 
+struct PKTBI_BF_0F
+{
+    u8 unk1; // 0x0a
+    u32 clientflag;
+};
+
 struct PKTBI_BF_10
 {
 	u32 serial;
@@ -718,6 +724,7 @@ struct PKTBI_BF {
 		u8 cursorhue;	// BF.8: Cursor Hue (0=Felucca,1=Trammel)
 		char client_lang[3]; // BF.B Client language (client message, sent once at login)
 		u32 serial_closed_status_gump; //BF.C closed status gump
+        PKTBI_BF_0F clienttype; // BF.F clienttype (like char create/select)
 		PKTBI_BF_10 objectcache; //BF.10
 		u32 serial_request_popup_menu; //BF.13
 		PKTBI_BF_14 displaypopup; //BF.14
@@ -747,7 +754,7 @@ struct PKTBI_BF {
 		TYPE_WRESTLING_STUN             = 0x0A,
 		TYPE_CLIENT_LANGUAGE            = 0x0B,
 		TYPE_CLOSED_STATUS_GUMP         = 0x0C,
-		TYPE_UNKNOWN1                   = 0x0F,
+		TYPE_CLIENTTYPE                 = 0x0F,
 		TYPE_OBJECT_CACHE               = 0x10,
 		TYPE_DISPLAY_POPUP_MENU         = 0x14,
 		TYPE_POPUP_ENTRY_SELECT         = 0x15,

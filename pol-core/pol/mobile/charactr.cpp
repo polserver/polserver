@@ -1636,6 +1636,9 @@ void Character::unequip( Item *item )
 
 bool Character::on_mount() const
 {
+    if (race==RACE_GARGOYLE)
+        return (movemode & MOVEMODE_FLY)==0 ? false:true;
+
 	return layer_is_equipped( LAYER_MOUNT );
 }
 
