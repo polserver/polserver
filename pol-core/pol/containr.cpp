@@ -986,6 +986,7 @@ void WornItemsContainer::print( ostream& ofs_pc, ostream& ofs_equip ) const
 
             if ((layer == LAYER_HAIR) || 
                 (layer == LAYER_BEARD) ||
+                (layer == LAYER_FACE) ||
                 (layer == LAYER_ROBE_DRESS && item->objtype_ == UOBJ_DEATH_SHROUD))
             {
                 ofs_pc << *item;

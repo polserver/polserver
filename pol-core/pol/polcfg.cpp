@@ -6,6 +6,7 @@ History
                       ClearTextPasswords now default is False.
 2009/10/14 Turley:    added bool LogfileTimestampEveryLine
 2009/12/02 Turley:    added MaxTileID -Tomi
+2009/12/04 Turley:    cleanup "MasterKey1","MasterKey2","ClientVersion","KeyFile" - Tomi
 
 Notes
 =======
@@ -68,10 +69,6 @@ void read_pol_config( bool initial_load )
         config.listen_port = elem.remove_ushort( "ListenPort", 0 );
         config.check_integrity = true; // elem.remove_bool( "CheckIntegrity", true );
         config.count_resource_tiles = elem.remove_bool( "CountResourceTiles", false );
-        config.client_version = elem.remove_ushort( "ClientVersion", 37 );
-        config.masterkey1 = elem.remove_ulong( "MasterKey1", 0 );
-        config.masterkey2 = elem.remove_ulong( "MasterKey2", 0 );
-        config.keyfile = elem.remove_string( "Keyfile", "config/v1_26_1.key" );
         config.multithread = elem.remove_ushort( "Multithread", 0 );
         config.web_server = elem.remove_bool( "WebServer", false );
         config.web_server_port = elem.remove_ushort( "WebServerPort", 8080 );
