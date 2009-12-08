@@ -17,8 +17,6 @@ Notes
 #	pragma pack( push, 1 )
 #else
 	/* Ok, my build of GCC supports this, yay! */
-#	undef POSTSTRUCT_PACK
-#	define POSTSTRUCT_PACK
 #	pragma pack(1)
 #endif
 
@@ -29,7 +27,7 @@ struct USTRUCT_VERSION
     u32 filepos;
     u32 length;
     u32 unknown;
-} POSTSTRUCT_PACK;
+};
 asserteql( sizeof(USTRUCT_VERSION), 20 );
 
 struct USTRUCT_STATIC
@@ -39,7 +37,7 @@ struct USTRUCT_STATIC
     s8 y_offset;
     s8 z;
     u16 hue;
-} POSTSTRUCT_PACK;
+};
 asserteql( sizeof(USTRUCT_STATIC ), 7 );
 
 struct USTRUCT_IDX
@@ -47,7 +45,7 @@ struct USTRUCT_IDX
     u32 offset;
     u32 length;
     u32 unknown;
-} POSTSTRUCT_PACK;
+};
 asserteql( sizeof( USTRUCT_IDX ),12 );
 
 const unsigned STAIDX_CHUNK = 8;
@@ -102,7 +100,7 @@ struct USTRUCT_TILE {
         FLAG_WALKBLOCK = FLAG_BLOCKING|FLAG_PLATFORM|FLAG_HALF_HEIGHT,
         FLAG_PASSABLE_WATER = FLAG_FLOOR|FLAG_LIQUID
     };
-} POSTSTRUCT_PACK;
+};
 asserteql( sizeof( USTRUCT_TILE ), 37 );
 /* notes:
   flag1:

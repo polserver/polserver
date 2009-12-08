@@ -154,11 +154,6 @@ public:
 
     std::auto_ptr<CryptEngine> cryptengine;
 
-    //CCrypt newcrypt;
-    unsigned char cryptseed[4];
-
-    void setcryptseed( unsigned char cryptseed[4] );
-
 	bool encrypt_server_stream;				// encrypt the server stream (data sent to client)?
 
 	const MessageTypeFilter *msgtype_filter;
