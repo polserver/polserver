@@ -63,7 +63,7 @@ bool move_character_to( Character* chr,
             return false;
         }
 
-        chr->realm->walkheight( x, y, z, &newz, &supporting_multi, &walkon_item, true, MOVEMODE_LAND, &new_boost );
+		chr->realm->walkheight( x, y, z, &newz, &supporting_multi, &walkon_item, true, chr->movemode, &new_boost );
         newz = z;
     }
     else
