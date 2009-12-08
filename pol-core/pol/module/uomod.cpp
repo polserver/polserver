@@ -143,7 +143,6 @@ Notes
 #include "uomod.h"
 
 #include "../objecthash.h"
-#include "../mobile/ufacing.h"
 
 
 
@@ -5514,6 +5513,7 @@ BObjectImp* UOExecutorModule::mf_UpdateMobile()
 
 }
 
+UFACING direction_toward( xcoord from_x, ycoord from_y, xcoord to_x, ycoord to_y );
 BObjectImp* UOExecutorModule::mf_CanWalk(/*movemode, x1, y1, z1, x2_or_dir, y2 := -1, realm := DEF*/)
 {
 	xcoord x;
@@ -5579,6 +5579,36 @@ BObjectImp* UOExecutorModule::mf_CanWalk(/*movemode, x1, y1, z1, x2_or_dir, y2 :
 		return new BError("Invalid parameter");
 }
 
+//FIXME move ufacing.h functions into *.cpp then move this function there
+UFACING direction_toward( xcoord from_x, ycoord from_y, xcoord to_x, ycoord to_y )
+{
+    if (from_x < to_x)        // East to target
+    {
+        if (from_y < to_y)
+            return FACING_SE;
+        else if (from_y == to_y)
+            return FACING_E;
+        else /* from_y > to_y */
+            return FACING_NE;
+    }
+    else if (from_x == to_x)
+    {
+        if (from_y < to_y)
+            return FACING_S;
+        else if (from_y > to_y)
+            return FACING_N;
+    }
+    else /* from_x > to_x */  // West to target
+    {
+        if (from_y < to_y)
+            return FACING_SW;
+        else if (from_y == to_y)
+            return FACING_W;
+        else /* from_y > to_y */
+            return FACING_NW;
+    }
+    return FACING_N;
+}
 
 UOFunctionDef UOExecutorModule::function_table[] =
 {
