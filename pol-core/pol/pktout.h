@@ -31,8 +31,6 @@ This file is for packet structs who sent by server.
 #	pragma pack( push, 1 )
 #else
 /* Ok, my build of GCC supports this, yay! */
-#	undef POSTSTRUCT_PACK
-#	define POSTSTRUCT_PACK
 #	pragma pack(1)
 #endif
 
