@@ -875,13 +875,11 @@ bool process_data( Client *client )
 				tempseed[1] = client->buffer[2];
 				tempseed[2] = client->buffer[3];
 				tempseed[3] = client->buffer[4];
-				client->setcryptseed( tempseed );
 				client->cryptengine->Init( tempseed );
 				(*handler[PKTIN_EF_ID].func)(client, client->buffer);
 			}
 			else
 			{
-				client->setcryptseed( client->buffer );
 				client->cryptengine->Init( client->buffer );
 				client->recv_state = Client::RECV_STATE_MSGTYPE_WAIT;
 			}

@@ -21,7 +21,7 @@ static UFACING GetRandomFacing()
 	return static_cast<UFACING>( rval );
 }
 
-const char* FacingStr( UFACING facing )
+static const char* FacingStr( UFACING facing )
 {
 	switch( facing )
 	{
@@ -37,7 +37,7 @@ const char* FacingStr( UFACING facing )
 	return "";
 }
 
-int adjustments[] =
+static int adjustments[] =
 {
 	0,
 	+1,
@@ -47,9 +47,9 @@ int adjustments[] =
 	+3,
 	-3
 };
-const int N_ADJUST = arsize( adjustments );
+static const int N_ADJUST = arsize( adjustments );
 
-UFACING direction_toward( const Character* src, const UObject* idst )
+static UFACING direction_toward( const Character* src, const UObject* idst )
 {
 	const UObject* dst = idst->toplevel_owner();
 	if (src->x < dst->x)        // East to target
@@ -80,7 +80,7 @@ UFACING direction_toward( const Character* src, const UObject* idst )
 	return FACING_N;
 }
 
-UFACING direction_toward( const Character* src, xcoord to_x, ycoord to_y )
+static UFACING direction_toward( const Character* src, xcoord to_x, ycoord to_y )
 {
 
 	if (src->x < to_x)        // East to target
@@ -111,7 +111,7 @@ UFACING direction_toward( const Character* src, xcoord to_x, ycoord to_y )
 	return FACING_N;
 }
 
-UFACING away_cvt[8] = {
+static UFACING away_cvt[8] = {
 	FACING_S,
 	FACING_SW,
 	FACING_W,
@@ -122,18 +122,48 @@ UFACING away_cvt[8] = {
 	FACING_SE
 };
 
-UFACING direction_away( const Character* src, const UObject* idst )
+static UFACING direction_away( const Character* src, const UObject* idst )
 {
 	UFACING toward = direction_toward(src,idst);
 	UFACING away = away_cvt[ static_cast<int>(toward) ];
 	return away;
 }
 
-UFACING direction_away( const Character* src, xcoord from_x, ycoord from_y )
+static UFACING direction_away( const Character* src, xcoord from_x, ycoord from_y )
 {
 	UFACING toward = direction_toward(src,from_x, from_y);
 	UFACING away = away_cvt[ static_cast<int>(toward) ];
 	return away;
+}
+
+static UFACING direction_toward( xcoord from_x, ycoord from_y, xcoord to_x, ycoord to_y )
+{
+    if (from_x < to_x)        // East to target
+    {
+        if (from_y < to_y)
+            return FACING_SE;
+        else if (from_y == to_y)
+            return FACING_E;
+        else /* from_y > to_y */
+            return FACING_NE;
+    }
+    else if (from_x == to_x)
+    {
+        if (from_y < to_y)
+            return FACING_S;
+        else if (from_y > to_y)
+            return FACING_N;
+    }
+    else /* from_x > to_x */  // West to target
+    {
+        if (from_y < to_y)
+            return FACING_SW;
+        else if (from_y == to_y)
+            return FACING_W;
+        else /* from_y > to_y */
+            return FACING_NW;
+    }
+    return FACING_N;
 }
 
 #endif // UFACING_H

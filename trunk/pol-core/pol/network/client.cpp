@@ -373,11 +373,6 @@ std::string Client::status() const
     return st;
 }
 
-void Client::setcryptseed( unsigned char i_cryptseed[4] )
-{
-    memcpy( cryptseed, i_cryptseed, sizeof cryptseed );
-}
-
 void Client::queue_data( const void *data, unsigned short datalen )
 {
     THREAD_CHECKPOINT( active_client, 300 );

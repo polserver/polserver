@@ -55,6 +55,11 @@ class ULWObject
 };
 
 
+#ifdef _MSC_VER
+#	pragma pack( push, 1 )
+#else
+#	pragma pack(1)
+#endif
 struct Resistances
 {
 	s16 fire;
@@ -118,6 +123,11 @@ struct MovementCost_Mod
 	double walk_mounted;
 	double run_mounted;
 };
+#ifdef _MSC_VER
+#	pragma pack( pop )
+#else
+#	pragma pack()
+#endif
 
 /* NOTES: 
         if you add fields, be sure to update Item::create().

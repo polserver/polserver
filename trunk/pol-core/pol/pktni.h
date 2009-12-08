@@ -20,8 +20,6 @@ This is where all the Not Implemented Packets belong.
 #	pragma pack( push, 1 )
 #else
 /* Ok, my build of GCC supports this, yay! */
-#	undef POSTSTRUCT_PACK
-#	define POSTSTRUCT_PACK
 #	pragma pack(1)
 #endif
 

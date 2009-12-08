@@ -52,14 +52,14 @@ struct BSCRIPT_FILE_HDR
 	char magic2[2];
 	unsigned short version;
     unsigned short globals;
-} POSTSTRUCT_PACK;
+};
 asserteql( sizeof(BSCRIPT_FILE_HDR), 6 );
 
 struct BSCRIPT_SECTION_HDR
 {
 	unsigned short type;
 	unsigned long length;
-} POSTSTRUCT_PACK;
+};
 asserteql( sizeof(BSCRIPT_SECTION_HDR), 6 );
 
 enum BSCRIPT_SECTION {
@@ -76,32 +76,32 @@ struct BSCRIPT_MODULE_HDR
 {
 	char modulename[ 14 ];
 	unsigned long nfuncs;
-} POSTSTRUCT_PACK;
+};
 asserteql( sizeof(BSCRIPT_MODULE_HDR), 18 );
 
 struct BSCRIPT_MODULE_FUNCTION
 {
 	char funcname[ 33 ];
 	unsigned char nargs;
-} POSTSTRUCT_PACK;
+};
 asserteql( sizeof(BSCRIPT_MODULE_FUNCTION), 34 );
 
 struct BSCRIPT_PROGDEF_HDR
 {
     unsigned expectedArgs;
     unsigned char rfu[12];
-} POSTSTRUCT_PACK;
+};
 asserteql( sizeof(BSCRIPT_PROGDEF_HDR), 16 );
 
 struct BSCRIPT_GLOBALVARNAMES_HDR
 {
     unsigned nGlobalVars;
-} POSTSTRUCT_PACK;
+};
 asserteql( sizeof(BSCRIPT_GLOBALVARNAMES_HDR), 4 );
 struct BSCRIPT_GLOBALVARNAME_HDR
 {
     unsigned namelen;
-} POSTSTRUCT_PACK;
+};
 asserteql( sizeof(BSCRIPT_GLOBALVARNAME_HDR), 4 );
 
 struct BSCRIPT_DBG_INSTRUCTION
@@ -112,7 +112,7 @@ struct BSCRIPT_DBG_INSTRUCTION
     unsigned statementbegin;
     unsigned rfu1;
     unsigned rfu2;
-} POSTSTRUCT_PACK;
+};
 asserteql( sizeof(BSCRIPT_DBG_INSTRUCTION), 24 );
 
 struct BSCRIPT_EXPORTED_FUNCTION
