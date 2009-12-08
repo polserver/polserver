@@ -22,8 +22,6 @@ This file is for packet structs who sent by both client and server.
 #	pragma pack( push, 1 )
 #else
 /* Ok, my build of GCC supports this, yay! */
-#	undef POSTSTRUCT_PACK
-#	define POSTSTRUCT_PACK
 #	pragma pack(1)
 #endif
 
@@ -363,7 +361,7 @@ struct PKTBI_95
 	u32 serial;
 	u16 unk;
 	u16 graphic_or_color; 
-} POSTSTRUCT_PACK;
+};
 asserteql( sizeof(PKTBI_95), 9 );
 
 struct PKTBI_99 {
