@@ -1,7 +1,8 @@
 -- POL099 --
 12-04-2009 Turley:
-   Removed: depricated pol.cfg entries "MasterKey1","MasterKey2","ClientVersion","KeyFile" - Tomi
+   Removed: deprecated pol.cfg entries "MasterKey1","MasterKey2","ClientVersion","KeyFile" - Tomi
      Added: Gargoyles count as mounted while flying
+
 12-03-2009 Turley:
      Added: basic gargoyle flying support (new movemode "F")
      Fixed: poison status for newer clients
@@ -9,6 +10,7 @@
             rebuilding of all realms is required
             currently flymode can only be activated clientside (0xBF:0x32) and if race=RACE_GARGOYLE
             renamed uo:TILEDATA_FLAG_NODIAGONAL to uo:TILEDATA_FLAG_HOVEROVER
+
 12-02-2009 Turley:
      Added: 0xF3 packet is send instead of 0x1A for clients >= 7 or UO:SA clients - Tomi
      Added: polcfg MaxTileID 0x3FFF / 0x7FFF (default 0x3FFF)

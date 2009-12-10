@@ -933,10 +933,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\crypwrap.h"
-				>
-			</File>
-			<File
 				RelativePath=".\ctable.h"
 				>
 			</File>
@@ -1465,46 +1461,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\crypt\crypt1264.cpp"
-				>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\crypt\crypt200.cpp"
-				>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="crypt\cryptbase.cpp"
 				>
 			</File>
@@ -1515,26 +1471,6 @@
 			<File
 				RelativePath="crypt\cryptengine.h"
 				>
-			</File>
-			<File
-				RelativePath=".\crypt\cryptignt.cpp"
-				>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="crypt\cryptkey.cpp"
@@ -1560,26 +1496,6 @@
 				RelativePath="crypt\twofish.h"
 				>
 			</File>
-			<Filter
-				Name="crypt200"
-				>
-				<File
-					RelativePath="crypt\crypt200\crypt.cpp"
-					>
-					<FileConfiguration
-						Name="Release|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="crypt\crypt200\crypt.h"
-					>
-				</File>
-			</Filter>
 		</Filter>
 		<Filter
 			Name="zlib"

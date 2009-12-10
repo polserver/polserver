@@ -56,6 +56,7 @@ void CCryptInfo::InitList()
 	AddClient("2.0.3b5",  0x2dbbb7cd, 0xa3c95e7f, CRYPT_BOTH    );
 	AddClient("2.0.3",    0x2dbbb7cd, 0xa3c95e7f, CRYPT_BOTH    );
 */
+	AddClient("7.0.3.0",  0x2F3BB7CD, 0xA2895E7F, CRYPT_TWOFISH);
 	AddClient("6.0.12.4", 0x2DB2853D, 0xA3CA127F, CRYPT_BOTH);
 
 	AddClient("2.0.0",    0x2d13a5fd, 0xa39d527f, CRYPT_BLOWFISH);

@@ -161,8 +161,6 @@ cpp_sources = \
 	gp/gendef.cpp gp/gphelp.cpp gp/gtree.cpp \
 	gp/treegen.cpp
 
-#	pol/crypt/crypt1264.cpp pol/crypt/crypt200.cpp pol/crypt/cryptignt.cpp \
-
 
 hold_cpp_sources = \
 	uvars.cpp target.cpp ufunc.cpp \
@@ -367,9 +365,6 @@ clib_library:
 %.debug.o: %.cpp
 	$(CC) -x c++ $(CXX_DEBUG_OPTS) -c -I. -o $@ $<
 
-pol/crypwrap.o: pol/crypwrap.cpp
-	$(CC) -x c++ $(CXX_OPTS_NOWARN) -c -I. -o $@ $<
-
 pol/crypt/nocrypt.o: pol/crypt/nocrypt.cpp
 	$(CC) -x c++ $(CXX_OPTS_NOWARN) -c -I. -o $@ $<
 
@@ -379,18 +374,6 @@ pol/crypt/twofish.o: pol/crypt/twofish.cpp
 pol/crypt/blowfish.o: pol/crypt/blowfish.cpp
 	$(CC) -x c++ $(CXX_OPTS_NOWARN) -c -I. -o $@ $<
 
-pol/crypt/crypt1264.o: pol/crypt/crypt1264.cpp
-	$(CC) -x c++ $(CXX_OPTS_NOWARN) -c -I. -o $@ $<
-
-pol/crypt/crypt200.o: pol/crypt/crypt200.cpp
-	$(CC) -x c++ $(CXX_OPTS_NOWARN) -c -I. -o $@ $<
-
-pol/crypt/cryptignt.o: pol/crypt/cryptignt.cpp
-	$(CC) -x c++ $(CXX_OPTS_NOWARN) -c -I. -o $@ $<
-
-pol/crypwrap.debug.o: pol/crypwrap.cpp
-	$(CC) -x c++ $(CXX_OPTS_NOWARN) -c -I. -o $@ $<
-
 pol/crypt/nocrypt.debug.o: pol/crypt/nocrypt.cpp
 	$(CC) -x c++ $(CXX_OPTS_NOWARN) -c -I. -o $@ $<
 
@@ -398,15 +381,6 @@ pol/crypt/twofish.debug.o: pol/crypt/twofish.cpp
 	$(CC) -x c++ $(CXX_OPTS_NOWARN) -c -I. -o $@ $<
 
 pol/crypt/blowfish.debug.o: pol/crypt/blowfish.cpp
-	$(CC) -x c++ $(CXX_OPTS_NOWARN) -c -I. -o $@ $<
-
-pol/crypt/crypt1264.debug.o: pol/crypt/crypt1264.cpp
-	$(CC) -x c++ $(CXX_OPTS_NOWARN) -c -I. -o $@ $<
-
-pol/crypt/crypt200.debug.o: pol/crypt/crypt200.cpp
-	$(CC) -x c++ $(CXX_OPTS_NOWARN) -c -I. -o $@ $<
-
-pol/crypt/cryptignt.debug.o: pol/crypt/cryptignt.cpp
 	$(CC) -x c++ $(CXX_OPTS_NOWARN) -c -I. -o $@ $<
 
 #		| sed 's#^$(@F)#$<#g'
