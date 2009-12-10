@@ -60,7 +60,7 @@ cpp_sources = \
 	pol/network/cliface.cpp pol/cmbtcfg.cpp pol/cmdlevel.cpp pol/containr.cpp \
 	pol/console.cpp pol/core.cpp pol/mobile/corpse.cpp \
 	pol/create.cpp \
-	pol/cryptengine.cpp pol/crypt/cryptbase.cpp pol/crypt/cryptkey.cpp \
+	pol/crypt/cryptengine.cpp pol/crypt/cryptbase.cpp pol/crypt/cryptkey.cpp \
 	pol/crypt/nocrypt.cpp pol/crypt/blowfish.cpp pol/crypt/twofish.cpp \
 	pol/ctable.cpp \
 	pol/multi/customhouses.cpp pol/multi/customhousehelp.cpp \
