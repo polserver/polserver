@@ -100,7 +100,6 @@ Notes
 #include "network/client.h"
 #include "network/cliface.h"
 #include "core.h"
-#include "crypwrap.h"
 #include "decay.h"
 #include "fnsearch.h"
 #include "gameclck.h"
