@@ -283,8 +283,8 @@ void select_server(Client *client, PKTIN_A0 *msg ) // Relay player to a certain 
 
 	client->transmit( &rsp, sizeof rsp );
 
-    unsigned long nseed = 0xFFffFFffLu; // CRYPT_AUTOMASK;
-    client->cryptengine->Init( &nseed /*client->cryptseed*/ );
+    unsigned long nseed = 0xFEFE0000 + client->ClientType;
+    client->cryptengine->Init( &nseed );
 }
 
 MESSAGE_HANDLER( PKTIN_A0, select_server );

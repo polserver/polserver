@@ -87,11 +87,6 @@ public:
 
 	virtual void	Decrypt(void *pvIn, void *pvOut, int len) = 0;
 	virtual void	Init(void *pvSeed, int type = typeAuto) = 0;
-	virtual int		Pack(void *pvIn, void *pvOut, int len) = 0;
-
-protected:
-	virtual void	InitTables() = 0;
-	virtual void	RawDecrypt(unsigned int *pValues, int table) = 0;
 };
 
 #endif //__CRYPTBASE_H__

@@ -61,11 +61,6 @@ public:
 
 	void	Decrypt(void *pvIn, void *pvOut, int len);
 	void	Init(void *pvSeed, int type = typeAuto);
-	int		Pack(void *pvIn, void *pvOut, int len);
-
-protected:
-	void	InitTables();
-	void	RawDecrypt(unsigned int *pValues, int table);
 };
 
 #endif //__NOCRYPT_H__

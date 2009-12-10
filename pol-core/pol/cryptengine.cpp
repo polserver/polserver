@@ -47,10 +47,6 @@ CryptEngine* create_crypt_blowfish_twofish_engine(unsigned int uiKey1, unsigned 
 }
 
 // Defaults :)
-CryptEngine* create_crypt_1_26_4_engine()
-{
-	return create_crypt_blowfish_engine(0x32750719, 0x0a2d100b);
-}
 CryptEngine* create_crypt_ignition_engine()
 {
 	return create_nocrypt_engine();
@@ -65,11 +61,11 @@ CryptEngine* create_crypt_engine( const string& name )
 		{
 			cerr << "Unsupported ClientEncryptionVersion "
 				 << name
-				 << ", using version 1.26.4"
+				 << ", using Ignition encryption engine"
 				 << endl;
-			Log("Unsupported ClientEncryptionVersion %s, using version 1.26.4\n",
+			Log("Unsupported ClientEncryptionVersion %s, using Ignition encryption engine\n",
 				name.c_str() );
-			return create_crypt_1_26_4_engine();
+			return create_crypt_ignition_engine();
 		}
 
 		switch( infoCrypt.eType )
@@ -93,21 +89,21 @@ CryptEngine* create_crypt_engine( const string& name )
 			default:
 				cerr << "Unknown encryption engine found in internal lookup table "
 					<< "(" << name << "->" << infoCrypt.eType << ") "
-					<< ", using version 1.26.4"
+					<< ", using Ignition encryption engine"
 					<< endl;
-				Log( "Unknown ClientEncryptionVersion %s, using version 1.26.4\n", 
+				Log( "Unknown ClientEncryptionVersion %s, using Ignition encryption engine\n", 
 					name.c_str() );
-				return create_crypt_1_26_4_engine();
+				return create_crypt_ignition_engine();
 		}
 	}
     else
     {
         cerr << "Unknown ClientEncryptionVersion " 
              << name 
-             << ", using version 1.26.4"
+             << ", using Ignition encryption engine"
              << endl;
-        Log( "Unknown ClientEncryptionVersion %s, using version 1.26.4\n", 
+        Log( "Unknown ClientEncryptionVersion %s, using Ignition encryption engine\n", 
               name.c_str() );
-        return create_crypt_1_26_4_engine();
+        return create_crypt_ignition_engine();
     }
 }
