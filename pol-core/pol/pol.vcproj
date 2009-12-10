@@ -256,10 +256,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\cryptengine.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\ctable.cpp"
 				>
 			</File>
@@ -1466,6 +1462,10 @@
 			</File>
 			<File
 				RelativePath="crypt\cryptbase.h"
+				>
+			</File>
+			<File
+				RelativePath=".\crypt\cryptengine.cpp"
 				>
 			</File>
 			<File
