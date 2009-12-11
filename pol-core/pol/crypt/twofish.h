@@ -43,26 +43,21 @@
 
 #include "cryptbase.h"
 
-class CCryptTwofish : public CCryptBase
+class CCryptTwofish : public CCryptBaseCrypt
 {
 // Constructor / Destructor
 public:
-	typedef CCryptBase base;
+	typedef CCryptBaseCrypt base;
 
 	CCryptTwofish();
 	~CCryptTwofish();
 
-	void SetMasterKeys(unsigned int masterKey1, unsigned int masterKey2);
-
-// Misc
-public:
-	enum { typeLogin, typeGame, typeAuto };
-
 // Member Functions
 public:
-
 	void	Decrypt(void *pvIn, void *pvOut, int len);
-	void	Init(void *pvSeed, int type = typeAuto);
+	void	Init(void *pvSeed, int type = CryptEngine::typeAuto);
+	void	SetMasterKeys(unsigned int masterKey1, unsigned int masterKey2);
+
 	int		Pack(void *pvIn, void *pvOut, int len);
 
 protected:

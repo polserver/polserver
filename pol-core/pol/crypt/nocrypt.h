@@ -52,15 +52,10 @@ public:
 	CCryptNoCrypt();
 	~CCryptNoCrypt();
 
-// Misc
-public:
-	enum { typeLogin, typeGame, typeAuto };
-
 // Member Functions
 public:
-
 	void	Decrypt(void *pvIn, void *pvOut, int len);
-	void	Init(void *pvSeed, int type = typeAuto);
+	void	Init(void *pvSeed, int type = CryptEngine::typeAuto);
 };
 
 #endif //__NOCRYPT_H__

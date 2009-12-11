@@ -7,30 +7,31 @@
 class CryptEngine
 {
 protected:
-    CryptEngine() {};
+	CryptEngine() {};
 public:
-    virtual ~CryptEngine() {}
-    virtual void Decrypt(void *pvIn, void *pvOut, int len) = 0;
-    virtual void Init(void *pvSeed) = 0;
+	enum { typeLogin, typeGame, typeAuto };
 
+	virtual ~CryptEngine() {}
+	virtual void Decrypt(void *pvIn, void *pvOut, int len) = 0;
+	virtual void Init(void *pvSeed, int type=typeAuto) = 0;
 };
 
 template<class T>
 class CryptEngineTmpl : public CryptEngine
 {
 public:
-    CryptEngineTmpl() : crypt() {}
-    virtual void Decrypt(void *pvIn, void *pvOut, int len) 
-    {
-        crypt.Decrypt( pvIn, pvOut, len );
-    }
-    virtual void Init(void *pvSeed)
-    {
-        crypt.Init( pvSeed );
-    }
+	CryptEngineTmpl() : crypt() {}
+	virtual void Decrypt(void *pvIn, void *pvOut, int len) 
+	{
+		crypt.Decrypt( pvIn, pvOut, len );
+	}
+	virtual void Init(void *pvSeed, int type)
+	{
+		crypt.Init( pvSeed, type );
+	}
 
 protected:
-    T crypt;
+	T crypt;
 };
 
 template<class T>
