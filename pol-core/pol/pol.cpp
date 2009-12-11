@@ -147,6 +147,7 @@ Notes
 #include "ufunc.h"
 #include "uvars.h"
 #include "uworld.h"
+#include "crypt/cryptengine.h"
 
 #ifdef __linux__
 #include <gnu/libc-version.h>
@@ -874,12 +875,12 @@ bool process_data( Client *client )
 				tempseed[1] = client->buffer[2];
 				tempseed[2] = client->buffer[3];
 				tempseed[3] = client->buffer[4];
-				client->cryptengine->Init( tempseed );
+				client->cryptengine->Init( tempseed, CryptEngine::typeLogin );
 				(*handler[PKTIN_EF_ID].func)(client, client->buffer);
 			}
 			else
 			{
-				client->cryptengine->Init( client->buffer );
+				client->cryptengine->Init( client->buffer, CryptEngine::typeAuto );
 				client->recv_state = Client::RECV_STATE_MSGTYPE_WAIT;
 			}
 		}

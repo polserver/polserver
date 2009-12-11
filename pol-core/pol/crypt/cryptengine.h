@@ -4,15 +4,17 @@
 #ifndef CRYPTENGINE_H
 #define CRYPTENGINE_H
 
+#include "../sockets.h"
+
 class CryptEngine
 {
 protected:
 	CryptEngine() {};
 public:
-	enum { typeLogin, typeGame, typeAuto };
+	enum e_crypttype { typeLogin, typeGame, typeAuto } crypttype;
 
 	virtual ~CryptEngine() {}
-	virtual void Decrypt(void *pvIn, void *pvOut, int len) = 0;
+	virtual int Receive(void *buffer, int max_expected, SOCKET socket) = 0;
 	virtual void Init(void *pvSeed, int type=typeAuto) = 0;
 };
 
@@ -21,9 +23,9 @@ class CryptEngineTmpl : public CryptEngine
 {
 public:
 	CryptEngineTmpl() : crypt() {}
-	virtual void Decrypt(void *pvIn, void *pvOut, int len) 
+	virtual int Receive(void *buffer, int max_expected, SOCKET socket)
 	{
-		crypt.Decrypt( pvIn, pvOut, len );
+		return crypt.Receive(buffer, max_expected, socket);
 	}
 	virtual void Init(void *pvSeed, int type)
 	{
