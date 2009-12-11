@@ -12,17 +12,15 @@
 #ifndef __CRYPTKEY_H__
 #define __CRYPTKEY_H__
 
-// Ripped out of UOInjection_01's UOKeys.cfg ;)
-// About time we made the damn hackers' time work -for- us. :P
-
 // Encryption Types
 enum ECryptType
 {
-	CRYPT_NONE      = 0,	//- no encryption
-	CRYPT_CLIENT    = 1,	//- the same encryption that client uses
-	CRYPT_BLOWFISH  = 2,	//- <=2.0.0 (BlowFish)
-	CRYPT_BOTH      = 3,	//- 2.0.3 (BlowFish+TwoFish)
-	CRYPT_TWOFISH   = 4		//- >2.0.3 (TwoFish)
+	CRYPT_NOCRYPT			= 0,	//- no encryption
+	CRYPT_OLD_BLOWFISH		= 1,
+	CRYPT_1_25_36			= 2,
+	CRYPT_BLOWFISH			= 3,	//- <=2.0.0 (BlowFish)
+	CRYPT_BLOWFISH_TWOFISH	= 4,	//- 2.0.3 (BlowFish+TwoFish)
+	CRYPT_TWOFISH			= 5		//- >2.0.3 (TwoFish)
 };
 
 // Encryption keys and type
@@ -31,7 +29,6 @@ typedef struct _CryptInfo
 	unsigned int uiKey1;
 	unsigned int uiKey2;
 	ECryptType   eType;
-	bool         bEnabled;
 } TCryptInfo;
 
 // STL map of [client->encryption info]
@@ -51,8 +48,7 @@ protected:
 	bool AddClient( std::string sClient,
 						   unsigned int uiKey1,
 						   unsigned int uiKey2,
-						   ECryptType eType,
-						   bool bEnabled = true);
+						   ECryptType eType);
 
 private:
 	CryptInfoList CryptList;

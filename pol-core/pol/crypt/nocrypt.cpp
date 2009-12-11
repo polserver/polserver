@@ -55,9 +55,9 @@ CCryptNoCrypt::~CCryptNoCrypt()
 
 // Member Functions
 
-void CCryptNoCrypt::Decrypt(void *pvIn, void *pvOut, int len)
+int CCryptNoCrypt::Receive(void *buffer, int max_expected, SOCKET socket)
 {
-	memcpy(pvOut, pvIn, len);
+	return recv(socket, (char *) buffer, max_expected, 0);
 }
 
 void CCryptNoCrypt::Init(void *pvSeed, int type)

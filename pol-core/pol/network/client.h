@@ -143,7 +143,6 @@ public:
 			RECV_STATE_MSGDATA_WAIT
 	} recv_state;
 
-	unsigned char encrypted_data[ MAXBUFFER ];
     unsigned char bufcheck1_AA;
 	unsigned char buffer[ MAXBUFFER ];
     unsigned char bufcheck2_55;

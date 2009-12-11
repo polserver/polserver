@@ -54,13 +54,15 @@ public:
 
 // Member Functions
 public:
-	void	Decrypt(void *pvIn, void *pvOut, int len);
+	int		Receive(void *buffer, int max_expected, SOCKET socket);
 	void	Init(void *pvSeed, int type = CryptEngine::typeAuto);
 	void	SetMasterKeys(unsigned int masterKey1, unsigned int masterKey2);
 
 	int		Pack(void *pvIn, void *pvOut, int len);
 
 protected:
+	void	Decrypt(void *pvIn, void *pvOut, int len);
+
 	void	InitTables();
 	void	RawDecrypt(unsigned int *pValues, int table);
 };

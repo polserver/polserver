@@ -56,6 +56,9 @@
 
 
 #include "../../clib/stl_inc.h"
+#include "../sockets.h"
+#include "../ucfg.h"
+#include "../../clib/passert.h"
 #include "cryptengine.h"
 
 //basic class only used directly by NoCrypt
@@ -68,7 +71,7 @@ public:
 
 // Member Functions
 public:
-	virtual void	Decrypt(void *pvIn, void *pvOut, int len) = 0;
+	virtual int		Receive(void *buffer, int max_expected, SOCKET socket) = 0;
 	virtual void	Init(void *pvSeed, int type = CryptEngine::typeAuto) = 0;
 };
 
@@ -94,10 +97,14 @@ protected:
 	int				m_gameBlockPos;
 	int				m_gameStreamPos;
 	unsigned int	m_masterKey[2];
+	unsigned char	encrypted_data[ MAXBUFFER ];
 
 // Member Functions
 public:
 	virtual void	SetMasterKeys(unsigned int masterKey1, unsigned int masterKey2) = 0;
+
+protected:
+	virtual void	Decrypt(void *pvIn, void *pvOut, int len) = 0;
 };
 
 #endif //__CRYPTBASE_H__
