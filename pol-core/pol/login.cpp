@@ -50,6 +50,7 @@ Notes
 #include "sockio.h"
 #include "ssopt.h"
 #include "ufunc.h"
+#include "crypt/cryptengine.h"
 
 bool is_banned_ip(Client* client);
 
@@ -284,7 +285,7 @@ void select_server(Client *client, PKTIN_A0 *msg ) // Relay player to a certain 
 	client->transmit( &rsp, sizeof rsp );
 
     unsigned long nseed = 0xFEFE0000 + client->ClientType;
-    client->cryptengine->Init( &nseed );
+	client->cryptengine->Init( &nseed, CryptEngine::typeGame );
 }
 
 MESSAGE_HANDLER( PKTIN_A0, select_server );

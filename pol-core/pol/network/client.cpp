@@ -61,7 +61,6 @@ Client::Client( ClientInterface& aInterface, const string& encryption ) :
 	aosresist(false),
 	disconnect(0),
 	recv_state( RECV_STATE_CRYPTSEED_WAIT ),
-    encrypted_data(),
     bufcheck1_AA(0xAA),
     buffer(),
     bufcheck2_55(0x55),

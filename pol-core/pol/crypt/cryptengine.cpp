@@ -51,34 +51,19 @@ CryptEngine* create_crypt_engine( const string& name )
 	TCryptInfo infoCrypt;
 	if ( g_CryptInfo.LookupClient(name, infoCrypt) )
 	{
-		if ( !infoCrypt.bEnabled )
-		{
-			cerr << "Unsupported ClientEncryptionVersion "
-				 << name
-				 << ", using Ignition encryption engine"
-				 << endl;
-			Log("Unsupported ClientEncryptionVersion %s, using Ignition encryption engine\n",
-				name.c_str() );
-			return create_nocrypt_engine();
-		}
-
 		switch( infoCrypt.eType )
 		{
-			case CRYPT_NONE:
+			case CRYPT_NOCRYPT:
 				return create_nocrypt_engine();
-			case CRYPT_CLIENT:
-				cerr << "Unsupported ClientEncryptionVersion "
-					<< name
-					<< ", using Ignition encryption engine"
-					<< endl;
-				Log("Unsupported ClientEncryptionVersion %s, using Ignition encryption engine\n",
-					name.c_str() );
-				return create_nocrypt_engine();
+			case CRYPT_OLD_BLOWFISH:
+				return create_crypt_blowfish_engine(infoCrypt.uiKey1, infoCrypt.uiKey2);
+			case CRYPT_1_25_36:
+				return create_crypt_blowfish_engine(infoCrypt.uiKey1, infoCrypt.uiKey2);
 			case CRYPT_BLOWFISH:
 				return create_crypt_blowfish_engine(infoCrypt.uiKey1, infoCrypt.uiKey2);
 			case CRYPT_TWOFISH:
 				return create_crypt_twofish_engine(infoCrypt.uiKey1, infoCrypt.uiKey2);
-			case CRYPT_BOTH:
+			case CRYPT_BLOWFISH_TWOFISH:
 				return create_crypt_blowfish_twofish_engine(infoCrypt.uiKey1, infoCrypt.uiKey2);
 			default:
 				cerr << "Unknown encryption engine found in internal lookup table "

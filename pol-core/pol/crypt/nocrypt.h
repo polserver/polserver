@@ -54,7 +54,7 @@ public:
 
 // Member Functions
 public:
-	void	Decrypt(void *pvIn, void *pvOut, int len);
+	int		Receive(void *buffer, int max_expected, SOCKET socket);
 	void	Init(void *pvSeed, int type = CryptEngine::typeAuto);
 };
 
