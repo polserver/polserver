@@ -54,17 +54,31 @@
 #define CRYPT_GAMETABLE_MODULO	11
 #define CRYPT_GAMETABLE_TRIGGER	21036
 
+
+#include "../../clib/stl_inc.h"
+#include "cryptengine.h"
+
+//basic class only used directly by NoCrypt
 class CCryptBase
 {
 // Constructor / Destructor
 public:
-
 	CCryptBase();
 	virtual ~CCryptBase();
 
-// Misc
+// Member Functions
 public:
-	enum { typeLogin, typeGame, typeAuto };
+	virtual void	Decrypt(void *pvIn, void *pvOut, int len) = 0;
+	virtual void	Init(void *pvSeed, int type = CryptEngine::typeAuto) = 0;
+};
+
+//crypt class
+class CCryptBaseCrypt : public CCryptBase
+{
+// Constructor / Destructor
+public:
+	CCryptBaseCrypt();
+	virtual ~CCryptBaseCrypt();
 
 // Class Variables
 protected:
@@ -79,14 +93,11 @@ protected:
 	int				m_gameTable;
 	int				m_gameBlockPos;
 	int				m_gameStreamPos;
-
 	unsigned int	m_masterKey[2];
 
 // Member Functions
 public:
-
-	virtual void	Decrypt(void *pvIn, void *pvOut, int len) = 0;
-	virtual void	Init(void *pvSeed, int type = typeAuto) = 0;
+	virtual void	SetMasterKeys(unsigned int masterKey1, unsigned int masterKey2) = 0;
 };
 
 #endif //__CRYPTBASE_H__

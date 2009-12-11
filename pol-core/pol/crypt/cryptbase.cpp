@@ -53,13 +53,22 @@
 #define L2N(LL, C) *((C)++) = (unsigned char)(((LL) >> 24) & 0xff), *((C)++) = (unsigned char)(((LL) >> 16) & 0xff), *((C)++) = (unsigned char)(((LL) >> 8) & 0xff), *((C)++) = (unsigned char)(((LL)) & 0xff)
 #define ROUND(LL, R, S, P) LL ^= P; LL ^= ((S[(R >> 24)]  + S[0x0100 + ((R >> 16) & 0xff)]) ^ S[0x0200 + ((R >> 8) & 0xff)]) + S[0x0300 + ((R) & 0xff)]
 
-// Class Variables Initialization
-bool CCryptBase::m_bTablesReady = false;
 
 // Constructor / Destructor
 CCryptBase::CCryptBase()
 {
 }
 CCryptBase::~CCryptBase()
+{
+}
+
+// Class Variables Initialization
+bool CCryptBaseCrypt::m_bTablesReady = false;
+
+// Constructor / Destructor
+CCryptBaseCrypt::CCryptBaseCrypt()
+{
+}
+CCryptBaseCrypt::~CCryptBaseCrypt()
 {
 }
