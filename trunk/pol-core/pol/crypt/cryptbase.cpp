@@ -66,7 +66,7 @@ CCryptBase::~CCryptBase()
 bool CCryptBaseCrypt::m_bTablesReady = false;
 
 // Constructor / Destructor
-CCryptBaseCrypt::CCryptBaseCrypt()
+CCryptBaseCrypt::CCryptBaseCrypt() : encrypted_data()
 {
 }
 CCryptBaseCrypt::~CCryptBaseCrypt()

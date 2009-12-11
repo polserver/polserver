@@ -399,6 +399,17 @@ CCryptBlowfish::~CCryptBlowfish()
 
 // Member Functions
 
+int CCryptBlowfish::Receive(void *buffer, int max_expected, SOCKET socket)
+{
+	int count = recv(socket, (char *) encrypted_data, max_expected, 0);
+	if (count > 0)
+	{
+		passert( count <= max_expected );
+		Decrypt( encrypted_data, buffer, count );
+	}
+	return count;
+}
+
 void CCryptBlowfish::SetMasterKeys(unsigned int masterKey1, unsigned int masterKey2)
 {
 	m_masterKey[0] = masterKey1 & 0xFFFFFFFF;

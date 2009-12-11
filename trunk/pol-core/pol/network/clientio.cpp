@@ -39,31 +39,11 @@ void Client::recv_remaining( int total_expected)
 	int count;
     int max_expected = total_expected - bytes_received;
 
-	count=recv(csocket, 
-		       (char *) encrypted_data, // &client->buffer[ client->bytes_received ]
-			   max_expected, 0);
+	count = cryptengine->Receive(&buffer[bytes_received],max_expected,csocket);
 
 	if (count > 0)
 	{
         passert( count <= max_expected );
-
-#if OPT_LOG_CLIENT_DATA
-		if (logfile)
-		{
-			fprintf( logfile, "Client ciphertext: \n" );
-			fdump( logfile, encrypted_data, count );
-		}
-#endif
-
-        cryptengine->Decrypt( encrypted_data, &buffer[ bytes_received ], count );
-
-#if OPT_LOG_CLIENT_DATA
-		if (logfile)
-		{
-			fprintf( logfile, "Client plaintext: \n" );
-			fdump( logfile, &buffer[ bytes_received ], count );
-		}	
-#endif
 		
 		bytes_received += count;
         counters.bytes_received += count;
