@@ -410,13 +410,13 @@ void CCryptBlowfish::Decrypt(void *pvIn, void *pvOut, int len)
 	unsigned char *pIn = (unsigned char *)pvIn;
 	unsigned char *pOut = (unsigned char *)pvOut;
 
-	if(m_type == typeAuto)
+	if(m_type == CryptEngine::typeAuto)
 	{
-		if(((*pIn ^ (unsigned char)m_loginKey[0])) == CRYPT_AUTO_VALUE) m_type = typeLogin;
-		else m_type = typeGame;
+		if(((*pIn ^ (unsigned char)m_loginKey[0])) == CRYPT_AUTO_VALUE) m_type = CryptEngine::typeLogin;
+		else m_type = CryptEngine::typeGame;
 	}
 
-	if(m_type == typeLogin)
+	if(m_type == CryptEngine::typeLogin)
 	{
 		int tempPos;
 		for(tempPos = 0; tempPos < len; tempPos++)
