@@ -50,12 +50,13 @@ public:
 	typedef CCryptBaseCrypt base;
 
 	CCryptBlowfish();
+	CCryptBlowfish(unsigned int masterKey1, unsigned int masterKey2);
 	~CCryptBlowfish();
 
 // Member Functions
 public:
 	int		Receive(void *buffer, int max_expected, SOCKET socket);
-	void	Init(void *pvSeed, int type = CryptEngine::typeAuto);
+	void	Init(void *pvSeed, int type = CCryptBase::typeAuto);
 	void	SetMasterKeys(unsigned int masterKey1, unsigned int masterKey2);
 
 	int		Pack(void *pvIn, void *pvOut, int len);

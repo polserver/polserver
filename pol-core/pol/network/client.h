@@ -151,7 +151,7 @@ public:
 
 	struct sockaddr ipaddr;
 
-    std::auto_ptr<CryptEngine> cryptengine;
+    std::auto_ptr<CCryptBase> cryptengine;
 
 	bool encrypt_server_stream;				// encrypt the server stream (data sent to client)?
 
