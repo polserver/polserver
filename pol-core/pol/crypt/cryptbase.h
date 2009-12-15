@@ -54,11 +54,18 @@
 #define CRYPT_GAMETABLE_MODULO	11
 #define CRYPT_GAMETABLE_TRIGGER	21036
 
+// Macro Definitions ( to avoid big-/little-endian problems )
+
+#define N2L(C, LL) LL  = ((unsigned int)(*((C)++))) << 24, LL |= ((unsigned int)(*((C)++))) << 16, LL |= ((unsigned int)(*((C)++))) << 8, LL |= ((unsigned int)(*((C)++)))
+#define L2N(LL, C) *((C)++) = (unsigned char)(((LL) >> 24) & 0xff), *((C)++) = (unsigned char)(((LL) >> 16) & 0xff), *((C)++) = (unsigned char)(((LL) >> 8) & 0xff), *((C)++) = (unsigned char)(((LL)) & 0xff)
+#define ROUND(LL, R, S, P) LL ^= P; LL ^= ((S[(R >> 24)]  + S[0x0100 + ((R >> 16) & 0xff)]) ^ S[0x0200 + ((R >> 8) & 0xff)]) + S[0x0300 + ((R) & 0xff)]
+
 
 #include "../../clib/stl_inc.h"
 #include "../sockets.h"
 #include "../ucfg.h"
 #include "../../clib/passert.h"
+#include "logincrypt.h"
 
 //basic class only used directly by NoCrypt
 class CCryptBase
@@ -74,9 +81,11 @@ public:
 public:
 	virtual int		Receive(void *buffer, int max_expected, SOCKET socket) = 0;
 	virtual void	Init(void *pvSeed, int type = typeAuto) = 0;
+	virtual void	Encrypt(void *pvIn, void *pvOut, int len) {};
 };
 
 //crypt class
+
 class CCryptBaseCrypt : public CCryptBase
 {
 // Constructor / Destructor
@@ -84,19 +93,11 @@ public:
 	CCryptBaseCrypt();
 	virtual ~CCryptBaseCrypt();
 
-// Class Variables
-protected:
-	static bool		m_bTablesReady;
+	LoginCrypt lcrypt;
 
 // Member Variables
 protected:
 	int				m_type;
-	unsigned int	m_loginSeed;
-	unsigned int	m_loginKey[2];
-	unsigned char	m_gameSeed[CRYPT_GAMESEED_LENGTH];
-	int				m_gameTable;
-	int				m_gameBlockPos;
-	int				m_gameStreamPos;
 	unsigned int	m_masterKey[2];
 	unsigned char	encrypted_data[ MAXBUFFER ];
 

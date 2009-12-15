@@ -61,7 +61,7 @@ cpp_sources = \
 	pol/console.cpp pol/core.cpp pol/mobile/corpse.cpp \
 	pol/create.cpp \
 	pol/crypt/cryptengine.cpp pol/crypt/cryptbase.cpp pol/crypt/cryptkey.cpp \
-	pol/crypt/nocrypt.cpp pol/crypt/blowfish.cpp pol/crypt/twofish.cpp \
+	pol/crypt/blowfish.cpp pol/crypt/twofish.cpp pol/crypt/crypt.cpp pol/crypt/logincrypt.cpp pol/crypt/md5.cpp \
 	pol/ctable.cpp \
 	pol/multi/customhouses.cpp pol/multi/customhousehelp.cpp \
 	pol/module/datastore.cpp pol/dblclick.cpp pol/decay.cpp pol/dice.cpp \
@@ -365,7 +365,7 @@ clib_library:
 %.debug.o: %.cpp
 	$(CC) -x c++ $(CXX_DEBUG_OPTS) -c -I. -o $@ $<
 
-pol/crypt/nocrypt.o: pol/crypt/nocrypt.cpp
+pol/crypt/crypt.o: pol/crypt/crypt.cpp
 	$(CC) -x c++ $(CXX_OPTS_NOWARN) -c -I. -o $@ $<
 
 pol/crypt/twofish.o: pol/crypt/twofish.cpp
@@ -373,14 +373,26 @@ pol/crypt/twofish.o: pol/crypt/twofish.cpp
 
 pol/crypt/blowfish.o: pol/crypt/blowfish.cpp
 	$(CC) -x c++ $(CXX_OPTS_NOWARN) -c -I. -o $@ $<
+	
+pol/crypt/logincrypt.o: pol/crypt/logincrypt.cpp
+	$(CC) -x c++ $(CXX_OPTS_NOWARN) -c -I. -o $@ $<
+	
+pol/crypt/md5.o: pol/crypt/md5.cpp
+	$(CC) -x c++ $(CXX_OPTS_NOWARN) -c -I. -o $@ $<
 
-pol/crypt/nocrypt.debug.o: pol/crypt/nocrypt.cpp
+pol/crypt/crypt.debug.o: pol/crypt/crypt.cpp
 	$(CC) -x c++ $(CXX_OPTS_NOWARN) -c -I. -o $@ $<
 
 pol/crypt/twofish.debug.o: pol/crypt/twofish.cpp
 	$(CC) -x c++ $(CXX_OPTS_NOWARN) -c -I. -o $@ $<
 
 pol/crypt/blowfish.debug.o: pol/crypt/blowfish.cpp
+	$(CC) -x c++ $(CXX_OPTS_NOWARN) -c -I. -o $@ $<
+	
+pol/crypt/logincrypt.debug.o: pol/crypt/logincrypt.cpp
+	$(CC) -x c++ $(CXX_OPTS_NOWARN) -c -I. -o $@ $<
+	
+pol/crypt/md5.debug.o: pol/crypt/md5.cpp
 	$(CC) -x c++ $(CXX_OPTS_NOWARN) -c -I. -o $@ $<
 
 #		| sed 's#^$(@F)#$<#g'

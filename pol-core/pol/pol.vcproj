@@ -1457,6 +1457,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\crypt\crypt.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\crypt\crypt.h"
+				>
+			</File>
+			<File
 				RelativePath="crypt\cryptbase.cpp"
 				>
 			</File>
@@ -1481,11 +1489,19 @@
 				>
 			</File>
 			<File
-				RelativePath="crypt\nocrypt.cpp"
+				RelativePath=".\crypt\logincrypt.cpp"
 				>
 			</File>
 			<File
-				RelativePath="crypt\nocrypt.h"
+				RelativePath=".\crypt\logincrypt.h"
+				>
+			</File>
+			<File
+				RelativePath=".\crypt\md5.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\crypt\md5.h"
 				>
 			</File>
 			<File

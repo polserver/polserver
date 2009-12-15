@@ -62,9 +62,6 @@ CCryptBase::~CCryptBase()
 {
 }
 
-// Class Variables Initialization
-bool CCryptBaseCrypt::m_bTablesReady = false;
-
 // Constructor / Destructor
 CCryptBaseCrypt::CCryptBaseCrypt() : encrypted_data()
 {
