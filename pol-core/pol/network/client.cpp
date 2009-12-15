@@ -414,6 +414,8 @@ void Client::queue_data( const void *data, unsigned short datalen )
 
 void Client::xmit( const void *data, unsigned short datalen )
 {
+	if(encrypt_server_stream)
+		this->cryptengine->Encrypt((void *)data, (void *)data, datalen);
     THREAD_CHECKPOINT( active_client, 200 );
 	if (last_xmit_buffer) // this client already backlogged, schedule for later
 	{
