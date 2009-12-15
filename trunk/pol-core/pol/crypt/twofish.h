@@ -2,40 +2,6 @@
 //
 // crypt/twofish.h
 //
-// Author:    Beosil <beosil@swileys.com>
-// Date:      18. Apr. 2000
-//
-// Converted: Myrathi <tjh@myrathi.co.uk>
-// Date:      03. Jan. 2003
-//
-// Copyright (C) 1999-2000 Bruno 'Beosil' Heidelberger
-//
-// This program is free software; you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation; either version 2 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-//
-//
-// History:
-// - 03. Jan. 2003 : Updated for use alongside POL's multi-encryption code.
-// - 18. Apr. 2000 : Keys updated for client 2.0.0
-// - 27. Jan. 2000 : Keys updated for client 1.26.4
-// - 18. Jan. 2000 : Keys updated for client 1.26.3
-// - 23. Nov. 1999 : Keys updated for client 1.26.2 and some compatibility fixes
-// - 21. Sep. 1999 : Full redesign to fix the "21036 bytes"-bug
-// -  9. Sep. 1999 : Keys updated for client 1.26.1
-// -  2. Sep. 1999 : Keys and boxes updated for client 1.26.0b and minor bugfixes
-// - 13. Aug. 1999 : First release, working with client 1.26.0(a)
-//
 //////////////////////////////////////////////////////////////////////
 
 #ifndef __TWOFISH_H__
@@ -43,29 +9,121 @@
 
 #include "cryptbase.h"
 
-class CCryptTwofish : public CCryptBaseCrypt
+// Structs for TwoFish
+
+typedef struct tagkeyInstance
 {
+	unsigned char	direction;
+	int				keyLen;
+	int				numRounds;
+	char			keyMaterial[68];
+	unsigned int	keySig;
+	unsigned int	key32[8];
+	unsigned int	sboxKeys[4];
+	unsigned int	subKeys[40];
+}KeyInstance;
+
+typedef struct tagcipherInstance
+{
+	unsigned char	mode;
+	unsigned char	IV[16];
+	unsigned int	cipherSig;
+	unsigned int	iv32[4];
+}CipherInstance;
+
+class TwoFish
+{
+
 // Constructor / Destructor
 public:
-	typedef CCryptBaseCrypt base;
-
-	CCryptTwofish();
-	CCryptTwofish(unsigned int masterKey1, unsigned int masterKey2);
-	~CCryptTwofish();
+	TwoFish();
+	~TwoFish();
 
 // Member Functions
-public:
-	int		Receive(void *buffer, int max_expected, SOCKET socket);
-	void	Init(void *pvSeed, int type = CCryptBase::typeAuto);
-	void	SetMasterKeys(unsigned int masterKey1, unsigned int masterKey2);
 
-	int		Pack(void *pvIn, void *pvOut, int len);
+public:
+
+	void	Init( unsigned char * gseed );
+	void	Decrypt( unsigned char * in, unsigned char * out, int len ); 
+
+	unsigned char subData3[256];
 
 protected:
-	void	Decrypt(void *pvIn, void *pvOut, int len);
 
-	void	InitTables();
-	void	RawDecrypt(unsigned int *pValues, int table);
+	unsigned int	RS_MDS_Encode( unsigned int k0, unsigned int k1 );
+	unsigned int	F32( unsigned int x, unsigned int *k32, int keyLen );
+	void			ReKey( KeyInstance *key );
+	void			CipherInit( CipherInstance *cipher, unsigned char mode, char *IV );
+	void			MakeKey( KeyInstance *key, unsigned char direction, int keyLen, char *keyMaterial);
+	void			BlockEncrypt( CipherInstance *cipher, KeyInstance *key, unsigned char *input, int inputLen, unsigned char *outBuffer );
+
+	KeyInstance		ki;
+	CipherInstance	ci;
+	unsigned char	tabUsed[256];
+	unsigned int	seed;
+	unsigned int	dwIndex;
+	int				tabEnable;	
+	int				pos;
+	int				numRounds[4];
 };
+
+// TWOFISH Definitions
+
+#define	p8(N)	P8x8[P_##N]
+#define	RS_rem(x)		\
+	{ unsigned char  b  = (unsigned char) (x >> 24);											 \
+	  unsigned int g2 = ((b << 1) ^ ((b & 0x80) ? 0x14D : 0 )) & 0xFF;		 \
+	  unsigned int g3 = ((b >> 1) & 0x7F) ^ ((b & 1) ? 0x14D >> 1 : 0 ) ^ g2 ; \
+	  x = (x << 8) ^ (g3 << 24) ^ (g2 << 16) ^ (g3 << 8) ^ b;				 \
+	}
+
+#define	LFSR1(x) (((x)>>1)^(((x)&0x01)?0x169/2 : 0))
+#define	LFSR2(x) (((x)>>2)^(((x)&0x02)?0x169/2:0)^(((x) & 0x01)?0x169/4:0))
+#define	Mx_1(x) ((unsigned int)  (x))
+#define	Mx_X(x) ((unsigned int) ((x)^LFSR2(x)))
+#define	Mx_Y(x) ((unsigned int) ((x)^LFSR1(x)^LFSR2(x)))
+#define	M00		Mul_1
+#define	M01		Mul_Y
+#define	M02		Mul_X
+#define	M03		Mul_X
+#define	M10		Mul_X
+#define	M11		Mul_Y
+#define	M12		Mul_Y
+#define	M13		Mul_1
+#define	M20		Mul_Y
+#define	M21		Mul_X
+#define	M22		Mul_1
+#define	M23		Mul_Y
+#define	M30		Mul_Y
+#define	M31		Mul_1
+#define	M32		Mul_Y
+#define	M33		Mul_X
+#define	Mul_1	Mx_1
+#define	Mul_X	Mx_X
+#define	Mul_Y	Mx_Y
+#define	P_00	1
+#define	P_01	0
+#define	P_02	0
+#define	P_03	(P_01^1)
+#define	P_04	1
+#define	P_10	0
+#define	P_11	0
+#define	P_12	1
+#define	P_13	(P_11^1)
+#define	P_14	0
+#define	P_20	1
+#define	P_21	1
+#define	P_22	0
+#define	P_23	(P_21^1)
+#define	P_24	0
+#define	P_30	0
+#define	P_31	1
+#define	P_32	1
+#define	P_33	(P_31^1)
+#define	P_34	1
+#define	ROL(x,n) (((x) << ((n) & 0x1F)) | ((x) >> (32-((n) & 0x1F))))
+#define	ROR(x,n) (((x) >> ((n) & 0x1F)) | ((x) << (32-((n) & 0x1F))))
+#define		Bswap(x)			(x)
+#define	_b(x,N)	(((unsigned char *)&x)[((N) & 3)^0])
 
 #endif //__TWOFISH_H__
