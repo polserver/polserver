@@ -50,12 +50,13 @@ public:
 	typedef CCryptBaseCrypt base;
 
 	CCryptTwofish();
+	CCryptTwofish(unsigned int masterKey1, unsigned int masterKey2);
 	~CCryptTwofish();
 
 // Member Functions
 public:
 	int		Receive(void *buffer, int max_expected, SOCKET socket);
-	void	Init(void *pvSeed, int type = CryptEngine::typeAuto);
+	void	Init(void *pvSeed, int type = CCryptBase::typeAuto);
 	void	SetMasterKeys(unsigned int masterKey1, unsigned int masterKey2);
 
 	int		Pack(void *pvIn, void *pvOut, int len);

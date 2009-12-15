@@ -30,7 +30,7 @@ void CCryptInfo::InitList()
 	CryptList.clear();
 
 	// TWOFISH
-
+	AddClient("7.0.4",   0x2F7385BD, 0xA2AD127F, CRYPT_TWOFISH);
 	AddClient("7.0.3",   0x2F3BB7CD, 0xA2895E7F, CRYPT_TWOFISH);
 	AddClient("7.0.2",   0x2FE3ADDD, 0xA2E5227F, CRYPT_TWOFISH);
 	AddClient("7.0.1",   0x2FABA7ED, 0xA2C17E7F, CRYPT_TWOFISH);

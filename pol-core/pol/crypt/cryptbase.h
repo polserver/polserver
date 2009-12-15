@@ -59,7 +59,6 @@
 #include "../sockets.h"
 #include "../ucfg.h"
 #include "../../clib/passert.h"
-#include "cryptengine.h"
 
 //basic class only used directly by NoCrypt
 class CCryptBase
@@ -69,10 +68,12 @@ public:
 	CCryptBase();
 	virtual ~CCryptBase();
 
+	enum e_crypttype { typeLogin, typeGame, typeAuto };
+
 // Member Functions
 public:
 	virtual int		Receive(void *buffer, int max_expected, SOCKET socket) = 0;
-	virtual void	Init(void *pvSeed, int type = CryptEngine::typeAuto) = 0;
+	virtual void	Init(void *pvSeed, int type = typeAuto) = 0;
 };
 
 //crypt class
