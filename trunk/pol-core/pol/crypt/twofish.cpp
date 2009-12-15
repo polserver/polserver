@@ -397,6 +397,11 @@ CCryptTwofish::~CCryptTwofish()
 {
 }
 
+CCryptTwofish::CCryptTwofish(unsigned int masterKey1, unsigned int masterKey2)
+{
+	SetMasterKeys(masterKey1,masterKey2);
+}
+
 // Member Functions
 
 int CCryptTwofish::Receive(void *buffer, int max_expected, SOCKET socket)
@@ -421,13 +426,13 @@ void CCryptTwofish::Decrypt(void *pvIn, void *pvOut, int len)
 	unsigned char *pIn = (unsigned char *)pvIn;
 	unsigned char *pOut = (unsigned char *)pvOut;
 
-	if(m_type == CryptEngine::typeAuto)
+	if(m_type == CCryptBase::typeAuto)
 	{
-		if(((*pIn ^ (unsigned char)m_loginKey[0])) == CRYPT_AUTO_VALUE) m_type = CryptEngine::typeLogin;
-		else m_type = CryptEngine::typeGame;
+		if(((*pIn ^ (unsigned char)m_loginKey[0])) == CRYPT_AUTO_VALUE) m_type = CCryptBase::typeLogin;
+		else m_type = CCryptBase::typeGame;
 	}
 
-	if(m_type == CryptEngine::typeLogin)
+	if(m_type == CCryptBase::typeLogin)
 	{
 		int tempPos;
 		for(tempPos = 0; tempPos < len; tempPos++)
