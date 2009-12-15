@@ -23,30 +23,30 @@ Notes
 
 CCryptInfo g_CryptInfo;
 
-CryptEngine* create_nocrypt_engine()
+CCryptBase* create_nocrypt_engine()
 {
-	return new CryptEngineTmpl<CCryptNoCrypt>;
+	return new CCryptNoCrypt();
 }
 
-CryptEngine* create_crypt_blowfish_engine(unsigned int uiKey1, unsigned int uiKey2)
+CCryptBase* create_crypt_blowfish_engine(unsigned int uiKey1, unsigned int uiKey2)
 {
-	return new NewCryptEngineTmpl<CCryptBlowfish>(uiKey1, uiKey2);
+	return new CCryptBlowfish(uiKey1, uiKey2);
 }
 
-CryptEngine* create_crypt_twofish_engine(unsigned int uiKey1, unsigned int uiKey2)
+CCryptBase* create_crypt_twofish_engine(unsigned int uiKey1, unsigned int uiKey2)
 {
 	// This is actually just the Blowfish engine until I work out how to impliment the new crap :/
-	return new NewCryptEngineTmpl<CCryptTwofish>(uiKey1, uiKey2);
+	return new CCryptTwofish(uiKey1, uiKey2);
 }
 
-CryptEngine* create_crypt_blowfish_twofish_engine(unsigned int uiKey1, unsigned int uiKey2)
+CCryptBase* create_crypt_blowfish_twofish_engine(unsigned int uiKey1, unsigned int uiKey2)
 {
 	// temp kludge until I work out how the f#%$ this new encryption scheme's meant to work! :-s
 #define CCryptBlowfishTwofish CCryptBlowfish
-	return new NewCryptEngineTmpl<CCryptBlowfishTwofish>(uiKey1, uiKey2);
+	return new CCryptBlowfishTwofish(uiKey1, uiKey2);
 }
 
-CryptEngine* create_crypt_engine( const string& name )
+CCryptBase* create_crypt_engine( const string& name )
 {
 	TCryptInfo infoCrypt;
 	if ( g_CryptInfo.LookupClient(name, infoCrypt) )

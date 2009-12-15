@@ -55,7 +55,7 @@ public:
 // Member Functions
 public:
 	int		Receive(void *buffer, int max_expected, SOCKET socket);
-	void	Init(void *pvSeed, int type = CryptEngine::typeAuto);
+	void	Init(void *pvSeed, int type = CCryptBase::typeAuto);
 };
 
 #endif //__NOCRYPT_H__
