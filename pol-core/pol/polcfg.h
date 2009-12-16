@@ -14,6 +14,7 @@ Notes
 #define POLCFG_H
 
 #include <string>
+#include "crypt/cryptkey.h"
 
 struct PolConfig {
 	std::string uo_datafile_root;
@@ -32,7 +33,7 @@ struct PolConfig {
 	bool inhibit_saves;
 	bool log_script_cycles;
 	bool count_resource_tiles;
-	std::string client_encryption_version;
+	TCryptInfo client_encryption_version;
 	unsigned short multithread;
 	bool web_server;
 	unsigned short web_server_port;

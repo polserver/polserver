@@ -31,27 +31,7 @@ typedef struct _CryptInfo
 	ECryptType   eType;
 } TCryptInfo;
 
-// STL map of [client->encryption info]
-typedef std::map<std::string, TCryptInfo> CryptInfoList;
+void CalculateCryptKeys(const string& name, TCryptInfo& infoCrypt);
 
-// Crypt class
-class CCryptInfo
-{
-public:
-	CCryptInfo();
-	~CCryptInfo();
-
-	bool LookupClient( std::string sClient, TCryptInfo & refInfo );
-
-protected:
-	void InitList( void );
-	bool AddClient( std::string sClient,
-						   unsigned int uiKey1,
-						   unsigned int uiKey2,
-						   ECryptType eType);
-
-private:
-	CryptInfoList CryptList;
-};
 
 #endif //__CRYPTKEY_H__

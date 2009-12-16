@@ -51,7 +51,7 @@ Notes
 
 unsigned long Client::instance_counter_;
 
-Client::Client( ClientInterface& aInterface, const string& encryption ) :
+Client::Client( ClientInterface& aInterface, TCryptInfo& encryption ) :
 	acct(NULL),
 	chr(NULL),
     Interface(aInterface),

@@ -84,7 +84,8 @@ void uo_client_listener_thread( void* arg )
 {
     UoClientListener* ls = reinterpret_cast<UoClientListener*>(arg);
 
-    atomic_cout( "Listening for UO clients on port " + decint(ls->port) + " (encryption: " + ls->encryption + ")");
+	atomic_cout( "Listening for UO clients on port " + decint(ls->port) 
+		+ " (encryption: " + decint(ls->encryption.eType) + "," + hexint(ls->encryption.uiKey1) + "," + hexint(ls->encryption.uiKey2) + ")");
 
     SocketListener SL( ls->port, Socket::option(Socket::nonblocking|Socket::reuseaddr) );
     while (!exit_signalled)
