@@ -11,6 +11,8 @@ Notes
 #ifndef UOCLIENT_H
 #define UOCLIENT_H
 
+#include "crypt/cryptkey.h"
+
 class UoClientGeneral
 {
 public:
@@ -52,7 +54,7 @@ public:
     UoClientListener( ConfigElem& elem );
 
     unsigned short port;
-    string encryption;
+    TCryptInfo encryption;
 	bool aosresist;
 };
 

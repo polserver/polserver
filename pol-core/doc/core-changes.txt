@@ -1,4 +1,13 @@
 -- POL099 --
+12-16-2009 Turley:
+     Added: Encrypted Client support - Tomi
+   Changed: uoclient.cfg Listener::Encryption and pol.cfg ClientEncryptionVersion now support
+            ignition = uorice = none, 2.0.0x and due to autocalculation major.minor.build (no patch)
+            e.g. 7.0.4 for latest client 7.0.4.1
+            default for both is "none"
+      Note: Till OSI changes the encryption type pol now supports every encrypted client without 
+            updating the core (last change was 2.0.4)
+
 12-04-2009 Turley:
    Removed: deprecated pol.cfg entries "MasterKey1","MasterKey2","ClientVersion","KeyFile" - Tomi
      Added: Gargoyles count as mounted while flying

@@ -36,6 +36,8 @@ Notes
 #include "polsig.h"
 #include "schedule.h"
 
+#include "crypt/cryptkey.h"
+
 PolConfig config;
 extern unsigned long cfg_masterkey1;
 extern unsigned long cfg_masterkey2;
@@ -180,7 +182,8 @@ void read_pol_config( bool initial_load )
         Log2( "Unknown pol.cfg ShutdownSaveType value: %s (expected full or incremental)\n", tmp.c_str() );
     }
 
-    config.client_encryption_version = elem.remove_string( "ClientEncryptionVersion", "1.26.4" );
+    CalculateCryptKeys(elem.remove_string( "ClientEncryptionVersion", "none" ), config.client_encryption_version);
+
     config.display_unknown_packets = elem.remove_bool( "DisplayUnknownPackets", false );
     config.exp_los_checks_map = elem.remove_bool( "ExpLosChecksMap", true );
     config.enable_debug_log = elem.remove_bool( "EnableDebugLog", false );

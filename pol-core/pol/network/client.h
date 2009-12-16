@@ -35,6 +35,7 @@ Notes
 #include "../sockets.h"
 #include "../ucfg.h"
 #include "../crypt/cryptengine.h"
+#include "../crypt/cryptkey.h"
 
 class MessageTypeFilter;
 class Account;
@@ -91,7 +92,7 @@ enum ClientTypeFlag
 class Client
 {
 public:
-	Client( ClientInterface& aInterface, const string& encryption );
+	Client( ClientInterface& aInterface, TCryptInfo& encryption );
     static void Delete( Client* client );
     friend class GCCHelper;
 
