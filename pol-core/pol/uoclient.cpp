@@ -18,6 +18,8 @@ Notes
 #include "uoclient.h"
 #include "vital.h"
 
+#include "crypt/cryptkey.h"
+
 
 UoClientGeneral uoclient_general;
 UoClientProtocol uoclient_protocol;
@@ -25,10 +27,9 @@ UoClientListeners uoclient_listeners;
 
 UoClientListener::UoClientListener( ConfigElem& elem ) :
     port( elem.remove_ushort( "PORT" ) ),
-    encryption( elem.remove_string( "ENCRYPTION" ) ),
 	aosresist( elem.remove_bool( "AOSRESISTANCES", false ) )
 {
-
+	CalculateCryptKeys(elem.remove_string( "ENCRYPTION", "none" ), encryption);
 }
 
 void checka( ConfigElem& elem, UoClientGeneral::Mapping& mapping, const char* tag )
