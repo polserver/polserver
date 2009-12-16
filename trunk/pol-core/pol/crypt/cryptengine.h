@@ -5,7 +5,8 @@
 #define CRYPTENGINE_H
 
 #include "cryptbase.h"
+#include "cryptkey.h"
 
-CCryptBase* create_crypt_engine( const std::string& name );
+CCryptBase* create_crypt_engine( TCryptInfo& infoCrypt );
 
 #endif
