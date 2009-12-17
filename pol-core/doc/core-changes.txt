@@ -1,4 +1,14 @@
 -- POL099 --
+12-17-2009 Turley:
+     Added: uo::CloseWindow( character, type, object ) - Tomi
+            possible values for type
+            const CLOSE_PAPERDOLL := 1;
+            const CLOSE_STATUS    := 2;
+            const CLOSE_PROFILE   := 8;
+            const CLOSE_CONTAINER := 12;
+      Note: if ( type == CLOSE_CONTAINER ) object has to be a ContainerRef, to close the open container gump.
+            else object has to be a MobRef to close paperdoll, status or profile of the chosen mob.
+
 12-16-2009 Turley:
      Added: Encrypted Client support - Tomi
    Changed: uoclient.cfg Listener::Encryption and pol.cfg ClientEncryptionVersion now support
