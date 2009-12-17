@@ -210,6 +210,12 @@ const CANWALK_DIR := -1;
 const UPDATEMOBILE_RECREATE := 1;
 const UPDATEMOBILE_UPDATE   := 0;
 
+//CloseWindow
+const CLOSE_PAPERDOLL := 1;
+const CLOSE_STATUS    := 2;
+const CLOSE_PROFILE   := 8;
+const CLOSE_CONTAINER := 12;
+
 ////////////////////////////////////////////////////////////////
 //
 //	FUNCTIONS
@@ -230,6 +236,7 @@ CheckLosAt( character, x, y, z );
 CheckLosBetween( x1, y1, z1, x2, y2, z2, realm := _DEFAULT_REALM );
 CloseGump( character, pid, response := 0 );
 CloseTradeWindow( character );
+CloseWindow( character, type, object );
 ConsumeReagents( who, spellid );
 ConsumeSubstance( container, objtype, amount );
 CoordinateDistance(x1, y1, x2, y2);

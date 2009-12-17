@@ -3,6 +3,7 @@ History
 =======
 2009/07/23 MuadDib:   Initial creation.
 2009/12/03 Turley:    toggle gargoyle flying support
+2009/12/17 Turley:    bf sub 0x16 - Tomi
 
 Notes
 =======
@@ -574,18 +575,32 @@ struct PKTBI_BF_14
 	PKTBI_BF_14_ENTRIES entries[1];
 };
 
-struct PKTBI_BF_16
+struct PKTBI_BF_15
 {
 	u32 serial;
 	u16 entry_tag;
 };
 
-//Shows codex of wisdom’s text #msg.  (msg is linearised (including sub indices) index number starting with 1)
+struct PKTBI_BF_16
+{
+	u32 window_id;
+	u32 serial; // Char serial ( if window_id = CONTAINER this is container serial )
+
+	enum
+	{
+		PAPERDOLL	= 0x1,
+		STATUS		= 0x2,
+		CHARPROFILE	= 0x8,
+		CONTAINER	= 0xC
+	};
+};
+
+//Shows codex of wisdom's text #msg.  (msg is linearised (including sub indices) index number starting with 1)
 struct PKTBI_BF_17
 {
 	u8 unk; //always 1
 	u32 msgnum;
-	u8 mode; //(0: “?” flashing, 1: directly opening) 
+	u8 mode; //(0: "?" flashing, 1: directly opening) 
 };
 
 struct PKTBI_BF_18_ELEM
@@ -726,7 +741,8 @@ struct PKTBI_BF {
 		PKTBI_BF_10 objectcache; //BF.10
 		u32 serial_request_popup_menu; //BF.13
 		PKTBI_BF_14 displaypopup; //BF.14
-		PKTBI_BF_16 popupselect; //BF.15
+		PKTBI_BF_15 popupselect; //BF.15
+		PKTBI_BF_16 closewindow; //BF.16
 		PKTBI_BF_17 codex; //BF.17
 		PKTBI_BF_18 mapdiffs; //BF.18
 		PKTBI_BF_19 extstatsout; //BF.19
@@ -756,6 +772,7 @@ struct PKTBI_BF {
 		TYPE_OBJECT_CACHE               = 0x10,
 		TYPE_DISPLAY_POPUP_MENU         = 0x14,
 		TYPE_POPUP_ENTRY_SELECT         = 0x15,
+		TYPE_CLOSE_WINDOW				= 0x16,
 		TYPE_CODEX_OF_WISDOM            = 0x17,
 		TYPE_ENABLE_MAP_DIFFS           = 0x18,
 		TYPE_EXTENDED_STATS_OUT         = 0x19,
@@ -887,7 +904,7 @@ struct CH_SELECT_FLOOR
 struct FIGHT_BOOK_ABILITY
 {
 	u32 unk1; // (0x00)
-	u8 ability; // 1 armor ignore, 2 bleed attack … 13 whirlwind attack 
+	u8 ability; // 1 armor ignore, 2 bleed attack ï¿½ 13 whirlwind attack 
 };
 
 
