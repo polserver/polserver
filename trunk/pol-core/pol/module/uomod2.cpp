@@ -20,6 +20,7 @@ History
                       Relocation of multi related cpp/h
 2009/09/10 Turley:    CompressedGump support (Grin)
 2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
+2009/12/17 Turley:    CloseWindow( character, type, object ) - Tomi
 
 Notes
 =======
@@ -1118,6 +1119,43 @@ BObjectImp* UOExecutorModule::mf_CloseGump(/* who, pid, response := 0 */)
 
 	uoemod->uoexec.ValueStack.top().set( new BObject(resp) );
 	clear_gumphandler( client, uoemod );
+
+	return new BLong( 1 );
+}
+
+BObjectImp* UOExecutorModule::mf_CloseWindow(/* chr, type, obj */)
+{	
+	Character *chr;
+	unsigned int type;
+	UObject *obj;
+
+	if ( !getCharacterParam( exec, 0, chr ) || !getParam( 1, type ) || !getUObjectParam( exec, 2, obj ) )
+		return new BError( "Invalid parameter" );
+
+	if ( !chr->has_active_client() )
+		return new BError( "No client attached" );
+
+	if ( type == PKTBI_BF_16::CONTAINER )
+	{
+		if (!obj->script_isa(POLCLASS_CONTAINER))
+			return new BError( "Invalid object, has to be a containerRef" );
+	}
+	else if ( type == PKTBI_BF_16::PAPERDOLL || type == PKTBI_BF_16::STATUS || type == PKTBI_BF_16::CHARPROFILE )
+	{
+		if (!obj->script_isa(POLCLASS_MOBILE))
+			return new BError( "Invalid object, has to be a mobRef" );
+	}
+	else
+		return new BError( "Invalid type" );
+	
+	PKTBI_BF msg;
+	msg.msgtype = PKTBI_BF_ID;
+	msg.subcmd = ctBEu16(PKTBI_BF::TYPE_CLOSE_WINDOW);
+	msg.closewindow.window_id = ctBEu16(type);
+	msg.closewindow.serial = obj->serial_ext;
+	msg.msglen = ctBEu16(13);
+
+	chr->client->transmit(&msg, 13);
 
 	return new BLong( 1 );
 }

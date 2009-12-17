@@ -20,6 +20,7 @@ added mf_GetStandingLayers - get layer a mobile can stand
                       mf_AwardRawPoints(), old replace_properties(), mf_GetSkill() cleaned out.
 2009/09/10 Turley:    CompressedGump support (Grin)
 2009/10/22 Turley:    added CanWalk()
+2009/12/17 Turley:    CloseWindow( character, type, object ) - Tomi
 
 Notes
 =======
@@ -111,6 +112,7 @@ public:
 	BObjectImp* mf_SendTextEntryGump();
 	BObjectImp* mf_SendGumpMenu();
 	BObjectImp* mf_CloseGump();
+	BObjectImp* mf_CloseWindow(/* chr, type, who */); 
 	BObjectImp* mf_SendEvent();
 	BObjectImp* mf_PlayMovingEffectXyz();
 	BObjectImp* mf_GetEquipmentByLayer();

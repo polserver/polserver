@@ -49,6 +49,7 @@ History
 2009/10/22 Turley:    added CanWalk()
 2009/11/19 Turley:    added flag param to UpdateMobile controls if packet 0x78 or 0x77 should be send - Tomi
 2009/12/02 Turley:    added config.max_tile_id - Tomi
+2009/12/17 Turley:    CloseWindow( character, type, object ) - Tomi
 
 Notes
 =======
@@ -5651,6 +5652,7 @@ UOFunctionDef UOExecutorModule::function_table[] =
     { "SendTextEntryGump",      &UOExecutorModule::mf_SendTextEntryGump },
     { "SendDialogGump",         &UOExecutorModule::mf_SendGumpMenu },
 	{ "CloseGump",              &UOExecutorModule::mf_CloseGump },
+	{ "CloseWindow",			&UOExecutorModule::mf_CloseWindow },
     { "SendEvent",              &UOExecutorModule::mf_SendEvent },
     { "PlayMovingEffectXyz",    &UOExecutorModule::mf_PlayMovingEffectXyz },
     { "GetEquipmentByLayer",    &UOExecutorModule::mf_GetEquipmentByLayer },
