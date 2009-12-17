@@ -299,13 +299,14 @@ dyndebug: $(objects_debug)
 clean:
 	rm -f $(objects) $(clib_objects) $(ecompile_objects) $(runecl_objects) $(uoconvert_objects)
 
-gzipfile: bin/pol bin/ecompile bin/runecl bin/uoconvert #bin/poltool bin/uotool
+gzipfile: bin/pol bin/ecompile bin/runecl bin/uoconvert bin/uotool #bin/poltool
 	mkdir dist/scripts
 	mkdir dist/scripts/modules
 	strip -o dist/pol bin/pol
 	strip -o dist/scripts/ecompile bin/ecompile
 	strip -o dist/scripts/runecl bin/runecl
 	strip -o dist/uoconvert bin/uoconvert
+	strip -o dist/uotool bin/uotool
 	cp support/scripts/*.em dist/scripts/modules
 	cp support/scripts/ecompile.cfg.example dist/scripts
 	cp doc/core-changes.txt dist
@@ -313,20 +314,21 @@ gzipfile: bin/pol bin/ecompile bin/runecl bin/uoconvert #bin/poltool bin/uotool
 	cp doc/packethooks.txt dist
 	cp doc/packets.zip dist
 	cp support/uoconvert.cfg dist
-	(cd dist ; tar -cvf pol-$(POL_BUILDNAME)bin-$(POL_RELEASE)-`date +%Y-%m-%d`-$(POL_BUILDTAG).tar pol uoconvert core-changes.txt core-changes-old.txt uoconvert.txt uoconvert.cfg packethooks.txt packets.zip scripts ; gzip -9 pol-$(POL_BUILDNAME)bin-$(POL_RELEASE)-`date +%Y-%m-%d`-$(POL_BUILDTAG).tar )
-	rm -f dist/core-changes.txt dist/core-changes-old.txt dist/pol dist/uoconvert
+	(cd dist ; tar -cvf pol-$(POL_BUILDNAME)bin-$(POL_RELEASE)-`date +%Y-%m-%d`-$(POL_BUILDTAG).tar pol uoconvert uotool core-changes.txt uoconvert.txt uoconvert.cfg packethooks.txt packets.zip scripts ; gzip -9 pol-$(POL_BUILDNAME)bin-$(POL_RELEASE)-`date +%Y-%m-%d`-$(POL_BUILDTAG).tar )
+	rm -f dist/core-changes.txt dist/pol dist/uoconvert dist/uotool
 	rm -f dist/packethooks.txt
 	rm -f dist/packets.zip
 	rm -f dist/uoconvert.cfg
 	rm -rf dist/scripts
 
-gzipfile-dynamic: bin/pol-dynamic bin/ecompile-dynamic bin/runecl-dynamic bin/uoconvert-dynamic
+gzipfile-dynamic: bin/pol-dynamic bin/ecompile-dynamic bin/runecl-dynamic bin/uoconvert-dynamic bin/uotool-dynamic
 	mkdir dist/scripts
 	mkdir dist/scripts/modules
 	strip -o dist/pol bin/pol-dynamic
 	strip -o dist/scripts/ecompile bin/ecompile-dynamic
 	strip -o dist/scripts/runecl bin/runecl-dynamic
 	strip -o dist/uoconvert bin/uoconvert-dynamic
+	strip -o dist/uotool bin/uotool-dynamic
 	cp support/scripts/*.em dist/scripts/modules
 	cp support/scripts/ecompile.cfg.example dist/scripts
 	cp doc/core-changes.txt dist
@@ -334,8 +336,8 @@ gzipfile-dynamic: bin/pol-dynamic bin/ecompile-dynamic bin/runecl-dynamic bin/uo
 	cp doc/packethooks.txt dist
 	cp doc/packets.zip dist
 	cp support/uoconvert.cfg dist
-	(cd dist ; tar -cvf pol-$(POL_BUILDNAME)bin-$(POL_RELEASE)-`date +%Y-%m-%d`-$(POL_BUILDTAG)-dynamic.tar pol uoconvert core-changes.txt core-changes-old.txt uoconvert.txt uoconvert.cfg packethooks.txt packets.zip scripts | gzip -9 pol-$(POL_BUILDNAME)bin-$(POL_RELEASE)-`date +%Y-%m-%d`-$(POL_BUILDTAG)-dynamic.tar )
-	rm -f dist/core-changes.txt dist/pol dist/uoconvert
+	(cd dist ; tar -cvf pol-$(POL_BUILDNAME)bin-$(POL_RELEASE)-`date +%Y-%m-%d`-$(POL_BUILDTAG)-dynamic.tar pol uoconvert uotool core-changes.txt uoconvert.txt uoconvert.cfg packethooks.txt packets.zip scripts | gzip -9 pol-$(POL_BUILDNAME)bin-$(POL_RELEASE)-`date +%Y-%m-%d`-$(POL_BUILDTAG)-dynamic.tar )
+	rm -f dist/core-changes.txt dist/pol dist/uoconvert dist/uotool
 	rm -f dist/packethooks.txt
 	rm -f dist/packets.zip
 	rm -f dist/uoconvert.cfg
