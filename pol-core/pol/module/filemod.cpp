@@ -3,6 +3,7 @@ History
 =======
 2005/04/31 Shinigami: mf_LogToFile - added flag to log Core-Style DateTimeStr in front of log entry
 2006/09/27 Shinigami: GCC 3.4.x fix - added "template<>" to TmplExecutorModule
+2009/12/18 Turley:    added CreateDirectory() & ListDirectory()
 
 Notes
 =======
@@ -21,6 +22,7 @@ Notes
 
 #include "../../clib/cfgelem.h"
 #include "../../clib/cfgfile.h"
+#include "../../clib/dirlist.h"
 #include "../../clib/fileutil.h"
 #include "../../clib/maputil.h"
 #include "../../clib/stlutil.h"
@@ -99,7 +101,9 @@ TmplExecutorModule<FileAccessExecutorModule>::function_table[] =
 	{ "WriteFile",		&FileAccessExecutorModule::mf_WriteFile },
 	{ "AppendToFile",	&FileAccessExecutorModule::mf_AppendToFile },
 	{ "LogToFile",		&FileAccessExecutorModule::mf_LogToFile },
-	{ "OpenBinaryFile", &FileAccessExecutorModule::mf_OpenBinaryFile }
+	{ "OpenBinaryFile", &FileAccessExecutorModule::mf_OpenBinaryFile },
+	{ "CreateDirectory",&FileAccessExecutorModule::mf_CreateDirectory },
+	{ "ListDirectory",  &FileAccessExecutorModule::mf_ListDirectory }
 };
 
 template<>
@@ -529,6 +533,90 @@ BObjectImp* FileAccessExecutorModule::mf_OpenBinaryFile()
 
 	return new BBinaryfile( filepath, mode, bigendian==1?true:false );
 
+}
+
+BObjectImp* FileAccessExecutorModule::mf_CreateDirectory()
+{
+	const String* dirname;
+	if (!getStringParam( 0, dirname ))
+		return new BError( "Invalid parameter type" );
+
+	const Package* outpkg;
+	string path;
+	if (!pkgdef_split( dirname->value(), exec.prog()->pkg, &outpkg, &path ))
+		return new BError( "Error in dirname descriptor" );
+	if (path.find( ".." ) != string::npos)
+		return new BError( "No parent path traversal please." );
+
+	if (outpkg != NULL)
+		path = outpkg->dir() + path;
+	path = normalized_dir_form(path);
+	if ( IsDirectory( path.c_str() ) )
+		return new BError( "Directory already exists." );
+	int res = make_dir(path.c_str());
+	if (res != 0)
+		return new BError( "Could not create directory." );
+	return new BLong(1);
+}
+
+BObjectImp* FileAccessExecutorModule::mf_ListDirectory()
+{
+	const String* dirname;
+	const String* extension;
+	short listdirs;
+	if ((!getStringParam( 0, dirname )) ||
+		(!getStringParam( 1, extension )) ||
+		(!getParam( 2, listdirs )) )
+		return new BError( "Invalid parameter type" );
+
+	const Package* outpkg;
+	string path;
+	if (!pkgdef_split( dirname->value(), exec.prog()->pkg, &outpkg, &path ))
+		return new BError( "Error in dirname descriptor" );
+	if (path.find( ".." ) != string::npos)
+		return new BError( "No parent path traversal please." );
+
+	if (outpkg != NULL)
+		path = outpkg->dir() + path;
+	path = normalized_dir_form(path);
+	if ( !IsDirectory( path.c_str() ) )
+		return new BError( "Directory not found." );
+	bool asterisk = false;
+	bool nofiles = false;
+	if ( extension->getStringRep().find('*',0) != string::npos)
+		asterisk = true;
+	else if ( extension->length() == 0 )
+		nofiles = true;
+
+	ObjArray* arr = new ObjArray;
+
+	for( DirList dl( path.c_str() ); !dl.at_end(); dl.next() )
+	{
+		string name = dl.name();
+		if (name[0] == '.')
+			continue;
+
+		if ( IsDirectory( (path+name).c_str() ) )
+		{
+			if ( listdirs != 0 )
+				arr->addElement( new String(name) );
+			continue;
+		}
+		else if ( nofiles )
+			continue;
+		else if (!asterisk)
+		{
+			string::size_type extensionPointPos = name.rfind('.');
+			if (extensionPointPos == string::npos)
+				continue;
+			if (name.substr(extensionPointPos + 1) != extension->value())
+				continue;
+		}
+		
+		arr->addElement( new String(name) );
+	}
+
+	return arr;
 }
 
 void load_fileaccess_cfg()

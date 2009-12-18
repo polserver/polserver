@@ -1,6 +1,7 @@
 /*
 History
 =======
+2009/12/18 Turley:    added CreateDirectory() & ListDirectory()
 
 
 Notes
@@ -26,6 +27,8 @@ public:
 	  BObjectImp* mf_AppendToFile();
 	  BObjectImp* mf_LogToFile();
 	  BObjectImp* mf_OpenBinaryFile();
+	  BObjectImp* mf_CreateDirectory();
+	  BObjectImp* mf_ListDirectory();
 };
 
 ExecutorModule* CreateFileAccessExecutorModule( Executor& exec );
