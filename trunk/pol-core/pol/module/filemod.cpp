@@ -598,9 +598,8 @@ BObjectImp* FileAccessExecutorModule::mf_ListDirectory()
 
 		if ( IsDirectory( (path+name).c_str() ) )
 		{
-			if ( listdirs != 0 )
-				arr->addElement( new String(name) );
-			continue;
+			if ( listdirs == 0 )
+				continue;
 		}
 		else if ( nofiles )
 			continue;
