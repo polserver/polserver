@@ -21,6 +21,12 @@ const SEEKDIR_END := 0x02; // end of sequence
 const LITTLE_ENDIAN := 0x00;
 const BIG_ENDIAN    := 0x01;
 
+// ListDirectory constants
+const LISTDIR_LIST_DIRS      := 0x1;
+const LISTDIR_DONT_LIST_DIRS := 0x0;
+const LISTDIR_NO_FILES       := "";
+const LISTDIR_ALL_FILES      := "*";
+
 ////////////////////////////////////////////////////////////////
 //
 //	FUNCTIONS
@@ -34,3 +40,6 @@ AppendToFile( filename, textlines );
 LogToFile( filename, line, flags := 0 );
 
 OpenBinaryFile( filename, mode := OPENMODE_IN, endian := LITTLE_ENDIAN );
+
+CreateDirectory( dirname );
+ListDirectory( dirname, extension := LISTDIR_ALL_FILES, listdirs := LISTDIR_DONT_LIST_DIRS );
