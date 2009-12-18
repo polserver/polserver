@@ -1,4 +1,20 @@
 -- POL099 --
+12-18-2009 Turley:
+     Added: file::CreateDirectory( dirname )
+            returns 1 on success else error 
+            ("Error in dirname descriptor","No parent path traversal please.",
+            "Directory already exists.","Could not create directory.")
+     Added: file::ListDirectory( dirname, extension := LISTDIR_ALL_FILES, listdirs := LISTDIR_DONT_LIST_DIRS )
+            extension param can be extension without "." or file.em constant
+            file.em constants:
+            const LISTDIR_LIST_DIRS      := 0x1;
+            const LISTDIR_DONT_LIST_DIRS := 0x0;
+            const LISTDIR_NO_FILES       := "";
+            const LISTDIR_ALL_FILES      := "*";
+            returns array of strings or error
+            ("Error in dirname descriptor","No parent path traversal please.","Directory not found.")
+      Note: Both functions doesnt check file access rights
+
 12-17-2009 Turley:
      Added: uo::CloseWindow( character, type, object ) - Tomi
             possible values for type
