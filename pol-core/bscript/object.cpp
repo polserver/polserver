@@ -2,8 +2,9 @@
 History
 =======
 2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
-2008/02/11 Turley: ObjArray::unpack() will accept zero length Arrays and Erros from Array-Elements
-2009/09/05 Turley: Added struct .? and .- as shortcut for .exists() and .erase()
+2008/02/11 Turley:    ObjArray::unpack() will accept zero length Arrays and Erros from Array-Elements
+2009/09/05 Turley:    Added struct .? and .- as shortcut for .exists() and .erase()
+2009/12/21 Turley:    ._method() call fix
 
 Notes
 =======
@@ -385,7 +386,7 @@ BObjectImp* BObjectImp::call_method( const char* methodname, Executor& ex )
 {
 	return new BError( string("Method '") + methodname + "' not found" );
 }
-BObjectImp* BObjectImp::call_method_id( const int id, Executor& ex )
+BObjectImp* BObjectImp::call_method_id( const int id, Executor& ex, bool forcebuiltin )
 {
 	OSTRINGSTREAM os;
 	os << "Method id '" << id << "' (" << getObjMethod(id)->code << ") not found";
@@ -806,7 +807,7 @@ public:
 
 };
 
-BObjectImp* ObjArray::call_method_id( const int id, Executor& ex )
+BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool forcebuiltin )
 {
 	switch(id)
 	{

@@ -2,7 +2,8 @@
 History
 =======
 2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
-2008/02/11 Turley: BDictionary::unpack() will accept zero length Dictionarys
+2008/02/11 Turley:    BDictionary::unpack() will accept zero length Dictionarys
+2009/12/21 Turley:    ._method() call fix
 
 Notes
 =======
@@ -245,7 +246,7 @@ void BDictionary::addMember( BObjectImp* keyimp, BObjectImp* valimp )
     contents_[key] = BObjectRef(valimp);
 }
 
-BObjectImp* BDictionary::call_method_id( const int id, Executor& ex )
+BObjectImp* BDictionary::call_method_id( const int id, Executor& ex, bool forcebuiltin )
 {
     BObject* keyobj;
     BObject* valobj;

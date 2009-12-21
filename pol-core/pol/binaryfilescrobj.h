@@ -1,7 +1,7 @@
 /*
 History
 =======
-
+2009/12/21 Turley:    ._method() call fix
 
 Notes
 =======
@@ -67,7 +67,7 @@ public:
 	virtual BObjectRef get_member( const char* membername );
     virtual BObjectRef get_member_id( const int id ); //id test
     virtual BObjectImp* call_method( const char* methodname, Executor& ex );
-    virtual BObjectImp* call_method_id( const int id, Executor& ex );
+    virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin=false );
     virtual BObjectImp* copy() const;
     virtual std::string getStringRep() const;
 	virtual unsigned long sizeEstimate() const { return 0; }
