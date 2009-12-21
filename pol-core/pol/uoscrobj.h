@@ -4,6 +4,7 @@ History
 2009/08/25 Shinigami: STLport-5.2.1 fix: <cassert> removed
 2009/09/03 MuadDib:	  Changes for account related source file relocation
                       Changes for multi related source file relocation
+2009/12/21 Turley:    ._method() call fix
 
 Notes
 =======
@@ -48,7 +49,7 @@ public:
     virtual const char* typeOf() const;
     virtual BObjectImp* copy() const;
     virtual BObjectImp* call_method( const char* methodname, Executor& ex );
-    virtual BObjectImp* call_method_id( const int id, Executor& ex );
+    virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin=false );
     virtual BObjectRef get_member( const char* membername );
     virtual BObjectRef get_member_id( const int id ); ///id test
     virtual BObjectRef set_member( const char* membername, BObjectImp* value );
@@ -98,7 +99,7 @@ public:
     virtual const char* typeOf() const;
     virtual BObjectImp* copy() const;
     virtual BObjectImp* call_method( const char* methodname, Executor& ex );
-    virtual BObjectImp* call_method_id( const int id, Executor& ex );
+    virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin=false );
     virtual BObjectRef get_member( const char* membername );
     virtual BObjectRef get_member_id( const int id ); //id test
     virtual BObjectRef set_member( const char* membername, BObjectImp* value );
@@ -121,7 +122,7 @@ public:
     virtual const char* typeOf() const;
     virtual BObjectImp* copy() const;
     virtual BObjectImp* call_method( const char* methodname, Executor& ex );
-    virtual BObjectImp* call_method_id( const int id, Executor& ex );
+    virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin=false );
     virtual BObjectRef get_member( const char* membername );
     virtual BObjectRef get_member_id( const int id ); //id test
     virtual BObjectRef set_member( const char* membername, BObjectImp* value );
@@ -148,7 +149,7 @@ public:
     virtual BObjectRef set_member_id( const int id, BObjectImp* value ); //test id
     virtual bool isTrue() const;
 	virtual BObjectImp* call_method( const char* methodname, Executor& ex );
-    virtual BObjectImp* call_method_id( const int id, Executor& ex );
+    virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin=false );
 	virtual bool isEqual(const BObjectImp& objimp) const;
 };
 

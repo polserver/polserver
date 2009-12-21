@@ -2,7 +2,8 @@
 History
 =======
 2006/10/28 Shinigami: GCC 4.1.1 fix - invalid use of constructor as a template
-2009/09/05 Turley: Added struct .? and .- as shortcut for .exists() and .erase()
+2009/09/05 Turley:    Added struct .? and .- as shortcut for .exists() and .erase()
+2009/12/21 Turley:    ._method() call fix
 
 Notes
 =======
@@ -143,7 +144,7 @@ public:
     virtual char /*BObjectImp* */ str_member( const string& membername ) const { return 0;} 
     
     virtual BObjectImp* call_method( const char* methodname, Executor& ex );
-    virtual BObjectImp* call_method_id( const int id, Executor& ex );
+    virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin=false );
     virtual BObjectRef set_member( const char* membername, BObjectImp* valueimp );
     virtual BObjectRef get_member( const char* membername );
     virtual BObjectRef get_member_id( const int id ); //test id
@@ -349,7 +350,7 @@ public:
     virtual void operPlusEqual( BObject& obj, const BObjectImp& objimp );
     virtual BObjectImp* selfPlusObjImp(const BObjectImp& other) const;
     virtual BObjectImp* call_method( const char* methodname, Executor& ex );
-    virtual BObjectImp* call_method_id( const int id, Executor& ex );
+    virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin=false );
     virtual BObjectRef set_member( const char* membername, BObjectImp* value );
     virtual BObjectRef get_member( const char* membername );
 

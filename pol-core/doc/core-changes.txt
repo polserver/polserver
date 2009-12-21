@@ -1,4 +1,8 @@
 -- POL099 --
+12-21-2009 Turley:
+     Fixed: call of built-in method with ._methodname if overridden
+     Added: Multis now support method script
+
 12-18-2009 Turley:
      Added: file::CreateDirectory( dirname )
             returns 1 on success else error 
