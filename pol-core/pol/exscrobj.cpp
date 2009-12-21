@@ -7,6 +7,7 @@ History
 2006/01/18 Shinigami: added attached_npc_ - to get attached NPC from AI-Script-Process Obj
 2006/09/17 Shinigami: Script.sendevent() will return error "Event queue is full, discarding event"
 2006/09/23 Shinigami: Script_Cycles, Sleep_Cycles and Script_passes uses 64bit now
+2009/12/21 Turley:    ._method() call fix
 
 Notes
 =======
@@ -53,7 +54,7 @@ BObjectImp* ScriptExObjImp::copy() const
 }
 
 
-BObjectImp* ScriptExObjImp::call_method_id( const int id, Executor& ex )
+BObjectImp* ScriptExObjImp::call_method_id( const int id, Executor& ex, bool forcebuiltin )
 {
 	if (!value().exists())
 		return new BError( "Script has been destroyed" );

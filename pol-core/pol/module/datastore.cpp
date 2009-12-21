@@ -4,6 +4,7 @@ History
 2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
 2006/09/26 Shinigami: GCC 3.4.x fix - added "template<>" to TmplExecutorModule
 2007/06/17 Shinigami: added config.world_data_path
+2009/12/21 Turley:    ._method() call fix
 
 Notes
 =======
@@ -100,7 +101,7 @@ public:
 	virtual BObjectImp* copy() const;
 
 	virtual BObjectImp* call_method( const char* methodname, Executor& ex );
-	virtual BObjectImp* call_method_id( const int id, Executor& ex );
+	virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin=false );
 
 };
 
@@ -124,7 +125,7 @@ public:
 	virtual BObjectImp* copy() const;
 
 	virtual BObjectImp* call_method( const char* methodname, Executor& ex );
-	virtual BObjectImp* call_method_id( const int id, Executor& ex );
+	virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin=false );
 };
 
 class DataStoreFile
@@ -353,7 +354,7 @@ BObjectImp* DataFileRefObjImp::copy() const
 	return new DataFileRefObjImp( obj_ );
 }
 
-BObjectImp* DataFileRefObjImp::call_method_id( const int id, Executor& ex )
+BObjectImp* DataFileRefObjImp::call_method_id( const int id, Executor& ex, bool forcebuiltin )
 {
 	switch(id)
 	{
@@ -543,7 +544,7 @@ BObjectImp* DataElemRefObjImp::copy() const
 	return new DataElemRefObjImp( obj_.dfcontents, obj_.dfelem );
 }
 
-BObjectImp* DataElemRefObjImp::call_method_id( const int id, Executor& ex )
+BObjectImp* DataElemRefObjImp::call_method_id( const int id, Executor& ex, bool forcebuiltin )
 {
 	bool changed = false;
 	BObjectImp* res = CallPropertyListMethod_id( obj_.dfelem->proplist, id, ex, changed );

@@ -1,6 +1,7 @@
 /*
 History
 =======
+2009/12/21 Turley:    ._method() call fix
 
 Notes
 =======
@@ -77,7 +78,7 @@ BObjectImp* BBinaryfile::call_method( const char* methodname, Executor& ex )
         return NULL;
 }
 
-BObjectImp* BBinaryfile::call_method_id( const int id, Executor& ex )
+BObjectImp* BBinaryfile::call_method_id( const int id, Executor& ex, bool forcebuiltin )
 {
     switch(id)
     {

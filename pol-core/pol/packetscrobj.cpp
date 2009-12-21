@@ -7,6 +7,7 @@ History
 2008/12/17 MuadDib:   fixed Memory Leak in SetSize() where it returns BObjects back
                       to calling Methods where they do not handle a return value.
 2009/08/25 Shinigami: STLport-5.2.1 fix: oldsize not used
+2009/12/21 Turley:    ._method() call fix
 
 Notes
 =======
@@ -83,7 +84,7 @@ BObjectRef BPacket::get_member( const char* membername )
 		return BObjectRef(UninitObject::create());
 }
 
-BObjectImp* BPacket::call_method_id( const int id, Executor& ex )
+BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool forcebuiltin )
 {
     switch(id)
     {

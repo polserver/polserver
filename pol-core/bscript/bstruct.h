@@ -1,7 +1,8 @@
 /*
 History
 =======
-2009/09/05 Turley: Added struct .? and .- as shortcut for .exists() and .erase()
+2009/09/05 Turley:    Added struct .? and .- as shortcut for .exists() and .erase()
+2009/12/21 Turley:    ._method() call fix
 
 Notes
 =======
@@ -50,7 +51,7 @@ protected:
 
     virtual BObjectRef OperSubscript( const BObject& obj );
     virtual BObjectImp* call_method( const char* methodname, Executor& ex );
-    virtual BObjectImp* call_method_id( const int id, Executor& ex );
+    virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin=false );
     virtual BObjectRef set_member( const char* membername, BObjectImp* value );
     virtual BObjectRef get_member( const char* membername );
     virtual BObjectRef operDotPlus( const char* name );

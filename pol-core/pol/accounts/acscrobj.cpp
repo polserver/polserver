@@ -16,6 +16,7 @@ History
 2009/08/06 MuadDib:   Removed PasswordOnlyHash support
 2009/09/03 MuadDib:   Relocation of account related cpp/h
 2009/12/02 Turley:    added SA expansion - Tomi
+2009/12/21 Turley:    ._method() call fix
 
 Notes
 =======
@@ -71,7 +72,7 @@ void createchar2(Account* acct, unsigned index);
 ///	 All methods return Error("Not enough parameters") if too few parameters were passed.
 ///	 All methods return Error("Invalid parameter type") if the wrong type was passed.
 ///
-BObjectImp* AccountObjImp::call_method_id( const int id, Executor& ex )
+BObjectImp* AccountObjImp::call_method_id( const int id, Executor& ex, bool forcebuiltin )
 {
 	BObjectImp* result = NULL;
 
