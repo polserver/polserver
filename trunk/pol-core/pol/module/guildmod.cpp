@@ -4,6 +4,7 @@ History
 2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
 2006/09/27 Shinigami: GCC 3.4.x fix - added "template<>" to TmplExecutorModule
 2007/06/17 Shinigami: added config.world_data_path
+2009/12/21 Turley:    ._method() call fix
 
 Notes
 =======
@@ -89,7 +90,7 @@ public:
     virtual BObjectRef get_member( const char* membername );
     virtual BObjectRef get_member_id( const int id ); //id test
     virtual BObjectImp* call_method( const char* methodname, Executor& ex );
-    virtual BObjectImp* call_method_id( const int id, Executor& ex );
+    virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin=false );
 };
 
 typedef map<unsigned long, GuildRef> Guilds;
@@ -577,7 +578,7 @@ BObjectRef EGuildRefObjImp::get_member( const char* membername )
 	*/
 }
 
-BObjectImp* EGuildRefObjImp::call_method_id( const int id, Executor& ex )
+BObjectImp* EGuildRefObjImp::call_method_id( const int id, Executor& ex, bool forcebuiltin )
 {
     if (obj_->_disbanded)
         return new BError( "Guild has disbanded" );

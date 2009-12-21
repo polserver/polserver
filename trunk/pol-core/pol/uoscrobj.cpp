@@ -31,6 +31,8 @@ History
 2009/11/19 Turley:    lightlevel now supports endless duration - Tomi
 2009/12/02 Turley:    gargoyle race support
 2009/12/03 Turley:    added gargoyle flying movemode
+2009/12/21 Turley:    ._method() call fix
+                      multi support of methodscripts
 
 Notes
 =======
@@ -167,7 +169,7 @@ BObjectRef ECharacterRefObjImp::set_member( const char* membername, BObjectImp* 
 		return BObjectRef(UninitObject::create());
 }
 
-BObjectImp* ECharacterRefObjImp::call_method_id( const int id, Executor& ex )
+BObjectImp* ECharacterRefObjImp::call_method_id( const int id, Executor& ex, bool forcebuiltin )
 {
 	if (!obj_->orphan())
 	{
@@ -329,13 +331,13 @@ BObjectRef EItemRefObjImp::set_member( const char* membername, BObjectImp* value
 		return BObjectRef(UninitObject::create());
 }
 
-BObjectImp* EItemRefObjImp::call_method_id( const int id, Executor& ex )
+BObjectImp* EItemRefObjImp::call_method_id( const int id, Executor& ex, bool forcebuiltin )
 {
 	Item* item = obj_.get();
 	if (!item->orphan())
 	{
 		ObjMethod* mth = getObjMethod(id);
-		if ( mth->overridden )
+		if ( mth->overridden && !forcebuiltin )
 		{
 			BObjectImp* imp = item->custom_script_method( mth->code, ex );
 			if (imp)
@@ -346,7 +348,7 @@ BObjectImp* EItemRefObjImp::call_method_id( const int id, Executor& ex )
 		if (imp != NULL)
 			return imp;
 		else
-			return base::call_method_id( id, ex );
+			return base::call_method_id( id, ex, forcebuiltin );
 	}
 	else
 	{
@@ -356,12 +358,18 @@ BObjectImp* EItemRefObjImp::call_method_id( const int id, Executor& ex )
 
 BObjectImp* EItemRefObjImp::call_method( const char* methodname, Executor& ex )
 {
+	bool forcebuiltin;
 	if (methodname[0] == '_')
+	{
 		++methodname;
+		forcebuiltin = true;
+	}
+	else
+		forcebuiltin = false;
 	
 	ObjMethod* objmethod = getKnownObjMethod(methodname);
 	if ( objmethod != NULL )
-		return this->call_method_id(objmethod->id, ex);
+		return this->call_method_id(objmethod->id, ex, forcebuiltin);
 	else
 	{
 		Item* item = obj_.get();
@@ -491,7 +499,7 @@ BObjectRef EUBoatRefObjImp::set_member( const char* membername, BObjectImp* valu
 		return BObjectRef(UninitObject::create());
 }
 
-BObjectImp* EUBoatRefObjImp::call_method_id( const int id, Executor& ex )
+BObjectImp* EUBoatRefObjImp::call_method_id( const int id, Executor& ex, bool forcebuiltin )
 {
 	if (!obj_->orphan())
 	{
@@ -543,20 +551,36 @@ bool EUBoatRefObjImp::isEqual(const BObjectImp& objimp) const
 
 BObjectImp* EMultiRefObjImp::call_method( const char* methodname, Executor& ex )
 {
+	bool forcebuiltin;
+	if (methodname[0] == '_')
+	{
+		++methodname;
+		forcebuiltin = true;
+	}
+	else
+		forcebuiltin = false;
+
 	ObjMethod* objmethod = getKnownObjMethod(methodname);
 	if ( objmethod != NULL )
-		return this->call_method_id(objmethod->id, ex);
+		return this->call_method_id(objmethod->id, ex, forcebuiltin);
 	else
-		return base::call_method( methodname, ex );
+	{
+		UMulti* multi = obj_.get();
+		BObjectImp* imp = multi->custom_script_method( methodname, ex );
+		if ( imp )
+			return imp;
+		else
+			return base::call_method( methodname, ex );
+	}
 }
 
-BObjectImp* EMultiRefObjImp::call_method_id( const int id, Executor& ex )
+BObjectImp* EMultiRefObjImp::call_method_id( const int id, Executor& ex, bool forcebuiltin )
 {
 	UMulti* multi = obj_.get();
 	if (!multi->orphan())
 	{
 		ObjMethod* mth = getObjMethod(id);
-		if ( mth->overridden )
+		if ( mth->overridden && !forcebuiltin )
 		{
 			BObjectImp* imp = multi->custom_script_method( mth->code, ex );
 			if (imp)
@@ -567,7 +591,7 @@ BObjectImp* EMultiRefObjImp::call_method_id( const int id, Executor& ex )
 		if (imp != NULL)
 			return imp;
 		else
-			return base::call_method_id( id, ex );
+			return base::call_method_id( id, ex, forcebuiltin );
 	}
 	else
 	{

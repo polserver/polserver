@@ -1,6 +1,7 @@
 /*
 History
 =======
+2009/12/21 Turley:    ._method() call fix
 
 Notes
 =======
@@ -53,7 +54,7 @@ public:
 	virtual BObjectRef get_member( const char* membername );
 	virtual BObjectRef get_member_id( const int id ); //id test
 	virtual BObjectImp* call_method( const char* methodname, Executor& ex );
-	virtual BObjectImp* call_method_id( const int id, Executor& ex );
+	virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin=false );
 };
 BApplicObjType party_type;
 EPartyRefObjImp::EPartyRefObjImp( PartyRef pref ) : BApplicObj<PartyRef>(&party_type,pref)
@@ -175,7 +176,7 @@ BObjectImp* EPartyRefObjImp::call_method( const char* methodname, Executor& ex )
 	}
 }
 
-BObjectImp* EPartyRefObjImp::call_method_id( const int id, Executor& ex )
+BObjectImp* EPartyRefObjImp::call_method_id( const int id, Executor& ex, bool forcebuiltin )
 {
 	switch(id)
 	{
