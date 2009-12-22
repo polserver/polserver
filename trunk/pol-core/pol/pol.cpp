@@ -479,6 +479,7 @@ void char_select( Client *client, PKTIN_5D *msg )
 	bool reconnecting = false;
     int charidx = cfBEu32(msg->charidx);
 	if ((charidx >= config.character_slots) ||
+		(client->acct == NULL) ||
 		(client->acct->get_character( charidx ) == NULL))
 	{
 		send_login_error( client, LOGIN_ERROR_MISC );
