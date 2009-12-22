@@ -551,11 +551,9 @@ void createchar2(Account* acct, unsigned index)
 	objecthash.Insert(chr);
 }
 
-void handle_unknown_packet( Client* client );
 
 void ClientCreateChar6017( Client* client, PKTIN_8D* msg)
 {
-    handle_unknown_packet( client );
     int charslot=ctBEu32(msg->char_slot);
 	if ( client->acct == NULL )
 	{
