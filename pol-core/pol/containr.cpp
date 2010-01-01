@@ -376,7 +376,8 @@ Item* UContainer::find_toplevel_objtype_noninuse( u16 objtype, unsigned short ma
 
 Item* UContainer::find_addable_stack( const Item* adding_item ) const
 {
-    long maxamount = MAX_STACK_ITEMS - adding_item->getamount();
+	unsigned short maxamount = adding_item->itemdesc().stack_limit - adding_item->getamount();
+
     if (maxamount > 0)
     {
         for( Contents::const_iterator itr = contents_.begin(); itr != contents_.end(); ++itr )
