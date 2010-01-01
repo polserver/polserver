@@ -99,6 +99,7 @@ public:
     bool decays_on_multis;
     bool blocks_casting_if_in_hand;
     unsigned short base_str_req;
+	unsigned short stack_limit;
 
 	Dice resist_dice;
 

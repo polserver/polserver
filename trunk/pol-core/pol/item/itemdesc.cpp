@@ -50,6 +50,7 @@ Notes
 #include "../syshookscript.h"
 #include "wepntmpl.h"
 #include "armrtmpl.h"
+#include "../ucfg.h"
 #include "../ustruct.h"
 
 typedef std::map<string,unsigned short, ci_cmp_pred> ObjtypeByNameMap;
@@ -220,6 +221,13 @@ ItemDesc::ItemDesc( u16 objtype, ConfigElem& elem, Type type, const Package* pkg
 			elem.throw_error( "Configuration error" );
 		}
 	}
+
+	unsigned short stacklimit = elem.remove_ushort( "StackLimit", MAX_STACK_ITEMS );
+
+	if (stacklimit > MAX_STACK_ITEMS)
+		stack_limit = MAX_STACK_ITEMS;
+	else
+		stack_limit = stacklimit;
 
 	if (tooltip.length() > PKTOUT_B7::MAX_CHARACTERS)
 	{
@@ -478,6 +486,7 @@ ItemDesc::ItemDesc(Type type) :
 	decays_on_multis(false),
 	blocks_casting_if_in_hand( true ),
 	base_str_req(0),
+	stack_limit(MAX_STACK_ITEMS),
 	method_script(NULL)
 {
 }
@@ -536,6 +545,7 @@ void ItemDesc::PopulateStruct( BStruct* descriptor ) const
 	descriptor->addMember( "DecaysOnMultis",	new BLong(decays_on_multis) );
 	descriptor->addMember( "BlocksCastingIfInHand", new BLong(blocks_casting_if_in_hand) );
 	descriptor->addMember( "StrRequired",		new BLong(base_str_req) );
+	descriptor->addMember( "StackLimit", new BLong(stack_limit) );
 	descriptor->addMember( "Weight",			new Double(static_cast<double>(weightmult)/weightdiv) );
 	descriptor->addMember( "FireResist", new BLong(element_resist.fire) );
 	descriptor->addMember( "ColdResist", new BLong(element_resist.cold) );

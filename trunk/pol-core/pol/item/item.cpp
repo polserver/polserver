@@ -639,8 +639,9 @@ bool Item::can_add_to_self( unsigned short amount ) const
 {
 	unsigned long amount1 = (unsigned long) amount_;
 	unsigned long amount2 = (unsigned long) amount;
-	if ((amount1 + amount2) > MAX_STACK_ITEMS)
-        return false;
+
+	if ((amount1 + amount2) > this->itemdesc().stack_limit)
+		 return false;
 
     if (container != NULL)
     {
