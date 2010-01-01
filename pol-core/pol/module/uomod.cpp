@@ -1388,15 +1388,15 @@ BObjectImp* UOExecutorModule::mf_SubtractAmount()
     unsigned short amount;
 
     if (getItemParam( exec, 0, item ) &&
-        getParam( 1, amount, 1, MAX_STACK_ITEMS ))
+		getParam( 1, amount, 1, item->itemdesc().stack_limit )) 
     {
-        if (item->inuse() && !is_reserved_to_me(item))
-        {
-            return new BError( "That item is being used." );
-        }
-        subtract_amount_from_item( item, amount );
-        return new BLong(1);
-    }
+		if (item->inuse() && !is_reserved_to_me(item))
+		{
+			return new BError( "That item is being used." );
+		}
+		subtract_amount_from_item( item, amount );
+		return new BLong(1);
+	}
     else
     {
         return new BError( "Invalid parameter type" );
