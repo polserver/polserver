@@ -1,7 +1,7 @@
 -- POL099 --
 01-01-2010 Nando:
      Added: (Tomi) New itemdesc property "StackLimit", defines the maximum stack
-            of that item. If not defined, will default to a maximum of 60000.
+            of that item (lower than 60k). If not defined, will default to 60000.
       Note: Happy new year. :) 
 
 12-21-2009 Turley:
