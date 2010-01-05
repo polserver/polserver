@@ -448,7 +448,7 @@ void UHouse::destroy_components()
     }
 }
 
-bool UHouse::readshapes( MapShapeList& vec, unsigned short x, unsigned short y, short zbase )
+bool UHouse::readshapes( MapShapeList& vec, short x, short y, short zbase )
 {
     if(!custom)
         return false;
@@ -484,7 +484,7 @@ bool UHouse::readshapes( MapShapeList& vec, unsigned short x, unsigned short y, 
     
 }
 
-bool UHouse::readobjects( StaticList& vec, unsigned short x, unsigned short y, short zbase )
+bool UHouse::readobjects( StaticList& vec, short x, short y, short zbase )
 {
     if(!custom)
         return false;
