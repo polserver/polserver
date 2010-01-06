@@ -13,6 +13,8 @@ Notes
 
 #include "nlogfile.h"
 
+#include <cstring>
+
 LogFile::LogFile( const char* i_tag ) : 
     ostream( new timestamp_streambuf(i_tag) )
 {

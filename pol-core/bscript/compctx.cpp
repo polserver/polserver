@@ -11,6 +11,8 @@ Notes
 
 #include "compctx.h"
 
+#include <cstring>
+
 CompilerContext::CompilerContext() :
     s(NULL),
     line(1),

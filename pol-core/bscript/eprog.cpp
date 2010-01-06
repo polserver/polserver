@@ -20,6 +20,8 @@ Notes
 #include "options.h"
 #include "executortype.h"
 
+#include <climits>
+
 EScriptProgram::EScriptProgram() :
     ref_counted(),
     name(""),

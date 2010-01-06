@@ -32,6 +32,8 @@ Notes
 #include "spelbook.h"
 #include "uobject.h"
 
+#include <climits>
+
 unsigned incremental_save_count = 0;
 unsigned current_incremental_save = 0;
 

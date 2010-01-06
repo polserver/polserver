@@ -21,6 +21,7 @@ Notes
 #include "../network/client.h"
 #include "../cmdlevel.h"
 #include "../polcfg.h"
+#include <cstring>
 
 Account::Account( ConfigElem& elem ) :
     active_character(NULL),

@@ -17,7 +17,11 @@ Notes
 #include "../../clib/endian.h"
 #include "../../clib/stlutil.h"
 
-#include "../../../lib/zlib/zlib.h"
+#ifdef USE_SYSTEM_ZLIB
+#	include <zlib>
+#else
+#	include "../../../lib/zlib/zlib.h"
+#endif
 
 #include "../mobile/charactr.h"
 #include "../network/cgdata.h"
