@@ -11,6 +11,7 @@ Notes
 #define CLIB_MAPUTIL_H
 
 #include "clib.h"
+#include <cstring>
 
 class ci_cmp_pred
 {

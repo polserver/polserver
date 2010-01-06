@@ -7,6 +7,8 @@ Notes
 
 */
 
+#include <cstring>
+
 #ifndef STLUTIL_H
 #define STLUTIL_H
 

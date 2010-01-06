@@ -24,6 +24,8 @@ Notes
 #include "../ustruct.h"
 #include "../uobjcnt.h"
 
+#include <climits>
+
 Item::Item( const ItemDesc& id, UOBJ_CLASS uobj_class) :
 	UObject( id.objtype, uobj_class ),
 	container(NULL),

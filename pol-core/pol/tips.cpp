@@ -20,6 +20,8 @@ Notes
 #include "tiplist.h"
 #include "sockio.h"
 
+#include <cstring>
+
 TipFilenames tipfilenames;
 
 static PKTOUT_A6 tipmsg;

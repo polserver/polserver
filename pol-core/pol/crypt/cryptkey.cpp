@@ -16,6 +16,7 @@
 #include "../../clib/clib.h"
 #include "cryptkey.h"
 #include "../../clib/logfile.h"
+#include <cstring>
 
 bool compareVersion(int ver1major, int ver1minor, int ver1build, int ver2major, int ver2minor, int ver2build);
 
