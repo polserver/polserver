@@ -20,6 +20,8 @@ Notes
 #include "threadhelp.h"
 #include "logfile.h"
 
+#include <cstring>
+
 namespace threadhelp
 {
 

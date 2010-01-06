@@ -100,7 +100,12 @@ Notes
 #include "../uoscrobj.h"
 #include "../uvars.h"
 #include "../uworld.h"
-#include "../../../lib/zlib/zlib.h"
+
+#ifdef USE_SYSTEM_ZLIB
+#	include <zlib>
+#else
+#	include "../../../lib/zlib/zlib.h"
+#endif
 
 static char buffer[ 65535 ];
 

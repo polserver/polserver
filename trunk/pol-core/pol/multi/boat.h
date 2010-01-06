@@ -17,6 +17,7 @@ Notes
 #include "multi.h"
 #include "../poltype.h"
 #include "../reftypes.h"
+#include <climits>
 
 struct BoatShape;
 class MultiDef;

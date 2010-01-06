@@ -27,6 +27,8 @@ Notes
 #include "../vital.h"
 #include "vitalmod.h"
 
+#include <climits>
+
 template<>
 TmplExecutorModule<VitalExecutorModule>::FunctionDef
 	TmplExecutorModule<VitalExecutorModule>::function_table[] =

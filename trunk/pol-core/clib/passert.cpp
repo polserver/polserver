@@ -18,6 +18,7 @@ Notes
 #include "progver.h"
 #include "stlutil.h"
 #include "threadhelp.h"
+#include <cstring>
 
 #ifdef _WIN32
 #	include <windows.h>

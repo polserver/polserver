@@ -39,6 +39,8 @@ Notes
 #include "token.h"
 #include "executor.h"
 
+#include <climits>
+
 std::set< Executor* > executor_instances;
 void display_executor_instances()
 {
