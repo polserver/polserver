@@ -16,6 +16,8 @@ Notes
 #include "escrutil.h"
 #include "impstr.h"
 
+#include <climits>
+
 bool could_be_a_number( const char* s )
 {
     if (s[0] == '0' && (s[1] == 'x' || s[1] == 'X')) // Hex number

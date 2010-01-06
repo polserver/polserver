@@ -29,7 +29,7 @@ Notes
 
 #include "armor.h"
 #include "itemdesc.h"
-
+#include <climits>
 
 unsigned short layer_to_zone( unsigned short layer );
 unsigned short zone_name_to_zone( const char *zname );

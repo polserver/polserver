@@ -24,6 +24,8 @@ Notes
 
 #include "utilmod.h"
 
+#include <climits>
+
 
 template<>
 TmplExecutorModule<UtilExecutorModule>::FunctionDef

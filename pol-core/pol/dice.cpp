@@ -15,6 +15,7 @@ Notes
 #include "../clib/random.h"
 
 #include "dice.h"
+#include <cstring>
 
 
 Dice::Dice() :
