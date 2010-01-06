@@ -17,7 +17,7 @@ Notes
 #include "../clib/progver.h"
 #include "polver.h"
 
-const char polverstr[] = "POL099beta-2009-10-12";
+const char polverstr[] = "POL099beta-2010-01-02";
 unsigned long polver = 99;
 
 #ifdef PERGON
