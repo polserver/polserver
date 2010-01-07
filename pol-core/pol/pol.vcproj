@@ -232,6 +232,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\clfunc.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\cmbtcfg.cpp"
 				>
 			</File>
@@ -902,6 +906,10 @@
 			</File>
 			<File
 				RelativePath=".\checkpnt.h"
+				>
+			</File>
+			<File
+				RelativePath=".\clfunc.h"
 				>
 			</File>
 			<File
