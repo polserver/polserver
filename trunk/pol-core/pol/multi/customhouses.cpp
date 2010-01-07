@@ -18,7 +18,7 @@ Notes
 #include "../../clib/stlutil.h"
 
 #ifdef USE_SYSTEM_ZLIB
-#	include <zlib>
+#	include <zlib.h>
 #else
 #	include "../../../lib/zlib/zlib.h"
 #endif
