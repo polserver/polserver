@@ -232,6 +232,7 @@ void equip_loaded_item( Character* chr, Item* item )
 			bool add_to_slot = bp->can_add_to_slot(slotIndex);
 			if ( canadd && add_to_slot && item->slot_index(slotIndex) )
 			{
+				bp->add_at_random_location(item);
 				// leaving dirty
 				gflag_enforce_container_limits = true;
 				cerr << "I'm so cool, I put it in the character's backpack!" << endl;
