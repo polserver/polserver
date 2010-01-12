@@ -7,11 +7,15 @@
             both modes ignore the return value
             - Tomi
      Added: uo::SendCharProfile( character, of_who, title, uneditable_text := CHARPROFILE_NO_UNEDITABLE_TEXT, editable_text := CHARPROFILE_NO_EDITABLE_TEXT )
+            will send the serverside charprofile packet back to client and display it for the player.
             uneditable_text & editable_text are unicode arrays
             constants are:
             const CHARPROFILE_NO_UNEDITABLE_TEXT := array;
             const CHARPROFILE_NO_EDITABLE_TEXT := array;
             - Tomi
+      Note: Only a script interface for making a fully working CharProfile without packethooks.
+            Not a fully working charprofile system controlled by the core, ALL text strings still have to be 
+            stored somewhere by scripts.
             
 01-01-2010 Nando:
      Added: (Tomi) New itemdesc property "StackLimit", defines the maximum stack
