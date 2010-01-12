@@ -587,7 +587,8 @@ public:
     bool start_script( EScriptProgram* prog, 
                        bool start_attached,
                        BObjectImp* param2 = NULL,
-                       BObjectImp* param3 = NULL );
+                       BObjectImp* param3 = NULL,
+					   BObjectImp* param4 = NULL);
     bool start_skill_script( EScriptProgram* prog );
     bool start_itemuse_script( EScriptProgram* prog, Item* item, bool start_attached );
     bool start_spell_script( EScriptProgram* prog, USpell* spell );

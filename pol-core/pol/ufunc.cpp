@@ -45,6 +45,7 @@ Notes
 #include "../clib/endian.h"
 #include "../clib/logfile.h"
 #include "../clib/passert.h"
+#include "../clib/pkthelper.h"
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
 
@@ -2719,4 +2720,56 @@ void send_damage_old(Client* client, Character* defender, u16 damage)
     else
         msg.damage.damage_amt = static_cast<u8>(damage);
     client->transmit( &msg, 0xB );
+}
+
+void sendCharProfile( Character* chr, Character* of_who, const char *title, const u16 *utext, const u16 *etext )
+{
+	PKTBI_B8_OUT msg;
+	unsigned newulen = 0, newelen = 0, titlelen;
+
+	while( utext[newulen] != L'\0' )
+		++newulen;
+	newulen += 1;
+
+	while( etext[newelen] != L'\0' )
+		++newelen;
+	newelen += 1;
+
+	titlelen = strlen(title) + 1;
+
+	// Check Lengths
+
+    if (titlelen > (SPEECH_MAX_LEN+1))
+        titlelen = SPEECH_MAX_LEN+1;
+	if (newulen > (2*(SPEECH_MAX_LEN+1)))
+		newulen = 2*(SPEECH_MAX_LEN+1);
+	if (newelen > (2*(SPEECH_MAX_LEN+1)))
+		newelen = 2*(SPEECH_MAX_LEN+1);
+
+	unsigned short msglen = static_cast<unsigned short>(7 + titlelen + (newulen*sizeof(utext[0])) + (newelen*sizeof(etext[0])));
+
+	// Build Packet
+
+	msg.msgtype = PKTBI_B8_OUT_ID;
+	msg.msglen = ctBEu16( msglen );
+	msg.serial = of_who->serial_ext;
+
+	// Set Title
+	strzcpy( msg.text, title, titlelen );
+
+	// Set Unicode Texts
+
+	unsigned offset = titlelen;
+
+	for(unsigned i=0; i < newulen; i++)
+	{
+		WritetoCharBuffer(msg.text,ctBEu16(utext[i]),&offset);
+	}
+
+	for(unsigned i=0; i < newelen; i++)
+	{
+		WritetoCharBuffer(msg.text,ctBEu16(etext[i]),&offset);
+	}
+
+	transmit( chr->client, &msg, msglen );
 }
