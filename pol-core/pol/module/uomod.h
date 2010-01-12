@@ -263,6 +263,7 @@ public:
 	BObjectImp* mf_PlayMusic(/*char, musicid*/);
 
     BObjectImp* mf_CanWalk(/*movemode, x1, y1, z1, x2_or_dir, y2 := -1, realm := DEF*/);
+	BObjectImp* mf_SendCharProfile(/*chr, of_who, title, uneditable_text := array, editable_text := array*/);
 
 	UOExecutor& uoexec;
 	

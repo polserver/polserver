@@ -388,13 +388,40 @@ struct PKTBI_9A
 };
 asserteql( sizeof(PKTBI_9A), 16 );
 
-struct PKTBI_B8 {
+struct PKTBI_B8_IN_REQUEST {
+	u32 serial;
+};
+asserteql( sizeof(PKTBI_B8_IN_REQUEST), 4 );
+
+struct PKTBI_B8_IN_UPDATE {
+	u32 serial;
+	u16 cmdtype;
+	u16 textlen;
+	u16 wtext[2];
+};
+asserteql( sizeof(PKTBI_B8_IN_UPDATE), 12 );
+
+struct PKTBI_B8_IN {
 	u8 msgtype;
 	u16 msglen;
 	u8 mode;
-	u32 serial;
-	//incomplete, packet changes if request, update, or just sending text
+	union {
+		PKTBI_B8_IN_REQUEST profile_request;
+		PKTBI_B8_IN_UPDATE profile_update;
+	};
+	enum {
+		MODE_REQUEST = 0,
+		MODE_UPDATE = 1
+	};
 };
+
+struct PKTBI_B8_OUT {
+	u8 msgtype;
+	u16 msglen;
+	u32 serial;
+	char text[5*(SPEECH_MAX_LEN+1)]; // 1 Ascii variable array ( SPEECH_MAX_LEN+1) and 2 Unicode variable arrays 2*(SPEECH_MAX_LEN+1) each due to u16. 
+};
+asserteql( sizeof(PKTBI_B8_OUT), 1012 );
 
 struct PKTBI_BB {
 	u8 msgtype;

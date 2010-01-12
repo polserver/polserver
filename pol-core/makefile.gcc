@@ -158,6 +158,7 @@ cpp_sources = \
 	clib/wnsckt.cpp \
 	clib/xmain.cpp \
 	clib/unicode.cpp \
+	clib/pkthelper.cpp \
 	gp/gendef.cpp gp/gphelp.cpp gp/gtree.cpp \
 	gp/treegen.cpp
 
