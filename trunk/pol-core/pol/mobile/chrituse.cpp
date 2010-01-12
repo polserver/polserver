@@ -26,7 +26,8 @@ Notes
 bool Character::start_script( EScriptProgram* prog, 
                               bool start_attached,
                               BObjectImp* param2,
-                              BObjectImp* param3 )
+                              BObjectImp* param3,
+							  BObjectImp* param4)
 {
     if (! ( !start_attached || (script_ex == NULL) ) )
     {
@@ -39,6 +40,7 @@ bool Character::start_script( EScriptProgram* prog,
 
 	BObject ob2(param2?param2:UninitObject::create());
     BObject ob3(param3?param3:UninitObject::create());
+	BObject ob4(param4?param4:UninitObject::create());
 
     auto_ptr<UOExecutor> ex( create_script_executor() );
     UOExecutorModule* uoemod = new UOExecutorModule( *ex );
@@ -46,6 +48,7 @@ bool Character::start_script( EScriptProgram* prog,
     
     if (prog->haveProgram)
     {
+		if (param4) ex->pushArg( param4 );
         if (param3) ex->pushArg( param3 );
         if (param2) ex->pushArg( param2 );
         ex->pushArg( new ECharacterRefObjImp( this ) );

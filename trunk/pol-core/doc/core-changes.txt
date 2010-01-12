@@ -1,4 +1,18 @@
 -- POL099 --
+01-12-2010 Turley:
+     Added: on Profile opening and update request "scripts/misc/chrprofile.ecl" is called
+            params are character, of_who, mode,uctext
+            if mode==0 (request) uctext is 0
+            if mode==1 (update) uctext is new unicode array
+            both modes ignore the return value
+            - Tomi
+     Added: uo::SendCharProfile( character, of_who, title, uneditable_text := CHARPROFILE_NO_UNEDITABLE_TEXT, editable_text := CHARPROFILE_NO_EDITABLE_TEXT )
+            uneditable_text & editable_text are unicode arrays
+            constants are:
+            const CHARPROFILE_NO_UNEDITABLE_TEXT := array;
+            const CHARPROFILE_NO_EDITABLE_TEXT := array;
+            - Tomi
+            
 01-01-2010 Nando:
      Added: (Tomi) New itemdesc property "StackLimit", defines the maximum stack
             of that item (lower than 60k). If not defined, will default to 60000.

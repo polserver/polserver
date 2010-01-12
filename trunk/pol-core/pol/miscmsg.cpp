@@ -36,6 +36,7 @@ Notes
 #include "../clib/strutil.h"
 
 #include "../clib/stlutil.h"
+#include "../clib/unicode.h"
 
 #include "accounts/account.h"
 #include "mobile/charactr.h"
@@ -51,6 +52,7 @@ Notes
 #include "tooltips.h"
 #include "uvars.h"
 #include "ufunc.h"
+#include "uoscrobj.h"
 #include "sockio.h"
 
 #include "ssopt.h"
@@ -145,11 +147,55 @@ void handle_msg_B5( Client* client, PKTIN_B5* msg )
 }
 MESSAGE_HANDLER( PKTIN_B5, handle_msg_B5 );
 
-void handle_msg_B8( Client* client, PKTBI_B8* msg )
+void handle_char_profile_request( Client* client, PKTBI_B8_IN* msg )
 {
-    handle_unknown_packet( client );
+    ref_ptr<EScriptProgram> prog = find_script( "misc/charprofile", 
+                                                true, 
+                                                config.cache_interactive_scripts );
+    if (prog.get() != NULL)
+    {
+		Character* mobile;
+		
+		if ( msg->mode == msg->MODE_REQUEST )
+		{
+			mobile = system_find_mobile(cfBEu32(msg->profile_request.serial));
+			client->chr->start_script( prog.get(), false, new ECharacterRefObjImp(mobile), new BLong(msg->mode), new BLong(0) );
+		}
+		else if ( msg->mode == msg->MODE_UPDATE )
+		{
+			mobile = system_find_mobile(cfBEu32(msg->profile_update.serial));
+
+			u16 * themsg = msg->profile_update.wtext;
+			int intextlen = (cfBEu16(msg->msglen) - 12) / sizeof(msg->profile_update.wtext[0]);
+
+			int i = 0;
+
+			u16 wtextbuf[SPEECH_MAX_LEN];
+			size_t wtextbuflen;
+
+			// Preprocess the text into a sanity-checked, printable form in textbuf
+			if (intextlen < 0)
+				intextlen = 0;
+			if (intextlen > SPEECH_MAX_LEN) 
+				intextlen = SPEECH_MAX_LEN;
+
+			wtextbuflen = 0;
+			for( i = 0; i < intextlen; i++ )
+			{
+				u16 wc = cfBEu16(themsg[i]);
+				if (wc == 0) break;		// quit early on embedded nulls
+				if (wc == L'~') continue;	// skip unprintable tildes. 
+				wtextbuf[ wtextbuflen++ ] = ctBEu16(wc);
+			}
+
+			ObjArray* arr;
+
+			if ( convertUCtoArray(wtextbuf, arr, wtextbuflen,true) ) // convert back with ctBEu16()
+				client->chr->start_script( prog.get(), false, new ECharacterRefObjImp(mobile), new BLong(msg->mode), arr );
+		}
+    }
 }
-MESSAGE_HANDLER_VARLEN( PKTBI_B8, handle_msg_B8 );
+MESSAGE_HANDLER_VARLEN( PKTBI_B8_IN, handle_char_profile_request );
 
 void handle_msg_BB( Client* client, PKTBI_BB* msg )
 {

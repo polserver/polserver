@@ -277,6 +277,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\pkthelper.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\progver.cpp"
 				>
 			</File>
@@ -472,6 +476,10 @@
 			</File>
 			<File
 				RelativePath=".\passert.h"
+				>
+			</File>
+			<File
+				RelativePath=".\pkthelper.h"
 				>
 			</File>
 			<File
