@@ -272,5 +272,6 @@ void send_fight_occuring( Client* client, Character* opponent );
 void send_damage( Character* attacker, Character* defender, u16 damage );
 void send_damage_old(Client* client, Character* defender, u16 damage);
 void send_damage_new(Client* client, Character* defender, u16 damage);
+void sendCharProfile( Character* chr, Character* of_who, const char *title, const u16 *utext, const u16 *etext );
 
 #endif

@@ -38,7 +38,8 @@ enum PKTBOTHID {
 	PKTBI_99_ID = 0x99,	// Multi Placement View
 	PKTBI_9A_ID = 0x9A,	// Console Entry Prompt
 
-	PKTBI_B8_ID = 0xB8,	// Character Profile
+	PKTBI_B8_IN_ID = 0xB8,	// Character Profile
+	PKTBI_B8_OUT_ID = 0xB8, // Character Profile
 	PKTBI_BB_ID = 0xBB,	// Ultima Messenger (Old school mail system)
 	PKTBI_BD_ID = 0xBD,	// Client Version Info
 	PKTBI_BF_ID = 0xBF,	// Generic Commands

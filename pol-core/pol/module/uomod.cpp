@@ -80,6 +80,7 @@ Notes
 #include "../../clib/weakptr.h"
 #include "../../clib/stlutil.h"
 #include "../../clib/strutil.h"
+#include "../../clib/unicode.h"
 
 #include "../../bscript/berror.h"
 #include "../../bscript/bobject.h"
@@ -5611,6 +5612,45 @@ UFACING direction_toward( xcoord from_x, ycoord from_y, xcoord to_x, ycoord to_y
     return FACING_N;
 }
 
+BObjectImp* UOExecutorModule::mf_SendCharProfile(/*chr, of_who, title, uneditable_text := array, editable_text := array*/)
+{
+	Character *chr, *of_who;
+	const String* title;
+	unsigned ulen, elen;
+	ObjArray* uText;
+	ObjArray* eText;
+
+	u16 uwtext[ (SPEECH_MAX_LEN + 1) ];
+	u16 ewtext[ (SPEECH_MAX_LEN + 1) ];
+
+	if ( getCharacterParam(exec, 0, chr) && 
+		 getCharacterParam(exec, 1, of_who) && 
+		 getStringParam( 2, title ) &&
+		 getObjArrayParam( 3, uText ) &&
+		 getObjArrayParam( 4, eText ) )
+	{
+		if (chr->logged_in && of_who->logged_in)
+		{
+			// Get The Unicode message lengths and convert the arrays to UC
+
+			ulen = uText->ref_arr.size();
+			if(!convertArrayToUC(uText, uwtext, ulen))
+				return new BError("Invalid parameter type");
+
+			elen = eText->ref_arr.size();
+			if (!convertArrayToUC(eText, ewtext, elen))
+				return new BError("Invalid parameter type");
+
+			sendCharProfile( chr, of_who, title->data(), uwtext, ewtext );
+			return new BLong(1);
+		}
+		else
+			return new BError("Mobile must be online.");
+	}
+	else
+		return new BError("Invalid parameter type");
+}
+
 UOFunctionDef UOExecutorModule::function_table[] =
 {
 	{ "SendStatus",					&UOExecutorModule::mf_SendStatus },
@@ -5775,7 +5815,8 @@ UOFunctionDef UOExecutorModule::function_table[] =
 
 	{ "UpdateMobile",           &UOExecutorModule::mf_UpdateMobile },
 	{ "CheckLosBetween",        &UOExecutorModule::mf_CheckLosBetween },
-    { "CanWalk",                &UOExecutorModule::mf_CanWalk }
+    { "CanWalk",                &UOExecutorModule::mf_CanWalk },
+	{ "SendCharProfile",		&UOExecutorModule::mf_SendCharProfile }
 
 };
 

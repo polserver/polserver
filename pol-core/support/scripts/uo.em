@@ -216,6 +216,10 @@ const CLOSE_STATUS    := 2;
 const CLOSE_PROFILE   := 8;
 const CLOSE_CONTAINER := 12;
 
+//SendCharProfile
+const CHARPROFILE_NO_UNEDITABLE_TEXT := array;
+const CHARPROFILE_NO_EDITABLE_TEXT := array;
+
 ////////////////////////////////////////////////////////////////
 //
 //	FUNCTIONS
@@ -341,6 +345,7 @@ SecureTradeWin( character, character2 );
 SelectColor( character, item );
 SelectMenuItem2( character, menuname );
 SendBuyWindow( character, container, vendor, items, flags := 0 );
+SendCharProfile( character, of_who, title, uneditable_text := CHARPROFILE_NO_UNEDITABLE_TEXT, editable_text := CHARPROFILE_NO_EDITABLE_TEXT );
 SendCharacterRaceChanger( character );
 SendDialogGump( who, layout, textlines, x := 0, y := 0, flags := 0 );
 SendEvent( npc, event );
