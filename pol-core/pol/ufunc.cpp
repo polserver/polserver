@@ -2763,12 +2763,12 @@ void sendCharProfile( Character* chr, Character* of_who, const char *title, cons
 
 	for(unsigned i=0; i < newulen; i++)
 	{
-		WritetoCharBuffer(msg.text,ctBEu16(utext[i]),&offset);
+		WritetoCharBuffer(msg.text,(u16)ctBEu16(utext[i]),&offset);
 	}
 
 	for(unsigned i=0; i < newelen; i++)
 	{
-		WritetoCharBuffer(msg.text,ctBEu16(etext[i]),&offset);
+		WritetoCharBuffer(msg.text,(u16)ctBEu16(etext[i]),&offset);
 	}
 
 	transmit( chr->client, &msg, msglen );

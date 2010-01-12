@@ -7,7 +7,7 @@ Notes
 
 */
 
-#include <limits>
+#include <climits>
 #include "pkthelper.h"
 
 void WritetoCharBuffer(char *buffer, u32 x, unsigned int *offset )
