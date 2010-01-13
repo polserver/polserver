@@ -368,34 +368,10 @@ clib_library:
 %.debug.o: %.cpp
 	$(CC) -x c++ $(CXX_DEBUG_OPTS) -c -I. -o $@ $<
 
-pol/crypt/crypt.o: pol/crypt/crypt.cpp
-	$(CC) -x c++ $(CXX_OPTS_NOWARN) -c -I. -o $@ $<
-
-pol/crypt/twofish.o: pol/crypt/twofish.cpp
-	$(CC) -x c++ $(CXX_OPTS_NOWARN) -c -I. -o $@ $<
-
 pol/crypt/blowfish.o: pol/crypt/blowfish.cpp
 	$(CC) -x c++ $(CXX_OPTS_NOWARN) -c -I. -o $@ $<
 	
-pol/crypt/logincrypt.o: pol/crypt/logincrypt.cpp
-	$(CC) -x c++ $(CXX_OPTS_NOWARN) -c -I. -o $@ $<
-	
-pol/crypt/md5.o: pol/crypt/md5.cpp
-	$(CC) -x c++ $(CXX_OPTS_NOWARN) -c -I. -o $@ $<
-
-pol/crypt/crypt.debug.o: pol/crypt/crypt.cpp
-	$(CC) -x c++ $(CXX_OPTS_NOWARN) -c -I. -o $@ $<
-
-pol/crypt/twofish.debug.o: pol/crypt/twofish.cpp
-	$(CC) -x c++ $(CXX_OPTS_NOWARN) -c -I. -o $@ $<
-
 pol/crypt/blowfish.debug.o: pol/crypt/blowfish.cpp
-	$(CC) -x c++ $(CXX_OPTS_NOWARN) -c -I. -o $@ $<
-	
-pol/crypt/logincrypt.debug.o: pol/crypt/logincrypt.cpp
-	$(CC) -x c++ $(CXX_OPTS_NOWARN) -c -I. -o $@ $<
-	
-pol/crypt/md5.debug.o: pol/crypt/md5.cpp
 	$(CC) -x c++ $(CXX_OPTS_NOWARN) -c -I. -o $@ $<
 
 #		| sed 's#^$(@F)#$<#g'
