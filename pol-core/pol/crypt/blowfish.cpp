@@ -144,7 +144,7 @@ static unsigned long s_box[1024] =
 };
 
 // Key Table
-
+// Fixme missing braces around .. (makefile fix)
 static unsigned char key_table[CRYPT_GAMEKEY_COUNT][6] =
 {
 	0x91, 0x3C, 0x2B, 0x0F, 0x44, 0xC6,
@@ -175,7 +175,7 @@ static unsigned char key_table[CRYPT_GAMEKEY_COUNT][6] =
 };
 
 // Seed Table
-
+// Fixme missing braces around .. (makefile fix)
 static unsigned char seed_table[2][CRYPT_GAMESEED_COUNT][2][CRYPT_GAMESEED_LENGTH] =
 {
 	0x9E, 0xEC, 0x5B, 0x3C, 0x8F, 0xA8, 0x8C, 0x55,
