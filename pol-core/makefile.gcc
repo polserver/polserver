@@ -368,12 +368,6 @@ clib_library:
 %.debug.o: %.cpp
 	$(CC) -x c++ $(CXX_DEBUG_OPTS) -c -I. -o $@ $<
 
-pol/crypt/blowfish.o: pol/crypt/blowfish.cpp
-	$(CC) -x c++ $(CXX_OPTS_NOWARN) -c -I. -o $@ $<
-	
-pol/crypt/blowfish.debug.o: pol/crypt/blowfish.cpp
-	$(CC) -x c++ $(CXX_OPTS_NOWARN) -c -I. -o $@ $<
-
 #		| sed 's#^$(@F)#$<#g'
 
 %.d: %.cpp
