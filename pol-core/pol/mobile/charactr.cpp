@@ -57,6 +57,7 @@ History
 2009/11/30 Turley:    fixed calc_single_vital doesnt check changed maximum value
 2009/12/02 Turley:    added gargoyle & face support
 2009/12/03 Turley:    fixed client>=7 poison/flying flag, basic flying support
+2010/01/14 Turley:    AttackWhileFrozen check
 
 
 Notes
@@ -3450,9 +3451,10 @@ void Character::check_attack_after_move()
 	FUNCTION_CHECKPOINT( check_attack_after_move, 2 );
 	dtrace(20) << "check_attack_after_move(" << this << "): opponent is " << opponent << endl;	
 	if (opponent != NULL &&				   // and I have an opponent
-		!dead_ /*&&							 // If I'm not dead
-		!paralyzed() &&
-		!frozen()*/)							  
+		!dead_ &&							 // If I'm not dead
+		(combat_config.attack_while_frozen ||
+		(!paralyzed() &&
+		!frozen())))							  
 	{
 		FUNCTION_CHECKPOINT( check_attack_after_move, 3 );
 		if (ready_to_swing)				 // and I can swing now,
