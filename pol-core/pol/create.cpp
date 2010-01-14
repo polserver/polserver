@@ -5,6 +5,7 @@ History
 2006/05/23 Shinigami: added Elf Hair Style to validhair() & comments added
                       validbeard() rewritten & comments added
 2009/12/02 Turley:    added gargoyle support, 0x8D char create, face support
+2010/01/14 Turley:    more error checks, Tomi's startequip patch
 
 Notes
 =======
@@ -25,6 +26,7 @@ Notes
 #include "../clib/fdump.h"
 #include "../clib/logfile.h"
 #include "../clib/random.h"
+#include "../clib/strutil.h"
 
 #include "../plib/realm.h"
 
@@ -357,7 +359,6 @@ void ClientCreateChar( Client* client, PKTIN_00* msg)
 	if (pAttrDexterity)
 		chr->attribute(pAttrDexterity->attrid).base( msg->Dexterity * 10 );
 
-
 	if (msg->SkillNumber1 > uoclient_general.maxskills ||
 		msg->SkillNumber2 > uoclient_general.maxskills ||
 		msg->SkillNumber3 > uoclient_general.maxskills)
@@ -366,10 +367,11 @@ void ClientCreateChar( Client* client, PKTIN_00* msg)
 		client->disconnect = 1;
 		return;
 	}
-	if ((msg->SkillValue1 + msg->SkillValue2 + msg->SkillValue3 != 100) ||
+	bool noskills = (msg->SkillValue1 + msg->SkillValue2 + msg->SkillValue3 == 0) && msg->profession;
+	if ((!noskills) && ((msg->SkillValue1 + msg->SkillValue2 + msg->SkillValue3 != 100) ||
 		msg->SkillValue1 > 50 ||
 		msg->SkillValue2 > 50 ||
-		msg->SkillValue3 > 50)
+		msg->SkillValue3 > 50))
 	{
 		cerr << "Create Character: Starting skill values incorrect" << endl;
 		client->disconnect = 1;
@@ -381,13 +383,16 @@ void ClientCreateChar( Client* client, PKTIN_00* msg)
 	objecthash.Insert(chr);
 	////
 	
-	const Attribute* pAttr;
-	pAttr = GetUOSkill(msg->SkillNumber1).pAttr;
-	if (pAttr) chr->attribute( pAttr->attrid ).base( msg->SkillValue1 * 10 );
-	pAttr = GetUOSkill(msg->SkillNumber2).pAttr;
-	if (pAttr) chr->attribute( pAttr->attrid ).base( msg->SkillValue2 * 10 );
-	pAttr = GetUOSkill(msg->SkillNumber3).pAttr;
-	if (pAttr) chr->attribute( pAttr->attrid ).base( msg->SkillValue3 * 10 );
+	if (!noskills)
+	{
+		const Attribute* pAttr;
+		pAttr = GetUOSkill(msg->SkillNumber1).pAttr;
+		if (pAttr) chr->attribute( pAttr->attrid ).base( msg->SkillValue1 * 10 );
+		pAttr = GetUOSkill(msg->SkillNumber2).pAttr;
+		if (pAttr) chr->attribute( pAttr->attrid ).base( msg->SkillValue2 * 10 );
+		pAttr = GetUOSkill(msg->SkillNumber3).pAttr;
+		if (pAttr) chr->attribute( pAttr->attrid ).base( msg->SkillValue3 * 10 );
+	}
 
 	chr->calc_vital_stuff();
 	chr->set_vitals_to_maximum();
@@ -403,7 +408,13 @@ void ClientCreateChar( Client* client, PKTIN_00* msg)
 		tmpitem->color = cfBEu16(msg->HairColor);
 		tmpitem->color_ext = ctBEu16(tmpitem->color);
 		tmpitem->realm = chr->realm;
-		chr->equip(tmpitem);
+		if (chr->equippable(tmpitem)) // check it or passert will trigger
+			chr->equip(tmpitem);
+		else
+		{
+			cerr << "Create Character: Failed to equip hair " << hexint(tmpitem->graphic) << endl;
+			tmpitem->destroy();
+		}
 	}
 
 	if( validbeard(cfBEu16(msg->BeardStyle)) )
@@ -413,7 +424,13 @@ void ClientCreateChar( Client* client, PKTIN_00* msg)
 		tmpitem->color = cfBEu16(msg->BeardColor);
 		tmpitem->color_ext = ctBEu16(tmpitem->color);
 		tmpitem->realm = chr->realm;
-		chr->equip(tmpitem);
+		if (chr->equippable(tmpitem)) // check it or passert will trigger
+			chr->equip(tmpitem);
+		else
+		{
+			cerr << "Create Character: Failed to equip beard " << hexint(tmpitem->graphic) << endl;
+			tmpitem->destroy();
+		}
 	}
 
 	UContainer *backpack = (UContainer *) Item::create( UOBJ_BACKPACK );
@@ -443,47 +460,60 @@ void ClientCreateChar( Client* client, PKTIN_00* msg)
 			backpack->add(tmpitem); 
 	}
 
-	tmpitem=Item::create( 0x170F );
-	tmpitem->newbie(true);
-	tmpitem->layer = LAYER_SHOES;
-	tmpitem->color = 0x021F;
-	tmpitem->color_ext = ctBEu16(tmpitem->color);
-	tmpitem->realm = chr->realm;
-	chr->equip(tmpitem); 
-
-	tmpitem=Item::create( 0xF51 );
-	tmpitem->newbie(true);
-	tmpitem->layer = LAYER_HAND1;
-	tmpitem->realm = chr->realm;
-	chr->equip(tmpitem); 
-
-	unsigned short pantstype, shirttype;
-	if (chr->gender == GENDER_FEMALE)
+	if (chr->race == RACE_HUMAN || chr->race == RACE_ELF) // Gargoyles dont have shirts, pants, shoes and daggers.
 	{
-		pantstype = 0x1516;
-		shirttype = 0x1517;
+		tmpitem=Item::create( 0x170F );
+		tmpitem->newbie(ssopt.newbie_starting_equipment);
+		tmpitem->layer = LAYER_SHOES;
+		tmpitem->color = 0x021F;
+		tmpitem->color_ext = ctBEu16(tmpitem->color);
+		tmpitem->realm = chr->realm;
+		chr->equip(tmpitem); 
+
+		tmpitem=Item::create( 0xF51 );
+		tmpitem->newbie(ssopt.newbie_starting_equipment);
+		tmpitem->layer = LAYER_HAND1;
+		tmpitem->realm = chr->realm;
+		chr->equip(tmpitem); 
+
+		unsigned short pantstype, shirttype;
+		if (chr->gender == GENDER_FEMALE)
+		{
+			pantstype = 0x1516;
+			shirttype = 0x1517;
+		}
+		else
+		{
+			pantstype = 0x152e;
+			shirttype = 0x1517;
+		}
+
+		tmpitem=Item::create( pantstype );
+		tmpitem->newbie(ssopt.newbie_starting_equipment);
+		tmpitem->layer = tilelayer( pantstype );
+		tmpitem->color = cfBEu16( msg->pantscolor ); // 0x0284;
+		tmpitem->color_ext = ctBEu16(tmpitem->color);
+		tmpitem->realm = chr->realm;
+		chr->equip(tmpitem);
+
+		tmpitem=Item::create( shirttype );
+		tmpitem->newbie(ssopt.newbie_starting_equipment);
+		tmpitem->layer = tilelayer( shirttype );
+		tmpitem->color = cfBEu16( msg->shirtcolor ); 
+		tmpitem->color_ext = ctBEu16(tmpitem->color);
+		tmpitem->realm = chr->realm;
+		chr->equip(tmpitem);
 	}
-	else
+	else if (chr->race == RACE_GARGOYLE) // Gargoyles have Robes.
 	{
-		pantstype = 0x152e;
-		shirttype = 0x1517;
+		tmpitem=Item::create( 0x1F03 );
+		tmpitem->newbie(ssopt.newbie_starting_equipment);
+		tmpitem->layer = LAYER_ROBE_DRESS;
+		tmpitem->color = cfBEu16( msg->shirtcolor ); 
+		tmpitem->color_ext = ctBEu16(tmpitem->color);
+		tmpitem->realm = chr->realm;
+		chr->equip(tmpitem);
 	}
-
-	tmpitem=Item::create( pantstype );
-	tmpitem->newbie(true);
-	tmpitem->layer = tilelayer( pantstype );
-	tmpitem->color = cfBEu16( msg->pantscolor ); // 0x0284;
-	tmpitem->color_ext = ctBEu16(tmpitem->color);
-	tmpitem->realm = chr->realm;
-	chr->equip(tmpitem);
-
-	tmpitem=Item::create( shirttype );
-	tmpitem->newbie(true);
-	tmpitem->layer = tilelayer( shirttype );
-	tmpitem->color = cfBEu16( msg->shirtcolor ); 
-	tmpitem->color_ext = ctBEu16(tmpitem->color);
-	tmpitem->realm = chr->realm;
-	chr->equip(tmpitem);
 
 	client->chr = chr;
 	client->acct->set_character( msg->CharNumber, client->chr );
@@ -507,6 +537,7 @@ void ClientCreateChar( Client* client, PKTIN_00* msg)
 		arr->addElement( new BLong( msg->SkillNumber2 ) );
 		arr->addElement( new BLong( msg->SkillNumber3 ) );
 		
+		ex->pushArg( new BLong( msg->profession ) );
 		ex->pushArg( arr );
 		ex->pushArg( make_mobileref( chr ) );
 
@@ -700,11 +731,13 @@ void ClientCreateChar6017( Client* client, PKTIN_8D* msg)
 		client->disconnect = 1;
 		return;
 	}
-	if ((msg->skillvalue1 + msg->skillvalue2 + msg->skillvalue3 + msg->skillvalue4 != 120) ||
+
+	bool noskills = (msg->skillvalue1 + msg->skillvalue2 + msg->skillvalue3 + msg->skillvalue4 == 0) && msg->profession;
+	if ((!noskills) && ((msg->skillvalue1 + msg->skillvalue2 + msg->skillvalue3 + msg->skillvalue4 != 120) ||
 		msg->skillvalue1 > 50 ||
 		msg->skillvalue2 > 50 ||
         msg->skillvalue3 > 50 ||
-		msg->skillvalue4 > 50)
+		msg->skillvalue4 > 50))
 	{
 		cerr << "Create Character: Starting skill values incorrect" << endl;
 		client->disconnect = 1;
@@ -716,15 +749,18 @@ void ClientCreateChar6017( Client* client, PKTIN_8D* msg)
 	objecthash.Insert(chr);
 	////
 	
-	const Attribute* pAttr;
-	pAttr = GetUOSkill(msg->skillnumber1).pAttr;
-	if (pAttr) chr->attribute( pAttr->attrid ).base( msg->skillvalue1 * 10 );
-	pAttr = GetUOSkill(msg->skillnumber2).pAttr;
-	if (pAttr) chr->attribute( pAttr->attrid ).base( msg->skillvalue2 * 10 );
-	pAttr = GetUOSkill(msg->skillnumber3).pAttr;
-	if (pAttr) chr->attribute( pAttr->attrid ).base( msg->skillvalue3 * 10 );
-    pAttr = GetUOSkill(msg->skillnumber4).pAttr;
-	if (pAttr) chr->attribute( pAttr->attrid ).base( msg->skillvalue4 * 10 );
+	if (!noskills)
+	{
+		const Attribute* pAttr;
+		pAttr = GetUOSkill(msg->skillnumber1).pAttr;
+		if (pAttr) chr->attribute( pAttr->attrid ).base( msg->skillvalue1 * 10 );
+		pAttr = GetUOSkill(msg->skillnumber2).pAttr;
+		if (pAttr) chr->attribute( pAttr->attrid ).base( msg->skillvalue2 * 10 );
+		pAttr = GetUOSkill(msg->skillnumber3).pAttr;
+		if (pAttr) chr->attribute( pAttr->attrid ).base( msg->skillvalue3 * 10 );
+		pAttr = GetUOSkill(msg->skillnumber4).pAttr;
+		if (pAttr) chr->attribute( pAttr->attrid ).base( msg->skillvalue4 * 10 );
+	}
 
 	chr->calc_vital_stuff();
 	chr->set_vitals_to_maximum();
@@ -740,7 +776,13 @@ void ClientCreateChar6017( Client* client, PKTIN_8D* msg)
 		tmpitem->color = cfBEu16(msg->haircolor);
 		tmpitem->color_ext = ctBEu16(tmpitem->color);
 		tmpitem->realm = chr->realm;
-		chr->equip(tmpitem);
+		if (chr->equippable(tmpitem)) // check it or passert will trigger
+			chr->equip(tmpitem);
+		else
+		{
+			cerr << "Create Character: Failed to equip hair " << hexint(tmpitem->graphic) << endl;
+			tmpitem->destroy();
+		}
 	}
 
 	if( validbeard(cfBEu16(msg->beardstyle)) )
@@ -750,7 +792,13 @@ void ClientCreateChar6017( Client* client, PKTIN_8D* msg)
 		tmpitem->color = cfBEu16(msg->beardcolor);
 		tmpitem->color_ext = ctBEu16(tmpitem->color);
 		tmpitem->realm = chr->realm;
-		chr->equip(tmpitem);
+		if (chr->equippable(tmpitem)) // check it or passert will trigger
+			chr->equip(tmpitem);
+		else
+		{
+			cerr << "Create Character: Failed to equip beard " << hexint(tmpitem->graphic) << endl;
+			tmpitem->destroy();
+		}
 	}
 
     if( validface(cfBEu16(msg->face_id)) )
@@ -760,7 +808,13 @@ void ClientCreateChar6017( Client* client, PKTIN_8D* msg)
         tmpitem->color = cfBEu16(msg->face_color);
         tmpitem->color_ext = ctBEu16(tmpitem->color);
         tmpitem->realm = chr->realm;
-        chr->equip(tmpitem);
+		if (chr->equippable(tmpitem)) // check it or passert will trigger
+			chr->equip(tmpitem);
+		else
+		{
+			cerr << "Create Character: Failed to equip face " << hexint(tmpitem->graphic) << endl;
+			tmpitem->destroy();
+		}
     }
 
 	UContainer *backpack = (UContainer *) Item::create( UOBJ_BACKPACK );
@@ -790,47 +844,60 @@ void ClientCreateChar6017( Client* client, PKTIN_8D* msg)
 			backpack->add(tmpitem); 
 	}
 
-	tmpitem=Item::create( 0x170F );
-	tmpitem->newbie(true);
-	tmpitem->layer = LAYER_SHOES;
-	tmpitem->color = 0x021F;
-	tmpitem->color_ext = ctBEu16(tmpitem->color);
-	tmpitem->realm = chr->realm;
-	chr->equip(tmpitem); 
-
-	tmpitem=Item::create( 0xF51 );
-	tmpitem->newbie(true);
-	tmpitem->layer = LAYER_HAND1;
-	tmpitem->realm = chr->realm;
-	chr->equip(tmpitem); 
-
-	unsigned short pantstype, shirttype;
-	if (chr->gender == GENDER_FEMALE)
+	if (chr->race == RACE_HUMAN || chr->race == RACE_ELF) // Gargoyles dont have shirts, pants, shoes and daggers.
 	{
-		pantstype = 0x1516;
-		shirttype = 0x1517;
+		tmpitem=Item::create( 0x170F );
+		tmpitem->newbie(ssopt.newbie_starting_equipment);
+		tmpitem->layer = LAYER_SHOES;
+		tmpitem->color = 0x021F;
+		tmpitem->color_ext = ctBEu16(tmpitem->color);
+		tmpitem->realm = chr->realm;
+		chr->equip(tmpitem); 
+
+		tmpitem=Item::create( 0xF51 );
+		tmpitem->newbie(ssopt.newbie_starting_equipment);
+		tmpitem->layer = LAYER_HAND1;
+		tmpitem->realm = chr->realm;
+		chr->equip(tmpitem); 
+
+		unsigned short pantstype, shirttype;
+		if (chr->gender == GENDER_FEMALE)
+		{
+			pantstype = 0x1516;
+			shirttype = 0x1517;
+		}
+		else
+		{
+			pantstype = 0x152e;
+			shirttype = 0x1517;
+		}
+
+		tmpitem=Item::create( pantstype );
+		tmpitem->newbie(ssopt.newbie_starting_equipment);
+		tmpitem->layer = tilelayer( pantstype );
+		tmpitem->color = cfBEu16( msg->pantscolor ); // 0x0284;
+		tmpitem->color_ext = ctBEu16(tmpitem->color);
+		tmpitem->realm = chr->realm;
+		chr->equip(tmpitem);
+
+		tmpitem=Item::create( shirttype );
+		tmpitem->newbie(ssopt.newbie_starting_equipment);
+		tmpitem->layer = tilelayer( shirttype );
+		tmpitem->color = cfBEu16( msg->shirtcolor ); 
+		tmpitem->color_ext = ctBEu16(tmpitem->color);
+		tmpitem->realm = chr->realm;
+		chr->equip(tmpitem);
 	}
-	else
+	else if (chr->race == RACE_GARGOYLE) // Gargoyles have Robes.
 	{
-		pantstype = 0x152e;
-		shirttype = 0x1517;
+		tmpitem=Item::create( 0x1F03 );
+		tmpitem->newbie(ssopt.newbie_starting_equipment);
+		tmpitem->layer = LAYER_ROBE_DRESS;
+		tmpitem->color = cfBEu16( msg->shirtcolor ); 
+		tmpitem->color_ext = ctBEu16(tmpitem->color);
+		tmpitem->realm = chr->realm;
+		chr->equip(tmpitem);
 	}
-
-	tmpitem=Item::create( pantstype );
-	tmpitem->newbie(true);
-	tmpitem->layer = tilelayer( pantstype );
-	tmpitem->color = cfBEu16( msg->pantscolor ); // 0x0284;
-	tmpitem->color_ext = ctBEu16(tmpitem->color);
-	tmpitem->realm = chr->realm;
-	chr->equip(tmpitem);
-
-	tmpitem=Item::create( shirttype );
-	tmpitem->newbie(true);
-	tmpitem->layer = tilelayer( shirttype );
-	tmpitem->color = cfBEu16( msg->shirtcolor ); 
-	tmpitem->color_ext = ctBEu16(tmpitem->color);
-	tmpitem->realm = chr->realm;
-	chr->equip(tmpitem);
 
 	client->chr = chr;
 	client->acct->set_character( charslot, client->chr );
@@ -855,6 +922,7 @@ void ClientCreateChar6017( Client* client, PKTIN_8D* msg)
 		arr->addElement( new BLong( msg->skillnumber3 ) );
         arr->addElement( new BLong( msg->skillnumber4 ) );
 		
+		ex->pushArg( new BLong( msg->profession ) );
 		ex->pushArg( arr );
 		ex->pushArg( make_mobileref( chr ) );
 
