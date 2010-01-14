@@ -1,4 +1,15 @@
 -- POL099 --
+01-14-2010 Turley:
+     Fixed: (Arkham) ip byteorder for gameserverlist if hostname is given
+   Changed: (Tomi) gargoyle char create equips 0x1F03 robe
+     Added: (Tomi) ssopt.NewbieStartingEquipment 1/0 (default 1) to determine if equipped items 
+            created during the character creation should be newbied or not.
+   Changed: misc/oncreate.src added third param profession 
+            some clients doesnt send skillvalues if profession is given now core doesnt stop char creation, 
+            based on third param you can set the skillvalues in oncreate
+     Added: more errorchecks to char create, it now checks if hair/beard/face can be equipped (fixes crash with latest OSI
+            tiledata where facial horn has the same layer as "normal" horn) 
+     
 01-12-2010 Turley:
      Added: on Profile opening and update request "scripts/misc/chrprofile.ecl" is called
             params are character, of_who, mode,uctext

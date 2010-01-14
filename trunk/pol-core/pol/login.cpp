@@ -15,6 +15,7 @@ History
 2009/08/06 MuadDib:   Removed PasswordOnlyHash support
 2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
 2009/12/04 Turley:    Crypto cleanup - Tomi
+2010/01/14 Turley:    fixed ip byteorder for pkt 0xa8 if hostname is given - Arkham
 
 Notes
 =======
@@ -177,10 +178,10 @@ void loginserver_login( Client *client, PKTIN_80 *msg )
             if (he && he->h_addr_list[0])
             {
                 char* addr = he->h_addr_list[0];
-                server->ip[0] = addr[0];
-                server->ip[1] = addr[1];
-                server->ip[2] = addr[2];
-                server->ip[3] = addr[3];
+                server->ip[0] = addr[3];
+                server->ip[1] = addr[2];
+                server->ip[2] = addr[1];
+                server->ip[3] = addr[0];
             }
             else
             {
