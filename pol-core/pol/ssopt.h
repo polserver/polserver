@@ -63,6 +63,7 @@ struct ServSpecOpt {
 	bool core_sends_season;
 	unsigned short core_handled_tags;
     unsigned char support_faces;
+	bool newbie_starting_equipment;
 
 	std::vector<std::string> total_stats_at_creation;
 };

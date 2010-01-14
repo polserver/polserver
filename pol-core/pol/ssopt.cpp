@@ -81,6 +81,7 @@ void read_servspecopt()
 	ssopt.core_sends_season = elem.remove_bool("CoreSendsSeason",true);
 	ssopt.core_handled_tags = elem.remove_ushort("CoreHandledTags",0xFFFF);
     ssopt.support_faces = static_cast<unsigned char>(elem.remove_ushort("SupportFaces",0));
+	ssopt.newbie_starting_equipment = elem.remove_bool("NewbieStartingEquipment",true);
 	ssopt_parse_totalstats(elem);
 
 // Turley 2009/11/06 u8 range...
