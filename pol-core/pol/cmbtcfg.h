@@ -21,6 +21,7 @@ struct CombatConfig {
 	bool reset_swing_onturn;
 	bool send_swing_packet;
     bool send_damage_packet;
+	bool attack_while_frozen;
 };
 
 extern CombatConfig combat_config;

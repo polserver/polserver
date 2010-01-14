@@ -8,7 +8,8 @@
             some clients doesnt send skillvalues if profession is given now core doesnt stop char creation, 
             based on third param you can set the skillvalues in oncreate
      Added: more errorchecks to char create, it now checks if hair/beard/face can be equipped (fixes crash with latest OSI
-            tiledata where facial horn has the same layer as "normal" horn) 
+            tiledata where facial horn has the same layer as "normal" horn)
+     Added: Combatcfg:AttackWhileFrozen 1/0 (default 1) if set to false attack checks if chr is frozen or paralyzed
      
 01-12-2010 Turley:
      Added: on Profile opening and update request "scripts/misc/chrprofile.ecl" is called
