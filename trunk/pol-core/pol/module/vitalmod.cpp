@@ -4,6 +4,7 @@ History
 2006/10/07 Shinigami: GCC 3.4.x fix - added "template<>" to TmplExecutorModule
 2009/09/22 Turley:    repsys param to applydamage
 2009/11/20 Turley:    RecalcVitals can update single Attributes/Vitals - based on Tomi
+2010/01/15 Turley:    (Tomi) send damage param ApplyDamage/ApplyRawDamage
 
 Notes
 =======
@@ -22,6 +23,7 @@ Notes
 #include "../spells.h"
 #include "../statmsg.h"
 #include "../ufunc.h"
+#include "../cmbtcfg.h"
 #include "uomod.h"
 #include "../uoexhelp.h"
 #include "../vital.h"
@@ -54,14 +56,16 @@ BObjectImp* VitalExecutorModule::mf_ApplyRawDamage()
 	Character* chr;
 	long damage;
     long userepsys;
+	long send_damage_packet;
 	if ( getCharacterParam(exec, 0, chr) &&
 		getParam(1, damage) &&
         getParam(2, userepsys) &&
+		getParam(3, send_damage_packet) &&
 		damage >= 0 &&
 		damage <= USHRT_MAX )
 	{
-		chr->apply_raw_damage_hundredths(static_cast<unsigned long>(damage*100),
-            GetUOController(), userepsys>0?true:false);
+		bool send_dmg= send_damage_packet==2 ? combat_config.send_damage_packet : (send_damage_packet>0 ? true : false);
+		chr->apply_raw_damage_hundredths(static_cast<unsigned long>(damage*100), GetUOController(), userepsys>0?true:false, send_dmg);
 		return new BLong(1);
 	}
 	else
@@ -73,14 +77,17 @@ BObjectImp* VitalExecutorModule::mf_ApplyDamage()
 	Character* chr;
 	double damage;
     long userepsys;
+	long send_damage_packet;
 	if ( getCharacterParam(exec, 0, chr) &&
 		getRealParam( 1, damage) &&
-        getParam( 2, userepsys))
+        getParam( 2, userepsys) &&
+		getParam( 3, send_damage_packet))
 	{
 		if ( damage >= 0.0 && damage <= 30000.0 )
-    {
-      damage=chr->apply_damage(static_cast<unsigned short>(damage), GetUOController(),userepsys>0?true:false);
-      return new BLong(static_cast<long>(damage));
+		{
+			bool send_dmg= send_damage_packet==2 ? combat_config.send_damage_packet : (send_damage_packet>0 ? true : false);
+			damage = chr->apply_damage(static_cast<unsigned short>(damage), GetUOController(),userepsys>0?true:false, send_dmg);
+			return new BLong(static_cast<long>(damage));
 		}
 		else
 			return new BError( "Damage is out of range" );

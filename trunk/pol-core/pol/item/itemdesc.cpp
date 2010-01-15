@@ -657,8 +657,8 @@ void ContainerDesc::PopulateStruct( BStruct* descriptor ) const
 
 DoorDesc::DoorDesc( u16 objtype, ConfigElem& elem, const Package* pkg ) :
 	ItemDesc( objtype, elem, DOORDESC, pkg ),
-	xmod( elem.remove_int( "XMOD" ) ),
-	ymod( elem.remove_int( "YMOD" ) )
+	xmod( static_cast<s16>(elem.remove_int( "XMOD" )) ),
+	ymod( static_cast<s16>(elem.remove_int( "YMOD" )) )
 {
 }
 

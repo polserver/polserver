@@ -70,7 +70,7 @@ void Account::readfrom( ConfigElem& elem )
     CmdLevel* cmdlevel_search = find_cmdlevel( cmdaccstr.c_str() );
     if (cmdlevel_search == NULL)
             elem.throw_error("Didn't understand cmdlevel of '" + cmdaccstr + "'");
-    default_cmdlevel_ = static_cast<unsigned char>(cmdlevel_search->cmdlevel);
+    default_cmdlevel_ = cmdlevel_search->cmdlevel;
 
     props_.clear();
     props_.readProperties( elem );

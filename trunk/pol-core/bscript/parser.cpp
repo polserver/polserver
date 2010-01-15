@@ -575,7 +575,8 @@ ObjMethod object_methods[] = {
     { MTH_SPELLS, "spells" },
     { MTH_REMOVESPELL, "removespell" },
     { MTH_ADDSPELL, "addspell" },
-    { MTH_DEAF, "deaf"}                                 //120
+    { MTH_DEAF, "deaf"},                                 //120
+	{ MTH_SETSEASON, "setseason" }
 
 };
 int n_objmethods = sizeof object_methods / sizeof object_methods[0];

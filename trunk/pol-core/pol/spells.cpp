@@ -2,6 +2,7 @@
 History
 =======
 2009/09/20 MuadDib:   docast no longer unhides. Let scripts handle this.
+2010/01/15 Turley:    (Tomi) SpeakPowerWords font and color params
 
 Notes
 =======
@@ -272,15 +273,15 @@ void USpell::consume_mana( Character *chr )
 	chr->consume( pVitalMana, chr->vital(pVitalMana->vitalid), manacost() * 100 );
 }
 
-void USpell::speak_power_words( Character* chr )
+void USpell::speak_power_words( Character* chr, unsigned short font, unsigned short color )
 {
 	if ( chr->client != NULL && chr->hidden() )
 	{
-		private_say_above(chr, chr, power_words_.c_str());
+		private_say_above(chr, chr, power_words_.c_str(), font, color);
 	}
 	else if ( !chr->hidden() )
 	{
-		say_above( chr, power_words_.c_str() );
+		say_above( chr, power_words_.c_str(), font, color );
 	}
 }
 
