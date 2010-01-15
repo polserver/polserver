@@ -10,9 +10,7 @@ Notes
 #ifndef __CLIB_PKTHELPER_H
 #define __CLIB_PKTHELPER_H
 
-#ifndef __RAWTYPES_H
-#	include "rawtypes.h"
-#endif
+#include "rawtypes.h"
 
 void WritetoCharBuffer(char *buffer, u32 x, unsigned int *offset );
 void WritetoCharBuffer(char *buffer, s32 x, unsigned int *offset );
