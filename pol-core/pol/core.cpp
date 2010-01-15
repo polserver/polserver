@@ -52,7 +52,7 @@ bool move_character_to( Character* chr,
     short newz;
     UMulti* supporting_multi = NULL;
     Item* walkon_item = NULL;
-	int new_boost = 0;
+	short new_boost = 0;
 
     // cout << "mct z: " << z << endl;
     if (flags & MOVEITEM_FORCELOCATION)

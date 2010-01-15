@@ -60,14 +60,14 @@ void UDoor::toggle()
     if (graphic & 0x1)
     {
         ++graphic;
-		x += static_cast<s16>(dd.xmod);
-		y += static_cast<s16>(dd.ymod);
+		x += dd.xmod;
+		y += dd.ymod;
     }
     else
     {
         --graphic;
-		x -= static_cast<s16>(dd.xmod);
-		y -= static_cast<s16>(dd.ymod);
+		x -= dd.xmod;
+		y -= dd.ymod;
     }
     
     MoveItemWorldPosition( oldx, oldy, this, NULL );

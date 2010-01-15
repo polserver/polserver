@@ -56,7 +56,7 @@ public:
 	virtual unsigned short ar() const;
 	virtual void refresh_ar();
 
-    virtual void apply_raw_damage_hundredths( unsigned long damage, Character* source, bool userepsys=true );
+    virtual void apply_raw_damage_hundredths( unsigned long damage, Character* source, bool userepsys=true, bool send_damage_packet = false );
     virtual void inform_engaged( Character* engaged );
     virtual void inform_disengaged( Character* disengaged );
     virtual void inform_criminal( Character* thecriminal );
@@ -107,7 +107,7 @@ public:
 
     NpcTemplate::ALIGNMENT alignment() const;
 	
-	unsigned damaged_sound;
+	unsigned short damaged_sound;
 	bool use_adjustments; //DAVE
 	unsigned short run_speed; //DAVE
 protected:

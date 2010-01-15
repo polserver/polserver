@@ -264,6 +264,7 @@ public:
 
     BObjectImp* mf_CanWalk(/*movemode, x1, y1, z1, x2_or_dir, y2 := -1, realm := DEF*/);
 	BObjectImp* mf_SendCharProfile(/*chr, of_who, title, uneditable_text := array, editable_text := array*/);
+	BObjectImp* mf_SendOverallSeason(/*season_id, playsound := 1*/);
 
 	UOExecutor& uoexec;
 	
