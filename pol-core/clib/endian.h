@@ -11,9 +11,7 @@ Notes
 #ifndef __CLIB_ENDIAN_H
 #define __CLIB_ENDIAN_H
 
-#ifndef __RAWTYPES_H
-#	include "rawtypes.h"
-#endif
+#include "rawtypes.h"
 
 #ifndef U_BIG_ENDIAN
 #	define U_LITTLE_ENDIAN
