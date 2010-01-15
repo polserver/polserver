@@ -50,6 +50,8 @@ History
 2009/11/19 Turley:    added flag param to UpdateMobile controls if packet 0x78 or 0x77 should be send - Tomi
 2009/12/02 Turley:    added config.max_tile_id - Tomi
 2009/12/17 Turley:    CloseWindow( character, type, object ) - Tomi
+2010/01/15 Turley:    (Tomi) season stuff
+                      (Tomi) SpeakPowerWords font and color params
 
 Notes
 =======
@@ -4265,8 +4267,13 @@ BObjectImp* UOExecutorModule::mf_SpeakPowerWords()
 {
     Character* chr;
     long spellid;
+	unsigned short font;
+	unsigned short color;
+
     if (getCharacterParam( exec, 0, chr ) &&
-        getParam( 1, spellid ))
+        getParam( 1, spellid ) &&
+		getParam( 2, font ) &&
+        getParam( 3, color ))
     {
         if (!VALID_SPELL_ID(spellid))
         {
@@ -4278,7 +4285,7 @@ BObjectImp* UOExecutorModule::mf_SpeakPowerWords()
             return new BError( "No such spell" );
         }
 
-        spell->speak_power_words( chr );
+        spell->speak_power_words( chr, font, color );
 
         return new BLong( 1 );
     }
@@ -5651,6 +5658,35 @@ BObjectImp* UOExecutorModule::mf_SendCharProfile(/*chr, of_who, title, uneditabl
 		return new BError("Invalid parameter type");
 }
 
+BObjectImp* UOExecutorModule::mf_SendOverallSeason(/*season_id, playsound := 1*/)
+{
+	long season_id, playsound;
+
+	if ( getParam(0, season_id) &&
+		 getParam(1, playsound))
+	{
+		if ( season_id < 0 || season_id > 4 )
+			return new BError("Invalid season id");
+		    
+		PKTOUT_BC msg;
+
+		msg.msgtype = PKTOUT_BC_ID;
+		msg.season = static_cast<u8>(season_id);
+		msg.playsound = static_cast<u8>(playsound);
+
+		for( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
+		{
+			Client* client = *itr;
+			if (!client->chr->logged_in || client->getversiondetail().major < 1)
+				continue;
+			client->transmit( &msg, sizeof msg );			
+		}
+		return new BLong(1);
+	}
+	else
+		return new BError("Invalid parameter");
+}
+
 UOFunctionDef UOExecutorModule::function_table[] =
 {
 	{ "SendStatus",					&UOExecutorModule::mf_SendStatus },
@@ -5816,8 +5852,8 @@ UOFunctionDef UOExecutorModule::function_table[] =
 	{ "UpdateMobile",           &UOExecutorModule::mf_UpdateMobile },
 	{ "CheckLosBetween",        &UOExecutorModule::mf_CheckLosBetween },
     { "CanWalk",                &UOExecutorModule::mf_CanWalk },
-	{ "SendCharProfile",		&UOExecutorModule::mf_SendCharProfile }
-
+	{ "SendCharProfile",		&UOExecutorModule::mf_SendCharProfile },
+	{ "SendOverallSeason",		&UOExecutorModule::mf_SendOverallSeason }
 };
 
 typedef map< string, int, ci_cmp_pred > FuncIdxMap;

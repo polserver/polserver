@@ -58,18 +58,18 @@ public:
                     UMulti** pmulti, Item** pwalkon,
                     bool doors_block,
                     MOVEMODE movemode,
-					int* gradual_boost = NULL);
+					short* gradual_boost = NULL);
     bool walkheight( const Character* chr, unsigned short x, unsigned short y, short oldz, 
                      short* newz, 
                      UMulti** pmulti, Item** pwalkon,
-					 int* gradual_boost = NULL);
+					 short* gradual_boost = NULL);
 
 	bool lowest_walkheight(	unsigned short x, unsigned short y, short oldz, 
 							short* newz, 
 							UMulti** pmulti, Item** pwalkon,
 							bool doors_block,
 							MOVEMODE movemode,
-							int* gradual_boost = NULL);
+							short* gradual_boost = NULL);
 
     bool dropheight( unsigned short dropx, 
                      unsigned short dropy, 
@@ -112,13 +112,13 @@ protected:
                       MapShapeList& shapes, 
                       short oldz, bool* result, 
                       short* newz,
-					  int* gradual_boost = NULL ) const;
+					  short* gradual_boost = NULL ) const;
 
 	 void lowest_standheight( MOVEMODE movemode, 
 							  MapShapeList& shapes, 
 							  short oldz, bool* result, 
 							  short* newz,
-							  int* gradual_boost = NULL ) const;
+							  short* gradual_boost = NULL ) const;
 
     bool dropheight( MapShapeList& shapes, 
                      short dropz,

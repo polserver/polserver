@@ -33,6 +33,7 @@ History
 2009/12/03 Turley:    added gargoyle flying movemode
 2009/12/21 Turley:    ._method() call fix
                       multi support of methodscripts
+2010/01/15 Turley:    (Tomi) season stuff
 
 Notes
 =======
@@ -1804,7 +1805,32 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 				return new BLong(lightoverride_until);
 			}
 		}
+	case MTH_SETSEASON:
+		{
+			long season_id, playsound;
 
+		    if (!ex.hasParams(2))
+			    return new BError( "Not enough parameters" );
+		    if (ex.getParam( 0, season_id ) &&
+			    ex.getParam( 1, playsound ))
+		    {
+				if ( season_id < 0 || season_id > 4 )
+					return new BError("Invalid season id");
+
+				if( client && client->getversiondetail().major>=1 )
+				{
+					PKTOUT_BC msg;
+
+					msg.msgtype = PKTOUT_BC_ID;
+					msg.season = static_cast<u8>(season_id);
+					msg.playsound = static_cast<u8>(playsound);
+
+					client->transmit( &msg, sizeof msg );
+					return new BLong(1);
+				}
+			}
+
+		}
 	case MTH_SQUELCH:
         {
             long duration;
@@ -1894,7 +1920,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 			    if (pcmdlevel)
 			    {
 				    set_dirty();
-				    cmdlevel = static_cast<unsigned char>(pcmdlevel->cmdlevel);
+				    cmdlevel = pcmdlevel->cmdlevel;
 				    return new BLong(1);
 			    }
 			    else

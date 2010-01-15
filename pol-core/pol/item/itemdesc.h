@@ -146,8 +146,8 @@ class DoorDesc : public ItemDesc
 public:
     DoorDesc( u16 objtype, ConfigElem& elem, const Package* pkg );
 	virtual void PopulateStruct( BStruct* descriptor ) const;
-    int xmod;
-    int ymod;
+    s16 xmod;
+    s16 ymod;
 };
 
 class SpellbookDesc : public ContainerDesc

@@ -26,7 +26,7 @@ public:
     void add_searchdir_front( Package* pkg, const std::string& dir );
 
     std::string name;
-    int cmdlevel;
+    unsigned char cmdlevel;
     
     struct SearchDir
     {

@@ -56,15 +56,15 @@ bool Realm::lowest_standheight( unsigned short x, unsigned short y, short* z ) c
 void Realm::standheight( MOVEMODE movemode,
                   MapShapeList& shapes, 
                   short oldz, 
-                  bool* result_out, short * newz_out, int* gradual_boost ) const
+                  bool* result_out, short * newz_out, short* gradual_boost ) const
 {
     static MapShapeList possible_shapes;
     possible_shapes.clear();
     bool land_ok = (movemode & MOVEMODE_LAND) ? true : false;
     bool sea_ok  = (movemode & MOVEMODE_SEA) ? true : false;
     bool fly_ok  = (movemode & MOVEMODE_FLY) ? true : false;
-    int the_boost = 0;
-    int new_boost = 0;
+    short the_boost = 0;
+    short new_boost = 0;
 
     if (gradual_boost != NULL)
         the_boost = *gradual_boost;
@@ -184,13 +184,13 @@ void Realm::standheight( MOVEMODE movemode,
 void Realm::lowest_standheight( MOVEMODE movemode,
                   MapShapeList& shapes, 
                   short minz, 
-                  bool* result_out, short* newz_out, int* gradual_boost ) const
+                  bool* result_out, short* newz_out, short* gradual_boost ) const
 {
     bool land_ok = (movemode & MOVEMODE_LAND) ? true : false;
     bool sea_ok  = (movemode & MOVEMODE_SEA) ? true : false;
     bool fly_ok  = (movemode & MOVEMODE_FLY) ? true : false;
-	int the_boost = 0;
-	int new_boost = 0;
+	short the_boost = 0;
+	short new_boost = 0;
 
 	if (gradual_boost != NULL)
 		the_boost = *gradual_boost;
@@ -328,7 +328,7 @@ bool Realm::walkheight(unsigned short x, unsigned short y, short oldz,
                 UMulti** pmulti, Item** pwalkon,
                 bool doors_block,
                 MOVEMODE movemode,
-				int* gradual_boost)
+				short* gradual_boost)
 {
 
     static MapShapeList shapes;
@@ -385,7 +385,7 @@ bool Realm::walkheight(unsigned short x, unsigned short y, short oldz,
 //dave: todo: return false if walking onto a custom house and not in the list of editing players, and no cmdlevel
 bool Realm::walkheight( const Character* chr, unsigned short x, unsigned short y, short oldz, 
                 short* newz, 
-                UMulti** pmulti, Item** pwalkon, int* gradual_boost)
+                UMulti** pmulti, Item** pwalkon, short* gradual_boost)
 {
     static MapShapeList shapes;
     static MultiList mvec;
@@ -461,7 +461,7 @@ bool Realm::lowest_walkheight(unsigned short x, unsigned short y, short oldz,
 							UMulti** pmulti, Item** pwalkon,
 							bool doors_block,
 							MOVEMODE movemode,
-							int* gradual_boost)
+							short* gradual_boost)
 {
     static MapShapeList shapes;
     static MultiList mvec;
