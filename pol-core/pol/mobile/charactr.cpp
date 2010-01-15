@@ -58,6 +58,7 @@ History
 2009/12/02 Turley:    added gargoyle & face support
 2009/12/03 Turley:    fixed client>=7 poison/flying flag, basic flying support
 2010/01/14 Turley:    AttackWhileFrozen check
+2010/01/15 Turley:    (Tomi) priv runwhilestealth
 
 
 Notes
@@ -561,9 +562,9 @@ Character::Character( u16 objtype, UOBJ_CLASS uobj_class ) :
 	offline_mem_of_(NULL),
 	party_can_loot_(false),
 	party_decline_timeout_(NULL),
-	murderer_(false),
+	murderer_(false)
 
-	langid_(0)
+//	langid_(0)
 {
 	gradual_boost = 0;
 	height = PLAYER_CHARACTER_HEIGHT; //this gets overwritten in UObject::readProperties!
@@ -1065,7 +1066,7 @@ void Character::readCommonProperties( ConfigElem& elem )
 	CmdLevel* cmdlevel_search = find_cmdlevel( cmdaccstr.c_str() );
 	if (cmdlevel_search == NULL)
 			elem.throw_error("Didn't understand cmdlevel of '" + cmdaccstr + "'");
-	cmdlevel = static_cast<unsigned char>(cmdlevel_search->cmdlevel);
+	cmdlevel = cmdlevel_search->cmdlevel;
 
 	movemode = decode_movemode( elem.remove_string( "MOVEMODE", "L" ) );
 	concealed_ = static_cast<unsigned char>(elem.remove_ushort( "CONCEALED", 0 )); //DAVE changed from remove_bool 11/25. concealed is a char, not a bool!
@@ -1330,12 +1331,13 @@ void Character::refresh_cached_settings( bool update )
 		PrivUpdater::on_change_see_invis_items( this, cached_settings.seeinvisitems );
 	cached_settings.ignoredoors	     = setting_enabled( "ignoredoors" );
 	cached_settings.freemove		 = setting_enabled( "freemove" );
-	cached_settings.firewhilemoving = setting_enabled( "firewhilemoving" );
+	cached_settings.firewhilemoving  = setting_enabled( "firewhilemoving" );
 	cached_settings.attackhidden     = setting_enabled( "attackhidden" );
 	cached_settings.hiddenattack     = setting_enabled( "hiddenattack" );
 	cached_settings.plogany		     = setting_enabled( "plogany" );
 	cached_settings.moveanydist		 = setting_enabled( "moveanydist" );
     cached_settings.canbeheardasghost = setting_enabled( "canbeheardasghost" );
+	cached_settings.runwhilestealth  = setting_enabled( "runwhilestealth" );
 }
 
 void Character::set_setting( const char* setting, bool value )
@@ -1899,7 +1901,7 @@ u8 Character::get_flag1(Client *client) const
 	return flag1;
 }
 
-void Character::apply_raw_damage_hundredths( unsigned long amount, Character* source, bool userepsys )
+void Character::apply_raw_damage_hundredths( unsigned long amount, Character* source, bool userepsys, bool send_damage_packet )
 {
 	if (dead())
 	{
@@ -1917,7 +1919,7 @@ void Character::apply_raw_damage_hundredths( unsigned long amount, Character* so
 	if (hidden())
 		unhide();
 
-    if (combat_config.send_damage_packet && source)
+    if (send_damage_packet && source)
     {
         u16 showdmg;
         if (amount > 6553500) // 0xFFFF*100
@@ -1989,12 +1991,12 @@ double Character::armor_absorb_damage( double damage )
 	return damage;
 }
 
-double Character::apply_damage( double damage, Character* source, bool userepsys )
+double Character::apply_damage( double damage, Character* source, bool userepsys, bool send_damage_packet )
 {
 	damage = armor_absorb_damage( damage );
 	if (watch.combat) cout << "Final damage: " << damage << endl;
 	do_imhit_effects();
-	apply_raw_damage_hundredths( static_cast<unsigned long>(damage*100), source, userepsys );
+	apply_raw_damage_hundredths( static_cast<unsigned long>(damage*100), source, userepsys, send_damage_packet );
 
 	return damage;
 }
@@ -3286,7 +3288,7 @@ void Character::do_imhit_effects()
 {
 	if ( combat_config.core_hit_sounds )
 	{
-		int sfx = 0;
+		u16 sfx = 0;
 		if ( this->isa(UObject::CLASS_NPC) )
 		{
 			NPC* npc = static_cast<NPC*>(this);
@@ -3299,7 +3301,7 @@ void Character::do_imhit_effects()
 			else
 				sfx = SOUND_EFFECT_FEMALE_DEFENSE;
 		}
-		play_sound_effect(this, static_cast<u16>(sfx));
+		play_sound_effect(this, sfx);
 	}	
 	if (objtype_ >= UOBJ_HUMAN_MALE)
 		send_action_to_inrange( this, ACTION_GOT_HIT );
@@ -3422,7 +3424,7 @@ void Character::attack( Character* opponent )
 		}
 		if (weapon->hit_script().empty())
 		{
-			opponent->apply_damage( damage, this );
+			opponent->apply_damage( damage, this, true, combat_config.send_damage_packet );
 		}
 		else
 		{
@@ -3820,7 +3822,7 @@ bool Character::move( unsigned char i_dir )
 		Item* walkon_item;
 		//cout << "checking walkheight" << endl;
 		
-		int current_boost = gradual_boost;
+		short current_boost = gradual_boost;
 		if (!realm->walkheight(this, newx, newy, z, &newz, &supporting_multi, &walkon_item, &current_boost ))
 			return false;
 		//cout << "walkheight is okay" << endl;
@@ -3895,7 +3897,7 @@ bool Character::move( unsigned char i_dir )
 
 		if (hidden())
 		{
-			if ((i_dir & 0x80) || (stealthsteps_ == 0))
+			if (((i_dir & 0x80) && !cached_settings.runwhilestealth) || (stealthsteps_ == 0))
 				unhide();
 			else if (stealthsteps_)
 				--stealthsteps_;

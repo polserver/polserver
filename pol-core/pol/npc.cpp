@@ -17,6 +17,7 @@ History
 2009/10/14 Turley:    Added char.deaf() methods & char.deafened member
 2009/10/23 Turley:    fixed OPPONENT_MOVED,LEFTAREA,ENTEREDAREA
 2009/11/16 Turley:    added NpcPropagateEnteredArea()/inform_enteredarea() for event on resurrection
+2010/01/15 Turley:    (Tomi) SaveOnExit as npcdesc entry
 
 Notes
 =======
@@ -348,11 +349,12 @@ void NPC::readNpcProperties( ConfigElem& elem )
 
     speech_color_ = elem.remove_ushort( "SpeechColor", DEFAULT_TEXT_COLOR );
     speech_font_ = elem.remove_ushort( "SpeechFont", DEFAULT_TEXT_FONT );
+	saveonexit_ = elem.remove_bool( "SaveOnExit", true );
 
 	use_adjustments = elem.remove_bool( "UseAdjustments", true );
 	run_speed = elem.remove_ushort( "RunSpeed", dexterity() );
 
-	damaged_sound = elem.remove_unsigned("DamagedSound", 0);
+	damaged_sound = elem.remove_ushort("DamagedSound", 0);
 }
 
 // This now handles all resistances, including AR to simplify the code.
@@ -879,7 +881,7 @@ BObjectImp* NPC::send_event( BObjectImp* event )
     }
 }
 
-void NPC::apply_raw_damage_hundredths( unsigned long damage, Character* source, bool userepsys )
+void NPC::apply_raw_damage_hundredths( unsigned long damage, Character* source, bool userepsys, bool send_damage_packet )
 {
     if (ex != NULL)
     {
@@ -889,7 +891,7 @@ void NPC::apply_raw_damage_hundredths( unsigned long damage, Character* source, 
         }
     }
 
-    base::apply_raw_damage_hundredths( damage, source, userepsys );
+    base::apply_raw_damage_hundredths( damage, source, userepsys, send_damage_packet );
 }
 
 /*

@@ -19,6 +19,7 @@ History
                       fixed "all" priv
 2009/11/16 Turley:    added NpcPropagateEnteredArea()/inform_enteredarea() for event on resurrection
 2009/11/20 Turley:    RecalcVitals can update single Attributes/Vitals - based on Tomi
+2010/01/15 Turley:    (Tomi) priv runwhilestealth
 
 Notes
 =======
@@ -412,8 +413,8 @@ public:
     void set_dexterity( u16 dexterity );
     void validate_stat_ranges();
 
-    virtual void apply_raw_damage_hundredths( unsigned long damage, Character* source, bool userepsys = true );
-    double apply_damage( double damage, Character* source = NULL, bool userepsys = true );
+    virtual void apply_raw_damage_hundredths( unsigned long damage, Character* source, bool userepsys = true, bool send_damage_packet = false );
+    double apply_damage( double damage, Character* source = NULL, bool userepsys = true, bool send_damage_packet = false );
     void heal_damage_hundredths( unsigned long damage );
     virtual void on_swing_failure( Character* attacker );
     void run_hit_script( Character* defender, double damage );
@@ -660,7 +661,7 @@ public:
     UGENDER gender;
     URACE race;
     bool poisoned;
-	int  gradual_boost;
+	short  gradual_boost;
 
 	u32 last_corpse;
 	unsigned long dblclick_wait;
@@ -778,6 +779,7 @@ protected: // was private, but hey, NPC will be okay, I think.
 		bool hiddenattack;
 		bool plogany;
         bool canbeheardasghost;
+		bool runwhilestealth;
     } cached_settings;
 
     UOExecutor* script_ex;
@@ -821,7 +823,7 @@ private: // REPUTATION SYSTEM DATA:
     bool murderer_;
 
     // Language stuff:
-    unsigned langid_;
+//    unsigned langid_;
 
 public:
     const AttributeValue& attribute( unsigned attrid ) const

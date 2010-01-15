@@ -63,7 +63,7 @@ public:
 	bool check_mana( Character* chr );
 	bool check_skill( Character* chr );
 	void consume_mana( Character* chr ); // assumes check_mana has returned true
-    void speak_power_words( Character* chr );
+    void speak_power_words( Character* chr, unsigned short font, unsigned short color );
     UACTION animation() const;
 
     friend void register_spell( USpell *spell, unsigned short spellid );

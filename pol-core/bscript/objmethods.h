@@ -143,7 +143,8 @@ enum MethodID
     MTH_SPELLS,
     MTH_REMOVESPELL,
     MTH_ADDSPELL,
-    MTH_DEAF                           //120
+    MTH_DEAF,                           //120
+	MTH_SETSEASON
 };
 
 

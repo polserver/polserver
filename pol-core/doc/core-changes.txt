@@ -1,4 +1,24 @@
 -- POL099 --
+01-15-2010 Turley:
+     Added: (Tomi) chr priv "runwhilestealth" you can run while you are in stealth for as many stealthsteps you have
+     Added: (Tomi) new npcdesc entry "SaveOnExit" 0/1 ( defaults to 1 )
+      Note: this also means that SaveOnExit can be definied in the override_properties struct
+   Changed: vitals::ApplyDamage( mobile, damage, userepsys := DAMAGE_USE_REPSYS, send_damage := DAMAGE_USE_DEFAULT )
+            vitals::ApplyRawDamage( character, hits, userepsys := DAMAGE_USE_REPSYS, send_damage := DAMAGE_USE_DEFAULT )
+            const DAMAGE_NO_SHOW := 0;
+            const DAMAGE_SHOW := 1;
+            const DAMAGE_USE_DEFAULT := 2;
+            DAMAGE_USE_DEFAULT uses the SendDamagePacket setting from combat.cfg (Tomi)
+     Added: uo::SendOverallSeason( season_id, playsound := 1 )
+            Used to send the Season packet 0xBC to all clients logged on.
+            This function doesnt resend the lightlevel or weather after it sends season, that has to be done by scripts.
+            chr.setseason( season_id, playsound )
+            Used to send the Season packet 0xBC to a single character.
+            This method doesnt resend the lightlevel or weather after it sends season, that has to be done by scripts.
+            (Tomi)
+   Changed: (Tomi) uo::SpeakPowerWords( who, spellid, font := _DEFAULT_TEXT_FONT, color := _DEFAULT_TEXT_COLOR) 
+            font, color like every speech function
+
 01-14-2010 Turley:
      Fixed: (Arkham) ip byteorder for gameserverlist if hostname is given
    Changed: (Tomi) gargoyle char create equips 0x1F03 robe

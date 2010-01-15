@@ -28,7 +28,7 @@ Notes
 
 CmdLevel::CmdLevel( ConfigElem& elem, int cmdlevelnum ) :
 	name( elem.rest() ),
-	cmdlevel( cmdlevelnum )
+	cmdlevel( static_cast<unsigned char>(cmdlevelnum) )
 {
 	mklower(name);
 	string tmp;

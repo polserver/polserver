@@ -352,6 +352,7 @@ SendEvent( npc, event );
 SendInstaResDialog( character );
 SendOpenBook( character, book );
 SendOpenSpecialContainer( character, container );
+SendOverallSeason( season_id, playsound := 1 );
 SendPacket( to_whom, packet_hex_string );
 SendQuestArrow( to_whom, x := -1, y := -1); // no params (-1x,-1y) turns the arrow off
 SendSellWindow( character, vendor, i1, i2, i3, flags := 0 );
@@ -368,7 +369,7 @@ SetRegionLightLevel( regionname, lightlevel );
 SetRegionWeatherLevel( region, type, severity, aux := 0, lightoverride := -1);
 SetScriptController( who );
 Shutdown();
-SpeakPowerWords( who, spellid );
+SpeakPowerWords( who, spellid, font := _DEFAULT_TEXT_FONT, color := _DEFAULT_TEXT_COLOR );
 StartSpellEffect( who, spellid );
 SubtractAmount( item, amount );
 SystemFindObjectBySerial( serial, sysfind_flags := 0 );
