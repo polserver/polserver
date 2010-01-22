@@ -617,6 +617,13 @@ bool Client::SpeedHackPrevention(bool add)
 	{
 		if (add) // delay packet
 		{
+			if (movementqueue.size()>100)
+			{
+				Log( "Client#%lu: More then 100 Movepackets in queue.  Disconnecting.\n",
+					instance_ );
+				disconnect = true;
+				return false;
+			}
 			PacketThrottler throttlestruct;
 			memcpy(throttlestruct.pktbuffer, buffer, PKTIN_02_SIZE);
 			movementqueue.push(throttlestruct);
