@@ -1081,7 +1081,6 @@ client->checkpoint = 61; //CNXBUG
 							dtrace(10) << "Client#" << client->instance_ << ": message " << hexint( static_cast<unsigned short>(msgtype)) << endl;
 							CLIENT_CHECKPOINT(26);
 							(*handler[msgtype].func)(client, pkt.pktbuffer);
-							cerr << "queue accept"<<endl;
 							CLIENT_CHECKPOINT(27);
 							restart_all_clients();
 						}
