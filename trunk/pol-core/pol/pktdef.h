@@ -1,7 +1,8 @@
 /*
 History
 =======
-2009/07/24 MuadDib: Initial creation.
+2009/07/24 MuadDib:   Initial creation.
+2010/01/22 Turley:    Speedhack Prevention System
 
 Notes
 =======
@@ -73,6 +74,12 @@ will display wrong.  Only mask 0x7 is used, for facing.
 
 #define PKTIN_02_FACING_MASK 0x07
 #define PKTIN_02_DIR_RUNNING_BIT 0x80
+#define PKTIN_02_SIZE 0x07
+#define PKTIN_02_MOUNT_RUN   80
+#define PKTIN_02_MOUNT_WALK 180
+#define PKTIN_02_FOOT_RUN   180
+#define PKTIN_02_FOOT_WALK  380
+#define PKTIN_02_ASYNCHRONOUS 400
 
 #define STATTYPE_STATWINDOW     4
 #define STATTYPE_SKILLWINDOW    5

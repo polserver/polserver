@@ -45,6 +45,7 @@ History
 2009/09/22 MuadDib:   Fix for lightlevel resets in client during login.
 2009/11/19 Turley:    ssopt.core_sends_season & .core_handled_tags - Tomi
 2009/12/04 Turley:    Crypto cleanup - Tomi
+2010/01/22 Turley:    Speedhack Prevention System
 
 Notes
 =======
@@ -770,6 +771,18 @@ bool process_data( Client *client )
 			{
 				if (client->msgtype_filter->msgtype_allowed[msgtype])
 				{
+					//region Speedhack
+					if ((ssopt.speedhack_prevention) && (msgtype == PKTIN_02_ID))
+					{
+						if (!client->SpeedHackPrevention())
+						{
+							// client->SpeedHackPrevention() added packet to queue
+							client->recv_state = Client::RECV_STATE_MSGTYPE_WAIT;
+							CLIENT_CHECKPOINT(28);
+							return true;
+						}
+					}
+					//endregion Speedhack
 					if ( ( client->ClientType & CLIENTTYPE_6017 ) && (handler_v2[ msgtype ].msglen) )
 					{
 						try {
@@ -1032,6 +1045,63 @@ client->checkpoint = 61; //CNXBUG
 				client->disconnect = 1;
 				break;
 			}
+
+			//region Speedhack
+			if (!client->movementqueue.empty()) // not empty then process the first packet
+			{
+				PacketThrottler pkt = client->movementqueue.front();
+				if (client->SpeedHackPrevention(false))
+				{
+					unsigned char msgtype = pkt.pktbuffer[0];
+					if ( ( client->ClientType & CLIENTTYPE_6017 ) && (handler_v2[ msgtype ].msglen) )
+					{
+						try {
+							dtrace(10) << "Client#" << client->instance_ << ": message " << hexint( static_cast<unsigned short>(msgtype)) << endl;
+							
+							CLIENT_CHECKPOINT(26);
+							(*handler_v2[msgtype].func)(client, pkt.pktbuffer);
+							CLIENT_CHECKPOINT(27);
+							restart_all_clients();
+						}
+						catch( std::exception& ex )
+						{
+							Log2( "Client#%lu: Exception in message handler 0x%02.02x: %s\n",
+								client->instance_,
+								msgtype,
+								ex.what());
+							if (logfile)
+								fdump( logfile, pkt.pktbuffer, 7 );
+							restart_all_clients();
+							throw;
+						}
+					}
+					else // else this is the legacy style (pre-uokr)
+					{
+						try {
+							dtrace(10) << "Client#" << client->instance_ << ": message " << hexint( static_cast<unsigned short>(msgtype)) << endl;
+							CLIENT_CHECKPOINT(26);
+							(*handler[msgtype].func)(client, pkt.pktbuffer);
+							cerr << "queue accept"<<endl;
+							CLIENT_CHECKPOINT(27);
+							restart_all_clients();
+						}
+						catch( std::exception& ex )
+						{
+							Log2( "Client#%lu: Exception in message handler 0x%02.02x: %s\n",
+								client->instance_,
+								msgtype,
+								ex.what());
+							if (logfile)
+								fdump( logfile, pkt.pktbuffer, 7 );
+							restart_all_clients();
+							throw;
+						}
+					}
+					client->movementqueue.pop();
+				}
+			}
+			//endregion Speedhack
+			
 			
 			if (FD_ISSET( client->csocket, &recv_fd ))
 			{

@@ -3,6 +3,7 @@ History
 =======
 2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
 2009/09/03 MuadDib:   Relocation of multi related cpp/h
+2010/01/22 Turley:    Speedhack Prevention System
 
 Notes
 =======
@@ -150,6 +151,8 @@ void handle_walk( Client *client, PKTIN_02 *msg02 )
 {
 	Character *chr = client->chr;
 
+	u8 oldfacing=chr->facing;
+
 	if (chr->move( msg02->dir ))
     {
 		// If facing is dir they are walking, check to see if already 4 tiles away
@@ -158,7 +161,7 @@ void handle_walk( Client *client, PKTIN_02 *msg02 )
 		{
 			if ( chr->is_trading() )
 			{
-				if ( (chr->facing == msg02->dir) && (pol_distance(chr->x, chr->y, chr->trading_with->x, chr->trading_with->y) > 3) )
+				if ( (oldfacing == (msg02->dir& PKTIN_02_FACING_MASK)) && (pol_distance(chr->x, chr->y, chr->trading_with->x, chr->trading_with->y) > 3) )
 				{
 					cancel_trade( chr );
 				}
@@ -190,6 +193,16 @@ void handle_walk( Client *client, PKTIN_02 *msg02 )
         msg.z = chr->z;
         client->transmit( &msg, sizeof msg );
     }
-}
 
+	// here we set the delay for SpeedHackPrevention see Client::SpeedHackPrevention()
+	if (oldfacing == (msg02->dir & PKTIN_02_FACING_MASK))
+	{
+		if( client->chr->on_mount() )
+			client->next_movement += (msg02->dir & PKTIN_02_DIR_RUNNING_BIT) ? PKTIN_02_MOUNT_RUN : PKTIN_02_MOUNT_WALK;
+		else
+			client->next_movement += (msg02->dir & PKTIN_02_DIR_RUNNING_BIT) ? PKTIN_02_FOOT_RUN  : PKTIN_02_FOOT_WALK;
+	}
+	else // changing only facing is fast
+		client->next_movement += PKTIN_02_MOUNT_RUN;
+}
 MESSAGE_HANDLER( PKTIN_02, handle_walk );

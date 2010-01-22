@@ -20,6 +20,7 @@ History
 2009/11/16 Turley:    added NpcPropagateEnteredArea()/inform_enteredarea() for event on resurrection
 2009/11/20 Turley:    RecalcVitals can update single Attributes/Vitals - based on Tomi
 2010/01/15 Turley:    (Tomi) priv runwhilestealth
+2010/01/22 Turley:    Speedhack Prevention System
 
 Notes
 =======
@@ -465,6 +466,7 @@ public:
     bool can_dblclickany() const;
 	bool can_moveanydist() const;
     bool can_plogany() const;
+	bool can_speedhack() const;
 
     bool has_privilege( const char* priv ) const;
     bool setting_enabled( const char* setting ) const;
@@ -780,6 +782,7 @@ protected: // was private, but hey, NPC will be okay, I think.
 		bool plogany;
         bool canbeheardasghost;
 		bool runwhilestealth;
+		bool speedhack;
     } cached_settings;
 
     UOExecutor* script_ex;
