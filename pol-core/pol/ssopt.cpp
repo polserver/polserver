@@ -13,6 +13,7 @@ History
 2009/10/12 Turley:    whisper/yell/say-range ssopt definition
 2009/11/19 Turley:    ssopt.core_sends_season & .core_handled_tags - Tomi
 2009/12/02 Turley:    added ssopt.support_faces
+2010/01/22 Turley:    Speedhack Prevention System
 
 Notes
 =======
@@ -82,6 +83,7 @@ void read_servspecopt()
 	ssopt.core_handled_tags = elem.remove_ushort("CoreHandledTags",0xFFFF);
     ssopt.support_faces = static_cast<unsigned char>(elem.remove_ushort("SupportFaces",0));
 	ssopt.newbie_starting_equipment = elem.remove_bool("NewbieStartingEquipment",true);
+	ssopt.speedhack_prevention = elem.remove_bool("SpeedhackPrevention",false);
 	ssopt_parse_totalstats(elem);
 
 // Turley 2009/11/06 u8 range...

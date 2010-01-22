@@ -59,6 +59,7 @@ History
 2009/12/03 Turley:    fixed client>=7 poison/flying flag, basic flying support
 2010/01/14 Turley:    AttackWhileFrozen check
 2010/01/15 Turley:    (Tomi) priv runwhilestealth
+2010/01/22 Turley:    Speedhack Prevention System
 
 
 Notes
@@ -1338,6 +1339,7 @@ void Character::refresh_cached_settings( bool update )
 	cached_settings.moveanydist		 = setting_enabled( "moveanydist" );
     cached_settings.canbeheardasghost = setting_enabled( "canbeheardasghost" );
 	cached_settings.runwhilestealth  = setting_enabled( "runwhilestealth" );
+	cached_settings.speedhack        = setting_enabled( "speedhack" );
 }
 
 void Character::set_setting( const char* setting, bool value )
@@ -1430,6 +1432,11 @@ bool Character::can_moveanydist() const
 bool Character::can_plogany() const
 {
     return cached_settings.plogany;
+}
+
+bool Character::can_speedhack() const
+{
+	return cached_settings.speedhack;
 }
 
 UContainer* Character::backpack() const
@@ -3897,7 +3904,7 @@ bool Character::move( unsigned char i_dir )
 
 		if (hidden())
 		{
-			if (((i_dir & 0x80) && !cached_settings.runwhilestealth) || (stealthsteps_ == 0))
+			if (((i_dir & PKTIN_02_DIR_RUNNING_BIT) && !cached_settings.runwhilestealth) || (stealthsteps_ == 0))
 				unhide();
 			else if (stealthsteps_)
 				--stealthsteps_;
