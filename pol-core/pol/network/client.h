@@ -14,6 +14,7 @@ History
                       Removed is*
 2009/12/02 Turley:    added SA expansion - Tomi
 2009/12/04 Turley:    Crypto cleanup - Tomi
+2010/01/22 Turley:    Speedhack Prevention System
 
 Notes
 =======
@@ -28,6 +29,7 @@ Notes
 #include <string>
 
 #include "../../clib/rawtypes.h"
+#include "../../clib/wallclock.h"
 
 #include "../../bscript/bstruct.h"
 
@@ -87,6 +89,11 @@ enum ClientTypeFlag
 	CLIENTTYPE_UOKR  = 0x40,
     CLIENTTYPE_7000  = 0x80, // 7.0.0.0  (Gargoyle race)
 	CLIENTTYPE_UOSA  = 0x100
+};
+
+struct PacketThrottler
+{
+	unsigned char pktbuffer[PKTIN_02_SIZE];
 };
 
 class Client
@@ -172,6 +179,8 @@ public:
 
     std::string ipaddrAsString() const;
 
+	bool SpeedHackPrevention(bool add = true);
+
 protected:
 
 	XmitBuffer *first_xmit_buffer;
@@ -195,6 +204,8 @@ public:
     u16 UOExpansionFlag;
 	u32 UOExpansionFlagClient;
 	u16 ClientType;
+	queue<PacketThrottler> movementqueue;
+	wallclock_t next_movement;
 	
 private:
     struct {

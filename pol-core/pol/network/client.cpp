@@ -11,6 +11,7 @@ History
                       STLport-5.2.1 fix: params in call of Log2()
 2009/09/06 Turley:    Added u8 ClientType + FlagEnum
                       Removed is*
+2010/01/22 Turley:    Speedhack Prevention System
 
 Notes
 =======
@@ -83,6 +84,7 @@ Client::Client( ClientInterface& aInterface, TCryptInfo& encryption ) :
     UOExpansionFlag(0),
 	UOExpansionFlagClient(0),
 	ClientType(0),
+	next_movement(0),
     paused_(false)
 {
 	// For bypassing cryptseed packet
@@ -188,6 +190,9 @@ void Client::PreDelete()
         --n_queued;
     }
     last_xmit_buffer = NULL;
+
+	while (!movementqueue.empty())
+		movementqueue.pop();
 }
 
 // ClientInfo - delivers a lot of usefull infomation about client PC
@@ -594,3 +599,30 @@ void Client::restart2()
     send_restart();
     pause_count = 0;
 }
+
+// Note: this doesnt test single packets it only summs the delay and tests
+// here only the "start"-value is set the additional delay is set in PKT_02 handler
+bool Client::SpeedHackPrevention(bool add)
+{
+	if (chr->can_speedhack())
+		return true;
+	if ((next_movement == 0) || (wallclock() > next_movement)) // never moved or in the past
+	{
+		next_movement = wallclock();
+		return true;
+	}
+	// now we dont alter next_movement so we can sum the delay till diff is greater then error margin
+	wallclock_diff_t diff = wallclock_diff_ms(wallclock(), next_movement);
+	if (diff > PKTIN_02_ASYNCHRONOUS) // delay sum greater then our error margin?
+	{
+		if (add) // delay packet
+		{
+			PacketThrottler throttlestruct;
+			memcpy(throttlestruct.pktbuffer, buffer, PKTIN_02_SIZE);
+			movementqueue.push(throttlestruct);
+		}
+		return false;
+	}
+	return true;
+}
+

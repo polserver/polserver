@@ -1,4 +1,9 @@
 -- POL099 --
+01-22-2010 Turley:
+     Added: Speedhack Prevention System
+     Added: ssopt::SpeedhackPrevention 0/1 (default 0)
+     Added: chr priv "speedhack" disables Speedhack Prevention for chr
+
 01-15-2010 Turley:
      Added: (Tomi) chr priv "runwhilestealth" you can run while you are in stealth for as many stealthsteps you have
      Added: (Tomi) new npcdesc entry "SaveOnExit" 0/1 ( defaults to 1 )
