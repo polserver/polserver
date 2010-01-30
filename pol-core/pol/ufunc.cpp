@@ -1492,7 +1492,7 @@ void send_sysmessage(Client *client,
 	//textlen = wcslen((const wchar_t*)wtext) + 1;
 	while( wtext[textlen] != L'\0' )
 		++textlen;
-	textlen += 1;
+	++textlen;
 	if (textlen > (sizeof msg.wtext / sizeof(msg.wtext[0])))
 		textlen = (sizeof msg.wtext / sizeof(msg.wtext[0]));
 	msglen = offsetof( PKTOUT_AE, wtext ) + textlen*sizeof(msg.wtext[0]);
@@ -1508,9 +1508,10 @@ void send_sysmessage(Client *client,
 		msg.font    = ctBEu16( font );
 		memcpy( &msg.lang, lang, sizeof msg.lang );
 		strcpy( msg.speaker_name, "System" );
-		for(unsigned i=0; i < textlen; i++)
+		unsigned i=0;
+		for(; i < (textlen-1); ++i)//textlen includes 0terminator
 			msg.wtext[i] = ctBEu16(wtext[i]);
-		msg.wtext[textlen] = (u16)0L;
+		msg.wtext[i] = (u16)0L;
 		transmit( client, &msg, msglen );
 	}
     else     // FIXME need to handle this better
@@ -1641,7 +1642,7 @@ bool say_above(const UObject* obj,
 	//textlen = wcslen((const wchar_t*)wtext) + 1;
 	while( wtext[textlen] != L'\0' )
 		++textlen;
-	textlen += 1; // include NULL terminator
+	++textlen; // include NULL terminator
 	if (textlen > (sizeof msg.wtext / sizeof(msg.wtext[0])))
 		textlen = (sizeof msg.wtext / sizeof(msg.wtext[0]));
     msglen = offsetof( PKTOUT_AE, wtext ) + textlen*sizeof(msg.wtext[0]);
@@ -1669,9 +1670,10 @@ bool say_above(const UObject* obj,
 			strzcpy( msg.speaker_name, obj->description().c_str(), sizeof msg.speaker_name );
 			break;
 	}
-	for(unsigned i=0; i < textlen; i++)
+	unsigned i=0;
+	for(; i < (textlen-1); ++i)//textlen includes 0terminator
 		msg.wtext[i] = ctBEu16(wtext[i]);
-	msg.wtext[textlen] = (u16)0L;
+	msg.wtext[i] = (u16)0L;
 
     // todo: only send to those that I'm visible to.
     transmit_to_inrange( obj, &msg, msglen, false, false );
@@ -1734,7 +1736,7 @@ bool private_say_above( Character* chr,
     //textlen = wcslen((const wchar_t*)wtext) + 1;
     while( wtext[textlen] != L'\0' )
     	++textlen;
-    textlen += 1; //include null terminator
+    ++textlen; //include null terminator
 	if (textlen > (sizeof msg.wtext / sizeof(msg.wtext[0])))
 		textlen = (sizeof msg.wtext / sizeof(msg.wtext[0]));
     msglen = offsetof( PKTOUT_AE, wtext ) + textlen*sizeof(msg.wtext[0]);
@@ -1762,9 +1764,10 @@ bool private_say_above( Character* chr,
 			strzcpy( msg.speaker_name, obj->description().c_str(), sizeof msg.speaker_name );
 			break;
 	}
-	for(unsigned i=0; i < textlen; i++)
+	unsigned i=0;
+	for(; i < (textlen-1); ++i)//textlen includes 0terminator
 		msg.wtext[i] = ctBEu16(wtext[i]);
-	msg.wtext[textlen] = (u16)0L;
+	msg.wtext[i] = (u16)0L;
 
     chr->client->transmit( &msg, msglen );
     return true;
@@ -2729,11 +2732,11 @@ void sendCharProfile( Character* chr, Character* of_who, const char *title, cons
 
 	while( utext[newulen] != L'\0' )
 		++newulen;
-	newulen += 1;
+	++newulen;
 
 	while( etext[newelen] != L'\0' )
 		++newelen;
-	newelen += 1;
+	++newelen;
 
 	titlelen = strlen(title) + 1;
 
