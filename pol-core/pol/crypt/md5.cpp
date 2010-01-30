@@ -270,7 +270,11 @@ void MD5Crypt::append(md5_state *pms, const unsigned char *data, int nbytes)
 
     // Process a final partial block
     if(left)
+	{
+		if (left>63)
+			left=63;
 		memcpy(pms->buf, p, left);
+	}
 }
 
 void MD5Crypt::finish(md5_state *pms, unsigned char digest[16])

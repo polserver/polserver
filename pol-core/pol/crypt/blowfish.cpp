@@ -342,6 +342,7 @@ void BlowFish::Decrypt( unsigned char * in, unsigned char * out, int len )
 			L2N(values[1], pKey);
 		}
 
+		block_pos &= 0x07;
 		unsigned char c = *in++;
 		*out++ = game_seed[block_pos] ^ c;
 		game_seed[block_pos] = c;

@@ -262,7 +262,8 @@ void create_thread( ThreadData* td, bool dec_child = false )
 		if (dec_child)
 			dec_child_thread_count();
 	}
-	CloseHandle( h );
+	else
+		CloseHandle( h );
 }
 #else
 void create_thread( ThreadData* td, bool dec_child = false )

@@ -91,10 +91,10 @@ enum ClientTypeFlag
 	CLIENTTYPE_UOSA  = 0x100
 };
 
-struct PacketThrottler
+typedef struct
 {
 	unsigned char pktbuffer[PKTIN_02_SIZE];
-};
+}PacketThrottler;
 
 class Client
 {

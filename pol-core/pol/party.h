@@ -80,7 +80,7 @@ struct Party_Cfg {
 		bool TreatNoAsPrivate;
 		unsigned short DeclineTimeout;
 		u16 PrivateMsgPrefix[SPEECH_MAX_LEN+1 ];
-		unsigned int PrivateMsgPrefixLen;
+		unsigned char PrivateMsgPrefixLen;
 		bool RemoveMemberOnLogoff;
 		bool RejoinPartyOnLogon;
 	} General;
