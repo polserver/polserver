@@ -818,7 +818,8 @@ void start_http_conn_thread( SOCKET client_socket )
 
 		dec_child_thread_count();
 	}
-	CloseHandle( h );
+	else
+		CloseHandle( h );
 }
 #else
 

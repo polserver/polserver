@@ -124,7 +124,7 @@ void TwoFish::Decrypt( unsigned char *in, unsigned char *out, int len )
 
     for(int i = 0; i < len; i++)
     {
-        if(pos == 0x100)
+        if(pos >= 0x100)
         {
 	    	BlockEncrypt(&ci, &ki, subData3, 0x800, tmpBuff);
             memcpy(subData3, tmpBuff, 0x100);

@@ -92,7 +92,9 @@ void load_party_cfg_general( ConfigElem& elem )
 		{
 			arr->addElement( new BLong( static_cast<unsigned char>(tmp[i]) ) );
 		}
-		party_cfg.General.PrivateMsgPrefixLen = arr->ref_arr.size();
+		party_cfg.General.PrivateMsgPrefixLen = (unsigned char)arr->ref_arr.size();
+		if (party_cfg.General.PrivateMsgPrefixLen>SPEECH_MAX_LEN)
+			party_cfg.General.PrivateMsgPrefixLen=SPEECH_MAX_LEN;
 		if ( !convertArrayToUC(arr, party_cfg.General.PrivateMsgPrefix, party_cfg.General.PrivateMsgPrefixLen, true) )
 			party_cfg.General.PrivateMsgPrefixLen=0;
 		delete arr;
@@ -411,7 +413,7 @@ void Party::send_member_list(Character* to_chr)
 
 	if (to_chr==NULL)
 	{
-		for( vector<u32>::iterator itr = _member_serials.begin(); itr != _member_serials.end(); ++itr)
+		for(itr = _member_serials.begin(); itr != _member_serials.end(); ++itr)
 		{
 			Character* chr = system_find_mobile( *itr );
 			if (chr != NULL)
@@ -494,7 +496,7 @@ void Party::send_remove_member(Character* remchr, bool *disband)
 		msg.partydata.partyremoveout.nummembers=static_cast<u8>(_member_serials.size());
 		msg.msglen=ctBEu16(11+_member_serials.size()*4);
 
-		for( vector<u32>::iterator itr = _member_serials.begin(); itr != _member_serials.end(); ++itr)
+		for(itr = _member_serials.begin(); itr != _member_serials.end(); ++itr)
 		{
 			Character* chr = system_find_mobile( *itr );
 			if (chr != NULL)
@@ -654,6 +656,8 @@ void Party::send_member_msg_public(Character* chr,u16* wtext, size_t wtextlen)
 		{
 			arr = static_cast<ObjArray*>(obj.impptr());
 			unsigned len = arr->ref_arr.size();
+			if (len>SPEECH_MAX_LEN)
+				len=SPEECH_MAX_LEN;
 			//wtext[ SPEECH_MAX_LEN+1 ];
 			if ( !convertArrayToUC(arr, wtext, len, true) )
 				return;
@@ -701,6 +705,8 @@ void Party::send_member_msg_private(Character* chr, Character* tochr, u16* wtext
 		{
 			arr = static_cast<ObjArray*>(obj.impptr());
 			unsigned len = arr->ref_arr.size();
+			if (len>SPEECH_MAX_LEN)
+				len=SPEECH_MAX_LEN;
 			//wtext[ SPEECH_MAX_LEN+1 ];
 			if ( !convertArrayToUC(arr, wtext, len, true) )
 				return;
@@ -712,6 +718,8 @@ void Party::send_member_msg_private(Character* chr, Character* tochr, u16* wtext
 				return;
 		}
 	}
+	if ((wtextlen+party_cfg.General.PrivateMsgPrefixLen)> SPEECH_MAX_LEN)
+		wtextlen=SPEECH_MAX_LEN-party_cfg.General.PrivateMsgPrefixLen;
 	unsigned short msglen = static_cast<unsigned short>(10+ wtextlen*sizeof(msg.partydata.partymsgout.wtext[0]));
 	if (party_cfg.General.PrivateMsgPrefixLen)
 	{
