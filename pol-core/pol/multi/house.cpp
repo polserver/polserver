@@ -678,6 +678,10 @@ BObjectImp* UHouse::scripted_create( const ItemDesc& descriptor, u16 x, u16 y, s
                            + hexint(descriptor.graphic) );
     }
 
+	if ((!realm->valid(x + md->minrx, y + md->minry, z + md->minrz)) ||
+		(!realm->valid(x + md->maxrx, y + md->maxry, z + md->maxrz)))
+		return new BError("That location is out of bounds");
+
 	if (~flags & CRMULTI_IGNORE_MULTIS)
     {
         if (multis_exist_in( x + md->minrx - 1, y + md->minry - 5,

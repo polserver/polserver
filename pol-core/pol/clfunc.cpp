@@ -36,7 +36,7 @@ void send_sysmessage_cl(Client *client, /*Character *chr_from, ObjArray* oText,*
 	{
 		while( arguments[textlen] != L'\0' )
 			++textlen;
-		textlen += 1;
+		++textlen;
 	}
 
 	if (textlen > (sizeof msg.arguments / sizeof(msg.arguments[0])))
@@ -57,9 +57,10 @@ void send_sysmessage_cl(Client *client, /*Character *chr_from, ObjArray* oText,*
 		msg.msgnumber = ctBEu32( cliloc_num );
 		memset( msg.name, '\0', sizeof msg.name );
 	    strcpy( msg.name, "System" );
-		for(unsigned i=0; i < textlen; i++)
+		unsigned i=0;
+		for(; i < (textlen-1); ++i)//textlen includes 0terminator
 			msg.arguments[i] = ctLEu16(arguments[i]);
-		msg.arguments[textlen] = (u16)0L;
+		msg.arguments[i] = (u16)0L;
 		transmit( client, &msg, msglen );
 	}
     else
@@ -81,7 +82,7 @@ void say_above_cl(UObject *obj, unsigned int cliloc_num,
 	{
 		while( arguments[textlen] != L'\0' )
 			++textlen;
-		textlen += 1;
+		++textlen;
 	}
 	if (textlen > (sizeof msg.arguments / sizeof(msg.arguments[0])))
 		textlen = (sizeof msg.arguments / sizeof(msg.arguments[0]));
@@ -101,9 +102,10 @@ void say_above_cl(UObject *obj, unsigned int cliloc_num,
 		msg.msgnumber = ctBEu32( cliloc_num );
 		memset( msg.name, '\0', sizeof msg.name );
 	    strcpy( msg.name, "System" );
-		for(unsigned i=0; i < textlen; i++)
+		unsigned i=0;
+		for(; i < (textlen-1); ++i)//textlen includes 0terminator
 			msg.arguments[i] = ctLEu16(arguments[i]);
-		msg.arguments[textlen] = (u16)0L;
+		msg.arguments[i] = (u16)0L;
 
 		//  MuadDib - FIXME: only send to those that I'm visible to. 
 	    transmit_to_inrange( obj, &msg, msglen, false, false );
@@ -127,7 +129,7 @@ void private_say_above_cl(Character *chr, const UObject* obj,
 	{
 		while( arguments[textlen] != L'\0' )
 			++textlen;
-		textlen += 1;
+		++textlen;
 	}
 	if (textlen > (sizeof msg.arguments / sizeof(msg.arguments[0])))
 		textlen = (sizeof msg.arguments / sizeof(msg.arguments[0]));
@@ -147,9 +149,10 @@ void private_say_above_cl(Character *chr, const UObject* obj,
 		msg.msgnumber = ctBEu32( cliloc_num );
 		memset( msg.name, '\0', sizeof msg.name );
 	    strcpy( msg.name, "System" );
-		for(unsigned i=0; i < textlen; i++)
+		unsigned i=0;
+		for(; i < (textlen-1); ++i)//textlen includes 0terminator
 			msg.arguments[i] = ctLEu16(arguments[i]);
-		msg.arguments[textlen] = (u16)0L;
+		msg.arguments[i] = (u16)0L;
 		chr->client->transmit( &msg, msglen );
 	}
     else
@@ -172,7 +175,7 @@ void send_sysmessage_cl_affix(Client *client, unsigned int cliloc_num, const cha
 	{
 		while( arguments[textlen] != L'\0' )
 			++textlen;
-		textlen += 1; // to have L'\0' in the array ;) 
+		++textlen; // to have L'\0' in the array ;) 
 	}
 
 	affix_len = strlen(affix)+1; // to have space for '\0'
@@ -202,9 +205,10 @@ void send_sysmessage_cl_affix(Client *client, unsigned int cliloc_num, const cha
 	memcpy(tmp_msg + offset, affix, affix_len);
 
 	u16 *args = (u16*)(tmp_msg + offset + affix_len); // args will now point after the end of affix :)
-	for (unsigned i=0; i < textlen; i++)
+	unsigned i=0;
+	for(; i < (textlen-1); ++i)//textlen includes 0terminator
 		args[i] = ctBEu16(arguments[i]);
-    args[textlen] = (u16)0L;
+	args[i] = (u16)0L;
 
 	client->transmit(tmp_msg, msglen);
 
@@ -224,7 +228,7 @@ void say_above_cl_affix(UObject *obj, unsigned int cliloc_num, const char* affix
 	{
 		while( arguments[textlen] != L'\0' )
 			++textlen;
-		textlen += 1; // to have L'\0' in the array ;) 
+		++textlen; // to have L'\0' in the array ;) 
 	}
 
 	affix_len = strlen(affix)+1; // to have space for '\0'
@@ -254,9 +258,10 @@ void say_above_cl_affix(UObject *obj, unsigned int cliloc_num, const char* affix
 	memcpy(tmp_msg + offset, affix, affix_len);
 
 	u16 *args = (u16*)(tmp_msg + offset + affix_len); // args will now point after the end of affix :)
-	for (unsigned i=0; i < textlen; i++)
+	unsigned i=0;
+	for(; i < (textlen-1); ++i)//textlen includes 0terminator
 		args[i] = ctBEu16(arguments[i]);
-    args[textlen] = (u16)0L;
+	args[i] = (u16)0L;
 
 	// MuadDib - FIXME: only send to those that I'm visible to.
 	transmit_to_inrange( obj, tmp_msg, msglen, false, false );
@@ -277,7 +282,7 @@ void private_say_above_cl_affix(Character *chr, const UObject* obj, unsigned int
 	{
 		while( arguments[textlen] != L'\0' )
 			++textlen;
-		textlen += 1; // to have L'\0' in the array ;) 
+		++textlen; // to have L'\0' in the array ;) 
 	}
 
 	affix_len = strlen(affix)+1; // to have space for '\0'
@@ -307,9 +312,10 @@ void private_say_above_cl_affix(Character *chr, const UObject* obj, unsigned int
 	memcpy(tmp_msg + offset, affix, affix_len);
 
 	u16 *args = (u16*)(tmp_msg + offset + affix_len); // args will now point after the end of affix :)
-	for (unsigned i=0; i < textlen; i++)
+	unsigned i=0;
+	for(; i < (textlen-1); ++i)//textlen includes 0terminator
 		args[i] = ctBEu16(arguments[i]);
-    args[textlen] = (u16)0L;
+	args[i] = (u16)0L;
 
 	chr->client->transmit(tmp_msg, msglen);
 
@@ -326,7 +332,7 @@ unsigned char* build_sysmessage_cl(unsigned* msglen,unsigned int cliloc_num, con
 	{
 		while( arguments[textlen] != L'\0' )
 			++textlen;
-		textlen += 1;
+		++textlen;
 	}
 
 	if (textlen > (SPEECH_MAX_LEN+1))
@@ -354,9 +360,10 @@ unsigned char* build_sysmessage_cl(unsigned* msglen,unsigned int cliloc_num, con
 	memcpy(tmp_msg, &msg, offsetof( PKTOUT_C1, arguments )); // copy until before arguments
 
 	u16 *args = (u16*)(tmp_msg + offsetof( PKTOUT_C1, arguments ));
-	for (unsigned i=0; i < textlen; i++)
+	unsigned i=0;
+	for(; i < (textlen-1); ++i)//textlen includes 0terminator
 		args[i] = ctBEu16(arguments[i]);
-    args[textlen] = (u16)0L;
+	args[i] = (u16)0L;
 
 	return tmp_msg;
 }
@@ -373,7 +380,7 @@ unsigned char* build_sysmessage_cl_affix(unsigned* msglen,unsigned int cliloc_nu
 	{
 		while( arguments[textlen] != L'\0' )
 			++textlen;
-		textlen += 1; // to have L'\0' in the array ;) 
+		++textlen; // to have L'\0' in the array ;) 
 	}
 
 	affix_len = strlen(affix)+1; // to have space for '\0'
@@ -403,9 +410,10 @@ unsigned char* build_sysmessage_cl_affix(unsigned* msglen,unsigned int cliloc_nu
 	memcpy(tmp_msg + offset, affix, affix_len);
 
 	u16 *args = (u16*)(tmp_msg + offset + affix_len); // args will now point after the end of affix :)
-	for (unsigned i=0; i < textlen; i++)
+	unsigned i=0;
+	for(; i < (textlen-1); ++i) //textlen includes 0terminator
 		args[i] = ctBEu16(arguments[i]);
-    args[textlen] = (u16)0L;
+	args[i] = (u16)0L;
 
 	return tmp_msg;
 

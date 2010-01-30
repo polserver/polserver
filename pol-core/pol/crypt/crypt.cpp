@@ -42,6 +42,8 @@ CCryptBlowfish::CCryptBlowfish(unsigned int masterKey1, unsigned int masterKey2)
 
 int CCryptBlowfish::Receive(void *buffer, int max_expected, SOCKET socket)
 {
+	passert_always(max_expected >= 0);
+	passert_always(MAXBUFFER > max_expected);
 	int count = recv(socket, (char *) encrypted_data, max_expected, 0);
 	if (count > 0)
 	{
@@ -177,6 +179,8 @@ CCryptBlowfishTwofish::CCryptBlowfishTwofish(unsigned int masterKey1, unsigned i
 
 int CCryptBlowfishTwofish::Receive(void *buffer, int max_expected, SOCKET socket)
 {
+	passert_always(max_expected >= 0);
+	passert_always(MAXBUFFER > max_expected);
 	int count = recv(socket, (char *) encrypted_data, max_expected, 0);
 	if (count > 0)
 	{
@@ -242,6 +246,8 @@ CCryptTwofish::CCryptTwofish(unsigned int masterKey1, unsigned int masterKey2)
 
 int CCryptTwofish::Receive(void *buffer, int max_expected, SOCKET socket)
 {
+	passert_always(max_expected >= 0);
+	passert_always(MAXBUFFER > max_expected);
 	int count = recv(socket, (char *) encrypted_data, max_expected, 0);
 	if (count > 0)
 	{

@@ -50,7 +50,7 @@ const char* poldbg_itemref_members[] = {"amount", "layer", "container", "usescri
                                          "resist_physical", "resist_fire_mod", "resist_cold_mod",
 										 "resist_energy_mod", "resist_poison_mod",
 										 "resist_physical_mod"};
-// 60 members
+// 59 members
 const char* poldbg_mobileref_members[] = { "warmode", "gender", "race", "trueobjtype",
 											"truecolor", "ar_mod", "hidden", "concealed",
 											"frozen", "paralyzed", "poisoned", "stealthsteps",
@@ -958,7 +958,7 @@ std::string DebugContext::cmd_localvarmembers( const std::string& rest, Results&
 			os.str("");
 		}
 		
-		for(i=0; i<60; i++) // i = 60 members
+		for(i=0; i<59; i++) // i = 59 members
 		{
 			memname = poldbg_mobileref_members[i];
 			os << memname << " " << var.get_member(memname).get()->impptr()->getStringRep();

@@ -109,8 +109,8 @@ struct Ranfib
 	}
 	double doub()  // Returns random double-precision floating value between 0. and 1.
 	{
-		if (++inext ==55) inext=0;
-		if (++inextp==55) inextp=0;
+		if (++inext >=55) inext=0;
+		if (++inextp>=55) inextp=0;
 		dd = dtab[inext] - dtab[inextp];
 		if (dd<0) dd += 1.0;
 		return (dtab[inext] =dd);

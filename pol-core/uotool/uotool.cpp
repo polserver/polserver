@@ -136,7 +136,8 @@ int Usage( int ret )
     fprintf( stderr, "    sndlist                  prints sound list info\n" );
     fprintf( stderr, "    verlandtile              prints verdata landtile info\n" );
     fprintf( stderr, "    loschange                prints differences in LOS handling \n" );
-    fprintf( stderr, "    staticdefrag [realm=britannia]          recreates static files \n" );
+	fprintf( stderr, "    staticdefrag [realm]     recreates static files {default britannia} \n" );
+	fprintf( stderr, "    formatdesc name          prints plural and singular form of name \n" );
     return ret;
 }
 #define TILES_START 0x68800
@@ -1081,7 +1082,12 @@ int findlandtileflags( int argc, char **argv )
 
 int defragstatics( int argc, char **argv )
 {
-    const char* realm = FindArg2( "realm=", "britannia" );
+	const char* realm;
+	if (argc<2)
+		realm="britannia";
+	else
+		realm=argv[1];
+
     RealmDescriptor descriptor = RealmDescriptor::Load( realm );
 
     uo_mapid = descriptor.uomapid;
@@ -1180,6 +1186,123 @@ int defragstatics( int argc, char **argv )
 
     cout << "\rRewriting statics files: Complete" << endl;
     return 0;
+}
+
+int format_description( int argc, char **argv)
+{
+	string name="";
+	for (int i=1;i<argc;++i)
+	{
+		name.append(argv[i]);
+		if (i<(argc-1))
+			name.append(" ");
+	}
+	if (name.length()==0)
+		return Usage(1);
+	for (unsigned short amount=1;amount<=2;++amount)
+	{
+		const char *src = name.c_str();
+
+		string desc;
+
+		if (amount != 1)
+		{ 
+			char s[15];
+			sprintf( s, "%hu ", amount );
+			desc = s;
+		}
+
+		int singular = (amount == 1);
+		int plural_handled = 0;
+		int phase = 0; /* 0= first part, 1=plural part, 2=singular part, 3=rest */
+		int rest = 0;
+		char ch;
+		while ('\0' != (ch = *src))
+		{
+			if (phase == 0)
+			{
+				if (ch == '%')
+				{
+					plural_handled = 1;
+					phase = 1;
+				}
+				else
+				{
+					desc += ch;
+				}
+			}
+			else if (phase == 1)
+			{
+				if (ch == '%')
+					phase = 3;
+				else if (ch == '/')
+					phase = 2;
+				else if (!singular)
+					desc += ch;
+			}
+			else if (phase == 2)
+			{
+				if (ch == '%')
+					phase = 3;
+				else if (singular)
+					desc += ch;
+			}
+			else
+				// if phase == 3 that means there are more words to come, 
+				// lets loop through them to support singular/plural stuff in more than just the first word of the desc.
+			{
+				rest = 1;
+				phase = 0;
+				while (rest && '\0' != ch)
+				{
+					if (phase == 0)
+					{
+						if (ch == '%')
+						{
+							plural_handled = 1;
+							phase = 1;
+						}
+						else
+						{
+							desc += ch;
+							rest = 0;
+						}
+					}
+					else if (phase == 1)
+					{
+						if (ch == '%')
+							phase = 3;
+						else if (ch == '/')
+							phase = 2;
+						else if (!singular)
+							desc += ch;
+						rest = 0;
+					}
+					else if (phase == 2)
+					{
+						if (ch == '%')
+							phase = 3;
+						else if (singular)
+							desc += ch;
+						rest = 0;
+					}
+					else // more words in the desc phase == 3, continue loop.
+						rest = 1;
+					phase = 0;
+				}
+			}
+			++src;
+		}
+
+		if (!singular && !plural_handled)
+			desc += 's';
+
+		if (amount ==1)
+			cout << "Singular: " <<desc <<endl;
+		else
+			cout << "Plural: " <<desc <<endl;
+	}
+	return 0;
 }
 
 
@@ -1323,6 +1446,10 @@ int xmain( int argc, char* argv[] )
     {
         return defragstatics( argc-1, argv+1 );
     }
+	else if (stricmp( argv[1], "formatdesc" ) == 0)
+	{
+		return format_description( argc-1, argv+1 );
+	}
     
-	return 0;
+	return Usage(0);;
 }

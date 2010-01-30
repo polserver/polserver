@@ -1199,10 +1199,6 @@ BObjectImp* UOExecutorModule::mf_CreateMultiAtLocation(/* x,y,z,objtype,flags,re
     {
         return new BError( "That objtype is not a Multi" );
     }
-	if (!realm->valid(x,y,z))
-    {
-        return new BError( "That location is out of bounds" );
-    }
 
     return UMulti::scripted_create( *descriptor,
                                     x,

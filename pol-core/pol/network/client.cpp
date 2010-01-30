@@ -191,8 +191,8 @@ void Client::PreDelete()
     }
     last_xmit_buffer = NULL;
 
-	while (!movementqueue.empty())
-		movementqueue.pop();
+	//while (!movementqueue.empty())
+	//	movementqueue.pop();
 }
 
 // ClientInfo - delivers a lot of usefull infomation about client PC
@@ -619,7 +619,7 @@ bool Client::SpeedHackPrevention(bool add)
 		{
 			if (movementqueue.size()>100)
 			{
-				Log( "Client#%lu: More then 100 Movepackets in queue.  Disconnecting.\n",
+				Log2( "Client#%lu: More then 100 Movepackets in queue.  Disconnecting.\n",
 					instance_ );
 				disconnect = true;
 				return false;
