@@ -1,4 +1,9 @@
 -- POL099 --
+01-01-2010 Turley:
+     Added: multi create additionally checks for valid realm coord of the corners
+   Changed: uotool staticdefrag [britannia] (removed "realm=")
+     Added: uotool formatdesc [desc] little helper prints singular & plural form of given desc
+     
 01-22-2010 Turley:
      Added: Speedhack Prevention System
      Added: ssopt::SpeedhackPrevention 0/1 (default 0)
