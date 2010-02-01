@@ -58,8 +58,11 @@ void send_sysmessage_cl(Client *client, /*Character *chr_from, ObjArray* oText,*
 		memset( msg.name, '\0', sizeof msg.name );
 	    strcpy( msg.name, "System" );
 		unsigned i=0;
-		for(; i < (textlen-1); ++i)//textlen includes 0terminator
-			msg.arguments[i] = ctLEu16(arguments[i]);
+		if (textlen>0)
+		{
+			for(; i < (textlen-1); ++i)//textlen includes 0terminator
+						msg.arguments[i] = ctLEu16(arguments[i]);
+		}
 		msg.arguments[i] = (u16)0L;
 		transmit( client, &msg, msglen );
 	}
@@ -103,8 +106,11 @@ void say_above_cl(UObject *obj, unsigned int cliloc_num,
 		memset( msg.name, '\0', sizeof msg.name );
 	    strcpy( msg.name, "System" );
 		unsigned i=0;
-		for(; i < (textlen-1); ++i)//textlen includes 0terminator
-			msg.arguments[i] = ctLEu16(arguments[i]);
+		if (textlen>0)
+		{
+			for(; i < (textlen-1); ++i)//textlen includes 0terminator
+						msg.arguments[i] = ctLEu16(arguments[i]);
+		}
 		msg.arguments[i] = (u16)0L;
 
 		//  MuadDib - FIXME: only send to those that I'm visible to. 
@@ -150,8 +156,11 @@ void private_say_above_cl(Character *chr, const UObject* obj,
 		memset( msg.name, '\0', sizeof msg.name );
 	    strcpy( msg.name, "System" );
 		unsigned i=0;
-		for(; i < (textlen-1); ++i)//textlen includes 0terminator
-			msg.arguments[i] = ctLEu16(arguments[i]);
+		if (textlen>0)
+		{
+			for(; i < (textlen-1); ++i)//textlen includes 0terminator
+						msg.arguments[i] = ctLEu16(arguments[i]);
+		}
 		msg.arguments[i] = (u16)0L;
 		chr->client->transmit( &msg, msglen );
 	}
@@ -206,8 +215,11 @@ void send_sysmessage_cl_affix(Client *client, unsigned int cliloc_num, const cha
 
 	u16 *args = (u16*)(tmp_msg + offset + affix_len); // args will now point after the end of affix :)
 	unsigned i=0;
-	for(; i < (textlen-1); ++i)//textlen includes 0terminator
-		args[i] = ctBEu16(arguments[i]);
+	if (textlen>0)
+	{
+		for(; i < (textlen-1); ++i)//textlen includes 0terminator
+				args[i] = ctBEu16(arguments[i]);
+	}
 	args[i] = (u16)0L;
 
 	client->transmit(tmp_msg, msglen);
@@ -259,8 +271,11 @@ void say_above_cl_affix(UObject *obj, unsigned int cliloc_num, const char* affix
 
 	u16 *args = (u16*)(tmp_msg + offset + affix_len); // args will now point after the end of affix :)
 	unsigned i=0;
-	for(; i < (textlen-1); ++i)//textlen includes 0terminator
-		args[i] = ctBEu16(arguments[i]);
+	if (textlen>0)
+	{
+		for(; i < (textlen-1); ++i)//textlen includes 0terminator
+				args[i] = ctBEu16(arguments[i]);
+	}
 	args[i] = (u16)0L;
 
 	// MuadDib - FIXME: only send to those that I'm visible to.
@@ -313,8 +328,11 @@ void private_say_above_cl_affix(Character *chr, const UObject* obj, unsigned int
 
 	u16 *args = (u16*)(tmp_msg + offset + affix_len); // args will now point after the end of affix :)
 	unsigned i=0;
-	for(; i < (textlen-1); ++i)//textlen includes 0terminator
-		args[i] = ctBEu16(arguments[i]);
+	if (textlen>0)
+	{
+		for(; i < (textlen-1); ++i)//textlen includes 0terminator
+				args[i] = ctBEu16(arguments[i]);
+	}
 	args[i] = (u16)0L;
 
 	chr->client->transmit(tmp_msg, msglen);
@@ -361,8 +379,11 @@ unsigned char* build_sysmessage_cl(unsigned* msglen,unsigned int cliloc_num, con
 
 	u16 *args = (u16*)(tmp_msg + offsetof( PKTOUT_C1, arguments ));
 	unsigned i=0;
-	for(; i < (textlen-1); ++i)//textlen includes 0terminator
-		args[i] = ctBEu16(arguments[i]);
+	if (textlen>0)
+	{
+		for(; i < (textlen-1); ++i)//textlen includes 0terminator
+				args[i] = ctBEu16(arguments[i]);
+	}
 	args[i] = (u16)0L;
 
 	return tmp_msg;
@@ -411,8 +432,11 @@ unsigned char* build_sysmessage_cl_affix(unsigned* msglen,unsigned int cliloc_nu
 
 	u16 *args = (u16*)(tmp_msg + offset + affix_len); // args will now point after the end of affix :)
 	unsigned i=0;
-	for(; i < (textlen-1); ++i) //textlen includes 0terminator
-		args[i] = ctBEu16(arguments[i]);
+	if (textlen>0)
+	{
+		for(; i < (textlen-1); ++i) //textlen includes 0terminator
+				args[i] = ctBEu16(arguments[i]);
+	}
 	args[i] = (u16)0L;
 
 	return tmp_msg;
