@@ -1,0 +1,4 @@
+#!/bin/bash
+
+LIBCRYPT="crypto" POL_BUILDTAG=redhat CXX_MORE_OPTS="-pg -DHAVE_OPENSSL -DNDEBUG -D_REENTRANT -DPOL_BUILDTAG=\\\"redhat\\\"" make -f makefile.gcc $*
+

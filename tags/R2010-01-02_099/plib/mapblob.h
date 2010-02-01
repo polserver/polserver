@@ -1,0 +1,44 @@
+/*
+History
+=======
+
+Notes
+=======
+
+*/
+
+#ifndef PLIB_MAPBLOB_H
+#define PLIB_MAPBLOB_H
+
+#define SOLIDX_X_SIZE 16
+#define SOLIDX_X_SHIFT 4
+#define SOLIDX_X_CELLMASK 0xF
+
+#define SOLIDX_Y_SIZE 16
+#define SOLIDX_Y_SHIFT 4
+#define SOLIDX_Y_CELLMASK 0xF
+
+
+struct SOLIDX1_ELEM
+{
+    unsigned long offset;
+};
+struct SOLIDX2_ELEM
+{
+    unsigned long baseindex;
+    unsigned short addindex[SOLIDX_X_SIZE][SOLIDX_Y_SIZE];
+};
+struct SOLIDS_ELEM
+{
+    signed char z;
+    unsigned char height;
+    unsigned char flags;
+};
+struct SOLIDS_DATA
+{
+    unsigned short nelems;
+    SOLIDS_ELEM elem[1];
+};
+
+const unsigned SOLIDX2_FILLER_SIZE = 4;
+#endif
