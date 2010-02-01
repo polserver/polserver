@@ -1509,8 +1509,11 @@ void send_sysmessage(Client *client,
 		memcpy( &msg.lang, lang, sizeof msg.lang );
 		strcpy( msg.speaker_name, "System" );
 		unsigned i=0;
-		for(; i < (textlen-1); ++i)//textlen includes 0terminator
-			msg.wtext[i] = ctBEu16(wtext[i]);
+		if (textlen>0)
+		{
+			for(; i < (textlen-1); ++i)//textlen includes 0terminator
+						msg.wtext[i] = ctBEu16(wtext[i]);
+		}
 		msg.wtext[i] = (u16)0L;
 		transmit( client, &msg, msglen );
 	}
@@ -1671,8 +1674,11 @@ bool say_above(const UObject* obj,
 			break;
 	}
 	unsigned i=0;
-	for(; i < (textlen-1); ++i)//textlen includes 0terminator
-		msg.wtext[i] = ctBEu16(wtext[i]);
+	if (textlen>0)
+	{
+		for(; i < (textlen-1); ++i)//textlen includes 0terminator
+				msg.wtext[i] = ctBEu16(wtext[i]);
+	}
 	msg.wtext[i] = (u16)0L;
 
     // todo: only send to those that I'm visible to.
@@ -1765,8 +1771,11 @@ bool private_say_above( Character* chr,
 			break;
 	}
 	unsigned i=0;
-	for(; i < (textlen-1); ++i)//textlen includes 0terminator
-		msg.wtext[i] = ctBEu16(wtext[i]);
+	if (textlen>0)
+	{
+		for(; i < (textlen-1); ++i)//textlen includes 0terminator
+				msg.wtext[i] = ctBEu16(wtext[i]);
+	}
 	msg.wtext[i] = (u16)0L;
 
     chr->client->transmit( &msg, msglen );
