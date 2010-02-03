@@ -1,6 +1,7 @@
 /*
 History
 =======
+2010/02/03 Turley:    MethodScript support for mobiles
 
 
 Notes
@@ -17,6 +18,7 @@ Notes
 #include "skillid.h"
 #include "uoclient.h"
 #include "vital.h"
+#include "syshookscript.h"
 
 #include "crypt/cryptkey.h"
 
@@ -91,6 +93,18 @@ void load_general_entry( const Package* pkg, ConfigElem& elem )
             "Mana" );
 	//dave changed 3/15/03, support configurable max skillid
 	uoclient_general.maxskills = elem.remove_ushort("MaxSkillID",SKILLID__HIGHEST);
+	std::string temp;
+	if (elem.remove_prop("MethodScript",&temp))
+	{
+		if( !temp.empty() )
+		{
+			ExportScript* shs = new ExportScript( pkg, temp );
+			if (shs->Initialize())
+				uoclient_general.method_script = shs;
+			else
+				delete shs;
+		}
+	}
 }
 
 void load_protocol_entry( const Package* pkg, ConfigElem& elem )
@@ -118,4 +132,13 @@ void load_uoclient_cfg()
     load_packaged_cfgs( "uoclient.cfg",
                         "general protocol listener",
                         load_uoclient_entry );
+}
+
+UoClientGeneral::~UoClientGeneral()
+{
+	if (method_script != NULL)
+	{
+		delete method_script;
+		method_script = NULL;
+	}
 }
