@@ -2037,7 +2037,7 @@ int xmain_inner( int argc, char *argv[] )
 
 	cout << progverstr << " (" << polbuildtag << ")" << endl;
 	cout << "compiled on " << compiledate << " " << compiletime << endl;
-	cout << "Copyright (C) 1993-2009 Eric N. Swanson" << endl;
+	cout << "Copyright (C) 1993-2010 Eric N. Swanson" << endl;
 	cout << endl;
 
 	checkpoint( "opening logfiles" );

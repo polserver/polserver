@@ -1,6 +1,7 @@
 /*
 History
 =======
+2010/02/03 Turley:    MethodScript support for mobiles
 
 
 Notes
@@ -17,6 +18,7 @@ Notes
 class ConfigElem;
 class Package;
 class UWeapon;
+class ExportScript;
 
 class NpcTemplate
 {
@@ -29,7 +31,11 @@ public:
     // std::string script;
     enum ALIGNMENT { NEUTRAL, EVIL, GOOD } alignment;
 
+	ExportScript* method_script;
+
     NpcTemplate( const ConfigElem& elem, const Package* pkg );
+
+	~NpcTemplate();
 };
 
 typedef std::map< std::string, NpcTemplate* > NpcTemplates;

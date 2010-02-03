@@ -1,5 +1,10 @@
 -- POL099 --
-01-01-2010 Turley:
+02-03-2010 Turley:
+     Added: MethodScript support for mobiles
+            NPC: npcdesc.cfg MethodScript entry
+            Character: uoclient.cfg section "General" MethodScript entry
+
+02-01-2010 Turley:
      Added: multi create additionally checks for valid realm coord of the corners
    Changed: uotool staticdefrag [britannia] (removed "realm=")
      Added: uotool formatdesc [desc] little helper prints singular & plural form of given desc

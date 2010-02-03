@@ -1,6 +1,7 @@
 /*
 History
 =======
+2010/02/03 Turley:    MethodScript support for mobiles
 
 
 Notes
@@ -13,12 +14,15 @@ Notes
 
 #include "crypt/cryptkey.h"
 
+class ExportScript;
+
 class UoClientGeneral
 {
 public:
     void check( std::string& var, const char* tag, const char* deflt );
 
 public:
+	~UoClientGeneral();
 
     class Mapping
     {
@@ -36,6 +40,7 @@ public:
     Mapping stamina;
     Mapping mana;
 	unsigned int maxskills; //dave changed 3/15/03, support configurable max skillid
+	ExportScript* method_script;
 };
 
 extern UoClientGeneral uoclient_general;

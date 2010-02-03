@@ -4,6 +4,7 @@ History
 2006/09/17 Shinigami: send_event() will return error "Event queue is full, discarding event"
 2009/09/22 MuadDib:   Rewrite for Character/NPC to use ar(), ar_mod(), ar_mod(newvalue) virtuals.
 2009/11/16 Turley:    added NpcPropagateEnteredArea()/inform_enteredarea() for event on resurrection
+2010/02/03 Turley:    MethodScript support for mobiles
 
 Notes
 =======
@@ -90,6 +91,7 @@ public:
     virtual BObjectImp* set_script_member_id( const int id, const std::string& );//id test
     virtual BObjectImp* script_method( const char* methodname, Executor& ex );
     virtual BObjectImp* script_method_id( const int id, Executor& ex );
+	virtual BObjectImp* custom_script_method( const char* methodname, Executor& ex );
     virtual bool script_isa( unsigned isatype ) const;
 
     const char *classname() const;
