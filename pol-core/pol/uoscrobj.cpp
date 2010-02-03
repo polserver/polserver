@@ -34,6 +34,7 @@ History
 2009/12/21 Turley:    ._method() call fix
                       multi support of methodscripts
 2010/01/15 Turley:    (Tomi) season stuff
+2010/02/03 Turley:    MethodScript support for mobiles
 
 Notes
 =======
@@ -172,8 +173,17 @@ BObjectRef ECharacterRefObjImp::set_member( const char* membername, BObjectImp* 
 
 BObjectImp* ECharacterRefObjImp::call_method_id( const int id, Executor& ex, bool forcebuiltin )
 {
+	//MethodScript for npcs in npc->template_ (npctmpl.h) (aka templatebased)
+	//             for chars in uoclient_general (uoclient.h) (aka one global definition)
 	if (!obj_->orphan())
 	{
+		ObjMethod* mth = getObjMethod(id);
+		if ( mth->overridden && !forcebuiltin )
+		{
+			BObjectImp* imp = obj_->custom_script_method( mth->code, ex );
+			if (imp)
+				return imp;
+		}
 		BObjectImp* imp = obj_->script_method_id( id, ex );
 		if (imp != NULL)
 			return imp;
@@ -188,11 +198,27 @@ BObjectImp* ECharacterRefObjImp::call_method_id( const int id, Executor& ex, boo
 
 BObjectImp* ECharacterRefObjImp::call_method( const char* methodname, Executor& ex )
 {
+	//MethodScript for npcs in npc->template_ (npctmpl.h) (aka templatebased)
+	//             for chars in uoclient_general (uoclient.h) (aka one global definition)
+	bool forcebuiltin;
+	if (methodname[0] == '_')
+	{
+		++methodname;
+		forcebuiltin = true;
+	}
+	else
+		forcebuiltin = false;
 	ObjMethod* objmethod = getKnownObjMethod(methodname);
 	if ( objmethod != NULL )
-		return this->call_method_id(objmethod->id, ex);
+		return this->call_method_id(objmethod->id, ex, forcebuiltin);
 	else
-		return base::call_method(methodname, ex);
+	{
+		BObjectImp* imp = obj_->custom_script_method( methodname, ex );
+		if ( imp )
+			return imp;
+		else
+			return base::call_method(methodname, ex);
+	}
 }
 
 bool ECharacterRefObjImp::isTrue() const
@@ -2218,6 +2244,19 @@ BObjectImp* Character::script_method( const char* methodname, Executor& ex )
 		return NULL;
 }
 
+BObjectImp* Character::custom_script_method( const char* methodname, Executor& ex )
+{
+	if (uoclient_general.method_script != NULL)
+	{
+		unsigned PC;
+		if (uoclient_general.method_script->FindExportedFunction( methodname, ex.numParams()+1, PC ))
+		{
+			return uoclient_general.method_script->call( PC, make_ref(), ex.fparams );
+		}
+	}
+	return NULL;
+}
+
 ObjArray* Character::GetReportables() const
 {
 	ObjArray* arr = new ObjArray;
@@ -2440,6 +2479,19 @@ BObjectImp* NPC::script_method( const char* methodname, Executor& ex )
 		return this->script_method_id(objmethod->id, ex);
 	else
 		return NULL;
+}
+
+BObjectImp* NPC::custom_script_method( const char* methodname, Executor& ex )
+{
+	if (template_.method_script != NULL)
+	{
+		unsigned PC;
+		if (template_.method_script->FindExportedFunction( methodname, ex.numParams()+1, PC ))
+		{
+			return template_.method_script->call( PC, make_ref(), ex.fparams );
+		}
+	}
+	return NULL;
 }
 
 BObjectImp* Item::make_ref()

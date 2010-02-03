@@ -1,6 +1,7 @@
 /*
 History
 =======
+2010/02/03 Turley:    MethodScript support for mobiles
 
 
 Notes
@@ -18,6 +19,7 @@ Notes
 #include "npctmpl.h"
 #include "../plib/pkg.h"
 #include "item/weapon.h"
+#include "syshookscript.h"
 
 struct TRANSLATION
 {
@@ -55,7 +57,8 @@ NpcTemplate::NpcTemplate( const ConfigElem& elem, const Package* pkg ) :
 	intrinsic_weapon( find_intrinsic_weapon(elem.rest()) ),
 	pkg( pkg ),
 	// script( elem.read_string( "SCRIPT" ) ),
-	alignment( static_cast<ALIGNMENT>(translate(elem.read_string( "ALIGNMENT", "neutral" ), xlate_align )) )
+	alignment( static_cast<ALIGNMENT>(translate(elem.read_string( "ALIGNMENT", "neutral" ), xlate_align )) ),
+	method_script(NULL)
 {
 	if (pkg == NULL)
 	{
@@ -71,7 +74,28 @@ NpcTemplate::NpcTemplate( const ConfigElem& elem, const Package* pkg ) :
 		{
 			name = ":" + pkg->name() + ":" + elem.rest();
 		}
-		
+	}
+	
+	if (elem.has_prop("MethodScript"))
+	{
+		std::string temp= elem.read_string("MethodScript");
+		if( !temp.empty() )
+		{
+			ExportScript* shs = new ExportScript( pkg, temp );
+			if (shs->Initialize())
+				method_script = shs;
+			else
+				delete shs;
+		}
+	}
+}
+
+NpcTemplate::~NpcTemplate()
+{
+	if (method_script != NULL)
+	{
+		delete method_script;
+		method_script = NULL;
 	}
 }
 
@@ -146,3 +170,4 @@ void unload_npc_templates()
 	}
 	npc_templates.clear();
 }
+

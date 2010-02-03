@@ -21,6 +21,7 @@ History
 2009/11/20 Turley:    RecalcVitals can update single Attributes/Vitals - based on Tomi
 2010/01/15 Turley:    (Tomi) priv runwhilestealth
 2010/01/22 Turley:    Speedhack Prevention System
+2010/02/03 Turley:    MethodScript support for mobiles
 
 Notes
 =======
@@ -583,6 +584,7 @@ public:
 
     virtual BObjectImp* script_method( const char* methodname, Executor& ex );
     virtual BObjectImp* script_method_id( const int id, Executor& ex );
+	virtual BObjectImp* custom_script_method( const char* methodname, Executor& ex );
     virtual bool script_isa( unsigned isatype ) const;
     virtual const char* target_tag() const;
     
