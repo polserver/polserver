@@ -251,7 +251,7 @@ int xmain(int argc, char *argv[])
 		// vX.YY
 		double vernum = (double)progver + (double)(ESCRIPT_FILE_VER_CURRENT / 100.0f);
         cerr << "EScript Executor v" << vernum << endl;
-        cerr << "Copyright (C) 1993-2009 Eric N. Swanson" << endl;
+        cerr << "Copyright (C) 1993-2010 Eric N. Swanson" << endl;
         cerr << endl;
     }
 
