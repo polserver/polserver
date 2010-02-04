@@ -1,4 +1,9 @@
 -- POL099 --
+02-04-2010 Turley:
+     Added: polcfg:DiscardOldEvents 1/0 {default 0}
+            if set instead of discarding new event if queue is full it discards oldest event and adds the new event
+   Changed: "Event queue is full.." only prints if polcfg.LogLevel >= 11
+
 02-03-2010 Turley:
      Added: MethodScript support for mobiles
             NPC: npcdesc.cfg MethodScript entry
