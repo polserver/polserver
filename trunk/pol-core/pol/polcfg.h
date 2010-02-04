@@ -4,6 +4,7 @@ History
 2007/06/17 Shinigami: added config.world_data_path
 2009/12/02 Turley:    added MaxTileID -Tomi
 2009/12/04 Turley:    cleanup "MasterKey1","MasterKey2","ClientVersion","KeyFile" - Tomi
+2010/02/04 Turley:    polcfg.discard_old_events discards oldest event if queue is full
 
 Notes
 =======
@@ -68,6 +69,7 @@ struct PolConfig {
 	bool report_critical_scripts;
 	bool report_missing_configs;
 	bool retain_cleartext_passwords;
+	bool discard_old_events;
 
 	int shutdown_save_type; // either SAVE_FULL or SAVE_INCREMENTAL
 	int assertion_shutdown_save_type;

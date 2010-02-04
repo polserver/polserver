@@ -1049,51 +1049,55 @@ client->checkpoint = 61; //CNXBUG
 			//region Speedhack
 			if (!client->movementqueue.empty()) // not empty then process the first packet
 			{
+				PolLock lck;
 				PacketThrottler pkt = client->movementqueue.front();
 				if (client->SpeedHackPrevention(false))
 				{
-					unsigned char msgtype = pkt.pktbuffer[0];
-					if ( ( client->ClientType & CLIENTTYPE_6017 ) && (handler_v2[ msgtype ].msglen) )
+					if (!client->disconnect)
 					{
-						try {
-							dtrace(10) << "Client#" << client->instance_ << ": message " << hexint( static_cast<unsigned short>(msgtype)) << endl;
-							
-							CLIENT_CHECKPOINT(26);
-							(*handler_v2[msgtype].func)(client, pkt.pktbuffer);
-							CLIENT_CHECKPOINT(27);
-							restart_all_clients();
-						}
-						catch( std::exception& ex )
+						unsigned char msgtype = pkt.pktbuffer[0];
+						if ( ( client->ClientType & CLIENTTYPE_6017 ) && (handler_v2[ msgtype ].msglen) )
 						{
-							Log2( "Client#%lu: Exception in message handler 0x%02.02x: %s\n",
-								client->instance_,
-								msgtype,
-								ex.what());
-							if (logfile)
-								fdump( logfile, pkt.pktbuffer, 7 );
-							restart_all_clients();
-							throw;
+							try {
+								dtrace(10) << "Client#" << client->instance_ << ": message " << hexint( static_cast<unsigned short>(msgtype)) << endl;
+								
+								CLIENT_CHECKPOINT(26);
+								(*handler_v2[msgtype].func)(client, pkt.pktbuffer);
+								CLIENT_CHECKPOINT(27);
+								restart_all_clients();
+							}
+							catch( std::exception& ex )
+							{
+								Log2( "Client#%lu: Exception in message handler 0x%02.02x: %s\n",
+									client->instance_,
+									msgtype,
+									ex.what());
+								if (logfile)
+									fdump( logfile, pkt.pktbuffer, 7 );
+								restart_all_clients();
+								throw;
+							}
 						}
-					}
-					else // else this is the legacy style (pre-uokr)
-					{
-						try {
-							dtrace(10) << "Client#" << client->instance_ << ": message " << hexint( static_cast<unsigned short>(msgtype)) << endl;
-							CLIENT_CHECKPOINT(26);
-							(*handler[msgtype].func)(client, pkt.pktbuffer);
-							CLIENT_CHECKPOINT(27);
-							restart_all_clients();
-						}
-						catch( std::exception& ex )
+						else // else this is the legacy style (pre-uokr)
 						{
-							Log2( "Client#%lu: Exception in message handler 0x%02.02x: %s\n",
-								client->instance_,
-								msgtype,
-								ex.what());
-							if (logfile)
-								fdump( logfile, pkt.pktbuffer, 7 );
-							restart_all_clients();
-							throw;
+							try {
+								dtrace(10) << "Client#" << client->instance_ << ": message " << hexint( static_cast<unsigned short>(msgtype)) << endl;
+								CLIENT_CHECKPOINT(26);
+								(*handler[msgtype].func)(client, pkt.pktbuffer);
+								CLIENT_CHECKPOINT(27);
+								restart_all_clients();
+							}
+							catch( std::exception& ex )
+							{
+								Log2( "Client#%lu: Exception in message handler 0x%02.02x: %s\n",
+									client->instance_,
+									msgtype,
+									ex.what());
+								if (logfile)
+									fdump( logfile, pkt.pktbuffer, 7 );
+								restart_all_clients();
+								throw;
+							}
 						}
 					}
 					client->movementqueue.pop();

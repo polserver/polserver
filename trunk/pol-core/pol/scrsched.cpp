@@ -8,6 +8,8 @@ History
 2006/09/23 Shinigami: Script_Cycles, Sleep_Cycles and Script_passes uses 64bit now
 2009/07/28 MuadDib:   Packet Struct Refactoring
 2009/09/03 MuadDib:   Relocation of boat related cpp/h
+2010/02/04 Turley:    "Event queue full" cerr only if loglevel>=11
+                      polcfg.discard_old_events discards oldest event if queue is full
 
 Notes
 =======
@@ -110,18 +112,29 @@ bool OSExecutorModule::signal_event( BObjectImp* imp )
         }
         else
         {
-            cout << "Event queue for " << exec.scriptname() << " is full, discarding event." << endl;
-            ExecutorModule* em = exec.findModule( "npc" );
-            if (em)
-            {
-                NPCExecutorModule* npcemod = static_cast<NPCExecutorModule*>(em);
-                cout << "NPC Serial: " << hexint( npcemod->npc.serial ) <<
-					" (" << npcemod->npc.x << " " << npcemod->npc.y << " " << (int) npcemod->npc.z << ")" << endl;
-            }
-            BObject ob( imp );
-			cout << "Event: " << ob->getStringRep() << endl;
-
-			return false;
+			if (config.discard_old_events)
+			{
+				BObject ob( events_.front() );
+				events_.pop();
+				events_.push( imp );
+			}
+			else
+			{
+				if (config.loglevel >= 11)
+				{
+					cout << "Event queue for " << exec.scriptname() << " is full, discarding event." << endl;
+					ExecutorModule* em = exec.findModule( "npc" );
+					if (em)
+					{
+						NPCExecutorModule* npcemod = static_cast<NPCExecutorModule*>(em);
+						cout << "NPC Serial: " << hexint( npcemod->npc.serial ) <<
+							" (" << npcemod->npc.x << " " << npcemod->npc.y << " " << (int) npcemod->npc.z << ")" << endl;
+					}
+					BObject ob( imp );
+					cout << "Event: " << ob->getStringRep() << endl;
+				}
+				return false;
+			}
         }
     }
 
