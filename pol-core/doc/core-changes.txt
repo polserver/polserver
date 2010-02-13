@@ -52,7 +52,7 @@
      Added: Combatcfg:AttackWhileFrozen 1/0 (default 1) if set to false attack checks if chr is frozen or paralyzed
      
 01-12-2010 Turley:
-     Added: on Profile opening and update request "scripts/misc/chrprofile.ecl" is called
+     Added: on Profile opening and update request "scripts/misc/charprofile.ecl" is called
             params are character, of_who, mode,uctext
             if mode==0 (request) uctext is 0
             if mode==1 (update) uctext is new unicode array
