@@ -1,4 +1,9 @@
 -- POL099 --
+02-16-2010 Turley:
+     Fixed: StrReplace,SubStrReplace return "Invalid parameter type" instead of crashing if non string object
+            is given as to_replace, replace_with
+     Fixed: Several small memoryleaks
+
 02-04-2010 Turley:
      Added: polcfg:DiscardOldEvents 1/0 {default 0}
             if set instead of discarding new event if queue is full it discards oldest event and adds the new event
