@@ -222,7 +222,7 @@ BObjectImp* PolSystemExecutorModule::mf_ListTextCommands()
 	BDictionary* pkg_list = new BDictionary;
 	// Sets up text commands not in a package.
 	{
-		BDictionary* cmd_lvl_list = new BDictionary;
+		auto_ptr<BDictionary> cmd_lvl_list(new BDictionary);
 		for( unsigned num = 0; num < cmdlevels2.size(); ++num )
 		{
 			ObjArray* script_list = GetCommandsInPackage(NULL, num);
@@ -232,14 +232,14 @@ BObjectImp* PolSystemExecutorModule::mf_ListTextCommands()
 				cmd_lvl_list->addMember(new BLong(num), script_list);
 		}
 		if ( cmd_lvl_list->contents().size() > 0 )
-			pkg_list->addMember(new String(""), cmd_lvl_list);
+			pkg_list->addMember(new String(""), cmd_lvl_list.release());
 	}
 	//
 	// Sets up packaged text commands.
 	for( Packages::iterator itr = packages.begin(); itr != packages.end(); ++itr )
 	{
 		Package* pkg = (*itr);
-		BDictionary* cmd_lvl_list = new BDictionary;
+		auto_ptr<BDictionary> cmd_lvl_list(new BDictionary);
 		for( unsigned num = 0; num < cmdlevels2.size(); ++num )
 		{
 			ObjArray* script_list = GetCommandsInPackage(pkg, num);
@@ -249,7 +249,7 @@ BObjectImp* PolSystemExecutorModule::mf_ListTextCommands()
 				cmd_lvl_list->addMember(new BLong(num), script_list);
 		}
 		if ( cmd_lvl_list->contents().size() > 0 )
-			pkg_list->addMember(new String(pkg->name().c_str()), cmd_lvl_list);
+			pkg_list->addMember(new String(pkg->name().c_str()), cmd_lvl_list.release());
 	}
 	return pkg_list;
 }

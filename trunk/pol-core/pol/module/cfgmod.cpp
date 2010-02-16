@@ -419,9 +419,8 @@ BObjectImp* ConfigFileExecutorModule::mf_GetConfigStringArray()
 			//Added 9-03-2005  Austin
 			//Will no longer place the string right into the array.
 			//Instead a check is done to make sure something is there.
-			String* line_str = new String(imp->getStringRep());
-			if ( line_str->length() >= 1 )
-				ar->addElement( line_str );
+			if ( imp->getStringRep().length() >= 1 )
+				ar->addElement( new String(imp->getStringRep()) );
 		}
 		return ar;
 	}
