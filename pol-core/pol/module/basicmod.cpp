@@ -101,9 +101,13 @@ StrReplace(str, to_replace, replace_with);
 BObjectImp* BasicExecutorModule::mf_StrReplace()
 {
 	BObjectImp* imp = exec.getParamImp( 0 );
-	String *string = new String(imp->getStringRep().c_str());
-	String *to_replace = static_cast<String*>(exec.getParamImp(1));
-	String *replace_with = static_cast<String*>(exec.getParamImp(2));
+	auto_ptr<String> string( new String(imp->getStringRep().c_str()) );
+	String *to_replace = static_cast<String*>(exec.getParamImp(1,BObjectImp::OTString));
+	if (!to_replace)
+		return new BError( "Invalid parameter type" );
+	String *replace_with = static_cast<String*>(exec.getParamImp(2,BObjectImp::OTString));
+	if (!replace_with)
+		return new BError( "Invalid parameter type" );
 
 	if (string->length() < 1)
 		return new BError("Cannot use empty string for string haystack.");
@@ -112,15 +116,17 @@ BObjectImp* BasicExecutorModule::mf_StrReplace()
 
     string->EStrReplace(to_replace, replace_with);
 
-	return string;
+	return string.release();
 }
 
 // SubStrReplace(str, replace_with, start, length:=0); 
 BObjectImp* BasicExecutorModule::mf_SubStrReplace()
 {
 	BObjectImp* imp = exec.getParamImp( 0 );
-	String *string = new String(imp->getStringRep().c_str());
-	String *replace_with = static_cast<String*>(exec.getParamImp(1));
+	auto_ptr<String> string( new String(imp->getStringRep().c_str()) );
+	String *replace_with = static_cast<String*>(exec.getParamImp(1,BObjectImp::OTString));
+	if (!replace_with)
+		return new BError( "Invalid parameter type" );
 	unsigned int index = static_cast<int>(exec.paramAsLong(2));
 	unsigned int len = static_cast<int>(exec.paramAsLong(3));
 
@@ -143,7 +149,7 @@ BObjectImp* BasicExecutorModule::mf_SubStrReplace()
 
     string->ESubStrReplace(replace_with, index, len);
 
-	return string;
+	return string.release();
 }
 
 // OMG I HATED THIS REQUEST. Ugly code, but necessary for all the checks
