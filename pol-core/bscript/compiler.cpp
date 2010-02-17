@@ -463,10 +463,25 @@ int Expression::get_num_tokens( int idx ) const
 {
     Token* tkn = tokens[idx];
     int children = 0;
+
     if (tkn->type == TYP_OPERAND) // constant
     {
-        children = 0; // just myself
+		// "anonymous" struct definitions inside array/dict/...
+		if (tkn->id == INS_ADDMEMBER_ASSIGN) //struct{a:=1}
+			children = 2;
+		else if (tkn->id == INS_ADDMEMBER2) // struct{a}
+			children = 1;
+		else
+			children = 0; // just myself
     }
+	else if (tkn->id == INS_ADDMEMBER_ASSIGN)
+	{
+		children = 2;
+	}
+	else if (tkn->id == INS_DICTIONARY_ADDMEMBER)
+	{
+		children = 3;
+	}
     else if (tkn->id == INS_MULTISUBSCRIPT)
     {
         children = 1 + tkn->lval;
