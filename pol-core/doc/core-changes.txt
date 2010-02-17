@@ -1,4 +1,8 @@
 -- POL099 --
+02-17-2010 Turley:
+     Fixed: direct usage of struct/dictionary initializer in array/dictionary/struct definition
+            eg: var dict:=dictionary; dict["blubb"]:=struct{a:=1};
+
 02-16-2010 Turley:
      Fixed: StrReplace,SubStrReplace return "Invalid parameter type" instead of crashing if non string object
             is given as to_replace, replace_with
