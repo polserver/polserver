@@ -68,11 +68,17 @@ enum USKILLID {
 	SKILLID_NECROMANCY			= 49,
 	SKILLID_BATTLE_FOCUS		= 50,
 	SKILLID_CHIVALRY			= 51,
+	SKILLID_BUSHIDO				= 52,
+	SKILLID_NINJITSU			= 53,
+	SKILLID_SPELLWEAVING		= 54,
+	SKILLID_MYSTICISM			= 55,
+	SKILLID_IMBUING				= 56,
+	SKILLID_THROWING			= 57,
 
-	SKILLID__CLIENT_HIGHEST  	= 51,
+	SKILLID__CLIENT_HIGHEST  	= 57,
 	
 	// additional skills, that the client can't directly know about, go here.
-    SKILLID__HIGHEST            = 51,
+    SKILLID__HIGHEST            = 57,
 	SKILLID__COUNT // use for array sizes, etc.
 };
 

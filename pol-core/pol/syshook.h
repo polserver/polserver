@@ -64,6 +64,7 @@ public:
 	ExportedFunction* can_decay;
     ExportedFunction* ouch_hook;
     ExportedFunction* can_die;
+	ExportedFunction* un_hide;
 };
 extern SystemHooks system_hooks;
 
