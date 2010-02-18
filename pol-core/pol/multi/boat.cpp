@@ -200,7 +200,7 @@ bool BoatShapeExists( u16 graphic )
 
 vector<Client*> boat_sent_to;
 
-void send_boat_to_inrange( const UBoat* item )
+void send_boat_to_inrange( const UBoat* item, u16 oldx, u16 oldy )
 {
 
 	PKTOUT_1A_C msg;
@@ -228,6 +228,10 @@ void send_boat_to_inrange( const UBoat* item )
 	msg2.layer = 0x00;
 	msg2.color = 0x00;
 	msg2.flags = 0x00;
+
+	PKTOUT_1D msgremove;
+	msgremove.msgtype = PKTOUT_1D_ID;
+	msgremove.serial = item->serial_ext;
     
     for( Clients::iterator itr = clients.begin(); itr != clients.end(); ++itr )
 	{
@@ -244,6 +248,12 @@ void send_boat_to_inrange( const UBoat* item )
 				client->transmit( &msg, sizeof msg );
             boat_sent_to.push_back( client );
         }
+		else if ((oldx!=USHRT_MAX) && (oldy!=USHRT_MAX) && //were inrange
+			(client->chr->realm == item->realm) &&
+			(inrange( client->chr->x, client->chr->y, oldx, oldy )))
+		{
+			client->transmit( &msgremove, sizeof msgremove );
+		}
     }
 }
 
@@ -794,11 +804,13 @@ bool UBoat::move_xy(unsigned short newx, unsigned short newy, long flags, Realm*
         set_dirty();
         move_multi_in_world( x, y, newx, newy, this, oldrealm );
 
+		u16 oldx = x;
+		u16 oldy = y;
         x = newx;
         y = newy;
 
         // NOTE, send_boat_to_inrange pauses those it sends to.
-        send_boat_to_inrange( this ); // FIXME doesn't send deletes
+        send_boat_to_inrange( this, oldx, oldy );
         transform_components( boatshape(), oldrealm );
         move_travellers( FACING_N, bc, newx, newy, oldrealm ); //facing is ignored if params 3 & 4 are not USHRT_MAX
         unpause_paused();
@@ -833,11 +845,13 @@ bool UBoat::move( UFACING facing )
 
         move_multi_in_world( x, y, newx, newy, this, realm );
 
+		u16 oldx = x;
+		u16 oldy = y;
         x = newx;
         y = newy;
 
             // NOTE, send_boat_to_inrange pauses those it sends to.
-        send_boat_to_inrange( this ); // FIXME doesn't send deletes
+        send_boat_to_inrange( this, oldx, oldy );
         transform_components( boatshape(), realm );
         move_travellers( facing, bc, x, y, realm );
         unpause_paused();
