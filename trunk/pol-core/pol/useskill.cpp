@@ -38,8 +38,7 @@ void handle_use_skill(Client *client, PKTIN_12 *msg)
 	const UOSkill& uoskill = GetUOSkill(skillnum);
 	const Attribute* attrib = uoskill.pAttr;
 
-	// Shouldn't most these checks be left to the scripts? - Austin
-	if ( !CanUseSkill(client) )
+	if ( !attrib->disable_core_checks && !CanUseSkill(client) )
 		return;
 	else if ( !attrib->script_.empty() )
 	{

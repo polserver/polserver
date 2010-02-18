@@ -3678,6 +3678,12 @@ void Character::position_changed()
 
 void Character::unhide()
 {
+    if (system_hooks.un_hide != NULL)
+    {
+        if (!system_hooks.un_hide->call(make_mobileref(this)))
+            return;
+    }
+
 	hidden_ = false;
 	if (is_visible())
 	{
