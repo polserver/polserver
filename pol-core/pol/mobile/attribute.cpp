@@ -55,6 +55,7 @@ Attribute::Attribute( const Package* pkg, ConfigElem& elem ) :
 	getintrinsicmod_func(NULL),
 	delay_seconds(elem.remove_ushort("DELAY", 0)),
 	unhides(elem.remove_bool("UNHIDES", true)),
+	disable_core_checks(elem.remove_bool("DisableCoreChecks", false)),
 	default_cap(elem.remove_ushort("DefaultCap", ssopt.default_attribute_cap)),
 	script_( elem.remove_string("SCRIPT", ""), pkg, "scripts/skills/")
 {

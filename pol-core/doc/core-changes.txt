@@ -1,4 +1,13 @@
 -- POL099 --
+02-18-2010 Turley:
+     Added: (Tomi) Syshook UnHide(mobile)
+            return values 0 stops the char from unhiding and 1 let the core process it.
+     Added: (Tomi) "DisableCoreChecks" 0/1 (default 0) to each attribute entry in attribute.cfg
+            if true the core will not check during skill_use ( from skillwindow ) for active skills, 
+            active spells, frozen, paralyzed or delay
+            if false core will check everything as it does now.
+   Changed: Increased Maximum UO SkillID to 57 (default value of uoclient::MaxSkillID)
+
 02-17-2010 Turley:
      Fixed: direct usage of struct/dictionary initializer in array/dictionary/struct definition
             eg: var dict:=dictionary; dict["blubb"]:=struct{a:=1};
