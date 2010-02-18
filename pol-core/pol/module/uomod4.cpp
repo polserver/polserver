@@ -115,7 +115,8 @@ BObjectImp* UOExecutorModule::internal_MoveBoat(UBoat* boat, xcoord x, ycoord y,
 		return new BError("Position indicated is impassable");
 	}
 
-	ConstForEach(clients, send_remove_object_if_inrange, (Item*)boat);
+	if (newrealm != boat->realm) //boat->move_xy removes on xy change so only realm change check is needed
+		ConstForEach(clients, send_remove_object_if_inrange, (Item*)boat);
 	boat->realm = newrealm;
 
 	s8 deltaz = static_cast<s8>(z - boat->z);
@@ -123,7 +124,6 @@ BObjectImp* UOExecutorModule::internal_MoveBoat(UBoat* boat, xcoord x, ycoord y,
 	boat->adjust_traveller_z(deltaz);
 	boat->realm_changed();
 	bool ok = boat->move_xy(x, y, flags, oldrealm);
-	send_boat_to_inrange(boat);
 	return new BLong(ok);
 }
 
