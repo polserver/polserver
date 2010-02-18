@@ -116,7 +116,7 @@ private:
 };
 
 BObjectImp* destroy_boat( UBoat* boat );
-void send_boat_to_inrange( const UBoat* item );
+void send_boat_to_inrange( const UBoat* item, u16 oldx=USHRT_MAX, u16 oldy=USHRT_MAX  );
 
 bool BoatShapeExists( u16 graphic );
 void clean_boatshapes();
