@@ -36,6 +36,7 @@ public:
 	// UseSkill information
 	unsigned delay_seconds;
 	bool unhides;
+	bool disable_core_checks;
 
 	//Default cap
 	unsigned short default_cap;

@@ -106,7 +106,8 @@ SystemHooks::SystemHooks() :
 	on_cast_hook(NULL),
 	can_decay(NULL),
     ouch_hook(NULL),
-    can_die(NULL)
+    can_die(NULL),
+	un_hide(NULL)
 {
 }
 
@@ -183,6 +184,11 @@ void hook( ExportScript* shs, const string& hookname, const string& exfuncname )
         nargs = 1;
         pphook = &system_hooks.can_die;
     }
+	else if (hookname == "UnHide")
+	{
+		nargs = 1;
+		pphook = &system_hooks.un_hide;
+	}
 	else
 	{
 		cout << "Unknown SystemHook " << hookname << endl;
@@ -283,6 +289,8 @@ void unload_system_hooks()
 		delete system_hooks.ouch_hook;
     if (system_hooks.can_die != NULL)
         delete system_hooks.can_die;
+    if (system_hooks.un_hide != NULL)
+        delete system_hooks.un_hide;
 }
 
 ExportScript* FindExportScript( const ScriptDef& sd )
