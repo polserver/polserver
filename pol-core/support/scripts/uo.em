@@ -244,6 +244,7 @@ CloseWindow( character, type, object );
 ConsumeReagents( who, spellid );
 ConsumeSubstance( container, objtype, amount );
 CoordinateDistance(x1, y1, x2, y2);
+CoordinateDistanceEuclidean(x1, y1, x2, y2);
 CreateAccount( acctname, password, enabled );
 CreateItemAtLocation( x, y, z, objtype, amount := 1, realm := _DEFAULT_REALM );
 CreateItemCopyAtLocation(x, y, z, item, realm := _DEFAULT_REALM);
@@ -259,6 +260,7 @@ Detach();
 DisableEvents( eventtype );     // eventtype combination of constants from SYSEVENT.INC
 DisconnectClient( character );
 Distance( obj1, obj2 );
+DistanceEuclidean( obj1, obj2 );
 EnableEvents( eventtype, range := -1);  // eventtype combination of constants from SYSEVENT.INC
 EnumerateItemsInContainer( container, flags := 0 );
 EnumerateOnlineCharacters();

@@ -2357,6 +2357,12 @@ BObjectImp* UOExecutorModule::mf_ListObjectsInBox(/* x1, y1, z1, x2, y2, z2, rea
 	if (!realm)
         return new BError("Realm not found");
 
+	if (x1 > x2)
+		swap(x1, x2);
+	if (y1 > y2)
+		swap(y1, y2);
+	if (z1 > z2)
+		swap(z1, z2);
 	// Disabled again: ShardAdmins "loves" this "bug" :o/
 	// if ((!realm->valid(x1, y1, z1)) || (!realm->valid(x2, y2, z2)))
 	//     return new BError("Invalid Coordinates for realm");
@@ -2425,6 +2431,12 @@ BObjectImp* UOExecutorModule::mf_ListMultisInBox(/* x1, y1, z1, x2, y2, z2, real
 	if (!realm)
         return new BError("Realm not found");
 
+	if (x1 > x2)
+		swap(x1, x2);
+	if (y1 > y2)
+		swap(y1, y2);
+	if (z1 > z2)
+		swap(z1, z2);
 	// Disabled again: ShardAdmins "loves" this "bug" :o/
 	// if ((!realm->valid(x1, y1, z1)) || (!realm->valid(x2, y2, z2)))
 	//     return new BError("Invalid Coordinates for realm");
@@ -2513,6 +2525,12 @@ BObjectImp* UOExecutorModule::mf_ListStaticsInBox(/* x1, y1, z1, x2, y2, z2, fla
         if (!realm)
             return new BError("Realm not found");
 
+		if (x1 > x2)
+			swap(x1, x2);
+		if (y1 > y2)
+			swap(y1, y2);
+		if (z1 > z2)
+			swap(z1, z2);
 		// Disabled again: ShardAdmins "loves" this "bug" :o/
 		// if ((!realm->valid(x1, y1, z1)) || (!realm->valid(x2, y2, z2)))
 		//     return new BError("Invalid Coordinates for realm");
@@ -3477,6 +3495,24 @@ BObjectImp* UOExecutorModule::mf_Distance()
     }
 }
 
+BObjectImp* UOExecutorModule::mf_DistanceEuclidean()
+{
+	UObject* obj1;
+	UObject* obj2;
+	if (getUObjectParam( exec, 0, obj1 ) &&
+		getUObjectParam( exec, 1, obj2 ))
+	{
+		const UObject* tobj1 = obj1->toplevel_owner();
+		const UObject* tobj2 = obj2->toplevel_owner();
+		return new Double(sqrt( pow( (double)(tobj1->x - tobj2->x), 2)
+			                  + pow( (double)(tobj1->y - tobj2->y), 2)));
+	}
+	else
+	{
+		return new BError( "Invalid parameter type" );
+	}
+}
+
 BObjectImp* UOExecutorModule::mf_CoordinateDistance()
 {
     unsigned short x1, y1, x2, y2;
@@ -3486,6 +3522,18 @@ BObjectImp* UOExecutorModule::mf_CoordinateDistance()
 		return new BError("Invalid parameter type");
 	}
 	return new BLong(pol_distance(x1, y1, x2, y2));
+}
+
+BObjectImp* UOExecutorModule::mf_CoordinateDistanceEuclidean()
+{
+	unsigned short x1, y1, x2, y2;
+	if ( !(getParam(0, x1) && getParam(1, y1)
+		&& getParam(2, x2) && getParam(3, y2)) )
+	{
+		return new BError("Invalid parameter type");
+	}
+	return new Double(sqrt( pow( (double)(x1 - x2), 2)
+		                  + pow( (double)(y1 - y2), 2)));
 }
 
 BObjectImp* UOExecutorModule::mf_GetCoordsInLine()
@@ -5775,6 +5823,8 @@ UOFunctionDef UOExecutorModule::function_table[] =
     { "ListMobilesInLineOfSight", &UOExecutorModule::mf_ListMobilesInLineOfSight },
     { "Distance",               &UOExecutorModule::mf_Distance },
 	{ "CoordinateDistance",		&UOExecutorModule::mf_CoordinateDistance },
+	{ "DistanceEuclidean",				&UOExecutorModule::mf_DistanceEuclidean },
+	{ "CoordinateDistanceEuclidean",	&UOExecutorModule::mf_CoordinateDistanceEuclidean },
 	{ "GetCoordsInLine",		&UOExecutorModule::mf_GetCoordsInLine },
 	{ "GetFacing",				&UOExecutorModule::mf_GetFacing },
     { "SetRegionLightLevel",    &UOExecutorModule::mf_SetRegionLightLevel },

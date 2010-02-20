@@ -1,4 +1,9 @@
 -- POL099 --
+02-20-2010 Turley:
+   Changed: ListStaticsInBox,ListObjectsInBox,ListMultisInBox now swap x,y,z values if in wrong order
+     Added: uo::DistanceEuclidean(obj1, obj2) & uo::CoordinateDistanceEuclidean(x1, y1, x2, y2)
+            returns the Euclidean distance as double ( sqrt(pow(x1-x2,2)+pow(y1-y2,2)) )
+
 02-18-2010 Turley:
      Added: (Tomi) Syshook UnHide(mobile)
             return values 0 stops the char from unhiding and 1 let the core process it.

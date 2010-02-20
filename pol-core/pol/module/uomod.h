@@ -170,7 +170,9 @@ public:
 	BObjectImp* mf_ListGhostsNearLocation();
 	BObjectImp* mf_ListMobilesInLineOfSight();
 	BObjectImp* mf_Distance();
+	BObjectImp* mf_DistanceEuclidean();
 	BObjectImp* mf_CoordinateDistance();
+	BObjectImp* mf_CoordinateDistanceEuclidean();
 	BObjectImp* mf_GetCoordsInLine();
 	BObjectImp* mf_GetFacing();
 	BObjectImp* mf_SetRegionLightLevel();
