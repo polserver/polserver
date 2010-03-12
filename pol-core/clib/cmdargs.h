@@ -22,6 +22,7 @@ long LongHexArg( const char *tag, long deflt ); /* /A01010016 , /La6004003 */
 void StoreCmdArgs( int argc, char **argv );
 long LongArg2( const char* alltag, long dflt );
 bool BoolArg2( const char* alltag, bool dflt );
+long LongHexArg2( const char *tag, long deflt );
 
 #endif
 
