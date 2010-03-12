@@ -1,4 +1,8 @@
 -- POL099 --
+03-12-2010 Turley:
+     Fixed: uoconvert - default value of MaxTileID (0x3FFF)
+     Added: uoconvert param {maxtileid=0x3FFF/0x7FFF} (if uodata= param is given pol.cfg never gets read)
+
 02-20-2010 Turley:
    Changed: ListStaticsInBox,ListObjectsInBox,ListMultisInBox now swap x,y,z values if in wrong order
      Added: uo::DistanceEuclidean(obj1, obj2) & uo::CoordinateDistanceEuclidean(x1, y1, x2, y2)
