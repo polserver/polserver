@@ -138,3 +138,12 @@ long LongHexArg( const char *tag, long deflt )
     else
         return deflt;
 }
+
+long LongHexArg2( const char *tag, long deflt )
+{
+	const char *parm = FindArg2( tag );
+	if (parm)
+		return strtoul( parm, NULL, 16 );
+	else
+		return deflt;
+}
