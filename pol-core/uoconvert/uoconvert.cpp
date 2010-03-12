@@ -101,6 +101,8 @@ void display_flags()
 int xmain( int argc, char* argv[] )
 {
     StoreCmdArgs( argc, argv );
+	config.max_tile_id = 0x3FFF; //default
+
     if (FindArg2( "uodata=" ) != NULL)
     {
         config.uo_datafile_root = FindArg2( "uodata=" );
@@ -118,11 +120,16 @@ int xmain( int argc, char* argv[] )
         
         unsigned short max_tile = elem.remove_ushort( "MaxTileID", 0x3FFF );
 
-		if (max_tile != 0x3FFF && max_tile != 0x7FFF)
-			config.max_tile_id = 0x3FFF;
-		else
+		if (max_tile == 0x3FFF || max_tile == 0x7FFF)
 			config.max_tile_id = max_tile;
     }
+
+	if (FindArg2( "maxtileid=" ) != NULL)
+	{
+		unsigned short max_tile = static_cast<unsigned short>(LongHexArg2( "maxtileid=", 0x3FFF ));
+		if (max_tile == 0x3FFF || max_tile == 0x7FFF)
+			config.max_tile_id = max_tile;
+	}
 
 
     string main_cfg = "uoconvert.cfg";
@@ -330,7 +337,7 @@ int xmain( int argc, char* argv[] )
     {
         cerr << "Usage: uoconvert [command] [options]" << endl;
         cerr << "Commands: " << endl;
-        cerr << "  map {uodata=Dir} {realm=realmname} {width=Width} {height=Height} {x=X} {y=Y}" << endl;
+		cerr << "  map {uodata=Dir} {maxtileid=0x3FFF/0x7FFF} {realm=realmname} {width=Width} {height=Height} {x=X} {y=Y}" << endl;
         cerr << "  statics {uodata=Dir} {realm=realmname}" << endl;
         cerr << "  maptile {uodata=Dir} {realm=realmname}" << endl;
         cerr << "  multis {uodata=Dir}" << endl;
