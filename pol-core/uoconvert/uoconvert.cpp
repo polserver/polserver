@@ -338,11 +338,11 @@ int xmain( int argc, char* argv[] )
         cerr << "Usage: uoconvert [command] [options]" << endl;
         cerr << "Commands: " << endl;
 		cerr << "  map {uodata=Dir} {maxtileid=0x3FFF/0x7FFF} {realm=realmname} {width=Width} {height=Height} {x=X} {y=Y}" << endl;
-        cerr << "  statics {uodata=Dir} {realm=realmname}" << endl;
-        cerr << "  maptile {uodata=Dir} {realm=realmname}" << endl;
-        cerr << "  multis {uodata=Dir}" << endl;
-        cerr << "  tiles {uodata=Dir}" << endl;
-        cerr << "  landtiles {uodata=Dir}" << endl;
+        cerr << "  statics {uodata=Dir} {maxtileid=0x3FFF/0x7FFF} {realm=realmname}" << endl;
+        cerr << "  maptile {uodata=Dir} {maxtileid=0x3FFF/0x7FFF} {realm=realmname}" << endl;
+        cerr << "  multis {uodata=Dir} {maxtileid=0x3FFF/0x7FFF}" << endl;
+        cerr << "  tiles {uodata=Dir} {maxtileid=0x3FFF/0x7FFF}" << endl;
+        cerr << "  landtiles {uodata=Dir} {maxtileid=0x3FFF/0x7FFF}" << endl;
         return 1;
     }
 	clear_tiledata();
