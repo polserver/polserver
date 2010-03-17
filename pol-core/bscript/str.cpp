@@ -54,6 +54,8 @@ String *String::ETrim(const char* CRSet, int type)
 		size_t startpos = tmp.find_first_not_of( CRSet );
 		if( string::npos != startpos )
 			tmp = tmp.substr( startpos );
+		else
+			tmp = "";
 		return new String( tmp );
 	}
 	else if ( type == 2 ) // This is for Trailing Only.
@@ -62,6 +64,8 @@ String *String::ETrim(const char* CRSet, int type)
 		size_t endpos = tmp.find_last_not_of( CRSet );
 		if( string::npos != endpos ) 
 			tmp = tmp.substr( 0, endpos+1 ); 
+		else
+			tmp = "";
 		return new String( tmp );
 	}
 	else if ( type == 3 )
@@ -71,11 +75,9 @@ String *String::ETrim(const char* CRSet, int type)
 		// Find the first character position from reverse af  
 		size_t endpos = tmp.find_last_not_of( CRSet );
 
-		// if all spaces or empty return an empty string  
+		// if all spaces or empty return on empty string  
 		if(( string::npos == startpos ) || ( string::npos == endpos))  
-		{  
 			tmp = "";
-		}  
 		else  
 			tmp = tmp.substr( startpos, endpos-startpos+1 );
 		return new String( tmp );
