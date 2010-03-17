@@ -1,4 +1,7 @@
 -- POL099 --
+03-17-2010 Turley:
+     Fixed: Trim: left&right doesnt return empty string if complete string has to be trimmed
+
 03-12-2010 Turley:
      Fixed: uoconvert - default value of MaxTileID (0x3FFF)
      Added: uoconvert param {maxtileid=0x3FFF/0x7FFF} (if uodata= param is given pol.cfg never gets read)
