@@ -26,6 +26,7 @@ class Character;
 class Item;
 class NPC;
 class UObject;
+class Client;
 
 #if !REFTYPE_DEBUG
 typedef ref_ptr<UObject> UObjectRef;
@@ -33,6 +34,7 @@ typedef ref_ptr<Character> CharacterRef;
 typedef ref_ptr<Item> ItemRef;
 typedef ref_ptr<NPC> NPCRef; // TODO: rename NpcRef
 typedef ref_ptr<Account> AccountRef;
+typedef ref_ptr<Client> ClientRef;
 #else
 class UObjectRef : public ref_ptr<UObject>
 {
@@ -73,6 +75,7 @@ public:
 };
 
 typedef ref_ptr<Account> AccountRef;
+typedef ref_ptr<Client> ClientRef;
 
 #endif
 

@@ -30,6 +30,7 @@ new Handler added to the core needs a new Version number here. As of 8/3/09 ther
 #include "../../bscript/bobject.h"
 #include "../../bscript/impstr.h"
 
+
 #include "../../plib/pkg.h"
 
 #include "../accounts/account.h"
@@ -38,6 +39,7 @@ new Handler added to the core needs a new Version number here. As of 8/3/09 ther
 #include "../msghandl.h"
 #include "packethooks.h"
 #include "../packetscrobj.h"
+#include "../uoscrobj.h"
 
 //stores information about each packet and its script & default handler
 std::vector<PacketHookData> packet_hook_data(256);
@@ -124,18 +126,9 @@ void ExportedPacketHookHandler(Client* client, void* data)
 
 		BObjectImp* calling_ref;
 		if (client->chr)
-		{
 			calling_ref = client->chr->make_ref();
-		}
 		else
-		{
-			// Create the struct only if really needed...
-			BStruct* client_ret = new BStruct;
-			client_ret->addMember( "ip",        new String( client->ipaddrAsString().c_str() ) );
-			client_ret->addMember( "account",   new String( (client->acct != NULL)? client->acct->name():"No Account Selected" ) );
-
-			calling_ref = client_ret;
-		}
+			calling_ref = client->make_ref();
 
 		if( phd->function->call(calling_ref , pkt.get()) == 0 )
         {
@@ -152,18 +145,9 @@ void ExportedPacketHookHandler(Client* client, void* data)
 
 		BObjectImp* calling_ref;
 		if (client->chr)
-		{
 			calling_ref = client->chr->make_ref();
-		}
 		else
-		{
-			// Create the struct only if really needed...
-			BStruct* client_ret = new BStruct;
-			client_ret->addMember( "ip",        new String( client->ipaddrAsString().c_str() ) );
-			client_ret->addMember( "account",   new String( (client->acct != NULL)? client->acct->name():"No Account Selected" ) );
-
-			calling_ref = client_ret;
-		}
+			calling_ref = client->make_ref();
 
 		if( phd->function->call(calling_ref ,pkt.get()) == 0 )
         {
@@ -224,18 +208,9 @@ void CallOutgoingPacketExportedFunction(Client* client, const void*& data, int& 
 
 		BObjectImp* calling_ref;
 		if (client->chr)
-		{
 			calling_ref = client->chr->make_ref();
-		}
 		else
-		{
-			// Create the struct only if really needed...
-			BStruct* client_ret = new BStruct;
-			client_ret->addMember( "ip",        new String( client->ipaddrAsString().c_str() ) );
-			client_ret->addMember( "account",   new String( (client->acct != NULL)? client->acct->name():"No Account Selected" ) );
-
-			calling_ref = client_ret;
-		}
+			calling_ref = client->make_ref();
 
 		if( phd->outgoing_function->call(calling_ref , outpacket.get()) == 0 )
         {
@@ -256,18 +231,9 @@ void CallOutgoingPacketExportedFunction(Client* client, const void*& data, int& 
 
 		BObjectImp* calling_ref;
 		if (client->chr)
-		{
 			calling_ref = client->chr->make_ref();
-		}
 		else
-		{
-			// Create the struct only if really needed...
-			BStruct* client_ret = new BStruct;
-			client_ret->addMember( "ip",        new String( client->ipaddrAsString().c_str() ) );
-			client_ret->addMember( "account",   new String( (client->acct != NULL)? client->acct->name():"No Account Selected" ) );
-
-			calling_ref = client_ret;
-		}
+			calling_ref = client->make_ref();
 
 		if( phd->outgoing_function->call(calling_ref ,outpacket.get()) == 0 )
         {

@@ -31,6 +31,7 @@ extern BApplicObjType euboatrefobjimp_type;
 extern BApplicObjType emultirefobjimp_type;
 extern BApplicObjType storage_area_type;
 extern BApplicObjType menu_type;
+extern BApplicObjType eclientrefobjimp_type;
 
 class ExecutorModule;
 
@@ -150,6 +151,46 @@ public:
     virtual bool isTrue() const;
 	virtual BObjectImp* call_method( const char* methodname, Executor& ex );
     virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin=false );
+	virtual bool isEqual(const BObjectImp& objimp) const;
+};
+
+class ClientPtrHolder
+{
+public:
+	explicit ClientPtrHolder( ClientRef i_client ) : client(i_client) {}
+	Client* operator->() { return client.get(); }
+	const Client* operator->() const { return client.get(); }
+	/*bool operator!=(const ClientPtrHolder& a) const	{ return ConstPtr() != a.ConstPtr(); }
+	bool operator==(const ClientPtrHolder& a) const	{ return ConstPtr() == a.ConstPtr(); }
+	bool operator!=(const ClientPtrHolder a) const	{ return ConstPtr() != a.ConstPtr(); }
+	bool operator==(const ClientPtrHolder a) const	{ return ConstPtr() == a.ConstPtr(); }*/
+
+	Client* Ptr() { return client.get(); }
+	const Client* ConstPtr() const { return client.get(); }
+private:
+	ClientRef client;
+};
+
+class EClientRefObjImp : public BApplicObj < ClientPtrHolder >
+{
+	typedef BApplicObj< ClientPtrHolder > base;
+public: // nicht direkt client weitergeben eigenen pointer bauen damit ref_counted nicht löscht
+	explicit EClientRefObjImp( const ClientPtrHolder& client ) :
+	BApplicObj< ClientPtrHolder >( &eclientrefobjimp_type, client )
+	{}
+	virtual ~EClientRefObjImp() {};
+
+
+	virtual const char* typeOf() const;
+	virtual BObjectImp* copy() const;
+	virtual BObjectImp* call_method( const char* methodname, Executor& ex );
+	virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin=false );
+	virtual BObjectRef get_member( const char* membername );
+	virtual BObjectRef get_member_id( const int id ); //id test
+	virtual BObjectRef set_member( const char* membername, BObjectImp* value );
+	virtual BObjectRef set_member_id( const int id, BObjectImp* value ); //id test
+
+	virtual bool isTrue() const;
 	virtual bool isEqual(const BObjectImp& objimp) const;
 };
 

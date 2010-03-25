@@ -4163,8 +4163,9 @@ unsigned char decode_xdigit( unsigned char ch )
 BObjectImp* UOExecutorModule::mf_SendPacket()
 {
     Character* chr;
+	Client* client;
     const String* str;
-    if (getCharacterParam( exec, 0, chr ) &&
+    if (getCharacterOrClientParam( exec, 0, chr, client ) &&
         getStringParam( 1, str ))
     {
 		if ( str->length() % 2 > 0 )
@@ -4181,17 +4182,31 @@ BObjectImp* UOExecutorModule::mf_SendPacket()
             buffer[ buflen++ ] = ch;
             s += 2;
         }
-        if (chr->has_active_client())
-        {
-            //printf( "SendPacket() data: %d bytes\n", buflen );
-            //fdump( stdout, buffer, buflen );
-            chr->client->transmit( buffer, buflen );
-            return new BLong(1);
-        }
-        else
-        {
-            return new BError( "No client attached" );
-        }
+		if (chr != NULL)
+		{
+			if (chr->has_active_client())
+			{
+				//printf( "SendPacket() data: %d bytes\n", buflen );
+				//fdump( stdout, buffer, buflen );
+				chr->client->transmit( buffer, buflen );
+				return new BLong(1);
+			}
+			else
+				return new BError( "No client attached" );
+		}
+		else if (client != NULL)
+		{
+			if (!client->disconnect)
+			{
+				client->transmit( buffer, buflen );
+				return new BLong(1);
+			}
+			else
+				return new BError( "Client is disconnected" );
+		}
+		else
+			return new BError( "Invalid parameter type" );
+
     }
     else
     {

@@ -22,6 +22,7 @@ class UBoat;
 class UMulti;
 class UObject;
 class Vital;
+class Client;
 
 #include "skillid.h"
 
@@ -35,6 +36,8 @@ bool getUBoatParam( Executor& exec, unsigned param, UBoat*& boat );
 bool getMultiParam( Executor& exec, unsigned param, UMulti*& multi );
 bool getAttributeParam( Executor& exec, unsigned param, const Attribute*& attr );
 bool getVitalParam( Executor& exec, unsigned param, const Vital*& vital );
+bool getCharacterOrClientParam( Executor& exec, unsigned param, Character*& chrptr, Client*& clientptr);
+
 
 BObjectImp* CallPropertyListMethod( PropertyList& proplist, 
                                     const char* methodname, 

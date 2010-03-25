@@ -35,6 +35,7 @@ Notes
 #include "ufunc.h"
 #include "uvars.h"
 #include "zone.h"
+#include "uoscrobj.h"
 
 BPacket::BPacket(): BObjectImp( OTPacket ),
 is_variable_length(false)
@@ -92,19 +93,34 @@ BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool forcebuilt
         {
 		    if(ex.numParams() != 1)
 			    return new BError( "SendPacket requires 1 parameter." );
-            Character* chr;
-            if(getCharacterParam( ex, 0, chr ))
-            {
-                if(chr->has_active_client())
-                {
-                    chr->client->transmit((void*)(&buffer[0]),buffer.size());
-                    return new BLong( 1 );
-                }
-                else
-                    return new BLong( 0 );
-            }
-            else
-                return new BError("Invalid parameter");
+
+			Character* chr=NULL;
+			Client* client=NULL;
+			if (getCharacterOrClientParam(ex, 0, chr, client))
+			{
+				if (chr!=NULL)
+				{
+					if(chr->has_active_client())
+					{
+						chr->client->transmit((void*)(&buffer[0]),buffer.size());
+						return new BLong( 1 );
+					}
+					else
+						return new BLong( 0 );
+				}
+				else if (client!=NULL)
+				{
+					if (!client->disconnect)
+					{
+						client->transmit((void*)(&buffer[0]),buffer.size());
+						return new BLong( 1 );
+					}
+					else
+						return new BLong( 0 );
+				}
+				else
+					new BError("Invalid parameter");
+			}
         }
 
     case MTH_SENDAREAPACKET:

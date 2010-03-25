@@ -1,4 +1,16 @@
 -- POL099 --
+03-24-2010 Turley:
+     Added: ClientRef object
+            pkt.sendpacket() & SendPacket() now accepts client or character
+            r/o members:
+            ip, acctname, clientversion, clientinfo, clienttype, clientver_detail, uo_expansion_client
+            methods:
+            compareversion()
+            used as prelogin param for packethooks instead of old struct (so you can send packets)
+     Added: character.client
+            returns ClientRef object or error
+     Note:  This or next release duplicate members/methods get deleted from chr (except acctname)
+            
 03-17-2010 Turley:
      Fixed: Trim: left&right doesnt return empty string if complete string has to be trimmed
 
