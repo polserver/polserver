@@ -105,6 +105,7 @@ BApplicObjType echaracterrefobjimp_type;
 BApplicObjType echaracterequipobjimp_type;
 BApplicObjType storage_area_type;
 BApplicObjType menu_type;
+BApplicObjType eclientrefobjimp_type;
 
 const char* ECharacterRefObjImp::typeOf() const
 {
@@ -1462,6 +1463,13 @@ BObjectImp* Character::get_script_member_id( const int id ) const
 			break;
 
         case MBR_DEAFENED: return new BLong( deafened() ? 1 : 0 ); break;
+
+		case MBR_CLIENT:
+			if ((client != NULL) && (!client->disconnect))
+				return client->make_ref();
+			else
+				return new BError( "No client attached." );
+			break;
 
 		default: 
 			return NULL;
@@ -3278,6 +3286,172 @@ BObjectImp* UArmor::set_script_member( const char *membername, long value )
 		return this->set_script_member_id(objmember->id, value);
 	else
 		return NULL;
+}
+
+const char* EClientRefObjImp::typeOf() const
+{
+	return "ClientRef";
+}
+
+BObjectImp* EClientRefObjImp::copy() const
+{
+	return new EClientRefObjImp( obj_ );
+}
+
+bool EClientRefObjImp::isTrue() const
+{
+	return ((obj_.ConstPtr() != NULL) && (!obj_->disconnect));
+}
+
+bool EClientRefObjImp::isEqual(const BObjectImp& objimp) const
+{
+	if (objimp.isa( BObjectImp::OTApplicObj ))
+	{
+		const BApplicObjBase* aob = explicit_cast<const BApplicObjBase*, const BObjectImp*>(&objimp);
+
+		if (aob->object_type() == &eclientrefobjimp_type)
+		{
+			const EClientRefObjImp* clientref_imp =
+				explicit_cast<const EClientRefObjImp*,const BApplicObjBase*>(aob);
+
+			if ((clientref_imp->obj_.ConstPtr() != NULL) && (obj_.ConstPtr() != NULL)
+				&& (clientref_imp->obj_->chr != NULL) && (obj_->chr != NULL))
+				return (clientref_imp->obj_->chr->serial == obj_->chr->serial);
+			else
+				return false;
+		}
+		else
+			return false;
+	}
+	else
+		return false;
+}
+
+BObjectRef EClientRefObjImp::get_member_id( const int id )
+{
+	if ((obj_.ConstPtr() == NULL) || (obj_->disconnect))
+		return BObjectRef(new BError( "Client not ready or disconnected" ));
+	switch(id)
+	{
+		case MBR_ACCTNAME:
+			if (obj_->acct != NULL)
+				return BObjectRef(new String( obj_->acct->name() ));
+			else
+				return BObjectRef(new BError( "Not attached to an account" ));
+			break;
+		case MBR_IP:
+			return BObjectRef(new String( obj_->ipaddrAsString() ));
+			break;
+		case MBR_CLIENTVERSION:
+			return BObjectRef(new String(obj_->getversion()));
+			break;
+		case MBR_CLIENTVERSIONDETAIL:
+			{
+				BStruct* info = new BStruct;
+				info->addMember("major",  new BLong(obj_->getversiondetail().major));
+				info->addMember("minor",  new BLong(obj_->getversiondetail().minor));
+				info->addMember("rev",    new BLong(obj_->getversiondetail().rev));
+				info->addMember("patch",  new BLong(obj_->getversiondetail().patch));
+				return BObjectRef(info);
+			}
+			break;
+		case MBR_CLIENTINFO:
+			return BObjectRef(obj_->getclientinfo());
+			break;
+		case MBR_CLIENTTYPE:
+			return BObjectRef(new BLong( obj_->ClientType ));
+			break;
+		case MBR_UO_EXPANSION_CLIENT:
+			return BObjectRef(new BLong( obj_->UOExpansionFlagClient ));
+			break;
+		default: return BObjectRef(UninitObject::create());
+	}
+}
+
+BObjectRef EClientRefObjImp::get_member( const char* membername )
+{
+	if ((obj_.ConstPtr() == NULL) || (obj_->disconnect))
+		return BObjectRef(new BError( "Client not ready or disconnected" ));
+	ObjMember* objmember = getKnownObjMember(membername);
+	if( objmember != NULL )
+		return this->get_member_id(objmember->id);
+	else
+		return BObjectRef(UninitObject::create());
+}
+
+BObjectRef EClientRefObjImp::set_member( const char* membername, BObjectImp* value )
+{
+	if ((obj_.ConstPtr() == NULL) || (obj_->disconnect))
+		return BObjectRef(new BError( "Client not ready or disconnected" ));
+	ObjMember* objmember = getKnownObjMember(membername);
+	if ( objmember != NULL )
+		return this->set_member_id(objmember->id, value);
+	else
+		return BObjectRef(UninitObject::create());
+}
+
+BObjectRef EClientRefObjImp::set_member_id( const int id, BObjectImp* value )
+{
+	if ((obj_.ConstPtr() == NULL) || (obj_->disconnect))
+		return BObjectRef(new BError( "Client not ready or disconnected" ));
+	return BObjectRef(UninitObject::create());
+	//BObjectImp* result = NULL;
+	//if (value->isa( BObjectImp::OTLong ))
+	//{
+	//	BLong* lng = static_cast<BLong*>(value);
+	//	switch(id)
+	//	{
+	//	default: result=NULL;
+	//	}
+	//}
+	//else if (value->isa( BObjectImp::OTString ))
+	//{
+	//	String* str = static_cast<String*>(value);
+	//	switch(id)
+	//	{
+	//	default: result=NULL;
+	//	}
+	//}
+	//if (result != NULL)
+	//{
+	//	return BObjectRef( result );
+	//}
+	//else
+	//{
+	//	return BObjectRef(UninitObject::create());
+	//}
+}
+
+BObjectImp* EClientRefObjImp::call_method( const char* methodname, Executor& ex )
+{
+	if ((obj_.ConstPtr() == NULL) || (obj_->disconnect))
+		return new BError( "Client not ready or disconnected" );
+	ObjMethod* objmethod = getKnownObjMethod(methodname);
+	if ( objmethod != NULL )
+		return this->call_method_id(objmethod->id, ex);
+	return NULL;
+}
+
+BObjectImp* EClientRefObjImp::call_method_id( const int id, Executor& ex, bool forcebuiltin )
+{
+	if ((obj_.ConstPtr() == NULL) || (obj_->disconnect))
+		return new BError( "Client not ready or disconnected" );
+	
+	switch (id)
+	{
+		case MTH_COMPAREVERSION:
+			{
+				if (!ex.hasParams(1))
+					return new BError( "Not enough parameters" );
+				const String* pstr;
+				if (ex.getStringParam( 0, pstr ))
+					return new BLong(obj_->compareVersion(pstr->getStringRep()) ? 1:0);
+				else
+					return new BError( "Invalid parameter type" );
+			}
+			break;
+		default: return NULL;
+	}
 }
 
 #include "eventid.h"
