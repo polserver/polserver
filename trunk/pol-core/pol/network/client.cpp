@@ -98,6 +98,7 @@ Client::Client( ClientInterface& aInterface, TCryptInfo& encryption ) :
     memset( &counters, 0, sizeof counters );
     memset( &clientinfo_, 0, sizeof(clientinfo_) );
 	memset( &versiondetail_, 0, sizeof(versiondetail_) );
+	this->add_ref(); //NOTE: since Client is ref_counted +1 so escript cannot delete class
 }
 
 void cancel_trade( Character* chr1 );
@@ -631,5 +632,10 @@ bool Client::SpeedHackPrevention(bool add)
 		return false;
 	}
 	return true;
+}
+
+BObjectImp* Client::make_ref()
+{
+	return new EClientRefObjImp( ClientPtrHolder(ClientRef(this)) );
 }
 

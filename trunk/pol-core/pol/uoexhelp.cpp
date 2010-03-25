@@ -30,6 +30,104 @@ Notes
 #include "ufunc.h"
 #include "uoexhelp.h"
 
+bool getCharacterOrClientParam( Executor& exec, unsigned param, Character*& chrptr, Client*& clientptr)
+{
+	BObjectImp* imp = exec.getParamImp( param );
+	if (imp == NULL)
+	{
+		exec.setFunctionResult( new BError( "Missing parameter " + decint(param) ) );
+		return false;
+	}
+	else if (imp->isa( BObjectImp::OTApplicObj ))
+	{
+		BApplicObjBase* aob = explicit_cast<BApplicObjBase*, BObjectImp*>(imp);
+
+		if ((aob != NULL) && (aob->object_type() == &echaracterrefobjimp_type))
+		{
+			ECharacterRefObjImp* chrref_imp = 
+				explicit_cast<ECharacterRefObjImp*,BApplicObjBase*>(aob);
+
+			chrptr = chrref_imp->value().get();
+
+			if (chrptr->orphan())
+			{
+				exec.setFunctionResult( new BError( "Mobile has been destroyed" ) );
+				return false;
+			}
+
+			if (chrptr->logged_in ||
+				chrref_imp->offline_access_ok())
+			{
+				return true;
+			}
+			else
+			{
+				exec.setFunctionResult( new BError( "Mobile is offline" ) );
+				return false;
+			}
+		}
+		else if ((aob != NULL) && (aob->object_type() == &eclientrefobjimp_type))
+		{
+			EClientRefObjImp* clientref_imp =
+				explicit_cast<EClientRefObjImp*,BApplicObjBase*>(aob);
+
+			clientptr = clientref_imp->value().Ptr();
+
+			if ((clientptr!=NULL) && (!clientptr->disconnect))
+			{
+				return true;
+			}
+			else
+			{
+				exec.setFunctionResult( new BError( "Client is disconnected" ) );
+				return false;
+			}
+
+		}
+		else
+		{
+			// FIXME: log error
+			return false;
+		}
+	}
+	else if (imp->isa( BObjectImp::OTLong ))
+	{
+		BLong* pchar_serial = explicit_cast<BLong*,BObjectImp*>(imp);
+
+		unsigned long serial = pchar_serial->value();
+		if (IsItem(serial) || serial == 0)
+		{
+			exec.setFunctionResult( new BError( "Serial refers to an Item, or is zero" ) );
+			return false;
+		}
+
+		chrptr = system_find_mobile( serial );
+
+		if (chrptr != NULL)
+		{
+			if (chrptr->logged_in)
+			{
+				return true;
+			}
+			else
+			{
+				exec.setFunctionResult( new BError( "Mobile is offline" ) );
+				return false;
+			}
+		}
+		else
+		{
+			exec.setFunctionResult( new BError( "Mobile does not exist" ) );
+			return false;
+		}
+	}
+	else
+	{
+		// FIXME: log error
+		return false;
+	}
+}
+
 bool getCharacterParam( Executor& exec, unsigned param, Character*& chrptr )
 {
     BObjectImp* imp = exec.getParamImp( param );
