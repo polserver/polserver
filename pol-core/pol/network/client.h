@@ -96,16 +96,16 @@ typedef struct
 	unsigned char pktbuffer[PKTIN_02_SIZE];
 }PacketThrottler;
 
-class Client
+class Client : public ref_counted
 {
 public:
 	Client( ClientInterface& aInterface, TCryptInfo& encryption );
     static void Delete( Client* client );
     friend class GCCHelper;
+	virtual ~Client();
 
 private:
     void PreDelete();
-    virtual ~Client();
 
 public:
     void Disconnect();
@@ -180,6 +180,7 @@ public:
     std::string ipaddrAsString() const;
 
 	bool SpeedHackPrevention(bool add = true);
+	BObjectImp* make_ref();
 
 protected:
 

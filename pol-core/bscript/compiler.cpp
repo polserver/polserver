@@ -2002,7 +2002,7 @@ int Compiler::handleSwitch( CompilerContext& ctx, int level )
                     unsigned char* tmppch = reinterpret_cast<unsigned char*>(&offset);
                     caseblock.push_back( tmppch[0] );
                     caseblock.push_back( tmppch[1] );
-                    caseblock.push_back( strlen( token.tokval() ) );
+                    caseblock.push_back( static_cast<unsigned char>(strlen( token.tokval() )) );
                     const char* str = token.tokval();
                     int len = strlen( str );
 

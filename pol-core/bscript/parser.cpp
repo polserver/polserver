@@ -435,6 +435,7 @@ ObjMember object_members[] = {
 	{ MBR_UO_EXPANSION_CLIENT, "uo_expansion_client", true },
 	{ MBR_CLIENTTYPE, "clienttype", true }, //180
     { MBR_DEAFENED, "deafed", true},
+	{ MBR_CLIENT, "client", true }
 };
 int n_objmembers = sizeof object_members / sizeof object_members[0];
 ObjMember* getKnownObjMember(const char* token)
