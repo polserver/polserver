@@ -1,4 +1,7 @@
 -- POL099 --
+03-26-2010 Turley:
+   Changed: uo:DisconnectClient() now accepts client or character object (Tomi)
+
 03-24-2010 Turley:
      Added: ClientRef object
             pkt.sendpacket() & SendPacket() now accepts client or character
