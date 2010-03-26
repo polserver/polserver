@@ -4407,21 +4407,36 @@ BObjectImp* UOExecutorModule::mf_GetEquipmentByLayer()
 BObjectImp* UOExecutorModule::mf_DisconnectClient()
 {
     Character* chr;
-    if (getCharacterParam( exec, 0, chr ))
+	Client* client;
+
+    if (getCharacterOrClientParam( exec, 0, chr, client ))
     {
-        if (chr->has_active_client())
-        {
-            chr->client->disconnect = 1;
-            return new BLong(1);
-        }
-        else
-        {
-            return new BError( "No client is attached" );
-        }
-    }
+		if (chr != NULL)
+		{
+			if (chr->has_active_client())
+			{
+				chr->client->disconnect = 1;
+				return new BLong(1);
+			}
+			else
+				return new BError( "No client attached" );
+		}
+		else if (client != NULL)
+		{
+			if (!client->disconnect)
+			{
+				client->disconnect = 1;
+				return new BLong(1);
+			}
+			else
+				return new BError( "Client is disconnected" );
+		}
+		else
+			return new BError( "Invalid parameter type" );
+	}
     else
     {
-        return new BError( "Invalid parameter" );
+        return new BError( "Invalid parameter type" );
     }
 }
 
