@@ -9,23 +9,23 @@ Notes
 
 */
 
-#include "../clib/logfile.h"
+
 #include "../clib/stl_inc.h"
 
 #include "../bscript/eprog.h"
-
-#include "mobile/attribute.h"
+#include "../clib/logfile.h"
 #include "accounts/account.h"
+#include "mobile/attribute.h"
 #include "mobile/charactr.h"
 #include "network/client.h"
 #include "extcmd.h"
 #include "pktin.h"
-#include "polclock.h"
 #include "polcfg.h"
+#include "polclock.h"
 #include "scrstore.h"
 #include "skills.h"
-#include "uoskills.h"
 #include "ufunc.h"
+#include "uoskills.h"
 
 void handle_use_skill(Client *client, PKTIN_12 *msg)
 {
@@ -56,9 +56,7 @@ ExtendedMessageHandler skill_msg_handler(EXTMSGID_SKILL, handle_use_skill);
 bool StartSkillScript(Client *client, const Attribute* attrib)
 {
 	Character* chr = client->chr;
-	
-	ref_ptr<EScriptProgram> prog = find_script2( attrib->script_, true, // complain if not found
-													config.cache_interactive_scripts );
+	ref_ptr<EScriptProgram> prog = find_script2( attrib->script_, true, /* complain if not found */ config.cache_interactive_scripts );
 
 	if ( prog.get() != NULL )
 	{
