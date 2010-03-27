@@ -7,19 +7,19 @@ Notes
 
 */
 
+
+
 #include "../../clib/stl_inc.h"
 
 #include "../../clib/logfile.h"
 #include "../../clib/passert.h"
-
 #include "../module/cfgmod.h"
 #include "../module/osmod.h"
+#include "../module/uomod.h"
 #include "../polcfg.h"
 #include "../scrsched.h"
-#include "../module/uomod.h"
 #include "../uoexec.h"
 #include "../uoscrobj.h"
-
 #include "charactr.h"
 
 
