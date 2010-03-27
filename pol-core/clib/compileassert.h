@@ -3,9 +3,25 @@ History
 =======
 
 2009/08/25 Shinigami: STLport-5.2.1 fix: additional parentheses in asserteql
+2010/03/27 Shinigami: Notes added.
 
 Notes
 =======
+
+How does it work?
+  asserteql
+    defines one "char xxxyyyzzz[1];" globaly.
+    per check it tries to define another "char xxxyyyzzz[1-(0)];" (a^(b) = a XOR b).
+      if this is not possible, than it will fail, due to different definitions.
+
+  assertsize
+    tries to define two entries in a different way.
+	  if this is not possible, than it will fail, due to different definitions.
+
+  assertofs
+    will not be used.
+
+  Why we have asserteql and assertsize if it does the same? dunno
 
 */
 
