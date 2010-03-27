@@ -84,6 +84,7 @@ protected:
     BObjectImp* set_critical();
 	BObjectImp* is_critical();
 	BObjectImp* start_script();
+	BObjectImp* start_skill_script();
 	BObjectImp* run_script_to_completion();
 	BObjectImp* run_script();
     BObjectImp* mf_parameter();

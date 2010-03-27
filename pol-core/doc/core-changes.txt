@@ -1,6 +1,13 @@
 -- POL099 --
+03-27-2010 Turley:
+     Added: os::Start_Skill_Script( chr, attr_name, script_name := "", param := 0 )
+            starts for given chr and attr_name definied script (overrideable with param script_name)
+            param is any UObject given to skill script as second param (first is chr)
+            performs the same checks like normal skillusage (death,frozen,skilldelay,...)
+            (Tomi)
+     
 03-26-2010 Turley:
-   Changed: uo:DisconnectClient() now accepts client or character object (Tomi)
+   Changed: uo::DisconnectClient() now accepts client or character object (Tomi)
 
 03-24-2010 Turley:
      Added: ClientRef object
