@@ -11,56 +11,54 @@ Notes
 
 #include <time.h>
 
-#include "basiciomod.h"
-#include "basicmod.h"
 #include "../../bscript/berror.h"
 #include "../../bscript/eprog.h"
 #include "../../bscript/executor.h"
 #include "../../bscript/impstr.h"
-
-#include "../../clib/logfile.h"
 #include "../../clib/endian.h"
+#include "../../clib/logfile.h"
 #include "../../clib/passert.h"
 #include "../../clib/stlutil.h"
 #include "../../clib/strutil.h"
 #include "../../clib/unicode.h"
-
-#include "attributemod.h"
-#include "boatmod.h"
-#include "cfgmod.h"
-#include "clmod.h"
+#include "../mobile/attribute.h"
 #include "../mobile/charactr.h"
-#include "datastore.h"
+#include "../network/client.h"
 #include "../exscrobj.h"
-#include "filemod.h"
-#include "guildmod.h"
 #include "../logfiles.h"
-#include "mathmod.h"
 #include "../npc.h"
-#include "npcmod.h"
-#include "osmod.h"
+#include "../party.h"
 #include "../polcfg.h"
 #include "../polclock.h"
 #include "../poldbg.h"
 #include "../polsig.h"
-#include "polsystemmod.h"
 #include "../profile.h"
 #include "../scrdef.h"
+#include "../scrsched.h"
 #include "../scrstore.h"
+#include "../skills.h"
+#include "../ufunc.h"
+#include "../uoexec.h"
+#include "../watch.h"
+#include "attributemod.h"
+#include "basiciomod.h"
+#include "basicmod.h"
+#include "boatmod.h"
+#include "cfgmod.h"
+#include "clmod.h"
+#include "datastore.h"
+#include "filemod.h"
+#include "guildmod.h"
+#include "mathmod.h"
+#include "npcmod.h"
+#include "osmod.h"
+#include "polsystemmod.h"
 #include "storagemod.h"
 #include "unimod.h"
 #include "uomod.h"
-#include "../uoexec.h"
 #include "utilmod.h"
 #include "vitalmod.h"
-#include "../watch.h"
 
-#include "../mobile/charactr.h"
-#include "../network/client.h"
-
-#include "../scrsched.h"
-
-#include "../party.h"
 
 PidList pidlist;
 unsigned long next_pid = 0;
@@ -130,6 +128,7 @@ OSFunctionDef OSExecutorModule::function_table[] =
 	{ "wait_for_event",             &OSExecutorModule::wait_for_event },
 	{ "events_waiting",             &OSExecutorModule::events_waiting },
 	{ "start_script",               &OSExecutorModule::start_script },
+	{ "start_skill_script",			&OSExecutorModule::start_skill_script },
 	{ "set_critical",               &OSExecutorModule::set_critical },
 	{ "is_critical",				&OSExecutorModule::is_critical },
 	{ "run_script_to_completion",   &OSExecutorModule::run_script_to_completion },
@@ -279,6 +278,83 @@ BObjectImp* OSExecutorModule::start_script()
 		}
 		UOExecutor* uoexec = static_cast<UOExecutor*>(&new_uoemod->exec);
 		return new ScriptExObjImp( uoexec );
+	}
+	else
+	{
+		return new BError( "Invalid parameter type" );
+	}
+}
+
+
+BObjectImp* OSExecutorModule::start_skill_script()
+{
+	Character* chr;
+	const Attribute* attr;
+
+	if (getCharacterParam( 0, chr ) && getAttributeParam(exec, 1, attr))
+	{
+		if (!attr->disable_core_checks && !CanUseSkill(chr->client))
+			return new BLong(0);
+		else
+		{
+			const String* script_name;
+			ScriptDef script;
+
+			if ( exec.getStringParam(2, script_name) )
+			{
+				if (!script.config_nodie( script_name->value(), exec.prog()->pkg, "scripts/skills/" ))
+				{
+					return new BError( "Error in script name" );
+				}
+				if (!script.exists())
+				{
+					return new BError( "Script " + script.name() + " does not exist." );
+				}
+			}
+			else
+			{
+				if (!attr->script_.empty())
+					script = attr->script_;
+				else
+					return new BError( "No script defined for attribute " + attr->name + "." );
+			}
+
+			ref_ptr<EScriptProgram> prog = find_script2( script, true, /* complain if not found */ config.cache_interactive_scripts );
+
+			if (prog.get() != NULL)
+			{
+				UObject* object;
+				if (getUObjectParam( exec, 3, object ))
+				{
+					if ( chr->start_script( prog.get(), true, object->make_ref() ) )
+					{ 
+						if ( chr->hidden() && attr->unhides )
+							chr->unhide();
+						if ( attr->delay_seconds )
+							chr->disable_skills_until = poltime() + attr->delay_seconds;
+					}
+				}
+				else
+				{
+					if ( chr->start_script( prog.get(), true ) )
+					{ 
+						if ( chr->hidden() && attr->unhides )
+							chr->unhide();
+						if ( attr->delay_seconds )
+							chr->disable_skills_until = poltime() + attr->delay_seconds;
+					}
+				}
+			}
+			else
+			{
+				string msg = "Unable to start skill script:";
+				msg += script.c_str();
+				send_sysmessage(chr->client, msg.c_str());
+
+				return new BLong(0);
+			}
+			return new BLong(1);
+		}
 	}
 	else
 	{
