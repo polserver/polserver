@@ -14,7 +14,7 @@ struct CombatConfig {
     bool display_parry_success_messages;
     bool warmode_inhibits_regen;
 	bool attack_self;
-	unsigned long warmode_delay;
+	unsigned int warmode_delay;
 
 	bool core_hit_sounds;
 	bool scripted_attack_checks;

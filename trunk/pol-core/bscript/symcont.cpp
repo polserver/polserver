@@ -85,10 +85,10 @@ void SymbolContainer::append(const char *string, unsigned& position)
     usedLen += nChars;
 }
 
-void SymbolContainer::append(long lvalue, unsigned& position)
+void SymbolContainer::append(int lvalue, unsigned& position)
 {
     resize(sizeof lvalue);
-    *((long *) (s+usedLen)) = lvalue;
+    *((int *) (s+usedLen)) = lvalue;
     position = usedLen;
     usedLen += sizeof lvalue;
 }
@@ -119,7 +119,7 @@ void SymbolContainer::write(FILE *fp)
         throw runtime_error( "SymbolContainer::write failed" );
 }
 
-unsigned long SymbolContainer::get_write_length() const
+unsigned int SymbolContainer::get_write_length() const
 {
 	// we write the length, followed by the actual data.
 	return sizeof usedLen + usedLen;

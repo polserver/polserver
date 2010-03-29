@@ -61,7 +61,7 @@ void Equipment::readProperties( ConfigElem& elem )
 
 unsigned short Equipment::maxhp() const
 {
-    long mhp = eq_tmpl_.maxhp + maxhp_mod_;
+    int mhp = eq_tmpl_.maxhp + maxhp_mod_;
     if (mhp >= 1)
         return static_cast<unsigned short>(mhp);
     else

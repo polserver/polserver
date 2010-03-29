@@ -35,8 +35,8 @@ public:
 	std::string call_string( BObjectImp* p0, BObjectImp* p1 ); // throw()
 	std::string call_string( BObjectImp* p0, BObjectImp* p1, BObjectImp* p2 ); // throw()
 
-	long call_long( BObjectImp* p0 ); // throw()
-	long call_long( BObjectImp* p0, BObjectImp* p1 ); // throw()
+	int call_long( BObjectImp* p0 ); // throw()
+	int call_long( BObjectImp* p0, BObjectImp* p1 ); // throw()
 	BObject call_object(BObjectImp* p0, BObjectImp* p1);
 	BObject call_object(BObjectImp* p0, BObjectImp* p1, BObjectImp* p2);
 

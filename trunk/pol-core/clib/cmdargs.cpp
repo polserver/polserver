@@ -105,7 +105,7 @@ int IntArg( const char *tag, int deflt )
         return deflt;
 }
 
-long LongArg( const char *tag, long deflt )
+int LongArg( const char *tag, int deflt )
 {
 	const char *parm = FindArg( tag );
     if (parm)
@@ -114,7 +114,7 @@ long LongArg( const char *tag, long deflt )
         return deflt;
 }
 
-long LongArg2( const char* alltag, long dflt )
+int LongArg2( const char* alltag, int dflt )
 {
     int i;
 	int taglen = strlen( alltag );
@@ -130,7 +130,7 @@ long LongArg2( const char* alltag, long dflt )
 }
 
 /* assume parameter following tag is hexadecimal (0x unnecessary) */
-long LongHexArg( const char *tag, long deflt )
+int LongHexArg( const char *tag, int deflt )
 {
     const char *parm = FindArg( tag );
     if (parm)
@@ -139,7 +139,7 @@ long LongHexArg( const char *tag, long deflt )
         return deflt;
 }
 
-long LongHexArg2( const char *tag, long deflt )
+int LongHexArg2( const char *tag, int deflt )
 {
 	const char *parm = FindArg2( tag );
 	if (parm)

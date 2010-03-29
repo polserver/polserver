@@ -171,15 +171,15 @@ std::fstream::pos_type MapWriter::total_size()
 {
     return total_blocks() * sizeof(MAPBLOCK);
 }
-unsigned long MapWriter::total_blocks()
+unsigned int MapWriter::total_blocks()
 {
     return _width * _height / MAPBLOCK_CHUNK / MAPBLOCK_CHUNK;
 }
-unsigned long MapWriter::total_solid_blocks()
+unsigned int MapWriter::total_solid_blocks()
 {
     return _width * _height / SOLIDX_X_SIZE / SOLIDX_Y_SIZE;
 }
-unsigned long MapWriter::total_maptile_blocks()
+unsigned int MapWriter::total_maptile_blocks()
 {
     return _width * _height / MAPTILE_CHUNK / MAPTILE_CHUNK;
 }
@@ -192,7 +192,7 @@ void MapWriter::SetMapCell( unsigned short x, unsigned short y, MAPCELL cell )
     unsigned short ycell  = y &   MAPBLOCK_CELLMASK;
 
     // doh, need to know map geometry here.
-    long blockIdx = yblock * (_width >> MAPBLOCK_SHIFT) + xblock;
+    int blockIdx = yblock * (_width >> MAPBLOCK_SHIFT) + xblock;
     if (blockIdx != _cur_mapblock_index)
     {
         if (_cur_mapblock_index >= 0)
@@ -216,7 +216,7 @@ void MapWriter::SetMapTile( unsigned short x, unsigned short y, MAPTILE_CELL cel
     unsigned short ycell  = y &  MAPTILE_CELLMASK;
 
     // doh, need to know map geometry here.
-    long blockIdx = yblock * (_width >> MAPTILE_SHIFT) + xblock;
+    int blockIdx = yblock * (_width >> MAPTILE_SHIFT) + xblock;
     if (blockIdx != _cur_maptile_index)
     {
         if (_cur_maptile_index >= 0)
@@ -251,19 +251,19 @@ void MapWriter::FlushMapTileFile()
     }
 }
 
-unsigned long MapWriter::NextSolidOffset()
+unsigned int MapWriter::NextSolidOffset()
 {
-    return static_cast<unsigned long>(_ofs_solids.tellp());
+    return static_cast<unsigned int>(_ofs_solids.tellp());
 }
 
-unsigned long MapWriter::NextSolidIndex()
+unsigned int MapWriter::NextSolidIndex()
 {
     return NextSolidOffset() / sizeof(SOLIDS_ELEM);
 }
 
-unsigned long MapWriter::NextSolidx2Offset()
+unsigned int MapWriter::NextSolidx2Offset()
 {
-    return static_cast<unsigned long>(_ofs_solidx2.tellp());
+    return static_cast<unsigned int>(_ofs_solidx2.tellp());
 }
 
 void MapWriter::AppendSolid( const SOLIDS_ELEM& solid )
@@ -276,12 +276,12 @@ void MapWriter::AppendSolidx2Elem( const SOLIDX2_ELEM& elem )
     _ofs_solidx2.write( reinterpret_cast<const char*>( &elem ), sizeof elem );
 }
 
-void MapWriter::SetSolidx2Offset( unsigned short x_base, unsigned short y_base, unsigned long offset )
+void MapWriter::SetSolidx2Offset( unsigned short x_base, unsigned short y_base, unsigned int offset )
 {
-    unsigned long elems_per_row = (_width / SOLIDX_X_SIZE);
-    unsigned long index = (y_base / SOLIDX_Y_SIZE) * elems_per_row
+    unsigned int elems_per_row = (_width / SOLIDX_X_SIZE);
+    unsigned int index = (y_base / SOLIDX_Y_SIZE) * elems_per_row
                          +(x_base / SOLIDX_X_SIZE);
-    unsigned long file_offset = index * sizeof(SOLIDX1_ELEM);
+    unsigned int file_offset = index * sizeof(SOLIDX1_ELEM);
 
     _ofs_solidx1.seekp( file_offset, std::ios_base::beg );
     _ofs_solidx1.write( reinterpret_cast<const char*>(&offset), sizeof offset);

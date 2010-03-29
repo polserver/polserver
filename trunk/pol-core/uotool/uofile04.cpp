@@ -32,7 +32,7 @@ using std::string;
 #include "../pol/uofile.h"
 #include "../pol/uofilei.h"
 
-std::set<unsigned long> water;
+std::set<unsigned int> water;
 
 inline bool iswater( u16 objtype )
 {
@@ -66,7 +66,7 @@ void readwater()
                     {
                         int x = xbase + srec.x_offset;
                         int y = ybase + srec.y_offset;
-                        unsigned long xy = x<<16|y;
+                        unsigned int xy = x<<16|y;
                         water.insert(xy);
                     }
 

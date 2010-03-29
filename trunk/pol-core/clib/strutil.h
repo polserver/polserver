@@ -13,16 +13,12 @@ Notes
 #include <string>
 
 string hexint( unsigned short v );
-string hexint( int v );
-string hexint( unsigned v );
-string hexint( long v );
-string hexint( unsigned long v );
+string hexint( signed int v );
+string hexint( unsigned int v );
 
 string decint( unsigned short v );
-string decint( int v );
-string decint( unsigned v );
-string decint( long v );
-string decint( unsigned long v );
+string decint( signed int v );
+string decint( unsigned int v );
 
 void splitnamevalue( const string& istr, string& propname, string& propvalue );
 

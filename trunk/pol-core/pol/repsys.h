@@ -42,7 +42,7 @@ private:
     static void show_repdata( Client* client, Character* mob );
 
 
-    friend void Character::make_criminal(long level);
+    friend void Character::make_criminal(int level);
     friend void Character::make_murderer( bool newval );
 	friend void Character::make_aggressor_to( Character* chr);
 	friend void Character::make_lawfullydamaged_to( Character* chr);

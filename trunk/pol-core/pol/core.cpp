@@ -45,7 +45,7 @@ bool move_character_to( Character* chr,
                         unsigned short x,
                         unsigned short y,
                         short z,
-                        long flags,
+                        int flags,
 						Realm* oldrealm )
 {
        // FIXME consider consolidating with similar code in CHARACTER.CPP

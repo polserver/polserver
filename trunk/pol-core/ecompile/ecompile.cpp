@@ -160,7 +160,7 @@ bool compile_file(const char *path)
         if (compilercfg.OnlyCompileUpdatedScripts && !force_update)
         {
             bool all_old = true;
-            unsigned long ecl_timestamp = GetFileTimestamp( filename_ecl.c_str() );
+            unsigned int ecl_timestamp = GetFileTimestamp( filename_ecl.c_str() );
             if (GetFileTimestamp( filename_src.c_str() ) >= ecl_timestamp)
             {
                 if (verbose)
@@ -466,7 +466,7 @@ int readargs(int argc, char **argv)
 
 void recurse_compile( string basedir )
 {
-	long s_compiled, s_uptodate, s_errors;
+	int s_compiled, s_uptodate, s_errors;
 	clock_t start, finish;
 
 	if ( !IsDirectory( basedir.c_str() ) )
@@ -520,7 +520,7 @@ void recurse_compile( string basedir )
 	if ( (!quiet || timing_quiet_override) && show_timing_details && s_compiled > 0 ) {
 		cout << "Compiled " << s_compiled << " script" << (s_compiled==1?"":"s")
 			 << " in " << basedir
-			 << " in " << (long)((finish-start)/CLOCKS_PER_SEC) << " second(s)" << endl;
+			 << " in " << (int)((finish-start)/CLOCKS_PER_SEC) << " second(s)" << endl;
 		if ( s_uptodate > 0 )
 			cout << "    " << s_uptodate << " script" << (s_uptodate==1?" was":"s were")
 				 << " already up-to-date." << endl;

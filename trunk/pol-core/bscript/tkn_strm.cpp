@@ -77,13 +77,13 @@ void Token::printOn(ostream& os) const
 		case TOK_ARRAY_SUBSCRIPT:   os << "[] " << lval;    break;
         case INS_MULTISUBSCRIPT: 
                 os << "["; 
-                for( long i=1;i<lval;++i) 
+                for( int i=1;i<lval;++i) 
                     os << ",";
                 os << "]"; 
                 break;
         case INS_MULTISUBSCRIPT_ASSIGN: 
                 os << "["; 
-                for( long i=1;i<lval;++i) 
+                for( int i=1;i<lval;++i) 
                     os << ",";
                 os << "] :="; 
                 break;
@@ -97,7 +97,7 @@ void Token::printOn(ostream& os) const
         case INS_GET_MEMBER_ID:     os << "get member id '" << getObjMember(lval)->code << "' (" << lval << ")"; break;
         case INS_SET_MEMBER_ID:     os << "set member id '" << getObjMember(lval)->code << "' (" << lval << ")"; break;
         case INS_SET_MEMBER_ID_CONSUME: os << "set member id '" << getObjMember(lval)->code << "' (" << lval << ") #"; break;
-        case INS_CALL_METHOD_ID:    os << "Call Method id " << getObjMethod((long)lval)->code << " (#" << lval << ", " << type << " params)"; break;
+        case INS_CALL_METHOD_ID:    os << "Call Method id " << getObjMethod((int)lval)->code << " (#" << lval << ", " << type << " params)"; break;
         case TOK_IN:                os << "in";             break;
         case INS_DICTIONARY_ADDMEMBER: os << "add dictionary member"; break;
 		

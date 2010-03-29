@@ -227,7 +227,7 @@ BObjectImp* NPCExecutorModule::mf_SetAnchor()
 {
 	xcoord x;
 	ycoord y;
-	long dstart, psub;
+	int dstart, psub;
 	if (getParam( 0, x ) &&
 		getParam( 1, y ) &&
 		getParam( 2, dstart ) &&
@@ -348,7 +348,7 @@ BObjectImp* NPCExecutorModule::face()
 {
 	//int params = exec.numParams();
 	BObjectImp* param0 = exec.getParamImp(0);
-	long flags;
+	int flags;
 	exec.getParam(1, flags);
 	UFACING i_facing;
 
@@ -543,7 +543,7 @@ BObjectImp* NPCExecutorModule::mf_TurnToward()
 	UObject* obj;
 	if (getUObjectParam( exec,0, obj ))
 	{
-		long flags;
+		int flags;
 		exec.getParam(1, flags);
 		if (obj->ismobile())
 		{
@@ -573,7 +573,7 @@ BObjectImp* NPCExecutorModule::mf_TurnAwayFrom()
 	UObject* obj;
 	if (getUObjectParam( exec,0, obj ))
 	{
-		long flags;
+		int flags;
 		exec.getParam(1, flags);
 		if (obj->ismobile())
 		{
@@ -674,7 +674,7 @@ BObjectImp* NPCExecutorModule::mf_TurnTowardLocation()
 	if (exec.getParam( 0, x ) &&
 		exec.getParam( 1, y ))
 	{
-		long flags;
+		int flags;
 		exec.getParam(2, flags);
 		if(!npc.realm->valid(x,y,npc.z)) return new BError("Invalid Coordinates for Realm");
 		UFACING fac = direction_toward( &npc, x, y );
@@ -701,7 +701,7 @@ BObjectImp* NPCExecutorModule::mf_TurnAwayFromLocation()
 	if (exec.getParam( 0, x ) &&
 		exec.getParam( 1, y ))
 	{
-		long flags;
+		int flags;
 		exec.getParam(2, flags);
 		if(!npc.realm->valid(x,y,npc.z)) return new BError("Invalid Coordinates for Realm");
 		UFACING fac = direction_away( &npc, x, y );
@@ -731,7 +731,7 @@ BObjectImp* NPCExecutorModule::say()
 
 	const char* text = exec.paramAsString(0);
 	string texttype_str = strlower(exec.paramAsString(1));
-	long doevent; exec.getParam(2, doevent);
+	int doevent; exec.getParam(2, doevent);
 
 	PKTOUT_1C talkmsg;
 	talkmsg.msgtype = PKTOUT_1C_ID;
@@ -791,7 +791,7 @@ BObjectImp* NPCExecutorModule::SayUC()
 
 	ObjArray* oText;
 	const String* lang;
-	long doevent;
+	int doevent;
 
 	if (getObjArrayParam( 0, oText ) &&
 		getStringParam( 2, lang ) &&
@@ -1031,7 +1031,7 @@ BObjectImp* NPCExecutorModule::mf_SetOpponent()
 
 BObjectImp* NPCExecutorModule::mf_SetWarMode()
 {
-	long warmode;
+	int warmode;
 	if (exec.getParam( 0, warmode ))
 	{
 		npc.set_warmode( warmode != 0 );

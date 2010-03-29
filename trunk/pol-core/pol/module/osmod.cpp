@@ -61,13 +61,13 @@ Notes
 
 
 PidList pidlist;
-unsigned long next_pid = 0;
+unsigned int next_pid = 0;
 
-unsigned long getnewpid( UOExecutor* uoexec )
+unsigned int getnewpid( UOExecutor* uoexec )
 {
 	for(;;)
 	{
-		unsigned long newpid = ++next_pid;
+		unsigned int newpid = ++next_pid;
 		if (newpid != 0 && 
 			pidlist.find(newpid) == pidlist.end())
 		{
@@ -76,7 +76,7 @@ unsigned long getnewpid( UOExecutor* uoexec )
 		}
 	}
 }
-void freepid( unsigned long pid )
+void freepid( unsigned int pid )
 {
 	pidlist.erase( pid );
 }
@@ -107,7 +107,7 @@ OSExecutorModule::~OSExecutorModule()
 	}
 }
 
-unsigned long OSExecutorModule::pid() const
+unsigned int OSExecutorModule::pid() const
 {
 	return pid_;
 }
@@ -166,11 +166,11 @@ BObjectImp* OSExecutorModule::create_debug_context()
 
 BObjectImp* OSExecutorModule::getprocess()
 {
-	long pid;
+	int pid;
 	if (getParam( 0, pid ))
 	{
 		UOExecutor* uoexec;
-		if (find_uoexec( static_cast<unsigned long>(pid), &uoexec ))
+		if (find_uoexec( static_cast<unsigned int>(pid), &uoexec ))
 			return new ScriptExObjImp( uoexec );
 		else
 			return new BError( "Process not found" );
@@ -364,7 +364,7 @@ BObjectImp* OSExecutorModule::start_skill_script()
 
 BObjectImp* OSExecutorModule::set_critical()
 {
-	long crit;
+	int crit;
 	if (exec.getParam( 0, crit ))
 	{
 		critical = (crit != 0);
@@ -470,7 +470,7 @@ BObjectImp* OSExecutorModule::run_script()
 
 BObjectImp* OSExecutorModule::mf_set_debug()
 {
-	long dbg;
+	int dbg;
 	if (getParam( 0, dbg ))
 	{
 		if (dbg)
@@ -509,10 +509,10 @@ BObjectImp* OSExecutorModule::mf_system_rpm()
 
 BObjectImp* OSExecutorModule::mf_set_priority()
 {
-	long newpri;
+	int newpri;
 	if (getParam( 0, newpri, 1, 255 ))
 	{
-		long oldpri = priority;
+		int oldpri = priority;
 		priority = static_cast<unsigned char>(newpri);
 		return new BLong( oldpri );
 	}
@@ -550,11 +550,11 @@ const int SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES = 4;
 
 BObjectImp* OSExecutorModule::mf_set_script_option()
 {
-	long optnum;
-	long optval;
+	int optnum;
+	int optval;
 	if (getParam( 0, optnum ) && getParam( 1, optval ))
 	{
-        long oldval;
+        int oldval;
 		switch( optnum )
 		{
 		case SCRIPTOPT_NO_INTERRUPT:

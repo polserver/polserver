@@ -996,7 +996,7 @@ unsigned char NPC::hilite_color_idx( const Character* seen_by ) const
 	{
 		NPC* t_amy = const_cast<NPC*>(this);
 		Character* t_bob = const_cast<Character*>(seen_by);
-		long tmp = repsys_cfg.Hooks.HighLightColor->call_long(t_amy->make_ref(), t_bob->make_ref());
+		int tmp = repsys_cfg.Hooks.HighLightColor->call_long(t_amy->make_ref(), t_bob->make_ref());
 		return (unsigned char)(tmp);
 	}
 
@@ -1077,7 +1077,7 @@ unsigned short NPC::name_color( const Character* seen_by ) const
 ///		 Set her Criminal Timer for (LevelOfOffense * CriminalFlagInterval) seconds
 ///
 
-void Character::make_criminal( long level )
+void Character::make_criminal( int level )
 {
 	set_dirty();
 	bool was_criminal = is_criminal();

@@ -67,12 +67,12 @@ bool newstat_dont_add( vector<STATIC_ENTRY>& vec, USTRUCT_STATIC* pstat)
 
 int write_pol_static_files( const string& realm )
 {
-    unsigned long duplicates = 0;
-    unsigned long illegales = 0;
-    unsigned long statics = 0;
-    unsigned long empties = 0;
-    unsigned long nonempties = 0;
-    unsigned long maxcount = 0;
+    unsigned int duplicates = 0;
+    unsigned int illegales = 0;
+    unsigned int statics = 0;
+    unsigned int empties = 0;
+    unsigned int nonempties = 0;
+    unsigned int maxcount = 0;
 
     string directory = "realm/" + realm + "/";
     string statidx_dat = directory + "statidx.dat";
@@ -90,7 +90,7 @@ int write_pol_static_files( const string& realm )
     RealmDescriptor descriptor = RealmDescriptor::Load( realm );
 
     int lastprogress = -1;
-    unsigned long index = 0;
+    unsigned int index = 0;
     for( u16 y = 0; y < descriptor.height; y += STATICBLOCK_CHUNK )
     {
         int progress = y*100L/descriptor.height;

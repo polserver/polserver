@@ -50,7 +50,7 @@ Notes
 // only in here temporarily, until logout-on-disconnect stuff is removed
 #include "../ufunc.h"
 
-unsigned long Client::instance_counter_;
+unsigned int Client::instance_counter_;
 
 Client::Client( ClientInterface& aInterface, TCryptInfo& encryption ) :
 	acct(NULL),

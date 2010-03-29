@@ -14,7 +14,7 @@ struct MapShape
 {
     short z;
     short height;
-    unsigned long flags;
+    unsigned int flags;
 };
 
 class MapShapeList : public vector<MapShape> {};

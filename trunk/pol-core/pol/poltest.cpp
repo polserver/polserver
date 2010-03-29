@@ -187,7 +187,7 @@ void statics_test()
 }
 #endif
 
-void test_skilladv( unsigned long raw, unsigned short base )
+void test_skilladv( unsigned int raw, unsigned short base )
 {
     cout << "Raw " << raw << ", base " << base << ": ";
     if (raw_to_base( raw ) != base)
@@ -237,7 +237,7 @@ void skilladv_test()
     for( unsigned short base = 0; base < 2000; ++base )
     {
         cout << "Base " << base << ": Raw=";
-        unsigned long raw = base_to_raw( base );
+        unsigned int raw = base_to_raw( base );
         cout << raw << ": ";
         unsigned short calcbase = raw_to_base(raw);
         if (calcbase != base)
@@ -252,12 +252,12 @@ void skilladv_test()
         }
     }
 
-    for( unsigned long raw = 0; raw < 2500; ++raw )
+    for( unsigned int raw = 0; raw < 2500; ++raw )
     {
         cout << "Raw " << raw << ": Base=";
         unsigned short base = raw_to_base( raw );
         cout << base << ": ";
-        unsigned long calcraw = base_to_raw(base);
+        unsigned int calcraw = base_to_raw(base);
         if (calcraw != raw)
         {
             cout << "Failed (" << calcraw << ")" << endl;

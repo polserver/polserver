@@ -61,8 +61,8 @@ void display_unreaped_orphan_instances()
     //for( std::set<UObject*>::iterator itr = unreaped_orphan_instances.begin();
 }
 
-unsigned long UObject::dirty_writes;
-unsigned long UObject::clean_writes;
+unsigned int UObject::dirty_writes;
+unsigned int UObject::clean_writes;
 
 UObject::UObject(u16 objtype, UOBJ_CLASS i_uobj_class) :
 	serial(0),

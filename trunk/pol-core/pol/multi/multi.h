@@ -15,13 +15,13 @@ Notes
 
 #include "multidef.h"
 
-// also consider: multimap<unsigned long, unsigned long>
-// unsigned long is (x << 16) | y
-// unsigned long is z << 16 | objtype
-// hell, even multimap<unsigned short,unsigned long>
+// also consider: multimap<unsigned int, unsigned int>
+// unsigned int is (x << 16) | y
+// unsigned int is z << 16 | objtype
+// hell, even multimap<unsigned short,unsigned int>
 // unsigned short is (x<<8)|y
 // (relative signed x/y, -128 to +127
-// unsigned long is z << 16 | objtype
+// unsigned int is z << 16 | objtype
 
 #include "../item/item.h"
 
@@ -30,15 +30,15 @@ class BObjectImp;
 class BStruct;
 class Realm;
 
-const long CRMULTI_IGNORE_MULTIS    = 0x0001;
-const long CRMULTI_IGNORE_OBJECTS   = 0x0002;
-const long CRMULTI_IGNORE_FLATNESS  = 0x0004;
-const long CRMULTI_FACING_NORTH     = 0x0000;
-const long CRMULTI_FACING_EAST      = 0x0100;
-const long CRMULTI_FACING_SOUTH     = 0x0200;
-const long CRMULTI_FACING_WEST      = 0x0300;
-const long CRMULTI_FACING_MASK      = 0x0300;
-const long CRMULTI_FACING_SHIFT     = 8;
+const int CRMULTI_IGNORE_MULTIS    = 0x0001;
+const int CRMULTI_IGNORE_OBJECTS   = 0x0002;
+const int CRMULTI_IGNORE_FLATNESS  = 0x0004;
+const int CRMULTI_FACING_NORTH     = 0x0000;
+const int CRMULTI_FACING_EAST      = 0x0100;
+const int CRMULTI_FACING_SOUTH     = 0x0200;
+const int CRMULTI_FACING_WEST      = 0x0300;
+const int CRMULTI_FACING_MASK      = 0x0300;
+const int CRMULTI_FACING_SHIFT     = 8;
 
 class UMulti : public Item
 {
@@ -46,7 +46,7 @@ class UMulti : public Item
 public:
     static UMulti* create( const ItemDesc& descriptor, u32 serial = 0 );
     
-    static BObjectImp* scripted_create( const ItemDesc& descriptor, u16 x, u16 y, s8 z, Realm* realm, long flags );
+    static BObjectImp* scripted_create( const ItemDesc& descriptor, u16 x, u16 y, s8 z, Realm* realm, int flags );
 
     virtual void double_click( Client* client );
     virtual void register_object( UObject* obj );

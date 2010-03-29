@@ -84,7 +84,7 @@ bool server_applies( Client* client, int i )
 
     for( unsigned j = 0; j < servers[i]->ip_match.size(); ++j )
     {
-        unsigned long addr1part, addr2part;
+        unsigned int addr1part, addr2part;
         struct sockaddr_in* sockin = reinterpret_cast<struct sockaddr_in*>(&client->ipaddr);
 
         addr1part = servers[i]->ip_match[j]      & servers[i]->ip_match_mask[j];
@@ -285,7 +285,7 @@ void select_server(Client *client, PKTIN_A0 *msg ) // Relay player to a certain 
 
 	client->transmit( &rsp, sizeof rsp );
 
-    unsigned long nseed = 0xFEFE0000 + client->ClientType;
+    unsigned int nseed = 0xFEFE0000 + client->ClientType;
 	client->cryptengine->Init( &nseed, CCryptBase::typeGame );
 }
 

@@ -55,16 +55,16 @@ public:
     void regenerate( time_t now );
     void write( std::ostream& os, const std::string& resource_name ) const;
 
-    unsigned long tilecount_;
+    unsigned int tilecount_;
     friend class ResourceDef;
 private:
 
         //
         // These are only used for depletion levels.  
         //
-    const unsigned long units_per_area_;
-    const unsigned long seconds_per_regrow_;
-    typedef std::map<unsigned long, unsigned short> Depletions;
+    const unsigned int units_per_area_;
+    const unsigned int seconds_per_regrow_;
+    typedef std::map<unsigned int, unsigned short> Depletions;
     Depletions depletions_;
     time_t last_regen_;
     
@@ -72,8 +72,8 @@ private:
         //
         // the following are used if resource banks are implemented.
         //
-    unsigned long capacity_;        // config
-    unsigned long units_;           // data
+    unsigned int capacity_;        // config
+    unsigned int units_;           // data
 };
 
 
@@ -94,8 +94,8 @@ public:
 protected:
 
 private:
-    unsigned long initial_units_;
-    long current_units_;
+    unsigned int initial_units_;
+    int current_units_;
     std::set<unsigned short> landtiles_;
     std::set<unsigned short> tiles_;
     // std::vector<ResourceRegion*> regions_;

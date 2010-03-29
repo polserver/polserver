@@ -18,7 +18,7 @@ Notes
 #include "polver.h"
 
 const char polverstr[] = "POL099beta-2010-01-02";
-unsigned long polver = 99;
+unsigned int polver = 99;
 
 #ifdef PERGON
 #define PERGON_TAG " - Pergon"

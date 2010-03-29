@@ -14,6 +14,6 @@ Notes
 
 extern const char polverstr[];
 extern const char polbuildtag[];
-extern unsigned long polver;
+extern unsigned int polver;
 
 #endif

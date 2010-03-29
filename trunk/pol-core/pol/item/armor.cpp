@@ -104,7 +104,7 @@ UArmor::UArmor( const ArmorDesc& descriptor, const ArmorDesc* permanent_descript
 
 unsigned short UArmor::ar() const
 {
-	long ar = tmpl->ar * hp_ / maxhp();
+	int ar = tmpl->ar * hp_ / maxhp();
 	if (ar_mod_ != 0)
 	{
 		ar += ar_mod_;

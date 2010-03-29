@@ -48,7 +48,7 @@ public:
     virtual BObjectImp* copy() const;
     virtual bool isTrue() const;
     virtual std::string getStringRep() const;
-    virtual unsigned long sizeEstimate() const;
+    virtual unsigned int sizeEstimate() const;
 
     virtual BObjectImp* call_method( const char* methodname, Executor& ex );
 	virtual BObjectRef get_member( const char *membername );
@@ -67,8 +67,8 @@ public:
     void run();
 
     const ScriptDef& scriptdef() const { return _scriptdef; }
-	std::vector<unsigned long> _aux_ip_match;
-    std::vector<unsigned long> _aux_ip_match_mask;
+	std::vector<unsigned int> _aux_ip_match;
+    std::vector<unsigned int> _aux_ip_match_mask;
 private:
     const Package* _pkg;
     ScriptDef _scriptdef;
@@ -103,7 +103,7 @@ std::string AuxConnection::getStringRep() const
     return "<AuxConnection>";
 }
 
-unsigned long AuxConnection::sizeEstimate() const
+unsigned int AuxConnection::sizeEstimate() const
 {
     return sizeof(AuxConnection);
 }
@@ -185,7 +185,7 @@ bool AuxClientThread::ipAllowed(sockaddr MyPeer)
 	}
 	for( unsigned j = 0; j < _auxservice->_aux_ip_match.size(); ++j )
 	{
-		unsigned long addr1part, addr2part;
+		unsigned int addr1part, addr2part;
 		struct sockaddr_in* sockin = reinterpret_cast<struct sockaddr_in*>(&MyPeer);
 
 		addr1part = _auxservice->_aux_ip_match[j]      & _auxservice->_aux_ip_match_mask[j];
@@ -269,14 +269,14 @@ AuxService::AuxService( const Package* pkg, ConfigElem& elem ) :
 		{
 			string ipaddr_str = iptext.substr( 0, delim );
 			string ipmask_str = iptext.substr( delim+1 );
-			unsigned long ipaddr = inet_addr( ipaddr_str.c_str() );
-			unsigned long ipmask = inet_addr( ipmask_str.c_str() );
+			unsigned int ipaddr = inet_addr( ipaddr_str.c_str() );
+			unsigned int ipmask = inet_addr( ipmask_str.c_str() );
 			_aux_ip_match.push_back( ipaddr );
 			_aux_ip_match_mask.push_back( ipmask );
 		}
 		else
 		{
-			unsigned long ipaddr = inet_addr( iptext.c_str() );
+			unsigned int ipaddr = inet_addr( iptext.c_str() );
 			_aux_ip_match.push_back( ipaddr );
 			_aux_ip_match_mask.push_back( 0xFFffFFffLu );
 		}

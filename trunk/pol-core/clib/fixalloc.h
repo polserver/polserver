@@ -46,9 +46,9 @@ protected:
 private:
     Buffer* freelist_;
 #ifdef MEMORYLEAK
-    long buffers;
-    long requests;
-    long max_requests;
+    int buffers;
+    int requests;
+    int max_requests;
 #endif
 };
 

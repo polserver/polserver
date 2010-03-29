@@ -27,7 +27,7 @@ private:
     RealmDescriptor _descriptor;
 
     BinaryFile _file;
-    long _cur_block_index;
+    int _cur_block_index;
     MAPTILE_BLOCK _cur_block;
 };
 

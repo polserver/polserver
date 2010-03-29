@@ -67,8 +67,8 @@ FILE* open_map_file(string name, int map_id) {
 	return open_uo_file( filename );
 }
 
-long uo_mapid = 0;
-long uo_usedif = 0;
+int uo_mapid = 0;
+int uo_usedif = 0;
 unsigned short uo_map_width = 6144;
 unsigned short uo_map_height = 4096;
 void open_uo_data_files( void )

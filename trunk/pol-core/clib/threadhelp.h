@@ -13,7 +13,7 @@ Notes
 
 namespace threadhelp
 {
-    extern unsigned long child_threads;
+    extern unsigned int child_threads;
 
     void init_threadhelp();
     void inc_child_thread_count( bool need_lock = true );

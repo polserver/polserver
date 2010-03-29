@@ -18,7 +18,7 @@ public:
     virtual BObject* step();
 
     BObjectImp *copy( void ) const;
-    unsigned long sizeEstimate() const;
+    unsigned int sizeEstimate() const;
     string getStringRep() const;
 };
 

@@ -21,11 +21,11 @@ Notes
 
 struct SOLIDX1_ELEM
 {
-    unsigned long offset;
+    unsigned int offset;
 };
 struct SOLIDX2_ELEM
 {
-    unsigned long baseindex;
+    unsigned int baseindex;
     unsigned short addindex[SOLIDX_X_SIZE][SOLIDX_Y_SIZE];
 };
 struct SOLIDS_ELEM

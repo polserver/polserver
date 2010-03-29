@@ -54,8 +54,8 @@ public:
 };
 typedef ref_ptr<DataFileElement> DataFileElementRef;
 
-const long DF_KEYTYPE_STRING = 0x00;
-const long DF_KEYTYPE_INTEGER = 0x01;
+const int DF_KEYTYPE_STRING = 0x00;
+const int DF_KEYTYPE_INTEGER = 0x01;
 
 class DataFileContents : public ref_counted
 {
@@ -66,13 +66,13 @@ public:
 	void load( ConfigFile& cf );
 	void save( ostream& os );
 
-	BObjectImp* methodCreateElement( long key );
+	BObjectImp* methodCreateElement( int key );
 	BObjectImp* methodCreateElement( const string& key );
 
-	BObjectImp* methodFindElement( long key );
+	BObjectImp* methodFindElement( int key );
 	BObjectImp* methodFindElement( const string& key );
 
-	BObjectImp* methodDeleteElement( long key );
+	BObjectImp* methodDeleteElement( int key );
 	BObjectImp* methodDeleteElement( const string& key );
 
 	BObjectImp* methodKeys() const;
@@ -82,7 +82,7 @@ public:
 
 private:
 	typedef std::map< std::string, DataFileElementRef, ci_cmp_pred > ElementsByString;
-	typedef std::map< long, DataFileElementRef > ElementsByInteger;
+	typedef std::map< int, DataFileElementRef > ElementsByInteger;
 
 	ElementsByString elements_by_string;
 	ElementsByInteger elements_by_integer;
@@ -135,7 +135,7 @@ public:
 	DataStoreFile( const std::string& descriptor,
 				   const Package* pkg,
 				   const std::string& name,
-				   long flags );
+				   int flags );
 virtual ~DataStoreFile();
 	bool loaded() const;
 	void load();
@@ -151,7 +151,7 @@ virtual ~DataStoreFile();
 	const Package* pkg;
 	unsigned version;
 	unsigned oldversion;
-	long flags;
+	int flags;
 	bool unload;
 
 	unsigned delversion;
@@ -230,7 +230,7 @@ void DataFileContents::save( ostream& os )
 	}
 }
 
-BObjectImp* DataFileContents::methodCreateElement( long key )
+BObjectImp* DataFileContents::methodCreateElement( int key )
 {
 	ElementsByInteger::iterator itr = elements_by_integer.find( key );
 	DataFileElementRef dfelem;
@@ -265,7 +265,7 @@ BObjectImp* DataFileContents::methodCreateElement( const string& key )
 }
 
 
-BObjectImp* DataFileContents::methodFindElement( long key )
+BObjectImp* DataFileContents::methodFindElement( int key )
 {
 	ElementsByInteger::iterator itr = elements_by_integer.find( key );
 	if (itr != elements_by_integer.end())
@@ -294,7 +294,7 @@ BObjectImp* DataFileContents::methodFindElement( const string& key )
 }
 
 
-BObjectImp* DataFileContents::methodDeleteElement( long key )
+BObjectImp* DataFileContents::methodDeleteElement( int key )
 {
 	if (elements_by_integer.erase( key ))
 	{
@@ -365,7 +365,7 @@ BObjectImp* DataFileRefObjImp::call_method_id( const int id, Executor& ex, bool 
 		}
 		if (obj_->dsf->flags & DF_KEYTYPE_INTEGER)
 		{
-			long key;
+			int key;
 			if (!ex.getParam( 0, key ))
 			{
 				return new BError( "datafile.createelement(key): key must be an Integer" );
@@ -389,7 +389,7 @@ BObjectImp* DataFileRefObjImp::call_method_id( const int id, Executor& ex, bool 
 		}
 		if (obj_->dsf->flags & DF_KEYTYPE_INTEGER)
 		{
-			long key;
+			int key;
 			if (!ex.getParam( 0, key ))
 			{
 				return new BError( "datafile.findelement(key): key must be an Integer" );
@@ -413,7 +413,7 @@ BObjectImp* DataFileRefObjImp::call_method_id( const int id, Executor& ex, bool 
 		}
 		if (obj_->dsf->flags & DF_KEYTYPE_INTEGER)
 		{
-			long key;
+			int key;
 			if (!ex.getParam( 0, key ))
 			{
 				return new BError( "datafile.deleteelement(key): key must be an Integer" );
@@ -453,7 +453,7 @@ BObjectImp* DataFileRefObjImp::call_method( const char* methodname, Executor& ex
 		}
 		if (obj_->dsf->flags & DF_KEYTYPE_INTEGER)
 		{
-			long key;
+			int key;
 			if (!ex.getParam( 0, key ))
 			{
 				return new BError( "datafile.createelement(key): key must be an Integer" );
@@ -478,7 +478,7 @@ BObjectImp* DataFileRefObjImp::call_method( const char* methodname, Executor& ex
 		}
 		if (obj_->dsf->flags & DF_KEYTYPE_INTEGER)
 		{
-			long key;
+			int key;
 			if (!ex.getParam( 0, key ))
 			{
 				return new BError( "datafile.findelement(key): key must be an Integer" );
@@ -503,7 +503,7 @@ BObjectImp* DataFileRefObjImp::call_method( const char* methodname, Executor& ex
 		}
 		if (obj_->dsf->flags & DF_KEYTYPE_INTEGER)
 		{
-			long key;
+			int key;
 			if (!ex.getParam( 0, key ))
 			{
 				return new BError( "datafile.deleteelement(key): key must be an Integer" );
@@ -615,7 +615,7 @@ BObjectImp* DataFileExecutorModule::mf_ListDataFiles()
 BObjectImp* DataFileExecutorModule::mf_CreateDataFile()
 {
 	const String* strob;
-	long flags;
+	int flags;
 	if (getStringParam( 0, strob ) &&
 		getParam( 1, flags ))
 	{
@@ -772,7 +772,7 @@ DataStoreFile::DataStoreFile( ConfigElem& elem ) :
 DataStoreFile::DataStoreFile( const std::string& descriptor,
 							  const Package* pkg,
 							  const std::string& name,
-							  long flags ) :
+							  int flags ) :
 	descriptor(descriptor),
 	name(name),
 	pkgname(""),

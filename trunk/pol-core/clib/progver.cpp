@@ -16,4 +16,4 @@ const char compiletime[] = __TIME__;
 
 char progverstr[64];
 char buildtagstr[64];
-unsigned long progver;
+unsigned int progver;

@@ -19,7 +19,7 @@ Notes
 
 class OSExecutorModule;
 
-// const long SCRIPT_RUNAWAY_INTERVAL = 5000;
+// const int SCRIPT_RUNAWAY_INTERVAL = 5000;
 
 class UOExecutor : public Executor
 {
@@ -37,7 +37,7 @@ public:
     u64 warn_runaway_on_cycle;
     u64 runaway_cycles;
 
-    unsigned long eventmask;
+    unsigned int eventmask;
     unsigned short area_size;
     unsigned short speech_size;
 

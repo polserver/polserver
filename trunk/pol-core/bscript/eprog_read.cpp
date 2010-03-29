@@ -216,7 +216,7 @@ int EScriptProgram::_readToken(Token& token, unsigned position) const
             {
                 throw runtime_error( "Symbol offset of " + decint(st.offset) + " exceeds symbol store length of " + decint(symbols.length()) + " at PC=" + decint(position));
             }
-            token.lval = * (long *) (symbols.array()+st.offset);
+            token.lval = * (int *) (symbols.array()+st.offset);
             return 0;
         case TOK_DOUBLE:
             if (st.offset >= symbols.length())

@@ -267,7 +267,7 @@ BObjectImp* UHouse::script_method_id( const int id, Executor& ex )
     switch(id)
     {
         case MTH_SETCUSTOM:
-            long _custom;
+            int _custom;
             if (ex.getParam( 0, _custom ))
             {
                 SetCustom( _custom ? true : false );
@@ -326,7 +326,7 @@ BObjectImp* UHouse::script_method( const char* methodname, Executor& ex )
 
     if (stricmp( membername, "setcustom" ) == 0)
     {
-        long _custom;
+        int _custom;
         if (ex.getParam( 0, _custom ))
         {
             SetCustom( _custom ? true : false );
@@ -642,7 +642,7 @@ bool objects_exist_in( unsigned short x1, unsigned short y1, unsigned short x2, 
 
 bool statics_cause_problems( unsigned short x1, unsigned short y1,
                             unsigned short x2, unsigned short y2,
-                            s8 z, long flags, Realm* realm)
+                            s8 z, int flags, Realm* realm)
 {
     for( unsigned short x = x1; x <= x2; ++x )
     {
@@ -668,7 +668,7 @@ bool statics_cause_problems( unsigned short x1, unsigned short y1,
     return false;
 }
 
-BObjectImp* UHouse::scripted_create( const ItemDesc& descriptor, u16 x, u16 y, s8 z, Realm* realm, long flags )
+BObjectImp* UHouse::scripted_create( const ItemDesc& descriptor, u16 x, u16 y, s8 z, Realm* realm, int flags )
 {
     const MultiDef* md = MultiDefByGraphic( descriptor.graphic );
     if (md == NULL)

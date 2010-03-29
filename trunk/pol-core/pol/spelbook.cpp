@@ -120,7 +120,7 @@ void Spellbook::double_click( Client* client )
 
 }
 
-bool Spellbook::has_spellid( unsigned long spellid ) const
+bool Spellbook::has_spellid( unsigned int spellid ) const
 {
     u8 spellschool = static_cast<u8>(spellid / 100);
     if (spellschool == this->spell_school)
@@ -135,7 +135,7 @@ bool Spellbook::has_spellid( unsigned long spellid ) const
     return false;
 }
 
-bool Spellbook::remove_spellid( unsigned long spellid )
+bool Spellbook::remove_spellid( unsigned int spellid )
 {
     if (has_spellid(spellid))
     {
@@ -148,7 +148,7 @@ bool Spellbook::remove_spellid( unsigned long spellid )
     return false;
 }
 
-bool Spellbook::add_spellid( unsigned long spellid )
+bool Spellbook::add_spellid( unsigned int spellid )
 {
     if (!has_spellid(spellid))
     {
@@ -182,7 +182,7 @@ bool Spellbook::can_add( const Item& item ) const
 	return true;
 }
 
-void Spellbook::add_bulk( long /* item_count_delta */, long /* weight_delta */ )
+void Spellbook::add_bulk( int /* item_count_delta */, int /* weight_delta */ )
 {
     // spellbooks don't modify their weight, either when adding
     // or when removing an item.

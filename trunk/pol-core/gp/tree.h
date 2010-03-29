@@ -16,9 +16,9 @@ Notes
 
 #include "../bscript/token.h"
 
-extern long n_GIndividual;
-extern long n_GPopulation;
-extern long n_GTree;
+extern int n_GIndividual;
+extern int n_GPopulation;
+extern int n_GTree;
 
 class GTerminal;
 class GTree;

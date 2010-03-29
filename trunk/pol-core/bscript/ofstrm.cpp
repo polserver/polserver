@@ -19,7 +19,7 @@ Notes
 void OFile::printOn(ostream& os) const
 {
    if (!fc) return;
-   long fpos = -1;
+   int fpos = -1;
    fc->tell(fpos);
    os << fc->filename_ << " offset " << fpos;
 }

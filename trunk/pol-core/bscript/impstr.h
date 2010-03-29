@@ -51,7 +51,7 @@ class String : public BObjectImp
       {
 		  return new String(*this);
       }
-    virtual unsigned long sizeEstimate() const; 
+    virtual unsigned int sizeEstimate() const; 
 
 	// FIXME: Possibly eliminate this later and have [ ] operator support?
 	// Or stick to functions, overload them with other substring getting methods.

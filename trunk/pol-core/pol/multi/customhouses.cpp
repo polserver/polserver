@@ -248,10 +248,10 @@ void CustomHouseDesign::Clear()
 //caller must delete, assume type 0
 unsigned char* CustomHouseDesign::Compress(int floor, u32* uncompr_length, u32* compr_length)
 {
-    long numtiles = floor_sizes[floor];
-    long nextindex = 0;
+    int numtiles = floor_sizes[floor];
+    int nextindex = 0;
     int i;
-    unsigned long ubuflen = numtiles*BYTES_PER_TILE;
+    unsigned int ubuflen = numtiles*BYTES_PER_TILE;
     unsigned long cbuflen = (((unsigned long)(( (float)(ubuflen) )*1.001f)) +12);//as per zlib spec
     unsigned char* uncompressed = new unsigned char[ubuflen];
     memset(uncompressed,0,ubuflen);
@@ -305,15 +305,15 @@ unsigned char* CustomHouseDesign::Compress(int floor, u32* uncompr_length, u32* 
 
 bool CustomHouseDesign::IsEmpty() const
 {
-    long total = 0;
+    int total = 0;
     for(int i=0; i<CUSTOM_HOUSE_NUM_PLANES; i++)
         total += floor_sizes[i];
     return total == 0 ? true : false;
 }
 
-unsigned long CustomHouseDesign::TotalSize() const
+unsigned int CustomHouseDesign::TotalSize() const
 {
-    unsigned long size = 0;
+    unsigned int size = 0;
     for(int i=0; i<CUSTOM_HOUSE_NUM_PLANES; i++)
     {
         size += floor_sizes[i];

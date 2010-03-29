@@ -8,13 +8,13 @@ Notes
 
 */
 
-extern long unreaped_orphans;
-extern long uobject_count;
-extern long uitem_count;
-extern long ucharacter_count;
-extern long npc_count;
-extern long umulti_count;
-extern long uobj_count_echrref;
+extern int unreaped_orphans;
+extern int uobject_count;
+extern int uitem_count;
+extern int ucharacter_count;
+extern int npc_count;
+extern int umulti_count;
+extern int uobj_count_echrref;
 
 class Item;
 typedef set<Item*> ItemSet;

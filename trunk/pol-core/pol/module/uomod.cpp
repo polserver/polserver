@@ -279,7 +279,7 @@ BObjectImp* UOExecutorModule::mf_Detach()
     }
 }
 
-static bool item_create_params_ok( long objtype, long amount )
+static bool item_create_params_ok( int objtype, int amount )
 {
     return ((objtype >= UOBJ_ITEM__LOWEST && objtype <= config.max_tile_id) ||
             (objtype >= (config.max_tile_id+0x1001) && objtype <= EXTOBJ__HIGHEST)) &&
@@ -327,7 +327,7 @@ BObjectImp* _create_item_in_container(
                 item->ct_merge_stacks_pergon( amount ); // Pergon: Re-Calculate Property CreateTime after Adding Items to a Stack
                 #endif
 
-                long newamount = item->getamount();
+                int newamount = item->getamount();
                 newamount += amount;
                 item->setamount( static_cast<unsigned short>(newamount) );
 
@@ -437,7 +437,7 @@ BObjectImp* UOExecutorModule::mf_CreateItemInContainer()
 {
     Item* item;
     const ItemDesc* descriptor;
-    long amount;
+    int amount;
 
     if (getItemParam( exec, 0, item ) &&
         getObjtypeParam( exec, 1, descriptor ) &&
@@ -467,7 +467,7 @@ BObjectImp* UOExecutorModule::mf_CreateItemInInventory()
 {
     Item* item;
     const ItemDesc* descriptor;
-    long amount;
+    int amount;
 
     if (getItemParam( exec, 0, item ) &&
         getObjtypeParam( exec, 1, descriptor ) &&
@@ -680,7 +680,7 @@ BObjectImp* UOExecutorModule::mf_PrintTextAbove()
     const String* ptext;
     unsigned short font;
     unsigned short color;
-	long journal_print;
+	int journal_print;
 
     if (getUObjectParam( exec, 0, obj ) &&
         getStringParam( 1, ptext ) &&
@@ -702,7 +702,7 @@ BObjectImp* UOExecutorModule::mf_PrivateTextAbove()
     const String* ptext;
     unsigned short font;
     unsigned short color;
-	long journal_print;
+	int journal_print;
 
     if (getUObjectParam( exec, 0, obj ) &&
         getStringParam( 1, ptext ) &&
@@ -719,10 +719,10 @@ BObjectImp* UOExecutorModule::mf_PrivateTextAbove()
     }
 }
 
-const long TGTOPT_CHECK_LOS     = 0x0001;
-const long TGTOPT_NOCHECK_LOS   = 0x0000;
-const long TGTOPT_HARMFUL       = 0x0002;
-const long TGTOPT_HELPFUL       = 0x0004;
+const int TGTOPT_CHECK_LOS     = 0x0001;
+const int TGTOPT_NOCHECK_LOS   = 0x0000;
+const int TGTOPT_HARMFUL       = 0x0002;
+const int TGTOPT_HELPFUL       = 0x0004;
 
 // FIXME susceptible to out-of-sequence target cursors
 void handle_script_cursor( Character* chr, UObject* obj )
@@ -946,8 +946,8 @@ BObjectImp* UOExecutorModule::mf_TargetMultiPlacement()
 {
     Character* chr;
     unsigned short objtype;
-    long flags;
-	long xoffset, yoffset;
+    int flags;
+	int xoffset, yoffset;
     if (! (getCharacterParam( exec, 0, chr ) &&
            getObjtypeParam( exec, 1, objtype ) &&
            getParam(2, flags) &&
@@ -1170,7 +1170,7 @@ BObjectImp* UOExecutorModule::mf_CreateMultiAtLocation(/* x,y,z,objtype,flags,re
     unsigned short x, y;
 	short z;
     const ItemDesc* descriptor;
-    long flags = 0;
+    int flags = 0;
 	const String* strrealm;
 	Realm* realm = find_realm(string("britannia"));
     if (! (getParam( 0, x ) &&
@@ -1471,7 +1471,7 @@ BObjectImp* UOExecutorModule::mf_PerformAction()
 BObjectImp* UOExecutorModule::mf_PlaySoundEffect()
 {
     UObject* chr;
-    long effect;
+    int effect;
     if (getUObjectParam( exec, 0, chr ) &&
         getParam( 1, effect ))
     {
@@ -1487,7 +1487,7 @@ BObjectImp* UOExecutorModule::mf_PlaySoundEffect()
 BObjectImp* UOExecutorModule::mf_PlaySoundEffectPrivate()
 {
     UObject* center;
-    long effect;
+    int effect;
     Character* forchr;
     if (getUObjectParam( exec, 0, center ) &&
         getParam( 1, effect ) &&
@@ -1506,7 +1506,7 @@ BObjectImp* UOExecutorModule::mf_PlaySoundEffectXYZ()
 {
     unsigned short cx,cy;
 	short cz;
-    long effect;
+    int effect;
 	const String* strrealm;
 	Realm* realm = find_realm(string("britannia"));
 	if (getParam( 0, cx ) &&
@@ -1535,7 +1535,7 @@ BObjectImp* UOExecutorModule::mf_PlaySoundEffectXYZ()
 BObjectImp* UOExecutorModule::mf_PlayMusic(/* char, music_id */)
 {
     Character* chr;
-    long musicid;
+    int musicid;
     if (getCharacterParam(exec, 0, chr) &&
         getParam( 1, musicid ))
     {
@@ -1693,7 +1693,7 @@ BObjectImp* UOExecutorModule::mf_ApplyConstraint()
     ObjArray* arr;
     StoredConfigFile* cfile;
     const String* propname_str;
-    long amthave;
+    int amthave;
 
     if (getObjArrayParam( 0, arr ) &&
         getStoredConfigFileParam( *this, 1, cfile ) &&
@@ -1712,7 +1712,7 @@ BObjectImp* UOExecutorModule::mf_ApplyConstraint()
             if (!bo->isa( BObjectImp::OTLong ))
                 continue;
             BLong* blong = static_cast<BLong*>(bo->impptr());
-            unsigned long objtype = blong->value();
+            unsigned int objtype = blong->value();
 
             ref_ptr<StoredConfigElem> celem = cfile->findelem( objtype );
             if (celem.get() == NULL)
@@ -1917,9 +1917,9 @@ BObjectImp* UOExecutorModule::mf_PlayMovingEffect()
     UObject* src;
     UObject* dst;
     unsigned short effect;
-    long speed;
-    long loop;
-    long explode;
+    int speed;
+    int loop;
+    int explode;
     if (getUObjectParam( exec, 0, src ) &&
         getUObjectParam( exec, 1, dst ) &&
         getParam( 2, effect ) &&
@@ -1948,9 +1948,9 @@ BObjectImp* UOExecutorModule::mf_PlayMovingEffectXyz()
 	short sz, dz;
 
     unsigned short effect;
-    long speed;
-    long loop;
-    long explode;
+    int speed;
+    int loop;
+    int explode;
 	const String* strrealm;
 	Realm* realm = find_realm(string("britannia"));
 
@@ -1995,8 +1995,8 @@ BObjectImp* UOExecutorModule::mf_PlayObjectCenteredEffect()
 {
     UObject* src;
     unsigned short effect;
-    long speed;
-    long loop;
+    int speed;
+    int loop;
     if (getUObjectParam( exec, 0, src ) &&
         getParam( 1, effect ) &&
         getParam( 2, speed, UCHAR_MAX ) &&
@@ -2019,7 +2019,7 @@ BObjectImp* UOExecutorModule::mf_PlayStationaryEffect()
     unsigned short x, y;
 	short z;
     unsigned short effect;
-    long speed, loop, explode;
+    int speed, loop, explode;
 	const String* strrealm;
 	Realm* realm = find_realm(string("britannia"));
     if (getParam( 0, x ) &&
@@ -2057,12 +2057,12 @@ BObjectImp* UOExecutorModule::mf_PlayMovingEffect_Ex()
     UObject* src;
     UObject* dst;
     unsigned short effect;
-    long speed;
-    long duration;
-	long hue;
-	long render;
-	long direction;
-    long explode;
+    int speed;
+    int duration;
+	int hue;
+	int render;
+	int direction;
+    int explode;
 	unsigned short effect3d;
 	unsigned short effect3dexplode;
 	unsigned short effect3dsound;
@@ -2085,8 +2085,8 @@ BObjectImp* UOExecutorModule::mf_PlayMovingEffect_Ex()
         play_moving_effect_ex( src, dst, effect,
                             static_cast<unsigned char>(speed),
                             static_cast<unsigned char>(duration),
-							static_cast<unsigned long>(hue),
-							static_cast<unsigned long>(render),
+							static_cast<unsigned int>(hue),
+							static_cast<unsigned int>(render),
 							static_cast<unsigned char>(direction),
                             static_cast<unsigned char>(explode),
 							effect3d,
@@ -2108,12 +2108,12 @@ BObjectImp* UOExecutorModule::mf_PlayMovingEffectXyz_Ex()
 	const String* strrealm;
 
     unsigned short effect;
-    long speed;
-    long duration;
-	long hue;
-	long render;
-	long direction;
-    long explode;
+    int speed;
+    int duration;
+	int hue;
+	int render;
+	int direction;
+    int explode;
 	unsigned short effect3d;
 	unsigned short effect3dexplode;
 	unsigned short effect3dsound;
@@ -2152,8 +2152,8 @@ BObjectImp* UOExecutorModule::mf_PlayMovingEffectXyz_Ex()
                              effect,
                              static_cast<unsigned char>(speed),
                              static_cast<unsigned char>(duration),
-							 static_cast<unsigned long>(hue),
-							 static_cast<unsigned long>(render),
+							 static_cast<unsigned int>(hue),
+							 static_cast<unsigned int>(render),
 							 static_cast<unsigned char>(direction),
                              static_cast<unsigned char>(explode),
 							 effect3d,
@@ -2171,11 +2171,11 @@ BObjectImp* UOExecutorModule::mf_PlayObjectCenteredEffect_Ex()
 {
     UObject* src;
     unsigned short effect;
-    long speed;
-    long duration;
-	long hue;
-	long render;
-	long layer;
+    int speed;
+    int duration;
+	int hue;
+	int render;
+	int layer;
 	unsigned short effect3d;
 	 
     if (getUObjectParam( exec, 0, src ) &&
@@ -2191,8 +2191,8 @@ BObjectImp* UOExecutorModule::mf_PlayObjectCenteredEffect_Ex()
 			                            effect,
 										static_cast<unsigned char>(speed),
 										static_cast<unsigned char>(duration),
-										static_cast<unsigned long>(hue),
-										static_cast<unsigned long>(render),
+										static_cast<unsigned int>(hue),
+										static_cast<unsigned int>(render),
 										static_cast<unsigned char>(layer),
 										effect3d );
         return new BLong(1);
@@ -2209,10 +2209,10 @@ BObjectImp* UOExecutorModule::mf_PlayStationaryEffect_Ex()
 	short z;
 	const String* strrealm;
     unsigned short effect;
-    long speed;
-    long duration;
-	long hue;
-	long render;
+    int speed;
+    int duration;
+	int hue;
+	int render;
 	unsigned short effect3d;
 	
 	Realm* realm = find_realm(string("britannia"));
@@ -2238,8 +2238,8 @@ BObjectImp* UOExecutorModule::mf_PlayStationaryEffect_Ex()
                                 effect,
 							    static_cast<unsigned char>(speed),
 								static_cast<unsigned char>(duration),
-								static_cast<unsigned long>(hue),
-								static_cast<unsigned long>(render),
+								static_cast<unsigned int>(hue),
+								static_cast<unsigned int>(render),
 								effect3d);
         return new BLong(1);
     }
@@ -2266,7 +2266,7 @@ BObjectImp* UOExecutorModule::mf_PlayLightningBoltEffect()
 BObjectImp* UOExecutorModule::mf_ListItemsNearLocation(/* x, y, z, range, realm */)
 {
     unsigned short x, y;
-	long z;
+	int z;
 	short range;
 	const String* strrealm;
 	Realm* realm;
@@ -2508,7 +2508,7 @@ BObjectImp* UOExecutorModule::mf_ListStaticsInBox(/* x1, y1, z1, x2, y2, z2, fla
     unsigned short x1, y1;
     unsigned short x2, y2;
 	short z1, z2;
-	long flags;
+	int flags;
 	const String* strrealm;
 	Realm* realm;
 
@@ -2592,7 +2592,7 @@ BObjectImp* UOExecutorModule::mf_ListStaticsInBox(/* x1, y1, z1, x2, y2, z2, fla
 BObjectImp* UOExecutorModule::mf_ListItemsNearLocationOfType(/* x, y, z, range, objtype, realm */)
 {
     unsigned short x, y;
-	long z, range;
+	int z, range;
     unsigned short objtype;
 	const String* strrealm;
 	Realm* realm;
@@ -2651,7 +2651,7 @@ BObjectImp* UOExecutorModule::mf_ListItemsNearLocationOfType(/* x, y, z, range, 
 BObjectImp* UOExecutorModule::mf_ListItemsAtLocation(/* x, y, z, realm */)
 {
     unsigned short x, y;
-	long z;
+	int z;
 	const String* strrealm;
 	Realm* realm;
 
@@ -2698,10 +2698,10 @@ BObjectImp* UOExecutorModule::mf_ListItemsAtLocation(/* x, y, z, realm */)
 
 BObjectImp* UOExecutorModule::mf_ListGhostsNearLocation()
 {
-    long x;
-    long y;
-    long z;
-    long range;
+    int x;
+    int y;
+    int z;
+    int range;
 	const String* strrealm;
 	Realm* realm = find_realm(string("britannia"));
 
@@ -2756,7 +2756,7 @@ const unsigned LMBLEX_FLAG_CONCEALED = 0x8;
 BObjectImp* UOExecutorModule::mf_ListMobilesNearLocationEx(/* x, y, z, range, flags, realm */)
 {
     unsigned short x, y;
-	long z, flags;
+	int z, flags;
 	short range;
 	const String* strrealm;
 	Realm* realm;
@@ -2826,7 +2826,7 @@ BObjectImp* UOExecutorModule::mf_ListMobilesNearLocationEx(/* x, y, z, range, fl
 BObjectImp* UOExecutorModule::mf_ListMobilesNearLocation(/* x, y, z, range, realm */)
 {
     unsigned short x, y;
-	long z;
+	int z;
 	short range;
 	const String* strrealm;
 	Realm* realm;
@@ -2887,7 +2887,7 @@ BObjectImp* UOExecutorModule::mf_ListMobilesNearLocation(/* x, y, z, range, real
 BObjectImp* UOExecutorModule::mf_ListMobilesInLineOfSight()
 {
     UObject* obj;
-    long range;
+    int range;
     if (getUObjectParam( exec, 0, obj ) &&
         getParam( 1, range ))
     {
@@ -2931,13 +2931,13 @@ BObjectImp* UOExecutorModule::mf_ListMobilesInLineOfSight()
 }
 
 // keep this in sync with UO.EM
-const long LH_FLAG_LOS = 1;             // only include those in LOS
-const long LH_FLAG_INCLUDE_HIDDEN = 2;  // include hidden characters
+const int LH_FLAG_LOS = 1;             // only include those in LOS
+const int LH_FLAG_INCLUDE_HIDDEN = 2;  // include hidden characters
 BObjectImp* UOExecutorModule::mf_ListHostiles()
 {
     Character* chr;
-    long range;
-    long flags;
+    int range;
+    int flags;
     if (getCharacterParam( exec, 0, chr ) &&
         getParam( 1, range ) &&
         getParam( 2, flags ))
@@ -3112,7 +3112,7 @@ BObjectImp* UOExecutorModule::mf_GetPosition()
     }
 }
 
-void UContainer::enumerate_contents( ObjArray* arr, long flags )
+void UContainer::enumerate_contents( ObjArray* arr, int flags )
 {
     for( Contents::iterator itr = contents_.begin(), end = contents_.end(); itr != end; ++itr )
     {
@@ -3134,7 +3134,7 @@ void UContainer::enumerate_contents( ObjArray* arr, long flags )
 BObjectImp* UOExecutorModule::mf_EnumerateItemsInContainer()
 {
     Item* item;
-    long flags;
+    int flags;
     if (getItemParam( exec, 0, item ))
     {
         if (exec.fparams.size() >= 2)
@@ -3180,8 +3180,8 @@ BObjectImp* UOExecutorModule::mf_EnumerateOnlineCharacters()
 BObjectImp* UOExecutorModule::mf_RegisterForSpeechEvents()
 {
     UObject* center;
-    long range;
-    long flags = 0;
+    int range;
+    int flags = 0;
     if (getUObjectParam( exec, 0, center ) &&
         getParam( 1, range ))
     {
@@ -3209,7 +3209,7 @@ BObjectImp* UOExecutorModule::mf_RegisterForSpeechEvents()
 
 BObjectImp* UOExecutorModule::mf_EnableEvents()
 {
-    long eventmask;
+    int eventmask;
     if (getParam( 0, eventmask ))
     {
         if (eventmask & (EVID_ENTEREDAREA|EVID_LEFTAREA|EVID_SPOKE))
@@ -3238,7 +3238,7 @@ BObjectImp* UOExecutorModule::mf_EnableEvents()
 
 BObjectImp* UOExecutorModule::mf_DisableEvents()
 {
-    long eventmask;
+    int eventmask;
     if (getParam( 0, eventmask ))
     {
         uoexec.eventmask &= ~eventmask;
@@ -3254,7 +3254,7 @@ BObjectImp* UOExecutorModule::mf_DisableEvents()
 BObjectImp* UOExecutorModule::mf_Resurrect()
 {
     Character* chr;
-    long flags = 0;
+    int flags = 0;
     if (getCharacterParam( exec, 0, chr ))
     {
         if (!chr->dead())
@@ -3291,8 +3291,8 @@ BObjectImp* UOExecutorModule::mf_Resurrect()
 
 BObjectImp* UOExecutorModule::mf_SystemFindObjectBySerial()
 {
-    long serial;
-    long sysfind_flags = 0;
+    int serial;
+    int sysfind_flags = 0;
     if (getParam( 0, serial ))
     {
         if (exec.hasParams(2))
@@ -3341,7 +3341,7 @@ void cancel_all_trades();
 BObjectImp* UOExecutorModule::mf_SaveWorldState()
 {
     update_gameclock();
-    long flags = 0;
+    int flags = 0;
     if (exec.hasParams( 1 ))
     {
         if (!getParam( 0, flags ))
@@ -3353,7 +3353,7 @@ BObjectImp* UOExecutorModule::mf_SaveWorldState()
 
         PolClockPauser pauser;
 
-        unsigned long dirty, clean, elapsed_ms;
+        unsigned int dirty, clean, elapsed_ms;
         int res;
         if (flags & SAVE_INCREMENTAL)
         {
@@ -3392,7 +3392,7 @@ BObjectImp* UOExecutorModule::mf_SaveWorldState()
 BObjectImp* UOExecutorModule::mf_SetRegionLightLevel()
 {
     const String* region_name_str;
-    long lightlevel;
+    int lightlevel;
     if (! (getStringParam( 0, region_name_str ) &&
            getParam( 1, lightlevel )) )
     {
@@ -3417,10 +3417,10 @@ BObjectImp* UOExecutorModule::mf_SetRegionLightLevel()
 BObjectImp* UOExecutorModule::mf_SetRegionWeatherLevel()
 {
     const String* region_name_str;
-    long type;
-    long severity;
-    long aux;
-    long lightoverride;
+    int type;
+    int severity;
+    int aux;
+    int lightoverride;
     if (! (getStringParam( 0, region_name_str ) &&
            getParam( 1, type ) &&
            getParam( 2, severity ) &&
@@ -3538,7 +3538,7 @@ BObjectImp* UOExecutorModule::mf_CoordinateDistanceEuclidean()
 
 BObjectImp* UOExecutorModule::mf_GetCoordsInLine()
 {
-	long x1, y1, x2, y2;
+	int x1, y1, x2, y2;
 	if ( !(getParam(0, x1) && getParam(1, y1)
 		&& getParam(2, x2) && getParam(3, y2)) )
 	{
@@ -3556,7 +3556,7 @@ BObjectImp* UOExecutorModule::mf_GetCoordsInLine()
 
 	double dx = abs(x2-x1)+0.5;
 	double dy = abs(y2-y1)+0.5;
-	long vx = 0, vy = 0;
+	int vx = 0, vy = 0;
 
 	if ( x2 > x1 )
 		vx = 1;
@@ -3572,14 +3572,14 @@ BObjectImp* UOExecutorModule::mf_GetCoordsInLine()
 	{
 		dy = dy / dx;
 		
-		for ( long c = 0; c <= dx; c++ )
+		for ( int c = 0; c <= dx; c++ )
 		{
-			long point_x = x1 + (c * vx);
+			int point_x = x1 + (c * vx);
 			
 			double float_y = double(c) * double(vy) * dy;
 			if ( float_y - floor(float_y) >= 0.5 )
 				float_y = ceil(float_y);
-			long point_y = long(float_y) + y1;
+			int point_y = int(float_y) + y1;
 			
 			BStruct* point = new BStruct;
 			point->addMember("x", new BLong(point_x));
@@ -3590,14 +3590,14 @@ BObjectImp* UOExecutorModule::mf_GetCoordsInLine()
 	else
 	{
 		dx = dx / dy;
-		for ( long c = 0; c <= dy; c++ )
+		for ( int c = 0; c <= dy; c++ )
 		{
-			long point_y = y1 + (c * vy);
+			int point_y = y1 + (c * vy);
 			
 			double float_x = double(c) * double(vx) * dx;
 			if ( float_x - floor(float_x) >= 0.5 )
 				float_x = ceil(float_x);
-			long point_x = long(float_x) + x1;
+			int point_x = int(float_x) + x1;
 			
 			BStruct* point = new BStruct;
 			point->addMember("x", new BLong(point_x));
@@ -3652,8 +3652,8 @@ BObjectImp* UOExecutorModule::mf_MoveItemToContainer()
 {
     Item* item;
     Item* cont_item;
-	long px;
-	long py;
+	int px;
+	int py;
     if ( !(getItemParam( exec, 0, item ) &&
            getItemParam( exec, 1, cont_item ) &&
            getParam( 2, px, -1, 65535 ) &&
@@ -3955,8 +3955,8 @@ BObjectImp* UOExecutorModule::mf_HarvestResource()
     xcoord x;
     ycoord y;
     const String* resource;
-    long b;
-    long n;
+    int b;
+    int n;
 	const String* strrealm;
 	Realm* realm = find_realm(string("britannia"));
 
@@ -4217,7 +4217,7 @@ BObjectImp* UOExecutorModule::mf_SendPacket()
 BObjectImp* UOExecutorModule::mf_SendQuestArrow()
 {
 	Character* chr;
-    long x,y;
+    int x,y;
     if (getCharacterParam( exec, 0, chr ) &&
 		getParam( 1, x, -1, 1000000 ) &&
         getParam( 2, y, -1, 1000000 ))  //max vaues checked below
@@ -4253,7 +4253,7 @@ BObjectImp* UOExecutorModule::mf_SendQuestArrow()
 BObjectImp* UOExecutorModule::mf_ConsumeReagents()
 {
     Character* chr;
-    long spellid;
+    int spellid;
     if (getCharacterParam( exec, 0, chr ) &&
         getParam( 1, spellid ))
     {
@@ -4278,7 +4278,7 @@ BObjectImp* UOExecutorModule::mf_ConsumeReagents()
 BObjectImp* UOExecutorModule::mf_StartSpellEffect()
 {
     Character* chr;
-    long spellid;
+    int spellid;
     if (getCharacterParam( exec, 0, chr ) &&
         getParam( 1, spellid ))
     {
@@ -4302,7 +4302,7 @@ BObjectImp* UOExecutorModule::mf_StartSpellEffect()
 }
 BObjectImp* UOExecutorModule::mf_GetSpellDifficulty()
 {
-    long spellid;
+    int spellid;
     if (getParam( 0, spellid ))
     {
         if (!VALID_SPELL_ID(spellid))
@@ -4325,7 +4325,7 @@ BObjectImp* UOExecutorModule::mf_GetSpellDifficulty()
 BObjectImp* UOExecutorModule::mf_SpeakPowerWords()
 {
     Character* chr;
-    long spellid;
+    int spellid;
 	unsigned short font;
 	unsigned short color;
 
@@ -4379,7 +4379,7 @@ BObjectImp* UOExecutorModule::mf_ListEquippedItems()
 BObjectImp* UOExecutorModule::mf_GetEquipmentByLayer()
 {
     Character* chr;
-    long layer;
+    int layer;
     if (getCharacterParam( exec, 0, chr ) &&
         getParam( 1, layer ))
     {
@@ -4684,7 +4684,7 @@ BObjectImp* UOExecutorModule::mf_GetStandingHeight()
 BObjectImp* UOExecutorModule::mf_GetStandingLayers(/* x, y, flags, realm */)
 {
     unsigned short x, y;
-	long flags;
+	int flags;
     const String* strrealm;
     Realm* realm;
     
@@ -4834,7 +4834,7 @@ BObjectImp* UOExecutorModule::mf_ConsumeSubstance()
 {
     Item* cont_item;
     unsigned short objtype;
-    long amount;
+    int amount;
     if (getItemParam( exec, 0, cont_item ) &&
         getObjtypeParam( exec, 1, objtype ) &&
         getParam( 2, amount ))
@@ -4845,7 +4845,7 @@ BObjectImp* UOExecutorModule::mf_ConsumeSubstance()
             return new BError( "Amount cannot be negative" );
 
         UContainer* cont = static_cast<UContainer*>(cont_item);
-        long amthave = cont->find_sumof_objtype_noninuse(objtype);
+        int amthave = cont->find_sumof_objtype_noninuse(objtype);
         if (amthave < amount)
             return new BError( "Not enough of that substance in container" );
 
@@ -4933,7 +4933,7 @@ BObjectImp* UOExecutorModule::mf_ListItemsNearLocationWithFlag(/* x, y, z, range
 {
     unsigned short x, y;
 	short range;
-	long z, flags;
+	int z, flags;
 	const String* strrealm;
 	Realm* realm;
 
@@ -4992,7 +4992,7 @@ BObjectImp* UOExecutorModule::mf_ListItemsNearLocationWithFlag(/* x, y, z, range
 BObjectImp* UOExecutorModule::mf_ListStaticsAtLocation(/* x, y, z, flags, realm */)
 {
     unsigned short x, y;
-	long z, flags;
+	int z, flags;
     const String* strrealm;
     Realm* realm;
     
@@ -5067,7 +5067,7 @@ BObjectImp* UOExecutorModule::mf_ListStaticsAtLocation(/* x, y, z, flags, realm 
 BObjectImp* UOExecutorModule::mf_ListStaticsNearLocation(/* x, y, z, range, flags, realm */)
 {
     unsigned short x, y;
-	long z, flags;
+	int z, flags;
 	short range;
     const String* strrealm;
     Realm* realm;
@@ -5258,7 +5258,7 @@ BObjectImp* UOExecutorModule::mf_FindPath()
     unsigned short x1, x2;
     unsigned short y1, y2;
     short z1, z2;
-	long flags;
+	int flags;
 	short theSkirt;
 	const String* strrealm;
 	Realm* realm;
@@ -5489,11 +5489,11 @@ BObjectImp* UOExecutorModule::mf_FindSubstance()
 
     Item* cont_item;
     unsigned short objtype;
-    long amount;
-	long amthave;
-	long makeInUseLong;
+    int amount;
+	int amthave;
+	int makeInUseLong;
 	bool makeInUse;
-	long flags;
+	int flags;
 
 	if (getItemParam( exec, 0, cont_item ) &&
         getObjtypeParam( exec, 1, objtype ) &&
@@ -5567,7 +5567,7 @@ BObjectImp* UOExecutorModule::mf_IsStackable()
 BObjectImp* UOExecutorModule::mf_UpdateMobile()
 {
 	Character* chr;
-	long flags;
+	int flags;
 
 	if (getCharacterParam(exec, 0, chr) &&
         getParam(1, flags))
@@ -5602,7 +5602,7 @@ BObjectImp* UOExecutorModule::mf_CanWalk(/*movemode, x1, y1, z1, x2_or_dir, y2 :
 	xcoord x;
 	ycoord y;
 	zcoord z;
-	long x2_or_dir, y2_;
+	int x2_or_dir, y2_;
 	const String* realm_name;
 	const String* movemode_name;
 
@@ -5734,7 +5734,7 @@ BObjectImp* UOExecutorModule::mf_SendCharProfile(/*chr, of_who, title, uneditabl
 
 BObjectImp* UOExecutorModule::mf_SendOverallSeason(/*season_id, playsound := 1*/)
 {
-	long season_id, playsound;
+	int season_id, playsound;
 
 	if ( getParam(0, season_id) &&
 		 getParam(1, playsound))

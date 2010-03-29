@@ -31,8 +31,8 @@ class FILECont
     int close(void);
     int read(char *buf, int maxlen);
     int write(const char *buf);
-    int seek(long posn);
-    int tell(long& posn);
+    int seek(int posn);
+    int tell(int& posn);
 };
 class OFile : public BObjectImp
 {
@@ -49,8 +49,8 @@ class OFile : public BObjectImp
     int close(void);
     int read(char *buf, int maxlen);
     int write(const char *buf);
-    int seek(long posn);
-    int tell(long& posn);
+    int seek(int posn);
+    int tell(int& posn);
 
     const char *isA(void) const { return "File"; }
     virtual bool isA(const char *s) const

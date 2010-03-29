@@ -13,6 +13,6 @@ Notes
 #include "polvar.h"
 
 PolVar polvar;
-unsigned long stored_last_item_serial;
-unsigned long stored_last_char_serial;
+unsigned int stored_last_item_serial;
+unsigned int stored_last_char_serial;
 

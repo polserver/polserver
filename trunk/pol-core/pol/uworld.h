@@ -47,8 +47,8 @@ void ClrItemWorldPosition( Item* item );
 void MoveItemWorldPosition( unsigned short oldx, unsigned short oldy,
                             Item* item, Realm* oldrealm );
 
-long get_toplevel_item_count();
-long get_mobile_count();
+int get_toplevel_item_count();
+int get_mobile_count();
 
 typedef std::set<Character*> ZoneCharacters;
 typedef std::vector<UMulti*> ZoneMultis;
@@ -71,12 +71,12 @@ class World
 public:
     World();
 
-    //Items::iterator find_item( unsigned long serial );
-    //Items::iterator find_item( unsigned long serial, unsigned short x, unsigned short y );
+    //Items::iterator find_item( unsigned int serial );
+    //Items::iterator find_item( unsigned int serial, unsigned short x, unsigned short y );
 
     Zone zone[WGRID_X][WGRID_Y];
-    unsigned long toplevel_item_count;
-    unsigned long mobile_count;
+    unsigned int toplevel_item_count;
+    unsigned int mobile_count;
 };
 extern World world;
 

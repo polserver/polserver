@@ -41,17 +41,17 @@ public:
     
 	Token token;
     ExecInstrFunc func;
-    mutable unsigned long cycles;
+    mutable unsigned int cycles;
 };
 
 struct EPDbgInstr
 {
-    unsigned long blockidx;
-    unsigned long flags;
-    unsigned long fileidx;
-    unsigned long line;
-    unsigned long srclineidx;
-    unsigned long functionidx;
+    unsigned int blockidx;
+    unsigned int flags;
+    unsigned int fileidx;
+    unsigned int line;
+    unsigned int srclineidx;
+    unsigned int functionidx;
 };
 
 struct EPDbgBlock
@@ -123,7 +123,7 @@ public:
     // executor only:
     unsigned short version;
     vector<Instruction> instr;
-    unsigned long invocations;
+    unsigned int invocations;
     u64 instr_cycles; // FIXME need an enable-profiling flag
 
     class Package const * pkg;

@@ -59,13 +59,13 @@ int random_int ( int i );
 
 int random_int_range (int minI,int maxI);
 
-void set_seed ( unsigned long s );
+void set_seed ( unsigned int s );
 
-unsigned long get_seed (void);
+unsigned int get_seed (void);
 
 float park_miller_randomizer (void);
 
-long PMrand ( long *s );
+int PMrand ( int *s );
 
 float gaussian_noise (   float mean,    float sigma );
 

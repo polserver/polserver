@@ -89,7 +89,7 @@ void send_full_statmsg_std( Client *client, Character *chr )
 	
     if (uoclient_general.hits.any)
     {
-        long v = chr->vital(uoclient_general.hits.id).current_ones();
+        int v = chr->vital(uoclient_general.hits.id).current_ones();
         if (v > 0xFFFF)
             v = 0xFFFF;
         msg.hits = ctBEu16( static_cast<u16>(v) );
@@ -114,7 +114,7 @@ void send_full_statmsg_std( Client *client, Character *chr )
 	
     if (uoclient_general.strength.any)
     {
-        long v = chr->attribute(uoclient_general.strength.id).effective();
+        int v = chr->attribute(uoclient_general.strength.id).effective();
         if (v > 0xFFFF)
             v = 0xFFFF;
        
@@ -127,7 +127,7 @@ void send_full_statmsg_std( Client *client, Character *chr )
 
     if (uoclient_general.dexterity.any)
     {
-        long v = chr->attribute(uoclient_general.dexterity.id).effective();
+        int v = chr->attribute(uoclient_general.dexterity.id).effective();
         if (v > 0xFFFF)
             v = 0xFFFF;
        
@@ -140,7 +140,7 @@ void send_full_statmsg_std( Client *client, Character *chr )
     
     if (uoclient_general.intelligence.any)
     {
-        long v = chr->attribute(uoclient_general.intelligence.id).effective();
+        int v = chr->attribute(uoclient_general.intelligence.id).effective();
         if (v > 0xFFFF)
             v = 0xFFFF;
        
@@ -153,7 +153,7 @@ void send_full_statmsg_std( Client *client, Character *chr )
 	
     if (uoclient_general.stamina.any)
     {
-        long v = chr->vital(uoclient_general.stamina.id).current_ones();
+        int v = chr->vital(uoclient_general.stamina.id).current_ones();
         if (v > 0xFFFF)
             v = 0xFFFF;
         msg.stamina = ctBEu16( static_cast<u16>(v) );
@@ -172,7 +172,7 @@ void send_full_statmsg_std( Client *client, Character *chr )
 	
     if (uoclient_general.mana.any)
     {
-        long v = chr->vital(uoclient_general.mana.id).current_ones();
+        int v = chr->vital(uoclient_general.mana.id).current_ones();
         if (v > 0xFFFF)
             v = 0xFFFF;
         msg.mana = ctBEu16( static_cast<u16>(v) );
@@ -238,7 +238,7 @@ void send_full_statmsg_new( Client *client, Character *chr )
 	
     if (uoclient_general.hits.any)
     {
-        long v = chr->vital(uoclient_general.hits.id).current_ones();
+        int v = chr->vital(uoclient_general.hits.id).current_ones();
         if (v > 0xFFFF)
             v = 0xFFFF;
         msg.hits = ctBEu16( static_cast<u16>(v) );
@@ -263,7 +263,7 @@ void send_full_statmsg_new( Client *client, Character *chr )
 	
     if (uoclient_general.strength.any)
     {
-        long v = chr->attribute(uoclient_general.strength.id).effective();
+        int v = chr->attribute(uoclient_general.strength.id).effective();
         if (v > 0xFFFF)
             v = 0xFFFF;
        
@@ -276,7 +276,7 @@ void send_full_statmsg_new( Client *client, Character *chr )
 
     if (uoclient_general.dexterity.any)
     {
-        long v = chr->attribute(uoclient_general.dexterity.id).effective();
+        int v = chr->attribute(uoclient_general.dexterity.id).effective();
         if (v > 0xFFFF)
             v = 0xFFFF;
        
@@ -289,7 +289,7 @@ void send_full_statmsg_new( Client *client, Character *chr )
     
     if (uoclient_general.intelligence.any)
     {
-        long v = chr->attribute(uoclient_general.intelligence.id).effective();
+        int v = chr->attribute(uoclient_general.intelligence.id).effective();
         if (v > 0xFFFF)
             v = 0xFFFF;
        
@@ -302,7 +302,7 @@ void send_full_statmsg_new( Client *client, Character *chr )
 	
     if (uoclient_general.stamina.any)
     {
-        long v = chr->vital(uoclient_general.stamina.id).current_ones();
+        int v = chr->vital(uoclient_general.stamina.id).current_ones();
         if (v > 0xFFFF)
             v = 0xFFFF;
         msg.stamina = ctBEu16( static_cast<u16>(v) );
@@ -321,7 +321,7 @@ void send_full_statmsg_new( Client *client, Character *chr )
 	
     if (uoclient_general.mana.any)
     {
-        long v = chr->vital(uoclient_general.mana.id).current_ones();
+        int v = chr->vital(uoclient_general.mana.id).current_ones();
         if (v > 0xFFFF)
             v = 0xFFFF;
         msg.mana = ctBEu16( static_cast<u16>(v) );
@@ -384,7 +384,7 @@ void send_short_statmsg( Client *client, Character *chr )
 
     if (uoclient_general.hits.any)
     {
-		long h, mh;
+		int h, mh;
 
         h = chr->vital(uoclient_general.hits.id).current_ones();
         if (h > 0xFFFF)
@@ -418,12 +418,12 @@ void send_update_hits_to_inrange( Character *chr )
 	msg.serial = chr->serial_ext;
     if (uoclient_general.hits.any)
     {
-        long h = chr->vital(uoclient_general.hits.id).current_ones();
+        int h = chr->vital(uoclient_general.hits.id).current_ones();
         if (h > 0xFFFF)
             h = 0xFFFF;
         msg.hits = ctBEu16( static_cast<u16>(h) );
 
-        long mh = chr->vital(uoclient_general.hits.id).maximum_ones();
+        int mh = chr->vital(uoclient_general.hits.id).maximum_ones();
         if (mh > 0xFFFF)
             mh = 0xFFFF;
         msg.max_hits = ctBEu16( static_cast<u16>(mh) );

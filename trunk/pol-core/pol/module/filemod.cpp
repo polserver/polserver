@@ -443,7 +443,7 @@ BObjectImp* FileAccessExecutorModule::mf_LogToFile()
 	if (getStringParam( 0, filename ) &&
 		getStringParam( 1, textline ))
 	{
-        long flags;
+        int flags;
 		if (exec.fparams.size() >= 3)
 		{
 			if (!getParam( 2, flags ))

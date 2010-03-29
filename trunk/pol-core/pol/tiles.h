@@ -18,8 +18,8 @@ class Tile
 {
 public:
     string desc;
-    unsigned long uoflags; // USTRUCT_TILE::*
-    unsigned long flags; // FLAG::*
+    unsigned int uoflags; // USTRUCT_TILE::*
+    unsigned int flags; // FLAG::*
     u8 layer;
     u8 height;
     u8 weight; // todo mult, div

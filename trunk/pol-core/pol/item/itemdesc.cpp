@@ -992,8 +992,8 @@ void load_package_itemdesc( Package* pkg )
 void write_objtypes_txt()
 {
 	ofstream ofs( "objtypes.txt" );
-	long last_objtype = 0;
-	for( long i = 1; i < N_ITEM_DESC; ++i )
+	int last_objtype = 0;
+	for( int i = 1; i < N_ITEM_DESC; ++i )
 	{
 		const ItemDesc* itemdesc = desctable[ i ];
 		if (itemdesc == &empty_itemdesc &&
@@ -1004,8 +1004,8 @@ void write_objtypes_txt()
 
 		if (i != last_objtype+1)
 		{
-			long first = last_objtype+1;
-			long last = i-1;
+			int first = last_objtype+1;
+			int last = i-1;
 			if (first == last)
 			{
 				ofs << "# " << hexint(first) << " unused\n";
@@ -1031,7 +1031,7 @@ void write_objtypes_txt()
 		{
 			ofs << "# " << hexint(i)
 				<< " converts to "
-				<< hexint((long)old_objtype_conversions[static_cast<unsigned short>(i)])
+				<< hexint((int)old_objtype_conversions[static_cast<unsigned short>(i)])
 				<< '\n';
 		}
 
@@ -1040,8 +1040,8 @@ void write_objtypes_txt()
 
 	if (last_objtype != N_ITEM_DESC)
 	{
-		long first = last_objtype+1;
-		long last = N_ITEM_DESC-1;
+		int first = last_objtype+1;
+		int last = N_ITEM_DESC-1;
 		if (first == last)
 		{
 			ofs << "# " << hexint(first) << " unused\n";

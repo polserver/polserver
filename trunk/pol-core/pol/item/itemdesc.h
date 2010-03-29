@@ -85,8 +85,8 @@ public:
     ScriptDef destroy_script;
     bool requires_attention;
     bool lockable;
-    unsigned long vendor_sells_for;
-    unsigned long vendor_buys_for;
+    unsigned int vendor_sells_for;
+    unsigned int vendor_buys_for;
     unsigned decay_time;
     enum Movable { UNMOVABLE, MOVABLE, DEFAULT } movable;
     unsigned short doubleclick_range;

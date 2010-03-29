@@ -53,7 +53,7 @@ void display_executor_instances()
     }
 }
 
-extern long executor_count;
+extern int executor_count;
 Executor::Executor( ostream& cerr ) :
         done(0),
         error_(false),
@@ -101,9 +101,9 @@ Executor::~Executor()
     delete_all( availmodules );
 }
 
-unsigned long Executor::sizeEstimate() const
+unsigned int Executor::sizeEstimate() const
 {
-    unsigned long size = 0;
+    unsigned int size = 0;
     for( BObjectRefVec::const_iterator itr = Globals2.begin(); itr != Globals2.end(); ++itr )
     {
         size += (*itr).sizeEstimate();
@@ -232,7 +232,7 @@ double Executor::paramAsDouble(unsigned param)
     return dbl ? dbl->value() : 0.0;
 }
 
-long Executor::paramAsLong( unsigned param )
+int Executor::paramAsLong( unsigned param )
 {
     BObjectImp *objimp = getParam(param)->impptr();
     if (objimp->isa( BObjectImp::OTLong ))
@@ -241,7 +241,7 @@ long Executor::paramAsLong( unsigned param )
     }
     else if (objimp->isa( BObjectImp::OTDouble ))
     {
-        return static_cast<long>(((Double *)objimp)->value());
+        return static_cast<int>(((Double *)objimp)->value());
     }
     else
     {
@@ -347,7 +347,7 @@ bool Executor::getStringParam( unsigned param, const String*& pstr )
     return (pstr != NULL);
 }
 
-bool Executor::getParam( unsigned param, long& value )
+bool Executor::getParam( unsigned param, int& value )
 {
     BLong* plong = explicit_cast<BLong*,BObjectImp*>(getParamImp( param, BObjectImp::OTLong ));
     if (plong == NULL)
@@ -362,7 +362,7 @@ void Executor::setFunctionResult( BObjectImp* imp )
     func_result_ = imp;
 }
 
-bool Executor::getParam( unsigned param, long& value, long maxval )
+bool Executor::getParam( unsigned param, int& value, int maxval )
 {
     BObjectImp* imp = getParamImp2( param, BObjectImp::OTLong );
     if (imp)
@@ -389,7 +389,7 @@ bool Executor::getParam( unsigned param, long& value, long maxval )
     }
 }
 
-bool Executor::getParam( unsigned param, long& value, long minval, long maxval )
+bool Executor::getParam( unsigned param, int& value, int minval, int maxval )
 {
     BObjectImp* imp = getParamImp2( param, BObjectImp::OTLong );
     if (imp)
@@ -498,7 +498,7 @@ bool Executor::getParam( unsigned param, unsigned short& value, unsigned short m
     {
         BLong* plong = explicit_cast<BLong*,BObjectImp*>(imp);
 
-        long longvalue = plong->value();
+        int longvalue = plong->value();
         if (longvalue >= 0 && longvalue <= maxval)
         {
             value = static_cast<unsigned short>(longvalue);
@@ -529,7 +529,7 @@ bool Executor::getParam( unsigned param,
     {
         BLong* plong = explicit_cast<BLong*,BObjectImp*>(imp);
 
-        long longvalue = plong->value();
+        int longvalue = plong->value();
         if (longvalue >= minval && longvalue <= maxval)
         {
             value = static_cast<unsigned short>(longvalue);
@@ -556,7 +556,7 @@ bool Executor::getParam( unsigned param, unsigned short& value )
     {
         BLong* plong = explicit_cast<BLong*,BObjectImp*>(imp);
 
-        long longvalue = plong->value();
+        int longvalue = plong->value();
         if (longvalue >= 0 && longvalue <= USHRT_MAX)
         {
             value = static_cast<unsigned short>(longvalue);
@@ -582,8 +582,8 @@ bool Executor::getParam( unsigned param, unsigned& value )
     {
         BLong* plong = explicit_cast<BLong*,BObjectImp*>(imp);
 
-        long longvalue = plong->value();
-        if (longvalue >= 0 && longvalue <= (long)INT_MAX)
+        int longvalue = plong->value();
+        if (longvalue >= 0 && longvalue <= (int)INT_MAX)
         {
             value = static_cast<unsigned>(longvalue);
             return true;
@@ -609,8 +609,8 @@ bool Executor::getParam( unsigned param, short& value )
     {
         BLong* plong = explicit_cast<BLong*,BObjectImp*>(imp);
 
-        long longvalue = plong->value();
-        if (longvalue >= (long)SHRT_MIN && longvalue <= (long)SHRT_MAX)
+        int longvalue = plong->value();
+        if (longvalue >= (int)SHRT_MIN && longvalue <= (int)SHRT_MAX)
         {
             value = static_cast<short>(longvalue);
             return true;
@@ -636,8 +636,8 @@ bool Executor::getParam( unsigned param, short& value, short maxval )
     {
         BLong* plong = explicit_cast<BLong*,BObjectImp*>(imp);
 
-        long longvalue = plong->value();
-        if (longvalue >= (long)SHRT_MIN && longvalue <= maxval)
+        int longvalue = plong->value();
+        if (longvalue >= (int)SHRT_MIN && longvalue <= maxval)
         {
             value = static_cast<short>(longvalue);
             return true;
@@ -666,7 +666,7 @@ bool Executor::getParam( unsigned param,
     {
         BLong* plong = explicit_cast<BLong*,BObjectImp*>(imp);
 
-        long longvalue = plong->value();
+        int longvalue = plong->value();
         if (longvalue >= minval && longvalue <= maxval)
         {
             value = static_cast<short>(longvalue);
@@ -687,7 +687,7 @@ bool Executor::getParam( unsigned param,
 }
 
 
-BObjectRef& Executor::LocalVar( unsigned long varnum )
+BObjectRef& Executor::LocalVar( unsigned int varnum )
 {
     passert( Locals2 );
     passert( varnum < Locals2->size() );
@@ -695,7 +695,7 @@ BObjectRef& Executor::LocalVar( unsigned long varnum )
     return (*Locals2)[varnum];
 }
 
-BObjectRef& Executor::GlobalVar( unsigned long varnum )
+BObjectRef& Executor::GlobalVar( unsigned int varnum )
 {
     passert( varnum < Globals2.size() );
     return Globals2[varnum];
@@ -954,7 +954,7 @@ BObjectImp *ContIterator::copy( void ) const
 {
 	return NULL;
 }
-unsigned long ContIterator::sizeEstimate() const
+unsigned int ContIterator::sizeEstimate() const
 {
     return sizeof(ContIterator);
 }
@@ -1042,7 +1042,7 @@ void Executor::ins_stepforeach( const Instruction& ins )
         return;
     BLong* blong = static_cast<BLong*>((*Locals2)[locsize-1]->impptr());
     
-    if (blong->increment() > long(arr->ref_arr.size()))
+    if (blong->increment() > int(arr->ref_arr.size()))
         return;
     
     BObjectRef& objref = arr->ref_arr[blong->value()-1];
@@ -1149,7 +1149,7 @@ int Executor::ins_casejmp_findlong( const Token& token, BLong* blong )
         dataptr += 1;
         if (type == CASE_TYPE_LONG)
         {
-            if (blong->value() == * (const long*) dataptr)
+            if (blong->value() == * (const int*) dataptr)
                 return offset;
             dataptr += 4;
         }
@@ -1892,7 +1892,7 @@ void Executor::ins_multisubscript( const Instruction& ins )
 {
     // the subscripts are on the value stack in right-to-left order, followed by the array itself
     stack<BObjectRef> indices;
-    for( long i = 0; i < ins.token.lval; ++i )
+    for( int i = 0; i < ins.token.lval; ++i )
     {
         indices.push( ValueStack.top() );
         ValueStack.pop();
@@ -1908,7 +1908,7 @@ void Executor::ins_multisubscript_assign( const Instruction& ins )
     ValueStack.pop();
     // the subscripts are on the value stack in right-to-left order, followed by the array itself
     stack<BObjectRef> indices;
-    for( long i = 0; i < ins.token.lval; ++i )
+    for( int i = 0; i < ins.token.lval; ++i )
     {
         indices.push( ValueStack.top() );
         ValueStack.pop();
@@ -2405,7 +2405,7 @@ void Executor::ins_unminus( const Instruction& ins )
 void Executor::ins_logical_not( const Instruction& ins )
 {
 	BObjectRef ref = getObjRef();
-	ValueStack.push( BObjectRef( new BObject(new BLong((long) !ref->impptr()->isTrue()))));
+	ValueStack.push( BObjectRef( new BObject(new BLong((int) !ref->impptr()->isTrue()))));
     return;
 }
 
@@ -2649,14 +2649,14 @@ void Executor::innerExec(const Instruction& ins)
 
         case TOK_LOCALVAR:  // ins_localvar
             passert( Locals2 );
-            passert( token.lval < static_cast<long>(Locals2->size()) );
+            passert( token.lval < static_cast<int>(Locals2->size()) );
 
             ValueStack.push( (*Locals2)[token.lval] );
             return;
 
 		case RSV_GLOBAL:        // ins_globalvar
         case TOK_GLOBALVAR:
-            passert( token.lval < static_cast<long>(Globals2.size()) );
+            passert( token.lval < static_cast<int>(Globals2.size()) );
             ValueStack.push( Globals2[token.lval] );
             return;
 
@@ -2707,7 +2707,7 @@ void Executor::innerExec(const Instruction& ins)
 	    case TOK_LOG_NOT:       // ins_logical_not
             {
 			    BObjectRef ref = getObjRef();
-			    ValueStack.push( BObjectRef( new BObject(new BLong((long) !ref->impptr()->isTrue()))));
+			    ValueStack.push( BObjectRef( new BObject(new BLong((int) !ref->impptr()->isTrue()))));
                 return;
             }
         case TOK_BITWISE_NOT:   // ins_bitwise_not

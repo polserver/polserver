@@ -31,7 +31,7 @@ using std::string;
 
 void staticsmax()
 {
-    unsigned long max = 0;
+    unsigned int max = 0;
     USTRUCT_IDX idxrec;
 
     fseek( sidxfile, 0, SEEK_SET );

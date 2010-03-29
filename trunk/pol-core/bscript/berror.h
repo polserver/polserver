@@ -21,7 +21,7 @@ public:
 
     static BObjectImp* unpack( istream& is );
 
-    static unsigned long creations();
+    static unsigned int creations();
 
 protected:
     BError( const BError& i );
@@ -41,7 +41,7 @@ protected:
     ContIterator* createIterator( BObject* pIterVal );
 
 private:
-    static unsigned long creations_;
+    static unsigned int creations_;
 };
 
 #endif

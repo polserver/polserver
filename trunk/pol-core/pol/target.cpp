@@ -382,7 +382,7 @@ MultiPlacementCursor::MultiPlacementCursor( void (*func)(Character*, PKTBI_6C*) 
 {
 }
 
-void MultiPlacementCursor::send_placemulti( Client* client, unsigned short objtype, long flags, s16 xoffset, s16 yoffset )
+void MultiPlacementCursor::send_placemulti( Client* client, unsigned short objtype, int flags, s16 xoffset, s16 yoffset )
 {
 	PKTBI_99 msg;
 	memset(&msg,0,sizeof msg);

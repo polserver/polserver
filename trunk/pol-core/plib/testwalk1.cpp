@@ -13,8 +13,8 @@ Notes
 
 #include "realm.h"
 #include "mapserver.h"
-long failures;
-long successes;
+int failures;
+int successes;
 
 void inc_failures()
 {

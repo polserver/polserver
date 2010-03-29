@@ -110,7 +110,7 @@ void handle_rename_char( Client* client, PKTIN_75* msg )
 				{
 					char buffer[512];
 					sprintf(buffer, "Client #%lu (account %s) attempted an invalid rename (packet 0x%2.02x):",
-									client->instance_,
+									static_cast<unsigned long>(client->instance_),
 									(client->acct != NULL) ? client->acct->name() : "unknown",
 									msg->msgtype);
 					cout << buffer << endl;
@@ -460,7 +460,7 @@ void handle_e1_clienttype( Client *client, PKTIN_E1 *msg )
 		client->setClientType(CLIENTTYPE_UOSA);
 		break;
 	default:
-		printf( "Unknown client type send with packet 0xE1 : 0x%lx\n",cfBEu32(msg->clienttype));
+		printf( "Unknown client type send with packet 0xE1 : 0x%lx\n",static_cast<unsigned long>(cfBEu32(msg->clienttype)));
 		break;
 	}
 }
