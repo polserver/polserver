@@ -94,7 +94,7 @@ public:
     virtual string getStringRep() const = 0;
     virtual string getFormattedStringRep() const;
     
-    virtual unsigned long sizeEstimate() const = 0; 
+    virtual unsigned int sizeEstimate() const = 0; 
     virtual const char* typeOf() const;
 
 
@@ -108,8 +108,8 @@ public:
 
     virtual bool isLE( const BObjectImp& objimp ) const;
     virtual bool isLT( const BObjectImp& objimp ) const;
-    virtual bool isGT( long val ) const;
-    virtual bool isGE( long val ) const;
+    virtual bool isGT( int val ) const;
+    virtual bool isGE( int val ) const;
 
 	// TOCONSIDER: use double dispatch rather than isa() checking
 	// in operators. Requires support here, obviously.
@@ -190,7 +190,7 @@ public:
 	~BObject();
      // NOTE: BObject should not be derived from!
 
-    unsigned long sizeEstimate() const;
+    unsigned int sizeEstimate() const;
 
     void* operator new( size_t len );
     void operator delete( void * );
@@ -276,7 +276,7 @@ public:
     explicit BObjectRef( BObject *pobj = NULL ) : ref_ptr<BObject>(pobj) {}
     explicit BObjectRef( BObjectImp *pimp ) : ref_ptr<BObject>( new BObject(pimp) ) {}
     void set( BObject *obj ) { ref_ptr<BObject>::set( obj ); }
-    unsigned long sizeEstimate() const;
+    unsigned int sizeEstimate() const;
 };
 
 
@@ -290,7 +290,7 @@ class UninitObject : public BObjectImp
     static ref_ptr<BObjectImp> SharedInstanceOwner;
 
     virtual BObjectImp *copy() const;
-    virtual unsigned long sizeEstimate() const; 
+    virtual unsigned int sizeEstimate() const; 
     virtual string getStringRep() const { return "<uninitialized object>"; }
     virtual void printOn( ostream& os ) const;
 
@@ -341,7 +341,7 @@ public:
 
     virtual void packonto( ostream& os ) const;
     static BObjectImp* unpack( istream& is );
-    virtual unsigned long sizeEstimate() const; 
+    virtual unsigned int sizeEstimate() const; 
     virtual BObjectImp *copy() const;
 
     virtual BObjectRef operDotPlus( const char* name );
@@ -379,10 +379,10 @@ class BLong : public BObjectImp
 {
   public:
 #if BOBJECTIMP_DEBUG
-    explicit BLong(long lval = 0L);
+    explicit BLong(int lval = 0L);
     BLong(const BLong& L);
 #else
-    explicit BLong(long lval = 0L) : BObjectImp( OTLong ), lval_(lval) {}
+    explicit BLong(int lval = 0L) : BObjectImp( OTLong ), lval_(lval) {}
     BLong(const BLong& L) : BObjectImp( OTLong ), lval_(L.lval_) { }
 #endif
 
@@ -401,10 +401,10 @@ class BLong : public BObjectImp
     static BObjectImp* unpack( istream& is );
     virtual string pack() const;
     virtual void packonto( ostream& os ) const;
-    virtual unsigned long sizeEstimate() const; 
+    virtual unsigned int sizeEstimate() const; 
 
-    long value() const { return lval_; }
-    long increment() { return ++lval_; }
+    int value() const { return lval_; }
+    int increment() { return ++lval_; }
 
   public: // Class Machinery
     virtual BObjectImp *copy() const;
@@ -418,8 +418,8 @@ class BLong : public BObjectImp
 
     virtual bool isLE( const BObjectImp& objimp ) const;
     virtual bool isLT( const BObjectImp& objimp ) const;
-    virtual bool isGT( long val ) const;
-    virtual bool isGE( long val ) const;
+    virtual bool isGT( int val ) const;
+    virtual bool isGE( int val ) const;
 
     virtual BObjectImp* selfPlusObjImp(const BObjectImp& objimp) const;
     virtual BObjectImp* selfMinusObjImp(const BObjectImp& objimp) const;
@@ -438,7 +438,7 @@ class BLong : public BObjectImp
     virtual void printOn(ostream&) const;
 
   protected:
-    long lval_;
+    int lval_;
 };
 
 extern fixed_allocator<sizeof(BLong),256> blong_alloc;
@@ -481,7 +481,7 @@ class Double : public BObjectImp
     static BObjectImp* unpack( istream& is );
     virtual string pack() const;
     virtual void packonto( ostream& os ) const;
-    virtual unsigned long sizeEstimate() const; 
+    virtual unsigned int sizeEstimate() const; 
 
     double value() const { return dval_; }
     void copyvalue( const Double& dbl ) { dval_ = dbl.dval_; }
@@ -496,8 +496,8 @@ class Double : public BObjectImp
       }
     virtual bool isEqual(const BObjectImp& objimp) const;
     virtual bool isLessThan(const BObjectImp& objimp) const;
-    virtual bool isGT( long val ) const;
-    virtual bool isGE( long val ) const;
+    virtual bool isGT( int val ) const;
+    virtual bool isGE( int val ) const;
 
     virtual BObjectImp* selfPlusObjImp(const BObjectImp& objimp) const;
     virtual BObjectImp* selfMinusObjImp(const BObjectImp& objimp) const;
@@ -547,7 +547,7 @@ class BApplicPtr : public BObjectImp
 
     virtual string getStringRep() const;
     virtual void printOn(ostream&) const;
-    virtual unsigned long sizeEstimate() const; 
+    virtual unsigned int sizeEstimate() const; 
 
   private:
     void *ptr_;
@@ -566,7 +566,7 @@ public: // Class Machinery
 
     virtual string getStringRep() const;
     virtual void printOn(ostream&) const;
-    virtual unsigned long sizeEstimate() const = 0; 
+    virtual unsigned int sizeEstimate() const = 0; 
 
 private:
     const BApplicObjType* object_type_;
@@ -597,7 +597,7 @@ public:
 
     virtual const char* typeOf() const = 0;
     virtual BObjectImp* copy() const = 0;
-    virtual unsigned long sizeEstimate() const; 
+    virtual unsigned int sizeEstimate() const; 
 
 protected:
     T obj_;
@@ -617,7 +617,7 @@ BApplicObj<T>::BApplicObj( const BApplicObjType* object_type, const T& obj ) :
 }
 
 template<class T>
-unsigned long BApplicObj<T>::sizeEstimate() const
+unsigned int BApplicObj<T>::sizeEstimate() const
 {
     return sizeof(BApplicObj<T>);
 }

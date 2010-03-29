@@ -48,7 +48,7 @@ class Token
     double dval;
     
     union {
-        long lval;
+        int lval;
         const unsigned char* dataptr;
     };
 
@@ -57,7 +57,7 @@ class Token
     int dbg_filenum;
     int dbg_linenum;
 
-    static unsigned long instances();
+    static unsigned int instances();
     static void show_instances();
   protected:
     const char *token;
@@ -65,7 +65,7 @@ class Token
     typedef set<Token*> Instances;
     static Instances _instancelist;
 #endif
-    static unsigned long _instances;
+    static unsigned int _instances;
     void register_instance();
     void unregister_instance();
 

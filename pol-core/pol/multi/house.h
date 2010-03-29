@@ -26,7 +26,7 @@ class UHouse : public UMulti
     typedef UMulti base;
 
 public:
-    static BObjectImp* scripted_create( const ItemDesc& descriptor, u16 x, u16 y, s8 z, Realm* realm, long flags );
+    static BObjectImp* scripted_create( const ItemDesc& descriptor, u16 x, u16 y, s8 z, Realm* realm, int flags );
     void destroy_components();
 
     CustomHouseDesign CurrentDesign;

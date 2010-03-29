@@ -132,7 +132,7 @@ void StoredConfigFile::load( ConfigFile& cf )
 
 		if (isdigit(elem.rest()[0]))
 		{
-			unsigned long key = strtoul( elem.rest(), NULL, 0 );
+			unsigned int key = strtoul( elem.rest(), NULL, 0 );
 			elements_bynum_.insert( ElementsByNum::value_type( key, elemref ) );
 		}
 		
@@ -141,7 +141,7 @@ void StoredConfigFile::load( ConfigFile& cf )
 	}
 }
 
-StoredConfigFile::ElemRef StoredConfigFile::findelem( long key )
+StoredConfigFile::ElemRef StoredConfigFile::findelem( int key )
 {
 	ElementsByNum::const_iterator itr = elements_bynum_.find( key );
 	if (itr == elements_bynum_.end())
@@ -159,7 +159,7 @@ StoredConfigFile::ElemRef StoredConfigFile::findelem( const string& key )
 		return (*itr).second;
 }
 
-long StoredConfigFile::maxintkey() const
+int StoredConfigFile::maxintkey() const
 {
 	if (elements_bynum_.empty())
 	{
@@ -321,7 +321,7 @@ void CreateEmptyStoredConfigFile( const string& filename )
 	cfgfiles.insert( CfgFiles::value_type( filename, scfg ) );
 }
 
-long UnloadConfigFile( const string& filename )
+int UnloadConfigFile( const string& filename )
 {
 	CfgFiles::iterator itr = cfgfiles.find( filename );
 	if (itr != cfgfiles.end())

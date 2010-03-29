@@ -90,7 +90,7 @@ void MapServer::LoadFirstLevelIndex()
     
     for( unsigned i = 0; i < n_blocks; ++i )
     {
-        unsigned long tmp;
+        unsigned int tmp;
         infile.Read( tmp );
         if (tmp)
         {
@@ -105,7 +105,7 @@ void MapServer::LoadFirstLevelIndex()
     }
 }
 
-void MapServer::GetMapShapes( MapShapeList& shapes, unsigned short x, unsigned short y, unsigned long anyflags ) const
+void MapServer::GetMapShapes( MapShapeList& shapes, unsigned short x, unsigned short y, unsigned int anyflags ) const
 {
     passert( x < _descriptor.width && y < _descriptor.height );
 
@@ -127,9 +127,9 @@ void MapServer::GetMapShapes( MapShapeList& shapes, unsigned short x, unsigned s
         unsigned short yblock = y >>  SOLIDX_Y_SHIFT;
         unsigned short ycell  = y &   SOLIDX_Y_CELLMASK;
 
-        long block = yblock * (_descriptor.width >> SOLIDX_X_SHIFT) + xblock;
+        int block = yblock * (_descriptor.width >> SOLIDX_X_SHIFT) + xblock;
         SOLIDX2_ELEM* pIndex2 = _index1[ block ];
-        unsigned long index = pIndex2->baseindex + pIndex2->addindex[xcell][ycell];
+        unsigned int index = pIndex2->baseindex + pIndex2->addindex[xcell][ycell];
         const SOLIDS_ELEM* pElem = &_shapedata[index];
         for(;;)
         {

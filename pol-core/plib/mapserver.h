@@ -24,7 +24,7 @@ public:
     virtual ~MapServer();
 
     virtual MAPCELL GetMapCell( unsigned short x, unsigned short y ) const = 0;
-    void GetMapShapes( MapShapeList& list, unsigned short x, unsigned short y, unsigned long anyflags ) const;
+    void GetMapShapes( MapShapeList& list, unsigned short x, unsigned short y, unsigned int anyflags ) const;
 
 protected:
     explicit MapServer( const RealmDescriptor& descriptor );

@@ -46,6 +46,7 @@ History
 2009/11/19 Turley:    ssopt.core_sends_season & .core_handled_tags - Tomi
 2009/12/04 Turley:    Crypto cleanup - Tomi
 2010/01/22 Turley:    Speedhack Prevention System
+2010/03/28 Shinigami: Transmit Pointer as Pointer and not Int as Pointer within decay_thread_shadow
 
 Notes
 =======
@@ -673,7 +674,7 @@ bool process_data( Client *client )
 			{
 				fprintf( logfile, 
 						 "Client#%lu: Unexpected message type %2.02x, %d bytes (IP:%s, Account:%s)\n", 
-						 client->instance_,
+						 static_cast<unsigned long>(client->instance_),
 						 (unsigned char) msgtype, 
 						 client->bytes_received,
 						 client->ipaddrAsString().c_str(), (client->acct != NULL)? client->acct->name():"None" );
@@ -1187,7 +1188,7 @@ CLIENT_CHECKPOINT(20);
 			CoreSetSysTrayToolTip( tostring(clients.size()) + " clients connected", ToolTipPrioritySystem );
 		}
 
-		long seconds_wait = 0;
+		int seconds_wait = 0;
 
 		checkpoint = 8;
 		CLIENT_CHECKPOINT(10);
@@ -1703,7 +1704,7 @@ void start_threads()
 		ostringstream thname;
 		thname << "Decay_" << (*itr)->name();
 		if ((*itr)->is_shadowrealm)
-			threadhelp::start_thread( decay_thread_shadow, thname.str().c_str(), (void*)((*itr)->shadowid) );
+			threadhelp::start_thread( decay_thread_shadow, thname.str().c_str(), (void*)(*itr) );
 		else
 			threadhelp::start_thread( decay_thread, thname.str().c_str(), (void*)(*itr) );
 	  }
@@ -1971,9 +1972,9 @@ void Check_libc_version()
 {
 	const char* libc_version = gnu_get_libc_version();
 
-	long main_version = 0;
-	long sub_version = 0;
-	long build = 0;
+	int main_version = 0;
+	int sub_version = 0;
+	int build = 0;
 	char delimiter;
 	ISTRINGSTREAM is( libc_version );
 
@@ -2189,7 +2190,7 @@ int xmain_inner( int argc, char *argv[] )
 		checkpoint( "reading data" );
 		read_data();
 	wallclock_t rd_end = wallclock();
-	long ms = wallclock_diff_ms( rd_start, rd_end );
+	int ms = wallclock_diff_ms( rd_start, rd_end );
 	cout << "Done! " << ms << " milliseconds."<< endl;
 
 	allocate_intrinsic_weapon_serials();
@@ -2309,7 +2310,7 @@ int xmain_inner( int argc, char *argv[] )
 		cout << "Writing data files...";
 
 		PolLock lck;
-		unsigned long dirty, clean, elapsed_ms;
+		unsigned int dirty, clean, elapsed_ms;
 		int savetype;
 
 		if (passert_shutdown_due_to_assertion)

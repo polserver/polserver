@@ -235,8 +235,8 @@ void handle_ident_cursor( Character* chr, PKTBI_6C* msgin )
 	{
 		char s[80];
 		sprintf( s, "Serial: 0x%8.08lX, %ld, ObjType 0x%4.04X", 
-				cfBEu32(msgin->selected_serial), 
-				cfBEu32(msgin->selected_serial),
+				static_cast<unsigned long>(cfBEu32(msgin->selected_serial)), 
+				static_cast<signed long>(cfBEu32(msgin->selected_serial)),
 				cfBEu16(msgin->graphic) );
 		send_sysmessage( chr->client, s );
 	}
@@ -467,8 +467,8 @@ void textcmd_procs( Client* client )
 {
 	send_sysmessage( client, "Process Information:" );
 
-	send_sysmessage( client, "Running: " + decint( (unsigned long)(runlist.size()) ) );
-	send_sysmessage( client, "Blocked: " + decint( (unsigned long)(holdlist.size() )) );
+	send_sysmessage( client, "Running: " + decint( (unsigned int)(runlist.size()) ) );
+	send_sysmessage( client, "Blocked: " + decint( (unsigned int)(holdlist.size() )) );
 }
 
 void textcmd_log_profile( Client* client )

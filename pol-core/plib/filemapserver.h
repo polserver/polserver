@@ -26,7 +26,7 @@ public:
 
 protected:
     mutable BinaryFile _mapfile;
-    mutable long _cur_mapblock_index;
+    mutable int _cur_mapblock_index;
     mutable MAPBLOCK _cur_mapblock;
 
     // not implemented:

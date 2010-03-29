@@ -105,7 +105,7 @@ void ssopt_parse_totalstats(ConfigElem& elem)
 	strncpy(tmpcopy, total_stats.c_str(), 256);
 
 	char *token, *valmax, *valend;
-	unsigned long statmin, statmax;
+	unsigned int statmin, statmax;
 
 	// Stat values must be comma-delimited.
 	// Ranges can be specified using the syntax: <min>-<max>
@@ -129,12 +129,12 @@ void ssopt_parse_totalstats(ConfigElem& elem)
 			if ( *valend != '\0' || valend == valmax || statmax < statmin )
 				break; // invalid second value
 			if ( statmax == statmin )
-				sprintf(tmp, "%lu", statmin);
+				sprintf(tmp, "%lu", static_cast<unsigned long>(statmin));
 			else
-				sprintf(tmp, "%lu-%lu", statmin, statmax);
+				sprintf(tmp, "%lu-%lu", static_cast<unsigned long>(statmin), static_cast<unsigned long>(statmax));
 		}
 		else
-			sprintf(tmp, "%lu", statmin);
+			sprintf(tmp, "%lu", static_cast<unsigned long>(statmin));
 		ssopt.total_stats_at_creation.push_back(tmp);
 		valok = true;
 		token = strtok(NULL, ",");

@@ -21,7 +21,7 @@ Notes
 #	include <crtdbg.h>
 #endif
 
-unsigned long refptr_count;
+unsigned int refptr_count;
 
 static void parse_args( int argc, char *argv[] );
 

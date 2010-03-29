@@ -74,7 +74,7 @@ void DumpCaseJmp( ostream& os, const Token& token, EScriptProgram* prog )
         dataptr += 1;
         if (type == CASE_TYPE_LONG)
         {
-            unsigned long lval = * (const unsigned long*) dataptr;
+            unsigned int lval = * (const unsigned int*) dataptr;
             dataptr += 4;
             os << "\t" << lval << ": @" << offset << endl;
         }

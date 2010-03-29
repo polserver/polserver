@@ -25,7 +25,7 @@ class ItemDesc;
 class UMulti;
 struct USTRUCT_TILE;
 
-std::string format_description( unsigned long polflags, const string& descdef, unsigned short amount );
+std::string format_description( unsigned int polflags, const string& descdef, unsigned short amount );
 
 // NOTE: All derived classes should have protected constructors, 
 //            and make Item a friend.
@@ -67,8 +67,8 @@ public:
     virtual bool saveonexit() const;
     virtual void saveonexit( bool newvalue );
 
-    void set_decay_after( unsigned long seconds );
-    bool should_decay( unsigned long gameclock ) const;
+    void set_decay_after( unsigned int seconds );
+    bool should_decay( unsigned int gameclock ) const;
     void restart_decay_timer();
     void disable_decay();
 
@@ -84,9 +84,9 @@ public:
     std::string description() const;
     std::string merchant_description() const;
 	std::string get_use_script_name() const;
-    unsigned long sellprice() const;
-	unsigned long buyprice() const; //Dave added this 11/28
-    bool getbuyprice( unsigned long& buyprice ) const;
+    unsigned int sellprice() const;
+	unsigned int buyprice() const; //Dave added this 11/28
+    bool getbuyprice( unsigned int& buyprice ) const;
 
     bool newbie() const;
     bool default_newbie() const;
@@ -95,9 +95,9 @@ public:
     u8 slot_index() const;
     bool slot_index( u8 newvalue );
 
-    virtual unsigned long item_count() const;
-    unsigned long weight_of( unsigned short amount ) const;
-    virtual unsigned long weight() const;
+    virtual unsigned int item_count() const;
+    unsigned int weight_of( unsigned short amount ) const;
+    virtual unsigned int weight() const;
 
     virtual std::string name() const;
     virtual UObject* owner();
@@ -153,9 +153,9 @@ public:
     virtual BObjectImp* get_script_member( const char *membername ) const;
     virtual BObjectImp* get_script_member_id( const int id ) const; ///id test
     virtual BObjectImp* set_script_member( const char *membername, const std::string& value );
-    virtual BObjectImp* set_script_member( const char *membername, long value );
+    virtual BObjectImp* set_script_member( const char *membername, int value );
     virtual BObjectImp* set_script_member_id( const int id, const std::string& value );///id test
-    virtual BObjectImp* set_script_member_id( const int id, long value );///id test
+    virtual BObjectImp* set_script_member_id( const int id, int value );///id test
 
     virtual bool script_isa( unsigned isatype ) const;
     virtual const char* target_tag() const;
@@ -173,9 +173,9 @@ public:
 	UContainer* container;
 	Character* gotten_by;
 protected:
-    unsigned long decayat_gameclock_;
-    unsigned long sellprice_;
-    unsigned long buyprice_;
+    unsigned int decayat_gameclock_;
+    unsigned int sellprice_;
+    unsigned int buyprice_;
     u16 amount_;
     bool newbie_;
     bool movable_;

@@ -36,7 +36,7 @@ struct stat accounts_txt_stat;
 bool accounts_txt_dirty = false;
 void read_account_data()
 {
-	unsigned long naccounts = 0;
+	unsigned int naccounts = 0;
     static int num_until_dot = 1000;
 	wallclock_t start = wallclock();
 	
@@ -67,7 +67,7 @@ void read_account_data()
 		accounts_txt_dirty = false;
 	}
 	wallclock_t end = wallclock();
-    long ms = wallclock_diff_ms( start, end );
+    int ms = wallclock_diff_ms( start, end );
 
     cout << " " << naccounts << " elements in " << ms << " ms." << std::endl;
 }
@@ -106,7 +106,7 @@ Account* create_new_account( const string& acctname, const string& password, boo
     elem.add_prop( "name", acctname.c_str() );	
 	elem.add_prop( "password", password.c_str() );
 		
-    elem.add_prop( "enabled", ((unsigned long)(enabled?1:0)) );
+    elem.add_prop( "enabled", ((unsigned int)(enabled?1:0)) );
     Account* acct = new Account( elem );
     accounts.push_back( AccountRef(acct) );
     write_account_data();

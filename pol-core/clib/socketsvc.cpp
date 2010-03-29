@@ -36,7 +36,7 @@ SocketListener::SocketListener( unsigned short port, Socket::option opt ) :
         throw runtime_error( "Unable to open listen port " + decint(port) );
 }
 
-bool SocketListener::GetConnection( unsigned long timeout_sec )
+bool SocketListener::GetConnection( unsigned int timeout_sec )
 {
     return _listen_sck.select( timeout_sec, 0 );
 }

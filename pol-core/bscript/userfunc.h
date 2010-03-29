@@ -50,10 +50,10 @@ public:
     string declaration;
 
 public:
-    static unsigned long instances();
+    static unsigned int instances();
     static void show_instances();
 protected:
-    static unsigned long _instances;
+    static unsigned int _instances;
     static set<UserFunction*> _instancelist;
     void register_instance();
     void unregister_instance();

@@ -73,11 +73,11 @@ public:
 	unsigned count() const;
 
 
-    virtual unsigned long item_count() const;
-    virtual unsigned long weight() const;
+    virtual unsigned int item_count() const;
+    virtual unsigned int weight() const;
 
-    bool can_add_bulk( long tli_diff, long item_count_diff, long weight_diff ) const;
-    virtual void add_bulk( long item_count_delta, long weight_delta );
+    bool can_add_bulk( int tli_diff, int item_count_diff, int weight_diff ) const;
+    virtual void add_bulk( int item_count_delta, int weight_delta );
     void add_bulk( const Item* item );
     void remove_bulk( const Item* item );
 
@@ -101,9 +101,9 @@ public:
     virtual bool script_isa( unsigned isatype ) const;
     
     
-    unsigned long find_sumof_objtype_noninuse( u16 objtype ) const;
-	unsigned long find_sumof_objtype_noninuse( u16 objtype, u32 amtToGet, Contents& saveItemsTo, long flags ) const;
-	void consume_sumof_objtype_noninuse( u16 objtype, unsigned long amount );
+    unsigned int find_sumof_objtype_noninuse( u16 objtype ) const;
+	unsigned int find_sumof_objtype_noninuse( u16 objtype, u32 amtToGet, Contents& saveItemsTo, int flags ) const;
+	void consume_sumof_objtype_noninuse( u16 objtype, unsigned int amount );
 
 	UContainer* find_container( u32 serial ) const;
 
@@ -137,7 +137,7 @@ public:
     u16 gump() const;
     void get_random_location( u16* px, u16* py ) const;
     bool is_legal_posn( const Item* item, u16 x, u16 y ) const;
-    void enumerate_contents( class ObjArray* arr, long flags );
+    void enumerate_contents( class ObjArray* arr, int flags );
     void extract( Contents& cnt );
     
     bool can_swap( const UContainer& cont ) const;
@@ -155,7 +155,7 @@ protected:
     const ContainerDesc& desc;
 
     u16 held_weight_; // in stones
-    unsigned long held_item_count_;
+    unsigned int held_item_count_;
 
     Item *operator[](unsigned idx) const;
 
@@ -222,7 +222,7 @@ protected:
     virtual BObjectImp* get_script_member( const char *membername ) const;
     virtual BObjectImp* get_script_member_id( const int id ) const; ///id test
     //virtual BObjectImp* set_script_member( const char *membername, const std::string& value );
-    //virtual BObjectImp* set_script_member( const char *membername, long value );
+    //virtual BObjectImp* set_script_member( const char *membername, int value );
     virtual bool script_isa( unsigned isatype ) const;
 	Contents layer_list_;
 };

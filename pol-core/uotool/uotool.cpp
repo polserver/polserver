@@ -36,8 +36,8 @@ Notes
 #include "../plib/realmdescriptor.h"
 #include "../plib/staticblock.h"
 
-unsigned long mapcache_misses;
-unsigned long mapcache_hits;
+unsigned int mapcache_misses;
+unsigned int mapcache_hits;
 bool BoatShapeExists(unsigned short graphic)
 {
     return true;
@@ -147,14 +147,14 @@ void display_tileinfo( unsigned short objtype, const USTRUCT_TILE& tile )
 
 		             printf( "objtype:  0x%4.04x\n", objtype );
 		             printf( "  name:   %s\n", tile.name );
-	if (tile.flags)  printf( "  flags:  0x%8.08lX\n", tile.flags );
+	if (tile.flags)  printf( "  flags:  0x%8.08lX\n", static_cast<unsigned long>(tile.flags));
 	if (tile.weight) printf( "  weight: 0x%2.02X\n", tile.weight );
 	if (tile.layer)  printf( "  layer:  0x%2.02X\n", tile.layer );
 	if (tile.unk6)   printf( "  unk6:   0x%2.02X\n", tile.unk6 );
 	if (tile.unk7)   printf( "  unk7:   0x%2.02X\n", tile.unk7 );
 	if (tile.unk8)   printf( "  unk8:   0x%2.02X\n", tile.unk8 );
 	if (tile.unk9)   printf( "  unk9:   0x%2.02X\n", tile.unk9 );
-	if (tile.anim)   printf( "  anim:   0x%8.08lX\n", tile.anim );
+	if (tile.anim)   printf( "  anim:   0x%8.08lX\n", static_cast<unsigned long>(tile.anim));
 	if (tile.height) printf( "  height: 0x%2.02X\n", tile.height );
 	if (tile.unk14)  printf( "  unk14:  0x%2.02X\n", tile.unk14 );
 	if (tile.unk15)  printf( "  unk15:  0x%2.02X\n", tile.unk15 );
@@ -177,7 +177,7 @@ int tiledump( int argc, char **argv )
 		{
 			if (fread( &version, sizeof version, 1, fp ) != 1)
 				break;
-			printf( "Block Version: %08lX\n", version );
+			printf( "Block Version: %08lX\n", static_cast<unsigned long>(version));
 		}
 		if (fread(  &tile, sizeof tile, 1, fp ) != 1)
 			break;
@@ -296,8 +296,8 @@ int flagsearch( int argc, char **argv )
     
     if (argc < 3) return 1;
 
-    unsigned long flags = strtoul( argv[2], NULL, 0 );
-    unsigned long notflags = 0;
+    unsigned int flags = strtoul( argv[2], NULL, 0 );
+    unsigned int notflags = 0;
     if (argc >= 4)
         notflags = strtoul( argv[3], NULL, 0 );
 
@@ -324,8 +324,8 @@ int landtileflagsearch( int argc, char **argv )
     
     if (argc < 3) return 1;
 
-    unsigned long flags = strtoul( argv[2], NULL, 0 );
-    unsigned long notflags = 0;
+    unsigned int flags = strtoul( argv[2], NULL, 0 );
+    unsigned int notflags = 0;
     if (argc >= 4)
         notflags = strtoul( argv[3], NULL, 0 );
 
@@ -383,7 +383,7 @@ int print_verdata_info()
 {
     open_uo_data_files();
     read_uo_data();
-    long int num_version_records, i;
+    int num_version_records, i;
     USTRUCT_VERSION vrec;
 
     // FIXME: should read this once per run, per file.
@@ -420,9 +420,9 @@ int print_statics()
     cout << "Reading UO data.." << endl;
     open_uo_data_files();
     read_uo_data();
-    long water = 0;
-    long strange_water = 0;
-    long cnt = 0;
+    int water = 0;
+    int strange_water = 0;
+    int cnt = 0;
     for( u16 y = 30; y < 50; y++ )
     {
         for( u16 x = 5900; x < 5940; x++ )
@@ -560,7 +560,7 @@ int rawdump( int argc, char **argv )
 	FILE *fp = fopen( argv[2], "rb" );
 	int hdrlen = atoi( argv[3] );
 	int reclen = atoi( argv[4] );
-	long int recnum = 0;
+	int recnum = 0;
 	if (!fp) 
 		return 1;
 
@@ -575,16 +575,16 @@ int rawdump( int argc, char **argv )
 	}
 	while (fread( buffer, reclen, 1, fp ) == 1)
 	{
-		printf( "Record %ld (%lx):\n", recnum, recnum );
+		printf( "Record %ld (%lx):\n", static_cast<signed long>(recnum), static_cast<unsigned long>(recnum) );
 		fdump( stdout, buffer, reclen );
 
 		++recnum;
 	}
-	printf( "%ld records read.\n",recnum );
+	printf( "%ld records read.\n",static_cast<signed long>(recnum));
 	return 0;
 }
 
-unsigned long read_ulong( istream& is )
+unsigned int read_ulong( istream& is )
 {
     unsigned char a[4];
     is.read( (char *)a, sizeof a );
@@ -593,9 +593,9 @@ unsigned long read_ulong( istream& is )
 
 int print_sndlist( int argc, char **argv )
 {
-        unsigned long offset;
-        unsigned long length;
-        unsigned long serial;
+        unsigned int offset;
+        unsigned int length;
+        unsigned int serial;
         char filename[ 15 ];
 
     string soundidxname = config.uo_datafile_root + "soundidx.mul";
@@ -734,7 +734,7 @@ int print_multis(void)
 
 int z_histogram()
 {
-    unsigned long zcount[256];
+    unsigned int zcount[256];
     cout << "Reading UO data.." << endl;
     open_uo_data_files();
     read_uo_data();
@@ -762,7 +762,7 @@ int z_histogram()
 
 int statics_histogram()
 {
-    unsigned long counts[1000];
+    unsigned int counts[1000];
     memset( counts, 0, sizeof counts );
     cout << "Reading UO data.." << endl;
     open_uo_data_files();
@@ -1055,7 +1055,7 @@ int findgraphic( int argc, char **argv )
 
 int findlandtileflags( int argc, char **argv )
 {
-    unsigned long flags = strtoul( argv[1], NULL, 0 );
+    unsigned int flags = strtoul( argv[1], NULL, 0 );
     open_uo_data_files();
     read_uo_data();
 
@@ -1123,7 +1123,7 @@ int defragstatics( int argc, char **argv )
             readstaticblock( &pstat, &num, x, y );
             if (num>0)
             {
-                long currwritepos = ftell(fmul);
+                int currwritepos = ftell(fmul);
                 for( int i = 0; i < num; ++i )
                 {
                     USTRUCT_STATIC& tile =pstat[i];

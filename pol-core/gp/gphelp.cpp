@@ -25,7 +25,7 @@ Token MakeFunctionToken( unsigned module, unsigned funcidx )
     return tkn;
 }
 
-Token MakeLongToken( long value )
+Token MakeLongToken( int value )
 {
     Token tkn;
 

@@ -58,7 +58,7 @@ asserteql( sizeof(BSCRIPT_FILE_HDR), 6 );
 struct BSCRIPT_SECTION_HDR
 {
 	unsigned short type;
-	unsigned long length;
+	unsigned int length;
 };
 asserteql( sizeof(BSCRIPT_SECTION_HDR), 6 );
 
@@ -75,7 +75,7 @@ enum BSCRIPT_SECTION {
 struct BSCRIPT_MODULE_HDR
 {
 	char modulename[ 14 ];
-	unsigned long nfuncs;
+	unsigned int nfuncs;
 };
 asserteql( sizeof(BSCRIPT_MODULE_HDR), 18 );
 

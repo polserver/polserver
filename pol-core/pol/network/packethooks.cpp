@@ -257,7 +257,7 @@ void load_packet_entries( const Package* pkg, ConfigElem& elem )
     if( stricmp(elem.type(),"Packet") != 0)
         return;
     string lengthstr;
-    long length = 0;
+    int length = 0;
 
 	unsigned short pktversion = 1;
 	string client_string = "1.25.25.0";
@@ -271,7 +271,7 @@ void load_packet_entries( const Package* pkg, ConfigElem& elem )
         exoutfunc = FindExportedFunction( elem, pkg, elem.remove_string("SendFunction"), 2, true );
 
     char *endptr = NULL;
-    unsigned long idlong = strtoul( elem.rest(), &endptr, 0 );
+    unsigned int idlong = strtoul( elem.rest(), &endptr, 0 );
     if ((endptr != NULL) &&
         (*endptr != '\0') &&
         !isspace(*endptr))
@@ -402,7 +402,7 @@ void load_subpacket_entries( const Package* pkg, ConfigElem& elem )
         exoutfunc = FindExportedFunction( elem, pkg, elem.remove_string("SendFunction"), 2, true );
 
     char *endptr = NULL;
-    unsigned long idlong = strtoul( elem.rest(), &endptr, 0 );
+    unsigned int idlong = strtoul( elem.rest(), &endptr, 0 );
     if ((endptr != NULL) &&
         (*endptr != '\0') &&
         !isspace(*endptr))

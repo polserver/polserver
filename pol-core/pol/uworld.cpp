@@ -85,21 +85,21 @@ void move_multi_in_world( unsigned short oldx, unsigned short oldy,
     }
 }
 
-long get_toplevel_item_count()
+int get_toplevel_item_count()
 {
 	std::vector<Realm*>::const_iterator itr;
 
-	long count = 0;
+	int count = 0;
 	for(itr = Realms->begin(); itr != Realms->end(); ++itr)
 		count += (*itr)->toplevel_item_count;
 	return count;
 }
 
-long get_mobile_count()
+int get_mobile_count()
 {
 	std::vector<Realm*>::const_iterator itr;
 
-	long count = 0;
+	int count = 0;
 	for(itr = Realms->begin(); itr != Realms->end(); ++itr)
 		count += (*itr)->mobile_count;
 	return count;

@@ -55,7 +55,7 @@ public:
     void set( Character* chr );
     void clear();
 
-    unsigned long cref_instance;
+    unsigned int cref_instance;
 };
 
 class ItemRef : public ref_ptr<Item>

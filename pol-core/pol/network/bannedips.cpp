@@ -22,7 +22,7 @@ bool is_banned_ip(Client* client)
 
 	for( std::vector<IPRule>::iterator itr = banned_ips.begin(); itr != banned_ips.end(); ++itr )
     {
-		unsigned long addr1part, addr2part;
+		unsigned int addr1part, addr2part;
         struct sockaddr_in* sockin = reinterpret_cast<struct sockaddr_in*>(&client->ipaddr);
 		addr1part = itr->ipMatch & itr->ipMask;
 

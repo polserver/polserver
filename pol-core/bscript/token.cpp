@@ -21,13 +21,13 @@ Notes
 #include "token.h"
 
 
-unsigned long Token::_instances = 0;
+unsigned int Token::_instances = 0;
 
 #if STORE_INSTANCELIST
 set<Token*> Token::_instancelist;
 #endif
 
-unsigned long Token::instances()
+unsigned int Token::instances()
 {
     return _instances;
 }

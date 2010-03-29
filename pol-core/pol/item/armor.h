@@ -38,9 +38,9 @@ protected:
     virtual BObjectImp* get_script_member( const char *membername ) const;
     virtual BObjectImp* get_script_member_id( const int id ) const; ///id test
     virtual BObjectImp* set_script_member( const char *membername, const std::string& value );
-    virtual BObjectImp* set_script_member( const char *membername, long value );
+    virtual BObjectImp* set_script_member( const char *membername, int value );
     virtual BObjectImp* set_script_member_id( const int id, const std::string& value ); //id test
-    virtual BObjectImp* set_script_member_id( const int id, long value );//id test
+    virtual BObjectImp* set_script_member_id( const int id, int value );//id test
     virtual bool script_isa( unsigned isatype ) const;
 
     UArmor( const ArmorDesc& descriptor, const ArmorDesc* permanent_descriptor );

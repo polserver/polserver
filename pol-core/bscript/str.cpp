@@ -161,7 +161,7 @@ BObjectImp* String::unpackWithLen( istream& is )
     return new String( tmp );
 }
 
-unsigned long String::sizeEstimate() const
+unsigned int String::sizeEstimate() const
 {
     return sizeof(String) + value_.capacity();
 }

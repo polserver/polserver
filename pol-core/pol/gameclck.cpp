@@ -18,7 +18,7 @@ Notes
 #include "gprops.h"
 #include "polclock.h"
 
-static unsigned long gameclock;
+static unsigned int gameclock;
 
 static time_t last_read;
 
@@ -54,7 +54,7 @@ void stop_gameclock()
 gameclock_t read_gameclock()
 {
     time_t new_last_read = poltime();
-    unsigned long diff = static_cast<unsigned long>(new_last_read - last_read);
+    unsigned int diff = static_cast<unsigned int>(new_last_read - last_read);
     gameclock += diff;
     last_read = new_last_read;
     return gameclock;

@@ -25,26 +25,13 @@ string hexint( unsigned short v )
     return OSTRINGSTREAM_STR(os);
 }
 
-string hexint( int v )
+string hexint( signed int v )
 {
     OSTRINGSTREAM os;
     os << "0x" << hex << v;
     return OSTRINGSTREAM_STR(os);
 }
-string hexint( unsigned v )
-{
-    OSTRINGSTREAM os;
-    os << "0x" << hex << v;
-    return OSTRINGSTREAM_STR(os);
-}
-
-string hexint( long v )
-{
-    OSTRINGSTREAM os;
-    os << "0x" << hex << v;
-    return OSTRINGSTREAM_STR(os);
-}
-string hexint( unsigned long v )
+string hexint( unsigned int v )
 {
     OSTRINGSTREAM os;
     os << "0x" << hex << v;
@@ -58,28 +45,14 @@ string decint( unsigned short v )
     return OSTRINGSTREAM_STR(os);
 }
 
-string decint( unsigned v )
+string decint( signed int v )
 {
     OSTRINGSTREAM os;
     os << v;
     return OSTRINGSTREAM_STR(os);
 }
 
-string decint( int v )
-{
-    OSTRINGSTREAM os;
-    os << v;
-    return OSTRINGSTREAM_STR(os);
-}
-
-string decint( long v )
-{
-    OSTRINGSTREAM os;
-    os << v;
-    return OSTRINGSTREAM_STR(os);
-}
-
-string decint( unsigned long v )
+string decint( unsigned int v )
 {
     OSTRINGSTREAM os;
     os << v;

@@ -39,7 +39,7 @@ MAPCELL InMemoryMapServer::GetMapCell( unsigned short x, unsigned short y ) cons
     unsigned short yblock = y >>  MAPBLOCK_SHIFT;
     unsigned short ycell  = y &   MAPBLOCK_CELLMASK;
 
-    long block_index = yblock * (_descriptor.width >> MAPBLOCK_SHIFT) + xblock;
+    int block_index = yblock * (_descriptor.width >> MAPBLOCK_SHIFT) + xblock;
     const MAPBLOCK& mapblock = _mapblocks[ block_index ];
     return mapblock.cell[xcell][ycell];
 }

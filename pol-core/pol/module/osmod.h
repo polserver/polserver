@@ -65,7 +65,7 @@ public:
     void SleepFor( int secs );
     void SleepForMs( int msecs );
 
-    unsigned long pid() const;
+    unsigned int pid() const;
     bool blocked() const;
 
     bool in_debugger_holdlist() const;
@@ -104,7 +104,7 @@ protected:
     enum { NO_LIST, TIMEOUT_LIST, NOTIMEOUT_LIST, DEBUGGER_LIST } in_hold_list_;
     HoldList::iterator hold_itr_;
 
-    unsigned long pid_;
+    unsigned int pid_;
 
     enum WAIT_TYPE {
         WAIT_SLEEP,
@@ -139,7 +139,7 @@ inline bool OSExecutorModule::getCharacterParam( unsigned param, Character*& chr
     return ::getCharacterParam( exec, param, chrptr );
 }
 
-typedef std::map<unsigned long, UOExecutor*> PidList;
+typedef std::map<unsigned int, UOExecutor*> PidList;
 extern PidList pidlist;
 
 #endif

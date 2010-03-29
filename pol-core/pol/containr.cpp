@@ -114,7 +114,7 @@ void UContainer::printContents( ostream& os ) const
     }
 }
 
-bool UContainer::can_add_bulk( long tli_diff, long item_count_diff, long weight_diff ) const
+bool UContainer::can_add_bulk( int tli_diff, int item_count_diff, int weight_diff ) const
 {
     if (gflag_enforce_container_limits)
     {
@@ -201,10 +201,10 @@ void UContainer::add_bulk( const Item* item )
 }
 void UContainer::remove_bulk( const Item* item )
 {
-    add_bulk( -static_cast<long>(1), -static_cast<long>(item->weight()) );
+    add_bulk( -static_cast<int>(1), -static_cast<int>(item->weight()) );
 }
 
-void UContainer::add_bulk( long item_count_delta, long weight_delta )
+void UContainer::add_bulk( int item_count_delta, int weight_delta )
 {
     held_item_count_ += item_count_delta;
     
@@ -219,12 +219,12 @@ void UContainer::add_bulk( long item_count_delta, long weight_delta )
 }
 
 
-unsigned long UContainer::weight() const
+unsigned int UContainer::weight() const
 {
     return Item::weight() + held_weight_;
 }
 
-unsigned long UContainer::item_count() const
+unsigned int UContainer::item_count() const
 {
     return Item::item_count() + held_item_count_;
 }
@@ -293,16 +293,16 @@ void UContainer::add_at_random_location( Item* item )
 void UContainer::extract( Contents& cnt )
 {
     contents_.swap( cnt );
-    add_bulk( -static_cast<long>(held_item_count_), -static_cast<long>(held_weight_) );
+    add_bulk( -static_cast<int>(held_item_count_), -static_cast<int>(held_weight_) );
 }
 
 bool UContainer::can_swap( const UContainer& cont ) const
 {
-    long weight_diff0 = cont.weight() - weight();
-    long item_count_diff0 = cont.item_count() - item_count();
+    int weight_diff0 = cont.weight() - weight();
+    int item_count_diff0 = cont.item_count() - item_count();
     
-    long weight_diff1 = -weight_diff0;
-    long item_count_diff1 = -item_count_diff0;
+    int weight_diff1 = -weight_diff0;
+    int item_count_diff1 = -item_count_diff0;
 
     return (can_add_bulk( 0, item_count_diff0, weight_diff0 ) &&
             cont.can_add_bulk( 0, item_count_diff1, weight_diff1 ));
@@ -312,8 +312,8 @@ void UContainer::swap( UContainer& cont )
 {
     assert( can_swap(cont) );
 
-    long weight_diff = cont.weight() - weight();
-    long item_count_diff = cont.item_count() - item_count();
+    int weight_diff = cont.weight() - weight();
+    int item_count_diff = cont.item_count() - item_count();
 
     add_bulk( item_count_diff, weight_diff );
     cont.add_bulk( -item_count_diff, -weight_diff );
@@ -420,9 +420,9 @@ Item* UContainer::find_objtype_noninuse( u16 objtype ) const
     return NULL;
 }
 
-unsigned long UContainer::find_sumof_objtype_noninuse( u16 objtype ) const
+unsigned int UContainer::find_sumof_objtype_noninuse( u16 objtype ) const
 {
-    unsigned long amt = 0;
+    unsigned int amt = 0;
 
     for( Contents::const_iterator itr = contents_.begin(); itr != contents_.end(); ++itr )
     {
@@ -447,7 +447,7 @@ unsigned long UContainer::find_sumof_objtype_noninuse( u16 objtype ) const
     return amt;
 }
 
-void UContainer::consume_sumof_objtype_noninuse( u16 objtype, unsigned long amount )
+void UContainer::consume_sumof_objtype_noninuse( u16 objtype, unsigned int amount )
 {
     while (amount != 0)
     {
@@ -871,9 +871,9 @@ void UContainer::readProperties( ConfigElem& elem )
     base::readProperties( elem );
 }
 
-unsigned long UContainer::find_sumof_objtype_noninuse( u16 objtype, u32 amtToGet, Contents& saveItemsTo, long flags ) const
+unsigned int UContainer::find_sumof_objtype_noninuse( u16 objtype, u32 amtToGet, Contents& saveItemsTo, int flags ) const
 {
-    unsigned long amt = 0;
+    unsigned int amt = 0;
 
     for( Contents::const_iterator itr = contents_.begin(); itr != contents_.end(); ++itr )
     {

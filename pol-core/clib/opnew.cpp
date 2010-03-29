@@ -34,72 +34,72 @@ Notes
 #	define MEMORYLOGBLOCKS 0
 #endif
 
-static unsigned long bytes_allocated       = 0;
-static unsigned long last_bytes_allocated  = 0;
-static unsigned long blocks_allocated      = 0;
-static unsigned long last_blocks_allocated = 0;
+static unsigned int bytes_allocated       = 0;
+static unsigned int last_bytes_allocated  = 0;
+static unsigned int blocks_allocated      = 0;
+static unsigned int last_blocks_allocated = 0;
 
 #ifdef MEMORYLEAK
-static unsigned long requested_8        = 0;
-static unsigned long requested_16       = 0;
-static unsigned long requested_32       = 0;
-static unsigned long requested_64       = 0;
-static unsigned long requested_128      = 0;
-static unsigned long requested_512      = 0;
-static unsigned long requested_1024     = 0;
-static unsigned long requested_2048     = 0;
-static unsigned long requested_4096     = 0;
-static unsigned long requested_8192     = 0;
-static unsigned long requested_16384    = 0;
-static unsigned long requested_65536    = 0;
-static unsigned long requested_131072   = 0;
-static unsigned long requested_524288   = 0;
-static unsigned long requested_1048576  = 0;
-static unsigned long requested_16777216 = 0;
-static unsigned long requested_huge     = 0;
+static unsigned int requested_8        = 0;
+static unsigned int requested_16       = 0;
+static unsigned int requested_32       = 0;
+static unsigned int requested_64       = 0;
+static unsigned int requested_128      = 0;
+static unsigned int requested_512      = 0;
+static unsigned int requested_1024     = 0;
+static unsigned int requested_2048     = 0;
+static unsigned int requested_4096     = 0;
+static unsigned int requested_8192     = 0;
+static unsigned int requested_16384    = 0;
+static unsigned int requested_65536    = 0;
+static unsigned int requested_131072   = 0;
+static unsigned int requested_524288   = 0;
+static unsigned int requested_1048576  = 0;
+static unsigned int requested_16777216 = 0;
+static unsigned int requested_huge     = 0;
 
-static unsigned long used_8        = 0;
-static unsigned long used_16       = 0;
-static unsigned long used_32       = 0;
-static unsigned long used_64       = 0;
-static unsigned long used_128      = 0;
-static unsigned long used_512      = 0;
-static unsigned long used_1024     = 0;
-static unsigned long used_2048     = 0;
-static unsigned long used_4096     = 0;
-static unsigned long used_8192     = 0;
-static unsigned long used_16384    = 0;
-static unsigned long used_65536    = 0;
-static unsigned long used_131072   = 0;
-static unsigned long used_524288   = 0;
-static unsigned long used_1048576  = 0;
-static unsigned long used_16777216 = 0;
-static unsigned long used_huge     = 0;
+static unsigned int used_8        = 0;
+static unsigned int used_16       = 0;
+static unsigned int used_32       = 0;
+static unsigned int used_64       = 0;
+static unsigned int used_128      = 0;
+static unsigned int used_512      = 0;
+static unsigned int used_1024     = 0;
+static unsigned int used_2048     = 0;
+static unsigned int used_4096     = 0;
+static unsigned int used_8192     = 0;
+static unsigned int used_16384    = 0;
+static unsigned int used_65536    = 0;
+static unsigned int used_131072   = 0;
+static unsigned int used_524288   = 0;
+static unsigned int used_1048576  = 0;
+static unsigned int used_16777216 = 0;
+static unsigned int used_huge     = 0;
 
-static unsigned long allocated_8        = 0;
-static unsigned long allocated_16       = 0;
-static unsigned long allocated_32       = 0;
-static unsigned long allocated_64       = 0;
-static unsigned long allocated_128      = 0;
-static unsigned long allocated_512      = 0;
-static unsigned long allocated_1024     = 0;
-static unsigned long allocated_2048     = 0;
-static unsigned long allocated_4096     = 0;
-static unsigned long allocated_8192     = 0;
-static unsigned long allocated_16384    = 0;
-static unsigned long allocated_65536    = 0;
-static unsigned long allocated_131072   = 0;
-static unsigned long allocated_524288   = 0;
-static unsigned long allocated_1048576  = 0;
-static unsigned long allocated_16777216 = 0;
-static unsigned long allocated_huge     = 0;
+static unsigned int allocated_8        = 0;
+static unsigned int allocated_16       = 0;
+static unsigned int allocated_32       = 0;
+static unsigned int allocated_64       = 0;
+static unsigned int allocated_128      = 0;
+static unsigned int allocated_512      = 0;
+static unsigned int allocated_1024     = 0;
+static unsigned int allocated_2048     = 0;
+static unsigned int allocated_4096     = 0;
+static unsigned int allocated_8192     = 0;
+static unsigned int allocated_16384    = 0;
+static unsigned int allocated_65536    = 0;
+static unsigned int allocated_131072   = 0;
+static unsigned int allocated_524288   = 0;
+static unsigned int allocated_1048576  = 0;
+static unsigned int allocated_16777216 = 0;
+static unsigned int allocated_huge     = 0;
 #endif
 
 #if 0
 #ifndef NDEBUG
 #ifdef _WIN32
-static unsigned long n_allocs;
-static unsigned long n_frees;
+static unsigned int n_allocs;
+static unsigned int n_frees;
 void* operator new( size_t len )
 {
     void *vp = malloc( len );
@@ -498,8 +498,8 @@ void operator delete[] ( void *ptr )
 
 void PrintHeapData()
 {
-    long delta_bytes = bytes_allocated - last_bytes_allocated;
-    long delta_blocks = blocks_allocated - last_blocks_allocated;
+    int delta_bytes = bytes_allocated - last_bytes_allocated;
+    int delta_blocks = blocks_allocated - last_blocks_allocated;
     last_bytes_allocated = bytes_allocated;
     last_blocks_allocated = blocks_allocated;
 

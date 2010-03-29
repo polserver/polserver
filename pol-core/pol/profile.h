@@ -15,7 +15,7 @@ Notes
 #include "../clib/rawtypes.h"
 
 #define DEF_PROFILEVAR( counter ) \
-    unsigned long prf_##counter,    \
+    unsigned int prf_##counter,    \
              prf_last_##counter,    \
              prf_last_##counter##_per_min
 
@@ -71,40 +71,40 @@ do { \
         profilevars.tmr_##timer##_clocks_this_min = 0; \
     } while (0)
 #define GET_PROFILECLOCK( timer ) profilevars.tmr_##timer##_clocks_last_min
-#define GET_PROFILECLOCK_MS( timer ) ( static_cast<unsigned long>( profilevars.tmr_##timer##_clocks_last_min * 1000.0 / CLOCKS_PER_SEC ) )
+#define GET_PROFILECLOCK_MS( timer ) ( static_cast<unsigned int>( profilevars.tmr_##timer##_clocks_last_min * 1000.0 / CLOCKS_PER_SEC ) )
 
-extern unsigned long rotations, last_rotations;
-extern unsigned long last_rpm;
+extern unsigned int rotations, last_rotations;
+extern unsigned int last_rpm;
 
-//extern unsigned long instructions;
+//extern unsigned int instructions;
 extern u64 last_instructions;
-extern unsigned long last_sipm;
+extern unsigned int last_sipm;
 
 extern u64 sleep_cycles;
 extern u64 last_sleep_cycles;
-extern unsigned long last_scpm;
+extern unsigned int last_scpm;
 
-extern unsigned long busy_sysload_cycles, last_busy_sysload_cycles;
-extern unsigned long nonbusy_sysload_cycles, last_nonbusy_sysload_cycles;
-extern unsigned long sysload_nprocs, last_sysload_nprocs;
-extern unsigned long last_sysload;
+extern unsigned int busy_sysload_cycles, last_busy_sysload_cycles;
+extern unsigned int nonbusy_sysload_cycles, last_nonbusy_sysload_cycles;
+extern unsigned int sysload_nprocs, last_sysload_nprocs;
+extern unsigned int last_sysload;
 
 extern u64 last_cpu_total;
-extern unsigned long last_cputime;
+extern unsigned int last_cputime;
 
 extern u64 script_passes;
 extern u64 last_script_passes;
-extern unsigned long last_sppm;
+extern unsigned int last_sppm;
 
-//extern unsigned long scheduler_passes, last_scheduler_passes;
-//extern unsigned long last_schm;
+//extern unsigned int scheduler_passes, last_scheduler_passes;
+//extern unsigned int last_schm;
 
-extern unsigned long script_passes_activity;
-extern unsigned long script_passes_noactivity;
-extern unsigned long last_script_passes_activity;
-extern unsigned long last_script_passes_noactivity;
+extern unsigned int script_passes_activity;
+extern unsigned int script_passes_noactivity;
+extern unsigned int last_script_passes_activity;
+extern unsigned int last_script_passes_noactivity;
 
-extern unsigned long mapcache_hits, last_mapcache_hits;
-extern unsigned long mapcache_misses, last_mapcache_misses;
+extern unsigned int mapcache_hits, last_mapcache_hits;
+extern unsigned int mapcache_misses, last_mapcache_misses;
 
 #endif

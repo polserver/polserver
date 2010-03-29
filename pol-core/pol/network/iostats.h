@@ -14,8 +14,8 @@ public:
     IOStats();
 
     struct Packet {
-        unsigned long count;
-        unsigned long bytes;
+        unsigned int count;
+        unsigned int bytes;
     };
     
     Packet sent[ 256 ];

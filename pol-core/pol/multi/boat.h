@@ -43,7 +43,7 @@ public:
     virtual UBoat* as_boat();
 
     bool move( UFACING dir );
-	bool move_xy( unsigned short x, unsigned short y, long flags, Realm* oldrealm);
+	bool move_xy( unsigned short x, unsigned short y, int flags, Realm* oldrealm);
 
     enum RELATIVE_DIR { NO_TURN, RIGHT, AROUND, LEFT };
     bool turn( RELATIVE_DIR dir );
@@ -60,7 +60,7 @@ public:
     void regself();
     void unregself();
 
-    static BObjectImp* scripted_create( const ItemDesc& descriptor, u16 x, u16 y, s8 z, Realm* realm, long flags );
+    static BObjectImp* scripted_create( const ItemDesc& descriptor, u16 x, u16 y, s8 z, Realm* realm, int flags );
 
     // these must match EXTOBJ_TILLERMAN etc from objtype.h
     enum BOAT_COMPONENT { 

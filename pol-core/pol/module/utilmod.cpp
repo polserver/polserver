@@ -45,7 +45,7 @@ int TmplExecutorModule<UtilExecutorModule>::function_table_size =
 
 BObjectImp* UtilExecutorModule::mf_RandomInt()
 {
-    long value;
+    int value;
     if (exec.getParam( 0, value, 1, LONG_MAX ))
     {
         if (value > 0)
@@ -61,10 +61,10 @@ BObjectImp* UtilExecutorModule::mf_RandomInt()
 
 BObjectImp* UtilExecutorModule::mf_RandomIntMinMax()
 {
-    long minvalue;
+    int minvalue;
     if (exec.getParam( 0, minvalue, LONG_MIN, LONG_MAX ))
     {
-        long maxvalue;
+        int maxvalue;
 		if (exec.getParam( 1, maxvalue, LONG_MIN, LONG_MAX ))
 		{
 			if (maxvalue<minvalue)
@@ -122,7 +122,7 @@ BObjectImp* UtilExecutorModule::mf_StrFormatTime()
 	else if ( format_string->length() > 100 )
 		return new BError("Format string exceeded 100 characters.");
 
-	long time_stamp;
+	int time_stamp;
 	getParam(1, time_stamp, 0, LONG_MAX);
 		
 	time_t seconds;

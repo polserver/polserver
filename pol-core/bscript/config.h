@@ -12,7 +12,7 @@ Notes
 
 struct EScriptConfig
 {
-    unsigned long max_call_depth;
+    unsigned int max_call_depth;
 };
 
 extern EScriptConfig escript_config;

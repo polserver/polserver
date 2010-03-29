@@ -820,7 +820,7 @@ BObjectImp* UObject::set_script_member( const char *membername, const string& va
 		return NULL;
 }
 
-BObjectImp* UObject::set_script_member_id( const int id, long value )
+BObjectImp* UObject::set_script_member_id( const int id, int value )
 {
     if (orphan())
         return new UninitObject;
@@ -845,7 +845,7 @@ BObjectImp* UObject::set_script_member_id( const int id, long value )
     }
 }
 
-BObjectImp* UObject::set_script_member( const char *membername, long value )
+BObjectImp* UObject::set_script_member( const char *membername, int value )
 {
 	ObjMember* objmember = getKnownObjMember(membername);
 	if ( objmember != NULL )
@@ -968,7 +968,7 @@ BObjectImp* Item::set_script_member( const char *membername, const string& value
 		return NULL;
 }
 
-BObjectImp* Item::set_script_member_id( const int id, long value )
+BObjectImp* Item::set_script_member_id( const int id, int value )
 {
 	BObjectImp* imp = base::set_script_member_id( id, value );
 	if (imp != NULL)
@@ -1040,7 +1040,7 @@ BObjectImp* Item::set_script_member_id( const int id, long value )
 	}
 }
 
-BObjectImp* Item::set_script_member( const char *membername, long value )
+BObjectImp* Item::set_script_member( const char *membername, int value )
 {
 	ObjMember* objmember = getKnownObjMember(membername);
 	if ( objmember != NULL )
@@ -1516,7 +1516,7 @@ BObjectImp* Character::set_script_member( const char *membername, const std::str
 		return NULL;
 }
 
-BObjectImp* Character::set_script_member_id( const int id, long value )
+BObjectImp* Character::set_script_member_id( const int id, int value )
 {
 	BObjectImp* imp = base::set_script_member_id( id, value );
 	if (imp != NULL)
@@ -1695,7 +1695,7 @@ BObjectImp* Character::set_script_member_id_double( const int id, double value )
 
 }
 
-BObjectImp* Character::set_script_member( const char *membername, long value )
+BObjectImp* Character::set_script_member( const char *membername, int value )
 {
 	ObjMember* objmember = getKnownObjMember(membername);
 	if ( objmember != NULL )
@@ -1725,7 +1725,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
             bool newval=true;
 		    if (ex.hasParams(1))
 		    {
-			    long lval;
+			    int lval;
 			    if (!ex.getParam( 0, lval ))
 				    return new BError( "Invalid parameter type" );
 			    if (!lval)
@@ -1768,7 +1768,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 		    bool newval = true;
 		    if (ex.hasParams(1))
 		    {
-			    long lval;
+			    int lval;
 			    if (!ex.getParam( 0, lval ))
 				    return new BError( "Invalid parameter type" );
 			    if (!lval)
@@ -1803,7 +1803,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 		*/
 	case MTH_SETCRIMINAL:
         {
-		    long level = 1;
+		    int level = 1;
 		    if (ex.hasParams(1))
 		    {
 			    if (!ex.getParam( 0, level ))
@@ -1818,7 +1818,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 
 	case MTH_SETLIGHTLEVEL:
         {
-            long level,duration;
+            int level,duration;
 		    if (!ex.hasParams(2))
 			    return new BError( "Not enough parameters" );
 		    if (ex.getParam( 0, level ) &&
@@ -1841,7 +1841,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 		}
 	case MTH_SETSEASON:
 		{
-			long season_id, playsound;
+			int season_id, playsound;
 
 		    if (!ex.hasParams(2))
 			    return new BError( "Not enough parameters" );
@@ -1867,7 +1867,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 		}
 	case MTH_SQUELCH:
         {
-            long duration;
+            int duration;
 		    if (!ex.hasParams(1))
 			    return new BError( "Not enough parameters" );
 		    if (ex.getParam( 0, duration ))
@@ -1966,12 +1966,12 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
         }
 	case MTH_SPENDGOLD:
         {
-            long amt;
+            int amt;
 		    if (ex.numParams()!=1 ||
 			    !ex.getParam( 0, amt ))
 			    return new BError( "Invalid parameter type" );
 
-		    if (gold_carried() < static_cast<unsigned long>(amt))
+		    if (gold_carried() < static_cast<unsigned int>(amt))
 			    return new BError( "Insufficient funds" );
 
 		    spend_gold( amt );
@@ -1980,7 +1980,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 
 	case MTH_SETMURDERER:
         {
-            long lnewval = 1;
+            int lnewval = 1;
 		    if (ex.hasParams(1))
 		    {
 			    if (!ex.getParam( 0, lnewval ))
@@ -1994,7 +1994,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
         {
 		    if (!ex.hasParams(2))
 			    return new BError( "Not enough parameters" );
-            long serial, gameclock;
+            int serial, gameclock;
 		    if (ex.getParam( 0, serial ) &&
 			    ex.getParam( 1, gameclock ))
 		    {
@@ -2025,7 +2025,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 		break;
 	case MTH_SETWARMODE:
         {
-		    long newmode;
+		    int newmode;
 		    if (!ex.hasParams(1))
 			    return new BError( "Not enough parameters" );
 		    if(ex.getParam(0, newmode,0,1))
@@ -2053,7 +2053,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 		break;
 	case MTH_SET_SWINGTIMER:
         {
-		    long time;
+		    int time;
 		    if (!ex.hasParams(1))
 			    return new BError( "Not enough parameters" );
 		    if (ex.getParam(0,time))
@@ -2113,7 +2113,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 		break;
 	case MTH_SETFACING:
 		{
-			long flags = 0;
+			int flags = 0;
 			UFACING i_facing;
 
 			if(ex.hasParams(2) && !ex.getParam(1, flags, 0, 1))
@@ -2217,7 +2217,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 		break;
     case MTH_DEAF:
         {
-            long duration;
+            int duration;
 		    if (!ex.hasParams(1))
 			    return new BError( "Not enough parameters" );
 		    if (ex.getParam( 0, duration ))
@@ -2425,7 +2425,7 @@ BObjectImp* NPC::set_script_member( const char *membername, const std::string& v
 		return NULL;
 }
 
-BObjectImp* NPC::set_script_member_id( const int id, long value )
+BObjectImp* NPC::set_script_member_id( const int id, int value )
 {
 	BObjectImp* imp = base::set_script_member_id( id, value );
 	if (imp != NULL)
@@ -2442,7 +2442,7 @@ BObjectImp* NPC::set_script_member_id( const int id, long value )
 		default: return NULL;
 	}
 }
-BObjectImp* NPC::set_script_member( const char *membername, long value )
+BObjectImp* NPC::set_script_member( const char *membername, int value )
 {
 	ObjMember* objmember = getKnownObjMember(membername);
 	if ( objmember != NULL )
@@ -2529,7 +2529,7 @@ BObjectImp* ULockable::get_script_member( const char *membername ) const
 		return NULL;
 }
 
-BObjectImp* ULockable::set_script_member_id( const int id, long value )
+BObjectImp* ULockable::set_script_member_id( const int id, int value )
 {
 	BObjectImp* imp = Item::set_script_member_id( id, value );
 	if (imp != NULL)
@@ -2540,7 +2540,7 @@ BObjectImp* ULockable::set_script_member_id( const int id, long value )
 		default: return NULL;
 	}
 }
-BObjectImp* ULockable::set_script_member( const char *membername, long value )
+BObjectImp* ULockable::set_script_member( const char *membername, int value )
 {
 	ObjMember* objmember = getKnownObjMember(membername);
 	if ( objmember != NULL )
@@ -2582,14 +2582,14 @@ BObjectImp* Spellbook::script_method_id( const int id, Executor& ex )
     {
     case MTH_HASSPELL:
         {
-            long id;
+            int id;
             if (!ex.hasParams(1))
                 return new BError( "Not enough parameters" );
             if (ex.getParam(0,id))
             {
                 if (id <= 0)
                     return new BError( "SpellID must be >= 1" );
-                if (this->has_spellid(static_cast<unsigned long>(id)))
+                if (this->has_spellid(static_cast<unsigned int>(id)))
                     return new BLong(1);
                 else
                     return new BLong(0);
@@ -2603,7 +2603,7 @@ BObjectImp* Spellbook::script_method_id( const int id, Executor& ex )
             ObjArray* arr = new ObjArray;
             for ( u16 i = 0; i < 64; ++i )
             {
-                unsigned long id = this->spell_school*100 + i + 1;
+                unsigned int id = this->spell_school*100 + i + 1;
                 if (this->has_spellid(id))
                     arr->addElement(new BLong(id));
             }
@@ -2612,14 +2612,14 @@ BObjectImp* Spellbook::script_method_id( const int id, Executor& ex )
         }
     case MTH_REMOVESPELL:
         {
-            long id;
+            int id;
             if (!ex.hasParams(1))
                 return new BError( "Not enough parameters" );
             if (ex.getParam(0,id))
             {
                 if (id <= 0)
                     return new BError( "SpellID must be >= 1" );
-                if (this->remove_spellid(static_cast<unsigned long>(id)))
+                if (this->remove_spellid(static_cast<unsigned int>(id)))
                     return new BLong(1);
                 else
                     return new BLong(0);
@@ -2630,14 +2630,14 @@ BObjectImp* Spellbook::script_method_id( const int id, Executor& ex )
         }
     case MTH_ADDSPELL:
         {
-            long id;
+            int id;
             if (!ex.hasParams(1))
                 return new BError( "Not enough parameters" );
             if (ex.getParam(0,id))
             {
                 if (id <= 0)
                     return new BError( "SpellID must be >= 1" );
-                if (this->add_spellid(static_cast<unsigned long>(id)))
+                if (this->add_spellid(static_cast<unsigned int>(id)))
                     return new BLong(1);
                 else
                     return new BLong(0);
@@ -2846,7 +2846,7 @@ BObjectImp* Map::get_script_member( const char *membername ) const
 		return NULL;
 }
 
-BObjectImp* Map::set_script_member_id( const int id, long value )
+BObjectImp* Map::set_script_member_id( const int id, int value )
 {
 	BObjectImp* imp = base::set_script_member_id( id, value );
 	if (imp != NULL)
@@ -2862,7 +2862,7 @@ BObjectImp* Map::set_script_member_id( const int id, long value )
 		default: return NULL;
 	}
 }
-BObjectImp* Map::set_script_member( const char *membername, long value )
+BObjectImp* Map::set_script_member( const char *membername, int value )
 {
 	ObjMember* objmember = getKnownObjMember(membername);
 	if ( objmember != NULL )
@@ -2881,7 +2881,7 @@ BObjectImp* UObject::script_method_id( const int id, Executor& ex )
 	case MTH_ISA:
 		if (!ex.hasParams(1))
 			return new BError( "Not enough parameters" );
-		long isatype;
+		int isatype;
 		if (!ex.getParam(0,isatype))
 			return new BError( "Invalid parameter type" );
 		return new BLong(script_isa( static_cast<unsigned>(isatype) ));
@@ -3038,7 +3038,7 @@ BObjectImp* Equipment::get_script_member_id( const int id ) const
 		case MBR_QUALITY: return new Double( quality_ ); break;
 		case MBR_HP: return new BLong( hp_ ); break;
 		case MBR_MAXHP_MOD: return new BLong( maxhp_mod_ ); break;
-		case MBR_MAXHP: return new BLong( static_cast<long>(maxhp() * quality_) ); break;
+		case MBR_MAXHP: return new BLong( static_cast<int>(maxhp() * quality_) ); break;
 		default: return NULL;
 	}
 }
@@ -3051,7 +3051,7 @@ BObjectImp* Equipment::get_script_member( const char *membername ) const
 		return NULL;
 }
 
-BObjectImp* Equipment::set_script_member_id( const int id, long value )
+BObjectImp* Equipment::set_script_member_id( const int id, int value )
 {
 	BObjectImp* imp = Item::set_script_member_id( id, value );
 	if (imp != NULL)
@@ -3092,7 +3092,7 @@ BObjectImp* Equipment::set_script_member_id( const int id, long value )
 		default: return NULL;
 	}
 }
-BObjectImp* Equipment::set_script_member( const char *membername, long value )
+BObjectImp* Equipment::set_script_member( const char *membername, int value )
 {
 	ObjMember* objmember = getKnownObjMember(membername);
 	if ( objmember != NULL )
@@ -3168,7 +3168,7 @@ BObjectImp* UWeapon::set_script_member( const char *membername, const std::strin
 		return NULL;
 }
 
-BObjectImp* UWeapon::set_script_member_id( const int id, long value )
+BObjectImp* UWeapon::set_script_member_id( const int id, int value )
 {
 	if (is_intrinsic())
 		return new BError("Cannot alter an instrinsic NPC weapon member values"); //executor won't return this to the script currently.
@@ -3184,7 +3184,7 @@ BObjectImp* UWeapon::set_script_member_id( const int id, long value )
 	}
 }
 
-BObjectImp* UWeapon::set_script_member( const char *membername, long value )
+BObjectImp* UWeapon::set_script_member( const char *membername, int value )
 {
 	ObjMember* objmember = getKnownObjMember(membername);
 	if ( objmember != NULL )
@@ -3255,7 +3255,7 @@ BObjectImp* UArmor::set_script_member( const char *membername, const std::string
 		return NULL;
 }
 
-BObjectImp* UArmor::set_script_member_id( const int id, long value ) 
+BObjectImp* UArmor::set_script_member_id( const int id, int value ) 
 {
 	BObjectImp* imp = Equipment::set_script_member_id( id, value );
 	if (imp != NULL)
@@ -3279,7 +3279,7 @@ BObjectImp* UArmor::set_script_member_id( const int id, long value )
 	}
 }
 
-BObjectImp* UArmor::set_script_member( const char *membername, long value )
+BObjectImp* UArmor::set_script_member( const char *membername, int value )
 {
 	ObjMember* objmember = getKnownObjMember(membername);
 	if ( objmember != NULL )
@@ -3562,7 +3562,7 @@ ItemGivenEvent::~ItemGivenEvent()
 	item->eraseprop( "GivenTime" );
 
 	BObjectImp* given_value = BObjectImp::unpack( given_time_str.c_str() );
-	long gts = static_cast<BLong*>(given_value)->value();
+	int gts = static_cast<BLong*>(given_value)->value();
 
 	if (item->orphan() || cont->orphan() || chr->orphan())
 		return;

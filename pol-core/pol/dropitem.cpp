@@ -948,8 +948,8 @@ void cancel_trade( Character* chr1 )
 
 void send_trade_statuses( Character* chr )
 {
-    unsigned long stat1 = chr->trade_accepted?1:0;
-    unsigned long stat2 = chr->trading_with->trade_accepted?1:0;
+    unsigned int stat1 = chr->trade_accepted?1:0;
+    unsigned int stat2 = chr->trading_with->trade_accepted?1:0;
 
     PKTBI_6F msg;
     msg.msgtype = PKTBI_6F_ID;

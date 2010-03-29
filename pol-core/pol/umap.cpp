@@ -198,7 +198,7 @@ BObjectImp* Map::script_method_id( const int id, Executor& ex )
 
     case MTH_INSERTPIN:
         {
-            long idx;
+            int idx;
 	        unsigned short x, y;
             if (ex.getParam( 0, idx, pin_points.size() ) &&
                 ex.getParam( 1, x ) &&
@@ -247,7 +247,7 @@ BObjectImp* Map::script_method_id( const int id, Executor& ex )
 
     case MTH_ERASEPIN:
         {
-            long idx;
+            int idx;
             if (ex.getParam( 0, idx, pin_points.size()-1 ))
             {
 			    pin_points_itr itr;
@@ -267,7 +267,7 @@ BObjectImp* Map::script_method_id( const int id, Executor& ex )
 
     case MTH_ISA:
         {
-            long type;
+            int type;
             if (ex.getParam( 0, type ))
             {
 			    return new BLong(script_isa(type));
@@ -316,7 +316,7 @@ BObjectImp* Map::script_method( const char* methodname, Executor& ex )
     }
 	else if(stricmp( methodname, "insertpin" ) == 0)
 	{
-		long idx, x, y;
+		int idx, x, y;
         if (ex.getParam( 0, idx, pin_points.size() ) &&
             ex.getParam( 1, x ) &&
             ex.getParam( 2, y ))
@@ -343,7 +343,7 @@ BObjectImp* Map::script_method( const char* methodname, Executor& ex )
 	}
 	else if(stricmp( methodname, "appendpin" ) == 0)
 	{
-		long x, y;
+		int x, y;
         if (ex.getParam( 0, x ) &&
             ex.getParam( 1, y ))
         {
@@ -362,7 +362,7 @@ BObjectImp* Map::script_method( const char* methodname, Executor& ex )
 	}
 	else if(stricmp( methodname, "erasepin" ) == 0)
 	{
-		long idx;
+		int idx;
         if (ex.getParam( 0, idx, pin_points.size()-1 ))
         {
 			pin_points_itr itr;
@@ -381,7 +381,7 @@ BObjectImp* Map::script_method( const char* methodname, Executor& ex )
 	}
 	else if(stricmp( methodname, "isa" ) == 0)
 	{
-		long type;
+		int type;
         if (ex.getParam( 0, type ))
         {
 			return new BLong(script_isa(type));

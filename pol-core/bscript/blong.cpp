@@ -20,7 +20,7 @@ Notes
 
 
 #if BOBJECTIMP_DEBUG
-BLong::BLong(long lval) : BObjectImp( OTLong ), lval_(lval) 
+BLong::BLong(int lval) : BObjectImp( OTLong ), lval_(lval) 
 {
 }
 
@@ -45,7 +45,7 @@ void BLong::packonto( ostream& os ) const
 
 BObjectImp* BLong::unpack( const char* pstr )
 {
-    long lv;
+    int lv;
     ISTRINGSTREAM is( pstr );
     if (is >> lv)
     {
@@ -59,7 +59,7 @@ BObjectImp* BLong::unpack( const char* pstr )
 
 BObjectImp* BLong::unpack( istream& is )
 {
-    long lv;
+    int lv;
     if (is >> lv)
     {
         return new BLong(lv);
@@ -75,7 +75,7 @@ BObjectImp *BLong::copy() const
     return new BLong( *this );
 }
 
-unsigned long BLong::sizeEstimate() const
+unsigned int BLong::sizeEstimate() const
 {
     return sizeof(BLong);
 }
@@ -125,11 +125,11 @@ bool BLong::isLT( const BObjectImp& objimp ) const
 {
     return objimp.isGT( lval_ );
 }
-bool BLong::isGT( long val ) const
+bool BLong::isGT( int val ) const
 {
     return (lval_ > val);
 }
-bool BLong::isGE( long val ) const
+bool BLong::isGE( int val ) const
 {
     return (lval_ >= val);
 }
@@ -204,7 +204,7 @@ BObjectImp* BLong::selfDividedByObjImp(const BObjectImp& objimp) const
 {
     if (objimp.isa( OTLong ))
     {
-        long divisor = ((BLong&) objimp).lval_;
+        int divisor = ((BLong&) objimp).lval_;
         if (!divisor)
             return new BError( "Divide by Zero" );
         else
@@ -229,7 +229,7 @@ BObjectImp* BLong::selfModulusObjImp(const BObjectImp& objimp) const
 {
     if (objimp.isa( OTLong ))
     {
-        long divisor = ((BLong&) objimp).lval_;
+        int divisor = ((BLong&) objimp).lval_;
        
         if (!divisor)
             return new BError( "Divide by Zero" );
@@ -238,7 +238,7 @@ BObjectImp* BLong::selfModulusObjImp(const BObjectImp& objimp) const
     }
     else if (objimp.isa( OTDouble )) 
     {
-        long divisor = static_cast<long>(((Double&) objimp).value());
+        int divisor = static_cast<int>(((Double&) objimp).value());
         if (divisor == 0)
             return new BError( "Divide by Zero" );
         else
@@ -254,7 +254,7 @@ BObjectImp* BLong::selfBitShiftRightObjImp(const BObjectImp& objimp) const
 {
     if (objimp.isa( OTLong ))
     {
-        long rightlval = ((BLong&) objimp).lval_;
+        int rightlval = ((BLong&) objimp).lval_;
        
         return new BLong( lval_ >> rightlval );
     }
@@ -268,7 +268,7 @@ BObjectImp* BLong::selfBitShiftLeftObjImp(const BObjectImp& objimp) const
 {
     if (objimp.isa( OTLong ))
     {
-        long rightlval = ((BLong&) objimp).lval_;
+        int rightlval = ((BLong&) objimp).lval_;
        
         return new BLong( lval_ << rightlval );
     }
@@ -282,7 +282,7 @@ BObjectImp* BLong::selfBitAndObjImp(const BObjectImp& objimp) const
 {
     if (objimp.isa( OTLong ))
     {
-        long rightlval = ((BLong&) objimp).lval_;
+        int rightlval = ((BLong&) objimp).lval_;
        
         return new BLong( lval_ & rightlval );
     }
@@ -295,7 +295,7 @@ BObjectImp* BLong::selfBitOrObjImp(const BObjectImp& objimp) const
 {
     if (objimp.isa( OTLong ))
     {
-        long rightlval = ((BLong&) objimp).lval_;
+        int rightlval = ((BLong&) objimp).lval_;
        
         return new BLong( lval_ | rightlval );
     }
@@ -308,7 +308,7 @@ BObjectImp* BLong::selfBitXorObjImp(const BObjectImp& objimp) const
 {
     if (objimp.isa( OTLong ))
     {
-        long rightlval = ((BLong&) objimp).lval_;
+        int rightlval = ((BLong&) objimp).lval_;
        
         return new BLong( lval_ ^ rightlval );
     }

@@ -199,7 +199,7 @@ BObjectImp* UOExecutorModule::mf_SendBuyWindow(/* character, container, vendor, 
 	Character *chr, *mrchnt;
 	Item *item, *item2;
 	NPC *merchant;
-	long flags;
+	int flags;
 	UContainer *for_sale, *bought;
 	unsigned char save_layer_one, save_layer_two;
 	PKTOUT_24 open_window;
@@ -324,9 +324,9 @@ void send_clear_vendorwindow( Client* client, Character* vendor )
 //#include "msgfiltr.h"
 #include "../msghandl.h"
 
-unsigned long calculate_cost( Character* vendor, UContainer* for_sale, PKTIN_3B *msg )
+unsigned int calculate_cost( Character* vendor, UContainer* for_sale, PKTIN_3B *msg )
 {
-	unsigned long amt = 0;
+	unsigned int amt = 0;
 
 	int nitems = (cfBEu16( msg->msglen ) - offsetof( PKTIN_3B, items )) /
 					 sizeof msg->items[0];
@@ -369,14 +369,14 @@ void buyhandler( Client* client, PKTIN_3B* msg)
 	}
 	client->gd->vendor_for_sale.clear();
 
-	unsigned long total_cost = calculate_cost( vendor, for_sale, msg );
+	unsigned int total_cost = calculate_cost( vendor, for_sale, msg );
 	if (total_cost > client->chr->gold_carried())
 	{
 		send_clear_vendorwindow( client, vendor );
 		return;
 	}
 
-	unsigned long amount_spent = 0;
+	unsigned int amount_spent = 0;
 
 	// buy each item individually
 	// note, we know the buyer can afford it all.
@@ -536,7 +536,7 @@ bool send_vendorsell( Client* client, NPC* merchant, UContainer* sellfrom, bool 
 			}
 			if (item->newbie())
 				continue;
-			unsigned long buyprice;
+			unsigned int buyprice;
 			if (!item->getbuyprice(buyprice))
 				continue;
 			string desc = item->merchant_description();
@@ -575,7 +575,7 @@ BObjectImp* UOExecutorModule::mf_SendSellWindow(/* character, vendor, i1, i2, i3
 	Item* wi1a;
 	Item* wi1b;
 	Item* wi1c;
-	long flags;
+	int flags;
 	UContainer* merchant_bought;
 
 	if( !(getCharacterParam( exec, 0, chr ) &&
@@ -666,14 +666,14 @@ void sellhandler( Client* client, PKTIN_9F* msg)
 		return;
 	}
 
-	unsigned long cost = 0;
+	unsigned int cost = 0;
 	int num_items = cfBEu16( msg->num_items );
 	for( int i = 0; i < num_items; ++i )
 	{
 		u32 serial = cfBEu32( msg->items[i].serial );
 		u16 amount = cfBEu16( msg->items[i].amount );
 
-		unsigned long buyprice;
+		unsigned int buyprice;
 
 		Item* item = backpack->find_toplevel( serial );
 		if (item == NULL)
@@ -724,7 +724,7 @@ void sellhandler( Client* client, PKTIN_9F* msg)
 	if(cost > 0)
 	{
 		//dave added 12-21, create stacks of 60k gold instead of one huge, invalid stack.
-		unsigned long temp_cost = cost;
+		unsigned int temp_cost = cost;
 		while(temp_cost > 60000)
 		{
 			BObject o( _create_item_in_container( backpack, &find_itemdesc(UOBJ_GOLD_COIN), static_cast<unsigned short>(60000), false, NULL ) );
@@ -760,7 +760,7 @@ BObjectImp* UOExecutorModule::mf_SendGumpMenu( )
 					 const char* layout,
 					 const char* strings[]
 */
-	long x, y, flags;
+	int x, y, flags;
 	Character* chr;
 	ObjArray* layout_arr;
 	ObjArray* data_arr;
@@ -790,7 +790,7 @@ BObjectImp* UOExecutorModule::mf_SendGumpMenu( )
 }
 
 
-BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu(Character* chr, ObjArray* layout_arr, ObjArray* data_arr, long x,long y)
+BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu(Character* chr, ObjArray* layout_arr, ObjArray* data_arr, int x,int y)
 {
 	PKTOUT_B0::HEADER* hdr;
 	PKTOUT_B0::LAYOUT* playout;
@@ -888,7 +888,7 @@ BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu(Character* chr, 
 	return new BLong(0);
 }
 
-BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu(Character* chr, ObjArray* layout_arr, ObjArray* data_arr, long x,long y)
+BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu(Character* chr, ObjArray* layout_arr, ObjArray* data_arr, int x,int y)
 {
 	PKTOUT_DD::HEADER *header = (PKTOUT_DD::HEADER *)buffer;
 	header->dialog_x = x;
@@ -926,12 +926,12 @@ BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu(Character* chr, Ob
 		return new BError( "Buffer length exceeded" );
 	*tempbufpos++ = '\0';
 
-
-	playout->layout_clen = sizeof(bfr)*2;
-	if (compress(&playout->layout_cdata, &playout->layout_clen, bfr, playout->layout_dlen))   
+	unsigned long cbuflen = sizeof(bfr)*2;
+	if (compress(&playout->layout_cdata, &cbuflen, bfr, playout->layout_dlen))   
 		return new BError( "Compression error" );
-	playout->layout_dlen = ctBEu32( playout->layout_dlen );
 
+	playout->layout_clen = cbuflen;
+	playout->layout_dlen = ctBEu32( playout->layout_dlen );
 
 	PKTOUT_DD::TEXT *ptext = (PKTOUT_DD::TEXT *)((u32)&playout->layout_cdata + playout->layout_clen);
 	playout->layout_clen = ctBEu32( playout->layout_clen+4 );
@@ -962,11 +962,13 @@ BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu(Character* chr, Ob
 
 	ptext->lines = ctBEu32(ptext->lines);
 
-	ptext->text_clen = sizeof(bfr)*2;
-	if (compress(&ptext->text_cdata, &ptext->text_clen, bfr, ptext->text_dlen))   
+	cbuflen = sizeof(bfr)*2;
+	if (compress(&ptext->text_cdata, &cbuflen, bfr, ptext->text_dlen))   
 		return new BError( "Compression error" );
 
+	ptext->text_clen = cbuflen;
 	ptext->text_dlen = ctBEu32(ptext->text_dlen);
+
 	u16 msglen = (u16)((u32)&ptext->text_cdata - (u32)buffer + ptext->text_clen+1);
 	header->msglen = ctBEu16( msglen );
 	ptext->text_clen = ctBEu32(ptext->text_clen+4);
@@ -984,14 +986,14 @@ class BIntHash : public BObjectImp
 public:
 	BIntHash();
 	BIntHash( const BIntHash& );
-	void add( long key, BObjectImp* value );
+	void add( int key, BObjectImp* value );
 	virtual BObjectRef get_member( const char* membername );
 	virtual BObjectRef OperSubscript( const BObject& obj );
 	virtual BObjectImp* copy() const;
 	virtual std::string getStringRep() const;
-	virtual unsigned long sizeEstimate() const;
+	virtual unsigned int sizeEstimate() const;
 private:
-	typedef std::map<long,BObjectRef> Contents;
+	typedef std::map<int,BObjectRef> Contents;
 	Contents contents_;
 
 	// not implemented:
@@ -1014,13 +1016,13 @@ BObjectImp* BIntHash::copy() const
 	return new BIntHash( *this );
 }
 
-unsigned long BIntHash::sizeEstimate() const
+unsigned int BIntHash::sizeEstimate() const
 {
-	unsigned long size = sizeof(BIntHash);
+	unsigned int size = sizeof(BIntHash);
 	Contents::const_iterator itr, end;
 	for( itr = contents_.begin(), end = contents_.end(); itr != end; ++itr )
 	{
-		size += sizeof(long) + (*itr).second.sizeEstimate();
+		size += sizeof(int) + (*itr).second.sizeEstimate();
 	}
 	return size;
 }
@@ -1030,7 +1032,7 @@ string BIntHash::getStringRep() const
 	return "<inthash>";
 }
 
-void BIntHash::add( long key, BObjectImp* value )
+void BIntHash::add( int key, BObjectImp* value )
 {
 	// contents_.insert( Contents::value_type( key, value ) );
 	contents_[key].set( new BObject(value) );
@@ -1046,7 +1048,7 @@ BObjectRef BIntHash::get_member( const char* membername )
 		Contents::const_iterator itr, end;
 		for( itr = contents_.begin(), end = contents_.end(); itr != end; ++itr )
 		{
-			long key = (*itr).first;
+			int key = (*itr).first;
 			arr->addElement( new BLong( key ) );
 		}
 
@@ -1281,9 +1283,9 @@ BObjectImp* UOExecutorModule::mf_SendTextEntryGump()
 {
 	Character* chr;
 	const String* line1;
-	long cancel;
-	long style;
-	long maximum;
+	int cancel;
+	int style;
+	int maximum;
 	const String* line2;
 
 	if (! (getCharacterParam( exec, 0, chr ) &&
@@ -1396,7 +1398,7 @@ public:
 	virtual BObjectImp* call_method( const char* methodname, Executor& ex );
 	virtual BObjectImp* copy() const;
 	virtual std::string getStringRep() const;
-	virtual unsigned long sizeEstimate() const { return sizeof(PolCore); }
+	virtual unsigned int sizeEstimate() const { return sizeof(PolCore); }
 private:
 	// not implemented:
 	PolCore& operator=( const PolCore& );
@@ -1597,7 +1599,7 @@ BObjectImp* PolCore::call_method( const char* methodname, Executor& ex )
 	{
 		if (ex.numParams()!=1)
 			return new BError( "polcore.log_profile(clear) requires 1 parameter." );
-		long clear;
+		int clear;
 		if (ex.getParam( 0, clear ))
 		{
 			log_all_script_cycle_counts( clear ? true : false );
@@ -1609,7 +1611,7 @@ BObjectImp* PolCore::call_method( const char* methodname, Executor& ex )
 	{
 		if (ex.numParams()!=1)
 			return new BError( "polcore.set_priority_divide(value) requires 1 parameter." );
-		long div;
+		int div;
 		if (ex.getParam( 0, div, 1, 1000 ))
 		{
 			priority_divide = div;
@@ -1629,7 +1631,7 @@ BObjectImp* PolCore::call_method( const char* methodname, Executor& ex )
 	}
 	else if (stricmp( methodname, "internal" ) == 0) // Just for internal Development...
 	{
-		long type;
+		int type;
 		if (ex.getParam( 0, type ))
 		{
 #ifdef MEMORYLEAK
@@ -1679,7 +1681,7 @@ BObjectImp* UOExecutorModule::mf_CreateAccount()
 {
 	const String* acctname;
 	const String* password;
-	long enabled;
+	int enabled;
 	if (getStringParam( 0, acctname ) &&
 		getStringParam( 1, password ) &&
 		getParam( 2, enabled ))
@@ -1799,7 +1801,7 @@ void handle_selcolor( Client* client, PKTBI_95* msg )
 
 			//unsigned short newcolor = ((color - 2) % 1000) + 2;
 			sprintf(buffer, "Client #%lu (account %s) selected an out-of-range color 0x%x",
-							client->instance_,
+							static_cast<unsigned long>(client->instance_),
 							(client->acct != NULL) ? client->acct->name() : "unknown",
 							color);
 			cerr << buffer << endl;
@@ -1860,7 +1862,7 @@ BObjectImp* UOExecutorModule::mf_SendOpenBook()
 
 	bool writable = book->call_custom_method( "iswritable" )->isTrue();
 	BObject nlines_ob( book->call_custom_method( "getnumlines" ) );
-	long nlines;
+	int nlines;
 	if (nlines_ob.isa( BObjectImp::OTLong ))
 	{
 		BLong* blong = static_cast<BLong*>(nlines_ob.impptr());
@@ -1873,7 +1875,7 @@ BObjectImp* UOExecutorModule::mf_SendOpenBook()
 	string title = book->call_custom_method( "gettitle" )->getStringRep();
 	string author = book->call_custom_method( "getauthor" )->getStringRep();
 
-	long npages = (nlines+7)/8;
+	int npages = (nlines+7)/8;
 
 	BObject contents_ob( UninitObject::create() );
 	if (writable)
@@ -1914,7 +1916,7 @@ BObjectImp* UOExecutorModule::mf_SendOpenBook()
 
 		ObjArray* arr = static_cast<ObjArray*>(contents_ob.impptr());
 
-		long linenum = 1;
+		int linenum = 1;
 		for( int page = 1; page <= npages; ++page )
 		{
 			PKTBI_66_CONTENTS* ppage = reinterpret_cast<PKTBI_66_CONTENTS*>(&buffer[msglen]);
@@ -1941,7 +1943,7 @@ BObjectImp* UOExecutorModule::mf_SendOpenBook()
 		}
 
 /*
-		long linenum = 1;
+		int linenum = 1;
 		for( int page = 1; page <= npages; ++page )
 		{
 			PKTBI_66_CONTENTS* ppage = reinterpret_cast<PKTBI_66_CONTENTS*>(&buffer[msglen]);
@@ -1980,7 +1982,7 @@ BObjectImp* UOExecutorModule::mf_SendOpenBook()
 
 void read_book_page_handler( Client* client, PKTBI_66* msg )
 {
-	unsigned long book_serial = cfBEu32( msg->book_serial );
+	unsigned int book_serial = cfBEu32( msg->book_serial );
    	u16 page = cfBEu16(msg->page);
 	Item *book = find_legal_item( client->chr, book_serial );
 	if (book == NULL)
@@ -1996,7 +1998,7 @@ void read_book_page_handler( Client* client, PKTBI_66* msg )
 		unsigned msglen = 0;
 
 		BObject nlines_ob( book->call_custom_method( "getnumlines" ) );
-		long nlines;
+		int nlines;
 		if (nlines_ob.isa( BObjectImp::OTLong ))
 		{
 			BLong* blong = static_cast<BLong*>(nlines_ob.impptr());
@@ -2014,7 +2016,7 @@ void read_book_page_handler( Client* client, PKTBI_66* msg )
 		phdr->pages = ctBEu16(1);
 		msglen = sizeof(*phdr);
 
-		long linenum = (page-1)*8+1;
+		int linenum = (page-1)*8+1;
 
 		PKTBI_66_CONTENTS* ppage = reinterpret_cast<PKTBI_66_CONTENTS*>(&buffer[msglen]);
 		msglen += sizeof(*ppage);
@@ -2106,7 +2108,7 @@ void open_book_handler( Client* client, PKTBI_93* msg )
 	std::transform( author.begin(),author.end(),author.begin(),strip_ctrl_chars);
 
 
-	unsigned long book_serial = cfBEu32( msg->serial );
+	unsigned int book_serial = cfBEu32( msg->serial );
 	Item *book = find_legal_item( client->chr, book_serial );
 	if (book == NULL)
 	{
@@ -2126,7 +2128,7 @@ MESSAGE_HANDLER( PKTBI_93, open_book_handler );
 BObjectImp* UOExecutorModule::mf_SendHousingTool()
 {
 	Character* chr;
-	long house_serial;
+	int house_serial;
 
 	if (! (getCharacterParam( exec, 0, chr ) &&
 		   exec.getParam( 1, house_serial )) )

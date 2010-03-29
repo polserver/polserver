@@ -22,7 +22,7 @@ Notes
 #include "../plib/maptileserver.h"
 
 void pol_walk_test();
-string flagstr( unsigned long flags );
+string flagstr( unsigned int flags );
 string flagdescs();
 
 void usage()

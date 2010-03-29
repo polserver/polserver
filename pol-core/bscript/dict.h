@@ -40,7 +40,7 @@ protected:
 
     virtual BObjectImp* copy() const;
     virtual string getStringRep() const;
-    virtual unsigned long sizeEstimate() const; 
+    virtual unsigned int sizeEstimate() const; 
     virtual void packonto( ostream& os ) const;
     virtual const char* typeOf() const;
 

@@ -70,7 +70,7 @@ public:
     virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin=false );
     virtual BObjectImp* copy() const;
     virtual std::string getStringRep() const;
-	virtual unsigned long sizeEstimate() const { return 0; }
+	virtual unsigned int sizeEstimate() const { return 0; }
     virtual const char* typeOf() const { return "BinaryFile"; }
 	virtual bool isTrue() const;
 	virtual bool isEqual(const BObjectImp& objimp) const;

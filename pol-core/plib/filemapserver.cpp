@@ -35,7 +35,7 @@ MAPCELL FileMapServer::GetMapCell( unsigned short x, unsigned short y ) const
     unsigned short yblock = y >>  MAPBLOCK_SHIFT;
     unsigned short ycell  = y &   MAPBLOCK_CELLMASK;
 
-    long block_index = yblock * (_descriptor.width >> MAPBLOCK_SHIFT) + xblock;
+    int block_index = yblock * (_descriptor.width >> MAPBLOCK_SHIFT) + xblock;
     if (block_index != _cur_mapblock_index)
     {
         // read the existing block in

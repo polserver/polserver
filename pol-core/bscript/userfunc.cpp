@@ -11,7 +11,7 @@ Notes
 
 #include "userfunc.h"
 
-unsigned long UserFunction::_instances;
+unsigned int UserFunction::_instances;
 set<UserFunction*> UserFunction::_instancelist;
 void UserFunction::show_instances()
 {
@@ -31,7 +31,7 @@ void UserFunction::unregister_instance()
     _instancelist.erase( this );
     --_instances;
 }
-unsigned long UserFunction::instances()
+unsigned int UserFunction::instances()
 {
     return _instances;
 }

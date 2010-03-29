@@ -51,7 +51,7 @@ BObjectImp* AttributeExecutorModule::mf_CheckSkill()
 {
 	Character* chr;
 	USKILLID skillid;
-	long difficulty;
+	int difficulty;
 	unsigned short points;
 
 	if ( getCharacterParam(exec, 0, chr) &&
@@ -206,7 +206,7 @@ BObjectImp* AttributeExecutorModule::mf_SetAttributeCap( /* mob, attributeid, ca
 	{
 		chr->set_dirty();
 		AttributeValue& av = chr->attribute(attr->attrid);
-		long old_cap = av.cap();
+		int old_cap = av.cap();
 		av.cap(capvalue);
 
 		if ( old_cap != capvalue )
@@ -263,7 +263,7 @@ BObjectImp* AttributeExecutorModule::mf_SetAttributeBaseValue( /* mob, attribute
 	{
 		chr->set_dirty();
 		AttributeValue& av = chr->attribute(attr->attrid);
-		long eff = av.effective_tenths();
+		int eff = av.effective_tenths();
 		av.base(basevalue);
 
 		if ( eff != av.effective_tenths() )
@@ -288,14 +288,14 @@ BObjectImp* AttributeExecutorModule::mf_SetAttributeTemporaryMod( /* mob, attrib
 {
 	Character* chr;
 	const Attribute* attr;
-	long tempmod;
+	int tempmod;
 
 	if ( getCharacterParam(exec, 0, chr) &&
 		getAttributeParam(exec, 1, attr) &&
 		getParam(2, tempmod, ATTRIBUTE_MIN_TEMP_MOD, ATTRIBUTE_MAX_TEMP_MOD) )
 	{
 		AttributeValue& av = chr->attribute(attr->attrid);
-		long eff = av.effective_tenths();
+		int eff = av.effective_tenths();
 		av.temp_mod(static_cast<short>(tempmod));
 
 		if ( eff != av.effective_tenths() )
@@ -320,15 +320,15 @@ BObjectImp* AttributeExecutorModule::mf_AlterAttributeTemporaryMod( /* mob, attr
 {
 	Character* chr;
 	const Attribute* attr;
-	long delta;
+	int delta;
 
 	if ( getCharacterParam(exec, 0, chr) &&
 		getAttributeParam(exec, 1, attr) &&
 		getParam(2, delta ) )
 	{
 		AttributeValue& av = chr->attribute(attr->attrid);
-		long eff = av.effective_tenths();
-		long newmod = av.temp_mod() + delta;
+		int eff = av.effective_tenths();
+		int newmod = av.temp_mod() + delta;
 
 		if ( newmod < ATTRIBUTE_MIN_TEMP_MOD || newmod > ATTRIBUTE_MAX_TEMP_MOD )
 			return new BError( "New modifier value is out of range" );
@@ -356,7 +356,7 @@ BObjectImp* AttributeExecutorModule::mf_AlterAttributeTemporaryMod( /* mob, attr
 
 BObjectImp* AttributeExecutorModule::mf_RawSkillToBase()
 {
-	long rawskill;
+	int rawskill;
 	if ( getParam(0, rawskill) )
 	{
 		if ( rawskill < 0 )

@@ -61,7 +61,7 @@ void add_multi( unsigned short objtype, unsigned short x, unsigned short y, shor
 	multi->realm = find_realm(string("britannia"));
     add_multi_to_world( multi );
 }
-void add_multi( unsigned short objtype, unsigned short x, unsigned short y, short z, long flags )
+void add_multi( unsigned short objtype, unsigned short x, unsigned short y, short z, int flags )
 {
 	Realm* realm = find_realm(string("britannia"));
     BObject obj( UMulti::scripted_create( find_itemdesc(objtype), x, y, static_cast<s8>(z), realm, flags ) );

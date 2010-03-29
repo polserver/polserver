@@ -46,9 +46,9 @@ struct TileData {
 TileData *tiledata;
 
 const unsigned N_LANDTILEDATA = 0x4000;
-unsigned long landtile_flags_arr[ N_LANDTILEDATA ];
+unsigned int landtile_flags_arr[ N_LANDTILEDATA ];
 
-unsigned long landtile_uoflags( unsigned short landtile )
+unsigned int landtile_uoflags( unsigned short landtile )
 {
     passert_always( landtile < N_LANDTILEDATA );
     return landtile_flags_arr[ landtile ];
@@ -56,17 +56,17 @@ unsigned long landtile_uoflags( unsigned short landtile )
 
 
 struct VerdataIndexes {
-    typedef map<unsigned long, USTRUCT_VERSION> VRecList;
+    typedef map<unsigned int, USTRUCT_VERSION> VRecList;
     VRecList vrecs; // key is the block
 
     void insert( const USTRUCT_VERSION& vrec );
-    bool find( unsigned long block, const USTRUCT_VERSION*& vrec );
+    bool find( unsigned int block, const USTRUCT_VERSION*& vrec );
 };
 void VerdataIndexes::insert( const USTRUCT_VERSION& vrec )
 {
     vrecs.insert( VRecList::value_type(vrec.block, vrec) );
 }
-bool VerdataIndexes::find( unsigned long block, const USTRUCT_VERSION*& vrec )
+bool VerdataIndexes::find( unsigned int block, const USTRUCT_VERSION*& vrec )
 {
     VRecList::const_iterator itr = vrecs.find( block );
     if (itr == vrecs.end())
@@ -81,12 +81,12 @@ bool VerdataIndexes::find( unsigned long block, const USTRUCT_VERSION*& vrec )
 VerdataIndexes vidx[ 32 ];
 const unsigned int vidx_count = 32;
 
-bool check_verdata( unsigned long file, unsigned long block, const USTRUCT_VERSION*& vrec )
+bool check_verdata( unsigned int file, unsigned int block, const USTRUCT_VERSION*& vrec )
 {
     return vidx[file].find(block,vrec);
 }
 
-static bool seekto_newer_version( unsigned long file, unsigned long block )
+static bool seekto_newer_version( unsigned int file, unsigned int block )
 {
     const USTRUCT_VERSION* vrec;
     if (vidx[file].find( block, vrec ))
@@ -111,11 +111,11 @@ void readtile(unsigned short tilenum, USTRUCT_TILE *tile)
     }
     else
     {
-        long int block;
+        int block;
         block = (tilenum/32);
         if (seekto_newer_version( VERFILE_TILEDATA, block + 0x200 ))
         {
-            long int filepos;
+            int filepos;
             filepos = 4 + 
                       (sizeof *tile) * (tilenum & 0x1F);
             fseek(verfile, filepos, SEEK_CUR);
@@ -123,7 +123,7 @@ void readtile(unsigned short tilenum, USTRUCT_TILE *tile)
         }
         else
         {
-            long int filepos;
+            int filepos;
             filepos = TILEDATA_TILES + 
                       (block * 4) +         // skip headers of all previous blocks
                       4 +                   // skip my header
@@ -138,18 +138,18 @@ void readlandtile( unsigned short tilenum, USTRUCT_LAND_TILE* landtile )
 {
     if (tilenum <= 0x3FFF)
     {
-        long int block;
+        int block;
         block = (tilenum / 32);
         if (seekto_newer_version( VERFILE_TILEDATA, block ))
         {
-            long int filepos;
+            int filepos;
             filepos = 4 + (sizeof *landtile) * (tilenum & 0x1F);
             fseek( verfile, filepos, SEEK_CUR);
             fread( landtile, sizeof *landtile, 1, verfile );
         }
         else
         {
-            long int filepos;
+            int filepos;
             filepos = (block * 4) +         // skip headers of all previous blocks
                       4 +                   // skip my header
                       (sizeof(USTRUCT_LAND_TILE) * tilenum);
@@ -231,7 +231,7 @@ u32 tile_uoflags( unsigned short tilenum )
 
 static void read_veridx()
 {
-    long int num_version_records, i;
+    int num_version_records, i;
     USTRUCT_VERSION vrec;
 
     if (verfile != NULL)

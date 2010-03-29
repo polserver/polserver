@@ -57,7 +57,7 @@ public:
 	virtual unsigned short ar() const;
 	virtual void refresh_ar();
 
-    virtual void apply_raw_damage_hundredths( unsigned long damage, Character* source, bool userepsys=true, bool send_damage_packet = false );
+    virtual void apply_raw_damage_hundredths( unsigned int damage, Character* source, bool userepsys=true, bool send_damage_packet = false );
     virtual void inform_engaged( Character* engaged );
     virtual void inform_disengaged( Character* disengaged );
     virtual void inform_criminal( Character* thecriminal );
@@ -85,9 +85,9 @@ public:
     
     virtual BObjectImp* get_script_member( const char *membername ) const;
     virtual BObjectImp* get_script_member_id( const int id ) const; ///id test
-    virtual BObjectImp* set_script_member( const char *membername, long value );
+    virtual BObjectImp* set_script_member( const char *membername, int value );
     virtual BObjectImp* set_script_member( const char *membername, const std::string& );
-    virtual BObjectImp* set_script_member_id( const int id, long value );//id test
+    virtual BObjectImp* set_script_member_id( const int id, int value );//id test
     virtual BObjectImp* set_script_member_id( const int id, const std::string& );//id test
     virtual BObjectImp* script_method( const char* methodname, Executor& ex );
     virtual BObjectImp* script_method_id( const int id, Executor& ex );

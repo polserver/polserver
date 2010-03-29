@@ -432,7 +432,7 @@ const Attribute& UWeapon::attribute() const
 
 unsigned short UWeapon::get_random_damage() const
 {
-	long dmg = long(tmpl->get_random_damage()) * hp_ / maxhp();
+	int dmg = int(tmpl->get_random_damage()) * hp_ / maxhp();
 	dmg += dmg_mod_;
 	if (dmg < 0)
 		return 0;

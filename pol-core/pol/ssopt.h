@@ -27,13 +27,13 @@ Notes
 
 struct ServSpecOpt {
     bool allow_secure_trading_in_warmode;
-	unsigned long dblclick_wait;
+	unsigned int dblclick_wait;
     bool decay_items;
-	unsigned long default_decay_time;
+	unsigned int default_decay_time;
     unsigned short default_doubleclick_range;
     unsigned short default_light_level;
 	bool event_visibility_core_checks;
-	unsigned long max_pathfind_range;
+	unsigned int max_pathfind_range;
     bool movement_uses_stamina;
     bool use_tile_flag_prefix;
 	unsigned short default_container_max_items;

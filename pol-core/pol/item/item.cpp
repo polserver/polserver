@@ -203,7 +203,7 @@ string Item::merchant_description() const
     }
 }
 
-unsigned long Item::sellprice() const
+unsigned int Item::sellprice() const
 {
     if (sellprice_ < ULONG_MAX) //dave changed 1/15/3 so 0 means 0, not default to itemdesc value
     {
@@ -219,7 +219,7 @@ unsigned long Item::sellprice() const
 //  Dave, getbuyprice() was trying to return false if the vendor wasn't interested in buying.
 //        it would return true if the vendor was interested in buying.
 //   -Eric
-unsigned long Item::buyprice() const
+unsigned int Item::buyprice() const
 {
     if (buyprice_ < ULONG_MAX) //dave changed 1/15/3 so 0 means 0, not default to itemdesc value
     {
@@ -231,7 +231,7 @@ unsigned long Item::buyprice() const
     }
 }
 
-bool Item::getbuyprice( unsigned long& bp ) const
+bool Item::getbuyprice( unsigned int& bp ) const
 {
 	bp = buyprice();
     if (bp > 0)
@@ -242,7 +242,7 @@ bool Item::getbuyprice( unsigned long& bp ) const
 	/*
         if (buyprice_ > 0)
         {
-            buyprice = static_cast<unsigned long>(buyprice_);
+            buyprice = static_cast<unsigned int>(buyprice_);
             return true;
         }
         else
@@ -555,7 +555,7 @@ void Item::add_to_self( Item*& item )
 // Pergon: Re-Calculate Property CreateTime after Merging of two Stacks
 void Item::ct_merge_stacks_pergon( Item*& item_sub )
 {
-  long time_self, time_sub, time;
+  int time_self, time_sub, time;
   string value_self, value_sub;
 
   // get "ct" of first stack - if error, init
@@ -586,12 +586,12 @@ void Item::ct_merge_stacks_pergon( Item*& item_sub )
   if (time_self < time_sub)
   {
     double factor = (item_sub->amount_ * 1.0) / (amount_ + item_sub->amount_);
-    time = long((time_sub - time_self) * factor + time_self);
+    time = int((time_sub - time_self) * factor + time_self);
   }
   else if (time_self > time_sub)
   {
     double factor = (amount_ * 1.0) / (amount_ + item_sub->amount_);
-    time = long((time_self - time_sub) * factor + time_sub);
+    time = int((time_self - time_sub) * factor + time_sub);
   }
   else
     time = time_self;
@@ -603,7 +603,7 @@ void Item::ct_merge_stacks_pergon( Item*& item_sub )
 // Pergon: Re-Calculate Property CreateTime after Adding Items to a Stack
 void Item::ct_merge_stacks_pergon( u16 amount_sub )
 {
-  long time_self, time_sub, time;
+  int time_self, time_sub, time;
   string value_self;
 
   // get "ct" of first stack - if error, init
@@ -625,7 +625,7 @@ void Item::ct_merge_stacks_pergon( u16 amount_sub )
   if (time_self != time_sub)
   {
     double factor = (amount_sub * 1.0) / (amount_ + amount_sub);
-    time = long((time_sub - time_self) * factor + time_self);
+    time = int((time_sub - time_self) * factor + time_self);
   }
   else
     time = time_self;
@@ -637,15 +637,15 @@ void Item::ct_merge_stacks_pergon( u16 amount_sub )
 
 bool Item::can_add_to_self( unsigned short amount ) const
 {
-	unsigned long amount1 = (unsigned long) amount_;
-	unsigned long amount2 = (unsigned long) amount;
+	unsigned int amount1 = (unsigned int) amount_;
+	unsigned int amount2 = (unsigned int) amount;
 
 	if ((amount1 + amount2) > this->itemdesc().stack_limit)
 		 return false;
 
     if (container != NULL)
     {
-        long more_weight = weight_of(amount_+amount) - weight_of(amount_);
+        int more_weight = weight_of(amount_+amount) - weight_of(amount_);
         if (more_weight > USHRT_MAX/*std::numeric_limits<unsigned short>::max()*/)
             return false;
         return container->can_add(static_cast<unsigned short>(more_weight));
@@ -842,10 +842,10 @@ void Item::spill_contents( UMulti* multi )
 {
 }
 
-unsigned long Item::weight_of( unsigned short amount ) const
+unsigned int Item::weight_of( unsigned short amount ) const
 {
     const ItemDesc& id = find_itemdesc( objtype_ );
-    unsigned long amt = amount;
+    unsigned int amt = amount;
     amt *= id.weightmult;
     if (id.weightdiv != 1 && id.weightdiv != 0)
     {
@@ -854,11 +854,11 @@ unsigned long Item::weight_of( unsigned short amount ) const
     return amt;
 }
 
-unsigned long Item::weight() const
+unsigned int Item::weight() const
 {
     return weight_of(amount_);
 }
-unsigned long Item::item_count() const
+unsigned int Item::item_count() const
 {
     return 1;
 }
@@ -868,7 +868,7 @@ unsigned long Item::item_count() const
 /////////////////////////////////////////////////////////////////////////////
 
 #include "../gameclck.h"
-void Item::set_decay_after( unsigned long seconds )
+void Item::set_decay_after( unsigned int seconds )
 {
     set_dirty();
 	// Why alter it, if it should not have it to begin with??
@@ -878,7 +878,7 @@ void Item::set_decay_after( unsigned long seconds )
 	}
 }
 
-bool Item::should_decay( unsigned long gameclock ) const
+bool Item::should_decay( unsigned int gameclock ) const
 {
     return !inuse() &&
            (movable_ || (objtype_ == UOBJ_CORPSE)) && 
@@ -891,7 +891,7 @@ void Item::restart_decay_timer()
 	// Why restart it, if it shouldn't have it to begin with??
 	if ( decayat_gameclock_ != 0 )
 	{
-		unsigned long dtime = itemdesc().decay_time * 60;
+		unsigned int dtime = itemdesc().decay_time * 60;
 		if ( should_decay( read_gameclock() + dtime ) )
 		{
 			set_decay_after( dtime );

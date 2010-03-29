@@ -111,7 +111,7 @@ void send_pulse()
     PulseEvent( hEvPulse );
 }
 
-void wait_for_pulse( unsigned long millis )
+void wait_for_pulse( unsigned int millis )
 {
     WaitForSingleObject( hEvPulse, millis );
 }
@@ -121,7 +121,7 @@ void wake_tasks_thread()
     SetEvent( hEvTasksThread );
 }
 
-void tasks_thread_sleep( unsigned long millis )
+void tasks_thread_sleep( unsigned int millis )
 {
     WaitForSingleObject( hEvTasksThread, millis );
 }
@@ -184,13 +184,13 @@ void send_pulse()
     pthread_mutex_unlock( &pulse_mut );
 }
 
-void calc_abs_timeout( struct timespec* ptimeout, unsigned long millis )
+void calc_abs_timeout( struct timespec* ptimeout, unsigned int millis )
 {
     struct timeval now;
     struct timezone tz;
     
     gettimeofday(&now, &tz);
-    long add_sec = 0;
+    int add_sec = 0;
     if (millis > 1000)
     {
         add_sec = millis / 1000;
@@ -206,7 +206,7 @@ void calc_abs_timeout( struct timespec* ptimeout, unsigned long millis )
     }
 }
 
-void wait_for_pulse( unsigned long millis )
+void wait_for_pulse( unsigned int millis )
 {
     struct timespec timeout;
     
@@ -226,7 +226,7 @@ void wake_tasks_thread()
     pthread_mutex_unlock( &task_pulse_mut );
 }
 
-void tasks_thread_sleep( unsigned long millis )
+void tasks_thread_sleep( unsigned int millis )
 {
     struct timespec timeout;
     

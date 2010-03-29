@@ -58,7 +58,7 @@ void legalize(char *s, const char *allowed);
 int nwords(const char *s);
 
 /* return nbits binary representation of val, in static buffer */
-char *binary(unsigned long val, int nbits);
+char *binary(unsigned int val, int nbits);
 
 /* take a string, increment alphas, 'ZZZZ' converts to 'AAAA', etc */
 void incStr(char *str);
