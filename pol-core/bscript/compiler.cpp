@@ -194,7 +194,7 @@ void Expression::eat2( Expression& expr )
 
 Token* optimize_long_operation( Token* left, Token* oper, Token* right )
 {
-    long lval = 0;
+    int lval = 0;
     switch( oper->id )
     {
         case TOK_ADD:
@@ -651,7 +651,7 @@ bool Expression::optimize_token( int i )
                 // merge the member name with the member operator.
                 oper->id = INS_GET_MEMBER_ID;
                 oper->type = TYP_UNARY_OPERATOR;
-                oper->lval = (long)objmemb->id;
+                oper->lval = (int)objmemb->id;
 
                 delete operand;
                 tokens.erase( tokens.begin() + i-1, tokens.begin() + i );
@@ -3076,7 +3076,7 @@ int Compiler::handleEnumDeclare( CompilerContext& ctx )
         return -1;
     }
     
-    long next_counter = 0;
+    int next_counter = 0;
     for (;;)
     {
         Token tk_varname, tk_assign;
@@ -3923,7 +3923,7 @@ void Compiler::emitFileLine( CompilerContext& ctx )
 {
     int cnt = program->tokens.count();
     program->fileline.resize( cnt + 1 );
-    program->fileline[ cnt ] = ctx.filename + ", Line " + decint( static_cast<unsigned long>(ctx.line) );
+    program->fileline[ cnt ] = ctx.filename + ", Line " + decint( static_cast<unsigned int>(ctx.line) );
 }
 void Compiler::emitFileLineIfFileChanged( CompilerContext& ctx )
 {
@@ -4649,7 +4649,7 @@ int Compiler::handleBracketedFunction3( UserFunction& userfunc, CompilerContext&
 	*/
     if (last_statement_id != RSV_RETURN)
     {
-        program->symbols.append(long(0), posn);
+        program->symbols.append(int(0), posn);
 	    program->append( StoredToken(Mod_Basic, TOK_LONG, TYP_OPERAND, posn) );
 	    program->append( StoredToken(Mod_Basic, RSV_RETURN, TYP_RESERVED, 0) );
     }
@@ -4870,7 +4870,7 @@ int Compiler::getFileContents(const char *file, char **iv)
         return -1;
     
     fseek( fp, 0, SEEK_END );
-    long filelen = ftell(fp);
+    int filelen = ftell(fp);
     fseek( fp, 0, SEEK_SET );
 
     s = (char *) calloc(1,filelen+1);

@@ -22,12 +22,12 @@ Notes
 #include "uofilei.h"
 #include "wrldsize.h"
 
-inline bool flags_standable( unsigned long flags )
+inline bool flags_standable( unsigned int flags )
 {
     return (flags & (USTRUCT_TILE::FLAG_PLATFORM|USTRUCT_TILE::FLAG_BLOCKING))
                == USTRUCT_TILE::FLAG_PLATFORM;
 }
-inline bool flags_swimmable( unsigned long flags )
+inline bool flags_swimmable( unsigned int flags )
 {
     return (flags & (USTRUCT_TILE::FLAG_FLOOR|USTRUCT_TILE::FLAG_LIQUID))
                == (USTRUCT_TILE::FLAG_FLOOR|USTRUCT_TILE::FLAG_LIQUID);
@@ -44,7 +44,7 @@ void standheight( MOVEMODE movemode,
     short mapz;
     USTRUCT_MAPINFO mi;
     getmapinfo( x, y, &mapz, &mi );
-    unsigned long mapflags = landtile_uoflags( mi.landtile );
+    unsigned int mapflags = landtile_uoflags( mi.landtile );
     if (!mapflags)
         mapflags = /*USTRUCT_TILE::FLAG_BLOCKING|*/USTRUCT_TILE::FLAG_PLATFORM;
     
@@ -71,7 +71,7 @@ void standheight( MOVEMODE movemode,
     for( StaticList::iterator itr = statics.begin(); itr != statics.end(); ++itr )
     {
         StaticRec& srec = (*itr);
-        unsigned long flags = srec.flags;
+        unsigned int flags = srec.flags;
         signed char ztemp;
 #if ENABLE_POLTEST_OUTPUT
         if (static_debug_on)
@@ -149,7 +149,7 @@ void statics_dropheight( StaticList& statics, unsigned short x, unsigned short y
     for( StaticList::iterator itr = statics.begin(); itr != statics.end(); ++itr )
     {
         StaticRec& srec = (*itr);
-        unsigned long flags = tile_uoflags( srec.graphic );
+        unsigned int flags = tile_uoflags( srec.graphic );
         signed char ztemp;
 #if ENABLE_POLTEST_OUTPUT
         if (static_debug_on)
@@ -224,7 +224,7 @@ void statics_standheight( StaticList& statics, unsigned short x, unsigned short 
     for( StaticList::iterator itr = statics.begin(); itr != statics.end(); ++itr )
     {
         StaticRec& srec = (*itr);
-        unsigned long flags = tile_uoflags( srec.graphic );
+        unsigned int flags = tile_uoflags( srec.graphic );
         signed char ztemp;
 #if ENABLE_POLTEST_OUTPUT
         if (static_debug_on)

@@ -42,8 +42,8 @@ public:
     std::string call_string( unsigned PC,
                                               BObjectImp* p0, BObjectImp* p1, BObjectImp* p2 ); // throw()
 
-    long call_long( unsigned PC, BObjectImp* p0 ); // throw()
-	long call_long( unsigned PC, BObjectImp* p0, BObjectImp* p1 ); // throw()
+    int call_long( unsigned PC, BObjectImp* p0 ); // throw()
+	int call_long( unsigned PC, BObjectImp* p0, BObjectImp* p1 ); // throw()
     
     BObjectImp* call( unsigned PC, BObjectImp* p0, std::vector<BObjectRef>& pmore );
     BObject call( unsigned PC, BObjectImp* p0, BObjectImpRefVec& pmore );

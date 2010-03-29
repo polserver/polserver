@@ -27,12 +27,12 @@ public:
 
     bool open( const char* ipaddr, unsigned short port );
     bool listen( unsigned short port );
-    bool select( unsigned long seconds, unsigned long useconds );
-	bool accept(int *s, unsigned long mstimeout);
+    bool select( unsigned int seconds, unsigned int useconds );
+	bool accept(int *s, unsigned int mstimeout);
     bool accept( Socket& newsocket );
-    bool recvbyte( unsigned char* byte, unsigned long waitms );
-    bool recvdata( void *vdest, unsigned len, unsigned long waitms );
-    unsigned peek( void *vdest, unsigned len, unsigned long waitms );
+    bool recvbyte( unsigned char* byte, unsigned int waitms );
+    bool recvdata( void *vdest, unsigned len, unsigned int waitms );
+    unsigned peek( void *vdest, unsigned len, unsigned int waitms );
     void send( const void* data, unsigned length );
     bool send_nowait( const void* vdata, unsigned datalen, unsigned* nsent );
     bool connected() const;

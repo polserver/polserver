@@ -16,8 +16,8 @@ Notes
 
 struct IPRule
 {
-	unsigned long ipMatch;
-	unsigned long ipMask;
+	unsigned int ipMatch;
+	unsigned int ipMask;
 };
 
 std::vector< IPRule > banned_ips;

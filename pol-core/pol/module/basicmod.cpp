@@ -242,7 +242,7 @@ BObjectImp* BasicExecutorModule::mf_CInt()
 	else if (imp->isa( BObjectImp::OTDouble ))
 	{
 		Double* dbl = static_cast<Double*>(imp);
-		return new BLong( static_cast<long>(dbl->value()) );
+		return new BLong( static_cast<int>(dbl->value()) );
 	}
 	else
 	{
@@ -307,7 +307,7 @@ BObjectImp* BasicExecutorModule::mf_CAscZ()
 
 BObjectImp* BasicExecutorModule::mf_CChr()
 {
-	long val;
+	int val;
 	if (getParam( 0, val ))
 	{
 		char s[2];
@@ -354,7 +354,7 @@ BObjectImp* BasicExecutorModule::mf_Hex()
 	{
 		BLong* plong = static_cast<BLong*>(imp);
 		char s[20];
-		sprintf( s, "0x%lX", plong->value() );
+		sprintf( s, "0x%lX", static_cast<unsigned long>(plong->value()) );
 		return new String( s );
 	}
 	else if (imp->isa( BObjectImp::OTDouble ))
@@ -378,12 +378,12 @@ BObjectImp* BasicExecutorModule::mf_Hex()
 }
 
 #ifdef __unix__
-char* itoa( long value, char* result, long base ) {
+char* itoa( int value, char* result, int base ) {
 	// check that the base is valid
 	if (base < 2 || base > 16) { *result = 0; return result; }
 	
 	char* out = result;
-	long quotient = value;
+	int quotient = value;
 	
 	do {
 		*out = "0123456789abcdef"[ std::abs( quotient % base ) ];
@@ -406,8 +406,8 @@ BObjectImp* BasicExecutorModule::mf_Bin()
 	if (imp->isa( BObjectImp::OTLong ))
 	{
 		BLong* plong = static_cast<BLong*>(imp);
-		long number = plong->value();
-		char buffer [sizeof(long)*8+1];
+		int number = plong->value();
+		char buffer [sizeof(int)*8+1];
 		return new String(itoa(number, buffer, 2));
 	}
 	else

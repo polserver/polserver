@@ -15,15 +15,15 @@ Notes
 
 extern int include_debug;
 
-extern long executor_count;
+extern int executor_count;
 
-extern long eobject_imp_count;
-extern long eobject_imp_constructions;
+extern int eobject_imp_count;
+extern int eobject_imp_constructions;
 
-extern long escript_program_count;
+extern int escript_program_count;
 
 extern u64 escript_instr_cycles;
-extern long escript_execinstr_calls;
+extern int escript_execinstr_calls;
 
 extern bool ecompile_include_debug_sections;
 

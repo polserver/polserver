@@ -307,7 +307,7 @@ BObjectImp* MathExecutorModule::mf_Abs()
     }
     else if (imp->isa( BObjectImp::OTLong ))
     {
-        long value = static_cast<BLong*>(imp)->value();
+        int value = static_cast<BLong*>(imp)->value();
         return new BLong( labs( value ) );
     }
     else
@@ -356,7 +356,7 @@ BObjectImp* MathExecutorModule::mf_ConstE()
 BObjectImp* MathExecutorModule::mf_FormatRealToString()
 {
     double x;
-    long digits;
+    int digits;
     if (getRealParam( 0, x ) &&
         getParam( 1, digits ))
     {

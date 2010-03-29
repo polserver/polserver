@@ -117,18 +117,18 @@ bool FileExists( const std::string& filename )
     return (access( filename.c_str(), 0 ) == 0);
 }
 
-long filesize(const char *fname)
+int filesize(const char *fname)
 {
     struct stat st;
     if (stat(fname, &st)) return 0;
     return st.st_size;
 }
 
-unsigned long GetFileTimestamp( const char* fname )
+unsigned int GetFileTimestamp( const char* fname )
 {
     struct stat st;
     if (stat(fname,&st)) return 0;
-    return (unsigned long)st.st_mtime;
+    return (unsigned int)st.st_mtime;
 }
 
 void RemoveFile( const string& fname )

@@ -58,7 +58,7 @@ BObjectImp* Double::unpack( istream& is )
     }
 }
 
-unsigned long Double::sizeEstimate() const
+unsigned int Double::sizeEstimate() const
 {
     return sizeof(Double);
 }
@@ -98,11 +98,11 @@ bool Double::isLessThan(const BObjectImp& objimp) const
     }
 }
 
-bool Double::isGE( long val ) const
+bool Double::isGE( int val ) const
 {
     return dval_ >= val;
 }
-bool Double::isGT( long val ) const
+bool Double::isGT( int val ) const
 {
     return dval_ > val;
 }

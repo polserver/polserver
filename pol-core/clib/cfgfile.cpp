@@ -214,7 +214,7 @@ bool VectorConfigElem::read_prop( const char *propname, std::string* value ) con
 	return false;
 }
 
-void ConfigElem::get_prop( const char *propname, unsigned long* plong ) const
+void ConfigElem::get_prop( const char *propname, unsigned int* plong ) const
 {
     Props::const_iterator itr = properties.find( propname );
 	if (itr != properties.end())
@@ -227,7 +227,7 @@ void ConfigElem::get_prop( const char *propname, unsigned long* plong ) const
     }
 }
 
-bool ConfigElem::remove_prop( const char *propname, unsigned long *plong )
+bool ConfigElem::remove_prop( const char *propname, unsigned int *plong )
 {
     Props::iterator itr = properties.find( propname );
 	if (itr != properties.end())
@@ -241,7 +241,7 @@ bool ConfigElem::remove_prop( const char *propname, unsigned long *plong )
         return false;
     }
 }
-bool VectorConfigElem::remove_prop( const char *propname, unsigned long *plong )
+bool VectorConfigElem::remove_prop( const char *propname, unsigned int *plong )
 {
     Props::iterator itr = properties.begin(), end = properties.end();
 	for( ; itr != end; ++itr )
@@ -505,9 +505,9 @@ double ConfigElem::remove_double( const char *propname, double dflt )
     }
 }
 
-unsigned long ConfigElem::remove_ulong( const char *propname )
+unsigned int ConfigElem::remove_ulong( const char *propname )
 {
-    unsigned long temp;
+    unsigned int temp;
     if (remove_prop( propname, &temp))
     {
         return temp;
@@ -519,9 +519,9 @@ unsigned long ConfigElem::remove_ulong( const char *propname )
     }
 }
 
-unsigned long ConfigElem::remove_ulong( const char *propname, unsigned long dflt )
+unsigned int ConfigElem::remove_ulong( const char *propname, unsigned int dflt )
 {
-    unsigned long temp;
+    unsigned int temp;
     if (remove_prop( propname, &temp))
         return temp;
     else
@@ -530,7 +530,7 @@ unsigned long ConfigElem::remove_ulong( const char *propname, unsigned long dflt
 
 void ConfigElem::clear_prop( const char *propname )
 {
-    unsigned long dummy;
+    unsigned int dummy;
     while (remove_prop( propname, &dummy ))
         continue;
 }
@@ -574,14 +574,14 @@ void VectorConfigElem::add_prop( const char* propname, unsigned short sval )
     properties.push_back( prop );
 }
 
-void ConfigElem::add_prop( const char* propname, unsigned long lval )
+void ConfigElem::add_prop( const char* propname, unsigned int lval )
 {
     OSTRINGSTREAM os;
     os << lval;
 
     properties.insert( make_pair(string(propname), OSTRINGSTREAM_STR(os)) );
 }
-void VectorConfigElem::add_prop( const char* propname, unsigned long lval )
+void VectorConfigElem::add_prop( const char* propname, unsigned int lval )
 {
     ConfigProperty* prop;
     OSTRINGSTREAM os;

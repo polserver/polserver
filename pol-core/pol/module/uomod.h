@@ -284,7 +284,7 @@ public:
 	Character* resurrect_chr;
 	Character* selcolor_chr;
 
-	long target_options;
+	int target_options;
 
 	Character* attached_chr_;
 	Character* attached_npc_;
@@ -308,13 +308,13 @@ protected:
 	virtual BObjectImp* execFunc( unsigned idx );
 	virtual int functionIndex( const char *func );
 	static UOFunctionDef function_table[];
-	BObjectImp* internal_MoveItem(Item* item, xcoord x, ycoord y, zcoord z, long flags, Realm* newrealm);
-	BObjectImp* internal_MoveCharacter(Character* chr, xcoord x, ycoord y, zcoord z, long flags, Realm* newrealm);
-	BObjectImp* internal_MoveBoat(UBoat* boat, xcoord x, ycoord y, zcoord z, long flags, Realm* newrealm);
-	BObjectImp* internal_MoveContainer(UContainer* container, xcoord x, ycoord y, zcoord z, long flags, Realm* newrealm);
+	BObjectImp* internal_MoveItem(Item* item, xcoord x, ycoord y, zcoord z, int flags, Realm* newrealm);
+	BObjectImp* internal_MoveCharacter(Character* chr, xcoord x, ycoord y, zcoord z, int flags, Realm* newrealm);
+	BObjectImp* internal_MoveBoat(UBoat* boat, xcoord x, ycoord y, zcoord z, int flags, Realm* newrealm);
+	BObjectImp* internal_MoveContainer(UContainer* container, xcoord x, ycoord y, zcoord z, int flags, Realm* newrealm);
 	void internal_InBoxAreaChecks(unsigned short &x1, unsigned short &y1, short &z1, unsigned short &x2, unsigned short &y2, short &z2, Realm* realm);
-	BObjectImp* internal_SendUnCompressedGumpMenu(Character* chr, ObjArray* layout_arr, ObjArray* data_arr, long x,long y);
-	BObjectImp* internal_SendCompressedGumpMenu(Character* chr, ObjArray* layout_arr, ObjArray* data_arr, long x,long y);
+	BObjectImp* internal_SendUnCompressedGumpMenu(Character* chr, ObjArray* layout_arr, ObjArray* data_arr, int x,int y);
+	BObjectImp* internal_SendCompressedGumpMenu(Character* chr, ObjArray* layout_arr, ObjArray* data_arr, int x,int y);
 	
 private: // not implemented
 	UOExecutorModule( const UOExecutorModule& );

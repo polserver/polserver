@@ -36,15 +36,15 @@ public:
     bool getRealParam( unsigned param, double& value ) { return exec.getRealParam( param, value ); }
     bool getObjArrayParam( unsigned param, ObjArray*& pobjarr ) { return exec.getObjArrayParam( param, pobjarr ); }
 
-    bool getParam( unsigned param, long& value ) 
+    bool getParam( unsigned param, int& value ) 
     { 
         return exec.getParam( param, value ); 
     }
-    bool getParam( unsigned param, long& value, long maxval ) 
+    bool getParam( unsigned param, int& value, int maxval ) 
     { 
         return exec.getParam( param, value, maxval ); 
     }
-    bool getParam( unsigned param, long& value, long minval, long maxval ) 
+    bool getParam( unsigned param, int& value, int minval, int maxval ) 
     { 
         return exec.getParam( param, value, minval, maxval ); 
     }

@@ -24,7 +24,7 @@ clock_t polclock_paused_at;
 
 #ifdef _WIN32
 
-void pol_sleep_ms( unsigned long millis )
+void pol_sleep_ms( unsigned int millis )
 {
     Sleep( millis );
 }
@@ -67,12 +67,12 @@ polclock_t polclock()
 #include <sys/time.h>
 #include <unistd.h>
 
-void pol_sleep_ms( unsigned long millis )
+void pol_sleep_ms( unsigned int millis )
 {
     usleep( millis * 1000L );
 }
 
-static long base_seconds = 0;
+static int base_seconds = 0;
 
 void start_polclock()
 {
@@ -96,7 +96,7 @@ void restart_polclock()
     struct timezone tz;
     gettimeofday( &tmv, &tz );
 
-    long polclock_diff = tmv.tv_sec - polclock_paused_at;
+    int polclock_diff = tmv.tv_sec - polclock_paused_at;
 
     base_seconds += polclock_diff;
     polclock_paused_at = 0;

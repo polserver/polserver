@@ -33,7 +33,7 @@ public:
     virtual std::string getStringRep() const;
     bool SetSize(u16 newsize);
     BObjectImp* SetSize(u16 newsize, bool giveReturn);
-    virtual unsigned long sizeEstimate() const { return buffer.size(); }
+    virtual unsigned int sizeEstimate() const { return buffer.size(); }
     virtual const char* typeOf() const { return "Packet"; }
 
     bool is_variable_length;

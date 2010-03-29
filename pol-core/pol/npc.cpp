@@ -335,7 +335,7 @@ void NPC::readNpcProperties( ConfigElem& elem )
 		}
 	}
 
-    unsigned long master_serial;
+    unsigned int master_serial;
     if (elem.remove_prop( "MASTER", &master_serial ))
     {
 		Character* chr = system_find_mobile(  master_serial );
@@ -536,8 +536,8 @@ void NPC::readNewNpcAttributes( ConfigElem& elem )
                                 + pAttr->name +
                                 ": " + errmsg );
                 }
-                long base = dice.roll() * 10;
-                if (base > static_cast<long>(ATTRIBUTE_MAX_BASE))
+                int base = dice.roll() * 10;
+                if (base > static_cast<int>(ATTRIBUTE_MAX_BASE))
                     base = ATTRIBUTE_MAX_BASE;
 
                 av.base( static_cast<unsigned short>(base) );
@@ -881,7 +881,7 @@ BObjectImp* NPC::send_event( BObjectImp* event )
     }
 }
 
-void NPC::apply_raw_damage_hundredths( unsigned long damage, Character* source, bool userepsys, bool send_damage_packet )
+void NPC::apply_raw_damage_hundredths( unsigned int damage, Character* source, bool userepsys, bool send_damage_packet )
 {
     if (ex != NULL)
     {

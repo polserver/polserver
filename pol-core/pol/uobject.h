@@ -165,7 +165,7 @@ public:
     virtual void destroy();
 
     virtual u8 los_height() const = 0;
-    virtual unsigned long weight() const = 0;
+    virtual unsigned int weight() const = 0;
 
 
     virtual UObject* toplevel_owner(); // this isn't really right, it returns the WornItemsContainer
@@ -195,11 +195,11 @@ public:
     virtual BObjectImp* get_script_member_id( const int id ) const; ///id test
 
     virtual BObjectImp* set_script_member( const char *membername, const std::string& value );
-    virtual BObjectImp* set_script_member( const char *membername, long value );
+    virtual BObjectImp* set_script_member( const char *membername, int value );
     virtual BObjectImp* set_script_member_double( const char *membername, double value );
 
     virtual BObjectImp* set_script_member_id( const int id, const std::string& value );
-    virtual BObjectImp* set_script_member_id( const int id, long value );
+    virtual BObjectImp* set_script_member_id( const int id, int value );
     virtual BObjectImp* set_script_member_id_double( const int id, double value );
 
     virtual BObjectImp* script_method( const char *methodname, Executor& ex );
@@ -228,8 +228,8 @@ public:
     bool dirty() const;
     void set_dirty() { dirty_ = true; }
     void clear_dirty() const;
-    static unsigned long dirty_writes;
-    static unsigned long clean_writes;
+    static unsigned int dirty_writes;
+    static unsigned int clean_writes;
 
 	Resistances element_resist;
 	ElementDamages element_damage;

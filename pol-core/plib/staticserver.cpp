@@ -58,7 +58,7 @@ void StaticServer::Validate() const
         }
     }
 	wallclock_t end = wallclock();
-    long ms = wallclock_diff_ms( start, end );
+    int ms = wallclock_diff_ms( start, end );
 
     cout << "Completed in " << ms << " ms." << endl;
 }
@@ -68,14 +68,14 @@ void StaticServer::ValidateBlock( unsigned short x, unsigned short y ) const
     unsigned short x_block = x / STATICBLOCK_CHUNK;
     unsigned short y_block = y / STATICBLOCK_CHUNK;
 
-    unsigned long block_index = y_block * (_descriptor.width>>STATICBLOCK_SHIFT) + x_block;
+    unsigned int block_index = y_block * (_descriptor.width>>STATICBLOCK_SHIFT) + x_block;
     if (block_index+1 >= _index.size())
     {
         string message = "statics integrity error(1): x=" + tostring(x) + ", y=" + tostring(y);
         throw runtime_error( message );
     }
-    unsigned long first_entry_index = _index[ block_index ].index;
-    unsigned long num = _index[ block_index+1 ].index - first_entry_index;
+    unsigned int first_entry_index = _index[ block_index ].index;
+    unsigned int num = _index[ block_index+1 ].index - first_entry_index;
     if (first_entry_index+num > _statics.size())
     {
         string message = "statics integrity error(2): x=" + tostring(x) + ", y=" + tostring(y);
@@ -91,9 +91,9 @@ bool StaticServer::findstatic( unsigned short x, unsigned short y, unsigned shor
     unsigned short y_block = y >> STATICBLOCK_SHIFT;
     unsigned short xy = ((x & STATICCELL_MASK) << 4) | (y & STATICCELL_MASK);
 
-    unsigned long block_index = x_block + y_block * (_descriptor.width >> STATICBLOCK_SHIFT);
-    unsigned long first_entry_index = _index[ block_index ].index;
-    unsigned long num = _index[ block_index+1 ].index - first_entry_index;
+    unsigned int block_index = x_block + y_block * (_descriptor.width >> STATICBLOCK_SHIFT);
+    unsigned int first_entry_index = _index[ block_index ].index;
+    unsigned int num = _index[ block_index+1 ].index - first_entry_index;
     
     if (num)
     {
@@ -118,9 +118,9 @@ void StaticServer::getstatics( StaticEntryList& statics, unsigned short x, unsig
     unsigned short y_block = y >> STATICBLOCK_SHIFT;
     unsigned short xy = ((x & STATICCELL_MASK) << 4) | (y & STATICCELL_MASK);
 
-    unsigned long block_index = x_block + y_block * (_descriptor.width >> STATICBLOCK_SHIFT);
-    unsigned long first_entry_index = _index[ block_index ].index;
-    unsigned long num = _index[ block_index+1 ].index - first_entry_index;
+    unsigned int block_index = x_block + y_block * (_descriptor.width >> STATICBLOCK_SHIFT);
+    unsigned int first_entry_index = _index[ block_index ].index;
+    unsigned int num = _index[ block_index+1 ].index - first_entry_index;
     
     if (num)
     {

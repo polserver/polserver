@@ -76,7 +76,7 @@ Object *FileExecutorModule::execFunc(const Token& token)
                case FILE_SEEK:
                case FILE_TELL:
                case FILE_CHSIZE:
-                   long newLen = (long)doubleParam(1);
+                   int newLen = (int)doubleParam(1);
                    res = of->chsize(newLen);
                    break;
            }

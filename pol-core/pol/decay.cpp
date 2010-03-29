@@ -2,6 +2,7 @@
 History
 =======
 2005/01/23 Shinigami: decay_items & decay_thread - Tokuno MapDimension doesn't fit blocks of 64x64 (WGRID_SIZE)
+2010/03/28 Shinigami: Transmit Pointer as Pointer and not Int as Pointer within decay_thread_shadow
 
 Notes
 =======
@@ -29,8 +30,8 @@ Notes
 
 #include "decay.h"
 
-long cycles_per_decay_worldzone;
-long cycles_until_decay_worldzone;
+int cycles_per_decay_worldzone;
+int cycles_until_decay_worldzone;
 
 ///
 /// [1] Item Decay Criteria
@@ -178,7 +179,7 @@ void decay_thread_shadow( void* arg ) //unsigned
 {
 	unsigned wx = ~0u;
 	unsigned wy = 0;
-	unsigned id = reinterpret_cast<unsigned>(arg);
+	unsigned id = reinterpret_cast<Realm*>(arg)->shadowid;
 
 	if (shadowrealms_by_id[id]==NULL)
 		return;

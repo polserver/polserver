@@ -24,16 +24,16 @@ class UOExecutor;
 class ListenPoint 
 {
 public:
-    ListenPoint( UObject* obj, UOExecutor* uoexec, long range, long flags );
+    ListenPoint( UObject* obj, UOExecutor* uoexec, int range, int flags );
     ~ListenPoint();
 
     UObjectRef object;
     UOExecutor* uoexec;
-    long range;
-    long flags;
+    int range;
+    int flags;
 };
 
-ListenPoint::ListenPoint( UObject* obj, UOExecutor* uoexec, long range, long flags ) :
+ListenPoint::ListenPoint( UObject* obj, UOExecutor* uoexec, int range, int flags ) :
     object(obj),
     uoexec(uoexec),
     range(range),
@@ -110,7 +110,7 @@ void deregister_from_speech_events( UOExecutor* uoexec )
     }
 }
 
-void register_for_speech_events( UObject* obj, UOExecutor* uoexec, long range, long flags )
+void register_for_speech_events( UObject* obj, UOExecutor* uoexec, int range, int flags )
 {
     listen_points[ uoexec ] = new ListenPoint(obj, uoexec, range, flags);
 }

@@ -52,7 +52,7 @@ int TmplExecutorModule<UBoatExecutorModule>::function_table_size =
 BObjectImp* UBoatExecutorModule::mf_MoveBoat()
 { 
     UBoat* boat = NULL;
-    long direction;
+    int direction;
     if (getUBoatParam( exec, 0, boat ) &&
         getParam( 1, direction, 0, 7 ))
     {
@@ -82,7 +82,7 @@ BObjectImp* UBoatExecutorModule::mf_MoveBoatXY()
 BObjectImp* UBoatExecutorModule::mf_TurnBoat()
 {
     UBoat* boat = NULL;
-    long relative_dir;
+    int relative_dir;
     if (getUBoatParam( exec, 0, boat ) &&
         getParam( 1, relative_dir ))
     {
@@ -98,7 +98,7 @@ BObjectImp* UBoatExecutorModule::mf_TurnBoat()
 BObjectImp* UBoatExecutorModule::mf_MoveBoatRelative()
 { 
     UBoat* boat = NULL;
-    long direction;
+    int direction;
     if (getUBoatParam( exec, 0, boat ) &&
         getParam( 1, direction, 0, 7 ))
     {

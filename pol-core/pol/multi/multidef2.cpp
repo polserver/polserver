@@ -71,7 +71,7 @@ bool MultiDef::readobjects( StaticList& vec, short x, short y, short zbase ) con
     return result;
 }
 
-bool MultiDef::readshapes( MapShapeList& vec, short x, short y, short zbase, unsigned long anyflags ) const
+bool MultiDef::readshapes( MapShapeList& vec, short x, short y, short zbase, unsigned int anyflags ) const
 {
     bool result = false;
     if (x >= minrx && x <= maxrx && y >= minry && y <= maxry)

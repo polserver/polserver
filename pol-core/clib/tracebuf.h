@@ -24,13 +24,13 @@ Notes
 struct TraceBufferElem
 {
     const char* tag;
-    unsigned long value;
+    unsigned int value;
 };
 
 extern TraceBufferElem tracebuffer[ TRACEBUF_DEPTH ];
 extern unsigned tracebuffer_insertpoint;
 
-inline void TRACEBUF_ADDELEM( const char* tag, unsigned long value )
+inline void TRACEBUF_ADDELEM( const char* tag, unsigned int value )
 {
     tracebuffer[ tracebuffer_insertpoint ].tag   = tag;
     tracebuffer[ tracebuffer_insertpoint ].value = value;

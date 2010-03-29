@@ -67,8 +67,8 @@ public:
     unsigned remove_unsigned( const char *propname );
     unsigned remove_unsigned( const char *propname, int dflt );
 
-    unsigned long remove_ulong( const char *propname );
-    unsigned long remove_ulong( const char *propname, unsigned long dflt );
+    unsigned int remove_ulong( const char *propname );
+    unsigned int remove_ulong( const char *propname, unsigned int dflt );
 
     bool remove_bool( const char *propname );
     bool remove_bool( const char *propname, bool dflt );
@@ -80,20 +80,20 @@ public:
 
     bool remove_first_prop( string* propname, string* value );
     bool remove_prop( const char *propname, string* value );
-	bool remove_prop( const char *propname, unsigned long *plong );
+	bool remove_prop( const char *propname, unsigned int *plong );
 	bool remove_prop( const char *propname, unsigned short *pushort );
 
     bool read_prop( const char *propname, std::string* value ) const;
     
     // get_prop calls: don't remove, and throw if not found.
-    void get_prop( const char *propname, unsigned long* plong ) const;
+    void get_prop( const char *propname, unsigned int* plong ) const;
     
     string read_string( const char *propname ) const;
     string read_string( const char *propname, const char *dflt ) const;
 
 
 	void add_prop( const char *propname, const char *str );
-	void add_prop( const char *propname, unsigned long lval );
+	void add_prop( const char *propname, unsigned int lval );
 	void add_prop( const char *propname, unsigned short sval );
 	void add_prop( const char *propname, short sval );
 
@@ -133,8 +133,8 @@ public:
     int remove_int( const char *propname );
     int remove_int( const char *propname, int dflt );
 
-    unsigned long remove_ulong( const char *propname );
-    unsigned long remove_ulong( const char *propname, unsigned long dflt );
+    unsigned int remove_ulong( const char *propname );
+    unsigned int remove_ulong( const char *propname, unsigned int dflt );
 
     bool remove_bool( const char *propname );
     bool remove_bool( const char *propname, bool dflt );
@@ -146,7 +146,7 @@ public:
 
     bool remove_first_prop( string* propname, string* value );
     bool remove_prop( const char *propname, string* value );
-	bool remove_prop( const char *propname, unsigned long *plong );
+	bool remove_prop( const char *propname, unsigned int *plong );
 	bool remove_prop( const char *propname, unsigned short *pushort );
 
     bool read_prop( const char *propname, std::string* value ) const;
@@ -155,7 +155,7 @@ public:
 
 
 	void add_prop( const char *propname, const char *str );
-	void add_prop( const char *propname, unsigned long lval );
+	void add_prop( const char *propname, unsigned int lval );
 	void add_prop( const char *propname, unsigned short sval );
 
     void throw_error( const string& errmsg ) const;

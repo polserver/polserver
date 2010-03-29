@@ -198,7 +198,7 @@ bool Storage::destroy_area( const string& name )
 void Storage::read( ConfigFile& cf )
 {
     static int num_until_dot = 1000;
-    unsigned long nobjects = 0;
+    unsigned int nobjects = 0;
 
     StorageArea *area = NULL;
     ConfigElem elem;
@@ -245,7 +245,7 @@ void Storage::read( ConfigFile& cf )
     }
 
 	clock_t end = clock();
-	long ms = static_cast<long>((end-start) * 1000.0 / CLOCKS_PER_SEC);
+	int ms = static_cast<int>((end-start) * 1000.0 / CLOCKS_PER_SEC);
 
 	cout << " " << nobjects << " elements in " << ms << " ms." << std::endl;
 }
@@ -338,7 +338,7 @@ public:
         return _area->_name;
     }
 
-    virtual unsigned long sizeEstimate() const
+    virtual unsigned int sizeEstimate() const
     {
         return sizeof(*this);
     }
@@ -361,7 +361,7 @@ BObjectRef StorageAreaImp::get_member( const char* membername )
     }
     else if (stricmp( membername, "totalcount") == 0)
     {
-        unsigned long total = 0;
+        unsigned int total = 0;
         for( StorageArea::Cont::iterator itr = _area->_items.begin(); itr != _area->_items.end(); ++itr )
         {
             Item* item = (*itr).second;
@@ -421,7 +421,7 @@ public:
         return "<StorageAreas>";
     }
 
-    virtual unsigned long sizeEstimate() const
+    virtual unsigned int sizeEstimate() const
     {
         return sizeof(*this);
     }

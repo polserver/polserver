@@ -15,12 +15,12 @@ Notes
 
 #include "uobjcnt.h"
 
-long unreaped_orphans;
-long uobject_count;
-long uitem_count;
-long umulti_count;
-long ucharacter_count;
-long npc_count;
-long uobj_count_echrref;
+int unreaped_orphans;
+int uobject_count;
+int uitem_count;
+int umulti_count;
+int ucharacter_count;
+int npc_count;
+int uobj_count_echrref;
 
 ItemSet existing_items;

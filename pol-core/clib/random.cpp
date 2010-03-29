@@ -41,6 +41,9 @@ let us know!  (gpc@ipld01.hac.com)
 /*
  *
  * $Log: random.cpp,v $
+ * Revision 1.1.6.2.2.1.2.3  2010/03/28 18:39:32  shinigami
+ * long to int (prerequisit for 64-bit)
+ *
  * Revision 1.1.6.2.2.1.2.2  2009/07/19 21:26:55  sroyalty
  * * CLib Comment updates complete
  *
@@ -94,16 +97,16 @@ float	gaussian_noise_temp;
 #define QUO 127773
 #define RES 2836
 
-static long	seed;
+static int	seed;
 
 void set_seed(
-  unsigned long s
+  unsigned int s
   )
 {
-  seed = (long)s;
+  seed = (int)s;
 }
 
-unsigned long get_seed(void)
+unsigned int get_seed(void)
 {
   return seed;
 }
@@ -119,11 +122,11 @@ float park_miller_randomizer(void)
 /* Park-Miller "minimal standard" pseudo random number generator */
 /* Implementation by Jan Jannink (c) 1992 */
 
-long PMrand(
-	long *s
+int PMrand(
+	int *s
 	)
 {
-  long   tmp;
+  int   tmp;
 
   tmp = (*s >> 16) * GEN;
   *s = (*s & 65535) * GEN + ((tmp & 32767) << 16) + (tmp >> 15);

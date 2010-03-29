@@ -232,7 +232,7 @@ bool Socket::listen(unsigned short port)
 	return true;
 }
 
-bool Socket::select( unsigned long seconds, unsigned long useconds )
+bool Socket::select( unsigned int seconds, unsigned int useconds )
 {
 	fd_set fd;
 	struct timeval timeout = { 0, 0 };
@@ -255,7 +255,7 @@ bool Socket::select( unsigned long seconds, unsigned long useconds )
 	return (res > 0 && FD_ISSET( _sck, &fd ));
 }
 
-bool Socket::accept(int *s, unsigned long mstimeout)
+bool Socket::accept(int *s, unsigned int mstimeout)
 {
 	*s = ::accept(_sck, NULL, NULL);
 	if (*s >= 0)
@@ -338,7 +338,7 @@ void Socket::HandleError()
 #endif
 }
 
-bool Socket::recvbyte( unsigned char* ch, unsigned long waitms )
+bool Socket::recvbyte( unsigned char* ch, unsigned int waitms )
 {
 	fd_set fd;
 
@@ -399,7 +399,7 @@ bool Socket::recvbyte( unsigned char* ch, unsigned long waitms )
 
 }
 
-bool Socket::recvdata( void *vdest, unsigned len, unsigned long waitms )
+bool Socket::recvdata( void *vdest, unsigned len, unsigned int waitms )
 {
 	fd_set fd;
 	char* pdest = (char*) vdest;
@@ -467,7 +467,7 @@ bool Socket::recvdata( void *vdest, unsigned len, unsigned long waitms )
 	return true;
 }
 
-unsigned Socket::peek( void *vdest, unsigned len, unsigned long wait_sec )
+unsigned Socket::peek( void *vdest, unsigned len, unsigned int wait_sec )
 {
 	fd_set fd;
 	char* pdest = (char*) vdest;

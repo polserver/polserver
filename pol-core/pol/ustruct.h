@@ -182,7 +182,7 @@ struct USTRUCT_MAPINFO {
 asserteql( sizeof(USTRUCT_MAPINFO), 3 );
 
 struct USTRUCT_MAPINFO_BLOCK {
-    unsigned long hdr;
+    unsigned int hdr;
     USTRUCT_MAPINFO cell[8][8];
 };
 asserteql( sizeof(USTRUCT_MAPINFO_BLOCK), 196 );

@@ -21,9 +21,9 @@ int characterrefs;
 int npcrefs;
 int itemrefs;
 
-typedef map<long, CharacterRef*> CharacterRefs;
+typedef map<int, CharacterRef*> CharacterRefs;
 CharacterRefs crefs;
-unsigned long crefs_count;
+unsigned int crefs_count;
 
 void display_reftypes()
 {

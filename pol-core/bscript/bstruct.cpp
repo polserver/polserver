@@ -176,9 +176,9 @@ ContIterator* BStruct::createIterator( BObject* pIterVal )
     return new BStructIterator( this, pIterVal );
 }
 
-unsigned long BStruct::sizeEstimate() const
+unsigned int BStruct::sizeEstimate() const
 {
-    unsigned long size = sizeof(BStruct);
+    unsigned int size = sizeof(BStruct);
     for( Contents::const_iterator itr = contents_.begin(); itr != contents_.end(); ++itr )
     {
         const string& bkey = (*itr).first;

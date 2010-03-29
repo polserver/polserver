@@ -28,7 +28,7 @@ bool cfg_show_roof_and_platform_warning = 1;
 
 class UMulti;
 class Item;
-string flagstr( unsigned long flags )
+string flagstr( unsigned int flags )
 {
     string tmp;
     if (flags & FLAG::MOVELAND)
@@ -233,11 +233,11 @@ u32 polflags_from_landtileflags( unsigned short tile, u32 lt_flags )
     lt_flags |= USTRUCT_TILE::FLAG_FLOOR;
     lt_flags |= USTRUCT_TILE::FLAG_HALF_HEIGHT; // the entire map is this way
 
-    unsigned long flags = polflags_from_tileflags( tile, lt_flags, 0, 0 );  // Land tiles shouldn't worry about noshoot or windows
+    unsigned int flags = polflags_from_tileflags( tile, lt_flags, 0, 0 );  // Land tiles shouldn't worry about noshoot or windows
     return flags;
 }
 
-unsigned long readflags( ConfigElem& elem )
+unsigned int readflags( ConfigElem& elem )
 {
     bool flag_moveland =    elem.remove_bool( "MoveLand",       false );
     bool flag_movesea =     elem.remove_bool( "MoveSea",        false );
@@ -251,7 +251,7 @@ unsigned long readflags( ConfigElem& elem )
     bool flag_equippable =  elem.remove_bool( "Equippable",     false );
     bool flag_prepend_a =   elem.remove_bool( "DescPrependA",   false );
     bool flag_prepend_an =  elem.remove_bool( "DescPrependAn",  false );
-    unsigned long flags = 0;
+    unsigned int flags = 0;
     
     if (flag_moveland)      flags |= FLAG::MOVELAND;
     if (flag_movesea)       flags |= FLAG::MOVESEA;

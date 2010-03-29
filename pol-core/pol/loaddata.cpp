@@ -124,7 +124,7 @@ void insert_deferred_items()
 		return;
 
 	int num_until_dot = 1000;
-	unsigned long nobjects = 0;
+	unsigned int nobjects = 0;
 	wallclock_t start = wallclock();
 
 	cout << "  deferred inserts:";

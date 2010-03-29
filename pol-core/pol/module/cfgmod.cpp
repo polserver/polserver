@@ -78,7 +78,7 @@ BObjectRef EConfigFileRefObjImp::OperSubscript( const BObject& obj )
 	}
 	else if (imp.isa( OTLong ))
 	{
-		long key = static_cast<const BLong*>(&imp)->value();
+		int key = static_cast<const BLong*>(&imp)->value();
 		celem = obj_->findelem( key );
 	}
 
@@ -348,7 +348,7 @@ BObjectImp* ConfigFileExecutorModule::mf_FindConfigElement()
 
 		if (keyimp->isa(BObjectImp::OTLong))
 		{
-			long key = static_cast<BLong*>(keyimp)->value();
+			int key = static_cast<BLong*>(keyimp)->value();
 			celem = cfile->findelem( key );
 		}
 		else if (keyimp->isa(BObjectImp::OTString))
@@ -491,7 +491,7 @@ BObjectImp* ConfigFileExecutorModule::mf_GetConfigInt()
 			else if (imp->isa( BObjectImp::OTDouble ))
 			{
 				Double* dbl = static_cast<Double*>(imp);
-				return new BLong( static_cast<long>(dbl->value()) );
+				return new BLong( static_cast<int>(dbl->value()) );
 			}
 			else if (imp->isa( BObjectImp::OTString ))
 			{

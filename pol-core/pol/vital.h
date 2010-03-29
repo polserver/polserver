@@ -49,10 +49,10 @@ const int VITAL_HIGHEST_REGENRATE = 30000;
 const unsigned VITAL_MIN_VALUE = 0;
 const unsigned VITAL_MAX_VALUE = 100000L;
 
-const unsigned long VITAL_MAX_HUNDREDTHS = 10000000L; // 10,000,000 hundredths = 100,000.00
+const unsigned int VITAL_MAX_HUNDREDTHS = 10000000L; // 10,000,000 hundredths = 100,000.00
 
-const unsigned long VITAL_LOWEST_MAX_HUNDREDTHS = 100L; // 100 hundredths = 1.00
-const unsigned long VITAL_HIGHEST_MAX_HUNDREDTHS = 10000000L; // 10,000,000 hundredths = 100,000.00
+const unsigned int VITAL_LOWEST_MAX_HUNDREDTHS = 100L; // 100 hundredths = 1.00
+const unsigned int VITAL_HIGHEST_MAX_HUNDREDTHS = 10000000L; // 10,000,000 hundredths = 100,000.00
 
 // max vital: 
 

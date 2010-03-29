@@ -972,7 +972,7 @@ int Parser::tryNumeric(Token& tok, CompilerContext& ctx)
     if (isdigit(ctx.s[0]) || ctx.s[0] == '.')
     {
          char *endptr, *endptr2;
-         long l = strtol(ctx.s, &endptr, 0);
+         int l = strtol(ctx.s, &endptr, 0);
          double d = strtod(ctx.s, &endptr2);
          tok.type = TYP_OPERAND;
          if (endptr >= endptr2)

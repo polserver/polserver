@@ -72,9 +72,9 @@ Notes
 
 #include "module/partymod.h"
 
-bool find_uoexec( unsigned long pid, UOExecutor** pp_uoexec )
+bool find_uoexec( unsigned int pid, UOExecutor** pp_uoexec )
 {
-    std::map<unsigned long, UOExecutor*>::iterator itr = pidlist.find( pid );
+    std::map<unsigned int, UOExecutor*>::iterator itr = pidlist.find( pid );
     if (itr != pidlist.end())
     {
         *pp_uoexec = (*itr).second;
@@ -225,7 +225,7 @@ UOExecutor::~UOExecutor()
 	// the Executor deletes its ExecutorModules.
     if ((instr_cycles >= 500) && watch.profile_scripts)
     {
-        long elapsed = static_cast<long>(poltime() - start_time); // Doh! A script can't run more than 68 years, for this to work.
+        int elapsed = static_cast<int>(poltime() - start_time); // Doh! A script can't run more than 68 years, for this to work.
         Log( "Script %s: %"OUT64"d instr cycles, %"OUT64"d sleep cycles, %ld seconds\n",
                 scriptname().c_str(), instr_cycles, sleep_cycles, elapsed );
         cerr << "Script " << scriptname() << ": "

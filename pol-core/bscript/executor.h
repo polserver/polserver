@@ -49,7 +49,7 @@ struct ReturnContext
 class Executor
 {
   public:
-    unsigned long sizeEstimate() const;
+    unsigned int sizeEstimate() const;
 
     friend void list_script( class UOExecutor* uoexec );
     int done;
@@ -114,9 +114,9 @@ class Executor
     const BLong* getLongParam(unsigned param);
 
     bool getStringParam( unsigned param, const String*& pstr );
-    bool getParam( unsigned param, long& value );
-    bool getParam( unsigned param, long& value, long maxval );
-    bool getParam( unsigned param, long& value, long minval, long maxval );
+    bool getParam( unsigned param, int& value );
+    bool getParam( unsigned param, int& value, int maxval );
+    bool getParam( unsigned param, int& value, int minval, int maxval );
     bool getRealParam( unsigned param, double& value );
     bool getObjArrayParam( unsigned param, ObjArray*& pobjarr );
 
@@ -136,7 +136,7 @@ class Executor
     
     const char* paramAsString(unsigned param);
     double paramAsDouble(unsigned param);
-    long paramAsLong(unsigned param);
+    int paramAsLong(unsigned param);
   
   protected:
     int makeDouble(unsigned param);
@@ -150,8 +150,8 @@ class Executor
 
   public:
     int getToken(Token& token, unsigned position);
-    BObjectRef& LocalVar( unsigned long varnum );
-    BObjectRef& GlobalVar( unsigned long varnum );
+    BObjectRef& LocalVar( unsigned int varnum );
+    BObjectRef& GlobalVar( unsigned int varnum );
     BObject* makeObj( const Token& token);
 	int makeGlobal( const Token& token );
 	void popParam( const Token& token );
@@ -318,7 +318,7 @@ class Executor
     void show_context( unsigned atPC );
     void show_context( ostream& os, unsigned atPC );
 
-	long getDebugLevel( ) { return debug_level; }
+	int getDebugLevel( ) { return debug_level; }
     void setDebugLevel( DEBUG_LEVEL level ) { debug_level = level; }
     void setViewMode( bool vm ) { viewmode_ = vm; }
     const string& scriptname() const;

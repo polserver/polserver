@@ -63,7 +63,7 @@ Party::Party( ConfigElem& elem ) :
   _leaderserial(0)
 {
 	_leaderserial=elem.remove_ulong("LEADER");
-	unsigned long tmp;
+	unsigned int tmp;
     while (elem.remove_prop( "MEMBER", &tmp ))
     {
 		_member_serials.push_back(tmp);
@@ -583,7 +583,7 @@ void Party::on_mana_changed(Character* chr)
 	PKTOUT_A2 msg;
 	msg.msgtype = PKTOUT_A2_ID;
 	msg.serial = chr->serial_ext;
-	long h, mh;
+	int h, mh;
 
     h = chr->vital(uoclient_general.mana.id).current_ones();
     if (h > 0xFFFF)
@@ -612,7 +612,7 @@ void Party::on_stam_changed(Character* chr)
 	PKTOUT_A3 msg;
 	msg.msgtype = PKTOUT_A3_ID;
 	msg.serial = chr->serial_ext;
-	long h, mh;
+	int h, mh;
 
 	h = chr->vital(uoclient_general.stamina.id).current_ones();
     if (h > 0xFFFF)
@@ -747,7 +747,7 @@ void Party::printOn( ostream& os ) const
 
 	for( vector<u32>::const_iterator itr = _member_serials.begin(); itr != _member_serials.end(); ++itr)
 	{
-		unsigned long mserial = (*itr);
+		unsigned int mserial = (*itr);
 
 		Character* mem = system_find_mobile( mserial );
 		if (mem != NULL)
@@ -826,7 +826,7 @@ void read_party_dat()
 			parties.push_back(ref_ptr<Party>(new Party(elem)));
     }
 	clock_t end = clock();
-	long ms = static_cast<long>((end-start) * 1000.0 / CLOCKS_PER_SEC);
+	int ms = static_cast<int>((end-start) * 1000.0 / CLOCKS_PER_SEC);
 
 	cout << " " << parties.size() << " elements in " << ms << " ms." << std::endl;
 
@@ -1439,7 +1439,7 @@ void send_attributes_normalized(Character* chr, Character* bob)
 	PKTOUT_2D msg;
 	msg.msgtype=PKTOUT_2D_ID;
 	msg.serial=bob->serial_ext;
-	long h, mh;
+	int h, mh;
 
     h = bob->vital(uoclient_general.hits.id).current_ones();
     if (h > 0xFFFF)

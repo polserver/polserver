@@ -20,8 +20,8 @@ Notes
 const unsigned LANDTILE_COUNT = 0x4000;
 struct LandTile
 {
-    unsigned long uoflags;
-    unsigned long flags;
+    unsigned int uoflags;
+    unsigned int flags;
 };
 LandTile landtiles[ LANDTILE_COUNT ];
 bool landtiles_loaded = false;
@@ -45,13 +45,13 @@ void load_landtile_cfg()
         cerr << "Warning: No landtiles loaded. Please check landtiles.cfg" << endl;
 }
 
-unsigned long landtile_uoflags( unsigned short landtile )
+unsigned int landtile_uoflags( unsigned short landtile )
 {
     passert_always( landtile < LANDTILE_COUNT );
     return landtiles[ landtile ].uoflags;
 }
 
-unsigned long landtile_flags( unsigned short landtile )
+unsigned int landtile_flags( unsigned short landtile )
 {
     passert_always( landtile < LANDTILE_COUNT );
     return landtiles[ landtile ].flags;

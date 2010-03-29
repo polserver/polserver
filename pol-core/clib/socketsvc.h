@@ -18,7 +18,7 @@ class SocketListener
 public:
     explicit SocketListener( unsigned short port );
     SocketListener( unsigned short port, Socket::option opt );
-    bool GetConnection( unsigned long timeout_sec );
+    bool GetConnection( unsigned int timeout_sec );
 
     void accept( Socket& newsck );
 

@@ -119,9 +119,9 @@ inline const unsigned short USpell::spell_id() const
 //extern USpell *spells[ SPELLID__COUNT+1 ];
 
 extern std::vector<USpell*> spells2;
-inline bool VALID_SPELL_ID( long spellid )
+inline bool VALID_SPELL_ID( int spellid )
 {
-    return (spellid >= 1 && spellid <= long(spells2.size()));
+    return (spellid >= 1 && spellid <= int(spells2.size()));
 }
 
 void do_cast( Client *client, u16 spellid );

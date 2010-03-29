@@ -59,8 +59,8 @@ Notes
 
 vector< u32 > modified_serials;
 vector< u32 > deleted_serials;
-static unsigned long clean_objects;
-static unsigned long dirty_objects;
+static unsigned int clean_objects;
+static unsigned int dirty_objects;
 bool incremental_saves_disabled = false;
 void write_dirty_storage( ofstream& ofs_data )
 {
@@ -233,7 +233,7 @@ bool commit_incremental( const string& basename )
     return any;
 }
 
-int save_incremental( unsigned long& dirty, unsigned long& clean, wallclock_diff_t& elapsed_ms )
+int save_incremental( unsigned int& dirty, unsigned int& clean, wallclock_diff_t& elapsed_ms )
 {
     if (!should_write_data())
     {

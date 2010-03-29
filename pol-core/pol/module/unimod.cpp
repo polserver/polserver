@@ -104,7 +104,7 @@ void handle_unicode_prompt( Client* client, PKTBI_C2* msg )
 				valstack = new BObject( new BError( "Invalid control characters in text entry" ) );
 
 				sprintf(gtext, "Client #%lu (account %s) sent invalid unicode control characters (RequestInputUC)",
-								client->instance_,
+								static_cast<unsigned long>(client->instance_),
 								(client->acct != NULL) ? client->acct->name() : "unknown");
 				cerr << gtext << endl;
 				Log("%s\n", gtext);
@@ -206,7 +206,7 @@ BObjectImp* UnicodeExecutorModule::mf_PrintTextAboveUC()
 	const String* lang;
     unsigned short font;
     unsigned short color;
-	long journal_print;
+	int journal_print;
 
     if (getUObjectParam( 0, obj ) &&
         getObjArrayParam( 1, oText ) &&

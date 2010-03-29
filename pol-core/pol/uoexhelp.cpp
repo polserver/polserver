@@ -94,7 +94,7 @@ bool getCharacterOrClientParam( Executor& exec, unsigned param, Character*& chrp
 	{
 		BLong* pchar_serial = explicit_cast<BLong*,BObjectImp*>(imp);
 
-		unsigned long serial = pchar_serial->value();
+		unsigned int serial = pchar_serial->value();
 		if (IsItem(serial) || serial == 0)
 		{
 			exec.setFunctionResult( new BError( "Serial refers to an Item, or is zero" ) );
@@ -174,7 +174,7 @@ bool getCharacterParam( Executor& exec, unsigned param, Character*& chrptr )
     {
         BLong* pchar_serial = explicit_cast<BLong*,BObjectImp*>(imp);
 
-        unsigned long serial = pchar_serial->value();
+        unsigned int serial = pchar_serial->value();
         if (IsItem(serial) || serial == 0)
         {
             exec.setFunctionResult( new BError( "Serial refers to an Item, or is zero" ) );
@@ -236,7 +236,7 @@ bool getItemParam( Executor& exec, unsigned param, Item*& itemptr )
     else if (imp->isa( BObjectImp::OTLong ))
     {
         BLong* pitem_serial = explicit_cast<BLong*,BObjectImp*>(imp);
-        unsigned long serial = pitem_serial->value();
+        unsigned int serial = pitem_serial->value();
 
         if ( IsCharacter( serial ) || serial == 0)
             return false;
@@ -401,7 +401,7 @@ bool getObjtypeParam( Executor& exec, unsigned param, unsigned short& objtype )
     {
         return false;
     }
-    unsigned long objtype_long = 0;
+    unsigned int objtype_long = 0;
 
     if (imp->isa( BObjectImp::OTLong ))
     {
@@ -481,7 +481,7 @@ bool getObjtypeParam( Executor& exec, unsigned param, const ItemDesc*& itemdesc_
     {
         return false;
     }
-    long objtype_long = 0;
+    int objtype_long = 0;
 
     if (imp->isa( BObjectImp::OTLong ))
     {
@@ -587,7 +587,7 @@ bool getObjtypeParam( Executor& exec, unsigned param, const ItemDesc*& itemdesc_
 
 bool getSkillIdParam( Executor& exec, unsigned param, USKILLID& skillid )
 {
-    long skillval;
+    int skillval;
     if (exec.getParam( param, skillval, SKILLID__LOWEST, uoclient_general.maxskills ))
     {
         skillid =  static_cast<USKILLID>(skillval);

@@ -154,14 +154,14 @@ BObjectImp* PolSystemExecutorModule::mf_IncRevision( /* uobject */ )
 
 BObjectImp* PolSystemExecutorModule::mf_GetCmdLevelName()
 {
-	long cmdlevel_num;
+	int cmdlevel_num;
 	const String* cmdlevel_alias;
 
 	if ( exec.numParams() != 1 )
 		return new BError("Expected 1 parameter.");
 	else if ( getParam(0, cmdlevel_num) )
 	{
-		if ( cmdlevel_num >= long(cmdlevels2.size()) )
+		if ( cmdlevel_num >= int(cmdlevels2.size()) )
 			cmdlevel_num = cmdlevels2.size()-1;
 		
 		return new String(cmdlevels2[cmdlevel_num].name);
@@ -354,7 +354,7 @@ BObjectImp* PolSystemExecutorModule::mf_GetItemDescriptor()
 
 BObjectImp* PolSystemExecutorModule::mf_CreatePacket()
 {
-	long size;
+	int size;
 	unsigned short type;
 	if (exec.getParam( 0, type ) && 
 		exec.getParam( 1, size ))

@@ -54,9 +54,9 @@ int TmplExecutorModule<VitalExecutorModule>::function_table_size =
 BObjectImp* VitalExecutorModule::mf_ApplyRawDamage()
 {
 	Character* chr;
-	long damage;
-    long userepsys;
-	long send_damage_packet;
+	int damage;
+    int userepsys;
+	int send_damage_packet;
 	if ( getCharacterParam(exec, 0, chr) &&
 		getParam(1, damage) &&
         getParam(2, userepsys) &&
@@ -65,7 +65,7 @@ BObjectImp* VitalExecutorModule::mf_ApplyRawDamage()
 		damage <= USHRT_MAX )
 	{
 		bool send_dmg= send_damage_packet==2 ? combat_config.send_damage_packet : (send_damage_packet>0 ? true : false);
-		chr->apply_raw_damage_hundredths(static_cast<unsigned long>(damage*100), GetUOController(), userepsys>0?true:false, send_dmg);
+		chr->apply_raw_damage_hundredths(static_cast<unsigned int>(damage*100), GetUOController(), userepsys>0?true:false, send_dmg);
 		return new BLong(1);
 	}
 	else
@@ -76,8 +76,8 @@ BObjectImp* VitalExecutorModule::mf_ApplyDamage()
 {
 	Character* chr;
 	double damage;
-    long userepsys;
-	long send_damage_packet;
+    int userepsys;
+	int send_damage_packet;
 	if ( getCharacterParam(exec, 0, chr) &&
 		getRealParam( 1, damage) &&
         getParam( 2, userepsys) &&
@@ -87,7 +87,7 @@ BObjectImp* VitalExecutorModule::mf_ApplyDamage()
 		{
 			bool send_dmg= send_damage_packet==2 ? combat_config.send_damage_packet : (send_damage_packet>0 ? true : false);
 			damage = chr->apply_damage(static_cast<unsigned short>(damage), GetUOController(),userepsys>0?true:false, send_dmg);
-			return new BLong(static_cast<long>(damage));
+			return new BLong(static_cast<int>(damage));
 		}
 		else
 			return new BError( "Damage is out of range" );
@@ -99,7 +99,7 @@ BObjectImp* VitalExecutorModule::mf_ApplyDamage()
 BObjectImp* VitalExecutorModule::mf_HealDamage()
 {
 	Character* chr;
-	long amount;
+	int amount;
 	if ( getCharacterParam(exec, 0, chr) &&
 		getParam(1, amount) &&
 		amount >= 0 && amount <= USHRT_MAX )
@@ -120,7 +120,7 @@ BObjectImp* VitalExecutorModule::mf_HealDamage()
 BObjectImp* VitalExecutorModule::mf_ConsumeMana()
 {
 	Character* chr;
-	long spellid;
+	int spellid;
 	if ( getCharacterParam(exec, 0, chr) &&
 		getParam(1, spellid) )
 	{
@@ -206,7 +206,7 @@ BObjectImp* VitalExecutorModule::mf_SetVital( /* mob, vitalid, hundredths */ )
 {
 	Character* chr;
 	const Vital* vital;
-	long value;
+	int value;
 
 	if ( getCharacterParam(exec, 0, chr) &&
 		getVitalParam(exec, 1, vital) &&
@@ -224,7 +224,7 @@ BObjectImp* VitalExecutorModule::mf_ConsumeVital( /* mob, vital, hundredths */ )
 {
 	Character* chr;
 	const Vital* vital;
-	long hundredths;
+	int hundredths;
 
 	if ( getCharacterParam(exec, 0, chr) &&
 		getVitalParam(exec, 1, vital) &&
