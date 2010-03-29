@@ -300,7 +300,7 @@ void UBoat::regself()
         unsigned short ax = x + (*itr)->x;
         unsigned short ay = y + (*itr)->y;
         
-        unsigned long gh = realm->encode_global_hull( ax, ay );
+        unsigned int gh = realm->encode_global_hull( ax, ay );
         realm->global_hulls.insert( gh );
     }
 }
@@ -315,7 +315,7 @@ void UBoat::unregself()
         unsigned short ax = x + (*itr)->x;
         unsigned short ay = y + (*itr)->y;
         
-        unsigned long gh = realm->encode_global_hull( ax, ay );
+        unsigned int gh = realm->encode_global_hull( ax, ay );
         realm->global_hulls.erase( gh );
     }
 }
@@ -348,7 +348,7 @@ bool UBoat::navigable( const MultiDef& md, unsigned short x, unsigned short y, s
         /*
          * See if any other ship hulls occupy this space
          */
-            unsigned long gh = realm->encode_global_hull( ax, ay );
+            unsigned int gh = realm->encode_global_hull( ax, ay );
             if (realm->global_hulls.count(gh)) // already a boat there
             {
 #ifdef DEBUG_BOATS
@@ -791,7 +791,7 @@ void UBoat::do_tellmoves()
 }
 
 //dave 3/26/3 added
-bool UBoat::move_xy(unsigned short newx, unsigned short newy, long flags, Realm* oldrealm)
+bool UBoat::move_xy(unsigned short newx, unsigned short newy, int flags, Realm* oldrealm)
 {
     bool result;
     
@@ -1073,7 +1073,7 @@ void UBoat::printProperties( ostream& os ) const
     }
 }
 
-BObjectImp* UBoat::scripted_create( const ItemDesc& descriptor, u16 x, u16 y, s8 z, Realm* realm, long flags )
+BObjectImp* UBoat::scripted_create( const ItemDesc& descriptor, u16 x, u16 y, s8 z, Realm* realm, int flags )
 {
     unsigned short graphic = descriptor.graphic;
 	unsigned short graphic_offset = static_cast<unsigned short>((flags & CRMULTI_FACING_MASK) >> CRMULTI_FACING_SHIFT);

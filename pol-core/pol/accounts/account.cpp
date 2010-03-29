@@ -119,8 +119,8 @@ void Account::writeto( ConfigElem& elem ) const
 
     elem.add_prop( "PasswordHash", passwordhash_.c_str() );	
 
-    elem.add_prop( "Enabled", ((unsigned long)(enabled_?1:0)) );
-    elem.add_prop( "Banned", ((unsigned long)(banned_?1:0)) );
+    elem.add_prop( "Enabled", ((unsigned int)(enabled_?1:0)) );
+    elem.add_prop( "Banned", ((unsigned int)(banned_?1:0)) );
        
     if (!default_privs_.empty())
     {

@@ -36,7 +36,7 @@ Notes
 #include "uofile.h"
 #include "uofilei.h"
 
-typedef std::map< unsigned long, unsigned long > MapBlockIndex;
+typedef std::map< unsigned int, unsigned int > MapBlockIndex;
 MapBlockIndex mapdifl;
 unsigned int num_map_patches = 0;
 
@@ -56,22 +56,22 @@ void read_map_difs()
 }
 
 static USTRUCT_MAPINFO_BLOCK rawmap_buffer;
-static unsigned long last_block = ~0Lu;
+static unsigned int last_block = ~0Lu;
 
 signed char rawmapinfo( unsigned short x, unsigned short y, USTRUCT_MAPINFO* gi )
 {
     passert( x < uo_map_width && y < uo_map_height );
 
-    unsigned long x_block = x / 8;
-    unsigned long y_block = y / 8;
-    unsigned long block = (x_block * (uo_map_height/8) + y_block);
+    unsigned int x_block = x / 8;
+    unsigned int y_block = y / 8;
+    unsigned int block = (x_block * (uo_map_height/8) + y_block);
 
     if (block != last_block)
     {
         MapBlockIndex::const_iterator citr = mapdifl.find( block );
         if (citr == mapdifl.end())
         {
-            unsigned long file_offset = block * sizeof(USTRUCT_MAPINFO_BLOCK);
+            unsigned int file_offset = block * sizeof(USTRUCT_MAPINFO_BLOCK);
             if (fseek( mapfile, file_offset, SEEK_SET ) != 0)
                 throw runtime_error( "rawmapinfo: fseek(mapfile) failure" );
             if (fread( &rawmap_buffer, sizeof rawmap_buffer, 1, mapfile ) != 1)
@@ -81,7 +81,7 @@ signed char rawmapinfo( unsigned short x, unsigned short y, USTRUCT_MAPINFO* gi 
         {
             // it's in the dif file.. get it from there.
             unsigned dif_index = (*citr).second;
-            unsigned long file_offset = dif_index * sizeof(USTRUCT_MAPINFO_BLOCK);
+            unsigned int file_offset = dif_index * sizeof(USTRUCT_MAPINFO_BLOCK);
             if (fseek( mapdif_file, file_offset, SEEK_SET ) != 0)
                 throw runtime_error( "rawmapinfo: fseek(mapdif_file) failure" );
 
@@ -97,8 +97,8 @@ signed char rawmapinfo( unsigned short x, unsigned short y, USTRUCT_MAPINFO* gi 
         ++mapcache_hits;
     }
 
-    unsigned long x_offset = x & 0x7;
-    unsigned long y_offset = y & 0x7;
+    unsigned int x_offset = x & 0x7;
+    unsigned int y_offset = y & 0x7;
 
     *gi = rawmap_buffer.cell[y_offset][x_offset];
     return gi->z;

@@ -93,15 +93,15 @@ public:
     virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin=false );
 };
 
-typedef map<unsigned long, GuildRef> Guilds;
+typedef map<unsigned int, GuildRef> Guilds;
 
 static Guilds guilds;
-static unsigned long nextguildid = 1;
+static unsigned int nextguildid = 1;
 
 
 SerialSet::SerialSet( ConfigElem& elem, const char* tag )
 {
-    unsigned long tmp;
+    unsigned int tmp;
     while (elem.remove_prop( tag, &tmp ))
     {
         insert( tmp );
@@ -128,7 +128,7 @@ Guild::Guild( ConfigElem& elem ) :
     _proplist.readProperties( elem );
 }
 
-Guild::Guild( unsigned long guildid ) :
+Guild::Guild( unsigned int guildid ) :
     _guildid(guildid),
     _member_serials(),
     _allyguild_serials(),
@@ -144,7 +144,7 @@ void Guild::registerWithMembers()
 {
     for( SerialSet::iterator itr = _member_serials.begin(); itr != _member_serials.end(); /* */)
     {
-        unsigned long mserial = (*itr);
+        unsigned int mserial = (*itr);
         SerialSet::iterator last_itr = itr;
         ++itr;
 
@@ -167,7 +167,7 @@ void Guild::update_online_members()
 // NOTE: stlport seems to not return save itr on erase, but with a list container the iterator should stay valid
 	for( SerialSet::iterator itr = _member_serials.begin(); itr != _member_serials.end(); /* */)
     {
-        unsigned long mserial = (*itr);
+        unsigned int mserial = (*itr);
         SerialSet::iterator last_itr = itr;
         ++itr;
 
@@ -198,7 +198,7 @@ void Guild::update_online_members_remove( Character* chr )
 	}
 }
 
-unsigned long Guild::guildid() const
+unsigned int Guild::guildid() const
 {
     return _guildid;
 }
@@ -250,7 +250,7 @@ void Guild::printOn( ostream& os ) const
        << pf_endl;
 }
 
-void Guild::addMember( unsigned long serial )
+void Guild::addMember( unsigned int serial )
 {
     _member_serials.insert( serial );
 }
@@ -306,7 +306,7 @@ void write_guilds( ostream& os )
     }
 }
 
-Guild* FindOrCreateGuild( unsigned long guildid, unsigned long memberserial )
+Guild* FindOrCreateGuild( unsigned int guildid, unsigned int memberserial )
 {
     Guilds::iterator itr = guilds.find( guildid );
     Guild* guild = NULL;
@@ -324,7 +324,7 @@ Guild* FindOrCreateGuild( unsigned long guildid, unsigned long memberserial )
 
     return guild;
 }
-Guild* FindGuild( unsigned long guildid )
+Guild* FindGuild( unsigned int guildid )
 {
     Guilds::iterator itr = guilds.find( guildid );
     Guild* guild = NULL;
@@ -421,7 +421,7 @@ BObjectRef EGuildRefObjImp::get_member_id( const int id ) //id test
              itr != obj_->_member_serials.end();
              /* do this earlier */)
         {
-            unsigned long mserial = (*itr);
+            unsigned int mserial = (*itr);
             SerialSet::iterator last_itr = itr;
             ++itr;
 
@@ -443,7 +443,7 @@ BObjectRef EGuildRefObjImp::get_member_id( const int id ) //id test
              itr != obj_->_allyguild_serials.end();
              /* do this earlier */)
         {
-            unsigned long gserial = (*itr);
+            unsigned int gserial = (*itr);
             SerialSet::iterator last_itr = itr;
             ++itr;
 
@@ -466,7 +466,7 @@ BObjectRef EGuildRefObjImp::get_member_id( const int id ) //id test
              itr != obj_->_enemyguild_serials.end();
              /* do this earlier */)
         {
-            unsigned long gserial = (*itr);
+            unsigned int gserial = (*itr);
             SerialSet::iterator last_itr = itr;
             ++itr;
 
@@ -506,7 +506,7 @@ BObjectRef EGuildRefObjImp::get_member( const char* membername )
         for( SerialSet::iterator itr = obj_->_member_serials.begin(); itr != obj_->_member_serials.end(); )
              //do this earlier
         {
-            unsigned long mserial = (*itr);
+            unsigned int mserial = (*itr);
             SerialSet::iterator last_itr = itr;
             ++itr;
 
@@ -528,7 +528,7 @@ BObjectRef EGuildRefObjImp::get_member( const char* membername )
         for( SerialSet::iterator itr = obj_->_allyguild_serials.begin(); itr != obj_->_allyguild_serials.end(); )
              //do this earlier
         {
-            unsigned long gserial = (*itr);
+            unsigned int gserial = (*itr);
             SerialSet::iterator last_itr = itr;
             ++itr;
 
@@ -552,7 +552,7 @@ BObjectRef EGuildRefObjImp::get_member( const char* membername )
              itr != obj_->_enemyguild_serials.end(); )
              //do this earlier
         {
-            unsigned long gserial = (*itr);
+            unsigned int gserial = (*itr);
             SerialSet::iterator last_itr = itr;
             ++itr;
 
@@ -990,7 +990,7 @@ BObjectImp* GuildExecutorModule::mf_DestroyGuild()
 ///  FindGuild( guildid );
 BObjectImp* GuildExecutorModule::mf_FindGuild()
 {
-    long guildid;
+    int guildid;
     if (getParam( 0, guildid ))
     {
         Guilds::iterator itr = guilds.find( guildid );
@@ -1013,7 +1013,7 @@ void Character::guild( Guild* g )
 {
     guild_ = g;
 }
-unsigned long Character::guildid() const
+unsigned int Character::guildid() const
 {
     return guild_ ? guild_->guildid() : 0;
 }

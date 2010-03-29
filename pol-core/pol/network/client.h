@@ -186,8 +186,8 @@ protected:
 
 	XmitBuffer *first_xmit_buffer;
 	XmitBuffer *last_xmit_buffer;
-	long n_queued;
-    long queued_bytes_counter; // only used for monitoring
+	int n_queued;
+    int queued_bytes_counter; // only used for monitoring
 
 	// we may want to track how many bytes total are outstanding,
 	// and boot clients that are too far behind.
@@ -197,8 +197,8 @@ protected:
 
 public:
     ClientGameData* gd;
-    unsigned long instance_;
-    static unsigned long instance_counter_;
+    unsigned int instance_;
+    static unsigned int instance_counter_;
     int checkpoint;//CNXBUG
     unsigned char last_msgtype;
     int thread_pid;
@@ -210,8 +210,8 @@ public:
 	
 private:
     struct {
-        unsigned long bytes_transmitted;
-        unsigned long bytes_received;
+        unsigned int bytes_transmitted;
+        unsigned int bytes_received;
     } counters;
     std::string version_;
     PKTIN_D9 clientinfo_;

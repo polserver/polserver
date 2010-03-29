@@ -86,12 +86,12 @@ BObjectImp* BBinaryfile::call_method_id( const int id, Executor& ex, bool forceb
         file.Close();
         return new BLong(1);
     case MTH_SIZE:
-        return new BLong(static_cast<long>(file.FileSize(ex)));
+        return new BLong(static_cast<int>(file.FileSize(ex)));
     case MTH_SEEK:
         {
             if(ex.numParams() != 2)
                 return new BError( "Seek requires 2 parameter." );
-            long value, type;
+            int value, type;
             if((!ex.getParam( 0, value )) ||
                 (!ex.getParam( 1, type )))
                 return new BError("Invalid parameter");
@@ -108,7 +108,7 @@ BObjectImp* BBinaryfile::call_method_id( const int id, Executor& ex, bool forceb
             return new BLong(1);
         }
     case MTH_TELL:
-        return new BLong(static_cast<long>(file.Tell()));
+        return new BLong(static_cast<int>(file.Tell()));
     case MTH_PEEK:
         return new BLong(file.Peek());
     case MTH_FLUSH:
@@ -169,7 +169,7 @@ BObjectImp* BBinaryfile::call_method_id( const int id, Executor& ex, bool forceb
         {
             if(ex.numParams() != 1)
                 return new BError( "GetString requires 1 parameter." );
-            long value;
+            int value;
             if(!ex.getParam( 0, value ))
                 return new BError("Invalid parameter");
             vector<unsigned char> _char;
@@ -188,7 +188,7 @@ BObjectImp* BBinaryfile::call_method_id( const int id, Executor& ex, bool forceb
         {
             if(ex.numParams() != 1)
                 return new BError( "SetInt32 requires 1 parameter." );
-            long value;
+            int value;
             if(!ex.getParam( 0, value ))
                 return new BError("Invalid parameter");
             u32 _u32=static_cast<u32>(value);
@@ -202,7 +202,7 @@ BObjectImp* BBinaryfile::call_method_id( const int id, Executor& ex, bool forceb
         {
             if(ex.numParams() != 1)
                 return new BError( "SetSInt32 requires 1 parameter." );
-            long value;
+            int value;
             if(!ex.getParam( 0, value ))
                 return new BError("Invalid parameter");
             s32 _s32=static_cast<s32>(value);
@@ -216,7 +216,7 @@ BObjectImp* BBinaryfile::call_method_id( const int id, Executor& ex, bool forceb
         {
             if(ex.numParams() != 1)
                 return new BError( "SetInt16 requires 1 parameter." );
-            long value;
+            int value;
             if(!ex.getParam( 0, value ))
                 return new BError("Invalid parameter");
             u16 _u16=static_cast<u16>(value);
@@ -230,7 +230,7 @@ BObjectImp* BBinaryfile::call_method_id( const int id, Executor& ex, bool forceb
         {
             if(ex.numParams() != 1)
                 return new BError( "SetSInt16 requires 1 parameter." );
-            long value;
+            int value;
             if(!ex.getParam( 0, value ))
                 return new BError("Invalid parameter");
             s16 _s16=static_cast<s16>(value);
@@ -244,7 +244,7 @@ BObjectImp* BBinaryfile::call_method_id( const int id, Executor& ex, bool forceb
         {
             if(ex.numParams() != 1)
                 return new BError( "SetInt8 requires 1 parameter." );
-            long value;
+            int value;
             if(!ex.getParam( 0, value ))
                 return new BError("Invalid parameter");
             u8 _u8=static_cast<u8>(value);
@@ -256,7 +256,7 @@ BObjectImp* BBinaryfile::call_method_id( const int id, Executor& ex, bool forceb
         {
             if(ex.numParams() != 1)
                 return new BError( "SetSInt8 requires 1 parameter." );
-            long value;
+            int value;
             if(!ex.getParam( 0, value ))
                 return new BError("Invalid parameter");
             s8 _s8=static_cast<s8>(value);
@@ -268,7 +268,7 @@ BObjectImp* BBinaryfile::call_method_id( const int id, Executor& ex, bool forceb
         {
             if(ex.numParams() != 2)
                 return new BError( "SetString requires 2 parameters." );
-            long value;
+            int value;
             const String* text;
             if((!ex.getStringParam( 0, text )) ||
                 (!ex.getParam( 1, value )) )

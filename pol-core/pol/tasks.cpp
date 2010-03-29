@@ -145,10 +145,10 @@ void setup_update_rpm( void )
 void update_rpm( void )
 {
     THREAD_CHECKPOINT( tasks, 300 );
-    last_sipm = static_cast<unsigned long>(escript_instr_cycles - last_instructions);
+    last_sipm = static_cast<unsigned int>(escript_instr_cycles - last_instructions);
     last_instructions = escript_instr_cycles;
 
-    last_scpm = static_cast<unsigned long>(sleep_cycles - last_sleep_cycles);
+    last_scpm = static_cast<unsigned int>(sleep_cycles - last_sleep_cycles);
     last_sleep_cycles = sleep_cycles;
 
     last_script_passes_activity = script_passes_activity;
@@ -188,13 +188,13 @@ void update_rpm( void )
     __int64 kt = * (__int64*) &k;
     __int64 ut = * (__int64*) &u;
     __int64 tot = (kt+ut)/10; // convert to microseconds
-    last_cputime = static_cast<unsigned long>(tot-last_cpu_total);
+    last_cputime = static_cast<unsigned int>(tot-last_cpu_total);
     last_cpu_total = tot;
 #endif
 
     last_busy_sysload_cycles = busy_sysload_cycles;
     last_nonbusy_sysload_cycles = nonbusy_sysload_cycles;
-    unsigned long total_cycles = busy_sysload_cycles + nonbusy_sysload_cycles;
+    unsigned int total_cycles = busy_sysload_cycles + nonbusy_sysload_cycles;
     if (total_cycles)
     {
         last_sysload = busy_sysload_cycles * 100 / total_cycles;
@@ -229,7 +229,7 @@ void update_rpm( void )
 
     if (config.multithread)
     {
-        last_sppm = static_cast<unsigned long>(script_passes - last_script_passes);
+        last_sppm = static_cast<unsigned int>(script_passes - last_script_passes);
         last_script_passes = script_passes;
 
         TICK_PROFILEVAR( scheduler_passes );

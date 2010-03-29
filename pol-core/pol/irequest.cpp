@@ -72,7 +72,7 @@ void send_skillmsg_caps( Client *client, const Character *chr ) {
         if (uoskill.pAttr)
         {
 			const AttributeValue& av = chr->attribute(uoskill.pAttr->attrid);
-            long value;
+            int value;
             
             value = av.effective_tenths();
             if (value > 0xFFFF) 
@@ -113,7 +113,7 @@ void send_skillmsg_no_caps( Client *client, const Character *chr ) {
         msg.skills[i].skillid = ctBEu16(i+1); // for some reason, we send this 1-based
         if (uoskill.pAttr)
         {
-            long value;
+            int value;
             
             value = chr->attribute(uoskill.pAttr->attrid).effective_tenths();
             if (value > 0xFFFF) 

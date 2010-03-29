@@ -25,14 +25,14 @@ so that something referencing the first element won't reference offset 0.
 
 struct SOLIDX1_ELEM
 {
-    unsigned long offset;
+    unsigned int offset;
 };
 
 const unsigned SOLIDX2_FILLER_SIZE = 4;
 
 struct SOLIDX2_ELEM
 {
-    unsigned long baseindex;
+    unsigned int baseindex;
     unsigned short addindex[SOLIDX_X_SIZE][SOLIDX_Y_SIZE];
 };
 assertsize( SOLIDX2_ELEM, 516 );

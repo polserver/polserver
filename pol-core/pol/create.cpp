@@ -313,8 +313,8 @@ void ClientCreateChar( Client* client, PKTIN_00* msg)
 	chr->facing = FACING_W;
 
 	bool valid_stats = false;
-	unsigned long stat_total = msg->Strength + msg->Intelligence + msg->Dexterity;
-	unsigned long stat_min, stat_max;
+	unsigned int stat_total = msg->Strength + msg->Intelligence + msg->Dexterity;
+	unsigned int stat_min, stat_max;
 	char *maxpos;
 	std::vector<string>::size_type sidx;
 	for( sidx = 0; !valid_stats && sidx < ssopt.total_stats_at_creation.size(); ++sidx )
@@ -675,8 +675,8 @@ void ClientCreateChar6017( Client* client, PKTIN_8D* msg)
 	chr->facing = FACING_W;
 
 	bool valid_stats = false;
-	unsigned long stat_total = msg->strength + msg->intelligence + msg->dexterity;
-	unsigned long stat_min, stat_max;
+	unsigned int stat_total = msg->strength + msg->intelligence + msg->dexterity;
+	unsigned int stat_min, stat_max;
 	char *maxpos;
 	std::vector<string>::size_type sidx;
 	for( sidx = 0; !valid_stats && sidx < ssopt.total_stats_at_creation.size(); ++sidx )

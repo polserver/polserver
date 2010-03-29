@@ -47,6 +47,6 @@ extern CmdLevels cmdlevels2;
 CmdLevel* find_cmdlevel( const char* name );
 CmdLevel* FindCmdLevelByAlias( const std::string& str );
 
-ObjArray* GetCommandsInPackage(Package* m_pkg, long cmdlvl_num);
+ObjArray* GetCommandsInPackage(Package* m_pkg, int cmdlvl_num);
 
 

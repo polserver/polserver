@@ -27,9 +27,9 @@ public:
 	explicit Spellbook( const SpellbookDesc& descriptor );
 	virtual ~Spellbook();
 
-    bool has_spellid( unsigned long spellid ) const;
-    bool remove_spellid( unsigned long spellid );
-    bool add_spellid( unsigned long spellid );
+    bool has_spellid( unsigned int spellid ) const;
+    bool remove_spellid( unsigned int spellid );
+    bool add_spellid( unsigned int spellid );
 	u8 bitwise_contents[8];
 	u8 spell_school;
 	virtual void add( Item *item );
@@ -45,7 +45,7 @@ public:
 
 private:
 	virtual bool can_add( const Item& item ) const;
-    virtual void add_bulk( long item_count_delta, long weight_delta );
+    virtual void add_bulk( int item_count_delta, int weight_delta );
 	void calc_current_bitwise_contents();
 protected:
 	

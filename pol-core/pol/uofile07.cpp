@@ -63,7 +63,7 @@ void readstatics( StaticList& vec, unsigned short x, unsigned short y )
         }
     }
 }
-void readstatics( StaticList& vec, unsigned short x, unsigned short y, unsigned long flags )
+void readstatics( StaticList& vec, unsigned short x, unsigned short y, unsigned int flags )
 {
     USTRUCT_STATIC* srecarr;
     int nrec;

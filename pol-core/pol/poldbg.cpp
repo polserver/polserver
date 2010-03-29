@@ -504,7 +504,7 @@ string DebugContext::cmd_funclist( const string& rest, Results& results )
     {
         const EPDbgFunction& func = _script->dbg_functions[i];
 
-        unsigned long cycles = 0;
+        unsigned int cycles = 0;
         for( unsigned pc = func.firstPC; pc <= func.lastPC; ++pc )
         {
             const Instruction& ins = _script->instr[pc];
@@ -529,7 +529,7 @@ string DebugContext::cmd_srcprof( const string& rest, Results& results )
     // parameter: file#
     int fileno = atoi( rest.c_str() );
 
-    typedef map< unsigned long, unsigned long > Cycles;
+    typedef map< unsigned int, unsigned int > Cycles;
     Cycles cycle_counts; // key is line#, val is cycles
 
     unsigned count = _script->instr.size();
@@ -547,8 +547,8 @@ string DebugContext::cmd_srcprof( const string& rest, Results& results )
 
     for( Cycles::iterator itr = cycle_counts.begin(); itr != cycle_counts.end(); ++itr )
     {
-        unsigned long linenum = (*itr).first;
-        unsigned long cycles = (*itr).second;
+        unsigned int linenum = (*itr).first;
+        unsigned int cycles = (*itr).second;
         string result = decint( linenum ) + " " + decint( cycles );
         results.push_back( result );
     }

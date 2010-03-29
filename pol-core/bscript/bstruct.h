@@ -43,7 +43,7 @@ protected:
     virtual void FormatForStringRep( ostream& os, const string& key, const BObjectRef& bvalref ) const;
 
     virtual string getStringRep() const;
-    virtual unsigned long sizeEstimate() const; 
+    virtual unsigned int sizeEstimate() const; 
     virtual void packonto( ostream& os ) const;
     virtual const char* typeOf() const;
 

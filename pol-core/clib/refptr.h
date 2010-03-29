@@ -65,7 +65,7 @@ private: // not implemented
 
 // **** ref_ptr class, assuming T implements ref_counted interface
 #if REFPTR_DEBUG
-extern unsigned long refptr_count;
+extern unsigned int refptr_count;
 #endif
 
 template < class T >

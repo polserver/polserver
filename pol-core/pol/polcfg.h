@@ -45,7 +45,7 @@ struct PolConfig {
 	bool show_speech_colors;
 	bool require_spellbooks;
 	bool enable_secure_trading;
-	unsigned long runaway_script_threshold;
+	unsigned int runaway_script_threshold;
 	bool ignore_load_errors;
 	unsigned short min_cmdlvl_ignore_inactivity;
 	unsigned short inactivity_warning_timeout;

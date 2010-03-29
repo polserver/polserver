@@ -77,7 +77,7 @@ void Realm::standheight( MOVEMODE movemode,
     for( MapShapeList::const_iterator itr = shapes.begin(); itr != shapes.end(); ++itr )
     {
         const MapShape& shape = (*itr);
-        unsigned long flags = shape.flags;
+        unsigned int flags = shape.flags;
         short ztop = shape.z + shape.height;
 #if ENABLE_POLTEST_OUTPUT
         if (static_debug_on)
@@ -213,7 +213,7 @@ void Realm::lowest_standheight( MOVEMODE movemode,
     for( MapShapeList::const_iterator itr = shapes.begin(); itr != shapes.end(); ++itr )
     {
         const MapShape& shape = (*itr);
-        unsigned long flags = shape.flags;
+        unsigned int flags = shape.flags;
         short ztop = shape.z + shape.height;
 #if ENABLE_POLTEST_OUTPUT
         if (static_debug_on)
@@ -291,7 +291,7 @@ void Realm::lowest_standheight( MOVEMODE movemode,
 
 
 Item* find_walkon_item( Items& ivec, short z );
-unsigned char flags_from_tileflags( unsigned long uoflags );
+unsigned char flags_from_tileflags( unsigned int uoflags );
 
 void Realm::readdynamics( MapShapeList& vec, unsigned short x, unsigned short y, Items& walkon_items, bool doors_block )
 {
@@ -346,7 +346,7 @@ bool Realm::walkheight(unsigned short x, unsigned short y, short oldz,
     walkon_items.clear();
     
     readdynamics( shapes, x, y, walkon_items, doors_block /* true */ );
-    unsigned long flags=FLAG::MOVE_FLAGS;
+    unsigned int flags=FLAG::MOVE_FLAGS;
     if (movemode & MOVEMODE_FLY)
         flags |= FLAG::OVERFLIGHT;
     readmultis( shapes, x, y, flags, mvec );
@@ -401,7 +401,7 @@ bool Realm::walkheight( const Character* chr, unsigned short x, unsigned short y
     walkon_items.clear();
     
     readdynamics( shapes, x, y, walkon_items, chr->doors_block() );
-    unsigned long flags=FLAG::MOVE_FLAGS;
+    unsigned int flags=FLAG::MOVE_FLAGS;
     if (chr->movemode & MOVEMODE_FLY)
         flags |= FLAG::OVERFLIGHT;
     readmultis( shapes, x, y, flags, mvec );
@@ -478,7 +478,7 @@ bool Realm::lowest_walkheight(unsigned short x, unsigned short y, short oldz,
     walkon_items.clear();
     
     readdynamics( shapes, x, y, walkon_items, doors_block /* true */ );
-    unsigned long flags=FLAG::MOVE_FLAGS;
+    unsigned int flags=FLAG::MOVE_FLAGS;
     if (movemode & MOVEMODE_FLY)
         flags |= FLAG::OVERFLIGHT;
     readmultis( shapes, x, y, flags, mvec );
@@ -564,7 +564,7 @@ bool Realm::dropheight( MapShapeList& shapes,
     for( MapShapeList::const_iterator itr = shapes.begin(); itr != shapes.end(); ++itr )
     {
         const MapShape& shape = (*itr);
-        unsigned long flags = shape.flags;
+        unsigned int flags = shape.flags;
         short ztop = shape.z + shape.height;
 #if ENABLE_POLTEST_OUTPUT
         if (static_debug_on)
@@ -632,7 +632,7 @@ bool Realm::dropheight( MapShapeList& shapes,
 
 }
 
-void Realm::readmultis( MapShapeList& vec, unsigned short x, unsigned short y, unsigned long anyflags ) const
+void Realm::readmultis( MapShapeList& vec, unsigned short x, unsigned short y, unsigned int anyflags ) const
 {
     unsigned short wxL, wyL, wxH, wyH;
     zone_convert_clip( x-64, y-64, this, wxL, wyL );
@@ -661,7 +661,7 @@ void Realm::readmultis( MapShapeList& vec, unsigned short x, unsigned short y, u
     }
 }
 
-void Realm::readmultis( MapShapeList& vec, unsigned short x, unsigned short y, unsigned long anyflags, MultiList& mvec )
+void Realm::readmultis( MapShapeList& vec, unsigned short x, unsigned short y, unsigned int anyflags, MultiList& mvec )
 {
     unsigned short wxL, wyL, wxH, wyH;
     zone_convert_clip( x-64, y-64, this, wxL, wyL );
@@ -832,7 +832,7 @@ MAPTILE_CELL Realm::getmaptile( unsigned short x, unsigned short y ) const
 		return _maptileserver->GetMapTile( x, y );
 }
 
-void Realm::getmapshapes( MapShapeList& shapes, unsigned short x, unsigned short y, unsigned long anyflags ) const
+void Realm::getmapshapes( MapShapeList& shapes, unsigned short x, unsigned short y, unsigned int anyflags ) const
 {
 	if (is_shadowrealm)
 		baserealm->_mapserver->GetMapShapes( shapes, x, y, anyflags );

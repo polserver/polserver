@@ -104,7 +104,7 @@ public:
 
     unsigned char* Compress(int floor, u32* uncompr_length, u32* compr_length);
     
-    unsigned long TotalSize() const;
+    unsigned int TotalSize() const;
     unsigned char NumUsedPlanes() const;
     
     void readProperties( ConfigElem& elem, const string prefix );

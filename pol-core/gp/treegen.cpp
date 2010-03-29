@@ -17,9 +17,9 @@ Notes
 #include "tree.h"
 #include "gphelp.h"
 
-long n_GIndividual;
-long n_GPopulation;
-long n_GTree;
+int n_GIndividual;
+int n_GPopulation;
+int n_GTree;
 
 GIndividual::GIndividual() :
     alg(NULL),
@@ -576,7 +576,7 @@ void GPopulation::write( const string& filename) const
 void GPopulation::read( const string& filename )
 {
     ifstream ifs( filename.c_str() );
-    long size;
+    int size;
     ifs >> size;
     while (size--)
     {

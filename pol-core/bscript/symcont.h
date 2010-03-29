@@ -60,7 +60,7 @@ class SymbolContainer
    virtual void resize(unsigned lengthToAdd);
    bool findexisting( const void *data, int datalen, unsigned& position );
    void append(const char *string, unsigned& position);
-   void append(long lvalue, unsigned& position);
+   void append(int lvalue, unsigned& position);
    void append(double dvalue, unsigned& position);
    void append(void *data, unsigned datalen, unsigned& position);
 
@@ -75,7 +75,7 @@ class SymbolContainer
        }
    virtual void write(FILE *fp);
    virtual void write(char *fname);
-   unsigned long get_write_length() const; 
+   unsigned int get_write_length() const; 
    virtual void read(FILE *fp);
    virtual void read(char *fname);
 };

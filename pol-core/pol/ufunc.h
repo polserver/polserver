@@ -190,25 +190,25 @@ bool say_above( const UObject* obj,
                 const char* text,
                 unsigned short font = DEFAULT_TEXT_FONT,
                 unsigned short color = DEFAULT_TEXT_COLOR,
-				unsigned long journal_print = JOURNAL_PRINT_NAME );
+				unsigned int journal_print = JOURNAL_PRINT_NAME );
 bool say_above( const UObject* obj, 
                 const u16 *wtext, const char lang[4],
                 unsigned short font = DEFAULT_TEXT_FONT,
                 unsigned short color = DEFAULT_TEXT_COLOR,
-				unsigned long journal_print = JOURNAL_PRINT_NAME );
+				unsigned int journal_print = JOURNAL_PRINT_NAME );
 
 bool private_say_above( Character* chr, 
                         const UObject* obj, 
                         const char *text,
                         unsigned short font = DEFAULT_TEXT_FONT,
                         unsigned short color = DEFAULT_TEXT_COLOR,
-						unsigned long journal_print = JOURNAL_PRINT_NAME);
+						unsigned int journal_print = JOURNAL_PRINT_NAME);
 bool private_say_above( Character* chr, 
                         const UObject* obj, 
                         const u16 *wtext, const char lang[4],
                         unsigned short font = DEFAULT_TEXT_FONT,
                         unsigned short color = DEFAULT_TEXT_COLOR,
-						unsigned long journal_print = JOURNAL_PRINT_NAME );
+						unsigned int journal_print = JOURNAL_PRINT_NAME );
 
 Item *copy_item( const Item *src_item );
 void update_all_weatherregions();

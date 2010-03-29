@@ -30,7 +30,7 @@ class Character;
 
 FILE *open_uo_file( const string& filename_part );
 
-bool check_verdata( unsigned long file, unsigned long block, const USTRUCT_VERSION*& vrec );
+bool check_verdata( unsigned int file, unsigned int block, const USTRUCT_VERSION*& vrec );
 bool statics_height( unsigned short x, unsigned short y, short oldz, short* newz );
 
 #include "udatfile.h"

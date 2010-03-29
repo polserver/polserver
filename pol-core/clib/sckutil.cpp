@@ -17,7 +17,7 @@ Notes
 bool readline( Socket& sck, 
                string& s, 
 			   bool* timeout_exit,
-               unsigned long timeout_secs, 
+               unsigned int timeout_secs, 
                unsigned maxlen )
 {
     if(timeout_exit)
@@ -64,7 +64,7 @@ void writeline( Socket& sck, const std::string& s )
     sck.send( "\r\n", 2 );
 }
 
-bool readstring( Socket& sck, string& s, unsigned long interchar_secs, unsigned length )
+bool readstring( Socket& sck, string& s, unsigned int interchar_secs, unsigned length )
 {
     s = "";
     unsigned char ch;

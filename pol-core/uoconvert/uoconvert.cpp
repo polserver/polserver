@@ -43,16 +43,16 @@ Notes
 #include "../plib/mapwriter.h"
 #include "../plib/realmdescriptor.h"
 
-unsigned long mapcache_misses;
-unsigned long mapcache_hits;
+unsigned int mapcache_misses;
+unsigned int mapcache_hits;
 
 bool cfg_use_no_shoot = 0;
 bool cfg_LOS_through_windows = 0;
 
-std::set<unsigned long> HouseTypes;
-std::set<unsigned long> BoatTypes;
-std::set<unsigned long> StairTypes;
-std::set<unsigned long> MountTypes;
+std::set<unsigned int> HouseTypes;
+std::set<unsigned int> BoatTypes;
+std::set<unsigned int> StairTypes;
+std::set<unsigned int> MountTypes;
 
 PolConfig config;
 void safe_getmapinfo( unsigned short x, unsigned short y, short* z, USTRUCT_MAPINFO* mi );
@@ -87,7 +87,7 @@ void display_flags()
                             if (half) flags |= USTRUCT_TILE::FLAG_HALF_HEIGHT;
                             if (floor) flags |= USTRUCT_TILE::FLAG_FLOOR;
 
-                            unsigned long polflags = polflags_from_tileflags( 0x4000, flags, cfg_use_no_shoot, cfg_LOS_through_windows );
+                            unsigned int polflags = polflags_from_tileflags( 0x4000, flags, cfg_use_no_shoot, cfg_LOS_through_windows );
                             unsigned moveland = (polflags & FLAG::MOVELAND)?1:0;
                             printf( "%u %u %u %u %u %u: %u\n", blocking, platform, walk, wall, half, floor, moveland );
                         }
@@ -231,8 +231,8 @@ int xmain( int argc, char* argv[] )
         uo_usedif = LongArg2( "usedif=", 0 );
 
         const char* realm = FindArg2( "realm=", "britannia" );
-        long default_width = 6144;
-        long default_height = 4096;
+        int default_width = 6144;
+        int default_height = 4096;
         switch( uo_mapid )
         {
         case 0:
@@ -255,16 +255,16 @@ int xmain( int argc, char* argv[] )
 			default_height = 4096;
 			break;
         }
-        long width = LongArg2( "width=", default_width );
-        long height = LongArg2( "height=", default_height );
+        int width = LongArg2( "width=", default_width );
+        int height = LongArg2( "height=", default_height );
         uo_map_width = static_cast<unsigned short>(width);
         uo_map_height = static_cast<unsigned short>(height);
 
         open_uo_data_files();
         read_uo_data();
 
-        long x = LongArg2( "x=", -1 );
-        long y = LongArg2( "y=", -1 );
+        int x = LongArg2( "x=", -1 );
+        int y = LongArg2( "y=", -1 );
 
         // brittania: realm=main mapid=0 width=6144 height=4096
         // ilshenar: realm=ilshenar mapid=2 width=2304 height=1600
@@ -353,9 +353,9 @@ int xmain( int argc, char* argv[] )
 unsigned char polmap_flags_from_landtile( unsigned short landtile )
 {
 
-    unsigned long uoflags = landtile_uoflags( landtile );
+    unsigned int uoflags = landtile_uoflags( landtile );
 
-    unsigned long polflags = polflags_from_tileflags( landtile, uoflags, cfg_use_no_shoot, cfg_LOS_through_windows );
+    unsigned int polflags = polflags_from_tileflags( landtile, uoflags, cfg_use_no_shoot, cfg_LOS_through_windows );
     return static_cast<unsigned char>(polflags);
 }
 
@@ -422,7 +422,7 @@ public:
     }
 };
 
-bool flags_match( unsigned long f1, unsigned long f2, unsigned char bits_compare )
+bool flags_match( unsigned int f1, unsigned int f2, unsigned char bits_compare )
 {
     return (f1 & bits_compare)
                    ==
@@ -683,7 +683,7 @@ short get_lowestadjacentz(unsigned short x,unsigned short y, short z)
 
 void ProcessSolidBlock( unsigned short x_base, unsigned short y_base, MapWriter& mapwriter )
 {
-    unsigned long idx2_offset = 0;
+    unsigned int idx2_offset = 0;
     SOLIDX2_ELEM idx2_elem;
     memset( &idx2_elem, 0, sizeof idx2_elem );
     idx2_elem.baseindex = mapwriter.NextSolidIndex();
@@ -724,7 +724,7 @@ void ProcessSolidBlock( unsigned short x_base, unsigned short y_base, MapWriter&
 			if (mi.landtile > 0x3FFF)
 				printf("Tile %d at (%d,%d,%d) is an invalid ID!\n", mi.landtile, x, y, z);
 
-			unsigned long lt_flags = landtile_uoflags( mi.landtile );
+			unsigned int lt_flags = landtile_uoflags( mi.landtile );
             if (~lt_flags & USTRUCT_TILE::FLAG_BLOCKING)
             { // this seems to be the default.
                 lt_flags |= USTRUCT_TILE::FLAG_PLATFORM;
@@ -751,7 +751,7 @@ void ProcessSolidBlock( unsigned short x_base, unsigned short y_base, MapWriter&
             {
                 StaticRec srec = statics[i];
 
-                unsigned long polflags = polflags_from_tileflags( srec.graphic, srec.flags, cfg_use_no_shoot, cfg_LOS_through_windows );
+                unsigned int polflags = polflags_from_tileflags( srec.graphic, srec.flags, cfg_use_no_shoot, cfg_LOS_through_windows );
 
                 if ((~polflags & FLAG::MOVELAND) &&
                     (~polflags & FLAG::MOVESEA) &&
@@ -825,7 +825,7 @@ void ProcessSolidBlock( unsigned short x_base, unsigned short y_base, MapWriter&
                 StaticRec srec = statics.back();
                 statics.pop_back();
 
-                unsigned long polflags = polflags_from_tileflags( srec.graphic, srec.flags, cfg_use_no_shoot, cfg_LOS_through_windows );
+                unsigned int polflags = polflags_from_tileflags( srec.graphic, srec.flags, cfg_use_no_shoot, cfg_LOS_through_windows );
                 if ((~polflags & FLAG::MOVELAND) &&
                     (~polflags & FLAG::MOVESEA) &&
                     (~polflags & FLAG::BLOCKSIGHT) &&
@@ -988,7 +988,7 @@ void ProcessSolidBlock( unsigned short x_base, unsigned short y_base, MapWriter&
                 if (idx2_offset == 0)
                     idx2_offset = mapwriter.NextSolidx2Offset();
 
-                unsigned long addindex = mapwriter.NextSolidIndex()-idx2_elem.baseindex;
+                unsigned int addindex = mapwriter.NextSolidIndex()-idx2_elem.baseindex;
                 if (addindex > std::numeric_limits<unsigned short>::max())
                     throw runtime_error( "addoffset overflow" );
                 idx2_elem.addindex[x_add][y_add] = static_cast<unsigned short>(addindex);
@@ -1029,10 +1029,10 @@ void ProcessSolidBlock( unsigned short x_base, unsigned short y_base, MapWriter&
     mapwriter.SetSolidx2Offset( x_base, y_base, idx2_offset );
 }
 
-void write_multi( FILE* multis_cfg, unsigned id, FILE* multi_mul, unsigned long offset, unsigned long length )
+void write_multi( FILE* multis_cfg, unsigned id, FILE* multi_mul, unsigned int offset, unsigned int length )
 {
     USTRUCT_MULTI_ELEMENT elem;
-    unsigned long count = length / sizeof elem;
+    unsigned int count = length / sizeof elem;
 
     string type, mytype;
     if (BoatTypes.count(id))
@@ -1125,7 +1125,7 @@ void create_multis_cfg()
     fclose(multi_idx);
     fclose(multi_mul);
 }
-void write_flags( FILE* fp, unsigned long flags )
+void write_flags( FILE* fp, unsigned int flags )
 {
     if (flags & FLAG::MOVELAND)    fprintf( fp, "    MoveLand 1\n" );
     if (flags & FLAG::MOVESEA)     fprintf( fp, "    MoveSea 1\n" );
@@ -1163,7 +1163,7 @@ void create_tiles_cfg()
         {
             continue;
         }
-        unsigned long flags = polflags_from_tileflags( graphic, tile.flags, cfg_use_no_shoot, cfg_LOS_through_windows );
+        unsigned int flags = polflags_from_tileflags( graphic, tile.flags, cfg_use_no_shoot, cfg_LOS_through_windows );
         if (mountCount != 0)
         {
           tile.layer = 25;
@@ -1176,7 +1176,7 @@ void create_tiles_cfg()
         fprintf( fp, "tile 0x%x\n", graphic );
         fprintf( fp, "{\n" );
         fprintf( fp, "    Desc %s\n", name );
-        fprintf( fp, "    UoFlags 0x%08lx\n", tile.flags );
+        fprintf( fp, "    UoFlags 0x%08lx\n", static_cast<unsigned long>(tile.flags));
         if (tile.layer)
             fprintf( fp, "    Layer %d\n", tile.layer );
         fprintf( fp, "    Height %d\n", tile.height );
@@ -1205,9 +1205,9 @@ void create_landtiles_cfg()
             fprintf( fp, "landtile 0x%x\n", i );
             fprintf( fp, "{\n" );
             fprintf( fp, "    Name %s\n", landtile.name );
-            fprintf( fp, "    UoFlags 0x%08lx\n", landtile.flags );
+            fprintf( fp, "    UoFlags 0x%08lx\n", static_cast<unsigned long>(landtile.flags));
 
-            unsigned long flags = polflags_from_landtileflags( i, landtile.flags );
+            unsigned int flags = polflags_from_landtileflags( i, landtile.flags );
             flags &= ~FLAG::MOVABLE; // movable makes no sense for landtiles
             write_flags( fp, flags );
             fprintf( fp, "}\n" );

@@ -59,7 +59,7 @@ void BinaryFile::Seek( fstream::pos_type abs_offset )
 void BinaryFile::ReadBuffer( void* buffer, streamsize length )
 {
     if (!_file.read( reinterpret_cast<char*>(buffer), length ))
-        throw runtime_error( "BinaryFile::Read('" + _filename + "') failed to read " + decint(static_cast<long>(length)) + " bytes." );
+        throw runtime_error( "BinaryFile::Read('" + _filename + "') failed to read " + decint(static_cast<int>(length)) + " bytes." );
 }
 
 fstream::pos_type BinaryFile::FileSize()

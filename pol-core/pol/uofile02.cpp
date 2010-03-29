@@ -31,15 +31,15 @@ bool static_debug_on = false;
 unsigned int num_static_patches = 0;
 // I'd put these in an anonymous namespace, but the debugger can't see 'em...at least not easily.
 
-    unsigned long last_block = ~0Lu;
+    unsigned int last_block = ~0Lu;
     USTRUCT_IDX idxrec;
     USTRUCT_STATIC srecs[MAX_STATICS_PER_BLOCK];
     int srec_count;
 
-    long cfg_max_statics_per_block = 1000;
-    long cfg_warning_statics_per_block = 1000;
+    int cfg_max_statics_per_block = 1000;
+    int cfg_warning_statics_per_block = 1000;
 
-    typedef std::map< unsigned long, unsigned long > StaticDifBlockIndex;
+    typedef std::map< unsigned int, unsigned int > StaticDifBlockIndex;
     StaticDifBlockIndex stadifl;
 
 void read_static_diffs()
@@ -63,11 +63,11 @@ void readstaticblock( USTRUCT_STATIC** ppst, int* pnum, unsigned short x, unsign
     {
         cerr << "readstaticblock: x=" << x << ",y=" << y << endl;
     }
-    unsigned long x_block, y_block;
+    unsigned int x_block, y_block;
 
     x_block = x / 8;
     y_block = y / 8;
-    unsigned long block = (x_block * (uo_map_height/8) + y_block);
+    unsigned int block = (x_block * (uo_map_height/8) + y_block);
     if (block != last_block)
     {
         last_block = block;
@@ -75,7 +75,7 @@ void readstaticblock( USTRUCT_STATIC** ppst, int* pnum, unsigned short x, unsign
         StaticDifBlockIndex::const_iterator citr = stadifl.find( block );
         if (citr == stadifl.end())
         {
-            long offset = block * sizeof idxrec;
+            int offset = block * sizeof idxrec;
             if (fseek( sidxfile, offset, SEEK_SET ) != 0)
             {
                 throw runtime_error( "readstaticblock: fseek(sidxfile) to " + tostring(offset) + " failed." );
@@ -117,7 +117,7 @@ void readstaticblock( USTRUCT_STATIC** ppst, int* pnum, unsigned short x, unsign
         {
             // it's in the dif file.. get it from there.
             unsigned dif_index = (*citr).second;
-            long offset = dif_index * sizeof idxrec;
+            int offset = dif_index * sizeof idxrec;
             if (fseek( stadifi_file, offset, SEEK_SET ) != 0)
             {
                 throw runtime_error( "readstaticblock: fseek(stadifi) to " + tostring(offset) + " failed." );

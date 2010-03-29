@@ -15,9 +15,9 @@ Notes
 bool ecompile_include_debug_sections;
 int include_debug;
 
-long executor_count;
-long eobject_imp_count;
-long eobject_imp_constructions;
-long escript_program_count;
+int executor_count;
+int eobject_imp_count;
+int eobject_imp_constructions;
+int escript_program_count;
 u64 escript_instr_cycles;
-long escript_execinstr_calls;
+int escript_execinstr_calls;

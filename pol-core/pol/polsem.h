@@ -15,10 +15,10 @@ void init_ipc_vars();
 void deinit_ipc_vars();
 
 void send_pulse();
-void wait_for_pulse( unsigned long millis );
+void wait_for_pulse( unsigned int millis );
 
 void wake_tasks_thread();
-void tasks_thread_sleep( unsigned long millis );
+void tasks_thread_sleep( unsigned int millis );
 
 //
 // moved to threadhelp:
@@ -33,7 +33,7 @@ void tasks_thread_sleep( unsigned long millis );
 //void inc_child_thread_count( bool need_lock = true );
 //void dec_child_thread_count( bool need_lock = true );
 
-//extern unsigned long child_threads;
+//extern unsigned int child_threads;
 
 #ifdef _WIN32
 #include <windows.h>

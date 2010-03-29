@@ -62,9 +62,9 @@ void ResourceRegion::read_data( ConfigElem& elem )
 ///	  
 BObjectImp* ResourceRegion::get_harvest_difficulty( xcoord x, ycoord y, Realm* realm )
 {
-	unsigned long xy = (x<<16)|y;
+	unsigned int xy = (x<<16)|y;
 	Depletions::iterator itr = depletions_.find( xy );
-	long units = units_per_area_;
+	int units = units_per_area_;
 	if (itr != depletions_.end())
 	{
 		units -= (*itr).second;
@@ -76,16 +76,16 @@ BObjectImp* ResourceRegion::get_harvest_difficulty( xcoord x, ycoord y, Realm* r
 		return new BError( "Resource is depleted" );
 	}
 	
-	unsigned long base_difficulty = 90 - (units * 80 / units_per_area_);
-	unsigned long this_difficulty = random_int( base_difficulty * 2 );
+	unsigned int base_difficulty = 90 - (units * 80 / units_per_area_);
+	unsigned int this_difficulty = random_int( base_difficulty * 2 );
 	return new BLong( this_difficulty );
 }
 
 BObjectImp* ResourceRegion::harvest_resource( xcoord x, ycoord y, int n, int m )
 {
-	unsigned long xy = (x<<16)|y;
+	unsigned int xy = (x<<16)|y;
 	Depletions::iterator itr = depletions_.find( xy );
-	long avail_units = units_per_area_;
+	int avail_units = units_per_area_;
 	if (itr != depletions_.end())
 	{
 		avail_units -= (*itr).second;
@@ -108,8 +108,8 @@ BObjectImp* ResourceRegion::harvest_resource( xcoord x, ycoord y, int n, int m )
 
 void ResourceRegion::regenerate( time_t now )
 {
-	unsigned long diff = static_cast<unsigned long>(now - last_regen_);
-	unsigned long n_regrow;
+	unsigned int diff = static_cast<unsigned int>(now - last_regen_);
+	unsigned int n_regrow;
 	if (seconds_per_regrow_)
 	{   
 		n_regrow = diff / seconds_per_regrow_;
@@ -173,7 +173,7 @@ void ResourceDef::read_config( ConfigElem& elem )
 
 void ResourceDef::read_data( ConfigElem& elem )
 {
-	current_units_ = static_cast<long>(elem.remove_ulong( "Units" ));
+	current_units_ = static_cast<int>(elem.remove_ulong( "Units" ));
 }
 
 bool ResourceDef::findmarker( xcoord x, ycoord y, Realm* realm, unsigned short objtype )
@@ -195,7 +195,7 @@ bool ResourceDef::findmarker( xcoord x, ycoord y, Realm* realm, unsigned short o
 #include "udatfile.h"
 void ResourceDef::counttiles()
 {
-	unsigned long tilecount = 0;
+	unsigned int tilecount = 0;
 
 	std::vector<Realm*>::iterator itr;
 	for( itr = Realms->begin(); itr != Realms->end(); ++itr )

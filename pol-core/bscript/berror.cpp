@@ -13,8 +13,8 @@ Notes
 #include "impstr.h"
 #include "contiter.h"
 
-unsigned long BError::creations_ = 0;
-unsigned long BError::creations()
+unsigned int BError::creations_ = 0;
+unsigned int BError::creations()
 {
     return creations_;
 }

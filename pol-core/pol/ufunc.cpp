@@ -1593,7 +1593,7 @@ bool say_above(const UObject* obj,
                const char *text,
                unsigned short font,
                unsigned short color,
-			   unsigned long journal_print)
+			   unsigned int journal_print)
 {
     static PKTOUT_1C msg;
     unsigned textlen, msglen;
@@ -1637,7 +1637,7 @@ bool say_above(const UObject* obj,
 			   const char lang[4],
                unsigned short font,
                unsigned short color,
-			   unsigned long journal_print)
+			   unsigned int journal_print)
 {
     static PKTOUT_AE msg;
     unsigned textlen = 0, msglen;
@@ -1691,7 +1691,7 @@ bool private_say_above( Character* chr,
                         const char *text,
                         unsigned short font,
                         unsigned short color,
-						unsigned long journal_print)
+						unsigned int journal_print)
 {
     static PKTOUT_1C msg;
     unsigned textlen, msglen;
@@ -1734,7 +1734,7 @@ bool private_say_above( Character* chr,
 						const char lang[4],
                         unsigned short font,
                         unsigned short color,
-						unsigned long journal_print )
+						unsigned int journal_print )
 {
     static PKTOUT_AE msg;
     unsigned textlen = 0, msglen;
@@ -1849,7 +1849,7 @@ void send_stamina_level( Client *client )
     msg.serial = chr->serial_ext;
     if (uoclient_general.stamina.any)
     {
-        long v = chr->vital(uoclient_general.stamina.id).current_ones();
+        int v = chr->vital(uoclient_general.stamina.id).current_ones();
         if (v > 0xFFFF)
             v = 0xFFFF;
         msg.stamina = ctBEu16( static_cast<u16>(v) );
@@ -1876,7 +1876,7 @@ void send_mana_level( Client *client )
     msg.serial = chr->serial_ext;
     if (uoclient_general.mana.any)
     {
-        long v = chr->vital(uoclient_general.mana.id).current_ones();
+        int v = chr->vital(uoclient_general.mana.id).current_ones();
         if (v > 0xFFFF)
             v = 0xFFFF;
         msg.mana = ctBEu16( static_cast<u16>(v) );
@@ -2334,7 +2334,7 @@ void update_all_weatherregions()
 	1 gold coin displays as "gold coin".  There must be a bit somewhere 
 	that I just don't understand yet.
 */
-string format_description( unsigned long polflags, const string& descdef, unsigned short amount )
+string format_description( unsigned int polflags, const string& descdef, unsigned short amount )
 {
     string desc;
 

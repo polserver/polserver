@@ -25,8 +25,8 @@ protected:
     virtual void readProperties( ConfigElem& elem );
     virtual class BObjectImp* get_script_member( const char* membername ) const;
     virtual class BObjectImp* get_script_member_id( const int id ) const; ///id test
-    virtual class BObjectImp* set_script_member( const char* membername, long value );
-    virtual class BObjectImp* set_script_member_id( const int id, long value ); //id test
+    virtual class BObjectImp* set_script_member( const char* membername, int value );
+    virtual class BObjectImp* set_script_member_id( const int id, int value ); //id test
     virtual bool script_isa( unsigned isatype ) const;
 
 	virtual Item* clone() const; //dave 12-20

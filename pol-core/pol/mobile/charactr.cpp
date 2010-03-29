@@ -738,9 +738,9 @@ u8 Character::los_height() const
 ///
 /// A Mobile's weight is 10 stones + the weight of their equipment.
 ///
-unsigned long Character::weight() const
+unsigned int Character::weight() const
 {
-	unsigned long wt = 10 + wornitems.weight();
+	unsigned int wt = 10 + wornitems.weight();
 	if (gotten_item)
 		wt += gotten_item->weight();
 	if (trading_cont.get())
@@ -1111,7 +1111,7 @@ void Character::readCommonProperties( ConfigElem& elem )
 	title_guild = elem.remove_string( "TITLEGUILD", "" );
 	title_race = elem.remove_string( "TITLERACE", "" );
 
-	unsigned long tmp_guildid;
+	unsigned int tmp_guildid;
 	if (elem.remove_prop( "GUILDID", &tmp_guildid))
 		guild_ = FindOrCreateGuild( tmp_guildid, serial );
 	//guildid_ = elem.remove_ulong( "GUILDID", 0 );
@@ -1155,13 +1155,13 @@ void Character::readAttributesAndVitals( ConfigElem& elem )
 			if (elem.remove_prop( pAttr->aliases[i].c_str(), &temp ))
 			{
 				// read
-				unsigned long base;
-				unsigned long cap = pAttr->default_cap;
+				unsigned int base;
+				unsigned int cap = pAttr->default_cap;
 				unsigned char lock = 0;
 				if (polvar.DataWrittenBy == 93 &&
 					gflag_in_system_load)
 				{
-					unsigned long raw = strtoul( temp.c_str(), NULL, 10 );
+					unsigned int raw = strtoul( temp.c_str(), NULL, 10 );
 					base = raw_to_base(raw);
 				}
 				else
@@ -1173,16 +1173,16 @@ void Character::readAttributesAndVitals( ConfigElem& elem )
 
 					const char* pval = temp.c_str();
 					char* pdot = NULL;
-					unsigned long ones = strtoul( pval, &pdot, 10 );
-					unsigned long tenths = 0;
+					unsigned int ones = strtoul( pval, &pdot, 10 );
+					unsigned int tenths = 0;
 					if (pdot && *pdot == '.')
 						tenths = strtoul( pdot+1, &pdot, 10 );
 					base = ones*10+tenths;
 
 					// Do we have caps?
 					if (pdot && *pdot == ':') {
-						unsigned long cap_ones = strtoul( pdot+1, &pdot, 10 );
-						unsigned long cap_tenths = 0;
+						unsigned int cap_ones = strtoul( pdot+1, &pdot, 10 );
+						unsigned int cap_tenths = 0;
 
 						// Tenths in cap?
 						if (pdot && *pdot == '.')
@@ -1230,7 +1230,7 @@ void Character::readAttributesAndVitals( ConfigElem& elem )
 		VitalValue& vv = vital(pVital->vitalid);
 		for( unsigned i = 0; i < pVital->aliases.size(); ++i )
 		{
-			unsigned long temp;
+			unsigned int temp;
 			if (elem.remove_prop( pVital->aliases[i].c_str(), &temp ))
 			{
 				// read
@@ -1472,7 +1472,7 @@ Spellbook* Character::spellbook(u8 school) const
 	return NULL;
 }
 
-unsigned long Character::gold_carried() const
+unsigned int Character::gold_carried() const
 {
 	UContainer* bp = backpack();
 	if (bp != NULL)
@@ -1484,7 +1484,7 @@ unsigned long Character::gold_carried() const
 // TODO: This could be more efficient, by inlining 'spend' logic
 // in a recursive function
 
-void Character::spend_gold( unsigned long amount )
+void Character::spend_gold( unsigned int amount )
 {
 	passert( gold_carried() >= amount );
 
@@ -1683,9 +1683,9 @@ Item *Character::find_wornitem( u32 serial ) const
 	return NULL;
 }
 
-void Character::produce( const Vital* pVital, VitalValue& vv, unsigned long amt )
+void Character::produce( const Vital* pVital, VitalValue& vv, unsigned int amt )
 {
-	long start_ones = vv.current_ones();
+	int start_ones = vv.current_ones();
 	set_dirty();
 	vv.produce( amt );
 	if (start_ones != vv.current_ones())
@@ -1694,10 +1694,10 @@ void Character::produce( const Vital* pVital, VitalValue& vv, unsigned long amt 
 	}
 }
 
-bool Character::consume( const Vital* pVital, VitalValue& vv, unsigned long amt )
+bool Character::consume( const Vital* pVital, VitalValue& vv, unsigned int amt )
 {
 	bool res;
-	long start_ones = vv.current_ones();
+	int start_ones = vv.current_ones();
 	set_dirty();
 	res = vv.consume( amt );
 	if (start_ones != vv.current_ones())
@@ -1707,14 +1707,14 @@ bool Character::consume( const Vital* pVital, VitalValue& vv, unsigned long amt 
 	return res;
 }
 
-void Character::set_current_ones( const Vital* pVital, VitalValue& vv, unsigned long ones )
+void Character::set_current_ones( const Vital* pVital, VitalValue& vv, unsigned int ones )
 {
 	set_dirty();
 	vv.current_ones( ones );
 	ClientInterface::tell_vital_changed( this, pVital );
 }
 
-void Character::set_current( const Vital* pVital, VitalValue& vv, unsigned long ones )
+void Character::set_current( const Vital* pVital, VitalValue& vv, unsigned int ones )
 {
 	set_dirty();
 	vv.current( ones );
@@ -1724,7 +1724,7 @@ void Character::set_current( const Vital* pVital, VitalValue& vv, unsigned long 
 void Character::regen_vital( const Vital* pVital )
 {
 	VitalValue& vv = vital( pVital->vitalid );
-	long rr = vv.regenrate();
+	int rr = vv.regenrate();
 	if (rr > 0)
 	{
 		produce( pVital, vv, rr/12 );
@@ -1758,20 +1758,20 @@ void Character::calc_single_vital( const Vital* pVital )
 {
     VitalValue& vv = vital(pVital->vitalid);
 
-    long start_ones = vv.current_ones();
-    long start_max = vv.maximum_ones();
+    int start_ones = vv.current_ones();
+    int start_max = vv.maximum_ones();
 
     //dave change the order of maximum and regen function 3/19/3
-    long mv = pVital->get_maximum_func->call_long( new ECharacterRefObjImp(this) );
+    int mv = pVital->get_maximum_func->call_long( new ECharacterRefObjImp(this) );
 
-    if (mv < static_cast<long>(VITAL_LOWEST_MAX_HUNDREDTHS))
+    if (mv < static_cast<int>(VITAL_LOWEST_MAX_HUNDREDTHS))
         mv = VITAL_LOWEST_MAX_HUNDREDTHS;
-    if (mv > static_cast<long>(VITAL_HIGHEST_MAX_HUNDREDTHS))
+    if (mv > static_cast<int>(VITAL_HIGHEST_MAX_HUNDREDTHS))
         mv = VITAL_HIGHEST_MAX_HUNDREDTHS;
 
     vv.maximum(mv);
 
-    long rr = pVital->get_regenrate_func->call_long( new ECharacterRefObjImp(this) );
+    int rr = pVital->get_regenrate_func->call_long( new ECharacterRefObjImp(this) );
 
     if (rr < VITAL_LOWEST_REGENRATE)
         rr = VITAL_LOWEST_REGENRATE;
@@ -1790,7 +1790,7 @@ void Character::calc_single_attribute( const Attribute* pAttr )
 
 	if (pAttr->getintrinsicmod_func)
 	{
-		long im = pAttr->getintrinsicmod_func->call_long( new ECharacterRefObjImp(this) );
+		int im = pAttr->getintrinsicmod_func->call_long( new ECharacterRefObjImp(this) );
 
 		if (im < ATTRIBUTE_MIN_INTRINSIC_MOD)
 			im = ATTRIBUTE_MIN_INTRINSIC_MOD;
@@ -1908,7 +1908,7 @@ u8 Character::get_flag1(Client *client) const
 	return flag1;
 }
 
-void Character::apply_raw_damage_hundredths( unsigned long amount, Character* source, bool userepsys, bool send_damage_packet )
+void Character::apply_raw_damage_hundredths( unsigned int amount, Character* source, bool userepsys, bool send_damage_packet )
 {
 	if (dead())
 	{
@@ -2003,7 +2003,7 @@ double Character::apply_damage( double damage, Character* source, bool userepsys
 	damage = armor_absorb_damage( damage );
 	if (watch.combat) cout << "Final damage: " << damage << endl;
 	do_imhit_effects();
-	apply_raw_damage_hundredths( static_cast<unsigned long>(damage*100), source, userepsys, send_damage_packet );
+	apply_raw_damage_hundredths( static_cast<unsigned int>(damage*100), source, userepsys, send_damage_packet );
 
 	return damage;
 }
@@ -2091,7 +2091,7 @@ void Character::check_undamaged()
 ///
 ///	 (note, poisoned and paralyzed flags are not checked)
 ///
-void Character::heal_damage_hundredths( unsigned long amount )
+void Character::heal_damage_hundredths( unsigned int amount )
 {
 	if (dead())
 	{
@@ -2883,8 +2883,8 @@ void Character::schedule_attack()
 			// while waiting for your timeout.
 	if (swing_task == NULL)
 	{
-		unsigned long weapon_speed = weapon->speed();
-		unsigned long weapon_delay = weapon->delay();
+		unsigned int weapon_speed = weapon->speed();
+		unsigned int weapon_delay = weapon->delay();
 		polclock_t clocks;
 
 		if (!weapon_delay)
@@ -2897,7 +2897,7 @@ void Character::schedule_attack()
 		}
 		else
 		{
-			long delay_sum = weapon_delay + delay_mod_;
+			int delay_sum = weapon_delay + delay_mod_;
 			if (delay_sum < 0)
 				delay_sum = 0;
 
@@ -3614,7 +3614,7 @@ void Character::check_music_region_change()
 	}
 }
 
-bool move_character_to( Character* chr, unsigned short x, unsigned short y,int z,long flags ); //for some reason send_goxyz doesn't work well for this (see below)
+bool move_character_to( Character* chr, unsigned short x, unsigned short y,int z,int flags ); //for some reason send_goxyz doesn't work well for this (see below)
 void Character::check_weather_region_change(bool force) //dave changed 5/26/03 - use force boolean if current weather region changed type/intensity
 {
 	WeatherRegion* cur_weather_region = client->gd->weather_region;
@@ -3757,7 +3757,7 @@ bool Character::can_face( UFACING i_facing )
 }
 
 
-bool Character::face( UFACING i_facing, long flags )
+bool Character::face( UFACING i_facing, int flags )
 {
 	if((flags & 1) == 0)
 	{

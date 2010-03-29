@@ -290,10 +290,10 @@ BObjectImp* AccountObjImp::call_method_id( const int id, Executor& ex, bool forc
 		if ( ex.numParams() != 1 )
 			return new BError("account.SetDefaultCmdLevel(int) requires a parameter.");
 
-		long cmdlevel;
+		int cmdlevel;
 		if ( !ex.getParam(0, cmdlevel) )
 			return new BError("Invalid parameter type.");
-		else if ( cmdlevel >= long(cmdlevels2.size()) )
+		else if ( cmdlevel >= int(cmdlevels2.size()) )
 			cmdlevel = cmdlevels2.size()-1;
 
 		obj_->default_cmdlevel_ = char(cmdlevel);
@@ -307,7 +307,7 @@ BObjectImp* AccountObjImp::call_method_id( const int id, Executor& ex, bool forc
     {
 		if (ex.numParams()!=1)
 			return new BError( "account.GetCharacter(index) requires a parameter." );
-        long index;
+        int index;
 		if (!ex.getParam( 0, index, 1, config.character_slots ))
 			return NULL;
 		Character* chr = obj_->get_character( index-1 );
@@ -324,7 +324,7 @@ BObjectImp* AccountObjImp::call_method_id( const int id, Executor& ex, bool forc
     {
 		if (ex.numParams()!=1)
 			return new BError( "account.DeleteCharacter(index) requires a parameter." );
-        long index;
+        int index;
 		if (!ex.getParam( 0, index, 1, config.character_slots ))
 			return NULL;
 		Character* chr = obj_->get_character( index-1 );
@@ -392,7 +392,7 @@ BObjectImp* AccountObjImp::call_method_id( const int id, Executor& ex, bool forc
 		if( ex.numParams() == 2 )
 		{
 			const String* acctname;
-			long index;
+			int index;
 			if (ex.getStringParam( 0, acctname ) && 
 				ex.getParam( 1, index, 1, config.character_slots ))
 			{
@@ -432,7 +432,7 @@ BObjectImp* AccountObjImp::call_method_id( const int id, Executor& ex, bool forc
 		if( ex.numParams() == 2 )
 		{
 			const String* acctname;
-			long index;
+			int index;
 			if (ex.getStringParam( 0, acctname ) && 
 				ex.getParam( 1, index, 1, config.character_slots ))
 			{
@@ -468,7 +468,7 @@ BObjectImp* AccountObjImp::call_method_id( const int id, Executor& ex, bool forc
 		break;
 	case MTH_ADD_CHARACTER:
 	{
-		long index;
+		int index;
 		if ( !ex.getParam(0, index, 0, config.character_slots) )
 			return new BError("Account.AddCharacter() requires one parameter.");
 

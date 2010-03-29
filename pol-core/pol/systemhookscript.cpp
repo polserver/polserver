@@ -246,7 +246,7 @@ std::string ExportScript::call_string(
     }
 }
 
-long ExportScript::call_long( 
+int ExportScript::call_long( 
                unsigned PC,
                BObjectImp* p0 )
 {
@@ -262,7 +262,7 @@ long ExportScript::call_long(
         if (uoexec.ValueStack.empty())
             return 0;
         
-        long ret;
+        int ret;
         BObjectImp* imp = uoexec.ValueStack.top().get()->impptr();
         if (imp->isa( BObjectImp::OTLong ))
         {
@@ -283,7 +283,7 @@ long ExportScript::call_long(
     }
 }
 
-long ExportScript::call_long( 
+int ExportScript::call_long( 
                unsigned PC,
                BObjectImp* p0, BObjectImp* p1 )
 {
@@ -300,7 +300,7 @@ long ExportScript::call_long(
         if (uoexec.ValueStack.empty())
             return 0;
         
-        long ret;
+        int ret;
         BObjectImp* imp = uoexec.ValueStack.top().get()->impptr();
         if (imp->isa( BObjectImp::OTLong ))
         {

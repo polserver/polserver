@@ -87,22 +87,22 @@ class AttributeValue
 public:
 	AttributeValue() : _base(0), _temp(0), _intrinsic(0), _lockstate(0), _cap(0) {}
 
-    long effective() const
+    int effective() const
     {
-        long v = _base;
+        int v = _base;
         v += _temp;
         v += _intrinsic;
         return (v>0)?(v/10):0;
     }
-    long effective_tenths() const
+    int effective_tenths() const
     {
-        long v = _base;
+        int v = _base;
         v += _temp;
         v += _intrinsic;
         return (v>0)?v:0;
     }
 
-    long base() const
+    int base() const
     {
         return _base;
     }
@@ -113,7 +113,7 @@ public:
         _base = base;
     }
 
-    long temp_mod() const
+    int temp_mod() const
     {
         return _temp;
     }
@@ -122,7 +122,7 @@ public:
         _temp = temp;
     }
 
-    long intrinsic_mod() const
+    int intrinsic_mod() const
     {
         return _intrinsic;
     }
@@ -163,19 +163,19 @@ public:
     VitalValue() : _current(0), _maximum(0), _regenrate(0) {}
 
 // accessors:
-    long current() const
+    int current() const
     {
         return _current;
     }
-    long current_ones() const
+    int current_ones() const
     {
         return _current/100;
     }
-    long maximum() const
+    int maximum() const
     {
         return _maximum;
     }
-    long maximum_ones() const
+    int maximum_ones() const
     {
         return _maximum/100;
     }
@@ -183,7 +183,7 @@ public:
     {
         return (_current >= _maximum);
     }
-    long regenrate() const
+    int regenrate() const
     {
         return _regenrate;
     }
@@ -191,29 +191,29 @@ public:
 // mutators:
 protected:
     friend class Character;
-    void current( long cur )
+    void current( int cur )
     {
         _current = cur;
         if (_current > _maximum)
             current( _maximum );
     }
-    void current_ones( long ones )
+    void current_ones( int ones )
     {
         _current = ones*100;
         if (_current > _maximum)
             current( _maximum );
     }
-    void maximum( long val )
+    void maximum( int val )
     {
         _maximum = val;
         if (_current > _maximum)
             current( _maximum );
     }
-    void regenrate( long rate )
+    void regenrate( int rate )
     {
         _regenrate = rate;
     }
-    bool consume( unsigned long hamt )
+    bool consume( unsigned int hamt )
     {
         if (_current >= hamt)
         {
@@ -226,7 +226,7 @@ protected:
             return false;
         }
     }
-    void produce( unsigned long hamt )
+    void produce( unsigned int hamt )
     {
         unsigned newcur = _current + hamt;
         if (newcur > _maximum ||
@@ -241,9 +241,9 @@ protected:
     }
 
 private:
-    unsigned long _current;     // 0 to 10000000 [0 to 100000.00]
-    unsigned long _maximum;
-    long _regenrate; // in hundredths of points per minute
+    unsigned int _current;     // 0 to 10000000 [0 to 100000.00]
+    unsigned int _maximum;
+    int _regenrate; // in hundredths of points per minute
 };
 
 struct reportable_t { u32 serial; polclock_t polclock; };
@@ -282,7 +282,7 @@ public:
     virtual void destroy();
 
     virtual u8 los_height() const;
-    virtual unsigned long weight() const;
+    virtual unsigned int weight() const;
     unsigned short carrying_capacity() const;
     bool layer_is_equipped( int layer ) const;
     static bool valid_equip_layer( const Item* item );
@@ -303,8 +303,8 @@ public:
     Spellbook* spellbook(u8 school) const;
     UContainer *backpack() const;
     Item* wornitem( int layer ) const;
-    unsigned long gold_carried() const;
-    void spend_gold( unsigned long amount );
+    unsigned int gold_carried() const;
+    void spend_gold( unsigned int amount );
 
     const CharacterSet& hostiles() const;
 
@@ -328,7 +328,7 @@ public:
 	virtual void inform_moved( Character* moved );
     virtual void inform_imoved( Character* chr );
     void clear_opponent_of();
-	unsigned long warmode_wait;
+	unsigned int warmode_wait;
 	void send_warmode();
     unsigned short get_weapon_skill() const;
     USKILLID weapon_skillid() const;
@@ -359,7 +359,7 @@ public:
     void check_attack_after_move();
     void attack( Character* opponent );
     void send_highlight() const;
-	bool manual_set_swing_timer(long time);
+	bool manual_set_swing_timer(int time);
 
     //void find_armor();
     //void calculate_ar();
@@ -415,9 +415,9 @@ public:
     void set_dexterity( u16 dexterity );
     void validate_stat_ranges();
 
-    virtual void apply_raw_damage_hundredths( unsigned long damage, Character* source, bool userepsys = true, bool send_damage_packet = false );
+    virtual void apply_raw_damage_hundredths( unsigned int damage, Character* source, bool userepsys = true, bool send_damage_packet = false );
     double apply_damage( double damage, Character* source = NULL, bool userepsys = true, bool send_damage_packet = false );
-    void heal_damage_hundredths( unsigned long damage );
+    void heal_damage_hundredths( unsigned int damage );
     virtual void on_swing_failure( Character* attacker );
     void run_hit_script( Character* defender, double damage );
 
@@ -440,7 +440,7 @@ public:
     void getpos_ifmove( UFACING i_facing, unsigned short* px, unsigned short* py );
     
 	bool can_face( UFACING i_facing );
-	bool face( UFACING i_facing, long flags = 0 );
+	bool face( UFACING i_facing, int flags = 0 );
     bool move( unsigned char dir );
     void tellmove( void );
     void check_region_changes();
@@ -506,8 +506,8 @@ public: // REPUTATION SYSTEM
 
     class Guild* guild() const;
     void guild( Guild* );
-    unsigned long guildid() const;
-    //void guildid( unsigned long gid );
+    unsigned int guildid() const;
+    //void guildid( unsigned int gid );
 
     bool is_guild_ally( const Character* chr ) const;
     bool is_guild_enemy( const Character* chr ) const;
@@ -524,7 +524,7 @@ public: // REPUTATION SYSTEM
 	bool has_party_invite_timeout();
 	void cancel_party_invite_timeout();
 
-    void make_criminal( long level = 1 );
+    void make_criminal( int level = 1 );
     void make_murderer( bool newlval = true );
 	void make_aggressor_to( Character* chr);
 	void make_lawfullydamaged_to( Character* chr);
@@ -557,8 +557,8 @@ public:
     void award_raw_skillpoints( USKILLID skillid, unsigned short points );
     unsigned short get_skill( USKILLID skillid ) const;
     unsigned short get_base_skill( USKILLID skillid ) const;
-    unsigned long get_raw_skill( USKILLID skillid ) const;
-    void set_raw_skill( USKILLID skillid, unsigned long raw_value );
+    unsigned int get_raw_skill( USKILLID skillid ) const;
+    void set_raw_skill( USKILLID skillid, unsigned int raw_value );
 
     void recalc_all_skills( void );
     void recalc_skill( int skillnum );
@@ -577,9 +577,9 @@ public:
     virtual BObjectImp* get_script_member_id( const int id ) const; //id test
 
     virtual BObjectImp* set_script_member( const char *membername, const std::string& value );
-    virtual BObjectImp* set_script_member( const char *membername, long value );
+    virtual BObjectImp* set_script_member( const char *membername, int value );
     virtual BObjectImp* set_script_member_id( const int id, const std::string& value );//id test
-    virtual BObjectImp* set_script_member_id( const int id, long value );//id test
+    virtual BObjectImp* set_script_member_id( const int id, int value );//id test
 	virtual BObjectImp* set_script_member_id_double( const int id, double value );
 
     virtual BObjectImp* script_method( const char* methodname, Executor& ex );
@@ -668,7 +668,7 @@ public:
 	short  gradual_boost;
 
 	u32 last_corpse;
-	unsigned long dblclick_wait;
+	unsigned int dblclick_wait;
 	Item* gotten_item;
 	
 	enum { GOTTEN_ITEM_ON_GROUND,
@@ -859,10 +859,10 @@ public:
 	void calc_single_vital( const Vital* pVital );
 	void calc_single_attribute( const Attribute* pAttr );
     void set_vitals_to_maximum(); // throw();
-    void produce( const Vital* pVital, VitalValue& vv, unsigned long amt );
-    bool consume( const Vital* pVital, VitalValue& vv, unsigned long amt );
-    void set_current_ones( const Vital* pVital, VitalValue& vv, unsigned long ones );
-    void set_current( const Vital* pVital, VitalValue& vv, unsigned long ones );
+    void produce( const Vital* pVital, VitalValue& vv, unsigned int amt );
+    bool consume( const Vital* pVital, VitalValue& vv, unsigned int amt );
+    void set_current_ones( const Vital* pVital, VitalValue& vv, unsigned int ones );
+    void set_current( const Vital* pVital, VitalValue& vv, unsigned int ones );
 
 private:
     // non-implemented functions:

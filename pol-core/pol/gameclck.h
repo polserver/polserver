@@ -11,7 +11,7 @@ Notes
 #ifndef GAMECLCK_H
 #define GAMECLCK_H
 
-typedef unsigned long gameclock_t;
+typedef unsigned int gameclock_t;
 
 void start_gameclock();
 void stop_gameclock();

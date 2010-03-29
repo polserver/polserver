@@ -91,7 +91,7 @@ void send_uo_hits( Client* client, Character* me, const Vital* vital )
 	msg.msgtype = PKTOUT_A1_ID;
 	msg.serial = me->serial_ext;
 
-    long v = me->vital( vital->vitalid ).current_ones();
+    int v = me->vital( vital->vitalid ).current_ones();
     if (v > 0xFFFF)
         v = 0xFFFF;
     msg.hits = ctBEu16( static_cast<u16>(v) );
@@ -111,7 +111,7 @@ void send_uo_mana( Client* client, Character* me, const Vital* vital )
 	msg.msgtype = PKTOUT_A2_ID;
 	msg.serial = me->serial_ext;
 
-    long v = me->vital( vital->vitalid ).current_ones();
+    int v = me->vital( vital->vitalid ).current_ones();
     if (v > 0xFFFF)
         v = 0xFFFF;
     msg.mana = ctBEu16( static_cast<u16>(v) );
@@ -134,7 +134,7 @@ void send_uo_stamina( Client* client, Character* me, const Vital* vital )
 	msg.msgtype = PKTOUT_A3_ID;
 	msg.serial = me->serial_ext;
 
-    long v = me->vital( vital->vitalid ).current_ones();
+    int v = me->vital( vital->vitalid ).current_ones();
     if (v > 0xFFFF)
         v = 0xFFFF;
     msg.stamina = ctBEu16( static_cast<u16>(v) );

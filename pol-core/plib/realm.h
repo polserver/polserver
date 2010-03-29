@@ -91,21 +91,21 @@ public:
     void getstatics( StaticEntryList& statics, unsigned short x, unsigned short y ) const;
     bool groundheight( unsigned short x, unsigned short y, short* z ) const;
     MAPTILE_CELL getmaptile( unsigned short x, unsigned short y ) const;
-    void getmapshapes( MapShapeList& shapes, unsigned short x, unsigned short y, unsigned long anyflags ) const;
-    void readmultis( MapShapeList& vec, unsigned short x, unsigned short y, unsigned long flags ) const;
-    void readmultis( MapShapeList& vec, unsigned short x, unsigned short y, unsigned long flags, MultiList& mvec );
+    void getmapshapes( MapShapeList& shapes, unsigned short x, unsigned short y, unsigned int anyflags ) const;
+    void readmultis( MapShapeList& vec, unsigned short x, unsigned short y, unsigned int flags ) const;
+    void readmultis( MapShapeList& vec, unsigned short x, unsigned short y, unsigned int flags, MultiList& mvec );
     void readmultis( StaticList& vec, unsigned short x, unsigned short y ) const;
 
 	Zone** zone;
-	set<unsigned long> global_hulls; //xy-smashed together
-    unsigned long toplevel_item_count;
-    unsigned long mobile_count;
+	set<unsigned int> global_hulls; //xy-smashed together
+    unsigned int toplevel_item_count;
+    unsigned int mobile_count;
 	unsigned getUOMapID() {return _Descriptor().uomapid;};
 	unsigned getNumStaticPatches() {return _Descriptor().num_static_patches;};
 	unsigned getNumMapPatches() {return _Descriptor().num_map_patches;};
-	inline unsigned long encode_global_hull( unsigned short ax, unsigned short ay )
+	inline unsigned int encode_global_hull( unsigned short ax, unsigned short ay )
 	{
-		return (static_cast<unsigned long>(ax) << 16) | ay;
+		return (static_cast<unsigned int>(ax) << 16) | ay;
 	}
 protected:
     void standheight( MOVEMODE movemode, 

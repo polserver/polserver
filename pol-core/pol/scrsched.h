@@ -129,5 +129,5 @@ bool call_script( const ScriptDef& script,
                   BObjectImp* param6,
                   BObjectImp* param7);
 void cleanup_scripts();
-bool find_uoexec( unsigned long pid, UOExecutor** pp_uoexec );
+bool find_uoexec( unsigned int pid, UOExecutor** pp_uoexec );
 #endif

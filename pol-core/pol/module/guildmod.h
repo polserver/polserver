@@ -14,7 +14,7 @@ class BObjectImp;
 
 #include "../../bscript/execmodl.h"
 
-class SerialSet : public std::set<unsigned long>
+class SerialSet : public std::set<unsigned int>
 {
 public:
     SerialSet( ConfigElem& elem, const char* tag );
@@ -28,9 +28,9 @@ class Guild : public ref_counted
 {
 public:
     explicit Guild( ConfigElem& elem );
-    explicit Guild( unsigned long guildid );
+    explicit Guild( unsigned int guildid );
 
-    unsigned long guildid() const;
+    unsigned int guildid() const;
     bool disbanded() const;
     bool hasMembers() const;
     bool hasAllies() const;
@@ -45,14 +45,14 @@ public:
 	void update_online_members_remove( Character* chr );
 
     void printOn( ostream& os ) const;
-    void addMember( unsigned long serial );
+    void addMember( unsigned int serial );
 
     void registerWithMembers();
 
     friend class EGuildRefObjImp;
 
 private:
-    unsigned long _guildid;
+    unsigned int _guildid;
     SerialSet _member_serials;
     SerialSet _allyguild_serials;
     SerialSet _enemyguild_serials;
@@ -79,7 +79,7 @@ public:
 	BObjectImp* mf_DestroyGuild();
 };
 
-Guild* FindOrCreateGuild( unsigned long guildid, unsigned long memberserial );
+Guild* FindOrCreateGuild( unsigned int guildid, unsigned int memberserial );
 BObjectImp* CreateGuildRefObjImp( Guild* guild );
 
 bool AreAllies( Guild* g1, Guild* g2 );

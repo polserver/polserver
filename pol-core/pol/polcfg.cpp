@@ -40,8 +40,8 @@ Notes
 #include "crypt/cryptkey.h"
 
 PolConfig config;
-extern unsigned long cfg_masterkey1;
-extern unsigned long cfg_masterkey2;
+extern unsigned int cfg_masterkey1;
+extern unsigned int cfg_masterkey2;
 
 static struct stat pol_cfg_stat;
 

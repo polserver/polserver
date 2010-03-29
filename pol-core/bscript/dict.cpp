@@ -131,9 +131,9 @@ BObjectImp* BDictionary::copy() const
     return new BDictionary( *this );
 }
 
-unsigned long BDictionary::sizeEstimate() const
+unsigned int BDictionary::sizeEstimate() const
 {
-    unsigned long size = sizeof(BDictionary);
+    unsigned int size = sizeof(BDictionary);
     for( Contents::const_iterator itr = contents_.begin(); itr != contents_.end(); ++itr )
     {
         const BObject& bkeyobj = (*itr).first;

@@ -66,7 +66,7 @@ Notes
 typedef std::vector<Item*> ContItemArr;
 ContItemArr contained_items;
 
-typedef std::vector<unsigned long> ContSerArr;
+typedef std::vector<unsigned int> ContSerArr;
 ContSerArr  container_serials;
 
 /*
@@ -163,7 +163,7 @@ void uox_place_contained_items( void )
 void uox_read_character( ConfigElem& elem )
 {
 
-	unsigned long account;
+	unsigned int account;
 	if (!elem.remove_prop( "Account", &account ) ||
 		account != 0xFFffFFffLu)
 	{
@@ -552,14 +552,14 @@ void read_multi( ConfigElem& elem )
 
 string elapsed( clock_t start, clock_t end )
 {
-	long ms = static_cast<long>((end-start) * 1000.0 / CLOCKS_PER_SEC);
+	int ms = static_cast<int>((end-start) * 1000.0 / CLOCKS_PER_SEC);
 	return decint( ms ) + " ms";
 }
 
 void slurp( const char* filename, const char* tags, int sysfind_flags )
 {
 	static int num_until_dot = 1000;
-	unsigned long nobjects = 0;
+	unsigned int nobjects = 0;
 
 	if (FileExists( filename ))
 	{
@@ -1287,7 +1287,7 @@ bool should_write_data()
 	return true;
 }
 
-int write_data( unsigned long& dirty_writes, unsigned long& clean_writes, unsigned long& elapsed_ms )
+int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, unsigned int& elapsed_ms )
 {
 	if (!should_write_data())
 	{
@@ -1548,14 +1548,14 @@ void read_gameservers()
 			{
 				string ipaddr_str = iptext.substr( 0, delim );
 				string ipmask_str = iptext.substr( delim+1 );
-				unsigned long ipaddr = inet_addr( ipaddr_str.c_str() );
-				unsigned long ipmask = inet_addr( ipmask_str.c_str() );
+				unsigned int ipaddr = inet_addr( ipaddr_str.c_str() );
+				unsigned int ipmask = inet_addr( ipmask_str.c_str() );
 				svr->ip_match.push_back( ipaddr );
 				svr->ip_match_mask.push_back( ipmask );
 			}
 			else
 			{
-				unsigned long ipaddr = inet_addr( iptext.c_str() );
+				unsigned int ipaddr = inet_addr( iptext.c_str() );
 				svr->ip_match.push_back( ipaddr );
 				svr->ip_match_mask.push_back( 0xFFffFFffLu );
 			}

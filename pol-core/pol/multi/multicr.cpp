@@ -70,7 +70,7 @@ UMulti* UMulti::create( const ItemDesc& descriptor, u32 serial )
 }
 
 #include "../uoscrobj.h"
-BObjectImp* UMulti::scripted_create( const ItemDesc& descriptor, u16 x, u16 y, s8 z, Realm* realm, long flags )
+BObjectImp* UMulti::scripted_create( const ItemDesc& descriptor, u16 x, u16 y, s8 z, Realm* realm, int flags )
 {
     if (descriptor.type == ItemDesc::BOATDESC)
         return UBoat::scripted_create( descriptor, x, y, z, realm, flags );

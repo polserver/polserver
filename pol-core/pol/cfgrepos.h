@@ -61,17 +61,17 @@ public:
     void load_tus_scp( const string& filename );
 
     typedef ref_ptr<StoredConfigElem> ElemRef;
-    ElemRef findelem( long key );
+    ElemRef findelem( int key );
     ElemRef findelem( const string& key );
 
-    long maxintkey() const;
+    int maxintkey() const;
     const time_t modified() const;
 
     typedef map<string, ElemRef, ci_cmp_pred> ElementsByName;
     ElementsByName::const_iterator byname_begin() { return elements_byname_.begin(); }
     ElementsByName::const_iterator byname_end() { return elements_byname_.end(); }
 
-    typedef map<long, ElemRef> ElementsByNum;
+    typedef map<int, ElemRef> ElementsByNum;
     ElementsByNum::const_iterator bynum_begin() { return elements_bynum_.begin(); }
     ElementsByNum::const_iterator bynum_end() { return elements_bynum_.end(); }
 
@@ -93,7 +93,7 @@ typedef ref_ptr<StoredConfigFile> ConfigFileRef;
 
 ConfigFileRef FindConfigFile( const string& filename, const string& allpkgbase );
 void CreateEmptyStoredConfigFile( const string& filename );
-long UnloadConfigFile( const string& filename );
+int UnloadConfigFile( const string& filename );
 ConfigFileRef LoadTusScpFile( const string& filename );
 
 #ifdef MEMORYLEAK

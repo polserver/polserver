@@ -43,7 +43,7 @@ Notes
 
 	Note, this function is faster for lower skill values than high ones.
 */
-unsigned short raw_to_base( unsigned long raw )
+unsigned short raw_to_base( unsigned int raw )
 {
 	unsigned short skill = 0;
 	
@@ -70,7 +70,7 @@ unsigned short raw_to_base( unsigned long raw )
 	return skill;
 }
 
-unsigned long base_to_raw( unsigned short base )
+unsigned int base_to_raw( unsigned short base )
 {
     if (base < 100)
     {
@@ -81,9 +81,9 @@ unsigned long base_to_raw( unsigned short base )
         base = 2100;
     }
 
-    unsigned long raw = 1024;
+    unsigned int raw = 1024;
     unsigned short tmpbase = base;
-    long rawadd = 10;
+    int rawadd = 10;
     while (tmpbase >= 100)
     {
         tmpbase -= 100;
@@ -92,7 +92,7 @@ unsigned long base_to_raw( unsigned short base )
     }
     raw += (tmpbase * raw / 100L);
 
-    long diff;
+    int diff;
     while ( (diff = base - raw_to_base(raw)) > 0)
     {
         if (diff > 1) --diff;

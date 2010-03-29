@@ -593,7 +593,7 @@ void send_html( Socket& sck, const string& page, const string& filename )
 void send_binary( Socket& sck, const string& page, const string& filename, const string& content_type )
 {
 	//string filename = get_page_filename( page );
-	unsigned long fsize = filesize(filename.c_str());
+	unsigned int fsize = filesize(filename.c_str());
 	ifstream ifs( filename.c_str(), ios::binary );
 	if ( ifs.is_open() )
 	{
@@ -605,11 +605,11 @@ void send_binary( Socket& sck, const string& page, const string& filename, const
 
 		// Actual reading and outputting.
 		char bfr[ 256 ];
-		unsigned long cur_read = 0;
+		unsigned int cur_read = 0;
 		while ( sck.connected() && ifs.good() && cur_read < fsize)
 		{		
 			ifs.read(bfr, sizeof(bfr));
-			cur_read += static_cast<unsigned long>(ifs.gcount());
+			cur_read += static_cast<unsigned int>(ifs.gcount());
 			sck.send(bfr, static_cast<unsigned int>(ifs.gcount()));  // This was sizeof bfr, which would send garbage... fixed -- Nando, 2009-02-22
 		}		
 		// -------------

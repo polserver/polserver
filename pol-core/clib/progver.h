@@ -13,7 +13,7 @@ Notes
 
 extern char progverstr[64]; // must be assigned
 extern char buildtagstr[64]; // must be assigned
-extern unsigned long progver; // must be assigned
+extern unsigned int progver; // must be assigned
 extern const char compiledate[];
 extern const char compiletime[];
 

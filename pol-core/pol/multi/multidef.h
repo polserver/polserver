@@ -16,13 +16,13 @@ Notes
 #pragma warning( disable: 4786 )
 #endif
 
-// also consider: multimap<unsigned long, unsigned long>
-// unsigned long is (x << 16) | y
-// unsigned long is z << 16 | objtype
-// hell, even multimap<unsigned short,unsigned long>
+// also consider: multimap<unsigned int, unsigned int>
+// unsigned int is (x << 16) | y
+// unsigned int is z << 16 | objtype
+// hell, even multimap<unsigned short,unsigned int>
 // unsigned short is (x<<8)|y
 // (relative signed x/y, -128 to +127
-// unsigned long is z << 16 | objtype
+// unsigned int is z << 16 | objtype
 
 #include <stdio.h>
 
@@ -90,7 +90,7 @@ public:
 
         // returns true if it finds anything at this rx,ry
     bool readobjects( StaticList& vec, short rx, short ry, short zbase ) const;
-    bool readshapes( MapShapeList& vec, short rx, short ry, short zbase, unsigned long anyflags ) const;
+    bool readshapes( MapShapeList& vec, short rx, short ry, short zbase, unsigned int anyflags ) const;
 
     bool body_contains( short rx, short ry ) const;
     const MULTI_ELEM* find_component( short rx, short ry ) const;

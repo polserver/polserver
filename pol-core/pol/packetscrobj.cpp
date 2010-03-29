@@ -367,7 +367,7 @@ BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool forcebuilt
 		    if(ex.numParams() != 2)
 			    return new BError( "SetInt32 requires 2 parameters." );
             unsigned short offset;
-            long lvalue;
+            int lvalue;
             if(ex.getParam( 0, offset ) &&
                ex.getParam( 1, lvalue ))
             {
@@ -416,7 +416,7 @@ BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool forcebuilt
 		    if(ex.numParams() != 2)
 			    return new BError( "SetInt32Flipped requires 2 parameters." );
             unsigned short offset;
-            long lvalue;
+            int lvalue;
             if(ex.getParam( 0, offset ) &&
                ex.getParam( 1, lvalue ))
             {
@@ -752,7 +752,7 @@ BObjectImp* BPacket::call_method( const char* methodname, Executor& ex )
 		if(ex.numParams() != 2)
 			return new BError( "SetInt32 requires 2 parameters." );
         unsigned short offset;
-        long value;
+        int value;
         if(ex.getParam( 0, offset ) &&
            ex.getParam( 1, value ))
         {
@@ -789,7 +789,7 @@ BObjectImp* BPacket::call_method( const char* methodname, Executor& ex )
 		if(ex.numParams() != 2)
 			return new BError( "SetInt32Flipped requires 2 parameters." );
         unsigned short offset;
-        long value;
+        int value;
         if(ex.getParam( 0, offset ) &&
            ex.getParam( 1, value ))
         {

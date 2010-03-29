@@ -70,13 +70,13 @@ void open_uo_data_files( void );
 void read_uo_data( void );
 void readwater();
 
-extern long uo_mapid;
-extern long uo_usedif;
+extern int uo_mapid;
+extern int uo_usedif;
 extern unsigned short uo_map_width;
 extern unsigned short uo_map_height;
 
-extern long cfg_max_statics_per_block;
-extern long cfg_warning_statics_per_block;
+extern int cfg_max_statics_per_block;
+extern int cfg_warning_statics_per_block;
 extern bool cfg_show_illegal_graphic_warning;
 extern bool cfg_show_roof_and_platform_warning;
 

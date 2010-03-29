@@ -93,9 +93,9 @@ CmdLevel* FindCmdLevelByAlias( const std::string& str )
 	return NULL;
 }
 
-ObjArray* GetCommandsInPackage(Package* m_pkg, long cmdlvl_num)
+ObjArray* GetCommandsInPackage(Package* m_pkg, int cmdlvl_num)
 {
-	if ( cmdlvl_num >= long(cmdlevels2.size()) )
+	if ( cmdlvl_num >= int(cmdlevels2.size()) )
 			cmdlvl_num = cmdlevels2.size()-1;
 
 	CmdLevel& cmdlevel = cmdlevels2[int(cmdlvl_num)];

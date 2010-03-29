@@ -65,7 +65,7 @@ BObjectImp* convert_numeric( const std::string& str, int radix )
     {
 
         char* endptr = NULL, *endptr2 = NULL;
-        long l = strtol( s, &endptr, radix );
+        int l = strtol( s, &endptr, radix );
         double d = strtod( s, &endptr2 );
 
         if (endptr >= endptr2)

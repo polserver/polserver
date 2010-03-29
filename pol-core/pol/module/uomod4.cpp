@@ -36,7 +36,7 @@ BObjectImp* UOExecutorModule::mf_MoveObjectToLocation(/*object, x, y, z, realm, 
 	UObject* obj;
 	unsigned short x, y;
 	short z;
-	long flags;
+	int flags;
 	const String* realm_name;
 
 	// Initialize variables
@@ -69,7 +69,7 @@ BObjectImp* UOExecutorModule::mf_MoveObjectToLocation(/*object, x, y, z, realm, 
 		return new BError("Can't handle that object type.");
 }
 
-BObjectImp* UOExecutorModule::internal_MoveCharacter(Character* chr, xcoord x, ycoord y, zcoord z, long flags, Realm* newrealm)
+BObjectImp* UOExecutorModule::internal_MoveCharacter(Character* chr, xcoord x, ycoord y, zcoord z, int flags, Realm* newrealm)
 {
 	short newz;
 	UMulti* supporting_multi = NULL;
@@ -107,7 +107,7 @@ BObjectImp* UOExecutorModule::internal_MoveCharacter(Character* chr, xcoord x, y
 		return new BError("Can't go there");
 }
 
-BObjectImp* UOExecutorModule::internal_MoveBoat(UBoat* boat, xcoord x, ycoord y, zcoord z, long flags, Realm* newrealm)
+BObjectImp* UOExecutorModule::internal_MoveBoat(UBoat* boat, xcoord x, ycoord y, zcoord z, int flags, Realm* newrealm)
 {
 	Realm* oldrealm = boat->realm;
 	if( !boat->navigable(boat->multidef(), x, y, z, newrealm) )
@@ -127,7 +127,7 @@ BObjectImp* UOExecutorModule::internal_MoveBoat(UBoat* boat, xcoord x, ycoord y,
 	return new BLong(ok);
 }
 
-BObjectImp* UOExecutorModule::internal_MoveContainer(UContainer* container, xcoord x, ycoord y, zcoord z, long flags, Realm* newrealm)
+BObjectImp* UOExecutorModule::internal_MoveContainer(UContainer* container, xcoord x, ycoord y, zcoord z, int flags, Realm* newrealm)
 {
 	Realm* oldrealm = container->realm;
 
@@ -142,7 +142,7 @@ BObjectImp* UOExecutorModule::internal_MoveContainer(UContainer* container, xcoo
 	return ok;
 }
 
-BObjectImp* UOExecutorModule::internal_MoveItem(Item* item, xcoord x, ycoord y, zcoord z, long flags, Realm* newrealm)
+BObjectImp* UOExecutorModule::internal_MoveItem(Item* item, xcoord x, ycoord y, zcoord z, int flags, Realm* newrealm)
 {
 	ItemRef itemref(item); //dave 1/28/3 prevent item from being destroyed before function ends
 	if (!(flags & MOVEITEM_IGNOREMOVABLE) && !item->movable())
