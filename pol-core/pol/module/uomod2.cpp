@@ -65,27 +65,27 @@ Notes
 #	include "../cfgrepos.h"
 #endif
 
-#include "../network/cgdata.h"
-#include "../mobile/charactr.h"
-#include "../network/client.h"
+#include "../../plib/pkg.h"
+#include "../../plib/polver.h"
 #include "../core.h"
 #include "../exscrobj.h"
 #include "../fnsearch.h"
-#include "../multi/house.h"
-#include "../network/iostats.h"
 #include "../item/itemdesc.h"
+#include "../mobile/charactr.h"
+#include "../multi/house.h"
+#include "../network/cgdata.h"
+#include "../network/client.h"
+#include "../network/iostats.h"
+#include "../network/packets.h"
 #include "../npc.h"
 #include "../objtype.h"
-#include "osmod.h"
 #include "../pktboth.h"
 #include "../pktin.h"
 #include "../pktout.h"
-#include "../../plib/pkg.h"
 #include "../polcfg.h"
 #include "../polclass.h"
 #include "../polstats.h"
 #include "../poltimer.h"
-#include "../../plib/polver.h"
 #include "../profile.h"
 #include "../realms.h"
 #include "../scrsched.h"
@@ -100,6 +100,7 @@ Notes
 #include "../uoscrobj.h"
 #include "../uvars.h"
 #include "../uworld.h"
+#include "osmod.h"
 
 #ifdef USE_SYSTEM_ZLIB
 #	include <zlib.h>
@@ -202,7 +203,6 @@ BObjectImp* UOExecutorModule::mf_SendBuyWindow(/* character, container, vendor, 
 	int flags;
 	UContainer *for_sale, *bought;
 	unsigned char save_layer_one, save_layer_two;
-	PKTOUT_24 open_window;
 
 	if( getCharacterParam( exec, 0, chr ) &&
 		getItemParam( exec, 1, item ) &&
@@ -296,10 +296,11 @@ BObjectImp* UOExecutorModule::mf_SendBuyWindow(/* character, container, vendor, 
 	}
 
 	//This looks good
-	open_window.msgtype = PKTOUT_24_ID;
-	open_window.serial = merchant->serial_ext;
-	open_window.gump = ctBEu16(0x0030);  // FIXME: Serial of buy gump needs #define or enum?
-	transmit( chr->client, &open_window, sizeof open_window );
+	PktOut_24* open_window = REQUESTPACKET(PktOut_24,PKTOUT_24_ID);
+	open_window->Write(merchant->serial_ext);
+	open_window->WriteFlipped(static_cast<u16>(0x0030)); // FIXME: Serial of buy gump needs #define or enum?
+	transmit( chr->client, &open_window->buffer, open_window->offset );
+	READDPACKET(open_window);
 
 	// Tell the client how much gold the character has, I guess
 	send_full_statmsg(chr->client, chr);

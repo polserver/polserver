@@ -66,6 +66,15 @@ void polsem_unlock()
 
 #endif
 
+bool HasLock()
+{
+	#ifdef _WIN32
+	  return (locker == GetCurrentThreadId());
+	#else
+	  return (locker == getpid());
+	#endif
+}
+
 
 
 //static void (*tmp_thread_func1)(void);

@@ -28,6 +28,8 @@ Notes
 #include "ssopt.h"
 #include "ufunc.h"
 #include "uworld.h"
+#include "network/packets.h"
+#include "../clib/pkthelper.h"
 
 
 void send_char_if_newly_inrange( Character *chr, Client *client	)
@@ -168,11 +170,11 @@ void handle_walk( Client *client, PKTIN_02 *msg02 )
 			}
 		}
 		client->pause();
-	    PKTBI_22_APPROVED msg;
-	    msg.msgtype = PKTBI_22_APPROVED_ID;
-	    msg.movenum = msg02->movenum;
-		msg.noto = client->chr->hilite_color_idx( client->chr );
-	    client->transmit( &msg, sizeof msg );
+		PktBi_22* msg = REQUESTPACKET(PktBi_22,PKTBI_22_APPROVED_ID);
+		msg->Write(msg02->movenum);
+		msg->Write(client->chr->hilite_color_idx( client->chr ));
+	    client->transmit( &msg->buffer, msg->offset );
+		READDPACKET(msg);
 
 
 	    // FIXME: Make sure we only tell those who can see us.
@@ -184,14 +186,14 @@ void handle_walk( Client *client, PKTIN_02 *msg02 )
     }
     else
     {
-        PKTOUT_21 msg;
-        msg.msgtype = PKTOUT_21_ID;
-        msg.sequence = msg02->movenum;
-        msg.x = ctBEu16( chr->x );
-        msg.y = ctBEu16( chr->y );
-        msg.facing = chr->facing;
-        msg.z = chr->z;
-        client->transmit( &msg, sizeof msg );
+		PktOut_21* msg = REQUESTPACKET(PktOut_21,PKTOUT_21_ID);
+		msg->Write(msg02->movenum);
+		msg->WriteFlipped(chr->x);
+		msg->WriteFlipped(chr->y);
+		msg->Write(chr->facing);
+		msg->Write(chr->z);
+        client->transmit( &msg->buffer, msg->offset );
+		READDPACKET(msg);
     }
 
 	// here we set the delay for SpeedHackPrevention see Client::SpeedHackPrevention()

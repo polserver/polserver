@@ -11,20 +11,21 @@ Notes
 =======
 
 */
-
 #include "../clib/stl_inc.h"
+
 #include "../clib/cfgelem.h"
 #include "../clib/endian.h"
-#include "mobile/charactr.h"
 #include "item/itemdesc.h"
-#include "spelbook.h"
+#include "mobile/charactr.h"
+#include "network/packets.h"
 #include "objtype.h"
 #include "pktboth.h"
 #include "polcfg.h"
 #include "polclass.h"
+#include "spelbook.h"
 #include "spells.h"
-#include "ufunc.h"
 #include "ssopt.h"
+#include "ufunc.h"
 
 Spellbook::Spellbook( const SpellbookDesc& descriptor ) :
 	UContainer( descriptor ),
@@ -300,77 +301,34 @@ void Spellbook::send_book_old( Client *client )
 
 void send_spellbook_contents( Client *client, Spellbook& spellbook )
 {
-	if ( client->ClientType & CLIENTTYPE_6017 )
+	PktOut_3C* msg = REQUESTPACKET(PktOut_3C,PKTOUT_3C_ID);
+	msg->offset+=4; //msglen+count
+	u16 count = 0;
+	for ( u16 i = 0; i < 64; ++i )
 	{
-		static PKTOUT_3C_6017 msg;
-
-		msg.msgtype = PKTOUT_3C_ID;
-
-		int count = 0;
-		for ( u16 i = 0; i < 64; ++i )
+		u16 objtype = spell_scroll_objtype_limits[0][0] + i;
+		u16 spellnumber = USpellScroll::convert_objtype_to_spellnum( objtype, spellbook.spell_school );
+		u8  spellpos = spellnumber & 7; // spellpos is the spell's position it it's circle's array.
+		if(spellpos == 0) spellpos = 8;
+		if ( ((spellbook.bitwise_contents[ ((spellnumber-1) >> 3) ]) & (1 << (spellpos-1))) != 0 )
 		{
-			u16 objtype = spell_scroll_objtype_limits[0][0] + i;
-			u16 spellnumber = USpellScroll::convert_objtype_to_spellnum( objtype, spellbook.spell_school );
-			u8  spellpos = spellnumber & 7; // spellpos is the spell's position it it's circle's array.
-			if(spellpos == 0) spellpos = 8;
-			if ( ((spellbook.bitwise_contents[ ((spellnumber-1) >> 3) ]) & (1 << (spellpos-1))) != 0 )
-			{
-				msg.items[count].serial = 0x7FFFFFFF - spellnumber;
-				msg.items[count].graphic = ctBEu16(objtype);
-				msg.items[count].unk6_00 = 0x00;
-
-				msg.items[count].amount = ctBEu16( spellnumber );
-
-				msg.items[count].x = ctBEu16(1);
-				msg.items[count].y = ctBEu16(1);
-				msg.items[count].slot_index = 0x00;
-				msg.items[count].container_serial = spellbook.serial_ext;
-				msg.items[count].color = 0x00;
-				++count;
-			}
+			msg->Write(static_cast<u32>(0x7FFFFFFF - spellnumber));
+			msg->WriteFlipped(objtype);
+			msg->offset++; //unk6
+			msg->WriteFlipped(spellnumber); //amount
+			msg->WriteFlipped(static_cast<u16>(1)); //x
+			msg->WriteFlipped(static_cast<u16>(1)); //y
+			if ( client->ClientType & CLIENTTYPE_6017 )
+				msg->Write(static_cast<u8>(0)); //slotindex
+			msg->Write(spellbook.serial_ext);
+			msg->WriteFlipped(static_cast<u16>(0)); //color
+			++count;
 		}
-
-		unsigned short msglen = static_cast<unsigned short>(offsetof( PKTOUT_3C_6017, items ) + 
-			count * sizeof msg.items[0]);
-		msg.msglen = ctBEu16( msglen );
-		msg.count = ctBEu16( count );
-
-		client->transmit( &msg, msglen );	
 	}
-	else
-	{
-		static PKTOUT_3C msg;
-
-		msg.msgtype = PKTOUT_3C_ID;
-
-		int count = 0;
-		for ( u16 i = 0; i < 64; ++i )
-		{
-			u16 objtype = spell_scroll_objtype_limits[0][0] + i;
-			u16 spellnumber = USpellScroll::convert_objtype_to_spellnum( objtype, spellbook.spell_school );
-			u8  spellpos = spellnumber & 7; // spellpos is the spell's position it it's circle's array.
-			if(spellpos == 0) spellpos = 8;
-			if ( ((spellbook.bitwise_contents[ ((spellnumber-1) >> 3) ]) & (1 << (spellpos-1))) != 0 )
-			{
-				msg.items[count].serial = 0x7FFFFFFF - spellnumber;
-				msg.items[count].graphic = ctBEu16(objtype);
-				msg.items[count].unk6_00 = 0x00;
-
-				msg.items[count].amount = ctBEu16( spellnumber );
-
-				msg.items[count].x = ctBEu16(1);
-				msg.items[count].y = ctBEu16(1);
-				msg.items[count].container_serial = spellbook.serial_ext;
-				msg.items[count].color = 0x00;
-				++count;
-			}
-		}
-
-		unsigned short msglen = static_cast<unsigned short>(offsetof( PKTOUT_3C, items ) + 
-			count * sizeof msg.items[0]);
-		msg.msglen = ctBEu16( msglen );
-		msg.count = ctBEu16( count );
-
-		client->transmit( &msg, msglen );	
-	}
+	u16 len=msg->offset;
+	msg->offset=1;
+	msg->WriteFlipped(len);
+	msg->WriteFlipped(count);
+	client->transmit( &msg->buffer, len );
+	READDPACKET(msg);
 }

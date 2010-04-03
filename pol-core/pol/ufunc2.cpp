@@ -17,6 +17,7 @@ Notes
 #include "../clib/clib.h"
 
 #include "network/client.h"
+#include "network/packets.h"
 #include "sockio.h"
 #include "menu.h"
 #include "pktout.h"
@@ -146,93 +147,49 @@ void for_nearby_npcs( void (*f)(NPC& npc, Character *chr, const char *text, int 
 
 void send_open_gump( Client *client, const UContainer& cont )
 {
-	PKTOUT_24 opengump;
-	opengump.msgtype = PKTOUT_24_ID;
-	opengump.serial = cont.serial_ext;
-	opengump.gump = ctBEu16( cont.gump() );
-	transmit( client, &opengump, sizeof opengump );
+	PktOut_24* msg = REQUESTPACKET(PktOut_24,PKTOUT_24_ID);
+	msg->Write(cont.serial_ext);
+	msg->WriteFlipped(cont.gump());
+	transmit( client, &msg->buffer, msg->offset );
+	READDPACKET(msg);
 }
 
 //dave changed 11/9/3, don't send invis items to those who can't see invis
 void send_container_contents( Client *client, const UContainer& cont, bool show_invis )
 {
-	if ( client->ClientType & CLIENTTYPE_6017 )
+	PktOut_3C* msg = REQUESTPACKET(PktOut_3C,PKTOUT_3C_ID);
+	msg->offset+=4; //msglen+count
+	u16 count = 0;
+	UContainer::const_iterator itr = cont.begin();
+	for( ; itr != cont.end(); ++itr )
 	{
-		static PKTOUT_3C_6017 msg;
-
-		msg.msgtype = PKTOUT_3C_ID;
-	
-		int count = 0;
-	    UContainer::const_iterator itr = cont.begin();
-		for( ; itr != cont.end(); ++itr )
+		const Item* item = GET_ITEM_PTR( itr );
+		if ( show_invis || (!item->invisible() || client->chr->can_seeinvisitems()) )
 		{
-			const Item* item = GET_ITEM_PTR( itr );
-		    if ( show_invis || (!item->invisible() || client->chr->can_seeinvisitems()) )
-	        {
-			    msg.items[count].serial = item->serial_ext;
-			    msg.items[count].graphic = item->graphic_ext;
-			    msg.items[count].unk6_00 = 0x00;
-
-				msg.items[count].amount = ctBEu16( item->get_senditem_amount() );
-
-			    msg.items[count].x = ctBEu16( item->x );
-			    msg.items[count].y = ctBEu16( item->y );
-				msg.items[count].slot_index = static_cast<u8>(item->slot_index());
-			    msg.items[count].container_serial = cont.serial_ext;
-				msg.items[count].color = item->color_ext;
-			    ++count;
-		    }
-			else
-			{
-				send_remove_object(client,item);
-			}
+			msg->Write(item->serial_ext);
+			msg->WriteFlipped(item->graphic_ext);
+			msg->offset++; //unk6
+			msg->WriteFlipped(item->get_senditem_amount());
+			msg->WriteFlipped(item->x);
+			msg->WriteFlipped(item->y);
+			if ( client->ClientType & CLIENTTYPE_6017 )
+				msg->Write(item->slot_index());
+			msg->Write(cont.serial_ext);
+			msg->Write(item->color_ext); //color
+			++count;
 		}
-
-		unsigned short msglen = static_cast<unsigned short>(offsetof( PKTOUT_3C_6017, items ) + 
-		                    count * sizeof msg.items[0]);
-		msg.msglen = ctBEu16( msglen );
-		msg.count = ctBEu16( count );
-
-		transmit( client, &msg, msglen );	
-	}
-	else
-	{
-		static PKTOUT_3C msg;
-
-		msg.msgtype = PKTOUT_3C_ID;
-	
-		int count = 0;
-	    UContainer::const_iterator itr = cont.begin();
-		for( ; itr != cont.end(); ++itr )
+		else
 		{
-			const Item* item = GET_ITEM_PTR( itr );
-		    if ( show_invis || (!item->invisible() || client->chr->can_seeinvisitems()) )
-	        {
-			    msg.items[count].serial = item->serial_ext;
-			    msg.items[count].graphic = item->graphic_ext;
-			    msg.items[count].unk6_00 = 0x00;
-
-				msg.items[count].amount = ctBEu16( item->get_senditem_amount() );
-
-			    msg.items[count].x = ctBEu16( item->x );
-			    msg.items[count].y = ctBEu16( item->y );
-			    msg.items[count].container_serial = cont.serial_ext;
-				msg.items[count].color = item->color_ext;
-			    ++count;
-		    }
-			else
-			{
-				send_remove_object(client,item);
-			}
+			send_remove_object(client,item);
 		}
-
-		unsigned short msglen = static_cast<unsigned short>(offsetof( PKTOUT_3C, items ) + 
-		                    count * sizeof msg.items[0]);
-		msg.msglen = ctBEu16( msglen );
-		msg.count = ctBEu16( count );
-
-		transmit( client, &msg, msglen );	
 	}
+	u16 len=msg->offset;
+	msg->offset=1;
+	msg->WriteFlipped(len);
+	msg->WriteFlipped(count);
+	client->transmit( &msg->buffer, len );
+	READDPACKET(msg);
+
 	if(client->UOExpansionFlag & AOS)
 	{
 		// 07/11/09 Turley: moved to bottom first the client needs to know the item then we can send revision

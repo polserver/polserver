@@ -28,6 +28,7 @@ Notes
 
 #include "accounts/account.h"
 #include "network/client.h"
+#include "network/packets.h"
 #include "listenpt.h"
 #include "mkscrobj.h"
 #include "msghandl.h"
@@ -107,25 +108,31 @@ void handle_processed_speech( Client* client, char* textbuf, int textbuflen, cha
 		textcol = 1001;
 	}
 
-	static PKTOUT_1C talkmsg;
-    static PKTOUT_1C ghostmsg;
-	unsigned short msglen = static_cast<unsigned short>(offsetof( PKTOUT_1C, text ) + textbuflen);
-	talkmsg.msgtype         = PKTOUT_1C_ID;
-	talkmsg.msglen          = ctBEu16( msglen );
-	talkmsg.source_serial   = client->chr->serial_ext;
-	talkmsg.source_graphic  = client->chr->graphic_ext;
-	talkmsg.type    = type; // FIXME authorize
-	talkmsg.color   = ctBEu16(textcol);
-	talkmsg.font    = font;
-	strzcpy( talkmsg.speaker_name, client->chr->name().c_str(), sizeof talkmsg.speaker_name );
-	memcpy( talkmsg.text, textbuf, textbuflen );
-	transmit( client, &talkmsg, msglen );
+	u16 textlen= static_cast<u16>(textbuflen + 1);
+	if (textlen > SPEECH_MAX_LEN+1)
+		textlen = SPEECH_MAX_LEN+1;
 
+	PktOut_1C* talkmsg = REQUESTPACKET(PktOut_1C,PKTOUT_1C_ID);
+	talkmsg->offset+=2;
+	talkmsg->Write(client->chr->serial_ext);
+	talkmsg->Write(client->chr->graphic_ext);
+	talkmsg->Write(type); // FIXME authorize
+	talkmsg->WriteFlipped(textcol);
+	talkmsg->WriteFlipped(font);
+	talkmsg->Write(client->chr->name().c_str(),30);
+	talkmsg->Write(textbuf,textlen-1);
+	u16 len=talkmsg->offset;
+	talkmsg->offset=1;
+	talkmsg->WriteFlipped(len);
+	transmit( client, &talkmsg->buffer, len );
+
+	PktOut_1C* ghostmsg = REQUESTPACKET(PktOut_1C,PKTOUT_1C_ID);
 	if (client->chr->dead() && !client->chr->can_be_heard_as_ghost())
     {
-        memcpy( &ghostmsg, &talkmsg, sizeof ghostmsg );
-        char* t = ghostmsg.text;
-        while (*t)
+        memcpy( &ghostmsg->buffer, &talkmsg->buffer, sizeof ghostmsg->buffer );
+		ghostmsg->offset=43;
+        char* t = &ghostmsg->buffer[43];
+        while (ghostmsg->offset < len)
         {
             if (!isspace(*t))
             {
@@ -161,11 +168,11 @@ void handle_processed_speech( Client* client, char* textbuf, int textbuflen, cha
                  client2->chr->can_hearghosts() ||
                  client->chr->can_be_heard_as_ghost() )
             {
-    			transmit( client2, &talkmsg, msglen );
+    			transmit( client2, &talkmsg->buffer, len );
             }
             else
             {
-                transmit( client2, &ghostmsg, msglen );
+                transmit( client2, &ghostmsg->buffer, len );
             }
         }
 	}
@@ -176,6 +183,9 @@ void handle_processed_speech( Client* client, char* textbuf, int textbuflen, cha
         for_nearby_npcs( ghost_pc_spoke, client->chr, textbuf, textbuflen, type );
     
     sayto_listening_points( client->chr, textbuf, textbuflen, type );
+
+	READDPACKET(talkmsg);
+	READDPACKET(ghostmsg);
 }
 
                               
