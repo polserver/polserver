@@ -38,3 +38,4 @@ private: // Forbid copies
 template <typename T> T* Singleton <T>::_instance = NULL;
 
 #endif
+
