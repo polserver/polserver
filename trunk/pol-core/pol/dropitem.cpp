@@ -41,14 +41,15 @@ FIXME: Does STW use slots with KR or newest 2d? If so, we must do slot checks th
 
 #include "../plib/realm.h"
 
-#include "multi/boat.h"
-#include "mobile/charactr.h"
-#include "network/client.h"
 #include "dtrace.h"
 #include "getitem.h"
 #include "layers.h"
 #include "los.h"
+#include "mobile/charactr.h"
 #include "msghandl.h"
+#include "multi/boat.h"
+#include "network/client.h"
+#include "network/packets.h"
 #include "npc.h"
 #include "objtype.h"
 #include "pktboth.h"
@@ -387,35 +388,19 @@ void send_trade_container( Client* client,
                            Character* whos,
                            UContainer* cont )
 {
+	PktOut_25* msg = REQUESTPACKET(PktOut_25,PKTOUT_25_ID);
+	msg->Write(cont->serial_ext);
+	msg->Write(cont->graphic_ext);
+	msg->offset++; //unk7 layer?
+	msg->WriteFlipped(static_cast<u16>(1)); //amount
+	msg->WriteFlipped(static_cast<u16>(0)); //x
+	msg->WriteFlipped(static_cast<u16>(0)); //y
 	if ( client->ClientType & CLIENTTYPE_6017 )
-	{
-		PKTOUT_25_V2 slot_buffer;
-		slot_buffer.msgtype = PKTOUT_25_V2_ID;
-		slot_buffer.serial = cont->serial_ext;
-		slot_buffer.graphic = cont->graphic_ext;
-		slot_buffer.unk7 = 0;
-		slot_buffer.amount = ctBEu16(1);
-		slot_buffer.x = 0;
-		slot_buffer.y = 0;
-		slot_buffer.slotindex = cont->slot_index();
-		slot_buffer.container_serial = whos->serial_ext;
-		slot_buffer.color = cont->color_ext;
-		client->transmit(&slot_buffer, sizeof slot_buffer);
-	}
-	else
-	{
-		PKTOUT_25_V1 legacy_buffer;
-		legacy_buffer.msgtype = PKTOUT_25_V1_ID;
-		legacy_buffer.serial = cont->serial_ext;
-		legacy_buffer.graphic = cont->graphic_ext;
-		legacy_buffer.unk7 = 0;
-		legacy_buffer.amount = ctBEu16(1);
-		legacy_buffer.x = 0;
-		legacy_buffer.y = 0;
-		legacy_buffer.container_serial = whos->serial_ext;
-		legacy_buffer.color = cont->color_ext;
-		client->transmit(&legacy_buffer, sizeof legacy_buffer);
-	}
+		msg->Write(cont->slot_index());
+	msg->Write(whos->serial_ext);
+	msg->Write(cont->color_ext);
+	transmit( client, &msg->buffer, msg->offset );
+	READDPACKET(msg);
 }
 
 bool do_open_trade_window( Client* client, Item* item, Character* dropon );
@@ -842,9 +827,9 @@ void drop_item_v2( Client *client, PKTIN_08_V2 *msg )
 	    item->gotten_by = NULL;
     }
 
-	PKTOUT_29 drop_msg;
-	drop_msg.msgtype = PKTOUT_29_ID;
-	client->transmit(&drop_msg, sizeof drop_msg);
+	PktOut_29* drop_msg = REQUESTPACKET(PktOut_29,PKTOUT_29_ID);
+	client->transmit(&drop_msg->buffer, drop_msg->offset);
+	READDPACKET(drop_msg);
 
 	send_full_statmsg( client, client->chr );
 }
