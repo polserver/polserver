@@ -19,13 +19,9 @@ This file is for packet structs who sent by server.
 enum PKTOUTID {
 	PKTOUT_0B_ID = 0x0B,	// Newer client damage display packet. since 4.0.7a client
 
-	PKTOUT_11_V1_ID = 0x11,	// Status Message
-	PKTOUT_11_V2_ID = 0x11,	// Status Message
+	PKTOUT_11_ID = 0x11,    // Status Message
 	PKTOUT_17_ID = 0x17,	// Health bar status update (KR)
-	PKTOUT_1A_A_ID = 0x1A,	// Object Information
-	PKTOUT_1A_B_ID = 0x1A,	// Object Information
-	PKTOUT_1A_C_ID = 0x1A,	// Object Information
-	PKTOUT_1A_D_ID = 0x1A,	// Object Information
+	PKTOUT_1A_ID = 0x1A,	// Object Information
 	PKTOUT_1B_ID = 0x1B,	// Character Startup - Login actually completed.
 	PKTOUT_1C_ID = 0x1C,	// Send ASCII Speech
 	PKTOUT_1D_ID = 0x1D,	// Delete/Remove Object
@@ -35,8 +31,7 @@ enum PKTOUTID {
 	PKTOUT_21_ID = 0x21,	// Move Rejection
 	PKTOUT_23_ID = 0x23,	// Item Drag Animation - used to make client side animation of an itemID going up from xyz, to down at xyz
 	PKTOUT_24_ID = 0x24,	// Open Gump ID
-	PKTOUT_25_V1_ID = 0x25,	// Container
-	PKTOUT_25_V2_ID = 0x25,	// Container - Around client 6.0.1.7
+	PKTOUT_25_ID = 0x25,	// Container
 	PKTOUT_26_ID = 0x26,	// TODO: What clients even support this packet?
 	PKTOUT_27_ID = 0x27,	// Move Item Failure
 	PKTOUT_28_ID = 0x28,	// God Client Packet
@@ -53,7 +48,6 @@ enum PKTOUTID {
 	PKTOUT_33_ID = 0x33,	// Flow Control
 	PKTOUT_36_ID = 0x36,	// Resource Tile Data - God Client
 	PKTOUT_3C_ID = 0x3C,	// Container Contents
-	PKTOUT_3C_6017_ID = 0x3C,	// Container Contents
 	PKTOUT_3E_ID = 0x3E,	// Versions - God Client
 	PKTOUT_3F_ID = 0x3F,	// Update Statics - God Client
 

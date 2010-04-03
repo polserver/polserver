@@ -35,40 +35,41 @@ Notes
 
 #include "../../plib/realm.h"
 
+#include "../dice.h"
+#include "../eventid.h"
+#include "../fnsearch.h"
+#include "../item/weapon.h"
+#include "../listenpt.h"
 #include "../mobile/attribute.h"
 #include "../mobile/boundbox.h"
 #include "../mobile/ufacing.h"
 #include "../network/client.h"
-#include "../dice.h"
-#include "../eventid.h"
-#include "../fnsearch.h"
+#include "../network/packets.h"
+#include "../npc.h"
+#include "../npctmpl.h"
+#include "../objtype.h"
+#include "../pktout.h"
+#include "../poltype.h"
 #include "../realms.h"
 #include "../scrsched.h"
-#include "../listenpt.h"
-#include "../npc.h"
-#include "npcmod.h"
-#include "../npctmpl.h"
-#include "../poltype.h"
-#include "../pktout.h"
-#include "../ufunc.h"
-#include "../ufuncinl.h"
 #include "../scrstore.h"
 #include "../skilladv.h"
 #include "../skills.h"
 #include "../sockio.h"
 #include "../ssopt.h"
-#include "../uvars.h"
-#include "osmod.h"
-#include "../uoexec.h"
-#include "uomod.h"
-#include "../objtype.h"
 #include "../ufunc.h"
-#include "unimod.h"
+#include "../ufunc.h"
+#include "../ufuncinl.h"
+#include "../uoexec.h"
 #include "../uoexhelp.h"
 #include "../uoscrobj.h"
+#include "../uvars.h"
 #include "../watch.h"
-#include "../item/weapon.h"
 #include "../wrldsize.h"
+#include "npcmod.h"
+#include "osmod.h"
+#include "unimod.h"
+#include "uomod.h"
 
 NPCExecutorModule::NPCExecutorModule( Executor& ex, NPC& npc ) :
 ExecutorModule( "NPC", ex ),
@@ -732,26 +733,29 @@ BObjectImp* NPCExecutorModule::say()
 	const char* text = exec.paramAsString(0);
 	string texttype_str = strlower(exec.paramAsString(1));
 	int doevent; exec.getParam(2, doevent);
-
-	PKTOUT_1C talkmsg;
-	talkmsg.msgtype = PKTOUT_1C_ID;
-	talkmsg.source_serial = npc.serial_ext;
-	talkmsg.source_graphic = npc.graphic_ext;
-	talkmsg.color = ctBEu16( npc.speech_color_ );
-	talkmsg.font = ctBEu16( npc.speech_font_ );
-	strzcpy( talkmsg.speaker_name, npc.name().c_str(), sizeof talkmsg.speaker_name );
-	strzcpy( talkmsg.text, text, sizeof talkmsg.text );
-	unsigned short msglen = static_cast<unsigned short>(offsetof( PKTOUT_1C, text ) + strlen( talkmsg.text ) + 1);
-	talkmsg.msglen = ctBEu16( msglen );
-
+	u8 texttype;
 	if ( texttype_str == "default" )
-		talkmsg.type = TEXTTYPE_NORMAL;
+		texttype=TEXTTYPE_NORMAL;
 	else if ( texttype_str == "whisper" )
-		talkmsg.type = TEXTTYPE_WHISPER;
+		texttype=TEXTTYPE_WHISPER;
 	else if ( texttype_str == "yell" )
-		talkmsg.type = TEXTTYPE_YELL;
+		texttype=TEXTTYPE_YELL;
 	else
 		return new BError("texttype string param must be either 'default', 'whisper', or 'yell'");
+
+
+	PktOut_1C* msg = REQUESTPACKET(PktOut_1C,PKTOUT_1C_ID);
+	msg->offset+=2;
+	msg->Write(npc.serial_ext);
+	msg->Write(npc.graphic_ext);
+	msg->Write(texttype);
+	msg->WriteFlipped(npc.speech_color_);
+	msg->WriteFlipped(npc.speech_font_);
+	msg->Write(npc.name().c_str(),30);
+	msg->Write(text,(strlen( text )>SPEECH_MAX_LEN+1) ? SPEECH_MAX_LEN+1 : static_cast<u16>(strlen( text )));
+	u16 len=msg->offset;
+	msg->offset=1;
+	msg->WriteFlipped(len);
 
 	//cout << npc.name() << " ["<<texttype_str<<"] ["<<talkmsg.textdef.type<<"] ["<<doevent<<"] \n";
 
@@ -765,20 +769,21 @@ BObjectImp* NPCExecutorModule::say()
 			continue;
 
 		bool rangeok;
-		if ( talkmsg.type == TEXTTYPE_WHISPER )
+		if ( texttype == TEXTTYPE_WHISPER )
 			rangeok = in_whisper_range(&npc, client->chr);
-		else if ( talkmsg.type == TEXTTYPE_YELL )
+		else if ( texttype == TEXTTYPE_YELL )
 			rangeok = in_yell_range(&npc, client->chr);
 		else
 			rangeok = in_say_range(&npc, client->chr);
 
 		if ( rangeok )
-			transmit( client, &talkmsg, msglen );
+			transmit( client, &msg->buffer, len );
 	}
 
 	if ( doevent >= 1 )
-		for_nearby_npcs(npc_spoke, &npc, text, strlen(text), talkmsg.type);
+		for_nearby_npcs(npc_spoke, &npc, text, strlen(text), texttype);
 
+	READDPACKET(msg);
 	return NULL;
 }
 

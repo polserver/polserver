@@ -1780,6 +1780,14 @@
 				RelativePath=".\network\packethooks.h"
 				>
 			</File>
+			<File
+				RelativePath=".\network\packets.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\network\packets.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="region"

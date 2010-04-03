@@ -22,27 +22,28 @@ Notes
 #ifdef MEMORYLEAK
 #include "../bscript/bobject.h"
 #endif
-#include "../clib/endian.h"
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/cfgsect.h"
+#include "../clib/endian.h"
 #include "../clib/fileutil.h"
 #include "../clib/refptr.h"
-#include "../clib/unicode.h"
 #include "../clib/stlutil.h"
+#include "../clib/unicode.h"
 #include "../plib/realm.h"
-#include "mobile/charactr.h"
-#include "network/client.h"
+#include "clfunc.h"
 #include "fnsearch.h"
+#include "mobile/charactr.h"
+#include "module/partymod.h"
+#include "network/client.h"
+#include "network/packets.h"
+#include "party.h"
+#include "pktboth.h"
 #include "polcfg.h"
+#include "schedule.h"
 #include "statmsg.h"
 #include "syshook.h"
-#include "pktboth.h"
-#include "clfunc.h"
 #include "target.h"
-#include "schedule.h"
-#include "party.h"
-#include "module/partymod.h"
 
 Parties parties;
 Party_Cfg party_cfg;
@@ -1436,9 +1437,8 @@ void send_invite(Character* member,Character* leader)
 
 void send_attributes_normalized(Character* chr, Character* bob)
 {
-	PKTOUT_2D msg;
-	msg.msgtype=PKTOUT_2D_ID;
-	msg.serial=bob->serial_ext;
+	PktOut_2D* msg = REQUESTPACKET(PktOut_2D,PKTOUT_2D_ID);
+	msg->Write(bob->serial_ext);
 	int h, mh;
 
     h = bob->vital(uoclient_general.hits.id).current_ones();
@@ -1447,8 +1447,8 @@ void send_attributes_normalized(Character* chr, Character* bob)
     mh = bob->vital(uoclient_general.hits.id).maximum_ones();
     if (mh > 0xFFFF)
         mh = 0xFFFF;
-	msg.hitscurrent = ctBEu16( static_cast<u16>(h * 1000 / mh) );
-	msg.hitsmax = ctBEu16( 1000 );
+	msg->WriteFlipped(static_cast<u16>(1000));
+	msg->WriteFlipped(static_cast<u16>(h * 1000 / mh));
 
 	h = bob->vital(uoclient_general.mana.id).current_ones();
     if (h > 0xFFFF)
@@ -1456,8 +1456,8 @@ void send_attributes_normalized(Character* chr, Character* bob)
 	mh = bob->vital(uoclient_general.mana.id).maximum_ones();
     if (mh > 0xFFFF)
         mh = 0xFFFF;
-	msg.manacurrent = ctBEu16( static_cast<u16>(h * 1000 / mh) );
-	msg.manamax = ctBEu16( 1000 );
+	msg->WriteFlipped(static_cast<u16>(1000));
+	msg->WriteFlipped(static_cast<u16>(h * 1000 / mh));
 
 	h = bob->vital(uoclient_general.stamina.id).current_ones();
     if (h > 0xFFFF)
@@ -1465,9 +1465,10 @@ void send_attributes_normalized(Character* chr, Character* bob)
 	mh = bob->vital(uoclient_general.stamina.id).maximum_ones();
     if (mh > 0xFFFF)
         mh = 0xFFFF;
-	msg.stamcurrent = ctBEu16( static_cast<u16>(h * 1000 / mh) );
-	msg.stammax = ctBEu16( 1000 );
+	msg->WriteFlipped(static_cast<u16>(1000));
+	msg->WriteFlipped(static_cast<u16>(h * 1000 / mh));
 
-	chr->client->transmit(&msg, 17);
+	chr->client->transmit(&msg->buffer, msg->offset);
+	READDPACKET(msg);
 }
 

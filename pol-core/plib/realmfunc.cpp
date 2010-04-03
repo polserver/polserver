@@ -44,8 +44,7 @@ In standingheight checks there is a nasty bug. Items NOT locked down
 
 bool Realm::lowest_standheight( unsigned short x, unsigned short y, short* z ) const
 {
-    static MapShapeList vec;
-    vec.clear();
+    MapShapeList vec;
     getmapshapes( vec, x, y, FLAG::MOVELAND|FLAG::MOVESEA|FLAG::BLOCKING|FLAG::GRADUAL );
 
     bool res = true;
@@ -58,8 +57,7 @@ void Realm::standheight( MOVEMODE movemode,
                   short oldz, 
                   bool* result_out, short * newz_out, short* gradual_boost ) const
 {
-    static MapShapeList possible_shapes;
-    possible_shapes.clear();
+    MapShapeList possible_shapes;
     bool land_ok = (movemode & MOVEMODE_LAND) ? true : false;
     bool sea_ok  = (movemode & MOVEMODE_SEA) ? true : false;
     bool fly_ok  = (movemode & MOVEMODE_FLY) ? true : false;
@@ -331,9 +329,6 @@ bool Realm::walkheight(unsigned short x, unsigned short y, short oldz,
 				short* gradual_boost)
 {
 
-    static MapShapeList shapes;
-    static MultiList mvec;
-    static Items walkon_items;
     
     if ( x >= _Descriptor().width || 
          y >= _Descriptor().height )
@@ -341,9 +336,9 @@ bool Realm::walkheight(unsigned short x, unsigned short y, short oldz,
         return false;
     }
 
-    shapes.clear();
-    mvec.clear();
-    walkon_items.clear();
+    MapShapeList shapes;
+    MultiList mvec;
+    Items walkon_items;
     
     readdynamics( shapes, x, y, walkon_items, doors_block /* true */ );
     unsigned int flags=FLAG::MOVE_FLAGS;
@@ -387,18 +382,15 @@ bool Realm::walkheight( const Character* chr, unsigned short x, unsigned short y
                 short* newz, 
                 UMulti** pmulti, Item** pwalkon, short* gradual_boost)
 {
-    static MapShapeList shapes;
-    static MultiList mvec;
-    static Items walkon_items;
     
     if ( x >= _Descriptor().width || y >= _Descriptor().height )
     {
         return false;
     }
 
-    shapes.clear();
-    mvec.clear();
-    walkon_items.clear();
+    MapShapeList shapes;
+    MultiList mvec;
+    Items walkon_items;
     
     readdynamics( shapes, x, y, walkon_items, chr->doors_block() );
     unsigned int flags=FLAG::MOVE_FLAGS;
@@ -463,9 +455,6 @@ bool Realm::lowest_walkheight(unsigned short x, unsigned short y, short oldz,
 							MOVEMODE movemode,
 							short* gradual_boost)
 {
-    static MapShapeList shapes;
-    static MultiList mvec;
-    static Items walkon_items;
     
     if ( x >= _Descriptor().width || 
          y >= _Descriptor().height )
@@ -473,9 +462,9 @@ bool Realm::lowest_walkheight(unsigned short x, unsigned short y, short oldz,
         return false;
     }
 
-    shapes.clear();
-    mvec.clear();
-    walkon_items.clear();
+    MapShapeList shapes;
+    MultiList mvec;
+    Items walkon_items;
     
     readdynamics( shapes, x, y, walkon_items, doors_block /* true */ );
     unsigned int flags=FLAG::MOVE_FLAGS;
@@ -520,18 +509,15 @@ bool Realm::dropheight( unsigned short dropx,
                  short* newz, 
                  UMulti** pmulti )
 {
-    static MapShapeList shapes;
-    static MultiList mvec;
-    static Items ivec;
     
     if ( dropx >= _Descriptor().width || dropy >= _Descriptor().height )
     {
         return false;
     }
 
-    shapes.clear();
-    mvec.clear();
-    ivec.clear();
+    MapShapeList shapes;
+    MultiList mvec;
+    Items ivec;
     
     readdynamics( shapes, dropx, dropy, ivec, true /* doors_block */ );
     readmultis( shapes, dropx, dropy, FLAG::DROP_FLAGS, mvec );
@@ -734,8 +720,7 @@ bool Realm::navigable( unsigned short x, unsigned short y, short z, short height
 	
 	bool onwater = false;
 
-    static MapShapeList shapes;
-    shapes.clear();
+    MapShapeList shapes;
     
     // possible: readdynamic, readmultis
     getmapshapes( shapes, x, y, FLAG::ALL );
@@ -766,10 +751,8 @@ UMulti* Realm::find_supporting_multi( unsigned short x, unsigned short y, short 
         return NULL;
     }
 
-    static MapShapeList vec;
-    static MultiList mvec;
-    vec.clear();
-    mvec.clear();
+    MapShapeList vec;
+    MultiList mvec;
     readmultis( vec, x, y, FLAG::MOVE_FLAGS, mvec );
 
     return find_supporting_multi( mvec, z );

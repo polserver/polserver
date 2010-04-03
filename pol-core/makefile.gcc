@@ -50,7 +50,7 @@ cpp_sources = \
     clib/progver.cpp plib/polver.cpp \
 	pol/accounts/account.cpp pol/accounts/accounts.cpp pol/accounts/acscrobj.cpp pol/allocd.cpp \
 	pol/item/armor.cpp pol/mobile/attack.cpp \
-	pol/mobile/attribute.cpp pol/network/auxclient.cpp \
+	pol/mobile/attribute.cpp pol/network/auxclient.cpp pol/network/packets.cpp \
 	pol/network/bannedips.cpp pol/binaryfilescrobj.cpp pol/multi/boat.cpp pol/multi/boatcomp.cpp \
 	pol/module/boatmod.cpp pol/mobile/boundbox.cpp pol/bowsalut.cpp \
 	pol/module/cfgmod.cpp pol/cfgrepos.cpp pol/network/cgdata.cpp pol/mobile/charactr.cpp \

@@ -55,6 +55,7 @@ Notes
 #include "accounts/account.h"
 #include "mobile/charactr.h"
 #include "network/client.h"
+#include "network/packets.h"
 #include "item/equipmnt.h"
 #include "fnsearch.h"
 #include "layers.h"
@@ -144,20 +145,19 @@ u32 GetNewItemSerialNumber( void )
 
 void send_goxyz( Client *client, const Character *chr )
 {
-    PKTOUT_20 msg;
-    msg.msgtype = PKTOUT_20_ID;
-    msg.serial = chr->serial_ext;
-    msg.graphic = chr->graphic_ext;
-    msg.unk7 = 0;
-    msg.color = chr->color_ext;
-	msg.flag1 = chr->get_flag1(client);
-    msg.x = ctBEu16( chr->x );
-    msg.y = ctBEu16( chr->y );
-    msg.unk15 = 0;
-    msg.unk16 = 0;
-    msg.dir = 0x80 | chr->facing; // is it always right to set this flag?
-    msg.z = chr->z;
-    transmit( client, &msg, sizeof msg );
+	PktOut_20* msg = REQUESTPACKET(PktOut_20,PKTOUT_20_ID);
+	msg->Write(chr->serial_ext);
+	msg->Write(chr->graphic_ext);
+	msg->offset++; //unk7
+	msg->Write(chr->color_ext);
+	msg->Write(chr->get_flag1(client));
+	msg->WriteFlipped(chr->x);
+	msg->WriteFlipped(chr->y);
+	msg->offset+=2; //unk15,16
+	msg->Write(static_cast<u8>(0x80 | chr->facing)); // is it always right to set this flag?
+	msg->Write(chr->z);
+    transmit( client, &msg->buffer, msg->offset );
+	READDPACKET(msg);
 
     if ((client->ClientType & CLIENTTYPE_UOKR) && (chr->poisoned)) //if poisoned send 0x17 for newer clients
         send_poisonhealthbar( client, chr );
@@ -191,14 +191,14 @@ void send_move( Client *client, const Character *chr )
 
 void send_poisonhealthbar( Client *client, const Character *chr )
 {
-    PKTOUT_17 msg;
-	msg.msgtype = PKTOUT_17_ID;
-	msg.msglen = ctBEu16(sizeof msg);
-	msg.serial = chr->serial_ext;
-	msg.unk = ctBEu16(1);
-	msg.status_type = ctBEu16(1);
-	msg.flag = ( chr->poisoned ) ? 1 : 0;
-    transmit( client, &msg, sizeof msg );
+	PktOut_17* msg = REQUESTPACKET(PktOut_17,PKTOUT_17_ID);
+	msg->WriteFlipped(static_cast<u16>(sizeof msg->buffer));
+	msg->Write(chr->serial_ext);
+	msg->Write(static_cast<u16>(1)); //unk
+	msg->Write(static_cast<u16>(1)); // status_type
+	msg->Write(static_cast<u8>(( chr->poisoned ) ? 1 : 0)); //flag
+	transmit( client, &msg->buffer, msg->offset );
+	READDPACKET(msg);
 }
 
 void send_owncreate( Client *client, const Character *chr )
@@ -304,10 +304,10 @@ void send_remove_character( Client *client, const Character *chr )
     if (client->chr == chr)
         return;
 
-    PKTOUT_1D msg;
-    msg.msgtype = PKTOUT_1D_ID;
-    msg.serial = chr->serial_ext;
-    transmit( client, &msg, sizeof msg );
+	PktOut_1D* msgremove = REQUESTPACKET(PktOut_1D,PKTOUT_1D_ID);
+	msgremove->Write(chr->serial_ext);
+    transmit( client, &msgremove->buffer, msgremove->offset );
+	READDPACKET(msgremove);
 }
 
 
@@ -322,16 +322,15 @@ void send_remove_character_if_nearby( Client* client, const Character* chr )
     if (client->chr == chr)
         return;
 
-    PKTOUT_1D msg;
-    msg.msgtype = PKTOUT_1D_ID;
-    msg.serial = chr->serial_ext;
-    transmit( client, &msg, sizeof msg );
+	PktOut_1D* msgremove = REQUESTPACKET(PktOut_1D,PKTOUT_1D_ID);
+	msgremove->Write(chr->serial_ext);
+	transmit( client, &msgremove->buffer, msgremove->offset );
+	READDPACKET(msgremove);
 }
 void send_remove_character_to_nearby( const Character* chr )
 {
-	PKTOUT_1D msg;
-	msg.msgtype = PKTOUT_1D_ID;
-	msg.serial = chr->serial_ext;
+	PktOut_1D* msgremove = REQUESTPACKET(PktOut_1D,PKTOUT_1D_ID);
+	msgremove->Write(chr->serial_ext);
 
 	for( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
 	{
@@ -345,8 +344,9 @@ void send_remove_character_to_nearby( const Character* chr )
 		if (client->chr == chr)
 			continue;
 
-		transmit( client, &msg, sizeof msg );
+		transmit( client, &msgremove->buffer, msgremove->offset );
 	}
+	READDPACKET(msgremove);
 }
 
 void send_remove_character_if_nearby_cantsee( Client* client, const Character* chr )
@@ -362,17 +362,16 @@ void send_remove_character_if_nearby_cantsee( Client* client, const Character* c
 
     if (!client->chr->is_visible_to_me( chr ))
     {
-        PKTOUT_1D msg;
-        msg.msgtype = PKTOUT_1D_ID;
-        msg.serial = chr->serial_ext;
-        transmit( client, &msg, sizeof msg );
+		PktOut_1D* msgremove = REQUESTPACKET(PktOut_1D,PKTOUT_1D_ID);
+		msgremove->Write(chr->serial_ext);
+		transmit( client, &msgremove->buffer, msgremove->offset );
+		READDPACKET(msgremove);
     }
 }
 void send_remove_character_to_nearby_cantsee( const Character* chr )
 {
-	PKTOUT_1D msg;
-	msg.msgtype = PKTOUT_1D_ID;
-	msg.serial = chr->serial_ext;
+	PktOut_1D* msgremove = REQUESTPACKET(PktOut_1D,PKTOUT_1D_ID);
+	msgremove->Write(chr->serial_ext);
 
 	for( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
 	{
@@ -388,9 +387,10 @@ void send_remove_character_to_nearby_cantsee( const Character* chr )
 
 		if (!client->chr->is_visible_to_me( chr ))
 		{
-			transmit( client, &msg, sizeof msg );
+			transmit( client, &msgremove->buffer, msgremove->offset );
 		}
 	}
+	READDPACKET(msgremove);
 }
 
 // FIXME: This is depreciated unless we find a new place to use it.
@@ -401,18 +401,17 @@ void send_remove_character_if_nearby_cansee( Client* client, const Character* ch
         client->chr != chr &&
         client->chr->is_visible_to_me( chr ))
     {
-        PKTOUT_1D msg;
-        msg.msgtype = PKTOUT_1D_ID;
-        msg.serial = chr->serial_ext;
-        transmit( client, &msg, sizeof msg );
+		PktOut_1D* msgremove = REQUESTPACKET(PktOut_1D,PKTOUT_1D_ID);
+		msgremove->Write(chr->serial_ext);
+		transmit( client, &msgremove->buffer, msgremove->offset );
+		READDPACKET(msgremove);
     }
 }
 
 void send_remove_character_to_nearby_cansee( const Character* chr )
 {
-	PKTOUT_1D msg;
-	msg.msgtype = PKTOUT_1D_ID;
-	msg.serial = chr->serial_ext;
+	PktOut_1D* msgremove = REQUESTPACKET(PktOut_1D,PKTOUT_1D_ID);
+	msgremove->Write(chr->serial_ext);
 
 	for( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
 	{
@@ -422,9 +421,10 @@ void send_remove_character_to_nearby_cansee( const Character* chr )
 			client->chr != chr &&
 			client->chr->is_visible_to_me( chr ))
 		{
-			transmit( client, &msg, sizeof msg );
+			transmit( client, &msgremove->buffer, msgremove->offset );
 		}
 	}
+	READDPACKET(msgremove);
 }
 
 
@@ -437,17 +437,16 @@ void send_remove_object_if_inrange( Client *client, const Item *item )
     if (!inrange( client->chr, item))
         return;
 
-    PKTOUT_1D msg;
-    msg.msgtype = PKTOUT_1D_ID;
-    msg.serial = item->serial_ext;
-    transmit( client, &msg, sizeof msg );
+	PktOut_1D* msgremove = REQUESTPACKET(PktOut_1D,PKTOUT_1D_ID);
+	msgremove->Write(item->serial_ext);
+	transmit( client, &msgremove->buffer, msgremove->offset );
+	READDPACKET(msgremove);
 }
 
 void send_remove_object_to_inrange( const UObject *centerObject )
 {
-    PKTOUT_1D msg;
-    msg.msgtype = PKTOUT_1D_ID;
-    msg.serial = centerObject->serial_ext;
+	PktOut_1D* msgremove = REQUESTPACKET(PktOut_1D,PKTOUT_1D_ID);
+	msgremove->Write(centerObject->serial_ext);
 
 	for( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
 	{
@@ -458,17 +457,18 @@ void send_remove_object_to_inrange( const UObject *centerObject )
 	    // looks like inrange should be a Character member function.
 		if (inrange(client2->chr, centerObject))
 		{
-			transmit( client2, &msg, sizeof msg );
+			transmit( client2, &msgremove->buffer, msgremove->offset );
 		}
 	}
+	READDPACKET(msgremove);
 }
 
 void send_remove_object( Client *client, const Item *item )
 {
-    PKTOUT_1D msg;
-    msg.msgtype = PKTOUT_1D_ID;
-    msg.serial = item->serial_ext;
-    transmit( client, &msg, sizeof msg );
+	PktOut_1D* msgremove = REQUESTPACKET(PktOut_1D,PKTOUT_1D_ID);
+	msgremove->Write(item->serial_ext);
+	transmit( client, &msgremove->buffer, msgremove->offset );
+	READDPACKET(msgremove);
 }
 
 bool inrangex( const Character *c1, const Character *c2, int maxdist )
@@ -565,22 +565,22 @@ bool multi_inrange( unsigned short x1, unsigned short y1,
 
 void send_put_in_container( Client* client, const Item* item )
 {
+	PktOut_25* msg = REQUESTPACKET(PktOut_25,PKTOUT_25_ID);
+	msg->Write(item->serial_ext);
+	msg->Write(item->graphic_ext);
+	msg->offset++; //unk7 layer?
+	msg->WriteFlipped(item->get_senditem_amount());
+	msg->WriteFlipped(item->x);
+	msg->WriteFlipped(item->y);
 	if ( client->ClientType & CLIENTTYPE_6017 )
-	{
-		PKTOUT_25_V2 slot_buffer;
-		BuildMsg25(item, &slot_buffer);
-		client->transmit(&slot_buffer, sizeof slot_buffer);
-	}
-	else
-	{
-		PKTOUT_25_V1 legacy_buffer;
-		BuildMsg25(item, &legacy_buffer);
-		client->transmit(&legacy_buffer, sizeof legacy_buffer);
-	}
+		msg->Write(item->slot_index());
+	msg->Write(item->container->serial_ext);
+	msg->Write(item->color_ext);
+	transmit( client, &msg->buffer, msg->offset );
+	READDPACKET(msg);
+
 	if(client->UOExpansionFlag & AOS)
-	{
 	    send_object_cache(client, dynamic_cast<const UObject*>(item));
-	}
 }
 
 void send_put_in_container_to_inrange( const Item *item )
@@ -590,8 +590,8 @@ void send_put_in_container_to_inrange( const Item *item )
 	// recast and delete. Ewwww.
 	bool slot_built = false;
 	bool legacy_built = false;
-	PKTOUT_25_V1 legacy_buffer;
-	PKTOUT_25_V2 slot_buffer;
+	PktOut_25* legacy_buffer = REQUESTPACKET(PktOut_25,PKTOUT_25_ID);
+	PktOut_25* slot_buffer = REQUESTPACKET(PktOut_25,PKTOUT_25_ID);
 
     for( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
     {
@@ -607,19 +607,34 @@ void send_put_in_container_to_inrange( const Item *item )
 			{
 				if (!slot_built)
                 {
-					BuildMsg25(item, &slot_buffer);
+					slot_buffer->Write(item->serial_ext);
+					slot_buffer->Write(item->graphic_ext);
+					slot_buffer->offset++; //unk7 layer?
+					slot_buffer->WriteFlipped(item->get_senditem_amount());
+					slot_buffer->WriteFlipped(item->x);
+					slot_buffer->WriteFlipped(item->y);
+					slot_buffer->Write(item->slot_index());
+					slot_buffer->Write(item->container->serial_ext);
+					slot_buffer->Write(item->color_ext);
                     slot_built=true;
                 }
-				client2->transmit(&slot_buffer, sizeof slot_buffer);
+				client2->transmit(&slot_buffer->buffer, slot_buffer->offset);
 			}
 			else
 			{
 				if (!legacy_built)
                 {
-					BuildMsg25(item, &legacy_buffer);
+					legacy_buffer->Write(item->serial_ext);
+					legacy_buffer->Write(item->graphic_ext);
+					legacy_buffer->offset++; //unk7 layer?
+					legacy_buffer->WriteFlipped(item->get_senditem_amount());
+					legacy_buffer->WriteFlipped(item->x);
+					legacy_buffer->WriteFlipped(item->y);
+					legacy_buffer->Write(item->container->serial_ext);
+					legacy_buffer->Write(item->color_ext);
                     legacy_built=true;
                 }
-				client2->transmit(&legacy_buffer, sizeof legacy_buffer);
+				client2->transmit(&legacy_buffer->buffer, legacy_buffer->offset);
 			}
 			if(client2->UOExpansionFlag & AOS)
 			{
@@ -627,33 +642,8 @@ void send_put_in_container_to_inrange( const Item *item )
 			}
         }
     }
-}
-
-void BuildMsg25 (const Item *item, PKTOUT_25_V1 *packet_struct)
-{
-	packet_struct->msgtype = PKTOUT_25_V1_ID;
-	packet_struct->serial = item->serial_ext;
-	packet_struct->graphic = item->graphic_ext;
-	packet_struct->unk7 = 0;
-	packet_struct->amount = ctBEu16( item->get_senditem_amount() );
-	packet_struct->x = ctBEu16( item->x );
-	packet_struct->y = ctBEu16( item->y );
-	packet_struct->container_serial = item->container->serial_ext;
-	packet_struct->color = item->color_ext;
-}
-
-void BuildMsg25 (const Item *item, PKTOUT_25_V2 *packet_struct)
-{
-	packet_struct->msgtype = PKTOUT_25_V2_ID;
-	packet_struct->serial = item->serial_ext;
-	packet_struct->graphic = item->graphic_ext;
-	packet_struct->unk7 = 0;
-	packet_struct->amount = ctBEu16( item->get_senditem_amount() );
-	packet_struct->x = ctBEu16( item->x );
-	packet_struct->y = ctBEu16( item->y );
-	packet_struct->slotindex = static_cast<u8>(item->slot_index());
-	packet_struct->container_serial = item->container->serial_ext;
-	packet_struct->color = item->color_ext;
+	READDPACKET(legacy_buffer);
+	READDPACKET(slot_buffer);
 }
 
 // FIXME it would be better to compose this message once and
@@ -742,41 +732,35 @@ void send_item( Client *client, const Item *item )
 	}
 	else
 	{
+		PktOut_1A* msg = REQUESTPACKET(PktOut_1A,PKTOUT_1A_ID);
+		// transmit item info
+		msg->offset+=2;
+		msg->WriteFlipped(static_cast<u16>(sizeof msg->buffer));
+		// If the 0x80000000 is left out, the item won't show up. 
+		msg->WriteFlipped(static_cast<u32>(0x80000000 | item->serial)); // bit 0x80000000 enables piles
+		msg->Write(item->graphic_ext);
+		msg->WriteFlipped(item->get_senditem_amount());
 		if (item->facing == 0)
 		{
-			PKTOUT_1A_A msg;
-			// transmit item info
-			msg.msgtype = PKTOUT_1A_A_ID;
-			msg.msglen = ctBEu16( sizeof msg );
-			   // If the 0x80000000 is left out, the item won't show up. 
-			msg.serial = ctBEu32( 0x80000000 | item->serial );
-			msg.graphic = item->graphic_ext;
-			msg.amount = ctBEu16( item->get_senditem_amount() );
-			msg.x = ctBEu16( item->x );
-			msg.y = ctBEu16( 0xC000 | item->y ); // dyeable and moveable?
-			msg.z = item->z;
-			msg.color = item->color_ext;
-			msg.flags = flags;
-			transmit( client, &msg, sizeof msg );
+			msg->WriteFlipped(item->x);
+			// bits 0x80 and 0x40 are Dye and Move (dunno which is which)
+			msg->WriteFlipped(static_cast<u32>(0xC000 | item->y)); // dyeable and moveable?
 		}
 		else
 		{
-			PKTOUT_1A_B msg;
-			// transmit item info
-			msg.msgtype = PKTOUT_1A_B_ID;
-			msg.msglen = ctBEu16( sizeof msg );
-			   // If the 0x80000000 is left out, the item won't show up. 
-			msg.serial = ctBEu32( 0x80000000 | item->serial );
-			msg.graphic = item->graphic_ext;
-			msg.amount = ctBEu16( item->get_senditem_amount() );
-			msg.x = ctBEu16( 0x8000 | item->x );
-			msg.y = ctBEu16( 0xC000 | item->y ); // dyeable and moveable?
-			msg.facing = item->facing;
-			msg.z = item->z;
-			msg.color = item->color_ext;
-			msg.flags = flags;
-			transmit( client, &msg, sizeof msg );
+			msg->WriteFlipped(static_cast<u32>(0x8000 |item->x));
+			// bits 0x80 and 0x40 are Dye and Move (dunno which is which)
+			msg->WriteFlipped(static_cast<u32>(0xC000 | item->y)); // dyeable and moveable?
+			msg->Write(item->facing);
 		}
+		msg->Write(item->z);
+		msg->Write(item->color_ext);
+		msg->Write(flags);
+		u16 len=msg->offset;
+		msg->offset=1;
+		msg->WriteFlipped(len);
+		transmit( client, &msg->buffer, len );
+		READDPACKET(msg);
 	}
     
     // if the item is a corpse, transmit items contained by it
@@ -844,10 +828,10 @@ void send_light( Client *client, int lightlevel )
 {
     if (VALID_LIGHTLEVEL( lightlevel ))
     {
-        PKTOUT_4F msg;
-        msg.msgtype = PKTOUT_4F_ID;
-        msg.lightlevel = static_cast<u8>(lightlevel);
-        transmit( client, &msg, sizeof msg );
+		PktOut_4F* msg = REQUESTPACKET(PktOut_4F,PKTOUT_4F_ID);
+		msg->Write(static_cast<u8>(lightlevel));
+		transmit( client, &msg->buffer, msg->offset );
+		READDPACKET(msg);
     }
 }
 
@@ -914,23 +898,23 @@ void send_client_char_data( Character *chr, Client *client )
 
 void send_item_move_failure( Client *client, u8 reason )
 {
-    PKTOUT_27 msg;
-    msg.msgtype = PKTOUT_27_ID;
-    msg.reason = reason;
-    transmit( client, &msg, sizeof msg );
+	PktOut_27* msg = REQUESTPACKET(PktOut_27,PKTOUT_27_ID);
+	msg->Write(reason);
+    transmit( client, &msg->buffer, msg->offset );
+	READDPACKET(msg);
 }
 
 void send_wornitem( Client *client, const Character *chr, const Item *item )
 {
-    PKTOUT_2E msg;
-    msg.msgtype = PKTOUT_2E_ID;
-    msg.serial = item->serial_ext;
-    msg.graphic = item->graphic_ext;
-    msg.unk7 = 0;
-    msg.layer = item->layer;
-    msg.worn_by = chr->serial_ext;
-    msg.color = item->color_ext;
-    transmit( client, &msg, sizeof msg );
+	PktOut_2E* msg = REQUESTPACKET(PktOut_2E,PKTOUT_2E_ID);
+	msg->Write(item->serial_ext);
+	msg->Write(item->graphic_ext);
+	msg->offset++; //unk7
+	msg->Write(item->layer);
+	msg->Write(chr->serial_ext);
+	msg->Write(item->color_ext);
+	transmit( client, &msg->buffer, msg->offset );
+	READDPACKET(msg);
 
 	if(client->UOExpansionFlag & AOS)
 	{
@@ -940,15 +924,15 @@ void send_wornitem( Client *client, const Character *chr, const Item *item )
 
 void send_wornitem_to_inrange( const Character *chr, const Item *item )
 {
-    PKTOUT_2E msg;
-    msg.msgtype = PKTOUT_2E_ID;
-    msg.serial = item->serial_ext;
-    msg.graphic = item->graphic_ext;
-    msg.unk7 = 0;
-    msg.layer = item->layer;
-    msg.worn_by = chr->serial_ext;
-    msg.color = item->color_ext;
-	transmit_to_inrange( item, &msg, sizeof msg, false, false );
+	PktOut_2E* msg = REQUESTPACKET(PktOut_2E,PKTOUT_2E_ID);
+	msg->Write(item->serial_ext);
+	msg->Write(item->graphic_ext);
+	msg->offset++; //unk7
+	msg->Write(item->layer);
+	msg->Write(chr->serial_ext);
+	msg->Write(item->color_ext);
+	transmit_to_inrange( item, &msg->buffer, msg->offset, false, false );
+	READDPACKET(msg);
 	send_object_cache_to_inrange( dynamic_cast<const UObject*>(item) );
 }
 
@@ -958,20 +942,20 @@ void update_wornitem_to_inrange( const Character *chr, const Item *item )
 {
 	if(chr != NULL)
 	{
-		PKTOUT_1D delmsg;
-		delmsg.msgtype = PKTOUT_1D_ID;
-	    delmsg.serial = item->serial_ext;
-		transmit_to_inrange( item, &delmsg, sizeof delmsg, false, false );
+		PktOut_1D* msgremove = REQUESTPACKET(PktOut_1D,PKTOUT_1D_ID);
+		msgremove->Write(item->serial_ext);
+		transmit_to_inrange( item, &msgremove->buffer, msgremove->offset, false, false );
+		READDPACKET(msgremove);
 
-		PKTOUT_2E msg;
-		msg.msgtype = PKTOUT_2E_ID;
-	    msg.serial = item->serial_ext;
-		msg.graphic = item->graphic_ext;
-	    msg.unk7 = 0;
-		msg.layer = item->layer;
-	    msg.worn_by = chr->serial_ext;
-		msg.color = item->color_ext;
-		transmit_to_inrange( item, &msg, sizeof msg, false, false );
+		PktOut_2E* msg = REQUESTPACKET(PktOut_2E,PKTOUT_2E_ID);
+		msg->Write(item->serial_ext);
+		msg->Write(item->graphic_ext);
+		msg->offset++; //unk7
+		msg->Write(item->layer);
+		msg->Write(chr->serial_ext);
+		msg->Write(item->color_ext);
+		transmit_to_inrange( item, &msg->buffer, msg->offset, false, false );
+		READDPACKET(msg);
 
 		send_object_cache_to_inrange( dynamic_cast<const UObject*>(item) );
 	}
@@ -1122,30 +1106,29 @@ Item *find_legal_item( const Character *chr, u32 serial, bool* additlegal, bool*
 
 void play_sound_effect( const UObject *center, u16 effect )
 {
-    PKTOUT_54 msg;
-    
-    msg.msgtype = PKTOUT_54_ID;
-    msg.flags = PKTOUT_54::FLAG_SINGLEPLAY;
-    msg.effect = ctBEu16( effect-1 );
-    msg.volume = ctBEu16( 0 );
-    msg.x = ctBEu16( center->x );
-    msg.y = ctBEu16( center->y );
-    msg.z = 0;
+	PktOut_54* msg = REQUESTPACKET(PktOut_54,PKTOUT_54_ID);
+	msg->Write(static_cast<u8>(PKTOUT_54_FLAG_SINGLEPLAY));
+	msg->WriteFlipped(static_cast<u16>(effect-1)); // SOUND_EFFECT_XX, see sfx.h
+	msg->offset+=2; //volume
+	//msg->WriteFlipped(static_cast<u16>(0));
+	msg->WriteFlipped(center->x);
+	msg->WriteFlipped(center->y);
+	msg->offset+=2;
+	//msg->WriteFlipped(z);
     // FIXME hearing range check perhaps?
-    transmit_to_inrange( center, &msg, sizeof msg, false, false );
+    transmit_to_inrange( center, &msg->buffer, msg->offset, false, false );
 }
 
 void play_sound_effect_xyz( u16 cx,u16 cy,s8 cz, u16 effect, Realm* realm )
 {
-    PKTOUT_54 msg;
-    
-    msg.msgtype = PKTOUT_54_ID;
-    msg.flags = PKTOUT_54::FLAG_SINGLEPLAY;
-    msg.effect = ctBEu16( effect-1 );
-    msg.volume = ctBEu16( 0 );
-    msg.x = ctBEu16( cx );
-    msg.y = ctBEu16( cy );
-    msg.z = cz;
+	PktOut_54* msg = REQUESTPACKET(PktOut_54,PKTOUT_54_ID);
+	msg->Write(static_cast<u8>(PKTOUT_54_FLAG_SINGLEPLAY));
+	msg->WriteFlipped(static_cast<u16>(effect-1)); // SOUND_EFFECT_XX, see sfx.h
+	msg->offset+=2; //volume
+	//msg->WriteFlipped(static_cast<u16>(0));
+	msg->WriteFlipped(cx);
+	msg->WriteFlipped(cy);
+	msg->WriteFlipped(static_cast<s16>(cz));
 
     for( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
     {
@@ -1157,7 +1140,7 @@ void play_sound_effect_xyz( u16 cx,u16 cy,s8 cz, u16 effect, Realm* realm )
 			continue;
         if (inrange( client->chr, cx, cy ))
         {
-            transmit( client, &msg, sizeof msg );
+            transmit( client, &msg->buffer, msg->offset );
         }
     }
 }
@@ -1166,17 +1149,17 @@ void play_sound_effect_private( const UObject *center, u16 effect, Character* fo
 {
     if (forchr->client)
     {
-        PKTOUT_54 msg;
-    
-        msg.msgtype = PKTOUT_54_ID;
-        msg.flags = PKTOUT_54::FLAG_SINGLEPLAY;
-        msg.effect = ctBEu16( effect-1 );
-        msg.volume = ctBEu16( 0 );
-        msg.x = ctBEu16( center->x );
-        msg.y = ctBEu16( center->y );
-		msg.z = 0;
+		PktOut_54* msg = REQUESTPACKET(PktOut_54,PKTOUT_54_ID);
+		msg->Write(static_cast<u8>(PKTOUT_54_FLAG_SINGLEPLAY));
+		msg->WriteFlipped(static_cast<u16>(effect-1)); // SOUND_EFFECT_XX, see sfx.h
+		msg->offset+=2; //volume
+		//msg->WriteFlipped(static_cast<u16>(0));
+		msg->WriteFlipped(center->x);
+		msg->WriteFlipped(center->y);
+		msg->offset+=2;
+		//msg->WriteFlipped(z);
 
-        forchr->client->transmit( &msg, sizeof msg );
+        forchr->client->transmit( &msg->buffer, msg->offset );
     }
 }
 
@@ -1453,33 +1436,24 @@ void partical_effect(struct PKTOUT_C7* msg,u8 type, u32 srcserial, u32 dstserial
 // System message -- message in lower left corner
 void send_sysmessage(Client *client, const char *text, unsigned short font, unsigned short color )
 {
-    PKTOUT_1C msg;
-    unsigned textlen, msglen;
-    
-    textlen = strlen(text) + 1;
-    if (textlen > sizeof msg.text)
-        textlen = sizeof msg.text;
-    msglen = offsetof( PKTOUT_1C, text ) + textlen;
-    
-    if (msglen <= sizeof msg)
-    {
-        msg.msgtype = PKTOUT_1C_ID;
-        msg.msglen = ctBEu16( msglen );
-        msg.source_serial = 0x01010101;
-        msg.source_graphic = 0x0101;
-        msg.type = TEXTTYPE_NORMAL;
-        msg.color = ctBEu16( color );
-        msg.font = ctBEu16(font);
-        memset( msg.speaker_name, '\0', sizeof msg.speaker_name );
-        strcpy( msg.speaker_name, "System" );
-        memcpy( msg.text, text, textlen-1 );
-        msg.text[ textlen-1 ] = '\0';
-        transmit( client, &msg, msglen );
-    } 
-    else     // FIXME need to handle this better
-    {
-        Log( "send_sysmessage: '%s' is too long\n", text );
-    }
+	PktOut_1C* msg = REQUESTPACKET(PktOut_1C,PKTOUT_1C_ID);
+	u16 textlen= static_cast<u16>(strlen(text) + 1);
+	if (textlen > SPEECH_MAX_LEN+1)  // FIXME need to handle this better second msg?
+		textlen = SPEECH_MAX_LEN+1;
+
+	msg->offset+=2;
+	msg->Write(static_cast<u32>(0x01010101));
+	msg->Write(static_cast<u16>(0x0101));
+	msg->Write(static_cast<u8>(TEXTTYPE_NORMAL));
+	msg->WriteFlipped(color);
+	msg->WriteFlipped(font);
+	msg->Write("System",30);
+	msg->Write(text,textlen-1);
+	u16 len=msg->offset;
+	msg->offset=1;
+	msg->WriteFlipped(len);
+	transmit( client, &msg->buffer, len );
+	READDPACKET(msg);
 }
 
 // Unicode System message -- message in lower left corner
@@ -1565,28 +1539,24 @@ void broadcast( const u16 *wtext, const char lang[4],
 
 void send_nametext( Client *client, const Character *chr, const std::string& str )
 {
-    PKTOUT_1C msg;
-    unsigned textlen, msglen;
+	PktOut_1C* msg = REQUESTPACKET(PktOut_1C,PKTOUT_1C_ID);
+	u16 textlen= static_cast<u16>(str.length() + 1);
+	if (textlen > SPEECH_MAX_LEN+1)
+		textlen = SPEECH_MAX_LEN+1;
 
-    textlen = str.length() + 1;
-    if (textlen > sizeof msg.text)
-        textlen = sizeof msg.text;
-    msglen = offsetof( PKTOUT_1C, text ) + textlen;
-
-    passert( msglen <= sizeof msg );
-    
-    msg.msgtype = PKTOUT_1C_ID;
-    msg.msglen = ctBEu16( msglen );
-    msg.source_serial = chr->serial_ext;
-    msg.source_graphic = 0x0101;
-    msg.type = TEXTTYPE_YOU_SEE;
-    msg.color = ctBEu16( chr->name_color( client->chr )); // 0x03B2
-    msg.font = ctBEu16(3);
-    memset( msg.speaker_name, '\0', sizeof msg.speaker_name );
-    strzcpy( msg.speaker_name, str.c_str(), sizeof msg.speaker_name );
-    memcpy( msg.text, str.c_str(), textlen-1 );
-    msg.text[ textlen-1 ] = '\0';
-    transmit( client, &msg, msglen );
+	msg->offset+=2;
+	msg->Write(chr->serial_ext);
+	msg->Write(static_cast<u16>(0x0101));
+	msg->Write(static_cast<u8>(TEXTTYPE_YOU_SEE));
+	msg->WriteFlipped(chr->name_color( client->chr )); // 0x03B2
+	msg->WriteFlipped(static_cast<u16>(3));
+	msg->Write(str.c_str(),30);
+	msg->Write(str.c_str(),textlen-1);
+	u16 len=msg->offset;
+	msg->offset=1;
+	msg->WriteFlipped(len);
+	transmit( client, &msg->buffer, len );
+	READDPACKET(msg);
 }
 
 bool say_above(const UObject* obj, 
@@ -1595,41 +1565,35 @@ bool say_above(const UObject* obj,
                unsigned short color,
 			   unsigned int journal_print)
 {
-    static PKTOUT_1C msg;
-    unsigned textlen, msglen;
+	PktOut_1C* msg = REQUESTPACKET(PktOut_1C,PKTOUT_1C_ID);
+	u16 textlen= static_cast<u16>(strlen(text) + 1);
+	if (textlen > SPEECH_MAX_LEN+1)  // FIXME need to handle this better second msg?
+		textlen = SPEECH_MAX_LEN+1;
 
-    textlen = strlen(text) + 1;
-    if (textlen > sizeof msg.text)
-        textlen = sizeof msg.text;
-    msglen = offsetof( PKTOUT_1C, text ) + textlen;
-
-    if (msglen > sizeof msg)
-        return false;
-    
-    msg.msgtype = PKTOUT_1C_ID;
-    msg.msglen = ctBEu16( msglen );
-    msg.source_serial = obj->serial_ext;
-    msg.source_graphic = obj->graphic_ext;
-    msg.type = TEXTTYPE_NORMAL;
-    msg.color = ctBEu16( color );
-    msg.font = ctBEu16( font );
-    memset( msg.speaker_name, '\0', sizeof msg.speaker_name );
+	msg->offset+=2;
+	msg->Write(obj->serial_ext);
+	msg->Write(obj->graphic_ext);
+	msg->Write(static_cast<u8>(TEXTTYPE_NORMAL));
+	msg->WriteFlipped(color);
+	msg->WriteFlipped(font);
 	switch(journal_print)
 	{
 		case JOURNAL_PRINT_YOU_SEE:
-			strzcpy( msg.speaker_name, "You see", sizeof msg.speaker_name );
+			msg->Write("You see", 30 );
 			break;
-
 		case JOURNAL_PRINT_NAME:
 		default:
-			strzcpy( msg.speaker_name, obj->description().c_str(), sizeof msg.speaker_name );
+			msg->Write(obj->description().c_str(), 30 );
 			break;
 	}
-    memcpy( msg.text, text, textlen );
-    
-    // todo: only send to those that I'm visible to.
-    transmit_to_inrange( obj, &msg, msglen, false, false );
-    return true;
+	msg->Write(text,textlen-1);
+	u16 len=msg->offset;
+	msg->offset=1;
+	msg->WriteFlipped(len);
+	// todo: only send to those that I'm visible to.
+	transmit_to_inrange( obj, &msg->buffer, len, false, false );
+	READDPACKET(msg);
+	return true;
 }
 
 bool say_above(const UObject* obj, 
@@ -1693,39 +1657,36 @@ bool private_say_above( Character* chr,
                         unsigned short color,
 						unsigned int journal_print)
 {
-    static PKTOUT_1C msg;
-    unsigned textlen, msglen;
+	if (chr->client == NULL)
+		return false;
+	PktOut_1C* msg = REQUESTPACKET(PktOut_1C,PKTOUT_1C_ID);
+	u16 textlen= static_cast<u16>(strlen(text) + 1);
+	if (textlen > SPEECH_MAX_LEN+1)  // FIXME need to handle this better second msg?
+		textlen = SPEECH_MAX_LEN+1;
 
-    textlen = strlen(text) + 1;
-    if (textlen > sizeof msg.text)
-        textlen = sizeof msg.text;
-    msglen = offsetof( PKTOUT_1C, text ) + textlen;
-
-    if (msglen > sizeof msg || chr->client == NULL)
-        return false;
-    
-    msg.msgtype = PKTOUT_1C_ID;
-    msg.msglen = ctBEu16( msglen );
-    msg.source_serial = obj->serial_ext;
-    msg.source_graphic = obj->graphic_ext;
-    msg.type = TEXTTYPE_NORMAL;
-    msg.color = ctBEu16( color );
-    msg.font =ctBEu16( font );
-    memset( msg.speaker_name, '\0', sizeof msg.speaker_name );
+	msg->offset+=2;
+	msg->Write(obj->serial_ext);
+	msg->Write(obj->graphic_ext);
+	msg->Write(static_cast<u8>(TEXTTYPE_NORMAL));
+	msg->WriteFlipped(color);
+	msg->WriteFlipped(font);
 	switch(journal_print)
 	{
 		case JOURNAL_PRINT_YOU_SEE:
-			strzcpy( msg.speaker_name, "You see", sizeof msg.speaker_name );
+			msg->Write("You see", 30 );
 			break;
-
 		case JOURNAL_PRINT_NAME:
 		default:
-			strzcpy( msg.speaker_name, obj->description().c_str(), sizeof msg.speaker_name );
+			msg->Write(obj->description().c_str(), 30 );
 			break;
 	}
-    memcpy( msg.text, text, textlen );
-    chr->client->transmit( &msg, msglen );
-    return true;
+	msg->Write(text,textlen-1);
+	u16 len=msg->offset;
+	msg->offset=1;
+	msg->WriteFlipped(len);
+	chr->client->transmit( &msg->buffer, len );
+	READDPACKET(msg);
+	return true;
 }
 
 bool private_say_above( Character* chr, 
@@ -1787,57 +1748,49 @@ bool private_say_above_ex( Character* chr,
                            const char *text,
                            unsigned short color )
 {
-    static PKTOUT_1C msg;
-    unsigned textlen, msglen;
+	if (chr->client == NULL)
+		return false;
+	PktOut_1C* msg = REQUESTPACKET(PktOut_1C,PKTOUT_1C_ID);
+	u16 textlen= static_cast<u16>(strlen(text) + 1);
+	if (textlen > SPEECH_MAX_LEN+1)  // FIXME need to handle this better second msg?
+		textlen = SPEECH_MAX_LEN+1;
 
-    textlen = strlen(text) + 1;
-    if (textlen > sizeof msg.text)
-        textlen = sizeof msg.text;
-    msglen = offsetof( PKTOUT_1C, text ) + textlen;
-
-    if (msglen > sizeof msg || chr->client == NULL)
-        return false;
-    
-    msg.msgtype = PKTOUT_1C_ID;
-    msg.msglen = ctBEu16( msglen );
-    msg.source_serial = obj->serial_ext;
-    msg.source_graphic = obj->graphic_ext;
-    msg.type = TEXTTYPE_NORMAL;
-    msg.color = ctBEu16( color );
-    msg.font = ctBEu16( 3 );
-    memset( msg.speaker_name, '\0', sizeof msg.speaker_name );
-    strzcpy( msg.speaker_name, obj->description().c_str(), sizeof msg.speaker_name );
-    memcpy( msg.text, text, textlen );
-    chr->client->transmit( &msg, msglen );
-    return true;
+	msg->offset+=2;
+	msg->Write(obj->serial_ext);
+	msg->Write(obj->graphic_ext);
+	msg->Write(static_cast<u8>(TEXTTYPE_NORMAL));
+	msg->WriteFlipped(color);
+	msg->WriteFlipped(static_cast<u8>(3));
+	msg->Write(obj->description().c_str(), 30 );
+	msg->Write(text,textlen-1);
+	u16 len=msg->offset;
+	msg->offset=1;
+	msg->WriteFlipped(len);
+	chr->client->transmit( &msg->buffer, len );
+	READDPACKET(msg);
+	return true;
 }
 
 void send_objdesc( Client *client, Item *item )
 {
-    PKTOUT_1C msg;
-    unsigned textlen, msglen;
+	PktOut_1C* msg = REQUESTPACKET(PktOut_1C,PKTOUT_1C_ID);
+	u16 textlen= static_cast<u16>(item->description().length() + 1);
+	if (textlen > SPEECH_MAX_LEN+1)  // FIXME need to handle this better second msg?
+		textlen = SPEECH_MAX_LEN+1;
 
-    std::string desc = item->description();
-    if (desc.length() >= sizeof msg.text)
-        desc.resize( sizeof msg.text -1 );
-
-    strcpy( msg.text, desc.c_str() );
-    textlen = desc.length() + 1;
-
-    msglen = offsetof( PKTOUT_1C, text ) + textlen;
-    passert( msglen < sizeof msg );
-    msg.msgtype = PKTOUT_1C_ID;
-    msg.msglen = ctBEu16( msglen );
-    msg.source_serial = item->serial_ext;
-    msg.source_graphic = item->graphic_ext;
-    msg.type = TEXTTYPE_YOU_SEE;
-    msg.color = ctBEu16( 0x03B2 );
-    msg.font = ctBEu16( 3 );
-
-    memset( msg.speaker_name, '\0', sizeof msg.speaker_name );
-    strcpy( msg.speaker_name, "System" );
-
-    transmit( client, &msg, msglen );
+	msg->offset+=2;
+	msg->Write(item->serial_ext);
+	msg->Write(item->graphic_ext);
+	msg->Write(static_cast<u8>(TEXTTYPE_YOU_SEE));
+	msg->WriteFlipped(static_cast<u16>(0x03B2));
+	msg->WriteFlipped(static_cast<u8>(3));
+	msg->Write("System", 30 );
+	msg->Write(item->description().c_str(),textlen-1);
+	u16 len=msg->offset;
+	msg->offset=1;
+	msg->WriteFlipped(len);
+	transmit( client, &msg->buffer, len );
+	READDPACKET(msg);
 }
 
 void send_stamina_level( Client *client )
@@ -2073,9 +2026,8 @@ void move_item( Item* item, UFACING facing )
     item->restart_decay_timer();
     MoveItemWorldPosition( oldx, oldy, item, NULL );
 
-    PKTOUT_1D msg;
-    msg.msgtype = PKTOUT_1D_ID;
-    msg.serial = item->serial_ext;
+	PktOut_1D* msgremove = REQUESTPACKET(PktOut_1D,PKTOUT_1D_ID);
+	msgremove->Write(item->serial_ext);
 
     for( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
     {
@@ -2092,10 +2044,11 @@ void move_item( Item* item, UFACING facing )
             if (inrange( client->chr->x, client->chr->y,
                          oldx, oldy ))
             {
-                transmit( client, &msg, sizeof msg );
+				transmit( client, &msgremove->buffer, msgremove->offset );
             }
         }
     }
+	READDPACKET(msgremove);
 
 }
 
@@ -2118,9 +2071,8 @@ void move_item( Item* item, unsigned short newx, unsigned short newy, signed cha
     item->restart_decay_timer();
     MoveItemWorldPosition( oldx, oldy, item, oldrealm );
 
-    PKTOUT_1D msg;
-    msg.msgtype = PKTOUT_1D_ID;
-    msg.serial = item->serial_ext;
+	PktOut_1D* msgremove = REQUESTPACKET(PktOut_1D,PKTOUT_1D_ID);
+	msgremove->Write(item->serial_ext);
 
     for( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
     {
@@ -2137,10 +2089,11 @@ void move_item( Item* item, unsigned short newx, unsigned short newy, signed cha
             if ( inrange( client->chr->x, client->chr->y, oldx, oldy )
 				&& client->chr->realm == oldrealm )
             {
-                transmit( client, &msg, sizeof msg );
+				transmit( client, &msgremove->buffer, msgremove->offset );
             }
         }
     }
+	READDPACKET(msgremove);
 }
 
 void move_boat_item( Item* item, unsigned short newx, unsigned short newy, signed char newz, Realm* oldrealm )
@@ -2154,14 +2107,16 @@ void move_boat_item( Item* item, unsigned short newx, unsigned short newy, signe
 
     MoveItemWorldPosition( oldx, oldy, item, oldrealm );
 
-    PKTOUT_1A_C msg;
-    msg.msgtype = PKTOUT_1A_C_ID;
-    msg.msglen = ctBEu16( sizeof msg );
-    msg.serial = item->serial_ext;
-    msg.graphic = item->graphic_ext;
-    msg.x = ctBEu16( item->x );
-    msg.y = ctBEu16( item->y ); 
-    msg.z = item->z;
+	PktOut_1A* msg = REQUESTPACKET(PktOut_1A,PKTOUT_1A_ID);
+	msg->offset+=2;
+	msg->Write(item->serial_ext);
+	msg->Write(item->graphic_ext);
+	msg->WriteFlipped(item->x);
+	msg->WriteFlipped(item->y);
+	msg->Write(item->z);
+	u16 len1A=msg->offset;
+	msg->offset=1;
+	msg->WriteFlipped(len1A);
 
 	// Client >= 7.0.0.0 ( SA )
 	PKTOUT_F3 msg2;
@@ -2180,9 +2135,8 @@ void move_boat_item( Item* item, unsigned short newx, unsigned short newy, signe
 	msg2.color = item->color_ext;
 	msg2.flags = 0x00;
 
-    PKTOUT_1D rmv_msg;
-    rmv_msg.msgtype = PKTOUT_1D_ID;
-    rmv_msg.serial = item->serial_ext;
+	PktOut_1D* msgremove = REQUESTPACKET(PktOut_1D,PKTOUT_1D_ID);
+	msgremove->Write(item->serial_ext);
 
     for( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
     {
@@ -2195,55 +2149,58 @@ void move_boat_item( Item* item, unsigned short newx, unsigned short newy, signe
 			if (client->ClientType & CLIENTTYPE_7000)
 				client->transmit( &msg2, sizeof msg2 );
 			else
-				client->transmit( &msg, sizeof msg );
+				client->transmit( &msg->buffer, len1A );
         }
         else // not in range.  If old loc was in range, send a delete.
         {
             if (inrange( client->chr->x, client->chr->y,
                          oldx, oldy ))
             {
-                transmit( client, &rmv_msg, sizeof rmv_msg );
+				transmit( client, &msgremove->buffer, msgremove->offset );
             }
         }
     }
-
+	READDPACKET(msg);
+	READDPACKET(msgremove);
 }
 
 #include "multi/multi.h"
 void send_multi( Client* client, const UMulti* multi )
 {
-
-    static PKTOUT_1A_C msg;
-    // transmit item info
-    msg.msgtype = PKTOUT_1A_C_ID;
-    msg.msglen = ctBEu16( sizeof msg );
-    msg.serial = multi->serial_ext;
-    msg.graphic = multi->graphic_ext;
-    msg.x = ctBEu16( multi->x );
-    msg.y = ctBEu16( multi->y );
-    msg.z = multi->z;
-
-	// Client >= 7.0.0.0 ( SA )
-	static PKTOUT_F3 msg2;
-	msg2.msgtype = PKTOUT_F3_ID;
-	msg2.unknown = ctBEu16( 0x1 );
-	msg2.datatype = 0x02;
-	msg2.serial = multi->serial_ext;
-	msg2.graphic = ctBEu16( multi->multidef().multiid );
-	msg2.facing = 0x00;
-	msg2.amount = ctBEu16( 0x1 );
-	msg2.amount_2 = ctBEu16( 0x1 );
-	msg2.x = ctBEu16( multi->x );
-	msg2.y = ctBEu16( multi->y );
-	msg2.z = multi->z;
-	msg2.layer = 0x00;
-	msg2.color = 0x00;
-	msg2.flags = 0x00;
-
 	if (client->ClientType & CLIENTTYPE_7000)
+	{
+		static PKTOUT_F3 msg2;
+		msg2.msgtype = PKTOUT_F3_ID;
+		msg2.unknown = ctBEu16( 0x1 );
+		msg2.datatype = 0x02;
+		msg2.serial = multi->serial_ext;
+		msg2.graphic = ctBEu16( multi->multidef().multiid );
+		msg2.facing = 0x00;
+		msg2.amount = ctBEu16( 0x1 );
+		msg2.amount_2 = ctBEu16( 0x1 );
+		msg2.x = ctBEu16( multi->x );
+		msg2.y = ctBEu16( multi->y );
+		msg2.z = multi->z;
+		msg2.layer = 0x00;
+		msg2.color = 0x00;
+		msg2.flags = 0x00;
 		client->transmit( &msg2, sizeof msg2 );
+	}
 	else
-		client->transmit( &msg, sizeof msg );
+	{
+		PktOut_1A* msg = REQUESTPACKET(PktOut_1A,PKTOUT_1A_ID);
+		msg->offset+=2;
+		msg->Write(multi->serial_ext);
+		msg->Write(multi->graphic_ext);
+		msg->WriteFlipped(multi->x);
+		msg->WriteFlipped(multi->y);
+		msg->Write(multi->z);
+		u16 len=msg->offset;
+		msg->offset=1;
+		msg->WriteFlipped(len);
+		client->transmit( &msg->buffer, len );
+		READDPACKET(msg);
+	}
 }
 
 void send_multi_to_inrange( const UMulti* multi )
@@ -2519,10 +2476,10 @@ void UpdateCharacterOnDestroyItem(Item* item)
 	{
 		if (item->layer && chr_owner->is_equipped(item))
 		{
-			PKTOUT_1D delmsg;
-			delmsg.msgtype = PKTOUT_1D_ID;
-			delmsg.serial = item->serial_ext;
-			transmit_to_inrange( item, &delmsg, sizeof delmsg, false, false );
+			PktOut_1D* msgremove = REQUESTPACKET(PktOut_1D,PKTOUT_1D_ID);
+			msgremove->Write(item->serial_ext);
+			transmit_to_inrange( item, &msgremove->buffer, msgremove->offset, false, false );
+			READDPACKET(msgremove);
 		}
 	}
 }
@@ -2535,9 +2492,9 @@ bool clientHasCharacter(Client* c)
 
 void login_complete(Client* c)
 {
-	PKTOUT_55 msg;
-	msg.msgtype = PKTOUT_55_ID;
-	c->transmit(&msg, sizeof msg);
+	PktOut_55* msg = REQUESTPACKET(PktOut_55,PKTOUT_55_ID);
+	c->transmit(&msg->buffer, msg->offset);
+	READDPACKET(msg);
 }
 
 void send_feature_enable(Client* client)
@@ -2683,13 +2640,12 @@ void send_new_subserver( Client* client )
 
 void send_fight_occuring( Client* client, Character* opponent )
 {
-	PKTOUT_2F msg;
-	msg.msgtype = PKTOUT_2F_ID;
-	msg.zero1 = 0;
-	msg.attacker_serial = client->chr->serial_ext;
-	msg.defender_serial = opponent->serial_ext;
-
-	client->transmit( &msg, 10 );
+	PktOut_2F* msg = REQUESTPACKET(PktOut_2F,PKTOUT_2F_ID);
+	msg->offset++; //zero1
+	msg->Write(client->chr->serial_ext);
+	msg->Write(opponent->serial_ext);
+	client->transmit( &msg->buffer, msg->offset );
+	READDPACKET(msg);
 }
 
 void send_damage( Character* attacker, Character* defender, u16 damage )
@@ -2712,11 +2668,11 @@ void send_damage( Character* attacker, Character* defender, u16 damage )
 
 void send_damage_new(Client* client, Character* defender, u16 damage)
 {
-    PKTOUT_0B msg;
-    msg.msgtype = PKTOUT_0B_ID;
-    msg.serial  = defender->serial_ext;
-    msg.damage  = ctBEu16(damage);
-    client->transmit( &msg, 7 );
+	PktOut_0B* msg = REQUESTPACKET(PktOut_0B,PKTOUT_0B_ID);
+	msg->Write(defender->serial_ext);
+	msg->WriteFlipped(damage);
+    client->transmit( &msg->buffer, msg->offset );
+	READDPACKET(msg);
 }
 
 void send_damage_old(Client* client, Character* defender, u16 damage)

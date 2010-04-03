@@ -507,6 +507,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\singleton.h"
+				>
+			</File>
+			<File
 				RelativePath="socketsvc.h"
 				>
 			</File>

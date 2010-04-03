@@ -181,18 +181,15 @@ bool uo_walkheight(int x, int y, int oldz,
                 bool doors_block,
                 MOVEMODE movemode) 
 {
-    static StaticList vec;
-    static MultiList mvec;
-    static Items ivec;
     
     if (!VALID_WORLD_LOC(x,y, find_realm(string("britannia")))
     {
         return false;
     }
 
-    vec.clear();
-    mvec.clear();
-    ivec.clear();
+    StaticList vec;
+    MultiList mvec;
+    Items ivec;
     
     readdynamics( vec, x, y, ivec, true );
     readmultis( vec, x, y, mvec );
@@ -230,9 +227,6 @@ bool uo_walkheight(const Character* chr,
                 int* newz, 
                 UMulti** pmulti, Item** pwalkon) 
 {
-    static StaticList vec;
-    static MultiList mvec;
-    static Items ivec;
     
     if (!VALID_WORLD_LOC(x,y, chr->realm))
     {
@@ -240,9 +234,9 @@ bool uo_walkheight(const Character* chr,
     }
 
 
-    vec.clear();
-    mvec.clear();
-    ivec.clear();
+    StaticList vec;
+    MultiList mvec;
+    Items ivec;
     
     readdynamics( chr, vec, x, y, ivec, chr->doors_block() );
     readmultis( vec, x, y, mvec );
@@ -282,18 +276,15 @@ bool uo_dropheight(int x, int y, int oldz,
                 int* newz, 
                 UMulti** pmulti) 
 {
-    static StaticList vec;
-    static MultiList mvec;
-    static Items ivec;
     
     if (!VALID_WORLD_LOC(x,y, find_realm(string("britannia")))
     {
         return false;
     }
 
-    vec.clear();
-    mvec.clear();
-    ivec.clear();
+    StaticList vec;
+    MultiList mvec;
+    Items ivec;
     
     readdynamics( vec, x, y, ivec, true );
     readmultis( vec, x, y, mvec );
@@ -320,8 +311,7 @@ bool uo_dropheight(int x, int y, int oldz,
 
 bool uo_lowest_standheight( int x, int y, int* z )
 {
-    static StaticList vec;
-    vec.clear();
+    StaticList vec;
     readstatics( vec, x, y );
     USTRUCT_MAPINFO mi;
     getmapinfo( x, y, z, &mi );
@@ -337,10 +327,8 @@ UMulti* uo_find_supporting_multi( unsigned short x, unsigned short y, int z )
         return NULL;
     }
 
-    static StaticList vec;
-    static MultiList mvec;
-    vec.clear();
-    mvec.clear();
+    StaticList vec;
+    MultiList mvec;
     readmultis( vec, x, y, mvec );
 
     if (!mvec.empty())
@@ -371,8 +359,7 @@ bool uo_passable( unsigned short ax, unsigned short ay )
     /*
         * Last chance: does statics0.mul have a water tile here, and no other blocking statics?
         */
-        static StaticList vec;
-        vec.clear();
+        StaticList vec;
         readstatics( vec, ax, ay ); // FIXME is WALKBLOCK right here?
         // readnonboatdynamics
         bool onwater = false;
