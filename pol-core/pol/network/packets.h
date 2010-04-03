@@ -27,14 +27,14 @@ class PacketInterface
 {
 public:
 	PacketInterface(){};
-	~PacketInterface(){};
+	virtual ~PacketInterface(){};
 public:
 	u16 offset;
 public:
 	virtual void ReSetBuffer() {};
 	virtual char* getBuffer() { return NULL; }
-	virtual inline u8 getID() { return NULL; }
-	virtual inline u16 getSubID() { return NULL; }
+	virtual inline u8 getID() { return 0; }
+	virtual inline u16 getSubID() { return 0; }
 };
 
 typedef queue<PacketInterface*> PacketInterfaceQueue;
@@ -46,7 +46,7 @@ class PacketQueue
 {
 public:
 	PacketQueue(){};
-	~PacketQueue(){};
+	virtual ~PacketQueue(){};
 public:
 	virtual PacketInterface* GetNext(u8 id, u16 sub=0) {return NULL;}
 	virtual void Add(PacketInterface* pkt){};
@@ -108,6 +108,7 @@ template <u8 _id, u16 _size>
 class PacketWriter : public PacketInterface
 {
 public:
+	PacketWriter() { ReSetBuffer(); }
 	char buffer[_size];
 	void ReSetBuffer() { memset(buffer,0,sizeof(buffer)); buffer[0]=_id; offset=1; }
 	char* getBuffer() { return buffer; }
@@ -172,8 +173,6 @@ public:
 template <u8 _id, u16 _size>
 class PacketTemplate : public PacketWriter<_id, _size>
 {
-public:
-	PacketTemplate() { ReSetBuffer(); }
 };
 
 // sub packet
@@ -183,7 +182,6 @@ class PacketTemplateSub : public PacketWriter<_id, _size>
 private:
 	u16 sub;
 public:
-	PacketTemplateSub() { ReSetBuffer(); }
 	inline u16 getSubID() { return sub; }
 };
 
