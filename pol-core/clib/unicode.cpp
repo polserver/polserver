@@ -17,7 +17,7 @@ Notes
 bool convertArrayToUC(ObjArray*& in_text, u16* out_wtext,
 					  unsigned textlen, bool ConvToBE /*false*/, bool nullterm /*true*/)
 {
-	static u16 value;
+	u16 value;
 	unsigned pos = 0;
 	for(unsigned i=0; i < textlen; i++) {
 		BObject* bo = in_text->ref_arr[i].get();
@@ -41,7 +41,7 @@ bool convertArrayToUC(ObjArray*& in_text, u16* out_wtext,
 bool convertUCtoArray(const u16* in_wtext, ObjArray*& out_text,
 					  unsigned textlen, bool ConvFromBE /*false*/)
 {
-	static u16 value;
+	u16 value;
 	out_text = new ObjArray();
 	for(unsigned i=0; i < textlen; i++) {
 		value = ConvFromBE ? cfBEu16(in_wtext[i]) : in_wtext[i];

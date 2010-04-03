@@ -89,8 +89,6 @@ void send_item_to_inrange( const Item *item );
 void update_item_to_inrange( const Item* item );
 void send_put_in_container( Client* client, const Item* item );
 void send_put_in_container_to_inrange( const Item *item );
-void BuildMsg25 (const Item* item, PKTOUT_25_V1 *packet_struct);
-void BuildMsg25 (const Item* item, PKTOUT_25_V2 *packet_struct);
 void send_wornitem_to_inrange( const Character *chr, const Item *item );
 void update_wornitem_to_inrange( const Character *chr, const Item *item );
 

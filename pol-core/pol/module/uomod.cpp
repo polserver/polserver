@@ -79,33 +79,28 @@ Notes
 #include "../../clib/logfile.h"
 #include "../../clib/mlog.h"
 #include "../../clib/passert.h"
-#include "../../clib/weakptr.h"
+#include "../../clib/random.h"
 #include "../../clib/stlutil.h"
 #include "../../clib/strutil.h"
 #include "../../clib/unicode.h"
+#include "../../clib/weakptr.h"
 
 #include "../../bscript/berror.h"
 #include "../../bscript/bobject.h"
+#include "../../bscript/dict.h"
 #include "../../bscript/execmodl.h"
 #include "../../bscript/impstr.h"
 #include "../../bscript/token.h"
-#include "../../bscript/dict.h"
 
 #include "../../plib/mapcell.h"
 #include "../../plib/mapshape.h"
 #include "../../plib/maptile.h"
 #include "../../plib/realm.h"
 
-#include "../../clib/random.h"
-#include "../mdelta.h"
+#include "../network/client.h"
 
 #include "../action.h"
-#include "../multi/boat.h"
-#include "cfgmod.h"
 #include "../cfgrepos.h"
-#include "../network/cgdata.h"
-#include "../mobile/charactr.h"
-#include "../network/client.h"
 #include "../core.h"
 #include "../eventid.h"
 #include "../fnsearch.h"
@@ -113,11 +108,16 @@ Notes
 #include "../item/itemdesc.h"
 #include "../listenpt.h"
 #include "../los.h"
+#include "../mdelta.h"
 #include "../menu.h"
+#include "../mobile/charactr.h"
+#include "../multi/boat.h"
 #include "../multi/multidef.h"
+#include "../network/cgdata.h"
+#include "../network/packets.h"
 #include "../npc.h"
+#include "../objecthash.h"
 #include "../objtype.h"
-#include "osmod.h"
 #include "../pktboth.h"
 #include "../pktin.h"
 #include "../polcfg.h"
@@ -133,24 +133,19 @@ Notes
 #include "../spells.h"
 #include "../ssopt.h"
 #include "../target.h"
+#include "../udatfile.h"
 #include "../ufunc.h"
 #include "../umanip.h"
-#include "../udatfile.h"
+#include "../uoexec.h"
 #include "../uofile.h"
+#include "../uopathnode.h"
 #include "../uoscrobj.h"
 #include "../ustruct.h"
 #include "../uvars.h"
 #include "../uworld.h"
-#include "../uoexec.h"
-#include "../uopathnode.h"
-
+#include "cfgmod.h"
+#include "osmod.h"
 #include "uomod.h"
-
-#include "../objecthash.h"
-
-
-
-
 
 #define CONST_DEFAULT_ZRANGE 19
 
@@ -3365,6 +3360,7 @@ BObjectImp* UOExecutorModule::mf_SaveWorldState()
         }
         if (res == 0)
         {
+			Packets::instance()->LogStatus(); // FIXME: find a better place
 // Code Analyze: C6246
 //			BStruct* res = new BStruct();
 			BStruct* ret = new BStruct();

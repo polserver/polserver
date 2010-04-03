@@ -40,6 +40,7 @@ Notes
 #include "boatcomp.h"
 #include "../mobile/charactr.h"
 #include "../network/client.h"
+#include "../network/packets.h"
 #include "../core.h"
 #include "../fnsearch.h"
 #include "../item/itemdesc.h"
@@ -202,15 +203,16 @@ vector<Client*> boat_sent_to;
 
 void send_boat_to_inrange( const UBoat* item, u16 oldx, u16 oldy )
 {
-
-	PKTOUT_1A_C msg;
-	msg.msgtype = PKTOUT_1A_C_ID;
-	msg.msglen = ctBEu16(sizeof msg);
-	msg.serial = item->serial_ext;
-	msg.graphic = item->graphic_ext;
-	msg.x = ctBEu16( item->x );
-	msg.y = ctBEu16( item->y );
-	msg.z = item->z;
+	PktOut_1A* msg = REQUESTPACKET(PktOut_1A,PKTOUT_1A_ID);
+	msg->offset+=2;
+	msg->Write(item->serial_ext);
+	msg->Write(item->graphic_ext);
+	msg->WriteFlipped(item->x);
+	msg->WriteFlipped(item->y);
+	msg->Write(item->z);
+	u16 len1A=msg->offset;
+	msg->offset=1;
+	msg->WriteFlipped(len1A);
 
 	// Client >= 7.0.0.0 ( SA )
 	PKTOUT_F3 msg2;
@@ -229,9 +231,8 @@ void send_boat_to_inrange( const UBoat* item, u16 oldx, u16 oldy )
 	msg2.color = 0x00;
 	msg2.flags = 0x00;
 
-	PKTOUT_1D msgremove;
-	msgremove.msgtype = PKTOUT_1D_ID;
-	msgremove.serial = item->serial_ext;
+	PktOut_1D* msgremove = REQUESTPACKET(PktOut_1D,PKTOUT_1D_ID);
+	msgremove->Write(item->serial_ext);
     
     for( Clients::iterator itr = clients.begin(); itr != clients.end(); ++itr )
 	{
@@ -245,16 +246,18 @@ void send_boat_to_inrange( const UBoat* item, u16 oldx, u16 oldy )
 			if (client->ClientType & CLIENTTYPE_7000)
 				client->transmit( &msg2, sizeof msg2 );
 			else
-				client->transmit( &msg, sizeof msg );
+				client->transmit( &msg->buffer, len1A );
             boat_sent_to.push_back( client );
         }
 		else if ((oldx!=USHRT_MAX) && (oldy!=USHRT_MAX) && //were inrange
 			(client->chr->realm == item->realm) &&
 			(inrange( client->chr->x, client->chr->y, oldx, oldy )))
 		{
-			client->transmit( &msgremove, sizeof msgremove );
+			client->transmit( &msgremove->buffer, msgremove->offset );
 		}
     }
+	READDPACKET(msg);
+	READDPACKET(msgremove);
 }
 
 void unpause_paused()

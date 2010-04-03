@@ -81,9 +81,9 @@ Notes
 
 #include <assert.h>
 
-#include "../../clib/endian.h"
 #include "../../clib/cfgelem.h"
 #include "../../clib/cfgfile.h"
+#include "../../clib/endian.h"
 #include "../../clib/esignal.h"
 #include "../../clib/fileutil.h"
 #include "../../clib/logfile.h"
@@ -91,36 +91,37 @@ Notes
 #include "../../clib/random.h"
 #include "../../clib/stlutil.h"
 #include "../../clib/strutil.h"
-
 #include "../../plib/mapcell.h"
-#include "../uconst.h"
 #include "../../plib/realm.h"
-
 #include "../accounts/account.h"
 #include "../action.h"
 #include "../anim.h"
-#include "../item/armor.h"
-#include "attribute.h"
-#include "../multi/boat.h"
-#include "../network/cgdata.h"
 #include "../checkpnt.h"
 #include "../clidata.h"
-#include "../network/client.h"
-#include "../network/cliface.h"
-#include "../cmdlevel.h"
 #include "../cmbtcfg.h"
+#include "../cmdlevel.h"
 #include "../dtrace.h"
 #include "../fnsearch.h"
 #include "../gflag.h"
-#include "../module/guildmod.h"
+#include "../item/armor.h"
+#include "../item/weapon.h"
+#include "../item/wepntmpl.h"
 #include "../los.h"
 #include "../mkscrobj.h"
-#include "../movecost.h"
-#include "../objtype.h"
+#include "../module/guildmod.h"
 #include "../module/osmod.h"
+#include "../module/uomod.h"
+#include "../movecost.h"
+#include "../multi/boat.h"
+#include "../multi/house.h"
+#include "../network/cgdata.h"
+#include "../network/client.h"
+#include "../network/cliface.h"
+#include "../network/packets.h"
+#include "../objtype.h"
 #include "../party.h"
-#include "../pktout.h"
 #include "../pktboth.h"
+#include "../pktout.h"
 #include "../polcfg.h"
 #include "../polclass.h"
 #include "../polclock.h"
@@ -140,11 +141,11 @@ Notes
 #include "../syshook.h"
 #include "../target.h"
 #include "../uconst.h"
+#include "../uconst.h"
 #include "../ufunc.h"
 #include "../ufuncstd.h"
 #include "../umanip.h"
 #include "../uobjcnt.h"
-#include "../module/uomod.h"
 #include "../uoexec.h"
 #include "../uofile.h"
 #include "../uoscrobj.h"
@@ -152,10 +153,7 @@ Notes
 #include "../uworld.h"
 #include "../vital.h"
 #include "../watch.h"
-#include "../item/weapon.h"
-#include "../item/wepntmpl.h"
-#include "../multi/house.h"
-
+#include "attribute.h"
 #include "charactr.h"
 
 
@@ -1854,14 +1852,14 @@ void Character::on_poison_changed()
         // if poisoned send_move_mobile_to_nearby_cansee handles 0x17 packet
         if (!poisoned)
         {
-            PKTOUT_17 msg;
-            msg.msgtype = PKTOUT_17_ID;
-            msg.msglen = ctBEu16(sizeof msg);
-            msg.serial = this->serial_ext;
-            msg.unk = ctBEu16(1);
-            msg.status_type = ctBEu16(1);
-            msg.flag = 0;
-            transmit_to_inrange( this, &msg, sizeof msg, false, true );
+			PktOut_17* msg = REQUESTPACKET(PktOut_17,PKTOUT_17_ID);
+			msg->WriteFlipped(static_cast<u16>(sizeof msg->buffer));
+			msg->Write(this->serial_ext);
+			msg->Write(static_cast<u16>(1)); //unk
+			msg->Write(static_cast<u16>(1)); // status_type
+			msg->Write(static_cast<u8>(0)); //flag
+            transmit_to_inrange( this, &msg->buffer, msg->offset, false, true );
+			READDPACKET(msg);
         }
     }
 }

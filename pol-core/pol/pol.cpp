@@ -150,6 +150,7 @@ Notes
 #include "uvars.h"
 #include "uworld.h"
 #include "crypt/cryptengine.h"
+#include "network/packets.h"
 
 #ifdef __linux__
 #include <gnu/libc-version.h>
@@ -248,19 +249,24 @@ MessageHandler_V2::MessageHandler_V2( unsigned char msgtype,
 void send_startup( Client *client )
 {
 	Character *chr = client->chr;
-	PKTOUT_1B msg;
-	memset( &msg, 0, sizeof msg );
-	msg.msgtype = PKTOUT_1B_ID;
-	msg.serial = chr->serial_ext;
-	msg.graphic = chr->graphic_ext;
-	msg.x = ctBEu16(chr->x);
-	msg.y = ctBEu16(chr->y);
-	msg.z = chr->z;
-	msg.dir = chr->facing;
-	msg.unk21_7F = 0x7F;
-	msg.map_width = ctBEu16(client->chr->realm->width());	
-	msg.map_height = ctBEu16(client->chr->realm->height());
-	transmit( client, &msg, sizeof msg );
+	PktOut_1B* msg = REQUESTPACKET(PktOut_1B,PKTOUT_1B_ID);
+	msg->Write(chr->serial_ext);
+	msg->offset+=4; //u8 unk5, unk6, unk7, unk8
+	msg->Write(chr->graphic_ext);
+	msg->WriteFlipped(chr->x);
+	msg->WriteFlipped(chr->y);
+	msg->offset++; // u8 unk_15
+	msg->Write(chr->z);
+	msg->Write(chr->facing);
+	msg->offset+=3; //u8 unk18,unk19,unk20
+	msg->Write(static_cast<u8>(0x7F));
+	msg->offset++; // u8 unk22
+	msg->offset+=4; // u16 map_startx, map_starty
+	msg->WriteFlipped(client->chr->realm->width());
+	msg->WriteFlipped(client->chr->realm->height());
+	// u8 unk31, unk32, unk33, unk34, unk35, unk36
+	transmit( client, &msg->buffer, msg->offset );
+	READDPACKET(msg);
 }
 
 /*
@@ -1021,12 +1027,12 @@ client->checkpoint = 61; //CNXBUG
 					{
 						CLIENT_CHECKPOINT(4);
 						PolLock lck;
-						PKTOUT_53 msg;
-						msg.msgtype = PKTOUT_53_ID;
-						msg.warning = PKTOUT_53::WARN_CHARACTER_IDLE;
+						PktOut_53* msg = REQUESTPACKET(PktOut_53,PKTOUT_53_ID);
+						msg->Write(static_cast<u8>(PKTOUT_53_WARN_CHARACTER_IDLE));
 						CLIENT_CHECKPOINT(5);
-						client->transmit( &msg, sizeof msg );
+						client->transmit( &msg->buffer, msg->offset );
 						CLIENT_CHECKPOINT(18);
+						READDPACKET(msg);
 						if (client->pause_count)
 							client->restart2();
 					}
