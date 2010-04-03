@@ -13,6 +13,7 @@ Notes
 #include <climits>
 #include "../../clib/stl_inc.h"
 
+#include "../../clib/endian.h"
 #include "../../clib/singleton.h"
 #include "../../clib/rawtypes.h"
 #include "../pktoutid.h"
@@ -113,60 +114,53 @@ public:
 	void ReSetBuffer() { memset(buffer,0,sizeof(buffer)); buffer[0]=_id; offset=1; }
 	char* getBuffer() { return buffer; }
 	inline u8 getID() { return buffer[0]; }
+
 	void Write(u32 x)
 	{
-		buffer[offset++] = x & UCHAR_MAX;
-		buffer[offset++] = (x >> CHAR_BIT) & UCHAR_MAX;
-		buffer[offset++] = (x >> CHAR_BIT*2) & UCHAR_MAX;
-		buffer[offset++] = (x >> CHAR_BIT*3) & UCHAR_MAX;
+		(*(u32*)&buffer[offset]) = x;
+		offset += 4;
 	};
 	void Write(s32 x)
 	{
-		buffer[offset++] = x & UCHAR_MAX;
-		buffer[offset++] = (x >> CHAR_BIT) & UCHAR_MAX;
-		buffer[offset++] = (x >> CHAR_BIT*2) & UCHAR_MAX;
-		buffer[offset++] = (x >> CHAR_BIT*3) & UCHAR_MAX;
+		(*(s32*)&buffer[offset]) = x;
+		offset += 4;
 	};
 	void Write(u16 x)
 	{
-		buffer[offset++] = x & UCHAR_MAX;
-		buffer[offset++] = (x >> CHAR_BIT) & UCHAR_MAX;
+		(*(u16*)&buffer[offset]) = x;
+		offset += 2;
 	};
 	void Write(s16 x)
 	{
-		buffer[offset++] = x & UCHAR_MAX;
-		buffer[offset++] = (x >> CHAR_BIT) & UCHAR_MAX;
+		(*(s16*)&buffer[offset]) = x;
+		offset += 2;
 	};
 	void Write(u8 x) { buffer[offset++] = x; };
 	void Write(s8 x) { buffer[offset++] = x; };
 	void WriteFlipped(u32 x)
 	{
-		buffer[offset++] = (x >> CHAR_BIT*3) & UCHAR_MAX;
-		buffer[offset++] = (x >> CHAR_BIT*2) & UCHAR_MAX;
-		buffer[offset++] = (x >> CHAR_BIT) & UCHAR_MAX;
-		buffer[offset++] = x & UCHAR_MAX;
+		(*(u32*)&buffer[offset]) = cfBEu32(x);
+		offset += 4;
 	};
 	void WriteFlipped(s32 x)
 	{
-		buffer[offset++] = (x >> CHAR_BIT*3) & UCHAR_MAX;
-		buffer[offset++] = (x >> CHAR_BIT*2) & UCHAR_MAX;
-		buffer[offset++] = (x >> CHAR_BIT) & UCHAR_MAX;
-		buffer[offset++] = x & UCHAR_MAX;
+		(*(s32*)&buffer[offset]) = cfBEu32(x);
+		offset += 4;
 	};
 	void WriteFlipped(u16 x)
 	{
-		buffer[offset++] = (x >> CHAR_BIT) & UCHAR_MAX;
-		buffer[offset++] = x & UCHAR_MAX;
+		(*(u16*)&buffer[offset]) = cfBEu16(x);
+		offset += 2;
 	};
 	void WriteFlipped(s16 x)
 	{
-		buffer[offset++] = (x >> CHAR_BIT) & UCHAR_MAX;
-		buffer[offset++] = x & UCHAR_MAX;
+		(*(s16*)&buffer[offset]) = cfBEu16(x);
+		offset += 2;
 	};
 	void Write(const char* x, u16 len)
 	{
 		strzcpy( &buffer[offset], x, len );
-		offset+=len;
+		offset += len;
 	}
 };
 // "normal" pkt
