@@ -19,8 +19,10 @@ Notes
 
 #include "mobile/charactr.h"
 #include "network/client.h"
+#include "network/packets.h"
 #include "extcmd.h"
 #include "pktin.h"
+#include "pktdef.h"
 #include "uobject.h"
 #include "uvars.h"
 #include "ufunc.h"
@@ -84,18 +86,16 @@ void send_action_to_inrange( const Character* obj, UACTION action,
             action = new_action;
         }
     }
-
-	PKTOUT_6E msg;
-	msg.msgtype = PKTOUT_6E_ID;
-	msg.serial = obj->serial_ext;
-	msg.action = ctBEu16( (u16)action );
-	msg.framecount = ctBEu16(framecount);
-	msg.repeatcount = ctBEu16(repeatcount);
-	msg.backward = static_cast<u8>(backward);
-	msg.repeatflag = static_cast<u8>(repeatflag);
-	msg.delay = delay;
-
-	transmit_to_inrange( obj, &msg, sizeof msg, false, false );
+	PktOut_6E* msg = REQUESTPACKET(PktOut_6E,PKTOUT_6E_ID);
+	msg->Write(obj->serial_ext);
+	msg->WriteFlipped(static_cast<u16>(action));
+	msg->WriteFlipped(framecount);
+	msg->WriteFlipped(repeatcount);
+	msg->Write(static_cast<u8>(backward));
+	msg->Write(static_cast<u8>(repeatflag));
+	msg->Write(delay);
+	transmit_to_inrange( obj, &msg->buffer, msg->offset, false, false );
+	READDPACKET(msg);
 }
 
 void handle_action( Client *client, PKTIN_12 *cmd )

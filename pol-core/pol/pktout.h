@@ -556,44 +556,44 @@ struct PKTOUT_5B {
 };
 asserteql( sizeof(PKTOUT_5B), 4 );
 
-struct PKTOUT_65 {
-    u8 msgtype;
-    u8 type;
-    u8 severity;
-    u8 aux;
-    enum { TYPE_NONE = 0, TYPE_RAIN = 1, TYPE_SNOW = 2 };
-	enum { //TODO:FIX//
-		WTYPE_START_TO_RAIN = 0x00,
-		WTYPE_FIERCE_STORM = 0x01,
-		WTYPE_BEGIN_TO_SNOW = 0x02,
-		WTYPE_STORM_BREWING = 0x03,
-		WTYPE_STOP_WEATHER = 0xFF
-	};
-};
-asserteql( sizeof(PKTOUT_65), 4 );
+//struct PKTOUT_65 {
+//    u8 msgtype;
+//    u8 type;
+//    u8 severity;
+//    u8 aux;
+//    enum { TYPE_NONE = 0, TYPE_RAIN = 1, TYPE_SNOW = 2 };
+//	enum { //TODO:FIX//
+//		WTYPE_START_TO_RAIN = 0x00,
+//		WTYPE_FIERCE_STORM = 0x01,
+//		WTYPE_BEGIN_TO_SNOW = 0x02,
+//		WTYPE_STORM_BREWING = 0x03,
+//		WTYPE_STOP_WEATHER = 0xFF
+//	};
+//};
+//asserteql( sizeof(PKTOUT_65), 4 );
 
-struct PKTOUT_6D
-{
-    u8 msgtype;
-    u16 midi;
-};
-asserteql( sizeof(PKTOUT_6D), 3 );
+//struct PKTOUT_6D
+//{
+//    u8 msgtype;
+//    u16 midi;
+//};
+//asserteql( sizeof(PKTOUT_6D), 3 );
 
-struct PKTOUT_6E {
-    u8 msgtype;
-    u32 serial;
-    u16 action;
-    u16 framecount;
-    u16 repeatcount;
-    u8 backward;
-    u8 repeatflag;
-    u8 delay;
-    enum DIRECTION_FLAG { BACKWARD = 1,
-                       FORWARD = 0 };
-    enum REPEAT_FLAG { REPEAT = 1,
-                       NOREPEAT = 0 };
-};
-asserteql( sizeof(PKTOUT_6E), 14 );
+//struct PKTOUT_6E {
+//    u8 msgtype;
+//    u32 serial;
+//    u16 action;
+//    u16 framecount;
+//    u16 repeatcount;
+//    u8 backward;
+//    u8 repeatflag;
+//    u8 delay;
+//    enum DIRECTION_FLAG { BACKWARD = 1,
+//                       FORWARD = 0 };
+//    enum REPEAT_FLAG { REPEAT = 1,
+//                       NOREPEAT = 0 };
+//};
+//asserteql( sizeof(PKTOUT_6E), 14 );
 
 /* 
 Okay, this just sucks.  If, in a client, you click on someone with
@@ -604,26 +604,26 @@ NOW under your cursor, rather than what WAS under it.
 On the plus side, it seems you can target an effect from an x/y/z coord
 to another x/y/z coordinate.
 */
-struct PKTOUT_70 {
-    u8 msgtype;
-    u8 effect_type;     // EFFECT_TYPE_xx
-    u32 source_serial;
-    u32 target_serial;
-    u16 effect;
-    u16 srcx;
-    u16 srcy;
-    u8 srcz;
-    u16 dstx;
-    u16 dsty;
-    u8 dstz;
-    u8 speed; /* was: 07 */
-    u8 loop;    /* 1=shortest, 0=very long */
-    u8 unk24;
-    u8 unk25;
-    u8 unk26;
-    u8 explode;/* not sure what to put here */
-};
-asserteql( sizeof(PKTOUT_70), 28 );
+//struct PKTOUT_70 {
+//    u8 msgtype;
+//    u8 effect_type;     // EFFECT_TYPE_xx
+//    u32 source_serial;
+//    u32 target_serial;
+//    u16 effect;
+//    u16 srcx;
+//    u16 srcy;
+//    u8 srcz;
+//    u16 dstx;
+//    u16 dsty;
+//    u8 dstz;
+//    u8 speed; /* was: 07 */
+//    u8 loop;    /* 1=shortest, 0=very long */
+//    u8 unk24;
+//    u8 unk25;
+//    u8 unk26;
+//    u8 explode;/* not sure what to put here */
+//};
+//asserteql( sizeof(PKTOUT_70), 28 );
 
 struct PKTOUT_74 {
 	struct HEADER {
@@ -976,20 +976,20 @@ asserteql( sizeof(PKTOUT_AB::HEADER), 9 );
 asserteql( sizeof(PKTOUT_AB::TEXTLINE1), 258 );
 asserteql( sizeof(PKTOUT_AB::TEXTLINE2), 264 );
 
-struct PKTOUT_AE
-{
-    u8 msgtype;
-    u16 msglen;
-    u32 source_serial;
-    u16 source_graphic;
-    u8 type;
-    u16 color;
-    u16 font;
-    char lang[4]; // "enu" - US english
-    char speaker_name[ 30 ];
-    u16 wtext[(SPEECH_MAX_LEN) + 1]; // wide-character, double-null terminated
-};
-assertsize( PKTOUT_AE, 450 );
+//struct PKTOUT_AE
+//{
+//    u8 msgtype;
+//    u16 msglen;
+//    u32 source_serial;
+//    u16 source_graphic;
+//    u8 type;
+//    u16 color;
+//    u16 font;
+//    char lang[4]; // "enu" - US english
+//    char speaker_name[ 30 ];
+//    u16 wtext[(SPEECH_MAX_LEN) + 1]; // wide-character, double-null terminated
+//};
+//assertsize( PKTOUT_AE, 450 );
 
 struct PKTOUT_AF {
     u8 msgtype;

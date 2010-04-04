@@ -26,16 +26,16 @@ Notes
 //interface for packets
 class PacketInterface
 {
-public:
-	PacketInterface(){};
-	virtual ~PacketInterface(){};
-public:
-	u16 offset;
-public:
-	virtual void ReSetBuffer() {};
-	virtual char* getBuffer() { return NULL; }
-	virtual inline u8 getID() { return 0; }
-	virtual inline u16 getSubID() { return 0; }
+	public:
+		PacketInterface(){};
+		virtual ~PacketInterface(){};
+	public:
+		u16 offset;
+	public:
+		virtual void ReSetBuffer() {};
+		virtual char* getBuffer() { return NULL; }
+		virtual inline u8 getID() { return 0; }
+		virtual inline u16 getSubID() { return 0; }
 };
 
 typedef queue<PacketInterface*> PacketInterfaceQueue;
@@ -45,41 +45,41 @@ typedef pair<u16, PacketInterfaceQueue> PacketInterfaceQueuePair;
 // interface for the two different types of packetqueues ("normal" packets and packets with subs)
 class PacketQueue
 {
-public:
-	PacketQueue(){};
-	virtual ~PacketQueue(){};
-public:
-	virtual PacketInterface* GetNext(u8 id, u16 sub=0) {return NULL;}
-	virtual void Add(PacketInterface* pkt){};
-	virtual void LogStatus(){};
+	public:
+		PacketQueue(){};
+		virtual ~PacketQueue(){};
+	public:
+		virtual PacketInterface* GetNext(u8 id, u16 sub=0) {return NULL;}
+		virtual void Add(PacketInterface* pkt){};
+		virtual void LogStatus(){};
 };
 
 // "normal" packet queue
 class PacketQueueSingle : public PacketQueue
 {
-public:
-	PacketQueueSingle(){};
-	~PacketQueueSingle(){};
-private:
-	PacketInterfaceQueue packets;
-public:
-	PacketInterface* GetNext(u8 id, u16 sub=0);
-	void Add(PacketInterface* pkt);
-	void LogStatus();
+	public:
+		PacketQueueSingle(){};
+		~PacketQueueSingle(){};
+	private:
+		PacketInterfaceQueue packets;
+	public:
+		PacketInterface* GetNext(u8 id, u16 sub=0);
+		void Add(PacketInterface* pkt);
+		void LogStatus();
 };
 
 // packet with subs queue
 class PacketQueueSubs : public PacketQueue
 {
-public:
-	PacketQueueSubs(){};
-	~PacketQueueSubs(){};
-private:
-	PacketInterfaceQueueMap packets;
-public:
-	PacketInterface* GetNext(u8 id, u16 sub=0);
-	void Add(PacketInterface* pkt);
-	void LogStatus();
+	public:
+		PacketQueueSubs(){};
+		~PacketQueueSubs(){};
+	private:
+		PacketInterfaceQueueMap packets;
+	public:
+		PacketInterface* GetNext(u8 id, u16 sub=0);
+		void Add(PacketInterface* pkt);
+		void LogStatus();
 };
 
 typedef pair<u8, PacketQueue*> PacketQueuePair;
@@ -88,17 +88,17 @@ typedef std::map<u8, PacketQueue*> PacketQueueMap;
 // singleton "holder" of packets !EntryPoint!
 class PacketsSingleton
 {
-public:
-	PacketsSingleton();
-	~PacketsSingleton(){};
-private:
-	PacketQueueMap packets;
-public:
-	PacketInterface* getPacket(u8 id, u16 sub=0);
-	void ReAddPacket(PacketInterface* pkt);
-	void LogStatus();
-
+	public:
+		PacketsSingleton();
+		~PacketsSingleton(){};
+	private:
+		PacketQueueMap packets;
+	public:
+		PacketInterface* getPacket(u8 id, u16 sub=0);
+		void ReAddPacket(PacketInterface* pkt);
+		void LogStatus();
 };
+
 // the real definition
 typedef Singleton<PacketsSingleton> Packets;
 
@@ -108,61 +108,85 @@ typedef Singleton<PacketsSingleton> Packets;
 template <u8 _id, u16 _size>
 class PacketWriter : public PacketInterface
 {
-public:
-	PacketWriter() { ReSetBuffer(); }
-	char buffer[_size];
-	void ReSetBuffer() { memset(buffer,0,sizeof(buffer)); buffer[0]=_id; offset=1; }
-	char* getBuffer() { return buffer; }
-	inline u8 getID() { return buffer[0]; }
+	public:
+		PacketWriter() { ReSetBuffer(); }
+		char buffer[_size];
+		void ReSetBuffer() { memset(buffer,0,sizeof(buffer)); buffer[0]=_id; offset=1; }
+		char* getBuffer() { return buffer; }
+		inline u8 getID() { return buffer[0]; }
 
-	void Write(u32 x)
-	{
-		(*(u32*)&buffer[offset]) = x;
-		offset += 4;
-	};
-	void Write(s32 x)
-	{
-		(*(s32*)&buffer[offset]) = x;
-		offset += 4;
-	};
-	void Write(u16 x)
-	{
-		(*(u16*)&buffer[offset]) = x;
-		offset += 2;
-	};
-	void Write(s16 x)
-	{
-		(*(s16*)&buffer[offset]) = x;
-		offset += 2;
-	};
-	void Write(u8 x) { buffer[offset++] = x; };
-	void Write(s8 x) { buffer[offset++] = x; };
-	void WriteFlipped(u32 x)
-	{
-		(*(u32*)&buffer[offset]) = cfBEu32(x);
-		offset += 4;
-	};
-	void WriteFlipped(s32 x)
-	{
-		(*(s32*)&buffer[offset]) = cfBEu32(x);
-		offset += 4;
-	};
-	void WriteFlipped(u16 x)
-	{
-		(*(u16*)&buffer[offset]) = cfBEu16(x);
-		offset += 2;
-	};
-	void WriteFlipped(s16 x)
-	{
-		(*(s16*)&buffer[offset]) = cfBEu16(x);
-		offset += 2;
-	};
-	void Write(const char* x, u16 len)
-	{
-		strzcpy( &buffer[offset], x, len );
-		offset += len;
-	}
+		void Write(u32 x)
+		{
+			(*(u32*)&buffer[offset]) = x;
+			offset += 4;
+		};
+		void Write(s32 x)
+		{
+			(*(s32*)&buffer[offset]) = x;
+			offset += 4;
+		};
+		void Write(u16 x)
+		{
+			(*(u16*)&buffer[offset]) = x;
+			offset += 2;
+		};
+		void Write(s16 x)
+		{
+			(*(s16*)&buffer[offset]) = x;
+			offset += 2;
+		};
+		void Write(u8 x) { buffer[offset++] = x; };
+		void Write(s8 x) { buffer[offset++] = x; };
+		void WriteFlipped(u32 x)
+		{
+			(*(u32*)&buffer[offset]) = cfBEu32(x);
+			offset += 4;
+		};
+		void WriteFlipped(s32 x)
+		{
+			(*(s32*)&buffer[offset]) = cfBEu32(x);
+			offset += 4;
+		};
+		void WriteFlipped(u16 x)
+		{
+			(*(u16*)&buffer[offset]) = cfBEu16(x);
+			offset += 2;
+		};
+		void WriteFlipped(s16 x)
+		{
+			(*(s16*)&buffer[offset]) = cfBEu16(x);
+			offset += 2;
+		};
+		void Write(const char* x, u16 len)
+		{
+			strncpy(&buffer[offset], x, len-1); // nullterminator not needed
+			offset += len;
+		}
+		void Write(const u16* x, u16 len, bool nullterm=false)
+		{
+			u16* _buffer = ((u16*)&buffer[offset]);
+			offset += len*2;
+			while (len-- > 0)
+			{
+				*(_buffer++) = *x++;
+			}
+			if (nullterm)
+				offset += 2;
+		}
+		void WriteFlipped(const u16* x, u16 len, bool nullterm=false)
+		{
+			u16* _buffer = ((u16*)&buffer[offset]);
+			offset += len*2;
+			while (len-- > 0)
+			{
+				u16 val = *x++;
+				*(_buffer++) = ctBEu16(val);
+			}
+			if (nullterm)
+				offset += 2;
+		}
 };
+
 // "normal" pkt
 template <u8 _id, u16 _size>
 class PacketTemplate : public PacketWriter<_id, _size>
@@ -173,10 +197,10 @@ class PacketTemplate : public PacketWriter<_id, _size>
 template <u8 _id, u16 _sub, u16 _size>
 class PacketTemplateSub : public PacketWriter<_id, _size>
 {
-private:
-	u16 sub;
-public:
-	inline u16 getSubID() { return sub; }
+	private:
+		u16 sub;
+	public:
+		inline u16 getSubID() { return sub; }
 };
 
 // creates new packets
@@ -186,7 +210,6 @@ PacketInterface* GetPacket(u8 id, u16 sub=0);
 #define READDPACKET(_msg) Packets::instance()->ReAddPacket(_msg)
 
 // Packet defs start
-// current 64542 chars
 typedef PacketTemplate<PKTOUT_0B_ID,7> PktOut_0B;
 typedef PacketTemplate<PKTOUT_11_ID,91> PktOut_11;
 typedef PacketTemplate<PKTOUT_17_ID,12> PktOut_17;
@@ -209,6 +232,12 @@ typedef PacketTemplate<PKTOUT_4F_ID,2> PktOut_4F;
 typedef PacketTemplate<PKTOUT_53_ID,2> PktOut_53;
 typedef PacketTemplate<PKTOUT_54_ID,12> PktOut_54;
 typedef PacketTemplate<PKTOUT_55_ID,1> PktOut_55;
+typedef PacketTemplate<PKTOUT_65_ID,4> PktOut_65;
+typedef PacketTemplate<PKTOUT_6D_ID,3> PktOut_6D;
+typedef PacketTemplate<PKTOUT_6E_ID,14> PktOut_6E;
+typedef PacketTemplate<PKTOUT_70_ID,28> PktOut_70;
+typedef PacketTemplate<PKTOUT_74_ID,0xFFFF> PktOut_74;
+typedef PacketTemplate<PKTOUT_AE_ID,((SPEECH_MAX_LEN) + 1)*2+48> PktOut_AE;
 typedef PacketTemplateSub<PKTBI_BF_ID,0x4,12> Pktout_bf_sub4_closegump;
 // Packet defs end
 

@@ -837,12 +837,12 @@ void send_light( Client *client, int lightlevel )
 
 void send_weather( Client* client, u8 type, u8 severity, u8 aux )
 {
-    PKTOUT_65 msg;
-    msg.msgtype = PKTOUT_65_ID;
-    msg.type = type;
-    msg.severity = severity;
-    msg.aux = aux;
-    transmit( client, &msg, sizeof msg );
+	PktOut_65* msg = REQUESTPACKET(PktOut_65,PKTOUT_65_ID);
+	msg->Write(type);
+	msg->Write(severity);
+	msg->Write(aux);
+    transmit( client, &msg->buffer, msg->offset );
+	READDPACKET(msg);
 }
 
 /* send_char_data: called once for each client when a new character enters
@@ -1169,24 +1169,23 @@ void play_moving_effect( const UObject *src, const UObject *dst,
                          u8 loop,
                          u8 explode)
 {
-    PKTOUT_70 msg;
-    msg.msgtype = PKTOUT_70_ID;
-    msg.effect_type = EFFECT_TYPE_MOVING;
-    msg.source_serial = src->serial_ext;
-    msg.target_serial = dst->serial_ext;
-    msg.effect = ctBEu16( effect );
-    msg.srcx = ctBEu16( src->x );
-    msg.srcy = ctBEu16( src->y );
-    msg.srcz = src->z+src->height;
-    msg.dstx = ctBEu16( dst->x );
-    msg.dsty = ctBEu16( dst->y );
-    msg.dstz = dst->z+src->height;
-    msg.speed = speed;
-    msg.loop = loop;
-    msg.unk24 = msg.unk25 = msg.unk26 = 0;
-    msg.explode = explode;
- 
-    for( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
+	PktOut_70* msg = REQUESTPACKET(PktOut_70,PKTOUT_70_ID);
+	msg->Write(static_cast<u8>(EFFECT_TYPE_MOVING));
+	msg->Write(src->serial_ext);
+	msg->Write(dst->serial_ext);
+	msg->WriteFlipped(effect);
+	msg->WriteFlipped(src->x);
+	msg->WriteFlipped(src->y);
+	msg->Write(static_cast<s8>(src->z+src->height));
+	msg->WriteFlipped(dst->x);
+	msg->WriteFlipped(dst->y);
+	msg->Write(static_cast<s8>(dst->z+dst->height));
+	msg->Write(speed);
+	msg->Write(loop);
+	msg->offset+=3; //unk24,unk25,unk26
+	msg->Write(explode);
+
+	for( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
     {
         Client* client = *itr;
 
@@ -1196,9 +1195,10 @@ void play_moving_effect( const UObject *src, const UObject *dst,
         if (inrange( client->chr, src ) ||
             inrange( client->chr, dst ))
         {
-            transmit( client, &msg, sizeof msg );
+            transmit( client, &msg->buffer, msg->offset );
         }
     }
+	READDPACKET(msg);
 }
 
 void play_moving_effect2( u16 xs, u16 ys, s8 zs,
@@ -1209,21 +1209,21 @@ void play_moving_effect2( u16 xs, u16 ys, s8 zs,
                           u8 explode,
 						  Realm* realm )
 {
-    PKTOUT_70 msg;
-    msg.msgtype = PKTOUT_70_ID;
-    msg.effect_type = EFFECT_TYPE_MOVING;
-    msg.effect = ctBEu16( effect );
-    msg.srcx = ctBEu16( xs );
-    msg.srcy = ctBEu16( ys );
-    msg.srcz = zs;
-    msg.dstx = ctBEu16( xd );
-    msg.dsty = ctBEu16( yd );
-    msg.dstz = zd;
-    msg.speed = speed;
-    msg.loop = loop;
-    msg.unk24 = msg.unk25 = msg.unk26 = 0;
-    msg.explode = explode;
- 
+	PktOut_70* msg = REQUESTPACKET(PktOut_70,PKTOUT_70_ID);
+	msg->Write(static_cast<u8>(EFFECT_TYPE_MOVING));
+	msg->offset+=8; // src+dst serial
+	msg->WriteFlipped(effect);
+	msg->WriteFlipped(xs);
+	msg->WriteFlipped(ys);
+	msg->Write(zs);
+	msg->WriteFlipped(xd);
+	msg->WriteFlipped(yd);
+	msg->Write(zd);
+	msg->Write(speed);
+	msg->Write(loop);
+	msg->offset+=3; //unk24,unk25,unk26
+	msg->Write(explode);
+
     for( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
     {
         Client* client = *itr;
@@ -1236,22 +1236,25 @@ void play_moving_effect2( u16 xs, u16 ys, s8 zs,
         if (inrange( client->chr, xs, ys ) ||
             inrange( client->chr, xd, yd ))
         {
-            transmit( client, &msg, sizeof msg );
+            transmit( client, &msg->buffer, msg->offset );
         }
     }
+	READDPACKET(msg);
 }
 
 
 void play_lightning_bolt_effect( const UObject* center )
 {
-    static PKTOUT_70 msg; // local-static
-    msg.msgtype = PKTOUT_70_ID;
-    msg.effect_type = EFFECT_TYPE_LIGHTNING_BOLT;
-    msg.source_serial = center->serial_ext;
-    msg.srcx = ctBEu16(center->x);
-    msg.srcy = ctBEu16(center->y);
-    msg.srcz = center->z;
-    transmit_to_inrange( center, &msg, sizeof msg, false, false );
+	PktOut_70* msg = REQUESTPACKET(PktOut_70,PKTOUT_70_ID);
+	msg->Write(static_cast<u8>(EFFECT_TYPE_LIGHTNING_BOLT));
+	msg->Write(center->serial_ext);
+	msg->offset+=6; // dst serial + effect
+	msg->WriteFlipped(center->x);
+	msg->WriteFlipped(center->y);
+	msg->Write(center->z);
+	msg->offset+=11;
+    transmit_to_inrange( center, &msg->buffer, msg->offset, false, false );
+	READDPACKET(msg);
 }
  
 void play_object_centered_effect( const UObject* center,
@@ -1259,34 +1262,37 @@ void play_object_centered_effect( const UObject* center,
                                   u8 speed,
                                   u8 loop )
 {
-    static PKTOUT_70 msg; // local-static
-    msg.msgtype = PKTOUT_70_ID;
-    msg.effect_type = EFFECT_TYPE_FOLLOW_OBJ;
-    msg.source_serial = center->serial_ext;
-    msg.effect = ctBEu16( effect );
-    msg.srcx = ctBEu16(center->x);
-    msg.srcy = ctBEu16(center->y);
-    msg.srcz = center->z;
-    msg.speed = speed;
-    msg.loop = loop;
-    //msg.unk24 = 1;
-    //msg.unk26 = 1;
-    transmit_to_inrange( center, &msg, sizeof msg, false, false );
+	PktOut_70* msg = REQUESTPACKET(PktOut_70,PKTOUT_70_ID);
+	msg->Write(static_cast<u8>(EFFECT_TYPE_FOLLOW_OBJ));
+	msg->Write(center->serial_ext);
+	msg->offset+=4; // dst serial
+	msg->WriteFlipped(effect);
+	msg->WriteFlipped(center->x);
+	msg->WriteFlipped(center->y);
+	msg->Write(center->z);
+	msg->offset+=5; //dst x,y,z
+	msg->Write(speed);
+	msg->Write(loop);
+	msg->offset+=5; //unk24,unk25,unk26,explode
+    transmit_to_inrange( center, &msg->buffer, msg->offset, false, false );
+	READDPACKET(msg);
 }
 
 void play_stationary_effect( u16 x, u16 y, u8 z, u16 effect, u8 speed, u8 loop, u8 explode, Realm* realm )
 {
-    static PKTOUT_70 msg; // local-static
-    msg.msgtype = PKTOUT_70_ID;
-    msg.effect_type = EFFECT_TYPE_STATIONARY_XYZ;
-    msg.effect = ctBEu16( effect );
-    msg.srcx = ctBEu16(x);
-    msg.srcy = ctBEu16(y);
-    msg.srcz = z;
-    msg.speed = speed;
-    msg.loop = loop;
-    msg.unk26 = 1; // this is right for teleport, anyway
-    msg.explode = explode;
+	PktOut_70* msg = REQUESTPACKET(PktOut_70,PKTOUT_70_ID);
+	msg->Write(static_cast<u8>(EFFECT_TYPE_STATIONARY_XYZ));
+	msg->offset+=8; // src,dst serial
+	msg->WriteFlipped(effect);
+	msg->WriteFlipped(x);
+	msg->WriteFlipped(y);
+	msg->Write(z);
+	msg->offset+=5; //dst x,y,z
+	msg->Write(speed);
+	msg->Write(loop);
+	msg->offset+=2; //unk24,unk25
+	msg->Write(static_cast<u8>(1)); // this is right for teleport, anyway
+	msg->Write(explode);
 
     for( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
     {
@@ -1297,8 +1303,9 @@ void play_stationary_effect( u16 x, u16 y, u8 z, u16 effect, u8 speed, u8 loop, 
 		if( client->chr->realm != realm )
 			continue;
         if (inrange( client->chr->x, client->chr->y, x, y ))
-            client->transmit( &msg, sizeof msg );
+            client->transmit( &msg->buffer, msg->offset );
     }
+	READDPACKET(msg);
 }
 
 void play_stationary_effect_ex( u16 x, u16 y, u8 z, Realm* realm, u16 effect, u8 speed, u8 duration, u32 hue, 
@@ -1448,7 +1455,7 @@ void send_sysmessage(Client *client, const char *text, unsigned short font, unsi
 	msg->WriteFlipped(color);
 	msg->WriteFlipped(font);
 	msg->Write("System",30);
-	msg->Write(text,textlen-1);
+	msg->Write(text,textlen);
 	u16 len=msg->offset;
 	msg->offset=1;
 	msg->WriteFlipped(len);
@@ -1461,40 +1468,28 @@ void send_sysmessage(Client *client,
 					 const u16 *wtext, const char lang[4],
 					 unsigned short font, unsigned short color )
 {
-	static PKTOUT_AE msg;
-	unsigned textlen = 0, msglen;
+	unsigned textlen = 0;
 	//textlen = wcslen((const wchar_t*)wtext) + 1;
 	while( wtext[textlen] != L'\0' )
 		++textlen;
-	++textlen;
-	if (textlen > (sizeof msg.wtext / sizeof(msg.wtext[0])))
-		textlen = (sizeof msg.wtext / sizeof(msg.wtext[0]));
-	msglen = offsetof( PKTOUT_AE, wtext ) + textlen*sizeof(msg.wtext[0]);
+	if (textlen > (SPEECH_MAX_LEN))  // FIXME need to handle this better second msg?
+		textlen = (SPEECH_MAX_LEN);
 
-	if (msglen <= sizeof msg)
-	{
-		msg.msgtype         = PKTOUT_AE_ID;
-		msg.msglen          = ctBEu16( msglen );
-		msg.source_serial   = 0x01010101;
-		msg.source_graphic  = 0x0101;
-		msg.type    = TEXTTYPE_NORMAL;
-		msg.color   = ctBEu16( color );
-		msg.font    = ctBEu16( font );
-		memcpy( &msg.lang, lang, sizeof msg.lang );
-		strcpy( msg.speaker_name, "System" );
-		unsigned i=0;
-		if (textlen>0)
-		{
-			for(; i < (textlen-1); ++i)//textlen includes 0terminator
-						msg.wtext[i] = ctBEu16(wtext[i]);
-		}
-		msg.wtext[i] = (u16)0L;
-		transmit( client, &msg, msglen );
-	}
-    else     // FIXME need to handle this better
-    {
-        Log( "send_sysmessage: unicode text is too long\n");
-    }
+	PktOut_AE* msg = REQUESTPACKET(PktOut_AE,PKTOUT_AE_ID);
+	msg->offset+=2;
+	msg->Write(static_cast<u32>(0x01010101));
+	msg->Write(static_cast<u16>(0x0101));
+	msg->Write(static_cast<u8>(TEXTTYPE_NORMAL));
+	msg->WriteFlipped(color);
+	msg->WriteFlipped(font);
+	msg->Write(lang,4);
+	msg->Write("System",30);
+	msg->WriteFlipped(&wtext[0],static_cast<u16>(textlen),true);
+	u16 len=msg->offset;
+	msg->offset=1;
+	msg->WriteFlipped(len);
+	transmit( client, &msg->buffer, len );
+	READDPACKET(msg);
 }
 
 void send_sysmessage(Client *client, const std::string& text, unsigned short font, unsigned short color)
@@ -1551,7 +1546,7 @@ void send_nametext( Client *client, const Character *chr, const std::string& str
 	msg->WriteFlipped(chr->name_color( client->chr )); // 0x03B2
 	msg->WriteFlipped(static_cast<u16>(3));
 	msg->Write(str.c_str(),30);
-	msg->Write(str.c_str(),textlen-1);
+	msg->Write(str.c_str(),textlen);
 	u16 len=msg->offset;
 	msg->offset=1;
 	msg->WriteFlipped(len);
@@ -1586,7 +1581,7 @@ bool say_above(const UObject* obj,
 			msg->Write(obj->description().c_str(), 30 );
 			break;
 	}
-	msg->Write(text,textlen-1);
+	msg->Write(text,textlen);
 	u16 len=msg->offset;
 	msg->offset=1;
 	msg->WriteFlipped(len);
@@ -1603,50 +1598,38 @@ bool say_above(const UObject* obj,
                unsigned short color,
 			   unsigned int journal_print)
 {
-    static PKTOUT_AE msg;
-    unsigned textlen = 0, msglen;
-
+	unsigned textlen = 0;
 	//textlen = wcslen((const wchar_t*)wtext) + 1;
 	while( wtext[textlen] != L'\0' )
 		++textlen;
-	++textlen; // include NULL terminator
-	if (textlen > (sizeof msg.wtext / sizeof(msg.wtext[0])))
-		textlen = (sizeof msg.wtext / sizeof(msg.wtext[0]));
-    msglen = offsetof( PKTOUT_AE, wtext ) + textlen*sizeof(msg.wtext[0]);
+	if (textlen > (SPEECH_MAX_LEN))  // FIXME need to handle this better second msg?
+		textlen = (SPEECH_MAX_LEN);
 
-    if (msglen > sizeof msg)
-        return false;
-    
-    msg.msgtype = PKTOUT_AE_ID;
-    msg.msglen = ctBEu16( msglen );
-    msg.source_serial = obj->serial_ext;
-    msg.source_graphic = obj->graphic_ext;
-    msg.type = TEXTTYPE_NORMAL;
-    msg.color = ctBEu16( color );
-    msg.font = ctBEu16( font );
-	memcpy( &msg.lang, lang, sizeof msg.lang );
-    memset( msg.speaker_name, '\0', sizeof msg.speaker_name );
-    switch(journal_print)
+	PktOut_AE* msg = REQUESTPACKET(PktOut_AE,PKTOUT_AE_ID);
+	msg->offset+=2;
+	msg->Write(obj->serial_ext);
+	msg->Write(obj->graphic_ext);
+	msg->Write(static_cast<u8>(TEXTTYPE_NORMAL));
+	msg->WriteFlipped(color);
+	msg->WriteFlipped(font);
+	msg->Write(lang,4);
+	switch(journal_print)
 	{
 		case JOURNAL_PRINT_YOU_SEE:
-			strzcpy( msg.speaker_name, "You see", sizeof msg.speaker_name );
+			msg->Write("You see", 30);
 			break;
-
 		case JOURNAL_PRINT_NAME:
 		default:
-			strzcpy( msg.speaker_name, obj->description().c_str(), sizeof msg.speaker_name );
+			msg->Write(obj->description().c_str(), 30);
 			break;
 	}
-	unsigned i=0;
-	if (textlen>0)
-	{
-		for(; i < (textlen-1); ++i)//textlen includes 0terminator
-				msg.wtext[i] = ctBEu16(wtext[i]);
-	}
-	msg.wtext[i] = (u16)0L;
-
-    // todo: only send to those that I'm visible to.
-    transmit_to_inrange( obj, &msg, msglen, false, false );
+	msg->WriteFlipped(&wtext[0],static_cast<u16>(textlen),true);
+	u16 len=msg->offset;
+	msg->offset=1;
+	msg->WriteFlipped(len);
+	// todo: only send to those that I'm visible to.
+	transmit_to_inrange( obj, &msg->buffer, len, false, false );
+	READDPACKET(msg);
     return true;
 }
 
@@ -1680,7 +1663,7 @@ bool private_say_above( Character* chr,
 			msg->Write(obj->description().c_str(), 30 );
 			break;
 	}
-	msg->Write(text,textlen-1);
+	msg->Write(text,textlen);
 	u16 len=msg->offset;
 	msg->offset=1;
 	msg->WriteFlipped(len);
@@ -1697,50 +1680,40 @@ bool private_say_above( Character* chr,
                         unsigned short color,
 						unsigned int journal_print )
 {
-    static PKTOUT_AE msg;
-    unsigned textlen = 0, msglen;
+	unsigned textlen = 0;
+	//textlen = wcslen((const wchar_t*)wtext) + 1;
+	while( wtext[textlen] != L'\0' )
+		++textlen;
+	if (textlen > (SPEECH_MAX_LEN))  // FIXME need to handle this better second msg?
+		textlen = (SPEECH_MAX_LEN);
+	if (chr->client == NULL)
+		return false;
 
-    //textlen = wcslen((const wchar_t*)wtext) + 1;
-    while( wtext[textlen] != L'\0' )
-    	++textlen;
-    ++textlen; //include null terminator
-	if (textlen > (sizeof msg.wtext / sizeof(msg.wtext[0])))
-		textlen = (sizeof msg.wtext / sizeof(msg.wtext[0]));
-    msglen = offsetof( PKTOUT_AE, wtext ) + textlen*sizeof(msg.wtext[0]);
-
-    if (msglen > sizeof msg || chr->client == NULL)
-        return false;
-    
-    msg.msgtype = PKTOUT_AE_ID;
-    msg.msglen = ctBEu16( msglen );
-    msg.source_serial = obj->serial_ext;
-    msg.source_graphic = obj->graphic_ext;
-    msg.type = TEXTTYPE_NORMAL;
-    msg.color = ctBEu16( color );
-    msg.font = ctBEu16( font );
-	memcpy( &msg.lang, lang, sizeof msg.lang );
-    memset( msg.speaker_name, '\0', sizeof msg.speaker_name );
-    switch(journal_print)
+	PktOut_AE* msg = REQUESTPACKET(PktOut_AE,PKTOUT_AE_ID);
+	msg->offset+=2;
+	msg->Write(obj->serial_ext);
+	msg->Write(obj->graphic_ext);
+	msg->Write(static_cast<u8>(TEXTTYPE_NORMAL));
+	msg->WriteFlipped(color);
+	msg->WriteFlipped(font);
+	msg->Write(lang,4);
+	switch(journal_print)
 	{
-		case JOURNAL_PRINT_YOU_SEE:
-			strzcpy( msg.speaker_name, "You see", sizeof msg.speaker_name );
-			break;
-
-		case JOURNAL_PRINT_NAME:
-		default:
-			strzcpy( msg.speaker_name, obj->description().c_str(), sizeof msg.speaker_name );
-			break;
+	case JOURNAL_PRINT_YOU_SEE:
+		msg->Write("You see", 30);
+		break;
+	case JOURNAL_PRINT_NAME:
+	default:
+		msg->Write(obj->description().c_str(), 30);
+		break;
 	}
-	unsigned i=0;
-	if (textlen>0)
-	{
-		for(; i < (textlen-1); ++i)//textlen includes 0terminator
-				msg.wtext[i] = ctBEu16(wtext[i]);
-	}
-	msg.wtext[i] = (u16)0L;
-
-    chr->client->transmit( &msg, msglen );
-    return true;
+	msg->WriteFlipped(&wtext[0],static_cast<u16>(textlen),true);
+	u16 len=msg->offset;
+	msg->offset=1;
+	msg->WriteFlipped(len);
+	chr->client->transmit( &msg->buffer, len );
+	READDPACKET(msg);
+	return true;
 }
 
 bool private_say_above_ex( Character* chr, 
@@ -1762,7 +1735,7 @@ bool private_say_above_ex( Character* chr,
 	msg->WriteFlipped(color);
 	msg->WriteFlipped(static_cast<u8>(3));
 	msg->Write(obj->description().c_str(), 30 );
-	msg->Write(text,textlen-1);
+	msg->Write(text,textlen);
 	u16 len=msg->offset;
 	msg->offset=1;
 	msg->WriteFlipped(len);
@@ -1785,7 +1758,7 @@ void send_objdesc( Client *client, Item *item )
 	msg->WriteFlipped(static_cast<u16>(0x03B2));
 	msg->WriteFlipped(static_cast<u8>(3));
 	msg->Write("System", 30 );
-	msg->Write(item->description().c_str(),textlen-1);
+	msg->Write(item->description().c_str(),textlen);
 	u16 len=msg->offset;
 	msg->offset=1;
 	msg->WriteFlipped(len);
@@ -2408,11 +2381,11 @@ string format_description( unsigned int polflags, const string& descdef, unsigne
 
 void send_midi( Client* client, u16 midi )
 {
-    PKTOUT_6D msg;
-    msg.msgtype = PKTOUT_6D_ID;
-    msg.midi = ctBEu16( midi );
+	PktOut_6D* msg = REQUESTPACKET(PktOut_6D,PKTOUT_6D_ID);
+	msg->WriteFlipped(midi);
+	client->transmit( &msg->buffer, msg->offset );
+	READDPACKET(msg);
     // cout << "Setting midi for " << client->chr->name() << " to " << midi << endl;
-    client->transmit( &msg, sizeof msg );
 }
 
 void register_with_supporting_multi( Item* item )
