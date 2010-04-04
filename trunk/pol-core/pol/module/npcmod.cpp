@@ -811,7 +811,7 @@ BObjectImp* NPCExecutorModule::SayUC()
 		}
 
 		unsigned textlenucc = oText->ref_arr.size();
-		if ( textlenucc > 200 )
+		if ( textlenucc > SPEECH_MAX_LEN )
 			return new BError( "Unicode array exceeds maximum size." );
 		if ( lang->length() != 3 )
 			return new BError( "langcode must be a 3-character code." );
@@ -820,44 +820,35 @@ BObjectImp* NPCExecutorModule::SayUC()
 
 		const char* languc;
 		languc = strupper(lang->value()).c_str();
-		static PKTOUT_AE msg;
-		unsigned textlen = 0, msglen;
+		unsigned textlen = 0;
 
 		//textlen = wcslen((const wchar_t*)wtext) + 1;
 		while( gwtext[textlen] != L'\0' )
 			++textlen;
-		textlen += 1; //include null terminator
-		if (textlen > (sizeof msg.wtext / sizeof(msg.wtext[0])))
-			textlen = (sizeof msg.wtext / sizeof(msg.wtext[0]));
-		msglen = offsetof( PKTOUT_AE, wtext ) + textlen*sizeof(msg.wtext[0]);
+		if (textlen > SPEECH_MAX_LEN)
+			textlen = SPEECH_MAX_LEN;
 
-		if (msglen > sizeof msg)
-			return false;
-
-		msg.msgtype = PKTOUT_AE_ID;
-		msg.msglen = ctBEu16( msglen );
-		msg.source_serial = npc.serial_ext;
-		msg.source_graphic = npc.graphic_ext;
-		if ( texttype_str == "yell" )
-		{
-			msg.type = TEXTTYPE_YELL;
-		}
-		else if ( texttype_str == "whisper" )
-		{
-			msg.type = TEXTTYPE_WHISPER;
-		}
+		u8 texttype;
+		if ( texttype_str == "whisper" )
+			texttype=TEXTTYPE_WHISPER;
+		else if ( texttype_str == "yell" )
+			texttype=TEXTTYPE_YELL;
 		else
-		{
-			msg.type = TEXTTYPE_NORMAL;
-		}
-		msg.color = ctBEu16( npc.speech_color_ );
-		msg.font = ctBEu16( npc.speech_font_ );
-		memcpy( &msg.lang, languc, sizeof msg.lang );
-		memset( msg.speaker_name, '\0', sizeof msg.speaker_name );
-		strzcpy( msg.speaker_name, npc.description().c_str(), sizeof msg.speaker_name );
-		for(unsigned i=0; i < textlen; i++)
-			msg.wtext[i] = ctBEu16(gwtext[i]);
-		msg.wtext[textlen] = (u16)0L;
+			texttype=TEXTTYPE_NORMAL;
+
+		PktOut_AE* talkmsg = REQUESTPACKET(PktOut_AE,PKTOUT_AE_ID);
+		talkmsg->offset+=2;
+		talkmsg->Write(npc.serial_ext);
+		talkmsg->Write(npc.graphic_ext);
+		talkmsg->Write(texttype);
+		talkmsg->WriteFlipped(npc.speech_color_);
+		talkmsg->WriteFlipped(npc.speech_font_);
+		talkmsg->Write(languc,4);
+		talkmsg->Write(npc.description().c_str(),30);
+		talkmsg->WriteFlipped(&gwtext[0],static_cast<u16>(textlen),true);
+		u16 len=talkmsg->offset;
+		talkmsg->offset=1;
+		talkmsg->WriteFlipped(len);
 
 		for( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
 		{
@@ -866,18 +857,17 @@ BObjectImp* NPCExecutorModule::SayUC()
 				continue;
 
 			bool rangeok;
-			if ( msg.type == TEXTTYPE_WHISPER )
+			if ( texttype == TEXTTYPE_WHISPER )
 				rangeok = in_whisper_range(&npc, client->chr);
-			else if ( msg.type == TEXTTYPE_YELL )
+			else if ( texttype == TEXTTYPE_YELL )
 				rangeok = in_yell_range(&npc, client->chr);
 			else
 				rangeok = in_say_range(&npc, client->chr);
 
 			if ( rangeok )
-				transmit( client, &msg, msglen );
-
+				transmit( client, &talkmsg->buffer, len );
 		}
-
+		READDPACKET(talkmsg);
 	}
 	else
 	{
