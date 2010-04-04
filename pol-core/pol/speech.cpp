@@ -120,7 +120,7 @@ void handle_processed_speech( Client* client, char* textbuf, int textbuflen, cha
 	talkmsg->WriteFlipped(textcol);
 	talkmsg->WriteFlipped(font);
 	talkmsg->Write(client->chr->name().c_str(),30);
-	talkmsg->Write(textbuf,textlen-1);
+	talkmsg->Write(textbuf,textlen);
 	u16 len=talkmsg->offset;
 	talkmsg->offset=1;
 	talkmsg->WriteFlipped(len);
@@ -130,8 +130,8 @@ void handle_processed_speech( Client* client, char* textbuf, int textbuflen, cha
 	if (client->chr->dead() && !client->chr->can_be_heard_as_ghost())
     {
         memcpy( &ghostmsg->buffer, &talkmsg->buffer, sizeof ghostmsg->buffer );
-		ghostmsg->offset=43;
-        char* t = &ghostmsg->buffer[43];
+		ghostmsg->offset = 44;
+        char* t = &ghostmsg->buffer[ghostmsg->offset];
         while (ghostmsg->offset < len)
         {
             if (!isspace(*t))
@@ -142,6 +142,7 @@ void handle_processed_speech( Client* client, char* textbuf, int textbuflen, cha
                     *t = 'O';
             }
             ++t;
+			ghostmsg->offset++;
         }
     }
 	// send to those nearby
@@ -267,52 +268,40 @@ void SendUnicodeSpeech(Client *client, PKTIN_AD *msgin, u16* wtext, size_t wtext
 		textcol = 1001;
 	}
 
-	PKTOUT_AE ghostmsg;
-	PKTOUT_AE talkmsg;
-	unsigned short msglen = static_cast<unsigned short>(offsetof( PKTOUT_AE, wtext ) + wtextlen*sizeof(talkmsg.wtext[0]));
-	talkmsg.msgtype         = PKTOUT_AE_ID;
-	talkmsg.msglen          = ctBEu16( msglen );
-	talkmsg.source_serial   = client->chr->serial_ext;
-	talkmsg.source_graphic  = client->chr->graphic_ext;
-	talkmsg.type    = msgin->type; // FIXME authorize
-	talkmsg.color   = ctBEu16(textcol);
-	talkmsg.font    = msgin->font;
-	memcpy( talkmsg.lang, msgin->lang, sizeof talkmsg.lang );
-	strzcpy( talkmsg.speaker_name, client->chr->name().c_str(), sizeof talkmsg.speaker_name );
-	memcpy( talkmsg.wtext, wtext, wtextlen*sizeof(talkmsg.wtext[0]) );
-
-	transmit( client, &talkmsg, msglen ); // self
+	PktOut_AE* ghostmsg = REQUESTPACKET(PktOut_AE,PKTOUT_AE_ID);
+	PktOut_AE* talkmsg = REQUESTPACKET(PktOut_AE,PKTOUT_AE_ID);
+	talkmsg->offset+=2;
+	talkmsg->Write(client->chr->serial_ext);
+	talkmsg->Write(client->chr->graphic_ext);
+	talkmsg->Write(msgin->type); // FIXME authorize
+	talkmsg->WriteFlipped(textcol);
+	talkmsg->WriteFlipped(msgin->font);
+	talkmsg->Write(msgin->lang,4);
+	talkmsg->Write(client->chr->name().c_str(),30);
+	talkmsg->Write(&wtext[0],static_cast<u16>(wtextlen));
+	u16 len=talkmsg->offset;
+	talkmsg->offset=1;
+	talkmsg->WriteFlipped(len);
+	transmit( client, &talkmsg->buffer, len ); // self
 
 	if (client->chr->dead() && !client->chr->can_be_heard_as_ghost())
 	{
-		unsigned short msglen = static_cast<unsigned short>(offsetof( PKTOUT_AE, wtext ) + wtextlen*sizeof(ghostmsg.wtext[0]));
-		ghostmsg.msgtype         = PKTOUT_AE_ID;
-		ghostmsg.msglen          = ctBEu16( msglen );
-		ghostmsg.source_serial   = client->chr->serial_ext;
-		ghostmsg.source_graphic  = client->chr->graphic_ext;
-		ghostmsg.type    = msgin->type; // FIXME authorize
-		ghostmsg.color   = ctBEu16(textcol);
-		ghostmsg.font    = msgin->font;
-		memcpy( ghostmsg.lang, msgin->lang, sizeof talkmsg.lang );
-		strzcpy( ghostmsg.speaker_name, client->chr->name().c_str(), sizeof ghostmsg.speaker_name );
-		memcpy( ghostmsg.wtext, wtext, wtextlen*sizeof(ghostmsg.wtext[0]) );
+		memcpy( &ghostmsg->buffer, &talkmsg->buffer, sizeof ghostmsg->buffer );
 
-		u16* pwc = ghostmsg.wtext;
-		while (*pwc != 0)
+		ghostmsg->offset = 48;
+		u16* t = ((u16*)&ghostmsg->buffer[ghostmsg->offset]);
+		while (ghostmsg->offset < len-2) // dont convert nullterm
 		{
-            wchar_t wch = (*pwc);
-            if (!iswspace(wch))
+			wchar_t wch = (*t);
+			if (!iswspace(wch))
 			{
-                if (random_int( 4 ) == 0)
-				{
-                    *pwc = ctBEu16(L'o');
-				}
+				if (random_int( 4 ) == 0)
+					*t = ctBEu16(L'o');
 				else
-				{
-                    *pwc = ctBEu16(L'O');
-				}
+					*t = ctBEu16(L'O');
 			}
-			++pwc;
+			++t;
+			ghostmsg->offset+=2;
 		}
 	}
 		// send to those nearby
@@ -339,14 +328,16 @@ void SendUnicodeSpeech(Client *client, PKTIN_AD *msgin, u16* wtext, size_t wtext
 				client2->chr->can_hearghosts() ||
                 client->chr->can_be_heard_as_ghost() )
 			{
-    			transmit( client2, &talkmsg, msglen );
+    			transmit( client2, &talkmsg->buffer, len );
 			}
 			else
 			{
-                transmit( client2, &ghostmsg, msglen );
+                transmit( client2, &ghostmsg->buffer, len );
 			}
 		}
 	}
+	READDPACKET(talkmsg);
+	READDPACKET(ghostmsg);
 
     if (!client->chr->dead())
 		for_nearby_npcs( pc_spoke, client->chr, ntext, ntextlen, msgin->type,

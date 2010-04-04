@@ -157,42 +157,39 @@ static unsigned char bfr[ 65535 ];
 
 bool send_vendorwindow_contents( Client* client, UContainer* for_sale, bool send_aos_tooltip )
 {
-		unsigned short msglen = 0;
-		PKTOUT_74::HEADER* header = reinterpret_cast<PKTOUT_74::HEADER*>(bfr);
-
-		header->msgtype = PKTOUT_74_ID;
-		/* Length is Below */
-		header->container = for_sale->serial_ext;
-		header->num_items = 0;
-		msglen = sizeof(*header);
-
-		// FIXME: ick! apparently we need to iterate backwards... WTF?
-		for( int i = for_sale->count()-1; i >= 0; --i )
+	PktOut_74* msg = REQUESTPACKET(PktOut_74,PKTOUT_74_ID);
+	msg->offset+=2; //msglen
+	msg->Write(for_sale->serial_ext);
+	msg->offset++; //num_items
+	u8 num_items=0;
+	// FIXME: ick! apparently we need to iterate backwards... WTF?
+	for( int i = for_sale->count()-1; i >= 0; --i )
+	{
+		Item* item = (*for_sale)[i];
+		// const ItemDesc& id = find_itemdesc( item->objtype_ );
+		string desc = item->merchant_description();
+		unsigned int addlen = 5 + desc.size();
+		if (msg->offset + addlen > sizeof msg->buffer)
 		{
-			PKTOUT_74::ELEMENT* element = reinterpret_cast<PKTOUT_74::ELEMENT*>(&bfr[msglen]);
-
-			Item* item = (*for_sale)[i];
-			// const ItemDesc& id = find_itemdesc( item->objtype_ );
-			string desc = item->merchant_description();
-			unsigned int addlen = sizeof(*element) + desc.size();
-			if (msglen + addlen > sizeof bfr)
-				return false;
-
-
-			strcpy(element->description, desc.c_str() );
-			element->desc_len=static_cast<u8>(desc.size())+1;  //Don't forget the NULL
-			element->price=ctBEu32(item->sellprice());
-			msglen += static_cast<unsigned short>(addlen); // element contains first byte of desc
-			++header->num_items;
-
-			if (send_aos_tooltip)
-				SendAOSTooltip( client, item, true );
+			READDPACKET(msg);
+			return false;
 		}
+		msg->WriteFlipped(item->sellprice());
+		msg->Write(static_cast<u8>(desc.size())+1); //Don't forget the NULL
+		msg->Write(desc.c_str(),static_cast<u16>(desc.size()+1));
+		++num_items;
 
-		header->msglen = ctBEu16(msglen);
+		if (send_aos_tooltip)
+			SendAOSTooltip( client, item, true );
+	}
+	u16 len=msg->offset;
+	msg->offset=1;
+	msg->WriteFlipped(len);
+	msg->offset+=4;
+	msg->Write(num_items);
 
-		transmit( client, bfr, msglen );
-		return true;
+	transmit( client, &msg->buffer, len );
+	return true;
 }
 
 BObjectImp* UOExecutorModule::mf_SendBuyWindow(/* character, container, vendor, items, flags */)
