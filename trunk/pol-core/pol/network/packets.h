@@ -179,8 +179,8 @@ class PacketWriter : public PacketInterface
 			offset += len*2;
 			while (len-- > 0)
 			{
-				u16 val = *x++;
-				*(_buffer++) = ctBEu16(val);
+				*(_buffer++) = ctBEu16(*x);
+				++x;
 			}
 			if (nullterm)
 				offset += 2;

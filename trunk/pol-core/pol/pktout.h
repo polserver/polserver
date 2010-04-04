@@ -625,21 +625,21 @@ to another x/y/z coordinate.
 //};
 //asserteql( sizeof(PKTOUT_70), 28 );
 
-struct PKTOUT_74 {
-	struct HEADER {
-		u8  msgtype;
-		u16 msglen;
-		u32 container;  /* container serial # */
-		u8  num_items;
-	};
-	struct ELEMENT {
-		u32 price;
-		u8 desc_len;			/* including null terminator */
-		char description[1];  /* No idea what max len should be null term string len includes null*/
-	};
-};
-asserteql( sizeof(PKTOUT_74::HEADER), 8 );
-asserteql( sizeof(PKTOUT_74::ELEMENT), 6 );
+//struct PKTOUT_74 {
+//	struct HEADER {
+//		u8  msgtype;
+//		u16 msglen;
+//		u32 container;  /* container serial # */
+//		u8  num_items;
+//	};
+//	struct ELEMENT {
+//		u32 price;
+//		u8 desc_len;			/* including null terminator */
+//		char description[1];  /* No idea what max len should be null term string len includes null*/
+//	};
+//};
+//asserteql( sizeof(PKTOUT_74::HEADER), 8 );
+//asserteql( sizeof(PKTOUT_74::ELEMENT), 6 );
 
 struct PKTOUT_76
 {
