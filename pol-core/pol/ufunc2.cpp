@@ -25,48 +25,44 @@ Notes
 #include "ufunc.h"
 #include "uworld.h"
 
-static unsigned char bfr[ 2000 ];
-
 bool send_menu( Client *client, Menu *menu )
 {
 	// build up the message so it gets sent as a unit.
 	if (menu->menuitems_.size() > 255)
         return false;
 
-    unsigned short msglen = 0;
-	PKTOUT_7C *head = (PKTOUT_7C *) bfr;
-	head->msgtype = PKTOUT_7C_ID;
-	head->msglen = 0;
-	head->used_item_serial = 0;
-	head->menu_id = ctBEu16( menu->menu_id );
-	
-	PKTOUT_7C_TITLE *title= (PKTOUT_7C_TITLE *) (head+1);
-	strzcpy( title->title, menu->title, sizeof title->title );
-	title->titlelen = static_cast<u8>(strlen( title->title )); // NOTE null-term not included!
+	PktOut_7C* msg = REQUESTPACKET(PktOut_7C,PKTOUT_7C_ID);
+	msg->offset+=2;
+	msg->offset+=4; //used_item_serial
+	msg->WriteFlipped(menu->menu_id);
+	size_t stringlen = strlen( menu->title );
+	if (stringlen > 80)
+		stringlen = 80;
+	msg->Write(static_cast<u8>(stringlen));// NOTE null-term not included!
+	msg->Write(menu->title, stringlen, false);
+	msg->Write(static_cast<u8>(menu->menuitems_.size()));
 
-	PKTOUT_7C_COUNT *countpart = (PKTOUT_7C_COUNT *) &title->title[ title->titlelen ];
-
-    countpart->item_count = (u8) menu->menuitems_.size();
-
-
-	PKTOUT_7C_ELEM *elem = (PKTOUT_7C_ELEM *) (countpart+1);
-    msglen = (unsigned short) (((unsigned char *) elem) - bfr);
 	for( unsigned idx = 0; idx < menu->menuitems_.size(); idx++ )
 	{
-        if (msglen + sizeof(*elem) > sizeof bfr )
+		if (msg->offset + 85 > sizeof msg->buffer)
+		{
+			READDPACKET(msg);        
             return false;
+		}
 		MenuItem* mi = &menu->menuitems_[ idx ];
-
-		elem->graphic = ctBEu16( mi->graphic_ );
-		elem->color = ctBEu16( mi->color_ );
-		strzcpy( elem->desc, mi->title, sizeof elem->desc );
-		elem->desclen = static_cast<u8>(strlen( elem->desc ));
-		elem = (PKTOUT_7C_ELEM *) &elem->desc[ elem->desclen ]; // NOTE null-term not included!
-        msglen = (unsigned short) (((unsigned char *) elem) - bfr);
+		msg->WriteFlipped(mi->graphic_);
+		msg->WriteFlipped(mi->color_);
+		stringlen = strlen( mi->title );
+		if (stringlen > 80)
+			stringlen = 80;
+		msg->Write(static_cast<u8>(stringlen));// NOTE null-term not included!
+		msg->Write(menu->title, stringlen, false);
 	}
-	head->msglen = ctBEu16( msglen );
-	
-	transmit( client, bfr, msglen );
+	u16 len = msg->offset;
+	msg->offset = 1;
+	msg->WriteFlipped(len);
+	transmit( client, &msg->buffer, len );
+	READDPACKET(msg);
     return true;
 }
 
