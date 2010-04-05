@@ -170,20 +170,19 @@ void send_goxyz( Client *client, const Character *chr )
 // optimize this out to reduce build amounts
 void send_move( Client *client, const Character *chr )
 {
-    PKTOUT_77 msg;
+	PktOut_77* msg = REQUESTPACKET(PktOut_77,PKTOUT_77_ID);
+	msg->Write(chr->serial_ext);
+	msg->Write(chr->graphic_ext);
+	msg->WriteFlipped(chr->x);
+	msg->WriteFlipped(chr->y);
+	msg->Write(chr->z);
+	msg->Write(static_cast<u8>((chr->dir & 0x80) | chr->facing));// NOTE, this only includes mask 0x07 of the last MOVE message 
+	msg->Write(chr->color_ext);
+	msg->Write(chr->get_flag1(client));
+	msg->Write(chr->hilite_color_idx( client->chr ));
 
-    msg.msgtype = PKTOUT_77_ID;
-    msg.serial = chr->serial_ext;
-    msg.graphic = chr->graphic_ext;
-    msg.x = ctBEu16( chr->x );
-    msg.y = ctBEu16( chr->y );
-    msg.z = chr->z;
-    msg.dir = (chr->dir & 0x80) | chr->facing; // NOTE, this only includes mask 0x07 of the last MOVE message 
-    msg.skin = chr->color_ext;
-	msg.flag1 = chr->get_flag1(client);
-    msg.hilite = chr->hilite_color_idx( client->chr );
-
-    transmit( client, &msg, sizeof msg );
+    transmit( client, &msg->buffer, msg->offset );
+	READDPACKET(msg);
 
     if ((client->ClientType & CLIENTTYPE_UOKR) && (chr->poisoned)) //if poisoned send 0x17 for newer clients
         send_poisonhealthbar( client, chr );
@@ -203,25 +202,18 @@ void send_poisonhealthbar( Client *client, const Character *chr )
 
 void send_owncreate( Client *client, const Character *chr )
 {
-    int num_worn_bytes;
-    unsigned short msglen;
-
-    PKTOUT_78 owncreate;
-    owncreate.msgtype = PKTOUT_78_ID;
-    owncreate.serial = chr->serial_ext;
-    owncreate.graphic = chr->graphic_ext;
-    owncreate.x = ctBEu16(chr->x);
-    owncreate.y = ctBEu16(chr->y);
-    owncreate.z = chr->z;
-    owncreate.facing = chr->facing;
-    owncreate.skin = chr->color_ext;
-	// MuadDib changed to reflect true status for 0x20 packet. 1/4/2007
-	// Undo Change
-	owncreate.flag1 = chr->get_flag1(client);
-    owncreate.hilite = chr->hilite_color_idx( client->chr ); 
-
+	PktOut_78* owncreate = REQUESTPACKET(PktOut_78,PKTOUT_78_ID);
+	owncreate->offset+=2;
+	owncreate->Write(chr->serial_ext);
+	owncreate->Write(chr->graphic_ext);
+	owncreate->WriteFlipped(chr->x);
+	owncreate->WriteFlipped(chr->y);
+	owncreate->Write(chr->z);
+	owncreate->Write(chr->facing);
+	owncreate->Write(chr->color_ext);
+	owncreate->Write(chr->get_flag1(client));
+	owncreate->Write(chr->hilite_color_idx( client->chr ));
     
-    num_worn_bytes = 0;
     for( int layer = LAYER_EQUIP__LOWEST; layer <= LAYER_EQUIP__HIGHEST; ++layer )
     {
         const Item *item = chr->wornitem( layer );
@@ -234,35 +226,25 @@ void send_owncreate( Client *client, const Character *chr )
 
         if (item->color)
         {
-            PKTOUT_78_COLOR *add = (PKTOUT_78_COLOR *) &owncreate.wornitems[ num_worn_bytes ];
-            add->serial = item->serial_ext;
-            add->graphic = ctBEu16( 0x8000 | item->graphic );
-            add->layer = static_cast<u8>(layer);
-            add->color = item->color_ext;
-            num_worn_bytes += sizeof *add;
+			owncreate->Write(item->serial_ext);
+			owncreate->WriteFlipped(static_cast<u16>(0x8000 | item->graphic));
+			owncreate->Write(static_cast<u8>(layer));
+            owncreate->Write(item->color_ext);
         }
         else
         {
-            PKTOUT_78_NOCOLOR *add = (PKTOUT_78_NOCOLOR *) &owncreate.wornitems[ num_worn_bytes ];
-            add->serial = item->serial_ext;
-            add->graphic = item->graphic_ext;
-            add->layer = static_cast<u8>(layer);
-            num_worn_bytes += sizeof *add;
+			owncreate->Write(item->serial_ext);
+			owncreate->Write(item->graphic_ext);
+			owncreate->Write(static_cast<u8>(layer));
         }
     }
-    
-    owncreate.wornitems[num_worn_bytes++] = 0x00;
-    owncreate.wornitems[num_worn_bytes++] = 0x00;
-    owncreate.wornitems[num_worn_bytes++] = 0x00;
-    owncreate.wornitems[num_worn_bytes++] = 0x00;
+	owncreate->offset += 4; //items nullterm
+	u16 len = owncreate->offset;
+	owncreate->offset = 1;
+	owncreate->WriteFlipped(len);
 
-    msglen = static_cast<unsigned short>(offsetof(PKTOUT_78, wornitems ) + num_worn_bytes);
-    
-    passert( msglen <= sizeof owncreate );
-    
-    owncreate.msglen = ctBEu16( msglen );
-
-    transmit(client, &owncreate, msglen );
+    transmit(client, &owncreate->buffer, len );
+	READDPACKET(owncreate);
 
 	if(client->UOExpansionFlag & AOS)
 	{
@@ -655,10 +637,10 @@ void send_corpse_items( Client *client, const Item *item )
 {
     const UContainer *cont = static_cast<const UContainer *>(item);
 
-    PKTOUT_89 msg;
-    unsigned short msglen;
-    msg.msgtype = PKTOUT_89_ID;
-    msg.serial = item->serial_ext;
+	PktOut_89* msg = REQUESTPACKET(PktOut_89,PKTOUT_89_ID);
+	msg->offset+=2;
+	msg->Write(item->serial_ext);
+
     int n_layers_found = 0;
     for( UContainer::const_iterator itr = cont->begin(); itr != cont->end(); ++itr )
     {
@@ -678,19 +660,18 @@ void send_corpse_items( Client *client, const Item *item )
             }
             break;
         }
-
-		msg.layers[ n_layers_found ].layer = item2->layer;
-        msg.layers[ n_layers_found ].serial = item2->serial_ext;
+		msg->Write(item2->layer);
+		msg->Write(item2->serial_ext);
         n_layers_found++;
     }
     passert_always( n_layers_found <= NUM_LAYERS );
-    msg.layers[ n_layers_found ].layer = 0;
-    msglen = static_cast<unsigned short>(
-		     offsetof( PKTOUT_89, layers[0] ) +
-             n_layers_found * sizeof msg.layers[0] +
-             1);         // terminating 'layer 0' byte
-    msg.msglen = ctBEu16( msglen );
-    transmit( client, &msg, msglen );
+	msg->offset+=1; // nullterm byte
+	u16 len= msg->offset;
+	msg->offset=1;
+	msg->WriteFlipped(len);
+
+    transmit( client, &msg->buffer, len );
+    READDPACKET(msg);
 
     send_container_contents( client, *cont, true );
 }
@@ -1484,7 +1465,7 @@ void send_sysmessage(Client *client,
 	msg->WriteFlipped(font);
 	msg->Write(lang,4);
 	msg->Write("System",30);
-	msg->WriteFlipped(&wtext[0],static_cast<u16>(textlen),true);
+	msg->WriteFlipped(&wtext[0],static_cast<u16>(textlen));
 	u16 len=msg->offset;
 	msg->offset=1;
 	msg->WriteFlipped(len);
@@ -1623,7 +1604,7 @@ bool say_above(const UObject* obj,
 			msg->Write(obj->description().c_str(), 30);
 			break;
 	}
-	msg->WriteFlipped(&wtext[0],static_cast<u16>(textlen),true);
+	msg->WriteFlipped(&wtext[0],static_cast<u16>(textlen));
 	u16 len=msg->offset;
 	msg->offset=1;
 	msg->WriteFlipped(len);
@@ -1707,7 +1688,7 @@ bool private_say_above( Character* chr,
 		msg->Write(obj->description().c_str(), 30);
 		break;
 	}
-	msg->WriteFlipped(&wtext[0],static_cast<u16>(textlen),true);
+	msg->WriteFlipped(&wtext[0],static_cast<u16>(textlen));
 	u16 len=msg->offset;
 	msg->offset=1;
 	msg->WriteFlipped(len);
@@ -2597,18 +2578,15 @@ void send_season_info( Client* client )
 //assumes new realm has been set on client->chr
 void send_new_subserver( Client* client )
 {
-	PKTOUT_76 msg;
-	msg.msgtype = PKTOUT_76_ID;
-	msg.xloc = ctBEu16(client->chr->x);
-	msg.yloc = ctBEu16(client->chr->y);
-	msg.zloc = ctBEu16(client->chr->z);
-	msg.unk0 = 0;
-	msg.x1 = 0;
-	msg.y1 = 0;
-	msg.x2 = ctBEu16(client->chr->realm->width());
-	msg.y2 = ctBEu16(client->chr->realm->height());
-
-	client->transmit( &msg, sizeof msg );
+	PktOut_76* msg = REQUESTPACKET(PktOut_76,PKTOUT_76_ID);
+	msg->WriteFlipped(client->chr->x);
+	msg->WriteFlipped(client->chr->y);
+	msg->WriteFlipped(client->chr->z);
+	msg->offset+=5; //unk0,x1,y2
+	msg->WriteFlipped(client->chr->realm->width());
+	msg->WriteFlipped(client->chr->realm->height());
+	client->transmit( &msg->buffer, msg->offset );
+	READDPACKET(msg);
 }
 
 void send_fight_occuring( Client* client, Character* opponent )

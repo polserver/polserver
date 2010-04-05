@@ -49,6 +49,15 @@ PacketsSingleton::PacketsSingleton()
 	packets.insert(PacketQueuePair(PKTOUT_6E_ID,new PacketQueueSingle()));
 	packets.insert(PacketQueuePair(PKTOUT_70_ID,new PacketQueueSingle()));
 	packets.insert(PacketQueuePair(PKTOUT_74_ID,new PacketQueueSingle()));
+	packets.insert(PacketQueuePair(PKTOUT_76_ID,new PacketQueueSingle()));
+	packets.insert(PacketQueuePair(PKTOUT_77_ID,new PacketQueueSingle()));
+	packets.insert(PacketQueuePair(PKTOUT_78_ID,new PacketQueueSingle()));
+	packets.insert(PacketQueuePair(PKTOUT_7C_ID,new PacketQueueSingle()));
+	packets.insert(PacketQueuePair(PKTOUT_82_ID,new PacketQueueSingle()));
+	packets.insert(PacketQueuePair(PKTOUT_86_ID,new PacketQueueSingle()));
+	packets.insert(PacketQueuePair(PKTOUT_89_ID,new PacketQueueSingle()));
+	packets.insert(PacketQueuePair(PKTOUT_8C_ID,new PacketQueueSingle()));
+	packets.insert(PacketQueuePair(PKTOUT_90_ID,new PacketQueueSingle()));
 
 	packets.insert(PacketQueuePair(PKTOUT_AE_ID,new PacketQueueSingle()));
 
@@ -201,6 +210,15 @@ PacketInterface* GetPacket(u8 id, u16 sub)
 		case PKTOUT_6E_ID: return new PktOut_6E();
 		case PKTOUT_70_ID: return new PktOut_70();
 		case PKTOUT_74_ID: return new PktOut_74();
+		case PKTOUT_76_ID: return new PktOut_76();
+		case PKTOUT_77_ID: return new PktOut_77();
+		case PKTOUT_78_ID: return new PktOut_78();
+		case PKTOUT_7C_ID: return new PktOut_7C();
+		case PKTOUT_82_ID: return new PktOut_82();
+		case PKTOUT_86_ID: return new PktOut_86();
+		case PKTOUT_89_ID: return new PktOut_89();
+		case PKTOUT_8C_ID: return new PktOut_8C();
+		case PKTOUT_90_ID: return new PktOut_90();
 
 		case PKTOUT_AE_ID: return new PktOut_AE();
 		case PKTBI_BF_ID:

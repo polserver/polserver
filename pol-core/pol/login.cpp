@@ -41,6 +41,7 @@ Notes
 #include "accounts/account.h"
 #include "mobile/charactr.h"
 #include "network/client.h"
+#include "network/packets.h"
 #include "core.h"
 #include "msghandl.h"
 #include "pktin.h"
@@ -57,10 +58,10 @@ bool is_banned_ip(Client* client);
 
 void send_login_error( Client *client, unsigned char reason )
 {
-	PKTOUT_82 msg;
-	msg.msgtype = PKTOUT_82_ID;
-	msg.error = reason;
-	client->transmit( &msg, sizeof msg );
+	PktOut_82* msg = REQUESTPACKET(PktOut_82,PKTOUT_82_ID);
+	msg->Write(reason);
+	client->transmit( &msg->buffer, msg->offset );
+	READDPACKET(msg);
 }
 
 bool acct_check(Client* client, int i)
@@ -266,26 +267,27 @@ void select_server(Client *client, PKTIN_A0 *msg ) // Relay player to a certain 
 
 	ServerDescription *svr = servers[ servernum ];
 
-	PKTOUT_8C rsp;
-	rsp.msgtype = PKTOUT_8C_ID;
-	rsp.ip[0] = svr->ip[3];
-	rsp.ip[1] = svr->ip[2];
-	rsp.ip[2] = svr->ip[1];
-	rsp.ip[3] = svr->ip[0];
+	PktOut_8C* rsp = REQUESTPACKET(PktOut_8C,PKTOUT_8C_ID);
+	rsp->Write(svr->ip[3]);
+	rsp->Write(svr->ip[2]);
+	rsp->Write(svr->ip[1]);
+	rsp->Write(svr->ip[0]);
+
 	if (client->listen_port != 0)
-        rsp.port = ctBEu16( client->listen_port );
+        rsp->WriteFlipped( client->listen_port );
     else
-        rsp.port = ctBEu16( svr->port );
+        rsp->WriteFlipped( svr->port );
 	// MuadDib Added new seed system. This is for transferring KR/6017/Normal client detection from loginserver
 	// to the gameserver. Allows keeping client flags from remote loginserver to gameserver for 6017 and kr
 	// packets.
-	rsp.unk7_00 = 0xFE; // This was set to 0xffffffff in the past but this will conflict with UO:KR detection
-	rsp.unk8_03 = 0xFE;
-    rsp.unk9_10_ClientType = client->ClientType;
+	
+	unsigned int nseed = 0xFEFE0000 | client->ClientType;
+	rsp->WriteFlipped(nseed); // This was set to 0xffffffff in the past but this will conflict with UO:KR detection
 
-	client->transmit( &rsp, sizeof rsp );
+	client->transmit( &rsp->buffer, rsp->offset );
+	READDPACKET(rsp);
 
-    unsigned int nseed = 0xFEFE0000 + client->ClientType;
+	
 	client->cryptengine->Init( &nseed, CCryptBase::typeGame );
 }
 
@@ -474,7 +476,7 @@ void login2(Client *client, PKTIN_91 *msg) // Gameserver login and character lis
 	// MuadDib Added new seed system. This is for transferring KR/6017/Normal client detection from loginserver
 	// to the gameserver. Allows keeping client flags from remote loginserver to gameserver for 6017 and kr
 	// packets.
-	client->ClientType=msg->unk3_4_ClientType;
+	client->ClientType=cfBEu16(msg->unk3_4_ClientType);
 
 	send_start( client );
 }

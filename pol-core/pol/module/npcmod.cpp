@@ -845,7 +845,7 @@ BObjectImp* NPCExecutorModule::SayUC()
 		talkmsg->WriteFlipped(npc.speech_font_);
 		talkmsg->Write(languc,4);
 		talkmsg->Write(npc.description().c_str(),30);
-		talkmsg->WriteFlipped(&gwtext[0],static_cast<u16>(textlen),true);
+		talkmsg->WriteFlipped(&gwtext[0],static_cast<u16>(textlen));
 		u16 len=talkmsg->offset;
 		talkmsg->offset=1;
 		talkmsg->WriteFlipped(len);

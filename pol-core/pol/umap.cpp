@@ -22,6 +22,7 @@ Notes
 
 #include "../plib/realm.h"
 #include "network/client.h"
+#include "network/packets.h"
 #include "fnsearch.h"
 #include "item/itemdesc.h"
 #include "pktboth.h"
@@ -133,18 +134,18 @@ void Map::builtin_on_use( Client* client )
 {
     if (gumpwidth && gumpheight)
     {
-        static PKTOUT_90 msg90;
-        msg90.msgtype = PKTOUT_90_ID;
-        msg90.serial = serial_ext;
-        msg90.unk5_13 = 0x13;
-        msg90.unk6_9d = 0x9d;
-        msg90.x1 = ctBEu16( xwest ); // ec
-        msg90.y1 = ctBEu16( ynorth ); // 2e5
-        msg90.x2 = ctBEu16( xeast ); // 2fe
-        msg90.y2 = ctBEu16( ysouth ); // 4f5
-        msg90.xsize = ctBEu16( gumpwidth ); // c8
-        msg90.ysize = ctBEu16( gumpheight ); // c8
-        transmit( client, &msg90, sizeof msg90 );
+		PktOut_90* msg90 = REQUESTPACKET(PktOut_90,PKTOUT_90_ID);
+		msg90->Write(serial_ext);
+		msg90->Write(static_cast<u8>(0x13));
+		msg90->Write(static_cast<u8>(0x9d));
+		msg90->WriteFlipped(xwest);
+		msg90->WriteFlipped(ynorth);
+		msg90->WriteFlipped(xeast);
+		msg90->WriteFlipped(ysouth);
+		msg90->WriteFlipped(gumpwidth);
+		msg90->WriteFlipped(gumpheight);
+		transmit( client, &msg90->buffer, msg90->offset );
+		READDPACKET(msg90);
 
 		static PKTBI_56 msg56;
 		msg56.msgtype = PKTBI_56_ID;
