@@ -16,6 +16,7 @@ Notes
 #include "../../clib/endian.h"
 #include "../../clib/singleton.h"
 #include "../../clib/rawtypes.h"
+#include "../layers.h"
 #include "../pktoutid.h"
 #include "../pktbothid.h"
 #include "../pktdef.h"
@@ -157,12 +158,12 @@ class PacketWriter : public PacketInterface
 			(*(s16*)&buffer[offset]) = cfBEu16(x);
 			offset += 2;
 		};
-		void Write(const char* x, u16 len)
+		void Write(const char* x, u16 len, bool nullterm=true)
 		{
-			strncpy(&buffer[offset], x, len-1); // nullterminator not needed
+			strncpy(&buffer[offset], x, nullterm ? len-1 : len);
 			offset += len;
 		}
-		void Write(const u16* x, u16 len, bool nullterm=false)
+		void Write(const u16* x, u16 len, bool nullterm=true)
 		{
 			u16* _buffer = ((u16*)&buffer[offset]);
 			offset += len*2;
@@ -173,7 +174,7 @@ class PacketWriter : public PacketInterface
 			if (nullterm)
 				offset += 2;
 		}
-		void WriteFlipped(const u16* x, u16 len, bool nullterm=false)
+		void WriteFlipped(const u16* x, u16 len, bool nullterm=true)
 		{
 			u16* _buffer = ((u16*)&buffer[offset]);
 			offset += len*2;
@@ -237,6 +238,16 @@ typedef PacketTemplate<PKTOUT_6D_ID,3> PktOut_6D;
 typedef PacketTemplate<PKTOUT_6E_ID,14> PktOut_6E;
 typedef PacketTemplate<PKTOUT_70_ID,28> PktOut_70;
 typedef PacketTemplate<PKTOUT_74_ID,0xFFFF> PktOut_74;
+typedef PacketTemplate<PKTOUT_76_ID,16> PktOut_76;
+typedef PacketTemplate<PKTOUT_77_ID,17> PktOut_77;
+typedef PacketTemplate<PKTOUT_78_ID,19 + (9 * HIGHEST_LAYER) + 4> PktOut_78;
+typedef PacketTemplate<PKTOUT_7C_ID,2000> PktOut_7C;
+typedef PacketTemplate<PKTOUT_82_ID,2> PktOut_82;
+typedef PacketTemplate<PKTOUT_86_ID,66> PktOut_86;
+typedef PacketTemplate<PKTOUT_89_ID,7+(5*(NUM_LAYERS+1))+1> PktOut_89;
+typedef PacketTemplate<PKTOUT_8C_ID,11> PktOut_8C;
+typedef PacketTemplate<PKTOUT_90_ID,19> PktOut_90;
+
 typedef PacketTemplate<PKTOUT_AE_ID,((SPEECH_MAX_LEN) + 1)*2+48> PktOut_AE;
 typedef PacketTemplateSub<PKTBI_BF_ID,0x4,12> Pktout_bf_sub4_closegump;
 // Packet defs end

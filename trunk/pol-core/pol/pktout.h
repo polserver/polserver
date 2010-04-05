@@ -641,63 +641,63 @@ to another x/y/z coordinate.
 //asserteql( sizeof(PKTOUT_74::HEADER), 8 );
 //asserteql( sizeof(PKTOUT_74::ELEMENT), 6 );
 
-struct PKTOUT_76
-{
-	u8 msgtype; 
-	u16 xloc;
-	u16 yloc;
-	u16 zloc;
-	u8 unk0;
-	u16 x1;
-	u16 y1;
-	u16 x2;
-	u16 y2;
-};
-assertsize( PKTOUT_76, 16 );
+//struct PKTOUT_76
+//{
+//	u8 msgtype; 
+//	u16 xloc;
+//	u16 yloc;
+//	u16 zloc;
+//	u8 unk0;
+//	u16 x1;
+//	u16 y1;
+//	u16 x2;
+//	u16 y2;
+//};
+//assertsize( PKTOUT_76, 16 );
 
-struct PKTOUT_77 {
-    u8 msgtype;
-    u32 serial;
-    u16 graphic;
-    u16 x;
-    u16 y;
-    u8 z;
-    u8 dir; 
-    u16 skin;
-    u8 flag1; /* bit 0x80 seems to be invis (and self hidden), bit 0x40 is war mode */
-    u8 hilite; /* only 1 to 7 seem to be valid. any other value in the entire byte causes white highlighting */
-};
-asserteql( sizeof(PKTOUT_77), 17 );
+//struct PKTOUT_77 {
+//    u8 msgtype;
+//    u32 serial;
+//    u16 graphic;
+//    u16 x;
+//    u16 y;
+//    u8 z;
+//    u8 dir; 
+//    u16 skin;
+//    u8 flag1; /* bit 0x80 seems to be invis (and self hidden), bit 0x40 is war mode */
+//    u8 hilite; /* only 1 to 7 seem to be valid. any other value in the entire byte causes white highlighting */
+//};
+//asserteql( sizeof(PKTOUT_77), 17 );
 
-struct PKTOUT_78 {
-    u8 msgtype;
-    u16 msglen;     
-    u32 serial;
-    u16 graphic;
-    u16 x;
-    u16 y;
-    u8  z;
-    u8  facing;     /* WALK_DIR_x */
-    u16 skin;       /* skin color? */
-    u8 flag1;
-    u8 hilite;
-    u8 wornitems[ 9 * HIGHEST_LAYER + 4 ]; 
-}; 
-
-struct PKTOUT_78_NOCOLOR {
-    u32 serial;
-    u16 graphic;
-    u8 layer;
-};
-asserteql( sizeof( PKTOUT_78_NOCOLOR ), 7 );
-
-struct PKTOUT_78_COLOR {
-    u32 serial;
-    u16 graphic;
-    u8 layer;
-    u16 color;
-};
-asserteql( sizeof( PKTOUT_78_COLOR ), 9 );
+//struct PKTOUT_78 {
+//    u8 msgtype;
+//    u16 msglen;     
+//    u32 serial;
+//    u16 graphic;
+//    u16 x;
+//    u16 y;
+//    u8  z;
+//    u8  facing;     /* WALK_DIR_x */
+//    u16 skin;       /* skin color? */
+//    u8 flag1;
+//    u8 hilite;
+//    u8 wornitems[ 9 * HIGHEST_LAYER + 4 ]; 
+//}; 
+//
+//struct PKTOUT_78_NOCOLOR {
+//    u32 serial;
+//    u16 graphic;
+//    u8 layer;
+//};
+//asserteql( sizeof( PKTOUT_78_NOCOLOR ), 7 );
+//
+//struct PKTOUT_78_COLOR {
+//    u32 serial;
+//    u16 graphic;
+//    u8 layer;
+//    u16 color;
+//};
+//asserteql( sizeof( PKTOUT_78_COLOR ), 9 );
 /*
   FIXME: msg type 78 is incompletely understood.  I believe item/clothing data can be sent in it.
   NOTE on wornitems: each layer is sent.  The format seems to be:
@@ -710,34 +710,34 @@ asserteql( sizeof( PKTOUT_78_COLOR ), 9 );
 
 */
 
-struct PKTOUT_7C {
-    u8 msgtype;
-    u16 msglen;
-    u32 used_item_serial;
-    u16 menu_id;
-};
+//struct PKTOUT_7C {
+//    u8 msgtype;
+//    u16 msglen;
+//    u32 used_item_serial;
+//    u16 menu_id;
+//};
+//
+//struct PKTOUT_7C_TITLE {
+//    u8 titlelen;
+//    char title[ 80 ]; /* don't know what this should be */
+//};
+//
+//struct PKTOUT_7C_COUNT {
+//    u8 item_count;
+//};
+//
+//struct PKTOUT_7C_ELEM {
+//    u16 graphic;
+//    u16 color; // ?? they were all grey.
+//    u8 desclen;
+//    char desc[ 80 ]; // also not sure what the max is
+//};
 
-struct PKTOUT_7C_TITLE {
-    u8 titlelen;
-    char title[ 80 ]; /* don't know what this should be */
-};
-
-struct PKTOUT_7C_COUNT {
-    u8 item_count;
-};
-
-struct PKTOUT_7C_ELEM {
-    u16 graphic;
-    u16 color; // ?? they were all grey.
-    u8 desclen;
-    char desc[ 80 ]; // also not sure what the max is
-};
-
-struct PKTOUT_82 {
-    u8 msgtype;
-    u8 error;
-};
-asserteql( sizeof(PKTOUT_82), 2 );
+//struct PKTOUT_82 {
+//    u8 msgtype;
+//    u8 error;
+//};
+//asserteql( sizeof(PKTOUT_82), 2 );
 
 struct PKTOUT_86 {
 	u8 msgtype;
@@ -752,51 +752,51 @@ struct PKTOUT_86_CHARACTERS {
 };
 asserteql( sizeof(PKTOUT_86_CHARACTERS), 60 );
 
-struct PKTOUT_88 {
-    u8 msgtype;
-    u32 serial;
-    u8 text[ 60 ];
-    u8 flag1;
-};
-asserteql( sizeof(PKTOUT_88), 66 );
+//struct PKTOUT_88 {
+//    u8 msgtype;
+//    u32 serial;
+//    u8 text[ 60 ];
+//    u8 flag1;
+//};
+//asserteql( sizeof(PKTOUT_88), 66 );
 
 // after all layers inserted, set the 'layer' value
 // in the next array elem to 0.  length should include this byte.
 // Example, for an empty corpse: 89 00 08 40 75 13 f9 00  
-struct PKTOUT_89 {
-    u8 msgtype;
-    u16 msglen;
-    u32 serial;
-    struct {
-        u8 layer;
-        u32 serial;
-    } layers[ NUM_LAYERS +1 ];
-};
+//struct PKTOUT_89 {
+//    u8 msgtype;
+//    u16 msglen;
+//    u32 serial;
+//    struct {
+//        u8 layer;
+//        u32 serial;
+//    } layers[ NUM_LAYERS +1 ];
+//};
 
-struct PKTOUT_8C {
-    u8 msgtype;
-    u8 ip[4];
-    u16 port;
-    u8 unk7_00;
-    u8 unk8_03;
-    u16 unk9_10_ClientType;
-};
-asserteql( sizeof(PKTOUT_8C), 11 );
+//struct PKTOUT_8C {
+//    u8 msgtype;
+//    u8 ip[4];
+//    u16 port;
+//    u8 unk7_00;
+//    u8 unk8_03;
+//    u16 unk9_10_ClientType;
+//};
+//asserteql( sizeof(PKTOUT_8C), 11 );
 
-struct PKTOUT_90
-{
-    u8 msgtype;
-    u32 serial;
-    u8 unk5_13;
-    u8 unk6_9d;
-    u16 x1;
-    u16 y1;
-    u16 x2;
-    u16 y2;
-    u16 xsize;
-    u16 ysize;
-};
-asserteql( sizeof(PKTOUT_90), 19 );
+//struct PKTOUT_90
+//{
+//    u8 msgtype;
+//    u32 serial;
+//    u8 unk5_13;
+//    u8 unk6_9d;
+//    u16 x1;
+//    u16 y1;
+//    u16 x2;
+//    u16 y2;
+//    u16 xsize;
+//    u16 ysize;
+//};
+//asserteql( sizeof(PKTOUT_90), 19 );
 
 struct PKTOUT_97 {
     u8 msgtype;

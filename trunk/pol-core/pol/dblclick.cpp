@@ -27,6 +27,7 @@ Notes
 #include "../plib/realm.h"
 
 #include "network/client.h"
+#include "network/packets.h"
 #include "eventid.h"
 #include "item/itemdesc.h"
 #include "msghandl.h"
@@ -44,11 +45,9 @@ Notes
 
 void send_paperdoll( Client *client, Character *chr )
 {
-	PKTOUT_88 msg;
-	memset( &msg, 0, sizeof msg );
-	msg.msgtype = PKTOUT_88_ID;
-	msg.serial = chr->serial_ext;
-	
+	PktOut_86* msg = REQUESTPACKET(PktOut_86,PKTOUT_86_ID);
+	msg->Write(chr->serial_ext);
+
 	if ((!ssopt.privacy_paperdoll) || (client->chr == chr))
 	{
 		string name = (chr->title_prefix.empty() ? "": chr->title_prefix + " ") + 
@@ -56,10 +55,10 @@ void send_paperdoll( Client *client, Character *chr )
 					  (chr->title_suffix.empty() ? "": " " + chr->title_suffix );
 		if (!chr->title_race.empty())
 			name += " (" +  chr->title_race + ")";
-		strzcpy( (char *) msg.text, name.c_str(), sizeof msg.text );
+		msg->Write(name.c_str(),60);
 	}
 	else
-		strzcpy( (char *) msg.text, chr->name().c_str(), sizeof msg.text );
+		msg->Write(chr->name().c_str(),60);
 
 
 	// MuadDib changed to reflect true status for 0x20 packet. 1/4/2007
@@ -74,10 +73,10 @@ void send_paperdoll( Client *client, Character *chr )
 	}
 	else
 		flag1 = chr->warmode ? 1 : 0;
-	msg.flag1 = flag1;
-//	msg.flag1 = chr->warmode ? 1 : 0;
+	msg->Write(flag1);
 
-	client->transmit( &msg, sizeof msg );
+	client->transmit( &msg->buffer, msg->offset );
+	READDPACKET(msg);
 }
 
 void doubleclick( Client *client, PKTIN_06 *msg )
