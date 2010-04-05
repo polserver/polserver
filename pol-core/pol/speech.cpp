@@ -278,7 +278,7 @@ void SendUnicodeSpeech(Client *client, PKTIN_AD *msgin, u16* wtext, size_t wtext
 	talkmsg->WriteFlipped(msgin->font);
 	talkmsg->Write(msgin->lang,4);
 	talkmsg->Write(client->chr->name().c_str(),30);
-	talkmsg->Write(&wtext[0],static_cast<u16>(wtextlen));
+	talkmsg->Write(&wtext[0],static_cast<u16>(wtextlen), false); //nullterm already included
 	u16 len=talkmsg->offset;
 	talkmsg->offset=1;
 	talkmsg->WriteFlipped(len);
