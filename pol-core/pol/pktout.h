@@ -809,89 +809,89 @@ struct PKTOUT_9C {
 	char response[52]; // Unknown at this time.
 };
 
-struct PKTOUT_9E {
-	struct HEADER {
-		u8 msgtype;
-		u16 msglen;
-		u32 vendor_serial;
-		u16 num_items;
-	};
-	struct ELEMENT {
-		u32 serial;
-		u16 graphic;
-		u16 color;
-		u16 amount;
-		u16 price;
-		u16 desc_len;
-		char description[1];
-	};
-};
-asserteql( sizeof(PKTOUT_9E::HEADER), 9 );
-asserteql( sizeof(PKTOUT_9E::ELEMENT), 15 );
+//struct PKTOUT_9E {
+//	struct HEADER {
+//		u8 msgtype;
+//		u16 msglen;
+//		u32 vendor_serial;
+//		u16 num_items;
+//	};
+//	struct ELEMENT {
+//		u32 serial;
+//		u16 graphic;
+//		u16 color;
+//		u16 amount;
+//		u16 price;
+//		u16 desc_len;
+//		char description[1];
+//	};
+//};
+//asserteql( sizeof(PKTOUT_9E::HEADER), 9 );
+//asserteql( sizeof(PKTOUT_9E::ELEMENT), 15 );
 
-struct PKTOUT_A1 
-{
-    u8 msgtype;
-    u32 serial;
-    u16 max_hits; // str
-    u16 hits;
-};
-asserteql( sizeof(PKTOUT_A1), 9 );
+//struct PKTOUT_A1 
+//{
+//    u8 msgtype;
+//    u32 serial;
+//    u16 max_hits; // str
+//    u16 hits;
+//};
+//asserteql( sizeof(PKTOUT_A1), 9 );
 
-struct PKTOUT_A2 {
-    u8 msgtype;
-    u32 serial;
-    u16 max_mana; // intel;
-    u16 mana;
-};
-asserteql( sizeof(PKTOUT_A2), 9 );
+//struct PKTOUT_A2 {
+//    u8 msgtype;
+//    u32 serial;
+//    u16 max_mana; // intel;
+//    u16 mana;
+//};
+//asserteql( sizeof(PKTOUT_A2), 9 );
 
-struct PKTOUT_A3 {
-    u8 msgtype;
-    u32 serial;
-    u16 max_stamina; // dex;
-    u16 stamina;
-};
-asserteql( sizeof(PKTOUT_A3), 9 );
+//struct PKTOUT_A3 {
+//    u8 msgtype;
+//    u32 serial;
+//    u16 max_stamina; // dex;
+//    u16 stamina;
+//};
+//asserteql( sizeof(PKTOUT_A3), 9 );
 
-struct PKTOUT_A5 {
-    u8 msgtype;
-    u16 msglen;
-	char address[ URL_MAX_LEN + 1 ];
-	u8 null_term;
-};
+//struct PKTOUT_A5 {
+//    u8 msgtype;
+//    u16 msglen;
+//	char address[ URL_MAX_LEN + 1 ];
+//	u8 null_term;
+//};
 
-struct PKTOUT_A6 {
-    u8 msgtype;
-    u16 msglen;
-    u8 type;
-    u8 unk4;
-    u8 unk5;
-    u16 tipnum;
-    u16 textlen;
-    char text[10000];
-    enum { TYPE_TIP = 0,
-           TYPE_UPDATE = 1 };
-};
-asserteql( sizeof(PKTOUT_A6), 10010);
+//struct PKTOUT_A6 {
+//    u8 msgtype;
+//    u16 msglen;
+//    u8 type;
+//    u8 unk4;
+//    u8 unk5;
+//    u16 tipnum;
+//    u16 textlen;
+//    char text[10000];
+//    enum { TYPE_TIP = 0,
+//           TYPE_UPDATE = 1 };
+//};
+//asserteql( sizeof(PKTOUT_A6), 10010);
 
-struct PKTOUT_A8 {
-    u8 msgtype;
-    u16 msglen;
-    u8 unk3_FF;
-    u16 servcount;
-};
-asserteql( sizeof(PKTOUT_A8), 6 );
-
-struct PKTOUT_A8_SERVER {
-    u16 servernum;
-    char servername[30]; // think the last two bytes are the sorting amounts.
-    u16 servernum2;
-    u8 percentfull;
-    s8 timezone;
-    char ip[4];
-};
-asserteql( sizeof(PKTOUT_A8_SERVER), 40 );
+//struct PKTOUT_A8 {
+//    u8 msgtype;
+//    u16 msglen;
+//    u8 unk3_FF;
+//    u16 servcount;
+//};
+//asserteql( sizeof(PKTOUT_A8), 6 );
+//
+//struct PKTOUT_A8_SERVER {
+//    u16 servernum;
+//    char servername[30]; // think the last two bytes are the sorting amounts.
+//    u16 servernum2;
+//    u8 percentfull;
+//    s8 timezone;
+//    char ip[4];
+//};
+//asserteql( sizeof(PKTOUT_A8_SERVER), 40 );
 
 struct PKTOUT_A9 {
     u8 msgtype;

@@ -15,6 +15,7 @@ Notes
 #include "../clib/endian.h"
 
 #include "msghandl.h"
+#include "network/packets.h"
 #include "pktin.h"
 #include "pktout.h"
 #include "tiplist.h"
@@ -24,27 +25,22 @@ Notes
 
 TipFilenames tipfilenames;
 
-static PKTOUT_A6 tipmsg;
+//static PKTOUT_A6 tipmsg;
 
 bool send_tip( Client* client, const char* tipname, unsigned short tipnum )
 {
-    ifstream ifs( tipname );
-    ifs.read( tipmsg.text, sizeof tipmsg.text );
-    streamsize textlen = ifs.gcount();
-    if ( textlen > 0 && unsigned(textlen) <= sizeof tipmsg.text)
+    size_t textlen = strlen(tipname);
+    if ( textlen > 0 && unsigned(textlen) <= 9999)
     {
-        u16 msglen = static_cast<u16>(offsetof(PKTOUT_A6, text) + textlen);
-
-        tipmsg.msgtype = PKTOUT_A6_ID;
-        tipmsg.msglen = ctBEu16(msglen);
-        tipmsg.type = PKTOUT_A6::TYPE_TIP;
-        tipmsg.unk4 = 0;
-        tipmsg.unk5 = 0;
-        tipmsg.tipnum = ctBEu16(tipnum);
-        tipmsg.textlen = ctBEu16(textlen);
-        // tipmsg.text read in above
-
-        transmit( client, &tipmsg, msglen );
+		PktOut_A6* msg = REQUESTPACKET(PktOut_A6,PKTOUT_A6_ID);
+		msg->WriteFlipped(static_cast<u16>(textlen+11));
+		msg->Write(static_cast<u8>(PKTOUT_A6_TYPE_TIP));
+		msg->offset+=2; //unk4,5
+		msg->WriteFlipped(tipnum);
+		msg->WriteFlipped(static_cast<u16>(textlen+1));
+		msg->Write(tipname,static_cast<u16>(textlen+1));
+        transmit( client, &msg->buffer, msg->offset );
+		READDPACKET(msg);
         return true;
     }
     else
@@ -56,22 +52,18 @@ bool send_tip( Client* client, const char* tipname, unsigned short tipnum )
 void send_tip( Client* client, const std::string& tiptext )
 {
     unsigned textlen = tiptext.size();
-    if (textlen >= sizeof tipmsg.text)
-        textlen = sizeof tipmsg.text - 1;
-    
-    int msglen = offsetof(PKTOUT_A6, text) + textlen;
+    if (textlen >= 10000)
+        textlen = 9999;
 
-    tipmsg.msgtype = PKTOUT_A6_ID;
-    tipmsg.msglen = ctBEu16(msglen);
-    tipmsg.type = PKTOUT_A6::TYPE_TIP;
-    tipmsg.unk4 = 0;
-    tipmsg.unk5 = 0;
-    tipmsg.tipnum = 0;
-    tipmsg.textlen = ctBEu16(textlen);
-    memcpy( tipmsg.text, tiptext.c_str(), textlen );
-    tipmsg.text[textlen] = '\0';
-
-    transmit( client, &tipmsg, msglen );
+	PktOut_A6* msg = REQUESTPACKET(PktOut_A6,PKTOUT_A6_ID);
+	msg->WriteFlipped(static_cast<u16>(textlen+11));
+	msg->Write(static_cast<u8>(PKTOUT_A6_TYPE_TIP));
+	msg->offset+=2; //unk4,5
+	msg->offset+=2; //tipnum
+	msg->WriteFlipped(static_cast<u16>(textlen+1));
+	msg->Write(tiptext.c_str(),static_cast<u16>(textlen+1));
+    transmit( client, &msg, msg->offset );
+	READDPACKET(msg);
 }
 
 void handle_get_tip( Client* client, PKTIN_A7* msg )

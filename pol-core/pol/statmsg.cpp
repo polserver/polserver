@@ -246,38 +246,37 @@ void send_short_statmsg( Client *client, Character *chr )
 
 void send_update_hits_to_inrange( Character *chr )
 {
-	PKTOUT_A1 msg;
-	msg.msgtype = PKTOUT_A1_ID;
-	msg.serial = chr->serial_ext;
+	PktOut_A1* msg = REQUESTPACKET(PktOut_A1,PKTOUT_A1_ID);
+	msg->Write(chr->serial_ext);
+	
     if (uoclient_general.hits.any)
     {
         int h = chr->vital(uoclient_general.hits.id).current_ones();
         if (h > 0xFFFF)
             h = 0xFFFF;
-        msg.hits = ctBEu16( static_cast<u16>(h) );
-
         int mh = chr->vital(uoclient_general.hits.id).maximum_ones();
         if (mh > 0xFFFF)
             mh = 0xFFFF;
-        msg.max_hits = ctBEu16( static_cast<u16>(mh) );
+		msg->WriteFlipped(static_cast<u16>(mh));
+		msg->WriteFlipped(static_cast<u16>(h));
 
 		// Send proper data to self (if we exist?)
 		if (chr->client && chr->client->ready)
-			transmit( chr->client, &msg, sizeof msg );
+			transmit( chr->client, &msg->buffer, msg->offset );
 
 		// To stop "HP snooping"...
-		msg.hits = ctBEu16( static_cast<u16>(h * 1000 / mh) );
-		msg.max_hits = ctBEu16( 1000 );
+		msg->offset=5;
+		msg->WriteFlipped(static_cast<u16>(1000));
+		msg->WriteFlipped(static_cast<u16>(h * 1000 / mh));
     }
     else
     {
-        msg.hits = 0;
-        msg.max_hits = 0;
+		msg->offset+=4; // hits,maxhits=0
 		if (chr->client && chr->client->ready)
-			transmit( chr->client, &msg, sizeof msg );
+			transmit( chr->client, &msg->buffer, msg->offset );
     }
 
 	// Exclude self... otherwise their status-window shows 1000 hp!! >_<
-	transmit_to_others_inrange( chr, &msg, sizeof msg, false, false );
-
+	transmit_to_others_inrange( chr, &msg->buffer, msg->offset, false, false );
+	READDPACKET(msg);
 }
