@@ -157,17 +157,14 @@ void loginserver_login( Client *client, PKTIN_80 *msg )
          AddressToString( &client->ipaddr ));
 
 	client->acct = acct;
+	PktOut_A8* msgA8 = REQUESTPACKET(PktOut_A8,PKTOUT_A8_ID);
+	msgA8->offset+=2;
+	msgA8->Write(static_cast<u8>(0xFF));
+	msgA8->offset+=2; //servcount
 
-	static char buffer[ 2000 ];
-	PKTOUT_A8 *phead = reinterpret_cast<PKTOUT_A8*>(buffer);
-	PKTOUT_A8_SERVER *pelem = reinterpret_cast<PKTOUT_A8_SERVER*>(phead+1);
-    unsigned short msglen = sizeof *phead;
     unsigned short servcount = 0;
 
-	phead->msgtype = PKTOUT_A8_ID;
-	phead->msglen = 0;
-	phead->unk3_FF = 0xFF;
-	phead->servcount = 0;
+	
 
     for( idx = 0; idx < servers.size(); idx++ )
 	{
@@ -195,22 +192,25 @@ void loginserver_login( Client *client, PKTIN_80 *msg )
 
         if (server_applies( client, idx ))
         {
-            memset( pelem, 0, sizeof *pelem );
             ++servcount;
-            pelem->servernum = ctBEu16( idx+1 );
-		    strzcpy( pelem->servername, server->name.c_str(), sizeof pelem->servername );
-		    pelem->servernum2 = ctBEu16( idx+1 );
-            pelem->ip[0] = server->ip[0];
-		    pelem->ip[1] = server->ip[1];
-		    pelem->ip[2] = server->ip[2];
-		    pelem->ip[3] = server->ip[3];
-            ++pelem;
-            msglen += sizeof *pelem;
+			msgA8->WriteFlipped(static_cast<u16>(idx+1));
+			msgA8->Write(server->name.c_str(),30);
+			msgA8->WriteFlipped(static_cast<u16>(idx+1));
+			msgA8->offset+=2; //u8 percentfull, s8 timezone
+			msgA8->Write(server->ip[0]);
+			msgA8->Write(server->ip[1]);
+			msgA8->Write(server->ip[2]);
+			msgA8->Write(server->ip[3]);
         }
 	}
-	phead->msglen = ctBEu16( msglen );
-	phead->servcount = ctBEu16( servcount );
-	client->transmit( buffer, msglen );
+	u16 len = msgA8->offset;
+	msgA8->offset=1;
+	msgA8->WriteFlipped(len);
+	msgA8->offset++;
+	msgA8->WriteFlipped(servcount);
+
+	client->transmit( &msgA8->buffer, len );
+	READDPACKET(msgA8);
 
     if (servcount == 0)
     {
@@ -286,7 +286,6 @@ void select_server(Client *client, PKTIN_A0 *msg ) // Relay player to a certain 
 
 	client->transmit( &rsp->buffer, rsp->offset );
 	READDPACKET(rsp);
-
 	
 	client->cryptengine->Init( &nseed, CCryptBase::typeGame );
 }

@@ -509,22 +509,18 @@ MESSAGE_HANDLER_VARLEN(PKTIN_3B, buyhandler );
 
 bool send_vendorsell( Client* client, NPC* merchant, UContainer* sellfrom, bool send_aos_tooltip )
 {
-	unsigned short msglen = 0;
 	unsigned short num_items = 0;
-	PKTOUT_9E::HEADER* header = reinterpret_cast<PKTOUT_9E::HEADER*>(bfr);
+	PktOut_9E* msg = REQUESTPACKET(PktOut_9E,PKTOUT_9E_ID);
+	msg->offset+=2;
+	msg->Write(merchant->serial_ext);
+	msg->offset+=2; //numitems
 
-	header->msgtype=PKTOUT_9E_ID;
-	/* Length is Below */
-	header->vendor_serial = merchant->serial_ext;;
-	msglen = sizeof(*header);
 
 	UContainer* cont = sellfrom;
 	while (cont != NULL)
 	{
 		for( UContainer::iterator itr = cont->begin(), end=cont->end(); itr != end; ++itr )
 		{
-			PKTOUT_9E::ELEMENT* element = reinterpret_cast<PKTOUT_9E::ELEMENT*>(&bfr[msglen]);
-
 			Item* item = GET_ITEM_PTR( itr );
 			if (item->isa( UObject::CLASS_CONTAINER ))
 			{
@@ -538,18 +534,18 @@ bool send_vendorsell( Client* client, NPC* merchant, UContainer* sellfrom, bool 
 			if (!item->getbuyprice(buyprice))
 				continue;
 			string desc = item->merchant_description();
-			unsigned addlen = sizeof(*element) + desc.size() - 1; // NO null terminator!
-			if (msglen + addlen > sizeof bfr)
+			if (msg->offset + desc.size()+14 > sizeof msg->buffer)
+			{
+				READDPACKET(msg);
 				return false;
-
-			element->serial = item->serial_ext;
-			element->graphic = item->graphic_ext;
-			element->color = item->color_ext;
-			element->amount = ctBEu16(item->getamount());
-			element->price=ctBEu16( static_cast<u16>(buyprice) );
-			strcpy(element->description, desc.c_str() );
-			element->desc_len=ctBEu16(desc.size());  // NO null this time!
-			msglen += static_cast<unsigned short>(addlen); // element contains first byte of desc
+			}
+			msg->Write(item->serial_ext);
+			msg->Write(item->graphic_ext);
+			msg->Write(item->color_ext);
+			msg->WriteFlipped(item->getamount());
+			msg->WriteFlipped(static_cast<u16>(buyprice));
+			msg->WriteFlipped(static_cast<u16>(desc.size()));
+			msg->Write(desc.c_str(),static_cast<u16>(desc.size()),false); //No null term
 			++num_items;
 
 			if (send_aos_tooltip)
@@ -558,11 +554,14 @@ bool send_vendorsell( Client* client, NPC* merchant, UContainer* sellfrom, bool 
 
 		cont = NULL;
 	}
+	u16 len=msg->offset;
+	msg->offset=1;
+	msg->WriteFlipped(len);
+	msg->offset+=4;
+	msg->WriteFlipped(num_items);
 
-	header->msglen	= ctBEu16(msglen);
-	header->num_items = ctBEu16(num_items);
-
-	transmit( client, bfr, msglen );
+	transmit( client, &msg->buffer, len );
+	READDPACKET(msg);
 	return true;
 }
 

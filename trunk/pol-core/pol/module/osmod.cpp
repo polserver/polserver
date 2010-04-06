@@ -24,6 +24,7 @@ Notes
 #include "../mobile/attribute.h"
 #include "../mobile/charactr.h"
 #include "../network/client.h"
+#include "../network/packets.h"
 #include "../exscrobj.h"
 #include "../logfiles.h"
 #include "../npc.h"
@@ -629,19 +630,18 @@ BObjectImp* OSExecutorModule::mf_OpenURL()
 	{
 		if (chr->has_active_client())
 		{
-			PKTOUT_A5 msg;
+			PktOut_A5* msg = REQUESTPACKET(PktOut_A5,PKTOUT_A5_ID);
 			unsigned urllen;
 			const char *url = str->data();
 
 			urllen = strlen(url);
-			if (urllen > sizeof msg.address)
-				urllen = sizeof msg.address;
+			if (urllen > URL_MAX_LEN)
+				urllen = URL_MAX_LEN;
 
-			msg.msgtype = PKTOUT_A5_ID;
-			msg.msglen = ctBEu16( (urllen+3) );
-			memcpy( msg.address, url, urllen );
-			msg.null_term = 0;
-			chr->client->transmit( &msg, (urllen+3) );
+			msg->WriteFlipped(static_cast<u16>(urllen+4));
+			msg->Write(url,static_cast<u16>(urllen+1));
+			chr->client->transmit( &msg->buffer, msg->offset );
+			READDPACKET(msg);
 			return new BLong(1);
 		}
 		else
