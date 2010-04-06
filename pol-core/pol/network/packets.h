@@ -247,6 +247,13 @@ typedef PacketTemplate<PKTOUT_86_ID,66> PktOut_86;
 typedef PacketTemplate<PKTOUT_89_ID,7+(5*(NUM_LAYERS+1))+1> PktOut_89;
 typedef PacketTemplate<PKTOUT_8C_ID,11> PktOut_8C;
 typedef PacketTemplate<PKTOUT_90_ID,19> PktOut_90;
+typedef PacketTemplate<PKTOUT_9E_ID,0xFFFF> PktOut_9E;
+typedef PacketTemplate<PKTOUT_A1_ID,9> PktOut_A1;
+typedef PacketTemplate<PKTOUT_A2_ID,9> PktOut_A2;
+typedef PacketTemplate<PKTOUT_A3_ID,9> PktOut_A3;
+typedef PacketTemplate<PKTOUT_A5_ID,URL_MAX_LEN+4> PktOut_A5;
+typedef PacketTemplate<PKTOUT_A6_ID,10010> PktOut_A6;
+typedef PacketTemplate<PKTOUT_A8_ID,2000> PktOut_A8;
 
 typedef PacketTemplate<PKTOUT_AE_ID,((SPEECH_MAX_LEN) + 1)*2+48> PktOut_AE;
 typedef PacketTemplateSub<PKTBI_BF_ID,0x4,12> Pktout_bf_sub4_closegump;
