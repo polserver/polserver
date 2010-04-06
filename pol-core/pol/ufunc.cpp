@@ -1751,54 +1751,54 @@ void send_stamina_level( Client *client )
 {
     Character *chr = client->chr;
 
-    PKTOUT_A3 msg;
-    msg.msgtype = PKTOUT_A3_ID;
-    msg.serial = chr->serial_ext;
-    if (uoclient_general.stamina.any)
-    {
-        int v = chr->vital(uoclient_general.stamina.id).current_ones();
-        if (v > 0xFFFF)
-            v = 0xFFFF;
-        msg.stamina = ctBEu16( static_cast<u16>(v) );
+	PktOut_A3* msg = REQUESTPACKET(PktOut_A3,PKTOUT_A3_ID);
+	msg->Write(chr->serial_ext);
 
-        v = chr->vital( uoclient_general.stamina.id ).maximum_ones();
-        if (v > 0xFFFF)
-            v = 0xFFFF;
+	if (uoclient_general.stamina.any)
+	{
+		int v = chr->vital(uoclient_general.mana.id).maximum_ones();
+		if (v > 0xFFFF)
+			v = 0xFFFF;
+		msg->WriteFlipped(static_cast<u16>(v));
 
-	    msg.max_stamina = ctBEu16( static_cast<u16>(v) );
-    }
-    else
-    {
-        msg.stamina = 0;
-	    msg.max_stamina = 0;
-    }
-    transmit( client, &msg, sizeof msg );
+		v = v = chr->vital(uoclient_general.mana.id).current_ones();
+		if (v > 0xFFFF)
+			v = 0xFFFF;
+		msg->WriteFlipped(static_cast<u16>(v));
+	}
+	else
+	{
+		msg->offset+=4;
+	}
+	transmit( client, &msg->buffer, msg->offset );
+	READDPACKET(msg);
 }
+
 void send_mana_level( Client *client )
 {
     Character *chr = client->chr;
 
-	PKTOUT_A2 msg;
-    msg.msgtype = PKTOUT_A2_ID;
-    msg.serial = chr->serial_ext;
+	PktOut_A2* msg = REQUESTPACKET(PktOut_A2,PKTOUT_A2_ID);
+	msg->Write(chr->serial_ext);
+
     if (uoclient_general.mana.any)
     {
-        int v = chr->vital(uoclient_general.mana.id).current_ones();
-        if (v > 0xFFFF)
-            v = 0xFFFF;
-        msg.mana = ctBEu16( static_cast<u16>(v) );
+		int v = chr->vital(uoclient_general.mana.id).maximum_ones();
+		if (v > 0xFFFF)
+			v = 0xFFFF;
+		msg->WriteFlipped(static_cast<u16>(v));
 
-        v = chr->vital(uoclient_general.mana.id).maximum_ones();
-        if (v > 0xFFFF)
-            v = 0xFFFF;
-	    msg.max_mana = ctBEu16( static_cast<u16>(v) );
+		v = v = chr->vital(uoclient_general.mana.id).current_ones();
+		if (v > 0xFFFF)
+			v = 0xFFFF;
+		msg->WriteFlipped(static_cast<u16>(v));
     }
     else
     {
-        msg.mana = 0;
-	    msg.max_mana = 0;
+		msg->offset+=4;
     }
-    transmit( client, &msg, sizeof msg );
+    transmit( client, &msg->buffer, msg->offset );
+	READDPACKET(msg);
 }
 
 void send_death_message( Character *chr_died, Item *corpse )

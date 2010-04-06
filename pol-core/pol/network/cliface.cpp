@@ -13,6 +13,7 @@ Notes
 
 #include "../mobile/attribute.h"
 #include "../mobile/charactr.h"
+#include "../network/packets.h"
 #include "client.h"
 #include "cliface.h"
 #include "../party.h"
@@ -87,64 +88,56 @@ void ClientInterface::tell_attribute_changed( Character* who, const Attribute* a
 
 void send_uo_hits( Client* client, Character* me, const Vital* vital )
 {
-	PKTOUT_A1 msg;
-	msg.msgtype = PKTOUT_A1_ID;
-	msg.serial = me->serial_ext;
+	PktOut_A1* msg = REQUESTPACKET(PktOut_A1,PKTOUT_A1_ID);
+	msg->Write(me->serial_ext);
+	int v = me->vital( vital->vitalid ).maximum_ones();
+	if (v > 0xFFFF)
+		v = 0xFFFF;
+	msg->WriteFlipped(static_cast<u16>(v));
 
-    int v = me->vital( vital->vitalid ).current_ones();
+    v = me->vital( vital->vitalid ).current_ones();
     if (v > 0xFFFF)
         v = 0xFFFF;
-    msg.hits = ctBEu16( static_cast<u16>(v) );
-
-    v = me->vital( vital->vitalid ).maximum_ones();
-    if (v > 0xFFFF)
-        v = 0xFFFF;
-    msg.max_hits = ctBEu16( static_cast<u16>(v) );
-
-    client->transmit( &msg, sizeof msg );
-
+    msg->WriteFlipped(static_cast<u16>(v));
+    client->transmit( &msg->buffer, msg->offset );
+	READDPACKET(msg);
 }
 
 void send_uo_mana( Client* client, Character* me, const Vital* vital )
 {
-	PKTOUT_A2 msg;
-	msg.msgtype = PKTOUT_A2_ID;
-	msg.serial = me->serial_ext;
+	PktOut_A2* msg = REQUESTPACKET(PktOut_A2,PKTOUT_A2_ID);
+	msg->Write(me->serial_ext);
+	int v = me->vital( vital->vitalid ).maximum_ones();
+	if (v > 0xFFFF)
+		v = 0xFFFF;
+	msg->WriteFlipped(static_cast<u16>(v));
 
-    int v = me->vital( vital->vitalid ).current_ones();
-    if (v > 0xFFFF)
-        v = 0xFFFF;
-    msg.mana = ctBEu16( static_cast<u16>(v) );
-
-    v = me->vital( vital->vitalid ).maximum_ones();
-    if (v > 0xFFFF)
-        v = 0xFFFF;
-    msg.max_mana = ctBEu16( static_cast<u16>(v) );
-
-    client->transmit( &msg, sizeof msg );
+	v = me->vital( vital->vitalid ).current_ones();
+	if (v > 0xFFFF)
+		v = 0xFFFF;
+	msg->WriteFlipped(static_cast<u16>(v));
+	client->transmit( &msg->buffer, msg->offset );
+	READDPACKET(msg);
 
 	if (me->party() != NULL)
 		me->party()->on_mana_changed(me);
-
 }
 
 void send_uo_stamina( Client* client, Character* me, const Vital* vital )
 {
-	PKTOUT_A3 msg;
-	msg.msgtype = PKTOUT_A3_ID;
-	msg.serial = me->serial_ext;
+	PktOut_A3* msg = REQUESTPACKET(PktOut_A3,PKTOUT_A3_ID);
+	msg->Write(me->serial_ext);
+	int v = me->vital( vital->vitalid ).maximum_ones();
+	if (v > 0xFFFF)
+		v = 0xFFFF;
+	msg->WriteFlipped(static_cast<u16>(v));
 
-    int v = me->vital( vital->vitalid ).current_ones();
-    if (v > 0xFFFF)
-        v = 0xFFFF;
-    msg.stamina = ctBEu16( static_cast<u16>(v) );
-
-    v = me->vital( vital->vitalid ).maximum_ones();
-    if (v > 0xFFFF)
-        v = 0xFFFF;
-    msg.max_stamina = ctBEu16( static_cast<u16>(v) );
-
-    client->transmit( &msg, sizeof msg );
+	v = me->vital( vital->vitalid ).current_ones();
+	if (v > 0xFFFF)
+		v = 0xFFFF;
+	msg->WriteFlipped(static_cast<u16>(v));
+	client->transmit( &msg->buffer, msg->offset );
+	READDPACKET(msg);
 
 	if (me->party()!=NULL)
 		me->party()->on_stam_changed(me);

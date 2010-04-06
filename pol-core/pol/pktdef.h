@@ -129,5 +129,8 @@ struct PKTOUT_6E
 	enum REPEAT_FLAG { REPEAT = 1, NOREPEAT = 0 };
 };
 
+#define PKTOUT_A6_TYPE_TIP    0
+#define PKTOUT_A6_TYPE_UPDATE 1
+
 #endif
 

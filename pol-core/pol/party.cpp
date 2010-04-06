@@ -581,19 +581,18 @@ void Party::send_stats_on_add(Character* newmember)
 
 void Party::on_mana_changed(Character* chr)
 {
-	PKTOUT_A2 msg;
-	msg.msgtype = PKTOUT_A2_ID;
-	msg.serial = chr->serial_ext;
-	int h, mh;
+	PktOut_A2* msg = REQUESTPACKET(PktOut_A2,PKTOUT_A2_ID);
+	msg->Write(chr->serial_ext);
 
-    h = chr->vital(uoclient_general.mana.id).current_ones();
-    if (h > 0xFFFF)
+	int h, mh;
+	h = chr->vital(uoclient_general.mana.id).current_ones();
+	if (h > 0xFFFF)
 		h = 0xFFFF;
 	mh = chr->vital(uoclient_general.mana.id).maximum_ones();
-    if (mh > 0xFFFF)
-        mh = 0xFFFF;
-	msg.mana = ctBEu16( static_cast<u16>(h * 1000 / mh) );
-	msg.max_mana = ctBEu16( 1000 );
+	if (mh > 0xFFFF)
+		mh = 0xFFFF;
+	msg->WriteFlipped(static_cast<u16>(1000));
+	msg->WriteFlipped(static_cast<u16>(h * 1000 / mh));
 
 	for( vector<u32>::iterator itr = _member_serials.begin(); itr != _member_serials.end(); ++itr)
 	{
@@ -603,26 +602,26 @@ void Party::on_mana_changed(Character* chr)
 			if (mem!=chr)
 			{
 				if (mem->has_active_client())
-					mem->client->transmit(&msg,9);
+					mem->client->transmit(&msg->buffer,msg->offset);
 			}
 		}
 	}
+	READDPACKET(msg);
 }
 void Party::on_stam_changed(Character* chr)
 {
-	PKTOUT_A3 msg;
-	msg.msgtype = PKTOUT_A3_ID;
-	msg.serial = chr->serial_ext;
-	int h, mh;
+	PktOut_A3* msg = REQUESTPACKET(PktOut_A3,PKTOUT_A3_ID);
+	msg->Write(chr->serial_ext);
 
-	h = chr->vital(uoclient_general.stamina.id).current_ones();
-    if (h > 0xFFFF)
+	int h, mh;
+	h = chr->vital(uoclient_general.mana.id).current_ones();
+	if (h > 0xFFFF)
 		h = 0xFFFF;
-	mh = chr->vital(uoclient_general.stamina.id).maximum_ones();
-    if (mh > 0xFFFF)
-        mh = 0xFFFF;
-	msg.stamina = ctBEu16( static_cast<u16>(h * 1000 / mh) );
-	msg.max_stamina = ctBEu16( 1000 );
+	mh = chr->vital(uoclient_general.mana.id).maximum_ones();
+	if (mh > 0xFFFF)
+		mh = 0xFFFF;
+	msg->WriteFlipped(static_cast<u16>(1000));
+	msg->WriteFlipped(static_cast<u16>(h * 1000 / mh));
 
 	for( vector<u32>::iterator itr = _member_serials.begin(); itr != _member_serials.end(); ++itr)
 	{
@@ -632,10 +631,11 @@ void Party::on_stam_changed(Character* chr)
 			if (mem!=chr)
 			{
 				if (mem->has_active_client())
-					mem->client->transmit(&msg,9);
+					mem->client->transmit(&msg->buffer,msg->offset);
 			}
 		}
 	}
+	READDPACKET(msg);
 }
 
 void Party::send_member_msg_public(Character* chr,u16* wtext, size_t wtextlen)
