@@ -45,7 +45,7 @@ Notes
 
 void send_paperdoll( Client *client, Character *chr )
 {
-	PktOut_86* msg = REQUESTPACKET(PktOut_86,PKTOUT_86_ID);
+	PktOut_88* msg = REQUESTPACKET(PktOut_88,PKTOUT_88_ID);
 	msg->Write(chr->serial_ext);
 
 	if ((!ssopt.privacy_paperdoll) || (client->chr == chr))

@@ -98,7 +98,7 @@ void Spellbook::double_click( Client* client )
 		// must have AOS Features Enabled on an acct with AOS Expansion to view Magery book.
 		// All newer spellbooks will bug out if you use this method though.
 		if( (client->UOExpansionFlag & AOS) && (spell_school == 0) 
-			&& !(ssopt.uo_feature_enable & PKTOUT_A9_START_FLAGS::FLAG_AOS_FEATURES))
+			&& !(ssopt.uo_feature_enable & PKTOUT_A9::FLAG_AOS_FEATURES))
 		{
 			if ( config.loglevel > 1 )
 				cout << "Client with AOS Expansion Account using spellbook without UOFeatureEnable 0x20 Bitflag.\n";
