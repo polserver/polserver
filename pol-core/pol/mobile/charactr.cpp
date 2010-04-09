@@ -3034,15 +3034,14 @@ void Character::send_highlight() const
 	{
 		Character* opponent = get_opponent();
 
-		PKTOUT_AA msg;
-		msg.msgtype = PKTOUT_AA_ID;
-		
+		PktOut_AA* msg = REQUESTPACKET(PktOut_AA,PKTOUT_AA_ID);
 		if (opponent != NULL)
-			msg.serial = opponent->serial_ext;
+			msg->Write(opponent->serial_ext);
 		else
-			msg.serial = 0;
+			msg->offset+=4;
 
-		transmit( client, &msg, sizeof msg );
+		transmit( client, &msg->buffer, msg->offset );
+		READDPACKET(msg);
 	}
 }
 

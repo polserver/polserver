@@ -54,7 +54,7 @@ PacketsSingleton::PacketsSingleton()
 	packets.insert(PacketQueuePair(PKTOUT_78_ID,new PacketQueueSingle()));
 	packets.insert(PacketQueuePair(PKTOUT_7C_ID,new PacketQueueSingle()));
 	packets.insert(PacketQueuePair(PKTOUT_82_ID,new PacketQueueSingle()));
-	packets.insert(PacketQueuePair(PKTOUT_86_ID,new PacketQueueSingle()));
+	packets.insert(PacketQueuePair(PKTOUT_88_ID,new PacketQueueSingle()));
 	packets.insert(PacketQueuePair(PKTOUT_89_ID,new PacketQueueSingle()));
 	packets.insert(PacketQueuePair(PKTOUT_8C_ID,new PacketQueueSingle()));
 	packets.insert(PacketQueuePair(PKTOUT_90_ID,new PacketQueueSingle()));
@@ -65,6 +65,8 @@ PacketsSingleton::PacketsSingleton()
 	packets.insert(PacketQueuePair(PKTOUT_A5_ID,new PacketQueueSingle()));
 	packets.insert(PacketQueuePair(PKTOUT_A6_ID,new PacketQueueSingle()));
 	packets.insert(PacketQueuePair(PKTOUT_A8_ID,new PacketQueueSingle()));
+	packets.insert(PacketQueuePair(PKTOUT_A9_ID,new PacketQueueSingle()));
+	packets.insert(PacketQueuePair(PKTOUT_AA_ID,new PacketQueueSingle()));
 
 	packets.insert(PacketQueuePair(PKTOUT_AE_ID,new PacketQueueSingle()));
 
@@ -86,17 +88,6 @@ void PacketsSingleton::ReAddPacket(PacketInterface* pkt)
 		itr->second->Add(pkt);
 	else
 		delete pkt;
-}
-
-void PacketsSingleton::LogStatus()
-{
-	Log("Packet status:\n");
-	for ( PacketQueueMap::iterator it=packets.begin() ; it != packets.end(); ++it )
-	{
-		Log("0x%X :\n",it->first);
-		it->second->LogStatus();
-	}
-	Log("Packet status end\n");
 }
 
 PacketInterface* PacketQueueSingle::GetNext(u8 id, u16 sub)
@@ -126,11 +117,6 @@ void PacketQueueSingle::Add(PacketInterface* pkt)
 		packets.push(pkt); // readd it
 		//critical end
 	}
-}
-
-void PacketQueueSingle::LogStatus()
-{
-	Log("  %d\n",packets.size());
 }
 
 PacketInterface* PacketQueueSubs::GetNext(u8 id, u16 sub)
@@ -176,13 +162,14 @@ void PacketQueueSubs::Add(PacketInterface* pkt)
 	//critical end
 }
 
-void PacketQueueSubs::LogStatus()
+int PacketQueueSubs::Count()
 {
+	int count=0;
 	for ( PacketInterfaceQueueMap::iterator it=packets.begin() ; it != packets.end(); ++it )
 	{
-		Log("  0x%X :\n",it->first);
-		Log("    %d\n",it->second.size());
+		count += it->second.size();
 	}
+	return count;
 }
 
 // creates new packets
@@ -222,7 +209,7 @@ PacketInterface* GetPacket(u8 id, u16 sub)
 		case PKTOUT_78_ID: return new PktOut_78();
 		case PKTOUT_7C_ID: return new PktOut_7C();
 		case PKTOUT_82_ID: return new PktOut_82();
-		case PKTOUT_86_ID: return new PktOut_86();
+		case PKTOUT_88_ID: return new PktOut_88();
 		case PKTOUT_89_ID: return new PktOut_89();
 		case PKTOUT_8C_ID: return new PktOut_8C();
 		case PKTOUT_90_ID: return new PktOut_90();
@@ -233,6 +220,8 @@ PacketInterface* GetPacket(u8 id, u16 sub)
 		case PKTOUT_A5_ID: return new PktOut_A5();
 		case PKTOUT_A6_ID: return new PktOut_A6();
 		case PKTOUT_A8_ID: return new PktOut_A8();
+		case PKTOUT_A9_ID: return new PktOut_A9();
+		case PKTOUT_AA_ID: return new PktOut_AA();
 
 		case PKTOUT_AE_ID: return new PktOut_AE();
 		case PKTBI_BF_ID:

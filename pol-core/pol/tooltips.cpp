@@ -63,7 +63,7 @@ MESSAGE_HANDLER( PKTIN_B6, handle_request_tooltip );
 //needed if A9 flag is sent with 0x20, single click no longer works. see about text# 1042971 for 0xD6
 void send_object_cache(Client* client, const UObject* obj)
 {
-	if (ssopt.uo_feature_enable & PKTOUT_A9_START_FLAGS::FLAG_AOS_FEATURES)
+	if (ssopt.uo_feature_enable & PKTOUT_A9::FLAG_AOS_FEATURES)
 	{
 		if ((ssopt.force_new_objcache_packets) || (client->ClientType & CLIENTTYPE_5000))
 		{
@@ -84,7 +84,7 @@ void send_object_cache(Client* client, const UObject* obj)
 
 void send_object_cache_to_inrange(const UObject* obj)
 {
-	if (ssopt.uo_feature_enable & PKTOUT_A9_START_FLAGS::FLAG_AOS_FEATURES)
+	if (ssopt.uo_feature_enable & PKTOUT_A9::FLAG_AOS_FEATURES)
 	{
 		// Since this is an InRange function, at least 1 person. So it isn't too far
 		// fetched to build for AOS and UOKR both, since both could be used. At least
