@@ -294,103 +294,74 @@ MESSAGE_HANDLER( PKTIN_A0, select_server );
 
 void send_start( Client *client )
 {
-  send_feature_enable( client ); // Shinigami: moved from start_client_char() to send before char selection
+	send_feature_enable( client ); // Shinigami: moved from start_client_char() to send before char selection
 
 	unsigned i;
-    unsigned msglen;
 	u32 clientflag; // sets client flags
-	unsigned short char_slots; // number of slots according to expansion, avoids crashing people
-	unsigned short char_count; // number of chars to send: Max(char_slots, 5)
+	unsigned char char_slots; // number of slots according to expansion, avoids crashing people
+	unsigned char char_count; // number of chars to send: Max(char_slots, 5)
 
-	PKTOUT_A9 head;
-	PKTOUT_A9_CHARACTERS char_elem;
-	PKTOUT_A9_START_LEN startcount;
-	PKTOUT_A9_START_ELEM startelem;
-	PKTOUT_A9_START_FLAGS startflags;
-
-	char_slots = config.character_slots; // sets it first to be the number defined in the config
+	char_slots = static_cast<u8>(config.character_slots); // sets it first to be the number defined in the config
 	// TODO: Per account character slots? (With the actual character_slots defining maximum)
 
 	// If more than 6 chars and no AOS, only send 5. Client is so boring sometimes...
-	if (char_slots >= 6 && !(client->UOExpansionFlag & AOS)) {
+	if (char_slots >= 6 && !(client->UOExpansionFlag & AOS))
 		char_slots = 5;
-	}
 
 	char_count = 5; // UO always expects a minimum of 5? What a kludge...
 	if (char_slots > char_count) // Max(char_slots, 5)
 		char_count = char_slots;
 
-	msglen = sizeof head +
-             sizeof char_elem * char_count +
-             sizeof startcount +
-             sizeof startelem * startlocations.size() +
-			 sizeof startflags ;
-
-    char* msg = new char[msglen];
-    unsigned int next_offset = 0;
-
-    head.msgtype = PKTOUT_A9_ID;
-    head.msglen = ctBEu16(msglen);
-	head.numchars = static_cast<u8>(char_count); // Hope this works...
-
-    memcpy(msg+next_offset,&head,sizeof head);
-    next_offset += sizeof head;
+	PktOut_A9* msg = REQUESTPACKET(PktOut_A9,PKTOUT_A9_ID);
+	msg->offset+=2;
+	msg->Write(char_count);
 
 	for( i = 0; i < char_count; i++ )
 	{
-        memset( &char_elem, 0, sizeof char_elem );
-		if (i < char_slots) { // Small kludge to have a minimum of 5 chars in the packet
+		if (i < char_slots) // Small kludge to have a minimum of 5 chars in the packet
+		{
+			// name only 30 long rest is password seems to fix the password promt problem
 			Character* chr = client->acct->get_character( i );
 			if (chr)
 			{
-				strzcpy( char_elem.name,
-						 chr->name().c_str(),
-						 sizeof char_elem.name );
+				msg->Write(chr->name().c_str(), 30, false);
+				msg->offset+=30; //password
 			}
+			else
+				msg->offset+=60;
 		}
-		//client->transmitmore( &char_elem, sizeof char_elem );
-        memcpy(msg+next_offset,&char_elem,sizeof char_elem);
-        next_offset += sizeof char_elem;
+		else
+			msg->offset+=60;
 	}
 
-	startcount.startcount = (u8) startlocations.size();
-	//client->transmitmore( &startcount, sizeof startcount );
-    memcpy(msg+next_offset,&startcount,sizeof startcount);
-    next_offset += sizeof startcount;
+	msg->Write(static_cast<u8>(startlocations.size()));
 
 	for( i = 0; i < startlocations.size(); i++ )
 	{
-        memset( &startelem, 0, sizeof startelem );
-		startelem.startnum = static_cast<u8>(i);
-		strzcpy( startelem.city, startlocations[i]->city.c_str(), sizeof startelem.city );
-		strzcpy( startelem.desc, startlocations[i]->desc.c_str(), sizeof startelem.desc );
-		//client->transmitmore( &startelem, sizeof startelem );
-        memcpy(msg+next_offset,&startelem,sizeof startelem);
-        next_offset += sizeof startelem;
+		msg->Write(static_cast<u8>(i));
+		msg->Write(startlocations[i]->city.c_str(),31,false);
+		msg->Write(startlocations[i]->desc.c_str(),31,false);
 	}
-
 
 	clientflag = ssopt.uo_feature_enable; // 'default' flags. Maybe auto-enable them according to the expansion?
 
-	clientflag |= startflags.FLAG_SEND_UO3D_TYPE; // Let UO3D (KR,SA) send 0xE1 packet
+	clientflag |= PKTOUT_A9::FLAG_SEND_UO3D_TYPE; // Let UO3D (KR,SA) send 0xE1 packet
 
 	// Change this to a function for clarity? -- Nando
-	if (char_slots == 7) {
-		clientflag |= startflags.FLAG_UPTO_SEVEN_CHARACTERS; // 7th Character flag
-	}
-	else if (char_slots == 6) {
-		clientflag |= startflags.FLAG_UPTO_SIX_CHARACTERS; // 6th Character Flag
-	}
-	else if (char_slots == 1) {
+	if (char_slots == 7)
+		clientflag |= PKTOUT_A9::FLAG_UPTO_SEVEN_CHARACTERS; // 7th Character flag
+	else if (char_slots == 6)
+		clientflag |= PKTOUT_A9::FLAG_UPTO_SIX_CHARACTERS; // 6th Character Flag
+	else if (char_slots == 1)
 		clientflag |= 0x14; // Only one character (SIEGE (0x04) + LIMIT_CHAR (0x10))		
-	}
-  
-	startflags.flags = ctBEu32(clientflag);
 
-    memcpy(msg+next_offset,&startflags,sizeof startflags);
-	//client->transmitmore( &startflags, sizeof startflags );
-    client->transmit( msg, msglen );
-    delete[] msg;
+	msg->WriteFlipped(clientflag);
+	u16 len=msg->offset;
+	msg->offset=1;
+	msg->WriteFlipped(len);
+
+    client->transmit( &msg->buffer, len );
+	READDPACKET(msg);
 }
 
 

@@ -1541,6 +1541,32 @@ BObjectImp* GetQueuedIoStats()
 	return GetIoStatsObj( queuedmode_iostats );
 }
 
+BObjectImp* GetPktStatusObj( )
+{
+	ObjArray* pkts = new ObjArray;
+	PacketQueueMap* map = Packets::instance()->getPackets();
+	for ( PacketQueueMap::iterator it=map->begin(); it != map->end(); ++it )
+	{
+		BStruct* elem = new BStruct;
+		elem->addMember( "pkt", new BLong( it->first ) );
+		elem->addMember( "count", new BLong( it->second->Count() ) );
+		pkts->addElement( elem );
+		if (it->second->HasSubs())
+		{
+			PacketInterfaceQueueMap* submap = it->second->GetSubs();
+			for ( PacketInterfaceQueueMap::iterator s_it=submap->begin(); s_it != submap->end(); ++s_it )
+			{
+				BStruct* elemsub = new BStruct;
+				elemsub->addMember( "pkt", new BLong( it->first ) );
+				elemsub->addMember( "sub", new BLong( s_it->first ) );
+				elemsub->addMember( "count", new BLong( s_it->second.size() ) );
+				pkts->addElement( elemsub );
+			}
+		}
+	}
+	return pkts;
+}
+
 BObjectImp* GetCoreVariable( const char* corevar )
 {
 #define LONG_COREVAR(name,expr) if (stricmp( corevar, #name ) == 0) return new BLong( expr );
@@ -1581,6 +1607,7 @@ BObjectImp* GetCoreVariable( const char* corevar )
 	if (stricmp( corevar, "script_profiles" ) == 0) return GetScriptProfiles();
 	if (stricmp( corevar, "iostats" ) == 0) return GetIoStats();
 	if (stricmp( corevar, "queued_iostats" ) == 0) return GetQueuedIoStats();
+	if (stricmp( corevar, "pkt_status" ) == 0) return GetPktStatusObj();
 
 	return new BError( string("Unknown core variable ") + corevar );
 }

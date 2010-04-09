@@ -52,7 +52,9 @@ class PacketQueue
 	public:
 		virtual PacketInterface* GetNext(u8 id, u16 sub=0) {return NULL;}
 		virtual void Add(PacketInterface* pkt){};
-		virtual void LogStatus(){};
+		virtual int Count(){ return 0; }
+		virtual bool HasSubs(){ return false; }
+		virtual PacketInterfaceQueueMap* GetSubs(){ return NULL; }
 };
 
 // "normal" packet queue
@@ -66,7 +68,7 @@ class PacketQueueSingle : public PacketQueue
 	public:
 		PacketInterface* GetNext(u8 id, u16 sub=0);
 		void Add(PacketInterface* pkt);
-		void LogStatus();
+		int Count(){ return packets.size(); }
 };
 
 // packet with subs queue
@@ -80,7 +82,9 @@ class PacketQueueSubs : public PacketQueue
 	public:
 		PacketInterface* GetNext(u8 id, u16 sub=0);
 		void Add(PacketInterface* pkt);
-		void LogStatus();
+		int Count();
+		bool HasSubs(){ return true; }
+		PacketInterfaceQueueMap* GetSubs(){ return &packets; }
 };
 
 typedef pair<u8, PacketQueue*> PacketQueuePair;
@@ -97,7 +101,7 @@ class PacketsSingleton
 	public:
 		PacketInterface* getPacket(u8 id, u16 sub=0);
 		void ReAddPacket(PacketInterface* pkt);
-		void LogStatus();
+		PacketQueueMap* getPackets() { return &packets; } 
 };
 
 // the real definition
@@ -208,6 +212,7 @@ class PacketTemplateSub : public PacketWriter<_id, _size>
 PacketInterface* GetPacket(u8 id, u16 sub=0);
 
 #define REQUESTPACKET(_pkt,_id) static_cast<_pkt*>(Packets::instance()->getPacket(_id))
+#define REQUESTSUBPACKET(_pkt,_id,_sub) static_cast<_pkt*>(Packets::instance()->getPacket(_id,_sub))
 #define READDPACKET(_msg) Packets::instance()->ReAddPacket(_msg)
 
 // Packet defs start
@@ -243,7 +248,7 @@ typedef PacketTemplate<PKTOUT_77_ID,17> PktOut_77;
 typedef PacketTemplate<PKTOUT_78_ID,19 + (9 * HIGHEST_LAYER) + 4> PktOut_78;
 typedef PacketTemplate<PKTOUT_7C_ID,2000> PktOut_7C;
 typedef PacketTemplate<PKTOUT_82_ID,2> PktOut_82;
-typedef PacketTemplate<PKTOUT_86_ID,66> PktOut_86;
+typedef PacketTemplate<PKTOUT_88_ID,66> PktOut_88;
 typedef PacketTemplate<PKTOUT_89_ID,7+(5*(NUM_LAYERS+1))+1> PktOut_89;
 typedef PacketTemplate<PKTOUT_8C_ID,11> PktOut_8C;
 typedef PacketTemplate<PKTOUT_90_ID,19> PktOut_90;
@@ -254,6 +259,8 @@ typedef PacketTemplate<PKTOUT_A3_ID,9> PktOut_A3;
 typedef PacketTemplate<PKTOUT_A5_ID,URL_MAX_LEN+4> PktOut_A5;
 typedef PacketTemplate<PKTOUT_A6_ID,10010> PktOut_A6;
 typedef PacketTemplate<PKTOUT_A8_ID,2000> PktOut_A8;
+typedef PacketTemplate<PKTOUT_A9_ID,10000> PktOut_A9;
+typedef PacketTemplate<PKTOUT_AA_ID,5> PktOut_AA;
 
 typedef PacketTemplate<PKTOUT_AE_ID,((SPEECH_MAX_LEN) + 1)*2+48> PktOut_AE;
 typedef PacketTemplateSub<PKTBI_BF_ID,0x4,12> Pktout_bf_sub4_closegump;
