@@ -132,5 +132,24 @@ struct PKTOUT_6E
 #define PKTOUT_A6_TYPE_TIP    0
 #define PKTOUT_A6_TYPE_UPDATE 1
 
+struct PKTOUT_A9
+{
+	enum {
+		FLAG_UNK_0x0001             = 0x0001, // ?
+		FLAG_SEND_CONFIG_REQ_LOGOUT = 0x0002, // Sends Configuration to Server
+		FLAG_SINGLE_CHARACTER_SIEGE = 0x0004, // ?
+		FLAG_ENABLE_NPC_POPUP_MENUS = 0x0008, // Enable NPC PopUp Menus
+		FLAG_SINGLE_CHARACTER       = 0x0010, // Use 1 Character only
+		FLAG_AOS_FEATURES           = 0x0020, // Age of Shadows
+		FLAG_UPTO_SIX_CHARACTERS    = 0x0040, // Use up to 6 Characters (not only 5)
+		FLAG_SE_FEATURES            = 0x0080, // Samurai Empire
+		FLAG_ML_FEATURES            = 0x0100, // Mondain's Legacy
+		FLAG_SEND_UO3D_TYPE         = 0x0400, // KR and UO:SA will send 0xE1 packet
+		FLAG_UNK_0x0800             = 0x0800, // ?
+		FLAG_UPTO_SEVEN_CHARACTERS  = 0x1000, // Use up to 7 Characters
+		FLAG_UNK_0x2000             = 0x2000  // ?
+	};
+};
+
 #endif
 

@@ -264,7 +264,7 @@ void send_startup( Client *client )
 	msg->offset+=4; // u16 map_startx, map_starty
 	msg->WriteFlipped(client->chr->realm->width());
 	msg->WriteFlipped(client->chr->realm->height());
-	// u8 unk31, unk32, unk33, unk34, unk35, unk36
+	msg->offset+=6; // u8 unk31, unk32, unk33, unk34, unk35, unk36
 	transmit( client, &msg->buffer, msg->offset );
 	READDPACKET(msg);
 }

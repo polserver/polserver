@@ -62,7 +62,7 @@ void send_tip( Client* client, const std::string& tiptext )
 	msg->offset+=2; //tipnum
 	msg->WriteFlipped(static_cast<u16>(textlen+1));
 	msg->Write(tiptext.c_str(),static_cast<u16>(textlen+1));
-    transmit( client, &msg, msg->offset );
+    transmit( client, &msg->buffer, msg->offset );
 	READDPACKET(msg);
 }
 

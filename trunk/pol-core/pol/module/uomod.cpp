@@ -3360,7 +3360,6 @@ BObjectImp* UOExecutorModule::mf_SaveWorldState()
         }
         if (res == 0)
         {
-			Packets::instance()->LogStatus(); // FIXME: find a better place
 // Code Analyze: C6246
 //			BStruct* res = new BStruct();
 			BStruct* ret = new BStruct();

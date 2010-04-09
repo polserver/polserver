@@ -34,7 +34,7 @@ void send_full_statmsg( Client *client, Character *chr )
 	PktOut_11* msg = REQUESTPACKET(PktOut_11,PKTOUT_11_ID);
 	msg->offset+=2; // msglen
 	msg->Write(chr->serial_ext);
-	msg->Write(chr->name().c_str(),30);
+	msg->Write(chr->name().c_str(),30,false);
 	if (uoclient_general.hits.any)
 	{
 		int v = chr->vital(uoclient_general.hits.id).current_ones();
@@ -213,7 +213,7 @@ void send_short_statmsg( Client *client, Character *chr )
 	PktOut_11* msg = REQUESTPACKET(PktOut_11,PKTOUT_11_ID);
 	msg->offset+=2; // msglen
 	msg->Write(chr->serial_ext);
-	msg->Write(chr->name().c_str(),30);
+	msg->Write(chr->name().c_str(),30,false);
 
 	if (uoclient_general.hits.any)
 	{
