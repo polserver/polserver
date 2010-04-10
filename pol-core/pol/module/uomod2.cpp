@@ -817,13 +817,14 @@ BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu(Character* chr, 
 		msg->Write(s.c_str(),static_cast<u16>(s.length()),false);
 		msg->Write(" }",2,false);
 	}
-	msg->offset++; // nullterm
-	layoutlen++;
-	if (msg->offset > static_cast<int>(sizeof msg->buffer))
+	
+	if (msg->offset+1 > static_cast<int>(sizeof msg->buffer))
 	{
 		READDPACKET(msg);
 		return new BError( "Buffer length exceeded" );
 	}
+	msg->offset++; // nullterm
+	layoutlen++;
 	
 	u16 len=msg->offset;
 	msg->offset=pos;
@@ -831,12 +832,13 @@ BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu(Character* chr, 
 	msg->offset=len;
 
 	pos=msg->offset;
-	msg->offset+=2; //numlines
-	if (msg->offset > static_cast<int>(sizeof msg->buffer))
+	
+	if (msg->offset+2 > static_cast<int>(sizeof msg->buffer))
 	{
 		READDPACKET(msg);
 		return new BError( "Buffer length exceeded" );
 	}
+	msg->offset+=2; //numlines
 
 	u16 numlines = 0;
 	for( unsigned i = 0; i < data_arr->ref_arr.size(); ++i )
@@ -866,12 +868,13 @@ BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu(Character* chr, 
 			++string;
 		}
 	}
-	msg->offset++; // nullterm
-	if (msg->offset > static_cast<int>(sizeof msg->buffer))
+	
+	if (msg->offset+1 > static_cast<int>(sizeof msg->buffer))
 	{
 		READDPACKET(msg);
 		return new BError( "Buffer length exceeded" );
 	}
+	msg->offset++; // nullterm
 	
 	len=msg->offset;
 	msg->offset=pos;
