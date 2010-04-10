@@ -21,6 +21,7 @@ Notes
 
 #include "mobile/charactr.h"
 #include "network/client.h"
+#include "network/packets.h"
 #include "pktoutid.h"
 #include "sockio.h"
 #include "clfunc.h"
@@ -29,146 +30,106 @@ void send_sysmessage_cl(Client *client, /*Character *chr_from, ObjArray* oText,*
 						unsigned int cliloc_num, const u16 *arguments,
 						unsigned short font, unsigned short color )
 {
-    PKTOUT_C1 msg;
-	unsigned textlen = 0, msglen;
+	PktOut_C1* msg = REQUESTPACKET(PktOut_C1,PKTOUT_C1_ID);
+	msg->offset+=2;
+	unsigned textlen = 0;
 
 	if (arguments != NULL)
 	{
 		while( arguments[textlen] != L'\0' )
 			++textlen;
-		++textlen;
 	}
 
-	if (textlen > (sizeof msg.arguments / sizeof(msg.arguments[0])))
-		textlen = (sizeof msg.arguments / sizeof(msg.arguments[0]));
-	msglen = offsetof( PKTOUT_C1, arguments ) + textlen*sizeof(msg.arguments[0]);
-    if (arguments == NULL)
-        msglen+=2;
+	if (textlen > (SPEECH_MAX_LEN))
+		textlen = SPEECH_MAX_LEN;
 
-	if (msglen <= sizeof msg)
-	{
-	    msg.msgtype = PKTOUT_C1_ID;
-		msg.msglen = ctBEu16( msglen );
-		msg.serial = 0xFFFFFFFF;
-		msg.body = 0xFFFF;
-		msg.type = 6;
-		msg.hue = ctBEu16( color );
-		msg.font = ctBEu16( font );
-		msg.msgnumber = ctBEu32( cliloc_num );
-		memset( msg.name, '\0', sizeof msg.name );
-	    strcpy( msg.name, "System" );
-		unsigned i=0;
-		if (textlen>0)
-		{
-			for(; i < (textlen-1); ++i)//textlen includes 0terminator
-						msg.arguments[i] = ctLEu16(arguments[i]);
-		}
-		msg.arguments[i] = (u16)0L;
-		transmit( client, &msg, msglen );
-	}
-    else
-    {
-		// MuadDib - FIXME need to handle this better, boooo.
-		Log( "send_sysmessage: unicode text is too long\n");
-    }
-
+	msg->Write(static_cast<u32>(0xFFFFFFFF)); // serial
+	msg->Write(static_cast<u16>(0xFFFF));     // body
+	msg->Write(static_cast<u8>(6));           // type 6 lower left, 7 on player
+	msg->WriteFlipped(color);
+	msg->WriteFlipped(font);
+	msg->WriteFlipped(cliloc_num);
+	msg->Write("System",30,false);
+	if (arguments != NULL)
+		msg->Write(arguments,static_cast<u16>(textlen),true); //ctLEu16
+	else
+		msg->offset+=2;
+	u16 len=msg->offset;
+	msg->offset=1;
+	msg->WriteFlipped(len);
+	transmit( client, &msg->buffer, len );
+	READDPACKET(msg);
 }
 
 void say_above_cl(UObject *obj, unsigned int cliloc_num,
 				  const u16 *arguments, unsigned short font,
 				  unsigned short color )
 {
-    PKTOUT_C1 msg;
-	unsigned textlen = 0, msglen;
+	PktOut_C1* msg = REQUESTPACKET(PktOut_C1,PKTOUT_C1_ID);
+	msg->offset+=2;
+	unsigned textlen = 0;
 
 	if (arguments != NULL)
 	{
 		while( arguments[textlen] != L'\0' )
 			++textlen;
-		++textlen;
 	}
-	if (textlen > (sizeof msg.arguments / sizeof(msg.arguments[0])))
-		textlen = (sizeof msg.arguments / sizeof(msg.arguments[0]));
-	msglen = offsetof( PKTOUT_C1, arguments ) + textlen*sizeof(msg.arguments[0]);
-    if (arguments == NULL)
-        msglen+=2;
 
-	if (msglen <= sizeof msg)
-	{
-	    msg.msgtype = PKTOUT_C1_ID;
-		msg.msglen = ctBEu16( msglen );
-		msg.serial = obj->serial_ext;
-		msg.body = obj->graphic_ext;
-		msg.type = 7;
-		msg.hue = ctBEu16( color );
-		msg.font = ctBEu16( font );
-		msg.msgnumber = ctBEu32( cliloc_num );
-		memset( msg.name, '\0', sizeof msg.name );
-	    strcpy( msg.name, "System" );
-		unsigned i=0;
-		if (textlen>0)
-		{
-			for(; i < (textlen-1); ++i)//textlen includes 0terminator
-						msg.arguments[i] = ctLEu16(arguments[i]);
-		}
-		msg.arguments[i] = (u16)0L;
+	if (textlen > (SPEECH_MAX_LEN))
+		textlen = SPEECH_MAX_LEN;
 
-		//  MuadDib - FIXME: only send to those that I'm visible to. 
-	    transmit_to_inrange( obj, &msg, msglen, false, false );
-	}
-    else
-    {
-		// MuadDib - FIXME: need to handle this better
-        Log( "send_sysmessage: unicode text is too long\n");
-    }
-
+	msg->Write(obj->serial_ext);
+	msg->Write(obj->graphic_ext);     // body
+	msg->Write(static_cast<u8>(7));           // type 6 lower left, 7 on player
+	msg->WriteFlipped(color);
+	msg->WriteFlipped(font);
+	msg->WriteFlipped(cliloc_num);
+	msg->Write("System",30,false);
+	if (arguments != NULL)
+		msg->Write(arguments,static_cast<u16>(textlen),true); //ctLEu16
+	else
+		msg->offset+=2;
+	u16 len=msg->offset;
+	msg->offset=1;
+	msg->WriteFlipped(len);
+	//  MuadDib - FIXME: only send to those that I'm visible to. 
+	transmit_to_inrange( obj, &msg->buffer, len, false, false );
+	READDPACKET(msg);
 }
 
 void private_say_above_cl(Character *chr, const UObject* obj,
 						unsigned int cliloc_num, const u16 *arguments,
 						unsigned short font, unsigned short color )
 {
-	PKTOUT_C1 msg;
-	unsigned textlen = 0, msglen;
+	PktOut_C1* msg = REQUESTPACKET(PktOut_C1,PKTOUT_C1_ID);
+	msg->offset+=2;
+	unsigned textlen = 0;
 
 	if (arguments != NULL)
 	{
 		while( arguments[textlen] != L'\0' )
 			++textlen;
-		++textlen;
 	}
-	if (textlen > (sizeof msg.arguments / sizeof(msg.arguments[0])))
-		textlen = (sizeof msg.arguments / sizeof(msg.arguments[0]));
-	msglen = offsetof( PKTOUT_C1, arguments ) + textlen*sizeof(msg.arguments[0]);
-    if (arguments == NULL)
-        msglen+=2;
 
-	if (msglen <= sizeof msg)
-	{
-	    msg.msgtype = PKTOUT_C1_ID;
-		msg.msglen = ctBEu16( msglen );
-		msg.serial = obj->serial_ext;
-		msg.body = obj->graphic_ext;
-		msg.type = 7;
-		msg.hue = ctBEu16( color );
-		msg.font = ctBEu16( font );
-		msg.msgnumber = ctBEu32( cliloc_num );
-		memset( msg.name, '\0', sizeof msg.name );
-	    strcpy( msg.name, "System" );
-		unsigned i=0;
-		if (textlen>0)
-		{
-			for(; i < (textlen-1); ++i)//textlen includes 0terminator
-						msg.arguments[i] = ctLEu16(arguments[i]);
-		}
-		msg.arguments[i] = (u16)0L;
-		chr->client->transmit( &msg, msglen );
-	}
-    else
-    {
-		// MuadDib - FIXME: need to handle this better
-        Log( "send_sysmessage: unicode text is too long\n");
-    }
+	if (textlen > (SPEECH_MAX_LEN))
+		textlen = SPEECH_MAX_LEN;
+
+	msg->Write(obj->serial_ext);
+	msg->Write(obj->graphic_ext);     // body
+	msg->Write(static_cast<u8>(7));           // type 6 lower left, 7 on player
+	msg->WriteFlipped(color);
+	msg->WriteFlipped(font);
+	msg->WriteFlipped(cliloc_num);
+	msg->Write("System",30,false);
+	if (arguments != NULL)
+		msg->Write(arguments,static_cast<u16>(textlen),true); //ctLEu16
+	else
+		msg->offset+=2;
+	u16 len=msg->offset;
+	msg->offset=1;
+	msg->WriteFlipped(len);
+	chr->client->transmit( &msg->buffer, len );
+	READDPACKET(msg);
 }
 
 
@@ -176,270 +137,193 @@ void send_sysmessage_cl_affix(Client *client, unsigned int cliloc_num, const cha
 							  bool prepend, const u16 *arguments, unsigned short font,
 							  unsigned short color )
 {
-    PKTOUT_CC msg;
-
-	unsigned textlen = 0, affix_len = 0, msglen;
-
-	if (arguments != NULL)
-	{
-		while( arguments[textlen] != L'\0' )
-			++textlen;
-		++textlen; // to have L'\0' in the array ;) 
-	}
-
-	affix_len = strlen(affix)+1; // to have space for '\0'
-
-	size_t offset = offsetof( PKTOUT_CC, affix ); // Position of msg.affix
-
-	msglen = offset + affix_len*sizeof(msg.affix[0]) + textlen*sizeof(msg.arguments[0]);
-    if (arguments == NULL)
-        msglen+=2;
-
-    msg.msgtype = PKTOUT_CC_ID;
-	msg.msglen = ctBEu16( msglen );
-	msg.serial = 0xFFFFFFFF;
-	msg.body = 0xFFFF;
-	msg.type = 6;
-	msg.hue = ctBEu16( color );
-	msg.font = ctBEu16( font );
-	msg.msgnumber = ctBEu32( cliloc_num );
-	msg.flags = (prepend) ? 1 : 0;
-	memset( msg.name, '\0', sizeof msg.name );
-    strcpy( msg.name, "System" );
-
-	char *tmp_msg = new char[msglen];
-	
-	memset(tmp_msg, '\0', msglen);
-	memcpy(tmp_msg, &msg, offset); // copy until before affix
-	memcpy(tmp_msg + offset, affix, affix_len);
-
-	u16 *args = (u16*)(tmp_msg + offset + affix_len); // args will now point after the end of affix :)
-	unsigned i=0;
-	if (textlen>0)
-	{
-		for(; i < (textlen-1); ++i)//textlen includes 0terminator
-				args[i] = ctBEu16(arguments[i]);
-	}
-	args[i] = (u16)0L;
-
-	client->transmit(tmp_msg, msglen);
-
-	delete [] tmp_msg;
-	tmp_msg = NULL;
-}
-
-void say_above_cl_affix(UObject *obj, unsigned int cliloc_num, const char* affix,
-						bool prepend, const u16 *arguments,
-						unsigned short font, unsigned short color) 
-{
-	PKTOUT_CC msg;
-
-	unsigned textlen = 0, affix_len = 0, msglen;
-
-	if (arguments != NULL)
-	{
-		while( arguments[textlen] != L'\0' )
-			++textlen;
-		++textlen; // to have L'\0' in the array ;) 
-	}
-
-	affix_len = strlen(affix)+1; // to have space for '\0'
-
-	size_t offset = offsetof( PKTOUT_CC, affix ); // Position of msg.affix
-
-	msglen = offset + affix_len*sizeof(msg.affix[0]) + textlen*sizeof(msg.arguments[0]);
-    if (arguments == NULL)
-        msglen+=2;
-
-    msg.msgtype = PKTOUT_CC_ID;
-	msg.msglen = ctBEu16( msglen );
-	msg.serial = obj->serial_ext;
-	msg.body = obj->graphic_ext;
-	msg.type = 7;
-	msg.hue = ctBEu16( color );
-	msg.font = ctBEu16( font );
-	msg.msgnumber = ctBEu32( cliloc_num );
-	msg.flags = (prepend) ? 1 : 0;
-	memset( msg.name, '\0', sizeof msg.name );
-    strcpy( msg.name, "System" );
-
-	char *tmp_msg = new char[msglen]; // Create buffer for the msg	
-	
-	memset(tmp_msg, '\0', msglen);
-	memcpy(tmp_msg, &msg, offset); // copy until before affix
-	memcpy(tmp_msg + offset, affix, affix_len);
-
-	u16 *args = (u16*)(tmp_msg + offset + affix_len); // args will now point after the end of affix :)
-	unsigned i=0;
-	if (textlen>0)
-	{
-		for(; i < (textlen-1); ++i)//textlen includes 0terminator
-				args[i] = ctBEu16(arguments[i]);
-	}
-	args[i] = (u16)0L;
-
-	// MuadDib - FIXME: only send to those that I'm visible to.
-	transmit_to_inrange( obj, tmp_msg, msglen, false, false );
-
-	delete [] tmp_msg;
-	tmp_msg = NULL;
-}
-
-void private_say_above_cl_affix(Character *chr, const UObject* obj, unsigned int cliloc_num,
-								const char* affix, bool prepend, const u16 *arguments,
-								unsigned short font, unsigned short color) 
-{
-	PKTOUT_CC msg;
-
-	unsigned textlen = 0, affix_len = 0, msglen;
-
-	if (arguments != NULL)
-	{
-		while( arguments[textlen] != L'\0' )
-			++textlen;
-		++textlen; // to have L'\0' in the array ;) 
-	}
-
-	affix_len = strlen(affix)+1; // to have space for '\0'
-
-	size_t offset = offsetof( PKTOUT_CC, affix ); // Position of msg.affix
-
-	msglen = offset + affix_len*sizeof(msg.affix[0]) + textlen*sizeof(msg.arguments[0]);
-    if (arguments == NULL)
-        msglen+=2;
-
-    msg.msgtype = PKTOUT_CC_ID;
-	msg.msglen = ctBEu16( msglen );
-	msg.serial = obj->serial_ext;
-	msg.body = obj->graphic_ext;
-	msg.type = 7;
-	msg.hue = ctBEu16( color );
-	msg.font = ctBEu16( font );
-	msg.msgnumber = ctBEu32( cliloc_num );
-	msg.flags = (prepend) ? 1 : 0;
-	memset( msg.name, '\0', sizeof msg.name );
-    strcpy( msg.name, "System" );
-
-	char *tmp_msg = new char[msglen]; // Create buffer for the msg	
-	
-	memset(tmp_msg, '\0', msglen);
-	memcpy(tmp_msg, &msg, offset); // copy until before affix
-	memcpy(tmp_msg + offset, affix, affix_len);
-
-	u16 *args = (u16*)(tmp_msg + offset + affix_len); // args will now point after the end of affix :)
-	unsigned i=0;
-	if (textlen>0)
-	{
-		for(; i < (textlen-1); ++i)//textlen includes 0terminator
-				args[i] = ctBEu16(arguments[i]);
-	}
-	args[i] = (u16)0L;
-
-	chr->client->transmit(tmp_msg, msglen);
-
-	delete [] tmp_msg;
-	tmp_msg = NULL;
-}
-
-unsigned char* build_sysmessage_cl(unsigned* msglen,unsigned int cliloc_num, const u16 *arguments,
-						unsigned short font, unsigned short color )
-{
-	unsigned textlen = 0;
-
-	if (arguments != NULL)
-	{
-		while( arguments[textlen] != L'\0' )
-			++textlen;
-		++textlen;
-	}
-
-	if (textlen > (SPEECH_MAX_LEN+1))
-		textlen = SPEECH_MAX_LEN+1;
-	*msglen = offsetof( PKTOUT_C1, arguments ) + textlen*2;
-    if (arguments == NULL)
-        *msglen+=2;
-
-	PKTOUT_C1 msg;
-	msg.msgtype = PKTOUT_C1_ID;
-	msg.msglen = ctBEu16( *msglen );
-	msg.serial = 0xFFFFFFFF;
-	msg.body = 0xFFFF;
-	msg.type = 6;
-	msg.hue = ctBEu16( color );
-	msg.font = ctBEu16( font );
-	msg.msgnumber = ctBEu32( cliloc_num );
-	memset( msg.name, '\0', sizeof msg.name );
-	strcpy( msg.name, "System" );
-
-	// dont know why the heck this works but "normal" way leads to a crash on delete
-	unsigned char *tmp_msg = new unsigned char[*msglen]; // Create buffer for the msg	
-	
-	memset(tmp_msg, '\0', *msglen);
-	memcpy(tmp_msg, &msg, offsetof( PKTOUT_C1, arguments )); // copy until before arguments
-
-	u16 *args = (u16*)(tmp_msg + offsetof( PKTOUT_C1, arguments ));
-	unsigned i=0;
-	if (textlen>0)
-	{
-		for(; i < (textlen-1); ++i)//textlen includes 0terminator
-				args[i] = ctBEu16(arguments[i]);
-	}
-	args[i] = (u16)0L;
-
-	return tmp_msg;
-}
-
-unsigned char* build_sysmessage_cl_affix(unsigned* msglen,unsigned int cliloc_num, const char* affix,
-							  bool prepend, const u16 *arguments, unsigned short font,
-							  unsigned short color )
-{
-	PKTOUT_CC msg;
-
+	PktOut_CC* msg = REQUESTPACKET(PktOut_CC,PKTOUT_CC_ID);
+	msg->offset+=2;
 	unsigned textlen = 0, affix_len = 0;
 
 	if (arguments != NULL)
 	{
 		while( arguments[textlen] != L'\0' )
 			++textlen;
-		++textlen; // to have L'\0' in the array ;) 
 	}
+	affix_len = strlen(affix)+1;
+	if (affix_len > SPEECH_MAX_LEN+1)
+		affix_len = SPEECH_MAX_LEN+1;
 
-	affix_len = strlen(affix)+1; // to have space for '\0'
+	if (textlen > (SPEECH_MAX_LEN))
+		textlen = SPEECH_MAX_LEN;
 
-	size_t offset = offsetof( PKTOUT_CC, affix ); // Position of msg.affix
+	msg->Write(static_cast<u32>(0xFFFFFFFF)); // serial
+	msg->Write(static_cast<u16>(0xFFFF));     // body
+	msg->Write(static_cast<u8>(6));           // type 6 lower left, 7 on player
+	msg->WriteFlipped(color);
+	msg->WriteFlipped(font);
+	msg->WriteFlipped(cliloc_num);
+	msg->Write(static_cast<u8>((prepend) ? 1 : 0));
+	msg->Write("System",30,false);
+	msg->Write(affix,static_cast<u16>(affix_len));
+	if (arguments != NULL)
+		msg->WriteFlipped(arguments,static_cast<u16>(textlen),true);
+	else
+		msg->offset+=2;
+	u16 len=msg->offset;
+	msg->offset=1;
+	msg->WriteFlipped(len);
 
-	*msglen = offset + affix_len*sizeof(msg.affix[0]) + textlen*sizeof(msg.arguments[0]);
-    if (arguments == NULL)
-        *msglen+=2;
+	client->transmit(&msg->buffer, len);
+	READDPACKET(msg);
+}
 
-    msg.msgtype = PKTOUT_CC_ID;
-	msg.msglen = ctBEu16( *msglen );
-	msg.serial = 0xFFFFFFFF;
-	msg.body = 0xFFFF;
-	msg.type = 6;
-	msg.hue = ctBEu16( color );
-	msg.font = ctBEu16( font );
-	msg.msgnumber = ctBEu32( cliloc_num );
-	msg.flags = (prepend) ? 1 : 0;
-	memset( msg.name, '\0', sizeof msg.name );
-    strcpy( msg.name, "System" );
+void say_above_cl_affix(UObject *obj, unsigned int cliloc_num, const char* affix,
+						bool prepend, const u16 *arguments,
+						unsigned short font, unsigned short color) 
+{
+	PktOut_CC* msg = REQUESTPACKET(PktOut_CC,PKTOUT_CC_ID);
+	msg->offset+=2;
+	unsigned textlen = 0, affix_len = 0;
 
-	unsigned char *tmp_msg = new unsigned char[*msglen]; // Create buffer for the msg	
-	
-	memset(tmp_msg, '\0', *msglen);
-	memcpy(tmp_msg, &msg, offset); // copy until before affix
-	memcpy(tmp_msg + offset, affix, affix_len);
-
-	u16 *args = (u16*)(tmp_msg + offset + affix_len); // args will now point after the end of affix :)
-	unsigned i=0;
-	if (textlen>0)
+	if (arguments != NULL)
 	{
-		for(; i < (textlen-1); ++i) //textlen includes 0terminator
-				args[i] = ctBEu16(arguments[i]);
+		while( arguments[textlen] != L'\0' )
+			++textlen;
 	}
-	args[i] = (u16)0L;
+	affix_len = strlen(affix)+1;
+	if (affix_len > SPEECH_MAX_LEN+1)
+		affix_len = SPEECH_MAX_LEN+1;
 
-	return tmp_msg;
+	if (textlen > (SPEECH_MAX_LEN))
+		textlen = SPEECH_MAX_LEN;
 
+	msg->Write(obj->serial_ext); // serial
+	msg->Write(obj->graphic_ext);     // body
+	msg->Write(7);           // type 6 lower left, 7 on player
+	msg->WriteFlipped(color);
+	msg->WriteFlipped(font);
+	msg->WriteFlipped(cliloc_num);
+	msg->Write(static_cast<u8>((prepend) ? 1 : 0));
+	msg->Write("System",30,false);
+	msg->Write(affix,static_cast<u16>(affix_len));
+	if (arguments != NULL)
+		msg->WriteFlipped(arguments,static_cast<u16>(textlen),true); //ctLEu16
+	else
+		msg->offset+=2;
+	u16 len=msg->offset;
+	msg->offset=1;
+	msg->WriteFlipped(len);
+
+	// MuadDib - FIXME: only send to those that I'm visible to.
+	transmit_to_inrange( obj, &msg->buffer, len, false, false );
+	READDPACKET(msg);
+}
+
+void private_say_above_cl_affix(Character *chr, const UObject* obj, unsigned int cliloc_num,
+								const char* affix, bool prepend, const u16 *arguments,
+								unsigned short font, unsigned short color) 
+{
+	PktOut_CC* msg = REQUESTPACKET(PktOut_CC,PKTOUT_CC_ID);
+	msg->offset+=2;
+	unsigned textlen = 0, affix_len = 0;
+
+	if (arguments != NULL)
+	{
+		while( arguments[textlen] != L'\0' )
+			++textlen;
+	}
+	affix_len = strlen(affix)+1;
+	if (affix_len > SPEECH_MAX_LEN+1)
+		affix_len = SPEECH_MAX_LEN+1;
+
+	if (textlen > (SPEECH_MAX_LEN))
+		textlen = SPEECH_MAX_LEN;
+
+	msg->Write(obj->serial_ext); // serial
+	msg->Write(obj->graphic_ext);     // body
+	msg->Write(7);           // type 6 lower left, 7 on player
+	msg->WriteFlipped(color);
+	msg->WriteFlipped(font);
+	msg->WriteFlipped(cliloc_num);
+	msg->Write(static_cast<u8>((prepend) ? 1 : 0));
+	msg->Write("System",30,false);
+	msg->Write(affix,static_cast<u16>(affix_len));
+	if (arguments != NULL)
+		msg->WriteFlipped(arguments,static_cast<u16>(textlen),true);
+	else
+		msg->offset+=2;
+	u16 len=msg->offset;
+	msg->offset=1;
+	msg->WriteFlipped(len);
+
+	chr->client->transmit(&msg->buffer, len);
+	READDPACKET(msg);
+}
+
+void build_sysmessage_cl(PktOut_C1* msg, unsigned int cliloc_num, const u16 *arguments,
+						unsigned short font, unsigned short color )
+{
+	msg->offset+=2;
+	unsigned textlen = 0;
+
+	if (arguments != NULL)
+	{
+		while( arguments[textlen] != L'\0' )
+			++textlen;
+	}
+
+	if (textlen > (SPEECH_MAX_LEN))
+		textlen = SPEECH_MAX_LEN;
+
+	msg->Write(static_cast<u32>(0xFFFFFFFF)); // serial
+	msg->Write(static_cast<u16>(0xFFFF));     // body
+	msg->Write(static_cast<u8>(6));           // type 6 lower left, 7 on player
+	msg->WriteFlipped(color);
+	msg->WriteFlipped(font);
+	msg->WriteFlipped(cliloc_num);
+	msg->Write("System",30,false);
+	if (arguments != NULL)
+		msg->Write(arguments,static_cast<u16>(textlen),true); //ctLEu16
+	else
+		msg->offset+=2;
+	u16 len=msg->offset;
+	msg->offset=1;
+	msg->WriteFlipped(len);
+	msg->offset=len;
+}
+
+void build_sysmessage_cl_affix(PktOut_CC* msg,unsigned int cliloc_num, const char* affix,
+							  bool prepend, const u16 *arguments, unsigned short font,
+							  unsigned short color )
+{
+	msg->offset+=2;
+	unsigned textlen = 0, affix_len = 0;
+
+	if (arguments != NULL)
+	{
+		while( arguments[textlen] != L'\0' )
+			++textlen;
+	}
+	affix_len = strlen(affix)+1;
+	if (affix_len > SPEECH_MAX_LEN+1)
+		affix_len = SPEECH_MAX_LEN+1;
+
+	if (textlen > (SPEECH_MAX_LEN))
+		textlen = SPEECH_MAX_LEN;
+
+	msg->Write(static_cast<u32>(0xFFFFFFFF)); // serial
+	msg->Write(static_cast<u16>(0xFFFF));     // body
+	msg->Write(static_cast<u8>(6));           // type 6 lower left, 7 on player
+	msg->WriteFlipped(color);
+	msg->WriteFlipped(font);
+	msg->WriteFlipped(cliloc_num);
+	msg->Write(static_cast<u8>((prepend) ? 1 : 0));
+	msg->Write("System",30,false);
+	msg->Write(affix,static_cast<u16>(affix_len));
+	if (arguments != NULL)
+		msg->WriteFlipped(arguments,static_cast<u16>(textlen),true);
+	else
+		msg->offset+=2;
+	u16 len=msg->offset;
+	msg->offset=1;
+	msg->WriteFlipped(len);
+	msg->offset=len;
 }
 

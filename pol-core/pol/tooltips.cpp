@@ -18,6 +18,7 @@ Notes
 
 #include "mobile/charactr.h"
 #include "network/client.h"
+#include "network/packets.h"
 #include "item/itemdesc.h"
 #include "msghandl.h"
 #include "pktboth.h"
@@ -40,20 +41,21 @@ void handle_request_tooltip( Client* client, PKTIN_B6* msgin )
             const ItemDesc& id = find_itemdesc( item->objtype_ );
             if (!id.tooltip.empty())
             {
-                static PKTOUT_B7 msg;
-                msg.msgtype = PKTOUT_B7_ID;
-				u16 msglen = static_cast<u16>(offsetof( PKTOUT_B7, text ) +
-                             id.tooltip.length() * 2 + 2);
-                msg.msglen = ctBEu16( msglen );
-                msg.serial = item->serial_ext;
-                for( unsigned i = 0; i < id.tooltip.length(); ++i )
-                {
-                    msg.text[ i*2 ] = '\0';
-                    msg.text[ i*2 + 1 ] = id.tooltip[ i ];
-                }
-                msg.text[ id.tooltip.length() * 2 ] = '\0';
-                msg.text[ id.tooltip.length() * 2 + 1 ] = '\0';
-                client->transmit( &msg, msglen );
+				PktOut_B7* msg = REQUESTPACKET(PktOut_B7,PKTOUT_B7_ID);
+				msg->offset+=2;
+				msg->Write(item->serial_ext);
+				for( unsigned i = 0; i < id.tooltip.length(); ++i )
+				{
+					msg->offset++;
+					msg->Write(static_cast<u8>(id.tooltip[ i ]));
+				}
+				msg->offset+=2; //nullterm
+				u16 len=msg->offset;
+				msg->offset=1;
+				msg->WriteFlipped(len);
+
+                client->transmit( &msg->offset, len );
+				READDPACKET(msg);
             }
         }
     }
