@@ -153,6 +153,7 @@ public:
 
     unsigned char bufcheck1_AA;
 	unsigned char buffer[ MAXBUFFER ];
+	unsigned char xoutbuffer[ 0xFFFF ]; // moved from global transmit_encrypted (threadsafe)
     unsigned char bufcheck2_55;
 	unsigned int bytes_received;		// how many bytes have been received into the buffer.
 	unsigned int message_length;		// how many bytes are expected for this message

@@ -87,7 +87,6 @@ void Client::recv_remaining_nocrypt( int total_expected)
     }
 }
 
-unsigned char xoutbuffer[ 64000 ];
 
 /* NOTE: If this changes, code in client.cpp must change - pause() and restart() use
    pre-encrypted values of 33 00 and 33 01.

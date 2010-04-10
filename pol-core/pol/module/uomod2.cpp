@@ -789,27 +789,14 @@ BObjectImp* UOExecutorModule::mf_SendGumpMenu( )
 
 BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu(Character* chr, ObjArray* layout_arr, ObjArray* data_arr, int x,int y)
 {
-	PKTOUT_B0::HEADER* hdr;
-	PKTOUT_B0::LAYOUT* playout;
-	unsigned playout_idx;
-	PKTOUT_B0::DATA_HEADER* pdatahdr;
-	unsigned pdatahdr_idx;
-	PKTOUT_B0::DATA* pdata;
-	int msglen = 0;
-
-	hdr = reinterpret_cast<PKTOUT_B0::HEADER*>(&buffer[0]);
-
-	hdr->msgtype = PKTOUT_B0_ID;
-	hdr->serial = chr->serial_ext;
-	hdr->dialogid = ctBEu32( this->uoexec.os_module->pid() );
-	hdr->x = ctBEu32( x );
-	hdr->y = ctBEu32( y );
-	msglen = sizeof *hdr;
-
-	playout_idx = sizeof *hdr;
-	playout = reinterpret_cast<PKTOUT_B0::LAYOUT*>(&buffer[ msglen ]);
-	msglen += offsetof( PKTOUT_B0::LAYOUT, text );
-	char* addpt = &playout->text[0];
+	PktOut_B0* msg = REQUESTPACKET(PktOut_B0,PKTOUT_B0_ID);
+	msg->offset+=2;
+	msg->Write(chr->serial_ext);
+	msg->WriteFlipped(this->uoexec.os_module->pid());
+	msg->WriteFlipped(x);
+	msg->WriteFlipped(y);
+	u16 pos=msg->offset;
+	msg->offset+=2; //layoutlen
 	int layoutlen = 0;
 	for( unsigned i = 0; i < layout_arr->ref_arr.size(); ++i )
 	{
@@ -821,35 +808,39 @@ BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu(Character* chr, 
 
 		int addlen = 4 + s.length();
 		layoutlen += addlen;
-		msglen += addlen;
-		if (msglen > static_cast<int>(sizeof buffer))
+		if (msg->offset+addlen > static_cast<int>(sizeof msg->buffer))
+		{
+			READDPACKET(msg);
 			return new BError( "Buffer length exceeded" );
-		*addpt++ = '{';
-		*addpt++ = ' ';
-		memcpy( addpt, s.c_str(), s.length() );
-		addpt += s.length();
-		*addpt++ = ' ';
-		*addpt++ = '}';
+		}
+		msg->Write("{ ",2,false);
+		msg->Write(s.c_str(),static_cast<u16>(s.length()),false);
+		msg->Write(" }",2,false);
 	}
-	++msglen;
-	if (msglen > static_cast<int>(sizeof buffer))
+	msg->offset++; // nullterm
+	layoutlen++;
+	if (msg->offset > static_cast<int>(sizeof msg->buffer))
+	{
+		READDPACKET(msg);
 		return new BError( "Buffer length exceeded" );
-	*addpt++ = '\0';
-	++layoutlen;
+	}
+	
+	u16 len=msg->offset;
+	msg->offset=pos;
+	msg->WriteFlipped(static_cast<u16>(layoutlen));
+	msg->offset=len;
 
-
-	playout->len = ctBEu16( layoutlen );
-
-	pdatahdr_idx = msglen;
-	pdatahdr = reinterpret_cast<PKTOUT_B0::DATA_HEADER*>(&buffer[ msglen ]);
-	int numlines = 0;
-	msglen += sizeof *pdatahdr;
-	if (msglen > static_cast<int>(sizeof buffer))
+	pos=msg->offset;
+	msg->offset+=2; //numlines
+	if (msg->offset > static_cast<int>(sizeof msg->buffer))
+	{
+		READDPACKET(msg);
 		return new BError( "Buffer length exceeded" );
+	}
 
+	u16 numlines = 0;
 	for( unsigned i = 0; i < data_arr->ref_arr.size(); ++i )
 	{
-		pdata = reinterpret_cast<PKTOUT_B0::DATA*>(&buffer[ msglen ]);
 		BObject* bo = data_arr->ref_arr[i].get();
 		if (bo == NULL)
 			continue;
@@ -860,24 +851,36 @@ BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu(Character* chr, 
 		++numlines;
 		int textlen = s.length();
 
-		msglen += sizeof *pdata - 1 + textlen * 2;
-		if (msglen > static_cast<int>(sizeof buffer))
-			return new BError( "Buffer length exceeded" );
-
-		pdata->len = ctBEu16( textlen );
-		char* t = &pdata->text[0];
-		while (*string)
+		if (msg->offset+2+textlen*2 > static_cast<int>(sizeof msg->buffer))
 		{
-			*t++ = '\0';
-			*t++ = *string;
+			READDPACKET(msg);
+			return new BError( "Buffer length exceeded" );
+		}
+
+		msg->WriteFlipped(static_cast<u16>(textlen));
+
+		while (*string) //unicode
+		{
+			msg->offset++;
+			msg->Write(string,1,false);
 			++string;
 		}
-		// msglen += sizeof *pdata - 1 + t - &pdata->text[0];
 	}
+	msg->offset++; // nullterm
+	if (msg->offset > static_cast<int>(sizeof msg->buffer))
+	{
+		READDPACKET(msg);
+		return new BError( "Buffer length exceeded" );
+	}
+	
+	len=msg->offset;
+	msg->offset=pos;
+	msg->WriteFlipped(numlines);
+	msg->offset=1;
+	msg->WriteFlipped(len);
 
-	pdatahdr->numlines = ctBEu16( numlines );
-	hdr->msglen = ctBEu16( msglen );
-	chr->client->transmit( buffer, msglen );
+	chr->client->transmit( &msg->buffer, len );
+	READDPACKET(msg);
 	chr->client->gd->add_gumpmod( this );
 	//old_gump_uoemod = this;
 	gump_chr = chr;
@@ -1298,45 +1301,32 @@ BObjectImp* UOExecutorModule::mf_SendTextEntryGump()
 	{
 		return new BError( "No client attached" );
 	}
-	static char buffer[ 8000 ];
-	// FIXME buffer overflow
-	unsigned short msglen;
 
-	PKTOUT_AB::HEADER* phdr;
-	PKTOUT_AB::TEXTLINE1* ptextline1;
-	PKTOUT_AB::TEXTLINE2* ptextline2;
+	PktOut_AB* msg = REQUESTPACKET(PktOut_AB,PKTOUT_AB_ID);
+	msg->offset+=2;
+	msg->Write(chr->serial_ext);
+	msg->offset+=2; // u8 type,index
 
-	phdr = reinterpret_cast<PKTOUT_AB::HEADER*>(&buffer[0]);
-	phdr->msgtype = PKTOUT_AB_ID;
-	phdr->serial = chr->serial_ext;
-	phdr->type = 0;
-	phdr->index = 0;
-	msglen = sizeof(*phdr);
+	unsigned int numbytes = line1->length()+1;
+	if (numbytes > 256)
+		numbytes = 256;
+	msg->WriteFlipped(static_cast<u16>(numbytes));
+	msg->Write(line1->data(),static_cast<u16>(numbytes)); // null-terminated
 
-	unsigned int numbytes;
-
-	ptextline1 = reinterpret_cast<PKTOUT_AB::TEXTLINE1*>(&buffer[msglen]);
-	numbytes = line1->length()+1;
-	msglen += static_cast<unsigned short>(offsetof( PKTOUT_AB::TEXTLINE1,text ) + numbytes);
-	if (numbytes > sizeof(ptextline1->text))
-		numbytes = sizeof(ptextline1->text);
-	ptextline1->numbytes = ctBEu16( numbytes );
-	memcpy( ptextline1->text, line1->data(), numbytes );
-
-	ptextline2 = reinterpret_cast<PKTOUT_AB::TEXTLINE2*>(&buffer[msglen]);
+	msg->Write(static_cast<u8>(cancel));
+	msg->Write(static_cast<u8>(style));
+	msg->WriteFlipped(maximum);
 	numbytes = line2->length() + 1;
-	if (numbytes > sizeof(ptextline2->text))
-		numbytes = sizeof(ptextline2->text);
-	ptextline2->cancel = static_cast<u8>(cancel);  // PKTOUT_AB::TEXTLINE2::CANCEL_DISABLE;
-	ptextline2->style = static_cast<u8>(style); // PKTOUT_AB::TEXTLINE2::STYLE_NORMAL;
-	ptextline2->mask = ctBEu32(maximum);
-	ptextline2->numbytes = ctBEu16( numbytes );
-	memcpy( ptextline2->text, line2->data(), numbytes );
-	msglen += static_cast<unsigned short>(offsetof( PKTOUT_AB::TEXTLINE2,text) + numbytes);
+	if (numbytes > 256)
+		numbytes = 256;
+	msg->WriteFlipped(static_cast<u16>(numbytes));
+	msg->Write(line2->data(),static_cast<u16>(numbytes)); // null-terminated
+	u16 len=msg->offset;
+	msg->offset=1;
+	msg->WriteFlipped(len);
 
-	phdr->msglen = ctBEu16( msglen );
-
-	chr->client->transmit( buffer, msglen );
+	chr->client->transmit( &msg->buffer, len );
+	READDPACKET(msg);
 	chr->client->gd->textentry_uoemod = this;
 	textentry_chr = chr;
 	uoexec.os_module->suspend();
