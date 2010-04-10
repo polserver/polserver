@@ -1766,7 +1766,7 @@ void send_stamina_level( Client *client )
 			v = 0xFFFF;
 		msg->WriteFlipped(static_cast<u16>(v));
 
-		v = v = chr->vital(uoclient_general.mana.id).current_ones();
+		v = chr->vital(uoclient_general.mana.id).current_ones();
 		if (v > 0xFFFF)
 			v = 0xFFFF;
 		msg->WriteFlipped(static_cast<u16>(v));
@@ -1793,7 +1793,7 @@ void send_mana_level( Client *client )
 			v = 0xFFFF;
 		msg->WriteFlipped(static_cast<u16>(v));
 
-		v = v = chr->vital(uoclient_general.mana.id).current_ones();
+		v = chr->vital(uoclient_general.mana.id).current_ones();
 		if (v > 0xFFFF)
 			v = 0xFFFF;
 		msg->WriteFlipped(static_cast<u16>(v));

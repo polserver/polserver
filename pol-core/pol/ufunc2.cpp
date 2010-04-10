@@ -44,7 +44,7 @@ bool send_menu( Client *client, Menu *menu )
 
 	for( unsigned idx = 0; idx < menu->menuitems_.size(); idx++ )
 	{
-		if (msg->offset + 85 > sizeof msg->buffer)
+		if (msg->offset + 85 > static_cast<u16>(sizeof msg->buffer))
 		{
 			READDPACKET(msg);        
             return false;
