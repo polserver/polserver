@@ -67,10 +67,21 @@ PacketsSingleton::PacketsSingleton()
 	packets.insert(PacketQueuePair(PKTOUT_A8_ID,new PacketQueueSingle()));
 	packets.insert(PacketQueuePair(PKTOUT_A9_ID,new PacketQueueSingle()));
 	packets.insert(PacketQueuePair(PKTOUT_AA_ID,new PacketQueueSingle()));
-
+	packets.insert(PacketQueuePair(PKTOUT_AB_ID,new PacketQueueSingle()));
 	packets.insert(PacketQueuePair(PKTOUT_AE_ID,new PacketQueueSingle()));
+	packets.insert(PacketQueuePair(PKTOUT_AF_ID,new PacketQueueSingle()));
+	packets.insert(PacketQueuePair(PKTOUT_B0_ID,new PacketQueueSingle()));
+	packets.insert(PacketQueuePair(PKTOUT_B7_ID,new PacketQueueSingle()));
+	packets.insert(PacketQueuePair(PKTOUT_B9_ID,new PacketQueueSingle()));
+	packets.insert(PacketQueuePair(PKTOUT_BA_ID,new PacketQueueSingle()));
+	packets.insert(PacketQueuePair(PKTOUT_BC_ID,new PacketQueueSingle()));
 
 	packets.insert(PacketQueuePair(PKTBI_BF_ID,new PacketQueueSubs()));
+
+	packets.insert(PacketQueuePair(PKTOUT_C1_ID,new PacketQueueSingle()));
+	packets.insert(PacketQueuePair(PKTOUT_C7_ID,new PacketQueueSingle()));
+
+	packets.insert(PacketQueuePair(PKTOUT_CC_ID,new PacketQueueSingle()));
 }
 
 PacketInterface* PacketsSingleton::getPacket(u8 id, u16 sub)
@@ -186,7 +197,7 @@ PacketInterface* GetPacket(u8 id, u16 sub)
 		case PKTOUT_1D_ID: return new PktOut_1D();
 		case PKTOUT_20_ID: return new PktOut_20();
 		case PKTOUT_21_ID: return new PktOut_21();
-		case PKTBI_22_APPROVED_ID: return new PktBi_22();
+		case PKTBI_22_APPROVED_ID: return new PktOut_22();
 		case PKTOUT_24_ID: return new PktOut_24();
 		case PKTOUT_25_ID: return new PktOut_25();
 		case PKTOUT_27_ID: return new PktOut_27();
@@ -222,8 +233,15 @@ PacketInterface* GetPacket(u8 id, u16 sub)
 		case PKTOUT_A8_ID: return new PktOut_A8();
 		case PKTOUT_A9_ID: return new PktOut_A9();
 		case PKTOUT_AA_ID: return new PktOut_AA();
-
+		case PKTOUT_AB_ID: return new PktOut_AB();
 		case PKTOUT_AE_ID: return new PktOut_AE();
+		case PKTOUT_AF_ID: return new PktOut_AF();
+		case PKTOUT_B0_ID: return new PktOut_B0();
+		case PKTOUT_B7_ID: return new PktOut_B7();
+		case PKTOUT_B9_ID: return new PktOut_B9();
+		case PKTOUT_BA_ID: return new PktOut_BA();
+		case PKTOUT_BC_ID: return new PktOut_BC();
+
 		case PKTBI_BF_ID:
 		{
 			switch (sub)
@@ -232,6 +250,10 @@ PacketInterface* GetPacket(u8 id, u16 sub)
 				default: return NULL;
 			}
 		}
+		case PKTOUT_C1_ID: return new PktOut_C1();
+		case PKTOUT_C7_ID: return new PktOut_C7();
+
+		case PKTOUT_CC_ID: return new PktOut_CC();
 		default: return NULL;
 	}
 }

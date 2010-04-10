@@ -225,7 +225,7 @@ typedef PacketTemplate<PKTOUT_1C_ID,44 + SPEECH_MAX_LEN + 1> PktOut_1C;
 typedef PacketTemplate<PKTOUT_1D_ID,5> PktOut_1D;
 typedef PacketTemplate<PKTOUT_20_ID,19> PktOut_20;
 typedef PacketTemplate<PKTOUT_21_ID,8> PktOut_21;
-typedef PacketTemplate<PKTBI_22_APPROVED_ID,3> PktBi_22;
+typedef PacketTemplate<PKTBI_22_APPROVED_ID,3> PktOut_22;
 typedef PacketTemplate<PKTOUT_24_ID,7> PktOut_24;
 typedef PacketTemplate<PKTOUT_25_ID,21> PktOut_25;
 typedef PacketTemplate<PKTOUT_27_ID,2> PktOut_27;
@@ -261,9 +261,20 @@ typedef PacketTemplate<PKTOUT_A6_ID,10010> PktOut_A6;
 typedef PacketTemplate<PKTOUT_A8_ID,2000> PktOut_A8;
 typedef PacketTemplate<PKTOUT_A9_ID,10000> PktOut_A9;
 typedef PacketTemplate<PKTOUT_AA_ID,5> PktOut_AA;
-
+typedef PacketTemplate<PKTOUT_AB_ID,531> PktOut_AB;
 typedef PacketTemplate<PKTOUT_AE_ID,((SPEECH_MAX_LEN) + 1)*2+48> PktOut_AE;
+typedef PacketTemplate<PKTOUT_AF_ID,13> PktOut_AF;
+typedef PacketTemplate<PKTOUT_B0_ID,0xFFFF> PktOut_B0;
+typedef PacketTemplate<PKTOUT_B7_ID,521> PktOut_B7;
+typedef PacketTemplate<PKTOUT_B9_ID,5> PktOut_B9;
+typedef PacketTemplate<PKTOUT_BA_ID,6> PktOut_BA;
+typedef PacketTemplate<PKTOUT_BC_ID,3> PktOut_BC;
+
 typedef PacketTemplateSub<PKTBI_BF_ID,0x4,12> Pktout_bf_sub4_closegump;
+
+typedef PacketTemplate<PKTOUT_C1_ID,48+(SPEECH_MAX_LEN+1)+2> PktOut_C1;
+typedef PacketTemplate<PKTOUT_C7_ID,49> PktOut_C7;
+typedef PacketTemplate<PKTOUT_CC_ID,49+(SPEECH_MAX_LEN+1)*2+SPEECH_MAX_LEN+1> PktOut_CC;
 // Packet defs end
 
 

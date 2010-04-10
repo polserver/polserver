@@ -10,6 +10,7 @@
 
 #include "ufunc.h"
 #include "uconst.h"
+#include "network/packets.h"
 
 /*
 void send_sysmessage_cl(Client *client,                // System message (lower left corner)
@@ -63,9 +64,9 @@ void private_say_above_cl_affix(Character *chr,
 						unsigned short font = DEFAULT_TEXT_FONT,
 						unsigned short color = DEFAULT_TEXT_COLOR);
 
-unsigned char* build_sysmessage_cl(unsigned* msglen,unsigned int cliloc_num, const u16 *arguments=0,
+void build_sysmessage_cl(PktOut_C1* msg, unsigned int cliloc_num, const u16 *arguments=0,
 						unsigned short font= DEFAULT_TEXT_FONT, unsigned short color = DEFAULT_TEXT_COLOR);
-unsigned char* build_sysmessage_cl_affix(unsigned* msglen,unsigned int cliloc_num, const char* affix,
+void build_sysmessage_cl_affix(PktOut_CC* msg,unsigned int cliloc_num, const char* affix,
 							  bool prepend, const u16 *arguments=0, unsigned short font= DEFAULT_TEXT_FONT,
 							  unsigned short color = DEFAULT_TEXT_COLOR);
 #endif

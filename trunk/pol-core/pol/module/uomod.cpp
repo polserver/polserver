@@ -4217,26 +4217,25 @@ BObjectImp* UOExecutorModule::mf_SendQuestArrow()
 		getParam( 1, x, -1, 1000000 ) &&
         getParam( 2, y, -1, 1000000 ))  //max vaues checked below
     {
-		PKTOUT_BA msg;
-		msg.msgtype = PKTOUT_BA_ID;
+		PktOut_BA* msg = REQUESTPACKET(PktOut_BA,PKTOUT_BA_ID);
 		if ( x == -1 && y == -1 )
 		{
-			msg.active = PKTOUT_BA::ARROW_OFF;
-            msg.x_tgt = 0;
-			msg.y_tgt = 0;
+			msg->Write(static_cast<u8>(PKTOUT_BA_ARROW_OFF));
+			msg->offset+=4; // u16 x_tgt,y_tgt
 		}
 		else
 		{
 			if(!chr->realm->valid(static_cast<unsigned short>(x),static_cast<unsigned short>(y),0))
 				return new BError("Invalid Coordinates for Realm");
-			msg.active = PKTOUT_BA::ARROW_ON;
-			msg.x_tgt = ctBEu16(static_cast<unsigned short>(x & 0xFFFF));
-			msg.y_tgt = ctBEu16(static_cast<unsigned short>(y & 0xFFFF));
+			msg->Write(static_cast<u8>(PKTOUT_BA_ARROW_ON));
+			msg->WriteFlipped(static_cast<unsigned short>(x & 0xFFFF));
+			msg->WriteFlipped(static_cast<unsigned short>(y & 0xFFFF));
 		}
 		if (!chr->has_active_client())
             return new BError( "No client attached" );
 
-		chr->client->transmit(&msg, sizeof msg);
+		chr->client->transmit(&msg->buffer, msg->offset);
+		READDPACKET(msg);
         return new BLong( 1 );
     }
     else
@@ -5737,19 +5736,18 @@ BObjectImp* UOExecutorModule::mf_SendOverallSeason(/*season_id, playsound := 1*/
 		if ( season_id < 0 || season_id > 4 )
 			return new BError("Invalid season id");
 		    
-		PKTOUT_BC msg;
-
-		msg.msgtype = PKTOUT_BC_ID;
-		msg.season = static_cast<u8>(season_id);
-		msg.playsound = static_cast<u8>(playsound);
+		PktOut_BC* msg = REQUESTPACKET(PktOut_BC,PKTOUT_BC_ID);
+		msg->Write(static_cast<u8>(season_id));
+		msg->Write(static_cast<u8>(playsound));
 
 		for( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
 		{
 			Client* client = *itr;
 			if (!client->chr->logged_in || client->getversiondetail().major < 1)
 				continue;
-			client->transmit( &msg, sizeof msg );			
+			client->transmit( &msg->buffer, msg->offset );			
 		}
+		READDPACKET(msg);
 		return new BLong(1);
 	}
 	else

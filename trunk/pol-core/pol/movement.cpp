@@ -170,7 +170,7 @@ void handle_walk( Client *client, PKTIN_02 *msg02 )
 			}
 		}
 		client->pause();
-		PktBi_22* msg = REQUESTPACKET(PktBi_22,PKTBI_22_APPROVED_ID);
+		PktOut_22* msg = REQUESTPACKET(PktOut_22,PKTBI_22_APPROVED_ID);
 		msg->Write(msg02->movenum);
 		msg->Write(client->chr->hilite_color_idx( client->chr ));
 	    client->transmit( &msg->buffer, msg->offset );

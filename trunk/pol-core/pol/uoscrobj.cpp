@@ -71,6 +71,7 @@ Notes
 #include "multi/boatcomp.h"
 #include "mobile/charactr.h"
 #include "network/client.h"
+#include "network/packets.h"
 #include "cmdlevel.h"
 #include "door.h"
 #include "exscrobj.h"
@@ -1853,13 +1854,11 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 
 				if( client && client->getversiondetail().major>=1 )
 				{
-					PKTOUT_BC msg;
-
-					msg.msgtype = PKTOUT_BC_ID;
-					msg.season = static_cast<u8>(season_id);
-					msg.playsound = static_cast<u8>(playsound);
-
-					client->transmit( &msg, sizeof msg );
+					PktOut_BC* msg = REQUESTPACKET(PktOut_BC,PKTOUT_BC_ID);
+					msg->Write(static_cast<u8>(season_id));
+					msg->Write(static_cast<u8>(playsound));
+					client->transmit( &msg->buffer, msg->offset );
+					READDPACKET(msg);
 					return new BLong(1);
 				}
 			}
