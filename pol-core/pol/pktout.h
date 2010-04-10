@@ -950,31 +950,31 @@ struct PKTOUT_9C {
 //};
 //asserteql( sizeof(PKTOUT_AA), 5 );
 
-struct PKTOUT_AB
-{
-    struct HEADER {
-        u8 msgtype;
-        u16 msglen;
-        u32 serial;
-        u8 type;
-        u8 index;
-    };
-    struct TEXTLINE1 {
-        u16 numbytes;
-        char text[256]; // null-terminated
-    };
-    struct TEXTLINE2 {
-        u8 cancel; enum { CANCEL_DISABLE, CANCEL_ENABLE };
-        u8 style; enum { STYLE_DISABLE, STYLE_NORMAL, STYLE_NUMERICAL };
-        u32 mask; 
-        u16 numbytes;
-        char text[256]; // null-terminated
-    };
-
-};
-asserteql( sizeof(PKTOUT_AB::HEADER), 9 );
-asserteql( sizeof(PKTOUT_AB::TEXTLINE1), 258 );
-asserteql( sizeof(PKTOUT_AB::TEXTLINE2), 264 );
+//struct PKTOUT_AB
+//{
+//    struct HEADER {
+//        u8 msgtype;
+//        u16 msglen;
+//        u32 serial;
+//        u8 type;
+//        u8 index;
+//    };
+//    struct TEXTLINE1 {
+//        u16 numbytes;
+//        char text[256]; // null-terminated
+//    };
+//    struct TEXTLINE2 {
+//        u8 cancel; enum { CANCEL_DISABLE, CANCEL_ENABLE };
+//        u8 style; enum { STYLE_DISABLE, STYLE_NORMAL, STYLE_NUMERICAL };
+//        u32 mask; 
+//        u16 numbytes;
+//        char text[256]; // null-terminated
+//    };
+//
+//};
+//asserteql( sizeof(PKTOUT_AB::HEADER), 9 );
+//asserteql( sizeof(PKTOUT_AB::TEXTLINE1), 258 );
+//asserteql( sizeof(PKTOUT_AB::TEXTLINE2), 264 );
 
 //struct PKTOUT_AE
 //{
@@ -991,123 +991,123 @@ asserteql( sizeof(PKTOUT_AB::TEXTLINE2), 264 );
 //};
 //assertsize( PKTOUT_AE, 450 );
 
-struct PKTOUT_AF {
-    u8 msgtype;
-    u32 player_id;
-    u32 corpse_id;
-    u32 unk4_zero; // 0x00000000
-};
-asserteql( sizeof(PKTOUT_AF), 13 );
+//struct PKTOUT_AF {
+//    u8 msgtype;
+//    u32 player_id;
+//    u32 corpse_id;
+//    u32 unk4_zero; // 0x00000000
+//};
+//asserteql( sizeof(PKTOUT_AF), 13 );
 
-struct PKTOUT_B0
-{
-// one of these:
-    struct HEADER {
-        u8 msgtype;
-        u16 msglen;
-        u32 serial;
-        u32 dialogid;
-        u32 x;
-        u32 y;
-    };
-// followed by one of these (variable length):
-    struct LAYOUT {
-        u16 len;
-        char text[ 1 ]; // null-terminated
-    };
-// followed by one of these:
-    struct DATA_HEADER {
-        u16 numlines;
-    };
-// followed by zero or more (numlines, above) of these:
-    struct DATA {
-        u16 len;
-        char text[ 1 ];
-    };
-};
-asserteql( sizeof(PKTOUT_B0::HEADER), 19 );
-asserteql( sizeof(PKTOUT_B0::LAYOUT), 3 );
-asserteql( sizeof(PKTOUT_B0::DATA_HEADER), 2 );
-asserteql( sizeof(PKTOUT_B0::DATA), 3 );
+//struct PKTOUT_B0
+//{
+//// one of these:
+//    struct HEADER {
+//        u8 msgtype;
+//        u16 msglen;
+//        u32 serial;
+//        u32 dialogid;
+//        u32 x;
+//        u32 y;
+//    };
+//// followed by one of these (variable length):
+//    struct LAYOUT {
+//        u16 len;
+//        char text[ 1 ]; // null-terminated
+//    };
+//// followed by one of these:
+//    struct DATA_HEADER {
+//        u16 numlines;
+//    };
+//// followed by zero or more (numlines, above) of these:
+//    struct DATA {
+//        u16 len;
+//        char text[ 1 ];
+//    };
+//};
+//asserteql( sizeof(PKTOUT_B0::HEADER), 19 );
+//asserteql( sizeof(PKTOUT_B0::LAYOUT), 3 );
+//asserteql( sizeof(PKTOUT_B0::DATA_HEADER), 2 );
+//asserteql( sizeof(PKTOUT_B0::DATA), 3 );
 
-struct PKTOUT_B7 {
-    u8 msgtype;
-    u16 msglen;
-    u32 serial;
-    enum { MAX_CHARACTERS=256 };
-    char text[MAX_CHARACTERS*2+2]; // null-terminated unicode string
-};
-asserteql( sizeof(PKTOUT_B7), 521 );
+//struct PKTOUT_B7 {
+//    u8 msgtype;
+//    u16 msglen;
+//    u32 serial;
+//    enum { MAX_CHARACTERS=256 };
+//    char text[MAX_CHARACTERS*2+2]; // null-terminated unicode string
+//};
+//asserteql( sizeof(PKTOUT_B7), 521 );
 
-struct PKTOUT_B9 {
-    u8 msgtype;
-    u16 enable;
-    /*
-    if (MSB not set)
-      Bit 0 T2A upgrade, enables chatbutton, 
-      Bit 1 enables LBR update.  (of course LBR installation is required)
-             (plays MP3 instead of midis, 2D LBR client shows new LBR monsters,…)
-    if (MSB set)
-      Bit 2 T2A upgrade, enables chatbutton, 
-      Bit 3 enables LBR update.  
-      Bit 4 enables Age of Shadows update (AoS monsters/map (AOS installation required for that), 
-              AOS skills/necro/paladin/fight book stuff  – works for ALL clients 4.0 and above)
-      Bit 5 enables use of up to 6 Characters (not only 5)
-      Bit 6 enables Samurai Empire update (SE map (SE installation required for that))
-	  Bit 7 enables Mondain's Legacy update (Elves (ML/Gold installation required for that))
-    */
-};
-asserteql( sizeof(PKTOUT_B9), 3 );
+//struct PKTOUT_B9 {
+//    u8 msgtype;
+//    u16 enable;
+//    /*
+//    if (MSB not set)
+//      Bit 0 T2A upgrade, enables chatbutton, 
+//      Bit 1 enables LBR update.  (of course LBR installation is required)
+//             (plays MP3 instead of midis, 2D LBR client shows new LBR monsters,…)
+//    if (MSB set)
+//      Bit 2 T2A upgrade, enables chatbutton, 
+//      Bit 3 enables LBR update.  
+//      Bit 4 enables Age of Shadows update (AoS monsters/map (AOS installation required for that), 
+//              AOS skills/necro/paladin/fight book stuff  – works for ALL clients 4.0 and above)
+//      Bit 5 enables use of up to 6 Characters (not only 5)
+//      Bit 6 enables Samurai Empire update (SE map (SE installation required for that))
+//	  Bit 7 enables Mondain's Legacy update (Elves (ML/Gold installation required for that))
+//    */
+//};
+//asserteql( sizeof(PKTOUT_B9), 3 );
+//
+//struct PKTOUT_B9_V2 {
+//    u8 msgtype;
+//	u32 enable;
+//};
+//asserteql( sizeof(PKTOUT_B9_V2), 5 );
 
-struct PKTOUT_B9_V2 {
-    u8 msgtype;
-	u32 enable;
-};
-asserteql( sizeof(PKTOUT_B9_V2), 5 );
+//struct PKTOUT_BA {
+//	u8 msgtype;
+//	u8 active; enum { ARROW_OFF = 0, ARROW_ON = 1 };
+//	u16 x_tgt;
+//	u16 y_tgt;
+//};
+//asserteql( sizeof(PKTOUT_BA), 6);
 
-struct PKTOUT_BA {
-	u8 msgtype;
-	u8 active; enum { ARROW_OFF = 0, ARROW_ON = 1 };
-	u16 x_tgt;
-	u16 y_tgt;
-};
-asserteql( sizeof(PKTOUT_BA), 6);
-
-struct PKTOUT_BC {
-    u8 msgtype;
-	u8 season; enum { SEASON_SPRING = 0, SEASON_SUMMER, SEASON_FALL, SEASON_WINTER, SEASON_DESOLATION };
-	u8 playsound; enum { PLAYSOUND_NO = 0, PLAYSOUND_YES = 1 };
-};
-asserteql( sizeof(PKTOUT_BC), 3 );
+//struct PKTOUT_BC {
+//    u8 msgtype;
+//	u8 season; enum { SEASON_SPRING = 0, SEASON_SUMMER, SEASON_FALL, SEASON_WINTER, SEASON_DESOLATION };
+//	u8 playsound; enum { PLAYSOUND_NO = 0, PLAYSOUND_YES = 1 };
+//};
+//asserteql( sizeof(PKTOUT_BC), 3 );
 
 // Big-Endian for u16/32 unless otherwise noted.
-struct PKTOUT_C0
-{
-	u8 msgtype;
-	u8 type;
-	u32 source_serial;
-	u32 target_serial;
-	u16 itemid;
-	u16 x_source;
-	u16 y_source;
-	u8 z_source;
-	u16 x_target;
-	u16 y_target;
-	u8 z_target;
-	u8 speed;
-	u8 duration;
-	u16 unk; //On OSI, flamestrikes are 0x0100 
-	u8 fixed_direction;
-	u8 explodes;
-	u32 hue;
-	u32 render_mode;
-	enum {
-		EFFECT_MOVING  = 0x00,
-		EFFECT_LIGHTNING = 0x01,
-		EFFECT_FIXEDXYZ = 0x02,
-		EFFECT_FIXEDFROM = 0x03
-	};
-};
+//struct PKTOUT_C0
+//{
+//	u8 msgtype;
+//	u8 type;
+//	u32 source_serial;
+//	u32 target_serial;
+//	u16 itemid;
+//	u16 x_source;
+//	u16 y_source;
+//	u8 z_source;
+//	u16 x_target;
+//	u16 y_target;
+//	u8 z_target;
+//	u8 speed;
+//	u8 duration;
+//	u16 unk; //On OSI, flamestrikes are 0x0100 
+//	u8 fixed_direction;
+//	u8 explodes;
+//	u32 hue;
+//	u32 render_mode;
+//	enum {
+//		EFFECT_MOVING  = 0x00,
+//		EFFECT_LIGHTNING = 0x01,
+//		EFFECT_FIXEDXYZ = 0x02,
+//		EFFECT_FIXEDFROM = 0x03
+//	};
+//};
 
 //Argument example:
 //take number 1042762:
@@ -1115,19 +1115,19 @@ struct PKTOUT_C0
 //the arguments string may have "100 thousand\t25 hundred", which in turn would modify the string:
 //"Only 100 thousand gold could be deposited. A check for 25 hundred gold was returned to you."
 // Big-Endian for u16/32 unless otherwise noted.
-struct PKTOUT_C1 {
-	u8 msgtype;
-	u16 msglen;
-	u32 serial; //0xFFffFFff for system message
-	u16 body; //0xFFff for system message
-	u8 type; //6 lower left, 7 on player
-	u16 hue;
-	u16 font;
-	u32 msgnumber;
-	char name[30];
-	u16 arguments[(SPEECH_MAX_LEN) + 1]; // _little-endian_ Unicode string, tabs ('\t') separate the arguments
-};
-assertsize( PKTOUT_C1, 450 );
+//struct PKTOUT_C1 {
+//	u8 msgtype;
+//	u16 msglen;
+//	u32 serial; //0xFFffFFff for system message
+//	u16 body; //0xFFff for system message
+//	u8 type; //6 lower left, 7 on player
+//	u16 hue;
+//	u16 font;
+//	u32 msgnumber;
+//	char name[30];
+//	u16 arguments[(SPEECH_MAX_LEN) + 1]; // _little-endian_ Unicode string, tabs ('\t') separate the arguments
+//};
+//assertsize( PKTOUT_C1, 450 );
 
 //not used:
 // Big-Endian for u16/32 unless otherwise noted.
@@ -1138,34 +1138,34 @@ struct PKTOUT_C4 {
 };
 
 // Big-Endian for u16/32 unless otherwise noted.
-struct PKTOUT_C7
-{
-	PKTOUT_C0 header;
-	u16 effect_num; //see particleffect subdir
-	u16 explode_effect_num; //0 if no explosion
-	u16 explode_sound_num; //for moving effects, 0 otherwise
-	u32 itemid; //if target is item (type 2), 0 otherwise 
-	u8 layer; //(of the character, e.g left hand, right hand, … 0-5,7, 0xff: moving effect or target is no char) 
-	u16 unk_effect; //for moving effect, 0 otherwise
-};
+//struct PKTOUT_C7
+//{
+//	PKTOUT_C0 header;
+//	u16 effect_num; //see particleffect subdir
+//	u16 explode_effect_num; //0 if no explosion
+//	u16 explode_sound_num; //for moving effects, 0 otherwise
+//	u32 itemid; //if target is item (type 2), 0 otherwise 
+//	u8 layer; //(of the character, e.g left hand, right hand, … 0-5,7, 0xff: moving effect or target is no char) 
+//	u16 unk_effect; //for moving effect, 0 otherwise
+//};
 
 // Big-Endian for u16/32 unless otherwise noted.
-struct PKTOUT_CC 
-{
-	u8 msgtype;
-	u16 msglen;
-	u32 serial; //0xFFffFFff for system message
-	u16 body; //0xFFff for system message
-	u8 type; //6-lowerleft, 7-on player
-	u16 hue;
-	u16 font;
-	u32 msgnumber;
-	u8 flags; //0x2 unk, 0x4 message doesn't move,
-	//(flags & 0x1) == 0 signals affix is appended to the localization string, (flags & 0x1) == 1 signals to prepend.
-	char name[30]; //u8 name[32];
-	char affix[1]; //nullterminated, uh not just 1 byte
-	u16 arguments[1]; // _big-endian_ unicode string, tabs ('\t') seperate arguments, see 0xC1 for argument example
-};
+//struct PKTOUT_CC 
+//{
+//	u8 msgtype;
+//	u16 msglen;
+//	u32 serial; //0xFFffFFff for system message
+//	u16 body; //0xFFff for system message
+//	u8 type; //6-lowerleft, 7-on player
+//	u16 hue;
+//	u16 font;
+//	u32 msgnumber;
+//	u8 flags; //0x2 unk, 0x4 message doesn't move,
+//	//(flags & 0x1) == 0 signals affix is appended to the localization string, (flags & 0x1) == 1 signals to prepend.
+//	char name[30]; //u8 name[32];
+//	char affix[1]; //nullterminated, uh not just 1 byte
+//	u16 arguments[1]; // _big-endian_ unicode string, tabs ('\t') seperate arguments, see 0xC1 for argument example
+//};
 
 struct CUSTOM_HOUSE_PLANE
 {

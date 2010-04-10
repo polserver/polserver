@@ -22,6 +22,7 @@ Notes
 
 #include "uconst.h"
 #include "pktout.h"
+#include "network/packets.h"
 
 #include "core.h"
 
@@ -154,7 +155,7 @@ void play_moving_effect2_ex( u16 xs, u16 ys, s8 zs,
                              u16 xd, u16 yd, s8 zd, Realm* realm,
                              u16 effect, u8 speed, u8 duration, u32 hue, 
 							 u32 render, u8 direction, u8 explode, u16 effect3d, u16 effect3dexplode, u16 effect3dsound);
-void partical_effect(struct PKTOUT_C7* msg,u8 type, u32 srcserial, u32 dstserial,
+void partical_effect(PktOut_C7* msg,u8 type, u32 srcserial, u32 dstserial,
 					 u16 srcx, u16 srcy, u8 srcz,
 					 u16 dstx, u16 dsty, u8 dstz,
 					 u16 effect, u8 speed, u8 duration, u8 direction,

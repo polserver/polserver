@@ -229,9 +229,9 @@ ItemDesc::ItemDesc( u16 objtype, ConfigElem& elem, Type type, const Package* pkg
 	else
 		stack_limit = stacklimit;
 
-	if (tooltip.length() > PKTOUT_B7::MAX_CHARACTERS)
+	if (tooltip.length() > PKTOUT_B7_MAX_CHARACTERS)
 	{
-		tooltip.erase( PKTOUT_B7::MAX_CHARACTERS, string::npos );
+		tooltip.erase( PKTOUT_B7_MAX_CHARACTERS, string::npos );
 	}
 
 	unsigned short in_movable;

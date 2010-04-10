@@ -1292,8 +1292,8 @@ void play_stationary_effect( u16 x, u16 y, u8 z, u16 effect, u8 speed, u8 loop, 
 void play_stationary_effect_ex( u16 x, u16 y, u8 z, Realm* realm, u16 effect, u8 speed, u8 duration, u32 hue, 
 							    u32 render, u16 effect3d )
 {
-	static PKTOUT_C7 msg;
-	partical_effect(&msg,PKTOUT_C0::EFFECT_FIXEDXYZ,
+	PktOut_C7* msg = REQUESTPACKET(PktOut_C7,PKTOUT_C7_ID);
+	partical_effect(msg,PKTOUT_C0::EFFECT_FIXEDXYZ,
 		            0,0,x,y,z,x,y,z,
 					effect,speed,duration,1,0,
 					hue,render, effect3d, 1, 0,
@@ -1308,15 +1308,16 @@ void play_stationary_effect_ex( u16 x, u16 y, u8 z, Realm* realm, u16 effect, u8
 		if( client->chr->realm != realm )
 			continue;
         if (inrange( client->chr->x, client->chr->y, x, y ))
-            client->transmit( &msg, sizeof msg );
+            client->transmit( &msg->buffer, msg->offset );
     }
+	READDPACKET(msg);
 }
 
 void play_object_centered_effect_ex( const UObject* center, u16 effect, u8 speed, u8 duration, u32 hue, 
 							         u32 render, u8 layer, u16 effect3d )
 {
-	static PKTOUT_C7 msg;
-	partical_effect(&msg,PKTOUT_C0::EFFECT_FIXEDFROM,
+	PktOut_C7* msg = REQUESTPACKET(PktOut_C7,PKTOUT_C7_ID);
+	partical_effect(msg,PKTOUT_C0::EFFECT_FIXEDFROM,
 		            center->serial_ext,center->serial_ext,
 					center->x,center->y,center->z,
 					center->x,center->y,center->z,
@@ -1324,7 +1325,8 @@ void play_object_centered_effect_ex( const UObject* center, u16 effect, u8 speed
 					hue,render, effect3d, 1, 0,
 					center->serial_ext,layer);
 
-    transmit_to_inrange( center, &msg, sizeof msg, false, false );
+    transmit_to_inrange( center, &msg->buffer, msg->offset, false, false );
+	READDPACKET(msg);
 }
 
 void play_moving_effect_ex( const UObject *src, const UObject *dst,
@@ -1332,8 +1334,8 @@ void play_moving_effect_ex( const UObject *src, const UObject *dst,
 							u32 render, u8 direction, u8 explode, 
 							u16 effect3d, u16 effect3dexplode, u16 effect3dsound)
 {
-	static PKTOUT_C7 msg;
-	partical_effect(&msg,PKTOUT_C0::EFFECT_MOVING,
+	PktOut_C7* msg = REQUESTPACKET(PktOut_C7,PKTOUT_C7_ID);
+	partical_effect(msg,PKTOUT_C0::EFFECT_MOVING,
 		            src->serial_ext,dst->serial_ext,
 		            src->x,src->y,src->z+src->height,
 					dst->x,dst->y,dst->z+dst->height,
@@ -1351,9 +1353,10 @@ void play_moving_effect_ex( const UObject *src, const UObject *dst,
         if (inrange( client->chr, src ) ||
             inrange( client->chr, dst ))
         {
-            transmit( client, &msg, sizeof msg );
+            transmit( client, &msg->buffer, msg->offset );
         }
     }
+	READDPACKET(msg);
 }
 
 void play_moving_effect2_ex( u16 xs, u16 ys, s8 zs,
@@ -1362,8 +1365,8 @@ void play_moving_effect2_ex( u16 xs, u16 ys, s8 zs,
 							 u32 render, u8 direction, u8 explode, 
 							 u16 effect3d, u16 effect3dexplode, u16 effect3dsound)
 {
-	static PKTOUT_C7 msg;
-	partical_effect(&msg,PKTOUT_C0::EFFECT_MOVING,
+	PktOut_C7* msg = REQUESTPACKET(PktOut_C7,PKTOUT_C7_ID);
+	partical_effect(msg,PKTOUT_C0::EFFECT_MOVING,
 		            0,0,xs,ys,zs,xd,yd,zd,
 		            effect,speed,duration, direction,explode,hue,render,
 					effect3d,effect3dexplode,effect3dsound,
@@ -1381,13 +1384,14 @@ void play_moving_effect2_ex( u16 xs, u16 ys, s8 zs,
         if (inrange( client->chr, xs, ys ) ||
             inrange( client->chr, xd, yd ))
         {
-            transmit( client, &msg, sizeof msg );
+            transmit( client, &msg->buffer, msg->offset );
         }
     }
+	READDPACKET(msg);
 }
 
 // Central function to build 0xC7 packet
-void partical_effect(struct PKTOUT_C7* msg,u8 type, u32 srcserial, u32 dstserial,
+void partical_effect(PktOut_C7* msg,u8 type, u32 srcserial, u32 dstserial,
 					 u16 srcx, u16 srcy, u8 srcz,
 					 u16 dstx, u16 dsty, u8 dstz,
 					 u16 effect, u8 speed, u8 duration, u8 direction,
@@ -1395,30 +1399,31 @@ void partical_effect(struct PKTOUT_C7* msg,u8 type, u32 srcserial, u32 dstserial
 					 u16 effect3d, u16 effect3dexplode, u16 effect3dsound,
 					 u32 itemid, u8 layer)
 {
-	msg->header.msgtype         = PKTOUT_C7_ID;
-	msg->header.type            = type; 
-	msg->header.source_serial   = srcserial;
-	msg->header.target_serial   = dstserial;
-	msg->header.x_source        = ctBEu16(srcx);
-	msg->header.y_source        = ctBEu16(srcy);
-	msg->header.z_source        = srcz;
-	msg->header.x_target        = ctBEu16(dstx);
-	msg->header.y_target        = ctBEu16(dsty);
-	msg->header.z_target        = dstz;
-	msg->header.itemid          = ctBEu16( effect );
-	msg->header.speed           = speed;
-	msg->header.duration        = duration;
-	msg->header.unk             = 0;
-	msg->header.fixed_direction = direction;
-	msg->header.explodes        = explode;
-	msg->header.hue             = ctBEu32(hue);
-	msg->header.render_mode     = ctBEu32(render);
-	msg->effect_num             = ctBEu16(effect3d);
-	msg->explode_effect_num     = ctBEu16(effect3dexplode);
-	msg->explode_sound_num      = ctBEu16(effect3dsound);
-	msg->itemid                 = itemid;
-	msg->layer                  = layer;
-	msg->unk_effect             = 0;
+	//C0 part
+	msg->Write(type);
+	msg->Write(srcserial);
+	msg->Write(dstserial);
+	msg->WriteFlipped(effect);
+	msg->WriteFlipped(srcx);
+	msg->WriteFlipped(srcy);
+	msg->Write(srcz);
+	msg->WriteFlipped(dstx);
+	msg->WriteFlipped(dsty);
+	msg->Write(dstz);
+	msg->Write(speed);
+	msg->Write(duration);
+	msg->offset+=2; // u16 unk
+	msg->Write(direction);
+	msg->Write(explode);
+	msg->WriteFlipped(hue);
+	msg->WriteFlipped(render);
+	// C7 part
+	msg->WriteFlipped(effect3d);   //see particleffect subdir
+	msg->WriteFlipped(effect3dexplode); //0 if no explosion
+	msg->WriteFlipped(effect3dsound); //for moving effects, 0 otherwise
+	msg->Write(itemid); //if target is item (type 2), 0 otherwise 
+	msg->Write(layer); //(of the character, e.g left hand, right hand, … 0-5,7, 0xff: moving effect or target is no char) 
+	msg->offset+=2; // u16 unk_effect
 }
 
 // System message -- message in lower left corner
@@ -1803,11 +1808,10 @@ void send_mana_level( Client *client )
 
 void send_death_message( Character *chr_died, Item *corpse )
 {
-    PKTOUT_AF msg;
-    msg.msgtype = PKTOUT_AF_ID;
-    msg.player_id = chr_died->serial_ext;
-    msg.corpse_id = corpse->serial_ext;
-    msg.unk4_zero = 0x00000000;
+	PktOut_AF* msg = REQUESTPACKET(PktOut_AF,PKTOUT_AF_ID);
+	msg->Write(chr_died->serial_ext);
+	msg->Write(corpse->serial_ext);
+	msg->offset+=4; // u32 unk4_zero
 
     for( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
     {
@@ -1819,9 +1823,9 @@ void send_death_message( Character *chr_died, Item *corpse )
             continue;
         
         if (inrange( client->chr, corpse ))
-            transmit( client, &msg, sizeof msg );
+            transmit( client, &msg->buffer, msg->offset );
     }
-
+	READDPACKET(msg);
 }
 
 void transmit_to_inrange( const UObject* center, const void* msg, unsigned msglen, bool is_6017, bool is_UOKR)
@@ -2510,20 +2514,13 @@ void send_feature_enable(Client* client)
             clientflag |= 0x2000;
     }
 
+	PktOut_B9* msg = REQUESTPACKET(PktOut_B9,PKTOUT_B9_ID);
 	if ( client->ClientType & CLIENTTYPE_60142 )
-	{
-		PKTOUT_B9_V2 msg;
-		msg.msgtype = PKTOUT_B9_V2_ID;
-		msg.enable = ctBEu32(clientflag);
-		client->transmit(&msg, sizeof msg);
-	}
+		msg->WriteFlipped(clientflag);
 	else
-	{
-		PKTOUT_B9 msg;
-		msg.msgtype = PKTOUT_B9_ID;
-		msg.enable = ctBEu16(static_cast<u16>(clientflag));
-		client->transmit(&msg, sizeof msg);
-	}
+		msg->WriteFlipped(static_cast<u16>(clientflag));
+	client->transmit(&msg->buffer, msg->offset);
+	READDPACKET(msg);
 }
 
 void send_realm_change( Client* client, Realm* realm )
@@ -2558,12 +2555,11 @@ void send_season_info( Client* client )
 {
 	if (client->getversiondetail().major>=1)
     {
-		PKTOUT_BC msg;
-        msg.msgtype = PKTOUT_BC_ID;
-		msg.season = static_cast<u8>(client->chr->realm->season());
-		msg.playsound = PKTOUT_BC::PLAYSOUND_YES;
-
-		client->transmit( &msg, sizeof msg );
+		PktOut_BC* msg = REQUESTPACKET(PktOut_BC,PKTOUT_BC_ID);
+		msg->Write(static_cast<u8>(client->chr->realm->season()));
+		msg->Write(static_cast<u8>(PKTOUT_BC::PLAYSOUND_YES));
+		client->transmit( &msg->buffer, msg->offset );
+		READDPACKET(msg);
 
 		// Sending Season info resets light level in client, this fixes it during login
 		if (client->gd->weather_region != NULL &&

@@ -517,12 +517,12 @@ void Party::send_remove_member(Character* remchr, bool *disband)
 
 void Party::send_msg_to_all(unsigned int clilocnr, const char* affix, Character* exeptchr)
 {
-	unsigned msglen=0;
-	unsigned char* msg_buffer=NULL;
+	PktOut_C1* msgc1 = REQUESTPACKET(PktOut_C1,PKTOUT_C1_ID);
+	PktOut_CC* msgcc = REQUESTPACKET(PktOut_CC,PKTOUT_CC_ID);
 	if (affix!=NULL)
-		msg_buffer= build_sysmessage_cl_affix(&msglen,clilocnr, affix,true );
+		build_sysmessage_cl_affix(msgcc, clilocnr, affix, true );
 	else
-		msg_buffer=build_sysmessage_cl(&msglen, clilocnr);
+		build_sysmessage_cl(msgc1, clilocnr);
 
 	for( vector<u32>::iterator itr = _member_serials.begin(); itr != _member_serials.end(); ++itr)
 	{
@@ -532,15 +532,17 @@ void Party::send_msg_to_all(unsigned int clilocnr, const char* affix, Character*
 			if (chr!=exeptchr)
 			{
 				if (chr->has_active_client())
-					chr->client->transmit(msg_buffer,msglen);
+				{
+					if (affix!=NULL)
+						chr->client->transmit(&msgcc->buffer,msgcc->offset);
+					else
+						chr->client->transmit(&msgc1->buffer,msgc1->offset);
+				}
 			}
 		}
 	}
-	if (msg_buffer!=NULL)
-	{
-		delete[] msg_buffer;
-		msg_buffer=NULL;
-	}
+	READDPACKET(msgc1);
+	READDPACKET(msgcc);
 }
 
 void Party::send_stat_to(Character* chr,Character* bob)
