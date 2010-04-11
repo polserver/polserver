@@ -7,6 +7,7 @@ History
 2009/02/22 Nando:     send_binary() was sending the wrong size on sck.send().
 2009/02/25 Nando:     removed a stray "\n" that was being sent at the end of send_binary(),
                       probably causing some corrupted images to be loaded in browsers.
+2010/04/05 Shinigami: Transmit Pointer as Pointer and not Int as Pointer within start_http_conn_thread and http_conn_thread_stub
 
 Notes
 =======
@@ -774,7 +775,7 @@ void http_func( SOCKET client_socket )
 
 void http_conn_thread_stub2( void* arg )
 {
-	SOCKET client_socket = reinterpret_cast<SOCKET>(arg);
+	SOCKET client_socket = *(static_cast<SOCKET*>(arg));
 
 	http_func( client_socket );
 }
@@ -789,7 +790,7 @@ unsigned __stdcall http_conn_thread_stub( void *arg )
 {
 	InstallStructuredExceptionHandler();
 
-	int sck = (int)(reinterpret_cast<SOCKET>(arg));
+	SOCKET sck = *(static_cast<SOCKET*>(arg));
 	threadmap.Register( threadhelp::thread_pid(), string("http_conn_thread:")+decint(sck) ); // Was missing (Nando -- 12-31-2008)
 	
 	threadhelp::run_thread( http_conn_thread_stub2, arg );
@@ -798,7 +799,7 @@ unsigned __stdcall http_conn_thread_stub( void *arg )
 	return 0;
 }
 
-void start_http_conn_thread( SOCKET client_socket )
+void start_http_conn_thread( SOCKET* client_socket )
 {
 	// Code Analyze: C6001
 	//	unsigned threadid;
@@ -808,12 +809,12 @@ void start_http_conn_thread( SOCKET client_socket )
 	h = (HANDLE) _beginthreadex( NULL, 
 								 0, 
 								 http_conn_thread_stub, 
-								 reinterpret_cast<void*>(client_socket), 
+								 client_socket, 
 								 0, 
 								 &threadid );
 	if (h == 0) {
 		Log( "error in start_http_conn_thread: %d %d \"%s\" \"%s\" %d %d\n",
-				 errno, _doserrno, strerror( errno ), strerror( _doserrno ), http_conn_thread_stub, client_socket);
+				 errno, _doserrno, strerror( errno ), strerror( _doserrno ), http_conn_thread_stub, *client_socket);
 		cerr << "start_http_conn_thread error: " << strerror(errno) << endl;
 
 		dec_child_thread_count();
@@ -833,7 +834,7 @@ void init_http_thread_support()
 
 void* http_conn_thread_stub( void *arg )
 {
-	int sck = (int)(reinterpret_cast<SOCKET>(arg));
+	SOCKET sck = *(static_cast<SOCKET*>(arg));
 	threadmap.Register( threadhelp::thread_pid(), string("http_conn_thread:")+decint(sck) );
 
 	run_thread( http_conn_thread_stub2, arg );
@@ -841,13 +842,13 @@ void* http_conn_thread_stub( void *arg )
 	pthread_exit(NULL); // Missing (Nando -- 12-31-2008)
 	return NULL;
 }
-void start_http_conn_thread( SOCKET client_socket )
+void start_http_conn_thread( SOCKET* client_socket )
 {
 	pthread_t th;
 	int res = pthread_create( &th, 
 							  &http_attr, 
 							  http_conn_thread_stub, 
-							  reinterpret_cast<void*>(client_socket) );
+							  client_socket );
 	if (res) // Turley 06-26-2009: removed passert_always so pol doesnt crash
 	{
 		Log( "Failed to create worker thread for http (res = %d)\n", res );
@@ -967,7 +968,7 @@ void http_thread(void)
 			cout << "HTTP client connected from " << addrstr << endl;
 
 			threadhelp::inc_child_thread_count();
-			start_http_conn_thread( client_socket );
+			start_http_conn_thread( &client_socket );
 		}
 	}
 	mime_types.clear(); // cleanup on exit

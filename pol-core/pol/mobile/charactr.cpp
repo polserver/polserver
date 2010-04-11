@@ -3491,7 +3491,7 @@ void Character::check_attack_after_move()
 
 void Character::check_light_region_change()
 {
-	if (lightoverride_until < read_gameclock() && lightoverride_until != ~0Lu)
+	if (lightoverride_until < read_gameclock() && lightoverride_until != ~0u)
 	{
 		lightoverride_until = 0;
 		lightoverride		= -1;
@@ -4099,7 +4099,7 @@ bool Character::squelched() const
 {
 	if (squelched_until == 0)
 		return false;
-	else if (squelched_until == ~0Lu)
+	else if (squelched_until == ~0u)
 		return true;
 	
 	if (read_gameclock() < squelched_until)
@@ -4117,7 +4117,7 @@ bool Character::deafened() const
 {
 	if (deafened_until == 0)
 		return false;
-	else if (deafened_until == ~0Lu)
+	else if (deafened_until == ~0u)
 		return true;
 	
 	if (read_gameclock() < deafened_until)

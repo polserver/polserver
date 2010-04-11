@@ -148,7 +148,7 @@ void decay_thread( void* arg ) //Realm*
 {
 	unsigned wx = ~0u;
 	unsigned wy = 0;
-	Realm* realm = reinterpret_cast<Realm*>(arg);
+	Realm* realm = static_cast<Realm*>(arg);
 
 	unsigned gridx = (realm->width() / WGRID_SIZE);
 	unsigned gridy = (realm->height() / WGRID_SIZE);
@@ -175,11 +175,11 @@ void decay_thread( void* arg ) //Realm*
 	}
 }
 
-void decay_thread_shadow( void* arg ) //unsigned
+void decay_thread_shadow( void* arg ) //Realm*
 {
 	unsigned wx = ~0u;
 	unsigned wy = 0;
-	unsigned id = reinterpret_cast<Realm*>(arg)->shadowid;
+	unsigned id = static_cast<Realm*>(arg)->shadowid;
 
 	if (shadowrealms_by_id[id]==NULL)
 		return;

@@ -6,6 +6,7 @@ History
 2007/04/08 MuadDib:   Changed Realms() to get BObject IMP, and check for string
                       explicitly.
 2009/11/30 Turley:    added MD5Encrypt(string)
+2010/03/28 Shinigami: Transmit Pointer as Pointer and not Int as Pointer within decay_thread_shadow
 
 Notes
 =======
@@ -392,7 +393,7 @@ BObjectImp* PolSystemExecutorModule::mf_AddRealm(/*name,base*/)
 	{
 		ostringstream thname;
 		thname << "Decay_" << realm_name->value();
-		threadhelp::start_thread( decay_thread_shadow, thname.str().c_str(), (void*)(find_realm(realm_name->value())->shadowid) );
+		threadhelp::start_thread( decay_thread_shadow, thname.str().c_str(), (void*)find_realm(realm_name->value()) );
 	}
 	return new BLong(1);
 }

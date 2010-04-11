@@ -1828,7 +1828,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 				lightoverride = level;
 
 				if (duration == -1)
-					lightoverride_until = ~0Lu;
+					lightoverride_until = ~0u;
 				else if (duration == 0)
 					lightoverride_until = 0;
 				else
@@ -1874,7 +1874,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 			    set_dirty();
 			    if (duration == -1)
 				{
-				    squelched_until = ~0Lu;
+				    squelched_until = ~0u;
 					return new BLong(-1);
 				}
 			    else if (duration == 0)

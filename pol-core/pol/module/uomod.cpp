@@ -2067,8 +2067,8 @@ BObjectImp* UOExecutorModule::mf_PlayMovingEffect_Ex()
         getParam( 2, effect ) &&
         getParam( 3, speed, UCHAR_MAX ) &&
         getParam( 4, duration, UCHAR_MAX ) &&
-		getParam( 5, hue, LONG_MAX ) &&
-		getParam( 6, render, LONG_MAX ) &&
+		getParam( 5, hue, INT_MAX ) &&
+		getParam( 6, render, INT_MAX ) &&
 		getParam( 7, direction, UCHAR_MAX ) &&
         getParam( 8, explode, UCHAR_MAX ) &&
 		getParam( 9, effect3d ) &&
@@ -2125,8 +2125,8 @@ BObjectImp* UOExecutorModule::mf_PlayMovingEffectXyz_Ex()
         getParam( 7, effect ) &&
         getParam( 8, speed, UCHAR_MAX ) &&
         getParam( 9, duration, UCHAR_MAX ) &&
-		getParam( 10, hue, LONG_MAX ) &&
-		getParam( 11, render, LONG_MAX ) &&
+		getParam( 10, hue, INT_MAX ) &&
+		getParam( 11, render, INT_MAX ) &&
 		getParam( 12, direction, UCHAR_MAX ) &&
         getParam( 13, explode, UCHAR_MAX ) &&
 		getParam( 14, effect3d ) &&
@@ -2177,8 +2177,8 @@ BObjectImp* UOExecutorModule::mf_PlayObjectCenteredEffect_Ex()
         getParam( 1, effect ) &&
         getParam( 2, speed, UCHAR_MAX ) &&
         getParam( 3, duration, UCHAR_MAX ) &&
-		getParam( 4, hue, LONG_MAX ) &&
-		getParam( 5, render, LONG_MAX ) &&
+		getParam( 4, hue, INT_MAX ) &&
+		getParam( 5, render, INT_MAX ) &&
 		getParam( 6, layer, UCHAR_MAX ) &&
 		getParam( 7, effect3d ))
 	{
@@ -2218,8 +2218,8 @@ BObjectImp* UOExecutorModule::mf_PlayStationaryEffect_Ex()
         getParam( 4, effect ) &&
         getParam( 5, speed, UCHAR_MAX ) &&
         getParam( 6, duration, UCHAR_MAX ) &&
-		getParam( 7, hue, LONG_MAX ) &&
-		getParam( 8, render, LONG_MAX ) &&
+		getParam( 7, hue, INT_MAX ) &&
+		getParam( 8, render, INT_MAX ) &&
 		getParam( 9, effect3d ))
     {
 		realm = find_realm(strrealm->value());
