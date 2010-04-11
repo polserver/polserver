@@ -80,8 +80,11 @@ PacketsSingleton::PacketsSingleton()
 
 	packets.insert(PacketQueuePair(PKTOUT_C1_ID,new PacketQueueSingle()));
 	packets.insert(PacketQueuePair(PKTOUT_C7_ID,new PacketQueueSingle()));
-
 	packets.insert(PacketQueuePair(PKTOUT_CC_ID,new PacketQueueSingle()));
+	packets.insert(PacketQueuePair(PKTOUT_DC_ID,new PacketQueueSingle()));
+	packets.insert(PacketQueuePair(PKTOUT_DD_ID,new PacketQueueSingle()));
+	packets.insert(PacketQueuePair(PKTOUT_E3_ID,new PacketQueueSingle()));
+	packets.insert(PacketQueuePair(PKTOUT_F3_ID,new PacketQueueSingle()));
 }
 
 PacketInterface* PacketsSingleton::getPacket(u8 id, u16 sub)
@@ -247,13 +250,17 @@ PacketInterface* GetPacket(u8 id, u16 sub)
 			switch (sub)
 			{
 				case 0x04: return new Pktout_bf_sub4_closegump();
+				case PKTBI_BF::TYPE_OBJECT_CACHE: return new PktOut_BF_Sub10();
 				default: return NULL;
 			}
 		}
 		case PKTOUT_C1_ID: return new PktOut_C1();
 		case PKTOUT_C7_ID: return new PktOut_C7();
-
 		case PKTOUT_CC_ID: return new PktOut_CC();
+		case PKTOUT_DC_ID: return new PktOut_DC();
+		case PKTOUT_DD_ID: return new PktOut_DD();
+		case PKTOUT_E3_ID: return new PktOut_E3();
+		case PKTOUT_F3_ID: return new PktOut_F3();
 		default: return NULL;
 	}
 }
