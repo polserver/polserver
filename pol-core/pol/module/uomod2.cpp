@@ -862,11 +862,7 @@ BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu(Character* chr, 
 		msg->WriteFlipped(static_cast<u16>(textlen));
 
 		while (*string) //unicode
-		{
-			msg->offset++;
-			msg->Write(string,1,false);
-			++string;
-		}
+			msg->Write(static_cast<u16>((*string++) << 8));
 	}
 	
 	if (msg->offset+1 > static_cast<int>(sizeof msg->buffer))
@@ -893,18 +889,17 @@ BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu(Character* chr, 
 
 BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu(Character* chr, ObjArray* layout_arr, ObjArray* data_arr, int x,int y)
 {
-	PKTOUT_DD::HEADER *header = (PKTOUT_DD::HEADER *)buffer;
-	header->dialog_x = x;
-	header->dialog_y = y;
-	header->msgtype = PKTOUT_DD_ID;
-	header->serial = chr->serial_ext;
-	header->dialog_id = ctBEu32( this->uoexec.os_module->pid() );
-	header->dialog_x = ctBEu32( header->dialog_x );
-	header->dialog_y = ctBEu32( header->dialog_y );
+	PktOut_DD* msg = REQUESTPACKET(PktOut_DD,PKTOUT_DD_ID);
+	PktOut_DD* bfr = REQUESTPACKET(PktOut_DD,PKTOUT_DD_ID); // compress buffer
+	bfr->offset=0;
+	msg->offset+=2;
+	msg->Write(chr->serial_ext);
+	msg->WriteFlipped(this->uoexec.os_module->pid());
+	msg->WriteFlipped(x);
+	msg->WriteFlipped(y);
+	msg->offset+=8; //u32 layout_clen,layout_dlen
 
-	PKTOUT_DD::LAYOUT *playout = (PKTOUT_DD::LAYOUT *)((u32)header+sizeof(PKTOUT_DD::HEADER));
-	unsigned char *tempbufpos = bfr;
-	playout->layout_dlen = 0;
+	int layoutdlen=0;
 
 	for( unsigned i = 0; i < layout_arr->ref_arr.size(); ++i )
 	{
@@ -914,69 +909,88 @@ BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu(Character* chr, Ob
 		BObjectImp* imp = bo->impptr();
 		std::string s = imp->getStringRep();
 
-		playout->layout_dlen += 4 + s.length();
-		if (playout->layout_dlen > sizeof(bfr))
+		int addlen = 4 + s.length();
+		if (layoutdlen + addlen > static_cast<int>(sizeof bfr->buffer))
+		{
+			READDPACKET(msg);
+			READDPACKET(bfr);
 			return new BError( "Buffer length exceeded" );
-		*tempbufpos++ = '{';
-		*tempbufpos++ = ' ';
-		memcpy( tempbufpos, s.c_str(), s.length() );
-		tempbufpos += s.length();
-		*tempbufpos++ = ' ';
-		*tempbufpos++ = '}';
+		}
+		layoutdlen += addlen;
+		bfr->Write("{ ",2,false);
+		bfr->Write(s.c_str(),static_cast<u16>(s.length()),false);
+		bfr->Write(" }",2,false);
 	}
-	playout->layout_dlen++;
-	if (playout->layout_dlen > sizeof(bfr))
+	if (layoutdlen+1 > static_cast<int>(sizeof bfr->buffer))
+	{
+		READDPACKET(msg);
+		READDPACKET(bfr);
 		return new BError( "Buffer length exceeded" );
-	*tempbufpos++ = '\0';
+	}
+	layoutdlen++;
+	bfr->offset++; //nullterm
 
-	unsigned long cbuflen = sizeof(bfr)*2;
-	if (compress(&playout->layout_cdata, &cbuflen, bfr, playout->layout_dlen))   
+	unsigned long cbuflen = sizeof(bfr->buffer)*2;
+	if (compress(reinterpret_cast<unsigned char*>(msg->getBuffer()), &cbuflen, reinterpret_cast<unsigned char*>(&bfr->buffer), layoutdlen))
+	{
+		READDPACKET(msg);
+		READDPACKET(bfr);
 		return new BError( "Compression error" );
+	}
+	msg->offset-=8;
+	msg->WriteFlipped(static_cast<u32>(cbuflen+4));
+	msg->WriteFlipped(layoutdlen);
+	msg->offset+=static_cast<u16>(cbuflen);
 
-	playout->layout_clen = cbuflen;
-	playout->layout_dlen = ctBEu32( playout->layout_dlen );
+	bfr->offset=0;
 
-	PKTOUT_DD::TEXT *ptext = (PKTOUT_DD::TEXT *)((u32)&playout->layout_cdata + playout->layout_clen);
-	playout->layout_clen = ctBEu32( playout->layout_clen+4 );
-
-	ptext->lines = 0;
-	ptext->text_dlen = 0;
-	u16 *tempwbufpos = (u16*)bfr;
+	u32 numlines = 0;
+	u32 datadlen = 0;
 
 	for( unsigned i = 0; i < data_arr->ref_arr.size(); ++i )
 	{
 		BObject* bo = data_arr->ref_arr[i].get();
 		if (bo == NULL)
 			continue;
-		ptext->lines++;
-
 		BObjectImp* imp = bo->impptr();
 		std::string s = imp->getStringRep();
+
 		const char* string = s.c_str();
-		ptext->text_dlen += (s.length()+1)*2;
-
-		if (ptext->text_dlen > sizeof(bfr))
+		++numlines;
+		int addlen = (s.length()+1)*2;
+		if (datadlen + addlen > static_cast<int>(sizeof bfr->buffer))
+		{
+			READDPACKET(msg);
+			READDPACKET(bfr);
 			return new BError( "Buffer length exceeded" );
+		}
+		datadlen+=addlen;
+		bfr->WriteFlipped(static_cast<u16>(s.length()));
+		while (*string) //unicode
+			bfr->Write(static_cast<u16>((*string++) << 8));
+	}
+	msg->WriteFlipped(numlines);
+	msg->offset+=8; //u32 text_clen, text_dlen
 
-		*tempwbufpos++ = ctBEu16((u16)s.length());
-		while (*string)
-			*tempwbufpos++ = (u16)(*string++) << 8;
+	cbuflen = sizeof(bfr->buffer)*2;
+	if (compress(reinterpret_cast<unsigned char*>(msg->getBuffer()), &cbuflen, reinterpret_cast<unsigned char*>(&bfr->buffer), datadlen))   
+	{
+		READDPACKET(msg);
+		READDPACKET(bfr);
+		return new BError( "Compression error" );
 	}
 
-	ptext->lines = ctBEu32(ptext->lines);
+	msg->offset-=8;
+	msg->WriteFlipped(static_cast<u32>(cbuflen+4));
+	msg->WriteFlipped(datadlen);
+	msg->offset+=static_cast<u16>(cbuflen+1);
+	u16 len= msg->offset;
+	msg->offset=1;
+	msg->WriteFlipped(len);
 
-	cbuflen = sizeof(bfr)*2;
-	if (compress(&ptext->text_cdata, &cbuflen, bfr, ptext->text_dlen))   
-		return new BError( "Compression error" );
-
-	ptext->text_clen = cbuflen;
-	ptext->text_dlen = ctBEu32(ptext->text_dlen);
-
-	u16 msglen = (u16)((u32)&ptext->text_cdata - (u32)buffer + ptext->text_clen+1);
-	header->msglen = ctBEu16( msglen );
-	ptext->text_clen = ctBEu32(ptext->text_clen+4);
-
-	chr->client->transmit( buffer, msglen );
+	chr->client->transmit( &msg->buffer, len );
+	READDPACKET(msg);
+	READDPACKET(bfr);
 	chr->client->gd->add_gumpmod( this );
 	//old_gump_uoemod = this;
 	gump_chr = chr;

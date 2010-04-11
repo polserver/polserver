@@ -694,22 +694,22 @@ void send_item( Client *client, const Item *item )
 	if (client->ClientType & CLIENTTYPE_7000)
 	{
 		// Client >= 7.0.0.0 ( SA )
-		PKTOUT_F3 msg;
-		msg.msgtype = PKTOUT_F3_ID;
-		msg.unknown = ctBEu16( 0x1 );
-		msg.datatype = 0x00;
-		msg.serial = item->serial_ext;
-		msg.graphic = item->graphic_ext;
-		msg.facing = item->facing;
-		msg.amount = ctBEu16( item->get_senditem_amount() );
-		msg.amount_2 = ctBEu16( item->get_senditem_amount() );
-		msg.x = ctBEu16( item->x );
-		msg.y = ctBEu16( item->y );
-		msg.z = item->z;
-		msg.layer = item->layer;
-		msg.color = item->color_ext;
-		msg.flags = flags;
-		transmit( client, &msg, sizeof msg );
+		PktOut_F3* msg = REQUESTPACKET(PktOut_F3,PKTOUT_F3_ID);
+		msg->WriteFlipped(static_cast<u16>(0x1));
+		msg->offset++; // datatype
+		msg->Write(item->serial_ext);
+		msg->Write(item->graphic_ext);
+		msg->Write(item->facing);
+		msg->WriteFlipped(item->get_senditem_amount());
+		msg->WriteFlipped(item->get_senditem_amount());
+		msg->WriteFlipped(item->x);
+		msg->WriteFlipped(item->y);
+		msg->Write(item->z);
+		msg->Write(item->layer);
+		msg->Write(item->color_ext);
+		msg->Write(flags);
+		transmit( client, &msg->buffer, msg->offset );
+		READDPACKET(msg);
 	}
 	else
 	{
@@ -2077,21 +2077,20 @@ void move_boat_item( Item* item, unsigned short newx, unsigned short newy, signe
 	msg->WriteFlipped(len1A);
 
 	// Client >= 7.0.0.0 ( SA )
-	PKTOUT_F3 msg2;
-	msg2.msgtype = PKTOUT_F3_ID;
-	msg2.unknown = ctBEu16( 0x1 );
-	msg2.datatype = 0x00;
-	msg2.serial = item->serial_ext;
-	msg2.graphic = item->graphic_ext;
-	msg2.facing = item->facing;
-	msg2.amount = ctBEu16( 0x1 );
-	msg2.amount_2 = ctBEu16( 0x1 );
-	msg2.x = ctBEu16( item->x );
-	msg2.y = ctBEu16( item->y );
-	msg2.z = item->z;
-	msg2.layer = 0x00;
-	msg2.color = item->color_ext;
-	msg2.flags = 0x00;
+	PktOut_F3* msg2 = REQUESTPACKET(PktOut_F3,PKTOUT_F3_ID);
+	msg2->WriteFlipped(static_cast<u16>(0x1));
+	msg2->offset++; // datatype
+	msg2->Write(item->serial_ext);
+	msg2->Write(item->graphic_ext);
+	msg2->Write(item->facing);
+	msg2->WriteFlipped(static_cast<u16>(0x1));
+	msg2->WriteFlipped(static_cast<u16>(0x1));
+	msg2->WriteFlipped(item->x);
+	msg2->WriteFlipped(item->y);
+	msg2->Write(item->z);
+	msg2->offset++; //facing
+	msg2->Write(item->color_ext);
+	msg2->offset++; //flags
 
 	PktOut_1D* msgremove = REQUESTPACKET(PktOut_1D,PKTOUT_1D_ID);
 	msgremove->Write(item->serial_ext);
@@ -2105,7 +2104,7 @@ void move_boat_item( Item* item, unsigned short newx, unsigned short newy, signe
         if (inrange( client->chr, item ))
         {
 			if (client->ClientType & CLIENTTYPE_7000)
-				client->transmit( &msg2, sizeof msg2 );
+				client->transmit( &msg2->buffer, msg2->offset );
 			else
 				client->transmit( &msg->buffer, len1A );
         }
@@ -2119,6 +2118,7 @@ void move_boat_item( Item* item, unsigned short newx, unsigned short newy, signe
         }
     }
 	READDPACKET(msg);
+	READDPACKET(msg2);
 	READDPACKET(msgremove);
 }
 
@@ -2127,22 +2127,20 @@ void send_multi( Client* client, const UMulti* multi )
 {
 	if (client->ClientType & CLIENTTYPE_7000)
 	{
-		static PKTOUT_F3 msg2;
-		msg2.msgtype = PKTOUT_F3_ID;
-		msg2.unknown = ctBEu16( 0x1 );
-		msg2.datatype = 0x02;
-		msg2.serial = multi->serial_ext;
-		msg2.graphic = ctBEu16( multi->multidef().multiid );
-		msg2.facing = 0x00;
-		msg2.amount = ctBEu16( 0x1 );
-		msg2.amount_2 = ctBEu16( 0x1 );
-		msg2.x = ctBEu16( multi->x );
-		msg2.y = ctBEu16( multi->y );
-		msg2.z = multi->z;
-		msg2.layer = 0x00;
-		msg2.color = 0x00;
-		msg2.flags = 0x00;
-		client->transmit( &msg2, sizeof msg2 );
+		PktOut_F3* msg = REQUESTPACKET(PktOut_F3,PKTOUT_F3_ID);
+		msg->WriteFlipped(static_cast<u16>(0x1));
+		msg->Write(static_cast<u8>(0x02));
+		msg->Write(multi->serial_ext);
+		msg->WriteFlipped(multi->multidef().multiid);
+		msg->offset++; //facing;
+		msg->WriteFlipped(static_cast<u16>(0x1)); //amount
+		msg->WriteFlipped(static_cast<u16>(0x1)); //amount2
+		msg->WriteFlipped(multi->x);
+		msg->WriteFlipped(multi->y);
+		msg->Write(multi->z);
+		msg->offset+=4; // u8 layer, u16 color, u8 flags
+		client->transmit( &msg->buffer, msg->offset );
+		READDPACKET(msg);
 	}
 	else
 	{

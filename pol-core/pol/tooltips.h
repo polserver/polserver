@@ -18,7 +18,6 @@ Notes
 
 void send_object_cache(Client* client, const UObject* obj);
 void send_object_cache_to_inrange(const UObject* obj);
-unsigned char* BuildObjCache (const UObject* obj, bool new_style);
 void SendAOSTooltip(Client* client,UObject* item, bool vendor_content = false);
 
 #endif

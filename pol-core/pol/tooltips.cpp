@@ -69,17 +69,21 @@ void send_object_cache(Client* client, const UObject* obj)
 	{
 		if ((ssopt.force_new_objcache_packets) || (client->ClientType & CLIENTTYPE_5000))
 		{
-			unsigned char* uokr_buffer = BuildObjCache(obj, true);
-			client->transmit(uokr_buffer, 9);
-			delete [] uokr_buffer;
-			uokr_buffer = NULL;
+			PktOut_DC* msgdc = REQUESTPACKET(PktOut_DC,PKTOUT_DC_ID);
+			msgdc->Write(obj->serial_ext);
+			msgdc->WriteFlipped(obj->rev());
+			client->transmit(&msgdc->buffer, msgdc->offset);
+			READDPACKET(msgdc);
 		}
 		else
 		{
-			unsigned char* aos_buffer = BuildObjCache(obj, false);
-			client->transmit(aos_buffer, 13);
-			delete [] aos_buffer;
-			aos_buffer = NULL;
+			PktOut_BF_Sub10* msgbf10 = REQUESTSUBPACKET(PktOut_BF_Sub10,PKTBI_BF_ID,PKTBI_BF::TYPE_OBJECT_CACHE);
+			msgbf10->WriteFlipped(static_cast<u16>(0xD));
+			msgbf10->WriteFlipped(msgbf10->getSubID());
+			msgbf10->Write(obj->serial_ext);
+			msgbf10->WriteFlipped(obj->rev());
+			client->transmit(&msgbf10->buffer, msgbf10->offset);
+			READDPACKET(msgbf10);
 		}
 	}
 }
@@ -91,8 +95,9 @@ void send_object_cache_to_inrange(const UObject* obj)
 		// Since this is an InRange function, at least 1 person. So it isn't too far
 		// fetched to build for AOS and UOKR both, since both could be used. At least
 		// one will always be used, and this really makes a different in large groups.
-		unsigned char* aos_buffer = NULL;
-		unsigned char* uokr_buffer = NULL;
+		PktOut_DC* msgdc = REQUESTPACKET(PktOut_DC,PKTOUT_DC_ID);
+		PktOut_BF_Sub10* msgbf10 = REQUESTSUBPACKET(PktOut_BF_Sub10,PKTBI_BF_ID,PKTBI_BF::TYPE_OBJECT_CACHE);
+
 		for( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
 		{
 	        Client *client2 = *itr;
@@ -107,56 +112,33 @@ void send_object_cache_to_inrange(const UObject* obj)
 					//send_object_cache(client2, obj);
 					if ((ssopt.force_new_objcache_packets) || (client2->ClientType & CLIENTTYPE_5000))
 					{
-						if (uokr_buffer == NULL)
-							uokr_buffer = BuildObjCache(obj, true);
-						client2->transmit(uokr_buffer, 9);
+						if (msgdc->offset==1)
+						{
+							msgdc->Write(obj->serial_ext);
+							msgdc->WriteFlipped(obj->rev());
+						}
+						client2->transmit(&msgdc->buffer, msgdc->offset);
+						
 					}
 					else
 					{
-						if (aos_buffer == NULL)
-							aos_buffer = BuildObjCache(obj, false);
-						client2->transmit(aos_buffer, 13);
+						if (msgbf10->offset==1)
+						{
+							msgbf10->WriteFlipped(static_cast<u16>(0xD));
+							msgbf10->WriteFlipped(msgbf10->getSubID());
+							msgbf10->Write(obj->serial_ext);
+							msgbf10->WriteFlipped(obj->rev());
+						}
+						client2->transmit(&msgbf10->buffer, msgbf10->offset);
 					}
 				}
 			}
 		}
-		if (uokr_buffer != NULL)
-		{
-			delete [] uokr_buffer;
-			uokr_buffer = NULL;
-		}
-		if (aos_buffer != NULL)
-		{
-			delete [] aos_buffer;
-			aos_buffer = NULL;
-		}
-
+		READDPACKET(msgdc);
+		READDPACKET(msgbf10);
 	}
 }
 
-unsigned char* BuildObjCache (const UObject* obj, bool new_style)
-{
-	if (new_style)
-	{
-	    unsigned char* buffer = new unsigned char[9];
-	    PKTOUT_DC* msg = reinterpret_cast<PKTOUT_DC*>(buffer);
-		msg->msgtype = PKTOUT_DC_ID;
-		msg->serial = obj->serial_ext;
-		msg->revision = ctBEu32(obj->rev());
-		return buffer;
-	}
-	else
-	{
-	    unsigned char* buffer = new unsigned char[13];
-	    PKTBI_BF* msg = reinterpret_cast<PKTBI_BF*>(buffer);
-		msg->msgtype = PKTBI_BF_ID;
-		msg->msglen = ctBEu16(0xD);
-		msg->subcmd = ctBEu16(PKTBI_BF::TYPE_OBJECT_CACHE);
-		msg->objectcache.serial = obj->serial_ext;
-		msg->objectcache.listid = ctBEu32(obj->rev());
-		return buffer;
-	}
-}
 
 void SendAOSTooltip(Client* client, UObject* obj, bool vendor_content)
 {
