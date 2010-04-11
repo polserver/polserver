@@ -215,21 +215,18 @@ void send_boat_to_inrange( const UBoat* item, u16 oldx, u16 oldy )
 	msg->WriteFlipped(len1A);
 
 	// Client >= 7.0.0.0 ( SA )
-	PKTOUT_F3 msg2;
-	msg2.msgtype = PKTOUT_F3_ID;
-	msg2.unknown = ctBEu16( 0x1 );
-	msg2.datatype = 0x02;
-	msg2.serial = item->serial_ext;
-	msg2.graphic = ctBEu16( item->multidef().multiid );
-	msg2.facing = 0x00;
-	msg2.amount = ctBEu16( 0x1 );
-	msg2.amount_2 = ctBEu16( 0x1 );
-	msg2.x = ctBEu16( item->x );
-	msg2.y = ctBEu16( item->y );
-	msg2.z = item->z;
-	msg2.layer = 0x00;
-	msg2.color = 0x00;
-	msg2.flags = 0x00;
+	PktOut_F3* msg2 = REQUESTPACKET(PktOut_F3,PKTOUT_F3_ID);
+	msg2->WriteFlipped(static_cast<u16>(0x1));
+	msg2->Write(static_cast<u8>(0x02));
+	msg2->Write(item->serial_ext);
+	msg2->WriteFlipped(item->multidef().multiid);
+	msg2->offset++; //facing;
+	msg2->WriteFlipped(static_cast<u16>(0x1)); //amount
+	msg2->WriteFlipped(static_cast<u16>(0x1)); //amount2
+	msg2->WriteFlipped(item->x);
+	msg2->WriteFlipped(item->y);
+	msg2->Write(item->z);
+	msg2->offset+=4; // u8 layer, u16 color, u8 flags
 
 	PktOut_1D* msgremove = REQUESTPACKET(PktOut_1D,PKTOUT_1D_ID);
 	msgremove->Write(item->serial_ext);
@@ -244,7 +241,7 @@ void send_boat_to_inrange( const UBoat* item, u16 oldx, u16 oldy )
         {
             client->pause();
 			if (client->ClientType & CLIENTTYPE_7000)
-				client->transmit( &msg2, sizeof msg2 );
+				client->transmit( &msg2->buffer, msg2->offset );
 			else
 				client->transmit( &msg->buffer, len1A );
             boat_sent_to.push_back( client );
@@ -257,6 +254,7 @@ void send_boat_to_inrange( const UBoat* item, u16 oldx, u16 oldy )
 		}
     }
 	READDPACKET(msg);
+	READDPACKET(msg2);
 	READDPACKET(msgremove);
 }
 

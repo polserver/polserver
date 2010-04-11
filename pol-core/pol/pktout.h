@@ -1197,70 +1197,70 @@ struct PKTOUT_D8
 };
 
 // If send clients request with 0xd6 list
-struct PKTOUT_DC {
-	u8 msgtype;
-	u32 serial;
-	u32 revision;
-};
-asserteql( sizeof(PKTOUT_DC), 9);
+//struct PKTOUT_DC {
+//	u8 msgtype;
+//	u32 serial;
+//	u32 revision;
+//};
+//asserteql( sizeof(PKTOUT_DC), 9);
 
-struct PKTOUT_DD {
-   struct HEADER {
-      u8  msgtype;
-      u16 msglen;
-      u32 serial;
-      u32 dialog_id;
-      u32 dialog_x;
-      u32 dialog_y;
-   };
-   struct LAYOUT {
-      u32 layout_clen;
-      u32 layout_dlen;
-      u8  layout_cdata;
-   };
-   struct TEXT {
-      u32 lines;
-      u32 text_clen;
-      u32 text_dlen;
-      u8  text_cdata;
-   };
-};
-asserteql( sizeof(PKTOUT_DD::HEADER), 19 );
-asserteql( sizeof(PKTOUT_DD::LAYOUT), 9 );
-asserteql( sizeof(PKTOUT_DD::TEXT), 13 );
+//struct PKTOUT_DD {
+//   struct HEADER {
+//      u8  msgtype;
+//      u16 msglen;
+//      u32 serial;
+//      u32 dialog_id;
+//      u32 dialog_x;
+//      u32 dialog_y;
+//   };
+//   struct LAYOUT {
+//      u32 layout_clen;
+//      u32 layout_dlen;
+//      u8  layout_cdata;
+//   };
+//   struct TEXT {
+//      u32 lines;
+//      u32 text_clen;
+//      u32 text_dlen;
+//      u8  text_cdata;
+//   };
+//};
+//asserteql( sizeof(PKTOUT_DD::HEADER), 19 );
+//asserteql( sizeof(PKTOUT_DD::LAYOUT), 9 );
+//asserteql( sizeof(PKTOUT_DD::TEXT), 13 );
 
-struct PKTOUT_E3 {
-	u8  msgtype;
-	u16 msglen;
-	u32 unknown_A_length; //  3 Bytes
-	u8  unknown_A[3];
-	u32 unknown_B_length; // 19 Bytes
-	u8  unknown_B[19];
-	u32 unknown_C_length; // 16 Bytes
-	u8  unknown_C[16];
-	u32 unknown_D;
-	u32 unknown_E_length; // 16 Bytes
-	u8  unknown_E[16];
-};
-asserteql( sizeof(PKTOUT_E3), 77 );
+//struct PKTOUT_E3 {
+//	u8  msgtype;
+//	u16 msglen;
+//	u32 unknown_A_length; //  3 Bytes
+//	u8  unknown_A[3];
+//	u32 unknown_B_length; // 19 Bytes
+//	u8  unknown_B[19];
+//	u32 unknown_C_length; // 16 Bytes
+//	u8  unknown_C[16];
+//	u32 unknown_D;
+//	u32 unknown_E_length; // 16 Bytes
+//	u8  unknown_E[16];
+//};
+//asserteql( sizeof(PKTOUT_E3), 77 );
 
-struct PKTOUT_F3 {
-    u8 msgtype;
-    u16 unknown; // always 0x1
-	u8	datatype; // 0x00 for item and 0x02 for multi
-    u32 serial;
-    u16 graphic;
-	u8	facing; // 0x00 if multi
-    u16 amount; // 0x1 if multi
-	u16 amount_2; // 0x1 if multi
-    u16 x;
-    u16 y; 
-    u8	z;
-	u8	layer; // 0x00 if multi
-    u16 color; // 0x00 if multi
-    u8	flags; // 0x00 if multi 
-};
-asserteql( sizeof(PKTOUT_F3), 24 );
+//struct PKTOUT_F3 {
+//    u8 msgtype;
+//    u16 unknown; // always 0x1
+//	u8	datatype; // 0x00 for item and 0x02 for multi
+//    u32 serial;
+//    u16 graphic;
+//	u8	facing; // 0x00 if multi
+//    u16 amount; // 0x1 if multi
+//	u16 amount_2; // 0x1 if multi
+//    u16 x;
+//    u16 y; 
+//    u8	z;
+//	u8	layer; // 0x00 if multi
+//    u16 color; // 0x00 if multi
+//    u8	flags; // 0x00 if multi 
+//};
+//asserteql( sizeof(PKTOUT_F3), 24 );
 
 #ifdef _MSC_VER     /* Visual C++ 4.0 + */
 #	pragma pack( pop )
