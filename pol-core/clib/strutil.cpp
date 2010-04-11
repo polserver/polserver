@@ -38,6 +38,18 @@ string hexint( unsigned int v )
     return OSTRINGSTREAM_STR(os);
 }
 
+string hexint( signed long v )
+{
+    OSTRINGSTREAM os;
+    os << "0x" << hex << v;
+    return OSTRINGSTREAM_STR(os);
+}
+string hexint( unsigned long v )
+{
+    OSTRINGSTREAM os;
+    os << "0x" << hex << v;
+    return OSTRINGSTREAM_STR(os);
+}
 string decint( unsigned short v )
 {
     OSTRINGSTREAM os;
@@ -59,6 +71,18 @@ string decint( unsigned int v )
     return OSTRINGSTREAM_STR(os);
 }
 
+string decint( signed long v )
+{
+    OSTRINGSTREAM os;
+    os << v;
+    return OSTRINGSTREAM_STR(os);
+}
+string decint( unsigned long v )
+{
+    OSTRINGSTREAM os;
+    os << v;
+    return OSTRINGSTREAM_STR(os);
+}
 void splitnamevalue( const string& istr, 
                      string& propname, 
                      string& propvalue )

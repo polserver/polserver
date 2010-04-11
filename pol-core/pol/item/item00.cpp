@@ -31,8 +31,8 @@ Item::Item( const ItemDesc& id, UOBJ_CLASS uobj_class) :
 	container(NULL),
 	gotten_by(NULL),
     decayat_gameclock_(0),
-    sellprice_(ULONG_MAX), //dave changed 1/15/3 so 0 means 0, not default to itemdesc value
-    buyprice_(ULONG_MAX),  //dave changed 1/15/3 so 0 means 0, not default to itemdesc value
+    sellprice_(UINT_MAX), //dave changed 1/15/3 so 0 means 0, not default to itemdesc value
+    buyprice_(UINT_MAX),  //dave changed 1/15/3 so 0 means 0, not default to itemdesc value
 	amount_(1),
     newbie_(id.newbie),
     movable_(id.default_movable()),

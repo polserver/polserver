@@ -73,7 +73,7 @@ BObjectImp* convert_numeric( const std::string& str, int radix )
             // it's a long
             if (endptr)
             {
-                if ((l != LONG_MIN) && (l != LONG_MAX))
+                if ((l != INT_MIN) && (l != INT_MAX))
                 {
                     while (*endptr)
                     {

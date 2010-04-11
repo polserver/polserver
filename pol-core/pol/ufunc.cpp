@@ -570,8 +570,6 @@ void send_put_in_container_to_inrange( const Item *item )
 	// FIXME there HAS to be a better, more efficient way than this, without
 	// building these with pointer and NULL to check. Cuz that method requires
 	// recast and delete. Ewwww.
-	bool slot_built = false;
-	bool legacy_built = false;
 	PktOut_25* legacy_buffer = REQUESTPACKET(PktOut_25,PKTOUT_25_ID);
 	PktOut_25* slot_buffer = REQUESTPACKET(PktOut_25,PKTOUT_25_ID);
 
@@ -587,7 +585,7 @@ void send_put_in_container_to_inrange( const Item *item )
             // FIXME if the container has an owner, and I'm not it, don't tell me?
 			if ( client2->ClientType & CLIENTTYPE_6017 )
 			{
-				if (!slot_built)
+				if (slot_buffer->offset==1)
                 {
 					slot_buffer->Write(item->serial_ext);
 					slot_buffer->Write(item->graphic_ext);
@@ -598,13 +596,12 @@ void send_put_in_container_to_inrange( const Item *item )
 					slot_buffer->Write(item->slot_index());
 					slot_buffer->Write(item->container->serial_ext);
 					slot_buffer->Write(item->color_ext);
-                    slot_built=true;
                 }
 				client2->transmit(&slot_buffer->buffer, slot_buffer->offset);
 			}
 			else
 			{
-				if (!legacy_built)
+				if (legacy_buffer->offset==1)
                 {
 					legacy_buffer->Write(item->serial_ext);
 					legacy_buffer->Write(item->graphic_ext);
@@ -614,7 +611,6 @@ void send_put_in_container_to_inrange( const Item *item )
 					legacy_buffer->WriteFlipped(item->y);
 					legacy_buffer->Write(item->container->serial_ext);
 					legacy_buffer->Write(item->color_ext);
-                    legacy_built=true;
                 }
 				client2->transmit(&legacy_buffer->buffer, legacy_buffer->offset);
 			}
@@ -1935,7 +1931,7 @@ void destroy_item( Item* item )
 
 void setrealm(Item* item, void* arg)
 {
-	Realm* realm = (Realm*)arg;
+	Realm* realm = static_cast<Realm*>(arg);
 	item->realm = realm;
 }
 
