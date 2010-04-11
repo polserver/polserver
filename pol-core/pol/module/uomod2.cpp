@@ -153,8 +153,6 @@ static char buffer[ 65535 ];
 */
 // msg 3C: be sure to not send the whole structure, just as many 'items' as you insert
 
-static unsigned char bfr[ 65535 ];
-
 bool send_vendorwindow_contents( Client* client, UContainer* for_sale, bool send_aos_tooltip )
 {
 	PktOut_74* msg = REQUESTPACKET(PktOut_74,PKTOUT_74_ID);
