@@ -1156,9 +1156,9 @@ int defragstatics( int argc, char **argv )
                     }
                 }
                 USTRUCT_IDX idx;
-                idx.offset=~0uL;
-                idx.length=~0uL;
-                idx.unknown=~0uL;
+                idx.offset=~0u;
+                idx.length=~0u;
+                idx.unknown=~0u;
                 if (tilelist.size()>0)
                 {
                     idx.offset=currwritepos;
@@ -1176,9 +1176,9 @@ int defragstatics( int argc, char **argv )
             else
             {
                 USTRUCT_IDX idx;
-                idx.offset = ~0uL;
-                idx.length = ~0uL;
-                idx.unknown = ~0uL;
+                idx.offset = ~0u;
+                idx.length = ~0u;
+                idx.unknown = ~0u;
                 fwrite( &idx, sizeof idx, 1, fidx );
             }
         }

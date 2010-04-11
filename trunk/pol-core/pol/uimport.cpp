@@ -493,8 +493,8 @@ void read_global_item( ConfigElem& elem, int sysfind_flags )
 void read_system_vars(ConfigElem& elem)
 {
 	polvar.DataWrittenBy = elem.remove_ushort( "CoreVersion" );
-	stored_last_item_serial = elem.remove_ulong( "LastItemSerialNumber", ULONG_MAX ); //dave 3/9/3
-	stored_last_char_serial = elem.remove_ulong( "LastCharSerialNumber", ULONG_MAX ); //dave 3/9/3
+	stored_last_item_serial = elem.remove_ulong( "LastItemSerialNumber", UINT_MAX ); //dave 3/9/3
+	stored_last_char_serial = elem.remove_ulong( "LastCharSerialNumber", UINT_MAX ); //dave 3/9/3
 }
 
 void read_shadow_realms(ConfigElem& elem)

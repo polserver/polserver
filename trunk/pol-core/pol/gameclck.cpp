@@ -18,7 +18,7 @@ Notes
 #include "gprops.h"
 #include "polclock.h"
 
-static unsigned int gameclock;
+static gameclock_t gameclock;
 
 static time_t last_read;
 

@@ -309,7 +309,7 @@ AuxServices auxservices;
 
 void aux_service_thread_stub( void* arg )
 {
-    AuxService* as = reinterpret_cast<AuxService*>(arg);
+    AuxService* as = static_cast<AuxService*>(arg);
     as->run();
 }
 

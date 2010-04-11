@@ -82,7 +82,7 @@ void UoClientThread::run()
 
 void uo_client_listener_thread( void* arg )
 {
-    UoClientListener* ls = reinterpret_cast<UoClientListener*>(arg);
+    UoClientListener* ls = static_cast<UoClientListener*>(arg);
 
 	atomic_cout( "Listening for UO clients on port " + decint(ls->port) 
 		+ " (encryption: " + decint(ls->encryption.eType) + "," + hexint(ls->encryption.uiKey1) + "," + hexint(ls->encryption.uiKey2) + ")");

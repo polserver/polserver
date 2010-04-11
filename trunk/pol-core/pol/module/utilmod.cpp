@@ -46,7 +46,7 @@ int TmplExecutorModule<UtilExecutorModule>::function_table_size =
 BObjectImp* UtilExecutorModule::mf_RandomInt()
 {
     int value;
-    if (exec.getParam( 0, value, 1, LONG_MAX ))
+    if (exec.getParam( 0, value, 1, INT_MAX ))
     {
         if (value > 0)
             return new BLong( random_int( value ) );
@@ -62,10 +62,10 @@ BObjectImp* UtilExecutorModule::mf_RandomInt()
 BObjectImp* UtilExecutorModule::mf_RandomIntMinMax()
 {
     int minvalue;
-    if (exec.getParam( 0, minvalue, LONG_MIN, LONG_MAX ))
+    if (exec.getParam( 0, minvalue, INT_MIN, INT_MAX ))
     {
         int maxvalue;
-		if (exec.getParam( 1, maxvalue, LONG_MIN, LONG_MAX ))
+		if (exec.getParam( 1, maxvalue, INT_MIN, INT_MAX ))
 		{
 			if (maxvalue<minvalue)
 				swap(maxvalue,minvalue);
@@ -123,7 +123,7 @@ BObjectImp* UtilExecutorModule::mf_StrFormatTime()
 		return new BError("Format string exceeded 100 characters.");
 
 	int time_stamp;
-	getParam(1, time_stamp, 0, LONG_MAX);
+	getParam(1, time_stamp, 0, INT_MAX);
 		
 	time_t seconds;
 	struct tm* time_struct;
