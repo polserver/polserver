@@ -19,6 +19,7 @@ Notes
 #include "../layers.h"
 #include "../pktoutid.h"
 #include "../pktbothid.h"
+#include "../pktboth.h"
 #include "../pktdef.h"
 #include "../ucfg.h"
 
@@ -117,7 +118,7 @@ class PacketWriter : public PacketInterface
 		PacketWriter() { ReSetBuffer(); }
 		char buffer[_size];
 		void ReSetBuffer() { memset(buffer,0,sizeof(buffer)); buffer[0]=_id; offset=1; }
-		char* getBuffer() { return buffer; }
+		char* getBuffer() { return &buffer[offset]; }
 		inline u8 getID() { return buffer[0]; }
 
 		void Write(u32 x)
@@ -271,10 +272,16 @@ typedef PacketTemplate<PKTOUT_BA_ID,6> PktOut_BA;
 typedef PacketTemplate<PKTOUT_BC_ID,3> PktOut_BC;
 
 typedef PacketTemplateSub<PKTBI_BF_ID,0x4,12> Pktout_bf_sub4_closegump;
+typedef PacketTemplateSub<PKTBI_BF_ID,PKTBI_BF::TYPE_OBJECT_CACHE,5+8> PktOut_BF_Sub10;
 
 typedef PacketTemplate<PKTOUT_C1_ID,48+(SPEECH_MAX_LEN+1)+2> PktOut_C1;
 typedef PacketTemplate<PKTOUT_C7_ID,49> PktOut_C7;
 typedef PacketTemplate<PKTOUT_CC_ID,49+(SPEECH_MAX_LEN+1)*2+SPEECH_MAX_LEN+1> PktOut_CC;
+
+typedef PacketTemplate<PKTOUT_DC_ID,9> PktOut_DC;
+typedef PacketTemplate<PKTOUT_DD_ID,0xFFFF> PktOut_DD;
+typedef PacketTemplate<PKTOUT_E3_ID,77> PktOut_E3;
+typedef PacketTemplate<PKTOUT_F3_ID,24> PktOut_F3;
 // Packet defs end
 
 

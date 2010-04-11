@@ -852,7 +852,6 @@ bool process_data( Client *client )
 	{	   // The abnormal case.  
 			// The first four bytes after connection are the 
 			// crypto seed
-
 		client->recv_remaining_nocrypt( 4 );
 
 		if (client->bytes_received == 4)
@@ -866,22 +865,37 @@ bool process_data( Client *client )
 				{
 					printf( "UOKR Seed Message Received: Type 0x%X\n", cstype );
 				}
-				PKTOUT_E3 msg = {
-					/* msgtype          */ 0xe3,
-					/* msglen           */ 0x4d00,     // 77
-					/* unknown_A_length */ 0x03000000, //  3
-					/* unknown_A[3]     */ {0x02, 0x01, 0x03},
-					/* unknown_B_length */ 0x13000000, // 19
-					/* unknown_B[19]    */ {0x02, 0x11, 0x00, 0xfc, 0x2f, 0xe3, 0x81, 0x93, 0xcb, 0xaf, 0x98, 0xdd, 0x83, 0x13, 0xd2, 0x9e, 0xea, 0xe4, 0x13},
-					/* unknown_C_length */ 0x10000000, // 16
-					/* unknown_C[16]    */ {0x78, 0x13, 0xb7, 0x7b, 0xce, 0xA8, 0xd7, 0xbc, 0x52, 0xde, 0x38, 0x30, 0xea, 0xe9, 0x1e, 0xa3},
-					/* unknown_D        */ 0x20000000,
-					/* unknown_E_length */ 0x10000000, // 16
-					/* unknown_E[16]    */ {0x5a, 0xce, 0x3e, 0xe3, 0x97, 0x92, 0xe4, 0x8a, 0xf1, 0x9a, 0xd3, 0x04, 0x41, 0x03, 0xcb, 0x53}
-				};
+				PktOut_E3* msg = REQUESTPACKET(PktOut_E3,PKTOUT_E3_ID);
+				msg->WriteFlipped(static_cast<u16>(77));
+				msg->WriteFlipped(static_cast<u32>(0x03));
+				msg->Write(static_cast<u8>(0x02));	msg->Write(static_cast<u8>(0x01));	msg->Write(static_cast<u8>(0x03));
+				msg->WriteFlipped(static_cast<u32>(0x13));
+				msg->Write(static_cast<u8>(0x02));	msg->Write(static_cast<u8>(0x11));	msg->Write(static_cast<u8>(0x00));
+				msg->Write(static_cast<u8>(0xfc));	msg->Write(static_cast<u8>(0x2f));	msg->Write(static_cast<u8>(0xe3));
+				msg->Write(static_cast<u8>(0x81));	msg->Write(static_cast<u8>(0x93));	msg->Write(static_cast<u8>(0xcb));
+				msg->Write(static_cast<u8>(0xaf));	msg->Write(static_cast<u8>(0x98));	msg->Write(static_cast<u8>(0xdd));
+				msg->Write(static_cast<u8>(0x83));	msg->Write(static_cast<u8>(0x13));	msg->Write(static_cast<u8>(0xd2));
+				msg->Write(static_cast<u8>(0x9e));	msg->Write(static_cast<u8>(0xea));	msg->Write(static_cast<u8>(0xe4));
+				msg->Write(static_cast<u8>(0x13));
+				msg->WriteFlipped(static_cast<u32>(0x10));
+				msg->Write(static_cast<u8>(0x78));	msg->Write(static_cast<u8>(0x13));	msg->Write(static_cast<u8>(0xb7));
+				msg->Write(static_cast<u8>(0x7b));	msg->Write(static_cast<u8>(0xce));	msg->Write(static_cast<u8>(0xa8));
+				msg->Write(static_cast<u8>(0xd7));	msg->Write(static_cast<u8>(0xbc));	msg->Write(static_cast<u8>(0x52));
+				msg->Write(static_cast<u8>(0xde));	msg->Write(static_cast<u8>(0x38));	msg->Write(static_cast<u8>(0x30));
+				msg->Write(static_cast<u8>(0xea));	msg->Write(static_cast<u8>(0xe9));	msg->Write(static_cast<u8>(0x1e));
+				msg->Write(static_cast<u8>(0xa3));
+				msg->WriteFlipped(static_cast<u32>(0x20));
+				msg->WriteFlipped(static_cast<u32>(0x10));
+				msg->Write(static_cast<u8>(0x5a));	msg->Write(static_cast<u8>(0xce));	msg->Write(static_cast<u8>(0x3e));
+				msg->Write(static_cast<u8>(0xe3));	msg->Write(static_cast<u8>(0x97));	msg->Write(static_cast<u8>(0x92));
+				msg->Write(static_cast<u8>(0xe4));	msg->Write(static_cast<u8>(0x8a));	msg->Write(static_cast<u8>(0xf1));
+				msg->Write(static_cast<u8>(0x9a));	msg->Write(static_cast<u8>(0xd3));	msg->Write(static_cast<u8>(0x04));
+				msg->Write(static_cast<u8>(0x41));	msg->Write(static_cast<u8>(0x03));	msg->Write(static_cast<u8>(0xcb));
+				msg->Write(static_cast<u8>(0x53));
 				client->recv_state = Client::RECV_STATE_MSGTYPE_WAIT;
 				client->setClientType(CLIENTTYPE_UOKR); // UO:KR logging in				
-				client->transmit( &msg, sizeof msg );
+				client->transmit( &msg->buffer, msg->offset );
+				READDPACKET(msg);
 			}
 			else if (client->buffer[0] == PKTIN_EF_ID)  // new seed since 6.0.5.0 (0xef should never appear in normal ipseed)
 			{
