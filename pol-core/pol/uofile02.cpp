@@ -31,7 +31,7 @@ bool static_debug_on = false;
 unsigned int num_static_patches = 0;
 // I'd put these in an anonymous namespace, but the debugger can't see 'em...at least not easily.
 
-    unsigned int last_block = ~0Lu;
+    unsigned int last_block = ~0u;
     USTRUCT_IDX idxrec;
     USTRUCT_STATIC srecs[MAX_STATICS_PER_BLOCK];
     int srec_count;

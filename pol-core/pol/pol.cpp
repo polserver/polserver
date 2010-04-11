@@ -1291,7 +1291,7 @@ client->checkpoint = 59; //CNXBUG
 unsigned __stdcall client_io_thread_stub( void *arg )
 {
 	InstallStructuredExceptionHandler();
-	Client* client = reinterpret_cast<Client*>(arg);
+	Client* client = static_cast<Client*>(arg);
 	threadmap.Register( threadhelp::thread_pid(),string("Client#")+decint(client->instance_));
 	SetThreadPriority( GetCurrentThread(), THREAD_PRIORITY_HIGHEST );
 	threadhelp::run_thread( client_io_thread_stub2, arg );
@@ -1305,7 +1305,7 @@ void * client_io_thread_stub( void *arg )
 {
 	InstallStructuredExceptionHandler();
 
-	Client* client = reinterpret_cast<Client*>(arg);
+	Client* client = static_cast<Client*>(arg);
 	threadmap.Register( threadhelp::thread_pid(),string("Client#")+decint(client->instance_));
 	
 	run_thread( client_io_thread_stub2, arg );
@@ -1835,7 +1835,7 @@ void check_incoming_data(void)
 		client->acct = NULL;
 
 		clients.push_back( client );
-		printf( "Client connected (Total: %d)\n", clients.size() );
+		printf( "Client connected (Total: %u)\n", static_cast<unsigned int>(clients.size()) );
 	}
 }
 #if REFPTR_DEBUG

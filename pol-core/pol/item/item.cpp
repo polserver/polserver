@@ -205,7 +205,7 @@ string Item::merchant_description() const
 
 unsigned int Item::sellprice() const
 {
-    if (sellprice_ < ULONG_MAX) //dave changed 1/15/3 so 0 means 0, not default to itemdesc value
+    if (sellprice_ < UINT_MAX) //dave changed 1/15/3 so 0 means 0, not default to itemdesc value
     {
         return sellprice_;
     }
@@ -221,7 +221,7 @@ unsigned int Item::sellprice() const
 //   -Eric
 unsigned int Item::buyprice() const
 {
-    if (buyprice_ < ULONG_MAX) //dave changed 1/15/3 so 0 means 0, not default to itemdesc value
+    if (buyprice_ < UINT_MAX) //dave changed 1/15/3 so 0 means 0, not default to itemdesc value
     {
         return buyprice_;
     }
@@ -380,10 +380,10 @@ void Item::printProperties( ostream& os ) const
     if (decayat_gameclock_ != 0)
         os << "\tDecayAt\t" << decayat_gameclock_ << pf_endl;
 
-    if (sellprice_ != ULONG_MAX) // recall that ULONG_MAX means use default
+    if (sellprice_ != UINT_MAX) // recall that UINT_MAX means use default
         os << "\tSellPrice\t" << sellprice_ << pf_endl;
 
-    if (buyprice_ != ULONG_MAX) // recall that ULONG_MAX means use default
+    if (buyprice_ != UINT_MAX) // recall that UINT_MAX means use default
         os << "\tBuyPrice\t" << buyprice_ << pf_endl;
 
     if (newbie_ != default_newbie())
@@ -415,15 +415,15 @@ void Item::readProperties( ConfigElem& elem )
     unequip_script_ = elem.remove_string( "UNEQUIPSCRIPT", unequip_script_.c_str() );
 
     decayat_gameclock_ = elem.remove_ulong( "DECAYAT", 0 );
-    sellprice_ = elem.remove_ulong( "SELLPRICE", ULONG_MAX );
-    buyprice_ = elem.remove_ulong( "BUYPRICE", ULONG_MAX );
+    sellprice_ = elem.remove_ulong( "SELLPRICE", UINT_MAX );
+    buyprice_ = elem.remove_ulong( "BUYPRICE", UINT_MAX );
 
     // buyprice used to be read in with remove_int (which was wrong).
-    // the ULONG_MAX values used to be written out (which was wrong).
-    // when ULONG_MAX is read in by atoi, it returned 2147483647 (0x7FFFFFFF)
+    // the UINT_MAX values used to be written out (which was wrong).
+    // when UINT_MAX is read in by atoi, it returned 2147483647 (0x7FFFFFFF)
     // correct for this.
     if (buyprice_ == 2147483647)
-        buyprice_ = ULONG_MAX;
+        buyprice_ = UINT_MAX;
     newbie_ = elem.remove_bool( "NEWBIE", default_newbie() );
 
 	element_resist_mod.fire = static_cast<s16>(elem.remove_int( "FIRERESISTMOD", 0 ));
