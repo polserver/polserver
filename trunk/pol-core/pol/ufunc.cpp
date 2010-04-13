@@ -712,7 +712,6 @@ void send_item( Client *client, const Item *item )
 		PktOut_1A* msg = REQUESTPACKET(PktOut_1A,PKTOUT_1A_ID);
 		// transmit item info
 		msg->offset+=2;
-		msg->WriteFlipped(static_cast<u16>(sizeof msg->buffer));
 		// If the 0x80000000 is left out, the item won't show up. 
 		msg->WriteFlipped(static_cast<u32>(0x80000000 | item->serial)); // bit 0x80000000 enables piles
 		msg->Write(item->graphic_ext);
@@ -721,13 +720,13 @@ void send_item( Client *client, const Item *item )
 		{
 			msg->WriteFlipped(item->x);
 			// bits 0x80 and 0x40 are Dye and Move (dunno which is which)
-			msg->WriteFlipped(static_cast<u32>(0xC000 | item->y)); // dyeable and moveable?
+			msg->WriteFlipped(static_cast<u16>(0xC000 | item->y)); // dyeable and moveable?
 		}
 		else
 		{
-			msg->WriteFlipped(static_cast<u32>(0x8000 |item->x));
+			msg->WriteFlipped(static_cast<u16>(0x8000 |item->x));
 			// bits 0x80 and 0x40 are Dye and Move (dunno which is which)
-			msg->WriteFlipped(static_cast<u32>(0xC000 | item->y)); // dyeable and moveable?
+			msg->WriteFlipped(static_cast<u16>(0xC000 | item->y)); // dyeable and moveable?
 			msg->Write(item->facing);
 		}
 		msg->Write(item->z);
@@ -2572,7 +2571,7 @@ void send_new_subserver( Client* client )
 	PktOut_76* msg = REQUESTPACKET(PktOut_76,PKTOUT_76_ID);
 	msg->WriteFlipped(client->chr->x);
 	msg->WriteFlipped(client->chr->y);
-	msg->WriteFlipped(client->chr->z);
+	msg->WriteFlipped(static_cast<u16>(client->chr->z));
 	msg->offset+=5; //unk0,x1,y2
 	msg->WriteFlipped(client->chr->realm->width());
 	msg->WriteFlipped(client->chr->realm->height());
