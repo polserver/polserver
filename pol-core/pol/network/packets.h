@@ -14,13 +14,16 @@ Notes
 #include "../../clib/stl_inc.h"
 
 #include "../../clib/endian.h"
-#include "../../clib/singleton.h"
+#include "../../clib/passert.h"
 #include "../../clib/rawtypes.h"
+#include "../../clib/singleton.h"
+#include "../../clib/strutil.h"
 #include "../layers.h"
-#include "../pktoutid.h"
-#include "../pktbothid.h"
 #include "../pktboth.h"
+#include "../pktbothid.h"
 #include "../pktdef.h"
+#include "../pktoutid.h"
+#include "../realms.h"
 #include "../ucfg.h"
 
 #define MAX_PACKETS_INSTANCES 100
@@ -31,9 +34,7 @@ class PacketInterface
 	public:
 		PacketInterface(){};
 		virtual ~PacketInterface(){};
-	public:
 		u16 offset;
-	public:
 		virtual void ReSetBuffer() {};
 		virtual char* getBuffer() { return NULL; }
 		virtual inline u8 getID() { return 0; }
@@ -115,61 +116,83 @@ template <u8 _id, u16 _size>
 class PacketWriter : public PacketInterface
 {
 	public:
-		PacketWriter() { ReSetBuffer(); }
 		char buffer[_size];
-		void ReSetBuffer() { memset(buffer,0,sizeof(buffer)); buffer[0]=_id; offset=1; }
 		char* getBuffer() { return &buffer[offset]; }
 		inline u8 getID() { return buffer[0]; }
 
 		void Write(u32 x)
 		{
+			passert_always_r(offset+4<=_size, "pkt "+hexint(_id));
 			(*(u32*)&buffer[offset]) = x;
 			offset += 4;
 		};
 		void Write(s32 x)
 		{
+			passert_always_r(offset+4<=_size, "pkt "+hexint(_id));
 			(*(s32*)&buffer[offset]) = x;
 			offset += 4;
 		};
 		void Write(u16 x)
 		{
+			passert_always_r(offset+2<=_size, "pkt "+hexint(_id));
 			(*(u16*)&buffer[offset]) = x;
 			offset += 2;
 		};
 		void Write(s16 x)
 		{
+			passert_always_r(offset+2<=_size, "pkt "+hexint(_id));
 			(*(s16*)&buffer[offset]) = x;
 			offset += 2;
 		};
-		void Write(u8 x) { buffer[offset++] = x; };
-		void Write(s8 x) { buffer[offset++] = x; };
+		void Write(u8 x) 
+		{ 
+			passert_always_r(offset+1<=_size, "pkt "+hexint(_id));
+			buffer[offset++] = x;
+		};
+		void Write(s8 x)
+		{
+			passert_always_r(offset+1<=_size, "pkt "+hexint(_id));
+			buffer[offset++] = x;
+		};
 		void WriteFlipped(u32 x)
 		{
+			passert_always_r(offset+4<=_size, "pkt "+hexint(_id));
 			(*(u32*)&buffer[offset]) = cfBEu32(x);
 			offset += 4;
 		};
 		void WriteFlipped(s32 x)
 		{
+			passert_always_r(offset+4<=_size, "pkt "+hexint(_id));
 			(*(s32*)&buffer[offset]) = cfBEu32(x);
 			offset += 4;
 		};
 		void WriteFlipped(u16 x)
 		{
+			passert_always_r(offset+2<=_size, "pkt "+hexint(_id));
 			(*(u16*)&buffer[offset]) = cfBEu16(x);
 			offset += 2;
 		};
 		void WriteFlipped(s16 x)
 		{
+			passert_always_r(offset+2<=_size, "pkt "+hexint(_id));
 			(*(s16*)&buffer[offset]) = cfBEu16(x);
 			offset += 2;
 		};
 		void Write(const char* x, u16 len, bool nullterm=true)
 		{
+			passert_always_r(offset+len<=_size, "pkt "+hexint(_id));
 			strncpy(&buffer[offset], x, nullterm ? len-1 : len);
+			offset += len;
+		}
+		void Write(u8 x[], u16 len)
+		{
+			passert_always_r(offset+len<=_size, "pkt "+hexint(_id));
+			memcpy(&buffer[offset], x, len);
 			offset += len;
 		}
 		void Write(const u16* x, u16 len, bool nullterm=true)
 		{
+			passert_always_r(offset+len*2<=_size, "pkt "+hexint(_id));
 			u16* _buffer = ((u16*)&buffer[offset]);
 			offset += len*2;
 			while (len-- > 0)
@@ -177,10 +200,14 @@ class PacketWriter : public PacketInterface
 				*(_buffer++) = *x++;
 			}
 			if (nullterm)
+			{
+				passert_always_r(offset+2<=_size, "pkt "+hexint(_id));
 				offset += 2;
+			}
 		}
 		void WriteFlipped(const u16* x, u16 len, bool nullterm=true)
 		{
+			passert_always_r(offset+len*2<=_size, "pkt "+hexint(_id));
 			u16* _buffer = ((u16*)&buffer[offset]);
 			offset += len*2;
 			while (len-- > 0)
@@ -189,7 +216,10 @@ class PacketWriter : public PacketInterface
 				++x;
 			}
 			if (nullterm)
+			{
+				passert_always_r(offset+2<=_size, "pkt "+hexint(_id));
 				offset += 2;
+			}
 		}
 };
 
@@ -197,16 +227,25 @@ class PacketWriter : public PacketInterface
 template <u8 _id, u16 _size>
 class PacketTemplate : public PacketWriter<_id, _size>
 {
+	public:
+		PacketTemplate() { ReSetBuffer(); }
+		void ReSetBuffer() { memset(buffer,0,_size); buffer[0]=_id; offset=1; }
 };
 
 // sub packet
-template <u8 _id, u16 _sub, u16 _size>
+template <u8 _id, u16 _suboff, u16 _sub, u16 _size>
 class PacketTemplateSub : public PacketWriter<_id, _size>
 {
-	private:
-		u16 sub;
 	public:
-		inline u16 getSubID() { return sub; }
+		PacketTemplateSub() { ReSetBuffer(); }
+		void ReSetBuffer() 
+		{ 
+			memset(buffer,0,_size);
+			buffer[0]=_id;
+			(*(u16*)&buffer[_suboff]) = cfBEu16(_sub);
+			offset=1;
+		}
+		inline u16 getSubID() { return ctBEu16((*(u16*)&buffer[_suboff])); }
 };
 
 // creates new packets
@@ -271,8 +310,18 @@ typedef PacketTemplate<PKTOUT_B9_ID,5> PktOut_B9;
 typedef PacketTemplate<PKTOUT_BA_ID,6> PktOut_BA;
 typedef PacketTemplate<PKTOUT_BC_ID,3> PktOut_BC;
 
-typedef PacketTemplateSub<PKTBI_BF_ID,0x4,12> Pktout_bf_sub4_closegump;
-typedef PacketTemplateSub<PKTBI_BF_ID,PKTBI_BF::TYPE_OBJECT_CACHE,5+8> PktOut_BF_Sub10;
+typedef PacketTemplateSub<PKTBI_BF_ID,3,PKTBI_BF::TYPE_CLOSE_GUMP,5+8> PktOut_BF_Sub4;
+typedef PacketTemplateSub<PKTBI_BF_ID,3,PKTBI_BF::TYPE_PARTY_SYSTEM,0xFFFF> PktOut_BF_Sub6;
+typedef PacketTemplateSub<PKTBI_BF_ID,3,PKTBI_BF::TYPE_CURSOR_HUE,5+1> PktOut_BF_Sub8;
+typedef PacketTemplateSub<PKTBI_BF_ID,3,PKTBI_BF::TYPE_OBJECT_CACHE,5+8> PktOut_BF_Sub10;
+typedef PacketTemplateSub<PKTBI_BF_ID,3,PKTBI_BF::TYPE_CLOSE_WINDOW,5+8> PktOut_BF_Sub16;
+typedef PacketTemplateSub<PKTBI_BF_ID,3,PKTBI_BF::TYPE_ENABLE_MAP_DIFFS,5+4+MAX_NUMER_REALMS*8> PktOut_BF_Sub18;
+typedef PacketTemplateSub<PKTBI_BF_ID,3,PKTBI_BF::TYPE_EXTENDED_STATS_OUT,5+7> PktOut_BF_Sub19;
+typedef PacketTemplateSub<PKTBI_BF_ID,3,PKTBI_BF::TYPE_NEW_SPELLBOOK,5+18> PktOut_BF_Sub1B;
+typedef PacketTemplateSub<PKTBI_BF_ID,3,PKTBI_BF::TYPE_CUSTOM_HOUSE_SHORT,5+8> PktOut_BF_Sub1D;
+typedef PacketTemplateSub<PKTBI_BF_ID,3,PKTBI_BF::TYPE_ACTIVATE_CUSTOM_HOUSE_TOOL,5+12> PktOut_BF_Sub20;
+typedef PacketTemplateSub<PKTBI_BF_ID,3,PKTBI_BF::TYPE_DAMAGE,5+6> PktOut_BF_Sub22;
+typedef PacketTemplateSub<PKTBI_BF_ID,3,PKTBI_BF::TYPE_CHARACTER_RACE_CHANGER,5+2> PktOut_BF_Sub2A;
 
 typedef PacketTemplate<PKTOUT_C1_ID,48+(SPEECH_MAX_LEN+1)+2> PktOut_C1;
 typedef PacketTemplate<PKTOUT_C7_ID,49> PktOut_C7;

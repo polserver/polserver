@@ -157,9 +157,10 @@ PacketInterface* PacketQueueSubs::GetNext(u8 id, u16 sub)
 
 void PacketQueueSubs::Add(PacketInterface* pkt)
 {
+	u16 sub=pkt->getSubID();
 	//critical start
 	PolLock lck;
-	PacketInterfaceQueueMap::iterator itr = packets.find(pkt->getSubID());
+	PacketInterfaceQueueMap::iterator itr = packets.find(sub);
 	if (itr != packets.end())
 	{
 		if (itr->second.size() > MAX_PACKETS_INSTANCES) // enough?
@@ -171,7 +172,7 @@ void PacketQueueSubs::Add(PacketInterface* pkt)
 	{
 		PacketInterfaceQueue qu;
 		qu.push(pkt);
-		packets.insert(PacketInterfaceQueuePair(pkt->getSubID(),qu));
+		packets.insert(PacketInterfaceQueuePair(sub,qu));
 	}
 	//critical end
 }
@@ -249,8 +250,17 @@ PacketInterface* GetPacket(u8 id, u16 sub)
 		{
 			switch (sub)
 			{
-				case 0x04: return new Pktout_bf_sub4_closegump();
-				case PKTBI_BF::TYPE_OBJECT_CACHE: return new PktOut_BF_Sub10();
+				case PKTBI_BF::TYPE_CLOSE_GUMP:					return new PktOut_BF_Sub4();
+				case PKTBI_BF::TYPE_CURSOR_HUE:					return new PktOut_BF_Sub6();
+				case PKTBI_BF::TYPE_OBJECT_CACHE:				return new PktOut_BF_Sub10();
+				case PKTBI_BF::TYPE_CLOSE_WINDOW:				return new PktOut_BF_Sub16();
+				case PKTBI_BF::TYPE_ENABLE_MAP_DIFFS:			return new PktOut_BF_Sub18();
+				case PKTBI_BF::TYPE_EXTENDED_STATS_OUT:			return new PktOut_BF_Sub19();
+				case PKTBI_BF::TYPE_NEW_SPELLBOOK:				return new PktOut_BF_Sub1B();
+				case PKTBI_BF::TYPE_CUSTOM_HOUSE_SHORT:			return new PktOut_BF_Sub1D();
+				case PKTBI_BF::TYPE_ACTIVATE_CUSTOM_HOUSE_TOOL: return new PktOut_BF_Sub20();
+				case PKTBI_BF::TYPE_DAMAGE:						return new PktOut_BF_Sub22();
+				case PKTBI_BF::TYPE_CHARACTER_RACE_CHANGER:		return new PktOut_BF_Sub2A();
 				default: return NULL;
 			}
 		}

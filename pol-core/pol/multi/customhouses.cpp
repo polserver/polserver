@@ -26,6 +26,7 @@ Notes
 #include "../mobile/charactr.h"
 #include "../network/cgdata.h"
 #include "../network/client.h"
+#include "../network/packets.h"
 #include "../core.h"
 #include "../uvars.h"
 #include "house.h"
@@ -442,16 +443,16 @@ void CustomHouseDesign::testprint( ostream& os ) const
 
 void CustomHouseStopEditing(Character* chr, UHouse* house)
 {
-    PKTBI_BF outmsg;
-    outmsg.msgtype = PKTBI_BF_ID;
-    outmsg.subcmd = ctBEu16(PKTBI_BF::TYPE_ACTIVATE_CUSTOM_HOUSE_TOOL);
-    outmsg.activatehousetool.house_serial = house->serial_ext;
-    outmsg.activatehousetool.unk1 = 0x5;//end
-    outmsg.activatehousetool.unk2 = ctBEu16(0);//fixme what's the meaning
-    outmsg.activatehousetool.unk3 = ctBEu32(0xFFFFFFFF); //fixme what's the meaning
-    outmsg.activatehousetool.unk4 = 0xFF;//fixme what's the meaning
-    outmsg.msglen = ctBEu16(17);
-    chr->client->transmit(&outmsg,17);
+	PktOut_BF_Sub20* msg = REQUESTSUBPACKET(PktOut_BF_Sub20,PKTBI_BF_ID,PKTBI_BF::TYPE_ACTIVATE_CUSTOM_HOUSE_TOOL);
+	msg->WriteFlipped(static_cast<u16>(17));
+	msg->offset+=2; //sub
+	msg->Write(house->serial_ext);
+	msg->Write(static_cast<u8>(0x5)); //end
+	msg->offset+=2; // u16 unk2 FIXME what's the meaning
+	msg->Write(static_cast<u32>(0xFFFFFFFF)); // fixme
+	msg->Write(static_cast<u8>(0xFF)); // fixme
+    chr->client->transmit(&msg->buffer,msg->offset);
+	READDPACKET(msg);
 
     move_character_to(chr,house->multidef().global_minrx,house->multidef().global_maxry+1,house->z,MOVEITEM_FORCELOCATION, NULL);
     chr->client->gd->custom_house_serial = 0;
@@ -796,13 +797,13 @@ void CustomHousesSendFullToInRange(UHouse* house, int design, int range)
 
 void CustomHousesSendShort(UHouse* house, Client* client)
 {
-    PKTBI_BF msg;
-    msg.msgtype = PKTBI_BF_ID;
-    msg.msglen = ctBEu16(0xD);
-    msg.subcmd = ctBEu16(PKTBI_BF::TYPE_CUSTOM_HOUSE_SHORT);
-    msg.customhouseshort.house_serial = house->serial_ext;
-    msg.customhouseshort.revision = ctBEu32(house->revision);
-    client->transmit(&msg, 0xD);
+	PktOut_BF_Sub1D* msg = REQUESTSUBPACKET(PktOut_BF_Sub1D,PKTBI_BF_ID,PKTBI_BF::TYPE_CUSTOM_HOUSE_SHORT);
+	msg->WriteFlipped(static_cast<u16>(13));
+	msg->offset+=2;
+	msg->Write(house->serial_ext);
+	msg->WriteFlipped(house->revision);
+    client->transmit(&msg->buffer, msg->offset);
+	READDPACKET(msg);
 }
 
 void UHouse::SetCustom(bool _custom)
