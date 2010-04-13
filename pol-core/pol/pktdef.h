@@ -161,6 +161,27 @@ struct PKTOUT_BC
 	enum { PLAYSOUND_NO = 0, PLAYSOUND_YES = 1 };
 };
 
+struct PKTBI_BF_16
+{
+	enum
+	{
+		PAPERDOLL	= 0x1,
+		STATUS		= 0x2,
+		CHARPROFILE	= 0x8,
+		CONTAINER	= 0xC
+	};
+};
+struct PKTBI_BF_19
+{
+	enum
+	{
+		STR_MASK = 0x30,
+		DEX_MASK = 0x0C,
+		INT_MASK = 0x03
+	};
+	enum { MODE_UP, MODE_DOWN, MODE_LOCKED };
+};
+
 struct PKTOUT_C0
 {
 	enum {

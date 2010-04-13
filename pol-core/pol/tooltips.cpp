@@ -79,7 +79,7 @@ void send_object_cache(Client* client, const UObject* obj)
 		{
 			PktOut_BF_Sub10* msgbf10 = REQUESTSUBPACKET(PktOut_BF_Sub10,PKTBI_BF_ID,PKTBI_BF::TYPE_OBJECT_CACHE);
 			msgbf10->WriteFlipped(static_cast<u16>(0xD));
-			msgbf10->WriteFlipped(msgbf10->getSubID());
+			msgbf10->offset+=2; //sub
 			msgbf10->Write(obj->serial_ext);
 			msgbf10->WriteFlipped(obj->rev());
 			client->transmit(&msgbf10->buffer, msgbf10->offset);
@@ -125,7 +125,7 @@ void send_object_cache_to_inrange(const UObject* obj)
 						if (msgbf10->offset==1)
 						{
 							msgbf10->WriteFlipped(static_cast<u16>(0xD));
-							msgbf10->WriteFlipped(msgbf10->getSubID());
+							msgbf10->offset+=2; //sub
 							msgbf10->Write(obj->serial_ext);
 							msgbf10->WriteFlipped(obj->rev());
 						}

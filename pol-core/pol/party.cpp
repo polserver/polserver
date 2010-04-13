@@ -387,30 +387,27 @@ bool Party::can_add()
 
 void Party::send_member_list(Character* to_chr)
 {
-	PKTBI_BF msg;
-	msg.msgtype=PKTBI_BF_ID;
-	
-	msg.subcmd=ctBEu16(PKTBI_BF::TYPE_PARTY_SYSTEM);
-	msg.partydata.partycmd=PKTBI_BF_06::PARTYCMD_ADD;
-	
-	u8 i=0;
-
+	PktOut_BF_Sub6* msg = REQUESTSUBPACKET(PktOut_BF_Sub6,PKTBI_BF_ID,PKTBI_BF::TYPE_PARTY_SYSTEM);
+	msg->offset+=4; //len+sub
+	msg->Write(static_cast<u8>(PKTBI_BF_06::PARTYCMD_ADD));
+	msg->offset++; //nummembers
 	vector<u32>::iterator itr = _member_serials.begin();
 	while( itr != _member_serials.end() )
 	{
         Character* chr = system_find_mobile( *itr );
         if (chr != NULL)
 		{
-			msg.partydata.partyaddout.serials[i].memberid=chr->serial_ext;
-			++i;
+			msg->Write(chr->serial_ext);
 			++itr;
 		}
         else
 			itr = _member_serials.erase( itr );
 	}
-
-	msg.partydata.partyaddout.nummembers=i;
-	msg.msglen=ctBEu16(7+_member_serials.size()*4);
+	u16 len=msg->offset;
+	msg->offset=6;
+	msg->Write(static_cast<u8>(_member_serials.size()));
+	msg->offset=1;
+	msg->WriteFlipped(len);
 
 	if (to_chr==NULL)
 	{
@@ -420,12 +417,13 @@ void Party::send_member_list(Character* to_chr)
 			if (chr != NULL)
 			{
 				if (chr->has_active_client())
-					chr->client->transmit(&msg,cfBEu16(msg.msglen));
+					chr->client->transmit(&msg->buffer,len);
 			}
 		}
 	}
 	else
-		to_chr->client->transmit(&msg,cfBEu16(msg.msglen));
+		to_chr->client->transmit(&msg->buffer,len);
+	READDPACKET(msg);
 }
 
 void Party::disband()
@@ -474,28 +472,29 @@ void Party::send_remove_member(Character* remchr, bool *disband)
 	}
 	else
 	{
-		PKTBI_BF msg;
-		msg.msgtype=PKTBI_BF_ID;
-	
-		msg.subcmd=ctBEu16(PKTBI_BF::TYPE_PARTY_SYSTEM);
-		msg.partydata.partycmd=PKTBI_BF_06::PARTYCMD_REMOVE;
-		msg.partydata.partyremoveout.remmemberid=remchr->serial_ext;
-		unsigned int i=0;
+		PktOut_BF_Sub6* msg = REQUESTSUBPACKET(PktOut_BF_Sub6,PKTBI_BF_ID,PKTBI_BF::TYPE_PARTY_SYSTEM);
+		msg->offset+=4; //len+sub
+		msg->Write(static_cast<u8>(PKTBI_BF_06::PARTYCMD_REMOVE));
+		msg->offset++; // nummembers
+		msg->Write(remchr->serial_ext);
+
 		vector<u32>::iterator itr = _member_serials.begin();
 		while( itr != _member_serials.end() )
 		{
 			Character* chr = system_find_mobile( *itr );
 			if (chr != NULL)
 			{
-				msg.partydata.partyremoveout.serials[i].memberid=chr->serial_ext;
-				++i;
+				msg->Write(chr->serial_ext);
 				++itr;
 			}
 			else
 				itr = _member_serials.erase( itr );
 		}
-		msg.partydata.partyremoveout.nummembers=static_cast<u8>(_member_serials.size());
-		msg.msglen=ctBEu16(11+_member_serials.size()*4);
+		u16 len=msg->offset;
+		msg->offset=6;
+		msg->Write(static_cast<u8>(_member_serials.size()));
+		msg->offset=1;
+		msg->WriteFlipped(len);
 
 		for(itr = _member_serials.begin(); itr != _member_serials.end(); ++itr)
 		{
@@ -503,9 +502,10 @@ void Party::send_remove_member(Character* remchr, bool *disband)
 			if (chr != NULL)
 			{
 				if (chr->has_active_client())
-					chr->client->transmit(&msg,cfBEu16(msg.msglen));
+					chr->client->transmit(&msg->buffer,len);
 			}
 		}
+		READDPACKET(msg);
 		send_msg_to_all(CLP_Player_Removed);//A player has been removed from your party.
 		if (!test_size())
 		{
@@ -642,12 +642,10 @@ void Party::on_stam_changed(Character* chr)
 
 void Party::send_member_msg_public(Character* chr,u16* wtext, size_t wtextlen)
 {
-	PKTBI_BF msg;
-	msg.msgtype=PKTBI_BF_ID;
-	
-	msg.subcmd=ctBEu16(PKTBI_BF::TYPE_PARTY_SYSTEM);
-	msg.partydata.partycmd=PKTBI_BF_06::PARTYCMD_PARTY_MSG;
-	msg.partydata.partymsgout.memberid=chr->serial_ext;
+	PktOut_BF_Sub6* msg = REQUESTSUBPACKET(PktOut_BF_Sub6,PKTBI_BF_ID,PKTBI_BF::TYPE_PARTY_SYSTEM);
+	msg->offset+=4; //len+sub
+	msg->Write(static_cast<u8>(PKTBI_BF_06::PARTYCMD_PARTY_MSG));
+	msg->Write(chr->serial_ext);
 
 	if (party_cfg.Hooks.ChangePublicChat)
 	{
@@ -661,7 +659,6 @@ void Party::send_member_msg_public(Character* chr,u16* wtext, size_t wtextlen)
 			unsigned len = arr->ref_arr.size();
 			if (len>SPEECH_MAX_LEN)
 				len=SPEECH_MAX_LEN;
-			//wtext[ SPEECH_MAX_LEN+1 ];
 			if ( !convertArrayToUC(arr, wtext, len, true) )
 				return;
 			wtextlen=len+1;
@@ -672,9 +669,10 @@ void Party::send_member_msg_public(Character* chr,u16* wtext, size_t wtextlen)
 				return;
 		}
 	}
-	unsigned short msglen = static_cast<unsigned short>(10+ wtextlen*sizeof(msg.partydata.partymsgout.wtext[0]));
-	msg.msglen=ctBEu16(msglen);
-	memcpy( msg.partydata.partymsgout.wtext, wtext, wtextlen*sizeof(msg.partydata.partymsgout.wtext[0]) );
+	msg->Write(&wtext[0],static_cast<u16>(wtextlen),false);
+	u16 len=msg->offset;
+	msg->offset=1;
+	msg->WriteFlipped(len);
 
 	for( vector<u32>::iterator itr = _member_serials.begin(); itr != _member_serials.end(); ++itr)
 	{
@@ -682,21 +680,20 @@ void Party::send_member_msg_public(Character* chr,u16* wtext, size_t wtextlen)
 		if (mem != NULL)
 		{
 			if (mem->has_active_client())
-				mem->client->transmit(&msg,msglen);
+				mem->client->transmit(&msg->buffer,len);
 		}
 	}
+	READDPACKET(msg);
 }
 
 void Party::send_member_msg_private(Character* chr, Character* tochr, u16* wtext, size_t wtextlen)
 {
 	if (!tochr->has_active_client())
 		return;
-	PKTBI_BF msg;
-	msg.msgtype=PKTBI_BF_ID;
-	
-	msg.subcmd=ctBEu16(PKTBI_BF::TYPE_PARTY_SYSTEM);
-	msg.partydata.partycmd=PKTBI_BF_06::PARTYCMD_MEMBER_MSG;
-	msg.partydata.partymsgout.memberid=chr->serial_ext;
+	PktOut_BF_Sub6* msg = REQUESTSUBPACKET(PktOut_BF_Sub6,PKTBI_BF_ID,PKTBI_BF::TYPE_PARTY_SYSTEM);
+	msg->offset+=4; //len+sub
+	msg->Write(static_cast<u8>(PKTBI_BF_06::PARTYCMD_MEMBER_MSG));
+	msg->Write(chr->serial_ext);
 
 	if (party_cfg.Hooks.ChangePrivateChat)
 	{
@@ -710,7 +707,6 @@ void Party::send_member_msg_private(Character* chr, Character* tochr, u16* wtext
 			unsigned len = arr->ref_arr.size();
 			if (len>SPEECH_MAX_LEN)
 				len=SPEECH_MAX_LEN;
-			//wtext[ SPEECH_MAX_LEN+1 ];
 			if ( !convertArrayToUC(arr, wtext, len, true) )
 				return;
 			wtextlen=len+1;
@@ -723,18 +719,16 @@ void Party::send_member_msg_private(Character* chr, Character* tochr, u16* wtext
 	}
 	if ((wtextlen+party_cfg.General.PrivateMsgPrefixLen)> SPEECH_MAX_LEN)
 		wtextlen=SPEECH_MAX_LEN-party_cfg.General.PrivateMsgPrefixLen;
-	unsigned short msglen = static_cast<unsigned short>(10+ wtextlen*sizeof(msg.partydata.partymsgout.wtext[0]));
 	if (party_cfg.General.PrivateMsgPrefixLen)
-	{
-		msglen+=static_cast<unsigned short>(party_cfg.General.PrivateMsgPrefixLen*sizeof(msg.partydata.partymsgout.wtext[0]));
-		memcpy( msg.partydata.partymsgout.wtext, party_cfg.General.PrivateMsgPrefix, 
-			party_cfg.General.PrivateMsgPrefixLen*sizeof(msg.partydata.partymsgout.wtext[0]) );
-	}
+		msg->Write(&party_cfg.General.PrivateMsgPrefix[0],party_cfg.General.PrivateMsgPrefixLen,false);
 
-	msg.msglen=ctBEu16(msglen);
+	msg->Write(&wtext[0],static_cast<u16>(wtextlen),false);
+	u16 len=msg->offset;
+	msg->offset=1;
+	msg->WriteFlipped(len);
 
-	memcpy( msg.partydata.partymsgout.wtext+party_cfg.General.PrivateMsgPrefixLen, wtext, wtextlen*sizeof(msg.partydata.partymsgout.wtext[0]) );
-	tochr->client->transmit(&msg,msglen);
+	tochr->client->transmit(&msg->buffer,len);
+	READDPACKET(msg);
 }
 
 void Party::printOn( ostream& os ) const
@@ -763,15 +757,16 @@ void Party::printOn( ostream& os ) const
 
 void send_empty_party(Character* chr)
 {
-	if (chr != NULL && chr->has_active_client()) {
-		PKTBI_BF msg;
-		msg.msgtype=PKTBI_BF_ID;
-		msg.msglen=ctBEu16(11);
-		msg.subcmd=ctBEu16(PKTBI_BF::TYPE_PARTY_SYSTEM);
-		msg.partydata.partycmd=PKTBI_BF_06::PARTYCMD_REMOVE;
-		msg.partydata.partyemptylist.nummembers=0;
-		msg.partydata.partyemptylist.remmemberid=chr->serial_ext;
-		chr->client->transmit(&msg,11);
+	if (chr != NULL && chr->has_active_client())
+	{
+		PktOut_BF_Sub6* msg = REQUESTSUBPACKET(PktOut_BF_Sub6,PKTBI_BF_ID,PKTBI_BF::TYPE_PARTY_SYSTEM);
+		msg->WriteFlipped(static_cast<u16>(11));
+		msg->offset+=2; //sub
+		msg->Write(static_cast<u8>(PKTBI_BF_06::PARTYCMD_REMOVE));
+		msg->offset++; //nummembers
+		msg->Write(chr->serial_ext);
+		chr->client->transmit(&msg->buffer,msg->offset);
+		READDPACKET(msg);
 	}
 }
 
@@ -1424,13 +1419,13 @@ void invite_timeout(Character* mem)
 
 void send_invite(Character* member,Character* leader)
 {
-	PKTBI_BF msg;
-	msg.msgtype=PKTBI_BF_ID;
-	msg.msglen=ctBEu16(10);
-	msg.subcmd=ctBEu16(PKTBI_BF::TYPE_PARTY_SYSTEM);
-	msg.partydata.partycmd=PKTBI_BF_06::PARTYCMD_INVITE_MEMBER;
-	msg.partydata.invitemember.leaderid=leader->serial_ext;
-	member->client->transmit(&msg,10);
+	PktOut_BF_Sub6* msg = REQUESTSUBPACKET(PktOut_BF_Sub6,PKTBI_BF_ID,PKTBI_BF::TYPE_PARTY_SYSTEM);
+	msg->WriteFlipped(static_cast<u16>(10));
+	msg->offset+=2; //sub
+	msg->Write(static_cast<u8>(PKTBI_BF_06::PARTYCMD_INVITE_MEMBER));
+	msg->Write(leader->serial_ext);
+	member->client->transmit(&msg->buffer,msg->offset);
+	READDPACKET(msg);
 
 	// : You are invited to join the party. Type /accept to join or /decline to decline the offer.
 	send_sysmessage_cl_affix(member->client, CLP_Invite, leader->name().c_str(),true);

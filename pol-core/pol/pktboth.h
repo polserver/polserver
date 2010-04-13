@@ -457,36 +457,36 @@ struct PKTBI_BF_06_01_IN
 };
 asserteql( sizeof(PKTBI_BF_06_01_IN), 4 );
 
-struct PKTBI_BF_06_01_OUT
-{
-	u8 nummembers;
-	struct {
-		u32 memberid;
-	} serials[ 1 ];
-};
-asserteql( sizeof(PKTBI_BF_06_01_OUT), 5 );
+//struct PKTBI_BF_06_01_OUT
+//{
+//	u8 nummembers;
+//	struct {
+//		u32 memberid;
+//	} serials[ 1 ];
+//};
+//asserteql( sizeof(PKTBI_BF_06_01_OUT), 5 );
 
 struct PKTBI_BF_06_02_IN
 {
 	u32 memberid;
 };
 
-struct PKTBI_BF_06_02_OUT
-{
-	u8 nummembers; //total nr of new party
-	u32 remmemberid;  //removed Player
-	struct {
-		u32 memberid;
-	} serials[ 1 ]; //party members
-};
-asserteql( sizeof(PKTBI_BF_06_02_OUT), 9 );
+//struct PKTBI_BF_06_02_OUT
+//{
+//	u8 nummembers; //total nr of new party
+//	u32 remmemberid;  //removed Player
+//	struct {
+//		u32 memberid;
+//	} serials[ 1 ]; //party members
+//};
+//asserteql( sizeof(PKTBI_BF_06_02_OUT), 9 );
 
-struct PKTBI_BF_06_02_LIST
-{
-	u8 nummembers;
-	u32 remmemberid;
-};
-asserteql( sizeof(PKTBI_BF_06_02_LIST), 5 );
+//struct PKTBI_BF_06_02_LIST
+//{
+//	u8 nummembers;
+//	u32 remmemberid;
+//};
+//asserteql( sizeof(PKTBI_BF_06_02_LIST), 5 );
 
 struct PKTBI_BF_06_03
 {
@@ -501,12 +501,12 @@ struct PKTBI_BF_06_04_IN
 };
 asserteql( sizeof(PKTBI_BF_06_04_IN), 4 );
 
-struct PKTBI_BF_06_04_OUT
-{
-	u32 memberid;
-	u16 wtext[(SPEECH_MAX_LEN) + 1]; // wide-character, double-null terminated 
-};
-asserteql( sizeof(PKTBI_BF_06_04_OUT), 406 );
+//struct PKTBI_BF_06_04_OUT
+//{
+//	u32 memberid;
+//	u16 wtext[(SPEECH_MAX_LEN) + 1]; // wide-character, double-null terminated 
+//};
+//asserteql( sizeof(PKTBI_BF_06_04_OUT), 406 );
 
 struct PKTBI_BF_06_06
 {
@@ -515,11 +515,11 @@ struct PKTBI_BF_06_06
 };
 asserteql( sizeof(PKTBI_BF_06_06), 1 );
 
-struct PKTBI_BF_06_07
-{
-	u32 leaderid;
-};
-asserteql( sizeof(PKTBI_BF_06_07), 4 );
+//struct PKTBI_BF_06_07
+//{
+//	u32 leaderid;
+//};
+//asserteql( sizeof(PKTBI_BF_06_07), 4 );
 
 struct PKTBI_BF_06_08
 {
@@ -538,15 +538,15 @@ struct PKTBI_BF_06
 	u8 partycmd;
 	union {
 		PKTBI_BF_06_01_IN partyadd; //client
-		PKTBI_BF_06_01_OUT partyaddout; //server
+		//PKTBI_BF_06_01_OUT partyaddout; //server
 		PKTBI_BF_06_02_IN partyremove; //client
-		PKTBI_BF_06_02_OUT partyremoveout; //server
-		PKTBI_BF_06_02_LIST partyemptylist; //server
+		//PKTBI_BF_06_02_OUT partyremoveout; //server
+		//PKTBI_BF_06_02_LIST partyemptylist; //server
 		PKTBI_BF_06_03 partymembermsg; //client/server
 		PKTBI_BF_06_04_IN partymsg; //client
-		PKTBI_BF_06_04_OUT partymsgout; //server
+		//PKTBI_BF_06_04_OUT partymsgout; //server
 		PKTBI_BF_06_06 partylootperm; //client
-		PKTBI_BF_06_07 invitemember; //server
+		//PKTBI_BF_06_07 invitemember; //server
 		PKTBI_BF_06_08 partyaccinvite; //client
 		PKTBI_BF_06_09 partydecinvite; //client
 	};
@@ -608,19 +608,19 @@ struct PKTBI_BF_15
 	u16 entry_tag;
 };
 
-struct PKTBI_BF_16
-{
-	u32 window_id;
-	u32 serial; // Char serial ( if window_id = CONTAINER this is container serial )
-
-	enum
-	{
-		PAPERDOLL	= 0x1,
-		STATUS		= 0x2,
-		CHARPROFILE	= 0x8,
-		CONTAINER	= 0xC
-	};
-};
+//struct PKTBI_BF_16
+//{
+//	u32 window_id;
+//	u32 serial; // Char serial ( if window_id = CONTAINER this is container serial )
+//
+//	enum
+//	{
+//		PAPERDOLL	= 0x1,
+//		STATUS		= 0x2,
+//		CHARPROFILE	= 0x8,
+//		CONTAINER	= 0xC
+//	};
+//};
 
 //Shows codex of wisdom's text #msg.  (msg is linearised (including sub indices) index number starting with 1)
 struct PKTBI_BF_17
@@ -630,34 +630,34 @@ struct PKTBI_BF_17
 	u8 mode; //(0: "?" flashing, 1: directly opening) 
 };
 
-struct PKTBI_BF_18_ELEM
-{
-	u32 num_static_patches;
-	u32 num_map_patches;
-};
+//struct PKTBI_BF_18_ELEM
+//{
+//	u32 num_static_patches;
+//	u32 num_map_patches;
+//};
+//
+//#include "realms.h"
+//
+//struct PKTBI_BF_18
+//{
+//	u32 num_maps;
+//	PKTBI_BF_18_ELEM elems[MAX_NUMER_REALMS];
+//};
 
-#include "realms.h"
-
-struct PKTBI_BF_18
-{
-	u32 num_maps;
-	PKTBI_BF_18_ELEM elems[MAX_NUMER_REALMS];
-};
-
-struct PKTBI_BF_19
-{
-	u8 type; //always 2?
-	u32 serial;
-	u8 unk; //always 0?
-	u8 lockbits; //Bits: XXSS DDII (s=strength, d=dex, i=int), 0 = up, 1 = down, 2 = locked 
-	enum
-	{
-		STR_MASK = 0x30,
-		DEX_MASK = 0x0C,
-		INT_MASK = 0x03
-	};
-	enum { MODE_UP, MODE_DOWN, MODE_LOCKED };
-};
+//struct PKTBI_BF_19
+//{
+//	u8 type; //always 2?
+//	u32 serial;
+//	u8 unk; //always 0?
+//	u8 lockbits; //Bits: XXSS DDII (s=strength, d=dex, i=int), 0 = up, 1 = down, 2 = locked 
+//	enum
+//	{
+//		STR_MASK = 0x30,
+//		DEX_MASK = 0x0C,
+//		INT_MASK = 0x03
+//	};
+//	enum { MODE_UP, MODE_DOWN, MODE_LOCKED };
+//};
 
 struct PKTBI_BF_1A
 {
@@ -667,18 +667,18 @@ struct PKTBI_BF_1A
 	enum { MODE_UP, MODE_DOWN, MODE_LOCKED };
 };
 
-struct PKTBI_BF_1B
-{
-	u16 unk; //always 1
-	u32 book_serial;
-	u16 graphic;
-	u16 scroll_offset;
-	u8 content[8];// first bit of first byte = spell #1, second bit of first byte = spell #2, first bit of second byte = spell #8, etc 
-
-	enum { SCROLL_OFFSET_REGULAR = 1, 
-		SCROLL_OFFSET_NECRO = 101,
-		SCROLL_OFFSET_PALADIN = 201 };
-};
+//struct PKTBI_BF_1B
+//{
+//	u16 unk; //always 1
+//	u32 book_serial;
+//	u16 graphic;
+//	u16 scroll_offset;
+//	u8 content[8];// first bit of first byte = spell #1, second bit of first byte = spell #2, first bit of second byte = spell #8, etc 
+//
+//	enum { SCROLL_OFFSET_REGULAR = 1, 
+//		SCROLL_OFFSET_NECRO = 101,
+//		SCROLL_OFFSET_PALADIN = 201 };
+//};
 
 struct PKTBI_BF_1C
 {
@@ -686,33 +686,33 @@ struct PKTBI_BF_1C
 	u16 selected_spell; //absolute spell number. 1-64, 101-etc
 };
 
-struct PKTBI_BF_1D
-{
-	u32 house_serial;
-	u32 revision;
-};
+//struct PKTBI_BF_1D
+//{
+//	u32 house_serial;
+//	u32 revision;
+//};
 
 struct PKTBI_BF_1E
 {
 	u32 house_serial;
 };
 
-struct PKTBI_BF_20
-{
-	u32 house_serial;
-	u8 unk1; //0x4 for begin 0x5 for end
-	u16 unk2; //0
-	u32 unk3; //all FF
-	u8 unk4; // FF
-};
+//struct PKTBI_BF_20
+//{
+//	u32 house_serial;
+//	u8 unk1; //0x4 for begin 0x5 for end
+//	u16 unk2; //0
+//	u32 unk3; //all FF
+//	u8 unk4; // FF
+//};
 
 //displays damage amount over head
-struct PKTBI_BF_22
-{
-	u8 unk; //always 1
-	u32 serial;
-	u8 damage_amt;
-};
+//struct PKTBI_BF_22
+//{
+//	u8 unk; //always 1
+//	u32 serial;
+//	u8 damage_amt;
+//};
 
 //no clue what this spam does.
 struct PKTBI_BF_24_UNKNOWN
@@ -720,11 +720,11 @@ struct PKTBI_BF_24_UNKNOWN
 	u8 spam_byte;
 };
 
-struct PKTBI_BF_2A_CALL_RACE_CHANGER
-{
-	u8 gender; // 0 = Male, 1 = Female
-	u8 race;   // 1 = Human, 2 = Elf
-};
+//struct PKTBI_BF_2A_CALL_RACE_CHANGER
+//{
+//	u8 gender; // 0 = Male, 1 = Female
+//	u8 race;   // 1 = Human, 2 = Elf
+//};
 
 struct PKTBI_BF_2A_RESULT
 {
@@ -739,7 +739,7 @@ struct PKTBI_BF_2A_RESULT
 struct PKTBI_BF_RACE_CHANGER_RESULT
 {
 	union {
-		PKTBI_BF_2A_CALL_RACE_CHANGER call;
+		//PKTBI_BF_2A_CALL_RACE_CHANGER call;
 		PKTBI_BF_2A_RESULT result;
 	};
 };
@@ -758,10 +758,10 @@ struct PKTBI_BF {
 	union {
 		u32 keys[6];	// BF.1: Cycling key-stack
 		u32 addkey;		// BF.2: Adding key to top of stack
-		PKTBI_BF_04 closegump; //BF.4
+		//PKTBI_BF_04 closegump; //BF.4
 		PKTBI_BF_05 screensize; //BF.5
 		PKTBI_BF_06 partydata; //BF.6
-		u8 cursorhue;	// BF.8: Cursor Hue (0=Felucca,1=Trammel)
+		//u8 cursorhue;	// BF.8: Cursor Hue (0=Felucca,1=Trammel)
 		char client_lang[3]; // BF.B Client language (client message, sent once at login)
 		u32 serial_closed_status_gump; //BF.C closed status gump
         PKTBI_BF_0F clienttype; // BF.F clienttype (like char create/select)
@@ -769,17 +769,17 @@ struct PKTBI_BF {
 		u32 serial_request_popup_menu; //BF.13
 		PKTBI_BF_14 displaypopup; //BF.14
 		PKTBI_BF_15 popupselect; //BF.15
-		PKTBI_BF_16 closewindow; //BF.16
+		//PKTBI_BF_16 closewindow; //BF.16
 		PKTBI_BF_17 codex; //BF.17
-		PKTBI_BF_18 mapdiffs; //BF.18
-		PKTBI_BF_19 extstatsout; //BF.19
+		//PKTBI_BF_18 mapdiffs; //BF.18
+		//PKTBI_BF_19 extstatsout; //BF.19
 		PKTBI_BF_1A extstatin; //BF.1A
-		PKTBI_BF_1B newspellbook; //BF.1B
+		//PKTBI_BF_1B newspellbook; //BF.1B
 		PKTBI_BF_1C spellselect; //BF.1C
-		PKTBI_BF_1D customhouseshort;
+		//PKTBI_BF_1D customhouseshort;
 		PKTBI_BF_1E reqfullcustomhouse;
-		PKTBI_BF_20 activatehousetool; //BF.20
-		PKTBI_BF_22 damage; //BF.22
+		//PKTBI_BF_20 activatehousetool; //BF.20
+		//PKTBI_BF_22 damage; //BF.22
 		u8 se_spam; //BF.24
 		PKTBI_BF_RACE_CHANGER_RESULT characterracechanger; //BF.2A
         PKTBI_BF_32 toggleflying; // BF.32

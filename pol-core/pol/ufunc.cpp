@@ -2519,28 +2519,29 @@ void send_feature_enable(Client* client)
 
 void send_realm_change( Client* client, Realm* realm )
 {
-	PKTBI_BF msg;
-	u16 msglen = offsetof( PKTBI_BF, cursorhue ) + 1;
-	msg.msgtype = PKTBI_BF_ID;
-    msg.msglen =  ctBEu16(msglen);
-    msg.subcmd = ctBEu16(PKTBI_BF::TYPE_CURSOR_HUE);
-	msg.cursorhue = static_cast<u8>(realm->getUOMapID());
-	client->transmit(&msg, msglen);
+	PktOut_BF_Sub8* msg = REQUESTSUBPACKET(PktOut_BF_Sub8,PKTBI_BF_ID,PKTBI_BF::TYPE_CURSOR_HUE);
+	msg->WriteFlipped(static_cast<u16>(6));
+	msg->offset+=2; //sub
+	msg->Write(static_cast<u8>(realm->getUOMapID()));
+	client->transmit(&msg->buffer, msg->offset);
+	READDPACKET(msg);
 }
 
 void send_map_difs( Client* client )
 {
-	PKTBI_BF msg;
-	msg.msgtype = PKTBI_BF_ID;
-	msg.msglen = ctBEu16(9 + (Realms->size()*8));
-	msg.subcmd = ctBEu16(PKTBI_BF::TYPE_ENABLE_MAP_DIFFS);
-	msg.mapdiffs.num_maps = ctBEu32(baserealm_count);
+	PktOut_BF_Sub18* msg = REQUESTSUBPACKET(PktOut_BF_Sub18,PKTBI_BF_ID,PKTBI_BF::TYPE_ENABLE_MAP_DIFFS);
+	msg->offset+=4; //len+sub
+	msg->WriteFlipped(baserealm_count);
 	for(unsigned int i=0; i<baserealm_count; i++)
 	{
-		msg.mapdiffs.elems[i].num_map_patches = ctBEu32(Realms->at(i)->getNumMapPatches());
-		msg.mapdiffs.elems[i].num_static_patches = ctBEu32(Realms->at(i)->getNumStaticPatches());
+		msg->WriteFlipped(Realms->at(i)->getNumStaticPatches());
+		msg->WriteFlipped(Realms->at(i)->getNumMapPatches());
 	}
-	client->transmit( &msg, cfBEu16(msg.msglen));
+	u16 len=msg->offset;
+	msg->offset=1;
+	msg->WriteFlipped(len);
+	client->transmit( &msg->buffer, len);
+	READDPACKET(msg);
 }
 
 // FIXME : Works, except for Login. Added length check as to not mess with 1.x clients
@@ -2618,17 +2619,17 @@ void send_damage_new(Client* client, Character* defender, u16 damage)
 
 void send_damage_old(Client* client, Character* defender, u16 damage)
 {
-    PKTBI_BF msg;
-    msg.msgtype = PKTBI_BF_ID;
-    msg.msglen  = ctBEu16(0xB);
-    msg.subcmd  = ctBEu16(PKTBI_BF::TYPE_DAMAGE);
-    msg.damage.unk = 1;
-    msg.damage.serial = defender->serial_ext;
+	PktOut_BF_Sub22* msg = REQUESTSUBPACKET(PktOut_BF_Sub22,PKTBI_BF_ID,PKTBI_BF::TYPE_DAMAGE);
+	msg->WriteFlipped(static_cast<u16>(11));
+	msg->offset+=2; //sub
+	msg->Write(static_cast<u8>(1));
+	msg->Write(defender->serial_ext);
     if (damage > 0xFF)
-        msg.damage.damage_amt = 0xFF;
+        msg->Write(static_cast<u8>(0xFF));
     else
-        msg.damage.damage_amt = static_cast<u8>(damage);
-    client->transmit( &msg, 0xB );
+        msg->Write(static_cast<u8>(damage));
+    client->transmit( &msg->buffer, msg->offset );
+	READDPACKET(msg);
 }
 
 void sendCharProfile( Character* chr, Character* of_who, const char *title, const u16 *utext, const u16 *etext )

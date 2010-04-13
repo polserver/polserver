@@ -195,17 +195,16 @@ void send_stat_locks (Client *client, Character *chr) {
 	lockbit |= chr->attribute(uoclient_general.dexterity.id).lock() << 2;
 	lockbit |= chr->attribute(uoclient_general.intelligence.id).lock();
 
+	PktOut_BF_Sub19* msg = REQUESTSUBPACKET(PktOut_BF_Sub19,PKTBI_BF_ID,PKTBI_BF::TYPE_EXTENDED_STATS_OUT);
+	msg->WriteFlipped(static_cast<u16>(12));
+	msg->offset+=2; //sub
+	msg->Write(static_cast<u8>(0x02)); // 2D Client = 0x02, KR = 0x05
+	msg->Write(chr->serial_ext);
+	msg->offset++; //unk
+	msg->Write(lockbit);
 
-	PKTBI_BF msg;
-	msg.msgtype = PKTBI_BF_ID;
-	msg.msglen = ctBEu16(12);
-	msg.subcmd = ctBEu16(PKTBI_BF::TYPE_EXTENDED_STATS_OUT);
-	msg.extstatsout.type = 0x02; // 2D Client = 0x02, KR = 0x05
-	msg.extstatsout.serial = chr->serial_ext;
-	msg.extstatsout.unk = 0;
-	msg.extstatsout.lockbits = lockbit;
-
-	client->transmit(&msg, 12);
+	client->transmit(&msg->buffer, msg->offset);
+	READDPACKET(msg);
 }
 
 void send_short_statmsg( Client *client, Character *chr )
