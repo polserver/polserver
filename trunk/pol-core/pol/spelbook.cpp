@@ -107,18 +107,18 @@ void Spellbook::double_click( Client* client )
 		}
 
 		send_open_gump(client, *this);
-		PKTBI_BF msg;
-		msg.msgtype = PKTBI_BF_ID;
-		msg.msglen = ctBEu16(23);
-		msg.subcmd = ctBEu16(PKTBI_BF::TYPE_NEW_SPELLBOOK);
-		msg.newspellbook.unk = ctBEu16(1);
-		msg.newspellbook.book_serial = serial_ext;
-		msg.newspellbook.graphic = ctBEu16(graphic);
-		msg.newspellbook.scroll_offset = ctBEu16((spell_school * 100) + 1);
-		memcpy(msg.newspellbook.content,bitwise_contents,8);
-		client->transmit(&msg, 23);
-	}
 
+		PktOut_BF_Sub1B* msg = REQUESTSUBPACKET(PktOut_BF_Sub1B,PKTBI_BF_ID,PKTBI_BF::TYPE_NEW_SPELLBOOK);
+		msg->WriteFlipped(static_cast<u16>(23));
+		msg->offset+=2; //sub
+		msg->WriteFlipped(static_cast<u16>(1));
+		msg->Write(serial_ext);
+		msg->WriteFlipped(graphic);
+		msg->WriteFlipped(static_cast<u16>((spell_school * 100) + 1));
+		msg->Write(bitwise_contents,8);
+		client->transmit(&msg->buffer, msg->offset);
+		READDPACKET(msg);
+	}
 }
 
 bool Spellbook::has_spellid( unsigned int spellid ) const

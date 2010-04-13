@@ -1129,15 +1129,14 @@ BObjectImp* UOExecutorModule::mf_CloseGump(/* who, pid, response := 0 */)
 		return new BError( "Couldnt find script" );
 	}
 
-	PKTBI_BF msg;
+	PktOut_BF_Sub4* msg = REQUESTSUBPACKET(PktOut_BF_Sub4,PKTBI_BF_ID,PKTBI_BF::TYPE_CLOSE_GUMP);
+	msg->WriteFlipped(static_cast<u16>(13));
+	msg->offset+=2;
+	msg->WriteFlipped(pid);
+	msg->offset+=4; //buttonid
 
-	msg.msgtype = PKTBI_BF_ID;
-	msg.subcmd = ctBEu16(PKTBI_BF::TYPE_CLOSE_GUMP);
-	msg.closegump.buttonid = ctBEu32(0);
-	msg.closegump.gumpid = ctBEu32(pid);
-	msg.msglen = ctBEu16(13);
-
-	client->transmit(&msg, 13);
+	client->transmit(&msg->buffer, msg->offset);
+	READDPACKET(msg);
 
 	uoemod->uoexec.ValueStack.top().set( new BObject(resp) );
 	clear_gumphandler( client, uoemod );
@@ -1170,14 +1169,14 @@ BObjectImp* UOExecutorModule::mf_CloseWindow(/* chr, type, obj */)
 	else
 		return new BError( "Invalid type" );
 	
-	PKTBI_BF msg;
-	msg.msgtype = PKTBI_BF_ID;
-	msg.subcmd = ctBEu16(PKTBI_BF::TYPE_CLOSE_WINDOW);
-	msg.closewindow.window_id = ctBEu16(type);
-	msg.closewindow.serial = obj->serial_ext;
-	msg.msglen = ctBEu16(13);
+	PktOut_BF_Sub16* msg = REQUESTSUBPACKET(PktOut_BF_Sub16,PKTBI_BF_ID,PKTBI_BF::TYPE_CLOSE_WINDOW);
+	msg->WriteFlipped(static_cast<u16>(13));
+	msg->offset+=2; //sub
+	msg->WriteFlipped(type);
+	msg->Write(obj->serial_ext);
 
-	chr->client->transmit(&msg, 13);
+	chr->client->transmit(&msg->buffer, msg->offset);
+	READDPACKET(msg);
 
 	return new BLong( 1 );
 }
@@ -2186,16 +2185,16 @@ BObjectImp* UOExecutorModule::mf_SendHousingTool()
 
 	chr->client->gd->custom_house_serial = house_serial;
 
-	PKTBI_BF msg;
-	msg.msgtype = PKTBI_BF_ID;
-	msg.subcmd = ctBEu16(PKTBI_BF::TYPE_ACTIVATE_CUSTOM_HOUSE_TOOL);
-	msg.activatehousetool.house_serial = ctBEu32(house_serial);
-	msg.activatehousetool.unk1 = 0x4;//begin
-	msg.activatehousetool.unk2 = ctBEu16(0);//fixme what's the meaning
-	msg.activatehousetool.unk3 = ctBEu32(0xFFFFFFFF); //fixme what's the meaning
-	msg.activatehousetool.unk4 = 0xFF;//fixme what's the meaning
-	msg.msglen = ctBEu16(17);
-	chr->client->transmit(&msg,17);
+	PktOut_BF_Sub20* msg = REQUESTSUBPACKET(PktOut_BF_Sub20,PKTBI_BF_ID,PKTBI_BF::TYPE_ACTIVATE_CUSTOM_HOUSE_TOOL);
+	msg->WriteFlipped(static_cast<u16>(17));
+	msg->offset+=2; //sub
+	msg->Write(house->serial_ext);
+	msg->Write(static_cast<u8>(0x4)); //begin
+	msg->offset+=2; // u16 unk2 FIXME what's the meaning
+	msg->Write(static_cast<u32>(0xFFFFFFFF)); // fixme
+	msg->Write(static_cast<u8>(0xFF)); // fixme
+	chr->client->transmit(&msg->buffer,msg->offset);
+	READDPACKET(msg);
 
 	move_character_to(chr,house->x,house->y,house->z+7,MOVEITEM_FORCELOCATION, NULL);
 	//chr->set_script_member("hidden",1);
@@ -2214,13 +2213,13 @@ BObjectImp* UOExecutorModule::mf_SendCharacterRaceChanger(/* Character */)
 	Character* chr;
 	if (getCharacterParam( exec, 0, chr ))
 	{
-		PKTBI_BF msg;
-		msg.msgtype = PKTBI_BF_ID;
-		msg.subcmd = ctBEu16(PKTBI_BF::TYPE_CHARACTER_RACE_CHANGER);
-		msg.characterracechanger.call.gender = static_cast<u8>(chr->gender);
-		msg.characterracechanger.call.race = static_cast<u8>(chr->race+1);
-		msg.msglen = ctBEu16(7);
-		chr->client->transmit(&msg,7);
+		PktOut_BF_Sub2A* msg = REQUESTSUBPACKET(PktOut_BF_Sub2A,PKTBI_BF_ID,PKTBI_BF::TYPE_CHARACTER_RACE_CHANGER);
+		msg->WriteFlipped(static_cast<u16>(7));
+		msg->offset+=2; //sub
+		msg->Write(static_cast<u8>(chr->gender));
+		msg->Write(static_cast<u8>(chr->race+1));
+		chr->client->transmit(&msg->buffer,msg->offset);
+		READDPACKET(msg);
 
 		return new BLong(1);
 	}

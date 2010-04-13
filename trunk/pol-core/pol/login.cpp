@@ -197,10 +197,7 @@ void loginserver_login( Client *client, PKTIN_80 *msg )
 			msgA8->Write(server->name.c_str(),30);
 			msgA8->WriteFlipped(static_cast<u16>(idx+1));
 			msgA8->offset+=2; //u8 percentfull, s8 timezone
-			msgA8->Write(server->ip[0]);
-			msgA8->Write(server->ip[1]);
-			msgA8->Write(server->ip[2]);
-			msgA8->Write(server->ip[3]);
+			msgA8->Write(server->ip,4);
         }
 	}
 	u16 len = msgA8->offset;
