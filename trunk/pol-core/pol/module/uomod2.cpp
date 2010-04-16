@@ -108,8 +108,6 @@ Notes
 #	include "../../../lib/zlib/zlib.h"
 #endif
 
-static char buffer[ 65535 ];
-
 /*
 0000: 74 02 70 40 29 ca d8 28  00 00 00 03 0b 53 65 77   t.p@)..( .....Sew
 0010: 69 6e 67 20 6b 69 74 00  00 00 00 0d 09 53 63 69   ing kit. .....Sci
@@ -1800,11 +1798,11 @@ BObjectImp* UOExecutorModule::mf_SendInstaResDialog()
 	if (chr->client->gd->resurrect_uoemod != NULL)
 		return new BError( "Client busy with another instares dialog" );
 
-	PKTBI_2C msg;
-	msg.msgtype = PKTBI_2C_ID;
-	msg.choice = RESURRECT_CHOICE_SELECT;
+	PktOut_20* msg = REQUESTPACKET(PktOut_20,PKTBI_2C_ID);
+	msg->Write(static_cast<u8>(RESURRECT_CHOICE_SELECT));
 
-	chr->client->transmit( &msg, sizeof msg );
+	chr->client->transmit( &msg->buffer, msg->offset );
+	READDPACKET(msg);
 	chr->client->gd->resurrect_uoemod = this;
 	resurrect_chr = chr;
 	uoexec.os_module->suspend();
@@ -1827,6 +1825,7 @@ void handle_selcolor( Client* client, PKTBI_95* msg )
 		{
 			valstack = new BObject( new BError( "Client selected an out-of-range color" ) );
 
+			char buffer[300];
 			//unsigned short newcolor = ((color - 2) % 1000) + 2;
 			sprintf(buffer, "Client #%lu (account %s) selected an out-of-range color 0x%x",
 							static_cast<unsigned long>(client->instance_),
@@ -1859,13 +1858,13 @@ BObjectImp* UOExecutorModule::mf_SelectColor()
 	if (chr->client->gd->resurrect_uoemod != NULL)
 		return new BError( "Client is already selecting a color" );
 
-	PKTBI_95 msg;
-	msg.msgtype = PKTBI_95_ID;
-	msg.serial = item->serial_ext;
-	msg.unk = 0;
-	msg.graphic_or_color = item->graphic_ext;
+	PktOut_95* msg = REQUESTPACKET(PktOut_95,PKTBI_95_ID);
+	msg->Write(item->serial_ext);
+	msg->offset+=2; // u16 unk
+	msg->Write(item->graphic_ext);
 
-	chr->client->transmit( &msg, sizeof msg );
+	chr->client->transmit( &msg->buffer, msg->offset );
+	READDPACKET(msg);
 
 	chr->client->gd->selcolor_uoemod = this;
 	selcolor_chr = chr;
@@ -1918,40 +1917,37 @@ BObjectImp* UOExecutorModule::mf_SendOpenBook()
 		}
 	}
 
-	PKTBI_93 msg;
-	memset( &msg, 0, sizeof msg );
-	msg.msgtype = PKTBI_93_ID;
-	msg.serial = book->serial_ext;
-	msg.writable = writable?1:0;
-	msg.unk_1 = 1;
-	msg.npages = ctBEu16( static_cast<u16>(npages) );
+	PktOut_93* msg93 = REQUESTPACKET(PktOut_93,PKTBI_93_ID);
+	msg93->Write(book->serial_ext);
+	msg93->Write(static_cast<u8>(writable?1:0));
+	msg93->Write(static_cast<u8>(1));
+	msg93->WriteFlipped(static_cast<u16>(npages));
+	msg93->Write(title.c_str(),60,false);
+	msg93->Write(author.c_str(),30,false);
 
-	strzcpy( msg.title, title.c_str(), sizeof msg.title );
-	strzcpy( msg.author, author.c_str(), sizeof msg.author );
-
-	chr->client->transmit( &msg, sizeof msg );
+	chr->client->transmit( &msg93->buffer, msg93->offset );
+	READDPACKET(msg93);
 
 	if (writable)
 	{
-		//PolTimer timer;
-		unsigned msglen = 0;
-		PKTBI_66_HDR* phdr = reinterpret_cast<PKTBI_66_HDR*>(buffer);
-		phdr->msgtype = PKTBI_66_ID;
-		phdr->msglen = 0;
-		phdr->book_serial = book->serial_ext;
-		phdr->pages = ctBEu16( static_cast<u16>(npages) );
-		msglen = sizeof(*phdr);
+		PktOut_66* msg = REQUESTPACKET(PktOut_66,PKTBI_66_ID);
+		msg->offset+=2;
+		msg->Write(book->serial_ext);
+		msg->WriteFlipped(static_cast<u16>(npages));
 
 		ObjArray* arr = static_cast<ObjArray*>(contents_ob.impptr());
 
 		int linenum = 1;
 		for( int page = 1; page <= npages; ++page )
 		{
-			PKTBI_66_CONTENTS* ppage = reinterpret_cast<PKTBI_66_CONTENTS*>(&buffer[msglen]);
-			msglen += sizeof(*ppage);
-			if (msglen > sizeof buffer)
+			if (msg->offset+4> sizeof msg->buffer)
+			{
+				READDPACKET(msg);
 				return new BError( "Buffer overflow" );
-			ppage->page = ctBEu16( page );
+			}
+			msg->WriteFlipped(static_cast<u16>(page));
+			u16 offset= msg->offset;
+			msg->offset+=2;
 
 			int pagelines;
 			for( pagelines = 0; pagelines < 8 && linenum <= nlines; ++pagelines, ++linenum )
@@ -1960,14 +1956,17 @@ BObjectImp* UOExecutorModule::mf_SendOpenBook()
 				string linetext;
 				if (line_imp)
 					linetext = line_imp->getStringRep();
-
-				char* linebuf = reinterpret_cast<char*>(&buffer[msglen]);
-				msglen += linetext.size()+1;
-				if (msglen > sizeof buffer)
+				if (msg->offset+linetext.size()+1 > sizeof msg->buffer)
+				{
+					READDPACKET(msg);
 					return new BError( "Buffer overflow" );
-				memcpy( linebuf, linetext.c_str(), linetext.size()+1 );
+				}
+				msg->Write(linetext.c_str(),static_cast<u16>(linetext.size()+1));
 			}
-			ppage->lines = ctBEu16( pagelines );
+			u16 len=msg->offset;
+			msg->offset=offset;
+			msg->WriteFlipped(static_cast<u16>(pagelines));
+			msg->offset=len;
 		}
 
 /*
@@ -1999,10 +1998,11 @@ BObjectImp* UOExecutorModule::mf_SendOpenBook()
 			ppage->lines = ctBEu16( pagelines );
 		}
 */
-
-		phdr->msglen = ctBEu16( msglen );
-		//timer.printOn( cout );
-		chr->client->transmit( buffer, msglen );
+		u16 len=msg->offset;
+		msg->offset=1;
+		msg->WriteFlipped(len);
+		chr->client->transmit( &msg->buffer, len );
+		READDPACKET(msg);
 	}
 
 	return new BLong(1);
@@ -2022,9 +2022,6 @@ void read_book_page_handler( Client* client, PKTBI_66* msg )
 
 	if (msg->lines == 0xFFFF)
 	{
-		//PolTimer timer;
-		unsigned msglen = 0;
-
 		BObject nlines_ob( book->call_custom_method( "getnumlines" ) );
 		int nlines;
 		if (nlines_ob.isa( BObjectImp::OTLong ))
@@ -2037,20 +2034,16 @@ void read_book_page_handler( Client* client, PKTBI_66* msg )
 			return;
 		}
 
-		PKTBI_66_HDR* phdr = reinterpret_cast<PKTBI_66_HDR*>(buffer);
-		phdr->msgtype = PKTBI_66_ID;
-		phdr->msglen = 0;
-		phdr->book_serial = book->serial_ext;
-		phdr->pages = ctBEu16(1);
-		msglen = sizeof(*phdr);
+		PktOut_66* msg = REQUESTPACKET(PktOut_66,PKTBI_66_ID);
+		msg->offset+=2;
+		msg->Write(book->serial_ext);
+		msg->WriteFlipped(static_cast<u16>(1));
 
 		int linenum = (page-1)*8+1;
 
-		PKTBI_66_CONTENTS* ppage = reinterpret_cast<PKTBI_66_CONTENTS*>(&buffer[msglen]);
-		msglen += sizeof(*ppage);
-		if (msglen > sizeof buffer)
-			return;
-		ppage->page = ctBEu16( page );
+		msg->WriteFlipped(static_cast<u16>(page));
+		u16 offset= msg->offset;
+		msg->offset+=2;
 
 		int pagelines;
 		for( pagelines = 0; pagelines < 8 && linenum <= nlines; ++pagelines, ++linenum )
@@ -2062,18 +2055,21 @@ void read_book_page_handler( Client* client, PKTBI_66* msg )
 			BObject line_ob = book->call_custom_method( "getline", params );
 			linetext = line_ob->getStringRep();
 
-			char* linebuf = reinterpret_cast<char*>(&buffer[msglen]);
-			msglen += linetext.size()+1;
-			if (msglen > sizeof buffer)
+			if (msg->offset+linetext.size()+1 > sizeof msg->buffer)
+			{
+				READDPACKET(msg);
 				return;
-			memcpy( linebuf, linetext.c_str(), linetext.size()+1 );
+			}
+			msg->Write(linetext.c_str(),static_cast<u16>(linetext.size()+1));
 		}
-		ppage->lines = ctBEu16( pagelines );
 
-
-		phdr->msglen = ctBEu16( msglen );
-		//timer.printOn( cout );
-		client->transmit( buffer, msglen );
+		u16 len=msg->offset;
+		msg->offset=offset;
+		msg->WriteFlipped(static_cast<u16>(pagelines));
+		msg->offset=1;
+		msg->WriteFlipped(len);
+		client->transmit( &msg->buffer, len );
+		READDPACKET(msg);
 	}
 	else
 	{

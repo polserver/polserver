@@ -65,14 +65,14 @@ struct PKTBI_98_IN
 asserteql( sizeof(PKTBI_98_IN), 7 );
 
 // All Names
-struct PKTBI_98_OUT
-{
-    u8 msgtype;
-    u16 msglen;
-    u32 serial;
-    char name[30];
-};
-asserteql( sizeof(PKTBI_98_OUT), 37 );
+//struct PKTBI_98_OUT
+//{
+//    u8 msgtype;
+//    u16 msglen;
+//    u32 serial;
+//    char name[30];
+//};
+//asserteql( sizeof(PKTBI_98_OUT), 37 );
 
 /* NOTE on MSG3A: 
     send the header, plus skills[] for each skill, 
@@ -97,23 +97,23 @@ struct PKTBI_3A_VALUES
     u16 terminator;
 };
 
-// FIXME: Join this with the one up there, with some buffer or something... -- Nando, 2009-03-17
-struct PKTBI_3A_CAPS
-{
-    u8 msgtype;
-    u16 msglen;
-    u8 unk3;
-    struct
-    {
-        u16 skillid;
-        u16 value;
-        u16 value_unmod;
-        u8 lock_mode;
-		u16 cap;
-    } skills[100];//SKILLID__CLIENT_HIGHEST - SKILLID__CLIENT_LOWEST + 1 ];
-    enum { LOCK_NONE = 0, LOCK_DOWN = 1, LOCK_LOCKED = 2 };
-    //u16 terminator;
-};
+//// FIXME: Join this with the one up there, with some buffer or something... -- Nando, 2009-03-17
+//struct PKTBI_3A_CAPS
+//{
+//    u8 msgtype;
+//    u16 msglen;
+//    u8 unk3;
+//    struct
+//    {
+//        u16 skillid;
+//        u16 value;
+//        u16 value_unmod;
+//        u8 lock_mode;
+//		u16 cap;
+//    } skills[100];//SKILLID__CLIENT_HIGHEST - SKILLID__CLIENT_LOWEST + 1 ];
+//    enum { LOCK_NONE = 0, LOCK_DOWN = 1, LOCK_LOCKED = 2 };
+//    //u16 terminator;
+//};
 
 struct PKTBI_3A_LOCKS
 {
@@ -156,21 +156,21 @@ struct PKTBI_66
 };
 assertsize( PKTBI_66, 14 );
 
-struct PKTBI_66_HDR
-{
-	u8 msgtype;
-	u16 msglen;
-	u32 book_serial;
-	u16 pages;
-};
-assertsize( PKTBI_66_HDR, 9 );
-
-struct PKTBI_66_CONTENTS
-{
-	u16 page;
-	u16 lines;
-};
-assertsize( PKTBI_66_CONTENTS, 4 );
+//struct PKTBI_66_HDR
+//{
+//	u8 msgtype;
+//	u16 msglen;
+//	u32 book_serial;
+//	u16 pages;
+//};
+//assertsize( PKTBI_66_HDR, 9 );
+//
+//struct PKTBI_66_CONTENTS
+//{
+//	u16 page;
+//	u16 lines;
+//};
+//assertsize( PKTBI_66_CONTENTS, 4 );
 
 struct PKTBI_6C {
 	u8 msgtype;
