@@ -387,13 +387,11 @@ void handle_allnames( Client *client, PKTBI_98_IN *msg )
 			return;
 		}
 
-		PKTBI_98_OUT allnames;
-		allnames.msgtype = PKTBI_98_OUT_ID;
-		allnames.msglen = ctBEu16(0x25);  // 0x25 = 37. Static Length.
-		allnames.serial = the_mob->serial_ext;
-		strzcpy( allnames.name, the_mob->name().c_str(), sizeof allnames.name );
-		transmit( client, &allnames, sizeof allnames );
-
+		PktOut_98* msg = REQUESTPACKET(PktOut_98,PKTBI_98_OUT_ID);
+		msg->WriteFlipped(static_cast<u16>(37)); // static length
+		msg->Write(the_mob->serial_ext);
+		msg->Write(the_mob->name().c_str(),30,false);
+		transmit( client, &msg->buffer, msg->offset );
 	}
 	else
 	{

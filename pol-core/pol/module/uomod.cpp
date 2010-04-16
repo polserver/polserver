@@ -827,13 +827,14 @@ BObjectImp* UOExecutorModule::mf_TargetCancel()
         {
             if (chr->target_cursor_busy())
             {
-					static PKTBI_6C msg;
-					msg.msgtype = PKTBI_6C_ID;
-					msg.unk1 = PKTBI_6C::UNK1_00;
-					msg.target_cursor_serial = ctBEu32( 0x0 );
-					msg.cursor_type = 0x3; 
-					chr->client->transmit( &msg, sizeof msg );
-					return new BLong(0);
+				PktOut_6C* msg = REQUESTPACKET(PktOut_6C,PKTBI_6C_ID);
+				msg->Write(static_cast<u8>(PKTBI_6C::UNK1_00));
+				msg->offset+=4; // u32 target_cursor_serial
+				msg->Write(static_cast<u8>(0x3));
+				// rest 0
+				chr->client->transmit( &msg->buffer, sizeof msg->buffer );
+				READDPACKET(msg);
+				return new BLong(0);
             }
             else
             {

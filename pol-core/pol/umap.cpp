@@ -147,30 +147,30 @@ void Map::builtin_on_use( Client* client )
 		transmit( client, &msg90->buffer, msg90->offset );
 		READDPACKET(msg90);
 
-		static PKTBI_56 msg56;
-		msg56.msgtype = PKTBI_56_ID;
-		msg56.serial = serial_ext;
-		msg56.type = PKTBI_56::TYPE_REMOVE_ALL;
-		msg56.pinidx = 0;
-		msg56.pinx = 0;
-		msg56.piny = 0;
-		transmit( client, &msg56, sizeof msg56 );
+		PktOut_56* msg56 = REQUESTPACKET(PktOut_56,PKTBI_56_ID);
+		msg56->Write(serial_ext);
+		msg56->Write(static_cast<u8>(PKTBI_56::TYPE_REMOVE_ALL));
+		msg56->offset+=5; // u8 pinidx,u16 pinx,piny
+
+		transmit( client, &msg56->buffer, msg56->offset );
+
 		//need to send each point to the client
 
 		if(!pin_points.empty())
 		{
+			msg56->offset=5; //msgtype+serial_ext
+			msg56->Write(static_cast<u8>(PKTBI_56::TYPE_ADD));
+			// u8 pinidx still 0
 
 			for( pin_points_itr itr = pin_points.begin(), end=pin_points.end(); itr != end; ++itr )
 			{
-				msg56.msgtype = PKTBI_56_ID;
-				msg56.serial = serial_ext;
-				msg56.type = PKTBI_56::TYPE_ADD;
-				msg56.pinidx = 0;
-				msg56.pinx = ctBEu16( worldXtoGumpX(itr->x) );
-				msg56.piny = ctBEu16( worldYtoGumpY(itr->y) );
-				transmit( client, &msg56, sizeof msg56 );
+				msg56->offset=7; //msgtype+serial_ext+type,pinidx
+				msg56->WriteFlipped( worldXtoGumpX(itr->x) );
+				msg56->WriteFlipped( worldYtoGumpY(itr->y) );
+				transmit( client, &msg56->buffer, msg56->offset );
 			}
 		}
+		READDPACKET(msg56);
     }
 }
 
@@ -464,25 +464,25 @@ void handle_map_pin( Client* client, PKTBI_56* msg )
 	if(my_map->editable == false)
 		return;
 
-	static PKTBI_56 msg56;
 	static struct PinPoint pp;
 	Map::pin_points_itr itr;
 
 	switch( msg->type )
 	{
 		case PKTBI_56::TYPE_TOGGLE_EDIT:
-			
+		{
 			//hmm msg->plotstate never seems to be 1 when type is 6
 			my_map->plotting = my_map->plotting ? 0 : 1;
-		
-			msg56.msgtype = PKTBI_56_ID;
-			msg56.serial = msg->serial;
-			msg56.type = PKTBI_56::TYPE_TOGGLE_RESPONSE;
-			msg56.pinidx = my_map->plotting;
-			msg56.pinx = msg->pinx;
-			msg56.piny = msg->piny;
-			transmit( client, &msg56, sizeof msg56 );
+			PktOut_56* msg56 = REQUESTPACKET(PktOut_56,PKTBI_56_ID);
+			msg56->Write(msg->serial);
+			msg56->Write(static_cast<u8>(PKTBI_56::TYPE_TOGGLE_RESPONSE));
+			msg56->Write(static_cast<u8>(my_map->plotting));
+			msg56->Write(msg->pinx);
+			msg56->Write(msg->piny);
+			transmit( client, &msg56->buffer, msg56->offset );
+			READDPACKET(msg56);
 			break;
+		}
 
 		case PKTBI_56::TYPE_ADD:
 			if(!(my_map->plotting))

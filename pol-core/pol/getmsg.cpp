@@ -16,30 +16,28 @@ Notes
 #include "../clib/endian.h"
 #include "../clib/rawtypes.h"
 
-#include "network/client.h"
-#include "sockio.h"
-#include "msghandl.h"
-
-#include "network/cgdata.h"
-#include "mobile/charactr.h"
 #include "item/item.h"
+#include "mobile/charactr.h"
 #include "module/osmod.h"
+#include "module/uomod.h"
+#include "msghandl.h"
+#include "network/cgdata.h"
+#include "network/client.h"
+#include "network/packets.h"
 #include "pktboth.h"
+#include "sockio.h"
 #include "ufunc.h"
 #include "uoexec.h"
-#include "module/uomod.h"
 
 void send_prompt( Client* client, u32 serial )
 {
-    static PKTBI_9A msg;
-    msg.msgtype = PKTBI_9A_ID;
-    u16 msglen = sizeof(PKTBI_9A);
-    msg.msglen = ctBEu16( msglen );
-    msg.serial = serial;
-    msg.prompt = ctBEu32( 0x15 );
-    msg.type = 0;
-    msg.text[0] = 0;
-    transmit( client, &msg, msglen );
+	PktOut_9A* msg = REQUESTPACKET(PktOut_9A,PKTBI_9A_ID);
+	msg->WriteFlipped(static_cast<u16>(sizeof msg->buffer));
+	msg->Write(serial);
+	msg->WriteFlipped(static_cast<u32>(0x15));
+	msg->offset+=5; // u32 type u8 text[0]
+    transmit( client, &msg->buffer, msg->offset );
+	READDPACKET(msg);
 }
 
 void handle_prompt( Client* client, PKTBI_9A* msg )

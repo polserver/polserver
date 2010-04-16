@@ -2129,13 +2129,13 @@ Item* create_backpack()
 
 void Character::send_warmode()
 {
-	PKTBI_72 msg;
-	msg.msgtype = PKTBI_72_ID;
-	msg.warmode = warmode ? 1 : 0;
-	msg.unk2 = 0;
-	msg.unk3_32 = 0x32;
-	msg.unk4 = 0;
-	transmit( client, &msg, sizeof msg );
+	PktOut_72* msg = REQUESTPACKET(PktOut_72,PKTBI_72_ID);
+	msg->Write(static_cast<u8>(warmode ? 1 : 0));
+	msg->offset++; // u8 unk2
+	msg->Write(static_cast<u8>(0x32));
+	msg->offset++; // u8 unk4
+	transmit( client, &msg->buffer, msg->offset );
+	READDPACKET(msg);
 }
 
 void send_remove_if_hidden_ghost( Character* chr, Client* client )
