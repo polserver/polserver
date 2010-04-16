@@ -505,24 +505,25 @@ bool do_open_trade_window( Client* client, Item* item, Character* dropon )
     send_trade_container( client,         client->chr, client->chr->trade_container() );
     send_trade_container( dropon->client, client->chr, client->chr->trade_container() );
 
+	PktOut_6F* msg = REQUESTPACKET(PktOut_6F,PKTBI_6F_ID);
+	msg->WriteFlipped(static_cast<u16>(sizeof msg->buffer));
+	msg->Write(static_cast<u8>(PKTBI_6F::ACTION_INIT));
+	msg->Write(dropon->serial_ext);
+	msg->Write(client->chr->trade_container()->serial_ext);
+	msg->Write(dropon->trade_container()->serial_ext);
+	msg->Write(static_cast<u8>(1));
+	msg->Write(dropon->name().c_str(),30,false);
 
-    PKTBI_6F msg;
-    msg.msgtype = PKTBI_6F_ID;
-    msg.msglen = ctBEu16(sizeof msg);
-    msg.action = PKTBI_6F::ACTION_INIT;
-    msg.chr_serial = dropon->serial_ext;
-    msg.cont1_serial = client->chr->trade_container()->serial_ext;
-    msg.cont2_serial = dropon->trade_container()->serial_ext;
-    msg.havename = 1;
-    strzcpy( msg.name, dropon->name().c_str(), sizeof msg.name );
-    client->transmit( &msg, sizeof msg );
+	client->transmit( &msg->buffer, msg->offset );
 
-    msg.chr_serial = client->chr->serial_ext;
-    msg.cont1_serial = dropon->trade_container()->serial_ext;
-    msg.cont2_serial = client->chr->trade_container()->serial_ext;
-    msg.havename = 1;
-    strzcpy( msg.name, client->chr->name().c_str(), sizeof msg.name );
-    dropon->client->transmit( &msg, sizeof msg );
+	msg->offset=4;
+	msg->Write(client->chr->serial_ext);
+	msg->Write(dropon->trade_container()->serial_ext);
+	msg->Write(client->chr->trade_container()->serial_ext);
+	msg->offset++; // u8 havename same as above
+	msg->Write(client->chr->name().c_str(),30,false);
+    dropon->client->transmit( &msg->buffer, msg->offset );
+	READDPACKET(msg);
     
     if (item != NULL)
         return place_item_in_secure_trade_container( client, item, 20, 20 );
@@ -899,15 +900,13 @@ void cancel_trade( Character* chr1 )
 
     if (chr1->client)
     {
-        PKTBI_6F msg;
-        msg.msgtype = PKTBI_6F_ID;
-        msg.msglen = ctBEu16( offsetof(PKTBI_6F,name) );
-        msg.action = PKTBI_6F::ACTION_CANCEL;
-        msg.chr_serial = chr1->trade_container()->serial_ext;
-        msg.cont1_serial = 0;
-        msg.cont2_serial = 0;
-        msg.havename = 0;
-        transmit( chr1->client, &msg, offsetof(PKTBI_6F,name) );
+		PktOut_6F* msg = REQUESTPACKET(PktOut_6F,PKTBI_6F_ID);
+		msg->WriteFlipped(static_cast<u16>(17)); // no name
+		msg->Write(static_cast<u8>(PKTBI_6F::ACTION_CANCEL));
+		msg->Write(chr1->trade_container()->serial_ext);
+		msg->offset+=9; // u32 cont1_serial, cont2_serial, u8 havename
+        transmit( chr1->client, &msg->buffer, msg->offset );
+		READDPACKET(msg);
 		send_full_statmsg( chr1->client, chr1 );
 	}
 
@@ -917,15 +916,13 @@ void cancel_trade( Character* chr1 )
         chr2->trading_with.clear();
         if (chr2->client)
         {
-            PKTBI_6F msg;
-            msg.msgtype = PKTBI_6F_ID;
-            msg.msglen = ctBEu16( offsetof(PKTBI_6F,name) );
-            msg.action = PKTBI_6F::ACTION_CANCEL;
-            msg.chr_serial = chr2->trade_container()->serial_ext;
-            msg.cont1_serial = 0;
-            msg.cont2_serial = 0;
-            msg.havename = 0;
-            transmit( chr2->client, &msg, offsetof(PKTBI_6F,name) );
+			PktOut_6F* msg = REQUESTPACKET(PktOut_6F,PKTBI_6F_ID);
+			msg->WriteFlipped(static_cast<u16>(17)); // no name
+			msg->Write(static_cast<u8>(PKTBI_6F::ACTION_CANCEL));
+			msg->Write(chr2->trade_container()->serial_ext);
+			msg->offset+=9; // u32 cont1_serial, cont2_serial, u8 havename
+			transmit( chr2->client, &msg->buffer, msg->offset );
+			READDPACKET(msg);
 			send_full_statmsg( chr2->client, chr2 );
 		}
     }
@@ -936,21 +933,21 @@ void send_trade_statuses( Character* chr )
     unsigned int stat1 = chr->trade_accepted?1:0;
     unsigned int stat2 = chr->trading_with->trade_accepted?1:0;
 
-    PKTBI_6F msg;
-    msg.msgtype = PKTBI_6F_ID;
-    msg.msglen = ctBEu16( offsetof(PKTBI_6F,name) );
-    msg.action = PKTBI_6F::ACTION_STATUS;
-
-    msg.chr_serial = chr->trade_container()->serial_ext;
-    msg.cont1_serial = ctBEu32( stat1 );
-    msg.cont2_serial = ctBEu32( stat2 );
-    msg.havename = 0;
-    transmit( chr->client, &msg, offsetof(PKTBI_6F,name) );
-
-    msg.chr_serial = chr->trading_with->trade_container()->serial_ext;
-    msg.cont1_serial = ctBEu32( stat2 );
-    msg.cont2_serial = ctBEu32( stat1 );
-    transmit( chr->trading_with->client, &msg, offsetof(PKTBI_6F,name) );
+	PktOut_6F* msg = REQUESTPACKET(PktOut_6F,PKTBI_6F_ID);
+	msg->WriteFlipped(static_cast<u16>(17)); // no name
+	msg->Write(static_cast<u8>(PKTBI_6F::ACTION_STATUS));
+	msg->Write(chr->trade_container()->serial_ext);
+	msg->WriteFlipped(stat1);
+	msg->WriteFlipped(stat2);
+	msg->offset++; // u8 havename
+	transmit( chr->client, &msg->buffer, msg->offset );
+	msg->offset=4;
+	msg->Write(chr->trading_with->trade_container()->serial_ext);
+	msg->WriteFlipped(stat2);
+	msg->WriteFlipped(stat1);
+	msg->offset++;
+    transmit( chr->trading_with->client, &msg->buffer, msg->offset );
+	READDPACKET(msg);
 }
 
 void change_trade_status( Character* chr, bool set )

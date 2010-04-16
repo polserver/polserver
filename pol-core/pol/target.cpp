@@ -146,12 +146,13 @@ bool TargetCursor::send_object_cursor( Client *client,
 {
 	if (!client->chr->target_cursor_busy())
 	{
-		static PKTBI_6C msg;
-		msg.msgtype = PKTBI_6C_ID;
-		msg.unk1 = PKTBI_6C::UNK1_00;
-		msg.target_cursor_serial = ctBEu32( cursorid_ );
-		msg.cursor_type = static_cast<u8>(crstype); 
-		client->transmit( &msg, sizeof msg );
+		PktOut_6C* msg = REQUESTPACKET(PktOut_6C,PKTBI_6C_ID);
+		msg->Write(static_cast<u8>(PKTBI_6C::UNK1_00));
+		msg->WriteFlipped(cursorid_);
+		msg->Write(static_cast<u8>(crstype));
+		// rest 0
+		client->transmit( &msg->buffer, sizeof msg->buffer );
+		READDPACKET(msg);
 		client->chr->tcursor2 = this;
 		return true;
 	}
@@ -353,12 +354,13 @@ bool LosCheckedCoordCursor::send_coord_cursor( Client* client )
 {
 	if (!client->chr->target_cursor_busy())
 	{
-		static PKTBI_6C msg;
-		msg.msgtype = PKTBI_6C_ID;
-		msg.unk1 = PKTBI_6C::UNK1_01;
-		msg.target_cursor_serial = ctBEu32( cursorid_ );	
-		msg.cursor_type = PKTBI_6C::CURSOR_TYPE_NEUTRAL;
-		client->transmit( &msg, sizeof msg );
+		PktOut_6C* msg = REQUESTPACKET(PktOut_6C,PKTBI_6C_ID);
+		msg->Write(static_cast<u8>(PKTBI_6C::UNK1_01));
+		msg->WriteFlipped(cursorid_);
+		msg->Write(static_cast<u8>(PKTBI_6C::CURSOR_TYPE_NEUTRAL));
+		// rest 0
+		client->transmit( &msg->buffer, sizeof msg->buffer );
+		READDPACKET(msg);
 		client->chr->tcursor2 = this;
 		return true;
 	}
@@ -384,17 +386,18 @@ MultiPlacementCursor::MultiPlacementCursor( void (*func)(Character*, PKTBI_6C*) 
 
 void MultiPlacementCursor::send_placemulti( Client* client, unsigned short objtype, int flags, s16 xoffset, s16 yoffset )
 {
-	PKTBI_99 msg;
-	memset(&msg,0,sizeof msg);
-	msg.msgtype = PKTBI_99_ID;
-	msg.unk1_01 = 0x01;
-	msg.deed = ctBEu32(cursorid_);
+	PktOut_99* msg = REQUESTPACKET(PktOut_99,PKTBI_99_ID);
+	msg->Write(static_cast<u8>(0x1));
+	msg->WriteFlipped(cursorid_);
+	msg->offset+=12; // 12x u8 unk
 	u16 multiid = find_multidesc(objtype).multiid;
 	multiid += static_cast<u16>((flags & CRMULTI_FACING_MASK) >> CRMULTI_FACING_SHIFT);
-	msg.graphic = ctBEu16( multiid );
-	msg.xoffset = ctBEu16( xoffset );
-	msg.yoffset = ctBEu16( yoffset );
-	client->transmit( &msg, sizeof msg );
+	msg->WriteFlipped(multiid);
+	msg->WriteFlipped(xoffset);
+	msg->WriteFlipped(yoffset);
+	msg->offset+=2; // u16 maybe_zoffset
+	client->transmit( &msg->buffer, msg->offset );
+	READDPACKET(msg);
 	client->chr->tcursor2 = this;
 }
 

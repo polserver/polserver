@@ -51,100 +51,51 @@ void statrequest( Client *client, u32 serial)
     }
 }
 
-// FIXME: KLUUUUDGE!!!
-void send_skillmsg_caps( Client *client, const Character *chr ) {
-	unsigned short msglen;
-
-    static PKTBI_3A_CAPS msg;
-	//Nando changed 3/17/09 (almost six years after!) to support caps in a kludge way (NOTICE: !! 9 !! bytes per skill!)
-	// and the rest of the message is just 4 (instead of 6) bytes
-    msglen = static_cast<unsigned short>(4 + (9*(uoclient_general.maxskills+1))); //0-based, only send skill structs up to configured maxskillid, reserve space for header, term, etc.
-
-    msg.msgtype = PKTBI_3A_VALUES_ID;
-    msg.msglen = ctBEu16( msglen );
-	msg.unk3 = PKTBI_3A_VALUES::FULL_LIST_CAP; // Type = full_list + caps
-    unsigned int i;
-    for( i = 0; i <= uoclient_general.maxskills; i++ )
-    {
-        const UOSkill& uoskill = GetUOSkill(i);
-
-        msg.skills[i].skillid = ctBEu16(i+1); // for some reason, we send this 1-based
-        if (uoskill.pAttr)
-        {
-			const AttributeValue& av = chr->attribute(uoskill.pAttr->attrid);
-            int value;
-            
-            value = av.effective_tenths();
-            if (value > 0xFFFF) 
-                value = 0xFFFF;
-            msg.skills[i].value = ctBEu16( static_cast<u16>(value) );
-
-            value = av.base();
-            if (value > 0xFFFF)
-                value = 0xFFFF;
-            msg.skills[i].value_unmod = ctBEu16( static_cast<u16>(value) );
-			msg.skills[i].lock_mode = (u8)(av.lock());// PKTBI_3A_VALUES::LOCK_NONE;
-			msg.skills[i].cap = ctBEu16(static_cast<u16>(av.cap()));
-        }
-        else
-        {
-            msg.skills[i].value = 0;
-            msg.skills[i].value_unmod = 0;
-            msg.skills[i].lock_mode = PKTBI_3A_VALUES::LOCK_DOWN;
-			msg.skills[i].cap = ctBEu16(ssopt.default_attribute_cap);
-        }
-    }
-    client->transmit( &msg, msglen );
-}
-void send_skillmsg_no_caps( Client *client, const Character *chr ) {
-	unsigned short msglen;
-
-    static PKTBI_3A_VALUES msg;
-    msglen = static_cast<unsigned short>(6 + (7*(uoclient_general.maxskills+1))); //0-based, only send skill structs up to configured maxskillid, reserve space for header, term, etc.
-
-    msg.msgtype = PKTBI_3A_VALUES_ID;
-    msg.msglen = ctBEu16( msglen );
-    msg.unk3 = 0;
-    unsigned int i;
-    for( i = 0; i <= uoclient_general.maxskills; i++ )
-    {
-        const UOSkill& uoskill = GetUOSkill(i);
-
-        msg.skills[i].skillid = ctBEu16(i+1); // for some reason, we send this 1-based
-        if (uoskill.pAttr)
-        {
-            int value;
-            
-            value = chr->attribute(uoskill.pAttr->attrid).effective_tenths();
-            if (value > 0xFFFF) 
-                value = 0xFFFF;
-            msg.skills[i].value = ctBEu16( static_cast<u16>(value) );
-
-            value = chr->attribute(uoskill.pAttr->attrid).base();
-            if (value > 0xFFFF)
-                value = 0xFFFF;
-            msg.skills[i].value_unmod = ctBEu16( static_cast<u16>(value) );
-			msg.skills[i].lock_mode = (u8)(chr->attribute(uoskill.pAttr->attrid).lock());// PKTBI_3A_VALUES::LOCK_NONE;
-        }
-        else
-        {
-            msg.skills[i].value = 0;
-            msg.skills[i].value_unmod = 0;
-            msg.skills[i].lock_mode = PKTBI_3A_VALUES::LOCK_DOWN;
-        }
-    }
-    msg.terminator = 0;
-	u16* term1 = (u16*)((u8*)(&msg)+(msglen-1)); //this points to the last 2 bytes in the msg no matter the length, we want to set those to 0.
-	*term1 = 0;
-    client->transmit( &msg, msglen );
-}
 void send_skillmsg( Client *client, const Character *chr )
 {
-	// This should be a temporary kludge before 099...
-	if (!ssopt.core_sends_caps)
-		send_skillmsg_no_caps(client, chr);
+	PktOut_3A* msg = REQUESTPACKET(PktOut_3A,PKTBI_3A_ID);
+	msg->offset+=2;
+	if (ssopt.core_sends_caps)
+		msg->Write(static_cast<u8>(PKTBI_3A_VALUES::FULL_LIST_CAP));
 	else
-		send_skillmsg_caps(client, chr);
+		msg->Write(static_cast<u8>(PKTBI_3A_VALUES::FULL_LIST));
+
+	for( unsigned int i = 0; i <= uoclient_general.maxskills; ++i )
+	{
+		const UOSkill& uoskill = GetUOSkill(i);
+		msg->WriteFlipped(static_cast<u16>(i+1)); // for some reason, we send this 1-based
+		if (uoskill.pAttr)
+		{
+			const AttributeValue& av = chr->attribute(uoskill.pAttr->attrid);
+			int value;
+			value = av.effective_tenths();
+			if (value > 0xFFFF) 
+				value = 0xFFFF;
+			msg->WriteFlipped(static_cast<u16>(value));
+
+			value = av.base();
+			if (value > 0xFFFF)
+				value = 0xFFFF;
+			msg->WriteFlipped(static_cast<u16>(value));
+			msg->Write(static_cast<u8>(av.lock()));
+			if (ssopt.core_sends_caps)
+				msg->WriteFlipped(static_cast<u16>(av.cap()));
+		}
+		else
+		{
+			msg->offset+=4; // u16 value/value_unmod
+			msg->Write(static_cast<u8>(PKTBI_3A_VALUES::LOCK_DOWN));
+			if (ssopt.core_sends_caps)
+				msg->WriteFlipped(static_cast<u16>(ssopt.default_attribute_cap));
+		}
+	}
+	if (!ssopt.core_sends_caps)
+		msg->offset+=2; // u16 nullterm
+	u16 len=msg->offset;
+	msg->offset=1;
+	msg->WriteFlipped(len);
+	client->transmit( &msg->buffer, len );
+	READDPACKET(msg);
 }
 
 void handle_skill_lock( Client *client, PKTBI_3A_LOCKS *msg )
