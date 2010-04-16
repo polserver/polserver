@@ -158,36 +158,24 @@ void send_uo_skill( Client* client, Character* me, const Attribute* attr )
 {
     ClientAttributeUpdaters& cau = client->Interface.attribute_updaters[ attr->attrid ];
 
-	if (!ssopt.core_sends_caps) {
-		PKTBI_3A_VALUES msg;
-		unsigned short msglen = offsetof(PKTBI_3A_VALUES,skills) +
-								sizeof(msg.skills[0]);
-
-		msg.msgtype = PKTBI_3A_VALUES_ID;
-		msg.msglen = ctBEu16( msglen );
-		msg.unk3 = PKTBI_3A_VALUES::SINGLE_SKILL;
-		msg.skills[0].skillid = ctBEu16(cau.pUOSkill->skillid); // er, no conversion here. !!
-		const AttributeValue& av = me->attribute(attr->attrid);
-		msg.skills[0].value = ctBEu16( static_cast<u16>(av.effective_tenths()) );
-		msg.skills[0].value_unmod = ctBEu16( static_cast<u16>(av.base()) ); // base is always in tenths...
-		msg.skills[0].lock_mode = (u8)av.lock();//PKTBI_3A_VALUES::LOCK_NONE;
-		client->transmit( &msg, msglen );
-	} else {
-		PKTBI_3A_CAPS msg;
-		unsigned short msglen = offsetof(PKTBI_3A_VALUES,skills) +
-								sizeof(msg.skills[0]);
-
-		msg.msgtype = PKTBI_3A_VALUES_ID;
-		msg.msglen = ctBEu16( msglen );
-		msg.unk3 = PKTBI_3A_VALUES::SINGLE_SKILL_CAP;
-		msg.skills[0].skillid = ctBEu16(cau.pUOSkill->skillid); // er, no conversion here. !!
-		const AttributeValue& av = me->attribute(attr->attrid);
-		msg.skills[0].value = ctBEu16( static_cast<u16>(av.effective_tenths()) );
-		msg.skills[0].value_unmod = ctBEu16( static_cast<u16>(av.base()) ); // base is always in tenths...
-		msg.skills[0].lock_mode = (u8)av.lock();//PKTBI_3A_VALUES::LOCK_NONE;
-		msg.skills[0].cap = ctBEu16( static_cast<u16>(av.cap()) );
-		client->transmit( &msg, msglen );
-	}
+	PktOut_3A* msg = REQUESTPACKET(PktOut_3A,PKTBI_3A_ID);
+	msg->offset+=2;
+	if (!ssopt.core_sends_caps)
+		msg->Write(static_cast<u8>(PKTBI_3A_VALUES::SINGLE_SKILL));
+	else
+		msg->Write(static_cast<u8>(PKTBI_3A_VALUES::SINGLE_SKILL_CAP));
+	msg->WriteFlipped(static_cast<u16>(cau.pUOSkill->skillid));
+	const AttributeValue& av = me->attribute(attr->attrid);
+	msg->WriteFlipped(static_cast<u16>(av.effective_tenths())); //value
+	msg->WriteFlipped(static_cast<u16>(av.base())); //value_unmod base is always in tenths...
+	msg->Write(static_cast<u8>(av.lock()));
+	if (ssopt.core_sends_caps)
+		msg->WriteFlipped(static_cast<u16>(av.cap()));
+	u16 len = msg->offset;
+	msg->offset=1;
+	msg->WriteFlipped(len);
+	client->transmit( &msg->buffer, len );
+	READDPACKET(msg);
 }
 void ClientInterface::Initialize()
 {

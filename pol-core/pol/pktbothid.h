@@ -17,6 +17,7 @@ enum PKTBOTHID {
 	PKTBI_22_SYNC_ID = 0x22,	// Move Approved/Resync Request.
 	PKTBI_2C_ID = 0x2C,	// Ressurection Menu
 
+	PKTBI_3A_ID = 0x3A,
 	PKTBI_3A_VALUES_ID = 0x3A,	// Send Skills
 	PKTBI_3A_LOCKS_ID = 0x3A,	// Send Skills
 	PKTBI_3A_CAPS_ID = 0x3A,	// Send Skills
