@@ -49,13 +49,13 @@ u16 gwtext[ (SPEECH_MAX_LEN + 1) ];
 
 void send_unicode_prompt( Client* client, u32 serial )
 {
-    static PKTBI_C2 msg;
-	memset(&msg, 0, sizeof msg);
-    msg.msgtype = PKTBI_C2_ID;
-    msg.msglen = ctBEu16( PKTBI_C2::SERVER_MSGLEN );
-    msg.serial = serial;
-	msg.msg_id = serial; // Server-"decided" message ID. o_O
-	transmit( client, &msg, PKTBI_C2::SERVER_MSGLEN );
+	PktOut_C2* msg = REQUESTPACKET(PktOut_C2,PKTBI_C2_ID);
+	msg->WriteFlipped(static_cast<u16>(PKTBI_C2::SERVER_MSGLEN));
+	msg->Write(serial); //serial
+	msg->Write(serial); //msg_id  Server-"decided" message ID. o_O
+	msg->offset+=10; // 10x u8 unk
+	transmit( client, &msg->buffer, msg->offset );
+	READDPACKET(msg);
 }
 
 void handle_unicode_prompt( Client* client, PKTBI_C2* msg )

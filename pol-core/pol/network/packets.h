@@ -248,6 +248,22 @@ class PacketTemplateSub : public PacketWriter<_id, _size>
 		inline u16 getSubID() { return ctBEu16((*(u16*)&buffer[_suboff])); }
 };
 
+//special def for encrypted buffer
+template <u8 _id, u16 _size>
+class EmptyBufferTemplate : public PacketInterface
+{
+public:
+	EmptyBufferTemplate() { ReSetBuffer(); }
+	char buffer[_size];
+	void ReSetBuffer() 
+	{ 
+		memset(buffer,0,_size);
+		offset=0;
+	}
+	char* getBuffer() { return &buffer[offset]; }
+	inline u8 getID() { return _id; }
+};
+
 // creates new packets
 PacketInterface* GetPacket(u8 id, u16 sub=0);
 
@@ -255,7 +271,13 @@ PacketInterface* GetPacket(u8 id, u16 sub=0);
 #define REQUESTSUBPACKET(_pkt,_id,_sub) static_cast<_pkt*>(Packets::instance()->getPacket(_id,_sub))
 #define READDPACKET(_msg) Packets::instance()->ReAddPacket(_msg)
 
+// buffer for encrypted Data send with a dummy pktid
+// NOTE: redefine id if pkt 0x0 ever gets send
+#define ENCRYPTEDPKTBUFFER 0
+
 // Packet defs start
+typedef EmptyBufferTemplate<ENCRYPTEDPKTBUFFER,0xFFFF> EncryptedPktBuffer;
+
 typedef PacketTemplate<PKTOUT_0B_ID,7> PktOut_0B;
 typedef PacketTemplate<PKTOUT_11_ID,91> PktOut_11;
 typedef PacketTemplate<PKTOUT_17_ID,12> PktOut_17;
@@ -275,6 +297,7 @@ typedef PacketTemplate<PKTOUT_2D_ID,17> PktOut_2D;
 typedef PacketTemplate<PKTOUT_2E_ID,15> PktOut_2E;
 typedef PacketTemplate<PKTOUT_2F_ID,10> PktOut_2F;
 typedef PacketTemplate<PKTBI_3A_ID,6 + 100 * 9> PktOut_3A;
+typedef PacketTemplate<PKTBI_3B_ID,8> PktOut_3B;
 typedef PacketTemplate<PKTOUT_3C_ID,5 + MAX_CONTAINER_ITEMS * 20> PktOut_3C;
 typedef PacketTemplate<PKTOUT_4F_ID,2> PktOut_4F;
 typedef PacketTemplate<PKTOUT_53_ID,2> PktOut_53;
@@ -314,10 +337,11 @@ typedef PacketTemplate<PKTOUT_A8_ID,2000> PktOut_A8;
 typedef PacketTemplate<PKTOUT_A9_ID,10000> PktOut_A9;
 typedef PacketTemplate<PKTOUT_AA_ID,5> PktOut_AA;
 typedef PacketTemplate<PKTOUT_AB_ID,531> PktOut_AB;
-typedef PacketTemplate<PKTOUT_AE_ID,((SPEECH_MAX_LEN) + 1)*2+48> PktOut_AE;
+typedef PacketTemplate<PKTOUT_AE_ID,(SPEECH_MAX_LEN + 1)*2+48> PktOut_AE;
 typedef PacketTemplate<PKTOUT_AF_ID,13> PktOut_AF;
 typedef PacketTemplate<PKTOUT_B0_ID,0xFFFF> PktOut_B0;
 typedef PacketTemplate<PKTOUT_B7_ID,521> PktOut_B7;
+typedef PacketTemplate<PKTBI_B8_OUT_ID,7+5*(SPEECH_MAX_LEN+1)> PktOut_B8;
 typedef PacketTemplate<PKTOUT_B9_ID,5> PktOut_B9;
 typedef PacketTemplate<PKTOUT_BA_ID,6> PktOut_BA;
 typedef PacketTemplate<PKTOUT_BC_ID,3> PktOut_BC;
@@ -336,9 +360,10 @@ typedef PacketTemplateSub<PKTBI_BF_ID,3,PKTBI_BF::TYPE_DAMAGE,5+6> PktOut_BF_Sub
 typedef PacketTemplateSub<PKTBI_BF_ID,3,PKTBI_BF::TYPE_CHARACTER_RACE_CHANGER,5+2> PktOut_BF_Sub2A;
 
 typedef PacketTemplate<PKTOUT_C1_ID,48+(SPEECH_MAX_LEN+1)+2> PktOut_C1;
+typedef PacketTemplate<PKTBI_C2_ID,21> PktOut_C2;
 typedef PacketTemplate<PKTOUT_C7_ID,49> PktOut_C7;
 typedef PacketTemplate<PKTOUT_CC_ID,49+(SPEECH_MAX_LEN+1)*2+SPEECH_MAX_LEN+1> PktOut_CC;
-
+typedef PacketTemplate<PKTBI_D6_OUT_ID,25+(4*SPEECH_MAX_LEN)> PktOut_D6;
 typedef PacketTemplate<PKTOUT_DC_ID,9> PktOut_DC;
 typedef PacketTemplate<PKTOUT_DD_ID,0xFFFF> PktOut_DD;
 typedef PacketTemplate<PKTOUT_E3_ID,77> PktOut_E3;

@@ -306,23 +306,23 @@ BObjectImp* UOExecutorModule::mf_SendBuyWindow(/* character, container, vendor, 
 
 void send_clear_vendorwindow( Client* client, Character* vendor )
 {
-	PKTIN_3B msg3b;
-	msg3b.msgtype = PKTIN_3B_ID;
-	msg3b.msglen = ctBEu16(offsetof( PKTIN_3B, items[0] ));
-	msg3b.vendor_serial = vendor->serial_ext;
-	msg3b.status = PKTIN_3B::STATUS_NOTHING_BOUGHT;
-	client->transmit( &msg3b, offsetof( PKTIN_3B, items[0] ) );
+	PktOut_3B* msg = REQUESTPACKET(PktOut_3B,PKTBI_3B_ID);
+	msg->WriteFlipped(static_cast<u16>(sizeof msg->buffer));
+	msg->Write(vendor->serial_ext);
+	msg->Write(static_cast<u8>(PKTBI_3B::STATUS_NOTHING_BOUGHT));
+	client->transmit(&msg->buffer, msg->offset);
+	READDPACKET(msg);
 }
 
 
 //#include "msgfiltr.h"
 #include "../msghandl.h"
 
-unsigned int calculate_cost( Character* vendor, UContainer* for_sale, PKTIN_3B *msg )
+unsigned int calculate_cost( Character* vendor, UContainer* for_sale, PKTBI_3B *msg )
 {
 	unsigned int amt = 0;
 
-	int nitems = (cfBEu16( msg->msglen ) - offsetof( PKTIN_3B, items )) /
+	int nitems = (cfBEu16( msg->msglen ) - offsetof( PKTBI_3B, items )) /
 					 sizeof msg->items[0];
 
 	for( int i = 0; i < nitems; ++i )
@@ -336,11 +336,11 @@ unsigned int calculate_cost( Character* vendor, UContainer* for_sale, PKTIN_3B *
 	return amt;
 }
 
-void buyhandler( Client* client, PKTIN_3B* msg)
+void buyhandler( Client* client, PKTBI_3B* msg)
 {
 	//Close the gump
 
-	if (msg->status == PKTIN_3B::STATUS_NOTHING_BOUGHT)
+	if (msg->status == PKTBI_3B::STATUS_NOTHING_BOUGHT)
 		return;
 
 	UContainer* backpack = client->chr->backpack();
@@ -375,7 +375,7 @@ void buyhandler( Client* client, PKTIN_3B* msg)
 	// buy each item individually
 	// note, we know the buyer can afford it all.
 	// the question is, can it all fit in his backpack?
-	int nitems = (cfBEu16( msg->msglen ) - offsetof( PKTIN_3B, items )) /
+	int nitems = (cfBEu16( msg->msglen ) - offsetof( PKTBI_3B, items )) /
 					 sizeof msg->items[0];
 
 	for( int i = 0; i < nitems; ++i )
@@ -498,7 +498,7 @@ void buyhandler( Client* client, PKTIN_3B* msg)
 	send_clear_vendorwindow( client, vendor );
 }
 
-MESSAGE_HANDLER_VARLEN(PKTIN_3B, buyhandler );
+MESSAGE_HANDLER_VARLEN(PKTBI_3B, buyhandler );
 
 
 
