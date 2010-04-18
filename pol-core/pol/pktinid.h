@@ -31,7 +31,6 @@ enum PKTINID {
 	PKTIN_1E_ID = 0x1E,	// Control Animation
 
 	PKTIN_34_ID = 0x34,	// Request Stats
-	PKTIN_3B_ID = 0x3B,	// Buy Items
 
 	PKTIN_5D_ID = 0x5D,	// Character Selected
 

@@ -2633,52 +2633,37 @@ void send_damage_old(Client* client, Character* defender, u16 damage)
 
 void sendCharProfile( Character* chr, Character* of_who, const char *title, const u16 *utext, const u16 *etext )
 {
-	PKTBI_B8_OUT msg;
+	PktOut_B8* msg = REQUESTPACKET(PktOut_B8,PKTBI_B8_OUT_ID);
+
 	unsigned newulen = 0, newelen = 0, titlelen;
 
 	while( utext[newulen] != L'\0' )
 		++newulen;
-	++newulen;
 
 	while( etext[newelen] != L'\0' )
 		++newelen;
-	++newelen;
 
-	titlelen = strlen(title) + 1;
+	titlelen = strlen(title);
 
 	// Check Lengths
 
-    if (titlelen > (SPEECH_MAX_LEN+1))
-        titlelen = SPEECH_MAX_LEN+1;
-	if (newulen > (2*(SPEECH_MAX_LEN+1)))
-		newulen = 2*(SPEECH_MAX_LEN+1);
-	if (newelen > (2*(SPEECH_MAX_LEN+1)))
-		newelen = 2*(SPEECH_MAX_LEN+1);
-
-	unsigned short msglen = static_cast<unsigned short>(7 + titlelen + (newulen*sizeof(utext[0])) + (newelen*sizeof(etext[0])));
+    if (titlelen > SPEECH_MAX_LEN)
+        titlelen = SPEECH_MAX_LEN;
+	if (newulen > SPEECH_MAX_LEN)
+		newulen = SPEECH_MAX_LEN;
+	if (newelen > SPEECH_MAX_LEN)
+		newelen = SPEECH_MAX_LEN;
 
 	// Build Packet
+	msg->offset+=2;
+	msg->Write(of_who->serial_ext);
+	msg->Write(title,static_cast<u16>(titlelen+1));
+	msg->WriteFlipped(utext,static_cast<u16>(newulen));
+	msg->WriteFlipped(etext,static_cast<u16>(newelen));
+	u16 len=msg->offset;
+	msg->offset=1;
+	msg->WriteFlipped(len);
 
-	msg.msgtype = PKTBI_B8_OUT_ID;
-	msg.msglen = ctBEu16( msglen );
-	msg.serial = of_who->serial_ext;
-
-	// Set Title
-	strzcpy( msg.text, title, titlelen );
-
-	// Set Unicode Texts
-
-	unsigned offset = titlelen;
-
-	for(unsigned i=0; i < newulen; i++)
-	{
-		WritetoCharBufferFlipped(msg.text,utext[i],&offset);
-	}
-
-	for(unsigned i=0; i < newelen; i++)
-	{
-		WritetoCharBufferFlipped(msg.text,etext[i],&offset);
-	}
-
-	transmit( chr->client, &msg, msglen );
+	transmit( chr->client, &msg->buffer, len );
+	READDPACKET(msg);
 }

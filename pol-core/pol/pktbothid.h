@@ -21,6 +21,7 @@ enum PKTBOTHID {
 	PKTBI_3A_VALUES_ID = 0x3A,	// Send Skills
 	PKTBI_3A_LOCKS_ID = 0x3A,	// Send Skills
 	PKTBI_3A_CAPS_ID = 0x3A,	// Send Skills
+	PKTBI_3B_ID = 0x3B,			// Buy Items
 
 	PKTBI_56_ID = 0x56,	// Map Pin
 

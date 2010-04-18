@@ -124,6 +124,23 @@ struct PKTBI_3A_LOCKS
 };
 asserteql( sizeof(PKTBI_3A_LOCKS), 6 );
 
+struct PKTBI_3B {
+	u8  msgtype;
+	u16 msglen;
+	u32 vendor_serial;
+	u8 status;
+	enum {
+		STATUS_NOTHING_BOUGHT = 0,
+		STATUS_ITEMS_BOUGHT   = 2
+	};
+	struct {
+		u8 layer;
+		u32 item_serial;
+		u16 number_bought;
+	} items[1];  /* Dunno how many it should be */
+};
+asserteql( sizeof(PKTBI_3B), 15 );
+
 struct PKTBI_56
 {
 	u8 msgtype;
@@ -415,13 +432,13 @@ struct PKTBI_B8_IN {
 	};
 };
 
-struct PKTBI_B8_OUT {
-	u8 msgtype;
-	u16 msglen;
-	u32 serial;
-	char text[5*(SPEECH_MAX_LEN+1)]; // 1 Ascii variable array ( SPEECH_MAX_LEN+1) and 2 Unicode variable arrays 2*(SPEECH_MAX_LEN+1) each due to u16. 
-};
-asserteql( sizeof(PKTBI_B8_OUT), 1012 );
+//struct PKTBI_B8_OUT {
+//	u8 msgtype;
+//	u16 msglen;
+//	u32 serial;
+//	char text[5*(SPEECH_MAX_LEN+1)]; // 1 Ascii variable array ( SPEECH_MAX_LEN+1) and 2 Unicode variable arrays 2*(SPEECH_MAX_LEN+1) each due to u16. 
+//};
+//asserteql( sizeof(PKTBI_B8_OUT), 1012 );
 
 struct PKTBI_BB {
 	u8 msgtype;
@@ -860,28 +877,28 @@ struct PKTBI_D6_IN {
 };
 asserteql( sizeof(PKTBI_D6_IN), 7 );
 
-struct AOS_OBJECT_PROPERTY_LIST_ELEM
-{
-	u32 localization_num;
-	u16 textlen;
-	u16 text; //little endian Unicode text, not 0 terminated 
-};
+//struct AOS_OBJECT_PROPERTY_LIST_ELEM
+//{
+//	u32 localization_num;
+//	u16 textlen;
+//	u16 text; //little endian Unicode text, not 0 terminated 
+//};
 
 /*
 Big-Endian for u16/32 unless otherwise noted.
 This is the AOS Version of the packet
 */
-struct PKTBI_D6_OUT
-{
-	u8 msgtype;
-	u16 msglen;
-	u16 unk1; //always 1
-	u32 serial;
-	u8 unk2; //always 0
-	u8 unk3; //always 0
-	u32 listid; 
-	AOS_OBJECT_PROPERTY_LIST_ELEM data[1];
-};
+//struct PKTBI_D6_OUT
+//{
+//	u8 msgtype;
+//	u16 msglen;
+//	u16 unk1; //always 1
+//	u32 serial;
+//	u8 unk2; //always 0
+//	u8 unk3; //always 0
+//	u32 listid; 
+//	AOS_OBJECT_PROPERTY_LIST_ELEM data[1];
+//};
 
 //fixme: which 0 is z?
 struct CH_ERASE

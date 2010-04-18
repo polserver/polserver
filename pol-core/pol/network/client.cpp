@@ -64,7 +64,6 @@ Client::Client( ClientInterface& aInterface, TCryptInfo& encryption ) :
 	recv_state( RECV_STATE_CRYPTSEED_WAIT ),
     bufcheck1_AA(0xAA),
     buffer(),
-	xoutbuffer(),
     bufcheck2_55(0x55),
 	bytes_received(0),
 	message_length(0),
