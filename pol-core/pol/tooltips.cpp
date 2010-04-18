@@ -44,11 +44,9 @@ void handle_request_tooltip( Client* client, PKTIN_B6* msgin )
 				PktOut_B7* msg = REQUESTPACKET(PktOut_B7,PKTOUT_B7_ID);
 				msg->offset+=2;
 				msg->Write(item->serial_ext);
-				for( unsigned i = 0; i < id.tooltip.length(); ++i )
-				{
-					msg->offset++;
-					msg->Write(static_cast<u8>(id.tooltip[ i ]));
-				}
+				const char* string = id.tooltip.c_str();
+				while (*string) //unicode
+					msg->Write(static_cast<u16>((*string++) << 8));
 				msg->offset+=2; //nullterm
 				u16 len=msg->offset;
 				msg->offset=1;
@@ -162,41 +160,26 @@ void SendAOSTooltip(Client* client, UObject* obj, bool vendor_content)
 		else
 			desc = obj->description();
 
-    int len = desc.size()*2;
-    string out(len,0);
-    
-    int packetsize = 25+len;
-
-    for(unsigned int i=0,j=0; j<desc.size(); i++,j++)
-    {
-        out[i] = desc[j];
-        i++;
-        out[i] = 0;
-    }
-
-    unsigned char* buffer = new unsigned char[packetsize];
-    PKTBI_D6_OUT* msg = reinterpret_cast<PKTBI_D6_OUT*>(buffer);
-    msg->msgtype = PKTBI_D6_OUT_ID;
-    msg->msglen = ctBEu16(packetsize);
-    msg->unk1 = ctBEu16(1);
-    msg->serial = obj->serial_ext;
-    msg->unk2 = 0;
-    msg->unk3 = 0;
-    msg->listid = ctBEu32(obj->rev());
-
+	PktOut_D6* msg = REQUESTPACKET(PktOut_D6,PKTBI_D6_OUT_ID);
+	msg->offset+=2;
+	msg->WriteFlipped(static_cast<u16>(1)); //u16 unk1
+	msg->Write(obj->serial_ext);
+	msg->offset+=2; // u8 unk2,unk3
+	msg->WriteFlipped(obj->rev());
 	if(obj->isa(UObject::CLASS_CHARACTER))
-	{
-		msg->data->localization_num = ctBEu32(1050045); //1 text argument only
-	}
+		msg->WriteFlipped(static_cast<u32>(1050045));   //1 text argument only
 	else
-		msg->data->localization_num = ctBEu32(1042971); //1 text argument only
+		msg->WriteFlipped(static_cast<u32>(1042971));   //1 text argument only
 
-	msg->data->textlen = ctBEu16(len);
-	memcpy( reinterpret_cast<u8*>(&(msg->data->text)), out.c_str(), len );
-    *(reinterpret_cast<u32*>(&buffer[packetsize-4])) = 0; //indicates end of property list
-
-    client->transmit(buffer,packetsize);
-	delete [] buffer;
-	buffer = NULL;
+	msg->WriteFlipped(static_cast<u16>(desc.size()*2));
+	const char* string = desc.c_str();
+	while (*string) //unicode
+		msg->Write(static_cast<u16>(*string++));
+	msg->offset+=4; // indicates end of property list
+	u16 len=msg->offset;
+	msg->offset=1;
+	msg->WriteFlipped(len);
+	client->transmit(&msg->buffer,len);
+	READDPACKET(msg);
 }
 

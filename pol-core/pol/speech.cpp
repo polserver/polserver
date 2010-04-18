@@ -47,8 +47,6 @@ Notes
 #include "../clib/fdump.h"
 #include "../bscript/impstr.h"
 
-//static char buffer[1024];
-
 // ASCII-ONLY VERSIONS
 void pc_spoke( NPC& npc, Character *chr, const char *text, int textlen, u8 texttype ) //DAVE
 {

@@ -772,7 +772,7 @@ bool process_data( Client *client )
 			if (config.verbose)
 				printf( "Message Received: Type 0x%X, Length %d bytes\n", msgtype, client->message_length );
 
-			PolLock lck;
+			//PolLock lck;
 			// it can happen that a client gets disconnected while waiting for the lock.
 			if (!client->disconnect)
 			{
@@ -1040,7 +1040,7 @@ client->checkpoint = 61; //CNXBUG
 					if (nidle == 30*config.inactivity_warning_timeout)
 					{
 						CLIENT_CHECKPOINT(4);
-						PolLock lck;
+						//PolLock lck;
 						PktOut_53* msg = REQUESTPACKET(PktOut_53,PKTOUT_53_ID);
 						msg->Write(static_cast<u8>(PKTOUT_53_WARN_CHARACTER_IDLE));
 						CLIENT_CHECKPOINT(5);
@@ -1070,7 +1070,7 @@ client->checkpoint = 61; //CNXBUG
 			//region Speedhack
 			if (!client->movementqueue.empty()) // not empty then process the first packet
 			{
-				PolLock lck;
+				//PolLock lck;
 				PacketThrottler pkt = client->movementqueue.front();
 				if (client->SpeedHackPrevention(false))
 				{
