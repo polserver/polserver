@@ -22,6 +22,8 @@ Notes
 PacketsSingleton::PacketsSingleton()
 {
 	//insert packet queues at first creation
+	packets.insert(PacketQueuePair(ENCRYPTEDPKTBUFFER,new PacketQueueSingle()));
+
 	packets.insert(PacketQueuePair(PKTOUT_0B_ID,new PacketQueueSingle()));
 	packets.insert(PacketQueuePair(PKTOUT_11_ID,new PacketQueueSingle()));
 	packets.insert(PacketQueuePair(PKTOUT_17_ID,new PacketQueueSingle()));
@@ -41,6 +43,7 @@ PacketsSingleton::PacketsSingleton()
 	packets.insert(PacketQueuePair(PKTOUT_2E_ID,new PacketQueueSingle()));
 	packets.insert(PacketQueuePair(PKTOUT_2F_ID,new PacketQueueSingle()));
 	packets.insert(PacketQueuePair(PKTBI_3A_ID,new PacketQueueSingle()));
+	packets.insert(PacketQueuePair(PKTBI_3B_ID,new PacketQueueSingle()));
 	packets.insert(PacketQueuePair(PKTOUT_3C_ID,new PacketQueueSingle()));
 	packets.insert(PacketQueuePair(PKTOUT_4F_ID,new PacketQueueSingle()));
 	packets.insert(PacketQueuePair(PKTOUT_53_ID,new PacketQueueSingle()));
@@ -84,6 +87,7 @@ PacketsSingleton::PacketsSingleton()
 	packets.insert(PacketQueuePair(PKTOUT_AF_ID,new PacketQueueSingle()));
 	packets.insert(PacketQueuePair(PKTOUT_B0_ID,new PacketQueueSingle()));
 	packets.insert(PacketQueuePair(PKTOUT_B7_ID,new PacketQueueSingle()));
+	packets.insert(PacketQueuePair(PKTBI_B8_OUT_ID,new PacketQueueSingle()));
 	packets.insert(PacketQueuePair(PKTOUT_B9_ID,new PacketQueueSingle()));
 	packets.insert(PacketQueuePair(PKTOUT_BA_ID,new PacketQueueSingle()));
 	packets.insert(PacketQueuePair(PKTOUT_BC_ID,new PacketQueueSingle()));
@@ -91,8 +95,10 @@ PacketsSingleton::PacketsSingleton()
 	packets.insert(PacketQueuePair(PKTBI_BF_ID,new PacketQueueSubs()));
 
 	packets.insert(PacketQueuePair(PKTOUT_C1_ID,new PacketQueueSingle()));
+	packets.insert(PacketQueuePair(PKTBI_C2_ID,new PacketQueueSingle()));
 	packets.insert(PacketQueuePair(PKTOUT_C7_ID,new PacketQueueSingle()));
 	packets.insert(PacketQueuePair(PKTOUT_CC_ID,new PacketQueueSingle()));
+	packets.insert(PacketQueuePair(PKTBI_D6_OUT_ID,new PacketQueueSingle()));
 	packets.insert(PacketQueuePair(PKTOUT_DC_ID,new PacketQueueSingle()));
 	packets.insert(PacketQueuePair(PKTOUT_DD_ID,new PacketQueueSingle()));
 	packets.insert(PacketQueuePair(PKTOUT_E3_ID,new PacketQueueSingle()));
@@ -204,6 +210,7 @@ PacketInterface* GetPacket(u8 id, u16 sub)
 {
 	switch (id)
 	{
+		case ENCRYPTEDPKTBUFFER: return new EncryptedPktBuffer();
 		case PKTOUT_0B_ID: return new PktOut_0B();
 		case PKTOUT_11_ID: return new PktOut_11();
 		case PKTOUT_17_ID: return new PktOut_17();
@@ -223,6 +230,7 @@ PacketInterface* GetPacket(u8 id, u16 sub)
 		case PKTOUT_2E_ID: return new PktOut_2E();
 		case PKTOUT_2F_ID: return new PktOut_2F();
 		case PKTBI_3A_ID: return new PktOut_3A();
+		case PKTBI_3B_ID: return new PktOut_3B();
 		case PKTOUT_3C_ID: return new PktOut_3C();
 		case PKTOUT_4F_ID: return new PktOut_4F();
 		case PKTOUT_53_ID: return new PktOut_53();
@@ -266,6 +274,7 @@ PacketInterface* GetPacket(u8 id, u16 sub)
 		case PKTOUT_AF_ID: return new PktOut_AF();
 		case PKTOUT_B0_ID: return new PktOut_B0();
 		case PKTOUT_B7_ID: return new PktOut_B7();
+		case PKTBI_B8_OUT_ID: return new PktOut_B8();
 		case PKTOUT_B9_ID: return new PktOut_B9();
 		case PKTOUT_BA_ID: return new PktOut_BA();
 		case PKTOUT_BC_ID: return new PktOut_BC();
@@ -289,8 +298,10 @@ PacketInterface* GetPacket(u8 id, u16 sub)
 			}
 		}
 		case PKTOUT_C1_ID: return new PktOut_C1();
+		case PKTBI_C2_ID: return new PktOut_C2();
 		case PKTOUT_C7_ID: return new PktOut_C7();
 		case PKTOUT_CC_ID: return new PktOut_CC();
+		case PKTBI_D6_OUT_ID: return new PktOut_D6();
 		case PKTOUT_DC_ID: return new PktOut_DC();
 		case PKTOUT_DD_ID: return new PktOut_DD();
 		case PKTOUT_E3_ID: return new PktOut_E3();

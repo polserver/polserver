@@ -25,6 +25,7 @@ Notes
 #include "client.h"
 #include "iostats.h"
 #include "packethooks.h"
+#include "packets.h"
 #include "../polsig.h"
 #include "../polstats.h"
 #include "../ucfg.h"
@@ -98,8 +99,8 @@ void Client::transmit_encrypted( const void *data, int len )
 	unsigned char *pch;
 	int i;
 	int bidx; // Offset in output byte
-	
-	pch = xoutbuffer;
+	EncryptedPktBuffer* outbuffer = REQUESTPACKET(EncryptedPktBuffer,ENCRYPTEDPKTBUFFER);
+	pch = reinterpret_cast<unsigned char*>(outbuffer->getBuffer());
 	bidx=0;
     THREAD_CHECKPOINT( active_client, 101 );
 	for (i=0; i < len; i++)
@@ -166,9 +167,10 @@ void Client::transmit_encrypted( const void *data, int len )
 	}
     THREAD_CHECKPOINT( active_client, 114 );
 
-    passert( pch-xoutbuffer+1 <= int(sizeof xoutbuffer) );
+    passert( pch-reinterpret_cast<unsigned char*>(outbuffer->buffer)+1 <= int(sizeof outbuffer->buffer) );
     THREAD_CHECKPOINT( active_client, 115 );
-	xmit( xoutbuffer, static_cast<unsigned short>(pch-xoutbuffer+1) );
+	xmit( &outbuffer->buffer, static_cast<unsigned short>(pch-reinterpret_cast<unsigned char*>(outbuffer->buffer)+1) );
+	READDPACKET(outbuffer);
     THREAD_CHECKPOINT( active_client, 116 );
 }
 #include "../packetscrobj.h"

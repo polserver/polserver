@@ -193,23 +193,6 @@ struct PKTIN_34 {
 };
 asserteql( sizeof(PKTIN_34), 10 );
 
-struct PKTIN_3B {
-	u8  msgtype;
-	u16 msglen;
-	u32 vendor_serial;
-	u8 status;
-	enum {
-		STATUS_NOTHING_BOUGHT = 0,
-		STATUS_ITEMS_BOUGHT   = 2
-	};
-	struct {
-		u8 layer;
-		u32 item_serial;
-		u16 number_bought;
-	} items[1];  /* Dunno how many it should be */
-};
-asserteql( sizeof(PKTIN_3B), 15 );
-
 struct PKTIN_5D {
 	u8 msgtype;
 	u32 pattern_EDEDEDED;

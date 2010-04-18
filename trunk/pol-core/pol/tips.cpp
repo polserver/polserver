@@ -25,8 +25,6 @@ Notes
 
 TipFilenames tipfilenames;
 
-//static PKTOUT_A6 tipmsg;
-
 bool send_tip( Client* client, const char* tipname, unsigned short tipnum )
 {
     size_t textlen = strlen(tipname);
