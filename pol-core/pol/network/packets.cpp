@@ -160,16 +160,16 @@ PacketInterface* PacketQueueSubs::GetNext(u8 id, u16 sub)
 		PacketInterfaceQueueMap::iterator itr = packets.find(sub);
 		if (itr != packets.end())
 		{
-			PacketInterface* pkt = itr->second.front(); // get next one
-			itr->second.pop();  // and remove it from queue
-			pkt->ReSetBuffer();
-			return pkt;
+			if (!itr->second.empty())
+			{
+				PacketInterface* pkt = itr->second.front(); // get next one
+				itr->second.pop();  // and remove it from queue
+				pkt->ReSetBuffer();
+				return pkt;
+			}
 		}
-		else
-			return GetPacket(id,sub);
 	}
-	else 
-		return GetPacket(id,sub);
+	return GetPacket(id,sub);
 	//critical end
 }
 
