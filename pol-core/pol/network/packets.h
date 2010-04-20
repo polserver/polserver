@@ -245,7 +245,7 @@ class PacketTemplateSub : public PacketWriter<_id, _size>
 			(*(u16*)&buffer[_suboff]) = cfBEu16(_sub);
 			offset=1;
 		}
-		inline u16 getSubID() { return ctBEu16((*(u16*)&buffer[_suboff])); }
+		inline u16 getSubID() { return _sub; /*ctBEu16((*(u16*)&buffer[_suboff]));*/ }
 };
 
 //special def for encrypted buffer
