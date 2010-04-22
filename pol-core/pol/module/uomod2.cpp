@@ -2034,16 +2034,16 @@ void read_book_page_handler( Client* client, PKTBI_66* msg )
 			return;
 		}
 
-		PktOut_66* msg = REQUESTPACKET(PktOut_66,PKTBI_66_ID);
-		msg->offset+=2;
-		msg->Write(book->serial_ext);
-		msg->WriteFlipped(static_cast<u16>(1));
+		PktOut_66* msgOut = REQUESTPACKET(PktOut_66,PKTBI_66_ID);
+		msgOut->offset+=2;
+		msgOut->Write(book->serial_ext);
+		msgOut->WriteFlipped(static_cast<u16>(1));
 
 		int linenum = (page-1)*8+1;
 
-		msg->WriteFlipped(static_cast<u16>(page));
-		u16 offset= msg->offset;
-		msg->offset+=2;
+		msgOut->WriteFlipped(static_cast<u16>(page));
+		u16 offset= msgOut->offset;
+		msgOut->offset+=2;
 
 		int pagelines;
 		for( pagelines = 0; pagelines < 8 && linenum <= nlines; ++pagelines, ++linenum )
@@ -2055,21 +2055,21 @@ void read_book_page_handler( Client* client, PKTBI_66* msg )
 			BObject line_ob = book->call_custom_method( "getline", params );
 			linetext = line_ob->getStringRep();
 
-			if (msg->offset+linetext.size()+1 > sizeof msg->buffer)
+			if (msgOut->offset+linetext.size()+1 > sizeof msgOut->buffer)
 			{
-				READDPACKET(msg);
+				READDPACKET(msgOut);
 				return;
 			}
-			msg->Write(linetext.c_str(),static_cast<u16>(linetext.size()+1));
+			msgOut->Write(linetext.c_str(),static_cast<u16>(linetext.size()+1));
 		}
 
-		u16 len=msg->offset;
-		msg->offset=offset;
-		msg->WriteFlipped(static_cast<u16>(pagelines));
-		msg->offset=1;
-		msg->WriteFlipped(len);
-		client->transmit( &msg->buffer, len );
-		READDPACKET(msg);
+		u16 len=msgOut->offset;
+		msgOut->offset=offset;
+		msgOut->WriteFlipped(static_cast<u16>(pagelines));
+		msgOut->offset=1;
+		msgOut->WriteFlipped(len);
+		client->transmit( &msgOut->buffer, len );
+		READDPACKET(msgOut);
 	}
 	else
 	{
