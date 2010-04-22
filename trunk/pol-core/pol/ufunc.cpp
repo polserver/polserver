@@ -1731,13 +1731,12 @@ void send_objdesc( Client *client, Item *item )
 	u16 textlen= static_cast<u16>(item->description().length() + 1);
 	if (textlen > SPEECH_MAX_LEN+1)  // FIXME need to handle this better second msg?
 		textlen = SPEECH_MAX_LEN+1;
-
 	msg->offset+=2;
 	msg->Write(item->serial_ext);
 	msg->Write(item->graphic_ext);
 	msg->Write(static_cast<u8>(TEXTTYPE_YOU_SEE));
 	msg->WriteFlipped(static_cast<u16>(0x03B2));
-	msg->WriteFlipped(static_cast<u8>(3));
+	msg->WriteFlipped(static_cast<u16>(3));
 	msg->Write("System", 30 );
 	msg->Write(item->description().c_str(),textlen);
 	u16 len=msg->offset;
