@@ -400,6 +400,7 @@ void send_trade_container( Client* client,
 	msg->Write(whos->serial_ext);
 	msg->Write(cont->color_ext);
 	transmit( client, &msg->buffer, msg->offset );
+	msg->Test(msg->offset);
 	READDPACKET(msg);
 }
 
@@ -523,6 +524,7 @@ bool do_open_trade_window( Client* client, Item* item, Character* dropon )
 	msg->offset++; // u8 havename same as above
 	msg->Write(client->chr->name().c_str(),30,false);
     dropon->client->transmit( &msg->buffer, msg->offset );
+	msg->Test(msg->offset);
 	READDPACKET(msg);
     
     if (item != NULL)
@@ -830,6 +832,7 @@ void drop_item_v2( Client *client, PKTIN_08_V2 *msg )
 
 	PktOut_29* drop_msg = REQUESTPACKET(PktOut_29,PKTOUT_29_ID);
 	client->transmit(&drop_msg->buffer, drop_msg->offset);
+	drop_msg->Test(drop_msg->offset);
 	READDPACKET(drop_msg);
 
 	send_full_statmsg( client, client->chr );
@@ -906,6 +909,7 @@ void cancel_trade( Character* chr1 )
 		msg->Write(chr1->trade_container()->serial_ext);
 		msg->offset+=9; // u32 cont1_serial, cont2_serial, u8 havename
         transmit( chr1->client, &msg->buffer, msg->offset );
+		msg->Test(msg->offset);
 		READDPACKET(msg);
 		send_full_statmsg( chr1->client, chr1 );
 	}
@@ -922,6 +926,7 @@ void cancel_trade( Character* chr1 )
 			msg->Write(chr2->trade_container()->serial_ext);
 			msg->offset+=9; // u32 cont1_serial, cont2_serial, u8 havename
 			transmit( chr2->client, &msg->buffer, msg->offset );
+			msg->Test(msg->offset);
 			READDPACKET(msg);
 			send_full_statmsg( chr2->client, chr2 );
 		}
@@ -947,6 +952,7 @@ void send_trade_statuses( Character* chr )
 	msg->WriteFlipped(stat1);
 	msg->offset++;
     transmit( chr->trading_with->client, &msg->buffer, msg->offset );
+	msg->Test(msg->offset);
 	READDPACKET(msg);
 }
 

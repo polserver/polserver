@@ -152,6 +152,7 @@ bool TargetCursor::send_object_cursor( Client *client,
 		msg->Write(static_cast<u8>(crstype));
 		// rest 0
 		client->transmit( &msg->buffer, sizeof msg->buffer );
+		msg->Test(sizeof msg->buffer);
 		READDPACKET(msg);
 		client->chr->tcursor2 = this;
 		return true;
@@ -360,6 +361,7 @@ bool LosCheckedCoordCursor::send_coord_cursor( Client* client )
 		msg->Write(static_cast<u8>(PKTBI_6C::CURSOR_TYPE_NEUTRAL));
 		// rest 0
 		client->transmit( &msg->buffer, sizeof msg->buffer );
+		msg->Test(sizeof msg->buffer);
 		READDPACKET(msg);
 		client->chr->tcursor2 = this;
 		return true;
@@ -397,6 +399,7 @@ void MultiPlacementCursor::send_placemulti( Client* client, unsigned short objty
 	msg->WriteFlipped(yoffset);
 	msg->offset+=2; // u16 maybe_zoffset
 	client->transmit( &msg->buffer, msg->offset );
+	msg->Test(msg->offset);
 	READDPACKET(msg);
 	client->chr->tcursor2 = this;
 }

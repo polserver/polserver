@@ -10,7 +10,6 @@ Notes
 #ifndef POL_PACKETS_H
 #define POL_PACKETS_H
 
-#include <climits>
 #include "../../clib/stl_inc.h"
 
 #include "../../clib/endian.h"
@@ -26,6 +25,8 @@ Notes
 #include "../realms.h"
 #include "../ucfg.h"
 
+#include "../../clib/mlog.h" //debug
+
 #define MAX_PACKETS_INSTANCES 100
 
 //interface for packets
@@ -39,6 +40,8 @@ class PacketInterface
 		virtual char* getBuffer() { return NULL; }
 		virtual inline u8 getID() { return 0; }
 		virtual inline u16 getSubID() { return 0; }
+		virtual void Log() {}; // debug
+		virtual void Test(u16 len) {};
 };
 
 typedef queue<PacketInterface*> PacketInterfaceQueue;
@@ -64,7 +67,7 @@ class PacketQueueSingle : public PacketQueue
 {
 	public:
 		PacketQueueSingle(){};
-		~PacketQueueSingle(){};
+		~PacketQueueSingle();
 	private:
 		PacketInterfaceQueue packets;
 	public:
@@ -78,7 +81,7 @@ class PacketQueueSubs : public PacketQueue
 {
 	public:
 		PacketQueueSubs(){};
-		~PacketQueueSubs(){};
+		~PacketQueueSubs();
 	private:
 		PacketInterfaceQueueMap packets;
 	public:
@@ -97,7 +100,7 @@ class PacketsSingleton
 {
 	public:
 		PacketsSingleton();
-		~PacketsSingleton(){};
+		~PacketsSingleton();
 	private:
 		PacketQueueMap packets;
 	public:
@@ -109,14 +112,16 @@ class PacketsSingleton
 // the real definition
 typedef Singleton<PacketsSingleton> Packets;
 
+
 //wierdo generic template definitions for packets
 
 // "writer"class
-template <u8 _id, u16 _size>
+template <u8 _id, u16 _size, u16 _sub>
 class PacketWriter : public PacketInterface
 {
 	public:
 		char buffer[_size];
+		u32 maxoff;
 		char* getBuffer() { return &buffer[offset]; }
 		inline u8 getID() { return buffer[0]; }
 
@@ -125,76 +130,102 @@ class PacketWriter : public PacketInterface
 			passert_always_r(offset+4<=_size, "pkt "+hexint(_id));
 			(*(u32*)&buffer[offset]) = x;
 			offset += 4;
+			if (offset>maxoff)
+				maxoff=offset;
 		};
 		void Write(s32 x)
 		{
 			passert_always_r(offset+4<=_size, "pkt "+hexint(_id));
 			(*(s32*)&buffer[offset]) = x;
 			offset += 4;
+			if (offset>maxoff)
+				maxoff=offset;
 		};
 		void Write(u16 x)
 		{
 			passert_always_r(offset+2<=_size, "pkt "+hexint(_id));
 			(*(u16*)&buffer[offset]) = x;
 			offset += 2;
+			if (offset>maxoff)
+				maxoff=offset;
 		};
 		void Write(s16 x)
 		{
 			passert_always_r(offset+2<=_size, "pkt "+hexint(_id));
 			(*(s16*)&buffer[offset]) = x;
 			offset += 2;
+			if (offset>maxoff)
+				maxoff=offset;
 		};
 		void Write(u8 x) 
 		{ 
 			passert_always_r(offset+1<=_size, "pkt "+hexint(_id));
 			buffer[offset++] = x;
+			if (offset>maxoff)
+				maxoff=offset;
 		};
 		void Write(s8 x)
 		{
 			passert_always_r(offset+1<=_size, "pkt "+hexint(_id));
 			buffer[offset++] = x;
+			if (offset>maxoff)
+				maxoff=offset;
 		};
 		void WriteFlipped(u32 x)
 		{
 			passert_always_r(offset+4<=_size, "pkt "+hexint(_id));
 			(*(u32*)&buffer[offset]) = cfBEu32(x);
 			offset += 4;
+			if (offset>maxoff)
+				maxoff=offset;
 		};
 		void WriteFlipped(s32 x)
 		{
 			passert_always_r(offset+4<=_size, "pkt "+hexint(_id));
 			(*(s32*)&buffer[offset]) = cfBEu32(x);
 			offset += 4;
+			if (offset>maxoff)
+				maxoff=offset;
 		};
 		void WriteFlipped(u16 x)
 		{
 			passert_always_r(offset+2<=_size, "pkt "+hexint(_id));
 			(*(u16*)&buffer[offset]) = cfBEu16(x);
 			offset += 2;
+			if (offset>maxoff)
+				maxoff=offset;
 		};
 		void WriteFlipped(s16 x)
 		{
 			passert_always_r(offset+2<=_size, "pkt "+hexint(_id));
 			(*(s16*)&buffer[offset]) = cfBEu16(x);
 			offset += 2;
+			if (offset>maxoff)
+				maxoff=offset;
 		};
 		void Write(const char* x, u16 len, bool nullterm=true)
 		{
 			passert_always_r(offset+len<=_size, "pkt "+hexint(_id));
 			strncpy(&buffer[offset], x, nullterm ? len-1 : len);
 			offset += len;
+			if (offset>maxoff)
+				maxoff=offset;
 		}
 		void Write(u8 x[], u16 len)
 		{
 			passert_always_r(offset+len<=_size, "pkt "+hexint(_id));
 			memcpy(&buffer[offset], x, len);
 			offset += len;
+			if (offset>maxoff)
+				maxoff=offset;
 		}
 		void Write(const u16* x, u16 len, bool nullterm=true)
 		{
 			passert_always_r(offset+len*2<=_size, "pkt "+hexint(_id));
 			u16* _buffer = ((u16*)&buffer[offset]);
 			offset += len*2;
+			if (offset>maxoff)
+				maxoff=offset;
 			while (len-- > 0)
 			{
 				*(_buffer++) = *x++;
@@ -203,6 +234,8 @@ class PacketWriter : public PacketInterface
 			{
 				passert_always_r(offset+2<=_size, "pkt "+hexint(_id));
 				offset += 2;
+				if (offset>maxoff)
+					maxoff=offset;
 			}
 		}
 		void WriteFlipped(const u16* x, u16 len, bool nullterm=true)
@@ -210,6 +243,8 @@ class PacketWriter : public PacketInterface
 			passert_always_r(offset+len*2<=_size, "pkt "+hexint(_id));
 			u16* _buffer = ((u16*)&buffer[offset]);
 			offset += len*2;
+			if (offset>maxoff)
+				maxoff=offset;
 			while (len-- > 0)
 			{
 				*(_buffer++) = ctBEu16(*x);
@@ -219,22 +254,50 @@ class PacketWriter : public PacketInterface
 			{
 				passert_always_r(offset+2<=_size, "pkt "+hexint(_id));
 				offset += 2;
+				if (offset>maxoff)
+					maxoff=offset;
+			}
+		}
+
+		void Log() //debug
+		{
+			if (mlog.is_open())
+			{
+				if (maxoff>_size)
+				{
+					mlog << "Packet " << hexint(_id) <<"-"<<hexint(_sub)<< ": [" << _size<<"] off:"<<offset<<" moff:"<<maxoff;
+					mlog << " PACKETLEAK";
+					mlog<<endl;
+				}
+			}
+		}
+		void Test(u16 len)
+		{
+			if (len>_size)
+			{
+				if (mlog.is_open())
+				{
+					mlog << "Packet " << hexint(_id) <<"-"<<hexint(_sub)<< ": [" << _size<<"] off:"<<offset<<" moff:"<<maxoff<<" len:"<<len;
+					mlog << " PACKETLEAK";
+					mlog<<endl;
+				}
+
 			}
 		}
 };
 
 // "normal" pkt
 template <u8 _id, u16 _size>
-class PacketTemplate : public PacketWriter<_id, _size>
+class PacketTemplate : public PacketWriter<_id, _size, 0>
 {
 	public:
 		PacketTemplate() { ReSetBuffer(); }
-		void ReSetBuffer() { memset(buffer,0,_size); buffer[0]=_id; offset=1; }
+		void ReSetBuffer() { memset(buffer,0,_size); buffer[0]=_id; offset=1; maxoff=1; }
 };
 
 // sub packet
 template <u8 _id, u16 _suboff, u16 _sub, u16 _size>
-class PacketTemplateSub : public PacketWriter<_id, _size>
+class PacketTemplateSub : public PacketWriter<_id, _size, _sub>
 {
 	public:
 		PacketTemplateSub() { ReSetBuffer(); }
@@ -244,6 +307,7 @@ class PacketTemplateSub : public PacketWriter<_id, _size>
 			buffer[0]=_id;
 			(*(u16*)&buffer[_suboff]) = cfBEu16(_sub);
 			offset=1;
+			maxoff=_suboff+1;
 		}
 		inline u16 getSubID() { return _sub; /*ctBEu16((*(u16*)&buffer[_suboff]));*/ }
 };

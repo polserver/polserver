@@ -1858,6 +1858,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 					msg->Write(static_cast<u8>(season_id));
 					msg->Write(static_cast<u8>(playsound));
 					client->transmit( &msg->buffer, msg->offset );
+					msg->Test(msg->offset);
 					READDPACKET(msg);
 					return new BLong(1);
 				}

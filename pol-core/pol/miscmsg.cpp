@@ -392,6 +392,8 @@ void handle_allnames( Client *client, PKTBI_98_IN *msg )
 		msgOut->Write(the_mob->serial_ext);
 		msgOut->Write(the_mob->name().c_str(),30,false);
 		transmit( client, &msgOut->buffer, msgOut->offset );
+		msgOut->Test(msgOut->offset);
+		READDPACKET(msgOut);
 	}
 	else
 	{

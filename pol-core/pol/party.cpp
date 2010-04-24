@@ -423,6 +423,7 @@ void Party::send_member_list(Character* to_chr)
 	}
 	else
 		to_chr->client->transmit(&msg->buffer,len);
+	msg->Test(len);
 	READDPACKET(msg);
 }
 
@@ -505,6 +506,7 @@ void Party::send_remove_member(Character* remchr, bool *disband)
 					chr->client->transmit(&msg->buffer,len);
 			}
 		}
+		msg->Test(len);
 		READDPACKET(msg);
 		send_msg_to_all(CLP_Player_Removed);//A player has been removed from your party.
 		if (!test_size())
@@ -541,6 +543,8 @@ void Party::send_msg_to_all(unsigned int clilocnr, const char* affix, Character*
 			}
 		}
 	}
+	msgc1->Test(msgc1->offset);
+	msgcc->Test(msgcc->offset);
 	READDPACKET(msgc1);
 	READDPACKET(msgcc);
 }
@@ -608,6 +612,7 @@ void Party::on_mana_changed(Character* chr)
 			}
 		}
 	}
+	msg->Test(msg->offset);
 	READDPACKET(msg);
 }
 void Party::on_stam_changed(Character* chr)
@@ -637,6 +642,7 @@ void Party::on_stam_changed(Character* chr)
 			}
 		}
 	}
+	msg->Test(msg->offset);
 	READDPACKET(msg);
 }
 
@@ -683,6 +689,7 @@ void Party::send_member_msg_public(Character* chr,u16* wtext, size_t wtextlen)
 				mem->client->transmit(&msg->buffer,len);
 		}
 	}
+	msg->Test(len);
 	READDPACKET(msg);
 }
 
@@ -728,6 +735,7 @@ void Party::send_member_msg_private(Character* chr, Character* tochr, u16* wtext
 	msg->WriteFlipped(len);
 
 	tochr->client->transmit(&msg->buffer,len);
+	msg->Test(len);
 	READDPACKET(msg);
 }
 
@@ -766,6 +774,7 @@ void send_empty_party(Character* chr)
 		msg->offset++; //nummembers
 		msg->Write(chr->serial_ext);
 		chr->client->transmit(&msg->buffer,msg->offset);
+		msg->Test(msg->offset);
 		READDPACKET(msg);
 	}
 }
@@ -1425,6 +1434,7 @@ void send_invite(Character* member,Character* leader)
 	msg->Write(static_cast<u8>(PKTBI_BF_06::PARTYCMD_INVITE_MEMBER));
 	msg->Write(leader->serial_ext);
 	member->client->transmit(&msg->buffer,msg->offset);
+	msg->Test(msg->offset);
 	READDPACKET(msg);
 
 	// : You are invited to join the party. Type /accept to join or /decline to decline the offer.
@@ -1466,6 +1476,7 @@ void send_attributes_normalized(Character* chr, Character* bob)
 	msg->WriteFlipped(static_cast<u16>(h * 1000 / mh));
 
 	chr->client->transmit(&msg->buffer, msg->offset);
+	msg->Test(msg->offset);
 	READDPACKET(msg);
 }
 

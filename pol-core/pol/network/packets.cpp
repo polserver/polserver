@@ -105,6 +105,15 @@ PacketsSingleton::PacketsSingleton()
 	packets.insert(PacketQueuePair(PKTOUT_F3_ID,new PacketQueueSingle()));
 }
 
+PacketsSingleton::~PacketsSingleton()
+{
+	for( PacketQueueMap::iterator itr = packets.begin(), end = packets.end(); itr != end; ++itr )
+	{
+		delete (*itr).second;
+	}
+	packets.clear();
+}
+
 PacketInterface* PacketsSingleton::getPacket(u8 id, u16 sub)
 {
 	PacketQueueMap::iterator itr = packets.find(id);
@@ -138,6 +147,16 @@ PacketInterface* PacketQueueSingle::GetNext(u8 id, u16 sub)
 	//critical end
 }
 
+PacketQueueSingle::~PacketQueueSingle()
+{
+	while(!packets.empty())
+	{
+		PacketInterface* pkt = packets.front();
+		packets.pop();
+		delete pkt;
+	}
+}
+
 void PacketQueueSingle::Add(PacketInterface* pkt)
 {
 	if (packets.size() > MAX_PACKETS_INSTANCES) // enough?
@@ -146,9 +165,24 @@ void PacketQueueSingle::Add(PacketInterface* pkt)
 	{
 		//critical start
 		PolLock lck;
+		pkt->Log();
 		packets.push(pkt); // readd it
 		//critical end
 	}
+}
+
+PacketQueueSubs::~PacketQueueSubs()
+{
+	for( PacketInterfaceQueueMap::iterator itr = packets.begin(), end = packets.end(); itr != end; ++itr )
+	{
+		while(!itr->second.empty())
+		{
+			PacketInterface* pkt = itr->second.front();
+			itr->second.pop();
+			delete pkt;
+		}
+	}
+	packets.clear();
 }
 
 PacketInterface* PacketQueueSubs::GetNext(u8 id, u16 sub)
@@ -178,6 +212,7 @@ void PacketQueueSubs::Add(PacketInterface* pkt)
 	u16 sub=pkt->getSubID();
 	//critical start
 	PolLock lck;
+	pkt->Log();
 	PacketInterfaceQueueMap::iterator itr = packets.find(sub);
 	if (itr != packets.end())
 	{

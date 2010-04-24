@@ -179,6 +179,7 @@ void send_full_statmsg( Client *client, Character *chr )
 	msg->WriteFlipped(len);
 
 	transmit(client, &msg->buffer, len );
+	msg->Test(len);
 	READDPACKET(msg);
 
 	if (ssopt.send_stat_locks)
@@ -204,6 +205,7 @@ void send_stat_locks (Client *client, Character *chr) {
 	msg->Write(lockbit);
 
 	client->transmit(&msg->buffer, msg->offset);
+	msg->Test(msg->offset);
 	READDPACKET(msg);
 }
 
@@ -240,6 +242,7 @@ void send_short_statmsg( Client *client, Character *chr )
 	msg->WriteFlipped(len);
 
 	transmit(client, &msg->buffer, len );
+	msg->Test(len);
 	READDPACKET(msg);
 }
 
@@ -277,5 +280,6 @@ void send_update_hits_to_inrange( Character *chr )
 
 	// Exclude self... otherwise their status-window shows 1000 hp!! >_<
 	transmit_to_others_inrange( chr, &msg->buffer, msg->offset, false, false );
+	msg->Test(msg->offset);
 	READDPACKET(msg);
 }

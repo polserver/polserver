@@ -55,6 +55,7 @@ void send_unicode_prompt( Client* client, u32 serial )
 	msg->Write(serial); //msg_id  Server-"decided" message ID. o_O
 	msg->offset+=10; // 10x u8 unk
 	transmit( client, &msg->buffer, msg->offset );
+	msg->Test(msg->offset);
 	READDPACKET(msg);
 }
 
