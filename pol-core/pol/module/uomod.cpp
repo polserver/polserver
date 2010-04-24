@@ -833,6 +833,7 @@ BObjectImp* UOExecutorModule::mf_TargetCancel()
 				msg->Write(static_cast<u8>(0x3));
 				// rest 0
 				chr->client->transmit( &msg->buffer, sizeof msg->buffer );
+				msg->Test(sizeof msg->buffer);
 				READDPACKET(msg);
 				return new BLong(0);
             }
@@ -4168,15 +4169,15 @@ BObjectImp* UOExecutorModule::mf_SendPacket()
 		{
 			return new BError( "Invalid packet string length." );
 		}
-		static char buffer[ 65535 ];
+		EncryptedPktBuffer* buffer = REQUESTPACKET(EncryptedPktBuffer,ENCRYPTEDPKTBUFFER); // encryptedbuffer is the only one without getID buffer[0]
+		unsigned char* buf = reinterpret_cast<unsigned char*>(buffer->getBuffer());
         const char*s = str->data();
-        int buflen = 0;
-        while (buflen < 2000 && isxdigit( s[0] ) && isxdigit( s[1] ))
+        while (buffer->offset < 2000 && isxdigit( s[0] ) && isxdigit( s[1] ))
         {
             unsigned char ch;
-            ch =  (decode_xdigit( s[0] ) << 4) | decode_xdigit( s[1] );
-            buffer[ buflen++ ] = ch;
-            s += 2;
+            ch =  (decode_xdigit( *s++ ) << 4) | decode_xdigit( *s++ );
+			*(buf++) = ch;
+			buffer->offset++;
         }
 		if (chr != NULL)
 		{
@@ -4184,24 +4185,37 @@ BObjectImp* UOExecutorModule::mf_SendPacket()
 			{
 				//printf( "SendPacket() data: %d bytes\n", buflen );
 				//fdump( stdout, buffer, buflen );
-				chr->client->transmit( buffer, buflen );
+				chr->client->transmit( &buffer->buffer, buffer->offset );
+				buffer->Test(buffer->offset);
+				READDPACKET(buffer);
 				return new BLong(1);
 			}
 			else
+			{
+				READDPACKET(buffer);
 				return new BError( "No client attached" );
+			}
 		}
 		else if (client != NULL)
 		{
 			if (!client->disconnect)
 			{
-				client->transmit( buffer, buflen );
+				client->transmit( &buffer->buffer, buffer->offset );
+				buffer->Test(buffer->offset);
+				READDPACKET(buffer);
 				return new BLong(1);
 			}
 			else
+			{
+				READDPACKET(buffer);
 				return new BError( "Client is disconnected" );
+			}
 		}
 		else
+		{
+			READDPACKET(buffer);
 			return new BError( "Invalid parameter type" );
+		}
 
     }
     else
@@ -4236,6 +4250,7 @@ BObjectImp* UOExecutorModule::mf_SendQuestArrow()
             return new BError( "No client attached" );
 
 		chr->client->transmit(&msg->buffer, msg->offset);
+		msg->Test(msg->offset);
 		READDPACKET(msg);
         return new BLong( 1 );
     }
@@ -5748,6 +5763,7 @@ BObjectImp* UOExecutorModule::mf_SendOverallSeason(/*season_id, playsound := 1*/
 				continue;
 			client->transmit( &msg->buffer, msg->offset );			
 		}
+		msg->Test(msg->offset);
 		READDPACKET(msg);
 		return new BLong(1);
 	}
