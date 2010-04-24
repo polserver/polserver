@@ -14,6 +14,8 @@ Notes
 template <typename T>
 class Singleton
 {
+	private:
+		static void _cleanup() {delete _instance; _instance = NULL;}
 	public:
 		static T* instance()
 		{
@@ -21,15 +23,18 @@ class Singleton
 			{
 				PolLock lck; //critical double check
 				if (!_instance)
+				{
 					_instance = new T();
+					atexit(&Singleton<T>::_cleanup);
+				}
 			}
 			return _instance;
 		}
-		virtual	~Singleton() { delete _instance; _instance = NULL; }
 	private:
 		static T* _instance;
 	protected:
 		Singleton() { }
+		~Singleton() { }
 	private: // Forbid copies
 		Singleton( Singleton& ); 
 		Singleton& operator=( Singleton& );

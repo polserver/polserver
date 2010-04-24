@@ -183,6 +183,8 @@ void handle_processed_speech( Client* client, char* textbuf, int textbuflen, cha
     
     sayto_listening_points( client->chr, textbuf, textbuflen, type );
 
+	talkmsg->Test(len);
+	ghostmsg->Test(len);
 	READDPACKET(talkmsg);
 	READDPACKET(ghostmsg);
 }
@@ -334,6 +336,8 @@ void SendUnicodeSpeech(Client *client, PKTIN_AD *msgin, u16* wtext, size_t wtext
 			}
 		}
 	}
+	talkmsg->Test(len);
+	ghostmsg->Test(len);
 	READDPACKET(talkmsg);
 	READDPACKET(ghostmsg);
 

@@ -62,6 +62,7 @@ bool send_menu( Client *client, Menu *menu )
 	msg->offset = 1;
 	msg->WriteFlipped(len);
 	transmit( client, &msg->buffer, len );
+	msg->Test(len);
 	READDPACKET(msg);
     return true;
 }
@@ -147,6 +148,7 @@ void send_open_gump( Client *client, const UContainer& cont )
 	msg->Write(cont.serial_ext);
 	msg->WriteFlipped(cont.gump());
 	transmit( client, &msg->buffer, msg->offset );
+	msg->Test(msg->offset);
 	READDPACKET(msg);
 }
 
@@ -184,6 +186,7 @@ void send_container_contents( Client *client, const UContainer& cont, bool show_
 	msg->WriteFlipped(len);
 	msg->WriteFlipped(count);
 	client->transmit( &msg->buffer, len );
+	msg->Test(len);
 	READDPACKET(msg);
 
 	if(client->UOExpansionFlag & AOS)

@@ -95,6 +95,7 @@ void send_skillmsg( Client *client, const Character *chr )
 	msg->offset=1;
 	msg->WriteFlipped(len);
 	client->transmit( &msg->buffer, len );
+	msg->Test(len);
 	READDPACKET(msg);
 }
 

@@ -641,6 +641,7 @@ BObjectImp* OSExecutorModule::mf_OpenURL()
 			msg->WriteFlipped(static_cast<u16>(urllen+4));
 			msg->Write(url,static_cast<u16>(urllen+1));
 			chr->client->transmit( &msg->buffer, msg->offset );
+			msg->Test(msg->offset);
 			READDPACKET(msg);
 			return new BLong(1);
 		}
