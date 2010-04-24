@@ -1953,7 +1953,7 @@ BObjectImp* UOExecutorModule::mf_SendOpenBook()
 		int linenum = 1;
 		for( int page = 1; page <= npages; ++page )
 		{
-			if (msg->offset+4> sizeof msg->buffer)
+			if (msg->offset+4> static_cast<int>(sizeof msg->buffer))
 			{
 				READDPACKET(msg);
 				return new BError( "Buffer overflow" );

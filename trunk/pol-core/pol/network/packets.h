@@ -116,7 +116,7 @@ typedef Singleton<PacketsSingleton> Packets;
 //wierdo generic template definitions for packets
 
 // "writer"class
-template <u8 _id, u16 _size, u16 _sub>
+template <u8 _id, u16 _size, u16 _sub=0>
 class PacketWriter : public PacketInterface
 {
 	public:
@@ -271,7 +271,7 @@ class PacketWriter : public PacketInterface
 				}
 			}
 		}
-		void Test(u16 len)
+		void Test(u32 len)
 		{
 			if (len>_size)
 			{
@@ -288,11 +288,16 @@ class PacketWriter : public PacketInterface
 
 // "normal" pkt
 template <u8 _id, u16 _size>
-class PacketTemplate : public PacketWriter<_id, _size, 0>
+class PacketTemplate : public PacketWriter<_id, _size>
 {
 	public:
 		PacketTemplate() { ReSetBuffer(); }
-		void ReSetBuffer() { memset(buffer,0,_size); buffer[0]=_id; offset=1; maxoff=1; }
+		void ReSetBuffer()
+		{ 
+			memset(PacketWriter<_id,_size>::buffer,0,_size);
+			PacketWriter<_id,_size>::buffer[0]=_id;
+			PacketWriter<_id,_size>::offset=1;
+			PacketWriter<_id,_size>::maxoff=1; }
 };
 
 // sub packet
@@ -303,11 +308,11 @@ class PacketTemplateSub : public PacketWriter<_id, _size, _sub>
 		PacketTemplateSub() { ReSetBuffer(); }
 		void ReSetBuffer() 
 		{ 
-			memset(buffer,0,_size);
-			buffer[0]=_id;
-			(*(u16*)&buffer[_suboff]) = cfBEu16(_sub);
-			offset=1;
-			maxoff=_suboff+1;
+			memset(PacketWriter<_id,_size,_sub>::buffer,0,_size);
+			PacketWriter<_id,_size,_sub>::buffer[0]=_id;
+			(*(u16*)&PacketWriter<_id,_size,_sub>::buffer[_suboff]) = cfBEu16(_sub);
+			PacketWriter<_id,_size,_sub>::offset=1;
+			PacketWriter<_id,_size,_sub>::maxoff=_suboff+1;
 		}
 		inline u16 getSubID() { return _sub; /*ctBEu16((*(u16*)&buffer[_suboff]));*/ }
 };
