@@ -4175,9 +4175,10 @@ BObjectImp* UOExecutorModule::mf_SendPacket()
         while (buffer->offset < 2000 && isxdigit( s[0] ) && isxdigit( s[1] ))
         {
             unsigned char ch;
-            ch =  (decode_xdigit( *s++ ) << 4) | decode_xdigit( *s++ );
+			ch =  (decode_xdigit( s[0] ) << 4) | decode_xdigit( s[1] );
 			*(buf++) = ch;
 			buffer->offset++;
+			s+=2;
         }
 		if (chr != NULL)
 		{
