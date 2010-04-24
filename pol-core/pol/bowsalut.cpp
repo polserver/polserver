@@ -95,6 +95,7 @@ void send_action_to_inrange( const Character* obj, UACTION action,
 	msg->Write(static_cast<u8>(repeatflag));
 	msg->Write(delay);
 	transmit_to_inrange( obj, &msg->buffer, msg->offset, false, false );
+	msg->Test(msg->offset);
 	READDPACKET(msg);
 }
 
