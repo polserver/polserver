@@ -119,6 +119,7 @@ PacketInterface* PacketsSingleton::getPacket(u8 id, u16 sub)
 	PacketQueueMap::iterator itr = packets.find(id);
 	if (itr != packets.end())
 		return itr->second->GetNext(id, sub);
+	throw runtime_error( "Request of undefined Packet: " + hexint(id) + "-" + hexint(sub));
 	return NULL;
 }
 
@@ -330,7 +331,7 @@ PacketInterface* GetPacket(u8 id, u16 sub)
 				case PKTBI_BF::TYPE_ACTIVATE_CUSTOM_HOUSE_TOOL: return new PktOut_BF_Sub20();
 				case PKTBI_BF::TYPE_DAMAGE:						return new PktOut_BF_Sub22();
 				case PKTBI_BF::TYPE_CHARACTER_RACE_CHANGER:		return new PktOut_BF_Sub2A();
-				default: return NULL;
+				default: throw runtime_error( "Request of undefined Packet: " + hexint(id) + "-" + hexint(sub)); return NULL;
 			}
 		}
 		case PKTOUT_C1_ID: return new PktOut_C1();
@@ -342,6 +343,6 @@ PacketInterface* GetPacket(u8 id, u16 sub)
 		case PKTOUT_DD_ID: return new PktOut_DD();
 		case PKTOUT_E3_ID: return new PktOut_E3();
 		case PKTOUT_F3_ID: return new PktOut_F3();
-		default: return NULL;
+		default: throw runtime_error( "Request of undefined Packet: " + hexint(id) + "-" + hexint(sub)); return NULL;
 	}
 }
