@@ -319,7 +319,8 @@ PacketInterface* GetPacket(u8 id, u16 sub)
 			switch (sub)
 			{
 				case PKTBI_BF::TYPE_CLOSE_GUMP:					return new PktOut_BF_Sub4();
-				case PKTBI_BF::TYPE_CURSOR_HUE:					return new PktOut_BF_Sub6();
+				case PKTBI_BF::TYPE_PARTY_SYSTEM:				return new PktOut_BF_Sub6();
+				case PKTBI_BF::TYPE_CURSOR_HUE:					return new PktOut_BF_Sub8();
 				case PKTBI_BF::TYPE_OBJECT_CACHE:				return new PktOut_BF_Sub10();
 				case PKTBI_BF::TYPE_CLOSE_WINDOW:				return new PktOut_BF_Sub16();
 				case PKTBI_BF::TYPE_ENABLE_MAP_DIFFS:			return new PktOut_BF_Sub18();
