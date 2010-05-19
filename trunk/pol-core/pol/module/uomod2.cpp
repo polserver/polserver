@@ -932,7 +932,7 @@ BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu(Character* chr, Ob
 	layoutdlen++;
 	bfr->offset++; //nullterm
 
-	unsigned long cbuflen = sizeof(bfr->buffer)*2;
+	unsigned long cbuflen = 0xFFFF-msg->offset;
 	if (compress(reinterpret_cast<unsigned char*>(msg->getBuffer()), &cbuflen, reinterpret_cast<unsigned char*>(&bfr->buffer), layoutdlen))
 	{
 		READDPACKET(msg);
@@ -974,7 +974,7 @@ BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu(Character* chr, Ob
 	msg->WriteFlipped(numlines);
 	msg->offset+=8; //u32 text_clen, text_dlen
 
-	cbuflen = sizeof(bfr->buffer)*2;
+	cbuflen = 0xFFFF-msg->offset;
 	if (compress(reinterpret_cast<unsigned char*>(msg->getBuffer()), &cbuflen, reinterpret_cast<unsigned char*>(&bfr->buffer), datadlen))   
 	{
 		READDPACKET(msg);
@@ -985,7 +985,7 @@ BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu(Character* chr, Ob
 	msg->offset-=8;
 	msg->WriteFlipped(static_cast<u32>(cbuflen+4));
 	msg->WriteFlipped(datadlen);
-	msg->offset+=static_cast<u16>(cbuflen+1);
+	msg->offset+=static_cast<u16>(cbuflen);
 	u16 len= msg->offset;
 	msg->offset=1;
 	msg->WriteFlipped(len);
