@@ -123,6 +123,7 @@ public:
 	bool compareVersion( const std::string& ver );
 	bool compareVersion(const VersionDetailStruct& ver2);
 	void setClientType(ClientTypeFlag type);
+	bool IsUOKRClient();
 
     void setclientinfo( const PKTIN_D9 *msg ) { memcpy( &clientinfo_, msg, sizeof(clientinfo_) ); }
     BStruct* getclientinfo() const;
