@@ -330,6 +330,7 @@ bool Client::compareVersion(const VersionDetailStruct& ver2)
 
 void Client::setClientType(ClientTypeFlag type)
 {
+	ClientType = 0x0;
 	// with fall through !
 	switch (type)
 	{
@@ -354,6 +355,11 @@ void Client::setClientType(ClientTypeFlag type)
 	default:
 		break;
 	}
+}
+
+bool Client::IsUOKRClient()
+{
+	return ((ClientType & CLIENTTYPE_UOKR) && (!(ClientType & CLIENTTYPE_7000)));
 }
 
 std::string Client::status() const

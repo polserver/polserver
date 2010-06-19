@@ -781,7 +781,7 @@ BObjectImp* UOExecutorModule::mf_SendGumpMenu( )
 		return new BError( "Client already has an active gump" );
 	}
 */
-	if ((chr->client->ClientType & CLIENTTYPE_UOKR) || ((!(flags & SENDDIALOGMENU_FORCE_OLD)) && (chr->client->compareVersion(CLIENT_VER_5000))))
+	if ((chr->client->ClientType & CLIENTTYPE_UOSA) || (chr->client->IsUOKRClient()) || ((!(flags & SENDDIALOGMENU_FORCE_OLD)) && (chr->client->compareVersion(CLIENT_VER_5000))))
 		return internal_SendCompressedGumpMenu(chr, layout_arr, data_arr, x, y);
 	else
 		return internal_SendUnCompressedGumpMenu(chr, layout_arr, data_arr, x, y);
