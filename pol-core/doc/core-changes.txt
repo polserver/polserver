@@ -1,4 +1,7 @@
 -- POL099 --
+06-19-2010 Turley:
+     Fixed: uo::SendDialogGump SENDDIALOGMENU_FORCE_OLD for 2d 7.x clients (UOKR & UOSA clients ignore the flag)
+
 03-27-2010 Turley:
      Added: os::Start_Skill_Script( chr, attr_name, script_name := "", param := 0 )
             starts for given chr and attr_name definied script (overrideable with param script_name)
