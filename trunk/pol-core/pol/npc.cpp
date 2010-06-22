@@ -564,6 +564,10 @@ void NPC::restart_script()
     if (ex != NULL)
     {
         ex->seterror( true );
+		// A Sleeping script would otherwise sit and wait until it wakes up to be killed.
+		ex->os_module->revive();
+		if (ex->os_module->in_debugger_holdlist())
+			ex->os_module->revive_debugged();
         ex = NULL;
         // when the NPC executor module destructs, it checks this NPC to see if it points
         // back at it.  If not, it leaves us alone.
