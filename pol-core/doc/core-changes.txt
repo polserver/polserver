@@ -1,4 +1,7 @@
 -- POL099 --
+06-22-2010 Turley:
+     Fixed: uo::RestartScript() wakes up old script so it stops immediately
+
 06-19-2010 Turley:
      Fixed: uo::SendDialogGump SENDDIALOGMENU_FORCE_OLD for 2d 7.x clients (UOKR & UOSA clients ignore the flag)
 
