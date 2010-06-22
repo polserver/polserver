@@ -10,6 +10,8 @@ Notes
 #ifndef POL_PACKETS_H
 #define POL_PACKETS_H
 
+#include <string.h>
+
 #include "../../clib/stl_inc.h"
 
 #include "../../clib/endian.h"
@@ -281,7 +283,6 @@ class PacketWriter : public PacketInterface
 					mlog << " PACKETLEAK";
 					mlog<<endl;
 				}
-
 			}
 		}
 };
@@ -297,7 +298,8 @@ class PacketTemplate : public PacketWriter<_id, _size>
 			memset(PacketWriter<_id,_size>::buffer,0,_size);
 			PacketWriter<_id,_size>::buffer[0]=_id;
 			PacketWriter<_id,_size>::offset=1;
-			PacketWriter<_id,_size>::maxoff=1; }
+			PacketWriter<_id,_size>::maxoff=1;
+		}
 };
 
 // sub packet
