@@ -591,6 +591,9 @@ void NPC::on_death( Item* corpse )
     {
         // this will force the execution engine to stop running this script immediately
         ex->seterror(true);
+		ex->os_module->revive();
+		if (ex->os_module->in_debugger_holdlist())
+			ex->os_module->revive_debugged();
     }
     
     destroy();
