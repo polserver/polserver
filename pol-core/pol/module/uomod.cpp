@@ -5712,9 +5712,6 @@ BObjectImp* UOExecutorModule::mf_SendCharProfile(/*chr, of_who, title, uneditabl
 	ObjArray* uText;
 	ObjArray* eText;
 
-	u16 uwtext[ (SPEECH_MAX_LEN + 1) ];
-	u16 ewtext[ (SPEECH_MAX_LEN + 1) ];
-
 	if ( getCharacterParam(exec, 0, chr) && 
 		 getCharacterParam(exec, 1, of_who) && 
 		 getStringParam( 2, title ) &&
@@ -5724,12 +5721,20 @@ BObjectImp* UOExecutorModule::mf_SendCharProfile(/*chr, of_who, title, uneditabl
 		if (chr->logged_in && of_who->logged_in)
 		{
 			// Get The Unicode message lengths and convert the arrays to UC
+			u16 uwtext[ (SPEECH_MAX_LEN + 1) ];
+			u16 ewtext[ (SPEECH_MAX_LEN + 1) ];
 
 			ulen = uText->ref_arr.size();
+			if ( ulen > SPEECH_MAX_LEN )
+				return new BError( "Unicode array exceeds maximum size." );
+
 			if(!convertArrayToUC(uText, uwtext, ulen))
 				return new BError("Invalid parameter type");
 
 			elen = eText->ref_arr.size();
+			if ( elen > SPEECH_MAX_LEN )
+				return new BError( "Unicode array exceeds maximum size." );
+
 			if (!convertArrayToUC(eText, ewtext, elen))
 				return new BError("Invalid parameter type");
 
