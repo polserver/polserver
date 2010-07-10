@@ -373,7 +373,7 @@ BObjectImp* BStruct::call_method_id( const int id, Executor& ex, bool forcebuilt
     case MTH_KEYS:
 		if (ex.numParams() == 0)
 		{
-	        ObjArray* arr = new ObjArray;
+	        auto_ptr<ObjArray> arr (new ObjArray);
 		    Contents::const_iterator itr = contents_.begin(), end = contents_.end();
 	        for( ; itr != end; ++itr )
 			{
@@ -381,7 +381,7 @@ BObjectImp* BStruct::call_method_id( const int id, Executor& ex, bool forcebuilt
 
 	            arr->addElement( new String( key ) );
 			}
-			return arr;
+			return arr.release();
 		}
 		else
 			return new BError( "struct.keys() doesn't take parameters." );
