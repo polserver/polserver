@@ -102,7 +102,8 @@ void ssopt_parse_totalstats(ConfigElem& elem)
 	static char tmp[100], tmpcopy[256];
 
 	std::string total_stats = elem.remove_string( "TotalStatsAtCreation", "65,80" );
-	strncpy(tmpcopy, total_stats.c_str(), 256);
+	strncpy(tmpcopy, total_stats.c_str(), sizeof(tmpcopy)-1); // strncpy only sets last byte null if there is less bytes at src than the size of tmpcopy (Nando)
+	tmpcopy[sizeof(tmpcopy)-1] = '\0';
 
 	char *token, *valmax, *valend;
 	unsigned int statmin, statmax;

@@ -4,6 +4,9 @@ Development Changes - stuff that really doesn't belong in core-changes.txt
 Format:
 Date, Author, Files changed, Description of change
 ---
+2010-07-09 Nando
+      Fixed: strncpy(dst,src,n) does not always null-terminate the string dst. (in ssopt_parse_totalstat())
+
 2009-08-18 MuadDib
     Changed: Core now disconnects all online clients to initiate the cleanup sequence after data is saved during
              shutdown. Should avoid any and all client/char/combat crashes during shutdown.
