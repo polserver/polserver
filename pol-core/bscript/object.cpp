@@ -624,7 +624,7 @@ void ObjArray::operPlusEqual(BObject& obj, const BObjectImp& objimp)
 
 BObjectImp* ObjArray::selfPlusObjImp(const BObjectImp& other) const
 {
-	ObjArray* result = new ObjArray( *this );
+	auto_ptr<ObjArray> result (new ObjArray( *this ));
 
 	if (other.isa( OTArray ))
 	{
@@ -654,7 +654,7 @@ BObjectImp* ObjArray::selfPlusObjImp(const BObjectImp& other) const
 	{
 		result->ref_arr.push_back( BObjectRef( new BObject( other.copy() ) ) );
 	}
-	return result;
+	return result.release();
 }
 
 BObjectRef ObjArray::OperSubscript( const BObject& rightobj )
@@ -1018,7 +1018,7 @@ BObjectImp* ObjArray::unpack( istream& is )
 	{ 
 		return new BError( "Unable to unpack array elemcount. Bad format. Colon not found!" ); 
 	}
-	ObjArray* arr = new ObjArray;
+	auto_ptr<ObjArray> arr (new ObjArray);
 	arr->ref_arr.resize( arrsize );
 	for( unsigned i = 0; i < arrsize; ++i )
 	{
@@ -1028,7 +1028,7 @@ BObjectImp* ObjArray::unpack( istream& is )
 			arr->ref_arr[ i ].set( new BObject( imp ) );
 		}
 	}
-	return arr;
+	return arr.release();
 }
 
 BApplicPtr::BApplicPtr( const BApplicObjType* pointer_type, void *ptr ) :
