@@ -297,12 +297,12 @@ BObjectImp* BasicExecutorModule::mf_CAscZ()
 {
 	BObjectImp* imp = exec.getParamImp( 0 );
 	string tmp = imp->getStringRep();
-	ObjArray* arr = new ObjArray;
+	auto_ptr<ObjArray> arr (new ObjArray);
 	for( unsigned i = 0; i < tmp.size(); ++i )
 	{
 		arr->addElement( new BLong( static_cast<unsigned char>(tmp[i]) ) );
 	}
-	return arr;
+	return arr.release();
 }
 
 BObjectImp* BasicExecutorModule::mf_CChr()
@@ -434,7 +434,7 @@ BObjectImp* BasicExecutorModule::mf_SplitWords()
 	}
 	string delimiter = bimp_delimiter->getStringRep();
 
-	ObjArray* objarr = new ObjArray;
+	auto_ptr<ObjArray> objarr (new ObjArray);
 
 	// Support for how it previously worked.
 	// Kept to support spaces and tabs as the same.
@@ -447,7 +447,7 @@ BObjectImp* BasicExecutorModule::mf_SplitWords()
 			objarr->addElement(new String(tmp));
 			tmp = "";
 		}
-		return objarr;
+		return objarr.release();
 	}
 
 	// New delimiter support.
@@ -475,7 +475,7 @@ BObjectImp* BasicExecutorModule::mf_SplitWords()
 	if ( !new_string.empty() )
 		objarr->addElement(new String(new_string));
 
-	return objarr;
+	return objarr.release();
 }
 
 BObjectImp* BasicExecutorModule::mf_Pack()

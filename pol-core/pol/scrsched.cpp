@@ -1031,11 +1031,11 @@ UOExecutor *create_script_executor()
 
 UOExecutor *create_full_script_executor()
 {
-	UOExecutor *ex = new UOExecutor();
+	auto_ptr<UOExecutor> ex (new UOExecutor());
 
     add_common_exmods( *ex );
 	ex->addModule( new UOExecutorModule( *ex ) );	
-	return ex;
+	return ex.release();
 }
 
 void schedule_executor( UOExecutor* ex )

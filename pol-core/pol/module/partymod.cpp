@@ -116,7 +116,7 @@ BObjectRef EPartyRefObjImp::get_member_id( const int id ) //id test
 	{
 	case MBR_MEMBERS:
 		{
-			ObjArray* arr = new ObjArray;
+			auto_ptr<ObjArray> arr (new ObjArray);
 			vector<u32>::iterator itr = obj_->_member_serials.begin();
 			while( itr != obj_->_member_serials.end() )
 			{
@@ -129,7 +129,7 @@ BObjectRef EPartyRefObjImp::get_member_id( const int id ) //id test
 				else
 					itr = obj_->_member_serials.erase( itr );
 			}
-			return BObjectRef( arr );
+			return BObjectRef( arr.release() );
 		}
 
 	case MBR_LEADER:
@@ -143,7 +143,7 @@ BObjectRef EPartyRefObjImp::get_member_id( const int id ) //id test
 
 	case MBR_CANDIDATES:
 		{
-			ObjArray* arr = new ObjArray;
+			auto_ptr<ObjArray> arr (new ObjArray);
 			vector<u32>::iterator itr = obj_->_candidates_serials.begin();
 			while( itr != obj_->_candidates_serials.end() )
 			{
@@ -156,7 +156,7 @@ BObjectRef EPartyRefObjImp::get_member_id( const int id ) //id test
 				else
 					itr = obj_->_candidates_serials.erase( itr );
 			}
-			return BObjectRef( arr );
+			return BObjectRef( arr.release() );
 		}
 
 	default:

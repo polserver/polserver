@@ -532,13 +532,13 @@ void ClientCreateChar( Client* client, PKTIN_00* msg)
 	{
 		auto_ptr<UOExecutor> ex(create_script_executor());
 		
-		ObjArray* arr = new ObjArray;
+		auto_ptr<ObjArray> arr (new ObjArray);
 		arr->addElement( new BLong( msg->SkillNumber1 ) );
 		arr->addElement( new BLong( msg->SkillNumber2 ) );
 		arr->addElement( new BLong( msg->SkillNumber3 ) );
 		
 		ex->pushArg( new BLong( msg->profession ) );
-		ex->pushArg( arr );
+		ex->pushArg( arr.release() );
 		ex->pushArg( make_mobileref( chr ) );
 
 		ex->addModule( new UOExecutorModule( *ex ) );
@@ -916,14 +916,14 @@ void ClientCreateChar6017( Client* client, PKTIN_8D* msg)
 	{
 		auto_ptr<UOExecutor> ex(create_script_executor());
 		
-		ObjArray* arr = new ObjArray;
+		auto_ptr<ObjArray> arr (new ObjArray);
 		arr->addElement( new BLong( msg->skillnumber1 ) );
 		arr->addElement( new BLong( msg->skillnumber2 ) );
 		arr->addElement( new BLong( msg->skillnumber3 ) );
         arr->addElement( new BLong( msg->skillnumber4 ) );
 		
 		ex->pushArg( new BLong( msg->profession ) );
-		ex->pushArg( arr );
+		ex->pushArg( arr.release() );
 		ex->pushArg( make_mobileref( chr ) );
 
 		ex->addModule( new UOExecutorModule( *ex ) );

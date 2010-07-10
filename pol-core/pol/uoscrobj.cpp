@@ -2267,32 +2267,32 @@ BObjectImp* Character::custom_script_method( const char* methodname, Executor& e
 
 ObjArray* Character::GetReportables() const
 {
-	ObjArray* arr = new ObjArray;
+	auto_ptr<ObjArray> arr (new ObjArray);
 
 	for( ReportableList::const_iterator itr = reportable_.begin();
 			itr != reportable_.end(); ++itr )
 	{
 		const reportable_t& rt = (*itr);
 
-		BObjectImp* kmember = NULL;
+		auto_ptr<BObjectImp> kmember (NULL);
 		Character* killer = system_find_mobile( rt.serial );
 		if (killer)
 		{
-			kmember = new EOfflineCharacterRefObjImp(killer);
+			kmember.reset(new EOfflineCharacterRefObjImp(killer));
 		}
 		else
 		{
-			kmember = new BError("Mobile not found");
+			kmember.reset(new BError("Mobile not found"));
 		}
 
-		BStruct* elem = new BStruct;;
+		auto_ptr<BStruct> elem (new BStruct);
 		elem->addMember( "serial", new BLong( rt.serial ) );
-		elem->addMember( "killer", kmember );
+		elem->addMember( "killer", kmember.release() );
 		elem->addMember( "gameclock", new BLong( rt.polclock ) );
 
-		arr->addElement( elem );
+		arr->addElement( elem.release() );
 	}
-	return arr;
+	return arr.release();
 }
 
 ObjArray* Character::GetAggressorTo() const
@@ -2600,14 +2600,14 @@ BObjectImp* Spellbook::script_method_id( const int id, Executor& ex )
         }
     case MTH_SPELLS:
         {
-            ObjArray* arr = new ObjArray;
+            auto_ptr<ObjArray> arr (new ObjArray);
             for ( u16 i = 0; i < 64; ++i )
             {
                 unsigned int id = this->spell_school*100 + i + 1;
                 if (this->has_spellid(id))
                     arr->addElement(new BLong(id));
             }
-            return arr;
+			return arr.release();
             break;
         }
     case MTH_REMOVESPELL:
