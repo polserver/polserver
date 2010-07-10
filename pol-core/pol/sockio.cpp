@@ -145,7 +145,7 @@ SOCKET open_listen_socket( unsigned short port )
 	if (sck < 0)
 	{
 		throw runtime_error( "Unable to create listening socket" );
-		return -1;
+		return INVALID_SOCKET;
 	}
 
     apply_socket_options( sck );

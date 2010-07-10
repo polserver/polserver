@@ -164,12 +164,12 @@ BObjectImp* DebugContextObjImp::call_method( const char* methodname, Executor& e
         {
             vector<string> results;
             value()->process( str->value(), results );
-            ObjArray* arr = new ObjArray;
+            auto_ptr<ObjArray> arr (new ObjArray);
             for( unsigned i = 0; i < results.size(); ++i )
             {
                 arr->addElement( new String( results[i] ) );
             }
-            return arr;
+			return arr.release();
         }
         else
         {

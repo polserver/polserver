@@ -301,13 +301,13 @@ BObjectImp* FileAccessExecutorModule::mf_ReadFile()
 	if (!ifs.is_open())
 		return new BError( "File not found: " + filepath );
 
-	ObjArray* arr = new ObjArray();
+	auto_ptr<ObjArray> arr (new ObjArray());
 
 	string line;
 	while (getline(ifs, line))
 		arr->addElement( new String( line ) );
 
-	return arr;
+	return arr.release();
 }
 
 BObjectImp* FileAccessExecutorModule::mf_WriteFile()

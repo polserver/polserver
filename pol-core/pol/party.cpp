@@ -87,7 +87,7 @@ void load_party_cfg_general( ConfigElem& elem )
 		party_cfg.General.PrivateMsgPrefixLen=0;
 	else
 	{
-		ObjArray* arr = new ObjArray;
+		auto_ptr<ObjArray> arr (new ObjArray);
 		tmp+=" ";
 		for( unsigned i = 0; i < tmp.size(); ++i )
 		{
@@ -96,9 +96,11 @@ void load_party_cfg_general( ConfigElem& elem )
 		party_cfg.General.PrivateMsgPrefixLen = (unsigned char)arr->ref_arr.size();
 		if (party_cfg.General.PrivateMsgPrefixLen>SPEECH_MAX_LEN)
 			party_cfg.General.PrivateMsgPrefixLen=SPEECH_MAX_LEN;
-		if ( !convertArrayToUC(arr, party_cfg.General.PrivateMsgPrefix, party_cfg.General.PrivateMsgPrefixLen, true) )
+
+		ObjArray* arrPtr = arr.get();
+		if ( !convertArrayToUC(arrPtr, party_cfg.General.PrivateMsgPrefix, party_cfg.General.PrivateMsgPrefixLen, true) )
 			party_cfg.General.PrivateMsgPrefixLen=0;
-		delete arr;
+		//auto_ptr deletes
 	}
 }
 

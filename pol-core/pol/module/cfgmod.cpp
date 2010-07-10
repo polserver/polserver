@@ -303,13 +303,13 @@ BObjectImp* ConfigFileExecutorModule::mf_GetConfigStringKeys()
 	StoredConfigFile* cfile;
 	if (getStoredConfigFileParam( *this, 0, cfile ))
 	{
-		ObjArray* arr = new ObjArray;
+		auto_ptr<ObjArray> arr (new ObjArray);
 		StoredConfigFile::ElementsByName::const_iterator itr = cfile->byname_begin(), end = cfile->byname_end();
 		for( ; itr != end; ++itr )
 		{
 			arr->addElement( new String( (*itr).first.c_str() ) );
 		}
-		return arr;
+		return arr.release();
 	}
 	else
 	{
@@ -322,13 +322,13 @@ BObjectImp* ConfigFileExecutorModule::mf_GetConfigIntKeys()
 	StoredConfigFile* cfile;
 	if (getStoredConfigFileParam( *this, 0, cfile ))
 	{
-		ObjArray* arr = new ObjArray;
+		auto_ptr<ObjArray> arr (new ObjArray);
 		StoredConfigFile::ElementsByNum::const_iterator itr = cfile->bynum_begin(), end = cfile->bynum_end();
 		for( ; itr != end; ++itr )
 		{
 			arr->addElement( new BLong( (*itr).first ) );
 		}
-		return arr;
+		return arr.release();
 	}
 	else
 	{

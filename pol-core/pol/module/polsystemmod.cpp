@@ -195,13 +195,13 @@ BObjectImp* PolSystemExecutorModule::mf_GetCmdLevelNumber()
 
 BObjectImp* PolSystemExecutorModule::mf_Packages()
 {
-	ObjArray* arr = new ObjArray;
+	auto_ptr<ObjArray> arr (new ObjArray);
 	for( unsigned i = 0; i < packages.size(); ++i )
 	{
 		PackageObjImp* imp = new PackageObjImp( PackagePtrHolder( packages[i] ) );
 		arr->addElement( imp );
 	}
-	return arr;
+	return arr.release();
 }
 
 BObjectImp* PolSystemExecutorModule::mf_GetPackageByName()
@@ -220,7 +220,7 @@ BObjectImp* PolSystemExecutorModule::mf_GetPackageByName()
 
 BObjectImp* PolSystemExecutorModule::mf_ListTextCommands()
 {
-	BDictionary* pkg_list = new BDictionary;
+	auto_ptr<BDictionary> pkg_list (new BDictionary);
 	// Sets up text commands not in a package.
 	{
 		auto_ptr<BDictionary> cmd_lvl_list(new BDictionary);
@@ -252,7 +252,7 @@ BObjectImp* PolSystemExecutorModule::mf_ListTextCommands()
 		if ( cmd_lvl_list->contents().size() > 0 )
 			pkg_list->addMember(new String(pkg->name().c_str()), cmd_lvl_list.release());
 	}
-	return pkg_list;
+	return pkg_list.release();
 }
 
 void reload_configuration();
@@ -276,7 +276,7 @@ BObjectImp* PolSystemExecutorModule::mf_ListenPoints()
 
 BStruct* SetupRealmDetails(Realm* realm)
 {
-	BStruct* details = new BStruct();
+	auto_ptr<BStruct> details (new BStruct());
 	details->addMember("width", new BLong(realm->width()));
 	details->addMember("height", new BLong(realm->height()));
 	details->addMember("season", new BLong(realm->season()));
@@ -284,7 +284,7 @@ BStruct* SetupRealmDetails(Realm* realm)
 	details->addMember("toplevel_item_count", new BLong(realm->toplevel_item_count));
 	details->addMember("mobile_count", new BLong(realm->mobile_count));
 
-	return details;
+	return details.release();
 }
 
 BObjectImp* PolSystemExecutorModule::mf_Realms( /* realm_name:="" */ )

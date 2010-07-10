@@ -886,13 +886,13 @@ BObjectImp* NPCExecutorModule::SayUC()
 
 BObjectImp* NPCExecutorModule::position()
 {
-	BStruct* oa = new BStruct;
+	auto_ptr<BStruct> oa (new BStruct);
 
 	oa->addMember( "x", new BLong( npc.x ) );
 	oa->addMember( "y", new BLong( npc.y ) );
 	oa->addMember( "z", new BLong( npc.z ) );
 
-	return oa;
+	return oa.release();
 }
 
 BObjectImp* NPCExecutorModule::facing()
