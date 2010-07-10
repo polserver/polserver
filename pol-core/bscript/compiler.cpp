@@ -290,8 +290,7 @@ Token* optimize_double_operation( Token* left, Token* oper, Token* right )
             break;
     }
 	
-	Token* ntoken = NULL;
-    ntoken = new Token(*left);
+	Token* ntoken = new Token(*left);
 	ntoken->dval = dval;
     return ntoken;
 }
