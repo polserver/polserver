@@ -120,10 +120,10 @@ void handle_unicode_prompt( Client* client, PKTBI_C2* msg )
 				valstack = new BObject( new BLong( 0 ) );
 			else
 			{
-				BStruct* retval = new BStruct();
+				auto_ptr<BStruct> retval (new BStruct());
 				retval->addMember("lang", new String( lang ) );
 				retval->addMember("uc_text", uc_text.copy() );
-				valstack = new BObject( retval );
+				valstack = new BObject( retval.release() );
 			}
 		}
 	}

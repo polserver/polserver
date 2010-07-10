@@ -495,9 +495,9 @@ void buyhandler( Client* client, PKTBI_3B* msg)
 
 	client->chr->spend_gold( amount_spent );
 
-	SourcedEvent* sale_event = new SourcedEvent( EVID_MERCHANT_SOLD, client->chr );
+	auto_ptr<SourcedEvent> sale_event (new SourcedEvent( EVID_MERCHANT_SOLD, client->chr ));
 	sale_event->addMember( "amount", new BLong(amount_spent) );
-	vendor->send_event( sale_event );
+	vendor->send_event( sale_event.release() );
 
 	send_clear_vendorwindow( client, vendor );
 }
@@ -733,9 +733,9 @@ void sellhandler( Client* client, PKTIN_9F* msg)
 			BObject o( _create_item_in_container( backpack, &find_itemdesc(UOBJ_GOLD_COIN), static_cast<unsigned short>(temp_cost), false, NULL ) );
 		}
 	}
-	SourcedEvent* sale_event = new SourcedEvent( EVID_MERCHANT_BOUGHT, client->chr );
+	auto_ptr<SourcedEvent> sale_event (new SourcedEvent( EVID_MERCHANT_BOUGHT, client->chr ));
 	sale_event->addMember( "amount", new BLong(cost) );
-	vendor->send_event( sale_event );
+	vendor->send_event( sale_event.release() );
 
 	client->pause();
 
@@ -1256,14 +1256,14 @@ void gumpbutton_handler( Client* client, PKTIN_B1* msg )
 	}
 
 
-	BObjectImp* resimp = NULL;
+	auto_ptr<BObjectImp> resimp(NULL);
 	if (ints_count == 0 && strings_count == 0 && hdr->gumpid == 0)
 	{
-		resimp = new BLong(0);
+		resimp.reset(new BLong(0));
 	}
 	else
 	{
-		BIntHash* hash = new BIntHash;
+		auto_ptr<BIntHash> hash (new BIntHash);
 		hash->add( 0, new BLong( cfBEu32( hdr->gumpid ) ) );
 		hash->add( cfBEu32( hdr->gumpid ), new BLong(1) );
 		for( unsigned i = 0; i < ints_count; ++i )
@@ -1295,7 +1295,7 @@ void gumpbutton_handler( Client* client, PKTIN_B1* msg )
 		}
 		resimp = hash;
 	}
-	uoemod->uoexec.ValueStack.top().set( new BObject( resimp ) );
+	uoemod->uoexec.ValueStack.top().set( new BObject( resimp.release() ) );
 	clear_gumphandler( client, uoemod );
 }
 MESSAGE_HANDLER_VARLEN(PKTIN_B1, gumpbutton_handler );
@@ -1429,13 +1429,13 @@ string PolCore::getStringRep() const
 
 BObjectImp* GetPackageList()
 {
-	ObjArray* arr = new ObjArray;
+	auto_ptr<ObjArray> arr (new ObjArray);
 	for( Packages::iterator itr = packages.begin(); itr != packages.end(); ++itr )
 	{
 		Package* pkg = (*itr);
 		arr->addElement( new String( pkg->name() ) );
 	}
-	return arr;
+	return arr.release();
 }
 
 void add_script( ObjArray* arr, UOExecutor* uoexec, const char* state )
@@ -1481,7 +1481,7 @@ BObjectImp* GetAllScriptList()
 
 BObjectImp* GetScriptProfiles( )
 {
-	ObjArray* arr = new ObjArray;
+	auto_ptr<ObjArray> arr (new ObjArray);
 
 	ScriptStorage::iterator itr = scrstore.begin(), end=scrstore.end();
 	u64 total_instr = 0;
@@ -1499,7 +1499,7 @@ BObjectImp* GetScriptProfiles( )
 		EScriptProgram* eprog = ((*itr).second).get();
 
 
-		BStruct* elem = new BStruct;
+		auto_ptr<BStruct> elem (new BStruct);
 		elem->addMember( "name", new String( eprog->name ) );
 		elem->addMember( "instr", new Double( eprog->instr_cycles ) );
 		elem->addMember( "invocations", new BLong( eprog->invocations ) );
@@ -1508,15 +1508,15 @@ BObjectImp* GetScriptProfiles( )
 		double cycle_percent = static_cast<double>(eprog->instr_cycles) / total_instr * 100.0;
 		elem->addMember( "instr_percent", new Double( cycle_percent ) );
 
-		arr->addElement( elem );
+		arr->addElement( elem.release() );
 
 	}
-	return arr;
+	return arr.release();
 }
 
 BObjectImp* GetIoStatsObj( const IOStats& stats )
 {
-	BStruct* arr = new BStruct;
+	auto_ptr<BStruct> arr (new BStruct);
 
 	ObjArray* sent = new ObjArray;
 	arr->addMember( "sent", sent );
@@ -1526,21 +1526,21 @@ BObjectImp* GetIoStatsObj( const IOStats& stats )
 
 	for(unsigned i = 0; i < 256; ++i)
 	{
-		BStruct* elem = new BStruct;
+		auto_ptr<BStruct> elem (new BStruct);
 		elem->addMember( "count", new BLong( stats.sent[i].count ) );
 		elem->addMember( "bytes", new BLong( stats.sent[i].bytes ) );
-		sent->addElement( elem );
+		sent->addElement( elem.release() );
 	}
 
 	for(unsigned i = 0; i < 256; ++i)
 	{
-		BStruct* elem = new BStruct;
+		auto_ptr<BStruct> elem (new BStruct);
 		elem->addMember( "count", new BLong( stats.received[i].count ) );
 		elem->addMember( "bytes", new BLong( stats.received[i].bytes ) );
-		received->addElement( elem );
+		received->addElement( elem.release() );
 	}
 
-	return arr;
+	return arr.release();
 }
 
 BObjectImp* GetIoStats()
@@ -1555,28 +1555,28 @@ BObjectImp* GetQueuedIoStats()
 
 BObjectImp* GetPktStatusObj( )
 {
-	ObjArray* pkts = new ObjArray;
+	auto_ptr<ObjArray> pkts (new ObjArray);
 	PacketQueueMap* map = Packets::instance()->getPackets();
 	for ( PacketQueueMap::iterator it=map->begin(); it != map->end(); ++it )
 	{
-		BStruct* elem = new BStruct;
+		auto_ptr<BStruct> elem (new BStruct);
 		elem->addMember( "pkt", new BLong( it->first ) );
 		elem->addMember( "count", new BLong( it->second->Count() ) );
-		pkts->addElement( elem );
+		pkts->addElement( elem.release() );
 		if (it->second->HasSubs())
 		{
 			PacketInterfaceQueueMap* submap = it->second->GetSubs();
 			for ( PacketInterfaceQueueMap::iterator s_it=submap->begin(); s_it != submap->end(); ++s_it )
 			{
-				BStruct* elemsub = new BStruct;
+				auto_ptr<BStruct> elemsub (new BStruct);
 				elemsub->addMember( "pkt", new BLong( it->first ) );
 				elemsub->addMember( "sub", new BLong( s_it->first ) );
 				elemsub->addMember( "count", new BLong( s_it->second.size() ) );
-				pkts->addElement( elemsub );
+				pkts->addElement( elemsub.release() );
 			}
 		}
 	}
-	return pkts;
+	return pkts.release();
 }
 
 BObjectImp* GetCoreVariable( const char* corevar )
@@ -1770,12 +1770,12 @@ BObjectImp* UOExecutorModule::mf_FindAccount()
 
 BObjectImp* UOExecutorModule::mf_ListAccounts()
 {
-	ObjArray* arr = new ObjArray;
+	auto_ptr<ObjArray> arr (new ObjArray);
   	for( unsigned idx = 0; idx < accounts.size(); idx++ )
 	{
 		arr->addElement( new String( accounts[idx]->name() ) );
 	}
-	return arr;
+	return arr.release();
 }
 
 void handle_resurrect_menu( Client *client, PKTBI_2C *msg )

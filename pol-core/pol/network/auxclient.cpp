@@ -229,10 +229,10 @@ void AuxClientThread::run()
 				istringstream is(tmp);
 				BObjectImp* value = BObjectImp::unpack( is );
 
-				BStruct* event = new BStruct;
+				auto_ptr<BStruct> event (new BStruct);
 				event->addMember( "type", new String( "recv" ) );
 				event->addMember( "value", value );
-				_uoexec->os_module->signal_event( event );
+				_uoexec->os_module->signal_event( event.release() );
             }
         }
         else

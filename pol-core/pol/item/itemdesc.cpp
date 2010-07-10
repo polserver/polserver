@@ -559,11 +559,11 @@ void ItemDesc::PopulateStruct( BStruct* descriptor ) const
 	descriptor->addMember( "PhysicalDamage", new BLong(element_damage.physical) );
 
 	std::set<std::string>::const_iterator set_itr;
-	ObjArray* ignorecp = new ObjArray;
+	auto_ptr<ObjArray> ignorecp (new ObjArray);
 	for(set_itr = ignore_cprops.begin(); set_itr != ignore_cprops.end(); ++set_itr)
 		ignorecp->addElement( new String(*set_itr) );
 
-	descriptor->addMember( "StackingIgnoresCProps", ignorecp );
+	descriptor->addMember( "StackingIgnoresCProps", ignorecp.release() );
 
 	BDictionary* cpropdict = new BDictionary();
 	vector<string> propnames;

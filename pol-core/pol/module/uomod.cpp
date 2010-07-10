@@ -1833,12 +1833,12 @@ BObjectImp* UOExecutorModule::mf_GetObjPropertyNames()
     {
         vector<string> propnames;
         uobj->getpropnames( propnames );
-        ObjArray* arr = new ObjArray;
+        auto_ptr<ObjArray> arr (new ObjArray);
         for( unsigned i = 0; i < propnames.size(); ++i )
         {
             arr->addElement( new String(propnames[i]) );
         }
-        return arr;
+		return arr.release();
     }
     else
     {
@@ -1901,12 +1901,12 @@ BObjectImp* UOExecutorModule::mf_GetGlobalPropertyNames()
 {
 	vector<string> propnames;
     global_properties.getpropnames( propnames );
-    ObjArray* arr = new ObjArray;
+    auto_ptr<ObjArray> arr (new ObjArray);
     for( unsigned i = 0; i < propnames.size(); ++i )
     {
 		arr->addElement( new String(propnames[i]) );
 	}
-    return arr;
+	return arr.release();
 }
 
 BObjectImp* UOExecutorModule::mf_PlayMovingEffect()
@@ -3097,11 +3097,11 @@ BObjectImp* UOExecutorModule::mf_GetPosition()
     UObject* obj;
     if (getUObjectParam( exec, 0, obj ))
     {
-        BStruct* arr = new BStruct;
+        auto_ptr<BStruct> arr (new BStruct);
         arr->addMember( "x", new BLong( obj->x ) );
         arr->addMember( "y", new BLong( obj->y ) );
         arr->addMember( "z", new BLong( obj->z ) );
-        return arr;
+		return arr.release();
     }
     else
     {
@@ -4370,7 +4370,7 @@ BObjectImp* UOExecutorModule::mf_ListEquippedItems()
     Character* chr;
     if (getCharacterParam( exec, 0, chr ))
     {
-        ObjArray* arr = new ObjArray;
+        auto_ptr<ObjArray> arr (new ObjArray);
         for( int layer = LAYER_EQUIP__LOWEST; layer <= LAYER_EQUIP__HIGHEST; ++layer )
 	    {
 		    Item* item = chr->wornitem( layer );
@@ -4379,7 +4379,7 @@ BObjectImp* UOExecutorModule::mf_ListEquippedItems()
                 arr->addElement( new EItemRefObjImp( item ) );
             }
 	    }
-	    return arr;
+		return arr.release();
     }
     else
     {
@@ -4586,12 +4586,12 @@ BObjectImp* UOExecutorModule::mf_GetMultiDimensions()
 			return new BError("Multi Graphic not found");
 
 		const MultiDef& md = *MultiDefByGraphic(graphic);
-		BStruct* ret = new BStruct;
+		auto_ptr<BStruct> ret (new BStruct);
 		ret->addMember( "xmin", new BLong( md.minrx ) );
 		ret->addMember( "xmax", new BLong( md.maxrx ) );
 		ret->addMember( "ymin", new BLong( md.minry ) );
 		ret->addMember( "ymax", new BLong( md.maxry ) );
-		return ret;
+		return ret.release();
 	}
 	else
 		return new BError("Invalid parameter");
