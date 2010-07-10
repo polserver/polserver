@@ -267,31 +267,32 @@ Token* optimize_long_operation( Token* left, Token* oper, Token* right )
 
 Token* optimize_double_operation( Token* left, Token* oper, Token* right )
 {
-    Token* ntoken = NULL;
+    double dval = 0.0;
+
     switch( oper->id )
     {
         case TOK_ADD:
-            ntoken = new Token(*left);
-            ntoken->dval = left->dval + right->dval;
+            dval = left->dval + right->dval;
             break;
         case TOK_SUBTRACT:
-            ntoken = new Token(*left);
-            ntoken->dval = left->dval - right->dval;
+			dval = left->dval - right->dval;
             break;
         case TOK_MULT:
-            ntoken = new Token(*left);
-            ntoken->dval = left->dval * right->dval;
+            dval = left->dval * right->dval;
             break;
         case TOK_DIV:
-            ntoken = new Token(*left);
             if (right->dval == 0.0)
                 throw runtime_error( "Program would divide by zero" );
-            ntoken->dval = left->dval / right->dval;
+            dval = left->dval / right->dval;
             break;
         
         default:
             break;
     }
+	
+	Token* ntoken = NULL;
+    ntoken = new Token(*left);
+	ntoken->dval = dval;
     return ntoken;
 }
 
