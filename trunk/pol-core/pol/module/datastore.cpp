@@ -318,7 +318,7 @@ BObjectImp* DataFileContents::methodDeleteElement( const string& key )
 
 BObjectImp* DataFileContents::methodKeys() const
 {
-	ObjArray* arr = new ObjArray;
+	auto_ptr<ObjArray> arr (new ObjArray);
 	
 	for( ElementsByString::const_iterator citr = elements_by_string.begin();
 		 citr != elements_by_string.end();
@@ -334,7 +334,7 @@ BObjectImp* DataFileContents::methodKeys() const
 		arr->addElement( new BLong( (*citr).first ) );
 	}
 
-	return arr;
+	return arr.release();
 }
 
 
@@ -598,18 +598,18 @@ DataStoreFile* DataFileExecutorModule::GetDataStoreFile( const std::string& insp
 
 BObjectImp* DataFileExecutorModule::mf_ListDataFiles()
 {
-	ObjArray* file_list = new ObjArray;
+	auto_ptr<ObjArray> file_list (new ObjArray);
 	for( DataStore::iterator itr = datastore.begin(); itr != datastore.end(); ++itr )
 	{
 		DataStoreFile* dsf = (*itr).second;
-		BStruct* file_name = new BStruct;
+		auto_ptr<BStruct> file_name (new BStruct);
 		file_name->addMember("pkg", new String(dsf->pkgname));
 		file_name->addMember("name", new String(dsf->name));
 		file_name->addMember("descriptor", new String(dsf->descriptor));
 
-		file_list->addElement(file_name);
+		file_list->addElement(file_name.release());
 	}
-	return file_list;
+	return file_list.release();
 }
 
 BObjectImp* DataFileExecutorModule::mf_CreateDataFile()

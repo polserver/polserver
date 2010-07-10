@@ -409,7 +409,7 @@ void UnicodeSpeechHandler( Client *client, PKTIN_AD *msgin )
 	u16 * themsg = msgin->wtext;
 	u8 *  bytemsg = ((u8 *) themsg);
 	int wtextoffset = 0;
-	ObjArray* speechtokens = NULL;
+	auto_ptr<ObjArray> speechtokens(NULL);
     BLong * atoken = NULL;
 	int i;
 
@@ -471,12 +471,12 @@ void UnicodeSpeechHandler( Client *client, PKTIN_AD *msgin )
 		{
 			for (u16 i = 0; i < numtokens; i++)
 			{
-				if (speechtokens == NULL)
-					speechtokens = new ObjArray();
+				if (speechtokens.get() == NULL)
+					speechtokens.reset(new ObjArray());
 				atoken = new BLong(Get12BitNumber((u8 *) (msgin->wtext), i+1));
 				speechtokens->addElement(atoken);
 			}
-			system_hooks.speechmul_hook->call( make_mobileref(client->chr), speechtokens, new String(ntextbuf) );
+			system_hooks.speechmul_hook->call( make_mobileref(client->chr), speechtokens.release(), new String(ntextbuf) );
 		}
 		msgin->type &= (~0xC0);  // Client won't accept C0 text type messages, so must set to 0
 	}

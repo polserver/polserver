@@ -159,7 +159,7 @@ void UHouse::create_components()
 
 ObjArray* UHouse::component_list() const
 {
-    ObjArray* arr = new ObjArray;
+    auto_ptr<ObjArray> arr (new ObjArray);
     for( Components::const_iterator itr = components_.begin(), end = components_.end(); itr != end; ++itr )
     {
         Item* item = (*itr).get();
@@ -168,7 +168,7 @@ ObjArray* UHouse::component_list() const
             arr->addElement( new EItemRefObjImp(item) );
         }
     }
-    return arr;
+	return arr.release();
 }
 
 ObjArray* UHouse::items_list() const
@@ -176,7 +176,7 @@ ObjArray* UHouse::items_list() const
     ItemList itemlist;
     MobileList moblist;
     list_contents( this, itemlist, moblist );
-    ObjArray* arr = new ObjArray;
+    auto_ptr<ObjArray> arr (new ObjArray);
     for( ItemList::iterator itr = itemlist.begin(); itr != itemlist.end(); ++itr )
     {
         Item* item = (*itr);
@@ -186,7 +186,7 @@ ObjArray* UHouse::items_list() const
             arr->addElement( new EItemRefObjImp( item ) );
         }
     }
-    return arr;
+	return arr.release();
 }
 
 ObjArray* UHouse::mobiles_list() const
@@ -194,13 +194,13 @@ ObjArray* UHouse::mobiles_list() const
     ItemList itemlist;
     MobileList moblist;
     list_contents( this, itemlist, moblist );
-    ObjArray* arr = new ObjArray;
+    auto_ptr<ObjArray> arr (new ObjArray);
     for( MobileList::iterator itr = moblist.begin(); itr != moblist.end(); ++itr )
     {
         Character* chr = (*itr);
         arr->addElement( new ECharacterRefObjImp( chr ) );
     }
-    return arr;
+	return arr.release();
 }
 
 UHouse* UHouse::as_house()

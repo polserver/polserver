@@ -689,12 +689,12 @@ BObjectImp* CallPropertyListMethod_id( PropertyList& proplist, const int id, Exe
         {
             vector<string> propnames;
             proplist.getpropnames( propnames );
-            ObjArray* arr = new ObjArray;
+            auto_ptr<ObjArray> arr (new ObjArray);
             for( unsigned i = 0; i < propnames.size(); ++i )
             {
                 arr->addElement( new String(propnames[i]) );
             }
-            return arr;
+			return arr.release();
         }
 
     default:

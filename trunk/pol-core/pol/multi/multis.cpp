@@ -87,12 +87,12 @@ const MultiDef& UMulti::multidef() const
 BStruct* UMulti::footprint() const
 {
 	const MultiDef& md = multidef();
-    BStruct* ret = new BStruct;
+    auto_ptr<BStruct> ret (new BStruct);
 	ret->addMember( "xmin", new BLong( x + md.minrx ) );
     ret->addMember( "xmax", new BLong( x + md.maxrx ) );
 	ret->addMember( "ymin", new BLong( y + md.minry ) );
 	ret->addMember( "ymax", new BLong( y + md.maxry ) );
-	return ret;
+	return ret.release();
 }
 
 BObjectImp* UMulti::get_script_member_id( const int id ) const ///id test

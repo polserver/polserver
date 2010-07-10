@@ -187,17 +187,17 @@ BObjectImp* Map::script_method_id( const int id, Executor& ex )
     {
     case MTH_GETPINS:
         {
-		    ObjArray* arr = new ObjArray;
+		    auto_ptr<ObjArray> arr (new ObjArray);
 		    for( PinPoints::iterator itr = pin_points.begin(); itr != pin_points.end(); ++itr )
 		    {
 
-			    BStruct* struc = new BStruct;
+			    auto_ptr<BStruct> struc (new BStruct);
 			    struc->addMember( "x", new BLong( itr->x) );
 			    struc->addMember( "y", new BLong( itr->y) );		
     		
-			    arr->addElement( struc );
+				arr->addElement( struc.release() );
 		    }
-		    return arr;
+			return arr.release();
         }
 
     case MTH_INSERTPIN:

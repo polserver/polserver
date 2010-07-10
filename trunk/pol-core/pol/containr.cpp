@@ -745,7 +745,9 @@ void UContainer::on_remove( Character* chr, Item* item, MoveType move )
 	
 	if (!desc.on_remove_script.empty())
     {
-        
+        // static code analysis indicates (C6211) that this might leak, but I can't use an auto_ptr<>
+		// because of UninitObject::create() ... ideas? Nando - 2010-07-10
+
         BObjectImp* chrParam = NULL;
         if (chr)// consider: move this into make_mobileref
             chrParam = new ECharacterRefObjImp(chr);

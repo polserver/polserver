@@ -412,11 +412,11 @@ BObjectRef EGuildRefObjImp::get_member_id( const int id ) //id test
     if (obj_->_disbanded)
         return BObjectRef( new BError( "Guild has disbanded" ) );
  
-    ObjArray* arr;
+    auto_ptr<ObjArray> arr;
     switch(id)
     {
     case MBR_MEMBERS:
-        arr = new ObjArray;
+		arr.reset(new ObjArray);
         for( SerialSet::iterator itr = obj_->_member_serials.begin();
              itr != obj_->_member_serials.end();
              /* do this earlier */)
@@ -435,10 +435,10 @@ BObjectRef EGuildRefObjImp::get_member_id( const int id ) //id test
                 obj_->_member_serials.erase( last_itr );
             }
         }
-        return BObjectRef( arr );
+		return BObjectRef( arr.release() );
 
     case MBR_ALLYGUILDS:
-        arr = new ObjArray;
+        arr.reset(new ObjArray);
         for( SerialSet::iterator itr = obj_->_allyguild_serials.begin();
              itr != obj_->_allyguild_serials.end();
              /* do this earlier */)
@@ -458,10 +458,10 @@ BObjectRef EGuildRefObjImp::get_member_id( const int id ) //id test
                 obj_->_allyguild_serials.erase( last_itr );
             }
         }
-        return BObjectRef( arr );
+		return BObjectRef( arr.release() );
 
     case MBR_ENEMYGUILDS:
-        arr = new ObjArray;
+        arr.reset(new ObjArray);
         for( SerialSet::iterator itr = obj_->_enemyguild_serials.begin();
              itr != obj_->_enemyguild_serials.end();
              /* do this earlier */)
@@ -481,7 +481,7 @@ BObjectRef EGuildRefObjImp::get_member_id( const int id ) //id test
                 obj_->_enemyguild_serials.erase( last_itr );
             }
         }
-        return BObjectRef( arr );
+		return BObjectRef( arr.release() );
 
     case MBR_GUILDID:
         return BObjectRef( new BLong( obj_->_guildid ) );
@@ -945,13 +945,13 @@ BObjectImp* EGuildRefObjImp::call_method( const char* methodname, Executor& ex )
 ///  ListGuilds(); // returns an array of Guild objects
 BObjectImp* GuildExecutorModule::mf_ListGuilds()
 {
-    ObjArray* result = new ObjArray;
+    auto_ptr<ObjArray> result (new ObjArray);
     for( Guilds::iterator itr = guilds.begin(); itr != guilds.end(); ++itr )
     {
         Guild* guild = (*itr).second.get();
         result->addElement( new EGuildRefObjImp( GuildRef(guild )) );
     }
-    return result;
+	return result.release();
 }
 
 ///  CreateGuild(); // returns a new Guild object

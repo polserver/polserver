@@ -250,7 +250,7 @@ void* thread_stub2( void *v_td)
 #ifdef _WIN32
 void create_thread( ThreadData* td, bool dec_child = false )
 {
-    unsigned threadid;
+    unsigned threadid = 0;
     HANDLE h = (HANDLE) _beginthreadex( NULL, 0, thread_stub2, td, 0, &threadid );
 	if (h == 0) // added for better debugging
 	{

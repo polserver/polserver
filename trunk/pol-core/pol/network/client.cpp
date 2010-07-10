@@ -57,7 +57,7 @@ Client::Client( ClientInterface& aInterface, TCryptInfo& encryption ) :
 	chr(NULL),
     Interface(aInterface),
 	ready(false),
-	csocket(-1),
+	csocket(INVALID_SOCKET),
     listen_port(0),
 	aosresist(false),
 	disconnect(0),
@@ -199,7 +199,7 @@ void Client::PreDelete()
 // ClientInfo - delivers a lot of usefull infomation about client PC
 BStruct* Client::getclientinfo() const
 {
-    BStruct* ret = new BStruct;
+    auto_ptr<BStruct> ret (new BStruct);
 
     ret->addMember( "unknown1",          new BLong( clientinfo_.unknown1 ) );          // Unknown - allways 0x02
     ret->addMember( "instance",          new BLong( clientinfo_.instance ) );          // Unique Instance ID of UO
@@ -248,12 +248,12 @@ BStruct* Client::getclientinfo() const
       ret->addMember( "langcode", arr_lc ); // Language Code [wide-character]
     }
 
-    ObjArray* arr_u2 = new ObjArray;
+    auto_ptr<ObjArray> arr_u2 (new ObjArray);
     for ( unsigned i = 0; i < sizeof(clientinfo_.unknown2); ++i )
       arr_u2->addElement( new BLong( clientinfo_.unknown2[i] ) );
-    ret->addMember( "unknown2", arr_u2 ); // Unknown
+	ret->addMember( "unknown2", arr_u2.release() ); // Unknown
 
-    return ret;
+	return ret.release();
 }
 
 void Client::itemizeclientversion(const std::string& ver, VersionDetailStruct& detail)
