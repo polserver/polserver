@@ -26,7 +26,7 @@ namespace threadhelp
 {
 
 ThreadMap threadmap;
-unsigned int child_threads;
+unsigned int child_threads = 0;
 static int threads = 0;
 
 #ifdef _WIN32
