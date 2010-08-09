@@ -15,6 +15,7 @@ Notes
 
 #include "scrsched.h"
 #include "syshookscript.h"
+#include "../bscript/executor.h"
 
 ExportScript::ExportScript( const Package* pkg, std::string scriptname )
 {
@@ -92,6 +93,10 @@ bool ExportScript::call( unsigned PC,
 {
     try
     {
+		//build backup if function is called inside the same script
+		BackupStruct backup;
+		SaveStack(backup);
+
         uoexec.initForFnCall( PC );
 
         uoexec.pushArg(p0);
@@ -100,13 +105,23 @@ bool ExportScript::call( unsigned PC,
         uoexec.pushArg(p3);
         
         uoexec.exec();
-        if (uoexec.error())
-            return false;
-        if (uoexec.ValueStack.empty())
-            return false;
-        bool istrue = uoexec.ValueStack.top().get()->isTrue();
-        uoexec.ValueStack.pop();
-        return istrue;
+
+		bool istrue;
+
+		if (uoexec.error())
+			istrue = false;
+		else if (uoexec.ValueStack.empty())
+			istrue = false;
+		else
+		{
+			istrue = uoexec.ValueStack.top().get()->isTrue();
+			uoexec.ValueStack.pop();
+		}
+
+		// delete current state and reenable backup
+		LoadStack(backup);
+
+		return istrue;
     }
     catch(std::exception&)//...
     {
@@ -121,6 +136,10 @@ bool ExportScript::call( unsigned PC,
 {
     try
     {
+		//build backup if function is called inside the same script
+		BackupStruct backup;
+		SaveStack(backup);
+
         uoexec.initForFnCall( PC );
 
         uoexec.pushArg(p0);
@@ -128,13 +147,23 @@ bool ExportScript::call( unsigned PC,
         uoexec.pushArg(p2);
         
         uoexec.exec();
-        if (uoexec.error())
-            return false;
-        if (uoexec.ValueStack.empty())
-            return false;
-        bool istrue = uoexec.ValueStack.top().get()->isTrue();
-        uoexec.ValueStack.pop();
-        return istrue;
+
+		bool istrue;
+
+		if (uoexec.error())
+			istrue = false;
+		else if (uoexec.ValueStack.empty())
+			istrue = false;
+		else
+		{
+			istrue = uoexec.ValueStack.top().get()->isTrue();
+			uoexec.ValueStack.pop();
+		}
+
+		// delete current state and reenable backup
+		LoadStack(backup);
+
+		return istrue;
     }
     catch(std::exception&)//...
     {
@@ -148,18 +177,32 @@ bool ExportScript::call( unsigned PC,
 {
     try
     {
+		//build backup if function is called inside the same script
+		BackupStruct backup;
+		SaveStack(backup);
+
         uoexec.initForFnCall( PC );
 
         uoexec.pushArg(p0);
         uoexec.pushArg(p1);
-        
+
         uoexec.exec();
-        if (uoexec.error())
-            return false;
-        if (uoexec.ValueStack.empty())
-            return false;
-        bool istrue = uoexec.ValueStack.top().get()->isTrue();
-        uoexec.ValueStack.pop();
+
+		bool istrue;
+
+		if (uoexec.error())
+			istrue = false;
+		else if (uoexec.ValueStack.empty())
+			istrue = false;
+		else
+		{
+			istrue = uoexec.ValueStack.top().get()->isTrue();
+			uoexec.ValueStack.pop();
+		}
+
+		// delete current state and reenable backup
+		LoadStack(backup);
+
         return istrue;
     }
     catch(std::exception&)//...
@@ -173,18 +216,32 @@ bool ExportScript::call( unsigned PC,
 {
     try
     {
+		//build backup if function is called inside the same script
+		BackupStruct backup;
+		SaveStack(backup);
+
         uoexec.initForFnCall( PC );
 
         uoexec.pushArg(p0);
         
         uoexec.exec();
-        if (uoexec.error())
-            return false;
-        if (uoexec.ValueStack.empty())
-            return false;
-        bool istrue = uoexec.ValueStack.top().get()->isTrue();
-        uoexec.ValueStack.pop();
-        return istrue;
+
+		bool istrue;
+
+		if (uoexec.error())
+			istrue = false;
+		else if (uoexec.ValueStack.empty())
+			istrue = false;
+		else
+		{
+			istrue = uoexec.ValueStack.top().get()->isTrue();
+			uoexec.ValueStack.pop();
+		}
+
+		// delete current state and reenable backup
+		LoadStack(backup);
+
+		return istrue;
     }
     catch(std::exception&)//...
     {
@@ -197,20 +254,33 @@ std::string ExportScript::call_string(
 {
     try
     {
+		//build backup if function is called inside the same script
+		BackupStruct backup;
+		SaveStack(backup);
+
         uoexec.initForFnCall( PC );
 
         uoexec.pushArg(p0);
         uoexec.pushArg(p1);
         
         uoexec.exec();
-        if (uoexec.error())
-            return "error";
-        if (uoexec.ValueStack.empty())
-            return "error";
-        std::string ret;
-        ret = uoexec.ValueStack.top().get()->impptr()->getStringRep();
-        uoexec.ValueStack.pop();
-        return ret;
+
+		std::string ret;
+
+		if (uoexec.error())
+			ret = "error";
+		else if (uoexec.ValueStack.empty())
+			ret = "error";
+		else
+		{
+			ret = uoexec.ValueStack.top().get()->impptr()->getStringRep();
+			uoexec.ValueStack.pop();
+		}
+
+		// delete current state and reenable backup
+		LoadStack(backup);
+
+		return ret;
     }
     catch(std::exception&)//...
     {
@@ -224,6 +294,10 @@ std::string ExportScript::call_string(
 {
     try
     {
+		//build backup if function is called inside the same script
+		BackupStruct backup;
+		SaveStack(backup);
+
         uoexec.initForFnCall( PC );
 
         uoexec.pushArg(p0);
@@ -231,14 +305,23 @@ std::string ExportScript::call_string(
         uoexec.pushArg(p2);
         
         uoexec.exec();
-        if (uoexec.error())
-            return "error";
-        if (uoexec.ValueStack.empty())
-            return "error";
-        std::string ret;
-        ret = uoexec.ValueStack.top().get()->impptr()->getStringRep();
-        uoexec.ValueStack.pop();
-        return ret;
+
+		std::string ret;
+
+		if (uoexec.error())
+			ret = "error";
+		else if (uoexec.ValueStack.empty())
+			ret = "error";
+		else
+		{
+			ret = uoexec.ValueStack.top().get()->impptr()->getStringRep();
+			uoexec.ValueStack.pop();
+		}
+
+		// delete current state and reenable backup
+		LoadStack(backup);
+
+		return ret;
     }
     catch(std::exception&)//...
     {
@@ -252,30 +335,41 @@ int ExportScript::call_long(
 {
     try
     {
+		//build backup if function is called inside the same script
+		BackupStruct backup;
+		SaveStack(backup);
+
         uoexec.initForFnCall( PC );
 
         uoexec.pushArg(p0);
         
         uoexec.exec();
-        if (uoexec.error())
-            return 0;
-        if (uoexec.ValueStack.empty())
-            return 0;
-        
-        int ret;
-        BObjectImp* imp = uoexec.ValueStack.top().get()->impptr();
-        if (imp->isa( BObjectImp::OTLong ))
-        {
-            BLong* pLong = static_cast<BLong*>(imp);
-            ret = pLong->value();
-        }
-        else
-        {
-            ret =  0;
-        }
-        uoexec.ValueStack.pop();
-        
-        return ret;
+
+		int ret;
+
+		if (uoexec.error())
+			ret = 0;
+		else if (uoexec.ValueStack.empty())
+			ret = 0;
+		else
+		{
+			BObjectImp* imp = uoexec.ValueStack.top().get()->impptr();
+			if (imp->isa( BObjectImp::OTLong ))
+			{
+				BLong* pLong = static_cast<BLong*>(imp);
+				ret = pLong->value();
+			}
+			else
+			{
+				ret =  0;
+			}
+			uoexec.ValueStack.pop();
+		}
+
+		// delete current state and reenable backup
+		LoadStack(backup);
+
+		return ret;
     }
     catch(std::exception&)//...
     {
@@ -289,31 +383,42 @@ int ExportScript::call_long(
 {
     try
     {
+		//build backup if function is called inside the same script
+		BackupStruct backup;
+		SaveStack(backup);
+
         uoexec.initForFnCall( PC );
 
         uoexec.pushArg(p0);
 		uoexec.pushArg(p1);
         
         uoexec.exec();
-        if (uoexec.error())
-            return 0;
-        if (uoexec.ValueStack.empty())
-            return 0;
-        
-        int ret;
-        BObjectImp* imp = uoexec.ValueStack.top().get()->impptr();
-        if (imp->isa( BObjectImp::OTLong ))
-        {
-            BLong* pLong = static_cast<BLong*>(imp);
-            ret = pLong->value();
-        }
-        else
-        {
-            ret =  0;
-        }
-        uoexec.ValueStack.pop();
-        
-        return ret;
+
+		int ret;
+
+		if (uoexec.error())
+			ret = 0;
+		else if (uoexec.ValueStack.empty())
+			ret = 0;
+		else
+		{
+			BObjectImp* imp = uoexec.ValueStack.top().get()->impptr();
+			if (imp->isa( BObjectImp::OTLong ))
+			{
+				BLong* pLong = static_cast<BLong*>(imp);
+				ret = pLong->value();
+			}
+			else
+			{
+				ret =  0;
+			}
+			uoexec.ValueStack.pop();
+		}
+
+		// delete current state and reenable backup
+		LoadStack(backup);
+
+		return ret;
     }
     catch(std::exception&)//...
     {
@@ -327,6 +432,10 @@ BObjectImp* ExportScript::call( unsigned PC,
 {
     try
     {
+		//build backup if function is called inside the same script
+		BackupStruct backup;
+		SaveStack(backup);
+
         uoexec.initForFnCall( PC );
 
         uoexec.pushArg(p0);
@@ -337,13 +446,23 @@ BObjectImp* ExportScript::call( unsigned PC,
         }
         
         uoexec.exec();
-        if (uoexec.error())
-            return new BError( "Error during execution" );
-        if (uoexec.ValueStack.empty())
-            return new BError( "There was no return value??" );
-        BObjectImp* ret = uoexec.ValueStack.top()->impptr()->copy();
-        uoexec.ValueStack.pop();
-        return ret;
+
+		BObjectImp* ret;
+
+		if (uoexec.error())
+			ret = new BError( "Error during execution" );
+		else if (uoexec.ValueStack.empty())
+			ret = new BError( "There was no return value??" );
+		else
+		{
+			ret = uoexec.ValueStack.top()->impptr()->copy();
+			uoexec.ValueStack.pop();
+		}
+
+		// delete current state and reenable backup
+		LoadStack(backup);
+
+		return ret;
     }
     catch(std::exception&)//...
     {
@@ -357,6 +476,10 @@ BObject ExportScript::call( unsigned PC,
 {
     try
     {
+		//build backup if function is called inside the same script
+		BackupStruct backup;
+		SaveStack(backup);
+
         uoexec.initForFnCall( PC );
 
         uoexec.pushArg(p0);
@@ -367,13 +490,22 @@ BObject ExportScript::call( unsigned PC,
         }
         
         uoexec.exec();
-        if (uoexec.error())
-            return BObject( new BError( "Error during execution" ) );
-        if (uoexec.ValueStack.empty())
-            return BObject( new BError( "There was no return value??" ) );
-        BObjectImp* ret = uoexec.ValueStack.top()->impptr()->copy();
-        uoexec.ValueStack.pop();
-        return BObject(ret);
+		BObjectImp* ret;
+
+		if (uoexec.error())
+			ret = new BError( "Error during execution" );
+		else if (uoexec.ValueStack.empty())
+			ret = new BError( "There was no return value??" );
+		else
+		{
+			ret = uoexec.ValueStack.top()->impptr()->copy();
+			uoexec.ValueStack.pop();
+		}
+
+		// delete current state and reenable backup
+		LoadStack(backup);
+
+		return BObject(ret);
     }
     catch(std::exception&)//...
     {
@@ -387,19 +519,33 @@ BObject ExportScript::call_object(
 {
     try
     {
+		//build backup if function is called inside the same script
+		BackupStruct backup;
+		SaveStack(backup);
+
         uoexec.initForFnCall( PC );
 
         uoexec.pushArg(p0);
         uoexec.pushArg(p1);
         
         uoexec.exec();
-        if (uoexec.error())
-            return BObject( new BError( "Error during execution" ) );
-        if (uoexec.ValueStack.empty())
-            return BObject( new BError( "There was no return value??" ) );
-        BObjectImp* ret = uoexec.ValueStack.top()->impptr()->copy();
-        uoexec.ValueStack.pop();
-        return BObject(ret);
+
+		BObjectImp* ret;
+
+		if (uoexec.error())
+			ret = new BError( "Error during execution" );
+		else if (uoexec.ValueStack.empty())
+			ret = new BError( "There was no return value??" );
+		else
+		{
+			ret = uoexec.ValueStack.top()->impptr()->copy();
+			uoexec.ValueStack.pop();
+		}
+
+		// delete current state and reenable backup
+		LoadStack(backup);
+
+		return BObject(ret);
     }
     catch(std::exception&)//...
     {
@@ -413,6 +559,10 @@ BObject ExportScript::call_object(
 {
     try
     {
+		//build backup if function is called inside the same script
+		BackupStruct backup;
+		SaveStack(backup);
+
         uoexec.initForFnCall( PC );
 
         uoexec.pushArg(p0);
@@ -420,16 +570,51 @@ BObject ExportScript::call_object(
 		uoexec.pushArg(p2);
         
         uoexec.exec();
-        if (uoexec.error())
-            return BObject( new BError( "Error during execution" ) );
-        if (uoexec.ValueStack.empty())
-            return BObject( new BError( "There was no return value??" ) );
-        BObjectImp* ret = uoexec.ValueStack.top()->impptr()->copy();
-        uoexec.ValueStack.pop();
-        return BObject(ret);
+		BObjectImp* ret;
+
+		if (uoexec.error())
+			ret = new BError( "Error during execution" );
+		else if (uoexec.ValueStack.empty())
+			ret = new BError( "There was no return value??" );
+		else
+		{
+			ret = uoexec.ValueStack.top()->impptr()->copy();
+			uoexec.ValueStack.pop();
+		}
+
+		// delete current state and reenable backup
+		LoadStack(backup);
+
+		return BObject(ret);
     }
     catch(std::exception&)//...
     {
         return BObject( new BError( "Exception during execution" ) );
     }
+}
+
+void ExportScript::SaveStack(BackupStruct& backup)
+{
+	backup.PC = uoexec.PC;
+	while (!uoexec.ValueStack.empty())
+	{
+		backup.ValueStack.push(uoexec.ValueStack.top());
+		uoexec.ValueStack.pop();
+	}
+	if ((uoexec.Locals2 != NULL) && (!uoexec.Locals2->empty()))
+	{
+		backup.Locals.reset(new BObjectRefVec);
+		backup.Locals->assign(uoexec.Locals2->begin(),uoexec.Locals2->end());
+	}
+}
+
+void ExportScript::LoadStack(BackupStruct& backup)
+{
+	uoexec.initForFnCall( backup.PC );
+	while (!backup.ValueStack.empty())
+	{
+		uoexec.ValueStack.push(backup.ValueStack.top());
+		backup.ValueStack.pop();
+	}
+	uoexec.Locals2=backup.Locals.release();
 }
