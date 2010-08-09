@@ -51,6 +51,9 @@ public:
 	BObject call_object( unsigned PC, BObjectImp* p0, BObjectImp* p1 );
 	BObject call_object( unsigned PC, BObjectImp* p0, BObjectImp* p1, BObjectImp* p2 );
 
+	void SaveStack(BackupStruct& backup);
+	void LoadStack(BackupStruct& backup);
+
     friend class SystemHook;
 
 private:

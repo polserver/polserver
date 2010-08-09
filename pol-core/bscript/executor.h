@@ -39,13 +39,21 @@ class EScriptProgram;
 class BLong;
 class String;
 
-
+typedef stack< BObjectRef,vector<BObjectRef> > ValueStackCont;
 // FIXME: how to make this a nested struct in Executor?
 struct ReturnContext 
 {
     unsigned PC;
     unsigned ValueStackDepth;
 };
+
+struct BackupStruct
+{
+	auto_ptr<BObjectRefVec> Locals;
+	ValueStackCont ValueStack;
+	unsigned PC;
+};
+
 class Executor
 {
   public:
@@ -78,7 +86,7 @@ class Executor
 
     static UninitObject* m_SharedUninitObject;
 
-    typedef stack< BObjectRef,vector<BObjectRef> > ValueStackCont;
+    
 	ValueStackCont ValueStack;
 
 	static ExecInstrFunc GetInstrFunc( const Token& token );
