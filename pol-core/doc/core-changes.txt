@@ -1,4 +1,7 @@
 -- POL099 --
+08-09-2010 Turley:
+     Fixed: exported function calls a different exported function stops execution (eg repsys functions in same script)
+
 06-22-2010 Turley:
      Fixed: uo::RestartScript() wakes up old script so it stops immediately
 
