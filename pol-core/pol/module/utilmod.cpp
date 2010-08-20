@@ -135,6 +135,49 @@ BObjectImp* UtilExecutorModule::mf_StrFormatTime()
 
 	time_struct = localtime(&seconds);
 
+	//strftime uses assert check for invalid format -> precheck it
+	unsigned len = format_string->length();
+	const char* str = format_string->data();
+	while (len-- > 0)
+	{
+		if (*str++ == '%')
+		{
+			if (len-- <= 0)
+				return new BError("Invalid Format string.");
+			switch(*str++)
+			{
+				case('%'):
+				case('a'):
+				case('A'):
+				case('b'):
+				case('B'):
+				case('c'):
+				case('d'):
+				case('H'):
+				case('I'):
+				case('j'):
+				case('m'):
+				case('M'):
+				case('p'):
+				case('S'):
+				case('U'):
+				case('w'):
+				case('W'):
+				case('x'):
+				case('X'):
+				case('y'):
+				case('Y'):
+				case('Z'):
+					continue;
+				case ('\0'):
+					len = 0;
+					break;
+				default:
+					return new BError("Invalid Format string.");
+			}
+		}
+	}
+
 	char buffer[102]; // +2 for the \0 termination.
 	strftime(buffer, sizeof buffer, format_string->data(), time_struct);
 
