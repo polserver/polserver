@@ -60,7 +60,8 @@ public:
         OTDictionary,
         OTStruct,
         OTPacket,
-		OTBinaryFile
+		OTBinaryFile,
+		OTXMLFile
     };
 
 #if INLINE_BOBJECTIMP_CTOR

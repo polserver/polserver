@@ -36,6 +36,7 @@ Notes
 #include "../core.h"
 #include "filemod.h"
 #include "../binaryfilescrobj.h"
+#include "../xmlfilescrobj.h"
 
 /*
 I'm thinking that, if anything, I'd want to present a VERY simple, high-level interface.  
@@ -103,7 +104,8 @@ TmplExecutorModule<FileAccessExecutorModule>::function_table[] =
 	{ "LogToFile",		&FileAccessExecutorModule::mf_LogToFile },
 	{ "OpenBinaryFile", &FileAccessExecutorModule::mf_OpenBinaryFile },
 	{ "CreateDirectory",&FileAccessExecutorModule::mf_CreateDirectory },
-	{ "ListDirectory",  &FileAccessExecutorModule::mf_ListDirectory }
+	{ "ListDirectory",  &FileAccessExecutorModule::mf_ListDirectory },
+	{ "OpenXMLFile",    &FileAccessExecutorModule::mf_OpenXMLFile }
 };
 
 template<>
@@ -616,6 +618,32 @@ BObjectImp* FileAccessExecutorModule::mf_ListDirectory()
 	}
 
 	return arr;
+}
+
+BObjectImp* FileAccessExecutorModule::mf_OpenXMLFile()
+{
+	const String* filename;
+	if (!getStringParam( 0, filename ))
+		return new BError( "Invalid parameter type" );
+
+	const Package* outpkg;
+	string path;
+	if (!pkgdef_split( filename->value(), exec.prog()->pkg, &outpkg, &path ))
+		return new BError( "Error in filename descriptor" );
+
+	if (path.find( ".." ) != string::npos)
+		return new BError( "No parent path traversal please." );
+
+	if (!HasReadAccess( exec.prog()->pkg, outpkg, path ))
+		return new BError( "Access denied" );
+
+	string filepath;
+	if (outpkg == NULL)
+		filepath = path;
+	else
+		filepath = outpkg->dir() + path;
+
+	return new BXMLfile( filepath );
 }
 
 void load_fileaccess_cfg()

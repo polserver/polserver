@@ -45,7 +45,7 @@
 				Name="VCCLCompilerTool"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="&quot;..\..\lib\STLport5\stlport&quot;;"
-				PreprocessorDefinitions="NDEBUG,WIN32,_CONSOLE,NOMINMAX,INC_PASSERT"
+				PreprocessorDefinitions="NDEBUG,WIN32,_CONSOLE,NOMINMAX,INC_PASSERT,TIXML_USE_STL"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				BufferSecurityCheck="false"
@@ -141,7 +141,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;..\..\lib\STLport5\stlport&quot;;"
-				PreprocessorDefinitions="_DEBUG,WIN32,_CONSOLE,NOMINMAX,INC_PASSERT"
+				PreprocessorDefinitions="_DEBUG,WIN32,_CONSOLE,NOMINMAX,INC_PASSERT,TIXML_USE_STL"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
 				ForceConformanceInForLoopScope="true"
@@ -876,6 +876,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\xmlfilescrobj.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\zone.cpp"
 				>
 			</File>
@@ -1446,6 +1450,10 @@
 			</File>
 			<File
 				RelativePath=".\xbuffer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\xmlfilescrobj.h"
 				>
 			</File>
 			<File

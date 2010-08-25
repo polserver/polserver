@@ -435,7 +435,9 @@ ObjMember object_members[] = {
 	{ MBR_UO_EXPANSION_CLIENT, "uo_expansion_client", true },
 	{ MBR_CLIENTTYPE, "clienttype", true }, //180
     { MBR_DEAFENED, "deafed", true},
-	{ MBR_CLIENT, "client", true }
+	{ MBR_CLIENT, "client", true },
+	{ MBR_TYPE, "type", true },
+	{ MBR_ATTRIBUTES, "attributes", true }
 };
 int n_objmembers = sizeof object_members / sizeof object_members[0];
 ObjMember* getKnownObjMember(const char* token)
@@ -577,8 +579,10 @@ ObjMethod object_methods[] = {
     { MTH_REMOVESPELL, "removespell" },
     { MTH_ADDSPELL, "addspell" },
     { MTH_DEAF, "deaf"},                                 //120
-	{ MTH_SETSEASON, "setseason" }
-
+	{ MTH_SETSEASON, "setseason" },
+	{ MTH_NEXTSIBLING, "nextsibling" },
+	{ MTH_FIRSTCHILD, "firstchild" },
+	{ MTH_SAVEXML, "savexml" }
 };
 int n_objmethods = sizeof object_methods / sizeof object_methods[0];
 ObjMethod* getKnownObjMethod(const char* token)
