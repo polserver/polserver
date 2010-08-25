@@ -34,20 +34,22 @@ POL_BUILDNAME=linux
 LIB_MORE=
 endif
 
-CXX_OPTS=-gstabs+ -DINC_PASSERT=1 -Wall -Werror $(CXX_MORE_OPTS) $(INC_STL)
+CXX_OPTS=-gstabs+ -DINC_PASSERT=1 -DTIXML_USE_STL -Wall -Werror $(CXX_MORE_OPTS) $(INC_STL)
 
 CXX_RELEASE_OPTS=$(CXX_OPTS)
 
 CXX_DEBUG_OPTS=$(CXX_OPTS)
 
-CXX_OPTS_NOWARN=-gstabs+ -DINC_PASSERT=1 $(CXX_MORE_OPTS) $(INC_STL)
+CXX_OPTS_NOWARN=-gstabs+ -DINC_PASSERT=1 -DTIXML_USE_STL $(CXX_MORE_OPTS) $(INC_STL)
 
 ifndef LINKER
 LINKER=g++
 endif
 
 cpp_sources = \
-    clib/progver.cpp plib/polver.cpp \
+  ../lib/tinyxml/tinystr.cpp ../lib/tinyxml/tinyxml.cpp \
+  ../lib/tinyxml/tinyxmlerror.cpp ../lib/tinyxml/tinyxmlparser.cpp \
+  clib/progver.cpp plib/polver.cpp \
 	pol/accounts/account.cpp pol/accounts/accounts.cpp pol/accounts/acscrobj.cpp pol/allocd.cpp \
 	pol/item/armor.cpp pol/mobile/attack.cpp \
 	pol/mobile/attribute.cpp pol/network/auxclient.cpp pol/network/packets.cpp \
@@ -159,8 +161,9 @@ cpp_sources = \
 	clib/xmain.cpp \
 	clib/unicode.cpp \
 	clib/pkthelper.cpp \
-	gp/gendef.cpp gp/gphelp.cpp gp/gtree.cpp \
-	gp/treegen.cpp
+	pol/xmlfilescrobj.cpp #\
+#	gp/gendef.cpp gp/gphelp.cpp gp/gtree.cpp \
+#	gp/treegen.cpp
 
 
 hold_cpp_sources = \
