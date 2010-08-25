@@ -29,6 +29,7 @@ public:
 	  BObjectImp* mf_OpenBinaryFile();
 	  BObjectImp* mf_CreateDirectory();
 	  BObjectImp* mf_ListDirectory();
+	  BObjectImp* mf_OpenXMLFile();
 };
 
 ExecutorModule* CreateFileAccessExecutorModule( Executor& exec );
