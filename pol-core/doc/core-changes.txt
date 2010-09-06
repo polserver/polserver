@@ -1,4 +1,94 @@
 -- POL099 --
+09-06-2010 Turley:
+     Added: TinyXML based xml reading/writing
+     Added: file::OpenXMLFile(filename)
+             opens given filename and returns XMLFile object
+             fileaccess.cfg is checked
+            file::CreateXMLFile()
+             creates an empty XMLFile object
+            XMLFile.setxmldeclaration(string version, string encoding, string standalone)
+             sets xmldeclaration eg <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+            XMLFile.appendxmlnode(string value, struct{attributes})
+             appends Node with name value and given attributes (key=name, value=value)
+            XMLFile.appendxmlcomment(string value)
+             appends Comment
+            XMLFile.removexmlnode(string value)
+             removes first node of given value
+            XMLFile.savexml(string filename)
+             saves to filename
+             fileaccess.cfg is checked
+            XMLFile.xmltostring([string indent])
+             returns the xml file as String with given indent string {default "\t"}
+            XMLFile[string] returns first node of given name
+            XMLFile[integer] returns node of given index (1-based)
+     Added: XMLNode object
+            XMLNode.attributes
+             returns XMLAttributes object
+            XMLNode.type
+             returns type string 
+             (XMLComment, XMLDeclaration, XMLDocument, XMLElement, XMLText, XMLTypeCount, XMLUnknown)
+            XMLNode.firstxmlchild([string value])
+             returns first child or first child of given name
+            XMLNode.nextxmlsibling([string value])
+             returns next sibling, or next sibling of given name
+            XMLNode.appendxmlnode(string value, struct{attributes})
+             appends Node with name value and given attributes (key=name, value=value)
+            XMLNode.appendxmlcomment(string value)
+             appends Comment
+            XMLNode.setxmlattribute(struct{attributes})
+             sets attributes for node
+            XMLNode.removexmlattribute(string key)
+             removes attribute of given key
+            XMLNode.removexmlnode(string value)
+             removes first node of given value
+            XMLNode.appendxmltext(string text)
+             appends text to node
+            XMLNode[string] returns first node of given name
+            XMLNode[integer] returns node of given index (1-based)
+     Added: XMLAttributes object
+            XMLAttributes.propnames()
+             returns Array of all attribute names
+            XMLAttributes[string] returns value of given attribute name
+     Added: foreach loop support:
+            XMLFile, XMLNode: iterates over all child Nodes
+            iterator is XMLNode object, "_iterator_iter" is integer index
+            XMlAttributes: iterates over all attributes
+            iterator is a struct with key=attributename, value=attributevalue
+            "_iterator_iter" is integer index
+      Note: small examples:
+            one way to read an xml file:
+            <?xml version="1.0" ?>
+            <root>
+             <Hello>World</Hello>
+             <!--Comment-->
+             <nodetwo i="1" />
+            </root>
+            var file:=OpenXMLFile("helloworld.xml");
+            parsenode(file,"");
+            function parsenode(node,i)
+             foreach blubb in node
+              syslog(i+cstr(blubb)+" ["+blubb.type+"] ("+cstr(_blubb_iter)+")");
+              parseattrib(blubb,i+"-");
+              parsenode(blubb,i+" ");
+             endforeach
+            endfunction
+
+            function parseattrib(node,i)
+             foreach ele in (node.attributes)
+              syslog(i+cstr(ele)+" ("+_ele_iter+")");
+             endforeach
+            endfunction
+            
+            one way how to create such an file:
+            var file:=CreateXMLFile();
+            file.setxmldeclaration("1.0","","");
+            file.appendxmlnode("root");
+            file["root"].appendxmlnode("Hello");
+            file["root"]["Hello"].appendxmltext("World");
+            file["root"].appendxmlcomment("Comment");
+            file["root"].appendxmlnode("nodetwo",struct{i:=1});
+            file.savexml("helloworld.xml");
+            
 08-20-2010 Turley:
      Fixed: util:StrFormatTime() checks if format string is correct and if not returns "Invalid Format String." error
             instead of server crash

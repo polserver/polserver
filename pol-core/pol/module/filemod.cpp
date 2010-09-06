@@ -105,7 +105,8 @@ TmplExecutorModule<FileAccessExecutorModule>::function_table[] =
 	{ "OpenBinaryFile", &FileAccessExecutorModule::mf_OpenBinaryFile },
 	{ "CreateDirectory",&FileAccessExecutorModule::mf_CreateDirectory },
 	{ "ListDirectory",  &FileAccessExecutorModule::mf_ListDirectory },
-	{ "OpenXMLFile",    &FileAccessExecutorModule::mf_OpenXMLFile }
+	{ "OpenXMLFile",    &FileAccessExecutorModule::mf_OpenXMLFile },
+	{ "CreateXMLFile",  &FileAccessExecutorModule::mf_CreateXMLFile }
 };
 
 template<>
@@ -644,6 +645,11 @@ BObjectImp* FileAccessExecutorModule::mf_OpenXMLFile()
 		filepath = outpkg->dir() + path;
 
 	return new BXMLfile( filepath );
+}
+
+BObjectImp* FileAccessExecutorModule::mf_CreateXMLFile()
+{
+	return new BXMLfile();
 }
 
 void load_fileaccess_cfg()

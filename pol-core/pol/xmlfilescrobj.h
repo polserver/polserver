@@ -90,11 +90,8 @@ public:
 			TiXmlDeclaration* dec = node->ToDeclaration();
 			OSTRINGSTREAM os;
 			os << "v:" << dec->Version() << " e:" << dec->Encoding() << " s:" << dec->Standalone();
-
-
 			return OSTRINGSTREAM_STR(os);
 		}
-			//return node->ToDeclaration()->Encoding() + node->ToDeclaration()->Standalone();
 		return node->Value();
 	}
 	
@@ -131,7 +128,7 @@ public:
 
 	virtual string getStringRep() const
 	{
-		return "XMLAttributes"; //xxx
+		return "XMLAttributes";
 	}
 	
 	virtual const char* typeOf() const { return "XMLAttributes"; }
