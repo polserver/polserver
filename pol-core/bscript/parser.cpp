@@ -580,9 +580,18 @@ ObjMethod object_methods[] = {
     { MTH_ADDSPELL, "addspell" },
     { MTH_DEAF, "deaf"},                                 //120
 	{ MTH_SETSEASON, "setseason" },
-	{ MTH_NEXTSIBLING, "nextsibling" },
-	{ MTH_FIRSTCHILD, "firstchild" },
-	{ MTH_SAVEXML, "savexml" }
+	{ MTH_NEXTSIBLING, "nextxmlsibling" },
+	{ MTH_FIRSTCHILD, "firstxmlchild" },
+	{ MTH_SAVEXML, "savexml" },
+	{ MTH_APPENDNODE, "appendxmlnode" },                 //125
+	{ MTH_SETDECLARATION, "setxmldeclaration" },
+	{ MTH_SETATTRIBUTE, "setxmlattribute" },
+	{ MTH_REMOVEATTRIBUTE, "removexmlattribute" },
+	{ MTH_REMOVENODE, "removexmlnode" },
+	{ MTH_APPENDTEXT, "appendxmltext" },                  //130
+	{ MTH_XMLTOSTRING, "xmltostring" },
+	{ MTH_APPENDXMLCOMMENT, "appendxmlcomment" }
+
 };
 int n_objmethods = sizeof object_methods / sizeof object_methods[0];
 ObjMethod* getKnownObjMethod(const char* token)
