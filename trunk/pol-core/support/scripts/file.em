@@ -45,3 +45,4 @@ CreateDirectory( dirname );
 ListDirectory( dirname, extension := LISTDIR_ALL_FILES, listdirs := LISTDIR_DONT_LIST_DIRS );
 
 OpenXMLFile( filename );
+CreateXMLFile( );
