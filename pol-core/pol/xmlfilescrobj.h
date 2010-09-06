@@ -66,7 +66,6 @@ public:
 private:
 	TiXmlDocument file;
 	string _filename;
-	bool _canwrite;
 };
 
 
