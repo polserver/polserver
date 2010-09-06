@@ -30,6 +30,7 @@ public:
 	  BObjectImp* mf_CreateDirectory();
 	  BObjectImp* mf_ListDirectory();
 	  BObjectImp* mf_OpenXMLFile();
+	  BObjectImp* mf_CreateXMLFile();
 };
 
 ExecutorModule* CreateFileAccessExecutorModule( Executor& exec );
@@ -56,5 +57,7 @@ public:
 	vector< string > Directories; // not used
 	vector< string > Extensions;
 };
+
+bool HasWriteAccess( const Package* pkg, const Package* filepackage, const string& path );
 
 #endif
