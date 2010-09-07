@@ -794,7 +794,7 @@ BObjectImp* UObject::get_script_member( const char *membername ) const
 		return NULL;
 }
 
-BObjectImp* UObject::set_script_member_id( const int id, const string& value )
+BObjectImp* UObject::set_script_member_id( const int id, const std::string& value )
 {
 	if (orphan())
 		return new UninitObject;
@@ -812,7 +812,7 @@ BObjectImp* UObject::set_script_member_id( const int id, const string& value )
 	}
 }
 
-BObjectImp* UObject::set_script_member( const char *membername, const string& value )
+BObjectImp* UObject::set_script_member( const char *membername, const std::string& value )
 {
 	ObjMember* objmember = getKnownObjMember(membername);
 	if ( objmember != NULL )
@@ -939,7 +939,7 @@ BObjectImp* Item::get_script_member( const char *membername ) const
 		return NULL;
 }
 
-BObjectImp* Item::set_script_member_id( const int id, const string& value )
+BObjectImp* Item::set_script_member_id( const int id, const std::string& value )
 {
 	BObjectImp* imp = base::set_script_member_id( id, value );
 	if (imp != NULL)
@@ -960,7 +960,7 @@ BObjectImp* Item::set_script_member_id( const int id, const string& value )
 	}
 }
 
-BObjectImp* Item::set_script_member( const char *membername, const string& value )
+BObjectImp* Item::set_script_member( const char *membername, const std::string& value )
 {
 	ObjMember* objmember = getKnownObjMember(membername);
 	if ( objmember != NULL )
