@@ -611,6 +611,20 @@ void Client::restart2()
 // here only the "start"-value is set the additional delay is set in PKT_02 handler
 bool Client::SpeedHackPrevention(bool add)
 {
+	if ((!movementqueue.empty()) && (add))
+	{
+		if (movementqueue.size()>100)
+		{
+			Log2( "Client#%lu: More then 100 Movepackets in queue.  Disconnecting.\n",
+				instance_ );
+			disconnect = true;
+			return false;
+		}
+		PacketThrottler throttlestruct;
+		memcpy(throttlestruct.pktbuffer, buffer, PKTIN_02_SIZE);
+		movementqueue.push(throttlestruct);
+		return false;
+	}
 	if (chr->can_speedhack())
 		return true;
 	if ((next_movement == 0) || (wallclock() > next_movement)) // never moved or in the past
