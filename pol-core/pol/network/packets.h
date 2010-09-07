@@ -229,6 +229,8 @@ class PacketWriter : public PacketInterface
 		};
 		void Write(const char* x, u16 len, bool nullterm=true)
 		{
+			if (len<1)
+				return;
 			passert_always_r(offset+len<=_size, "pkt "+hexint(_id));
 			strncpy(&buffer[offset], x, nullterm ? len-1 : len);
 			offset += len;
@@ -239,6 +241,8 @@ class PacketWriter : public PacketInterface
 		}
 		void Write(u8 x[], u16 len)
 		{
+			if (len<1)
+				return;
 			passert_always_r(offset+len<=_size, "pkt "+hexint(_id));
 			memcpy(&buffer[offset], x, len);
 			offset += len;
@@ -256,7 +260,8 @@ class PacketWriter : public PacketInterface
 			if (offset>maxoff)
 				maxoff=offset;
 #endif
-			while (len-- > 0)
+			s32 signedlen= static_cast<s32>(len);
+			while (signedlen-- > 0)
 			{
 				*(_buffer++) = *x++;
 			}
@@ -279,7 +284,8 @@ class PacketWriter : public PacketInterface
 			if (offset>maxoff)
 				maxoff=offset;
 #endif
-			while (len-- > 0)
+			s32 signedlen= static_cast<s32>(len);
+			while (signedlen-- > 0)
 			{
 				*(_buffer++) = ctBEu16(*x);
 				++x;
