@@ -56,7 +56,7 @@ bool send_menu( Client *client, Menu *menu )
 		if (stringlen > 80)
 			stringlen = 80;
 		msg->Write(static_cast<u8>(stringlen));// NOTE null-term not included!
-		msg->Write(menu->title, static_cast<u16>(stringlen), false);
+		msg->Write(mi->title, static_cast<u16>(stringlen), false);
 	}
 	u16 len = msg->offset;
 	msg->offset = 1;
