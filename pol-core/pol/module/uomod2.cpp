@@ -171,7 +171,7 @@ bool send_vendorwindow_contents( Client* client, UContainer* for_sale, bool send
 			return false;
 		}
 		msg->WriteFlipped(item->sellprice());
-		msg->Write(static_cast<u8>(desc.size())+1); //Don't forget the NULL
+		msg->Write(static_cast<u8>(desc.size()+1)); //Don't forget the NULL
 		msg->Write(desc.c_str(),static_cast<u16>(desc.size()+1));
 		++num_items;
 
