@@ -208,6 +208,7 @@ public:
 	u16 ClientType;
 	queue<PacketThrottler> movementqueue;
 	wallclock_t next_movement;
+	u8 movementsequence;
 	
 private:
     struct {

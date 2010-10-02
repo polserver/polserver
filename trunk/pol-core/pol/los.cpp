@@ -114,7 +114,8 @@ bool dynamic_item_blocks_los( const LosObj& att, const LosObj& target,
 bool static_item_blocks_los( int x, int y, int z )
 {
     typedef vector<StaticRec> StaticRecVector;
-    StaticRecVector vec;
+    static StaticRecVector vec;
+	vec.clear();
     readstatics( vec, x, y );
     readmultis( vec, x, y );
     for( StaticRecVector::const_iterator itr = vec.begin();

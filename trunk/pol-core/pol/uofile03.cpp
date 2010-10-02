@@ -187,9 +187,12 @@ bool uo_walkheight(int x, int y, int oldz,
         return false;
     }
 
-    StaticList vec;
-    MultiList mvec;
-    Items ivec;
+    static StaticList vec;
+    static MultiList mvec;
+    static Items ivec;
+	vec.clear();
+	mvec.clear();
+	ivec.clear();
     
     readdynamics( vec, x, y, ivec, true );
     readmultis( vec, x, y, mvec );
@@ -234,9 +237,12 @@ bool uo_walkheight(const Character* chr,
     }
 
 
-    StaticList vec;
-    MultiList mvec;
-    Items ivec;
+    static StaticList vec;
+    static MultiList mvec;
+    static Items ivec;
+	vec.clear();
+	mvec.clear();
+	ivec.clear();
     
     readdynamics( chr, vec, x, y, ivec, chr->doors_block() );
     readmultis( vec, x, y, mvec );
@@ -282,9 +288,12 @@ bool uo_dropheight(int x, int y, int oldz,
         return false;
     }
 
-    StaticList vec;
-    MultiList mvec;
-    Items ivec;
+    static StaticList vec;
+    static MultiList mvec;
+    static Items ivec;
+	vec.clear();
+	mvec.clear();
+	ivec.clear();
     
     readdynamics( vec, x, y, ivec, true );
     readmultis( vec, x, y, mvec );
@@ -311,7 +320,8 @@ bool uo_dropheight(int x, int y, int oldz,
 
 bool uo_lowest_standheight( int x, int y, int* z )
 {
-    StaticList vec;
+    static StaticList vec;
+	vec.clear();
     readstatics( vec, x, y );
     USTRUCT_MAPINFO mi;
     getmapinfo( x, y, z, &mi );
@@ -327,8 +337,10 @@ UMulti* uo_find_supporting_multi( unsigned short x, unsigned short y, int z )
         return NULL;
     }
 
-    StaticList vec;
-    MultiList mvec;
+    static StaticList vec;
+    static MultiList mvec;
+	vec.clear();
+	mvec.clear();
     readmultis( vec, x, y, mvec );
 
     if (!mvec.empty())
@@ -359,7 +371,8 @@ bool uo_passable( unsigned short ax, unsigned short ay )
     /*
         * Last chance: does statics0.mul have a water tile here, and no other blocking statics?
         */
-        StaticList vec;
+        static StaticList vec;
+		vec.clear();
         readstatics( vec, ax, ay ); // FIXME is WALKBLOCK right here?
         // readnonboatdynamics
         bool onwater = false;

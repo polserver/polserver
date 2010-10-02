@@ -44,7 +44,8 @@ In standingheight checks there is a nasty bug. Items NOT locked down
 
 bool Realm::lowest_standheight( unsigned short x, unsigned short y, short* z ) const
 {
-    MapShapeList vec;
+    static MapShapeList vec;
+	vec.clear();
     getmapshapes( vec, x, y, FLAG::MOVELAND|FLAG::MOVESEA|FLAG::BLOCKING|FLAG::GRADUAL );
 
     bool res = true;
@@ -57,7 +58,8 @@ void Realm::standheight( MOVEMODE movemode,
                   short oldz, 
                   bool* result_out, short * newz_out, short* gradual_boost ) const
 {
-    MapShapeList possible_shapes;
+    static MapShapeList possible_shapes;
+	possible_shapes.clear();
     bool land_ok = (movemode & MOVEMODE_LAND) ? true : false;
     bool sea_ok  = (movemode & MOVEMODE_SEA) ? true : false;
     bool fly_ok  = (movemode & MOVEMODE_FLY) ? true : false;
@@ -328,17 +330,18 @@ bool Realm::walkheight(unsigned short x, unsigned short y, short oldz,
                 MOVEMODE movemode,
 				short* gradual_boost)
 {
-
-    
     if ( x >= _Descriptor().width || 
          y >= _Descriptor().height )
     {
         return false;
     }
 
-    MapShapeList shapes;
-    MultiList mvec;
-    Items walkon_items;
+    static MapShapeList shapes;
+    static MultiList mvec;
+    static Items walkon_items;
+	shapes.clear();
+	mvec.clear();
+	walkon_items.clear();
     
     readdynamics( shapes, x, y, walkon_items, doors_block /* true */ );
     unsigned int flags=FLAG::MOVE_FLAGS;
@@ -388,9 +391,12 @@ bool Realm::walkheight( const Character* chr, unsigned short x, unsigned short y
         return false;
     }
 
-    MapShapeList shapes;
-    MultiList mvec;
-    Items walkon_items;
+    static MapShapeList shapes;
+    static MultiList mvec;
+    static Items walkon_items;
+	shapes.clear();
+	mvec.clear();
+	walkon_items.clear();
     
     readdynamics( shapes, x, y, walkon_items, chr->doors_block() );
     unsigned int flags=FLAG::MOVE_FLAGS;
@@ -462,9 +468,12 @@ bool Realm::lowest_walkheight(unsigned short x, unsigned short y, short oldz,
         return false;
     }
 
-    MapShapeList shapes;
-    MultiList mvec;
-    Items walkon_items;
+    static MapShapeList shapes;
+    static MultiList mvec;
+    static Items walkon_items;
+	shapes.clear();
+	mvec.clear();
+	walkon_items.clear();
     
     readdynamics( shapes, x, y, walkon_items, doors_block /* true */ );
     unsigned int flags=FLAG::MOVE_FLAGS;
@@ -515,9 +524,12 @@ bool Realm::dropheight( unsigned short dropx,
         return false;
     }
 
-    MapShapeList shapes;
-    MultiList mvec;
-    Items ivec;
+    static MapShapeList shapes;
+    static MultiList mvec;
+    static Items ivec;
+	shapes.clear();
+	mvec.clear();
+	ivec.clear();
     
     readdynamics( shapes, dropx, dropy, ivec, true /* doors_block */ );
     readmultis( shapes, dropx, dropy, FLAG::DROP_FLAGS, mvec );
@@ -720,7 +732,8 @@ bool Realm::navigable( unsigned short x, unsigned short y, short z, short height
 	
 	bool onwater = false;
 
-    MapShapeList shapes;
+    static MapShapeList shapes;
+	shapes.clear();
     
     // possible: readdynamic, readmultis
     getmapshapes( shapes, x, y, FLAG::ALL );
@@ -751,8 +764,10 @@ UMulti* Realm::find_supporting_multi( unsigned short x, unsigned short y, short 
         return NULL;
     }
 
-    MapShapeList vec;
-    MultiList mvec;
+    static MapShapeList vec;
+    static MultiList mvec;
+	vec.clear();
+	mvec.clear();
     readmultis( vec, x, y, FLAG::MOVE_FLAGS, mvec );
 
     return find_supporting_multi( mvec, z );
