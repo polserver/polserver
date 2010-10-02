@@ -3535,9 +3535,9 @@ ItemGivenEvent::ItemGivenEvent( Character* chr_givenby, Item* item_given, NPC* c
 	cont_.set( item_given->container );
 	given_by_.set(chr_givenby);
 
-	auto_ptr<BLong> givenby (new BLong( chr_givenby->serial ));
-	auto_ptr<BLong> givento (new BLong( chr_givento->serial ));
-	auto_ptr<BLong> giventime (new BLong( given_time_ ));
+	BLong* givenby = new BLong( chr_givenby->serial );
+	BLong* givento = new BLong( chr_givento->serial );
+	BLong* giventime = new BLong( given_time_ );
 	item_given->setprop( "GivenBy", givenby->pack() );
 	item_given->setprop( "GivenTo", givento->pack() );
 	item_given->setprop( "GivenTime", giventime->pack() );
