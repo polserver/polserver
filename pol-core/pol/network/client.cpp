@@ -85,6 +85,7 @@ Client::Client( ClientInterface& aInterface, TCryptInfo& encryption ) :
 	UOExpansionFlagClient(0),
 	ClientType(0),
 	next_movement(0),
+	movementsequence(0),
     paused_(false)
 {
 	// For bypassing cryptseed packet
