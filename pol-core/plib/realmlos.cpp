@@ -89,7 +89,8 @@ bool Realm::dynamic_item_blocks_los( const LosObj& att, const LosObj& target,
 
 bool Realm::static_item_blocks_los( unsigned short x, unsigned short y, short z ) const
 {
-    MapShapeList shapes;
+    static MapShapeList shapes;
+	shapes.clear();
 
     getmapshapes( shapes, x, y, FLAG::BLOCKSIGHT );
     readmultis( shapes, x, y, FLAG::BLOCKSIGHT );
