@@ -1262,21 +1262,21 @@ BObjectImp* Character::get_script_member_id( const int id ) const
 		case MBR_CLIENTVERSIONDETAIL:
 			if (client != NULL)
 			{
-				BStruct* info = new BStruct;
+				auto_ptr<BStruct> info (new BStruct);
 				info->addMember("major",  new BLong(client->getversiondetail().major));
 				info->addMember("minor",  new BLong(client->getversiondetail().minor));
 				info->addMember("rev",    new BLong(client->getversiondetail().rev));
 				info->addMember("patch",  new BLong(client->getversiondetail().patch));
-				return info;
+				return info.release();
 			}
 			else
 			{
-				BStruct* info = new BStruct;
+				auto_ptr<BStruct> info (new BStruct);
 				info->addMember("major",  new BLong(0));
 				info->addMember("minor",  new BLong(0));
 				info->addMember("rev",    new BLong(0));
 				info->addMember("patch",  new BLong(0));
-				return info;
+				return info.release();
 			}
 			break;
 
@@ -1932,14 +1932,14 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 
 	case MTH_PRIVILEGES:
 	{
-		BDictionary* dict = new BDictionary;
+		auto_ptr<BDictionary> dict (new BDictionary);
 		ISTRINGSTREAM istrm(all_privs());
 		string tmp;
 		while ( istrm >> tmp )
 		{
 			dict->addMember(new String (tmp), new BLong(setting_enabled(tmp.c_str())));
 		}
-		return dict;
+		return dict.release();
 		break;
 	}
 
@@ -2297,58 +2297,58 @@ ObjArray* Character::GetReportables() const
 
 ObjArray* Character::GetAggressorTo() const
 {
-	ObjArray* arr = new ObjArray;
+	auto_ptr<ObjArray> arr (new ObjArray);
 
 	for( Character::MobileCont::const_iterator itr = aggressor_to_.begin();
 			itr != aggressor_to_.end(); ++itr )
 	{
-		BObjectImp* member = NULL;
+		auto_ptr<BObjectImp> member (NULL);
 		Character* chr = system_find_mobile( (*itr).first->serial);
 		if (chr)
 		{
-			member = new EOfflineCharacterRefObjImp(chr);
+			member.reset(new EOfflineCharacterRefObjImp(chr));
 		}
 		else
 		{
-			member = new BError("Mobile not found");
+			member.reset(new BError("Mobile not found"));
 		}
 
-		BStruct* elem = new BStruct;;
+		auto_ptr<BStruct> elem (new BStruct);
 		elem->addMember( "serial", new BLong( (*itr).first->serial ) );
-		elem->addMember( "ref", member );
+		elem->addMember( "ref", member.release() );
 		elem->addMember( "seconds", new BLong( ( (*itr).second - polclock() ) / POLCLOCKS_PER_SEC ) );
 
-		arr->addElement( elem );
+		arr->addElement( elem.release() );
 	}
-	return arr;
+	return arr.release();
 }
 
 ObjArray* Character::GetLawFullyDamaged() const
 {
-	ObjArray* arr = new ObjArray;
+	auto_ptr<ObjArray> arr (new ObjArray);
 
 	for( Character::MobileCont::const_iterator itr = lawfully_damaged_.begin();
 			itr != lawfully_damaged_.end(); ++itr )
 	{
-		BObjectImp* member = NULL;
+		auto_ptr<BObjectImp> member (NULL);
 		Character* chr = system_find_mobile( (*itr).first->serial);
 		if (chr)
 		{
-			member = new EOfflineCharacterRefObjImp(chr);
+			member.reset(new EOfflineCharacterRefObjImp(chr));
 		}
 		else
 		{
-			member = new BError("Mobile not found");
+			member.reset(new BError("Mobile not found"));
 		}
 
-		BStruct* elem = new BStruct;;
+		auto_ptr<BStruct> elem (new BStruct);
 		elem->addMember( "serial", new BLong( (*itr).first->serial ) );
-		elem->addMember( "ref", member );
+		elem->addMember( "ref", member.release() );
 		elem->addMember( "seconds", new BLong( ( (*itr).second - polclock() ) / POLCLOCKS_PER_SEC ) );
 
-		arr->addElement( elem );
+		arr->addElement( elem.release() );
 	}
-	return arr;
+	return arr.release();
 }
 
 BObjectImp* NPC::get_script_member_id( const int id ) const
@@ -3347,12 +3347,12 @@ BObjectRef EClientRefObjImp::get_member_id( const int id )
 			break;
 		case MBR_CLIENTVERSIONDETAIL:
 			{
-				BStruct* info = new BStruct;
+				auto_ptr<BStruct> info (new BStruct);
 				info->addMember("major",  new BLong(obj_->getversiondetail().major));
 				info->addMember("minor",  new BLong(obj_->getversiondetail().minor));
 				info->addMember("rev",    new BLong(obj_->getversiondetail().rev));
 				info->addMember("patch",  new BLong(obj_->getversiondetail().patch));
-				return BObjectRef(info);
+				return BObjectRef(info.release());
 			}
 			break;
 		case MBR_CLIENTINFO:
@@ -3535,9 +3535,9 @@ ItemGivenEvent::ItemGivenEvent( Character* chr_givenby, Item* item_given, NPC* c
 	cont_.set( item_given->container );
 	given_by_.set(chr_givenby);
 
-	BLong* givenby = new BLong( chr_givenby->serial );
-	BLong* givento = new BLong( chr_givento->serial );
-	BLong* giventime = new BLong( given_time_ );
+	auto_ptr<BLong> givenby (new BLong( chr_givenby->serial ));
+	auto_ptr<BLong> givento (new BLong( chr_givento->serial ));
+	auto_ptr<BLong> giventime (new BLong( given_time_ ));
 	item_given->setprop( "GivenBy", givenby->pack() );
 	item_given->setprop( "GivenTo", givento->pack() );
 	item_given->setprop( "GivenTime", giventime->pack() );

@@ -153,60 +153,87 @@ void handle_walk( Client *client, PKTIN_02 *msg02 )
 {
 	Character *chr = client->chr;
 
-	u8 oldfacing=chr->facing;
+	if ( (client->movementsequence == 0 ) && ( msg02->movenum != 0 ) )
+	{
+		//drop pkt if last request was denied, should fix the "client hopping"
 
-	if (chr->move( msg02->dir ))
-    {
-		// If facing is dir they are walking, check to see if already 4 tiles away
-		// from the person trading with. If so, cancel trading!!!!
-		if ( !ssopt.allow_moving_trade )
-		{
-			if ( chr->is_trading() )
-			{
-				if ( (oldfacing == (msg02->dir& PKTIN_02_FACING_MASK)) && (pol_distance(chr->x, chr->y, chr->trading_with->x, chr->trading_with->y) > 3) )
-				{
-					cancel_trade( chr );
-				}
-			}
-		}
-		client->pause();
-		PktOut_22* msg = REQUESTPACKET(PktOut_22,PKTBI_22_APPROVED_ID);
-		msg->Write(msg02->movenum);
-		msg->Write(client->chr->hilite_color_idx( client->chr ));
-	    client->transmit( &msg->buffer, msg->offset );
-		msg->Test(msg->offset);
-		READDPACKET(msg);
-
-
-	    // FIXME: Make sure we only tell those who can see us.
-	    chr->tellmove();
-
-        send_objects_newly_inrange( client );
-
-	    client->restart();
-    }
-    else
-    {
-		PktOut_21* msg = REQUESTPACKET(PktOut_21,PKTOUT_21_ID);
+		/*PktOut_21* msg = REQUESTPACKET(PktOut_21,PKTOUT_21_ID);
 		msg->Write(msg02->movenum);
 		msg->WriteFlipped(chr->x);
 		msg->WriteFlipped(chr->y);
 		msg->Write(chr->facing);
 		msg->Write(chr->z);
-        client->transmit( &msg->buffer, msg->offset );
+		client->transmit( &msg->buffer, msg->offset );
 		msg->Test(msg->offset);
-		READDPACKET(msg);
-    }
+		READDPACKET(msg);*/
 
-	// here we set the delay for SpeedHackPrevention see Client::SpeedHackPrevention()
-	if (oldfacing == (msg02->dir & PKTIN_02_FACING_MASK))
-	{
-		if( client->chr->on_mount() )
-			client->next_movement += (msg02->dir & PKTIN_02_DIR_RUNNING_BIT) ? PKTIN_02_MOUNT_RUN : PKTIN_02_MOUNT_WALK;
-		else
-			client->next_movement += (msg02->dir & PKTIN_02_DIR_RUNNING_BIT) ? PKTIN_02_FOOT_RUN  : PKTIN_02_FOOT_WALK;
+		return;
 	}
-	else // changing only facing is fast
-		client->next_movement += PKTIN_02_MOUNT_RUN;
+	else
+	{	
+		u8 oldfacing=chr->facing;
+
+		if (chr->move( msg02->dir ))
+		{
+			// If facing is dir they are walking, check to see if already 4 tiles away
+			// from the person trading with. If so, cancel trading!!!!
+			if ( !ssopt.allow_moving_trade )
+			{
+				if ( chr->is_trading() )
+				{
+					if ( (oldfacing == (msg02->dir& PKTIN_02_FACING_MASK)) && (pol_distance(chr->x, chr->y, chr->trading_with->x, chr->trading_with->y) > 3) )
+					{
+						cancel_trade( chr );
+					}
+				}
+			}
+			client->pause();
+			PktOut_22* msg = REQUESTPACKET(PktOut_22,PKTBI_22_APPROVED_ID);
+			msg->Write(msg02->movenum);
+			msg->Write(client->chr->hilite_color_idx( client->chr ));
+			client->transmit( &msg->buffer, msg->offset );
+			msg->Test(msg->offset);
+			READDPACKET(msg);
+
+			client->movementsequence = msg02->movenum;
+			if (client->movementsequence == 255)
+				client->movementsequence = 1;
+			else
+				client->movementsequence++;
+
+
+			// FIXME: Make sure we only tell those who can see us.
+			chr->tellmove();
+
+			send_objects_newly_inrange( client );
+
+			client->restart();
+
+			// here we set the delay for SpeedHackPrevention see Client::SpeedHackPrevention()
+			if (oldfacing == (msg02->dir & PKTIN_02_FACING_MASK))
+			{
+				if( client->chr->on_mount() )
+					client->next_movement += (msg02->dir & PKTIN_02_DIR_RUNNING_BIT) ? PKTIN_02_MOUNT_RUN : PKTIN_02_MOUNT_WALK;
+				else
+					client->next_movement += (msg02->dir & PKTIN_02_DIR_RUNNING_BIT) ? PKTIN_02_FOOT_RUN  : PKTIN_02_FOOT_WALK;
+			}
+			else // changing only facing is fast
+				client->next_movement += PKTIN_02_MOUNT_RUN;
+		}
+		else
+		{
+			PktOut_21* msg = REQUESTPACKET(PktOut_21,PKTOUT_21_ID);
+			msg->Write(msg02->movenum);
+			msg->WriteFlipped(chr->x);
+			msg->WriteFlipped(chr->y);
+			msg->Write(chr->facing);
+			msg->Write(chr->z);
+			client->transmit( &msg->buffer, msg->offset );
+			msg->Test(msg->offset);
+			READDPACKET(msg);
+
+			client->movementsequence = 0;
+		}
+	}
 }
 MESSAGE_HANDLER( PKTIN_02, handle_walk );
