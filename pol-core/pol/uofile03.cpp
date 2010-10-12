@@ -182,7 +182,7 @@ bool uo_walkheight(int x, int y, int oldz,
                 MOVEMODE movemode) 
 {
     
-    if (!VALID_WORLD_LOC(x,y, find_realm(string("britannia")))
+    if (!VALID_WORLD_LOC(x,y, find_realm(string("britannia"))))
     {
         return false;
     }
@@ -283,7 +283,7 @@ bool uo_dropheight(int x, int y, int oldz,
                 UMulti** pmulti) 
 {
     
-    if (!VALID_WORLD_LOC(x,y, find_realm(string("britannia")))
+    if (!VALID_WORLD_LOC(x,y, find_realm(string("britannia"))))
     {
         return false;
     }
@@ -332,7 +332,7 @@ bool uo_lowest_standheight( int x, int y, int* z )
 
 UMulti* uo_find_supporting_multi( unsigned short x, unsigned short y, int z )
 {
-    if (!VALID_WORLD_LOC( x,y, find_realm(string("britannia") ))
+    if (!VALID_WORLD_LOC( x,y, find_realm(string("britannia") )))
     {
         return NULL;
     }
