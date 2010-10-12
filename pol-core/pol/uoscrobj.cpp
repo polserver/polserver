@@ -769,9 +769,14 @@ BObjectImp* UObject::get_script_member_id( const int id ) const
 		case MBR_DIRTY: return new BLong(dirty_ ? 1 : 0); break;
 		case MBR_WEIGHT: return new BLong(weight()); break;
 		case MBR_MULTI:
-			UMulti* multi;
-			if( NULL != (multi = realm->find_supporting_multi(x,y,z)) )
-				return multi->make_ref();
+			if ( realm != NULL )
+			{
+				UMulti* multi;
+				if( NULL != (multi = realm->find_supporting_multi(x,y,z)) )
+					return multi->make_ref();
+				else
+					return new BLong(0);
+			}
 			else
 				return new BLong(0);
 			break;
