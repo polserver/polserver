@@ -2332,7 +2332,6 @@ string format_description( unsigned int polflags, const string& descdef, unsigne
 	int singular = (amount == 1);
 	int plural_handled = 0;
 	int phase = 0; /* 0= first part, 1=plural part, 2=singular part, 3=rest */
-	int rest = 0;
 	char ch;
 	while ('\0' != (ch = *src))
 	{
@@ -2364,49 +2363,12 @@ string format_description( unsigned int polflags, const string& descdef, unsigne
 			else if (singular)
 				desc += ch;
 		}
-		else
 		// if phase == 3 that means there are more words to come, 
 		// lets loop through them to support singular/plural stuff in more than just the first word of the desc.
+		else
 		{
-			rest = 1;
+			desc += ch;
 			phase = 0;
-			while (rest && '\0' != ch)
-			{
-				if (phase == 0)
-				{
-					if (ch == '%')
-					{
-						plural_handled = 1;
-						phase = 1;
-					}
-					else
-					{
-						desc += ch;
-						rest = 0;
-					}
-				}
-				else if (phase == 1)
-				{
-					if (ch == '%')
-						phase = 3;
-					else if (ch == '/')
-						phase = 2;
-					else if (!singular)
-						desc += ch;
-						rest = 0;
-				}
-				else if (phase == 2)
-				{
-					if (ch == '%')
-						phase = 3;
-					else if (singular)
-						desc += ch;
-						rest = 0;
-				}
-				else // more words in the desc phase == 3, continue loop.
-					rest = 1;
-					phase = 0;
-			}
 		}
 		++src;
 	}
