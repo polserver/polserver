@@ -1247,49 +1247,12 @@ int format_description( int argc, char **argv)
 				else if (singular)
 					desc += ch;
 			}
+			// if phase == 3 that means there are more words to come, 
+			// lets loop through them to support singular/plural stuff in more than just the first word of the desc.
 			else
-				// if phase == 3 that means there are more words to come, 
-				// lets loop through them to support singular/plural stuff in more than just the first word of the desc.
 			{
-				rest = 1;
+				desc += ch;
 				phase = 0;
-				while (rest && '\0' != ch)
-				{
-					if (phase == 0)
-					{
-						if (ch == '%')
-						{
-							plural_handled = 1;
-							phase = 1;
-						}
-						else
-						{
-							desc += ch;
-							rest = 0;
-						}
-					}
-					else if (phase == 1)
-					{
-						if (ch == '%')
-							phase = 3;
-						else if (ch == '/')
-							phase = 2;
-						else if (!singular)
-							desc += ch;
-						rest = 0;
-					}
-					else if (phase == 2)
-					{
-						if (ch == '%')
-							phase = 3;
-						else if (singular)
-							desc += ch;
-						rest = 0;
-					}
-					else // more words in the desc phase == 3, continue loop.
-						rest = 1;
-					phase = 0;
-				}
 			}
 			++src;
 		}
