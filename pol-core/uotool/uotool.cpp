@@ -1215,7 +1215,6 @@ int format_description( int argc, char **argv)
 		int singular = (amount == 1);
 		int plural_handled = 0;
 		int phase = 0; /* 0= first part, 1=plural part, 2=singular part, 3=rest */
-		int rest = 0;
 		char ch;
 		while ('\0' != (ch = *src))
 		{
