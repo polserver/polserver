@@ -335,6 +335,8 @@ void Client::setClientType(ClientTypeFlag type)
 	// with fall through !
 	switch (type)
 	{
+	case CLIENTTYPE_7090:
+		ClientType |= CLIENTTYPE_7090;
 	case CLIENTTYPE_UOSA:
 		ClientType |= CLIENTTYPE_UOSA;
     case CLIENTTYPE_7000:

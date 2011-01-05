@@ -398,6 +398,8 @@ void MultiPlacementCursor::send_placemulti( Client* client, unsigned short objty
 	msg->WriteFlipped(xoffset);
 	msg->WriteFlipped(yoffset);
 	msg->offset+=2; // u16 maybe_zoffset
+	if (client->ClientType & CLIENTTYPE_7090)
+		msg->offset+=4;
 	client->transmit( &msg->buffer, msg->offset );
 	msg->Test(msg->offset);
 	READDPACKET(msg);
