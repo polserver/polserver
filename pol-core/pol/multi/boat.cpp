@@ -228,6 +228,11 @@ void send_boat_to_inrange( const UBoat* item, u16 oldx, u16 oldy )
 	msg2->Write(item->z);
 	msg2->offset+=4; // u8 layer, u16 color, u8 flags
 
+	// Client >= 7.0.9.0 ( HSA )
+	PktOut_F3* msg3 = REQUESTPACKET(PktOut_F3,PKTOUT_F3_ID);
+	memcpy( &msg3->buffer, &msg2->buffer, sizeof msg3->buffer );
+	msg3->offset=26; //unk short at the end
+
 	PktOut_1D* msgremove = REQUESTPACKET(PktOut_1D,PKTOUT_1D_ID);
 	msgremove->Write(item->serial_ext);
     
@@ -240,7 +245,9 @@ void send_boat_to_inrange( const UBoat* item, u16 oldx, u16 oldy )
 		if (inrange( client->chr, item ))
         {
             client->pause();
-			if (client->ClientType & CLIENTTYPE_7000)
+			if (client->ClientType & CLIENTTYPE_7090)
+				client->transmit( &msg3->buffer, msg3->offset );
+			else if (client->ClientType & CLIENTTYPE_7000)
 				client->transmit( &msg2->buffer, msg2->offset );
 			else
 				client->transmit( &msg->buffer, len1A );
@@ -258,6 +265,7 @@ void send_boat_to_inrange( const UBoat* item, u16 oldx, u16 oldy )
 	msgremove->Test(msgremove->offset);
 	READDPACKET(msg);
 	READDPACKET(msg2);
+	READDPACKET(msg3);
 	READDPACKET(msgremove);
 }
 

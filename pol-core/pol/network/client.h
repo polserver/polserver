@@ -77,6 +77,7 @@ const struct VersionDetailStruct CLIENT_VER_5020 ={5,0,2,0};
 const struct VersionDetailStruct CLIENT_VER_6017 ={6,0,1,7};
 const struct VersionDetailStruct CLIENT_VER_60142={6,0,14,2};
 const struct VersionDetailStruct CLIENT_VER_7000 ={7,0,0,0};
+const struct VersionDetailStruct CLIENT_VER_7090 ={7,0,9,0};
 
 enum ClientTypeFlag
 {
@@ -88,7 +89,8 @@ enum ClientTypeFlag
 	CLIENTTYPE_60142 = 0x20, // 6.0.14.2 (feature enable 0xb9 size change)
 	CLIENTTYPE_UOKR  = 0x40,
     CLIENTTYPE_7000  = 0x80, // 7.0.0.0  (Gargoyle race)
-	CLIENTTYPE_UOSA  = 0x100
+	CLIENTTYPE_UOSA  = 0x100,
+	CLIENTTYPE_7090  = 0x200 // 7.0.9.0 (High Sea Adventures)
 };
 
 typedef struct

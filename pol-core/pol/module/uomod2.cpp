@@ -294,6 +294,8 @@ BObjectImp* UOExecutorModule::mf_SendBuyWindow(/* character, container, vendor, 
 	PktOut_24* open_window = REQUESTPACKET(PktOut_24,PKTOUT_24_ID);
 	open_window->Write(merchant->serial_ext);
 	open_window->WriteFlipped(static_cast<u16>(0x0030)); // FIXME: Serial of buy gump needs #define or enum?
+	if (chr->client->ClientType & CLIENTTYPE_7090)
+		open_window->WriteFlipped(static_cast<u16>(0x00));
 	transmit( chr->client, &open_window->buffer, open_window->offset );
 	open_window->Test(open_window->offset);
 	READDPACKET(open_window);
