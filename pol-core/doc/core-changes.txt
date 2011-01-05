@@ -1,4 +1,8 @@
 -- POL099 --
+10-22-2010 Turley:
+     Fixed: UOHSA packet changes
+     Added: mobile.clienttype / client.clienttype HSA flag 0x200
+
 09-06-2010 Turley:
      Added: TinyXML based xml reading/writing
      Added: file::OpenXMLFile(filename)

@@ -147,6 +147,8 @@ void send_open_gump( Client *client, const UContainer& cont )
 	PktOut_24* msg = REQUESTPACKET(PktOut_24,PKTOUT_24_ID);
 	msg->Write(cont.serial_ext);
 	msg->WriteFlipped(cont.gump());
+	if (client->ClientType & CLIENTTYPE_7090)
+		msg->WriteFlipped(static_cast<u16>(0x7D));
 	transmit( client, &msg->buffer, msg->offset );
 	msg->Test(msg->offset);
 	READDPACKET(msg);
