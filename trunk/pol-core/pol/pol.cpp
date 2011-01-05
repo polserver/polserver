@@ -1211,13 +1211,12 @@ CLIENT_CHECKPOINT(20);
 			CoreSetSysTrayToolTip( tostring(clients.size()) + " clients connected", ToolTipPrioritySystem );
 		}
 
-		int seconds_wait = 0;
-
 		checkpoint = 8;
 		CLIENT_CHECKPOINT(10);
 		if(client->chr)
 		{
 //			if (1)
+			int seconds_wait = 0;
 			{
 				CLIENT_CHECKPOINT(11);
 				PolLock lck;
@@ -1998,11 +1997,11 @@ void Check_libc_version()
 	int main_version = 0;
 	int sub_version = 0;
 	int build = 0;
-	char delimiter;
 	ISTRINGSTREAM is( libc_version );
 
 	if (is >> main_version)
 	{
+		char delimiter;
 		if (is >> delimiter >> sub_version)
 		{
 			is >> delimiter >> build;
@@ -2065,7 +2064,7 @@ int xmain_inner( int argc, char *argv[] )
 
 	cout << progverstr << " (" << polbuildtag << ")" << endl;
 	cout << "compiled on " << compiledate << " " << compiletime << endl;
-	cout << "Copyright (C) 1993-2010 Eric N. Swanson" << endl;
+	cout << "Copyright (C) 1993-2011 Eric N. Swanson" << endl;
 	cout << endl;
 
 	checkpoint( "opening logfiles" );
