@@ -144,7 +144,7 @@ static unsigned int s_box[1024] =
 };
 
 // Key Table
-static unsigned char key_table[CRYPT_GAMEKEY_COUNT][6] =
+static unsigned char key_table[CRYPT_GAMEKEY_COUNT][CRYPT_GAMEKEY_LENGTH] =
 {
 	{ 0x91, 0x3C, 0x2B, 0x0F, 0x44, 0xC6 },
 	{ 0x0C, 0x96, 0xD2, 0x40, 0x93, 0x21 },
@@ -363,22 +363,20 @@ void BlowFish::InitTables()
 		memcpy(s_table[tempKey], s_box, sizeof(s_box));
 
 		unsigned char *pAct = key_table[tempKey];
-		unsigned char *pEnd = key_table[tempKey + 1];
+		int j = 0;
 
 		for(int i = 0; i < 18; i++)
 		{
-			unsigned int mask = *pAct++;		
-			if(pAct >= pEnd) pAct = key_table[tempKey];
-
-			mask = ( mask << 8) | *pAct++;
-			if(pAct >= pEnd) pAct = key_table[tempKey];
-
-			mask = ( mask << 8) | *pAct++;
-			if(pAct >= pEnd) pAct = key_table[tempKey];
-
-			mask = ( mask << 8) | *pAct++;
-			if(pAct >= pEnd) pAct = key_table[tempKey];
-
+			unsigned int mask = 0x00000000;
+			for (int k = 0; k < 4; ++k) 
+			{
+				mask = (mask << 8) | *pAct++;
+				if (++j >= CRYPT_GAMEKEY_LENGTH)
+				{
+					j = 0;
+					pAct = key_table[tempKey];
+				}
+			}
 			p_table[tempKey][i] ^= mask;
 		}
 
