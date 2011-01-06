@@ -979,7 +979,7 @@ void client_io_thread( Client* client )
 	int checkpoint = 0;
 	int nidle = 0;
 	polclock_t last_activity;
-	wallclock_t last_packet_at  = wallclock();
+	polclock_t last_packet_at  = polclock();
 	if (config.loglevel >= 11)
 	{
 		Log( "Client#%lu i/o thread starting\n", client->instance_ );
@@ -1140,7 +1140,7 @@ client->checkpoint = 61; //CNXBUG
 					PolLock lck;
 
 					//reset packet timer
-					last_packet_at = wallclock();					
+					last_packet_at = polclock();					
 					if (!check_inactivity(client)) 
 					{
 						nidle = 0;
@@ -1158,8 +1158,8 @@ client->checkpoint = 61; //CNXBUG
 			}
 			checkpoint = 6;
 
-			wallclock_t wallclock_now = wallclock();
-			if (wallclock_diff_ms( last_packet_at, wallclock_now ) >= 120000) //2 mins
+			polclock_t polclock_now = polclock();
+			if ((polclock_now - last_packet_at) >= 120000) //2 mins
 			{
 			   client->disconnect = true;
 			   break;
