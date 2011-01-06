@@ -190,6 +190,7 @@ int tiledump( int argc, char **argv )
 			recnum = 0;
 
 	}
+	fclose(fp);
     return 0;
 }
 
@@ -215,8 +216,8 @@ int verlandtile( int argc, char **argv )
 {
 	USTRUCT_LAND_TILE landtile;
     
-    	open_uo_data_files();
-    	read_uo_data();
+    open_uo_data_files();
+    read_uo_data();
 
 	int i;
 	for( i = 0; i <= 0x3FFF; i++ )
@@ -568,6 +569,7 @@ int rawdump( int argc, char **argv )
 	{
 		if (fread( buffer, hdrlen, 1, fp ) != 1)
 		{	
+			fclose(fp);
 			return 1;
 		}
 		printf( "Header:\n" );
@@ -581,6 +583,7 @@ int rawdump( int argc, char **argv )
 		++recnum;
 	}
 	printf( "%ld records read.\n",static_cast<signed long>(recnum));
+	fclose(fp);
 	return 0;
 }
 
@@ -593,10 +596,10 @@ unsigned int read_ulong( istream& is )
 
 int print_sndlist( int argc, char **argv )
 {
-        unsigned int offset;
-        unsigned int length;
-        unsigned int serial;
-        char filename[ 15 ];
+    unsigned int offset;
+    unsigned int length;
+    unsigned int serial;
+    char filename[ 15 ];
 
     string soundidxname = config.uo_datafile_root + "soundidx.mul";
     string soundname = config.uo_datafile_root + "sound.mul";
@@ -995,6 +998,7 @@ int contour( int argc, char **argv )
     ofstream ofs( "contour.dat", ios::trunc|ios::out|ios::binary );
     ofs.write( reinterpret_cast<const char*>(mc), sizeof(MapContour) );
 	clear_tiledata();
+	delete mc;
     return 0;
 }
 
@@ -1185,6 +1189,8 @@ int defragstatics( int argc, char **argv )
     }
 
     cout << "\rRewriting statics files: Complete" << endl;
+    fclose(fidx);
+    fclose(fmul);
     return 0;
 }
 
