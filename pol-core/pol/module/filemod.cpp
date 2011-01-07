@@ -4,6 +4,7 @@ History
 2005/04/31 Shinigami: mf_LogToFile - added flag to log Core-Style DateTimeStr in front of log entry
 2006/09/27 Shinigami: GCC 3.4.x fix - added "template<>" to TmplExecutorModule
 2009/12/18 Turley:    added CreateDirectory() & ListDirectory()
+2011/01/07 Nando:     mf_LogToFile - check the return of strftime
 
 Notes
 =======
@@ -485,8 +486,8 @@ BObjectImp* FileAccessExecutorModule::mf_LogToFile()
 			struct tm* tm_now = localtime( &now );
 			
 			char buffer[30];
-			strftime( buffer, sizeof buffer, "%m/%d %H:%M:%S", tm_now );
-			ofs << "[" << buffer << "] ";
+			if (strftime( buffer, sizeof buffer, "%m/%d %H:%M:%S", tm_now ) > 0)
+				ofs << "[" << buffer << "] ";
 		}
 		
 		ofs << textline->value() << endl;
