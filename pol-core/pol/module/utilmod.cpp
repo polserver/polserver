@@ -3,6 +3,7 @@ History
 =======
 2006/10/07 Shinigami: GCC 3.4.x fix - added "template<>" to TmplExecutorModule
 2008/07/08 Turley:    Added mf_RandomIntMinMax - Return Random Value between...
+2011/01/07 Nando:     fix uninit in mf_StrFormatTime - strftime's return is now tested
 
 Notes
 =======
@@ -179,8 +180,9 @@ BObjectImp* UtilExecutorModule::mf_StrFormatTime()
 	}
 
 	char buffer[102]; // +2 for the \0 termination.
-	strftime(buffer, sizeof buffer, format_string->data(), time_struct);
-
-	return new String(buffer);
+	if (strftime(buffer, sizeof buffer, format_string->data(), time_struct) > 0)
+	  return new String(buffer);
+	else
+	  return new BError("Format string too long.");
 }
 
