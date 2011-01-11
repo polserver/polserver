@@ -23,11 +23,15 @@ _STLP_TEMPLATE_NULL struct myhash<UObject*> {
 class ObjectHash
 {
 public:
+# if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3 )
+	typedef unordered_set<u32> ds;
+	typedef unordered_map<u32,UObjectRef> hs;
+# else
+	typedef hash_set<u32> ds;
 	typedef hash_map<u32,UObjectRef> hs;
+# endif
 	typedef hs::iterator OH_iterator;
 	typedef hs::const_iterator OH_const_iterator;
-
-    typedef hash_set<u32> ds;
 
 	ObjectHash();
 	~ObjectHash();
