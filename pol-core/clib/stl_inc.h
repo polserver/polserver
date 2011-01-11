@@ -65,13 +65,18 @@ Notes
 
       namespace SGI { using ::hash_map; using ::hash_set; }; // inherit globals
     #else
-      #include <ext/hash_map>
-      #include <ext/hash_set>
-      #if __GNUC_MINOR__ == 0
-        namespace SGI = std;               // GCC 3.0
-      #else
-        namespace SGI = ::__gnu_cxx;       // GCC 3.1 and later
-      #endif
+       #if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3 )
+         #include <tr1/unordered_map>
+         #include <tr1/unordered_set>
+       #else     
+         #include <ext/hash_map>
+         #include <ext/hash_set>
+         #if __GNUC_MINOR__ == 0
+           namespace SGI = std;               // GCC 3.0
+         #else
+           namespace SGI = ::__gnu_cxx;       // GCC 3.1 and later
+         #endif
+       #endif
     #endif
   #else
     #include <hash_map>
@@ -200,8 +205,13 @@ Notes
 			using stdext::hash_set;
 #		endif
 #	else
+#     if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3 )
+		using std::tr1::unordered_map;
+		using std::tr1::unordered_set;
+#     else
 		using SGI::hash_map;
 		using SGI::hash_set;
+#     endif
 #	endif
 
 #endif
