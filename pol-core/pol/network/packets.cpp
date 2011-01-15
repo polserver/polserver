@@ -16,7 +16,7 @@ Notes
 
 #include "../../clib/rawtypes.h"
 #include "../../clib/logfile.h"
-#include "../polsem.h"
+#include "../../clib/hbmutex.h"
 #include "packets.h"
 
 PacketsSingleton::PacketsSingleton()
@@ -135,16 +135,18 @@ void PacketsSingleton::ReAddPacket(PacketInterface* pkt)
 PacketInterface* PacketQueueSingle::GetNext(u8 id, u16 sub)
 {
 	//critical start
-	PolLock lck;
+	mymutex.lock();
+	PacketInterface* pkt;
 	if (!packets.empty()) 
 	{
-		PacketInterface* pkt = packets.front(); // get next one
+		pkt = packets.front(); // get next one
 		packets.pop(); // and remove it from queue
 		pkt->ReSetBuffer();
-		return pkt;
 	}
 	else 
-		return GetPacket(id);
+		pkt = GetPacket(id);
+	mymutex.unlock();
+	return pkt;
 	//critical end
 }
 
@@ -165,9 +167,10 @@ void PacketQueueSingle::Add(PacketInterface* pkt)
 	else
 	{
 		//critical start
-		PolLock lck;
+		mymutex.lock();
 		pkt->Log();
 		packets.push(pkt); // readd it
+		mymutex.unlock();
 		//critical end
 	}
 }
@@ -189,7 +192,8 @@ PacketQueueSubs::~PacketQueueSubs()
 PacketInterface* PacketQueueSubs::GetNext(u8 id, u16 sub)
 {
 	//critical start
-	PolLock lck;
+	mymutex.lock();
+	PacketInterface* pkt;
 	if (!packets.empty()) 
 	{
 		PacketInterfaceQueueMap::iterator itr = packets.find(sub);
@@ -197,14 +201,17 @@ PacketInterface* PacketQueueSubs::GetNext(u8 id, u16 sub)
 		{
 			if (!itr->second.empty())
 			{
-				PacketInterface* pkt = itr->second.front(); // get next one
+				pkt = itr->second.front(); // get next one
 				itr->second.pop();  // and remove it from queue
 				pkt->ReSetBuffer();
+				mymutex.unlock();
 				return pkt;
 			}
 		}
 	}
-	return GetPacket(id,sub);
+	pkt = GetPacket(id,sub);
+	mymutex.unlock();
+	return pkt;
 	//critical end
 }
 
@@ -212,7 +219,7 @@ void PacketQueueSubs::Add(PacketInterface* pkt)
 {
 	u16 sub=pkt->getSubID();
 	//critical start
-	PolLock lck;
+	mymutex.lock();
 	pkt->Log();
 	PacketInterfaceQueueMap::iterator itr = packets.find(sub);
 	if (itr != packets.end())
@@ -228,6 +235,7 @@ void PacketQueueSubs::Add(PacketInterface* pkt)
 		qu.push(pkt);
 		packets.insert(PacketInterfaceQueuePair(sub,qu));
 	}
+	mymutex.unlock();
 	//critical end
 }
 
