@@ -9,7 +9,7 @@ Notes
 
 #ifndef CLIB_SINGLETON_H
 #define CLIB_SINGLETON_H
-#include "../pol/polsem.h"
+#include "hbmutex.h"
 
 template <typename T>
 class Singleton
@@ -21,17 +21,19 @@ class Singleton
 		{
 			if (!_instance)
 			{
-				PolLock lck; //critical double check
+				singleton_mutex.lock(); //critical double check
 				if (!_instance)
 				{
 					_instance = new T();
 					atexit(&Singleton<T>::_cleanup);
 				}
+				singleton_mutex.unlock();
 			}
 			return _instance;
 		}
 	private:
 		static T* _instance;
+		static Mutex singleton_mutex;
 	protected:
 		Singleton() { }
 		~Singleton() { }
@@ -40,6 +42,7 @@ class Singleton
 		Singleton& operator=( Singleton& );
 };
 template <typename T> T* Singleton <T>::_instance = NULL;
+template <typename T> Mutex Singleton <T>::singleton_mutex;
 
 #endif
 

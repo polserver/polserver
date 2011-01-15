@@ -161,6 +161,7 @@ cpp_sources = \
 	clib/xmain.cpp \
 	clib/unicode.cpp \
 	clib/pkthelper.cpp \
+	clib/hbmutex.cpp \
 	pol/xmlfilescrobj.cpp #\
 #	gp/gendef.cpp gp/gphelp.cpp gp/gtree.cpp \
 #	gp/treegen.cpp
@@ -259,46 +260,46 @@ release: bin/pol bin/ecompile bin/runecl bin/uoconvert bin/uotool
 dynrelease: bin/pol-dynamic bin/ecompile-dynamic bin/runecl-dynamic bin/uoconvert-dynamic bin/uotool-dynamic
 
 bin/pol: $(objects)
-	$(LINKER) $(CXX_OPTS) -static -Xlinker -Map -Xlinker pol.map -o bin/pol $(objects) -l$(LIB_STL) -lpthread -lm -l$(LIBCRYPT) -lz $(LIB_MORE)
+	$(LINKER) $(CXX_OPTS) -static -Xlinker -Map -Xlinker pol.map -o bin/pol $(objects) -l$(LIB_STL) -lpthread -lrt -lm -l$(LIBCRYPT) -lz $(LIB_MORE)
 
 bin/ecompile: $(ecompile_objects)
-	$(LINKER) $(CXX_OPTS) -static -o bin/ecompile $(ecompile_objects) -l$(LIB_STL) -lpthread -lm $(LIB_MORE)
+	$(LINKER) $(CXX_OPTS) -static -o bin/ecompile $(ecompile_objects) -l$(LIB_STL) -lpthread -lrt -lm $(LIB_MORE)
 
 bin/runecl: $(runecl_objects)
-	$(LINKER) $(CXX_OPTS) -static -o bin/runecl $(runecl_objects) -l$(LIB_STL) -lpthread -lm $(LIB_MORE)
+	$(LINKER) $(CXX_OPTS) -static -o bin/runecl $(runecl_objects) -l$(LIB_STL) -lpthread -lrt -lm $(LIB_MORE)
 
 bin/uoconvert: $(uoconvert_objects)
-	$(LINKER) $(CXX_OPTS) -static -o bin/uoconvert $(uoconvert_objects) -l$(LIB_STL) -lpthread -lm $(LIB_MORE)
+	$(LINKER) $(CXX_OPTS) -static -o bin/uoconvert $(uoconvert_objects) -l$(LIB_STL) -lpthread -lrt -lm $(LIB_MORE)
 
 bin/uotool: $(uotool_objects)
-	$(LINKER) $(CXX_OPTS) -static -o bin/uotool $(uotool_objects) -l$(LIB_STL) -lpthread -lm $(LIB_MORE)
+	$(LINKER) $(CXX_OPTS) -static -o bin/uotool $(uotool_objects) -l$(LIB_STL) -lpthread -lrt -lm $(LIB_MORE)
 
 bin/poltool: $(poltool_objects)
-	$(LINKER) $(CXX_OPTS) -static -o bin/poltool $(poltool_objects) -l$(LIB_STL) -lpthread -lm $(LIB_MORE)
+	$(LINKER) $(CXX_OPTS) -static -o bin/poltool $(poltool_objects) -l$(LIB_STL) -lpthread -lrt -lm $(LIB_MORE)
 
 
 debug: $(objects_debug)
-	$(LINKER) $(CXX_OPTS) -static -Xlinker -Map -Xlinker poldebug.map -o bin/poldebug $(objects_debug) -l$(LIB_STL) -lpthread -lm -l$(LIBCRYPT) -lz $(LIB_MORE)
+	$(LINKER) $(CXX_OPTS) -static -Xlinker -Map -Xlinker poldebug.map -o bin/poldebug $(objects_debug) -l$(LIB_STL) -lpthread -lrt -lm -l$(LIBCRYPT) -lz $(LIB_MORE)
 
 # -lSegFault
 ### DYNAMIC-LINK VERSIONS ###
 bin/pol-dynamic: $(objects)
-	$(LINKER) $(CXX_OPTS) -o bin/pol-dynamic $(objects) -l$(LIB_STL) -lpthread -lm -l$(LIBCRYPT) -lz $(LIB_MORE)
+	$(LINKER) $(CXX_OPTS) -o bin/pol-dynamic $(objects) -l$(LIB_STL) -lpthread -lrt -lm -l$(LIBCRYPT) -lz $(LIB_MORE)
 
 bin/ecompile-dynamic: $(ecompile_objects)
-	$(LINKER) $(CXX_OPTS) -o bin/ecompile-dynamic $(ecompile_objects) -l$(LIB_STL) -lpthread -lm $(LIB_MORE)
+	$(LINKER) $(CXX_OPTS) -o bin/ecompile-dynamic $(ecompile_objects) -l$(LIB_STL) -lpthread -lrt -lm $(LIB_MORE)
 
 bin/runecl-dynamic: $(runecl_objects)
-	$(LINKER) $(CXX_OPTS) -o bin/runecl-dynamic $(runecl_objects) -l$(LIB_STL) -lpthread -lm $(LIB_MORE)
+	$(LINKER) $(CXX_OPTS) -o bin/runecl-dynamic $(runecl_objects) -l$(LIB_STL) -lpthread -lrt -lm $(LIB_MORE)
 
 bin/uoconvert-dynamic: $(uoconvert_objects)
-	$(LINKER) $(CXX_OPTS) -o bin/uoconvert-dynamic $(uoconvert_objects) -l$(LIB_STL) -lpthread -lm $(LIB_MORE)
+	$(LINKER) $(CXX_OPTS) -o bin/uoconvert-dynamic $(uoconvert_objects) -l$(LIB_STL) -lpthread -lrt -lm $(LIB_MORE)
 
 bin/uotool-dynamic: $(uotool_objects)
-	$(LINKER) $(CXX_OPTS) -o bin/uotool-dynamic $(uotool_objects) -l$(LIB_STL) -lpthread -lm $(LIB_MORE)
+	$(LINKER) $(CXX_OPTS) -o bin/uotool-dynamic $(uotool_objects) -l$(LIB_STL) -lpthread -lrt -lm $(LIB_MORE)
 
 dyndebug: $(objects_debug)
-	$(LINKER) $(CXX_OPTS) -o bin/poldyndebug $(objects_debug) -l$(LIB_STL) -lpthread -lm -l$(LIBCRYPT) -lz $(LIB_MORE)
+	$(LINKER) $(CXX_OPTS) -o bin/poldyndebug $(objects_debug) -l$(LIB_STL) -lpthread -lrt -lm -l$(LIBCRYPT) -lz $(LIB_MORE)
 
 clean:
 	rm -f $(objects) $(clib_objects) $(ecompile_objects) $(runecl_objects) $(uoconvert_objects)

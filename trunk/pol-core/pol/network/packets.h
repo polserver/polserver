@@ -18,6 +18,7 @@ Notes
 #include "../../clib/passert.h"
 #include "../../clib/rawtypes.h"
 #include "../../clib/singleton.h"
+#include "../../clib/hbmutex.h"
 #include "../../clib/strutil.h"
 #include "../layers.h"
 #include "../pktboth.h"
@@ -72,6 +73,7 @@ class PacketQueueSingle : public PacketQueue
 		~PacketQueueSingle();
 	private:
 		PacketInterfaceQueue packets;
+		Mutex mymutex;
 	public:
 		PacketInterface* GetNext(u8 id, u16 sub=0);
 		void Add(PacketInterface* pkt);
@@ -86,6 +88,7 @@ class PacketQueueSubs : public PacketQueue
 		~PacketQueueSubs();
 	private:
 		PacketInterfaceQueueMap packets;
+		Mutex mymutex;
 	public:
 		PacketInterface* GetNext(u8 id, u16 sub=0);
 		void Add(PacketInterface* pkt);
