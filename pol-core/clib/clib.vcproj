@@ -237,6 +237,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\hbmutex.cpp"
+				>
+			</File>
+			<File
 				RelativePath="iohelp.cpp"
 				>
 			</File>
@@ -428,6 +432,10 @@
 			</File>
 			<File
 				RelativePath=".\fixalloc.h"
+				>
+			</File>
+			<File
+				RelativePath=".\hbmutex.h"
 				>
 			</File>
 			<File

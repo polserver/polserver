@@ -55,14 +55,11 @@ void polsem_lock();
 void polsem_unlock();
 #endif // not _WIN32
 
-bool HasLock();
 class PolLock
 {
 public:
-	PolLock() : hadlock(false) { if (HasLock()) hadlock = true; else polsem_lock(); }
-    ~PolLock() { if (!hadlock) polsem_unlock(); }
-private:
-	bool hadlock;
+	PolLock() { polsem_lock(); }
+    ~PolLock() { polsem_unlock(); }
 };
 
 class PolLock2
