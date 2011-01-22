@@ -52,11 +52,11 @@ void read_justice_zones()
 bool JusticeRegion::RunEnterScript(Character* chr)
 {
 	if ( enter_script_.empty() )
-	{
 		return false;
-	}
 
-	ScriptDef sd(enter_script_, 0);
+	ScriptDef sd;
+	if (!sd.config_nodie( enter_script_, 0, 0 ))
+		return false;
 	if ( !sd.exists() )
 		return false;
     
@@ -67,11 +67,11 @@ bool JusticeRegion::RunEnterScript(Character* chr)
 bool JusticeRegion::RunLeaveScript(Character* chr)
 {
 	if ( leave_script_.empty() )
-	{
 		return false;
-	}
 
-	ScriptDef sd(leave_script_, 0);
+	ScriptDef sd;
+	if (!sd.config_nodie( leave_script_, 0, 0 ))
+		return false;
 	if ( !sd.exists() )
 		return false;
     
