@@ -73,7 +73,7 @@ class PacketQueueSingle : public PacketQueue
 		~PacketQueueSingle();
 	private:
 		PacketInterfaceQueue packets;
-		Mutex mymutex;
+		Mutex _PacketQueueSingleMutex;
 	public:
 		PacketInterface* GetNext(u8 id, u16 sub=0);
 		void Add(PacketInterface* pkt);
@@ -88,7 +88,7 @@ class PacketQueueSubs : public PacketQueue
 		~PacketQueueSubs();
 	private:
 		PacketInterfaceQueueMap packets;
-		Mutex mymutex;
+		Mutex _PacketQueueSubsMutex;
 	public:
 		PacketInterface* GetNext(u8 id, u16 sub=0);
 		void Add(PacketInterface* pkt);

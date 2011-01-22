@@ -135,7 +135,7 @@ void PacketsSingleton::ReAddPacket(PacketInterface* pkt)
 PacketInterface* PacketQueueSingle::GetNext(u8 id, u16 sub)
 {
 	//critical start
-	mymutex.lock();
+	_PacketQueueSingleMutex.lock();
 	PacketInterface* pkt;
 	if (!packets.empty()) 
 	{
@@ -145,7 +145,7 @@ PacketInterface* PacketQueueSingle::GetNext(u8 id, u16 sub)
 	}
 	else 
 		pkt = GetPacket(id);
-	mymutex.unlock();
+	_PacketQueueSingleMutex.unlock();
 	return pkt;
 	//critical end
 }
@@ -167,10 +167,10 @@ void PacketQueueSingle::Add(PacketInterface* pkt)
 	else
 	{
 		//critical start
-		mymutex.lock();
+		_PacketQueueSingleMutex.lock();
 		pkt->Log();
 		packets.push(pkt); // readd it
-		mymutex.unlock();
+		_PacketQueueSingleMutex.unlock();
 		//critical end
 	}
 }
@@ -192,7 +192,7 @@ PacketQueueSubs::~PacketQueueSubs()
 PacketInterface* PacketQueueSubs::GetNext(u8 id, u16 sub)
 {
 	//critical start
-	mymutex.lock();
+	_PacketQueueSubsMutex.lock();
 	PacketInterface* pkt;
 	if (!packets.empty()) 
 	{
@@ -204,13 +204,13 @@ PacketInterface* PacketQueueSubs::GetNext(u8 id, u16 sub)
 				pkt = itr->second.front(); // get next one
 				itr->second.pop();  // and remove it from queue
 				pkt->ReSetBuffer();
-				mymutex.unlock();
+				_PacketQueueSubsMutex.unlock();
 				return pkt;
 			}
 		}
 	}
 	pkt = GetPacket(id,sub);
-	mymutex.unlock();
+	_PacketQueueSubsMutex.unlock();
 	return pkt;
 	//critical end
 }
@@ -219,7 +219,7 @@ void PacketQueueSubs::Add(PacketInterface* pkt)
 {
 	u16 sub=pkt->getSubID();
 	//critical start
-	mymutex.lock();
+	_PacketQueueSubsMutex.lock();
 	pkt->Log();
 	PacketInterfaceQueueMap::iterator itr = packets.find(sub);
 	if (itr != packets.end())
@@ -235,7 +235,7 @@ void PacketQueueSubs::Add(PacketInterface* pkt)
 		qu.push(pkt);
 		packets.insert(PacketInterfaceQueuePair(sub,qu));
 	}
-	mymutex.unlock();
+	_PacketQueueSubsMutex.unlock();
 	//critical end
 }
 
