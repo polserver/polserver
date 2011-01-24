@@ -1,0 +1,328 @@
+Development Changes - stuff that really doesn't belong in core-changes.txt
+-------------------   (or, that does belong there, just not yet)
+
+Format:
+Date, Author, Files changed, Description of change
+---
+2010-07-09 Nando
+      Fixed: strncpy(dst,src,n) does not always null-terminate the string dst. (in ssopt_parse_totalstat())
+
+2009-08-18 MuadDib
+    Changed: Core now disconnects all online clients to initiate the cleanup sequence after data is saved during
+             shutdown. Should avoid any and all client/char/combat crashes during shutdown.
+
+2009-08-03 MuadDib
+    Note:    Remember, when working with adding new Message Handlers for incoming packets, if a packet has changed
+             since the original (structure), there is a special way for the core to know this. You need to set up
+             the new "struct" for it in the appropriate "pkt*.h" files, and for the MESSAGE_HANDLER line you need
+             to use MESSAGE_HANDLER_V2() instead. This registeres the second structure type of the packet in the
+             core's secondary Handler. See packet 0xB9 for one example and Drop Item packet for incoming.
+             
+2009-07-18 Turley
+    Changed: Shadowrealms have now an ID saved inside a map<id,realm*> used for threadsafe identification of
+             an deleted realm (decay)
+    Note:    I think there is still a chance that decay thread can crash, maybe its better to only set a orphan flag
+             on DeleteRealm and destroy the realm inside the decay thread
+
+2009-06-26 Turley
+    Fixed: Memoryleak inside datastore (no Deconstructors)
+    Fixed: (no idea if really) linux crash if http thread couldnt start removed passert check
+
+2009-05-26 Turley
+    Fixed: (hopefully) crash on Shutdown inside schedule_attack() exit_signalled checks inside set_opponent()
+           to skip the functions
+
+2009-03-30 Nando
+    Fixed:  Character::start_script() will now return false if the passert() would be triggered. No need to
+            crash POL with a passert() if its recoverable. The passert() error was probably caused by the fact
+            that spells are scheduled to happen always in 'now', which is useless and unnecessary. It only opens
+            the possibility that the script will try to be run with another one already running... read to-do.txt
+            for 099 to see what I mean.
+            
+2009-03-22 MuadDib
+  Changed: void return_resources( u16 objtype, u16 amount ). Will now skip if exit_signalled is true. It was
+           causing crashes during shutdown due to item cleanup, and it trying to produce more world resources
+           for an item's cleanup after the ResourceDef was already emptied.
+           
+2009-03-05 Nando
+    Added: Custom house now has the correct packet handlers.
+    Added: Check on SendHousingTool() to check if the house is custom (must set with multi.setcustom(1))
+     Note: The system is still very insecure, and should be made more customizable. Overall, what we had
+           of code is working and bug free (so it seems). :)
+
+2009-03-05 Nando
+    Added: send_sysmessage_cl_affix(), say_above_cl_affix() and  private_say_above_cl_affix() to clfunc.cpp.
+     Note: need to add the eScript functions in clemod.cpp  
+             
+2009-03-01 Nando
+  Changed: Thread status report will now say how many child_threads and what's the size() of ThreadMap
+           contents.
+
+2009-02-25 MuadDib
+  Changed: Rewrote transmit_to_inrange and transmit to others. They now use a bool of true/false
+           to decide if this is going to a >= 6017 client.
+  
+2009-02-02 MuadDib
+  * Added: Initial code for AOS Resistances. These are purely for storage, mods, and Statmsg
+           handling right now. Still need to throw in checks in core cmbt and places that will
+           need to know which to check for stuff like Statmsg does now.
+           
+2009-01-26 Nando
+  * Added: Cleanup of Repsys Hooks
+  * Changed: VersionClientStruct is now declared on the stack when needed, instead of the heap.
+             (Like ConfigElem's) 
+2009-01-26 Turley
+  * Added: Cleanup of syshooks
+
+2009-01-25 Turley
+  * Added:
+           (#define LEAKFINDER) - Added to xmain.cpp. Use this to detect memory leaks in
+           the core. Remember, this must be uncommented, and compiled using Debug mode, not
+           Release. :)
+           
+2009-01-25 MuadDib
+  * Changed:
+           is_banned_ips() no longer loads the bannedips.cfg file every client
+           login attempt. Now it is loaded via new function in bannedips.cpp and
+           a struct/vector holds the cfg info (created in bannedips.h that I added).
+           It reloads it with reload configuration too now. Much cleaner.
+           
+2009-01-22 Turley
+  * Fixed: 
+           Cleanup of
+           Spells::spellcircles & spells2
+           UOSkills::uoskills
+           PacketHookData::clean_packethooks() to call the deconstructor
+           ItemDesc::objtype_byname & old_objtype_conversions
+           Pkg::packages_byname
+           Polwww::mime_types
+
+2009-01-21 Turley
+  * Fixed: Cleanup of 
+           Attribute::attributes_byname & attributes
+           BoatShapes::boatshapes
+           CmdLevel::cmdlevels2
+  * Added: added resourcedefs.clear() to Resource::clean_resources()
+  * Changed: changed delete_all(vitals) to Vital::clean_vital() to also cleanup vitals_byname 
+  * Note:  never try to delete a vector like *_byname which contains aliases results in an crash cause
+           it tries to access bad pointer...
+
+2009-01-20 Nando
+	* Fixed: Leak in RegionGroup, was missing deleting all the Region's from regions_ vector. :)
+	* Fixed: clean_resources() from resource.cpp was calling "delete[] (*itr).second", but
+	         it should be "delete (*itr).second" as far as I know, as it's being allocated by
+	         calling "new something" and not "new something[count]". :)
+	         
+2009-01-19 Nando
+    * Fixed: unload_packages() wasn't being called in pol.cpp during cleanup.
+    * Fixed: unload_aux_services() wasn't being called in pol.cpp during cleanup, nor was it prototyped
+             there. One less leak. Thanks Turley for running the leak analyzer! ;)
+             
+2009-01-18 Nando
+    * Added: clean_multidefs() will now run at the end of cleanup_vars().  
+    * Fixed: 'vitals' wasn't being deleted. Added delete_all(vitals) to uvars.cpp.
+    * Added: There was no ~Vital(). Added one to delete the exported functions.
+    * Fixed: ~Realm() was crashing because of delete[] *zone instead of delete[] zone. :)
+    * Fixed: the vector<Realm*>* Realms was leaking on shutdown. Added delete_all(*Realms) and delete Realms
+             to the end of cleanup_vars().
+    * Added: clean_multidefs() to multidef.cpp. Just need to find a good place to call it...
+    * Note: anti-leak brigade began today.
+    
+2008-12-31 Nando
+    * Fixed: Internal webserver's thread wasn't using pthread_exit / _endthreadex,
+             and never called threadmap::Register() if WIN32 was defined. (Maybe 
+             change www to use threadhelp::start_thread()?)
+    * Note:  This fix will possibly give us information about zombie connections... *hopeful*
+    * Added: Even though I think run_thread() with no args in threadhelp.cpp is never called, added
+	         error printing when catching an exception.
+	         
+2008-12-16 MuadDib
+    * Note: A Function that returns a BObject/BObjectImp that is not set to a variable
+            or passed directly to a calling eScript causes a memory leak.
+            aka, if not done like : return SetSize(newsize); // where SetSize returns BObjectImp
+            instead done like : SetSize(newsize); // where SetSize returns BObjectImp
+            
+2007-03-08 Shinigami
+    * Added pthread_exit and _endhreadex to handle thread closing as intended
+
+2007-01-01 MuadDib
+    * NOTE: In standingheight checks there is a nasty bug. Items NOT locked down
+            (unmovable), are NOT being checked correctly to block movement.
+
+2006-10-07 Shinigami
+    * FreeBSD must use stdlib.h instead of malloc.h.
+      Linux can use stdlib.h but malloc_usable_size is decleared in malloc.h only.
+      Win can use stdlib.h but _HEAPINFO is decleared in malloc.h only.
+    * FreeBSD needs Port libexecinfo to support backtrace functionality.
+    * FreeBSD 6.1 doesn't know malloc_usable_size - Counter bytes_allocated disabled.
+      Upcoming FreeBSD 7 will support it.
+    * FreeBSD doesn't know libc-version.h - Version Check disabled.
+
+2006-08-16 Austin
+    * Improved error report message for armrzone.cfg on startup.
+    * Moved the call to close the system tray to the top of the x_maininner() function in pol.cpp
+      I called it with atexit() so any time POL does an assert, exit, etc. it will remove the icon, now.
+      It still wont remove it if the user clicks the x button to close the console.. need to research
+      windows events for that. 
+      
+2006-08-10 Austin
+    * Startup data load changes:
+      1. Fixed a crash that would occur when loading storage.txt if an item was omitted.
+      2. If an item belongs in a container or on a character and neither are present and IgnoreLoadErrors
+         is enabled, the item will be removed, rather than halting POL startup.
+      3. If an item has an undefined objtype and IgnoreLoadErrors is enabled, POL will not halt on startup.
+      
+2006-06-23 MuadDib
+    * Moved more of the tooltip code to a new tooltip.h/cpp file setup for better
+      organization.
+2006-06-17 Austin
+    * BIG improvements to uoscrobj.cpp
+      Will convert the string into a token equivalent then use that part of the code.
+      This should cause a teensy speed-up as well as the elimination of a lot of redundant code.
+      
+2006-06-15 Austin
+    * bool FindNpcTemplate( const char *template_name, ConfigFile& cf, ConfigElem& elem )
+      This function is still used by stuff, so I moved it from textcmd.cpp to npctemplate.cpp
+    * Improved code for GetConfigStringDictionary() to directly use String(string)
+    * Removed core support for the 'showadv' privilege (not used anymore)
+    
+2006-06-10 MuadDib
+    Removed Totally removed the need for useskill.h in core. It was used for depreciated
+            stat gain functions.
+            
+2006-05-30 MuadDib
+    Changed In spells.cpp, added support for the scroll objtypes of SE and ML spellbook
+            types. However, in the "school" 3 entry, it is a copy of magery. This is just
+            as a placeholder, because thus far no book can be found that uses the 301+
+            spellid range on OSI.
+
+2006-05-24 Shinigami
+    Extended progverstr and buildtagstr upto 64 chars to hold Code names.
+
+2005-12-05 MuadDib
+    Changed How realms are handled with internal_MoveItem. Now you send the new realm
+            to the function (updated Container move func also) instead of oldrealm. Oldrealm
+            handling is done in the move function so as to properly replace the realm member
+            if an item is not sucessfully moved.
+    Changed How ~ItemGivenEvent treats the GivenTime Cprop in order for it to properly compare
+            it to the given_time_ member.
+    Changed Changed u8 initialization of client_lang member in the 0xBF packet handler to 
+            char initialization for compatibility and ease of reading.
+
+2005-11-26 Shinigami
+    Changed "strcmp" into "stricmp" to suppress Script Errors.
+
+2005-11-14 Austin
+    Added internal_InBoxAreaChecks(x1, y1, z1, x2, y2, x2, realm); to uoemod.h and uoemod.cpp
+          Function is responsible for adjusting coordinates to fit within the realm.
+
+2005-10-17 Austin
+    Added uoemod4.cpp
+    Moved Move* uo.em functions to here.
+    Moved internal_MoveItem() to uoemod4.cpp
+    Added internal_MoveBoat, internal_MoveCharacter, internal_MoveContainer to uoemod4.cpp
+
+2005-09-10 Austin
+    Added to pkg.cpp GetPackageConfigPath(Package* pkg, string filename)
+    Will use in the future to more easily check if a config should be read from
+    pkgdir/config/config.cfg or /pkgdir/config.cfg. Too much code would need to be
+    changed to make it work properly with cfgfile.em for 096 but for now it does help
+    reduce some redundant code elsewhere. 
+
+2005-08-26 Austin
+    Added lastx and lasty setting at the bottom of char_select() in pol.cpp
+    to fix a problem with realm switching after logging in.
+    Renamed inform_logout to inform_leftarea for better reusablility.
+    Renamed NpcPropagateLogOut to NpcPropagateLeftArea for better reusability.
+    Added distance check to inform_leftarea.
+    Added a NpcPropagateLeftArea line to uoemod2.cpp when a mobile changes realms.
+
+2005-08-25 Austin
+    Moved the pol_distance(x1, y1, x2, y2) function from npc.cpp to ufunc.cpp
+    Moved its prototype from uoemod to ufunc.h
+    Move was made so that it sits next to pol_distance(character, object) for easier
+    function overloading.
+
+2005-07-04 Shinigami
+    Memory leak inside Script-Cache (scrstore::ScriptStorage)... (is not fixed, just detected)
+    it's the same leak type than inside Read-/UnloadConfigFile() - but not critical for live shards
+
+2005-07-01 Shinigami
+    Memory leak inside Read-/UnloadConfigFile() is not really fixed!
+    Core now never loads unmodified cfg files again into memory, and this will stop huge memory usage.
+    Old, but still loaded cfg files are moved to pol/cfgrepos.cpp:oldcfgfiles.
+    We have to think over... it's a problem with script-inside references...
+
+2005-06-30 Shinigami
+    Memory leak inside BLong found (most BLong's gets destroyed on Shutdown only).
+    fixed_allocator is a little bit critical too, but the advantages (grouping smaller requests)
+    are greater than the disadvantages (blocks don't get destroyed on shutdown).
+
+2005-06-20 Shinigami
+    A lot of Memory leak detection stuff added... just create a configuration using MEMORYLEAK
+    as macro definition and recompile everything (Core compiled with these macro will show'em
+    in start/pol.log/console too). To show usefull stuff, just call PolCore().internal(1)
+    and take a look @ debug.log - just add this line to WorldSaver Cycle... it's very usefull
+    to get memory statistics and was used to detect all three memory leaks above. 
+
+2005-06-06 Shinigami
+    linux compilation with -O3 (or -finline-functions (a part of -O3)) will destruct
+    pathfinding code in some cases! server will crash... (tested with gcc 3.3.5)
+    e.g.: FindPath(5393, 838, 45, 5394, 826, 60);
+
+2003-07-27 Syzygy
+    Changed boat code to use new map format
+
+2003-06-18 Syzygy
+    SaveWorldState( flags := 0 ), flags can be SAVE_FULL or SAVE_INCREMENTAL
+    pol.cfg: ShutdownSaveType = full|incremental
+    more AssertionFailureAction options: shutdown-save-full | shutdown-save-incremental
+
+2003-06-08 Syzygy
+    Offline PCs will once again be saved.
+
+2003-05-19 Syzygy
+    Added checkpoints to Character::die(), should help catch cases where a mob death doesn't completely kill the mob
+       - the additional die() call should be removed, since the check is meant to avoid creating multiple corpses.
+    Added npc_count to uobjcnt, and report in pol.cpp at exit
+
+2003-05-18 Syzygy
+    Converted a bunch of catch(...) to catch( exception& ).
+    catching ... should be unnecessary now, since code no longer throws strings / char* etc.
+    Changed modules RArray to use vector
+
+2003-05-17 Syzygy
+    Converted all the 'throw' statements that were throwing strings to instead throw runtime_error
+       This will allow catch( std::exception& ) to catch everything thrown by the application
+
+2003-05-13 Syzygy
+    objecthash stores UObjectRef now, and there is a reaper thread that sweeps it occasionally.
+2003-05-09 Syzygy
+    Added clib/iohelp.cpp and clib/iohelp.h
+    Started the objecthash storing UObjectRef instead of UObject*
+
+2003-02-18 Racalac
+    Added "localvarmembers" debugger command in poldbg.cpp
+2003-02-14 Racalac
+    Added "pc" debugger command in poldbg.cpp. not real useful to users until we release the debugger client
+
+2003-01-12 Syzygy
+    runecl: Added '-a' option to enable assertions (but Debug build only)
+    runecl: defined INC_PASSERT=1 (debug build)
+
+2003-01-07 Syzygy
+	Set debug formats for all Release targets to PDB.  This doesn't seem to affect the size of the .exe image.
+	This is in preparation for better crash dump analysis support
+
+2003-01-01 Syzygy
+	Changed all the .c files in clib/ to .cpp files
+	New pol.cfg option: UsePolMapFile=[0,1]
+		If true, uses files in realm/main/* for most map / statics / LOS info.
+		If false, original UO data files are used.
+		uoconvert.exe generates the POL data files:
+			c:\pol> mkdir realm
+			c:\pol> mkdir realm\main
+			c:\pol> uoconvert.exe c:\uodata\
+
+
+			

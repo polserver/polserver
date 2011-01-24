@@ -1,0 +1,105 @@
+/* Microsoft Visual C++ generated resource script. */
+
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+
+/* Generated from the TEXTINCLUDE 2 resource. */
+
+#include "afxres.h"
+
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/* English (U.S.) resources */
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif 
+
+#ifdef APSTUDIO_INVOKED
+
+/* TEXTINCLUDE */
+
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/* Dialog */
+
+DIALOG_MAIN DIALOGEX 0, 0, 280, 233
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CENTER | WS_MINIMIZEBOX | WS_POPUP | 
+    WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_ACCEPTFILES | WS_EX_CONTROLPARENT
+CAPTION "UOCH - NecroToolz"
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
+BEGIN
+    CONTROL         "Remove encryption",CHECK_CRYPT,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,12,48,78,8
+    CONTROL         "Remove stamina check",CHECK_STAMINA,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,12,60,90,8
+    CONTROL         "Remove weather packet messages",CHECK_WEATHER,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,12,72,135,10
+    EDITTEXT        TEXT_DUMP,12,132,252,90,ES_MULTILINE | ES_AUTOHSCROLL | 
+                    ES_READONLY | WS_VSCROLL | WS_HSCROLL
+    PUSHBUTTON      "Patch tha' bitch",BUTTON_PATCH,210,96,54,12
+    EDITTEXT        EDIT_PATH,12,12,240,12,ES_MULTILINE | ES_AUTOHSCROLL | 
+                    ES_READONLY
+    PUSHBUTTON      "...",BUTTON_PATH,258,18,12,6
+    GROUPBOX        "UO Client Path",STATIC_PATH,6,0,270,30
+    GROUPBOX        "Options",STATIC_OPTIONS,6,36,270,78
+    GROUPBOX        "Log",STATIC_LOG,6,120,270,108
+END
+
+
+/* DESIGNINFO */
+
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    DIALOG_MAIN, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 273
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 226
+    END
+END
+#endif    
+
+
+/* Icon */
+
+/* Icon with lowest ID value placed first to ensure application icon */
+/* remains consistent on all systems. */
+NECRO_ICON              ICON                    "necroicon.ico"
+#endif    // English (U.S.) resources
+
+
+
+#ifndef APSTUDIO_INVOKED
+
+/* Generated from the TEXTINCLUDE 3 resource. */
+
+
+#endif    
+
