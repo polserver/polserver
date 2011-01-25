@@ -201,7 +201,7 @@ void exec_console_cmd( char ch )
     string filename = "scripts/console/" + cmd->script;
     try 
     {
-        PolLock lck;
+        //PolLock lck;
         ScriptDef sd;
         sd.quickconfig( filename + ".ecl" );
         ref_ptr<EScriptProgram> prog = find_script2( sd, true, config.cache_interactive_scripts );

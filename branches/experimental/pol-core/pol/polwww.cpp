@@ -399,7 +399,7 @@ bool start_http_script( Socket& sck,
 		return false;
 	}
 
-	PolLock2 lck;
+	//PolLock2 lck;
 
 	ref_ptr<EScriptProgram> program = find_script2( page_sd, true, config.cache_interactive_scripts );
 		  //find_script( filename, true, config.cache_interactive_scripts );
@@ -407,9 +407,9 @@ bool start_http_script( Socket& sck,
 	{
 		cerr << "Error reading script " << page_sd.name() << endl;
 		res = false;
-		lck.unlock();
+		//lck.unlock();
 		http_not_found( sck, page );
-		lck.lock();
+		//lck.lock();
 	}
 	else
 	{
@@ -425,9 +425,9 @@ bool start_http_script( Socket& sck,
 
 		if (!ex->setProgram( program.get() ))
 		{
-			lck.unlock();
+			//lck.unlock();
 			http_not_found( hem->sck_, page );
-			lck.lock();
+			//lck.lock();
 			delete ex;
 			res = false;
 		}
@@ -442,7 +442,7 @@ bool start_http_script( Socket& sck,
 		}
 	}
 	program.clear(); // do this so deletion happens while we're locked
-	lck.unlock();
+	//lck.unlock();
 	return res;
 }
 
@@ -914,13 +914,13 @@ void http_thread(void)
 
 	//if (1)
 	{
-		PolLock lck;
+		//PolLock lck;
 		cout << "Listening for HTTP requests on port " << config.web_server_port << endl;
 	}
 	SOCKET http_socket = open_listen_socket( config.web_server_port );
 	if (http_socket < 0)
 	{
-		PolLock lck;
+		//PolLock lck;
 		cerr << "Unable to listen on socket: " << http_socket << endl;
 		return;
 	}

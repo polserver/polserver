@@ -48,7 +48,7 @@ void UoClientThread::run()
         struct sockaddr host_addr;
         socklen_t host_addrlen = sizeof host_addr;
 
-        PolLock lck;
+        //PolLock lck;
         client = new Client( uo_client_interface, _def.encryption );
         client->csocket = _sck.release_handle(); // client cleans up its socket.
         client->listen_port = _def.port;

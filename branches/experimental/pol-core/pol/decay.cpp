@@ -163,7 +163,7 @@ void decay_thread( void* arg ) //Realm*
 	while (!exit_signalled)
 	{
 		{
-			PolLock lck;
+			//PolLock lck;
 			polclock_checkin();
 			decay_single_zone(realm, gridx, gridy, wx, wy);
 			restart_all_clients();
@@ -199,7 +199,7 @@ void decay_thread_shadow( void* arg ) //Realm*
 	while (!exit_signalled)
 	{
 		{
-			PolLock lck;
+			//PolLock lck;
 			polclock_checkin();
 			if (shadowrealms_by_id[id]==NULL) // is realm still there?
 				break;

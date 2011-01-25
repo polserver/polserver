@@ -32,29 +32,8 @@ static int threads = 0;
 #ifdef _WIN32
 #include <windows.h>
 #include <process.h>
-static CRITICAL_SECTION threadhelp_cs;
-static CRITICAL_SECTION threadmap_cs;
 void init_threadhelp()
 {
-    InitializeCriticalSection( &threadhelp_cs );
-    InitializeCriticalSection( &threadmap_cs );
-}
-void threadsem_lock()
-{
-    EnterCriticalSection( &threadhelp_cs );
-}
-void threadsem_unlock()
-{
-    LeaveCriticalSection( &threadhelp_cs );
-}
-
-void threadmap_lock()
-{
-    EnterCriticalSection( &threadmap_cs );
-}
-void threadmap_unlock()
-{
-    LeaveCriticalSection( &threadmap_cs );
 }
 
 void thread_sleep_ms( unsigned millis )
@@ -71,81 +50,17 @@ unsigned thread_pid()
 #include <unistd.h>
 #include <errno.h>
 
-static pthread_mutexattr_t threadsem_attr;
-static pthread_mutex_t threadsem;
-static pid_t threadhelp_locker;
-
-static pthread_mutexattr_t threadmap_sem_attr;
-static pthread_mutex_t threadmap_sem;
-
 static pthread_attr_t create_detached_attr;
 
 
 void init_threadhelp()
 {
     int res;
-
-    res = pthread_mutexattr_init( &threadsem_attr );
-    passert_always( res == 0 );
-
-    res = pthread_mutex_init( &threadsem, &threadsem_attr );
-    passert_always( res == 0 );
-
-    res = pthread_mutexattr_init( &threadmap_sem_attr );
-    passert_always( res == 0 );
-
-    res = pthread_mutex_init( &threadmap_sem, &threadmap_sem_attr );
-    passert_always( res == 0 );
-
     res = pthread_attr_init( &create_detached_attr );
     passert_always( res == 0 );
     res = pthread_attr_setdetachstate( &create_detached_attr, PTHREAD_CREATE_DETACHED );
     passert_always( res == 0 );
 }
-void threadsem_lock()
-{
-    pid_t pid = getpid();
-    int res = pthread_mutex_lock( &threadsem );
-    if (res != 0)
-    {
-        Log( "pthread_mutex_lock: res=%d, pid=%d\n", res, pid );
-    }
-    passert_always( res == 0 );
-    passert_always( threadhelp_locker == 0 );
-    threadhelp_locker = pid;
-}
-void threadsem_unlock()
-{
-    pid_t pid = getpid();
-    passert_always( threadhelp_locker == pid );
-    threadhelp_locker = 0;
-    int res = pthread_mutex_unlock( &threadsem );
-    if (res != 0)
-    {
-        Log( "pthread_mutex_unlock: res=%d,pid=%d", res, pid );
-    }
-    passert_always( res == 0 );
-}
-
-void threadmap_lock()
-{
-    int res = pthread_mutex_lock( &threadmap_sem );
-    if (res != 0)
-    {
-        Log( "pthread_mutex_lock(threadmap_sem): res=%d, pid=%d\n", res, getpid() );
-    }
-    passert_always( res == 0 );
-}
-void threadmap_unlock()
-{
-    int res = pthread_mutex_unlock( &threadmap_sem );
-    if (res != 0)
-    {
-        Log( "pthread_mutex_unlock(threadmap_sem): res=%d,pid=%d", res, getpid() );
-    }
-    passert_always( res == 0 );
-}
-
 void thread_sleep_ms( unsigned millis )
 {
     usleep( millis * 1000L );
@@ -159,22 +74,22 @@ unsigned thread_pid()
 void inc_child_thread_count( bool need_lock )
 {
     if (need_lock)
-        threadsem_lock();
+        _ThreadhelpMutex.lock();
     
     ++child_threads;
     
     if (need_lock)
-        threadsem_unlock();
+        _ThreadhelpMutex.unlock();
 }
 void dec_child_thread_count( bool need_lock )
 {
     if (need_lock)
-        threadsem_lock();
+        _ThreadhelpMutex.lock();
     
     --child_threads;
     
     if (need_lock)
-        threadsem_unlock();
+        _ThreadhelpMutex.unlock();
 }
 
 void run_thread( void (*threadf)(void) )
@@ -311,21 +226,21 @@ void start_thread( void (*entry)(void), const char* thread_name )
 
 void ThreadMap::Register( int pid, const string& name )
 {
-    threadmap_lock();
+    _ThreadMapMutex.lock();
     _contents.insert( make_pair(pid,name) );
-    threadmap_unlock();
+    _ThreadMapMutex.lock();
 }
 void ThreadMap::Unregister( int pid )
 {
-    threadmap_lock();
+    _ThreadMapMutex.lock();
     _contents.erase( pid );
-    threadmap_unlock();
+    _ThreadMapMutex.unlock();
 }
-void ThreadMap::CopyContents( Contents& out ) const
+void ThreadMap::CopyContents( Contents& out )
 {
-    threadmap_lock();
+    _ThreadMapMutex.lock();
     out = _contents;
-    threadmap_unlock();
+    _ThreadMapMutex.unlock();
 }
 
 }

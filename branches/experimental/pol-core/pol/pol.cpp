@@ -764,7 +764,7 @@ bool process_data( Client *client )
 			iostats.received[msgtype].bytes+=client->message_length;
 			if (client->fpLog != NULL)
 			{
-				PolLock lck;
+				//PolLock lck;
 				fprintf( client->fpLog, "Client -> Server: 0x%X, %d bytes\n", msgtype, client->message_length );
 				fdump( client->fpLog, &client->buffer, client->message_length );
 				fprintf( client->fpLog, "\n" );
@@ -773,7 +773,7 @@ bool process_data( Client *client )
 			if (config.verbose)
 				printf( "Message Received: Type 0x%X, Length %d bytes\n", msgtype, client->message_length );
 
-			PolLock lck; //multithread
+			//PolLock lck; //multithread
 			// it can happen that a client gets disconnected while waiting for the lock.
 			if (!client->disconnect)
 			{
@@ -986,7 +986,7 @@ void client_io_thread( Client* client )
 	}
 client->checkpoint = 60; //CNXBUG
 	{ 
-		PolLock lck;  
+		//PolLock lck;  
 client->checkpoint = 61; //CNXBUG
 		last_activity = polclock(); 
 	}
@@ -1042,7 +1042,7 @@ client->checkpoint = 61; //CNXBUG
 					if (nidle == 30*config.inactivity_warning_timeout)
 					{
 						CLIENT_CHECKPOINT(4);
-						PolLock lck; //multithread
+						//PolLock lck; //multithread
 						PktOut_53* msg = REQUESTPACKET(PktOut_53,PKTOUT_53_ID);
 						msg->Write(static_cast<u8>(PKTOUT_53_WARN_CHARACTER_IDLE));
 						CLIENT_CHECKPOINT(5);
@@ -1073,7 +1073,7 @@ client->checkpoint = 61; //CNXBUG
 			//region Speedhack
 			if (!client->movementqueue.empty()) // not empty then process the first packet
 			{
-				PolLock lck; //multithread
+				//PolLock lck; //multithread
 				PacketThrottler pkt = client->movementqueue.front();
 				if (client->SpeedHackPrevention(false))
 				{
@@ -1137,7 +1137,7 @@ client->checkpoint = 61; //CNXBUG
 				if (process_data( client ))
 				{
 					CLIENT_CHECKPOINT(17);
-					PolLock lck;
+					//PolLock lck;
 
 					//reset packet timer
 					last_packet_at = polclock();					
@@ -1167,7 +1167,7 @@ client->checkpoint = 61; //CNXBUG
 
 			if (client->have_queued_data() && FD_ISSET( client->csocket, &send_fd ))
 			{
-				PolLock lck;
+				//PolLock lck;
 				CLIENT_CHECKPOINT(8);
 				client->send_queued_data();
 			}
@@ -1202,7 +1202,7 @@ CLIENT_CHECKPOINT(20);
 //		if (1)
 		{ 
 			CLIENT_CHECKPOINT(9);
-			PolLock lck;
+			//PolLock lck;
 			clients.erase( find_in( clients, client ) );
 			client->Disconnect();
 			cout << "Client disconnected from " << AddressToString( &client->ipaddr )
@@ -1219,7 +1219,7 @@ CLIENT_CHECKPOINT(20);
 			int seconds_wait = 0;
 			{
 				CLIENT_CHECKPOINT(11);
-				PolLock lck;
+				//PolLock lck;
 
 				client->chr->disconnect_cleanup();
 				client->gd->clear();
@@ -1246,7 +1246,7 @@ CLIENT_CHECKPOINT(13);
 			{
 				CLIENT_CHECKPOINT(14);
 				{
-					PolLock lck;
+					//PolLock lck;
 					if (polclock() >= when_logoff)
 						break;
 				}
@@ -1257,7 +1257,7 @@ CLIENT_CHECKPOINT(13);
 CLIENT_CHECKPOINT(15);
 //			if (1)
 			{
-				PolLock lck;
+				//PolLock lck;
 				if (client->chr)
 				{
 					Character* chr = client->chr;
@@ -1275,7 +1275,7 @@ CLIENT_CHECKPOINT(15);
 
 	//if (1)
 	{
-		PolLock lck;
+		//PolLock lck;
 CLIENT_CHECKPOINT(17);
 		Client::Delete( client );
 		client = NULL;
@@ -1360,7 +1360,7 @@ void listen_thread( void )
 				return;
 			apply_socket_options( client_socket );
 
-			PolLock lck;
+			//PolLock lck;
 			Client *client = new Client( uo_client_interface, config.client_encryption_version );
 client->checkpoint = 50; //CNXBUG
 			client->csocket = client_socket;
@@ -1394,7 +1394,7 @@ client->checkpoint = 55; //CNXBUG
 			if (h == 0)
 			{
 				Log( "Failed to create worker thread for Client#%lu (errno = %d)\n", client->instance_, errno );
-				PolLock lck;
+				//PolLock lck;
 				threadhelp::dec_child_thread_count ( false ); // needed here because we inc'd
 				clients.erase( find_in( clients, client ) );
 				Client::Delete( client );	
@@ -1409,7 +1409,7 @@ client->checkpoint = 55; //CNXBUG
 			if (res)
 			{
 				Log( "Failed to create worker thread for Client#%lu (res = %d)\n", client->instance_, res );
-				PolLock lck;
+				//PolLock lck;
 				threadhelp::dec_child_thread_count ( false ); // needed here because we inc'd
 				clients.erase( find_in( clients, client ) );
 				Client::Delete( client );	
@@ -1431,7 +1431,7 @@ void tasks_thread( void )
 		{
 			THREAD_CHECKPOINT( tasks, 1 );
 			{
-				PolLock lck;
+				//PolLock lck;
 				polclock_checkin();
 				THREAD_CHECKPOINT( tasks, 2 );
 				INC_PROFILEVAR( scheduler_passes );
@@ -1483,7 +1483,7 @@ void scripts_thread( void )
 	{
 		THREAD_CHECKPOINT( scripts, 0 );
 		{
-			PolLock lck;
+			//PolLock lck;
 			polclock_checkin();
 			TRACEBUF_ADDELEM( "scripts thread now", polclock() );
 			++script_passes;
@@ -1536,7 +1536,7 @@ void combined_thread( void )
 	{
 		++script_passes;
 		do {
-			PolLock lck;
+			//PolLock lck;
 			step_scripts( &sleeptime, &activity );
 			check_scheduled_tasks( &sleeptime, &activity );
 			restart_all_clients();
@@ -1577,7 +1577,7 @@ void reap_thread( void )
 	while (!exit_signalled)
 	{
 		{
-			PolLock lck;
+			//PolLock lck;
 			polclock_checkin();
 			objecthash.Reap();
 			
@@ -1684,7 +1684,7 @@ void console_thread( void )
 #ifndef _WIN32
 		if (reload_configuration_signalled)
 		{
-			PolLock lck;
+			//PolLock lck;
 			cout << "Reloading configuration...";
 			reload_configuration_signalled = false;
 		reload_configuration();
@@ -2241,19 +2241,19 @@ int xmain_inner( int argc, char *argv[] )
 
 //	if( 1 )
 	{
-		PolLock lock;
+		//PolLock lock;
 		cout << "Initialization complete.  POL is active.  Ctrl-C to stop." << endl << endl;
 	}
 	//if( 1 )
 	{
-		PolLock lock;
+		//PolLock lock;
 		db_cout.uninstall();
 		db_cerr.uninstall();
 		start_log.close();
 	}
 	//if( 1 )
 	{
-		PolLock lock;
+		//PolLock lock;
 		Log( "Game is active.\n" );
 	}
 	CoreSetSysTrayToolTip( "Running", ToolTipPrioritySystem );
@@ -2331,7 +2331,7 @@ int xmain_inner( int argc, char *argv[] )
 		CoreSetSysTrayToolTip( "Writing data files", ToolTipPriorityShutdown );
 		cout << "Writing data files...";
 
-		PolLock lck;
+		//PolLock lck;
 		unsigned int dirty, clean, elapsed_ms;
 		int savetype;
 

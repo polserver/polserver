@@ -189,6 +189,6 @@ Item* find_walkon_item( Items& ivec, short z )
 
 void atomic_cout( const string& msg )
 {
-    PolLock lck;
+    //PolLock lck;
     cout << msg << endl;
 }

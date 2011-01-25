@@ -161,7 +161,7 @@ AuxClientThread::AuxClientThread( AuxService* auxsvc, SocketListener& listener )
 
 bool AuxClientThread::init()
 {
-    PolLock lock;
+    //PolLock lock;
 	struct sockaddr ConnectingIP = _sck.peer_address();
 	if (ipAllowed(ConnectingIP))
 	{
@@ -220,7 +220,7 @@ void AuxClientThread::run()
         if(!result && !timeout_exit)
             break;
 
-        PolLock lock;
+        //PolLock lock;
 
         if (_uoexec.exists())
         {
@@ -242,7 +242,7 @@ void AuxClientThread::run()
         }
     }
     
-    PolLock lock;
+    //PolLock lock;
     _auxconnection->disconnect();
     // the auxconnection is probably referenced by another ref_ptr, 
     // so its deletion must be protected by the lock.  

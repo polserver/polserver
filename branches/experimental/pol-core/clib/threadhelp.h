@@ -11,9 +11,12 @@ Notes
 #ifndef THREADHELP_H
 #define THREADHELP_H
 
+#include "hbmutex.h"
+
 namespace threadhelp
 {
     extern unsigned int child_threads;
+	static Mutex _ThreadhelpMutex;
 
     void init_threadhelp();
     void inc_child_thread_count( bool need_lock = true );
@@ -34,9 +37,10 @@ namespace threadhelp
 
         void Register( int pid, const string& name );
         void Unregister( int pid );
-        void CopyContents( Contents& out ) const;
+        void CopyContents( Contents& out );
     private:
         Contents _contents;
+		Mutex _ThreadMapMutex;
     };
     extern ThreadMap threadmap;
 
