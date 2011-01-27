@@ -74,7 +74,7 @@ unsigned thread_pid()
 void inc_child_thread_count( bool need_lock )
 {
     if (need_lock)
-        _ThreadhelpMutex.lock();
+        _ThreadhelpMutex.lock(); //protect child_threads
     
     ++child_threads;
     
@@ -84,7 +84,7 @@ void inc_child_thread_count( bool need_lock )
 void dec_child_thread_count( bool need_lock )
 {
     if (need_lock)
-        _ThreadhelpMutex.lock();
+        _ThreadhelpMutex.lock(); //protect child_threads
     
     --child_threads;
     
@@ -169,10 +169,11 @@ void create_thread( ThreadData* td, bool dec_child = false )
     HANDLE h = (HANDLE) _beginthreadex( NULL, 0, thread_stub2, td, 0, &threadid );
 	if (h == 0) // added for better debugging
 	{
+		_ThreadhelpMutex.lock(); //protect threads
 		Log( "error in create_thread: %d %d \"%s\" \"%s\" %d %d %s %d %d %d\n",
 			 errno, _doserrno, strerror( errno ), strerror( _doserrno ),
 			 threads++, thread_stub2, td->name.c_str(), td->entry, td->entry_noparam, td->arg );
-
+		_ThreadhelpMutex.unlock();
 		// dec_child says that we should dec_child_threads when there's an error... :)
 		if (dec_child)
 			dec_child_thread_count();
@@ -187,10 +188,11 @@ void create_thread( ThreadData* td, bool dec_child = false )
 	int result = pthread_create( &thread, &create_detached_attr, thread_stub2, td );
 	if ( result != 0) // added for better debugging
 	{
+		_ThreadhelpMutex.lock(); //protect threads
 		Log( "error in create_thread: %d %d \"%s\" %d %d %s %d %d %d\n",
 			 result, errno, strerror( errno ), 
 			 threads++, thread_stub2, td->name.c_str(), td->entry, td->entry_noparam, td->arg );
-		
+		_ThreadhelpMutex.unlock();
 		// dec_child says that we should dec_child_threads when there's an error... :)
 		if (dec_child)
 			dec_child_thread_count();
@@ -226,19 +228,19 @@ void start_thread( void (*entry)(void), const char* thread_name )
 
 void ThreadMap::Register( int pid, const string& name )
 {
-    _ThreadMapMutex.lock();
+    _ThreadMapMutex.lock(); //protect _contents
     _contents.insert( make_pair(pid,name) );
-    _ThreadMapMutex.lock();
+    _ThreadMapMutex.unlock();
 }
 void ThreadMap::Unregister( int pid )
 {
-    _ThreadMapMutex.lock();
+    _ThreadMapMutex.lock(); //protect _contents
     _contents.erase( pid );
     _ThreadMapMutex.unlock();
 }
 void ThreadMap::CopyContents( Contents& out )
 {
-    _ThreadMapMutex.lock();
+    _ThreadMapMutex.lock(); //protect _contents
     out = _contents;
     _ThreadMapMutex.unlock();
 }
