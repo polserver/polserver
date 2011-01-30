@@ -106,20 +106,27 @@ REM **************************************************************************
 echo The first parameter must be the compiler name, here are the available
 echo keywords:
 echo.
-echo    msvc6    Microsoft Visual C++ 6.0
-echo    msvc7    Microsoft Visual C++ .NET 2002
-echo    msvc71   Microsoft Visual C++ .NET 2003
-echo    msvc8    Microsoft Visual C++ 2005
-echo    msvc9    Microsoft Visual C++ 2008
-echo    icl      Intel C++ Compiler
-echo    evc3     Microsoft eMbedded Visual C++ 3 (*)
-echo    evc4     Microsoft eMbedded Visual C++ .NET (*)
-echo    evc8     Microsoft Visual C++ 2005 compiling for CE
-echo    evc9     Microsoft Visual C++ 2008 compiling for CE
+echo    msvc6     Microsoft Visual C++ 6.0
+echo    msvc7     Microsoft Visual C++ .NET 2002
+echo    msvc71    Microsoft Visual C++ .NET 2003
+echo    msvc8     Microsoft Visual C++ 2005
+echo    msvc8x64  Microsoft Visual C++ 2005 x64 Build (+)
+echo    msvc9     Microsoft Visual C++ 2008
+echo    msvc9x64  Microsoft Visual C++ 2008 x64 Build (+)
+echo    msvc10    Microsoft Visual C++ 2010
+echo    msvc10x64 Microsoft Visual C++ 2010 x64 Build (+)
+echo    icl       Intel C++ Compiler
+echo    evc3      Microsoft eMbedded Visual C++ 3 (*)
+echo    evc4      Microsoft eMbedded Visual C++ .NET (*)
+echo    evc8      Microsoft Visual C++ 2005 compiling for CE
+echo    evc9      Microsoft Visual C++ 2008 compiling for CE
 echo.
 echo  (*) For these compilers the target processor is determined automatically.
 echo      You must run the WCE*.BAT file you wish to build STLport for before
 echo      running configure.
+echo  (+) For these compilers you should run the amd64\vcvarsamd64.bat file to 
+echo      set up your compile environment rather than running the vcvars.bat
+echo      file. 
 echo.
 echo Then the following options are available:
 echo.
@@ -202,7 +209,11 @@ if "%1" == "msvc6" goto oc_msvc6
 if "%1" == "msvc71" goto oc_msv71
 if "%1" == "msvc7" goto oc_msvc7
 if "%1" == "msvc8" goto oc_msvc8
+if "%1" == "msvc8x64" goto oc_ms864
 if "%1" == "msvc9" goto oc_msvc9
+if "%1" == "msvc9x64" goto oc_ms964
+if "%1" == "msvc10" goto oc_msvc10
+if "%1" == "msvc10x64" goto oc_ms1064
 if "%1" == "icl"   goto oc_icl
 
 if "%1" == "evc3" goto oc_evc3
@@ -240,11 +251,34 @@ echo COMPILER_NAME=vc8 >> build\Makefiles\nmake\config.mak
 set SELECTED_COMPILER_VERSION=80
 goto oc_msvc
 
+:oc_ms864
+echo Setting compiler: Microsoft Visual C++ 2005 (x64)
+echo COMPILER_NAME=vc8 >> build\Makefiles\nmake\config.mak
+set SELECTED_COMPILER_VERSION=80
+goto oc_msvc64
 :oc_msvc9
 echo Setting compiler: Microsoft Visual C++ 2008
 echo COMPILER_NAME=vc9 >> build\Makefiles\nmake\config.mak
 set SELECTED_COMPILER_VERSION=90
 goto oc_msvc
+
+:oc_ms964
+echo Setting compiler: Microsoft Visual C++ 2008 (x64)
+echo COMPILER_NAME=vc9 >> build\Makefiles\nmake\config.mak
+set SELECTED_COMPILER_VERSION=90
+goto oc_msvc64
+
+:oc_msvc10
+echo Setting compiler: Microsoft Visual C++ 2010
+echo COMPILER_NAME=vc10 >> build\Makefiles\nmake\config.mak
+set SELECTED_COMPILER_VERSION=100
+goto oc_msvc
+
+:oc_ms1064
+echo Setting compiler: Microsoft Visual C++ 2010 (x64)
+echo COMPILER_NAME=vc10 >> build\Makefiles\nmake\config.mak
+set SELECTED_COMPILER_VERSION=100
+goto oc_msvc64
 
 :oc_msvc
 echo TARGET_OS=x86 >> build\Makefiles\nmake\config.mak
@@ -252,6 +286,17 @@ set SELECTED_COMPILER=msvc
 echo !include msvc.mak > .\build\lib\Makefile
 echo !include msvc.mak > .\build\test\unit\Makefile
 echo !include msvc.mak > .\build\test\eh\Makefile
+goto oc_end
+
+:oc_msvc64
+echo TARGET_OS=x64 >> build\Makefiles\nmake\config.mak
+set STLPORT_COMPILE_COMMAND=nmake /fmsvc.mak
+
+set SELECTED_COMPILER=msvc
+echo !include msvc.mak > .\build\lib\Makefile
+echo !include msvc.mak > .\build\test\unit\Makefile
+echo !include msvc.mak > .\build\test\eh\Makefile
+echo ARCHITECHURE_LIB_PREFIX=_x64 >> build\Makefiles\nmake\config.mak
 goto oc_end
 
 :oc_icl

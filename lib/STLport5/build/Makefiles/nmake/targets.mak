@@ -200,6 +200,10 @@ RES_MARKED=$(RES_MARKED:@=obj\vc8\@)
 OBJ_MARKED=$(OBJ_MARKED:@=obj\vc9\@)
 RES_MARKED=$(RES_MARKED:@=obj\vc9\@)
 
+!elseif "$(COMPILER_NAME)" == "vc10"
+OBJ_MARKED=$(OBJ_MARKED:@=obj\vc10\@)
+RES_MARKED=$(RES_MARKED:@=obj\vc10\@)
+
 !elseif "$(COMPILER_NAME)" == "icl"
 OBJ_MARKED=$(OBJ_MARKED:@=obj\icl\@)
 RES_MARKED=$(RES_MARKED:@=obj\icl\@)

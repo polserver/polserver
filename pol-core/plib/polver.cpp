@@ -44,4 +44,6 @@ unsigned int polver = 99;
   const char polbuildtag[] = "VS.NET 2005"PERGON_TAG""MEMORYLEAK_TAG;
 #elif defined(_MSC_VER) && (_MSC_VER <= 1500)
   const char polbuildtag[] = "VS.NET 2008"PERGON_TAG""MEMORYLEAK_TAG;
+#elif defined(_MSC_VER) && (_MSC_VER <= 1600)
+  const char polbuildtag[] = "VS.NET 2010"PERGON_TAG""MEMORYLEAK_TAG;
 #endif

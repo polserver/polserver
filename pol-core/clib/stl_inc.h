@@ -14,7 +14,7 @@ Notes
 
 #ifdef _WIN32
 //Set to _USE_STLPORT_WIN32 to 0 to use MSCVs STL.
-#	if defined(_MSC_VER) && (_MSC_VER <= 1500) // up to VS2003
+#	if defined(_MSC_VER) && (_MSC_VER <= 1600) // up to VS2010
 #		define _USE_STLPORT_WIN32 1
 #       if (_MSC_VER >= 1400) // 2005 and higher
 #			include <cctype>
@@ -22,7 +22,7 @@ Notes
 #           include <iosfwd>
 #			include <locale>
 #       endif
-#	else // Above 2008
+#	else // Above 2010
 #		define _USE_STLPORT_WIN32 0
 #	endif
 #	pragma warning( disable: 4786 )//'identifier' : identifier was truncated to 'number' characters in the debug information
@@ -197,7 +197,7 @@ Notes
 	using std::endl;
 
 #	ifdef _WIN32
-#		if defined(_MSC_VER) && (_MSC_VER <= 1500) // up to VS2008
+#		if defined(_MSC_VER) && (_MSC_VER <= 1600) // up to VS2010
 			using std::hash_map;
 			using std::hash_set;
 #		else // VS2005 ff.
