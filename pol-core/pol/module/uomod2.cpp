@@ -934,8 +934,15 @@ BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu(Character* chr, Ob
 	layoutdlen++;
 	bfr->offset++; //nullterm
 
-	unsigned long cbuflen = 0xFFFF-msg->offset;
-	if (compress(reinterpret_cast<unsigned char*>(msg->getBuffer()), &cbuflen, reinterpret_cast<unsigned char*>(&bfr->buffer), layoutdlen))
+	unsigned long cbuflen = (((unsigned long)(( (float)(layoutdlen) )*1.001f)) +12);//as per zlib spec
+	if (cbuflen > ((unsigned long)(0xFFFF-msg->offset)))
+	{
+		READDPACKET(msg);
+		READDPACKET(bfr);
+		return new BError( "Compression error" );
+	}
+
+	if (compress2(reinterpret_cast<unsigned char*>(msg->getBuffer()), &cbuflen, reinterpret_cast<unsigned char*>(&bfr->buffer), layoutdlen, Z_DEFAULT_COMPRESSION)!=Z_OK)
 	{
 		READDPACKET(msg);
 		READDPACKET(bfr);
@@ -974,20 +981,31 @@ BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu(Character* chr, Ob
 			bfr->Write(static_cast<u16>((*string++) << 8));
 	}
 	msg->WriteFlipped(numlines);
-	msg->offset+=8; //u32 text_clen, text_dlen
-
-	cbuflen = 0xFFFF-msg->offset;
-	if (compress(reinterpret_cast<unsigned char*>(msg->getBuffer()), &cbuflen, reinterpret_cast<unsigned char*>(&bfr->buffer), datadlen))   
+	if (numlines !=0)
 	{
-		READDPACKET(msg);
-		READDPACKET(bfr);
-		return new BError( "Compression error" );
-	}
+		msg->offset+=8; //u32 text_clen, text_dlen
 
-	msg->offset-=8;
-	msg->WriteFlipped(static_cast<u32>(cbuflen+4));
-	msg->WriteFlipped(datadlen);
-	msg->offset+=static_cast<u16>(cbuflen);
+		cbuflen = (((unsigned long)(( (float)(datadlen) )*1.001f)) +12);//as per zlib spec
+		if (cbuflen > ((unsigned long)(0xFFFF-msg->offset)))
+		{
+			READDPACKET(msg);
+			READDPACKET(bfr);
+			return new BError( "Compression error" );
+		}
+		if (compress2(reinterpret_cast<unsigned char*>(msg->getBuffer()), &cbuflen, reinterpret_cast<unsigned char*>(&bfr->buffer), datadlen,Z_DEFAULT_COMPRESSION)!=Z_OK)   
+		{
+			READDPACKET(msg);
+			READDPACKET(bfr);
+			return new BError( "Compression error" );
+		}
+
+		msg->offset-=8;
+		msg->WriteFlipped(static_cast<u32>(cbuflen+4));
+		msg->WriteFlipped(datadlen);
+		msg->offset+=static_cast<u16>(cbuflen);
+	}
+	else
+		msg->Write((int)0);
 	u16 len= msg->offset;
 	msg->offset=1;
 	msg->WriteFlipped(len);

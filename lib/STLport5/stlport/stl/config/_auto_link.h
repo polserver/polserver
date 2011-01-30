@@ -38,13 +38,60 @@
 #    endif
 #  endif
 
+// LFH - always include version information
+
 #  if defined (_STLP_USE_DYNAMIC_LIB)
 #    define _STLP_VERSION_STR "."_STLP_STRINGIZE(_STLPORT_MAJOR)"."_STLP_STRINGIZE(_STLPORT_MINOR)
 #  else
 #    define _STLP_VERSION_STR ""
 #  endif
 
-#  define _STLP_STLPORT_LIB "stlport"_STLP_LIB_OPTIM_MODE""_STLP_LIB_TYPE""_STLP_LIB_MOTIF""_STLP_VERSION_STR".lib"
+// Start LFH
+// Put back the useful, working code from pre 5.0.0 that allows coexistance of multiple VC version builds of
+// STLPort, and add a case for VC8 and VC9. Also add in _STLP_LIB_ARCHNAME so that x64 builds can co-exist.
+
+#ifdef _M_X64
+#define _STLP_LIB_ARCHNAME "_x64"
+#else
+#define _STLP_LIB_ARCHNAME ""
+#endif
+
+# ifdef __ICL
+#  define _STLP_LIB_BASENAME "stlport_icl"_STLP_LIB_ARCHNAME
+# else
+# if (_MSC_VER >= 1600) 
+#   define _STLP_LIB_BASENAME "stlport_vc10"_STLP_LIB_ARCHNAME
+# elif (_MSC_VER >= 1500) 
+#   define _STLP_LIB_BASENAME "stlport_vc9"_STLP_LIB_ARCHNAME
+# elif (_MSC_VER >= 1400) 
+#   define _STLP_LIB_BASENAME "stlport_vc8"_STLP_LIB_ARCHNAME
+# elif (_MSC_VER >= 1310) 
+#   define _STLP_LIB_BASENAME "stlport_vc71"_STLP_LIB_ARCHNAME
+# elif (_MSC_VER >= 1300) 
+#   define _STLP_LIB_BASENAME "stlport_vc70"_STLP_LIB_ARCHNAME
+# elif (_MSC_VER >= 1200)
+//#   ifdef _UNICODE
+//#    define _STLP_LIB_BASENAME "stlport_vc6_unicode"_STLP_LIB_ARCHNAME
+//#   else
+#    define _STLP_LIB_BASENAME "stlport_vc6"_STLP_LIB_ARCHNAME
+//#   endif
+#  elif (_MSC_VER >= 1100)
+//#   ifdef _UNICODE
+//#    define _STLP_LIB_BASENAME "stlport_vc5_unicode"_STLP_LIB_ARCHNAME
+//#   else
+#    define _STLP_LIB_BASENAME "stlport_vc5"_STLP_LIB_ARCHNAME
+//#   endif
+#  endif /* (_MSC_VER >= 1200) */
+# endif /* __ICL */
+
+
+
+// end LFH
+
+
+//#  define _STLP_STLPORT_LIB _STLP_LIB_BASENAME""_STLP_LIB_OPTIM_MODE""_STLP_LIB_TYPE"."_STLP_VERSION_STR".lib"
+//#  define _STLP_STLPORT_LIB "stlport"_STLP_LIB_OPTIM_MODE""_STLP_LIB_TYPE""_STLP_LIB_MOTIF"."_STLP_VERSION_STR".lib"
+#  define _STLP_STLPORT_LIB _STLP_LIB_BASENAME""_STLP_LIB_OPTIM_MODE""_STLP_LIB_TYPE""_STLP_VERSION_STR".lib"
 
 #  if defined (_STLP_VERBOSE)
 #    pragma message ("STLport: Auto linking to "_STLP_STLPORT_LIB)

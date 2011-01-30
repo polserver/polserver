@@ -1,6 +1,6 @@
 # -*- Makefile -*- Time-stamp: <06/09/08 11:50:49 ptr>
 
-LIBNAME = stlport
+LIBNAME = stlport_$(COMPILER_NAME)$(ARCHITECHURE_LIB_PREFIX)
 MAJOR = 5
 MINOR = 2
 PATCH = 1
