@@ -148,11 +148,11 @@
     <ClInclude Include="..\pol\module\mathmod.h" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\bscript\bscript-2008.vcxproj">
+    <ProjectReference Include="..\bscript\bscript-2010.vcxproj">
       <Project>{5005476b-7bd3-42a2-94ca-3ad2d0e2947c}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
-    <ProjectReference Include="..\clib\clib-2008.vcxproj">
+    <ProjectReference Include="..\clib\clib-2010.vcxproj">
       <Project>{7cd5572b-8a78-46c5-ac2d-39ee47acd01a}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
