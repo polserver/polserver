@@ -136,11 +136,11 @@
     <ClCompile Include="poltool.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\clib\clib-2008.vcxproj">
+    <ProjectReference Include="..\clib\clib-2010.vcxproj">
       <Project>{7cd5572b-8a78-46c5-ac2d-39ee47acd01a}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
-    <ProjectReference Include="..\plib\plib-2008.vcxproj">
+    <ProjectReference Include="..\plib\plib-2010.vcxproj">
       <Project>{d45c6577-00e3-4995-a909-9c704a472565}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
