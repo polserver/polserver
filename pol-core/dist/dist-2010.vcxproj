@@ -90,19 +90,19 @@ mkdist.bat
     <None Include="src.lst" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\doc\doc-2008.vcxproj">
+    <ProjectReference Include="..\doc\doc-2010.vcxproj">
       <Project>{701fab6a-5bea-49aa-8688-57f3637b2239}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
-    <ProjectReference Include="..\ecompile\ecompile-2008.vcxproj">
+    <ProjectReference Include="..\ecompile\ecompile-2010.vcxproj">
       <Project>{b1a8988c-6dd0-4f97-bfa3-d0fe74af33c9}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
-    <ProjectReference Include="..\pol\pol-2008.vcxproj">
+    <ProjectReference Include="..\pol\pol-2010.vcxproj">
       <Project>{9931ff8e-092b-4e67-8e99-e237e1a481eb}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
-    <ProjectReference Include="..\runecl\runecl-2008.vcxproj">
+    <ProjectReference Include="..\runecl\runecl-2010.vcxproj">
       <Project>{f8e03c1c-e402-4c84-826b-3bec82066686}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
