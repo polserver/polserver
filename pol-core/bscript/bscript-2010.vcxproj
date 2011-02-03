@@ -109,7 +109,6 @@
     <ClCompile Include="berror.cpp" />
     <ClCompile Include="blong.cpp" />
     <ClCompile Include="bstruct.cpp" />
-    <ClCompile Include="..\pol\clfunc.cpp" />
     <ClCompile Include="compctx.cpp" />
     <ClCompile Include="compiler.cpp" />
     <ClCompile Include="compilercfg.cpp" />
