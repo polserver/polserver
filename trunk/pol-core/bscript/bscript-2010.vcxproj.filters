@@ -20,9 +20,6 @@
     <ClCompile Include="bstruct.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\pol\clfunc.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="compctx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
