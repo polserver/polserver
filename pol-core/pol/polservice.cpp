@@ -209,7 +209,7 @@ void SystemTrayDialogThread( void* )
 {
 // modeless:
 #if DLG_MODELESS
-   	HWND hwnd=CreateDialog(NULL,MAKEINTRESOURCE(IDD_DIALOG1),NULL,DialogProc);
+   	hwnd=CreateDialog(NULL,MAKEINTRESOURCE(IDD_DIALOG1),NULL,DialogProc);
     ShowWindow( hwnd, SW_HIDE );
     
     BOOL bRet;
@@ -241,6 +241,21 @@ void SetSysTrayPopupText( const char* text )
         SendMessage( hwnd, WM_COMMAND, ID_UPDATE_NOTIFYDATA, 0 );
 }
 
+BOOL WINAPI control_handler_SystemTray ( DWORD dwCtrlType )
+{
+	switch( dwCtrlType )
+	{
+		case CTRL_CLOSE_EVENT:		// console window closing
+			Shell_NotifyIcon(NIM_DELETE, &ndata );
+#if DLG_MODELESS
+			DestroyWindow(hwnd); 
+#else
+			EndDialog( hwndDlg, wParam );
+#endif
+			break;
+	}
+	return FALSE;
+}
 void InitializeSystemTrayHandling()
 {
     WM_TASKBARCREATED = RegisterWindowMessage( "TaskbarCreated" );
@@ -254,6 +269,7 @@ void InitializeSystemTrayHandling()
 	strcpy(ndata.szTip,"POL Initializing");			
 
     _beginthread( SystemTrayDialogThread, 0, NULL );
+	SetConsoleCtrlHandler( control_handler_SystemTray, TRUE );
 //    _beginthreadex( NULL, 
 //                    0, 
 //                    SystemTrayDialogThread, 
