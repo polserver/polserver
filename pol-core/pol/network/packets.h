@@ -130,7 +130,7 @@ class PacketWriter : public PacketInterface
 		u32 maxoff;
 #endif
 		char* getBuffer() { return &buffer[offset]; }
-		inline u8 getID() { return buffer[0]; }
+		inline u8 getID() { return _id; }
 
 		void Write(u32 x)
 		{
@@ -367,7 +367,7 @@ class PacketTemplateSub : public PacketWriter<_id, _size, _sub>
 			PacketWriter<_id,_size,_sub>::maxoff=_suboff+1;
 #endif
 		}
-		inline u16 getSubID() { return _sub; /*ctBEu16((*(u16*)&buffer[_suboff]));*/ }
+		inline u16 getSubID() { return _sub; }
 };
 
 //special def for encrypted buffer
