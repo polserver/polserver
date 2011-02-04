@@ -2090,7 +2090,9 @@ int xmain_inner( int argc, char *argv[] )
 	printf( "   Character:  %d\n", sizeof(Character) );
 	printf( "   Client:	 %d\n", sizeof(Client) );
 #ifdef __unix__
+#ifdef PTHREAD_THREADS_MAX
 	printf( "   Max Threads:%d\n", (int)PTHREAD_THREADS_MAX );
+#endif
 #endif
 #endif
 
