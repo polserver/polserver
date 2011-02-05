@@ -24,7 +24,7 @@ class BDictionary : public BObjectImp
 public:
     BDictionary();
 
-    static BObjectImp* unpack( istream& is );
+    static BObjectImp* unpack( std::istream& is );
 
     void addMember( const char* name, BObjectRef val );
     void addMember( const char* name, BObjectImp* imp );
@@ -35,20 +35,20 @@ public:
 	const Contents& contents() const;
 
 protected:
-    BDictionary( istream& is, unsigned size, BObjectType type = OTDictionary );
+    BDictionary( std::istream& is, unsigned size, BObjectType type = OTDictionary );
     BDictionary( const BDictionary&, BObjectType type = OTDictionary );
 
     virtual BObjectImp* copy() const;
-    virtual string getStringRep() const;
+    virtual std::string getStringRep() const;
     virtual unsigned int sizeEstimate() const; 
-    virtual void packonto( ostream& os ) const;
+    virtual void packonto( std::ostream& os ) const;
     virtual const char* typeOf() const;
 
     virtual ContIterator* createIterator( BObject* pIterVal );
 
     virtual char packtype() const;
     virtual const char* typetag() const;
-    virtual void FormatForStringRep( ostream& os, const BObject& bkeyobj, const BObjectRef& bvalref ) const;
+    virtual void FormatForStringRep( std::ostream& os, const BObject& bkeyobj, const BObjectRef& bvalref ) const;
 
     virtual BObjectRef OperSubscript( const BObject& obj );
     virtual BObjectImp* call_method( const char* methodname, Executor& ex );

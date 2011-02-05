@@ -19,8 +19,8 @@ class BStruct : public BObjectImp
 {
 public:
     BStruct();
-    BStruct( istream& is, unsigned size, BObjectType type );
-    static BObjectImp* unpack( istream& is );
+    BStruct( std::istream& is, unsigned size, BObjectType type );
+    static BObjectImp* unpack( std::istream& is );
 
     void addMember( const char* name, BObjectRef val );
     void addMember( const char* name, BObjectImp* imp );
@@ -40,11 +40,11 @@ protected:
 
     virtual char packtype() const;
     virtual const char* typetag() const;
-    virtual void FormatForStringRep( ostream& os, const string& key, const BObjectRef& bvalref ) const;
+    virtual void FormatForStringRep( std::ostream& os, const std::string& key, const BObjectRef& bvalref ) const;
 
-    virtual string getStringRep() const;
+    virtual std::string getStringRep() const;
     virtual unsigned int sizeEstimate() const; 
-    virtual void packonto( ostream& os ) const;
+    virtual void packonto( std::ostream& os ) const;
     virtual const char* typeOf() const;
 
     virtual ContIterator* createIterator( BObject* pIterVal );

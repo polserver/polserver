@@ -22,7 +22,7 @@ Notes
 class UserParam
 {
 public:
-    string name;
+    std::string name;
 	int have_default;
 	Token dflt_value;
     bool pass_by_reference;
@@ -36,7 +36,7 @@ public:
     UserFunction();
     ~UserFunction();
 
-    string name;
+    std::string name;
     typedef vector<UserParam> Parameters;
     Parameters parameters;
 	unsigned position;
@@ -47,7 +47,7 @@ public:
     char* function_body; // FIXME: this is leaked
     bool exported;
     bool emitted;
-    string declaration;
+    std::string declaration;
 
 public:
     static unsigned int instances();

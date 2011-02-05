@@ -21,7 +21,7 @@ Notes
 
 
 
-typedef vector<string> TipFilenames;
+typedef vector<std::string> TipFilenames;
 extern TipFilenames tipfilenames;
 
 void load_tips();

@@ -48,7 +48,7 @@ public:
     std::string name;
 
     virtual GTerminal* create_terminal();
-    virtual GTerminal* create_terminal( istream& is );
+    virtual GTerminal* create_terminal( std::istream& is );
     virtual void emit( EScriptProgram& prog, const GTerminal* term ) const = 0;
 };
 
@@ -141,7 +141,7 @@ public:
         {}
 
     virtual GTerminal* create_terminal();
-    virtual GTerminal* create_terminal( istream& is );
+    virtual GTerminal* create_terminal( std::istream& is );
     virtual void emit( EScriptProgram& prog, const GTerminal* term ) const;
 
     double _minimum;
@@ -259,7 +259,7 @@ public:
 
 protected:
     GTree* inner_read_tree( std::istream& is );
-    GTree* create_node_by_tag( const std::string& tag, istream& is ) const;
+    GTree* create_node_by_tag( const std::string& tag, std::istream& is ) const;
     GTree* create_random_terminal();
     
     void create_function_args( GFunction* func, int maxdepth, bool popfull );
@@ -305,7 +305,7 @@ public:
     GPopulation( GenDef& gd );
     ~GPopulation();
 
-    string name;
+    std::string name;
     typedef std::vector<GIndividual*> Individuals;
     Individuals individuals;
 
@@ -318,8 +318,8 @@ public:
     const GIndividual* choose_individual() const;
     void calculate_fitness_values() const;
 
-    void write( const string& filename ) const;
-    void read( const string& filename );
+    void write( const std::string& filename ) const;
+    void read( const std::string& filename );
 private:
     GPopulation( const GPopulation& );
     GPopulation& operator=( const GPopulation& );

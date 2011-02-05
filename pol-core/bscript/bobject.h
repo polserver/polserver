@@ -83,7 +83,7 @@ public:
 
     // Class Machinery:
     static BObjectImp* unpack( const char* pstr );
-    static BObjectImp* unpack( istream& is );
+    static BObjectImp* unpack( std::istream& is );
     bool isa( BObjectType type ) const;
     BObjectType type() const;
 #if BOBJECTIMP_DEBUG
@@ -92,16 +92,16 @@ public:
     static const char *typestr( BObjectType typ );
 
     virtual BObjectImp *copy() const = 0;
-    virtual string getStringRep() const = 0;
-    virtual string getFormattedStringRep() const;
+    virtual std::string getStringRep() const = 0;
+    virtual std::string getFormattedStringRep() const;
     
     virtual unsigned int sizeEstimate() const = 0; 
     virtual const char* typeOf() const;
 
 
-    virtual string pack() const;
-    virtual void packonto( ostream& os ) const;
-    virtual void printOn(ostream&) const;
+    virtual std::string pack() const;
+    virtual void packonto( std::ostream& os ) const;
+    virtual void printOn(std::ostream&) const;
 
     // Operators and stuff
     virtual bool isEqual(const BObjectImp& objimp) const;
@@ -142,7 +142,7 @@ public:
     virtual BObject operator-() const;
 
     virtual char /*BObjectRef */member( const BObject& obj ) const { return 0; }
-    virtual char /*BObjectImp* */ str_member( const string& membername ) const { return 0;} 
+    virtual char /*BObjectImp* */ str_member( const std::string& membername ) const { return 0;} 
     
     virtual BObjectImp* call_method( const char* methodname, Executor& ex );
     virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin=false );
@@ -164,7 +164,7 @@ public:
 
     virtual ContIterator* createIterator( BObject* pIterVal );
 
-    friend ostream& operator << (ostream&, const BObjectImp& );
+    friend std::ostream& operator << (std::ostream&, const BObjectImp& );
 private:
     BObjectType type_;
 #if BOBJECTIMP_DEBUG
@@ -213,8 +213,8 @@ public:
 
     bool isa( BObjectImp::BObjectType type ) const;
 
-    friend ostream& operator << (ostream&, const BObject& );
-    void printOn(ostream&) const;
+    friend std::ostream& operator << (std::ostream&, const BObject& );
+    void printOn(std::ostream&) const;
 
     BObjectImp* impptr();
     const BObjectImp* impptr() const;
@@ -292,8 +292,8 @@ class UninitObject : public BObjectImp
 
     virtual BObjectImp *copy() const;
     virtual unsigned int sizeEstimate() const; 
-    virtual string getStringRep() const { return "<uninitialized object>"; }
-    virtual void printOn( ostream& os ) const;
+    virtual std::string getStringRep() const { return "<uninitialized object>"; }
+    virtual void printOn( std::ostream& os ) const;
 
     virtual bool isTrue() const;
     virtual bool isEqual(const BObjectImp& objimp ) const;
@@ -326,7 +326,7 @@ inline void UninitObject::operator delete( void * p )
 class ObjArray : public BObjectImp
 {
 public:
-    typedef vector<string> NameCont;
+    typedef vector<std::string> NameCont;
     typedef NameCont::iterator name_iterator;
     typedef NameCont::const_iterator const_name_iterator;
 
@@ -340,8 +340,8 @@ public:
 	ObjArray();
 	ObjArray( const ObjArray& i ); // copy constructor 
 
-    virtual void packonto( ostream& os ) const;
-    static BObjectImp* unpack( istream& is );
+    virtual void packonto( std::ostream& os ) const;
+    static BObjectImp* unpack( std::istream& is );
     virtual unsigned int sizeEstimate() const; 
     virtual BObjectImp *copy() const;
 
@@ -359,8 +359,8 @@ public:
 
     const BObjectImp* imp_at( unsigned index ) const; // 1-based
 
-    virtual string getStringRep() const;
-    virtual void printOn( ostream& os ) const;
+    virtual std::string getStringRep() const;
+    virtual void printOn( std::ostream& os ) const;
 
     virtual BObjectImp* array_assign( BObjectImp* idx, BObjectImp* target );
     virtual BObjectRef OperSubscript( const BObject& obj );
@@ -399,9 +399,9 @@ class BLong : public BObjectImp
     void operator delete( void *, size_t );
 
     static BObjectImp* unpack( const char* pstr );
-    static BObjectImp* unpack( istream& is );
-    virtual string pack() const;
-    virtual void packonto( ostream& os ) const;
+    static BObjectImp* unpack( std::istream& is );
+    virtual std::string pack() const;
+    virtual void packonto( std::ostream& os ) const;
     virtual unsigned int sizeEstimate() const; 
 
     int value() const { return lval_; }
@@ -435,8 +435,8 @@ class BLong : public BObjectImp
 
     virtual BObjectImp* bitnot() const;
 
-    virtual string getStringRep() const;
-    virtual void printOn(ostream&) const;
+    virtual std::string getStringRep() const;
+    virtual void printOn(std::ostream&) const;
 
   protected:
     int lval_;
@@ -479,9 +479,9 @@ class Double : public BObjectImp
 
 
     static BObjectImp* unpack( const char* pstr );
-    static BObjectImp* unpack( istream& is );
-    virtual string pack() const;
-    virtual void packonto( ostream& os ) const;
+    static BObjectImp* unpack( std::istream& is );
+    virtual std::string pack() const;
+    virtual void packonto( std::ostream& os ) const;
     virtual unsigned int sizeEstimate() const; 
 
     double value() const { return dval_; }
@@ -508,8 +508,8 @@ class Double : public BObjectImp
     virtual void unary_minus() { dval_ = - dval_; }
     virtual BObjectImp* inverse() const { return new Double(-dval_); }
 
-    virtual string getStringRep() const;
-    virtual void printOn(ostream&) const;
+    virtual std::string getStringRep() const;
+    virtual void printOn(std::ostream&) const;
   private:
     double dval_;
 };
@@ -546,8 +546,8 @@ class BApplicPtr : public BObjectImp
   public: // Class Machinery
     virtual BObjectImp *copy() const;
 
-    virtual string getStringRep() const;
-    virtual void printOn(ostream&) const;
+    virtual std::string getStringRep() const;
+    virtual void printOn(std::ostream&) const;
     virtual unsigned int sizeEstimate() const; 
 
   private:
@@ -565,8 +565,8 @@ public:
 public: // Class Machinery
     virtual BObjectImp* copy() const = 0;
 
-    virtual string getStringRep() const;
-    virtual void printOn(ostream&) const;
+    virtual std::string getStringRep() const;
+    virtual void printOn(std::ostream&) const;
     virtual unsigned int sizeEstimate() const = 0; 
 
 private:

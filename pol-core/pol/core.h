@@ -32,7 +32,7 @@ enum Priority
     ToolTipPriorityScript=2,
     ToolTipPriorityShutdown=3
 };
-void CoreSetSysTrayToolTip( const string& text, Priority pri );
+void CoreSetSysTrayToolTip( const std::string& text, Priority pri );
 
 bool move_character_to( Character* chr, 
                        unsigned short x,
@@ -78,7 +78,7 @@ const int JOURNAL_PRINT_NAME			= 0x00;
 const int JOURNAL_PRINT_YOU_SEE		= 0x01;
 
 Item* find_walkon_item( Items& ivec, short z );
-void atomic_cout( const string& msg );
+void atomic_cout( const std::string& msg );
 void restart_all_clients();
 
 #endif

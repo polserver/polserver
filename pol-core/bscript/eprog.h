@@ -58,19 +58,19 @@ struct EPDbgBlock
 {
     unsigned parentblockidx;
     unsigned parentvariables;
-    vector< string > localvarnames;
+    vector< std::string > localvarnames;
 };
 
 struct EPExportedFunction
 {
-    string name;
+    std::string name;
     unsigned nargs;
     unsigned PC;
 };
 
 struct EPDbgFunction
 {
-    string name;
+    std::string name;
     unsigned firstPC;
     unsigned lastPC;
 };
@@ -88,7 +88,7 @@ public:
     void append( const StoredToken& stoken, const CompilerContext& ctx, unsigned* posn );
     void erase();
 
-    string name;
+    std::string name;
     unsigned nglobals;
     void clear_modules();
     vector< FunctionalityModule* > modules;
@@ -97,8 +97,8 @@ public:
     bool haveProgram;
     unsigned expectedArgs;
 
-    void dump( ostream& os );
-    void dump_casejmp( ostream& os, const Token& token );
+    void dump( std::ostream& os );
+    void dump_casejmp( std::ostream& os, const Token& token );
     int write( const char *fname );
     int read( const char *fname );
     int read_dbg_file();
@@ -112,11 +112,11 @@ public:
     int write_dbg( const char *fname, bool gen_txt );
 
     // compiler only:
-        vector<string> sourcelines;
-        vector<string> fileline;
+        vector<std::string> sourcelines;
+        vector<std::string> fileline;
         unsigned program_PC;
-        string program_decl;
-        vector<string> function_decls;
+        std::string program_decl;
+        vector<std::string> function_decls;
 
     vector<EPExportedFunction> exported_functions;
 
@@ -130,7 +130,7 @@ public:
 
     // debug data:
     bool debug_loaded;
-    vector< string > globalvarnames;
+    vector< std::string > globalvarnames;
     vector< EPDbgBlock > blocks;
     vector< EPDbgFunction > dbg_functions;
     unsigned savecurblock;
@@ -138,7 +138,7 @@ public:
     unsigned curfile;
     unsigned curline;
     bool statementbegin;
-    vector< string > dbg_filenames;
+    vector< std::string > dbg_filenames;
     
 // per instruction:
     vector< unsigned > dbg_filenum;
@@ -152,13 +152,13 @@ public:
     void leavefunction();
     void enterblock();
     void leaveblock();
-    void addlocalvar( const string& localvarname );
-    void addfunction( string name, unsigned firstPC, unsigned lastPC );
+    void addlocalvar( const std::string& localvarname );
+    void addfunction( std::string name, unsigned firstPC, unsigned lastPC );
     void update_dbg_pos( const Token& tkn );
     void add_ins_dbg_info();
 
-    int add_dbg_filename( const string& filename );
-    string dbg_get_instruction( unsigned atPC ) const;
+    int add_dbg_filename( const std::string& filename );
+    std::string dbg_get_instruction( unsigned atPC ) const;
 
     unsigned varcount( unsigned block );
     unsigned parentvariables( unsigned parent );

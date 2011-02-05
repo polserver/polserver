@@ -38,7 +38,7 @@ class fixed_allocator
 #ifdef MEMORYLEAK
     fixed_allocator();
     ~fixed_allocator();
-    void log_stuff(const string& detail);
+    void log_stuff(const std::string& detail);
 #endif
 
 protected:
@@ -69,7 +69,7 @@ fixed_allocator<N,B>::~fixed_allocator()
 }
 
 template<int N, int B>
-void fixed_allocator<N,B>::log_stuff(const string& detail)
+void fixed_allocator<N,B>::log_stuff(const std::string& detail)
 {
     if (mlog.is_open())
         mlog << "fixed_allocator[" << detail << "]: " << buffers << " Buffer with " << sizeof( Buffer[B] ) <<

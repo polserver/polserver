@@ -96,7 +96,7 @@ public:
 
     const char *classname() const;
     virtual void printOn( std::ostream& os ) const;
-    virtual void printSelfOn( ostream& os ) const;
+    virtual void printSelfOn( std::ostream& os ) const;
     virtual void printProperties( std::ostream& os ) const;
     virtual void printDebugProperties( std::ostream& os ) const;
     virtual void readProperties( ConfigElem& elem );

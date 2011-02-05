@@ -133,14 +133,14 @@ inline int stringicmp( const char* str1, const S2& str2 )
     class e_istringstream : public istrstream
     {
     public:
-        e_istringstream( const string& str ) : istrstream( str.c_str(), str.length() ) {}
+        e_istringstream( const std::string& str ) : istrstream( str.c_str(), str.length() ) {}
         e_istringstream( const char* s ) : istrstream( s ) {}
     };
     class e_ostringstream : public ostrstream
     {
     public:
         e_ostringstream() : ostrstream() {};
-        string e_str() { string t = string(str(),pcount()); freeze(0); return t; }
+        std::string e_str() { std::string t = std::string(str(),pcount()); freeze(0); return t; }
         // void clear() { (*this) = e_ostringstream(); }
 #if !defined(__GNUC__)
     private:
@@ -169,7 +169,7 @@ inline int stringicmp( const char* str1, const S2& str2 )
 #endif
 
 template<class T>
-string tostring( const T& v )
+std::string tostring( const T& v )
 {
     OSTRINGSTREAM os;
     os << v;

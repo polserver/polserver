@@ -23,10 +23,10 @@ extern std::map<int,Realm*> shadowrealms_by_id;
 extern unsigned int baserealm_count;
 extern unsigned int shadowrealm_count;
 
-Realm* find_realm(const string name);
-void add_realm(const string name, Realm* base);
-bool defined_realm(const string name);
-void remove_realm(const string name);
+Realm* find_realm(const std::string name);
+void add_realm(const std::string name, Realm* base);
+bool defined_realm(const std::string name);
+void remove_realm(const std::string name);
 #define ENABLE_OLD_MAPCODE 0
 
 // Support up to 5 Maps: Britannia, Britannia_alt, Ilshenar, Malas, Tokuno, TerMur

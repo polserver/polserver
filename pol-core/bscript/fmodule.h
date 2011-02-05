@@ -23,7 +23,7 @@ class UserFunction;
 class ModuleFunction
 {
 public:
-    string name;
+    std::string name;
 	unsigned nargs;
 	int funcidx; // according to the executor, what's its function index 
 
@@ -42,12 +42,12 @@ public:
     vector<ModuleFunction*> functions;
 
     // compiler only:
-        typedef map<string,ModuleFunction*,ci_cmp_pred> FunctionsByName;
+        typedef map<std::string,ModuleFunction*,ci_cmp_pred> FunctionsByName;
         FunctionsByName functionsByName;
         vector<ModuleFunction*> used_functions;
         vector<UserFunction*> owned_userfuncs;
 
-    string modulename;
+    std::string modulename;
 
     bool isFunc(const char *funcName, ModuleFunction **pmf, int *funcidx );
 	explicit FunctionalityModule( const char* modname );

@@ -91,10 +91,10 @@ const unsigned EXPR_FLAG_DICTKEY_TERM_ALLOWED    = 0x0200;
 class Parser
 {
   public:
-    Parser(ostream& iCout);
+    Parser(std::ostream& iCout);
     virtual ~Parser() {}
 	Parser & operator=( const Parser & ) { return *this; }
-    ostream& cout;
+    std::ostream& cout;
 
     int quiet;
     ParseError err;
@@ -107,7 +107,7 @@ class Parser
   public:
     void reinit(Expression& ex);
 
-    static void write_words( ostream& os );
+    static void write_words( std::ostream& os );
   virtual int recognize_binary(Token& tok, const char *buf, const char **s);
   virtual int recognize_unary(Token& tok, const char *buf);
   virtual int recognize(Token& tok, const char *buf, const char **s);
@@ -146,7 +146,7 @@ public:
 
   public:
 
-      SmartParser(ostream& cout) : Parser(cout) { }
+      SmartParser(std::ostream& cout) : Parser(cout) { }
 	  SmartParser & operator=( const SmartParser & ) { return *this; }
 
     virtual int isLegal(Token& tok) { return 1; }

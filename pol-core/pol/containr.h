@@ -176,7 +176,7 @@ protected:
 	UContainer(u16 objtype, UOBJ_CLASS pol_class);
     // uses Item::classname()
     virtual void printOn( std::ostream& os ) const;
-    virtual void printSelfOn( ostream& os ) const;
+    virtual void printSelfOn( std::ostream& os ) const;
     void printContents( std::ostream& os ) const;
 };
 
@@ -257,7 +257,7 @@ public:
     virtual bool saveonexit() const;
     virtual void saveonexit( bool newvalue );
 
-	void print( ostream& ofs_pc, ostream& ofs_equip ) const;
+	void print( std::ostream& ofs_pc, std::ostream& ofs_equip ) const;
 };
 
 inline Item *WornItemsContainer::GetItemOnLayer(unsigned idx) const

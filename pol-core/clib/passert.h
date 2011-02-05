@@ -33,7 +33,7 @@ extern bool passert_abort;
 extern bool passert_nosave;
 extern bool passert_shutdown_due_to_assertion;
 
-extern string scripts_thread_script;
+extern std::string scripts_thread_script;
 extern unsigned scripts_thread_scriptPC;
 
 //#if !defined(INC_PASSERT) && defined(NDEBUG)
@@ -45,7 +45,7 @@ extern unsigned scripts_thread_scriptPC;
 #undef  passert
 
 void passert_failed(const char *expr, const char *file, unsigned line);
-void passert_failed(const char *expr, const string& reason, const char *file, unsigned line);
+void passert_failed(const char *expr, const std::string& reason, const char *file, unsigned line);
 
 #if  INC_PASSERT
 

@@ -56,11 +56,11 @@ class RStack : private GenRArray
 
     unsigned size() const { return GenRArray::count(); }
 
-    void printOn( ostream& ) const;
+    void printOn( std::ostream& ) const;
 };
 
 template <class T>
-void RStack<T>::printOn( ostream& os ) const
+void RStack<T>::printOn( std::ostream& os ) const
 {
 	os << "RStack: [ ";
 	for( unsigned i = 0; i < GenRArray::count(); i++ )
@@ -73,7 +73,7 @@ void RStack<T>::printOn( ostream& os ) const
 }
 
 template <class T>
-ostream& operator << (ostream& os, const RStack<T>& obj )
+std::ostream& operator << (std::ostream& os, const RStack<T>& obj )
 {
 	obj.printOn( os );
 	return os;
@@ -112,11 +112,11 @@ class RQueue: private GenRArray
     using GenRArray::isEmpty;
     using GenRArray::flush;
 
-    void printOn( ostream& ) const;
+    void printOn( std::ostream& ) const;
 };
 
 template <class T>
-void RQueue<T>::printOn( ostream& os ) const
+void RQueue<T>::printOn( std::ostream& os ) const
 {
 	os << "RQueue: [ ";
 	for( unsigned i = 0; i < GenRArray::count(); i++ )
@@ -129,7 +129,7 @@ void RQueue<T>::printOn( ostream& os ) const
 }
 
 template <class T>
-ostream& operator << (ostream& os, const RQueue<T>& obj )
+std::ostream& operator << (std::ostream& os, const RQueue<T>& obj )
 {
 	obj.printOn( os );
 	return os;

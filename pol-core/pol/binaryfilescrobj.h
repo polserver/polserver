@@ -18,10 +18,10 @@ class BinFile
 {
 public:
     BinFile();
-    BinFile( const string& filename, ios::openmode mode );
+    BinFile( const std::string& filename, ios::openmode mode );
     ~BinFile();
 
-    bool Open( const string& filename, ios::openmode mode );
+    bool Open( const std::string& filename, ios::openmode mode );
     void Close();
 
     template<class T>
@@ -62,7 +62,7 @@ class BBinaryfile : public BObjectImp
 {
 public:
     BBinaryfile();
-	BBinaryfile(string filename, unsigned short mode, bool _bigendian);
+	BBinaryfile(std::string filename, unsigned short mode, bool _bigendian);
 	~BBinaryfile();
 	virtual BObjectRef get_member( const char* membername );
     virtual BObjectRef get_member_id( const int id ); //id test
@@ -77,7 +77,7 @@ public:
 
 private:
 	mutable BinFile file;
-	string _filename;
+	std::string _filename;
 	ios::openmode openmode;
 	bool bigendian;
 };

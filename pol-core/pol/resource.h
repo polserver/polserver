@@ -34,7 +34,7 @@ BObjectImp* harvest_resource( const char* resource,
 
 BObjectImp* get_region_string( const char* resource, 
                                xcoord x, ycoord y, Realm* realm,
-                               const string& propname );
+                               const std::string& propname );
 
 ResourceDef* find_resource_def( const std::string& rname );
 void write_resources_dat( std::ostream& ofs_resource );
