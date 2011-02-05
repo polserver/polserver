@@ -30,9 +30,9 @@ namespace threadhelp
     class ThreadMap
     {
     public:
-        typedef std::map<int,string> Contents;
+        typedef std::map<int,std::string> Contents;
 
-        void Register( int pid, const string& name );
+        void Register( int pid, const std::string& name );
         void Unregister( int pid );
         void CopyContents( Contents& out ) const;
     private:

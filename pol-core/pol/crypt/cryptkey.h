@@ -31,7 +31,7 @@ typedef struct _CryptInfo
 	ECryptType   eType;
 } TCryptInfo;
 
-void CalculateCryptKeys(const string& name, TCryptInfo& infoCrypt);
+void CalculateCryptKeys(const std::string& name, TCryptInfo& infoCrypt);
 
 
 #endif //__CRYPTKEY_H__

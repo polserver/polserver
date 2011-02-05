@@ -67,7 +67,7 @@ public:
     HullList2 hull2;
     HullList2 internal_hull2;
     
-    typedef multimap<unsigned short, const MULTI_ELEM*> Components;
+    typedef std::multimap<unsigned short, const MULTI_ELEM*> Components;
     typedef pair<Components::const_iterator,Components::const_iterator> ItrPair;
 
         short minrx, minry, minrz; // minimum relative distances

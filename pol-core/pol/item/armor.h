@@ -29,7 +29,7 @@ public:
     virtual unsigned short ar() const;
     virtual bool covers( unsigned short layer ) const;
     virtual Item* clone() const;
-    void set_onhitscript( const string& scriptname );
+    void set_onhitscript( const std::string& scriptname );
 	std::set<unsigned short> tmplzones();
     
 protected:

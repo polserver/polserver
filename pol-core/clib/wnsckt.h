@@ -23,7 +23,7 @@ public:
     Socket( Socket& sck ); // takes ownership
     virtual ~Socket();
 
-    void write( const string& str );
+    void write( const std::string& str );
 
     bool open( const char* ipaddr, unsigned short port );
     bool listen( unsigned short port );

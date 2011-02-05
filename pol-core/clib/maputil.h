@@ -16,7 +16,7 @@ Notes
 class ci_cmp_pred
 {
 public:
-    bool operator()(const string& x1, const string& x2) const
+    bool operator()(const std::string& x1, const std::string& x2) const
     {
         return stricmp( x1.c_str(), x2.c_str() ) < 0;
     }

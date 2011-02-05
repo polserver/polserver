@@ -16,7 +16,7 @@ public:
 	static void Initialize( );
 
     static bool _Initialized;
-    static string _MiniDumpType;
+    static std::string _MiniDumpType;
     static unsigned _DumpCount;
     static char _StartTimestamp[32];
 

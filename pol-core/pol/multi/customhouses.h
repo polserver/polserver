@@ -107,8 +107,8 @@ public:
     unsigned int TotalSize() const;
     unsigned char NumUsedPlanes() const;
     
-    void readProperties( ConfigElem& elem, const string prefix );
-    void printProperties( ostream& os, const string prefix ) const;
+    void readProperties( ConfigElem& elem, const std::string prefix );
+    void printProperties( std::ostream& os, const std::string prefix ) const;
 
     int floor_sizes[CUSTOM_HOUSE_NUM_PLANES];
 
@@ -129,7 +129,7 @@ public:
 
     static const char custom_house_z_xlate_table[CUSTOM_HOUSE_NUM_PLANES];
     //for testing
-    void testprint( ostream& os ) const;
+    void testprint( std::ostream& os ) const;
 private:
     char z_to_custom_house_table(char z);
 };

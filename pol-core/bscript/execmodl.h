@@ -80,7 +80,7 @@ public:
         return exec.getParam( param, value, minval, maxval ); 
     }
 
-    const string& scriptname() const;
+    const std::string& scriptname() const;
 	Executor& exec;
 
 protected:

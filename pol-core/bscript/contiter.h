@@ -19,7 +19,7 @@ public:
 
     BObjectImp *copy( void ) const;
     unsigned int sizeEstimate() const;
-    string getStringRep() const;
+    std::string getStringRep() const;
 };
 
 

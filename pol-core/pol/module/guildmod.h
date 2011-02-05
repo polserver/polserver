@@ -20,7 +20,7 @@ public:
     SerialSet( ConfigElem& elem, const char* tag );
     SerialSet() {}
 
-    void writeOn( ostream& os, const char* tag ) const;
+    void writeOn( std::ostream& os, const char* tag ) const;
 
 };
 
@@ -44,7 +44,7 @@ public:
 	void update_online_members();
 	void update_online_members_remove( Character* chr );
 
-    void printOn( ostream& os ) const;
+    void printOn( std::ostream& os ) const;
     void addMember( unsigned int serial );
 
     void registerWithMembers();

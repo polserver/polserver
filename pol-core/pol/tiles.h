@@ -17,7 +17,7 @@ Notes
 class Tile
 {
 public:
-    string desc;
+    std::string desc;
     unsigned int uoflags; // USTRUCT_TILE::*
     unsigned int flags; // FLAG::*
     u8 layer;

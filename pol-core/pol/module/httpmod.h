@@ -30,7 +30,7 @@ public:
 	  // TODO: clean up the socket ownership thing so these can be private again
 public:
 	Socket sck_;
-	typedef std::map<string,string, ci_cmp_pred> QueryParamMap;
+	typedef std::map<std::string,std::string, ci_cmp_pred> QueryParamMap;
 	QueryParamMap params_;
 	int continuing_offset;
 	UOExecutor& uoexec;

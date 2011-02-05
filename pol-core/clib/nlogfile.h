@@ -34,7 +34,7 @@ private:
     friend class LogFile;
 };
 
-class LogFile : public ostream
+class LogFile : public std::ostream
 {
 public:
     LogFile( const char* tag );

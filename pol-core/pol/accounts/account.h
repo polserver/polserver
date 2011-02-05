@@ -31,9 +31,9 @@ public:
 	~Account();
 
     const char *name() const;
-    const string password() const;
-	const string passwordhash() const;
-	const string uo_expansion() const;
+    const std::string password() const;
+	const std::string passwordhash() const;
+	const std::string uo_expansion() const;
     bool enabled() const;
     bool banned() const;
 
@@ -47,23 +47,23 @@ public:
     void clear_character( int index );
 
     void readfrom( ConfigElem& elem );
-    void writeto( ostream& os );
+    void writeto( std::ostream& os );
     void writeto( ConfigElem& elem ) const;
 
-    string default_privlist() const;
+    std::string default_privlist() const;
     unsigned char default_cmdlevel() const;
 
-	void set_password(string newpass) {password_ = newpass;};
-	void set_passwordhash(string newpass) {passwordhash_ = newpass;};
+	void set_password(std::string newpass) {password_ = newpass;};
+	void set_passwordhash(std::string newpass) {passwordhash_ = newpass;};
 
     friend class AccountObjImp;
 
 private:
     vector<CharacterRef> characters_;
-    string name_;
-    string password_;
-	string passwordhash_;
-	string uo_expansion_;
+    std::string name_;
+    std::string password_;
+	std::string passwordhash_;
+	std::string uo_expansion_;
     bool enabled_;
     bool banned_;
     PropertyList props_;

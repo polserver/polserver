@@ -26,11 +26,11 @@ class String : public BObjectImp
 	
     String(const char *str, int nchars);
     explicit String(const char *str) : BObjectImp(OTString), value_(str) { }
-    explicit String(const string& str) : BObjectImp(OTString), value_(str) { }
-    explicit String(const string& str, string::size_type pos, string::size_type n ) : BObjectImp(OTString), value_(str,pos,n) {} 
+    explicit String(const std::string& str) : BObjectImp(OTString), value_(str) { }
+    explicit String(const std::string& str, std::string::size_type pos, std::string::size_type n ) : BObjectImp(OTString), value_(str,pos,n) {} 
     String(const char *left, const char *right) : 
         BObjectImp(OTString), 
-        value_( string(left) + string(right) )
+        value_( std::string(left) + std::string(right) )
         { }
 
     String(const String& left, const String& right) : 
@@ -42,11 +42,11 @@ class String : public BObjectImp
         { }
     
     static BObjectImp* unpack( const char* pstr );
-    static BObjectImp* unpack( istream& is );
-    static BObjectImp* unpackWithLen( istream& is );
-    virtual string pack() const;
-    virtual void packonto( ostream& os ) const;
-    static void packonto( ostream& os, const string& value );
+    static BObjectImp* unpack( std::istream& is );
+    static BObjectImp* unpackWithLen( std::istream& is );
+    virtual std::string pack() const;
+    virtual void packonto( std::ostream& os ) const;
+    static void packonto( std::ostream& os, const std::string& value );
     virtual BObjectImp *copy() const
       {
 		  return new String(*this);
@@ -64,7 +64,7 @@ class String : public BObjectImp
 
 	void set( char *newstr ); /* String now owns newstr */
     const char *data() const { return value_.c_str(); }
-    const string& value() const { return value_; }
+    const std::string& value() const { return value_; }
     unsigned length() const { return value_.length(); }
     void toUpper(void);
     void toLower(void);
@@ -96,9 +96,9 @@ class String : public BObjectImp
     virtual BObjectImp* array_assign( BObjectImp* idx, BObjectImp* target );
     int find(char *s, int *posn);
 
-    virtual string getStringRep() const { return value_; }
-    virtual string getFormattedStringRep() const { return "\"" + value_ + "\""; }
-    void printOn(ostream&) const;
+    virtual std::string getStringRep() const { return value_; }
+    virtual std::string getFormattedStringRep() const { return "\"" + value_ + "\""; }
+    void printOn(std::ostream&) const;
 
   protected:
 
@@ -106,7 +106,7 @@ class String : public BObjectImp
     virtual bool isLessThan(const BObjectImp& objimp) const;
 
   private:
-    string value_;
+    std::string value_;
     String *midstring(int begin, int len) const;
     friend class SubString;
 };
@@ -114,7 +114,7 @@ class String : public BObjectImp
 class ConstString : public String
 {
 public:
-    explicit ConstString(const string& str) : String(str) { }
+    explicit ConstString(const std::string& str) : String(str) { }
 };
 
 #endif

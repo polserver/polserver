@@ -382,8 +382,8 @@ public:
 
     u8 get_flag1(Client *client) const;
 
-    static MOVEMODE decode_movemode( const string& str );
-    static string encode_movemode( MOVEMODE movemode );
+    static MOVEMODE decode_movemode( const std::string& str );
+    static std::string encode_movemode( MOVEMODE movemode );
 
     void unhide();
     void set_warmode( bool warmode );
@@ -474,9 +474,9 @@ public:
     void grant_privilege( const char* priv );
     void revoke_privilege( const char* priv );
     void set_setting( const char* setting, bool value );
-    string all_settings() const;
-    string all_privs() const;
-    void set_privs( const string& privlist );
+    std::string all_settings() const;
+    std::string all_privs() const;
+    void set_privs( const std::string& privlist );
 
 	bool CheckPushthrough();
 public: // REPUTATION SYSTEM
@@ -605,12 +605,12 @@ protected:
     friend void uox_read_character( ConfigElem& elem );
     friend void write_characters( class SaveContext& sc );
 
-    void printWornItems( ostream& pc, ostream& equip ) const;
+    void printWornItems( std::ostream& pc, std::ostream& equip ) const;
 
     virtual const char *classname() const;
-    virtual void printOn( ostream& os ) const;
-    virtual void printSelfOn( ostream& os ) const;
-    virtual void printProperties( ostream& os ) const;
+    virtual void printOn( std::ostream& os ) const;
+    virtual void printSelfOn( std::ostream& os ) const;
+    virtual void printProperties( std::ostream& os ) const;
     virtual void printDebugProperties( std::ostream& os ) const;
 
 private:
@@ -679,7 +679,7 @@ public:
     vector<AttributeValue> attributes;
     vector<VitalValue> vitals;
 
-	string uclang;
+	std::string uclang;
 
 	bool has_shield() const
 	{
@@ -726,10 +726,10 @@ public:
     int lightoverride;
     gameclock_t lightoverride_until;
 
-    string title_prefix;
-    string title_suffix;
-    string title_guild;
-    string title_race;
+    std::string title_prefix;
+    std::string title_suffix;
+    std::string title_guild;
+    std::string title_race;
 
 	Expanded_Statbar expanded_statbar;
 	u16 skillcap_;

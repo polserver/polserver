@@ -86,9 +86,9 @@ class Token
 
   ~Token();
 
-  void printOn(ostream& outputStream) const;
+  void printOn(std::ostream& outputStream) const;
 };
 
-ostream& operator << (ostream&, const Token& );
+std::ostream& operator << (std::ostream&, const Token& );
 
 #endif

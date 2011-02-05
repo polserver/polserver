@@ -46,7 +46,7 @@ public:
 
     bool exists() const;
 
-    string relativename( const Package* pkg = NULL ) const;
+    std::string relativename( const Package* pkg = NULL ) const;
 
 private:
     std::string localname_;

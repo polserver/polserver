@@ -22,6 +22,6 @@ bool readline( Socket& sck,
 
 void writeline( Socket& sck, const std::string& s );
 
-bool readstring( Socket& sck, string& s, unsigned int interchar_secs, unsigned length );
+bool readstring( Socket& sck, std::string& s, unsigned int interchar_secs, unsigned length );
 
 #endif

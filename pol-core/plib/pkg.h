@@ -52,7 +52,7 @@ private:
 
     // only one of these two will be set.
     unsigned short core_required_;
-    string core_versionstring_required_;
+    std::string core_versionstring_required_;
 
     PackageList requires_;
     PackageList conflicts_;
@@ -92,10 +92,10 @@ void load_all_cfgs( const char* cfgname,
                          const char* taglist,
                          void(*loadentry)(const Package*,ConfigElem&) );
 
-void load_packages( string basedir, bool quiet = false );
+void load_packages( std::string basedir, bool quiet = false );
 void replace_packages();
 void check_package_deps();
 void unload_packages();
-string GetPackageCfgPath(Package* pkg, string filename);
+std::string GetPackageCfgPath(Package* pkg, std::string filename);
 
 #endif
