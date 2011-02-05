@@ -48,7 +48,7 @@ class ConfigFile : public ConfigSource
 {
 public:
     explicit ConfigFile( const char *filename = NULL, const char *allowed_types = NULL );
-    explicit ConfigFile( const string& filename, const char *allowed_types = NULL );
+    explicit ConfigFile( const std::string& filename, const char *allowed_types = NULL );
     virtual ~ConfigFile();
 
     void open( const char *i_filename );
@@ -56,7 +56,7 @@ public:
     bool read( ConfigElem& elem );        // true=got one, false=end of file
     void readraw( ConfigElem& elem );     // reads 0 or more properties
 
-    const string& filename() const;
+    const std::string& filename() const;
     const time_t modified() const;
     unsigned element_line_start() const;
 

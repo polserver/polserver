@@ -12,28 +12,28 @@ Notes
 
 #include <string>
 
-string hexint( unsigned short v );
-string hexint( signed int v );
-string hexint( unsigned int v );
-string hexint( signed long v );
-string hexint( unsigned long v );
+std::string hexint( unsigned short v );
+std::string hexint( signed int v );
+std::string hexint( unsigned int v );
+std::string hexint( signed long v );
+std::string hexint( unsigned long v );
 
-string decint( unsigned short v );
-string decint( signed int v );
-string decint( unsigned int v );
-string decint( signed long v );
-string decint( unsigned long v );
+std::string decint( unsigned short v );
+std::string decint( signed int v );
+std::string decint( unsigned int v );
+std::string decint( signed long v );
+std::string decint( unsigned long v );
 
-void splitnamevalue( const string& istr, string& propname, string& propvalue );
+void splitnamevalue( const std::string& istr,std:: string& propname, std::string& propvalue );
 
-void decodequotedstring( string& str );
-void encodequotedstring( string& str );
-string getencodedquotedstring( const string& in );
+void decodequotedstring( std::string& str );
+void encodequotedstring( std::string& str );
+string getencodedquotedstring( const std::string& in );
 
-void mklower( string& str );
-void mkupper( string& str );
+void mklower( std::string& str );
+void mkupper( std::string& str );
 
-string strlower( const string& str );
-string strupper( const string& str );
+std::string strlower( const std::string& str );
+std::string strupper( const std::string& str );
 
 #endif

@@ -41,7 +41,7 @@ public:
 	explicit FileAccess( ConfigElem& elem );
 	bool AllowsAccessTo( const Package* pkg, const Package* filepackage ) const;
 	bool AppliesToPackage( const Package* pkg ) const;
-	bool AppliesToPath( const string& path ) const;
+	bool AppliesToPath( const std::string& path ) const;
 
 	bool AllowWrite;
 	bool AllowAppend;
@@ -53,11 +53,11 @@ public:
 	bool AllDirectories; // not used
 	bool AllExtensions;
 
-	set<string, ci_cmp_pred> Packages;
-	vector< string > Directories; // not used
-	vector< string > Extensions;
+	set<std::string, ci_cmp_pred> Packages;
+	vector< std::string > Directories; // not used
+	vector< std::string > Extensions;
 };
 
-bool HasWriteAccess( const Package* pkg, const Package* filepackage, const string& path );
+bool HasWriteAccess( const Package* pkg, const Package* filepackage, const std::string& path );
 
 #endif

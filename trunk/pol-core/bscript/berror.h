@@ -17,15 +17,15 @@ class BError : public BStruct
 public:
     BError();
     explicit BError( const char *errortext ); 
-    explicit BError( const string& errortext );
+    explicit BError( const std::string& errortext );
 
-    static BObjectImp* unpack( istream& is );
+    static BObjectImp* unpack( std::istream& is );
 
     static unsigned int creations();
 
 protected:
     BError( const BError& i );
-    BError( istream& is, unsigned size );
+    BError( std::istream& is, unsigned size );
     
     virtual BObjectImp* copy() const;
     virtual BObjectRef OperSubscript( const BObject& obj );

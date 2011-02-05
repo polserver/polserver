@@ -28,7 +28,7 @@ extern FILE *mapdif_file;
 struct USTRUCT_VERSION;
 class Character;
 
-FILE *open_uo_file( const string& filename_part );
+FILE *open_uo_file( const std::string& filename_part );
 
 bool check_verdata( unsigned int file, unsigned int block, const USTRUCT_VERSION*& vrec );
 bool statics_height( unsigned short x, unsigned short y, short oldz, short* newz );

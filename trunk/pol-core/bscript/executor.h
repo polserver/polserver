@@ -178,11 +178,11 @@ class Executor
     vector<ExecutorModule*> availmodules; // owns
     
   public:
-    explicit Executor( ostream& cerr );
+    explicit Executor( std::ostream& cerr );
     virtual ~Executor();
 
     void addModule(ExecutorModule* module); // NOTE, executor deletes its modules when done
-    ExecutorModule* findModule( const string& name );
+    ExecutorModule* findModule( const std::string& name );
 
     ModuleFunction* current_module_function;
     // NOTE: the debugger code expects these to be virtual..
@@ -310,7 +310,7 @@ class Executor
 
     void attach_debugger();
     void detach_debugger();
-    string dbg_get_instruction( unsigned atPC ) const;
+    std::string dbg_get_instruction( unsigned atPC ) const;
     void dbg_ins_trace();
     void dbg_step_into();
     void dbg_step_over();
@@ -324,12 +324,12 @@ class Executor
     void reinitExec();
     void initForFnCall( unsigned in_PC );
     void show_context( unsigned atPC );
-    void show_context( ostream& os, unsigned atPC );
+    void show_context( std::ostream& os, unsigned atPC );
 
 	int getDebugLevel( ) { return debug_level; }
     void setDebugLevel( DEBUG_LEVEL level ) { debug_level = level; }
     void setViewMode( bool vm ) { viewmode_ = vm; }
-    const string& scriptname() const;
+    const std::string& scriptname() const;
     bool empty_scriptname();
     const EScriptProgram* prog() const;
 
@@ -362,7 +362,7 @@ class Executor
     Executor& operator=( const Executor& exec );
 };
 
-inline const string& Executor::scriptname() const
+inline const std::string& Executor::scriptname() const
 {
 	return prog_->name;
 }

@@ -51,7 +51,7 @@ struct BlockDesc
     eb_break_ok break_ok;
     eb_continue_ok continue_ok;
     
-    string label;                  // label of construct
+    std::string label;                  // label of construct
     
         // addresses of tokens whos offset needs to be patched with
         // the final break/continue jump addresses.
@@ -63,7 +63,7 @@ struct BlockDesc
 };
 
 struct Variable {
-    string name;
+    std::string name;
     mutable bool used;
     CompilerContext ctx;
 };
@@ -74,13 +74,13 @@ class Scope
 public:
     BlockDesc& pushblock();
     void popblock();
-    void addvar( const string& varname, const CompilerContext& ctx, bool warn_on_notused = true );
+    void addvar( const std::string& varname, const CompilerContext& ctx, bool warn_on_notused = true );
     void addvalue();
     bool inblock() const { return blockdescs_.size() != 0; }
     unsigned numVarsInBlock() const { return blockdescs_.back().varcount; }
     const BlockDesc& blockdesc() const { return blockdescs_.back(); }
-    bool varexists( const string& varname, unsigned& idx ) const;
-    bool varexists( const string& varname ) const;
+    bool varexists( const std::string& varname, unsigned& idx ) const;
+    bool varexists( const std::string& varname ) const;
     unsigned numVariables() const { return variables_.size(); }
 private:
 
@@ -101,7 +101,7 @@ public:
     static void setVerbosityLevel( int vlev ) { verbosity_level_ = vlev; }
 
 private:
-    string current_file_path;
+    std::string current_file_path;
 
 
 
@@ -117,19 +117,19 @@ private:
     CompilerContext program_ctx;
     char* program_source;
 
-    typedef set<string, ci_cmp_pred> INCLUDES;
+    typedef set<std::string, ci_cmp_pred> INCLUDES;
     INCLUDES included;
 
-    vector<string> referencedPathnames;
+    vector<std::string> referencedPathnames;
 
     ref_ptr<EScriptProgram> program;
-    typedef map<string, UserFunction, ci_cmp_pred> UserFunctions;
+    typedef map<std::string, UserFunction, ci_cmp_pred> UserFunctions;
     UserFunctions userFunctions;
 
     int findLabel(Token& tok, unsigned& posn);
     int enterLabel(Token& tok);
 
-    typedef map<string,Token> Constants;
+    typedef map<std::string,Token> Constants;
     Constants constants;
 
 /*
@@ -142,13 +142,13 @@ scopes:
 */
     Variables globals_;
 
-	bool globalexists( const string& varname, 
+	bool globalexists( const std::string& varname, 
                        unsigned& idx,
                        CompilerContext* atctx = NULL ) const;
     
     Scope localscope;
 
-    bool varexists( const string& varname ) const;
+    bool varexists( const std::string& varname ) const;
 
     bool inGlobalScope() const
     {
@@ -162,7 +162,7 @@ by getStatement processing a label ("tag:").
 note, getStatement checks to make sure the label is
 followed by a WHILE or DO statement.
 */
-    string latest_label;
+    std::string latest_label;
     void enterblock( eb_label_ok eblabel, eb_break_ok ebbreak, eb_continue_ok ebcontinue );
     void enterblock( eb_label_ok et );
     int readblock( CompilerContext& ctx, int level, BTokenId endtokenid, BTokenId* last_statement_id = NULL, Token* block_end = NULL );
@@ -178,13 +178,13 @@ followed by a WHILE or DO statement.
     int validate( const Expression& expr, CompilerContext& ctx ) const;
     int readexpr( Expression& expr, CompilerContext& ctx, unsigned flags );
     void inject( Expression& expr );
-    int insertBreak( const string& label );
+    int insertBreak( const std::string& label );
   public:
 
-    Compiler(ostream& cout);
+    Compiler(std::ostream& cout);
     ~Compiler();
 
-    void dump( ostream& os );
+    void dump( std::ostream& os );
     void setIncludeCompileMode() { compiling_include = true; }
 
     void addModule(FunctionalityModule* module);

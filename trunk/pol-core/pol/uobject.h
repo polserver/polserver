@@ -185,9 +185,9 @@ public:
     virtual void saveonexit( bool newvalue );
 
     virtual void printOn(std::ostream&) const;
-    virtual void printSelfOn( ostream& os ) const;
+    virtual void printSelfOn( std::ostream& os ) const;
 
-    virtual void printOnDebug( ostream& os ) const;
+    virtual void printOnDebug( std::ostream& os ) const;
     virtual void readProperties( ConfigElem& elem );
     //virtual BObjectImp* script_member( const char *membername );
     virtual BObjectImp* make_ref() = 0;

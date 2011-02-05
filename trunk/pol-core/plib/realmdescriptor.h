@@ -15,12 +15,12 @@ class ConfigElem;
 class RealmDescriptor
 {
 public:
-    static RealmDescriptor Load( const string& realm_name, const string& realm_path="" );
+    static RealmDescriptor Load( const std::string& realm_name, const std::string& realm_path="" );
 	RealmDescriptor();
     // default copy ctor and operator= are okay.
 
-    const string name;
-	const string file_path;
+    const std::string name;
+	const std::string file_path;
     const unsigned short width;
     const unsigned short height;
     const unsigned uomapid;         // map[n].mul, need to be able to tell the client this.
@@ -28,16 +28,16 @@ public:
 	const unsigned num_map_patches;
 	const unsigned num_static_patches;
 	const unsigned season;
-    const string mapserver_type;    // "memory" or "file"
+    const std::string mapserver_type;    // "memory" or "file"
 
-    string path( const string& filename ) const;
+    std::string path( const std::string& filename ) const;
 	bool operator==(const RealmDescriptor& rdesc) const
 	{
 		return (name == rdesc.name && uomapid == rdesc.uomapid);
 	}
 	RealmDescriptor & operator=( const RealmDescriptor & ) { return *this; }
 private:
-    RealmDescriptor( const string& realm_name, const string& realm_path, ConfigElem& elem );
+    RealmDescriptor( const std::string& realm_name, const std::string& realm_path, ConfigElem& elem );
 };
 
 #endif

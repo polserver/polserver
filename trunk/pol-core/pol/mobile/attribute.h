@@ -21,13 +21,13 @@ class Attribute
 {
 public:
 	Attribute( const Package* pkg, ConfigElem& elem );
-	explicit Attribute( const string& name );
+	explicit Attribute( const std::string& name );
 
 	const Package* pkg;
-	string name;
+	std::string name;
 	unsigned attrid;
 
-	vector< string > aliases; // aliases[0] is always name
+	vector< std::string > aliases; // aliases[0] is always name
 
 	Attribute* next;
 
@@ -44,7 +44,7 @@ public:
 	ScriptDef script_;
 };
 
-Attribute* FindAttribute( const string& str );
+Attribute* FindAttribute( const std::string& str );
 Attribute* FindAttribute( unsigned attrid );
 void clean_attributes();
 extern vector< Attribute* > attributes;
