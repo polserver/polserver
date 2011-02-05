@@ -15,7 +15,7 @@ class MiniDumper
 {
 public:
     static void Initialize( );
-    static void SetMiniDumpType( const string& dumptype );
+    static void SetMiniDumpType( const std::string& dumptype );
 };
 
 #endif

@@ -18,13 +18,13 @@ Notes
 #include "../clib/refptr.h"
 #include "../clib/maputil.h"
 
-typedef map< string, ref_ptr<EScriptProgram>, ci_cmp_pred > ScriptStorage;
+typedef map< std::string, ref_ptr<EScriptProgram>, ci_cmp_pred > ScriptStorage;
 
 extern ScriptStorage scrstore;
 
 class ScriptDef;
 
-ref_ptr<EScriptProgram> find_script( const string& name, 
+ref_ptr<EScriptProgram> find_script( const std::string& name, 
                                      bool complain_if_not_found = true,
                                      bool cache_script = true );
 
@@ -34,7 +34,7 @@ ref_ptr<EScriptProgram> find_script2( const ScriptDef& script,
                                       bool cache_script = true );
 
 
-int unload_script( const string& name );
+int unload_script( const std::string& name );
 int unload_all_scripts(); // returns # of scripts unloaded
 void log_all_script_cycle_counts( bool clear_counters );
 void clear_script_profile_counters();

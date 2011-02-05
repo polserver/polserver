@@ -17,7 +17,7 @@ unsigned char tilelayer( unsigned short tilenum );
 unsigned int tile_flags( unsigned short tilenum ); // POL flags
 unsigned int tile_uoflags( unsigned short tilenum );
 unsigned short tileweight( unsigned short tilenum );
-string tile_desc( unsigned short tilenum );
+std::string tile_desc( unsigned short tilenum );
 
 unsigned int landtile_uoflags( unsigned short landtile );
 unsigned int landtile_flags( unsigned short landtile );

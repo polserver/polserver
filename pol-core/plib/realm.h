@@ -32,18 +32,18 @@ class UMulti;
 class UObject;
 struct Zone;
 
-typedef vector<UMulti*> MultiList;
+typedef std::vector<UMulti*> MultiList;
 
 class Realm
 {
 public:
-    explicit Realm( const string& realm_name, const string& realm_path="" );
-	explicit Realm( const string& realm_name, Realm* realm );
+    explicit Realm( const std::string& realm_name, const std::string& realm_path="" );
+	explicit Realm( const std::string& realm_name, Realm* realm );
     ~Realm();
 	bool is_shadowrealm;
 	unsigned int shadowid;
 	Realm* baserealm;
-	const string shadowname;
+	const std::string shadowname;
 
     unsigned short width() const;
     unsigned short height() const;
@@ -51,7 +51,7 @@ public:
 	unsigned season() const;
 
     bool valid( unsigned short x, unsigned short y, short z ) const;
-	const string name() const;
+	const std::string name() const;
 
     bool walkheight(unsigned short x, unsigned short y, short oldz, 
                     short* newz, 

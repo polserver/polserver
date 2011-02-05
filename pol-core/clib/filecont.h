@@ -9,9 +9,9 @@ public:
     FileContents( const char* filname );
 
     const char* contents() const;
-    void set_contents( const string& str );
+    void set_contents( const std::string& str );
 private:
-    string contents_;
+    std::string contents_;
 };
 
 #endif

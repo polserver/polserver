@@ -46,7 +46,7 @@ class BXMLfile : public BObjectImp
 {
 public:
 	BXMLfile();
-	BXMLfile(string filename);
+	BXMLfile(std::string filename);
 	~BXMLfile();
 	virtual BObjectRef get_member( const char* membername );
 	virtual BObjectRef get_member_id( const int id ); //id test
@@ -65,7 +65,7 @@ public:
 
 private:
 	TiXmlDocument file;
-	string _filename;
+	std::string _filename;
 };
 
 
@@ -80,7 +80,7 @@ public:
 		return new BXmlNode(node);
 	}
 
-	virtual string getStringRep() const
+	virtual std::string getStringRep() const
 	{
 		if (node->Type()==TiXmlNode::TINYXML_TEXT)
 			return node->ToText()->Value();
@@ -125,7 +125,7 @@ public:
 		return new BXmlAttribute(node);
 	}
 
-	virtual string getStringRep() const
+	virtual std::string getStringRep() const
 	{
 		return "XMLAttributes";
 	}

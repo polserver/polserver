@@ -31,19 +31,19 @@ class BObjectImp;
 class StoredConfigElem : public ref_counted
 {
 private:
-    typedef std::multimap<string, ref_ptr<BObjectImp>, ci_cmp_pred > PropImpList;
+    typedef std::multimap<std::string, ref_ptr<BObjectImp>, ci_cmp_pred > PropImpList;
 
 public:
     StoredConfigElem( ConfigElem& elem );
     StoredConfigElem();
     ~StoredConfigElem();
 
-    BObjectImp* getimp( const string& propname ) const;
+    BObjectImp* getimp( const std::string& propname ) const;
 	BObjectImp* listprops() const;
-    void addprop( const string& propname, BObjectImp* imp );
+    void addprop( const std::string& propname, BObjectImp* imp );
 
     typedef StoredConfigElem::PropImpList::const_iterator const_iterator;
-    pair<const_iterator,const_iterator> equal_range( const string& propname ) const;
+    pair<const_iterator,const_iterator> equal_range( const std::string& propname ) const;
 private:
     PropImpList propimps_;
 
@@ -58,16 +58,16 @@ public:
     StoredConfigFile();
 //    ~StoredConfigFile();
     void load( ConfigFile& cf );
-    void load_tus_scp( const string& filename );
+    void load_tus_scp( const std::string& filename );
 
     typedef ref_ptr<StoredConfigElem> ElemRef;
     ElemRef findelem( int key );
-    ElemRef findelem( const string& key );
+    ElemRef findelem( const std::string& key );
 
     int maxintkey() const;
     const time_t modified() const;
 
-    typedef map<string, ElemRef, ci_cmp_pred> ElementsByName;
+    typedef map<std::string, ElemRef, ci_cmp_pred> ElementsByName;
     ElementsByName::const_iterator byname_begin() { return elements_byname_.begin(); }
     ElementsByName::const_iterator byname_end() { return elements_byname_.end(); }
 
@@ -91,10 +91,10 @@ private:
 
 typedef ref_ptr<StoredConfigFile> ConfigFileRef;
 
-ConfigFileRef FindConfigFile( const string& filename, const string& allpkgbase );
-void CreateEmptyStoredConfigFile( const string& filename );
-int UnloadConfigFile( const string& filename );
-ConfigFileRef LoadTusScpFile( const string& filename );
+ConfigFileRef FindConfigFile( const std::string& filename, const std::string& allpkgbase );
+void CreateEmptyStoredConfigFile( const std::string& filename );
+int UnloadConfigFile( const std::string& filename );
+ConfigFileRef LoadTusScpFile( const std::string& filename );
 
 #ifdef MEMORYLEAK
 void ConfigFiles_log_stuff();

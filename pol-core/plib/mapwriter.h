@@ -28,8 +28,8 @@ public:
 
     void Flush();
 
-    void CreateNewFiles(const string& realm_name, unsigned short width, unsigned short height);
-    void OpenExistingFiles(const string& realm_name);
+    void CreateNewFiles(const std::string& realm_name, unsigned short width, unsigned short height);
+    void OpenExistingFiles(const std::string& realm_name);
     void WriteConfigFile();
 
     unsigned int NextSolidIndex();
@@ -54,7 +54,7 @@ private:
     void FlushMapTileFile();
 
 private:
-    string _realm_name;
+    std::string _realm_name;
     unsigned short _width;
     unsigned short _height;
     fstream _ofs_base;

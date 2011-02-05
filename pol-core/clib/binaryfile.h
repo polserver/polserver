@@ -14,10 +14,10 @@ class BinaryFile
 {
 public:
     BinaryFile();
-    BinaryFile( const string& filename, ios::openmode mode );
+    BinaryFile( const std::string& filename, ios::openmode mode );
     ~BinaryFile();
 
-    void Open( const string& filename, ios::openmode mode );
+    void Open( const std::string& filename, ios::openmode mode );
     void Close();
 
     template<class T>
@@ -49,7 +49,7 @@ private:
     unsigned GetElementCount( size_t elemsize );
 
     fstream _file;
-    string _filename;
+    std::string _filename;
 };
 
 #endif

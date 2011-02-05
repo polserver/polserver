@@ -45,7 +45,7 @@ class BasicIoExecutorModule : public ExecutorModule
     BObjectImp* print();
 
     BasicIoExecutorModule(Executor& exec,
-                          ostream& cout) : ExecutorModule("BasicIo", exec),
+                          std::ostream& cout) : ExecutorModule("BasicIo", exec),
                                                 cout_(cout) { }
 
 	// class machinery
@@ -54,7 +54,7 @@ class BasicIoExecutorModule : public ExecutorModule
 	virtual int functionIndex( const char *func );
 	static BasicIoFunctionDef function_table[];
   private:
-    ostream& cout_;
+    std::ostream& cout_;
 };
 
 #endif

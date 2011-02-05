@@ -29,7 +29,7 @@ public:
     void open( const char* filespec );
 
     bool at_end() const;
-    string name() const;
+    std::string name() const;
     void next();
 
 
@@ -40,7 +40,7 @@ private:
     HANDLE hfd_;
 #else
     DIR* dir_;
-    string cur_name_;
+    std::string cur_name_;
 #endif
 
 
@@ -49,8 +49,8 @@ private: // not implemented
     DirList& operator=( const DirList& );
 };
 
-string normalized_dir_form( const string& str );
-string curdir();
+std::string normalized_dir_form( const std::string& str );
+std::string curdir();
 
 class PushDir
 {

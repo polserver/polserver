@@ -26,7 +26,7 @@ public :
         // Call the private transcoding method
         fUnicodeForm = XMLString::transcode(toTranscode);
     }
-    explicit XStr( const string& toTranscode )
+    explicit XStr( const std::string& toTranscode )
     {
         // Call the private transcoding method
         fUnicodeForm = XMLString::transcode(toTranscode.c_str() );

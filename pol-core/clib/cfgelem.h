@@ -39,8 +39,8 @@ public:
 protected:
     ConfigElemBase();
 protected:
-    string type_;
-    string rest_;
+    std::string type_;
+    std::string rest_;
 
     const ConfigSource* _source;
 };
@@ -55,8 +55,8 @@ public:
 
     bool has_prop( const char* propname ) const;
 
-    string remove_string( const char *propname );
-    string remove_string( const char *propname, const char *dflt );
+    std::string remove_string( const char *propname );
+    std::string remove_string( const char *propname, const char *dflt );
 
     unsigned short remove_ushort( const char *propname );
     unsigned short remove_ushort( const char *propname, unsigned short dflt );
@@ -78,8 +78,8 @@ public:
 
     void clear_prop( const char *propname );
 
-    bool remove_first_prop( string* propname, string* value );
-    bool remove_prop( const char *propname, string* value );
+    bool remove_first_prop( std::string* propname, std::string* value );
+    bool remove_prop( const char *propname, std::string* value );
 	bool remove_prop( const char *propname, unsigned int *plong );
 	bool remove_prop( const char *propname, unsigned short *pushort );
 
@@ -88,8 +88,8 @@ public:
     // get_prop calls: don't remove, and throw if not found.
     void get_prop( const char *propname, unsigned int* plong ) const;
     
-    string read_string( const char *propname ) const;
-    string read_string( const char *propname, const char *dflt ) const;
+    std::string read_string( const char *propname ) const;
+    std::string read_string( const char *propname, const char *dflt ) const;
 
 
 	void add_prop( const char *propname, const char *str );
@@ -97,9 +97,9 @@ public:
 	void add_prop( const char *propname, unsigned short sval );
 	void add_prop( const char *propname, short sval );
 
-    void throw_error( const string& errmsg ) const;
-    void warn( const string& errmsg ) const;
-	void warn_with_line( const string& errmsg ) const;
+    void throw_error( const std::string& errmsg ) const;
+    void warn( const std::string& errmsg ) const;
+	void warn_with_line( const std::string& errmsg ) const;
 
     void set_rest( const char* newrest );
 	void set_type( const char* newtype );
@@ -107,7 +107,7 @@ public:
     void set_source( const ConfigSource* source );
 protected:
     void prop_not_found( const char *propname ) const;
-    typedef std::multimap<string,string,ci_cmp_pred> Props;
+    typedef std::multimap<std::string,std::string,ci_cmp_pred> Props;
     Props properties;
 };
 
@@ -124,8 +124,8 @@ public:
 
     bool has_prop( const char* propname ) const;
 
-    string remove_string( const char *propname );
-    string remove_string( const char *propname, const char *dflt );
+    std::string remove_string( const char *propname );
+    std::string remove_string( const char *propname, const char *dflt );
 
     unsigned short remove_ushort( const char *propname );
     unsigned short remove_ushort( const char *propname, unsigned short dflt );
@@ -144,8 +144,8 @@ public:
 
     void clear_prop( const char *propname );
 
-    bool remove_first_prop( string* propname, string* value );
-    bool remove_prop( const char *propname, string* value );
+    bool remove_first_prop( std::string* propname, std::string* value );
+    bool remove_prop( const char *propname, std::string* value );
 	bool remove_prop( const char *propname, unsigned int *plong );
 	bool remove_prop( const char *propname, unsigned short *pushort );
 
@@ -158,8 +158,8 @@ public:
 	void add_prop( const char *propname, unsigned int lval );
 	void add_prop( const char *propname, unsigned short sval );
 
-    void throw_error( const string& errmsg ) const;
-    void warn( const string& errmsg ) const;
+    void throw_error( const std::string& errmsg ) const;
+    void warn( const std::string& errmsg ) const;
 
     void set_rest( const char* newrest );
     void set_source( const ConfigElem& elem );

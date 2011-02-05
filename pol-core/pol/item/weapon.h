@@ -52,7 +52,7 @@ public:
 
     const WeaponDesc& descriptor() const;
     const ScriptDef& hit_script() const;
-    void set_hit_script( const string& scriptname );
+    void set_hit_script( const std::string& scriptname );
 
     virtual Item* clone() const;
 

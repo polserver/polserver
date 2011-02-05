@@ -12,10 +12,10 @@ Notes
 
 struct CompilerConfig
 {
-    vector< string > PackageRoot;
-    string IncludeDirectory;
-    string ModuleDirectory;
-    string PolScriptRoot;
+    vector< std::string > PackageRoot;
+    std::string IncludeDirectory;
+    std::string ModuleDirectory;
+    std::string PolScriptRoot;
 	bool GenerateListing;
 	bool GenerateDebugInfo;
 	bool GenerateDebugTextInfo;
@@ -29,7 +29,7 @@ struct CompilerConfig
     bool DisplayUpToDateScripts;
     bool OptimizeObjectMembers;
 
-    void Read( const string& path );
+    void Read( const std::string& path );
     void SetDefaults();
 };
 

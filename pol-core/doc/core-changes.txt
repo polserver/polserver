@@ -1,4 +1,8 @@
 -- POL099 --
+05-02-2011 Turley:
+     Fixed: no exception will be thrown if region enter/leavescript doesnt exist
+     Fixed: windows trayicon
+
 10-22-2010 Turley:
      Fixed: UOHSA packet changes
      Added: mobile.clienttype / client.clienttype HSA flag 0x200
@@ -1335,7 +1339,7 @@
         Fixed:   Characters/Starting Location packet wasn't sending the correct characters number. This
                  was causing problems when enabling the 6th & 7th slot (or limiting to 1 slot). Characters
                  number will now be set to Max(CharacterSlot, 5). The number of CharacterSlots shown will
-                 depend on the acct expansion. (If it´s more than AOS, it'll send > 6, else 5).
+                 depend on the acct expansion. (If itÂ´s more than AOS, it'll send > 6, else 5).
         Added:   Flags in the Characters/Starting Location packet and the Enable Features (0xB9) are
                  now being set according to the CharacterSlots option in pol.cfg. It only works now 
                  with 1, 5, 6 and 7 slots, as this is a client limitation. You can hook the 0xB9 packet

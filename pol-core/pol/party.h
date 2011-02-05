@@ -55,7 +55,7 @@ class Party : public ref_counted
 		void send_member_msg_public(Character* chr,u16* wtext, size_t wtextlen);
 		void send_member_msg_private(Character* chr,Character* tochr, u16* wtext, size_t wtextlen);
 		u32 leader();
-		void printOn( ostream& os ) const;
+		void printOn( std::ostream& os ) const;
 		u32 get_member_at(unsigned short pos);
 		void cleanup();
 
