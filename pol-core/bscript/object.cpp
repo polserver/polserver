@@ -412,9 +412,9 @@ BObjectRef BObjectImp::set_member_id( const int id, BObjectImp* valueimp )
 
 	return set_member(memb->code, valueimp);
 }
-bool BObjectImp::contains( const BObjectImp& imp ) const
+long BObjectImp::contains( const BObjectImp& imp ) const
 {
-	return false;
+	return 0;
 }
 
 BObjectRef BObjectImp::operDotPlus( const char* name )
@@ -768,14 +768,13 @@ string ObjArray::getStringRep() const
 	return OSTRINGSTREAM_STR(os);
 }
 
-bool ObjArray::contains( const BObjectImp& imp ) const
+long ObjArray::contains( const BObjectImp& imp ) const
 {
 	for( Cont::const_iterator itr = ref_arr.begin(); itr != ref_arr.end(); ++itr )
 	{
 		if ( itr->get() )
 		{
 			BObject *bo = (itr->get());
-
 			if ( bo == NULL )
 			{
 				cout << scripts_thread_script << " - '" << imp << " in array{}' check. Invalid data at index " << (itr-ref_arr.begin())+1 << endl;
@@ -783,11 +782,11 @@ bool ObjArray::contains( const BObjectImp& imp ) const
 			}
 			else if ( bo->impptr()->isEqual(imp) )
 			{
-				return true;
+				return ((itr-ref_arr.begin())+1);
 			}
 		}
 	}
-	return false;
+	return 0;
 }
 
 class objref_cmp
