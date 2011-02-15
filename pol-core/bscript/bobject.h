@@ -156,7 +156,7 @@ public:
     virtual BObjectRef OperMultiSubscriptAssign( stack<BObjectRef>& indices, BObjectImp* target );
 
     virtual bool isTrue() const;
-    virtual bool contains( const BObjectImp& objimp ) const;
+    virtual long contains( const BObjectImp& objimp ) const;
 
     virtual BObjectImp* array_assign( BObjectImp* idx, BObjectImp* target );
     
@@ -346,7 +346,7 @@ public:
     virtual BObjectImp *copy() const;
 
     virtual BObjectRef operDotPlus( const char* name );
-    virtual bool contains( const BObjectImp& imp ) const;
+    virtual long contains( const BObjectImp& imp ) const;
 	virtual void operInsertInto( BObject& obj, const BObjectImp& objimp );
     virtual void operPlusEqual( BObject& obj, const BObjectImp& objimp );
     virtual BObjectImp* selfPlusObjImp(const BObjectImp& other) const;

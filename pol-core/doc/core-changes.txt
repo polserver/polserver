@@ -1,5 +1,8 @@
 -- POL099 --
-05-02-2011 Turley:
+02-15-2011 Turley:
+   Changed: "in" keyword now returns the arrayindex or 0 if no match was found
+
+02-05-2011 Turley:
      Fixed: no exception will be thrown if region enter/leavescript doesnt exist
      Fixed: windows trayicon
 
