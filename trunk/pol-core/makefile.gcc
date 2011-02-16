@@ -188,7 +188,7 @@ ecompile_sources=ecompile/ecompile.cpp \
 	clib/progver.cpp clib/passert.cpp clib/xmain.cpp \
 	clib/endian.cpp clib/logfile.cpp clib/fdump.cpp clib/stracpy.cpp \
 	clib/random.cpp clib/cmdargs.cpp \
-	clib/strexcpt.cpp  clib/threadhelp.cpp clib/wallclock.cpp
+	clib/strexcpt.cpp  clib/wallclock.cpp clib/threadhelp.cpp #clib/wallclock.cpp
 
 runecl_sources=runecl/runecl.cpp \
 	bscript/executor.cpp bscript/execmodl.cpp bscript/dbl.cpp \
@@ -263,7 +263,7 @@ bin/pol: $(objects)
 	$(LINKER) $(CXX_OPTS) -static -Xlinker -Map -Xlinker pol.map -o bin/pol $(objects) -l$(LIB_STL) -lpthread -lrt -lm -l$(LIBCRYPT) -lz $(LIB_MORE)
 
 bin/ecompile: $(ecompile_objects)
-	$(LINKER) $(CXX_OPTS) -static -o bin/ecompile $(ecompile_objects) -l$(LIB_STL) -lpthread -lrt -lm $(LIB_MORE)
+	$(LINKER) $(CXX_OPTS) -static -o bin/ecompile $(ecompile_objects) -l$(LIB_STL) -lpthread -pthread -lrt -lm $(LIB_MORE)
 
 bin/runecl: $(runecl_objects)
 	$(LINKER) $(CXX_OPTS) -static -o bin/runecl $(runecl_objects) -l$(LIB_STL) -lpthread -lrt -lm $(LIB_MORE)
