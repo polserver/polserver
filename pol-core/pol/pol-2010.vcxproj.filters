@@ -1269,4 +1269,7 @@
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <MASM Include="..\clib\win2kcompat.masm" />
+  </ItemGroup>
 </Project>
