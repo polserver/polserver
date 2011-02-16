@@ -28,4 +28,7 @@
   <ItemGroup>
     <None Include="ecompile.ico" />
   </ItemGroup>
+  <ItemGroup>
+    <MASM Include="..\clib\win2kcompat.masm" />
+  </ItemGroup>
 </Project>
