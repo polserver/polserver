@@ -28,4 +28,7 @@
   <ItemGroup>
     <ClInclude Include="resource.h" />
   </ItemGroup>
+  <ItemGroup>
+    <MASM Include="..\clib\win2kcompat.masm" />
+  </ItemGroup>
 </Project>
