@@ -18,7 +18,7 @@ Notes
 #include <string.h>
 #include <stdio.h>
 #include <time.h>
-
+#include <memory>
 #include "../clib/clib.h"
 #include "../clib/dirlist.h"
 #include "../clib/fileutil.h"
