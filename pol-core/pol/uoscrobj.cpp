@@ -155,13 +155,9 @@ BObjectRef ECharacterRefObjImp::set_member_id( const int id, BObjectImp* value )
 		result = obj_->set_script_member_id_double( id, dbl->value() );
 	}
 	if (result != NULL)
-	{
 		return BObjectRef( result );
-	}
 	else
-	{
 		return BObjectRef(UninitObject::create());
-	}
 }
 
 BObjectRef ECharacterRefObjImp::set_member( const char* membername, BObjectImp* value )
@@ -193,9 +189,7 @@ BObjectImp* ECharacterRefObjImp::call_method_id( const int id, Executor& ex, boo
 			return base::call_method_id( id, ex );
 	}
 	else
-	{
 		return new BError( "That object no longer exists" );
-	}
 }
 
 BObjectImp* ECharacterRefObjImp::call_method( const char* methodname, Executor& ex )
@@ -242,14 +236,10 @@ bool ECharacterRefObjImp::isEqual(const BObjectImp& objimp) const
 			return (chrref_imp->obj_->serial == obj_->serial);
 		}
 		else
-		{
 			return false;
-		}
 	}
 	else
-	{
 		return false;
-	}
 }
 
 bool ECharacterRefObjImp::isLessThan(const BObjectImp& objimp) const
@@ -266,18 +256,12 @@ bool ECharacterRefObjImp::isLessThan(const BObjectImp& objimp) const
 			return (chrref_imp->obj_->serial < obj_->serial);
 		}
 		else if (aob->object_type() == &eitemrefobjimp_type)
-		{
 			return true;
-		}
 		else
-		{
 			return false;
-		}
 	}
 	else
-	{
 		return false;
-	}
 }
 
 const char* EOfflineCharacterRefObjImp::typeOf() const
@@ -342,13 +326,9 @@ BObjectRef EItemRefObjImp::set_member_id( const int id, BObjectImp* value )
 		result = obj_->set_script_member_id_double( id, dbl->value() );
 	}
 	if (result != NULL)
-	{
 		return BObjectRef( result );
-	}
 	else
-	{
 		return BObjectRef(UninitObject::create());
-	}
 }
 
 BObjectRef EItemRefObjImp::set_member( const char* membername, BObjectImp* value )
@@ -380,9 +360,7 @@ BObjectImp* EItemRefObjImp::call_method_id( const int id, Executor& ex, bool for
 			return base::call_method_id( id, ex, forcebuiltin );
 	}
 	else
-	{
 		return new BError( "That object no longer exists" );
-	}
 }
 
 BObjectImp* EItemRefObjImp::call_method( const char* methodname, Executor& ex )
@@ -395,7 +373,7 @@ BObjectImp* EItemRefObjImp::call_method( const char* methodname, Executor& ex )
 	}
 	else
 		forcebuiltin = false;
-	
+
 	ObjMethod* objmethod = getKnownObjMethod(methodname);
 	if ( objmethod != NULL )
 		return this->call_method_id(objmethod->id, ex, forcebuiltin);
@@ -429,14 +407,10 @@ bool EItemRefObjImp::isEqual(const BObjectImp& objimp) const
 			return (itemref_imp->obj_->serial == obj_->serial);
 		}
 		else
-		{
 			return false;
-		}
 	}
 	else
-	{
 		return false;
-	}
 }
 
 bool EItemRefObjImp::isLessThan(const BObjectImp& objimp) const
@@ -453,14 +427,10 @@ bool EItemRefObjImp::isLessThan(const BObjectImp& objimp) const
 			return (itemref_imp->obj_->serial < obj_->serial);
 		}
 		else
-		{
 			return (&eitemrefobjimp_type < aob->object_type());
-		}
 	}
 	else
-	{
 		return false;
-	}
 }
 
 const char* EUBoatRefObjImp::typeOf() const
@@ -510,13 +480,9 @@ BObjectRef EUBoatRefObjImp::set_member_id( const int id, BObjectImp* value )
 		result = obj_->set_script_member_id_double( id, dbl->value() );
 	}
 	if (result != NULL)
-	{
 		return BObjectRef( result );
-	}
 	else
-	{
 		return BObjectRef(UninitObject::create());
-	}
 }
 
 BObjectRef EUBoatRefObjImp::set_member( const char* membername, BObjectImp* value )
@@ -539,9 +505,7 @@ BObjectImp* EUBoatRefObjImp::call_method_id( const int id, Executor& ex, bool fo
 			return base::call_method_id( id, ex );
 	}
 	else
-	{
 		return new BError( "That object no longer exists" );
-	}
 }
 
 BObjectImp* EUBoatRefObjImp::call_method( const char* methodname, Executor& ex )
@@ -675,13 +639,9 @@ BObjectRef EMultiRefObjImp::set_member_id( const int id, BObjectImp* value )
 		result = obj_->set_script_member_id_double( id, dbl->value() );
 	}
 	if (result != NULL)
-	{
 		return BObjectRef( result );
-	}
 	else
-	{
 		return BObjectRef(UninitObject::create());
-	}
 }
 BObjectRef EMultiRefObjImp::set_member( const char* membername, BObjectImp* value )
 {
@@ -780,7 +740,7 @@ BObjectImp* UObject::get_script_member_id( const int id ) const
 			else
 				return new BLong(0);
 			break;
-		case MBR_REALM: 
+		case MBR_REALM:
 			if ( realm != NULL )
 				return new String(realm->name());
 			else
@@ -828,27 +788,27 @@ BObjectImp* UObject::set_script_member( const char *membername, const std::strin
 
 BObjectImp* UObject::set_script_member_id( const int id, int value )
 {
-    if (orphan())
-        return new UninitObject;
+		if (orphan())
+				return new UninitObject;
 
-    set_dirty();
-    switch(id)
-    {
-    case MBR_GRAPHIC:
-        setgraphic( static_cast<unsigned short>(value) );
-        return new BLong( graphic );
-    case MBR_COLOR:
-        {
-            bool res = setcolor( static_cast<unsigned short>(value) );
-            on_color_changed();
-            if (!res) // TODO log?
-                return new BError( "Invalid color value " + hexint(value) );
-            else
-                return new BLong( color );
-        }
-    default:
-        return NULL;
-    }
+		set_dirty();
+		switch(id)
+		{
+			case MBR_GRAPHIC:
+				setgraphic( static_cast<unsigned short>(value) );
+				return new BLong( graphic );
+			case MBR_COLOR:
+			{
+				bool res = setcolor( static_cast<unsigned short>(value) );
+				on_color_changed();
+				if (!res) // TODO log?
+					return new BError( "Invalid color value " + hexint(value) );
+				else
+					return new BLong( color );
+			}
+			default:
+				return NULL;
+		}
 }
 
 BObjectImp* UObject::set_script_member( const char *membername, int value )
@@ -1012,35 +972,35 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
 		case MBR_SAVEONEXIT:
 			saveonexit(value?true:false);
 			return new BLong( saveonexit() );
-		case MBR_FIRE_RESIST_MOD: 
-			return new BLong( element_resist_mod.fire = static_cast<short>(value) ); 
+		case MBR_FIRE_RESIST_MOD:
+			return new BLong( element_resist_mod.fire = static_cast<short>(value) );
 			break;
-		case MBR_COLD_RESIST_MOD: 
-			return new BLong( element_resist_mod.cold = static_cast<short>(value) ); 
+		case MBR_COLD_RESIST_MOD:
+			return new BLong( element_resist_mod.cold = static_cast<short>(value) );
 			break;
-		case MBR_ENERGY_RESIST_MOD: 
-			return new BLong( element_resist_mod.energy = static_cast<short>(value) ); 
+		case MBR_ENERGY_RESIST_MOD:
+			return new BLong( element_resist_mod.energy = static_cast<short>(value) );
 			break;
-		case MBR_POISON_RESIST_MOD: 
-			return new BLong( element_resist_mod.poison = static_cast<short>(value) ); 
+		case MBR_POISON_RESIST_MOD:
+			return new BLong( element_resist_mod.poison = static_cast<short>(value) );
 			break;
-		case MBR_PHYSICAL_RESIST_MOD: 
-			return new BLong( element_resist_mod.physical = static_cast<short>(value) ); 
+		case MBR_PHYSICAL_RESIST_MOD:
+			return new BLong( element_resist_mod.physical = static_cast<short>(value) );
 			break;
-		case MBR_FIRE_DAMAGE_MOD: 
-			return new BLong( element_damage_mod.fire = static_cast<short>(value) ); 
+		case MBR_FIRE_DAMAGE_MOD:
+			return new BLong( element_damage_mod.fire = static_cast<short>(value) );
 			break;
-		case MBR_COLD_DAMAGE_MOD: 
-			return new BLong( element_damage_mod.cold = static_cast<short>(value) ); 
+		case MBR_COLD_DAMAGE_MOD:
+			return new BLong( element_damage_mod.cold = static_cast<short>(value) );
 			break;
-		case MBR_ENERGY_DAMAGE_MOD: 
-			return new BLong( element_damage_mod.energy = static_cast<short>(value) ); 
+		case MBR_ENERGY_DAMAGE_MOD:
+			return new BLong( element_damage_mod.energy = static_cast<short>(value) );
 			break;
-		case MBR_POISON_DAMAGE_MOD: 
-			return new BLong( element_damage_mod.poison = static_cast<short>(value) ); 
+		case MBR_POISON_DAMAGE_MOD:
+			return new BLong( element_damage_mod.poison = static_cast<short>(value) );
 			break;
-		case MBR_PHYSICAL_DAMAGE_MOD: 
-			return new BLong( element_damage_mod.physical = static_cast<short>(value) ); 
+		case MBR_PHYSICAL_DAMAGE_MOD:
+			return new BLong( element_damage_mod.physical = static_cast<short>(value) );
 			break;
 		default: return NULL;
 	}
@@ -1062,9 +1022,7 @@ BObjectImp* Item::custom_script_method( const char* methodname, Executor& ex )
 	{
 		unsigned PC;
 		if (id.method_script->FindExportedFunction( methodname, ex.numParams()+1, PC ))
-		{
 			return id.method_script->call( PC, make_ref(), ex.fparams );
-		}
 	}
 	return NULL;
 }
@@ -1082,9 +1040,7 @@ BObject Item::call_custom_method( const char* methodname, BObjectImpRefVec& pmor
 	{
 		unsigned PC;
 		if (id.method_script->FindExportedFunction( methodname, pmore.size()+1, PC ))
-		{
 			return id.method_script->call( PC, new EItemRefObjImp(this), pmore );
-		}
 		else
 		{
 			string message;
@@ -1100,9 +1056,7 @@ BObject Item::call_custom_method( const char* methodname, BObjectImpRefVec& pmor
 		}
 	}
 	else
-	{
 		return BObject( new BError( "No method script defined for " + id.objtype_description() ) );
-	}
 }
 
 class ARUpdater
@@ -1152,9 +1106,7 @@ public:
 			send_create_mobile_to_nearby_cansee( chr );
 		}
 		else if (chr->is_visible())
-		{
 			chr->unhide();
-		}
 	}
 };
 
@@ -1172,9 +1124,6 @@ BObjectImp* Character::get_script_member_id( const int id ) const
 	BObjectImp* imp = base::get_script_member_id( id );
 	if (imp != NULL)
 		return imp;
-
-	Item* bp = NULL;
-	string mode="";
 
 	switch(id)
 	{
@@ -1195,12 +1144,14 @@ BObjectImp* Character::get_script_member_id( const int id ) const
 		case MBR_DEAD: return new BLong(dead_); break;
 		case MBR_AR: return new BLong(ar()); break;
 		case MBR_BACKPACK:
-			bp = backpack();
+		{
+			Item* bp = backpack();
 			if (bp != NULL)
 				return bp->make_ref();
 			else
 				return new BError( "That has no backpack" );
 			break;
+		}
 		case MBR_WEAPON:
 			if (weapon != NULL)
 				return weapon->make_ref();
@@ -1226,7 +1177,7 @@ BObjectImp* Character::get_script_member_id( const int id ) const
 			else
 				return new BError( "Not attached to an account" );
 			break;
-		case MBR_CMDLEVEL: return new BLong(cmdlevel); break;
+		case MBR_CMDLEVEL:    return new BLong(cmdlevel); break;
 		case MBR_CMDLEVELSTR: return new String( cmdlevels2[cmdlevel].name ); break;
 		case MBR_CRIMINAL: return new BLong( is_criminal() ? 1 : 0 ); break;
 		case MBR_IP:
@@ -1239,8 +1190,8 @@ BObjectImp* Character::get_script_member_id( const int id ) const
 
 		case MBR_TITLE_PREFIX: return new String(title_prefix); break;
 		case MBR_TITLE_SUFFIX: return new String(title_suffix); break;
-		case MBR_TITLE_GUILD: return new String(title_guild); break;
-		case MBR_TITLE_RACE: return new String(title_race); break;
+		case MBR_TITLE_GUILD:  return new String(title_guild); break;
+		case MBR_TITLE_RACE:   return new String(title_race); break;
 		case MBR_UCLANG: return new String(uclang); break;
 		case MBR_GUILDID: return new BLong( guildid() ); break;
 		case MBR_GUILD:
@@ -1249,7 +1200,6 @@ BObjectImp* Character::get_script_member_id( const int id ) const
 			else
 				return new BError( "Not a member of a guild" );
 			break;
-
 
 		case MBR_MURDERER: return new BLong( murderer_ ? 1 : 0 ); break;
 		case MBR_ATTACHED:
@@ -1294,7 +1244,7 @@ BObjectImp* Character::get_script_member_id( const int id ) const
 
 		case MBR_CREATEDAT: return new BLong( created_at ); break;
 
-		case MBR_REPORTABLES:  return GetReportables(); break;
+		case MBR_REPORTABLES: return GetReportables(); break;
 
 		case MBR_OPPONENT:
 			if ( opponent_ != NULL )
@@ -1302,26 +1252,14 @@ BObjectImp* Character::get_script_member_id( const int id ) const
 			else
 				return new BError("Mobile does not have any opponent selected.");
 			break;
-		case MBR_CONNECTED:
-			if ( connected )
-				return new BLong(1);
-			else
-				return new BLong(0);
-			break;
+		case MBR_CONNECTED: return new BLong( connected ? 1 : 0 ); break;
 		case MBR_TRADING_WITH:
-			{
-				if ( trading_with != NULL )
-					return trading_with->make_ref();
-				else
-					return new BError("Mobile is not currently trading with anyone.");
-			}
-			break;
-		case MBR_CLIENTTYPE:
-			if (client != NULL)
-				return new BLong( client->ClientType );
+			if ( trading_with != NULL )
+				return trading_with->make_ref();
 			else
-				return new BLong(0);
+				return new BError("Mobile is not currently trading with anyone.");
 			break;
+		case MBR_CLIENTTYPE: return new BLong( client != NULL ? client->ClientType : 0 ); break;
 		case MBR_CURSOR:
 			if (client != NULL)
 				return new BLong( target_cursor_busy() ? 1 : 0 );
@@ -1341,134 +1279,71 @@ BObjectImp* Character::get_script_member_id( const int id ) const
 				return new BLong(0);
 			break;
 		case MBR_MOVEMODE:
-		  if (movemode & MOVEMODE_LAND)
-		    mode="L";
-		  if (movemode & MOVEMODE_SEA)
-		    mode+="S";
-		  if (movemode & MOVEMODE_AIR)
-		    mode+="A";
-          if (movemode & MOVEMODE_FLY)
-		    mode+="F";
-		  return new String( mode );
-		  break;
-	    case MBR_HITCHANCE_MOD: 
-			return new BLong(hitchance_mod_); 
+		{
+			string mode="";
+			if (movemode & MOVEMODE_LAND)
+				mode="L";
+			if (movemode & MOVEMODE_SEA)
+				mode+="S";
+			if (movemode & MOVEMODE_AIR)
+				mode+="A";
+					if (movemode & MOVEMODE_FLY)
+				mode+="F";
+			return new String( mode );
 			break;
-		case MBR_EVASIONCHANCE_MOD: 
-			return new BLong(evasionchance_mod_); 
-			break;
-		case MBR_FIRE_RESIST: 
-			return new BLong(element_resist.fire); 
-			break;
-		case MBR_COLD_RESIST: 
-			return new BLong(element_resist.cold); 
-			break;
-		case MBR_ENERGY_RESIST: 
-			return new BLong(element_resist.energy); 
-			break;
-		case MBR_POISON_RESIST: 
-			return new BLong(element_resist.poison); 
-			break;
-		case MBR_PHYSICAL_RESIST: 
-			return new BLong(element_resist.physical); 
-			break;
-		case MBR_FIRE_RESIST_MOD: 
-			return new BLong(element_resist_mod.fire); 
-			break;
-		case MBR_COLD_RESIST_MOD: 
-			return new BLong(element_resist_mod.cold); 
-			break;
-		case MBR_ENERGY_RESIST_MOD: 
-			return new BLong(element_resist_mod.energy); 
-			break;
-		case MBR_POISON_RESIST_MOD: 
-			return new BLong(element_resist_mod.poison); 
-			break;
-		case MBR_PHYSICAL_RESIST_MOD: 
-			return new BLong(element_resist_mod.physical); 
-			break;
-		case MBR_STATCAP:
-			return new BLong(expanded_statbar.statcap);
-		case MBR_SKILLCAP:
-			return new BLong(skillcap_);
-			break;
-		case MBR_LUCK:
-			return new BLong(expanded_statbar.luck);
-		case MBR_FOLLOWERSMAX:
-			return new BLong(expanded_statbar.followers_max);
-		case MBR_TITHING:
-			return new BLong(expanded_statbar.tithing);
-		case MBR_FOLLOWERS:
-			return new BLong(expanded_statbar.followers);
-		case MBR_FIRE_DAMAGE: 
-			return new BLong(element_damage.fire); 
-			break;
-		case MBR_COLD_DAMAGE: 
-			return new BLong(element_damage.cold); 
-			break;
-		case MBR_ENERGY_DAMAGE: 
-			return new BLong(element_damage.energy); 
-			break;
-		case MBR_POISON_DAMAGE: 
-			return new BLong(element_damage.poison); 
-			break;
-		case MBR_PHYSICAL_DAMAGE: 
-			return new BLong(element_damage.physical); 
-			break;
-		case MBR_FIRE_DAMAGE_MOD: 
-			return new BLong(element_damage_mod.fire); 
-			break;
-		case MBR_COLD_DAMAGE_MOD: 
-			return new BLong(element_damage_mod.cold); 
-			break;
-		case MBR_ENERGY_DAMAGE_MOD: 
-			return new BLong(element_damage_mod.energy); 
-			break;
-		case MBR_POISON_DAMAGE_MOD: 
-			return new BLong(element_damage_mod.poison); 
-			break;
-		case MBR_PHYSICAL_DAMAGE_MOD: 
-			return new BLong(element_damage_mod.physical); 
-			break;
+		}
+		case MBR_HITCHANCE_MOD:     return new BLong(hitchance_mod_); break;
+		case MBR_EVASIONCHANCE_MOD: return new BLong(evasionchance_mod_); break;
+		case MBR_FIRE_RESIST:     return new BLong(element_resist.fire); break;
+		case MBR_COLD_RESIST:     return new BLong(element_resist.cold); break;
+		case MBR_ENERGY_RESIST:   return new BLong(element_resist.energy); break;
+		case MBR_POISON_RESIST:   return new BLong(element_resist.poison); break;
+		case MBR_PHYSICAL_RESIST: return new BLong(element_resist.physical); break;
+		case MBR_FIRE_RESIST_MOD:     return new BLong(element_resist_mod.fire); break;
+		case MBR_COLD_RESIST_MOD:     return new BLong(element_resist_mod.cold); break;
+		case MBR_ENERGY_RESIST_MOD:   return new BLong(element_resist_mod.energy); break;
+		case MBR_POISON_RESIST_MOD:   return new BLong(element_resist_mod.poison); break;
+		case MBR_PHYSICAL_RESIST_MOD: return new BLong(element_resist_mod.physical); break;
+		case MBR_STATCAP:      return new BLong(expanded_statbar.statcap); break;
+		case MBR_SKILLCAP:     return new BLong(skillcap_); break;
+		case MBR_LUCK:         return new BLong(expanded_statbar.luck); break;
+		case MBR_FOLLOWERSMAX: return new BLong(expanded_statbar.followers_max); break;
+		case MBR_TITHING:      return new BLong(expanded_statbar.tithing); break;
+		case MBR_FOLLOWERS:    return new BLong(expanded_statbar.followers); break;
+		case MBR_FIRE_DAMAGE:     return new BLong(element_damage.fire); break;
+		case MBR_COLD_DAMAGE:     return new BLong(element_damage.cold); break;
+		case MBR_ENERGY_DAMAGE:   return new BLong(element_damage.energy); break;
+		case MBR_POISON_DAMAGE:   return new BLong(element_damage.poison); break;
+		case MBR_PHYSICAL_DAMAGE: return new BLong(element_damage.physical); break;
+		case MBR_FIRE_DAMAGE_MOD:     return new BLong(element_damage_mod.fire); break;
+		case MBR_COLD_DAMAGE_MOD:     return new BLong(element_damage_mod.cold); break;
+		case MBR_ENERGY_DAMAGE_MOD:   return new BLong(element_damage_mod.energy); break;
+		case MBR_POISON_DAMAGE_MOD:   return new BLong(element_damage_mod.poison); break;
+		case MBR_PHYSICAL_DAMAGE_MOD: return new BLong(element_damage_mod.physical); break;
 		case MBR_PARTY:
 			if (party_ != NULL)
 				return CreatePartyRefObjImp( party_ );
 			else
 				return new BError( "Not a member of a party" );
 			break;
-		case MBR_PARTYLOOT:
-			return new BLong(party_can_loot());
+		case MBR_PARTYLOOT: return new BLong(party_can_loot());
 		case MBR_CANDIDATE_OF_PARTY:
 			if (candidate_of_ != NULL)
 				return CreatePartyRefObjImp( candidate_of_ );
 			else
 				return new BError( "Not a candidate of a party" );
 			break;
-		case MBR_MOVECOST_WALK:
-			return new Double( movement_cost.walk );
-			break;
-		case MBR_MOVECOST_RUN:
-			return new Double( movement_cost.run );
-			break;
-		case MBR_MOVECOST_WALK_MOUNTED:
-			return new Double( movement_cost.walk_mounted );
-			break;
-		case MBR_MOVECOST_RUN_MOUNTED:
-			return new Double( movement_cost.run_mounted );
-			break;
+		case MBR_MOVECOST_WALK:         return new Double( movement_cost.walk ); break;
+		case MBR_MOVECOST_RUN:	        return new Double( movement_cost.run ); break;
+		case MBR_MOVECOST_WALK_MOUNTED: return new Double( movement_cost.walk_mounted ); break;
+		case MBR_MOVECOST_RUN_MOUNTED:  return new Double( movement_cost.run_mounted ); break;
 
 		case MBR_AGGRESSORTO:  return GetAggressorTo(); break;
-
 		case MBR_LAWFULLYDAMAGED: return GetLawFullyDamaged(); break;
 
-		case MBR_UO_EXPANSION_CLIENT:
-			if (client != NULL)
-				return new BLong( client->UOExpansionFlagClient );
-			else
-				return new BLong(0);
-			break;
+		case MBR_UO_EXPANSION_CLIENT: return new BLong( client != NULL ? client->UOExpansionFlagClient : 0 ); break;
 
-        case MBR_DEAFENED: return new BLong( deafened() ? 1 : 0 ); break;
+		case MBR_DEAFENED: return new BLong( deafened() ? 1 : 0 ); break;
 
 		case MBR_CLIENT:
 			if ((client != NULL) && (!client->disconnect))
@@ -1477,9 +1352,10 @@ BObjectImp* Character::get_script_member_id( const int id ) const
 				return new BError( "No client attached." );
 			break;
 
-		default: 
+		default:
 			return NULL;
 	}
+	return NULL;
 }
 
 BObjectImp* Character::get_script_member( const char *membername ) const
@@ -1502,11 +1378,11 @@ BObjectImp* Character::set_script_member_id( const int id, const std::string& va
 	{
 		case MBR_TITLE_PREFIX: ret = new String( title_prefix = value ); break;
 		case MBR_TITLE_SUFFIX: ret = new String( title_suffix = value ); break;
-		case MBR_TITLE_GUILD: ret = new String( title_guild = value ); break;
-		case MBR_TITLE_RACE: ret = new String( title_race = value ); break;
+		case MBR_TITLE_GUILD:  ret = new String( title_guild = value ); break;
+		case MBR_TITLE_RACE:   ret = new String( title_race = value ); break;
 		default: return NULL;
 	}
-    set_dirty();
+	set_dirty();
 	increv();
 	if (this->has_active_client())
 		send_object_cache_to_inrange(this);
@@ -1537,14 +1413,14 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
 				gender = GENDER_MALE;
 			return new BLong( gender );
 		case MBR_RACE:
-            if (value == RACE_HUMAN)
-                race = RACE_HUMAN;
+			if (value == RACE_HUMAN)
+				race = RACE_HUMAN;
 			else if (value == RACE_ELF)
 				race = RACE_ELF;
-            else if (value == RACE_GARGOYLE)
-                race = RACE_GARGOYLE;
-            if ((race != RACE_GARGOYLE) && (movemode & MOVEMODE_FLY)) // FIXME graphic based maybe?
-                movemode = (MOVEMODE)(movemode ^ MOVEMODE_FLY); //remove flying 
+			else if (value == RACE_GARGOYLE)
+				race = RACE_GARGOYLE;
+			if ((race != RACE_GARGOYLE) && (movemode & MOVEMODE_FLY)) // FIXME graphic based maybe?
+				movemode = (MOVEMODE)(movemode ^ MOVEMODE_FLY); //remove flying
 			return new BLong( race );
 		case MBR_TRUEOBJTYPE:
 			return new BLong( trueobjtype = static_cast<unsigned short>(value) );
@@ -1557,14 +1433,14 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
 		case MBR_DELAY_MOD:
 			return new BLong( delay_mod_ = static_cast<short>(value) );
 		case MBR_HIDDEN:
-            {
-			    //FIXME: don't call on_change unless the value actually changed?
-			    bool oldhidden = hidden_;
-			    hidden_ = value?true:false;
-			    if(oldhidden != hidden_)
-				    HiddenUpdater::on_change( this );
-			    return new BLong( hidden_ );
-            }
+		{
+			//FIXME: don't call on_change unless the value actually changed?
+			bool oldhidden = hidden_;
+			hidden_ = value?true:false;
+			if(oldhidden != hidden_)
+				HiddenUpdater::on_change( this );
+			return new BLong( hidden_ );
+		}
 		case MBR_CONCEALED:
 			concealed_ = static_cast<unsigned char>(value);
 			ConcealedUpdater::on_change( this );
@@ -1596,93 +1472,93 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
 				return new BLong(0);
 			on_facing_changed();
 			return new BLong(1);
-		case MBR_FIRE_RESIST_MOD: 
+		case MBR_FIRE_RESIST_MOD:
 			element_resist_mod.fire = static_cast<short>(value);
 			refresh_ar();
 			return new BLong( element_resist_mod.fire );
 			break;
-		case MBR_COLD_RESIST_MOD: 
+		case MBR_COLD_RESIST_MOD:
 			element_resist_mod.cold = static_cast<short>(value);
 			refresh_ar();
 			return new BLong( element_resist_mod.cold );
 			break;
-		case MBR_ENERGY_RESIST_MOD: 
+		case MBR_ENERGY_RESIST_MOD:
 			element_resist_mod.energy = static_cast<short>(value);
 			refresh_ar();
 			return new BLong( element_resist_mod.energy );
 			break;
-		case MBR_POISON_RESIST_MOD: 
+		case MBR_POISON_RESIST_MOD:
 			element_resist_mod.poison = static_cast<short>(value);
 			refresh_ar();
 			return new BLong( element_resist_mod.poison );
 			break;
-		case MBR_PHYSICAL_RESIST_MOD: 
+		case MBR_PHYSICAL_RESIST_MOD:
 			element_resist_mod.physical = static_cast<short>(value);
 			refresh_ar();
 			return new BLong( element_resist_mod.physical );
 			break;
-		case MBR_STATCAP: 
+		case MBR_STATCAP:
 			expanded_statbar.statcap = static_cast<short>(value);
 			if ( !this->isa(UObject::CLASS_NPC) )
 				on_aos_ext_stat_changed();
 			return new BLong( expanded_statbar.statcap );
 			break;
-		case MBR_SKILLCAP: 
-			return new BLong(skillcap_ = static_cast<short>(value)); 
+		case MBR_SKILLCAP:
+			return new BLong(skillcap_ = static_cast<short>(value));
 			break;
-		case MBR_LUCK: 
+		case MBR_LUCK:
 			expanded_statbar.luck = static_cast<short>(value);
 			if ( !this->isa(UObject::CLASS_NPC) )
 				on_aos_ext_stat_changed();
-			return new BLong( expanded_statbar.luck ); 
+			return new BLong( expanded_statbar.luck );
 			break;
-		case MBR_FOLLOWERSMAX: 
+		case MBR_FOLLOWERSMAX:
 			expanded_statbar.followers_max = static_cast<u8>(value);
 			if ( !this->isa(UObject::CLASS_NPC) )
 				on_aos_ext_stat_changed();
-			return new BLong( expanded_statbar.followers_max ); 
+			return new BLong( expanded_statbar.followers_max );
 			break;
-		case MBR_TITHING: 
+		case MBR_TITHING:
 			expanded_statbar.tithing = static_cast<short>(value);
 			if ( !this->isa(UObject::CLASS_NPC) )
 				on_aos_ext_stat_changed();
-			return new BLong( expanded_statbar.tithing ); 
+			return new BLong( expanded_statbar.tithing );
 			break;
-		case MBR_FOLLOWERS: 
+		case MBR_FOLLOWERS:
 			expanded_statbar.followers = static_cast<u8>(value);
 			if ( !this->isa(UObject::CLASS_NPC) )
 				on_aos_ext_stat_changed();
-			return new BLong( expanded_statbar.followers ); 
+			return new BLong( expanded_statbar.followers );
 			break;
-		case MBR_FIRE_DAMAGE_MOD: 
+		case MBR_FIRE_DAMAGE_MOD:
 			element_damage_mod.fire = static_cast<short>(value);
 			refresh_ar();
 			return new BLong( element_damage_mod.fire );
 			break;
-		case MBR_COLD_DAMAGE_MOD: 
+		case MBR_COLD_DAMAGE_MOD:
 			element_damage_mod.cold = static_cast<short>(value);
 			refresh_ar();
 			return new BLong( element_damage_mod.cold );
 			break;
-		case MBR_ENERGY_DAMAGE_MOD: 
+		case MBR_ENERGY_DAMAGE_MOD:
 			element_damage_mod.energy = static_cast<short>(value);
 			refresh_ar();
 			return new BLong( element_damage_mod.energy );
 			break;
-		case MBR_POISON_DAMAGE_MOD: 
+		case MBR_POISON_DAMAGE_MOD:
 			element_damage_mod.poison = static_cast<short>(value);
 			refresh_ar();
 			return new BLong( element_damage_mod.poison );
 			break;
-		case MBR_PHYSICAL_DAMAGE_MOD: 
+		case MBR_PHYSICAL_DAMAGE_MOD:
 			element_damage_mod.physical = static_cast<short>(value);
 			refresh_ar();
 			return new BLong( element_damage_mod.physical );
 			break;
-		case MBR_MOVECOST_WALK: return new Double( (movement_cost.walk = double(value)) ); break;
-		case MBR_MOVECOST_RUN: return new Double( (movement_cost.run = double(value)) ); break;
+		case MBR_MOVECOST_WALK:         return new Double( (movement_cost.walk = double(value)) ); break;
+		case MBR_MOVECOST_RUN:          return new Double( (movement_cost.run = double(value)) ); break;
 		case MBR_MOVECOST_WALK_MOUNTED: return new Double( (movement_cost.walk_mounted = double(value)) ); break;
-		case MBR_MOVECOST_RUN_MOUNTED: return new Double( (movement_cost.run_mounted = double(value)) ); break;
+		case MBR_MOVECOST_RUN_MOUNTED:  return new Double( (movement_cost.run_mounted = double(value)) ); break;
 		default:
 			return NULL;
 	}
@@ -1692,10 +1568,10 @@ BObjectImp* Character::set_script_member_id_double( const int id, double value )
 {
 	switch(id)
 	{
-		case MBR_MOVECOST_WALK: return new Double( (movement_cost.walk = double(value)) ); break;
-		case MBR_MOVECOST_RUN: return new Double( (movement_cost.run = double(value)) ); break;
+		case MBR_MOVECOST_WALK:         return new Double( (movement_cost.walk = double(value)) ); break;
+		case MBR_MOVECOST_RUN:          return new Double( (movement_cost.run = double(value)) ); break;
 		case MBR_MOVECOST_WALK_MOUNTED: return new Double( (movement_cost.walk_mounted = double(value)) ); break;
-		case MBR_MOVECOST_RUN_MOUNTED: return new Double( (movement_cost.run_mounted = double(value)) ); break;
+		case MBR_MOVECOST_RUN_MOUNTED:  return new Double( (movement_cost.run_mounted = double(value)) ); break;
 		default: return NULL;
 	}
 
@@ -1727,39 +1603,38 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 				 apply RepSystem rules (Mobile helps Mobile)
 		*/
 	case MTH_SETPOISONED:
-        {
-            bool newval=true;
-		    if (ex.hasParams(1))
-		    {
-			    int lval;
-			    if (!ex.getParam( 0, lval ))
-				    return new BError( "Invalid parameter type" );
-			    if (!lval)
-				    newval = false;
-		    }
+		{
+			bool newval=true;
+			if (ex.hasParams(1))
+			{
+				int lval;
+				if (!ex.getParam( 0, lval ))
+					return new BError( "Invalid parameter type" );
+				if (!lval)
+					newval = false;
+			}
 
-		    if (newval != poisoned)
-		    {
-			    set_dirty();
-			    poisoned = newval;
-			    check_undamaged();
-			    UOExecutorModule* uoexec = static_cast<UOExecutorModule*>(ex.findModule( "UO" ));
-			    if (uoexec && uoexec->controller_.get())
-			    {
-				    Character* attacker = uoexec->controller_.get();
-				    if (!attacker->orphan())
-				    {
-					    if (poisoned)
-						    attacker->repsys_on_damage( this );
-					    else
-						    attacker->repsys_on_help( this );
-				    }
-			    }
-			    on_poison_changed();
-		    }
-
-		    return new BLong(1);
-        }
+			if (newval != poisoned)
+			{
+				set_dirty();
+				poisoned = newval;
+				check_undamaged();
+				UOExecutorModule* uoexec = static_cast<UOExecutorModule*>(ex.findModule( "UO" ));
+				if (uoexec && uoexec->controller_.get())
+				{
+					Character* attacker = uoexec->controller_.get();
+					if (!attacker->orphan())
+					{
+						if (poisoned)
+							attacker->repsys_on_damage( this );
+						else
+							attacker->repsys_on_help( this );
+					}
+				}
+				on_poison_changed();
+			}
+			return new BLong(1);
+		}
 
 		/*
 		 mobile.SetParalyzed( isparalyzed := 1 )
@@ -1770,66 +1645,65 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 					 apply RepSystem rules (Mobile heals Mobile)
 		*/
 	case MTH_SETPARALYZED:
-        {
-		    bool newval = true;
-		    if (ex.hasParams(1))
-		    {
-			    int lval;
-			    if (!ex.getParam( 0, lval ))
-				    return new BError( "Invalid parameter type" );
-			    if (!lval)
-				    newval = false;
-		    }
+		{
+			bool newval = true;
+			if (ex.hasParams(1))
+			{
+				int lval;
+				if (!ex.getParam( 0, lval ))
+					return new BError( "Invalid parameter type" );
+				if (!lval)
+					newval = false;
+			}
 
-		    if (newval != paralyzed_)
-		    {
-			    set_dirty();
-			    paralyzed_ = newval;
-			    check_undamaged();
-			    UOExecutorModule* uoexec = static_cast<UOExecutorModule*>(ex.findModule( "UO" ));
-			    if (uoexec && uoexec->controller_.get())
-			    {
-				    Character* attacker = uoexec->controller_.get();
-				    if (!attacker->orphan())
-				    {
-					    if (paralyzed_)
-						    attacker->repsys_on_damage( this );
-					    else
-						    attacker->repsys_on_help( this );
-				    }
-			    }
-		    }
-
-		    return new BLong(1);
-        }
+			if (newval != paralyzed_)
+			{
+				set_dirty();
+				paralyzed_ = newval;
+				check_undamaged();
+				UOExecutorModule* uoexec = static_cast<UOExecutorModule*>(ex.findModule( "UO" ));
+				if (uoexec && uoexec->controller_.get())
+				{
+					Character* attacker = uoexec->controller_.get();
+					if (!attacker->orphan())
+					{
+						if (paralyzed_)
+							attacker->repsys_on_damage( this );
+						else
+							attacker->repsys_on_help( this );
+					}
+				}
+			}
+			return new BLong(1);
+		}
 
 		/*
 		 mobile.SetCriminal( level := 1 )
-		   if level is 0, clears the CriminalTimer
+			 if level is 0, clears the CriminalTimer
 		*/
 	case MTH_SETCRIMINAL:
-        {
-		    int level = 1;
-		    if (ex.hasParams(1))
-		    {
-			    if (!ex.getParam( 0, level ))
-				    return new BError( "Invalid parameter type" );
-			    if (level < 0)
-				    return new BError( "Level must be >= 0" );
-		    }
-		    set_dirty();
-		    make_criminal( level );
-		    return new BLong(1);
-        }
+		{
+  		int level = 1;
+  		if (ex.hasParams(1))
+  		{
+  			if (!ex.getParam( 0, level ))
+  				return new BError( "Invalid parameter type" );
+  			if (level < 0)
+  				return new BError( "Level must be >= 0" );
+  		}
+  		set_dirty();
+  		make_criminal( level );
+  		return new BLong(1);
+		}
 
 	case MTH_SETLIGHTLEVEL:
-        {
-            int level,duration;
-		    if (!ex.hasParams(2))
-			    return new BError( "Not enough parameters" );
-		    if (ex.getParam( 0, level ) &&
-			    ex.getParam( 1, duration ))
-		    {
+		{
+			int level,duration;
+			if (!ex.hasParams(2))
+				return new BError( "Not enough parameters" );
+			if (ex.getParam( 0, level ) &&
+					ex.getParam( 1, duration ))
+			{
 				lightoverride = level;
 
 				if (duration == -1)
@@ -1840,8 +1714,8 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 					lightoverride_until = read_gameclock() + duration;
 
 				check_region_changes();
-                if (duration == -1)
-                    return new BLong(duration);
+				if (duration == -1)
+					return new BLong(duration);
 				return new BLong(lightoverride_until);
 			}
 		}
@@ -1849,11 +1723,11 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 		{
 			int season_id, playsound;
 
-		    if (!ex.hasParams(2))
-			    return new BError( "Not enough parameters" );
-		    if (ex.getParam( 0, season_id ) &&
-			    ex.getParam( 1, playsound ))
-		    {
+			if (!ex.hasParams(2))
+				return new BError( "Not enough parameters" );
+			if (ex.getParam( 0, season_id ) &&
+					ex.getParam( 1, playsound ))
+			{
 				if ( season_id < 0 || season_id > 4 )
 					return new BError("Invalid season id");
 
@@ -1868,254 +1742,243 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 					return new BLong(1);
 				}
 			}
-
 		}
 	case MTH_SQUELCH:
-        {
-            int duration;
-		    if (!ex.hasParams(1))
-			    return new BError( "Not enough parameters" );
-		    if (ex.getParam( 0, duration ))
-		    {
-			    set_dirty();
-			    if (duration == -1)
+		{
+			int duration;
+			if (!ex.hasParams(1))
+				return new BError( "Not enough parameters" );
+			if (ex.getParam( 0, duration ))
+			{
+				set_dirty();
+				if (duration == -1)
 				{
-				    squelched_until = ~0u;
+					squelched_until = ~0u;
 					return new BLong(-1);
 				}
-			    else if (duration == 0)
-				    squelched_until = 0;
-			    else
-				    squelched_until = read_gameclock() + duration;
-			    return new BLong(squelched_until);
-		    }
-		    break;
-        }
+				else if (duration == 0)
+					squelched_until = 0;
+				else
+					squelched_until = read_gameclock() + duration;
+				return new BLong(squelched_until);
+			}
+			break;
+		}
 	case MTH_ENABLE:
-        {
-		    if (!ex.hasParams(1))
-			    return new BError( "Not enough parameters" );
-            const String* pstr;
-		    if (ex.getStringParam( 0, pstr ))
-		    {
-			    if (has_privilege( pstr->data() ))
-			    {
-				    set_dirty();
-				    set_setting( pstr->data(), true );
-				    return new BLong(1);
-			    }
-			    else
-			    {
-				    return new BError( "Mobile doesn't have that privilege" );
-			    }
-		    }
-        }
+		{
+			if (!ex.hasParams(1))
+				return new BError( "Not enough parameters" );
+			const String* pstr;
+			if (ex.getStringParam( 0, pstr ))
+			{
+				if (has_privilege( pstr->data() ))
+				{
+					set_dirty();
+					set_setting( pstr->data(), true );
+					return new BLong(1);
+				}
+				else
+					return new BError( "Mobile doesn't have that privilege" );
+			}
+		}
 
 	case MTH_DISABLE:
-        {
-		    if (!ex.hasParams(1))
-			    return new BError( "Not enough parameters" );
-            const String* pstr;
-		    if (ex.getStringParam( 0, pstr ))
-		    {
-			    set_dirty();
-			    set_setting( pstr->data(), false );
-			    return new BLong(1);
-		    }
-        }
+		{
+			if (!ex.hasParams(1))
+				return new BError( "Not enough parameters" );
+			const String* pstr;
+			if (ex.getStringParam( 0, pstr ))
+			{
+				set_dirty();
+				set_setting( pstr->data(), false );
+				return new BLong(1);
+			}
+		}
 
 	case MTH_ENABLED:
-        {
-		    if (!ex.hasParams(1))
-			    return new BError( "Not enough parameters" );
-            const String* pstr;
-		    if (ex.getStringParam( 0, pstr ))
-		    {
-			    return new BLong( setting_enabled( pstr->data() ) ? 1 : 0);
-		    }
-        }
+		{
+			if (!ex.hasParams(1))
+				return new BError( "Not enough parameters" );
+			const String* pstr;
+			if (ex.getStringParam( 0, pstr ))
+				return new BLong( setting_enabled( pstr->data() ) ? 1 : 0);
+		}
 
 	case MTH_PRIVILEGES:
-	{
-		auto_ptr<BDictionary> dict (new BDictionary);
-		ISTRINGSTREAM istrm(all_privs());
-		string tmp;
-		while ( istrm >> tmp )
 		{
-			dict->addMember(new String (tmp), new BLong(setting_enabled(tmp.c_str())));
+			auto_ptr<BDictionary> dict (new BDictionary);
+			ISTRINGSTREAM istrm(all_privs());
+			string tmp;
+			while ( istrm >> tmp )
+			{
+				dict->addMember(new String (tmp), new BLong(setting_enabled(tmp.c_str())));
+			}
+			return dict.release();
+			break;
 		}
-		return dict.release();
-		break;
-	}
 
 	case MTH_SETCMDLEVEL:
-        {
-		    if (!ex.hasParams(1))
-			    return new BError( "Not enough parameters" );
-            const String* pstr;
-		    if (ex.getStringParam( 0, pstr ))
-		    {
-			    CmdLevel* pcmdlevel = find_cmdlevel( pstr->data() );
-			    if (pcmdlevel)
-			    {
-				    set_dirty();
-				    cmdlevel = pcmdlevel->cmdlevel;
-				    return new BLong(1);
-			    }
-			    else
-			    {
-				    return new BError( "No such command level" );
-			    }
-		    }
-		    break;
-        }
+		{
+			if (!ex.hasParams(1))
+				return new BError( "Not enough parameters" );
+			const String* pstr;
+			if (ex.getStringParam( 0, pstr ))
+			{
+				CmdLevel* pcmdlevel = find_cmdlevel( pstr->data() );
+				if (pcmdlevel)
+				{
+					set_dirty();
+					cmdlevel = pcmdlevel->cmdlevel;
+					return new BLong(1);
+				}
+				else
+					return new BError( "No such command level" );
+			}
+			break;
+		}
 	case MTH_SPENDGOLD:
-        {
-            int amt;
-		    if (ex.numParams()!=1 ||
-			    !ex.getParam( 0, amt ))
-			    return new BError( "Invalid parameter type" );
+		{
+			int amt;
+			if (ex.numParams()!=1 ||
+					!ex.getParam( 0, amt ))
+				return new BError( "Invalid parameter type" );
 
-		    if (gold_carried() < static_cast<unsigned int>(amt))
-			    return new BError( "Insufficient funds" );
+			if (gold_carried() < static_cast<unsigned int>(amt))
+				return new BError( "Insufficient funds" );
 
-		    spend_gold( amt );
-		    return new BLong( 1 );
-        }
+			spend_gold( amt );
+			return new BLong( 1 );
+		}
 
 	case MTH_SETMURDERER:
-        {
-            int lnewval = 1;
-		    if (ex.hasParams(1))
-		    {
-			    if (!ex.getParam( 0, lnewval ))
-				    return new BError( "Invalid parameter type" );
-		    }
-		    set_dirty();
-		    make_murderer( lnewval?true:false );
-		    return new BLong(1);
-        }
-	case MTH_REMOVEREPORTABLE:
-        {
-		    if (!ex.hasParams(2))
-			    return new BError( "Not enough parameters" );
-            int serial, gameclock;
-		    if (ex.getParam( 0, serial ) &&
-			    ex.getParam( 1, gameclock ))
-		    {
-			    set_dirty();
-			    clear_reportable( serial, gameclock );
-			    return new BLong(1);
-		    }
-		    else
-		    {
-			    return new BError( "Invalid parameter type" );
-		    }
-		    break;
-        }
-	case MTH_GETGOTTENITEM:
-		if( gotten_item != NULL )
-			return new EItemRefObjImp(gotten_item);
-		else
-			return new BError( "Gotten Item NULL" );
-		break;
-	case MTH_CLEARGOTTENITEM:
-		if( gotten_item != NULL )
 		{
-			clear_gotten_item();
+			int lnewval = 1;
+			if (ex.hasParams(1))
+			{
+				if (!ex.getParam( 0, lnewval ))
+					return new BError( "Invalid parameter type" );
+			}
+			set_dirty();
+			make_murderer( lnewval?true:false );
 			return new BLong(1);
 		}
-		else
-			return new BError( "No Gotten Item" );
-		break;
+	case MTH_REMOVEREPORTABLE:
+		{
+			if (!ex.hasParams(2))
+				return new BError( "Not enough parameters" );
+			int serial, gameclock;
+			if (ex.getParam( 0, serial ) &&
+					ex.getParam( 1, gameclock ))
+			{
+				set_dirty();
+				clear_reportable( serial, gameclock );
+				return new BLong(1);
+			}
+			else
+				return new BError( "Invalid parameter type" );
+			break;
+		}
+	case MTH_GETGOTTENITEM:
+			if( gotten_item != NULL )
+				return new EItemRefObjImp(gotten_item);
+			else
+				return new BError( "Gotten Item NULL" );
+			break;
+	case MTH_CLEARGOTTENITEM:
+			if( gotten_item != NULL )
+			{
+				clear_gotten_item();
+				return new BLong(1);
+			}
+			else
+				return new BError( "No Gotten Item" );
+			break;
 	case MTH_SETWARMODE:
-        {
-		    int newmode;
-		    if (!ex.hasParams(1))
-			    return new BError( "Not enough parameters" );
-		    if(ex.getParam(0, newmode,0,1))
-		    {
-			    set_warmode( (newmode==0) ? false : true );
-			    // FIXME: Additional checks needed?
-			    if(client)
-				    send_warmode();
-			    return new BLong( warmode );
-		    }
-		    else
-		    {
-			    return new BError("Invalid parameter type");
-		    }
-		    break;
-        }
+		{
+			int newmode;
+			if (!ex.hasParams(1))
+				return new BError( "Not enough parameters" );
+			if(ex.getParam(0, newmode,0,1))
+			{
+				set_warmode( (newmode==0) ? false : true );
+				// FIXME: Additional checks needed?
+				if(client)
+					send_warmode();
+				return new BLong( warmode );
+			}
+			else
+				return new BError("Invalid parameter type");
+			break;
+		}
 	case MTH_GETCORPSE:
 		{
-		UCorpse* corpse_obj = static_cast<UCorpse*>(system_find_item(last_corpse));
-		if ( corpse_obj != NULL && !corpse_obj->orphan() )
-			return new EItemRefObjImp(corpse_obj);
-		else
-			return new BError("No corpse was found.");
+			UCorpse* corpse_obj = static_cast<UCorpse*>(system_find_item(last_corpse));
+			if ( corpse_obj != NULL && !corpse_obj->orphan() )
+				return new EItemRefObjImp(corpse_obj);
+			else
+				return new BError("No corpse was found.");
+			break;
 		}
-		break;
 	case MTH_SET_SWINGTIMER:
-        {
-		    int time;
-		    if (!ex.hasParams(1))
-			    return new BError( "Not enough parameters" );
-		    if (ex.getParam(0,time))
-		    {
-			    if (time < 0)
-				    return new BError( "Time must be >= 0" );
-			    polclock_t clocks;
-			    clocks = (time * POLCLOCKS_PER_SEC) / 1000;
-			    return new BLong( manual_set_swing_timer(clocks) ? 1 : 0);
-		    }
-		    else
-			    return new BError( "Invalid parameter type" );
-		    break;
-        }
+		{
+			int time;
+			if (!ex.hasParams(1))
+				return new BError( "Not enough parameters" );
+			if (ex.getParam(0,time))
+			{
+				if (time < 0)
+					return new BError( "Time must be >= 0" );
+				polclock_t clocks;
+				clocks = (time * POLCLOCKS_PER_SEC) / 1000;
+				return new BLong( manual_set_swing_timer(clocks) ? 1 : 0);
+			}
+			else
+				return new BError( "Invalid parameter type" );
+			break;
+		}
 	case MTH_ATTACK_ONCE:
-        {
-		    Character* chr;
-            if (ex.hasParams(1))
-		    {
-		      if (getCharacterParam( ex, 0, chr ))
-		      {
-			      if (dead_)
-				      return new BError("Character is dead");
-			      if (is_attackable(chr))
-				      attack(chr);
-			      else
-				      return new BError("Opponent is not attackable");
-		      }
-		      else 
-			      return new BError("Invalid parameter type");
-		    }
-		    else
-		    {
-			    chr=get_attackable_opponent();
-			    if (chr != NULL) 
-			    {
-				    if (!dead_)
-					    attack(chr);
-				    else
-					    return new BError("Character is dead");
-			    }
-			    else
-				    return new BError("No opponent");
-		    }
-		    return new BLong(1);
-		    break;
-        }
-	case MTH_KILL:
-        if (ex.hasParams(1))
 		{
 			Character* chr;
-			if (getCharacterParam( ex, 0, chr ))
-				chr->repsys_on_damage( this );
+			if (ex.hasParams(1))
+			{
+				if (getCharacterParam( ex, 0, chr ))
+				{
+					if (dead_)
+						return new BError("Character is dead");
+					if (is_attackable(chr))
+						attack(chr);
+					else
+						return new BError("Opponent is not attackable");
+				}
+				else
+					return new BError("Invalid parameter type");
+			}
+			else
+			{
+				chr=get_attackable_opponent();
+				if (chr != NULL)
+				{
+					if (!dead_)
+						attack(chr);
+					else
+						return new BError("Character is dead");
+				}
+				else
+					return new BError("No opponent");
+			}
+			return new BLong(1);
+			break;
 		}
-		die();
-		return new BLong(1);
-		break;
+	case MTH_KILL:
+			if (ex.hasParams(1))
+			{
+				Character* chr;
+				if (getCharacterParam( ex, 0, chr ))
+					chr->repsys_on_damage( this );
+			}
+			die();
+			return new BLong(1);
+			break;
 	case MTH_SETFACING:
 		{
 			int flags = 0;
@@ -2141,17 +2004,17 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 
 			if(!face(i_facing, flags))
 				return new BLong(0);
-			
+
 			on_facing_changed();
 			return new BLong(1);
+			break;
 		}
-		break;
 	case MTH_COMPAREVERSION:
 		if (client!=NULL)
 		{
 			if (!ex.hasParams(1))
 				return new BError( "Not enough parameters" );
-            const String* pstr;
+			const String* pstr;
 			if (ex.getStringParam( 0, pstr ))
 				return new BLong(client->compareVersion(pstr->getStringRep()) ? 1:0);
 			else
@@ -2220,27 +2083,27 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 		else
 			return new BError( "Not enough parameters" );
 		break;
-    case MTH_DEAF:
-        {
-            int duration;
-		    if (!ex.hasParams(1))
-			    return new BError( "Not enough parameters" );
-		    if (ex.getParam( 0, duration ))
-		    {
-			    set_dirty();
-			    if (duration == -1)
+	case MTH_DEAF:
+		{
+			int duration;
+			if (!ex.hasParams(1))
+				return new BError( "Not enough parameters" );
+			if (ex.getParam( 0, duration ))
+			{
+				set_dirty();
+				if (duration == -1)
 				{
-				    deafened_until = ~0u;
+					deafened_until = ~0u;
 					return new BLong(-1);
 				}
-			    else if (duration == 0)
-				    deafened_until = 0;
-			    else
-				    deafened_until = read_gameclock() + duration;
-			    return new BLong(deafened_until);
-		    }
-		    break;
-        }
+				else if (duration == 0)
+					deafened_until = 0;
+				else
+					deafened_until = read_gameclock() + duration;
+				return new BLong(deafened_until);
+			}
+			break;
+		}
 	default:
 		return NULL;
 	}
@@ -2252,7 +2115,7 @@ BObjectImp* Character::script_method( const char* methodname, Executor& ex )
 {
 	ObjMethod* objmethod = getKnownObjMethod(methodname);
 	if ( objmethod != NULL )
-		return this->script_method_id(objmethod->id, ex);	
+		return this->script_method_id(objmethod->id, ex);
 	else
 		return NULL;
 }
@@ -2263,9 +2126,7 @@ BObjectImp* Character::custom_script_method( const char* methodname, Executor& e
 	{
 		unsigned PC;
 		if (uoclient_general.method_script->FindExportedFunction( methodname, ex.numParams()+1, PC ))
-		{
 			return uoclient_general.method_script->call( PC, make_ref(), ex.fparams );
-		}
 	}
 	return NULL;
 }
@@ -2282,13 +2143,9 @@ ObjArray* Character::GetReportables() const
 		auto_ptr<BObjectImp> kmember (NULL);
 		Character* killer = system_find_mobile( rt.serial );
 		if (killer)
-		{
 			kmember.reset(new EOfflineCharacterRefObjImp(killer));
-		}
 		else
-		{
 			kmember.reset(new BError("Mobile not found"));
-		}
 
 		auto_ptr<BStruct> elem (new BStruct);
 		elem->addMember( "serial", new BLong( rt.serial ) );
@@ -2310,13 +2167,9 @@ ObjArray* Character::GetAggressorTo() const
 		auto_ptr<BObjectImp> member (NULL);
 		Character* chr = system_find_mobile( (*itr).first->serial);
 		if (chr)
-		{
 			member.reset(new EOfflineCharacterRefObjImp(chr));
-		}
 		else
-		{
 			member.reset(new BError("Mobile not found"));
-		}
 
 		auto_ptr<BStruct> elem (new BStruct);
 		elem->addMember( "serial", new BLong( (*itr).first->serial ) );
@@ -2338,13 +2191,9 @@ ObjArray* Character::GetLawFullyDamaged() const
 		auto_ptr<BObjectImp> member (NULL);
 		Character* chr = system_find_mobile( (*itr).first->serial);
 		if (chr)
-		{
 			member.reset(new EOfflineCharacterRefObjImp(chr));
-		}
 		else
-		{
 			member.reset(new BError("Mobile not found"));
-		}
 
 		auto_ptr<BStruct> elem (new BStruct);
 		elem->addMember( "serial", new BLong( (*itr).first->serial ) );
@@ -2362,18 +2211,19 @@ BObjectImp* NPC::get_script_member_id( const int id ) const
 	if (imp != NULL)
 		return imp;
 
-	Character* master = NULL;
 	switch(id)
 	{
 		case MBR_SCRIPT: return new String(script); break;
 		case MBR_NPCTEMPLATE: return new String( template_name ); break;
 		case MBR_MASTER:
-			master = master_.get();
+		{
+			Character* master = master_.get();
 			if (master && !master->orphan())
 				return new ECharacterRefObjImp( master );
 			else
 				return new BLong(0);
 			break;
+		}
 
 		case MBR_PROCESS:
 			if (ex)
@@ -2393,8 +2243,7 @@ BObjectImp* NPC::get_script_member_id( const int id ) const
 		case MBR_SPEECH_FONT:  return new BLong( speech_font_ ); break;
 		case MBR_USE_ADJUSTMENTS:  return new BLong( use_adjustments ? 1 : 0 ); break;
 		case MBR_RUN_SPEED: return new BLong( run_speed ); break;
-		case MBR_ALIGNMENT:
-			return new BLong(this->template_.alignment);
+		case MBR_ALIGNMENT:	return new BLong(this->template_.alignment); break;
 		case MBR_SAVEONEXIT: return new BLong( saveonexit()); break;
 		default: return NULL;
 	}
@@ -2465,6 +2314,7 @@ BObjectImp* NPC::script_method_id( const int id, Executor& ex )
 	switch(id)
 	{
 	case MTH_SETMASTER:
+	{
 		if (ex.numParams()!=1)
 			return new BError( "Not enough parameters" );
 		Character* chr;
@@ -2480,6 +2330,7 @@ BObjectImp* NPC::script_method_id( const int id, Executor& ex )
 			return new BLong(0);
 		}
 		break;
+	}
 	default:
 		return NULL;
 	}
@@ -2500,9 +2351,7 @@ BObjectImp* NPC::custom_script_method( const char* methodname, Executor& ex )
 	{
 		unsigned PC;
 		if (template_.method_script->FindExportedFunction( methodname, ex.numParams()+1, PC ))
-		{
 			return template_.method_script->call( PC, make_ref(), ex.fparams );
-		}
 	}
 	return NULL;
 }
@@ -2579,92 +2428,92 @@ BObjectImp* UCorpse::get_script_member( const char *membername ) const
 
 BObjectImp* Spellbook::script_method_id( const int id, Executor& ex )
 {
-    BObjectImp* imp = base::script_method_id( id, ex );
-    if (imp != NULL)
-        return imp;
+		BObjectImp* imp = base::script_method_id( id, ex );
+		if (imp != NULL)
+				return imp;
 
-    switch(id)
-    {
-    case MTH_HASSPELL:
-        {
-            int id;
-            if (!ex.hasParams(1))
-                return new BError( "Not enough parameters" );
-            if (ex.getParam(0,id))
-            {
-                if (id <= 0)
-                    return new BError( "SpellID must be >= 1" );
-                if (this->has_spellid(static_cast<unsigned int>(id)))
-                    return new BLong(1);
-                else
-                    return new BLong(0);
-            }
-            else
-                return new BError( "Invalid parameter type" );
-            break;
-        }
-    case MTH_SPELLS:
-        {
-            auto_ptr<ObjArray> arr (new ObjArray);
-            for ( u16 i = 0; i < 64; ++i )
-            {
-                unsigned int id = this->spell_school*100 + i + 1;
-                if (this->has_spellid(id))
-                    arr->addElement(new BLong(id));
-            }
-			return arr.release();
-            break;
-        }
-    case MTH_REMOVESPELL:
-        {
-            int id;
-            if (!ex.hasParams(1))
-                return new BError( "Not enough parameters" );
-            if (ex.getParam(0,id))
-            {
-                if (id <= 0)
-                    return new BError( "SpellID must be >= 1" );
-                if (this->remove_spellid(static_cast<unsigned int>(id)))
-                    return new BLong(1);
-                else
-                    return new BLong(0);
-            }
-            else
-                return new BError( "Invalid parameter type" );
-            break;
-        }
-    case MTH_ADDSPELL:
-        {
-            int id;
-            if (!ex.hasParams(1))
-                return new BError( "Not enough parameters" );
-            if (ex.getParam(0,id))
-            {
-                if (id <= 0)
-                    return new BError( "SpellID must be >= 1" );
-                if (this->add_spellid(static_cast<unsigned int>(id)))
-                    return new BLong(1);
-                else
-                    return new BLong(0);
-            }
-            else
-                return new BError( "Invalid parameter type" );
-            break;
-        }
+		switch(id)
+		{
+		case MTH_HASSPELL:
+			{
+				int id;
+				if (!ex.hasParams(1))
+					return new BError( "Not enough parameters" );
+				if (ex.getParam(0,id))
+				{
+					if (id <= 0)
+						return new BError( "SpellID must be >= 1" );
+					if (this->has_spellid(static_cast<unsigned int>(id)))
+						return new BLong(1);
+					else
+						return new BLong(0);
+				}
+				else
+					return new BError( "Invalid parameter type" );
+				break;
+			}
+		case MTH_SPELLS:
+			{
+				auto_ptr<ObjArray> arr (new ObjArray);
+				for ( u16 i = 0; i < 64; ++i )
+				{
+					unsigned int id = this->spell_school*100 + i + 1;
+					if (this->has_spellid(id))
+						arr->addElement(new BLong(id));
+				}
+				return arr.release();
+				break;
+			}
+		case MTH_REMOVESPELL:
+			{
+				int id;
+				if (!ex.hasParams(1))
+					return new BError( "Not enough parameters" );
+				if (ex.getParam(0,id))
+				{
+					if (id <= 0)
+						return new BError( "SpellID must be >= 1" );
+					if (this->remove_spellid(static_cast<unsigned int>(id)))
+						return new BLong(1);
+					else
+						return new BLong(0);
+				}
+				else
+					return new BError( "Invalid parameter type" );
+				break;
+			}
+		case MTH_ADDSPELL:
+			{
+				int id;
+				if (!ex.hasParams(1))
+					return new BError( "Not enough parameters" );
+				if (ex.getParam(0,id))
+				{
+					if (id <= 0)
+						return new BError( "SpellID must be >= 1" );
+					if (this->add_spellid(static_cast<unsigned int>(id)))
+						return new BLong(1);
+					else
+						return new BLong(0);
+				}
+				else
+					return new BError( "Invalid parameter type" );
+				break;
+			}
 
-    default:
-        return NULL;
-    }
-    return new BLong(1);
+		default:
+				return NULL;
+		}
+		return new BLong(1);
 }
 
 BObjectImp* Spellbook::script_method( const char* methodname, Executor& ex )
 {
-    ObjMethod* objmethod = getKnownObjMethod(methodname);
-    if ( objmethod != NULL )
-        return this->script_method_id(objmethod->id, ex);
-    else
-        return NULL;
+	ObjMethod* objmethod = getKnownObjMethod(methodname);
+	if ( objmethod != NULL )
+		return this->script_method_id(objmethod->id, ex);
+	else
+		return NULL;
 }
 
 BObjectImp* UBoat::make_ref()
@@ -2686,37 +2535,45 @@ BObjectImp* UBoat::get_script_member_id( const int id ) const
 	Item* cp = NULL;
 	switch(id)
 	{
-		case MBR_TILLERMAN:
-			cp  = components_[0].get();
+	case MBR_TILLERMAN:
+		{
+			Item* cp = components_[0].get();
 			if ( cp != NULL)
 				return new EItemRefObjImp( cp );
 			else
 				return new BError( string("This ship doesn't have that component") );
 			break;
-		case MBR_PORTPLANK:
-			cp  = components_[1].get();
+		}
+	case MBR_PORTPLANK:
+		{
+			Item* cp = components_[1].get();
 			if ( cp != NULL)
 				return new EItemRefObjImp( cp );
 			else
 				return new BError( string("This ship doesn't have that component") );
 			break;
-		case MBR_STARBOARDPLANK:
-			cp  = components_[2].get();
+		}
+	case MBR_STARBOARDPLANK:
+		{
+			Item* cp = components_[2].get();
 			if ( cp != NULL)
 				return new EItemRefObjImp( cp );
 			else
 				return new BError( string("This ship doesn't have that component") );
 			break;
-		case MBR_HOLD:
-			cp  = components_[3].get();
+		}
+	case MBR_HOLD:
+		{
+			Item* cp = components_[3].get();
 			if ( cp != NULL)
 				return new EItemRefObjImp( cp );
 			else
 				return new BError( string("This ship doesn't have that component") );
 			break;
+		}
 		case MBR_ITEMS: return items_list(); break;
 		case MBR_MOBILES: return mobiles_list(); break;
-		case MBR_HAS_OFFLINE_MOBILES:  return new BLong( has_offline_mobiles() ? 1 : 0 ); break;
+		case MBR_HAS_OFFLINE_MOBILES: return new BLong( has_offline_mobiles() ? 1 : 0 ); break;
 		default: return NULL;
 	}
 }
@@ -2739,53 +2596,56 @@ BObjectImp* UBoat::script_method_id( const int id, Executor& ex )
 	switch(id)
 	{
 	case MTH_MOVE_OFFLINE_MOBILES:
-		xcoord x;
-		ycoord y;
-		zcoord z;
-		const String* strrealm;
-		
-		if (ex.numParams()==3)
 		{
-		  if (ex.getParam( 0, x ) &&
-			  ex.getParam( 1, y ) &&
-			  ex.getParam( 2, z, ZCOORD_MIN, ZCOORD_MAX ))
-		  {
-			if (!realm->valid(x,y,z))
-			  return new BError( "Coordinates are out of range" );
-			
-			set_dirty();
-			move_offline_mobiles( x, y, z, realm );
-			return new BLong(1);
-		  }
-		  else
-			return new BError( "Invalid parameter type" );
-		}
-		else
-		  if (ex.numParams()==4)
-		  {
-			if (ex.getParam( 0, x ) &&
-				ex.getParam( 1, y ) &&
-				ex.getParam( 2, z, ZCOORD_MIN, ZCOORD_MAX ) &&
-				ex.getStringParam( 3, strrealm ))
+			xcoord x;
+			ycoord y;
+			zcoord z;
+			const String* strrealm;
+
+			if (ex.numParams()==3)
 			{
-			  Realm* realm = find_realm(strrealm->value());
-			  if (!realm)
-				return new BError( "Realm not found" );
-			  
-			  if (!realm->valid(x,y,z))
-				return new BError( "Coordinates are out of range" );
-			  
-			  set_dirty();
-			  move_offline_mobiles( x, y, z, realm );
-			  return new BLong(1);
+				if (ex.getParam( 0, x ) &&
+						ex.getParam( 1, y ) &&
+						ex.getParam( 2, z, ZCOORD_MIN, ZCOORD_MAX ))
+				{
+					if (!realm->valid(x,y,z))
+						return new BError( "Coordinates are out of range" );
+
+					set_dirty();
+					move_offline_mobiles( x, y, z, realm );
+					return new BLong(1);
+				}
+				else
+					return new BError( "Invalid parameter type" );
 			}
 			else
-			  return new BError( "Invalid parameter type" );
-		  }
-		  else
-			return new BError( "Not enough parameters" );
-		break;
-	
+			{
+				if (ex.numParams()==4)
+				{
+					if (ex.getParam( 0, x ) &&
+							ex.getParam( 1, y ) &&
+							ex.getParam( 2, z, ZCOORD_MIN, ZCOORD_MAX ) &&
+							ex.getStringParam( 3, strrealm ))
+					{
+						Realm* realm = find_realm(strrealm->value());
+						if (!realm)
+							return new BError( "Realm not found" );
+
+						if (!realm->valid(x,y,z))
+							return new BError( "Coordinates are out of range" );
+
+						set_dirty();
+						move_offline_mobiles( x, y, z, realm );
+						return new BLong(1);
+					}
+					else
+						return new BError( "Invalid parameter type" );
+				}
+				else
+					return new BError( "Not enough parameters" );
+			}
+			break;
+		}
 	default:
 		return NULL;
 	}
@@ -2884,74 +2744,85 @@ BObjectImp* UObject::script_method_id( const int id, Executor& ex )
 	switch(id)
 	{
 	case MTH_ISA:
-		if (!ex.hasParams(1))
-			return new BError( "Not enough parameters" );
-		int isatype;
-		if (!ex.getParam(0,isatype))
-			return new BError( "Invalid parameter type" );
-		return new BLong(script_isa( static_cast<unsigned>(isatype) ));
-		break;
+		{
+			if (!ex.hasParams(1))
+				return new BError( "Not enough parameters" );
+			int isatype;
+			if (!ex.getParam(0,isatype))
+				return new BError( "Invalid parameter type" );
+			return new BLong(script_isa( static_cast<unsigned>(isatype) ));
+			break;
+		}
 	case MTH_SET_MEMBER:
-		if (!ex.hasParams(2))
-			return new BError( "Not enough parameters" );
-		BObjectImp* objimp;
-		if (ex.getStringParam(0,mname) &&
-			(objimp = ex.getParamImp(1)) )
 		{
-			if(objimp->isa( BObjectImp::OTLong ) )
+			if (!ex.hasParams(2))
+				return new BError( "Not enough parameters" );
+			BObjectImp* objimp;
+			const String* mname;
+			if (ex.getStringParam(0,mname) &&
+					(objimp = ex.getParamImp(1)) )
 			{
-				BLong* lng = static_cast<BLong*>(objimp);
-				ret = set_script_member(mname->value().c_str(),lng->value());
-			}
-			else if(objimp->isa( BObjectImp::OTDouble ) )
-			{
-				Double* dbl = static_cast<Double*>(objimp);
-				ret = set_script_member_double(mname->value().c_str(),dbl->value());
-			}
-			else if(objimp->isa( BObjectImp::OTString ) )
-			{
-				String* str = static_cast<String*>(objimp);
-				ret = set_script_member(mname->value().c_str(),str->value());
+				BObjectImp* ret;
+				if(objimp->isa( BObjectImp::OTLong ) )
+				{
+					BLong* lng = static_cast<BLong*>(objimp);
+					ret = set_script_member(mname->value().c_str(),lng->value());
+				}
+				else if(objimp->isa( BObjectImp::OTDouble ) )
+				{
+					Double* dbl = static_cast<Double*>(objimp);
+					ret = set_script_member_double(mname->value().c_str(),dbl->value());
+				}
+				else if(objimp->isa( BObjectImp::OTString ) )
+				{
+					String* str = static_cast<String*>(objimp);
+					ret = set_script_member(mname->value().c_str(),str->value());
+				}
+				else
+					return new BError( "Invalid value type" );
+
+				if(ret != NULL)
+					return ret;
+				else
+				{
+					string message = string("Member ") + string(mname->value()) + string(" not found on that object");
+					return new BError( message );
+				}
+
 			}
 			else
-				return new BError( "Invalid value type" );
-
-			if(ret != NULL)
-				return ret;
-			else
-			{
-				string message = string("Member ") + string(mname->value()) + string(" not found on that object");
-				return new BError( message );
-			}
-
+				return new BError( "Invalid parameter type" );
+			break;
 		}
-		else
-			return new BError( "Invalid parameter type" );
-		break;
 	case MTH_GET_MEMBER:
-		if (!ex.hasParams(1))
-			return new BError( "Not enough parameters" );
-
-		if (ex.getStringParam(0,mname))
 		{
-			ret = get_script_member(mname->value().c_str());
-			if(ret != NULL)
-				return ret;
-			else
+			if (!ex.hasParams(1))
+				return new BError( "Not enough parameters" );
+
+			const String* mname;
+			if (ex.getStringParam(0,mname))
 			{
-				string message = string("Member ") + string(mname->value()) + string(" not found on that object");
-				return new BError( message );
+				BObjectImp* ret = get_script_member(mname->value().c_str());
+				if(ret != NULL)
+					return ret;
+				else
+				{
+					string message = string("Member ") + string(mname->value()) + string(" not found on that object");
+					return new BError( message );
+				}
 			}
+			else
+				return new BError( "Invalid parameter type" );
+			break;
 		}
-		else
-			return new BError( "Invalid parameter type" );
-		break;
 	default:
-		bool changed = false;
-		BObjectImp* imp = CallPropertyListMethod_id( proplist_, id, ex, changed );
-		if (changed)
-			set_dirty();
-		return imp;
+		{
+			bool changed = false;
+			BObjectImp* imp = CallPropertyListMethod_id( proplist_, id, ex, changed );
+			if (changed)
+				set_dirty();
+			return imp;
+		}
 	}
 }
 
@@ -3011,14 +2882,10 @@ BObjectImp* UDoor::script_method_id( const int id, Executor& ex )
 
 	switch(id)
 	{
-	case MTH_OPEN:
-		open(); break;
-	case MTH_CLOSE:
-		close(); break;
-	case MTH_TOGGLE:
-		toggle(); break;
-	default:
-		return NULL;
+	case MTH_OPEN: open(); break;
+	case MTH_CLOSE: close(); break;
+	case MTH_TOGGLE: toggle(); break;
+	default: return NULL;
 	}
 	return new BLong(1);
 }
@@ -3063,8 +2930,8 @@ BObjectImp* Equipment::set_script_member_id( const int id, int value )
 		return imp;
 	switch(id)
 	{
-		case MBR_HP: 
-		  hp_ = static_cast<unsigned short>(value);
+		case MBR_HP:
+			hp_ = static_cast<unsigned short>(value);
 			if (this->isa(CLASS_ARMOR))
 			{
 				if (container != NULL)
@@ -3078,11 +2945,11 @@ BObjectImp* Equipment::set_script_member_id( const int id, int value )
 				}
 			}
 			return new BLong( hp_ );
-		case MBR_MAXHP_MOD: 
-		  maxhp_mod_ = static_cast<unsigned short>(value);
+		case MBR_MAXHP_MOD:
+			maxhp_mod_ = static_cast<unsigned short>(value);
 			if (this->isa(CLASS_ARMOR))
 			{
-				if (container != NULL) 
+				if (container != NULL)
 				{
 					if (IsCharacter( container->serial ))
 					{
@@ -3138,8 +3005,7 @@ BObjectImp* UWeapon::get_script_member_id( const int id ) const
 		case MBR_DMG_MOD: return new BLong( dmg_mod_ ); break;
 		case MBR_ATTRIBUTE: return new String( attribute().name ); break;
 		case MBR_HITSCRIPT: return new String( hit_script_.relativename( tmpl->pkg ) ); break;
-		case MBR_INTRINSIC:
-			return new BLong(is_intrinsic()); break;
+		case MBR_INTRINSIC: return new BLong(is_intrinsic()); break;
 		default: return NULL;
 	}
 }
@@ -3214,7 +3080,7 @@ BObjectImp* UWeapon::set_script_member_double( const char *membername, double va
 		return base::set_script_member_double(membername, value);
 }
 
-BObjectImp* UArmor::get_script_member_id( const int id ) const 
+BObjectImp* UArmor::get_script_member_id( const int id ) const
 {
 	BObjectImp* imp = Equipment::get_script_member_id( id );
 	if (imp != NULL)
@@ -3239,7 +3105,7 @@ BObjectImp* UArmor::get_script_member( const char *membername ) const
 		return NULL;
 }
 
-BObjectImp* UArmor::set_script_member_id( const int id, const std::string& value ) 
+BObjectImp* UArmor::set_script_member_id( const int id, const std::string& value )
 {
 	BObjectImp* imp = Item::set_script_member_id( id, value );
 	if (imp != NULL)
@@ -3260,7 +3126,7 @@ BObjectImp* UArmor::set_script_member( const char *membername, const std::string
 		return NULL;
 }
 
-BObjectImp* UArmor::set_script_member_id( const int id, int value ) 
+BObjectImp* UArmor::set_script_member_id( const int id, int value )
 {
 	BObjectImp* imp = Equipment::set_script_member_id( id, value );
 	if (imp != NULL)
@@ -3268,9 +3134,9 @@ BObjectImp* UArmor::set_script_member_id( const int id, int value )
 
 	switch(id)
 	{
-		case MBR_AR_MOD: 
-		  ar_mod_ = static_cast<short>(value);
-			if (container != NULL) 
+		case MBR_AR_MOD:
+			ar_mod_ = static_cast<short>(value);
+			if (container != NULL)
 			{
 				if (IsCharacter( container->serial ))
 				{
@@ -3441,7 +3307,7 @@ BObjectImp* EClientRefObjImp::call_method_id( const int id, Executor& ex, bool f
 {
 	if ((obj_.ConstPtr() == NULL) || (obj_->disconnect))
 		return new BError( "Client not ready or disconnected" );
-	
+
 	switch (id)
 	{
 		case MTH_COMPAREVERSION:
@@ -3473,7 +3339,7 @@ SpeechEvent::SpeechEvent( Character* speaker, const char* speech )
 	addMember( "source", new ECharacterRefObjImp( speaker ) );
 	addMember( "text", new String( speech ) );
 }
-SpeechEvent::SpeechEvent( Character* speaker, const char* speech, const char* texttype) 
+SpeechEvent::SpeechEvent( Character* speaker, const char* speech, const char* texttype)
 {
 	addMember( "type", new BLong( EVID_SPOKE ) );
 	addMember( "source", new ECharacterRefObjImp( speaker ) );
@@ -3493,7 +3359,8 @@ UnicodeSpeechEvent::UnicodeSpeechEvent( Character* speaker, const char* speech,
 		++wlen;
 	if ( !convertUCtoArray(wspeech, arr, wlen, true) )
 		addMember( "uc_text", new BError("Invalid Unicode speech received.") );
-	else {
+	else
+	{
 		addMember( "uc_text", arr );
 		addMember( "langcode", new String( lang ) );
 	}
@@ -3510,7 +3377,8 @@ UnicodeSpeechEvent::UnicodeSpeechEvent( Character* speaker, const char* speech, 
 		++wlen;
 	if ( !convertUCtoArray(wspeech, arr, wlen, true) )
 		addMember( "uc_text", new BError("Invalid Unicode speech received.") );
-	else {
+	else
+	{
 		addMember( "uc_text", arr );
 		addMember( "langcode", new String( lang ) );
 	}
@@ -3552,7 +3420,7 @@ ItemGivenEvent::ItemGivenEvent( Character* chr_givenby, Item* item_given, NPC* c
 ItemGivenEvent::~ItemGivenEvent()
 {
 	/* See if the item is still in the container it was in
-	   This means the AI script didn't do anything with it.
+		 This means the AI script didn't do anything with it.
 	 */
 	Item* item = item_.get();
 	UContainer* cont = cont_.get();
@@ -3685,5 +3553,3 @@ bool UWeapon::script_isa( unsigned isatype ) const
 {
 	return (isatype == POLCLASS_WEAPON) || base::script_isa(isatype);
 }
-
-
