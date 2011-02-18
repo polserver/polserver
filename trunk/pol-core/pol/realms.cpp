@@ -61,7 +61,7 @@ bool load_realms()
 		return false;
 }
 
-Realm* find_realm(const string name)
+Realm* find_realm(const string& name)
 {
 	vector<Realm*>::iterator itr;
 	for(itr = Realms->begin(); itr != Realms->end(); ++itr)
@@ -72,7 +72,7 @@ Realm* find_realm(const string name)
 	return NULL;
 }
 
-bool defined_realm(const string name)
+bool defined_realm(const string& name)
 {
 	vector<Realm*>::iterator itr;
 	for(itr = Realms->begin(); itr != Realms->end(); ++itr)
@@ -83,7 +83,7 @@ bool defined_realm(const string name)
 	return false;
 }
 
-void add_realm(const string name, Realm* base)
+void add_realm(const string& name, Realm* base)
 {
 	Realm* r = new Realm(name,base);
 	r->shadowid = ++shadowrealm_count;
@@ -91,7 +91,7 @@ void add_realm(const string name, Realm* base)
 	Realms->push_back( r );
 }
 
-void remove_realm(const string name)
+void remove_realm(const string& name)
 {
 	vector<Realm*>::iterator itr;
 	for(itr = Realms->begin(); itr != Realms->end(); ++itr)
