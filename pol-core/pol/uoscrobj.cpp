@@ -2532,7 +2532,6 @@ BObjectImp* UBoat::get_script_member_id( const int id ) const
 	if (imp != NULL)
 		return imp;
 
-	Item* cp = NULL;
 	switch(id)
 	{
 	case MBR_TILLERMAN:
@@ -2738,9 +2737,6 @@ BObjectImp* Map::set_script_member( const char *membername, int value )
 
 BObjectImp* UObject::script_method_id( const int id, Executor& ex )
 {
-	const String* mname;
-	BObjectImp* ret;
-
 	switch(id)
 	{
 	case MTH_ISA:
