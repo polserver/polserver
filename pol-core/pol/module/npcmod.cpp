@@ -139,6 +139,11 @@ BObjectImp* NPCExecutorModule::execFunc( unsigned funcidx )
 	return callMemberFunction(*this, function_table[funcidx].fptr)();
 };
 
+std::string NPCExecutorModule::functionName( unsigned idx )
+{
+	return function_table[idx].funcname;
+}
+
 BApplicObjType bounding_box_type;
 
 class BoundingBoxObjImp : public BApplicObj<BoundingBox>

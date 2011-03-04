@@ -236,7 +236,7 @@ void send_boat_to_inrange( const UBoat* item, u16 oldx, u16 oldy )
 	PktOut_1D* msgremove = REQUESTPACKET(PktOut_1D,PKTOUT_1D_ID);
 	msgremove->Write(item->serial_ext);
     
-    for( Clients::iterator itr = clients.begin(); itr != clients.end(); ++itr )
+	for( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
 	{
 		Client* client = *itr;
 
@@ -271,7 +271,7 @@ void send_boat_to_inrange( const UBoat* item, u16 oldx, u16 oldy )
 
 void unpause_paused()
 {
-    for( Clients::iterator itr = boat_sent_to.begin(); itr != boat_sent_to.end(); ++itr )
+    for( Clients::iterator itr = boat_sent_to.begin(), end=boat_sent_to.end(); itr != end; ++itr )
     {
         Client* client = *itr;
         client->restart();

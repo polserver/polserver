@@ -1428,6 +1428,7 @@ public:
 	virtual BObjectImp* copy() const;
 	virtual std::string getStringRep() const;
 	virtual unsigned int sizeEstimate() const { return sizeof(PolCore); }
+	virtual const char* typeOf() const;
 private:
 	// not implemented:
 	PolCore& operator=( const PolCore& );
@@ -1445,6 +1446,11 @@ BObjectImp* PolCore::copy() const
 string PolCore::getStringRep() const
 {
 	return "<polcore>";
+}
+
+const char* PolCore::typeOf() const
+{
+	return "PolCoreRef";
 }
 
 BObjectImp* GetPackageList()
@@ -1710,6 +1716,18 @@ BObjectImp* PolCore::call_method( const char* methodname, Executor& ex )
 				ConfigFiles_log_stuff();
 				PrintHeapData(); // Will print endl in llog
 			}
+#endif
+#ifdef ESCRIPT_PROFILE
+			if (mlog.is_open())
+			{
+				mlog << "FuncName,Count,Min,Max,Sum,Avarage" << endl;
+				for (escript_profile_map::iterator itr=EscriptProfileMap.begin();itr!=EscriptProfileMap.end();++itr)
+				{
+					mlog << itr->first << "," << itr->second.count << "," << itr->second.min << "," << itr->second.max << "," << itr->second.sum << "," 
+						<< (itr->second.sum / itr->second.count) << endl;
+				}
+			}
+
 #endif
 			return new BLong(1);
 		}

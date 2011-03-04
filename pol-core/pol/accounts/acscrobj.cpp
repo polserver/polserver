@@ -356,11 +356,11 @@ BObjectImp* AccountObjImp::call_method_id( const int id, Executor& ex, bool forc
 		if (ex.getStringParam( 0, expansion_str ))
 		{
 			if ( expansion_str->value().empty() || (expansion_str->value()=="SA") || (expansion_str->value()=="KR") ||
-			   (expansion_str->value()=="ML") || (expansion_str->value()=="SE") ||
-			   (expansion_str->value()=="AOS") || (expansion_str->value()=="LBR") ||
-			   (expansion_str->value()=="T2A") )
+				(expansion_str->value()=="ML") || (expansion_str->value()=="SE") ||
+				(expansion_str->value()=="AOS") || (expansion_str->value()=="LBR") ||
+				(expansion_str->value()=="T2A") )
 			{
-				obj_->uo_expansion_ = expansion_str->value();
+				obj_->uo_expansion_ = obj_->convert_uo_expansion(expansion_str->value());
 				if (obj_->active_character)
 					send_feature_enable(obj_->active_character->client);
 			}

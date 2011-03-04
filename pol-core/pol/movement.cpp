@@ -108,7 +108,7 @@ void remove_objects_inrange( Client* client )
 {
     Character* chr = client->chr;
     unsigned short wxL, wyL, wxH, wyH;
-
+	PktOut_1D* msgremove = REQUESTPACKET(PktOut_1D,PKTOUT_1D_ID);
 	zone_convert_clip( chr->x - RANGE_VISUAL_LARGE_BUILDINGS, chr->y - RANGE_VISUAL_LARGE_BUILDINGS, chr->realm, wxL, wyL );
     zone_convert_clip( chr->x + RANGE_VISUAL_LARGE_BUILDINGS, chr->y + RANGE_VISUAL_LARGE_BUILDINGS, chr->realm, wxH, wyH );
     for( unsigned short wx = wxL; wx <= wxH; ++wx )
@@ -119,7 +119,7 @@ void remove_objects_inrange( Client* client )
             for( ZoneMultis::iterator itr = wmulti.begin(), end = wmulti.end(); itr != end; ++itr )
             {
                 UMulti* multi = *itr;
-				send_remove_object( client, static_cast<const Item*>(multi) );
+				send_remove_object( client, static_cast<const Item*>(multi), msgremove );
             }
         }
     }
@@ -134,7 +134,7 @@ void remove_objects_inrange( Client* client )
             for( ZoneCharacters::iterator itr = wchr.begin(), end = wchr.end(); itr != end; ++itr )
             {
                 Character* chr = *itr;
-				send_remove_character( client, chr );
+				send_remove_character( client, chr, msgremove );
             }
 
 
@@ -142,10 +142,12 @@ void remove_objects_inrange( Client* client )
             for( ZoneItems::iterator itr = witem.begin(), end = witem.end(); itr != end; ++itr )
             {
                 Item* item = *itr;
-				send_remove_object( client, item );
+				send_remove_object( client, item, msgremove );
             }
         }
     }
+	msgremove->Test(msgremove->offset);
+	READDPACKET(msgremove);
 }
 
 void cancel_trade( Character* chr1 );

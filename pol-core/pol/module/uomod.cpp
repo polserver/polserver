@@ -3163,7 +3163,7 @@ BObjectImp* UOExecutorModule::mf_EnumerateOnlineCharacters()
 {
     auto_ptr<ObjArray> newarr( new ObjArray );
 
-    for( Clients::const_iterator itr = clients.begin(); itr != clients.end(); ++itr )
+    for( Clients::const_iterator itr = clients.begin(), end=clients.end(); itr != end; ++itr )
     {
         if ((*itr)->chr != NULL)
         {
@@ -5974,3 +5974,8 @@ BObjectImp* UOExecutorModule::execFunc( unsigned funcidx )
 {
 	return callMemberFunction(*this, function_table[funcidx].fptr)();
 };
+
+std::string UOExecutorModule::functionName( unsigned idx )
+{
+	return function_table[idx].funcname;
+}

@@ -307,6 +307,7 @@ protected:
 protected:
 	virtual BObjectImp* execFunc( unsigned idx );
 	virtual int functionIndex( const char *func );
+	virtual std::string functionName( unsigned idx);
 	static UOFunctionDef function_table[];
 	BObjectImp* internal_MoveItem(Item* item, xcoord x, ycoord y, zcoord z, int flags, Realm* newrealm);
 	BObjectImp* internal_MoveCharacter(Character* chr, xcoord x, ycoord y, zcoord z, int flags, Realm* newrealm);

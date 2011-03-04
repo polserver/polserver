@@ -499,7 +499,7 @@ void textcmd_constat( Client* client )
 {
 	int i = 0;
 	send_sysmessage( client, "Connection statuses:" );
-	for( Clients::const_iterator itr = clients.begin(); itr != clients.end(); ++itr )
+	for( Clients::const_iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
 	{  
 		OSTRINGSTREAM os;
 		os << i << ": " << (*itr)->status() << " ";

@@ -76,15 +76,20 @@ bool in_yell_range( const Character *c1, const Character *c2 );
 bool in_whisper_range( const Character *c1, const Character *c2 );
 
 void send_owncreate( Client *client, const Character *chr );
+void send_owncreate( Client *client, const Character *chr, PktOut_78* owncreate, PktOut_17* poisonbuffer );
+PktOut_78* build_owncreate(const Character *chr);
 
 void send_item( Client *client, const Item *item );
 void send_wornitem( Client *client, const Character *chr, const Item *item );
 
 void send_move( Client *client, const Character *chr );
+void send_move( Client *client, const Character *chr, PktOut_77* movebuffer, PktOut_17* poisonbuffer );
+PktOut_77* build_send_move( const Character *chr );
 void send_move_if_inrange( Client *client, const Character *chr );
 void send_objdesc( Client *client, Item *item );
 
 void send_poisonhealthbar( Client *client, const Character *chr );
+PktOut_17* build_poisonhealthbar( const Character *chr );
 
 void send_item_to_inrange( const Item *item );
 void update_item_to_inrange( const Item* item );
@@ -100,9 +105,11 @@ UObject* find_toplevel_object( u32 serial );
 void setrealm(Item* item, void* arg);
 
 void send_remove_character( Client *client, const Character *chr );
+void send_remove_character( Client *client, const Character *chr, PktOut_1D* buffer, bool build=true );
 void send_remove_object_if_inrange( Client *client, const Item *obj ); 
 void send_remove_object_to_inrange( const UObject *centerObject ); 
-void send_remove_object( Client *client, const Item *obj);
+void send_remove_object( Client *client, const Item *obj );
+void send_remove_object( Client *client, const Item *obj, PktOut_1D* buffer );
 
 void send_remove_character_to_nearby( const Character* chr );
 void send_remove_character_to_nearby_cantsee( const Character* chr );

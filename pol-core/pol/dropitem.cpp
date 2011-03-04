@@ -1012,7 +1012,7 @@ MESSAGE_HANDLER_VARLEN( PKTBI_6F, handle_secure_trade_msg );
 
 void cancel_all_trades()
 {
-    for( Clients::iterator itr = clients.begin(); itr != clients.end(); ++itr )
+	for( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
     {
         Client* client = (*itr);
         if (client->ready && client->chr)
