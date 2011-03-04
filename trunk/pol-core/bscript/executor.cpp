@@ -42,6 +42,11 @@ Notes
 #include <climits>
 
 std::set< Executor* > executor_instances;
+
+#ifdef ESCRIPT_PROFILE
+escript_profile_map EscriptProfileMap;
+#endif
+
 void display_executor_instances()
 {
     for( std::set<Executor*>::iterator itr = executor_instances.begin(); itr != executor_instances.end(); ++itr )
@@ -817,8 +822,18 @@ void Executor::execFunc(const Token& token)
     ExecutorModule *em = execmodules[ token.module ];
 	
     func_result_ = NULL;
-    
-    BObjectImp* resimp = em->execFunc( modfunc->funcidx );
+#ifdef ESCRIPT_PROFILE
+	std::stringstream strm;
+	strm << em->functionName( modfunc->funcidx );
+	if (fparams.size()>0)
+		strm << " [" << fparams[0].get()->impptr()->typeOf() << "]";
+	string name(strm.str());
+	clock_t profile_start= clock();
+#endif
+	BObjectImp* resimp = em->execFunc( modfunc->funcidx );
+#ifdef ESCRIPT_PROFILE
+	profile_escript(name,profile_start);
+#endif
     
     if (func_result_)
     {
@@ -1383,8 +1398,19 @@ void Executor::ins_get_member( const Instruction& ins )
 	BObjectRef& leftref = ValueStack.top();
 
     BObject& left = *leftref;
-			 
-    leftref = left->get_member( ins.token.tokval() );
+
+#ifdef ESCRIPT_PROFILE
+	std::stringstream strm;
+	strm << "MBR_" << leftref->impptr()->typeOf() << " ." << ins.token.tokval();
+	if (fparams.size()>0)
+		strm << " [" << fparams[0].get()->impptr()->typeOf() << "]";
+	string name(strm.str());
+	clock_t profile_start= clock();
+#endif
+	leftref = left->get_member( ins.token.tokval() );
+#ifdef ESCRIPT_PROFILE
+	profile_escript(name,profile_start);
+#endif
 }
 
 void Executor::ins_get_member_id( const Instruction& ins )
@@ -1393,7 +1419,18 @@ void Executor::ins_get_member_id( const Instruction& ins )
 
     BObject& left = *leftref;
 	
-    leftref = left->get_member_id( ins.token.lval );
+#ifdef ESCRIPT_PROFILE
+	std::stringstream strm;
+	strm << "MBR_" << leftref->impptr()->typeOf() << " ." << ins.token.lval;
+	if (fparams.size()>0)
+		strm << " [" << fparams[0].get()->impptr()->typeOf() << "]";
+	string name(strm.str());
+	clock_t profile_start= clock();
+#endif
+	leftref = left->get_member_id( ins.token.lval );
+#ifdef ESCRIPT_PROFILE
+	profile_escript(name,profile_start);
+#endif
 }
 
 void Executor::ins_assign_localvar( const Instruction& ins )
@@ -2180,8 +2217,19 @@ void Executor::ins_call_method_id( const Instruction& ins )
     getParams( nparams );
 
     BObjectRef& objref = ValueStack.top();
-    BObjectImp* imp = objref->impptr()->call_method_id( ins.token.lval, *this );
-    
+#ifdef ESCRIPT_PROFILE
+	std::stringstream strm;
+	strm << "MTHID_" << objref->impptr()->typeOf() << " ." << ins.token.lval;
+	if (fparams.size()>0)
+		strm << " [" << fparams[0].get()->impptr()->typeOf() << "]";
+	string name(strm.str());
+	clock_t profile_start= clock();
+#endif
+	BObjectImp* imp = objref->impptr()->call_method_id( ins.token.lval, *this );
+#ifdef ESCRIPT_PROFILE
+	profile_escript(name,profile_start);
+#endif
+
     if (func_result_)
     {
         if (imp)
@@ -2211,7 +2259,18 @@ void Executor::ins_call_method( const Instruction& ins )
     getParams( nparams );
 
     BObjectRef& objref = ValueStack.top();
+#ifdef ESCRIPT_PROFILE
+	std::stringstream strm;
+	strm << "MTH_" << objref->impptr()->typeOf() << " ." << ins.token.tokval();
+	if (fparams.size()>0)
+		strm << " [" << fparams[0].get()->impptr()->typeOf() << "]";
+	string name(strm.str());
+	clock_t profile_start= clock();
+#endif
     BObjectImp* imp = objref->impptr()->call_method( ins.token.tokval(), *this );
+#ifdef ESCRIPT_PROFILE
+	profile_escript(name,profile_start);
+#endif
     
     if (func_result_)
     {
@@ -3366,3 +3425,30 @@ void Executor::dbg_clrallbp()
 {
     breakpoints_.clear();
 }
+
+
+#ifdef ESCRIPT_PROFILE
+void Executor::profile_escript(std::string name, clock_t profile_start)
+{
+clock_t profile_end= clock() - profile_start;
+escript_profile_map::iterator itr = EscriptProfileMap.find(name);
+if (itr!=EscriptProfileMap.end())
+{
+	itr->second.count++;
+	itr->second.sum += profile_end;
+	if (itr->second.max < profile_end)
+		itr->second.max = profile_end;
+	else if (itr->second.min > profile_end)
+		itr->second.min = profile_end;
+}
+else
+{
+	profile_instr profInstr;
+	profInstr.count = 1;
+	profInstr.max = profile_end;
+	profInstr.min = profile_end;
+	profInstr.sum = profile_end;
+	EscriptProfileMap[name] = profInstr;
+}
+}
+#endif

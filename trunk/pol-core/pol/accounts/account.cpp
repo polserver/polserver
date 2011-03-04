@@ -62,7 +62,7 @@ void Account::readfrom( ConfigElem& elem )
 
     enabled_ = elem.remove_bool( "ENABLED", true );
     banned_ = elem.remove_bool( "BANNED", false );
-	uo_expansion_ = elem.remove_string( "UOExpansion", "T2A" );
+	uo_expansion_ = convert_uo_expansion(elem.remove_string( "UOExpansion", "T2A" ));
 
     default_privs_.readfrom( elem.remove_string( "DefaultPrivs", "" ) );
 
@@ -99,9 +99,9 @@ void Account::writeto( std::ostream& os )
     {
         os << "\tDefaultCmdLevel\t" << cmdlevels2[default_cmdlevel_].name.c_str() << pf_endl;
     }
-	if (!uo_expansion_.empty())
+	if (uo_expansion_)
 	{
-		os << "\tUOExpansion\t" << uo_expansion_ << pf_endl;
+		os << "\tUOExpansion\t" << uo_expansion() << pf_endl;
 	}
     props_.printProperties( os );
     
@@ -130,9 +130,9 @@ void Account::writeto( ConfigElem& elem ) const
     {
         elem.add_prop( "DefaultCmdLevel", cmdlevels2[default_cmdlevel_].name.c_str() );	
     }
-	if (!uo_expansion_.empty())
+	if (uo_expansion_)
 	{
-        elem.add_prop( "UOExpansion", uo_expansion_.c_str() );	
+        elem.add_prop( "UOExpansion", uo_expansion().c_str() );	
 	}
     props_.printProperties( elem );
 }
@@ -197,8 +197,45 @@ const string Account::passwordhash() const
 
 const string Account::uo_expansion() const
 {
-    return uo_expansion_;
+	switch (uo_expansion_)
+	{
+	case SA: return "SA";
+	case KR: return "KR";
+	case ML: return "ML";
+	case SE: return "SE";
+	case AOS: return "AOS";
+	case LBR: return "LBR";
+	case T2A: return "T2A";
+	default: return "";
+	}
 }
+
+const unsigned short Account::uo_expansion_flag() const
+{
+	return uo_expansion_;
+}
+
+u16 Account::convert_uo_expansion(const std::string expansion) const
+{
+	if(expansion.find("SA") != string::npos)
+		return SA;
+	else if(expansion.find("KR") != string::npos)
+		return KR;
+	else if(expansion.find("ML") != string::npos)
+		return ML;
+	else if(expansion.find("SE") != string::npos)
+		return SE;
+	else if(expansion.find("AOS") != string::npos)
+		return AOS;
+	else if(expansion.find("LBR") != string::npos)
+		return LBR;
+	else if(expansion.find("T2A") != string::npos)
+		return T2A;
+	else
+		return 0;
+}
+
+
 
 bool Account::enabled() const
 {

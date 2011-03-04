@@ -1911,7 +1911,7 @@ void Character::apply_raw_damage_hundredths( unsigned int amount, Character* sou
 {
 	if (dead())
 	{
-		cerr << "Waah! " << name() << " " << hexint(serial) << " is dead, but taking damage?" << endl;
+		//cerr << "Waah! " << name() << " " << hexint(serial) << " is dead, but taking damage?" << endl;
 		return;
 	}
 
@@ -2094,7 +2094,7 @@ void Character::heal_damage_hundredths( unsigned int amount )
 {
 	if (dead())
 	{
-		cerr << "Waah! " << name() << " is dead, but healing damage?" << endl;
+		//cerr << "Waah! " << name() << " is dead, but healing damage?" << endl;
 		return;
 	}
 
@@ -2803,61 +2803,67 @@ bool Character::is_visible_to_me( const Character* chr ) const
 };
 
 // NOTE: chr is at new position, lastx/lasty have old position.
-void PropagateMove( Client *client, Character *chr )
+void PropagateMove( /*Client *client,*/ Character *chr )
 {
-	if (!client->ready)
-		return;
-	
-	if (client->chr == NULL || client->chr == chr)
-		return;
-	
-	int are_inrange;
-	int were_inrange;
+	PktOut_1D* msgremove = REQUESTPACKET(PktOut_1D,PKTOUT_1D_ID);
+	msgremove->Write(chr->serial_ext);
+	PktOut_77* msgmove = build_send_move(chr);
+	PktOut_17* msgpoison = build_poisonhealthbar(chr);
+	PktOut_78* msgcreate = build_owncreate(chr);
 
-	if ( !client->chr->is_visible_to_me( chr ))
+	for( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
 	{
-		return;
+		Client *client = *itr;
+		if (!client->ready)
+			continue;
+		if (client->chr == NULL || client->chr == chr)
+			continue;
+		if ( !client->chr->is_visible_to_me( chr ))
+			continue;
+
+		int are_inrange = inrange( client->chr, chr );
+		int were_inrange = inrange( client->chr->x, client->chr->y,	chr->lastx, chr->lasty );
+		if (are_inrange)
+		{
+			/* The two characters exist, and are in range of each other.
+			   Character 'chr''s lastx and lasty coordinates are valid.
+			   SO, if lastx/lasty are out of range of client->chr, we
+			   should send a 'create' type message.  If they are in range,
+			   we should just send a move.
+			*/
+			if (chr->move_reason == Character::MULTIMOVE)
+			{
+				// NOTE: uncomment this line to make movement smoother (no stepping anims)
+				// but basically makes it very difficult to talk while the ship
+				// is moving.
+				#ifdef PERGON
+				send_remove_character( client, chr, msgremove, false );
+				#else
+				//send_remove_character( client, chr );
+				#endif
+				send_owncreate( client, chr, msgcreate, msgpoison );
+			}
+			else if (were_inrange)
+			{
+				send_move( client, chr, msgmove, msgpoison );
+			}
+			else
+			{
+				send_owncreate( client, chr, msgcreate, msgpoison );
+			}
+		}
+		else if ( were_inrange ) 
+		{
+			// if we just walked out of range of this character, send its
+			// client a remove object, or else a ghost character will remain.
+			send_remove_character( client, chr, msgremove, false );
+		}
 	}
 
-
-	are_inrange = inrange( client->chr, chr );
-	were_inrange = inrange( client->chr->x, client->chr->y,	chr->lastx, chr->lasty );
-	
-	if (are_inrange)
-	{
-		/* The two characters exist, and are in range of each other.
-		   Character 'chr''s lastx and lasty coordinates are valid.
-		   SO, if lastx/lasty are out of range of client->chr, we
-		   should send a 'create' type message.  If they are in range,
-		   we should just send a move.
-		*/
-		if (chr->move_reason == Character::MULTIMOVE)
-		{
-			// NOTE: uncomment this line to make movement smoother (no stepping anims)
-			// but basically makes it very difficult to talk while the ship
-			// is moving.
-			#ifdef PERGON
-			send_remove_character( client, chr );
-			#else
-			//send_remove_character( client, chr );
-			#endif
-			send_owncreate( client, chr );
-		}
-		else if (were_inrange)
-		{
-			send_move( client, chr );
-		}
-		else
-		{
-			send_owncreate( client, chr );
-		}
-	}
-	else if ( were_inrange ) 
-	{
-		// if we just walked out of range of this character, send its
-		// client a remove object, or else a ghost character will remain.
-		send_remove_character( client, chr );
-	}
+	READDPACKET(msgremove);
+	READDPACKET(msgmove);
+	READDPACKET(msgpoison);
+	READDPACKET(msgcreate);
 }
 
 void Character::getpos_ifmove( UFACING i_facing, unsigned short* px, unsigned short* py )
@@ -4015,7 +4021,8 @@ static void _check_attack( Character* chr )
 void Character::tellmove()
 {
 	check_region_changes();
-	ForEach( clients, PropagateMove, this );
+	//ForEach( clients, PropagateMove, this );
+	PropagateMove(this);
 	// Austin 8-25-05
 	// if distance > 32 - Inform NPCs in the old position about the movement.
 	// This is specifically for long distance teleportations.
@@ -4083,8 +4090,8 @@ bool Character::mightsee( const Item *item ) const
 	while (item->container != NULL)
 		item = item->container;
 	
-	for( std::vector<ItemRef>::const_iterator itr = remote_containers_.begin();
-		 itr != remote_containers_.end();
+	for( std::vector<ItemRef>::const_iterator itr = remote_containers_.begin(), end = remote_containers_.end();
+		 itr != end;
 		 ++itr )
 	{
 		Item* additional_item = (*itr).get();

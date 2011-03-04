@@ -190,6 +190,29 @@ void send_move( Client *client, const Character *chr )
         send_poisonhealthbar( client, chr );
 }
 
+void send_move( Client *client, const Character *chr, PktOut_77* movebuffer, PktOut_17* poisonbuffer )
+{
+	movebuffer->offset=15;
+	movebuffer->Write(chr->get_flag1(client));
+	movebuffer->Write(chr->hilite_color_idx( client->chr ));
+	transmit( client, &movebuffer->buffer, movebuffer->offset );
+	if ((client->ClientType & CLIENTTYPE_UOKR) && (chr->poisoned)) //if poisoned send 0x17 for newer clients
+		transmit( client, &poisonbuffer->buffer, poisonbuffer->offset );
+}
+
+PktOut_77* build_send_move( const Character *chr )
+{
+	PktOut_77* msg = REQUESTPACKET(PktOut_77,PKTOUT_77_ID);
+	msg->Write(chr->serial_ext);
+	msg->Write(chr->graphic_ext);
+	msg->WriteFlipped(chr->x);
+	msg->WriteFlipped(chr->y);
+	msg->Write(chr->z);
+	msg->Write(static_cast<u8>((chr->dir & 0x80) | chr->facing));// NOTE, this only includes mask 0x07 of the last MOVE message 
+	msg->Write(chr->color_ext);
+	return msg;
+}
+
 void send_poisonhealthbar( Client *client, const Character *chr )
 {
 	PktOut_17* msg = REQUESTPACKET(PktOut_17,PKTOUT_17_ID);
@@ -201,6 +224,16 @@ void send_poisonhealthbar( Client *client, const Character *chr )
 	transmit( client, &msg->buffer, msg->offset );
 	msg->Test(msg->offset);
 	READDPACKET(msg);
+}
+PktOut_17* build_poisonhealthbar( const Character *chr )
+{
+	PktOut_17* msg = REQUESTPACKET(PktOut_17,PKTOUT_17_ID);
+	msg->WriteFlipped(static_cast<u16>(sizeof msg->buffer));
+	msg->Write(chr->serial_ext);
+	msg->Write(static_cast<u16>(1)); //unk
+	msg->Write(static_cast<u16>(1)); // status_type
+	msg->Write(static_cast<u8>(( chr->poisoned ) ? 1 : 0)); //flag
+	return msg;
 }
 
 void send_owncreate( Client *client, const Character *chr )
@@ -269,6 +302,75 @@ void send_owncreate( Client *client, const Character *chr )
         send_poisonhealthbar( client, chr );
 }
 
+PktOut_78* build_owncreate(const Character *chr)
+{
+	PktOut_78* owncreate = REQUESTPACKET(PktOut_78,PKTOUT_78_ID);
+	owncreate->offset+=2;
+	owncreate->Write(chr->serial_ext);
+	owncreate->Write(chr->graphic_ext);
+	owncreate->WriteFlipped(chr->x);
+	owncreate->WriteFlipped(chr->y);
+	owncreate->Write(chr->z);
+	owncreate->Write(chr->facing);
+	owncreate->Write(chr->color_ext);//17
+	return owncreate;
+}
+void send_owncreate( Client *client, const Character *chr, PktOut_78* owncreate, PktOut_17* poisonbuffer )
+{
+	owncreate->offset=17;
+	owncreate->Write(chr->get_flag1(client));
+	owncreate->Write(chr->hilite_color_idx( client->chr ));
+
+	for( int layer = LAYER_EQUIP__LOWEST; layer <= LAYER_EQUIP__HIGHEST; ++layer )
+	{
+		const Item *item = chr->wornitem( layer );
+		if (item == NULL) 
+			continue;
+
+		// Dont send faces if older client or ssopt
+		if ((layer==LAYER_FACE) && ((ssopt.support_faces==0) || (~client->ClientType & CLIENTTYPE_UOKR)))
+			continue;
+
+		if (item->color)
+		{
+			owncreate->Write(item->serial_ext);
+			owncreate->WriteFlipped(static_cast<u16>(0x8000 | item->graphic));
+			owncreate->Write(static_cast<u8>(layer));
+			owncreate->Write(item->color_ext);
+		}
+		else
+		{
+			owncreate->Write(item->serial_ext);
+			owncreate->Write(item->graphic_ext);
+			owncreate->Write(static_cast<u8>(layer));
+		}
+	}
+	owncreate->offset += 4; //items nullterm
+	u16 len = owncreate->offset;
+	owncreate->offset = 1;
+	owncreate->WriteFlipped(len);
+
+	transmit(client, &owncreate->buffer, len );
+
+	if(client->UOExpansionFlag & AOS)
+	{
+		send_object_cache(client, dynamic_cast<const UObject*>(chr));
+		// 07/11/09 Turley: moved to bottom first the client needs to know the item then we can send revision
+		for( int layer = LAYER_EQUIP__LOWEST; layer <= LAYER_EQUIP__HIGHEST; ++layer )
+		{
+			const Item *item = chr->wornitem( layer );
+			if (item == NULL) 
+				continue;
+			if (layer == LAYER_FACE)
+				continue;
+			send_object_cache(client, dynamic_cast<const UObject*>(item));
+		}
+	}
+
+	if ((client->ClientType & CLIENTTYPE_UOKR) && (chr->poisoned)) //if poisoned send 0x17 for newer clients
+		transmit( client, &poisonbuffer->buffer, poisonbuffer->offset );
+}
+
 
 void send_move_if_inrange( Client *client, const Character *chr )
 {
@@ -295,6 +397,22 @@ void send_remove_character( Client *client, const Character *chr )
     transmit( client, &msgremove->buffer, msgremove->offset );
 	msgremove->Test(msgremove->offset);
 	READDPACKET(msgremove);
+}
+
+void send_remove_character( Client *client, const Character *chr, PktOut_1D* buffer, bool build )
+{
+	if (!client->ready)     /* if a client is just connecting, don't bother him. */
+		return;
+
+	/* Don't remove myself */
+	if (client->chr == chr)
+		return;
+	if (build)
+	{
+		buffer->offset=1;
+		buffer->Write(chr->serial_ext);
+	}
+	transmit( client, &buffer->buffer, buffer->offset );
 }
 
 
@@ -465,6 +583,13 @@ void send_remove_object( Client *client, const Item *item )
 	transmit( client, &msgremove->buffer, msgremove->offset );
 	msgremove->Test(msgremove->offset);
 	READDPACKET(msgremove);
+}
+
+void send_remove_object( Client *client, const Item *obj, PktOut_1D* buffer)
+{
+	buffer->offset=1;
+	buffer->Write(obj->serial_ext);
+	transmit( client, &buffer->buffer, buffer->offset );
 }
 
 bool inrangex( const Character *c1, const Character *c2, int maxdist )
@@ -1765,7 +1890,7 @@ bool private_say_above_ex( Character* chr,
 	msg->Write(obj->graphic_ext);
 	msg->Write(static_cast<u8>(TEXTTYPE_NORMAL));
 	msg->WriteFlipped(color);
-	msg->WriteFlipped(static_cast<u8>(3));
+	msg->WriteFlipped(static_cast<u16>(3));
 	msg->Write(obj->description().c_str(), 30 );
 	msg->Write(text,textlen);
 	u16 len=msg->offset;
@@ -2257,7 +2382,57 @@ void update_lightregion( Client* client, LightRegion* lightregion )
 void SetRegionLightLevel( LightRegion* lightregion, int lightlevel )
 {
     lightregion->lightlevel = lightlevel;
-    ForEach( clients, update_lightregion, lightregion );
+	PktOut_4F* msg = REQUESTPACKET(PktOut_4F,PKTOUT_4F_ID);
+	msg->Write(static_cast<u8>(lightlevel));
+	for( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
+	{
+		Client *client = *itr;
+		if (!client->ready)
+			continue;
+
+		if (client->chr->lightoverride_until < read_gameclock() && client->chr->lightoverride_until != ~0u)
+		{
+			client->chr->lightoverride_until = 0;
+			client->chr->lightoverride		= -1;
+		}
+
+		if (client->gd->weather_region && 
+			client->gd->weather_region->lightoverride != -1 &&
+			client->chr->lightoverride == -1)
+			continue;
+
+		int newlightlevel;
+		if (client->chr->lightoverride != -1)
+			newlightlevel = client->chr->lightoverride;
+		else
+		{
+			//dave 12-22 check for no regions
+			LightRegion* light_region = lightdef->getregion( client->chr->x, client->chr->y, client->chr->realm );
+			if( light_region != NULL)
+				newlightlevel = light_region->lightlevel;
+			else
+				newlightlevel =  ssopt.default_light_level;
+		}
+
+		if (newlightlevel != client->gd->lightlevel)
+		{
+			if (VALID_LIGHTLEVEL( newlightlevel ))
+			{
+				if (newlightlevel != lightlevel)
+				{
+					msg->offset=1;
+					msg->Write(static_cast<u8>(newlightlevel));
+					transmit( client, &msg->buffer, msg->offset );
+					msg->offset=1;
+					msg->Write(static_cast<u8>(lightlevel));
+				}
+				else
+					transmit( client, &msg->buffer, msg->offset );
+			}
+			client->gd->lightlevel = newlightlevel;
+		}
+	}
+	READDPACKET(msg);
 }
 
 void update_weatherregion( Client* client, WeatherRegion* weatherregion )
@@ -2488,41 +2663,38 @@ void login_complete(Client* c)
 void send_feature_enable(Client* client)
 {
 	u32 clientflag = 0;
-	string uo_expansion = client->acct->uo_expansion();
-	if(uo_expansion.find("SA") != string::npos)
+	switch (client->acct->uo_expansion_flag())
 	{
+	case SA:
 		clientflag = 0x187DF;
 		client->UOExpansionFlag = SA | KR | ML | SE | AOS; // SA needs KR- ML- SE- and AOS- features (and used checks) too
-	}
-	else if(uo_expansion.find("KR") != string::npos)
-	{
+		break;
+	case KR:
 		clientflag = 0x86DB;
 		client->UOExpansionFlag = KR | ML | SE | AOS; // KR needs ML- SE- and AOS-features (and used checks) too
-	}
-	else if(uo_expansion.find("ML") != string::npos)
-	{
+		break;
+	case ML:
 		clientflag = 0x80DB;
 		client->UOExpansionFlag = ML | SE | AOS; // ML needs SE- and AOS-features (and used checks) too
-	}
-	else if(uo_expansion.find("SE") != string::npos)
-	{
+		break;
+	case SE:
 		clientflag = 0x805B;
 		client->UOExpansionFlag = SE | AOS; // SE needs AOS-features (and used checks) too
-	}
-	else if(uo_expansion.find("AOS") != string::npos)
-	{
+		break;
+	case AOS:
 		clientflag = 0x801B;
 		client->UOExpansionFlag = AOS;
-	}
-	else if(uo_expansion.find("LBR") != string::npos)
-	{
+		break;
+	case LBR:
 		clientflag = 0x0002;
 		client->UOExpansionFlag = LBR;
-	}
-	else if(uo_expansion.find("T2A") != string::npos)
-	{
+		break;
+	case T2A:
 		clientflag = 0x0001;
 		client->UOExpansionFlag = T2A;
+		break;
+	default:
+		break;
 	}
     
 	// Change flag according to the number of CharacterSlots
