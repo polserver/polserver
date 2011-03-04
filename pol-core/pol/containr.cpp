@@ -344,7 +344,7 @@ Item* UContainer::find_toplevel_objtype( u16 objtype ) const
 }
 Item* UContainer::find_toplevel_objtype_noninuse( u16 objtype ) const
 {
-    for( Contents::const_iterator itr = contents_.begin(); itr != contents_.end(); ++itr )
+    for( Contents::const_iterator itr = contents_.begin(), end = contents_.end(); itr != end; ++itr )
 	{
 		Item *item = GET_ITEM_PTR( itr );
 		if (item && (item->objtype_ == objtype) && !item->inuse())
@@ -400,7 +400,7 @@ Item* UContainer::find_objtype_noninuse( u16 objtype ) const
     if (item != NULL)
         return item;
 
-    for( Contents::const_iterator itr = contents_.begin(); itr != contents_.end(); ++itr )
+    for( Contents::const_iterator itr = contents_.begin(), end = contents_.end(); itr != end; ++itr )
     {
         Item* item = GET_ITEM_PTR( itr );
 

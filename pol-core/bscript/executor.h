@@ -39,6 +39,18 @@ class EScriptProgram;
 class BLong;
 class String;
 
+#ifdef ESCRIPT_PROFILE
+struct profile_instr
+{
+	clock_t sum;
+	clock_t max;
+	clock_t min;
+	unsigned long count;
+};
+typedef map< std::string,profile_instr > escript_profile_map;
+extern escript_profile_map EscriptProfileMap;
+#endif
+
 typedef stack< BObjectRef,vector<BObjectRef> > ValueStackCont;
 // FIXME: how to make this a nested struct in Executor?
 struct ReturnContext 
@@ -360,6 +372,9 @@ class Executor
   private: // not implemented
     Executor( const Executor& exec );
     Executor& operator=( const Executor& exec );
+#ifdef ESCRIPT_PROFILE
+	void profile_escript(std::string name, clock_t profile_start);
+#endif
 };
 
 inline const std::string& Executor::scriptname() const

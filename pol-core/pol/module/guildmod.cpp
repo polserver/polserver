@@ -165,7 +165,7 @@ void Guild::update_online_members()
 // FIXME : All of guilds.cpp iterator's need rewritten. Turley found a much better method
 // used in the party system.
 // NOTE: stlport seems to not return save itr on erase, but with a list container the iterator should stay valid
-	for( SerialSet::iterator itr = _member_serials.begin(); itr != _member_serials.end(); /* */)
+	for( SerialSet::iterator itr = _member_serials.begin(), end = _member_serials.end(); itr != end; /* */)
     {
         unsigned int mserial = (*itr);
         SerialSet::iterator last_itr = itr;

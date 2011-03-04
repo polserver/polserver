@@ -160,6 +160,11 @@ BObjectImp* OSExecutorModule::execFunc( unsigned funcidx )
 	return callMemberFunction(*this, function_table[funcidx].fptr)();
 };
 
+std::string OSExecutorModule::functionName( unsigned idx )
+{
+	return function_table[idx].funcname;
+}
+
 BObjectImp* OSExecutorModule::create_debug_context()
 {
 	return ::create_debug_context();

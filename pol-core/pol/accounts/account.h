@@ -34,6 +34,8 @@ public:
     const std::string password() const;
 	const std::string passwordhash() const;
 	const std::string uo_expansion() const;
+	const unsigned short uo_expansion_flag() const;
+	unsigned short convert_uo_expansion(const std::string expansion) const;
     bool enabled() const;
     bool banned() const;
 
@@ -63,7 +65,7 @@ private:
     std::string name_;
     std::string password_;
 	std::string passwordhash_;
-	std::string uo_expansion_;
+	unsigned short uo_expansion_;
     bool enabled_;
     bool banned_;
     PropertyList props_;
