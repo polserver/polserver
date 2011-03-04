@@ -199,6 +199,18 @@ HWND x = GetConsoleWindow();
 #endif
         }
 		break;
+	case WM_DESTROY:
+	case WM_CLOSE:
+	case WM_QUIT:
+		{
+		Shell_NotifyIcon(NIM_DELETE, &ndata );
+#if DLG_MODELESS
+		DestroyWindow(hwndDlg); 
+#else
+		EndDialog( hwndDlg, wParam );
+#endif
+		break;
+		}
 	}
 	return FALSE;
 }

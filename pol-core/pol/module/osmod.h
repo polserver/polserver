@@ -131,6 +131,7 @@ protected:
 protected:
 	virtual BObjectImp* execFunc( unsigned idx );
 	virtual int functionIndex( const char *func );
+	virtual std::string functionName( unsigned idx );
 	static OSFunctionDef function_table[];
 };
 

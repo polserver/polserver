@@ -76,6 +76,7 @@ class BasicExecutorModule : public ExecutorModule
   protected:
 	virtual BObjectImp* execFunc( unsigned idx );
 	virtual int functionIndex( const char *func );
+	virtual std::string functionName( unsigned idx );
 	static BasicFunctionDef function_table[];
 };
 

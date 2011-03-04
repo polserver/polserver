@@ -95,6 +95,7 @@ protected:
 
 	virtual int functionIndex( const char *funcname ) = 0; // returns -1 on not found
 	virtual BObjectImp* execFunc( unsigned idx ) = 0;
+	virtual std::string functionName( unsigned idx ) = 0;
 
 private: // not implemented
     ExecutorModule( const ExecutorModule& exec );
@@ -129,6 +130,7 @@ public:
 private:
     virtual int functionIndex( const char *funcname );
     virtual BObjectImp* execFunc( unsigned idx );
+	virtual std::string functionName( unsigned idx );
 };
 
 template<class T>
@@ -155,6 +157,12 @@ BObjectImp* TmplExecutorModule<T>::execFunc( unsigned funcidx )
 
 	return callMemberFunction(*derived, function_table[funcidx].fptr)();
 };
+
+template<class T>
+std::string TmplExecutorModule<T>::functionName( unsigned idx )
+{
+	return function_table[idx].funcname;
+}
 
 
 

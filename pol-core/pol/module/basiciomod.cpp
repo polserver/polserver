@@ -46,6 +46,11 @@ BObjectImp* BasicIoExecutorModule::execFunc( unsigned funcidx )
 	return callMemberFunction(*this, function_table[funcidx].fptr)();
 };
 
+std::string BasicIoExecutorModule::functionName( unsigned idx )
+{
+	return function_table[idx].funcname;
+}
+
 
 #if 0
 Object *FileExecutorModule::execFunc(const Token& token)

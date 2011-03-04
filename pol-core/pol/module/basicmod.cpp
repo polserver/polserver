@@ -549,3 +549,8 @@ BObjectImp* BasicExecutorModule::execFunc( unsigned funcidx )
 {
 	return callMemberFunction(*this, function_table[funcidx].fptr)();
 };
+
+std::string BasicExecutorModule::functionName( unsigned idx )
+{
+	return function_table[idx].funcname;
+}

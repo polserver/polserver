@@ -52,6 +52,7 @@ class BasicIoExecutorModule : public ExecutorModule
   protected:
 	virtual BObjectImp* execFunc( unsigned idx );
 	virtual int functionIndex( const char *func );
+	virtual std::string functionName( unsigned idx );
 	static BasicIoFunctionDef function_table[];
   private:
     std::ostream& cout_;

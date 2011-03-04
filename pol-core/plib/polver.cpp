@@ -32,18 +32,25 @@ unsigned int polver = 99;
 #define MEMORYLEAK_TAG ""
 #endif
 
+#ifdef ESCRIPT_PROFILE
+#define PROFILE_TAG " - EscriptProfile"
+#else
+#define PROFILE_TAG ""
+#endif
+
+
 #ifdef POL_BUILDTAG
-  const char polbuildtag[] = POL_BUILDTAG""PERGON_TAG""MEMORYLEAK_TAG;
+  const char polbuildtag[] = POL_BUILDTAG""PERGON_TAG""MEMORYLEAK_TAG""PROFILE_TAG;
 #elif defined(_MSC_VER) && (_MSC_VER <= 1200)
-  const char polbuildtag[] = "VC6"PERGON_TAG""MEMORYLEAK_TAG;
+  const char polbuildtag[] = "VC6"PERGON_TAG""MEMORYLEAK_TAG""PROFILE_TAG;
 #elif defined(_MSC_VER) && (_MSC_VER <= 1300)
-  const char polbuildtag[] = "VS.NET"PERGON_TAG""MEMORYLEAK_TAG;
+  const char polbuildtag[] = "VS.NET"PERGON_TAG""MEMORYLEAK_TAG""PROFILE_TAG;
 #elif defined(_MSC_VER) && (_MSC_VER <= 1310)
-  const char polbuildtag[] = "VS.NET 2003"PERGON_TAG""MEMORYLEAK_TAG;
+  const char polbuildtag[] = "VS.NET 2003"PERGON_TAG""MEMORYLEAK_TAG""PROFILE_TAG;
 #elif defined(_MSC_VER) && (_MSC_VER <= 1400)
-  const char polbuildtag[] = "VS.NET 2005"PERGON_TAG""MEMORYLEAK_TAG;
+  const char polbuildtag[] = "VS.NET 2005"PERGON_TAG""MEMORYLEAK_TAG""PROFILE_TAG;
 #elif defined(_MSC_VER) && (_MSC_VER <= 1500)
-  const char polbuildtag[] = "VS.NET 2008"PERGON_TAG""MEMORYLEAK_TAG;
+  const char polbuildtag[] = "VS.NET 2008"PERGON_TAG""MEMORYLEAK_TAG""PROFILE_TAG;
 #elif defined(_MSC_VER) && (_MSC_VER <= 1600)
-  const char polbuildtag[] = "VS.NET 2010"PERGON_TAG""MEMORYLEAK_TAG;
+  const char polbuildtag[] = "VS.NET 2010"PERGON_TAG""MEMORYLEAK_TAG""PROFILE_TAG;
 #endif

@@ -91,6 +91,7 @@ protected:
 	// class machinery 
 	virtual BObjectImp* execFunc( unsigned idx );
 	virtual int functionIndex( const char* func );
+	virtual std::string functionName( unsigned idx );
 	static NPCFunctionDef function_table[];
 
 	inline bool _internal_move(UFACING facing, int run); //DAVE
