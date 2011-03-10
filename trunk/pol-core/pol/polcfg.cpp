@@ -36,6 +36,7 @@ Notes
 #include "polcfg.h"
 #include "polsig.h"
 #include "schedule.h"
+#include "tasks.h"
 
 #include "crypt/cryptkey.h"
 
@@ -86,6 +87,14 @@ void read_pol_config( bool initial_load )
         config.ignore_load_errors = elem.remove_bool( "IgnoreLoadErrors", false );
 
         config.debug_port = elem.remove_ushort( "DebugPort", 0 );
+
+		config.account_safe = elem.remove_int("AccountDataSafe",-1);
+		if (config.account_safe>0)
+		{
+			write_account_task.set_secs(config.account_safe);
+			write_account_task.start();
+		}
+
     }
     config.verbose = elem.remove_bool( "Verbose", false );
     config.watch_mapcache = elem.remove_bool( "WatchMapCache", false );

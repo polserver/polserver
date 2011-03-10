@@ -117,7 +117,6 @@ void Spellbook::double_click( Client* client )
 		msg->WriteFlipped(static_cast<u16>((spell_school * 100) + 1));
 		msg->Write(bitwise_contents,8);
 		client->transmit(&msg->buffer, msg->offset);
-		msg->Test(msg->offset);
 		READDPACKET(msg);
 	}
 }
@@ -331,6 +330,5 @@ void send_spellbook_contents( Client *client, Spellbook& spellbook )
 	msg->WriteFlipped(len);
 	msg->WriteFlipped(count);
 	client->transmit( &msg->buffer, len );
-	msg->Test(len);
 	READDPACKET(msg);
 }

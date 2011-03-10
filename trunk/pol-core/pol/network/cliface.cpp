@@ -100,7 +100,6 @@ void send_uo_hits( Client* client, Character* me, const Vital* vital )
         v = 0xFFFF;
     msg->WriteFlipped(static_cast<u16>(v));
     client->transmit( &msg->buffer, msg->offset );
-	msg->Test(msg->offset);
 	READDPACKET(msg);
 }
 
@@ -118,7 +117,6 @@ void send_uo_mana( Client* client, Character* me, const Vital* vital )
 		v = 0xFFFF;
 	msg->WriteFlipped(static_cast<u16>(v));
 	client->transmit( &msg->buffer, msg->offset );
-	msg->Test(msg->offset);
 	READDPACKET(msg);
 
 	if (me->party() != NULL)
@@ -139,7 +137,6 @@ void send_uo_stamina( Client* client, Character* me, const Vital* vital )
 		v = 0xFFFF;
 	msg->WriteFlipped(static_cast<u16>(v));
 	client->transmit( &msg->buffer, msg->offset );
-	msg->Test(msg->offset);
 	READDPACKET(msg);
 
 	if (me->party()!=NULL)
@@ -178,7 +175,6 @@ void send_uo_skill( Client* client, Character* me, const Attribute* attr )
 	msg->offset=1;
 	msg->WriteFlipped(len);
 	client->transmit( &msg->buffer, len );
-	msg->Test(len);
 	READDPACKET(msg);
 }
 void ClientInterface::Initialize()

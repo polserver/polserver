@@ -145,7 +145,6 @@ void Map::builtin_on_use( Client* client )
 		msg90->WriteFlipped(gumpwidth);
 		msg90->WriteFlipped(gumpheight);
 		transmit( client, &msg90->buffer, msg90->offset );
-		msg90->Test(msg90->offset);
 		READDPACKET(msg90);
 
 		PktOut_56* msg56 = REQUESTPACKET(PktOut_56,PKTBI_56_ID);
@@ -154,7 +153,6 @@ void Map::builtin_on_use( Client* client )
 		msg56->offset+=5; // u8 pinidx,u16 pinx,piny
 
 		transmit( client, &msg56->buffer, msg56->offset );
-		msg56->Test(msg56->offset);
 
 		//need to send each point to the client
 
@@ -172,7 +170,6 @@ void Map::builtin_on_use( Client* client )
 				transmit( client, &msg56->buffer, msg56->offset );
 			}
 		}
-		msg56->Test(msg56->offset);
 		READDPACKET(msg56);
     }
 }

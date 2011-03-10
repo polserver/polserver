@@ -38,7 +38,6 @@ bool send_tip( Client* client, const char* tipname, unsigned short tipnum )
 		msg->WriteFlipped(static_cast<u16>(textlen+1));
 		msg->Write(tipname,static_cast<u16>(textlen+1));
         transmit( client, &msg->buffer, msg->offset );
-		msg->Test(msg->offset);
 		READDPACKET(msg);
         return true;
     }
@@ -62,7 +61,6 @@ void send_tip( Client* client, const std::string& tiptext )
 	msg->WriteFlipped(static_cast<u16>(textlen+1));
 	msg->Write(tiptext.c_str(),static_cast<u16>(textlen+1));
     transmit( client, &msg->buffer, msg->offset );
-	msg->Test(msg->offset);
 	READDPACKET(msg);
 }
 

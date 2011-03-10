@@ -168,7 +168,6 @@ void PacketQueueSingle::Add(PacketInterface* pkt)
 	{
 		//critical start
 		_PacketQueueSingleMutex.lock();
-		pkt->Log();
 		packets.push(pkt); // readd it
 		_PacketQueueSingleMutex.unlock();
 		//critical end
@@ -220,7 +219,6 @@ void PacketQueueSubs::Add(PacketInterface* pkt)
 	u16 sub=pkt->getSubID();
 	//critical start
 	_PacketQueueSubsMutex.lock();
-	pkt->Log();
 	PacketInterfaceQueueMap::iterator itr = packets.find(sub);
 	if (itr != packets.end())
 	{

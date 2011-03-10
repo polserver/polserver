@@ -58,7 +58,6 @@ void send_sysmessage_cl(Client *client, /*Character *chr_from, ObjArray* oText,*
 	msg->offset=1;
 	msg->WriteFlipped(len);
 	transmit( client, &msg->buffer, len );
-	msg->Test(len);
 	READDPACKET(msg);
 }
 
@@ -95,7 +94,6 @@ void say_above_cl(UObject *obj, unsigned int cliloc_num,
 	msg->WriteFlipped(len);
 	//  MuadDib - FIXME: only send to those that I'm visible to. 
 	transmit_to_inrange( obj, &msg->buffer, len, false, false );
-	msg->Test(len);
 	READDPACKET(msg);
 }
 
@@ -131,7 +129,6 @@ void private_say_above_cl(Character *chr, const UObject* obj,
 	msg->offset=1;
 	msg->WriteFlipped(len);
 	chr->client->transmit( &msg->buffer, len );
-	msg->Test(len);
 	READDPACKET(msg);
 }
 
@@ -174,7 +171,6 @@ void send_sysmessage_cl_affix(Client *client, unsigned int cliloc_num, const cha
 	msg->WriteFlipped(len);
 
 	client->transmit(&msg->buffer, len);
-	msg->Test(len);
 	READDPACKET(msg);
 }
 
@@ -217,7 +213,6 @@ void say_above_cl_affix(UObject *obj, unsigned int cliloc_num, const char* affix
 
 	// MuadDib - FIXME: only send to those that I'm visible to.
 	transmit_to_inrange( obj, &msg->buffer, len, false, false );
-	msg->Test(len);
 	READDPACKET(msg);
 }
 
@@ -259,7 +254,6 @@ void private_say_above_cl_affix(Character *chr, const UObject* obj, unsigned int
 	msg->WriteFlipped(len);
 
 	chr->client->transmit(&msg->buffer, len);
-	msg->Test(len);
 	READDPACKET(msg);
 }
 

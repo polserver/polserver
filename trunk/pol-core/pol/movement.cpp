@@ -146,7 +146,6 @@ void remove_objects_inrange( Client* client )
             }
         }
     }
-	msgremove->Test(msgremove->offset);
 	READDPACKET(msgremove);
 }
 
@@ -166,7 +165,6 @@ void handle_walk( Client *client, PKTIN_02 *msg02 )
 		msg->Write(chr->facing);
 		msg->Write(chr->z);
 		client->transmit( &msg->buffer, msg->offset );
-		msg->Test(msg->offset);
 		READDPACKET(msg);*/
 
 		return;
@@ -194,7 +192,6 @@ void handle_walk( Client *client, PKTIN_02 *msg02 )
 			msg->Write(msg02->movenum);
 			msg->Write(client->chr->hilite_color_idx( client->chr ));
 			client->transmit( &msg->buffer, msg->offset );
-			msg->Test(msg->offset);
 			READDPACKET(msg);
 
 			client->movementsequence = msg02->movenum;
@@ -231,7 +228,6 @@ void handle_walk( Client *client, PKTIN_02 *msg02 )
 			msg->Write(chr->facing);
 			msg->Write(chr->z);
 			client->transmit( &msg->buffer, msg->offset );
-			msg->Test(msg->offset);
 			READDPACKET(msg);
 
 			client->movementsequence = 0;

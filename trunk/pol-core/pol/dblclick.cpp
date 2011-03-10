@@ -76,7 +76,6 @@ void send_paperdoll( Client *client, Character *chr )
 	msg->Write(flag1);
 
 	client->transmit( &msg->buffer, msg->offset );
-	msg->Test(msg->offset);
 	READDPACKET(msg);
 }
 
