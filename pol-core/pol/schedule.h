@@ -66,6 +66,8 @@ public:
 	PeriodicTask( void (*f)(void), int n_secs, const char* name );
 	PeriodicTask( void (*f)(void), int initial_wait_seconds, int periodic_seconds, const char* name );
 
+	void set_secs(int n_secs);
+
     virtual void execute(polclock_t now);
     void start();
 

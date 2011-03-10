@@ -157,7 +157,6 @@ void send_goxyz( Client *client, const Character *chr )
 	msg->Write(static_cast<u8>(0x80 | chr->facing)); // is it always right to set this flag?
 	msg->Write(chr->z);
     transmit( client, &msg->buffer, msg->offset );
-	msg->Test(msg->offset);
 	READDPACKET(msg);
 
     if ((client->ClientType & CLIENTTYPE_UOKR) && (chr->poisoned)) //if poisoned send 0x17 for newer clients
@@ -183,7 +182,6 @@ void send_move( Client *client, const Character *chr )
 	msg->Write(chr->hilite_color_idx( client->chr ));
 
     transmit( client, &msg->buffer, msg->offset );
-	msg->Test(msg->offset);
 	READDPACKET(msg);
 
     if ((client->ClientType & CLIENTTYPE_UOKR) && (chr->poisoned)) //if poisoned send 0x17 for newer clients
@@ -222,7 +220,6 @@ void send_poisonhealthbar( Client *client, const Character *chr )
 	msg->Write(static_cast<u16>(1)); // status_type
 	msg->Write(static_cast<u8>(( chr->poisoned ) ? 1 : 0)); //flag
 	transmit( client, &msg->buffer, msg->offset );
-	msg->Test(msg->offset);
 	READDPACKET(msg);
 }
 PktOut_17* build_poisonhealthbar( const Character *chr )
@@ -280,7 +277,6 @@ void send_owncreate( Client *client, const Character *chr )
 	owncreate->WriteFlipped(len);
 
     transmit(client, &owncreate->buffer, len );
-	owncreate->Test(len);
 	READDPACKET(owncreate);
 
 	if(client->UOExpansionFlag & AOS)
@@ -395,7 +391,6 @@ void send_remove_character( Client *client, const Character *chr )
 	PktOut_1D* msgremove = REQUESTPACKET(PktOut_1D,PKTOUT_1D_ID);
 	msgremove->Write(chr->serial_ext);
     transmit( client, &msgremove->buffer, msgremove->offset );
-	msgremove->Test(msgremove->offset);
 	READDPACKET(msgremove);
 }
 
@@ -430,7 +425,6 @@ void send_remove_character_if_nearby( Client* client, const Character* chr )
 	PktOut_1D* msgremove = REQUESTPACKET(PktOut_1D,PKTOUT_1D_ID);
 	msgremove->Write(chr->serial_ext);
 	transmit( client, &msgremove->buffer, msgremove->offset );
-	msgremove->Test(msgremove->offset);
 	READDPACKET(msgremove);
 }
 void send_remove_character_to_nearby( const Character* chr )
@@ -452,7 +446,6 @@ void send_remove_character_to_nearby( const Character* chr )
 
 		transmit( client, &msgremove->buffer, msgremove->offset );
 	}
-	msgremove->Test(msgremove->offset);
 	READDPACKET(msgremove);
 }
 
@@ -472,7 +465,6 @@ void send_remove_character_if_nearby_cantsee( Client* client, const Character* c
 		PktOut_1D* msgremove = REQUESTPACKET(PktOut_1D,PKTOUT_1D_ID);
 		msgremove->Write(chr->serial_ext);
 		transmit( client, &msgremove->buffer, msgremove->offset );
-		msgremove->Test(msgremove->offset);
 		READDPACKET(msgremove);
     }
 }
@@ -498,7 +490,6 @@ void send_remove_character_to_nearby_cantsee( const Character* chr )
 			transmit( client, &msgremove->buffer, msgremove->offset );
 		}
 	}
-	msgremove->Test(msgremove->offset);
 	READDPACKET(msgremove);
 }
 
@@ -513,7 +504,6 @@ void send_remove_character_if_nearby_cansee( Client* client, const Character* ch
 		PktOut_1D* msgremove = REQUESTPACKET(PktOut_1D,PKTOUT_1D_ID);
 		msgremove->Write(chr->serial_ext);
 		transmit( client, &msgremove->buffer, msgremove->offset );
-		msgremove->Test(msgremove->offset);
 		READDPACKET(msgremove);
     }
 }
@@ -534,7 +524,6 @@ void send_remove_character_to_nearby_cansee( const Character* chr )
 			transmit( client, &msgremove->buffer, msgremove->offset );
 		}
 	}
-	msgremove->Test(msgremove->offset);
 	READDPACKET(msgremove);
 }
 
@@ -551,7 +540,6 @@ void send_remove_object_if_inrange( Client *client, const Item *item )
 	PktOut_1D* msgremove = REQUESTPACKET(PktOut_1D,PKTOUT_1D_ID);
 	msgremove->Write(item->serial_ext);
 	transmit( client, &msgremove->buffer, msgremove->offset );
-	msgremove->Test(msgremove->offset);
 	READDPACKET(msgremove);
 }
 
@@ -572,7 +560,6 @@ void send_remove_object_to_inrange( const UObject *centerObject )
 			transmit( client2, &msgremove->buffer, msgremove->offset );
 		}
 	}
-	msgremove->Test(msgremove->offset);
 	READDPACKET(msgremove);
 }
 
@@ -581,7 +568,6 @@ void send_remove_object( Client *client, const Item *item )
 	PktOut_1D* msgremove = REQUESTPACKET(PktOut_1D,PKTOUT_1D_ID);
 	msgremove->Write(item->serial_ext);
 	transmit( client, &msgremove->buffer, msgremove->offset );
-	msgremove->Test(msgremove->offset);
 	READDPACKET(msgremove);
 }
 
@@ -698,7 +684,6 @@ void send_put_in_container( Client* client, const Item* item )
 	msg->Write(item->container->serial_ext);
 	msg->Write(item->color_ext);
 	transmit( client, &msg->buffer, msg->offset );
-	msg->Test(msg->offset);
 	READDPACKET(msg);
 
 	if(client->UOExpansionFlag & AOS)
@@ -760,8 +745,6 @@ void send_put_in_container_to_inrange( const Item *item )
 			}
         }
     }
-	legacy_buffer->Test(legacy_buffer->offset);
-	slot_buffer->Test(slot_buffer->offset);
 	READDPACKET(legacy_buffer);
 	READDPACKET(slot_buffer);
 }
@@ -809,7 +792,6 @@ void send_corpse_items( Client *client, const Item *item )
 	msg->WriteFlipped(len);
 
     transmit( client, &msg->buffer, len );
-	msg->Test(len);
     READDPACKET(msg);
 
     send_container_contents( client, *cont, true );
@@ -850,7 +832,6 @@ void send_item( Client *client, const Item *item )
 		if (client->ClientType & CLIENTTYPE_7090)
 			msg->offset+=2;
 		transmit( client, &msg->buffer, msg->offset );
-		msg->Test(msg->offset);
 		READDPACKET(msg);
 	}
 	else
@@ -882,7 +863,6 @@ void send_item( Client *client, const Item *item )
 		msg->offset=1;
 		msg->WriteFlipped(len);
 		transmit( client, &msg->buffer, len );
-		msg->Test(len);
 		READDPACKET(msg);
 	}
     
@@ -954,7 +934,6 @@ void send_light( Client *client, int lightlevel )
 		PktOut_4F* msg = REQUESTPACKET(PktOut_4F,PKTOUT_4F_ID);
 		msg->Write(static_cast<u8>(lightlevel));
 		transmit( client, &msg->buffer, msg->offset );
-		msg->Test(msg->offset);
 		READDPACKET(msg);
     }
 }
@@ -966,7 +945,6 @@ void send_weather( Client* client, u8 type, u8 severity, u8 aux )
 	msg->Write(severity);
 	msg->Write(aux);
     transmit( client, &msg->buffer, msg->offset );
-	msg->Test(msg->offset);
 	READDPACKET(msg);
 }
 
@@ -1026,7 +1004,6 @@ void send_item_move_failure( Client *client, u8 reason )
 	PktOut_27* msg = REQUESTPACKET(PktOut_27,PKTOUT_27_ID);
 	msg->Write(reason);
     transmit( client, &msg->buffer, msg->offset );
-	msg->Test(msg->offset);
 	READDPACKET(msg);
 }
 
@@ -1040,7 +1017,6 @@ void send_wornitem( Client *client, const Character *chr, const Item *item )
 	msg->Write(chr->serial_ext);
 	msg->Write(item->color_ext);
 	transmit( client, &msg->buffer, msg->offset );
-	msg->Test(msg->offset);
 	READDPACKET(msg);
 
 	if(client->UOExpansionFlag & AOS)
@@ -1059,7 +1035,6 @@ void send_wornitem_to_inrange( const Character *chr, const Item *item )
 	msg->Write(chr->serial_ext);
 	msg->Write(item->color_ext);
 	transmit_to_inrange( item, &msg->buffer, msg->offset, false, false );
-	msg->Test(msg->offset);
 	READDPACKET(msg);
 	send_object_cache_to_inrange( dynamic_cast<const UObject*>(item) );
 }
@@ -1073,7 +1048,6 @@ void update_wornitem_to_inrange( const Character *chr, const Item *item )
 		PktOut_1D* msgremove = REQUESTPACKET(PktOut_1D,PKTOUT_1D_ID);
 		msgremove->Write(item->serial_ext);
 		transmit_to_inrange( item, &msgremove->buffer, msgremove->offset, false, false );
-		msgremove->Test(msgremove->offset);
 		READDPACKET(msgremove);
 
 		PktOut_2E* msg = REQUESTPACKET(PktOut_2E,PKTOUT_2E_ID);
@@ -1084,7 +1058,6 @@ void update_wornitem_to_inrange( const Character *chr, const Item *item )
 		msg->Write(chr->serial_ext);
 		msg->Write(item->color_ext);
 		transmit_to_inrange( item, &msg->buffer, msg->offset, false, false );
-		msg->Test(msg->offset);
 		READDPACKET(msg);
 
 		send_object_cache_to_inrange( dynamic_cast<const UObject*>(item) );
@@ -1247,7 +1220,6 @@ void play_sound_effect( const UObject *center, u16 effect )
 	//msg->WriteFlipped(z);
     // FIXME hearing range check perhaps?
     transmit_to_inrange( center, &msg->buffer, msg->offset, false, false );
-	msg->Test(msg->offset);
 	READDPACKET(msg);
 }
 
@@ -1275,7 +1247,6 @@ void play_sound_effect_xyz( u16 cx,u16 cy,s8 cz, u16 effect, Realm* realm )
             transmit( client, &msg->buffer, msg->offset );
         }
     }
-	msg->Test(msg->offset);
 	READDPACKET(msg);
 }
 
@@ -1294,7 +1265,6 @@ void play_sound_effect_private( const UObject *center, u16 effect, Character* fo
 		//msg->WriteFlipped(z);
 
         forchr->client->transmit( &msg->buffer, msg->offset );
-		msg->Test(msg->offset);
 		READDPACKET(msg);
     }
 }
@@ -1334,7 +1304,6 @@ void play_moving_effect( const UObject *src, const UObject *dst,
             transmit( client, &msg->buffer, msg->offset );
         }
     }
-	msg->Test(msg->offset);
 	READDPACKET(msg);
 }
 
@@ -1376,7 +1345,6 @@ void play_moving_effect2( u16 xs, u16 ys, s8 zs,
             transmit( client, &msg->buffer, msg->offset );
         }
     }
-	msg->Test(msg->offset);
 	READDPACKET(msg);
 }
 
@@ -1392,7 +1360,6 @@ void play_lightning_bolt_effect( const UObject* center )
 	msg->Write(center->z);
 	msg->offset+=11;
     transmit_to_inrange( center, &msg->buffer, msg->offset, false, false );
-	msg->Test(msg->offset);
 	READDPACKET(msg);
 }
  
@@ -1414,7 +1381,6 @@ void play_object_centered_effect( const UObject* center,
 	msg->Write(loop);
 	msg->offset+=4; //unk24,unk25,unk26,explode
     transmit_to_inrange( center, &msg->buffer, msg->offset, false, false );
-	msg->Test(msg->offset);
 	READDPACKET(msg);
 }
 
@@ -1445,7 +1411,6 @@ void play_stationary_effect( u16 x, u16 y, u8 z, u16 effect, u8 speed, u8 loop, 
         if (inrange( client->chr->x, client->chr->y, x, y ))
             client->transmit( &msg->buffer, msg->offset );
     }
-	msg->Test(msg->offset);
 	READDPACKET(msg);
 }
 
@@ -1470,7 +1435,6 @@ void play_stationary_effect_ex( u16 x, u16 y, u8 z, Realm* realm, u16 effect, u8
         if (inrange( client->chr->x, client->chr->y, x, y ))
             client->transmit( &msg->buffer, msg->offset );
     }
-	msg->Test(msg->offset);
 	READDPACKET(msg);
 }
 
@@ -1487,7 +1451,6 @@ void play_object_centered_effect_ex( const UObject* center, u16 effect, u8 speed
 					center->serial_ext,layer);
 
     transmit_to_inrange( center, &msg->buffer, msg->offset, false, false );
-	msg->Test(msg->offset);
 	READDPACKET(msg);
 }
 
@@ -1518,7 +1481,6 @@ void play_moving_effect_ex( const UObject *src, const UObject *dst,
             transmit( client, &msg->buffer, msg->offset );
         }
     }
-	msg->Test(msg->offset);
 	READDPACKET(msg);
 }
 
@@ -1550,7 +1512,6 @@ void play_moving_effect2_ex( u16 xs, u16 ys, s8 zs,
             transmit( client, &msg->buffer, msg->offset );
         }
     }
-	msg->Test(msg->offset);
 	READDPACKET(msg);
 }
 
@@ -1610,7 +1571,6 @@ void send_sysmessage(Client *client, const char *text, unsigned short font, unsi
 	msg->offset=1;
 	msg->WriteFlipped(len);
 	transmit( client, &msg->buffer, len );
-	msg->Test(len);
 	READDPACKET(msg);
 }
 
@@ -1640,7 +1600,6 @@ void send_sysmessage(Client *client,
 	msg->offset=1;
 	msg->WriteFlipped(len);
 	transmit( client, &msg->buffer, len );
-	msg->Test(len);
 	READDPACKET(msg);
 }
 
@@ -1703,7 +1662,6 @@ void send_nametext( Client *client, const Character *chr, const std::string& str
 	msg->offset=1;
 	msg->WriteFlipped(len);
 	transmit( client, &msg->buffer, len );
-	msg->Test(len);
 	READDPACKET(msg);
 }
 
@@ -1740,7 +1698,6 @@ bool say_above(const UObject* obj,
 	msg->WriteFlipped(len);
 	// todo: only send to those that I'm visible to.
 	transmit_to_inrange( obj, &msg->buffer, len, false, false );
-	msg->Test(len);
 	READDPACKET(msg);
 	return true;
 }
@@ -1783,7 +1740,6 @@ bool say_above(const UObject* obj,
 	msg->WriteFlipped(len);
 	// todo: only send to those that I'm visible to.
 	transmit_to_inrange( obj, &msg->buffer, len, false, false );
-	msg->Test(len);
 	READDPACKET(msg);
     return true;
 }
@@ -1823,7 +1779,6 @@ bool private_say_above( Character* chr,
 	msg->offset=1;
 	msg->WriteFlipped(len);
 	chr->client->transmit( &msg->buffer, len );
-	msg->Test(len);
 	READDPACKET(msg);
 	return true;
 }
@@ -1868,7 +1823,6 @@ bool private_say_above( Character* chr,
 	msg->offset=1;
 	msg->WriteFlipped(len);
 	chr->client->transmit( &msg->buffer, len );
-	msg->Test(len);
 	READDPACKET(msg);
 	return true;
 }
@@ -1897,7 +1851,6 @@ bool private_say_above_ex( Character* chr,
 	msg->offset=1;
 	msg->WriteFlipped(len);
 	chr->client->transmit( &msg->buffer, len );
-	msg->Test(len);
 	READDPACKET(msg);
 	return true;
 }
@@ -1920,7 +1873,6 @@ void send_objdesc( Client *client, Item *item )
 	msg->offset=1;
 	msg->WriteFlipped(len);
 	transmit( client, &msg->buffer, len );
-	msg->Test(len);
 	READDPACKET(msg);
 }
 
@@ -1948,7 +1900,6 @@ void send_stamina_level( Client *client )
 		msg->offset+=4;
 	}
 	transmit( client, &msg->buffer, msg->offset );
-	msg->Test(msg->offset);
 	READDPACKET(msg);
 }
 
@@ -1976,7 +1927,6 @@ void send_mana_level( Client *client )
 		msg->offset+=4;
     }
     transmit( client, &msg->buffer, msg->offset );
-	msg->Test(msg->offset);
 	READDPACKET(msg);
 }
 
@@ -1999,7 +1949,6 @@ void send_death_message( Character *chr_died, Item *corpse )
         if (inrange( client->chr, corpse ))
             transmit( client, &msg->buffer, msg->offset );
     }
-	msg->Test(msg->offset);
 	READDPACKET(msg);
 }
 
@@ -2181,7 +2130,6 @@ void move_item( Item* item, UFACING facing )
             }
         }
     }
-	msgremove->Test(msgremove->offset);
 	READDPACKET(msgremove);
 
 }
@@ -2227,7 +2175,6 @@ void move_item( Item* item, unsigned short newx, unsigned short newy, signed cha
             }
         }
     }
-	msgremove->Test(msgremove->offset);
 	READDPACKET(msgremove);
 }
 
@@ -2301,9 +2248,6 @@ void move_boat_item( Item* item, unsigned short newx, unsigned short newy, signe
             }
         }
     }
-	msg->Test(len1A);
-	msg2->Test(msg2->offset);
-	msgremove->Test(msgremove->offset);
 	READDPACKET(msg);
 	READDPACKET(msg2);
 	READDPACKET(msg3);
@@ -2330,7 +2274,6 @@ void send_multi( Client* client, const UMulti* multi )
 		if (client->ClientType & CLIENTTYPE_7090)
 			msg->offset+=2;
 		client->transmit( &msg->buffer, msg->offset );
-		msg->Test(msg->offset);
 		READDPACKET(msg);
 	}
 	else
@@ -2346,7 +2289,6 @@ void send_multi( Client* client, const UMulti* multi )
 		msg->offset=1;
 		msg->WriteFlipped(len);
 		client->transmit( &msg->buffer, len );
-		msg->Test(len);
 		READDPACKET(msg);
 	}
 }
@@ -2571,7 +2513,6 @@ void send_midi( Client* client, u16 midi )
 	PktOut_6D* msg = REQUESTPACKET(PktOut_6D,PKTOUT_6D_ID);
 	msg->WriteFlipped(midi);
 	client->transmit( &msg->buffer, msg->offset );
-	msg->Test(msg->offset);
 	READDPACKET(msg);
     // cout << "Setting midi for " << client->chr->name() << " to " << midi << endl;
 }
@@ -2640,7 +2581,6 @@ void UpdateCharacterOnDestroyItem(Item* item)
 			PktOut_1D* msgremove = REQUESTPACKET(PktOut_1D,PKTOUT_1D_ID);
 			msgremove->Write(item->serial_ext);
 			transmit_to_inrange( item, &msgremove->buffer, msgremove->offset, false, false );
-			msgremove->Test(msgremove->offset);
 			READDPACKET(msgremove);
 		}
 	}
@@ -2656,7 +2596,6 @@ void login_complete(Client* c)
 {
 	PktOut_55* msg = REQUESTPACKET(PktOut_55,PKTOUT_55_ID);
 	c->transmit(&msg->buffer, msg->offset);
-	msg->Test(msg->offset);
 	READDPACKET(msg);
 }
 
@@ -2722,7 +2661,6 @@ void send_feature_enable(Client* client)
 	else
 		msg->WriteFlipped(static_cast<u16>(clientflag));
 	client->transmit(&msg->buffer, msg->offset);
-	msg->Test(msg->offset);
 	READDPACKET(msg);
 }
 
@@ -2733,7 +2671,6 @@ void send_realm_change( Client* client, Realm* realm )
 	msg->offset+=2; //sub
 	msg->Write(static_cast<u8>(realm->getUOMapID()));
 	client->transmit(&msg->buffer, msg->offset);
-	msg->Test(msg->offset);
 	READDPACKET(msg);
 }
 
@@ -2751,7 +2688,6 @@ void send_map_difs( Client* client )
 	msg->offset=1;
 	msg->WriteFlipped(len);
 	client->transmit( &msg->buffer, len);
-	msg->Test(len);
 	READDPACKET(msg);
 }
 
@@ -2765,7 +2701,6 @@ void send_season_info( Client* client )
 		msg->Write(static_cast<u8>(client->chr->realm->season()));
 		msg->Write(static_cast<u8>(PKTOUT_BC::PLAYSOUND_YES));
 		client->transmit( &msg->buffer, msg->offset );
-		msg->Test(msg->offset);
 		READDPACKET(msg);
 
 		// Sending Season info resets light level in client, this fixes it during login
@@ -2789,7 +2724,6 @@ void send_new_subserver( Client* client )
 	msg->WriteFlipped(client->chr->realm->width());
 	msg->WriteFlipped(client->chr->realm->height());
 	client->transmit( &msg->buffer, msg->offset );
-	msg->Test(msg->offset);
 	READDPACKET(msg);
 }
 
@@ -2800,7 +2734,6 @@ void send_fight_occuring( Client* client, Character* opponent )
 	msg->Write(client->chr->serial_ext);
 	msg->Write(opponent->serial_ext);
 	client->transmit( &msg->buffer, msg->offset );
-	msg->Test(msg->offset);
 	READDPACKET(msg);
 }
 
@@ -2828,7 +2761,6 @@ void send_damage_new(Client* client, Character* defender, u16 damage)
 	msg->Write(defender->serial_ext);
 	msg->WriteFlipped(damage);
     client->transmit( &msg->buffer, msg->offset );
-	msg->Test(msg->offset);
 	READDPACKET(msg);
 }
 
@@ -2844,7 +2776,6 @@ void send_damage_old(Client* client, Character* defender, u16 damage)
     else
         msg->Write(static_cast<u8>(damage));
     client->transmit( &msg->buffer, msg->offset );
-	msg->Test(msg->offset);
 	READDPACKET(msg);
 }
 
@@ -2882,6 +2813,5 @@ void sendCharProfile( Character* chr, Character* of_who, const char *title, cons
 	msg->WriteFlipped(len);
 
 	transmit( chr->client, &msg->buffer, len );
-	msg->Test(len);
 	READDPACKET(msg);
 }

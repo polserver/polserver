@@ -64,7 +64,6 @@ void read_account_data()
 	if(accounts_txt_dirty)
 	{
 		write_account_data();
-		accounts_txt_dirty = false;
 	}
 	wallclock_t end = wallclock();
     int ms = wallclock_diff_ms( start, end );
@@ -96,6 +95,7 @@ void write_account_data()
 	struct stat newst;
     stat( accountstxtfile.c_str(), &newst );
     memcpy( &accounts_txt_stat, &newst, sizeof accounts_txt_stat );
+	accounts_txt_dirty = false;
 }
 
 Account* create_new_account( const string& acctname, const string& password, bool enabled )
@@ -109,7 +109,10 @@ Account* create_new_account( const string& acctname, const string& password, boo
     elem.add_prop( "enabled", ((unsigned int)(enabled?1:0)) );
     Account* acct = new Account( elem );
     accounts.push_back( AccountRef(acct) );
-    write_account_data();
+	if (config.account_safe == -1)
+		write_account_data();
+	else
+		accounts_txt_dirty = true;
     return acct;
 }
 
@@ -127,7 +130,10 @@ Account* duplicate_account( const string& oldacctname, const string& newacctname
         
         Account* acct = new Account( elem );
         accounts.push_back( AccountRef(acct) );
-        write_account_data();
+		if (config.account_safe == -1)
+			write_account_data();
+		else
+			accounts_txt_dirty = true;
         return acct;
     }
     return NULL;
@@ -155,7 +161,10 @@ int delete_account( const char* acctname )
             if (account->numchars() == 0)
             {
                 accounts.erase(itr);
-                write_account_data();
+				if (config.account_safe == -1)
+					write_account_data();
+				else
+					accounts_txt_dirty = true;
                 return 1;
             }
             else
@@ -207,7 +216,6 @@ void reload_account_data(void)
 			if(accounts_txt_dirty)
 			{
 				write_account_data();
-				accounts_txt_dirty = false;
 			}
         }
     }
@@ -218,3 +226,10 @@ void reload_account_data(void)
     THREAD_CHECKPOINT( tasks, 599 );
 }
 PeriodicTask reload_accounts_task( reload_account_data, 30, "LOADACCT" );
+
+void write_account_data_task(void)
+{
+	if(accounts_txt_dirty)
+		write_account_data();
+}
+PeriodicTask write_account_task( write_account_data_task, 60, "WRITEACCT" );

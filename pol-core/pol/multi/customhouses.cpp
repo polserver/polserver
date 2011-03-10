@@ -452,7 +452,6 @@ void CustomHouseStopEditing(Character* chr, UHouse* house)
 	msg->Write(static_cast<u32>(0xFFFFFFFF)); // fixme
 	msg->Write(static_cast<u8>(0xFF)); // fixme
     chr->client->transmit(&msg->buffer,msg->offset);
-	msg->Test(msg->offset);
 	READDPACKET(msg);
 
     move_character_to(chr,house->multidef().global_minrx,house->multidef().global_maxry+1,house->z,MOVEITEM_FORCELOCATION, NULL);
@@ -804,7 +803,6 @@ void CustomHousesSendShort(UHouse* house, Client* client)
 	msg->Write(house->serial_ext);
 	msg->WriteFlipped(house->revision);
     client->transmit(&msg->buffer, msg->offset);
-	msg->Test(msg->offset);
 	READDPACKET(msg);
 }
 

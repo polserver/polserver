@@ -75,6 +75,8 @@ struct PolConfig {
 	int assertion_shutdown_save_type;
 
 	std::string minidump_type;
+
+	int account_safe;
 };
 
 extern PolConfig config;

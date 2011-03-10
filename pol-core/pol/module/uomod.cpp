@@ -833,7 +833,6 @@ BObjectImp* UOExecutorModule::mf_TargetCancel()
 				msg->Write(static_cast<u8>(0x3));
 				// rest 0
 				chr->client->transmit( &msg->buffer, sizeof msg->buffer );
-				msg->Test(sizeof msg->buffer);
 				READDPACKET(msg);
 				return new BLong(0);
             }
@@ -4187,7 +4186,6 @@ BObjectImp* UOExecutorModule::mf_SendPacket()
 				//printf( "SendPacket() data: %d bytes\n", buflen );
 				//fdump( stdout, buffer, buflen );
 				chr->client->transmit( &buffer->buffer, buffer->offset );
-				buffer->Test(buffer->offset);
 				READDPACKET(buffer);
 				return new BLong(1);
 			}
@@ -4202,7 +4200,6 @@ BObjectImp* UOExecutorModule::mf_SendPacket()
 			if (!client->disconnect)
 			{
 				client->transmit( &buffer->buffer, buffer->offset );
-				buffer->Test(buffer->offset);
 				READDPACKET(buffer);
 				return new BLong(1);
 			}
@@ -4251,7 +4248,6 @@ BObjectImp* UOExecutorModule::mf_SendQuestArrow()
             return new BError( "No client attached" );
 
 		chr->client->transmit(&msg->buffer, msg->offset);
-		msg->Test(msg->offset);
 		READDPACKET(msg);
         return new BLong( 1 );
     }
@@ -5769,7 +5765,6 @@ BObjectImp* UOExecutorModule::mf_SendOverallSeason(/*season_id, playsound := 1*/
 				continue;
 			client->transmit( &msg->buffer, msg->offset );			
 		}
-		msg->Test(msg->offset);
 		READDPACKET(msg);
 		return new BLong(1);
 	}

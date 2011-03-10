@@ -53,7 +53,6 @@ void handle_request_tooltip( Client* client, PKTIN_B6* msgin )
 				msg->WriteFlipped(len);
 
                 client->transmit( &msg->offset, len );
-				msg->Test(len);
 				READDPACKET(msg);
             }
         }
@@ -72,7 +71,6 @@ void send_object_cache(Client* client, const UObject* obj)
 			msgdc->Write(obj->serial_ext);
 			msgdc->WriteFlipped(obj->rev());
 			client->transmit(&msgdc->buffer, msgdc->offset);
-			msgdc->Test(msgdc->offset);
 			READDPACKET(msgdc);
 		}
 		else
@@ -83,7 +81,6 @@ void send_object_cache(Client* client, const UObject* obj)
 			msgbf10->Write(obj->serial_ext);
 			msgbf10->WriteFlipped(obj->rev());
 			client->transmit(&msgbf10->buffer, msgbf10->offset);
-			msgbf10->Test(msgbf10->offset);
 			READDPACKET(msgbf10);
 		}
 	}
@@ -135,8 +132,6 @@ void send_object_cache_to_inrange(const UObject* obj)
 				}
 			}
 		}
-		msgdc->Test(msgdc->offset);
-		msgbf10->Test(msgbf10->offset);
 		READDPACKET(msgdc);
 		READDPACKET(msgbf10);
 	}
@@ -185,7 +180,6 @@ void SendAOSTooltip(Client* client, UObject* obj, bool vendor_content)
 	msg->offset=1;
 	msg->WriteFlipped(len);
 	client->transmit(&msg->buffer,len);
-	msg->Test(len);
 	READDPACKET(msg);
 }
 
