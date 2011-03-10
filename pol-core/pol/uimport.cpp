@@ -36,6 +36,7 @@ Notes
 #include "../plib/realm.h"
 
 #include "accounts/account.h"
+#include "accounts/accounts.h"
 #include "mobile/charactr.h"
 #include "fnsearch.h"
 #include "gflag.h"
@@ -1344,6 +1345,12 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, unsigned
 
 		write_party( sc.ofs_party );
 		tx.push_back(wallclock());
+
+		if (accounts_txt_dirty)
+		{
+			write_account_data();
+			tx.push_back(wallclock());
+		}
 
 	}
 

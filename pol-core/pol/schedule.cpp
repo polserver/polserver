@@ -100,6 +100,11 @@ PeriodicTask::PeriodicTask( void (*i_f)(void), int initial_wait_seconds, int per
 }
 
 
+void PeriodicTask::set_secs(int n_secs)
+{
+	n_clocks         = n_secs * POLCLOCKS_PER_SEC;
+	n_initial_clocks = n_secs  *POLCLOCKS_PER_SEC;
+}
 void PeriodicTask::start()
 {
     next_run_clock_ = polclock() + n_initial_clocks;

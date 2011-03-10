@@ -260,9 +260,6 @@ void send_boat_to_inrange( const UBoat* item, u16 oldx, u16 oldy )
 			client->transmit( &msgremove->buffer, msgremove->offset );
 		}
     }
-	msg->Test(len1A);
-	msg2->Test(msg2->offset);
-	msgremove->Test(msgremove->offset);
 	READDPACKET(msg);
 	READDPACKET(msg2);
 	READDPACKET(msg3);

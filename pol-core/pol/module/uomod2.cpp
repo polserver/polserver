@@ -185,7 +185,6 @@ bool send_vendorwindow_contents( Client* client, UContainer* for_sale, bool send
 	msg->Write(num_items);
 
 	transmit( client, &msg->buffer, len );
-	msg->Test(len);
 	READDPACKET(msg);
 	return true;
 }
@@ -297,7 +296,6 @@ BObjectImp* UOExecutorModule::mf_SendBuyWindow(/* character, container, vendor, 
 	if (chr->client->ClientType & CLIENTTYPE_7090)
 		open_window->WriteFlipped(static_cast<u16>(0x00));
 	transmit( chr->client, &open_window->buffer, open_window->offset );
-	open_window->Test(open_window->offset);
 	READDPACKET(open_window);
 
 	// Tell the client how much gold the character has, I guess
@@ -316,7 +314,6 @@ void send_clear_vendorwindow( Client* client, Character* vendor )
 	msg->Write(vendor->serial_ext);
 	msg->Write(static_cast<u8>(PKTBI_3B::STATUS_NOTHING_BOUGHT));
 	client->transmit(&msg->buffer, msg->offset);
-	msg->Test(msg->offset);
 	READDPACKET(msg);
 }
 
@@ -563,7 +560,6 @@ bool send_vendorsell( Client* client, NPC* merchant, UContainer* sellfrom, bool 
 	msg->WriteFlipped(num_items);
 
 	transmit( client, &msg->buffer, len );
-	msg->Test(len);
 	READDPACKET(msg);
 	return true;
 }
@@ -882,7 +878,6 @@ BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu(Character* chr, 
 	msg->WriteFlipped(len);
 
 	chr->client->transmit( &msg->buffer, len );
-	msg->Test(len);
 	READDPACKET(msg);
 	chr->client->gd->add_gumpmod( this );
 	//old_gump_uoemod = this;
@@ -1011,7 +1006,6 @@ BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu(Character* chr, Ob
 	msg->WriteFlipped(len);
 
 	chr->client->transmit( &msg->buffer, len );
-	msg->Test(len);
 	READDPACKET(msg);
 	READDPACKET(bfr);
 	chr->client->gd->add_gumpmod( this );
@@ -1161,7 +1155,6 @@ BObjectImp* UOExecutorModule::mf_CloseGump(/* who, pid, response := 0 */)
 	msg->offset+=4; //buttonid
 
 	client->transmit(&msg->buffer, msg->offset);
-	msg->Test(msg->offset);
 	READDPACKET(msg);
 
 	uoemod->uoexec.ValueStack.top().set( new BObject(resp) );
@@ -1202,7 +1195,6 @@ BObjectImp* UOExecutorModule::mf_CloseWindow(/* chr, type, obj */)
 	msg->Write(obj->serial_ext);
 
 	chr->client->transmit(&msg->buffer, msg->offset);
-	msg->Test(msg->offset);
 	READDPACKET(msg);
 
 	return new BLong( 1 );
@@ -1367,7 +1359,6 @@ BObjectImp* UOExecutorModule::mf_SendTextEntryGump()
 	msg->WriteFlipped(len);
 
 	chr->client->transmit( &msg->buffer, len );
-	msg->Test(len);
 	READDPACKET(msg);
 	chr->client->gd->textentry_uoemod = this;
 	textentry_chr = chr;
@@ -1850,7 +1841,6 @@ BObjectImp* UOExecutorModule::mf_SendInstaResDialog()
 	msg->Write(static_cast<u8>(RESURRECT_CHOICE_SELECT));
 
 	chr->client->transmit( &msg->buffer, msg->offset );
-	msg->Test(msg->offset);
 	READDPACKET(msg);
 	chr->client->gd->resurrect_uoemod = this;
 	resurrect_chr = chr;
@@ -1913,7 +1903,6 @@ BObjectImp* UOExecutorModule::mf_SelectColor()
 	msg->Write(item->graphic_ext);
 
 	chr->client->transmit( &msg->buffer, msg->offset );
-	msg->Test(msg->offset);
 	READDPACKET(msg);
 
 	chr->client->gd->selcolor_uoemod = this;
@@ -1976,7 +1965,6 @@ BObjectImp* UOExecutorModule::mf_SendOpenBook()
 	msg93->Write(author.c_str(),30,false);
 
 	chr->client->transmit( &msg93->buffer, msg93->offset );
-	msg93->Test(msg93->offset);
 	READDPACKET(msg93);
 
 	if (writable)
@@ -2053,7 +2041,6 @@ BObjectImp* UOExecutorModule::mf_SendOpenBook()
 		msg->offset=1;
 		msg->WriteFlipped(len);
 		chr->client->transmit( &msg->buffer, len );
-		msg->Test(len);
 		READDPACKET(msg);
 	}
 
@@ -2121,7 +2108,6 @@ void read_book_page_handler( Client* client, PKTBI_66* msg )
 		msgOut->offset=1;
 		msgOut->WriteFlipped(len);
 		client->transmit( &msgOut->buffer, len );
-		msgOut->Test(len);
 		READDPACKET(msgOut);
 	}
 	else
@@ -2243,7 +2229,6 @@ BObjectImp* UOExecutorModule::mf_SendHousingTool()
 	msg->Write(static_cast<u32>(0xFFFFFFFF)); // fixme
 	msg->Write(static_cast<u8>(0xFF)); // fixme
 	chr->client->transmit(&msg->buffer,msg->offset);
-	msg->Test(msg->offset);
 	READDPACKET(msg);
 
 	move_character_to(chr,house->x,house->y,house->z+7,MOVEITEM_FORCELOCATION, NULL);
@@ -2269,7 +2254,6 @@ BObjectImp* UOExecutorModule::mf_SendCharacterRaceChanger(/* Character */)
 		msg->Write(static_cast<u8>(chr->gender));
 		msg->Write(static_cast<u8>(chr->race+1));
 		chr->client->transmit(&msg->buffer,msg->offset);
-		msg->Test(msg->offset);
 		READDPACKET(msg);
 
 		return new BLong(1);

@@ -266,7 +266,6 @@ void send_startup( Client *client )
 	msg->WriteFlipped(client->chr->realm->height());
 	msg->offset+=6; // u8 unk31, unk32, unk33, unk34, unk35, unk36
 	transmit( client, &msg->buffer, msg->offset );
-	msg->Test(msg->offset);
 	READDPACKET(msg);
 }
 
@@ -896,7 +895,6 @@ bool process_data( Client *client )
 				client->recv_state = Client::RECV_STATE_MSGTYPE_WAIT;
 				client->setClientType(CLIENTTYPE_UOKR); // UO:KR logging in				
 				client->transmit( &msg->buffer, msg->offset );
-				msg->Test(msg->offset);
 				READDPACKET(msg);
 			}
 			else if (client->buffer[0] == PKTIN_EF_ID)  // new seed since 6.0.5.0 (0xef should never appear in normal ipseed)
@@ -1047,7 +1045,6 @@ client->checkpoint = 61; //CNXBUG
 						msg->Write(static_cast<u8>(PKTOUT_53_WARN_CHARACTER_IDLE));
 						CLIENT_CHECKPOINT(5);
 						client->transmit( &msg->buffer, msg->offset );
-						msg->Test(msg->offset);
 						CLIENT_CHECKPOINT(18);
 						READDPACKET(msg);
 						if (client->pause_count)
@@ -2395,6 +2392,7 @@ int xmain_inner( int argc, char *argv[] )
 	
 	objecthash.Clear();
 	display_leftover_objects();
+
 									checkpoint("unloading data");
 	unload_data();
 

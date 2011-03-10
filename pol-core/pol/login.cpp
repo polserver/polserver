@@ -61,7 +61,6 @@ void send_login_error( Client *client, unsigned char reason )
 	PktOut_82* msg = REQUESTPACKET(PktOut_82,PKTOUT_82_ID);
 	msg->Write(reason);
 	client->transmit( &msg->buffer, msg->offset );
-	msg->Test(msg->offset);
 	READDPACKET(msg);
 }
 
@@ -208,7 +207,6 @@ void loginserver_login( Client *client, PKTIN_80 *msg )
 	msgA8->WriteFlipped(servcount);
 
 	client->transmit( &msgA8->buffer, len );
-	msgA8->Test(len);
 	READDPACKET(msgA8);
 
     if (servcount == 0)
@@ -284,7 +282,6 @@ void select_server(Client *client, PKTIN_A0 *msg ) // Relay player to a certain 
 	rsp->WriteFlipped(nseed); // This was set to 0xffffffff in the past but this will conflict with UO:KR detection
 
 	client->transmit( &rsp->buffer, rsp->offset );
-	rsp->Test(rsp->offset);
 	READDPACKET(rsp);
 	
 	client->cryptengine->Init( &nseed, CCryptBase::typeGame );
@@ -361,7 +358,6 @@ void send_start( Client *client )
 	msg->WriteFlipped(len);
 
     client->transmit( &msg->buffer, len );
-	msg->Test(len);
 	READDPACKET(msg);
 }
 

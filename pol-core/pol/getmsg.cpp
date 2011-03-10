@@ -37,7 +37,6 @@ void send_prompt( Client* client, u32 serial )
 	msg->WriteFlipped(static_cast<u32>(0x15));
 	msg->offset+=5; // u32 type u8 text[0]
     transmit( client, &msg->buffer, msg->offset );
-	msg->Test(msg->offset);
 	READDPACKET(msg);
 }
 

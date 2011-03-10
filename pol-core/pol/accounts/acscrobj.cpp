@@ -499,7 +499,10 @@ BObjectImp* AccountObjImp::call_method_id( const int id, Executor& ex, bool forc
 	}
 	
 	// if any of the methods hit & worked, we'll come here
-	write_account_data();
+	if (config.account_safe == -1)
+		write_account_data();
+	else
+		accounts_txt_dirty = true;
 	return result?result:new BLong(1);
 }
 

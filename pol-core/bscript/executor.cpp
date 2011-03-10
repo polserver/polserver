@@ -3430,25 +3430,25 @@ void Executor::dbg_clrallbp()
 #ifdef ESCRIPT_PROFILE
 void Executor::profile_escript(std::string name, clock_t profile_start)
 {
-clock_t profile_end= clock() - profile_start;
-escript_profile_map::iterator itr = EscriptProfileMap.find(name);
-if (itr!=EscriptProfileMap.end())
-{
-	itr->second.count++;
-	itr->second.sum += profile_end;
-	if (itr->second.max < profile_end)
-		itr->second.max = profile_end;
-	else if (itr->second.min > profile_end)
-		itr->second.min = profile_end;
-}
-else
-{
-	profile_instr profInstr;
-	profInstr.count = 1;
-	profInstr.max = profile_end;
-	profInstr.min = profile_end;
-	profInstr.sum = profile_end;
-	EscriptProfileMap[name] = profInstr;
-}
+	clock_t profile_end= clock() - profile_start;
+	escript_profile_map::iterator itr = EscriptProfileMap.find(name);
+	if (itr!=EscriptProfileMap.end())
+	{
+		itr->second.count++;
+		itr->second.sum += profile_end;
+		if (itr->second.max < profile_end)
+			itr->second.max = profile_end;
+		else if (itr->second.min > profile_end)
+			itr->second.min = profile_end;
+	}
+	else
+	{
+		profile_instr profInstr;
+		profInstr.count = 1;
+		profInstr.max = profile_end;
+		profInstr.min = profile_end;
+		profInstr.sum = profile_end;
+		EscriptProfileMap[name] = profInstr;
+	}
 }
 #endif
