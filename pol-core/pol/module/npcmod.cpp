@@ -788,7 +788,6 @@ BObjectImp* NPCExecutorModule::say()
 	if ( doevent >= 1 )
 		for_nearby_npcs(npc_spoke, &npc, text, strlen(text), texttype);
 
-	msg->Test(len);
 	READDPACKET(msg);
 	
 	return NULL;
@@ -874,7 +873,6 @@ BObjectImp* NPCExecutorModule::SayUC()
 			if ( rangeok )
 				transmit( client, &talkmsg->buffer, len );
 		}
-		talkmsg->Test(len);
 		READDPACKET(talkmsg);
 	}
 	else

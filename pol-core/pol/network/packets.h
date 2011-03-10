@@ -43,8 +43,6 @@ class PacketInterface
 		virtual char* getBuffer() { return NULL; }
 		virtual inline u8 getID() { return 0; }
 		virtual inline u16 getSubID() { return 0; }
-		virtual void Log() {}; // debug
-		virtual void Test(u16 len) {};
 };
 
 typedef queue<PacketInterface*> PacketInterfaceQueue;
@@ -126,9 +124,6 @@ class PacketWriter : public PacketInterface
 {
 	public:
 		char buffer[_size];
-#ifdef PKTDEBUG
-		u32 maxoff;
-#endif
 		char* getBuffer() { return &buffer[offset]; }
 		inline u8 getID() { return _id; }
 
@@ -137,98 +132,58 @@ class PacketWriter : public PacketInterface
 			passert_always_r(offset+4<=_size, "pkt "+hexint(_id));
 			(*(u32*)&buffer[offset]) = x;
 			offset += 4;
-#ifdef PKTDEBUG
-			if (offset>maxoff)
-				maxoff=offset;
-#endif
 		};
 		void Write(s32 x)
 		{
 			passert_always_r(offset+4<=_size, "pkt "+hexint(_id));
 			(*(s32*)&buffer[offset]) = x;
 			offset += 4;
-#ifdef PKTDEBUG
-			if (offset>maxoff)
-				maxoff=offset;
-#endif
 		};
 		void Write(u16 x)
 		{
 			passert_always_r(offset+2<=_size, "pkt "+hexint(_id));
 			(*(u16*)&buffer[offset]) = x;
 			offset += 2;
-#ifdef PKTDEBUG
-			if (offset>maxoff)
-				maxoff=offset;
-#endif
 		};
 		void Write(s16 x)
 		{
 			passert_always_r(offset+2<=_size, "pkt "+hexint(_id));
 			(*(s16*)&buffer[offset]) = x;
 			offset += 2;
-#ifdef PKTDEBUG
-			if (offset>maxoff)
-				maxoff=offset;
-#endif
 		};
 		void Write(u8 x) 
 		{ 
 			passert_always_r(offset+1<=_size, "pkt "+hexint(_id));
 			buffer[offset++] = x;
-#ifdef PKTDEBUG
-			if (offset>maxoff)
-				maxoff=offset;
-#endif
 		};
 		void Write(s8 x)
 		{
 			passert_always_r(offset+1<=_size, "pkt "+hexint(_id));
 			buffer[offset++] = x;
-#ifdef PKTDEBUG
-			if (offset>maxoff)
-				maxoff=offset;
-#endif
 		};
 		void WriteFlipped(u32 x)
 		{
 			passert_always_r(offset+4<=_size, "pkt "+hexint(_id));
 			(*(u32*)&buffer[offset]) = cfBEu32(x);
 			offset += 4;
-#ifdef PKTDEBUG
-			if (offset>maxoff)
-				maxoff=offset;
-#endif
 		};
 		void WriteFlipped(s32 x)
 		{
 			passert_always_r(offset+4<=_size, "pkt "+hexint(_id));
 			(*(s32*)&buffer[offset]) = cfBEu32(x);
 			offset += 4;
-#ifdef PKTDEBUG
-			if (offset>maxoff)
-				maxoff=offset;
-#endif
 		};
 		void WriteFlipped(u16 x)
 		{
 			passert_always_r(offset+2<=_size, "pkt "+hexint(_id));
 			(*(u16*)&buffer[offset]) = cfBEu16(x);
 			offset += 2;
-#ifdef PKTDEBUG
-			if (offset>maxoff)
-				maxoff=offset;
-#endif
 		};
 		void WriteFlipped(s16 x)
 		{
 			passert_always_r(offset+2<=_size, "pkt "+hexint(_id));
 			(*(s16*)&buffer[offset]) = cfBEu16(x);
 			offset += 2;
-#ifdef PKTDEBUG
-			if (offset>maxoff)
-				maxoff=offset;
-#endif
 		};
 		void Write(const char* x, u16 len, bool nullterm=true)
 		{
@@ -237,10 +192,6 @@ class PacketWriter : public PacketInterface
 			passert_always_r(offset+len<=_size, "pkt "+hexint(_id));
 			strncpy(&buffer[offset], x, nullterm ? len-1 : len);
 			offset += len;
-#ifdef PKTDEBUG
-			if (offset>maxoff)
-				maxoff=offset;
-#endif
 		}
 		void Write(u8 x[], u16 len)
 		{
@@ -249,20 +200,12 @@ class PacketWriter : public PacketInterface
 			passert_always_r(offset+len<=_size, "pkt "+hexint(_id));
 			memcpy(&buffer[offset], x, len);
 			offset += len;
-#ifdef PKTDEBUG
-			if (offset>maxoff)
-				maxoff=offset;
-#endif
 		}
 		void Write(const u16* x, u16 len, bool nullterm=true)
 		{
 			passert_always_r(offset+len*2<=_size, "pkt "+hexint(_id));
 			u16* _buffer = ((u16*)&buffer[offset]);
 			offset += len*2;
-#ifdef PKTDEBUG
-			if (offset>maxoff)
-				maxoff=offset;
-#endif
 			s32 signedlen= static_cast<s32>(len);
 			while (signedlen-- > 0)
 			{
@@ -272,10 +215,6 @@ class PacketWriter : public PacketInterface
 			{
 				passert_always_r(offset+2<=_size, "pkt "+hexint(_id));
 				offset += 2;
-#ifdef PKTDEBUG
-				if (offset>maxoff)
-					maxoff=offset;
-#endif
 			}
 		}
 		void WriteFlipped(const u16* x, u16 len, bool nullterm=true)
@@ -283,10 +222,6 @@ class PacketWriter : public PacketInterface
 			passert_always_r(offset+len*2<=_size, "pkt "+hexint(_id));
 			u16* _buffer = ((u16*)&buffer[offset]);
 			offset += len*2;
-#ifdef PKTDEBUG
-			if (offset>maxoff)
-				maxoff=offset;
-#endif
 			s32 signedlen= static_cast<s32>(len);
 			while (signedlen-- > 0)
 			{
@@ -297,40 +232,7 @@ class PacketWriter : public PacketInterface
 			{
 				passert_always_r(offset+2<=_size, "pkt "+hexint(_id));
 				offset += 2;
-#ifdef PKTDEBUG
-				if (offset>maxoff)
-					maxoff=offset;
-#endif
 			}
-		}
-
-		void Log() //debug
-		{
-#ifdef PKTDEBUG
-			if (mlog.is_open())
-			{
-				if (maxoff>_size)
-				{
-					mlog << "Packet " << hexint(_id) <<"-"<<hexint(_sub)<< ": [" << _size<<"] off:"<<offset<<" moff:"<<maxoff;
-					mlog << " PACKETLEAK";
-					mlog<<endl;
-				}
-			}
-#endif
-		}
-		void Test(u32 len)
-		{
-#ifdef PKTDEBUG
-			if (len>_size)
-			{
-				if (mlog.is_open())
-				{
-					mlog << "Packet " << hexint(_id) <<"-"<<hexint(_sub)<< ": [" << _size<<"] off:"<<offset<<" moff:"<<maxoff<<" len:"<<len;
-					mlog << " PACKETLEAK";
-					mlog<<endl;
-				}
-			}
-#endif
 		}
 };
 
@@ -345,9 +247,6 @@ class PacketTemplate : public PacketWriter<_id, _size>
 			memset(PacketWriter<_id,_size>::buffer,0,_size);
 			PacketWriter<_id,_size>::buffer[0]=_id;
 			PacketWriter<_id,_size>::offset=1;
-#ifdef PKTDEBUG
-			PacketWriter<_id,_size>::maxoff=1;
-#endif
 		}
 };
 
@@ -363,9 +262,6 @@ class PacketTemplateSub : public PacketWriter<_id, _size, _sub>
 			PacketWriter<_id,_size,_sub>::buffer[0]=_id;
 			(*(u16*)&PacketWriter<_id,_size,_sub>::buffer[_suboff]) = cfBEu16(_sub);
 			PacketWriter<_id,_size,_sub>::offset=1;
-#ifdef PKTDEBUG
-			PacketWriter<_id,_size,_sub>::maxoff=_suboff+1;
-#endif
 		}
 		inline u16 getSubID() { return _sub; }
 };

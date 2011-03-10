@@ -1859,7 +1859,6 @@ void Character::on_poison_changed()
 			msg->Write(static_cast<u16>(1)); // status_type
 			msg->Write(static_cast<u8>(0)); //flag
             transmit_to_inrange( this, &msg->buffer, msg->offset, false, true );
-			msg->Test(msg->offset);
 			READDPACKET(msg);
         }
     }
@@ -2136,7 +2135,6 @@ void Character::send_warmode()
 	msg->Write(static_cast<u8>(0x32));
 	msg->offset++; // u8 unk4
 	transmit( client, &msg->buffer, msg->offset );
-	msg->Test(msg->offset);
 	READDPACKET(msg);
 }
 
@@ -3049,7 +3047,6 @@ void Character::send_highlight() const
 			msg->offset+=4;
 
 		transmit( client, &msg->buffer, msg->offset );
-		msg->Test(msg->offset);
 		READDPACKET(msg);
 	}
 }
