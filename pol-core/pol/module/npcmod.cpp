@@ -757,7 +757,7 @@ BObjectImp* NPCExecutorModule::say()
 	msg->WriteFlipped(npc.speech_color_);
 	msg->WriteFlipped(npc.speech_font_);
 	msg->Write(npc.name().c_str(),30);
-	msg->Write(text,(strlen( text )>SPEECH_MAX_LEN+1) ? SPEECH_MAX_LEN+1 : static_cast<u16>(strlen( text )));
+	msg->Write(text,(strlen( text )>SPEECH_MAX_LEN+1) ? SPEECH_MAX_LEN+1 : static_cast<u16>(strlen( text )+1));
 	u16 len=msg->offset;
 	msg->offset=1;
 	msg->WriteFlipped(len);
