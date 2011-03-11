@@ -109,7 +109,7 @@ Account* create_new_account( const string& acctname, const string& password, boo
     elem.add_prop( "enabled", ((unsigned int)(enabled?1:0)) );
     Account* acct = new Account( elem );
     accounts.push_back( AccountRef(acct) );
-	if (config.account_safe == -1)
+	if (config.account_save == -1)
 		write_account_data();
 	else
 		accounts_txt_dirty = true;
@@ -130,7 +130,7 @@ Account* duplicate_account( const string& oldacctname, const string& newacctname
         
         Account* acct = new Account( elem );
         accounts.push_back( AccountRef(acct) );
-		if (config.account_safe == -1)
+		if (config.account_save == -1)
 			write_account_data();
 		else
 			accounts_txt_dirty = true;
@@ -161,7 +161,7 @@ int delete_account( const char* acctname )
             if (account->numchars() == 0)
             {
                 accounts.erase(itr);
-				if (config.account_safe == -1)
+				if (config.account_save == -1)
 					write_account_data();
 				else
 					accounts_txt_dirty = true;

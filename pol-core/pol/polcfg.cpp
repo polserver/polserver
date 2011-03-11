@@ -88,10 +88,10 @@ void read_pol_config( bool initial_load )
 
         config.debug_port = elem.remove_ushort( "DebugPort", 0 );
 
-		config.account_safe = elem.remove_int("AccountDataSafe",-1);
-		if (config.account_safe>0)
+		config.account_save = elem.remove_int("AccountDataSave",-1);
+		if (config.account_save>0)
 		{
-			write_account_task.set_secs(config.account_safe);
+			write_account_task.set_secs(config.account_save);
 			write_account_task.start();
 		}
 
