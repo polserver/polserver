@@ -1,6 +1,6 @@
 -- POL099 --
 03-10-2011 Turley:
-     Added: pol.cfg AccountDataSafe (default -1)
+     Added: pol.cfg AccountDataSave (default -1)
             Values:
             -1 : old behaviour, saves accounts.txt immediately after an account change
              0 : saves only during worldsave (if needed)
