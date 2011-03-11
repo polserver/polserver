@@ -76,7 +76,7 @@ struct PolConfig {
 
 	std::string minidump_type;
 
-	int account_safe;
+	int account_save;
 };
 
 extern PolConfig config;
