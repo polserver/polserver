@@ -219,7 +219,7 @@ void StoredConfigFile::load_tus_scp( const std::string& filename )
 
 
 typedef map<string,ConfigFileRef> CfgFiles;
-typedef std::multimap<string,ConfigFileRef> OldCfgFiles; // we've multiple older instances
+typedef vector<string> OldCfgFiles; // we've multiple older instances
 CfgFiles cfgfiles;
 OldCfgFiles oldcfgfiles;
 
@@ -235,7 +235,7 @@ ConfigFileRef FindConfigFile( const string& filename, const string& allpkgbase )
 			stat( filename.c_str(), &newcfgstat );
 			if ((*itr).second->modified() != newcfgstat.st_mtime )
 			{
-				oldcfgfiles.insert( CfgFiles::value_type( (*itr).first, (*itr).second ) );
+				oldcfgfiles.push_back( (*itr).first );
 				cfgfiles.erase( itr );
 			}
 			else
