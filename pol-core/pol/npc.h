@@ -174,6 +174,12 @@ inline void npc_spoke( NPC& npc, Character *chr, const char *text, int textlen, 
 		npc.on_pc_spoke( chr, text, texttype );
 }
 
+inline void npc_spoke( NPC& npc, Character *chr, const char *text, int textlen, u8 texttype, const u16 *wtext, const char lang[4], int wtextlen )
+{
+	if ( npc.serial != chr->serial )
+		npc.on_pc_spoke( chr, text, texttype, wtext, lang );
+}
+
 inline unsigned short NPC::ar() const
 {
 	if ( ar_ == 0 )

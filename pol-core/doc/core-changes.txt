@@ -1,4 +1,7 @@
 -- POL099 --
+03-12-2011 Turley:
+     Fixed: npc:SayUC() sends SpeechEvent for do_event==SAY_DOEVENT_ENABLE
+
 03-10-2011 Turley:
      Added: pol.cfg AccountDataSave (default -1)
             Values:
