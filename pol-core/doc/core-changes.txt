@@ -1,6 +1,8 @@
 -- POL099 --
 03-12-2011 Turley:
      Fixed: npc:SayUC() sends SpeechEvent for do_event==SAY_DOEVENT_ENABLE
+   Changed: removed warning "No handler for skill.." and changed sysmsg to "That skill cannot be used directly."
+            since most of the time the behaviour is wanted
 
 03-10-2011 Turley:
      Added: pol.cfg AccountDataSave (default -1)
