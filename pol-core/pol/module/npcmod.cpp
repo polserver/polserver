@@ -874,16 +874,22 @@ BObjectImp* NPCExecutorModule::SayUC()
 				transmit( client, &talkmsg->buffer, len );
 		}
 		READDPACKET(talkmsg);
+		if ( doevent >= 1 )
+		{
+			char ntextbuf[SPEECH_MAX_LEN+1];
+			int ntextbuflen = 0;
+			for( unsigned i = 0; i < textlen; ++i )
+			{
+				ntextbuf[ ntextbuflen++ ] = std::wcout.narrow((wchar_t)gwtext[i], '?');
+			}
+			ntextbuf[ ntextbuflen++ ] = 0;
+			for_nearby_npcs( npc_spoke, &npc, ntextbuf, ntextbuflen, texttype, gwtext, languc, textlen);
+		}
 	}
 	else
 	{
 		return new BError( "A parameter was invalid" );
 	}
-
-	//	if ( doevent >= 1 )
-	//		for_nearby_npcs( npc_spoke, &npc, ntext, ntextlen, msgin->textdef.type,
-	//						 wtext, msgin->lang, wtextlen);
-
 	return NULL;
 }
 

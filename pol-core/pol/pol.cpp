@@ -1391,7 +1391,7 @@ client->checkpoint = 55; //CNXBUG
 			if (h == 0)
 			{
 				Log( "Failed to create worker thread for Client#%lu (errno = %d)\n", client->instance_, errno );
-				PolLock lck;
+//				PolLock lck;
 				threadhelp::dec_child_thread_count ( false ); // needed here because we inc'd
 				clients.erase( find_in( clients, client ) );
 				Client::Delete( client );	
@@ -1406,7 +1406,7 @@ client->checkpoint = 55; //CNXBUG
 			if (res)
 			{
 				Log( "Failed to create worker thread for Client#%lu (res = %d)\n", client->instance_, res );
-				PolLock lck;
+//				PolLock lck;
 				threadhelp::dec_child_thread_count ( false ); // needed here because we inc'd
 				clients.erase( find_in( clients, client ) );
 				Client::Delete( client );	
