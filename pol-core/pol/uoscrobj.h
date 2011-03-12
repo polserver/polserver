@@ -48,6 +48,7 @@ public:
     virtual ~ECharacterRefObjImp() { --uobj_count_echrref; }
 
     virtual const char* typeOf() const;
+	virtual int typeOfInt() const;
     virtual BObjectImp* copy() const;
     virtual BObjectImp* call_method( const char* methodname, Executor& ex );
     virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin=false );
@@ -70,6 +71,7 @@ public:
         ECharacterRefObjImp( chr ) {}
 
     virtual const char* typeOf() const;
+	virtual int typeOfInt() const;
     virtual BObjectImp* copy() const;
 
     virtual bool isTrue() const;
@@ -98,6 +100,7 @@ public:
         {}
 
     virtual const char* typeOf() const;
+	virtual int typeOfInt() const;
     virtual BObjectImp* copy() const;
     virtual BObjectImp* call_method( const char* methodname, Executor& ex );
     virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin=false );
@@ -121,6 +124,7 @@ public:
         {}
 
     virtual const char* typeOf() const;
+	virtual int typeOfInt() const;
     virtual BObjectImp* copy() const;
     virtual BObjectImp* call_method( const char* methodname, Executor& ex );
     virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin=false );
@@ -143,6 +147,7 @@ public:
         {}
 
     virtual const char* typeOf() const;
+	virtual int typeOfInt() const;
     virtual BObjectImp* copy() const;
     virtual BObjectRef get_member( const char* membername );
     virtual BObjectRef get_member_id( const int id ); //id test
@@ -174,7 +179,7 @@ private:
 class EClientRefObjImp : public BApplicObj < ClientPtrHolder >
 {
 	typedef BApplicObj< ClientPtrHolder > base;
-public: // nicht direkt client weitergeben eigenen pointer bauen damit ref_counted nicht löscht
+public:
 	explicit EClientRefObjImp( const ClientPtrHolder& client ) :
 	BApplicObj< ClientPtrHolder >( &eclientrefobjimp_type, client )
 	{}
@@ -182,6 +187,7 @@ public: // nicht direkt client weitergeben eigenen pointer bauen damit ref_count
 
 
 	virtual const char* typeOf() const;
+	virtual int typeOfInt() const;
 	virtual BObjectImp* copy() const;
 	virtual BObjectImp* call_method( const char* methodname, Executor& ex );
 	virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin=false );

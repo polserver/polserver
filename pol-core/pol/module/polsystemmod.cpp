@@ -65,6 +65,7 @@ class PackageObjImp : public PackageObjImpBase
 public:
 	explicit PackageObjImp( const PackagePtrHolder& other );
 	virtual const char* typeOf() const;
+	virtual int typeOfInt() const;
 	virtual BObjectImp* copy() const;
 	virtual BObjectImp* call_method( const char* methodname, Executor& ex );
 	virtual BObjectRef get_member( const char* membername );
@@ -102,6 +103,10 @@ int TmplExecutorModule<PolSystemExecutorModule>::function_table_size = arsize(fu
 const char* PackageObjImp::typeOf() const
 {
 	return "Package";
+}
+int PackageObjImp::typeOfInt() const
+{
+	return OTPackage;
 }
 BObjectImp* PackageObjImp::copy() const
 {

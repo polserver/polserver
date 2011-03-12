@@ -35,6 +35,7 @@ public:
     BObjectImp* SetSize(u16 newsize, bool giveReturn);
     virtual unsigned int sizeEstimate() const { return buffer.size(); }
     virtual const char* typeOf() const { return "Packet"; }
+	virtual int typeOfInt() const { return OTPacket; }
 
     bool is_variable_length;
 };

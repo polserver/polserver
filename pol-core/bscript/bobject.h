@@ -61,7 +61,30 @@ public:
         OTStruct,
         OTPacket,
 		OTBinaryFile,
-		OTXMLFile
+		OTXMLFile,
+		OTXMLNode,
+		OTXMLAttributes,
+		OTPolCoreRef,
+		// non direct used constants (for TypeOfInt) start
+		OTAccountRef,
+		OTConfigFileRef,
+		OTConfigElemRef,
+		OTDataFileRef,
+		OTDataElemRef,
+		OTGuildRef,
+		OTPartyRef,
+		OTBoundingBox,
+		OTDebugContext,
+		OTScriptExRef,
+		OTPackage,
+		OTMenuRef,
+		OTMobileRef,
+		OTOfflineMobileRef,
+		OTItemRef,
+		OTBoatRef,
+		OTMultiRef,
+		OTClientRef
+		// non direct used Constants (for TypeOfInt) end
     };
 
 #if INLINE_BOBJECTIMP_CTOR
@@ -97,6 +120,7 @@ public:
     
     virtual unsigned int sizeEstimate() const = 0; 
     virtual const char* typeOf() const;
+	virtual int typeOfInt() const;
 
 
     virtual std::string pack() const;
@@ -597,6 +621,7 @@ public:
     T* operator->();    
 
     virtual const char* typeOf() const = 0;
+	virtual int typeOfInt() const = 0;
     virtual BObjectImp* copy() const = 0;
     virtual unsigned int sizeEstimate() const; 
 

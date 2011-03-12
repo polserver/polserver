@@ -56,6 +56,7 @@ public:
 	virtual std::string getStringRep() const;
 	virtual unsigned int sizeEstimate() const { return sizeof(*this); }
 	virtual const char* typeOf() const { return "XMLFile"; }
+	virtual int typeOfInt() const {return OTXMLFile; }
 	virtual bool isTrue() const;
 	virtual BObjectRef OperSubscript( const BObject& obj );
 	ContIterator* createIterator( BObject* pIterVal )
@@ -73,7 +74,7 @@ private:
 class BXmlNode : public BObjectImp
 {
 public:
-	BXmlNode(TiXmlNode* _node) : BObjectImp( BObjectImp::OTUnknown ), node(_node) {}
+	BXmlNode(TiXmlNode* _node) : BObjectImp( BObjectImp::OTXMLNode ), node(_node) {}
 
 	virtual BObjectImp* copy() const
 	{
@@ -95,6 +96,7 @@ public:
 	}
 	
 	virtual const char* typeOf() const { return "XMLNode"; }
+	virtual int typeOfInt() const { return OTXMLNode; }
 
 	virtual unsigned int sizeEstimate() const
 	{
@@ -118,7 +120,7 @@ private:
 class BXmlAttribute : public BObjectImp
 {
 public:
-	BXmlAttribute(TiXmlNode* _node) : BObjectImp( BObjectImp::OTUnknown ), node(_node->ToElement()) {}
+	BXmlAttribute(TiXmlNode* _node) : BObjectImp( BObjectImp::OTXMLAttributes ), node(_node->ToElement()) {}
 
 	virtual BObjectImp* copy() const
 	{
@@ -131,6 +133,7 @@ public:
 	}
 	
 	virtual const char* typeOf() const { return "XMLAttributes"; }
+	virtual int typeOfInt() const { return OTXMLAttributes; }
 	virtual unsigned int sizeEstimate() const { return sizeof(*this); }
 	
 	ContIterator* createIterator( BObject* pIterVal )

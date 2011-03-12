@@ -47,6 +47,7 @@ class EPartyRefObjImp : public BApplicObj<PartyRef>
 public:
 	EPartyRefObjImp( PartyRef pref );
 	virtual const char* typeOf() const;
+	virtual int typeOfInt() const;
 	virtual BObjectImp* copy() const;
 	virtual bool isTrue() const;
 	virtual bool isEqual(const BObjectImp& objimp) const;
@@ -64,6 +65,10 @@ EPartyRefObjImp::EPartyRefObjImp( PartyRef pref ) : BApplicObj<PartyRef>(&party_
 const char* EPartyRefObjImp::typeOf() const
 {
 	return "PartyRef";
+}
+int EPartyRefObjImp::typeOfInt() const
+{
+	return OTPartyRef;
 }
 
 BObjectImp* EPartyRefObjImp::copy() const

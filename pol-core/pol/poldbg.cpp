@@ -137,6 +137,7 @@ class DebugContextObjImp : public DebugContextObjImpBase
 public:
     explicit DebugContextObjImp( ref_ptr<DebugContext> rcdctx );
     virtual const char* typeOf() const;
+	virtual int typeOfInt() const;
     virtual BObjectImp* copy() const;
     virtual BObjectImp* call_method( const char* methodname, Executor& ex );
     virtual BObjectRef get_member( const char* membername );
@@ -148,6 +149,10 @@ DebugContextObjImp::DebugContextObjImp( ref_ptr<DebugContext> rcdctx ) :
 const char* DebugContextObjImp::typeOf() const
 {
     return "DebugContext";
+}
+int DebugContextObjImp::typeOfInt() const
+{
+	return OTDebugContext;
 }
 BObjectImp* DebugContextObjImp::copy() const
 {

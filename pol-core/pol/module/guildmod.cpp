@@ -83,6 +83,7 @@ class EGuildRefObjImp : public BApplicObj<GuildRef>
 public:
     EGuildRefObjImp( GuildRef gref );
     virtual const char* typeOf() const;
+	virtual int typeOfInt() const;
     virtual BObjectImp* copy() const;
     virtual bool isTrue() const;
 	virtual bool isEqual(const BObjectImp& objimp) const;
@@ -345,6 +346,10 @@ EGuildRefObjImp::EGuildRefObjImp( GuildRef gref ) : BApplicObj<GuildRef>(&guild_
 const char* EGuildRefObjImp::typeOf() const
 {
     return "GuildRef";
+}
+int EGuildRefObjImp::typeOfInt() const
+{
+	return OTGuildRef;
 }
 
 BObjectImp* EGuildRefObjImp::copy() const

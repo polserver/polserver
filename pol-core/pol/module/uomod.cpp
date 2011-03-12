@@ -154,6 +154,7 @@ class EMenuObjImp : public BApplicObj< Menu >
 public:
     EMenuObjImp( const Menu& m ) : BApplicObj<Menu>(&menu_type, m) {}
     virtual const char* typeOf() const { return "MenuRef"; }
+	virtual int typeOfInt() const { return OTMenuRef; }
     virtual BObjectImp* copy() const { return new EMenuObjImp(value()); }
 };
 
