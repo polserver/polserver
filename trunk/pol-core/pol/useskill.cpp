@@ -46,10 +46,10 @@ void handle_use_skill(Client *client, PKTIN_12 *msg)
 			return;
 	}
 	
-	Log("Client#%lu: (%s, acct:%s) No handler for skill %d\n",
+	/*Log("Client#%lu: (%s, acct:%s) No handler for skill %d\n",
 			client->instance_, client->chr->name().c_str(), client->acct->name(), int(skillnum));
-	cerr << "Character " << client->chr->name() << " (acct: " << client->chr->acct->name() << "): No handler for skill " << int(skillnum) << endl;
-	send_sysmessage(client, "That skill is not implemented.");
+	cerr << "Character " << client->chr->name() << " (acct: " << client->chr->acct->name() << "): No handler for skill " << int(skillnum) << endl;*/
+	send_sysmessage(client, "That skill cannot be used directly.");
 }
 ExtendedMessageHandler skill_msg_handler(EXTMSGID_SKILL, handle_use_skill);
 
