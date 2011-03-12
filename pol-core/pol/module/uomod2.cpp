@@ -1420,12 +1420,13 @@ public:
 	virtual std::string getStringRep() const;
 	virtual unsigned int sizeEstimate() const { return sizeof(PolCore); }
 	virtual const char* typeOf() const;
+	virtual int typeOfInt() const;
 private:
 	// not implemented:
 	PolCore& operator=( const PolCore& );
 };
 
-PolCore::PolCore() : BObjectImp( OTUnknown )
+PolCore::PolCore() : BObjectImp( OTPolCoreRef )
 {
 }
 
@@ -1442,6 +1443,10 @@ string PolCore::getStringRep() const
 const char* PolCore::typeOf() const
 {
 	return "PolCoreRef";
+}
+int PolCore::typeOfInt() const
+{
+	return OTPolCoreRef;
 }
 
 BObjectImp* GetPackageList()

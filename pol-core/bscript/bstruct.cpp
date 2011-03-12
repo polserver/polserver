@@ -87,6 +87,10 @@ const char* BStruct::typeOf() const
 {
     return "Struct";
 }
+int BStruct::typeOfInt() const
+{
+	return OTStruct;
+}
 
 
 BObjectImp* BStruct::unpack( istream& is )

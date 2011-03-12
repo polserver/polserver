@@ -72,6 +72,7 @@ public:
     virtual std::string getStringRep() const;
 	virtual unsigned int sizeEstimate() const { return 0; }
     virtual const char* typeOf() const { return "BinaryFile"; }
+	virtual int typeOfInt() const { return OTBinaryFile; }
 	virtual bool isTrue() const;
 	virtual bool isEqual(const BObjectImp& objimp) const;
 

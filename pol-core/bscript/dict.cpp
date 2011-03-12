@@ -346,6 +346,10 @@ const char* BDictionary::typeOf() const
 {
     return "Dictionary";
 }
+int BDictionary::typeOfInt() const
+{
+	return OTDictionary;
+}
 
 void BDictionary::packonto( ostream& os ) const
 {

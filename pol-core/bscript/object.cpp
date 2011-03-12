@@ -219,6 +219,12 @@ const char* BObjectImp::typeOf() const
 	return typestr( type_ );
 }
 
+
+int BObjectImp::typeOfInt() const
+{
+	return type_;
+}
+
 // These two functions are just here for completeness.
 bool BObjectImp::isEqual(const BObjectImp& objimp) const
 {
