@@ -18,7 +18,7 @@ Notes
 #include <stdlib.h>
 
 #ifdef MEMORYLEAK
-#include <clib/mlog.h>
+#include "mlog.h"
 #endif
 
 template<int N, int B>
