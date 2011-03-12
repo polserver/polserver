@@ -69,6 +69,7 @@ class BasicExecutorModule : public ExecutorModule
 
     BObjectImp* mf_TypeOf();
     BObjectImp* mf_SizeOf();
+	BObjectImp* mf_TypeOfInt();
 
     BasicExecutorModule(Executor& exec) : ExecutorModule("Basic", exec) { }
 

@@ -98,6 +98,7 @@ public:
 	explicit DataFileRefObjImp( DataFileContentsRef dfref );
 
 	virtual const char* typeOf() const;
+	virtual int typeOfInt() const;
 	virtual BObjectImp* copy() const;
 
 	virtual BObjectImp* call_method( const char* methodname, Executor& ex );
@@ -122,6 +123,7 @@ class DataElemRefObjImp : public DataElemRefObjImpBase
 public:
 	DataElemRefObjImp( DataFileContentsRef dfcontents, DataFileElementRef dflem );
 	virtual const char* typeOf() const;
+	virtual int typeOfInt() const;
 	virtual BObjectImp* copy() const;
 
 	virtual BObjectImp* call_method( const char* methodname, Executor& ex );
@@ -348,6 +350,10 @@ const char* DataFileRefObjImp::typeOf() const
 {
 	return "DataFileRef";
 }
+int DataFileRefObjImp::typeOfInt() const
+{
+	return OTDataFileRef;
+}
 
 BObjectImp* DataFileRefObjImp::copy() const
 {
@@ -538,6 +544,10 @@ DataElemRefObjImp::DataElemRefObjImp( DataFileContentsRef dfcontents, DataFileEl
 const char* DataElemRefObjImp::typeOf() const
 {
 	return "DataElemRef";
+}
+int DataElemRefObjImp::typeOfInt() const
+{
+	return OTDataElemRef;
 }
 BObjectImp* DataElemRefObjImp::copy() const
 {

@@ -44,6 +44,10 @@ const char* ScriptExObjImp::typeOf() const
 {
 	return "ScriptExRef";
 }
+int ScriptExObjImp::typeOfInt() const
+{
+	return OTScriptExRef;
+}
 
 BObjectImp* ScriptExObjImp::copy() const
 {

@@ -25,6 +25,7 @@ class ScriptExObjImp : public BApplicObj< ScriptExPtr >
 public:
     explicit ScriptExObjImp( UOExecutor* uoexec );
     virtual const char* typeOf() const;
+	virtual int typeOfInt() const;
     virtual BObjectImp* copy() const;
     virtual BObjectImp* call_method( const char* methodname, Executor& ex );
     virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin=false );

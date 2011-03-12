@@ -72,6 +72,11 @@ const char* BError::typeOf() const
     return "Error";
 }
 
+int BError::typeOfInt() const
+{
+	return OTError;
+}
+
 BObjectImp* BError::unpack( istream& is )
 {
     unsigned size;

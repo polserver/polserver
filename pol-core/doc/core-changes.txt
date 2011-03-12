@@ -3,6 +3,9 @@
      Fixed: npc:SayUC() sends SpeechEvent for do_event==SAY_DOEVENT_ENABLE
    Changed: removed warning "No handler for skill.." and changed sysmsg to "That skill cannot be used directly."
             since most of the time the behaviour is wanted
+	 Added: basic::TypeOfInt( expr ) + basic.em constants
+	        returns like TypeOf() the type of given parameter, but returns instead of a string an integer (see basic.em constants)
+			since integer comparison are way faster then string comparison this function should always be used for comparisons
 
 03-10-2011 Turley:
      Added: pol.cfg AccountDataSave (default -1)
