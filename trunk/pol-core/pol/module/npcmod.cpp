@@ -152,6 +152,7 @@ public:
 	BoundingBoxObjImp() : BApplicObj<BoundingBox>(&bounding_box_type) {}
 	explicit BoundingBoxObjImp( const BoundingBox& b ) : BApplicObj<BoundingBox>(&bounding_box_type, b) {}
 	virtual const char* typeOf() const { return "BoundingBox"; }
+	virtual int typeOfInt() const { return OTBoundingBox; }
 	virtual BObjectImp* copy() const { return new BoundingBoxObjImp( value() ); }
 
 };

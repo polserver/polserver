@@ -112,6 +112,10 @@ const char* ECharacterRefObjImp::typeOf() const
 {
 	return "MobileRef";
 }
+int ECharacterRefObjImp::typeOfInt() const
+{
+	return OTMobileRef;
+}
 
 BObjectImp* ECharacterRefObjImp::copy() const
 {
@@ -268,6 +272,10 @@ const char* EOfflineCharacterRefObjImp::typeOf() const
 {
 	return "OfflineMobileRef";
 }
+int EOfflineCharacterRefObjImp::typeOfInt() const
+{
+	return OTOfflineMobileRef;
+}
 
 BObjectImp* EOfflineCharacterRefObjImp::copy() const
 {
@@ -282,6 +290,10 @@ bool EOfflineCharacterRefObjImp::isTrue() const
 const char* EItemRefObjImp::typeOf() const
 {
 	return "ItemRef";
+}
+int EItemRefObjImp::typeOfInt() const
+{
+	return OTItemRef;
 }
 
 BObjectImp* EItemRefObjImp::copy() const
@@ -436,6 +448,10 @@ bool EItemRefObjImp::isLessThan(const BObjectImp& objimp) const
 const char* EUBoatRefObjImp::typeOf() const
 {
 	return "BoatRef";
+}
+int EUBoatRefObjImp::typeOfInt() const
+{
+	return OTBoatRef;
 }
 
 BObjectImp* EUBoatRefObjImp::copy() const
@@ -595,6 +611,10 @@ BObjectImp* EMultiRefObjImp::call_method_id( const int id, Executor& ex, bool fo
 const char* EMultiRefObjImp::typeOf() const
 {
 	return "MultiRef";
+}
+int EMultiRefObjImp::typeOfInt() const
+{
+	return OTMultiRef;
 }
 
 BObjectImp* EMultiRefObjImp::copy() const
@@ -3157,6 +3177,10 @@ BObjectImp* UArmor::set_script_member( const char *membername, int value )
 const char* EClientRefObjImp::typeOf() const
 {
 	return "ClientRef";
+}
+int EClientRefObjImp::typeOfInt() const
+{
+	return OTClientRef;
 }
 
 BObjectImp* EClientRefObjImp::copy() const

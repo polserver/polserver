@@ -34,6 +34,7 @@ protected:
     virtual char packtype() const;
     virtual const char* typetag() const;
     virtual const char* typeOf() const;
+	virtual int typeOfInt() const;
 
     virtual bool isEqual(const BObjectImp& objimp ) const;
     virtual bool isTrue() const;

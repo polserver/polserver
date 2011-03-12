@@ -46,6 +46,7 @@ protected:
     virtual unsigned int sizeEstimate() const; 
     virtual void packonto( std::ostream& os ) const;
     virtual const char* typeOf() const;
+	virtual int typeOfInt() const;
 
     virtual ContIterator* createIterator( BObject* pIterVal );
 

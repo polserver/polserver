@@ -53,6 +53,10 @@ const char* AccountObjImp::typeOf() const
 {
 	return "AccountRef";
 }
+int AccountObjImp::typeOfInt() const
+{
+	return OTAccountRef;
+}
 
 BObjectImp* AccountObjImp::copy() const
 {

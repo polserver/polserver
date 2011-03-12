@@ -61,6 +61,7 @@ public:
     EConfigFileRefObjImp( ref_ptr<StoredConfigFile> rcfile );
     virtual BObjectRef OperSubscript( const BObject& obj );
     virtual const char* typeOf() const;
+	virtual int typeOfInt() const;
     virtual BObjectImp* copy() const;
 };
 
@@ -75,6 +76,7 @@ public:
     virtual BObjectRef get_member( const char* membername );
     virtual BObjectRef get_member_id( const int id ); //id test
     virtual const char* typeOf() const;
+	virtual int typeOfInt() const;
     virtual BObjectImp* copy() const;
 };
 

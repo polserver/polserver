@@ -96,6 +96,10 @@ const char* EConfigFileRefObjImp::typeOf() const
 {
 	return "ConfigFileRef";
 }
+int EConfigFileRefObjImp::typeOfInt() const
+{
+	return OTConfigFileRef;
+}
 BObjectImp* EConfigFileRefObjImp::copy() const
 {
 	return new EConfigFileRefObjImp( obj_ );
@@ -109,6 +113,10 @@ EConfigElemRefObjImp::EConfigElemRefObjImp( ref_ptr<StoredConfigElem> rcelem ) :
 const char* EConfigElemRefObjImp::typeOf() const
 {
 	return "ConfigElemRef";
+}
+int EConfigElemRefObjImp::typeOfInt() const
+{
+	return OTConfigElemRef;
 }
 BObjectImp* EConfigElemRefObjImp::copy() const
 {

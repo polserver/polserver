@@ -507,6 +507,11 @@ BObjectImp* BasicExecutorModule::mf_SizeOf()
 	BObjectImp* imp = exec.getParamImp(0);
 	return new BLong( imp->sizeEstimate() );
 }
+BObjectImp* BasicExecutorModule::mf_TypeOfInt()
+{
+	BObjectImp* imp = exec.getParamImp(0);
+	return new BLong( imp->typeOfInt() );
+}
 
 BasicFunctionDef BasicExecutorModule::function_table[] =
 {
@@ -532,7 +537,8 @@ BasicFunctionDef BasicExecutorModule::function_table[] =
 	{ "Pack",			&BasicExecutorModule::mf_Pack },
 	{ "Unpack",			&BasicExecutorModule::mf_Unpack },
 	{ "TypeOf",			&BasicExecutorModule::mf_TypeOf },
-	{ "SizeOf",			&BasicExecutorModule::mf_SizeOf }
+	{ "SizeOf",			&BasicExecutorModule::mf_SizeOf },
+	{ "TypeOfInt",		&BasicExecutorModule::mf_TypeOfInt }
 };
 
 int BasicExecutorModule::functionIndex( const char *name )
