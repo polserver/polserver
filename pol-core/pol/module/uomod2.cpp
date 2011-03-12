@@ -38,7 +38,7 @@ Notes
 #include "../../bscript/berror.h"
 
 #ifdef MEMORYLEAK
-#	include "bscript/bobject.h"
+#	include "../../bscript/bobject.h"
 #endif
 
 #include "../../bscript/executor.h"
@@ -49,7 +49,7 @@ Notes
 #include "../../clib/logfile.h"
 
 #ifdef MEMORYLEAK
-#	include "clib/opnew.h"
+#	include "../../clib/opnew.h"
 #endif
 
 #include "../../clib/strutil.h"
