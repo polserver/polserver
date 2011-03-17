@@ -828,7 +828,7 @@ void Executor::execFunc(const Token& token)
 	if (fparams.size()>0)
 		strm << " [" << fparams[0].get()->impptr()->typeOf() << "]";
 	string name(strm.str());
-	clock_t profile_start= clock();
+	unsigned long profile_start= GetTimeUs();
 #endif
 	BObjectImp* resimp = em->execFunc( modfunc->funcidx );
 #ifdef ESCRIPT_PROFILE
@@ -1405,7 +1405,7 @@ void Executor::ins_get_member( const Instruction& ins )
 	if (fparams.size()>0)
 		strm << " [" << fparams[0].get()->impptr()->typeOf() << "]";
 	string name(strm.str());
-	clock_t profile_start= clock();
+	unsigned long profile_start= GetTimeUs();
 #endif
 	leftref = left->get_member( ins.token.tokval() );
 #ifdef ESCRIPT_PROFILE
@@ -1425,7 +1425,7 @@ void Executor::ins_get_member_id( const Instruction& ins )
 	if (fparams.size()>0)
 		strm << " [" << fparams[0].get()->impptr()->typeOf() << "]";
 	string name(strm.str());
-	clock_t profile_start= clock();
+	unsigned long profile_start= GetTimeUs();
 #endif
 	leftref = left->get_member_id( ins.token.lval );
 #ifdef ESCRIPT_PROFILE
@@ -2223,7 +2223,7 @@ void Executor::ins_call_method_id( const Instruction& ins )
 	if (fparams.size()>0)
 		strm << " [" << fparams[0].get()->impptr()->typeOf() << "]";
 	string name(strm.str());
-	clock_t profile_start= clock();
+	unsigned long profile_start= GetTimeUs();
 #endif
 	BObjectImp* imp = objref->impptr()->call_method_id( ins.token.lval, *this );
 #ifdef ESCRIPT_PROFILE
@@ -2265,7 +2265,7 @@ void Executor::ins_call_method( const Instruction& ins )
 	if (fparams.size()>0)
 		strm << " [" << fparams[0].get()->impptr()->typeOf() << "]";
 	string name(strm.str());
-	clock_t profile_start= clock();
+	unsigned long profile_start= GetTimeUs();
 #endif
     BObjectImp* imp = objref->impptr()->call_method( ins.token.tokval(), *this );
 #ifdef ESCRIPT_PROFILE
@@ -3428,9 +3428,9 @@ void Executor::dbg_clrallbp()
 
 
 #ifdef ESCRIPT_PROFILE
-void Executor::profile_escript(std::string name, clock_t profile_start)
+void Executor::profile_escript(std::string name, unsigned long profile_start)
 {
-	clock_t profile_end= clock() - profile_start;
+	unsigned long profile_end= GetTimeUs() - profile_start;
 	escript_profile_map::iterator itr = EscriptProfileMap.find(name);
 	if (itr!=EscriptProfileMap.end())
 	{
@@ -3451,4 +3451,49 @@ void Executor::profile_escript(std::string name, clock_t profile_start)
 		EscriptProfileMap[name] = profInstr;
 	}
 }
+#ifdef _WIN32
+#include <windows.h>
+unsigned long Executor::GetTimeUs()
+{
+	static bool bInitialized = false;
+	static LARGE_INTEGER lFreq, lStart;
+	static LARGE_INTEGER lDivisor;
+	if ( !bInitialized )
+	{
+		bInitialized = true;
+		QueryPerformanceFrequency(&lFreq);
+		QueryPerformanceCounter(&lStart);
+		lDivisor.QuadPart = lFreq.QuadPart / 1000000;
+	}
+
+	LARGE_INTEGER lEnd;
+	QueryPerformanceCounter(&lEnd);
+	double duration = double(lEnd.QuadPart - lStart.QuadPart) / lFreq.QuadPart;
+	duration *= 1000000;
+	LONGLONG llDuration = static_cast < LONGLONG > ( duration );
+	return llDuration & 0xffffffff;
+}
+#else
+#include <sys/time.h>
+unsigned long Executor::GetTimeUs()
+{
+	static bool bInitialized = false;
+	static timeval t1;
+	if ( !bInitialized )
+	{
+		bInitialized = true;
+		gettimeofday(&t1, NULL);
+	}
+
+	timeval t2;
+	gettimeofday(&t2, NULL);
+
+	double elapsedTime;
+	elapsedTime =  (t2.tv_sec  - t1.tv_sec) * 1000000.0;
+	elapsedTime += (t2.tv_usec - t1.tv_usec);
+
+	long long llDuration = static_cast < long long > ( elapsedTime );
+	return llDuration & 0xffffffff;
+}
+#endif
 #endif
