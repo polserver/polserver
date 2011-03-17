@@ -42,9 +42,9 @@ class String;
 #ifdef ESCRIPT_PROFILE
 struct profile_instr
 {
-	clock_t sum;
-	clock_t max;
-	clock_t min;
+	unsigned long sum;
+	unsigned long max;
+	unsigned long min;
 	unsigned long count;
 };
 typedef map< std::string,profile_instr > escript_profile_map;
@@ -373,7 +373,8 @@ class Executor
     Executor( const Executor& exec );
     Executor& operator=( const Executor& exec );
 #ifdef ESCRIPT_PROFILE
-	void profile_escript(std::string name, clock_t profile_start);
+	unsigned long GetTimeUs();
+	void profile_escript(std::string name, unsigned long profile_start);
 #endif
 };
 
