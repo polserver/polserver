@@ -1086,28 +1086,28 @@ void write_multi( FILE* multis_cfg, unsigned id, FILE* multi_mul, unsigned int o
 
 void create_multis_cfg( FILE* multi_idx, FILE* multi_mul, FILE* multis_cfg )
 {
-    if (fseek( multi_idx, 0, SEEK_SET ) != 0)
-        throw runtime_error( "create_multis_cfg: fseek failed" );
-    unsigned count = 0;
-    USTRUCT_IDX idxrec;
-    for( int i = 0; fread( &idxrec, sizeof idxrec, 1, multi_idx ) == 1; ++i )
-    {
-        const USTRUCT_VERSION* vrec = NULL;
+	if (fseek( multi_idx, 0, SEEK_SET ) != 0)
+		throw runtime_error( "create_multis_cfg: fseek failed" );
+	unsigned count = 0;
+	USTRUCT_IDX idxrec;
+	for( int i = 0; fread( &idxrec, sizeof idxrec, 1, multi_idx ) == 1; ++i )
+	{
+		const USTRUCT_VERSION* vrec = NULL;
 
-        if (check_verdata( VERFILE_MULTI_MUL, i, vrec ))
-        {
-            write_multi( multis_cfg, i, verfile, vrec->filepos, vrec->length );
-            ++count;
-        }
-        else
-        {
-            if (idxrec.offset == 0xFFffFFffLu)
-                continue;
+		if (check_verdata( VERFILE_MULTI_MUL, i, vrec ))
+		{
+			write_multi( multis_cfg, i, verfile, vrec->filepos, vrec->length );
+			++count;
+		}
+		else
+		{
+			if (idxrec.offset == 0xFFffFFffLu)
+				continue;
 
-            write_multi( multis_cfg, i, multi_mul, idxrec.offset, idxrec.length );
-            ++count;
-        }
-    }
+			write_multi( multis_cfg, i, multi_mul, idxrec.offset, idxrec.length );
+			++count;
+		}
+	}
     cout << count << " multi definitions written to multis.cfg" << endl;
 }
 
