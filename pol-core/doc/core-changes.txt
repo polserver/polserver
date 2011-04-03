@@ -1,4 +1,8 @@
 -- POL099 --
+04-03-2011 Turley:
+     Added: uotool param checkmultis
+	        prints infos about used center item
+
 03-12-2011 Turley:
      Fixed: npc:SayUC() sends SpeechEvent for do_event==SAY_DOEVENT_ENABLE
    Changed: removed warning "No handler for skill.." and changed sysmsg to "That skill cannot be used directly."
