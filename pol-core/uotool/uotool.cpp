@@ -138,6 +138,7 @@ int Usage( int ret )
     fprintf( stderr, "    loschange                prints differences in LOS handling \n" );
 	fprintf( stderr, "    staticdefrag [realm]     recreates static files {default britannia} \n" );
 	fprintf( stderr, "    formatdesc name          prints plural and singular form of name \n" );
+	fprintf( stderr, "    checkmultis              prints infos about multi center items \n" );
     return ret;
 }
 #define TILES_START 0x68800
@@ -1273,6 +1274,61 @@ int format_description( int argc, char **argv)
 	return 0;
 }
 
+int checkmultis()
+{
+	FILE *multi_idx = open_uo_file( "multi.idx" );
+	FILE *multi_mul = open_uo_file( "multi.mul" );
+	if (fseek( multi_idx, 0, SEEK_SET ) != 0)
+	{
+		cout << "Failed seek check" << endl;
+		return 0;
+	}
+	unsigned count = 0;
+	unsigned warnings = 0;
+	unsigned errors = 0;
+	unsigned invisitems = 0; 
+	USTRUCT_IDX idxrec;
+	for( int i = 0; fread( &idxrec, sizeof idxrec, 1, multi_idx ) == 1; ++i )
+	{
+		if (idxrec.offset == 0xFFffFFffLu)
+			continue;
+		fseek( multi_mul, idxrec.offset, SEEK_SET );
+		USTRUCT_MULTI_ELEMENT elem;
+		fread( &elem, sizeof elem, 1, multi_mul );
+		if (elem.x != 0 || elem.y != 0)
+		{
+			cout << "ERROR: First tile not in center: " << elem.x << " " << elem.y << " MultiID: " << hexint(i) << endl;
+			++errors;
+			continue;
+		}
+		if (elem.graphic == 0x0001)
+		{
+			++invisitems;
+			unsigned int itemcount = idxrec.length / sizeof elem;
+			--itemcount;
+			bool found = false;
+			while (itemcount--)
+			{
+				fread( &elem, sizeof elem, 1, multi_mul );
+				if (elem.x == 0 && elem.y == 0 && elem.graphic != 0x0001 && elem.flags)
+				{
+					cout << "Warning: Found invis tile as center, but could use " << hexint(elem.graphic) << " at 0 0 MultiID: " << hexint(i) << endl;
+					++warnings;
+					found = true;
+					break;
+				}
+			}
+			if (!found)
+				cout << "Info: MultiID: " << hexint(i) << " needs an invis center" << endl;
+		}
+		++count;
+	}
+	cout << "Checked Multis: " << count << " with invis center: " << invisitems << " Warnings: " << warnings << " Errors: " << errors << endl;
+	fclose(multi_idx);
+	fclose(multi_mul);
+	return 1;
+}
+
 
 int xmain( int argc, char* argv[] )
 {
@@ -1417,6 +1473,10 @@ int xmain( int argc, char* argv[] )
 	else if (stricmp( argv[1], "formatdesc" ) == 0)
 	{
 		return format_description( argc-1, argv+1 );
+	}
+	else if (stricmp( argv[1], "checkmultis" ) == 0)
+	{
+		return checkmultis();
 	}
     
 	return Usage(0);;
