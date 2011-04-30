@@ -170,17 +170,27 @@ bool UOPathState::GetSuccessors( AStarSearch<UOPathState> *astarsearch, UOPathSt
 
 			if (realm->walkheight( newx, newy, z, &newz, &supporting_multi, &walkon_item, doors_block, MOVEMODE_LAND ))
 			{
-				NewNode->x = newx;
-				NewNode->y = newy;
-				NewNode->z = newz;
-				NewNode->realm = realm;
-				NewNode->theBlockers = theBlockers;
+				// Forbid diagonal move, if between 2 blockers - OWHorus {2011-04-26)
+ 				blocked = false;
+				if ((i != 0) && (j != 0))	// do only for diagonal moves
+				{
+					// If both neighbouring tiles are blocked, the move is illegal (diagonal move)
+					if (!realm->walkheight( x + i, y, z, &newz, &supporting_multi, &walkon_item, doors_block, MOVEMODE_LAND ))
+						blocked = !(realm->walkheight( x, y + j, z, &newz, &supporting_multi, &walkon_item, doors_block, MOVEMODE_LAND ));
+				}
 
-				blocked = false;
-
-				if ( (!NewNode->IsSameState(SolutionStartNode)) &&
-					 (!NewNode->IsSameState(SolutionEndNode)) )
-					blocked = (theBlockers->IsBlocking(newx, newy, newz));
+				if (!blocked)
+				{
+					NewNode->x = newx;
+					NewNode->y = newy;
+					NewNode->z = newz;
+					NewNode->realm = realm;
+					NewNode->theBlockers = theBlockers;
+ 
+					if ( (!NewNode->IsSameState(SolutionStartNode)) &&
+						 (!NewNode->IsSameState(SolutionEndNode)) )
+						blocked = (theBlockers->IsBlocking(newx, newy, newz));
+				}
 
 				if (!blocked)
 				{

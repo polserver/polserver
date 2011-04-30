@@ -185,12 +185,29 @@ bool NPC::anchor_allows_move( UFACING dir ) const
 
 bool NPC::could_move( UFACING dir ) const
 {
-    unsigned short newx = x + move_delta[ dir ].xmove;
-    unsigned short newy = y + move_delta[ dir ].ymove;
-    
     short newz;
     UMulti* supporting_multi;
     Item* walkon_item;
+	// Check for diagonal move - use Nandos change from charactr.cpp -- OWHorus (2011-04-26)
+	if (dir & 1) // check if diagonal movement is allowed -- Nando (2009-02-26)
+	{
+		u8 tmp_facing = (dir+1) & 0x7;
+		unsigned short tmp_newx = x + move_delta[ tmp_facing ].xmove;
+		unsigned short tmp_newy = y + move_delta[ tmp_facing ].ymove;
+
+		// needs to save because if only one direction is blocked, it shouldn't block ;)
+		bool walk1 = realm->walkheight(this, tmp_newx, tmp_newy, z, &newz, &supporting_multi, &walkon_item );
+
+		tmp_facing = (dir-1) & 0x7;
+		tmp_newx = x + move_delta[ tmp_facing ].xmove;
+		tmp_newy = y + move_delta[ tmp_facing ].ymove;
+
+		if (!walk1 && !realm->walkheight(this, tmp_newx, tmp_newy, z, &newz, &supporting_multi, &walkon_item ))
+			return false;
+	}
+    unsigned short newx = x + move_delta[ dir ].xmove;
+	unsigned short newy = y + move_delta[ dir ].ymove;
+
     return realm->walkheight( this, newx, newy, z, &newz, &supporting_multi, &walkon_item ) &&
            !npc_path_blocked( dir ) &&
            anchor_allows_move( dir );
@@ -848,8 +865,8 @@ void NPC::inform_imoved( Character* chr )
                                (abs( y - chr->y ) <= ex->area_size);
 
                 // inrangex_inline( this, moved, ex->area_size );
-            bool were_inrange =(abs( x - chr->lastx ) <= ex->area_size) &&
-                               (abs( y - chr->lasty ) <= ex->area_size);
+            bool were_inrange =(abs( lastx - chr->x ) <= ex->area_size) &&
+                               (abs( lasty - chr->y ) <= ex->area_size);
 
             if ( (!ssopt.event_visibility_core_checks) || is_visible_to_me( chr ) )
             {
