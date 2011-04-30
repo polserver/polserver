@@ -1,4 +1,8 @@
 -- POL099 --
+04-30-2011 Turley:
+     Fixed: enter/leave-events for NPCs (OWHorus)
+	 Fixed: diagonal moves in npc::CanMove() and uo::FindPath() (OWHorus)
+
 04-03-2011 Turley:
      Added: uotool param checkmultis
 	        prints infos about used center item
