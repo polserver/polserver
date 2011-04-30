@@ -472,6 +472,7 @@ void clean_packethooks()
 {
 	packet_hook_data.clear();
 	packet_hook_data_v2.clear();
+	packet_hook_data_v3.clear();
 }
 
 void SetVersionDetailStruct(const std::string& ver, VersionDetailStruct& detail)
