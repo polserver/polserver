@@ -1,4 +1,7 @@
 -- POL099 --
+05-04-2010 Turley:
+     Fixed: Questarrow packet
+
 04-30-2011 Turley:
      Fixed: enter/leave-events for NPCs (OWHorus)
 	 Fixed: diagonal moves in npc::CanMove() and uo::FindPath() (OWHorus)
