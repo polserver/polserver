@@ -595,26 +595,35 @@ BObject ExportScript::call_object(
 
 void ExportScript::SaveStack(BackupStruct& backup)
 {
-	backup.PC = uoexec.PC;
-	while (!uoexec.ValueStack.empty())
-	{
-		backup.ValueStack.push(uoexec.ValueStack.top());
-		uoexec.ValueStack.pop();
+	if (uoexec.PC != 0)
+	{	
+		backup.PC = uoexec.PC;
+		while (!uoexec.ValueStack.empty())
+		{
+			backup.ValueStack.push(uoexec.ValueStack.top());
+			uoexec.ValueStack.pop();
+		}
+		if ((uoexec.Locals2 != NULL) && (!uoexec.Locals2->empty()))
+		{
+			backup.Locals.reset(new BObjectRefVec);
+			backup.Locals->assign(uoexec.Locals2->begin(),uoexec.Locals2->end());
+		}
 	}
-	if ((uoexec.Locals2 != NULL) && (!uoexec.Locals2->empty()))
-	{
-		backup.Locals.reset(new BObjectRefVec);
-		backup.Locals->assign(uoexec.Locals2->begin(),uoexec.Locals2->end());
-	}
+	else
+		backup.PC = 0;
 }
 
 void ExportScript::LoadStack(BackupStruct& backup)
 {
-	uoexec.initForFnCall( backup.PC );
-	while (!backup.ValueStack.empty())
+	if (backup.PC != 0)
 	{
-		uoexec.ValueStack.push(backup.ValueStack.top());
-		backup.ValueStack.pop();
+		uoexec.initForFnCall( backup.PC );
+		while (!backup.ValueStack.empty())
+		{
+			uoexec.ValueStack.push(backup.ValueStack.top());
+			backup.ValueStack.pop();
+		}
+		if (backup.Locals.get() != NULL)
+			uoexec.Locals2=backup.Locals.release();
 	}
-	uoexec.Locals2=backup.Locals.release();
 }
