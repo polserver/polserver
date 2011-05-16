@@ -76,7 +76,7 @@ public:
     void popblock();
     void addvar( const std::string& varname, const CompilerContext& ctx, bool warn_on_notused = true );
     void addvalue();
-    bool inblock() const { return blockdescs_.size() != 0; }
+    bool inblock() const { return !blockdescs_.empty(); }
     unsigned numVarsInBlock() const { return blockdescs_.back().varcount; }
     const BlockDesc& blockdesc() const { return blockdescs_.back(); }
     bool varexists( const std::string& varname, unsigned& idx ) const;

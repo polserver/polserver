@@ -201,7 +201,7 @@ void ObjectHash::Clear()
             }
         }
     } while (any );
-    if (hash.size())
+    if (!hash.empty())
     {
         cout << "Leftover objects in objecthash: " << hash.size() << endl;
         

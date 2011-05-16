@@ -81,7 +81,7 @@ void load_attribute_entry( const Package* pkg, ConfigElem& elem )
 				+ existing->pkg->desc() );
 	}
 	attr->attrid = attributes.size();
-	if (attributes.size())
+	if (!attributes.empty())
 		attributes.back()->next = attr;
 	attributes.push_back( attr );
 	for( unsigned i = 0; i < attr->aliases.size(); ++i )

@@ -35,7 +35,7 @@ public:
 	const std::string passwordhash() const;
 	const std::string uo_expansion() const;
 	const unsigned short uo_expansion_flag() const;
-	unsigned short convert_uo_expansion(const std::string expansion) const;
+	unsigned short convert_uo_expansion(const std::string& expansion) const;
     bool enabled() const;
     bool banned() const;
 

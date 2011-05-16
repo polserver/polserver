@@ -108,7 +108,7 @@ void load_vital_entry( const Package* pkg, ConfigElem& elem )
                 + existing->pkg->desc() );
     }
     vital->vitalid = vitals.size();
-    if (vitals.size())
+    if (!vitals.empty())
         vitals.back()->next = vital;
     vitals.push_back( vital );
 
