@@ -107,8 +107,8 @@ public:
     unsigned int TotalSize() const;
     unsigned char NumUsedPlanes() const;
     
-    void readProperties( ConfigElem& elem, const std::string prefix );
-    void printProperties( std::ostream& os, const std::string prefix ) const;
+    void readProperties( ConfigElem& elem, const std::string& prefix );
+    void printProperties( std::ostream& os, const std::string& prefix ) const;
 
     int floor_sizes[CUSTOM_HOUSE_NUM_PLANES];
 

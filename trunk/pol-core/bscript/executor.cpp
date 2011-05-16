@@ -129,7 +129,7 @@ bool Executor::AttachFunctionalityModules()
 		FunctionalityModule* fm = prog_->modules[ midx ];
  
             // if no function in the module is actually called, don't go searching for it.
-        if (fm->functions.size() == 0)
+        if (fm->functions.empty())
         {
             execmodules.push_back( NULL );
             continue;
@@ -825,7 +825,7 @@ void Executor::execFunc(const Token& token)
 #ifdef ESCRIPT_PROFILE
 	std::stringstream strm;
 	strm << em->functionName( modfunc->funcidx );
-	if (fparams.size()>0)
+	if (!fparams.empty())
 		strm << " [" << fparams[0].get()->impptr()->typeOf() << "]";
 	string name(strm.str());
 	unsigned long profile_start= GetTimeUs();
@@ -1402,7 +1402,7 @@ void Executor::ins_get_member( const Instruction& ins )
 #ifdef ESCRIPT_PROFILE
 	std::stringstream strm;
 	strm << "MBR_" << leftref->impptr()->typeOf() << " ." << ins.token.tokval();
-	if (fparams.size()>0)
+	if (!fparams.empty())
 		strm << " [" << fparams[0].get()->impptr()->typeOf() << "]";
 	string name(strm.str());
 	unsigned long profile_start= GetTimeUs();
@@ -1422,7 +1422,7 @@ void Executor::ins_get_member_id( const Instruction& ins )
 #ifdef ESCRIPT_PROFILE
 	std::stringstream strm;
 	strm << "MBR_" << leftref->impptr()->typeOf() << " ." << ins.token.lval;
-	if (fparams.size()>0)
+	if (!fparams.empty())
 		strm << " [" << fparams[0].get()->impptr()->typeOf() << "]";
 	string name(strm.str());
 	unsigned long profile_start= GetTimeUs();
@@ -2220,7 +2220,7 @@ void Executor::ins_call_method_id( const Instruction& ins )
 #ifdef ESCRIPT_PROFILE
 	std::stringstream strm;
 	strm << "MTHID_" << objref->impptr()->typeOf() << " ." << ins.token.lval;
-	if (fparams.size()>0)
+	if (!fparams.empty())
 		strm << " [" << fparams[0].get()->impptr()->typeOf() << "]";
 	string name(strm.str());
 	unsigned long profile_start= GetTimeUs();
@@ -2262,7 +2262,7 @@ void Executor::ins_call_method( const Instruction& ins )
 #ifdef ESCRIPT_PROFILE
 	std::stringstream strm;
 	strm << "MTH_" << objref->impptr()->typeOf() << " ." << ins.token.tokval();
-	if (fparams.size()>0)
+	if (!fparams.empty())
 		strm << " [" << fparams[0].get()->impptr()->typeOf() << "]";
 	string name(strm.str());
 	unsigned long profile_start= GetTimeUs();

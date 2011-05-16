@@ -961,7 +961,7 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool forcebuil
 		{
 			if (ex.numParams() == 0)
 			{
-				if (ref_arr.size() > 0)
+				if (!ref_arr.empty())
 				{
 					const BObjectRef& ref = ref_arr[ random_int( ref_arr.size() ) ];
 					if (ref.get() == NULL)

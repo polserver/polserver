@@ -213,7 +213,7 @@ BObjectImp* MathExecutorModule::mf_Min()
 	else if(impX->isa(BObjectImp::OTArray))
 	{
 		ObjArray* value = static_cast<ObjArray*>(impX);
-		if (value->ref_arr.size()==0)
+		if (value->ref_arr.empty())
 			return new BError("Array empty");
 
 		BObjectImp *compare=NULL;
@@ -258,7 +258,7 @@ BObjectImp* MathExecutorModule::mf_Max()
 	else if(impX->isa(BObjectImp::OTArray))
 	{
 		ObjArray* value = static_cast<ObjArray*>(impX);
-		if (value->ref_arr.size()==0)
+		if (value->ref_arr.empty())
 			return new BError("Array empty");
 
 		BObjectImp *compare=NULL;

@@ -327,7 +327,7 @@ int EScriptProgram::write( const char *fname )
 	fwrite( &sechdr, sizeof sechdr, 1, fp );
 	program.symbols.write(fp);
     
-    if (exported_functions.size())
+    if (!exported_functions.empty())
     {
         BSCRIPT_EXPORTED_FUNCTION bef;
         sechdr.type = BSCRIPT_SECTION_EXPORTED_FUNCTIONS;
@@ -543,7 +543,7 @@ void EScriptProgram::leavefunction()
 void EScriptProgram::enterblock()
 {
     EPDbgBlock block;
-    if (!blocks.size())
+    if (blocks.empty())
     {
         block.parentblockidx = 0;
         block.parentvariables = 0;

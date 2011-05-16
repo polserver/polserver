@@ -15,7 +15,7 @@ void EScriptProgram::dump( ostream& os )
 {
     Token token;
 	unsigned PC;
-    if (exported_functions.size())
+    if (!exported_functions.empty())
     {
         os << "Exported Functions:" << endl;
         os << "   PC  Args  Name" << endl;
