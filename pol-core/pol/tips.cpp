@@ -67,7 +67,7 @@ void send_tip( Client* client, const std::string& tiptext )
 void handle_get_tip( Client* client, PKTIN_A7* msg )
 {
 	u16 tipnum = cfBEu16( msg->lasttip );
-    if (tipfilenames.size())
+    if (!tipfilenames.empty())
     {
         if (msg->prevnext)
         {

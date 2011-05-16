@@ -624,6 +624,9 @@ void ExportScript::LoadStack(BackupStruct& backup)
 			backup.ValueStack.pop();
 		}
 		if (backup.Locals.get() != NULL)
+		{
+			delete uoexec.Locals2;
 			uoexec.Locals2=backup.Locals.release();
+		}
 	}
 }

@@ -144,7 +144,7 @@ int write_pol_static_files( const string& realm )
                 fwrite( &vec[i], sizeof(STATIC_ENTRY), 1, fdat );
                 ++index;
             }
-            if (vec.size() == 0)
+            if (vec.empty())
                 ++empties;
             else
                 ++nonempties;
