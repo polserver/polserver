@@ -234,7 +234,7 @@ BObjectImp* PolSystemExecutorModule::mf_ListTextCommands()
 			ObjArray* script_list = GetCommandsInPackage(NULL, num);
 			if ( script_list == NULL ) 
 				continue;
-			else if ( script_list->ref_arr.size() > 0 )
+			else if ( !script_list->ref_arr.empty() )
 				cmd_lvl_list->addMember(new BLong(num), script_list);
 		}
 		if ( cmd_lvl_list->contents().size() > 0 )
@@ -251,7 +251,7 @@ BObjectImp* PolSystemExecutorModule::mf_ListTextCommands()
 			ObjArray* script_list = GetCommandsInPackage(pkg, num);
 			if ( script_list == NULL ) 
 				continue;
-			else if ( script_list->ref_arr.size() > 0 )
+			else if ( !script_list->ref_arr.empty() )
 				cmd_lvl_list->addMember(new BLong(num), script_list);
 		}
 		if ( cmd_lvl_list->contents().size() > 0 )

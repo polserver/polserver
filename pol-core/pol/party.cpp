@@ -375,7 +375,7 @@ void Party::set_leader(u32 serial)
 
 bool Party::test_size()
 {
-	if ( ( _candidates_serials.size() == 0 ) && ( _member_serials.size() <= 1 ) )
+	if ( ( _candidates_serials.empty() ) && ( _member_serials.size() <= 1 ) )
 		return false;
 	return true;
 }

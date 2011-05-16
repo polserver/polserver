@@ -115,7 +115,7 @@ void handle_unicode_prompt( Client* client, PKTBI_C2* msg )
 
 		if (ok)
 		{
-			if ( uc_text.ref_arr.size() == 0 )
+			if ( uc_text.ref_arr.empty() )
 				valstack = new BObject( new BLong( 0 ) );
 			else
 			{

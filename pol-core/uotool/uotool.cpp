@@ -1164,7 +1164,7 @@ int defragstatics( int argc, char **argv )
                 idx.offset=~0u;
                 idx.length=~0u;
                 idx.unknown=~0u;
-                if (tilelist.size()>0)
+                if (!tilelist.empty())
                 {
                     idx.offset=currwritepos;
                     for( unsigned i = 0; i < tilelist.size(); ++i )

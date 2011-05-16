@@ -120,6 +120,7 @@ bool OSExecutorModule::signal_event( BObjectImp* imp )
 			}
 			else
 			{
+				BObject ob( imp );
 				if (config.loglevel >= 11)
 				{
 					cout << "Event queue for " << exec.scriptname() << " is full, discarding event." << endl;
@@ -130,7 +131,7 @@ bool OSExecutorModule::signal_event( BObjectImp* imp )
 						cout << "NPC Serial: " << hexint( npcemod->npc.serial ) <<
 							" (" << npcemod->npc.x << " " << npcemod->npc.y << " " << (int) npcemod->npc.z << ")" << endl;
 					}
-					BObject ob( imp );
+					
 					cout << "Event: " << ob->getStringRep() << endl;
 				}
 				return false;

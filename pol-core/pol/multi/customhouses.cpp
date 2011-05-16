@@ -364,7 +364,7 @@ void CustomHouseDesign::AddMultiAtOffset(u16 graphic, s8 x, s8 y, s8 z)
     }
 }
 
-void CustomHouseDesign::readProperties( ConfigElem& elem, const string prefix  )
+void CustomHouseDesign::readProperties( ConfigElem& elem, const string& prefix  )
 {
     string line, sizes;
 
@@ -388,12 +388,11 @@ void CustomHouseDesign::readProperties( ConfigElem& elem, const string prefix  )
     }
 }
 
-void CustomHouseDesign::printProperties( ostream& os, const string prefix ) const
+void CustomHouseDesign::printProperties( ostream& os, const string& prefix ) const
 {
-    int i;
     if(!IsEmpty())
     {
-        for( i=0; i<CUSTOM_HOUSE_NUM_PLANES; i++ )
+        for( int i=0; i<CUSTOM_HOUSE_NUM_PLANES; i++ )
         {
             HouseFloor::const_iterator xitr;
             HouseFloorRow::const_iterator yitr;
@@ -416,10 +415,9 @@ void CustomHouseDesign::printProperties( ostream& os, const string prefix ) cons
 //for testing, prints each floor's x,y,z rows
 void CustomHouseDesign::testprint( ostream& os ) const
 {
-    int i;
     if(!IsEmpty())
     {
-        for( i=0; i<CUSTOM_HOUSE_NUM_PLANES; i++ )
+        for( int i=0; i<CUSTOM_HOUSE_NUM_PLANES; i++ )
         {
             HouseFloor::const_iterator xitr;
             HouseFloorRow::const_iterator yitr;
