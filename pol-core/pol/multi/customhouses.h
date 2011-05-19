@@ -146,6 +146,8 @@ void CustomHousesBackup(PKTBI_D7* msg);
 void CustomHousesRestore(PKTBI_D7* msg);
 void CustomHousesSynch(PKTBI_D7* msg);
 void CustomHousesRevert(PKTBI_D7* msg);
+void CustomHouseRoofSelect(PKTBI_D7* msg);
+void CustomHouseRoofRemove(PKTBI_D7* msg);
 void CustomHousesSendFull(UHouse* house, Client* client, int design = HOUSE_DESIGN_CURRENT);
 void CustomHousesSendFullToInRange(UHouse* house, int design, int range);
 void CustomHousesSendShort(UHouse* house, Client* client);
