@@ -50,6 +50,7 @@ public:
 	virtual void walk_on( Character* chr );
 
 	void ClearSquatters();
+	void add_component(Item* item, s32 xoff, s32 yoff, u8 zoff);
 
 protected:
     explicit UHouse( const ItemDesc& itemdesc );
@@ -68,7 +69,7 @@ protected:
     ObjArray* component_list() const;
     ObjArray* items_list() const;
     ObjArray* mobiles_list() const;
-    void add_component( Item* item );
+    
     friend class UMulti;
     bool custom;
 private:

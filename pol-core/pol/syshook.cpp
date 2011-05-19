@@ -189,6 +189,11 @@ void hook( ExportScript* shs, const string& hookname, const string& exfuncname )
 		nargs = 1;
 		pphook = &system_hooks.un_hide;
 	}
+	else if (hookname == "CustomHouseCommit")
+	{
+		nargs = 2;
+		pphook= &system_hooks.customhouse_commit_hook;
+	}
 	else
 	{
 		cout << "Unknown SystemHook " << hookname << endl;
