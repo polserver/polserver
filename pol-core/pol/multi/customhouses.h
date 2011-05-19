@@ -20,6 +20,11 @@ Notes
 #include "../pktboth.h"
 
 #define CUSTOM_HOUSE_NUM_PLANES 5
+#define STAIR_MULTIID_MIN 0x1DB0
+#define STAIR_MULTIID_MAX 0x1DEB
+#define DIRTY_TILE 0x31F4
+#define TELEPORTER_START 0x181D
+#define TELEPORTER_END 0x1828
 
 class UHouse;
 
@@ -146,8 +151,8 @@ void CustomHousesBackup(PKTBI_D7* msg);
 void CustomHousesRestore(PKTBI_D7* msg);
 void CustomHousesSynch(PKTBI_D7* msg);
 void CustomHousesRevert(PKTBI_D7* msg);
-void CustomHouseRoofSelect(PKTBI_D7* msg);
-void CustomHouseRoofRemove(PKTBI_D7* msg);
+void CustomHousesRoofSelect(PKTBI_D7* msg);
+void CustomHousesRoofRemove(PKTBI_D7* msg);
 void CustomHousesSendFull(UHouse* house, Client* client, int design = HOUSE_DESIGN_CURRENT);
 void CustomHousesSendFullToInRange(UHouse* house, int design, int range);
 void CustomHousesSendShort(UHouse* house, Client* client);

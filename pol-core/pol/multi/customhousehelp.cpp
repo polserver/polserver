@@ -12,18 +12,40 @@ Notes
 #include "customhouses.h"
 #include "../polcfg.h"
 
-//fixme gargoyle
-int BlockIDs[] = {  0x3EE, 0x709, 0x71E,  0x721,
-				    0x738, 0x750, 0x76C,  0x788,
-				    0x7A3, 0x7BA, 0x35D2, 0x3609 };
+int BlockIDs[] = {  0x3EE, //Sandstone
+	                0x709, //Tan Marble
+					0x71E, //Granite
+					0x721, //Light Wood
+				    0x738, //Dark Wood
+					0x750, //Light Stone
+					0x76C, //Sandstone Brick 
+					0x788, //Weathered Stone
+				    0x7A3, //Grey Stone
+					0x7BA, //Red
+					0x35D2,//Crystal
+					0x3609,//Shadow
+                    0x4317,//Gargish 1 & 2
+					0x4318 //Gargish 3
+                 };
 
-int StairSeqs[] = { 0x3EF, 0x70A, 0x722, 0x739,
-				    0x751, 0x76D, 0x789, 0x7A4 };
-
-int StairIDs[] = {  0x71F,  0x736,  0x737,  0x749,
-				    0x7BB,  0x7BC,
-					0x35D4, 0x35D3, 0x35D6, 0x35D5,
-					0x360B, 0x360A, 0x360D, 0x360C };
+int StairSeqs[] = { 0x3EF, //Sandstone
+	                0x70A, //Tan Marble
+					0x722, //Light Wood
+					0x739, //Dark Wood
+				    0x751, //Light Stone
+					0x76D, //Sandstone Brick 
+					0x789, //Weathered Stone
+					0x7A4  //Grey Stone
+                  };
+//                      N,      W,      S,      E
+int StairIDs[] = {  0x71F,  0x736,  0x737,  0x749, //Granite
+				    0x7BB,  0x7BC,                 //Red
+					0x35D4, 0x35D3, 0x35D6, 0x35D5,//Crystal
+					0x360B, 0x360A, 0x360D, 0x360C,//Shadow
+                    0x4360, 0x435E, 0x435F, 0x4361,//Gargish 1
+                    0x435C, 0x435A, 0x435B, 0x435C,//Gargish 2
+                    0x4364, 0x4362, 0x4363, 0x4365 //Gargish 3
+                 };
 
 bool CustomHouseDesign::IsStairBlock( u16 id )
 {
@@ -74,12 +96,11 @@ bool CustomHouseDesign::DeleteStairs( u16 id, s32 x, s32 y, s8 z )
 
 	if ( IsStairBlock( id ) )
 	{
-        HouseFloorZColumn::iterator itr;
         int xidx = x + xoff;
         int yidx = y + yoff;
-        for( itr = Elements[floor_num].data.at(xidx).at(yidx).begin(); 
-             itr !=Elements[floor_num].data.at(xidx).at(yidx).end(); 
-             ++itr)
+        for( HouseFloorZColumn::iterator itr = Elements[floor_num].data.at(xidx).at(yidx).begin(),
+			                             itrend = Elements[floor_num].data.at(xidx).at(yidx).end();
+										 itr != itrend; ++itr)
         {
             if( itr->z == (z+5))
             {

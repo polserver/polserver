@@ -1,5 +1,20 @@
 -- POL099 --
-05-04-2010 Turley:
+05-19-2011 Turley:
+     Added: CustomHousing Support (beta)
+	        officially added uo::SendHousingTool( who, house );
+	 Added: syshook CustomHouseCommit( who, house, houseelemarray )
+			houseelem = struct{graphic,xoffset,yoffset,z}
+			to get the real coords from an elem add house.x/y
+			called after client presses the commit button
+			return 1 to accept the commit
+			main purpose should be calculation of cost (with delta support for later changes),
+			link establishing of houseteleporters (0x181D - 0x1828)
+			and adding a signhanger/sign if you didnt added it during multifoundation buildup
+			Doors and Teleporters are added to house components as normal items without any special treatment
+			so dont forget to add scripts/itemdesc entries
+      Note: house.setcustom(1) is needed before SendHousingTool() works
+
+05-04-2011 Turley:
      Fixed: Questarrow packet
 
 04-30-2011 Turley:
