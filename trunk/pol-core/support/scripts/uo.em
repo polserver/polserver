@@ -351,6 +351,7 @@ SendCharProfile( character, of_who, title, uneditable_text := CHARPROFILE_NO_UNE
 SendCharacterRaceChanger( character );
 SendDialogGump( who, layout, textlines, x := 0, y := 0, flags := 0 );
 SendEvent( npc, event );
+SendHousingTool( who, house );
 SendInstaResDialog( character );
 SendOpenBook( character, book );
 SendOpenSpecialContainer( character, container );

@@ -191,7 +191,7 @@ void hook( ExportScript* shs, const string& hookname, const string& exfuncname )
 	}
 	else if (hookname == "CustomHouseCommit")
 	{
-		nargs = 2;
+		nargs = 3;
 		pphook= &system_hooks.customhouse_commit_hook;
 	}
 	else

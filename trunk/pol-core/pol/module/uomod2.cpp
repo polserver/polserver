@@ -2196,17 +2196,16 @@ MESSAGE_HANDLER( PKTBI_93, open_book_handler );
 BObjectImp* UOExecutorModule::mf_SendHousingTool()
 {
 	Character* chr;
-	int house_serial;
+	UMulti* multi;
 
 	if (! (getCharacterParam( exec, 0, chr ) &&
-		   exec.getParam( 1, house_serial )) )
+		   getMultiParam( exec, 1, multi )) )
 	{
 		return new BError( "Invalid parameter type" );
 	}
 	if( (chr->client->UOExpansionFlag & AOS) == 0 )
 		return new BError( "Charater does not have AOS enabled." );
 
-	UMulti* multi = system_find_multi(house_serial);
 	if(multi == NULL)
 		return new BError( "House not found." );
 
@@ -2223,7 +2222,7 @@ BObjectImp* UOExecutorModule::mf_SendHousingTool()
 	if( chr->realm->find_supporting_multi(chr->x,chr->y,chr->z) != house )
 		return new BError( "You must be inside the house to customize it." );
 
-	chr->client->gd->custom_house_serial = house_serial;
+	chr->client->gd->custom_house_serial = house->serial;
 
 	PktOut_BF_Sub20* msg = REQUESTSUBPACKET(PktOut_BF_Sub20,PKTBI_BF_ID,PKTBI_BF::TYPE_ACTIVATE_CUSTOM_HOUSE_TOOL);
 	msg->WriteFlipped(static_cast<u16>(17));
