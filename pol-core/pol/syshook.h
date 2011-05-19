@@ -65,6 +65,7 @@ public:
     ExportedFunction* ouch_hook;
     ExportedFunction* can_die;
 	ExportedFunction* un_hide;
+	ExportedFunction* customhouse_commit_hook;
 };
 extern SystemHooks system_hooks;
 
