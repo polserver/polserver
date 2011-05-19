@@ -39,6 +39,9 @@ Notes
 #include "../ufunc.h"
 #include "../ustruct.h"
 #include "../uworld.h"
+#include "../item/itemdesc.h"
+#include "../syshook.h"
+#include "../mkscrobj.h"
 
 //bytes per tile - currently only mode 0 works, meaning we send u16 graphic, s8 x,y,z offsets
 #define BYTES_PER_TILE 5
@@ -51,11 +54,13 @@ char CustomHouseDesign::z_to_custom_house_table(char z)
 {
     unsigned char i;
     for( i=0; i<CUSTOM_HOUSE_NUM_PLANES; i++)
+	{
         if( z == custom_house_z_xlate_table[i] )
             return i;
         else if( z < custom_house_z_xlate_table[i] )
             return i-1;
-    return -1; //fixme, check for this value!!
+	}
+    return -1;
 }
 
 CustomHouseDesign::CustomHouseDesign()
@@ -105,6 +110,8 @@ void CustomHouseDesign::operator=(CustomHouseDesign& design)
 void CustomHouseDesign::Add(CUSTOM_HOUSE_ELEMENT& elem)
 {
     int floor_num = z_to_custom_house_table(elem.z);
+	if ( floor_num == -1 )
+		return;
     Elements[floor_num].AddElement(elem);
     floor_sizes[floor_num]++;
 }
@@ -114,6 +121,8 @@ void CustomHouseDesign::Add(CUSTOM_HOUSE_ELEMENT& elem)
 void CustomHouseDesign::AddOrReplace(CUSTOM_HOUSE_ELEMENT& elem)
 {
     int floor_num = z_to_custom_house_table(elem.z);
+	if ( floor_num == -1 )
+		return;
     char adding_height = tileheight(elem.graphic);
 
     HouseFloorZColumn::iterator itr;
@@ -145,6 +154,8 @@ void CustomHouseDesign::AddOrReplace(CUSTOM_HOUSE_ELEMENT& elem)
 bool CustomHouseDesign::Erase(u32 xoffset, u32 yoffset, u8 z, int minheight)
 {
     int floor_num = z_to_custom_house_table(z);
+	if ( floor_num == -1 )
+		return false;
   
     HouseFloorZColumn::iterator itr;
     int xidx = xoffset + xoff;
@@ -170,6 +181,8 @@ bool CustomHouseDesign::Erase(u32 xoffset, u32 yoffset, u8 z, int minheight)
 bool CustomHouseDesign::EraseGraphicAt(u16 graphic, u32 xoffset, u32 yoffset, u8 z)
 {
     int floor_num = z_to_custom_house_table(z);
+	if ( floor_num == -1 )
+		return false;
 
     HouseFloorZColumn::iterator itr;
     int xidx = xoffset + xoff;
@@ -211,6 +224,7 @@ void CustomHouseDesign::ReplaceDirtFloor(u32 x, u32 y)
         if( tileheight(itr->graphic) == 0 ) //a floor tile exists
         {
             floor_exists = true;
+			break;
         }
     }
 
@@ -452,7 +466,8 @@ void CustomHouseStopEditing(Character* chr, UHouse* house)
     chr->client->transmit(&msg->buffer,msg->offset);
 	READDPACKET(msg);
 
-    move_character_to(chr,house->multidef().global_minrx,house->multidef().global_maxry+1,house->z,MOVEITEM_FORCELOCATION, NULL);
+	const MultiDef& def = house->multidef();
+    move_character_to(chr,house->x+def.minrx,house->y+def.maxry+1,house->z,MOVEITEM_FORCELOCATION, NULL);
     chr->client->gd->custom_house_serial = 0;
     house->editing = false;
 }
@@ -498,7 +513,7 @@ void CustomHousesAddMulti(PKTBI_D7* msg)
     s8 z = CustomHouseDesign::custom_house_z_xlate_table[house->editing_floor_num];
 
     //only allow stairs IDs
-    if ( itemID < 0x1DB0 || itemID > 0x1DD7 )
+    if ( itemID < 0x1DB0 || itemID > 0x1DEB )
     {
         CustomHousesSendFull(house, chr->client,HOUSE_DESIGN_WORKING);
         return;
@@ -589,9 +604,67 @@ void CustomHousesCommit(PKTBI_D7* msg)
     if(house == NULL)
         return;
 
-    //remove dynamic bits (teleporters, doors)
-    //create dynamics, add to house components
+    //remove dynamic bits (teleporters, doors) // Fixme: teleporters
+	for(int i=0; i<CUSTOM_HOUSE_NUM_PLANES; i++)
+	{
+		for(HouseFloor::iterator xitr = house->WorkingDesign.Elements[i].data.begin(),
+			                     xitrend = house->WorkingDesign.Elements[i].data.end(); 
+			                     xitr != xitrend; ++xitr)
+		{
+			for(HouseFloorRow::iterator yitr = xitr->begin(),
+				                        yitrend = xitr->end(); 
+										yitr != yitrend; ++yitr)
+			{
+				HouseFloorZColumn::iterator zitr = yitr->begin();
+				while( zitr != yitr->end() )
+				{
+					const ItemDesc& id = find_itemdesc( zitr->graphic );
+					if (id.type == ItemDesc::DOORDESC)
+					{
+						Item* component = Item::create( id.objtype );
+						if (component == NULL) 
+							continue;
+						house->add_component(component, zitr->xoffset, zitr->yoffset, zitr->z);
+						zitr = yitr->erase(zitr);
+					}
+					else
+						++zitr;
+				}
+			}
+		}
+	}
 
+	if (system_hooks.customhouse_commit_hook != NULL)
+	{
+		auto_ptr<ObjArray> arr (new ObjArray);
+		for(int i=0; i<CUSTOM_HOUSE_NUM_PLANES; i++)
+		{
+			for(HouseFloor::iterator xitr = house->WorkingDesign.Elements[i].data.begin(),
+				xitrend = house->WorkingDesign.Elements[i].data.end(); 
+				xitr != xitrend; ++xitr)
+			{
+				for(HouseFloorRow::iterator yitr = xitr->begin(),
+					yitrend = xitr->end(); 
+					yitr != yitrend; ++yitr)
+				{
+					HouseFloorZColumn::iterator zitr = yitr->begin();
+					while( zitr != yitr->end() )
+					{
+						auto_ptr<BStruct> itemstruct (new BStruct);
+						itemstruct->addMember("graphic",new BLong(zitr->graphic));
+						itemstruct->addMember("xoffset",new BLong(zitr->xoffset));
+						itemstruct->addMember("yoffset",new BLong(zitr->yoffset));
+						itemstruct->addMember("z",new BLong(zitr->z));
+						arr->addElement(itemstruct.release());
+						++zitr;
+					}
+				}
+			}
+		}
+
+		if (!system_hooks.customhouse_commit_hook->call(make_mobileref(chr),arr.release()))
+			return;
+	}
     //call a script to do post processing (calc cost, yes/no confirm, consume cost)
 
     house->revision++;
@@ -674,6 +747,52 @@ void CustomHousesRevert(PKTBI_D7* msg)
     house->WorkingCompressed.swap(newvec);
     if(chr && chr->client)
         CustomHousesSendFull(house, chr->client,HOUSE_DESIGN_WORKING);
+}
+
+void CustomHouseRoofSelect(PKTBI_D7* msg)
+{
+	u32 serial = cfBEu32(msg->serial);
+	UHouse* house = UHouse::FindWorkingHouse(serial);
+	if(house == NULL)
+		return;
+
+	CH_SELECT_ROOF add = msg->ch_select_roof;
+	CUSTOM_HOUSE_ELEMENT elem;
+	elem.graphic = cfBEu16(add.tileID);
+	elem.xoffset = cfBEu32(add.xoffset);
+	elem.yoffset = cfBEu32(add.yoffset);
+	s8 z = static_cast<s8>(cfBEu32(add.zoffset));
+	if( z < -3 || z > 12 || z % 3 != 0 )
+		z = -3;
+	elem.z = z + CustomHouseDesign::custom_house_z_xlate_table[house->editing_floor_num];
+
+	house->WorkingDesign.AddOrReplace(elem);
+
+	//invalidate stored packet
+	vector<u8> newvec;
+	house->WorkingCompressed.swap(newvec);
+
+	house->revision++;
+}
+void CustomHouseRoofRemove(PKTBI_D7* msg)
+{
+	u32 serial = cfBEu32(msg->serial);
+	UHouse* house = UHouse::FindWorkingHouse(serial);
+	if(house == NULL)
+		return;
+
+	CH_DELETE_ROOF remove = msg->ch_delete_roof;
+	u32 x = cfBEu32(remove.xoffset),y = cfBEu32(remove.yoffset);
+	u8 z = static_cast<u8>(cfBEu32(remove.zoffset));
+	u16 graphic = cfBEu16(remove.tileID);
+	if (!house->WorkingDesign.EraseGraphicAt(graphic,x,y,z))
+		return;
+
+	//invalidate stored packet
+	vector<u8> newvec;
+	house->WorkingCompressed.swap(newvec);
+
+	house->revision++;
 }
 
 void CustomHousesSendFull(UHouse* house, Client* client, int design)

@@ -945,6 +945,35 @@ struct CH_SELECT_FLOOR
 	u8 floornumber;
 };
 
+struct CH_SELECT_ROOF
+{
+	u8 unk1; // 0x00
+	u8 unk2; // 0x00
+	u8 unk3; // 0x00
+	u16 tileID;
+	u8 unk4; // 0x00
+	u32 xoffset;// from multi object center
+	u8 unk5; // 0x00
+	u32 yoffset;// from multi object center
+	u8 unk6;
+	u32 zoffset;
+};
+
+struct CH_DELETE_ROOF
+{
+	u8 unk1; // 0x00
+	u8 unk2; // 0x00
+	u8 unk3; // 0x00
+	u16 tileID;
+	u8 unk4; // 0x00
+	u32 xoffset;// from multi object center
+	u8 unk5; // 0x00
+	u32 yoffset;// from multi object center
+	u8 unk6;
+	u32 zoffset;
+};
+
+
 struct FIGHT_BOOK_ABILITY
 {
 	u32 unk1; // (0x00)
@@ -988,6 +1017,8 @@ struct PKTBI_D7
 		CH_ADD_MULTI ch_add_multi;
 		CH_SELECT_FLOOR ch_select_floor;
 		FIGHT_BOOK_ABILITY fight_book_ability;
+		CH_SELECT_ROOF ch_select_roof;
+		CH_DELETE_ROOF ch_delete_roof;
 	};
 	u8 unk;		// Not always 07, no clue what this is for just yet.
 	enum

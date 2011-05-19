@@ -157,6 +157,20 @@ void UHouse::create_components()
     }
 }
 
+void UHouse::add_component(Item* item, s32 xoff, s32 yoff, u8 zoff)
+{
+			item->x = x + xoff;
+			item->y = y + yoff;
+			item->z = static_cast<s8>(z + zoff);
+			item->setprop( "house_serial", "i" + decint( serial ) );
+			item->disable_decay();
+			item->movable( false );
+			item->realm = realm;
+			update_item_to_inrange( item );
+			add_item_to_world( item );
+			components_.push_back( Component(item) );
+}
+
 ObjArray* UHouse::component_list() const
 {
     auto_ptr<ObjArray> arr (new ObjArray);

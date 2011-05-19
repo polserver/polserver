@@ -522,6 +522,12 @@ void handle_aos_commands (Client *client, PKTBI_D7* msg)
 		case PKTBI_D7::CUSTOM_HOUSE_REVERT:
 			CustomHousesRevert(msg);
 			break;
+		case PKTBI_D7::CUSTOM_HOUSE_SELECT_ROOF:
+			CustomHouseRoofSelect(msg);
+			break;
+		case PKTBI_D7::CUSTOM_HOUSE_DELETE_ROOF:
+			CustomHouseRoofRemove(msg);
+			break;
 		case PKTBI_D7::GUILD_BUTTON:
 			OnGuildButton(client);
 			break;
