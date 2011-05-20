@@ -1295,9 +1295,9 @@ int checkmultis()
 		fseek( multi_mul, idxrec.offset, SEEK_SET );
 		USTRUCT_MULTI_ELEMENT elem;
 		fread( &elem, sizeof elem, 1, multi_mul );
-		if (elem.x != 0 || elem.y != 0)
+		if (elem.x != 0 || elem.y != 0 || elem.z != 0)
 		{
-			cout << "ERROR: First tile not in center: " << elem.x << " " << elem.y << " MultiID: " << hexint(i) << endl;
+			cout << "ERROR: First tile not in center: " << elem.x << " " << elem.y << " " << elem.z << " MultiID: " << hexint(i) << endl;
 			++errors;
 			continue;
 		}
@@ -1310,9 +1310,9 @@ int checkmultis()
 			while (itemcount--)
 			{
 				fread( &elem, sizeof elem, 1, multi_mul );
-				if (elem.x == 0 && elem.y == 0 && elem.graphic != 0x0001 && elem.flags)
+				if (elem.x == 0 && elem.y == 0 && elem.z == 0 && elem.graphic != 0x0001 && elem.flags)
 				{
-					cout << "Warning: Found invis tile as center, but could use " << hexint(elem.graphic) << " at 0 0 MultiID: " << hexint(i) << endl;
+					cout << "Warning: Found invis tile as center, but could use " << hexint(elem.graphic) << " at 0 0 0 MultiID: " << hexint(i) << endl;
 					++warnings;
 					found = true;
 					break;
