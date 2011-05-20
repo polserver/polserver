@@ -442,6 +442,7 @@ public:
 	bool can_face( UFACING i_facing );
 	bool face( UFACING i_facing, int flags = 0 );
     bool move( unsigned char dir );
+	bool CustomHousingMove(unsigned char i_dir);
     void tellmove( void );
     void check_region_changes();
     void check_weather_region_change(bool force=false);

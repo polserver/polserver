@@ -2238,9 +2238,28 @@ BObjectImp* UOExecutorModule::mf_SendHousingTool()
 	move_character_to(chr,house->x,house->y,house->z+7,MOVEITEM_FORCELOCATION, NULL);
 	//chr->set_script_member("hidden",1);
 	//chr->set_script_member("frozen",1);
+	
+	ItemList itemlist;
+	MobileList moblist;
+	UHouse::list_contents( house, itemlist, moblist );
+	const MultiDef& def = house->multidef();
+	while (!itemlist.empty())
+	{
+		Item* item = itemlist.front();
+		send_remove_object_if_inrange( chr->client, item );
+		itemlist.pop_front();
+	}
+
+	while (!moblist.empty())
+	{
+		Character* multichr = moblist.back();
+		if (multichr != chr)
+			move_character_to(multichr,house->x+def.minrx,house->y+def.maxry+1,house->z,MOVEITEM_FORCELOCATION, NULL);
+		moblist.pop_back();
+	}
+
 	house->editing = true;
 	house->editing_floor_num = 1;
-
 	CustomHousesSendFull(house, chr->client,HOUSE_DESIGN_WORKING);
 
 	return new BLong(1);

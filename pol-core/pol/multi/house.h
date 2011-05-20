@@ -21,6 +21,9 @@ class BStruct;
 class BObjectImp;
 class Realm;
 
+typedef list<Item*>         ItemList;
+typedef list<Character*>    MobileList;
+
 class UHouse : public UMulti
 {
     typedef UMulti base;
@@ -51,6 +54,9 @@ public:
 
 	void ClearSquatters();
 	void add_component(Item* item, s32 xoff, s32 yoff, u8 zoff);
+	static void list_contents( const UHouse* house,
+                    ItemList& items_in,
+                    MobileList& chrs_in );
 
 protected:
     explicit UHouse( const ItemDesc& itemdesc );
