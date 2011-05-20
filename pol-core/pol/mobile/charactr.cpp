@@ -3787,6 +3787,48 @@ bool Character::face( UFACING i_facing, int flags )
 }
 
 
+bool Character::CustomHousingMove(unsigned char i_dir)
+{
+	UMulti* multi = system_find_multi(client->gd->custom_house_serial);
+	if(multi != NULL)
+	{
+		UHouse* house = multi->as_house();
+		if(house != NULL)
+		{
+			UFACING i_facing = static_cast<UFACING>(i_dir & PKTIN_02_FACING_MASK);
+			if(i_facing != facing)
+			{
+				setfacing(static_cast<u8>(i_facing));
+				set_dirty();
+				dir = i_dir;
+				return true;
+			}
+			else
+			{
+				s8 newz = house->z + CustomHouseDesign::custom_house_z_xlate_table[house->editing_floor_num];
+				u16 newx = x + move_delta[ facing ].xmove;
+				u16 newy = y + move_delta[ facing ].ymove;
+				const MultiDef& def = house->multidef();
+				if (newx >  (house->x + def.minrx) &&
+					newx <= (house->x + def.maxrx) &&
+					newy >  (house->y + def.minry) &&
+					newy <= (house->y + def.maxry))
+				{
+					x = static_cast<u16>(newx);
+					y = static_cast<u16>(newy);
+					z = static_cast<s8>(newz);
+					MoveCharacterWorldPosition( lastx, lasty, x, y, this, NULL );
+
+					position_changed();
+					set_dirty();
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
 //************************************
 // Method:    move
 // FullName:  Character::move
@@ -3800,6 +3842,13 @@ bool Character::move( unsigned char i_dir )
 	lastx = x;
 	lasty = y;
 	lastz = z;
+
+	// if currently building a house chr can move free inside the multi
+	if (client != NULL)
+	{
+		if (client->gd->custom_house_serial != 0)
+			return CustomHousingMove(i_dir);
+	}
 
 	u8 oldFacing = facing;
 

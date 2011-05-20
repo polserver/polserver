@@ -485,6 +485,15 @@ void CustomHouseStopEditing(Character* chr, UHouse* house)
     move_character_to(chr,house->x+def.minrx,house->y+def.maxry+1,house->z,MOVEITEM_FORCELOCATION, NULL);
     chr->client->gd->custom_house_serial = 0;
     house->editing = false;
+	ItemList itemlist;
+	MobileList moblist;
+	UHouse::list_contents( house, itemlist, moblist );
+	while (!itemlist.empty())
+	{
+		Item* item = itemlist.front();
+		send_item( chr->client, item );
+		itemlist.pop_front();
+	}
 }
 
 void CustomHousesAdd(PKTBI_D7* msg)
@@ -616,9 +625,7 @@ void CustomHousesQuit(PKTBI_D7* msg)
     if(chr && chr->client)
     {
         CustomHouseStopEditing(chr,house);
-
-        if(chr && chr->client)
-            CustomHousesSendFull(house, chr->client,HOUSE_DESIGN_CURRENT);
+        CustomHousesSendFull(house, chr->client,HOUSE_DESIGN_CURRENT);
     }
 }
 
@@ -720,7 +727,7 @@ void CustomHousesCommit(PKTBI_D7* msg)
     house->CurrentCompressed.swap(newvec);
 
     CustomHouseStopEditing(chr,house);
-
+	
     //send full house, fixme: send to in range?
     CustomHousesSendFullToInRange(house, HOUSE_DESIGN_CURRENT, RANGE_VISUAL_LARGE_BUILDINGS);
 }
@@ -739,7 +746,12 @@ void CustomHousesSelectFloor(PKTBI_D7* msg)
 
     house->editing_floor_num = floor;
 
-    move_character_to(chr, chr->x, chr->y, house->z + CustomHouseDesign::custom_house_z_xlate_table[floor],MOVEITEM_FORCELOCATION, NULL);
+	if (chr)
+	{
+		move_character_to(chr, chr->x, chr->y, house->z + CustomHouseDesign::custom_house_z_xlate_table[floor],MOVEITEM_FORCELOCATION, NULL);
+		if(chr->client)
+			CustomHousesSendShort(house,chr->client);
+	}
 }
 
 void CustomHousesBackup(PKTBI_D7* msg)
