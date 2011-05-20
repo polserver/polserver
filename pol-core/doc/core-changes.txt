@@ -13,6 +13,9 @@
 			Doors and Teleporters are added to house components as normal items without any special treatment
 			so dont forget to add scripts/itemdesc entries
       Note: house.setcustom(1) is needed before SendHousingTool() works
+	  Note: during editing chr is only allowed to walk inside the house
+	        any item inside the house will be invisible for the chr
+			any other mobiles get moved outside the house
 
 05-04-2011 Turley:
      Fixed: Questarrow packet

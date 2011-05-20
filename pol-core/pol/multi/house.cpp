@@ -58,10 +58,8 @@ Notes
 
 #include "../objecthash.h"
 
-typedef list<Item*>         ItemList;
-typedef list<Character*>    MobileList;
 
-void list_contents( const UHouse* house,
+void UHouse::list_contents( const UHouse* house,
                     ItemList& items_in,
                     MobileList& chrs_in )
 {
@@ -792,28 +790,28 @@ BObjectImp* destroy_house( UHouse* house )
    
     house->destroy_components();
 
-    list<Item*> item_contents;
-    list<Character*> chr_contents;
-    list_contents( house, item_contents, chr_contents );
+    ItemList item_contents;
+    MobileList chr_contents;
+    UHouse::list_contents( house, item_contents, chr_contents );
 
     ConstForEach( clients, send_remove_object_if_inrange, static_cast<const Item*>(house) );
     remove_multi_from_world( house );
 
-    while (!item_contents.empty())
-    {
-        Item* item = item_contents.front();
-        move_to_ground( item );
+	while (!item_contents.empty())
+	{
+		Item* item = item_contents.front();
+		move_to_ground( item );
 
-        item_contents.pop_front();
-    }
+		item_contents.pop_front();
+	}
 
-    while (!chr_contents.empty())
-    {
-        Character* chr = chr_contents.back();
-        move_to_ground( chr );
+	while (!chr_contents.empty())
+	{
+		Character* chr = chr_contents.back();
+		move_to_ground( chr );
 		chr->registered_house = 0;
-        chr_contents.pop_back();
-    }
+		chr_contents.pop_back();
+	}
     
 	house->ClearSquatters();
 
