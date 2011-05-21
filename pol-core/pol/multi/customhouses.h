@@ -137,7 +137,7 @@ public:
     void testprint( std::ostream& os ) const;
 
 	void AddComponents( UHouse* house );
-	void FillComponents( UHouse* house );
+	void FillComponents( UHouse* house, bool add_as_component = true );
 	static void ClearComponents( UHouse* house );
 	ObjArray* list_parts() const;
 

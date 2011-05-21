@@ -110,7 +110,17 @@ void ClientGameData::clear()
         {
             UHouse* house = multi->as_house();
             if(house != NULL)
+			{
+				house->CurrentDesign.FillComponents(house);
+				house->WorkingDesign.FillComponents(house,false); // keep in sync
+				house->revision++;
+				vector<u8> newvec;
+				house->WorkingCompressed.swap(newvec);
+
+				vector<u8> newvec2;
+				house->CurrentCompressed.swap(newvec2);
                 house->editing = false;
+			}
         }
         custom_house_serial = 0;
     }
