@@ -1371,7 +1371,8 @@ BObjectImp* Character::get_script_member_id( const int id ) const
 			else
 				return new BError( "No client attached." );
 			break;
-
+		case MBR_EDITING:
+			return new BLong(is_house_editing() ? 1 : 0  ); break;
 		default:
 			return NULL;
 	}

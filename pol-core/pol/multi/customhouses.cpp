@@ -468,6 +468,118 @@ void CustomHouseDesign::testprint( ostream& os ) const
     }
 }
 
+void CustomHouseDesign::ClearComponents( UHouse* house )
+{
+	UHouse::Components* comp = house->get_components();
+	UHouse::Components::iterator itr = comp->begin();
+	while (itr != comp->end())
+	{
+		Item* item = (*itr).get();
+		if (item != NULL && !item->orphan())
+		{
+			if (!item->invisible()) //give scripters the chance to keep an item alive
+			{
+				itr = comp->erase(itr);
+				destroy_item(item);
+				continue;
+			}
+		}
+		++itr;
+	}
+}
+
+void CustomHouseDesign::AddComponents( UHouse* house )
+{
+	UHouse::Components* comp = house->get_components();
+	for( UHouse::Components::const_iterator itr = comp->begin(), end = comp->end(); itr != end; ++itr )
+	{
+		Item* item = (*itr).get();
+		if (item != NULL && !item->orphan())
+		{
+			if (!item->invisible()) //give scripters the chance to keep an item alive
+			{
+				CUSTOM_HOUSE_ELEMENT elem;
+				elem.graphic = item->graphic;
+				elem.xoffset = item->x - house->x;
+				elem.yoffset = item->y - house->y;
+				elem.z = item->z - house->z;
+				Add(elem);
+			}
+		}
+	}
+
+}
+void CustomHouseDesign::FillComponents( UHouse* house )
+{
+	for(int i=0; i<CUSTOM_HOUSE_NUM_PLANES; i++)
+	{
+		for(HouseFloor::iterator xitr = Elements[i].data.begin(),
+			xitrend = Elements[i].data.end(); 
+			xitr != xitrend; ++xitr)
+		{
+			for(HouseFloorRow::iterator yitr = xitr->begin(),
+				yitrend = xitr->end(); 
+				yitr != yitrend; ++yitr)
+			{
+				HouseFloorZColumn::iterator zitr = yitr->begin();
+				while( zitr != yitr->end() )
+				{
+					u16 t=zitr->graphic;
+					const ItemDesc& id = find_itemdesc( zitr->graphic );
+					if (id.type == ItemDesc::DOORDESC)
+					{
+						Item* component = Item::create( id.objtype );
+						if (component != NULL) 
+							house->add_component(component, zitr->xoffset, zitr->yoffset, zitr->z);
+						zitr = yitr->erase(zitr);
+						floor_sizes[i]--;
+					}
+					else if (zitr->graphic >= TELEPORTER_START && zitr->graphic <= TELEPORTER_END ) // teleporters
+					{
+						Item* component = Item::create( zitr->graphic );
+						if (component != NULL)
+							house->add_component(component, zitr->xoffset, zitr->yoffset, zitr->z);
+						zitr = yitr->erase(zitr);
+						floor_sizes[i]--;
+					}
+					else
+						++zitr;
+				}
+			}
+		}
+	}
+}
+
+ObjArray* CustomHouseDesign::list_parts() const
+{
+	auto_ptr<ObjArray> arr (new ObjArray);
+	for(int i=0; i<CUSTOM_HOUSE_NUM_PLANES; i++)
+	{
+		for( HouseFloor::const_iterator xitr = Elements[i].data.begin(),
+			xitrend = Elements[i].data.end(); 
+			xitr != xitrend; ++xitr)
+		{
+			for( HouseFloorRow::const_iterator yitr = xitr->begin(),
+				yitrend = xitr->end(); 
+				yitr != yitrend; ++yitr)
+			{
+				for( HouseFloorZColumn::const_iterator zitr = yitr->begin(),
+					zitrend = yitr->end(); 
+					zitr != zitrend; ++zitr)
+				{
+					auto_ptr<BStruct> itemstruct (new BStruct);
+					itemstruct->addMember("graphic",new BLong(zitr->graphic));
+					itemstruct->addMember("xoffset",new BLong(zitr->xoffset));
+					itemstruct->addMember("yoffset",new BLong(zitr->yoffset));
+					itemstruct->addMember("z",new BLong(zitr->z));
+					arr->addElement(itemstruct.release());
+				}
+			}
+		}
+	}
+	return arr.release();
+}
+
 void CustomHouseStopEditing(Character* chr, UHouse* house)
 {
 	PktOut_BF_Sub20* msg = REQUESTSUBPACKET(PktOut_BF_Sub20,PKTBI_BF_ID,PKTBI_BF::TYPE_ACTIVATE_CUSTOM_HOUSE_TOOL);
@@ -620,7 +732,9 @@ void CustomHousesQuit(PKTBI_D7* msg)
     UHouse* house = UHouse::FindWorkingHouse(serial);
     if(house == NULL)
         return;
+	house->CurrentDesign.FillComponents(house);
 	Character* chr = find_character(serial);
+
 
     if(chr && chr->client)
     {
@@ -638,84 +752,22 @@ void CustomHousesCommit(PKTBI_D7* msg)
         return;
 
     //remove dynamic bits (teleporters, doors)
-	for(int i=0; i<CUSTOM_HOUSE_NUM_PLANES; i++)
-	{
-		for(HouseFloor::iterator xitr = house->WorkingDesign.Elements[i].data.begin(),
-			                     xitrend = house->WorkingDesign.Elements[i].data.end(); 
-			                     xitr != xitrend; ++xitr)
-		{
-			for(HouseFloorRow::iterator yitr = xitr->begin(),
-				                        yitrend = xitr->end(); 
-										yitr != yitrend; ++yitr)
-			{
-				HouseFloorZColumn::iterator zitr = yitr->begin();
-				while( zitr != yitr->end() )
-				{
-					const ItemDesc& id = find_itemdesc( zitr->graphic );
-					if (id.type == ItemDesc::DOORDESC)
-					{
-						Item* component = Item::create( id.objtype );
-						if (component == NULL) 
-							continue;
-						house->add_component(component, zitr->xoffset, zitr->yoffset, zitr->z);
-						zitr = yitr->erase(zitr);
-						house->WorkingDesign.floor_sizes[i]--;
-					}
-					else if (zitr->graphic >= TELEPORTER_START && zitr->graphic <= TELEPORTER_END ) // teleporters
-					{
-						Item* component = Item::create( zitr->graphic );
-						if (component == NULL) 
-							continue;
-						house->add_component(component, zitr->xoffset, zitr->yoffset, zitr->z);
-						zitr = yitr->erase(zitr);
-						house->WorkingDesign.floor_sizes[i]--;
-					}
-					else
-						++zitr;
-				}
-			}
-		}
-	}
-
+	house->WorkingDesign.FillComponents(house);
+	
 	//call a script to do post processing (calc cost, yes/no confirm, consume cost, link teleporters)
 	if (system_hooks.customhouse_commit_hook != NULL)
 	{
-		auto_ptr<ObjArray> arr (new ObjArray);
-		for(int i=0; i<CUSTOM_HOUSE_NUM_PLANES; i++)
-		{
-			for( HouseFloor::const_iterator xitr = house->WorkingDesign.Elements[i].data.begin(),
-				                            xitrend = house->WorkingDesign.Elements[i].data.end(); 
-				                            xitr != xitrend; ++xitr)
-			{
-				for( HouseFloorRow::const_iterator yitr = xitr->begin(),
-					                               yitrend = xitr->end(); 
-					                               yitr != yitrend; ++yitr)
-				{
-					for( HouseFloorZColumn::const_iterator zitr = yitr->begin(),
-						                                   zitrend = yitr->end(); 
-						                                   zitr != zitrend; ++zitr)
-					{
-						auto_ptr<BStruct> itemstruct (new BStruct);
-						itemstruct->addMember("graphic",new BLong(zitr->graphic));
-						itemstruct->addMember("xoffset",new BLong(zitr->xoffset));
-						itemstruct->addMember("yoffset",new BLong(zitr->yoffset));
-						itemstruct->addMember("z",new BLong(zitr->z));
-						arr->addElement(itemstruct.release());
-					}
-				}
-			}
-		}
-
 		if (!system_hooks.customhouse_commit_hook->call(make_mobileref(chr),
 			                                            new EMultiRefObjImp(house),
-			                                            arr.release()))
+			                                            house->WorkingDesign.list_parts()))
 		{
+			house->WorkingDesign.AddComponents(house);
+			CustomHouseDesign::ClearComponents(house);
 			if(chr && chr->client)
 				CustomHousesSendFull(house, chr->client,HOUSE_DESIGN_WORKING);
 			return;
 		}
 	}
-    
 
     house->revision++;
 
@@ -728,7 +780,7 @@ void CustomHousesCommit(PKTBI_D7* msg)
 
     CustomHouseStopEditing(chr,house);
 	
-    //send full house, fixme: send to in range?
+    //send full house
     CustomHousesSendFullToInRange(house, HOUSE_DESIGN_CURRENT, RANGE_VISUAL_LARGE_BUILDINGS);
 }
 

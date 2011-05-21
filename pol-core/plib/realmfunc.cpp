@@ -424,7 +424,7 @@ bool Realm::walkheight( const Character* chr, unsigned short x, unsigned short y
         else
         {
             *pmulti = NULL;
-            if(chr->client && chr->client->gd->custom_house_serial != 0)
+            if(chr->is_house_editing())
             {
                 UMulti* multi = system_find_multi(chr->client->gd->custom_house_serial);
                 if(multi != NULL)

@@ -685,6 +685,11 @@ bool Character::has_active_gump() const
 	return (client && client->gd && !client->gd->gumpmods.empty());
 }
 
+bool Character::is_house_editing() const
+{
+	return (client && client->gd && client->gd->custom_house_serial!=0);
+}
+
 void Character::clear_gotten_item()
 {
 	if (gotten_item != NULL)
@@ -3844,11 +3849,8 @@ bool Character::move( unsigned char i_dir )
 	lastz = z;
 
 	// if currently building a house chr can move free inside the multi
-	if (client != NULL)
-	{
-		if (client->gd->custom_house_serial != 0)
-			return CustomHousingMove(i_dir);
-	}
+	if (is_house_editing())
+		return CustomHousingMove(i_dir);
 
 	u8 oldFacing = facing;
 

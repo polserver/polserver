@@ -172,11 +172,11 @@ void UHouse::add_component(Item* item, s32 xoff, s32 yoff, u8 zoff)
 ObjArray* UHouse::component_list() const
 {
     auto_ptr<ObjArray> arr (new ObjArray);
-    for( Components::const_iterator itr = components_.begin(), end = components_.end(); itr != end; ++itr )
-    {
-        Item* item = (*itr).get();
-        if (item != NULL && !item->orphan())
-        {
+	for( Components::const_iterator itr = components_.begin(), end = components_.end(); itr != end; ++itr )
+	{
+		Item* item = (*itr).get();
+		if (item != NULL && !item->orphan())
+		{
             arr->addElement( new EItemRefObjImp(item) );
         }
     }
@@ -231,7 +231,17 @@ BObjectImp* UHouse::get_script_member_id( const int id ) const ///id test
         case MBR_COMPONENTS: return component_list(); break;
         case MBR_ITEMS: return items_list(); break;
         case MBR_MOBILES: return mobiles_list(); break;
-		case MBR_CUSTOM: return new BLong(IsCustom());
+		case MBR_CUSTOM: return new BLong(IsCustom()); break;
+		case MBR_EDITING: return new BLong(IsEditing()); break;
+		case MBR_HOUSEPARTS: 
+			if (!IsCustom())
+				return new BError( "House is not custom" );
+			else if (IsEditing())
+				return new BError( "House is currently been edited" );
+			else
+				return CurrentDesign.list_parts();
+			break;
+			
         default: return NULL;
     }
 }
@@ -243,30 +253,6 @@ BObjectImp* UHouse::get_script_member( const char *membername ) const
 		return this->get_script_member_id(objmember->id);
 	else
 		return NULL;
-    /*
-	BObjectImp* imp = base::get_script_member( membername );
-    if (imp)
-        return imp;
-
-    if (stricmp( membername, "components" ) == 0)
-    {
-        return component_list();
-    }
-    else if (stricmp( membername, "items" ) == 0)
-    {
-        return items_list();
-    }
-    else if (stricmp( membername, "mobiles" ) == 0)
-    {
-        return mobiles_list();
-    }
-	else if (stricmp( membername, "custom" ) == 0)
-	{
-		return new BLong(IsCustom());
-	}
-
-    return NULL;
-	*/
 }
 
 BObjectImp* UHouse::script_method_id( const int id, Executor& ex )
@@ -275,19 +261,22 @@ BObjectImp* UHouse::script_method_id( const int id, Executor& ex )
     if (imp != NULL)
         return imp;
 
-	BApplicObjBase* aob = NULL;
-    switch(id)
-    {
-        case MTH_SETCUSTOM:
-            int _custom;
-            if (ex.getParam( 0, _custom ))
-            {
-                SetCustom( _custom ? true : false );
-                return new BLong(1);
-            }
-            else
-                return new BError( "Invalid parameter type" );
-		case MTH_ADD_COMPONENT:
+	switch(id)
+	{
+	case MTH_SETCUSTOM:
+		{
+			int _custom;
+			if (ex.getParam( 0, _custom ))
+			{
+				SetCustom( _custom ? true : false );
+				return new BLong(1);
+			}
+			else
+				return new BError( "Invalid parameter type" );
+		}
+	case MTH_ADD_COMPONENT:
+		{
+			BApplicObjBase* aob;
 			if(ex.hasParams( 0 ))
 				aob = ex.getApplicObjParam(0, &eitemrefobjimp_type);
 
@@ -300,8 +289,11 @@ BObjectImp* UHouse::script_method_id( const int id, Executor& ex )
 			}
 			else
 				return new BError( "Invalid parameter type" );
+		}
 
-		case MTH_ERASE_COMPONENT:
+	case MTH_ERASE_COMPONENT:
+		{
+			BApplicObjBase* aob;
 			if(ex.hasParams( 0 ))
 				aob = ex.getApplicObjParam(0, &eitemrefobjimp_type);
 
@@ -319,9 +311,73 @@ BObjectImp* UHouse::script_method_id( const int id, Executor& ex )
 			}
 			else
 				return new BError( "Invalid parameter type" );
+		}
+	case MTH_ADD_HOUSE_PART:
+		{
+			if (!IsCustom())
+				return new BError( "House is not custom" );
+			else if (IsEditing())
+				return new BError( "House is currently been edited" );
+			else if (!ex.hasParams(4))
+				return new BError( "Not enough parameters" );
+			int graphic, xoff, yoff, z;
+			if (ex.getParam( 0, graphic ) &&
+				ex.getParam( 1, xoff ) &&
+				ex.getParam( 2, yoff ) &&
+				ex.getParam( 3, z ))
+			{
+				CUSTOM_HOUSE_ELEMENT elem;
+				elem.graphic = graphic;
+				elem.xoffset = xoff;
+				elem.yoffset = yoff;
+				elem.z = z;
+				CurrentDesign.Add(elem);
+				//invalidate
+				//invalidate
+				WorkingDesign = CurrentDesign;
+				vector<u8> newvec;
+				WorkingCompressed.swap(newvec);
+				vector<u8> newvec2;
+				CurrentCompressed.swap(newvec2);
+				revision++;
+				CustomHousesSendFullToInRange(this, HOUSE_DESIGN_CURRENT, RANGE_VISUAL_LARGE_BUILDINGS);
+				return new BLong(1);
+			}
+		}
+	case MTH_ERASE_HOUSE_PART:
+		{
+			if (!IsCustom())
+				return new BError( "House is not custom" );
+			else if (IsEditing())
+				return new BError( "House is currently been edited" );
+			else if (!ex.hasParams(4))
+				return new BError( "Not enough parameters" );
+			int graphic, xoff, yoff, z;
+			if (ex.getParam( 0, graphic ) &&
+				ex.getParam( 1, xoff ) &&
+				ex.getParam( 2, yoff ) &&
+				ex.getParam( 3, z ))
+			{
+				bool ret = CurrentDesign.EraseGraphicAt(static_cast<u16>(graphic),
+					                                    static_cast<u32>(xoff),
+														static_cast<u32>(yoff),
+														static_cast<u8>(z));
+				if (ret)
+				{
+					//invalidate
+					WorkingDesign = CurrentDesign;
+					vector<u8> newvec;
+					WorkingCompressed.swap(newvec);
+					vector<u8> newvec2;
+					CurrentCompressed.swap(newvec2);
+					CustomHousesSendFullToInRange(this, HOUSE_DESIGN_CURRENT, RANGE_VISUAL_LARGE_BUILDINGS);
+				}
+				return new BLong(ret ? 1:0);
+			}
+		}
 
-        default: return NULL;
-    }
+	default: return NULL;
+	}
 }
 
 BObjectImp* UHouse::script_method( const char* methodname, Executor& ex )

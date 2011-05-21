@@ -135,6 +135,12 @@ public:
     static const char custom_house_z_xlate_table[CUSTOM_HOUSE_NUM_PLANES];
     //for testing
     void testprint( std::ostream& os ) const;
+
+	void AddComponents( UHouse* house );
+	void FillComponents( UHouse* house );
+	static void ClearComponents( UHouse* house );
+	ObjArray* list_parts() const;
+
 private:
     char z_to_custom_house_table(char z);
 };
