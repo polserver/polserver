@@ -524,7 +524,6 @@ void CustomHouseDesign::FillComponents( UHouse* house )
 				HouseFloorZColumn::iterator zitr = yitr->begin();
 				while( zitr != yitr->end() )
 				{
-					u16 t=zitr->graphic;
 					const ItemDesc& id = find_itemdesc( zitr->graphic );
 					if (id.type == ItemDesc::DOORDESC)
 					{
