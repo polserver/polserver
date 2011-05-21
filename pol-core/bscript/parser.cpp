@@ -437,7 +437,9 @@ ObjMember object_members[] = {
     { MBR_DEAFENED, "deafed", true},
 	{ MBR_CLIENT, "client", true },
 	{ MBR_TYPE, "type", true },
-	{ MBR_ATTRIBUTES, "attributes", true }
+	{ MBR_ATTRIBUTES, "attributes", true },
+	{ MBR_EDITING, "house_editing", true }, //185
+	{ MBR_HOUSEPARTS, "house_parts", true }
 };
 int n_objmembers = sizeof object_members / sizeof object_members[0];
 ObjMember* getKnownObjMember(const char* token)
@@ -590,7 +592,9 @@ ObjMethod object_methods[] = {
 	{ MTH_REMOVENODE, "removexmlnode" },
 	{ MTH_APPENDTEXT, "appendxmltext" },                  //130
 	{ MTH_XMLTOSTRING, "xmltostring" },
-	{ MTH_APPENDXMLCOMMENT, "appendxmlcomment" }
+	{ MTH_APPENDXMLCOMMENT, "appendxmlcomment" },
+	{ MTH_ADD_HOUSE_PART, "addhousepart" },
+	{ MTH_ERASE_HOUSE_PART, "erasehousepart" }
 
 };
 int n_objmethods = sizeof object_methods / sizeof object_methods[0];

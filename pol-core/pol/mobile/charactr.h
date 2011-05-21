@@ -299,6 +299,7 @@ public:
     bool has_active_client() const;
 	bool has_active_prompt() const;
 	bool has_active_gump() const;
+	bool is_house_editing() const;
 
     Spellbook* spellbook(u8 school) const;
     UContainer *backpack() const;
