@@ -509,7 +509,7 @@ void CustomHouseDesign::AddComponents( UHouse* house )
 	}
 
 }
-void CustomHouseDesign::FillComponents( UHouse* house )
+void CustomHouseDesign::FillComponents( UHouse* house, bool add_as_component )
 {
 	for(int i=0; i<CUSTOM_HOUSE_NUM_PLANES; i++)
 	{
@@ -527,17 +527,23 @@ void CustomHouseDesign::FillComponents( UHouse* house )
 					const ItemDesc& id = find_itemdesc( zitr->graphic );
 					if (id.type == ItemDesc::DOORDESC)
 					{
-						Item* component = Item::create( id.objtype );
-						if (component != NULL) 
-							house->add_component(component, zitr->xoffset, zitr->yoffset, zitr->z);
+						if (add_as_component)
+						{
+							Item* component = Item::create( id.objtype );
+							if (component != NULL) 
+								house->add_component(component, zitr->xoffset, zitr->yoffset, zitr->z);
+						}
 						zitr = yitr->erase(zitr);
 						floor_sizes[i]--;
 					}
 					else if (zitr->graphic >= TELEPORTER_START && zitr->graphic <= TELEPORTER_END ) // teleporters
 					{
-						Item* component = Item::create( zitr->graphic );
-						if (component != NULL)
-							house->add_component(component, zitr->xoffset, zitr->yoffset, zitr->z);
+						if (add_as_component)
+						{
+							Item* component = Item::create( zitr->graphic );
+							if (component != NULL)
+								house->add_component(component, zitr->xoffset, zitr->yoffset, zitr->z);
+						}
 						zitr = yitr->erase(zitr);
 						floor_sizes[i]--;
 					}
@@ -732,6 +738,13 @@ void CustomHousesQuit(PKTBI_D7* msg)
     if(house == NULL)
         return;
 	house->CurrentDesign.FillComponents(house);
+	house->WorkingDesign.FillComponents(house,false); // keep in sync
+	house->revision++;
+	vector<u8> newvec;
+	house->WorkingCompressed.swap(newvec);
+
+	vector<u8> newvec2;
+	house->CurrentCompressed.swap(newvec2);
 	Character* chr = find_character(serial);
 
 
