@@ -24,6 +24,7 @@ class Realm;
 typedef list<Item*>         ItemList;
 typedef list<Character*>    MobileList;
 
+
 class UHouse : public UMulti
 {
     typedef UMulti base;
@@ -42,7 +43,7 @@ public:
     void SetCustom(bool custom);
     void CustomHouseSetInitialState();
     static UHouse* FindWorkingHouse(u32 chrserial);
-
+	bool IsEditing() const { return editing; }
     bool editing;
     int editing_floor_num;
     u32 revision;
@@ -57,6 +58,7 @@ public:
 	static void list_contents( const UHouse* house,
                     ItemList& items_in,
                     MobileList& chrs_in );
+	
 
 protected:
     explicit UHouse( const ItemDesc& itemdesc );
@@ -75,16 +77,19 @@ protected:
     ObjArray* component_list() const;
     ObjArray* items_list() const;
     ObjArray* mobiles_list() const;
-    
+
     friend class UMulti;
+	friend class CustomHouseDesign;
+
+	typedef ItemRef Component;
+	typedef std::vector< Component > Components;
+	Components* get_components() { return &components_; }
     bool custom;
 private:
 	typedef UObjectRef Squatter;
 	typedef std::vector< Squatter > Squatters;
 	Squatters squatters_;
 
-    typedef ItemRef Component;
-    typedef std::vector< Component > Components;
     Components components_;
 };
 

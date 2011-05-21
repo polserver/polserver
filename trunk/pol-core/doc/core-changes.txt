@@ -12,10 +12,20 @@
 			and adding a signhanger/sign if you didnt added it during multifoundation buildup
 			Doors and Teleporters are added to house components as normal items without any special treatment
 			so dont forget to add scripts/itemdesc entries
+     Added: member multi.house_parts
+	        returns array of structs{graphic,xoffset,yoffset,z} or error if not a custom house, or currently been edited
+			to get the real coords from an elem add house.x/y
+	 Added: method multi.addhousepart(graphic,xoffset,yoffset,z) returns true or error
+	 Added: method multi.erasehousepart(graphic,xoffset,yoffset,z) returns true or error
+	 Added: members multi.house_editing / who.house_editing returns true if house is currently been edited / who is currently editing
       Note: house.setcustom(1) is needed before SendHousingTool() works
 	  Note: during editing chr is only allowed to walk inside the house
+	        all components which are not invisible get removed from component list during edit and added to design
+			(not invisible to give the chance to eg protect a house sign from been removed from the editing char)
 	        any item inside the house will be invisible for the chr
 			any other mobiles get moved outside the house
+	  Note: param houseelemarray in syshook is the current list of houseparts, 
+	        multi.house_parts gives you the last stored list
 
 05-04-2011 Turley:
      Fixed: Questarrow packet
