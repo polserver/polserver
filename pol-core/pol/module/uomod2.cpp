@@ -2239,6 +2239,9 @@ BObjectImp* UOExecutorModule::mf_SendHousingTool()
 	//chr->set_script_member("hidden",1);
 	//chr->set_script_member("frozen",1);
 	
+	house->WorkingDesign.AddComponents(house);
+	house->CurrentDesign.AddComponents(house);
+	CustomHouseDesign::ClearComponents(house);
 	ItemList itemlist;
 	MobileList moblist;
 	UHouse::list_contents( house, itemlist, moblist );
