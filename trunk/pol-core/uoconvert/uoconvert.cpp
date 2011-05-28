@@ -1043,7 +1043,7 @@ void write_multi( FILE* multis_cfg, unsigned id, FILE* multi_mul, unsigned int o
         type = "Stairs";
     else
     {
-        cerr << "Type " << hex << id << " not found in uoconvert.cfg, assuming \"House\" type." << endl;
+        cerr << "Type 0x" << hex << id << " not found in uoconvert.cfg, assuming \"House\" type." << endl;
         type = "House";
     }
 	mytype = type;

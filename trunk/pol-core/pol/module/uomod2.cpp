@@ -2219,6 +2219,9 @@ BObjectImp* UOExecutorModule::mf_SendHousingTool()
 	if(house->editing)
 		return new BError( "House currently being customized." );
 
+	if ( house->IsWaitingForAccept())
+		return new BError( "House currently being waiting for a commit" );
+
 	if( chr->realm->find_supporting_multi(chr->x,chr->y,chr->z) != house )
 		return new BError( "You must be inside the house to customize it." );
 
