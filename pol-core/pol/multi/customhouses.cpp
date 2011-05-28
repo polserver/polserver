@@ -53,6 +53,7 @@ tool. Should suffice.
 #include "../item/itemdesc.h"
 #include "../syshook.h"
 #include "../mkscrobj.h"
+#include "../scrsched.h"
 
 //bytes per tile - currently only mode 0 works, meaning we send u16 graphic, s8 x,y,z offsets
 #define BYTES_PER_TILE 5
@@ -760,40 +761,24 @@ void CustomHousesCommit(PKTBI_D7* msg)
     u32 serial = cfBEu32(msg->serial);
     UHouse* house = UHouse::FindWorkingHouse(serial);
     Character* chr = find_character(serial);
-    if(house == NULL)
+    if(house == NULL || chr == NULL)
         return;
 
     //remove dynamic bits (teleporters, doors)
 	house->WorkingDesign.FillComponents(house);
 	
 	//call a script to do post processing (calc cost, yes/no confirm, consume cost, link teleporters)
-	if (system_hooks.customhouse_commit_hook != NULL)
+	ScriptDef sd;
+	if (sd.config_nodie( "scripts/misc/customhousecommit.ecl", 0, 0 ))
 	{
-		if (!system_hooks.customhouse_commit_hook->call(make_mobileref(chr),
-			                                            new EMultiRefObjImp(house),
-			                                            house->WorkingDesign.list_parts()))
+		if ( sd.exists() )
 		{
-			house->WorkingDesign.AddComponents(house);
-			CustomHouseDesign::ClearComponents(house);
-			if(chr && chr->client)
-				CustomHousesSendFull(house, chr->client,HOUSE_DESIGN_WORKING);
-			return;
+			house->waiting_for_accept = true;
+			if ( start_script( sd, make_mobileref(chr), new EMultiRefObjImp(house),house->WorkingDesign.list_parts() ) != NULL )
+				return;
 		}
 	}
-
-    house->revision++;
-
-    //commit working design to current design
-    house->CurrentDesign = house->WorkingDesign;
-
-    //invalidate old packet
-    vector<u8> newvec;
-    house->CurrentCompressed.swap(newvec);
-
-    CustomHouseStopEditing(chr,house);
-	
-    //send full house
-    CustomHousesSendFullToInRange(house, HOUSE_DESIGN_CURRENT, RANGE_VISUAL_LARGE_BUILDINGS);
+	house->AcceptHouseCommit(chr,true);
 }
 
 void CustomHousesSelectFloor(PKTBI_D7* msg)

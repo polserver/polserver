@@ -594,7 +594,8 @@ ObjMethod object_methods[] = {
 	{ MTH_XMLTOSTRING, "xmltostring" },
 	{ MTH_APPENDXMLCOMMENT, "appendxmlcomment" },
 	{ MTH_ADD_HOUSE_PART, "addhousepart" },
-	{ MTH_ERASE_HOUSE_PART, "erasehousepart" }
+	{ MTH_ERASE_HOUSE_PART, "erasehousepart" },
+	{ MTH_ACCEPT_COMMIT, "acceptcommit"	}                 //135
 
 };
 int n_objmethods = sizeof object_methods / sizeof object_methods[0];
