@@ -44,7 +44,9 @@ public:
     void CustomHouseSetInitialState();
     static UHouse* FindWorkingHouse(u32 chrserial);
 	bool IsEditing() const { return editing; }
+	bool IsWaitingForAccept() const { return waiting_for_accept; }
     bool editing;
+	bool waiting_for_accept;
     int editing_floor_num;
     u32 revision;
 
@@ -58,6 +60,7 @@ public:
 	static void list_contents( const UHouse* house,
                     ItemList& items_in,
                     MobileList& chrs_in );
+	void AcceptHouseCommit(Character* chr, bool accept);
 	
 
 protected:
