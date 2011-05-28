@@ -126,6 +126,7 @@ void UHouse::list_contents( const UHouse* house,
 
 UHouse::UHouse( const ItemDesc& itemdesc ) : UMulti( itemdesc ),
 editing(false),
+waiting_for_accept(false),
 editing_floor_num(1),
 revision(0),
 custom(false)
@@ -374,6 +375,27 @@ BObjectImp* UHouse::script_method_id( const int id, Executor& ex )
 				}
 				return new BLong(ret ? 1:0);
 			}
+		}
+	case MTH_ACCEPT_COMMIT:
+		{
+			if (!IsCustom())
+				return new BError( "House is not custom" );
+			else if (!IsEditing())
+				return new BError( "House is currently not been edited" );
+			else if (!IsWaitingForAccept())
+				return new BError( "House is currently not waiting for a commit" );
+			else if (!ex.hasParams(2))
+				return new BError( "Not enough parameters" );
+			int accept;
+			Character* chr;
+			if (ex.getParam( 0, accept ) &&
+				getCharacterParam( ex, 0, chr ))
+			{
+				AcceptHouseCommit( chr, accept ? true : false );
+				return new BLong(1);
+			}
+			else
+				return new BError( "Invalid parameter type" );
 		}
 
 	default: return NULL;
@@ -932,5 +954,33 @@ void UHouse::walk_on( Character* chr )
 				schedule_executor( ex.release() );
 			}
 		}
+	}
+}
+
+void UHouse::AcceptHouseCommit(Character* chr, bool accept)
+{
+	waiting_for_accept = false;
+	if (accept)
+	{
+		revision++;
+
+		//commit working design to current design
+		CurrentDesign = WorkingDesign;
+
+		//invalidate old packet
+		vector<u8> newvec;
+		CurrentCompressed.swap(newvec);
+
+		CustomHouseStopEditing(chr,this);
+
+		//send full house
+		CustomHousesSendFullToInRange(this, HOUSE_DESIGN_CURRENT, RANGE_VISUAL_LARGE_BUILDINGS);
+	}
+	else
+	{
+		WorkingDesign.AddComponents(this);
+		CustomHouseDesign::ClearComponents(this);
+		if(chr && chr->client)
+			CustomHousesSendFull(this, chr->client,HOUSE_DESIGN_WORKING);
 	}
 }

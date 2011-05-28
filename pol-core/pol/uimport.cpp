@@ -26,6 +26,7 @@ Notes
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/endian.h"
+#include "../clib/esignal.h"
 #include "../clib/fileutil.h"
 #include "../clib/logfile.h"
 #include "../clib/progver.h"
@@ -1230,7 +1231,18 @@ void write_multis( ostream& ofs )
 				for( ZoneMultis::iterator itr = wmulti.begin(), end = wmulti.end(); itr != end; ++itr )
 				{
 					UMulti* multi = *itr;
-
+					if (exit_signalled) // drop waiting commit on shutdown
+					{
+						UHouse* house = multi->as_house();
+						if(house != NULL)
+						{
+							if (house->IsCustom())
+							{
+								if (house->IsWaitingForAccept())
+									house->AcceptHouseCommit(NULL,false);
+							}
+						}
+					}
 					ofs << *multi;
 					multi->clear_dirty();
 				}

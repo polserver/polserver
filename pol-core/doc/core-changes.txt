@@ -2,11 +2,12 @@
 05-19-2011 Turley:
      Added: CustomHousing Support (beta)
 	        officially added uo::SendHousingTool( who, house );
-	 Added: syshook CustomHouseCommit( who, house, houseelemarray )
+	 Added: script call of "scripts/misc/customhousecommit.ecl" on commit (noncritical)
+	        params: ( who, house, houseelemarray )
 			houseelem = struct{graphic,xoffset,yoffset,z}
 			to get the real coords from an elem add house.x/y
 			called after client presses the commit button
-			return 1 to accept the commit
+			to accept the changes call new method house.acceptcommit(1) or house.acceptcommit(0) to drop the commit 
 			main purpose should be calculation of cost (with delta support for later changes),
 			link establishing of houseteleporters (0x181D - 0x1828)
 			and adding a signhanger/sign if you didnt added it during multifoundation buildup
@@ -24,8 +25,9 @@
 			(not invisible to give the chance to eg protect a house sign from been removed from the editing char)
 	        any item inside the house will be invisible for the chr
 			any other mobiles get moved outside the house
-	  Note: param houseelemarray in syshook is the current list of houseparts, 
+	  Note: param houseelemarray in script call is the current list of houseparts, 
 	        multi.house_parts gives you the last stored list
+	  Note: until no house.acceptcommit() is called and start of commitscript no new SendHousingTool() for this house is allowed
 
 05-04-2011 Turley:
      Fixed: Questarrow packet
