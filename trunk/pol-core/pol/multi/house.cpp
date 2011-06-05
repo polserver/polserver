@@ -380,15 +380,15 @@ BObjectImp* UHouse::script_method_id( const int id, Executor& ex )
 		{
 			if (!IsCustom())
 				return new BError( "House is not custom" );
-			else if (!IsEditing())
-				return new BError( "House is currently not been edited" );
+			//else if (!IsEditing())
+			//	return new BError( "House is currently not been edited" );
 			else if (!IsWaitingForAccept())
 				return new BError( "House is currently not waiting for a commit" );
 			else if (!ex.hasParams(2))
 				return new BError( "Not enough parameters" );
 			int accept;
 			Character* chr;
-			if (ex.getParam( 0, accept ) &&
+			if (ex.getParam( 1, accept ) &&
 				getCharacterParam( ex, 0, chr ))
 			{
 				AcceptHouseCommit( chr, accept ? true : false );
