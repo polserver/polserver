@@ -7,7 +7,7 @@
 			houseelem = struct{graphic,xoffset,yoffset,z}
 			to get the real coords from an elem add house.x/y
 			called after client presses the commit button
-			to accept the changes call new method house.acceptcommit(1) or house.acceptcommit(0) to drop the commit 
+			to accept the changes call new method house.acceptcommit(chr,1) or house.acceptcommit(chr,0) to drop the commit 
 			main purpose should be calculation of cost (with delta support for later changes),
 			link establishing of houseteleporters (0x181D - 0x1828)
 			and adding a signhanger/sign if you didnt added it during multifoundation buildup
