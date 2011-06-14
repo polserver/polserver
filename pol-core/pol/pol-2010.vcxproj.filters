@@ -653,6 +653,9 @@
     <ClCompile Include="item\weapon.cpp">
       <Filter>item</Filter>
     </ClCompile>
+    <ClCompile Include="network\clienttransmit.cpp">
+      <Filter>network</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="action.h">
@@ -1257,6 +1260,9 @@
     </ClInclude>
     <ClInclude Include="item\wepntmpl.h">
       <Filter>item</Filter>
+    </ClInclude>
+    <ClInclude Include="network\clienttransmit.h">
+      <Filter>network</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

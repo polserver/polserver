@@ -19,6 +19,7 @@ Notes
 #include "mobile/charactr.h"
 #include "network/client.h"
 #include "network/packets.h"
+#include "network/clienttransmit.h"
 #include "sockio.h"
 #include "pktboth.h"
 #include "ufunc.h"
@@ -203,7 +204,7 @@ void send_stat_locks (Client *client, Character *chr) {
 	msg->offset++; //unk
 	msg->Write(lockbit);
 
-	client->transmit(&msg->buffer, msg->offset);
+	ADDTOSENDQUEUE(client,&msg->buffer, msg->offset);
 	READDPACKET(msg);
 }
 

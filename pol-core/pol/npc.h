@@ -39,7 +39,7 @@ class NPC : public Character
 {
     typedef Character base;
 public:
-	explicit NPC( u16 objtype, const ConfigElem& elem );
+	explicit NPC( u32 objtype, const ConfigElem& elem );
 
     virtual void on_death( Item* corpse );
     virtual void on_give_item();

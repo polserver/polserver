@@ -96,8 +96,6 @@ bool CustomHouseDesign::DeleteStairs( u16 id, s32 x, s32 y, s8 z )
 
 	if ( IsStairBlock( id ) )
 	{
-        int xidx = x + xoff;
-        int yidx = y + yoff;
         for( HouseFloorZColumn::iterator itr = Elements[floor_num].data.at(xidx).at(yidx).begin(),
 			                             itrend = Elements[floor_num].data.at(xidx).at(yidx).end();
 										 itr != itrend; ++itr)

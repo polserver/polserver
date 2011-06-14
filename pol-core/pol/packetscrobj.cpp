@@ -28,6 +28,7 @@ Notes
 
 #include "mobile/charactr.h"
 #include "network/client.h"
+#include "network/clienttransmit.h"
 #include "packetscrobj.h"
 #include "polsem.h"
 #include "realms.h"
@@ -102,7 +103,7 @@ BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool forcebuilt
 				{
 					if(chr->has_active_client())
 					{
-						chr->client->transmit((void*)(&buffer[0]),buffer.size());
+						ADDTOSENDQUEUE(chr->client,(void*)(&buffer[0]),buffer.size());
 						return new BLong( 1 );
 					}
 					else
@@ -112,7 +113,7 @@ BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool forcebuilt
 				{
 					if (!client->disconnect)
 					{
-						client->transmit((void*)(&buffer[0]),buffer.size());
+						ADDTOSENDQUEUE(client,(void*)(&buffer[0]),buffer.size());
 						return new BLong( 1 );
 					}
 					else
@@ -147,7 +148,7 @@ BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool forcebuilt
                         continue;
                     if( (client->chr->realm == realm) && inrangex( client->chr, x, y, range ))
                     {
-                        client->transmit( (void*)(&buffer[0]),buffer.size() );
+                        ADDTOSENDQUEUE(client, (void*)(&buffer[0]),buffer.size() );
                         num_sent_to++;
                     }
                 }

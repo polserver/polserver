@@ -87,23 +87,23 @@ public:
 
 	Item* find( u32 serial ) const;
     Item* find_toplevel( u32 serial ) const;
-	Item* find_toplevel_objtype( u16 objtype ) const;
-    Item* find_toplevel_objtype( u16 objtype, unsigned short maxamount ) const;
+	Item* find_toplevel_objtype( u32 objtype ) const;
+    Item* find_toplevel_objtype( u32 objtype, unsigned short maxamount ) const;
 	Item* find_toplevel_polclass( unsigned int polclass ) const;
     Item* find_addable_stack( const Item* adding_item ) const;
 
-	Item* find_toplevel_objtype_noninuse( u16 objtype ) const;
-    Item* find_toplevel_objtype_noninuse( u16 objtype, unsigned short maxamount ) const;
-    Item* find_objtype_noninuse( u16 objtype ) const;
+	Item* find_toplevel_objtype_noninuse( u32 objtype ) const;
+    Item* find_toplevel_objtype_noninuse( u32 objtype, unsigned short maxamount ) const;
+    Item* find_objtype_noninuse( u32 objtype ) const;
 
 	virtual void for_each_item( void (*f)(Item* item, void* a), void* arg );
 
     virtual bool script_isa( unsigned isatype ) const;
     
     
-    unsigned int find_sumof_objtype_noninuse( u16 objtype ) const;
-	unsigned int find_sumof_objtype_noninuse( u16 objtype, u32 amtToGet, Contents& saveItemsTo, int flags ) const;
-	void consume_sumof_objtype_noninuse( u16 objtype, unsigned int amount );
+    unsigned int find_sumof_objtype_noninuse( u32 objtype ) const;
+	unsigned int find_sumof_objtype_noninuse( u32 objtype, u32 amtToGet, Contents& saveItemsTo, int flags ) const;
+	void consume_sumof_objtype_noninuse( u32 objtype, unsigned int amount );
 
 	UContainer* find_container( u32 serial ) const;
 
@@ -173,7 +173,7 @@ protected:
 protected:
 	explicit UContainer( const ContainerDesc& descriptor );
 	//DAVE added this 11/17 so WornItemsContainer could pass up its class to UObject constructor
-	UContainer(u16 objtype, UOBJ_CLASS pol_class);
+	UContainer(u32 objtype, UOBJ_CLASS pol_class);
     // uses Item::classname()
     virtual void printOn( std::ostream& os ) const;
     virtual void printSelfOn( std::ostream& os ) const;

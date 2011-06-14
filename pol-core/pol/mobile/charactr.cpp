@@ -466,7 +466,7 @@ private:
     }
 };
 
-Character::Character( u16 objtype, UOBJ_CLASS uobj_class ) :
+Character::Character( u32 objtype, UOBJ_CLASS uobj_class ) :
 	UObject( objtype, uobj_class ),
 	warmode_wait(0),
 	trading_with(NULL),

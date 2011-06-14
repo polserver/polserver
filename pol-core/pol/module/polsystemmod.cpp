@@ -339,7 +339,7 @@ BObjectImp* PolSystemExecutorModule::mf_SetSysTrayPopupText()
 
 BObjectImp* PolSystemExecutorModule::mf_GetItemDescriptor()
 {
-	unsigned short objtype;
+	unsigned int objtype;
 	if (getObjtypeParam( exec, 0, objtype ))
 	{
 		const ItemDesc& id = find_itemdesc( objtype );

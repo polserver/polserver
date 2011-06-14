@@ -50,6 +50,7 @@ FIXME: Does STW use slots with KR or newest 2d? If so, we must do slot checks th
 #include "multi/boat.h"
 #include "network/client.h"
 #include "network/packets.h"
+#include "network/clienttransmit.h"
 #include "npc.h"
 #include "objtype.h"
 #include "pktboth.h"
@@ -514,7 +515,7 @@ bool do_open_trade_window( Client* client, Item* item, Character* dropon )
 	msg->Write(static_cast<u8>(1));
 	msg->Write(dropon->name().c_str(),30,false);
 
-	client->transmit( &msg->buffer, msg->offset );
+	ADDTOSENDQUEUE(client, &msg->buffer, msg->offset );
 
 	msg->offset=4;
 	msg->Write(client->chr->serial_ext);
@@ -522,7 +523,7 @@ bool do_open_trade_window( Client* client, Item* item, Character* dropon )
 	msg->Write(client->chr->trade_container()->serial_ext);
 	msg->offset++; // u8 havename same as above
 	msg->Write(client->chr->name().c_str(),30,false);
-    dropon->client->transmit( &msg->buffer, msg->offset );
+    ADDTOSENDQUEUE(dropon->client, &msg->buffer, msg->offset );
 	READDPACKET(msg);
     
     if (item != NULL)
@@ -829,7 +830,7 @@ void drop_item_v2( Client *client, PKTIN_08_V2 *msg )
     }
 
 	PktOut_29* drop_msg = REQUESTPACKET(PktOut_29,PKTOUT_29_ID);
-	client->transmit(&drop_msg->buffer, drop_msg->offset);
+	ADDTOSENDQUEUE(client,&drop_msg->buffer, drop_msg->offset);
 	READDPACKET(drop_msg);
 
 	send_full_statmsg( client, client->chr );

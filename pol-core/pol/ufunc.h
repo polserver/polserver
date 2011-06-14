@@ -121,7 +121,7 @@ void send_light( Client *client, int lightlevel );
 void send_weather( Client *client, unsigned char type, unsigned char severity, unsigned char aux );
 void send_mode( Client *client );
 void send_item_move_failure( Client *client, u8 reason );
-u16 convert_objtype_to_spellnum( u16 objtype, int school );
+u16 convert_objtype_to_spellnum( u32 objtype, int school );
 
 void send_stamina_level( Client *client );
 void send_mana_level( Client *client );

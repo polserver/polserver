@@ -38,7 +38,7 @@ Item* test_chest1;
 Item* test_chest2;
 NPC* test_orclord;
 
-Item* add_item( unsigned short objtype, unsigned short x, unsigned short y, short z )
+Item* add_item( unsigned int objtype, unsigned short x, unsigned short y, short z )
 {
     Item* item;
     item = Item::create( objtype );
@@ -51,7 +51,7 @@ Item* add_item( unsigned short objtype, unsigned short x, unsigned short y, shor
     return item;
 }
 
-void add_multi( unsigned short objtype, unsigned short x, unsigned short y, short z )
+void add_multi( unsigned int objtype, unsigned short x, unsigned short y, short z )
 {
     UMulti* multi = UMulti::create( find_itemdesc(objtype) );
     passert(multi);
@@ -61,7 +61,7 @@ void add_multi( unsigned short objtype, unsigned short x, unsigned short y, shor
 	multi->realm = find_realm(string("britannia"));
     add_multi_to_world( multi );
 }
-void add_multi( unsigned short objtype, unsigned short x, unsigned short y, short z, int flags )
+void add_multi( unsigned int objtype, unsigned short x, unsigned short y, short z, int flags )
 {
 	Realm* realm = find_realm(string("britannia"));
     BObject obj( UMulti::scripted_create( find_itemdesc(objtype), x, y, static_cast<s8>(z), realm, flags ) );

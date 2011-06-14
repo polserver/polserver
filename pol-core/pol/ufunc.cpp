@@ -56,6 +56,7 @@ Notes
 #include "mobile/charactr.h"
 #include "network/client.h"
 #include "network/packets.h"
+#include "network/clienttransmit.h"
 #include "item/equipmnt.h"
 #include "fnsearch.h"
 #include "layers.h"
@@ -722,7 +723,7 @@ void send_put_in_container_to_inrange( const Item *item )
 					slot_buffer->Write(item->container->serial_ext);
 					slot_buffer->Write(item->color_ext);
                 }
-				client2->transmit(&slot_buffer->buffer, slot_buffer->offset);
+				ADDTOSENDQUEUE(client2,&slot_buffer->buffer, slot_buffer->offset);
 			}
 			else
 			{
@@ -737,7 +738,7 @@ void send_put_in_container_to_inrange( const Item *item )
 					legacy_buffer->Write(item->container->serial_ext);
 					legacy_buffer->Write(item->color_ext);
                 }
-				client2->transmit(&legacy_buffer->buffer, legacy_buffer->offset);
+				ADDTOSENDQUEUE(client2,&legacy_buffer->buffer, legacy_buffer->offset);
 			}
 			if(client2->UOExpansionFlag & AOS)
 			{
@@ -1264,7 +1265,7 @@ void play_sound_effect_private( const UObject *center, u16 effect, Character* fo
 		msg->offset+=2;
 		//msg->WriteFlipped(z);
 
-        forchr->client->transmit( &msg->buffer, msg->offset );
+        ADDTOSENDQUEUE(forchr->client, &msg->buffer, msg->offset );
 		READDPACKET(msg);
     }
 }
@@ -1409,7 +1410,7 @@ void play_stationary_effect( u16 x, u16 y, u8 z, u16 effect, u8 speed, u8 loop, 
 		if( client->chr->realm != realm )
 			continue;
         if (inrange( client->chr->x, client->chr->y, x, y ))
-            client->transmit( &msg->buffer, msg->offset );
+            ADDTOSENDQUEUE(client, &msg->buffer, msg->offset );
     }
 	READDPACKET(msg);
 }
@@ -1433,7 +1434,7 @@ void play_stationary_effect_ex( u16 x, u16 y, u8 z, Realm* realm, u16 effect, u8
 		if( client->chr->realm != realm )
 			continue;
         if (inrange( client->chr->x, client->chr->y, x, y ))
-            client->transmit( &msg->buffer, msg->offset );
+            ADDTOSENDQUEUE(client, &msg->buffer, msg->offset );
     }
 	READDPACKET(msg);
 }
@@ -1778,7 +1779,7 @@ bool private_say_above( Character* chr,
 	u16 len=msg->offset;
 	msg->offset=1;
 	msg->WriteFlipped(len);
-	chr->client->transmit( &msg->buffer, len );
+	ADDTOSENDQUEUE(chr->client, &msg->buffer, len );
 	READDPACKET(msg);
 	return true;
 }
@@ -1822,7 +1823,7 @@ bool private_say_above( Character* chr,
 	u16 len=msg->offset;
 	msg->offset=1;
 	msg->WriteFlipped(len);
-	chr->client->transmit( &msg->buffer, len );
+	ADDTOSENDQUEUE(chr->client,&msg->buffer, len );
 	READDPACKET(msg);
 	return true;
 }
@@ -1850,7 +1851,7 @@ bool private_say_above_ex( Character* chr,
 	u16 len=msg->offset;
 	msg->offset=1;
 	msg->WriteFlipped(len);
-	chr->client->transmit( &msg->buffer, len );
+	ADDTOSENDQUEUE(chr->client, &msg->buffer, len );
 	READDPACKET(msg);
 	return true;
 }
@@ -1976,7 +1977,7 @@ void transmit_to_inrange( const UObject* center, const void* msg, unsigned msgle
 		}
 		if (inrange( client->chr, center ))
 		{
-            client->transmit( msg, msglen );
+            ADDTOSENDQUEUE(client, msg, msglen );
 		}
 	}
 }
@@ -2009,7 +2010,7 @@ void transmit_to_others_inrange( Character* center, const void* msg, unsigned ms
 		}
 		if (inrange( client->chr, center ))
 		{
-			client->transmit( msg, msglen );
+			ADDTOSENDQUEUE(client, msg, msglen );
 		}
 	}
 }
@@ -2233,11 +2234,11 @@ void move_boat_item( Item* item, unsigned short newx, unsigned short newy, signe
         if (inrange( client->chr, item ))
         {
 			if (client->ClientType & CLIENTTYPE_7090)
-				client->transmit( &msg3->buffer, msg3->offset );
+				ADDTOSENDQUEUE(client, &msg3->buffer, msg3->offset );
 			else if (client->ClientType & CLIENTTYPE_7000)
-				client->transmit( &msg2->buffer, msg2->offset );
+				ADDTOSENDQUEUE(client,&msg2->buffer, msg2->offset );
 			else
-				client->transmit( &msg->buffer, len1A );
+				ADDTOSENDQUEUE(client, &msg->buffer, len1A );
         }
         else // not in range.  If old loc was in range, send a delete.
         {
@@ -2273,7 +2274,7 @@ void send_multi( Client* client, const UMulti* multi )
 		msg->offset+=4; // u8 layer, u16 color, u8 flags
 		if (client->ClientType & CLIENTTYPE_7090)
 			msg->offset+=2;
-		client->transmit( &msg->buffer, msg->offset );
+		ADDTOSENDQUEUE(client, &msg->buffer, msg->offset );
 		READDPACKET(msg);
 	}
 	else
@@ -2281,14 +2282,15 @@ void send_multi( Client* client, const UMulti* multi )
 		PktOut_1A* msg = REQUESTPACKET(PktOut_1A,PKTOUT_1A_ID);
 		msg->offset+=2;
 		msg->Write(multi->serial_ext);
-		msg->Write(multi->graphic_ext);
+		u16 graphic= multi->graphic | 0x4000;
+		msg->WriteFlipped(graphic);
 		msg->WriteFlipped(multi->x);
 		msg->WriteFlipped(multi->y);
 		msg->Write(multi->z);
 		u16 len=msg->offset;
 		msg->offset=1;
 		msg->WriteFlipped(len);
-		client->transmit( &msg->buffer, len );
+		ADDTOSENDQUEUE(client, &msg->buffer, len );
 		READDPACKET(msg);
 	}
 }
@@ -2512,7 +2514,7 @@ void send_midi( Client* client, u16 midi )
 {
 	PktOut_6D* msg = REQUESTPACKET(PktOut_6D,PKTOUT_6D_ID);
 	msg->WriteFlipped(midi);
-	client->transmit( &msg->buffer, msg->offset );
+	ADDTOSENDQUEUE(client, &msg->buffer, msg->offset );
 	READDPACKET(msg);
     // cout << "Setting midi for " << client->chr->name() << " to " << midi << endl;
 }
@@ -2595,7 +2597,7 @@ bool clientHasCharacter(Client* c)
 void login_complete(Client* c)
 {
 	PktOut_55* msg = REQUESTPACKET(PktOut_55,PKTOUT_55_ID);
-	c->transmit(&msg->buffer, msg->offset);
+	ADDTOSENDQUEUE(c,&msg->buffer, msg->offset);
 	READDPACKET(msg);
 }
 
@@ -2660,7 +2662,7 @@ void send_feature_enable(Client* client)
 		msg->WriteFlipped(clientflag);
 	else
 		msg->WriteFlipped(static_cast<u16>(clientflag));
-	client->transmit(&msg->buffer, msg->offset);
+	ADDTOSENDQUEUE(client,&msg->buffer, msg->offset);
 	READDPACKET(msg);
 }
 
@@ -2670,7 +2672,7 @@ void send_realm_change( Client* client, Realm* realm )
 	msg->WriteFlipped(static_cast<u16>(6));
 	msg->offset+=2; //sub
 	msg->Write(static_cast<u8>(realm->getUOMapID()));
-	client->transmit(&msg->buffer, msg->offset);
+	ADDTOSENDQUEUE(client,&msg->buffer, msg->offset);
 	READDPACKET(msg);
 }
 
@@ -2687,7 +2689,7 @@ void send_map_difs( Client* client )
 	u16 len=msg->offset;
 	msg->offset=1;
 	msg->WriteFlipped(len);
-	client->transmit( &msg->buffer, len);
+	ADDTOSENDQUEUE(client, &msg->buffer, len);
 	READDPACKET(msg);
 }
 
@@ -2700,7 +2702,7 @@ void send_season_info( Client* client )
 		PktOut_BC* msg = REQUESTPACKET(PktOut_BC,PKTOUT_BC_ID);
 		msg->Write(static_cast<u8>(client->chr->realm->season()));
 		msg->Write(static_cast<u8>(PKTOUT_BC::PLAYSOUND_YES));
-		client->transmit( &msg->buffer, msg->offset );
+		ADDTOSENDQUEUE(client, &msg->buffer, msg->offset );
 		READDPACKET(msg);
 
 		// Sending Season info resets light level in client, this fixes it during login
@@ -2723,7 +2725,7 @@ void send_new_subserver( Client* client )
 	msg->offset+=5; //unk0,x1,y2
 	msg->WriteFlipped(client->chr->realm->width());
 	msg->WriteFlipped(client->chr->realm->height());
-	client->transmit( &msg->buffer, msg->offset );
+	ADDTOSENDQUEUE(client, &msg->buffer, msg->offset );
 	READDPACKET(msg);
 }
 
@@ -2733,7 +2735,7 @@ void send_fight_occuring( Client* client, Character* opponent )
 	msg->offset++; //zero1
 	msg->Write(client->chr->serial_ext);
 	msg->Write(opponent->serial_ext);
-	client->transmit( &msg->buffer, msg->offset );
+	ADDTOSENDQUEUE(client, &msg->buffer, msg->offset );
 	READDPACKET(msg);
 }
 
@@ -2760,7 +2762,7 @@ void send_damage_new(Client* client, Character* defender, u16 damage)
 	PktOut_0B* msg = REQUESTPACKET(PktOut_0B,PKTOUT_0B_ID);
 	msg->Write(defender->serial_ext);
 	msg->WriteFlipped(damage);
-    client->transmit( &msg->buffer, msg->offset );
+    ADDTOSENDQUEUE(client, &msg->buffer, msg->offset );
 	READDPACKET(msg);
 }
 
@@ -2775,7 +2777,7 @@ void send_damage_old(Client* client, Character* defender, u16 damage)
         msg->Write(static_cast<u8>(0xFF));
     else
         msg->Write(static_cast<u8>(damage));
-    client->transmit( &msg->buffer, msg->offset );
+    ADDTOSENDQUEUE(client,&msg->buffer, msg->offset );
 	READDPACKET(msg);
 }
 

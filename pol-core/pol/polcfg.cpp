@@ -33,6 +33,7 @@ Notes
 #include "../clib/strutil.h"
 
 #include "core.h"
+#include "objtype.h"
 #include "polcfg.h"
 #include "polsig.h"
 #include "schedule.h"
@@ -77,10 +78,10 @@ void read_pol_config( bool initial_load )
         config.web_server = elem.remove_bool( "WebServer", false );
         config.web_server_port = elem.remove_ushort( "WebServerPort", 8080 );
 
-		unsigned short max_tile = elem.remove_ushort( "MaxTileID", 0x3FFF );
+		unsigned short max_tile = elem.remove_ushort( "MaxTileID", UOBJ_DEFAULT_MAX );
 
-		if (max_tile != 0x3FFF && max_tile != 0x7FFF)
-			config.max_tile_id = 0x3FFF;
+		if (max_tile != UOBJ_DEFAULT_MAX && max_tile != UOBJ_SA_MAX && max_tile != UOBJ_HSA_MAX)
+			config.max_tile_id = UOBJ_DEFAULT_MAX;
 		else
 			config.max_tile_id = max_tile;
 

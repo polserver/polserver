@@ -151,6 +151,7 @@ Notes
 #include "uworld.h"
 #include "crypt/cryptengine.h"
 #include "network/packets.h"
+#include "network/clienttransmit.h"
 
 #ifdef __linux__
 #include <gnu/libc-version.h>
@@ -894,7 +895,7 @@ bool process_data( Client *client )
 				msg->Write(static_cast<u8>(0x53));
 				client->recv_state = Client::RECV_STATE_MSGTYPE_WAIT;
 				client->setClientType(CLIENTTYPE_UOKR); // UO:KR logging in				
-				client->transmit( &msg->buffer, msg->offset );
+				ADDTOSENDQUEUE(client, &msg->buffer, msg->offset );
 				READDPACKET(msg);
 			}
 			else if (client->buffer[0] == PKTIN_EF_ID)  // new seed since 6.0.5.0 (0xef should never appear in normal ipseed)
@@ -1022,7 +1023,6 @@ client->checkpoint = 61; //CNXBUG
 				res = select( nfds, &recv_fd, &send_fd, &err_fd, &select_timeout );
 				CLIENT_CHECKPOINT(3);
 			} while (res < 0 && !exit_signalled && socket_errno == SOCKET_ERRNO(EINTR));
-
 			checkpoint = 3;
 	
 			if (res < 0)
@@ -1044,7 +1044,7 @@ client->checkpoint = 61; //CNXBUG
 						PktOut_53* msg = REQUESTPACKET(PktOut_53,PKTOUT_53_ID);
 						msg->Write(static_cast<u8>(PKTOUT_53_WARN_CHARACTER_IDLE));
 						CLIENT_CHECKPOINT(5);
-						client->transmit( &msg->buffer, msg->offset );
+						ADDTOSENDQUEUE(client, &msg->buffer, msg->offset );
 						CLIENT_CHECKPOINT(18);
 						READDPACKET(msg);
 						if (client->pause_count)
@@ -1741,6 +1741,9 @@ void start_threads()
 
 	checkpoint( "start threadstatus thread" );
 	start_thread( threadstatus_thread, "ThreadStatus" );
+
+	checkpoint( "start clienttransmit thread" );
+	start_thread( ClientTransmitThread, "ClientTransmit" );
 
 #ifndef _WIN32
 	//checkpoint( "start catch_signals thread" );

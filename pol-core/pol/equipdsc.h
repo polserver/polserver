@@ -20,7 +20,7 @@ class EquipDesc : public ItemDesc
 {
 public:
 	typedef ItemDesc base;
-    EquipDesc( u16 objtype, ConfigElem& elem, Type type, const Package* pkg );
+    EquipDesc( u32 objtype, ConfigElem& elem, Type type, const Package* pkg );
     EquipDesc(); // for dummy template
 	virtual void PopulateStruct( BStruct* descriptor ) const;
 

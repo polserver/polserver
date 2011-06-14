@@ -552,13 +552,13 @@ void run_pol_tests()
 
 
 #ifdef POLTEST
-Item* Item::create( u16 objtype, u32 serial )
+Item* Item::create( u32 objtype, u32 serial )
 {
     passert( objtype <= config.max_tile_id );
     return new Item(objtype, CLASS_ITEM);
 }
 
-UMulti* UMulti::create(  u16 objtype, u32 serial )
+UMulti* UMulti::create(  u32 objtype, u32 serial )
 {
     UMulti* multi = NULL;
     if ( objtype <= config.max_tile_id || objtype > (config.max_tile_id+0x1000))
