@@ -96,6 +96,7 @@ Notes
 #include "uoexhelp.h"
 #include "uworld.h"
 #include "module/partymod.h"
+#include "network/clienttransmit.h"
 
 #include "uoscrobj.h"
 
@@ -1757,7 +1758,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 					PktOut_BC* msg = REQUESTPACKET(PktOut_BC,PKTOUT_BC_ID);
 					msg->Write(static_cast<u8>(season_id));
 					msg->Write(static_cast<u8>(playsound));
-					client->transmit( &msg->buffer, msg->offset );
+					ADDTOSENDQUEUE(client,&msg->buffer, msg->offset );
 					READDPACKET(msg);
 					return new BLong(1);
 				}

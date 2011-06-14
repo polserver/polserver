@@ -22,6 +22,7 @@ Notes
 #include "mobile/charactr.h"
 #include "network/client.h"
 #include "network/packets.h"
+#include "network/clienttransmit.h"
 #include "pktoutid.h"
 #include "sockio.h"
 #include "clfunc.h"
@@ -128,7 +129,7 @@ void private_say_above_cl(Character *chr, const UObject* obj,
 	u16 len=msg->offset;
 	msg->offset=1;
 	msg->WriteFlipped(len);
-	chr->client->transmit( &msg->buffer, len );
+	ADDTOSENDQUEUE(chr->client, &msg->buffer, len );
 	READDPACKET(msg);
 }
 
@@ -170,7 +171,7 @@ void send_sysmessage_cl_affix(Client *client, unsigned int cliloc_num, const cha
 	msg->offset=1;
 	msg->WriteFlipped(len);
 
-	client->transmit(&msg->buffer, len);
+	ADDTOSENDQUEUE(client,&msg->buffer, len);
 	READDPACKET(msg);
 }
 
@@ -253,7 +254,7 @@ void private_say_above_cl_affix(Character *chr, const UObject* obj, unsigned int
 	msg->offset=1;
 	msg->WriteFlipped(len);
 
-	chr->client->transmit(&msg->buffer, len);
+	ADDTOSENDQUEUE(chr->client,&msg->buffer, len);
 	READDPACKET(msg);
 }
 

@@ -18,6 +18,7 @@ Notes
 #include "item/itemdesc.h"
 #include "mobile/charactr.h"
 #include "network/packets.h"
+#include "network/clienttransmit.h"
 #include "objtype.h"
 #include "pktboth.h"
 #include "polcfg.h"
@@ -116,7 +117,7 @@ void Spellbook::double_click( Client* client )
 		msg->WriteFlipped(graphic);
 		msg->WriteFlipped(static_cast<u16>((spell_school * 100) + 1));
 		msg->Write(bitwise_contents,8);
-		client->transmit(&msg->buffer, msg->offset);
+		ADDTOSENDQUEUE(client,&msg->buffer, msg->offset);
 		READDPACKET(msg);
 	}
 }
@@ -254,7 +255,7 @@ USpellScroll::USpellScroll( const ItemDesc& itemdesc ) :
 {
 }
 
-u16 USpellScroll::convert_objtype_to_spellnum( u16 objtype, u8 school )
+u16 USpellScroll::convert_objtype_to_spellnum( u32 objtype, u8 school )
 {
 	u16 spellnum = objtype - spell_scroll_objtype_limits[school][0] + 1;
 	if(school == 0) //weirdness in order of original spells
@@ -306,7 +307,7 @@ void send_spellbook_contents( Client *client, Spellbook& spellbook )
 	u16 count = 0;
 	for ( u16 i = 0; i < 64; ++i )
 	{
-		u16 objtype = spell_scroll_objtype_limits[0][0] + i;
+		u32 objtype = spell_scroll_objtype_limits[0][0] + i;
 		u16 spellnumber = USpellScroll::convert_objtype_to_spellnum( objtype, spellbook.spell_school );
 		u8  spellpos = spellnumber & 7; // spellpos is the spell's position it it's circle's array.
 		if(spellpos == 0) spellpos = 8;
@@ -329,6 +330,6 @@ void send_spellbook_contents( Client *client, Spellbook& spellbook )
 	msg->offset=1;
 	msg->WriteFlipped(len);
 	msg->WriteFlipped(count);
-	client->transmit( &msg->buffer, len );
+	ADDTOSENDQUEUE(client, &msg->buffer, len );
 	READDPACKET(msg);
 }

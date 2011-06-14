@@ -22,6 +22,7 @@ Notes
 #include "accounts/account.h"
 #include "mobile/charactr.h"
 #include "network/client.h"
+#include "network/clienttransmit.h"
 #include "fnsearch.h"
 #include "item/itemdesc.h"
 #include "los.h"
@@ -151,7 +152,7 @@ bool TargetCursor::send_object_cursor( Client *client,
 		msg->WriteFlipped(cursorid_);
 		msg->Write(static_cast<u8>(crstype));
 		// rest 0
-		client->transmit( &msg->buffer, sizeof msg->buffer );
+		ADDTOSENDQUEUE(client, &msg->buffer, sizeof msg->buffer );
 		READDPACKET(msg);
 		client->chr->tcursor2 = this;
 		return true;
@@ -359,7 +360,7 @@ bool LosCheckedCoordCursor::send_coord_cursor( Client* client )
 		msg->WriteFlipped(cursorid_);
 		msg->Write(static_cast<u8>(PKTBI_6C::CURSOR_TYPE_NEUTRAL));
 		// rest 0
-		client->transmit( &msg->buffer, sizeof msg->buffer );
+		ADDTOSENDQUEUE(client, &msg->buffer, sizeof msg->buffer );
 		READDPACKET(msg);
 		client->chr->tcursor2 = this;
 		return true;
@@ -384,7 +385,7 @@ MultiPlacementCursor::MultiPlacementCursor( void (*func)(Character*, PKTBI_6C*) 
 {
 }
 
-void MultiPlacementCursor::send_placemulti( Client* client, unsigned short objtype, int flags, s16 xoffset, s16 yoffset )
+void MultiPlacementCursor::send_placemulti( Client* client, unsigned int objtype, int flags, s16 xoffset, s16 yoffset )
 {
 	PktOut_99* msg = REQUESTPACKET(PktOut_99,PKTBI_99_ID);
 	msg->Write(static_cast<u8>(0x1));
@@ -398,7 +399,7 @@ void MultiPlacementCursor::send_placemulti( Client* client, unsigned short objty
 	msg->offset+=2; // u16 maybe_zoffset
 	if (client->ClientType & CLIENTTYPE_7090)
 		msg->offset+=4;
-	client->transmit( &msg->buffer, msg->offset );
+	ADDTOSENDQUEUE(client, &msg->buffer, msg->offset );
 	READDPACKET(msg);
 	client->chr->tcursor2 = this;
 }

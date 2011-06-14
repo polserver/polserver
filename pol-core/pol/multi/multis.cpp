@@ -31,6 +31,7 @@ Notes
 #include "../uofile.h"
 #include "multi.h"
 #include "../ustruct.h"
+#include "../polcfg.h"
 
 UMulti::UMulti( const ItemDesc& itemdesc )
     : Item(itemdesc, CLASS_MULTI)

@@ -102,6 +102,23 @@ struct USTRUCT_TILE {
     };
 };
 asserteql( sizeof( USTRUCT_TILE ), 37 );
+
+struct USTRUCT_TILE_HSA {
+	u32 flags;
+	u32 unk;
+	u8 weight;
+	u8 layer;
+	u8 unk6;
+	u8 unk7;
+	u8 unk8;
+	u8 unk9;
+	u32 anim;
+	u8 unk14;
+	u8 unk15;
+	u8 height;
+	char name[20];
+};
+asserteql( sizeof( USTRUCT_TILE_HSA ), 41 );
 /* notes:
   flag1:
         bit 0x80: liquid? wet? (blood, water, water troughs, swamp, 
@@ -153,8 +170,16 @@ asserteql( sizeof( USTRUCT_TILE ), 37 );
 struct USTRUCT_LAND_TILE
 {
     u32 flags;
-    u16 unk;
+    u16 unk; //texid
     char name[20];
+};
+
+struct USTRUCT_LAND_TILE_HSA
+{
+	u32 flags;
+	u32 unk1;
+	u16 unk; //texid
+	char name[20];
 };
 
 struct USTRUCT_MULTI_HEADER {
@@ -169,6 +194,16 @@ struct USTRUCT_MULTI_ELEMENT {
 	u32 flags;
 };
 asserteql( sizeof(USTRUCT_MULTI_ELEMENT), 12);
+
+struct USTRUCT_MULTI_ELEMENT_HSA {
+	u16 graphic;
+	s16 x;
+	s16 y;
+	s16 z;
+	u32 flags;
+	u32 unk;
+};
+asserteql( sizeof(USTRUCT_MULTI_ELEMENT_HSA), 16);
 
 struct USTRUCT_MAPINFO {
     u16 landtile;

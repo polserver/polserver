@@ -25,12 +25,12 @@ Notes
 
 #include "../objecthash.h"
 
-bool isboat( u16 objtype )
+bool isboat( u32 objtype )
 {
     return find_itemdesc( objtype ).type == ItemDesc::BOATDESC;
 }
 
-bool ishouse( u16 objtype )
+bool ishouse( u32 objtype )
 {
     return find_itemdesc( objtype ).type == ItemDesc::HOUSEDESC;
 }

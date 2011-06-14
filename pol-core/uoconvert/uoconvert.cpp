@@ -101,7 +101,7 @@ void display_flags()
 int xmain( int argc, char* argv[] )
 {
     StoreCmdArgs( argc, argv );
-	config.max_tile_id = 0x3FFF; //default
+	config.max_tile_id = UOBJ_DEFAULT_MAX; //default
 
     if (FindArg2( "uodata=" ) != NULL)
     {
@@ -118,16 +118,16 @@ int xmain( int argc, char* argv[] )
         config.uo_datafile_root = elem.remove_string( "UoDataFileRoot" );
         config.uo_datafile_root = normalized_dir_form( config.uo_datafile_root );
         
-        unsigned short max_tile = elem.remove_ushort( "MaxTileID", 0x3FFF );
+        unsigned short max_tile = elem.remove_ushort( "MaxTileID", UOBJ_DEFAULT_MAX );
 
-		if (max_tile == 0x3FFF || max_tile == 0x7FFF)
+		if (max_tile == UOBJ_DEFAULT_MAX || max_tile == UOBJ_SA_MAX || max_tile == UOBJ_HSA_MAX)
 			config.max_tile_id = max_tile;
     }
 
 	if (FindArg2( "maxtileid=" ) != NULL)
 	{
-		unsigned short max_tile = static_cast<unsigned short>(LongHexArg2( "maxtileid=", 0x3FFF ));
-		if (max_tile == 0x3FFF || max_tile == 0x7FFF)
+		unsigned short max_tile = static_cast<unsigned short>(LongHexArg2( "maxtileid=", UOBJ_DEFAULT_MAX ));
+		if (max_tile == UOBJ_DEFAULT_MAX || max_tile == UOBJ_SA_MAX || max_tile == UOBJ_HSA_MAX)
 			config.max_tile_id = max_tile;
 	}
 
@@ -214,6 +214,11 @@ int xmain( int argc, char* argv[] )
                 if (elem.has_prop( "ShowRoofAndPlatformWarning" ) )
                     cfg_show_roof_and_platform_warning = elem.remove_bool( "ShowRoofAndPlatformWarning" );
             }
+			else if (elem.type_is( "ClientOptions" ))
+			{
+				if (elem.has_prop( "UseNewHSAFormat" ) )
+					cfg_use_new_hsa_format = elem.remove_bool( "UseNewHSAFormat" );
+			}
 	    }
 	}
 
@@ -1031,8 +1036,12 @@ void ProcessSolidBlock( unsigned short x_base, unsigned short y_base, MapWriter&
 
 void write_multi( FILE* multis_cfg, unsigned id, FILE* multi_mul, unsigned int offset, unsigned int length )
 {
-    USTRUCT_MULTI_ELEMENT elem;
-    unsigned int count = length / sizeof elem;
+	USTRUCT_MULTI_ELEMENT elem;
+	unsigned int count;
+	if (cfg_use_new_hsa_format)
+		count = length / sizeof(USTRUCT_MULTI_ELEMENT_HSA);
+	else
+		count = length / sizeof elem;
 
     string type, mytype;
     if (BoatTypes.count(id))
@@ -1050,13 +1059,15 @@ void write_multi( FILE* multis_cfg, unsigned id, FILE* multi_mul, unsigned int o
 
     fprintf( multis_cfg, "%s 0x%x\n", type.c_str(), id );
     fprintf( multis_cfg, "{\n" );
-    fprintf( multis_cfg, "    Graphic 0x%x\n", (config.max_tile_id+1)+id );
+    fprintf( multis_cfg, "    Graphic 0x%x\n", id );
 
     fseek( multi_mul, offset, SEEK_SET );
     bool first = true;
     while (count--)
     {
         fread( &elem, sizeof elem, 1, multi_mul );
+		if (cfg_use_new_hsa_format)
+			fseek(multi_mul,4,SEEK_CUR);
         if (elem.graphic == GRAPHIC_NODRAW)
             continue;
 
@@ -1071,14 +1082,21 @@ void write_multi( FILE* multis_cfg, unsigned id, FILE* multi_mul, unsigned int o
 			if (first && elem.graphic != 1)
 				type = "static";
 		}
-
-        USTRUCT_TILE tile;
-        readtile( elem.graphic, &tile );
-
-        string comment = tile.name;
+		string comment;
+		if (cfg_use_new_hsa_format)
+		{
+			USTRUCT_TILE_HSA tile;
+			readtile( elem.graphic, &tile );
+			comment.assign(tile.name,sizeof(tile.name));
+		}
+		else
+		{
+			USTRUCT_TILE tile;
+			readtile( elem.graphic, &tile );
+			comment.assign(tile.name,sizeof(tile.name));
+		}
         fprintf( multis_cfg, "    %-7s 0x%04x %4d %4d %4d   // %s\n", type.c_str(), elem.graphic, elem.x, elem.y, elem.z, comment.c_str() );
         first = false;
-
     }
     fprintf( multis_cfg, "}\n" );
     fprintf( multis_cfg, "\n" );
@@ -1148,10 +1166,29 @@ void create_tiles_cfg()
   char name[21];
 
     unsigned count = 0;
-	for( unsigned short graphic = 0; graphic <= config.max_tile_id; ++graphic )
+	for( unsigned int graphic_i = 0; graphic_i <= config.max_tile_id; ++graphic_i )
 	{
+		u16 graphic = static_cast<u16>(graphic_i);
 	    USTRUCT_TILE tile;
-		read_objinfo( graphic, tile );
+		if (cfg_use_new_hsa_format)
+		{
+			USTRUCT_TILE_HSA newtile;
+			read_objinfo(graphic, newtile);
+			tile.anim = newtile.anim;
+			tile.flags = newtile.flags;
+			tile.height = newtile.height;
+			tile.layer = newtile.layer;
+			memcpy( tile.name, newtile.name, sizeof tile.name );
+			tile.unk14 = newtile.unk14;
+			tile.unk15 = newtile.unk15;
+			tile.unk6 = newtile.unk6;
+			tile.unk7 = newtile.unk7;
+			tile.unk8 = newtile.unk8;
+			tile.unk9 = newtile.unk9;
+			tile.weight = newtile.weight;
+		}
+		else
+			read_objinfo( graphic, tile );
 		mountCount = MountTypes.count(graphic);
 
 		if (tile.name[0] == '\0' &&
@@ -1199,7 +1236,16 @@ void create_landtiles_cfg()
     for( u16 i = 0; i <= 0x3FFF; ++i )
     {
         USTRUCT_LAND_TILE landtile;
-        readlandtile( i, &landtile );
+		if (cfg_use_new_hsa_format)
+		{
+			USTRUCT_LAND_TILE_HSA newlandtile;
+			readlandtile(i, &newlandtile);
+			landtile.flags = newlandtile.flags;
+			landtile.unk = newlandtile.unk;
+			memcpy( landtile.name, newlandtile.name, sizeof landtile.name );
+		}
+		else
+			readlandtile( i, &landtile );
         if (landtile.name[0] || landtile.flags)
         {
             fprintf( fp, "landtile 0x%x\n", i );

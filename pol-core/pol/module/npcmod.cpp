@@ -975,7 +975,7 @@ BObjectImp* NPCExecutorModule::CreateItem()
 	if (backpack == NULL)
 		return new BLong(0);
 
-	Item* i = Item::create( static_cast<unsigned short>(objtype->value()) );
+	Item* i = Item::create( static_cast<unsigned int>(objtype->value()) );
 	i->realm = npc.realm;
 	auto_ptr<Item> item( i );
 	if (item.get() == NULL)

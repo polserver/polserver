@@ -37,6 +37,7 @@ Notes
 #include "module/partymod.h"
 #include "network/client.h"
 #include "network/packets.h"
+#include "network/clienttransmit.h"
 #include "party.h"
 #include "pktboth.h"
 #include "polcfg.h"
@@ -419,12 +420,12 @@ void Party::send_member_list(Character* to_chr)
 			if (chr != NULL)
 			{
 				if (chr->has_active_client())
-					chr->client->transmit(&msg->buffer,len);
+					ADDTOSENDQUEUE(chr->client,&msg->buffer,len);
 			}
 		}
 	}
 	else
-		to_chr->client->transmit(&msg->buffer,len);
+		ADDTOSENDQUEUE(to_chr->client,&msg->buffer,len);
 	READDPACKET(msg);
 }
 
@@ -504,7 +505,7 @@ void Party::send_remove_member(Character* remchr, bool *disband)
 			if (chr != NULL)
 			{
 				if (chr->has_active_client())
-					chr->client->transmit(&msg->buffer,len);
+					ADDTOSENDQUEUE(chr->client,&msg->buffer,len);
 			}
 		}
 		READDPACKET(msg);
@@ -536,9 +537,9 @@ void Party::send_msg_to_all(unsigned int clilocnr, const char* affix, Character*
 				if (chr->has_active_client())
 				{
 					if (affix!=NULL)
-						chr->client->transmit(&msgcc->buffer,msgcc->offset);
+						ADDTOSENDQUEUE(chr->client,&msgcc->buffer,msgcc->offset);
 					else
-						chr->client->transmit(&msgc1->buffer,msgc1->offset);
+						ADDTOSENDQUEUE(chr->client,&msgc1->buffer,msgc1->offset);
 				}
 			}
 		}
@@ -606,7 +607,7 @@ void Party::on_mana_changed(Character* chr)
 			if (mem!=chr)
 			{
 				if (mem->has_active_client())
-					mem->client->transmit(&msg->buffer,msg->offset);
+					ADDTOSENDQUEUE(mem->client,&msg->buffer,msg->offset);
 			}
 		}
 	}
@@ -635,7 +636,7 @@ void Party::on_stam_changed(Character* chr)
 			if (mem!=chr)
 			{
 				if (mem->has_active_client())
-					mem->client->transmit(&msg->buffer,msg->offset);
+					ADDTOSENDQUEUE(mem->client,&msg->buffer,msg->offset);
 			}
 		}
 	}
@@ -682,7 +683,7 @@ void Party::send_member_msg_public(Character* chr,u16* wtext, size_t wtextlen)
 		if (mem != NULL)
 		{
 			if (mem->has_active_client())
-				mem->client->transmit(&msg->buffer,len);
+				ADDTOSENDQUEUE(mem->client,&msg->buffer,len);
 		}
 	}
 	READDPACKET(msg);
@@ -729,7 +730,7 @@ void Party::send_member_msg_private(Character* chr, Character* tochr, u16* wtext
 	msg->offset=1;
 	msg->WriteFlipped(len);
 
-	tochr->client->transmit(&msg->buffer,len);
+	ADDTOSENDQUEUE(tochr->client,&msg->buffer,len);
 	READDPACKET(msg);
 }
 
@@ -767,7 +768,7 @@ void send_empty_party(Character* chr)
 		msg->Write(static_cast<u8>(PKTBI_BF_06::PARTYCMD_REMOVE));
 		msg->offset++; //nummembers
 		msg->Write(chr->serial_ext);
-		chr->client->transmit(&msg->buffer,msg->offset);
+		ADDTOSENDQUEUE(chr->client,&msg->buffer,msg->offset);
 		READDPACKET(msg);
 	}
 }
@@ -1426,7 +1427,7 @@ void send_invite(Character* member,Character* leader)
 	msg->offset+=2; //sub
 	msg->Write(static_cast<u8>(PKTBI_BF_06::PARTYCMD_INVITE_MEMBER));
 	msg->Write(leader->serial_ext);
-	member->client->transmit(&msg->buffer,msg->offset);
+	ADDTOSENDQUEUE(member->client,&msg->buffer,msg->offset);
 	READDPACKET(msg);
 
 	// : You are invited to join the party. Type /accept to join or /decline to decline the offer.
@@ -1467,7 +1468,7 @@ void send_attributes_normalized(Character* chr, Character* bob)
 	msg->WriteFlipped(static_cast<u16>(1000));
 	msg->WriteFlipped(static_cast<u16>(h * 1000 / mh));
 
-	chr->client->transmit(&msg->buffer, msg->offset);
+	ADDTOSENDQUEUE(chr->client,&msg->buffer, msg->offset);
 	READDPACKET(msg);
 }
 

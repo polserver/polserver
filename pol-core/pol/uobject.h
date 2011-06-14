@@ -241,7 +241,7 @@ protected:
     virtual void printProperties( std::ostream& os ) const;
     virtual void printDebugProperties( std::ostream& os ) const;
 
-    UObject(u16 objtype, UOBJ_CLASS uobj_class);
+    UObject(u32 objtype, UOBJ_CLASS uobj_class);
 	virtual ~UObject();
 
     friend class ref_ptr<UObject>;

@@ -144,7 +144,7 @@ public:
 	// so that the right kind of object gets created
 	// and so that object serial numbers get generated.
 	// If no serial passed, one will be generated.
-	static Item* create( u16 objtype, u32 serial = 0 );
+	static Item* create( u32 objtype, u32 serial = 0 );
     static Item* create( const ItemDesc& itemdesc, u32 serial = 0 );
     virtual void readProperties( ConfigElem& elem );
     virtual Item* clone() const;

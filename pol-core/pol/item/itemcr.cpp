@@ -52,7 +52,7 @@ Notes
 #include "wepntmpl.h"
 
 
-Item* Item::create( u16 objtype, u32 serial )
+Item* Item::create( u32 objtype, u32 serial )
 {
 	const ItemDesc& id = find_itemdesc( objtype );
 	if (&id != &empty_itemdesc)
@@ -81,7 +81,7 @@ Item* Item::create( u16 objtype, u32 serial )
 
 Item* Item::create( const ItemDesc& id, u32 serial)
 {
-	unsigned short objtype = id.objtype;
+	u32 objtype = id.objtype;
 	unsigned short graphic = id.graphic;
 	
 	Item* item;

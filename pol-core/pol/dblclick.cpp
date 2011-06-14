@@ -28,6 +28,7 @@ Notes
 
 #include "network/client.h"
 #include "network/packets.h"
+#include "network/clienttransmit.h"
 #include "eventid.h"
 #include "item/itemdesc.h"
 #include "msghandl.h"
@@ -75,7 +76,7 @@ void send_paperdoll( Client *client, Character *chr )
 		flag1 = chr->warmode ? 1 : 0;
 	msg->Write(flag1);
 
-	client->transmit( &msg->buffer, msg->offset );
+	ADDTOSENDQUEUE(client, &msg->buffer, msg->offset );
 	READDPACKET(msg);
 }
 

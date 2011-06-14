@@ -110,7 +110,7 @@ public:
     MultiPlacementCursor( void (*func)(Character*,PKTBI_6C* msg) );
 	virtual ~MultiPlacementCursor() {};
 
-    virtual void send_placemulti( Client* client, unsigned short objtype, int flags, s16 xoffset, s16 yoffset ); 
+    virtual void send_placemulti( Client* client, unsigned int objtype, int flags, s16 xoffset, s16 yoffset ); 
     virtual void on_target_cursor( Character*, PKTBI_6C* msg );
 private:
     void (*func_)(Character*,PKTBI_6C*);

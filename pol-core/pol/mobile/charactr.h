@@ -268,7 +268,7 @@ class Character : public UObject
 {
     typedef UObject base;
 public:
-    explicit Character( u16 objtype, UOBJ_CLASS uobj_class = CLASS_CHARACTER );
+    explicit Character( u32 objtype, UOBJ_CLASS uobj_class = CLASS_CHARACTER );
     virtual ~Character();
 
 

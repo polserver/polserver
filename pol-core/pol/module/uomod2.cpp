@@ -77,6 +77,7 @@ Notes
 #include "../network/client.h"
 #include "../network/iostats.h"
 #include "../network/packets.h"
+#include "../network/clienttransmit.h"
 #include "../npc.h"
 #include "../objtype.h"
 #include "../pktboth.h"
@@ -313,7 +314,7 @@ void send_clear_vendorwindow( Client* client, Character* vendor )
 	msg->WriteFlipped(static_cast<u16>(sizeof msg->buffer));
 	msg->Write(vendor->serial_ext);
 	msg->Write(static_cast<u8>(PKTBI_3B::STATUS_NOTHING_BOUGHT));
-	client->transmit(&msg->buffer, msg->offset);
+	ADDTOSENDQUEUE(client,&msg->buffer, msg->offset);
 	READDPACKET(msg);
 }
 
@@ -877,7 +878,7 @@ BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu(Character* chr, 
 	msg->offset=1;
 	msg->WriteFlipped(len);
 
-	chr->client->transmit( &msg->buffer, len );
+	ADDTOSENDQUEUE(chr->client, &msg->buffer, len );
 	READDPACKET(msg);
 	chr->client->gd->add_gumpmod( this );
 	//old_gump_uoemod = this;
@@ -1005,7 +1006,7 @@ BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu(Character* chr, Ob
 	msg->offset=1;
 	msg->WriteFlipped(len);
 
-	chr->client->transmit( &msg->buffer, len );
+	ADDTOSENDQUEUE(chr->client, &msg->buffer, len );
 	READDPACKET(msg);
 	READDPACKET(bfr);
 	chr->client->gd->add_gumpmod( this );
@@ -1154,7 +1155,7 @@ BObjectImp* UOExecutorModule::mf_CloseGump(/* who, pid, response := 0 */)
 	msg->WriteFlipped(pid);
 	msg->offset+=4; //buttonid
 
-	client->transmit(&msg->buffer, msg->offset);
+	ADDTOSENDQUEUE(client,&msg->buffer, msg->offset);
 	READDPACKET(msg);
 
 	uoemod->uoexec.ValueStack.top().set( new BObject(resp) );
@@ -1194,7 +1195,7 @@ BObjectImp* UOExecutorModule::mf_CloseWindow(/* chr, type, obj */)
 	msg->WriteFlipped(type);
 	msg->Write(obj->serial_ext);
 
-	chr->client->transmit(&msg->buffer, msg->offset);
+	ADDTOSENDQUEUE(chr->client,&msg->buffer, msg->offset);
 	READDPACKET(msg);
 
 	return new BLong( 1 );
@@ -1358,7 +1359,7 @@ BObjectImp* UOExecutorModule::mf_SendTextEntryGump()
 	msg->offset=1;
 	msg->WriteFlipped(len);
 
-	chr->client->transmit( &msg->buffer, len );
+	ADDTOSENDQUEUE(chr->client,&msg->buffer, len );
 	READDPACKET(msg);
 	chr->client->gd->textentry_uoemod = this;
 	textentry_chr = chr;
@@ -1845,7 +1846,7 @@ BObjectImp* UOExecutorModule::mf_SendInstaResDialog()
 	PktOut_20* msg = REQUESTPACKET(PktOut_20,PKTBI_2C_ID);
 	msg->Write(static_cast<u8>(RESURRECT_CHOICE_SELECT));
 
-	chr->client->transmit( &msg->buffer, msg->offset );
+	ADDTOSENDQUEUE(chr->client, &msg->buffer, msg->offset );
 	READDPACKET(msg);
 	chr->client->gd->resurrect_uoemod = this;
 	resurrect_chr = chr;
@@ -1907,7 +1908,7 @@ BObjectImp* UOExecutorModule::mf_SelectColor()
 	msg->offset+=2; // u16 unk
 	msg->Write(item->graphic_ext);
 
-	chr->client->transmit( &msg->buffer, msg->offset );
+	ADDTOSENDQUEUE(chr->client, &msg->buffer, msg->offset );
 	READDPACKET(msg);
 
 	chr->client->gd->selcolor_uoemod = this;
@@ -1969,7 +1970,7 @@ BObjectImp* UOExecutorModule::mf_SendOpenBook()
 	msg93->Write(title.c_str(),60,false);
 	msg93->Write(author.c_str(),30,false);
 
-	chr->client->transmit( &msg93->buffer, msg93->offset );
+	ADDTOSENDQUEUE(chr->client, &msg93->buffer, msg93->offset );
 	READDPACKET(msg93);
 
 	if (writable)
@@ -2045,7 +2046,7 @@ BObjectImp* UOExecutorModule::mf_SendOpenBook()
 		u16 len=msg->offset;
 		msg->offset=1;
 		msg->WriteFlipped(len);
-		chr->client->transmit( &msg->buffer, len );
+		ADDTOSENDQUEUE(chr->client, &msg->buffer, len );
 		READDPACKET(msg);
 	}
 
@@ -2112,7 +2113,7 @@ void read_book_page_handler( Client* client, PKTBI_66* msg )
 		msgOut->WriteFlipped(static_cast<u16>(pagelines));
 		msgOut->offset=1;
 		msgOut->WriteFlipped(len);
-		client->transmit( &msgOut->buffer, len );
+		ADDTOSENDQUEUE(client, &msgOut->buffer, len );
 		READDPACKET(msgOut);
 	}
 	else
@@ -2235,7 +2236,7 @@ BObjectImp* UOExecutorModule::mf_SendHousingTool()
 	msg->offset+=2; // u16 unk2 FIXME what's the meaning
 	msg->Write(static_cast<u32>(0xFFFFFFFF)); // fixme
 	msg->Write(static_cast<u8>(0xFF)); // fixme
-	chr->client->transmit(&msg->buffer,msg->offset);
+	ADDTOSENDQUEUE(chr->client,&msg->buffer,msg->offset);
 	READDPACKET(msg);
 
 	move_character_to(chr,house->x,house->y,house->z+7,MOVEITEM_FORCELOCATION, NULL);
@@ -2282,7 +2283,7 @@ BObjectImp* UOExecutorModule::mf_SendCharacterRaceChanger(/* Character */)
 		msg->offset+=2; //sub
 		msg->Write(static_cast<u8>(chr->gender));
 		msg->Write(static_cast<u8>(chr->race+1));
-		chr->client->transmit(&msg->buffer,msg->offset);
+		ADDTOSENDQUEUE(chr->client,&msg->buffer,msg->offset);
 		READDPACKET(msg);
 
 		return new BLong(1);

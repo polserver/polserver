@@ -38,6 +38,7 @@ unsigned int num_static_patches = 0;
 
     int cfg_max_statics_per_block = 1000;
     int cfg_warning_statics_per_block = 1000;
+	bool cfg_use_new_hsa_format = 0;
 
     typedef std::map< unsigned int, unsigned int > StaticDifBlockIndex;
     StaticDifBlockIndex stadifl;

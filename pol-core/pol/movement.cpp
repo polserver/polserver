@@ -29,6 +29,7 @@ Notes
 #include "ufunc.h"
 #include "uworld.h"
 #include "network/packets.h"
+#include "network/clienttransmit.h"
 #include "../clib/pkthelper.h"
 
 
@@ -191,7 +192,7 @@ void handle_walk( Client *client, PKTIN_02 *msg02 )
 			PktOut_22* msg = REQUESTPACKET(PktOut_22,PKTBI_22_APPROVED_ID);
 			msg->Write(msg02->movenum);
 			msg->Write(client->chr->hilite_color_idx( client->chr ));
-			client->transmit( &msg->buffer, msg->offset );
+			ADDTOSENDQUEUE(client, &msg->buffer, msg->offset );
 			READDPACKET(msg);
 
 			client->movementsequence = msg02->movenum;
@@ -227,7 +228,7 @@ void handle_walk( Client *client, PKTIN_02 *msg02 )
 			msg->WriteFlipped(chr->y);
 			msg->Write(chr->facing);
 			msg->Write(chr->z);
-			client->transmit( &msg->buffer, msg->offset );
+			ADDTOSENDQUEUE(client, &msg->buffer, msg->offset );
 			READDPACKET(msg);
 
 			client->movementsequence = 0;

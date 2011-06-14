@@ -27,6 +27,7 @@ class Item;
 extern signed char rawmapinfo( unsigned short x, unsigned short y, struct USTRUCT_MAPINFO* gi );
 void getmapinfo( unsigned short x, unsigned short y, short* z, USTRUCT_MAPINFO* mi );
 void readtile(unsigned short tilenum, USTRUCT_TILE *tile);
+void readtile(unsigned short tilenum, USTRUCT_TILE_HSA *tile);
 void clear_tiledata();
 void readstaticblock( USTRUCT_STATIC** ppst, int* pnum, unsigned short x, unsigned short y );
 bool uo_passable( unsigned short x, unsigned short y );
@@ -39,7 +40,9 @@ u32 tile_flags( unsigned short tilenum );
 */
 
 void read_objinfo( u16 graphic, struct USTRUCT_TILE& objinfo );
+void read_objinfo( u16 graphic, struct USTRUCT_TILE_HSA& objinfo );
 void readlandtile( unsigned short tilenum, USTRUCT_LAND_TILE* landtile );
+void readlandtile( unsigned short tilenum, USTRUCT_LAND_TILE_HSA* landtile );
 
     // returns false if blocked.  new Z given new X, Y, and old Z.
 
@@ -79,5 +82,6 @@ extern int cfg_max_statics_per_block;
 extern int cfg_warning_statics_per_block;
 extern bool cfg_show_illegal_graphic_warning;
 extern bool cfg_show_roof_and_platform_warning;
+extern bool cfg_use_new_hsa_format;
 
 #endif

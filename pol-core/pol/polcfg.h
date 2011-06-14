@@ -51,7 +51,7 @@ struct PolConfig {
 	unsigned short inactivity_warning_timeout;
 	unsigned short inactivity_disconnect_timeout;
 	unsigned short min_cmdlevel_to_login;
-	unsigned short max_tile_id;
+	unsigned int max_tile_id;
 
 	unsigned short max_clients;
 	unsigned short character_slots;

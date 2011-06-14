@@ -21,8 +21,8 @@ Notes
 class BObjectImp;
 class ConfigElem;
 
-void remove_resources( u16 objtype, u16 amount );
-void return_resources( u16 objtype, u16 amount );
+void remove_resources( u32 objtype, u16 amount );
+void return_resources( u32 objtype, u16 amount );
 
 BObjectImp* get_harvest_difficulty( const char* resource,
                                     xcoord x, 
@@ -85,7 +85,7 @@ public:
     void read_data( ConfigElem& elem );
     // void read_region( ConfigElem& elem );
 
-    bool findmarker( xcoord x, ycoord y, Realm* realm, unsigned short objtype );
+    bool findmarker( xcoord x, ycoord y, Realm* realm, unsigned int objtype );
     void regenerate( time_t now );
     void consume( unsigned amount );
     void produce( unsigned amount );

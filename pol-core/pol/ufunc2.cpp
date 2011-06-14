@@ -18,6 +18,7 @@ Notes
 
 #include "network/client.h"
 #include "network/packets.h"
+#include "network/clienttransmit.h"
 #include "sockio.h"
 #include "menu.h"
 #include "pktout.h"
@@ -185,7 +186,7 @@ void send_container_contents( Client *client, const UContainer& cont, bool show_
 	msg->offset=1;
 	msg->WriteFlipped(len);
 	msg->WriteFlipped(count);
-	client->transmit( &msg->buffer, len );
+	ADDTOSENDQUEUE(client, &msg->buffer, len );
 	READDPACKET(msg);
 
 	if(client->UOExpansionFlag & AOS)
