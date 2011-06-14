@@ -147,7 +147,7 @@ BObjectImp* equip_from_template( Character* chr, const char* template_name )
 		string objtype_str;
 		if (is >> objtype_str)
 		{
-			unsigned short objtype;
+			unsigned int objtype;
 			const char* ot_str = objtype_str.c_str();
 			if (isdigit( *ot_str ))
 			{

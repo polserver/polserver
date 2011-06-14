@@ -38,6 +38,7 @@ tool. Should suffice.
 #include "../network/cgdata.h"
 #include "../network/client.h"
 #include "../network/packets.h"
+#include "../network/clienttransmit.h"
 #include "../core.h"
 #include "../uvars.h"
 #include "house.h"
@@ -363,7 +364,7 @@ unsigned char CustomHouseDesign::NumUsedPlanes() const
 //Deleting stairs is handled explicitly (CustomHouseDesign::DeleteStairs).
 void CustomHouseDesign::AddMultiAtOffset(u16 graphic, s8 x, s8 y, s8 z)
 {
-    const MultiDef* multidef = MultiDefByGraphic(graphic | (config.max_tile_id+1));
+    const MultiDef* multidef = MultiDefByGraphic(graphic);
     if(multidef == NULL)
     {
         cerr << "Trying to add Multi to customhouse, graphic " << hex << graphic << dec << " multi definition doesn't exist!" << endl;
@@ -596,7 +597,7 @@ void CustomHouseStopEditing(Character* chr, UHouse* house)
 	msg->offset+=2; // u16 unk2 FIXME what's the meaning
 	msg->Write(static_cast<u32>(0xFFFFFFFF)); // fixme
 	msg->Write(static_cast<u8>(0xFF)); // fixme
-    chr->client->transmit(&msg->buffer,msg->offset);
+    ADDTOSENDQUEUE(chr->client,&msg->buffer,msg->offset);
 	READDPACKET(msg);
 
 	const MultiDef& def = house->multidef();
@@ -930,7 +931,7 @@ void CustomHousesSendFull(UHouse* house, Client* client, int design)
             }
             else //send stored packet
             {
-                client->transmit( &house->CurrentCompressed[0],  ctBEu16( *( reinterpret_cast<u16*>(&house->CurrentCompressed[1])) ) );
+                ADDTOSENDQUEUE(client, &house->CurrentCompressed[0],  ctBEu16( *( reinterpret_cast<u16*>(&house->CurrentCompressed[1])) ) );
                 return;
             }
             break;
@@ -942,7 +943,7 @@ void CustomHousesSendFull(UHouse* house, Client* client, int design)
             }
             else //send stored packet
             {
-                client->transmit( &house->WorkingCompressed[0],  ctBEu16( *( reinterpret_cast<u16*>(&house->WorkingCompressed[1])) ) );
+                ADDTOSENDQUEUE(client, &house->WorkingCompressed[0],  ctBEu16( *( reinterpret_cast<u16*>(&house->WorkingCompressed[1])) ) );
                 return;
             }
             break;
@@ -994,7 +995,7 @@ void CustomHousesSendFull(UHouse* house, Client* client, int design)
     msg->msglen = ctBEu16( static_cast<u16>(buffer_len)+data_offset );
     msg->planebuffer_len = ctBEu16( static_cast<u16>(buffer_len) );
     
-    client->transmit(&packet[0],cfBEu16(msg->msglen));
+    ADDTOSENDQUEUE(client,&packet[0],cfBEu16(msg->msglen));
     stored_packet->swap(packet);
 }
 
@@ -1029,7 +1030,7 @@ void CustomHousesSendShort(UHouse* house, Client* client)
 	msg->offset+=2;
 	msg->Write(house->serial_ext);
 	msg->WriteFlipped(house->revision);
-    client->transmit(&msg->buffer, msg->offset);
+    ADDTOSENDQUEUE(client,&msg->buffer, msg->offset);
 	READDPACKET(msg);
 }
 

@@ -176,13 +176,13 @@ void ResourceDef::read_data( ConfigElem& elem )
 	current_units_ = static_cast<int>(elem.remove_ulong( "Units" ));
 }
 
-bool ResourceDef::findmarker( xcoord x, ycoord y, Realm* realm, unsigned short objtype )
+bool ResourceDef::findmarker( xcoord x, ycoord y, Realm* realm, unsigned int objtype )
 {
 	if (!landtiles_.count(getgraphic(objtype)) && !tiles_.count(getgraphic(objtype)))
 		return false;
 	if (realm->findstatic(static_cast<unsigned short>(x),
 							   static_cast<unsigned short>(y),
-							   objtype))
+							   static_cast<unsigned short>(objtype)))
 	{
 		return true;
 	}

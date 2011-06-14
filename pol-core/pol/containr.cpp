@@ -332,7 +332,7 @@ Item* UContainer::find_toplevel_polclass( unsigned int polclass ) const
 	return NULL;
 }
 
-Item* UContainer::find_toplevel_objtype( u16 objtype ) const
+Item* UContainer::find_toplevel_objtype( u32 objtype ) const
 {
     for( Contents::const_iterator itr = contents_.begin(); itr != contents_.end(); ++itr )
 	{
@@ -342,7 +342,7 @@ Item* UContainer::find_toplevel_objtype( u16 objtype ) const
 	}
 	return NULL;
 }
-Item* UContainer::find_toplevel_objtype_noninuse( u16 objtype ) const
+Item* UContainer::find_toplevel_objtype_noninuse( u32 objtype ) const
 {
     for( Contents::const_iterator itr = contents_.begin(), end = contents_.end(); itr != end; ++itr )
 	{
@@ -353,7 +353,7 @@ Item* UContainer::find_toplevel_objtype_noninuse( u16 objtype ) const
 	return NULL;
 }
 
-Item* UContainer::find_toplevel_objtype( u16 objtype, unsigned short maxamount ) const
+Item* UContainer::find_toplevel_objtype( u32 objtype, unsigned short maxamount ) const
 {
     for( Contents::const_iterator itr = contents_.begin(); itr != contents_.end(); ++itr )
 	{
@@ -363,7 +363,7 @@ Item* UContainer::find_toplevel_objtype( u16 objtype, unsigned short maxamount )
 	}
 	return NULL;
 }
-Item* UContainer::find_toplevel_objtype_noninuse( u16 objtype, unsigned short maxamount ) const
+Item* UContainer::find_toplevel_objtype_noninuse( u32 objtype, unsigned short maxamount ) const
 {
     for( Contents::const_iterator itr = contents_.begin(); itr != contents_.end(); ++itr )
 	{
@@ -394,7 +394,7 @@ Item* UContainer::find_addable_stack( const Item* adding_item ) const
 }
 
 
-Item* UContainer::find_objtype_noninuse( u16 objtype ) const
+Item* UContainer::find_objtype_noninuse( u32 objtype ) const
 {
     Item* item = find_toplevel_objtype_noninuse( objtype );
     if (item != NULL)
@@ -420,7 +420,7 @@ Item* UContainer::find_objtype_noninuse( u16 objtype ) const
     return NULL;
 }
 
-unsigned int UContainer::find_sumof_objtype_noninuse( u16 objtype ) const
+unsigned int UContainer::find_sumof_objtype_noninuse( u32 objtype ) const
 {
     unsigned int amt = 0;
 
@@ -447,7 +447,7 @@ unsigned int UContainer::find_sumof_objtype_noninuse( u16 objtype ) const
     return amt;
 }
 
-void UContainer::consume_sumof_objtype_noninuse( u16 objtype, unsigned int amount )
+void UContainer::consume_sumof_objtype_noninuse( u32 objtype, unsigned int amount )
 {
     while (amount != 0)
     {
@@ -873,7 +873,7 @@ void UContainer::readProperties( ConfigElem& elem )
     base::readProperties( elem );
 }
 
-unsigned int UContainer::find_sumof_objtype_noninuse( u16 objtype, u32 amtToGet, Contents& saveItemsTo, int flags ) const
+unsigned int UContainer::find_sumof_objtype_noninuse( u32 objtype, u32 amtToGet, Contents& saveItemsTo, int flags ) const
 {
     unsigned int amt = 0;
 

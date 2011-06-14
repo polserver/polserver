@@ -98,6 +98,7 @@ Notes
 #include "../../plib/realm.h"
 
 #include "../network/client.h"
+#include "../network/clienttransmit.h"
 
 #include "../action.h"
 #include "../cfgrepos.h"
@@ -275,7 +276,7 @@ BObjectImp* UOExecutorModule::mf_Detach()
     }
 }
 
-static bool item_create_params_ok( int objtype, int amount )
+static bool item_create_params_ok( u32 objtype, int amount )
 {
     return ((objtype >= UOBJ_ITEM__LOWEST && objtype <= config.max_tile_id) ||
             (objtype >= (config.max_tile_id+0x1001) && objtype <= EXTOBJ__HIGHEST)) &&
@@ -622,7 +623,7 @@ BObjectImp* UOExecutorModule::mf_SendViewContainer()
 BObjectImp* UOExecutorModule::mf_FindObjtypeInContainer()
 {
     Item* item;
-    unsigned short objtype;
+    unsigned int objtype;
     if (!getItemParam( exec, 0, item ) ||
         !getObjtypeParam( exec, 1, objtype ))
     {
@@ -833,7 +834,7 @@ BObjectImp* UOExecutorModule::mf_TargetCancel()
 				msg->offset+=4; // u32 target_cursor_serial
 				msg->Write(static_cast<u8>(0x3));
 				// rest 0
-				chr->client->transmit( &msg->buffer, sizeof msg->buffer );
+				ADDTOSENDQUEUE(chr->client, &msg->buffer, sizeof msg->buffer );
 				READDPACKET(msg);
 				return new BLong(0);
             }
@@ -942,7 +943,7 @@ MultiPlacementCursor multi_placement_cursor( &handle_coord_cursor );
 BObjectImp* UOExecutorModule::mf_TargetMultiPlacement()
 {
     Character* chr;
-    unsigned short objtype;
+    unsigned int objtype;
     int flags;
 	int xoffset, yoffset;
     if (! (getCharacterParam( exec, 0, chr ) &&
@@ -1748,7 +1749,7 @@ BObjectImp* UOExecutorModule::mf_CreateMenu()
 BObjectImp* UOExecutorModule::mf_AddMenuItem()
 {
     Menu* menu;
-    unsigned short objtype;
+    unsigned int objtype;
     const String* text;
     unsigned short color;
 
@@ -2590,7 +2591,7 @@ BObjectImp* UOExecutorModule::mf_ListItemsNearLocationOfType(/* x, y, z, range, 
 {
     unsigned short x, y;
 	int z, range;
-    unsigned short objtype;
+    unsigned int objtype;
 	const String* strrealm;
 	Realm* realm;
 
@@ -4186,7 +4187,7 @@ BObjectImp* UOExecutorModule::mf_SendPacket()
 			{
 				//printf( "SendPacket() data: %d bytes\n", buflen );
 				//fdump( stdout, buffer, buflen );
-				chr->client->transmit( &buffer->buffer, buffer->offset );
+				ADDTOSENDQUEUE(chr->client, &buffer->buffer, buffer->offset );
 				READDPACKET(buffer);
 				return new BLong(1);
 			}
@@ -4200,7 +4201,7 @@ BObjectImp* UOExecutorModule::mf_SendPacket()
 		{
 			if (!client->disconnect)
 			{
-				client->transmit( &buffer->buffer, buffer->offset );
+				ADDTOSENDQUEUE(client, &buffer->buffer, buffer->offset );
 				READDPACKET(buffer);
 				return new BLong(1);
 			}
@@ -4248,7 +4249,7 @@ BObjectImp* UOExecutorModule::mf_SendQuestArrow()
 		if (!chr->has_active_client())
             return new BError( "No client attached" );
 
-		chr->client->transmit(&msg->buffer, msg->offset);
+		ADDTOSENDQUEUE(chr->client,&msg->buffer, msg->offset);
 		READDPACKET(msg);
         return new BLong( 1 );
     }
@@ -4508,7 +4509,7 @@ BObjectImp* UOExecutorModule::mf_GetObjtypeByName()
     const String* namestr;
     if (getStringParam( 0, namestr ))
     {
-        unsigned short objtype = get_objtype_byname( namestr->data() );
+        unsigned int objtype = get_objtype_byname( namestr->data() );
         if (objtype != 0)
             return new BLong( objtype );
         else
@@ -4841,7 +4842,7 @@ BObjectImp* UOExecutorModule::mf_OpenPaperdoll()
 BObjectImp* UOExecutorModule::mf_ConsumeSubstance()
 {
     Item* cont_item;
-    unsigned short objtype;
+    unsigned int objtype;
     int amount;
     if (getItemParam( exec, 0, cont_item ) &&
         getObjtypeParam( exec, 1, objtype ) &&
@@ -5496,7 +5497,7 @@ BObjectImp* UOExecutorModule::mf_FindSubstance()
 	UContainer::Contents substanceVector;
 
     Item* cont_item;
-    unsigned short objtype;
+    unsigned int objtype;
     int amount;
 	int amthave;
 	int makeInUseLong;
@@ -5764,7 +5765,7 @@ BObjectImp* UOExecutorModule::mf_SendOverallSeason(/*season_id, playsound := 1*/
 			Client* client = *itr;
 			if (!client->chr->logged_in || client->getversiondetail().major < 1)
 				continue;
-			client->transmit( &msg->buffer, msg->offset );			
+			ADDTOSENDQUEUE(client,&msg->buffer, msg->offset );			
 		}
 		READDPACKET(msg);
 		return new BLong(1);

@@ -94,7 +94,7 @@ Notes
    Well, right now, the format is x1 y1 x2 y2 ... (ick)
 */
 
-NPC::NPC( u16 objtype, const ConfigElem& elem ) :
+NPC::NPC( u32 objtype, const ConfigElem& elem ) :
     Character(objtype, CLASS_NPC),
 	damaged_sound(0),
 	ex(NULL),

@@ -117,6 +117,7 @@ Client::~Client()
 void Client::Disconnect()
 {
     Interface.deregister_client( this );
+	_SocketMutex.lock();
 	if (csocket != INVALID_SOCKET)//>= 0)
 	{
 #ifdef _WIN32
@@ -128,6 +129,7 @@ void Client::Disconnect()
 #endif
 	}
 	csocket = INVALID_SOCKET;
+	_SocketMutex.unlock();
 }
 
 void Client::PreDelete()
@@ -444,7 +446,7 @@ void Client::xmit( const void *data, unsigned short datalen )
 	/* client not backlogged - try to send. */
 	const unsigned char *cdata = (const unsigned char *) data;
 	int nsent;
-
+	_SocketMutex.lock();
 	if (-1 == (nsent = send( csocket, (const char *)cdata, datalen, 0 )))
 	{
         THREAD_CHECKPOINT( active_client, 204 );
@@ -458,6 +460,7 @@ void Client::xmit( const void *data, unsigned short datalen )
             THREAD_CHECKPOINT( active_client, 206 );
 			queue_data( data, datalen );
             THREAD_CHECKPOINT( active_client, 207 );
+			_SocketMutex.unlock();
 			return;
 		}
 		else
@@ -467,6 +470,7 @@ void Client::xmit( const void *data, unsigned short datalen )
                 Log( "Client#%lu: Disconnecting client due to send() error (1): %d\n" , instance_, sckerr);
 			disconnect = 1;
             THREAD_CHECKPOINT( active_client, 209 );
+			_SocketMutex.unlock();
 			return;
 		}
 	}
@@ -488,6 +492,7 @@ void Client::xmit( const void *data, unsigned short datalen )
 		}
 	}
     THREAD_CHECKPOINT( active_client, 214 );
+	_SocketMutex.unlock();
 }
 
 void Client::send_queued_data()
@@ -498,6 +503,7 @@ void Client::send_queued_data()
 	while (NULL != (xbuffer = first_xmit_buffer))
 	{
 		int nsent;
+		_SocketMutex.lock();
 		nsent = send( csocket,
 			          (char *) &xbuffer->data[xbuffer->nsent],
 					  xbuffer->lenleft,
@@ -519,6 +525,7 @@ void Client::send_queued_data()
                 if (!disconnect)
                     Log( "Client#%lu: Disconnecting client due to send() error (2): %d\n", instance_, sckerr );
 				disconnect = 1;
+				_SocketMutex.unlock();
 				return;
 			}
 		}
@@ -541,6 +548,7 @@ void Client::send_queued_data()
 				--n_queued;
 			}
 		}
+		_SocketMutex.unlock();
 	}
 }
 

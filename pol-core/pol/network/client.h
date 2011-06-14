@@ -30,6 +30,7 @@ Notes
 
 #include "../../clib/rawtypes.h"
 #include "../../clib/wallclock.h"
+#include "../../clib/hbmutex.h"
 
 #include "../../bscript/bstruct.h"
 
@@ -142,6 +143,7 @@ public:
 	void send_queued_data();
 
 	SOCKET csocket;		// socket to client ACK  - requires header inclusion.
+	Mutex _SocketMutex;
     unsigned short listen_port;
 	bool aosresist; // UOClient.Cfg Entry
 

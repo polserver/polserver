@@ -25,6 +25,7 @@ Notes
 #include "../mobile/charactr.h"
 #include "../network/client.h"
 #include "../network/packets.h"
+#include "../network/clienttransmit.h"
 #include "../exscrobj.h"
 #include "../logfiles.h"
 #include "../npc.h"
@@ -645,7 +646,7 @@ BObjectImp* OSExecutorModule::mf_OpenURL()
 
 			msg->WriteFlipped(static_cast<u16>(urllen+4));
 			msg->Write(url,static_cast<u16>(urllen+1));
-			chr->client->transmit( &msg->buffer, msg->offset );
+			ADDTOSENDQUEUE(chr->client, &msg->buffer, msg->offset );
 			READDPACKET(msg);
 			return new BLong(1);
 		}

@@ -15,6 +15,10 @@ Notes
 #ifndef __UOBJ_H
 #define __UOBJ_H
 
+#define UOBJ_HSA_MAX			0xFFFF
+#define UOBJ_SA_MAX				0x7FFF
+#define UOBJ_DEFAULT_MAX		0x3FFF
+
 #define GRAPHIC_NODRAW          0x0001
 
 
@@ -226,7 +230,7 @@ Notes
 
 // Using max_tile_id+0x1001 instead of hardcoded value to fix SA objtype changes
 // #define EXTOBJ__LOWEST              0x5000
-#define EXTOBJ__HIGHEST             0xFFFF
+#define EXTOBJ__HIGHEST             0x20000
 
 // these must match enum BOAT_COMPONENT in boat.h
 #define EXTOBJ_TILLERMAN            0xF010

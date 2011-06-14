@@ -34,7 +34,7 @@ Notes
 unsigned short layer_to_zone( unsigned short layer );
 unsigned short zone_name_to_zone( const char *zname );
 
-ArmorDesc::ArmorDesc( u16 objtype, ConfigElem& elem, const Package* pkg ) :
+ArmorDesc::ArmorDesc( u32 objtype, ConfigElem& elem, const Package* pkg ) :
 	EquipDesc( objtype, elem, ARMORDESC, pkg ),
 	ar( elem.remove_ushort( "AR" ) ),
 	zones(),

@@ -26,7 +26,7 @@ class WeaponDesc : public EquipDesc
 {
 public:
 	typedef EquipDesc base;
-    WeaponDesc( u16 objtype, ConfigElem& elem, const Package* pkg );
+    WeaponDesc( u32 objtype, ConfigElem& elem, const Package* pkg );
     WeaponDesc(); // for dummy template
     virtual void PopulateStruct( BStruct* descriptor ) const;
 

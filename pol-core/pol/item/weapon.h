@@ -106,7 +106,7 @@ inline const ScriptDef& UWeapon::hit_script() const
 
 void load_weapon_templates();
 void unload_weapon_templates();
-bool isa_weapon( u16 objtype );
+bool isa_weapon( u32 objtype );
 
 UWeapon* find_intrinsic_weapon( const std::string& name );
 UWeapon* create_intrinsic_weapon( ConfigElem& elem );

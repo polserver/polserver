@@ -367,7 +367,7 @@ void read_npc( ConfigElem& elem )
 Item* read_item( ConfigElem& elem )
 {
 	u32 serial;
-	u16 objtype;
+	u32 objtype;
 	if (elem.remove_prop( "SERIAL", &serial ) == false)
 	{
 		cerr << "Item element has no SERIAL property, omitting." << endl;
@@ -697,7 +697,7 @@ void read_storage_dat()
 	}
 }
 
-Item* find_existing_item( u16 objtype, u16 x, u16 y, s8 z, Realm* realm )
+Item* find_existing_item( u32 objtype, u16 x, u16 y, s8 z, Realm* realm )
 {
 	unsigned short wx, wy;
 	zone_convert( x, y, wx, wy, realm );
@@ -723,7 +723,7 @@ int dupe_count;
 
 void import( ConfigElem& elem )
 {
-	u16 objtype;
+	u32 objtype;
 	objtype = elem.remove_ushort( "OBJTYPE" );
 	if (objtype > config.max_tile_id)
 	{

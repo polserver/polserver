@@ -41,6 +41,7 @@ Notes
 #include "../mobile/charactr.h"
 #include "../network/client.h"
 #include "../network/packets.h"
+#include "../network/clienttransmit.h"
 #include "../core.h"
 #include "../fnsearch.h"
 #include "../item/itemdesc.h"
@@ -84,7 +85,7 @@ struct BoatShape {
     };
     ComponentShape componentshapes[ BOATSHAPE_COMPONENT__COUNT ];
 
-    bool objtype_is_component( unsigned short objtype, int* index ) const;
+    bool objtype_is_component( unsigned int objtype, int* index ) const;
     BoatShape( ConfigElem& elem );
     BoatShape();
 };
@@ -149,7 +150,7 @@ BoatShape::BoatShape( ConfigElem& elem )
         }
     }
 }
-bool BoatShape::objtype_is_component( unsigned short objtype, int* index ) const
+bool BoatShape::objtype_is_component( unsigned int objtype, int* index ) const
 {
     if (objtype >= EXTOBJ_TILLERMAN && objtype <= EXTOBJ_HOLD)
     {
@@ -205,8 +206,9 @@ void send_boat_to_inrange( const UBoat* item, u16 oldx, u16 oldy )
 {
 	PktOut_1A* msg = REQUESTPACKET(PktOut_1A,PKTOUT_1A_ID);
 	msg->offset+=2;
+	u16 graphic=item->multidef().multiid | 0x4000;
 	msg->Write(item->serial_ext);
-	msg->Write(item->graphic_ext);
+	msg->WriteFlipped(graphic);
 	msg->WriteFlipped(item->x);
 	msg->WriteFlipped(item->y);
 	msg->Write(item->z);
@@ -246,18 +248,18 @@ void send_boat_to_inrange( const UBoat* item, u16 oldx, u16 oldy )
         {
             client->pause();
 			if (client->ClientType & CLIENTTYPE_7090)
-				client->transmit( &msg3->buffer, msg3->offset );
+				ADDTOSENDQUEUE(client, &msg3->buffer, msg3->offset );
 			else if (client->ClientType & CLIENTTYPE_7000)
-				client->transmit( &msg2->buffer, msg2->offset );
+				ADDTOSENDQUEUE(client, &msg2->buffer, msg2->offset );
 			else
-				client->transmit( &msg->buffer, len1A );
+				ADDTOSENDQUEUE(client, &msg->buffer, len1A );
             boat_sent_to.push_back( client );
         }
 		else if ((oldx!=USHRT_MAX) && (oldy!=USHRT_MAX) && //were inrange
 			(client->chr->realm == item->realm) &&
 			(inrange( client->chr->x, client->chr->y, oldx, oldy )))
 		{
-			client->transmit( &msgremove->buffer, msgremove->offset );
+			ADDTOSENDQUEUE(client, &msgremove->buffer, msgremove->offset );
 		}
     }
 	READDPACKET(msg);

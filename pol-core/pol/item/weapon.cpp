@@ -98,7 +98,7 @@ UACTION default_anim( bool two_handed )
 		return ACTION_RIDINGHORSE4;
 }
 
-WeaponDesc::WeaponDesc( u16 objtype, ConfigElem& elem, const Package* pkg ) :
+WeaponDesc::WeaponDesc( u32 objtype, ConfigElem& elem, const Package* pkg ) :
 	EquipDesc( objtype, elem, WEAPONDESC, pkg ),
 	pAttr( NULL ),
 	delay( elem.remove_ushort( "DELAY", 0 ) ),

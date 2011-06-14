@@ -55,7 +55,7 @@ public:
 
     static ItemDesc* create( ConfigElem& elem, const Package* pkg );
 
-    ItemDesc( u16 objtype, ConfigElem& elem, Type type, const Package* pkg );
+    ItemDesc( u32 objtype, ConfigElem& elem, Type type, const Package* pkg );
     explicit ItemDesc( Type type );
     virtual ~ItemDesc();
     virtual void PopulateStruct( BStruct* descriptor ) const;
@@ -67,7 +67,7 @@ public:
     const Package* pkg;
     std::string objtypename;
 
-    u16 objtype;
+    u32 objtype;
     u16 graphic;
     u16 color;
     //u16 weight;
@@ -120,7 +120,7 @@ class ContainerDesc : public ItemDesc
 {
     typedef ItemDesc base;
 public:
-    ContainerDesc( u16 objtype, ConfigElem& elem, const Package* pkg );
+    ContainerDesc( u32 objtype, ConfigElem& elem, const Package* pkg );
     virtual void PopulateStruct( BStruct* descriptor ) const;
 
     // string name;
@@ -144,7 +144,7 @@ class DoorDesc : public ItemDesc
 {
     typedef ItemDesc base;
 public:
-    DoorDesc( u16 objtype, ConfigElem& elem, const Package* pkg );
+    DoorDesc( u32 objtype, ConfigElem& elem, const Package* pkg );
 	virtual void PopulateStruct( BStruct* descriptor ) const;
     s16 xmod;
     s16 ymod;
@@ -154,7 +154,7 @@ class SpellbookDesc : public ContainerDesc
 {
     typedef ContainerDesc base;
 public:
-    SpellbookDesc( u16 objtype, ConfigElem& elem, const Package* pkg );
+    SpellbookDesc( u32 objtype, ConfigElem& elem, const Package* pkg );
 	virtual void PopulateStruct( BStruct* descriptor ) const;
 
     std::string spelltype;
@@ -164,7 +164,7 @@ class SpellScrollDesc : public ItemDesc
 {
     typedef ItemDesc base;
 public:
-    SpellScrollDesc( u16 objtype, ConfigElem& elem, const Package* pkg );
+    SpellScrollDesc( u32 objtype, ConfigElem& elem, const Package* pkg );
 	virtual void PopulateStruct( BStruct* descriptor ) const;
 
     std::string spelltype;
@@ -174,7 +174,7 @@ class MultiDesc : public ItemDesc
 {
     typedef ItemDesc base;
 public:
-    MultiDesc( u16 objtype, ConfigElem& elem, Type type, const Package* pkg );
+    MultiDesc( u32 objtype, ConfigElem& elem, Type type, const Package* pkg );
 	virtual void PopulateStruct( BStruct* descriptor ) const;
     u16 multiid;
 };
@@ -183,7 +183,7 @@ class BoatDesc : public MultiDesc
 {
     typedef MultiDesc base;
 public:
-    BoatDesc( u16 objtype, ConfigElem& elem, const Package* pkg );
+    BoatDesc( u32 objtype, ConfigElem& elem, const Package* pkg );
 	virtual void PopulateStruct( BStruct* descriptor ) const;
 };
 
@@ -191,7 +191,7 @@ class HouseDesc : public MultiDesc
 {
     typedef MultiDesc base;
 public:
-    HouseDesc( u16 objtype, ConfigElem& elem, const Package* pkg );
+    HouseDesc( u32 objtype, ConfigElem& elem, const Package* pkg );
 	virtual void PopulateStruct( BStruct* descriptor ) const;
 };
 
@@ -199,42 +199,42 @@ class MapDesc : public ItemDesc
 {
     typedef ItemDesc base;
 public:
-    MapDesc( u16 objtype, ConfigElem& elem, const Package* pkg );
+    MapDesc( u32 objtype, ConfigElem& elem, const Package* pkg );
 	virtual void PopulateStruct( BStruct* descriptor ) const;
 
     bool editable;
 };
 
 
-const ItemDesc& find_itemdesc( unsigned short objtype );
-const ContainerDesc& find_container_desc( u16 objtype );
-const DoorDesc& fast_find_doordesc( u16 objtype );
-const MultiDesc& find_multidesc( u16 objtype );
+const ItemDesc& find_itemdesc( unsigned int objtype );
+const ContainerDesc& find_container_desc( u32 objtype );
+const DoorDesc& fast_find_doordesc( u32 objtype );
+const MultiDesc& find_multidesc( u32 objtype );
 
 extern ItemDesc empty_itemdesc;
 extern ItemDesc temp_itemdesc;
 
 //extern std::map< unsigned short, ItemDesc > itemdesc;
-const int N_ITEM_DESC = 0x10000;
+const int N_ITEM_DESC = 0x20000;
 extern bool has_walkon_script_[N_ITEM_DESC];
 
-inline bool has_walkon_script( u16 objtype )
+inline bool has_walkon_script( u32 objtype )
 {
     return has_walkon_script_[objtype];
 }
 
 extern bool dont_save_itemtype[N_ITEM_DESC];
-unsigned short getgraphic( unsigned short objtype );
-unsigned short getcolor( unsigned short objtype );
+unsigned short getgraphic( unsigned int objtype );
+unsigned short getcolor( unsigned int objtype );
 
-unsigned short get_objtype_byname( const char* name );
-unsigned short get_objtype_from_string( const std::string& str );
-bool objtype_is_lockable( u16 objtype );
+unsigned int get_objtype_byname( const char* name );
+unsigned int get_objtype_from_string( const std::string& str );
+bool objtype_is_lockable( u32 objtype );
 
 void load_itemdesc( ConfigElem& elem );
 void fillin_itemdesc_table();
 
-typedef std::map<unsigned short, unsigned short> OldObjtypeConversions;
+typedef std::map<unsigned int, unsigned int> OldObjtypeConversions;
 extern OldObjtypeConversions old_objtype_conversions;
 
 const ItemDesc* CreateItemDescriptor( BStruct* itemdesc_struct );
