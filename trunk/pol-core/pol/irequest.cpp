@@ -17,6 +17,7 @@ Notes
 #include "mobile/attribute.h"
 #include "mobile/charactr.h"
 #include "network/client.h"
+#include "network/clienttransmit.h"
 #include "msghandl.h"
 #include "pktboth.h"
 #include "pktin.h"
@@ -94,7 +95,7 @@ void send_skillmsg( Client *client, const Character *chr )
 	u16 len=msg->offset;
 	msg->offset=1;
 	msg->WriteFlipped(len);
-	client->transmit( &msg->buffer, len );
+	ADDTOSENDQUEUE(client, &msg->buffer, len );
 	READDPACKET(msg);
 }
 

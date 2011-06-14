@@ -122,7 +122,7 @@ void read_menus( void )
                          << " must provide at least an object type" << endl;
 					throw runtime_error( "Data error in MENUS.CFG" );
 				}
-				u16 objtype = (u16) strtoul( objtype_str.c_str(), NULL, 0 );
+				u32 objtype = (u32) strtoul( objtype_str.c_str(), NULL, 0 );
 				if (objtype == 0) // 0 specified, or text
 				{
 					cerr << "Entry in menu " << menu->name 

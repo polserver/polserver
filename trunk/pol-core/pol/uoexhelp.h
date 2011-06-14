@@ -29,7 +29,7 @@ class Client;
 bool getCharacterParam( Executor& exec, unsigned param, Character*& chr );
 bool getItemParam( Executor& exec, unsigned param, Item*& item );
 bool getUObjectParam( Executor& exec, unsigned param, UObject*& objptr );
-bool getObjtypeParam( Executor& exec, unsigned param, unsigned short& objtype );
+bool getObjtypeParam( Executor& exec, unsigned param, unsigned int& objtype );
 bool getObjtypeParam( Executor& exec, unsigned param, const ItemDesc*& itemdesc );
 bool getSkillIdParam( Executor& exec, unsigned param, USKILLID& skillid );
 bool getUBoatParam( Executor& exec, unsigned param, UBoat*& boat );

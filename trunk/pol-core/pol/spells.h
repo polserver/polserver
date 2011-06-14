@@ -26,7 +26,7 @@ class Package;
 class TargetCursor;
 class USpell;
 
-extern u16 spell_scroll_objtype_limits[7][2];
+extern u32 spell_scroll_objtype_limits[7][2];
 
 class USpellParams
 {

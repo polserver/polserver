@@ -26,9 +26,11 @@ Notes
 #include "iostats.h"
 #include "packethooks.h"
 #include "packets.h"
+#include "clienttransmit.h"
 #include "../polsig.h"
 #include "../polstats.h"
 #include "../ucfg.h"
+#include "../polsem.h"
 
 string Client::ipaddrAsString() const
 {
@@ -40,8 +42,9 @@ void Client::recv_remaining( int total_expected)
 	int count;
     int max_expected = total_expected - bytes_received;
 
+	_SocketMutex.lock();
 	count = cryptengine->Receive(&buffer[bytes_received],max_expected,csocket);
-
+	_SocketMutex.unlock();
 	if (count > 0)
 	{
         passert( count <= max_expected );
@@ -65,11 +68,11 @@ void Client::recv_remaining( int total_expected)
 void Client::recv_remaining_nocrypt( int total_expected)
 {
 	int count;
-
+	_SocketMutex.lock();
 	count=recv(csocket, 
 		       (char *) &buffer[ bytes_received ], 
 			   total_expected - bytes_received, 0);
-
+	_SocketMutex.unlock();
 	if (count > 0)
     {
         bytes_received += count;
@@ -184,7 +187,10 @@ void Client::transmit( const void *data, int len )
     //pointer to the packet object.
     //
     //If there is no outgoing packet script, handled will be false, and the passed params will be unchanged.
-    CallOutgoingPacketExportedFunction(this, data, len, p, handled);
+	{
+		PolLock lck;
+		CallOutgoingPacketExportedFunction(this, data, len, p, handled);
+	}
     if(handled)
         return;
 
@@ -239,5 +245,5 @@ void Client::transmitmore( const void *data, int len )
 
 void transmit( Client* client, const void *data, int len )
 {
-    client->transmit( data, len );
+    ADDTOSENDQUEUE(client, data, len );
 }

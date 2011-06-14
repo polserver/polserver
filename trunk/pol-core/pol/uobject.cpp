@@ -64,12 +64,12 @@ void display_unreaped_orphan_instances()
 unsigned int UObject::dirty_writes;
 unsigned int UObject::clean_writes;
 
-UObject::UObject(u16 objtype, UOBJ_CLASS i_uobj_class) :
+UObject::UObject(u32 objtype, UOBJ_CLASS i_uobj_class) :
 	serial(0),
 	serial_ext(0),
 	objtype_(objtype),
-    graphic(objtype),
-	graphic_ext(ctBEu16(objtype)),
+    graphic(static_cast<u16>(objtype)),
+	graphic_ext(ctBEu16(graphic)),
 	color(0),
 	color_ext(0),
 	x(0),

@@ -19,6 +19,7 @@ Notes
 #include "mobile/charactr.h"
 #include "network/client.h"
 #include "network/packets.h"
+#include "network/clienttransmit.h"
 #include "item/itemdesc.h"
 #include "msghandl.h"
 #include "pktboth.h"
@@ -52,7 +53,7 @@ void handle_request_tooltip( Client* client, PKTIN_B6* msgin )
 				msg->offset=1;
 				msg->WriteFlipped(len);
 
-                client->transmit( &msg->offset, len );
+                ADDTOSENDQUEUE(client, &msg->offset, len );
 				READDPACKET(msg);
             }
         }
@@ -70,7 +71,7 @@ void send_object_cache(Client* client, const UObject* obj)
 			PktOut_DC* msgdc = REQUESTPACKET(PktOut_DC,PKTOUT_DC_ID);
 			msgdc->Write(obj->serial_ext);
 			msgdc->WriteFlipped(obj->rev());
-			client->transmit(&msgdc->buffer, msgdc->offset);
+			ADDTOSENDQUEUE(client,&msgdc->buffer, msgdc->offset);
 			READDPACKET(msgdc);
 		}
 		else
@@ -80,7 +81,7 @@ void send_object_cache(Client* client, const UObject* obj)
 			msgbf10->offset+=2; //sub
 			msgbf10->Write(obj->serial_ext);
 			msgbf10->WriteFlipped(obj->rev());
-			client->transmit(&msgbf10->buffer, msgbf10->offset);
+			ADDTOSENDQUEUE(client,&msgbf10->buffer, msgbf10->offset);
 			READDPACKET(msgbf10);
 		}
 	}
@@ -115,7 +116,7 @@ void send_object_cache_to_inrange(const UObject* obj)
 							msgdc->Write(obj->serial_ext);
 							msgdc->WriteFlipped(obj->rev());
 						}
-						client2->transmit(&msgdc->buffer, msgdc->offset);
+						ADDTOSENDQUEUE(client2,&msgdc->buffer, msgdc->offset);
 						
 					}
 					else
@@ -127,7 +128,7 @@ void send_object_cache_to_inrange(const UObject* obj)
 							msgbf10->Write(obj->serial_ext);
 							msgbf10->WriteFlipped(obj->rev());
 						}
-						client2->transmit(&msgbf10->buffer, msgbf10->offset);
+						ADDTOSENDQUEUE(client2,&msgbf10->buffer, msgbf10->offset);
 					}
 				}
 			}
@@ -179,7 +180,7 @@ void SendAOSTooltip(Client* client, UObject* obj, bool vendor_content)
 	u16 len=msg->offset;
 	msg->offset=1;
 	msg->WriteFlipped(len);
-	client->transmit(&msg->buffer,len);
+	ADDTOSENDQUEUE(client,&msg->buffer,len);
 	READDPACKET(msg);
 }
 

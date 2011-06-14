@@ -41,7 +41,7 @@ bool BoatShapeExists( u16 graphic );
 MultiDef::MultiDef( ConfigElem& elem, u16 multiid ) :
     multiid(multiid),
     type(UNKNOWN),
-    graphic( elem.remove_ushort( "Graphic" ) ),
+    graphic( elem.remove_unsigned( "Graphic" ) ),
     elems(),
 
     xbase(0),

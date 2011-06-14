@@ -56,7 +56,7 @@ class USpellScroll : public Item
 {
 public:
     virtual u16 get_senditem_amount() const;
-    static u16 convert_objtype_to_spellnum( u16 objtype, u8 school );
+    static u16 convert_objtype_to_spellnum( u32 objtype, u8 school );
 protected:
     explicit USpellScroll( const ItemDesc& descriptor );
     friend Item* Item::create( const ItemDesc& itemdesc, u32 serial );

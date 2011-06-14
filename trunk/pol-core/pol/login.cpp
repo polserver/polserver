@@ -53,6 +53,7 @@ Notes
 #include "ssopt.h"
 #include "ufunc.h"
 #include "crypt/cryptengine.h"
+#include "network/clienttransmit.h"
 
 bool is_banned_ip(Client* client);
 
@@ -60,7 +61,7 @@ void send_login_error( Client *client, unsigned char reason )
 {
 	PktOut_82* msg = REQUESTPACKET(PktOut_82,PKTOUT_82_ID);
 	msg->Write(reason);
-	client->transmit( &msg->buffer, msg->offset );
+	ADDTOSENDQUEUE(client, &msg->buffer, msg->offset );
 	READDPACKET(msg);
 }
 
@@ -206,7 +207,7 @@ void loginserver_login( Client *client, PKTIN_80 *msg )
 	msgA8->offset++;
 	msgA8->WriteFlipped(servcount);
 
-	client->transmit( &msgA8->buffer, len );
+	ADDTOSENDQUEUE(client, &msgA8->buffer, len);//client->transmit( &msgA8->buffer, len );
 	READDPACKET(msgA8);
 
     if (servcount == 0)
@@ -281,7 +282,7 @@ void select_server(Client *client, PKTIN_A0 *msg ) // Relay player to a certain 
 	unsigned int nseed = 0xFEFE0000 | client->ClientType;
 	rsp->WriteFlipped(nseed); // This was set to 0xffffffff in the past but this will conflict with UO:KR detection
 
-	client->transmit( &rsp->buffer, rsp->offset );
+	ADDTOSENDQUEUE(client, &rsp->buffer, rsp->offset );
 	READDPACKET(rsp);
 	
 	client->cryptengine->Init( &nseed, CCryptBase::typeGame );
@@ -357,7 +358,7 @@ void send_start( Client *client )
 	msg->offset=1;
 	msg->WriteFlipped(len);
 
-    client->transmit( &msg->buffer, len );
+    ADDTOSENDQUEUE(client, &msg->buffer, len );
 	READDPACKET(msg);
 }
 

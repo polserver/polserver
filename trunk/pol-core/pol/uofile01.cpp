@@ -37,6 +37,7 @@ Notes
 
 #define VERFILE_TILEDATA 0x1E
 #define TILEDATA_TILES 0x68800
+#define TILEDATA_TILES_HSA 0x78800
 
 struct TileData {
     u8 height;
@@ -123,6 +124,9 @@ void readtile(unsigned short tilenum, USTRUCT_TILE *tile)
         }
         else
         {
+			//512 blocks
+			// header 4
+			// 32*size (30)
             int filepos;
             filepos = TILEDATA_TILES + 
                       (block * 4) +         // skip headers of all previous blocks
@@ -133,6 +137,44 @@ void readtile(unsigned short tilenum, USTRUCT_TILE *tile)
         }
     }
 }
+
+void readtile(unsigned short tilenum, USTRUCT_TILE_HSA *tile)
+{
+	if (tilenum > config.max_tile_id)
+	{
+		memset( tile, 0, sizeof *tile );
+		sprintf(tile->name, "multi");
+		tile->weight = 0xFF;
+	}
+	else
+	{
+		int block;
+		block = (tilenum/32);
+		if (seekto_newer_version( VERFILE_TILEDATA, block + 0x200 ))
+		{
+			int filepos;
+			filepos = 4 + 
+				(sizeof *tile) * (tilenum & 0x1F);
+			fseek(verfile, filepos, SEEK_CUR);
+			fread(tile, sizeof *tile, 1, verfile);
+		}
+		else
+		{
+			int filepos;
+			filepos = TILEDATA_TILES_HSA + 
+				(block * 4) +         // skip headers of all previous blocks
+				4 +                   // skip my header
+				(sizeof(USTRUCT_TILE_HSA)*tilenum);
+			fseek(tilefile, filepos, SEEK_SET);
+			fread(tile, sizeof *tile, 1, tilefile);
+			if (tilenum==0x780a)
+			{
+				char* test = tile->name;
+			}
+		}
+	}
+}
+
 
 void readlandtile( unsigned short tilenum, USTRUCT_LAND_TILE* landtile )
 {
@@ -159,7 +201,37 @@ void readlandtile( unsigned short tilenum, USTRUCT_LAND_TILE* landtile )
     }
 }
 
+void readlandtile( unsigned short tilenum, USTRUCT_LAND_TILE_HSA* landtile )
+{
+	if (tilenum <= 0x3FFF)
+	{
+		int block;
+		block = (tilenum / 32);
+		if (seekto_newer_version( VERFILE_TILEDATA, block ))
+		{
+			int filepos;
+			filepos = 4 + (sizeof *landtile) * (tilenum & 0x1F);
+			fseek( verfile, filepos, SEEK_CUR);
+			fread( landtile, sizeof *landtile, 1, verfile );
+		}
+		else
+		{
+			int filepos;
+			filepos = (block * 4) +         // skip headers of all previous blocks
+				4 +                   // skip my header
+				(sizeof(USTRUCT_LAND_TILE_HSA) * tilenum);
+			fseek( tilefile, filepos, SEEK_SET );
+			fread( landtile, sizeof *landtile, 1, tilefile );
+		}
+	}
+}
+
 void read_objinfo( u16 graphic, USTRUCT_TILE& objinfo )
+{
+	readtile( graphic, &objinfo );
+}
+
+void read_objinfo( u16 graphic, USTRUCT_TILE_HSA& objinfo )
 {
 	readtile( graphic, &objinfo );
 }
@@ -176,12 +248,24 @@ char tileheight(unsigned short tilenum)
     }
     else
     {
-        USTRUCT_TILE tile;
-        height = 0;
-        flags = 0;
-        readtile(tilenum, &tile);
-        height = tile.height;
-        flags = tile.flags;
+		if (cfg_use_new_hsa_format)
+		{
+			USTRUCT_TILE_HSA tile;
+			height = 0;
+			flags = 0;
+			readtile(tilenum, &tile);
+			height = tile.height;
+			flags = tile.flags;
+		}
+		else
+		{
+			USTRUCT_TILE tile;
+			height = 0;
+			flags = 0;
+			readtile(tilenum, &tile);
+			height = tile.height;
+			flags = tile.flags;
+		}
     }
 
     if (flags & USTRUCT_TILE::FLAG_HALF_HEIGHT)
@@ -198,19 +282,39 @@ unsigned char tilelayer( unsigned short tilenum )
     }
     else
     {
-        USTRUCT_TILE tile;
-        tile.layer = 0;
-        readtile(tilenum, &tile);
-        return tile.layer;
+		if (cfg_use_new_hsa_format)
+		{
+			USTRUCT_TILE_HSA tile;
+			tile.layer = 0;
+			readtile(tilenum, &tile);
+			return tile.layer;
+		}
+		else
+		{
+			USTRUCT_TILE tile;
+			tile.layer = 0;
+			readtile(tilenum, &tile);
+			return tile.layer;
+		}
     }
 }
 
 u16 tileweight( unsigned short tilenum )
 {
-    USTRUCT_TILE tile;
-    tile.weight = 1;
-    readtile( tilenum, &tile );
-    return tile.weight;
+	if (cfg_use_new_hsa_format)
+	{
+		USTRUCT_TILE_HSA tile;
+		tile.weight = 1;
+		readtile( tilenum, &tile );
+		return tile.weight;
+	}
+	else
+	{
+		USTRUCT_TILE tile;
+		tile.weight = 1;
+		readtile( tilenum, &tile );
+		return tile.weight;
+	}
 }
 
 u32 tile_uoflags( unsigned short tilenum )
@@ -221,10 +325,20 @@ u32 tile_uoflags( unsigned short tilenum )
     }
     else
     {
-        USTRUCT_TILE tile;
-        tile.flags = 0;
-        readtile(tilenum, &tile);
-        return tile.flags;
+		if (cfg_use_new_hsa_format)
+		{
+			USTRUCT_TILE_HSA tile;
+			tile.flags = 0;
+			readtile(tilenum, &tile);
+			return tile.flags;
+		}
+		else
+		{
+			USTRUCT_TILE tile;
+			tile.flags = 0;
+			readtile(tilenum, &tile);
+			return tile.flags;
+		}
     }
 }
 
@@ -257,15 +371,29 @@ static void read_tiledata()
 {
     tiledata = new TileData[config.max_tile_id+1];
 
-    for( u16 graphic = 0; graphic <= config.max_tile_id; ++graphic )
+    for( u32 graphic_i = 0; graphic_i <= config.max_tile_id; ++graphic_i )
     {
-        USTRUCT_TILE objinfo;
-        memset( &objinfo, 0, sizeof objinfo );
-        readtile( graphic, &objinfo );
+		u16 graphic = static_cast<u16>(graphic_i);
+		if (cfg_use_new_hsa_format)
+		{
+			USTRUCT_TILE_HSA objinfo;
+			memset( &objinfo, 0, sizeof objinfo );
+			readtile( (u16)graphic, &objinfo );
 
-        tiledata[ graphic ].height = objinfo.height;
-        tiledata[ graphic ].layer = objinfo.layer;
-        tiledata[ graphic ].flags = objinfo.flags;
+			tiledata[ graphic ].height = objinfo.height;
+			tiledata[ graphic ].layer = objinfo.layer;
+			tiledata[ graphic ].flags = objinfo.flags;
+		}
+		else
+		{
+			USTRUCT_TILE objinfo;
+			memset( &objinfo, 0, sizeof objinfo );
+			readtile( graphic, &objinfo );
+
+			tiledata[ graphic ].height = objinfo.height;
+			tiledata[ graphic ].layer = objinfo.layer;
+			tiledata[ graphic ].flags = objinfo.flags;
+		}
     }
 }
 
@@ -278,10 +406,20 @@ static void read_landtiledata()
 {
     for( u16 objtype = 0; objtype < N_LANDTILEDATA; ++objtype )
     {
-        USTRUCT_LAND_TILE landtile;
-        readlandtile( objtype, &landtile );
+		if (cfg_use_new_hsa_format)
+		{
+			USTRUCT_LAND_TILE_HSA landtile;
+			readlandtile( objtype, &landtile );
 
-        landtile_flags_arr[objtype] = landtile.flags;
+			landtile_flags_arr[objtype] = landtile.flags;
+		}
+		else
+		{
+			USTRUCT_LAND_TILE landtile;
+			readlandtile( objtype, &landtile );
+
+			landtile_flags_arr[objtype] = landtile.flags;
+		}
     }
 }
 void read_uo_data( void )

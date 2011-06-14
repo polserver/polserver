@@ -16,7 +16,7 @@ Notes
 #include "equipdsc.h"
 
 
-EquipDesc::EquipDesc( u16 objtype, ConfigElem& elem, Type type, const Package* pkg ) :
+EquipDesc::EquipDesc( u32 objtype, ConfigElem& elem, Type type, const Package* pkg ) :
     ItemDesc( objtype, elem, type, pkg ),
     maxhp( elem.remove_ushort( "MAXHP" ))
 {

@@ -394,7 +394,7 @@ bool getUObjectParam( Executor& exec, unsigned param, UObject*& objptr )
     }
 }
 
-bool getObjtypeParam( Executor& exec, unsigned param, unsigned short& objtype )
+bool getObjtypeParam( Executor& exec, unsigned param, unsigned int& objtype )
 {
     BObjectImp* imp = exec.getParamImp( param );
     if (imp == NULL)
@@ -445,7 +445,7 @@ bool getObjtypeParam( Executor& exec, unsigned param, unsigned short& objtype )
 
     if (objtype_long >= (config.max_tile_id+0x1001uL) && objtype_long <= EXTOBJ__HIGHEST) 
     {
-        objtype = static_cast<unsigned short>(objtype_long);
+        objtype = static_cast<unsigned int>(objtype_long);
         if (&find_itemdesc(objtype) != &empty_itemdesc)
         {
             return true;
@@ -469,7 +469,7 @@ bool getObjtypeParam( Executor& exec, unsigned param, unsigned short& objtype )
                     << "\tCall to function " << exec.current_module_function->name << ":" << endl
                     << "\tParameter " << param << ": Value " << objtype_long << " is out of range for an objtype"
                     << endl;
-        exec.setFunctionResult( new BError( "Objtype is out of range (acceptable: 0-0xffff)" ) );
+        exec.setFunctionResult( new BError( "Objtype is out of range (acceptable: 0-0x20000)" ) );
         return false;
     }
 }
@@ -495,7 +495,7 @@ bool getObjtypeParam( Executor& exec, unsigned param, const ItemDesc*& itemdesc_
         const char* ot_str = pstring->data();
         if (!isdigit( ot_str[0] ))
         {
-            unsigned short objtype = get_objtype_byname( pstring->data() );
+            unsigned int objtype = get_objtype_byname( pstring->data() );
             if (objtype != 0)
             {
                 itemdesc_out = &find_itemdesc( objtype );
@@ -540,9 +540,9 @@ bool getObjtypeParam( Executor& exec, unsigned param, const ItemDesc*& itemdesc_
     }
 
     // we get here if the value passed was an integer - either a BLong, or a String containing a number.
-    if (objtype_long > (config.max_tile_id+0x1000) && objtype_long <= EXTOBJ__HIGHEST)
+    if ((u32)objtype_long > (config.max_tile_id+0x1000) && (u32)objtype_long <= EXTOBJ__HIGHEST)
     {
-        const ItemDesc* itemdesc = &find_itemdesc( static_cast<unsigned short>(objtype_long) );
+        const ItemDesc* itemdesc = &find_itemdesc( static_cast<unsigned int>(objtype_long) );
 
         if (itemdesc != &empty_itemdesc)
         {
@@ -556,9 +556,9 @@ bool getObjtypeParam( Executor& exec, unsigned param, const ItemDesc*& itemdesc_
         }
 
     }
-    else if (objtype_long >= 0 && objtype_long < (config.max_tile_id+0x1001))
+    else if (objtype_long >= 0 && (u32)objtype_long < (config.max_tile_id+0x1001))
     {
-        unsigned short objtype = static_cast<unsigned short>(objtype_long);
+        unsigned int objtype = static_cast<unsigned int>(objtype_long);
         itemdesc_out = &find_itemdesc( objtype );
         if (itemdesc_out == &empty_itemdesc)
         {
@@ -580,7 +580,7 @@ bool getObjtypeParam( Executor& exec, unsigned param, const ItemDesc*& itemdesc_
                     << "\tCall to function " << exec.current_module_function->name << ":" << endl
                     << "\tParameter " << param << ": Value " << objtype_long << " is out of range for an objtype"
                     << endl;
-        exec.setFunctionResult( new BError( "Objtype is out of range (acceptable: 0-0xffff)" ) );
+        exec.setFunctionResult( new BError( "Objtype is out of range (acceptable: 0-0x20000)" ) );
         return false;
     }
 }

@@ -58,7 +58,7 @@ cpp_sources = \
 	pol/module/cfgmod.cpp pol/cfgrepos.cpp pol/network/cgdata.cpp pol/mobile/charactr.cpp \
 	pol/checkpnt.cpp \
 	pol/mobile/chrcast.cpp pol/mobile/chrituse.cpp pol/mobile/chrskuse.cpp pol/network/client.cpp \
-	pol/network/clientio.cpp \
+	pol/network/clientio.cpp pol/network/clienttransmit.cpp \
 	pol/network/cliface.cpp pol/cmbtcfg.cpp pol/cmdlevel.cpp pol/containr.cpp \
 	pol/console.cpp pol/core.cpp pol/mobile/corpse.cpp \
 	pol/create.cpp \

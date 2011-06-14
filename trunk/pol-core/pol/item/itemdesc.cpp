@@ -53,7 +53,7 @@ Notes
 #include "../ucfg.h"
 #include "../ustruct.h"
 
-typedef std::map<string,unsigned short, ci_cmp_pred> ObjtypeByNameMap;
+typedef std::map<string,u32, ci_cmp_pred> ObjtypeByNameMap;
 ObjtypeByNameMap objtype_byname;
 
 ItemDesc empty_itemdesc( ItemDesc::ITEMDESC );
@@ -69,7 +69,7 @@ OldObjtypeConversions old_objtype_conversions;
 
 
 
-unsigned short get_objtype_byname( const char* str )
+unsigned int get_objtype_byname( const char* str )
 {
 	ObjtypeByNameMap::const_iterator itr = objtype_byname.find( str );
 	if (itr == objtype_byname.end())
@@ -78,13 +78,13 @@ unsigned short get_objtype_byname( const char* str )
 		return (*itr).second;
 }
 
-unsigned short get_objtype_from_string( const std::string& str )
+unsigned int get_objtype_from_string( const std::string& str )
 {
-	unsigned short objtype;
+	unsigned int objtype;
 	const char* ot_str = str.c_str();
 	if (isdigit( *ot_str ))
 	{
-		objtype = static_cast<unsigned short>(strtoul( ot_str, NULL, 0 ));
+		objtype = static_cast<u32>(strtoul( ot_str, NULL, 0 ));
 	}
 	else
 	{
@@ -111,7 +111,7 @@ ResourceComponent::ResourceComponent( const std::string& rname, unsigned amount 
 
 ItemDesc* ItemDesc::create( ConfigElem& elem, const Package* pkg )
 {
-	u16 objtype = static_cast<u16>(strtoul( elem.rest(), NULL, 0 ));
+	u32 objtype = static_cast<u32>(strtoul( elem.rest(), NULL, 0 ));
 	if (!objtype)
 	{
 		elem.throw_error( "Element must have objtype specified" );
@@ -174,7 +174,7 @@ ItemDesc* ItemDesc::create( ConfigElem& elem, const Package* pkg )
 	return descriptor;
 }
 
-ItemDesc::ItemDesc( u16 objtype, ConfigElem& elem, Type type, const Package* pkg ) :
+ItemDesc::ItemDesc( u32 objtype, ConfigElem& elem, Type type, const Package* pkg ) :
 	type( type ),
 	pkg( pkg ),
 	objtype( objtype ),
@@ -340,7 +340,7 @@ ItemDesc::ItemDesc( u16 objtype, ConfigElem& elem, Type type, const Package* pkg
 		}
 	}
 
-	unsigned short old_objtype;
+	unsigned int old_objtype;
 	while (elem.remove_prop( "OldObjtype", &old_objtype ))
 	{
 		if (old_objtype_conversions.count( old_objtype ))
@@ -614,7 +614,7 @@ bool ItemDesc::default_movable() const
 		return movable ? true : false;
 }
 
-ContainerDesc::ContainerDesc( u16 objtype, ConfigElem& elem, const Package* pkg ) :
+ContainerDesc::ContainerDesc( u32 objtype, ConfigElem& elem, const Package* pkg ) :
 	ItemDesc( objtype, elem, CONTAINERDESC, pkg ),
 	gump(elem.remove_ushort( "GUMP" )),
 	minx(elem.remove_ushort( "MINX" )),
@@ -655,7 +655,7 @@ void ContainerDesc::PopulateStruct( BStruct* descriptor ) const
 	descriptor->addMember( "OnRemoveScript", new String(on_remove_script.relativename(pkg)) );
 }
 
-DoorDesc::DoorDesc( u16 objtype, ConfigElem& elem, const Package* pkg ) :
+DoorDesc::DoorDesc( u32 objtype, ConfigElem& elem, const Package* pkg ) :
 	ItemDesc( objtype, elem, DOORDESC, pkg ),
 	xmod( static_cast<s16>(elem.remove_int( "XMOD" )) ),
 	ymod( static_cast<s16>(elem.remove_int( "YMOD" )) )
@@ -669,7 +669,7 @@ void DoorDesc::PopulateStruct( BStruct* descriptor ) const
 	descriptor->addMember( "YMod", new BLong(ymod) );
 }
 
-SpellbookDesc::SpellbookDesc( u16 objtype, ConfigElem& elem, const Package* pkg ) :
+SpellbookDesc::SpellbookDesc( u32 objtype, ConfigElem& elem, const Package* pkg ) :
 	ContainerDesc( objtype, elem, pkg ),
 	spelltype( elem.remove_string( "SPELLTYPE" ))
 {
@@ -682,7 +682,7 @@ void SpellbookDesc::PopulateStruct( BStruct* descriptor ) const
 	descriptor->addMember( "Spelltype", new String(spelltype) );
 }
 
-SpellScrollDesc::SpellScrollDesc( u16 objtype, ConfigElem& elem, const Package* pkg ) :
+SpellScrollDesc::SpellScrollDesc( u32 objtype, ConfigElem& elem, const Package* pkg ) :
 	ItemDesc( objtype, elem, SPELLSCROLLDESC, pkg ),
 	spelltype( elem.remove_string( "SPELLTYPE" ))
 {
@@ -694,7 +694,7 @@ void SpellScrollDesc::PopulateStruct( BStruct* descriptor ) const
 	descriptor->addMember( "Spelltype", new String(spelltype) );
 }
 
-MultiDesc::MultiDesc( u16 objtype, ConfigElem& elem, Type type, const Package* pkg ) :
+MultiDesc::MultiDesc( u32 objtype, ConfigElem& elem, Type type, const Package* pkg ) :
 	ItemDesc( objtype, elem, type, pkg ),
 	multiid( elem.remove_ushort( "MULTIID" ) )
 {
@@ -712,7 +712,7 @@ void MultiDesc::PopulateStruct( BStruct* descriptor ) const
 	descriptor->addMember( "MultiID", new BLong(multiid) );
 }
 
-BoatDesc::BoatDesc( u16 objtype, ConfigElem& elem, const Package* pkg ) :
+BoatDesc::BoatDesc( u32 objtype, ConfigElem& elem, const Package* pkg ) :
 	MultiDesc( objtype, elem, BOATDESC, pkg )
 {
 }
@@ -722,7 +722,7 @@ void BoatDesc::PopulateStruct( BStruct* descriptor ) const
 	base::PopulateStruct( descriptor );
 }
 
-HouseDesc::HouseDesc( u16 objtype, ConfigElem& elem, const Package* pkg ) :
+HouseDesc::HouseDesc( u32 objtype, ConfigElem& elem, const Package* pkg ) :
 	MultiDesc( objtype, elem, HOUSEDESC, pkg )
 {
 }
@@ -732,7 +732,7 @@ void HouseDesc::PopulateStruct( BStruct* descriptor ) const
 	base::PopulateStruct( descriptor );
 }
 
-MapDesc::MapDesc( u16 objtype, ConfigElem& elem, const Package* pkg ) :
+MapDesc::MapDesc( u32 objtype, ConfigElem& elem, const Package* pkg ) :
 	ItemDesc( objtype, elem, MAPDESC, pkg ),
 	editable( elem.remove_bool( "EDITABLE",true ))
 {
@@ -744,13 +744,13 @@ void MapDesc::PopulateStruct( BStruct* descriptor ) const
 	descriptor->addMember( "Editable", new BLong(editable) );
 }
 
-bool objtype_is_lockable( u16 objtype )
+bool objtype_is_lockable( u32 objtype )
 {
    // passert( objtype < N_ITEM_DESC ); // Shinigami: it's always true
 	return desctable[objtype]->lockable;
 }
 
-unsigned short getgraphic( unsigned short objtype )
+unsigned short getgraphic( u32 objtype )
 {
 	const ItemDesc& id = find_itemdesc(objtype);
 	if (id.graphic)
@@ -769,11 +769,11 @@ unsigned short getgraphic( unsigned short objtype )
 		return 0;
 	}
 }
-unsigned short getcolor( unsigned short objtype )
+unsigned short getcolor( unsigned int objtype )
 {
 	return desctable[objtype]->color;
 }
-const ItemDesc& find_itemdesc( unsigned short objtype )
+const ItemDesc& find_itemdesc( unsigned int objtype )
 {
    // passert( objtype < N_ITEM_DESC ); // Shinigami: it's always true
 	return *desctable[objtype];
@@ -786,7 +786,7 @@ const ItemDesc& find_itemdesc( unsigned short objtype )
 */
 }
 
-const ContainerDesc& find_container_desc( u16 objtype )
+const ContainerDesc& find_container_desc( u32 objtype )
 {
    // passert( objtype < N_ITEM_DESC ); // Shinigami: it's always true
 	ContainerDesc* cd = static_cast<ContainerDesc*>(desctable[ objtype ]);
@@ -799,13 +799,13 @@ const ContainerDesc& find_container_desc( u16 objtype )
 	return *cd;
 }
 
-const DoorDesc& fast_find_doordesc( u16 objtype )
+const DoorDesc& fast_find_doordesc( u32 objtype )
 {
 	DoorDesc* dd = static_cast<DoorDesc*>(desctable[objtype]);
 	passert( dd->type == ItemDesc::DOORDESC );
 	return *dd;
 }
-const MultiDesc& find_multidesc( u16 objtype )
+const MultiDesc& find_multidesc( u32 objtype )
 {
    const ItemDesc* id = desctable[objtype];
    passert( id->type == ItemDesc::BOATDESC || id->type == ItemDesc::HOUSEDESC );
@@ -921,7 +921,7 @@ const ItemDesc* CreateItemDescriptor( BStruct* itemdesc_struct )
 		}
 	}
 
-	unsigned short objtype = static_cast<unsigned short>(strtoul(elem.rest(),NULL,0));
+	unsigned int objtype = static_cast<unsigned int>(strtoul(elem.rest(),NULL,0));
 	ItemDesc* id = ItemDesc::create( elem, find_itemdesc(objtype).pkg );
 
 	dynamic_item_descriptors.push_back(id);
@@ -997,7 +997,7 @@ void write_objtypes_txt()
 	{
 		const ItemDesc* itemdesc = desctable[ i ];
 		if (itemdesc == &empty_itemdesc &&
-			!old_objtype_conversions.count(static_cast<unsigned short>(i)))
+			!old_objtype_conversions.count(static_cast<unsigned int>(i)))
 		{
 			continue;
 		}
@@ -1031,7 +1031,7 @@ void write_objtypes_txt()
 		{
 			ofs << "# " << hexint(i)
 				<< " converts to "
-				<< hexint((int)old_objtype_conversions[static_cast<unsigned short>(i)])
+				<< hexint((int)old_objtype_conversions[static_cast<unsigned int>(i)])
 				<< '\n';
 		}
 
@@ -1101,7 +1101,7 @@ void unload_itemdesc_scripts()
 	}
 }
 
-void remove_resources( u16 objtype, u16 amount )
+void remove_resources( u32 objtype, u16 amount )
 {
 	const ItemDesc& id = find_itemdesc( objtype );
 	std::vector<ResourceComponent>::const_iterator itr = id.resources.begin(), end=id.resources.end();
@@ -1112,7 +1112,7 @@ void remove_resources( u16 objtype, u16 amount )
 	}
 }
 
-void return_resources( u16 objtype, u16 amount )
+void return_resources( u32 objtype, u16 amount )
 {
 	// MuadDib Added 03/22/09. This can cause a crash in shutdown with orphaned/leaked items
 	// after saving of data files, and clearing all objects. At this stage, there is no need

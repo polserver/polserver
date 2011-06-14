@@ -14,6 +14,7 @@ Notes
 #include "../mobile/attribute.h"
 #include "../mobile/charactr.h"
 #include "../network/packets.h"
+#include "../network/clienttransmit.h"
 #include "client.h"
 #include "cliface.h"
 #include "../party.h"
@@ -99,7 +100,7 @@ void send_uo_hits( Client* client, Character* me, const Vital* vital )
     if (v > 0xFFFF)
         v = 0xFFFF;
     msg->WriteFlipped(static_cast<u16>(v));
-    client->transmit( &msg->buffer, msg->offset );
+    ADDTOSENDQUEUE(client, &msg->buffer, msg->offset );
 	READDPACKET(msg);
 }
 
@@ -116,7 +117,7 @@ void send_uo_mana( Client* client, Character* me, const Vital* vital )
 	if (v > 0xFFFF)
 		v = 0xFFFF;
 	msg->WriteFlipped(static_cast<u16>(v));
-	client->transmit( &msg->buffer, msg->offset );
+	ADDTOSENDQUEUE(client, &msg->buffer, msg->offset );
 	READDPACKET(msg);
 
 	if (me->party() != NULL)
@@ -136,7 +137,7 @@ void send_uo_stamina( Client* client, Character* me, const Vital* vital )
 	if (v > 0xFFFF)
 		v = 0xFFFF;
 	msg->WriteFlipped(static_cast<u16>(v));
-	client->transmit( &msg->buffer, msg->offset );
+	ADDTOSENDQUEUE(client, &msg->buffer, msg->offset );
 	READDPACKET(msg);
 
 	if (me->party()!=NULL)
@@ -174,7 +175,7 @@ void send_uo_skill( Client* client, Character* me, const Attribute* attr )
 	u16 len = msg->offset;
 	msg->offset=1;
 	msg->WriteFlipped(len);
-	client->transmit( &msg->buffer, len );
+	ADDTOSENDQUEUE(client, &msg->buffer, len );
 	READDPACKET(msg);
 }
 void ClientInterface::Initialize()

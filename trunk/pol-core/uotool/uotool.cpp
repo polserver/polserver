@@ -32,6 +32,7 @@ Notes
 #include "../pol/polfile.h"
 #include "../pol/uofilei.h"
 #include "../pol/multi/multidef.h"
+#include "../pol/objtype.h"
 
 #include "../plib/realmdescriptor.h"
 #include "../plib/staticblock.h"
@@ -638,7 +639,7 @@ void print_multihull( u16 i, MultiDef* multi)
         return;
 
     USTRUCT_TILE tile;
-    read_objinfo( i+(config.max_tile_id+1), tile );
+    read_objinfo( static_cast<u16>(i+(config.max_tile_id+1)), tile );
     cout << "Multi 0x" << hex << i+i+(config.max_tile_id+1) << dec 
          << " -- " << tile.name << ":" << endl;
     for( short y = multi->minry; y <= multi->maxry; ++y )
@@ -672,7 +673,7 @@ void print_widedata( u16 i, MultiDef* multi )
         return;
 
     USTRUCT_TILE tile;
-    read_objinfo( i+(config.max_tile_id+1), tile );
+    read_objinfo( static_cast<u16>(i+(config.max_tile_id+1)), tile );
     cout << "Multi 0x" << hex << i+(config.max_tile_id+1) << dec 
          << " -- " << tile.name << ":" << endl;
     for( short y = multi->minry; y <= multi->maxry; ++y )
@@ -700,7 +701,7 @@ void print_multidata( u16 i, MultiDef* multi )
         return;
 
     USTRUCT_TILE tile;
-    read_objinfo( i+(config.max_tile_id+1), tile );
+    read_objinfo( static_cast<u16>(i+(config.max_tile_id+1)), tile );
     cout << "Multi 0x" << hex << i+(config.max_tile_id+1) << dec 
          << " -- " << tile.name << ":" << endl;
     
@@ -1341,10 +1342,10 @@ int xmain( int argc, char* argv[] )
     config.uo_datafile_root = elem.remove_string( "UoDataFileRoot" );
     config.uo_datafile_root = normalized_dir_form( config.uo_datafile_root );
 
-	unsigned short max_tile = elem.remove_ushort( "MaxTileID", 0x3FFF );
+	unsigned short max_tile = elem.remove_ushort( "MaxTileID", UOBJ_DEFAULT_MAX );
 
-	if (max_tile != 0x3FFF && max_tile != 0x7FFF)
-		config.max_tile_id = 0x3FFF;
+	if (max_tile != UOBJ_DEFAULT_MAX && max_tile != UOBJ_SA_MAX && max_tile != UOBJ_HSA_MAX)
+		config.max_tile_id = UOBJ_DEFAULT_MAX;
 	else
 		config.max_tile_id = max_tile;
 

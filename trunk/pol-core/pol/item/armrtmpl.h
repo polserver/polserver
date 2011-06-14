@@ -24,7 +24,7 @@ class ArmorDesc : public EquipDesc
 public:
     //ArmorTemplate();
 	typedef EquipDesc base;
-    ArmorDesc( u16 objtype, ConfigElem& elem, const Package* pkg );
+    ArmorDesc( u32 objtype, ConfigElem& elem, const Package* pkg );
 	virtual void PopulateStruct( BStruct* descriptor ) const;
 
     unsigned short ar;
