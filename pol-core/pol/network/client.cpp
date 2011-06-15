@@ -428,7 +428,6 @@ void Client::queue_data( const void *data, unsigned short datalen )
 
 }
 
-
 void Client::xmit( const void *data, unsigned short datalen )
 {
 	if(encrypt_server_stream)
@@ -518,6 +517,7 @@ void Client::send_queued_data()
 			if (sckerr == SOCKET_ERRNO(EWOULDBLOCK))
 			{
 				// do nothing.  it'll be re-queued later, when it won't block.
+				_SocketMutex.unlock();
 				return;
 			}
 			else
