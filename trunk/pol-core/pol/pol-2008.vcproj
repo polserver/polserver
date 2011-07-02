@@ -1765,6 +1765,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\network\clienttransmit.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\network\clienttransmit.h"
+				>
+			</File>
+			<File
 				RelativePath=".\network\cliface.cpp"
 				>
 			</File>
