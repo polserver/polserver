@@ -876,11 +876,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\xmlfilescrobj.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\zone.cpp"
+				RelativePath=".\xmlfilescrobj.cpp"				>			</File>			<File				RelativePath=".\zone.cpp"
 				>
 			</File>
 		</Filter>
@@ -1453,11 +1449,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\xmlfilescrobj.h"
-				>
-			</File>
-			<File
-				RelativePath=".\zone.h"
+				RelativePath=".\xmlfilescrobj.h"				>			</File>			<File				RelativePath=".\zone.h"
 				>
 			</File>
 		</Filter>
@@ -1765,7 +1757,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\network\cliface.cpp"
+				RelativePath=".\network\clienttransmit.cpp"				>			</File>			<File				RelativePath=".\network\clienttransmit.h"				>			</File>			<File				RelativePath=".\network\cliface.cpp"
 				>
 			</File>
 			<File
