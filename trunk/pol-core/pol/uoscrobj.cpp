@@ -92,10 +92,10 @@ Notes
 #include "uofile.h"
 #include "item/weapon.h"
 #include "item/wepntmpl.h"
-#include "module/uomod.h"
 #include "uoexhelp.h"
 #include "uworld.h"
 #include "ufunc.h"
+#include "module/uomod.h"
 #include "module/partymod.h"
 #include "network/clienttransmit.h"
 
@@ -1049,7 +1049,40 @@ BObjectImp* Item::script_method_id(const int id, Executor& ex)
 		case MTH_SPLITSTACK_AT:
 		{
 			int amt;
-			return new BLong(1000);
+			unsigned short x, y;
+			short z;
+			const String* realm_name;
+
+			if ( !ex.hasParams(5) )
+				return new BError("Not enough parameters");
+			else if ( !ex.getParam(0, x) ||  !ex.getParam(1, y) || !ex.getParam(2, z) || !ex.getStringParam(3, realm_name) )
+				return new BError("Invalid parameter type");
+			else if ( !ex.getParam(4, amt) )
+				return new BError("No amount specified to pull from existing stack");
+			else if ( this->inuse() ) 
+				return new BError("Item is in use");
+			else if ( amt < 1 )
+				return new BError("Amount was less than 1");
+			else if ( !this->stackable() && amt > 1 )
+				return new BError("Amount > 1 on non stackable item");
+			else
+			{
+				Realm* realm = find_realm(realm_name->value());
+				if ( !realm )
+					return new BError("Realm not found");
+				else if ( !realm->valid(x, y, z) )
+					return new BError("Invalid coordinates for realm");
+
+				Item* newstack = this->remove_part_of_stack(amt);
+				
+				newstack->x = x;
+				newstack->y = y;
+				newstack->z = z;
+				newstack->realm = realm;
+				add_item_to_world(newstack);
+				return new EItemRefObjImp(newstack);
+				//return new BLong(1);
+			}
 			break;
 		}
 		case MTH_SPLITSTACK_INTO:
@@ -1062,14 +1095,14 @@ BObjectImp* Item::script_method_id(const int id, Executor& ex)
 				return new BError("No container specified");
 			else if ( !ex.getParam(1, amt) )
 				return new BError("No amount specified to pull from existing stack");
-			else if ( !this->stackable() )
-				return new BError("Item is not stackable");
 			else if ( this->inuse() ) 
 				return new BError("Item is in use");
-			if ( !cont_item->isa(UObject::CLASS_CONTAINER) )
-			{
+			else if ( amt < 1 )
+				return new BError("Amount was less than 1");
+			else if ( !this->stackable() && amt > 1 )
+				return new BError("Amount > 1 on non stackable item");
+			else if ( !cont_item->isa(UObject::CLASS_CONTAINER) )
 				return new BError( "Non-container selected as target" );
-			}
 			else
 			{
 				UContainer* container = static_cast<UContainer*>(cont_item);
