@@ -348,13 +348,13 @@ void buyhandler( Client* client, PKTBI_3B* msg)
 		return;
 
 	UContainer* backpack = client->chr->backpack();
-	if (backpack == NULL)
+	if ( backpack == NULL )
+	{
 		return;
+	}
 
 	NPC* vendor = client->gd->vendor.get();
-
-	if (vendor == NULL || vendor->orphan() ||
-		vendor->serial_ext != msg->vendor_serial)
+	if ( vendor == NULL || vendor->orphan() || vendor->serial_ext != msg->vendor_serial )
 	{
 		return;
 	}
@@ -366,145 +366,38 @@ void buyhandler( Client* client, PKTBI_3B* msg)
 		return;
 	}
 	client->gd->vendor_for_sale.clear();
-
-	unsigned int total_cost = calculate_cost( vendor, for_sale, msg );
-	if (total_cost > client->chr->gold_carried())
-	{
-		send_clear_vendorwindow( client, vendor );
-		return;
-	}
-
-	unsigned int amount_spent = 0;
-
+	
 	// buy each item individually
-	// note, we know the buyer can afford it all.
 	// the question is, can it all fit in his backpack?
-	int nitems = (cfBEu16( msg->msglen ) - offsetof( PKTBI_3B, items )) /
-					 sizeof msg->items[0];
+	// But who cares ... let the scripter(s) handle it!
+	int nitems = (cfBEu16( msg->msglen) - offsetof( PKTBI_3B, items)) / sizeof msg->items[0];
 
+	auto_ptr<ObjArray> items_bought(new ObjArray);
 	for( int i = 0; i < nitems; ++i )
 	{
-		Item* fs_item = for_sale->find( cfBEu32( msg->items[i].item_serial ) );
-		if (fs_item == NULL)
+		Item* fs_item = for_sale->find(cfBEu32( msg->items[i].item_serial));
+		if ( fs_item == NULL )
 			continue;
-		unsigned short numleft = cfBEu16(msg->items[i].number_bought );
-		if (numleft > fs_item->getamount())
+		unsigned short numleft = cfBEu16(msg->items[i].number_bought);
+		
+		if ( numleft > fs_item->getamount() )
 			numleft = fs_item->getamount();
+		
+		BStruct* entry = new BStruct;
+		entry->addMember("item", fs_item->make_ref());
+		entry->addMember("amount", new BLong(numleft));
 
-		// const ItemDesc& id = find_itemdesc( fs_item->objtype_ );
-		while (numleft)
-		{
-			unsigned short num;
-			if ( fs_item->stackable() )
-			{
-				num = numleft;
-			}
-			else
-			{
-				num = 1;
-			}
-			Item* tobuy = NULL;
-			if (fs_item->amount_to_remove_is_partial( num ))
-			{
-				tobuy = fs_item->remove_part_of_stack(num);
-			}
-			else
-			{
-				for_sale->remove( fs_item );
-				tobuy = fs_item;
-				fs_item = NULL;
-			}
-
-			// move the whole item
-			// FIXME do stuff like adding to existing stacks.
-			ItemRef itemref(tobuy); //dave 1/28/3 prevent item from being destroyed before function ends
-			Item* existing_stack;
-			if (tobuy->stackable() &&
-				(existing_stack = backpack->find_addable_stack( tobuy )))
-			{
-				//dave 1-14-3 check backpack's insert scripts before moving.
-				if(backpack->can_insert_increase_stack( client->chr, UContainer::MT_CORE_MOVED, existing_stack, tobuy->getamount(), tobuy ))
-				{
-					if(tobuy->orphan()) //dave added 1/28/3, item might be destroyed in RTC script
-					{
-						continue;
-					}
-				}
-				else // put the item back just as if the pack had too many/too heavy items.
-				{
-					numleft = 0;
-					if (fs_item)
-						fs_item->add_to_self( tobuy );
-					else
-						// FIXME : Add Grid Index Default Location Checks here.
-						// Remember, if index fails, move to the ground.
-						for_sale->add( tobuy );
-					continue;
-				}
-				numleft -= num;
-				amount_spent += tobuy->sellprice() * num;
-				u16 amtadded = tobuy->getamount();
-				existing_stack->add_to_self(tobuy);
-				update_item_to_inrange( existing_stack );
-
-				backpack->on_insert_increase_stack( client->chr, UContainer::MT_CORE_MOVED, existing_stack, amtadded );
-			}
-			else if (backpack->can_add( *tobuy ))
-			{
-				numleft -= num;
-
-				//dave 12-20 check backpack's insert scripts before moving.
-				bool canInsert = backpack->can_insert_add_item( client->chr, UContainer::MT_CORE_MOVED, tobuy );
-				if(tobuy->orphan()) //dave added 1/28/3, item might be destroyed in RTC script
-				{
-					continue;
-				}
-
-				if (!canInsert) // put the item back just as if the pack had too many/too heavy items.
-				{
-					numleft = 0;
-					if (fs_item)
-						fs_item->add_to_self( tobuy );
-					else
-						// FIXME : Add Grid Index Default Location Checks here.
-						// Remember, if index fails, move to the ground.
-						for_sale->add( tobuy );
-					continue;
-				}
-
-				// FIXME : Add Grid Index Default Location Checks here.
-				// Remember, if index fails, move to the ground.
-				backpack->add_at_random_location( tobuy );
-				update_item_to_inrange( tobuy );
-				amount_spent += tobuy->sellprice() * num;
-
-				backpack->on_insert_add_item( client->chr, UContainer::MT_CORE_MOVED, tobuy );
-			}
-			else
-			{
-				numleft = 0;
-				if (fs_item)
-					fs_item->add_to_self( tobuy );
-				else
-					// FIXME : Add Grid Index Default Location Checks here.
-					// Remember, if index fails, move to the ground.
-					for_sale->add( tobuy );
-			}
-		}
+		items_bought->addElement(entry);
 	}
+	
+	auto_ptr<SourcedEvent> sale_event (new SourcedEvent(EVID_MERCHANT_SOLD, client->chr));
+	sale_event->addMember("shoppinglist", items_bought.release());
+	vendor->send_event(sale_event.release());
 
-	client->chr->spend_gold( amount_spent );
-
-	auto_ptr<SourcedEvent> sale_event (new SourcedEvent( EVID_MERCHANT_SOLD, client->chr ));
-	sale_event->addMember( "amount", new BLong(amount_spent) );
-	vendor->send_event( sale_event.release() );
-
-	send_clear_vendorwindow( client, vendor );
+	send_clear_vendorwindow(client, vendor);
 }
 
 MESSAGE_HANDLER_VARLEN(PKTBI_3B, buyhandler );
-
-
 
 
 bool send_vendorsell( Client* client, NPC* merchant, UContainer* sellfrom, bool send_aos_tooltip )
