@@ -1080,8 +1080,8 @@ BObjectImp* Item::script_method_id(const int id, Executor& ex)
 				newstack->z = z;
 				newstack->realm = realm;
 				add_item_to_world(newstack);
+				move_item(newstack, x, y, static_cast<signed char>(z), realm);
 				return new EItemRefObjImp(newstack);
-				//return new BLong(1);
 			}
 			break;
 		}
