@@ -95,6 +95,7 @@ Notes
 #include "module/uomod.h"
 #include "uoexhelp.h"
 #include "uworld.h"
+#include "ufunc.h"
 #include "module/partymod.h"
 #include "network/clienttransmit.h"
 
@@ -355,25 +356,27 @@ BObjectRef EItemRefObjImp::set_member( const char* membername, BObjectImp* value
 
 BObjectImp* EItemRefObjImp::call_method_id( const int id, Executor& ex, bool forcebuiltin )
 {
-	Item* item = obj_.get();
-	if (!item->orphan())
+	if ( !obj_->orphan() )
 	{
 		ObjMethod* mth = getObjMethod(id);
 		if ( mth->overridden && !forcebuiltin )
 		{
-			BObjectImp* imp = item->custom_script_method( mth->code, ex );
-			if (imp)
+			BObjectImp* imp = obj_->custom_script_method(mth->code, ex);
+			if ( imp )
 				return imp;
 		}
-
-		BObjectImp* imp = item->script_method_id( id, ex );
-		if (imp != NULL)
+		BObjectImp* imp = obj_->script_method_id(id, ex);
+		if ( imp != NULL)
 			return imp;
 		else
-			return base::call_method_id( id, ex, forcebuiltin );
+		{
+			return base::call_method_id(id, ex);
+		}
 	}
 	else
-		return new BError( "That object no longer exists" );
+	{
+		return new BError("That object no longer exists");
+	}
 }
 
 BObjectImp* EItemRefObjImp::call_method( const char* methodname, Executor& ex )
@@ -1032,6 +1035,73 @@ BObjectImp* Item::set_script_member( const char *membername, int value )
 	ObjMember* objmember = getKnownObjMember(membername);
 	if ( objmember != NULL )
 		return this->set_script_member_id(objmember->id, value);
+	else
+		return NULL;
+}
+
+BObjectImp* Item::script_method_id(const int id, Executor& ex)
+{
+	BObjectImp* imp = base::script_method_id(id, ex);
+	if ( imp != NULL )
+		return imp;
+	switch ( id )
+	{
+		case MTH_SPLITSTACK_AT:
+		{
+			int amt;
+			return new BLong(1000);
+			break;
+		}
+		case MTH_SPLITSTACK_INTO:
+		{
+			int amt;
+			Item* cont_item;
+			if ( !ex.hasParams(2) )
+				return new BError("Not enough parameters");
+			else if ( !getItemParam(ex, 0, cont_item) )
+				return new BError("No container specified");
+			else if ( !ex.getParam(1, amt) )
+				return new BError("No amount specified to pull from existing stack");
+			else if ( !this->stackable() )
+				return new BError("Item is not stackable");
+			else if ( this->inuse() ) 
+				return new BError("Item is in use");
+			if ( !cont_item->isa(UObject::CLASS_CONTAINER) )
+			{
+				return new BError( "Non-container selected as target" );
+			}
+			else
+			{
+				UContainer* container = static_cast<UContainer*>(cont_item);
+				Item* newstack = this->remove_part_of_stack(amt);
+				
+				if ( !container->can_add(*newstack) )
+					return new BError("Could not add new stack to container");
+				bool can_insert = container->can_insert_add_item(NULL, UContainer::MT_CORE_MOVED, newstack);
+				if ( !can_insert )
+				{
+					// Put newstack back with the original stack
+					this->add_to_self(newstack);
+					return new BError("Could not insert new stack into container");
+				}
+				container->add_at_random_location(newstack);
+				update_item_to_inrange(newstack);
+				return new EItemRefObjImp(newstack);
+			}
+			
+			break;
+		}
+		default:
+			return NULL;
+	}
+	return new BError("Invalid parameter type");
+}
+
+BObjectImp* Item::script_method(const char* methodname, Executor& ex)
+{
+	ObjMethod* objmethod = getKnownObjMethod(methodname);
+	if ( objmethod != NULL )
+		return this->script_method_id(objmethod->id, ex);
 	else
 		return NULL;
 }
@@ -2893,7 +2963,7 @@ BObjectImp* UDoor::get_script_member( const char* membername ) const
 
 BObjectImp* UDoor::script_method_id( const int id, Executor& ex )
 {
-	BObjectImp* imp = ULockable::script_method_id( id, ex );
+	BObjectImp* imp = base::script_method_id( id, ex );
 	if (imp != NULL)
 		return imp;
 
