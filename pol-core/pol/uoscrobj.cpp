@@ -1059,6 +1059,8 @@ BObjectImp* Item::script_method_id(const int id, Executor& ex)
 				return new BError("Invalid parameter type");
 			else if ( !ex.getParam(4, amt) )
 				return new BError("No amount specified to pull from existing stack");
+			else if ( amt >= this->getamount() ) 
+				return new BError("Amount must be less than the stack amount");
 			else if ( this->inuse() ) 
 				return new BError("Item is in use");
 			else if ( amt < 1 )
@@ -1095,6 +1097,8 @@ BObjectImp* Item::script_method_id(const int id, Executor& ex)
 				return new BError("No container specified");
 			else if ( !ex.getParam(1, amt) )
 				return new BError("No amount specified to pull from existing stack");
+			else if ( amt >= this->getamount() ) 
+				return new BError("Amount must be less than stack amount");
 			else if ( this->inuse() ) 
 				return new BError("Item is in use");
 			else if ( amt < 1 )
