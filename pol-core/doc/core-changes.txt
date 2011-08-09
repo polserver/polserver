@@ -1,4 +1,19 @@
 -- POL099 --
+08-08-2011 Austin:
+     Changed: When a player buys something from a merchant the core will not longer handle taking gold from the player, and moving items to the players pack.
+              When the event for EVID_MERCHANT_SOLD is sent it will be a struct containing the following struct:
+              struct.type = EVID_MERCHANT_SOLD
+              struct.source = player buying 
+              struct.shoppinglist = array( struct.item, struct.amount )
+              
+              The shopping list items will still be items in the merchant's container.
+              It is up to the script to split the items from the stacks there and move them to the player's pack.
+              It is also up to the script to handle gold checks and consumption.
+     Added: item.SplitStackInto(container, amount) 
+              Will split the item into 2 stacks. Returns a reference to the new stack made from item. Places new stack into the container.
+     Added: item.SplitStackAt(x, y, z, realm, amount)
+              Will split the item into 2 stacks. Returns a reference to the new stack made from item. Places new stack at the coordinates.
+     
 05-19-2011 Turley:
      Added: CustomHousing Support (beta)
 	        officially added uo::SendHousingTool( who, house );
