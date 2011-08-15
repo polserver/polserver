@@ -702,7 +702,7 @@ extern BObjectImp* _create_item_in_container( UContainer* cont,
 											  bool force_stacking,
 											  UOExecutorModule* uoemod );
 // player selling to vendor
-void sellhandler( Client* client, PKTIN_9F* msg)
+void oldSellHandler( Client* client, PKTIN_9F* msg)
 {
 	UContainer* backpack = client->chr->backpack();
 	if (backpack == NULL)
@@ -802,6 +802,48 @@ void sellhandler( Client* client, PKTIN_9F* msg)
 	send_clear_vendorwindow( client, vendor );
 
 	client->restart();
+}
+
+void sellhandler(Client* client, PKTIN_9F* msg)
+{
+	if ( ssopt.scripted_merchant_handlers )
+	{
+		oldSellHandler(client, msg);
+		return ;
+	}
+	UContainer* backpack = client->chr->backpack();
+	if (backpack == NULL)
+		return;
+
+	NPC* vendor = client->gd->vendor.get();
+	client->gd->vendor.clear();
+	if ( vendor == NULL || vendor->orphan() || vendor->serial_ext != msg->vendor_serial )
+		return;
+	
+	UContainer* vendor_bought = client->gd->vendor_bought.get();
+	client->gd->vendor_bought.clear();
+	if ( vendor_bought == NULL || vendor_bought->orphan() )
+		return;
+
+	int num_items = cfBEu16(msg->num_items);
+	auto_ptr<ObjArray> items_sold(new ObjArray);
+
+	for ( int i = 0; i < num_items; ++ i )
+	{
+		u32 serial = cfBEu32(msg->items[i].serial);
+		u32 amount = cfBEu16(msg->items[i].amount);
+
+		Item* item = backpack->find_toplevel(serial);
+
+		BStruct* entry = new BStruct;
+		entry->addMember("item", item->make_ref());
+		entry->addMember("amount", new BLong(amount));
+	}
+	auto_ptr<SourcedEvent> sale_event (new SourcedEvent(EVID_MERCHANT_BOUGHT, client->chr));
+	sale_event->addMember("shoppinglist", items_sold.release());
+	vendor->send_event(sale_event.release());
+
+	send_clear_vendorwindow(client, vendor);
 }
 
 MESSAGE_HANDLER_VARLEN(PKTIN_9F, sellhandler );
