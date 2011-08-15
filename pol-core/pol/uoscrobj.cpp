@@ -1061,12 +1061,12 @@ BObjectImp* Item::script_method_id(const int id, Executor& ex)
 				return new BError("No amount specified to pull from existing stack");
 			else if ( amt >= this->getamount() ) 
 				return new BError("Amount must be less than the stack amount");
-			else if ( this->inuse() ) 
-				return new BError("Item is in use");
 			else if ( amt < 1 )
 				return new BError("Amount was less than 1");
 			else if ( !this->stackable() && amt > 1 )
 				return new BError("Amount > 1 on non stackable item");
+			else if ( this->inuse() ) 
+				return new BError("Item is in use");
 			else
 			{
 				Realm* realm = find_realm(realm_name->value());
@@ -1099,12 +1099,12 @@ BObjectImp* Item::script_method_id(const int id, Executor& ex)
 				return new BError("No amount specified to pull from existing stack");
 			else if ( amt >= this->getamount() ) 
 				return new BError("Amount must be less than stack amount");
-			else if ( this->inuse() ) 
-				return new BError("Item is in use");
 			else if ( amt < 1 )
 				return new BError("Amount was less than 1");
 			else if ( !this->stackable() && amt > 1 )
 				return new BError("Amount > 1 on non stackable item");
+			else if ( this->inuse() ) 
+				return new BError("Item is in use");
 			else if ( !cont_item->isa(UObject::CLASS_CONTAINER) )
 				return new BError( "Non-container selected as target" );
 			else
