@@ -504,7 +504,7 @@ void oldBuyHandler(Client* client, PKTBI_3B* msg)
 
 void buyhandler( Client* client, PKTBI_3B* msg)
 {
-	if ( ssopt.scripted_merchant_handlers )
+	if ( !ssopt.scripted_merchant_handlers )
 	{
 		oldBuyHandler(client, msg);
 		return;
@@ -806,7 +806,7 @@ void oldSellHandler( Client* client, PKTIN_9F* msg)
 
 void sellhandler(Client* client, PKTIN_9F* msg)
 {
-	if ( ssopt.scripted_merchant_handlers )
+	if ( !ssopt.scripted_merchant_handlers )
 	{
 		oldSellHandler(client, msg);
 		return ;
