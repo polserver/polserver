@@ -809,7 +809,7 @@ void sellhandler(Client* client, PKTIN_9F* msg)
 	if ( !ssopt.scripted_merchant_handlers )
 	{
 		oldSellHandler(client, msg);
-		return ;
+		return;
 	}
 	UContainer* backpack = client->chr->backpack();
 	if (backpack == NULL)
@@ -838,6 +838,8 @@ void sellhandler(Client* client, PKTIN_9F* msg)
 		BStruct* entry = new BStruct;
 		entry->addMember("item", item->make_ref());
 		entry->addMember("amount", new BLong(amount));
+
+		items_sold->addElement(entry);
 	}
 	auto_ptr<SourcedEvent> sale_event (new SourcedEvent(EVID_MERCHANT_BOUGHT, client->chr));
 	sale_event->addMember("shoppinglist", items_sold.release());
