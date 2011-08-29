@@ -2415,10 +2415,14 @@ void Character::die()
 
 		if (item->newbie() || item->layer == LAYER_BACKPACK)
 			continue;
-
+		else if ( ssopt.honor_unequip_script_on_death )
+		{
+			if ( !item->check_unequip_script() || !item->check_unequiptest_scripts() )
+				continue;
+		}
 		///
 		/// Unequip scripts aren't honored when moving a dead mobile's equipment
-		/// onto a corpse
+		/// onto a corpse if honor_unequip_script_on_death is disabled.
 		///
 		UPDATE_CHECKPOINT();
 		item->check_unequip_script();
@@ -2526,14 +2530,16 @@ void Character::die()
 			if (item == NULL)
 				continue;
 
-			if (item->layer == LAYER_BEARD || 
-				item->layer == LAYER_HAIR || 
-                item->layer == LAYER_FACE ||
-				item->layer == LAYER_BACKPACK)
+			if ( item->layer == LAYER_BEARD || item->layer == LAYER_HAIR || 
+				item->layer == LAYER_FACE || item->layer == LAYER_BACKPACK )
 			{
 				continue;
 			}
-
+			if ( ssopt.honor_unequip_script_on_death )
+			{
+				if ( !item->check_unequip_script() || !item->check_unequiptest_scripts() )
+					continue;
+			}
 			if (item->newbie() && bp->can_add(*item))
 			{
 				UPDATE_CHECKPOINT();

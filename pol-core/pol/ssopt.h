@@ -68,6 +68,7 @@ struct ServSpecOpt {
 	bool speedhack_prevention;
 
 	bool scripted_merchant_handlers;
+	bool honor_unequip_script_on_death;
 
 	std::vector<std::string> total_stats_at_creation;
 };
