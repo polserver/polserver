@@ -85,6 +85,7 @@ void read_servspecopt()
 	ssopt.newbie_starting_equipment = elem.remove_bool("NewbieStartingEquipment",true);
 	ssopt.speedhack_prevention = elem.remove_bool("SpeedhackPrevention",false);
 	ssopt.scripted_merchant_handlers = elem.remove_bool("ScriptedMerchantHandlers", false);
+	ssopt.honor_unequip_script_on_death = elem.remove_bool("HonorUnequipScriptOnDeath", false);
 	ssopt_parse_totalstats(elem);
 
 // Turley 2009/11/06 u8 range...
