@@ -413,7 +413,7 @@ void Item::readProperties( ConfigElem& elem )
     on_use_script_ = elem.remove_string( "ONUSESCRIPT", "" );
     equip_script_ = elem.remove_string( "EQUIPSCRIPT", equip_script_.c_str() );
     unequip_script_ = elem.remove_string( "UNEQUIPSCRIPT", unequip_script_.c_str() );
-
+    
     decayat_gameclock_ = elem.remove_ulong( "DECAYAT", 0 );
     sellprice_ = elem.remove_ulong( "SELLPRICE", UINT_MAX );
     buyprice_ = elem.remove_ulong( "BUYPRICE", UINT_MAX );
