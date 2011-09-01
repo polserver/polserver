@@ -1052,6 +1052,7 @@ BObjectImp* Item::script_method_id(const int id, Executor& ex)
 			unsigned short x, y;
 			short z;
 			const String* realm_name;
+			Item* new_stack;
 
 			if ( !ex.hasParams(5) )
 				return new BError("Not enough parameters");
@@ -1063,36 +1064,35 @@ BObjectImp* Item::script_method_id(const int id, Executor& ex)
 				return new BError("Amount must be less than or equal to the stack amount");
 			else if ( amt < 1 )
 				return new BError("Amount was less than 1");
-			else if ( !this->stackable() && amt > 1 )
-				return new BError("Amount > 1 on non stackable item");
 			else if ( this->inuse() ) 
 				return new BError("Item is in use");
-			else if ( amt == this->getamount() )
-				return new EItemRefObjImp(this);
-			else
-			{
-				Realm* realm = find_realm(realm_name->value());
-				if ( !realm )
-					return new BError("Realm not found");
-				else if ( !realm->valid(x, y, z) )
-					return new BError("Invalid coordinates for realm");
 
-				Item* newstack = this->remove_part_of_stack(amt);
-				
-				newstack->x = x;
-				newstack->y = y;
-				newstack->z = z;
-				newstack->realm = realm;
-				add_item_to_world(newstack);
-				move_item(newstack, x, y, static_cast<signed char>(z), realm);
-				return new EItemRefObjImp(newstack);
-			}
+			// Validate where things are going
+			Realm* realm = find_realm(realm_name->value());
+			if ( !realm )
+				return new BError("Realm not found");
+			else if ( !realm->valid(x, y, z) )
+				return new BError("Invalid coordinates for realm");
+			else if ( amt == this->getamount() )
+				new_stack = this;
+			else
+				new_stack = this->remove_part_of_stack(amt);
+			
+			new_stack->x = x;
+			new_stack->y = y;
+			new_stack->z = z;
+			new_stack->realm = realm;
+			add_item_to_world(new_stack);
+			move_item(new_stack, x, y, static_cast<signed char>(z), realm);
+			return new EItemRefObjImp(new_stack);
+
 			break;
 		}
 		case MTH_SPLITSTACK_INTO:
 		{
 			int amt;
 			Item* cont_item;
+			Item* new_stack;
 			if ( !ex.hasParams(2) )
 				return new BError("Not enough parameters");
 			else if ( !getItemParam(ex, 0, cont_item) )
@@ -1103,32 +1103,32 @@ BObjectImp* Item::script_method_id(const int id, Executor& ex)
 				return new BError("Amount must be less than or equal to stack amount");
 			else if ( amt < 1 )
 				return new BError("Amount was less than 1");
-			else if ( !this->stackable() && amt > 1 )
-				return new BError("Amount > 1 on non stackable item");
 			else if ( this->inuse() ) 
 				return new BError("Item is in use");
 			else if ( !cont_item->isa(UObject::CLASS_CONTAINER) )
 				return new BError( "Non-container selected as target" );
-			else if ( amt == this->getamount() )
-				return new EItemRefObjImp(this);
+
+			UContainer* container = static_cast<UContainer*>(cont_item);
+
+			if ( amt == this->getamount() )
+				new_stack = this;
 			else
-			{
-				UContainer* container = static_cast<UContainer*>(cont_item);
-				Item* newstack = this->remove_part_of_stack(amt);
-				
-				if ( !container->can_add(*newstack) )
+				new_stack = this->remove_part_of_stack(amt);
+			
+			if ( !container->can_add(*new_stack) )
 					return new BError("Could not add new stack to container");
-				bool can_insert = container->can_insert_add_item(NULL, UContainer::MT_CORE_MOVED, newstack);
-				if ( !can_insert )
-				{
-					// Put newstack back with the original stack
-					this->add_to_self(newstack);
-					return new BError("Could not insert new stack into container");
-				}
-				container->add_at_random_location(newstack);
-				update_item_to_inrange(newstack);
-				return new EItemRefObjImp(newstack);
+			
+			bool can_insert = container->can_insert_add_item(NULL, UContainer::MT_CORE_MOVED, new_stack);
+			if ( !can_insert )
+			{
+				// Put newstack back with the original stack
+				if ( new_stack != this )
+					this->add_to_self(new_stack);
+				return new BError("Could not insert new stack into container");
 			}
+			container->add_at_random_location(new_stack);
+			update_item_to_inrange(new_stack);
+			return new EItemRefObjImp(new_stack);
 			
 			break;
 		}
