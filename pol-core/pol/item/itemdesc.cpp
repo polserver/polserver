@@ -187,6 +187,7 @@ ItemDesc::ItemDesc( u32 objtype, ConfigElem& elem, Type type, const Package* pkg
 	walk_on_script( elem.remove_string( "WALKONSCRIPT", "" ), pkg, "scripts/items/" ),
 	on_use_script( elem.remove_string( "SCRIPT", "" ), pkg, "scripts/items/" ),
 	equip_script( elem.remove_string( "EQUIPSCRIPT", "" ) ),
+	quality(elem.remove_double("QUALITY", 1.0) ),
 	unequip_script( elem.remove_string( "UNEQUIPSCRIPT", "" ) ),
 	control_script( elem.remove_string( "CONTROLSCRIPT", "" ), pkg, "scripts/control/" ),
 	create_script( elem.remove_string( "CREATESCRIPT", "" ), pkg, "scripts/control/" ),
@@ -501,28 +502,28 @@ void ItemDesc::PopulateStruct( BStruct* descriptor ) const
 	string typestr;
 	switch( type )
 	{
-	case ITEMDESC:		typestr = "Item"; break;
-	case CONTAINERDESC: typestr = "Container"; break;
-	case DOORDESC:		typestr = "Door"; break;
-	case WEAPONDESC:	typestr = "Weapon"; break;
-	case ARMORDESC:		typestr = "Armor"; break;
-	case BOATDESC:		typestr = "Boat"; break;
-	case HOUSEDESC:		typestr = "House"; break;
-	case SPELLBOOKDESC:	typestr = "Spellbook"; break;
-	case SPELLSCROLLDESC: typestr = "Spellscroll"; break;
-	case MAPDESC:		typestr = "Map"; break;
-	default:			typestr = "Unknown"; break;
+		case ITEMDESC:			typestr = "Item"; break;
+		case CONTAINERDESC:		typestr = "Container"; break;
+		case DOORDESC:			typestr = "Door"; break;
+		case WEAPONDESC:		typestr = "Weapon"; break;
+		case ARMORDESC:		typestr = "Armor"; break;
+		case BOATDESC:			typestr = "Boat"; break;
+		case HOUSEDESC:		typestr = "House"; break;
+		case SPELLBOOKDESC:		typestr = "Spellbook"; break;
+		case SPELLSCROLLDESC:	typestr = "Spellscroll"; break;
+		case MAPDESC:			typestr = "Map"; break;
+		default:				typestr = "Unknown"; break;
 	}
 	descriptor->addMember( "ObjClass",	new String(typestr) );
 	descriptor->addMember( "ObjType",	new BLong(objtype) );
 	descriptor->addMember( "Graphic",	new BLong(graphic) );
-	descriptor->addMember( "Name",		new String(objtypename) );
-	descriptor->addMember( "Color",		new BLong(color) );
+	descriptor->addMember( "Name",	new String(objtypename) );
+	descriptor->addMember( "Color",	new BLong(color) );
 	descriptor->addMember( "Facing",	new BLong(facing) );
-	descriptor->addMember( "Desc",		new String(desc) );
+	descriptor->addMember( "Desc",	new String(desc) );
 	descriptor->addMember( "Tooltip",	new String(tooltip) );
 	descriptor->addMember( "WalkOnScript",	new String(walk_on_script.relativename(pkg)) );
-	descriptor->addMember( "Script",	new String(on_use_script.relativename(pkg)) );
+	descriptor->addMember( "Script",		new String(on_use_script.relativename(pkg)) );
 	descriptor->addMember( "EquipScript",	new String(equip_script) );
 	descriptor->addMember( "UnequipScript", new String(unequip_script) );
 	descriptor->addMember( "ControlScript", new String(control_script.relativename(pkg)) );
@@ -533,7 +534,7 @@ void ItemDesc::PopulateStruct( BStruct* descriptor ) const
 	descriptor->addMember( "Lockable",			new BLong(lockable) );
 	descriptor->addMember( "VendorSellsFor",	new BLong(vendor_sells_for) );
 	descriptor->addMember( "VendorBuysFor",		new BLong(vendor_buys_for) );
-	descriptor->addMember( "DecayTime",			new BLong(decay_time) );
+	descriptor->addMember( "DecayTime",		new BLong(decay_time) );
 	descriptor->addMember( "Movable",			new BLong(default_movable()) );
 	descriptor->addMember( "DoubleClickRange",	new BLong(doubleclick_range) );
 	descriptor->addMember( "UseRequiresLOS",	new BLong(use_requires_los) );
@@ -541,22 +542,23 @@ void ItemDesc::PopulateStruct( BStruct* descriptor ) const
 	descriptor->addMember( "CanUseWhileFrozen",	new BLong(can_use_while_frozen) );
 	descriptor->addMember( "CanUseWhileParalyzed", new BLong(can_use_while_paralyzed) );
 	descriptor->addMember( "Newbie",			new BLong(newbie) );
-	descriptor->addMember( "Invisible",			new BLong(invisible) );
+	descriptor->addMember( "Invisible",		new BLong(invisible) );
 	descriptor->addMember( "DecaysOnMultis",	new BLong(decays_on_multis) );
 	descriptor->addMember( "BlocksCastingIfInHand", new BLong(blocks_casting_if_in_hand) );
 	descriptor->addMember( "StrRequired",		new BLong(base_str_req) );
-	descriptor->addMember( "StackLimit", new BLong(stack_limit) );
+	descriptor->addMember( "StackLimit",		new BLong(stack_limit) );
 	descriptor->addMember( "Weight",			new Double(static_cast<double>(weightmult)/weightdiv) );
-	descriptor->addMember( "FireResist", new BLong(element_resist.fire) );
-	descriptor->addMember( "ColdResist", new BLong(element_resist.cold) );
-	descriptor->addMember( "EnergyResist", new BLong(element_resist.energy) );
-	descriptor->addMember( "PoisonResist", new BLong(element_resist.poison) );
-	descriptor->addMember( "PhysicalResist", new BLong(element_resist.physical) );
-	descriptor->addMember( "FireDamage", new BLong(element_damage.fire) );
-	descriptor->addMember( "ColdDamage", new BLong(element_damage.cold) );
-	descriptor->addMember( "EnergyDamage", new BLong(element_damage.energy) );
-	descriptor->addMember( "PoisonDamage", new BLong(element_damage.poison) );
-	descriptor->addMember( "PhysicalDamage", new BLong(element_damage.physical) );
+	descriptor->addMember( "FireResist",		new BLong(element_resist.fire) );
+	descriptor->addMember( "ColdResist",		new BLong(element_resist.cold) );
+	descriptor->addMember( "EnergyResist",		new BLong(element_resist.energy) );
+	descriptor->addMember( "PoisonResist",		new BLong(element_resist.poison) );
+	descriptor->addMember( "PhysicalResist",	new BLong(element_resist.physical) );
+	descriptor->addMember( "FireDamage",		new BLong(element_damage.fire) );
+	descriptor->addMember( "ColdDamage",		new BLong(element_damage.cold) );
+	descriptor->addMember( "EnergyDamage",		new BLong(element_damage.energy) );
+	descriptor->addMember( "PoisonDamage",		new BLong(element_damage.poison) );
+	descriptor->addMember( "PhysicalDamage",	new BLong(element_damage.physical) );
+	descriptor->addMember( "Quality",			new Double(quality) );
 
 	std::set<std::string>::const_iterator set_itr;
 	auto_ptr<ObjArray> ignorecp (new ObjArray);
