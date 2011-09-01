@@ -1059,14 +1059,16 @@ BObjectImp* Item::script_method_id(const int id, Executor& ex)
 				return new BError("Invalid parameter type");
 			else if ( !ex.getParam(4, amt) )
 				return new BError("No amount specified to pull from existing stack");
-			else if ( amt >= this->getamount() ) 
-				return new BError("Amount must be less than the stack amount");
+			else if ( amt > this->getamount() ) 
+				return new BError("Amount must be less than or equal to the stack amount");
 			else if ( amt < 1 )
 				return new BError("Amount was less than 1");
 			else if ( !this->stackable() && amt > 1 )
 				return new BError("Amount > 1 on non stackable item");
 			else if ( this->inuse() ) 
 				return new BError("Item is in use");
+			else if ( amt == this->getamount() )
+				return new EItemRefObjImp(this);
 			else
 			{
 				Realm* realm = find_realm(realm_name->value());
@@ -1097,8 +1099,8 @@ BObjectImp* Item::script_method_id(const int id, Executor& ex)
 				return new BError("No container specified");
 			else if ( !ex.getParam(1, amt) )
 				return new BError("No amount specified to pull from existing stack");
-			else if ( amt >= this->getamount() ) 
-				return new BError("Amount must be less than stack amount");
+			else if ( amt > this->getamount() ) 
+				return new BError("Amount must be less than or equal to stack amount");
 			else if ( amt < 1 )
 				return new BError("Amount was less than 1");
 			else if ( !this->stackable() && amt > 1 )
@@ -1107,6 +1109,8 @@ BObjectImp* Item::script_method_id(const int id, Executor& ex)
 				return new BError("Item is in use");
 			else if ( !cont_item->isa(UObject::CLASS_CONTAINER) )
 				return new BError( "Non-container selected as target" );
+			else if ( amt == this->getamount() )
+				return new EItemRefObjImp(this);
 			else
 			{
 				UContainer* container = static_cast<UContainer*>(cont_item);
