@@ -61,6 +61,7 @@ public:
                     ItemList& items_in,
                     MobileList& chrs_in );
 	void AcceptHouseCommit(Character* chr, bool accept);
+	void CustomHousesQuit(Character* chr, bool drop_changes);
 	
 
 protected:

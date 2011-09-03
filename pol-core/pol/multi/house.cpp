@@ -397,6 +397,28 @@ BObjectImp* UHouse::script_method_id( const int id, Executor& ex )
 			else
 				return new BError( "Invalid parameter type" );
 		}
+	case MTH_CANCEL_EDITING:
+		{
+			if (!IsCustom())
+				return new BError( "House is not custom" );
+			else if (!IsEditing())
+				return new BError( "House is currently not been edited" );
+			else if (!ex.hasParams(2))
+				return new BError( "Not enough parameters" );
+			Character* chr;
+			int drop_changes;
+			if (getCharacterParam( ex, 0, chr ) &&
+				ex.getParam( 1, drop_changes ))
+			{
+				if (chr->client->gd->custom_house_serial == serial)
+					CustomHousesQuit(chr, drop_changes ? true : false);
+				else
+					return new BError("Character is not editing this house");
+				return new BLong(1);
+			}
+			else
+				return new BError( "Invalid parameter type" );
+		}
 
 	default: return NULL;
 	}
@@ -865,6 +887,8 @@ void move_to_ground( Character* chr )
 
 BObjectImp* destroy_house( UHouse* house )
 {
+	if (house->IsEditing())
+		return new BError( "House currently being customized." );
    
     house->destroy_components();
 
