@@ -739,22 +739,8 @@ void CustomHousesQuit(PKTBI_D7* msg)
     UHouse* house = UHouse::FindWorkingHouse(serial);
     if(house == NULL)
         return;
-	house->CurrentDesign.FillComponents(house);
-	house->WorkingDesign.FillComponents(house,false); // keep in sync
-	house->revision++;
-	vector<u8> newvec;
-	house->WorkingCompressed.swap(newvec);
-
-	vector<u8> newvec2;
-	house->CurrentCompressed.swap(newvec2);
 	Character* chr = find_character(serial);
-
-
-    if(chr && chr->client)
-    {
-        CustomHouseStopEditing(chr,house);
-        CustomHousesSendFull(house, chr->client,HOUSE_DESIGN_CURRENT);
-    }
+	house->CustomHousesQuit(chr, false);
 }
 
 void CustomHousesCommit(PKTBI_D7* msg)
@@ -1063,5 +1049,32 @@ void UHouse::CustomHouseSetInitialState()
 
     vector<u8> newvec2;
     CurrentCompressed.swap(newvec2);
+}
+
+void UHouse::CustomHousesQuit(Character* chr, bool drop_changes)
+{
+	if (drop_changes)
+		WorkingDesign = CurrentDesign;
+	else
+	{
+		CurrentDesign.FillComponents(this);
+		WorkingDesign.FillComponents(this,false); // keep in sync
+	}
+	revision++;
+	vector<u8> newvec;
+	WorkingCompressed.swap(newvec);
+
+	vector<u8> newvec2;
+	CurrentCompressed.swap(newvec2);
+	
+	if(chr && chr->client)
+	{
+		CustomHouseStopEditing(chr,this);
+		CustomHousesSendFull(this, chr->client,HOUSE_DESIGN_CURRENT);
+		if (system_hooks.close_customhouse_hook != NULL)
+		{
+			system_hooks.close_customhouse_hook->call(make_mobileref(chr),new EMultiRefObjImp(this));
+		}
+	}
 }
 

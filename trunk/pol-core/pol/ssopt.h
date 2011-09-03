@@ -70,6 +70,11 @@ struct ServSpecOpt {
 	bool scripted_merchant_handlers;
 	bool honor_unequip_script_on_death;
 
+	unsigned short speedhack_mountrundelay;
+	unsigned short speedhack_mountwalkdelay;
+	unsigned short speedhack_footrundelay;
+	unsigned short speedhack_footwalkdelay;
+
 	std::vector<std::string> total_stats_at_creation;
 };
 
