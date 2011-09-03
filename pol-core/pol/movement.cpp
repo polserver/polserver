@@ -213,12 +213,12 @@ void handle_walk( Client *client, PKTIN_02 *msg02 )
 			if (oldfacing == (msg02->dir & PKTIN_02_FACING_MASK))
 			{
 				if( client->chr->on_mount() )
-					client->next_movement += (msg02->dir & PKTIN_02_DIR_RUNNING_BIT) ? PKTIN_02_MOUNT_RUN : PKTIN_02_MOUNT_WALK;
+					client->next_movement += (msg02->dir & PKTIN_02_DIR_RUNNING_BIT) ? ssopt.speedhack_mountrundelay : ssopt.speedhack_mountwalkdelay;
 				else
-					client->next_movement += (msg02->dir & PKTIN_02_DIR_RUNNING_BIT) ? PKTIN_02_FOOT_RUN  : PKTIN_02_FOOT_WALK;
+					client->next_movement += (msg02->dir & PKTIN_02_DIR_RUNNING_BIT) ? ssopt.speedhack_footrundelay  : ssopt.speedhack_footwalkdelay;
 			}
 			else // changing only facing is fast
-				client->next_movement += PKTIN_02_MOUNT_RUN;
+				client->next_movement += ssopt.speedhack_mountrundelay;
 		}
 		else
 		{

@@ -597,7 +597,8 @@ ObjMethod object_methods[] = {
 	{ MTH_ERASE_HOUSE_PART, "erasehousepart" },
 	{ MTH_ACCEPT_COMMIT, "acceptcommit"	},				 //135
 	{ MTH_SPLITSTACK_AT, "splitstackat" },
-	{ MTH_SPLITSTACK_INTO, "splitstackinto" }
+	{ MTH_SPLITSTACK_INTO, "splitstackinto" },
+	{ MTH_CANCEL_EDITING, "cancelediting" }
 };
 int n_objmethods = sizeof object_methods / sizeof object_methods[0];
 ObjMethod* getKnownObjMethod(const char* token)
