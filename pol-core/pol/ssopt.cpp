@@ -25,7 +25,9 @@ Notes
 #include "../clib/cfgfile.h"
 #include "../clib/fileutil.h"
 #include "../clib/logfile.h"
+#include "../clib/rawtypes.h"
 #include "ssopt.h"
+#include "pktdef.h"
 
 #include "mobile/attribute.h"
 
@@ -86,6 +88,11 @@ void read_servspecopt()
 	ssopt.speedhack_prevention = elem.remove_bool("SpeedhackPrevention",false);
 	ssopt.scripted_merchant_handlers = elem.remove_bool("ScriptedMerchantHandlers", false);
 	ssopt.honor_unequip_script_on_death = elem.remove_bool("HonorUnequipScriptOnDeath", false);
+
+	ssopt.speedhack_mountrundelay = elem.remove_ushort("SpeedHack_MountRunDelay",PKTIN_02_MOUNT_RUN);
+	ssopt.speedhack_mountwalkdelay = elem.remove_ushort("SpeedHack_MountWalkDelay",PKTIN_02_MOUNT_WALK);
+	ssopt.speedhack_footrundelay = elem.remove_ushort("SpeedHack_FootRunDelay",PKTIN_02_FOOT_RUN);
+	ssopt.speedhack_footwalkdelay = elem.remove_ushort("SpeedHack_FootWalkDelay",PKTIN_02_FOOT_WALK);
 	ssopt_parse_totalstats(elem);
 
 // Turley 2009/11/06 u8 range...

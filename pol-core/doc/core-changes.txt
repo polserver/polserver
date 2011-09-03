@@ -1,4 +1,19 @@
 -- POL099 --
+09-03-2011 Turley:
+	 Added: DestroyMulti(house) returns error "House currently being customized."
+	 Added: house.cancelediting(chr, drop_changes) will stop editing mode.
+			drop_changes 1/0 if true drops all non committed changes
+			Errors: "House is not custom","House is currently not been edited","Character is not editing this house"
+	 Added: Syshook CloseCustomHouse(mobile, house)
+			called after client quits editing, or when house.cancelediting() is called
+			return value is ignored
+	 Added: servspecopt.cfg
+			"SpeedHack_MountRunDelay"  default 80 ms
+			"SpeedHack_MountWalkDelay" default 180 ms
+			"SpeedHack_FootRunDelay"   default 180 ms
+			"SpeedHack_FootWalkDelay"  default 380 ms
+			Change them on your own risk
+
 08-08-2011 Austin:
      Added: servspecopt.cfg flag "ScriptedMerchantHandlers" default is 0 which results in no change in behavior. 
 	       If enabled, the below change will come into effect:
