@@ -915,6 +915,12 @@ BObjectImp* Item::get_script_member_id( const int id ) const
 			else
 				return new BError( "Gotten By NULL" );
 			break;
+		case MBR_DOUBLECLICKRANGE:
+		{
+			const ItemDesc& itemdesc = this->itemdesc();
+			return new BLong(itemdesc.doubleclick_range);
+			break;
+		}
 		default: return NULL;
 	}
 }
