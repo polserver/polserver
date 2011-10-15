@@ -1,4 +1,7 @@
 -- POL099 --
+10-15-2011 Austin:
+	Added: .doubleclickrange for items (read only).
+
 09-03-2011 Turley:
 	 Added: DestroyMulti(house) returns error "House currently being customized."
 	 Added: house.cancelediting(chr, drop_changes) will stop editing mode.

@@ -439,7 +439,8 @@ ObjMember object_members[] = {
 	{ MBR_TYPE, "type", true },
 	{ MBR_ATTRIBUTES, "attributes", true },
 	{ MBR_EDITING, "house_editing", true }, //185
-	{ MBR_HOUSEPARTS, "house_parts", true }
+	{ MBR_HOUSEPARTS, "house_parts", true },
+	{ MBR_DOUBLECLICKRANGE, "doubleclickrange", false}
 };
 int n_objmembers = sizeof object_members / sizeof object_members[0];
 ObjMember* getKnownObjMember(const char* token)
