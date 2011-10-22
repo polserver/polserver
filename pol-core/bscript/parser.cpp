@@ -1313,6 +1313,7 @@ int Parser::getToken(CompilerContext& ctx, Token& tok, Expression* /* expr not u
 		++ctx.s;
 		tok.id = RSV_COLON;
 		tok.type = TYP_RESERVED;
+		tok.setStr(":");
 		return 0;
 	}
 
