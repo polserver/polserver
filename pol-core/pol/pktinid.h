@@ -57,7 +57,8 @@ enum PKTINID {
 	PKTIN_D9_ID = 0xD9,	// Client Machine's Details
 	PKTIN_E1_ID = 0xE1, // Client Type (UO3D)
 	PKTIN_E4_ID = 0xE4,	// KR Encryption Request
-	PKTIN_EF_ID = 0xEF	// Seed Packet, introduced 6.0.5.0
+	PKTIN_EF_ID = 0xEF,	// Seed Packet, introduced 6.0.5.0
+	PKTIN_F8_ID = 0xF8  // Create Character packet since 7.0.16.0
 
 };
 
