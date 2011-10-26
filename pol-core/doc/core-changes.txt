@@ -1,4 +1,8 @@
 -- POL099 --
+10-26-2011 Tomi:
+	Added:	support for clients >= 7.0.16.0 ( 2D ) char create packet 0xF8
+			Enchanced clients still use packet 0x8D
+
 10-15-2011 Austin:
 	Added: .doubleclickrange for items (read only).
 
