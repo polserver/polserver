@@ -625,7 +625,8 @@ private:
     void refresh_cached_settings( bool update = true );
     void load_default_elements();
 	friend void ClientCreateChar( Client* client, struct PKTIN_00* msg);
-    friend void ClientCreateChar6017( Client* client, struct PKTIN_8D* msg);
+    friend void ClientCreateCharKR( Client* client, struct PKTIN_8D* msg);
+	friend void ClientCreateChar70160( Client* client, struct PKTIN_F8* msg);
 	friend Character* CreateNewBlankCharacter();
 	friend void createchar2(Account* acct, unsigned index);
 

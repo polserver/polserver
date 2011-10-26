@@ -6,6 +6,7 @@ History
 2009/08/14 Turley:    fixed definition of PKTIN_00
 2009/09/06 Turley:    Added PKTIN_E1
 2009/12/02 Turley:    fixed definition of PKTIN_8D
+2011/10/26 Tomi:	  Added PKTIN_F8
 
 Notes
 =======
@@ -482,7 +483,49 @@ struct PKTIN_EF {
 };
 asserteql(sizeof(PKTIN_EF),0x15);
 
-
+struct PKTIN_F8 {
+	u8 msgtype;      //Byte 0
+	u32 serial;      //Bytes 1-4
+	u8 unk5; 
+	u8 unk6;
+	u8 unk7;
+	u8 unk8;
+	u8 unk9;
+	char Name[30];     //Bytes 10-40
+	u16 unk0;
+	u32 clientflag;
+	u32 unk1;
+	u32 logincount;
+	u8 profession;
+	char unk2[15];
+	u8 Sex;          //Byte 70 (0 if Human Male, 1 if Human Female, 2 if Elf Male, 3 if Elf Female)
+	u8 Strength;     //Byte 71
+	u8 Dexterity;    //Byte 72
+	u8 Intelligence; //Byte 73
+	u8 SkillNumber1; //Byte 74
+	u8 SkillValue1;  //Byte 75
+	u8 SkillNumber2; //Byte 76
+	u8 SkillValue2;  //Byte 77
+	u8 SkillNumber3; //Byte 78
+	u8 SkillValue3;  //Byte 79
+	u8 SkillNumber4; //Byte 80
+	u8 SkillValue4;  //Byte8 1
+	u16 SkinColor;   //Byte 82-83
+	u16 HairStyle;   //Byte 84-85
+	u16 HairColor;   //Byte 86-87
+	u16 BeardStyle;  //Byte 88-89
+	u16 BeardColor;  //Byte 90-91
+	u8 unk90;
+	u8 StartIndex;   //Byte 93 (actually a <word> with unk90)
+	u8 unk92;
+	u8 unk93;        // <word> with unk92
+	u8 unk94;
+	u8 CharNumber;   //I think (yup! <word> with unk94 -TJ)
+	u8 clientip[4];
+	u16 shirtcolor;
+	u16 pantscolor;
+};
+asserteql( sizeof(PKTIN_F8), 106 );
 
 
 #ifdef _MSC_VER     /* Visual C++ 4.0 + */
