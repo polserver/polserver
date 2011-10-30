@@ -106,7 +106,7 @@ short validhaircolor(u16 color)
 	0x2FD1  Spiked Hair
 	0x2FD2  Long Elf Two Hair
 
-    0x4258  Horn Style 1       // Gargoyle (SA)
+    0x4258  Horn Style 1       // Gargoyle Male (SA)
     0x4259  Horn Style 2
     0x425a  Horn Style 3
     0x425b  Horn Style 4
@@ -114,17 +114,37 @@ short validhaircolor(u16 color)
     0x425d  Horn Style 6
     0x425e  Horn Style 7
     0x425f  Horn Style 8
+
+	0x4261	Female Horn Style 1  // Gargoyle Female (SA)
+	0x4262  Female Horn Style 2
+	0x4273  Female Horn Style 3
+	0x4274  Female Horn Style 4
+	0x4275  Female Horn Style 5
+	0x42aa  Female Horn Style 6
+	0x42ab  Female Horn Style 7
+	0x42b1  Femaly Horn Style 8
 */
 bool validhair(u16 HairStyle)
 {
-	if (((0x203B<=HairStyle) && (HairStyle<=0x203D)) ||
-		((0x2044<=HairStyle) && (HairStyle<=0x204A)) ||
-		((0x2FBF<=HairStyle) && (HairStyle<=0x2FC2)) ||
-		((0x2FCC<=HairStyle) && (HairStyle<=0x2FD2)) ||
-        ((0x4258<=HairStyle) && (HairStyle<=0x425F) && (config.max_tile_id > HairStyle)))
-		return true;
-	else
+	if (config.max_tile_id < HairStyle)
+	{
 		return false;
+	}
+	else
+	{
+		if (((0x203B<=HairStyle) && (HairStyle<=0x203D)) ||
+			((0x2044<=HairStyle) && (HairStyle<=0x204A)) ||
+			((0x2FBF<=HairStyle) && (HairStyle<=0x2FC2)) ||
+			((0x2FCC<=HairStyle) && (HairStyle<=0x2FD2)) ||
+			((0x4258<=HairStyle) && (HairStyle<=0x425F)) ||
+			((0x4261<=HairStyle) && (HairStyle<=0x4262)) ||
+			((0x4273<=HairStyle) && (HairStyle<=0x4275)) ||
+			((0x42aa<=HairStyle) && (HairStyle<=0x42ab)) ||
+			(HairStyle==0x42B1))
+				return true;
+		else
+				return false;
+	}
 }
 
 /* beard can be:
