@@ -262,7 +262,7 @@ protected:
 public:
     u32 serial, serial_ext;     
 	
-    const u16 objtype_;         
+    const u32 objtype_;         
     u16 graphic, graphic_ext;   
     u16 color, color_ext;       
 	u16 x, y;                   

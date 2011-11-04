@@ -29,7 +29,7 @@ public:
     //MenuItem( const MenuItem& );
     //MenuItem& operator=( const MenuItem& );
 	
-    u16 objtype_;
+    u32 objtype_;
     u16 graphic_;
 	u16 color_;
     char title[80];

@@ -1048,8 +1048,8 @@ void Character::readCommonProperties( ConfigElem& elem )
 		acct->set_character( charindex, this );
 	}
 
-	trueobjtype = elem.remove_ushort( "TRUEOBJTYPE", objtype_ ); //dave 1/30/3
-	graphic = objtype_;
+	trueobjtype = elem.remove_unsigned( "TRUEOBJTYPE", objtype_ ); //dave 1/30/3
+	graphic = static_cast<u16>(objtype_);
 	graphic_ext = ctBEu16( graphic );
 
 	registered_house = elem.remove_ulong( "REGISTEREDHOUSE", 0 );

@@ -520,7 +520,7 @@ void read_multi( ConfigElem& elem )
 	if (get_save_index( serial ) > current_incremental_save)
 		return;
 
-	u16 objtype;
+	u32 objtype;
 	if (elem.remove_prop( "SERIAL", &serial ) == false)
 	{
 		cerr << "A Multi has no SERIAL property." << endl;
