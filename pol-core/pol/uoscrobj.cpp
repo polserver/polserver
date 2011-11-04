@@ -1562,7 +1562,7 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
 				movemode = (MOVEMODE)(movemode ^ MOVEMODE_FLY); //remove flying
 			return new BLong( race );
 		case MBR_TRUEOBJTYPE:
-			return new BLong( trueobjtype = static_cast<unsigned short>(value) );
+			return new BLong( trueobjtype = static_cast<unsigned int>(value) );
 		case MBR_TRUECOLOR:
 			return new BLong( truecolor = static_cast<unsigned short>(value) );
 		case MBR_AR_MOD:
