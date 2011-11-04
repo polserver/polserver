@@ -664,7 +664,7 @@ public:
     time_t disable_skills_until;
 
     u16 truecolor;
-    u16 trueobjtype;
+    u32 trueobjtype;
     UGENDER gender;
     URACE race;
     bool poisoned;

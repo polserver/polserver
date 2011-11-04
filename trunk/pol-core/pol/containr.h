@@ -236,7 +236,7 @@ class WornItemsContainer : public UContainer
 {
 public:
 	WornItemsContainer();
-	explicit WornItemsContainer(u16 objtype);
+	//explicit WornItemsContainer(u16 objtype);
 
     virtual BObjectImp* make_ref();
 	virtual Character* get_chr_owner(){return chr_owner;};
