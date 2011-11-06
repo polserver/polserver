@@ -52,6 +52,7 @@ struct PolConfig {
 	unsigned short inactivity_disconnect_timeout;
 	unsigned short min_cmdlevel_to_login;
 	unsigned int max_tile_id;
+	unsigned int max_objtype;
 
 	unsigned short max_clients;
 	unsigned short character_slots;

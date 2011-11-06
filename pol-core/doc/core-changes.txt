@@ -1,4 +1,8 @@
 -- POL099 --
+11-06-2011 Tomi:
+	Added:  pol.cfg setting MaxObjtype <default 0x20000>
+	Note:	the value can only be any value between 0x20000 and 0xFFFFFFFF
+
 10-26-2011 Tomi:
 	Added:	support for clients >= 7.0.16.0 ( 2D ) char create packet 0xF8
 			Enchanced clients still use packet 0x8D
