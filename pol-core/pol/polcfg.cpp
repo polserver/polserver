@@ -85,6 +85,12 @@ void read_pol_config( bool initial_load )
 		else
 			config.max_tile_id = max_tile;
 
+		unsigned int max_obj = elem.remove_unsigned( "MaxObjtype", EXTOBJ_HIGHEST_DEFAULT );
+		if ( max_obj < EXTOBJ_HIGHEST_DEFAULT || max_obj > 0xFFFFFFFF )
+			config.max_objtype = EXTOBJ_HIGHEST_DEFAULT;
+		else
+			config.max_objtype = max_obj;
+
         config.ignore_load_errors = elem.remove_bool( "IgnoreLoadErrors", false );
 
         config.debug_port = elem.remove_ushort( "DebugPort", 0 );

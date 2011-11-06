@@ -443,7 +443,7 @@ bool getObjtypeParam( Executor& exec, unsigned param, unsigned int& objtype )
         return false;
     }
 
-    if (objtype_long >= (config.max_tile_id+0x1001uL) && objtype_long <= EXTOBJ__HIGHEST) 
+    if (objtype_long >= (config.max_tile_id+0x1001uL) && objtype_long <= config.max_objtype) 
     {
         objtype = static_cast<unsigned int>(objtype_long);
         if (&find_itemdesc(objtype) != &empty_itemdesc)
@@ -540,7 +540,7 @@ bool getObjtypeParam( Executor& exec, unsigned param, const ItemDesc*& itemdesc_
     }
 
     // we get here if the value passed was an integer - either a BLong, or a String containing a number.
-    if ((u32)objtype_long > (config.max_tile_id+0x1000) && (u32)objtype_long <= EXTOBJ__HIGHEST)
+    if ((u32)objtype_long > (config.max_tile_id+0x1000) && (u32)objtype_long <= config.max_objtype)
     {
         const ItemDesc* itemdesc = &find_itemdesc( static_cast<unsigned int>(objtype_long) );
 
