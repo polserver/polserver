@@ -2282,7 +2282,7 @@ void send_multi( Client* client, const UMulti* multi )
 		PktOut_1A* msg = REQUESTPACKET(PktOut_1A,PKTOUT_1A_ID);
 		msg->offset+=2;
 		msg->Write(multi->serial_ext);
-		u16 graphic= multi->graphic | 0x4000;
+		u16 graphic= multi->multidef().multiid | 0x4000;
 		msg->WriteFlipped(graphic);
 		msg->WriteFlipped(multi->x);
 		msg->WriteFlipped(multi->y);

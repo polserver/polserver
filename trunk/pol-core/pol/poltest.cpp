@@ -561,10 +561,10 @@ Item* Item::create( u32 objtype, u32 serial )
 UMulti* UMulti::create(  u32 objtype, u32 serial )
 {
     UMulti* multi = NULL;
-    if ( objtype <= config.max_tile_id || objtype > (config.max_tile_id+0x1000))
+    if ( objtype <= config.max_tile_id))
         return NULL;
 
-    if (defs[objtype-(config.max_tile_id+1)] != NULL)
+    if (defs[objtype] != NULL)
     {
         multi = new UMulti( objtype );
     }

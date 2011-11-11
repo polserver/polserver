@@ -94,7 +94,7 @@ struct Component {
     const char* name;
     bool create;
     UBoat::BOAT_COMPONENT component_idx_;
-    unsigned short objtype_;
+    unsigned int objtype_;
 } boat_components[BoatShape::BOATSHAPE_COMPONENT__COUNT] = {
     { "Tillerman",                      true ,  UBoat::COMPONENT_TILLERMAN, EXTOBJ_TILLERMAN },
     { "PortGangplankExtended",          false,  UBoat::COMPONENT_PORT_PLANK, EXTOBJ_PORT_PLANK },

@@ -278,8 +278,7 @@ BObjectImp* UOExecutorModule::mf_Detach()
 
 static bool item_create_params_ok( u32 objtype, int amount )
 {
-    return ((objtype >= UOBJ_ITEM__LOWEST && objtype <= config.max_tile_id) ||
-            (objtype >= (config.max_tile_id+0x1001) && objtype <= config.max_objtype)) &&
+    return (objtype >= UOBJ_ITEM__LOWEST && objtype <= config.max_objtype) &&
            amount > 0 &&
            amount <= 60000L;
 }
