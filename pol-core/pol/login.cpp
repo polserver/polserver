@@ -337,8 +337,25 @@ void send_start( Client *client )
 	for( i = 0; i < startlocations.size(); i++ )
 	{
 		msg->Write(static_cast<u8>(i));
-		msg->Write(startlocations[i]->city.c_str(),31,false);
-		msg->Write(startlocations[i]->desc.c_str(),31,false);
+		if (client->ClientType & CLIENTTYPE_70130)
+		{
+			msg->Write(startlocations[i]->city.c_str(),32,false);
+			msg->Write(startlocations[i]->desc.c_str(),32,false);
+
+			Coordinate coord = startlocations[i]->coords[0];
+
+			msg->WriteFlipped(static_cast<u32>(coord.x));
+			msg->WriteFlipped(static_cast<u32>(coord.y));
+			msg->WriteFlipped(static_cast<s32>(coord.z));
+			msg->WriteFlipped(static_cast<u32>(startlocations[i]->mapid)); // MapID
+			msg->WriteFlipped(static_cast<u32>(startlocations[i]->cliloc_desc)); // Cliloc Description
+			msg->offset+=4;
+		}
+		else
+		{			
+			msg->Write(startlocations[i]->city.c_str(),31,false);
+			msg->Write(startlocations[i]->desc.c_str(),31,false);
+		}
 	}
 
 	clientflag = ssopt.uo_feature_enable; // 'default' flags. Maybe auto-enable them according to the expansion?
