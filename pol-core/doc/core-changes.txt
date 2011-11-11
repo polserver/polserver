@@ -1,4 +1,20 @@
 -- POL099 --
+11-11-2011 Tomi:
+	Added:  support for new 0xA9 packet for clients >= 7.0.13.0
+	Changed: startloc.cfg now have Cliloc and MapID entry for every startlocation ( default values 0 )
+	Example:
+		StartingLocation Yew
+		{
+			City		Yew
+			Description	Town Center
+			Coordinate	535,992,0
+			MapID		0
+			Cliloc		1075072
+		}
+	Note: 	MapID is the same number as in mapX.mul files
+		Cliloc values are the description of the start locations
+		Newest clients has max stats during char creation 90 
+
 11-06-2011 Tomi:
 	Added:  pol.cfg setting MaxObjtype <default 0x20000>
 	Note:	the value can only be any value between 0x20000 and 0xFFFFFFFF
