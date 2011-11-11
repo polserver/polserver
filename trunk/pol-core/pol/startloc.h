@@ -32,7 +32,8 @@ class StartingLocation
 public:
     std::string city;
     std::string desc;
-	
+	unsigned short mapid;
+	unsigned long cliloc_desc;
 	/* NOTE: this list will be selected from randomly.  
 	   By placing only one coordinate in a StartingLocation,
 	   the system will behave as standard UO - ie, you pick

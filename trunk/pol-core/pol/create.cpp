@@ -1144,7 +1144,7 @@ void ClientCreateChar70160( Client* client, PKTIN_F8* msg)
 		return;
 	}
 	bool noskills = (msg->SkillValue1 + msg->SkillValue2 + msg->SkillValue3 + msg->SkillValue4 == 0) && msg->profession;
-	if ((!noskills) && ((msg->SkillValue1 + msg->SkillValue2 + msg->SkillValue3 + msg->SkillValue4 != 100) ||
+	if ((!noskills) && ((msg->SkillValue1 + msg->SkillValue2 + msg->SkillValue3 + msg->SkillValue4 != 120) ||
 		msg->SkillValue1 > 50 ||
 		msg->SkillValue2 > 50 ||
 		msg->SkillValue3 > 50 ||

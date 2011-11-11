@@ -5,6 +5,7 @@ History
 2005/08/29 Shinigami: SPY_ON_CLIENT renamed to CLIENT_INFO
 2007/07/08 Shinigami: added PKTIN_E4_ID to login_exceptions (used by UO:KR)
 2009/09/06 Turley:    Added 0xE1 packet
+2011/11/11 Tomi:	  Added 0xF8 packet
 
 Notes
 =======
@@ -51,6 +52,7 @@ int login_exceptions[] =
 	PKTIN_E1_ID, // Used by UO:KR & SA
 	PKTIN_E4_ID, // Used by UO:KR
     PKTIN_8D_ID,
+	PKTIN_F8_ID,
     -1
 };
 MessageTypeFilter login_filter( MessageTypeFilter::NormallyDisabled, login_exceptions );
@@ -66,6 +68,7 @@ int game_exceptions[] =
     PKTIN_A4_ID,
     PKTIN_D9_ID,
     PKTIN_8D_ID,
+	PKTIN_F8_ID,
     -1
 };
 MessageTypeFilter game_filter( MessageTypeFilter::NormallyEnabled, game_exceptions );

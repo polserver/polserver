@@ -224,7 +224,9 @@ void handle_client_version( Client* client, PKTBI_BD* msg )
 		client->itemizeclientversion(ver2, vers_det);
 		client->setversiondetail(vers_det);
 
-		if (client->compareVersion(CLIENT_VER_7090))
+		if (client->compareVersion(CLIENT_VER_70130))
+			client->setClientType(CLIENTTYPE_70130);
+		else if (client->compareVersion(CLIENT_VER_7090))
 			client->setClientType(CLIENTTYPE_7090);
         else if (client->compareVersion(CLIENT_VER_7000))
             client->setClientType(CLIENTTYPE_7000);
@@ -428,7 +430,9 @@ void handle_ef_seed( Client *client, PKTIN_EF *msg )
 	detail.rev=cfBEu32(msg->ver_Revision);
 	detail.patch=cfBEu32(msg->ver_Patch);
 	client->setversiondetail(detail);
-	if (client->compareVersion(CLIENT_VER_7090))
+	if (client->compareVersion(CLIENT_VER_70130))
+		client->setClientType(CLIENTTYPE_70130);
+	else if (client->compareVersion(CLIENT_VER_7090))
 		client->setClientType(CLIENTTYPE_7090);
     else if (client->compareVersion(CLIENT_VER_7000))
         client->setClientType(CLIENTTYPE_7000);

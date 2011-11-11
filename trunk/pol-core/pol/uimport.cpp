@@ -1421,6 +1421,8 @@ void read_starting_locations()
 		auto_ptr<StartingLocation> loc( new StartingLocation );
 		loc->city = elem.remove_string( "CITY" );
 		loc->desc = elem.remove_string( "DESCRIPTION" );
+		loc->mapid = elem.remove_ushort( "MAPID", 0 );
+		loc->cliloc_desc = elem.remove_unsigned( "CLILOC", 0 );
 
 		string coord;
 		while( elem.remove_prop( "Coordinate", &coord ))
