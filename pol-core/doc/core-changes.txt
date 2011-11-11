@@ -1,5 +1,8 @@
 -- POL099 --
 11-11-2011 Tomi:
+	Changed: Objtypes are now from 2 up to max_objtype from pol.cfg
+	Note:	 if objtypes <= pol.cfg max_tile_id and no graphic defined in itemdesc Pol uses objtype as graphic.
+		 Multis and custom items should all be moved to > pol.cfg max_tile_id
 	Added:  support for new 0xA9 packet for clients >= 7.0.13.0
 	Changed: startloc.cfg now have Cliloc and MapID entry for every startlocation ( default values 0 )
 	Example:
