@@ -275,7 +275,7 @@ void UObject::readProperties( ConfigElem& elem )
 
     // serial, objtype extracted by caller
     graphic = elem.remove_ushort( "GRAPHIC", objtype_ );
-    if (graphic > (config.max_tile_id+0x2000))
+    if (graphic > (config.max_tile_id))
     {
         graphic = GRAPHIC_NODRAW;
     }

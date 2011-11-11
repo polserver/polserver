@@ -214,7 +214,7 @@ ItemDesc::ItemDesc( u32 objtype, ConfigElem& elem, Type type, const Package* pkg
 	{
 		if (objtype <= config.max_tile_id)
 		{
-			graphic = objtype;
+			graphic = static_cast<u16>(objtype);
 		}
 		else
 		{
@@ -761,7 +761,7 @@ unsigned short getgraphic( u32 objtype )
 	}
 	else if (objtype <= config.max_tile_id)
 	{
-		return objtype;
+		return static_cast<u16>(objtype);
 	}
 	else
 	{

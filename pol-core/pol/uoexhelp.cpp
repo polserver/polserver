@@ -443,7 +443,7 @@ bool getObjtypeParam( Executor& exec, unsigned param, unsigned int& objtype )
         return false;
     }
 
-    if (objtype_long >= (config.max_tile_id+0x1001uL) && objtype_long <= config.max_objtype) 
+    if (objtype_long >= (config.max_tile_id) && objtype_long <= config.max_objtype) 
     {
         objtype = static_cast<unsigned int>(objtype_long);
         if (&find_itemdesc(objtype) != &empty_itemdesc)
@@ -457,9 +457,9 @@ bool getObjtypeParam( Executor& exec, unsigned param, unsigned int& objtype )
         }
 
     }
-    else if (objtype_long >= 0 && objtype_long < (config.max_tile_id+0x1001uL) )
+    else if (objtype_long >= 0 && objtype_long < (config.max_tile_id) )
     {
-        objtype = static_cast<unsigned short>(objtype_long);
+        objtype = static_cast<unsigned int>(objtype_long);
         return true;
     }
     else
@@ -540,7 +540,7 @@ bool getObjtypeParam( Executor& exec, unsigned param, const ItemDesc*& itemdesc_
     }
 
     // we get here if the value passed was an integer - either a BLong, or a String containing a number.
-    if ((u32)objtype_long > (config.max_tile_id+0x1000) && (u32)objtype_long <= config.max_objtype)
+    if ((u32)objtype_long > (config.max_tile_id) && (u32)objtype_long <= config.max_objtype)
     {
         const ItemDesc* itemdesc = &find_itemdesc( static_cast<unsigned int>(objtype_long) );
 
@@ -556,7 +556,7 @@ bool getObjtypeParam( Executor& exec, unsigned param, const ItemDesc*& itemdesc_
         }
 
     }
-    else if (objtype_long >= 0 && (u32)objtype_long < (config.max_tile_id+0x1001))
+    else if (objtype_long >= 0 && (u32)objtype_long < (config.max_tile_id))
     {
         unsigned int objtype = static_cast<unsigned int>(objtype_long);
         itemdesc_out = &find_itemdesc( objtype );
@@ -565,7 +565,7 @@ bool getObjtypeParam( Executor& exec, unsigned param, const ItemDesc*& itemdesc_
             // return a temporary item descriptor initialized with the objtype and graphic.
             itemdesc_out = &temp_itemdesc;
             temp_itemdesc.objtype = objtype;
-            temp_itemdesc.graphic = objtype;
+            temp_itemdesc.graphic = static_cast<u16>(objtype);
             temp_itemdesc.decay_time = ssopt.default_decay_time;
 			temp_itemdesc.doubleclick_range = ssopt.default_doubleclick_range;
         }
