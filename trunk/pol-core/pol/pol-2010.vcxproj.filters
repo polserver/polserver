@@ -656,6 +656,9 @@
     <ClCompile Include="network\clienttransmit.cpp">
       <Filter>network</Filter>
     </ClCompile>
+    <ClCompile Include="extobj.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="action.h">
@@ -1263,6 +1266,9 @@
     </ClInclude>
     <ClInclude Include="network\clienttransmit.h">
       <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="extobj.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

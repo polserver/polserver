@@ -1,4 +1,21 @@
 -- POL099 --
+11-12-2011 Tomi:
+	Added:	 Pol/config/extobj.cfg
+		 Values it accept now and default values are
+			Tillerman=0xF010
+			Port_Plank=0xF011
+			Starboard_Plank=0xF012
+			Hold=0xF013
+			Wrestling=0xF020
+			Mount=0xF021
+			Secure_Trade_Container=0xFF01
+			Wornitems_Container=0xFF02
+	Note:	 These values HAVE TO BE > pol.cfg max_tile_id and the same as objtype for them in itemdescs
+	Changed: uoconvert now adds to multis 0x1000 to the ID
+	Note:	 boats.cfg uses the same value as multis.cfg and itemdesc graphic entry for multis have to be the same.
+		 itemdesc entries for multis need to have the entry MultiID for updating multis ( you can find values using UOFiddler )
+	Added:	 UOExpansion HSA server sends now 0x387DF
+
 11-11-2011 Tomi:
 	Changed: Objtypes are now from 2 up to max_objtype from pol.cfg
 	Note:	 if objtypes <= pol.cfg max_tile_id and no graphic defined in itemdesc Pol uses objtype as graphic.

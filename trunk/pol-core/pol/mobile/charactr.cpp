@@ -60,6 +60,7 @@ History
 2010/01/14 Turley:    AttackWhileFrozen check
 2010/01/15 Turley:    (Tomi) priv runwhilestealth
 2010/01/22 Turley:    Speedhack Prevention System
+2011/11/12 Tomi:	  added extobj.mount and extobj.secure_trade_container
 
 
 Notes
@@ -101,6 +102,7 @@ Notes
 #include "../cmbtcfg.h"
 #include "../cmdlevel.h"
 #include "../dtrace.h"
+#include "../extobj.h"
 #include "../fnsearch.h"
 #include "../gflag.h"
 #include "../item/armor.h"
@@ -1529,7 +1531,7 @@ bool Character::strong_enough_to_equip( const Item* item ) const
 
 bool Character::equippable( const Item* item ) const
 {
-	if (item->objtype_ == EXTOBJ_MOUNT)
+	if (item->objtype_ == extobj.mount)
 	{
 		return (!layer_is_equipped( LAYER_MOUNT ));
 	}
@@ -4291,7 +4293,7 @@ void Character::create_trade_container()
 {
 	if (trading_cont.get() == NULL)	 // FIXME hardcoded
 	{
-		Item* cont = Item::create( EXTOBJ_SECURE_TRADE_CONTAINER );
+		Item* cont = Item::create( extobj.secure_trade_container );
 		cont->realm = realm;
 		trading_cont.set( static_cast<UContainer*>(cont) );
 	}
