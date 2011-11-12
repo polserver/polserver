@@ -3,6 +3,7 @@ History
 =======
 2009/1/24 MuadDib: Added read_bannedips_config() to reload_configuration.
 2009/12/02 Turley: config.max_tile_id
+2011/11/12 Tomi:   added extobj.secure_trade_container and extobj.wornitems_container
 
 Notes
 =======
@@ -25,6 +26,7 @@ Notes
 #include "item/armor.h"
 #include "checkpnt.h"
 #include "cmbtcfg.h"
+#include "extobj.h"
 #include "objtype.h"
 #include "polcfg.h"
 #include "stackcfg.h" //dave 1/26/3
@@ -88,9 +90,9 @@ void check_config()
 	// Check if secure trading is enabled and that the container for it is setup.
 	if ( config.enable_secure_trading )
 	{
-		const ItemDesc& stid = find_itemdesc(EXTOBJ_SECURE_TRADE_CONTAINER);
+		const ItemDesc& stid = find_itemdesc(extobj.secure_trade_container);
 		if ( stid.type != ItemDesc::CONTAINERDESC )
-			throw runtime_error("Secure trade container ("+hexint(EXTOBJ_SECURE_TRADE_CONTAINER)+") must be defined in itemdesc.cfg as a container.");
+			throw runtime_error("Secure trade container ("+hexint(extobj.secure_trade_container)+") must be defined in itemdesc.cfg as a container.");
 	}
 
 	// Make sure backpack container is defined.
@@ -104,11 +106,11 @@ void check_config()
 		throw runtime_error("Corpse container ("+hexint(UOBJ_CORPSE)+") must be defined in itemdesc.cfg as a container.");
     
 	// Make sure the WornItems container is defined.
-	const ItemDesc& wic_id = find_itemdesc( EXTOBJ_WORNITEMS_CONTAINER );
+	const ItemDesc& wic_id = find_itemdesc( extobj.wornitems_container );
 	if ( wic_id.type != ItemDesc::CONTAINERDESC )
-		throw runtime_error("WornItems container ("+hexint(EXTOBJ_WORNITEMS_CONTAINER)+") must be defined in itemdesc.cfg as a container.");
+		throw runtime_error("WornItems container ("+hexint(extobj.wornitems_container)+") must be defined in itemdesc.cfg as a container.");
 
-	const ContainerDesc& cd = find_container_desc( EXTOBJ_WORNITEMS_CONTAINER );
+	const ContainerDesc& cd = find_container_desc( extobj.wornitems_container );
 	getgraphic( cd.objtype );
 }
 

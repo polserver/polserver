@@ -300,6 +300,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\extobj.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\fnsearch.cpp"
 				>
 			</File>
@@ -978,6 +982,10 @@
 			</File>
 			<File
 				RelativePath=".\extcmd.h"
+				>
+			</File>
+			<File
+				RelativePath=".\extobj.h"
 				>
 			</File>
 			<File

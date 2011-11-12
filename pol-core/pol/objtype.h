@@ -235,7 +235,10 @@ Notes
 // Define the Default ( also minimun max_objtype allowed ) pol.cfg now uses max_objtype to let people define the maximum
 #define EXTOBJ_HIGHEST_DEFAULT		0x20000
 
-// these must match enum BOAT_COMPONENT in boat.h
+// Removed using values from extobj.h and extobj.cpp instead
+/*
+these must match enum BOAT_COMPONENT in boat.h
+
 #define EXTOBJ_TILLERMAN            0xF010
 #define EXTOBJ_PORT_PLANK           0xF011
 #define EXTOBJ_STARBOARD_PLANK      0xF012
@@ -246,6 +249,7 @@ Notes
 
 #define EXTOBJ_SECURE_TRADE_CONTAINER	0xFF01
 #define EXTOBJ_WORNITEMS_CONTAINER		0xFF02
+*/
 
 
 #endif

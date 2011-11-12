@@ -9,6 +9,7 @@ History
 2009/09/03 MuadDib:	  Changes for account related source file relocation
 					  Changes for multi related source file relocation
 2009/12/02 Turley:    added 0xf3 packet - Tomi
+2011/11/12 Tomi:	  added extobj.tillerman, extobj.port_plank, extobj.starboard_plank and extobj.hold
 
 Notes
 =======
@@ -43,6 +44,7 @@ Notes
 #include "../network/packets.h"
 #include "../network/clienttransmit.h"
 #include "../core.h"
+#include "../extobj.h"
 #include "../fnsearch.h"
 #include "../item/itemdesc.h"
 #include "../mdelta.h"
@@ -90,18 +92,19 @@ struct BoatShape {
     BoatShape();
 };
 
+// Set objtypes to 0 and let set_component_objtypes() handle rest of it
 struct Component {
     const char* name;
     bool create;
     UBoat::BOAT_COMPONENT component_idx_;
     unsigned int objtype_;
 } boat_components[BoatShape::BOATSHAPE_COMPONENT__COUNT] = {
-    { "Tillerman",                      true ,  UBoat::COMPONENT_TILLERMAN, EXTOBJ_TILLERMAN },
-    { "PortGangplankExtended",          false,  UBoat::COMPONENT_PORT_PLANK, EXTOBJ_PORT_PLANK },
-    { "PortGangplankRetracted",         true,   UBoat::COMPONENT_PORT_PLANK, EXTOBJ_PORT_PLANK },
-    { "StarboardGangplankExtended",     false,  UBoat::COMPONENT_STARBOARD_PLANK, EXTOBJ_STARBOARD_PLANK },
-    { "StarboardGangplankRetracted",    true,   UBoat::COMPONENT_STARBOARD_PLANK, EXTOBJ_STARBOARD_PLANK },
-    { "Hold",                           true,   UBoat::COMPONENT_HOLD, EXTOBJ_HOLD }
+    { "Tillerman",                      true ,  UBoat::COMPONENT_TILLERMAN, 0 },
+    { "PortGangplankExtended",          false,  UBoat::COMPONENT_PORT_PLANK, 0  },
+    { "PortGangplankRetracted",         true,   UBoat::COMPONENT_PORT_PLANK, 0 },
+    { "StarboardGangplankExtended",     false,  UBoat::COMPONENT_STARBOARD_PLANK, 0 },
+    { "StarboardGangplankRetracted",    true,   UBoat::COMPONENT_STARBOARD_PLANK, 0 },
+    { "Hold",                           true,   UBoat::COMPONENT_HOLD, 0 }
 };
 
 
@@ -152,15 +155,30 @@ BoatShape::BoatShape( ConfigElem& elem )
 }
 bool BoatShape::objtype_is_component( unsigned int objtype, int* index ) const
 {
-    if (objtype >= EXTOBJ_TILLERMAN && objtype <= EXTOBJ_HOLD)
-    {
-        *index = objtype - EXTOBJ_TILLERMAN;
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+	if (objtype == extobj.tillerman)
+	{
+		*index = 0;
+		return true;
+	}
+	else if (objtype == extobj.port_plank)
+	{
+		*index = 1;
+		return true;
+	}
+	else if (objtype == extobj.starboard_plank)
+	{
+		*index = 2;
+		return true;
+	}
+	else if (objtype == extobj.hold)
+	{
+		*index = 3;
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 typedef map< u16 /* graphic */ , BoatShape* > BoatShapes;
@@ -994,7 +1012,7 @@ void UBoat::register_object( UObject* obj )
 void UBoat::rescan_components()
 {
     UPlank* plank;
-    
+
     plank = static_cast<UPlank*>(components_[ COMPONENT_PORT_PLANK ].get());
     if (plank)
         plank->setboat( this );
@@ -1002,6 +1020,7 @@ void UBoat::rescan_components()
     plank = static_cast<UPlank*>(components_[ COMPONENT_STARBOARD_PLANK ].get());
     if (plank)
         plank->setboat( this );
+
 }
 
 void UBoat::readProperties( ConfigElem& elem )
@@ -1137,6 +1156,9 @@ BObjectImp* UBoat::scripted_create( const ItemDesc& descriptor, u16 x, u16 y, s8
 
 void UBoat::create_components()
 {
+	// Set Component Objtypes here
+	set_component_objtypes();
+
     const BoatShape& bshape = boatshape();
     for( int i = 0; i < BoatShape::BOATSHAPE_COMPONENT__COUNT; ++i )
     {
@@ -1161,6 +1183,16 @@ void UBoat::create_components()
         }
     }
 
+}
+
+void UBoat::set_component_objtypes()
+{
+	boat_components[0].objtype_ = extobj.tillerman;
+	boat_components[1].objtype_ = extobj.port_plank;
+	boat_components[2].objtype_ = extobj.port_plank;
+	boat_components[3].objtype_ = extobj.starboard_plank;
+	boat_components[4].objtype_ = extobj.starboard_plank;
+	boat_components[5].objtype_ = extobj.hold;
 }
 
 BObjectImp* UBoat::items_list() const

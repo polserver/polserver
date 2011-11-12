@@ -52,6 +52,7 @@ History
 2009/12/17 Turley:    CloseWindow( character, type, object ) - Tomi
 2010/01/15 Turley:    (Tomi) season stuff
                       (Tomi) SpeakPowerWords font and color params
+2011/11/12 Tomi:	  added extobj.mount
 
 Notes
 =======
@@ -103,6 +104,7 @@ Notes
 #include "../action.h"
 #include "../cfgrepos.h"
 #include "../core.h"
+#include "../extobj.h"
 #include "../eventid.h"
 #include "../fnsearch.h"
 #include "../guardrgn.h"
@@ -3863,7 +3865,7 @@ BObjectImp* UOExecutorModule::mf_EquipItem()
 			return new BError( "Item was destroyed in EquipTest script" );
 		}
 
-        if (item->objtype_ != EXTOBJ_MOUNT)
+        if (item->objtype_ != extobj.mount)
         {
             item->layer = tilelayer( item->graphic );
         }

@@ -11,6 +11,7 @@ History
 2009/09/03 MuadDib:   Relocation of multi related cpp/h
 2009/11/12 Turley:    Changed "can add"-functions to only check weight recursive
 2009/11/17 Turley:    Fixed problem with sending remove object packet
+2011/11/12 Tomi:	  added extobj.wornitems_container
 
 Notes
 =======
@@ -36,6 +37,7 @@ Notes
 #include "network/client.h"
 #include "mobile/charactr.h"
 #include "core.h"
+#include "extobj.h"
 #include "item/equipmnt.h"
 #include "gflag.h"
 #include "item/itemdesc.h"
@@ -910,7 +912,7 @@ unsigned int UContainer::find_sumof_objtype_noninuse( u32 objtype, u32 amtToGet,
 
 
 WornItemsContainer::WornItemsContainer() : 
-    UContainer( find_container_desc(EXTOBJ_WORNITEMS_CONTAINER)), 
+    UContainer( find_container_desc(extobj.wornitems_container)), 
     chr_owner(NULL) 
 {
     contents_.resize( HIGHEST_LAYER + 1, EMPTY_ELEM );
