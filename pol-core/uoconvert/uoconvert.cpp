@@ -1059,7 +1059,7 @@ void write_multi( FILE* multis_cfg, unsigned id, FILE* multi_mul, unsigned int o
 
     fprintf( multis_cfg, "%s 0x%x\n", type.c_str(), id );
     fprintf( multis_cfg, "{\n" );
-    fprintf( multis_cfg, "    Graphic 0x%x\n", id );
+    fprintf( multis_cfg, "    Graphic 0x%x\n", id+0x1000 );
 
     fseek( multi_mul, offset, SEEK_SET );
     bool first = true;

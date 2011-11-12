@@ -62,7 +62,6 @@ public:
 
     static BObjectImp* scripted_create( const ItemDesc& descriptor, u16 x, u16 y, s8 z, Realm* realm, int flags );
 
-    // these must match EXTOBJ_TILLERMAN etc from objtype.h
     enum BOAT_COMPONENT { 
         COMPONENT_TILLERMAN = 0,  
         COMPONENT_PORT_PLANK = 1,
@@ -107,6 +106,7 @@ protected:
     friend class EUBoatRefObjImp;
 private:
     void create_components();
+	void set_component_objtypes();
     typedef UObjectRef Traveller;
     typedef std::vector< Traveller > Travellers;
     Travellers travellers_;

@@ -162,6 +162,7 @@
     <ClCompile Include="equipdsc.cpp" />
     <ClCompile Include="exscrobj.cpp" />
     <ClCompile Include="extcmd.cpp" />
+    <ClCompile Include="extobj.cpp" />
     <ClCompile Include="fnsearch.cpp" />
     <ClCompile Include="gameclck.cpp" />
     <ClCompile Include="getitem.cpp" />
@@ -400,6 +401,7 @@
     <ClInclude Include="eventid.h" />
     <ClInclude Include="exscrobj.h" />
     <ClInclude Include="extcmd.h" />
+    <ClInclude Include="extobj.h" />
     <ClInclude Include="fnsearch.h" />
     <ClInclude Include="gameclck.h" />
     <ClInclude Include="getitem.h" />

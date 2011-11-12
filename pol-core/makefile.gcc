@@ -72,6 +72,7 @@ cpp_sources = \
 	pol/eqpitem.cpp pol/equipdsc.cpp pol/item/equipmnt.cpp clib/esignal.cpp \
 	pol/exscrobj.cpp \
 	pol/extcmd.cpp \
+	pol/extobj.cpp \
 	pol/module/filemod.cpp pol/fnsearch.cpp \
 	pol/gameclck.cpp pol/getitem.cpp pol/getmsg.cpp pol/gflag.cpp \
 	pol/gprepos.cpp pol/guardrgn.cpp\

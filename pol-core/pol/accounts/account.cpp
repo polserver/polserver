@@ -199,6 +199,7 @@ const string Account::uo_expansion() const
 {
 	switch (uo_expansion_)
 	{
+	case HSA: return "HSA";
 	case SA: return "SA";
 	case KR: return "KR";
 	case ML: return "ML";
@@ -217,7 +218,9 @@ const unsigned short Account::uo_expansion_flag() const
 
 u16 Account::convert_uo_expansion(const std::string& expansion) const
 {
-	if(expansion.find("SA") != string::npos)
+	if(expansion.find("HSA") != string::npos)
+		return HSA;
+	else if(expansion.find("SA") != string::npos)
 		return SA;
 	else if(expansion.find("KR") != string::npos)
 		return KR;
