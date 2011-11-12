@@ -47,6 +47,7 @@ History
 2009/12/04 Turley:    Crypto cleanup - Tomi
 2010/01/22 Turley:    Speedhack Prevention System
 2010/03/28 Shinigami: Transmit Pointer as Pointer and not Int as Pointer within decay_thread_shadow
+2011/11/12 Tomi:	  Added extobj.cfg
 
 Notes
 =======
@@ -103,6 +104,7 @@ Notes
 #include "network/cliface.h"
 #include "core.h"
 #include "decay.h"
+#include "extobj.h"
 #include "fnsearch.h"
 #include "gameclck.h"
 #include "gflag.h"
@@ -2116,6 +2118,9 @@ int xmain_inner( int argc, char *argv[] )
 
 	checkpoint( "reading servspecopt.cfg" );
 	read_servspecopt();
+
+	checkpoint( "reading extobj.cfg" );
+	read_extobj();
 
 #ifdef _WIN32
 	checkpoint( Use_low_fragmentation_Heap() );

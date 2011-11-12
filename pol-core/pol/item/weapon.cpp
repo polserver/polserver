@@ -3,6 +3,7 @@ History
 =======
 2005/03/09 Shinigami: Added Prop Delay [ms]
 2005/07/25 Shinigami: added MinDamage and MaxDamage in Weapon-Descriptor
+2011/11/12 Tomi:	  added extobj.wrestling
 
 Notes
 =======
@@ -35,6 +36,7 @@ Notes
 #include "../../plib/realm.h"
 
 #include "../action.h"
+#include "../extobj.h"
 #include "../mobile/attribute.h"
 #include "../mobile/charactr.h"
 #include "../dtrace.h"
@@ -266,16 +268,16 @@ void load_weapon_templates()
 
 void load_intrinsic_weapons()
 {
-	if (!dont_save_itemtype[ EXTOBJ_WRESTLING ])
+	if (!dont_save_itemtype[ extobj.wrestling ])
 		throw runtime_error( "Wrestling weapon (0xF020) must specify SaveOnExit 0" );
 
-	const ItemDesc& id = find_itemdesc( EXTOBJ_WRESTLING );
+	const ItemDesc& id = find_itemdesc( extobj.wrestling );
 
 	if (id.type == ItemDesc::WEAPONDESC)
 	{
 		const WeaponDesc* weapon_descriptor = static_cast<const WeaponDesc*>(&id);
 		wrestling_weapon = new UWeapon( *weapon_descriptor, weapon_descriptor );
-		//static_cast<UWeapon*>( Item::create( EXTOBJ_WRESTLING ) );
+		//static_cast<UWeapon*>( Item::create( extobj.wrestling ) );
 
 		wrestling_weapon->inuse(true);
 

@@ -2606,6 +2606,9 @@ void send_feature_enable(Client* client)
 	u32 clientflag = 0;
 	switch (client->acct->uo_expansion_flag())
 	{
+	case HSA:
+		clientflag = 0x387DF;
+		client->UOExpansionFlag = HSA | SA | KR | ML | SE | AOS; // HSA needs SA- KR- ML- SE- and AOS- features (and used checks) too
 	case SA:
 		clientflag = 0x187DF;
 		client->UOExpansionFlag = SA | KR | ML | SE | AOS; // SA needs KR- ML- SE- and AOS- features (and used checks) too

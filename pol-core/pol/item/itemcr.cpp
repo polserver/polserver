@@ -5,6 +5,7 @@ History
 2009/09/03 MuadDib:	  Changes for account related source file relocation
                       Changes for multi related source file relocation
 2009/12/02 Turley:    added config.max_tile_id - Tomi
+2011/11/12 Tomi:	  added extobj.port_plank and extobj.starboard_plank
 
 Notes
 =======
@@ -31,6 +32,7 @@ Notes
 #include "../containr.h"
 #include "../door.h"
 #include "../dye.h"
+#include "../extobj.h"
 #include "../multi/house.h"
 #include "item.h"
 #include "itemdesc.h"
@@ -137,7 +139,7 @@ Item* Item::create( const ItemDesc& id, u32 serial)
 	{
 		item = new Map( static_cast<const MapDesc&>(id) );
 	}
-	else if (objtype == EXTOBJ_PORT_PLANK || objtype == EXTOBJ_STARBOARD_PLANK)// ITEMDESCTODO make new ItemDesc type
+	else if (objtype == extobj.port_plank || objtype == extobj.starboard_plank)// ITEMDESCTODO make new ItemDesc type
 	{
 		item = new UPlank( id );
 	}
