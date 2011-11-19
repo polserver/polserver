@@ -241,7 +241,7 @@ void allocate_intrinsic_weapon_serials()
 
 UWeapon* create_intrinsic_weapon( const char* name, ConfigElem& elem, const Package* pkg )
 {
-	WeaponDesc* tmpl = new WeaponDesc( 0xF020, elem, pkg );
+	WeaponDesc* tmpl = new WeaponDesc( extobj.wrestling, elem, pkg );
 	tmpl->is_intrinsic = true;
 	UWeapon* wpn = new UWeapon(*tmpl, tmpl);
 	wpn->tmpl = tmpl;
@@ -269,7 +269,7 @@ void load_weapon_templates()
 void load_intrinsic_weapons()
 {
 	if (!dont_save_itemtype[ extobj.wrestling ])
-		throw runtime_error( "Wrestling weapon (0xF020) must specify SaveOnExit 0" );
+		throw runtime_error( "Wrestling weapon " + hexint(extobj.wrestling) + " must specify SaveOnExit 0" );
 
 	const ItemDesc& id = find_itemdesc( extobj.wrestling );
 
