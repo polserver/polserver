@@ -34,7 +34,11 @@ POL_BUILDNAME=linux
 LIB_MORE=
 endif
 
-CXX_OPTS=-gstabs+ -DINC_PASSERT=1 -DTIXML_USE_STL -Wall -Werror $(CXX_MORE_OPTS) $(INC_STL)
+ifdef USE_MYSQL
+LIB_MORE += -lmysqlclient -lz -lpthread
+endif
+
+CXX_OPTS=-gstabs+ -DINC_PASSERT=1 -DTIXML_USE_STL -Wall $(CXX_MORE_OPTS) $(INC_STL)
 
 CXX_RELEASE_OPTS=$(CXX_OPTS)
 
@@ -86,6 +90,7 @@ cpp_sources = \
 	pol/loaddata.cpp pol/login.cpp \
 	pol/module/mathmod.cpp pol/menu.cpp pol/menusel.cpp pol/miscmsg.cpp \
 	pol/miscrgn.cpp pol/mkscrobj.cpp \
+	pol/sqlscrobj.cpp \
 	pol/movecost.cpp pol/movement.cpp pol/msgfiltr.cpp \
 	pol/multi/multicfg.cpp pol/multi/multicr.cpp pol/multi/multidef.cpp pol/multi/multis.cpp \
 	pol/multi/multidef2.cpp \
@@ -194,6 +199,7 @@ ecompile_sources=ecompile/ecompile.cpp \
 runecl_sources=runecl/runecl.cpp \
 	bscript/executor.cpp bscript/execmodl.cpp bscript/dbl.cpp \
 	pol/module/basiciomod.cpp pol/module/basicmod.cpp bscript/berror.cpp \
+	pol/module/sqlmod.cpp pol/sqlscrobj.cpp \
 	bscript/blong.cpp bscript/bstruct.cpp bscript/compctx.cpp \
 	bscript/dict.cpp bscript/eprog.cpp bscript/eprog2.cpp \
 	bscript/eprog3.cpp bscript/eprog_read.cpp bscript/escript_config.cpp \
