@@ -229,7 +229,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\pol\sqlscrobj.h"
+			RelativePath="..\pol\sqlscrobj.cpp"
 			>
 		</File>
 		<File
