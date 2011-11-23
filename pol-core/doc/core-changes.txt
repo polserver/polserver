@@ -1,4 +1,7 @@
 -- POL099 --
+11-23-2011 Tomi:
+	Added:  can_insert and on_insert scripts for Tradewindows
+
 11-22-2011 Kevin:
 	Added:	pol/sqlscrobj.cpp pol/sqlscrobj.h
   Changed:	pol/module/sqlmod.cpp pol/module/sqlmod.h
