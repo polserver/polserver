@@ -238,6 +238,7 @@
     <ClCompile Include="speech.cpp" />
     <ClCompile Include="spelbook.cpp" />
     <ClCompile Include="spells.cpp" />
+	<ClCompile Include="sqlscrobj.cpp" />
     <ClCompile Include="ssopt.cpp" />
     <ClCompile Include="stackcfg.cpp" />
     <ClCompile Include="startloc.cpp" />
@@ -478,6 +479,7 @@
     <ClInclude Include="sockio.h" />
     <ClInclude Include="spelbook.h" />
     <ClInclude Include="spells.h" />
+	<ClInclude Include="sqlscrobj.h" />
     <ClInclude Include="ssopt.h" />
     <ClInclude Include="startloc.h" />
     <ClInclude Include="statmsg.h" />
