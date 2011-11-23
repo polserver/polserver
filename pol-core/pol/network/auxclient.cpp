@@ -33,65 +33,7 @@ Notes
 #include "../sockets.h"
 #include "../module/uomod.h"
 #include "../uoexec.h"
-
-class AuxClientThread;
-
-class AuxConnection : public BObjectImp
-{
-public:
-    AuxConnection( AuxClientThread* auxclientthread , string ip) : 
-        BObjectImp( OTUnknown ),
-        _auxclientthread( auxclientthread ),
-        _ip( ip )
-    {}
-
-    virtual BObjectImp* copy() const;
-    virtual bool isTrue() const;
-    virtual std::string getStringRep() const;
-    virtual unsigned int sizeEstimate() const;
-
-    virtual BObjectImp* call_method( const char* methodname, Executor& ex );
-	virtual BObjectRef get_member( const char *membername );
-
-    void disconnect();
-
-private:
-    AuxClientThread* _auxclientthread;
-    string _ip;
-};
-
-class AuxService
-{
-public:
-    AuxService( const Package* pkg, ConfigElem& elem );
-    void run();
-
-    const ScriptDef& scriptdef() const { return _scriptdef; }
-	std::vector<unsigned int> _aux_ip_match;
-    std::vector<unsigned int> _aux_ip_match_mask;
-private:
-    const Package* _pkg;
-    ScriptDef _scriptdef;
-    unsigned short _port;
-};
-
-class AuxClientThread : public SocketClientThread
-{
-public:
-    AuxClientThread( AuxService* auxsvc, SocketListener& listener );
-
-    virtual void run();
-    void transmit( const BObjectImp* imp );
-    BObjectImp* get_ip();
-    
-private:
-    bool init();
-	bool ipAllowed(sockaddr MyPeer);
-
-    AuxService* _auxservice;
-    ref_ptr<AuxConnection> _auxconnection;
-    weak_ptr<UOExecutor> _uoexec;
-};
+#include "auxclient.h"
 
 BObjectImp* AuxConnection::copy() const
 {
@@ -158,6 +100,13 @@ AuxClientThread::AuxClientThread( AuxService* auxsvc, SocketListener& listener )
     _uoexec(0)
 {
 }
+AuxClientThread::AuxClientThread( ScriptDef scriptdef, Socket& sock ) :
+    SocketClientThread(sock),
+    _auxservice(0),
+    _scriptdef(scriptdef),
+    _uoexec(0)
+{
+}
 
 bool AuxClientThread::init()
 {
@@ -166,8 +115,11 @@ bool AuxClientThread::init()
 	if (ipAllowed(ConnectingIP))
 	{
         _auxconnection.set( new AuxConnection( this, _sck.getpeername() ) );
-
-		UOExecutorModule* uoemod = start_script( _auxservice->scriptdef(), _auxconnection.get() ); 
+        UOExecutorModule* uoemod;
+        if (_auxservice)
+        	uoemod = start_script( _auxservice->scriptdef(), _auxconnection.get() );
+        else
+        	uoemod = start_script( _scriptdef, _auxconnection.get() );
 		_uoexec = uoemod->uoexec.weakptr;
 		return true;
 	}
@@ -179,7 +131,7 @@ bool AuxClientThread::init()
 
 bool AuxClientThread::ipAllowed(sockaddr MyPeer)
 {
-	if (_auxservice->_aux_ip_match.empty())
+	if (!_auxservice || _auxservice->_aux_ip_match.empty())
 	{
 		return true;
 	}
@@ -227,7 +179,7 @@ void AuxClientThread::run()
             if(result)
             {
 				istringstream is(tmp);
-				BObjectImp* value = BObjectImp::unpack( is );
+				BObjectImp* value = _uoexec->auxsvc_assume_string ? new String(tmp) : BObjectImp::unpack( is );
 
 				auto_ptr<BStruct> event (new BStruct);
 				event->addMember( "type", new String( "recv" ) );
@@ -252,7 +204,7 @@ void AuxClientThread::run()
 
 void AuxClientThread::transmit( const BObjectImp* value )
 {
-    string tmp = value->pack();
+    string tmp = _uoexec->auxsvc_assume_string ? value->getStringRep() : value->pack() ;
     writeline( _sck, tmp );
 }
 

@@ -1203,10 +1203,12 @@ CLIENT_CHECKPOINT(20);
 			CLIENT_CHECKPOINT(9);
 			PolLock lck;
 			clients.erase( find_in( clients, client ) );
+
 			client->Disconnect();
 			cout << "Client disconnected from " << AddressToString( &client->ipaddr )
 				 << " (" << clients.size() << " connections)"
 				 << endl;
+
 			CoreSetSysTrayToolTip( tostring(clients.size()) + " clients connected", ToolTipPrioritySystem );
 		}
 
@@ -2423,7 +2425,10 @@ int xmain_inner( int argc, char *argv[] )
 	//pol_lg2 << "Log file closed at <FIXME:time here>" << endl;
 	
 	close_logfiles();
-	
+
+#ifdef __linux__
+	unlink((config.pidfile_path+"pol.pid").c_str());
+#endif
 	return 0;
 }
 

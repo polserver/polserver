@@ -65,6 +65,10 @@ public:
 		OTXMLNode,
 		OTXMLAttributes,
 		OTPolCoreRef,
+		OTSQLConnection,
+		OTSQLResultSet,
+		OTSQLRow,
+
 		// non direct used constants (for TypeOfInt) start
 		OTAccountRef,
 		OTConfigFileRef,
@@ -388,6 +392,8 @@ public:
 
     virtual BObjectImp* array_assign( BObjectImp* idx, BObjectImp* target );
     virtual BObjectRef OperSubscript( const BObject& obj );
+    virtual BObjectRef OperMultiSubscript( stack<BObjectRef>& indices );
+
     virtual bool isEqual(const BObjectImp& objimp ) const;
 
     virtual ContIterator* createIterator( BObject* pIterVal );

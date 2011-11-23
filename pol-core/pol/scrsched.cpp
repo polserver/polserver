@@ -212,6 +212,7 @@ UOExecutor::UOExecutor( ) :
     area_size(0),
     speech_size(1),
     can_access_offline_mobiles(false),
+    auxsvc_assume_string(false),
 	pParent(NULL),
 	pChild(NULL)
 {
