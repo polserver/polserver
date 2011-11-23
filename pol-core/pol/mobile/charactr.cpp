@@ -534,6 +534,7 @@ Character::Character( u32 objtype, UOBJ_CLASS uobj_class ) :
 	paralyzed_(false),
 
 	stealthsteps_(0),
+	mountedsteps_(0),
 
 	// private_items_ default
 	// additional_legal_items default
@@ -808,6 +809,9 @@ void Character::printProperties( ostream& os ) const
 	if (dead_)
 		os << "\tDead\t" << static_cast<int>(dead_) << pf_endl;
 
+	if (mountedsteps_)
+		os << "\tMountedSteps\t" << static_cast<unsigned int>(mountedsteps_) << pf_endl;
+
 	if (hidden_)
 		os << "\tHidden\t" << static_cast<int>(hidden_) << pf_endl;
 
@@ -1080,6 +1084,8 @@ void Character::readCommonProperties( ConfigElem& elem )
 //		concealed_ = cmdlevel;
 
    	truecolor = elem.remove_ushort( "TRUECOLOR" );
+
+   	mountedsteps_ = elem.remove_ulong("MOUNTEDSTEPS", 0);
 
 	gender = static_cast<UGENDER>(elem.remove_ushort( "GENDER" ));
 	race = static_cast<URACE>(elem.remove_ushort( "RACE", RACE_HUMAN));
@@ -3930,6 +3936,10 @@ bool Character::move( unsigned char i_dir )
 		y = static_cast<u16>(newy);
 		z = static_cast<s8>(newz);
 
+		if (on_mount() && !script_isa(POLCLASS_NPC))
+		{
+			mountedsteps_++;
+		}
 		// FIXME: Need to add Walkon checks for multi right here if type is house.
 		if (supporting_multi != NULL)
 		{

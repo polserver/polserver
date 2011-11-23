@@ -20,6 +20,15 @@ public:
 	  TmplExecutorModule<SQLExecutorModule>("sql", exec) {}
 	
 	BObjectImp* mf_ConnectToDB();
+	BObjectImp* mf_Query();
+	BObjectImp* mf_Close();
+	BObjectImp* mf_FreeResult();
+	BObjectImp* mf_NumFields();
+	BObjectImp* mf_AffectedRows();
+	BObjectImp* mf_FetchRow();
+	BObjectImp* mf_NumRows();
+	BObjectImp* mf_SelectDb();
+	BObjectImp* mf_FieldName();
 
 };
 

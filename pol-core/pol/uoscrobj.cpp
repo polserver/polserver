@@ -1278,6 +1278,7 @@ BObjectImp* Character::get_script_member_id( const int id ) const
 		case MBR_PARALYZED: return new BLong(paralyzed_ ? 1 : 0); break;
 		case MBR_POISONED: return new BLong(poisoned ? 1 : 0); break;
 		case MBR_STEALTHSTEPS: return new BLong(stealthsteps_); break;
+		case MBR_MOUNTEDSTEPS: return new BLong(mountedsteps_); break;
 		case MBR_SQUELCHED: return new BLong( squelched() ? 1 : 0 ); break;
 		case MBR_DEAD: return new BLong(dead_); break;
 		case MBR_AR: return new BLong(ar()); break;
@@ -1594,6 +1595,8 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
 			return new BLong( poisoned );
 		case MBR_STEALTHSTEPS:
 			return new BLong( stealthsteps_ = static_cast<unsigned short>(value) );
+		case MBR_MOUNTEDSTEPS:
+			return new BLong( mountedsteps_ = static_cast<unsigned int>(value));
 		case MBR_CMDLEVEL:
 			cmdlevel = static_cast<unsigned char>(value);
 			if (cmdlevel >= cmdlevels2.size())

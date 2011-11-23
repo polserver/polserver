@@ -96,6 +96,7 @@ protected:
     BObjectImp* mf_set_script_option();
 	BObjectImp* mf_set_event_queue_size(); //DAVE 11/24
     BObjectImp* mf_OpenURL();
+    BObjectImp* mf_OpenConnection();
 
 	BObjectImp* mf_clear_event_queue(); //DAVE
     bool blocked_;
