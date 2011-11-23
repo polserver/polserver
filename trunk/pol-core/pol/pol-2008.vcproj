@@ -612,6 +612,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\sqlscrobj.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\ssopt.cpp"
 				>
 			</File>
@@ -1286,6 +1290,10 @@
 			</File>
 			<File
 				RelativePath=".\spells.h"
+				>
+			</File>
+			<File
+				RelativePath=".\sqlscrobj.h"
 				>
 			</File>
 			<File
