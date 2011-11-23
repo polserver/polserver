@@ -1,4 +1,51 @@
 -- POL099 --
+11-22-2011 Kevin:
+	Added:	pol/sqlscrobj.cpp pol/sqlscrobj.h
+  Changed:	pol/module/sqlmod.cpp pol/module/sqlmod.h
+  			Add preliminary MySQL database support.
+  			New eScript objects: BSQLConnection, BSQLResultSet, BSQLRow 
+  			Added several new sql module functions:
+  				mysql_connect(host,username,password);
+				mysql_query(connection,query);
+				mysql_fetch_row(result);
+				mysql_affected_rows(result);
+				mysql_num_fields(result);
+				mysql_num_rows(result);
+				mysql_select_db(connection,database);
+				mysql_field_name(result,column_index);
+				mysql_free_result(result);
+				mysql_close(connection);
+			In order to build with MySQL support, define the HAVE_MYSQL preprocessor directive in your build configuration.
+			You must have the MySQL headers and libraries installed. 
+			Only really tested with dynamically linking mysql libraries on Linux.
+			
+	Added:	pol/network/auxclient.h
+  Changed:	pol/network/auxclient.cpp pol/module/osmod.cpp pol/module/osmod.h clib/socketsvc.cpp clib/socketsvc.h
+  			Moved AuxClient-related classes to its own header file (shared between auxclient.cpp and osmod.cpp)
+  			Implemented os::OpenConnection() to create outgoing TCP/IP connections. 
+  			
+  Changed:	runecl/runecl.cpp
+  			Added the sql module to runecl to allow quick testing
+
+  Changed:	pol/uoscrobj.cpp pol/mobile/charactr.cpp pol/mobile/character.h bscript/parser.cpp bscript/objmembers.h
+  			Added read/write property "mountedsteps" for mobiles. Represents number of steps taken while character was mounted.
+
+  Changed:	bscript/parser.cpp
+  			Declaring an array only using "{}" will show a compiler warning; please explicitly state 'array', 'struct', or 'dictionary' 
+  Changed:	pol/pol.cpp
+  			If using Linux, remove pol.pid on shutdown of pol.
+
+  Changed:	pol/uoexec.h pol/scrsched.cpp
+  			Added script option "AUXSVC_ASSUME_STRING" which will allow aux service connections to send and receive non-packed strings.
+
+  Changed:	ecompile/ecompile.cpp
+  			If using Linux, a slash ("/") cannot be used to define ecompile options to allow support for absolute filenames.
+
+  Changed:	bscript/object.cpp bscript/bobject.h
+  			Implemented array operation MultiSubscript. Will return a splice of an array, eg:
+  				array{"a","b","c","d","e"}[2,4] will return array{"b","c","d"}
+  				 
+
 11-12-2011 Tomi:
 	Added:	 Pol/config/extobj.cfg
 		 Values it accept now and default values are

@@ -440,6 +440,8 @@ ObjMember object_members[] = {
 	{ MBR_ATTRIBUTES, "attributes", true },
 	{ MBR_EDITING, "house_editing", true }, //185
 	{ MBR_HOUSEPARTS, "house_parts", true },
+	{ MBR_MOUNTEDSTEPS, "mountedsteps", false },
+	{ MBR_HOUSEPARTS, "house_parts", true },
 	{ MBR_DOUBLECLICKRANGE, "doubleclickrange", false}
 };
 int n_objmembers = sizeof object_members / sizeof object_members[0];
@@ -1983,6 +1985,9 @@ int SmartParser::IIP(Expression& expr, CompilerContext& ctx, unsigned flags)
 				}
 				break;
 			}
+		} else if (last_type == TYP_TERMINATOR && token.type == TYP_LEFTBRACE && compilercfg.DisplayWarnings) {
+			cout << "Warning: Using { } is inappropriate; please define array, struct or dictionary." << endl;
+			cout << ctx;
 		}
 		last_type = token.type;
 		last_token = token;

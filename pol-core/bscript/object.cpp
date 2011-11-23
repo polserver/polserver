@@ -662,6 +662,73 @@ BObjectImp* ObjArray::selfPlusObjImp(const BObjectImp& other) const
 	}
 	return result.release();
 }
+BObjectRef ObjArray::OperMultiSubscript( stack<BObjectRef>& indices )
+{
+    BObjectRef start_ref = indices.top();
+    indices.pop();
+    BObjectRef length_ref = indices.top();
+    indices.pop();
+
+    BObject& length_obj = *length_ref;
+    BObject& start_obj = *start_ref;
+
+    BObjectImp& length = length_obj.impref();
+    BObjectImp& start = start_obj.impref();
+
+    // first deal with the start position.
+	//return BObjectRef(new BError( "Subscript out of range" ));
+
+    unsigned index;
+    if (start.isa( OTLong ))
+    {
+        BLong& lng = (BLong&) start;
+        index = (unsigned) lng.value();
+        if (index == 0 || index > ref_arr.size()  )
+            return BObjectRef(new BError( "Array start index out of bounds" ));
+    } else return BObjectRef(copy());
+
+	// now the end index
+
+    unsigned end;
+    if (length.isa( OTLong ))
+    {
+		BLong& lng = (BLong &) length;
+        end = (unsigned) lng.value();
+		if (end == 0 || end > ref_arr.size() )
+			return BObjectRef(new BError( "Array end index out of bounds" ));
+    }
+    else return BObjectRef(copy());
+
+	ObjArray* str = new ObjArray();
+
+
+	//auto_ptr<ObjArray> result (new ObjArray());
+	unsigned i = 0;
+	for( const_iterator itr = ref_arr.begin(); itr != ref_arr.end(); ++itr )
+	{
+		if (++i < index) continue;
+		if (i > end) break;
+		if (itr->get())
+		{
+			BObject *bo = itr->get();
+			str->ref_arr.push_back( BObjectRef( new BObject( (*bo)->copy() ) ) );
+		}
+		else
+		{
+			str->ref_arr.push_back( BObjectRef() );
+		}
+	}
+	/*
+	for (unsigned i = index; i < end; i++) {
+		BObject *bo = ref_arr[i];
+		if (bo != 0)
+			str->ref_arr.push_back( BObjectRef( new BObject( (*bo)->copy() ) ) );
+		else
+		result->ref_arr.push_back( BObjectRef() );
+	} */
+//	return result.release();
+	return BObjectRef( str );
+}
 
 BObjectRef ObjArray::OperSubscript( const BObject& rightobj )
 {

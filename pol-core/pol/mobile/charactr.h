@@ -759,6 +759,7 @@ protected: // was private, but hey, NPC will be okay, I think.
     bool frozen_;
     bool paralyzed_;
     unsigned short stealthsteps_;
+    unsigned int mountedsteps_;
 
 //    vector< Item* > private_items_; // owns its objects
     vector< ItemRef > remote_containers_; // does not own its objects

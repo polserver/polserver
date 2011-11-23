@@ -31,6 +31,7 @@ class SocketClientThread
 {
 public:
     explicit SocketClientThread( SocketListener& SL );
+    explicit SocketClientThread( Socket& S );
     virtual ~SocketClientThread() {}
     void start();
     virtual void run() = 0;

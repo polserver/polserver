@@ -319,10 +319,14 @@ int readargs(int argc, char **argv)
 {
 	bool unknown_opt = false;
 
-    for(int i=1;i<argc;i++) 
+    for(int i=1;i<argc;i++)
     {
         const char* arg = argv[i];
+#ifdef __linux__
+        if ( arg[0] == '-' )
+#else
         if ( arg[0] == '/' || arg[0] == '-' )
+#endif
         {
             switch(arg[1]) 
             {
@@ -381,7 +385,11 @@ int readargs(int argc, char **argv)
 					}
 
 					// Only skip next parameter if it's not an option!!
+#ifdef __linux__
+					if ( i+1<argc && argv[i+1][0] != '-' )
+#else
 					if ( i+1<argc && argv[i+1][0] != '/' && argv[i+1][0] != '-' )
+#endif					
 						++i;
                     break;
 
@@ -579,7 +587,11 @@ bool run(int argc, char **argv)
 
 	for(int i=1;i<argc;i++)
 	{
+#ifdef __linux__	
+		if (argv[i][0] == '-')
+#else
 		if (argv[i][0] == '/' || argv[i][0] == '-')
+#endif
 		{
 			// -r[i] [<dir>]
             if (argv[i][1] == 'A')
