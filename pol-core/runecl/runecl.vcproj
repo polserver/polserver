@@ -229,6 +229,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\pol\sqlscrobj.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\pol\sqlscrobj.h"
+			>
+		</File>		
+		<File
 			RelativePath=".\runecl.cpp"
 			>
 		</File>
