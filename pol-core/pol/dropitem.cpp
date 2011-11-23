@@ -133,7 +133,7 @@ bool place_item_in_container( Client *client, Item *item, UContainer *cont, u16 
     return true;
 }
 
-bool do_place_item_in_secure_trade_container( Client* client, Item* item, UContainer* cont, Character* dropon, u16 x, u16 y );
+bool do_place_item_in_secure_trade_container( Client* client, Item* item, UContainer* cont, Character* dropon, u16 x, u16 y, u8 move_type );
 bool place_item_in_secure_trade_container( Client* client, Item* item, u16 x, u16 y )
 {
     UContainer* cont = client->chr->trade_container();
@@ -148,12 +148,17 @@ bool place_item_in_secure_trade_container( Client* client, Item* item, u16 x, u1
         send_sysmessage( client, "That's too heavy to trade." );
 		return false;
 	}
+    if (!cont->can_insert_add_item( client->chr, UContainer::MT_PLAYER, item))
+	{
+		send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
+        return false;
+	}
 
 	// FIXME : Add Grid Index Default Location Checks here.
 	// Remember, if index fails, move to the ground. That is, IF secure trade uses
 	// grid index.
 
-    return do_place_item_in_secure_trade_container( client, item, cont, dropon, x, y );
+    return do_place_item_in_secure_trade_container( client, item, cont, dropon, x, y, 0 );
 }
 
 BObjectImp* place_item_in_secure_trade_container( Client* client, Item* item )
@@ -168,18 +173,23 @@ BObjectImp* place_item_in_secure_trade_container( Client* client, Item* item )
 	{
         return new BError( "That's too heavy to trade." );
 	}
+    if (!cont->can_insert_add_item( client->chr, UContainer::MT_CORE_MOVED, item))
+	{
+		send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
+        return false;
+	}
     
 	// FIXME : Add Grid Index Default Location Checks here.
 	// Remember, if index fails, move to the ground.
 
-	if (do_place_item_in_secure_trade_container( client, item, cont, dropon, 5 + static_cast<u16>(random_int( 45 )), 5 + static_cast<u16>(random_int( 45 )) ))
+	if (do_place_item_in_secure_trade_container( client, item, cont, dropon, 5 + static_cast<u16>(random_int( 45 )), 5 + static_cast<u16>(random_int( 45 )), 1 ))
         return new BLong(1);
     else
         return new BError( "Something went wrong with trade window." );
 
 }
 
-bool do_place_item_in_secure_trade_container( Client* client, Item* item, UContainer* cont, Character* dropon, u16 x, u16 y )
+bool do_place_item_in_secure_trade_container( Client* client, Item* item, UContainer* cont, Character* dropon, u16 x, u16 y, u8 move_type )
 {
 	client->pause();
 
@@ -197,6 +207,11 @@ bool do_place_item_in_secure_trade_container( Client* client, Item* item, UConta
 	
 	send_put_in_container( client, item );
 	send_put_in_container( dropon->client, item );
+
+	if (move_type == 1)
+		cont->on_insert_add_item( client->chr, UContainer::MT_CORE_MOVED, item );
+	else
+		cont->on_insert_add_item( client->chr, UContainer::MT_PLAYER, item );
 
 	send_trade_statuses( client->chr );
 	send_trade_statuses( dropon->client->chr );
