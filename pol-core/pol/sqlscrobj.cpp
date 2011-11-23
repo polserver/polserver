@@ -165,7 +165,7 @@ BSQLConnection::BSQLConnection(std::string host, std::string user, std::string p
 BSQLConnection::~BSQLConnection() {
 	if (_conn) mysql_close(_conn);
 	_conn = 0;
-	cout<<"Destructed connection"<<endl;
+//	cout<<"Destructed connection"<<endl;
 }
 std::string BSQLConnection::getStringRep() const {
 	return "SQLConnection";

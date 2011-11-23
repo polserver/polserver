@@ -38,17 +38,19 @@ int TmplExecutorModule<SQLExecutorModule>::function_table_size = arsize(function
 
 BObjectImp* SQLExecutorModule::mf_ConnectToDB()
 {
-	//BSQLConnection bsB
+
+	const String *host, *username, *password;
+	if ( !(host = getStringParam(0) ) || !(username = getStringParam(1)) || !(password = getStringParam(2))) {
+		return new BError("Invalid parameters");
+	}
+
 	BSQLConnection *sql = new BSQLConnection();
 	if (sql->getLastErrNo()) {
 		return new BError("Insufficient memory");
 	}
-	cout<<"Attempted connection"<<endl;
-	if (!sql->connect("127.0.0.1","kevin","")) {
-		cout<<"Connection failed"<<endl;
+	if (!sql->connect(host->data(),username->data(),password->data())) {
 		return new BError(sql->getLastError());
 	}
-	cout<<"Connection succeeded!"<<endl;
 	return sql;
 	//return new BLong(1);
 }
