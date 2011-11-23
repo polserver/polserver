@@ -21,6 +21,8 @@ Notes
 #include "../../clib/stlutil.h"
 #include "../../clib/strutil.h"
 #include "../../clib/unicode.h"
+#include "../../clib/sckutil.h"
+#include "../../clib/socketsvc.h"
 #include "../mobile/attribute.h"
 #include "../mobile/charactr.h"
 #include "../network/client.h"
@@ -60,7 +62,7 @@ Notes
 #include "uomod.h"
 #include "utilmod.h"
 #include "vitalmod.h"
-
+#include "../network/auxclient.h"
 
 PidList pidlist;
 unsigned int next_pid = 0;
@@ -143,7 +145,8 @@ OSFunctionDef OSExecutorModule::function_table[] =
 	{ "set_script_option",          &OSExecutorModule::mf_set_script_option },
 	{ "clear_event_queue",			&OSExecutorModule::mf_clear_event_queue },
 	{ "set_event_queue_size",		&OSExecutorModule::mf_set_event_queue_size },
-	{ "OpenURL",					&OSExecutorModule::mf_OpenURL }
+	{ "OpenURL",					&OSExecutorModule::mf_OpenURL },
+	{ "OpenConnection",				&OSExecutorModule::mf_OpenConnection }
 };
 
 int OSExecutorModule::functionIndex( const char *name )
@@ -554,6 +557,7 @@ const int SCRIPTOPT_NO_INTERRUPT    = 1;
 const int SCRIPTOPT_DEBUG           = 2;
 const int SCRIPTOPT_NO_RUNAWAY      = 3;
 const int SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES = 4;
+const int SCRIPTOPT_AUXSVC_ASSUME_STRING = 5;
 
 BObjectImp* OSExecutorModule::mf_set_script_option()
 {
@@ -584,6 +588,13 @@ BObjectImp* OSExecutorModule::mf_set_script_option()
 				UOExecutor& uoexec = static_cast<UOExecutor&>(exec);
 				oldval = uoexec.can_access_offline_mobiles?1:0;
 				uoexec.can_access_offline_mobiles = optval?true:false;
+			}
+			break;
+		case SCRIPTOPT_AUXSVC_ASSUME_STRING:
+			{
+				UOExecutor& uoexec = static_cast<UOExecutor&>(exec);
+				oldval = uoexec.auxsvc_assume_string?1:0;
+				uoexec.auxsvc_assume_string = optval?true:false;
 			}
 			break;
 		default:
@@ -659,5 +670,53 @@ BObjectImp* OSExecutorModule::mf_OpenURL()
 	{
 		return new BError( "Invalid parameter type" );
 	}
+}
+
+
+BObjectImp* OSExecutorModule::mf_OpenConnection() {
+	const String* host;
+	const String* scriptname_str;
+	unsigned short port;
+
+	UOExecutorModule* this_uoemod = static_cast<UOExecutorModule*>(exec.findModule( "uo" ));
+	UOExecutor* this_uoexec = static_cast<UOExecutor*>(&this_uoemod->exec);
+
+	if(this_uoexec->pChild == NULL)
+	{
+	if (  (host = getStringParam( 0 )) != NULL && getParam( 1, port ) && (scriptname_str = getStringParam( 2 )) != NULL)
+		{
+			// FIXME needs to inherit available modules?
+			ScriptDef sd;// = new ScriptDef();
+			cout<<"Starting connection script "<<scriptname_str->value()<<endl;
+			if (!sd.config_nodie( scriptname_str->value(), exec.prog()->pkg, "scripts/" ))
+			{
+				return new BError( "Error in script name" );
+			}
+			if (!sd.exists())
+			{
+				return new BError( "Script " + sd.name() + " does not exist." );
+			}
+
+			//Socket* s = new Socket();
+			//bool success_open = s->open(host->value().c_str(),30);
+			Socket s;
+			bool success_open = s.open(host->value().c_str(),port);
+
+			if (!success_open) {
+				//delete s;
+				return new BError("Error connecting to client");
+			}
+			SocketClientThread* clientthread = new AuxClientThread( sd, s );
+            clientthread->start();
+
+			return new BLong( 1 );
+		}
+		else
+		{
+			return new BError( "Invalid parameter type" );
+		}
+	}
+
+	return new BError( "Invalid parameter type" );
 }
 

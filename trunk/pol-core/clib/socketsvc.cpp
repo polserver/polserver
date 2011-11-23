@@ -52,6 +52,10 @@ SocketClientThread::SocketClientThread( SocketListener& SL ) :
 {
     SL.accept( _sck );
 }
+SocketClientThread::SocketClientThread( Socket& S ) :
+    _sck(S)
+{
+}
 
 static void _thread_stub2( void *arg )
 {
