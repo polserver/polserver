@@ -612,6 +612,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\sqlscrobj.cpp"
+				>
+			</File>			
+			<File
 				RelativePath=".\ssopt.cpp"
 				>
 			</File>
@@ -1285,6 +1289,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\sqlscrobj.h"
+				>
+			</File>
+			<File
 				RelativePath=".\ssopt.h"
 				>
 			</File>
@@ -1734,6 +1742,10 @@
 			>
 			<File
 				RelativePath=".\network\auxclient.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\network\auxclient.h"
 				>
 			</File>
 			<File
