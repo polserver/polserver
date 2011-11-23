@@ -229,6 +229,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\pol\module\sqlmod.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\pol\module\sqlmod.h"
+			>
+		</File>
+		<File
 			RelativePath="..\pol\sqlscrobj.cpp"
 			>
 		</File>
