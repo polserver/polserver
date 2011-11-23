@@ -1753,6 +1753,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\network\auxclient.h"
+				>
+			</File>
+			<File
 				RelativePath=".\network\bannedips.cpp"
 				>
 			</File>
