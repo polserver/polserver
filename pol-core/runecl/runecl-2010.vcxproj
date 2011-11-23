@@ -142,12 +142,14 @@
     <ClCompile Include="..\pol\module\basiciomod.cpp" />
     <ClCompile Include="..\pol\module\basicmod.cpp" />
     <ClCompile Include="..\pol\module\mathmod.cpp" />
+	<ClCompile Include="..\pol\sqlscrobj.cpp" />
     <ClCompile Include="runecl.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\pol\module\basiciomod.h" />
     <ClInclude Include="..\pol\module\basicmod.h" />
     <ClInclude Include="..\pol\module\mathmod.h" />
+	<ClInclude Include="..\pol\sqlscrobj.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\bscript\bscript-2010.vcxproj">
