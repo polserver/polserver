@@ -2598,7 +2598,14 @@ BObjectImp* Spellbook::script_method_id( const int id, Executor& ex )
 				auto_ptr<ObjArray> arr (new ObjArray);
 				for ( u16 i = 0; i < 64; ++i )
 				{
-					unsigned int id = this->spell_school*100 + i + 1;
+					unsigned int id;
+
+					// Check for Mysticism spells here
+					if (this->spell_school == 3)
+						id = 678 + i;
+					else
+						id = this->spell_school*100 + i + 1;
+
 					if (this->has_spellid(id))
 						arr->addElement(new BLong(id));
 				}

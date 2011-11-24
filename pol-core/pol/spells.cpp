@@ -51,9 +51,10 @@ Notes
 
 // Magery is repeated at array entry 3, because as of right now, NO spellbook
 // on OSI uses the 301+ spellrange that we can find. 5/30/06 - MuadDib
-u32 spell_scroll_objtype_limits[7][2] = { {0x1F2D,0x1F6C}, {0x2260,0x226F},
-										  {0x2270,0x227C}, {0x1F2D,0x1F6C},
-										  {0x238D,0x2392}, {0x23A1,0x23A8} , {0x2D51,0x2D60}};
+// We use Mysticism at array entry 3 because Mysticism spellids are 678 -> 693 and this slot is free.
+u32 spell_scroll_objtype_limits[8][2] = { {0x1F2D,0x1F6C}, {0x2260,0x226F},
+										  {0x2270,0x227C}, {0x2D9E,0x2DAD},
+{0x238D,0x2392}, {0x23A1,0x23A8}, {0x2D51,0x2D60}, {0x574B,0x5750}};
 
 static bool nocast_here( Character* chr )
 {

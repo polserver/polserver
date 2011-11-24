@@ -38,12 +38,17 @@ Spellbook::Spellbook( const SpellbookDesc& descriptor ) :
 		spell_school = 1;
 	else if(descriptor.spelltype == "Paladin")
 		spell_school = 2;
+	// Use spell school 3 for Mysticism with spellid 678+ because on OSI nothing uses this so we can use this here.
+	else if(descriptor.spelltype == "Mysticism")
+		spell_school = 3;
 	else if(descriptor.spelltype == "Bushido")
 		spell_school = 4;
 	else if(descriptor.spelltype == "Ninjitsu")
 		spell_school = 5;
 	else if(descriptor.spelltype == "SpellWeaving")
 		spell_school = 6;
+	else if(descriptor.spelltype == "BardMasteries")
+		spell_school = 7;
 	for(int i=0; i<8; ++i)
 		bitwise_contents[i] = 0;
 }
@@ -78,7 +83,7 @@ void Spellbook::double_click( Client* client )
 	else if( !(client->UOExpansionFlag & AOS) && 
 		     (spell_school == 1 || spell_school == 2))
 	{
-		send_sysmessage( client, "This item requires at least the Age of Empires Expansion." );
+		send_sysmessage( client, "This item requires at least the Age of Shadows Expansion." );
 		return;
 	}
 	else if( !(client->UOExpansionFlag & SE) && 
@@ -92,6 +97,11 @@ void Spellbook::double_click( Client* client )
 	{
 		 send_sysmessage( client, "This item requires at least the Mondain's Legacy Expansion." );
 		return;
+	}
+	else if( !(client->UOExpansionFlag & SA) && (spell_school == 3 || spell_school == 7))
+	{
+		 send_sysmessage( client, "This item requires at least the Stygian Abyss Expansion." );
+		 return;
 	}
 	else
 	{
@@ -115,7 +125,13 @@ void Spellbook::double_click( Client* client )
 		msg->WriteFlipped(static_cast<u16>(1));
 		msg->Write(serial_ext);
 		msg->WriteFlipped(graphic);
-		msg->WriteFlipped(static_cast<u16>((spell_school * 100) + 1));
+
+		// Check Mysticism spell here
+		if (spell_school == 3)
+			msg->WriteFlipped(static_cast<u16>(678));
+		else
+			msg->WriteFlipped(static_cast<u16>((spell_school * 100) + 1));
+
 		msg->Write(bitwise_contents,8);
 		ADDTOSENDQUEUE(client,&msg->buffer, msg->offset);
 		READDPACKET(msg);
@@ -124,10 +140,24 @@ void Spellbook::double_click( Client* client )
 
 bool Spellbook::has_spellid( unsigned int spellid ) const
 {
-    u8 spellschool = static_cast<u8>(spellid / 100);
+    u8 spellschool;
+
+	// Check Mysticism here
+	if (spellid >= 678 && spellid <= 693)
+		spellschool = 3;
+	else
+		spellschool = static_cast<u8>(spellid / 100);
+
     if (spellschool == this->spell_school)
     {
-        u16 spellnumber = static_cast<u16>(spellid % 100);
+        u16 spellnumber;
+
+		// Check Mysticism here
+		if ( spellid >= 678 && spellid <= 693)
+			spellnumber = static_cast<u16>(spellid - 677);
+		else
+			spellnumber = static_cast<u16>(spellid % 100);
+
         u8  spellslot = spellnumber & 7;
         if(spellslot == 0) spellslot = 8;
 
@@ -141,7 +171,14 @@ bool Spellbook::remove_spellid( unsigned int spellid )
 {
     if (has_spellid(spellid))
     {
-        u16 spellnumber = static_cast<u16>(spellid % 100);
+        u16 spellnumber;
+
+		// Check Mysticism here
+		if ( spellid >= 678 && spellid <= 693)
+			spellnumber = static_cast<u16>(spellid - 677);
+		else
+			spellnumber = static_cast<u16>(spellid % 100);
+
         u8  spellslot = spellnumber & 7;
         if(spellslot == 0) spellslot = 8;
         bitwise_contents[ (spellnumber-1) >> 3 ] &= ~(1 << (spellslot-1));
@@ -154,7 +191,14 @@ bool Spellbook::add_spellid( unsigned int spellid )
 {
     if (!has_spellid(spellid))
     {
-        u16 spellnumber = static_cast<u16>(spellid % 100);
+        u16 spellnumber;
+
+		// Check Mysticism here
+		if ( spellid >= 678 && spellid <= 693)
+			spellnumber = static_cast<u16>(spellid - 677);
+		else
+			spellnumber = static_cast<u16>(spellid % 100);
+
         u8  spellslot = spellnumber & 7;
         if(spellslot == 0) spellslot = 8;
         bitwise_contents[ (spellnumber-1) >> 3 ] |= 1 << (spellslot-1);
