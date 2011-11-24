@@ -1,4 +1,8 @@
 -- POL099 --
+11-24-2011 Tomi:
+	Added:  Support for Mysticism and BardMasteries spell books
+		Mysticism Spell ID's 678 -> 693 and BardMasteries spell ID's 701+
+
 11-23-2011 Tomi:
 	Added:  can_insert and on_insert scripts for Tradewindows
 
