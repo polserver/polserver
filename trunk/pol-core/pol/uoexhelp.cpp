@@ -469,7 +469,7 @@ bool getObjtypeParam( Executor& exec, unsigned param, unsigned int& objtype )
                     << "\tCall to function " << exec.current_module_function->name << ":" << endl
                     << "\tParameter " << param << ": Value " << objtype_long << " is out of range for an objtype"
                     << endl;
-        exec.setFunctionResult( new BError( "Objtype is out of range (acceptable: 0-0x20000)" ) );
+		exec.setFunctionResult( new BError( "Objtype is out of range ( acceptable: 0 - " + hexint( config.max_objtype ) + " )" ) );
         return false;
     }
 }
