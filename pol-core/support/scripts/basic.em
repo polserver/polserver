@@ -59,7 +59,7 @@ CDbl( expr );           // Convert to double
 CStr( expr );           // Convert to string
 CAsc( str );            // Convert first character to Ascii value (0-255)
 CChr( number );         // Convert Ascii value to character (type: string)
-CAscZ( str );           // Convert string to array of Ascii values (0-255)
+CAscZ( str, nullterm := 0 );           // Convert string to array of Ascii values (0-255)
 CChrZ( intarray );      // Convert array of Ascii values to a string
 
 Bin( number) ;			// Convert 25 to 11001
