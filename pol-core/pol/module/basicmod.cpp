@@ -297,11 +297,15 @@ BObjectImp* BasicExecutorModule::mf_CAscZ()
 {
 	BObjectImp* imp = exec.getParamImp( 0 );
 	string tmp = imp->getStringRep();
+	int nullterm = static_cast<int>(exec.paramAsLong(1));
 	auto_ptr<ObjArray> arr (new ObjArray);
 	for( unsigned i = 0; i < tmp.size(); ++i )
 	{
 		arr->addElement( new BLong( static_cast<unsigned char>(tmp[i]) ) );
 	}
+	if (nullterm)
+		arr->addElement( new BLong( 0 ) );
+
 	return arr.release();
 }
 
