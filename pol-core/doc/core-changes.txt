@@ -1,4 +1,9 @@
 -- POL099 --
+11-26-2011 Tomi:
+	Changed: CascZ( str ) to CascZ( str, nullterm := 0 )
+		 if nullterm 1 it adds the terminating 0 in the end of array.
+	Note:	 Recompile of scripts needed.
+
 11-24-2011 Tomi:
 	Added:  Support for Mysticism and BardMasteries spell books
 		Mysticism Spell ID's 678 -> 693 and BardMasteries spell ID's 701+
