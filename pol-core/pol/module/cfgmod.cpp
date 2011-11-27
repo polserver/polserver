@@ -454,10 +454,10 @@ BObjectImp* ConfigFileExecutorModule::mf_GetConfigStringDictionary()
 		{
 			BObjectImp* line = (*itr).second.get();
 
-			String* line_str = new String(line->getStringRep());
-			if ( line_str->length() < 1 )
+			string line_str = line->getStringRep();
+			if ( line_str.length() < 1 )
 				continue;
-			
+
 			/* Example:
 			 * Elem
 			 * {
@@ -467,7 +467,7 @@ BObjectImp* ConfigFileExecutorModule::mf_GetConfigStringDictionary()
 			 * dict "data"->"moredata more data", "stuff"->"morestuff stuffity stuff!"
 			 */
 			string prop_name, prop_value;
-			splitnamevalue(line_str->data(), prop_name, prop_value);
+			splitnamevalue(line_str, prop_name, prop_value);
 
 			dict->addMember(new String(prop_name), new String(prop_value));
 		}
