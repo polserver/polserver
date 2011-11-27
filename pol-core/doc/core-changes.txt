@@ -1,4 +1,7 @@
 -- POL099 --
+11-27-2011 Nando:
+	Fixed: corrected memory leak in cfgfile::GetConfigStringDictionary(...)
+
 11-26-2011 Tomi:
 	Changed: CascZ( str ) to CascZ( str, nullterm := 0 )
 		 if nullterm 1 it adds the terminating 0 in the end of array.
