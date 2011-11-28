@@ -70,7 +70,6 @@ UObject::UObject(u32 objtype, UOBJ_CLASS i_uobj_class) :
 	objtype_(objtype),
     graphic(static_cast<u16>(objtype)),
 	color(0),
-	color_ext(0),
 	x(0),
 	y(0),
 	z(0),
@@ -281,8 +280,7 @@ void UObject::readProperties( ConfigElem& elem )
     height = tileheight( graphic );
 
     color = elem.remove_ushort( "COLOR", 0 );
-    color_ext = ctBEu16( color );
-    
+   
 
 	realm = find_realm( elem.remove_string("Realm", "britannia") );
     x = elem.remove_ushort( "X" );
@@ -345,7 +343,6 @@ bool UObject::setcolor( u16 newcolor )
 {
     set_dirty();
     color = newcolor;
-    color_ext = ctBEu16( color );
 
     return true;
 }
