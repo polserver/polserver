@@ -509,22 +509,31 @@ void RemoveStaminaCheck(void)
 	* thanks to Bloodbob (bloob) for this one
 	*/
 
-	unsigned char StaminacheckSig[11] = { 0x74, 0xCC, 0x7E, 0xCC, 0x83, 0xF8, 0x02, 0x7F, 0xCC, 0xEB, 0xCC };
-	unsigned char CmpSig[3] = { 0x3B, 0xCC, 0x74 };
-	unsigned int StaminacheckPos = -1, CmpPos = -1;
+	unsigned char StaminacheckSigOld[25] = { 0x74, 0xCC, 0x7E, 0xCC, 0x83, 0xF8, 0x02, 0x7F, 0xCC, 0xEB, 0xCC, 0x8B, 0x91, 0xCC, 0xCC, 0xCC, 0xCC, 0x8B, 0x81, 0xCC, 0xCC, 0xCC, 0xCC, 0x3B, 0xD0 };
+	unsigned char StaminacheckSigNew[25] = { 0x74, 0xCC, 0x7E, 0xCC, 0x83, 0xF8, 0x02, 0x7F, 0xCC, 0xEB, 0xCC, 0x8B, 0x91, 0xCC, 0xCC, 0xCC, 0xCC, 0x3B, 0x91, 0xCC, 0xCC, 0xCC, 0xCC, 0x74, 0xCC };
+	unsigned int StaminacheckPosOld = -1, StaminacheckPosNew = -1;
 
-	StaminacheckPos = FleXSearch(StaminacheckSig, ClientBuf, sizeof(StaminacheckSig), ClientSize, 0, 0xCC, 1);
-	CmpPos = FleXSearch(CmpSig, ClientBuf, sizeof(CmpSig), ClientSize, StaminacheckPos, 0xCC, 1);
+	StaminacheckPosOld = FleXSearch(StaminacheckSigOld, ClientBuf, sizeof(StaminacheckSigOld), ClientSize, 0, 0xCC, 1);
+	StaminacheckPosNew = FleXSearch(StaminacheckSigNew, ClientBuf, sizeof(StaminacheckSigNew), ClientSize, 0, 0xCC, 1);
 
-    if(StaminacheckPos == -1 || CmpPos == -1)
+    if(StaminacheckPosOld == -1 && StaminacheckPosNew == -1)
 	{
-		TextBoxCat(CurWnd, TEXT_DUMP, "Could not find the Stamina Check %X %X\r\n", StaminacheckPos, CmpPos);
+		TextBoxCat(CurWnd, TEXT_DUMP, "Could not find the Old Stamina Check %X %X\r\n", StaminacheckPosOld, StaminacheckPosOld);
+		TextBoxCat(CurWnd, TEXT_DUMP, "Could not find the New Stamina Check %X %X\r\n", StaminacheckPosNew, StaminacheckPosNew);
 		return;
 	}
-
-	ClientBuf[CmpPos + 1] = 0xC0;
-	TextBoxCat(CurWnd, TEXT_DUMP, "Stamina Check patched with cmp @%X\r\n", CmpPos);
-
+	else if(StaminacheckPosOld != -1)
+	{
+    	ClientBuf[StaminacheckPosOld + 24] = 0xC0;
+    	TextBoxCat(CurWnd, TEXT_DUMP, "Stamina: Found Old StaminaCheck @%X\r\n", StaminacheckPosOld);
+     	TextBoxCat(CurWnd, TEXT_DUMP, "Stamina Check patched  @%X\r\n", StaminacheckPosOld);
+    }    	
+    else if(StaminacheckPosNew != -1)
+    {
+         ClientBuf[StaminacheckPosNew + 23] = 0xEB;
+         TextBoxCat(CurWnd, TEXT_DUMP, "Stamina: Found New StaminaCheck @%X\r\n", StaminacheckPosNew);
+         TextBoxCat(CurWnd, TEXT_DUMP, "Stamina Check patched @%X\r\n", StaminacheckPosNew);
+    }     
 
 	return;
 }
