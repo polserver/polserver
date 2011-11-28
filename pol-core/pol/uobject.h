@@ -264,7 +264,7 @@ public:
 	
     const u32 objtype_;         
     u16 graphic;   
-    u16 color, color_ext;       
+    u16 color;       
 	u16 x, y;                   
 	s8 z;
     u8 height;

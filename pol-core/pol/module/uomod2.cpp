@@ -600,7 +600,7 @@ bool send_vendorsell( Client* client, NPC* merchant, UContainer* sellfrom, bool 
 			}
 			msg->Write(item->serial_ext);
 			msg->Write(ctBEu16(item->graphic));
-			msg->Write(item->color_ext);
+			msg->Write(ctBEu16(item->color));
 			msg->WriteFlipped(item->getamount());
 			msg->WriteFlipped(static_cast<u16>(buyprice));
 			msg->WriteFlipped(static_cast<u16>(desc.size()));
@@ -2426,7 +2426,6 @@ void character_race_changer_handler( Client* client, PKTBI_BF* msg )
 		tmpitem=Item::create( cfBEu16(msg->characterracechanger.result.HairId) );
 		tmpitem->layer = LAYER_HAIR;
 		tmpitem->color = cfBEu16(msg->characterracechanger.result.HairHue);
-		tmpitem->color_ext = ctBEu16(tmpitem->color);
 		tmpitem->realm = client->chr->realm;
 		client->chr->equip(tmpitem);
 		send_wornitem_to_inrange( client->chr, tmpitem );
@@ -2441,7 +2440,6 @@ void character_race_changer_handler( Client* client, PKTBI_BF* msg )
 		tmpitem=Item::create( cfBEu16(msg->characterracechanger.result.BeardId) );
 		tmpitem->layer = LAYER_BEARD;
 		tmpitem->color = cfBEu16(msg->characterracechanger.result.BeardHue);
-		tmpitem->color_ext = ctBEu16(tmpitem->color);
 		tmpitem->realm = client->chr->realm;
 		client->chr->equip(tmpitem);
 		send_wornitem_to_inrange( client->chr, tmpitem );

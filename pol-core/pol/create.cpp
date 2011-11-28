@@ -322,7 +322,6 @@ void ClientCreateChar( Client* client, PKTIN_00* msg)
 	
 	chr->trueobjtype = chr->objtype_;
 	chr->color = cfBEu16(msg->SkinColor);
-	chr->color_ext = ctBEu16( chr->color );
 	chr->truecolor = chr->color;
 
 	Coordinate coord = startlocations[ msg->StartIndex ]->select_coordinate();
@@ -426,7 +425,6 @@ void ClientCreateChar( Client* client, PKTIN_00* msg)
 		tmpitem=Item::create( cfBEu16(msg->HairStyle) );
 		tmpitem->layer = LAYER_HAIR;
 		tmpitem->color = cfBEu16(msg->HairColor);
-		tmpitem->color_ext = ctBEu16(tmpitem->color);
 		tmpitem->realm = chr->realm;
 		if (chr->equippable(tmpitem)) // check it or passert will trigger
 			chr->equip(tmpitem);
@@ -442,7 +440,6 @@ void ClientCreateChar( Client* client, PKTIN_00* msg)
 		tmpitem=Item::create( cfBEu16(msg->BeardStyle) );
 		tmpitem->layer = LAYER_BEARD;
 		tmpitem->color = cfBEu16(msg->BeardColor);
-		tmpitem->color_ext = ctBEu16(tmpitem->color);
 		tmpitem->realm = chr->realm;
 		if (chr->equippable(tmpitem)) // check it or passert will trigger
 			chr->equip(tmpitem);
@@ -486,7 +483,6 @@ void ClientCreateChar( Client* client, PKTIN_00* msg)
 		tmpitem->newbie(ssopt.newbie_starting_equipment);
 		tmpitem->layer = LAYER_SHOES;
 		tmpitem->color = 0x021F;
-		tmpitem->color_ext = ctBEu16(tmpitem->color);
 		tmpitem->realm = chr->realm;
 		chr->equip(tmpitem); 
 
@@ -512,7 +508,6 @@ void ClientCreateChar( Client* client, PKTIN_00* msg)
 		tmpitem->newbie(ssopt.newbie_starting_equipment);
 		tmpitem->layer = tilelayer( pantstype );
 		tmpitem->color = cfBEu16( msg->pantscolor ); // 0x0284;
-		tmpitem->color_ext = ctBEu16(tmpitem->color);
 		tmpitem->realm = chr->realm;
 		chr->equip(tmpitem);
 
@@ -520,7 +515,6 @@ void ClientCreateChar( Client* client, PKTIN_00* msg)
 		tmpitem->newbie(ssopt.newbie_starting_equipment);
 		tmpitem->layer = tilelayer( shirttype );
 		tmpitem->color = cfBEu16( msg->shirtcolor ); 
-		tmpitem->color_ext = ctBEu16(tmpitem->color);
 		tmpitem->realm = chr->realm;
 		chr->equip(tmpitem);
 	}
@@ -530,7 +524,6 @@ void ClientCreateChar( Client* client, PKTIN_00* msg)
 		tmpitem->newbie(ssopt.newbie_starting_equipment);
 		tmpitem->layer = LAYER_ROBE_DRESS;
 		tmpitem->color = cfBEu16( msg->shirtcolor ); 
-		tmpitem->color_ext = ctBEu16(tmpitem->color);
 		tmpitem->realm = chr->realm;
 		chr->equip(tmpitem);
 	}
@@ -594,7 +587,6 @@ void createchar2(Account* acct, unsigned index)
 	chr->gender = GENDER_MALE;
 	chr->trueobjtype = chr->objtype_;
 	chr->color = ctBEu16(0);
-	chr->color_ext = ctBEu16(chr->color);
 	chr->truecolor = chr->color;
 	chr->created_at = read_gameclock();
 
@@ -682,7 +674,6 @@ void ClientCreateCharKR( Client* client, PKTIN_8D* msg)
 	
 	chr->trueobjtype = chr->objtype_;
 	chr->color = cfBEu16(msg->skin_color);
-	chr->color_ext = ctBEu16( chr->color );
 	chr->truecolor = chr->color;
 
 	Coordinate coord = startlocations[ 0 ]->select_coordinate();
@@ -792,7 +783,6 @@ void ClientCreateCharKR( Client* client, PKTIN_8D* msg)
 		tmpitem=Item::create( cfBEu16(msg->hairstyle) );
 		tmpitem->layer = LAYER_HAIR;
 		tmpitem->color = cfBEu16(msg->haircolor);
-		tmpitem->color_ext = ctBEu16(tmpitem->color);
 		tmpitem->realm = chr->realm;
 		if (chr->equippable(tmpitem)) // check it or passert will trigger
 			chr->equip(tmpitem);
@@ -808,7 +798,6 @@ void ClientCreateCharKR( Client* client, PKTIN_8D* msg)
 		tmpitem=Item::create( cfBEu16(msg->beardstyle) );
 		tmpitem->layer = LAYER_BEARD;
 		tmpitem->color = cfBEu16(msg->beardcolor);
-		tmpitem->color_ext = ctBEu16(tmpitem->color);
 		tmpitem->realm = chr->realm;
 		if (chr->equippable(tmpitem)) // check it or passert will trigger
 			chr->equip(tmpitem);
@@ -824,7 +813,6 @@ void ClientCreateCharKR( Client* client, PKTIN_8D* msg)
         tmpitem=Item::create( cfBEu16(msg->face_id) );
         tmpitem->layer = LAYER_FACE;
         tmpitem->color = cfBEu16(msg->face_color);
-        tmpitem->color_ext = ctBEu16(tmpitem->color);
         tmpitem->realm = chr->realm;
 		if (chr->equippable(tmpitem)) // check it or passert will trigger
 			chr->equip(tmpitem);
@@ -868,7 +856,6 @@ void ClientCreateCharKR( Client* client, PKTIN_8D* msg)
 		tmpitem->newbie(ssopt.newbie_starting_equipment);
 		tmpitem->layer = LAYER_SHOES;
 		tmpitem->color = 0x021F;
-		tmpitem->color_ext = ctBEu16(tmpitem->color);
 		tmpitem->realm = chr->realm;
 		chr->equip(tmpitem); 
 
@@ -894,7 +881,6 @@ void ClientCreateCharKR( Client* client, PKTIN_8D* msg)
 		tmpitem->newbie(ssopt.newbie_starting_equipment);
 		tmpitem->layer = tilelayer( pantstype );
 		tmpitem->color = cfBEu16( msg->pantscolor ); // 0x0284;
-		tmpitem->color_ext = ctBEu16(tmpitem->color);
 		tmpitem->realm = chr->realm;
 		chr->equip(tmpitem);
 
@@ -902,7 +888,6 @@ void ClientCreateCharKR( Client* client, PKTIN_8D* msg)
 		tmpitem->newbie(ssopt.newbie_starting_equipment);
 		tmpitem->layer = tilelayer( shirttype );
 		tmpitem->color = cfBEu16( msg->shirtcolor ); 
-		tmpitem->color_ext = ctBEu16(tmpitem->color);
 		tmpitem->realm = chr->realm;
 		chr->equip(tmpitem);
 	}
@@ -912,7 +897,6 @@ void ClientCreateCharKR( Client* client, PKTIN_8D* msg)
 		tmpitem->newbie(ssopt.newbie_starting_equipment);
 		tmpitem->layer = LAYER_ROBE_DRESS;
 		tmpitem->color = cfBEu16( msg->shirtcolor ); 
-		tmpitem->color_ext = ctBEu16(tmpitem->color);
 		tmpitem->realm = chr->realm;
 		chr->equip(tmpitem);
 	}
@@ -1073,7 +1057,6 @@ void ClientCreateChar70160( Client* client, PKTIN_F8* msg)
 	
 	chr->trueobjtype = chr->objtype_;
 	chr->color = cfBEu16(msg->SkinColor);
-	chr->color_ext = ctBEu16( chr->color );
 	chr->truecolor = chr->color;
 
 	Coordinate coord = startlocations[ msg->StartIndex ]->select_coordinate();
@@ -1181,7 +1164,6 @@ void ClientCreateChar70160( Client* client, PKTIN_F8* msg)
 		tmpitem=Item::create( cfBEu16(msg->HairStyle) );
 		tmpitem->layer = LAYER_HAIR;
 		tmpitem->color = cfBEu16(msg->HairColor);
-		tmpitem->color_ext = ctBEu16(tmpitem->color);
 		tmpitem->realm = chr->realm;
 		if (chr->equippable(tmpitem)) // check it or passert will trigger
 			chr->equip(tmpitem);
@@ -1197,7 +1179,6 @@ void ClientCreateChar70160( Client* client, PKTIN_F8* msg)
 		tmpitem=Item::create( cfBEu16(msg->BeardStyle) );
 		tmpitem->layer = LAYER_BEARD;
 		tmpitem->color = cfBEu16(msg->BeardColor);
-		tmpitem->color_ext = ctBEu16(tmpitem->color);
 		tmpitem->realm = chr->realm;
 		if (chr->equippable(tmpitem)) // check it or passert will trigger
 			chr->equip(tmpitem);
@@ -1241,7 +1222,6 @@ void ClientCreateChar70160( Client* client, PKTIN_F8* msg)
 		tmpitem->newbie(ssopt.newbie_starting_equipment);
 		tmpitem->layer = LAYER_SHOES;
 		tmpitem->color = 0x021F;
-		tmpitem->color_ext = ctBEu16(tmpitem->color);
 		tmpitem->realm = chr->realm;
 		chr->equip(tmpitem); 
 
@@ -1267,7 +1247,6 @@ void ClientCreateChar70160( Client* client, PKTIN_F8* msg)
 		tmpitem->newbie(ssopt.newbie_starting_equipment);
 		tmpitem->layer = tilelayer( pantstype );
 		tmpitem->color = cfBEu16( msg->pantscolor ); // 0x0284;
-		tmpitem->color_ext = ctBEu16(tmpitem->color);
 		tmpitem->realm = chr->realm;
 		chr->equip(tmpitem);
 
@@ -1275,7 +1254,6 @@ void ClientCreateChar70160( Client* client, PKTIN_F8* msg)
 		tmpitem->newbie(ssopt.newbie_starting_equipment);
 		tmpitem->layer = tilelayer( shirttype );
 		tmpitem->color = cfBEu16( msg->shirtcolor ); 
-		tmpitem->color_ext = ctBEu16(tmpitem->color);
 		tmpitem->realm = chr->realm;
 		chr->equip(tmpitem);
 	}
@@ -1285,7 +1263,6 @@ void ClientCreateChar70160( Client* client, PKTIN_F8* msg)
 		tmpitem->newbie(ssopt.newbie_starting_equipment);
 		tmpitem->layer = LAYER_ROBE_DRESS;
 		tmpitem->color = cfBEu16( msg->shirtcolor ); 
-		tmpitem->color_ext = ctBEu16(tmpitem->color);
 		tmpitem->realm = chr->realm;
 		chr->equip(tmpitem);
 	}

@@ -173,7 +173,6 @@ BObjectImp* equip_from_template( Character* chr, const char* template_name )
 			{
 				color &= VALID_ITEM_COLOR_MASK;
 				it->color = color;
-				it->color_ext = ctBEu16( color );
 				it->layer = tilelayer( it->graphic );
 				it->realm = chr->realm;
 					// FIXME equip scripts, equiptest scripts
