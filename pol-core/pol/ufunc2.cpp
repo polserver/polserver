@@ -174,7 +174,7 @@ void send_container_contents( Client *client, const UContainer& cont, bool show_
 			if ( client->ClientType & CLIENTTYPE_6017 )
 				msg->Write(item->slot_index());
 			msg->Write(cont.serial_ext);
-			msg->Write(item->color_ext); //color
+			msg->Write(ctBEu16(item->color)); //color
 			++count;
 		}
 		else

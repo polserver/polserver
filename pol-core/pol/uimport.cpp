@@ -184,7 +184,6 @@ void uox_read_character( ConfigElem& elem )
 	chr->objtype_ext = ctBEu16( chr->objtype );
 
 	elem.remove_prop( "XSKIN", &chr->color );
-	chr->color_ext = ctBEu16( chr->color );
 	
 	elem.remove_prop( "X", &chr->x );
 	elem.remove_prop( "Y", &chr->y );
@@ -239,7 +238,6 @@ void uox_read_item( ConfigElem& elem )
 	item->z = (u8)z;
 	
 	elem.remove_prop( "COLOR", &item->color );
-	item->color_ext = ctBEu16( item->color );
 
 	u32 container_serial = 0;
 	elem.remove_prop( "CONT", &container_serial );

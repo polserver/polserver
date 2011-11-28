@@ -69,7 +69,6 @@ Item* Item::clone() const
 {
 	Item* item = Item::create( objtype_ );
 	item->color = color;
-	item->color_ext = color_ext;
 	item->graphic = graphic;
 	item->x = x;
 	item->y = y;
@@ -400,7 +399,6 @@ void Item::readProperties( ConfigElem& elem )
 
 // Changed from Valid Color Mask to cfg mask in ssopt.
 	color &= ssopt.item_color_mask;
-    color_ext = ctBEu16( color );
     
     amount_ = elem.remove_ushort( "AMOUNT", 1 );
     layer = static_cast<unsigned char>(elem.remove_ushort( "LAYER", 0 ));
@@ -788,7 +786,6 @@ bool Item::setcolor( u16 newcolor )
     set_dirty();
     newcolor &= (theMask);
     color = newcolor;
-    color_ext = ctBEu16( color );
 
     return res;
 }

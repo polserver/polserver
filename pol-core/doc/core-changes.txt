@@ -1,4 +1,7 @@
 -- POL099 --
+11-28-2011 MuadDib:
+  Removed: UObject->Color_Ext : Removed, and when used is replaced with ctBEu16() calls. This includes read/write of /data files.
+
 11-27-2011 MuadDib:
   Removed: UObject->Graphic_Ext : Removed, and when used is replaced with ctBEu16() calls. This includes read/write of /data files.
      Note: UObject->Serial_Ext will not be removed as previously considered, due to the orphan system making primary use of this.
