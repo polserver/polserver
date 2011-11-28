@@ -72,7 +72,6 @@ void UDoor::toggle()
     
     MoveItemWorldPosition( oldx, oldy, this, NULL );
 	
-    graphic_ext = ctBEu16( graphic );
 	send_item_to_inrange( this );
 }
 

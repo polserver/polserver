@@ -182,7 +182,6 @@ Item* Item::create( const ItemDesc& id, u32 serial)
 	item->restart_decay_timer();
 
 	item->graphic = graphic;
-	item->graphic_ext = ctBEu16( item->graphic );
 
 	item->copyprops( id.props );
 

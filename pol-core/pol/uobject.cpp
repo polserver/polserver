@@ -69,7 +69,6 @@ UObject::UObject(u32 objtype, UOBJ_CLASS i_uobj_class) :
 	serial_ext(0),
 	objtype_(objtype),
     graphic(static_cast<u16>(objtype)),
-	graphic_ext(ctBEu16(graphic)),
 	color(0),
 	color_ext(0),
 	x(0),
@@ -84,7 +83,6 @@ UObject::UObject(u32 objtype, UOBJ_CLASS i_uobj_class) :
     name_( "" )
 {
     graphic = getgraphic( objtype );
-    graphic_ext = ctBEu16( graphic );
 
     height = tileheight( graphic );
     ++uobject_count;
@@ -279,7 +277,6 @@ void UObject::readProperties( ConfigElem& elem )
     {
         graphic = GRAPHIC_NODRAW;
     }
-    graphic_ext = ctBEu16( graphic );
 
     height = tileheight( graphic );
 

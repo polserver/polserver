@@ -113,7 +113,7 @@ void handle_processed_speech( Client* client, char* textbuf, int textbuflen, cha
 	PktOut_1C* talkmsg = REQUESTPACKET(PktOut_1C,PKTOUT_1C_ID);
 	talkmsg->offset+=2;
 	talkmsg->Write(client->chr->serial_ext);
-	talkmsg->Write(client->chr->graphic_ext);
+	talkmsg->Write(ctBEu16(client->chr->graphic));
 	talkmsg->Write(type); // FIXME authorize
 	talkmsg->WriteFlipped(textcol);
 	talkmsg->WriteFlipped(font);
@@ -270,7 +270,7 @@ void SendUnicodeSpeech(Client *client, PKTIN_AD *msgin, u16* wtext, size_t wtext
 	PktOut_AE* talkmsg = REQUESTPACKET(PktOut_AE,PKTOUT_AE_ID);
 	talkmsg->offset+=2;
 	talkmsg->Write(client->chr->serial_ext);
-	talkmsg->Write(client->chr->graphic_ext);
+	talkmsg->Write(ctBEu16(client->chr->graphic));
 	talkmsg->Write(msgin->type); // FIXME authorize
 	talkmsg->WriteFlipped(textcol);
 	talkmsg->WriteFlipped(msgin->font);
