@@ -320,7 +320,6 @@ void ClientCreateChar( Client* client, PKTIN_00* msg)
     chr->race = race;
     chr->gender = gender;
 	
-	chr->graphic_ext = ctBEu16( chr->graphic );
 	chr->trueobjtype = chr->objtype_;
 	chr->color = cfBEu16(msg->SkinColor);
 	chr->color_ext = ctBEu16( chr->color );
@@ -593,7 +592,6 @@ void createchar2(Account* acct, unsigned index)
 	chr->wornitems.realm = chr->realm;
 	chr->graphic = UOBJ_HUMAN_MALE;
 	chr->gender = GENDER_MALE;
-	chr->graphic_ext = ctBEu16( chr->graphic );
 	chr->trueobjtype = chr->objtype_;
 	chr->color = ctBEu16(0);
 	chr->color_ext = ctBEu16(chr->color);
@@ -682,7 +680,6 @@ void ClientCreateCharKR( Client* client, PKTIN_8D* msg)
     chr->race = race;
     chr->gender = gender;
 	
-	chr->graphic_ext = ctBEu16( chr->graphic );
 	chr->trueobjtype = chr->objtype_;
 	chr->color = cfBEu16(msg->skin_color);
 	chr->color_ext = ctBEu16( chr->color );
@@ -1074,7 +1071,6 @@ void ClientCreateChar70160( Client* client, PKTIN_F8* msg)
     chr->race = race;
     chr->gender = gender;
 	
-	chr->graphic_ext = ctBEu16( chr->graphic );
 	chr->trueobjtype = chr->objtype_;
 	chr->color = cfBEu16(msg->SkinColor);
 	chr->color_ext = ctBEu16( chr->color );

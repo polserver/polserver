@@ -1056,7 +1056,6 @@ void Character::readCommonProperties( ConfigElem& elem )
 
 	trueobjtype = elem.remove_unsigned( "TRUEOBJTYPE", objtype_ ); //dave 1/30/3
 	graphic = static_cast<u16>(objtype_);
-	graphic_ext = ctBEu16( graphic );
 
 	registered_house = elem.remove_ulong( "REGISTEREDHOUSE", 0 );
 
@@ -1831,7 +1830,6 @@ bool Character::setgraphic( u16 newgraphic )
 
 	set_dirty();
 	graphic = newgraphic;
-	graphic_ext = ctBEu16( graphic );
 	send_remove_character_to_nearby_cansee( this );
 	if (client) send_goxyz( client, client->chr );
 	send_create_mobile_to_nearby_cansee( this );
@@ -2193,8 +2191,6 @@ void Character::resurrect()
     else if (graphic == UOBJ_GARGOYLE_FEMALE_GHOST)
         graphic = UOBJ_GARGOYLE_FEMALE;
 
-	graphic_ext = ctBEu16( graphic );
-
 	dead_ = false;
 	warmode = false;
 	frozen_ = false;
@@ -2315,17 +2311,14 @@ void Character::die()
 			if (race == RACE_HUMAN)
 			{
 				graphic = UOBJ_HUMAN_MALE_GHOST;
-				graphic_ext = ctBEu16( UOBJ_HUMAN_MALE_GHOST );
 			}
             else if (race == RACE_ELF)
 			{
 				graphic = UOBJ_ELF_MALE_GHOST;
-				graphic_ext = ctBEu16( UOBJ_ELF_MALE_GHOST );
 			}
             else
             {
                 graphic = UOBJ_GARGOYLE_MALE_GHOST;
-				graphic_ext = ctBEu16( UOBJ_GARGOYLE_MALE_GHOST );
             }
 		}
 		else
@@ -2333,17 +2326,14 @@ void Character::die()
 			if (race == RACE_HUMAN)
 			{
 				graphic = UOBJ_HUMAN_FEMALE_GHOST;
-				graphic_ext = ctBEu16( UOBJ_HUMAN_FEMALE_GHOST );
 			}
 			else if (race == RACE_ELF)
 			{
 				graphic = UOBJ_ELF_FEMALE_GHOST;
-				graphic_ext = ctBEu16( UOBJ_ELF_FEMALE_GHOST );
 			}
             else
             {
                 graphic = UOBJ_GARGOYLE_FEMALE_GHOST;
-				graphic_ext = ctBEu16( UOBJ_GARGOYLE_FEMALE_GHOST );
             }
 		}
 	}
