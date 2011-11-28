@@ -178,5 +178,30 @@ Planning
         Consolidate NPC Template Handling to npctmplate files, like npc base code.
     Unknown
         Split fileaccess code out from the filemod.cpp/h code.
-        Split guilds and guildmod code apaart
+        Split guilds and guildmod code apart
+    Unknown
+        Rewrite Privs system to use flags like UOFeatureEnable does. This allows to do away with Privs struct among other areas such as where
+             privs are stored as their named strings and full struct with bool. Should have a decent reaction to memory used. Especially 
+             when considering how many may use Invul on large shards with tons of Invul npcs.
+    Nando:
+        Add Disconnect bool for packet queue system for packets to auto disconnect a client after sent. Should help resolve issues where 
+             clients get disconnected before final packets sent thus causing clients to hang. Also require a member to show awaiting disconnect.
+    Tomi:
+        Look into possibly implementing null term for CchrZ like done for CascZ. Drop string at first null encountered. Haven't looked over this
+             function as of yet, does it already do this? hmmmmm. Lazy.
+
+
+100 - MASS - (Midget Asian Strippers Survive!)
+    Unknown
+        Implement SQL Storage for accounts (optional). Save/Load handled to SQL as needed. During world save should we save a file copy? If they 
+             switch from file to SQL, there should be a way to switch back easily. Could always do a utility to read the SQL and export, and read
+             the file to import. Along with a base .sql file to build the db tables needed. Definately recommend including an additional SALT key
+             in the table as well. Configurable via the cfg file, but always read from the SQL table when used to do pass checks. This way, an 
+             admin can periodically change it if needed for new accounts/pass changes. This resolves any hardcoded salts in an Open Source.
+    Unknown
+        Complete the Incremental Save system, with a few tweaks. This should be geared toward incremental/uobject changes to update SQL. 
+    Unknown
+        Should we consider the move to pure SQL? If so, we could greatly reduce overhead using incremental load and saves with realtime use of the
+             SQL. Not loading characters, but reserving their serials, for example until they actually sign in. This can also be reversed to keep
+             serial reserved, but unload the character after full logout.
         
