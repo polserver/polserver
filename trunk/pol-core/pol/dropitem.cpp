@@ -406,7 +406,7 @@ void send_trade_container( Client* client,
 {
 	PktOut_25* msg = REQUESTPACKET(PktOut_25,PKTOUT_25_ID);
 	msg->Write(cont->serial_ext);
-	msg->Write(cont->graphic_ext);
+	msg->Write(ctBEu16(cont->graphic));
 	msg->offset++; //unk7 layer?
 	msg->WriteFlipped(static_cast<u16>(1)); //amount
 	msg->WriteFlipped(static_cast<u16>(0)); //x
