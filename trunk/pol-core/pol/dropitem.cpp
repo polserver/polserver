@@ -414,7 +414,7 @@ void send_trade_container( Client* client,
 	if ( client->ClientType & CLIENTTYPE_6017 )
 		msg->Write(cont->slot_index());
 	msg->Write(whos->serial_ext);
-	msg->Write(cont->color_ext);
+	msg->Write(ctBEu16(cont->color));
 	transmit( client, &msg->buffer, msg->offset );
 	READDPACKET(msg);
 }

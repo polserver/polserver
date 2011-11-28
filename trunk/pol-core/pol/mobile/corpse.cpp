@@ -90,7 +90,6 @@ void UCorpse::readProperties( ConfigElem& elem )
     base::readProperties( elem );
 
     color = savecolor;
-    color_ext = ctBEu16( savecolor );
 
     elem.remove_prop( "CorpseType", &corpsetype );
 	elem.remove_prop("OwnerSerial", &ownerserial);

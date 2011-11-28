@@ -44,7 +44,6 @@ Item::Item( const ItemDesc& id, UOBJ_CLASS uobj_class) :
 {
     graphic = id.graphic;
     color = id.color;
-    color_ext = ctBEu16( color );
     setfacing( id.facing );
     equip_script_ = id.equip_script;
     unequip_script_ = id.unequip_script;

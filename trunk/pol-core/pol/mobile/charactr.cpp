@@ -2197,7 +2197,6 @@ void Character::resurrect()
 	paralyzed_ = false;
 
 	color = truecolor;
-	color_ext = ctBEu16(truecolor);
 
 	if (pVitalLife->regen_while_dead)
 	{
@@ -2373,7 +2372,6 @@ void Character::die()
 	UPDATE_CHECKPOINT();
 
 	corpse->color = truecolor;
-	corpse->color_ext = ctBEu16(truecolor);
 	corpse->x = x;
 	corpse->y = y;
 	corpse->z = z;
@@ -2392,7 +2390,6 @@ void Character::die()
 
 	// Change the character's color to grey
 	color = 0;
-	color_ext = 0;
 	UPDATE_CHECKPOINT();
 
 	for( unsigned layer = LAYER_EQUIP__LOWEST; layer <= LAYER_EQUIP__HIGHEST; ++layer )
