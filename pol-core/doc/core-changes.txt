@@ -1,138 +1,139 @@
 -- POL099 --
 11-28-2011 MuadDib:
   Removed: UObject->Color_Ext : Removed, and when used is replaced with ctBEu16() calls. This includes read/write of /data files.
+  Removed: Last of any UOX references for imports. Most was all commented, a few empty refences was also left. All now removed completely.
 
 11-27-2011 MuadDib:
   Removed: UObject->Graphic_Ext : Removed, and when used is replaced with ctBEu16() calls. This includes read/write of /data files.
      Note: UObject->Serial_Ext will not be removed as previously considered, due to the orphan system making primary use of this.
 
 11-27-2011 Nando:
-	Fixed: corrected memory leak in cfgfile::GetConfigStringDictionary(...)
+    Fixed: corrected memory leak in cfgfile::GetConfigStringDictionary(...)
 
 11-26-2011 Tomi:
-	Changed: CascZ( str ) to CascZ( str, nullterm := 0 )
-		 if nullterm 1 it adds the terminating 0 in the end of array.
-	Note:	 Recompile of scripts needed.
+    Changed: CascZ( str ) to CascZ( str, nullterm := 0 )
+         if nullterm 1 it adds the terminating 0 in the end of array.
+    Note:	 Recompile of scripts needed.
 
 11-24-2011 Tomi:
-	Added:  Support for Mysticism and BardMasteries spell books
-		Mysticism Spell ID's 678 -> 693 and BardMasteries spell ID's 701+
+    Added:  Support for Mysticism and BardMasteries spell books
+        Mysticism Spell ID's 678 -> 693 and BardMasteries spell ID's 701+
 
 11-23-2011 Tomi:
-	Added:  can_insert and on_insert scripts for Tradewindows
+    Added:  can_insert and on_insert scripts for Tradewindows
 
 11-22-2011 Kevin:
-	Added:	pol/sqlscrobj.cpp pol/sqlscrobj.h
+    Added:	pol/sqlscrobj.cpp pol/sqlscrobj.h
   Changed:	pol/module/sqlmod.cpp pol/module/sqlmod.h
-  			Add preliminary MySQL database support.
-  			New eScript objects: BSQLConnection, BSQLResultSet, BSQLRow 
-  			Added several new sql module functions:
-  				mysql_connect(host,username,password);
-				mysql_query(connection,query);
-				mysql_fetch_row(result);
-				mysql_affected_rows(result);
-				mysql_num_fields(result);
-				mysql_num_rows(result);
-				mysql_select_db(connection,database);
-				mysql_field_name(result,column_index);
-				mysql_free_result(result);
-				mysql_close(connection);
-			In order to build with MySQL support, define the HAVE_MYSQL preprocessor directive in your build configuration.
-			You must have the MySQL headers and libraries installed. 
-			Only really tested with dynamically linking mysql libraries on Linux.
-			
-	Added:	pol/network/auxclient.h
+            Add preliminary MySQL database support.
+            New eScript objects: BSQLConnection, BSQLResultSet, BSQLRow 
+            Added several new sql module functions:
+                mysql_connect(host,username,password);
+                mysql_query(connection,query);
+                mysql_fetch_row(result);
+                mysql_affected_rows(result);
+                mysql_num_fields(result);
+                mysql_num_rows(result);
+                mysql_select_db(connection,database);
+                mysql_field_name(result,column_index);
+                mysql_free_result(result);
+                mysql_close(connection);
+            In order to build with MySQL support, define the HAVE_MYSQL preprocessor directive in your build configuration.
+            You must have the MySQL headers and libraries installed. 
+            Only really tested with dynamically linking mysql libraries on Linux.
+            
+    Added:	pol/network/auxclient.h
   Changed:	pol/network/auxclient.cpp pol/module/osmod.cpp pol/module/osmod.h clib/socketsvc.cpp clib/socketsvc.h
-  			Moved AuxClient-related classes to its own header file (shared between auxclient.cpp and osmod.cpp)
-  			Implemented os::OpenConnection() to create outgoing TCP/IP connections. 
-  			
+            Moved AuxClient-related classes to its own header file (shared between auxclient.cpp and osmod.cpp)
+            Implemented os::OpenConnection() to create outgoing TCP/IP connections. 
+            
   Changed:	runecl/runecl.cpp
-  			Added the sql module to runecl to allow quick testing
+            Added the sql module to runecl to allow quick testing
 
   Changed:	pol/uoscrobj.cpp pol/mobile/charactr.cpp pol/mobile/character.h bscript/parser.cpp bscript/objmembers.h
-  			Added read/write property "mountedsteps" for mobiles. Represents number of steps taken while character was mounted.
+            Added read/write property "mountedsteps" for mobiles. Represents number of steps taken while character was mounted.
 
   Changed:	bscript/parser.cpp
-  			Declaring an array only using "{}" will show a compiler warning; please explicitly state 'array', 'struct', or 'dictionary' 
+            Declaring an array only using "{}" will show a compiler warning; please explicitly state 'array', 'struct', or 'dictionary' 
   Changed:	pol/pol.cpp
-  			If using Linux, remove pol.pid on shutdown of pol.
+            If using Linux, remove pol.pid on shutdown of pol.
 
   Changed:	pol/uoexec.h pol/scrsched.cpp
-  			Added script option "AUXSVC_ASSUME_STRING" which will allow aux service connections to send and receive non-packed strings.
+            Added script option "AUXSVC_ASSUME_STRING" which will allow aux service connections to send and receive non-packed strings.
 
   Changed:	ecompile/ecompile.cpp
-  			If using Linux, a slash ("/") cannot be used to define ecompile options to allow support for absolute filenames.
+            If using Linux, a slash ("/") cannot be used to define ecompile options to allow support for absolute filenames.
 
   Changed:	bscript/object.cpp bscript/bobject.h
-  			Implemented array operation MultiSubscript. Will return a splice of an array, eg:
-  				array{"a","b","c","d","e"}[2,4] will return array{"b","c","d"}
-  				 
+            Implemented array operation MultiSubscript. Will return a splice of an array, eg:
+                array{"a","b","c","d","e"}[2,4] will return array{"b","c","d"}
+                 
 
 11-12-2011 Tomi:
-	Added:	 Pol/config/extobj.cfg
-		 Values it accept now and default values are
-			Tillerman=0xF010
-			Port_Plank=0xF011
-			Starboard_Plank=0xF012
-			Hold=0xF013
-			Wrestling=0xF020
-			Mount=0xF021
-			Secure_Trade_Container=0xFF01
-			Wornitems_Container=0xFF02
-	Note:	 These values HAVE TO BE > pol.cfg max_tile_id and the same as objtype for them in itemdescs
-	Changed: uoconvert now adds to multis 0x1000 to the ID
-	Note:	 boats.cfg uses the same value as multis.cfg and itemdesc graphic entry for multis have to be the same.
-		 itemdesc entries for multis need to have the entry MultiID for updating multis ( you can find values using UOFiddler )
-	Added:	 UOExpansion HSA server sends now 0x387DF
+    Added:	 Pol/config/extobj.cfg
+         Values it accept now and default values are
+            Tillerman=0xF010
+            Port_Plank=0xF011
+            Starboard_Plank=0xF012
+            Hold=0xF013
+            Wrestling=0xF020
+            Mount=0xF021
+            Secure_Trade_Container=0xFF01
+            Wornitems_Container=0xFF02
+    Note:	 These values HAVE TO BE > pol.cfg max_tile_id and the same as objtype for them in itemdescs
+    Changed: uoconvert now adds to multis 0x1000 to the ID
+    Note:	 boats.cfg uses the same value as multis.cfg and itemdesc graphic entry for multis have to be the same.
+         itemdesc entries for multis need to have the entry MultiID for updating multis ( you can find values using UOFiddler )
+    Added:	 UOExpansion HSA server sends now 0x387DF
 
 11-11-2011 Tomi:
-	Changed: Objtypes are now from 2 up to max_objtype from pol.cfg
-	Note:	 if objtypes <= pol.cfg max_tile_id and no graphic defined in itemdesc Pol uses objtype as graphic.
-		 Multis and custom items should all be moved to > pol.cfg max_tile_id
-	Added:  support for new 0xA9 packet for clients >= 7.0.13.0
-	Changed: startloc.cfg now have Cliloc and MapID entry for every startlocation ( default values 0 )
-	Example:
-		StartingLocation Yew
-		{
-			City		Yew
-			Description	Town Center
-			Coordinate	535,992,0
-			MapID		0
-			Cliloc		1075072
-		}
-	Note: 	MapID is the same number as in mapX.mul files
-		Cliloc values are the description of the start locations
-		Newest clients has max stats during char creation 90 
+    Changed: Objtypes are now from 2 up to max_objtype from pol.cfg
+    Note:	 if objtypes <= pol.cfg max_tile_id and no graphic defined in itemdesc Pol uses objtype as graphic.
+         Multis and custom items should all be moved to > pol.cfg max_tile_id
+    Added:  support for new 0xA9 packet for clients >= 7.0.13.0
+    Changed: startloc.cfg now have Cliloc and MapID entry for every startlocation ( default values 0 )
+    Example:
+        StartingLocation Yew
+        {
+            City		Yew
+            Description	Town Center
+            Coordinate	535,992,0
+            MapID		0
+            Cliloc		1075072
+        }
+    Note: 	MapID is the same number as in mapX.mul files
+        Cliloc values are the description of the start locations
+        Newest clients has max stats during char creation 90 
 
 11-06-2011 Tomi:
-	Added:  pol.cfg setting MaxObjtype <default 0x20000>
-	Note:	the value can only be any value between 0x20000 and 0xFFFFFFFF
+    Added:  pol.cfg setting MaxObjtype <default 0x20000>
+    Note:	the value can only be any value between 0x20000 and 0xFFFFFFFF
 
 10-26-2011 Tomi:
-	Added:	support for clients >= 7.0.16.0 ( 2D ) char create packet 0xF8
-			Enchanced clients still use packet 0x8D
+    Added:	support for clients >= 7.0.16.0 ( 2D ) char create packet 0xF8
+            Enchanced clients still use packet 0x8D
 
 10-15-2011 Austin:
-	Added: .doubleclickrange for items (read only).
+    Added: .doubleclickrange for items (read only).
 
 09-03-2011 Turley:
-	 Added: DestroyMulti(house) returns error "House currently being customized."
-	 Added: house.cancelediting(chr, drop_changes) will stop editing mode.
-			drop_changes 1/0 if true drops all non committed changes
-			Errors: "House is not custom","House is currently not been edited","Character is not editing this house"
-	 Added: Syshook CloseCustomHouse(mobile, house)
-			called after client quits editing, or when house.cancelediting() is called
-			return value is ignored
-	 Added: servspecopt.cfg
-			"SpeedHack_MountRunDelay"  default 80 ms
-			"SpeedHack_MountWalkDelay" default 180 ms
-			"SpeedHack_FootRunDelay"   default 180 ms
-			"SpeedHack_FootWalkDelay"  default 380 ms
-			Change them on your own risk
+     Added: DestroyMulti(house) returns error "House currently being customized."
+     Added: house.cancelediting(chr, drop_changes) will stop editing mode.
+            drop_changes 1/0 if true drops all non committed changes
+            Errors: "House is not custom","House is currently not been edited","Character is not editing this house"
+     Added: Syshook CloseCustomHouse(mobile, house)
+            called after client quits editing, or when house.cancelediting() is called
+            return value is ignored
+     Added: servspecopt.cfg
+            "SpeedHack_MountRunDelay"  default 80 ms
+            "SpeedHack_MountWalkDelay" default 180 ms
+            "SpeedHack_FootRunDelay"   default 180 ms
+            "SpeedHack_FootWalkDelay"  default 380 ms
+            Change them on your own risk
 
 08-08-2011 Austin:
      Added: servspecopt.cfg flag "ScriptedMerchantHandlers" default is 0 which results in no change in behavior. 
-	       If enabled, the below change will come into effect:
+           If enabled, the below change will come into effect:
      Changed: When a player buys something from a merchant the core will not longer handle taking gold from the player, and moving items to the players pack.
               When the event for EVID_MERCHANT_SOLD and EVID_MERCHANT_BOUGHT is sent it will be a struct containing the following struct:
               struct.type = EVID_MERCHANT_SOLD or EVID_MERCHANT_BOUGHT
@@ -143,59 +144,59 @@
               It is up to the script to split the items from the stacks there and move them to the player's pack.
               It is also up to the script to handle gold checks and consumption.
      
-	Added: item.SplitStackInto(container, amount) 
+    Added: item.SplitStackInto(container, amount) 
               Will split the item into 2 stacks. Returns a reference to the new stack made from item. Places new stack into the container.
      Added: item.SplitStackAt(x, y, z, realm, amount)
               Will split the item into 2 stacks. Returns a reference to the new stack made from item. Places new stack at the coordinates.
      
 05-19-2011 Turley:
      Added: CustomHousing Support (beta)
-	        officially added uo::SendHousingTool( who, house );
-	 Added: script call of "scripts/misc/customhousecommit.ecl" on commit (noncritical)
-	        params: ( who, house, houseelemarray )
-			houseelem = struct{graphic,xoffset,yoffset,z}
-			to get the real coords from an elem add house.x/y
-			called after client presses the commit button
-			to accept the changes call new method house.acceptcommit(chr,1) or house.acceptcommit(chr,0) to drop the commit 
-			main purpose should be calculation of cost (with delta support for later changes),
-			link establishing of houseteleporters (0x181D - 0x1828)
-			and adding a signhanger/sign if you didnt added it during multifoundation buildup
-			Doors and Teleporters are added to house components as normal items without any special treatment
-			so dont forget to add scripts/itemdesc entries
+            officially added uo::SendHousingTool( who, house );
+     Added: script call of "scripts/misc/customhousecommit.ecl" on commit (noncritical)
+            params: ( who, house, houseelemarray )
+            houseelem = struct{graphic,xoffset,yoffset,z}
+            to get the real coords from an elem add house.x/y
+            called after client presses the commit button
+            to accept the changes call new method house.acceptcommit(chr,1) or house.acceptcommit(chr,0) to drop the commit 
+            main purpose should be calculation of cost (with delta support for later changes),
+            link establishing of houseteleporters (0x181D - 0x1828)
+            and adding a signhanger/sign if you didnt added it during multifoundation buildup
+            Doors and Teleporters are added to house components as normal items without any special treatment
+            so dont forget to add scripts/itemdesc entries
      Added: member multi.house_parts
-	        returns array of structs{graphic,xoffset,yoffset,z} or error if not a custom house, or currently been edited
-			to get the real coords from an elem add house.x/y
-	 Added: method multi.addhousepart(graphic,xoffset,yoffset,z) returns true or error
-	 Added: method multi.erasehousepart(graphic,xoffset,yoffset,z) returns true or error
-	 Added: members multi.house_editing / who.house_editing returns true if house is currently been edited / who is currently editing
+            returns array of structs{graphic,xoffset,yoffset,z} or error if not a custom house, or currently been edited
+            to get the real coords from an elem add house.x/y
+     Added: method multi.addhousepart(graphic,xoffset,yoffset,z) returns true or error
+     Added: method multi.erasehousepart(graphic,xoffset,yoffset,z) returns true or error
+     Added: members multi.house_editing / who.house_editing returns true if house is currently been edited / who is currently editing
       Note: house.setcustom(1) is needed before SendHousingTool() works
-	  Note: during editing chr is only allowed to walk inside the house
-	        all components which are not invisible get removed from component list during edit and added to design
-			(not invisible to give the chance to eg protect a house sign from been removed from the editing char)
-	        any item inside the house will be invisible for the chr
-			any other mobiles get moved outside the house
-	  Note: param houseelemarray in script call is the current list of houseparts, 
-	        multi.house_parts gives you the last stored list
-	  Note: until no house.acceptcommit() is called and start of commitscript no new SendHousingTool() for this house is allowed
+      Note: during editing chr is only allowed to walk inside the house
+            all components which are not invisible get removed from component list during edit and added to design
+            (not invisible to give the chance to eg protect a house sign from been removed from the editing char)
+            any item inside the house will be invisible for the chr
+            any other mobiles get moved outside the house
+      Note: param houseelemarray in script call is the current list of houseparts, 
+            multi.house_parts gives you the last stored list
+      Note: until no house.acceptcommit() is called and start of commitscript no new SendHousingTool() for this house is allowed
 
 05-04-2011 Turley:
      Fixed: Questarrow packet
 
 04-30-2011 Turley:
      Fixed: enter/leave-events for NPCs (OWHorus)
-	 Fixed: diagonal moves in npc::CanMove() and uo::FindPath() (OWHorus)
+     Fixed: diagonal moves in npc::CanMove() and uo::FindPath() (OWHorus)
 
 04-03-2011 Turley:
      Added: uotool param checkmultis
-	        prints infos about used center item
+            prints infos about used center item
 
 03-12-2011 Turley:
      Fixed: npc:SayUC() sends SpeechEvent for do_event==SAY_DOEVENT_ENABLE
    Changed: removed warning "No handler for skill.." and changed sysmsg to "That skill cannot be used directly."
             since most of the time the behaviour is wanted
-	 Added: basic::TypeOfInt( expr ) + basic.em constants
-	        returns like TypeOf() the type of given parameter, but returns instead of a string an integer (see basic.em constants)
-			since integer comparison are way faster then string comparison this function should always be used for comparisons
+     Added: basic::TypeOfInt( expr ) + basic.em constants
+            returns like TypeOf() the type of given parameter, but returns instead of a string an integer (see basic.em constants)
+            since integer comparison are way faster then string comparison this function should always be used for comparisons
 
 03-10-2011 Turley:
      Added: pol.cfg AccountDataSave (default -1)
@@ -962,10 +963,10 @@
                  0xFEFEFEFC = UOKR Client
                  0XFEFEFEFD = 6050+ 2D Client
                  0xFEFEFEFE = Normal 2D client (pre-6.0.5.0 client)
-	Note:    Change to keys is for passing these details from Loginserver to Gameserver during loginprocess.
-	         Clients disconnect from LoginServer and Connect to Gameserver. This is the easiest method for
-	         identifying the client type connecting to your game server since versions are handled to decide
-	         this on the loginserver connection.
+    Note:    Change to keys is for passing these details from Loginserver to Gameserver during loginprocess.
+             Clients disconnect from LoginServer and Connect to Gameserver. This is the easiest method for
+             identifying the client type connecting to your game server since versions are handled to decide
+             this on the loginserver connection.
 
 04-04-2009 Nando:
     Fixed:   Removing an offline member from party was causing POL to crash.
@@ -1448,9 +1449,9 @@
              to 0 the item and (if container, it's contents) will NOT be saved to datafile.
              
 01-23 Nando:
-	Changed: polcore().bytes_sent and polcore().bytes_received are now Doubles. This will fix some
+    Changed: polcore().bytes_sent and polcore().bytes_received are now Doubles. This will fix some
                  problems with negative values after some time... (internally they are now 64 bit integers).
-	Note:    Lots of small leaks fixed, and more to come. Too much to list here, but you will feel the
+    Note:    Lots of small leaks fixed, and more to come. Too much to list here, but you will feel the
                  difference.
  
 01-16 Turley
@@ -1519,7 +1520,7 @@
                                backward:=ACTION_DIR_FORWARD,repeatflag:=ACTION_NOREPEAT,delay:=1);
 12-18 MuadDib:
         Changed: Aux Client now sends "Connection closed" to a client that attempts to connect
-		         from an invalid IP according to IPMATCH settings before closing the socket.
+                 from an invalid IP according to IPMATCH settings before closing the socket.
 
 12-18 Turley:
         Added:   Setting for servspecopt.cfg 'PrivacyPaperdoll' Default is disabled.
@@ -1528,7 +1529,7 @@
 12-17 MuadDib:
         Fixed :  Item.layer gets reset to 0 when unequipped.
         Fixed :  When loading Realms, POL will shutdown if it cannot find any realms
-		         and say so.
+                 and say so.
         Added :  Item.tile_layer returns the Layer setting in the Tiles.cfg/Tiledata.
                  This was added to always give the layer it uses, while leaving the
                  internal handling both of Core and Scripts that utilize the fact of
@@ -1778,10 +1779,10 @@
         Added :   util::RandomIntMinMax(). Return Random Value between...
 
 07-26 VeNdOr:
-				Added : ApplyDamage now returns the real damage applied to the mobile.
-		
+                Added : ApplyDamage now returns the real damage applied to the mobile.
+        
 05-28 VeNdOr:
-				Fixed : In some conditions, when the AuxScript exited, the AuxConnection didn't close. 
+                Fixed : In some conditions, when the AuxScript exited, the AuxConnection didn't close. 
 
 05-23 Austin:
         Fixed : If MinCmdlevelToLogin was used, characters could not be created.
@@ -1789,7 +1790,7 @@
         Added : servspecopt.cfg CoreHitSounds    default: disabled
                 If disabled, scripts will handle sounds when a mobile is damaged.
                 If enabled, will work as it did before - but for npcs will use a DamagedSound 
-		property from its config file.
+        property from its config file.
 
 02-9  Shinigami:
         Fixed : Bug in Unpack() with zero length Strings.
@@ -2169,9 +2170,9 @@
                            SleepMS(2);
                         endforeach
                         SleepMS(2);
-	             endforeach
-	  	     SleepMS(2);
-	          endforeach
+                 endforeach
+             SleepMS(2);
+              endforeach
 
 06-22 Austin
         Added : Attributes::GetAttributeName(alias) - Returns the real attribute name from an alias.
@@ -2278,7 +2279,7 @@
 
 -- POL096.7 --
 4-23 MuadDib
-		Added : Realm checks in transmitting of packets to clients "in range".
+        Added : Realm checks in transmitting of packets to clients "in range".
 
 4-22 MuadDib
         Added : Changing of Invisible, Movable, and Newbie now reset the respective
@@ -2765,7 +2766,7 @@
         Added : Linux: Core will check libc version and print Warning if libc is to old (< 2.3.2)
 
 10-07 Austin
-	Added : scripts/misc/dblclickother - Runs when a player double clicks another player or npc.
+    Added : scripts/misc/dblclickother - Runs when a player double clicks another player or npc.
                 Will not run if the npc has the double click event enabled.
                 Program arguments are (who, mobile_clicked)
         Added : servspecopt.cfg - 'DoubleClickWait'. (Default is 0)
@@ -2820,7 +2821,7 @@
                 Packet.SetInt32Flipped(offset, value)
 
 09-11 Austin
-	Added : Member for mobiles ".opponent". Returns a mobile reference if a combat opponent is selected.
+    Added : Member for mobiles ".opponent". Returns a mobile reference if a combat opponent is selected.
 
 09-10 Shinigami
         Added : math::Root - returns y Root of x (same as Pow(x,1.0/y))
@@ -2830,7 +2831,7 @@
                   about the iteration variable being unused
 
 09-08 Austin
-	Added : polsys::Packages() now has a .npcdesc member. Will be 1 if the package has an npcdesc.cfg file.
+    Added : polsys::Packages() now has a .npcdesc member. Will be 1 if the package has an npcdesc.cfg file.
 
 09-07 Folko
         Changed: eCompile - BASIC style for loops (for i:= start to end) will no longer complain about the iteration variable being unused
@@ -2882,19 +2883,19 @@
                 }
 
 08-28 Austin
-	Added : Ability to initialize error as you would a struct.
-		Example return error{"errortext" := "This is the error message"};
-	Added : Extended NPC.EM Say() function to allow for two additional parameters.
-		Say( text, text_type:=SAY_TEXTTYPE_DEFAULT, do_event:=SAY_DOEVENT_DISABLE );
+    Added : Ability to initialize error as you would a struct.
+        Example return error{"errortext" := "This is the error message"};
+    Added : Extended NPC.EM Say() function to allow for two additional parameters.
+        Say( text, text_type:=SAY_TEXTTYPE_DEFAULT, do_event:=SAY_DOEVENT_DISABLE );
                 Text type is a string "default", "yell", "whisper", constants are:
-		SAY_TEXTTYPE_DEFAULT, SAY_TEXTTYPE_YELL, SAY_TEXTTYPE_WHISPER (added to npc.em)
-		If do_event is enabled with SAY_DOEVENT_ENABLE, it will send a speech event to nearby npcs.
+        SAY_TEXTTYPE_DEFAULT, SAY_TEXTTYPE_YELL, SAY_TEXTTYPE_WHISPER (added to npc.em)
+        If do_event is enabled with SAY_DOEVENT_ENABLE, it will send a speech event to nearby npcs.
 
 08-26 Austin
-	Fixed : LEFTAREA event was not being sent to npcs in the old realm when a mobile was moved to a new realm.
+    Fixed : LEFTAREA event was not being sent to npcs in the old realm when a mobile was moved to a new realm.
 
 08-25 Austin
-	Fixed : LEFTAREA event was not being sent if a mobile was teleported 33 tiles or more away.
+    Fixed : LEFTAREA event was not being sent if a mobile was teleported 33 tiles or more away.
 
 08-23 Austin
         Added : Logging out will now send a LEFTAREA event (after logout.ecl has finished).
@@ -3310,28 +3311,28 @@
           (appropriate suggestions will be made for '==' or ':=')
         - 'local', 'global' and 'dim' have been removed; use 'var' to declare variables.
         - 'begin' and 'end' have been removed:
-			do..while() loops now work without them.
-			repeat..until() loops never actually needed them: so no loss. :)
+            do..while() loops now work without them.
+            repeat..until() loops never actually needed them: so no loss. :)
 
         ** Scripts containing any of the removed operators or tokens **
         **     WILL NOT COMPILE ANY MORE!! Update your scripts!!     **
 
 05-12 Myrathi
-	Fixed: Mobile 'mob.frozen' flag is now saved properly (NOTE: this includes PCs and
-		will most likely require any existing scripted workarounds to be rewritten!)
+    Fixed: Mobile 'mob.frozen' flag is now saved properly (NOTE: this includes PCs and
+        will most likely require any existing scripted workarounds to be rewritten!)
 
-	Added: Extra 'spell_id' parameter is now passed to spell scripts which relates to
-		'SPELLID' in the spell's entry in '::spells.cfg'.
+    Added: Extra 'spell_id' parameter is now passed to spell scripts which relates to
+        'SPELLID' in the spell's entry in '::spells.cfg'.
 
-		Example:
-			use uo;
-			program spellscript( who, spell_id )
-				SendSysMessage(who, "Casting SPELLID# " + CStr(spell_id));
-				// "Clumsy" has spell_id = 1, "Create Food" = 2, etc..
-			endprogram
+        Example:
+            use uo;
+            program spellscript( who, spell_id )
+                SendSysMessage(who, "Casting SPELLID# " + CStr(spell_id));
+                // "Clumsy" has spell_id = 1, "Create Food" = 2, etc..
+            endprogram
 
 05-01 Birdy
-	Fixed: Number of Map/Static patches was reversed in the enable difs packet.
+    Fixed: Number of Map/Static patches was reversed in the enable difs packet.
 
 05-01 Racalac
     Fixed CProps "GivenBy", "GivenTo", and "GivenTime" set on items dropped on NPCs.
@@ -3386,277 +3387,277 @@
     Packet 0x1B changed to include correct map/server bounds
 
 04-23 Birdy
-	Changed: Mounts listed in uoconvert.cfg that are not found to have tiledata.mul
-		entries will now be created regardless.  Should fix problems related to
-		0x3ea2 mount(perhaps others too), which has no tiledata.mul entry, yet
-		is a valid mount graphic.
+    Changed: Mounts listed in uoconvert.cfg that are not found to have tiledata.mul
+        entries will now be created regardless.  Should fix problems related to
+        0x3ea2 mount(perhaps others too), which has no tiledata.mul entry, yet
+        is a valid mount graphic.
 
 04-20 Birdy
-	Fixed: FindPath(...) should work again now.
+    Fixed: FindPath(...) should work again now.
 
 04-17 Birdy
-	Changed: Speech.mul -- Added in support for UTF-8 -> Unicode decoding in speech.mul
-		packets.  Should work now (hopefully) for all languages.
-	Fixed: Minor tweaks to movement.  Should fix some bounceback problems.
+    Changed: Speech.mul -- Added in support for UTF-8 -> Unicode decoding in speech.mul
+        packets.  Should work now (hopefully) for all languages.
+    Fixed: Minor tweaks to movement.  Should fix some bounceback problems.
 
 04-17 Racalac
-	Multimap/Realm Support
-	----------------------
-	POL now supports seperate maps, or "Realms", such as britannia, ilshenar,
-	and malas. The uoconvert tool is the starting point for using realms on
-	your shard. Run the updated instructions in the included uoconvert.txt
-	help file. The names of the directories created in pol/realms by uoconvert
-	are the realm names that are used by the core and your scripts. I
-	recommend you keep them the same as what is in the uoconvert.txt file.
-	Realm names are the key to using realms on your shard.
+    Multimap/Realm Support
+    ----------------------
+    POL now supports seperate maps, or "Realms", such as britannia, ilshenar,
+    and malas. The uoconvert tool is the starting point for using realms on
+    your shard. Run the updated instructions in the included uoconvert.txt
+    help file. The names of the directories created in pol/realms by uoconvert
+    are the realm names that are used by the core and your scripts. I
+    recommend you keep them the same as what is in the uoconvert.txt file.
+    Realm names are the key to using realms on your shard.
 
-	The client's *.dif files should be used in the uoconvert process, as the
-	client needs to know how many patches exist. Any time the .dif files
-	change on the client side, re-run uoconvert with the new .dif files to
-	stay in sync.
-
-
-	Object Changes:
-	UObject.realm: Read-only string. (This inherits to Item, Character, Multi, etc)
-
-	Account.uo_expansion: Read-only string
-	Account.set_uo_expansion(string): recognized values: AOS, LBR, T2A (default)
-	  This determines what flag is sent with packet 0xB9 during login. The
-	  servspecopt.cfg UOFeatureEnable is used with packet 0xA9 and is currently
-	  global to all clients.
-
-	Packet.SendAreaPacket(x,y,range,realm), realm name string parameter added.
-
-	Escript Module Changes:
-	polsys.em:
-		Added "Realms()": returns a dictionary of structs. example:
-			"realm_name" -> "width"
-						    "height"
-						    "mapid"
-						    "toplevel_item_count"
-						    "mobile_count"
-
-	uo.em (included with zip):
-	The following functions were enhanced with a realm parameter (all realm
-	parameters are a case-sensative string name of the realm). All other
-	functions use some object's context for determining the realm.
-
-	Tip for upgrading: all your scripts should works normall _in Britannia_.
-	In any other realm they will fail. You must find all occurances of these
-	functions on your shard and fill in the realm parameter with an appropriate
-	value. For example, in the createnpc textcommand, the call to
-	CreateNPCAtLocation should be made with 'who.realm' as the last parameter.
-	Many script changes are easy like this, others are harder, like
-	spawnregion and recall/gate spells. If something doesn't work, you can be
-	fairly sure it's due to an incorrect realm parameter. The pol-distro
-	sourceforge project has been updated with many of these changes if you
-	wish to look.
-
-	const _DEFAULT_REALM := "britannia";
-	CreateItemAtLocation( x, y, z, objtype, amount := 1, realm := _DEFAULT_REALM );
-	CreateMultiAtLocation( x, y, z, objtype, flags := 0, realm := _DEFAULT_REALM );
-	CreateNpcFromTemplate( template, x, y, z, override_properties := 0, realm := _DEFAULT_REALM);
-	FindPath( x1, y1, z1, x2, y2, z2, realm := _DEFAULT_REALM, mobilesblock := 0, searchskirt := 5 );
-	GetHarvestDifficulty( resource, x, y, tiletype, realm := _DEFAULT_REALM );
-	GetMapInfo( x, y, realm := _DEFAULT_REALM );
-	GetRegionString( resource, x, y, propertyname, realm := _DEFAULT_REALM );
-	GetStandingHeight( x, y, startz, realm := _DEFAULT_REALM );
-	GetWorldHeight( x, y, realm := _DEFAULT_REALM );
-	HarvestResource( resource, x, y, b, n, realm := _DEFAULT_REALM ); // returns b*a where 0 <= a <= n
-	ListGhostsNearLocation( x, y, z, range, realm := _DEFAULT_REALM );
-	ListItemsAtLocation( x, y, z, realm := _DEFAULT_REALM );
-	ListItemsNearLocation( x, y, z, range, realm := _DEFAULT_REALM );
-	ListItemsNearLocationOfType( x,y,z, range, objtype, realm := _DEFAULT_REALM );
-	ListItemsNearLocationWithFlag( x,y,z, range, flags, realm := _DEFAULT_REALM );
-	ListMobilesNearLocation( x, y, z, range, realm := _DEFAULT_REALM );
-	ListMobilesNearLocationEx( x,y,z, range, flags, realm := _DEFAULT_REALM );
-	ListObjectsInBox( x1,y1,z1, x2,y2,z2, realm := _DEFAULT_REALM );
-	ListMultisInBox( x1,y1,z1, x2,y2,z2, realm := _DEFAULT_REALM );
-	PlayMovingEffectXYZ( srcx, srcy, srcz, dstx, dsty, dstz, effect, speed, loop := 0, explode := 0, realm := _DEFAULT_REALM );
-	PlayStationaryEffect( x, y, z, effect, speed, loop := 0, explode := 0, realm := _DEFAULT_REALM );
-
-	Functions added:
-	MoveObjectToRealm( object, realm, x, y, z, flags := 0 );
-		--This is the only write interface to an object's realm. If you wish
-		an object to reside on another realm, this is the only function
-		available. Check obj.realm != destination_realm to avoid unnecessary
-		same-realm transfers. flags is the normal MoveItem|CharacterToLocation
-		flags. The passed x,y,z must be a standable location in the specified
-		realm.
-
-	Most of these functions will return the errors "Realm not found" and
-	    "Invalid Coordinates for realm".
+    The client's *.dif files should be used in the uoconvert process, as the
+    client needs to know how many patches exist. Any time the .dif files
+    change on the client side, re-run uoconvert with the new .dif files to
+    stay in sync.
 
 
-	Regions:
-	Added "Realm realmname" property
+    Object Changes:
+    UObject.realm: Read-only string. (This inherits to Item, Character, Multi, etc)
 
-	poltool:
-	added a 5th parameter for the 'mapdump' command, a realm name string as above
+    Account.uo_expansion: Read-only string
+    Account.set_uo_expansion(string): recognized values: AOS, LBR, T2A (default)
+      This determines what flag is sent with packet 0xB9 during login. The
+      servspecopt.cfg UOFeatureEnable is used with packet 0xA9 and is currently
+      global to all clients.
 
-	uoconvert:
-	number of map and static patches (from mapdif and stadif files) saved to
-	   /realm/[name]/realm.cfg
-	Recommend to turn on mapdifs for all realms.
+    Packet.SendAreaPacket(x,y,range,realm), realm name string parameter added.
+
+    Escript Module Changes:
+    polsys.em:
+        Added "Realms()": returns a dictionary of structs. example:
+            "realm_name" -> "width"
+                            "height"
+                            "mapid"
+                            "toplevel_item_count"
+                            "mobile_count"
+
+    uo.em (included with zip):
+    The following functions were enhanced with a realm parameter (all realm
+    parameters are a case-sensative string name of the realm). All other
+    functions use some object's context for determining the realm.
+
+    Tip for upgrading: all your scripts should works normall _in Britannia_.
+    In any other realm they will fail. You must find all occurances of these
+    functions on your shard and fill in the realm parameter with an appropriate
+    value. For example, in the createnpc textcommand, the call to
+    CreateNPCAtLocation should be made with 'who.realm' as the last parameter.
+    Many script changes are easy like this, others are harder, like
+    spawnregion and recall/gate spells. If something doesn't work, you can be
+    fairly sure it's due to an incorrect realm parameter. The pol-distro
+    sourceforge project has been updated with many of these changes if you
+    wish to look.
+
+    const _DEFAULT_REALM := "britannia";
+    CreateItemAtLocation( x, y, z, objtype, amount := 1, realm := _DEFAULT_REALM );
+    CreateMultiAtLocation( x, y, z, objtype, flags := 0, realm := _DEFAULT_REALM );
+    CreateNpcFromTemplate( template, x, y, z, override_properties := 0, realm := _DEFAULT_REALM);
+    FindPath( x1, y1, z1, x2, y2, z2, realm := _DEFAULT_REALM, mobilesblock := 0, searchskirt := 5 );
+    GetHarvestDifficulty( resource, x, y, tiletype, realm := _DEFAULT_REALM );
+    GetMapInfo( x, y, realm := _DEFAULT_REALM );
+    GetRegionString( resource, x, y, propertyname, realm := _DEFAULT_REALM );
+    GetStandingHeight( x, y, startz, realm := _DEFAULT_REALM );
+    GetWorldHeight( x, y, realm := _DEFAULT_REALM );
+    HarvestResource( resource, x, y, b, n, realm := _DEFAULT_REALM ); // returns b*a where 0 <= a <= n
+    ListGhostsNearLocation( x, y, z, range, realm := _DEFAULT_REALM );
+    ListItemsAtLocation( x, y, z, realm := _DEFAULT_REALM );
+    ListItemsNearLocation( x, y, z, range, realm := _DEFAULT_REALM );
+    ListItemsNearLocationOfType( x,y,z, range, objtype, realm := _DEFAULT_REALM );
+    ListItemsNearLocationWithFlag( x,y,z, range, flags, realm := _DEFAULT_REALM );
+    ListMobilesNearLocation( x, y, z, range, realm := _DEFAULT_REALM );
+    ListMobilesNearLocationEx( x,y,z, range, flags, realm := _DEFAULT_REALM );
+    ListObjectsInBox( x1,y1,z1, x2,y2,z2, realm := _DEFAULT_REALM );
+    ListMultisInBox( x1,y1,z1, x2,y2,z2, realm := _DEFAULT_REALM );
+    PlayMovingEffectXYZ( srcx, srcy, srcz, dstx, dsty, dstz, effect, speed, loop := 0, explode := 0, realm := _DEFAULT_REALM );
+    PlayStationaryEffect( x, y, z, effect, speed, loop := 0, explode := 0, realm := _DEFAULT_REALM );
+
+    Functions added:
+    MoveObjectToRealm( object, realm, x, y, z, flags := 0 );
+        --This is the only write interface to an object's realm. If you wish
+        an object to reside on another realm, this is the only function
+        available. Check obj.realm != destination_realm to avoid unnecessary
+        same-realm transfers. flags is the normal MoveItem|CharacterToLocation
+        flags. The passed x,y,z must be a standable location in the specified
+        realm.
+
+    Most of these functions will return the errors "Realm not found" and
+        "Invalid Coordinates for realm".
 
 
-	Other Changes:
-	AOS Spellbook packets are supported. For this, change you spellbook's
-	itemdesc.cfg type from Container to Spellbook. Paladin and Necromancer
-	spellbooks are supported by the new Spellbook itemdesc type property
-	"SpellType" which is one of these strings: "Magic", "Paladin", "Necro".
+    Regions:
+    Added "Realm realmname" property
 
-	Recognized scroll objects are: Magic: 0x1F2D - 0x1F6C, Necro 0x2260 - 0x226F,
-	    Paladin: 0x2270 - 0x227C. Sorry this is hardcoded :P
+    poltool:
+    added a 5th parameter for the 'mapdump' command, a realm name string as above
 
-	Simple support for AOS tooltips - old single click functionality is supported.
+    uoconvert:
+    number of map and static patches (from mapdif and stadif files) saved to
+       /realm/[name]/realm.cfg
+    Recommend to turn on mapdifs for all realms.
 
-	Custom Houses - not yet sorry, that's next!
+
+    Other Changes:
+    AOS Spellbook packets are supported. For this, change you spellbook's
+    itemdesc.cfg type from Container to Spellbook. Paladin and Necromancer
+    spellbooks are supported by the new Spellbook itemdesc type property
+    "SpellType" which is one of these strings: "Magic", "Paladin", "Necro".
+
+    Recognized scroll objects are: Magic: 0x1F2D - 0x1F6C, Necro 0x2260 - 0x226F,
+        Paladin: 0x2270 - 0x227C. Sorry this is hardcoded :P
+
+    Simple support for AOS tooltips - old single click functionality is supported.
+
+    Custom Houses - not yet sorry, that's next!
 
 
 04-01 Birdy
-	Added: 	MaxPathFindRange servspecopt[.local].cfg option added.  This will define the
-			maximum distance between the start and destination points which pathfinding
-			will be performed on.  If PathFind is called on points greater than this
-			value, an error result will be returned with "Beyond Max Range." as the
-			errortext.  Default value for this is 50.
-	Added:	HiddenTurnsCount servspecopt[.local].cfg option added.  This will define
-			whether or not turns made while hidden will count as a "move".  It defaults
-			to 1, which is the way POL has always operated.  If set to zero, then if
-			you are hidden and make a turn, it will not count against your stealth steps,
-			nor will it unhide you if you are not stealthing.  If set to one, turns while
-			hidden do count against stealthsteps, and will unhide you if you are not
-			stealthing.
-	Added:  New uo.em function added, UseItem(item, character);  This will allow the
-			item specified's use script to be run by the character specified.  No checks
-			are done for distance, or check for being a ghost, or anything else.
-			Essentially, the script is just fired off on the character without checks, so
-			the script calling this function should do those checks if desired.  This
-			function can also be called with NPC's as the character, but any use script
-			that requires interactivity with it's user that is called on an NPC may have
-			unpredictable results(dependant on the script).
-	Added:  UOConvert now will report the (x,y,z) of invalid tiles that cause it to
-			abort map conversion instead of just aborting.
+    Added: 	MaxPathFindRange servspecopt[.local].cfg option added.  This will define the
+            maximum distance between the start and destination points which pathfinding
+            will be performed on.  If PathFind is called on points greater than this
+            value, an error result will be returned with "Beyond Max Range." as the
+            errortext.  Default value for this is 50.
+    Added:	HiddenTurnsCount servspecopt[.local].cfg option added.  This will define
+            whether or not turns made while hidden will count as a "move".  It defaults
+            to 1, which is the way POL has always operated.  If set to zero, then if
+            you are hidden and make a turn, it will not count against your stealth steps,
+            nor will it unhide you if you are not stealthing.  If set to one, turns while
+            hidden do count against stealthsteps, and will unhide you if you are not
+            stealthing.
+    Added:  New uo.em function added, UseItem(item, character);  This will allow the
+            item specified's use script to be run by the character specified.  No checks
+            are done for distance, or check for being a ghost, or anything else.
+            Essentially, the script is just fired off on the character without checks, so
+            the script calling this function should do those checks if desired.  This
+            function can also be called with NPC's as the character, but any use script
+            that requires interactivity with it's user that is called on an NPC may have
+            unpredictable results(dependant on the script).
+    Added:  UOConvert now will report the (x,y,z) of invalid tiles that cause it to
+            abort map conversion instead of just aborting.
 
 03-29 Birdy
-	Fixed: Caves should now be able to be walked into.  Some problems along shores fixed too.
-			Run UOconvert on your files for this fix to work.
+    Fixed: Caves should now be able to be walked into.  Some problems along shores fixed too.
+            Run UOconvert on your files for this fix to work.
 
 03-24 Birdy
-	Changed: Character height in all other aspects changed to 15 from 9 to better reflect height in
-			 game relative to items.
-	Changed: Walking related to ladders modified to try to help in their traversal.
-	Changed: The map now should block LOS.  Run UOconvert on all your files again! (see uoconvert.txt
-			 for instructions)
-	Fixed: Speech.mul should now display speech with keywords even when on a non-ENU region computer.
-	Changed: Boats now check height of blockables in relation to the boat before being
-			 blocked by them.  This should allow boats to travel under sufficiently high
-			 bridges and over statics that may be under the map.
-	Added: Pathfinding function FindPath.  This is a very experimental function and has a minute
-			chance of returning a "Path Corrupted" error.  If you use it and can find a distinct
-			path from point A to point B which generates a "Path Corrupted" error, please send
-			details to the dev team.
+    Changed: Character height in all other aspects changed to 15 from 9 to better reflect height in
+             game relative to items.
+    Changed: Walking related to ladders modified to try to help in their traversal.
+    Changed: The map now should block LOS.  Run UOconvert on all your files again! (see uoconvert.txt
+             for instructions)
+    Fixed: Speech.mul should now display speech with keywords even when on a non-ENU region computer.
+    Changed: Boats now check height of blockables in relation to the boat before being
+             blocked by them.  This should allow boats to travel under sufficiently high
+             bridges and over statics that may be under the map.
+    Added: Pathfinding function FindPath.  This is a very experimental function and has a minute
+            chance of returning a "Path Corrupted" error.  If you use it and can find a distinct
+            path from point A to point B which generates a "Path Corrupted" error, please send
+            details to the dev team.
 
-			Function prototype is found in uo.em and takes the form :
+            Function prototype is found in uo.em and takes the form :
 
-			FindPath( x1, y1, z1, x2, y2, z2, realm := _DEFAULT_REALM, mobilesblock := 0, searchskirt := 5 );
+            FindPath( x1, y1, z1, x2, y2, z2, realm := _DEFAULT_REALM, mobilesblock := 0, searchskirt := 5 );
 
-			(x1,y1,z1) = start of the path
-			(x2,y2,z2) = destination
-			mobilesblock = Whether or not to consider mobiles in the way as 'blocking' the path.
-			searchskirt = The skirt around the square that is formed around the start of the path
-						  to the destination which represents the searchable area.
+            (x1,y1,z1) = start of the path
+            (x2,y2,z2) = destination
+            mobilesblock = Whether or not to consider mobiles in the way as 'blocking' the path.
+            searchskirt = The skirt around the square that is formed around the start of the path
+                          to the destination which represents the searchable area.
 
-			If it finds a path it will return an array of coordinates, representing each step
-			along the path from the next step to take from the start of the path to the actual
-			destination.  The coordinates are found in .x, .y, and .z.  Ex :
+            If it finds a path it will return an array of coordinates, representing each step
+            along the path from the next step to take from the start of the path to the actual
+            destination.  The coordinates are found in .x, .y, and .z.  Ex :
 
-			myPath := FindPath(startx, starty, startz, endx, endy, endz);
+            myPath := FindPath(startx, starty, startz, endx, endy, endz);
 
-			The first step to take from a standing position at (startx,starty,startz) would be
-			at (myPath[1].x, myPath[1].y, myPath[1].z), the next at (myPath[2].x, myPath[2].y,
-			myPath[2].z), etc.
+            The first step to take from a standing position at (startx,starty,startz) would be
+            at (myPath[1].x, myPath[1].y, myPath[1].z), the next at (myPath[2].x, myPath[2].y,
+            myPath[2].z), etc.
 
-			Keep in mind that if you want you can give as large a search area as you want, and
-			it will try to find the area.  But the larger the search area(ie, the larger the
-			distance from start to destination), the more memory and more time it will take to
-			find a path.  Trying to search, for instance, for a path from Yew to Britain will
-			almost certainly freeze your shard and gobble up all it's memory.  No restrictions
-			were placed in core in order to allow for use of the function with future computers
-			which may indeed one day be able to search for such a path in a split second.  But
-			that leaves the responsibility on the scripter using the function to be certain to
-			not try to search for outrageously large paths.  My experience is that paths of
-			20 or less tiles are fairly quick and low impact on the server.
+            Keep in mind that if you want you can give as large a search area as you want, and
+            it will try to find the area.  But the larger the search area(ie, the larger the
+            distance from start to destination), the more memory and more time it will take to
+            find a path.  Trying to search, for instance, for a path from Yew to Britain will
+            almost certainly freeze your shard and gobble up all it's memory.  No restrictions
+            were placed in core in order to allow for use of the function with future computers
+            which may indeed one day be able to search for such a path in a split second.  But
+            that leaves the responsibility on the scripter using the function to be certain to
+            not try to search for outrageously large paths.  My experience is that paths of
+            20 or less tiles are fairly quick and low impact on the server.
 
-			Several errors can be returned instead, with the following errortext messages :
+            Several errors can be returned instead, with the following errortext messages :
 
-			"Failed to find a path."  --  The typical error returned when a path hasn't been found.
-			"Out of memory."          --  This will only happen if there isn't sufficient memory to perform the search.
-			"Solution Corrupted!"     --  This is an error that rarely seems to happen, but if you can get it to
-										  happen repeatedly along a static(non-changing) specific path, please
-										  report it to birdy@polserver.com
-			"Pathfind Error."         --  A catch-all error for various other circumstances, assume no path could be found.
+            "Failed to find a path."  --  The typical error returned when a path hasn't been found.
+            "Out of memory."          --  This will only happen if there isn't sufficient memory to perform the search.
+            "Solution Corrupted!"     --  This is an error that rarely seems to happen, but if you can get it to
+                                          happen repeatedly along a static(non-changing) specific path, please
+                                          report it to birdy@polserver.com
+            "Pathfind Error."         --  A catch-all error for various other circumstances, assume no path could be found.
 
 03-04 Birdy
-	Changed: Character look height changed to 15 from 9 to better reflect height in game relative
-			to items.
-	Added: uoconvert.cfg element option added, LOSOptions, in the following form:
-				LOSOptions
-				{
-					UseNoShoot        1
-					LOSThroughWindows 1
-				}
-			UseNoShoot means uoconvert will determine whether or not something blocks LOS by use of
-			the NoShoot tiledata flag instead of the Blocking tiledata flag.  A couple of special
-			cases exist for secret door items and blocking items that are walls(in both cases, LOS
-			will be hindered), but otherwise the NoShoot tiledata flag will be used.  This should
-			make many blocking, yet not really LOS blocking items no longer block sight, such as
-			candelabras, lamp posts, and such.
-			LOSThroughWindows only matters if UseNoShoot is 1.  If LOSThroughWindows is 1, then
-			items marked as windows in tiledata will not impede LOS.
-			Both of these options default to false.  When UseNoShoot is false, the old method of
-			determining sight blocking as being equivalent to ability to pass will be used for LOS.
-	Added: uoconvert.cfg element option added, Mounts, in the following form:
-				Mounts
-				{
-					Tiles  0x3ea0 0x3ea1 0x3ea2 0x3ea3 0x3ea4 0x3ea5 0x3ea6 0x3ea8 0x3ea9 0x3eb0 0x3eb2 0x3eb3 0x3e9f
-				}
-			If this element exists, and if Tiles exist within it, then those tiles with the graphic IDs
-			listed will be considered to be mounts by uoconvert and will set the layer to be the
-			mount layer and it will set the tile to be equippable.
+    Changed: Character look height changed to 15 from 9 to better reflect height in game relative
+            to items.
+    Added: uoconvert.cfg element option added, LOSOptions, in the following form:
+                LOSOptions
+                {
+                    UseNoShoot        1
+                    LOSThroughWindows 1
+                }
+            UseNoShoot means uoconvert will determine whether or not something blocks LOS by use of
+            the NoShoot tiledata flag instead of the Blocking tiledata flag.  A couple of special
+            cases exist for secret door items and blocking items that are walls(in both cases, LOS
+            will be hindered), but otherwise the NoShoot tiledata flag will be used.  This should
+            make many blocking, yet not really LOS blocking items no longer block sight, such as
+            candelabras, lamp posts, and such.
+            LOSThroughWindows only matters if UseNoShoot is 1.  If LOSThroughWindows is 1, then
+            items marked as windows in tiledata will not impede LOS.
+            Both of these options default to false.  When UseNoShoot is false, the old method of
+            determining sight blocking as being equivalent to ability to pass will be used for LOS.
+    Added: uoconvert.cfg element option added, Mounts, in the following form:
+                Mounts
+                {
+                    Tiles  0x3ea0 0x3ea1 0x3ea2 0x3ea3 0x3ea4 0x3ea5 0x3ea6 0x3ea8 0x3ea9 0x3eb0 0x3eb2 0x3eb3 0x3e9f
+                }
+            If this element exists, and if Tiles exist within it, then those tiles with the graphic IDs
+            listed will be considered to be mounts by uoconvert and will set the layer to be the
+            mount layer and it will set the tile to be equippable.
 
-	Added: New System Hook : SpeechMul -- This hook will be activated when someone using a client with speech.mul
-			in it says a speech.mul keyword(one or more).  The person who spoke is passed as the first parameter
-			and an array containing each of the speech tokens they spoke is passed as the second parameter.
-			This is a very experimental hook, so use at your own risk!  Though I would like to know if it works,
-			particularly on non-english systems.  For ENU players/admins, whether you have a hook or not, these
-			changes should make it such that you no longer "lose text" that has speech.mul tokens in it.
+    Added: New System Hook : SpeechMul -- This hook will be activated when someone using a client with speech.mul
+            in it says a speech.mul keyword(one or more).  The person who spoke is passed as the first parameter
+            and an array containing each of the speech tokens they spoke is passed as the second parameter.
+            This is a very experimental hook, so use at your own risk!  Though I would like to know if it works,
+            particularly on non-english systems.  For ENU players/admins, whether you have a hook or not, these
+            changes should make it such that you no longer "lose text" that has speech.mul tokens in it.
 
-			If you wish to write a syshook script for speech.mul tokens, you will need a syshook.cfg file with
-			the following in it.  This should be in a package of some sort too of course.
+            If you wish to write a syshook script for speech.mul tokens, you will need a syshook.cfg file with
+            the following in it.  This should be in a package of some sort too of course.
 
-				SystemHookScript speechmulhook.ecl
-				{
-					SpeechMul SpeechMul
-				}
+                SystemHookScript speechmulhook.ecl
+                {
+                    SpeechMul SpeechMul
+                }
 
-			The following is an example of a very simple hook called speechmulhook.src.  It is, of course, up to
-			you to make something actually useful. :
+            The following is an example of a very simple hook called speechmulhook.src.  It is, of course, up to
+            you to make something actually useful. :
 
-				use uo;
+                use uo;
 
-				program SpeechMulHook()
-				    return 1; //change to 1 to enable the hook
-				endprogram
+                program SpeechMulHook()
+                    return 1; //change to 1 to enable the hook
+                endprogram
 
-				exported function SpeechMul(who, speechtokens) //note passed ARRAY of speech.mul tokens
+                exported function SpeechMul(who, speechtokens) //note passed ARRAY of speech.mul tokens
 
-				    Print("Tokens : ");
-				    foreach token in speechtokens
-						Print(CStr(token));
-					endforeach
+                    Print("Tokens : ");
+                    foreach token in speechtokens
+                        Print(CStr(token));
+                    endforeach
 
-				endfunction
+                endfunction
 
 12-27 Racalac
     Fixed invisible corpse clothing
@@ -3716,20 +3717,20 @@
          change the template's intrinsic weapon animation (i.e. for LBR npcs)
 
 10-25 Racalac
-	Added uoconvert.cfg for defining what multi IDs are what type (Boat, House, Stairs (AOS)). See included file for 'normal' values.
-	Added for Packet Hooks: SubCommandLength property for 'parent' packets: 1, 2, or 4 byte lengths for subcommand fields.
-		Example:
-		Packet 0x12 //Macro/Spell/Action
-		{
-			Length variable
-			SubCommandOffset 3
-			SubCommandLength 1 //unlike cmd BF, the subcommand is 1 byte, not 2
-		}
-		SubPacket 0x12
-		{
-			SubCommandID 0xC7 //bow or salute
-			ReceiveFunction command_12:HandleC7Action
-		}
+    Added uoconvert.cfg for defining what multi IDs are what type (Boat, House, Stairs (AOS)). See included file for 'normal' values.
+    Added for Packet Hooks: SubCommandLength property for 'parent' packets: 1, 2, or 4 byte lengths for subcommand fields.
+        Example:
+        Packet 0x12 //Macro/Spell/Action
+        {
+            Length variable
+            SubCommandOffset 3
+            SubCommandLength 1 //unlike cmd BF, the subcommand is 1 byte, not 2
+        }
+        SubPacket 0x12
+        {
+            SubCommandID 0xC7 //bow or salute
+            ReceiveFunction command_12:HandleC7Action
+        }
 
 09-27 Racalac
     Fixed improper cleanup of accounts and player characters on exit, leftovers.txt should be reduced in size now.
@@ -3928,26 +3929,26 @@
         config/fileaccess.cfg: reloadable config file, grants access.  Example:
             FileAccess
             {
-	            AllowRead 1
-	            AllowRemote 1
-	            Package testfileaccess
-	            Extension .cfg
-	            Extension .src
+                AllowRead 1
+                AllowRemote 1
+                Package testfileaccess
+                Extension .cfg
+                Extension .src
             }
 
             FileAccess
             {
-	            AllowWrite 1
-	            AllowRemote 0
-	            Package testfileaccess
-	            Extension .txt
+                AllowWrite 1
+                AllowRemote 0
+                Package testfileaccess
+                Extension .txt
             }
 
             FileAccess
             {
-	            AllowAppend 1
-	            Package *
-	            Extension .log
+                AllowAppend 1
+                Package *
+                Extension .log
             }
 
 
@@ -4152,7 +4153,7 @@
           packable type). "StackingIgnoresCProps" is an array of strings. You may edit the values in this dict
           but not all are assigned per-item (meaning it will do nothing). The item create functions accept this
           dictionary in place of the objtype / objtypename parameter.
-	For example, to create a new item that will automatically stack with an existing stack with non-standard
+    For example, to create a new item that will automatically stack with an existing stack with non-standard
           color and cprops, it would look like:
                 var ret := GetItemDescriptor(objtype);
                 ret.Color := 0x10;
@@ -4418,12 +4419,12 @@
         command line ("-r -u" would incorrectly 'eat' the "-u" option!). Such
         an option would be equivalent to "-r . -u" (recurse current folder).
 
-	NOTE: If you need to compile files AS WELL AS recursing the current folder
-	      you MUST add the '.' (no quotes) so it doesn't treat the files as a
-	      folder (WRONG one would try to recurse the FOLDER 'myscript.src'!)
+    NOTE: If you need to compile files AS WELL AS recursing the current folder
+          you MUST add the '.' (no quotes) so it doesn't treat the files as a
+          folder (WRONG one would try to recurse the FOLDER 'myscript.src'!)
 
-	      This is WRONG:  ECOMPILE.EXE -u -r myscript.src
-	      This is RIGHT:  ECOMPILE.EXE -u -r . myscript.src   <-- note the '.'
+          This is WRONG:  ECOMPILE.EXE -u -r myscript.src
+          This is RIGHT:  ECOMPILE.EXE -u -r . myscript.src   <-- note the '.'
 
 03-19 Racalac
     Changed the order of calling the Vital Maximum and Regenerate functions via RecalcVitals().
@@ -4531,7 +4532,7 @@
 
 02-09 Racalac
     Changed: CheckIntegrity=1 in pol.cfg now also checks storage areas and offline character for duplicate serial
-	    items (This extends start up times).
+        items (This extends start up times).
 
 02-08 Syzygy
     Sort-of fix for shards with data files with very high serial numbers:
@@ -4550,7 +4551,7 @@
     Added: POL now supports Minidumps on Windows. If you are running POL on Windows XP, you do not need to do
         anything to enable this. Before Windows XP, you need a new "dbghelp.dll" with version 5.1 or greater in your
         POL directory. I've uploaded a redistributable version on core-test, this will be available and/or included
-	in the final 095 core package.
+    in the final 095 core package.
 
         What Minidumps do: When(/if!) POL crashes, you will no longer see the cryptic dump of registers and call
         stack. Instead, POL will log and print on console that it has created a ".dmp" file in your POL directory.
