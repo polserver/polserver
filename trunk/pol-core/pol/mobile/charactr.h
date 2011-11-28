@@ -22,6 +22,7 @@ History
 2010/01/15 Turley:    (Tomi) priv runwhilestealth
 2010/01/22 Turley:    Speedhack Prevention System
 2010/02/03 Turley:    MethodScript support for mobiles
+2011/11/28 MuadDib:   Removed last of uox referencing code.
 
 Notes
 =======
@@ -604,7 +605,6 @@ public:
 protected:
 
     // friend void read_character( ConfigElem& elem );
-    friend void uox_read_character( ConfigElem& elem );
     friend void write_characters( class SaveContext& sc );
 
     void printWornItems( std::ostream& pc, std::ostream& equip ) const;
