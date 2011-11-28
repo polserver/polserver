@@ -599,7 +599,7 @@ bool send_vendorsell( Client* client, NPC* merchant, UContainer* sellfrom, bool 
 				return false;
 			}
 			msg->Write(item->serial_ext);
-			msg->Write(item->graphic_ext);
+			msg->Write(ctBEu16(item->graphic));
 			msg->Write(item->color_ext);
 			msg->WriteFlipped(item->getamount());
 			msg->WriteFlipped(static_cast<u16>(buyprice));
@@ -2009,7 +2009,7 @@ BObjectImp* UOExecutorModule::mf_SelectColor()
 	PktOut_95* msg = REQUESTPACKET(PktOut_95,PKTBI_95_ID);
 	msg->Write(item->serial_ext);
 	msg->offset+=2; // u16 unk
-	msg->Write(item->graphic_ext);
+	msg->Write(ctBEu16(item->graphic));
 
 	ADDTOSENDQUEUE(chr->client, &msg->buffer, msg->offset );
 	READDPACKET(msg);

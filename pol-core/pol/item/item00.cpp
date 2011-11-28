@@ -43,7 +43,6 @@ Item::Item( const ItemDesc& id, UOBJ_CLASS uobj_class) :
 	layer(0)
 {
     graphic = id.graphic;
-    graphic_ext = ctBEu16( graphic );
     color = id.color;
     color_ext = ctBEu16( color );
     setfacing( id.facing );

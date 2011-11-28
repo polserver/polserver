@@ -71,7 +71,6 @@ Item* Item::clone() const
 	item->color = color;
 	item->color_ext = color_ext;
 	item->graphic = graphic;
-	item->graphic_ext = graphic_ext;
 	item->x = x;
 	item->y = y;
 	item->z = z;
@@ -766,7 +765,6 @@ bool Item::setgraphic( u16 newgraphic )
     {
         set_dirty();
         graphic = newgraphic;
-        graphic_ext = ctBEu16(graphic);
         height = tileheight( graphic );
 		tile_layer = tilelayer( graphic );
 		increv();

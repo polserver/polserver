@@ -166,7 +166,7 @@ void send_container_contents( Client *client, const UContainer& cont, bool show_
 		if ( show_invis || (!item->invisible() || client->chr->can_seeinvisitems()) )
 		{
 			msg->Write(item->serial_ext);
-			msg->Write(item->graphic_ext);
+			msg->Write(ctBEu16(item->graphic));
 			msg->offset++; //unk6
 			msg->WriteFlipped(item->get_senditem_amount());
 			msg->WriteFlipped(item->x);

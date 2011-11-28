@@ -959,7 +959,6 @@ void UBoat::transform_components(const BoatShape& old_boatshape, Realm* oldrealm
             }
             item->set_dirty();
             item->graphic = bshape.componentshapes[ bdcomp ].graphic;
-            item->graphic_ext = ctBEu16(item->graphic);
             move_boat_item( item, 
                        x + bshape.componentshapes[bdcomp].xdelta,
                        y + bshape.componentshapes[bdcomp].ydelta,
@@ -983,7 +982,6 @@ bool UBoat::turn( RELATIVE_DIR dir )
 
         set_dirty();
         graphic = graphic_ifturn(dir);
-        graphic_ext = ctBEu16(graphic);
 
         send_boat_to_inrange(this); // pauses those it sends to
         transform_components( old_boatshape, NULL );
@@ -1131,7 +1129,6 @@ BObjectImp* UBoat::scripted_create( const ItemDesc& descriptor, u16 x, u16 y, s8
 
     UBoat* boat = new UBoat( descriptor );
     boat->graphic = graphic;
-    boat->graphic_ext = ctBEu16(graphic);
     boat->serial = GetNewItemSerialNumber();
     boat->serial_ext = ctBEu32( boat->serial );
     boat->x = x;
@@ -1168,7 +1165,6 @@ void UBoat::create_components()
             if (component == NULL) 
                 continue;
             component->graphic = bshape.componentshapes[i].graphic;
-            component->graphic_ext = ctBEu16( component->graphic );
             // component itemdesc entries generally have graphic=1, so they don't get their height set.
             component->height = tileheight( component->graphic );
             component->x = x + bshape.componentshapes[i].xdelta;

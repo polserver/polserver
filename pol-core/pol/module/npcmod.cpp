@@ -753,7 +753,7 @@ BObjectImp* NPCExecutorModule::say()
 	PktOut_1C* msg = REQUESTPACKET(PktOut_1C,PKTOUT_1C_ID);
 	msg->offset+=2;
 	msg->Write(npc.serial_ext);
-	msg->Write(npc.graphic_ext);
+	msg->Write(ctBEu16(npc.graphic));
 	msg->Write(texttype);
 	msg->WriteFlipped(npc.speech_color_);
 	msg->WriteFlipped(npc.speech_font_);
@@ -846,7 +846,7 @@ BObjectImp* NPCExecutorModule::SayUC()
 		PktOut_AE* talkmsg = REQUESTPACKET(PktOut_AE,PKTOUT_AE_ID);
 		talkmsg->offset+=2;
 		talkmsg->Write(npc.serial_ext);
-		talkmsg->Write(npc.graphic_ext);
+		talkmsg->Write(ctBEu16(npc.graphic));
 		talkmsg->Write(texttype);
 		talkmsg->WriteFlipped(npc.speech_color_);
 		talkmsg->WriteFlipped(npc.speech_font_);
