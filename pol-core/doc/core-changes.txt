@@ -1,5 +1,6 @@
 -- POL099 --
 11-29-2011 Tomi:
+  Changed: All Write(ctBeu16( calls for graphics and colors to use WriteFlipped, this seems to have fixed the assertion errors that occured with removal of the color_ext and graphic_ext
   Changed: Pol throws now an error if some location is missing the MapID or Cliloc Definition in startloc.cfg ( New clients crashed when some were missing )
            Removed the defualt values 0 for MapID and Cliloc ( for older clients it doesnt matter what the values are but clients >= 7.0.13.0 needs them )
 

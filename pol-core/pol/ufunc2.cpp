@@ -166,7 +166,7 @@ void send_container_contents( Client *client, const UContainer& cont, bool show_
 		if ( show_invis || (!item->invisible() || client->chr->can_seeinvisitems()) )
 		{
 			msg->Write(item->serial_ext);
-			msg->Write(ctBEu16(item->graphic));
+			msg->WriteFlipped(item->graphic);
 			msg->offset++; //unk6
 			msg->WriteFlipped(item->get_senditem_amount());
 			msg->WriteFlipped(item->x);
@@ -174,7 +174,7 @@ void send_container_contents( Client *client, const UContainer& cont, bool show_
 			if ( client->ClientType & CLIENTTYPE_6017 )
 				msg->Write(item->slot_index());
 			msg->Write(cont.serial_ext);
-			msg->Write(ctBEu16(item->color)); //color
+			msg->WriteFlipped(item->color); //color
 			++count;
 		}
 		else
