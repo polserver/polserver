@@ -148,9 +148,9 @@ void send_goxyz( Client *client, const Character *chr )
 {
 	PktOut_20* msg = REQUESTPACKET(PktOut_20,PKTOUT_20_ID);
 	msg->Write(chr->serial_ext);
-	msg->Write(ctBEu16(chr->graphic));
+	msg->WriteFlipped(chr->graphic);
 	msg->offset++; //unk7
-	msg->Write(ctBEu16(chr->color));
+	msg->WriteFlipped(chr->color);
 	msg->Write(chr->get_flag1(client));
 	msg->WriteFlipped(chr->x);
 	msg->WriteFlipped(chr->y);
@@ -173,12 +173,12 @@ void send_move( Client *client, const Character *chr )
 {
 	PktOut_77* msg = REQUESTPACKET(PktOut_77,PKTOUT_77_ID);
 	msg->Write(chr->serial_ext);
-	msg->Write(ctBEu16(chr->graphic));
+	msg->WriteFlipped(chr->graphic);
 	msg->WriteFlipped(chr->x);
 	msg->WriteFlipped(chr->y);
 	msg->Write(chr->z);
 	msg->Write(static_cast<u8>((chr->dir & 0x80) | chr->facing));// NOTE, this only includes mask 0x07 of the last MOVE message 
-	msg->Write(ctBEu16(chr->color));
+	msg->WriteFlipped(chr->color);
 	msg->Write(chr->get_flag1(client));
 	msg->Write(chr->hilite_color_idx( client->chr ));
 
@@ -203,12 +203,12 @@ PktOut_77* build_send_move( const Character *chr )
 {
 	PktOut_77* msg = REQUESTPACKET(PktOut_77,PKTOUT_77_ID);
 	msg->Write(chr->serial_ext);
-	msg->Write(ctBEu16(chr->graphic));
+	msg->WriteFlipped(chr->graphic);
 	msg->WriteFlipped(chr->x);
 	msg->WriteFlipped(chr->y);
 	msg->Write(chr->z);
 	msg->Write(static_cast<u8>((chr->dir & 0x80) | chr->facing));// NOTE, this only includes mask 0x07 of the last MOVE message 
-	msg->Write(ctBEu16(chr->color));
+	msg->WriteFlipped(chr->color);
 	return msg;
 }
 
@@ -239,12 +239,12 @@ void send_owncreate( Client *client, const Character *chr )
 	PktOut_78* owncreate = REQUESTPACKET(PktOut_78,PKTOUT_78_ID);
 	owncreate->offset+=2;
 	owncreate->Write(chr->serial_ext);
-	owncreate->Write(ctBEu16(chr->graphic));
+	owncreate->WriteFlipped(chr->graphic);
 	owncreate->WriteFlipped(chr->x);
 	owncreate->WriteFlipped(chr->y);
 	owncreate->Write(chr->z);
 	owncreate->Write(chr->facing);
-	owncreate->Write(ctBEu16(chr->color));
+	owncreate->WriteFlipped(chr->color);
 	owncreate->Write(chr->get_flag1(client));
 	owncreate->Write(chr->hilite_color_idx( client->chr ));
     
@@ -263,12 +263,12 @@ void send_owncreate( Client *client, const Character *chr )
 			owncreate->Write(item->serial_ext);
 			owncreate->WriteFlipped(static_cast<u16>(0x8000 | item->graphic));
 			owncreate->Write(static_cast<u8>(layer));
-            owncreate->Write(ctBEu16(item->color));
+            owncreate->WriteFlipped(item->color);
         }
         else
         {
 			owncreate->Write(item->serial_ext);
-			owncreate->Write(ctBEu16(item->graphic));
+			owncreate->WriteFlipped(item->graphic);
 			owncreate->Write(static_cast<u8>(layer));
         }
     }
@@ -304,12 +304,12 @@ PktOut_78* build_owncreate(const Character *chr)
 	PktOut_78* owncreate = REQUESTPACKET(PktOut_78,PKTOUT_78_ID);
 	owncreate->offset+=2;
 	owncreate->Write(chr->serial_ext);
-	owncreate->Write(ctBEu16(chr->graphic));
+	owncreate->WriteFlipped(chr->graphic);
 	owncreate->WriteFlipped(chr->x);
 	owncreate->WriteFlipped(chr->y);
 	owncreate->Write(chr->z);
 	owncreate->Write(chr->facing);
-	owncreate->Write(ctBEu16(chr->color));//17
+	owncreate->WriteFlipped(chr->color);//17
 	return owncreate;
 }
 void send_owncreate( Client *client, const Character *chr, PktOut_78* owncreate, PktOut_17* poisonbuffer )
@@ -333,12 +333,12 @@ void send_owncreate( Client *client, const Character *chr, PktOut_78* owncreate,
 			owncreate->Write(item->serial_ext);
 			owncreate->WriteFlipped(static_cast<u16>(0x8000 | item->graphic));
 			owncreate->Write(static_cast<u8>(layer));
-			owncreate->Write(ctBEu16(item->color));
+			owncreate->WriteFlipped(item->color);
 		}
 		else
 		{
 			owncreate->Write(item->serial_ext);
-			owncreate->Write(ctBEu16(item->graphic));
+			owncreate->WriteFlipped(item->graphic);
 			owncreate->Write(static_cast<u8>(layer));
 		}
 	}
@@ -675,7 +675,7 @@ void send_put_in_container( Client* client, const Item* item )
 {
 	PktOut_25* msg = REQUESTPACKET(PktOut_25,PKTOUT_25_ID);
 	msg->Write(item->serial_ext);
-	msg->Write(ctBEu16(item->graphic));
+	msg->WriteFlipped(item->graphic);
 	msg->offset++; //unk7 layer?
 	msg->WriteFlipped(item->get_senditem_amount());
 	msg->WriteFlipped(item->x);
@@ -683,7 +683,7 @@ void send_put_in_container( Client* client, const Item* item )
 	if ( client->ClientType & CLIENTTYPE_6017 )
 		msg->Write(item->slot_index());
 	msg->Write(item->container->serial_ext);
-	msg->Write(ctBEu16(item->color));
+	msg->WriteFlipped(item->color);
 	transmit( client, &msg->buffer, msg->offset );
 	READDPACKET(msg);
 
@@ -714,14 +714,14 @@ void send_put_in_container_to_inrange( const Item *item )
 				if (slot_buffer->offset==1)
                 {
 					slot_buffer->Write(item->serial_ext);
-					slot_buffer->Write(ctBEu16(item->graphic));
+					slot_buffer->WriteFlipped(item->graphic);
 					slot_buffer->offset++; //unk7 layer?
 					slot_buffer->WriteFlipped(item->get_senditem_amount());
 					slot_buffer->WriteFlipped(item->x);
 					slot_buffer->WriteFlipped(item->y);
 					slot_buffer->Write(item->slot_index());
 					slot_buffer->Write(item->container->serial_ext);
-					slot_buffer->Write(ctBEu16(item->color));
+					slot_buffer->WriteFlipped(item->color);
                 }
 				ADDTOSENDQUEUE(client2,&slot_buffer->buffer, slot_buffer->offset);
 			}
@@ -730,13 +730,13 @@ void send_put_in_container_to_inrange( const Item *item )
 				if (legacy_buffer->offset==1)
                 {
 					legacy_buffer->Write(item->serial_ext);
-					legacy_buffer->Write(ctBEu16(item->graphic));
+					legacy_buffer->WriteFlipped(item->graphic);
 					legacy_buffer->offset++; //unk7 layer?
 					legacy_buffer->WriteFlipped(item->get_senditem_amount());
 					legacy_buffer->WriteFlipped(item->x);
 					legacy_buffer->WriteFlipped(item->y);
 					legacy_buffer->Write(item->container->serial_ext);
-					legacy_buffer->Write(ctBEu16(item->color));
+					legacy_buffer->WriteFlipped(item->color);
                 }
 				ADDTOSENDQUEUE(client2,&legacy_buffer->buffer, legacy_buffer->offset);
 			}
@@ -820,7 +820,7 @@ void send_item( Client *client, const Item *item )
 		msg->WriteFlipped(static_cast<u16>(0x1));
 		msg->offset++; // datatype
 		msg->Write(item->serial_ext);
-		msg->Write(ctBEu16(item->graphic));
+		msg->WriteFlipped(item->graphic);
 		msg->Write(item->facing);
 		msg->WriteFlipped(item->get_senditem_amount());
 		msg->WriteFlipped(item->get_senditem_amount());
@@ -828,7 +828,7 @@ void send_item( Client *client, const Item *item )
 		msg->WriteFlipped(item->y);
 		msg->Write(item->z);
 		msg->Write(item->layer);
-		msg->Write(ctBEu16(item->color));
+		msg->WriteFlipped(item->color);
 		msg->Write(flags);
 		if (client->ClientType & CLIENTTYPE_7090)
 			msg->offset+=2;
@@ -842,7 +842,7 @@ void send_item( Client *client, const Item *item )
 		msg->offset+=2;
 		// If the 0x80000000 is left out, the item won't show up. 
 		msg->WriteFlipped(static_cast<u32>(0x80000000 | item->serial)); // bit 0x80000000 enables piles
-		msg->Write(ctBEu16(item->graphic));
+		msg->WriteFlipped(item->graphic);
 		msg->WriteFlipped(item->get_senditem_amount());
 		if (item->facing == 0)
 		{
@@ -858,7 +858,7 @@ void send_item( Client *client, const Item *item )
 			msg->Write(item->facing);
 		}
 		msg->Write(item->z);
-		msg->Write(ctBEu16(item->color));
+		msg->WriteFlipped(item->color);
 		msg->Write(flags);
 		u16 len=msg->offset;
 		msg->offset=1;
@@ -1012,11 +1012,11 @@ void send_wornitem( Client *client, const Character *chr, const Item *item )
 {
 	PktOut_2E* msg = REQUESTPACKET(PktOut_2E,PKTOUT_2E_ID);
 	msg->Write(item->serial_ext);
-	msg->Write(ctBEu16(item->graphic));
+	msg->WriteFlipped(item->graphic);
 	msg->offset++; //unk7
 	msg->Write(item->layer);
 	msg->Write(chr->serial_ext);
-	msg->Write(ctBEu16(item->color));
+	msg->WriteFlipped(item->color);
 	transmit( client, &msg->buffer, msg->offset );
 	READDPACKET(msg);
 
@@ -1030,11 +1030,11 @@ void send_wornitem_to_inrange( const Character *chr, const Item *item )
 {
 	PktOut_2E* msg = REQUESTPACKET(PktOut_2E,PKTOUT_2E_ID);
 	msg->Write(item->serial_ext);
-	msg->Write(ctBEu16(item->graphic));
+	msg->WriteFlipped(item->graphic);
 	msg->offset++; //unk7
 	msg->Write(item->layer);
 	msg->Write(chr->serial_ext);
-	msg->Write(ctBEu16(item->color));
+	msg->WriteFlipped(item->color);
 	transmit_to_inrange( item, &msg->buffer, msg->offset, false, false );
 	READDPACKET(msg);
 	send_object_cache_to_inrange( dynamic_cast<const UObject*>(item) );
@@ -1053,11 +1053,11 @@ void update_wornitem_to_inrange( const Character *chr, const Item *item )
 
 		PktOut_2E* msg = REQUESTPACKET(PktOut_2E,PKTOUT_2E_ID);
 		msg->Write(item->serial_ext);
-		msg->Write(ctBEu16(item->graphic));
+		msg->WriteFlipped(item->graphic);
 		msg->offset++; //unk7
 		msg->Write(item->layer);
 		msg->Write(chr->serial_ext);
-		msg->Write(ctBEu16(item->color));
+		msg->WriteFlipped(item->color);
 		transmit_to_inrange( item, &msg->buffer, msg->offset, false, false );
 		READDPACKET(msg);
 
@@ -1679,7 +1679,7 @@ bool say_above(const UObject* obj,
 
 	msg->offset+=2;
 	msg->Write(obj->serial_ext);
-	msg->Write(ctBEu16(obj->graphic));
+	msg->WriteFlipped(obj->graphic);
 	msg->Write(static_cast<u8>(TEXTTYPE_NORMAL));
 	msg->WriteFlipped(color);
 	msg->WriteFlipped(font);
@@ -1720,7 +1720,7 @@ bool say_above(const UObject* obj,
 	PktOut_AE* msg = REQUESTPACKET(PktOut_AE,PKTOUT_AE_ID);
 	msg->offset+=2;
 	msg->Write(obj->serial_ext);
-	msg->Write(ctBEu16(obj->graphic));
+	msg->WriteFlipped(obj->graphic);
 	msg->Write(static_cast<u8>(TEXTTYPE_NORMAL));
 	msg->WriteFlipped(color);
 	msg->WriteFlipped(font);
@@ -1761,7 +1761,7 @@ bool private_say_above( Character* chr,
 
 	msg->offset+=2;
 	msg->Write(obj->serial_ext);
-	msg->Write(ctBEu16(obj->graphic));
+	msg->WriteFlipped(obj->graphic);
 	msg->Write(static_cast<u8>(TEXTTYPE_NORMAL));
 	msg->WriteFlipped(color);
 	msg->WriteFlipped(font);
@@ -1804,7 +1804,7 @@ bool private_say_above( Character* chr,
 	PktOut_AE* msg = REQUESTPACKET(PktOut_AE,PKTOUT_AE_ID);
 	msg->offset+=2;
 	msg->Write(obj->serial_ext);
-	msg->Write(ctBEu16(obj->graphic));
+	msg->WriteFlipped(obj->graphic);
 	msg->Write(static_cast<u8>(TEXTTYPE_NORMAL));
 	msg->WriteFlipped(color);
 	msg->WriteFlipped(font);
@@ -1842,7 +1842,7 @@ bool private_say_above_ex( Character* chr,
 
 	msg->offset+=2;
 	msg->Write(obj->serial_ext);
-	msg->Write(ctBEu16(obj->graphic));
+	msg->WriteFlipped(obj->graphic);
 	msg->Write(static_cast<u8>(TEXTTYPE_NORMAL));
 	msg->WriteFlipped(color);
 	msg->WriteFlipped(static_cast<u16>(3));
@@ -1864,7 +1864,7 @@ void send_objdesc( Client *client, Item *item )
 		textlen = SPEECH_MAX_LEN+1;
 	msg->offset+=2;
 	msg->Write(item->serial_ext);
-	msg->Write(ctBEu16(item->graphic));
+	msg->WriteFlipped(item->graphic);
 	msg->Write(static_cast<u8>(TEXTTYPE_YOU_SEE));
 	msg->WriteFlipped(static_cast<u16>(0x03B2));
 	msg->WriteFlipped(static_cast<u16>(3));
@@ -2193,7 +2193,7 @@ void move_boat_item( Item* item, unsigned short newx, unsigned short newy, signe
 	PktOut_1A* msg = REQUESTPACKET(PktOut_1A,PKTOUT_1A_ID);
 	msg->offset+=2;
 	msg->Write(item->serial_ext);
-	msg->Write(ctBEu16(item->graphic));
+	msg->WriteFlipped(item->graphic);
 	msg->WriteFlipped(item->x);
 	msg->WriteFlipped(item->y);
 	msg->Write(item->z);
@@ -2206,7 +2206,7 @@ void move_boat_item( Item* item, unsigned short newx, unsigned short newy, signe
 	msg2->WriteFlipped(static_cast<u16>(0x1));
 	msg2->offset++; // datatype
 	msg2->Write(item->serial_ext);
-	msg2->Write(ctBEu16(item->graphic));
+	msg2->WriteFlipped(item->graphic);
 	msg2->Write(item->facing);
 	msg2->WriteFlipped(static_cast<u16>(0x1));
 	msg2->WriteFlipped(static_cast<u16>(0x1));
@@ -2214,7 +2214,7 @@ void move_boat_item( Item* item, unsigned short newx, unsigned short newy, signe
 	msg2->WriteFlipped(item->y);
 	msg2->Write(item->z);
 	msg2->offset++; //facing
-	msg2->Write(ctBEu16(item->color));
+	msg2->WriteFlipped(item->color);
 	msg2->offset++; //flags
 
 	// Client >= 7.0.9.0 ( HSA )
