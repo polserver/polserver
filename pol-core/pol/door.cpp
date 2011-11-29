@@ -23,16 +23,6 @@ Notes
 #include "ufunc.h"
 #include "uworld.h"
 
-struct Offset {
-	signed char xmod;
-	signed char ymod;
-} offsets[ 4 ] = {
-    { +1, -1 },     // EXTOBJ_DOOR1, quadrant 1
-    { -1, -1 },     // EXTOBJ_DOOR2, quadrant 2
-    { -1, +1 },     // EXTOBJ_DOOR3, quadrant 3
-    { +1, +1 }      // EXTOBJ_DOOR4, quadrant 4
-};
-
 UDoor::UDoor( const DoorDesc& descriptor ) :
 	ULockable( descriptor, CLASS_ITEM )
 {
@@ -57,17 +47,20 @@ void UDoor::toggle()
     unsigned short oldx = x, oldy = y;
 
     set_dirty();
-    if (graphic & 0x1)
+    if (is_open())
     {
-        ++graphic;
-		x += dd.xmod;
-		y += dd.ymod;
+        if (dd.graphic)
+			graphic = dd.graphic;
+		else
+			graphic = objtype_;
+		x -= dd.xmod;
+		y -= dd.ymod;
     }
     else
     {
-        --graphic;
-		x -= dd.xmod;
-		y -= dd.ymod;
+        graphic = dd.open_graphic;
+		x += dd.xmod;
+		y += dd.ymod;
     }
     
     MoveItemWorldPosition( oldx, oldy, this, NULL );
@@ -77,20 +70,22 @@ void UDoor::toggle()
 
 bool UDoor::is_open() const
 {
-    if (graphic & 0x01)
-        return false;
-    else
+	const DoorDesc& dd = fast_find_doordesc( objtype_ );
+
+    if (graphic == dd.open_graphic)
         return true;
+    else
+        return false;
 }
 
 void UDoor::open()
 {
-    if (graphic & 0x01)
+    if (is_open())
         toggle();
 }
 
 void UDoor::close()
 {
-    if (~graphic & 0x01)
-        toggle();
+    if (!is_open())
+	    toggle();
 }

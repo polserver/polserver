@@ -149,6 +149,7 @@ public:
 	virtual void PopulateStruct( BStruct* descriptor ) const;
 	s16 xmod;
 	s16 ymod;
+	u16 open_graphic;
 };
 
 class SpellbookDesc : public ContainerDesc
