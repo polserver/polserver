@@ -255,7 +255,7 @@ void send_startup( Client *client )
 	PktOut_1B* msg = REQUESTPACKET(PktOut_1B,PKTOUT_1B_ID);
 	msg->Write(chr->serial_ext);
 	msg->offset+=4; //u8 unk5, unk6, unk7, unk8
-	msg->Write(ctBEu16(chr->graphic));
+	msg->WriteFlipped(chr->graphic);
 	msg->WriteFlipped(chr->x);
 	msg->WriteFlipped(chr->y);
 	msg->offset++; // u8 unk_15
