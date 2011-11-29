@@ -329,6 +329,7 @@ BObjectImp* BasicExecutorModule::mf_CChrZ()
 {
 	string res;
 	ObjArray* arr = static_cast<ObjArray*>(exec.getParamImp( 0, BObjectImp::OTArray ));
+	int break_first_null = static_cast<int>(exec.paramAsLong(1));
 	if (!arr)
 		return new BError( "Invalid parameter type" );
 	for( ObjArray::const_iterator itr = arr->ref_arr.begin(); itr != arr->ref_arr.end(); ++itr )
@@ -339,6 +340,8 @@ BObjectImp* BasicExecutorModule::mf_CChrZ()
 			if (imp->isa( BObjectImp::OTLong ))
 			{
 				BLong* blong = static_cast<BLong*>(imp);
+				if (break_first_null && blong->value() == 0)
+					break;
 				char s[2];
 				s[0] = static_cast<char>(blong->value());
 				s[1] = '\0';
