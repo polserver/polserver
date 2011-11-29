@@ -80,7 +80,7 @@ void say_above_cl(UObject *obj, unsigned int cliloc_num,
 		textlen = SPEECH_MAX_LEN;
 
 	msg->Write(obj->serial_ext);
-	msg->Write(ctBEu16(obj->graphic));     // body
+	msg->WriteFlipped(obj->graphic);     // body
 	msg->Write(static_cast<u8>(7));           // type 6 lower left, 7 on player
 	msg->WriteFlipped(color);
 	msg->WriteFlipped(font);
@@ -116,7 +116,7 @@ void private_say_above_cl(Character *chr, const UObject* obj,
 		textlen = SPEECH_MAX_LEN;
 
 	msg->Write(obj->serial_ext);
-	msg->Write(ctBEu16(obj->graphic));     // body
+	msg->WriteFlipped(obj->graphic);     // body
 	msg->Write(static_cast<u8>(7));           // type 6 lower left, 7 on player
 	msg->WriteFlipped(color);
 	msg->WriteFlipped(font);
@@ -196,7 +196,7 @@ void say_above_cl_affix(UObject *obj, unsigned int cliloc_num, const char* affix
 		textlen = SPEECH_MAX_LEN;
 
 	msg->Write(obj->serial_ext); // serial
-	msg->Write(ctBEu16(obj->graphic));     // body
+	msg->WriteFlipped(obj->graphic);     // body
 	msg->Write(7);           // type 6 lower left, 7 on player
 	msg->WriteFlipped(color);
 	msg->WriteFlipped(font);
@@ -238,7 +238,7 @@ void private_say_above_cl_affix(Character *chr, const UObject* obj, unsigned int
 		textlen = SPEECH_MAX_LEN;
 
 	msg->Write(obj->serial_ext); // serial
-	msg->Write(ctBEu16(obj->graphic));     // body
+	msg->WriteFlipped(obj->graphic);     // body
 	msg->Write(7);           // type 6 lower left, 7 on player
 	msg->WriteFlipped(color);
 	msg->WriteFlipped(font);
