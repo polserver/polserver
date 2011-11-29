@@ -62,12 +62,18 @@ ItemDesc empty_itemdesc( ItemDesc::ITEMDESC );
 // another option is to create such ItemDesc objects on demand as needed, and keep them around.
 ItemDesc temp_itemdesc( ItemDesc::ITEMDESC );
 
-ItemDesc* desctable[ N_ITEM_DESC ];
-bool has_walkon_script_[N_ITEM_DESC];
-bool dont_save_itemtype[N_ITEM_DESC];
+vector<ItemDesc*> desctable;
+vector<bool> has_walkon_script_;
+vector<bool> dont_save_itemtype;
+
 OldObjtypeConversions old_objtype_conversions;
 
-
+void setup_item_vectors()
+{
+	desctable.resize(config.max_objtype, NULL);
+	has_walkon_script_.resize(config.max_objtype, false);
+	dont_save_itemtype.resize(config.max_objtype, false);
+}
 
 unsigned int get_objtype_byname( const char* str )
 {
@@ -818,7 +824,7 @@ const MultiDesc& find_multidesc( u32 objtype )
 
 void fillin_itemdesc_table()
 {
-	for( int i = 0; i < N_ITEM_DESC; i++ )
+	for( int i = 0; i < config.max_objtype; i++ )
 	{
 		if (desctable[i] == NULL)
 			desctable[i] = &empty_itemdesc;
@@ -947,7 +953,6 @@ void read_itemdesc_file( const char* filename, Package* pkg = NULL )
 		scfg->load( cf );
 	}
 */
-
 	ConfigFile cf( filename, "CONTAINER ITEM DOOR WEAPON ARMOR BOAT HOUSE SPELLBOOK SPELLSCROLL MAP" );
 
 	ConfigElem elem;
@@ -973,7 +978,6 @@ void read_itemdesc_file( const char* filename, Package* pkg = NULL )
 
 			elem.throw_error( "ObjType " + hexint( descriptor->objtype ) + " defined more than once." );
 		}
-
 		has_walkon_script_[descriptor->objtype] = (!descriptor->walk_on_script.empty());
 		desctable[ descriptor->objtype ] = descriptor;
 
@@ -997,7 +1001,7 @@ void write_objtypes_txt()
 {
 	ofstream ofs( "objtypes.txt" );
 	int last_objtype = 0;
-	for( int i = 1; i < N_ITEM_DESC; ++i )
+	for( int i = 1; i < config.max_objtype; ++i )
 	{
 		const ItemDesc* itemdesc = desctable[ i ];
 		if (itemdesc == &empty_itemdesc &&
@@ -1042,10 +1046,10 @@ void write_objtypes_txt()
 		last_objtype = i;
 	}
 
-	if (last_objtype != N_ITEM_DESC)
+	if (last_objtype != config.max_objtype)
 	{
 		int first = last_objtype+1;
-		int last = N_ITEM_DESC-1;
+		int last = config.max_objtype-1;
 		if (first == last)
 		{
 			ofs << "# " << hexint(first) << " unused\n";
@@ -1081,7 +1085,7 @@ void load_itemdesc()
 
 void unload_itemdesc()
 {
-	for( int i = 0; i < N_ITEM_DESC; i++ )
+	for( int i = 0; i < config.max_objtype; i++ )
 	{
 		if (desctable[i] != &empty_itemdesc) 
 		{
@@ -1096,7 +1100,7 @@ void unload_itemdesc()
 
 void unload_itemdesc_scripts()
 {
-	for( int i = 0; i < N_ITEM_DESC; i++ )
+	for( int i = 0; i < config.max_objtype; i++ )
 	{
 		if (desctable[i] != &empty_itemdesc)
 		{

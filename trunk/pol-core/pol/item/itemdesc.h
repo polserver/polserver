@@ -217,15 +217,15 @@ extern ItemDesc empty_itemdesc;
 extern ItemDesc temp_itemdesc;
 
 //extern std::map< unsigned short, ItemDesc > itemdesc;
-const int N_ITEM_DESC = 0x20000;
-extern bool has_walkon_script_[N_ITEM_DESC];
+
+extern vector<bool> has_walkon_script_;
 
 inline bool has_walkon_script( u32 objtype )
 {
 	return has_walkon_script_[objtype];
 }
 
-extern bool dont_save_itemtype[N_ITEM_DESC];
+extern vector<bool> dont_save_itemtype;
 unsigned short getgraphic( unsigned int objtype );
 unsigned short getcolor( unsigned int objtype );
 
@@ -235,6 +235,7 @@ bool objtype_is_lockable( u32 objtype );
 
 void load_itemdesc( ConfigElem& elem );
 void fillin_itemdesc_table();
+void setup_item_vectors();
 
 typedef std::map<unsigned int, unsigned int> OldObjtypeConversions;
 extern OldObjtypeConversions old_objtype_conversions;
