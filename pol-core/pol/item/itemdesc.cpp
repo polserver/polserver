@@ -660,7 +660,8 @@ void ContainerDesc::PopulateStruct( BStruct* descriptor ) const
 DoorDesc::DoorDesc( u32 objtype, ConfigElem& elem, const Package* pkg ) :
 	ItemDesc( objtype, elem, DOORDESC, pkg ),
 	xmod( static_cast<s16>(elem.remove_int( "XMOD" )) ),
-	ymod( static_cast<s16>(elem.remove_int( "YMOD" )) )
+	ymod( static_cast<s16>(elem.remove_int( "YMOD" )) ),
+	open_graphic( elem.remove_ushort( "OPENGRAPHIC", 0 ) )
 {
 }
 
@@ -669,6 +670,7 @@ void DoorDesc::PopulateStruct( BStruct* descriptor ) const
 	base::PopulateStruct( descriptor );
 	descriptor->addMember( "XMod", new BLong(xmod) );
 	descriptor->addMember( "YMod", new BLong(ymod) );
+	descriptor->addMember( "OpenGraphic", new BLong(open_graphic) );
 }
 
 SpellbookDesc::SpellbookDesc( u32 objtype, ConfigElem& elem, const Package* pkg ) :
