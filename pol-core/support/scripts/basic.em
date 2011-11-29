@@ -60,7 +60,7 @@ CStr( expr );           // Convert to string
 CAsc( str );            // Convert first character to Ascii value (0-255)
 CChr( number );         // Convert Ascii value to character (type: string)
 CAscZ( str, nullterm := 0 );           // Convert string to array of Ascii values (0-255)
-CChrZ( intarray );      // Convert array of Ascii values to a string
+CChrZ( intarray, break_at_first_null := 0 );      // Convert array of Ascii values to a string
 
 Bin( number) ;			// Convert 25 to 11001
 Hex( number );          // Convert to 0x[hex val] - 0x0 to 0xFFFFFFFF
