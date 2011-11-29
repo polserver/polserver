@@ -43,6 +43,7 @@ Notes
 #include "../gflag.h"
 #include "../los.h"
 #include "../objecthash.h"
+#include "../polcfg.h"
 #include "../realms.h"
 #include "../skillid.h"
 #include "../ufunc.h"
@@ -401,9 +402,8 @@ UWeapon::UWeapon( const WeaponDesc& descriptor, const WeaponDesc* permanent_desc
 	hit_script_( descriptor.hit_script )
 {
 }
+extern vector<ItemDesc*> desctable;
 
-extern const int N_ITEM_DESC;
-extern ItemDesc* desctable[ N_ITEM_DESC ];
 UWeapon::~UWeapon() 
 {
 	if (is_intrinsic() && tmpl != NULL) {
