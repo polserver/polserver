@@ -38,6 +38,10 @@ const OT_ITEMREF          := 31;
 const OT_BOATREF          := 32;
 const OT_MULTIREF         := 33;
 const OT_CLIENTREF        := 34;
+	// Only applicable if SQL is active and compiled.
+const OT_BOATREF          := 35;
+const OT_MULTIREF         := 36;
+const OT_CLIENTREF        := 37;
 
 	// returns the one-based index of Search within Str after position Start
 Find( Str, Search, Start );
