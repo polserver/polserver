@@ -65,9 +65,6 @@ public:
 		OTXMLNode,
 		OTXMLAttributes,
 		OTPolCoreRef,
-		OTSQLConnection,
-		OTSQLResultSet,
-		OTSQLRow,
 
 		// non direct used constants (for TypeOfInt) start
 		OTAccountRef,
@@ -87,8 +84,13 @@ public:
 		OTItemRef,
 		OTBoatRef,
 		OTMultiRef,
-		OTClientRef
+		OTClientRef,
 		// non direct used Constants (for TypeOfInt) end
+
+		OTSQLConnection,
+		OTSQLResultSet,
+		OTSQLRow
+
     };
 
 #if INLINE_BOBJECTIMP_CTOR
