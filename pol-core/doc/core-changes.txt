@@ -1,4 +1,8 @@
 -- POL099 --
+11-29-2011 MuadDib:
+    Fixed: Fixed a script breaker caused by inserting new TypeOfInt() constants in the middle of the Enum. Moved SQL Types to end of list.
+	Added: Added SQL entries to the Basic.EM since were missing.
+
 11-29-2011 Tomi:
   Added:   Opengraphic itemdesc entry for Doors ( optional parameter, no need to define if you dont want to use the built in methods )
   Changed: how built in .open() .close() and .toggle() methods works. The now read the graphic what to open to from itemdesc instead of just checking with & 0x1.
