@@ -1,4 +1,6 @@
 -- POL099 --
+11-30-2011 Tomi:
+    Fixed: Old style spellbooks.
 11-29-2011 MuadDib:
     Fixed: Fixed a script breaker caused by inserting new TypeOfInt() constants in the middle of the Enum. Moved SQL Types to end of list.
 	Added: Added SQL entries to the Basic.EM since were missing.
