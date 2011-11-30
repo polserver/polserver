@@ -358,7 +358,7 @@ void send_spellbook_contents( Client *client, Spellbook& spellbook )
 		if ( ((spellbook.bitwise_contents[ ((spellnumber-1) >> 3) ]) & (1 << (spellpos-1))) != 0 )
 		{
 			msg->Write(static_cast<u32>(0x7FFFFFFF - spellnumber));
-			msg->WriteFlipped(objtype);
+			msg->WriteFlipped(static_cast<u16>(objtype));
 			msg->offset++; //unk6
 			msg->WriteFlipped(spellnumber); //amount
 			msg->WriteFlipped(static_cast<u16>(1)); //x
