@@ -500,7 +500,7 @@ int dupe_count;
 void import( ConfigElem& elem )
 {
 	u32 objtype;
-	objtype = elem.remove_ushort( "OBJTYPE" );
+	objtype = elem.remove_unsigned( "OBJTYPE" );
 	if (objtype > config.max_tile_id)
 	{
 		cerr << "Importing file: " << hex << objtype << dec << " is out of range." << endl;
