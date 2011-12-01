@@ -301,7 +301,7 @@ USpellScroll::USpellScroll( const ItemDesc& itemdesc ) :
 
 u16 USpellScroll::convert_objtype_to_spellnum( u32 objtype, u8 school )
 {
-	u16 spellnum = objtype - spell_scroll_objtype_limits[school][0] + 1;
+	u16 spellnum = static_cast<u16>(objtype - spell_scroll_objtype_limits[school][0] + 1);
 	if(school == 0) //weirdness in order of original spells
 	{
 		if (spellnum == 1)

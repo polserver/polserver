@@ -824,7 +824,7 @@ const MultiDesc& find_multidesc( u32 objtype )
 
 void fillin_itemdesc_table()
 {
-	for( int i = 0; i < config.max_objtype; i++ )
+	for( unsigned int i = 0; i < config.max_objtype; i++ )
 	{
 		if (desctable[i] == NULL)
 			desctable[i] = &empty_itemdesc;
@@ -1000,8 +1000,8 @@ void load_package_itemdesc( Package* pkg )
 void write_objtypes_txt()
 {
 	ofstream ofs( "objtypes.txt" );
-	int last_objtype = 0;
-	for( int i = 1; i < config.max_objtype; ++i )
+	unsigned int last_objtype = 0;
+	for( unsigned int i = 1; i < config.max_objtype; ++i )
 	{
 		const ItemDesc* itemdesc = desctable[ i ];
 		if (itemdesc == &empty_itemdesc &&
@@ -1012,8 +1012,8 @@ void write_objtypes_txt()
 
 		if (i != last_objtype+1)
 		{
-			int first = last_objtype+1;
-			int last = i-1;
+			unsigned int first = last_objtype+1;
+			unsigned int last = i-1;
 			if (first == last)
 			{
 				ofs << "# " << hexint(first) << " unused\n";
@@ -1039,7 +1039,7 @@ void write_objtypes_txt()
 		{
 			ofs << "# " << hexint(i)
 				<< " converts to "
-				<< hexint((int)old_objtype_conversions[static_cast<unsigned int>(i)])
+				<< hexint((int)old_objtype_conversions[i])
 				<< '\n';
 		}
 
@@ -1048,8 +1048,8 @@ void write_objtypes_txt()
 
 	if (last_objtype != config.max_objtype)
 	{
-		int first = last_objtype+1;
-		int last = config.max_objtype-1;
+		unsigned int first = last_objtype+1;
+		unsigned int last = config.max_objtype-1;
 		if (first == last)
 		{
 			ofs << "# " << hexint(first) << " unused\n";
@@ -1085,7 +1085,7 @@ void load_itemdesc()
 
 void unload_itemdesc()
 {
-	for( int i = 0; i < config.max_objtype; i++ )
+	for( unsigned int i = 0; i < config.max_objtype; i++ )
 	{
 		if (desctable[i] != &empty_itemdesc) 
 		{
@@ -1100,7 +1100,7 @@ void unload_itemdesc()
 
 void unload_itemdesc_scripts()
 {
-	for( int i = 0; i < config.max_objtype; i++ )
+	for( unsigned int i = 0; i < config.max_objtype; i++ )
 	{
 		if (desctable[i] != &empty_itemdesc)
 		{
