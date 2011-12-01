@@ -191,7 +191,12 @@ Planning
              function as of yet, does it already do this? hmmmmm. Lazy.
     Nando:
         Find out why unsigned int is crashing the core at under 1/2 the unsigned int cap, or less.... such as under 1/4 even. This is reproducable
-             in polcfg code by setting max objtype to anything above 0xFFFFFF. 
+             in polcfg code by setting max objtype to anything above 0xFFFFFF.
+    Tomi:
+        Fix this: config.max_objtype is unsigned int, and is being looped with int or short at many places. A check (int)x > (unsigned)y
+                  can only be true if y < MAX_UNSIGNED/2. That should fix the bug above.
+    MuadDib: 
+        Check this to-do.txt for things already implemented and remove the entries.
 
 
 100 - MASS - (Midget Asian Strippers Survive!)
