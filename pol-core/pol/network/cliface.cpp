@@ -216,7 +216,7 @@ void UOClientInterface::Initialize()
         attribute_updaters[ uoclient_general.dexterity.id ].my_attr_changed = send_uo_dexterity;
     }
 
-    for( unsigned i = 0; i < uoclient_general.maxskills+1; ++i )
+    for( unsigned short i = 0; i < uoclient_general.maxskills+1; ++i )
     {
         const UOSkill& uoskill = GetUOSkill( i );
         if (uoskill.inited && uoskill.pAttr)
