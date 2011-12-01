@@ -247,3 +247,11 @@ void transmit( Client* client, const void *data, int len )
 {
     ADDTOSENDQUEUE(client, data, len );
 }
+
+void Client::Disconnect() 
+{
+	if (this->isConnected()) {
+		this->preDisconnect = true;
+		ClientTransmitSingleton::instance()->QueueDisconnection(this);
+	}
+}

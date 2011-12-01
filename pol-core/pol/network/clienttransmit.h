@@ -12,8 +12,11 @@ struct TransmitData
 	Client* client;
 	int len;
 	vector<u8> data;
+	bool disconnects;
 	
+	TransmitData() : client(NULL), len(0), disconnects(false) {};
 };
+
 typedef queue<TransmitData> ClientTransmitQueue;
 
 class ClientTransmit
@@ -21,7 +24,10 @@ class ClientTransmit
 public:
 	ClientTransmit();
 	~ClientTransmit();
+
 	void AddToQueue(Client* client, const void *data, int len);
+	void QueueDisconnection(Client* client);
+
 	bool HasQueueEntries();
 	TransmitData NextQueueEntry();
 

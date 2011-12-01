@@ -73,7 +73,7 @@ bool getCharacterOrClientParam( Executor& exec, unsigned param, Character*& chrp
 
 			clientptr = clientref_imp->value().Ptr();
 
-			if ((clientptr!=NULL) && (!clientptr->disconnect))
+			if ((clientptr!=NULL) && clientptr->isConnected())
 			{
 				return true;
 			}

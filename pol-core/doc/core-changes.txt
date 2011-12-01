@@ -1,4 +1,8 @@
--- POL099 --
+﻿-- POL099 --
+01-12-2011 Nando:
+    Fixed: Client hanging after having his connection refused on login. I recommend testing
+           different ways of having a client disconnected, like acct.disable(), .ban() and others.
+
 12-01-2011 Tomi:
   Changed: Polcfg setting MaxObjtype now limited to max 0xFFFFFF (16777215)
   Note:    Try to keep it as low as possible
@@ -11,7 +15,7 @@
 
 11-29-2011 MuadDib:
     Fixed: Fixed a script breaker caused by inserting new TypeOfInt() constants in the middle of the Enum. Moved SQL Types to end of list.
-	Added: Added SQL entries to the Basic.EM since were missing.
+    Added: Added SQL entries to the Basic.EM since were missing.
 
 11-29-2011 Tomi:
   Added:   Opengraphic itemdesc entry for Doors ( optional parameter, no need to define if you dont want to use the built in methods )
