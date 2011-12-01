@@ -101,17 +101,15 @@ BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool forcebuilt
 			{
 				if (chr!=NULL)
 				{
-					if(chr->has_active_client())
-					{
-						ADDTOSENDQUEUE(chr->client,(void*)(&buffer[0]),buffer.size());
-						return new BLong( 1 );
-					}
-					else
+					if(!chr->has_active_client())
 						return new BLong( 0 );
+					
+					client = chr->client;
 				}
-				else if (client!=NULL)
+				
+				if (client!=NULL)
 				{
-					if (!client->disconnect)
+					if (client->isConnected())
 					{
 						ADDTOSENDQUEUE(client,(void*)(&buffer[0]),buffer.size());
 						return new BLong( 1 );

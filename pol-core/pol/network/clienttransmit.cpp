@@ -20,6 +20,19 @@ void ClientTransmit::AddToQueue(Client* client, const void *data, int len)
 	transmitdata.client=client;
 	transmitdata.len=len;
 	transmitdata.data.assign(message,message+len);
+	transmitdata.disconnects = false;
+
+	_TransmitQueueMutex.lock();
+	_transmitqueue.push(transmitdata);
+	_TransmitQueueMutex.unlock();
+	send_ClientTransmit_pulse();
+}
+
+void ClientTransmit::QueueDisconnection(Client* client)
+{
+	TransmitData transmitdata;
+	transmitdata.disconnects = true;
+
 	_TransmitQueueMutex.lock();
 	_transmitqueue.push(transmitdata);
 	_TransmitQueueMutex.unlock();
@@ -57,12 +70,9 @@ void ClientTransmitThread()
 			TransmitData data = clienttransmit->NextQueueEntry();
 			if (data.client != NULL)
 			{
-				if (!data.client->disconnect)
-					// FIXME : We need to switch() this to look for packets that should do a disconnect after they are sent.
-					//         This will help in cases where we queue a packet and then normally would disconnect them. Would prefer
-					//         something along a prioritize overall, for critical style packets but that could get ugly fast.
-					//         This is probably just a band aid fix for now, but will help with login/char create issues caused by
-					//         the queue system. I blame Nando for my headache right now - MuadDib
+				if (data.disconnects)
+					data.client->forceDisconnect();
+				else if (data.client->isReallyConnected())
 					data.client->transmit(static_cast<void*>(&data.data[0]),data.len);
 			}
 		}

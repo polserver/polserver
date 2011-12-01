@@ -494,7 +494,7 @@ void char_select( Client *client, PKTIN_5D *msg )
 		(client->acct->get_character( charidx ) == NULL))
 	{
 		send_login_error( client, LOGIN_ERROR_MISC );
-		client->disconnect = 1;
+		client->Disconnect();
 		return;
 	}
 
@@ -511,7 +511,7 @@ void char_select( Client *client, PKTIN_5D *msg )
 			chosen_char->name().c_str() );
 
 		send_login_error( client, LOGIN_ERROR_MISC );
-		client->disconnect = 1;
+		client->Disconnect();
 		return;
 	}
 
@@ -525,7 +525,7 @@ void char_select( Client *client, PKTIN_5D *msg )
 			chosen_char->name().c_str() );
 
 		send_login_error( client, LOGIN_ERROR_MISC );
-		client->disconnect = 1;
+		client->Disconnect();
 		return;
 	}
 
@@ -535,7 +535,7 @@ void char_select( Client *client, PKTIN_5D *msg )
 		if (client->acct->active_character != chosen_char)
 		{
 			send_login_error( client, LOGIN_ERROR_OTHER_CHAR_INUSE );
-			client->disconnect = 1;
+			client->Disconnect();
 			return;
 		}
 		
@@ -544,7 +544,7 @@ void char_select( Client *client, PKTIN_5D *msg )
 		if (chosen_char->client)
 		{
 			chosen_char->client->gd->clear();
-			chosen_char->client->disconnect = 1;
+			chosen_char->client->forceDisconnect();
 			chosen_char->client->ready = 0;
 			chosen_char->client->msgtype_filter = &disconnected_filter;
 
@@ -662,7 +662,7 @@ bool process_data( Client *client )
 		CLIENT_CHECKPOINT(22);
 		if (client->bytes_received < 1) // this really should never happen.
 		{
-			client->disconnect = 1;
+			client->forceDisconnect();
 			return false;
 		}
 
@@ -777,7 +777,7 @@ bool process_data( Client *client )
 
 			PolLock lck; //multithread
 			// it can happen that a client gets disconnected while waiting for the lock.
-			if (!client->disconnect)
+			if (client->isConnected())
 			{
 				if (client->msgtype_filter->msgtype_allowed[msgtype])
 				{
@@ -934,7 +934,7 @@ void kill_disconnected_clients( void )
 	while (itr != clients.end())
 	{
 		Client* client = *itr;
-		if (client->disconnect)
+		if ( !client->isReallyConnected() )
 		{
 			OSTRINGSTREAM os;
 			os << "Disconnecting Client " << client << "(";
@@ -1000,7 +1000,7 @@ client->checkpoint = 61; //CNXBUG
 	CLIENT_CHECKPOINT(0);
 	try
 	{
-		while (!exit_signalled && !client->disconnect)
+		while ( !exit_signalled && client->isReallyConnected() )
 		{
 			CLIENT_CHECKPOINT(1);
 			int nfds = 0;
@@ -1054,18 +1054,18 @@ client->checkpoint = 61; //CNXBUG
 					}
 					else if (nidle == 30*config.inactivity_disconnect_timeout)
 					{
-						client->disconnect = true;
+						client->forceDisconnect();
 					}
 				}
 			}
 			
 	CLIENT_CHECKPOINT(19);
-			if (client->disconnect)
+			if (!client->isReallyConnected())
 				break;
 
 			if (FD_ISSET( client->csocket, &err_fd ))
 			{
-				client->disconnect = 1;
+				client->forceDisconnect();
 				break;
 			}
 
@@ -1076,7 +1076,7 @@ client->checkpoint = 61; //CNXBUG
 				PacketThrottler pkt = client->movementqueue.front();
 				if (client->SpeedHackPrevention(false))
 				{
-					if (!client->disconnect)
+					if ( client->isReallyConnected() )
 					{
 						unsigned char msgtype = pkt.pktbuffer[0];
 						if ( ( client->ClientType & CLIENTTYPE_6017 ) && (handler_v2[ msgtype ].msglen) )
@@ -1160,7 +1160,7 @@ client->checkpoint = 61; //CNXBUG
 			polclock_t polclock_now = polclock();
 			if ((polclock_now - last_packet_at) >= 120000) //2 mins
 			{
-			   client->disconnect = true;
+				client->forceDisconnect();
 			   break;
 			}
 
@@ -1204,7 +1204,7 @@ CLIENT_CHECKPOINT(20);
 			PolLock lck;
 			clients.erase( find_in( clients, client ) );
 
-			client->Disconnect();
+			client->closeConnection();
 			cout << "Client disconnected from " << AddressToString( &client->ipaddr )
 				 << " (" << clients.size() << " connections)"
 				 << endl;
@@ -1797,12 +1797,12 @@ void check_incoming_data(void)
 	{
 		Client *client = clients[cli];
 
-		if (client->disconnect)
+		if (!client->isReallyConnected())
 			continue;
 
 		if (FD_ISSET( client->csocket, &err_fd ))
 		{
-			client->disconnect = 1;
+			client->forceDisconnect();
 		}
 		
 		if (FD_ISSET( client->csocket, &recv_fd ))
@@ -2371,7 +2371,7 @@ int xmain_inner( int argc, char *argv[] )
 	for( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
 	{
 		Client* sd_client = *itr;
-		sd_client->disconnect = true;
+		sd_client->forceDisconnect();
 	}
 	kill_disconnected_clients();
 

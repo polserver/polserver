@@ -113,9 +113,17 @@ public:
 
 private:
     void PreDelete();
+	bool preDisconnect;
+	bool disconnect;		// if 1, disconnect this client
 
 public:
-    void Disconnect();
+	void Disconnect();
+	void forceDisconnect();
+	bool isActive() const;
+	bool isReallyConnected() const;
+	bool isConnected() const;
+
+    void closeConnection();
     void transmit( const void *data, int len ); // for entire message or header only
     void transmitmore( const void *data, int len ); // for stuff after a header
 
@@ -151,7 +159,6 @@ public:
     unsigned short listen_port;
 	bool aosresist; // UOClient.Cfg Entry
 
-	bool disconnect;		// if 1, disconnect this client
 
 	enum e_recv_states {
 			RECV_STATE_CRYPTSEED_WAIT,
@@ -237,4 +244,27 @@ inline bool Client::have_queued_data() const
 	return (first_xmit_buffer != NULL);
 }
 
+
+// Disconnects client. Might lose packets that were not sent by packetqueue.
+inline void Client::forceDisconnect()
+{
+	this->disconnect = true;
+}
+
+// Checks whether the client is disconnected, and not only marked for disconnection
+inline bool Client::isReallyConnected() const
+{
+	return !(this->disconnect);
+}
+
+// Checks for both planned and executed disconnections
+inline bool Client::isConnected() const
+{
+	return !(this->preDisconnect || this->disconnect);
+}
+
+inline bool Client::isActive() const
+{
+	return this->ready && this->isConnected();
+}
 #endif

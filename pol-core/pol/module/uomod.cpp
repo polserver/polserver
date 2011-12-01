@@ -4200,7 +4200,7 @@ BObjectImp* UOExecutorModule::mf_SendPacket()
 		}
 		else if (client != NULL)
 		{
-			if (!client->disconnect)
+			if (client->isConnected())
 			{
 				ADDTOSENDQUEUE(client, &buffer->buffer, buffer->offset );
 				READDPACKET(buffer);
@@ -4423,19 +4423,17 @@ BObjectImp* UOExecutorModule::mf_DisconnectClient()
     {
 		if (chr != NULL)
 		{
-			if (chr->has_active_client())
-			{
-				chr->client->disconnect = 1;
-				return new BLong(1);
-			}
-			else
+			if (!chr->has_active_client())
 				return new BError( "No client attached" );
+
+			client = chr->client;
 		}
-		else if (client != NULL)
+
+		if (client != NULL)
 		{
-			if (!client->disconnect)
+			if (client->isConnected())
 			{
-				client->disconnect = 1;
+				client->Disconnect();
 				return new BLong(1);
 			}
 			else
