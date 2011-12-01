@@ -61,6 +61,7 @@ Client::Client( ClientInterface& aInterface, TCryptInfo& encryption ) :
     listen_port(0),
 	aosresist(false),
 	disconnect(0),
+	preDisconnect(0),
 	recv_state( RECV_STATE_CRYPTSEED_WAIT ),
     bufcheck1_AA(0xAA),
     buffer(),
@@ -114,7 +115,7 @@ Client::~Client()
 {
 }
 
-void Client::Disconnect()
+void Client::closeConnection()
 {
     Interface.deregister_client( this );
 	_SocketMutex.lock();
@@ -134,7 +135,7 @@ void Client::Disconnect()
 
 void Client::PreDelete()
 {
-    Disconnect();
+    closeConnection();
     // FIXME: TEMPORARY FIX: disassociate the character from the account, so
     // you can log on with another character
     if ((acct != NULL) &&
