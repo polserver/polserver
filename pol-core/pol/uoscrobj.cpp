@@ -1082,7 +1082,7 @@ BObjectImp* Item::script_method_id(const int id, Executor& ex)
 			else if ( amt == this->getamount() )
 				new_stack = this;
 			else
-				new_stack = this->remove_part_of_stack(amt);
+				new_stack = this->remove_part_of_stack((u16)amt);
 			
 			new_stack->x = x;
 			new_stack->y = y;
@@ -1485,7 +1485,7 @@ BObjectImp* Character::get_script_member_id( const int id ) const
 		case MBR_DEAFENED: return new BLong( deafened() ? 1 : 0 ); break;
 
 		case MBR_CLIENT:
-			if ((client != NULL) && (!client->disconnect))
+			if ((client != NULL) && (client->isConnected()))
 				return client->make_ref();
 			else
 				return new BError( "No client attached." );
@@ -3319,7 +3319,7 @@ BObjectImp* EClientRefObjImp::copy() const
 
 bool EClientRefObjImp::isTrue() const
 {
-	return ((obj_.ConstPtr() != NULL) && (!obj_->disconnect));
+	return ((obj_.ConstPtr() != NULL) && obj_->isConnected());
 }
 
 bool EClientRefObjImp::isEqual(const BObjectImp& objimp) const
@@ -3348,7 +3348,7 @@ bool EClientRefObjImp::isEqual(const BObjectImp& objimp) const
 
 BObjectRef EClientRefObjImp::get_member_id( const int id )
 {
-	if ((obj_.ConstPtr() == NULL) || (obj_->disconnect))
+	if ((obj_.ConstPtr() == NULL) || (!obj_->isConnected()))
 		return BObjectRef(new BError( "Client not ready or disconnected" ));
 	switch(id)
 	{
@@ -3389,7 +3389,7 @@ BObjectRef EClientRefObjImp::get_member_id( const int id )
 
 BObjectRef EClientRefObjImp::get_member( const char* membername )
 {
-	if ((obj_.ConstPtr() == NULL) || (obj_->disconnect))
+	if ((obj_.ConstPtr() == NULL) || (!obj_->isConnected()))
 		return BObjectRef(new BError( "Client not ready or disconnected" ));
 	ObjMember* objmember = getKnownObjMember(membername);
 	if( objmember != NULL )
@@ -3400,7 +3400,7 @@ BObjectRef EClientRefObjImp::get_member( const char* membername )
 
 BObjectRef EClientRefObjImp::set_member( const char* membername, BObjectImp* value )
 {
-	if ((obj_.ConstPtr() == NULL) || (obj_->disconnect))
+	if ((obj_.ConstPtr() == NULL) || (!obj_->isConnected()))
 		return BObjectRef(new BError( "Client not ready or disconnected" ));
 	ObjMember* objmember = getKnownObjMember(membername);
 	if ( objmember != NULL )
@@ -3411,7 +3411,7 @@ BObjectRef EClientRefObjImp::set_member( const char* membername, BObjectImp* val
 
 BObjectRef EClientRefObjImp::set_member_id( const int id, BObjectImp* value )
 {
-	if ((obj_.ConstPtr() == NULL) || (obj_->disconnect))
+	if ((obj_.ConstPtr() == NULL) || (!obj_->isConnected()))
 		return BObjectRef(new BError( "Client not ready or disconnected" ));
 	return BObjectRef(UninitObject::create());
 	//BObjectImp* result = NULL;
@@ -3443,7 +3443,7 @@ BObjectRef EClientRefObjImp::set_member_id( const int id, BObjectImp* value )
 
 BObjectImp* EClientRefObjImp::call_method( const char* methodname, Executor& ex )
 {
-	if ((obj_.ConstPtr() == NULL) || (obj_->disconnect))
+	if ((obj_.ConstPtr() == NULL) || (!obj_->isConnected()))
 		return new BError( "Client not ready or disconnected" );
 	ObjMethod* objmethod = getKnownObjMethod(methodname);
 	if ( objmethod != NULL )
@@ -3453,7 +3453,7 @@ BObjectImp* EClientRefObjImp::call_method( const char* methodname, Executor& ex 
 
 BObjectImp* EClientRefObjImp::call_method_id( const int id, Executor& ex, bool forcebuiltin )
 {
-	if ((obj_.ConstPtr() == NULL) || (obj_->disconnect))
+	if ((obj_.ConstPtr() == NULL) || (!obj_->isConnected()))
 		return new BError( "Client not ready or disconnected" );
 
 	switch (id)

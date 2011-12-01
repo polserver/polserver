@@ -119,7 +119,7 @@ BObjectImp* AccountObjImp::call_method_id( const int id, Executor& ex, bool forc
 			if (obj_->active_character)
 			{
 				if (obj_->active_character->client)
-					obj_->active_character->client->disconnect = true;
+					obj_->active_character->client->Disconnect();
 			}
 		}
 		else
@@ -153,7 +153,7 @@ BObjectImp* AccountObjImp::call_method_id( const int id, Executor& ex, bool forc
 			if (obj_->active_character)
 			{
 				if (obj_->active_character->client)
-					obj_->active_character->client->disconnect = true;
+					obj_->active_character->client->Disconnect();
 			}
 			break;
 		}

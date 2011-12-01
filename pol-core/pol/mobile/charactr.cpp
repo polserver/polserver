@@ -674,7 +674,7 @@ void Character::disconnect_cleanup()
 
 bool Character::has_active_client() const
 {
-	return (client && client->ready && !client->disconnect);
+	return (client && client->isActive());
 }
 
 bool Character::has_active_prompt() const

@@ -108,7 +108,7 @@ void loginserver_login( Client *client, PKTIN_80 *msg )
     if (is_banned_ip( client ))
     {
         send_login_error( client, LOGIN_ERROR_ACCOUNT_BLOCKED );
-        client->disconnect = 1;
+        client->Disconnect();
         return;
     }
 
@@ -116,7 +116,7 @@ void loginserver_login( Client *client, PKTIN_80 *msg )
 	if (!acct)
 	{
 		send_login_error( client, LOGIN_ERROR_NO_ACCOUNT );
-		client->disconnect = 1;
+		client->Disconnect();
 		return;
 	}
 
@@ -131,7 +131,7 @@ void loginserver_login( Client *client, PKTIN_80 *msg )
 	if (!correct_password)
 	{
 		send_login_error( client, LOGIN_ERROR_WRONG_PASSWORD );
-		client->disconnect = 1;
+		client->Disconnect();
         Log( "Incorrect password for account %s from %s\n",
              acct->name(),
              AddressToString( &client->ipaddr ) );
@@ -149,7 +149,7 @@ void loginserver_login( Client *client, PKTIN_80 *msg )
     if (!acct->enabled() || acct->banned())
     {
         send_login_error( client, LOGIN_ERROR_ACCOUNT_BLOCKED );
-        client->disconnect = 1;
+        client->Disconnect();
         return;
     }
 
@@ -259,7 +259,7 @@ void select_server(Client *client, PKTIN_A0 *msg ) // Relay player to a certain 
 
 	if (servernum >= servers.size())
 	{
-		client->disconnect = 1;
+		client->Disconnect();
 		return;
 	}
 
@@ -389,7 +389,7 @@ void login2(Client *client, PKTIN_91 *msg) // Gameserver login and character lis
     if (is_banned_ip( client ))
     {
         send_login_error( client, LOGIN_ERROR_ACCOUNT_BLOCKED );
-        client->disconnect = 1;
+        client->Disconnect();
         return;
     }
 
@@ -400,7 +400,7 @@ void login2(Client *client, PKTIN_91 *msg) // Gameserver login and character lis
 	if (acct == NULL)
 	{
 		send_login_error( client, LOGIN_ERROR_NO_ACCOUNT );
-		client->disconnect = 1;
+		client->Disconnect();
 		return;
 	}
 
@@ -417,7 +417,7 @@ void login2(Client *client, PKTIN_91 *msg) // Gameserver login and character lis
 	if (!correct_password)
 	{
 		send_login_error( client, LOGIN_ERROR_WRONG_PASSWORD );
-		client->disconnect = 1;
+		client->Disconnect();
         Log( "Incorrect password for account %s from %s\n",
              acct->name(),
              AddressToString( &client->ipaddr ) );
@@ -436,7 +436,7 @@ void login2(Client *client, PKTIN_91 *msg) // Gameserver login and character lis
     if (!acct->enabled() || acct->banned())
     {
         send_login_error( client, LOGIN_ERROR_ACCOUNT_BLOCKED );
-        client->disconnect = 1;
+        client->Disconnect();
         return;
     }
 
@@ -493,7 +493,7 @@ void handle_delete_character( Client* client, PKTIN_83* msg )
         (client->acct->get_character( charidx ) == NULL))
 	{
 		send_login_error( client, LOGIN_ERROR_MISC );
-		client->disconnect = 1;
+		client->Disconnect();
 		return;
 	}
 
@@ -503,7 +503,7 @@ void handle_delete_character( Client* client, PKTIN_83* msg )
         acct->active_character != NULL) // this account has a currently active character.
 	{
 		send_login_error( client, LOGIN_ERROR_OTHER_CHAR_INUSE );
-		client->disconnect = 1;
+		client->Disconnect();
 		return;
     }
     
