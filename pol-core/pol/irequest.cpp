@@ -61,7 +61,7 @@ void send_skillmsg( Client *client, const Character *chr )
 	else
 		msg->Write(static_cast<u8>(PKTBI_3A_VALUES::FULL_LIST));
 
-	for( unsigned int i = 0; i <= uoclient_general.maxskills; ++i )
+	for( unsigned short i = 0; i <= uoclient_general.maxskills; ++i )
 	{
 		const UOSkill& uoskill = GetUOSkill(i);
 		msg->WriteFlipped(static_cast<u16>(i+1)); // for some reason, we send this 1-based
