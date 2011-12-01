@@ -1,4 +1,8 @@
 -- POL099 --
+12-01-2011 Tomi:
+  Changed: Polcfg setting MaxObjtype now limited to max 0xFFFFFF (16777215)
+  Note:    Try to keep it as low as possible
+
 12-01-2011 MuadDib:
   Changed: UoClientGeneral.maxskills changed to unsigned short. Few places in loops with it changed to use same for the loop counter.
 
