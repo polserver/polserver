@@ -64,7 +64,7 @@ Item* Item::create( u32 objtype, u32 serial )
 	else if (objtype <= config.max_tile_id)
 	{
 		temp_itemdesc.objtype = objtype;
-		temp_itemdesc.graphic = objtype;
+		temp_itemdesc.graphic = static_cast<u16>(objtype);
 		return create( temp_itemdesc, serial );
 	}
 	else
