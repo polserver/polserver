@@ -271,11 +271,9 @@ void UObject::readProperties( ConfigElem& elem )
     name_ = elem.remove_string( "NAME", "" );
 
     // serial, objtype extracted by caller
-    u32 graphic = elem.remove_unsigned( "GRAPHIC", objtype_ );
+    u16 graphic = elem.remove_ushort( "GRAPHIC", static_cast<u16>(objtype_) );
     if (graphic > (config.max_tile_id))
-        graphic = static_cast<u16>(GRAPHIC_NODRAW);
-	else
-		graphic = static_cast<u16>(graphic);
+        graphic = GRAPHIC_NODRAW;
 
     height = tileheight( graphic );
 
