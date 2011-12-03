@@ -21,10 +21,10 @@ void ClientTransmit::AddToQueue(Client* client, const void *data, int len)
 	transmitdata.len=len;
 	transmitdata.data.assign(message,message+len);
 	transmitdata.disconnects = false;
-
-	_TransmitQueueMutex.lock();
-	_transmitqueue.push(transmitdata);
-	_TransmitQueueMutex.unlock();
+	{
+		LocalMutex guard(&_TransmitQueueMutex);
+		_transmitqueue.push(transmitdata);
+	}
 	send_ClientTransmit_pulse();
 }
 
@@ -32,31 +32,28 @@ void ClientTransmit::QueueDisconnection(Client* client)
 {
 	TransmitData transmitdata;
 	transmitdata.disconnects = true;
-
-	_TransmitQueueMutex.lock();
-	_transmitqueue.push(transmitdata);
-	_TransmitQueueMutex.unlock();
+	{
+		LocalMutex guard(&_TransmitQueueMutex);
+		_transmitqueue.push(transmitdata);
+	}
 	send_ClientTransmit_pulse();
 }
 
 bool ClientTransmit::HasQueueEntries()
 {
-	_TransmitQueueMutex.lock();
-	bool ret = !_transmitqueue.empty();
-	_TransmitQueueMutex.unlock();
-	return ret;
+	LocalMutex guard(&_TransmitQueueMutex);
+	return !_transmitqueue.empty();
 }
 
 TransmitData ClientTransmit::NextQueueEntry()
 {
 	TransmitData data;
-	_TransmitQueueMutex.lock();
+	LocalMutex guard(&_TransmitQueueMutex);
 	if (!_transmitqueue.empty())
 	{
 		data = _transmitqueue.front();
 		_transmitqueue.pop();
 	}
-	_TransmitQueueMutex.unlock();
 	return data;
 }
 

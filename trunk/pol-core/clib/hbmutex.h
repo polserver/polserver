@@ -41,4 +41,34 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
+// Small mod: Guard Class for exception safe lock
+class LocalMutex
+{
+public:
+	inline LocalMutex(Mutex* mutex);
+	inline ~LocalMutex();
+	inline void unlock();
+private:
+	Mutex* _mutex;
+	LocalMutex( LocalMutex& ); 
+	LocalMutex& operator=( LocalMutex& );
+	LocalMutex(const Mutex*);
+};
+inline LocalMutex::LocalMutex(Mutex* mutex):_mutex(mutex)
+{
+	_mutex->lock();
+}
+inline LocalMutex::~LocalMutex()
+{
+	_mutex->unlock();
+}
+inline void LocalMutex::unlock()
+{
+	if (_mutex != 0)
+	{
+		_mutex->unlock();
+		_mutex = 0;
+	}
+}
+
 #endif
