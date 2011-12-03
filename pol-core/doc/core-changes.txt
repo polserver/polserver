@@ -1,5 +1,9 @@
 ﻿-- POL099 --
-01-12-2011 Nando:
+12-03-2011 Tomi:
+    Changed: startlocs.cfg readded default values for MapID ( 0 ) and Cliloc ( 1075072 which is the Yew town information )
+             Pol doesnt anymore throw an error if these values are missing.
+
+12-01-2011 Nando:
     Fixed: Client hanging after having his connection refused on login. I recommend testing
            different ways of having a client disconnected, like acct.disable(), .ban() and others.
 
