@@ -36,6 +36,8 @@ void handle_use_skill(Client *client, PKTIN_12 *msg)
 		return;
 
 	const UOSkill& uoskill = GetUOSkill(skillnum);
+	if (!uoskill.inited)
+		return;
 	const Attribute* attrib = uoskill.pAttr;
 
 	if ( !attrib->disable_core_checks && !CanUseSkill(client) )

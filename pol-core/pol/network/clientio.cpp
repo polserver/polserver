@@ -42,9 +42,11 @@ void Client::recv_remaining( int total_expected)
 	int count;
     int max_expected = total_expected - bytes_received;
 
-	_SocketMutex.lock();
-	count = cryptengine->Receive(&buffer[bytes_received],max_expected,csocket);
-	_SocketMutex.unlock();
+	{
+		LocalMutex guard(&_SocketMutex);
+		count = cryptengine->Receive(&buffer[bytes_received],max_expected,csocket);
+	}
+
 	if (count > 0)
 	{
         passert( count <= max_expected );
@@ -68,11 +70,13 @@ void Client::recv_remaining( int total_expected)
 void Client::recv_remaining_nocrypt( int total_expected)
 {
 	int count;
-	_SocketMutex.lock();
-	count=recv(csocket, 
-		       (char *) &buffer[ bytes_received ], 
-			   total_expected - bytes_received, 0);
-	_SocketMutex.unlock();
+
+	{
+		LocalMutex guard(&_SocketMutex);
+		count=recv(csocket, 
+				   (char *) &buffer[ bytes_received ], 
+				   total_expected - bytes_received, 0);
+	}
 	if (count > 0)
     {
         bytes_received += count;
