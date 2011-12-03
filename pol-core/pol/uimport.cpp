@@ -1197,8 +1197,8 @@ void read_starting_locations()
 		auto_ptr<StartingLocation> loc( new StartingLocation );
 		loc->city = elem.remove_string( "CITY" );
 		loc->desc = elem.remove_string( "DESCRIPTION" );
-		loc->mapid = elem.remove_ushort( "MAPID" );
-		loc->cliloc_desc = elem.remove_unsigned( "CLILOC" );
+		loc->mapid = elem.remove_ushort( "MAPID", 0 );
+		loc->cliloc_desc = elem.remove_unsigned( "CLILOC", 1075072 );
 
 		string coord;
 		while( elem.remove_prop( "Coordinate", &coord ))
@@ -1216,10 +1216,6 @@ void read_starting_locations()
 					 << loc->city
 					 << ", description "
 					 << loc->desc
-					 << ", mapid "
-					 << loc->mapid
-					 << ", cliloc "
-					 << loc->cliloc_desc
 					 << endl;
 				throw runtime_error( "Configuration file error in startloc.cfg." );
 			}
