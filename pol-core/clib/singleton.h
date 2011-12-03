@@ -21,13 +21,12 @@ class Singleton
 		{
 			if (!_instance)
 			{
-				_SingletonMutex.lock(); //critical double check
+				LocalMutex guard(&_SingletonMutex); //critical double check
 				if (!_instance)
 				{
 					_instance = new T();
 					atexit(&Singleton<T>::_cleanup);
 				}
-				_SingletonMutex.unlock();
 			}
 			return _instance;
 		}
