@@ -1113,6 +1113,43 @@ void ClientCreateChar70160( Client* client, PKTIN_F8* msg)
 	if (pAttrDexterity)
 		chr->attribute(pAttrDexterity->attrid).base( msg->Dexterity * 10 );
 
+	// With latest clients EA broke the prof.txt, added Evaluating Intelligence and Spirit Speak which returns SkillNumber 0xFF
+	// Check for it here to not crash the client during char creation
+	bool broken_prof = (msg->SkillNumber1 == 0xFF || msg->SkillNumber2 == 0xFF || msg->SkillNumber3 == 0xFF || msg->SkillNumber4 == 0xFF) && msg->profession;
+
+	if (broken_prof)
+	{
+		unsigned char temp_skillid = 0;
+
+		if (msg->profession == 2) // Mage profession
+			temp_skillid = SKILLID_EVALUATINGINTEL;
+		if (msg->profession == 4) // Necromancy profession
+			temp_skillid = SKILLID_SPIRITSPEAK;
+
+
+		if (msg->SkillNumber1 == 0xFF)
+		{
+			msg->SkillNumber1 = temp_skillid;
+			msg->SkillValue1 = 30;
+		}
+		else if (msg->SkillNumber2 == 0xFF)
+		{
+			msg->SkillNumber2 = temp_skillid;
+			msg->SkillValue2 = 30;
+		}
+		else if (msg->SkillNumber3 == 0xFF)
+		{
+			msg->SkillNumber3 = temp_skillid;
+			msg->SkillValue3 = 30;
+		}
+		else if (msg->SkillNumber4 == 0xFF)
+		{
+			msg->SkillNumber4 = temp_skillid;
+			msg->SkillValue4 = 30;
+		}
+	}
+
+
 	if (msg->SkillNumber1 > uoclient_general.maxskills ||
 		msg->SkillNumber2 > uoclient_general.maxskills ||
 		msg->SkillNumber3 > uoclient_general.maxskills ||
@@ -1122,7 +1159,9 @@ void ClientCreateChar70160( Client* client, PKTIN_F8* msg)
 		client->Disconnect();
 		return;
 	}
+
 	bool noskills = (msg->SkillValue1 + msg->SkillValue2 + msg->SkillValue3 + msg->SkillValue4 == 0) && msg->profession;
+	
 	if ((!noskills) && ((msg->SkillValue1 + msg->SkillValue2 + msg->SkillValue3 + msg->SkillValue4 != 120) ||
 		msg->SkillValue1 > 50 ||
 		msg->SkillValue2 > 50 ||
