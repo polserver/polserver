@@ -259,6 +259,7 @@ public:
 	BObjectImp* mf_PlayStationaryEffect_Ex(/*x,y,z,realm,effect,speed,duration,hue,render,layer,explode,effect3d*/);
 
 	BObjectImp* mf_UpdateMobile(/*mob*/);
+	BObjectImp* mf_UpdateItem(/*item*/);
 	BObjectImp* mf_CheckLosBetween(/*x1,y1,z1,x2,y2,z2,realm*/);
 
 	BObjectImp* mf_PlaySoundEffectXYZ(/*x,y,z,effect,realm*/);
