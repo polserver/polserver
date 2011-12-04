@@ -5600,8 +5600,22 @@ BObjectImp* UOExecutorModule::mf_UpdateMobile()
 		}
 		return new BLong(1);
 	}
-	return new BLong(0);
+	return new BError( "Invalid parameter type" );
+}
 
+BObjectImp* UOExecutorModule::mf_UpdateItem()
+{
+	Item* item;
+
+	if(getItemParam(exec, 0, item))
+	{
+		send_item_to_inrange( item );
+		return new BLong(1);
+	}
+	else
+	{
+		return new BError( "Invalid parameter type" );
+	}
 }
 
 UFACING direction_toward( xcoord from_x, ycoord from_y, xcoord to_x, ycoord to_y );
@@ -5937,6 +5951,7 @@ UOFunctionDef UOExecutorModule::function_table[] =
 	{ "PlayMovingEffectEx",     &UOExecutorModule::mf_PlayMovingEffect_Ex },
 	{ "PlayMovingEffectXyzEx",  &UOExecutorModule::mf_PlayMovingEffectXyz_Ex },
 
+	{ "UpdateItem",				&UOExecutorModule::mf_UpdateItem },
 	{ "UpdateMobile",           &UOExecutorModule::mf_UpdateMobile },
 	{ "CheckLosBetween",        &UOExecutorModule::mf_CheckLosBetween },
     { "CanWalk",                &UOExecutorModule::mf_CanWalk },
