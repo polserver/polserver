@@ -1,5 +1,6 @@
 ﻿-- POL099 --
 12-04-2011 Tomi:
+    Fixed:  EA broke the prof.txt with the latest clients adding "Evaluating Intelligence" and "Spirit Speak" with spaces that resulted into skillnumber 0xFF and skillvalue 0
     Added:  UO::UpdateItem( item );
             updates the item to every client in range, good to use for example after returning 1 in some packethook and the item get invisible.
 
