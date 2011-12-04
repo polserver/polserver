@@ -1,4 +1,8 @@
 ﻿-- POL099 --
+12-04-2011 Tomi:
+    Added:  UO::UpdateItem( item );
+            updates the item to every client in range, good to use for example after returning 1 in some packethook and the item get invisible.
+
 12-03-2011 Tomi:
     Changed: startlocs.cfg readded default values for MapID ( 0 ) and Cliloc ( 1075072 which is the Yew town information )
              Pol doesnt anymore throw an error if these values are missing.
