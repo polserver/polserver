@@ -1,4 +1,7 @@
 ﻿-- POL099 --
+12-05-2011 Tomi:
+    Fixed:  Door methods .open() and .close() were working opposite what they should.
+
 12-04-2011 Tomi:
     Fixed:  EA broke the prof.txt with the latest clients adding "Evaluating Intelligence" and "Spirit Speak" with spaces that resulted into skillnumber 0xFF and skillvalue 0
     Added:  UO::UpdateItem( item );
