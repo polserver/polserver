@@ -52,7 +52,7 @@ void UDoor::toggle()
         if (dd.graphic)
 			graphic = dd.graphic;
 		else
-			graphic = objtype_;
+			graphic = static_cast<u16>(objtype_);
 		x -= dd.xmod;
 		y -= dd.ymod;
     }
@@ -80,12 +80,12 @@ bool UDoor::is_open() const
 
 void UDoor::open()
 {
-    if (is_open())
+    if (!is_open())
         toggle();
 }
 
 void UDoor::close()
 {
-    if (!is_open())
+    if (is_open())
 	    toggle();
 }
