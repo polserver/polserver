@@ -72,7 +72,7 @@ void read_servspecopt()
 	ssopt.allow_moving_trade = elem.remove_bool("AllowMovingTrade",false);
 	ssopt.core_handled_locks = elem.remove_bool("CoreHandledLocks",false);
 	ssopt.default_attribute_cap = elem.remove_ushort("DefaultAttributeCap", 1000); // 100.0
-	ssopt.default_max_slots = static_cast<unsigned char>(elem.remove_ushort("MaxContainerSlots", 125));
+	ssopt.default_max_slots = static_cast<unsigned char>(elem.remove_ushort("MaxContainerSlots", 125)); // this is fine as is, yeah we cast it but 0-255 what we want.
 	ssopt.use_slot_index = elem.remove_bool("UseContainerSlots",false);
 	ssopt.use_edit_server = elem.remove_bool("EditServer",false);
 	ssopt.carrying_capacity_mod = elem.remove_double("CarryingCapacityMod",1.0);
