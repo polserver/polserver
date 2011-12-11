@@ -32,6 +32,7 @@ void ClientTransmit::QueueDisconnection(Client* client)
 {
 	TransmitData transmitdata;
 	transmitdata.disconnects = true;
+	transmitdata.client = client;
 	{
 		LocalMutex guard(&_TransmitQueueMutex);
 		_transmitqueue.push(transmitdata);
