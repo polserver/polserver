@@ -259,7 +259,7 @@ void select_server(Client *client, PKTIN_A0 *msg ) // Relay player to a certain 
 
 	if (servernum >= servers.size())
 	{
-		client->Disconnect();
+		client->forceDisconnect();
 		return;
 	}
 

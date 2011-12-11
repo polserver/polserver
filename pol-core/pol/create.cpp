@@ -213,11 +213,12 @@ void ClientCreateChar( Client* client, PKTIN_00* msg)
 	if ( client->acct == NULL )
 	{
 		cerr << "Client from " << AddressToString( &client->ipaddr ) << " tried to create a character without an account!" << endl;
-		client->Disconnect();
+		client->forceDisconnect();
 		return;
 	}
 	else if ( config.min_cmdlevel_to_login > client->acct->default_cmdlevel() )
 	{
+		// FIXME: Add send_login_error!
 		client->Disconnect();
 		return;
 	}
@@ -304,7 +305,7 @@ void ClientCreateChar( Client* client, PKTIN_00* msg)
 		
 		cerr << "Create Character: Attempted to use invalid character '"<<tmpchr<<"' pos '"<<i<<"' in name '"<<tstr<<"'. Client IP: "
 			<< client->ipaddrAsString() << " Client Name: " << client->acct->name()<< endl;
-	        client->Disconnect();
+	        client->forceDisconnect();
 		    return;
 	}
 	chr->name_ = tstr; 
@@ -357,7 +358,7 @@ void ClientCreateChar( Client* client, PKTIN_00* msg)
 			cerr << ssopt.total_stats_at_creation[sidx];
 		}
 		cerr << endl;
-		client->Disconnect();
+		client->forceDisconnect();
 		return;
 	}
 	if (msg->Strength < 10 || msg->Intelligence < 10 || msg->Dexterity < 10)
@@ -368,7 +369,7 @@ void ClientCreateChar( Client* client, PKTIN_00* msg)
 			 << " Dex=" << msg->Dexterity
 			 << endl;
 
-		client->Disconnect();
+		client->forceDisconnect();
 		return;
 	}
 	if (pAttrStrength)
@@ -383,7 +384,7 @@ void ClientCreateChar( Client* client, PKTIN_00* msg)
 		msg->SkillNumber3 > uoclient_general.maxskills)
 	{
 		cerr << "Create Character: A skill number was out of range" << endl;
-		client->Disconnect();
+		client->forceDisconnect();
 		return;
 	}
 	bool noskills = (msg->SkillValue1 + msg->SkillValue2 + msg->SkillValue3 == 0) && msg->profession;
@@ -393,7 +394,7 @@ void ClientCreateChar( Client* client, PKTIN_00* msg)
 		msg->SkillValue3 > 50))
 	{
 		cerr << "Create Character: Starting skill values incorrect" << endl;
-		client->Disconnect();
+		client->forceDisconnect();
 		return;
 	}
 
@@ -605,6 +606,7 @@ void ClientCreateCharKR( Client* client, PKTIN_8D* msg)
 	}
 	else if ( config.min_cmdlevel_to_login > client->acct->default_cmdlevel() )
 	{
+		// FIXME: Add send_login_error ...
 		client->Disconnect();
 		return;
 	}
@@ -656,7 +658,7 @@ void ClientCreateCharKR( Client* client, PKTIN_8D* msg)
 		
 		cerr << "Create Character: Attempted to use invalid character '"<<tmpchr<<"' pos '"<<i<<"' in name '"<<tstr<<"'. Client IP: "
 			<< client->ipaddrAsString() << " Client Name: " << client->acct->name()<< endl;
-	        client->Disconnect();
+	        client->forceDisconnect();
 		    return;
 	}
 	chr->name_ = tstr; 
@@ -709,7 +711,7 @@ void ClientCreateCharKR( Client* client, PKTIN_8D* msg)
 			cerr << ssopt.total_stats_at_creation[sidx];
 		}
 		cerr << endl;
-		client->Disconnect();
+		client->forceDisconnect();
 		return;
 	}
 	if (msg->strength < 10 || msg->intelligence < 10 || msg->dexterity < 10)
@@ -720,7 +722,7 @@ void ClientCreateCharKR( Client* client, PKTIN_8D* msg)
 			 << " Dex=" << msg->dexterity
 			 << endl;
 
-		client->Disconnect();
+		client->forceDisconnect();
 		return;
 	}
 	if (pAttrStrength)
@@ -737,7 +739,7 @@ void ClientCreateCharKR( Client* client, PKTIN_8D* msg)
 		msg->skillnumber4 > uoclient_general.maxskills)
 	{
 		cerr << "Create Character: A skill number was out of range" << endl;
-		client->Disconnect();
+		client->forceDisconnect();
 		return;
 	}
 
@@ -749,7 +751,7 @@ void ClientCreateCharKR( Client* client, PKTIN_8D* msg)
 		msg->skillvalue4 > 50))
 	{
 		cerr << "Create Character: Starting skill values incorrect" << endl;
-		client->Disconnect();
+		client->forceDisconnect();
 		return;
 	}
 
@@ -948,11 +950,12 @@ void ClientCreateChar70160( Client* client, PKTIN_F8* msg)
 	if ( client->acct == NULL )
 	{
 		cerr << "Client from " << AddressToString( &client->ipaddr ) << " tried to create a character without an account!" << endl;
-		client->Disconnect();
+		client->forceDisconnect();
 		return;
 	}
 	else if ( config.min_cmdlevel_to_login > client->acct->default_cmdlevel() )
 	{
+		// FIXME: Add send_login_error() here! 
 		client->Disconnect();
 		return;
 	}
@@ -1092,7 +1095,7 @@ void ClientCreateChar70160( Client* client, PKTIN_F8* msg)
 			cerr << ssopt.total_stats_at_creation[sidx];
 		}
 		cerr << endl;
-		client->Disconnect();
+		client->forceDisconnect();
 		return;
 	}
 	if (msg->Strength < 10 || msg->Intelligence < 10 || msg->Dexterity < 10)
@@ -1103,7 +1106,7 @@ void ClientCreateChar70160( Client* client, PKTIN_F8* msg)
 			 << " Dex=" << msg->Dexterity
 			 << endl;
 
-		client->Disconnect();
+		client->forceDisconnect();
 		return;
 	}
 	if (pAttrStrength)
@@ -1156,7 +1159,7 @@ void ClientCreateChar70160( Client* client, PKTIN_F8* msg)
 		msg->SkillNumber4 > uoclient_general.maxskills )
 	{
 		cerr << "Create Character: A skill number was out of range" << endl;
-		client->Disconnect();
+		client->forceDisconnect();
 		return;
 	}
 
@@ -1169,7 +1172,7 @@ void ClientCreateChar70160( Client* client, PKTIN_F8* msg)
 		msg->SkillValue4 > 50))
 	{
 		cerr << "Create Character: Starting skill values incorrect" << endl;
-		client->Disconnect();
+		client->forceDisconnect();
 		return;
 	}
 
