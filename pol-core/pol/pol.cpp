@@ -851,6 +851,21 @@ bool process_data( Client *client )
 		}
 		// else keep waiting 
 	}
+	else if (client->recv_state == Client::RECV_STATE_CLIENTVERSION_WAIT)
+	{
+		client->recv_remaining_nocrypt(21); // receive and send to handler to get directly the version
+		if (client->bytes_received == 21)
+		{
+			client->recv_state = Client::RECV_STATE_MSGTYPE_WAIT;
+			unsigned char tempseed[4];
+			tempseed[0] = client->buffer[1];
+			tempseed[1] = client->buffer[2];
+			tempseed[2] = client->buffer[3];
+			tempseed[3] = client->buffer[4];
+			client->cryptengine->Init( tempseed, CCryptBase::typeLogin );
+			(*handler[PKTIN_EF_ID].func)(client, client->buffer);
+		}
+	}
 	else if (client->recv_state == Client::RECV_STATE_CRYPTSEED_WAIT)
 	{	   // The abnormal case.  
 			// The first four bytes after connection are the 
@@ -906,15 +921,7 @@ bool process_data( Client *client )
 				{
 					printf( "6.0.5.0+ Crypt Seed Message Received: Type 0x%X\n", cstype );
 				}
-				client->recv_state = Client::RECV_STATE_MSGTYPE_WAIT;
-				client->recv_remaining_nocrypt(21); // receive and send to handler to get directly the version
-				unsigned char tempseed[4];
-				tempseed[0] = client->buffer[1];
-				tempseed[1] = client->buffer[2];
-				tempseed[2] = client->buffer[3];
-				tempseed[3] = client->buffer[4];
-				client->cryptengine->Init( tempseed, CCryptBase::typeLogin );
-				(*handler[PKTIN_EF_ID].func)(client, client->buffer);
+				client->recv_state = Client::RECV_STATE_CLIENTVERSION_WAIT;
 			}
 			else
 			{
