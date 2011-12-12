@@ -108,11 +108,11 @@ BlockDesc& Scope::pushblock()
 	return blockdescs_.back();
 }
 
-void Scope::popblock()
+void Scope::popblock(bool varsOnly = false)
 {
 	BlockDesc& bd = blockdescs_.back();
 
-	while (bd.varcount--)
+	for (;bd.varcount;bd.varcount--) // To enable popping variables only
 	{
 		Variable& bk = variables_.back();
 		if (!bk.used && compilercfg.DisplayWarnings)
@@ -123,7 +123,7 @@ void Scope::popblock()
 		variables_.pop_back();
 	}
 
-	blockdescs_.pop_back();
+	if (!varsOnly) blockdescs_.pop_back();
 }
 
 void Scope::addvar( const string& varname, const CompilerContext& ctx, bool warn_on_notused )
@@ -1841,18 +1841,23 @@ int Compiler::handleDoClause(CompilerContext& ctx, int level)
 	emit_leaveblock();
 
 	program->update_dbg_pos( endblock_tkn );
-		// continue should jump to where the WHILE expression is evaluated.
+
+	// continue should jump to where the WHILE expression is evaluated,
+	// which is the next token after this block
 	patchblock_continues( program->tokens.next() );
 	program->setstatementbegin();
-	localscope.popblock();
-    res = getExpr(ctx, EXPR_FLAG_SEMICOLON_TERM_ALLOWED );
+
+	localscope.popblock(true); // Pop only variables.
+	res = getExpr(ctx, EXPR_FLAG_SEMICOLON_TERM_ALLOWED );
 	if (res < 0) return res;
-
-			// do-while loops until its expression evaluates to false.
 	program->append(StoredToken(Mod_Basic, RSV_JMPIFTRUE, TYP_RESERVED, body_start));
-
-		// break should completely exit, of course.
+	// break should completely exit, of course.
 	patchblock_breaks( program->tokens.next() );
+	localscope.popblock(); // Pop block.
+
+	// do-while loops until its expression evaluates to false.
+
+
 
 	program->leaveblock();
 
@@ -1876,22 +1881,22 @@ int Compiler::handleRepeatUntil(CompilerContext& ctx, int level)
 	}
 	
 	emit_leaveblock();
-		
+
 	program->update_dbg_pos( endblock_tkn );
-        // continue should jump to where the UNTIL expression is evaluated.
-    patchblock_continues( program->tokens.next() );
-    program->setstatementbegin();
-    localscope.popblock();
-    res = getExpr(ctx, EXPR_FLAG_SEMICOLON_TERM_ALLOWED );
-    if (res < 0) return res;
-
-		// repeat-until loops until its expression evaluates to true.
+	// continue should jump to where the UNTIL expression is evaluated.
+	patchblock_continues( program->tokens.next() );
+	program->setstatementbegin();
+	localscope.popblock(true);
+	res = getExpr(ctx, EXPR_FLAG_SEMICOLON_TERM_ALLOWED );
+	if (res < 0) return res;
+	// repeat-until loops until its expression evaluates to true.
 	program->append(StoredToken(Mod_Basic, RSV_JMPIFFALSE, TYP_RESERVED, body_start));
+	// break should completely exit, of course.
+	patchblock_breaks( program->tokens.next() );
+	localscope.popblock();
 
-        // break should completely exit, of course.
-    patchblock_breaks( program->tokens.next() );
-    
-    program->leaveblock();
+
+	program->leaveblock();
 
 	return 0;
 }
