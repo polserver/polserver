@@ -73,7 +73,7 @@ class Scope
 {
 public:
     BlockDesc& pushblock();
-    void popblock();
+    void popblock(bool varsOnly);
     void addvar( const std::string& varname, const CompilerContext& ctx, bool warn_on_notused = true );
     void addvalue();
     bool inblock() const { return !blockdescs_.empty(); }

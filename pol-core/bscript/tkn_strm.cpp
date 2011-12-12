@@ -132,7 +132,7 @@ void Token::printOn(ostream& os) const
 		case RSV_JMPIFTRUE:		 os << "if true goto " << lval;  break;
 		case RSV_JMPIFFALSE:		os << "if false goto " << lval; break;
 		case RSV_ST_IF:			 os << "if"; break;
-		case RSV_GOTO:			  os << "goto" << lval;   break;
+		case RSV_GOTO:			  os << "goto " << lval;   break;
 		case RSV_GOSUB:			 os << "gosub" << lval;  break;
 		case RSV_EXIT:			  os << "exit";		   break;
 		case RSV_RETURN:			os << "return";		 break;
