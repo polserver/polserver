@@ -821,7 +821,7 @@ void send_item( Client *client, const Item *item )
 		msg->offset++; // datatype
 		msg->Write(item->serial_ext);
 		msg->WriteFlipped(item->graphic);
-		msg->Write((u8)0);
+		msg->Write(static_cast<u8>(0));
 		msg->WriteFlipped(item->get_senditem_amount());
 		msg->WriteFlipped(item->get_senditem_amount());
 		msg->WriteFlipped(item->x);
@@ -2207,13 +2207,13 @@ void move_boat_item( Item* item, unsigned short newx, unsigned short newy, signe
 	msg2->offset++; // datatype
 	msg2->Write(item->serial_ext);
 	msg2->WriteFlipped(item->graphic);
-	msg2->Write(item->facing);
+	msg2->Write(static_cast<u8>(0));
 	msg2->WriteFlipped(static_cast<u16>(0x1));
 	msg2->WriteFlipped(static_cast<u16>(0x1));
 	msg2->WriteFlipped(item->x);
 	msg2->WriteFlipped(item->y);
 	msg2->Write(item->z);
-	msg2->offset++; //facing
+	msg2->Write(item->facing); //facing
 	msg2->WriteFlipped(item->color);
 	msg2->offset++; //flags
 
@@ -2265,13 +2265,13 @@ void send_multi( Client* client, const UMulti* multi )
 		msg->Write(static_cast<u8>(0x02));
 		msg->Write(multi->serial_ext);
 		msg->WriteFlipped(multi->multidef().multiid);
-		msg->offset++; //facing;
+		msg->offset++; //0;
 		msg->WriteFlipped(static_cast<u16>(0x1)); //amount
 		msg->WriteFlipped(static_cast<u16>(0x1)); //amount2
 		msg->WriteFlipped(multi->x);
 		msg->WriteFlipped(multi->y);
 		msg->Write(multi->z);
-		msg->offset+=4; // u8 layer, u16 color, u8 flags
+		msg->offset+=4; // u8 facing, u16 color, u8 flags
 		if (client->ClientType & CLIENTTYPE_7090)
 			msg->offset+=2;
 		ADDTOSENDQUEUE(client, &msg->buffer, msg->offset );
