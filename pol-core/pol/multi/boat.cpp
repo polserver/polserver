@@ -10,6 +10,7 @@ History
 					  Changes for multi related source file relocation
 2009/12/02 Turley:    added 0xf3 packet - Tomi
 2011/11/12 Tomi:	  added extobj.tillerman, extobj.port_plank, extobj.starboard_plank and extobj.hold
+2011/12/13 Tomi:      added support for new boats
 
 Notes
 =======
@@ -68,116 +69,166 @@ Notes
 //#define DEBUG_BOATS
 
 struct BoatShape {
-    enum BOATSHAPE_COMPONENT {
-        BOATSHAPE_COMPONENT_TILLERMAN = 0,
-        BOATSHAPE_COMPONENT_PORT_PLANK_EXTENDED = 1,
-        BOATSHAPE_COMPONENT_PORT_PLANK_RETRACTED = 2,
-        BOATSHAPE_COMPONENT_STARBOARD_PLANK_EXTENDED = 3,
-        BOATSHAPE_COMPONENT_STARBOARD_PLANK_RETRACTED = 4,
-        BOATSHAPE_COMPONENT_HOLD = 5,
-        BOATSHAPE_COMPONENT__COUNT = 6
-    };
 
     struct ComponentShape {
+		unsigned int objtype;
         unsigned short graphic;
-        signed char xdelta;
-        signed char ydelta;
-        ComponentShape( const string& str );
-        ComponentShape();
+		unsigned short altgraphic;
+        unsigned short xdelta;
+        unsigned short ydelta;
+		ComponentShape( const string& str, const string& altstr, unsigned char type );
+        ComponentShape( const string& str, unsigned char type );
     };
-    ComponentShape componentshapes[ BOATSHAPE_COMPONENT__COUNT ];
+    vector<ComponentShape> Componentshapes;
 
-    bool objtype_is_component( unsigned int objtype, int* index ) const;
+    bool objtype_is_component( unsigned int objtype ) const;
     BoatShape( ConfigElem& elem );
     BoatShape();
 };
 
-// Set objtypes to 0 and let set_component_objtypes() handle rest of it
-struct Component {
-    const char* name;
-    bool create;
-    UBoat::BOAT_COMPONENT component_idx_;
-    unsigned int objtype_;
-} boat_components[BoatShape::BOATSHAPE_COMPONENT__COUNT] = {
-    { "Tillerman",                      true ,  UBoat::COMPONENT_TILLERMAN, 0 },
-    { "PortGangplankExtended",          false,  UBoat::COMPONENT_PORT_PLANK, 0  },
-    { "PortGangplankRetracted",         true,   UBoat::COMPONENT_PORT_PLANK, 0 },
-    { "StarboardGangplankExtended",     false,  UBoat::COMPONENT_STARBOARD_PLANK, 0 },
-    { "StarboardGangplankRetracted",    true,   UBoat::COMPONENT_STARBOARD_PLANK, 0 },
-    { "Hold",                           true,   UBoat::COMPONENT_HOLD, 0 }
-};
-
-
-BoatShape::ComponentShape::ComponentShape() : graphic(0), xdelta(0),ydelta(0)   //, create(false)
+BoatShape::ComponentShape::ComponentShape( const string& str, unsigned char type )
 {
-}
-BoatShape::ComponentShape::ComponentShape( const string& str )
-{
+	objtype = get_component_objtype( type );
     ISTRINGSTREAM is( str );
     string tmp;
-     // gcc screws this up
     if (is >> tmp)
     {
         graphic = static_cast<unsigned short>(strtoul( tmp.c_str(), NULL, 0 ));
         if (graphic)
         {
-            int xd, yd;
+            unsigned short xd, yd;
             if (is >> xd >> yd)
             {
-                xdelta = static_cast<signed char>(xd);
-                ydelta = static_cast<signed char>(yd);
+                xdelta = xd;
+                ydelta = yd;
                 return;
             }
         }
-
     }
 
     cerr << "Boat component definition '" << str << "' is poorly formed." << endl;
     throw runtime_error( "Poorly formed boat.cfg component definition" );
 }
 
+BoatShape::ComponentShape::ComponentShape( const string& str, const string& altstr, unsigned char type )
+{
+	bool ok = false;
+	objtype = get_component_objtype( type );
+	ISTRINGSTREAM is( str );
+    string tmp;
+    if (is >> tmp)
+    {
+        graphic = static_cast<unsigned short>(strtoul( tmp.c_str(), NULL, 0 ));
+        if (graphic)
+        {
+            unsigned short xd, yd;
+            if (is >> xd >> yd)
+            {
+                xdelta = xd;
+                ydelta = yd;
+                ok = true;
+            }
+        }
+    }
+
+	ISTRINGSTREAM altis( altstr );
+	string alttmp;
+    if (altis >> alttmp)
+    {
+        altgraphic = static_cast<unsigned short>(strtoul( alttmp.c_str(), NULL, 0 ));
+		return;
+    }
+	else
+		ok = false;
+
+	if ( !ok )
+	{
+		cerr << "Boat component definition '" << str << "' is poorly formed." << endl;
+		throw runtime_error( "Poorly formed boat.cfg component definition" );
+	}
+}
+
+
 BoatShape::BoatShape()
 {
 }
 BoatShape::BoatShape( ConfigElem& elem )
 {
-    for( int i = 0; i < BOATSHAPE_COMPONENT__COUNT; ++i )
-    {
-        try {
-            componentshapes[i] = ComponentShape( elem.remove_string( boat_components[i].name ) );
-        } 
-        catch ( exception& ex )
-        {
-            cerr << "Error occurred reading boat component " << boat_components[i].name << ":" << ex.what() << endl;
-            throw;
-        }
-    }
+	string tmp_str;
+
+	while( elem.remove_prop( "Tillerman", &tmp_str ) )
+		Componentshapes.push_back( ComponentShape( tmp_str, COMPONENT_TILLERMAN ) );
+	while( elem.remove_prop( "PortGangplankRetracted", &tmp_str ) )
+		Componentshapes.push_back( ComponentShape( tmp_str, elem.remove_string( "PortGangplankExtended" ), COMPONENT_PORT_PLANK ) );
+	while( elem.remove_prop( "StarboardGangplankRetracted", &tmp_str ) )
+		Componentshapes.push_back( ComponentShape( tmp_str, elem.remove_string( "StarboardGangplankExtended" ), COMPONENT_STARBOARD_PLANK ) );
+	while( elem.remove_prop( "Hold", &tmp_str ) )
+		Componentshapes.push_back( ComponentShape( tmp_str, COMPONENT_HOLD ) );
+	while( elem.remove_prop( "Rope", &tmp_str ) )
+		Componentshapes.push_back( ComponentShape( tmp_str, COMPONENT_ROPE ) );
+	while( elem.remove_prop( "Wheel", &tmp_str ) )
+		Componentshapes.push_back( ComponentShape( tmp_str, COMPONENT_WHEEL ) );
+	while( elem.remove_prop( "Hull", &tmp_str ) )
+		Componentshapes.push_back( ComponentShape( tmp_str, COMPONENT_HULL ) );
+	while( elem.remove_prop("Tiller", &tmp_str ) )
+		Componentshapes.push_back( ComponentShape( tmp_str, COMPONENT_TILLER ) );
+	while( elem.remove_prop( "Rudder", &tmp_str ) )
+		Componentshapes.push_back( ComponentShape( tmp_str, COMPONENT_RUDDER ) );
+	while( elem.remove_prop( "Sails", &tmp_str ) )
+		Componentshapes.push_back( ComponentShape( tmp_str, COMPONENT_SAILS ) );
+	while( elem.remove_prop( "Storage", &tmp_str ) )
+		Componentshapes.push_back( ComponentShape( tmp_str, COMPONENT_STORAGE ) );
+	while( elem.remove_prop( "Weaponslot", &tmp_str ) )
+		Componentshapes.push_back( ComponentShape( tmp_str, COMPONENT_WEAPONSLOT ) );
 }
-bool BoatShape::objtype_is_component( unsigned int objtype, int* index ) const
+
+bool BoatShape::objtype_is_component( unsigned int objtype ) const
 {
-	if (objtype == extobj.tillerman)
-	{
-		*index = 0;
+	if(objtype == extobj.tillerman)
 		return true;
-	}
-	else if (objtype == extobj.port_plank)
-	{
-		*index = 1;
+	else if(objtype == extobj.port_plank)
 		return true;
-	}
-	else if (objtype == extobj.starboard_plank)
-	{
-		*index = 2;
+	else if(objtype == extobj.starboard_plank)
 		return true;
-	}
-	else if (objtype == extobj.hold)
-	{
-		*index = 3;
+	else if(objtype == extobj.hold)
 		return true;
-	}
+	else if(objtype == extobj.rope)
+		return true;
+	else if(objtype == extobj.wheel)
+		return true;
+	else if(objtype == extobj.hull)
+		return true;
+	else if(objtype == extobj.tiller)
+		return true;
+	else if(objtype == extobj.rudder)
+		return true;
+	else if(objtype == extobj.sails)
+		return true;
+	else if(objtype == extobj.storage)
+		return true;
+	else if(objtype == extobj.weaponslot)
+		return true;
 	else
-	{
 		return false;
+}
+
+unsigned int get_component_objtype( unsigned char type )
+{
+	switch(type)
+	{
+		case COMPONENT_TILLERMAN: return extobj.tillerman;
+		case COMPONENT_PORT_PLANK: return extobj.port_plank;
+		case COMPONENT_STARBOARD_PLANK: return extobj.starboard_plank;
+		case COMPONENT_HOLD: return extobj.hold;	
+		case COMPONENT_ROPE: return extobj.rope;
+		case COMPONENT_WHEEL: return extobj.wheel;
+		case COMPONENT_HULL: return extobj.hull;
+		case COMPONENT_TILLER: return extobj.tiller;
+		case COMPONENT_RUDDER: return extobj.rudder;
+		case COMPONENT_SAILS: return extobj.sails;
+		case COMPONENT_STORAGE: return extobj.storage;
+		case COMPONENT_WEAPONSLOT: return extobj.weaponslot;
+		default: return 0;
 	}
 }
 
@@ -300,16 +351,11 @@ void unpause_paused()
 UBoat::UBoat( const ItemDesc& descriptor ) : UMulti( descriptor )
 {
     passert( boatshapes.count(graphic) != 0 );
-
+	tillerman = NULL;
+	hold = NULL;
+	portplank = NULL;
+	starboardplank = NULL;
 }
-
-const char* UBoat::component_names[ COMPONENT__COUNT ] = 
-{
-    "tillerman",
-    "portplank",
-    "starboardplank",
-    "hold"
-};
 
 UBoat* UBoat::as_boat()
 {
@@ -738,9 +784,9 @@ void UBoat::adjust_traveller_z(s8 delta_z)
         
 		obj->z += delta_z;
 	}
-    for( int i = 0; i < COMPONENT__COUNT; ++i )
+    for( vector<Item*>::iterator itr = Components.begin(), end = Components.end(); itr != end; ++itr )
     {
-        Item* item = components_[i].get();
+        Item* item = *itr;
 		item->z += delta_z;
 	}
 }
@@ -773,9 +819,9 @@ void UBoat::realm_changed()
 			}
 		}
 	}
-    for( int i = 0; i < COMPONENT__COUNT; ++i )
+    for( vector<Item*>::iterator itr = Components.begin(), end = Components.end(); itr != end; ++itr )
     {
-        Item* item = components_[i].get();
+        Item* item = *itr;
 		item->realm = realm;
 	}
 }
@@ -787,7 +833,7 @@ bool UBoat::deck_empty() const
 
 bool UBoat::hold_empty() const
 {
-    Item* it = components_[ COMPONENT_HOLD ].get();
+    Item* it = this->hold;
     if (it == NULL)
     {
         return true;
@@ -924,46 +970,29 @@ const BoatShape& UBoat::boatshape() const
 void UBoat::transform_components(const BoatShape& old_boatshape, Realm* oldrealm)
 {
     const BoatShape& bshape = boatshape();
-    for( int i = 0; i < COMPONENT__COUNT; ++i )
+	vector<Item*>::iterator itr; 
+	vector<Item*>::iterator end = Components.end();
+	vector<BoatShape::ComponentShape>::const_iterator itr2;
+	vector<BoatShape::ComponentShape>::const_iterator old_itr;
+	vector<BoatShape::ComponentShape>::const_iterator end2 = bshape.Componentshapes.end();
+	vector<BoatShape::ComponentShape>::const_iterator old_end = old_boatshape.Componentshapes.end();
+	for (itr = Components.begin(), itr2 = bshape.Componentshapes.begin(), old_itr = old_boatshape.Componentshapes.begin(); itr != end && itr2 != end2 && old_itr != old_end; itr++, itr2++, old_itr++)
     {
-        Item* item = components_[i].get();
+        Item* item = *itr;
         if (item != NULL)
         {
             if (item->orphan())
             {
-                components_[i].clear();
                 continue;
             }
-            
-            BoatShape::BOATSHAPE_COMPONENT bdcomp = BoatShape::BOATSHAPE_COMPONENT_TILLERMAN;
-            switch( i )
-            {
-                case COMPONENT_TILLERMAN:
-                    bdcomp = BoatShape::BOATSHAPE_COMPONENT_TILLERMAN;
-                    break;
-                case COMPONENT_STARBOARD_PLANK:
-                    if (item->graphic == old_boatshape.componentshapes[BoatShape::BOATSHAPE_COMPONENT_STARBOARD_PLANK_EXTENDED].graphic)
-                        bdcomp = BoatShape::BOATSHAPE_COMPONENT_STARBOARD_PLANK_EXTENDED;
-                    else if (item->graphic == old_boatshape.componentshapes[BoatShape::BOATSHAPE_COMPONENT_STARBOARD_PLANK_RETRACTED].graphic)
-                        bdcomp = BoatShape::BOATSHAPE_COMPONENT_STARBOARD_PLANK_RETRACTED;
-                    break;
-                case COMPONENT_PORT_PLANK:
-                    if (item->graphic == old_boatshape.componentshapes[BoatShape::BOATSHAPE_COMPONENT_PORT_PLANK_EXTENDED].graphic)
-                        bdcomp = BoatShape::BOATSHAPE_COMPONENT_PORT_PLANK_EXTENDED;
-                    else if (item->graphic == old_boatshape.componentshapes[BoatShape::BOATSHAPE_COMPONENT_PORT_PLANK_RETRACTED].graphic)
-                        bdcomp = BoatShape::BOATSHAPE_COMPONENT_PORT_PLANK_RETRACTED;
-                    break;
-                case COMPONENT_HOLD:
-                    bdcomp = BoatShape::BOATSHAPE_COMPONENT_HOLD;
-                    break;
-            }
             item->set_dirty();
-            item->graphic = bshape.componentshapes[ bdcomp ].graphic;
-            move_boat_item( item, 
-                       x + bshape.componentshapes[bdcomp].xdelta,
-                       y + bshape.componentshapes[bdcomp].ydelta,
-                       z /* zdelta assumed to be 0 */,
-					   oldrealm );
+			if( item->objtype_ == extobj.port_plank && item->graphic == old_itr->altgraphic )
+				item->graphic = itr2->altgraphic;
+			else if( item->objtype_ == extobj.starboard_plank && item->graphic == old_itr->altgraphic )
+				item->graphic = itr2->altgraphic;
+			else
+				item->graphic = itr2->graphic;
+            move_boat_item( item, x + itr2->xdelta, y + itr2->ydelta, z, oldrealm );
         }
     }
 }
@@ -1009,16 +1038,19 @@ void UBoat::register_object( UObject* obj )
 
 void UBoat::rescan_components()
 {
-    UPlank* plank;
+	UPlank* plank;
 
-    plank = static_cast<UPlank*>(components_[ COMPONENT_PORT_PLANK ].get());
-    if (plank)
+    if (portplank != NULL && !portplank->orphan())
+	{
+		plank = static_cast<UPlank*>(portplank);
         plank->setboat( this );
+	}
     
-    plank = static_cast<UPlank*>(components_[ COMPONENT_STARBOARD_PLANK ].get());
-    if (plank)
+    if (starboardplank != NULL && !starboardplank->orphan())
+	{
+		plank = static_cast<UPlank*>(starboardplank);
         plank->setboat( this );
-
+	}
 }
 
 void UBoat::readProperties( ConfigElem& elem )
@@ -1036,9 +1068,9 @@ void UBoat::readProperties( ConfigElem& elem )
             if (item != NULL)
             {
                 int index;
-                if (bshape.objtype_is_component( item->objtype_, &index ))
+                if (bshape.objtype_is_component( item->objtype_ ))
                 {
-                    components_[index].set( item );
+                    Components.push_back( item );
                 }
                 else if (on_ship(bc,item))
                 {
@@ -1063,9 +1095,9 @@ void UBoat::readProperties( ConfigElem& elem )
         if (item != NULL)
         {
             int index;
-            if (bshape.objtype_is_component( item->objtype_, &index ))
+            if (bshape.objtype_is_component( item->objtype_ ))
             {
-                components_[index].set( item );
+                Components.push_back( item );
             }
         }
     }
@@ -1091,9 +1123,9 @@ void UBoat::printProperties( ostream& os ) const
             os << "\tTraveller\t0x" << hex << obj->serial << dec << pf_endl;
         }
     }
-    for( int i = 0; i < COMPONENT__COUNT; ++i )
+    for( vector<Item*>::const_iterator itr = Components.begin(), end = Components.end(); itr != end; ++itr )
     {
-        Item* item = components_[i].get();
+        Item* item = *itr;
         if (item != NULL && !item->orphan())
         {
             os << "\tComponent\t0x" << hex << item->serial << dec << pf_endl;
@@ -1153,42 +1185,35 @@ BObjectImp* UBoat::scripted_create( const ItemDesc& descriptor, u16 x, u16 y, s8
 
 void UBoat::create_components()
 {
-	// Set Component Objtypes here
-	set_component_objtypes();
-
     const BoatShape& bshape = boatshape();
-    for( int i = 0; i < BoatShape::BOATSHAPE_COMPONENT__COUNT; ++i )
+	for (vector<BoatShape::ComponentShape>::const_iterator itr = bshape.Componentshapes.begin(), end = bshape.Componentshapes.end(); itr != end; itr++)
     {
-        if (boat_components[i].create && bshape.componentshapes[i].graphic) 
-        {
-            Item* component = Item::create( boat_components[i].objtype_ );
-            if (component == NULL) 
+		Item* component = Item::create( itr->objtype );
+        if (component == NULL) 
                 continue;
-            component->graphic = bshape.componentshapes[i].graphic;
-            // component itemdesc entries generally have graphic=1, so they don't get their height set.
-            component->height = tileheight( component->graphic );
-            component->x = x + bshape.componentshapes[i].xdelta;
-            component->y = y + bshape.componentshapes[i].ydelta;
-            component->z = z;
-            component->disable_decay();
-            component->movable(false);
-			component->realm = realm;
-            add_item_to_world( component );
-            update_item_to_inrange( component );
-            components_[ boat_components[i].component_idx_ ].set( component );
-        }
+		// check boat members here
+		if ( component->objtype_ == extobj.tillerman && tillerman == NULL )
+			tillerman = component;
+		if ( component->objtype_ == extobj.port_plank && portplank == NULL )
+			portplank = component;
+		if ( component->objtype_ == extobj.starboard_plank && starboardplank == NULL )
+			starboardplank = component;
+		if ( component->objtype_ == extobj.hold && hold == NULL )
+			hold = component;
+
+        component->graphic = itr->graphic;
+        // component itemdesc entries generally have graphic=1, so they don't get their height set.
+        component->height = tileheight( component->graphic );
+        component->x = x + itr->xdelta;
+        component->y = y + itr->ydelta;
+        component->z = z;
+        component->disable_decay();
+        component->movable(false);
+		component->realm = realm;
+        add_item_to_world( component );
+        update_item_to_inrange( component );
+        Components.push_back( component );
     }
-
-}
-
-void UBoat::set_component_objtypes()
-{
-	boat_components[0].objtype_ = extobj.tillerman;
-	boat_components[1].objtype_ = extobj.port_plank;
-	boat_components[2].objtype_ = extobj.port_plank;
-	boat_components[3].objtype_ = extobj.starboard_plank;
-	boat_components[4].objtype_ = extobj.starboard_plank;
-	boat_components[5].objtype_ = extobj.hold;
 }
 
 BObjectImp* UBoat::items_list() const
@@ -1225,17 +1250,39 @@ BObjectImp* UBoat::mobiles_list() const
     return arr;
 }
 
+BObjectImp* UBoat::component_list( unsigned char type ) const
+{
+	ObjArray* arr = new ObjArray;
+	for( vector<Item*>::const_iterator itr = Components.begin(), end = Components.end(); itr != end; itr++ )
+	{
+		Item* item = *itr;
+		if( item != NULL && !item->orphan() )
+		{
+			if( type == COMPONENT_ALL )
+			{
+				arr->addElement( make_itemref( item ) );
+			}
+			else
+			{
+				if( item->objtype_ == get_component_objtype( type ) )
+					arr->addElement( make_itemref( item ) );
+			}
+		}
+	}
+	return arr;
+}
+
 void UBoat::destroy_components()
 {
-    for( int i = 0; i < COMPONENT__COUNT; ++i )
+    for( vector<Item*>::iterator itr = Components.begin(), end = Components.end(); itr != end; ++itr )
     {
-        Item* item = components_[i].get();
+        Item* item = *itr;
         if (item != NULL && !item->orphan())
         {
             ::destroy_item( item );
         }
-        components_[i].clear();
     }
+	Components.clear();
 }
 
 BObjectImp* destroy_boat( UBoat* boat )

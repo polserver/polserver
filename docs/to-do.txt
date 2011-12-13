@@ -37,8 +37,6 @@ Planning
       Tomi: Add the two new Login Error reasons where needed.
             Check all 0xA9 packet flags, make sure we have them all.
             Implement packet 0x86 as it should be. Which client versions know this method?
-            Fix this: config.max_objtype is unsigned int, and is being looped with int or short at many places. A check (int)x > (unsigned)y
-                can only be true if y < MAX_UNSIGNED/2. That should fix the bug above.
             Move CryptEngine from Client class to Client->Listener once objtype storage is redone and after boats redone.
 
    MuadDib: Make sure all changes to color, graphic, etc are calling thier on_*_changed, to updated nearbly clients.
