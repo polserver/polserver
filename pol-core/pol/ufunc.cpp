@@ -821,13 +821,13 @@ void send_item( Client *client, const Item *item )
 		msg->offset++; // datatype
 		msg->Write(item->serial_ext);
 		msg->WriteFlipped(item->graphic);
-		msg->Write(item->facing);
+		msg->Write((u8)0);
 		msg->WriteFlipped(item->get_senditem_amount());
 		msg->WriteFlipped(item->get_senditem_amount());
 		msg->WriteFlipped(item->x);
 		msg->WriteFlipped(item->y);
 		msg->Write(item->z);
-		msg->Write(item->layer);
+		msg->Write(item->facing);
 		msg->WriteFlipped(item->color);
 		msg->Write(flags);
 		if (client->ClientType & CLIENTTYPE_7090)
@@ -1548,7 +1548,7 @@ void partical_effect(PktOut_C7* msg,u8 type, u32 srcserial, u32 dstserial,
 	msg->WriteFlipped(effect3dexplode); //0 if no explosion
 	msg->WriteFlipped(effect3dsound); //for moving effects, 0 otherwise
 	msg->Write(itemid); //if target is item (type 2), 0 otherwise 
-	msg->Write(layer); //(of the character, e.g left hand, right hand, … 0-5,7, 0xff: moving effect or target is no char) 
+	msg->Write(layer); //(of the character, e.g left hand, right hand, ï¿½ 0-5,7, 0xff: moving effect or target is no char) 
 	msg->offset+=2; // u16 unk_effect
 }
 
