@@ -16,6 +16,7 @@ History
 2009/08/19 Turley:	Added character.uo_expansion_client
 2009/09/06 Turley:	Removed chr.isUOKR added chr.ClientType
 2009/10/14 Turley:	Added char.deaf() methods & char.deafened member
+2011/12/13 Tomi:    Boat members MBR_COMPONENT, MBR_HULL, MBR_ROPE, MBR_SAILS, MBR_WHEEL, MBR_TILLER, MBR_RUDDER, MBR_STORAGE, MBR_WEAPONSLOT
 
 Notes
 =======
@@ -215,7 +216,17 @@ enum MemberID
 	MBR_EDITING,               //185
 	MBR_HOUSEPARTS,
 	MBR_DOUBLECLICKRANGE,
-	MBR_MOUNTEDSTEPS
+	MBR_MOUNTEDSTEPS,
+	// New boat stuff start
+	MBR_ROPE,
+	MBR_WHEEL,				//190
+	MBR_HULL,
+	MBR_TILLER,
+	MBR_RUDDER,
+	MBR_SAILS,
+	MBR_STORAGE,			//195
+	MBR_WEAPONSLOT
+	// New boat stuff end
 };
 
 

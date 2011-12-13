@@ -29,6 +29,7 @@ History
 2009/10/09 Turley:	Added spellbook.spells() & .hasspell() methods
 2009/10/10 Turley:	Added spellbook.addspell() & .removespell() methods
 2009/10/14 Turley:	Added char.deaf() methods & char.deafened member
+2011/12/13 Tomi:    Boat members MBR_COMPONENT, MBR_HULL, MBR_ROPE, MBR_SAILS, MBR_WHEEL, MBR_TILLER, MBR_RUDDER, MBR_STORAGE, MBR_WEAPONSLOT
 
 Notes
 =======
@@ -442,7 +443,17 @@ ObjMember object_members[] = {
 	{ MBR_HOUSEPARTS, "house_parts", true },
 	{ MBR_MOUNTEDSTEPS, "mountedsteps", false },
 	{ MBR_HOUSEPARTS, "house_parts", true },
-	{ MBR_DOUBLECLICKRANGE, "doubleclickrange", false}
+	{ MBR_DOUBLECLICKRANGE, "doubleclickrange", false},
+	// New boat stuff start
+	{ MBR_ROPE, "rope", true}, //190
+	{ MBR_WHEEL, "wheel", true},
+	{ MBR_HULL, "hull", true},
+	{ MBR_TILLER, "tiller", true},
+	{ MBR_RUDDER, "rudder", true},
+	{ MBR_SAILS, "sails", true}, //195
+	{ MBR_STORAGE, "storage", true},
+	{ MBR_WEAPONSLOT, "weaponslot", true}
+	// New boat stuff end
 };
 int n_objmembers = sizeof object_members / sizeof object_members[0];
 ObjMember* getKnownObjMember(const char* token)
