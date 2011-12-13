@@ -35,6 +35,7 @@ History
                       multi support of methodscripts
 2010/01/15 Turley:    (Tomi) season stuff
 2010/02/03 Turley:    MethodScript support for mobiles
+2011/12/13 Tomi:      Boat members MBR_COMPONENT, MBR_HULL, MBR_ROPE, MBR_SAILS, MBR_WHEEL, MBR_TILLER, MBR_RUDDER, MBR_STORAGE, MBR_WEAPONSLOT
 
 Notes
 =======
@@ -2682,42 +2683,51 @@ BObjectImp* UBoat::get_script_member_id( const int id ) const
 
 	switch(id)
 	{
-	case MBR_TILLERMAN:
+		case MBR_TILLERMAN:
 		{
-			Item* cp = components_[0].get();
+			Item* cp = tillerman;
 			if ( cp != NULL)
 				return new EItemRefObjImp( cp );
 			else
 				return new BError( string("This ship doesn't have that component") );
 			break;
 		}
-	case MBR_PORTPLANK:
+		case MBR_PORTPLANK:
 		{
-			Item* cp = components_[1].get();
+			Item* cp = portplank;
 			if ( cp != NULL)
 				return new EItemRefObjImp( cp );
 			else
 				return new BError( string("This ship doesn't have that component") );
 			break;
 		}
-	case MBR_STARBOARDPLANK:
+		case MBR_STARBOARDPLANK:
 		{
-			Item* cp = components_[2].get();
+			Item* cp = starboardplank;
 			if ( cp != NULL)
 				return new EItemRefObjImp( cp );
 			else
 				return new BError( string("This ship doesn't have that component") );
 			break;
 		}
-	case MBR_HOLD:
+		case MBR_HOLD:
 		{
-			Item* cp = components_[3].get();
+			Item* cp = hold;
 			if ( cp != NULL)
 				return new EItemRefObjImp( cp );
 			else
 				return new BError( string("This ship doesn't have that component") );
 			break;
 		}
+		case MBR_ROPE: return component_list( COMPONENT_ROPE ); break;
+		case MBR_WHEEL: return component_list( COMPONENT_WHEEL ); break;
+		case MBR_HULL: return component_list( COMPONENT_HULL ); break;
+		case MBR_TILLER: return component_list( COMPONENT_TILLER ); break;
+		case MBR_RUDDER: return component_list( COMPONENT_RUDDER ); break;
+		case MBR_SAILS: return component_list( COMPONENT_SAILS ); break;
+		case MBR_STORAGE: return component_list( COMPONENT_STORAGE ); break;
+		case MBR_WEAPONSLOT: return component_list( COMPONENT_WEAPONSLOT ); break;
+		case MBR_COMPONENTS: return component_list( COMPONENT_ALL ); break;
 		case MBR_ITEMS: return items_list(); break;
 		case MBR_MOBILES: return mobiles_list(); break;
 		case MBR_HAS_OFFLINE_MOBILES: return new BLong( has_offline_mobiles() ? 1 : 0 ); break;

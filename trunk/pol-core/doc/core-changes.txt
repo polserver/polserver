@@ -1,4 +1,41 @@
 ﻿-- POL099 --
+12-13-2011 Tomi:
+    Added: Support for HSA botes ( no smooth move yet, but now all boats are usable )
+    Changed: boat.cfg to support new entries "Rope", "Wheel", "Hull", "Tiller", "Rudder", "Sails", "Storage", "Weaponslot"
+             there can be more than 1 of each entry 
+             the old entries "Tillerman", "Hold", "PortGangplankExtended", "PortGangplankRetracted", "StarboarGangplankExtended",        "StarboardGangplankRetracted" support just 1 entry each or the boat members get broken
+    Added: ReadOnly members for boats
+           .components returns an array of ItemRefs of all the components on the boat
+           .hull returns an array of ItemRefs of all the hull components on the boat, or empty array if none.
+           .rope returns an array of ItemRefs of all the rope components on the boat, or empty array if none.
+           .wheel returns an array of ItemRefs of all the wheel components on the boat, or empty array if none.
+           .rudder returns an array of ItemRefs of all the rudder components on the boat, or empty array if none.
+           .tiller returns an array of ItemRefs of all the tiller components on the boat, or empty array if none.
+           .sails returns an array of ItemRefs of all the sails components on the boat, or empty array if none.
+           .storage returns an array of ItemRefs of all the storage components on the boat, or empty array if none.
+           .weaponslot returns an array of ItemRefs of all the weaponslot components on the boat, or empty array if none.
+    Changed extobj.cfg to support new entries for all the new boat component types and changed the default value of all entries.
+            extobj.cfg entries with default values:
+                   Tillerman=0x1F010
+                   Port_Plank=0x1F011
+                   Starboard_Plank=0x1F012
+                   Hold=0x1F013
+                   Rope=0x1F014
+                   Wheel=0x1F015
+                   Hull=0x1F016
+                   Tiller=0x1F017
+                   Rudder=0x1F018
+                   Sails=0x1F019
+                   Storage=0x1F020
+                   Weaponslot=0x1F021
+
+                   Wrestling=0x1F022
+                   Mount=0x1F023
+
+                   Secure_Trade_Container=0x1FF01
+                   Wornitems_Container=0x1FF02
+    Note:   extobj entries just let you define the objtypes, all of these still have to be defined in itemdescs for boats to work correctly.
+
 12-05-2011 Tomi:
     Fixed:  Door methods .open() and .close() were working opposite what they should.
 

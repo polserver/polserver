@@ -62,18 +62,16 @@ public:
 
     static BObjectImp* scripted_create( const ItemDesc& descriptor, u16 x, u16 y, s8 z, Realm* realm, int flags );
 
-    enum BOAT_COMPONENT { 
-        COMPONENT_TILLERMAN = 0,  
-        COMPONENT_PORT_PLANK = 1,
-        COMPONENT_STARBOARD_PLANK = 2,
-        COMPONENT_HOLD = 3,
-        COMPONENT__COUNT
-    };
-    static const char* component_names[ COMPONENT__COUNT ];
     virtual BObjectImp* make_ref();
 	static bool navigable( const MultiDef&, unsigned short x, unsigned short y, short z, Realm* realm);
 	void realm_changed();
 	void adjust_traveller_z(s8 delta_z);
+
+	// Should these be arrays instead to support customizable boats with certain component choises ?
+	Item* tillerman;
+	Item* portplank;
+	Item* starboardplank;
+	Item* hold;
 
 protected:
     void move_travellers( enum UFACING facing, const BoatContext& oldlocation, unsigned short x = USHRT_MAX, unsigned short y = USHRT_MAX, Realm* oldrealm = NULL );
@@ -102,22 +100,37 @@ protected:
     virtual bool script_isa( unsigned isatype ) const;
     BObjectImp* items_list() const;
     BObjectImp* mobiles_list() const;
+	BObjectImp* component_list( unsigned char type ) const;
 
     friend class EUBoatRefObjImp;
 private:
     void create_components();
-	void set_component_objtypes();
     typedef UObjectRef Traveller;
     typedef std::vector< Traveller > Travellers;
     Travellers travellers_;
 
-    typedef ItemRef Component;
-    Component components_[COMPONENT__COUNT];
+    vector<Item*> Components;
+};
+
+enum BOAT_COMPONENT { 
+	COMPONENT_TILLERMAN = 0,  
+    COMPONENT_PORT_PLANK = 1,
+    COMPONENT_STARBOARD_PLANK = 2,
+    COMPONENT_HOLD = 3,
+    COMPONENT_ROPE = 4,
+	COMPONENT_WHEEL = 5,
+	COMPONENT_HULL = 6,
+	COMPONENT_TILLER = 7,
+	COMPONENT_RUDDER = 8,
+	COMPONENT_SAILS = 9,
+	COMPONENT_STORAGE = 10,
+	COMPONENT_WEAPONSLOT = 11,
+	COMPONENT_ALL = 12
 };
 
 BObjectImp* destroy_boat( UBoat* boat );
 void send_boat_to_inrange( const UBoat* item, u16 oldx=USHRT_MAX, u16 oldy=USHRT_MAX  );
-
+unsigned int get_component_objtype( unsigned char type );
 bool BoatShapeExists( u16 graphic );
 void clean_boatshapes();
 
