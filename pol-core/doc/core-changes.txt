@@ -1,6 +1,6 @@
 ﻿-- POL099 --
 12-14-2011 Tomi:
-    Removed: pol.cfg MaxObjtype limit removed, not it accepts up to 0xFFFFFFFF ( 4294967295 ) but try to keep it as low as possible, default value still 0x20000
+    Removed: pol.cfg MaxObjtype limit removed, now it accepts up to 0xFFFFFFFF ( 4294967295 ) but try to keep it as low as possible, default value still 0x20000
     Changed: objtype vectors changed to maps to only reserve as much memory as there are itemdesc entries, not reserving memory for up to 4 billions of objtypes.
     Changed: boats.cfg entries changed from "Name Graphic X Y" to "Name Graphic X Y Z" because some of the new boat components requires different Z levels than the boat itself.
 
@@ -8,7 +8,7 @@
     Added: Support for destroy scripts on multis.
 
 12-13-2011 Tomi:
-    Added: Support for HSA botes ( no smooth move yet, but now all boats are usable )
+    Added: Support for HSA boats ( no smooth move yet, but now all boats are usable )
     Changed: boat.cfg to support new entries "Rope", "Wheel", "Hull", "Tiller", "Rudder", "Sails", "Storage", "Weaponslot"
              there can be more than 1 of each entry 
              the old entries "Tillerman", "Hold", "PortGangplankExtended", "PortGangplankRetracted", "StarboarGangplankExtended",        "StarboardGangplankRetracted" support just 1 entry each or the boat members get broken
