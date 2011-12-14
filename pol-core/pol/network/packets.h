@@ -282,9 +282,29 @@ public:
 	inline u8 getID() { return _id; }
 };
 
-// creates new packets
-PacketInterface* GetPacket(u8 id, u16 sub=0);
 
+
+namespace PktHelper
+{
+	// creates new packets
+	PacketInterface* GetPacket(u8 id, u16 sub=0);
+
+	template <class T>
+	inline T* RequestPacket(u8 id)
+	{
+		return static_cast<T*>(Packets::instance()->getPacket(id));
+	}
+	template <class T>
+	inline T* RequestSubPacket(u8 id,u16 sub)
+	{
+		return static_cast<T*>(Packets::instance()->getPacket(id,sub));
+	}
+
+	inline void ReAddPacket(PacketInterface* msg)
+	{
+		Packets::instance()->ReAddPacket(msg);
+	}
+}
 #define REQUESTPACKET(_pkt,_id) static_cast<_pkt*>(Packets::instance()->getPacket(_id))
 #define REQUESTSUBPACKET(_pkt,_id,_sub) static_cast<_pkt*>(Packets::instance()->getPacket(_id,_sub))
 #define READDPACKET(_msg) Packets::instance()->ReAddPacket(_msg)
