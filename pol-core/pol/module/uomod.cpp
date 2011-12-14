@@ -4171,7 +4171,7 @@ BObjectImp* UOExecutorModule::mf_SendPacket()
 		{
 			return new BError( "Invalid packet string length." );
 		}
-		EncryptedPktBuffer* buffer = REQUESTPACKET(EncryptedPktBuffer,ENCRYPTEDPKTBUFFER); // encryptedbuffer is the only one without getID buffer[0]
+		EncryptedPktBuffer* buffer = PktHelper::RequestPacket<EncryptedPktBuffer>(ENCRYPTEDPKTBUFFER); // encryptedbuffer is the only one without getID buffer[0]
 		unsigned char* buf = reinterpret_cast<unsigned char*>(buffer->getBuffer());
 		const char*s = str->data();
 		while (buffer->offset < 2000 && isxdigit( s[0] ) && isxdigit( s[1] ))
@@ -4189,12 +4189,12 @@ BObjectImp* UOExecutorModule::mf_SendPacket()
 				//printf( "SendPacket() data: %d bytes\n", buflen );
 				//fdump( stdout, buffer, buflen );
 				ADDTOSENDQUEUE(chr->client, &buffer->buffer, buffer->offset );
-				READDPACKET(buffer);
+				PktHelper::ReAddPacket(buffer);
 				return new BLong(1);
 			}
 			else
 			{
-				READDPACKET(buffer);
+				PktHelper::ReAddPacket(buffer);
 				return new BError( "No client attached" );
 			}
 		}
@@ -4203,18 +4203,18 @@ BObjectImp* UOExecutorModule::mf_SendPacket()
 			if (client->isConnected())
 			{
 				ADDTOSENDQUEUE(client, &buffer->buffer, buffer->offset );
-				READDPACKET(buffer);
+				PktHelper::ReAddPacket(buffer);
 				return new BLong(1);
 			}
 			else
 			{
-				READDPACKET(buffer);
+				PktHelper::ReAddPacket(buffer);
 				return new BError( "Client is disconnected" );
 			}
 		}
 		else
 		{
-			READDPACKET(buffer);
+			PktHelper::ReAddPacket(buffer);
 			return new BError( "Invalid parameter type" );
 		}
 

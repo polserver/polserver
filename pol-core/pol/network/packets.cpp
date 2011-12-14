@@ -19,6 +19,8 @@ Notes
 #include "../../clib/hbmutex.h"
 #include "packets.h"
 
+using namespace PktHelper;
+
 PacketsSingleton::PacketsSingleton()
 {
 	//insert packet queues at first creation
@@ -242,108 +244,111 @@ int PacketQueueSubs::Count()
 	return count;
 }
 
-// creates new packets
-PacketInterface* GetPacket(u8 id, u16 sub)
+namespace PktHelper
 {
-	switch (id)
+	// creates new packets
+	PacketInterface* GetPacket(u8 id, u16 sub)
 	{
-		case ENCRYPTEDPKTBUFFER: return new EncryptedPktBuffer();
-		case PKTOUT_0B_ID: return new PktOut_0B();
-		case PKTOUT_11_ID: return new PktOut_11();
-		case PKTOUT_17_ID: return new PktOut_17();
-		case PKTOUT_1A_ID: return new PktOut_1A();
-		case PKTOUT_1B_ID: return new PktOut_1B();
-		case PKTOUT_1C_ID: return new PktOut_1C();
-		case PKTOUT_1D_ID: return new PktOut_1D();
-		case PKTOUT_20_ID: return new PktOut_20();
-		case PKTOUT_21_ID: return new PktOut_21();
-		case PKTBI_22_APPROVED_ID: return new PktOut_22();
-		case PKTOUT_24_ID: return new PktOut_24();
-		case PKTOUT_25_ID: return new PktOut_25();
-		case PKTOUT_27_ID: return new PktOut_27();
-		case PKTOUT_29_ID: return new PktOut_29();
-		case PKTBI_2C_ID:  return new PktOut_2C();
-		case PKTOUT_2D_ID: return new PktOut_2D();
-		case PKTOUT_2E_ID: return new PktOut_2E();
-		case PKTOUT_2F_ID: return new PktOut_2F();
-		case PKTBI_3A_ID: return new PktOut_3A();
-		case PKTBI_3B_ID: return new PktOut_3B();
-		case PKTOUT_3C_ID: return new PktOut_3C();
-		case PKTOUT_4F_ID: return new PktOut_4F();
-		case PKTOUT_53_ID: return new PktOut_53();
-		case PKTOUT_54_ID: return new PktOut_54();
-		case PKTOUT_55_ID: return new PktOut_55();
-		case PKTBI_56_ID: return new PktOut_56();
-		case PKTOUT_65_ID: return new PktOut_65();
-		case PKTBI_66_ID: return new PktOut_66();
-		case PKTBI_6C_ID: return new PktOut_6C();
-		case PKTOUT_6D_ID: return new PktOut_6D();
-		case PKTOUT_6E_ID: return new PktOut_6E();
-		case PKTBI_6F_ID: return new PktOut_6F();
-		case PKTOUT_70_ID: return new PktOut_70();
-		case PKTBI_72_ID: return new PktOut_72();
-		case PKTOUT_74_ID: return new PktOut_74();
-		case PKTOUT_76_ID: return new PktOut_76();
-		case PKTOUT_77_ID: return new PktOut_77();
-		case PKTOUT_78_ID: return new PktOut_78();
-		case PKTOUT_7C_ID: return new PktOut_7C();
-		case PKTOUT_82_ID: return new PktOut_82();
-		case PKTOUT_88_ID: return new PktOut_88();
-		case PKTOUT_89_ID: return new PktOut_89();
-		case PKTOUT_8C_ID: return new PktOut_8C();
-		case PKTOUT_90_ID: return new PktOut_90();
-		case PKTBI_93_ID: return new PktOut_93();
-		case PKTBI_95_ID: return new PktOut_95();
-		case PKTBI_98_OUT_ID: return new PktOut_98();
-		case PKTBI_99_ID: return new PktOut_99();
-		case PKTBI_9A_ID: return new PktOut_9A();
-		case PKTOUT_9E_ID: return new PktOut_9E();
-		case PKTOUT_A1_ID: return new PktOut_A1();
-		case PKTOUT_A2_ID: return new PktOut_A2();
-		case PKTOUT_A3_ID: return new PktOut_A3();
-		case PKTOUT_A5_ID: return new PktOut_A5();
-		case PKTOUT_A6_ID: return new PktOut_A6();
-		case PKTOUT_A8_ID: return new PktOut_A8();
-		case PKTOUT_A9_ID: return new PktOut_A9();
-		case PKTOUT_AA_ID: return new PktOut_AA();
-		case PKTOUT_AB_ID: return new PktOut_AB();
-		case PKTOUT_AE_ID: return new PktOut_AE();
-		case PKTOUT_AF_ID: return new PktOut_AF();
-		case PKTOUT_B0_ID: return new PktOut_B0();
-		case PKTOUT_B7_ID: return new PktOut_B7();
-		case PKTBI_B8_OUT_ID: return new PktOut_B8();
-		case PKTOUT_B9_ID: return new PktOut_B9();
-		case PKTOUT_BA_ID: return new PktOut_BA();
-		case PKTOUT_BC_ID: return new PktOut_BC();
-
-		case PKTBI_BF_ID:
+		switch (id)
 		{
-			switch (sub)
+			case ENCRYPTEDPKTBUFFER: return new EncryptedPktBuffer();
+			case PKTOUT_0B_ID: return new PktOut_0B();
+			case PKTOUT_11_ID: return new PktOut_11();
+			case PKTOUT_17_ID: return new PktOut_17();
+			case PKTOUT_1A_ID: return new PktOut_1A();
+			case PKTOUT_1B_ID: return new PktOut_1B();
+			case PKTOUT_1C_ID: return new PktOut_1C();
+			case PKTOUT_1D_ID: return new PktOut_1D();
+			case PKTOUT_20_ID: return new PktOut_20();
+			case PKTOUT_21_ID: return new PktOut_21();
+			case PKTBI_22_APPROVED_ID: return new PktOut_22();
+			case PKTOUT_24_ID: return new PktOut_24();
+			case PKTOUT_25_ID: return new PktOut_25();
+			case PKTOUT_27_ID: return new PktOut_27();
+			case PKTOUT_29_ID: return new PktOut_29();
+			case PKTBI_2C_ID:  return new PktOut_2C();
+			case PKTOUT_2D_ID: return new PktOut_2D();
+			case PKTOUT_2E_ID: return new PktOut_2E();
+			case PKTOUT_2F_ID: return new PktOut_2F();
+			case PKTBI_3A_ID: return new PktOut_3A();
+			case PKTBI_3B_ID: return new PktOut_3B();
+			case PKTOUT_3C_ID: return new PktOut_3C();
+			case PKTOUT_4F_ID: return new PktOut_4F();
+			case PKTOUT_53_ID: return new PktOut_53();
+			case PKTOUT_54_ID: return new PktOut_54();
+			case PKTOUT_55_ID: return new PktOut_55();
+			case PKTBI_56_ID: return new PktOut_56();
+			case PKTOUT_65_ID: return new PktOut_65();
+			case PKTBI_66_ID: return new PktOut_66();
+			case PKTBI_6C_ID: return new PktOut_6C();
+			case PKTOUT_6D_ID: return new PktOut_6D();
+			case PKTOUT_6E_ID: return new PktOut_6E();
+			case PKTBI_6F_ID: return new PktOut_6F();
+			case PKTOUT_70_ID: return new PktOut_70();
+			case PKTBI_72_ID: return new PktOut_72();
+			case PKTOUT_74_ID: return new PktOut_74();
+			case PKTOUT_76_ID: return new PktOut_76();
+			case PKTOUT_77_ID: return new PktOut_77();
+			case PKTOUT_78_ID: return new PktOut_78();
+			case PKTOUT_7C_ID: return new PktOut_7C();
+			case PKTOUT_82_ID: return new PktOut_82();
+			case PKTOUT_88_ID: return new PktOut_88();
+			case PKTOUT_89_ID: return new PktOut_89();
+			case PKTOUT_8C_ID: return new PktOut_8C();
+			case PKTOUT_90_ID: return new PktOut_90();
+			case PKTBI_93_ID: return new PktOut_93();
+			case PKTBI_95_ID: return new PktOut_95();
+			case PKTBI_98_OUT_ID: return new PktOut_98();
+			case PKTBI_99_ID: return new PktOut_99();
+			case PKTBI_9A_ID: return new PktOut_9A();
+			case PKTOUT_9E_ID: return new PktOut_9E();
+			case PKTOUT_A1_ID: return new PktOut_A1();
+			case PKTOUT_A2_ID: return new PktOut_A2();
+			case PKTOUT_A3_ID: return new PktOut_A3();
+			case PKTOUT_A5_ID: return new PktOut_A5();
+			case PKTOUT_A6_ID: return new PktOut_A6();
+			case PKTOUT_A8_ID: return new PktOut_A8();
+			case PKTOUT_A9_ID: return new PktOut_A9();
+			case PKTOUT_AA_ID: return new PktOut_AA();
+			case PKTOUT_AB_ID: return new PktOut_AB();
+			case PKTOUT_AE_ID: return new PktOut_AE();
+			case PKTOUT_AF_ID: return new PktOut_AF();
+			case PKTOUT_B0_ID: return new PktOut_B0();
+			case PKTOUT_B7_ID: return new PktOut_B7();
+			case PKTBI_B8_OUT_ID: return new PktOut_B8();
+			case PKTOUT_B9_ID: return new PktOut_B9();
+			case PKTOUT_BA_ID: return new PktOut_BA();
+			case PKTOUT_BC_ID: return new PktOut_BC();
+
+			case PKTBI_BF_ID:
 			{
-				case PKTBI_BF::TYPE_CLOSE_GUMP:					return new PktOut_BF_Sub4();
-				case PKTBI_BF::TYPE_PARTY_SYSTEM:				return new PktOut_BF_Sub6();
-				case PKTBI_BF::TYPE_CURSOR_HUE:					return new PktOut_BF_Sub8();
-				case PKTBI_BF::TYPE_OBJECT_CACHE:				return new PktOut_BF_Sub10();
-				case PKTBI_BF::TYPE_CLOSE_WINDOW:				return new PktOut_BF_Sub16();
-				case PKTBI_BF::TYPE_ENABLE_MAP_DIFFS:			return new PktOut_BF_Sub18();
-				case PKTBI_BF::TYPE_EXTENDED_STATS_OUT:			return new PktOut_BF_Sub19();
-				case PKTBI_BF::TYPE_NEW_SPELLBOOK:				return new PktOut_BF_Sub1B();
-				case PKTBI_BF::TYPE_CUSTOM_HOUSE_SHORT:			return new PktOut_BF_Sub1D();
-				case PKTBI_BF::TYPE_ACTIVATE_CUSTOM_HOUSE_TOOL: return new PktOut_BF_Sub20();
-				case PKTBI_BF::TYPE_DAMAGE:						return new PktOut_BF_Sub22();
-				case PKTBI_BF::TYPE_CHARACTER_RACE_CHANGER:		return new PktOut_BF_Sub2A();
-				default: throw runtime_error( "Request of undefined Packet: " + hexint(id) + "-" + hexint(sub)); return NULL;
+				switch (sub)
+				{
+					case PKTBI_BF::TYPE_CLOSE_GUMP:					return new PktOut_BF_Sub4();
+					case PKTBI_BF::TYPE_PARTY_SYSTEM:				return new PktOut_BF_Sub6();
+					case PKTBI_BF::TYPE_CURSOR_HUE:					return new PktOut_BF_Sub8();
+					case PKTBI_BF::TYPE_OBJECT_CACHE:				return new PktOut_BF_Sub10();
+					case PKTBI_BF::TYPE_CLOSE_WINDOW:				return new PktOut_BF_Sub16();
+					case PKTBI_BF::TYPE_ENABLE_MAP_DIFFS:			return new PktOut_BF_Sub18();
+					case PKTBI_BF::TYPE_EXTENDED_STATS_OUT:			return new PktOut_BF_Sub19();
+					case PKTBI_BF::TYPE_NEW_SPELLBOOK:				return new PktOut_BF_Sub1B();
+					case PKTBI_BF::TYPE_CUSTOM_HOUSE_SHORT:			return new PktOut_BF_Sub1D();
+					case PKTBI_BF::TYPE_ACTIVATE_CUSTOM_HOUSE_TOOL: return new PktOut_BF_Sub20();
+					case PKTBI_BF::TYPE_DAMAGE:						return new PktOut_BF_Sub22();
+					case PKTBI_BF::TYPE_CHARACTER_RACE_CHANGER:		return new PktOut_BF_Sub2A();
+					default: throw runtime_error( "Request of undefined Packet: " + hexint(id) + "-" + hexint(sub)); return NULL;
+				}
 			}
+			case PKTOUT_C1_ID: return new PktOut_C1();
+			case PKTBI_C2_ID: return new PktOut_C2();
+			case PKTOUT_C7_ID: return new PktOut_C7();
+			case PKTOUT_CC_ID: return new PktOut_CC();
+			case PKTBI_D6_OUT_ID: return new PktOut_D6();
+			case PKTOUT_DC_ID: return new PktOut_DC();
+			case PKTOUT_DD_ID: return new PktOut_DD();
+			case PKTOUT_E3_ID: return new PktOut_E3();
+			case PKTOUT_F3_ID: return new PktOut_F3();
+			default: throw runtime_error( "Request of undefined Packet: " + hexint(id) + "-" + hexint(sub)); return NULL;
 		}
-		case PKTOUT_C1_ID: return new PktOut_C1();
-		case PKTBI_C2_ID: return new PktOut_C2();
-		case PKTOUT_C7_ID: return new PktOut_C7();
-		case PKTOUT_CC_ID: return new PktOut_CC();
-		case PKTBI_D6_OUT_ID: return new PktOut_D6();
-		case PKTOUT_DC_ID: return new PktOut_DC();
-		case PKTOUT_DD_ID: return new PktOut_DD();
-		case PKTOUT_E3_ID: return new PktOut_E3();
-		case PKTOUT_F3_ID: return new PktOut_F3();
-		default: throw runtime_error( "Request of undefined Packet: " + hexint(id) + "-" + hexint(sub)); return NULL;
 	}
 }

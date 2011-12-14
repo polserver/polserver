@@ -786,7 +786,6 @@ void UBoat::adjust_traveller_z(s8 delta_z)
          ++itr )
     {
         UObject* obj = (*itr).get();
-        
 		obj->z += delta_z;
 	}
     for( vector<Item*>::iterator itr = Components.begin(), end = Components.end(); itr != end; ++itr )
@@ -981,7 +980,9 @@ void UBoat::transform_components(const BoatShape& old_boatshape, Realm* oldrealm
 	vector<BoatShape::ComponentShape>::const_iterator old_itr;
 	vector<BoatShape::ComponentShape>::const_iterator end2 = bshape.Componentshapes.end();
 	vector<BoatShape::ComponentShape>::const_iterator old_end = old_boatshape.Componentshapes.end();
-	for (itr = Components.begin(), itr2 = bshape.Componentshapes.begin(), old_itr = old_boatshape.Componentshapes.begin(); itr != end && itr2 != end2 && old_itr != old_end; itr++, itr2++, old_itr++)
+	for (itr = Components.begin(), itr2 = bshape.Componentshapes.begin(), old_itr = old_boatshape.Componentshapes.begin(); 
+		itr != end && itr2 != end2 && old_itr != old_end; 
+		++itr, ++itr2, ++old_itr)
     {
         Item* item = *itr;
         if (item != NULL)
@@ -1009,7 +1010,9 @@ void UBoat::move_components(Realm* oldrealm)
 	vector<Item*>::iterator end = Components.end();
 	vector<BoatShape::ComponentShape>::const_iterator itr2;
 	vector<BoatShape::ComponentShape>::const_iterator end2 = bshape.Componentshapes.end();
-	for (itr = Components.begin(), itr2 = bshape.Componentshapes.begin(); itr != end && itr2 != end2; itr++, itr2++)
+	for (itr = Components.begin(), itr2 = bshape.Componentshapes.begin(); 
+		itr != end && itr2 != end2; 
+		++itr, ++itr2)
     {
         Item* item = *itr;
         if (item != NULL)
@@ -1094,7 +1097,6 @@ void UBoat::readProperties( ConfigElem& elem )
             Item* item = find_toplevel_item( tmp_serial );
             if (item != NULL)
             {
-                int index;
                 if (bshape.objtype_is_component( item->objtype_ ))
                 {
                     Components.push_back( item );
@@ -1121,7 +1123,6 @@ void UBoat::readProperties( ConfigElem& elem )
         Item* item = system_find_item( tmp_serial );
         if (item != NULL)
         {
-            int index;
             if (bshape.objtype_is_component( item->objtype_ ))
             {
                 Components.push_back( item );
@@ -1213,7 +1214,7 @@ BObjectImp* UBoat::scripted_create( const ItemDesc& descriptor, u16 x, u16 y, s8
 void UBoat::create_components()
 {
     const BoatShape& bshape = boatshape();
-	for (vector<BoatShape::ComponentShape>::const_iterator itr = bshape.Componentshapes.begin(), end = bshape.Componentshapes.end(); itr != end; itr++)
+	for (vector<BoatShape::ComponentShape>::const_iterator itr = bshape.Componentshapes.begin(), end = bshape.Componentshapes.end(); itr != end; ++itr)
     {
 		Item* component = Item::create( itr->objtype );
         if (component == NULL) 
@@ -1280,7 +1281,7 @@ BObjectImp* UBoat::mobiles_list() const
 BObjectImp* UBoat::component_list( unsigned char type ) const
 {
 	ObjArray* arr = new ObjArray;
-	for( vector<Item*>::const_iterator itr = Components.begin(), end = Components.end(); itr != end; itr++ )
+	for( vector<Item*>::const_iterator itr = Components.begin(), end = Components.end(); itr != end; ++itr )
 	{
 		Item* item = *itr;
 		if( item != NULL && !item->orphan() )

@@ -106,7 +106,7 @@ void Client::transmit_encrypted( const void *data, int len )
 	unsigned char *pch;
 	int i;
 	int bidx; // Offset in output byte
-	EncryptedPktBuffer* outbuffer = REQUESTPACKET(EncryptedPktBuffer,ENCRYPTEDPKTBUFFER);
+	EncryptedPktBuffer* outbuffer = PktHelper::RequestPacket<EncryptedPktBuffer>(ENCRYPTEDPKTBUFFER);
 	pch = reinterpret_cast<unsigned char*>(outbuffer->getBuffer());
 	bidx=0;
     THREAD_CHECKPOINT( active_client, 101 );
@@ -177,7 +177,7 @@ void Client::transmit_encrypted( const void *data, int len )
     passert( pch-reinterpret_cast<unsigned char*>(outbuffer->buffer)+1 <= int(sizeof outbuffer->buffer) );
     THREAD_CHECKPOINT( active_client, 115 );
 	xmit( &outbuffer->buffer, static_cast<unsigned short>(pch-reinterpret_cast<unsigned char*>(outbuffer->buffer)+1) );
-	READDPACKET(outbuffer);
+	PktHelper::ReAddPacket(outbuffer);
     THREAD_CHECKPOINT( active_client, 116 );
 }
 #include "../packetscrobj.h"
