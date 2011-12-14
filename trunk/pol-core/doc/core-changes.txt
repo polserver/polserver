@@ -1,4 +1,7 @@
 ﻿-- POL099 --
+12-14-2011 Tomi:
+    Changed: boats.cfg entries changed from "Name Graphic X Y" to "Name Graphic X Y Z" because some of the new boat components requires different Z levels than the boat itself.
+
 12-13-2011 Austin:
     Added: Support for destroy scripts on multis.
 
