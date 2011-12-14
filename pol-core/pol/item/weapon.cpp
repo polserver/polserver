@@ -269,7 +269,7 @@ void load_weapon_templates()
 
 void load_intrinsic_weapons()
 {
-	if (!dont_save_itemtype[ extobj.wrestling ])
+	if (!dont_save_itemtype( extobj.wrestling ))
 		throw runtime_error( "Wrestling weapon " + hexint(extobj.wrestling) + " must specify SaveOnExit 0" );
 
 	const ItemDesc& id = find_itemdesc( extobj.wrestling );
@@ -402,7 +402,7 @@ UWeapon::UWeapon( const WeaponDesc& descriptor, const WeaponDesc* permanent_desc
 	hit_script_( descriptor.hit_script )
 {
 }
-extern vector<ItemDesc*> desctable;
+extern map<u32,ItemDesc*> desctable;
 
 UWeapon::~UWeapon() 
 {

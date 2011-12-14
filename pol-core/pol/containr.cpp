@@ -107,7 +107,7 @@ void UContainer::printContents( ostream& os ) const
         const Item *item = GET_ITEM_PTR( itr );
         if (item != NULL) 
         {
-			if (!dont_save_itemtype[item->objtype_] && item->saveonexit())
+			if (!dont_save_itemtype(item->objtype_) && item->saveonexit())
             {
                 os << *item;
                 item->clear_dirty();
@@ -986,7 +986,7 @@ void WornItemsContainer::print( ostream& ofs_pc, ostream& ofs_equip ) const
         const Item* item = contents_[ layer ];
         if (item)
         {
-			if (dont_save_itemtype[item->objtype_] || !item->saveonexit())
+			if (dont_save_itemtype(item->objtype_) || !item->saveonexit())
                 continue;
 
             if ((layer == LAYER_HAIR) || 
