@@ -1,4 +1,7 @@
 ﻿-- POL099 --
+12-13-2011 Austin:
+    Added: Support for destroy scripts on multis.
+
 12-13-2011 Tomi:
     Added: Support for HSA botes ( no smooth move yet, but now all boats are usable )
     Changed: boat.cfg to support new entries "Rope", "Wheel", "Hull", "Tiller", "Rudder", "Sails", "Storage", "Weaponslot"
