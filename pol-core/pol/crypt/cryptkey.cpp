@@ -31,7 +31,7 @@ void CalculateCryptKeys(const string& name, TCryptInfo& infoCrypt)
 		infoCrypt.uiKey1 = 0;
 		infoCrypt.uiKey2 = 0;
 	}
-	else if ( strnicmp( "2.0.0x", name.c_str(), len) == 0 )
+	else if ( strnicmp( "2.0.0x", name.c_str(), 6) == 0 )
 	{
 		infoCrypt.eType = CRYPT_BLOWFISH_TWOFISH;
 		infoCrypt.uiKey1 = 0x2D13A5FD;
