@@ -971,7 +971,7 @@ void write_items( ostream& ofs_items )
 				{
 					Item* item = *itr;
 
-					if (!dont_save_itemtype[item->objtype_] && item->saveonexit())
+					if (!dont_save_itemtype(item->objtype_) && item->saveonexit())
 					{
 						ofs_items << *item;
 						item->clear_dirty();

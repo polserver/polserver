@@ -2122,7 +2122,6 @@ int xmain_inner( int argc, char *argv[] )
 
 	checkpoint( "reading pol.cfg" );
 	read_pol_config( true );
-	setup_item_vectors();
 
 	checkpoint( "reading config/bannedips.cfg" );
 	read_bannedips_config( true );
