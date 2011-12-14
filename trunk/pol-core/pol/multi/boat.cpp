@@ -891,7 +891,7 @@ bool UBoat::move_xy(unsigned short newx, unsigned short newy, int flags, Realm* 
 
         // NOTE, send_boat_to_inrange pauses those it sends to.
         send_boat_to_inrange( this, oldx, oldy );
-        transform_components( boatshape(), oldrealm );
+        move_components( oldrealm );
         move_travellers( FACING_N, bc, newx, newy, oldrealm ); //facing is ignored if params 3 & 4 are not USHRT_MAX
         unpause_paused();
 
@@ -932,7 +932,7 @@ bool UBoat::move( UFACING facing )
 
             // NOTE, send_boat_to_inrange pauses those it sends to.
         send_boat_to_inrange( this, oldx, oldy );
-        transform_components( boatshape(), realm );
+        move_components( realm );
         move_travellers( facing, bc, x, y, realm );
         unpause_paused();
 
@@ -997,6 +997,28 @@ void UBoat::transform_components(const BoatShape& old_boatshape, Realm* oldrealm
 				item->graphic = itr2->altgraphic;
 			else
 				item->graphic = itr2->graphic;
+            move_boat_item( item, x + itr2->xdelta, y + itr2->ydelta, z + static_cast<s8>(itr2->zdelta), oldrealm );
+        }
+    }
+}
+
+void UBoat::move_components(Realm* oldrealm)
+{
+    const BoatShape& bshape = boatshape();
+	vector<Item*>::iterator itr; 
+	vector<Item*>::iterator end = Components.end();
+	vector<BoatShape::ComponentShape>::const_iterator itr2;
+	vector<BoatShape::ComponentShape>::const_iterator end2 = bshape.Componentshapes.end();
+	for (itr = Components.begin(), itr2 = bshape.Componentshapes.begin(); itr != end && itr2 != end2; itr++, itr2++)
+    {
+        Item* item = *itr;
+        if (item != NULL)
+        {
+            if (item->orphan())
+            {
+                continue;
+            }
+            item->set_dirty();
             move_boat_item( item, x + itr2->xdelta, y + itr2->ydelta, z + static_cast<s8>(itr2->zdelta), oldrealm );
         }
     }

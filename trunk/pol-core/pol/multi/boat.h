@@ -87,6 +87,7 @@ protected:
     const BoatShape& boatshape() const;
     void rescan_components();
     void transform_components( const BoatShape& old_boatshape, Realm* oldrealm );
+	void move_components( Realm* oldrealm );
 
     explicit UBoat( const ItemDesc& descriptor );
     virtual void readProperties( ConfigElem& elem );
