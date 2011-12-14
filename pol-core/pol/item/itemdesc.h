@@ -242,7 +242,7 @@ extern map<u32,ItemDesc*> desctable;
 
 inline bool has_itemdesc( u32 objtype )
 {
-	return desctable.count(objtype);
+	return desctable.count(objtype)>0;
 }
 
 unsigned short getgraphic( unsigned int objtype );
