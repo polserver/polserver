@@ -62,18 +62,11 @@ ItemDesc empty_itemdesc( ItemDesc::ITEMDESC );
 // another option is to create such ItemDesc objects on demand as needed, and keep them around.
 ItemDesc temp_itemdesc( ItemDesc::ITEMDESC );
 
-vector<ItemDesc*> desctable;
-vector<bool> has_walkon_script_;
-vector<bool> dont_save_itemtype;
+map<u32,ItemDesc*> desctable;
+map<u32,bool> has_walkon_script_;
+map<u32,bool> dont_save_itemtype_;
 
 OldObjtypeConversions old_objtype_conversions;
-
-void setup_item_vectors()
-{
-	desctable.resize(config.max_objtype, NULL);
-	has_walkon_script_.resize(config.max_objtype, false);
-	dont_save_itemtype.resize(config.max_objtype, false);
-}
 
 unsigned int get_objtype_byname( const char* str )
 {
@@ -126,7 +119,7 @@ ItemDesc* ItemDesc::create( ConfigElem& elem, const Package* pkg )
 	if (old_objtype_conversions.count( objtype ))
 	{
 		elem.throw_error( "Objtype is defined as an OldObjtype of "
-							+ desctable[old_objtype_conversions[objtype]]->objtype_description() );
+							+ find_itemdesc(old_objtype_conversions[objtype]).objtype_description() );
 	}
 
 	ItemDesc* descriptor = NULL;
@@ -356,10 +349,10 @@ ItemDesc::ItemDesc( u32 objtype, ConfigElem& elem, Type type, const Package* pkg
 							  + " which is already mapped to " +
 							  find_itemdesc( old_objtype_conversions[old_objtype] ).objtype_description() );
 		}
-		if (desctable[old_objtype] != &empty_itemdesc)
+		if (has_itemdesc(old_objtype))
 		{
 			elem.throw_error( objtype_description() + " specifies OldObjtype " + hexint(old_objtype)
-							  + " which is already defined as " + desctable[old_objtype]->objtype_description() );
+							  + " which is already defined as " + find_itemdesc(old_objtype_conversions[objtype]).objtype_description() );
 		}
 		old_objtype_conversions[ old_objtype ] = objtype;
 	}
@@ -756,8 +749,8 @@ void MapDesc::PopulateStruct( BStruct* descriptor ) const
 
 bool objtype_is_lockable( u32 objtype )
 {
-   // passert( objtype < N_ITEM_DESC ); // Shinigami: it's always true
-	return desctable[objtype]->lockable;
+	const ItemDesc& id = find_itemdesc(objtype);
+	return id.lockable;
 }
 
 unsigned short getgraphic( u32 objtype )
@@ -781,26 +774,25 @@ unsigned short getgraphic( u32 objtype )
 }
 unsigned short getcolor( unsigned int objtype )
 {
-	return desctable[objtype]->color;
+	const ItemDesc& id = find_itemdesc(objtype);
+	return id.color;
 }
+
 const ItemDesc& find_itemdesc( unsigned int objtype )
 {
-   // passert( objtype < N_ITEM_DESC ); // Shinigami: it's always true
-	return *desctable[objtype];
-/*
-	ItemDescCont::iterator itr = itemdesc.find( objtype );
-	if (itr != itemdesc.end())
-		return &itr->second;
+    if( desctable.count(objtype) )
+		return *desctable[objtype];
 	else
-		return NULL;
-*/
+		return empty_itemdesc;
 }
 
 const ContainerDesc& find_container_desc( u32 objtype )
 {
-   // passert( objtype < N_ITEM_DESC ); // Shinigami: it's always true
-	ContainerDesc* cd = static_cast<ContainerDesc*>(desctable[ objtype ]);
-
+	ContainerDesc* cd;
+	if( has_itemdesc(objtype) )
+		cd = static_cast<ContainerDesc*>(desctable[objtype]);
+	else
+		cd = static_cast<ContainerDesc*>(&empty_itemdesc);
 	passert_r( (cd->type == ItemDesc::CONTAINERDESC) || (cd->type == ItemDesc::SPELLBOOKDESC),
 	  "ObjType " + hexint(objtype) + " should be defined as container or spellbook, but is not");
    // if ( (cd->type != ItemDesc::CONTAINERDESC) && (cd->type != ItemDesc::SPELLBOOKDESC) )
@@ -811,24 +803,24 @@ const ContainerDesc& find_container_desc( u32 objtype )
 
 const DoorDesc& fast_find_doordesc( u32 objtype )
 {
-	DoorDesc* dd = static_cast<DoorDesc*>(desctable[objtype]);
+	DoorDesc* dd;
+	if( has_itemdesc(objtype) )
+		dd = static_cast<DoorDesc*>(desctable[objtype]);
+	else
+		dd = static_cast<DoorDesc*>(&empty_itemdesc);
 	passert( dd->type == ItemDesc::DOORDESC );
 	return *dd;
 }
+
 const MultiDesc& find_multidesc( u32 objtype )
 {
-   const ItemDesc* id = desctable[objtype];
+   const ItemDesc* id;
+   if( has_itemdesc(objtype) )
+	   id = desctable[objtype];
+   else
+	   id = &empty_itemdesc;
    passert( id->type == ItemDesc::BOATDESC || id->type == ItemDesc::HOUSEDESC );
    return *static_cast<const MultiDesc*>(id);
-}
-
-void fillin_itemdesc_table()
-{
-	for( unsigned int i = 0; i < config.max_objtype; i++ )
-	{
-		if (desctable[i] == NULL)
-			desctable[i] = &empty_itemdesc;
-	}
 }
 
 vector< ItemDesc* > dynamic_item_descriptors;
@@ -967,21 +959,21 @@ void read_itemdesc_file( const char* filename, Package* pkg = NULL )
 		//	elem.warn_with_line( "Property '" + unused_name + "' (value '" + unused_value + "') is unused." );
 		//}
 
-		if (desctable[ descriptor->objtype ] != &empty_itemdesc)
+		if ( has_itemdesc(descriptor->objtype) )
 		{
 			cerr << "Error: Objtype " << hexint(descriptor->objtype) << " is already defined in ";
-			if (desctable[descriptor->objtype]->pkg == NULL)
+			if ( find_itemdesc(descriptor->objtype).pkg == NULL)
 				cerr << "config/itemdesc.cfg";
 			else
-				cerr << desctable[descriptor->objtype]->pkg->dir() << "itemdesc.cfg";
+				cerr << find_itemdesc(descriptor->objtype).pkg->dir() << "itemdesc.cfg";
 			cerr << endl;
 
 			elem.throw_error( "ObjType " + hexint( descriptor->objtype ) + " defined more than once." );
 		}
-		has_walkon_script_[descriptor->objtype] = (!descriptor->walk_on_script.empty());
+		has_walkon_script_[ descriptor->objtype ] = (!descriptor->walk_on_script.empty());
 		desctable[ descriptor->objtype ] = descriptor;
 
-		dont_save_itemtype[descriptor->objtype] = !elem.remove_bool( "SaveOnExit", true );
+		dont_save_itemtype_[descriptor->objtype] = !elem.remove_bool( "SaveOnExit", true );
 		// just make sure this will work later.
 		getgraphic( descriptor->objtype );
 	}
@@ -1001,14 +993,10 @@ void write_objtypes_txt()
 {
 	ofstream ofs( "objtypes.txt" );
 	unsigned int last_objtype = 0;
-	for( unsigned int i = 1; i < config.max_objtype; ++i )
+	for( map<u32,ItemDesc*>::iterator itr = desctable.begin(), end = desctable.end(); itr != end; itr++ )
 	{
-		const ItemDesc* itemdesc = desctable[ i ];
-		if (itemdesc == &empty_itemdesc &&
-			!old_objtype_conversions.count(static_cast<unsigned int>(i)))
-		{
-			continue;
-		}
+		const ItemDesc* itemdesc = itr->second;
+		unsigned int i = itr->first;
 
 		if (i != last_objtype+1)
 		{
@@ -1024,7 +1012,7 @@ void write_objtypes_txt()
 			}
 		}
 
-		if (itemdesc != &empty_itemdesc)
+		if (!old_objtype_conversions.count(i))
 		{
 			ofs << hexint(i) << " ";
 			if (itemdesc->objtypename.empty() == false)
@@ -1049,7 +1037,7 @@ void write_objtypes_txt()
 	if (last_objtype != config.max_objtype)
 	{
 		unsigned int first = last_objtype+1;
-		unsigned int last = config.max_objtype-1;
+		unsigned int last = config.max_objtype;
 		if (first == last)
 		{
 			ofs << "# " << hexint(first) << " unused\n";
@@ -1063,7 +1051,6 @@ void write_objtypes_txt()
 
 void load_itemdesc()
 {
-	fillin_itemdesc_table();
 //	CreateEmptyStoredConfigFile( "config/itemdesc.cfg" );
 	if ( FileExists("config/itemdesc.cfg") )
 		read_itemdesc_file( "config/itemdesc.cfg" );
@@ -1072,27 +1059,17 @@ void load_itemdesc()
 
 	ForEach( packages, load_package_itemdesc );
 
-	//unsigned count = 0;
-	//for( int i = 0; i <= config.max_tile_id; i++ )
-	//{
-	//	if (desctable[i] == &empty_itemdesc)
-	//		++count;
-	//}
-	// cerr << count << endl;
-
 	write_objtypes_txt();
 }
 
 void unload_itemdesc()
 {
-	for( unsigned int i = 0; i < config.max_objtype; i++ )
+	for( map<u32,ItemDesc*>::iterator itr = desctable.begin(), end = desctable.end(); itr != end; itr++ )
 	{
-		if (desctable[i] != &empty_itemdesc) 
-		{
-			delete desctable[i];
-			desctable[i] = &empty_itemdesc;
-		}
+		delete itr->second;
+		itr->second = &empty_itemdesc;
 	}
+
 	objtype_byname.clear();
 	old_objtype_conversions.clear();
 	
@@ -1100,12 +1077,9 @@ void unload_itemdesc()
 
 void unload_itemdesc_scripts()
 {
-	for( unsigned int i = 0; i < config.max_objtype; i++ )
+	for( map<u32,ItemDesc*>::iterator itr = desctable.begin(), end = desctable.end(); itr != end; itr++ )
 	{
-		if (desctable[i] != &empty_itemdesc)
-		{
-			desctable[i]->unload_scripts();
-		}
+		itr->second->unload_scripts();
 	}
 }
 

@@ -446,7 +446,7 @@ bool getObjtypeParam( Executor& exec, unsigned param, unsigned int& objtype )
     if ((objtype_long >= config.max_tile_id) && (objtype_long <= config.max_objtype)) 
     {
         objtype = objtype_long;
-        if (&find_itemdesc(objtype) != &empty_itemdesc)
+        if( has_itemdesc( objtype ) )
         {
             return true;
         }

@@ -160,7 +160,7 @@ Item* Item::create( const ItemDesc& id, u32 serial)
 		item->serial = UseItemSerialNumber(serial);
 		item->clear_dirty();
 	}
-	else if (dont_save_itemtype[objtype])
+	else if (dont_save_itemtype(objtype))
 	{
 		item->set_dirty();
 

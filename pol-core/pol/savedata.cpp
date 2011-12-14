@@ -112,7 +112,7 @@ void write_object_dirty_owners( ostream& ofs_data, const UObject* obj, bool& has
     const UObject* owner = obj->owner();
     if (owner)
     {
-        if (dont_save_itemtype[owner->objtype_] ||
+        if (dont_save_itemtype(owner->objtype_) ||
 			owner->orphan() || !owner->saveonexit())
         {
             has_nonsaved_owner = true;
@@ -147,7 +147,7 @@ void write_dirty_data( ostream& ofs_data )
         const UObjectRef& ref = (*citr).second;
         const UObject* obj = ref.get();
 
-        if (dont_save_itemtype[obj->objtype_])
+        if (dont_save_itemtype(obj->objtype_))
             continue;
 
         if (!obj->dirty())

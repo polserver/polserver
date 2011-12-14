@@ -225,31 +225,9 @@ Notes
 
 
 #define UOBJ_ITEM__LOWEST           0x0002
-// Using max_tile_id from polcfg.h instead of hardcoded value to fix SA objtype changes
-// #define UOBJ_ITEM__HIGHEST          0x3FFF
-
-// Using max_tile_id+0x1001 instead of hardcoded value to fix SA objtype changes
-// #define EXTOBJ__LOWEST              0x5000
-// #define EXTOBJ__HIGHEST             0x20000
 
 // Define the Default ( also minimun max_objtype allowed ) pol.cfg now uses max_objtype to let people define the maximum
 #define EXTOBJ_HIGHEST_DEFAULT		0x20000
-
-// Removed using values from extobj.h and extobj.cpp instead
-/*
-these must match enum BOAT_COMPONENT in boat.h
-
-#define EXTOBJ_TILLERMAN            0xF010
-#define EXTOBJ_PORT_PLANK           0xF011
-#define EXTOBJ_STARBOARD_PLANK      0xF012
-#define EXTOBJ_HOLD                 0xF013
-
-#define EXTOBJ_WRESTLING            0xF020
-#define EXTOBJ_MOUNT                0xF021
-
-#define EXTOBJ_SECURE_TRADE_CONTAINER	0xFF01
-#define EXTOBJ_WORNITEMS_CONTAINER		0xFF02
-*/
 
 
 #endif
