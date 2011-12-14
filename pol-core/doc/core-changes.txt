@@ -1,5 +1,7 @@
 ﻿-- POL099 --
 12-14-2011 Tomi:
+    Removed: pol.cfg MaxObjtype limit removed, not it accepts up to 0xFFFFFFFF ( 4294967295 ) but try to keep it as low as possible, default value still 0x20000
+    Changed: objtype vectors changed to maps to only reserve as much memory as there are itemdesc entries, not reserving memory for up to 4 billions of objtypes.
     Changed: boats.cfg entries changed from "Name Graphic X Y" to "Name Graphic X Y Z" because some of the new boat components requires different Z levels than the boat itself.
 
 12-13-2011 Austin:
@@ -32,11 +34,11 @@
                    Tiller=0x1F017
                    Rudder=0x1F018
                    Sails=0x1F019
-                   Storage=0x1F020
-                   Weaponslot=0x1F021
+                   Storage=0x1F01A
+                   Weaponslot=0x1F01B
 
-                   Wrestling=0x1F022
-                   Mount=0x1F023
+                   Wrestling=0x1F020
+                   Mount=0x1F021
 
                    Secure_Trade_Container=0x1FF01
                    Wornitems_Container=0x1FF02

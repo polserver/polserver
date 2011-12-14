@@ -46,8 +46,8 @@ void read_extobj()
 	extobj.tiller = elem.remove_unsigned("Tiller", 0x1F017);
 	extobj.rudder = elem.remove_unsigned("Rudder", 0x1F018);
 	extobj.sails = elem.remove_unsigned("Sails", 0x1F019);
-	extobj.storage = elem.remove_unsigned("Storage", 0x1F020);
-	extobj.weaponslot = elem.remove_unsigned("Weaponslot", 0x1F021);
+	extobj.storage = elem.remove_unsigned("Storage", 0x1F01A);
+	extobj.weaponslot = elem.remove_unsigned("Weaponslot", 0x1F01B);
 
 	extobj.wrestling = elem.remove_unsigned("Wrestling", 0x1F020);
 	extobj.mount = elem.remove_unsigned("Mount", 0x1F021);

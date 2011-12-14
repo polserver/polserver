@@ -86,7 +86,7 @@ void read_pol_config( bool initial_load )
 			config.max_tile_id = max_tile;
 
 		unsigned int max_obj = elem.remove_unsigned( "MaxObjtype", EXTOBJ_HIGHEST_DEFAULT );
-		if ( max_obj < EXTOBJ_HIGHEST_DEFAULT || max_obj > 0xFFFFFF )
+		if ( max_obj < EXTOBJ_HIGHEST_DEFAULT || max_obj > 0xFFFFFFFF )
 			config.max_objtype = EXTOBJ_HIGHEST_DEFAULT;
 		else
 			config.max_objtype = max_obj;
