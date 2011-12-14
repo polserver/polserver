@@ -76,6 +76,7 @@ struct BoatShape {
 		unsigned short altgraphic;
         unsigned short xdelta;
         unsigned short ydelta;
+		signed short zdelta;
 		ComponentShape( const string& str, const string& altstr, unsigned char type );
         ComponentShape( const string& str, unsigned char type );
     };
@@ -97,10 +98,12 @@ BoatShape::ComponentShape::ComponentShape( const string& str, unsigned char type
         if (graphic)
         {
             unsigned short xd, yd;
-            if (is >> xd >> yd)
+			signed short zd;
+            if (is >> xd >> yd >> zd)
             {
                 xdelta = xd;
                 ydelta = yd;
+				zdelta = zd;
                 return;
             }
         }
@@ -121,11 +124,13 @@ BoatShape::ComponentShape::ComponentShape( const string& str, const string& alts
         graphic = static_cast<unsigned short>(strtoul( tmp.c_str(), NULL, 0 ));
         if (graphic)
         {
-            unsigned short xd, yd;
-            if (is >> xd >> yd)
+			unsigned short xd, yd;
+			signed short zd;
+            if (is >> xd >> yd >> zd)
             {
                 xdelta = xd;
                 ydelta = yd;
+				zdelta = zd;
                 ok = true;
             }
         }
@@ -992,7 +997,7 @@ void UBoat::transform_components(const BoatShape& old_boatshape, Realm* oldrealm
 				item->graphic = itr2->altgraphic;
 			else
 				item->graphic = itr2->graphic;
-            move_boat_item( item, x + itr2->xdelta, y + itr2->ydelta, z, oldrealm );
+            move_boat_item( item, x + itr2->xdelta, y + itr2->ydelta, z + static_cast<s8>(itr2->zdelta), oldrealm );
         }
     }
 }
@@ -1206,7 +1211,7 @@ void UBoat::create_components()
         component->height = tileheight( component->graphic );
         component->x = x + itr->xdelta;
         component->y = y + itr->ydelta;
-        component->z = z;
+		component->z = z + static_cast<s8>(itr->zdelta);
         component->disable_decay();
         component->movable(false);
 		component->realm = realm;
