@@ -589,7 +589,7 @@ ObjArray* CustomHouseDesign::list_parts() const
 
 void CustomHouseStopEditing(Character* chr, UHouse* house)
 {
-	PktOut_BF_Sub20* msg = PktHelper::RequestSubPacket<PktOut_BF_Sub20>(PKTBI_BF_ID, PKTBI_BF::TYPE_ACTIVATE_CUSTOM_HOUSE_TOOL);
+	PktHelper::PacketOut<PktOut_BF_Sub20> msg;
 	msg->WriteFlipped(static_cast<u16>(17));
 	msg->offset+=2; //sub
 	msg->Write(house->serial_ext);
@@ -597,8 +597,8 @@ void CustomHouseStopEditing(Character* chr, UHouse* house)
 	msg->offset+=2; // u16 unk2 FIXME what's the meaning
 	msg->Write(static_cast<u32>(0xFFFFFFFF)); // fixme
 	msg->Write(static_cast<u8>(0xFF)); // fixme
-    ADDTOSENDQUEUE(chr->client,&msg->buffer,msg->offset);
-	PktHelper::ReAddPacket(msg);
+	msg.Send(chr->client);
+	msg.Release();
 
 	const MultiDef& def = house->multidef();
     move_character_to(chr,house->x+def.minrx,house->y+def.maxry+1,house->z,MOVEITEM_FORCELOCATION, NULL);
@@ -1011,13 +1011,12 @@ void CustomHousesSendFullToInRange(UHouse* house, int design, int range)
 
 void CustomHousesSendShort(UHouse* house, Client* client)
 {
-	PktOut_BF_Sub1D* msg = PktHelper::RequestSubPacket<PktOut_BF_Sub1D>(PKTBI_BF_ID, PKTBI_BF::TYPE_CUSTOM_HOUSE_SHORT);
+	PktHelper::PacketOut<PktOut_BF_Sub1D> msg;
 	msg->WriteFlipped(static_cast<u16>(13));
 	msg->offset+=2;
 	msg->Write(house->serial_ext);
 	msg->WriteFlipped(house->revision);
-    ADDTOSENDQUEUE(client,&msg->buffer, msg->offset);
-	PktHelper::ReAddPacket(msg);
+	msg.Send(client);
 }
 
 void UHouse::SetCustom(bool _custom)

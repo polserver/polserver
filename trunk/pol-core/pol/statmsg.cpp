@@ -30,9 +30,11 @@ Notes
 
 #include "ssopt.h"
 
+using namespace PktHelper;
+
 void send_full_statmsg( Client *client, Character *chr )
 {
-	PktOut_11* msg = PktHelper::RequestPacket<PktOut_11>(PKTOUT_11_ID);
+	PacketOut<PktOut_11> msg;
 	msg->offset+=2; // msglen
 	msg->Write(chr->serial_ext);
 	msg->Write(chr->name().c_str(),30,false);
@@ -178,9 +180,7 @@ void send_full_statmsg( Client *client, Character *chr )
 	u16 len=msg->offset;
 	msg->offset=1;
 	msg->WriteFlipped(len);
-
-	transmit(client, &msg->buffer, len );
-	PktHelper::ReAddPacket(msg);
+	msg.Send(client,len);
 
 	if (ssopt.send_stat_locks)
 		send_stat_locks(client, chr);
@@ -196,21 +196,19 @@ void send_stat_locks (Client *client, Character *chr) {
 	lockbit |= chr->attribute(uoclient_general.dexterity.id).lock() << 2;
 	lockbit |= chr->attribute(uoclient_general.intelligence.id).lock();
 
-	PktOut_BF_Sub19* msg = PktHelper::RequestSubPacket<PktOut_BF_Sub19>(PKTBI_BF_ID, PKTBI_BF::TYPE_EXTENDED_STATS_OUT);
+	PacketOut<PktOut_BF_Sub19> msg;
 	msg->WriteFlipped(static_cast<u16>(12));
 	msg->offset+=2; //sub
 	msg->Write(static_cast<u8>(0x02)); // 2D Client = 0x02, KR = 0x05
 	msg->Write(chr->serial_ext);
 	msg->offset++; //unk
 	msg->Write(lockbit);
-
-	ADDTOSENDQUEUE(client,&msg->buffer, msg->offset);
-	PktHelper::ReAddPacket(msg);
+	msg.Send(client);
 }
 
 void send_short_statmsg( Client *client, Character *chr )
 {
-	PktOut_11* msg = PktHelper::RequestPacket<PktOut_11>(PKTOUT_11_ID);
+	PacketOut<PktOut_11> msg;
 	msg->offset+=2; // msglen
 	msg->Write(chr->serial_ext);
 	msg->Write(chr->name().c_str(),30,false);
@@ -240,13 +238,12 @@ void send_short_statmsg( Client *client, Character *chr )
 	msg->offset=1;
 	msg->WriteFlipped(len);
 
-	transmit(client, &msg->buffer, len );
-	PktHelper::ReAddPacket(msg);
+	msg.Send(client, len );
 }
 
 void send_update_hits_to_inrange( Character *chr )
 {
-	PktOut_A1* msg = PktHelper::RequestPacket<PktOut_A1>(PKTOUT_A1_ID);
+	PacketOut<PktOut_A1> msg;
 	msg->Write(chr->serial_ext);
 	
     if (uoclient_general.hits.any)
@@ -262,7 +259,7 @@ void send_update_hits_to_inrange( Character *chr )
 
 		// Send proper data to self (if we exist?)
 		if (chr->client && chr->client->ready)
-			transmit( chr->client, &msg->buffer, msg->offset );
+			msg.Send(chr->client);
 
 		// To stop "HP snooping"...
 		msg->offset=5;
@@ -273,10 +270,9 @@ void send_update_hits_to_inrange( Character *chr )
     {
 		msg->offset+=4; // hits,maxhits=0
 		if (chr->client && chr->client->ready)
-			transmit( chr->client, &msg->buffer, msg->offset );
+			msg.Send(chr->client);
     }
 
 	// Exclude self... otherwise their status-window shows 1000 hp!! >_<
 	transmit_to_others_inrange( chr, &msg->buffer, msg->offset, false, false );
-	PktHelper::ReAddPacket(msg);
 }
