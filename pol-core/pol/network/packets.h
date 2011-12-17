@@ -27,6 +27,7 @@ Notes
 #include "../pktoutid.h"
 #include "../realms.h"
 #include "../ucfg.h"
+#include "client.h"
 
 #include "../../clib/mlog.h" //debug
 
@@ -241,6 +242,8 @@ template <u8 _id, u16 _size>
 class PacketTemplate : public PacketWriter<_id, _size>
 {
 	public:
+		static const u8 ID = _id;
+		static const u8 SUB = 0;
 		PacketTemplate() { ReSetBuffer(); }
 		void ReSetBuffer()
 		{ 
@@ -255,6 +258,8 @@ template <u8 _id, u16 _suboff, u16 _sub, u16 _size>
 class PacketTemplateSub : public PacketWriter<_id, _size, _sub>
 {
 	public:
+		static const u16 SUB = _sub;
+		static const u8 ID = _id;
 		PacketTemplateSub() { ReSetBuffer(); }
 		void ReSetBuffer() 
 		{ 
@@ -271,6 +276,8 @@ template <u8 _id, u16 _size>
 class EmptyBufferTemplate : public PacketInterface
 {
 public:
+	static const u8 ID = _id;
+	static const u8 SUB = 0;
 	EmptyBufferTemplate() { ReSetBuffer(); }
 	char buffer[_size];
 	void ReSetBuffer() 
@@ -304,6 +311,35 @@ namespace PktHelper
 	{
 		Packets::instance()->ReAddPacket(msg);
 	}
+
+	template <class T>
+	class PacketOut
+	{
+	private:
+		T* pkt;
+	public:
+		PacketOut()
+		{
+			pkt=RequestSubPacket<T>(T::ID,T::SUB);
+		}
+		~PacketOut()
+		{
+			if (pkt != 0)
+				ReAddPacket(pkt);
+		}
+		void Release()
+		{
+			ReAddPacket(pkt);
+			pkt = 0;
+		}
+		void Send(Client* client, int len=-1)
+		{
+			if (len == -1)
+				len= pkt->offset;
+			ClientTransmitSingleton::instance()->AddToQueue(client, &pkt->buffer, len);
+		}
+		T *operator->(void) const{ return pkt; }
+	};
 }
 
 // buffer for encrypted Data send with a dummy pktid
