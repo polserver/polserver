@@ -1,4 +1,8 @@
 ﻿-- POL099 --
+12-17-2011 Tomi:
+    Added:   Support for hued boats, use the normal .color r/w member to change the hue
+             Patch Submitted by Agata
+
 12-14-2011 Tomi:
     Removed: pol.cfg MaxObjtype limit removed, now it accepts up to 0xFFFFFFFF ( 4294967295 ) but try to keep it as low as possible, default value still 0x20000
     Changed: objtype vectors changed to maps to only reserve as much memory as there are itemdesc entries, not reserving memory for up to 4 billions of objtypes.
