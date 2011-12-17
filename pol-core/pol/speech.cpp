@@ -110,7 +110,7 @@ void handle_processed_speech( Client* client, char* textbuf, int textbuflen, cha
 	if (textlen > SPEECH_MAX_LEN+1)
 		textlen = SPEECH_MAX_LEN+1;
 
-	PktOut_1C* talkmsg = REQUESTPACKET(PktOut_1C,PKTOUT_1C_ID);
+	PktOut_1C* talkmsg = PktHelper::RequestPacket<PktOut_1C>(PKTOUT_1C_ID);
 	talkmsg->offset+=2;
 	talkmsg->Write(client->chr->serial_ext);
 	talkmsg->WriteFlipped(client->chr->graphic);
@@ -124,7 +124,7 @@ void handle_processed_speech( Client* client, char* textbuf, int textbuflen, cha
 	talkmsg->WriteFlipped(len);
 	transmit( client, &talkmsg->buffer, len );
 
-	PktOut_1C* ghostmsg = REQUESTPACKET(PktOut_1C,PKTOUT_1C_ID);
+	PktOut_1C* ghostmsg = PktHelper::RequestPacket<PktOut_1C>(PKTOUT_1C_ID);
 	if (client->chr->dead() && !client->chr->can_be_heard_as_ghost())
     {
         memcpy( &ghostmsg->buffer, &talkmsg->buffer, sizeof ghostmsg->buffer );
@@ -183,8 +183,8 @@ void handle_processed_speech( Client* client, char* textbuf, int textbuflen, cha
     
     sayto_listening_points( client->chr, textbuf, textbuflen, type );
 
-	READDPACKET(talkmsg);
-	READDPACKET(ghostmsg);
+	PktHelper::ReAddPacket(talkmsg);
+	PktHelper::ReAddPacket(ghostmsg);
 }
 
                               
@@ -266,8 +266,8 @@ void SendUnicodeSpeech(Client *client, PKTIN_AD *msgin, u16* wtext, size_t wtext
 		textcol = 1001;
 	}
 
-	PktOut_AE* ghostmsg = REQUESTPACKET(PktOut_AE,PKTOUT_AE_ID);
-	PktOut_AE* talkmsg = REQUESTPACKET(PktOut_AE,PKTOUT_AE_ID);
+	PktOut_AE* ghostmsg = PktHelper::RequestPacket<PktOut_AE>(PKTOUT_AE_ID);
+	PktOut_AE* talkmsg = PktHelper::RequestPacket<PktOut_AE>(PKTOUT_AE_ID);
 	talkmsg->offset+=2;
 	talkmsg->Write(client->chr->serial_ext);
 	talkmsg->WriteFlipped(client->chr->graphic);
@@ -334,8 +334,8 @@ void SendUnicodeSpeech(Client *client, PKTIN_AD *msgin, u16* wtext, size_t wtext
 			}
 		}
 	}
-	READDPACKET(talkmsg);
-	READDPACKET(ghostmsg);
+	PktHelper::ReAddPacket(talkmsg);
+	PktHelper::ReAddPacket(ghostmsg);
 
     if (!client->chr->dead())
 		for_nearby_npcs( pc_spoke, client->chr, ntext, ntextlen, msgin->type,

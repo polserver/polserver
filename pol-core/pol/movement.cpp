@@ -109,7 +109,7 @@ void remove_objects_inrange( Client* client )
 {
     Character* chr = client->chr;
     unsigned short wxL, wyL, wxH, wyH;
-	PktOut_1D* msgremove = REQUESTPACKET(PktOut_1D,PKTOUT_1D_ID);
+	PktOut_1D* msgremove = PktHelper::RequestPacket<PktOut_1D>(PKTOUT_1D_ID);
 	zone_convert_clip( chr->x - RANGE_VISUAL_LARGE_BUILDINGS, chr->y - RANGE_VISUAL_LARGE_BUILDINGS, chr->realm, wxL, wyL );
     zone_convert_clip( chr->x + RANGE_VISUAL_LARGE_BUILDINGS, chr->y + RANGE_VISUAL_LARGE_BUILDINGS, chr->realm, wxH, wyH );
     for( unsigned short wx = wxL; wx <= wxH; ++wx )
@@ -147,7 +147,7 @@ void remove_objects_inrange( Client* client )
             }
         }
     }
-	READDPACKET(msgremove);
+	PktHelper::ReAddPacket(msgremove);
 }
 
 void cancel_trade( Character* chr1 );
@@ -159,14 +159,14 @@ void handle_walk( Client *client, PKTIN_02 *msg02 )
 	{
 		//drop pkt if last request was denied, should fix the "client hopping"
 
-		/*PktOut_21* msg = REQUESTPACKET(PktOut_21,PKTOUT_21_ID);
+		/*PktOut_21* msg = PktHelper::RequestPacket<PktOut_21>(PKTOUT_21_ID);
 		msg->Write(msg02->movenum);
 		msg->WriteFlipped(chr->x);
 		msg->WriteFlipped(chr->y);
 		msg->Write(chr->facing);
 		msg->Write(chr->z);
 		client->transmit( &msg->buffer, msg->offset );
-		READDPACKET(msg);*/
+		PktHelper::ReAddPacket(msg);*/
 
 		return;
 	}
@@ -189,11 +189,11 @@ void handle_walk( Client *client, PKTIN_02 *msg02 )
 				}
 			}
 			client->pause();
-			PktOut_22* msg = REQUESTPACKET(PktOut_22,PKTBI_22_APPROVED_ID);
+			PktOut_22* msg = PktHelper::RequestPacket<PktOut_22>(PKTBI_22_APPROVED_ID);
 			msg->Write(msg02->movenum);
 			msg->Write(client->chr->hilite_color_idx( client->chr ));
 			ADDTOSENDQUEUE(client, &msg->buffer, msg->offset );
-			READDPACKET(msg);
+			PktHelper::ReAddPacket(msg);
 
 			client->movementsequence = msg02->movenum;
 			if (client->movementsequence == 255)
@@ -222,14 +222,14 @@ void handle_walk( Client *client, PKTIN_02 *msg02 )
 		}
 		else
 		{
-			PktOut_21* msg = REQUESTPACKET(PktOut_21,PKTOUT_21_ID);
+			PktOut_21* msg = PktHelper::RequestPacket<PktOut_21>(PKTOUT_21_ID);
 			msg->Write(msg02->movenum);
 			msg->WriteFlipped(chr->x);
 			msg->WriteFlipped(chr->y);
 			msg->Write(chr->facing);
 			msg->Write(chr->z);
 			ADDTOSENDQUEUE(client, &msg->buffer, msg->offset );
-			READDPACKET(msg);
+			PktHelper::ReAddPacket(msg);
 
 			client->movementsequence = 0;
 		}

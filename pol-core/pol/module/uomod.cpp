@@ -830,13 +830,13 @@ BObjectImp* UOExecutorModule::mf_TargetCancel()
 		{
 			if (chr->target_cursor_busy())
 			{
-				PktOut_6C* msg = REQUESTPACKET(PktOut_6C,PKTBI_6C_ID);
+				PktOut_6C* msg = PktHelper::RequestPacket<PktOut_6C>(PKTBI_6C_ID);
 				msg->Write(static_cast<u8>(PKTBI_6C::UNK1_00));
 				msg->offset+=4; // u32 target_cursor_serial
 				msg->Write(static_cast<u8>(0x3));
 				// rest 0
 				ADDTOSENDQUEUE(chr->client, &msg->buffer, sizeof msg->buffer );
-				READDPACKET(msg);
+				PktHelper::ReAddPacket(msg);
 				return new BLong(0);
 			}
 			else
@@ -4233,7 +4233,7 @@ BObjectImp* UOExecutorModule::mf_SendQuestArrow()
 		getParam( 1, x, -1, 1000000 ) &&
 		getParam( 2, y, -1, 1000000 ))  //max vaues checked below
 	{
-		PktOut_BA* msg = REQUESTPACKET(PktOut_BA,PKTOUT_BA_ID);
+		PktOut_BA* msg = PktHelper::RequestPacket<PktOut_BA>(PKTOUT_BA_ID);
 		if ( x == -1 && y == -1 )
 		{
 			msg->Write(static_cast<u8>(PKTOUT_BA_ARROW_OFF));
@@ -4251,7 +4251,7 @@ BObjectImp* UOExecutorModule::mf_SendQuestArrow()
 			return new BError( "No client attached" );
 
 		ADDTOSENDQUEUE(chr->client,&msg->buffer, msg->offset);
-		READDPACKET(msg);
+		PktHelper::ReAddPacket(msg);
 		return new BLong( 1 );
 	}
 	else
@@ -5779,7 +5779,7 @@ BObjectImp* UOExecutorModule::mf_SendOverallSeason(/*season_id, playsound := 1*/
 		if ( season_id < 0 || season_id > 4 )
 			return new BError("Invalid season id");
 			
-		PktOut_BC* msg = REQUESTPACKET(PktOut_BC,PKTOUT_BC_ID);
+		PktOut_BC* msg = PktHelper::RequestPacket<PktOut_BC>(PKTOUT_BC_ID);
 		msg->Write(static_cast<u8>(season_id));
 		msg->Write(static_cast<u8>(playsound));
 
@@ -5790,7 +5790,7 @@ BObjectImp* UOExecutorModule::mf_SendOverallSeason(/*season_id, playsound := 1*/
 				continue;
 			ADDTOSENDQUEUE(client,&msg->buffer, msg->offset );			
 		}
-		READDPACKET(msg);
+		PktHelper::ReAddPacket(msg);
 		return new BLong(1);
 	}
 	else

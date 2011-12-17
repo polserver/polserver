@@ -32,7 +32,7 @@ Notes
 
 void send_full_statmsg( Client *client, Character *chr )
 {
-	PktOut_11* msg = REQUESTPACKET(PktOut_11,PKTOUT_11_ID);
+	PktOut_11* msg = PktHelper::RequestPacket<PktOut_11>(PKTOUT_11_ID);
 	msg->offset+=2; // msglen
 	msg->Write(chr->serial_ext);
 	msg->Write(chr->name().c_str(),30,false);
@@ -180,7 +180,7 @@ void send_full_statmsg( Client *client, Character *chr )
 	msg->WriteFlipped(len);
 
 	transmit(client, &msg->buffer, len );
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 
 	if (ssopt.send_stat_locks)
 		send_stat_locks(client, chr);
@@ -196,7 +196,7 @@ void send_stat_locks (Client *client, Character *chr) {
 	lockbit |= chr->attribute(uoclient_general.dexterity.id).lock() << 2;
 	lockbit |= chr->attribute(uoclient_general.intelligence.id).lock();
 
-	PktOut_BF_Sub19* msg = REQUESTSUBPACKET(PktOut_BF_Sub19,PKTBI_BF_ID,PKTBI_BF::TYPE_EXTENDED_STATS_OUT);
+	PktOut_BF_Sub19* msg = PktHelper::RequestSubPacket<PktOut_BF_Sub19>(PKTBI_BF_ID, PKTBI_BF::TYPE_EXTENDED_STATS_OUT);
 	msg->WriteFlipped(static_cast<u16>(12));
 	msg->offset+=2; //sub
 	msg->Write(static_cast<u8>(0x02)); // 2D Client = 0x02, KR = 0x05
@@ -205,12 +205,12 @@ void send_stat_locks (Client *client, Character *chr) {
 	msg->Write(lockbit);
 
 	ADDTOSENDQUEUE(client,&msg->buffer, msg->offset);
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 }
 
 void send_short_statmsg( Client *client, Character *chr )
 {
-	PktOut_11* msg = REQUESTPACKET(PktOut_11,PKTOUT_11_ID);
+	PktOut_11* msg = PktHelper::RequestPacket<PktOut_11>(PKTOUT_11_ID);
 	msg->offset+=2; // msglen
 	msg->Write(chr->serial_ext);
 	msg->Write(chr->name().c_str(),30,false);
@@ -241,12 +241,12 @@ void send_short_statmsg( Client *client, Character *chr )
 	msg->WriteFlipped(len);
 
 	transmit(client, &msg->buffer, len );
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 }
 
 void send_update_hits_to_inrange( Character *chr )
 {
-	PktOut_A1* msg = REQUESTPACKET(PktOut_A1,PKTOUT_A1_ID);
+	PktOut_A1* msg = PktHelper::RequestPacket<PktOut_A1>(PKTOUT_A1_ID);
 	msg->Write(chr->serial_ext);
 	
     if (uoclient_general.hits.any)
@@ -278,5 +278,5 @@ void send_update_hits_to_inrange( Character *chr )
 
 	// Exclude self... otherwise their status-window shows 1000 hp!! >_<
 	transmit_to_others_inrange( chr, &msg->buffer, msg->offset, false, false );
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 }
