@@ -181,7 +181,7 @@ void Client::transmit_encrypted( const void *data, int len )
     THREAD_CHECKPOINT( active_client, 116 );
 }
 #include "../packetscrobj.h"
-void Client::transmit( const void *data, int len )
+void Client::transmit( const void *data, int len, bool needslock)
 {
     ref_ptr<BPacket> p;
     bool handled = false;
@@ -191,10 +191,8 @@ void Client::transmit( const void *data, int len )
     //pointer to the packet object.
     //
     //If there is no outgoing packet script, handled will be false, and the passed params will be unchanged.
-	{
-		PolLock lck;
-		CallOutgoingPacketExportedFunction(this, data, len, p, handled);
-	}
+	CallOutgoingPacketExportedFunction(this, data, len, p, handled, needslock);
+
     if(handled)
         return;
 
@@ -206,6 +204,8 @@ void Client::transmit( const void *data, int len )
 		fdump( fpLog, data, len );
 		fprintf( fpLog, "\n" );
     }
+
+	LocalMutex guard(&_SocketMutex);
 
 	if (last_xmit_buffer)
     {

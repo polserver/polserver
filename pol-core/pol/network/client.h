@@ -124,7 +124,7 @@ public:
 	bool isConnected() const;
 
     void closeConnection();
-    void transmit( const void *data, int len ); // for entire message or header only
+    void transmit( const void *data, int len, bool needslock=false ); // for entire message or header only
     void transmitmore( const void *data, int len ); // for stuff after a header
 
     void recv_remaining( int total_expected );
