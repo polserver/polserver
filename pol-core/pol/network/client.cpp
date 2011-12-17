@@ -448,7 +448,6 @@ void Client::xmit( const void *data, unsigned short datalen )
 	const unsigned char *cdata = (const unsigned char *) data;
 	int nsent;
 
-	LocalMutex guard(&_SocketMutex);
 	if (-1 == (nsent = send( csocket, (const char *)cdata, datalen, 0 )))
 	{
         THREAD_CHECKPOINT( active_client, 204 );
@@ -495,13 +494,13 @@ void Client::xmit( const void *data, unsigned short datalen )
 
 void Client::send_queued_data()
 {
+	LocalMutex guard(&_SocketMutex);
 	XmitBuffer *xbuffer;
 	// hand off data to the sockets layer until it won't take any more.
 	// note if a buffer is sent in full, we try to send the next one, ad infinitum
 	while (NULL != (xbuffer = first_xmit_buffer))
 	{
 		int nsent;
-		LocalMutex guard(&_SocketMutex);
 		nsent = send( csocket,
 			          (char *) &xbuffer->data[xbuffer->nsent],
 					  xbuffer->lenleft,

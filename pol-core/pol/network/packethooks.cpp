@@ -40,6 +40,7 @@ new Handler added to the core needs a new Version number here. As of 8/3/09 ther
 #include "packethooks.h"
 #include "../packetscrobj.h"
 #include "../uoscrobj.h"
+#include "../polsem.h"
 
 //stores information about each packet and its script & default handler
 std::vector<PacketHookData> packet_hook_data(256);
@@ -162,7 +163,7 @@ void ExportedPacketHookHandler(Client* client, void* data)
     }
 }
 
-void CallOutgoingPacketExportedFunction(Client* client, const void*& data, int& inlength, ref_ptr<BPacket>& outpacket, bool& handled)
+void CallOutgoingPacketExportedFunction(Client* client, const void*& data, int& inlength, ref_ptr<BPacket>& outpacket, bool& handled, bool needslock)
 {
     //find the script handler data
     bool subcmd_handler_exists = false;
@@ -212,6 +213,8 @@ void CallOutgoingPacketExportedFunction(Client* client, const void*& data, int& 
 		else
 			calling_ref = client->make_ref();
 
+		if (needslock)
+			polsem_lock();
 		if( phd->outgoing_function->call(calling_ref , outpacket.get()) == 0 )
         {
             data = static_cast<void*>(&outpacket->buffer[0]);
@@ -221,6 +224,8 @@ void CallOutgoingPacketExportedFunction(Client* client, const void*& data, int& 
         }
         else
             handled = true;
+		if (needslock)
+			polsem_unlock();
     }
     else //packet is variable length
     {
@@ -235,6 +240,8 @@ void CallOutgoingPacketExportedFunction(Client* client, const void*& data, int& 
 		else
 			calling_ref = client->make_ref();
 
+		if (needslock)
+			polsem_lock();
 		if( phd->outgoing_function->call(calling_ref ,outpacket.get()) == 0 )
         {
             //the buffer size may have changed in the script, make sure the packet gets the right size
@@ -249,6 +256,8 @@ void CallOutgoingPacketExportedFunction(Client* client, const void*& data, int& 
         }
         else
 			handled = true;
+		if (needslock)
+			polsem_unlock();
 	}
 }
 
