@@ -31,13 +31,13 @@ Notes
 
 void send_prompt( Client* client, u32 serial )
 {
-	PktOut_9A* msg = REQUESTPACKET(PktOut_9A,PKTBI_9A_ID);
+	PktOut_9A* msg = PktHelper::RequestPacket<PktOut_9A>(PKTBI_9A_ID);
 	msg->WriteFlipped(static_cast<u16>(sizeof msg->buffer));
 	msg->Write(serial);
 	msg->WriteFlipped(static_cast<u32>(0x15));
 	msg->offset+=5; // u32 type u8 text[0]
     transmit( client, &msg->buffer, msg->offset );
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 }
 
 void handle_prompt( Client* client, PKTBI_9A* msg )

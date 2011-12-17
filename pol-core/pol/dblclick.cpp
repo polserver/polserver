@@ -46,7 +46,7 @@ Notes
 
 void send_paperdoll( Client *client, Character *chr )
 {
-	PktOut_88* msg = REQUESTPACKET(PktOut_88,PKTOUT_88_ID);
+	PktOut_88* msg = PktHelper::RequestPacket<PktOut_88>(PKTOUT_88_ID);
 	msg->Write(chr->serial_ext);
 
 	if ((!ssopt.privacy_paperdoll) || (client->chr == chr))
@@ -77,7 +77,7 @@ void send_paperdoll( Client *client, Character *chr )
 	msg->Write(flag1);
 
 	ADDTOSENDQUEUE(client, &msg->buffer, msg->offset );
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 }
 
 void doubleclick( Client *client, PKTIN_06 *msg )

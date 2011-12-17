@@ -59,10 +59,10 @@ bool is_banned_ip(Client* client);
 
 void send_login_error( Client *client, unsigned char reason )
 {
-	PktOut_82* msg = REQUESTPACKET(PktOut_82,PKTOUT_82_ID);
+	PktOut_82* msg = PktHelper::RequestPacket<PktOut_82>(PKTOUT_82_ID);
 	msg->Write(reason);
 	ADDTOSENDQUEUE(client, &msg->buffer, msg->offset );
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 }
 
 bool acct_check(Client* client, int i)
@@ -158,7 +158,7 @@ void loginserver_login( Client *client, PKTIN_80 *msg )
          AddressToString( &client->ipaddr ));
 
 	client->acct = acct;
-	PktOut_A8* msgA8 = REQUESTPACKET(PktOut_A8,PKTOUT_A8_ID);
+	PktOut_A8* msgA8 = PktHelper::RequestPacket<PktOut_A8>(PKTOUT_A8_ID);
 	msgA8->offset+=2;
 	msgA8->Write(static_cast<u8>(0xFF));
 	msgA8->offset+=2; //servcount
@@ -208,7 +208,7 @@ void loginserver_login( Client *client, PKTIN_80 *msg )
 	msgA8->WriteFlipped(servcount);
 
 	ADDTOSENDQUEUE(client, &msgA8->buffer, len);//client->transmit( &msgA8->buffer, len );
-	READDPACKET(msgA8);
+	PktHelper::ReAddPacket(msgA8);
 
     if (servcount == 0)
     {
@@ -265,7 +265,7 @@ void select_server(Client *client, PKTIN_A0 *msg ) // Relay player to a certain 
 
 	ServerDescription *svr = servers[ servernum ];
 
-	PktOut_8C* rsp = REQUESTPACKET(PktOut_8C,PKTOUT_8C_ID);
+	PktOut_8C* rsp = PktHelper::RequestPacket<PktOut_8C>(PKTOUT_8C_ID);
 	rsp->Write(svr->ip[3]);
 	rsp->Write(svr->ip[2]);
 	rsp->Write(svr->ip[1]);
@@ -283,7 +283,7 @@ void select_server(Client *client, PKTIN_A0 *msg ) // Relay player to a certain 
 	rsp->WriteFlipped(nseed); // This was set to 0xffffffff in the past but this will conflict with UO:KR detection
 
 	ADDTOSENDQUEUE(client, &rsp->buffer, rsp->offset );
-	READDPACKET(rsp);
+	PktHelper::ReAddPacket(rsp);
 	
 	client->cryptengine->Init( &nseed, CCryptBase::typeGame );
 }
@@ -310,7 +310,7 @@ void send_start( Client *client )
 	if (char_slots > char_count) // Max(char_slots, 5)
 		char_count = char_slots;
 
-	PktOut_A9* msg = REQUESTPACKET(PktOut_A9,PKTOUT_A9_ID);
+	PktOut_A9* msg = PktHelper::RequestPacket<PktOut_A9>(PKTOUT_A9_ID);
 	msg->offset+=2;
 	msg->Write(char_count);
 
@@ -376,7 +376,7 @@ void send_start( Client *client )
 	msg->WriteFlipped(len);
 
     ADDTOSENDQUEUE(client, &msg->buffer, len );
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 }
 
 

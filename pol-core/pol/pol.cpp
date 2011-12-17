@@ -252,7 +252,7 @@ MessageHandler_V2::MessageHandler_V2( unsigned char msgtype,
 void send_startup( Client *client )
 {
 	Character *chr = client->chr;
-	PktOut_1B* msg = REQUESTPACKET(PktOut_1B,PKTOUT_1B_ID);
+	PktOut_1B* msg = PktHelper::RequestPacket<PktOut_1B>(PKTOUT_1B_ID);
 	msg->Write(chr->serial_ext);
 	msg->offset+=4; //u8 unk5, unk6, unk7, unk8
 	msg->WriteFlipped(chr->graphic);
@@ -269,7 +269,7 @@ void send_startup( Client *client )
 	msg->WriteFlipped(client->chr->realm->height());
 	msg->offset+=6; // u8 unk31, unk32, unk33, unk34, unk35, unk36
 	transmit( client, &msg->buffer, msg->offset );
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 }
 
 /*
@@ -868,7 +868,7 @@ bool process_data( Client *client )
 				{
 					printf( "UOKR Seed Message Received: Type 0x%X\n", cstype );
 				}
-				PktOut_E3* msg = REQUESTPACKET(PktOut_E3,PKTOUT_E3_ID);
+				PktOut_E3* msg = PktHelper::RequestPacket<PktOut_E3>(PKTOUT_E3_ID);
 				msg->WriteFlipped(static_cast<u16>(77));
 				msg->WriteFlipped(static_cast<u32>(0x03));
 				msg->Write(static_cast<u8>(0x02));	msg->Write(static_cast<u8>(0x01));	msg->Write(static_cast<u8>(0x03));
@@ -898,7 +898,7 @@ bool process_data( Client *client )
 				client->recv_state = Client::RECV_STATE_MSGTYPE_WAIT;
 				client->setClientType(CLIENTTYPE_UOKR); // UO:KR logging in				
 				ADDTOSENDQUEUE(client, &msg->buffer, msg->offset );
-				READDPACKET(msg);
+				PktHelper::ReAddPacket(msg);
 			}
 			else if (client->buffer[0] == PKTIN_EF_ID)  // new seed since 6.0.5.0 (0xef should never appear in normal ipseed)
 			{
@@ -1051,12 +1051,12 @@ client->checkpoint = 61; //CNXBUG
 					{
 						CLIENT_CHECKPOINT(4);
 						PolLock lck; //multithread
-						PktOut_53* msg = REQUESTPACKET(PktOut_53,PKTOUT_53_ID);
+						PktOut_53* msg = PktHelper::RequestPacket<PktOut_53>(PKTOUT_53_ID);
 						msg->Write(static_cast<u8>(PKTOUT_53_WARN_CHARACTER_IDLE));
 						CLIENT_CHECKPOINT(5);
 						ADDTOSENDQUEUE(client, &msg->buffer, msg->offset );
 						CLIENT_CHECKPOINT(18);
-						READDPACKET(msg);
+						PktHelper::ReAddPacket(msg);
 						if (client->pause_count)
 							client->restart2();
 					}
