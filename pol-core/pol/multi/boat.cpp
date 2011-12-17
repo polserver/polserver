@@ -296,13 +296,15 @@ void send_boat_to_inrange( const UBoat* item, u16 oldx, u16 oldy )
 	msg2->Write(static_cast<u8>(0x02));
 	msg2->Write(item->serial_ext);
 	msg2->WriteFlipped(item->multidef().multiid);
-	msg2->offset++; //facing;
+	msg2->offset++; // 0;
 	msg2->WriteFlipped(static_cast<u16>(0x1)); //amount
 	msg2->WriteFlipped(static_cast<u16>(0x1)); //amount2
 	msg2->WriteFlipped(item->x);
 	msg2->WriteFlipped(item->y);
 	msg2->Write(item->z);
-	msg2->offset+=4; // u8 layer, u16 color, u8 flags
+	msg2->offset++; // u8 facing
+	msg2->WriteFlipped(item->color); // u16 color
+	msg2->offset++; // u8 flags
 
 	// Client >= 7.0.9.0 ( HSA )
 	PktOut_F3* msg3 = REQUESTPACKET(PktOut_F3,PKTOUT_F3_ID);
@@ -793,6 +795,11 @@ void UBoat::adjust_traveller_z(s8 delta_z)
         Item* item = *itr;
 		item->z += delta_z;
 	}
+}
+
+void UBoat::on_color_changed()
+{
+    send_boat_to_inrange( this );
 }
 
 void UBoat::realm_changed()

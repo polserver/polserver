@@ -2271,7 +2271,9 @@ void send_multi( Client* client, const UMulti* multi )
 		msg->WriteFlipped(multi->x);
 		msg->WriteFlipped(multi->y);
 		msg->Write(multi->z);
-		msg->offset+=4; // u8 facing, u16 color, u8 flags
+		msg->offset++; // u8 facing
+		msg->WriteFlipped(multi->color); // u16 color
+		msg->offset++; // u8 flags
 		if (client->ClientType & CLIENTTYPE_7090)
 			msg->offset+=2;
 		ADDTOSENDQUEUE(client, &msg->buffer, msg->offset );
