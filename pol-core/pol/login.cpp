@@ -265,7 +265,7 @@ void select_server(Client *client, PKTIN_A0 *msg ) // Relay player to a certain 
 
 	ServerDescription *svr = servers[ servernum ];
 
-	PktOut_8C* rsp = PktHelper::RequestPacket<PktOut_8C>(PKTOUT_8C_ID);
+	PktHelper::PacketOut<PktOut_8C> rsp;
 	rsp->Write(svr->ip[3]);
 	rsp->Write(svr->ip[2]);
 	rsp->Write(svr->ip[1]);
@@ -282,8 +282,7 @@ void select_server(Client *client, PKTIN_A0 *msg ) // Relay player to a certain 
 	unsigned int nseed = 0xFEFE0000 | client->ClientType;
 	rsp->WriteFlipped(nseed); // This was set to 0xffffffff in the past but this will conflict with UO:KR detection
 
-	ADDTOSENDQUEUE(client, &rsp->buffer, rsp->offset );
-	PktHelper::ReAddPacket(rsp);
+	rsp.Send(client);
 	
 	client->cryptengine->Init( &nseed, CCryptBase::typeGame );
 }

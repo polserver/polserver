@@ -390,7 +390,7 @@ bool Party::can_add()
 
 void Party::send_member_list(Character* to_chr)
 {
-	PktOut_BF_Sub6* msg = PktHelper::RequestSubPacket<PktOut_BF_Sub6>(PKTBI_BF_ID, PKTBI_BF::TYPE_PARTY_SYSTEM);
+	PktHelper::PacketOut<PktOut_BF_Sub6> msg;
 	msg->offset+=4; //len+sub
 	msg->Write(static_cast<u8>(PKTBI_BF_06::PARTYCMD_ADD));
 	msg->offset++; //nummembers
@@ -420,13 +420,12 @@ void Party::send_member_list(Character* to_chr)
 			if (chr != NULL)
 			{
 				if (chr->has_active_client())
-					ADDTOSENDQUEUE(chr->client,&msg->buffer,len);
+					msg.Send(chr->client,len);
 			}
 		}
 	}
 	else
-		ADDTOSENDQUEUE(to_chr->client,&msg->buffer,len);
-	PktHelper::ReAddPacket(msg);
+		msg.Send(to_chr->client,len);
 }
 
 void Party::disband()
@@ -475,7 +474,7 @@ void Party::send_remove_member(Character* remchr, bool *disband)
 	}
 	else
 	{
-		PktOut_BF_Sub6* msg = PktHelper::RequestSubPacket<PktOut_BF_Sub6>(PKTBI_BF_ID, PKTBI_BF::TYPE_PARTY_SYSTEM);
+		PktHelper::PacketOut<PktOut_BF_Sub6> msg;
 		msg->offset+=4; //len+sub
 		msg->Write(static_cast<u8>(PKTBI_BF_06::PARTYCMD_REMOVE));
 		msg->offset++; // nummembers
@@ -505,10 +504,10 @@ void Party::send_remove_member(Character* remchr, bool *disband)
 			if (chr != NULL)
 			{
 				if (chr->has_active_client())
-					ADDTOSENDQUEUE(chr->client,&msg->buffer,len);
+					msg.Send(chr->client,len);
 			}
 		}
-		PktHelper::ReAddPacket(msg);
+		msg.Release();
 		send_msg_to_all(CLP_Player_Removed);//A player has been removed from your party.
 		if (!test_size())
 		{
@@ -520,12 +519,12 @@ void Party::send_remove_member(Character* remchr, bool *disband)
 
 void Party::send_msg_to_all(unsigned int clilocnr, const char* affix, Character* exeptchr)
 {
-	PktOut_C1* msgc1 = PktHelper::RequestPacket<PktOut_C1>(PKTOUT_C1_ID);
-	PktOut_CC* msgcc = PktHelper::RequestPacket<PktOut_CC>(PKTOUT_CC_ID);
+	PktHelper::PacketOut<PktOut_C1> msgc1;
+	PktHelper::PacketOut<PktOut_CC> msgcc;
 	if (affix!=NULL)
-		build_sysmessage_cl_affix(msgcc, clilocnr, affix, true );
+		build_sysmessage_cl_affix(msgcc.Get(), clilocnr, affix, true );
 	else
-		build_sysmessage_cl(msgc1, clilocnr);
+		build_sysmessage_cl(msgc1.Get(), clilocnr);
 
 	for( vector<u32>::iterator itr = _member_serials.begin(); itr != _member_serials.end(); ++itr)
 	{
@@ -537,15 +536,13 @@ void Party::send_msg_to_all(unsigned int clilocnr, const char* affix, Character*
 				if (chr->has_active_client())
 				{
 					if (affix!=NULL)
-						ADDTOSENDQUEUE(chr->client,&msgcc->buffer,msgcc->offset);
+						msgcc.Send(chr->client);
 					else
-						ADDTOSENDQUEUE(chr->client,&msgc1->buffer,msgc1->offset);
+						msgc1.Send(chr->client);
 				}
 			}
 		}
 	}
-	PktHelper::ReAddPacket(msgc1);
-	PktHelper::ReAddPacket(msgcc);
 }
 
 void Party::send_stat_to(Character* chr,Character* bob)
@@ -586,7 +583,7 @@ void Party::send_stats_on_add(Character* newmember)
 
 void Party::on_mana_changed(Character* chr)
 {
-	PktOut_A2* msg = PktHelper::RequestPacket<PktOut_A2>(PKTOUT_A2_ID);
+	PktHelper::PacketOut<PktOut_A2> msg;
 	msg->Write(chr->serial_ext);
 
 	int h, mh;
@@ -607,15 +604,14 @@ void Party::on_mana_changed(Character* chr)
 			if (mem!=chr)
 			{
 				if (mem->has_active_client())
-					ADDTOSENDQUEUE(mem->client,&msg->buffer,msg->offset);
+					msg.Send(mem->client);
 			}
 		}
 	}
-	PktHelper::ReAddPacket(msg);
 }
 void Party::on_stam_changed(Character* chr)
 {
-	PktOut_A3* msg = PktHelper::RequestPacket<PktOut_A3>(PKTOUT_A3_ID);
+	PktHelper::PacketOut<PktOut_A3> msg;
 	msg->Write(chr->serial_ext);
 
 	int h, mh;
@@ -636,16 +632,15 @@ void Party::on_stam_changed(Character* chr)
 			if (mem!=chr)
 			{
 				if (mem->has_active_client())
-					ADDTOSENDQUEUE(mem->client,&msg->buffer,msg->offset);
+					msg.Send(mem->client);
 			}
 		}
 	}
-	PktHelper::ReAddPacket(msg);
 }
 
 void Party::send_member_msg_public(Character* chr,u16* wtext, size_t wtextlen)
 {
-	PktOut_BF_Sub6* msg = PktHelper::RequestSubPacket<PktOut_BF_Sub6>(PKTBI_BF_ID, PKTBI_BF::TYPE_PARTY_SYSTEM);
+	PktHelper::PacketOut<PktOut_BF_Sub6> msg;
 	msg->offset+=4; //len+sub
 	msg->Write(static_cast<u8>(PKTBI_BF_06::PARTYCMD_PARTY_MSG));
 	msg->Write(chr->serial_ext);
@@ -683,17 +678,16 @@ void Party::send_member_msg_public(Character* chr,u16* wtext, size_t wtextlen)
 		if (mem != NULL)
 		{
 			if (mem->has_active_client())
-				ADDTOSENDQUEUE(mem->client,&msg->buffer,len);
+				msg.Send(mem->client,len);
 		}
 	}
-	PktHelper::ReAddPacket(msg);
 }
 
 void Party::send_member_msg_private(Character* chr, Character* tochr, u16* wtext, size_t wtextlen)
 {
 	if (!tochr->has_active_client())
 		return;
-	PktOut_BF_Sub6* msg = PktHelper::RequestSubPacket<PktOut_BF_Sub6>(PKTBI_BF_ID, PKTBI_BF::TYPE_PARTY_SYSTEM);
+	PktHelper::PacketOut<PktOut_BF_Sub6> msg;
 	msg->offset+=4; //len+sub
 	msg->Write(static_cast<u8>(PKTBI_BF_06::PARTYCMD_MEMBER_MSG));
 	msg->Write(chr->serial_ext);
@@ -730,8 +724,7 @@ void Party::send_member_msg_private(Character* chr, Character* tochr, u16* wtext
 	msg->offset=1;
 	msg->WriteFlipped(len);
 
-	ADDTOSENDQUEUE(tochr->client,&msg->buffer,len);
-	PktHelper::ReAddPacket(msg);
+	msg.Send(tochr->client,len);
 }
 
 void Party::printOn( ostream& os ) const
@@ -762,14 +755,13 @@ void send_empty_party(Character* chr)
 {
 	if (chr != NULL && chr->has_active_client())
 	{
-		PktOut_BF_Sub6* msg = PktHelper::RequestSubPacket<PktOut_BF_Sub6>(PKTBI_BF_ID, PKTBI_BF::TYPE_PARTY_SYSTEM);
+		PktHelper::PacketOut<PktOut_BF_Sub6> msg;
 		msg->WriteFlipped(static_cast<u16>(11));
 		msg->offset+=2; //sub
 		msg->Write(static_cast<u8>(PKTBI_BF_06::PARTYCMD_REMOVE));
 		msg->offset++; //nummembers
 		msg->Write(chr->serial_ext);
-		ADDTOSENDQUEUE(chr->client,&msg->buffer,msg->offset);
-		PktHelper::ReAddPacket(msg);
+		msg.Send(chr->client);
 	}
 }
 
@@ -1422,13 +1414,13 @@ void invite_timeout(Character* mem)
 
 void send_invite(Character* member,Character* leader)
 {
-	PktOut_BF_Sub6* msg = PktHelper::RequestSubPacket<PktOut_BF_Sub6>(PKTBI_BF_ID, PKTBI_BF::TYPE_PARTY_SYSTEM);
+	PktHelper::PacketOut<PktOut_BF_Sub6> msg;
 	msg->WriteFlipped(static_cast<u16>(10));
 	msg->offset+=2; //sub
 	msg->Write(static_cast<u8>(PKTBI_BF_06::PARTYCMD_INVITE_MEMBER));
 	msg->Write(leader->serial_ext);
-	ADDTOSENDQUEUE(member->client,&msg->buffer,msg->offset);
-	PktHelper::ReAddPacket(msg);
+	msg.Send(member->client);
+	msg.Release();
 
 	// : You are invited to join the party. Type /accept to join or /decline to decline the offer.
 	send_sysmessage_cl_affix(member->client, CLP_Invite, leader->name().c_str(),true);
@@ -1437,7 +1429,7 @@ void send_invite(Character* member,Character* leader)
 
 void send_attributes_normalized(Character* chr, Character* bob)
 {
-	PktOut_2D* msg = PktHelper::RequestPacket<PktOut_2D>(PKTOUT_2D_ID);
+	PktHelper::PacketOut<PktOut_2D> msg;
 	msg->Write(bob->serial_ext);
 	int h, mh;
 
@@ -1468,7 +1460,6 @@ void send_attributes_normalized(Character* chr, Character* bob)
 	msg->WriteFlipped(static_cast<u16>(1000));
 	msg->WriteFlipped(static_cast<u16>(h * 1000 / mh));
 
-	ADDTOSENDQUEUE(chr->client,&msg->buffer, msg->offset);
-	PktHelper::ReAddPacket(msg);
+	msg.Send(chr->client);
 }
 
