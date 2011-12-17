@@ -158,7 +158,8 @@ void loginserver_login( Client *client, PKTIN_80 *msg )
          AddressToString( &client->ipaddr ));
 
 	client->acct = acct;
-	PktOut_A8* msgA8 = PktHelper::RequestPacket<PktOut_A8>(PKTOUT_A8_ID);
+
+	PktHelper::PacketOut<PktOut_A8> msgA8;
 	msgA8->offset+=2;
 	msgA8->Write(static_cast<u8>(0xFF));
 	msgA8->offset+=2; //servcount
@@ -207,8 +208,7 @@ void loginserver_login( Client *client, PKTIN_80 *msg )
 	msgA8->offset++;
 	msgA8->WriteFlipped(servcount);
 
-	ADDTOSENDQUEUE(client, &msgA8->buffer, len);//client->transmit( &msgA8->buffer, len );
-	PktHelper::ReAddPacket(msgA8);
+	msgA8.Send(client, len);
 
     if (servcount == 0)
     {
