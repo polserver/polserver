@@ -299,11 +299,6 @@ namespace PktHelper
 	{
 		return static_cast<T*>(Packets::instance()->getPacket(id,sub));
 	}
-	template <class T>
-	inline T* RequestSubPacket(u8 id,u16 sub)
-	{
-		return static_cast<T*>(Packets::instance()->getPacket(id,sub));
-	}
 
 	inline void ReAddPacket(PacketInterface* msg)
 	{
@@ -339,6 +334,7 @@ namespace PktHelper
 			ClientTransmitSingleton::instance()->AddToQueue(client, &pkt->buffer, len);
 		}
 		T *operator->(void) const{ return pkt; }
+		T* Get() { return pkt; } 
 	};
 }
 

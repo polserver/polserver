@@ -30,6 +30,8 @@ Notes
 
 #include "tooltips.h"
 
+using namespace PktHelper;
+
 
 void handle_request_tooltip( Client* client, PKTIN_B6* msgin )
 {
@@ -42,7 +44,7 @@ void handle_request_tooltip( Client* client, PKTIN_B6* msgin )
             const ItemDesc& id = find_itemdesc( item->objtype_ );
             if (!id.tooltip.empty())
             {
-				PktOut_B7* msg = PktHelper::RequestPacket<PktOut_B7>(PKTOUT_B7_ID);
+				PacketOut<PktOut_B7> msg;
 				msg->offset+=2;
 				msg->Write(item->serial_ext);
 				const char* string = id.tooltip.c_str();
@@ -52,9 +54,7 @@ void handle_request_tooltip( Client* client, PKTIN_B6* msgin )
 				u16 len=msg->offset;
 				msg->offset=1;
 				msg->WriteFlipped(len);
-
-                ADDTOSENDQUEUE(client, &msg->offset, len );
-				PktHelper::ReAddPacket(msg);
+				msg.Send(client, len);
             }
         }
     }
@@ -68,21 +68,19 @@ void send_object_cache(Client* client, const UObject* obj)
 	{
 		if ((ssopt.force_new_objcache_packets) || (client->ClientType & CLIENTTYPE_5000))
 		{
-			PktOut_DC* msgdc = PktHelper::RequestPacket<PktOut_DC>(PKTOUT_DC_ID);
+			PacketOut<PktOut_DC> msgdc;
 			msgdc->Write(obj->serial_ext);
 			msgdc->WriteFlipped(obj->rev());
-			ADDTOSENDQUEUE(client,&msgdc->buffer, msgdc->offset);
-			PktHelper::ReAddPacket(msgdc);
+			msgdc.Send(client);
 		}
 		else
 		{
-			PktOut_BF_Sub10* msgbf10 = PktHelper::RequestSubPacket<PktOut_BF_Sub10>(PKTBI_BF_ID, PKTBI_BF::TYPE_OBJECT_CACHE);
+			PacketOut<PktOut_BF_Sub10> msgbf10;
 			msgbf10->WriteFlipped(static_cast<u16>(0xD));
 			msgbf10->offset+=2; //sub
 			msgbf10->Write(obj->serial_ext);
 			msgbf10->WriteFlipped(obj->rev());
-			ADDTOSENDQUEUE(client,&msgbf10->buffer, msgbf10->offset);
-			PktHelper::ReAddPacket(msgbf10);
+			msgbf10.Send(client);
 		}
 	}
 }
@@ -94,8 +92,8 @@ void send_object_cache_to_inrange(const UObject* obj)
 		// Since this is an InRange function, at least 1 person. So it isn't too far
 		// fetched to build for AOS and UOKR both, since both could be used. At least
 		// one will always be used, and this really makes a different in large groups.
-		PktOut_DC* msgdc = PktHelper::RequestPacket<PktOut_DC>(PKTOUT_DC_ID);
-		PktOut_BF_Sub10* msgbf10 = PktHelper::RequestSubPacket<PktOut_BF_Sub10>(PKTBI_BF_ID, PKTBI_BF::TYPE_OBJECT_CACHE);
+		PacketOut<PktOut_DC> msgdc;
+		PacketOut<PktOut_BF_Sub10> msgbf10;
 
 		for( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
 		{
@@ -116,8 +114,7 @@ void send_object_cache_to_inrange(const UObject* obj)
 							msgdc->Write(obj->serial_ext);
 							msgdc->WriteFlipped(obj->rev());
 						}
-						ADDTOSENDQUEUE(client2,&msgdc->buffer, msgdc->offset);
-						
+						msgdc.Send(client2);						
 					}
 					else
 					{
@@ -128,13 +125,11 @@ void send_object_cache_to_inrange(const UObject* obj)
 							msgbf10->Write(obj->serial_ext);
 							msgbf10->WriteFlipped(obj->rev());
 						}
-						ADDTOSENDQUEUE(client2,&msgbf10->buffer, msgbf10->offset);
+						msgbf10.Send(client2);
 					}
 				}
 			}
 		}
-		PktHelper::ReAddPacket(msgdc);
-		PktHelper::ReAddPacket(msgbf10);
 	}
 }
 
@@ -161,7 +156,7 @@ void SendAOSTooltip(Client* client, UObject* obj, bool vendor_content)
 		else
 			desc = obj->description();
 
-	PktOut_D6* msg = PktHelper::RequestPacket<PktOut_D6>(PKTBI_D6_OUT_ID);
+	PacketOut<PktOut_D6> msg;
 	msg->offset+=2;
 	msg->WriteFlipped(static_cast<u16>(1)); //u16 unk1
 	msg->Write(obj->serial_ext);
@@ -180,7 +175,6 @@ void SendAOSTooltip(Client* client, UObject* obj, bool vendor_content)
 	u16 len=msg->offset;
 	msg->offset=1;
 	msg->WriteFlipped(len);
-	ADDTOSENDQUEUE(client,&msg->buffer,len);
-	PktHelper::ReAddPacket(msg);
+	msg.Send(client, len);
 }
 

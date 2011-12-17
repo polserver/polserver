@@ -2673,17 +2673,16 @@ void send_feature_enable(Client* client)
 
 void send_realm_change( Client* client, Realm* realm )
 {
-	PktOut_BF_Sub8* msg = PktHelper::RequestSubPacket<PktOut_BF_Sub8>(PKTBI_BF_ID, PKTBI_BF::TYPE_CURSOR_HUE);
+	PktHelper::PacketOut<PktOut_BF_Sub8> msg;
 	msg->WriteFlipped(static_cast<u16>(6));
 	msg->offset+=2; //sub
 	msg->Write(static_cast<u8>(realm->getUOMapID()));
-	ADDTOSENDQUEUE(client,&msg->buffer, msg->offset);
-	PktHelper::ReAddPacket(msg);
+	msg.Send(client);
 }
 
 void send_map_difs( Client* client )
 {
-	PktOut_BF_Sub18* msg = PktHelper::RequestSubPacket<PktOut_BF_Sub18>(PKTBI_BF_ID, PKTBI_BF::TYPE_ENABLE_MAP_DIFFS);
+	PktHelper::PacketOut<PktOut_BF_Sub18> msg;
 	msg->offset+=4; //len+sub
 	msg->WriteFlipped(baserealm_count);
 	for(unsigned int i=0; i<baserealm_count; i++)
@@ -2694,8 +2693,7 @@ void send_map_difs( Client* client )
 	u16 len=msg->offset;
 	msg->offset=1;
 	msg->WriteFlipped(len);
-	ADDTOSENDQUEUE(client, &msg->buffer, len);
-	PktHelper::ReAddPacket(msg);
+	msg.Send(client,len);
 }
 
 // FIXME : Works, except for Login. Added length check as to not mess with 1.x clients
@@ -2773,7 +2771,7 @@ void send_damage_new(Client* client, Character* defender, u16 damage)
 
 void send_damage_old(Client* client, Character* defender, u16 damage)
 {
-	PktOut_BF_Sub22* msg = PktHelper::RequestSubPacket<PktOut_BF_Sub22>(PKTBI_BF_ID, PKTBI_BF::TYPE_DAMAGE);
+	PktHelper::PacketOut<PktOut_BF_Sub22> msg;
 	msg->WriteFlipped(static_cast<u16>(11));
 	msg->offset+=2; //sub
 	msg->Write(static_cast<u8>(1));
@@ -2782,8 +2780,7 @@ void send_damage_old(Client* client, Character* defender, u16 damage)
         msg->Write(static_cast<u8>(0xFF));
     else
         msg->Write(static_cast<u8>(damage));
-    ADDTOSENDQUEUE(client,&msg->buffer, msg->offset );
-	PktHelper::ReAddPacket(msg);
+	msg.Send(client);
 }
 
 void sendCharProfile( Character* chr, Character* of_who, const char *title, const u16 *utext, const u16 *etext )

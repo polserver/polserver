@@ -119,7 +119,7 @@ void Spellbook::double_click( Client* client )
 
 		send_open_gump(client, *this);
 
-		PktOut_BF_Sub1B* msg = PktHelper::RequestSubPacket<PktOut_BF_Sub1B>(PKTBI_BF_ID, PKTBI_BF::TYPE_NEW_SPELLBOOK);
+		PktHelper::PacketOut<PktOut_BF_Sub1B> msg;
 		msg->WriteFlipped(static_cast<u16>(23));
 		msg->offset+=2; //sub
 		msg->WriteFlipped(static_cast<u16>(1));
@@ -133,8 +133,7 @@ void Spellbook::double_click( Client* client )
 			msg->WriteFlipped(static_cast<u16>((spell_school * 100) + 1));
 
 		msg->Write(bitwise_contents,8);
-		ADDTOSENDQUEUE(client,&msg->buffer, msg->offset);
-		PktHelper::ReAddPacket(msg);
+		msg.Send(client);
 	}
 }
 
