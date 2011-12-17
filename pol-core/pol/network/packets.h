@@ -124,6 +124,8 @@ template <u8 _id, u16 _size, u16 _sub=0>
 class PacketWriter : public PacketInterface
 {
 	public:
+		static const u8 ID = _id;
+		static const u16 SUB = _sub;
 		char buffer[_size];
 		char* getBuffer() { return &buffer[offset]; }
 		inline u8 getID() { return _id; }
@@ -242,8 +244,6 @@ template <u8 _id, u16 _size>
 class PacketTemplate : public PacketWriter<_id, _size>
 {
 	public:
-		static const u8 ID = _id;
-		static const u8 SUB = 0;
 		PacketTemplate() { ReSetBuffer(); }
 		void ReSetBuffer()
 		{ 
@@ -258,8 +258,6 @@ template <u8 _id, u16 _suboff, u16 _sub, u16 _size>
 class PacketTemplateSub : public PacketWriter<_id, _size, _sub>
 {
 	public:
-		static const u16 SUB = _sub;
-		static const u8 ID = _id;
 		PacketTemplateSub() { ReSetBuffer(); }
 		void ReSetBuffer() 
 		{ 
@@ -297,9 +295,9 @@ namespace PktHelper
 	PacketInterface* GetPacket(u8 id, u16 sub=0);
 
 	template <class T>
-	inline T* RequestPacket(u8 id)
+	inline T* RequestPacket(u8 id, u16 sub=0)
 	{
-		return static_cast<T*>(Packets::instance()->getPacket(id));
+		return static_cast<T*>(Packets::instance()->getPacket(id,sub));
 	}
 	template <class T>
 	inline T* RequestSubPacket(u8 id,u16 sub)
@@ -320,7 +318,7 @@ namespace PktHelper
 	public:
 		PacketOut()
 		{
-			pkt=RequestSubPacket<T>(T::ID,T::SUB);
+			pkt=RequestPacket<T>(T::ID,T::SUB);
 		}
 		~PacketOut()
 		{
@@ -334,6 +332,8 @@ namespace PktHelper
 		}
 		void Send(Client* client, int len=-1)
 		{
+			if (pkt == 0)
+				return;
 			if (len == -1)
 				len= pkt->offset;
 			ClientTransmitSingleton::instance()->AddToQueue(client, &pkt->buffer, len);
