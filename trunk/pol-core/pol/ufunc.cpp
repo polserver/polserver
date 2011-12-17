@@ -146,7 +146,7 @@ u32 GetNewItemSerialNumber( void )
 
 void send_goxyz( Client *client, const Character *chr )
 {
-	PktOut_20* msg = REQUESTPACKET(PktOut_20,PKTOUT_20_ID);
+	PktOut_20* msg = PktHelper::RequestPacket<PktOut_20>(PKTOUT_20_ID);
 	msg->Write(chr->serial_ext);
 	msg->WriteFlipped(chr->graphic);
 	msg->offset++; //unk7
@@ -158,7 +158,7 @@ void send_goxyz( Client *client, const Character *chr )
 	msg->Write(static_cast<u8>(0x80 | chr->facing)); // is it always right to set this flag?
 	msg->Write(chr->z);
     transmit( client, &msg->buffer, msg->offset );
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 
     if ((client->ClientType & CLIENTTYPE_UOKR) && (chr->poisoned)) //if poisoned send 0x17 for newer clients
         send_poisonhealthbar( client, chr );
@@ -171,7 +171,7 @@ void send_goxyz( Client *client, const Character *chr )
 // optimize this out to reduce build amounts
 void send_move( Client *client, const Character *chr )
 {
-	PktOut_77* msg = REQUESTPACKET(PktOut_77,PKTOUT_77_ID);
+	PktOut_77* msg = PktHelper::RequestPacket<PktOut_77>(PKTOUT_77_ID);
 	msg->Write(chr->serial_ext);
 	msg->WriteFlipped(chr->graphic);
 	msg->WriteFlipped(chr->x);
@@ -183,7 +183,7 @@ void send_move( Client *client, const Character *chr )
 	msg->Write(chr->hilite_color_idx( client->chr ));
 
     transmit( client, &msg->buffer, msg->offset );
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 
     if ((client->ClientType & CLIENTTYPE_UOKR) && (chr->poisoned)) //if poisoned send 0x17 for newer clients
         send_poisonhealthbar( client, chr );
@@ -201,7 +201,7 @@ void send_move( Client *client, const Character *chr, PktOut_77* movebuffer, Pkt
 
 PktOut_77* build_send_move( const Character *chr )
 {
-	PktOut_77* msg = REQUESTPACKET(PktOut_77,PKTOUT_77_ID);
+	PktOut_77* msg = PktHelper::RequestPacket<PktOut_77>(PKTOUT_77_ID);
 	msg->Write(chr->serial_ext);
 	msg->WriteFlipped(chr->graphic);
 	msg->WriteFlipped(chr->x);
@@ -214,18 +214,18 @@ PktOut_77* build_send_move( const Character *chr )
 
 void send_poisonhealthbar( Client *client, const Character *chr )
 {
-	PktOut_17* msg = REQUESTPACKET(PktOut_17,PKTOUT_17_ID);
+	PktOut_17* msg = PktHelper::RequestPacket<PktOut_17>(PKTOUT_17_ID);
 	msg->WriteFlipped(static_cast<u16>(sizeof msg->buffer));
 	msg->Write(chr->serial_ext);
 	msg->Write(static_cast<u16>(1)); //unk
 	msg->Write(static_cast<u16>(1)); // status_type
 	msg->Write(static_cast<u8>(( chr->poisoned ) ? 1 : 0)); //flag
 	transmit( client, &msg->buffer, msg->offset );
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 }
 PktOut_17* build_poisonhealthbar( const Character *chr )
 {
-	PktOut_17* msg = REQUESTPACKET(PktOut_17,PKTOUT_17_ID);
+	PktOut_17* msg = PktHelper::RequestPacket<PktOut_17>(PKTOUT_17_ID);
 	msg->WriteFlipped(static_cast<u16>(sizeof msg->buffer));
 	msg->Write(chr->serial_ext);
 	msg->Write(static_cast<u16>(1)); //unk
@@ -236,7 +236,7 @@ PktOut_17* build_poisonhealthbar( const Character *chr )
 
 void send_owncreate( Client *client, const Character *chr )
 {
-	PktOut_78* owncreate = REQUESTPACKET(PktOut_78,PKTOUT_78_ID);
+	PktOut_78* owncreate = PktHelper::RequestPacket<PktOut_78>(PKTOUT_78_ID);
 	owncreate->offset+=2;
 	owncreate->Write(chr->serial_ext);
 	owncreate->WriteFlipped(chr->graphic);
@@ -278,7 +278,7 @@ void send_owncreate( Client *client, const Character *chr )
 	owncreate->WriteFlipped(len);
 
     transmit(client, &owncreate->buffer, len );
-	READDPACKET(owncreate);
+	PktHelper::ReAddPacket(owncreate);
 
 	if(client->UOExpansionFlag & AOS)
 	{
@@ -301,7 +301,7 @@ void send_owncreate( Client *client, const Character *chr )
 
 PktOut_78* build_owncreate(const Character *chr)
 {
-	PktOut_78* owncreate = REQUESTPACKET(PktOut_78,PKTOUT_78_ID);
+	PktOut_78* owncreate = PktHelper::RequestPacket<PktOut_78>(PKTOUT_78_ID);
 	owncreate->offset+=2;
 	owncreate->Write(chr->serial_ext);
 	owncreate->WriteFlipped(chr->graphic);
@@ -389,10 +389,10 @@ void send_remove_character( Client *client, const Character *chr )
     if (client->chr == chr)
         return;
 
-	PktOut_1D* msgremove = REQUESTPACKET(PktOut_1D,PKTOUT_1D_ID);
+	PktOut_1D* msgremove = PktHelper::RequestPacket<PktOut_1D>(PKTOUT_1D_ID);
 	msgremove->Write(chr->serial_ext);
     transmit( client, &msgremove->buffer, msgremove->offset );
-	READDPACKET(msgremove);
+	PktHelper::ReAddPacket(msgremove);
 }
 
 void send_remove_character( Client *client, const Character *chr, PktOut_1D* buffer, bool build )
@@ -423,14 +423,14 @@ void send_remove_character_if_nearby( Client* client, const Character* chr )
     if (client->chr == chr)
         return;
 
-	PktOut_1D* msgremove = REQUESTPACKET(PktOut_1D,PKTOUT_1D_ID);
+	PktOut_1D* msgremove = PktHelper::RequestPacket<PktOut_1D>(PKTOUT_1D_ID);
 	msgremove->Write(chr->serial_ext);
 	transmit( client, &msgremove->buffer, msgremove->offset );
-	READDPACKET(msgremove);
+	PktHelper::ReAddPacket(msgremove);
 }
 void send_remove_character_to_nearby( const Character* chr )
 {
-	PktOut_1D* msgremove = REQUESTPACKET(PktOut_1D,PKTOUT_1D_ID);
+	PktOut_1D* msgremove = PktHelper::RequestPacket<PktOut_1D>(PKTOUT_1D_ID);
 	msgremove->Write(chr->serial_ext);
 
 	for( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
@@ -447,7 +447,7 @@ void send_remove_character_to_nearby( const Character* chr )
 
 		transmit( client, &msgremove->buffer, msgremove->offset );
 	}
-	READDPACKET(msgremove);
+	PktHelper::ReAddPacket(msgremove);
 }
 
 void send_remove_character_if_nearby_cantsee( Client* client, const Character* chr )
@@ -463,15 +463,15 @@ void send_remove_character_if_nearby_cantsee( Client* client, const Character* c
 
     if (!client->chr->is_visible_to_me( chr ))
     {
-		PktOut_1D* msgremove = REQUESTPACKET(PktOut_1D,PKTOUT_1D_ID);
+		PktOut_1D* msgremove = PktHelper::RequestPacket<PktOut_1D>(PKTOUT_1D_ID);
 		msgremove->Write(chr->serial_ext);
 		transmit( client, &msgremove->buffer, msgremove->offset );
-		READDPACKET(msgremove);
+		PktHelper::ReAddPacket(msgremove);
     }
 }
 void send_remove_character_to_nearby_cantsee( const Character* chr )
 {
-	PktOut_1D* msgremove = REQUESTPACKET(PktOut_1D,PKTOUT_1D_ID);
+	PktOut_1D* msgremove = PktHelper::RequestPacket<PktOut_1D>(PKTOUT_1D_ID);
 	msgremove->Write(chr->serial_ext);
 
 	for( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
@@ -491,7 +491,7 @@ void send_remove_character_to_nearby_cantsee( const Character* chr )
 			transmit( client, &msgremove->buffer, msgremove->offset );
 		}
 	}
-	READDPACKET(msgremove);
+	PktHelper::ReAddPacket(msgremove);
 }
 
 // FIXME: This is depreciated unless we find a new place to use it.
@@ -502,16 +502,16 @@ void send_remove_character_if_nearby_cansee( Client* client, const Character* ch
         client->chr != chr &&
         client->chr->is_visible_to_me( chr ))
     {
-		PktOut_1D* msgremove = REQUESTPACKET(PktOut_1D,PKTOUT_1D_ID);
+		PktOut_1D* msgremove = PktHelper::RequestPacket<PktOut_1D>(PKTOUT_1D_ID);
 		msgremove->Write(chr->serial_ext);
 		transmit( client, &msgremove->buffer, msgremove->offset );
-		READDPACKET(msgremove);
+		PktHelper::ReAddPacket(msgremove);
     }
 }
 
 void send_remove_character_to_nearby_cansee( const Character* chr )
 {
-	PktOut_1D* msgremove = REQUESTPACKET(PktOut_1D,PKTOUT_1D_ID);
+	PktOut_1D* msgremove = PktHelper::RequestPacket<PktOut_1D>(PKTOUT_1D_ID);
 	msgremove->Write(chr->serial_ext);
 
 	for( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
@@ -525,7 +525,7 @@ void send_remove_character_to_nearby_cansee( const Character* chr )
 			transmit( client, &msgremove->buffer, msgremove->offset );
 		}
 	}
-	READDPACKET(msgremove);
+	PktHelper::ReAddPacket(msgremove);
 }
 
 
@@ -538,15 +538,15 @@ void send_remove_object_if_inrange( Client *client, const Item *item )
     if (!inrange( client->chr, item))
         return;
 
-	PktOut_1D* msgremove = REQUESTPACKET(PktOut_1D,PKTOUT_1D_ID);
+	PktOut_1D* msgremove = PktHelper::RequestPacket<PktOut_1D>(PKTOUT_1D_ID);
 	msgremove->Write(item->serial_ext);
 	transmit( client, &msgremove->buffer, msgremove->offset );
-	READDPACKET(msgremove);
+	PktHelper::ReAddPacket(msgremove);
 }
 
 void send_remove_object_to_inrange( const UObject *centerObject )
 {
-	PktOut_1D* msgremove = REQUESTPACKET(PktOut_1D,PKTOUT_1D_ID);
+	PktOut_1D* msgremove = PktHelper::RequestPacket<PktOut_1D>(PKTOUT_1D_ID);
 	msgremove->Write(centerObject->serial_ext);
 
 	for( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
@@ -561,15 +561,15 @@ void send_remove_object_to_inrange( const UObject *centerObject )
 			transmit( client2, &msgremove->buffer, msgremove->offset );
 		}
 	}
-	READDPACKET(msgremove);
+	PktHelper::ReAddPacket(msgremove);
 }
 
 void send_remove_object( Client *client, const Item *item )
 {
-	PktOut_1D* msgremove = REQUESTPACKET(PktOut_1D,PKTOUT_1D_ID);
+	PktOut_1D* msgremove = PktHelper::RequestPacket<PktOut_1D>(PKTOUT_1D_ID);
 	msgremove->Write(item->serial_ext);
 	transmit( client, &msgremove->buffer, msgremove->offset );
-	READDPACKET(msgremove);
+	PktHelper::ReAddPacket(msgremove);
 }
 
 void send_remove_object( Client *client, const Item *obj, PktOut_1D* buffer)
@@ -673,7 +673,7 @@ bool multi_inrange( unsigned short x1, unsigned short y1,
 
 void send_put_in_container( Client* client, const Item* item )
 {
-	PktOut_25* msg = REQUESTPACKET(PktOut_25,PKTOUT_25_ID);
+	PktOut_25* msg = PktHelper::RequestPacket<PktOut_25>(PKTOUT_25_ID);
 	msg->Write(item->serial_ext);
 	msg->WriteFlipped(item->graphic);
 	msg->offset++; //unk7 layer?
@@ -685,7 +685,7 @@ void send_put_in_container( Client* client, const Item* item )
 	msg->Write(item->container->serial_ext);
 	msg->WriteFlipped(item->color);
 	transmit( client, &msg->buffer, msg->offset );
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 
 	if(client->UOExpansionFlag & AOS)
 	    send_object_cache(client, dynamic_cast<const UObject*>(item));
@@ -696,8 +696,8 @@ void send_put_in_container_to_inrange( const Item *item )
 	// FIXME there HAS to be a better, more efficient way than this, without
 	// building these with pointer and NULL to check. Cuz that method requires
 	// recast and delete. Ewwww.
-	PktOut_25* legacy_buffer = REQUESTPACKET(PktOut_25,PKTOUT_25_ID);
-	PktOut_25* slot_buffer = REQUESTPACKET(PktOut_25,PKTOUT_25_ID);
+	PktOut_25* legacy_buffer = PktHelper::RequestPacket<PktOut_25>(PKTOUT_25_ID);
+	PktOut_25* slot_buffer = PktHelper::RequestPacket<PktOut_25>(PKTOUT_25_ID);
 
     for( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
     {
@@ -746,8 +746,8 @@ void send_put_in_container_to_inrange( const Item *item )
 			}
         }
     }
-	READDPACKET(legacy_buffer);
-	READDPACKET(slot_buffer);
+	PktHelper::ReAddPacket(legacy_buffer);
+	PktHelper::ReAddPacket(slot_buffer);
 }
 
 // FIXME it would be better to compose this message once and
@@ -759,7 +759,7 @@ void send_corpse_items( Client *client, const Item *item )
 {
     const UContainer *cont = static_cast<const UContainer *>(item);
 
-	PktOut_89* msg = REQUESTPACKET(PktOut_89,PKTOUT_89_ID);
+	PktOut_89* msg = PktHelper::RequestPacket<PktOut_89>(PKTOUT_89_ID);
 	msg->offset+=2;
 	msg->Write(item->serial_ext);
 
@@ -793,7 +793,7 @@ void send_corpse_items( Client *client, const Item *item )
 	msg->WriteFlipped(len);
 
     transmit( client, &msg->buffer, len );
-    READDPACKET(msg);
+    PktHelper::ReAddPacket(msg);
 
     send_container_contents( client, *cont, true );
 }
@@ -816,7 +816,7 @@ void send_item( Client *client, const Item *item )
 	if (client->ClientType & CLIENTTYPE_7000)
 	{
 		// Client >= 7.0.0.0 ( SA )
-		PktOut_F3* msg = REQUESTPACKET(PktOut_F3,PKTOUT_F3_ID);
+		PktOut_F3* msg = PktHelper::RequestPacket<PktOut_F3>(PKTOUT_F3_ID);
 		msg->WriteFlipped(static_cast<u16>(0x1));
 		msg->offset++; // datatype
 		msg->Write(item->serial_ext);
@@ -833,11 +833,11 @@ void send_item( Client *client, const Item *item )
 		if (client->ClientType & CLIENTTYPE_7090)
 			msg->offset+=2;
 		transmit( client, &msg->buffer, msg->offset );
-		READDPACKET(msg);
+		PktHelper::ReAddPacket(msg);
 	}
 	else
 	{
-		PktOut_1A* msg = REQUESTPACKET(PktOut_1A,PKTOUT_1A_ID);
+		PktOut_1A* msg = PktHelper::RequestPacket<PktOut_1A>(PKTOUT_1A_ID);
 		// transmit item info
 		msg->offset+=2;
 		// If the 0x80000000 is left out, the item won't show up. 
@@ -864,7 +864,7 @@ void send_item( Client *client, const Item *item )
 		msg->offset=1;
 		msg->WriteFlipped(len);
 		transmit( client, &msg->buffer, len );
-		READDPACKET(msg);
+		PktHelper::ReAddPacket(msg);
 	}
     
     // if the item is a corpse, transmit items contained by it
@@ -932,21 +932,21 @@ void send_light( Client *client, int lightlevel )
 {
     if (VALID_LIGHTLEVEL( lightlevel ))
     {
-		PktOut_4F* msg = REQUESTPACKET(PktOut_4F,PKTOUT_4F_ID);
+		PktOut_4F* msg = PktHelper::RequestPacket<PktOut_4F>(PKTOUT_4F_ID);
 		msg->Write(static_cast<u8>(lightlevel));
 		transmit( client, &msg->buffer, msg->offset );
-		READDPACKET(msg);
+		PktHelper::ReAddPacket(msg);
     }
 }
 
 void send_weather( Client* client, u8 type, u8 severity, u8 aux )
 {
-	PktOut_65* msg = REQUESTPACKET(PktOut_65,PKTOUT_65_ID);
+	PktOut_65* msg = PktHelper::RequestPacket<PktOut_65>(PKTOUT_65_ID);
 	msg->Write(type);
 	msg->Write(severity);
 	msg->Write(aux);
     transmit( client, &msg->buffer, msg->offset );
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 }
 
 /* send_char_data: called once for each client when a new character enters
@@ -1002,15 +1002,15 @@ void send_client_char_data( Character *chr, Client *client )
 
 void send_item_move_failure( Client *client, u8 reason )
 {
-	PktOut_27* msg = REQUESTPACKET(PktOut_27,PKTOUT_27_ID);
+	PktOut_27* msg = PktHelper::RequestPacket<PktOut_27>(PKTOUT_27_ID);
 	msg->Write(reason);
     transmit( client, &msg->buffer, msg->offset );
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 }
 
 void send_wornitem( Client *client, const Character *chr, const Item *item )
 {
-	PktOut_2E* msg = REQUESTPACKET(PktOut_2E,PKTOUT_2E_ID);
+	PktOut_2E* msg = PktHelper::RequestPacket<PktOut_2E>(PKTOUT_2E_ID);
 	msg->Write(item->serial_ext);
 	msg->WriteFlipped(item->graphic);
 	msg->offset++; //unk7
@@ -1018,7 +1018,7 @@ void send_wornitem( Client *client, const Character *chr, const Item *item )
 	msg->Write(chr->serial_ext);
 	msg->WriteFlipped(item->color);
 	transmit( client, &msg->buffer, msg->offset );
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 
 	if(client->UOExpansionFlag & AOS)
 	{
@@ -1028,7 +1028,7 @@ void send_wornitem( Client *client, const Character *chr, const Item *item )
 
 void send_wornitem_to_inrange( const Character *chr, const Item *item )
 {
-	PktOut_2E* msg = REQUESTPACKET(PktOut_2E,PKTOUT_2E_ID);
+	PktOut_2E* msg = PktHelper::RequestPacket<PktOut_2E>(PKTOUT_2E_ID);
 	msg->Write(item->serial_ext);
 	msg->WriteFlipped(item->graphic);
 	msg->offset++; //unk7
@@ -1036,7 +1036,7 @@ void send_wornitem_to_inrange( const Character *chr, const Item *item )
 	msg->Write(chr->serial_ext);
 	msg->WriteFlipped(item->color);
 	transmit_to_inrange( item, &msg->buffer, msg->offset, false, false );
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 	send_object_cache_to_inrange( dynamic_cast<const UObject*>(item) );
 }
 
@@ -1046,12 +1046,12 @@ void update_wornitem_to_inrange( const Character *chr, const Item *item )
 {
 	if(chr != NULL)
 	{
-		PktOut_1D* msgremove = REQUESTPACKET(PktOut_1D,PKTOUT_1D_ID);
+		PktOut_1D* msgremove = PktHelper::RequestPacket<PktOut_1D>(PKTOUT_1D_ID);
 		msgremove->Write(item->serial_ext);
 		transmit_to_inrange( item, &msgremove->buffer, msgremove->offset, false, false );
-		READDPACKET(msgremove);
+		PktHelper::ReAddPacket(msgremove);
 
-		PktOut_2E* msg = REQUESTPACKET(PktOut_2E,PKTOUT_2E_ID);
+		PktOut_2E* msg = PktHelper::RequestPacket<PktOut_2E>(PKTOUT_2E_ID);
 		msg->Write(item->serial_ext);
 		msg->WriteFlipped(item->graphic);
 		msg->offset++; //unk7
@@ -1059,7 +1059,7 @@ void update_wornitem_to_inrange( const Character *chr, const Item *item )
 		msg->Write(chr->serial_ext);
 		msg->WriteFlipped(item->color);
 		transmit_to_inrange( item, &msg->buffer, msg->offset, false, false );
-		READDPACKET(msg);
+		PktHelper::ReAddPacket(msg);
 
 		send_object_cache_to_inrange( dynamic_cast<const UObject*>(item) );
 	}
@@ -1210,7 +1210,7 @@ Item *find_legal_item( const Character *chr, u32 serial, bool* additlegal, bool*
 
 void play_sound_effect( const UObject *center, u16 effect )
 {
-	PktOut_54* msg = REQUESTPACKET(PktOut_54,PKTOUT_54_ID);
+	PktOut_54* msg = PktHelper::RequestPacket<PktOut_54>(PKTOUT_54_ID);
 	msg->Write(static_cast<u8>(PKTOUT_54_FLAG_SINGLEPLAY));
 	msg->WriteFlipped(static_cast<u16>(effect-1)); // SOUND_EFFECT_XX, see sfx.h
 	msg->offset+=2; //volume
@@ -1221,12 +1221,12 @@ void play_sound_effect( const UObject *center, u16 effect )
 	//msg->WriteFlipped(z);
     // FIXME hearing range check perhaps?
     transmit_to_inrange( center, &msg->buffer, msg->offset, false, false );
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 }
 
 void play_sound_effect_xyz( u16 cx,u16 cy,s8 cz, u16 effect, Realm* realm )
 {
-	PktOut_54* msg = REQUESTPACKET(PktOut_54,PKTOUT_54_ID);
+	PktOut_54* msg = PktHelper::RequestPacket<PktOut_54>(PKTOUT_54_ID);
 	msg->Write(static_cast<u8>(PKTOUT_54_FLAG_SINGLEPLAY));
 	msg->WriteFlipped(static_cast<u16>(effect-1)); // SOUND_EFFECT_XX, see sfx.h
 	msg->offset+=2; //volume
@@ -1248,14 +1248,14 @@ void play_sound_effect_xyz( u16 cx,u16 cy,s8 cz, u16 effect, Realm* realm )
             transmit( client, &msg->buffer, msg->offset );
         }
     }
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 }
 
 void play_sound_effect_private( const UObject *center, u16 effect, Character* forchr )
 {
     if (forchr->client)
     {
-		PktOut_54* msg = REQUESTPACKET(PktOut_54,PKTOUT_54_ID);
+		PktOut_54* msg = PktHelper::RequestPacket<PktOut_54>(PKTOUT_54_ID);
 		msg->Write(static_cast<u8>(PKTOUT_54_FLAG_SINGLEPLAY));
 		msg->WriteFlipped(static_cast<u16>(effect-1)); // SOUND_EFFECT_XX, see sfx.h
 		msg->offset+=2; //volume
@@ -1266,7 +1266,7 @@ void play_sound_effect_private( const UObject *center, u16 effect, Character* fo
 		//msg->WriteFlipped(z);
 
         ADDTOSENDQUEUE(forchr->client, &msg->buffer, msg->offset );
-		READDPACKET(msg);
+		PktHelper::ReAddPacket(msg);
     }
 }
 
@@ -1276,7 +1276,7 @@ void play_moving_effect( const UObject *src, const UObject *dst,
                          u8 loop,
                          u8 explode)
 {
-	PktOut_70* msg = REQUESTPACKET(PktOut_70,PKTOUT_70_ID);
+	PktOut_70* msg = PktHelper::RequestPacket<PktOut_70>(PKTOUT_70_ID);
 	msg->Write(static_cast<u8>(EFFECT_TYPE_MOVING));
 	msg->Write(src->serial_ext);
 	msg->Write(dst->serial_ext);
@@ -1305,7 +1305,7 @@ void play_moving_effect( const UObject *src, const UObject *dst,
             transmit( client, &msg->buffer, msg->offset );
         }
     }
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 }
 
 void play_moving_effect2( u16 xs, u16 ys, s8 zs,
@@ -1316,7 +1316,7 @@ void play_moving_effect2( u16 xs, u16 ys, s8 zs,
                           u8 explode,
 						  Realm* realm )
 {
-	PktOut_70* msg = REQUESTPACKET(PktOut_70,PKTOUT_70_ID);
+	PktOut_70* msg = PktHelper::RequestPacket<PktOut_70>(PKTOUT_70_ID);
 	msg->Write(static_cast<u8>(EFFECT_TYPE_MOVING));
 	msg->offset+=8; // src+dst serial
 	msg->WriteFlipped(effect);
@@ -1346,13 +1346,13 @@ void play_moving_effect2( u16 xs, u16 ys, s8 zs,
             transmit( client, &msg->buffer, msg->offset );
         }
     }
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 }
 
 
 void play_lightning_bolt_effect( const UObject* center )
 {
-	PktOut_70* msg = REQUESTPACKET(PktOut_70,PKTOUT_70_ID);
+	PktOut_70* msg = PktHelper::RequestPacket<PktOut_70>(PKTOUT_70_ID);
 	msg->Write(static_cast<u8>(EFFECT_TYPE_LIGHTNING_BOLT));
 	msg->Write(center->serial_ext);
 	msg->offset+=6; // dst serial + effect
@@ -1361,7 +1361,7 @@ void play_lightning_bolt_effect( const UObject* center )
 	msg->Write(center->z);
 	msg->offset+=11;
     transmit_to_inrange( center, &msg->buffer, msg->offset, false, false );
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 }
  
 void play_object_centered_effect( const UObject* center,
@@ -1369,7 +1369,7 @@ void play_object_centered_effect( const UObject* center,
                                   u8 speed,
                                   u8 loop )
 {
-	PktOut_70* msg = REQUESTPACKET(PktOut_70,PKTOUT_70_ID);
+	PktOut_70* msg = PktHelper::RequestPacket<PktOut_70>(PKTOUT_70_ID);
 	msg->Write(static_cast<u8>(EFFECT_TYPE_FOLLOW_OBJ));
 	msg->Write(center->serial_ext);
 	msg->offset+=4; // dst serial
@@ -1382,12 +1382,12 @@ void play_object_centered_effect( const UObject* center,
 	msg->Write(loop);
 	msg->offset+=4; //unk24,unk25,unk26,explode
     transmit_to_inrange( center, &msg->buffer, msg->offset, false, false );
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 }
 
 void play_stationary_effect( u16 x, u16 y, u8 z, u16 effect, u8 speed, u8 loop, u8 explode, Realm* realm )
 {
-	PktOut_70* msg = REQUESTPACKET(PktOut_70,PKTOUT_70_ID);
+	PktOut_70* msg = PktHelper::RequestPacket<PktOut_70>(PKTOUT_70_ID);
 	msg->Write(static_cast<u8>(EFFECT_TYPE_STATIONARY_XYZ));
 	msg->offset+=8; // src,dst serial
 	msg->WriteFlipped(effect);
@@ -1412,13 +1412,13 @@ void play_stationary_effect( u16 x, u16 y, u8 z, u16 effect, u8 speed, u8 loop, 
         if (inrange( client->chr->x, client->chr->y, x, y ))
             ADDTOSENDQUEUE(client, &msg->buffer, msg->offset );
     }
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 }
 
 void play_stationary_effect_ex( u16 x, u16 y, u8 z, Realm* realm, u16 effect, u8 speed, u8 duration, u32 hue, 
 							    u32 render, u16 effect3d )
 {
-	PktOut_C7* msg = REQUESTPACKET(PktOut_C7,PKTOUT_C7_ID);
+	PktOut_C7* msg = PktHelper::RequestPacket<PktOut_C7>(PKTOUT_C7_ID);
 	partical_effect(msg,PKTOUT_C0::EFFECT_FIXEDXYZ,
 		            0,0,x,y,z,x,y,z,
 					effect,speed,duration,1,0,
@@ -1436,13 +1436,13 @@ void play_stationary_effect_ex( u16 x, u16 y, u8 z, Realm* realm, u16 effect, u8
         if (inrange( client->chr->x, client->chr->y, x, y ))
             ADDTOSENDQUEUE(client, &msg->buffer, msg->offset );
     }
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 }
 
 void play_object_centered_effect_ex( const UObject* center, u16 effect, u8 speed, u8 duration, u32 hue, 
 							         u32 render, u8 layer, u16 effect3d )
 {
-	PktOut_C7* msg = REQUESTPACKET(PktOut_C7,PKTOUT_C7_ID);
+	PktOut_C7* msg = PktHelper::RequestPacket<PktOut_C7>(PKTOUT_C7_ID);
 	partical_effect(msg,PKTOUT_C0::EFFECT_FIXEDFROM,
 		            center->serial_ext,center->serial_ext,
 					center->x,center->y,center->z,
@@ -1452,7 +1452,7 @@ void play_object_centered_effect_ex( const UObject* center, u16 effect, u8 speed
 					center->serial_ext,layer);
 
     transmit_to_inrange( center, &msg->buffer, msg->offset, false, false );
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 }
 
 void play_moving_effect_ex( const UObject *src, const UObject *dst,
@@ -1460,7 +1460,7 @@ void play_moving_effect_ex( const UObject *src, const UObject *dst,
 							u32 render, u8 direction, u8 explode, 
 							u16 effect3d, u16 effect3dexplode, u16 effect3dsound)
 {
-	PktOut_C7* msg = REQUESTPACKET(PktOut_C7,PKTOUT_C7_ID);
+	PktOut_C7* msg = PktHelper::RequestPacket<PktOut_C7>(PKTOUT_C7_ID);
 	partical_effect(msg,PKTOUT_C0::EFFECT_MOVING,
 		            src->serial_ext,dst->serial_ext,
 		            src->x,src->y,src->z+src->height,
@@ -1482,7 +1482,7 @@ void play_moving_effect_ex( const UObject *src, const UObject *dst,
             transmit( client, &msg->buffer, msg->offset );
         }
     }
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 }
 
 void play_moving_effect2_ex( u16 xs, u16 ys, s8 zs,
@@ -1491,7 +1491,7 @@ void play_moving_effect2_ex( u16 xs, u16 ys, s8 zs,
 							 u32 render, u8 direction, u8 explode, 
 							 u16 effect3d, u16 effect3dexplode, u16 effect3dsound)
 {
-	PktOut_C7* msg = REQUESTPACKET(PktOut_C7,PKTOUT_C7_ID);
+	PktOut_C7* msg = PktHelper::RequestPacket<PktOut_C7>(PKTOUT_C7_ID);
 	partical_effect(msg,PKTOUT_C0::EFFECT_MOVING,
 		            0,0,xs,ys,zs,xd,yd,zd,
 		            effect,speed,duration, direction,explode,hue,render,
@@ -1513,7 +1513,7 @@ void play_moving_effect2_ex( u16 xs, u16 ys, s8 zs,
             transmit( client, &msg->buffer, msg->offset );
         }
     }
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 }
 
 // Central function to build 0xC7 packet
@@ -1555,7 +1555,7 @@ void partical_effect(PktOut_C7* msg,u8 type, u32 srcserial, u32 dstserial,
 // System message -- message in lower left corner
 void send_sysmessage(Client *client, const char *text, unsigned short font, unsigned short color )
 {
-	PktOut_1C* msg = REQUESTPACKET(PktOut_1C,PKTOUT_1C_ID);
+	PktOut_1C* msg = PktHelper::RequestPacket<PktOut_1C>(PKTOUT_1C_ID);
 	u16 textlen= static_cast<u16>(strlen(text) + 1);
 	if (textlen > SPEECH_MAX_LEN+1)  // FIXME need to handle this better second msg?
 		textlen = SPEECH_MAX_LEN+1;
@@ -1572,7 +1572,7 @@ void send_sysmessage(Client *client, const char *text, unsigned short font, unsi
 	msg->offset=1;
 	msg->WriteFlipped(len);
 	transmit( client, &msg->buffer, len );
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 }
 
 // Unicode System message -- message in lower left corner
@@ -1587,7 +1587,7 @@ void send_sysmessage(Client *client,
 	if (textlen > (SPEECH_MAX_LEN))  // FIXME need to handle this better second msg?
 		textlen = (SPEECH_MAX_LEN);
 
-	PktOut_AE* msg = REQUESTPACKET(PktOut_AE,PKTOUT_AE_ID);
+	PktOut_AE* msg = PktHelper::RequestPacket<PktOut_AE>(PKTOUT_AE_ID);
 	msg->offset+=2;
 	msg->Write(static_cast<u32>(0x01010101));
 	msg->Write(static_cast<u16>(0x0101));
@@ -1601,7 +1601,7 @@ void send_sysmessage(Client *client,
 	msg->offset=1;
 	msg->WriteFlipped(len);
 	transmit( client, &msg->buffer, len );
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 }
 
 void send_sysmessage(Client *client, const std::string& text, unsigned short font, unsigned short color)
@@ -1646,7 +1646,7 @@ void broadcast( const u16 *wtext, const char lang[4],
 
 void send_nametext( Client *client, const Character *chr, const std::string& str )
 {
-	PktOut_1C* msg = REQUESTPACKET(PktOut_1C,PKTOUT_1C_ID);
+	PktOut_1C* msg = PktHelper::RequestPacket<PktOut_1C>(PKTOUT_1C_ID);
 	u16 textlen= static_cast<u16>(str.length() + 1);
 	if (textlen > SPEECH_MAX_LEN+1)
 		textlen = SPEECH_MAX_LEN+1;
@@ -1663,7 +1663,7 @@ void send_nametext( Client *client, const Character *chr, const std::string& str
 	msg->offset=1;
 	msg->WriteFlipped(len);
 	transmit( client, &msg->buffer, len );
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 }
 
 bool say_above(const UObject* obj, 
@@ -1672,7 +1672,7 @@ bool say_above(const UObject* obj,
                unsigned short color,
 			   unsigned int journal_print)
 {
-	PktOut_1C* msg = REQUESTPACKET(PktOut_1C,PKTOUT_1C_ID);
+	PktOut_1C* msg = PktHelper::RequestPacket<PktOut_1C>(PKTOUT_1C_ID);
 	u16 textlen= static_cast<u16>(strlen(text) + 1);
 	if (textlen > SPEECH_MAX_LEN+1)  // FIXME need to handle this better second msg?
 		textlen = SPEECH_MAX_LEN+1;
@@ -1699,7 +1699,7 @@ bool say_above(const UObject* obj,
 	msg->WriteFlipped(len);
 	// todo: only send to those that I'm visible to.
 	transmit_to_inrange( obj, &msg->buffer, len, false, false );
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 	return true;
 }
 
@@ -1717,7 +1717,7 @@ bool say_above(const UObject* obj,
 	if (textlen > (SPEECH_MAX_LEN))  // FIXME need to handle this better second msg?
 		textlen = (SPEECH_MAX_LEN);
 
-	PktOut_AE* msg = REQUESTPACKET(PktOut_AE,PKTOUT_AE_ID);
+	PktOut_AE* msg = PktHelper::RequestPacket<PktOut_AE>(PKTOUT_AE_ID);
 	msg->offset+=2;
 	msg->Write(obj->serial_ext);
 	msg->WriteFlipped(obj->graphic);
@@ -1741,7 +1741,7 @@ bool say_above(const UObject* obj,
 	msg->WriteFlipped(len);
 	// todo: only send to those that I'm visible to.
 	transmit_to_inrange( obj, &msg->buffer, len, false, false );
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
     return true;
 }
 
@@ -1754,7 +1754,7 @@ bool private_say_above( Character* chr,
 {
 	if (chr->client == NULL)
 		return false;
-	PktOut_1C* msg = REQUESTPACKET(PktOut_1C,PKTOUT_1C_ID);
+	PktOut_1C* msg = PktHelper::RequestPacket<PktOut_1C>(PKTOUT_1C_ID);
 	u16 textlen= static_cast<u16>(strlen(text) + 1);
 	if (textlen > SPEECH_MAX_LEN+1)  // FIXME need to handle this better second msg?
 		textlen = SPEECH_MAX_LEN+1;
@@ -1780,7 +1780,7 @@ bool private_say_above( Character* chr,
 	msg->offset=1;
 	msg->WriteFlipped(len);
 	ADDTOSENDQUEUE(chr->client, &msg->buffer, len );
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 	return true;
 }
 
@@ -1801,7 +1801,7 @@ bool private_say_above( Character* chr,
 	if (chr->client == NULL)
 		return false;
 
-	PktOut_AE* msg = REQUESTPACKET(PktOut_AE,PKTOUT_AE_ID);
+	PktOut_AE* msg = PktHelper::RequestPacket<PktOut_AE>(PKTOUT_AE_ID);
 	msg->offset+=2;
 	msg->Write(obj->serial_ext);
 	msg->WriteFlipped(obj->graphic);
@@ -1824,7 +1824,7 @@ bool private_say_above( Character* chr,
 	msg->offset=1;
 	msg->WriteFlipped(len);
 	ADDTOSENDQUEUE(chr->client,&msg->buffer, len );
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 	return true;
 }
 
@@ -1835,7 +1835,7 @@ bool private_say_above_ex( Character* chr,
 {
 	if (chr->client == NULL)
 		return false;
-	PktOut_1C* msg = REQUESTPACKET(PktOut_1C,PKTOUT_1C_ID);
+	PktOut_1C* msg = PktHelper::RequestPacket<PktOut_1C>(PKTOUT_1C_ID);
 	u16 textlen= static_cast<u16>(strlen(text) + 1);
 	if (textlen > SPEECH_MAX_LEN+1)  // FIXME need to handle this better second msg?
 		textlen = SPEECH_MAX_LEN+1;
@@ -1852,13 +1852,13 @@ bool private_say_above_ex( Character* chr,
 	msg->offset=1;
 	msg->WriteFlipped(len);
 	ADDTOSENDQUEUE(chr->client, &msg->buffer, len );
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 	return true;
 }
 
 void send_objdesc( Client *client, Item *item )
 {
-	PktOut_1C* msg = REQUESTPACKET(PktOut_1C,PKTOUT_1C_ID);
+	PktOut_1C* msg = PktHelper::RequestPacket<PktOut_1C>(PKTOUT_1C_ID);
 	u16 textlen= static_cast<u16>(item->description().length() + 1);
 	if (textlen > SPEECH_MAX_LEN+1)  // FIXME need to handle this better second msg?
 		textlen = SPEECH_MAX_LEN+1;
@@ -1874,14 +1874,14 @@ void send_objdesc( Client *client, Item *item )
 	msg->offset=1;
 	msg->WriteFlipped(len);
 	transmit( client, &msg->buffer, len );
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 }
 
 void send_stamina_level( Client *client )
 {
     Character *chr = client->chr;
 
-	PktOut_A3* msg = REQUESTPACKET(PktOut_A3,PKTOUT_A3_ID);
+	PktOut_A3* msg = PktHelper::RequestPacket<PktOut_A3>(PKTOUT_A3_ID);
 	msg->Write(chr->serial_ext);
 
 	if (uoclient_general.stamina.any)
@@ -1901,14 +1901,14 @@ void send_stamina_level( Client *client )
 		msg->offset+=4;
 	}
 	transmit( client, &msg->buffer, msg->offset );
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 }
 
 void send_mana_level( Client *client )
 {
     Character *chr = client->chr;
 
-	PktOut_A2* msg = REQUESTPACKET(PktOut_A2,PKTOUT_A2_ID);
+	PktOut_A2* msg = PktHelper::RequestPacket<PktOut_A2>(PKTOUT_A2_ID);
 	msg->Write(chr->serial_ext);
 
     if (uoclient_general.mana.any)
@@ -1928,12 +1928,12 @@ void send_mana_level( Client *client )
 		msg->offset+=4;
     }
     transmit( client, &msg->buffer, msg->offset );
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 }
 
 void send_death_message( Character *chr_died, Item *corpse )
 {
-	PktOut_AF* msg = REQUESTPACKET(PktOut_AF,PKTOUT_AF_ID);
+	PktOut_AF* msg = PktHelper::RequestPacket<PktOut_AF>(PKTOUT_AF_ID);
 	msg->Write(chr_died->serial_ext);
 	msg->Write(corpse->serial_ext);
 	msg->offset+=4; // u32 unk4_zero
@@ -1950,7 +1950,7 @@ void send_death_message( Character *chr_died, Item *corpse )
         if (inrange( client->chr, corpse ))
             transmit( client, &msg->buffer, msg->offset );
     }
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 }
 
 void transmit_to_inrange( const UObject* center, const void* msg, unsigned msglen, bool is_6017, bool is_UOKR)
@@ -2109,7 +2109,7 @@ void move_item( Item* item, UFACING facing )
     item->restart_decay_timer();
     MoveItemWorldPosition( oldx, oldy, item, NULL );
 
-	PktOut_1D* msgremove = REQUESTPACKET(PktOut_1D,PKTOUT_1D_ID);
+	PktOut_1D* msgremove = PktHelper::RequestPacket<PktOut_1D>(PKTOUT_1D_ID);
 	msgremove->Write(item->serial_ext);
 
     for( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
@@ -2131,7 +2131,7 @@ void move_item( Item* item, UFACING facing )
             }
         }
     }
-	READDPACKET(msgremove);
+	PktHelper::ReAddPacket(msgremove);
 
 }
 
@@ -2154,7 +2154,7 @@ void move_item( Item* item, unsigned short newx, unsigned short newy, signed cha
     item->restart_decay_timer();
     MoveItemWorldPosition( oldx, oldy, item, oldrealm );
 
-	PktOut_1D* msgremove = REQUESTPACKET(PktOut_1D,PKTOUT_1D_ID);
+	PktOut_1D* msgremove = PktHelper::RequestPacket<PktOut_1D>(PKTOUT_1D_ID);
 	msgremove->Write(item->serial_ext);
 
     for( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
@@ -2176,7 +2176,7 @@ void move_item( Item* item, unsigned short newx, unsigned short newy, signed cha
             }
         }
     }
-	READDPACKET(msgremove);
+	PktHelper::ReAddPacket(msgremove);
 }
 
 void move_boat_item( Item* item, unsigned short newx, unsigned short newy, signed char newz, Realm* oldrealm )
@@ -2190,7 +2190,7 @@ void move_boat_item( Item* item, unsigned short newx, unsigned short newy, signe
 
     MoveItemWorldPosition( oldx, oldy, item, oldrealm );
 
-	PktOut_1A* msg = REQUESTPACKET(PktOut_1A,PKTOUT_1A_ID);
+	PktOut_1A* msg = PktHelper::RequestPacket<PktOut_1A>(PKTOUT_1A_ID);
 	msg->offset+=2;
 	msg->Write(item->serial_ext);
 	msg->WriteFlipped(item->graphic);
@@ -2202,7 +2202,7 @@ void move_boat_item( Item* item, unsigned short newx, unsigned short newy, signe
 	msg->WriteFlipped(len1A);
 
 	// Client >= 7.0.0.0 ( SA )
-	PktOut_F3* msg2 = REQUESTPACKET(PktOut_F3,PKTOUT_F3_ID);
+	PktOut_F3* msg2 = PktHelper::RequestPacket<PktOut_F3>(PKTOUT_F3_ID);
 	msg2->WriteFlipped(static_cast<u16>(0x1));
 	msg2->offset++; // datatype
 	msg2->Write(item->serial_ext);
@@ -2218,11 +2218,11 @@ void move_boat_item( Item* item, unsigned short newx, unsigned short newy, signe
 	msg2->offset++; //flags
 
 	// Client >= 7.0.9.0 ( HSA )
-	PktOut_F3* msg3 = REQUESTPACKET(PktOut_F3,PKTOUT_F3_ID);
+	PktOut_F3* msg3 = PktHelper::RequestPacket<PktOut_F3>(PKTOUT_F3_ID);
 	memcpy( &msg3->buffer, &msg2->buffer, sizeof msg3->buffer );
 	msg3->offset=26; //unk short at the end
 
-	PktOut_1D* msgremove = REQUESTPACKET(PktOut_1D,PKTOUT_1D_ID);
+	PktOut_1D* msgremove = PktHelper::RequestPacket<PktOut_1D>(PKTOUT_1D_ID);
 	msgremove->Write(item->serial_ext);
 
     for( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
@@ -2249,10 +2249,10 @@ void move_boat_item( Item* item, unsigned short newx, unsigned short newy, signe
             }
         }
     }
-	READDPACKET(msg);
-	READDPACKET(msg2);
-	READDPACKET(msg3);
-	READDPACKET(msgremove);
+	PktHelper::ReAddPacket(msg);
+	PktHelper::ReAddPacket(msg2);
+	PktHelper::ReAddPacket(msg3);
+	PktHelper::ReAddPacket(msgremove);
 }
 
 #include "multi/multi.h"
@@ -2260,7 +2260,7 @@ void send_multi( Client* client, const UMulti* multi )
 {
 	if (client->ClientType & CLIENTTYPE_7000)
 	{
-		PktOut_F3* msg = REQUESTPACKET(PktOut_F3,PKTOUT_F3_ID);
+		PktOut_F3* msg = PktHelper::RequestPacket<PktOut_F3>(PKTOUT_F3_ID);
 		msg->WriteFlipped(static_cast<u16>(0x1));
 		msg->Write(static_cast<u8>(0x02));
 		msg->Write(multi->serial_ext);
@@ -2277,11 +2277,11 @@ void send_multi( Client* client, const UMulti* multi )
 		if (client->ClientType & CLIENTTYPE_7090)
 			msg->offset+=2;
 		ADDTOSENDQUEUE(client, &msg->buffer, msg->offset );
-		READDPACKET(msg);
+		PktHelper::ReAddPacket(msg);
 	}
 	else
 	{
-		PktOut_1A* msg = REQUESTPACKET(PktOut_1A,PKTOUT_1A_ID);
+		PktOut_1A* msg = PktHelper::RequestPacket<PktOut_1A>(PKTOUT_1A_ID);
 		msg->offset+=2;
 		msg->Write(multi->serial_ext);
 		u16 graphic= multi->multidef().multiid | 0x4000;
@@ -2293,7 +2293,7 @@ void send_multi( Client* client, const UMulti* multi )
 		msg->offset=1;
 		msg->WriteFlipped(len);
 		ADDTOSENDQUEUE(client, &msg->buffer, len );
-		READDPACKET(msg);
+		PktHelper::ReAddPacket(msg);
 	}
 }
 
@@ -2328,7 +2328,7 @@ void update_lightregion( Client* client, LightRegion* lightregion )
 void SetRegionLightLevel( LightRegion* lightregion, int lightlevel )
 {
     lightregion->lightlevel = lightlevel;
-	PktOut_4F* msg = REQUESTPACKET(PktOut_4F,PKTOUT_4F_ID);
+	PktOut_4F* msg = PktHelper::RequestPacket<PktOut_4F>(PKTOUT_4F_ID);
 	msg->Write(static_cast<u8>(lightlevel));
 	for( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
 	{
@@ -2378,7 +2378,7 @@ void SetRegionLightLevel( LightRegion* lightregion, int lightlevel )
 			client->gd->lightlevel = newlightlevel;
 		}
 	}
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 }
 
 void update_weatherregion( Client* client, WeatherRegion* weatherregion )
@@ -2514,10 +2514,10 @@ string format_description( unsigned int polflags, const string& descdef, unsigne
 
 void send_midi( Client* client, u16 midi )
 {
-	PktOut_6D* msg = REQUESTPACKET(PktOut_6D,PKTOUT_6D_ID);
+	PktOut_6D* msg = PktHelper::RequestPacket<PktOut_6D>(PKTOUT_6D_ID);
 	msg->WriteFlipped(midi);
 	ADDTOSENDQUEUE(client, &msg->buffer, msg->offset );
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
     // cout << "Setting midi for " << client->chr->name() << " to " << midi << endl;
 }
 
@@ -2582,10 +2582,10 @@ void UpdateCharacterOnDestroyItem(Item* item)
 	{
 		if (item->layer && chr_owner->is_equipped(item))
 		{
-			PktOut_1D* msgremove = REQUESTPACKET(PktOut_1D,PKTOUT_1D_ID);
+			PktOut_1D* msgremove = PktHelper::RequestPacket<PktOut_1D>(PKTOUT_1D_ID);
 			msgremove->Write(item->serial_ext);
 			transmit_to_inrange( item, &msgremove->buffer, msgremove->offset, false, false );
-			READDPACKET(msgremove);
+			PktHelper::ReAddPacket(msgremove);
 		}
 	}
 }
@@ -2598,9 +2598,9 @@ bool clientHasCharacter(Client* c)
 
 void login_complete(Client* c)
 {
-	PktOut_55* msg = REQUESTPACKET(PktOut_55,PKTOUT_55_ID);
+	PktOut_55* msg = PktHelper::RequestPacket<PktOut_55>(PKTOUT_55_ID);
 	ADDTOSENDQUEUE(c,&msg->buffer, msg->offset);
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 }
 
 void send_feature_enable(Client* client)
@@ -2662,28 +2662,28 @@ void send_feature_enable(Client* client)
             clientflag |= 0x2000;
     }
 
-	PktOut_B9* msg = REQUESTPACKET(PktOut_B9,PKTOUT_B9_ID);
+	PktOut_B9* msg = PktHelper::RequestPacket<PktOut_B9>(PKTOUT_B9_ID);
 	if ( client->ClientType & CLIENTTYPE_60142 )
 		msg->WriteFlipped(clientflag);
 	else
 		msg->WriteFlipped(static_cast<u16>(clientflag));
 	ADDTOSENDQUEUE(client,&msg->buffer, msg->offset);
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 }
 
 void send_realm_change( Client* client, Realm* realm )
 {
-	PktOut_BF_Sub8* msg = REQUESTSUBPACKET(PktOut_BF_Sub8,PKTBI_BF_ID,PKTBI_BF::TYPE_CURSOR_HUE);
+	PktOut_BF_Sub8* msg = PktHelper::RequestSubPacket<PktOut_BF_Sub8>(PKTBI_BF_ID, PKTBI_BF::TYPE_CURSOR_HUE);
 	msg->WriteFlipped(static_cast<u16>(6));
 	msg->offset+=2; //sub
 	msg->Write(static_cast<u8>(realm->getUOMapID()));
 	ADDTOSENDQUEUE(client,&msg->buffer, msg->offset);
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 }
 
 void send_map_difs( Client* client )
 {
-	PktOut_BF_Sub18* msg = REQUESTSUBPACKET(PktOut_BF_Sub18,PKTBI_BF_ID,PKTBI_BF::TYPE_ENABLE_MAP_DIFFS);
+	PktOut_BF_Sub18* msg = PktHelper::RequestSubPacket<PktOut_BF_Sub18>(PKTBI_BF_ID, PKTBI_BF::TYPE_ENABLE_MAP_DIFFS);
 	msg->offset+=4; //len+sub
 	msg->WriteFlipped(baserealm_count);
 	for(unsigned int i=0; i<baserealm_count; i++)
@@ -2695,7 +2695,7 @@ void send_map_difs( Client* client )
 	msg->offset=1;
 	msg->WriteFlipped(len);
 	ADDTOSENDQUEUE(client, &msg->buffer, len);
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 }
 
 // FIXME : Works, except for Login. Added length check as to not mess with 1.x clients
@@ -2704,11 +2704,11 @@ void send_season_info( Client* client )
 {
 	if (client->getversiondetail().major>=1)
     {
-		PktOut_BC* msg = REQUESTPACKET(PktOut_BC,PKTOUT_BC_ID);
+		PktOut_BC* msg = PktHelper::RequestPacket<PktOut_BC>(PKTOUT_BC_ID);
 		msg->Write(static_cast<u8>(client->chr->realm->season()));
 		msg->Write(static_cast<u8>(PKTOUT_BC::PLAYSOUND_YES));
 		ADDTOSENDQUEUE(client, &msg->buffer, msg->offset );
-		READDPACKET(msg);
+		PktHelper::ReAddPacket(msg);
 
 		// Sending Season info resets light level in client, this fixes it during login
 		if (client->gd->weather_region != NULL &&
@@ -2723,7 +2723,7 @@ void send_season_info( Client* client )
 //assumes new realm has been set on client->chr
 void send_new_subserver( Client* client )
 {
-	PktOut_76* msg = REQUESTPACKET(PktOut_76,PKTOUT_76_ID);
+	PktOut_76* msg = PktHelper::RequestPacket<PktOut_76>(PKTOUT_76_ID);
 	msg->WriteFlipped(client->chr->x);
 	msg->WriteFlipped(client->chr->y);
 	msg->WriteFlipped(static_cast<u16>(client->chr->z));
@@ -2731,17 +2731,17 @@ void send_new_subserver( Client* client )
 	msg->WriteFlipped(client->chr->realm->width());
 	msg->WriteFlipped(client->chr->realm->height());
 	ADDTOSENDQUEUE(client, &msg->buffer, msg->offset );
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 }
 
 void send_fight_occuring( Client* client, Character* opponent )
 {
-	PktOut_2F* msg = REQUESTPACKET(PktOut_2F,PKTOUT_2F_ID);
+	PktOut_2F* msg = PktHelper::RequestPacket<PktOut_2F>(PKTOUT_2F_ID);
 	msg->offset++; //zero1
 	msg->Write(client->chr->serial_ext);
 	msg->Write(opponent->serial_ext);
 	ADDTOSENDQUEUE(client, &msg->buffer, msg->offset );
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 }
 
 void send_damage( Character* attacker, Character* defender, u16 damage )
@@ -2764,16 +2764,16 @@ void send_damage( Character* attacker, Character* defender, u16 damage )
 
 void send_damage_new(Client* client, Character* defender, u16 damage)
 {
-	PktOut_0B* msg = REQUESTPACKET(PktOut_0B,PKTOUT_0B_ID);
+	PktOut_0B* msg = PktHelper::RequestPacket<PktOut_0B>(PKTOUT_0B_ID);
 	msg->Write(defender->serial_ext);
 	msg->WriteFlipped(damage);
     ADDTOSENDQUEUE(client, &msg->buffer, msg->offset );
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 }
 
 void send_damage_old(Client* client, Character* defender, u16 damage)
 {
-	PktOut_BF_Sub22* msg = REQUESTSUBPACKET(PktOut_BF_Sub22,PKTBI_BF_ID,PKTBI_BF::TYPE_DAMAGE);
+	PktOut_BF_Sub22* msg = PktHelper::RequestSubPacket<PktOut_BF_Sub22>(PKTBI_BF_ID, PKTBI_BF::TYPE_DAMAGE);
 	msg->WriteFlipped(static_cast<u16>(11));
 	msg->offset+=2; //sub
 	msg->Write(static_cast<u8>(1));
@@ -2783,12 +2783,12 @@ void send_damage_old(Client* client, Character* defender, u16 damage)
     else
         msg->Write(static_cast<u8>(damage));
     ADDTOSENDQUEUE(client,&msg->buffer, msg->offset );
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 }
 
 void sendCharProfile( Character* chr, Character* of_who, const char *title, const u16 *utext, const u16 *etext )
 {
-	PktOut_B8* msg = REQUESTPACKET(PktOut_B8,PKTBI_B8_OUT_ID);
+	PktOut_B8* msg = PktHelper::RequestPacket<PktOut_B8>(PKTBI_B8_OUT_ID);
 
 	unsigned newulen = 0, newelen = 0, titlelen;
 
@@ -2820,5 +2820,5 @@ void sendCharProfile( Character* chr, Character* of_who, const char *title, cons
 	msg->WriteFlipped(len);
 
 	transmit( chr->client, &msg->buffer, len );
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 }

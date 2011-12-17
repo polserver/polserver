@@ -32,7 +32,7 @@ bool send_menu( Client *client, Menu *menu )
 	if (menu->menuitems_.size() > 255)
         return false;
 
-	PktOut_7C* msg = REQUESTPACKET(PktOut_7C,PKTOUT_7C_ID);
+	PktOut_7C* msg = PktHelper::RequestPacket<PktOut_7C>(PKTOUT_7C_ID);
 	msg->offset+=2;
 	msg->offset+=4; //used_item_serial
 	msg->WriteFlipped(menu->menu_id);
@@ -47,7 +47,7 @@ bool send_menu( Client *client, Menu *menu )
 	{
 		if (msg->offset + 85 > static_cast<u16>(sizeof msg->buffer))
 		{
-			READDPACKET(msg);        
+			PktHelper::ReAddPacket(msg);        
             return false;
 		}
 		MenuItem* mi = &menu->menuitems_[ idx ];
@@ -63,7 +63,7 @@ bool send_menu( Client *client, Menu *menu )
 	msg->offset = 1;
 	msg->WriteFlipped(len);
 	transmit( client, &msg->buffer, len );
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
     return true;
 }
 
@@ -144,19 +144,19 @@ void for_nearby_npcs( void (*f)(NPC& npc, Character *chr, const char *text, int 
 
 void send_open_gump( Client *client, const UContainer& cont )
 {
-	PktOut_24* msg = REQUESTPACKET(PktOut_24,PKTOUT_24_ID);
+	PktOut_24* msg = PktHelper::RequestPacket<PktOut_24>(PKTOUT_24_ID);
 	msg->Write(cont.serial_ext);
 	msg->WriteFlipped(cont.gump());
 	if (client->ClientType & CLIENTTYPE_7090)
 		msg->WriteFlipped(static_cast<u16>(0x7D));
 	transmit( client, &msg->buffer, msg->offset );
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 }
 
 //dave changed 11/9/3, don't send invis items to those who can't see invis
 void send_container_contents( Client *client, const UContainer& cont, bool show_invis )
 {
-	PktOut_3C* msg = REQUESTPACKET(PktOut_3C,PKTOUT_3C_ID);
+	PktOut_3C* msg = PktHelper::RequestPacket<PktOut_3C>(PKTOUT_3C_ID);
 	msg->offset+=4; //msglen+count
 	u16 count = 0;
 	UContainer::const_iterator itr = cont.begin();
@@ -187,7 +187,7 @@ void send_container_contents( Client *client, const UContainer& cont, bool show_
 	msg->WriteFlipped(len);
 	msg->WriteFlipped(count);
 	ADDTOSENDQUEUE(client, &msg->buffer, len );
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 
 	if(client->UOExpansionFlag & AOS)
 	{

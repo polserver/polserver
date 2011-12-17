@@ -119,7 +119,7 @@ void Spellbook::double_click( Client* client )
 
 		send_open_gump(client, *this);
 
-		PktOut_BF_Sub1B* msg = REQUESTSUBPACKET(PktOut_BF_Sub1B,PKTBI_BF_ID,PKTBI_BF::TYPE_NEW_SPELLBOOK);
+		PktOut_BF_Sub1B* msg = PktHelper::RequestSubPacket<PktOut_BF_Sub1B>(PKTBI_BF_ID, PKTBI_BF::TYPE_NEW_SPELLBOOK);
 		msg->WriteFlipped(static_cast<u16>(23));
 		msg->offset+=2; //sub
 		msg->WriteFlipped(static_cast<u16>(1));
@@ -134,7 +134,7 @@ void Spellbook::double_click( Client* client )
 
 		msg->Write(bitwise_contents,8);
 		ADDTOSENDQUEUE(client,&msg->buffer, msg->offset);
-		READDPACKET(msg);
+		PktHelper::ReAddPacket(msg);
 	}
 }
 
@@ -346,7 +346,7 @@ void Spellbook::send_book_old( Client *client )
 
 void send_spellbook_contents( Client *client, Spellbook& spellbook )
 {
-	PktOut_3C* msg = REQUESTPACKET(PktOut_3C,PKTOUT_3C_ID);
+	PktOut_3C* msg = PktHelper::RequestPacket<PktOut_3C>(PKTOUT_3C_ID);
 	msg->offset+=4; //msglen+count
 	u16 count = 0;
 	for ( u16 i = 0; i < 64; ++i )
@@ -375,5 +375,5 @@ void send_spellbook_contents( Client *client, Spellbook& spellbook )
 	msg->WriteFlipped(len);
 	msg->WriteFlipped(count);
 	ADDTOSENDQUEUE(client, &msg->buffer, len );
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 }

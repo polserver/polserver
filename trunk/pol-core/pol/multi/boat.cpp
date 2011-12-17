@@ -278,7 +278,7 @@ vector<Client*> boat_sent_to;
 
 void send_boat_to_inrange( const UBoat* item, u16 oldx, u16 oldy )
 {
-	PktOut_1A* msg = REQUESTPACKET(PktOut_1A,PKTOUT_1A_ID);
+	PktOut_1A* msg = PktHelper::RequestPacket<PktOut_1A>(PKTOUT_1A_ID);
 	msg->offset+=2;
 	u16 graphic=item->multidef().multiid | 0x4000;
 	msg->Write(item->serial_ext);
@@ -291,7 +291,7 @@ void send_boat_to_inrange( const UBoat* item, u16 oldx, u16 oldy )
 	msg->WriteFlipped(len1A);
 
 	// Client >= 7.0.0.0 ( SA )
-	PktOut_F3* msg2 = REQUESTPACKET(PktOut_F3,PKTOUT_F3_ID);
+	PktOut_F3* msg2 = PktHelper::RequestPacket<PktOut_F3>(PKTOUT_F3_ID);
 	msg2->WriteFlipped(static_cast<u16>(0x1));
 	msg2->Write(static_cast<u8>(0x02));
 	msg2->Write(item->serial_ext);
@@ -307,11 +307,11 @@ void send_boat_to_inrange( const UBoat* item, u16 oldx, u16 oldy )
 	msg2->offset++; // u8 flags
 
 	// Client >= 7.0.9.0 ( HSA )
-	PktOut_F3* msg3 = REQUESTPACKET(PktOut_F3,PKTOUT_F3_ID);
+	PktOut_F3* msg3 = PktHelper::RequestPacket<PktOut_F3>(PKTOUT_F3_ID);
 	memcpy( &msg3->buffer, &msg2->buffer, sizeof msg3->buffer );
 	msg3->offset=26; //unk short at the end
 
-	PktOut_1D* msgremove = REQUESTPACKET(PktOut_1D,PKTOUT_1D_ID);
+	PktOut_1D* msgremove = PktHelper::RequestPacket<PktOut_1D>(PKTOUT_1D_ID);
 	msgremove->Write(item->serial_ext);
     
 	for( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
@@ -338,10 +338,10 @@ void send_boat_to_inrange( const UBoat* item, u16 oldx, u16 oldy )
 			ADDTOSENDQUEUE(client, &msgremove->buffer, msgremove->offset );
 		}
     }
-	READDPACKET(msg);
-	READDPACKET(msg2);
-	READDPACKET(msg3);
-	READDPACKET(msgremove);
+	PktHelper::ReAddPacket(msg);
+	PktHelper::ReAddPacket(msg2);
+	PktHelper::ReAddPacket(msg3);
+	PktHelper::ReAddPacket(msgremove);
 }
 
 void unpause_paused()

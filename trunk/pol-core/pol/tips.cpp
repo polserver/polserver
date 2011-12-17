@@ -30,7 +30,7 @@ bool send_tip( Client* client, const char* tipname, unsigned short tipnum )
     size_t textlen = strlen(tipname);
     if ( textlen > 0 && unsigned(textlen) <= 9999)
     {
-		PktOut_A6* msg = REQUESTPACKET(PktOut_A6,PKTOUT_A6_ID);
+		PktOut_A6* msg = PktHelper::RequestPacket<PktOut_A6>(PKTOUT_A6_ID);
 		msg->WriteFlipped(static_cast<u16>(textlen+11));
 		msg->Write(static_cast<u8>(PKTOUT_A6_TYPE_TIP));
 		msg->offset+=2; //unk4,5
@@ -38,7 +38,7 @@ bool send_tip( Client* client, const char* tipname, unsigned short tipnum )
 		msg->WriteFlipped(static_cast<u16>(textlen+1));
 		msg->Write(tipname,static_cast<u16>(textlen+1));
         transmit( client, &msg->buffer, msg->offset );
-		READDPACKET(msg);
+		PktHelper::ReAddPacket(msg);
         return true;
     }
     else
@@ -53,7 +53,7 @@ void send_tip( Client* client, const std::string& tiptext )
     if (textlen >= 10000)
         textlen = 9999;
 
-	PktOut_A6* msg = REQUESTPACKET(PktOut_A6,PKTOUT_A6_ID);
+	PktOut_A6* msg = PktHelper::RequestPacket<PktOut_A6>(PKTOUT_A6_ID);
 	msg->WriteFlipped(static_cast<u16>(textlen+11));
 	msg->Write(static_cast<u8>(PKTOUT_A6_TYPE_TIP));
 	msg->offset+=2; //unk4,5
@@ -61,7 +61,7 @@ void send_tip( Client* client, const std::string& tiptext )
 	msg->WriteFlipped(static_cast<u16>(textlen+1));
 	msg->Write(tiptext.c_str(),static_cast<u16>(textlen+1));
     transmit( client, &msg->buffer, msg->offset );
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 }
 
 void handle_get_tip( Client* client, PKTIN_A7* msg )
