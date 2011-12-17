@@ -134,7 +134,7 @@ void Map::builtin_on_use( Client* client )
 {
     if (gumpwidth && gumpheight)
     {
-		PktOut_90* msg90 = REQUESTPACKET(PktOut_90,PKTOUT_90_ID);
+		PktOut_90* msg90 = PktHelper::RequestPacket<PktOut_90>(PKTOUT_90_ID);
 		msg90->Write(serial_ext);
 		msg90->Write(static_cast<u8>(0x13));
 		msg90->Write(static_cast<u8>(0x9d));
@@ -145,9 +145,9 @@ void Map::builtin_on_use( Client* client )
 		msg90->WriteFlipped(gumpwidth);
 		msg90->WriteFlipped(gumpheight);
 		transmit( client, &msg90->buffer, msg90->offset );
-		READDPACKET(msg90);
+		PktHelper::ReAddPacket(msg90);
 
-		PktOut_56* msg56 = REQUESTPACKET(PktOut_56,PKTBI_56_ID);
+		PktOut_56* msg56 = PktHelper::RequestPacket<PktOut_56>(PKTBI_56_ID);
 		msg56->Write(serial_ext);
 		msg56->Write(static_cast<u8>(PKTBI_56::TYPE_REMOVE_ALL));
 		msg56->offset+=5; // u8 pinidx,u16 pinx,piny
@@ -170,7 +170,7 @@ void Map::builtin_on_use( Client* client )
 				transmit( client, &msg56->buffer, msg56->offset );
 			}
 		}
-		READDPACKET(msg56);
+		PktHelper::ReAddPacket(msg56);
     }
 }
 
@@ -473,14 +473,14 @@ void handle_map_pin( Client* client, PKTBI_56* msg )
 		{
 			//hmm msg->plotstate never seems to be 1 when type is 6
 			my_map->plotting = my_map->plotting ? 0 : 1;
-			PktOut_56* msg56 = REQUESTPACKET(PktOut_56,PKTBI_56_ID);
+			PktOut_56* msg56 = PktHelper::RequestPacket<PktOut_56>(PKTBI_56_ID);
 			msg56->Write(msg->serial);
 			msg56->Write(static_cast<u8>(PKTBI_56::TYPE_TOGGLE_RESPONSE));
 			msg56->Write(static_cast<u8>(my_map->plotting));
 			msg56->Write(msg->pinx);
 			msg56->Write(msg->piny);
 			transmit( client, &msg56->buffer, msg56->offset );
-			READDPACKET(msg56);
+			PktHelper::ReAddPacket(msg56);
 			break;
 		}
 

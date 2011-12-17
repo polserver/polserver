@@ -391,12 +391,12 @@ void handle_allnames( Client *client, PKTBI_98_IN *msg )
 			return;
 		}
 
-		PktOut_98* msgOut = REQUESTPACKET(PktOut_98,PKTBI_98_OUT_ID);
+		PktOut_98* msgOut = PktHelper::RequestPacket<PktOut_98>(PKTBI_98_OUT_ID);
 		msgOut->WriteFlipped(static_cast<u16>(37)); // static length
 		msgOut->Write(the_mob->serial_ext);
 		msgOut->Write(the_mob->name().c_str(),30,false);
 		transmit( client, &msgOut->buffer, msgOut->offset );
-		READDPACKET(msgOut);
+		PktHelper::ReAddPacket(msgOut);
 	}
 	else
 	{

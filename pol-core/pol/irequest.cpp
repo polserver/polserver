@@ -54,7 +54,7 @@ void statrequest( Client *client, u32 serial)
 
 void send_skillmsg( Client *client, const Character *chr )
 {
-	PktOut_3A* msg = REQUESTPACKET(PktOut_3A,PKTBI_3A_ID);
+	PktOut_3A* msg = PktHelper::RequestPacket<PktOut_3A>(PKTBI_3A_ID);
 	msg->offset+=2;
 	if (ssopt.core_sends_caps)
 		msg->Write(static_cast<u8>(PKTBI_3A_VALUES::FULL_LIST_CAP));
@@ -96,7 +96,7 @@ void send_skillmsg( Client *client, const Character *chr )
 	msg->offset=1;
 	msg->WriteFlipped(len);
 	ADDTOSENDQUEUE(client, &msg->buffer, len );
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 }
 
 void handle_skill_lock( Client *client, PKTBI_3A_LOCKS *msg )

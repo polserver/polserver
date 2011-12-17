@@ -1863,14 +1863,14 @@ void Character::on_poison_changed()
         // if poisoned send_move_mobile_to_nearby_cansee handles 0x17 packet
         if (!poisoned)
         {
-			PktOut_17* msg = REQUESTPACKET(PktOut_17,PKTOUT_17_ID);
+			PktOut_17* msg = PktHelper::RequestPacket<PktOut_17>(PKTOUT_17_ID);
 			msg->WriteFlipped(static_cast<u16>(sizeof msg->buffer));
 			msg->Write(this->serial_ext);
 			msg->Write(static_cast<u16>(1)); //unk
 			msg->Write(static_cast<u16>(1)); // status_type
 			msg->Write(static_cast<u8>(0)); //flag
             transmit_to_inrange( this, &msg->buffer, msg->offset, false, true );
-			READDPACKET(msg);
+			PktHelper::ReAddPacket(msg);
         }
     }
 }
@@ -2140,13 +2140,13 @@ Item* create_backpack()
 
 void Character::send_warmode()
 {
-	PktOut_72* msg = REQUESTPACKET(PktOut_72,PKTBI_72_ID);
+	PktOut_72* msg = PktHelper::RequestPacket<PktOut_72>(PKTBI_72_ID);
 	msg->Write(static_cast<u8>(warmode ? 1 : 0));
 	msg->offset++; // u8 unk2
 	msg->Write(static_cast<u8>(0x32));
 	msg->offset++; // u8 unk4
 	transmit( client, &msg->buffer, msg->offset );
-	READDPACKET(msg);
+	PktHelper::ReAddPacket(msg);
 }
 
 void send_remove_if_hidden_ghost( Character* chr, Client* client )
@@ -2809,7 +2809,7 @@ bool Character::is_visible_to_me( const Character* chr ) const
 // NOTE: chr is at new position, lastx/lasty have old position.
 void PropagateMove( /*Client *client,*/ Character *chr )
 {
-	PktOut_1D* msgremove = REQUESTPACKET(PktOut_1D,PKTOUT_1D_ID);
+	PktOut_1D* msgremove = PktHelper::RequestPacket<PktOut_1D>(PKTOUT_1D_ID);
 	msgremove->Write(chr->serial_ext);
 	PktOut_77* msgmove = build_send_move(chr);
 	PktOut_17* msgpoison = build_poisonhealthbar(chr);
@@ -2864,10 +2864,10 @@ void PropagateMove( /*Client *client,*/ Character *chr )
 		}
 	}
 
-	READDPACKET(msgremove);
-	READDPACKET(msgmove);
-	READDPACKET(msgpoison);
-	READDPACKET(msgcreate);
+	PktHelper::ReAddPacket(msgremove);
+	PktHelper::ReAddPacket(msgmove);
+	PktHelper::ReAddPacket(msgpoison);
+	PktHelper::ReAddPacket(msgcreate);
 }
 
 void Character::getpos_ifmove( UFACING i_facing, unsigned short* px, unsigned short* py )
@@ -3046,14 +3046,14 @@ void Character::send_highlight() const
 	{
 		Character* opponent = get_opponent();
 
-		PktOut_AA* msg = REQUESTPACKET(PktOut_AA,PKTOUT_AA_ID);
+		PktOut_AA* msg = PktHelper::RequestPacket<PktOut_AA>(PKTOUT_AA_ID);
 		if (opponent != NULL)
 			msg->Write(opponent->serial_ext);
 		else
 			msg->offset+=4;
 
 		transmit( client, &msg->buffer, msg->offset );
-		READDPACKET(msg);
+		PktHelper::ReAddPacket(msg);
 	}
 }
 

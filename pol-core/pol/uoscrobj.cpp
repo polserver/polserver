@@ -1876,11 +1876,11 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 
 				if( client && client->getversiondetail().major>=1 )
 				{
-					PktOut_BC* msg = REQUESTPACKET(PktOut_BC,PKTOUT_BC_ID);
+					PktOut_BC* msg = PktHelper::RequestPacket<PktOut_BC>(PKTOUT_BC_ID);
 					msg->Write(static_cast<u8>(season_id));
 					msg->Write(static_cast<u8>(playsound));
 					ADDTOSENDQUEUE(client,&msg->buffer, msg->offset );
-					READDPACKET(msg);
+					PktHelper::ReAddPacket(msg);
 					return new BLong(1);
 				}
 			}

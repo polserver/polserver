@@ -305,9 +305,6 @@ namespace PktHelper
 		Packets::instance()->ReAddPacket(msg);
 	}
 }
-#define REQUESTPACKET(_pkt,_id) static_cast<_pkt*>(Packets::instance()->getPacket(_id))
-#define REQUESTSUBPACKET(_pkt,_id,_sub) static_cast<_pkt*>(Packets::instance()->getPacket(_id,_sub))
-#define READDPACKET(_msg) Packets::instance()->ReAddPacket(_msg)
 
 // buffer for encrypted Data send with a dummy pktid
 // NOTE: redefine id if pkt 0x0 ever gets send
