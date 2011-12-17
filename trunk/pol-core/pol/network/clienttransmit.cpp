@@ -71,7 +71,7 @@ void ClientTransmitThread()
 				if (data.disconnects)
 					data.client->forceDisconnect();
 				else if (data.client->isReallyConnected())
-					data.client->transmit(static_cast<void*>(&data.data[0]),data.len);
+					data.client->transmit(static_cast<void*>(&data.data[0]),data.len,true);
 			}
 		}
 		wait_for_ClientTransmit_pulse(1000);
