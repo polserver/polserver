@@ -67,6 +67,9 @@ public:
 	void realm_changed();
 	void adjust_traveller_z(s8 delta_z);
 
+	virtual void on_color_changed();
+
+
 	// Should these be arrays instead to support customizable boats with certain component choises ?
 	Item* tillerman;
 	Item* portplank;
