@@ -1252,14 +1252,13 @@ BObjectImp* UOExecutorModule::mf_CloseGump(/* who, pid, response := 0 */)
 		return new BError( "Couldnt find script" );
 	}
 
-	PktOut_BF_Sub4* msg = PktHelper::RequestSubPacket<PktOut_BF_Sub4>(PKTBI_BF_ID, PKTBI_BF::TYPE_CLOSE_GUMP);
+	PktHelper::PacketOut<PktOut_BF_Sub4> msg;
 	msg->WriteFlipped(static_cast<u16>(13));
 	msg->offset+=2;
 	msg->WriteFlipped(pid);
 	msg->offset+=4; //buttonid
 
-	ADDTOSENDQUEUE(client,&msg->buffer, msg->offset);
-	PktHelper::ReAddPacket(msg);
+	msg.Send(client);
 
 	uoemod->uoexec.ValueStack.top().set( new BObject(resp) );
 	clear_gumphandler( client, uoemod );
@@ -1292,14 +1291,13 @@ BObjectImp* UOExecutorModule::mf_CloseWindow(/* chr, type, obj */)
 	else
 		return new BError( "Invalid type" );
 	
-	PktOut_BF_Sub16* msg = PktHelper::RequestSubPacket<PktOut_BF_Sub16>(PKTBI_BF_ID, PKTBI_BF::TYPE_CLOSE_WINDOW);
+	PktHelper::PacketOut<PktOut_BF_Sub16> msg;
 	msg->WriteFlipped(static_cast<u16>(13));
 	msg->offset+=2; //sub
 	msg->WriteFlipped(type);
 	msg->Write(obj->serial_ext);
 
-	ADDTOSENDQUEUE(chr->client,&msg->buffer, msg->offset);
-	PktHelper::ReAddPacket(msg);
+	msg.Send(chr->client);
 
 	return new BLong( 1 );
 }
@@ -2331,17 +2329,17 @@ BObjectImp* UOExecutorModule::mf_SendHousingTool()
 
 	chr->client->gd->custom_house_serial = house->serial;
 
-	PktOut_BF_Sub20* msg = PktHelper::RequestSubPacket<PktOut_BF_Sub20>(PKTBI_BF_ID, PKTBI_BF::TYPE_ACTIVATE_CUSTOM_HOUSE_TOOL);
-	msg->WriteFlipped(static_cast<u16>(17));
-	msg->offset+=2; //sub
-	msg->Write(house->serial_ext);
-	msg->Write(static_cast<u8>(0x4)); //begin
-	msg->offset+=2; // u16 unk2 FIXME what's the meaning
-	msg->Write(static_cast<u32>(0xFFFFFFFF)); // fixme
-	msg->Write(static_cast<u8>(0xFF)); // fixme
-	ADDTOSENDQUEUE(chr->client,&msg->buffer,msg->offset);
-	PktHelper::ReAddPacket(msg);
-
+	{
+		PktHelper::PacketOut<PktOut_BF_Sub20> msg;
+		msg->WriteFlipped(static_cast<u16>(17));
+		msg->offset+=2; //sub
+		msg->Write(house->serial_ext);
+		msg->Write(static_cast<u8>(0x4)); //begin
+		msg->offset+=2; // u16 unk2 FIXME what's the meaning
+		msg->Write(static_cast<u32>(0xFFFFFFFF)); // fixme
+		msg->Write(static_cast<u8>(0xFF)); // fixme
+		msg.Send(chr->client);
+	}
 	move_character_to(chr,house->x,house->y,house->z+7,MOVEITEM_FORCELOCATION, NULL);
 	//chr->set_script_member("hidden",1);
 	//chr->set_script_member("frozen",1);
@@ -2381,14 +2379,12 @@ BObjectImp* UOExecutorModule::mf_SendCharacterRaceChanger(/* Character */)
 	Character* chr;
 	if (getCharacterParam( exec, 0, chr ))
 	{
-		PktOut_BF_Sub2A* msg = PktHelper::RequestSubPacket<PktOut_BF_Sub2A>(PKTBI_BF_ID, PKTBI_BF::TYPE_CHARACTER_RACE_CHANGER);
+		PktHelper::PacketOut<PktOut_BF_Sub2A> msg;
 		msg->WriteFlipped(static_cast<u16>(7));
 		msg->offset+=2; //sub
 		msg->Write(static_cast<u8>(chr->gender));
 		msg->Write(static_cast<u8>(chr->race+1));
-		ADDTOSENDQUEUE(chr->client,&msg->buffer,msg->offset);
-		PktHelper::ReAddPacket(msg);
-
+		msg.Send(chr->client);
 		return new BLong(1);
 	}
 	else
