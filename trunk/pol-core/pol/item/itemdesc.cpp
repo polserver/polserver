@@ -1066,8 +1066,11 @@ void unload_itemdesc()
 {
 	for( map<u32,ItemDesc*>::iterator itr = desctable.begin(), end = desctable.end(); itr != end; itr++ )
 	{
-		delete itr->second;
-		itr->second = &empty_itemdesc;
+		//cout << "Objtype: " << hexint(itr->first) << " " << itr->second << " " << &empty_itemdesc << endl;
+		if (itr->second != &empty_itemdesc) {
+			delete itr->second;
+			itr->second = &empty_itemdesc;
+		}
 	}
 
 	objtype_byname.clear();

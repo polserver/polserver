@@ -116,7 +116,7 @@ WeaponDesc::WeaponDesc( u32 objtype, ConfigElem& elem, const Package* pkg ) :
 	mounted_anim( remove_action( elem, "MountedAnim", anim ) ),
 	hit_sound( elem.remove_ushort( "HITSOUND", 0 ) ),
 	miss_sound( elem.remove_ushort( "MISSSOUND", 0 ) ),
-	is_intrinsic( elem.remove_bool( "INTRINSIC" , false ) ),
+	is_intrinsic( false ),
 	two_handed( elem.remove_bool( "TWOHANDED", false ) ),
 	minrange( elem.remove_ushort( "MINRANGE", projectile?2:0 ) ),
 	maxrange( elem.remove_ushort( "MAXRANGE", projectile?20:1 ) )
@@ -142,6 +142,10 @@ WeaponDesc::WeaponDesc( u32 objtype, ConfigElem& elem, const Package* pkg ) :
 	if (!pAttr)
 	{
 		elem.throw_error( "Attribute " + attrname + " not found" );
+	}
+
+	if ( elem.has_prop("INTRINSIC") ) {
+		elem.throw_error("Weapon has INTRINSIC property, which is no longer needed");
 	}
 
 	if (speed <= 0)
@@ -278,8 +282,12 @@ void load_intrinsic_weapons()
 	{
 		const WeaponDesc* weapon_descriptor = static_cast<const WeaponDesc*>(&id);
 		wrestling_weapon = new UWeapon( *weapon_descriptor, weapon_descriptor );
-		//static_cast<UWeapon*>( Item::create( extobj.wrestling ) );
-
+		
+		{
+			// sets wrestling weapondesc as intrinsic
+			WeaponDesc* wdesc = const_cast<WeaponDesc*>(weapon_descriptor);
+			wdesc->is_intrinsic = true; 
+		}
 		wrestling_weapon->inuse(true);
 
 		intrinsic_weapons.insert( IntrinsicWeapons::value_type("PC_weapon", wrestling_weapon) );
@@ -406,11 +414,15 @@ extern map<u32,ItemDesc*> desctable;
 
 UWeapon::~UWeapon() 
 {
-	if (is_intrinsic() && tmpl != NULL) {
-		desctable[tmpl->objtype] = &empty_itemdesc; // make itemdesc unloading not needing a kludge
+	// Every intrinsic weapon has its own local itemdesc element that should be deleted here.
+	// Only exception is the wrestling weapon, which should be deferred 
+	// to the global desctable cleaning.
 
-		ItemDesc* tmpItem = const_cast<ItemDesc*>(dynamic_cast<const ItemDesc*>(tmpl)); // WTF? O.O
-		tmpItem->unload_scripts(); // unload any method scripts
+	if (is_intrinsic() && tmpl != NULL && tmpl->objtype != extobj.wrestling) {
+		WeaponDesc* wd = const_cast<WeaponDesc*>(tmpl); 
+
+		wd->unload_scripts();
+
 		delete tmpl;
 		tmpl = NULL;
 	}
