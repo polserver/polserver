@@ -1,12 +1,20 @@
 ﻿-- POL099 --
+12-17-2011 Nando:
+    Changed: boats.cfg entries are now "Name Graphic X Y <Z>", where Z is optional and
+             defaults to zero.
+
 12-17-2011 Tomi:
     Added:   Support for hued boats, use the normal .color r/w member to change the hue
              Patch Submitted by Agata
 
 12-14-2011 Tomi:
-    Removed: pol.cfg MaxObjtype limit removed, now it accepts up to 0xFFFFFFFF ( 4294967295 ) but try to keep it as low as possible, default value still 0x20000
-    Changed: objtype vectors changed to maps to only reserve as much memory as there are itemdesc entries, not reserving memory for up to 4 billions of objtypes.
-    Changed: boats.cfg entries changed from "Name Graphic X Y" to "Name Graphic X Y Z" because some of the new boat components requires different Z levels than the boat itself.
+    Removed: pol.cfg MaxObjtype limit removed, now it accepts up to 0xFFFFFFFF ( 4294967295 )
+             but try to keep it as low as possible, default value still 0x20000
+    Changed: objtype vectors changed to maps to only reserve as much memory as there are
+             itemdesc entries, not reserving memory for up to 4 billions of objtypes.
+    Changed: boats.cfg entries changed from "Name Graphic X Y" to "Name Graphic X Y Z"
+             because some of the new boat components requires different Z levels than the boat
+			 itself.
 
 12-13-2011 Austin:
     Added: Support for destroy scripts on multis.
