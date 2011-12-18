@@ -150,21 +150,21 @@ WeaponDesc::WeaponDesc( u32 objtype, ConfigElem& elem, const Package* pkg ) :
 
 	if (speed <= 0)
 	{
-		cerr << "Weapon Template " << objtype << " has an illegal Speed value." << endl;
-		throw runtime_error( "config file error in weapon.cfg" );
+		elem.throw_error("Weapon has illegal Speed value (Speed must be positive)");
 	}
 	if (maxhp <= 0)
 	{
-		cerr << "Weapon Template " << objtype << " has an illegal MaxHp value." << endl;
-		throw runtime_error( "config file error in weapon.cfg" );
+		elem.throw_error("Weapon has illegal MaxHP value (MaxHP must be positive)");
 	}
 
 	string errmsg;
 	if (!damage_dice.load( elem.remove_string( "DAMAGE" ).c_str(), &errmsg ))
 	{
-		cerr << "Error parsing DAMAGE string for WeaponTemplate " << objtype << endl;
+		elem.throw_error("Error parsing DAMAGE string for WeaponTemplate\n" + errmsg);
+
+		/*cerr << "Error parsing DAMAGE string for WeaponTemplate " << objtype << endl;
 		cerr << "	" << errmsg << endl;
-		throw runtime_error( "Configuration error" );
+		throw runtime_error( "Configuration error" );*/
 	}
 
 
