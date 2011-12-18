@@ -99,11 +99,13 @@ BoatShape::ComponentShape::ComponentShape( const string& str, unsigned char type
         {
             unsigned short xd, yd;
 			signed short zd;
-            if (is >> xd >> yd >> zd)
+            if (is >> xd >> yd)
             {
                 xdelta = xd;
                 ydelta = yd;
-				zdelta = zd;
+				zdelta = 0;
+				if (is >> zd)
+					zdelta = zd;
                 return;
             }
         }
@@ -126,11 +128,13 @@ BoatShape::ComponentShape::ComponentShape( const string& str, const string& alts
         {
 			unsigned short xd, yd;
 			signed short zd;
-            if (is >> xd >> yd >> zd)
+            if (is >> xd >> yd)
             {
                 xdelta = xd;
                 ydelta = yd;
-				zdelta = zd;
+				zdelta = 0;
+				if (is >> zd)
+					zdelta = zd;
                 ok = true;
             }
         }
@@ -138,7 +142,7 @@ BoatShape::ComponentShape::ComponentShape( const string& str, const string& alts
 
 	ISTRINGSTREAM altis( altstr );
 	string alttmp;
-    if (altis >> alttmp)
+    if (ok && altis >> alttmp)
     {
         altgraphic = static_cast<unsigned short>(strtoul( alttmp.c_str(), NULL, 0 ));
 		return;
