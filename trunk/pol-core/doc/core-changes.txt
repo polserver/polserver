@@ -1,4 +1,11 @@
 ﻿-- POL099 --
+12-18-2011 Nando:
+    Changed: internal handling of intrinsic weapons' unload.
+    Removed: INTRINSIC property from Weapon template in itemdesc.cfg. An error occurs
+             if it's set. Some shards might have forgot to set it, which would cause
+			 damage to intrinsic wrestling weapon. This is now handled automatically.
+                                  
+
 12-17-2011 Nando:
     Changed: boats.cfg entries are now "Name Graphic X Y <Z>", where Z is optional and
              defaults to zero.
