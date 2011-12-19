@@ -820,7 +820,12 @@ void start_http_conn_thread( SOCKET* client_socket )
 		dec_child_thread_count();
 	}
 	else
+	{
+#ifdef _Win32
+				threadhelp::SetThreadName( threadid, std::string("HTTP"+*client_socket));
+#endif
 		CloseHandle( h );
+	}
 }
 #else
 

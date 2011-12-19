@@ -65,6 +65,43 @@ unsigned thread_pid()
 {
     return GetCurrentThreadId();
 }
+
+#include <windows.h>
+const DWORD MS_VC_EXCEPTION=0x406D1388;
+
+#pragma pack(push,8)
+typedef struct tagTHREADNAME_INFO
+{
+	DWORD dwType; // Must be 0x1000.
+	LPCSTR szName; // Pointer to name (in user addr space).
+	DWORD dwThreadID; // Thread ID (-1=caller thread).
+	DWORD dwFlags; // Reserved for future use, must be zero.
+} THREADNAME_INFO;
+#pragma pack(pop)
+
+void _SetThreadName( DWORD dwThreadID, char* name)
+{
+	THREADNAME_INFO info;
+	info.dwType = 0x1000;
+	info.szName = name;
+	info.dwThreadID = dwThreadID;
+	info.dwFlags = 0;
+
+	__try
+	{ // oh my god i hate ms ...
+		RaiseException( MS_VC_EXCEPTION, 0, sizeof(info)/sizeof(ULONG_PTR), (ULONG_PTR*)&info );
+	}
+	__except(EXCEPTION_EXECUTE_HANDLER)
+	{
+	}
+}
+void SetThreadName( int threadid, std::string threadName)
+{
+	char *name = new char[threadName.length() + 1];
+	strcpy(name, threadName.c_str());
+	_SetThreadName(threadid, name);
+	delete[] name;
+}
 #else
 #include <assert.h>
 #include <pthread.h>
@@ -263,7 +300,10 @@ void create_thread( ThreadData* td, bool dec_child = false )
 			dec_child_thread_count();
 	}
 	else
+	{
+		SetThreadName(threadid,td->name);
 		CloseHandle( h );
+	}
 }
 #else
 void create_thread( ThreadData* td, bool dec_child = false )
@@ -327,5 +367,4 @@ void ThreadMap::CopyContents( Contents& out ) const
     out = _contents;
     threadmap_unlock();
 }
-
 }

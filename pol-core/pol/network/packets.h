@@ -28,6 +28,7 @@ Notes
 #include "../realms.h"
 #include "../ucfg.h"
 #include "client.h"
+#include "clienttransmit.h"
 
 #include "../../clib/mlog.h" //debug
 
@@ -41,9 +42,9 @@ class PacketInterface
 		virtual ~PacketInterface(){};
 		u16 offset;
 		virtual void ReSetBuffer() {};
-		virtual char* getBuffer() { return NULL; }
-		virtual inline u8 getID() { return 0; }
-		virtual inline u16 getSubID() { return 0; }
+		virtual char* getBuffer() { return NULL; };
+		virtual inline u8 getID() { return 0; };
+		virtual inline u16 getSubID() { return 0; };
 };
 
 typedef queue<PacketInterface*> PacketInterfaceQueue;
@@ -57,11 +58,11 @@ class PacketQueue
 		PacketQueue(){};
 		virtual ~PacketQueue(){};
 	public:
-		virtual PacketInterface* GetNext(u8 id, u16 sub=0) {return NULL;}
+		virtual PacketInterface* GetNext(u8 id, u16 sub=0) {return NULL;};
 		virtual void Add(PacketInterface* pkt){};
-		virtual int Count(){ return 0; }
-		virtual bool HasSubs(){ return false; }
-		virtual PacketInterfaceQueueMap* GetSubs(){ return NULL; }
+		virtual int Count(){ return 0; };
+		virtual bool HasSubs(){ return false; };
+		virtual PacketInterfaceQueueMap* GetSubs(){ return NULL; };
 };
 
 // "normal" packet queue
@@ -76,7 +77,7 @@ class PacketQueueSingle : public PacketQueue
 	public:
 		PacketInterface* GetNext(u8 id, u16 sub=0);
 		void Add(PacketInterface* pkt);
-		int Count(){ return packets.size(); }
+		int Count(){ return packets.size(); };
 };
 
 // packet with subs queue
@@ -92,8 +93,8 @@ class PacketQueueSubs : public PacketQueue
 		PacketInterface* GetNext(u8 id, u16 sub=0);
 		void Add(PacketInterface* pkt);
 		int Count();
-		bool HasSubs(){ return true; }
-		PacketInterfaceQueueMap* GetSubs(){ return &packets; }
+		bool HasSubs(){ return true; };
+		PacketInterfaceQueueMap* GetSubs(){ return &packets; };
 };
 
 typedef pair<u8, PacketQueue*> PacketQueuePair;
@@ -110,7 +111,7 @@ class PacketsSingleton
 	public:
 		PacketInterface* getPacket(u8 id, u16 sub=0);
 		void ReAddPacket(PacketInterface* pkt);
-		PacketQueueMap* getPackets() { return &packets; } 
+		PacketQueueMap* getPackets() { return &packets; } ;
 };
 
 // the real definition
@@ -127,8 +128,8 @@ class PacketWriter : public PacketInterface
 		static const u8 ID = _id;
 		static const u16 SUB = _sub;
 		char buffer[_size];
-		char* getBuffer() { return &buffer[offset]; }
-		inline u8 getID() { return _id; }
+		char* getBuffer() { return &buffer[offset]; };
+		inline u8 getID() { return _id; };
 
 		void Write(u32 x)
 		{
@@ -195,7 +196,7 @@ class PacketWriter : public PacketInterface
 			passert_always_r(offset+len<=_size, "pkt "+hexint(_id));
 			strncpy(&buffer[offset], x, nullterm ? len-1 : len);
 			offset += len;
-		}
+		};
 		void Write(u8 x[], u16 len)
 		{
 			if (len<1)
@@ -203,7 +204,7 @@ class PacketWriter : public PacketInterface
 			passert_always_r(offset+len<=_size, "pkt "+hexint(_id));
 			memcpy(&buffer[offset], x, len);
 			offset += len;
-		}
+		};
 		void Write(const u16* x, u16 len, bool nullterm=true)
 		{
 			passert_always_r(offset+len*2<=_size, "pkt "+hexint(_id));
@@ -219,7 +220,7 @@ class PacketWriter : public PacketInterface
 				passert_always_r(offset+2<=_size, "pkt "+hexint(_id));
 				offset += 2;
 			}
-		}
+		};
 		void WriteFlipped(const u16* x, u16 len, bool nullterm=true)
 		{
 			passert_always_r(offset+len*2<=_size, "pkt "+hexint(_id));
@@ -236,7 +237,7 @@ class PacketWriter : public PacketInterface
 				passert_always_r(offset+2<=_size, "pkt "+hexint(_id));
 				offset += 2;
 			}
-		}
+		};
 };
 
 // "normal" pkt
@@ -244,13 +245,13 @@ template <u8 _id, u16 _size>
 class PacketTemplate : public PacketWriter<_id, _size>
 {
 	public:
-		PacketTemplate() { ReSetBuffer(); }
+		PacketTemplate() { ReSetBuffer(); };
 		void ReSetBuffer()
 		{ 
 			memset(PacketWriter<_id,_size>::buffer,0,_size);
 			PacketWriter<_id,_size>::buffer[0]=_id;
 			PacketWriter<_id,_size>::offset=1;
-		}
+		};
 };
 
 // sub packet
@@ -258,15 +259,15 @@ template <u8 _id, u16 _suboff, u16 _sub, u16 _size>
 class PacketTemplateSub : public PacketWriter<_id, _size, _sub>
 {
 	public:
-		PacketTemplateSub() { ReSetBuffer(); }
+		PacketTemplateSub() { ReSetBuffer(); };
 		void ReSetBuffer() 
 		{ 
 			memset(PacketWriter<_id,_size,_sub>::buffer,0,_size);
 			PacketWriter<_id,_size,_sub>::buffer[0]=_id;
 			(*(u16*)(void*)&PacketWriter<_id,_size,_sub>::buffer[_suboff]) = cfBEu16(_sub);
 			PacketWriter<_id,_size,_sub>::offset=1;
-		}
-		inline u16 getSubID() { return _sub; }
+		};
+		inline u16 getSubID() { return _sub; };
 };
 
 //special def for encrypted buffer
@@ -276,15 +277,15 @@ class EmptyBufferTemplate : public PacketInterface
 public:
 	static const u8 ID = _id;
 	static const u8 SUB = 0;
-	EmptyBufferTemplate() { ReSetBuffer(); }
+	EmptyBufferTemplate() { ReSetBuffer(); };
 	char buffer[_size];
 	void ReSetBuffer() 
 	{ 
 		memset(buffer,0,_size);
 		offset=0;
-	}
-	char* getBuffer() { return &buffer[offset]; }
-	inline u8 getID() { return _id; }
+	};
+	char* getBuffer() { return &buffer[offset]; };
+	inline u8 getID() { return _id; };
 };
 
 
@@ -298,12 +299,12 @@ namespace PktHelper
 	inline T* RequestPacket(u8 id, u16 sub=0)
 	{
 		return static_cast<T*>(Packets::instance()->getPacket(id,sub));
-	}
+	};
 
 	inline void ReAddPacket(PacketInterface* msg)
 	{
 		Packets::instance()->ReAddPacket(msg);
-	}
+	};
 
 	template <class T>
 	class PacketOut
@@ -314,27 +315,37 @@ namespace PktHelper
 		PacketOut()
 		{
 			pkt=RequestPacket<T>(T::ID,T::SUB);
-		}
+		};
 		~PacketOut()
 		{
 			if (pkt != 0)
 				ReAddPacket(pkt);
-		}
+		};
 		void Release()
 		{
 			ReAddPacket(pkt);
 			pkt = 0;
-		}
+		};
 		void Send(Client* client, int len=-1)
 		{
 			if (pkt == 0)
 				return;
 			if (len == -1)
 				len= pkt->offset;
-			ClientTransmitSingleton::instance()->AddToQueue(client, &pkt->buffer, len);
-		}
-		T *operator->(void) const{ return pkt; }
-		T* Get() { return pkt; } 
+			ADDTOSENDQUEUE(client, &pkt->buffer, len);
+		};
+		// be really really careful with this function
+		// needs PolLock
+		void SendDirect(Client* client, int len=-1)
+		{
+			if (pkt == 0)
+				return;
+			if (len == -1)
+				len = pkt->offset;
+			client->transmit(&pkt->buffer, len);
+		};
+		T *operator->(void) const{ return pkt; };
+		T* Get() { return pkt; } ;
 	};
 }
 

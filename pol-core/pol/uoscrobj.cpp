@@ -1876,11 +1876,10 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 
 				if( client && client->getversiondetail().major>=1 )
 				{
-					PktOut_BC* msg = PktHelper::RequestPacket<PktOut_BC>(PKTOUT_BC_ID);
+					PktHelper::PacketOut<PktOut_BC> msg;
 					msg->Write(static_cast<u8>(season_id));
 					msg->Write(static_cast<u8>(playsound));
-					ADDTOSENDQUEUE(client,&msg->buffer, msg->offset );
-					PktHelper::ReAddPacket(msg);
+					msg.Send(client);
 					return new BLong(1);
 				}
 			}
@@ -3566,13 +3565,9 @@ ItemGivenEvent::ItemGivenEvent( Character* chr_givenby, Item* item_given, NPC* c
 	cont_.set( item_given->container );
 	given_by_.set(chr_givenby);
 
-	BLong* givenby ( new BLong( chr_givenby->serial ) );
-	BLong* givento ( new BLong( chr_givento->serial ) );
-	BLong* giventime ( new BLong( given_time_ ) );
-	
-	item_given->setprop( "GivenBy", givenby->pack() );
-	item_given->setprop( "GivenTo", givento->pack() );
-	item_given->setprop( "GivenTime", giventime->pack() );
+	item_given->setprop( "GivenBy", BLong::pack(chr_givenby->serial) );
+	item_given->setprop( "GivenTo", BLong::pack(chr_givento->serial) );
+	item_given->setprop( "GivenTime", BLong::pack(given_time_) );
 }
 
 ItemGivenEvent::~ItemGivenEvent()

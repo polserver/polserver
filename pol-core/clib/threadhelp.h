@@ -39,6 +39,9 @@ namespace threadhelp
         Contents _contents;
     };
     extern ThreadMap threadmap;
+#ifdef _WIN32
+	void SetThreadName( int dwThreadID, std::string threadName);
+#endif
 
 
 } // namespace threadhelp

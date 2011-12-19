@@ -830,13 +830,12 @@ BObjectImp* UOExecutorModule::mf_TargetCancel()
 		{
 			if (chr->target_cursor_busy())
 			{
-				PktOut_6C* msg = PktHelper::RequestPacket<PktOut_6C>(PKTBI_6C_ID);
+				PktHelper::PacketOut<PktOut_6C> msg;
 				msg->Write(static_cast<u8>(PKTBI_6C::UNK1_00));
 				msg->offset+=4; // u32 target_cursor_serial
 				msg->Write(static_cast<u8>(0x3));
 				// rest 0
-				ADDTOSENDQUEUE(chr->client, &msg->buffer, sizeof msg->buffer );
-				PktHelper::ReAddPacket(msg);
+				msg.Send(chr->client, sizeof msg->buffer);
 				return new BLong(0);
 			}
 			else
@@ -4171,7 +4170,7 @@ BObjectImp* UOExecutorModule::mf_SendPacket()
 		{
 			return new BError( "Invalid packet string length." );
 		}
-		EncryptedPktBuffer* buffer = PktHelper::RequestPacket<EncryptedPktBuffer>(ENCRYPTEDPKTBUFFER); // encryptedbuffer is the only one without getID buffer[0]
+		PktHelper::PacketOut<EncryptedPktBuffer> buffer; // encryptedbuffer is the only one without getID buffer[0]
 		unsigned char* buf = reinterpret_cast<unsigned char*>(buffer->getBuffer());
 		const char*s = str->data();
 		while (buffer->offset < 2000 && isxdigit( s[0] ) && isxdigit( s[1] ))
@@ -4188,13 +4187,11 @@ BObjectImp* UOExecutorModule::mf_SendPacket()
 			{
 				//printf( "SendPacket() data: %d bytes\n", buflen );
 				//fdump( stdout, buffer, buflen );
-				ADDTOSENDQUEUE(chr->client, &buffer->buffer, buffer->offset );
-				PktHelper::ReAddPacket(buffer);
+				buffer.Send(chr->client);
 				return new BLong(1);
 			}
 			else
 			{
-				PktHelper::ReAddPacket(buffer);
 				return new BError( "No client attached" );
 			}
 		}
@@ -4202,19 +4199,16 @@ BObjectImp* UOExecutorModule::mf_SendPacket()
 		{
 			if (client->isConnected())
 			{
-				ADDTOSENDQUEUE(client, &buffer->buffer, buffer->offset );
-				PktHelper::ReAddPacket(buffer);
+				buffer.Send(client);
 				return new BLong(1);
 			}
 			else
 			{
-				PktHelper::ReAddPacket(buffer);
 				return new BError( "Client is disconnected" );
 			}
 		}
 		else
 		{
-			PktHelper::ReAddPacket(buffer);
 			return new BError( "Invalid parameter type" );
 		}
 
@@ -4233,7 +4227,7 @@ BObjectImp* UOExecutorModule::mf_SendQuestArrow()
 		getParam( 1, x, -1, 1000000 ) &&
 		getParam( 2, y, -1, 1000000 ))  //max vaues checked below
 	{
-		PktOut_BA* msg = PktHelper::RequestPacket<PktOut_BA>(PKTOUT_BA_ID);
+		PktHelper::PacketOut<PktOut_BA> msg;
 		if ( x == -1 && y == -1 )
 		{
 			msg->Write(static_cast<u8>(PKTOUT_BA_ARROW_OFF));
@@ -4249,9 +4243,7 @@ BObjectImp* UOExecutorModule::mf_SendQuestArrow()
 		}
 		if (!chr->has_active_client())
 			return new BError( "No client attached" );
-
-		ADDTOSENDQUEUE(chr->client,&msg->buffer, msg->offset);
-		PktHelper::ReAddPacket(msg);
+		msg.Send(chr->client);
 		return new BLong( 1 );
 	}
 	else
@@ -5779,7 +5771,7 @@ BObjectImp* UOExecutorModule::mf_SendOverallSeason(/*season_id, playsound := 1*/
 		if ( season_id < 0 || season_id > 4 )
 			return new BError("Invalid season id");
 			
-		PktOut_BC* msg = PktHelper::RequestPacket<PktOut_BC>(PKTOUT_BC_ID);
+		PktHelper::PacketOut<PktOut_BC> msg;
 		msg->Write(static_cast<u8>(season_id));
 		msg->Write(static_cast<u8>(playsound));
 
@@ -5788,9 +5780,8 @@ BObjectImp* UOExecutorModule::mf_SendOverallSeason(/*season_id, playsound := 1*/
 			Client* client = *itr;
 			if (!client->chr->logged_in || client->getversiondetail().major < 1)
 				continue;
-			ADDTOSENDQUEUE(client,&msg->buffer, msg->offset );			
+			msg.Send(client);
 		}
-		PktHelper::ReAddPacket(msg);
 		return new BLong(1);
 	}
 	else
