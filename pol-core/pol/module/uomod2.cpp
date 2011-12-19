@@ -266,6 +266,7 @@ BObjectImp* UOExecutorModule::mf_SendBuyWindow(/* character, container, vendor, 
 
 	chr->client->gd->vendor.set( merchant );
 	chr->client->gd->vendor_for_sale.set( for_sale );
+	chr->client->gd->vendor_bought.set( bought );
 
 	chr->client->pause(); /* Prevent lag time between messages */
 
@@ -317,7 +318,7 @@ void send_clear_vendorwindow( Client* client, Character* vendor )
 //#include "msgfiltr.h"
 #include "../msghandl.h"
 
-unsigned int calculate_cost( Character* vendor, UContainer* for_sale, PKTBI_3B *msg )
+unsigned int calculate_cost( Character* vendor, UContainer* for_sale, UContainer* bought, PKTBI_3B *msg )
 {
 	unsigned int amt = 0;
 
@@ -326,9 +327,14 @@ unsigned int calculate_cost( Character* vendor, UContainer* for_sale, PKTBI_3B *
 
 	for( int i = 0; i < nitems; ++i )
 	{
-		Item* item = for_sale->find( cfBEu32( msg->items[i].item_serial ) );
+		u32 serial = cfBEu32( msg->items[i].item_serial );
+		Item* item = for_sale->find( serial );
 		if (item == NULL)
-			continue;
+		{
+			item = bought->find( serial );
+			if (item == NULL)
+				continue;
+		}
 		//const ItemDesc& id = find_itemdesc(item->objtype_);
 		amt += cfBEu16(msg->items[i].number_bought) * item->sellprice();
 	}
@@ -362,7 +368,14 @@ void oldBuyHandler(Client* client, PKTBI_3B* msg)
 	}
 	client->gd->vendor_for_sale.clear();
 
-	unsigned int total_cost = calculate_cost( vendor, for_sale, msg );
+	UContainer* vendor_bought = client->gd->vendor_bought.get();
+	if (vendor_bought == NULL || vendor_bought->orphan())
+	{
+		return;
+	}
+	client->gd->vendor_bought.clear();
+
+	unsigned int total_cost = calculate_cost( vendor, for_sale, vendor_bought, msg );
 	if (total_cost > client->chr->gold_carried())
 	{
 		send_clear_vendorwindow( client, vendor );
@@ -377,11 +390,19 @@ void oldBuyHandler(Client* client, PKTBI_3B* msg)
 	int nitems = (cfBEu16( msg->msglen ) - offsetof( PKTBI_3B, items )) /
 					 sizeof msg->items[0];
 
+	bool from_bought;
 	for( int i = 0; i < nitems; ++i )
 	{
-		Item* fs_item = for_sale->find( cfBEu32( msg->items[i].item_serial ) );
+		from_bought=false;
+		u32 serial = cfBEu32( msg->items[i].item_serial );
+		Item* fs_item = for_sale->find( serial );
 		if (fs_item == NULL)
-			continue;
+		{
+			fs_item = vendor_bought->find( serial );
+			if (fs_item == NULL)	
+				continue;
+			from_bought=true;
+		}
 		unsigned short numleft = cfBEu16(msg->items[i].number_bought );
 		if (numleft > fs_item->getamount())
 			numleft = fs_item->getamount();
@@ -405,13 +426,15 @@ void oldBuyHandler(Client* client, PKTBI_3B* msg)
 			}
 			else
 			{
-				for_sale->remove( fs_item );
+				if (from_bought)
+					vendor_bought->remove( fs_item );
+				else
+					for_sale->remove( fs_item );
 				tobuy = fs_item;
 				fs_item = NULL;
 			}
 
 			// move the whole item
-			// FIXME do stuff like adding to existing stacks.
 			ItemRef itemref(tobuy); //dave 1/28/3 prevent item from being destroyed before function ends
 			Item* existing_stack;
 			if (tobuy->stackable() &&
@@ -433,7 +456,10 @@ void oldBuyHandler(Client* client, PKTBI_3B* msg)
 					else
 						// FIXME : Add Grid Index Default Location Checks here.
 						// Remember, if index fails, move to the ground.
-						for_sale->add( tobuy );
+						if (from_bought)
+							vendor_bought->add( tobuy );
+						else
+							for_sale->add( tobuy );
 					continue;
 				}
 				numleft -= num;
@@ -463,7 +489,10 @@ void oldBuyHandler(Client* client, PKTBI_3B* msg)
 					else
 						// FIXME : Add Grid Index Default Location Checks here.
 						// Remember, if index fails, move to the ground.
-						for_sale->add( tobuy );
+						if (from_bought)
+							vendor_bought->add( tobuy );
+						else
+							for_sale->add( tobuy );
 					continue;
 				}
 
@@ -481,9 +510,14 @@ void oldBuyHandler(Client* client, PKTBI_3B* msg)
 				if (fs_item)
 					fs_item->add_to_self( tobuy );
 				else
+				{
 					// FIXME : Add Grid Index Default Location Checks here.
 					// Remember, if index fails, move to the ground.
-					for_sale->add( tobuy );
+					if (from_bought)
+						vendor_bought->add( tobuy );
+					else
+						for_sale->add( tobuy );
+				}
 			}
 		}
 	}
@@ -528,6 +562,12 @@ void buyhandler( Client* client, PKTBI_3B* msg)
 		return;
 	}
 	client->gd->vendor_for_sale.clear();
+	UContainer* vendor_bought = client->gd->vendor_bought.get();
+	if (vendor_bought == NULL || vendor_bought->orphan())
+	{
+		return;
+	}
+	client->gd->vendor_bought.clear();
 	
 	// buy each item individually
 	// the question is, can it all fit in his backpack?
@@ -539,7 +579,11 @@ void buyhandler( Client* client, PKTBI_3B* msg)
 	{
 		Item* fs_item = for_sale->find(cfBEu32( msg->items[i].item_serial));
 		if ( fs_item == NULL )
-			continue;
+		{
+			fs_item = vendor_bought->find(cfBEu32( msg->items[i].item_serial));
+			if (fs_item == NULL)
+				continue;
+		}
 		unsigned short numleft = cfBEu16(msg->items[i].number_bought);
 		
 		if ( numleft > fs_item->getamount() )
