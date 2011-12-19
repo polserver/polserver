@@ -77,19 +77,19 @@ bool in_whisper_range( const Character *c1, const Character *c2 );
 
 void send_owncreate( Client *client, const Character *chr );
 void send_owncreate( Client *client, const Character *chr, PktOut_78* owncreate, PktOut_17* poisonbuffer );
-PktOut_78* build_owncreate(const Character *chr);
+void build_owncreate(const Character *chr, PktOut_78* msg);
 
 void send_item( Client *client, const Item *item );
 void send_wornitem( Client *client, const Character *chr, const Item *item );
 
 void send_move( Client *client, const Character *chr );
 void send_move( Client *client, const Character *chr, PktOut_77* movebuffer, PktOut_17* poisonbuffer );
-PktOut_77* build_send_move( const Character *chr );
+void build_send_move( const Character *chr, PktOut_77* msg );
 void send_move_if_inrange( Client *client, const Character *chr );
 void send_objdesc( Client *client, Item *item );
 
 void send_poisonhealthbar( Client *client, const Character *chr );
-PktOut_17* build_poisonhealthbar( const Character *chr );
+void build_poisonhealthbar( const Character *chr, PktOut_17* msg );
 
 void send_item_to_inrange( const Item *item );
 void update_item_to_inrange( const Item* item );

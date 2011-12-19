@@ -59,10 +59,9 @@ bool is_banned_ip(Client* client);
 
 void send_login_error( Client *client, unsigned char reason )
 {
-	PktOut_82* msg = PktHelper::RequestPacket<PktOut_82>(PKTOUT_82_ID);
+	PktHelper::PacketOut<PktOut_82> msg;
 	msg->Write(reason);
-	ADDTOSENDQUEUE(client, &msg->buffer, msg->offset );
-	PktHelper::ReAddPacket(msg);
+	msg.Send(client);
 }
 
 bool acct_check(Client* client, int i)
@@ -309,7 +308,7 @@ void send_start( Client *client )
 	if (char_slots > char_count) // Max(char_slots, 5)
 		char_count = char_slots;
 
-	PktOut_A9* msg = PktHelper::RequestPacket<PktOut_A9>(PKTOUT_A9_ID);
+	PktHelper::PacketOut<PktOut_A9> msg;
 	msg->offset+=2;
 	msg->Write(char_count);
 
@@ -373,9 +372,7 @@ void send_start( Client *client )
 	u16 len=msg->offset;
 	msg->offset=1;
 	msg->WriteFlipped(len);
-
-    ADDTOSENDQUEUE(client, &msg->buffer, len );
-	PktHelper::ReAddPacket(msg);
+	msg.Send(client, len );
 }
 
 

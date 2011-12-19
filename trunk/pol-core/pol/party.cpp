@@ -414,9 +414,9 @@ void Party::send_member_list(Character* to_chr)
 
 	if (to_chr==NULL)
 	{
-		for(itr = _member_serials.begin(); itr != _member_serials.end(); ++itr)
+		for(vector<u32>::iterator _itr = _member_serials.begin(), itrend=_member_serials.end(); _itr != itrend; ++_itr)
 		{
-			Character* chr = system_find_mobile( *itr );
+			Character* chr = system_find_mobile( *_itr );
 			if (chr != NULL)
 			{
 				if (chr->has_active_client())
@@ -498,16 +498,15 @@ void Party::send_remove_member(Character* remchr, bool *disband)
 		msg->offset=1;
 		msg->WriteFlipped(len);
 
-		for(itr = _member_serials.begin(); itr != _member_serials.end(); ++itr)
+		for(vector<u32>::iterator _itr = _member_serials.begin(), itrend=_member_serials.end(); _itr != itrend; ++_itr)
 		{
-			Character* chr = system_find_mobile( *itr );
+			Character* chr = system_find_mobile( *_itr );
 			if (chr != NULL)
 			{
 				if (chr->has_active_client())
 					msg.Send(chr->client,len);
 			}
 		}
-		msg.Release();
 		send_msg_to_all(CLP_Player_Removed);//A player has been removed from your party.
 		if (!test_size())
 		{
@@ -526,7 +525,7 @@ void Party::send_msg_to_all(unsigned int clilocnr, const char* affix, Character*
 	else
 		build_sysmessage_cl(msgc1.Get(), clilocnr);
 
-	for( vector<u32>::iterator itr = _member_serials.begin(); itr != _member_serials.end(); ++itr)
+	for( vector<u32>::iterator itr = _member_serials.begin(), itrend=_member_serials.end(); itr != itrend; ++itr)
 	{
 		Character* chr = system_find_mobile( *itr );
 		if (chr != NULL)
@@ -596,7 +595,7 @@ void Party::on_mana_changed(Character* chr)
 	msg->WriteFlipped(static_cast<u16>(1000));
 	msg->WriteFlipped(static_cast<u16>(h * 1000 / mh));
 
-	for( vector<u32>::iterator itr = _member_serials.begin(); itr != _member_serials.end(); ++itr)
+	for( vector<u32>::iterator itr = _member_serials.begin(), itrend=_member_serials.end(); itr != itrend; ++itr)
 	{
 		Character* mem = system_find_mobile( *itr );
 		if (mem != NULL)
@@ -624,7 +623,7 @@ void Party::on_stam_changed(Character* chr)
 	msg->WriteFlipped(static_cast<u16>(1000));
 	msg->WriteFlipped(static_cast<u16>(h * 1000 / mh));
 
-	for( vector<u32>::iterator itr = _member_serials.begin(); itr != _member_serials.end(); ++itr)
+	for( vector<u32>::iterator itr = _member_serials.begin(), itrend=_member_serials.end(); itr != itrend; ++itr)
 	{
 		Character* mem = system_find_mobile( *itr );
 		if (mem != NULL)
@@ -672,7 +671,7 @@ void Party::send_member_msg_public(Character* chr,u16* wtext, size_t wtextlen)
 	msg->offset=1;
 	msg->WriteFlipped(len);
 
-	for( vector<u32>::iterator itr = _member_serials.begin(); itr != _member_serials.end(); ++itr)
+	for( vector<u32>::iterator itr = _member_serials.begin(), itrend=_member_serials.end(); itr != itrend; ++itr)
 	{
 		Character* mem = system_find_mobile( *itr );
 		if (mem != NULL)
@@ -1420,7 +1419,6 @@ void send_invite(Character* member,Character* leader)
 	msg->Write(static_cast<u8>(PKTBI_BF_06::PARTYCMD_INVITE_MEMBER));
 	msg->Write(leader->serial_ext);
 	msg.Send(member->client);
-	msg.Release();
 
 	// : You are invited to join the party. Type /accept to join or /decline to decline the offer.
 	send_sysmessage_cl_affix(member->client, CLP_Invite, leader->name().c_str(),true);

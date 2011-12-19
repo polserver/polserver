@@ -282,7 +282,7 @@ vector<Client*> boat_sent_to;
 
 void send_boat_to_inrange( const UBoat* item, u16 oldx, u16 oldy )
 {
-	PktOut_1A* msg = PktHelper::RequestPacket<PktOut_1A>(PKTOUT_1A_ID);
+	PktHelper::PacketOut<PktOut_1A> msg;
 	msg->offset+=2;
 	u16 graphic=item->multidef().multiid | 0x4000;
 	msg->Write(item->serial_ext);
@@ -295,7 +295,7 @@ void send_boat_to_inrange( const UBoat* item, u16 oldx, u16 oldy )
 	msg->WriteFlipped(len1A);
 
 	// Client >= 7.0.0.0 ( SA )
-	PktOut_F3* msg2 = PktHelper::RequestPacket<PktOut_F3>(PKTOUT_F3_ID);
+	PktHelper::PacketOut<PktOut_F3> msg2;
 	msg2->WriteFlipped(static_cast<u16>(0x1));
 	msg2->Write(static_cast<u8>(0x02));
 	msg2->Write(item->serial_ext);
@@ -311,11 +311,11 @@ void send_boat_to_inrange( const UBoat* item, u16 oldx, u16 oldy )
 	msg2->offset++; // u8 flags
 
 	// Client >= 7.0.9.0 ( HSA )
-	PktOut_F3* msg3 = PktHelper::RequestPacket<PktOut_F3>(PKTOUT_F3_ID);
+	PktHelper::PacketOut<PktOut_F3> msg3;
 	memcpy( &msg3->buffer, &msg2->buffer, sizeof msg3->buffer );
 	msg3->offset=26; //unk short at the end
 
-	PktOut_1D* msgremove = PktHelper::RequestPacket<PktOut_1D>(PKTOUT_1D_ID);
+	PktHelper::PacketOut<PktOut_1D> msgremove;
 	msgremove->Write(item->serial_ext);
     
 	for( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
@@ -328,24 +328,20 @@ void send_boat_to_inrange( const UBoat* item, u16 oldx, u16 oldy )
         {
             client->pause();
 			if (client->ClientType & CLIENTTYPE_7090)
-				ADDTOSENDQUEUE(client, &msg3->buffer, msg3->offset );
+				msg3.Send(client);
 			else if (client->ClientType & CLIENTTYPE_7000)
-				ADDTOSENDQUEUE(client, &msg2->buffer, msg2->offset );
+				msg2.Send(client);
 			else
-				ADDTOSENDQUEUE(client, &msg->buffer, len1A );
+				msg.Send(client, len1A);
             boat_sent_to.push_back( client );
         }
 		else if ((oldx!=USHRT_MAX) && (oldy!=USHRT_MAX) && //were inrange
 			(client->chr->realm == item->realm) &&
 			(inrange( client->chr->x, client->chr->y, oldx, oldy )))
 		{
-			ADDTOSENDQUEUE(client, &msgremove->buffer, msgremove->offset );
+			msgremove.Send(client);
 		}
     }
-	PktHelper::ReAddPacket(msg);
-	PktHelper::ReAddPacket(msg2);
-	PktHelper::ReAddPacket(msg3);
-	PktHelper::ReAddPacket(msgremove);
 }
 
 void unpause_paused()

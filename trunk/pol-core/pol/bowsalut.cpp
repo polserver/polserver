@@ -86,7 +86,7 @@ void send_action_to_inrange( const Character* obj, UACTION action,
             action = new_action;
         }
     }
-	PktOut_6E* msg = PktHelper::RequestPacket<PktOut_6E>(PKTOUT_6E_ID);
+	PktHelper::PacketOut<PktOut_6E> msg;
 	msg->Write(obj->serial_ext);
 	msg->WriteFlipped(static_cast<u16>(action));
 	msg->WriteFlipped(framecount);
@@ -95,7 +95,6 @@ void send_action_to_inrange( const Character* obj, UACTION action,
 	msg->Write(static_cast<u8>(repeatflag));
 	msg->Write(delay);
 	transmit_to_inrange( obj, &msg->buffer, msg->offset, false, false );
-	PktHelper::ReAddPacket(msg);
 }
 
 void handle_action( Client *client, PKTIN_12 *cmd )

@@ -31,7 +31,7 @@ void send_sysmessage_cl(Client *client, /*Character *chr_from, ObjArray* oText,*
 						unsigned int cliloc_num, const u16 *arguments,
 						unsigned short font, unsigned short color )
 {
-	PktOut_C1* msg = PktHelper::RequestPacket<PktOut_C1>(PKTOUT_C1_ID);
+	PktHelper::PacketOut<PktOut_C1> msg;
 	msg->offset+=2;
 	unsigned textlen = 0;
 
@@ -58,15 +58,14 @@ void send_sysmessage_cl(Client *client, /*Character *chr_from, ObjArray* oText,*
 	u16 len=msg->offset;
 	msg->offset=1;
 	msg->WriteFlipped(len);
-	transmit( client, &msg->buffer, len );
-	PktHelper::ReAddPacket(msg);
+	msg.Send(client, len);
 }
 
 void say_above_cl(UObject *obj, unsigned int cliloc_num,
 				  const u16 *arguments, unsigned short font,
 				  unsigned short color )
 {
-	PktOut_C1* msg = PktHelper::RequestPacket<PktOut_C1>(PKTOUT_C1_ID);
+	PktHelper::PacketOut<PktOut_C1> msg;
 	msg->offset+=2;
 	unsigned textlen = 0;
 
@@ -95,14 +94,13 @@ void say_above_cl(UObject *obj, unsigned int cliloc_num,
 	msg->WriteFlipped(len);
 	//  MuadDib - FIXME: only send to those that I'm visible to. 
 	transmit_to_inrange( obj, &msg->buffer, len, false, false );
-	PktHelper::ReAddPacket(msg);
 }
 
 void private_say_above_cl(Character *chr, const UObject* obj,
 						unsigned int cliloc_num, const u16 *arguments,
 						unsigned short font, unsigned short color )
 {
-	PktOut_C1* msg = PktHelper::RequestPacket<PktOut_C1>(PKTOUT_C1_ID);
+	PktHelper::PacketOut<PktOut_C1> msg;
 	msg->offset+=2;
 	unsigned textlen = 0;
 
@@ -129,8 +127,7 @@ void private_say_above_cl(Character *chr, const UObject* obj,
 	u16 len=msg->offset;
 	msg->offset=1;
 	msg->WriteFlipped(len);
-	ADDTOSENDQUEUE(chr->client, &msg->buffer, len );
-	PktHelper::ReAddPacket(msg);
+	msg.Send(chr->client, len);
 }
 
 
@@ -138,7 +135,7 @@ void send_sysmessage_cl_affix(Client *client, unsigned int cliloc_num, const cha
 							  bool prepend, const u16 *arguments, unsigned short font,
 							  unsigned short color )
 {
-	PktOut_CC* msg = PktHelper::RequestPacket<PktOut_CC>(PKTOUT_CC_ID);
+	PktHelper::PacketOut<PktOut_CC> msg;
 	msg->offset+=2;
 	unsigned textlen = 0, affix_len = 0;
 
@@ -170,16 +167,14 @@ void send_sysmessage_cl_affix(Client *client, unsigned int cliloc_num, const cha
 	u16 len=msg->offset;
 	msg->offset=1;
 	msg->WriteFlipped(len);
-
-	ADDTOSENDQUEUE(client,&msg->buffer, len);
-	PktHelper::ReAddPacket(msg);
+	msg.Send(client, len);
 }
 
 void say_above_cl_affix(UObject *obj, unsigned int cliloc_num, const char* affix,
 						bool prepend, const u16 *arguments,
 						unsigned short font, unsigned short color) 
 {
-	PktOut_CC* msg = PktHelper::RequestPacket<PktOut_CC>(PKTOUT_CC_ID);
+	PktHelper::PacketOut<PktOut_CC> msg;
 	msg->offset+=2;
 	unsigned textlen = 0, affix_len = 0;
 
@@ -214,14 +209,13 @@ void say_above_cl_affix(UObject *obj, unsigned int cliloc_num, const char* affix
 
 	// MuadDib - FIXME: only send to those that I'm visible to.
 	transmit_to_inrange( obj, &msg->buffer, len, false, false );
-	PktHelper::ReAddPacket(msg);
 }
 
 void private_say_above_cl_affix(Character *chr, const UObject* obj, unsigned int cliloc_num,
 								const char* affix, bool prepend, const u16 *arguments,
 								unsigned short font, unsigned short color) 
 {
-	PktOut_CC* msg = PktHelper::RequestPacket<PktOut_CC>(PKTOUT_CC_ID);
+	PktHelper::PacketOut<PktOut_CC> msg;
 	msg->offset+=2;
 	unsigned textlen = 0, affix_len = 0;
 
@@ -254,8 +248,7 @@ void private_say_above_cl_affix(Character *chr, const UObject* obj, unsigned int
 	msg->offset=1;
 	msg->WriteFlipped(len);
 
-	ADDTOSENDQUEUE(chr->client,&msg->buffer, len);
-	PktHelper::ReAddPacket(msg);
+	msg.Send(chr->client, len);
 }
 
 void build_sysmessage_cl(PktOut_C1* msg, unsigned int cliloc_num, const u16 *arguments,
