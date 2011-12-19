@@ -280,6 +280,8 @@ BObjectImp* UHouse::script_method_id( const int id, Executor& ex )
 			BApplicObjBase* aob;
 			if(ex.hasParams( 0 ))
 				aob = ex.getApplicObjParam(0, &eitemrefobjimp_type);
+			else
+				return new BError( "Invalid parameter type" );
 
 			if(aob != NULL)
 			{
@@ -288,8 +290,6 @@ BObjectImp* UHouse::script_method_id( const int id, Executor& ex )
 				components_.push_back(iref);
 				return new BLong(1);
 			}
-			else
-				return new BError( "Invalid parameter type" );
 		}
 
 	case MTH_ERASE_COMPONENT:
@@ -297,7 +297,8 @@ BObjectImp* UHouse::script_method_id( const int id, Executor& ex )
 			BApplicObjBase* aob;
 			if(ex.hasParams( 0 ))
 				aob = ex.getApplicObjParam(0, &eitemrefobjimp_type);
-
+			else
+				return new BError( "Invalid parameter type" );
 			if(aob != NULL)
 			{
 				EItemRefObjImp* ir = static_cast<EItemRefObjImp*>(aob);
@@ -310,8 +311,6 @@ BObjectImp* UHouse::script_method_id( const int id, Executor& ex )
 					return new BError("Component not found");
 				return new BLong(1);
 			}
-			else
-				return new BError( "Invalid parameter type" );
 		}
 	case MTH_ADD_HOUSE_PART:
 		{

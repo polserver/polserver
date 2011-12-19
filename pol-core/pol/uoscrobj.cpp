@@ -2577,14 +2577,14 @@ BObjectImp* Spellbook::script_method_id( const int id, Executor& ex )
 		{
 		case MTH_HASSPELL:
 			{
-				int id;
+				int sid;
 				if (!ex.hasParams(1))
 					return new BError( "Not enough parameters" );
-				if (ex.getParam(0,id))
+				if (ex.getParam(0,sid))
 				{
-					if (id <= 0)
+					if (sid <= 0)
 						return new BError( "SpellID must be >= 1" );
-					if (this->has_spellid(static_cast<unsigned int>(id)))
+					if (this->has_spellid(static_cast<unsigned int>(sid)))
 						return new BLong(1);
 					else
 						return new BLong(0);
@@ -2598,30 +2598,30 @@ BObjectImp* Spellbook::script_method_id( const int id, Executor& ex )
 				auto_ptr<ObjArray> arr (new ObjArray);
 				for ( u16 i = 0; i < 64; ++i )
 				{
-					unsigned int id;
+					unsigned int sid;
 
 					// Check for Mysticism spells here
 					if (this->spell_school == 3)
-						id = 678 + i;
+						sid = 678 + i;
 					else
-						id = this->spell_school*100 + i + 1;
+						sid = this->spell_school*100 + i + 1;
 
-					if (this->has_spellid(id))
-						arr->addElement(new BLong(id));
+					if (this->has_spellid(sid))
+						arr->addElement(new BLong(sid));
 				}
 				return arr.release();
 				break;
 			}
 		case MTH_REMOVESPELL:
 			{
-				int id;
+				int sid;
 				if (!ex.hasParams(1))
 					return new BError( "Not enough parameters" );
-				if (ex.getParam(0,id))
+				if (ex.getParam(0,sid))
 				{
-					if (id <= 0)
+					if (sid <= 0)
 						return new BError( "SpellID must be >= 1" );
-					if (this->remove_spellid(static_cast<unsigned int>(id)))
+					if (this->remove_spellid(static_cast<unsigned int>(sid)))
 						return new BLong(1);
 					else
 						return new BLong(0);
@@ -2632,14 +2632,14 @@ BObjectImp* Spellbook::script_method_id( const int id, Executor& ex )
 			}
 		case MTH_ADDSPELL:
 			{
-				int id;
+				int sid;
 				if (!ex.hasParams(1))
 					return new BError( "Not enough parameters" );
-				if (ex.getParam(0,id))
+				if (ex.getParam(0,sid))
 				{
-					if (id <= 0)
+					if (sid <= 0)
 						return new BError( "SpellID must be >= 1" );
-					if (this->add_spellid(static_cast<unsigned int>(id)))
+					if (this->add_spellid(static_cast<unsigned int>(sid)))
 						return new BLong(1);
 					else
 						return new BLong(0);

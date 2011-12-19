@@ -85,11 +85,11 @@ bool knows_spell( Character* chr, u16 spellid )
 	{
 		for( UContainer::const_iterator itr = cont->begin(); itr !=  cont->end(); ++itr )
 		{
-			const Item* item = GET_ITEM_PTR( itr );
+			const Item* _item = GET_ITEM_PTR( itr );
 			
-			if(item != NULL && item->script_isa(POLCLASS_SPELLBOOK))
+			if(_item != NULL && _item->script_isa(POLCLASS_SPELLBOOK))
 			{
-				const Spellbook* book = static_cast<const Spellbook*>(item);
+				const Spellbook* book = static_cast<const Spellbook*>(_item);
 				if(book->has_spellid( spellid ))
 					return true;
 			}

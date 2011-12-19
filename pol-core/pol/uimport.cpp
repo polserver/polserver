@@ -611,9 +611,9 @@ void for_all_mobiles( void (*f)(Character* chr) )
 			for( unsigned wy = 0; wy < wgridy; ++wy )
 			{
 				ZoneCharacters& wchr = realm->zone[wx][wy].characters;
-				for( ZoneCharacters::iterator itr = wchr.begin(), end = wchr.end(); itr != end; ++itr )
+				for( ZoneCharacters::iterator citr = wchr.begin(), end = wchr.end(); citr != end; ++citr )
 				{
-					Character* chr = *itr;
+					Character* chr = *citr;
 
 					(*f)(chr);
 				}
@@ -967,9 +967,9 @@ void write_items( ostream& ofs_items )
 			for( unsigned wy = 0; wy < wgridy; ++wy )
 			{
 				ZoneItems& witem = realm->zone[wx][wy].items;
-				for( ZoneItems::iterator itr = witem.begin(), end = witem.end(); itr != end; ++itr )
+				for( ZoneItems::iterator iitr = witem.begin(), end = witem.end(); iitr != end; ++iitr )
 				{
-					Item* item = *itr;
+					Item* item = *iitr;
 
 					if (!dont_save_itemtype(item->objtype_) && item->saveonexit())
 					{
@@ -1004,9 +1004,9 @@ void write_multis( ostream& ofs )
 			for( unsigned wy = 0; wy < wgridy; ++wy )
 			{
 				ZoneMultis& wmulti = realm->zone[wx][wy].multis;
-				for( ZoneMultis::iterator itr = wmulti.begin(), end = wmulti.end(); itr != end; ++itr )
+				for( ZoneMultis::iterator mitr = wmulti.begin(), end = wmulti.end(); mitr != end; ++mitr )
 				{
-					UMulti* multi = *itr;
+					UMulti* multi = *mitr;
 					if (exit_signalled) // drop waiting commit on shutdown
 					{
 						UHouse* house = multi->as_house();

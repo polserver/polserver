@@ -3787,8 +3787,8 @@ BObjectImp* UOExecutorModule::mf_MoveItemToSecureTradeWin()
 	ItemRef itemref(item); //dave 1/28/3 prevent item from being destroyed before function ends
 	if (!item->movable())
 	{
-		Character* chr = controller_.get();
-		if (chr == NULL || !chr->can_move( item ))
+		Character* _chr = controller_.get();
+		if (_chr == NULL || !_chr->can_move( item ))
 			return new BError( "That is immobile" );
 	}
 	if (item->inuse() && !is_reserved_to_me(item))
@@ -3844,8 +3844,8 @@ BObjectImp* UOExecutorModule::mf_EquipItem()
 		ItemRef itemref(item); //dave 1/28/3 prevent item from being destroyed before function ends
 		if (!item->movable())
 		{
-			Character* chr = controller_.get();
-			if (chr == NULL || !chr->can_move( item ))
+			Character*_chr = controller_.get();
+			if (_chr == NULL || !_chr->can_move( item ))
 				return new BError( "That is immobile" );
 		}
 

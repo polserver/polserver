@@ -304,9 +304,9 @@ void check_character_integrity()
 			{
 				ZoneCharacters& wchr = realm->zone[x][y].characters;
 
-				for( ZoneCharacters::iterator itr = wchr.begin(), end = wchr.end(); itr != end; ++itr )
+				for( ZoneCharacters::iterator citr = wchr.begin(), end = wchr.end(); citr != end; ++citr )
 				{
-					Character* chr = *itr;
+					Character* chr = *citr;
 					unsigned short wx, wy;
 					zone_convert( chr->x, chr->y, wx, wy, chr->realm );
 					if (wx != x || wy != y)

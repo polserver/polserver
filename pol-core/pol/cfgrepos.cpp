@@ -257,9 +257,9 @@ ConfigFileRef FindConfigFile( const string& filename, const string& allpkgbase )
 				scfg->load( cf_main );
 				any = true;
 			}
-			for( Packages::iterator itr = packages.begin(); itr != packages.end(); ++itr )
+			for( Packages::iterator pitr = packages.begin(), pitrend = packages.end(); pitr != pitrend; ++itr )
 			{
-				Package* pkg = (*itr);
+				Package* pkg = (*pitr);
 				//string pkgfilename = pkg->dir() + allpkgbase + ".cfg";
 				string pkgfilename = GetPackageCfgPath(pkg, allpkgbase+".cfg");
 				if ( FileExists(pkgfilename.c_str()) )

@@ -460,11 +460,11 @@ void UnicodeSpeechHandler( Client *client, PKTIN_AD *msgin )
 	{
 		if(system_hooks.speechmul_hook != NULL)
 		{
-			for (u16 i = 0; i < numtokens; i++)
+			for (u16 j = 0; j < numtokens; j++)
 			{
 				if (speechtokens.get() == NULL)
 					speechtokens.reset(new ObjArray());
-				atoken = new BLong(Get12BitNumber((u8 *) (msgin->wtext), i+1));
+				atoken = new BLong(Get12BitNumber((u8 *) (msgin->wtext), j+1));
 				speechtokens->addElement(atoken);
 			}
 			system_hooks.speechmul_hook->call( make_mobileref(client->chr), speechtokens.release(), new String(ntextbuf) );

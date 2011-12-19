@@ -979,10 +979,10 @@ void polclock_checkin()
 
 void client_io_thread( Client* client )
 {
-	fd_set recv_fd;
-	fd_set err_fd;
-	fd_set send_fd;
-	struct timeval select_timeout = { 0, 0 };
+	fd_set c_recv_fd;
+	fd_set c_err_fd;
+	fd_set c_send_fd;
+	struct timeval c_select_timeout = { 0, 0 };
 	int checkpoint = 0;
 	int nidle = 0;
 	polclock_t last_activity;
@@ -1010,14 +1010,14 @@ client->checkpoint = 61; //CNXBUG
 		{
 			CLIENT_CHECKPOINT(1);
 			int nfds = 0;
-			FD_ZERO( &recv_fd );
-			FD_ZERO( &err_fd );
-			FD_ZERO( &send_fd );
+			FD_ZERO( &c_recv_fd );
+			FD_ZERO( &c_err_fd );
+			FD_ZERO( &c_send_fd );
 			checkpoint = 1;
-			FD_SET( client->csocket, &recv_fd );
-			FD_SET( client->csocket, &err_fd );
+			FD_SET( client->csocket, &c_recv_fd );
+			FD_SET( client->csocket, &c_err_fd );
 			if (client->have_queued_data())
-				FD_SET( client->csocket, &send_fd );
+				FD_SET( client->csocket, &c_send_fd );
 			checkpoint = 2;
 			if ((int)(client->csocket+1) > nfds) 
 				nfds = client->csocket+1;
@@ -1025,10 +1025,10 @@ client->checkpoint = 61; //CNXBUG
 			int res;
 			do
 			{
-				select_timeout.tv_sec = 2;
-				select_timeout.tv_usec = 0;
+				c_select_timeout.tv_sec = 2;
+				c_select_timeout.tv_usec = 0;
 				CLIENT_CHECKPOINT(2);
-				res = select( nfds, &recv_fd, &send_fd, &err_fd, &select_timeout );
+				res = select( nfds, &c_recv_fd, &c_send_fd, &c_err_fd, &c_select_timeout );
 				CLIENT_CHECKPOINT(3);
 			} while (res < 0 && !exit_signalled && socket_errno == SOCKET_ERRNO(EINTR));
 			checkpoint = 3;
@@ -1068,7 +1068,7 @@ client->checkpoint = 61; //CNXBUG
 			if (!client->isReallyConnected())
 				break;
 
-			if (FD_ISSET( client->csocket, &err_fd ))
+			if (FD_ISSET( client->csocket, &c_err_fd ))
 			{
 				client->forceDisconnect();
 				break;
@@ -1134,7 +1134,7 @@ client->checkpoint = 61; //CNXBUG
 			//endregion Speedhack
 			
 			
-			if (FD_ISSET( client->csocket, &recv_fd ))
+			if (FD_ISSET( client->csocket, &c_recv_fd ))
 			{
 				checkpoint = 4;
 				CLIENT_CHECKPOINT(6);
@@ -1169,7 +1169,7 @@ client->checkpoint = 61; //CNXBUG
 			   break;
 			}
 
-			if (client->have_queued_data() && FD_ISSET( client->csocket, &send_fd ))
+			if (client->have_queued_data() && FD_ISSET( client->csocket, &c_send_fd ))
 			{
 				PolLock lck;
 				CLIENT_CHECKPOINT(8);
@@ -1324,8 +1324,8 @@ void * client_io_thread_stub( void *arg )
 
 void listen_thread( void )
 {
-	fd_set listen_fd;
-	struct timeval listen_timeout = { 0, 0 };
+	fd_set l_listen_fd;
+	struct timeval l_listen_timeout = { 0, 0 };
 
 #ifdef _WIN32
 	SetThreadPriority( GetCurrentThread(), THREAD_PRIORITY_HIGHEST );
@@ -1338,9 +1338,9 @@ void listen_thread( void )
 	while (!exit_signalled)
 	{
 		int nfds = 0;
-		FD_ZERO( &listen_fd );
+		FD_ZERO( &l_listen_fd );
 
-		FD_SET( listen_socket, &listen_fd );
+		FD_SET( listen_socket, &l_listen_fd );
 #ifndef _WIN32
 		nfds = listen_socket + 1;
 #endif
@@ -1348,15 +1348,15 @@ void listen_thread( void )
 		int res;
 		do
 		{
-			listen_timeout.tv_sec = 5;
-			listen_timeout.tv_usec = 0;
-			res = select( nfds, &listen_fd, NULL, NULL, &listen_timeout );
+			l_listen_timeout.tv_sec = 5;
+			l_listen_timeout.tv_usec = 0;
+			res = select( nfds, &l_listen_fd, NULL, NULL, &l_listen_timeout );
 		} while (res < 0 && !exit_signalled && socket_errno == SOCKET_ERRNO(EINTR));
 		
 		if (res <= 0)
 			continue;
 		
-		if ( FD_ISSET( listen_socket, &listen_fd ))
+		if ( FD_ISSET( listen_socket, &l_listen_fd ))
 		{
 			struct sockaddr client_addr, host_addr; // inet_addr
 			socklen_t addrlen = sizeof client_addr;

@@ -398,9 +398,9 @@ Item* UContainer::find_addable_stack( const Item* adding_item ) const
 
 Item* UContainer::find_objtype_noninuse( u32 objtype ) const
 {
-    Item* item = find_toplevel_objtype_noninuse( objtype );
-    if (item != NULL)
-        return item;
+    Item* _item = find_toplevel_objtype_noninuse( objtype );
+    if (_item != NULL)
+        return _item;
 
     for( Contents::const_iterator itr = contents_.begin(), end = contents_.end(); itr != end; ++itr )
     {
