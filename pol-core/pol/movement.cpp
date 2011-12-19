@@ -90,8 +90,8 @@ void send_objects_newly_inrange( Client* client )
             ZoneCharacters& wchr = chr->realm->zone[wx][wy].characters;
             for( ZoneCharacters::iterator itr = wchr.begin(), end = wchr.end(); itr != end; ++itr )
             {
-                Character* chr = *itr;
-                send_char_if_newly_inrange( chr, client );
+                Character* _chr = *itr;
+                send_char_if_newly_inrange( _chr, client );
             }
 
 
@@ -134,8 +134,8 @@ void remove_objects_inrange( Client* client )
             ZoneCharacters& wchr = chr->realm->zone[wx][wy].characters;
             for( ZoneCharacters::iterator itr = wchr.begin(), end = wchr.end(); itr != end; ++itr )
             {
-                Character* chr = *itr;
-				send_remove_character( client, chr, msgremove.Get() );
+                Character* _chr = *itr;
+				send_remove_character( client, _chr, msgremove.Get() );
             }
 
 

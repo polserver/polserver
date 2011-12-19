@@ -2155,11 +2155,11 @@ int SmartParser::IIP(Expression& expr, CompilerContext& ctx, unsigned flags)
 					// so check for preceding TOK_MEMBER, and succeeding TOK_LPAREN
 
 			ptok2 = new Token( token ); // this we will turn into an INS_CALL_METHOD.
-			int res = parseToken( ctx, expr, ptok2 );
-			if (res < 0)
+			int _res = parseToken( ctx, expr, ptok2 );
+			if (_res < 0)
 			{
 				delete ptok2;
-				return res;
+				return _res;
 			}
 
 			// grab the method name
@@ -2169,9 +2169,9 @@ int SmartParser::IIP(Expression& expr, CompilerContext& ctx, unsigned flags)
 			int nargs;
 			res = getMethodArguments( expr, ctx, nargs );
 			// our ptok2 is now sitting in TX.  Move it to CA.
-			Token* t = expr.TX.top();
+			Token* _t = expr.TX.top();
 			expr.TX.pop();
-			expr.CA.push( t );
+			expr.CA.push( _t );
 
 			ObjMethod* objmeth = getKnownObjMethod(methodName.c_str());
 			if(objmeth != NULL && compilercfg.OptimizeObjectMembers)

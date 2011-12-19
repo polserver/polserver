@@ -380,10 +380,10 @@ BObjectImp* AccountObjImp::call_method_id( const int id, Executor& ex, bool forc
 	case MTH_DELETE:
 		if (ex.numParams() == 0)
 		{
-			int result = delete_account(obj_->name());
-			if (result == -1)
+			int _result = delete_account(obj_->name());
+			if (_result == -1)
 				return new BError( "You must delete all Character first." );
-			else if (result == -2) // Should never happen ;o)
+			else if (_result == -2) // Should never happen ;o)
 				return new BError( "Invalid Account Name." );
 		}
 		else
