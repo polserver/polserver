@@ -843,10 +843,10 @@ const ItemDesc* CreateItemDescriptor( BStruct* itemdesc_struct )
 			{
 				BDictionary* cpropdict = static_cast<BDictionary*>(val_imp);
 				const BDictionary::Contents& cprop_cont = cpropdict->contents();
-				BDictionary::Contents::const_iterator itr;
-				for( itr = cprop_cont.begin(); itr != cprop_cont.end(); ++itr )
+				BDictionary::Contents::const_iterator ditr;
+				for( ditr = cprop_cont.begin(); ditr != cprop_cont.end(); ++ditr )
 				{
-					elem.add_prop("cprop", ((*itr).first->getStringRep() + "\t" + (*itr).second->impptr()->pack()).c_str() );
+					elem.add_prop("cprop", ((*ditr).first->getStringRep() + "\t" + (*ditr).second->impptr()->pack()).c_str() );
 				}
 			}
 			else
@@ -862,10 +862,10 @@ const ItemDesc* CreateItemDescriptor( BStruct* itemdesc_struct )
 				// FIXME verify that it's an ObjArray...
 				ObjArray* ignorecp = static_cast<ObjArray*>(itr->second->impptr());
 				const ObjArray::Cont& conts = ignorecp->ref_arr;
-				ObjArray::Cont::const_iterator itr;
-				for( itr = conts.begin(); itr != conts.end(); ++itr )
+				ObjArray::Cont::const_iterator aitr;
+				for( aitr = conts.begin(); aitr != conts.end(); ++aitr )
 				{
-					os << (*itr).get()->impptr()->getStringRep() << " ";
+					os << (*aitr).get()->impptr()->getStringRep() << " ";
 				}
 				elem.add_prop(key.c_str(),OSTRINGSTREAM_STR(os).c_str());
 			}
@@ -881,11 +881,11 @@ const ItemDesc* CreateItemDescriptor( BStruct* itemdesc_struct )
 				// FIXME verify that it's an ObjArray...
 				ObjArray* coverage = static_cast<ObjArray*>(itr->second->impptr());
 				const ObjArray::Cont& conts = coverage->ref_arr;
-				ObjArray::Cont::const_iterator itr;
-				for( itr = conts.begin(); itr != conts.end(); ++itr )
+				ObjArray::Cont::const_iterator aitr;
+				for( aitr = conts.begin(); aitr != conts.end(); ++aitr )
 				{
 					OSTRINGSTREAM os;
-					os << (*itr).get()->impptr()->getStringRep();
+					os << (*aitr).get()->impptr()->getStringRep();
 					elem.add_prop(key.c_str(),OSTRINGSTREAM_STR(os).c_str());
 				}
 			}

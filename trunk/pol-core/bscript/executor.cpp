@@ -1548,7 +1548,7 @@ void Executor::ins_array_assign( const Instruction& ins )
     BObjectImp* result;
     
 
-    if (y.count() == 1 && y->count() == 1)
+    if (y.count() == 1 && y_ref->count() == 1)
     {
         result = x->array_assign( i.impptr(), y.impptr() );
     }
@@ -1584,7 +1584,7 @@ void Executor::ins_array_assign_consume( const Instruction& ins )
     BObjectImp* result;
     
 
-    if (y.count() == 1 && y->count() == 1)
+    if (y.count() == 1 && y_ref->count() == 1)
     {
         result = x->array_assign( i.impptr(), y.impptr() );
     }
@@ -2568,26 +2568,28 @@ void Executor::innerExec(const Instruction& ins)
 		    Locals2 = new BObjectRefVec;
 		    return;
 	    case CTRL_JSR_USERFUNC: // ins_jsr_userfunc
-            ReturnContext rc;
-            rc.PC = PC;
-            rc.ValueStackDepth = ValueStack.size();
-		    ControlStack.push( rc );
+			{
+				ReturnContext rc;
+				rc.PC = PC;
+				rc.ValueStackDepth = ValueStack.size();
+				ControlStack.push( rc );
         
-		    PC = (unsigned) token.lval;
-            if (ControlStack.size() >= escript_config.max_call_depth)
-            {
-                Log( "Script %s exceeded maximum call depth\n", scriptname().c_str() );
-                Log( "Return path PCs: " );
-                while (!ControlStack.empty())
-                {
-                    rc = ControlStack.top();
-                    ControlStack.pop();
-                    Log( "%d ", rc.PC );
-                }
-                Log( "\n" );
-                seterror( true );
-            }
-		    return;
+				PC = (unsigned) token.lval;
+				if (ControlStack.size() >= escript_config.max_call_depth)
+				{
+					Log( "Script %s exceeded maximum call depth\n", scriptname().c_str() );
+					Log( "Return path PCs: " );
+					while (!ControlStack.empty())
+					{
+						rc = ControlStack.top();
+						ControlStack.pop();
+						Log( "%d ", rc.PC );
+					}
+					Log( "\n" );
+					seterror( true );
+				}
+				return;
+			}
 	    case INS_POP_PARAM: // ins_pop_param
 		    popParam( ins.token );
 		    return;
@@ -2628,29 +2630,31 @@ void Executor::innerExec(const Instruction& ins)
 			return;
 
         case RSV_RETURN:    // ins_return
-			if (ControlStack.empty()) 
 			{
-				cerr << "Return without GOSUB!" << endl;
+				if (ControlStack.empty()) 
+				{
+					cerr << "Return without GOSUB!" << endl;
 
-				seterror( true );
+					seterror( true );
+					return;
+				}
+				ReturnContext rc = ControlStack.top();
+				ControlStack.pop();
+				PC = rc.PC;
+				// FIXME do something with rc.ValueStackDepth
+
+				if (Locals2) 
+				{ 
+					delete Locals2; 
+					Locals2 = NULL; 
+				}
+				if (!upperLocals2.empty()) 
+				{
+					Locals2 = upperLocals2.top();
+					upperLocals2.pop();
+				}
 				return;
 			}
-			rc = ControlStack.top();
-            ControlStack.pop();
-            PC = rc.PC;
-            // FIXME do something with rc.ValueStackDepth
-
-			if (Locals2) 
-			{ 
-				delete Locals2; 
-				Locals2 = NULL; 
-			}
-			if (!upperLocals2.empty()) 
-            {
-                Locals2 = upperLocals2.top();
-                upperLocals2.pop();
-            }
-			return;
         
 #ifdef NEVER
         case INS_INITFOREACH:   // ins_initforeach

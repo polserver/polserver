@@ -46,9 +46,9 @@ Item* find_legal_singleclick_item( Character* chr, u32 serial )
             for( ZoneCharacters::iterator itr = wchr.begin(), end = wchr.end(); itr != end; ++itr )
             {
                 Character* ochr = *itr;
-                Item *item = ochr->find_wornitem( serial );
-                if (item != NULL) 
-                    return item;
+                Item *_item = ochr->find_wornitem( serial );
+                if (_item != NULL) 
+                    return _item;
             }
         }
     }

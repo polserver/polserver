@@ -703,8 +703,8 @@ void http_func( SOCKET client_socket )
 		if ( !auth.empty() )
 		{
 			ISTRINGSTREAM is2( auth );
-			string auth, type, coded_unpw, unpw;
-			is2 >> auth >> type >> coded_unpw;
+			string _auth, type, coded_unpw, unpw;
+			is2 >> _auth >> type >> coded_unpw;
 			unpw = decode_base64( coded_unpw );
 			if (config.web_server_debug)
 			{

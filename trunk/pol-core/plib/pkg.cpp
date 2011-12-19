@@ -126,13 +126,13 @@ PackageList::PackageList( ConfigElem& elem, const char* tag )
 	{
 		mklower( tmp );
 		ISTRINGSTREAM is( tmp );
-		Elem elem;
-		if (is >> elem.pkgname)
+		Elem _elem;
+		if (is >> _elem.pkgname)
 		{
-			if (! (is >> elem.version))
-				elem.version = "0";
+			if (! (is >> _elem.version))
+				_elem.version = "0";
 			
-			elems.push_back( elem );
+			elems.push_back( _elem );
 		}
 	}
 }
