@@ -647,7 +647,7 @@ BObjectImp* OSExecutorModule::mf_OpenURL()
 	{
 		if (chr->has_active_client())
 		{
-			PktOut_A5* msg = PktHelper::RequestPacket<PktOut_A5>(PKTOUT_A5_ID);
+			PktHelper::PacketOut<PktOut_A5> msg;
 			unsigned urllen;
 			const char *url = str->data();
 
@@ -657,8 +657,7 @@ BObjectImp* OSExecutorModule::mf_OpenURL()
 
 			msg->WriteFlipped(static_cast<u16>(urllen+4));
 			msg->Write(url,static_cast<u16>(urllen+1));
-			ADDTOSENDQUEUE(chr->client, &msg->buffer, msg->offset );
-			PktHelper::ReAddPacket(msg);
+			msg.Send(chr->client);
 			return new BLong(1);
 		}
 		else

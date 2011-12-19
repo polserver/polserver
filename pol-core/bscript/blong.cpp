@@ -38,6 +38,14 @@ string BLong::pack() const
     return OSTRINGSTREAM_STR(os);
 }
 
+string BLong::pack( int val )
+{
+	OSTRINGSTREAM os;
+	os << "i" << val;
+	return OSTRINGSTREAM_STR(os);
+}
+
+
 void BLong::packonto( ostream& os ) const
 {
     os << "i" << lval_;

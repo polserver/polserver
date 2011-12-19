@@ -154,7 +154,7 @@ Notes
 
 bool send_vendorwindow_contents( Client* client, UContainer* for_sale, bool send_aos_tooltip )
 {
-	PktOut_74* msg = PktHelper::RequestPacket<PktOut_74>(PKTOUT_74_ID);
+	PktHelper::PacketOut<PktOut_74> msg;
 	msg->offset+=2; //msglen
 	msg->Write(for_sale->serial_ext);
 	msg->offset++; //num_items
@@ -168,7 +168,6 @@ bool send_vendorwindow_contents( Client* client, UContainer* for_sale, bool send
 		unsigned int addlen = 5 + desc.size();
 		if (msg->offset + addlen > sizeof msg->buffer)
 		{
-			PktHelper::ReAddPacket(msg);
 			return false;
 		}
 		msg->WriteFlipped(item->sellprice());
@@ -184,9 +183,7 @@ bool send_vendorwindow_contents( Client* client, UContainer* for_sale, bool send
 	msg->WriteFlipped(len);
 	msg->offset+=4;
 	msg->Write(num_items);
-
-	transmit( client, &msg->buffer, len );
-	PktHelper::ReAddPacket(msg);
+	msg.Send(client, len);
 	return true;
 }
 
@@ -291,13 +288,12 @@ BObjectImp* UOExecutorModule::mf_SendBuyWindow(/* character, container, vendor, 
 	}
 
 	//This looks good
-	PktOut_24* open_window = PktHelper::RequestPacket<PktOut_24>(PKTOUT_24_ID);
+	PktHelper::PacketOut<PktOut_24> open_window;
 	open_window->Write(merchant->serial_ext);
 	open_window->WriteFlipped(static_cast<u16>(0x0030)); // FIXME: Serial of buy gump needs #define or enum?
 	if (chr->client->ClientType & CLIENTTYPE_7090)
 		open_window->WriteFlipped(static_cast<u16>(0x00));
-	transmit( chr->client, &open_window->buffer, open_window->offset );
-	PktHelper::ReAddPacket(open_window);
+	open_window.Send(chr->client);
 
 	// Tell the client how much gold the character has, I guess
 	send_full_statmsg(chr->client, chr);
@@ -310,12 +306,11 @@ BObjectImp* UOExecutorModule::mf_SendBuyWindow(/* character, container, vendor, 
 
 void send_clear_vendorwindow( Client* client, Character* vendor )
 {
-	PktOut_3B* msg = PktHelper::RequestPacket<PktOut_3B>(PKTBI_3B_ID);
+	PktHelper::PacketOut<PktOut_3B> msg;
 	msg->WriteFlipped(static_cast<u16>(sizeof msg->buffer));
 	msg->Write(vendor->serial_ext);
 	msg->Write(static_cast<u8>(PKTBI_3B::STATUS_NOTHING_BOUGHT));
-	ADDTOSENDQUEUE(client,&msg->buffer, msg->offset);
-	PktHelper::ReAddPacket(msg);
+	msg.Send(client);
 }
 
 
@@ -569,7 +564,7 @@ MESSAGE_HANDLER_VARLEN(PKTBI_3B, buyhandler );
 bool send_vendorsell( Client* client, NPC* merchant, UContainer* sellfrom, bool send_aos_tooltip )
 {
 	unsigned short num_items = 0;
-	PktOut_9E* msg = PktHelper::RequestPacket<PktOut_9E>(PKTOUT_9E_ID);
+	PktHelper::PacketOut<PktOut_9E> msg;
 	msg->offset+=2;
 	msg->Write(merchant->serial_ext);
 	msg->offset+=2; //numitems
@@ -595,7 +590,6 @@ bool send_vendorsell( Client* client, NPC* merchant, UContainer* sellfrom, bool 
 			string desc = item->merchant_description();
 			if (msg->offset + desc.size()+14 > sizeof msg->buffer)
 			{
-				PktHelper::ReAddPacket(msg);
 				return false;
 			}
 			msg->Write(item->serial_ext);
@@ -618,9 +612,7 @@ bool send_vendorsell( Client* client, NPC* merchant, UContainer* sellfrom, bool 
 	msg->WriteFlipped(len);
 	msg->offset+=4;
 	msg->WriteFlipped(num_items);
-
-	transmit( client, &msg->buffer, len );
-	PktHelper::ReAddPacket(msg);
+	msg.Send(client, len);
 	return true;
 }
 
@@ -892,7 +884,7 @@ BObjectImp* UOExecutorModule::mf_SendGumpMenu( )
 
 BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu(Character* chr, ObjArray* layout_arr, ObjArray* data_arr, int x,int y)
 {
-	PktOut_B0* msg = PktHelper::RequestPacket<PktOut_B0>(PKTOUT_B0_ID);
+	PktHelper::PacketOut<PktOut_B0> msg;
 	msg->offset+=2;
 	msg->Write(chr->serial_ext);
 	msg->WriteFlipped(this->uoexec.os_module->pid());
@@ -913,7 +905,6 @@ BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu(Character* chr, 
 		layoutlen += addlen;
 		if (msg->offset+addlen > static_cast<int>(sizeof msg->buffer))
 		{
-			PktHelper::ReAddPacket(msg);
 			return new BError( "Buffer length exceeded" );
 		}
 		msg->Write("{ ",2,false);
@@ -923,7 +914,6 @@ BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu(Character* chr, 
 	
 	if (msg->offset+1 > static_cast<int>(sizeof msg->buffer))
 	{
-		PktHelper::ReAddPacket(msg);
 		return new BError( "Buffer length exceeded" );
 	}
 	msg->offset++; // nullterm
@@ -938,7 +928,6 @@ BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu(Character* chr, 
 	
 	if (msg->offset+2 > static_cast<int>(sizeof msg->buffer))
 	{
-		PktHelper::ReAddPacket(msg);
 		return new BError( "Buffer length exceeded" );
 	}
 	msg->offset+=2; //numlines
@@ -958,7 +947,6 @@ BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu(Character* chr, 
 
 		if (msg->offset+2+textlen*2 > static_cast<int>(sizeof msg->buffer))
 		{
-			PktHelper::ReAddPacket(msg);
 			return new BError( "Buffer length exceeded" );
 		}
 
@@ -970,7 +958,6 @@ BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu(Character* chr, 
 	
 	if (msg->offset+1 > static_cast<int>(sizeof msg->buffer))
 	{
-		PktHelper::ReAddPacket(msg);
 		return new BError( "Buffer length exceeded" );
 	}
 	msg->offset++; // nullterm
@@ -980,9 +967,7 @@ BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu(Character* chr, 
 	msg->WriteFlipped(numlines);
 	msg->offset=1;
 	msg->WriteFlipped(len);
-
-	ADDTOSENDQUEUE(chr->client, &msg->buffer, len );
-	PktHelper::ReAddPacket(msg);
+	msg.Send(chr->client, len);
 	chr->client->gd->add_gumpmod( this );
 	//old_gump_uoemod = this;
 	gump_chr = chr;
@@ -992,8 +977,8 @@ BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu(Character* chr, 
 
 BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu(Character* chr, ObjArray* layout_arr, ObjArray* data_arr, int x,int y)
 {
-	PktOut_DD* msg = PktHelper::RequestPacket<PktOut_DD>(PKTOUT_DD_ID);
-	PktOut_DD* bfr = PktHelper::RequestPacket<PktOut_DD>(PKTOUT_DD_ID); // compress buffer
+	PktHelper::PacketOut<PktOut_DD> msg;
+	PktHelper::PacketOut<PktOut_DD> bfr; // compress buffer
 	bfr->offset=0;
 	msg->offset+=2;
 	msg->Write(chr->serial_ext);
@@ -1015,8 +1000,6 @@ BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu(Character* chr, Ob
 		int addlen = 4 + s.length();
 		if (layoutdlen + addlen > static_cast<int>(sizeof bfr->buffer))
 		{
-			PktHelper::ReAddPacket(msg);
-			PktHelper::ReAddPacket(bfr);
 			return new BError( "Buffer length exceeded" );
 		}
 		layoutdlen += addlen;
@@ -1026,8 +1009,6 @@ BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu(Character* chr, Ob
 	}
 	if (layoutdlen+1 > static_cast<int>(sizeof bfr->buffer))
 	{
-		PktHelper::ReAddPacket(msg);
-		PktHelper::ReAddPacket(bfr);
 		return new BError( "Buffer length exceeded" );
 	}
 	layoutdlen++;
@@ -1036,15 +1017,11 @@ BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu(Character* chr, Ob
 	unsigned long cbuflen = (((unsigned long)(( (float)(layoutdlen) )*1.001f)) +12);//as per zlib spec
 	if (cbuflen > ((unsigned long)(0xFFFF-msg->offset)))
 	{
-		PktHelper::ReAddPacket(msg);
-		PktHelper::ReAddPacket(bfr);
 		return new BError( "Compression error" );
 	}
 
 	if (compress2(reinterpret_cast<unsigned char*>(msg->getBuffer()), &cbuflen, reinterpret_cast<unsigned char*>(&bfr->buffer), layoutdlen, Z_DEFAULT_COMPRESSION)!=Z_OK)
 	{
-		PktHelper::ReAddPacket(msg);
-		PktHelper::ReAddPacket(bfr);
 		return new BError( "Compression error" );
 	}
 	msg->offset-=8;
@@ -1070,8 +1047,6 @@ BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu(Character* chr, Ob
 		int addlen = (s.length()+1)*2;
 		if (datadlen + addlen > static_cast<int>(sizeof bfr->buffer))
 		{
-			PktHelper::ReAddPacket(msg);
-			PktHelper::ReAddPacket(bfr);
 			return new BError( "Buffer length exceeded" );
 		}
 		datadlen+=addlen;
@@ -1087,14 +1062,10 @@ BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu(Character* chr, Ob
 		cbuflen = (((unsigned long)(( (float)(datadlen) )*1.001f)) +12);//as per zlib spec
 		if (cbuflen > ((unsigned long)(0xFFFF-msg->offset)))
 		{
-			PktHelper::ReAddPacket(msg);
-			PktHelper::ReAddPacket(bfr);
 			return new BError( "Compression error" );
 		}
 		if (compress2(reinterpret_cast<unsigned char*>(msg->getBuffer()), &cbuflen, reinterpret_cast<unsigned char*>(&bfr->buffer), datadlen,Z_DEFAULT_COMPRESSION)!=Z_OK)   
 		{
-			PktHelper::ReAddPacket(msg);
-			PktHelper::ReAddPacket(bfr);
 			return new BError( "Compression error" );
 		}
 
@@ -1109,9 +1080,7 @@ BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu(Character* chr, Ob
 	msg->offset=1;
 	msg->WriteFlipped(len);
 
-	ADDTOSENDQUEUE(chr->client, &msg->buffer, len );
-	PktHelper::ReAddPacket(msg);
-	PktHelper::ReAddPacket(bfr);
+	msg.Send(chr->client, len);
 	chr->client->gd->add_gumpmod( this );
 	//old_gump_uoemod = this;
 	gump_chr = chr;
@@ -1437,7 +1406,7 @@ BObjectImp* UOExecutorModule::mf_SendTextEntryGump()
 		return new BError( "No client attached" );
 	}
 
-	PktOut_AB* msg = PktHelper::RequestPacket<PktOut_AB>(PKTOUT_AB_ID);
+	PktHelper::PacketOut<PktOut_AB> msg;
 	msg->offset+=2;
 	msg->Write(chr->serial_ext);
 	msg->offset+=2; // u8 type,index
@@ -1459,9 +1428,7 @@ BObjectImp* UOExecutorModule::mf_SendTextEntryGump()
 	u16 len=msg->offset;
 	msg->offset=1;
 	msg->WriteFlipped(len);
-
-	ADDTOSENDQUEUE(chr->client,&msg->buffer, len );
-	PktHelper::ReAddPacket(msg);
+	msg.Send(chr->client, len);
 	chr->client->gd->textentry_uoemod = this;
 	textentry_chr = chr;
 	uoexec.os_module->suspend();
@@ -1944,11 +1911,9 @@ BObjectImp* UOExecutorModule::mf_SendInstaResDialog()
 	if (chr->client->gd->resurrect_uoemod != NULL)
 		return new BError( "Client busy with another instares dialog" );
 
-	PktOut_20* msg = PktHelper::RequestPacket<PktOut_20>(PKTBI_2C_ID);
+	PktHelper::PacketOut<PktOut_20> msg;
 	msg->Write(static_cast<u8>(RESURRECT_CHOICE_SELECT));
-
-	ADDTOSENDQUEUE(chr->client, &msg->buffer, msg->offset );
-	PktHelper::ReAddPacket(msg);
+	msg.Send(chr->client);
 	chr->client->gd->resurrect_uoemod = this;
 	resurrect_chr = chr;
 	uoexec.os_module->suspend();
@@ -2004,13 +1969,11 @@ BObjectImp* UOExecutorModule::mf_SelectColor()
 	if (chr->client->gd->resurrect_uoemod != NULL)
 		return new BError( "Client is already selecting a color" );
 
-	PktOut_95* msg = PktHelper::RequestPacket<PktOut_95>(PKTBI_95_ID);
+	PktHelper::PacketOut<PktOut_95> msg;
 	msg->Write(item->serial_ext);
 	msg->offset+=2; // u16 unk
 	msg->WriteFlipped(item->graphic);
-
-	ADDTOSENDQUEUE(chr->client, &msg->buffer, msg->offset );
-	PktHelper::ReAddPacket(msg);
+	msg.Send(chr->client);
 
 	chr->client->gd->selcolor_uoemod = this;
 	selcolor_chr = chr;
@@ -2063,20 +2026,18 @@ BObjectImp* UOExecutorModule::mf_SendOpenBook()
 		}
 	}
 
-	PktOut_93* msg93 = PktHelper::RequestPacket<PktOut_93>(PKTBI_93_ID);
+	PktHelper::PacketOut<PktOut_93> msg93;
 	msg93->Write(book->serial_ext);
 	msg93->Write(static_cast<u8>(writable?1:0));
 	msg93->Write(static_cast<u8>(1));
 	msg93->WriteFlipped(static_cast<u16>(npages));
 	msg93->Write(title.c_str(),60,false);
 	msg93->Write(author.c_str(),30,false);
-
-	ADDTOSENDQUEUE(chr->client, &msg93->buffer, msg93->offset );
-	PktHelper::ReAddPacket(msg93);
+	msg93.Send(chr->client);
 
 	if (writable)
 	{
-		PktOut_66* msg = PktHelper::RequestPacket<PktOut_66>(PKTBI_66_ID);
+		PktHelper::PacketOut<PktOut_66> msg;
 		msg->offset+=2;
 		msg->Write(book->serial_ext);
 		msg->WriteFlipped(static_cast<u16>(npages));
@@ -2088,7 +2049,6 @@ BObjectImp* UOExecutorModule::mf_SendOpenBook()
 		{
 			if (msg->offset+4> static_cast<int>(sizeof msg->buffer))
 			{
-				PktHelper::ReAddPacket(msg);
 				return new BError( "Buffer overflow" );
 			}
 			msg->WriteFlipped(static_cast<u16>(page));
@@ -2104,7 +2064,6 @@ BObjectImp* UOExecutorModule::mf_SendOpenBook()
 					linetext = line_imp->getStringRep();
 				if (msg->offset+linetext.size()+1 > sizeof msg->buffer)
 				{
-					PktHelper::ReAddPacket(msg);
 					return new BError( "Buffer overflow" );
 				}
 				msg->Write(linetext.c_str(),static_cast<u16>(linetext.size()+1));
@@ -2147,8 +2106,7 @@ BObjectImp* UOExecutorModule::mf_SendOpenBook()
 		u16 len=msg->offset;
 		msg->offset=1;
 		msg->WriteFlipped(len);
-		ADDTOSENDQUEUE(chr->client, &msg->buffer, len );
-		PktHelper::ReAddPacket(msg);
+		msg.Send(chr->client, len);
 	}
 
 	return new BLong(1);
@@ -2180,7 +2138,7 @@ void read_book_page_handler( Client* client, PKTBI_66* msg )
 			return;
 		}
 
-		PktOut_66* msgOut = PktHelper::RequestPacket<PktOut_66>(PKTBI_66_ID);
+		PktHelper::PacketOut<PktOut_66> msgOut;
 		msgOut->offset+=2;
 		msgOut->Write(book->serial_ext);
 		msgOut->WriteFlipped(static_cast<u16>(1));
@@ -2203,7 +2161,6 @@ void read_book_page_handler( Client* client, PKTBI_66* msg )
 
 			if (msgOut->offset+linetext.size()+1 > sizeof msgOut->buffer)
 			{
-				PktHelper::ReAddPacket(msgOut);
 				return;
 			}
 			msgOut->Write(linetext.c_str(),static_cast<u16>(linetext.size()+1));
@@ -2214,8 +2171,7 @@ void read_book_page_handler( Client* client, PKTBI_66* msg )
 		msgOut->WriteFlipped(static_cast<u16>(pagelines));
 		msgOut->offset=1;
 		msgOut->WriteFlipped(len);
-		ADDTOSENDQUEUE(client, &msgOut->buffer, len );
-		PktHelper::ReAddPacket(msgOut);
+		msgOut.Send(client, len);
 	}
 	else
 	{

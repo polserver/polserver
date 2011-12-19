@@ -750,7 +750,7 @@ BObjectImp* NPCExecutorModule::say()
 		return new BError("texttype string param must be either 'default', 'whisper', or 'yell'");
 
 
-	PktOut_1C* msg = PktHelper::RequestPacket<PktOut_1C>(PKTOUT_1C_ID);
+	PktHelper::PacketOut<PktOut_1C> msg;
 	msg->offset+=2;
 	msg->Write(npc.serial_ext);
 	msg->WriteFlipped(npc.graphic);
@@ -783,14 +783,12 @@ BObjectImp* NPCExecutorModule::say()
 			rangeok = in_say_range(&npc, client->chr);
 
 		if ( rangeok )
-			transmit( client, &msg->buffer, len );
+			msg.Send(client, len);
 	}
 
 	if ( doevent >= 1 )
 		for_nearby_npcs(npc_spoke, &npc, text, strlen(text), texttype);
 
-	PktHelper::ReAddPacket(msg);
-	
 	return NULL;
 }
 
@@ -843,7 +841,7 @@ BObjectImp* NPCExecutorModule::SayUC()
 		else
 			texttype=TEXTTYPE_NORMAL;
 
-		PktOut_AE* talkmsg = PktHelper::RequestPacket<PktOut_AE>(PKTOUT_AE_ID);
+		PktHelper::PacketOut<PktOut_AE> talkmsg;
 		talkmsg->offset+=2;
 		talkmsg->Write(npc.serial_ext);
 		talkmsg->WriteFlipped(npc.graphic);
@@ -872,9 +870,8 @@ BObjectImp* NPCExecutorModule::SayUC()
 				rangeok = in_say_range(&npc, client->chr);
 
 			if ( rangeok )
-				transmit( client, &talkmsg->buffer, len );
+				talkmsg.Send(client, len);
 		}
-		PktHelper::ReAddPacket(talkmsg);
 		if ( doevent >= 1 )
 		{
 			char ntextbuf[SPEECH_MAX_LEN+1];

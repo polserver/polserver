@@ -598,7 +598,6 @@ void CustomHouseStopEditing(Character* chr, UHouse* house)
 	msg->Write(static_cast<u32>(0xFFFFFFFF)); // fixme
 	msg->Write(static_cast<u8>(0xFF)); // fixme
 	msg.Send(chr->client);
-	msg.Release();
 
 	const MultiDef& def = house->multidef();
     move_character_to(chr,house->x+def.minrx,house->y+def.maxry+1,house->z,MOVEITEM_FORCELOCATION, NULL);

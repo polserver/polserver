@@ -433,6 +433,7 @@ class BLong : public BObjectImp
     static BObjectImp* unpack( const char* pstr );
     static BObjectImp* unpack( std::istream& is );
     virtual std::string pack() const;
+	static std::string pack( int val ); 
     virtual void packonto( std::ostream& os ) const;
     virtual unsigned int sizeEstimate() const; 
 

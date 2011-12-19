@@ -345,7 +345,7 @@ void Spellbook::send_book_old( Client *client )
 
 void send_spellbook_contents( Client *client, Spellbook& spellbook )
 {
-	PktOut_3C* msg = PktHelper::RequestPacket<PktOut_3C>(PKTOUT_3C_ID);
+	PktHelper::PacketOut<PktOut_3C> msg;
 	msg->offset+=4; //msglen+count
 	u16 count = 0;
 	for ( u16 i = 0; i < 64; ++i )
@@ -373,6 +373,5 @@ void send_spellbook_contents( Client *client, Spellbook& spellbook )
 	msg->offset=1;
 	msg->WriteFlipped(len);
 	msg->WriteFlipped(count);
-	ADDTOSENDQUEUE(client, &msg->buffer, len );
-	PktHelper::ReAddPacket(msg);
+	msg.Send(client, len );
 }

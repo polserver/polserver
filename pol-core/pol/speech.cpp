@@ -110,7 +110,7 @@ void handle_processed_speech( Client* client, char* textbuf, int textbuflen, cha
 	if (textlen > SPEECH_MAX_LEN+1)
 		textlen = SPEECH_MAX_LEN+1;
 
-	PktOut_1C* talkmsg = PktHelper::RequestPacket<PktOut_1C>(PKTOUT_1C_ID);
+	PktHelper::PacketOut<PktOut_1C> talkmsg;
 	talkmsg->offset+=2;
 	talkmsg->Write(client->chr->serial_ext);
 	talkmsg->WriteFlipped(client->chr->graphic);
@@ -122,9 +122,9 @@ void handle_processed_speech( Client* client, char* textbuf, int textbuflen, cha
 	u16 len=talkmsg->offset;
 	talkmsg->offset=1;
 	talkmsg->WriteFlipped(len);
-	transmit( client, &talkmsg->buffer, len );
+	talkmsg.Send(client, len );
 
-	PktOut_1C* ghostmsg = PktHelper::RequestPacket<PktOut_1C>(PKTOUT_1C_ID);
+	PktHelper::PacketOut<PktOut_1C> ghostmsg;
 	if (client->chr->dead() && !client->chr->can_be_heard_as_ghost())
     {
         memcpy( &ghostmsg->buffer, &talkmsg->buffer, sizeof ghostmsg->buffer );
@@ -167,11 +167,11 @@ void handle_processed_speech( Client* client, char* textbuf, int textbuflen, cha
                  client2->chr->can_hearghosts() ||
                  client->chr->can_be_heard_as_ghost() )
             {
-    			transmit( client2, &talkmsg->buffer, len );
+    			talkmsg.Send(client2, len );
             }
             else
             {
-                transmit( client2, &ghostmsg->buffer, len );
+                ghostmsg.Send( client2, len );
             }
         }
 	}
@@ -182,9 +182,6 @@ void handle_processed_speech( Client* client, char* textbuf, int textbuflen, cha
         for_nearby_npcs( ghost_pc_spoke, client->chr, textbuf, textbuflen, type );
     
     sayto_listening_points( client->chr, textbuf, textbuflen, type );
-
-	PktHelper::ReAddPacket(talkmsg);
-	PktHelper::ReAddPacket(ghostmsg);
 }
 
                               
@@ -266,8 +263,8 @@ void SendUnicodeSpeech(Client *client, PKTIN_AD *msgin, u16* wtext, size_t wtext
 		textcol = 1001;
 	}
 
-	PktOut_AE* ghostmsg = PktHelper::RequestPacket<PktOut_AE>(PKTOUT_AE_ID);
-	PktOut_AE* talkmsg = PktHelper::RequestPacket<PktOut_AE>(PKTOUT_AE_ID);
+	PktHelper::PacketOut<PktOut_AE> ghostmsg;
+	PktHelper::PacketOut<PktOut_AE> talkmsg;
 	talkmsg->offset+=2;
 	talkmsg->Write(client->chr->serial_ext);
 	talkmsg->WriteFlipped(client->chr->graphic);
@@ -280,7 +277,7 @@ void SendUnicodeSpeech(Client *client, PKTIN_AD *msgin, u16* wtext, size_t wtext
 	u16 len=talkmsg->offset;
 	talkmsg->offset=1;
 	talkmsg->WriteFlipped(len);
-	transmit( client, &talkmsg->buffer, len ); // self
+	talkmsg.Send(client, len); // self
 
 	if (client->chr->dead() && !client->chr->can_be_heard_as_ghost())
 	{
@@ -326,16 +323,14 @@ void SendUnicodeSpeech(Client *client, PKTIN_AD *msgin, u16* wtext, size_t wtext
 				client2->chr->can_hearghosts() ||
                 client->chr->can_be_heard_as_ghost() )
 			{
-    			transmit( client2, &talkmsg->buffer, len );
+    			talkmsg.Send(client2, len );
 			}
 			else
 			{
-                transmit( client2, &ghostmsg->buffer, len );
+                ghostmsg.Send( client2, len );
 			}
 		}
 	}
-	PktHelper::ReAddPacket(talkmsg);
-	PktHelper::ReAddPacket(ghostmsg);
 
     if (!client->chr->dead())
 		for_nearby_npcs( pc_spoke, client->chr, ntext, ntextlen, msgin->type,

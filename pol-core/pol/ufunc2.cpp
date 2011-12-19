@@ -32,7 +32,7 @@ bool send_menu( Client *client, Menu *menu )
 	if (menu->menuitems_.size() > 255)
         return false;
 
-	PktOut_7C* msg = PktHelper::RequestPacket<PktOut_7C>(PKTOUT_7C_ID);
+	PktHelper::PacketOut<PktOut_7C> msg;
 	msg->offset+=2;
 	msg->offset+=4; //used_item_serial
 	msg->WriteFlipped(menu->menu_id);
@@ -47,7 +47,6 @@ bool send_menu( Client *client, Menu *menu )
 	{
 		if (msg->offset + 85 > static_cast<u16>(sizeof msg->buffer))
 		{
-			PktHelper::ReAddPacket(msg);        
             return false;
 		}
 		MenuItem* mi = &menu->menuitems_[ idx ];
@@ -62,8 +61,7 @@ bool send_menu( Client *client, Menu *menu )
 	u16 len = msg->offset;
 	msg->offset = 1;
 	msg->WriteFlipped(len);
-	transmit( client, &msg->buffer, len );
-	PktHelper::ReAddPacket(msg);
+	msg.Send(client, len);
     return true;
 }
 
@@ -144,23 +142,21 @@ void for_nearby_npcs( void (*f)(NPC& npc, Character *chr, const char *text, int 
 
 void send_open_gump( Client *client, const UContainer& cont )
 {
-	PktOut_24* msg = PktHelper::RequestPacket<PktOut_24>(PKTOUT_24_ID);
+	PktHelper::PacketOut<PktOut_24> msg;
 	msg->Write(cont.serial_ext);
 	msg->WriteFlipped(cont.gump());
 	if (client->ClientType & CLIENTTYPE_7090)
 		msg->WriteFlipped(static_cast<u16>(0x7D));
-	transmit( client, &msg->buffer, msg->offset );
-	PktHelper::ReAddPacket(msg);
+	msg.Send(client);
 }
 
 //dave changed 11/9/3, don't send invis items to those who can't see invis
 void send_container_contents( Client *client, const UContainer& cont, bool show_invis )
 {
-	PktOut_3C* msg = PktHelper::RequestPacket<PktOut_3C>(PKTOUT_3C_ID);
+	PktHelper::PacketOut<PktOut_3C> msg;
 	msg->offset+=4; //msglen+count
 	u16 count = 0;
-	UContainer::const_iterator itr = cont.begin();
-	for( ; itr != cont.end(); ++itr )
+	for(UContainer::const_iterator itr = cont.begin(), itrend=cont.end() ; itr != itrend; ++itr )
 	{
 		const Item* item = GET_ITEM_PTR( itr );
 		if ( show_invis || (!item->invisible() || client->chr->can_seeinvisitems()) )
@@ -186,14 +182,12 @@ void send_container_contents( Client *client, const UContainer& cont, bool show_
 	msg->offset=1;
 	msg->WriteFlipped(len);
 	msg->WriteFlipped(count);
-	ADDTOSENDQUEUE(client, &msg->buffer, len );
-	PktHelper::ReAddPacket(msg);
+	msg.Send(client,len);
 
 	if(client->UOExpansionFlag & AOS)
 	{
 		// 07/11/09 Turley: moved to bottom first the client needs to know the item then we can send revision
-		UContainer::const_iterator itr = cont.begin();
-		for( ; itr != cont.end(); ++itr )
+		for(UContainer::const_iterator itr = cont.begin(), itrend=cont.end() ; itr != itrend; ++itr )
 		{
 			const Item* item = GET_ITEM_PTR( itr );
 		    if ( show_invis || (!item->invisible() || client->chr->can_seeinvisitems()) )
