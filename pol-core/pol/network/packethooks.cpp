@@ -201,6 +201,8 @@ void CallOutgoingPacketExportedFunction(Client* client, const void*& data, int& 
         return;
     }
 
+	if (needslock)
+		polsem_lock();
     //This packet has fixed length
     if(phd->length != 0)
     {
@@ -213,8 +215,6 @@ void CallOutgoingPacketExportedFunction(Client* client, const void*& data, int& 
 		else
 			calling_ref = client->make_ref();
 
-		if (needslock)
-			polsem_lock();
 		if( phd->outgoing_function->call(calling_ref , outpacket.get()) == 0 )
         {
             data = static_cast<void*>(&outpacket->buffer[0]);
@@ -224,8 +224,6 @@ void CallOutgoingPacketExportedFunction(Client* client, const void*& data, int& 
         }
         else
             handled = true;
-		if (needslock)
-			polsem_unlock();
     }
     else //packet is variable length
     {
@@ -240,8 +238,6 @@ void CallOutgoingPacketExportedFunction(Client* client, const void*& data, int& 
 		else
 			calling_ref = client->make_ref();
 
-		if (needslock)
-			polsem_lock();
 		if( phd->outgoing_function->call(calling_ref ,outpacket.get()) == 0 )
         {
             //the buffer size may have changed in the script, make sure the packet gets the right size
@@ -256,9 +252,9 @@ void CallOutgoingPacketExportedFunction(Client* client, const void*& data, int& 
         }
         else
 			handled = true;
-		if (needslock)
-			polsem_unlock();
 	}
+	if (needslock)
+		polsem_unlock();
 }
 
 void load_packet_entries( const Package* pkg, ConfigElem& elem )

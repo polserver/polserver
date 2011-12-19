@@ -109,7 +109,7 @@ void remove_objects_inrange( Client* client )
 {
     Character* chr = client->chr;
     unsigned short wxL, wyL, wxH, wyH;
-	PktOut_1D* msgremove = PktHelper::RequestPacket<PktOut_1D>(PKTOUT_1D_ID);
+	PktHelper::PacketOut<PktOut_1D> msgremove;
 	zone_convert_clip( chr->x - RANGE_VISUAL_LARGE_BUILDINGS, chr->y - RANGE_VISUAL_LARGE_BUILDINGS, chr->realm, wxL, wyL );
     zone_convert_clip( chr->x + RANGE_VISUAL_LARGE_BUILDINGS, chr->y + RANGE_VISUAL_LARGE_BUILDINGS, chr->realm, wxH, wyH );
     for( unsigned short wx = wxL; wx <= wxH; ++wx )
@@ -120,7 +120,7 @@ void remove_objects_inrange( Client* client )
             for( ZoneMultis::iterator itr = wmulti.begin(), end = wmulti.end(); itr != end; ++itr )
             {
                 UMulti* multi = *itr;
-				send_remove_object( client, static_cast<const Item*>(multi), msgremove );
+				send_remove_object( client, static_cast<const Item*>(multi), msgremove.Get() );
             }
         }
     }
@@ -135,7 +135,7 @@ void remove_objects_inrange( Client* client )
             for( ZoneCharacters::iterator itr = wchr.begin(), end = wchr.end(); itr != end; ++itr )
             {
                 Character* chr = *itr;
-				send_remove_character( client, chr, msgremove );
+				send_remove_character( client, chr, msgremove.Get() );
             }
 
 
@@ -143,11 +143,10 @@ void remove_objects_inrange( Client* client )
             for( ZoneItems::iterator itr = witem.begin(), end = witem.end(); itr != end; ++itr )
             {
                 Item* item = *itr;
-				send_remove_object( client, item, msgremove );
+				send_remove_object( client, item, msgremove.Get() );
             }
         }
     }
-	PktHelper::ReAddPacket(msgremove);
 }
 
 void cancel_trade( Character* chr1 );
@@ -159,14 +158,13 @@ void handle_walk( Client *client, PKTIN_02 *msg02 )
 	{
 		//drop pkt if last request was denied, should fix the "client hopping"
 
-		/*PktOut_21* msg = PktHelper::RequestPacket<PktOut_21>(PKTOUT_21_ID);
+		/*PktHelper::PacketOut<PktOut_21> msg;
 		msg->Write(msg02->movenum);
 		msg->WriteFlipped(chr->x);
 		msg->WriteFlipped(chr->y);
 		msg->Write(chr->facing);
 		msg->Write(chr->z);
-		client->transmit( &msg->buffer, msg->offset );
-		PktHelper::ReAddPacket(msg);*/
+		msg.Send(client);*/
 
 		return;
 	}
@@ -189,11 +187,10 @@ void handle_walk( Client *client, PKTIN_02 *msg02 )
 				}
 			}
 			client->pause();
-			PktOut_22* msg = PktHelper::RequestPacket<PktOut_22>(PKTBI_22_APPROVED_ID);
+			PktHelper::PacketOut<PktOut_22> msg;
 			msg->Write(msg02->movenum);
 			msg->Write(client->chr->hilite_color_idx( client->chr ));
-			ADDTOSENDQUEUE(client, &msg->buffer, msg->offset );
-			PktHelper::ReAddPacket(msg);
+			msg.Send(client);
 
 			client->movementsequence = msg02->movenum;
 			if (client->movementsequence == 255)
@@ -222,15 +219,13 @@ void handle_walk( Client *client, PKTIN_02 *msg02 )
 		}
 		else
 		{
-			PktOut_21* msg = PktHelper::RequestPacket<PktOut_21>(PKTOUT_21_ID);
+			PktHelper::PacketOut<PktOut_21> msg;
 			msg->Write(msg02->movenum);
 			msg->WriteFlipped(chr->x);
 			msg->WriteFlipped(chr->y);
 			msg->Write(chr->facing);
 			msg->Write(chr->z);
-			ADDTOSENDQUEUE(client, &msg->buffer, msg->offset );
-			PktHelper::ReAddPacket(msg);
-
+			msg.Send(client);
 			client->movementsequence = 0;
 		}
 	}

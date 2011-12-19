@@ -89,7 +89,7 @@ void ClientInterface::tell_attribute_changed( Character* who, const Attribute* a
 
 void send_uo_hits( Client* client, Character* me, const Vital* vital )
 {
-	PktOut_A1* msg = PktHelper::RequestPacket<PktOut_A1>(PKTOUT_A1_ID);
+	PktHelper::PacketOut<PktOut_A1> msg;
 	msg->Write(me->serial_ext);
 	int v = me->vital( vital->vitalid ).maximum_ones();
 	if (v > 0xFFFF)
@@ -100,13 +100,12 @@ void send_uo_hits( Client* client, Character* me, const Vital* vital )
     if (v > 0xFFFF)
         v = 0xFFFF;
     msg->WriteFlipped(static_cast<u16>(v));
-    ADDTOSENDQUEUE(client, &msg->buffer, msg->offset );
-	PktHelper::ReAddPacket(msg);
+    msg.Send(client);
 }
 
 void send_uo_mana( Client* client, Character* me, const Vital* vital )
 {
-	PktOut_A2* msg = PktHelper::RequestPacket<PktOut_A2>(PKTOUT_A2_ID);
+	PktHelper::PacketOut<PktOut_A2> msg;
 	msg->Write(me->serial_ext);
 	int v = me->vital( vital->vitalid ).maximum_ones();
 	if (v > 0xFFFF)
@@ -117,8 +116,7 @@ void send_uo_mana( Client* client, Character* me, const Vital* vital )
 	if (v > 0xFFFF)
 		v = 0xFFFF;
 	msg->WriteFlipped(static_cast<u16>(v));
-	ADDTOSENDQUEUE(client, &msg->buffer, msg->offset );
-	PktHelper::ReAddPacket(msg);
+	msg.Send(client);
 
 	if (me->party() != NULL)
 		me->party()->on_mana_changed(me);
@@ -126,7 +124,7 @@ void send_uo_mana( Client* client, Character* me, const Vital* vital )
 
 void send_uo_stamina( Client* client, Character* me, const Vital* vital )
 {
-	PktOut_A3* msg = PktHelper::RequestPacket<PktOut_A3>(PKTOUT_A3_ID);
+	PktHelper::PacketOut<PktOut_A3> msg;
 	msg->Write(me->serial_ext);
 	int v = me->vital( vital->vitalid ).maximum_ones();
 	if (v > 0xFFFF)
@@ -137,8 +135,7 @@ void send_uo_stamina( Client* client, Character* me, const Vital* vital )
 	if (v > 0xFFFF)
 		v = 0xFFFF;
 	msg->WriteFlipped(static_cast<u16>(v));
-	ADDTOSENDQUEUE(client, &msg->buffer, msg->offset );
-	PktHelper::ReAddPacket(msg);
+	msg.Send(client);
 
 	if (me->party()!=NULL)
 		me->party()->on_stam_changed(me);
@@ -159,7 +156,7 @@ void send_uo_skill( Client* client, Character* me, const Attribute* attr )
 {
     ClientAttributeUpdaters& cau = client->Interface.attribute_updaters[ attr->attrid ];
 
-	PktOut_3A* msg = PktHelper::RequestPacket<PktOut_3A>(PKTBI_3A_ID);
+	PktHelper::PacketOut<PktOut_3A> msg;
 	msg->offset+=2;
 	if (!ssopt.core_sends_caps)
 		msg->Write(static_cast<u8>(PKTBI_3A_VALUES::SINGLE_SKILL));
@@ -175,8 +172,7 @@ void send_uo_skill( Client* client, Character* me, const Attribute* attr )
 	u16 len = msg->offset;
 	msg->offset=1;
 	msg->WriteFlipped(len);
-	ADDTOSENDQUEUE(client, &msg->buffer, len );
-	PktHelper::ReAddPacket(msg);
+	msg.Send(client, len);
 }
 void ClientInterface::Initialize()
 {
