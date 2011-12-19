@@ -70,10 +70,10 @@ void regen_stats(void)
 			{
 				bool any = false;
 				ZoneCharacters& wchr = realm->zone[wx][wy].characters;
-				ZoneCharacters::iterator itr = wchr.begin(), end = wchr.end();
-				for( ; itr != end; ++itr )
+				ZoneCharacters::iterator citr = wchr.begin(), end = wchr.end();
+				for( ; citr != end; ++citr )
 				{
-					Character* chr = *itr;
+					Character* chr = *citr;
 					any = true;
 					THREAD_CHECKPOINT( tasks, 402 );
 

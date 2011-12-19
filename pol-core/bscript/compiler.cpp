@@ -923,7 +923,7 @@ int Compiler::isFunc(Token& token, ModuleFunction **pmf)
 		}
 	}
 
-	if (candidates.size() == 0)
+	if (candidates.empty())
 	{
 		return 0;
 	}
@@ -1419,7 +1419,7 @@ int Compiler::getUserArgs( Expression& ex, CompilerContext& ctx, bool inject_jsr
 		if (res < 0) return res;
 		if (tk.id == TOK_RPAREN)
 		{
-			if ( params_passed.size() == 0)
+			if ( params_passed.empty())
 			{
 				break;
 			}
@@ -3108,8 +3108,8 @@ int Compiler::handleEnumDeclare( CompilerContext& ctx )
 		}
 		if (tmp.id == TOK_ASSIGN)
 		{
-			Token tmp;
-			getToken( ctx, tmp );
+			Token _tmp;
+			getToken( ctx, _tmp );
 			Expression ex;
 			   // FIXME doesn't work if expression is right before enum
 			if (readexpr( ex, ctx, EXPR_FLAG_COMMA_TERM_ALLOWED|EXPR_FLAG_ENDENUM_TERM_ALLOWED) != 1)
@@ -3117,10 +3117,10 @@ int Compiler::handleEnumDeclare( CompilerContext& ctx )
 				cout << "Error reading expression in enum declaration" << endl;
 				return -1;
 			}
-			if (!peekToken( ctx, tmp )) 
+			if (!peekToken( ctx, _tmp )) 
 			{	   // might be a comma, or an endenum
-				if (tmp.id == TOK_COMMA)
-					getToken( ctx, tmp );
+				if (_tmp.id == TOK_COMMA)
+					getToken( ctx, _tmp );
 			}
 			if (ex.tokens.size() != 1)
 			{
@@ -3240,8 +3240,8 @@ int Compiler::useModule( const char *modulename )
 		if (tk_dummy.id == RSV_CONST)
 		{
 			getToken( mod_ctx, tk_dummy );
-			int res = handleConstDeclare(mod_ctx);
-			if (res < 0)
+			int _res = handleConstDeclare(mod_ctx);
+			if (_res < 0)
 				break;
 			else
 				continue;
@@ -4701,11 +4701,11 @@ int Compiler::forward_read_function( CompilerContext& ctx )
 	const char *function_body_start = ctx.s;
 	while (ctx.s[0])
 	{
-		Token token;
-		res = getToken( ctx, token );
+		Token _token;
+		res = getToken( ctx, _token );
 		if (res < 0)
 			break;
-		if (token.id == RSV_ENDFUNCTION)
+		if (_token.id == RSV_ENDFUNCTION)
 		{
 			const char* function_body_end = ctx.s;
 			int len = function_body_end - function_body_start + 1;

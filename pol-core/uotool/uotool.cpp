@@ -386,7 +386,7 @@ int print_verdata_info()
 {
     open_uo_data_files();
     read_uo_data();
-    int num_version_records, i;
+    int num_version_records;
     USTRUCT_VERSION vrec;
 
     // FIXME: should read this once per run, per file.
@@ -399,7 +399,7 @@ int print_verdata_info()
     int inv_filecount = 0;
     memset( filecount, 0, sizeof filecount );
 
-    for (i = 0; i < num_version_records; i++)
+    for (int i = 0; i < num_version_records; i++)
     {
         fread(&vrec, sizeof vrec, 1, verfile);
         if (vrec.file < 32)

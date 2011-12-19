@@ -1151,19 +1151,19 @@ Item *find_legal_item( const Character *chr, u32 serial, bool* additlegal, bool*
             ZoneItems& witem = chr->realm->zone[wx][wy].items;
             for( ZoneItems::iterator itr = witem.begin(), end = witem.end(); itr != end; ++itr )
             {
-                Item* item = *itr;
-                if (!inrange( chr, item ))
+                Item* _item = *itr;
+                if (!inrange( chr, _item ))
                     continue;
-                if (item->serial == serial)
+                if (_item->serial == serial)
                 {
-                    passert_always( item->container == NULL );
-                    return item;
+                    passert_always( _item->container == NULL );
+                    return _item;
                 }
-                if (item->isa(UObject::CLASS_CONTAINER))
+                if (_item->isa(UObject::CLASS_CONTAINER))
                 {
-                    item = ((UContainer *) item)->find( serial );
-                    if (item != NULL) 
-                        return item;
+                    _item = ((UContainer *) _item)->find( serial );
+                    if (_item != NULL) 
+                        return _item;
                 }
             }
         }

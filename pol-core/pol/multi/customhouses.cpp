@@ -405,12 +405,12 @@ void CustomHouseDesign::readProperties( ConfigElem& elem, const string& prefix  
         is >> y;
         is >> z;
         
-        CUSTOM_HOUSE_ELEMENT elem;
-        elem.graphic = graphic;
-        elem.xoffset = x;
-        elem.yoffset = y;
-        elem.z = (u8)z;
-        Add(elem);
+        CUSTOM_HOUSE_ELEMENT _elem;
+        _elem.graphic = graphic;
+        _elem.xoffset = x;
+        _elem.yoffset = y;
+        _elem.z = (u8)z;
+        Add(_elem);
     }
 }
 

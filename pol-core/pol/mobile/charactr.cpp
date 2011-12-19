@@ -1131,10 +1131,10 @@ void Character::readCommonProperties( ConfigElem& elem )
 	while (elem.remove_prop( "REPORTABLE", &rt ))
 	{
 		ISTRINGSTREAM is(rt);
-		reportable_t rt;
-		if (is >> rt.serial >> rt.polclock)
+		reportable_t rt_t;
+		if (is >> rt_t.serial >> rt_t.polclock)
 		{
-			reportable_.insert(rt);
+			reportable_.insert(rt_t);
 		}
 	}
 
@@ -1456,10 +1456,10 @@ UContainer* Character::backpack() const
 
 Spellbook* Character::spellbook(u8 school) const
 {
-	Item* item = wornitem( LAYER_HAND1 );
-	if (item != NULL && item->script_isa(POLCLASS_SPELLBOOK) )
+	Item* _item = wornitem( LAYER_HAND1 );
+	if (_item != NULL && _item->script_isa(POLCLASS_SPELLBOOK) )
 	{
-		Spellbook* book = static_cast<Spellbook*>(item);
+		Spellbook* book = static_cast<Spellbook*>(_item);
 		if(book->spell_school == school)
 			return book;
 	}

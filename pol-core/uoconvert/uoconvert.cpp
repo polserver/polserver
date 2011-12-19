@@ -866,11 +866,11 @@ void ProcessSolidBlock( unsigned short x_base, unsigned short y_base, MapWriter&
                     //for wall flag - map tile always height 0, at bottom. if map tile has height, add it as a static
                     if(srec.height != 0)
                     {
-                        MapShape shape;
-                        shape.z = srec.z;
-                        shape.height = srec.height;
-                        shape.flags = polflags;
-                        shapes.push_back( shape );
+                        MapShape _shape;
+                        _shape.z = srec.z;
+                        _shape.height = srec.height;
+                        _shape.flags = polflags;
+                        shapes.push_back( _shape );
 
                     }
                     continue;
@@ -1001,20 +1001,20 @@ void ProcessSolidBlock( unsigned short x_base, unsigned short y_base, MapWriter&
                 for( int j = 0; j < count; ++j )
                 {
                     MapShape shape = shapes[j];
-                    char z, height, flags;
-                    z = static_cast<char>(shapes[j].z);
+                    char _z, height, flags;
+                    _z = static_cast<char>(shapes[j].z);
                     height = static_cast<char>(shape.height);
                     flags = static_cast<u8>(shape.flags);
                     if (!height)//make 0 height solid
                     {
-                        --z;
+                        --_z;
                         ++height;
                     }
 
                     if (j != count-1)
                         flags |= FLAG::MORE_SOLIDS;
                     SOLIDS_ELEM solid;
-                    solid.z = z;
+                    solid.z = _z;
                     solid.height = height;
                     solid.flags = flags;
                     mapwriter.AppendSolid( solid );
