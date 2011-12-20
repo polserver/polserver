@@ -1548,7 +1548,7 @@ void Executor::ins_array_assign( const Instruction& ins )
     BObjectImp* result;
     
 
-    if (y.count() == 1 && y_ref->count() == 1)
+    if (y.count() == 1)// && y_ref->count() == 1)
     {
         result = x->array_assign( i.impptr(), y.impptr() );
     }
@@ -1584,7 +1584,7 @@ void Executor::ins_array_assign_consume( const Instruction& ins )
     BObjectImp* result;
     
 
-    if (y.count() == 1 && y_ref->count() == 1)
+    if (y.count() == 1)// && y_ref->count() == 1)
     {
         result = x->array_assign( i.impptr(), y.impptr() );
     }
