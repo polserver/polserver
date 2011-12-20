@@ -74,7 +74,7 @@ void Realm::standheight( MOVEMODE movemode,
     short newz = -200;
 
     // first check only possible walkon shapes and build a list
-    for( MapShapeList::const_iterator itr = shapes.begin(); itr != shapes.end(); ++itr )
+    for( MapShapeList::const_iterator itr = shapes.begin(), itrend=shapes.end(); itr != itrend; ++itr )
     {
         const MapShape& shape = (*itr);
         unsigned int flags = shape.flags;
@@ -121,12 +121,12 @@ void Realm::standheight( MOVEMODE movemode,
     if (!possible_shapes.empty())
     {
         // loop through all possible shapes and test if other shape blocks
-        for (MapShapeList::const_iterator pos_itr=possible_shapes.begin(); pos_itr != possible_shapes.end(); ++pos_itr)
+        for (MapShapeList::const_iterator pos_itr=possible_shapes.begin(), pos_itr_end=possible_shapes.end(); pos_itr != pos_itr_end; ++pos_itr)
         {
             bool result = true;
             const MapShape& pos_shape = (*pos_itr);
             newz = pos_shape.z + pos_shape.height;
-            for( MapShapeList::const_iterator itr = shapes.begin(); itr != shapes.end(); ++itr )
+            for( MapShapeList::const_iterator itr = shapes.begin(), itrend= shapes.end(); itr != itrend; ++itr )
             {
                 const MapShape& shape = (*itr);
                 if ((shape.flags & (FLAG::MOVELAND|FLAG::MOVESEA|FLAG::BLOCKING)) == 0)
@@ -210,7 +210,7 @@ void Realm::lowest_standheight( MOVEMODE movemode,
     short newz = 255;
     bool result = false;
 
-    for( MapShapeList::const_iterator itr = shapes.begin(); itr != shapes.end(); ++itr )
+    for( MapShapeList::const_iterator itr = shapes.begin(), itrend=shapes.end(); itr != itrend; ++itr )
     {
         const MapShape& shape = (*itr);
         unsigned int flags = shape.flags;
@@ -239,7 +239,7 @@ void Realm::lowest_standheight( MOVEMODE movemode,
 #endif
 				bool valid = true;
 				// validate that its actually standable
-				for( MapShapeList::const_iterator itrCheck = shapes.begin(); itrCheck != shapes.end(); ++itrCheck )
+				for( MapShapeList::const_iterator itrCheck = shapes.begin(), itrCheckend = shapes.end(); itrCheck != itrCheckend; ++itrCheck )
 				{
 					const MapShape& shapeCheck = (*itrCheck);
 					if ((shapeCheck.flags & (FLAG::MOVELAND|FLAG::MOVESEA|FLAG::BLOCKING)) == 0)
@@ -296,7 +296,7 @@ unsigned char flags_from_tileflags( unsigned int uoflags );
 void Realm::readdynamics( MapShapeList& vec, unsigned short x, unsigned short y, Items& walkon_items, bool doors_block )
 {
     ZoneItems& witems = getzone(x,y,this).items;
-    for (ZoneItems::const_iterator itr = witems.begin(); itr != witems.end(); ++itr )
+    for (ZoneItems::const_iterator itr = witems.begin(), itrend = witems.end(); itr != itrend; ++itr )
 	{
 		Item *item = *itr;
 		if ((item->x == x) && (item->y == y))
@@ -559,7 +559,7 @@ bool Realm::dropheight( MapShapeList& shapes,
     short z = -128;
     bool result = false;
 
-    for( MapShapeList::const_iterator itr = shapes.begin(); itr != shapes.end(); ++itr )
+    for( MapShapeList::const_iterator itr = shapes.begin(), itrend = shapes.end(); itr != itrend; ++itr )
     {
         const MapShape& shape = (*itr);
         unsigned int flags = shape.flags;
@@ -592,7 +592,7 @@ bool Realm::dropheight( MapShapeList& shapes,
     
     if (result)
     {
-        for( MapShapeList::const_iterator itr = shapes.begin(); itr != shapes.end(); ++itr )
+        for( MapShapeList::const_iterator itr = shapes.begin(), itrend = shapes.end(); itr != itrend; ++itr )
         {
             const MapShape& shape = (*itr);
             if (shape.flags & FLAG::BLOCKING)
@@ -738,7 +738,7 @@ bool Realm::navigable( unsigned short x, unsigned short y, short z, short height
     // possible: readdynamic, readmultis
     getmapshapes( shapes, x, y, FLAG::ALL );
 
-    for( MapShapeList::const_iterator itr = shapes.begin(); itr != shapes.end(); ++itr )
+    for( MapShapeList::const_iterator itr = shapes.begin(), itrend = shapes.end(); itr != itrend; ++itr )
     {
         const MapShape& shape = (*itr);
         if (shape.flags & FLAG::MOVESEA)
