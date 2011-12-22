@@ -3566,7 +3566,7 @@ void Character::check_justice_region_change()
 
 		client->gd->justice_region = new_justice_region;
 
-		if(new_justice_region->RunNoCombatCheck(client) == true )
+		if(new_justice_region && new_justice_region->RunNoCombatCheck(client) == true )
 		{	
 			Character* opp2 = get_opponent();
 			if( (opp2 != NULL &&

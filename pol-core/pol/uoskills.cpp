@@ -36,7 +36,7 @@ UOSkill::UOSkill( const Package* pkg, ConfigElem& elem ) :
     pAttr(NULL),
     pkg(pkg)
 {
-    if (skillid < 0 || skillid >= 500)
+    if (skillid >= 500)
         elem.throw_error( "SkillID must be < 500" );
 
     if (!attributename.empty())

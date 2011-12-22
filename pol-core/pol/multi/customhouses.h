@@ -35,10 +35,10 @@ enum{
 
 struct CUSTOM_HOUSE_ELEMENT
 {
+	u8 z;
     u16 graphic;
     s32 xoffset;
     s32 yoffset;
-    u8 z;
 };
 
 typedef vector<vector<list<CUSTOM_HOUSE_ELEMENT> > > HouseFloor;//vector of N-S rows
@@ -122,7 +122,7 @@ public:
     //assumes x,y already added with xoff and yoff
     inline bool ValidLocation( u32 xidx, u32 yidx )
     {
-        return !(xidx >= width || yidx >= height || xidx < 0 || yidx < 0);
+        return !(xidx >= width || yidx >= height);
     }
 
     static bool IsStair( u16 id, int& dir );

@@ -58,7 +58,7 @@ void Realm::standheight( MOVEMODE movemode,
                   short oldz, 
                   bool* result_out, short * newz_out, short* gradual_boost ) const
 {
-    static MapShapeList possible_shapes;
+	static vector<const MapShape*> possible_shapes;
 	possible_shapes.clear();
     bool land_ok = (movemode & MOVEMODE_LAND) ? true : false;
     bool sea_ok  = (movemode & MOVEMODE_SEA) ? true : false;
@@ -99,12 +99,7 @@ void Realm::standheight( MOVEMODE movemode,
 #if ENABLE_POLTEST_OUTPUT
                 if (static_debug_on) cout << "Setting Z to " << int(ztemp) << endl;
 #endif
-
-                MapShape pos_shape; // add it to the possible list
-                pos_shape.z = shape.z;
-                pos_shape.height = shape.height;
-                pos_shape.flags = shape.flags;
-                possible_shapes.push_back( pos_shape );
+                possible_shapes.push_back( &shape);
                 newz = ztop;
             }
         }
@@ -121,11 +116,11 @@ void Realm::standheight( MOVEMODE movemode,
     if (!possible_shapes.empty())
     {
         // loop through all possible shapes and test if other shape blocks
-        for (MapShapeList::const_iterator pos_itr=possible_shapes.begin(), pos_itr_end=possible_shapes.end(); pos_itr != pos_itr_end; ++pos_itr)
+        for (vector<const MapShape*>::const_iterator pos_itr=possible_shapes.begin(), pos_itr_end=possible_shapes.end(); pos_itr != pos_itr_end; ++pos_itr)
         {
             bool result = true;
-            const MapShape& pos_shape = (*pos_itr);
-            newz = pos_shape.z + pos_shape.height;
+            const MapShape* pos_shape = (*pos_itr);
+            newz = pos_shape->z + pos_shape->height;
             for( MapShapeList::const_iterator itr = shapes.begin(), itrend= shapes.end(); itr != itrend; ++itr )
             {
                 const MapShape& shape = (*itr);
@@ -163,8 +158,8 @@ void Realm::standheight( MOVEMODE movemode,
                     continue;
                 ret_result=true;
                 ret_newz=newz;
-                if (pos_shape.flags & FLAG::GRADUAL)
-                    new_boost = pos_shape.height;
+                if (pos_shape->flags & FLAG::GRADUAL)
+                    new_boost = pos_shape->height;
             }
         }
     }
@@ -350,9 +345,9 @@ bool Realm::walkheight(unsigned short x, unsigned short y, short oldz,
     readmultis( shapes, x, y, flags, mvec );
 	getmapshapes( shapes, x, y, flags );
 
-    bool result;
-    standheight(movemode, shapes, oldz, 
-                &result, newz, gradual_boost);
+	bool result;
+	standheight(movemode, shapes, oldz, 
+					&result, newz, gradual_boost);
 
     if (result && (pwalkon != NULL))
     {
@@ -406,7 +401,7 @@ bool Realm::walkheight( const Character* chr, unsigned short x, unsigned short y
     getmapshapes( shapes, x, y, flags );
 
     bool result;
-    standheight(chr->movemode, shapes, oldz, 
+	standheight(chr->movemode, shapes, oldz, 
                 &result, newz, gradual_boost);
 
     if (result && (pwalkon != NULL))
