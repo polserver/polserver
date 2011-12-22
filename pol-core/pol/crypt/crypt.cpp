@@ -76,7 +76,7 @@ void CCryptBlowfish::Decrypt(void *pvIn, void *pvOut, int len)
 
 	if(m_type == CCryptBase::typeAuto)
 	{
-		if(((*pIn ^ (unsigned char)lcrypt.lkey[0])) == CRYPT_AUTO_VALUE) m_type = CCryptBase::typeLogin;
+		if((*pIn ^ (unsigned char)lcrypt.lkey[0]) == CRYPT_AUTO_VALUE) m_type = CCryptBase::typeLogin;
 		else m_type = CCryptBase::typeGame;
 	}
 
@@ -112,7 +112,7 @@ void CCryptBlowfishOld::Decrypt(void *pvIn, void *pvOut, int len)
 
 	if(m_type == CCryptBase::typeAuto)
 	{
-		if(((*pIn ^ (unsigned char)lcrypt.lkey[0])) == CRYPT_AUTO_VALUE) m_type = CCryptBase::typeLogin;
+		if((*pIn ^ (unsigned char)lcrypt.lkey[0]) == CRYPT_AUTO_VALUE) m_type = CCryptBase::typeLogin;
 		else m_type = CCryptBase::typeGame;
 	}
 
@@ -148,7 +148,7 @@ void CCrypt12536::Decrypt(void *pvIn, void *pvOut, int len)
 
 	if(m_type == CCryptBase::typeAuto)
 	{
-		if(((*pIn ^ (unsigned char)lcrypt.lkey[0])) == CRYPT_AUTO_VALUE) m_type = CCryptBase::typeLogin;
+		if((*pIn ^ (unsigned char)lcrypt.lkey[0]) == CRYPT_AUTO_VALUE) m_type = CCryptBase::typeLogin;
 		else m_type = CCryptBase::typeGame;
 	}
 
@@ -214,7 +214,7 @@ void CCryptBlowfishTwofish::Decrypt(void *pvIn, void *pvOut, int len)
 
 	if(m_type == CCryptBase::typeAuto)
 	{
-		if(((*pIn ^ (unsigned char)lcrypt.lkey[0])) == CRYPT_AUTO_VALUE) m_type = CCryptBase::typeLogin;
+		if((*pIn ^ (unsigned char)lcrypt.lkey[0]) == CRYPT_AUTO_VALUE) m_type = CCryptBase::typeLogin;
 		else m_type = CCryptBase::typeGame;
 	}
 
@@ -289,7 +289,7 @@ void CCryptTwofish::Decrypt(void *pvIn, void *pvOut, int len)
 
 	if(m_type == CCryptBase::typeAuto)
 	{
-		if(((*pIn ^ (unsigned char)lcrypt.lkey[0])) == CRYPT_AUTO_VALUE) m_type = CCryptBase::typeLogin;
+		if ((*pIn ^ (unsigned char)lcrypt.lkey[0]) == CRYPT_AUTO_VALUE) m_type = CCryptBase::typeLogin;
 		else m_type = CCryptBase::typeGame;
 	}
 

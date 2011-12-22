@@ -58,8 +58,8 @@ class UoClientListener
 public:
     UoClientListener( ConfigElem& elem );
 
-    unsigned short port;
     TCryptInfo encryption;
+	unsigned short port;
 	bool aosresist;
 };
 

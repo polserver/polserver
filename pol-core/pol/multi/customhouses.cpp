@@ -684,7 +684,7 @@ void CustomHousesErase(PKTBI_D7* msg)
 
 	u32 realx = x + house->WorkingDesign.xoff;
 	u32 realy = y + house->WorkingDesign.yoff;
-	if( z == 0 && realx >= 0 && realx < house->WorkingDesign.width && realy >= 0 && realy < (house->WorkingDesign.height - 1) )
+	if( z == 0 && realx < house->WorkingDesign.width && realy < (house->WorkingDesign.height - 1) )
 	{
 		Character* chr = find_character(serial);
 		if(chr && chr->client)

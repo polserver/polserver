@@ -19,14 +19,14 @@ Notes
 
 struct StaticRec 
 {
+	unsigned int flags;
     unsigned short graphic;
     signed char z;
-    unsigned int flags;
     char height;
     
-    StaticRec( unsigned short graphic, signed char z ) : graphic(graphic),z(z), flags(tile_uoflags(graphic)),height(tileheight(graphic)) {}
+    StaticRec( unsigned short graphic, signed char z ) : flags(tile_uoflags(graphic)), graphic(graphic), z(z), height(tileheight(graphic)) {}
     StaticRec( unsigned short graphic, signed char z, unsigned int flags, char height ) : 
-        graphic(graphic),z(z), flags(flags),height(height) {}
+        flags(flags), graphic(graphic), z(z), height(height) {}
 };
 
 typedef std::vector<StaticRec> StaticList;

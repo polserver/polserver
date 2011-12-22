@@ -35,27 +35,21 @@ class Token
   public:
     BTokenId id;
     BTokenType type;
-    unsigned char module;
-
+	double dval;
     union {
        int precedence;
        int sourceFile;
     };
-
-	bool deprecated;
-
     int ownsStr;
-    double dval;
-    
+	int dbg_filenum;
+	int dbg_linenum;
     union {
         int lval;
         const unsigned char* dataptr;
     };
-
 	UserFunction *userfunc;
-
-    int dbg_filenum;
-    int dbg_linenum;
+	bool deprecated;
+	unsigned char module;
 
     static unsigned int instances();
     static void show_instances();
