@@ -77,8 +77,11 @@ BObjectImp* UOExecutorModule::internal_MoveCharacter(Character* chr, xcoord x, y
 
 	if ( !(flags & MOVEITEM_FORCELOCATION) )
 	{
-		if( !newrealm->walkheight(x, y, z, &newz, &supporting_multi, &walkon_item, true, chr->movemode) )
-			return new BError("Can't go there");
+		if (newrealm != NULL)
+		{
+			if( !newrealm->walkheight(x, y, z, &newz, &supporting_multi, &walkon_item, true, chr->movemode) )
+				return new BError("Can't go there");
+		}
 	}
 	Realm* oldrealm = chr->realm;
 	

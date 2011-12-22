@@ -120,12 +120,11 @@ LONG HiddenMiniDumper::TopLevelFilter( struct _EXCEPTION_POINTERS *pExceptionInf
 	LONG retval = EXCEPTION_CONTINUE_SEARCH;
 	char szDumpPath[_MAX_PATH];
 	char* szResult = NULL;
+	char szScratch [_MAX_PATH];
 
 	MINIDUMPWRITEDUMP pDump = (MINIDUMPWRITEDUMP)::GetProcAddress( hDbgHelpDll, "MiniDumpWriteDump" );
 	if (pDump)
 	{
-		char szScratch [_MAX_PATH];
-
         strcpy( szDumpPath, progverstr );
         strcat( szDumpPath, "-" );
         strcat( szDumpPath, _StartTimestamp );

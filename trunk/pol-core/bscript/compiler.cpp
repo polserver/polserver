@@ -62,14 +62,13 @@ int Compiler::verbosity_level_;
 
 extern int include_debug;
 
-string getpathof( const string fname )
+string getpathof( const string& fname )
 {
-	string tmp = fname;
-	string::size_type pos = tmp.find_last_of( "\\/") ;
+	string::size_type pos = fname.find_last_of( "\\/") ;
 	if (pos == string::npos)
 		return "./";
 	else
-		return tmp.substr( 0, pos+1 );
+		return fname.substr( 0, pos+1 );
 }
 
 

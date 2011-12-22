@@ -484,7 +484,7 @@ void handle_delete_character( Client* client, PKTIN_83* msg )
 {
     u32 charidx = cfBEu32( msg->charidx );
 
-	if ((charidx < 0) || (charidx >= config.character_slots) ||
+	if ((charidx >= config.character_slots) ||
 		(client->acct == NULL) ||
         (client->acct->get_character( charidx ) == NULL))
 	{

@@ -66,8 +66,8 @@ u32 GetSubCmd(const unsigned char* message, PacketHookData* phd)
         return *(reinterpret_cast<const u8*>(&message[phd->sub_command_offset]));
     else if(phd->sub_command_length == 2)
         return cfBEu16(*(reinterpret_cast<const u16*>(&message[phd->sub_command_offset])));
-    else if(phd->sub_command_length == 4)
-        return cfBEu32(*(reinterpret_cast<const u32*>(&message[phd->sub_command_offset])));
+    //else if(phd->sub_command_length == 4)
+    //    return cfBEu32(*(reinterpret_cast<const u32*>(&message[phd->sub_command_offset])));
     else
         return cfBEu32(*(reinterpret_cast<const u32*>(&message[phd->sub_command_offset])));
 
@@ -163,46 +163,10 @@ void ExportedPacketHookHandler(Client* client, void* data)
     }
 }
 
-void CallOutgoingPacketExportedFunction(Client* client, const void*& data, int& inlength, ref_ptr<BPacket>& outpacket, bool& handled, bool needslock)
+
+void CallOutgoingPacketExportedFunction(Client* client, const void*& data, int& inlength, ref_ptr<BPacket>& outpacket, PacketHookData* phd, bool& handled)
 {
-    //find the script handler data
-    bool subcmd_handler_exists = false;
-    const unsigned char* message = static_cast<const unsigned char*>(data);
-	PacketHookData* phd = &(packet_hook_data_v2.at(message[0]));
-	if ( phd->version == 2 )
-	{
-		if ( !CompareVersionDetail(client->getversiondetail(), phd->client_ver) )
-		{
-			phd = &(packet_hook_data.at(message[0]));
-		}
-	}
-	else
-	{
-		phd = &(packet_hook_data.at(message[0]));
-	}
-
-	if(!phd->SubCommands.empty())
-    {
-        u32 subcmd = GetSubCmd(message, phd);//cfBEu16(*(reinterpret_cast<const u16*>(&message[phd->sub_command_offset])));
-        map<u32,PacketHookData*>::iterator itr;
-        itr = phd->SubCommands.find(subcmd);
-        if(itr != phd->SubCommands.end())
-        {
-            if(itr->second->outgoing_function != NULL)
-            {
-                phd = itr->second;
-                subcmd_handler_exists = true;
-            }
-        }
-	}
-    if(phd->outgoing_function == NULL && !subcmd_handler_exists)
-    {
-        handled = false;
-        return;
-    }
-
-	if (needslock)
-		polsem_lock();
+	const unsigned char* message = static_cast<const unsigned char*>(data);
     //This packet has fixed length
     if(phd->length != 0)
     {
@@ -253,8 +217,45 @@ void CallOutgoingPacketExportedFunction(Client* client, const void*& data, int& 
         else
 			handled = true;
 	}
-	if (needslock)
-		polsem_unlock();
+}
+
+bool GetAndCheckPacketHooked(Client* client,const void*& data, PacketHookData*& phd)
+{
+	//find the script handler data
+	bool subcmd_handler_exists = false;
+	const unsigned char* message = static_cast<const unsigned char*>(data);
+	phd = &(packet_hook_data_v2.at(message[0]));
+	if ( phd->version == 2 )
+	{
+		if ( !CompareVersionDetail(client->getversiondetail(), phd->client_ver) )
+		{
+			phd = &(packet_hook_data.at(message[0]));
+		}
+	}
+	else
+	{
+		phd = &(packet_hook_data.at(message[0]));
+	}
+
+	if(!phd->SubCommands.empty())
+	{
+		u32 subcmd = GetSubCmd(message, phd);//cfBEu16(*(reinterpret_cast<const u16*>(&message[phd->sub_command_offset])));
+		map<u32,PacketHookData*>::iterator itr;
+		itr = phd->SubCommands.find(subcmd);
+		if(itr != phd->SubCommands.end())
+		{
+			if(itr->second->outgoing_function != NULL)
+			{
+				phd = itr->second;
+				subcmd_handler_exists = true;
+			}
+		}
+	}
+	if(phd->outgoing_function == NULL && !subcmd_handler_exists)
+	{
+		return false;
+	}
+	return true;
 }
 
 void load_packet_entries( const Package* pkg, ConfigElem& elem )
@@ -264,8 +265,8 @@ void load_packet_entries( const Package* pkg, ConfigElem& elem )
     string lengthstr;
     int length = 0;
 
-	unsigned short pktversion = 1;
-	string client_string = "1.25.25.0";
+	unsigned short pktversion;
+	string client_string;
 	VersionDetailStruct client_struct;
 
     ExportedFunction* exfunc = (ExportedFunction*) NULL;
@@ -397,8 +398,8 @@ void load_subpacket_entries( const Package* pkg, ConfigElem& elem )
     ExportedFunction* exfunc = (ExportedFunction*) NULL;
     ExportedFunction* exoutfunc = (ExportedFunction*) NULL;
 
-	unsigned short pktversion = 1;
-	string client_string = "1.25.25.0";
+	unsigned short pktversion;
+	string client_string;
 	VersionDetailStruct client_struct;
 
     if(elem.has_prop("ReceiveFunction"))

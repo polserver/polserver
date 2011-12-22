@@ -3800,7 +3800,9 @@ BObjectImp* UOExecutorModule::mf_MoveItemToSecureTradeWin()
 	UContainer* oldcont = item->container;
 
 	//DAVE added this 12/04, call can/onInsert & can/onRemove scripts for this container
-	Character* chr_owner = oldcont->GetCharacterOwner();
+	Character* chr_owner = NULL;
+	if (oldcont != NULL)
+		chr_owner = oldcont->GetCharacterOwner();
 	if(chr_owner == NULL)
 		if(controller_.get() != NULL)
 			chr_owner = controller_.get();

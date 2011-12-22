@@ -8,16 +8,15 @@
 #ifndef _BASE_MUTEX_
 #define _BASE_MUTEX_
 
-#ifdef __linux__
-#include <pthread.h>
-#include <stdlib.h>
-#include <errno.h>
-#define OS_DEP_MUTEX pthread_mutex_t*
-#endif
 #ifdef _WIN32
-#include <windows.h>
-#include <stdio.h>
-#define OS_DEP_MUTEX HANDLE
+	#include <windows.h>
+	#include <stdio.h>
+	#define OS_DEP_MUTEX HANDLE
+#else
+	#include <pthread.h>
+	#include <stdlib.h>
+	#include <errno.h>
+	#define OS_DEP_MUTEX pthread_mutex_t*
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////

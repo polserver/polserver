@@ -191,7 +191,19 @@ void Client::transmit( const void *data, int len, bool needslock)
     //pointer to the packet object.
     //
     //If there is no outgoing packet script, handled will be false, and the passed params will be unchanged.
-	CallOutgoingPacketExportedFunction(this, data, len, p, handled, needslock);
+	{
+		PacketHookData* phd = NULL;
+		handled = GetAndCheckPacketHooked(this, data, phd);
+		if (!handled)
+			return;
+		if (needslock)
+		{
+			PolLock lock;
+			CallOutgoingPacketExportedFunction(this, data, len, p, phd, handled);
+		}
+		else
+			CallOutgoingPacketExportedFunction(this, data, len, p, phd, handled);
+	}	
 
     if(handled)
         return;
