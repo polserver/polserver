@@ -53,6 +53,8 @@ Notes
 unsigned int Client::instance_counter_;
 
 Client::Client( ClientInterface& aInterface, TCryptInfo& encryption ) :
+	preDisconnect(0),
+	disconnect(0),
 	acct(NULL),
 	chr(NULL),
     Interface(aInterface),
@@ -60,8 +62,6 @@ Client::Client( ClientInterface& aInterface, TCryptInfo& encryption ) :
 	csocket(INVALID_SOCKET),
     listen_port(0),
 	aosresist(false),
-	disconnect(0),
-	preDisconnect(0),
 	recv_state( RECV_STATE_CRYPTSEED_WAIT ),
     bufcheck1_AA(0xAA),
     buffer(),
@@ -627,7 +627,7 @@ bool Client::SpeedHackPrevention(bool add)
 			return false;
 		}
 		PacketThrottler throttlestruct;
-		memcpy(throttlestruct.pktbuffer, buffer, PKTIN_02_SIZE);
+		memcpy(&throttlestruct.pktbuffer, &buffer, PKTIN_02_SIZE);
 		movementqueue.push(throttlestruct);
 		return false;
 	}
@@ -652,7 +652,7 @@ bool Client::SpeedHackPrevention(bool add)
 				return false;
 			}
 			PacketThrottler throttlestruct;
-			memcpy(throttlestruct.pktbuffer, buffer, PKTIN_02_SIZE);
+			memcpy(&throttlestruct.pktbuffer, &buffer, sizeof(throttlestruct.pktbuffer));
 			movementqueue.push(throttlestruct);
 		}
 		return false;

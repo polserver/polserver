@@ -196,19 +196,20 @@ bool NPC::could_move( UFACING dir ) const
 		unsigned short tmp_newy = y + move_delta[ tmp_facing ].ymove;
 
 		// needs to save because if only one direction is blocked, it shouldn't block ;)
-		bool walk1 = realm->walkheight(this, tmp_newx, tmp_newy, z, &newz, &supporting_multi, &walkon_item );
+		short current_boost = gradual_boost;
+		bool walk1 = realm->walkheight(this, tmp_newx, tmp_newy, z, &newz, &supporting_multi, &walkon_item, &current_boost );
 
 		tmp_facing = (dir-1) & 0x7;
 		tmp_newx = x + move_delta[ tmp_facing ].xmove;
 		tmp_newy = y + move_delta[ tmp_facing ].ymove;
-
-		if (!walk1 && !realm->walkheight(this, tmp_newx, tmp_newy, z, &newz, &supporting_multi, &walkon_item ))
+		current_boost = gradual_boost;
+		if (!walk1 && !realm->walkheight(this, tmp_newx, tmp_newy, z, &newz, &supporting_multi, &walkon_item, &current_boost ))
 			return false;
 	}
     unsigned short newx = x + move_delta[ dir ].xmove;
 	unsigned short newy = y + move_delta[ dir ].ymove;
-
-    return realm->walkheight( this, newx, newy, z, &newz, &supporting_multi, &walkon_item ) &&
+	short current_boost = gradual_boost;
+    return realm->walkheight( this, newx, newy, z, &newz, &supporting_multi, &walkon_item, &current_boost) &&
            !npc_path_blocked( dir ) &&
            anchor_allows_move( dir );
 }

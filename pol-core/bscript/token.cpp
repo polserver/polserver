@@ -67,16 +67,16 @@ void Token::unregister_instance()
 Token::Token() :
     id(TOK_TERM),
     type(TYP_TERMINATOR),
-    module( Mod_Basic ),
-    precedence(-1),
-    deprecated(false),
-    ownsStr(0),
     dval(0.0),
+    precedence(-1),
+    ownsStr(0),
+	dbg_filenum(0),
+	dbg_linenum(0),
     lval(0),
     userfunc(NULL),
-    dbg_filenum(0),
-    dbg_linenum(0),
-    token(NULL)
+	deprecated(false),
+	module( Mod_Basic ),
+	token(NULL)
 {
     register_instance();
 }
@@ -84,15 +84,15 @@ Token::Token() :
 Token::Token(const Token& tok) :
     id( tok.id ),
     type( tok.type ),
+	dval(tok.dval),
+	precedence( tok.precedence ),
+	ownsStr(0),
+	dbg_filenum(tok.dbg_filenum),
+	dbg_linenum(tok.dbg_linenum),
+	lval(tok.lval),
+	userfunc(tok.userfunc),
+	deprecated( tok.deprecated ),
     module( tok.module ),
-    precedence( tok.precedence ),
-    deprecated( tok.deprecated ),
-    ownsStr(0),
-    dval(tok.dval),
-    lval(tok.lval),
-    userfunc(tok.userfunc),
-    dbg_filenum(tok.dbg_filenum),
-    dbg_linenum(tok.dbg_linenum),
     token(NULL)
 {
     register_instance();

@@ -51,7 +51,8 @@ extern std::vector<PacketHookData> packet_hook_data;
 extern std::vector<PacketHookData> packet_hook_data_v2;
 void load_packet_hooks();
 void ExportedPacketHookHandler(Client* client, void* data);
-void CallOutgoingPacketExportedFunction(Client* client, const void*& data, int& inlength, ref_ptr<BPacket>& outpacket, bool& handled, bool needslock=false);
+void CallOutgoingPacketExportedFunction(Client* client, const void*& data, int& inlength, ref_ptr<BPacket>& outpacket, PacketHookData* phd, bool& handled);
+bool GetAndCheckPacketHooked(Client* client,const void*& data, PacketHookData*& phd);
 void clean_packethooks();
 
 void SetVersionDetailStruct( const std::string& ver, VersionDetailStruct& detail );

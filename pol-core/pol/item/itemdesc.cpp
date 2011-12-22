@@ -186,7 +186,6 @@ ItemDesc::ItemDesc( u32 objtype, ConfigElem& elem, Type type, const Package* pkg
 	walk_on_script( elem.remove_string( "WALKONSCRIPT", "" ), pkg, "scripts/items/" ),
 	on_use_script( elem.remove_string( "SCRIPT", "" ), pkg, "scripts/items/" ),
 	equip_script( elem.remove_string( "EQUIPSCRIPT", "" ) ),
-	quality(elem.remove_double("QUALITY", 1.0) ),
 	unequip_script( elem.remove_string( "UNEQUIPSCRIPT", "" ) ),
 	control_script( elem.remove_string( "CONTROLSCRIPT", "" ), pkg, "scripts/control/" ),
 	create_script( elem.remove_string( "CREATESCRIPT", "" ), pkg, "scripts/control/" ),
@@ -207,6 +206,7 @@ ItemDesc::ItemDesc( u32 objtype, ConfigElem& elem, Type type, const Package* pkg
 	decays_on_multis( elem.remove_bool( "DecaysOnMultis", 0 ) ),
 	blocks_casting_if_in_hand( elem.remove_bool( "BlocksCastingIfInHand", true ) ),
 	base_str_req( elem.remove_ushort( "StrRequired", 0 ) * 10 ),
+	quality(elem.remove_double("QUALITY", 1.0) ),
 	method_script(NULL)
 {
 	if (graphic == 0)
@@ -993,7 +993,7 @@ void write_objtypes_txt()
 {
 	ofstream ofs( "objtypes.txt" );
 	unsigned int last_objtype = 0;
-	for( map<u32,ItemDesc*>::iterator itr = desctable.begin(), end = desctable.end(); itr != end; itr++ )
+	for( map<u32,ItemDesc*>::iterator itr = desctable.begin(), end = desctable.end(); itr != end; ++itr )
 	{
 		const ItemDesc* itemdesc = itr->second;
 		unsigned int i = itr->first;
@@ -1064,7 +1064,7 @@ void load_itemdesc()
 
 void unload_itemdesc()
 {
-	for( map<u32,ItemDesc*>::iterator itr = desctable.begin(), end = desctable.end(); itr != end; itr++ )
+	for( map<u32,ItemDesc*>::iterator itr = desctable.begin(), end = desctable.end(); itr != end; ++itr )
 	{
 		//cout << "Objtype: " << hexint(itr->first) << " " << itr->second << " " << &empty_itemdesc << endl;
 		if (itr->second != &empty_itemdesc) {
@@ -1080,7 +1080,7 @@ void unload_itemdesc()
 
 void unload_itemdesc_scripts()
 {
-	for( map<u32,ItemDesc*>::iterator itr = desctable.begin(), end = desctable.end(); itr != end; itr++ )
+	for( map<u32,ItemDesc*>::iterator itr = desctable.begin(), end = desctable.end(); itr != end; ++itr )
 	{
 		itr->second->unload_scripts();
 	}
