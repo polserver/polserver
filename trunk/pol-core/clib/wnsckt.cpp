@@ -38,11 +38,6 @@ Notes
 #	define SOCKET_ERRNO(x) x
 #	define socket_errno errno
 
-	typedef int SOCKET;
-#	ifndef INVALID_SOCKET
-#		define INVALID_SOCKET (SOCKET)(-1)
-#	endif
-
 #endif
 
 #include "esignal.h"

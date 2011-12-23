@@ -235,7 +235,7 @@ void read_global_item( ConfigElem& elem, int sysfind_flags )
 			return;
 		}
 		Item* cont_item = NULL;
-		bool new_parent_cont = false;
+		//bool new_parent_cont = false;
 
 		while (!parent_conts.empty())
 		{
@@ -254,7 +254,7 @@ void read_global_item( ConfigElem& elem, int sysfind_flags )
 		if (cont_item == NULL)
 		{
 			cont_item = system_find_item( container_serial );
-			new_parent_cont = true;
+			//new_parent_cont = true;
 		}
 
 		if (cont_item)

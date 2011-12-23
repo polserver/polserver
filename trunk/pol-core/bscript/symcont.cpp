@@ -135,11 +135,15 @@ void SymbolContainer::write(char *fname)
 
 void SymbolContainer::read(FILE *fp)
 {
-    fread(&usedLen, sizeof usedLen, 1, fp);
+    size_t fread_res=fread(&usedLen, sizeof usedLen, 1, fp);
+	if (fread_res != 1)
+		throw runtime_error( "failed to read in SymbolContainer::read()." );
     char *new_s = (char *) realloc(s, usedLen);
     if (!new_s) throw runtime_error( "allocation failure in SymbolContainer::read()." );
     s = new_s;
-    fread(s, usedLen, 1, fp);
+    fread_res=fread(s, usedLen, 1, fp);
+	if (fread_res != 1)
+		throw runtime_error( "failed to read in SymbolContainer::read()." );
     allocLen = usedLen;
 }
 

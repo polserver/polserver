@@ -5,6 +5,10 @@
 #	include <winsock.h>
 #else
 #	include <sys/socket.h>
+	typedef int SOCKET;
+#	ifndef INVALID_SOCKET
+#		define INVALID_SOCKET (SOCKET)(-1)
+#	endif
 #endif
 
 

@@ -627,6 +627,7 @@ int print_sndlist( int argc, char **argv )
 
         sound.read( filename, sizeof filename );
         cout << hex << i << ", " << hex << serial << dec << ": " << filename << endl;
+		cout << "len " << length << endl;
     }
     return 0;
 }
