@@ -15,11 +15,11 @@ Notes
 
 // Warning: Make sure that your buffer if large enough! Don't forget to add space for null terminator if requested.
 bool convertArrayToUC(ObjArray*& in_text, u16* out_wtext,
-					  unsigned textlen, bool ConvToBE /*false*/, bool nullterm /*true*/)
+					  size_t textlen, bool ConvToBE /*false*/, bool nullterm /*true*/)
 {
 	u16 value;
-	unsigned pos = 0;
-	for(unsigned i=0; i < textlen; i++) {
+	size_t pos = 0;
+	for(size_t i=0; i < textlen; i++) {
 		BObject* bo = in_text->ref_arr[i].get();
 		if (bo == NULL)
 			continue;
@@ -39,11 +39,11 @@ bool convertArrayToUC(ObjArray*& in_text, u16* out_wtext,
 }
 
 bool convertUCtoArray(const u16* in_wtext, ObjArray*& out_text,
-					  unsigned textlen, bool ConvFromBE /*false*/)
+					  size_t textlen, bool ConvFromBE /*false*/)
 {
 	u16 value;
 	out_text = new ObjArray();
-	for(unsigned i=0; i < textlen; i++) {
+	for(size_t i=0; i < textlen; i++) {
 		value = ConvFromBE ? cfBEu16(in_wtext[i]) : in_wtext[i];
 		// Jump out on a NULL (EOS) value (should stop exploits, too?)
 		if ( value == 0L )

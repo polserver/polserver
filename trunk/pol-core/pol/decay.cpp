@@ -30,8 +30,8 @@ Notes
 
 #include "decay.h"
 
-int cycles_per_decay_worldzone;
-int cycles_until_decay_worldzone;
+size_t cycles_per_decay_worldzone;
+size_t cycles_until_decay_worldzone;
 
 ///
 /// [1] Item Decay Criteria

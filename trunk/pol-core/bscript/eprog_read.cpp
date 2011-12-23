@@ -386,7 +386,7 @@ int EScriptProgram::read_dbg_file()
         return -1;
     }
     
-    unsigned bufalloc = 20;
+    size_t bufalloc = 20;
     char* buffer = new char[bufalloc];
     int res = 0;
 

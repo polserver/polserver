@@ -85,9 +85,9 @@ int dualbuf::sync()
         return EOF == 0?1:0;
 }
 
-int dualbuf::xsputn( const char* str, int size )
+std::streamsize dualbuf::xsputn( const char* str, int size )
 {
-    int n1 = buf1_->sputn( str, size);
-    int n2 = buf2_->sputn( str, size );
+    std::streamsize n1 = buf1_->sputn( str, size);
+    std::streamsize n2 = buf2_->sputn( str, size );
     return (n1>n2) ? n1 : n2;
 }

@@ -45,7 +45,7 @@ std::string AuxConnection::getStringRep() const
     return "<AuxConnection>";
 }
 
-unsigned int AuxConnection::sizeEstimate() const
+size_t AuxConnection::sizeEstimate() const
 {
     return sizeof(AuxConnection);
 }

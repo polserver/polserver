@@ -89,7 +89,7 @@ public:
 };
 bool wordicmp::operator ()(const string& lhs, const string& rhs) const
 {
-	int len = std::min( lhs.size(), rhs.size() );
+	size_t len = std::min( lhs.size(), rhs.size() );
 	
 	return (strnicmp( lhs.c_str(), rhs.c_str(), len ) < 0);
 }

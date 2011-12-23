@@ -19,7 +19,7 @@ public:
     };
     
     Socket();
-    explicit Socket(int sock);
+    explicit Socket(SOCKET sock);
     Socket( Socket& sck ); // takes ownership
     virtual ~Socket();
 
@@ -28,7 +28,7 @@ public:
     bool open( const char* ipaddr, unsigned short port );
     bool listen( unsigned short port );
     bool select( unsigned int seconds, unsigned int useconds );
-	bool accept(int *s, unsigned int mstimeout);
+	bool accept(SOCKET *s, unsigned int mstimeout);
     bool accept( Socket& newsocket );
     bool recvbyte( unsigned char* byte, unsigned int waitms );
     bool recvdata( void *vdest, unsigned len, unsigned int waitms );
@@ -43,22 +43,23 @@ public:
     std::string getpeername() const;
     struct sockaddr peer_address() const;
     
-    int handle() const;
-    int release_handle();
+    SOCKET handle() const;
+    SOCKET release_handle();
 
-    void setsocket( int sck );
+    void setsocket( SOCKET sck );
     void setpeer( struct sockaddr peer );
     void takesocket( Socket& sck );
 
     void set_options( option opt );
 protected:
-    void apply_socket_options( int sck );
-    void apply_prebind_socket_options( int sck );
+    void apply_socket_options( SOCKET sck );
+    void apply_prebind_socket_options( SOCKET sck );
 
 private:
 	void HandleError();
     
-    int _sck;
+	SOCKET _sck;
+
     int _options;
     struct sockaddr _peer;
 };

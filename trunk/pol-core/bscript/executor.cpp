@@ -106,9 +106,9 @@ Executor::~Executor()
     delete_all( availmodules );
 }
 
-unsigned int Executor::sizeEstimate() const
+size_t Executor::sizeEstimate() const
 {
-    unsigned int size = 0;
+    size_t size = 0;
     for( BObjectRefVec::const_iterator itr = Globals2.begin(); itr != Globals2.end(); ++itr )
     {
         size += (*itr).sizeEstimate();
@@ -726,7 +726,7 @@ bool Executor::setProgram( EScriptProgram* i_prog )
             return false;
     }
 
-    nLines = prog_->instr.size();
+    nLines = static_cast<unsigned int>(prog_->instr.size());
 
     Globals2.clear();
     for( unsigned i = 0; i < prog_->nglobals; ++i )
@@ -969,7 +969,7 @@ BObjectImp *ContIterator::copy( void ) const
 {
 	return NULL;
 }
-unsigned int ContIterator::sizeEstimate() const
+size_t ContIterator::sizeEstimate() const
 {
     return sizeof(ContIterator);
 }
@@ -1051,7 +1051,7 @@ void Executor::ins_initforeach( const Instruction& ins )
 
 void Executor::ins_stepforeach( const Instruction& ins )
 {
-    unsigned locsize = Locals2->size();
+    unsigned locsize = static_cast<unsigned int>(Locals2->size());
     ObjArray* arr = static_cast<ObjArray*>((*Locals2)[locsize-2]->impptr());
     if (!arr->isa( BObjectImp::OTArray ))
         return;
@@ -1093,7 +1093,7 @@ void Executor::ins_initforeach2( const Instruction& ins )
 
 void Executor::ins_stepforeach2( const Instruction& ins )
 {
-    unsigned locsize = Locals2->size();
+    size_t locsize = Locals2->size();
     ContIterator* pIter = static_cast<ContIterator*>((*Locals2)[locsize-2]->impptr());
 
     BObject* next = pIter->step();
@@ -1129,7 +1129,7 @@ void Executor::ins_initfor( const Instruction& ins )
 
 void Executor::ins_nextfor( const Instruction& ins )
 {
-    unsigned locsize = Locals2->size();
+    size_t locsize = Locals2->size();
     
 
     BObjectImp* itr = (*Locals2)[locsize-2]->impptr();
@@ -2323,7 +2323,7 @@ void Executor::ins_jsr_userfunc( const Instruction& ins )
 {
     ReturnContext rc;
     rc.PC = PC;
-    rc.ValueStackDepth = ValueStack.size();
+    rc.ValueStackDepth = static_cast<unsigned int>(ValueStack.size());
 	ControlStack.push( rc );
 
 	PC = (unsigned) ins.token.lval;
@@ -2376,7 +2376,7 @@ void Executor::ins_gosub( const Instruction& ins )
 {
     ReturnContext rc;
     rc.PC = PC;
-    rc.ValueStackDepth = ValueStack.size();
+    rc.ValueStackDepth = static_cast<unsigned int>(ValueStack.size());
 	ControlStack.push( rc );
 	if (Locals2) upperLocals2.push(Locals2);
 	Locals2 = new BObjectRefVec;
@@ -2571,7 +2571,7 @@ void Executor::innerExec(const Instruction& ins)
 			{
 				ReturnContext rc;
 				rc.PC = PC;
-				rc.ValueStackDepth = ValueStack.size();
+				rc.ValueStackDepth = static_cast<unsigned int>(ValueStack.size());
 				ControlStack.push( rc );
         
 				PC = (unsigned) token.lval;
@@ -2619,7 +2619,7 @@ void Executor::innerExec(const Instruction& ins)
             {
                 ReturnContext rc;
                 rc.PC = PC;
-                rc.ValueStackDepth = ValueStack.size();
+                rc.ValueStackDepth = static_cast<unsigned int>(ValueStack.size());
 			    ControlStack.push( rc );
 			    if (Locals2) upperLocals2.push(Locals2);
 			    Locals2 = new BObjectRefVec;
@@ -3231,7 +3231,7 @@ void Executor::execInstr()
 #endif
 }
 
-string Executor::dbg_get_instruction( unsigned atPC ) const
+string Executor::dbg_get_instruction( size_t atPC ) const
 {
     OSTRINGSTREAM os;
     os << ((atPC==PC)?">":" ") 

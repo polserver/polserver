@@ -149,7 +149,7 @@ int write_pol_static_files( const string& realm )
             else
                 ++nonempties;
             if (vec.size() > maxcount)
-                maxcount = vec.size();
+                maxcount = static_cast<unsigned int>(vec.size());
         }
     }
     STATIC_INDEX idx;

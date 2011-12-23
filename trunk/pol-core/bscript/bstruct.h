@@ -27,7 +27,7 @@ public:
 
     const BObjectImp* FindMember( const char* name );
 
-    unsigned mapcount() const;
+    size_t mapcount() const;
 
     typedef map<std::string,BObjectRef, ci_cmp_pred> Contents;
 	const Contents& contents() const;
@@ -43,7 +43,7 @@ protected:
     virtual void FormatForStringRep( std::ostream& os, const std::string& key, const BObjectRef& bvalref ) const;
 
     virtual std::string getStringRep() const;
-    virtual unsigned int sizeEstimate() const; 
+    virtual size_t sizeEstimate() const; 
     virtual void packonto( std::ostream& os ) const;
     virtual const char* typeOf() const;
 	virtual int typeOfInt() const;

@@ -211,7 +211,7 @@ void Token::copyStr(const char *s)
 {
     nulStr();
     ownsStr = 1;
-    int len = strlen(s);
+    size_t len = strlen(s);
     char *tmp = new char[len+1];
     if (tmp) 
     {
@@ -228,7 +228,7 @@ void Token::copyStr(const char *s, int len)
 {
     nulStr();
     ownsStr =1;
-    char *tmp = new char[len+1];
+    char *tmp = new char[static_cast<size_t>(len+1)];
     if (tmp)
     {
         memcpy(tmp, s, len);

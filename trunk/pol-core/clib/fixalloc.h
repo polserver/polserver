@@ -18,10 +18,10 @@ Notes
 #include <stdlib.h>
 
 #ifdef MEMORYLEAK
-#include "mlog.h"
+	#include "mlog.h"
 #endif
 
-template<int N, int B>
+template<size_t N, size_t B>
 class fixed_allocator
 {
     public:
@@ -53,7 +53,7 @@ private:
 };
 
 #ifdef MEMORYLEAK
-template<int N, int B>
+template<size_t N, size_t B>
 fixed_allocator<N,B>::fixed_allocator()
 {
     freelist_ = NULL;
@@ -62,13 +62,13 @@ fixed_allocator<N,B>::fixed_allocator()
     max_requests = 0;
 };
 
-template<int N, int B>
+template<size_t N, size_t B>
 fixed_allocator<N,B>::~fixed_allocator()
 {
     log_stuff("destructor");
 }
 
-template<int N, int B>
+template<size_t N, size_t B>
 void fixed_allocator<N,B>::log_stuff(const std::string& detail)
 {
     if (mlog.is_open())
@@ -80,7 +80,7 @@ void fixed_allocator<N,B>::log_stuff(const std::string& detail)
 }
 #endif
 
-template<int N, int B>
+template<size_t N, size_t B>
 void* fixed_allocator<N,B>::allocate()
 {
 #ifdef MEMORYLEAK
@@ -101,7 +101,7 @@ void* fixed_allocator<N,B>::allocate()
     }
 }
 
-template<int N, int B>
+template<size_t N, size_t B>
 void* fixed_allocator<N,B>::refill()
 {
     size_t nbytes = sizeof( Buffer[B] );
@@ -125,7 +125,7 @@ void* fixed_allocator<N,B>::refill()
     return morebuf;
 }
 
-template<int N, int B>
+template<size_t N, size_t B>
 void fixed_allocator<N,B>::deallocate( void* vp )
 {
 #ifdef MEMORYLEAK
@@ -137,7 +137,7 @@ void fixed_allocator<N,B>::deallocate( void* vp )
     freelist_ = buf;
 }
 
-template<int N, int B>
+template<size_t N, size_t B>
 void* fixed_allocator<N,B>::allocate( size_t size ) 
 {
     assert( size == B );
@@ -147,7 +147,7 @@ void* fixed_allocator<N,B>::allocate( size_t size )
         return ::operator new(size);
 }
 
-template<int N, int B>
+template<size_t N, size_t B>
 void fixed_allocator<N,B>::deallocate( void* vp, size_t size )
 {
     assert( size == B );

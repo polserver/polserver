@@ -330,7 +330,7 @@ void read_multi( ConfigElem& elem )
 
 string elapsed( clock_t start, clock_t end )
 {
-	int ms = static_cast<int>((end-start) * 1000.0 / CLOCKS_PER_SEC);
+	size_t ms = static_cast<size_t>((end-start) * 1000.0 / CLOCKS_PER_SEC);
 	return decint( ms ) + " ms";
 }
 

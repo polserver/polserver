@@ -32,14 +32,14 @@ fixed_allocator<sizeof(UninitObject),256> uninit_alloc;
 fixed_allocator<sizeof(BLong),256> blong_alloc;
 fixed_allocator<sizeof(Double),256> double_alloc;
 
-unsigned int BObjectRef::sizeEstimate() const
+size_t BObjectRef::sizeEstimate() const
 {
 	if (get())
 		return sizeof(BObjectRef) + get()->sizeEstimate();
 	else
 		return sizeof(BObjectRef);
 }
-unsigned int BObject::sizeEstimate() const
+size_t BObject::sizeEstimate() const
 {
 	if (objimp.get())
 		return sizeof(BObject) + objimp.get()->sizeEstimate();
@@ -450,7 +450,7 @@ BObjectImp *UninitObject::copy( void ) const
 	return create();
 }
 
-unsigned int UninitObject::sizeEstimate() const
+size_t UninitObject::sizeEstimate() const
 {
 	return sizeof(UninitObject);
 }
@@ -514,9 +514,9 @@ BObjectImp *ObjArray::copy( void ) const
 	return nobj;
 }
 
-unsigned int ObjArray::sizeEstimate() const
+size_t ObjArray::sizeEstimate() const
 {
-	unsigned int size = sizeof(ObjArray);
+	size_t size = sizeof(ObjArray);
 
 	for( const_iterator itr = ref_arr.begin(); itr != ref_arr.end(); ++itr )
 	{
@@ -855,7 +855,7 @@ long ObjArray::contains( const BObjectImp& imp ) const
 			}
 			else if ( bo->impptr()->isEqual(imp) )
 			{
-				return ((itr-ref_arr.begin())+1);
+				return (static_cast<long>((itr-ref_arr.begin())+1));
 			}
 		}
 	}
@@ -885,7 +885,7 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool forcebuil
 	{
 	case MTH_SIZE:
 		if (ex.numParams() == 0)
-			return new BLong( ref_arr.size() );
+			return new BLong( static_cast<int>(ref_arr.size()) );
 		else
 			return new BError( "array.size() doesn't take parameters." );
 
@@ -895,7 +895,7 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool forcebuil
 			if (ex.numParams() == 1)
 			{
 				int idx;
-				if (ex.getParam( 0, idx, 1, ref_arr.size() )) // 1-based index
+				if (ex.getParam( 0, idx, 1, static_cast<int>(ref_arr.size()) )) // 1-based index
 				{
 					ref_arr.erase( ref_arr.begin() + idx - 1 );
 					return new BLong(1);
@@ -936,7 +936,7 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool forcebuil
 			{
 				int idx;
 				BObjectImp* imp = ex.getParamImp( 1 );
-				if (ex.getParam( 0, idx, 1, ref_arr.size()+1 ) && imp) // 1-based index
+				if (ex.getParam( 0, idx, 1, static_cast<int>(ref_arr.size()+1) ) && imp) // 1-based index
 				{ 
 					--idx;
 	// FIXME: 2008 Upgrades needed here? Make sure still working correctly under 2008
@@ -964,7 +964,7 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool forcebuil
 			if (ex.numParams() == 1)
 			{
 				int idx;
-				if (ex.getParam( 0, idx, 0, ref_arr.size() )) // 1-based index
+				if (ex.getParam( 0, idx, 0, static_cast<int>(ref_arr.size()) )) // 1-based index
 				{ 
 					ref_arr.erase( ref_arr.begin() + idx, ref_arr.end() );
 					return new BLong(1);
@@ -1030,7 +1030,7 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool forcebuil
 			{
 				if (!ref_arr.empty())
 				{
-					const BObjectRef& ref = ref_arr[ random_int( ref_arr.size() ) ];
+					const BObjectRef& ref = ref_arr[ random_int( static_cast<int>(ref_arr.size()) ) ];
 					if (ref.get() == NULL)
 						return NULL;
 					return ref.get()->impptr();
@@ -1115,7 +1115,7 @@ BObjectImp *BApplicPtr::copy() const
 	return new BApplicPtr( pointer_type_, ptr_ );
 }
 
-unsigned int BApplicPtr::sizeEstimate() const
+size_t BApplicPtr::sizeEstimate() const
 {
 	return sizeof(BApplicPtr);
 }

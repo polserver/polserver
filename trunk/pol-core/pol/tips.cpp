@@ -48,7 +48,7 @@ bool send_tip( Client* client, const char* tipname, unsigned short tipnum )
 
 void send_tip( Client* client, const std::string& tiptext )
 {
-    unsigned textlen = tiptext.size();
+    size_t textlen = tiptext.size();
     if (textlen >= 10000)
         textlen = 9999;
 

@@ -198,7 +198,7 @@ BObjectImp* Map::script_method_id( const int id, Executor& ex )
         {
             int idx;
 	        unsigned short x, y;
-            if (ex.getParam( 0, idx, pin_points.size() ) &&
+            if (ex.getParam( 0, idx, static_cast<int>(pin_points.size()) ) &&
                 ex.getParam( 1, x ) &&
                 ex.getParam( 2, y ))
             {
@@ -246,7 +246,7 @@ BObjectImp* Map::script_method_id( const int id, Executor& ex )
     case MTH_ERASEPIN:
         {
             int idx;
-            if (ex.getParam( 0, idx, pin_points.size()-1 ))
+            if (ex.getParam( 0, idx, static_cast<int>(pin_points.size()-1) ))
             {
 			    pin_points_itr itr;
 

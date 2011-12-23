@@ -302,7 +302,7 @@ int EScriptProgram::write( const char *fname )
 		BSCRIPT_MODULE_HDR modhdr;
 		memset( &modhdr, 0, sizeof modhdr );
 		strzcpy( modhdr.modulename, module->modulename.c_str(), sizeof modhdr.modulename );
-		modhdr.nfuncs = module->used_functions.size();
+		modhdr.nfuncs = static_cast<unsigned int>(module->used_functions.size());
 		fwrite( &modhdr, sizeof modhdr, 1, fp );
 		for( unsigned funcnum = 0; funcnum < module->used_functions.size(); funcnum++ )
 		{
@@ -331,7 +331,7 @@ int EScriptProgram::write( const char *fname )
     {
         BSCRIPT_EXPORTED_FUNCTION bef;
         sechdr.type = BSCRIPT_SECTION_EXPORTED_FUNCTIONS;
-        sechdr.length = exported_functions.size() * sizeof bef;
+        sechdr.length = static_cast<unsigned int>(exported_functions.size() * sizeof bef);
         fwrite( &sechdr, sizeof sechdr, 1, fp );
         for( unsigned i = 0; i < exported_functions.size(); ++i )
         {
@@ -354,16 +354,16 @@ EScriptProgramCheckpoint::EScriptProgramCheckpoint( const EScriptProgram& prog )
 
 void EScriptProgramCheckpoint::commit( const EScriptProgram& prog )
 {
-    module_count = prog.modules.size();
+    module_count = static_cast<unsigned int>(prog.modules.size());
     tokens_count = prog.tokens.count();
     symbols_length = prog.symbols.length();
-    sourcelines_count = prog.sourcelines.size();
-    fileline_count = prog.fileline.size();
+    sourcelines_count = static_cast<unsigned int>(prog.sourcelines.size());
+    fileline_count = static_cast<unsigned int>(prog.fileline.size());
 }
 
 unsigned EScriptProgram::varcount( unsigned block )
 {
-    unsigned cnt = blocks[block].localvarnames.size();
+    unsigned cnt = static_cast<unsigned int>(blocks[block].localvarnames.size());
     if (block != 0)
     {
         cnt += varcount( blocks[block].parentblockidx );
@@ -395,23 +395,23 @@ int EScriptProgram::write_dbg( const char *fname, bool gen_txt )
     count = 3;
     fwrite( &count, sizeof count, 1, fp );
 
-    count = dbg_filenames.size();
+    count = static_cast<unsigned int>(dbg_filenames.size());
     fwrite( &count, sizeof count, 1, fp );
     for( unsigned i = 0; i < dbg_filenames.size(); ++i )
     {
         if (fptext)
             fprintf( fptext, "File %d: %s\n", i, dbg_filenames[i].c_str() );
-        count = dbg_filenames[i].size()+1;
+        count = static_cast<unsigned int>(dbg_filenames[i].size()+1);
         fwrite( &count, sizeof count, 1, fp );
         fwrite( dbg_filenames[i].c_str(), count, 1, fp );
     }
-    count = globalvarnames.size();
+    count = static_cast<unsigned int>(globalvarnames.size());
     fwrite( &count, sizeof count, 1, fp );
     for( unsigned i = 0; i < globalvarnames.size(); ++i )
     {
         if (fptext)
             fprintf( fptext, "Global %d: %s\n", i, globalvarnames[i].c_str() );
-        count = globalvarnames[i].size()+1;
+        count = static_cast<unsigned int>(globalvarnames[i].size()+1);
         fwrite( &count, sizeof count, 1, fp );
         fwrite( globalvarnames[i].c_str(), count, 1, fp );
     }
@@ -436,7 +436,7 @@ int EScriptProgram::write_dbg( const char *fname, bool gen_txt )
         ins.rfu2 = 0;
         fwrite( &ins, sizeof ins, 1, fp );
     }
-    count = blocks.size();
+    count = static_cast<unsigned int>(blocks.size());
     fwrite( &count, sizeof count, 1, fp );
     for( unsigned i = 0; i < blocks.size(); ++i )
     {
@@ -453,11 +453,11 @@ int EScriptProgram::write_dbg( const char *fname, bool gen_txt )
         tmp = block.parentvariables;
         fwrite( &tmp, sizeof tmp, 1, fp );
 
-        count = block.localvarnames.size();
+        count = static_cast<unsigned int>(block.localvarnames.size());
         fwrite( &count, sizeof count, 1, fp );
 
         int varfirst = block.parentvariables;
-        int varlast = varfirst + block.localvarnames.size()-1;
+        int varlast = static_cast<int>(varfirst + block.localvarnames.size()-1);
         if (varlast >= varfirst)
         {
             if (fptext)
@@ -468,13 +468,13 @@ int EScriptProgram::write_dbg( const char *fname, bool gen_txt )
                 if (fptext)
                     fprintf( fptext, "      %d: %s\n", varfirst+j, name.c_str() );
 
-                count = name.size()+1;
+                count = static_cast<unsigned int>(name.size()+1);
                 fwrite( &count, sizeof count, 1, fp );
                 fwrite( name.c_str(), count, 1, fp );
             }
         }
     }
-    count = dbg_functions.size();
+    count = static_cast<unsigned int>(dbg_functions.size());
     fwrite( &count, sizeof count, 1, fp );
     for( unsigned i = 0; i< dbg_functions.size(); ++i )
     {
@@ -484,7 +484,7 @@ int EScriptProgram::write_dbg( const char *fname, bool gen_txt )
             fprintf( fptext, "Function %d: %s\n", i, func.name.c_str() );
             fprintf( fptext, "  FirstPC=%u, lastPC=%u\n", func.firstPC, func.lastPC );
         }
-        count = func.name.size()+1;
+        count = static_cast<unsigned int>(func.name.size()+1);
         fwrite( &count, sizeof count, 1, fp );
         fwrite( func.name.c_str(), count, 1, fp );
         u32 tmp;
@@ -516,10 +516,10 @@ int EScriptProgram::add_dbg_filename( const string& filename )
         dbg_filenames.push_back( "" );
 
     dbg_filenames.push_back( filename );
-    return dbg_filenames.size()-1;
+    return static_cast<int>(dbg_filenames.size()-1);
 }
 
-string EScriptProgram::dbg_get_instruction( unsigned atPC ) const
+string EScriptProgram::dbg_get_instruction( size_t atPC ) const
 {
     OSTRINGSTREAM os;
     os << instr[ atPC ].token;
@@ -554,7 +554,7 @@ void EScriptProgram::enterblock()
     block.parentblockidx = curblock;
     block.parentvariables = varcount( curblock );
 
-    curblock = blocks.size();
+    curblock = static_cast<unsigned int>(blocks.size());
     blocks.push_back( block );
 }
 void EScriptProgram::leaveblock()

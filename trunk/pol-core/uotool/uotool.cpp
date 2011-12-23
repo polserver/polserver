@@ -37,8 +37,8 @@ Notes
 #include "../plib/realmdescriptor.h"
 #include "../plib/staticblock.h"
 
-unsigned int mapcache_misses;
-unsigned int mapcache_hits;
+size_t mapcache_misses;
+size_t mapcache_hits;
 bool BoatShapeExists(unsigned short graphic)
 {
     return true;

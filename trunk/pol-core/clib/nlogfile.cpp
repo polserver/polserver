@@ -73,7 +73,7 @@ int timestamp_streambuf::overflow( int ch )
             char ts_buf[30];
 
             strftime( ts_buf, sizeof ts_buf, "%m/%d %H:%M:%S", localtime( &now ) );
-            int nbytes = strlen(ts_buf);
+            size_t nbytes = strlen(ts_buf);
             
             if (tee_cout)
                 cout << "[" << ts_buf << " " << tag << "] ";

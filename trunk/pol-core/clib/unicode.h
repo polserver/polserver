@@ -22,8 +22,8 @@ Notes
 void unicode_copy_string( wchar_t* dst, size_t dstsize, const char* src );
 
 bool convertArrayToUC(ObjArray*& in_text, u16* out_wtext,
-					  unsigned textlen, bool ConvToBE = false, bool nullterm = true);
+					  size_t textlen, bool ConvToBE = false, bool nullterm = true);
 bool convertUCtoArray(const u16* in_wtext, ObjArray*& out_text,
-					  unsigned textlen, bool ConvFromBE = false);
+					  size_t textlen, bool ConvFromBE = false);
 
 #endif

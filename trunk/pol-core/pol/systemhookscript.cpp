@@ -439,8 +439,8 @@ BObjectImp* ExportScript::call( unsigned PC,
         uoexec.initForFnCall( PC );
 
         uoexec.pushArg(p0);
-        unsigned n = pmore.size();
-        for( unsigned i = 0; i < n; ++i )
+        size_t n = pmore.size();
+        for( size_t i = 0; i < n; ++i )
         {   // push BObjectRef so params can be pass-by-ref
             uoexec.pushArg( pmore[i] ); 
         }
@@ -483,8 +483,8 @@ BObject ExportScript::call( unsigned PC,
         uoexec.initForFnCall( PC );
 
         uoexec.pushArg(p0);
-        unsigned n = pmore.size();
-        for( unsigned i = 0; i < n; ++i )
+        size_t n = pmore.size();
+        for( size_t i = 0; i < n; ++i )
         { 
             uoexec.pushArg( pmore[i].get() ); 
         }

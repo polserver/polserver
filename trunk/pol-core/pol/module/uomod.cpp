@@ -5723,7 +5723,7 @@ BObjectImp* UOExecutorModule::mf_SendCharProfile(/*chr, of_who, title, uneditabl
 {
 	Character *chr, *of_who;
 	const String* title;
-	unsigned ulen, elen;
+	size_t ulen, elen;
 	ObjArray* uText;
 	ObjArray* eText;
 

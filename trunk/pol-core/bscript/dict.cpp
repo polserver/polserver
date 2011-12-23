@@ -131,9 +131,9 @@ BObjectImp* BDictionary::copy() const
     return new BDictionary( *this );
 }
 
-unsigned int BDictionary::sizeEstimate() const
+size_t BDictionary::sizeEstimate() const
 {
-    unsigned int size = sizeof(BDictionary);
+    size_t size = sizeof(BDictionary);
     for( Contents::const_iterator itr = contents_.begin(); itr != contents_.end(); ++itr )
     {
         const BObject& bkeyobj = (*itr).first;
@@ -143,7 +143,7 @@ unsigned int BDictionary::sizeEstimate() const
     return size;
 }
 
-unsigned BDictionary::mapcount() const
+size_t BDictionary::mapcount() const
 {
     return contents_.size();
 }
@@ -254,7 +254,7 @@ BObjectImp* BDictionary::call_method_id( const int id, Executor& ex, bool forceb
     {
     case MTH_SIZE:
 		if (ex.numParams() == 0)
-			return new BLong( contents_.size() );
+			return new BLong( static_cast<int>(contents_.size()) );
 		else
 			return new BError( "dictionary.size() doesn't take parameters." );
         break;
@@ -264,7 +264,7 @@ BObjectImp* BDictionary::call_method_id( const int id, Executor& ex, bool forceb
         {
             if (! (keyobj->isa( OTLong ) || keyobj->isa( OTString ) || keyobj->isa( OTDouble ) || keyobj->isa( OTApplicObj )))
                 return new BError( "Dictionary keys must be integer, real, or string" );
-            int nremove = contents_.erase( *keyobj );
+            int nremove = static_cast<int>(contents_.erase( *keyobj ));
             return new BLong( nremove );
         }
         else
@@ -281,7 +281,7 @@ BObjectImp* BDictionary::call_method_id( const int id, Executor& ex, bool forceb
                 return new BError( "Dictionary keys must be integer, real, or string" );
             BObject key( keyobj->impptr()->copy() );
             contents_[ key ] = BObjectRef( new BObject( valobj->impptr()->copy() ) );
-            return new BLong( contents_.size() );
+            return new BLong( static_cast<int>(contents_.size()) );
         }
         else
         {
@@ -294,7 +294,7 @@ BObjectImp* BDictionary::call_method_id( const int id, Executor& ex, bool forceb
         {
             if (! (keyobj->isa( OTLong ) || keyobj->isa( OTString ) || keyobj->isa( OTDouble ) || keyobj->isa( OTApplicObj )))
                 return new BError( "Dictionary keys must be integer, real, or string" );
-            int count = contents_.count( *keyobj );
+            int count = static_cast<int>(contents_.count( *keyobj ));
             return new BLong( count );
         }
         else

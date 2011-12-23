@@ -338,7 +338,7 @@ public:
         return _area->_name;
     }
 
-    virtual unsigned int sizeEstimate() const
+    virtual size_t sizeEstimate() const
     {
         return sizeof(*this);
     }
@@ -357,7 +357,7 @@ BObjectRef StorageAreaImp::get_member( const char* membername )
 {
     if (stricmp( membername, "count") == 0)
     {
-        return BObjectRef( new BLong( _area->_items.size() ) );
+        return BObjectRef( new BLong( static_cast<int>(_area->_items.size()) ) );
     }
     else if (stricmp( membername, "totalcount") == 0)
     {
@@ -421,7 +421,7 @@ public:
         return "<StorageAreas>";
     }
 
-    virtual unsigned int sizeEstimate() const
+    virtual size_t sizeEstimate() const
     {
         return sizeof(*this);
     }
@@ -446,7 +446,7 @@ BObjectRef StorageAreasImp::get_member( const char* membername )
 {
     if (stricmp( membername, "count") == 0)
     {
-        return BObjectRef( new BLong( storage.areas.size() ) );
+        return BObjectRef( new BLong( static_cast<int>(storage.areas.size()) ) );
     }
     return BObjectRef( UninitObject::create() );
 }
