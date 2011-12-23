@@ -48,12 +48,19 @@ int nread;
 int keyboard::getch()
 {
 char ch;
+int numread;
 
     if (peek_character != -1) 
     {
         ch = peek_character;
         peek_character = -1;
-    } else read(0,&ch,1);
+    }
+	else 
+	{
+		numread=read(0,&ch,1);
+		if (numread != 1)
+			throw;
+	}
 
     return ch;
 }

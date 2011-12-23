@@ -219,7 +219,7 @@ int exec_script(const char *path)
 
 int run(int argc, char **argv)
 {
-    for(size_t i=1;i<argc;i++) 
+    for(int i=1;i<argc;i++) 
     {
         switch(argv[i][0]) 
         {

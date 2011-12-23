@@ -1863,7 +1863,7 @@ int SmartParser::IIP(Expression& expr, CompilerContext& ctx, unsigned flags)
 {
 	BTokenType last_type = TYP_TERMINATOR;
 	Token last_token;
-	Token* debug_last_tx_token = NULL;
+	//Token* debug_last_tx_token = NULL;
 	int done = 0;
 	int res = 0;  // 1=done, -1=error, 0=not done
 
@@ -1901,7 +1901,7 @@ int SmartParser::IIP(Expression& expr, CompilerContext& ctx, unsigned flags)
 		}
 
 //		if (token.type == TYP_DELIMITER) break;
-		debug_last_tx_token = expr.TX.top();
+		//debug_last_tx_token = expr.TX.top();
 
 /*
 		if (comma_term_allowed)
