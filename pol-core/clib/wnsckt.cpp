@@ -53,7 +53,7 @@ Notes
 #endif
 
 Socket::Socket() :
-	_sck(-1),
+	_sck(INVALID_SOCKET),
 	_options(none)
 {
 #ifdef _WIN32
@@ -67,7 +67,7 @@ Socket::Socket() :
 #endif
 }
 
-Socket::Socket(int sock) :
+Socket::Socket(SOCKET sock) :
 	_sck(sock),
 	_options(none)
 {
@@ -77,7 +77,7 @@ Socket::Socket( Socket& sock ) :
 	_sck( sock._sck ),
 	_options(none)
 {
-	sock._sck = -1;
+	sock._sck = INVALID_SOCKET;
 }
 
 
@@ -86,7 +86,7 @@ Socket::~Socket()
 	close();
 }
 
-void Socket::setsocket( int sock )
+void Socket::setsocket( SOCKET sock )
 {
 	close();
 	_sck = sock;
@@ -122,15 +122,15 @@ struct sockaddr Socket::peer_address() const
 	return _peer;
 }
 
-int Socket::handle() const
+SOCKET Socket::handle() const
 {
 	return _sck;
 }
 
-int Socket::release_handle()
+SOCKET Socket::release_handle()
 {
-	int s = _sck;
-	_sck = -1;
+	SOCKET s = _sck;
+	_sck = INVALID_SOCKET;
 	return s;
 }
 
@@ -160,12 +160,12 @@ bool Socket::open( const char* ipaddr, unsigned short port )
 #else
 		::close( _sck );
 #endif
-		_sck = -1;
+		_sck = INVALID_SOCKET;
 		return false;
 	}
 }
 
-void Socket::apply_socket_options( int sck )
+void Socket::apply_socket_options( SOCKET sck )
 {
 	if (_options & nonblocking)
 	{
@@ -184,7 +184,7 @@ void Socket::apply_socket_options( int sck )
 	}
 }
 
-void Socket::apply_prebind_socket_options( int sck )
+void Socket::apply_prebind_socket_options( SOCKET sck )
 {
 	if (_options & reuseaddr)
 	{
@@ -210,7 +210,7 @@ bool Socket::listen(unsigned short port)
 	local.sin_port = htons(port); 
 
 	_sck = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP );
-	if (_sck == -1)
+	if (_sck == INVALID_SOCKET)
 	{
 		close();
 		return false;
@@ -255,17 +255,17 @@ bool Socket::select( unsigned int seconds, unsigned int useconds )
 	return (res > 0 && FD_ISSET( _sck, &fd ));
 }
 
-bool Socket::accept(int *s, unsigned int mstimeout)
+bool Socket::accept(SOCKET *s, unsigned int mstimeout)
 {
 	*s = ::accept(_sck, NULL, NULL);
-	if (*s >= 0)
+	if (*s != INVALID_SOCKET)
 	{
 		apply_socket_options( *s );
 		return true;
 	}
 	else
 	{
-		*s=-1;
+		*s=INVALID_SOCKET;
 		return false;
 	}
 }
@@ -274,8 +274,8 @@ bool Socket::accept( Socket& newsocket )
 {
 	struct sockaddr client_addr;
 	socklen_t addrlen = sizeof client_addr;
-	int s = ::accept( _sck, &client_addr, &addrlen );
-	if (s >= 0)
+	SOCKET s = ::accept( _sck, &client_addr, &addrlen );
+	if (s != INVALID_SOCKET)
 	{
 		apply_socket_options( s );
 		newsocket.setsocket( s );
@@ -290,7 +290,7 @@ bool Socket::accept( Socket& newsocket )
 
 bool Socket::connected() const
 {
-	return (_sck != -1);
+	return (_sck != INVALID_SOCKET);
 }
 
 /* Read and clear the error value */
@@ -590,7 +590,7 @@ bool Socket::send_nowait( const void* vdata, unsigned datalen, unsigned* nsent )
 
 void Socket::write( const string& s )
 {
-	send( (void *) s.c_str(), s.length() );
+	send( (void *) s.c_str(), static_cast<unsigned int>(s.length()) );
 }
 
 

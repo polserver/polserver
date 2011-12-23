@@ -49,7 +49,7 @@ bool MD5_Encrypt(const string& in, string& out)
     }
 
 	// Hash password string.
-	if (!CryptHashData(hHash, (const unsigned char*)(in.data()), in.length(), 0))
+	if (!CryptHashData(hHash, (const unsigned char*)(in.data()), static_cast<unsigned long>(in.length()), 0))
 	{
 		cerr << "Error " << GetLastError() << " adding data to hash" << std::endl;
 		return false;

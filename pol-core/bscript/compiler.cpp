@@ -77,7 +77,7 @@ string getpathof( const string& fname )
 
 bool Scope::varexists( const string& varname, unsigned& idx ) const
 {
-	for( int i = variables_.size()-1; i >= 0; --i )
+	for( int i = static_cast<int>(variables_.size()-1); i >= 0; --i )
 	{
 		 if (stringicmp( varname, variables_[i].name ) == 0)
 		 {
@@ -91,7 +91,7 @@ bool Scope::varexists( const string& varname, unsigned& idx ) const
 
 bool Scope::varexists( const string& varname ) const
 {
-	for( int i = variables_.size()-1; i >= 0; --i )
+	for( size_t i = variables_.size()-1; i >= 0; --i )
 	{
 		 if (stringicmp( varname, variables_[i].name ) == 0)
 		 {
@@ -127,7 +127,7 @@ void Scope::popblock(bool varsOnly = false)
 
 void Scope::addvar( const string& varname, const CompilerContext& ctx, bool warn_on_notused )
 {
-	for( unsigned i = variables_.size()-blockdescs_.back().varcount; i < variables_.size(); ++i )
+	for( size_t i = variables_.size()-blockdescs_.back().varcount; i < variables_.size(); ++i )
 	{
 		if (stringicmp( varname, variables_[i].name ) == 0)
 		{
@@ -499,7 +499,7 @@ int Expression::get_num_tokens( int idx ) const
 	}
 	else if (tkn->type == TYP_FUNC)
 	{
-		children = tkn->userfunc->parameters.size(); 
+		children = static_cast<int>(tkn->userfunc->parameters.size()); 
 	}
 	else if (tkn->type == TYP_METHOD)
 	{
@@ -514,7 +514,7 @@ int Expression::get_num_tokens( int idx ) const
 	else if (tkn->id == CTRL_JSR_USERFUNC)
 	{
 		// the CTRL_MAKELOCAL + the parameters
-		children = 1 + tkn->userfunc->parameters.size();
+		children = static_cast<int>(1 + tkn->userfunc->parameters.size());
 	}
 	else if (tkn->id == CTRL_MAKELOCAL)
 	{
@@ -715,7 +715,7 @@ void Expression::optimize_assignments()
 */
 void Expression::optimize()
 {
-	unsigned starting_size;
+	size_t starting_size;
 	do 
 	{
 
@@ -836,7 +836,7 @@ bool Compiler::globalexists( const string& varname,
 							 unsigned& idx,
 							 CompilerContext* ctx ) const
 {
-	for( unsigned i = 0; i < globals_.size(); ++i )
+	for( unsigned i = 0; i < static_cast<unsigned>(globals_.size()); ++i )
 	{
 		 if (stringicmp( varname, globals_[i].name ) == 0)
 		 {
@@ -1587,7 +1587,7 @@ void Compiler::convert_variables( Expression& expr ) const
 
 int Compiler::validate( const Expression& expr, CompilerContext& ctx ) const
 {
-	for (unsigned i = 0; i < expr.tokens.size(); i++)
+	for (unsigned i = 0; i < static_cast<unsigned>(expr.tokens.size()); i++)
 	{
 		Token* tkn = expr.tokens[i];
 
@@ -1716,7 +1716,7 @@ void Compiler::inject( Expression& expr )
 	}
 }
 
-int Compiler::getExpr(CompilerContext& ctx, unsigned flags, unsigned* exprlen, Expression* pex)
+int Compiler::getExpr(CompilerContext& ctx, unsigned flags, size_t* exprlen, Expression* pex)
 {
 	int res;
 	if (pex)
@@ -2006,9 +2006,9 @@ int Compiler::handleSwitch( CompilerContext& ctx, int level )
 					caseblock.push_back( tmppch[1] );
 					caseblock.push_back( static_cast<unsigned char>(strlen( token.tokval() )) );
 					const char* str = token.tokval();
-					int len = strlen( str );
+					size_t len = strlen( str );
 
-					for( int i = 0; i < len; ++i )
+					for( size_t i = 0; i < len; ++i )
 						caseblock.push_back( str[i] );
 				}
 			}
@@ -2129,9 +2129,9 @@ int Compiler::handleSwitch( CompilerContext& ctx, int level )
 	// now, we have to emit the casecmp block.
 	unsigned caseblock_posn;
 	unsigned char* casecmp_raw = new unsigned char[ caseblock.size() ];
-	for( unsigned i = 0; i < caseblock.size(); ++i )
+	for( size_t i = 0; i < caseblock.size(); ++i )
 		casecmp_raw[i] = caseblock[i];
-	program->symbols.append( casecmp_raw, caseblock.size(), caseblock_posn );
+	program->symbols.append( casecmp_raw, static_cast<unsigned int>(caseblock.size()), caseblock_posn );
 	delete[] casecmp_raw;
 	patchoffset( casecmp_posn, caseblock_posn );
 	return 0;
@@ -2578,7 +2578,7 @@ int Compiler::handleBracketedIf(CompilerContext& ctx, int level)
 	token.id = RSV_ST_IF;
 	
 	EScriptProgramCheckpoint checkpt( *program );
-	unsigned jumpend_size = jumpend.size();
+	size_t jumpend_size = jumpend.size();
 
 	bool discard_rest = false;
 	bool discarded_all = true;
@@ -2900,7 +2900,7 @@ int Compiler::handleVarDeclare( CompilerContext& ctx, unsigned save_id )
 		}
 		
 		// Add this variable to the current block/scope 
-		int varindex = 0;
+		unsigned varindex = 0;
 		
 		if (inGlobalScope())
 		{
@@ -2913,7 +2913,7 @@ int Compiler::handleVarDeclare( CompilerContext& ctx, unsigned save_id )
 				v.used = true;
 				v.ctx = savectx;
 
-				varindex = globals_.size();
+				varindex = static_cast<unsigned>(globals_.size());
 				globals_.push_back( v );
 				program->globalvarnames.push_back( tk_varname.tokval() );
 			}
@@ -3275,7 +3275,7 @@ int Compiler::useModule( const char *modulename )
 	
 		UserFunction* uf = puserfunc.release();
 		compmodl->addFunction( uf->name.c_str(), 
-							   uf->parameters.size(),
+							   static_cast<int>(uf->parameters.size()),
 							   uf );
 	}
 	current_file_path = save;
@@ -3510,7 +3510,7 @@ int Compiler::insertBreak( const string& label )
 	// Now, we've eaten the break; or break label; and 'label' contains the label, if any.
 	// first, we must find the block level this refers to.
 	unsigned numVarsToKill = 0;
-	for( int i = localscope.blockdescs_.size()-1; i >= 0; --i )
+	for( int i = static_cast<int>(localscope.blockdescs_.size()-1); i >= 0; --i )
 	{
 		BlockDesc& bd = localscope.blockdescs_[i];
 		
@@ -3618,7 +3618,7 @@ int Compiler::handleContinue( CompilerContext& ctx )
 	// Now, we've eaten the continue; or continue label; and 'label' contains the label, if any.
 	// first, we must find the block level this refers to.
 	unsigned numVarsToKill = 0;
-	for( int i = localscope.blockdescs_.size()-1; i >= 0; --i )
+	for( int i = static_cast<int>(localscope.blockdescs_.size()-1); i >= 0; --i )
 	{
 		BlockDesc& bd = localscope.blockdescs_[i];
 		numVarsToKill += bd.varcount;
@@ -3958,7 +3958,7 @@ int Compiler::_getStatement(CompilerContext& ctx, int level)
 
 		DebugToken DT;
 		DT.sourceFile = curSourceFile;
-		DT.offset = ctx.s - ctx.s_begin;
+		DT.offset = static_cast<unsigned int>(ctx.s - ctx.s_begin);
 		DT.strOffset = last_position;
 
 		program->symbols.append(&DT, sizeof DT, last_position);
@@ -4068,7 +4068,7 @@ int Compiler::_getStatement(CompilerContext& ctx, int level)
 		return 0;
 	}
 
-	unsigned exprlen;
+	size_t exprlen;
 	res = getExpr(ctx, EXPR_FLAG_SEMICOLON_TERM_ALLOWED|EXPR_FLAG_CONSUME_RESULT, &exprlen);
 
 	if (res < 0)
@@ -4243,7 +4243,7 @@ int Compiler::handleFunction( CompilerContext& ctx )
 	program->enterfunction();
 	enterblock( CanNotBeLabelled );
 
-	for( int i = userfunc.parameters.size()-1; i >= 0 ; --i )
+	for( int i = static_cast<unsigned int>(userfunc.parameters.size()-1); i >= 0 ; --i )
 	{
 		program->symbols.append( userfunc.parameters[i].name.c_str(), posn );
 		program->append( StoredToken(Mod_Basic, 
@@ -4360,7 +4360,7 @@ int Compiler::handleBracketedFunction( CompilerContext& ctx )
 	program->enterfunction();
 	enterblock( CanNotBeLabelled );
 
-	for( int i = userfunc.parameters.size()-1; i >= 0 ; --i )
+	for( int i = static_cast<unsigned int>(userfunc.parameters.size()-1); i >= 0 ; --i )
 	{
 		program->symbols.append( userfunc.parameters[i].name.c_str(), posn );
 		program->append( StoredToken(Mod_Basic, 
@@ -4480,7 +4480,7 @@ int Compiler::handleProgram( CompilerContext& ctx, int level )
 		if (token.id == RSV_ENDPROGRAM)
 		{
 			const char* program_body_end = ctx.s;
-			int len = program_body_end - program_body_start + 1;
+			size_t len = program_body_end - program_body_start + 1;
 			program_source = new char[ len ];
 			delete_these_arrays.push_back( program_source );
 			memcpy( program_source, program_body_start, len-1 );
@@ -4597,7 +4597,7 @@ int Compiler::handleBracketedFunction3( UserFunction& userfunc, CompilerContext&
 	{
 		EPExportedFunction ef;
 		ef.name = userfunc.name;
-		ef.nargs = userfunc.parameters.size();
+		ef.nargs = static_cast<unsigned int>(userfunc.parameters.size());
 		ef.PC = program->tokens.count();
 		program->exported_functions.push_back( ef );
 
@@ -4613,7 +4613,7 @@ int Compiler::handleBracketedFunction3( UserFunction& userfunc, CompilerContext&
 	program->enterfunction();
 	enterblock( CanNotBeLabelled );
 
-	for( int i = userfunc.parameters.size()-1; i >= 0 ; --i )
+	for( int i = static_cast<unsigned int>(userfunc.parameters.size()-1); i >= 0 ; --i )
 	{
 		program->symbols.append( userfunc.parameters[i].name.c_str(), posn );
 		program->append( StoredToken(Mod_Basic, 
@@ -4707,7 +4707,7 @@ int Compiler::forward_read_function( CompilerContext& ctx )
 		if (_token.id == RSV_ENDFUNCTION)
 		{
 			const char* function_body_end = ctx.s;
-			int len = function_body_end - function_body_start + 1;
+			size_t len = function_body_end - function_body_start + 1;
 			userfunc.function_body = new char[ len ];
 			delete_these_arrays.push_back( userfunc.function_body );
 			memcpy( userfunc.function_body, function_body_start, len-1 );

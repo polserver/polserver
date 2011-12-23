@@ -180,9 +180,9 @@ ContIterator* BStruct::createIterator( BObject* pIterVal )
     return new BStructIterator( this, pIterVal );
 }
 
-unsigned int BStruct::sizeEstimate() const
+size_t BStruct::sizeEstimate() const
 {
-    unsigned int size = sizeof(BStruct);
+    size_t size = sizeof(BStruct);
     for( Contents::const_iterator itr = contents_.begin(); itr != contents_.end(); ++itr )
     {
         const string& bkey = (*itr).first;
@@ -192,7 +192,7 @@ unsigned int BStruct::sizeEstimate() const
     return size;
 }
 
-unsigned BStruct::mapcount() const
+size_t BStruct::mapcount() const
 {
     return contents_.size();
 }
@@ -324,7 +324,7 @@ BObjectImp* BStruct::call_method_id( const int id, Executor& ex, bool forcebuilt
     {
     case MTH_SIZE:
 		if (ex.numParams() == 0)
-			return new BLong( contents_.size() );
+			return new BLong( static_cast<int>(contents_.size()) );
 		else
 			return new BError( "struct.size() doesn't take parameters." );
 
@@ -335,7 +335,7 @@ BObjectImp* BStruct::call_method_id( const int id, Executor& ex, bool forcebuilt
             if (!keyobj->isa( OTString ))
                 return new BError( "Struct keys must be strings" );
             String* strkey = static_cast<String*>(keyobj->impptr());
-            int nremove = contents_.erase( strkey->value() );
+            int nremove = static_cast<int>(contents_.erase( strkey->value() ));
             return new BLong( nremove );
         }
         else
@@ -352,7 +352,7 @@ BObjectImp* BStruct::call_method_id( const int id, Executor& ex, bool forcebuilt
                 return new BError( "Struct keys must be strings" );
             String* strkey = static_cast<String*>(keyobj->impptr());
             contents_[ strkey->value() ] = BObjectRef( new BObject( valobj->impptr()->copy() ) );
-            return new BLong( contents_.size() );
+            return new BLong( static_cast<int>(contents_.size()) );
         }
         else
         {
@@ -366,7 +366,7 @@ BObjectImp* BStruct::call_method_id( const int id, Executor& ex, bool forcebuilt
             if (!keyobj->isa( OTString ))
                 return new BError( "Struct keys must be strings" );
             String* strkey = static_cast<String*>(keyobj->impptr());
-            int count = contents_.count( strkey->value() );
+            int count = static_cast<int>(contents_.count( strkey->value() ));
             return new BLong( count );
         }
         else
@@ -469,7 +469,7 @@ BObjectRef BStruct::operDotMinus( const char* name )
 BObjectRef BStruct::operDotQMark( const char* name )
 {
     string key(name);
-	int count = contents_.count( key );
+	int count = static_cast<int>(contents_.count( key ));
 	return BObjectRef(new BLong(count));
 }
 

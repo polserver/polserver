@@ -659,6 +659,9 @@
     <ClCompile Include="extobj.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="sqlscrobj.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="action.h">
@@ -1268,6 +1271,12 @@
       <Filter>network</Filter>
     </ClInclude>
     <ClInclude Include="extobj.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sqlscrobj.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="network\auxclient.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

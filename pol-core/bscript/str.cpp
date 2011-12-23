@@ -161,7 +161,7 @@ BObjectImp* String::unpackWithLen( istream& is )
     return new String( tmp );
 }
 
-unsigned int String::sizeEstimate() const
+size_t String::sizeEstimate() const
 {
     return sizeof(String) + value_.capacity();
 }
@@ -179,7 +179,7 @@ int String::find(int begin, const char *target)
     if (pos == string::npos)
         return -1;
     else
-        return pos;
+        return static_cast<int>(pos);
 }
 
 // Returns the amount of alpha-numeric characters in string.
@@ -195,7 +195,7 @@ unsigned int String::alnumlen(void) const
 
 unsigned int String::SafeCharAmt() const
 {
-	int strlen = this->length();
+	int strlen = static_cast<int>(this->length());
 	for ( int i=0; i < strlen; i++ )
 	{
 		char tmp = value_[i];
@@ -235,7 +235,7 @@ BObjectImp* String::selfPlusObjImp(const BObjectImp& objimp) const
 
 void String::remove(const char *rm)
 {
-    int len = strlen(rm);
+    size_t len = strlen(rm);
     string::size_type pos = value_.find( rm );
     if (pos != string::npos)
         value_.erase( pos, len );
@@ -378,7 +378,7 @@ BObjectRef String::OperMultiSubscriptAssign( stack<BObjectRef>& indices, BObject
 		String& rtstr = (String&) start;
         string::size_type pos = value_.find( rtstr.value_ );
         if (pos != string::npos)
-            index = pos+1;
+            index = static_cast<unsigned int>(pos+1);
         else
             return BObjectRef(new UninitObject);
     }
@@ -448,7 +448,7 @@ BObjectRef String::OperMultiSubscript( stack<BObjectRef>& indices )
 		String& rtstr = (String&) start;
         string::size_type pos = value_.find( rtstr.value_ );
         if (pos != string::npos)
-            index = pos+1;
+            index = static_cast<unsigned int>(pos+1);
         else
             return BObjectRef(new UninitObject);
     }

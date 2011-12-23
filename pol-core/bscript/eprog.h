@@ -158,7 +158,7 @@ public:
     void add_ins_dbg_info();
 
     int add_dbg_filename( const std::string& filename );
-    std::string dbg_get_instruction( unsigned atPC ) const;
+    std::string dbg_get_instruction( size_t atPC ) const;
 
     unsigned varcount( unsigned block );
     unsigned parentvariables( unsigned parent );

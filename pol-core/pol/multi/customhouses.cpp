@@ -138,8 +138,8 @@ void CustomHouseDesign::AddOrReplace(CUSTOM_HOUSE_ELEMENT& elem)
 		return;
     char adding_height = tileheight(elem.graphic);
 
-    int xidx = elem.xoffset + xoff;
-    int yidx = elem.yoffset + yoff;
+    u32 xidx = elem.xoffset + xoff;
+    u32 yidx = elem.yoffset + yoff;
     if(!ValidLocation(xidx,yidx))
         return;
     for( HouseFloorZColumn::iterator itr = Elements[floor_num].data.at(xidx).at(yidx).begin(),
@@ -169,8 +169,8 @@ bool CustomHouseDesign::Erase(u32 xoffset, u32 yoffset, u8 z, int minheight)
 	if ( floor_num == -1 )
 		return false;
   
-    int xidx = xoffset + xoff;
-    int yidx = yoffset + yoff;
+    u32 xidx = xoffset + xoff;
+    u32 yidx = yoffset + yoff;
     if(!ValidLocation(xidx,yidx))
         return false;
     for( HouseFloorZColumn::iterator itr = Elements[floor_num].data.at(xidx).at(yidx).begin(),
@@ -195,8 +195,8 @@ bool CustomHouseDesign::EraseGraphicAt(u16 graphic, u32 xoffset, u32 yoffset, u8
 	if ( floor_num == -1 )
 		return false;
 
-    int xidx = xoffset + xoff;
-    int yidx = yoffset + yoff;
+    u32 xidx = xoffset + xoff;
+    u32 yidx = yoffset + yoff;
     if(!ValidLocation(xidx,yidx))
         return false;
     for( HouseFloorZColumn::iterator itr = Elements[floor_num].data.at(xidx).at(yidx).begin(),
@@ -222,8 +222,8 @@ void CustomHouseDesign::ReplaceDirtFloor(u32 x, u32 y)
 
     bool floor_exists = false;
 
-    int xidx = x + xoff;
-    int yidx = y + yoff;
+    u32 xidx = x + xoff;
+    u32 yidx = y + yoff;
     if(!ValidLocation(xidx,yidx))
         return;
     for( HouseFloorZColumn::iterator itr = Elements[floor_num].data.at(xidx).at(yidx).begin(),

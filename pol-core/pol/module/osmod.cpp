@@ -256,7 +256,7 @@ BObjectImp* OSExecutorModule::wait_for_event()
 
 BObjectImp* OSExecutorModule::events_waiting()
 {
-	return new BLong( events_.size() );
+	return new BLong( static_cast<int>(events_.size()) );
 }
 
 BObjectImp* OSExecutorModule::start_script()
@@ -514,7 +514,7 @@ BObjectImp* OSExecutorModule::mf_Log()
 
 BObjectImp* OSExecutorModule::mf_system_rpm()
 {
-	return new BLong( last_rpm );
+	return new BLong( static_cast<int>(last_rpm) );
 }
 
 BObjectImp* OSExecutorModule::mf_set_priority()
@@ -651,7 +651,7 @@ BObjectImp* OSExecutorModule::mf_OpenURL()
 			unsigned urllen;
 			const char *url = str->data();
 
-			urllen = strlen(url);
+			urllen = static_cast<unsigned int>(strlen(url));
 			if (urllen > URL_MAX_LEN)
 				urllen = URL_MAX_LEN;
 

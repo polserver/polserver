@@ -1009,7 +1009,7 @@ client->checkpoint = 61; //CNXBUG
 		while ( !exit_signalled && client->isReallyConnected() )
 		{
 			CLIENT_CHECKPOINT(1);
-			int nfds = 0;
+			SOCKET nfds = 0;
 			FD_ZERO( &c_recv_fd );
 			FD_ZERO( &c_err_fd );
 			FD_ZERO( &c_send_fd );
@@ -1019,7 +1019,7 @@ client->checkpoint = 61; //CNXBUG
 			if (client->have_queued_data())
 				FD_SET( client->csocket, &c_send_fd );
 			checkpoint = 2;
-			if ((int)(client->csocket+1) > nfds) 
+			if ((SOCKET)(client->csocket+1) > nfds) 
 				nfds = client->csocket+1;
 
 			int res;
@@ -1028,7 +1028,7 @@ client->checkpoint = 61; //CNXBUG
 				c_select_timeout.tv_sec = 2;
 				c_select_timeout.tv_usec = 0;
 				CLIENT_CHECKPOINT(2);
-				res = select( nfds, &c_recv_fd, &c_send_fd, &c_err_fd, &c_select_timeout );
+				res = select( static_cast<int>(nfds), &c_recv_fd, &c_send_fd, &c_err_fd, &c_select_timeout );
 				CLIENT_CHECKPOINT(3);
 			} while (res < 0 && !exit_signalled && socket_errno == SOCKET_ERRNO(EINTR));
 			checkpoint = 3;
@@ -1768,7 +1768,7 @@ void start_threads()
 void check_incoming_data(void)
 {
 	unsigned cli;
-	int nfds = 0;
+	SOCKET nfds = 0;
 	FD_ZERO( &recv_fd );
 	FD_ZERO( &err_fd );
 	FD_ZERO( &send_fd );
@@ -1787,7 +1787,7 @@ void check_incoming_data(void)
 		if (client->have_queued_data())
 			FD_SET( client->csocket, &send_fd );
 
-		if ((int)(client->csocket+1) > nfds) 
+		if ((SOCKET)(client->csocket+1) > nfds) 
 			nfds = client->csocket+1;
 	}
 
@@ -1796,7 +1796,7 @@ void check_incoming_data(void)
 	{
 		select_timeout.tv_sec = 0;
 		select_timeout.tv_usec = config.select_timeout_usecs;
-		res = select( nfds, &recv_fd, &send_fd, &err_fd, &select_timeout );
+		res = select( static_cast<int>(nfds), &recv_fd, &send_fd, &err_fd, &select_timeout );
 	} while (res < 0 && !exit_signalled && socket_errno == SOCKET_ERRNO(EINTR));
 
 	

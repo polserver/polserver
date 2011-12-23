@@ -50,6 +50,14 @@ string hexint( unsigned long v )
     os << "0x" << hex << v;
     return OSTRINGSTREAM_STR(os);
 }
+#ifdef _WIN64
+string hexint( size_t v )
+{
+	OSTRINGSTREAM os;
+	os << "0x" << hex << v;
+	return OSTRINGSTREAM_STR(os);
+}
+#endif
 string decint( unsigned short v )
 {
     OSTRINGSTREAM os;
@@ -83,6 +91,15 @@ string decint( unsigned long v )
     os << v;
     return OSTRINGSTREAM_STR(os);
 }
+
+#ifdef _WIN64
+string decint( size_t v )
+{
+	OSTRINGSTREAM os;
+	os << v;
+	return OSTRINGSTREAM_STR(os);
+}
+#endif
 void splitnamevalue( const string& istr, 
                      string& propname, 
                      string& propvalue )

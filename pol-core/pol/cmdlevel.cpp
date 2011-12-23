@@ -95,10 +95,10 @@ CmdLevel* FindCmdLevelByAlias( const std::string& str )
 
 ObjArray* GetCommandsInPackage(Package* m_pkg, int cmdlvl_num)
 {
-	if ( cmdlvl_num >= int(cmdlevels2.size()) )
-			cmdlvl_num = cmdlevels2.size()-1;
+	if ( cmdlvl_num >= static_cast<int>(cmdlevels2.size()) )
+			cmdlvl_num = static_cast<int>(cmdlevels2.size()-1);
 
-	CmdLevel& cmdlevel = cmdlevels2[int(cmdlvl_num)];
+	CmdLevel& cmdlevel = cmdlevels2[cmdlvl_num];
 	
 	auto_ptr<ObjArray> script_names(new ObjArray);
 	
@@ -146,7 +146,7 @@ void load_cmdlevels()
 	
 	while (cf.read( elem ))
 	{
-		CmdLevel cmdlevel( elem, cmdlevels2.size() );
+		CmdLevel cmdlevel( elem, static_cast<int>(cmdlevels2.size()) );
 		cmdlevels2.push_back( cmdlevel );
 	}
 

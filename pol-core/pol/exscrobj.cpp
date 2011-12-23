@@ -175,25 +175,25 @@ BObjectRef ScriptExObjImp::get_member_id( const int id )
 	case MBR_STATE:
 		return BObjectRef( new String(uoexec->state()) );
 	case MBR_INSTR_CYCLES:
-		return BObjectRef( new Double( uoexec->instr_cycles ) );
+		return BObjectRef( new Double( static_cast<double>(uoexec->instr_cycles )) );
 	case MBR_SLEEP_CYCLES:
-		return BObjectRef( new Double( uoexec->sleep_cycles ) );
+		return BObjectRef( new Double( static_cast<double>(uoexec->sleep_cycles) ) );
 	case MBR_CONSEC_CYCLES:
     {
 		u64 consec_cycles = uoexec->instr_cycles 
 					   - (  uoexec->warn_runaway_on_cycle 
 						  - config.runaway_script_threshold) 
 					   + uoexec->runaway_cycles;
-		return BObjectRef( new Double( consec_cycles ) );
+		return BObjectRef( new Double( static_cast<double>(consec_cycles) ) );
     }
 	case MBR_PC:
 		return BObjectRef( new BLong( uoexec->PC ) );
 	case MBR_CALL_DEPTH:
-		return BObjectRef( new BLong( uoexec->ControlStack.size() ) );
+		return BObjectRef( new BLong( static_cast<int>(uoexec->ControlStack.size()) ) );
 	case MBR_NUM_GLOBALS:
-		return BObjectRef( new BLong( uoexec->Globals2.size() ) );
+		return BObjectRef( new BLong( static_cast<int>(uoexec->Globals2.size()) ) );
 	case MBR_VAR_SIZE:
-		return BObjectRef( new BLong( uoexec->sizeEstimate() ) );
+		return BObjectRef( new BLong( static_cast<int>(uoexec->sizeEstimate()) ) );
 	case MBR_GLOBALS:
 		return BObjectRef( GetGlobals( uoexec ) );
 	case MBR_ATTACHED_TO:

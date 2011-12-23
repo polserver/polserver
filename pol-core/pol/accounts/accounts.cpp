@@ -141,7 +141,7 @@ Account* duplicate_account( const string& oldacctname, const string& newacctname
 
 Account* find_account( const char* acctname )
 {
-  	for( unsigned idx = 0; idx < accounts.size(); idx++ )
+  	for( size_t idx = 0; idx < accounts.size(); idx++ )
 	{
 		if (stricmp( accounts[idx]->name(), acctname ) == 0)
 		{

@@ -54,7 +54,7 @@ public:
 	virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin=false );
 	virtual BObjectImp* copy() const;
 	virtual std::string getStringRep() const;
-	virtual unsigned int sizeEstimate() const { return sizeof(*this); }
+	virtual size_t sizeEstimate() const { return sizeof(*this); }
 	virtual const char* typeOf() const { return "XMLFile"; }
 	virtual int typeOfInt() const {return OTXMLFile; }
 	virtual bool isTrue() const;
@@ -98,7 +98,7 @@ public:
 	virtual const char* typeOf() const { return "XMLNode"; }
 	virtual int typeOfInt() const { return OTXMLNode; }
 
-	virtual unsigned int sizeEstimate() const
+	virtual size_t sizeEstimate() const
 	{
 		return sizeof(*this);
 	}
@@ -134,7 +134,7 @@ public:
 	
 	virtual const char* typeOf() const { return "XMLAttributes"; }
 	virtual int typeOfInt() const { return OTXMLAttributes; }
-	virtual unsigned int sizeEstimate() const { return sizeof(*this); }
+	virtual size_t sizeEstimate() const { return sizeof(*this); }
 	
 	ContIterator* createIterator( BObject* pIterVal )
 	{

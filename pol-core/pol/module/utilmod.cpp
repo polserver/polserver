@@ -137,7 +137,7 @@ BObjectImp* UtilExecutorModule::mf_StrFormatTime()
 	time_struct = localtime(&seconds);
 
 	//strftime uses assert check for invalid format -> precheck it
-	unsigned len = format_string->length();
+	size_t len = format_string->length();
 	const char* str = format_string->data();
 	while (len-- > 0)
 	{

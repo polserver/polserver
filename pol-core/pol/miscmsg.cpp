@@ -171,7 +171,7 @@ void handle_char_profile_request( Client* client, PKTBI_B8_IN* msg )
 			int i = 0;
 
 			u16 wtextbuf[SPEECH_MAX_LEN];
-			size_t wtextbuflen;
+			u32 wtextbuflen;
 
 			// Preprocess the text into a sanity-checked, printable form in textbuf
 			if (intextlen < 0)

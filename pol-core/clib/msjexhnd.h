@@ -36,8 +36,10 @@ private:
       static LPTSTR GetExceptionString( DWORD dwCode );
       static BOOL GetLogicalAddress(PVOID addr, PTSTR szModule, DWORD len,
                                     DWORD& section, DWORD& offset );
+#ifndef _M_X64
       static void IntelStackWalk( PCONTEXT pContext );
-#if 1
+#endif
+#ifndef _M_X64
       static void ImagehlpStackWalk( PCONTEXT pContext );
 #endif
       static int __cdecl _tprintf(const TCHAR * format, ...);

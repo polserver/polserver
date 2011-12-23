@@ -15,7 +15,7 @@ Notes
 
 Coordinate StartingLocation::select_coordinate() const
 {
-    int sidx = random_int( coords.size() );
+    u32 sidx = random_int( static_cast<int>(coords.size()) );
 
     return coords[ sidx ];
 }

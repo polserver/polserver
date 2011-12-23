@@ -41,8 +41,8 @@ void StoreCmdArgs( int in_argc, char **in_argv )
  */
 const char *FindArg( const char *tag )
 {
-    int i;
-	int taglen = strlen( tag );
+    size_t i;
+	size_t taglen = strlen( tag );
 	for( i = 1; i < argc; i++ )
     {
 		const char *parm = argv[i];
@@ -65,8 +65,8 @@ const char *FindArg( const char *tag )
  */
 const char *FindArg2( const char *alltag, const char *dflt )
 {
-    int i;
-	int taglen = strlen( alltag );
+    size_t i;
+	size_t taglen = strlen( alltag );
 	for( i = 1; i < argc; i++ )
     {
 		const char *parm = argv[i];
@@ -79,8 +79,8 @@ const char *FindArg2( const char *alltag, const char *dflt )
 }
 const char *FindArg2( const char *alltag )
 {
-    int i;
-	int taglen = strlen( alltag );
+    size_t i;
+	size_t taglen = strlen( alltag );
 	for( i = 1; i < argc; i++ )
     {
 		const char *parm = argv[i];
@@ -116,8 +116,8 @@ int LongArg( const char *tag, int deflt )
 
 int LongArg2( const char* alltag, int dflt )
 {
-    int i;
-	int taglen = strlen( alltag );
+    size_t i;
+	size_t taglen = strlen( alltag );
 	for( i = 1; i < argc; i++ )
     {
 		const char *parm = argv[i];

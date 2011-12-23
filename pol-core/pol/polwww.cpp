@@ -140,7 +140,7 @@ bool http_readline( Socket& sck, std::string& s )
 }
 void http_writeline( Socket& sck, const std::string& s )
 {
-	sck.send( (void *) s.c_str(), s.length() );
+	sck.send( (void *) s.c_str(), static_cast<unsigned int>(s.length()) );
 	sck.send( "\n", 1 );
 }
 

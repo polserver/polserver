@@ -81,7 +81,7 @@ public:
     const BlockDesc& blockdesc() const { return blockdescs_.back(); }
     bool varexists( const std::string& varname, unsigned& idx ) const;
     bool varexists( const std::string& varname ) const;
-    unsigned numVariables() const { return variables_.size(); }
+    unsigned int numVariables() const { return static_cast<unsigned int>(variables_.size()); }
 private:
 
     Variables variables_;
@@ -208,7 +208,7 @@ followed by a WHILE or DO statement.
     int eatToken( CompilerContext& ctx, BTokenId tokenid );
     int getExpr(CompilerContext& ctx, 
                 unsigned expr_flags, 
-                unsigned* exprlen = NULL,
+                size_t* exprlen = NULL,
                 Expression* ex = NULL);
     int getExpr2(CompilerContext& ctx, unsigned expr_flags,Expression* ex = NULL);
     int getExprInParens(CompilerContext& ctx, Expression* ex = NULL);

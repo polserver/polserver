@@ -68,7 +68,7 @@ public:
     void SetHeight(u32 _height)
     {
         height = _height;
-        for(unsigned int i=0; i<width; i++)
+        for(size_t i=0; i<width; i++)
             data.at(i).resize(height);
     }
     void SetWidth(u32 _width)

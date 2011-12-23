@@ -39,7 +39,7 @@ MAPCELL FileMapServer::GetMapCell( unsigned short x, unsigned short y ) const
     if (block_index != _cur_mapblock_index)
     {
         // read the existing block in
-        unsigned offset = block_index * sizeof(_cur_mapblock);
+        fstream::pos_type offset = block_index * sizeof(_cur_mapblock);
         _mapfile.Seek( offset );
         _mapfile.Read( _cur_mapblock );
 

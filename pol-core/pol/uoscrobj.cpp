@@ -1087,7 +1087,7 @@ BObjectImp* Item::script_method_id(const int id, Executor& ex)
 			
 			new_stack->x = x;
 			new_stack->y = y;
-			new_stack->z = z;
+			new_stack->z = static_cast<s8>(z);
 			new_stack->realm = realm;
 			add_item_to_world(new_stack);
 			move_item(new_stack, x, y, static_cast<signed char>(z), realm);
@@ -1160,7 +1160,7 @@ BObjectImp* Item::custom_script_method( const char* methodname, Executor& ex )
 	if (id.method_script != NULL)
 	{
 		unsigned PC;
-		if (id.method_script->FindExportedFunction( methodname, ex.numParams()+1, PC ))
+		if (id.method_script->FindExportedFunction( methodname, static_cast<unsigned int>(ex.numParams()+1), PC ))
 			return id.method_script->call( PC, make_ref(), ex.fparams );
 	}
 	return NULL;
@@ -1178,7 +1178,7 @@ BObject Item::call_custom_method( const char* methodname, BObjectImpRefVec& pmor
 	if (id.method_script != NULL)
 	{
 		unsigned PC;
-		if (id.method_script->FindExportedFunction( methodname, pmore.size()+1, PC ))
+		if (id.method_script->FindExportedFunction( methodname, static_cast<unsigned int>(pmore.size()+1), PC ))
 			return id.method_script->call( PC, new EItemRefObjImp(this), pmore );
 		else
 		{
@@ -2266,7 +2266,7 @@ BObjectImp* Character::custom_script_method( const char* methodname, Executor& e
 	if (uoclient_general.method_script != NULL)
 	{
 		unsigned PC;
-		if (uoclient_general.method_script->FindExportedFunction( methodname, ex.numParams()+1, PC ))
+		if (uoclient_general.method_script->FindExportedFunction( methodname, static_cast<unsigned int>(ex.numParams()+1), PC ))
 			return uoclient_general.method_script->call( PC, make_ref(), ex.fparams );
 	}
 	return NULL;
@@ -2491,7 +2491,7 @@ BObjectImp* NPC::custom_script_method( const char* methodname, Executor& ex )
 	if (template_.method_script != NULL)
 	{
 		unsigned PC;
-		if (template_.method_script->FindExportedFunction( methodname, ex.numParams()+1, PC ))
+		if (template_.method_script->FindExportedFunction( methodname, static_cast<unsigned int>(ex.numParams()+1), PC ))
 			return template_.method_script->call( PC, make_ref(), ex.fparams );
 	}
 	return NULL;

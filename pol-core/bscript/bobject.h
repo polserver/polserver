@@ -15,7 +15,7 @@ Notes
 #define __BOBJECT_H
 
 #ifdef _MSC_VER
-#pragma warning(disable:4786)
+	#pragma warning(disable:4786)
 #endif
 
 #include "../clib/clib.h"
@@ -32,15 +32,15 @@ class ContIterator;
 class Executor;
 
 #ifdef NDEBUG
-#define BOBJECTIMP_DEBUG 0
+	#define BOBJECTIMP_DEBUG 0
 #else
-#define BOBJECTIMP_DEBUG 1
+	#define BOBJECTIMP_DEBUG 1
 #endif
 
 #if BOBJECTIMP_DEBUG
-#define INLINE_BOBJECTIMP_CTOR 0
+	#define INLINE_BOBJECTIMP_CTOR 0
 #else
-#define INLINE_BOBJECTIMP_CTOR 1
+	#define INLINE_BOBJECTIMP_CTOR 1
 #endif
 
 class BObjectImp : public ref_counted
@@ -124,7 +124,7 @@ public:
     virtual std::string getStringRep() const = 0;
     virtual std::string getFormattedStringRep() const;
     
-    virtual unsigned int sizeEstimate() const = 0; 
+    virtual size_t sizeEstimate() const = 0; 
     virtual const char* typeOf() const;
 	virtual int typeOfInt() const;
 
@@ -221,9 +221,9 @@ public:
 	~BObject();
      // NOTE: BObject should not be derived from!
 
-    unsigned int sizeEstimate() const;
+    size_t sizeEstimate() const;
 
-    void* operator new( size_t len );
+    void* operator new( std::size_t len );
     void operator delete( void * );
 
     bool operator!=(const BObject& obj) const;
@@ -263,7 +263,7 @@ typedef vector< ref_ptr<BObjectImp> > BObjectImpRefVec;
 
 extern fixed_allocator<sizeof(BObject),256> bobject_alloc;
 
-inline void* BObject::operator new( size_t len )
+inline void* BObject::operator new( std::size_t len )
 {
     return bobject_alloc.allocate();
 }
@@ -307,7 +307,7 @@ public:
     explicit BObjectRef( BObject *pobj = NULL ) : ref_ptr<BObject>(pobj) {}
     explicit BObjectRef( BObjectImp *pimp ) : ref_ptr<BObject>( new BObject(pimp) ) {}
     void set( BObject *obj ) { ref_ptr<BObject>::set( obj ); }
-    unsigned int sizeEstimate() const;
+    size_t sizeEstimate() const;
 };
 
 
@@ -321,7 +321,7 @@ class UninitObject : public BObjectImp
     static ref_ptr<BObjectImp> SharedInstanceOwner;
 
     virtual BObjectImp *copy() const;
-    virtual unsigned int sizeEstimate() const; 
+    virtual size_t sizeEstimate() const; 
     virtual std::string getStringRep() const { return "<uninitialized object>"; }
     virtual void printOn( std::ostream& os ) const;
 
@@ -329,7 +329,7 @@ class UninitObject : public BObjectImp
     virtual bool isEqual(const BObjectImp& objimp ) const;
     virtual bool isLessThan(const BObjectImp& objimp) const;
 
-    void* operator new( size_t len );
+    void* operator new( std::size_t len );
     void operator delete( void * );
 
     static UninitObject* create()
@@ -344,7 +344,7 @@ class UninitObject : public BObjectImp
 };
 extern fixed_allocator<sizeof(UninitObject),256> uninit_alloc;
 
-inline void* UninitObject::operator new( size_t len )
+inline void* UninitObject::operator new( std::size_t len )
 {
     return uninit_alloc.allocate();
 }
@@ -372,7 +372,7 @@ public:
 
     virtual void packonto( std::ostream& os ) const;
     static BObjectImp* unpack( std::istream& is );
-    virtual unsigned int sizeEstimate() const; 
+    virtual size_t sizeEstimate() const; 
     virtual BObjectImp *copy() const;
 
     virtual BObjectRef operDotPlus( const char* name );
@@ -415,7 +415,7 @@ class BLong : public BObjectImp
     explicit BLong(int lval = 0L);
     BLong(const BLong& L);
 #else
-    explicit BLong(int lval = 0L) : BObjectImp( OTLong ), lval_(lval) {}
+    explicit BLong(int lval = 0L) : BObjectImp( OTLong ), lval_(static_cast<int>(lval)) {}
     BLong(const BLong& L) : BObjectImp( OTLong ), lval_(L.lval_) { }
 #endif
 
@@ -426,7 +426,7 @@ class BLong : public BObjectImp
 
   public:
 
-    void* operator new( size_t len );
+    void* operator new( std::size_t len );
     void operator delete( void * );
     void operator delete( void *, size_t );
 
@@ -435,7 +435,7 @@ class BLong : public BObjectImp
     virtual std::string pack() const;
 	static std::string pack( int val ); 
     virtual void packonto( std::ostream& os ) const;
-    virtual unsigned int sizeEstimate() const; 
+    virtual size_t sizeEstimate() const; 
 
     int value() const { return lval_; }
     int increment() { return ++lval_; }
@@ -476,7 +476,7 @@ class BLong : public BObjectImp
 };
 
 extern fixed_allocator<sizeof(BLong),256> blong_alloc;
-inline void* BLong::operator new( size_t len )
+inline void* BLong::operator new( std::size_t len )
 {
     passert_paranoid( len == sizeof(BLong) );
     return blong_alloc.allocate();
@@ -507,7 +507,7 @@ class Double : public BObjectImp
      ~Double() {}
 
   public:
-    void* operator new( size_t len );
+    void* operator new( std::size_t len );
     void operator delete( void * );
 
 
@@ -515,7 +515,7 @@ class Double : public BObjectImp
     static BObjectImp* unpack( std::istream& is );
     virtual std::string pack() const;
     virtual void packonto( std::ostream& os ) const;
-    virtual unsigned int sizeEstimate() const; 
+    virtual size_t sizeEstimate() const; 
 
     double value() const { return dval_; }
     void copyvalue( const Double& dbl ) { dval_ = dbl.dval_; }
@@ -548,7 +548,7 @@ class Double : public BObjectImp
 };
 
 extern fixed_allocator<sizeof(Double),256> double_alloc;
-inline void* Double::operator new( size_t len )
+inline void* Double::operator new( std::size_t len )
 {
     passert_paranoid( len == sizeof(Double) );
     return double_alloc.allocate();
@@ -581,7 +581,7 @@ class BApplicPtr : public BObjectImp
 
     virtual std::string getStringRep() const;
     virtual void printOn(std::ostream&) const;
-    virtual unsigned int sizeEstimate() const; 
+    virtual size_t sizeEstimate() const; 
 
   private:
     void *ptr_;
@@ -600,7 +600,7 @@ public: // Class Machinery
 
     virtual std::string getStringRep() const;
     virtual void printOn(std::ostream&) const;
-    virtual unsigned int sizeEstimate() const = 0; 
+    virtual size_t sizeEstimate() const = 0; 
 
 private:
     const BApplicObjType* object_type_;
@@ -632,7 +632,7 @@ public:
     virtual const char* typeOf() const = 0;
 	virtual int typeOfInt() const = 0;
     virtual BObjectImp* copy() const = 0;
-    virtual unsigned int sizeEstimate() const; 
+    virtual size_t sizeEstimate() const; 
 
 protected:
     T obj_;
@@ -652,7 +652,7 @@ BApplicObj<T>::BApplicObj( const BApplicObjType* object_type, const T& obj ) :
 }
 
 template<class T>
-unsigned int BApplicObj<T>::sizeEstimate() const
+size_t BApplicObj<T>::sizeEstimate() const
 {
     return sizeof(BApplicObj<T>);
 }

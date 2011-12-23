@@ -181,7 +181,7 @@ using std::wcout; // wcout rox :)
         getParam( 2, font ) && // todo: getFontParam
         getParam( 3, color ))   // todo: getColorParam
     {
-		unsigned textlen = oText->ref_arr.size();
+		size_t textlen = oText->ref_arr.size();
 		if ( textlen > SPEECH_MAX_LEN )
 			return new BError( "Unicode array exceeds maximum size." );
 		if ( lang->length() != 3 )
@@ -214,7 +214,7 @@ BObjectImp* UnicodeExecutorModule::mf_PrintTextAboveUC()
         getParam( 4, color ) &&
 		getParam( 5, journal_print) )
     {
-		unsigned textlen = oText->ref_arr.size();
+		size_t textlen = oText->ref_arr.size();
 		if ( textlen > SPEECH_MAX_LEN )
 			return new BError( "Unicode array exceeds maximum size." );
 		if ( lang->length() != 3 )
@@ -246,7 +246,7 @@ BObjectImp* UnicodeExecutorModule::mf_PrivateTextAboveUC()
         getParam( 4, font ) &&
         getParam( 5, color ) )
     {
-		unsigned textlen = oText->ref_arr.size();
+		size_t textlen = oText->ref_arr.size();
 		if ( textlen > SPEECH_MAX_LEN )
 			return new BError( "Unicode array exceeds maximum size." );
 		if ( lang->length() != 3 )
@@ -284,7 +284,7 @@ BObjectImp* UnicodeExecutorModule::mf_RequestInputUC()
 	        return new BError( "Another script has an active prompt" );
 	    }
 
-		unsigned textlen = oPrompt->ref_arr.size();
+		size_t textlen = oPrompt->ref_arr.size();
 		if ( textlen > SPEECH_MAX_LEN )
 			return new BError( "Unicode array exceeds maximum size." );
 		if ( lang->length() != 3 )
@@ -323,7 +323,7 @@ BObjectImp* UnicodeExecutorModule::mf_SendSysMessageUC()
     {
         if (chr->has_active_client())
         {
-			unsigned textlen = oText->ref_arr.size();
+			size_t textlen = oText->ref_arr.size();
 			if ( textlen > SPEECH_MAX_LEN )
 				return new BError( "Unicode array exceeds maximum size." );
 			if ( lang->length() != 3 )

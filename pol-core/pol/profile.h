@@ -73,38 +73,38 @@ do { \
 #define GET_PROFILECLOCK( timer ) profilevars.tmr_##timer##_clocks_last_min
 #define GET_PROFILECLOCK_MS( timer ) ( static_cast<unsigned int>( profilevars.tmr_##timer##_clocks_last_min * 1000.0 / CLOCKS_PER_SEC ) )
 
-extern unsigned int rotations, last_rotations;
-extern unsigned int last_rpm;
+extern size_t rotations, last_rotations;
+extern size_t last_rpm;
 
 //extern unsigned int instructions;
 extern u64 last_instructions;
-extern unsigned int last_sipm;
+extern size_t last_sipm;
 
 extern u64 sleep_cycles;
 extern u64 last_sleep_cycles;
-extern unsigned int last_scpm;
+extern size_t last_scpm;
 
-extern unsigned int busy_sysload_cycles, last_busy_sysload_cycles;
-extern unsigned int nonbusy_sysload_cycles, last_nonbusy_sysload_cycles;
-extern unsigned int sysload_nprocs, last_sysload_nprocs;
-extern unsigned int last_sysload;
+extern size_t busy_sysload_cycles, last_busy_sysload_cycles;
+extern size_t nonbusy_sysload_cycles, last_nonbusy_sysload_cycles;
+extern size_t sysload_nprocs, last_sysload_nprocs;
+extern size_t last_sysload;
 
 extern u64 last_cpu_total;
-extern unsigned int last_cputime;
+extern size_t last_cputime;
 
 extern u64 script_passes;
 extern u64 last_script_passes;
-extern unsigned int last_sppm;
+extern size_t last_sppm;
 
 //extern unsigned int scheduler_passes, last_scheduler_passes;
 //extern unsigned int last_schm;
 
-extern unsigned int script_passes_activity;
-extern unsigned int script_passes_noactivity;
-extern unsigned int last_script_passes_activity;
-extern unsigned int last_script_passes_noactivity;
+extern size_t script_passes_activity;
+extern size_t script_passes_noactivity;
+extern size_t last_script_passes_activity;
+extern size_t last_script_passes_noactivity;
 
-extern unsigned int mapcache_hits, last_mapcache_hits;
-extern unsigned int mapcache_misses, last_mapcache_misses;
+extern size_t mapcache_hits, last_mapcache_hits;
+extern size_t mapcache_misses, last_mapcache_misses;
 
 #endif

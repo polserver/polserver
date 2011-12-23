@@ -144,7 +144,7 @@ void send_sysmessage_cl_affix(Client *client, unsigned int cliloc_num, const cha
 		while( arguments[textlen] != L'\0' )
 			++textlen;
 	}
-	affix_len = strlen(affix)+1;
+	affix_len = static_cast<unsigned>(strlen(affix)+1);
 	if (affix_len > SPEECH_MAX_LEN+1)
 		affix_len = SPEECH_MAX_LEN+1;
 
@@ -183,7 +183,7 @@ void say_above_cl_affix(UObject *obj, unsigned int cliloc_num, const char* affix
 		while( arguments[textlen] != L'\0' )
 			++textlen;
 	}
-	affix_len = strlen(affix)+1;
+	affix_len = static_cast<unsigned>(strlen(affix)+1);
 	if (affix_len > SPEECH_MAX_LEN+1)
 		affix_len = SPEECH_MAX_LEN+1;
 
@@ -224,7 +224,7 @@ void private_say_above_cl_affix(Character *chr, const UObject* obj, unsigned int
 		while( arguments[textlen] != L'\0' )
 			++textlen;
 	}
-	affix_len = strlen(affix)+1;
+	affix_len = static_cast<unsigned>(strlen(affix)+1);
 	if (affix_len > SPEECH_MAX_LEN+1)
 		affix_len = SPEECH_MAX_LEN+1;
 
@@ -295,7 +295,7 @@ void build_sysmessage_cl_affix(PktOut_CC* msg,unsigned int cliloc_num, const cha
 		while( arguments[textlen] != L'\0' )
 			++textlen;
 	}
-	affix_len = strlen(affix)+1;
+	affix_len = static_cast<unsigned>(strlen(affix)+1);
 	if (affix_len > SPEECH_MAX_LEN+1)
 		affix_len = SPEECH_MAX_LEN+1;
 

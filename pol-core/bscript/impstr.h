@@ -51,7 +51,7 @@ class String : public BObjectImp
       {
 		  return new String(*this);
       }
-    virtual unsigned int sizeEstimate() const; 
+    virtual size_t sizeEstimate() const; 
 
 	// FIXME: Possibly eliminate this later and have [ ] operator support?
 	// Or stick to functions, overload them with other substring getting methods.
@@ -65,7 +65,7 @@ class String : public BObjectImp
 	void set( char *newstr ); /* String now owns newstr */
     const char *data() const { return value_.c_str(); }
     const std::string& value() const { return value_; }
-    unsigned length() const { return value_.length(); }
+    size_t length() const { return value_.length(); }
     void toUpper(void);
     void toLower(void);
 	

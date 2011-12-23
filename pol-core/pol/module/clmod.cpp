@@ -57,7 +57,7 @@ BObjectImp* ClilocExecutorModule::mf_SendSysMessageCL()
 			{
 				if ( oText->ref_arr.size() > SPEECH_MAX_LEN )
 					return new BError( "Unicode array exceeds maximum size." );
-				unsigned textlen = oText->ref_arr.size();
+				size_t textlen = oText->ref_arr.size();
 				if ( !convertArrayToUC(oText, cltext, textlen, false) )
 					return new BError( "Invalid value in Unicode array." );
 			}
@@ -94,7 +94,7 @@ BObjectImp* ClilocExecutorModule::mf_PrintTextAboveCL()
 		{
 			if ( oText->ref_arr.size() > SPEECH_MAX_LEN )
 				return new BError( "Unicode array exceeds maximum size." );
-			unsigned textlen = oText->ref_arr.size();
+			size_t textlen = oText->ref_arr.size();
 			if ( !convertArrayToUC(oText, cltext, textlen, false) )
 				return new BError( "Invalid value in Unicode array." );
 		}
@@ -133,7 +133,7 @@ BObjectImp* ClilocExecutorModule::mf_PrintTextAbovePrivateCL()
 			{
 				if ( oText->ref_arr.size() > SPEECH_MAX_LEN )
 					return new BError( "Unicode array exceeds maximum size." );
-				unsigned textlen = oText->ref_arr.size();
+				size_t textlen = oText->ref_arr.size();
 				if ( !convertArrayToUC(oText, cltext, textlen, false) )
 					return new BError( "Invalid value in Unicode array." );
 			}
