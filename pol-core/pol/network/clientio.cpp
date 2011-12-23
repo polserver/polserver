@@ -194,15 +194,16 @@ void Client::transmit( const void *data, int len, bool needslock)
 	{
 		PacketHookData* phd = NULL;
 		handled = GetAndCheckPacketHooked(this, data, phd);
-		if (!handled)
-			return;
-		if (needslock)
+		if (handled)
 		{
-			PolLock lock;
-			CallOutgoingPacketExportedFunction(this, data, len, p, phd, handled);
+			if (needslock)
+			{
+				PolLock lock;
+				CallOutgoingPacketExportedFunction(this, data, len, p, phd, handled);
+			}
+			else
+				CallOutgoingPacketExportedFunction(this, data, len, p, phd, handled);
 		}
-		else
-			CallOutgoingPacketExportedFunction(this, data, len, p, phd, handled);
 	}	
 
     if(handled)
