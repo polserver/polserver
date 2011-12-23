@@ -36,7 +36,7 @@ MAPTILE_CELL MapTileServer::GetMapTile( unsigned short x, unsigned short y )
     int block_index = yblock * (_descriptor.width >> MAPTILE_SHIFT) + xblock;
     if (block_index != _cur_block_index)
     {
-        unsigned offset = block_index * sizeof _cur_block;
+        size_t offset = block_index * sizeof _cur_block;
 
         _file.Seek( offset );
         _file.Read( _cur_block );

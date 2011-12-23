@@ -29,8 +29,8 @@ Realm::Realm( const string& realm_name, const string& realm_path ) :
 	_maptileserver( new MapTileServer( _descriptor ) )
 {
 
-	unsigned int gridwidth = width() / WGRID_SIZE;
-	unsigned int gridheight = height() / WGRID_SIZE;
+	size_t gridwidth = width() / WGRID_SIZE;
+	size_t gridheight = height() / WGRID_SIZE;
 
 	// Tokuno-Fix
 	if (gridwidth * WGRID_SIZE < width())
@@ -40,7 +40,7 @@ Realm::Realm( const string& realm_name, const string& realm_path ) :
 
 	zone = new Zone*[gridwidth];
 
-	for(unsigned int i=0; i<gridwidth; i++)
+	for(size_t i=0; i<gridwidth; i++)
 		zone[i] = new Zone[gridheight];
 }
 
@@ -52,8 +52,8 @@ Realm::Realm( const string& realm_name, Realm* realm ) :
 	mobile_count(0),
 	_descriptor( )
 {
-	unsigned int gridwidth = width() / WGRID_SIZE;
-	unsigned int gridheight = height() / WGRID_SIZE;
+	size_t gridwidth = width() / WGRID_SIZE;
+	size_t gridheight = height() / WGRID_SIZE;
 
 	// Tokuno-Fix
 	if (gridwidth * WGRID_SIZE < width())
@@ -63,19 +63,19 @@ Realm::Realm( const string& realm_name, Realm* realm ) :
 
 	zone = new Zone*[gridwidth];
 
-	for(unsigned int i=0; i<gridwidth; i++)
+	for(size_t i=0; i<gridwidth; i++)
 		zone[i] = new Zone[gridheight];
 }
 
 Realm::~Realm()
 {
-	unsigned int gridwidth = width() / WGRID_SIZE;
+	size_t gridwidth = width() / WGRID_SIZE;
 
 	// Tokuno-Fix
 	if (gridwidth * WGRID_SIZE < width())
 		gridwidth++;
 
-	for(unsigned int i=0; i<gridwidth; i++)
+	for(size_t i=0; i<gridwidth; i++)
 		delete[] zone[i];
 	delete[] zone;
 }

@@ -89,8 +89,8 @@ bool CustomHouseDesign::DeleteStairs( u16 id, s32 x, s32 y, s8 z )
 	if ( floor_num == -1 )
 		return false;
 
-    int xidx = x + xoff;
-    int yidx = y + yoff;
+    u32 xidx = x + xoff;
+    u32 yidx = y + yoff;
     if(!ValidLocation(xidx,yidx))
         return false;
 

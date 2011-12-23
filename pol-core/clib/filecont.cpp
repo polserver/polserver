@@ -25,7 +25,7 @@ FileContents::FileContents( const char* filename )
     char buf[1024];
     while (!ferror(fp) && !feof(fp))
     {
-        int nread = fread( buf, 1, sizeof buf, fp );
+        size_t nread = fread( buf, 1, sizeof buf, fp );
         if (nread)
             contents_.append( buf, nread );
     }

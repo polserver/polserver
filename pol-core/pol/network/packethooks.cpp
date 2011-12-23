@@ -485,13 +485,13 @@ void SetVersionDetailStruct(const std::string& ver, VersionDetailStruct& detail)
 {
 	try
 	{
-		int dot1 = ver.find_first_of('.',0);
-		int dot2 = ver.find_first_of('.',dot1 + 1);
-		int dot3 = ver.find_first_of('.',dot2 + 1);
+		size_t dot1 = ver.find_first_of('.',0);
+		size_t dot2 = ver.find_first_of('.',dot1 + 1);
+		size_t dot3 = ver.find_first_of('.',dot2 + 1);
 		if (dot3 == -1)  // since 5.0.7 patch is digit
 		{
 			dot3 = dot2 + 1;
-			while ( (dot3 < (int)ver.length()) && (isdigit(ver[dot3])) )
+			while ( (dot3 < ver.length()) && (isdigit(ver[dot3])) )
 			{
 				dot3++;
 			}
@@ -501,7 +501,7 @@ void SetVersionDetailStruct(const std::string& ver, VersionDetailStruct& detail)
 		detail.minor = atoi(ver.substr(dot1+1,dot2 - dot1 - 1).c_str());
 		detail.rev   = atoi(ver.substr(dot2+1,dot3 - dot2 - 1).c_str());
 		detail.patch = 0;
-		if (dot3<(int)ver.length())
+		if (dot3<ver.length())
 		{
 			if ( (detail.major<=5) && (detail.minor<=0) && (detail.rev<=6))
 			{

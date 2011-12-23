@@ -165,7 +165,7 @@ bool send_vendorwindow_contents( Client* client, UContainer* for_sale, bool send
 		Item* item = (*for_sale)[i];
 		// const ItemDesc& id = find_itemdesc( item->objtype_ );
 		string desc = item->merchant_description();
-		unsigned int addlen = 5 + desc.size();
+		size_t addlen = 5 + desc.size();
 		if (msg->offset + addlen > sizeof msg->buffer)
 		{
 			return false;
@@ -936,7 +936,7 @@ BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu(Character* chr, 
 	msg->WriteFlipped(y);
 	u16 pos=msg->offset;
 	msg->offset+=2; //layoutlen
-	int layoutlen = 0;
+	size_t layoutlen = 0;
 	for( unsigned i = 0; i < layout_arr->ref_arr.size(); ++i )
 	{
 		BObject* bo = layout_arr->ref_arr[i].get();
@@ -945,9 +945,9 @@ BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu(Character* chr, 
 		BObjectImp* imp = bo->impptr();
 		std::string s = imp->getStringRep();
 
-		int addlen = 4 + s.length();
+		size_t addlen = 4 + s.length();
 		layoutlen += addlen;
-		if (msg->offset+addlen > static_cast<int>(sizeof msg->buffer))
+		if (msg->offset+addlen > sizeof msg->buffer)
 		{
 			return new BError( "Buffer length exceeded" );
 		}
@@ -987,9 +987,9 @@ BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu(Character* chr, 
 
 		const char* string = s.c_str();
 		++numlines;
-		int textlen = s.length();
+		size_t textlen = s.length();
 
-		if (msg->offset+2+textlen*2 > static_cast<int>(sizeof msg->buffer))
+		if (msg->offset+2+textlen*2 > sizeof msg->buffer)
 		{
 			return new BError( "Buffer length exceeded" );
 		}
@@ -1031,7 +1031,7 @@ BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu(Character* chr, Ob
 	msg->WriteFlipped(y);
 	msg->offset+=8; //u32 layout_clen,layout_dlen
 
-	int layoutdlen=0;
+	u32 layoutdlen=0;
 
 	for( unsigned i = 0; i < layout_arr->ref_arr.size(); ++i )
 	{
@@ -1041,17 +1041,17 @@ BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu(Character* chr, Ob
 		BObjectImp* imp = bo->impptr();
 		std::string s = imp->getStringRep();
 
-		int addlen = 4 + s.length();
-		if (layoutdlen + addlen > static_cast<int>(sizeof bfr->buffer))
+		size_t addlen = 4 + s.length();
+		if (layoutdlen + addlen > sizeof bfr->buffer)
 		{
 			return new BError( "Buffer length exceeded" );
 		}
-		layoutdlen += addlen;
+		layoutdlen += static_cast<u32>(addlen);
 		bfr->Write("{ ",2,false);
 		bfr->Write(s.c_str(),static_cast<u16>(s.length()),false);
 		bfr->Write(" }",2,false);
 	}
-	if (layoutdlen+1 > static_cast<int>(sizeof bfr->buffer))
+	if (layoutdlen+1 > static_cast<u32>(sizeof bfr->buffer))
 	{
 		return new BError( "Buffer length exceeded" );
 	}
@@ -1088,12 +1088,12 @@ BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu(Character* chr, Ob
 
 		const char* string = s.c_str();
 		++numlines;
-		int addlen = (s.length()+1)*2;
-		if (datadlen + addlen > static_cast<int>(sizeof bfr->buffer))
+		size_t addlen = (s.length()+1)*2;
+		if (datadlen + addlen > sizeof bfr->buffer)
 		{
 			return new BError( "Buffer length exceeded" );
 		}
-		datadlen+=addlen;
+		datadlen+=static_cast<u32>(addlen);
 		bfr->WriteFlipped(static_cast<u16>(s.length()));
 		while (*string) //unicode
 			bfr->Write(static_cast<u16>((*string++) << 8));
@@ -1142,7 +1142,7 @@ public:
 	virtual BObjectRef OperSubscript( const BObject& obj );
 	virtual BObjectImp* copy() const;
 	virtual std::string getStringRep() const;
-	virtual unsigned int sizeEstimate() const;
+	virtual size_t sizeEstimate() const;
 private:
 	typedef std::map<int,BObjectRef> Contents;
 	Contents contents_;
@@ -1167,9 +1167,9 @@ BObjectImp* BIntHash::copy() const
 	return new BIntHash( *this );
 }
 
-unsigned int BIntHash::sizeEstimate() const
+size_t BIntHash::sizeEstimate() const
 {
-	unsigned int size = sizeof(BIntHash);
+	size_t size = sizeof(BIntHash);
 	Contents::const_iterator itr, end;
 	for( itr = contents_.begin(), end = contents_.end(); itr != end; ++itr )
 	{
@@ -1455,7 +1455,7 @@ BObjectImp* UOExecutorModule::mf_SendTextEntryGump()
 	msg->Write(chr->serial_ext);
 	msg->offset+=2; // u8 type,index
 
-	unsigned int numbytes = line1->length()+1;
+	size_t numbytes = line1->length()+1;
 	if (numbytes > 256)
 		numbytes = 256;
 	msg->WriteFlipped(static_cast<u16>(numbytes));
@@ -1531,7 +1531,7 @@ public:
 	virtual BObjectImp* call_method( const char* methodname, Executor& ex );
 	virtual BObjectImp* copy() const;
 	virtual std::string getStringRep() const;
-	virtual unsigned int sizeEstimate() const { return sizeof(PolCore); }
+	virtual size_t sizeEstimate() const { return sizeof(PolCore); }
 	virtual const char* typeOf() const;
 	virtual int typeOfInt() const;
 private:
@@ -1636,10 +1636,10 @@ BObjectImp* GetScriptProfiles( )
 
 		auto_ptr<BStruct> elem (new BStruct);
 		elem->addMember( "name", new String( eprog->name ) );
-		elem->addMember( "instr", new Double( eprog->instr_cycles ) );
+		elem->addMember( "instr", new Double( static_cast<double>(eprog->instr_cycles )) );
 		elem->addMember( "invocations", new BLong( eprog->invocations ) );
 		u64 cycles_per_invoc = eprog->instr_cycles / (eprog->invocations?eprog->invocations:1);
-		elem->addMember( "instr_per_invoc", new Double( cycles_per_invoc ) );
+		elem->addMember( "instr_per_invoc", new Double( static_cast<double>(cycles_per_invoc) ) );
 		double cycle_percent = static_cast<double>(eprog->instr_cycles) / total_instr * 100.0;
 		elem->addMember( "instr_percent", new Double( cycle_percent ) );
 
@@ -1696,7 +1696,7 @@ BObjectImp* GetPktStatusObj( )
 	{
 		auto_ptr<BStruct> elem (new BStruct);
 		elem->addMember( "pkt", new BLong( it->first ) );
-		elem->addMember( "count", new BLong( it->second->Count() ) );
+		elem->addMember( "count", new BLong( static_cast<int>(it->second->Count()) ) );
 		pkts->addElement( elem.release() );
 		if (it->second->HasSubs())
 		{
@@ -1706,7 +1706,7 @@ BObjectImp* GetPktStatusObj( )
 				auto_ptr<BStruct> elemsub (new BStruct);
 				elemsub->addMember( "pkt", new BLong( it->first ) );
 				elemsub->addMember( "sub", new BLong( s_it->first ) );
-				elemsub->addMember( "count", new BLong( s_it->second.size() ) );
+				elemsub->addMember( "count", new BLong( static_cast<int>(s_it->second.size()) ) );
 				pkts->addElement( elemsub.release() );
 			}
 		}
@@ -1716,13 +1716,13 @@ BObjectImp* GetPktStatusObj( )
 
 BObjectImp* GetCoreVariable( const char* corevar )
 {
-#define LONG_COREVAR(name,expr) if (stricmp( corevar, #name ) == 0) return new BLong( expr );
+#define LONG_COREVAR(name,expr) if (stricmp( corevar, #name ) == 0) return new BLong( static_cast<int>(expr) );
 
 	if (stricmp( corevar, "itemcount" ) == 0) return new BLong(get_toplevel_item_count());
 	if (stricmp( corevar, "mobilecount" ) == 0) return new BLong(get_mobile_count());
 
-	if (stricmp( corevar, "bytes_sent" ) == 0) return new Double(polstats.bytes_sent);
-	if (stricmp( corevar, "bytes_received" ) == 0) return new Double(polstats.bytes_received);
+	if (stricmp( corevar, "bytes_sent" ) == 0) return new Double(static_cast<double>(polstats.bytes_sent));
+	if (stricmp( corevar, "bytes_received" ) == 0) return new Double(static_cast<double>(polstats.bytes_received));
 
 	LONG_COREVAR( uptime, polclock() / POLCLOCKS_PER_SEC );
 	LONG_COREVAR( sysload, last_sysload );

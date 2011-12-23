@@ -319,7 +319,7 @@ int readargs(int argc, char **argv)
 {
 	bool unknown_opt = false;
 
-    for(int i=1;i<argc;i++)
+    for(size_t i=1;i<argc;i++)
     {
         const char* arg = argv[i];
 #ifdef __linux__
@@ -565,7 +565,7 @@ void AutoCompile()
     compilercfg.OnlyCompileUpdatedScripts = compilercfg.UpdateOnlyOnAutoCompile;
 
     recurse_compile( normalized_dir_form( compilercfg.PolScriptRoot ) );
-    for( unsigned i = 0; i < packages.size(); ++i )
+    for( size_t i = 0; i < packages.size(); ++i )
     {
         const Package* pkg = packages[i];
         recurse_compile( normalized_dir_form( pkg->dir() ) );
@@ -575,7 +575,7 @@ void AutoCompile()
 
 bool run(int argc, char **argv)
 {
-    for( unsigned pi = 0; pi < compilercfg.PackageRoot.size(); ++pi )
+    for( size_t pi = 0; pi < compilercfg.PackageRoot.size(); ++pi )
     {
         load_packages( compilercfg.PackageRoot[pi], true /* quiet */ );
     }
@@ -585,7 +585,7 @@ bool run(int argc, char **argv)
 	wallclock_t start = wallclock();
     bool any = false;
 
-	for(int i=1;i<argc;i++)
+	for(size_t i=1;i<argc;i++)
 	{
 #ifdef __linux__	
 		if (argv[i][0] == '-')
@@ -665,7 +665,7 @@ bool run(int argc, char **argv)
 
 void read_config_file( int argc, char* argv[])
 {
-	for(int i=1;i<argc;i++)
+	for(size_t i=1;i<argc;i++)
 	{
 		if (argv[i][0] == '/' || argv[i][0] == '-')
 		{

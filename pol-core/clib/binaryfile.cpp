@@ -82,7 +82,7 @@ fstream::pos_type BinaryFile::FileSize()
     return size;
 }
 
-unsigned BinaryFile::GetElementCount( size_t elemsize )
+size_t BinaryFile::GetElementCount( size_t elemsize )
 {
     fstream::pos_type filesize = FileSize();
     if ( (filesize % elemsize) != 0)

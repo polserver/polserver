@@ -20,7 +20,7 @@ Notes
 
 
 #if BOBJECTIMP_DEBUG
-BLong::BLong(int lval) : BObjectImp( OTLong ), lval_(lval) 
+BLong::BLong(int lval) : BObjectImp( OTLong ), lval_(static_cast<int>(lval)) 
 {
 }
 
@@ -83,7 +83,7 @@ BObjectImp *BLong::copy() const
     return new BLong( *this );
 }
 
-unsigned int BLong::sizeEstimate() const
+size_t BLong::sizeEstimate() const
 {
     return sizeof(BLong);
 }

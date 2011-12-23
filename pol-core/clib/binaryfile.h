@@ -27,7 +27,7 @@ public:
         }
 
     template<class T>
-        void Read( T* arr, unsigned count )
+        void Read( T* arr, size_t count )
         {
             ReadBuffer( arr, sizeof(T) * count );
         }
@@ -35,7 +35,7 @@ public:
     template<class T>
         void ReadVector( vector<T>& vec )
         {
-            unsigned count = GetElementCount( sizeof(T) );
+            size_t count = GetElementCount( sizeof(T) );
             vec.resize( count );
 			if(count > 0)
 	            Read( &vec[0], count );
@@ -46,7 +46,7 @@ public:
 
 private:
     void ReadBuffer( void* buffer, streamsize length );
-    unsigned GetElementCount( size_t elemsize );
+    size_t GetElementCount( size_t elemsize );
 
     fstream _file;
     std::string _filename;

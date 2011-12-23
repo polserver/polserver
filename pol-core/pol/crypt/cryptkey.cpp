@@ -22,7 +22,7 @@ bool compareVersion(int ver1major, int ver1minor, int ver1build, int ver2major, 
 
 void CalculateCryptKeys(const string& name, TCryptInfo& infoCrypt)
 {
-	int len = strlen( name.c_str() );
+	size_t len = strlen( name.c_str() );
 	if ( (  strnicmp( "none",     name.c_str(), len ) == 0 )
 		||( strnicmp( "ignition", name.c_str(), len ) == 0 )
 		||( strnicmp( "uorice",   name.c_str(), len ) == 0 ) )
@@ -41,8 +41,8 @@ void CalculateCryptKeys(const string& name, TCryptInfo& infoCrypt)
 	{
 		try
 		{
-			int dot1 = name.find_first_of('.', 0);
-			int dot2 = name.find_first_of('.', dot1 + 1);
+			size_t dot1 = name.find_first_of('.', 0);
+			size_t dot2 = name.find_first_of('.', dot1 + 1);
 
 			int major = atoi(name.substr(0, dot1).c_str());
 			int minor = atoi(name.substr(dot1+1, dot2 - dot1 - 1).c_str());

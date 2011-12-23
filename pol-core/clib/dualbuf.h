@@ -25,7 +25,7 @@ public:
 
     virtual int overflow( int c );
     virtual int sync();
-    virtual int xsputn( const char *str, int size );
+    virtual std::streamsize xsputn( const char *str, int size );
 private:
     std::streambuf* buf1_;
     std::streambuf* buf2_;

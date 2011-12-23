@@ -17,7 +17,7 @@ int forspec(const char *spec, void (*func)(const char *pathname))
     HANDLE hFind;
     WIN32_FIND_DATA find;
     char fullpath[ MAX_PATH ];
-    int lenleft;
+    size_t lenleft;
     char *fname;
 
     GetFullPathName( spec, sizeof fullpath, fullpath, &fname );

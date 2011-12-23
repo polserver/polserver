@@ -22,7 +22,7 @@ public:
     virtual BObjectImp* copy() const;
     virtual bool isTrue() const;
     virtual std::string getStringRep() const;
-    virtual unsigned int sizeEstimate() const;
+    virtual size_t sizeEstimate() const;
 
     virtual BObjectImp* call_method( const char* methodname, Executor& ex );
 	virtual BObjectRef get_member( const char *membername );

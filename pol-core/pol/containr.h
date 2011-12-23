@@ -182,7 +182,7 @@ protected:
 
 inline unsigned UContainer::count() const
 { 
-	return contents_.size(); 
+	return static_cast<unsigned>(contents_.size()); 
 }
 
 

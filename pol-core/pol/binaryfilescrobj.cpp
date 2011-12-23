@@ -172,6 +172,8 @@ BObjectImp* BBinaryfile::call_method_id( const int id, Executor& ex, bool forceb
             int value;
             if(!ex.getParam( 0, value ))
                 return new BError("Invalid parameter");
+			if (value < 1)
+				return new BError("Len is negative or 0.");
             vector<unsigned char> _char;
             _char.resize(value);
             if (!file.Read(&_char[0],value))
@@ -273,7 +275,7 @@ BObjectImp* BBinaryfile::call_method_id( const int id, Executor& ex, bool forceb
             if((!ex.getStringParam( 0, text )) ||
                 (!ex.getParam( 1, value )) )
                 return new BError( "Invalid parameter" );
-            int len=text->value().length();
+            u32 len=static_cast<u32>(text->value().length());
             if (value==1)
                 len++;
             if (!file.WriteString(text->value().c_str(),len))

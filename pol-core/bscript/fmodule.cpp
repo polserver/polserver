@@ -59,7 +59,7 @@ void FunctionalityModule::addFunction( const char *funcname,
                                        UserFunction* uf )
 {
     ModuleFunction* mf = new ModuleFunction( funcname, nparams, uf );
-    mf->funcidx = functions.size();
+    mf->funcidx = static_cast<unsigned int>(functions.size());
     functions.push_back( mf );
 
     // compiler only:
@@ -79,7 +79,7 @@ bool FunctionalityModule::isFunc(const char *funcName, ModuleFunction **pmf, int
         {
             mf->used = true;
             int old_funcidx = mf->funcidx;
-            mf->funcidx = used_functions.size();
+            mf->funcidx = static_cast<unsigned int>(used_functions.size());
             used_functions.push_back( mf );
             if (old_funcidx != mf->funcidx)
             {

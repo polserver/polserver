@@ -333,14 +333,14 @@ void SendUnicodeSpeech(Client *client, PKTIN_AD *msgin, u16* wtext, size_t wtext
 	}
 
     if (!client->chr->dead())
-		for_nearby_npcs( pc_spoke, client->chr, ntext, ntextlen, msgin->type,
-						 wtext, msgin->lang, wtextlen);
+		for_nearby_npcs( pc_spoke, client->chr, ntext, static_cast<int>(ntextlen), msgin->type,
+						 wtext, msgin->lang, static_cast<int>(wtextlen));
 	else
-		for_nearby_npcs( ghost_pc_spoke, client->chr, ntext, ntextlen, msgin->type,
-						 wtext, msgin->lang, wtextlen);
+		for_nearby_npcs( ghost_pc_spoke, client->chr, ntext, static_cast<int>(ntextlen), msgin->type,
+						 wtext, msgin->lang, static_cast<int>(wtextlen));
 
-	sayto_listening_points( client->chr, ntext, ntextlen, msgin->type,
-							wtext, msgin->lang, wtextlen);
+	sayto_listening_points( client->chr, ntext, static_cast<int>(ntextlen), msgin->type,
+							wtext, msgin->lang, static_cast<int>(wtextlen));
 }
 u16 Get12BitNumber(u8 * thearray, u16 theindex)
 {	

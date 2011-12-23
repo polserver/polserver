@@ -194,7 +194,7 @@ void update_rpm( void )
 
     last_busy_sysload_cycles = busy_sysload_cycles;
     last_nonbusy_sysload_cycles = nonbusy_sysload_cycles;
-    unsigned int total_cycles = busy_sysload_cycles + nonbusy_sysload_cycles;
+    size_t total_cycles = busy_sysload_cycles + nonbusy_sysload_cycles;
     if (total_cycles)
     {
         last_sysload = busy_sysload_cycles * 100 / total_cycles;

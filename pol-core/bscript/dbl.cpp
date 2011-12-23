@@ -58,7 +58,7 @@ BObjectImp* Double::unpack( istream& is )
     }
 }
 
-unsigned int Double::sizeEstimate() const
+size_t Double::sizeEstimate() const
 {
     return sizeof(Double);
 }

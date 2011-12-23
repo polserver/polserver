@@ -49,7 +49,7 @@ public:
 	};
 
 public: // methods
-	FixedSizeAllocator( unsigned int MaxElements = FSA_DEFAULT_SIZE ) :
+	FixedSizeAllocator( size_t MaxElements = FSA_DEFAULT_SIZE ) :
 	m_pFirstUsed( NULL ),
 	m_MaxElements( MaxElements )
 	{
@@ -222,7 +222,7 @@ private: // data
 
 	FSA_ELEMENT *m_pFirstFree;
 	FSA_ELEMENT *m_pFirstUsed;
-	unsigned int m_MaxElements;
+	size_t m_MaxElements;
 	FSA_ELEMENT *m_pMemory;
 
 };

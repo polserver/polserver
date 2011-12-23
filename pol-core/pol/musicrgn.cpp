@@ -29,7 +29,7 @@ unsigned short MusicRegion::getmidi() const
 {
     if (!midilist_.empty())
     {
-        int idx = random_int( midilist_.size() );
+        int idx = random_int( static_cast<int>(midilist_.size()) );
         return midilist_[idx];
     }
     else

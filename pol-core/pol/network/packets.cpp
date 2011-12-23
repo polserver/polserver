@@ -234,10 +234,10 @@ void PacketQueueSubs::Add(PacketInterface* pkt)
 	//critical end
 }
 
-int PacketQueueSubs::Count()
+size_t PacketQueueSubs::Count()
 {
-	int count=0;
-	for ( PacketInterfaceQueueMap::iterator it=packets.begin() ; it != packets.end(); ++it )
+	size_t count=0;
+	for ( PacketInterfaceQueueMap::iterator it=packets.begin(), itrend=packets.end() ; it != itrend; ++it )
 	{
 		count += it->second.size();
 	}

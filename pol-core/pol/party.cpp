@@ -647,13 +647,13 @@ void Party::send_member_msg_public(Character* chr,u16* wtext, size_t wtextlen)
 	if (party_cfg.Hooks.ChangePublicChat)
 	{
 		ObjArray* arr;
-		if ( !convertUCtoArray(wtext, arr, wtextlen, true) ) // convert back with ctBEu16()
+		if ( !convertUCtoArray(wtext, arr, static_cast<unsigned int>(wtextlen), true) ) // convert back with ctBEu16()
 			return;
 		BObject obj=party_cfg.Hooks.ChangePublicChat->call_object(chr->make_ref(),arr);
 		if (obj->isa(BObjectImp::OTArray))
 		{
 			arr = static_cast<ObjArray*>(obj.impptr());
-			unsigned len = arr->ref_arr.size();
+			unsigned len = static_cast<unsigned int>(arr->ref_arr.size());
 			if (len>SPEECH_MAX_LEN)
 				len=SPEECH_MAX_LEN;
 			if ( !convertArrayToUC(arr, wtext, len, true) )
@@ -694,13 +694,13 @@ void Party::send_member_msg_private(Character* chr, Character* tochr, u16* wtext
 	if (party_cfg.Hooks.ChangePrivateChat)
 	{
 		ObjArray* arr;
-		if ( !convertUCtoArray(wtext, arr, wtextlen, true) ) // convert back with ctBEu16()
+		if ( !convertUCtoArray(wtext, arr, static_cast<unsigned int>(wtextlen), true) ) // convert back with ctBEu16()
 			return;
 		BObject obj=party_cfg.Hooks.ChangePrivateChat->call_object(chr->make_ref(),tochr->make_ref(),arr);
 		if (obj->isa(BObjectImp::OTArray))
 		{
 			arr = static_cast<ObjArray*>(obj.impptr());
-			unsigned len = arr->ref_arr.size();
+			unsigned len = static_cast<unsigned int>(arr->ref_arr.size());
 			if (len>SPEECH_MAX_LEN)
 				len=SPEECH_MAX_LEN;
 			if ( !convertArrayToUC(arr, wtext, len, true) )
