@@ -111,7 +111,7 @@ BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool forcebuilt
 				{
 					if (client->isConnected())
 					{
-						ADDTOSENDQUEUE(client,(void*)(&buffer[0]),buffer.size());
+						ADDTOSENDQUEUE(client,(void*)(&buffer[0]),static_cast<int>(buffer.size()));
 						return new BLong( 1 );
 					}
 					else
@@ -146,7 +146,7 @@ BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool forcebuilt
                         continue;
                     if( (client->chr->realm == realm) && inrangex( client->chr, x, y, range ))
                     {
-                        ADDTOSENDQUEUE(client, (void*)(&buffer[0]),buffer.size() );
+                        ADDTOSENDQUEUE(client, (void*)(&buffer[0]),static_cast<int>(buffer.size()) );
                         num_sent_to++;
                     }
                 }
@@ -299,7 +299,7 @@ BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool forcebuilt
         }
 
     case MTH_GETSIZE:
-        return new BLong(buffer.size());
+        return new BLong(static_cast<int>(buffer.size()));
 
     case MTH_SETSIZE:
         {

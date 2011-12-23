@@ -600,14 +600,14 @@ BObjectImp* EGuildRefObjImp::call_method_id( const int id, Executor& ex, bool fo
         if (!getCharacterParam( ex, 0, chr ))
             return new BError( "Invalid parameter type" );
 
-        return new BLong(obj_->_member_serials.count( chr->serial ));
+        return new BLong(static_cast<int>(obj_->_member_serials.count( chr->serial )));
 
     case MTH_ISALLYGUILD:
 		if (!ex.hasParams(1))
 			return new BError( "Not enough parameters" );
         if (getGuildParam( ex, 0, allyguild, err ))
         {
-            return new BLong( obj_->_allyguild_serials.count(allyguild->guildid()) );
+            return new BLong( static_cast<int>(obj_->_allyguild_serials.count(allyguild->guildid())) );
         }
         else
         {
@@ -619,7 +619,7 @@ BObjectImp* EGuildRefObjImp::call_method_id( const int id, Executor& ex, bool fo
 			return new BError( "Not enough parameters" );
         if (getGuildParam( ex, 0, enemyguild, err ))
         {
-            return new BLong( obj_->_enemyguild_serials.count(enemyguild->guildid()) );
+            return new BLong( static_cast<int>(obj_->_enemyguild_serials.count(enemyguild->guildid())) );
         }
         else
         {

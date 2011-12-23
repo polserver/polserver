@@ -29,7 +29,7 @@ public:
     void addMember( const char* name, BObjectRef val );
     void addMember( const char* name, BObjectImp* imp );
     void addMember( BObjectImp* key, BObjectImp* val );
-    unsigned mapcount() const;
+    size_t mapcount() const;
 
     typedef map<BObject,BObjectRef> Contents;
 	const Contents& contents() const;
@@ -40,7 +40,7 @@ protected:
 
     virtual BObjectImp* copy() const;
     virtual std::string getStringRep() const;
-    virtual unsigned int sizeEstimate() const; 
+    virtual size_t sizeEstimate() const; 
     virtual void packonto( std::ostream& os ) const;
     virtual const char* typeOf() const;
 	virtual int typeOfInt() const;

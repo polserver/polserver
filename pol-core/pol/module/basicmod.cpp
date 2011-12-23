@@ -36,16 +36,16 @@ BObjectImp* BasicExecutorModule::len()
 	if (imp->isa( BObjectImp::OTArray ))
 	{
 		ObjArray* arr = static_cast<ObjArray*>(imp);
-		return new BLong( arr->ref_arr.size() );
+		return new BLong( static_cast<int>(arr->ref_arr.size()) );
 	}
 	else if (imp->isa(BObjectImp::OTString))
 	{
-		return new BLong( imp->getStringRep().length() );
+		return new BLong( static_cast<int>(imp->getStringRep().length()) );
 	}
 	else if (imp->isa( BObjectImp::OTError ))
 	{
 		BError* err = static_cast<BError*>(imp);
-		return new BLong( err->mapcount() );
+		return new BLong( static_cast<int>(err->mapcount()) );
 	}
 	else
 	{
@@ -145,7 +145,7 @@ BObjectImp* BasicExecutorModule::mf_SubStrReplace()
 		return new BError("Length must not be negative");
 
 	if ( !len )
-		len = replace_with->length() - index;
+		len = static_cast<unsigned int>(replace_with->length() - index);
 
     string->ESubStrReplace(replace_with, index, len);
 
@@ -158,10 +158,10 @@ BObjectImp* BasicExecutorModule::mf_Compare()
 {
 	string str1 = exec.paramAsString(0);
 	string str2 = exec.paramAsString(1);
-	unsigned int pos1_index = static_cast<int>(exec.paramAsLong(2));
-	unsigned int pos1_len = static_cast<int>(exec.paramAsLong(3));
-	unsigned int pos2_index = static_cast<int>(exec.paramAsLong(4));
-	unsigned int pos2_len = static_cast<int>(exec.paramAsLong(5));
+	int pos1_index = static_cast<int>(exec.paramAsLong(2));
+	int pos1_len = static_cast<int>(exec.paramAsLong(3));
+	int pos2_index = static_cast<int>(exec.paramAsLong(4));
+	int pos2_len = static_cast<int>(exec.paramAsLong(5));
 
 	if ( pos1_index != 0 )
 	{
@@ -299,7 +299,7 @@ BObjectImp* BasicExecutorModule::mf_CAscZ()
 	string tmp = imp->getStringRep();
 	int nullterm = static_cast<int>(exec.paramAsLong(1));
 	auto_ptr<ObjArray> arr (new ObjArray);
-	for( unsigned i = 0; i < tmp.size(); ++i )
+	for( size_t i = 0; i < tmp.size(); ++i )
 	{
 		arr->addElement( new BLong( static_cast<unsigned char>(tmp[i]) ) );
 	}
@@ -512,7 +512,7 @@ BObjectImp* BasicExecutorModule::mf_TypeOf()
 BObjectImp* BasicExecutorModule::mf_SizeOf()
 {
 	BObjectImp* imp = exec.getParamImp(0);
-	return new BLong( imp->sizeEstimate() );
+	return new BLong( static_cast<int>(imp->sizeEstimate()) );
 }
 BObjectImp* BasicExecutorModule::mf_TypeOfInt()
 {

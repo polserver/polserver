@@ -205,7 +205,7 @@ BOOL CNTService::Install()
                     0,
                     REG_EXPAND_SZ, 
                     (CONST BYTE*)szFilePath,
-                    strlen(szFilePath) + 1);     
+                    static_cast<DWORD>(strlen(szFilePath) + 1));     
 
     // Set the supported types flags.
     DWORD dwData = EVENTLOG_ERROR_TYPE | EVENTLOG_WARNING_TYPE | EVENTLOG_INFORMATION_TYPE;

@@ -107,7 +107,7 @@ void load_vital_entry( const Package* pkg, ConfigElem& elem )
         elem.throw_error( "Vital " + vital->name + " already defined by "
                 + existing->pkg->desc() );
     }
-    vital->vitalid = vitals.size();
+    vital->vitalid = static_cast<unsigned int>(vitals.size());
     if (!vitals.empty())
         vitals.back()->next = vital;
     vitals.push_back( vital );
@@ -123,7 +123,7 @@ void load_vitals_cfg()
     checkpoint( "load_vitals_cfg: load_packed_cfgs" );
     load_packaged_cfgs( "vitals.cfg", "Vital", load_vital_entry );
 
-    numVitals = vitals.size();
+    numVitals = static_cast<unsigned int>(vitals.size());
 
     checkpoint( "load_vitals_cfg: find Life vital" );
     pVitalLife = FindVital( "Life" );

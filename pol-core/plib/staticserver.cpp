@@ -68,7 +68,7 @@ void StaticServer::ValidateBlock( unsigned short x, unsigned short y ) const
     unsigned short x_block = x / STATICBLOCK_CHUNK;
     unsigned short y_block = y / STATICBLOCK_CHUNK;
 
-    unsigned int block_index = y_block * (_descriptor.width>>STATICBLOCK_SHIFT) + x_block;
+    size_t block_index = y_block * (_descriptor.width>>STATICBLOCK_SHIFT) + x_block;
     if (block_index+1 >= _index.size())
     {
         string message = "statics integrity error(1): x=" + tostring(x) + ", y=" + tostring(y);

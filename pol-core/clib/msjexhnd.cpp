@@ -165,14 +165,17 @@ void MSJExceptionHandler::GenerateExceptionReport(
         OutputDebugString(_T("IMAGEHLP.DLL or its exported procs not found"));
         
         #ifdef _M_IX86  // Intel Only!
+#ifndef _M_X64
         // Walk the stack using x86 specific code
         IntelStackWalk( pCtx );
+#endif
         #endif
 
         return;
     }
-
+	#ifndef _M_X64
     ImagehlpStackWalk( pCtx );
+	#endif
 
     _SymCleanup( GetCurrentProcess() );
 
@@ -283,6 +286,7 @@ BOOL MSJExceptionHandler::GetLogicalAddress(
 //============================================================
 // Walks the stack, and writes the results to the report file 
 //============================================================
+#ifndef _M_X64
 void MSJExceptionHandler::IntelStackWalk( PCONTEXT pContext )
 {
     _tprintf( _T("\nCall stack:\n") );
@@ -322,10 +326,12 @@ void MSJExceptionHandler::IntelStackWalk( PCONTEXT pContext )
 
     } while ( 1 );
 }
+#endif
 
 //============================================================
 // Walks the stack, and writes the results to the report file 
 //============================================================
+#ifndef _M_X64
 void MSJExceptionHandler::ImagehlpStackWalk( PCONTEXT pContext )
 {
     _tprintf( _T("\nCall stack:\n") );
@@ -400,6 +406,7 @@ void MSJExceptionHandler::ImagehlpStackWalk( PCONTEXT pContext )
     }
 
 }
+#endif
 
 //============================================================================
 // Helper function that writes to the report file, and allows the user to use 

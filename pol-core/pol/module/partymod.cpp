@@ -212,7 +212,7 @@ BObjectImp* EPartyRefObjImp::call_method_id( const int id, Executor& ex, bool fo
 				obj_->send_stats_on_add(chr);
 			}
 
-			return new BLong(obj_->_member_serials.size());
+			return new BLong(static_cast<int>(obj_->_member_serials.size()));
 		}
 
 	case MTH_REMOVEMEMBER:
@@ -430,7 +430,7 @@ BObjectImp* PartyExecutorModule::mf_SendPartyMsg()
 		if ((getCharacterParam( exec, 1, chr )) &&
 			(getObjArrayParam( 2, oText )))
 		{
-			unsigned textlen = oText->ref_arr.size();
+			size_t textlen = oText->ref_arr.size();
 			u16 gwtext[ (SPEECH_MAX_LEN + 1) ];
 			if ( textlen > SPEECH_MAX_LEN )
 				return new BError( "Unicode array exceeds maximum size." );
@@ -463,7 +463,7 @@ BObjectImp* PartyExecutorModule::mf_SendPrivatePartyMsg()
 			(getCharacterParam( exec, 2, tochr )) &&
 			(getObjArrayParam( 3, oText )))
 		{
-			unsigned textlen = oText->ref_arr.size();
+			size_t textlen = oText->ref_arr.size();
 			u16 gwtext[ (SPEECH_MAX_LEN + 1) ];
 			if ( textlen > SPEECH_MAX_LEN )
 				return new BError( "Unicode array exceeds maximum size." );

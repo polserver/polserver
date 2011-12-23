@@ -167,8 +167,8 @@ BObjectImp* PolSystemExecutorModule::mf_GetCmdLevelName()
 		return new BError("Expected 1 parameter.");
 	else if ( getParam(0, cmdlevel_num) )
 	{
-		if ( cmdlevel_num >= int(cmdlevels2.size()) )
-			cmdlevel_num = cmdlevels2.size()-1;
+		if ( cmdlevel_num >= static_cast<int>(cmdlevels2.size()) )
+			cmdlevel_num = static_cast<int>(cmdlevels2.size()-1);
 		
 		return new String(cmdlevels2[cmdlevel_num].name);
 	}

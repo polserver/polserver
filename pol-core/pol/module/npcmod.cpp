@@ -787,7 +787,7 @@ BObjectImp* NPCExecutorModule::say()
 	}
 
 	if ( doevent >= 1 )
-		for_nearby_npcs(npc_spoke, &npc, text, strlen(text), texttype);
+		for_nearby_npcs(npc_spoke, &npc, text, static_cast<int>(strlen(text)), texttype);
 
 	return NULL;
 }
@@ -815,7 +815,7 @@ BObjectImp* NPCExecutorModule::SayUC()
 			return new BError("texttype string param must be either 'default', 'whisper', or 'yell'");
 		}
 
-		unsigned textlenucc = oText->ref_arr.size();
+		size_t textlenucc = oText->ref_arr.size();
 		if ( textlenucc > SPEECH_MAX_LEN )
 			return new BError( "Unicode array exceeds maximum size." );
 		if ( lang->length() != 3 )

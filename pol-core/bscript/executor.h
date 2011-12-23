@@ -69,7 +69,7 @@ struct BackupStruct
 class Executor
 {
   public:
-    unsigned int sizeEstimate() const;
+    size_t sizeEstimate() const;
 
     friend void list_script( class UOExecutor* uoexec );
     int done;
@@ -124,7 +124,7 @@ class Executor
   public:
     int makeString(unsigned param);
     bool hasParams(unsigned howmany) const { return (fparams.size() >= howmany); }
-    unsigned numParams() const { return fparams.size(); }
+    size_t numParams() const { return fparams.size(); }
     BObjectImp* getParamImp(unsigned param);
     BObjectImp* getParamImp(unsigned param, BObjectImp::BObjectType type);
     BObjectImp* getParamImp2(unsigned param, BObjectImp::BObjectType type);
@@ -322,7 +322,7 @@ class Executor
 
     void attach_debugger();
     void detach_debugger();
-    std::string dbg_get_instruction( unsigned atPC ) const;
+    std::string dbg_get_instruction( size_t atPC ) const;
     void dbg_ins_trace();
     void dbg_step_into();
     void dbg_step_over();

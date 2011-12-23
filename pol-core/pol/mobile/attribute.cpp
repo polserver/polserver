@@ -80,7 +80,7 @@ void load_attribute_entry( const Package* pkg, ConfigElem& elem )
 		elem.throw_error( "Attribute " + attr->name + " already defined by "
 				+ existing->pkg->desc() );
 	}
-	attr->attrid = attributes.size();
+	attr->attrid = static_cast<unsigned int>(attributes.size());
 	if (!attributes.empty())
 		attributes.back()->next = attr;
 	attributes.push_back( attr );
@@ -93,7 +93,7 @@ void load_attribute_entry( const Package* pkg, ConfigElem& elem )
 void load_attributes_cfg()
 {
 	load_packaged_cfgs( "attributes.cfg", "Attribute", load_attribute_entry );
-	numAttributes = attributes.size();
+	numAttributes = static_cast<unsigned int>(attributes.size());
 
 	pAttrStrength = FindAttribute( "Strength" );
 	pAttrIntelligence = FindAttribute( "Intelligence" );

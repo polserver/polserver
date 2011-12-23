@@ -18,7 +18,7 @@ public:
     virtual BObject* step();
 
     BObjectImp *copy( void ) const;
-    unsigned int sizeEstimate() const;
+    size_t sizeEstimate() const;
     std::string getStringRep() const;
 };
 

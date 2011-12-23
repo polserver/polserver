@@ -170,7 +170,7 @@ string Package::desc() const
 bool Package::check_replacements() const
 {
 	bool any = false;
-	for( unsigned i = 0; i < replaces_.elems.size(); ++i )
+	for( size_t i = 0; i < replaces_.elems.size(); ++i )
 	{
 		const PackageList::Elem& elem = replaces_.elems[i];
 		Package* found = find_package( elem.pkgname );
@@ -209,7 +209,7 @@ void Package::check_dependencies() const
 			throw runtime_error("Package requires a newer core version");
 		}
 	}
-	for( unsigned i = 0; i < requires_.elems.size(); ++i )
+	for( size_t i = 0; i < requires_.elems.size(); ++i )
 	{
 		const PackageList::Elem& elem = requires_.elems[i];
 		Package* found = find_package( elem.pkgname );
@@ -235,7 +235,7 @@ void Package::check_dependencies() const
 
 void Package::check_conflicts() const
 {
-	for( unsigned i = 0; i < conflicts_.elems.size(); ++i )
+	for( size_t i = 0; i < conflicts_.elems.size(); ++i )
 	{
 		const PackageList::Elem& elem = conflicts_.elems[i];
 		Package* found = find_package( elem.pkgname );
@@ -351,7 +351,7 @@ void replace_packages()
 	{
 		done = true;
 
-		for( unsigned i = 0; i < packages.size(); ++i )
+		for( size_t i = 0; i < packages.size(); ++i )
 		{
 			Package* pkg = packages[i];
 			bool change = pkg->check_replacements();

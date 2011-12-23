@@ -23,6 +23,7 @@ Notes
 #include "strexcpt.h"
 #include "msjexhnd.h"
 
+#ifndef _M_X64
 void se_trans_func( unsigned int n, EXCEPTION_POINTERS *ex )
 {
     printf( "Structured Exception Detected: 0x%x\n", n );
@@ -193,6 +194,7 @@ void se_trans_func( unsigned int n, EXCEPTION_POINTERS *ex )
         throw structured_exception( n );
     }
 }
+#endif
 
 static bool in_ex_handler = false;
 void alt_se_trans_func( unsigned int u, _EXCEPTION_POINTERS* pExp )

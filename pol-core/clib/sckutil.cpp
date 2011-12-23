@@ -60,7 +60,7 @@ bool readline( Socket& sck,
 
 void writeline( Socket& sck, const std::string& s )
 {
-    sck.send( (void *) s.c_str(), s.length() );
+    sck.send( (void *) s.c_str(), static_cast<unsigned int>(s.length()) );
     sck.send( "\r\n", 2 );
 }
 

@@ -76,7 +76,7 @@ bool SymbolContainer::findexisting( const void *data, int datalen, unsigned& pos
 
 void SymbolContainer::append(const char *string, unsigned& position)
 {
-    int nChars = strlen(string)+1;
+    int nChars = static_cast<unsigned int>(strlen(string)+1);
     if (findexisting(string,nChars,position))
         return;
     resize(nChars);

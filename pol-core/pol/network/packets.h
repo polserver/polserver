@@ -60,7 +60,7 @@ class PacketQueue
 	public:
 		virtual PacketInterface* GetNext(u8 id, u16 sub=0) {return NULL;};
 		virtual void Add(PacketInterface* pkt){};
-		virtual int Count(){ return 0; };
+		virtual size_t Count(){ return 0; };
 		virtual bool HasSubs(){ return false; };
 		virtual PacketInterfaceQueueMap* GetSubs(){ return NULL; };
 };
@@ -77,7 +77,7 @@ class PacketQueueSingle : public PacketQueue
 	public:
 		PacketInterface* GetNext(u8 id, u16 sub=0);
 		void Add(PacketInterface* pkt);
-		int Count(){ return packets.size(); };
+		size_t Count(){ return packets.size(); };
 };
 
 // packet with subs queue
@@ -92,7 +92,7 @@ class PacketQueueSubs : public PacketQueue
 	public:
 		PacketInterface* GetNext(u8 id, u16 sub=0);
 		void Add(PacketInterface* pkt);
-		int Count();
+		size_t Count();
 		bool HasSubs(){ return true; };
 		PacketInterfaceQueueMap* GetSubs(){ return &packets; };
 };

@@ -100,7 +100,11 @@ NOTIFYICONDATA ndata;
 
 #define DLG_MODELESS 1
 
+#ifdef _M_X64
+INT_PTR CALLBACK DialogProc(  HWND hwndDlg,UINT uMsg,WPARAM wParam,LPARAM lParam)
+#else
 BOOL CALLBACK DialogProc(  HWND hwndDlg,UINT uMsg,WPARAM wParam,LPARAM lParam)
+#endif
 {
 	if (uMsg == WM_TASKBARCREATED)
         uMsg = WM_INITDIALOG;
@@ -295,8 +299,14 @@ void ShutdownSystemTrayHandling()
 {
     if (hwnd)
     {
+#ifdef _M_X64
+		PDWORD_PTR res = NULL;
+		LRESULT rc = SendMessageTimeout( hwnd, WM_COMMAND, ID_SHUTDOWN, 0, SMTO_NORMAL, 5000, res );
+#else
         DWORD res;
-        LRESULT rc = SendMessageTimeout( hwnd, WM_COMMAND, ID_SHUTDOWN, 0, SMTO_NORMAL, 5000, &res );
+		LRESULT rc = SendMessageTimeout( hwnd, WM_COMMAND, ID_SHUTDOWN, 0, SMTO_NORMAL, 5000, &res );
+#endif
+		
         if (!rc)
         {
             DWORD err = GetLastError();

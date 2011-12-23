@@ -17,10 +17,10 @@ Notes
 #include <stddef.h>
 #include <stdio.h>
 
-unsigned int last_blocks_used = 0;
-unsigned int last_bytes_used = 0;
-unsigned int last_blocks_free = 0;
-unsigned int last_bytes_free = 0;
+size_t last_blocks_used = 0;
+size_t last_bytes_used = 0;
+size_t last_blocks_free = 0;
+size_t last_bytes_free = 0;
 
 void PrintAllocationData()
 {
@@ -28,7 +28,7 @@ void PrintAllocationData()
    _HEAPINFO hinfo;
    int heapstatus;
    hinfo._pentry = NULL;
-   unsigned int blocks_used = 0, bytes_used = 0, blocks_free = 0,bytes_free = 0;
+   size_t blocks_used = 0, bytes_used = 0, blocks_free = 0,bytes_free = 0;
    while( ( heapstatus = _heapwalk( &hinfo ) ) == _HEAPOK )
    { 
        if (hinfo._useflag == _USEDENTRY)

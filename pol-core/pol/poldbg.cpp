@@ -437,7 +437,7 @@ string DebugContext::cmd_call( const string& rest, Results& results )
                 return "Parameters must be an array.";
             }
             ObjArray* arr = static_cast<ObjArray*>(params.impptr());
-            for( int i = arr->ref_arr.size()-1; i >= 0; --i )
+            for( int i = static_cast<int>(arr->ref_arr.size()-1); i >= 0; --i )
             {
                 ex.pushArg( arr->ref_arr[i]->impptr() );
             }
@@ -537,9 +537,9 @@ string DebugContext::cmd_srcprof( const string& rest, Results& results )
     typedef map< unsigned int, unsigned int > Cycles;
     Cycles cycle_counts; // key is line#, val is cycles
 
-    unsigned count = _script->instr.size();
+    size_t count = _script->instr.size();
 
-    for( unsigned i = 0; i < count; ++i )
+    for( size_t i = 0; i < count; ++i )
     {
         int filenum = _script->dbg_filenum[i];
         if (filenum == fileno)
@@ -577,8 +577,8 @@ string DebugContext::cmd_scriptprofile( const string& rest, Results& results )
     
     ref_ptr<EScriptProgram> res( (*itr).second );
     EScriptProgram* eprog = res.get();
-    unsigned count = eprog->instr.size();
-    for( unsigned i = 0; i < count; ++i )
+    size_t count = eprog->instr.size();
+    for( size_t i = 0; i < count; ++i )
     {
         const Instruction& ins = eprog->instr[i];
         string result = decint( i ) + " " + decint( ins.cycles );
@@ -598,8 +598,8 @@ string DebugContext::cmd_scriptins( const string& rest, Results& results )
     if (eprog->read_dbg_file() != 0)
         return "Failed to load symbols.";
 
-    unsigned count = eprog->instr.size();
-    for( unsigned i = 0; i < count; ++i )
+    size_t count = eprog->instr.size();
+    for( size_t i = 0; i < count; ++i )
     {
         string result = decint(i) + " " + eprog->dbg_get_instruction( i );
         results.push_back( result );
@@ -637,8 +637,8 @@ string DebugContext::cmd_scriptsrc( const string& rest, Results& results )
 
     int last_filenum = -1;
     int last_linenum = -1;
-    unsigned count = eprog->instr.size();
-    for( unsigned ins = 0; ins < count; ++ins )
+    size_t count = eprog->instr.size();
+    for( size_t ins = 0; ins < count; ++ins )
     {
         int filenum = eprog->dbg_filenum[ins];
         int linenum = eprog->dbg_linenum[ins];
@@ -867,7 +867,7 @@ std::string DebugContext::cmd_localvars( Results& results )
 
     // for now, always asking given the current instruction = PC
     unsigned block = prog->dbg_ins_blocks[ uoexec->PC ];
-    unsigned left = uoexec->Locals2->size();
+    size_t left = uoexec->Locals2->size();
     results.resize( left );
     while (left)
     {
@@ -875,7 +875,7 @@ std::string DebugContext::cmd_localvars( Results& results )
         {
             block = prog->blocks[block].parentblockidx;
         }
-        unsigned varidx = left - 1 - prog->blocks[block].parentvariables;
+        size_t varidx = left - 1 - prog->blocks[block].parentvariables;
         results[left-1] = prog->blocks[block].localvarnames[varidx];
         --left;
     }

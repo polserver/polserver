@@ -57,13 +57,13 @@ void MapServer::LoadSecondLevelIndex()
     if ((databytes % sizeof(SOLIDX2_ELEM)) != 0)
         throw runtime_error( filename + " does not contain an integral number of elements." );
 
-    unsigned count = static_cast<unsigned int>(databytes / sizeof(SOLIDX2_ELEM));
+    size_t count = static_cast<size_t>(databytes / sizeof(SOLIDX2_ELEM));
     _index2.resize( count );
     infile.Seek( SOLIDX2_FILLER_SIZE );
     infile.Read( &_index2[0], count );
     
     // integrity check
-    for( unsigned i = 0; i < _index2.size(); ++i )
+    for( size_t i = 0; i < _index2.size(); ++i )
     {
         SOLIDX2_ELEM& elem = _index2.at(i);
         passert( elem.baseindex < _shapedata.size() );
@@ -72,7 +72,7 @@ void MapServer::LoadSecondLevelIndex()
         {
             for( unsigned y = 0; y < SOLIDX_Y_SIZE; ++y )
             {
-                unsigned idx = elem.baseindex + elem.addindex[x][y];
+                size_t idx = elem.baseindex + elem.addindex[x][y];
                 passert( idx < _shapedata.size() );
             }
         }
@@ -85,10 +85,10 @@ void MapServer::LoadFirstLevelIndex()
 
     BinaryFile infile( filename, ios::in );
 
-    unsigned n_blocks = (_descriptor.width / SOLIDX_X_SIZE) * (_descriptor.height / SOLIDX_Y_SIZE);
+    size_t n_blocks = (_descriptor.width / SOLIDX_X_SIZE) * (_descriptor.height / SOLIDX_Y_SIZE);
     _index1.resize( n_blocks );
     
-    for( unsigned i = 0; i < n_blocks; ++i )
+    for( size_t i = 0; i < n_blocks; ++i )
     {
         unsigned int tmp;
         infile.Read( tmp );
@@ -127,7 +127,7 @@ void MapServer::GetMapShapes( MapShapeList& shapes, unsigned short x, unsigned s
         unsigned short yblock = y >>  SOLIDX_Y_SHIFT;
         unsigned short ycell  = y &   SOLIDX_Y_CELLMASK;
 
-        int block = yblock * (_descriptor.width >> SOLIDX_X_SHIFT) + xblock;
+        size_t block = yblock * (_descriptor.width >> SOLIDX_X_SHIFT) + xblock;
         SOLIDX2_ELEM* pIndex2 = _index1[ block ];
         unsigned int index = pIndex2->baseindex + pIndex2->addindex[xcell][ycell];
         const SOLIDS_ELEM* pElem = &_shapedata[index];

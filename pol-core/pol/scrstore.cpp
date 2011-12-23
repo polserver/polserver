@@ -152,7 +152,7 @@ int unload_script( const string& name_in )
 
 int unload_all_scripts()
 {
-    int n = scrstore.size();
+    int n = static_cast<int>(scrstore.size());
     scrstore.clear();
 	preload_test_scripts(); //dave added 1/30/3, no other time do we reload unequiptest and equiptest
     return n;

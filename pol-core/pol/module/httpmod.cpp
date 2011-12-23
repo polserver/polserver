@@ -49,7 +49,7 @@ BObjectImp* HttpExecutorModule::mf_WriteHtml()
 		unsigned nsent;
 		const string& s = str->value();
 		bool res = sck_.send_nowait( (void *) (s.c_str()+continuing_offset), 
-			s.length()-continuing_offset,
+			static_cast<unsigned int>(s.length()-continuing_offset),
 			&nsent);
 		if (res)
 		{
@@ -90,7 +90,7 @@ BObjectImp* HttpExecutorModule::mf_WriteHtmlRaw()
 		unsigned nsent;
 		const string& s = str->value();
 		bool res = sck_.send_nowait( (void *) (s.c_str()+continuing_offset), 
-			s.length()-continuing_offset,
+			static_cast<unsigned int>(s.length()-continuing_offset),
 			&nsent);
 		if (res)
 		{

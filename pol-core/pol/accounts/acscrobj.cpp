@@ -297,8 +297,8 @@ BObjectImp* AccountObjImp::call_method_id( const int id, Executor& ex, bool forc
 		int cmdlevel;
 		if ( !ex.getParam(0, cmdlevel) )
 			return new BError("Invalid parameter type.");
-		else if ( cmdlevel >= int(cmdlevels2.size()) )
-			cmdlevel = cmdlevels2.size()-1;
+		else if ( cmdlevel >= static_cast<int>(cmdlevels2.size()) )
+			cmdlevel = static_cast<int>(cmdlevels2.size()-1);
 
 		obj_->default_cmdlevel_ = char(cmdlevel);
 

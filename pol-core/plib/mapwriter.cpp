@@ -200,7 +200,7 @@ void MapWriter::SetMapCell( unsigned short x, unsigned short y, MAPCELL cell )
             FlushBaseFile();
         }
         // read the existing block in
-        unsigned offset = blockIdx * sizeof(_block);
+        size_t offset = blockIdx * sizeof(_block);
         _ofs_base.seekg( offset, std::ios_base::beg ); 
         _ofs_base.read( reinterpret_cast<char*>(&_block), sizeof _block );
         _cur_mapblock_index = blockIdx;
@@ -224,7 +224,7 @@ void MapWriter::SetMapTile( unsigned short x, unsigned short y, MAPTILE_CELL cel
             FlushMapTileFile();
         }
         // read the existing block in
-        unsigned offset = blockIdx * sizeof _maptile_block;
+        size_t offset = blockIdx * sizeof _maptile_block;
         _ofs_maptile.seekg( offset, std::ios_base::beg ); 
         _ofs_maptile.read( reinterpret_cast<char*>(&_maptile_block), sizeof _maptile_block );
         _cur_maptile_index = blockIdx;
@@ -236,7 +236,7 @@ void MapWriter::FlushBaseFile()
 {
     if (_cur_mapblock_index >= 0)
     {
-        unsigned offset = _cur_mapblock_index * sizeof(_block);
+        size_t offset = _cur_mapblock_index * sizeof(_block);
         _ofs_base.seekp( offset, std::ios_base::beg );
         _ofs_base.write( reinterpret_cast<const char*>(&_block), sizeof _block );
     }
@@ -245,7 +245,7 @@ void MapWriter::FlushMapTileFile()
 {
     if (_cur_maptile_index >= 0)
     {
-        unsigned offset = _cur_maptile_index * sizeof(_maptile_block);
+        size_t offset = _cur_maptile_index * sizeof(_maptile_block);
         _ofs_maptile.seekp( offset, std::ios_base::beg );
         _ofs_maptile.write( reinterpret_cast<const char*>(&_maptile_block), sizeof _maptile_block );
     }
@@ -281,7 +281,7 @@ void MapWriter::SetSolidx2Offset( unsigned short x_base, unsigned short y_base, 
     unsigned int elems_per_row = (_width / SOLIDX_X_SIZE);
     unsigned int index = (y_base / SOLIDX_Y_SIZE) * elems_per_row
                          +(x_base / SOLIDX_X_SIZE);
-    unsigned int file_offset = index * sizeof(SOLIDX1_ELEM);
+    size_t file_offset = index * sizeof(SOLIDX1_ELEM);
 
     _ofs_solidx1.seekp( file_offset, std::ios_base::beg );
     _ofs_solidx1.write( reinterpret_cast<const char*>(&offset), sizeof offset);

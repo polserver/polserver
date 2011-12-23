@@ -42,7 +42,7 @@ void load_tile_entry( const Package* pkg, ConfigElem& elem )
 
 void load_tiles_cfg()
 {
-    tile = new Tile[config.max_tile_id+1];
+    tile = new Tile[static_cast<size_t>(config.max_tile_id+1)];
 
     load_all_cfgs( "tiles.cfg", "TILE", load_tile_entry );
 

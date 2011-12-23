@@ -43,8 +43,8 @@ Notes
 #include "../plib/mapwriter.h"
 #include "../plib/realmdescriptor.h"
 
-unsigned int mapcache_misses;
-unsigned int mapcache_hits;
+size_t mapcache_misses;
+size_t mapcache_hits;
 
 bool cfg_use_no_shoot = 0;
 bool cfg_LOS_through_windows = 0;
@@ -989,7 +989,7 @@ void ProcessSolidBlock( unsigned short x_base, unsigned short y_base, MapWriter&
             if (!shapes.empty())
             {
                 ++with_more_solids;
-                total_statics += shapes.size();
+                total_statics += static_cast<unsigned int>(shapes.size());
                 if (idx2_offset == 0)
                     idx2_offset = mapwriter.NextSolidx2Offset();
 
@@ -997,7 +997,7 @@ void ProcessSolidBlock( unsigned short x_base, unsigned short y_base, MapWriter&
                 if (addindex > std::numeric_limits<unsigned short>::max())
                     throw runtime_error( "addoffset overflow" );
                 idx2_elem.addindex[x_add][y_add] = static_cast<unsigned short>(addindex);
-                int count = shapes.size();
+                int count = static_cast<int>(shapes.size());
                 for( int j = 0; j < count; ++j )
                 {
                     MapShape shape = shapes[j];
@@ -1189,7 +1189,7 @@ void create_tiles_cfg()
 		}
 		else
 			read_objinfo( graphic, tile );
-		mountCount = MountTypes.count(graphic);
+		mountCount = static_cast<int>(MountTypes.count(graphic));
 
 		if (tile.name[0] == '\0' &&
             tile.flags == 0 &&

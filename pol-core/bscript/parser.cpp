@@ -1102,7 +1102,7 @@ int Parser::tryLiteral(Token& tok, CompilerContext& ctx)
 			}
 		}
 
-		int len = end - ctx.s + 1;	//   "abcd"
+		int len = static_cast<int>(end - ctx.s + 1);	//   "abcd"
 
 		tok.copyStr(ctx.s, len-1);
 

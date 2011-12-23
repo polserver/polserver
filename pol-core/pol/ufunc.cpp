@@ -2712,7 +2712,7 @@ void sendCharProfile( Character* chr, Character* of_who, const char *title, cons
 {
 	PktHelper::PacketOut<PktOut_B8> msg;
 
-	unsigned newulen = 0, newelen = 0, titlelen;
+	size_t newulen = 0, newelen = 0, titlelen;
 
 	while( utext[newulen] != L'\0' )
 		++newulen;

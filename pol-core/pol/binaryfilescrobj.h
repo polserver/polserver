@@ -31,7 +31,7 @@ public:
         }
 
     template<class T>
-        bool Read( T* arr, unsigned count )
+        bool Read( T* arr, size_t count )
         {
             return ReadBuffer( arr, sizeof(T) * count );
         }
@@ -70,7 +70,7 @@ public:
     virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin=false );
     virtual BObjectImp* copy() const;
     virtual std::string getStringRep() const;
-	virtual unsigned int sizeEstimate() const { return 0; }
+	virtual size_t sizeEstimate() const { return 0; }
     virtual const char* typeOf() const { return "BinaryFile"; }
 	virtual int typeOfInt() const { return OTBinaryFile; }
 	virtual bool isTrue() const;
