@@ -167,10 +167,6 @@ void readtile(unsigned short tilenum, USTRUCT_TILE_HSA *tile)
 				(sizeof(USTRUCT_TILE_HSA)*tilenum);
 			fseek(tilefile, filepos, SEEK_SET);
 			fread(tile, sizeof *tile, 1, tilefile);
-			if (tilenum==0x780a)
-			{
-				char* test = tile->name;
-			}
 		}
 	}
 }

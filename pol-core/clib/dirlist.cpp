@@ -127,15 +127,17 @@ void DirList::next()
 #endif
 PushDir::PushDir( const char* dir )
 {
-    getcwd( savedir_, sizeof savedir_ );
-    ok_ = (chdir( dir ) == 0);
+    if (getcwd( savedir_, sizeof savedir_ )==NULL)
+		ok_ = (chdir( dir ) == 0);
+	else 
+		ok_ = false;
 }
 
 PushDir::~PushDir()
 {
     if (ok_)
     {
-        chdir( savedir_ );
+        ok_=(chdir( savedir_ )==0);
     }
 }
 
@@ -151,7 +153,8 @@ string curdir()
 #else
     char cdir[ 256 ];
 #endif
-    getcwd( cdir, sizeof cdir );
-    return normalized_dir_form(cdir);
+    if (getcwd( cdir, sizeof cdir )==NULL)
+		return normalized_dir_form(cdir);
+	return "";
 }
 

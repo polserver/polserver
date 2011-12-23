@@ -177,6 +177,7 @@ void drop_test( void )
 void map_test()
 {
     MAPTILE_CELL cell = main_realm->getmaptile( 1453, 1794 );
+	cout << cell.landtile << " " << cell.z << endl;
 }
 
 #if ENABLE_OLD_MAPCODE

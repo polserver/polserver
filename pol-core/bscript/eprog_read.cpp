@@ -378,7 +378,7 @@ int EScriptProgram::read_dbg_file()
     }
 
     u32 version;
-    fread( &version, sizeof version, 1, fp );
+    size_t fread_res=fread( &version, sizeof version, 1, fp );
     if (version != 2 && version != 3)
     {
         cerr << "Recompile required. Bad version " << version << " in " << mname << ", expected version 2" << endl;
@@ -391,37 +391,37 @@ int EScriptProgram::read_dbg_file()
     int res = 0;
 
     u32 count;
-    fread( &count, sizeof count, 1, fp );
+    fread_res=fread( &count, sizeof count, 1, fp );
     dbg_filenames.resize( count );
     for( unsigned i = 0; i < dbg_filenames.size(); ++i )
     {
-        fread( &count, sizeof count, 1, fp );
+        fread_res=fread( &count, sizeof count, 1, fp );
         if (count >= bufalloc)
         {
             delete[] buffer;
             bufalloc = count*2;
             buffer = new char[bufalloc];
         }
-        fread( buffer, count, 1, fp );
+        fread_res=fread( buffer, count, 1, fp );
         dbg_filenames[i] = buffer;
     }
 
-    fread( &count, sizeof count, 1, fp );
+    fread_res=fread( &count, sizeof count, 1, fp );
     globalvarnames.resize( count );
     for( unsigned i = 0; i < globalvarnames.size(); ++i )
     {
-        fread( &count, sizeof count, 1, fp );
+        fread_res=fread( &count, sizeof count, 1, fp );
         if (count >= bufalloc)
         {
             delete[] buffer;
             bufalloc = count*2;
             buffer = new char[bufalloc];
         }
-        fread( buffer, count, 1, fp );
+        fread_res=fread( buffer, count, 1, fp );
         globalvarnames[i] = buffer;
     }
 
-    fread( &count, sizeof count, 1, fp );
+    fread_res=fread( &count, sizeof count, 1, fp );
     dbg_filenum.resize( count );
     dbg_linenum.resize( count );
     dbg_ins_blocks.resize( count );
@@ -429,62 +429,62 @@ int EScriptProgram::read_dbg_file()
     for( unsigned i = 0; i < tokens.count(); ++i )
     {
         BSCRIPT_DBG_INSTRUCTION ins;
-        fread( &ins, sizeof ins, 1, fp );
+        fread_res=fread( &ins, sizeof ins, 1, fp );
         dbg_filenum[i] = ins.filenum;
         dbg_linenum[i] = ins.linenum;
         dbg_ins_blocks[i] = ins.blocknum;
         dbg_ins_statementbegin[i] = ins.statementbegin?true:false;
     }
-    fread( &count, sizeof count, 1, fp );
+    fread_res=fread( &count, sizeof count, 1, fp );
     blocks.resize( count );
     for( unsigned i = 0; i < blocks.size(); ++i )
     {
         EPDbgBlock& block = blocks[i];
         u32 tmp;
         
-        fread( &tmp, sizeof tmp, 1, fp );
+        fread_res=fread( &tmp, sizeof tmp, 1, fp );
         block.parentblockidx = tmp;
 
-        fread( &tmp, sizeof tmp, 1, fp );
+        fread_res=fread( &tmp, sizeof tmp, 1, fp );
         block.parentvariables = tmp;
 
-        fread( &tmp, sizeof tmp, 1, fp );
+        fread_res=fread( &tmp, sizeof tmp, 1, fp );
         block.localvarnames.resize( tmp );
 
         for( unsigned j = 0; j < block.localvarnames.size(); ++j )
         {
-            fread( &count, sizeof count, 1, fp );
+            fread_res=fread( &count, sizeof count, 1, fp );
             if (count >= bufalloc)
             {
                 delete[] buffer;
                 bufalloc = count*2;
                 buffer = new char[bufalloc];
             }
-            fread( buffer, count, 1, fp );
+            fread_res=fread( buffer, count, 1, fp );
             block.localvarnames[j] = buffer;
         }
     }
     if (version >= 3)
     {
-        fread( &count, sizeof count, 1, fp );
+        fread_res=fread( &count, sizeof count, 1, fp );
         dbg_functions.resize( count );
         for( unsigned i = 0; i < dbg_functions.size(); ++i )
         {
             EPDbgFunction& func = dbg_functions[i];
             u32 tmp;
-            fread( &tmp, sizeof tmp, 1, fp );
+            fread_res=fread( &tmp, sizeof tmp, 1, fp );
             if (tmp >= bufalloc)
             {
                 delete[] buffer;
                 bufalloc = tmp*2;
                 buffer = new char[bufalloc];
             }
-            fread( buffer, tmp, 1, fp );
+            fread_res=fread( buffer, tmp, 1, fp );
             func.name = buffer;
 
-            fread( &tmp, sizeof tmp, 1, fp );
+            fread_res=fread( &tmp, sizeof tmp, 1, fp );
             func.firstPC = tmp;
-            fread( &tmp, sizeof tmp, 1, fp );
+            fread_res=fread( &tmp, sizeof tmp, 1, fp );
             func.lastPC = tmp;
         }
     }
@@ -494,6 +494,7 @@ int EScriptProgram::read_dbg_file()
 
     fclose(fp);
     debug_loaded = true;
-
+	if (fread_res) // FIXME senseless check so fread_res is used
+		res=0;
     return res;
 }
