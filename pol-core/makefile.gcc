@@ -38,7 +38,7 @@ ifdef USE_MYSQL
 LIB_MORE += -lmysqlclient -lz -lpthread
 endif
 
-CXX_OPTS=-gstabs+ -DINC_PASSERT=1 -DTIXML_USE_STL -Wall $(CXX_MORE_OPTS) $(INC_STL)
+CXX_OPTS=-gstabs+ -fno-strict-aliasing -Wno-unused-result -DINC_PASSERT=1 -DTIXML_USE_STL -Wall $(CXX_MORE_OPTS) $(INC_STL)
 
 CXX_RELEASE_OPTS=$(CXX_OPTS)
 

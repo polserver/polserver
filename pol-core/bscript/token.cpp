@@ -136,36 +136,36 @@ Token& Token::operator=( const Token& tok )
 Token::Token( ModuleID i_module,
               BTokenId i_id,
               BTokenType i_type ) :
-    id(i_id),
+	id(i_id),
     type(i_type),
-    module(static_cast<unsigned char>(i_module)),
-    precedence(-1),
-    deprecated(false),
-    ownsStr(0),
     dval(0.0),
+    precedence(-1),
+    ownsStr(0),
+	dbg_filenum(0),
+	dbg_linenum(0),
     lval(0),
     userfunc(NULL),
-    dbg_filenum(0),
-    dbg_linenum(0),
-    token(NULL)
+	deprecated(false),
+	module( static_cast<unsigned char>(i_module) ),
+	token(NULL)
 {
     register_instance();
 }
 
 Token::Token( BTokenId i_id,
               BTokenType i_type ) :
-    id(i_id),
+	id(i_id),
     type(i_type),
-    module(Mod_Basic),
-    precedence(-1),
-    deprecated(false),
-    ownsStr(0),
     dval(0.0),
+    precedence(-1),
+    ownsStr(0),
+	dbg_filenum(0),
+	dbg_linenum(0),
     lval(0),
     userfunc(NULL),
-    dbg_filenum(0),
-    dbg_linenum(0),
-    token(NULL)
+	deprecated(false),
+	module( Mod_Basic ),
+	token(NULL)
 {
     register_instance();
 }
@@ -174,18 +174,18 @@ Token::Token( ModuleID i_module,
               BTokenId i_id,
               BTokenType i_type,
               UserFunction *i_userfunc) :
-    id(i_id),
+	id(i_id),
     type(i_type),
-    module(static_cast<unsigned char>(i_module)),
-    precedence(-1),
-    deprecated(false),
-    ownsStr(0),
     dval(0.0),
+    precedence(-1),
+    ownsStr(0),
+	dbg_filenum(0),
+	dbg_linenum(0),
     lval(0),
-    userfunc( i_userfunc ),
-    dbg_filenum(0),
-    dbg_linenum(0),
-    token(NULL)
+    userfunc(i_userfunc),
+	deprecated(false),
+	module( static_cast<unsigned char>(i_module) ),
+	token(NULL)
 {
     register_instance();
 }

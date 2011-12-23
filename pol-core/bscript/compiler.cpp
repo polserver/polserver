@@ -2477,10 +2477,10 @@ int Compiler::handleDeclare(CompilerContext& ctx)
 
 int Compiler::handleIf(CompilerContext& ctx, int level)
 {
-	unsigned if_begin;
+	//unsigned if_begin;
 	unsigned jump_false;
 	Token token;
-	if_begin = program->tokens.next();
+	//if_begin = program->tokens.next();
 	jump_false = 0;
 	if (!quiet) cout << "if clause.." << endl;
 
@@ -2581,7 +2581,7 @@ int Compiler::handleBracketedIf(CompilerContext& ctx, int level)
 	size_t jumpend_size = jumpend.size();
 
 	bool discard_rest = false;
-	bool discarded_all = true;
+	//bool discarded_all = true;
 	bool included_any_tests = false;
 	unsigned last_if_token_posn = static_cast<unsigned>(-1);
 	unsigned if_token_posn = static_cast<unsigned>(-1);
@@ -2628,7 +2628,7 @@ int Compiler::handleBracketedIf(CompilerContext& ctx, int level)
 		}
 		else
 		{
-			discarded_all = discard_rest;
+			//discarded_all = discard_rest;
 			if (!discard_rest)
 				included_any_tests = true;
 		}

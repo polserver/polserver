@@ -319,7 +319,7 @@ int readargs(int argc, char **argv)
 {
 	bool unknown_opt = false;
 
-    for(size_t i=1;i<argc;i++)
+    for(int i=1;i<argc;i++)
     {
         const char* arg = argv[i];
 #ifdef __linux__
@@ -585,7 +585,7 @@ bool run(int argc, char **argv)
 	wallclock_t start = wallclock();
     bool any = false;
 
-	for(size_t i=1;i<argc;i++)
+	for(int i=1;i<argc;i++)
 	{
 #ifdef __linux__	
 		if (argv[i][0] == '-')
@@ -665,7 +665,7 @@ bool run(int argc, char **argv)
 
 void read_config_file( int argc, char* argv[])
 {
-	for(size_t i=1;i<argc;i++)
+	for(int i=1;i<argc;i++)
 	{
 		if (argv[i][0] == '/' || argv[i][0] == '-')
 		{
