@@ -27,6 +27,7 @@ static void parse_args( int argc, char *argv[] );
 
 int main( int argc, char *argv[] )
 {
+	setlocale(LC_ALL,"");
     int exitcode = 0;
 
     try 
