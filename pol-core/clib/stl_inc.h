@@ -45,6 +45,7 @@ Notes
 #include <iostream>
 #include <limits>
 #include <list>
+#include <locale.h>
 #include <map>
 #include <memory>
 #include <queue>
