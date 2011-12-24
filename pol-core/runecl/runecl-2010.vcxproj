@@ -261,18 +261,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\pol\dice.cpp" />
     <ClCompile Include="..\pol\module\basiciomod.cpp" />
     <ClCompile Include="..\pol\module\basicmod.cpp" />
     <ClCompile Include="..\pol\module\mathmod.cpp" />
     <ClCompile Include="..\pol\module\sqlmod.cpp" />
+    <ClCompile Include="..\pol\module\utilmod.cpp" />
     <ClCompile Include="..\pol\sqlscrobj.cpp" />
     <ClCompile Include="runecl.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\pol\dice.h" />
     <ClInclude Include="..\pol\module\basiciomod.h" />
     <ClInclude Include="..\pol\module\basicmod.h" />
     <ClInclude Include="..\pol\module\mathmod.h" />
     <ClInclude Include="..\pol\module\sqlmod.h" />
+    <ClInclude Include="..\pol\module\utilmod.h" />
     <ClInclude Include="..\pol\sqlscrobj.h" />
   </ItemGroup>
   <ItemGroup>
