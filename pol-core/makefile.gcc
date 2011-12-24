@@ -200,6 +200,7 @@ runecl_sources=runecl/runecl.cpp \
 	bscript/executor.cpp bscript/execmodl.cpp bscript/dbl.cpp \
 	pol/module/basiciomod.cpp pol/module/basicmod.cpp bscript/berror.cpp \
 	pol/module/sqlmod.cpp pol/sqlscrobj.cpp \
+	pol/module/utilmod.cpp pol/dice.cpp \
 	bscript/blong.cpp bscript/bstruct.cpp bscript/compctx.cpp \
 	bscript/dict.cpp bscript/eprog.cpp bscript/eprog2.cpp \
 	bscript/eprog3.cpp bscript/eprog_read.cpp bscript/escript_config.cpp \
