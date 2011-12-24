@@ -46,6 +46,7 @@ Notes
 #include "../pol/module/basiciomod.h"
 #include "../pol/module/mathmod.h"
 #include "../pol/module/sqlmod.h"
+#include "../pol/module/utilmod.h"
 
 #if REFPTR_DEBUG
 	unsigned int ref_counted::_ctor_calls;
@@ -122,6 +123,7 @@ void DumpScript( const char *path )
     E.addModule( new BasicIoExecutorModule(E, cout) );
     E.addModule( new MathExecutorModule(E) );
     E.addModule( new SQLExecutorModule(E));
+	E.addModule( new UtilExecutorModule(E));
 
     ref_ptr<EScriptProgram> program( new EScriptProgram );
     program->read( fname.c_str() );
@@ -162,6 +164,7 @@ int exec_script(const char *path)
     E.addModule( new BasicIoExecutorModule(E, cout) );
     E.addModule( new MathExecutorModule(E) );
     E.addModule( new SQLExecutorModule(E) );
+	E.addModule( new UtilExecutorModule(E));
 
     ref_ptr<EScriptProgram> program( new EScriptProgram );
     if (program->read( fname.c_str() ))
