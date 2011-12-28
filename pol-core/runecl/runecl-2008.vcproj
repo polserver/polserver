@@ -205,6 +205,14 @@
 	</References>
 	<Files>
 		<File
+			RelativePath="..\pol\dice.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\pol\dice.h"
+			>
+		</File>
+		<File
 			RelativePath="..\pol\module\basiciomod.cpp"
 			>
 		</File>
@@ -234,6 +242,14 @@
 		</File>
 		<File
 			RelativePath="..\pol\module\sqlmod.h"
+			>
+		</File>
+		<File
+			RelativePath="..\pol\module\utilmod.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\pol\module\utilmod.h"
 			>
 		</File>
 		<File
