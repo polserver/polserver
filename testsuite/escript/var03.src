@@ -1,0 +1,11 @@
+
+var x := 4;
+
+function foo()
+    var x := 1;
+
+    print( x );
+endfunction
+
+print( x );
+foo();

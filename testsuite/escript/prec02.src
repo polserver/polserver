@@ -1,0 +1,5 @@
+var a;
+
+a.text["test"];
+
+print( "dummy");

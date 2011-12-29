@@ -1,0 +1,5 @@
+dict start: dict{ 3 -> 72 }
+dict after reassign a_key, a_val:dict{ 3 -> 72 }
+dict after modification: dict{ 3 -> 74 }
+a_key is 5
+a_val is 71

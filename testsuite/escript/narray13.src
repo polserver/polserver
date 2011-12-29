@@ -1,0 +1,13 @@
+program test()
+    
+    var b := {};
+    print( b );
+
+    b.insert( 1, "hello" );
+    print( b );
+
+endprogram
+
+/**** Expected Output Begins: *****
+(no)
+*****  Expected Output Ends   ****/

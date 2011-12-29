@@ -1,0 +1,6 @@
+Testing Pack for: { 5, 3, 7 }
+Expected representation: a3:i5i3i7
+Result representation:   a3:i5i3i7
+Successful!
+Unpacked: { 5, 3, 7 }
+Unpack matches!

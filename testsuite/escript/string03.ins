@@ -1,0 +1,31 @@
+0: decl global #0
+1: "testvalue"
+2: :=
+3: #
+4: "s"
+5: global #0
+6: 3L
+7: [] 0
+8: ==
+9: if false goto 14
+10: "1: Success"
+11: Func(1,0): print
+12: #
+13: goto17
+14: "1: Failure!"
+15: Func(1,0): print
+16: #
+17: "f"
+18: global #0
+19: 2L
+20: [] 0
+21: ==
+22: if false goto 27
+23: "2: Failure"
+24: Func(1,0): print
+25: #
+26: goto30
+27: "2: Success"
+28: Func(1,0): print
+29: #
+30: progend

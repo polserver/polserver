@@ -1,0 +1,2 @@
+var x := array { 4, 3, };
+print(x);

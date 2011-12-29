@@ -1,0 +1,3 @@
+include "packtst";
+
+test_pack( "hello world", "shello world" );

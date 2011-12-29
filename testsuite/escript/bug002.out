@@ -1,0 +1,1 @@
+got = struct{ Amt = 2, Ret = 1 }

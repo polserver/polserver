@@ -1,0 +1,21 @@
+0: 1L
+1: makelocal
+2: jmp userfunc @11
+3: Func(1,0): print
+4: #
+5: 4L
+6: makelocal
+7: jmp userfunc @11
+8: Func(1,0): print
+9: #
+10: progend
+11: pop param 'p'
+12: local #0
+13: casejmp
+	4: @14
+	default: @17
+14: "four"
+15: return
+16: goto17
+17: 0L
+18: return

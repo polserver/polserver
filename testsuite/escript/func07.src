@@ -1,0 +1,22 @@
+
+
+foo();
+
+
+
+function bar01()
+    print( "bar01" );
+endfunction
+
+function bar02()
+    print( "bar02" );
+endfunction
+
+function bar()
+    bar01();
+    bar02();
+endfunction
+
+function foo( a := "foo", b := "blah" )
+    print( a + " " + b );
+endfunction

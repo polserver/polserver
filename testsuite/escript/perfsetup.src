@@ -1,0 +1,10 @@
+/*
+ * PerfSetup
+ *
+ * This file just exists to create a baseline for profiling.
+ */
+
+include "perf";
+
+setup();
+print( "done" );

@@ -1,0 +1,5 @@
+Use util;
+
+Program Compiler_Bug()
+  RandomDiceRoll(2d4);
+EndProgram

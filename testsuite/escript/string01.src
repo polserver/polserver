@@ -1,0 +1,4 @@
+if ("test" == "test")
+    print( "1: Success" );
+endif
+

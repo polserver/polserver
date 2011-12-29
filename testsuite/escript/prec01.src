@@ -1,0 +1,7 @@
+
+var a array;
+a .+ text := "hi bank";
+
+if (a.text["bank"])
+    print( "Success!" );     
+endif

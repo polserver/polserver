@@ -1,0 +1,10 @@
+// Test hybrid comparison (equal operator)
+
+var b := "value2";
+var c := "value";
+
+if (c == b[1,5])
+    print( "1: Success!");
+else
+    print( "1: Failure!");
+endif
