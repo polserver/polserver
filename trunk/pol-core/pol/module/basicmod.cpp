@@ -167,25 +167,27 @@ BObjectImp* BasicExecutorModule::mf_Compare()
 	{
 		if ( pos1_index < 0 )
 			return new BError("Index must not be negative for param 1");
-		if ( (pos1_index-1) > str1.length() )
+		if ( static_cast<unsigned>(pos1_index-1) > str1.length() )
 			return new BError("Index out of range for param 1");
 	}
 	if ( pos2_index != 0 )
 	{
 		if ( pos2_index < 0 )
 			return new BError("Index must not be negative for param 2");
-		if ( (pos2_index-1) > str2.length() )
+		if ( static_cast<unsigned>(pos2_index-1) > str2.length() )
 			return new BError("Index out of range for param 2");
 	}
 
-	if ( pos1_len > (str1.length()-pos1_index) )
-		return new BError("Length out of range for param 1");
+	
 	if ( pos1_len < 0 )
 		return new BError("Length must not be negative for param 1");
-	if ( pos2_len > (str2.length()-pos2_index) )
-		return new BError("Length out of range for param 2");
+	if ( static_cast<unsigned>(pos1_len) > (str1.length()-pos1_index) )
+		return new BError("Length out of range for param 1");
 	if ( pos2_len < 0 )
 		return new BError("Length must not be negative for param 2");
+	if ( static_cast<unsigned>(pos2_len) > (str2.length()-pos2_index) )
+		return new BError("Length out of range for param 2");
+	
 
 	if ( pos1_index == 0 )
 	{
