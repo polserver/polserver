@@ -1,6 +1,7 @@
 dist:
 	mkdir build
 	cd build
+	
 	mkdir scripts\modules
 	copy ..\..\pol\release\pol.exe .
 	copy ..\..\uoconvert\release\uoconvert.exe .
@@ -34,6 +35,11 @@ dist:
 	copy ..\..\support\scripts\guilds.em scripts\modules
 	copy ..\..\support\scripts\storage.em scripts\modules
 	copy ..\..\support\scripts\vitals.em scripts\modules
+!	IF "$(PLATFORM)"=="x64"
+		copy ..\..\..\lib\mysql-connector-c-6.0.2-winx64\lib\libmysql.dll .
+!	ELSE
+		copy ..\..\..\lib\mysql-connector-c-6.0.2-win32\lib\libmysql.dll .
+!	ENDIF
 	"c:\program files\winzip\wzzip" -ex -ybc -r -P ..\pol-core-.zip @..\core.lst
 	cd ..
 	rmdir /S /Q build

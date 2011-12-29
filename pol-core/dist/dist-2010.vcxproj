@@ -132,8 +132,7 @@ mkdist.bat
     <PostBuildEvent>
       <Message>Build distribution archive</Message>
       <Command>cd $(SolutionDir)dist
-mkdist.bat
-</Command>
+mkdist.bat $(Platform)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
