@@ -1,0 +1,6 @@
+use testmod1;
+use testmod2;
+
+foo1();
+foo2();
+foo3();

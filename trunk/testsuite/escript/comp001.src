@@ -1,0 +1,7 @@
+var text;
+
+if (1)
+    print( "hello" );
+elseif (text["stop" or text["furl sail"])
+    print( "blah" );
+endif

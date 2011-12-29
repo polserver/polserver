@@ -1,0 +1,18 @@
+enum FOO
+	FOO_A := 1,
+	FOO_B,
+	FOO_C,
+	FOO_COUNT := FOO_C
+endenum
+
+print( FOO_A );
+print( FOO_B );
+print( FOO_C );
+print( FOO_COUNT );
+
+/**** Expected Output Begins: *****
+1
+2
+3
+2
+*****  Expected Output Ends   ****/

@@ -1,0 +1,15 @@
+var dict := dictionary;
+
+var a := "hello world";
+
+dict.insert( a[1], 1 );
+dict.insert( a[2], 2 );
+dict.insert( a[3], 3 );
+
+print( dict );
+
+var b := pack( dict );
+print(b);
+
+var c := unpack(b);
+print(c);

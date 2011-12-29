@@ -1,0 +1,4 @@
+var a;
+
+print( a.b );
+print( a.B );

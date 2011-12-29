@@ -1,0 +1,9 @@
+
+
+function foo1()
+    var a := 6;
+
+	print "foo1";
+endfunction
+
+foo1();

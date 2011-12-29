@@ -1,0 +1,5 @@
+// optimizer used to be broken and choke on this
+var x := { { -2, 0 }, { -2, +1 } };
+
+print( "x is: " );
+print( x );

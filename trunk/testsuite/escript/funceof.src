@@ -1,0 +1,9 @@
+function foo()
+endfunction
+
+function bar()
+   var x := 5;
+
+
+
+print( "hello world" );

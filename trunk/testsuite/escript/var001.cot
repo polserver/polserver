@@ -1,0 +1,3 @@
+Variable b has not been declared.
+Near: b := 7;
+File: D:\ensprj\bscript\testsuite\var001.src, Line 8

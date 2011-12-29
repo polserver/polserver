@@ -1,0 +1,8 @@
+this is a test script.
+This is really more correct,
+But the parser is currently somewhat
+flexible.
+This kind of Thing is trouble, though,
+because after the parser sees a left paren, it exits on the
+next one (if it is parsing a function).
+This is the correct way to do this.

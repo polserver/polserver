@@ -1,0 +1,35 @@
+initial
+1
+12
+3
+32
+57
+size: 5
+shrink(17)
+1
+12
+3
+32
+57
+size: 5
+shrink(6)
+1
+12
+3
+32
+57
+size: 5
+shrink(5)
+1
+12
+3
+32
+57
+size: 5
+shrink(3)
+1
+12
+3
+size: 3
+shrink(0)
+size: 0

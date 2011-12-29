@@ -1,0 +1,37 @@
+0: 4L
+1: makelocal
+2: jmp userfunc @11
+3: Func(1,0): print
+4: #
+5: 1L
+6: makelocal
+7: jmp userfunc @11
+8: Func(1,0): print
+9: #
+10: progend
+11: pop param 'p'
+12: local #0
+13: casejmp
+	4: @14
+	5: @17
+	"fourteen": @20
+	"thirteen": @23
+	default: @26
+14: "[CVAL]"
+15: return
+16: goto30
+17: "five"
+18: return
+19: goto30
+20: 14L
+21: return
+22: goto30
+23: 13L
+24: return
+25: goto30
+26: "NOTA: "
+27: local #0
+28: +
+29: return
+30: 0L
+31: return

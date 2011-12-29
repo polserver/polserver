@@ -1,0 +1,2 @@
+struct{ c = 17, d = <uninitialized object> }
+struct{ c = 5, d = <uninitialized object> }

@@ -1,0 +1,13 @@
+use os;
+
+function foo( p1, p2 := 0 )
+    print( p1 );
+    print( p2 );
+endfunction
+
+program test( who, input )
+   who := "a";
+   input := "b";
+  var t := foo( input {who,input} );
+  print( t );
+endprogram

@@ -1,0 +1,28 @@
+Program Starting - Function Test (Func1.src)
+foo5: a=6
+foo5: b=2
+foo5: a=7
+foo5: b=1
+foo1
+foo2: a=hello
+foo3: a=5
+foo3: a=hello foo3
+foo3: a=5.4
+foo3: a=6
+foo3: a=hey
+foo4: a=3
+foo4: b=6
+foo5: a=17
+foo5: b=32
+foo5: a=12
+foo5: b=2
+foo5: a=1
+foo5: b=2
+foo5: a=2
+foo5: b=2
+foo5: a=8
+foo5: b=4
+foo5: a=1
+foo5: b=3
+foo5: a=3
+foo5: b=9

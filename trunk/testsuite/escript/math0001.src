@@ -1,0 +1,5 @@
+use math;
+
+print( "PI is " + ConstPi() );
+print( "e is " + ConstE() );
+

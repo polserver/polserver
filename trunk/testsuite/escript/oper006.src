@@ -1,0 +1,2 @@
+var a, b, c;
+a := a + b.c.d.foo(4) + c;
