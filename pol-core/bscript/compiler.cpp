@@ -91,7 +91,7 @@ bool Scope::varexists( const string& varname, unsigned& idx ) const
 
 bool Scope::varexists( const string& varname ) const
 {
-	for( size_t i = variables_.size()-1; i >= 0; --i )
+	for( int i = static_cast<int>(variables_.size()-1); i >= 0; --i )
 	{
 		 if (stringicmp( varname, variables_[i].name ) == 0)
 		 {
