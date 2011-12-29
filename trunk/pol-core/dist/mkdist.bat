@@ -1,1 +1,2 @@
-nmake -f makefile.vc %1
+set PLATFORM=%1
+nmake -f makefile.vc %2

@@ -144,7 +144,7 @@ BObjectImp *BSQLConnection::getResultSet() const {
 		}
 		else */if (mysql_field_count(_conn) == 0)
 		{
-			return new BSQLResultSet(mysql_affected_rows(_conn));
+			return new BSQLResultSet(static_cast<int>(mysql_affected_rows(_conn)));
 		}
 	}
 	return new BError("Unknown error getting ResultSet");
