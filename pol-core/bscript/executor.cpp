@@ -3236,7 +3236,7 @@ string Executor::dbg_get_instruction( size_t atPC ) const
     OSTRINGSTREAM os;
     os << ((atPC==PC)?">":" ") 
        << atPC 
-       << (breakpoints_.count(atPC)?"*":":")
+       << (breakpoints_.count(static_cast<unsigned>(atPC))?"*":":")
        << " " 
        << prog_->instr[ atPC ].token;
     return OSTRINGSTREAM_STR(os);
