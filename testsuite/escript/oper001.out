@@ -1,0 +1,48 @@
+testing 2 + 3 expects 5
+  result: 5
+  Success!
+testing 3 + 6.5 expects 9.5
+  result: 9.5
+  Success!
+testing 3 + 4 expects 34
+  result: 34
+  Success!
+testing a + b expects ab
+  result: ab
+  Success!
+testing a + 4 expects a4
+  result: a4
+  Success!
+testing 7 + 3 expects 73
+  result: 73
+  Success!
+testing 7 + 3 expects 73
+  result: 73
+  Success!
+testing a + 6.5 expects a6.5
+  result: a6.5
+  Success!
+testing 3 + 4.3 expects 34.3
+  result: 34.3
+  Success!
+testing 1.7 + 3 expects 4.7
+  result: 4.7
+  Success!
+testing 3.2 + 6.5 expects 9.7
+  result: 9.7
+  Success!
+testing 3.1 + 4 expects 3.14
+  result: 3.14
+  Success!
+testing 2 - 3 expects -1
+  result: -1
+  Success!
+testing 7 - 2.3 expects 4.7
+  result: 4.7
+  Success!
+testing 12 - 2 expects 1
+  result: 1
+  Success!
+testing 12 - a expects 12
+  result: 12
+  Success!

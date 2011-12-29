@@ -1,0 +1,34 @@
+program test()
+    var a := { 1,12,3,32,57 };
+    
+    print( "initial" );
+	foreach i in a
+	    print( i );
+	endforeach
+    print( "size: " + a.size() );
+
+    print( "insert(3,5)" );
+    a.insert( 3,5 );
+	foreach i in a
+	    print( i );
+	endforeach
+    print( "size: " + a.size() );
+
+    var b := 6;
+    print( "insert(2,b)" );
+    a.insert( 2, b );
+    b := 2;
+	foreach i in a
+	    print( i );
+	endforeach
+    print( "size: " + a.size() );
+
+endprogram
+
+/**** Expected Output Begins: *****
+1
+12
+3
+32
+57
+*****  Expected Output Ends   ****/

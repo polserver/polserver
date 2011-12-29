@@ -1,0 +1,66 @@
+0: 1L
+1: makelocal
+2: jmp userfunc @31
+3: Func(1,0): print
+4: #
+5: 4L
+6: makelocal
+7: jmp userfunc @31
+8: Func(1,0): print
+9: #
+10: "thirteen"
+11: makelocal
+12: jmp userfunc @31
+13: Func(1,0): print
+14: #
+15: "fourteen"
+16: makelocal
+17: jmp userfunc @31
+18: Func(1,0): print
+19: #
+20: 14L
+21: makelocal
+22: jmp userfunc @31
+23: Func(1,0): print
+24: #
+25: 13L
+26: makelocal
+27: jmp userfunc @31
+28: Func(1,0): print
+29: #
+30: progend
+31: pop param 'p'
+32: "p "
+33: local #0
+34: makelocal
+35: jmp userfunc @40
+36: +
+37: " d"
+38: +
+39: return
+40: pop param 'p'
+41: local #0
+42: casejmp
+	4: @43
+	5: @46
+	"fourteen": @49
+	"thirteen": @52
+	default: @55
+43: "four"
+44: return
+45: goto59
+46: "five"
+47: return
+48: goto59
+49: 14L
+50: return
+51: goto59
+52: 13L
+53: return
+54: goto59
+55: "NOTA: "
+56: local #0
+57: +
+58: return
+59: 0L
+60: return

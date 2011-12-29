@@ -1,0 +1,14 @@
+cont: 6
+cont2: 5
+cont: 5
+cont2: 4
+cont: 4
+X=1
+X=2
+X=3
+cont: 3
+cont2: 2
+cont: 2
+cont2: 1
+cont: 1
+cont2: 0

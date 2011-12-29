@@ -1,0 +1,8 @@
+var ar := {};
+ar.append( 3 );
+ar.append( 4 );
+print(ar);
+var a := refto ar;
+a.append(5);
+print(ar);
+print(a);

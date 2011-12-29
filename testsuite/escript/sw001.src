@@ -1,0 +1,7 @@
+
+program test()
+    var x := "";
+    foreach a in SplitWords(x)
+        print("A: " + a);
+    endforeach
+endprogram

@@ -1,0 +1,7 @@
+Testing Pack for: dict{ "blah" -> "test", "hey" -> 57, "you" -> 73 }
+Expected representation: d3:S4:blahS4:testS3:heyi57S3:youi73
+Result representation:   d3:S4:blahS4:testS3:heyi57S3:youi73
+Successful!
+Unpacked: dict{ "blah" -> "test", "hey" -> 57, "you" -> 73 }
+Unpack doesn't match!
+repack does match, however.

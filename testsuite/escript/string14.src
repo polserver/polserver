@@ -1,0 +1,6 @@
+
+var a := "abcdefg";
+var b := a[1,4];
+print(a);
+print(b);
+

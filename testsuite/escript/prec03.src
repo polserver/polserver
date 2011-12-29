@@ -1,0 +1,9 @@
+
+var a := struct;
+
+a .+ text := "hi bank";
+print( a );
+
+if (a.text["bank"])
+    print( "Success!" );     
+endif

@@ -1,0 +1,148 @@
+0: decl global #0
+1: "hello world"
+2: 3L
+3: 2L
+4: Func(0,0): mid
+5: :=
+6: #
+7: decl global #1
+8: #
+9: decl global #2
+10: #
+11: "Program Starting - Function Test (Func1.src)"
+12: Func(1,0): print
+13: #
+14: global #0
+15: 5L
+16: := #
+17: global #1
+18: 15L
+19: := #
+20: 6L
+21: 2L
+22: makelocal
+23: jmp userfunc @134
+24: #
+25: global #2
+26: 7L
+27: 1L
+28: makelocal
+29: jmp userfunc @134
+30: := #
+31: makelocal
+32: jmp userfunc @99
+33: #
+34: "hello"
+35: makelocal
+36: jmp userfunc @104
+37: #
+38: 5L
+39: makelocal
+40: jmp userfunc @112
+41: #
+42: "hello foo3"
+43: makelocal
+44: jmp userfunc @112
+45: #
+46: 5.4LF
+47: makelocal
+48: jmp userfunc @112
+49: #
+50: 6L
+51: makelocal
+52: jmp userfunc @112
+53: #
+54: "hey"
+55: makelocal
+56: jmp userfunc @112
+57: #
+58: 3L
+59: 6L
+60: makelocal
+61: jmp userfunc @120
+62: #
+63: 17L
+64: 32L
+65: makelocal
+66: jmp userfunc @134
+67: #
+68: 12L
+69: 2L
+70: makelocal
+71: jmp userfunc @134
+72: #
+73: 1L
+74: 2L
+75: makelocal
+76: jmp userfunc @134
+77: #
+78: 2L
+79: 2L
+80: makelocal
+81: jmp userfunc @134
+82: #
+83: 8L
+84: 4L
+85: makelocal
+86: jmp userfunc @134
+87: #
+88: 1L
+89: 3L
+90: makelocal
+91: jmp userfunc @134
+92: #
+93: 3L
+94: 9L
+95: makelocal
+96: jmp userfunc @134
+97: #
+98: progend
+99: "foo1"
+100: Func(1,0): print
+101: #
+102: 0L
+103: return
+104: pop param 'a'
+105: "foo2: a="
+106: local #0
+107: +
+108: Func(1,0): print
+109: #
+110: 0L
+111: return
+112: pop param 'a'
+113: "foo3: a="
+114: local #0
+115: +
+116: Func(1,0): print
+117: #
+118: 0L
+119: return
+120: pop param 'b'
+121: pop param 'a'
+122: "foo4: a="
+123: local #1
+124: +
+125: Func(1,0): print
+126: #
+127: "foo4: b="
+128: local #0
+129: +
+130: Func(1,0): print
+131: #
+132: 0L
+133: return
+134: pop param 'b'
+135: pop param 'a'
+136: "foo5: a="
+137: local #1
+138: +
+139: Func(1,0): print
+140: #
+141: "foo5: b="
+142: local #0
+143: +
+144: Func(1,0): print
+145: #
+146: 0L
+147: return

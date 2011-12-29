@@ -1,0 +1,16 @@
+function txtcmd_addpath ( params )
+
+  params := SplitWords( params );
+
+		var phrase := "";
+		var arraylength := len( params );
+
+		for a := 3 to arraylength
+			phrase := phrase + params[a] + " ";
+		endfor
+  print( phrase );
+
+endfunction
+
+txtcmd_addpath( "say og1 hello out there" );
+txtcmd_addpath( "say og1 boo!" );

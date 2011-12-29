@@ -1,0 +1,7 @@
+use math;
+
+var x := ConstPi();
+x := x / 10000000.0;
+
+print( "x is " + x );
+

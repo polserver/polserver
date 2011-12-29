@@ -1,0 +1,3 @@
+Variable a has not been declared.
+Near: print( "A=" + a );
+File: D:\ensprj\bscript\testsuite\scope02.src, Line 10

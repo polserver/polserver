@@ -1,0 +1,12 @@
+// switch01 
+// 
+
+var a := 5;
+case (a)
+    4:
+        print( "four" );
+    5:
+        print( "five" );
+    6:
+        print( "six" );
+endcase

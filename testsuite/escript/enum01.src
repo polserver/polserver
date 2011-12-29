@@ -1,0 +1,15 @@
+enum FOO
+	FOO_A,   // should start counter at 0
+	FOO_B,
+	FOO_C
+endenum
+
+print( FOO_A );
+print( FOO_B );
+print( FOO_C );
+
+/**** Expected Output Begins: *****
+0
+1
+2
+*****  Expected Output Ends   ****/

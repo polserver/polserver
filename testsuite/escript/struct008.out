@@ -1,0 +1,1 @@
+struct{ a = 5, b = struct{ f = 13, g = 18, h = "xyz" }, c = "abc" }
