@@ -103,6 +103,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				CommandLine="cd $(SolutionDir)dist&#x0D;&#x0A;mkdist.bat $(Platform) clean"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -113,7 +114,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Build distribution archive"
-				CommandLine="cd $(SolutionDir)dist&#x0D;&#x0A;mkdist.bat $(Platform)&#x0D;&#x0A;"
+				CommandLine="cd $(SolutionDir)dist&#x0D;&#x0A;mkdist.bat $(Platform) dist&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>
