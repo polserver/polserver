@@ -15,8 +15,14 @@ Notes
 
 #include "../bscript/bobject.h"
 #include "../bscript/contiter.h"
+#ifdef _WIN32
+#	include <windows.h>
+#	include <winsock.h>
+#	include <mysql.h>
+#else
+#	include <mysql/mysql.h>
+#endif
 
-#include <mysql/mysql.h>
 class BSQLResultSet;
 
 class BSQLRow : public BObjectImp {
@@ -58,7 +64,7 @@ public:
 	const char *field_name(unsigned int index) const;
 	int num_rows() const {
 		if (!_result) return 0;
-		return mysql_num_rows(_result);
+		return static_cast<int>(mysql_num_rows(_result));
 	};
 	virtual BObjectImp* copy() const {
 		if (_affected_rows) return new BSQLResultSet(_affected_rows);

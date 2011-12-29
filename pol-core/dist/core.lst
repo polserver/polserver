@@ -7,6 +7,7 @@ uoconvert.txt
 packethooks.txt
 packets.zip
 uoconvert.cfg
+libmysql.dll
 scripts\ecompile.exe
 scripts\ecompile.cfg.example
 scripts\runecl.exe
