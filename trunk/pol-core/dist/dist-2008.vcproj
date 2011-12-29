@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="dist"
 	ProjectGUID="{1D3B3C40-100C-4C8E-8A58-AB49B5BD5A40}"
 	RootNamespace="dist"
@@ -103,6 +103,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				CommandLine="cd $(SolutionDir)dist&#x0D;&#x0A;mkdist.bat $(Platform) clean"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -113,7 +114,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Build distribution archive"
-				CommandLine="cd $(SolutionDir)dist&#x0D;&#x0A;mkdist.bat $(Platform)&#x0D;&#x0A;"
+				CommandLine="cd $(SolutionDir)dist&#x0D;&#x0A;mkdist.bat $(Platform) dist&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>

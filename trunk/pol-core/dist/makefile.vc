@@ -40,9 +40,9 @@ dist:
 !	ELSE
 		copy ..\..\..\lib\mysql-connector-c-6.0.2-win32\lib\libmysql.dll .
 !	ENDIF
-	"c:\program files\winzip\wzzip" -ex -ybc -r -P ..\pol-core-.zip @..\core.lst
+	..\7za a -tzip -mx9 -r ..\pol-core-.zip @..\core.lst
 	cd ..
-	rmdir /S /Q build
+#	rmdir /S /Q build
 
 debug:
     mkdir debug-zip
@@ -59,9 +59,10 @@ debug:
     xcopy /I /S /EXCLUDE:..\debug-exclude.lst ..\..\support\* support
     xcopy /I /S /EXCLUDE:..\debug-exclude.lst ..\..\uoconvert\* uoconvert
     xcopy /I /S /EXCLUDE:..\debug-exclude.lst ..\..\uotool\* uotool
+	..\7za a -tzip -mx9 -r ..\pol-debug-.zip *
     "c:\program files\winzip\wzzip" -ex -ybc -r -P ..\pol-debug-.zip  *
     cd ..
-    rmdir /S /Q debug-zip
+#    rmdir /S /Q debug-zip
 
 obj:
     mkdir obj-zip
@@ -70,9 +71,9 @@ obj:
     copy ..\..\pol\release\*.pdb .
     copy ..\..\pol\release\*.idb .
     copy ..\..\pol\release\*.map .
-    "c:\program files\winzip\wzzip" -ex -ybc -P ..\pol-obj.zip @..\obj.lst
+	..\7za a -tzip -mx9 -r ..\pol-obj-.zip @..\obj.lst
     cd ..
-    rmdir /S /Q obj-zip
+#    rmdir /S /Q obj-zip
 
 src:
     mkdir src-zip
@@ -80,8 +81,9 @@ src:
     xcopy /S ..\..\pol\*.cpp .
     xcopy /S ..\..\pol\*.h .
     "c:\program files\winzip\wzzip" -ex -ybc -P ..\pol-src.zip @..\src.lst
+	..\7za a -tzip -mx9 -r ..\pol-src-.zip @..\src.lst
     cd ..
-    rmdir /S /Q src-zip
+#    rmdir /S /Q src-zip
     
 lib:
     mkdir lib-zip
@@ -92,7 +94,13 @@ lib:
     xcopy /I /S /EXCLUDE:..\libexclude.lst ..\..\gp\* lib\gp
     xcopy /I /S /EXCLUDE:..\libexclude.lst ..\..\plib\* lib\plib
     xcopy /I /S /EXCLUDE:..\libexclude.lst ..\..\runecl\* lib\runecl
-    cd lib
-    "c:\program files\winzip\wzzip" -ex -ybc -r -P ../pol-lib.zip *
-    cd ..
-    rmdir /S /Q lib-zip
+	..\7za a -tzip -mx9 -r ..\pol-lib.zip *
+	cd ..
+#    rmdir /S /Q lib-zip
+
+clean:
+	-rmdir /S /Q build
+	-rmdir /S /Q debug-zip
+	-rmdir /S /Q obj-zip
+	-rmdir /S /Q src-zip
+	-rmdir /S /Q lib-zip

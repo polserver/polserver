@@ -132,8 +132,12 @@ mkdist.bat
     <PostBuildEvent>
       <Message>Build distribution archive</Message>
       <Command>cd $(SolutionDir)dist
-mkdist.bat $(Platform)</Command>
+mkdist.bat $(Platform) dist</Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>cd $(SolutionDir)dist
+mkdist.bat $(Platform) clean</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="bscriptexclude.lst" />
