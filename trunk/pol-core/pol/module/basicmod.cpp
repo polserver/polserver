@@ -127,27 +127,27 @@ BObjectImp* BasicExecutorModule::mf_SubStrReplace()
 	String *replace_with = static_cast<String*>(exec.getParamImp(1,BObjectImp::OTString));
 	if (!replace_with)
 		return new BError( "Invalid parameter type" );
-	unsigned int index = static_cast<int>(exec.paramAsLong(2));
-	unsigned int len = static_cast<int>(exec.paramAsLong(3));
+	int index = static_cast<int>(exec.paramAsLong(2));
+	int len = static_cast<int>(exec.paramAsLong(3));
 
 	if ( index < 0 )
 		return new BError("Index must not be negative");
-	if ( (index-1) > string->length() )
+	if ( static_cast<unsigned>(index-1) > string->length() )
 		return new BError("Index out of range");
 
 	// We set it to 1 because of doing -1 later to stay with eScript handling.
 	if ( !index )
 		index = 1;
 
-	if ( len > (string->length()-index) )
+	if ( static_cast<unsigned>(len) > (string->length()-index) )
 		return new BError("Length out of range");
 	if ( len < 0 )
 		return new BError("Length must not be negative");
 
 	if ( !len )
-		len = static_cast<unsigned int>(replace_with->length() - index);
+		len = static_cast<int>(replace_with->length() - index);
 
-    string->ESubStrReplace(replace_with, index, len);
+    string->ESubStrReplace(replace_with, static_cast<unsigned>(index), static_cast<unsigned>(len));
 
 	return string.release();
 }
