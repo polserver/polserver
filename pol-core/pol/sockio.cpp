@@ -142,7 +142,7 @@ SOCKET open_listen_socket( unsigned short port )
 	SOCKET sck;
 
 	sck = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP );
-	if (sck < 0)
+	if (sck == INVALID_SOCKET)
 	{
 		throw runtime_error( "Unable to create listening socket" );
 		return INVALID_SOCKET;

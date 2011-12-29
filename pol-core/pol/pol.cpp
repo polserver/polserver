@@ -1362,7 +1362,7 @@ void listen_thread( void )
 			socklen_t addrlen = sizeof client_addr;
 			socklen_t host_addrlen = sizeof host_addr;
 			SOCKET client_socket = accept( listen_socket, &client_addr, &addrlen );
-			if (client_socket < 0)
+			if (client_socket == INVALID_SOCKET)
 				return;
 			apply_socket_options( client_socket );
 
@@ -1834,7 +1834,7 @@ void check_incoming_data(void)
 		struct sockaddr client_addr; // inet_addr
 		socklen_t addrlen = sizeof client_addr;
 		SOCKET client_socket = accept( listen_socket, &client_addr, &addrlen );
-		if (client_socket < 0)
+		if (client_socket == INVALID_SOCKET)
 			return;
 
 		apply_socket_options( client_socket );
@@ -2251,7 +2251,7 @@ int xmain_inner( int argc, char *argv[] )
 	{
 		checkpoint( "opening listen socket" );
 		listen_socket = open_listen_socket( config.listen_port );
-		if (listen_socket < 0)
+		if (listen_socket == INVALID_SOCKET)
 		{
 			cout << "Unable to listen on socket " << config.listen_port << endl;
 			return 1;
