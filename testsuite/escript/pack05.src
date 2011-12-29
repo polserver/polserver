@@ -1,0 +1,5 @@
+include "packtst";
+
+var ob := { 5, 3, 7 };
+var rep := "a3:i5i3i7";
+test_pack( ob, rep );

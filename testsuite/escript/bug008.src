@@ -1,0 +1,5 @@
+use os;
+
+var a, b, c;
+a := b c;
+

@@ -1,0 +1,10 @@
+var dict := dictionary;
+print( "dict.size=" + dict.size() );
+dict[5] := "hey";
+dict[7] := "you";
+print( "dict.size=" + dict.size() );
+print( dict[5] );
+print( dict[7] );
+print( "dict.size=" + dict.size() );
+print( dict[12] );
+print( "dict.size=" + dict.size() );

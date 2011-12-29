@@ -1,0 +1,17 @@
+var a array;
+
+a[1] := 42;
+a[2] := 5;
+a[3] := 7;
+
+if (5 in a)
+    print( "Success! (1)" );
+else
+    print( "Failure! (1)" );
+endif
+
+if (0 in a)
+    print( "Failure! (2)" );
+else
+    print( "Success! (2)" );
+endif

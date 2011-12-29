@@ -1,0 +1,20 @@
+enum FOO
+	FOO_A,
+	FOO_B,
+	FOO_C
+endenum
+
+function bar( a := FOO_B )
+	print( "a=" + a );
+endfunction
+
+bar(1);
+bar(2);
+bar();
+bar(FOO_C);
+/**** Expected Output Begins: *****
+1
+2
+1
+2
+*****  Expected Output Ends   ****/

@@ -1,0 +1,6 @@
+const FOO := 6 / 2;
+const BAR := FOO * 3;
+
+print( FOO );
+print( BAR );
+

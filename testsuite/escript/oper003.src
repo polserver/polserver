@@ -1,0 +1,18 @@
+
+
+
+var v := struct;
+v.+mem;
+
+var d := dictionary;
+d["a"] := 5;
+d["b"] := 6;
+
+print( d.exists( "a" ) );
+print( d.exists( "c" ) );
+
+v.mem := d;
+var a := v.mem.exists( "a" );
+print(a);
+a := v.mem.exists( "c" );
+print(a);

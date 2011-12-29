@@ -1,0 +1,4 @@
+s1 < s2:    OK
+s1[1] < s2: OK
+abcd < d:   OK
+s1 < s2[1]: OK

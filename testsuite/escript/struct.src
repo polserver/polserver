@@ -1,0 +1,38 @@
+var a array, b;
+
+a.+name;
+a.+value;
+a.+test := 5;
+
+print( a.name );
+print( a.value );
+print( a.test );
+
+a.test := 5;
+
+print( a.name );
+print( a.value );
+print( a.test );
+
+b := a.test;
+b := "hello";
+
+print( a.name );
+print( a.value );
+print( a.test );
+print( b );
+
+a.name := "x";
+a.value := 42;
+
+b := a;
+print(b);
+
+b.value := "b's value";
+
+print(a.name);
+print( a.value);
+print( a.test);
+print( b.name);
+print( b.value);
+print( b.test);

@@ -1,0 +1,57 @@
+0: decl global #0
+1: "abcd"
+2: :=
+3: #
+4: decl global #1
+5: "defg"
+6: :=
+7: #
+8: global #0
+9: global #1
+10: <
+11: if false goto 16
+12: "s1 < s2:    OK"
+13: Func(1,0): print
+14: #
+15: goto19
+16: "s1 >= s2:   FAILED"
+17: Func(1,0): print
+18: #
+19: global #0
+20: 1L
+21: [] 0
+22: global #1
+23: <
+24: if false goto 29
+25: "s1[1] < s2: OK"
+26: Func(1,0): print
+27: #
+28: goto32
+29: "s1[1] < s2: FAILED"
+30: Func(1,0): print
+31: #
+32: "abcd"
+33: "d"
+34: <
+35: if false goto 40
+36: "abcd < d:   OK"
+37: Func(1,0): print
+38: #
+39: goto43
+40: "abcd < d:   FAILED"
+41: Func(1,0): print
+42: #
+43: global #0
+44: global #1
+45: 1L
+46: [] 0
+47: <
+48: if false goto 53
+49: "s1 < s2[1]: OK"
+50: Func(1,0): print
+51: #
+52: goto56
+53: "s1 < s2[1]: FAILED"
+54: Func(1,0): print
+55: #
+56: progend

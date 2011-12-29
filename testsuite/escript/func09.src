@@ -1,0 +1,10 @@
+use temod;
+
+SendSysMessage( 3, Distance(1,1);
+
+function f1( a,b,c:=0,d:=0 )
+endfunction
+
+function f2( a,b )
+endfunction
+

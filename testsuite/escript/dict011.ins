@@ -1,0 +1,49 @@
+0: decl global #0
+1: 3L
+2: :=
+3: #
+4: decl global #1
+5: 72L
+6: :=
+7: #
+8: decl global #2
+9: dictionary
+10: global #0
+11: global #1
+12: add dictionary member
+13: :=
+14: #
+15: "dict start: "
+16: global #2
+17: +
+18: Func(1,0): print
+19: #
+20: 5L
+21: global0 := 
+22: 71L
+23: global1 := 
+24: "dict after reassign a_key, a_val:"
+25: global #2
+26: +
+27: Func(1,0): print
+28: #
+29: global #2
+30: 3L
+31: 74L
+32: [] := (1) #
+33: "dict after modification: "
+34: global #2
+35: +
+36: Func(1,0): print
+37: #
+38: "a_key is "
+39: global #0
+40: +
+41: Func(1,0): print
+42: #
+43: "a_val is "
+44: global #1
+45: +
+46: Func(1,0): print
+47: #
+48: progend

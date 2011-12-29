@@ -1,0 +1,5 @@
+var a := struct;
+var b := a;
+
+print(a);
+print(b);

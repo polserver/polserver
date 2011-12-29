@@ -1,0 +1,134 @@
+perfsetup 
+done
+Profiling information: 
+	EObjectImp constructions: 0
+	Instruction cycles: 9000032
+	Clocks: 4560 (4.56 seconds)
+	Space used: 14000048
+
+	Cycles Per Second:        1973691
+	Cycles Per Minute:      118421474
+	Cycles Per Hour:       7105288421
+perf001.prf 
+done
+Profiling information: 
+	EObjectImp constructions: 0
+	Instruction cycles: 160027
+	Clocks: 110 (0.11 seconds)
+	Space used: 280076
+
+	Cycles Per Second:        1454791
+	Cycles Per Minute:       87287455
+	Cycles Per Hour:       5237247273
+perf002.prf 
+done
+Profiling information: 
+	EObjectImp constructions: 0
+	Instruction cycles: 90025
+	Clocks: 0 (0 seconds)
+	Space used: 280076
+
+	Cycles Per Second:            inf
+	Cycles Per Minute:            inf
+	Cycles Per Hour:              inf
+perf003a.prf 
+X=1449698416
+done
+Profiling information: 
+	EObjectImp constructions: 0
+	Instruction cycles: 18000051
+	Clocks: 8670 (8.67 seconds)
+	Space used: 14000104
+
+	Cycles Per Second:        2076130
+	Cycles Per Minute:      124567827
+	Cycles Per Hour:       7474069619
+perf003b.prf 
+X=1449698416
+done
+Profiling information: 
+	EObjectImp constructions: 0
+	Instruction cycles: 12000045
+	Clocks: 5930 (5.93 seconds)
+	Space used: 14000076
+
+	Cycles Per Second:        2023616
+	Cycles Per Minute:      121416981
+	Cycles Per Hour:       7285018887
+perf003.prf 
+X=446198416
+done
+Profiling information: 
+	EObjectImp constructions: 0
+	Instruction cycles: 17000051
+	Clocks: 8180 (8.18 seconds)
+	Space used: 14000104
+
+	Cycles Per Second:        2078246
+	Cycles Per Minute:      124694751
+	Cycles Per Hour:       7481685037
+perf004.prf 
+X=1449698416
+done
+Profiling information: 
+	EObjectImp constructions: 0
+	Instruction cycles: 12000045
+	Clocks: 5870 (5.87 seconds)
+	Space used: 14000076
+
+	Cycles Per Second:        2044301
+	Cycles Per Minute:      122658041
+	Cycles Per Hour:       7359482453
+perf005a.prf 
+done
+Profiling information: 
+	EObjectImp constructions: 0
+	Instruction cycles: 11000038
+	Clocks: 5490 (5.49 seconds)
+	Space used: 14000076
+
+	Cycles Per Second:        2003650
+	Cycles Per Minute:      120218995
+	Cycles Per Hour:       7213139672
+perf005b.prf 
+done
+Profiling information: 
+	EObjectImp constructions: 0
+	Instruction cycles: 17000038
+	Clocks: 8510 (8.51 seconds)
+	Space used: 14000076
+
+	Cycles Per Second:        1997654
+	Cycles Per Minute:      119859257
+	Cycles Per Hour:       7191555441
+perf005c.prf 
+done
+Profiling information: 
+	EObjectImp constructions: 0
+	Instruction cycles: 12000038
+	Clocks: 5820 (5.82 seconds)
+	Space used: 14000076
+
+	Cycles Per Second:        2061862
+	Cycles Per Minute:      123711732
+	Cycles Per Hour:       7422703918
+perf006.prf 
+Profiling information: 
+	EObjectImp constructions: 0
+	Instruction cycles: 17500032
+	Clocks: 7300 (7.3 seconds)
+	Space used: 240
+
+	Cycles Per Second:        2397265
+	Cycles Per Minute:      143835879
+	Cycles Per Hour:       8630152767
+perf007.prf 
+Profiling information: 
+	EObjectImp constructions: 0
+	Instruction cycles: 17500032
+	Clocks: 7250 (7.25 seconds)
+	Space used: 216
+
+	Cycles Per Second:        2413798
+	Cycles Per Minute:      144827851
+	Cycles Per Hour:       8689671062

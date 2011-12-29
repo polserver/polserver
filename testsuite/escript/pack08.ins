@@ -1,0 +1,104 @@
+0: decl global #0
+1: dictionary
+2: :=
+3: #
+4: global #0
+5: "hey"
+6: [] 0
+7: 57L
+8: := #
+9: global #0
+10: "you"
+11: [] 0
+12: 73L
+13: := #
+14: global #0
+15: "blah"
+16: [] 0
+17: "test"
+18: := #
+19: decl global #1
+20: "d3:S4:blahS4:testS3:heyi57S3:youi73"
+21: :=
+22: #
+23: global #0
+24: global #1
+25: makelocal
+26: jmp userfunc @29
+27: #
+28: progend
+29: pop param 'exrep'
+30: pop param 'obj'
+31: "Testing Pack for: "
+32: local #1
+33: +
+34: Func(1,0): print
+35: #
+36: "Expected representation: "
+37: local #0
+38: +
+39: Func(1,0): print
+40: #
+41: decl local #2
+42: local #1
+43: Func(0,0): Pack
+44: :=
+45: #
+46: "Result representation:   "
+47: local #2
+48: +
+49: Func(1,0): print
+50: #
+51: local #0
+52: local #2
+53: ==
+54: if false goto 59
+55: "Successful!"
+56: Func(1,0): print
+57: #
+58: goto64
+59: "Failure!"
+60: Func(1,0): print
+61: #
+62: 0L
+63: return
+64: decl local #3
+65: local #2
+66: Func(0,1): Unpack
+67: :=
+68: #
+69: "Unpacked: "
+70: local #3
+71: +
+72: Func(1,0): print
+73: #
+74: local #3
+75: local #1
+76: ==
+77: if false goto 82
+78: "Unpack matches!"
+79: Func(1,0): print
+80: #
+81: goto102
+82: "Unpack doesn't match!"
+83: Func(1,0): print
+84: #
+85: local #3
+86: Func(0,0): Pack
+87: local #2
+88: ==
+89: if false goto 94
+90: "repack does match, however."
+91: Func(1,0): print
+92: #
+93: goto100
+94: "repack is "
+95: local #3
+96: Func(0,0): Pack
+97: +
+98: Func(1,0): print
+99: #
+100: 0L
+101: return
+102: 1L
+103: return

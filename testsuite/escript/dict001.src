@@ -1,0 +1,5 @@
+var d := dictionary;
+d[5] := "hey";
+d[7] := "you";
+print( d[5] );
+print( d[7] );

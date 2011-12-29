@@ -1,0 +1,10 @@
+var a;
+
+foo();
+
+var b;
+
+function foo()
+    print(b);
+    b := 5;
+endfunction

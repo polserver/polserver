@@ -1,0 +1,3 @@
+include "packtst";
+
+test_pack( 57, "i57" );

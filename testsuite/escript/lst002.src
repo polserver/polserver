@@ -1,0 +1,3 @@
+print( "hello" );
+var a,b;
+b := len(a);

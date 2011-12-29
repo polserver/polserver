@@ -1,0 +1,12 @@
+var ret := struct;
+ret.+Ret;
+ret.+Amt;
+
+ret.Ret := 1;
+ret.Amt := 2;
+
+print("got = " + ret);
+
+//Result is:
+
+//got == {<uninitialized object>, 2}

@@ -1,0 +1,81 @@
+0: decl local #0
+1: array
+2: 1L
+3: +=
+4: 12L
+5: +=
+6: 3L
+7: +=
+8: 32L
+9: +=
+10: 57L
+11: +=
+12: :=
+13: #
+14: "initial"
+15: Func(1,0): print
+16: #
+17: local #0
+18: initforeach @22
+19: local #1
+20: Func(1,0): print
+21: #
+22: stepforeach @19
+23: leave block(3)
+24: "size: "
+25: local #0
+26: Call Method size (0 params)
+27: +
+28: Func(1,0): print
+29: #
+30: "insert(3,5)"
+31: Func(1,0): print
+32: #
+33: local #0
+34: 3L
+35: 5L
+36: Call Method insert (2 params)
+37: #
+38: local #0
+39: initforeach @43
+40: local #1
+41: Func(1,0): print
+42: #
+43: stepforeach @40
+44: leave block(3)
+45: "size: "
+46: local #0
+47: Call Method size (0 params)
+48: +
+49: Func(1,0): print
+50: #
+51: decl local #1
+52: 6L
+53: :=
+54: #
+55: "insert(2,b)"
+56: Func(1,0): print
+57: #
+58: local #0
+59: 2L
+60: local #1
+61: Call Method insert (2 params)
+62: #
+63: local #1
+64: 2L
+65: := #
+66: local #0
+67: initforeach @71
+68: local #2
+69: Func(1,0): print
+70: #
+71: stepforeach @68
+72: leave block(3)
+73: "size: "
+74: local #0
+75: Call Method size (0 params)
+76: +
+77: Func(1,0): print
+78: #
+79: leave block(2)
+80: progend

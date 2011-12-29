@@ -1,0 +1,7 @@
+var a;
+while (1)
+    var b;
+    print( "in while" );
+    break;
+endwhile
+print( "end" );

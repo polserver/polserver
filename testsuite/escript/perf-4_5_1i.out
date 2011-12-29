@@ -1,0 +1,146 @@
+perfsetup 
+done
+Profiling information: 
+	EObjectImp constructions: 3500013
+	Instruction cycles: 9000032
+	InnerExec calls: 2500010
+	Clocks: 4230 (4.23 seconds)
+	Space used: 14000048
+
+	Cycles Per Second:        2127667
+	Cycles Per Minute:      127660028
+	Cycles Per Hour:       7659601702
+perf001.prf 
+done
+Profiling information: 
+	EObjectImp constructions: 60012
+	Instruction cycles: 160027
+	InnerExec calls: 40007
+	Clocks: 100 (0.1 seconds)
+	Space used: 280076
+
+	Cycles Per Second:        1600270
+	Cycles Per Minute:       96016200
+	Cycles Per Hour:       5760972000
+perf002.prf 
+done
+Profiling information: 
+	EObjectImp constructions: 40011
+	Instruction cycles: 90025
+	InnerExec calls: 10007
+	Clocks: 50 (0.05 seconds)
+	Space used: 280076
+
+	Cycles Per Second:        1800500
+	Cycles Per Minute:      108030000
+	Cycles Per Hour:       6481800000
+perf003a.prf 
+X=1449698416
+done
+Profiling information: 
+	EObjectImp constructions: 6000022
+	Instruction cycles: 18000051
+	InnerExec calls: 5000014
+	Clocks: 8120 (8.12 seconds)
+	Space used: 14000104
+
+	Cycles Per Second:        2216755
+	Cycles Per Minute:      133005303
+	Cycles Per Hour:       7980318177
+perf003b.prf 
+X=1449698416
+done
+Profiling information: 
+	EObjectImp constructions: 4000019
+	Instruction cycles: 12000045
+	InnerExec calls: 3000014
+	Clocks: 5490 (5.49 seconds)
+	Space used: 14000076
+
+	Cycles Per Second:        2185801
+	Cycles Per Minute:      131148033
+	Cycles Per Hour:       7868881967
+perf003.prf 
+X=446198416
+done
+Profiling information: 
+	EObjectImp constructions: 6000022
+	Instruction cycles: 17000051
+	InnerExec calls: 4500014
+	Clocks: 7580 (7.58 seconds)
+	Space used: 14000104
+
+	Cycles Per Second:        2242751
+	Cycles Per Minute:      134565047
+	Cycles Per Hour:       8073902850
+perf004.prf 
+X=1449698416
+done
+Profiling information: 
+	EObjectImp constructions: 4000019
+	Instruction cycles: 12000045
+	InnerExec calls: 3000014
+	Clocks: 5440 (5.44 seconds)
+	Space used: 14000076
+
+	Cycles Per Second:        2205891
+	Cycles Per Minute:      132353437
+	Cycles Per Hour:       7941206250
+perf005a.prf 
+done
+Profiling information: 
+	EObjectImp constructions: 4000015
+	Instruction cycles: 11000038
+	InnerExec calls: 2500011
+	Clocks: 4940 (4.94 seconds)
+	Space used: 14000076
+
+	Cycles Per Second:        2226728
+	Cycles Per Minute:      133603700
+	Cycles Per Hour:       8016222024
+perf005b.prf 
+done
+Profiling information: 
+	EObjectImp constructions: 7000015
+	Instruction cycles: 17000038
+	InnerExec calls: 4000011
+	Clocks: 7910 (7.91 seconds)
+	Space used: 14000076
+
+	Cycles Per Second:        2149183
+	Cycles Per Minute:      128950984
+	Cycles Per Hour:       7737059014
+perf005c.prf 
+done
+Profiling information: 
+	EObjectImp constructions: 4000015
+	Instruction cycles: 12000038
+	InnerExec calls: 2500011
+	Clocks: 5320 (5.32 seconds)
+	Space used: 14000076
+
+	Cycles Per Second:        2255646
+	Cycles Per Minute:      135338774
+	Cycles Per Hour:       8120326466
+perf006.prf 
+Profiling information: 
+	EObjectImp constructions: 4000013
+	Instruction cycles: 17500032
+	InnerExec calls: 3500004
+	Clocks: 6750 (6.75 seconds)
+	Space used: 240
+
+	Cycles Per Second:        2592597
+	Cycles Per Minute:      155555840
+	Cycles Per Hour:       9333350400
+perf007.prf 
+Profiling information: 
+	EObjectImp constructions: 4000013
+	Instruction cycles: 17500032
+	InnerExec calls: 3500002
+	Clocks: 6700 (6.7 seconds)
+	Space used: 216
+
+	Cycles Per Second:        2611945
+	Cycles Per Minute:      156716704
+	Cycles Per Hour:       9403002269
