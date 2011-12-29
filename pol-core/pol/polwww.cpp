@@ -923,7 +923,7 @@ void http_thread(void)
 		cout << "Listening for HTTP requests on port " << config.web_server_port << endl;
 	}
 	SOCKET http_socket = open_listen_socket( config.web_server_port );
-	if (http_socket < 0)
+	if (http_socket == INVALID_SOCKET)
 	{
 		PolLock lck;
 		cerr << "Unable to listen on socket: " << http_socket << endl;
@@ -964,7 +964,7 @@ void http_thread(void)
 			struct sockaddr client_addr; // inet_addr
 			socklen_t addrlen = sizeof client_addr;
 			SOCKET client_socket = accept( http_socket, &client_addr, &addrlen );
-			if (client_socket < 0)
+			if (client_socket == INVALID_SOCKET)
 				return;
 
 			apply_socket_options( client_socket );
