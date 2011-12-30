@@ -201,6 +201,8 @@ runecl_sources=runecl/runecl.cpp \
 	pol/module/basiciomod.cpp pol/module/basicmod.cpp bscript/berror.cpp \
 	pol/module/sqlmod.cpp pol/sqlscrobj.cpp \
 	pol/module/utilmod.cpp pol/dice.cpp \
+	pol/module/filemod.cpp pol/binaryfilescrobj.cpp pol/xmlfilescrobj.cpp \
+	plib/pkg.cpp plib/polver.cpp
 	bscript/blong.cpp bscript/bstruct.cpp bscript/compctx.cpp \
 	bscript/dict.cpp bscript/eprog.cpp bscript/eprog2.cpp \
 	bscript/eprog3.cpp bscript/eprog_read.cpp bscript/escript_config.cpp \
@@ -274,7 +276,7 @@ bin/ecompile: $(ecompile_objects)
 	$(LINKER) $(CXX_OPTS) -static -o bin/ecompile $(ecompile_objects) -l$(LIB_STL) -lpthread -pthread -lrt -lm $(LIB_MORE)
 
 bin/runecl: $(runecl_objects)
-	$(LINKER) $(CXX_OPTS) -static -o bin/runecl $(runecl_objects) -l$(LIB_STL) -lpthread -lrt -lm $(LIB_MORE)
+	$(LINKER) $(CXX_OPTS) -DNOACCESS_CHECKS -static -o bin/runecl $(runecl_objects) -l$(LIB_STL) -lpthread -lrt -lm $(LIB_MORE)
 
 bin/uoconvert: $(uoconvert_objects)
 	$(LINKER) $(CXX_OPTS) -static -o bin/uoconvert $(uoconvert_objects) -l$(LIB_STL) -lpthread -lrt -lm $(LIB_MORE)
@@ -298,7 +300,7 @@ bin/ecompile-dynamic: $(ecompile_objects)
 	$(LINKER) $(CXX_OPTS) -o bin/ecompile-dynamic $(ecompile_objects) -l$(LIB_STL) -lpthread -lrt -lm $(LIB_MORE)
 
 bin/runecl-dynamic: $(runecl_objects)
-	$(LINKER) $(CXX_OPTS) -o bin/runecl-dynamic $(runecl_objects) -l$(LIB_STL) -lpthread -lrt -lm $(LIB_MORE)
+	$(LINKER) $(CXX_OPTS) -DNOACCESS_CHECKS -o bin/runecl-dynamic $(runecl_objects) -l$(LIB_STL) -lpthread -lrt -lm $(LIB_MORE)
 
 bin/uoconvert-dynamic: $(uoconvert_objects)
 	$(LINKER) $(CXX_OPTS) -o bin/uoconvert-dynamic $(uoconvert_objects) -l$(LIB_STL) -lpthread -lrt -lm $(LIB_MORE)
