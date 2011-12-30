@@ -3,12 +3,21 @@ dist:
 	cd build
 	
 	mkdir scripts\modules
+!	IF "$(PLATFORM)"=="x64"
+	copy ..\..\pol\release\x64\pol.exe .
+	copy ..\..\uoconvert\release\x64\uoconvert.exe .
+	copy ..\..\poltool\release\x64\poltool.exe .
+	copy ..\..\uotool\release\x64\uotool.exe .
+	copy ..\..\ecompile\release\x64\ecompile.exe scripts
+	copy ..\..\runecl\release\x64\runecl.exe scripts
+!	ELSE
 	copy ..\..\pol\release\pol.exe .
 	copy ..\..\uoconvert\release\uoconvert.exe .
 	copy ..\..\poltool\release\poltool.exe .
 	copy ..\..\uotool\release\uotool.exe .
 	copy ..\..\ecompile\release\ecompile.exe scripts
 	copy ..\..\runecl\release\runecl.exe scripts
+!	ENDIF
 	copy ..\..\support\scripts\ecompile.cfg.example scripts\ecompile.cfg.example
 	copy ..\..\doc\core-changes.txt .
 	copy ..\..\doc\uoconvert.txt .
@@ -40,7 +49,7 @@ dist:
 !	ELSE
 		copy ..\..\..\lib\mysql-connector-c-6.0.2-win32\lib\libmysql.dll .
 !	ENDIF
-	..\7za a -tzip -mx9 -r ..\pol-core-.zip @..\core.lst
+	..\7za a -tzip -mx9 -r ..\pol-core-$(PLATFORM)-.zip @..\core.lst
 	cd ..
 #	rmdir /S /Q build
 

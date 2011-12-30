@@ -3,12 +3,22 @@
 DTYPE=RELEASE
 !endif
 
+#X64=1
+
 DIFF=..\bcomp\release\bcomp.exe
 !ifndef COMPIL32
+!ifndef X64
 COMPIL32=..\..\pol-core\ecompile\$(DTYPE)\ecompile.exe
+!else
+COMPIL32=..\..\pol-core\ecompile\$(DTYPE)\x64\ecompile.exe
+!endif
 !endif
 
+!ifndef X64
 EXEC32=..\..\pol-core\runecl\$(DTYPE)\runecl.exe
+!else
+EXEC32=..\..\pol-core\runecl\$(DTYPE)\x64\runecl.exe
+!endif
 
 # Performance testing
 PERFS = \
@@ -102,10 +112,14 @@ test:	copyem otests ctests
 	@echo All tests passed.
 
 copyem:
-	copy ..\..\lib\mysql-connector-c-6.0.2-win32\lib\libmysql.dll .
-	copy ..\..\pol-core\support\scripts\*.em .
-	copy ..\..\pol-core\support\scripts\ecompile.cfg.example ecompile.cfg
-	
+!	ifndef X64
+	@copy ..\..\lib\mysql-connector-c-6.0.2-win32\lib\libmysql.dll .
+!	else
+	@copy ..\..\lib\mysql-connector-c-6.0.2-winx64\lib\libmysql.dll .
+!	endif
+	@copy ..\..\pol-core\support\scripts\*.em .
+	@copy ..\..\pol-core\support\scripts\ecompile.cfg.example ecompile.cfg
+		
 otests: $(OTESTS)
 
 ctests: $(CTESTS)
@@ -126,7 +140,7 @@ clean:
     del libmysql.dll
     del ecompile.cfg
 
-perf: perf.out
+perf: copyem perf.out
 
 perf.out: $(PERFS)
     @echo perfsetup >perf.out
@@ -176,26 +190,26 @@ help:
 #       otherwise, we risk not testing everything.
 .src.ok:
 	@echo $(@B).src: TESTING
-	@del $(@B).ok >NUL
-	@del $(@B).ecl >NUL
-    @del $(@B).tst >NUL
-    @del $(@B).tsi >NUL
+	@del $(@B).ok 2>NUL
+	@del $(@B).ecl 2>NUL
+    @del $(@B).tst 2>NUL
+    @del $(@B).tsi 2>NUL
 	$(COMPIL32) -l -xt -q $(@B).src
     $(EXEC32) -q -v$(@B).ecl >$(@B).tsi
 	$(EXEC32) -q $(@B).ecl >$(@B).tst
     $(EXEC32) -p -q $(@B).ecl >$(@B).prf
 	$(DIFF) $(@B).out $(@B).tst
-	echo $(@B).src: output PASSED
-	echo $(@B).src: instructions TESTING
-    REM copy $(@B).tsi $(@B).ins 
+	@echo $(@B).src: output PASSED
+	@echo $(@B).src: instructions TESTING
+    @REM copy $(@B).tsi $(@B).ins 
     -$(DIFF) $(@B).ins $(@B).tsi
     @echo $(@B).src: instructions PASSED
 	@echo $(@B).src: PASSED >$(@B).ok
 
 .src.prf:
 	@echo $(@B).src: PROFILING
-	@del $(@B).prf >NUL
-	@del $(@B).ecl >NUL
+	@del $(@B).prf 2>NUL
+	@del $(@B).ecl 2>NUL
 	@$(COMPIL32) -l -q $(@B).src
     @$(EXEC32) -p -q $(@B).ecl >$(@B).prf
 	@echo $(@B).src: COMPLETE
