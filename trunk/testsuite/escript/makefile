@@ -229,8 +229,8 @@ help:
 # A .SRC file is compiled, and the compiler stdout output is examined.
 .src.cok:
 	@echo TESTING COMPILER OUTPUT: $(@B).src
-	@del $(@B).ok >NUL
-	@del $(@B).ecl >NUL
+	@del $(@B).ok 2>NUL
+	@del $(@B).ecl 2>NUL
 	@$(COMPIL32) -e -q $(@B).src >$(@B).ctt
 	@-$(DIFF) $(@B).cot $(@B).ctt
 	@echo $(@B).src: PASSED >$(@B).cok
