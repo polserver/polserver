@@ -3,9 +3,9 @@ include "relops";
 var x := 1.0;
 var y := 2.0;
 
-compare( x, y );
+compareTest( x, y );
 
-compare( 1,   2 );
-compare( 1,   2.0 );
-compare( 1.0, 2.0 );
-compare( 1.0, 2 );
+compareTest( 1,   2 );
+compareTest( 1,   2.0 );
+compareTest( 1.0, 2.0 );
+compareTest( 1.0, 2 );

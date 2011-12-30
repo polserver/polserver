@@ -38,6 +38,7 @@ EXPR =
 
 
 # Tests which should pass the testsuite
+!ifndef OTESTS
 OTESTS = \
 	dict001.ok dict002.ok dict003.ok dict004.ok dict005.ok dict006.ok dict007.ok \
 	dict008.ok dict009.ok dict010.ok dict011.ok dict012.ok dict013.ok dict014.ok \
@@ -101,17 +102,19 @@ OTESTS = \
 	bitop001.ok bitop002.ok bitop003.ok \
 	recurs01.ok recurs02.ok \
 	bug001.ok bug002.ok
+!endif
 # bug003.ok bug004.ok
 
 #
 #    ref001.ok ref002.ok switch12.cok
 
+!ifndef CTESTS
 CTESTS = \
 	func06.cok const04.cok var001.cok fcall001.cok func2.cok func2b.cok \
 	rpterr.cok funceof.cok comp001.cok scope02.cok scope05.cok bug006.cok \
 	bug004.cok inc01.cok array14.cok syntax01.cok syntax02.cok syntax03.cok \
 	syntax04.cok syntax05.cok syntax06.cok syntax07.cok syntax09.cok crash001.cok
-
+!endif
 FAIL=label.ok
 
 test:	copyem otests ctests
