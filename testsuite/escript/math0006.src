@@ -1,6 +1,6 @@
 include "relops";
 
-compare( 1, 1 );
-compare( 1, 1.0 );
-compare( 1.0, 1.0 );
-compare( 1.0, 1 );
+compareTest( 1, 1 );
+compareTest( 1, 1.0 );
+compareTest( 1.0, 1.0 );
+compareTest( 1.0, 1 );
