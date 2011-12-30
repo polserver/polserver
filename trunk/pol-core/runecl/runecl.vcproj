@@ -45,7 +45,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;..\..\lib\STLport4\stlport&quot;;..\..\lib\mysql-connector-c-6.0.2-win32\include;"
-				PreprocessorDefinitions="_DEBUG,WIN32,_CONSOLE,NOMINMAX,INC_PASSERT,TIXML_USE_STL"
+				PreprocessorDefinitions="_DEBUG,WIN32,_CONSOLE,NOMINMAX,INC_PASSERT,TIXML_USE_STL,NOACCESS_CHECKS"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
 				ForceConformanceInForLoopScope="true"
@@ -136,7 +136,7 @@
 				Name="VCCLCompilerTool"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="&quot;..\..\lib\STLport4\stlport&quot;;..\..\lib\mysql-connector-c-6.0.2-win32\include;"
-				PreprocessorDefinitions="NDEBUG,WIN32,_CONSOLE,NOMINMAX,INC_PASSERT,TIXML_USE_STL"
+				PreprocessorDefinitions="NDEBUG,WIN32,_CONSOLE,NOMINMAX,INC_PASSERT,TIXML_USE_STL,NOACCESS_CHECKS"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				BufferSecurityCheck="false"
@@ -205,14 +205,6 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="..\pol\dice.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\pol\dice.h"
-			>
-		</File>
-		<File
 			RelativePath="..\pol\module\basiciomod.cpp"
 			>
 		</File>
@@ -229,11 +221,55 @@
 			>
 		</File>
 		<File
+			RelativePath="..\pol\binaryfilescrobj.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\pol\binaryfilescrobj.h"
+			>
+		</File>
+		<File
+			RelativePath="..\pol\dice.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\pol\dice.h"
+			>
+		</File>
+		<File
+			RelativePath="..\pol\module\filemod.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\pol\module\filemod.h"
+			>
+		</File>
+		<File
 			RelativePath="..\pol\module\mathmod.cpp"
 			>
 		</File>
 		<File
 			RelativePath="..\pol\module\mathmod.h"
+			>
+		</File>
+		<File
+			RelativePath="..\plib\pkg.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\plib\pkg.h"
+			>
+		</File>
+		<File
+			RelativePath="..\plib\polver.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\plib\polver.h"
+			>
+		</File>
+		<File
+			RelativePath=".\runecl.cpp"
 			>
 		</File>
 		<File
@@ -245,6 +281,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\pol\sqlscrobj.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\pol\sqlscrobj.h"
+			>
+		</File>
+		<File
 			RelativePath="..\pol\module\utilmod.cpp"
 			>
 		</File>
@@ -253,15 +297,11 @@
 			>
 		</File>
 		<File
-			RelativePath="..\pol\sqlscrobj.cpp"
+			RelativePath="..\pol\xmlfilescrobj.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\pol\sqlscrobj.h"
-			>
-		</File>		
-		<File
-			RelativePath=".\runecl.cpp"
+			RelativePath="..\pol\xmlfilescrobj.h"
 			>
 		</File>
 	</Files>
