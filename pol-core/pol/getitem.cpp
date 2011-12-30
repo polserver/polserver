@@ -351,7 +351,7 @@ void undo_get_item( Character *chr, Item *item )
 		
 		// Attempt to place the item in the player's backpack.
 		UContainer* bp = chr->backpack();
-		if (bp && bp->can_add( *item ) && bp->can_insert_add_item(chr,UContainer::MT_PLAYER,item))
+		if (bp != NULL && bp->can_add( *item ) && bp->can_insert_add_item(chr,UContainer::MT_PLAYER,item))
 		{
 			if(item->orphan())
 				return;

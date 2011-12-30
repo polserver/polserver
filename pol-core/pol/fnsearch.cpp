@@ -73,7 +73,7 @@ Character *find_character( u32 serial )
 Item* find_toplevel_item( u32 serial )
 {
     Item* item = system_find_item( serial );
-    if (item && item->container)
+    if (item != NULL && item->container != NULL)
         return NULL;
     //{
     //    const UObject* owner = item->toplevel_owner();
