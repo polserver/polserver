@@ -1763,7 +1763,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 				poisoned = newval;
 				check_undamaged();
 				UOExecutorModule* uoexec = static_cast<UOExecutorModule*>(ex.findModule( "UO" ));
-				if (uoexec && uoexec->controller_.get())
+				if (uoexec != NULL && uoexec->controller_.get())
 				{
 					Character* attacker = uoexec->controller_.get();
 					if (!attacker->orphan())
@@ -1805,7 +1805,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 				paralyzed_ = newval;
 				check_undamaged();
 				UOExecutorModule* uoexec = static_cast<UOExecutorModule*>(ex.findModule( "UO" ));
-				if (uoexec && uoexec->controller_.get())
+				if (uoexec != NULL && uoexec->controller_.get())
 				{
 					Character* attacker = uoexec->controller_.get();
 					if (!attacker->orphan())
@@ -2359,7 +2359,7 @@ BObjectImp* NPC::get_script_member_id( const int id ) const
 		case MBR_MASTER:
 		{
 			Character* master = master_.get();
-			if (master && !master->orphan())
+			if (master != NULL && !master->orphan())
 				return new ECharacterRefObjImp( master );
 			else
 				return new BLong(0);
@@ -2913,7 +2913,7 @@ BObjectImp* UObject::script_method_id( const int id, Executor& ex )
 			BObjectImp* objimp;
 			const String* mname;
 			if (ex.getStringParam(0,mname) &&
-					(objimp = ex.getParamImp(1)) )
+					(objimp = ex.getParamImp(1)) != NULL )
 			{
 				BObjectImp* ret;
 				if(objimp->isa( BObjectImp::OTLong ) )

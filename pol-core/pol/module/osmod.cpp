@@ -282,7 +282,7 @@ BObjectImp* OSExecutorModule::start_script()
 			return new BError( "Unable to start script" );
 		}
 		UOExecutorModule* this_uoemod = static_cast<UOExecutorModule*>(exec.findModule( "uo" ));
-		if (new_uoemod && this_uoemod)
+		if (new_uoemod != NULL && this_uoemod != NULL)
 		{
 			new_uoemod->controller_ = this_uoemod->controller_;
 		}

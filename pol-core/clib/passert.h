@@ -12,6 +12,21 @@ Notes
 #ifndef CLIB_PASSERT_H
 #define CLIB_PASSERT_H
 
+
+
+// Fix for VS CodeAnalysis
+#ifdef _MSC_VER
+
+#include <CodeAnalysis/sourceannotations.h>
+#define passert_assume(x) __analysis_assume(x)
+
+#else
+
+#define passert_assume(x)
+
+#endif
+
+
 #ifndef INC_PASSERT
 #	define INC_PASSERT 0
 #endif
@@ -49,8 +64,8 @@ void passert_failed(const char *expr, const std::string& reason, const char *fil
 
 #if  INC_PASSERT
 
-#define passert(exp) (void)( passert_disabled || (exp) || (passert_failed(#exp, __FILE__, __LINE__), 0) )
-#define passert_r(exp, reason) (void)( passert_disabled || (exp) || (passert_failed(#exp, reason, __FILE__, __LINE__), 0) )
+#define passert(exp) (void)( passert_disabled || (exp) || (passert_failed(#exp, __FILE__, __LINE__), 0) ); passert_assume(exp)
+#define passert_r(exp, reason) (void)( passert_disabled || (exp) || (passert_failed(#exp, reason, __FILE__, __LINE__), 0) ); passert_assume(exp)
 
 #else
 
@@ -58,13 +73,13 @@ void passert_failed(const char *expr, const std::string& reason, const char *fil
 
 #endif
 
-#define passert_always(exp) (void)( (exp) || (passert_failed(#exp, __FILE__, __LINE__), 0) )
-#define passert_always_r(exp, reason) (void)( (exp) || (passert_failed(#exp, reason, __FILE__, __LINE__), 0) )
+#define passert_always(exp) (void)( (exp) || (passert_failed(#exp, __FILE__, __LINE__), 0) ); passert_assume(exp)
+#define passert_always_r(exp, reason) (void)( (exp) || (passert_failed(#exp, reason, __FILE__, __LINE__), 0) ); passert_assume(exp)
 
 #if  INC_PASSERT_PARANOID
 
-#define passert_paranoid(exp) (void)( (exp) || (passert_failed(#exp, __FILE__, __LINE__), 0) )
-#define passert_paranoid_r(exp, reason) (void)( (exp) || (passert_failed(#exp, reason, __FILE__, __LINE__), 0) )
+#define passert_paranoid(exp) (void)( (exp) || (passert_failed(#exp, __FILE__, __LINE__), 0) ); passert_assume(exp)
+#define passert_paranoid_r(exp, reason) (void)( (exp) || (passert_failed(#exp, reason, __FILE__, __LINE__), 0) ); passert_assume(exp)
 
 #else
 

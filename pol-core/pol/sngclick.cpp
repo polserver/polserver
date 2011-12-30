@@ -79,12 +79,12 @@ void singleclick( Client *client, PKTIN_09 *msg)
         if (serial == client->chr->serial)
             chr = client->chr;
         
-        if (!chr)
+        if (chr == NULL)
         {
             chr = find_character( serial );
         }
 
-        if (chr && inrange( client->chr, chr ) && !client->chr->is_concealed_from_me(chr) )
+        if (chr != NULL && inrange( client->chr, chr ) && !client->chr->is_concealed_from_me(chr) )
         {
             if (!chr->title_guild.empty() && (ssopt.core_handled_tags & 0x1))
                 send_nametext( client, chr, "[" + chr->title_guild + "]" );
