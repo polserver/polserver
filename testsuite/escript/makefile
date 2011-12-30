@@ -157,6 +157,23 @@ perfout:
 
 expr: $(EXPR)
 
+create: copyem
+!	ifdef FILE
+	@del $(FILE).ecl 2>NUL
+	@del $(FILE).ins 2>NUL
+	@del $(FILE).out 2>NUL
+	$(COMPIL32) -l -xt -q $(FILE).src
+	$(EXEC32) -q -v$(FILE).ecl >$(FILE).ins
+	$(EXEC32) -q $(FILE).ecl >$(FILE).out
+	@del $(FILE).ecl 2>NUL
+	@del $(FILE).dbg 2>NUL
+	@del $(FILE).dbg.txt 2>NUL
+	@del $(FILE).dep 2>NUL
+	@del $(FILE).lst 2>NUL
+!	else
+	@echo you need to define FILE
+!	endif
+
 help:
 	@echo "Build configurations:"
 	@echo "    test      entire test suite (default)"
@@ -164,6 +181,7 @@ help:
 	@echo "    expr      experimental scripts"
 	@echo "    help      this list"
 	@echo "    clean     clean for new test run"
+	@echo "    create    creates ref out,ins files for given FILE
 
 .SUFFIXES : .src .out .prf
 
