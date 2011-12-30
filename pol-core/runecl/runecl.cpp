@@ -41,12 +41,14 @@ Notes
 
 #include "../pol/sqlscrobj.h"
 #include "../clib/cmdargs.h"
+#include "../clib/cfgelem.h"
 
 #include "../pol/module/basicmod.h"
 #include "../pol/module/basiciomod.h"
 #include "../pol/module/mathmod.h"
 #include "../pol/module/sqlmod.h"
 #include "../pol/module/utilmod.h"
+#include "../pol/module/filemod.h"
 
 #if REFPTR_DEBUG
 	unsigned int ref_counted::_ctor_calls;
@@ -124,6 +126,7 @@ void DumpScript( const char *path )
     E.addModule( new MathExecutorModule(E) );
     E.addModule( new SQLExecutorModule(E));
 	E.addModule( new UtilExecutorModule(E));
+	E.addModule( new FileAccessExecutorModule(E));
 
     ref_ptr<EScriptProgram> program( new EScriptProgram );
     program->read( fname.c_str() );
@@ -165,6 +168,7 @@ int exec_script(const char *path)
     E.addModule( new MathExecutorModule(E) );
     E.addModule( new SQLExecutorModule(E) );
 	E.addModule( new UtilExecutorModule(E));
+	E.addModule( new FileAccessExecutorModule(E));
 
     ref_ptr<EScriptProgram> program( new EScriptProgram );
     if (program->read( fname.c_str() ))
