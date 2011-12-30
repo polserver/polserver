@@ -657,7 +657,7 @@ void CustomHousesAddMulti(PKTBI_D7* msg)
     if ( itemID < STAIR_MULTIID_MIN || itemID > STAIR_MULTIID_MAX )
     {
 		Character* chr = find_character(serial);
-		if(chr && chr->client)
+		if(chr != NULL && chr->client != NULL)
 			CustomHousesSendFull(house, chr->client,HOUSE_DESIGN_WORKING);
         return;
     }
@@ -725,7 +725,7 @@ void CustomHousesClear(PKTBI_D7* msg)
 
     //add foundation back to design
     house->WorkingDesign.AddMultiAtOffset(house->graphic,0,0,0);
-    if(chr && chr->client)
+    if(chr != NULL && chr->client != NULL)
         CustomHousesSendFull(house, chr->client,HOUSE_DESIGN_WORKING);
 
     house->revision++;
@@ -810,7 +810,7 @@ void CustomHousesRestore(PKTBI_D7* msg)
     house->WorkingDesign = house->BackupDesign;
     vector<u8> newvec;
     house->WorkingCompressed.swap(newvec);
-    if(chr && chr->client)
+    if(chr != NULL && chr->client != NULL)
         CustomHousesSendFull(house, chr->client,HOUSE_DESIGN_WORKING);
 }
 
@@ -819,7 +819,7 @@ void CustomHousesSynch(PKTBI_D7* msg)
     u32 serial = cfBEu32(msg->serial);
     Character* chr = find_character(serial);
     UHouse* house = UHouse::FindWorkingHouse(serial);
-    if(chr && chr->client)
+    if(chr != NULL && chr->client != NULL)
         CustomHousesSendFull(house, chr->client,HOUSE_DESIGN_WORKING);
 }
 
@@ -836,7 +836,7 @@ void CustomHousesRevert(PKTBI_D7* msg)
     vector<u8> newvec;
     house->WorkingCompressed.swap(newvec);
 	Character* chr = find_character(serial);
-    if(chr && chr->client)
+    if(chr != NULL && chr->client != NULL)
         CustomHousesSendFull(house, chr->client,HOUSE_DESIGN_WORKING);
 }
 
@@ -879,7 +879,7 @@ void CustomHousesRoofRemove(PKTBI_D7* msg)
 	if (!house->WorkingDesign.EraseGraphicAt(graphic,x,y,z))
 	{
 		Character* chr = find_character(serial);
-		if(chr && chr->client)
+		if(chr != NULL && chr->client != NULL)
 			CustomHousesSendFull(house, chr->client,HOUSE_DESIGN_WORKING);
 		return;
 	}

@@ -674,23 +674,23 @@ void Character::disconnect_cleanup()
 
 bool Character::has_active_client() const
 {
-	return (client && client->isActive());
+	return (client != NULL && client->isActive());
 }
 
 bool Character::has_active_prompt() const
 {
-	return (client && client->gd &&
+	return (client != NULL && client->gd != NULL &&
 			(client->gd->prompt_uniemod || client->gd->prompt_uoemod));
 }
 
 bool Character::has_active_gump() const
 {
-	return (client && client->gd && !client->gd->gumpmods.empty());
+	return (client != NULL && client->gd != NULL && !client->gd->gumpmods.empty());
 }
 
 bool Character::is_house_editing() const
 {
-	return (client && client->gd && client->gd->custom_house_serial!=0);
+	return (client != NULL && client->gd != NULL && client->gd->custom_house_serial!=0);
 }
 
 void Character::clear_gotten_item()
