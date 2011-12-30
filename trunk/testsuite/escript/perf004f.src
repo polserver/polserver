@@ -1,0 +1,11 @@
+
+include "perf";
+
+setup();
+
+var x := 0;
+foreach i in arr
+    x += i;
+endforeach
+print( "X=" + x );
+print( "done" );
