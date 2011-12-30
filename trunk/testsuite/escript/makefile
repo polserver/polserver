@@ -101,9 +101,9 @@ OTESTS = \
 	mod0001.ok \
 	bitop001.ok bitop002.ok bitop003.ok \
 	recurs01.ok recurs02.ok \
-	bug001.ok bug002.ok
+	bug001.ok bug002.ok bug003.ok
 !endif
-# bug003.ok bug004.ok
+#  bug004.ok
 
 #
 #    ref001.ok ref002.ok switch12.cok
