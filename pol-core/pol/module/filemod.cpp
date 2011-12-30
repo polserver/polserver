@@ -206,6 +206,9 @@ vector<FileAccess> file_access_rules;
 
 bool HasReadAccess( const Package* pkg, const Package* filepackage, const string& path )
 {
+#ifdef NOACCESS_CHECKS
+	return true;
+#else
 	for( unsigned i = 0; i < file_access_rules.size(); ++i )
 	{
 		const FileAccess& fa = file_access_rules[i];
@@ -218,9 +221,13 @@ bool HasReadAccess( const Package* pkg, const Package* filepackage, const string
 		}
 	}
 	return false;
+#endif
 }
 bool HasWriteAccess( const Package* pkg, const Package* filepackage, const string& path )
 {
+#ifdef NOACCESS_CHECKS
+	return true;
+#else
 	for( unsigned i = 0; i < file_access_rules.size(); ++i )
 	{
 		const FileAccess& fa = file_access_rules[i];
@@ -233,9 +240,13 @@ bool HasWriteAccess( const Package* pkg, const Package* filepackage, const strin
 		}
 	}
 	return false;
+#endif
 }
 bool HasAppendAccess( const Package* pkg, const Package* filepackage, const string& path )
 {
+#ifdef NOACCESS_CHECKS
+	return true;
+#else
 	for( unsigned i = 0; i < file_access_rules.size(); ++i )
 	{
 		const FileAccess& fa = file_access_rules[i];
@@ -248,6 +259,7 @@ bool HasAppendAccess( const Package* pkg, const Package* filepackage, const stri
 		}
 	}
 	return false;
+#endif
 }
 
 ExecutorModule* CreateFileAccessExecutorModule( Executor& exec )

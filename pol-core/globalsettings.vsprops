@@ -6,6 +6,6 @@
 	>
 	<Tool
 		Name="VCCLCompilerTool"
-		PreprocessorDefinitions="WIN32;INC_PASSERT;TIXML_USE_STL"
+		PreprocessorDefinitions="WIN32;INC_PASSERT;TIXML_USE_STL;HAVE_MYSQL"
 	/>
 </VisualStudioPropertySheet>
