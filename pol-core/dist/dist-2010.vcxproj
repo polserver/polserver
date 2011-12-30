@@ -124,9 +124,13 @@
     <PostBuildEvent>
       <Message>Build distribution archive</Message>
       <Command>cd $(SolutionDir)dist
-mkdist.bat
+mkdist.bat $(Platform) dist
 </Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>cd $(SolutionDir)dist
+mkdist.bat $(Platform) clean</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <PostBuildEvent>

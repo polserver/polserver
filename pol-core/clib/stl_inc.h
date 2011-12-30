@@ -222,6 +222,7 @@ Notes
 #	pragma warning( disable: 4996 ) //'function': was declared deprecated
 #	pragma warning( disable: 4100 ) //unreferenced formal parameter
 #   pragma warning( disable: 4505 ) //unreferenced local function has been removed, vs seems to have problems with region virtuals
+#   pragma warning( disable: 4351 ) //new behavior: elements of array 'array' will be default initialized 
 
 #	if 0
 		// this is useful for finding memory leaks
