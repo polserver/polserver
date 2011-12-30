@@ -6,21 +6,21 @@ function Text( b )
     endif
 endfunction
 
-function compare( x, y )
+function compareTest( x, y )
     print( "compare: x=" + x + ", y=" + y );
 
     print( "y <= x? " + Text( y <= x ) );
     print( "y <  x? " + Text( y <  x ) );
     print( "y >= x? " + Text( y >= x ) );
     print( "y >  x? " + Text( y >  x ) );
-    print( "y =  x? " + Text( y ==  x ) );
+    print( "y == x? " + Text( y ==  x ) );
     print( "y != x? " + Text( y != x ) );
 
     print( "x <= y? " + Text( x <= y ) );
     print( "x <  y? " + Text( x <  y ) );
     print( "x >= y? " + Text( x >= y ) );
     print( "x >  y? " + Text( x >  y ) );
-    print( "x =  y? " + Text( x ==  y ) );
+    print( "x == y? " + Text( x ==  y ) );
     print( "x != y? " + Text( x != y ) );
 
 endfunction
