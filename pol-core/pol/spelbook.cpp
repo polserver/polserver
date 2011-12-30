@@ -157,6 +157,10 @@ bool Spellbook::has_spellid( unsigned int spellid ) const
 		else
 			spellnumber = static_cast<u16>(spellid % 100);
 
+		// Limits spellnumber to be between 1-64
+		spellnumber = spellnumber & 63;
+		if (spellnumber == 0) spellnumber = 64;
+
         u8  spellslot = spellnumber & 7;
         if(spellslot == 0) spellslot = 8;
 
@@ -178,6 +182,10 @@ bool Spellbook::remove_spellid( unsigned int spellid )
 		else
 			spellnumber = static_cast<u16>(spellid % 100);
 
+		// Limits spellnumber to be between 1-64
+		spellnumber = spellnumber & 63;
+		if (spellnumber == 0) spellnumber = 64;
+
         u8  spellslot = spellnumber & 7;
         if(spellslot == 0) spellslot = 8;
         bitwise_contents[ (spellnumber-1) >> 3 ] &= ~(1 << (spellslot-1));
@@ -197,6 +205,10 @@ bool Spellbook::add_spellid( unsigned int spellid )
 			spellnumber = static_cast<u16>(spellid - 677);
 		else
 			spellnumber = static_cast<u16>(spellid % 100);
+
+		// Limits spellnumber to be between 1-64
+		spellnumber = spellnumber & 63;
+		if (spellnumber == 0) spellnumber = 64;
 
         u8  spellslot = spellnumber & 7;
         if(spellslot == 0) spellslot = 8;
