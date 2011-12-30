@@ -132,6 +132,8 @@ bool move_character_to( Character* chr,
     // teleport( chr );
     if (chr->has_active_client())    
     {
+		passert_assume(chr->client != NULL); // tells compiler to assume this is true during static code analysis
+
 		if(oldrealm != chr->realm)
 		{
 			send_new_subserver( chr->client );

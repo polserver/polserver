@@ -146,7 +146,7 @@ StorageArea* Storage::create_area( const string& name )
 StorageArea* Storage::create_area( ConfigElem& elem )
 {
     const char* rest = elem.rest();
-    if (rest && rest[0])
+    if (rest != NULL && rest[0])
     {
         return create_area( rest );
     }

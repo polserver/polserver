@@ -1108,7 +1108,7 @@ UContainer *find_legal_container( const Character *chr, u32 serial )
     }
 
     Item* item = chr->search_remote_containers( serial, NULL /* don't care if it's a remote container */ );
-    if (item && item->isa( UObject::CLASS_CONTAINER))
+    if (item != NULL && item->isa( UObject::CLASS_CONTAINER))
         return static_cast<UContainer*>(item);
     else
         return NULL;

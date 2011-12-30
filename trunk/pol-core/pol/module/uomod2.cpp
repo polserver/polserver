@@ -438,7 +438,7 @@ void oldBuyHandler(Client* client, PKTBI_3B* msg)
 			ItemRef itemref(tobuy); //dave 1/28/3 prevent item from being destroyed before function ends
 			Item* existing_stack;
 			if (tobuy->stackable() &&
-				(existing_stack = backpack->find_addable_stack( tobuy )))
+				(existing_stack = backpack->find_addable_stack( tobuy )) != NULL )
 			{
 				//dave 1-14-3 check backpack's insert scripts before moving.
 				if(backpack->can_insert_increase_stack( client->chr, UContainer::MT_CORE_MOVED, existing_stack, tobuy->getamount(), tobuy ))

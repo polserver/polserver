@@ -174,7 +174,7 @@ void loginserver_login( Client *client, PKTIN_80 *msg )
         if (!server->hostname.empty())
         {
             struct hostent* he = gethostbyname( server->hostname.c_str() ); // FIXME: here is a potential server lockup
-            if (he && he->h_addr_list[0])
+            if (he != NULL && he->h_addr_list[0])
             {
                 char* addr = he->h_addr_list[0];
                 server->ip[0] = addr[3];
