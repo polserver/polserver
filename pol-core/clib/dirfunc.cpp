@@ -119,10 +119,10 @@ void find_usefns(const char *dir, const char *fname)
     // now, if dir has a trailing backslash, we use %s%s
     // else, we use %s\\%s
     const char* s = strrchr(use_dir, '\\');
-    if (!s) 
+    if (s == NULL) 
 		s = strrchr(use_dir, '/');
 
-    if (s && (s[1] == '\0')) // is trailing
+    if (s != NULL && (s[1] == '\0')) // is trailing
         use_template = "%s%s";
     else
         use_template = "%s\\%s";

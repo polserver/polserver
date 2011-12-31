@@ -936,7 +936,7 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool forcebuil
 			{
 				int idx;
 				BObjectImp* imp = ex.getParamImp( 1 );
-				if (ex.getParam( 0, idx, 1, static_cast<int>(ref_arr.size()+1) ) && imp) // 1-based index
+				if (ex.getParam( 0, idx, 1, static_cast<int>(ref_arr.size()+1) ) && imp != NULL) // 1-based index
 				{ 
 					--idx;
 	// FIXME: 2008 Upgrades needed here? Make sure still working correctly under 2008
