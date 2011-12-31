@@ -260,7 +260,7 @@ BObjectImp* BDictionary::call_method_id( const int id, Executor& ex, bool forceb
         break;
     case MTH_ERASE:
 		if (ex.numParams() == 1 &&
-			(keyobj = ex.getParamObj( 0 )))
+			(keyobj = ex.getParamObj( 0 )) != NULL )
         {
             if (! (keyobj->isa( OTLong ) || keyobj->isa( OTString ) || keyobj->isa( OTDouble ) || keyobj->isa( OTApplicObj )))
                 return new BError( "Dictionary keys must be integer, real, or string" );
@@ -274,8 +274,8 @@ BObjectImp* BDictionary::call_method_id( const int id, Executor& ex, bool forceb
         break;
     case MTH_INSERT:
 		if (ex.numParams() == 2 &&
-			(keyobj = ex.getParamObj( 0 )) &&
-			(valobj = ex.getParamObj( 1 )))
+			(keyobj = ex.getParamObj( 0 )) != NULL &&
+			(valobj = ex.getParamObj( 1 )) != NULL)
         {
             if (! (keyobj->isa( OTLong ) || keyobj->isa( OTString ) || keyobj->isa( OTDouble ) || keyobj->isa( OTApplicObj )))
                 return new BError( "Dictionary keys must be integer, real, or string" );
@@ -290,7 +290,7 @@ BObjectImp* BDictionary::call_method_id( const int id, Executor& ex, bool forceb
         break;
     case MTH_EXISTS:
 		if (ex.numParams() == 1 &&
-			(keyobj = ex.getParamObj( 0 )))
+			(keyobj = ex.getParamObj( 0 )) != NULL )
         {
             if (! (keyobj->isa( OTLong ) || keyobj->isa( OTString ) || keyobj->isa( OTDouble ) || keyobj->isa( OTApplicObj )))
                 return new BError( "Dictionary keys must be integer, real, or string" );
