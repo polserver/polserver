@@ -330,7 +330,7 @@ BObjectImp* BStruct::call_method_id( const int id, Executor& ex, bool forcebuilt
 
     case MTH_ERASE:
 		if (ex.numParams() == 1 &&
-			(keyobj = ex.getParamObj( 0 )))
+			(keyobj = ex.getParamObj( 0 )) != NULL )
         {
             if (!keyobj->isa( OTString ))
                 return new BError( "Struct keys must be strings" );
@@ -345,8 +345,8 @@ BObjectImp* BStruct::call_method_id( const int id, Executor& ex, bool forcebuilt
         break;
     case MTH_INSERT:
 		if (ex.numParams() == 2 &&
-			(keyobj = ex.getParamObj( 0 )) &&
-			(valobj = ex.getParamObj( 1 )))
+			(keyobj = ex.getParamObj( 0 )) != NULL &&
+			(valobj = ex.getParamObj( 1 )) != NULL )
         {
             if (!keyobj->isa( OTString ))
                 return new BError( "Struct keys must be strings" );
@@ -361,7 +361,7 @@ BObjectImp* BStruct::call_method_id( const int id, Executor& ex, bool forcebuilt
         break;
     case MTH_EXISTS:
 		if (ex.numParams() == 1 &&
-			(keyobj = ex.getParamObj( 0 )))
+			(keyobj = ex.getParamObj( 0 )) != NULL )
         {
             if (!keyobj->isa( OTString ))
                 return new BError( "Struct keys must be strings" );
