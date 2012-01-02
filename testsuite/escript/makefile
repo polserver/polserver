@@ -105,7 +105,8 @@ OTESTS = \
     mod0001.ok \
     bitop001.ok bitop002.ok bitop003.ok \
     recurs01.ok recurs02.ok \
-    bug001.ok bug002.ok bug003.ok
+    bug001.ok bug002.ok bug003.ok \
+    filemod\xml.ok
 !endif
 #  bug004.ok
 
@@ -121,40 +122,36 @@ CTESTS = \
 !endif
 FAIL=label.ok
 
-test:   copyem otests ctests
+test:   copy otests ctests
     @echo All tests passed.
 
-copyem:
+copy:
 !   ifndef X64
         @copy ..\..\lib\mysql-connector-c-6.0.2-win32\lib\libmysql.dll .
 !   else
         @copy ..\..\lib\mysql-connector-c-6.0.2-winx64\lib\libmysql.dll .
 !   endif
-    @copy ..\..\pol-core\support\scripts\*.em .
-    @copy ..\..\pol-core\support\scripts\ecompile.cfg.example ecompile.cfg
 
 otests: $(OTESTS)
 
 ctests: $(CTESTS)
 
 clean:
-    @del *.ok 2>NUL
-    @del *.cok 2>NUL
-    @del *.em 2>NUL
-    @del *.ecl 2>NUL
-    @del *.ecl32 2>NUL
-    @del *.lst 2>NUL
-    @del *.dep 2>NUL
-    @del *.dbg 2>NUL
-    @del *.dbg.txt 2>NUL
-    @del *.tst 2>NUL
-    @del *.prf 2>NUL
-    @del *.tsi 2>NUL
-    @del *.ctt 2>NUL
+    @del /S *.ok 2>NUL
+    @del /S *.cok 2>NUL
+    @del /S *.ecl 2>NUL
+    @del /S *.ecl32 2>NUL
+    @del /S *.lst 2>NUL
+    @del /S *.dep 2>NUL
+    @del /S *.dbg 2>NUL
+    @del /S *.dbg.txt 2>NUL
+    @del /S *.tst 2>NUL
+    @del /S *.prf 2>NUL
+    @del /S *.tsi 2>NUL
+    @del /S *.ctt 2>NUL
     @del libmysql.dll 2>NUL
-    @del ecompile.cfg 2>NUL
 
-perf: copyem perfout $(PERFS)
+perf: copy perfout $(PERFS)
 
 perfout:
 !   ifdef X64
@@ -165,7 +162,7 @@ perfout:
 
 expr: $(EXPR)
 
-create: copyem
+create: copy
 !   ifdef FILE
         @del $(FILE).ecl 2>NUL
         @del $(FILE).ins 2>NUL
@@ -203,52 +200,52 @@ help:
 # TODO: run a non-optimized compile/run as well as an optimized compile/run
 #       otherwise, we risk not testing everything.
 .src.ok:
-    @echo $(@B).src: TESTING
-    @del $(@B).ok 2>NUL
-    @del $(@B).ecl 2>NUL
-    @del $(@B).tst 2>NUL
-    @del $(@B).tsi 2>NUL
+    @echo $(@R).src: TESTING
+    @del $(@R).ok 2>NUL
+    @del $(@R).ecl 2>NUL
+    @del $(@R).tst 2>NUL
+    @del $(@R).tsi 2>NUL
 !ifndef BINCOMP
-    $(COMPIL) -l -xt -q $(@B).src
-    $(EXEC) -q -v$(@B).ecl >$(@B).tsi
-    $(EXEC) -q $(@B).ecl >$(@B).tst
-    $(EXEC) -p -q $(@B).ecl >$(@B).prf
-    $(DIFF) $(@B).out $(@B).tst
-    @echo $(@B).src: output PASSED
-    @echo $(@B).src: instructions TESTING
-    @REM copy $(@B).tsi $(@B).ins
-    -$(DIFF) $(@B).ins $(@B).tsi
-    @echo $(@B).src: instructions PASSED
-    @echo $(@B).src: PASSED >$(@B).ok
+    $(COMPIL) -l -xt -q $(@R).src
+    $(EXEC) -q -v$(@R).ecl >$(@R).tsi
+    $(EXEC) -q $(@R).ecl >$(@R).tst
+    $(EXEC) -p -q $(@R).ecl >$(@R).prf
+    $(DIFF) $(@R).out $(@R).tst
+    @echo $(@R).src: output PASSED
+    @echo $(@R).src: instructions TESTING
+    @REM copy $(@R).tsi $(@R).ins
+    -$(DIFF) $(@R).ins $(@R).tsi
+    @echo $(@R).src: instructions PASSED
+    @echo $(@R).src: PASSED >$(@R).ok
 !else
-    $(COMPIL32) -l -xt -q $(@B).src
-    @move $(@B).ecl $(@B).ecl32
-    $(COMPIL64) -l -xt -q $(@B).src
-    $(DIFF) $(@B).ecl32 $(@B).ecl
-    @echo $(@B).src: output PASSED
+    $(COMPIL32) -l -xt -q $(@R).src
+    @move $(@R).ecl $(@R).ecl32
+    $(COMPIL64) -l -xt -q $(@R).src
+    $(DIFF) $(@R).ecl32 $(@R).ecl
+    @echo $(@R).src: output PASSED
 !endif
 
 .src.prf:
-    @echo $(@B).src: PROFILING
-    @del $(@B).prf 2>NUL
-    @del $(@B).ecl 2>NUL
-    @$(COMPIL) -l -q $(@B).src
-    @$(EXEC) -p -q $(@B).ecl >$(@B).prf
-    @echo $(@B).src: COMPLETE
-    @echo $(@B).prf >>perf.out
-    @type $(@B).prf >>perf.out
+    @echo $(@R).src: PROFILING
+    @del $(@R).prf 2>NUL
+    @del $(@R).ecl 2>NUL
+    @$(COMPIL) -l -q $(@R).src
+    @$(EXEC) -p -q $(@R).ecl >$(@R).prf
+    @echo $(@R).src: COMPLETE
+    @echo $(@R).prf >>perf.out
+    @type $(@R).prf >>perf.out
 
 
 # For testing Compiler output:
 # A .SRC file is compiled, and the compiler stdout output is examined.
 .src.cok:
-    @echo TESTING COMPILER OUTPUT: $(@B).src
-    @del $(@B).ok 2>NUL
-    @del $(@B).ecl 2>NUL
-    @$(COMPIL) -e -q $(@B).src >$(@B).ctt
-    @-$(DIFF) $(@B).cot $(@B).ctt
-    @echo $(@B).src: PASSED >$(@B).cok
-    @echo $(@B).src: PASSED
+    @echo TESTING COMPILER OUTPUT: $(@R).src
+    @del $(@R).ok 2>NUL
+    @del $(@R).ecl 2>NUL
+    @$(COMPIL) -e -q $(@R).src >$(@R).ctt
+    @-$(DIFF) $(@R).cot $(@R).ctt
+    @echo $(@R).src: PASSED >$(@R).cok
+    @echo $(@R).src: PASSED
 
 
 
