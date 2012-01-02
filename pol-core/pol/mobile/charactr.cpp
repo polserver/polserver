@@ -3789,6 +3789,8 @@ bool Character::face( UFACING i_facing, int flags )
 
 bool Character::CustomHousingMove(unsigned char i_dir)
 {
+	passert(facing < 8);
+
 	UMulti* multi = system_find_multi(client->gd->custom_house_serial);
 	if(multi != NULL)
 	{
