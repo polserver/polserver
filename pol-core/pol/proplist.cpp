@@ -17,6 +17,14 @@ Notes
 #include "../clib/cfgelem.h"
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
+#include "../clib/mlog.h"
+#include "../clib/logfile.h"
+
+#include "../bscript/berror.h"
+#include "../bscript/execmodl.h"
+#include "../bscript/executor.h"
+#include "../bscript/impstr.h"
+#include "../bscript/objmethods.h"
 
 #include "proplist.h"
 
@@ -185,5 +193,83 @@ void PropertyList::operator-=( const std::set<std::string>& CPropNames)  //dave 
 	{
 		eraseprop(*itr);
 	}
+}
+
+BObjectImp* CallPropertyListMethod_id( PropertyList& proplist, const int id, Executor& ex, bool& changed )
+{
+    switch(id)
+    {
+    case MTH_GETPROP:
+        {
+            if (!ex.hasParams(1))
+                return new BError( "Not enough parameters" );
+            const String* propname_str;
+            if (!ex.getStringParam( 0, propname_str ))
+                return new BError( "Invalid parameter type" );    
+            std::string val;
+            if (!proplist.getprop( propname_str->value(), val ))
+                return new BError( "Property not found" );
+
+            return BObjectImp::unpack( val.c_str() );
+        }
+
+    case MTH_SETPROP:
+        {
+            if (!ex.hasParams(2))
+                return new BError( "Not enough parameters" );
+            const String* propname_str;
+            if (!ex.getStringParam( 0, propname_str ))
+                return new BError( "Invalid parameter type" );    
+
+            BObjectImp* propval = ex.getParamImp( 1 );
+            if (propval->isa( BObjectImp::OTError ))
+            {
+			    Log( "wtf, setprop w/ an error '%s' PC:%d\n",ex.scriptname().c_str(),ex.PC );
+            }
+            string propname = propname_str->value();
+            proplist.setprop( propname, propval->pack() );
+            if (propname[0] != '#')
+                changed = true;
+            return new BLong(1);
+        }
+
+    case MTH_ERASEPROP:
+        {
+            if (!ex.hasParams(1))
+                return new BError( "Not enough parameters" );
+            const String* propname_str;
+            if (!ex.getStringParam( 0, propname_str ))
+                return new BError( "Invalid parameter type" );    
+            string propname = propname_str->value();
+            proplist.eraseprop( propname );
+            if (propname[0] != '#')
+                changed = true;
+            return new BLong(1);
+        }
+    
+    case MTH_PROPNAMES:
+        {
+            vector<string> propnames;
+            proplist.getpropnames( propnames );
+            auto_ptr<ObjArray> arr (new ObjArray);
+            for( unsigned i = 0; i < propnames.size(); ++i )
+            {
+                arr->addElement( new String(propnames[i]) );
+            }
+			return arr.release();
+        }
+
+    default:
+        return NULL;
+    }
+}
+
+BObjectImp* CallPropertyListMethod( PropertyList& proplist, const char* methodname, Executor& ex, bool& changed )
+{
+	ObjMethod* objmethod = getKnownObjMethod(methodname);
+	if ( objmethod != NULL )
+		return CallPropertyListMethod_id(proplist, objmethod->id, ex, changed);
+	else
+		return NULL;
 }
 
