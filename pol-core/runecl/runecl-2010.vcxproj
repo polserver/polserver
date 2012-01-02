@@ -264,13 +264,17 @@
     <ClCompile Include="..\plib\pkg.cpp" />
     <ClCompile Include="..\plib\polver.cpp" />
     <ClCompile Include="..\pol\binaryfilescrobj.cpp" />
+    <ClCompile Include="..\pol\cfgrepos.cpp" />
     <ClCompile Include="..\pol\dice.cpp" />
     <ClCompile Include="..\pol\module\basiciomod.cpp" />
     <ClCompile Include="..\pol\module\basicmod.cpp" />
+    <ClCompile Include="..\pol\module\cfgmod.cpp" />
+    <ClCompile Include="..\pol\module\datastore.cpp" />
     <ClCompile Include="..\pol\module\filemod.cpp" />
     <ClCompile Include="..\pol\module\mathmod.cpp" />
     <ClCompile Include="..\pol\module\sqlmod.cpp" />
     <ClCompile Include="..\pol\module\utilmod.cpp" />
+    <ClCompile Include="..\pol\proplist.cpp" />
     <ClCompile Include="..\pol\sqlscrobj.cpp" />
     <ClCompile Include="..\pol\xmlfilescrobj.cpp" />
     <ClCompile Include="runecl.cpp" />
@@ -279,13 +283,17 @@
     <ClInclude Include="..\plib\pkg.h" />
     <ClInclude Include="..\plib\polver.h" />
     <ClInclude Include="..\pol\binaryfilescrobj.h" />
+    <ClInclude Include="..\pol\cfgrepos.h" />
     <ClInclude Include="..\pol\dice.h" />
     <ClInclude Include="..\pol\module\basiciomod.h" />
     <ClInclude Include="..\pol\module\basicmod.h" />
+    <ClInclude Include="..\pol\module\cfgmod.h" />
+    <ClInclude Include="..\pol\module\datastore.h" />
     <ClInclude Include="..\pol\module\filemod.h" />
     <ClInclude Include="..\pol\module\mathmod.h" />
     <ClInclude Include="..\pol\module\sqlmod.h" />
     <ClInclude Include="..\pol\module\utilmod.h" />
+    <ClInclude Include="..\pol\proplist.h" />
     <ClInclude Include="..\pol\sqlscrobj.h" />
     <ClInclude Include="..\pol\xmlfilescrobj.h" />
   </ItemGroup>
