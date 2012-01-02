@@ -149,15 +149,32 @@ BObjectImp* BXMLfile::call_method_id( const int id, Executor& ex, bool forcebuil
 			{
 				if (!ex.hasParams(1))
 					return new BError( "Not enough parameters" );
-				const String* pstr;
-				if (ex.getStringParam( 0, pstr ))
+				BObjectImp* imp = ex.getParamImp( 0 );
+				if (imp->isa(BObjectImp::OTString)) 
 				{
+					const String* pstr = explicit_cast<String*,BObjectImp*>(imp);
 					TiXmlNode* child = file.FirstChild(pstr->value());
 					if (child)
 						return new BLong( file.RemoveChild(child) ? 1:0 );
 					else
 						return new BError( "Failed to find node" );
 				}
+				else if (imp->isa(BObjectImp::OTLong))
+				{
+					const BLong* keyint = explicit_cast<BLong*,BObjectImp*>(imp);
+					if (keyint->value()!=1)
+						return new BError("Failed to find node");
+					return new BLong( file.RemoveChild(file.RootElement()) ? 1:0 );
+				}
+				else if (imp->isa(BObjectImp::OTXMLNode))
+				{
+					const BXmlNode* pstr = explicit_cast<BXmlNode*,BObjectImp*>(imp);
+					TiXmlNode* node = file.ToElement();
+					if (node != pstr->getNode()->Parent())
+						return new BError( "Failed to find node" );
+					return new BLong( file.RemoveChild(pstr->getNode()) ? 1:0 );
+				}
+
 				return new BError( "Invalid parameter type" );
 			}
 		case MTH_SAVEXML:
@@ -439,15 +456,34 @@ BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool forcebuil
 			{
 				if (!ex.hasParams(1))
 					return new BError( "Not enough parameters" );
-				const String* pstr;
-				if (ex.getStringParam( 0, pstr ))
+				BObjectImp* imp = ex.getParamImp( 0 );
+				if (imp->isa(BObjectImp::OTString)) 
 				{
+					const String* pstr = explicit_cast<String*,BObjectImp*>(imp);
 					TiXmlNode* child = node->FirstChild(pstr->value());
 					if (child)
 						return new BLong( node->RemoveChild(child) ? 1:0 );
 					else
 						return new BError( "Failed to find node" );
 				}
+				else if (imp->isa(BObjectImp::OTLong))
+				{
+					const BLong* keyint = explicit_cast<BLong*,BObjectImp*>(imp);
+					TiXmlHandle handle(node);
+					TiXmlNode* child = handle.Child(keyint->value()-1).ToNode(); //keep escript 1based index and change it to 0based
+					if (child)
+						return new BLong( node->RemoveChild(child) ? 1:0 );
+					else
+						return new BError( "Failed to find node" );
+				}
+				else if (imp->isa(BObjectImp::OTXMLNode))
+				{
+					const BXmlNode* pstr = explicit_cast<BXmlNode*,BObjectImp*>(imp);
+					if (node->Parent() != pstr->getNode()->Parent())
+						return new BError( "Failed to find node" );
+					return new BLong( node->RemoveChild(pstr->getNode()) ? 1:0 );
+				}
+				
 				return new BError( "Invalid parameter type" );
 			}
 		case MTH_APPENDTEXT:

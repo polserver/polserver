@@ -112,6 +112,7 @@ public:
 	virtual BObjectImp* call_method( const char* methodname, Executor& ex );
 	virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin=false );
 	virtual BObjectRef OperSubscript( const BObject& obj );
+	TiXmlNode* getNode() const { return node; }
 
 private:
 	TiXmlNode* node;
