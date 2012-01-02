@@ -4,6 +4,8 @@
              removes node of given index
 			 XMLFile/XMLNode.removexmlnode(XmlNode node)
 			 removes given node
+			 XmlNode.clonenode()
+			 since all NodeObjects get destroyed when the corresponding XmlFileObject is destroyed, use this method to store a node for later use.
 
 12-18-2011 Nando:
     Changed: internal handling of intrinsic weapons' unload.
