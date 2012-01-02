@@ -229,6 +229,30 @@
 			>
 		</File>
 		<File
+			RelativePath="..\pol\module\cfgmod.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\pol\module\cfgmod.h"
+			>
+		</File>
+		<File
+			RelativePath="..\pol\cfgrepos.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\pol\cfgrepos.h"
+			>
+		</File>
+		<File
+			RelativePath="..\pol\module\datastore.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\pol\module\datastore.h"
+			>
+		</File>
+		<File
 			RelativePath="..\pol\dice.cpp"
 			>
 		</File>
@@ -266,6 +290,14 @@
 		</File>
 		<File
 			RelativePath="..\plib\polver.h"
+			>
+		</File>
+		<File
+			RelativePath="..\pol\proplist.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\pol\proplist.h"
 			>
 		</File>
 		<File

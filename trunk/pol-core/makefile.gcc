@@ -202,6 +202,8 @@ runecl_sources=runecl/runecl.cpp \
 	pol/module/sqlmod.cpp pol/sqlscrobj.cpp \
 	pol/module/utilmod.cpp pol/dice.cpp \
 	pol/module/filemod.cpp pol/binaryfilescrobj.cpp pol/xmlfilescrobj.cpp \
+	pol/module/cfgmod.cpp pol/module/datastore.cpp \
+	pol/cfgrepos.cpp pol/proplist.cpp \
 	plib/pkg.cpp plib/polver.cpp
 	bscript/blong.cpp bscript/bstruct.cpp bscript/compctx.cpp \
 	bscript/dict.cpp bscript/eprog.cpp bscript/eprog2.cpp \

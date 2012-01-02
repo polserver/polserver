@@ -38,13 +38,4 @@ bool getAttributeParam( Executor& exec, unsigned param, const Attribute*& attr )
 bool getVitalParam( Executor& exec, unsigned param, const Vital*& vital );
 bool getCharacterOrClientParam( Executor& exec, unsigned param, Character*& chrptr, Client*& clientptr);
 
-
-BObjectImp* CallPropertyListMethod( PropertyList& proplist, 
-                                    const char* methodname, 
-                                    Executor& ex,
-                                    bool& changed );
-BObjectImp* CallPropertyListMethod_id( PropertyList& proplist, 
-                                      const int id, 
-                                      Executor& ex, 
-                                      bool& changed );
 #endif

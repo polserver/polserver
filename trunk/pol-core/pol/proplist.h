@@ -21,6 +21,8 @@ Notes
 #include <vector>
 
 class ConfigElem;
+class BObjectImp;
+class Executor;
 class PropertyList
 {
 public:
@@ -53,5 +55,14 @@ private:
     // not implemented
     PropertyList& operator=( const PropertyList& );
 };
+
+BObjectImp* CallPropertyListMethod( PropertyList& proplist, 
+	const char* methodname, 
+	Executor& ex,
+	bool& changed );
+BObjectImp* CallPropertyListMethod_id( PropertyList& proplist, 
+	const int id, 
+	Executor& ex, 
+	bool& changed );
 
 #endif

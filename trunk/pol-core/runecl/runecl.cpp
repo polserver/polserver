@@ -49,10 +49,16 @@ Notes
 #include "../pol/module/sqlmod.h"
 #include "../pol/module/utilmod.h"
 #include "../pol/module/filemod.h"
+#include "../pol/module/cfgmod.h"
+#include "../pol/module/datastore.h"
+
+#include "../pol/polcfg.h"
 
 #if REFPTR_DEBUG
 	unsigned int ref_counted::_ctor_calls;
 #endif
+
+PolConfig config; // needed but not really used def
 
 int quiet = 0;
 int debug = 0;
@@ -127,6 +133,8 @@ void DumpScript( const char *path )
     E.addModule( new SQLExecutorModule(E));
 	E.addModule( new UtilExecutorModule(E));
 	E.addModule( new FileAccessExecutorModule(E));
+	E.addModule( new ConfigFileExecutorModule(E));
+	E.addModule( new DataFileExecutorModule(E));
 
     ref_ptr<EScriptProgram> program( new EScriptProgram );
     program->read( fname.c_str() );
@@ -169,6 +177,8 @@ int exec_script(const char *path)
     E.addModule( new SQLExecutorModule(E) );
 	E.addModule( new UtilExecutorModule(E));
 	E.addModule( new FileAccessExecutorModule(E));
+	E.addModule( new ConfigFileExecutorModule(E));
+	E.addModule( new DataFileExecutorModule(E));
 
     ref_ptr<EScriptProgram> program( new EScriptProgram );
     if (program->read( fname.c_str() ))
