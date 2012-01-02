@@ -420,7 +420,7 @@ BObjectImp* ConfigFileExecutorModule::mf_GetConfigStringArray()
 		StoredConfigElem::const_iterator itr = pr.first;
 		StoredConfigElem::const_iterator end = pr.second;
 
-		ObjArray* ar = new ObjArray;
+		auto_ptr<ObjArray> ar (new ObjArray);
 		for( ; itr != end; ++itr )
 		{
 			BObjectImp* imp = (*itr).second.get();
@@ -430,7 +430,7 @@ BObjectImp* ConfigFileExecutorModule::mf_GetConfigStringArray()
 			if ( imp->getStringRep().length() >= 1 )
 				ar->addElement( new String(imp->getStringRep()) );
 		}
-		return ar;
+		return ar.release();
 	}
 	else
 	{
@@ -449,7 +449,7 @@ BObjectImp* ConfigFileExecutorModule::mf_GetConfigStringDictionary()
 		StoredConfigElem::const_iterator itr = pr.first;
 		StoredConfigElem::const_iterator end = pr.second;
 		
-		BDictionary* dict = new BDictionary;
+		auto_ptr<BDictionary> dict ( new BDictionary );
 		for( ; itr != end; ++itr )
 		{
 			BObjectImp* line = (*itr).second.get();
@@ -472,7 +472,7 @@ BObjectImp* ConfigFileExecutorModule::mf_GetConfigStringDictionary()
 			dict->addMember(new String(prop_name), new String(prop_value));
 		}
 		
-		return dict;
+		return dict.release();
 	}
 	else
 	{

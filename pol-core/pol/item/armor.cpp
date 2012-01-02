@@ -47,7 +47,7 @@ ArmorDesc::ArmorDesc( u32 objtype, ConfigElem& elem, const Package* pkg ) :
 		{
 			zones.insert(zone_name_to_zone(coverage.c_str()));
 		}
-		catch ( runtime_error& err )
+		catch ( runtime_error& )
 		{
 			cerr << "Error in ObjType 0x" << hex << objtype << ". Package " << pkg->name() <<"." << endl;
 			throw;
@@ -66,7 +66,7 @@ ArmorDesc::ArmorDesc( u32 objtype, ConfigElem& elem, const Package* pkg ) :
 			{
 				zones.insert(layer_to_zone(layer));
 			}
-			catch( runtime_error& err )
+			catch( runtime_error& )
 			{
 				cerr << "Error in ObjType 0x" << hex << objtype << ". Package " << pkg->name() <<"." << endl;
 				throw;
