@@ -78,7 +78,7 @@ public:
 
 	virtual BObjectImp* copy() const
 	{
-		return new BXmlNode(node);
+		return new BXmlNode(node->Clone());
 	}
 
 	virtual std::string getStringRep() const
@@ -125,7 +125,7 @@ public:
 
 	virtual BObjectImp* copy() const
 	{
-		return new BXmlAttribute(node);
+		return new BXmlAttribute(node->Clone());
 	}
 
 	virtual std::string getStringRep() const

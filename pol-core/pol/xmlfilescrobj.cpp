@@ -499,6 +499,10 @@ BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool forcebuil
 				}
 				return new BError( "Invalid parameter type" );
 			}
+		case MTH_CLONENODE:
+			{
+				return copy();
+			}
 		default:
 			return NULL;
 	}
