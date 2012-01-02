@@ -1,0 +1,19 @@
+itertest...
+filemod/xmltest.xml
+v:1.0 e: s: [XMLDeclaration] (1)
+root [XMLElement] (2)
+ Hello [XMLElement] (1)
+  World [XMLText] (1)
+ nodetwo [XMLElement] (2)
+ -struct{ i = "1" } (1)
+ -struct{ j = "2" } (2)
+membertest...
+root= root
+firstchild= Hello
+firstchildstring= nodetwo
+firstsibling= Comment
+attributes= { i, j }
+attributes= 2
+scopetest...
+root= root
+firstchild= Hello
