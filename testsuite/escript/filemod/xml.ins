@@ -1,0 +1,182 @@
+0: "itertest..."
+1: Func(1,0): Print
+2: #
+3: makelocal
+4: jmp userfunc @19
+5: #
+6: "membertest..."
+7: Func(1,0): Print
+8: #
+9: makelocal
+10: jmp userfunc @34
+11: #
+12: "scopetest..."
+13: Func(1,0): Print
+14: #
+15: makelocal
+16: jmp userfunc @133
+17: #
+18: progend
+19: decl local #0
+20: "filemod/xmltest.xml"
+21: Func(2,0): OpenXMLFile
+22: :=
+23: #
+24: local #0
+25: Func(1,0): Print
+26: #
+27: local #0
+28: ""
+29: makelocal
+30: jmp userfunc @93
+31: #
+32: 0L
+33: return
+34: decl local #0
+35: "filemod/xmltest.xml"
+36: Func(2,0): OpenXMLFile
+37: :=
+38: #
+39: decl local #1
+40: local #0
+41: 2L
+42: [] 1
+43: :=
+44: #
+45: "root= "
+46: local #1
+47: +
+48: Func(1,0): Print
+49: #
+50: "firstchild= "
+51: local #1
+52: Call Method id firstxmlchild (#123, 0 params)
+53: +
+54: Func(1,0): Print
+55: #
+56: "firstchildstring= "
+57: local #1
+58: "nodetwo"
+59: Call Method id firstxmlchild (#123, 1 params)
+60: +
+61: Func(1,0): Print
+62: #
+63: "firstsibling= "
+64: local #1
+65: Call Method id firstxmlchild (#123, 0 params)
+66: Call Method id nextxmlsibling (#122, 0 params)
+67: +
+68: Func(1,0): Print
+69: #
+70: decl local #2
+71: local #1
+72: "nodetwo"
+73: Call Method id firstxmlchild (#123, 1 params)
+74: :=
+75: #
+76: "attributes= "
+77: local #2
+78: get member id 'attributes' (184)
+79: Call Method id propnames (#38, 0 params)
+80: +
+81: Func(1,0): Print
+82: #
+83: "attributes= "
+84: local #2
+85: get member id 'attributes' (184)
+86: "j"
+87: [] 1
+88: +
+89: Func(1,0): Print
+90: #
+91: 0L
+92: return
+93: pop param 'i'
+94: pop param 'node'
+95: local #1
+96: initforeach @129
+97: local #0
+98: local #2
+99: Func(0,0): CStr
+100: +
+101: " ["
+102: +
+103: local #2
+104: get member id 'type' (183)
+105: +
+106: "] ("
+107: +
+108: local #4
+109: Func(0,0): CStr
+110: +
+111: ")"
+112: +
+113: Func(1,0): Print
+114: #
+115: local #2
+116: local #0
+117: "-"
+118: +
+119: makelocal
+120: jmp userfunc @151
+121: #
+122: local #2
+123: local #0
+124: " "
+125: +
+126: makelocal
+127: jmp userfunc @93
+128: #
+129: stepforeach @97
+130: leave block(3)
+131: 0L
+132: return
+133: decl local #0
+134: makelocal
+135: jmp userfunc @172
+136: :=
+137: #
+138: "root= "
+139: local #0
+140: +
+141: Func(1,0): Print
+142: #
+143: "firstchild= "
+144: local #0
+145: Call Method id firstxmlchild (#123, 0 params)
+146: +
+147: Func(1,0): Print
+148: #
+149: 0L
+150: return
+151: pop param 'i'
+152: pop param 'node'
+153: local #1
+154: get member id 'attributes' (184)
+155: initforeach @168
+156: local #0
+157: local #2
+158: Func(0,0): CStr
+159: +
+160: " ("
+161: +
+162: local #4
+163: +
+164: ")"
+165: +
+166: Func(1,0): Print
+167: #
+168: stepforeach @156
+169: leave block(3)
+170: 0L
+171: return
+172: decl local #0
+173: "filemod/xmltest.xml"
+174: Func(2,0): OpenXMLFile
+175: :=
+176: #
+177: local #0
+178: 2L
+179: [] 1
+180: Call Method id clonenode (#139, 0 params)
+181: return
