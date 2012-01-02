@@ -51,9 +51,9 @@ LINKER=g++
 endif
 
 cpp_sources = \
-  ../lib/tinyxml/tinystr.cpp ../lib/tinyxml/tinyxml.cpp \
-  ../lib/tinyxml/tinyxmlerror.cpp ../lib/tinyxml/tinyxmlparser.cpp \
-  clib/progver.cpp plib/polver.cpp \
+	../lib/tinyxml/tinystr.cpp ../lib/tinyxml/tinyxml.cpp \
+	../lib/tinyxml/tinyxmlerror.cpp ../lib/tinyxml/tinyxmlparser.cpp \
+	clib/progver.cpp plib/polver.cpp \
 	pol/accounts/account.cpp pol/accounts/accounts.cpp pol/accounts/acscrobj.cpp pol/allocd.cpp \
 	pol/item/armor.cpp pol/mobile/attack.cpp \
 	pol/mobile/attribute.cpp pol/network/auxclient.cpp pol/network/packets.cpp \
@@ -197,6 +197,8 @@ ecompile_sources=ecompile/ecompile.cpp \
 	clib/strexcpt.cpp  clib/wallclock.cpp clib/threadhelp.cpp #clib/wallclock.cpp
 
 runecl_sources=runecl/runecl.cpp \
+	../lib/tinyxml/tinystr.cpp ../lib/tinyxml/tinyxml.cpp \
+	../lib/tinyxml/tinyxmlerror.cpp ../lib/tinyxml/tinyxmlparser.cpp \
 	bscript/executor.cpp bscript/execmodl.cpp bscript/dbl.cpp \
 	pol/module/basiciomod.cpp pol/module/basicmod.cpp bscript/berror.cpp \
 	pol/module/sqlmod.cpp pol/sqlscrobj.cpp \
@@ -204,7 +206,7 @@ runecl_sources=runecl/runecl.cpp \
 	pol/module/filemod.cpp pol/binaryfilescrobj.cpp pol/xmlfilescrobj.cpp \
 	pol/module/cfgmod.cpp pol/module/datastore.cpp \
 	pol/cfgrepos.cpp pol/proplist.cpp \
-	plib/pkg.cpp plib/polver.cpp
+	plib/pkg.cpp plib/polver.cpp \
 	bscript/blong.cpp bscript/bstruct.cpp bscript/compctx.cpp \
 	bscript/dict.cpp bscript/eprog.cpp bscript/eprog2.cpp \
 	bscript/eprog3.cpp bscript/eprog_read.cpp bscript/escript_config.cpp \
@@ -239,11 +241,11 @@ uotool_sources=uotool/uotool.cpp \
 	pol/uofile06.cpp pol/uofile07.cpp pol/uofile08.cpp \
 	pol/polfile1.cpp  pol/multi/multidef.cpp \
 	plib/mapfunc.cpp plib/mapwriter.cpp plib/realmdescriptor.cpp \
-  clib/cfgfile.cpp clib/cmdargs.cpp clib/strutil.cpp \
-  clib/fileutil.cpp clib/passert.cpp clib/dirlist.cpp clib/iohelp.cpp \
-  clib/logfile.cpp clib/fdump.cpp \
-  clib/progver.cpp clib/esignal.cpp clib/strexcpt.cpp \
-  clib/xmain.cpp
+	clib/cfgfile.cpp clib/cmdargs.cpp clib/strutil.cpp \
+	clib/fileutil.cpp clib/passert.cpp clib/dirlist.cpp clib/iohelp.cpp \
+	clib/logfile.cpp clib/fdump.cpp \
+	clib/progver.cpp clib/esignal.cpp clib/strexcpt.cpp \
+	clib/xmain.cpp
 
 poltool_sources=poltool/poltool.cpp
 
