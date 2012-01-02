@@ -1,0 +1,6 @@
+<?xml version="1.0" ?>
+<root>
+	<Hello>World</Hello>
+	<!--Comment-->
+	<nodetwo i="1" j="2" />
+</root>
