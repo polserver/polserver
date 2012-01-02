@@ -2549,13 +2549,13 @@ BObjectImp* UOExecutorModule::mf_ListStaticsInBox(/* x1, y1, z1, x2, y2, z2, fla
 					{
 						if ((z1 <= slist[i].z) && (slist[i].z <= z2))
 						{
-							BStruct* arr = new BStruct;
+							auto_ptr<BStruct> arr ( new BStruct );
 							arr->addMember( "x", new BLong( wx ) );
 							arr->addMember( "y", new BLong( wy ) );
 							arr->addMember( "z", new BLong( slist[i].z ) );
 							arr->addMember( "objtype", new BLong( slist[i].objtype ) );
 							arr->addMember( "hue", new BLong( slist[i].hue ) );
-							newarr->addElement( arr );
+							newarr->addElement( arr.release() );
 						}
 					}
 				}
@@ -2569,12 +2569,12 @@ BObjectImp* UOExecutorModule::mf_ListStaticsInBox(/* x1, y1, z1, x2, y2, z2, fla
 					{
 						if ((z1 <= mlist[i].z) && (mlist[i].z <= z2))
 						{
-							BStruct* arr = new BStruct;
+							auto_ptr<BStruct> arr  ( new BStruct );
 							arr->addMember( "x", new BLong( wx ) );
 							arr->addMember( "y", new BLong( wy ) );
 							arr->addMember( "z", new BLong( mlist[i].z ) );
 							arr->addMember( "objtype", new BLong( mlist[i].graphic ) );
-							newarr->addElement( arr );
+							newarr->addElement( arr.release() );
 						}
 					}
 				}
@@ -3565,7 +3565,7 @@ BObjectImp* UOExecutorModule::mf_GetCoordsInLine()
 	else if ( y2 < y1 )
 		vy = -1;
 	
-	ObjArray* coords = new ObjArray;
+	auto_ptr<ObjArray> coords (new ObjArray);
 	if ( dx >= dy )
 	{
 		dy = dy / dx;
@@ -3579,10 +3579,10 @@ BObjectImp* UOExecutorModule::mf_GetCoordsInLine()
 				float_y = ceil(float_y);
 			int point_y = int(float_y) + y1;
 			
-			BStruct* point = new BStruct;
+			auto_ptr<BStruct> point ( new BStruct );
 			point->addMember("x", new BLong(point_x));
 			point->addMember("y", new BLong(point_y));
-			coords->addElement(point);
+			coords->addElement(point.release());
 		}
 	}
 	else
@@ -3597,13 +3597,13 @@ BObjectImp* UOExecutorModule::mf_GetCoordsInLine()
 				float_x = ceil(float_x);
 			int point_x = int(float_x) + x1;
 			
-			BStruct* point = new BStruct;
+			auto_ptr<BStruct> point (new BStruct);
 			point->addMember("x", new BLong(point_x));
 			point->addMember("y", new BLong(point_y));
-			coords->addElement(point);
+			coords->addElement(point.release());
 		}
 	}
-	return coords;
+	return coords.release();
 }
 
 BObjectImp* UOExecutorModule::mf_GetFacing()
@@ -4461,11 +4461,11 @@ BObjectImp* UOExecutorModule::mf_GetMapInfo()
 
 		MAPTILE_CELL cell = realm->getmaptile( static_cast<unsigned short>(x), static_cast<unsigned short>(y) );
 
-		BStruct* result = new BStruct;
+		auto_ptr<BStruct> result (new BStruct);
 		result->addMember( "z", new BLong( cell.z ) );
 		result->addMember( "landtile", new BLong( cell.landtile ) );
 
-		return result;
+		return result.release();
 	}
 	else
 	{
@@ -4676,11 +4676,11 @@ BObjectImp* UOExecutorModule::mf_GetStandingHeight()
 		Item* walkon;
 		if (realm->lowest_walkheight( x, y, z, &newz, &multi, &walkon, true, MOVEMODE_LAND ))
 		{
-			BStruct* arr = new BStruct;
+			auto_ptr<BStruct> arr (new BStruct);
 			arr->addMember( "z", new BLong( newz ) );
 			if (multi != NULL)
 				arr->addMember( "multi", new EMultiRefObjImp( multi ) );
-			return arr;
+			return arr.release();
 		}
 		else
 		{
@@ -4720,7 +4720,7 @@ BObjectImp* UOExecutorModule::mf_GetStandingLayers(/* x, y, flags, realm */)
 
 		for( unsigned i = 0; i < mlist.size(); ++i )
 		{
-			BStruct* arr = new BStruct;
+			auto_ptr<BStruct> arr  ( new BStruct );
 			
 			if ( mlist[i].flags & (FLAG::MOVELAND | FLAG::MOVESEA) )
 				arr->addMember( "z", new BLong( mlist[i].z + 1 ) );
@@ -4729,7 +4729,7 @@ BObjectImp* UOExecutorModule::mf_GetStandingLayers(/* x, y, flags, realm */)
 			
 			arr->addMember( "height", new BLong( mlist[i].height ) );
 			arr->addMember( "flags", new BLong( mlist[i].flags ) );
-			newarr->addElement( arr );
+			newarr->addElement( arr.release() );
 		}
 		
 		return newarr.release();
@@ -5040,13 +5040,13 @@ BObjectImp* UOExecutorModule::mf_ListStaticsAtLocation(/* x, y, z, flags, realm 
 			{
 				if ((z == LIST_IGNORE_Z) || (slist[i].z == z))
 				{
-					BStruct* arr = new BStruct;
+					auto_ptr<BStruct> arr (new BStruct);
 					arr->addMember( "x", new BLong( x ) );
 					arr->addMember( "y", new BLong( y ) );
 					arr->addMember( "z", new BLong( slist[i].z ) );
 					arr->addMember( "objtype", new BLong( slist[i].objtype ) );
 					arr->addMember( "hue", new BLong( slist[i].hue ) );
-					newarr->addElement( arr );
+					newarr->addElement( arr.release() );
 				}
 			}
 		}
@@ -5060,12 +5060,12 @@ BObjectImp* UOExecutorModule::mf_ListStaticsAtLocation(/* x, y, z, flags, realm 
 			{
 				if ((z == LIST_IGNORE_Z) || (mlist[i].z == z))
 				{
-					BStruct* arr = new BStruct;
+					auto_ptr<BStruct> arr ( new BStruct );
 					arr->addMember( "x", new BLong( x ) );
 					arr->addMember( "y", new BLong( y ) );
 					arr->addMember( "z", new BLong( mlist[i].z ) );
 					arr->addMember( "objtype", new BLong( mlist[i].graphic ) );
-					newarr->addElement( arr );
+					newarr->addElement( arr.release() );
 				}
 			}
 		}
@@ -5135,13 +5135,13 @@ BObjectImp* UOExecutorModule::mf_ListStaticsNearLocation(/* x, y, z, range, flag
 					{
 						if ((z == LIST_IGNORE_Z) || (abs(slist[i].z - z) < CONST_DEFAULT_ZRANGE))
 						{
-							BStruct* arr = new BStruct;
+							auto_ptr<BStruct> arr ( new BStruct );
 							arr->addMember( "x", new BLong( wx ) );
 							arr->addMember( "y", new BLong( wy ) );
 							arr->addMember( "z", new BLong( slist[i].z ) );
 							arr->addMember( "objtype", new BLong( slist[i].objtype ) );
 							arr->addMember( "hue", new BLong( slist[i].hue ) );
-							newarr->addElement( arr );
+							newarr->addElement( arr.release() );
 						}
 					}
 				}
@@ -5155,12 +5155,12 @@ BObjectImp* UOExecutorModule::mf_ListStaticsNearLocation(/* x, y, z, range, flag
 					{
 						if ((z == LIST_IGNORE_Z) || (abs(mlist[i].z - z) < CONST_DEFAULT_ZRANGE))
 						{
-							BStruct* arr = new BStruct;
+							auto_ptr<BStruct> arr ( new BStruct );
 							arr->addMember( "x", new BLong( wx ) );
 							arr->addMember( "y", new BLong( wy ) );
 							arr->addMember( "z", new BLong( mlist[i].z ) );
 							arr->addMember( "objtype", new BLong( mlist[i].graphic ) );
-							newarr->addElement( arr );
+							newarr->addElement( arr.release() );
 						}
 					}
 				}
@@ -5529,7 +5529,7 @@ BObjectImp* UOExecutorModule::mf_FindSubstance()
 			return new BError( "Not enough of that substance in container" );
 		else
 		{
-			ObjArray* theArray = new ObjArray();
+			auto_ptr<ObjArray> theArray ( new ObjArray() );
 			Item * item;
 
 			for( UContainer::Contents::const_iterator itr = substanceVector.begin(); itr != substanceVector.end(); ++itr )
@@ -5545,7 +5545,7 @@ BObjectImp* UOExecutorModule::mf_FindSubstance()
 					theArray->addElement( new EItemRefObjImp( item ) );
 				}
 			}
-			return theArray;
+			return theArray.release();
 		}
 	}
 	else
