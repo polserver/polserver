@@ -232,6 +232,11 @@ class Executor
     void ins_get_member_id( const Instruction& ins ); //test id
     void ins_set_member_id( const Instruction& ins ); //test id
     void ins_set_member_id_consume( const Instruction& ins ); //test id
+	void ins_set_member_id_consume_plusequal( const Instruction& ins ); // test id
+	void ins_set_member_id_consume_minusequal( const Instruction& ins ); // test id
+	void ins_set_member_id_consume_timesequal( const Instruction& ins ); // test id
+	void ins_set_member_id_consume_divideequal( const Instruction& ins ); // test id
+	void ins_set_member_id_consume_modulusequal( const Instruction& ins ); // test id
     
     void ins_assign_localvar( const Instruction& ins );
     void ins_assign_globalvar( const Instruction& ins );
