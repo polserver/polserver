@@ -38,7 +38,7 @@ class Executor;
 #endif
 
 #if BOBJECTIMP_DEBUG
-	#define INLINE_BOBJECTIMP_CTOR 0
+	#define INLINE_BOBJECTIMP_CTOR 1
 #else
 	#define INLINE_BOBJECTIMP_CTOR 1
 #endif
