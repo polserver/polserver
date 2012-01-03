@@ -80,8 +80,32 @@ class String : public BObjectImp
     void remove(const char *s);
     virtual bool isTrue() const { return !value_.empty(); }
   public:
-    virtual BObjectImp* selfPlusObjImp( const BObjectImp& ) const;
-    virtual BObjectImp* selfMinusObjImp( const BObjectImp& ) const;
+	virtual BObjectImp* selfPlusObjImp(const BObjectImp& objimp) const;
+	virtual BObjectImp* selfPlusObj(const BObjectImp& objimp) const;
+	virtual BObjectImp* selfPlusObj(const BLong& objimp) const;
+	virtual BObjectImp* selfPlusObj(const Double& objimp) const;
+	virtual BObjectImp* selfPlusObj(const String& objimp) const;
+	virtual BObjectImp* selfPlusObj(const ObjArray& objimp) const;
+	virtual void selfPlusObjImp(BObjectImp& objimp, BObject& obj);
+	virtual void selfPlusObj(BObjectImp& objimp, BObject& obj);
+	virtual void selfPlusObj(BLong& objimp, BObject& obj);
+	virtual void selfPlusObj(Double& objimp, BObject& obj);
+	virtual void selfPlusObj(String& objimp, BObject& obj);
+	virtual void selfPlusObj(ObjArray& objimp, BObject& obj);
+
+    virtual BObjectImp* selfMinusObjImp(const BObjectImp& objimp) const;
+	virtual BObjectImp* selfMinusObj(const BObjectImp& objimp) const;
+	virtual BObjectImp* selfMinusObj(const BLong& objimp) const;
+	virtual BObjectImp* selfMinusObj(const Double& objimp) const;
+	virtual BObjectImp* selfMinusObj(const String& objimp) const;
+	virtual BObjectImp* selfMinusObj(const ObjArray& objimp) const;
+	virtual void selfMinusObjImp(BObjectImp& objimp, BObject& obj);
+	virtual void selfMinusObj(BObjectImp& objimp, BObject& obj);
+	virtual void selfMinusObj(BLong& objimp, BObject& obj);
+	virtual void selfMinusObj(Double& objimp, BObject& obj);
+	virtual void selfMinusObj(String& objimp, BObject& obj);
+	virtual void selfMinusObj(ObjArray& objimp, BObject& obj);
+
     virtual BObjectRef OperSubscript( const BObject& obj );
     virtual BObjectRef OperMultiSubscript( stack<BObjectRef>& indices );
     virtual BObjectRef OperMultiSubscriptAssign( stack<BObjectRef>& indices, BObjectImp* target );

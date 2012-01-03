@@ -117,74 +117,134 @@ string Double::getStringRep() const
 
 BObjectImp* Double::selfPlusObjImp(const BObjectImp& objimp) const
 {
-  if (objimp.isa( OTDouble )) 
-  {
-	  return new Double( dval_ + ((Double&) objimp).dval_ );
-  }
-  else if (objimp.isa( OTLong ))
-  {
-	  return new Double( dval_ + ((BLong&) objimp).value() );
-  }
-  else if (objimp.isa( OTString )) 
-  {
-      return new String( getStringRep() + ((String&) objimp).data() );
-  } 
-  else 
-  {
-	  return copy();
-  }
+	return objimp.selfPlusObj(*this);
+}
+
+BObjectImp* Double::selfPlusObj(const BLong& objimp) const
+{
+	return new Double( dval_ + objimp.value() );
+}
+BObjectImp* Double::selfPlusObj(const Double& objimp) const
+{
+	return new Double( dval_ +  objimp.dval_ );
+}
+BObjectImp* Double::selfPlusObj(const String& objimp) const
+{
+	return new String( getStringRep() + objimp.data() );
+}
+void Double::selfPlusObjImp(BObjectImp&  objimp , BObject& obj)
+{
+	objimp.selfPlusObj(*this,obj);
+}
+void Double::selfPlusObj(BLong& objimp, BObject& obj)
+{
+	obj.setimp( selfPlusObj(objimp) );
+}
+void Double::selfPlusObj(Double& objimp, BObject& obj)
+{
+	dval_ += objimp.dval_;
+}
+void Double::selfPlusObj(String& objimp, BObject& obj)
+{
+	obj.setimp( selfPlusObj(objimp) );
 }
 
 BObjectImp* Double::selfMinusObjImp(const BObjectImp& objimp) const
 {
-	if (objimp.isa( OTDouble )) 
-	{
-		return new Double( dval_ - ((Double&) objimp).dval_ );
-	}
-	if (objimp.isa( OTLong )) 
-	{
-		return new Double( dval_ - ((BLong&) objimp).value() );
-	}
-	else if (objimp.isa( OTString )) 
-	{
-		String str( getStringRep() );
-		return str.selfMinusObjImp( objimp );
-	} 
-	else 
-	{
-		return copy();
-	}
+	return objimp.selfMinusObj(*this);
+}
+BObjectImp* Double::selfMinusObj(const BLong& objimp) const
+{
+	return new Double( dval_ - objimp.value() );
+}
+BObjectImp* Double::selfMinusObj(const Double& objimp) const
+{
+	return new Double( dval_ - objimp.dval_ );
+}
+BObjectImp* Double::selfMinusObj(const String& objimp) const
+{
+	String s( getStringRep() );
+	return s.selfMinusObj( objimp );
+}
+void Double::selfMinusObjImp(BObjectImp& objimp, BObject& obj)
+{
+	objimp.selfMinusObj(*this,obj);
+}
+void Double::selfMinusObj(BLong& objimp, BObject& obj)
+{
+	dval_ -= objimp.value();
+}
+void Double::selfMinusObj(Double& objimp, BObject& obj)
+{
+	dval_ -= objimp.value();
+}
+void Double::selfMinusObj(String& objimp, BObject& obj)
+{
+	obj.setimp( selfMinusObj(objimp) );
 }
 
 BObjectImp* Double::selfTimesObjImp(const BObjectImp& objimp) const
 {
-  if (objimp.isa( OTDouble )) 
-  {
-	  return new Double( dval_ * ((Double&) objimp).dval_);
-  }
-  else if (objimp.isa( OTLong ))
-  {
-      return new Double( dval_ * ((BLong&) objimp).value() );
-  }
-  else 
-  {
-	  return copy();
-  }
+	return objimp.selfTimesObj(*this);
 }
+BObjectImp* Double::selfTimesObj(const BLong& objimp) const
+{
+	return new Double( dval_ * objimp.value() );
+}
+BObjectImp* Double::selfTimesObj(const Double& objimp) const
+{
+	return new Double( dval_ * objimp.value() );
+}
+void Double::selfTimesObjImp(BObjectImp& objimp, BObject& obj)
+{
+	objimp.selfTimesObj(*this,obj);
+}
+void Double::selfTimesObj(BLong& objimp, BObject& obj)
+{
+	dval_ *= objimp.value();
+}
+void Double::selfTimesObj(Double& objimp, BObject& obj)
+{
+	dval_ *= objimp.value();
+}
+
 
 BObjectImp* Double::selfDividedByObjImp(const BObjectImp& objimp) const
 {
-    if (objimp.isa( OTDouble )) 
-    {
-        return new Double( dval_ / ((Double&) objimp).dval_ );
-    }
-    else if (objimp.isa( OTLong ))
-    {
-        return new Double( dval_ / ((BLong&)objimp).value() );
-    }
-    else 
-    {
-        return copy();
-    }
+	return objimp.selfDividedByObj(*this);
+}
+BObjectImp* Double::selfDividedByObj(const BLong& objimp) const
+{
+	int divisor = objimp.value();
+    if (!divisor)
+        return new BError( "Divide by Zero" );
+    else
+        return new Double( dval_ / divisor );
+}
+BObjectImp* Double::selfDividedByObj(const Double& objimp) const
+{
+	double divisor = objimp.value();
+    if (divisor == 0.0)
+        return new BError( "Divide by Zero" );
+    else
+        return new Double( dval_ / divisor );
+}
+void Double::selfDividedByObjImp(BObjectImp& objimp, BObject& obj)
+{
+	objimp.selfDividedByObj(*this,obj);
+}
+void Double::selfDividedByObj(BLong& objimp, BObject& obj)
+{
+	if (!objimp.value())
+		obj.setimp(new BError( "Divide by Zero" ));
+	else
+		dval_ /= objimp.value();
+}
+void Double::selfDividedByObj(Double& objimp, BObject& obj)
+{
+	if (!objimp.value())
+		obj.setimp(new BError( "Divide by Zero" ));
+	else
+		dval_ /= objimp.value();
 }
 

@@ -285,49 +285,496 @@ BObjectRef BObjectImp::OperMultiSubscriptAssign( stack<BObjectRef>& indices, BOb
 	}
 }
 
-BObjectImp* BObjectImp::selfPlusObjImp(const BObjectImp& /* obj */) const
+BObjectImp* BObjectImp::selfPlusObjImp(const BObjectImp&  objimp ) const
+{
+	return objimp.selfPlusObj(*this);
+}
+BObjectImp* BObjectImp::selfPlusObj(const BObjectImp& objimp) const
 {
 	return copy();
+}
+BObjectImp* BObjectImp::selfPlusObj(const BLong& objimp) const
+{
+	return copy();
+}
+BObjectImp* BObjectImp::selfPlusObj(const Double& objimp) const
+{
+	return copy();
+}
+BObjectImp* BObjectImp::selfPlusObj(const String& objimp) const
+{
+	return copy();
+}
+BObjectImp* BObjectImp::selfPlusObj(const ObjArray& objimp) const
+{
+	return copy();
+}
+void BObjectImp::selfPlusObjImp(BObjectImp& objimp, BObject& obj)
+{
+	objimp.selfPlusObj(*this, obj);
+}
+void BObjectImp::selfPlusObj(BObjectImp& objimp, BObject& obj)
+{
+	//
+}
+void BObjectImp::selfPlusObj(BLong& objimp, BObject& obj)
+{
+	//
+}
+void BObjectImp::selfPlusObj(Double& objimp, BObject& obj)
+{
+	//obj.setimp( selfPlusObj(objimp) );
+}
+void BObjectImp::selfPlusObj(String& objimp, BObject& obj)
+{
+	//obj.setimp( selfPlusObj(objimp) );
+}
+void BObjectImp::selfPlusObj(ObjArray& objimp, BObject& obj)
+{
+	//obj.setimp( selfPlusObj(objimp) );
 }
 
-BObjectImp* BObjectImp::selfMinusObjImp(const BObjectImp& /* obj */) const
+BObjectImp* BObjectImp::selfMinusObjImp(const BObjectImp& objimp) const
+{
+	return objimp.selfMinusObjImp(*this);
+}
+BObjectImp* BObjectImp::selfMinusObj(const BObjectImp& objimp) const
 {
 	return copy();
+}
+BObjectImp* BObjectImp::selfMinusObj(const BLong& objimp) const
+{
+	return copy();
+}
+BObjectImp* BObjectImp::selfMinusObj(const Double& objimp) const
+{
+	return copy();
+}
+BObjectImp* BObjectImp::selfMinusObj(const String& objimp) const
+{
+	return copy();
+}
+BObjectImp* BObjectImp::selfMinusObj(const ObjArray& objimp) const
+{
+	return copy();
+}
+void BObjectImp::selfMinusObjImp(BObjectImp& objimp, BObject& obj)
+{
+	objimp.selfMinusObjImp(*this, obj);
+}
+void BObjectImp::selfMinusObj(BObjectImp& objimp, BObject& obj)
+{
+	//
+}
+void BObjectImp::selfMinusObj(BLong& objimp, BObject& obj)
+{
+	//
+}
+void BObjectImp::selfMinusObj(Double& objimp, BObject& obj)
+{
+	//
+}
+void BObjectImp::selfMinusObj(String& objimp, BObject& obj)
+{
+	//
+}
+void BObjectImp::selfMinusObj(ObjArray& objimp, BObject& obj)
+{
+	//
 }
 
-BObjectImp* BObjectImp::selfTimesObjImp(const BObjectImp& /* obj */) const
+BObjectImp* BObjectImp::selfTimesObjImp(const BObjectImp& objimp) const
+{
+	return objimp.selfTimesObjImp(*this);
+}
+BObjectImp* BObjectImp::selfTimesObj(const BObjectImp& objimp) const
 {
 	return copy();
+}
+BObjectImp* BObjectImp::selfTimesObj(const BLong& objimp) const
+{
+	return copy();
+}
+BObjectImp* BObjectImp::selfTimesObj(const Double& objimp) const
+{
+	return copy();
+}
+BObjectImp* BObjectImp::selfTimesObj(const String& objimp) const
+{
+	return copy();
+}
+BObjectImp* BObjectImp::selfTimesObj(const ObjArray& objimp) const
+{
+	return copy();
+}
+void BObjectImp::selfTimesObjImp(BObjectImp& objimp, BObject& obj)
+{
+	objimp.selfTimesObjImp(*this, obj);
+}
+void BObjectImp::selfTimesObj(BObjectImp& objimp, BObject& obj)
+{
+	//
+}
+void BObjectImp::selfTimesObj(BLong& objimp, BObject& obj)
+{
+	//
+}
+void BObjectImp::selfTimesObj(Double& objimp, BObject& obj)
+{
+	//
+}
+void BObjectImp::selfTimesObj(String& objimp, BObject& obj)
+{
+	//
+}
+void BObjectImp::selfTimesObj(ObjArray& objimp, BObject& obj)
+{
+	//
 }
 
-BObjectImp* BObjectImp::selfDividedByObjImp(const BObjectImp& /* obj */) const
+BObjectImp* BObjectImp::selfDividedByObjImp(const BObjectImp& objimp) const
+{
+	return objimp.selfDividedByObjImp(*this);
+}
+BObjectImp* BObjectImp::selfDividedByObj(const BObjectImp& objimp) const
 {
 	return copy();
 }
+BObjectImp* BObjectImp::selfDividedByObj(const BLong& objimp) const
+{
+	return copy();
+}
+BObjectImp* BObjectImp::selfDividedByObj(const Double& objimp) const
+{
+	return copy();
+}
+BObjectImp* BObjectImp::selfDividedByObj(const String& objimp) const
+{
+	return copy();
+}
+BObjectImp* BObjectImp::selfDividedByObj(const ObjArray& objimp) const
+{
+	return copy();
+}
+void BObjectImp::selfDividedByObjImp(BObjectImp& objimp, BObject& obj)
+{
+	objimp.selfDividedByObjImp(*this, obj);
+}
+void BObjectImp::selfDividedByObj(BObjectImp& objimp, BObject& obj)
+{
+	//
+}
+void BObjectImp::selfDividedByObj(BLong& objimp, BObject& obj)
+{
+	//
+}
+void BObjectImp::selfDividedByObj(Double& objimp, BObject& obj)
+{
+	//
+}
+void BObjectImp::selfDividedByObj(String& objimp, BObject& obj)
+{
+	//
+}
+void BObjectImp::selfDividedByObj(ObjArray& objimp, BObject& obj)
+{
+	//
+}
+
 BObjectImp* BObjectImp::selfModulusObjImp(const BObjectImp& objimp) const
 {
+	return objimp.selfModulusObjImp(*this);
+}
+BObjectImp* BObjectImp::selfModulusObj(const BObjectImp& objimp) const
+{
 	return copy();
 }
+BObjectImp* BObjectImp::selfModulusObj(const BLong& objimp) const
+{
+	return copy();
+}
+BObjectImp* BObjectImp::selfModulusObj(const Double& objimp) const
+{
+	return copy();
+}
+BObjectImp* BObjectImp::selfModulusObj(const String& objimp) const
+{
+	return copy();
+}
+BObjectImp* BObjectImp::selfModulusObj(const ObjArray& objimp) const
+{
+	return copy();
+}
+void BObjectImp::selfModulusObjImp(BObjectImp& objimp, BObject& obj)
+{
+	objimp.selfModulusObjImp(*this, obj);
+}
+void BObjectImp::selfModulusObj(BObjectImp& objimp, BObject& obj)
+{
+	//
+}
+void BObjectImp::selfModulusObj(BLong& objimp, BObject& obj)
+{
+	//
+}
+void BObjectImp::selfModulusObj(Double& objimp, BObject& obj)
+{
+	//
+}
+void BObjectImp::selfModulusObj(String& objimp, BObject& obj)
+{
+	//
+}
+void BObjectImp::selfModulusObj(ObjArray& objimp, BObject& obj)
+{
+	//
+}
+
 BObjectImp* BObjectImp::selfBitShiftRightObjImp(const BObjectImp& objimp) const
 {
+	return objimp.selfBitShiftRightObjImp(*this);
+}
+BObjectImp* BObjectImp::selfBitShiftRightObj(const BObjectImp& objimp) const
+{
 	return copy();
 }
+BObjectImp* BObjectImp::selfBitShiftRightObj(const BLong& objimp) const
+{
+	return copy();
+}
+BObjectImp* BObjectImp::selfBitShiftRightObj(const Double& objimp) const
+{
+	return copy();
+}
+BObjectImp* BObjectImp::selfBitShiftRightObj(const String& objimp) const
+{
+	return copy();
+}
+BObjectImp* BObjectImp::selfBitShiftRightObj(const ObjArray& objimp) const
+{
+	return copy();
+}
+void BObjectImp::selfBitShiftRightObjImp(BObjectImp& objimp, BObject& obj)
+{
+	objimp.selfBitShiftRightObjImp(*this, obj);
+}
+void BObjectImp::selfBitShiftRightObj(BObjectImp& objimp, BObject& obj)
+{
+	//
+}
+void BObjectImp::selfBitShiftRightObj(BLong& objimp, BObject& obj)
+{
+	//
+}
+void BObjectImp::selfBitShiftRightObj(Double& objimp, BObject& obj)
+{
+	//
+}
+void BObjectImp::selfBitShiftRightObj(String& objimp, BObject& obj)
+{
+	//
+}
+void BObjectImp::selfBitShiftRightObj(ObjArray& objimp, BObject& obj)
+{
+	//
+}
+
 BObjectImp* BObjectImp::selfBitShiftLeftObjImp(const BObjectImp& objimp) const
 {
+	return objimp.selfBitShiftLeftObjImp(*this);
+}
+BObjectImp* BObjectImp::selfBitShiftLeftObj(const BObjectImp& objimp) const
+{
 	return copy();
 }
+BObjectImp* BObjectImp::selfBitShiftLeftObj(const BLong& objimp) const
+{
+	return copy();
+}
+BObjectImp* BObjectImp::selfBitShiftLeftObj(const Double& objimp) const
+{
+	return copy();
+}
+BObjectImp* BObjectImp::selfBitShiftLeftObj(const String& objimp) const
+{
+	return copy();
+}
+BObjectImp* BObjectImp::selfBitShiftLeftObj(const ObjArray& objimp) const
+{
+	return copy();
+}
+void BObjectImp::selfBitShiftLeftObjImp(BObjectImp& objimp, BObject& obj)
+{
+	objimp.selfBitShiftLeftObjImp(*this, obj);
+}
+void BObjectImp::selfBitShiftLeftObj(BObjectImp& objimp, BObject& obj)
+{
+	//
+}
+void BObjectImp::selfBitShiftLeftObj(BLong& objimp, BObject& obj)
+{
+	//
+}
+void BObjectImp::selfBitShiftLeftObj(Double& objimp, BObject& obj)
+{
+	//
+}
+void BObjectImp::selfBitShiftLeftObj(String& objimp, BObject& obj)
+{
+	//
+}
+void BObjectImp::selfBitShiftLeftObj(ObjArray& objimp, BObject& obj)
+{
+	//
+}
+
 BObjectImp* BObjectImp::selfBitAndObjImp(const BObjectImp& objimp) const
 {
+	return objimp.selfBitAndObjImp(*this);
+}
+BObjectImp* BObjectImp::selfBitAndObj(const BObjectImp& objimp) const
+{
 	return copy();
 }
+BObjectImp* BObjectImp::selfBitAndObj(const BLong& objimp) const
+{
+	return copy();
+}
+BObjectImp* BObjectImp::selfBitAndObj(const Double& objimp) const
+{
+	return copy();
+}
+BObjectImp* BObjectImp::selfBitAndObj(const String& objimp) const
+{
+	return copy();
+}
+BObjectImp* BObjectImp::selfBitAndObj(const ObjArray& objimp) const
+{
+	return copy();
+}
+void BObjectImp::selfBitAndObjImp(BObjectImp& objimp, BObject& obj)
+{
+	objimp.selfBitAndObjImp(*this, obj);
+}
+void BObjectImp::selfBitAndObj(BObjectImp& objimp, BObject& obj)
+{
+	//
+}
+void BObjectImp::selfBitAndObj(BLong& objimp, BObject& obj)
+{
+	//
+}
+void BObjectImp::selfBitAndObj(Double& objimp, BObject& obj)
+{
+	//
+}
+void BObjectImp::selfBitAndObj(String& objimp, BObject& obj)
+{
+	//
+}
+void BObjectImp::selfBitAndObj(ObjArray& objimp, BObject& obj)
+{
+	//
+}
+
 BObjectImp* BObjectImp::selfBitOrObjImp(const BObjectImp& objimp) const
 {
-	return copy();
+	return objimp.selfBitOrObjImp(*this);
 }
-BObjectImp* BObjectImp::selfBitXorObjImp(const BObjectImp& objimp) const
+BObjectImp* BObjectImp::selfBitOrObj(const BObjectImp& objimp) const
 {
 	return copy();
 }
+BObjectImp* BObjectImp::selfBitOrObj(const BLong& objimp) const
+{
+	return copy();
+}
+BObjectImp* BObjectImp::selfBitOrObj(const Double& objimp) const
+{
+	return copy();
+}
+BObjectImp* BObjectImp::selfBitOrObj(const String& objimp) const
+{
+	return copy();
+}
+BObjectImp* BObjectImp::selfBitOrObj(const ObjArray& objimp) const
+{
+	return copy();
+}
+void BObjectImp::selfBitOrObjImp(BObjectImp& objimp, BObject& obj)
+{
+	objimp.selfBitOrObjImp(*this, obj);
+}
+void BObjectImp::selfBitOrObj(BObjectImp& objimp, BObject& obj)
+{
+	//
+}
+void BObjectImp::selfBitOrObj(BLong& objimp, BObject& obj)
+{
+	//
+}
+void BObjectImp::selfBitOrObj(Double& objimp, BObject& obj)
+{
+	//
+}
+void BObjectImp::selfBitOrObj(String& objimp, BObject& obj)
+{
+	//
+}
+void BObjectImp::selfBitOrObj(ObjArray& objimp, BObject& obj)
+{
+	//
+}
+
+BObjectImp* BObjectImp::selfBitXorObjImp(const BObjectImp& objimp) const
+{
+	return objimp.selfBitXorObjImp(*this);
+}
+BObjectImp* BObjectImp::selfBitXorObj(const BObjectImp& objimp) const
+{
+	return copy();
+}
+BObjectImp* BObjectImp::selfBitXorObj(const BLong& objimp) const
+{
+	return copy();
+}
+BObjectImp* BObjectImp::selfBitXorObj(const Double& objimp) const
+{
+	return copy();
+}
+BObjectImp* BObjectImp::selfBitXorObj(const String& objimp) const
+{
+	return copy();
+}
+BObjectImp* BObjectImp::selfBitXorObj(const ObjArray& objimp) const
+{
+	return copy();
+}
+void BObjectImp::selfBitXorObjImp(BObjectImp& objimp, BObject& obj)
+{
+	objimp.selfBitXorObjImp(*this, obj);
+}
+void BObjectImp::selfBitXorObj(BObjectImp& objimp, BObject& obj)
+{
+	//
+}
+void BObjectImp::selfBitXorObj(BLong& objimp, BObject& obj)
+{
+	//
+}
+void BObjectImp::selfBitXorObj(Double& objimp, BObject& obj)
+{
+	//
+}
+void BObjectImp::selfBitXorObj(String& objimp, BObject& obj)
+{
+	//
+}
+void BObjectImp::selfBitXorObj(ObjArray& objimp, BObject& obj)
+{
+	//
+}
+
 BObjectImp* BObjectImp::bitnot() const
 {
 	return copy();
@@ -339,29 +786,34 @@ void BObjectImp::operInsertInto( BObject& obj, const BObjectImp& objimp )
 }
 
 
-void BObjectImp::operPlusEqual( BObject& obj, const BObjectImp& objimp )
+void BObjectImp::operPlusEqual( BObject& obj, BObjectImp& objimp )
 {
-	obj.setimp( selfPlusObjImp( objimp ) );
+	objimp.selfPlusObjImp(*this, obj);
+	//obj.setimp( objimp.selfPlusObjImp( *this ) );
 }
 
-void BObjectImp::operMinusEqual( BObject& obj, const BObjectImp& objimp )
+void BObjectImp::operMinusEqual( BObject& obj, BObjectImp& objimp )
 {
-	obj.setimp( selfMinusObjImp( objimp ) );
+	objimp.selfMinusObjImp(*this, obj);
+	//obj.setimp( selfMinusObjImp( objimp ) );
 }
 
-void BObjectImp::operTimesEqual( BObject& obj, const BObjectImp& objimp )
+void BObjectImp::operTimesEqual( BObject& obj, BObjectImp& objimp )
 {
-	obj.setimp( selfTimesObjImp( objimp ) );
+	objimp.selfTimesObjImp(*this, obj);
+	//obj.setimp( selfTimesObjImp( objimp ) );
 }
 
-void BObjectImp::operDivideEqual( BObject& obj, const BObjectImp& objimp )
+void BObjectImp::operDivideEqual( BObject& obj, BObjectImp& objimp )
 {
-	obj.setimp( selfDividedByObjImp( objimp ) );
+	objimp.selfDividedByObjImp(*this, obj);
+	//obj.setimp( selfDividedByObjImp( objimp ) );
 }
 
-void BObjectImp::operModulusEqual( BObject& obj, const BObjectImp& objimp )
+void BObjectImp::operModulusEqual( BObject& obj, BObjectImp& objimp )
 {
-	obj.setimp( selfModulusObjImp( objimp ) );
+	objimp.selfModulusObjImp(*this, obj);
+	//obj.setimp( selfModulusObjImp( objimp ) );
 }
 
 BObject BObjectImp::operator-(void) const
@@ -623,45 +1075,104 @@ void ObjArray::operInsertInto(BObject& obj, const BObjectImp& objimp)
 	ref_arr.push_back( BObjectRef( new BObject( objimp.copy() ) ) );
 }
 
-void ObjArray::operPlusEqual(BObject& obj, const BObjectImp& objimp)
+BObjectImp* ObjArray::selfPlusObj(const BObjectImp& objimp) const
 {
-	obj.setimp(selfPlusObjImp(objimp));
+	auto_ptr<ObjArray> result (new ObjArray( *this ));
+	result->ref_arr.push_back( BObjectRef( new BObject( objimp.copy() ) ) );
+	return result.release();
+}
+BObjectImp* ObjArray::selfPlusObj(const BLong& objimp) const
+{
+	auto_ptr<ObjArray> result (new ObjArray( *this ));
+	result->ref_arr.push_back( BObjectRef( new BObject( objimp.copy() ) ) );
+	return result.release();
+}
+BObjectImp* ObjArray::selfPlusObj(const Double& objimp) const
+{
+	auto_ptr<ObjArray> result (new ObjArray( *this ));
+	result->ref_arr.push_back( BObjectRef( new BObject( objimp.copy() ) ) );
+	return result.release();
+}
+BObjectImp* ObjArray::selfPlusObj(const String& objimp) const
+{
+	auto_ptr<ObjArray> result (new ObjArray( *this ));
+	result->ref_arr.push_back( BObjectRef( new BObject( objimp.copy() ) ) );
+	return result.release();
+}
+
+BObjectImp* ObjArray::selfPlusObj(const ObjArray& objimp) const
+{
+	auto_ptr<ObjArray> result (new ObjArray( *this ));
+
+	for( const_iterator itr = objimp.ref_arr.begin(); itr != objimp.ref_arr.end(); ++itr )
+	{
+		if (itr->get())
+		{
+			/*
+				NOTE: all BObjectRefs in an ObjArray reference BNamedObjects not BObjects
+				HMMM, can this BNamedObject get destructed before we're done with it?
+				No, we're making a copy, leaving the original be.
+				(SO, bno's refcount should be >1 here)
+			*/
+			BObject *bo = itr->get();
+
+			result->ref_arr.push_back( BObjectRef( new BObject( (*bo)->copy() ) ) );
+		}
+		else
+		{
+			result->ref_arr.push_back( BObjectRef() );
+		}
+	}
+	return result.release();
 }
 
 BObjectImp* ObjArray::selfPlusObjImp(const BObjectImp& other) const
 {
-	auto_ptr<ObjArray> result (new ObjArray( *this ));
-
-	if (other.isa( OTArray ))
+	return other.selfPlusObj(*this);
+}
+void ObjArray::selfPlusObjImp(BObjectImp&  objimp , BObject& obj)
+{
+	objimp.selfPlusObj(*this,obj);
+}
+void ObjArray::selfPlusObj(BObjectImp& objimp, BObject& obj)
+{
+	ref_arr.push_back( BObjectRef( new BObject( objimp.copy() ) ) );
+}
+void ObjArray::selfPlusObj(BLong& objimp, BObject& obj)
+{
+	ref_arr.push_back( BObjectRef( new BObject( objimp.copy() ) ) );
+}
+void ObjArray::selfPlusObj(Double& objimp, BObject& obj)
+{
+	ref_arr.push_back( BObjectRef( new BObject( objimp.copy() ) ) );
+}
+void ObjArray::selfPlusObj(String& objimp, BObject& obj)
+{
+	ref_arr.push_back( BObjectRef( new BObject( objimp.copy() ) ) );
+}
+void ObjArray::selfPlusObj(ObjArray& objimp, BObject& obj)
+{
+	for( const_iterator itr = objimp.ref_arr.begin(), itrend = objimp.ref_arr.end(); itr != itrend; ++itr )
 	{
-		const ObjArray& other_arr = static_cast<const ObjArray&>(other);
-
-		for( const_iterator itr = other_arr.ref_arr.begin(); itr != other_arr.ref_arr.end(); ++itr )
+		if (itr->get())
 		{
-			if (itr->get())
-			{
-				/*
-					NOTE: all BObjectRefs in an ObjArray reference BNamedObjects not BObjects
-					HMMM, can this BNamedObject get destructed before we're done with it?
-					No, we're making a copy, leaving the original be.
-					(SO, bno's refcount should be >1 here)
-				*/
-				BObject *bo = itr->get();
+			/*
+				NOTE: all BObjectRefs in an ObjArray reference BNamedObjects not BObjects
+				HMMM, can this BNamedObject get destructed before we're done with it?
+				No, we're making a copy, leaving the original be.
+				(SO, bno's refcount should be >1 here)
+			*/
+			BObject *bo = itr->get();
 
-				result->ref_arr.push_back( BObjectRef( new BObject( (*bo)->copy() ) ) );
-			}
-			else
-			{
-				result->ref_arr.push_back( BObjectRef() );
-			}
+			ref_arr.push_back( BObjectRef( new BObject( (*bo)->copy() ) ) );
+		}
+		else
+		{
+			ref_arr.push_back( BObjectRef() );
 		}
 	}
-	else
-	{
-		result->ref_arr.push_back( BObjectRef( new BObject( other.copy() ) ) );
-	}
-	return result.release();
 }
+
 BObjectRef ObjArray::OperMultiSubscript( stack<BObjectRef>& indices )
 {
     BObjectRef start_ref = indices.top();
