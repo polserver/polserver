@@ -1612,7 +1612,7 @@ void Executor::ins_add( const Instruction& ins )
     BObject& right = *rightref;
     BObject& left = *leftref;
 
-    leftref.set( new BObject( left.impref().selfPlusObjImp(right.impref() ) ) );
+    leftref.set( new BObject( right.impref().selfPlusObjImp(left.impref() ) ) );
 }
 
 // TOK_SUBTRACT
@@ -1630,7 +1630,7 @@ void Executor::ins_subtract( const Instruction& ins )
     BObject& right = *rightref;
     BObject& left = *leftref;
 
-	leftref.set( new BObject( left.impref().selfMinusObjImp( right.impref() ) ) );
+	leftref.set( new BObject( right.impref().selfMinusObjImp( left.impref() ) ) );
 }
 
 // TOK_MULT:
@@ -1648,7 +1648,7 @@ void Executor::ins_mult( const Instruction& ins )
     BObject& right = *rightref;
     BObject& left = *leftref;
 
-    leftref.set( new BObject( left.impref().selfTimesObjImp(right.impref() ) ) );
+    leftref.set( new BObject( right.impref().selfTimesObjImp(left.impref() ) ) );
 }
 // TOK_DIV:
 void Executor::ins_div( const Instruction& ins )
@@ -1665,7 +1665,7 @@ void Executor::ins_div( const Instruction& ins )
     BObject& right = *rightref;
     BObject& left = *leftref;
 
-    leftref.set( new BObject( left.impref().selfDividedByObjImp(right.impref() ) ) );
+    leftref.set( new BObject( right.impref().selfDividedByObjImp(left.impref() ) ) );
 }
 // TOK_MODULUS:
 void Executor::ins_modulus( const Instruction& ins )
@@ -1682,7 +1682,7 @@ void Executor::ins_modulus( const Instruction& ins )
     BObject& right = *rightref;
     BObject& left = *leftref;
 
-    leftref.set( new BObject( left.impref().selfModulusObjImp(right.impref() ) ) );
+    leftref.set( new BObject( right.impref().selfModulusObjImp(left.impref() ) ) );
 }
 // TOK_BSRIGHT:
 void Executor::ins_bitshift_right( const Instruction& ins )
@@ -1699,7 +1699,7 @@ void Executor::ins_bitshift_right( const Instruction& ins )
     BObject& right = *rightref;
     BObject& left = *leftref;
 
-    leftref.set( new BObject( left.impref().selfBitShiftRightObjImp(right.impref() ) ) );
+    leftref.set( new BObject( right.impref().selfBitShiftRightObjImp(left.impref() ) ) );
 }
 // TOK_BSLEFT:
 void Executor::ins_bitshift_left( const Instruction& ins )
@@ -1716,7 +1716,7 @@ void Executor::ins_bitshift_left( const Instruction& ins )
     BObject& right = *rightref;
     BObject& left = *leftref;
 
-    leftref.set( new BObject( left.impref().selfBitShiftLeftObjImp(right.impref() ) ) );
+    leftref.set( new BObject( right.impref().selfBitShiftLeftObjImp(left.impref() ) ) );
 }
 // TOK_BITAND:
 void Executor::ins_bitwise_and( const Instruction& ins )
@@ -1733,7 +1733,7 @@ void Executor::ins_bitwise_and( const Instruction& ins )
     BObject& right = *rightref;
     BObject& left = *leftref;
 
-    leftref.set( new BObject( left.impref().selfBitAndObjImp(right.impref() ) ) );
+    leftref.set( new BObject( right.impref().selfBitAndObjImp(left.impref() ) ) );
 }
 // TOK_BITXOR:
 void Executor::ins_bitwise_xor( const Instruction& ins )
@@ -1750,7 +1750,7 @@ void Executor::ins_bitwise_xor( const Instruction& ins )
     BObject& right = *rightref;
     BObject& left = *leftref;
 
-    leftref.set( new BObject( left.impref().selfBitXorObjImp(right.impref() ) ) );
+    leftref.set( new BObject( right.impref().selfBitXorObjImp(left.impref() ) ) );
 }
 // TOK_BITOR:
 void Executor::ins_bitwise_or( const Instruction& ins )
@@ -1767,7 +1767,7 @@ void Executor::ins_bitwise_or( const Instruction& ins )
     BObject& right = *rightref;
     BObject& left = *leftref;
 
-    leftref.set( new BObject( left.impref().selfBitOrObjImp(right.impref() ) ) );
+    leftref.set( new BObject( right.impref().selfBitOrObjImp(left.impref() ) ) );
 }
 
 void Executor::ins_logical_and( const Instruction& ins )
@@ -2873,34 +2873,34 @@ void Executor::innerExec(const Instruction& ins)
                   }
                 break;
 			  case TOK_ADD:         // ins_add
-				leftref.set( new BObject( left.impref().selfPlusObjImp(right.impref() ) ) );
+				leftref.set( new BObject( right.impref().selfPlusObjImp(left.impref() ) ) );
                 return;
 			  case TOK_DIV:         // ins_div
-				leftref.set( new BObject( left.impref().selfDividedByObjImp( right.impref() ) ) );
+				leftref.set( new BObject( right.impref().selfDividedByObjImp( left.impref() ) ) );
 				return;
               case TOK_SUBTRACT:    // ins_subtract
-				leftref.set( new BObject( left.impref().selfMinusObjImp( right.impref() ) ) );
+				leftref.set( new BObject( right.impref().selfMinusObjImp( left.impref() ) ) );
 				return;
 			  case TOK_MULT:        // ins_mult
-				leftref.set( new BObject( left.impref().selfTimesObjImp( right.impref() ) ) );
+				leftref.set( new BObject( right.impref().selfTimesObjImp( left.impref() ) ) );
 				return;
               case TOK_MODULUS:     // ins_modulus
-                leftref.set( new BObject( left.impref().selfModulusObjImp( right.impref() ) ) );
+                leftref.set( new BObject( right.impref().selfModulusObjImp( left.impref() ) ) );
                 return;
 			  case TOK_BSRIGHT:      // ins_bitshift_right
-                leftref.set( new BObject( left.impref().selfBitShiftRightObjImp( right.impref() ) ) );
+                leftref.set( new BObject( right.impref().selfBitShiftRightObjImp( left.impref() ) ) );
                 return;
 			  case TOK_BSLEFT:      // ins_bitshift_left
-                leftref.set( new BObject( left.impref().selfBitShiftLeftObjImp( right.impref() ) ) );
+                leftref.set( new BObject( right.impref().selfBitShiftLeftObjImp( left.impref() ) ) );
                 return;
               case TOK_BITAND:      // ins_bitwise_and
-                leftref.set( new BObject( left.impref().selfBitAndObjImp( right.impref() ) ) );
+                leftref.set( new BObject( right.impref().selfBitAndObjImp( left.impref() ) ) );
                 return;
               case TOK_BITXOR:      // ins_bitwise_xor
-                leftref.set( new BObject( left.impref().selfBitXorObjImp( right.impref() ) ) );
+                leftref.set( new BObject( right.impref().selfBitXorObjImp( left.impref() ) ) );
                 return;
               case TOK_BITOR:       // ins_bitwise_or
-                leftref.set( new BObject( left.impref().selfBitOrObjImp( right.impref() ) ) );
+                leftref.set( new BObject( right.impref().selfBitOrObjImp( left.impref() ) ) );
                 return;
 			
 			  case TOK_PLUSEQUAL:
