@@ -1393,6 +1393,156 @@ void Executor::ins_set_member_id_consume( const Instruction& ins )
     ValueStack.pop();
 }
 
+void Executor::ins_set_member_id_consume_plusequal( const Instruction& ins )
+{
+	BObjectRef rightref = ValueStack.top();
+    ValueStack.pop();
+    BObjectRef& leftref = ValueStack.top();
+
+    BObject& right = *rightref;
+    BObject& left = *leftref;
+
+    BObjectImp& rightimpref = right.impref();
+
+    if (right.count() == 1 && rightimpref.count() == 1)
+    {
+		BObjectRef& tmp = left.impref().get_member_id( ins.token.lval );
+		BObject& btmp = *tmp;
+		btmp.impref().operPlusEqual( btmp , rightimpref );
+        left.impref().set_member_id( ins.token.lval, &btmp.impref());
+    }
+    else
+    {
+        BObjectImp* imp = rightimpref.copy();
+        BObject obj(imp);
+		BObjectRef& tmp = left.impref().get_member_id( ins.token.lval );
+		BObject& btmp = *tmp;
+		btmp.impref().operPlusEqual( btmp , *imp );
+        left.impref().set_member_id( ins.token.lval, &btmp.impref() );
+    }
+    ValueStack.pop();
+}
+
+void Executor::ins_set_member_id_consume_minusequal( const Instruction& ins )
+{
+	BObjectRef rightref = ValueStack.top();
+    ValueStack.pop();
+    BObjectRef& leftref = ValueStack.top();
+
+    BObject& right = *rightref;
+    BObject& left = *leftref;
+
+    BObjectImp& rightimpref = right.impref();
+
+    if (right.count() == 1 && rightimpref.count() == 1)
+    {
+		BObjectRef& tmp = left.impref().get_member_id( ins.token.lval );
+		BObject& btmp = *tmp;
+		btmp.impref().operMinusEqual( btmp , rightimpref );
+        left.impref().set_member_id( ins.token.lval, &btmp.impref());
+    }
+    else
+    {
+        BObjectImp* imp = rightimpref.copy();
+        BObject obj(imp);
+		BObjectRef& tmp = left.impref().get_member_id( ins.token.lval );
+		BObject& btmp = *tmp;
+		btmp.impref().operMinusEqual( btmp , *imp );
+        left.impref().set_member_id( ins.token.lval, &btmp.impref() );
+    }
+    ValueStack.pop();
+}
+
+void Executor::ins_set_member_id_consume_timesequal( const Instruction& ins )
+{
+	BObjectRef rightref = ValueStack.top();
+    ValueStack.pop();
+    BObjectRef& leftref = ValueStack.top();
+
+    BObject& right = *rightref;
+    BObject& left = *leftref;
+
+    BObjectImp& rightimpref = right.impref();
+
+    if (right.count() == 1 && rightimpref.count() == 1)
+    {
+		BObjectRef& tmp = left.impref().get_member_id( ins.token.lval );
+		BObject& btmp = *tmp;
+		btmp.impref().operTimesEqual( btmp , rightimpref );
+        left.impref().set_member_id( ins.token.lval, &btmp.impref());
+    }
+    else
+    {
+        BObjectImp* imp = rightimpref.copy();
+        BObject obj(imp);
+		BObjectRef& tmp = left.impref().get_member_id( ins.token.lval );
+		BObject& btmp = *tmp;
+		btmp.impref().operTimesEqual( btmp , *imp );
+        left.impref().set_member_id( ins.token.lval, &btmp.impref() );
+    }
+    ValueStack.pop();
+}
+
+void Executor::ins_set_member_id_consume_divideequal( const Instruction& ins )
+{
+	BObjectRef rightref = ValueStack.top();
+    ValueStack.pop();
+    BObjectRef& leftref = ValueStack.top();
+
+    BObject& right = *rightref;
+    BObject& left = *leftref;
+
+    BObjectImp& rightimpref = right.impref();
+
+    if (right.count() == 1 && rightimpref.count() == 1)
+    {
+		BObjectRef& tmp = left.impref().get_member_id( ins.token.lval );
+		BObject& btmp = *tmp;
+		btmp.impref().operDivideEqual( btmp , rightimpref );
+        left.impref().set_member_id( ins.token.lval, &btmp.impref());
+    }
+    else
+    {
+        BObjectImp* imp = rightimpref.copy();
+        BObject obj(imp);
+		BObjectRef& tmp = left.impref().get_member_id( ins.token.lval );
+		BObject& btmp = *tmp;
+		btmp.impref().operDivideEqual( btmp , *imp );
+        left.impref().set_member_id( ins.token.lval, &btmp.impref() );
+    }
+    ValueStack.pop();
+}
+
+void Executor::ins_set_member_id_consume_modulusequal( const Instruction& ins )
+{
+	BObjectRef rightref = ValueStack.top();
+    ValueStack.pop();
+    BObjectRef& leftref = ValueStack.top();
+
+    BObject& right = *rightref;
+    BObject& left = *leftref;
+
+    BObjectImp& rightimpref = right.impref();
+
+    if (right.count() == 1 && rightimpref.count() == 1)
+    {
+		BObjectRef& tmp = left.impref().get_member_id( ins.token.lval );
+		BObject& btmp = *tmp;
+		btmp.impref().operModulusEqual( btmp , rightimpref );
+        left.impref().set_member_id( ins.token.lval, &btmp.impref());
+    }
+    else
+    {
+        BObjectImp* imp = rightimpref.copy();
+        BObject obj(imp);
+		BObjectRef& tmp = left.impref().get_member_id( ins.token.lval );
+		BObject& btmp = *tmp;
+		btmp.impref().operModulusEqual( btmp , *imp );
+        left.impref().set_member_id( ins.token.lval, &btmp.impref() );
+    }
+    ValueStack.pop();
+}
+
 void Executor::ins_get_member( const Instruction& ins )
 {
 	BObjectRef& leftref = ValueStack.top();
@@ -3026,6 +3176,12 @@ ExecInstrFunc Executor::GetInstrFunc( const Token& token )
     case INS_GET_MEMBER_ID:     return &Executor::ins_get_member_id; //test id
     case INS_SET_MEMBER_ID:     return &Executor::ins_set_member_id; //test id
     case INS_SET_MEMBER_ID_CONSUME:     return &Executor::ins_set_member_id_consume; //test id
+
+	case INS_SET_MEMBER_ID_CONSUME_PLUSEQUAL:    return &Executor::ins_set_member_id_consume_plusequal; // test id
+	case INS_SET_MEMBER_ID_CONSUME_MINUSEQUAL:   return &Executor::ins_set_member_id_consume_minusequal; // test id
+	case INS_SET_MEMBER_ID_CONSUME_TIMESEQUAL:   return &Executor::ins_set_member_id_consume_timesequal; // test id
+	case INS_SET_MEMBER_ID_CONSUME_DIVIDEEQUAL:  return &Executor::ins_set_member_id_consume_divideequal; // test id
+	case INS_SET_MEMBER_ID_CONSUME_MODULUSEQUAL: return &Executor::ins_set_member_id_consume_modulusequal; // test id
 
     case TOK_ADD:               return &Executor::ins_add;
     case TOK_SUBTRACT:          return &Executor::ins_subtract;

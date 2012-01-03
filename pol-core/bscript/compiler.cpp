@@ -654,6 +654,44 @@ bool Expression::optimize_token( int i )
 
 				delete operand;
 				tokens.erase( tokens.begin() + i-1, tokens.begin() + i );
+				//1: local #0
+				//2: get member id 'warmode' (27)
+				//3: 1L
+				//4: +=
+				//5: #
+				if (tokens.size()>i+2)
+				{
+					operand = tokens[i+1];
+					if (operand->id == TOK_PLUSEQUAL ||
+						operand->id == TOK_MINUSEQUAL ||
+						operand->id == TOK_TIMESEQUAL ||
+						operand->id == TOK_DIVIDEEQUAL ||
+						operand->id == TOK_MODULUSEQUAL)
+					{
+					//12: local #0
+					//13: 1L
+					//14: set member id 'warmode' (27) += #
+						tokens.pop_back(); // delete consumer
+						delete operand;
+						tokens.pop_back(); // delete +=
+						Token* _operand = tokens.back();
+						tokens.insert(tokens.begin()+i-1,_operand);
+						tokens.pop_back();
+						if (operand->id == TOK_PLUSEQUAL)
+							oper->id = INS_SET_MEMBER_ID_CONSUME_PLUSEQUAL;
+						else if (operand->id == TOK_MINUSEQUAL)
+							oper->id = INS_SET_MEMBER_ID_CONSUME_MINUSEQUAL;
+						else if (operand->id == TOK_TIMESEQUAL)
+							oper->id = INS_SET_MEMBER_ID_CONSUME_TIMESEQUAL;
+						else if (operand->id == TOK_DIVIDEEQUAL)
+							oper->id = INS_SET_MEMBER_ID_CONSUME_DIVIDEEQUAL;
+						else if (operand->id == TOK_MODULUSEQUAL)
+							oper->id = INS_SET_MEMBER_ID_CONSUME_MODULUSEQUAL;
+						OSTRINGSTREAM os;
+						os << oper->lval;
+						oper->copyStr( OSTRINGSTREAM_STR(os).c_str() );
+					}
+				}
 				return true;
 			}
 			else
@@ -673,6 +711,7 @@ bool Expression::optimize_token( int i )
 			throw std::runtime_error( "Expected an identifier to follow the member (.) operator." );
 		}
 	}
+
 	return false;
 }
 void Expression::optimize_assignments()
@@ -4104,7 +4143,12 @@ int Compiler::_getStatement(CompilerContext& ctx, int level)
 			tmptoken.id == INS_SET_MEMBER_CONSUME ||
 			tmptoken.id == INS_SET_MEMBER_ID ||
 			tmptoken.id == INS_SET_MEMBER_ID_CONSUME ||
-			tmptoken.id == INS_CALL_METHOD_ID 
+			tmptoken.id == INS_CALL_METHOD_ID ||
+			tmptoken.id == INS_SET_MEMBER_ID_CONSUME_PLUSEQUAL ||
+			tmptoken.id == INS_SET_MEMBER_ID_CONSUME_MINUSEQUAL ||
+			tmptoken.id == INS_SET_MEMBER_ID_CONSUME_TIMESEQUAL ||
+			tmptoken.id == INS_SET_MEMBER_ID_CONSUME_DIVIDEEQUAL ||
+			tmptoken.id == INS_SET_MEMBER_ID_CONSUME_MODULUSEQUAL
 			)
 		{
 			// ok! These operators actually accomplish something.

@@ -2,6 +2,7 @@
 01-03-2012 Turley:
 	Changed: major rewrite of primitive operators +,-,*,/,...
 			 major speedup of +=,-=,...
+	  Added: finally support for +=,-=,*=,/=,%= with objectmembers, like who.resist_fire_mod+=1
 
 01-02-2012 Turley:
 	  Added: XMLFile/XMLNode.removexmlnode(int value)
