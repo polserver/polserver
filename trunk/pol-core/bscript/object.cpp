@@ -434,7 +434,7 @@ void BObjectImp::selfTimesObj(ObjArray& objimp, BObject& obj)
 
 BObjectImp* BObjectImp::selfDividedByObjImp(const BObjectImp& objimp) const
 {
-	return objimp.selfDividedByObjImp(*this);
+	return objimp.selfDividedByObj(*this);
 }
 BObjectImp* BObjectImp::selfDividedByObj(const BObjectImp& objimp) const
 {
@@ -458,7 +458,7 @@ BObjectImp* BObjectImp::selfDividedByObj(const ObjArray& objimp) const
 }
 void BObjectImp::selfDividedByObjImp(BObjectImp& objimp, BObject& obj)
 {
-	objimp.selfDividedByObjImp(*this, obj);
+	objimp.selfDividedByObj(*this, obj);
 }
 void BObjectImp::selfDividedByObj(BObjectImp& objimp, BObject& obj)
 {
@@ -483,7 +483,7 @@ void BObjectImp::selfDividedByObj(ObjArray& objimp, BObject& obj)
 
 BObjectImp* BObjectImp::selfModulusObjImp(const BObjectImp& objimp) const
 {
-	return objimp.selfModulusObjImp(*this);
+	return objimp.selfModulusObj(*this);
 }
 BObjectImp* BObjectImp::selfModulusObj(const BObjectImp& objimp) const
 {
@@ -507,7 +507,7 @@ BObjectImp* BObjectImp::selfModulusObj(const ObjArray& objimp) const
 }
 void BObjectImp::selfModulusObjImp(BObjectImp& objimp, BObject& obj)
 {
-	objimp.selfModulusObjImp(*this, obj);
+	objimp.selfModulusObj(*this, obj);
 }
 void BObjectImp::selfModulusObj(BObjectImp& objimp, BObject& obj)
 {
@@ -532,7 +532,7 @@ void BObjectImp::selfModulusObj(ObjArray& objimp, BObject& obj)
 
 BObjectImp* BObjectImp::selfBitShiftRightObjImp(const BObjectImp& objimp) const
 {
-	return objimp.selfBitShiftRightObjImp(*this);
+	return objimp.selfBitShiftRightObj(*this);
 }
 BObjectImp* BObjectImp::selfBitShiftRightObj(const BObjectImp& objimp) const
 {
@@ -556,7 +556,7 @@ BObjectImp* BObjectImp::selfBitShiftRightObj(const ObjArray& objimp) const
 }
 void BObjectImp::selfBitShiftRightObjImp(BObjectImp& objimp, BObject& obj)
 {
-	objimp.selfBitShiftRightObjImp(*this, obj);
+	objimp.selfBitShiftRightObj(*this, obj);
 }
 void BObjectImp::selfBitShiftRightObj(BObjectImp& objimp, BObject& obj)
 {
@@ -581,7 +581,7 @@ void BObjectImp::selfBitShiftRightObj(ObjArray& objimp, BObject& obj)
 
 BObjectImp* BObjectImp::selfBitShiftLeftObjImp(const BObjectImp& objimp) const
 {
-	return objimp.selfBitShiftLeftObjImp(*this);
+	return objimp.selfBitShiftLeftObj(*this);
 }
 BObjectImp* BObjectImp::selfBitShiftLeftObj(const BObjectImp& objimp) const
 {
@@ -605,7 +605,7 @@ BObjectImp* BObjectImp::selfBitShiftLeftObj(const ObjArray& objimp) const
 }
 void BObjectImp::selfBitShiftLeftObjImp(BObjectImp& objimp, BObject& obj)
 {
-	objimp.selfBitShiftLeftObjImp(*this, obj);
+	objimp.selfBitShiftLeftObj(*this, obj);
 }
 void BObjectImp::selfBitShiftLeftObj(BObjectImp& objimp, BObject& obj)
 {
@@ -630,7 +630,7 @@ void BObjectImp::selfBitShiftLeftObj(ObjArray& objimp, BObject& obj)
 
 BObjectImp* BObjectImp::selfBitAndObjImp(const BObjectImp& objimp) const
 {
-	return objimp.selfBitAndObjImp(*this);
+	return objimp.selfBitAndObj(*this);
 }
 BObjectImp* BObjectImp::selfBitAndObj(const BObjectImp& objimp) const
 {
@@ -654,7 +654,7 @@ BObjectImp* BObjectImp::selfBitAndObj(const ObjArray& objimp) const
 }
 void BObjectImp::selfBitAndObjImp(BObjectImp& objimp, BObject& obj)
 {
-	objimp.selfBitAndObjImp(*this, obj);
+	objimp.selfBitAndObj(*this, obj);
 }
 void BObjectImp::selfBitAndObj(BObjectImp& objimp, BObject& obj)
 {
@@ -679,7 +679,7 @@ void BObjectImp::selfBitAndObj(ObjArray& objimp, BObject& obj)
 
 BObjectImp* BObjectImp::selfBitOrObjImp(const BObjectImp& objimp) const
 {
-	return objimp.selfBitOrObjImp(*this);
+	return objimp.selfBitOrObj(*this);
 }
 BObjectImp* BObjectImp::selfBitOrObj(const BObjectImp& objimp) const
 {
@@ -703,7 +703,7 @@ BObjectImp* BObjectImp::selfBitOrObj(const ObjArray& objimp) const
 }
 void BObjectImp::selfBitOrObjImp(BObjectImp& objimp, BObject& obj)
 {
-	objimp.selfBitOrObjImp(*this, obj);
+	objimp.selfBitOrObj(*this, obj);
 }
 void BObjectImp::selfBitOrObj(BObjectImp& objimp, BObject& obj)
 {
@@ -728,7 +728,7 @@ void BObjectImp::selfBitOrObj(ObjArray& objimp, BObject& obj)
 
 BObjectImp* BObjectImp::selfBitXorObjImp(const BObjectImp& objimp) const
 {
-	return objimp.selfBitXorObjImp(*this);
+	return objimp.selfBitXorObj(*this);
 }
 BObjectImp* BObjectImp::selfBitXorObj(const BObjectImp& objimp) const
 {
@@ -752,7 +752,7 @@ BObjectImp* BObjectImp::selfBitXorObj(const ObjArray& objimp) const
 }
 void BObjectImp::selfBitXorObjImp(BObjectImp& objimp, BObject& obj)
 {
-	objimp.selfBitXorObjImp(*this, obj);
+	objimp.selfBitXorObj(*this, obj);
 }
 void BObjectImp::selfBitXorObj(BObjectImp& objimp, BObject& obj)
 {
