@@ -45,12 +45,12 @@ EXPR =
 !ifndef OTESTS
 OTESTS = \
     dict001.ok dict002.ok dict003.ok dict004.ok dict005.ok dict006.ok dict007.ok \
-    dict008.ok dict009.ok dict010.ok dict011.ok dict012.ok dict013.ok dict014.ok \
-    struct005.ok struct007.ok struct008.ok struct009.ok \
+    dict008.ok dict009.ok dict010.ok dict011.ok dict012.ok dict013.ok dict014.ok dict015.ok \
+    struct005.ok struct007.ok struct008.ok struct009.ok struct011.ok \
     math0004.ok math0005.ok math0006.ok \
     export01.ok glob001.ok \
     array05.ok array06.ok array07.ok array08.ok array09.ok array10.ok \
-    array11.ok array12.ok array13.ok array15.ok array16.ok array17.ok \
+    array11.ok array12.ok array13.ok array15.ok array16.ok array17.ok array18.ok \
     enum01.ok enum02.ok enum03.ok enum04.ok enum05.ok enum06.ok\
     oper001.ok oper002.ok oper003.ok oper004.ok \
     prog01.ok prog02.ok prog03.ok \

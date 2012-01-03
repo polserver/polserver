@@ -224,6 +224,7 @@ int exec_script(const char *path)
         cout << "\tCycles Per Hour:   " << std::fixed << std::noshowpoint << setw(14) << 3600.0 * escript_instr_cycles / seconds << endl;
 
 #ifdef ESCRIPT_PROFILE
+		cout << "FuncName,Count,Min,Max,Sum,Avarage" << endl;
 		for (escript_profile_map::iterator itr=EscriptProfileMap.begin();itr!=EscriptProfileMap.end();++itr)
 		{
 			cout << itr->first << "," << itr->second.count << "," << itr->second.min << "," << itr->second.max << "," << itr->second.sum << "," 

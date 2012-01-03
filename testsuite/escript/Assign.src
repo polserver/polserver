@@ -12,3 +12,8 @@ print( "A="+A);
 
 A := A + 654;
 print( "A="+A);
+
+var b:=A;
+A+=1; // b should not change
+print(a);
+print(b);
