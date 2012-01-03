@@ -97,6 +97,12 @@ void Token::printOn(ostream& os) const
 		case INS_GET_MEMBER_ID:	 os << "get member id '" << getObjMember(lval)->code << "' (" << lval << ")"; break;
 		case INS_SET_MEMBER_ID:	 os << "set member id '" << getObjMember(lval)->code << "' (" << lval << ")"; break;
 		case INS_SET_MEMBER_ID_CONSUME: os << "set member id '" << getObjMember(lval)->code << "' (" << lval << ") #"; break;
+		case INS_SET_MEMBER_ID_CONSUME_PLUSEQUAL: os << "set member id '" << getObjMember(lval)->code << "' (" << lval << ")  += #"; break;
+		case INS_SET_MEMBER_ID_CONSUME_MINUSEQUAL: os << "set member id '" << getObjMember(lval)->code << "' (" << lval << ")  -= #"; break;
+		case INS_SET_MEMBER_ID_CONSUME_TIMESEQUAL: os << "set member id '" << getObjMember(lval)->code << "' (" << lval << ")  *= #"; break;
+		case INS_SET_MEMBER_ID_CONSUME_DIVIDEEQUAL: os << "set member id '" << getObjMember(lval)->code << "' (" << lval << ")  /= #"; break;
+		case INS_SET_MEMBER_ID_CONSUME_MODULUSEQUAL: os << "set member id '" << getObjMember(lval)->code << "' (" << lval << ")  %= #"; break;
+
 		case INS_CALL_METHOD_ID:	os << "Call Method id " << getObjMethod((int)lval)->code << " (#" << lval << ", " << type << " params)"; break;
 		case TOK_IN:				os << "in";			 break;
 		case INS_DICTIONARY_ADDMEMBER: os << "add dictionary member"; break;
