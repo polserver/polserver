@@ -672,11 +672,7 @@ bool Expression::optimize_token( int i )
 					//13: 1L
 					//14: set member id 'warmode' (27) += #
 						tokens.pop_back(); // delete consumer
-						delete operand;
-						tokens.pop_back(); // delete +=
-						Token* _operand = tokens.back();
-						tokens.insert(tokens.begin()+i-1,_operand);
-						tokens.pop_back();
+						
 						if (operand->id == TOK_PLUSEQUAL)
 							oper->id = INS_SET_MEMBER_ID_CONSUME_PLUSEQUAL;
 						else if (operand->id == TOK_MINUSEQUAL)
@@ -687,6 +683,11 @@ bool Expression::optimize_token( int i )
 							oper->id = INS_SET_MEMBER_ID_CONSUME_DIVIDEEQUAL;
 						else if (operand->id == TOK_MODULUSEQUAL)
 							oper->id = INS_SET_MEMBER_ID_CONSUME_MODULUSEQUAL;
+						delete operand;
+						tokens.pop_back(); // delete +=
+						Token* _operand = tokens.back();
+						tokens.insert(tokens.begin()+i-1,_operand);
+						tokens.pop_back();
 						OSTRINGSTREAM os;
 						os << oper->lval;
 						oper->copyStr( OSTRINGSTREAM_STR(os).c_str() );

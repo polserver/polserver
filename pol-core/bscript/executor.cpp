@@ -1409,7 +1409,7 @@ void Executor::ins_set_member_id_consume_plusequal( const Instruction& ins )
 		BObjectRef& tmp = left.impref().get_member_id( ins.token.lval );
 		BObject& btmp = *tmp;
 		btmp.impref().operPlusEqual( btmp , rightimpref );
-        left.impref().set_member_id( ins.token.lval, &btmp.impref());
+        left.impref().set_member_id( ins.token.lval, btmp.impptr()->copy()); // FIXME: is this a leak? set_member needs a copy cause tmp gets destroyed... eg dictionarys
     }
     else
     {
@@ -1418,7 +1418,7 @@ void Executor::ins_set_member_id_consume_plusequal( const Instruction& ins )
 		BObjectRef& tmp = left.impref().get_member_id( ins.token.lval );
 		BObject& btmp = *tmp;
 		btmp.impref().operPlusEqual( btmp , *imp );
-        left.impref().set_member_id( ins.token.lval, &btmp.impref() );
+        left.impref().set_member_id( ins.token.lval, btmp.impptr()->copy() );
     }
     ValueStack.pop();
 }
@@ -1439,7 +1439,7 @@ void Executor::ins_set_member_id_consume_minusequal( const Instruction& ins )
 		BObjectRef& tmp = left.impref().get_member_id( ins.token.lval );
 		BObject& btmp = *tmp;
 		btmp.impref().operMinusEqual( btmp , rightimpref );
-        left.impref().set_member_id( ins.token.lval, &btmp.impref());
+        left.impref().set_member_id( ins.token.lval, btmp.impptr()->copy());
     }
     else
     {
@@ -1448,7 +1448,7 @@ void Executor::ins_set_member_id_consume_minusequal( const Instruction& ins )
 		BObjectRef& tmp = left.impref().get_member_id( ins.token.lval );
 		BObject& btmp = *tmp;
 		btmp.impref().operMinusEqual( btmp , *imp );
-        left.impref().set_member_id( ins.token.lval, &btmp.impref() );
+        left.impref().set_member_id( ins.token.lval, btmp.impptr()->copy() );
     }
     ValueStack.pop();
 }
@@ -1469,7 +1469,7 @@ void Executor::ins_set_member_id_consume_timesequal( const Instruction& ins )
 		BObjectRef& tmp = left.impref().get_member_id( ins.token.lval );
 		BObject& btmp = *tmp;
 		btmp.impref().operTimesEqual( btmp , rightimpref );
-        left.impref().set_member_id( ins.token.lval, &btmp.impref());
+        left.impref().set_member_id( ins.token.lval, btmp.impptr()->copy());
     }
     else
     {
@@ -1478,7 +1478,7 @@ void Executor::ins_set_member_id_consume_timesequal( const Instruction& ins )
 		BObjectRef& tmp = left.impref().get_member_id( ins.token.lval );
 		BObject& btmp = *tmp;
 		btmp.impref().operTimesEqual( btmp , *imp );
-        left.impref().set_member_id( ins.token.lval, &btmp.impref() );
+        left.impref().set_member_id( ins.token.lval, btmp.impptr()->copy() );
     }
     ValueStack.pop();
 }
@@ -1499,7 +1499,7 @@ void Executor::ins_set_member_id_consume_divideequal( const Instruction& ins )
 		BObjectRef& tmp = left.impref().get_member_id( ins.token.lval );
 		BObject& btmp = *tmp;
 		btmp.impref().operDivideEqual( btmp , rightimpref );
-        left.impref().set_member_id( ins.token.lval, &btmp.impref());
+        left.impref().set_member_id( ins.token.lval, btmp.impptr()->copy());
     }
     else
     {
@@ -1508,7 +1508,7 @@ void Executor::ins_set_member_id_consume_divideequal( const Instruction& ins )
 		BObjectRef& tmp = left.impref().get_member_id( ins.token.lval );
 		BObject& btmp = *tmp;
 		btmp.impref().operDivideEqual( btmp , *imp );
-        left.impref().set_member_id( ins.token.lval, &btmp.impref() );
+        left.impref().set_member_id( ins.token.lval, btmp.impptr()->copy() );
     }
     ValueStack.pop();
 }
@@ -1529,7 +1529,7 @@ void Executor::ins_set_member_id_consume_modulusequal( const Instruction& ins )
 		BObjectRef& tmp = left.impref().get_member_id( ins.token.lval );
 		BObject& btmp = *tmp;
 		btmp.impref().operModulusEqual( btmp , rightimpref );
-        left.impref().set_member_id( ins.token.lval, &btmp.impref());
+        left.impref().set_member_id( ins.token.lval, btmp.impptr()->copy());
     }
     else
     {
@@ -1538,7 +1538,7 @@ void Executor::ins_set_member_id_consume_modulusequal( const Instruction& ins )
 		BObjectRef& tmp = left.impref().get_member_id( ins.token.lval );
 		BObject& btmp = *tmp;
 		btmp.impref().operModulusEqual( btmp , *imp );
-        left.impref().set_member_id( ins.token.lval, &btmp.impref() );
+        left.impref().set_member_id( ins.token.lval, btmp.impptr()->copy() );
     }
     ValueStack.pop();
 }
