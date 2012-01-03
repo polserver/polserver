@@ -230,8 +230,53 @@ void String::set( char *newstr )
 
 BObjectImp* String::selfPlusObjImp(const BObjectImp& objimp) const
 {
-    return new String( value_ + objimp.getStringRep() );
+    return objimp.selfPlusObj(*this);
 }
+BObjectImp* String::selfPlusObj(const BObjectImp& objimp) const
+{
+	 return new String( value_ + objimp.getStringRep() );
+}
+BObjectImp* String::selfPlusObj(const BLong& objimp) const
+{
+	 return new String( value_ + objimp.getStringRep() );
+}
+BObjectImp* String::selfPlusObj(const Double& objimp) const
+{
+	 return new String( value_ + objimp.getStringRep() );
+}
+BObjectImp* String::selfPlusObj(const String& objimp) const
+{
+	 return new String( value_ + objimp.getStringRep() );
+}
+BObjectImp* String::selfPlusObj(const ObjArray& objimp) const
+{
+	 return new String( value_ + objimp.getStringRep() );
+}
+void String::selfPlusObjImp(BObjectImp& objimp , BObject& obj)
+{
+	objimp.selfPlusObj(*this,obj);
+}
+void String::selfPlusObj(BObjectImp& objimp, BObject& obj)
+{
+	value_ + objimp.getStringRep();
+}
+void String::selfPlusObj(BLong& objimp, BObject& obj)
+{
+	value_ + objimp.getStringRep();
+}
+void String::selfPlusObj(Double& objimp, BObject& obj)
+{
+	value_ + objimp.getStringRep();
+}
+void String::selfPlusObj(String& objimp, BObject& obj)
+{
+	value_ + objimp.getStringRep();
+}
+void String::selfPlusObj(ObjArray& objimp, BObject& obj)
+{
+	value_ + objimp.getStringRep();
+}
+
 
 void String::remove(const char *rm)
 {
@@ -243,17 +288,61 @@ void String::remove(const char *rm)
 
 BObjectImp* String::selfMinusObjImp(const BObjectImp& objimp) const
 {
-    String *tmp = (String *) copy();
-    if (objimp.isa( OTString )) 
-    {
-        const String& to_remove = (String&) objimp;
-        tmp->remove(to_remove.value_.data());
-    } 
-    else
-    {
-        tmp->remove( objimp.getStringRep().data() );
-    }
-    return tmp;
+    return objimp.selfMinusObj(*this);
+}
+BObjectImp* String::selfMinusObj(const BObjectImp& objimp) const
+{
+	String *tmp = (String *) copy();
+	tmp->remove(objimp.getStringRep().data());
+	return tmp;
+}
+BObjectImp* String::selfMinusObj(const BLong& objimp) const
+{
+	String *tmp = (String *) copy();
+	tmp->remove(objimp.getStringRep().data());
+	return tmp;
+}
+BObjectImp* String::selfMinusObj(const Double& objimp) const
+{
+	String *tmp = (String *) copy();
+	tmp->remove(objimp.getStringRep().data());
+	return tmp;
+}
+BObjectImp* String::selfMinusObj(const String& objimp) const
+{
+	String *tmp = (String *) copy();
+    tmp->remove(objimp.value_.data());
+	return tmp;
+}
+BObjectImp* String::selfMinusObj(const ObjArray& objimp) const
+{
+	String *tmp = (String *) copy();
+	tmp->remove(objimp.getStringRep().data());
+	return tmp;
+}
+void String::selfMinusObjImp(BObjectImp& objimp , BObject& obj)
+{
+	objimp.selfMinusObj(*this,obj);
+}
+void String::selfMinusObj(BObjectImp& objimp, BObject& obj)
+{
+	remove(objimp.getStringRep().data());
+}
+void String::selfMinusObj(BLong& objimp, BObject& obj)
+{
+	remove(objimp.getStringRep().data());
+}
+void String::selfMinusObj(Double& objimp, BObject& obj)
+{
+	remove(objimp.getStringRep().data());
+}
+void String::selfMinusObj(String& objimp, BObject& obj)
+{
+    remove(objimp.value_.data());
+}
+void String::selfMinusObj(ObjArray& objimp, BObject& obj)
+{
+	remove(objimp.getStringRep().data());
 }
 
 

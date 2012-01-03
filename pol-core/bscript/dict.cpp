@@ -218,7 +218,7 @@ BObjectImp* BDictionary::array_assign( BObjectImp* idx, BObjectImp* target )
         }
         else
         {
-            contents_[ obj ].set( new BObject( target ) );
+            contents_[ BObject(obj->copy()) ].set( new BObject( target ) );
             return target;
         }
     }

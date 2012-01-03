@@ -153,178 +153,255 @@ string BLong::getStringRep() const
 
 BObjectImp* BLong::selfPlusObjImp(const BObjectImp& objimp) const
 {
-    if (objimp.isa( OTLong ))
-    {   
-        return new BLong( lval_ + ((BLong&)objimp).lval_ );
-    }
-    else if (objimp.isa( OTDouble )) 
-    {
-        return new Double( lval_ +  ((Double&) objimp).value() );
-    }
-    else if (objimp.isa( OTString )) 
-    {
-        return new String( getStringRep() + ((String&)objimp).data() );
-    } 
-    else 
-    {
-        return copy();
-    }
+	return objimp.selfPlusObj(*this);
+}
+BObjectImp* BLong::selfPlusObj(const BLong& objimp) const
+{
+	return new BLong( lval_ + objimp.lval_ );
+}
+BObjectImp* BLong::selfPlusObj(const Double& objimp) const
+{
+	return new Double( lval_ +  objimp.value() );
+}
+BObjectImp* BLong::selfPlusObj(const String& objimp) const
+{
+	return new String( getStringRep() + objimp.data() );
+}
+
+void BLong::selfPlusObjImp(BObjectImp&  objimp , BObject& obj)
+{
+	objimp.selfPlusObj(*this,obj);
+}
+void BLong::selfPlusObj(BLong& objimp, BObject& obj)
+{
+	lval_+=objimp.value();
+}
+void BLong::selfPlusObj(Double& objimp, BObject& obj)
+{
+	obj.setimp( selfPlusObj(objimp) );
+}
+void BLong::selfPlusObj(String& objimp, BObject& obj)
+{
+	obj.setimp( selfPlusObj(objimp) );
 }
 
 BObjectImp* BLong::selfMinusObjImp(const BObjectImp& objimp) const
 {
-	if (objimp.isa( OTLong ))
-    {
-        return new BLong( lval_ - ((BLong&) objimp).lval_ );
-    }
-    else if (objimp.isa( OTDouble )) 
-	{
-		return new Double( lval_ - ((Double&) objimp).value() );
-	}
-	else if (objimp.isa( OTString )) 
-	{
-        String s( getStringRep() );
-        return s.selfMinusObjImp( objimp );
-	} 
-	else 
-	{
-		return copy();
-	}
+	return objimp.selfMinusObj(*this);
+}
+BObjectImp* BLong::selfMinusObj(const BLong& objimp) const
+{
+	return new BLong( lval_ - objimp.value() );
+}
+BObjectImp* BLong::selfMinusObj(const Double& objimp) const
+{
+	return new Double( lval_ - objimp.value() );
+}
+BObjectImp* BLong::selfMinusObj(const String& objimp) const
+{
+	String s( getStringRep() );
+	return s.selfMinusObj( objimp );
+}
+void BLong::selfMinusObjImp(BObjectImp& objimp, BObject& obj)
+{
+	objimp.selfMinusObj(*this,obj);
+}
+void BLong::selfMinusObj(BLong& objimp, BObject& obj)
+{
+	lval_ -= objimp.value();
+}
+void BLong::selfMinusObj(Double& objimp, BObject& obj)
+{
+	obj.setimp( selfMinusObj(objimp) );
+}
+void BLong::selfMinusObj(String& objimp, BObject& obj)
+{
+	obj.setimp( selfMinusObj(objimp) );
 }
 
 BObjectImp* BLong::selfTimesObjImp(const BObjectImp& objimp) const
 {
-    if (objimp.isa( OTLong ))
-    {
-        return new BLong( lval_ * ((BLong&)objimp).lval_ );
-    }
-    else if (objimp.isa( OTDouble )) 
-    {
-        return new Double( lval_ * ((Double&) objimp).value() );
-    }
-    else 
-    {
-        return copy();
-    }
+	return objimp.selfTimesObj(*this);
+}
+BObjectImp* BLong::selfTimesObj(const BLong& objimp) const
+{
+	return new BLong( lval_ * objimp.lval_ );
+}
+BObjectImp* BLong::selfTimesObj(const Double& objimp) const
+{
+	return new Double( lval_ * objimp.value() );
+}
+void BLong::selfTimesObjImp(BObjectImp& objimp, BObject& obj)
+{
+	objimp.selfTimesObj(*this,obj);
+}
+void BLong::selfTimesObj(BLong& objimp, BObject& obj)
+{
+	lval_ *= objimp.lval_;
+}
+void BLong::selfTimesObj(Double& objimp, BObject& obj)
+{
+	obj.setimp( selfTimesObj(objimp) );
 }
 
 BObjectImp* BLong::selfDividedByObjImp(const BObjectImp& objimp) const
 {
-    if (objimp.isa( OTLong ))
-    {
-        int divisor = ((BLong&) objimp).lval_;
-        if (!divisor)
-            return new BError( "Divide by Zero" );
-        else
-            return new BLong( lval_ / divisor );
-    }
-    else if (objimp.isa( OTDouble )) 
-    {
-        double divisor = ((Double&) objimp).value();
-        if (divisor == 0.0)
-            return new BError( "Divide by Zero" );
-        else
-            return new Double( lval_ / divisor );
-    }
-    else 
-    {
-        return copy();
-    }
+	return objimp.selfDividedByObj(*this);
 }
-
+BObjectImp* BLong::selfDividedByObj(const BLong& objimp) const
+{
+	int divisor = objimp.lval_;
+    if (!divisor)
+        return new BError( "Divide by Zero" );
+    else
+        return new BLong( lval_ / divisor );
+}
+BObjectImp* BLong::selfDividedByObj(const Double& objimp) const
+{
+	double divisor = objimp.value();
+    if (divisor == 0.0)
+        return new BError( "Divide by Zero" );
+    else
+        return new Double( lval_ / divisor );
+}
+void BLong::selfDividedByObjImp(BObjectImp& objimp, BObject& obj)
+{
+	objimp.selfDividedByObj(*this,obj);
+}
+void BLong::selfDividedByObj(BLong& objimp, BObject& obj)
+{
+	if (!objimp.lval_)
+		obj.setimp(new BError( "Divide by Zero" ));
+	else
+		lval_ *= objimp.lval_;
+}
+void BLong::selfDividedByObj(Double& objimp, BObject& obj)
+{
+	obj.setimp( selfDividedByObj(objimp) );
+}
 
 BObjectImp* BLong::selfModulusObjImp(const BObjectImp& objimp) const
 {
-    if (objimp.isa( OTLong ))
-    {
-        int divisor = ((BLong&) objimp).lval_;
-       
-        if (!divisor)
-            return new BError( "Divide by Zero" );
-        else
-            return new BLong( lval_ % divisor );
-    }
-    else if (objimp.isa( OTDouble )) 
-    {
-        int divisor = static_cast<int>(((Double&) objimp).value());
-        if (divisor == 0)
-            return new BError( "Divide by Zero" );
-        else
-            return new Double( lval_ % divisor );
-    }
-    else 
-    {
-        return copy();
-    }
+	return objimp.selfModulusObj(*this);
 }
+BObjectImp* BLong::selfModulusObj(const BLong& objimp) const
+{
+	int divisor = objimp.lval_;
+    if (!divisor)
+        return new BError( "Divide by Zero" );
+    else
+        return new BLong( lval_ % divisor );
+}
+BObjectImp* BLong::selfModulusObj(const Double& objimp) const
+{
+	int divisor = static_cast<int>(objimp.value());
+    if (divisor == 0)
+        return new BError( "Divide by Zero" );
+    else
+        return new Double( lval_ % divisor );
+}
+void BLong::selfModulusObjImp(BObjectImp& objimp, BObject& obj)
+{
+	objimp.selfModulusObj(*this,obj);
+}
+void BLong::selfModulusObj(BLong& objimp, BObject& obj)
+{
+	if (!objimp.lval_)
+		obj.setimp(new BError( "Divide by Zero" ));
+	else
+		lval_ %= objimp.lval_;
+}
+void BLong::selfModulusObj(Double& objimp, BObject& obj)
+{
+	obj.setimp( selfModulusObj(objimp) );
+}
+
 
 BObjectImp* BLong::selfBitShiftRightObjImp(const BObjectImp& objimp) const
 {
-    if (objimp.isa( OTLong ))
-    {
-        int rightlval = ((BLong&) objimp).lval_;
-       
-        return new BLong( lval_ >> rightlval );
-    }
-    else 
-    {
-        return copy();
-    }
+	return objimp.selfBitShiftRightObj(*this);
+}
+BObjectImp* BLong::selfBitShiftRightObj(const BLong& objimp) const
+{
+    return new BLong( lval_ >>  objimp.lval_ );
+}
+void BLong::selfBitShiftRightObjImp(BObjectImp& objimp, BObject& obj)
+{
+	objimp.selfBitShiftRightObj(*this,obj);
+}
+void BLong::selfBitShiftRightObj(BLong& objimp, BObject& obj)
+{
+    lval_ >>= objimp.lval_;
 }
 
 BObjectImp* BLong::selfBitShiftLeftObjImp(const BObjectImp& objimp) const
 {
-    if (objimp.isa( OTLong ))
-    {
-        int rightlval = ((BLong&) objimp).lval_;
-       
-        return new BLong( lval_ << rightlval );
-    }
-    else 
-    {
-        return copy();
-    }
+	return objimp.selfBitShiftLeftObj(*this);
+}
+BObjectImp* BLong::selfBitShiftLeftObj(const BLong& objimp) const
+{
+    return new BLong( lval_ <<  objimp.lval_ );
+}
+void BLong::selfBitShiftLeftObjImp(BObjectImp& objimp, BObject& obj)
+{
+	objimp.selfBitShiftLeftObj(*this,obj);
+}
+void BLong::selfBitShiftLeftObj(BLong& objimp, BObject& obj)
+{
+    lval_ <<= objimp.lval_;
 }
 
 BObjectImp* BLong::selfBitAndObjImp(const BObjectImp& objimp) const
 {
-    if (objimp.isa( OTLong ))
-    {
-        int rightlval = ((BLong&) objimp).lval_;
-       
-        return new BLong( lval_ & rightlval );
-    }
-    else 
-    {
-        return copy();
-    }
+	return objimp.selfBitAndObj(*this);
 }
+BObjectImp* BLong::selfBitAndObj(const BLong& objimp) const
+{
+    return new BLong( lval_ &  objimp.lval_ );
+}
+void BLong::selfBitAndObjImp(BObjectImp& objimp, BObject& obj)
+{
+	objimp.selfBitAndObj(*this,obj);
+}
+void BLong::selfBitAndObj(BLong& objimp, BObject& obj)
+{
+    lval_ &= objimp.lval_;
+}
+
 BObjectImp* BLong::selfBitOrObjImp(const BObjectImp& objimp) const
 {
-    if (objimp.isa( OTLong ))
-    {
-        int rightlval = ((BLong&) objimp).lval_;
-       
-        return new BLong( lval_ | rightlval );
-    }
-    else 
-    {
-        return copy();
-    }
+	return objimp.selfBitOrObj(*this);
 }
+BObjectImp* BLong::selfBitOrObj(const BLong& objimp) const
+{
+    return new BLong( lval_ |  objimp.lval_ );
+}
+void BLong::selfBitOrObjImp(BObjectImp& objimp, BObject& obj)
+{
+	objimp.selfBitOrObj(*this,obj);
+}
+void BLong::selfBitOrObj(BLong& objimp, BObject& obj)
+{
+    lval_ |= objimp.lval_;
+}
+
 BObjectImp* BLong::selfBitXorObjImp(const BObjectImp& objimp) const
 {
-    if (objimp.isa( OTLong ))
-    {
-        int rightlval = ((BLong&) objimp).lval_;
-       
-        return new BLong( lval_ ^ rightlval );
-    }
-    else 
-    {
-        return copy();
-    }
+	return objimp.selfBitXorObj(*this);
 }
+BObjectImp* BLong::selfBitXorObj(const BLong& objimp) const
+{
+    return new BLong( lval_ ^  objimp.lval_ );
+}
+void BLong::selfBitXorObjImp(BObjectImp& objimp, BObject& obj)
+{
+	objimp.selfBitXorObj(*this,obj);
+}
+void BLong::selfBitXorObj(BLong& objimp, BObject& obj)
+{
+    lval_ ^= objimp.lval_;
+}
+
 BObjectImp* BLong::bitnot() const
 {
     return new BLong( ~lval_ );
