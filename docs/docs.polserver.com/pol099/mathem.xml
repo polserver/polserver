@@ -1,0 +1,197 @@
+<?xml version='1.0' encoding="iso-8859-1"?>
+<?xml-stylesheet type="text/xsl" href="escript.xslt" ?>
+<!DOCTYPE ESCRIPT SYSTEM "escript.dtd">
+<ESCRIPT>
+  <fileheader fname="Math.em">
+    <filedesc>Mathematic functions for your enjoyment</filedesc>
+    <datemodified>02/10/2009</datemodified>
+  </fileheader>
+    
+  <function name="Sin"> 
+    <prototype>Sin(x)</prototype>
+    <parameter name="x" value="Real, in radians" />
+    <explain>Computes the sine of x</explain>
+    <return>Real number</return>
+    <error>"Invalid parameter type"</error>
+  </function>
+
+  <function name="Cos"> 
+    <prototype>Cos(x)</prototype>
+    <parameter name="x" value="Real, in radians" />
+    <explain>Computes the cosine of x</explain>
+    <return>Real number</return>
+    <error>"Invalid parameter type"</error>
+  </function>
+  
+  <function name="Tan"> 
+    <prototype>Tan(x)</prototype>
+    <parameter name="x" value="Real, in radians" />
+    <explain>Computes the tangent of x</explain>
+    <return>Real number</return>
+    <error>"Invalid parameter type"</error>
+  </function>
+  
+  <function name="ASin"> 
+    <prototype>ASin(x)</prototype>
+    <parameter name="x" value="Real, in radians" />
+    <explain>Computes the arcsine of x</explain>
+    <return>Real number in radians</return>
+    <error>"Invalid parameter type"</error>
+  </function>
+
+  <function name="ACos"> 
+    <prototype>ACos(x)</prototype>
+    <parameter name="x" value="Real, in radians" />
+    <explain>Computes the arccosine of x</explain>
+    <return>Real number in radians</return>
+    <error>"Invalid parameter type"</error>
+  </function>
+  
+  <function name="ATan"> 
+    <prototype>ATan(x)</prototype>
+    <parameter name="x" value="Real, in radians" />
+    <explain>Computes the arctangent of x</explain>
+    <return>Real number in radians</return>
+    <error>"Invalid parameter type"</error>
+  </function>
+    
+  <function name="RadToDeg"> 
+    <prototype>RadToDeg( radians )</prototype>
+    <parameter name="radians" value="Real, in radians" />
+    <explain>Converts the radian parameter to degrees</explain>
+    <return>Real number in degrees</return>
+    <error>"Invalid parameter type"</error>
+  </function>    
+
+  <function name="DegToRad"> 
+    <prototype>DegToRad( degrees )</prototype>
+    <parameter name="degrees" value="Real, in degrees" />
+    <explain>Converts the degrees parameter to radians</explain>
+    <return>Real number in radians</return>
+    <error>"Invalid parameter type"</error>
+  </function>
+  
+  <function name="Pow"> 
+    <prototype>Pow(x,y)</prototype>
+    <parameter name="x" value="Real" />
+    <parameter name="y" value="Real" />
+    <explain>Computes x ^ y</explain>
+    <return>Real number</return>
+    <error>"Invalid parameter type"</error>
+  </function>
+      
+  <function name="Sqrt"> 
+    <prototype>Sqrt(x)</prototype>
+    <parameter name="x" value="Real" />
+    <explain>Computes the square root of x</explain>
+    <return>Real number</return>
+    <error>"Invalid parameter type"</error>
+  </function>
+      
+  <function name="Root"> 
+    <prototype>Root(x,y)</prototype>
+    <parameter name="x" value="Real" />
+    <parameter name="y" value="Real" />
+    <explain>Computes the y root of x (same as Pow(x,1.0/y)).</explain>
+    <return>Real number</return>
+    <error>"Invalid parameter type"</error>
+  </function>
+      
+  <function name="Abs"> 
+    <prototype>Abs(x)</prototype>
+    <parameter name="x" value="Real or Integer" />
+    <explain>Computes the absolute value of x</explain>
+    <return>Real number</return>
+    <error>"Invalid parameter type"</error>
+  </function>
+ 
+  <function name="Log10"> 
+    <prototype>Log10(x)</prototype>
+    <parameter name="x" value="Real" />
+    <explain>Computes log(base 10) of x</explain>
+    <return>Real number</return>
+    <error>"Invalid parameter type"</error>
+  </function>
+  
+  <function name="LogE"> 
+    <prototype>LogE(x)</prototype>
+    <parameter name="x" value="Real" />
+    <explain>Computes the natural log of x</explain>
+    <return>Real number</return>
+    <error>"Invalid parameter type"</error>
+  </function>
+
+   <function name="Ceil"> 
+    <prototype>Ceil(x)</prototype>
+    <parameter name="x" value="Real" />
+    <explain>Computes the ceiling of x</explain>
+    <return>Real that is smallest integer >= x</return>
+    <error>"Invalid parameter type"</error>
+  </function>
+
+  <function name="Floor"> 
+    <prototype>Floor(x)</prototype>
+    <parameter name="x" value="Real" />
+    <explain>Computes the floor of x</explain>
+    <return>Real that is largest integer &lt;= x</return>
+    <error>"Invalid parameter type"</error>
+  </function>
+  
+  <function name="ConstPi"> 
+    <prototype>ConstPi()</prototype>
+    <explain>Returns an approximation of the trancendental number Pi</explain>
+    <explain>
+    Pi is a numerical constant that represents the ratio of a circle's circumference to 
+    its diameter on a flat plane surface. The value is the same regardless of the size of 
+    the circle. The decimal expansion of pi is a nonterminating, nonrepeating sequence of 
+    digits. Pi can be expressed through the Fourier series pi = 4 - (4/3) + (4/5) - (4/7) + (4/9) - ... </explain>
+    <return>Real number (3.14159....)</return>
+  </function>
+  
+  <function name="ConstE"> 
+    <prototype>ConstE()</prototype>
+    <explain>Returns an approximation of the trancendental number E</explain>
+    <explain>
+    e, is an irrational NUMBER occurring widely in mathematics and science, approximately 
+    equal to the value 2.71828; it is the base of natural, or Naperian, LOGARITHMS. Like pi, 
+    e is transcendental, i.e., not a ROOT of any algebraic equation. It is defined as the 
+    LIMIT of the expression (1 + 1/n)^n as n becomes infinitely large. Expressions of the 
+    form e^(x), known as the exponential function, occur in applications ranging from 
+    statistics to nuclear physics</explain>
+    <return>Real number</return>
+  </function> 
+  
+  <function name="FormatRealToString"> 
+    <prototype>FormatRealToString( value, precision )</prototype>
+    <parameter name="value" value="Real" />
+    <parameter name="precision" value="Integer" />
+    <explain>Who knows if this even works at all</explain>
+    <return>String rep of the real number</return>
+    <error>"Invalid parameter type"</error>
+  </function>
+
+  <function name="Min"> 
+    <prototype>Min( x, y := 0 )</prototype>
+    <parameter name="x" value="Integer/Double/Array" />
+    <parameter name="y" value="Integer/Double" />
+    <explain>The numerically lowest Integer of the parameter values. Will return int/dbl based on parameter types passed.</explain>
+    <explain>If first param is an Array second will be ignored and returns lowest int/dbl entry.</explain>
+    <return>Integer/Double</return>
+    <error>"Invalid parameter type"</error>
+    <error>"Array empty"</error>
+    <error>"No Integer/Double elements"</error>
+  </function>
+
+  <function name="Max"> 
+    <prototype>Max( x, y := 0)</prototype>
+    <parameter name="x" value="Integer/Double/Array" />
+    <parameter name="y" value="Integer/Double" />
+    <explain>The numerically highest Integer of the parameter values. Will return int/dbl based on parameter types passed.</explain>
+    <explain>If first param is an Array second will be ignored and returns lowest int/dbl entry.</explain>
+    <return>Integer/Double</return>
+    <error>"Invalid parameter type"</error>
+    <error>"Array empty"</error>
+    <error>"No Integer/Double elements"</error>
+  </function>
+    
+</ESCRIPT>

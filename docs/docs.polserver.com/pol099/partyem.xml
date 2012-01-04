@@ -1,0 +1,68 @@
+<?xml version='1.0' encoding="iso-8859-1"?>
+<?xml-stylesheet type="text/xsl" href="escript.xslt" ?>
+<!DOCTYPE ESCRIPT SYSTEM "escript.dtd">
+<ESCRIPT>  
+  <fileheader fname="Party.em">
+    <filedesc>Functions for working with parties in eScript.</filedesc>
+    <datemodified>03/13/2009</datemodified>
+  </fileheader>
+  
+<function name="CreateParty">
+	<prototype>CreateParty( leader, firstmember)</prototype>
+	<parameter name="leader" value="Character Reference" />
+	<parameter name="firstmember" value="Character Reference" />
+	<explain>Creates a Party with given leader and firstmember.</explain>
+	<return>1 on success</return>
+	<error>"Leader is already in a party"</error>
+	<error>"Leader is already candidate of a party"</error>
+	<error>"Leader and Firstmember are the same"</error>
+	<error>"First Member is already in a party"</error>
+	<error>"First Member is already candidate of a party"</error>
+	<error>"Invalid parameter type"</error>
+	<related>Party</related>
+	<relatedcfg>party.cfg</relatedcfg>
+</function>
+
+<function name="DisbandParty">
+	<prototype>DisbandParty( PartyRef )</prototype>
+	<parameter name="PartyRef" value="Party Reference" />
+	<explain>Disbands the given Party</explain>
+	<return>1 on success</return>
+	<error>"Party has no leader"</error>
+	<error>"Invalid parameter type"</error>
+	<related>Party</related>
+	<relatedcfg>party.cfg</relatedcfg>
+</function>
+
+<function name="SendPartyMsg">
+	<prototype>SendPartyMsg( partyref, character, uctext )</prototype>
+	<parameter name="partyref" value="Party Reference" />
+	<parameter name="character" value="Character Reference" />
+	<parameter name="uc_text" value="Array of 2-byte integers, where each integer is a Unicode character" />	
+	<explain>Sends a Party Message with character=Sender</explain>
+	<return>1 on success</return>
+	<error>"Unicode array exceeds maximum size."</error>
+	<error>"Invalid value in Unicode array."</error>
+	<error>"Invalid parameter type"</error>
+	<related>Party</related>
+	<related>Array</related>
+	<relatedcfg>party.cfg</relatedcfg>
+</function>
+	
+<function name="SendPrivatePartyMsg">
+	<prototype>SendPrivatePartyMsg( partyref, character, tocharacter, uctext )</prototype>
+	<parameter name="partyref" value="Party Reference" />
+	<parameter name="character" value="Character Reference" />
+	<parameter name="tocharacter" value="Character Reference" />
+	<parameter name="uc_text" value="Array of 2-byte integers, where each integer is a Unicode character" />	
+	<explain>Sends a Private Party Message with character=Sender</explain>
+	<return>1 on success</return>
+	<error>"Unicode array exceeds maximum size."</error>
+	<error>"Invalid value in Unicode array."</error>
+	<error>"Invalid parameter type"</error>
+	<related>Party</related>
+	<related>Array</related>
+	<relatedcfg>party.cfg</relatedcfg>
+</function>
+
+</ESCRIPT>

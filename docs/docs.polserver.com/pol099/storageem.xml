@@ -1,0 +1,67 @@
+<?xml version='1.0' encoding="iso-8859-1"?>
+<?xml-stylesheet type="text/xsl" href="escript.xslt" ?>
+<!DOCTYPE ESCRIPT SYSTEM "escript.dtd">
+<ESCRIPT>  
+  <fileheader fname="Storage.em">
+    <filedesc>Functions for working with internal storage areas.</filedesc>
+    <datemodified>10/27/2007</datemodified>
+  </fileheader>
+  
+  <function name="StorageAreas"> 
+    <prototype>StorageAreas()</prototype>
+    <explain>Get an array of "Storage area objects", with "count" member, and [] operator. (more info TBD)</explain>
+    <return>?</return>
+  </function>
+
+<function name="FindStorageArea">
+	<prototype>FindStorageArea( areaname )</prototype>
+	<parameter name="areaname" value="String" />
+	<explain>Gets a reference to the storage area named "areaname"</explain>
+	<return>Storage Area reference on success</return>
+	<error>none (returns 0 on invalid parameter or area not found)</error>
+</function>
+	
+<function name="FindRootItemInStorageArea">
+	<prototype>FindRootItemInStorageArea( area, itemname )</prototype>
+	<parameter name="area" value="Storage Area Reference" />
+	<parameter name="itemname" value="String" />
+	<explain>Finds the root item named "itemname" in the storage area named "area".</explain>
+	<return>Item Reference on success</return>
+	<error>"Invalid parameter type"</error>
+	<error>"Root item not found."</error>
+</function>
+
+<function name="CreateStorageArea">
+	<prototype>CreateStorageArea( areaname )</prototype>
+	<parameter name="areaname" value="String" />
+	<explain>Create a new storage area with name "areaname".</explain>
+	<return>Storage Area reference on success</return>
+	<error>Errors: none (returns 0 on invalid parameter)</error>
+</function>
+
+<function name="CreateRootItemInStorageArea">
+	<prototype>CreateRootItemInStorageArea( area, itemname, objtype )</prototype>
+	<parameter name="area" value="String" />
+	<parameter name="itemname" value="String" />
+	<parameter name="objtype" value="Integer objtype, OR String ObjtypeName, OR GetItemDescriptor struct." />
+	<explain>Creates the "root" (top-level) item in the storage area "area". "itemname" is the name of this
+				item, and "objtype" is its type.</explain>
+	<explain>Notes: The item is normally a container. For example, a bankbox is a storage area and the root item 
+is the chest container. Normal items are then placed in this container.</explain>
+    <return>Item Reference on success</return>
+	<error>"Invalid parameter type"</error>
+	<error>"Unable to create item"</error>
+	<related>Item</related>
+</function>
+
+<function name="DestroyRootItemInStorageArea">
+	<prototype>DestroyRootItemInStorageArea( area, itemname )</prototype>
+	<parameter name="area" value="Storage Area Reference" />
+	<parameter name="itemname" value="String" />
+	<explain>Destroys the root item named "itemname" in storage area "area"</explain>
+	<return>1 on delete success</return>
+    <return>0 on item not found</return>
+	<error>"Invalid parameter type"</error>
+</function>
+
+</ESCRIPT>
