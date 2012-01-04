@@ -157,7 +157,7 @@ function ob_file_callback($buffer)
    copy($styledir.'images/sectionheader_small_gold_bg.jpg','offline/images/sectionheader_small_gold_bg.jpg');
    
    /* Save archivetime */
-   date_default_timezone_set('America/Los_Angeles');
+   //date_default_timezone_set('America/Los_Angeles');
    $ob_file = fopen('include/archive.inc','w');
    ob_start('ob_file_callback');
    $d=date('Y-m-d');

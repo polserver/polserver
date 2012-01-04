@@ -3,6 +3,7 @@
 $webroot = '/home/polteam/docs.polserver.com/pol099/';
 $offline = 0;
 set_error_handler('XML_errorHandler');
+date_default_timezone_set(@date_default_timezone_get());
 
 
 function XML_errorHandler ($errno, $errstr, $errfile, $errline,$errcontext)
