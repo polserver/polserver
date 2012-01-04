@@ -4,9 +4,507 @@
 <ESCRIPT>
   <header>
     <topic>Latest Core Changes</topic>
-    <datemodified>09/07/2010</datemodified>
+    <datemodified>01/04/2012</datemodified>
   </header>
   <version name="POL099">
+  	    <entry>
+      <date>01-03-2012</date>
+      <author>Turley</author>
+      <change type="Changed">major rewrite of primitive operators +,-,*,/,...<br/>
+        major speedup of +=,-=,...
+      </change>
+      <change type="Added">finally support for +=,-=,*=,/=,%= with objectmembers, like who.resist_fire_mod+=1
+      </change>
+    </entry>
+    <entry>
+      <date>01-02-2012</date>
+      <author>Turley</author>
+      <change type="Added">XMLFile/XMLNode.removexmlnode(int value)<br/>
+        removes node of given index<br/>
+        XMLFile/XMLNode.removexmlnode(XmlNode node)<br/>
+        removes given node<br/>
+        XmlNode.clonenode()<br/>
+        since all NodeObjects get destroyed when the corresponding XmlFileObject is destroyed, use this method to store a node for later use.
+      </change>
+    </entry>
+    <entry>
+      <date>12-18-2011</date>
+      <author>Nando</author>
+      <change type="Changed">internal handling of intrinsic weapons' unload.
+      </change>
+      <change type="Removed">INTRINSIC property from Weapon template in itemdesc.cfg. An error occurs
+        if it's set. Some shards might have forgot to set it, which would cause
+        damage to intrinsic wrestling weapon. This is now handled automatically.
+      </change>
+    </entry>
+    <entry>
+      <date>12-17-2011</date>
+      <author>Nando</author>
+      <change type="Changed">boats.cfg entries are now "Name Graphic X Y &lt;Z&gt;", where Z is optional and
+        defaults to zero.
+      </change>
+    </entry>
+    <entry>
+      <date>12-17-2011</date>
+      <author>Tomi</author>
+      <change type="Added">Support for hued boats, use the normal .color r/w member to change the hue
+        Patch Submitted by Agata
+      </change>
+    </entry>
+    <entry>
+      <date>12-14-2011</date>
+      <author>Tomi</author>
+      <change type="Removed">pol.cfg MaxObjtype limit removed, now it accepts up to 0xFFFFFFFF ( 4294967295 )
+        but try to keep it as low as possible, default value still 0x20000
+      </change>
+      <change type="Changed">objtype vectors changed to maps to only reserve as much memory as there are
+        itemdesc entries, not reserving memory for up to 4 billions of objtypes.
+      </change>
+      <change type="Changed">boats.cfg entries changed from "Name Graphic X Y" to "Name Graphic X Y Z"
+        because some of the new boat components requires different Z levels than the boat
+        itself.
+      </change>
+    </entry>
+    <entry>
+      <date>12-13-2011</date>
+      <author>Austin</author>
+      <change type="Added">Support for destroy scripts on multis.
+      </change>
+    </entry>
+    <entry>
+      <date>12-13-2011</date>
+      <author>Tomi</author>
+      <change type="Added">Support for HSA boats ( no smooth move yet, but now all boats are usable )
+      </change>
+      <change type="Changed">boat.cfg to support new entries "Rope", "Wheel", "Hull", "Tiller", "Rudder", "Sails", "Storage", "Weaponslot"<br/>
+        there can be more than 1 of each entry<br/>
+        the old entries "Tillerman", "Hold", "PortGangplankExtended", "PortGangplankRetracted", "StarboarGangplankExtended",        "StarboardGangplankRetracted" support just 1 entry each or the boat members get broken
+      </change>
+      <change type="Added">ReadOnly members for boats<br/>
+        .components returns an array of ItemRefs of all the components on the boat<br/>
+        .hull returns an array of ItemRefs of all the hull components on the boat, or empty array if none.<br/>
+        .rope returns an array of ItemRefs of all the rope components on the boat, or empty array if none.<br/>
+        .wheel returns an array of ItemRefs of all the wheel components on the boat, or empty array if none.<br/>
+        .rudder returns an array of ItemRefs of all the rudder components on the boat, or empty array if none.<br/>
+        .tiller returns an array of ItemRefs of all the tiller components on the boat, or empty array if none.<br/>
+        .sails returns an array of ItemRefs of all the sails components on the boat, or empty array if none.<br/>
+        .storage returns an array of ItemRefs of all the storage components on the boat, or empty array if none.<br/>
+        .weaponslot returns an array of ItemRefs of all the weaponslot components on the boat, or empty array if none.<br/>
+        Changed extobj.cfg to support new entries for all the new boat component types and changed the default value of all entries.<br/>
+        extobj.cfg entries with default values:<br/>
+        Tillerman=0x1F010<br/>
+        Port_Plank=0x1F011<br/>
+        Starboard_Plank=0x1F012<br/>
+        Hold=0x1F013<br/>
+        Rope=0x1F014<br/>
+        Wheel=0x1F015<br/>
+        Hull=0x1F016<br/>
+        Tiller=0x1F017<br/>
+        Rudder=0x1F018<br/>
+        Sails=0x1F019<br/>
+        Storage=0x1F01A<br/>
+        Weaponslot=0x1F01B<br/>
+        Wrestling=0x1F020<br/>
+        Mount=0x1F021<br/>
+        Secure_Trade_Container=0x1FF01<br/>
+        Wornitems_Container=0x1FF02<br/>
+      </change>
+      <change type="Note">extobj entries just let you define the objtypes, all of these still have to be defined in itemdescs for boats to work correctly.
+      </change>
+    </entry>
+    <entry>
+      <date>12-05-2011</date>
+      <author>Tomi</author>
+      <change type="Fixed">Door methods .open() and .close() were working opposite what they should.
+      </change>
+    </entry>
+    <entry>
+      <date>12-04-2011</date>
+      <author>Tomi</author>
+      <change type="Fixed">EA broke the prof.txt with the latest clients adding "Evaluating Intelligence" and "Spirit Speak" with spaces that resulted into skillnumber 0xFF and skillvalue 0
+      </change>
+      <change type="Added">UO::UpdateItem( item );<br/>
+        updates the item to every client in range, good to use for example after returning 1 in some packethook and the item get invisible.
+      </change>
+    </entry>
+    <entry>
+      <date>12-03-2011</date>
+      <author>Tomi</author>
+      <change type="Changed">startlocs.cfg readded default values for MapID ( 0 ) and Cliloc ( 1075072 which is the Yew town information )
+        Pol doesnt anymore throw an error if these values are missing.
+      </change>
+    </entry>
+    <entry>
+      <date>12-01-2011</date>
+      <author>Nando</author>
+      <change type="Fixed">Client hanging after having his connection refused on login. I recommend testing
+        different ways of having a client disconnected, like acct.disable(), .ban() and others.
+      </change>
+    </entry>
+    <entry>
+      <date>12-01-2011</date>
+      <author>Tomi</author>
+      <change type="Changed">Polcfg setting MaxObjtype now limited to max 0xFFFFFF (16777215)
+      </change>
+      <change type="Note">Try to keep it as low as possible
+      </change>
+    </entry>
+    <entry>
+      <date>12-01-2011</date>
+      <author>MuadDib</author>
+      <change type="Changed">UoClientGeneral.maxskills changed to unsigned short. Few places in loops with it changed to use same for the loop counter.
+      </change>
+    </entry>
+    <entry>
+      <date>11-30-2011</date>
+      <author>Tomi</author>
+      <change type="Fixed">Old style spellbooks.
+      </change>
+    </entry>
+    <entry>
+      <date>11-29-2011</date>
+      <author>MuadDib</author>
+      <change type="Fixed">Fixed a script breaker caused by inserting new TypeOfInt() constants in the middle of the Enum. Moved SQL Types to end of list.
+      </change>
+      <change type="Added">Added SQL entries to the Basic.EM since were missing.
+      </change>
+    </entry>
+    <entry>
+      <date>11-29-2011</date>
+      <author>Tomi</author>
+      <change type="Added">Opengraphic itemdesc entry for Doors ( optional parameter, no need to define if you dont want to use the built in methods )
+      </change>
+      <change type="Changed">how built in .open() .close() and .toggle() methods works. The now read the graphic what to open to from itemdesc instead of just checking with &amp; 0x1.
+        this makes those methods works for new doors too and not only T2A era doors.
+      </change>
+      <change type="Changed">basic::CChrz( intarray ) to basic::CChrz( intarray, break_at_first_null := 0 );<br/>
+        if the break_at_first_null parameter is 0 it uses the old behaviour to just skip the nulls and still convert everything<br/>
+        if the break_at_first_null parameter is set to 1 it stops the conversion to string at the first null it finds.
+      </change>
+      <change type="Changed">All Write(ctBeu16( calls for graphics and colors to use WriteFlipped, this seems to have fixed the assertion errors that occured with removal of the color_ext and graphic_ext
+      </change>
+      <change type="Changed">Pol throws now an error if some location is missing the MapID or Cliloc Definition in startloc.cfg ( New clients crashed when some were missing )
+        Removed the defualt values 0 for MapID and Cliloc ( for older clients it doesnt matter what the values are but clients &gt;= 7.0.13.0 needs them )
+      </change>
+    </entry>
+    <entry>
+      <date>11-28-2011</date>
+      <author>MuadDib</author>
+      <change type="Removed">UObject-&gt;Color_Ext : Removed, and when used is replaced with ctBEu16() calls. This includes read/write of /data files.
+      </change>
+      <change type="Removed">Last of any UOX references for imports. Most was all commented, a few empty refences was also left. All now removed completely.
+      </change>
+    </entry>
+    <entry>
+      <date>11-27-2011</date>
+      <author>MuadDib</author>
+      <change type="Removed">UObject-&gt;Graphic_Ext : Removed, and when used is replaced with ctBEu16() calls. This includes read/write of /data files.
+      </change>
+      <change type="Note">UObject-&gt;Serial_Ext will not be removed as previously considered, due to the orphan system making primary use of this.
+      </change>
+    </entry>
+    <entry>
+      <date>11-27-2011</date>
+      <author>Nando</author>
+      <change type="Fixed">corrected memory leak in cfgfile::GetConfigStringDictionary(...)
+      </change>
+    </entry>
+    <entry>
+      <date>11-26-2011</date>
+      <author>Tomi</author>
+      <change type="Changed">CascZ( str ) to CascZ( str, nullterm := 0 )<br/>
+        if nullterm 1 it adds the terminating 0 in the end of array.
+      </change>
+      <change type="Note">Recompile of scripts needed.
+      </change>
+    </entry>
+    <entry>
+      <date>11-24-2011</date>
+      <author>Tomi</author>
+      <change type="Added">Support for Mysticism and BardMasteries spell books<br/>
+        Mysticism Spell ID's 678 -&gt; 693 and BardMasteries spell ID's 701+
+      </change>
+    </entry>
+    <entry>
+      <date>11-23-2011</date>
+      <author>Tomi</author>
+      <change type="Added">can_insert and on_insert scripts for Tradewindows
+      </change>
+    </entry>
+    <entry>
+      <date>11-22-2011</date>
+      <author>Kevin</author>
+      <change type="Added">pol/sqlscrobj.cpp pol/sqlscrobj.h
+      </change>
+      <change type="Changed">pol/module/sqlmod.cpp pol/module/sqlmod.h<br/>
+        Add preliminary MySQL database support.<br/>
+        New eScript objects: BSQLConnection, BSQLResultSet, BSQLRow<br/>
+        Added several new sql module functions:<br/>
+        mysql_connect(host,username,password);<br/>
+        mysql_query(connection,query);<br/>
+        mysql_fetch_row(result);<br/>
+        mysql_affected_rows(result);<br/>
+        mysql_num_fields(result);<br/>
+        mysql_num_rows(result);<br/>
+        mysql_select_db(connection,database);<br/>
+        mysql_field_name(result,column_index);<br/>
+        mysql_free_result(result);<br/>
+        mysql_close(connection);<br/>
+        In order to build with MySQL support, define the HAVE_MYSQL preprocessor directive in your build configuration.<br/>
+        You must have the MySQL headers and libraries installed.<br/>
+        Only really tested with dynamically linking mysql libraries on Linux.
+      </change>
+      <change type="Added">pol/network/auxclient.h
+      </change>
+      <change type="Changed">pol/network/auxclient.cpp pol/module/osmod.cpp pol/module/osmod.h clib/socketsvc.cpp clib/socketsvc.h<br/>
+        Moved AuxClient-related classes to its own header file (shared between auxclient.cpp and osmod.cpp)<br/>
+        Implemented os::OpenConnection() to create outgoing TCP/IP connections.
+      </change>
+      <change type="Changed">runecl/runecl.cpp<br/>
+        Added the sql module to runecl to allow quick testing
+      </change>
+      <change type="Changed">pol/uoscrobj.cpp pol/mobile/charactr.cpp pol/mobile/character.h bscript/parser.cpp bscript/objmembers.h<br/>
+        Added read/write property "mountedsteps" for mobiles. Represents number of steps taken while character was mounted.
+      </change>
+      <change type="Changed">bscript/parser.cpp<br/>
+        Declaring an array only using "{}" will show a compiler warning; please explicitly state 'array', 'struct', or 'dictionary'
+      </change>
+      <change type="Changed">pol/pol.cpp<br/>
+        If using Linux, remove pol.pid on shutdown of pol.
+      </change>
+      <change type="Changed">pol/uoexec.h pol/scrsched.cpp<br/>
+        Added script option "AUXSVC_ASSUME_STRING" which will allow aux service connections to send and receive non-packed strings.
+      </change>
+      <change type="Changed">ecompile/ecompile.cpp<br/>
+        If using Linux, a slash ("/") cannot be used to define ecompile options to allow support for absolute filenames.
+      </change>
+      <change type="Changed">bscript/object.cpp bscript/bobject.h<br/>
+        Implemented array operation MultiSubscript. Will return a splice of an array, eg:<br/>
+        array{"a","b","c","d","e"}[2,4] will return array{"b","c","d"}
+      </change>
+    </entry>
+    <entry>
+      <date>11-12-2011</date>
+      <author>Tomi</author>
+      <change type="Added">Pol/config/extobj.cfg<br/>
+        Values it accept now and default values are<br/>
+        Tillerman=0xF010<br/>
+        Port_Plank=0xF011<br/>
+        Starboard_Plank=0xF012<br/>
+        Hold=0xF013<br/>
+        Wrestling=0xF020<br/>
+        Mount=0xF021<br/>
+        Secure_Trade_Container=0xFF01<br/>
+        Wornitems_Container=0xFF02<br/>
+      </change>
+      <change type="Note">These values HAVE TO BE &gt; pol.cfg max_tile_id and the same as objtype for them in itemdescs
+      </change>
+      <change type="Changed">uoconvert now adds to multis 0x1000 to the ID
+      </change>
+      <change type="Note">boats.cfg uses the same value as multis.cfg and itemdesc graphic entry for multis have to be the same.
+        itemdesc entries for multis need to have the entry MultiID for updating multis ( you can find values using UOFiddler )
+      </change>
+      <change type="Added">UOExpansion HSA server sends now 0x387DF
+      </change>
+    </entry>
+    <entry>
+      <date>11-11-2011</date>
+      <author>Tomi</author>
+      <change type="Changed">Objtypes are now from 2 up to max_objtype from pol.cfg
+      </change>
+      <change type="Note">if objtypes &lt;= pol.cfg max_tile_id and no graphic defined in itemdesc Pol uses objtype as graphic.
+        Multis and custom items should all be moved to &gt; pol.cfg max_tile_id
+      </change>
+      <change type="Added">support for new 0xA9 packet for clients &gt;= 7.0.13.0
+      </change>
+      <change type="Changed">startloc.cfg now have Cliloc and MapID entry for every startlocation ( default values 0 )<br/>
+        Example:<br/>
+        StartingLocation Yew<br/>
+        {<br/>
+        City		Yew<br/>
+        Description	Town Center<br/>
+        Coordinate	535,992,0<br/>
+        MapID		0<br/>
+        Cliloc		1075072<br/>
+        }<br/>
+      </change>
+      <change type="Note">MapID is the same number as in mapX.mul files<br/>
+        Cliloc values are the description of the start locations<br/>
+        Newest clients has max stats during char creation 90
+      </change>
+    </entry>
+    <entry>
+      <date>11-06-2011</date>
+      <author>Tomi</author>
+      <change type="Added">pol.cfg setting MaxObjtype &lt;default 0x20000&gt;
+      </change>
+      <change type="Note">the value can only be any value between 0x20000 and 0xFFFFFFFF
+      </change>
+    </entry>
+    <entry>
+      <date>10-26-2011</date>
+      <author>Tomi</author>
+      <change type="Added">support for clients &gt;= 7.0.16.0 ( 2D ) char create packet 0xF8<br/>
+        Enchanced clients still use packet 0x8D
+      </change>
+    </entry>
+    <entry>
+      <date>10-15-2011</date>
+      <author>Austin</author>
+      <change type="Added">.doubleclickrange for items (read only).
+      </change>
+    </entry>
+    <entry>
+      <date>09-03-2011</date>
+      <author>Turley</author>
+      <change type="Added">DestroyMulti(house) returns error "House currently being customized."
+      </change>
+      <change type="Added">house.cancelediting(chr, drop_changes) will stop editing mode.<br/>
+        drop_changes 1/0 if true drops all non committed changes<br/>
+        Errors: "House is not custom","House is currently not been edited","Character is not editing this house"
+      </change>
+      <change type="Added">Syshook CloseCustomHouse(mobile, house)<br/>
+        called after client quits editing, or when house.cancelediting() is called<br/>
+        return value is ignored
+      </change>
+      <change type="Added">servspecopt.cfg<br/>
+        "SpeedHack_MountRunDelay"  default 80 ms<br/>
+        "SpeedHack_MountWalkDelay" default 180 ms<br/>
+        "SpeedHack_FootRunDelay"   default 180 ms<br/>
+        "SpeedHack_FootWalkDelay"  default 380 ms<br/>
+        Change them on your own risk
+      </change>
+    </entry>
+    <entry>
+      <date>08-08-2011</date>
+      <author>Austin</author>
+      <change type="Added">servspecopt.cfg flag "ScriptedMerchantHandlers" default is 0 which results in no change in behavior.
+        If enabled, the below change will come into effect:
+      </change>
+      <change type="Changed">When a player buys something from a merchant the core will not longer handle taking gold from the player, and moving items to the players pack.<br/>
+        When the event for EVID_MERCHANT_SOLD and EVID_MERCHANT_BOUGHT is sent it will be a struct containing the following struct:<br/>
+        struct.type = EVID_MERCHANT_SOLD or EVID_MERCHANT_BOUGHT<br/>
+        struct.source = player buying<br/>
+        struct.shoppinglist = array( struct.item, struct.amount )<br/>
+        The shopping list items will still be items in the merchant's container.<br/>
+        It is up to the script to split the items from the stacks there and move them to the player's pack.<br/>
+        It is also up to the script to handle gold checks and consumption.
+      </change>
+      <change type="Added">item.SplitStackInto(container, amount)<br/>
+        Will split the item into 2 stacks. Returns a reference to the new stack made from item. Places new stack into the container.
+      </change>
+      <change type="Added">item.SplitStackAt(x, y, z, realm, amount)<br/>
+        Will split the item into 2 stacks. Returns a reference to the new stack made from item. Places new stack at the coordinates.
+      </change>
+    </entry>
+    <entry>
+      <date>05-19-2011</date>
+      <author>Turley</author>
+      <change type="Added">CustomHousing Support (beta)<br/>
+        officially added uo::SendHousingTool( who, house );
+      </change>
+      <change type="Added">script call of "scripts/misc/customhousecommit.ecl" on commit (noncritical)<br/>
+        params: ( who, house, houseelemarray )<br/>
+        houseelem = struct{graphic,xoffset,yoffset,z}<br/>
+        to get the real coords from an elem add house.x/y<br/>
+        called after client presses the commit button<br/>
+        to accept the changes call new method house.acceptcommit(chr,1) or house.acceptcommit(chr,0) to drop the commit<br/>
+        main purpose should be calculation of cost (with delta support for later changes),<br/>
+        link establishing of houseteleporters (0x181D - 0x1828)<br/>
+        and adding a signhanger/sign if you didnt added it during multifoundation buildup<br/>
+        Doors and Teleporters are added to house components as normal items without any special treatment<br/>
+        so dont forget to add scripts/itemdesc entries
+      </change>
+      <change type="Added">member multi.house_parts<br/>
+        returns array of structs{graphic,xoffset,yoffset,z} or error if not a custom house, or currently been edited
+        to get the real coords from an elem add house.x/y
+      </change>
+      <change type="Added">method multi.addhousepart(graphic,xoffset,yoffset,z) returns true or error
+      </change>
+      <change type="Added">method multi.erasehousepart(graphic,xoffset,yoffset,z) returns true or error
+      </change>
+      <change type="Added">members multi.house_editing / who.house_editing returns true if house is currently been edited / who is currently editing
+      </change>
+      <change type="Note">house.setcustom(1) is needed before SendHousingTool() works
+      </change>
+      <change type="Note">during editing chr is only allowed to walk inside the house
+        all components which are not invisible get removed from component list during edit and added to design
+        (not invisible to give the chance to eg protect a house sign from been removed from the editing char)
+        any item inside the house will be invisible for the chr
+        any other mobiles get moved outside the house
+      </change>
+      <change type="Note">param houseelemarray in script call is the current list of houseparts,
+        multi.house_parts gives you the last stored list
+      </change>
+      <change type="Note">until no house.acceptcommit() is called and start of commitscript no new SendHousingTool() for this house is allowed
+      </change>
+    </entry>
+    <entry>
+      <date>05-04-2011</date>
+      <author>Turley</author>
+      <change type="Fixed">Questarrow packet
+      </change>
+    </entry>
+    <entry>
+      <date>04-30-2011</date>
+      <author>Turley</author>
+      <change type="Fixed">enter/leave-events for NPCs (OWHorus)
+      </change>
+      <change type="Fixed">diagonal moves in npc::CanMove() and uo::FindPath() (OWHorus)
+      </change>
+    </entry>
+    <entry>
+      <date>04-03-2011</date>
+      <author>Turley</author>
+      <change type="Added">uotool param checkmultis<br/>
+        prints infos about used center item
+      </change>
+    </entry>
+    <entry>
+      <date>03-12-2011</date>
+      <author>Turley</author>
+      <change type="Fixed">npc:SayUC() sends SpeechEvent for do_event==SAY_DOEVENT_ENABLE
+      </change>
+      <change type="Changed">removed warning "No handler for skill.." and changed sysmsg to "That skill cannot be used directly."
+        since most of the time the behaviour is wanted
+      </change>
+      <change type="Added">basic::TypeOfInt( expr ) + basic.em constants<br/>
+        returns like TypeOf() the type of given parameter, but returns instead of a string an integer (see basic.em constants)
+        since integer comparison are way faster then string comparison this function should always be used for comparisons
+      </change>
+    </entry>
+    <entry>
+      <date>03-10-2011</date>
+      <author>Turley</author>
+      <change type="Added">pol.cfg AccountDataSave (default -1)<br/>
+        Values:<br/>
+        -1 : old behaviour, saves accounts.txt immediately after an account change<br/>
+        0 : saves only during worldsave (if needed)<br/>
+        &gt;0 : saves every X seconds and during worldsave (if needed)
+      </change>
+    </entry>
+    <entry>
+      <date>02-15-2011</date>
+      <author>Turley</author>
+      <change type="Changed">"in" keyword now returns the arrayindex or 0 if no match was found
+      </change>
+    </entry>
+    <entry>
+      <date>02-05-2011</date>
+      <author>Turley</author>
+      <change type="Fixed">no exception will be thrown if region enter/leavescript doesnt exist
+      </change>
+      <change type="Fixed">windows trayicon
+      </change>
+    </entry>
+    <entry>
+      <date>10-22-2010</date>
+      <author>Turley</author>
+      <change type="Fixed">UOHSA packet changes
+      </change>
+      <change type="Added">mobile.clienttype / client.clienttype HSA flag 0x200
+      </change>
+    </entry>
     <entry>
       <date>09-06-2010</date>
       <author>Turley</author>
