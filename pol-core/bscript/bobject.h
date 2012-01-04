@@ -38,7 +38,8 @@ class Executor;
 #endif
 
 #if BOBJECTIMP_DEBUG
-	#define INLINE_BOBJECTIMP_CTOR 1
+	#define INLINE_BOBJECTIMP_CTOR 0
+#	include "../clib/hbmutex.h"
 #else
 	#define INLINE_BOBJECTIMP_CTOR 1
 #endif
@@ -322,6 +323,7 @@ private:
 #if BOBJECTIMP_DEBUG
     unsigned int instance_;
     static unsigned int instances_;
+	static Mutex bobjectimp_mutex;
 #endif
 };
 

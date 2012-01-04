@@ -164,7 +164,7 @@ void DumpScript( const char *path )
 	}
 }
 
-
+void display_bobjectimp_instances();
 int exec_script(const char *path)
 {
     string fname( path );
@@ -222,7 +222,9 @@ int exec_script(const char *path)
         cout << "\tCycles Per Second: " << std::fixed << std::noshowpoint << setw(14) << escript_instr_cycles / seconds << endl;
         cout << "\tCycles Per Minute: " << std::fixed << std::noshowpoint << setw(14) << 60.0 * escript_instr_cycles / seconds << endl;
         cout << "\tCycles Per Hour:   " << std::fixed << std::noshowpoint << setw(14) << 3600.0 * escript_instr_cycles / seconds << endl;
-
+#if BOBJECTIMP_DEBUG
+	display_bobjectimp_instances();
+#endif
 #ifdef ESCRIPT_PROFILE
 		cout << "FuncName,Count,Min,Max,Sum,Avarage" << endl;
 		for (escript_profile_map::iterator itr=EscriptProfileMap.begin();itr!=EscriptProfileMap.end();++itr)
