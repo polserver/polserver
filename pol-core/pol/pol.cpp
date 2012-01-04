@@ -1208,7 +1208,7 @@ CLIENT_CHECKPOINT(20);
 			CLIENT_CHECKPOINT(9);
 			PolLock lck;
 			clients.erase( find_in( clients, client ) );
-
+			LocalMutex guard(&client->_SocketMutex);
 			client->closeConnection();
 			cout << "Client disconnected from " << AddressToString( &client->ipaddr )
 				 << " (" << clients.size() << " connections)"
