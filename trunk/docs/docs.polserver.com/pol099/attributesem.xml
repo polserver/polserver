@@ -1,0 +1,215 @@
+<?xml version='1.0' encoding="iso-8859-1"?>
+<?xml-stylesheet type="text/xsl" href="escript.xslt" ?>
+<!DOCTYPE ESCRIPT SYSTEM "escript.dtd">
+<ESCRIPT>  
+  <fileheader fname="Attributes.em">
+    <filedesc>Functions for working with mobile's attributes/skills.</filedesc>
+    <datemodified>03/19/2009</datemodified>
+<constant>const ATTRIBUTE_LOCK_UP     := 0;</constant>
+<constant>const ATTRIBUTE_LOCK_DOWN   := 1;</constant>
+<constant>const ATTRIBUTE_LOCK_LOCKED := 2;</constant>
+<constant>const ATTRIBUTE_MAX_BASE    := 60000;</constant>
+  </fileheader>
+  
+<function name="CheckSkill">
+	<prototype>CheckSkill( character, skillid, difficulty, points )</prototype>
+	<parameter name="character" value="Character Ref" />
+	<parameter name="skillid" value="Integer skill/attribute ID" />
+	<parameter name="difficulty" value="Integer skill use difficulty" />
+	<parameter name="points" value="Integer skill gain on success" />
+	<explain>NOTE: Calls the Syshook script CheckSkill. If it doesn't exist, always returns false.</explain>
+	<return>Return value of CheckSkill syshook.</return>
+	<error>"Invalid parameter"</error>
+	<error>"No such skill"</error>
+	<related>Character</related>
+</function>	
+	
+<function name="AlterAttributeTemporaryMod">
+	<prototype>AlterAttributeTemporaryMod( character, attrname, delta_tenths )</prototype>
+	<parameter name="character" value="Character Reference" />
+	<parameter name="attrname" value="String (attribute name)" />
+	<parameter name="delta_tenths" value="Integer" />
+	<explain>Changes the temporary modification value for attribute named "attrname".
+ 	delta_tenths is in tenths, obviously. So "1" would increase the temp mod by 0.1 points.</explain>
+	<return>1 on success or Error</return>
+	<error>"Invalid parameter type" including if attrname was not found as an attribute</error>
+	<error>"New modifier value is out of range"</error>
+	<related>Character</related>
+	<relatedcfg>attributes.cfg</relatedcfg>
+</function>
+
+<function name="GetAttributeName">
+	<prototype>GetAttributeName( alias_name )</prototype>
+	<parameter name="alias_name" value="String" />
+	<explain>Returns the real attribute name from an alias</explain>
+	<return>String</return>
+	<error>"Invalid parameter"</error>
+	<related>Character</related>
+</function>	
+
+<function name="GetAttribute">
+	<prototype>GetAttribute( character, attrname )</prototype>
+	<parameter name="character" value="Character Reference" />
+	<parameter name="attrname" value="String (attribute name)" />
+	<explain>Returns the current effective value for the specified attribute on character.</explain>
+	<return>Integer "Effective" attribute value on success (base + temporary mod + intrinsic mod) or 
+Error</return>
+	<error>"Invalid parameter type" including if attrname was not found as an attribute</error>
+	<related>Character</related>
+	<relatedcfg>attributes.cfg</relatedcfg>
+</function>
+
+<function name="GetAttributeBaseValue">
+	<prototype>GetAttributeBaseValue( character, attrname )</prototype>
+	<parameter name="character" value="Character Reference" />
+	<parameter name="attrname" value="String (attribute name)" />
+	<explain> Returns the base value for the specified attribute on character. </explain>
+	<return> Integer "Base" attribute value on success or Error </return>
+	<error> "Invalid parameter type" including if attrname was not found as an attribute</error>
+	<related>Character</related>
+	<relatedcfg>attributes.cfg</relatedcfg>
+</function>
+
+<function name="GetAttributeIntrinsicMod">
+	<prototype>GetAttributeIntrinsicMod( character, attrname )</prototype>
+	<parameter name="character" value="Character Reference" />
+	<parameter name="attrname" value="String (attribute name)" />
+	<explain>Returns the intrinsic value for the specified attribute on character.</explain>
+	<explain>You set intrinsic Mod via exported GetIntrinsicModFunction in attributes.cfg</explain>
+	<return>Integer "Intrinsic" attribute value on success or Error</return>
+	<error>"Invalid parameter type" including if attrname was not found as an attribute</error>
+	<related>Character</related>
+	<relatedcfg>attributes.cfg</relatedcfg>
+</function>
+
+<function name="GetAttributeTemporaryMod" >
+	<prototype>GetAttributeTemporaryMod( character, attrname )</prototype>
+	<parameter name="character" value="Character Reference" />
+	<parameter name="attrname" value="String (attribute name)" />
+	<explain> Returns the temporary modification value for the specified attribute on character.</explain>
+	<return>Integer "temporary" attribute value on success or Error</return>
+	<error>"Invalid parameter type" including if attrname was not found as an attribute</error>
+	<related>Character</related>
+	<relatedcfg>attributes.cfg</relatedcfg>
+</function>
+
+<function name="SetAttributeBaseValue">
+	<prototype>SetAttributeBaseValue( character, attrname, basevalue_tenths ); // obsoletes 
+SetRawSkill</prototype>
+	<parameter name="character" value="Character Reference" />
+	<parameter name="attrname" value="String (attribute name)" />
+	<parameter name="basevalue_tenths" value="Integer (0..60000)" />
+	<explain>Sets the "base" value of "attrname" on "character"</explain>
+	<return>1 on success</return>
+	<error>"Invalid parameter type"</error>
+	<related>Character</related>
+	<relatedcfg>attributes.cfg</relatedcfg>
+</function>
+	
+<function name="SetAttributeTemporaryMod">
+	<prototype>SetAttributeTemporaryMod( character, attrname, tempmod_tenths ); // obsoletes mob.strength_mod 
+etc</prototype>
+	<parameter name="character" value="Character Reference" />
+	<parameter name="attrname" value="String (attribute name)" />
+	<parameter name="tempmod_tenths" value="Integer (-30000..30000)" />
+	<explain>Sets the "temporary modification" value of "attrname" on "character"</explain>
+	<return>1 on success</return>
+	<error>"Invalid parameter type" including if attrname was not found as an attribute</error>
+	<related>Character</related>
+	<relatedcfg>attributes.cfg</relatedcfg>
+</function>
+
+<function name="BaseSkillToRawSkill">
+	<prototype>BaseSkillToRawSkill( baseskill )</prototype>
+	<parameter name="baseskill" value="Integer" />
+	<explain>Converts an old-style "base skill" value to old-style "raw skill" value.</explain>
+	<explain>Notes: OBSOLETE</explain>
+	<return>Raw skill value representation</return>
+	<error>"Invalid parameter type"</error>
+</function>
+
+<function name="RawSkillToBaseSkill">
+	<prototype>RawSkillToBaseSkill( rawskill )</prototype>
+	<parameter name="rawskill" value="Integer" />
+	<explain>Converts an old-style "raw skill" value to old-style "base skill" value.</explain>
+	<explain>Notes: OBSOLETE</explain>
+	<return>Base skill value representation</return>
+	<error>"Invalid parameter type"</error>
+</function>
+
+<function name="GetAttributeLock">
+	<prototype>GetAttributeLock( character, attrname )</prototype>
+	<parameter name="character" value="Character Reference" />
+	<parameter name="attrname" value="String (attribute name)" />
+	<explain>Gets the lockstate of given character and attribute name.</explain>
+	<explain>This works for any attribute.</explain>
+	<explain>attribute.em constants for return value:
+<code>
+const ATTRIBUTE_LOCK_UP     := 0;
+const ATTRIBUTE_LOCK_DOWN   := 1;
+const ATTRIBUTE_LOCK_LOCKED := 2; </code></explain>
+	<return>Integer</return>
+	<error>"Invalid parameter type"</error>
+	<related>Character</related>
+	<relatedcfg>attributes.cfg</relatedcfg>
+</function>
+
+<function name="SetAttributeLock">
+	<prototype>SetAttributeLock( character, attrname, lockstate )</prototype>
+	<parameter name="character" value="Character Reference" />
+	<parameter name="attrname" value="String (attribute name)" />
+	<parameter name="lockstate" value="Integer" />
+	<explain>Sets the lockstate of given character and attribute name</explain>
+	<explain>This works for any attribute.</explain>
+	<explain>attribute.em constants for lockstate:
+<code>
+const ATTRIBUTE_LOCK_UP     := 0;
+const ATTRIBUTE_LOCK_DOWN   := 1;
+const ATTRIBUTE_LOCK_LOCKED := 2; </code></explain>
+	<return>1 on sucess</return>
+	<error>"Invalid parameter type"</error>
+	<related>Character</related>
+	<relatedcfg>attributes.cfg</relatedcfg>
+</function>
+
+<function name="GetAttributeDefaultCap">
+	<prototype>GetAttributeDefaultCap( attrname )</prototype>
+	<parameter name="attrname" value="String (attribute name)" />
+	<explain>Gets the default cap value of given attribute name.</explain>
+	<explain>This works for any attribute.</explain>
+	<return>Integer default cap value in tenths</return>
+	<error>"Invalid parameter type"</error>
+	<related>Character</related>
+	<relatedcfg>attributes.cfg</relatedcfg>
+</function>
+
+<function name="GetAttributeCap">
+	<prototype>GetAttributeCap( character, attrname )</prototype>
+	<parameter name="character" value="Character Reference" />
+	<parameter name="attrname" value="String (attribute name)" />
+	<explain>Gets the current cap value of given attribute name.</explain>
+	<explain>This works for any attribute.</explain>
+	<return>Integer current cap value in tenths</return>
+	<error>"Invalid parameter type"</error>
+	<related>Character</related>
+	<relatedcfg>attributes.cfg</relatedcfg>
+</function>
+
+<function name="SetAttributeCap">
+	<prototype>SetAttributeCap( character, attrname, capvalue )</prototype>
+	<parameter name="character" value="Character Reference" />
+	<parameter name="attrname" value="String (attribute name)" />
+	<parameter name="capvalue" value="Integer (in tenths)" />
+	<explain>Sets the current cap value of given attribute name.</explain>
+	<explain>This works for any attribute.</explain>
+	<explain>attribute.em constants for capvalue:
+<code>
+const ATTRIBUTE_MAX_BASE    := 60000;</code></explain>
+	<return>1 on success</return>
+	<error>"Invalid parameter type"</error>
+	<related>Character</related>
+	<relatedcfg>attributes.cfg</relatedcfg>
+</function>
+
+
+</ESCRIPT>

@@ -1,0 +1,97 @@
+<?xml version='1.0' encoding="iso-8859-1"?>
+<?xml-stylesheet type="text/xsl" href="escript.xslt" ?>
+<!DOCTYPE ESCRIPT SYSTEM "escript.dtd">
+<ESCRIPT>  
+  <fileheader fname="Cliloc.em">
+    <filedesc>Functions for sending Cliloc (Client Localized) messages to the Client.</filedesc>
+    <datemodified>10/27/2007</datemodified>
+    <constant>const _DEFAULT_CLFONT  := 3;</constant>
+    <constant>const _DEFAULT_CLCOLOR := 0x3B2;</constant>
+  </fileheader>
+  
+  <function name="SendSysMessageCL"> 
+    <prototype>SendSysMessageCL(character, cliloc_num, uc_text:={}, font:=_DEFAULT_CLFONT, color:=_DEFAULT_CLCOLOR)</prototype>
+    <parameter name="character" value="Character reference to receive the text" />
+    <parameter name="cliloc_num" value="Cliloc Number you wish to be displayed." />
+    <parameter name="uc_text" value="Array of 2-byte integers, where each integer is a Unicode character. Only used when the cliloc accepts arguments for replacement." />
+    <parameter name="font" value="Integer (optional) font code. Not the same as non-unicode font codes" />
+    <parameter name="color" value="Integer (optional) color code. Not the same color as the same value for non-unicode prints" />
+    <explain>Displays a Cliloc (Client Localized) system message to 'character'. Arguments for the cliloc itself are seperated with a tab (\t) character.</explain>
+    <explain>uc_text MUST be an array of integers representing unicode characters.</explain>
+    <explain>Integers must be "Big Endian" (0x1234) and not "Little Endian" (0x3412).</explain>
+    <explain>Integers will be clipped internally to 2-bytes (value masked with 0xFFFF)</explain>
+    <explain>The Array must be terminated with zero. (0x0000)</explain>
+    <explain>
+    <code>
+Argument example: 
+Cliloc Number: 1042762: 
+Cliloc ENU String: "Only ~1_AMOUNT~ gold could be deposited. A check for ~2_CHECK_AMOUNT~ gold was returned to you."
+The uc_text string may have "100 thousand\t25 hundred", which in turn would modify the string:
+"Only 100 thousand gold could be deposited. A check for 25 hundred gold was returned to you."
+</code>
+    </explain>
+    <return>1 on success</return>
+    <error>"Unicode array exceeds maximum size." (200 characters)</error>
+    <error>"Invalid value in Unicode array."</error>
+    <error>"A parameter was invalid"</error>
+    <related>Array</related>
+  </function>
+
+  <function name="PrintTextAboveCL"> 
+    <prototype>PrintTextAboveCL(character, cliloc_num, uc_text:={}, font:=_DEFAULT_CLFONT, color:=_DEFAULT_CLCOLOR)</prototype>
+    <parameter name="character" value="Character reference to receive the text" />
+    <parameter name="cliloc_num" value="Cliloc Number you wish to be displayed." />
+    <parameter name="uc_text" value="Array of 2-byte integers, where each integer is a Unicode character. Only used when the cliloc accepts arguments for replacement." />
+    <parameter name="font" value="Integer (optional) font code. Not the same as non-unicode font codes" />
+    <parameter name="color" value="Integer (optional) color code. Not the same color as the same value for non-unicode prints" />
+    <explain>Displays a Cliloc (Client Localized) message above 'character'. Arguments for the cliloc itself are seperated with a tab (\t) character.</explain>
+    <explain>uc_text MUST be an array of integers representing unicode characters.</explain>
+    <explain>Integers must be "Big Endian" (0x1234) and not "Little Endian" (0x3412).</explain>
+    <explain>Integers will be clipped internally to 2-bytes (value masked with 0xFFFF)</explain>
+    <explain>The Array must be terminated with zero. (0x0000)</explain>
+    <explain>
+    <code>
+Argument example: 
+Cliloc Number: 1042762: 
+Cliloc ENU String: "Only ~1_AMOUNT~ gold could be deposited. A check for ~2_CHECK_AMOUNT~ gold was returned to you."
+The uc_text string may have "100 thousand\t25 hundred", which in turn would modify the string:
+"Only 100 thousand gold could be deposited. A check for 25 hundred gold was returned to you."
+    </code>
+    </explain>
+    <return>1 on success</return>
+    <error>"Unicode array exceeds maximum size." (200 characters)</error>
+    <error>"Invalid value in Unicode array."</error>
+    <error>"A parameter was invalid"</error>
+    <related>Array</related>
+  </function>
+
+  <function name="PrintTextAbovePrivateCL"> 
+    <prototype>PrintTextAbovePrivateCL(character, object, cliloc_num, uc_text:={}, font:=_DEFAULT_CLFONT, color:=_DEFAULT_CLCOLOR)</prototype>
+    <parameter name="character" value="Character reference to receive the text" />
+    <parameter name="object" value="UObject reference to print the text above" />
+    <parameter name="cliloc_num" value="Cliloc Number you wish to be displayed." />
+    <parameter name="uc_text" value="Array of 2-byte integers, where each integer is a Unicode character. Only used when the cliloc accepts arguments for replacement." />
+    <parameter name="font" value="Integer (optional) font code. Not the same as non-unicode font codes" />
+    <parameter name="color" value="Integer (optional) color code. Not the same color as the same value for non-unicode prints" />
+    <explain>Displays a Cliloc (Client Localized) message above 'character'. Arguments for the cliloc itself are seperated with a tab (\t) character.</explain>
+    <explain>uc_text MUST be an array of integers representing unicode characters.</explain>
+    <explain>Integers must be "Big Endian" (0x1234) and not "Little Endian" (0x3412).</explain>
+    <explain>Integers will be clipped internally to 2-bytes (value masked with 0xFFFF)</explain>
+    <explain>The Array must be terminated with zero. (0x0000)</explain>
+    <explain>
+    <code>
+Argument example: 
+Cliloc Number: 1042762: 
+Cliloc ENU String: "Only ~1_AMOUNT~ gold could be deposited. A check for ~2_CHECK_AMOUNT~ gold was returned to you."
+The uc_text string may have "100 thousand\t25 hundred", which in turn would modify the string:
+"Only 100 thousand gold could be deposited. A check for 25 hundred gold was returned to you."
+    </code>
+    </explain>
+    <return>1 on success</return>
+    <error>"Unicode array exceeds maximum size." (200 characters)</error>
+    <error>"Invalid value in Unicode array."</error>
+    <error>"A parameter was invalid"</error>
+    <related>Array</related>
+  </function>
+  
+</ESCRIPT>

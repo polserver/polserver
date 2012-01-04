@@ -1,0 +1,82 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="attack.xslt" ?>
+<!DOCTYPE ESCRIPT SYSTEM "attack.dtd">
+<ESCRIPT>
+<header>
+  <topic>Pseudocode for the core combat system.</topic>
+  <datemodified>02/10/2009</datemodified>
+</header>
+<pre>
+if( attackhook )
+  call hook
+  if hook returned 1, exit
+endif
+
+if( weapon is projectile )
+  try to comsume projectile
+  if none, exit
+exit
+
+repsys effects
+
+if( weapon is projected )
+  play sound and animations
+else
+  play attack anim
+endif
+
+if( combat advancement hook exists )
+  call it
+else
+  THE CORE DOESN'T ADVANCE ANY SKILLS
+endif
+
+hit_chance = (weapon_attribute + 50.0) / (2.0 * opponent_weapon_attribute + 50.0)
+hit_chance += hitchance_mod * 0.001
+hit_chance -= opponent_evasionchance_mod * 0.001
+
+if( random_float(1.0) &lt; hitchance )
+  play hit sounds and anims
+  damage weapon (1 in 100 chance to lose 1 hp)
+
+  damage = random_weapon_die_damage
+  damage_multiplier = tactics + 50
+  damage_multiplier += strength * 0.2
+  damage_multiplier *= 0.01
+  damage *= damage_multiplier
+
+  if( opponent has shield )
+    call parry advancement hook
+
+    parry_chance = opponent_parry_skill / 200.0
+    if( random_float(1.0) &lt; parry_chance )
+      display parry success
+      damage -= opponent_shield_ar
+    endif
+  endif
+
+  if( weapon has no hit script )
+    choose armor piece hit based on zone coverage percentage
+    blocked = armor piece ar + character ar_mod
+    absorbed = blocked / 2
+    blocked -= absorbed
+    absorbed += random_int(blocked+1)
+    damage -= absorbed
+    if( damage &gt;= 2.0 )
+       damage *= 0.5
+    endif
+    1 in 100 chance for armor piece to lose 1 hp
+    play hit animation
+    applydamage(damage)
+  else
+    choose armor piece hit based on zone coverage percentage
+    calc base &amp; raw damage (exactly like above if no hit script)
+    run hit script
+    (Core doesn't damage armor if hitscript, do it in the script)
+  endif
+else
+  play weapon miss sound
+  call hitmiss hook
+endif
+</pre>
+</ESCRIPT>
