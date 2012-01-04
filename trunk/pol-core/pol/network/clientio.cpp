@@ -174,7 +174,7 @@ void Client::transmit_encrypted( const void *data, int len )
 	}
     THREAD_CHECKPOINT( active_client, 114 );
 
-    passert( pch-reinterpret_cast<unsigned char*>(outbuffer->buffer)+1 <= int(sizeof outbuffer->buffer) );
+    passert_always( pch-reinterpret_cast<unsigned char*>(outbuffer->buffer)+1 <= int(sizeof outbuffer->buffer) );
     THREAD_CHECKPOINT( active_client, 115 );
 	xmit( &outbuffer->buffer, static_cast<unsigned short>(pch-reinterpret_cast<unsigned char*>(outbuffer->buffer)+1) );
 	PktHelper::ReAddPacket(outbuffer);
@@ -219,6 +219,11 @@ void Client::transmit( const void *data, int len, bool needslock)
     }
 
 	LocalMutex guard(&_SocketMutex);
+	if (disconnect)
+	{
+		Log2("Warning: Trying to send to a disconnected client! \n");
+		return;
+	}
 
 	if (last_xmit_buffer)
     {
