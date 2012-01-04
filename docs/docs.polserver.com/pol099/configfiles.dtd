@@ -1,0 +1,22 @@
+<!ELEMENT ESCRIPT (fileheader,cfgfile*)>
+<!ELEMENT fileheader (subheader, desc,datemodified)>
+  <!ATTLIST fileheader name CDATA #REQUIRED>
+  <!ELEMENT subheader (#PCDATA)>
+  <!ELEMENT desc (top,list*,bottom)>
+    <!ELEMENT top (#PCDATA)>
+    <!ELEMENT list (#PCDATA)>
+    <!ELEMENT bottom (#PCDATA)>
+  <!ELEMENT datemodified (#PCDATA)>
+<!ELEMENT cfgfile (location, numberallowed, requiredtostart, requiredby*, purpose, structure, explain*, related*)>
+  <!ATTLIST cfgfile name CDATA #REQUIRED>
+  <!ELEMENT location (#PCDATA)>
+  <!ELEMENT numberallowed (#PCDATA)>
+  <!ELEMENT requiredtostart (#PCDATA)>
+  <!ELEMENT requiredby (#PCDATA)>
+  <!ELEMENT purpose (#PCDATA)>
+  <!ELEMENT structure (#PCDATA)>
+  <!ELEMENT explain (#PCDATA |br|i)*>
+    <!ELEMENT br EMPTY>
+    <!ELEMENT i (#PCDATA)>
+  <!ELEMENT related (#PCDATA)>
+  

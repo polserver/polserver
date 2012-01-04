@@ -1,0 +1,174 @@
+<?xml version='1.0' encoding="iso-8859-1"?>
+<?xml-stylesheet type="text/xsl" href="escript.xslt" ?>
+<!DOCTYPE ESCRIPT SYSTEM "escript.dtd">
+<ESCRIPT>
+  <fileheader fname="File.em">
+    <filedesc>File Access functions</filedesc>
+    <datemodified>12/21/2009</datemodified>
+    <constant>// LogToFile constants</constant>
+    <constant>const LOG_DATETIME := 1; // log Core-Style DateTimeStr in front of log entry</constant>
+    <constant>//BinaryFile constants</constant>
+    <constant>const OPENMODE_IN    := 0x01; // (input) Allow input operations on the stream</constant>
+    <constant>const OPENMODE_OUT   := 0x02; // (output) Allow output operations on the stream</constant>
+    <constant>const OPENMODE_ATE   := 0x04; // (at end) Set the stream's position indicator to the end of the stream on opening</constant>
+    <constant>const OPENMODE_APP   := 0x08; // (append) Set the stream's position indicator to the end of the stream before each output operation</constant>
+    <constant>const OPENMODE_TRUNC := 0x10; // (truncate) Any current content is discarded, assuming a length of zero on opening</constant>
+    <constant> </constant>
+    <constant>const SEEKDIR_BEG := 0x00; // beginning of sequence</constant>
+    <constant>const SEEKDIR_CUR := 0x01; // current position within sequence</constant>
+    <constant>const SEEKDIR_END := 0x02; // end of sequence</constant>
+    <constant> </constant>
+    <constant>const LITTLE_ENDIAN := 0x00;</constant>
+    <constant>const BIG_ENDIAN    := 0x01;</constant>
+    <constant> </constant>
+    <constant>// ListDirectory constants</constant>
+    <constant>const LISTDIR_LIST_DIRS      := 0x1;</constant>
+    <constant>const LISTDIR_DONT_LIST_DIRS := 0x0;</constant>
+    <constant>const LISTDIR_NO_FILES       := "";</constant>
+    <constant>const LISTDIR_ALL_FILES      := "*";</constant>
+  </fileheader>
+
+  <function name="FileExists"> 
+    <prototype>FileExists( filename )</prototype>
+    <parameter name="filename" value="string" />
+    <explain>Checks for the existence of a file based on Filename parameter.</explain>
+    <return>1 on success</return>
+    <error>"Invalid parameter type"</error>
+    <error>"Error in filename descriptor"</error>
+    <error>"No parent path traversal please."</error>
+    <relatedcfg>fileaccess.cfg</relatedcfg>
+  </function>
+
+  <function name="ReadFile"> 
+    <prototype>ReadFile( filename )</prototype>
+    <parameter name="filename" value="string" />
+    <explain>Reads a text file, returning the contents as an array of strings, removing newlines.</explain>
+    <explain>By default, no package has any file access rights. To grant access, see config/fileaccess.cfg</explain>
+    <return>returns array of strings</return>
+    <error>"Invalid parameter type"</error>
+    <error>"Error in filename descriptor"</error>
+    <error>"No parent path traversal please."</error>
+    <error>"Access denied"</error>
+    <error>"File not found: X"</error>
+    <relatedcfg>fileaccess.cfg</relatedcfg>
+  </function>
+  
+  <function name="WriteFile"> 
+    <prototype>WriteFile( filename, textcontents )</prototype>
+    <parameter name="filename" value="string" />
+    <parameter name="textcontents" value="array of strings" />
+    <explain>Writes a new file to disk, appends newlines, creates file if it does not exist, renames existing file to filename.bak</explain>
+    <explain>By default, no package has any file access rights. To grant access, see config/fileaccess.cfg</explain>
+    <return>1 or error</return>
+    <error>"Invalid parameter type"</error>
+    <error>"Error in filename descriptor"</error>
+    <error>"No parent path traversal please."</error>
+    <error>"Access denied"</error>
+    <error>"File not found: X"</error>    
+    <error>"Error during write."</error>
+    <error>"Unable to remove filenameX: reasonY</error>
+    <error>"Unable to rename filenameX: to filenameZ: reasonY</error>
+    <relatedcfg>fileaccess.cfg</relatedcfg>
+  </function>  
+  
+  <function name="AppendToFile"> 
+    <prototype>AppendToFile( filename, morelines )</prototype>
+    <parameter name="filename" value="string" />
+    <parameter name="morelines" value="array of strings" />
+    <explain>Appends to a text file, adding newlines. Creates file if it does not exist.</explain>
+    <explain>By default, no package has any file access rights. To grant access, see config/fileaccess.cfg</explain>
+    <return>1 or error</return>
+    <error>"Invalid parameter type"</error>
+    <error>"Error in filename descriptor"</error>
+    <error>"No parent path traversal please."</error>
+    <error>"Access denied"</error>
+    <error>"Unable to open file: X"</error>    
+    <error>"Error during write."</error>
+    <relatedcfg>fileaccess.cfg</relatedcfg>
+  </function>
+  
+  <function name="LogToFile"> 
+    <prototype>LogToFile( filename, line, flags := 0 )</prototype>
+    <parameter name="filename" value="String" />
+    <parameter name="line" value="String" />
+	<parameter name="flags" value="Integer" />
+    <explain>Appends a single line to a text file, adds newlines, creates file if it does not exist.</explain>
+    <explain>By default, no package has any file access rights. To grant access, see config/fileaccess.cfg</explain>
+    <explain>file.em constants for flags:
+<code>
+const LOG_DATETIME := 1; // log Core-Style DateTimeStr in front of log entry</code></explain>
+    <return>1 or error</return>
+    <error>"Invalid parameter type"</error>
+    <error>"Error in filename descriptor"</error>
+    <error>"No parent path traversal please."</error>
+    <error>"Access denied"</error>
+    <error>"Unable to open file: X"</error>    
+    <error>"Error during write."</error>
+    <relatedcfg>fileaccess.cfg</relatedcfg>
+  </function>  
+  
+  <function name="OpenBinaryFile"> 
+    <prototype>OpenBinaryFile( filename, mode := OPENMODE_IN, endian := LITTLE_ENDIAN )</prototype>
+    <parameter name="filename" value="string" />
+    <parameter name="mode" value="Integer" />
+    <parameter name="endian" value="Integer" />
+    <explain>Opens BinaryFile stream</explain>
+    <explain>By default, no package has any file access rights. To grant access, see config/fileaccess.cfg</explain>
+    <explain>file.em constants for mode:
+<code>
+const OPENMODE_IN    := 0x01; // (input) Allow input operations on the stream
+const OPENMODE_OUT   := 0x02; // (output) Allow output operations on the stream
+const OPENMODE_ATE   := 0x04; // (at end) Set the stream's position indicator to the end of the stream on opening
+const OPENMODE_APP   := 0x08; // (append) Set the stream's position indicator to the end of the stream before each output operation
+const OPENMODE_TRUNC := 0x10; // (truncate) Any current content is discarded, assuming a length of zero on opening
+</code></explain>
+    <explain>file.em constants for endian:
+<code>
+const LITTLE_ENDIAN := 0x00;
+const BIG_ENDIAN    := 0x01;
+</code></explain>
+    <return>BinaryFile or error</return>
+    <error>"Invalid parameter type"</error>
+    <error>"Error in filename descriptor"</error>
+    <error>"No parent path traversal please."</error>
+    <error>"Access denied"</error>
+    <related>BinaryFile</related>
+    <relatedcfg>fileaccess.cfg</relatedcfg>
+  </function>  
+  
+  <function name="CreateDirectory"> 
+    <prototype>CreateDirectory( dirname )</prototype>
+    <parameter name="dirname" value="string" />
+    <explain>Creates directory</explain>
+    <return>1 or error</return>
+    <error>"Invalid parameter type"</error>
+    <error>"Error in dirname descriptor"</error>
+    <error>"No parent path traversal please."</error>
+    <error>"Directory already exists."</error>
+    <error>"Could not create directory."</error>
+  </function>
+  
+  <function name="ListDirectory"> 
+    <prototype>ListDirectory( dirname, extension := LISTDIR_ALL_FILES, listdirs := LISTDIR_DONT_LIST_DIRS )</prototype>
+    <parameter name="dirname" value="string" />
+    <parameter name="extension" value="string" />
+    <parameter name="listdirs" value="Integer" />
+    <explain>List directory content</explain>
+    <explain>extension param can be extension without "." or file.em constant:
+<code>
+const LISTDIR_NO_FILES       := "";
+const LISTDIR_ALL_FILES      := "*";
+</code></explain>
+    <explain>file.em constants for listdirs:
+<code>
+const LISTDIR_LIST_DIRS      := 0x1;
+const LISTDIR_DONT_LIST_DIRS := 0x0;
+</code></explain>
+    <return>array of strings or error</return>
+    <error>"Invalid parameter type"</error>
+    <error>"Error in dirname descriptor"</error>
+    <error>"No parent path traversal please."</error>
+    <error>"Directory not found."</error>
+  </function> 
+
+</ESCRIPT>

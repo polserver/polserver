@@ -1,0 +1,272 @@
+<?xml version='1.0' encoding="iso-8859-1"?>
+<?xml-stylesheet type="text/xsl" href="escript.xslt" ?>
+<!DOCTYPE ESCRIPT SYSTEM "escript.dtd">
+<ESCRIPT>  
+  <fileheader fname="Basic.em">
+    <filedesc>Functions for converting and manipulating number, character, and string values.</filedesc>
+    <datemodified>03/19/2009</datemodified>
+<constant>const TRIM_LEFT  := 0x1; // Trim whitespace from Left of string.</constant>
+<constant>const TRIM_RIGHT := 0x2; // Trim whitespace from Right of string.</constant>
+<constant>const TRIM_BOTH  := 0x3; // Trim whitespace from Left and Right of string.</constant>
+  </fileheader>
+  
+  <function name="CAsc"> 
+    <prototype>CAsc(string)</prototype>
+    <parameter name="string" value="String to convert" />
+    <explain>
+      Converts the first character of string to an ASCII code
+    </explain>
+    <return>ASCII code</return>
+  </function>
+  
+  <function name="CAscZ"> 
+    <prototype>CAscZ(string)</prototype>
+    <parameter name="string" value="String to convert" />
+    <explain>
+      Converts the string to an array of the character's ASCII codes
+    </explain>
+    <return>Array of ASCII values</return>
+  </function>
+  
+  <function name="CChr">
+    <prototype>CChr(integer)</prototype>
+    <parameter name="number" value="Integer to convert" />
+    <explain>
+      Converts an ASCII value to a string consisting of one character.
+    </explain>
+    <return>A character</return>
+  </function>
+  
+  <function name="CChrZ">
+    <prototype>CChrZ(array)</prototype>
+    <parameter name="array" value="Array of ASCII values" />
+    <explain>
+      Converts an array of ASCII values to a string
+    </explain>
+    <return>A string</return>
+  </function>
+  
+  <function name="CDbl">
+    <prototype>CDbl(variable)</prototype>
+    <parameter name="variable" value="A variable Int or String" />
+    <explain>
+      Converts a string or int to a real. Only strings containing digits and '.' will return a predicatable result. 
+Ints will be expanded.
+    </explain>
+    <return>A Real</return>
+  </function>
+  
+  <function name="CInt">
+    <prototype>CInt(variable)</prototype>
+    <parameter name="variable" value="A variable Real or String" />
+    <explain>
+      Converts a string or real to an integer. Only strings containing digits and '.' will return a predicatable 
+result. Doubles will be truncated.
+    </explain>
+    <return>An Int</return>
+  </function>
+  
+  <function name="CStr">
+    <prototype>CStr(variable)</prototype>
+    <parameter name="variable" value="A variable Int or Real" />
+    <explain>
+      Converts a real or int to a string.
+    </explain>
+    <return>A String</return>
+  </function>
+  
+  <function name="Find">
+    <prototype>Find(string, search, start)</prototype>
+    <parameter name="string" value="The string to search in" />
+    <parameter name="search" value="The string to search for" />
+    <parameter name="start" value="The index to start searching at" />
+    <explain>
+      Returns the index of the first occurance of 'search' after 'start' within 'string'
+    </explain>
+    <return>An int</return>
+  </function>
+  
+  <function name="Hex">
+    <prototype>Hex(number)</prototype>
+    <parameter name="number" value="The number to convert" />
+    <explain>
+      Returns the hexidecimal value of 'number'
+    </explain>
+    <return>A hexidecimal</return>
+  </function>
+  
+  <function name="Len">
+    <prototype>Len(string|array)</prototype>
+    <parameter name="string|array" value="A string or array" />
+    <explain>
+      For strings, returns string length. For arrays, returns number of elements. Does not work for structs or dictionaries, use .size() for those.
+    </explain>
+    <return>An Int</return>
+  </function>
+  
+  <function name="Lower">
+    <prototype>Lower(string)</prototype>
+    <parameter name="string"  value="A string to convert" />
+    <explain>
+      Converts 'string' to lowercase (doesn't work with high-ascii characters or unicode)
+    </explain>
+    <return>A string</return>
+  </function>
+  
+  <function name="Pack">
+    <prototype>Pack(object)</prototype>
+    <parameter name="object" value="An object to pack" />
+    <explain>
+      Packs a variable into POL's packed data string format. Note that object references CANNOT be saved with the world, but may be passed to other running scripts, or with an event.
+    </explain>
+    <return>A string</return>
+  </function>
+  
+  <function name="SizeOf">
+    <prototype>SizeOf(expression)</prototype>
+    <parameter name="expression" value="An expression to evaluate" />
+    <explain>
+      Returns an estimate of the memory used
+    </explain>
+    <return>An int</return>
+  </function>
+  
+  <function name="SplitWords">
+    <prototype>SplitWords( str, delimiter := " " )</prototype>
+    <parameter name="string" value="The string to split" />
+    <parameter name="delimiter" value="The delimiter to use" />
+    <explain>
+      Returns an array of words contained in 'string'. Words are separated by the delimiter.
+    </explain>
+    <return>An array</return>
+  </function>
+  
+  <function name="TypeOf">
+    <prototype>TypeOf(variable)</prototype>
+    <parameter name="variable" value="a script var" />
+    <explain>
+      Returns a string, depending on the variable type of the parameter. Is one of: "Dictionary", 
+      "AccountRef", "ConfigFileRef", "ConfigElemRef", "DataFileRef", "DataElemRef", "ScriptExRef", "GuildRef", 
+      "BoundingBox", "DebugContext", "Package", "MenuRef", "MobileRef", "OfflineMobileRef",
+      "ItemRef", "BoatRef", "MultiRef", "Unknown", "Uninit", "String", "Integer", "Double", "Array", "ApplicPtr",
+      "ApplicObj", "Error", "Struct", "Packet".
+    </explain>
+    <return>A string</return>
+  </function>
+  
+  <function name="Unpack">
+    <prototype>Unpack(string)</prototype>
+    <parameter name="string" value="A string to unpack" />
+    <explain>
+      Unpacks a "packed data string" into the variable it represents. See Pack().
+    </explain>
+    <return>A variable</return>
+  </function>
+  
+  <function name="Upper">
+    <prototype>Upper(string)</prototype>
+    <parameter name="string" value="A string to convert" />
+    <explain>
+      Converts 'string' to uppercase (doesn't work with high-ascii characters or unicode)
+    </explain>
+    <return>A string</return>
+  </function>
+  
+  <function name="Print">
+    <prototype>print(anything)</prototype>
+    <parameter name="anything" value="Any object, or primitive." />
+    <explain>
+      Prints 'anything' to the console. If it's a string or number, it will show the value. If it's an array, struct or dictionary, it will show the contents of the structure fairly nicely. On Packets it will show the content. Else, it shows the type of object, i.e. 'ItemRef'.
+    </explain>
+    <return>Nothing</return>
+ </function>
+
+  <function name="Bin">
+    <prototype>Bin(number)</prototype>
+    <parameter name="number" value="The number to convert" />
+    <explain>
+      Returns the binary coded value of 'number'
+    </explain>
+    <return>A binary coded number</return>
+  </function>
+
+  <function name="SubStr">
+    <prototype>SubStr(string, start, length)</prototype>
+    <parameter name="string" value="The string to search within" />
+    <parameter name="start" value="The index to start getting the substring from" />
+    <parameter name="length" value="The length of the substring" />
+    <explain>
+      Returns the substring of 'string' beginning at 'start' for 'length'. This functions the same as virtual Substrings within eScript such as String[4,6]
+    </explain>
+    <return>A String</return>
+  </function>
+  
+  <function name="Compare">
+    <prototype>Compare(str1, str2, pos1_start:=0, pos1_end:=0, pos2_start:=0, pos2_end:=0)</prototype>
+    <parameter name="str1" value="First string to compare" />
+    <parameter name="str2" value="Second string to compare" />
+    <parameter name="pos1_start" value="The index to start from first string" />
+    <parameter name="pos1_end" value="The index to end from first string" />
+    <parameter name="pos2_start" value="The index to start from second string" />
+    <parameter name="pos2_end" value="The index to end from second string" />
+    <explain>
+      Can be used in 3 overloaded ways. Returns 1 on compare success.
+<code>
+Compare(string1, string2)
+Compare(string1, string2, string1_index, string1_length)
+Compare(string1, string2, string1_index, string1_length, string2_index, string2_length)
+</code>
+Index is a starting position to begin the compare in the string, and length 
+is the length to compare from the index. When using the 3rd method, 
+you can compare substrings in both strings instead of just the 
+substring of string1 to entire string2.
+    </explain>
+    <return>1 on compare success/0</return>
+    <error>"Index must not be negative for param 1"</error>
+    <error>"Index out of range for param 1"</error>
+    <error>"Index must not be negative for param 2"</error>
+    <error>"Index out of range for param 2"</error>
+    <error>"Length out of range for param 1"</error>
+    <error>"Length must not be negative for param 1"</error>
+    <error>"Length out of range for param 2"</error>
+    <error>"Length must not be negative for param 2"</error>
+  </function>
+  
+  <function name="Trim">
+    <prototype>Trim(string, type:=TRIM_BOTH, set:=" ")</prototype>
+    <parameter name="string" value="The string to trim" />
+    <parameter name="type" value="The trim type to use" />
+    <parameter name="set" value="The string to trim as whitespace" />
+    <explain>Trims whitespaces from strings.</explain>
+    <explain>basic.em constants for type value:
+<code>
+const TRIM_LEFT  := 0x1; // Trim whitespace from Left of string.
+const TRIM_RIGHT := 0x2; // Trim whitespace from Right of string.
+const TRIM_BOTH  := 0x3; // Trim whitespace from Left and Right of string.</code></explain>
+    <return>A String</return>
+  </function>
+  
+  <function name="StrReplace">
+    <prototype>StrReplace(string, to_replace, replace_with)</prototype>
+    <parameter name="string" value="The string to modify" />
+    <parameter name="to_replace" value="The string to replace" />
+    <parameter name="replace_with" value="The string to replace with" />
+    <explain>Replace all instances of to_replace in the string with replace_with. </explain>
+    <return>A String</return>
+  </function>
+  
+  <function name="SubStrReplace">
+    <prototype>SubStrReplace(string, replace_with, start, length:=0)</prototype>
+    <parameter name="string" value="The string to modify" />
+    <parameter name="replace_with" value="The string to replace" />
+    <parameter name="start" value="Integer start index" />
+    <parameter name="length" value="Integer length" />
+    <explain>Replace portion of string using replace_with, beginning at start for length.</explain>
+    <return>A String</return>
+    <error>"Index must not be negative"</error>
+    <error>"Index out of range"</error>
+    <error>"Length out of range"</error>
+    <error>"Length must not be negative"</error>
+  </function>
+  
+</ESCRIPT>

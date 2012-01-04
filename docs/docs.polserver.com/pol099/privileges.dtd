@@ -1,0 +1,7 @@
+<!ELEMENT ESCRIPT (header,list*)>
+<!ELEMENT header (topic,text,datemodified)>
+  <!ELEMENT topic  (#PCDATA)>
+  <!ELEMENT text (#PCDATA)>
+  <!ELEMENT datemodified (#PCDATA)>
+<!ELEMENT list (#PCDATA)>
+<!ATTLIST list name CDATA #REQUIRED>

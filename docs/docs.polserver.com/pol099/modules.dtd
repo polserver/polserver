@@ -1,0 +1,4 @@
+<!ELEMENT MODULES (em*)>
+<!ELEMENT em EMPTY>
+  <!ATTLIST member name CDATA #REQUIRED>
+  <!ATTLIST member nice CDATA #REQUIRED>

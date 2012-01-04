@@ -1,0 +1,62 @@
+<?xml version='1.0' encoding="iso-8859-1"?>
+<?xml-stylesheet type="text/xsl" href="escript.xslt" ?>
+<!DOCTYPE ESCRIPT SYSTEM "escript.dtd">
+<ESCRIPT>
+  <fileheader fname="Datafile.em">
+    <filedesc>Functions to access generic data files.</filedesc>
+    <datemodified>10/27/2007</datemodified>
+<constant>// OpenDataFile flags:</constant>
+<constant>// can specify only one of the following:</constant>
+<constant>const DF_KEYTYPE_STRING       := 0x00; // default</constant>
+<constant>const DF_KEYTYPE_INTEGER      := 0x01;</constant>
+  </fileheader>
+    
+  <function name="CreateDataFile"> 
+    <prototype>CreateDataFile( filespec, flags := DF_KEYTYPE_STRING )</prototype>
+    <parameter name="filespec" value="String" />
+    <parameter name="flags" value="Integer" />
+    <explain>Creates a new data file.</explain>
+    <explain>filespec is in normal package descriptor format. 'filename' or '::filename' will create the new data file /data/ds/filename. ':pkgname:filename' will create /data/ds/pkgname/filename.</explain>
+    <explain>flags specifies if the keys of the new datafile are strings OR integers.</explain>
+    <return>DataFile Reference. See the DataFile object documentation.</return>
+    <error>"Error in descriptor"</error>
+    <error>"An exception occurred"</error>
+    <error>"Invalid parameter type"</error>
+    <related>Datafile</related>
+  </function>
+
+  <function name="OpenDataFile"> 
+    <prototype>OpenDataFile( filespec )</prototype>
+    <parameter name="filespec" value="String" />
+    <explain>Opens a datafile for access.</explain>
+    <explain>filespec is in normal package descriptor format. 'filename' or '::filename' will open the data file /data/ds/filename. ':pkgname:filename' will open /data/ds/pkgname/filename.</explain>
+    <return>DataFile Reference. See the DataFile object documentation.</return>
+    <error>"Datafile does not exist"</error>
+    <error>"Error in descriptor"</error>
+    <error>"An exception occurred"</error>
+    <error>"Invalid parameter type"</error>
+    <related>Datafile</related>
+  </function>
+  
+  <function name="UnloadDataFile"> 
+    <prototype>UnloadDataFile( filespec )</prototype>
+    <parameter name="filespec" value="String" />
+    <explain>Unloads a datafile</explain>
+    <explain>filespec is in normal package descriptor format. 'filename' or '::filename' will unload the data file /data/ds/filename. ':pkgname:filename' will unload /data/ds/pkgname/filename.</explain>
+    <return>1 on success</return>
+    <error>"Unable to find data store file"</error>
+    <error>"Invalid parameter type"</error>
+    <related>Datafile</related>
+  </function>
+  
+  <function name="ListDataFiles"> 
+    <prototype>ListDataFiles( )</prototype>
+    <explain>Returns an array of structs containing: </explain>
+    <explain>.pkg - name of the package the datafile belongs to</explain>
+    <explain>.name - name of the file</explain>
+    <explain>.descriptor - :pkg:name</explain>
+    <return>Array of Structs</return>
+    <related>Datafile</related>
+  </function>
+  
+</ESCRIPT>

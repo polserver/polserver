@@ -1,0 +1,200 @@
+<?xml version='1.0' encoding="iso-8859-1"?>
+<?xml-stylesheet type="text/xsl" href="escript.xslt" ?>
+<!DOCTYPE ESCRIPT SYSTEM "escript.dtd">
+<ESCRIPT>
+  <fileheader fname="POLsys.em">
+    <filedesc>Functions to access POL system data.</filedesc>
+    <datemodified>11/30/2009</datemodified>
+<constant>const MSGLEN_VARIABLE := -1;</constant>
+  </fileheader>
+    
+  <function name="ReloadConfiguration"> 
+    <prototype>ReloadConfiguration()</prototype>
+    <explain>reloads pol.cfg (most entries), npcdesc.cfg and bannedips.cfg</explain>
+    <explain>Linux: HUP signal will cause ReloadConfiguration to be called.</explain>
+    <return>1</return>
+  </function>
+
+  <function name="Packages"> 
+    <prototype>Packages()</prototype>
+    <explain>Get an array of "package objects", with "name", "supports_http" and "npcdesc" members. (more info TBD)</explain>
+    <return>An array of package objects.</return>
+  </function>
+
+  <function name="ReadMillisecondClock"> 
+    <prototype>ReadMillisecondClock()</prototype>
+    <explain>Returns a long integer of the current millisecond clock. TBD: timebase of clock, saved with server?</explain>
+    <return>Current time in milliseconds.</return>
+  </function>
+  
+  <function name="SetSysTrayPopupText">
+    <prototype>SetSysTrayPopupText(text)</prototype>
+    <parameter name="text" value="String tooltip text for systray icon" />
+    <explain>Sets the systray icon's tooltip text (win32 only)</explain>
+    <return>1</return>
+  </function>
+  
+  <function name="GetItemDescriptor">
+    <prototype>GetItemDescriptor(objtype)</prototype>
+    <parameter name="objtype" value="int Objtype OR string ObjtypeName" />
+    <explain>Returns a struct of all itemdesc.cfg properties for the objtype.</explain>
+    <explain>The keys are the property names, i.e. "Color", "Desc", etc. The values can be String, Integer, Real. The exceptions are "CProps" and "StackingIgnoresCProps". "CProps" is a dictionary where the CProp name is the key, and the value can be any packable type (i.e. array, struct, etc.). "StackingIgnoresCProps" is an array of strings.</explain>
+    <explain>Note: Descriptor of Weapon will return MinDamage and MaxDamage calculated from Damage-Dice too.</explain>
+    <explain>The primary use of this function is to pass it to any of the item creation functions, and the values in the struct will be used in place of the static itemdesc.cfg values. Use it to assign specific properties to an item during creation, rather than after. This allows easier stacking with existing item stacks.</explain>
+    <explain>Note: Not all properties can be assigned per-item, so editing the value in the descriptor struct will not be passed to the new item.
+<code>
+//For example, to stack with an existing stack with color 0x10 and cprop
+use uo;
+use polsys;
+program testdesc(who,objtype)
+    var ret := GetItemDescriptor(CInt(objtype));
+    ret.Color := 0x10;
+    ret.CProps.insert("blah","1"); //assuming the existing stack have this color and cprop
+    ret.StackingIgnoresCProps.append("blingbling");    
+    var item := CreateItemInBackpack(who,ret,10);
+    if(item)
+        print("OK!");
+    endif
+endprogram</code>
+<code>
+To print the contents of the struct:
+var ret := GetItemDescriptor(objtype);
+foreach thing in ret
+    print(_thing_iter + ": " + thing);
+endforeach</code></explain>
+    <return>A struct of all itemdesc.cfg properties and values.</return> 
+    <error>"Invalid parameter type"</error>
+    <error>"Itemdesc.cfg entry for objtype X not found."</error>
+    <relatedcfg>itemdesc.cfg</relatedcfg>
+</function>
+
+<function name="Realms">
+    <prototype>Realms(realms:="")</prototype>
+    <explain>Returns a dictionary of structs.</explain>
+    <explain>If a single case-sensitive realm name is passed, will return the information for only that realm.</explain>
+    <explain>example:
+<code>    "realm_name" -> "width"
+                    "height"
+                    "mapid"
+                    "toplevel_item_count"
+                    "mobile_count"
+                    "season"</code></explain>
+    <return>A dictionary of structs of Realms.</return> 
+</function>
+
+  <function name="GetCmdLevelName">
+    <prototype>GetCmdLevelName(number)</prototype>
+    <parameter name="number" value="Integer" />
+    <explain>Will get a command level's name.</explain>
+    <return>CmdLevelName or Error</return>
+	<error>"Invalid parameter type."</error>
+	<relatedcfg>cmds.cfg</relatedcfg>
+  </function>
+
+  <function name="GetCmdLevelNumber">
+    <prototype>GetCmdLevelNumber(name)</prototype>
+    <parameter name="name" value="String" />
+    <explain>Will get the numeric value of a command level.</explain>
+    <return>CmdLevel or Error</return>
+	<error>"Invalid parameter type."</error>
+	<error>"Could not find a command level with that name."</error>
+	<relatedcfg>cmds.cfg</relatedcfg>
+  </function>
+
+  <function name="IncRevision">
+    <prototype>IncRevision( object )</prototype>
+    <parameter name="object" value="UObject Ref" />
+    <explain>Increases the internal "Revision" number of an UObject. Used to manually increase this number for scripted changes to things such as mob.race and such where core does not auto increase it.</explain>
+    <return>1 on success</return>
+    <error>"Invalid parameter type."</error>
+  </function>
+
+  <function name="ListenPoints">
+    <prototype>ListenPoints( )</prototype>
+    <explain>Array of listen points...</explain>
+    <return>Array</return>
+    <error>"Invalid parameter type."</error>
+  </function>
+
+  <function name="ListTextCommands">
+    <prototype>ListTextCommands( )</prototype>
+    <explain>Returns a dict of a dict of structs.</explain>
+    <explain>Dict 1 - Package names Dict 2 - Command levels Struct - .dir .script</explain>
+    <explain>
+    <code>
+	Example:
+	foreach package in ( commands )
+		Print("Pkg:"+_package_iter);
+		foreach level in ( package )
+			Print(" CmdLvl:"+_level_iter);
+			foreach command in ( level )
+				Print("     "+command);
+				SleepMS(2);
+			endforeach
+			SleepMS(2);
+		endforeach
+		SleepMS(2);
+	endforeach
+    </code>
+    </explain>
+    <return>1 on success</return>
+    <error>"Invalid parameter type."</error>
+  </function>
+
+  <function name="GetPackageByName">
+    <prototype>GetPackageByName(name)</prototype>
+    <parameter name="name" value="String" />
+    <explain>Will return a package reference.</explain>
+    <return>PackageRef or Error</return>
+	<error>"Invalid parameter type."</error>
+	<error>"No package found by that name."</error>
+	<related>Package</related>
+  </function>
+
+  <function name="CreatePacket">
+    <prototype>CreatePacket(type, size)</prototype>
+    <parameter name="type" value="Integer" />
+    <parameter name="size" value="Integer" />
+    <explain>Creates a new packet object. Type is the byte command id that always is set as the first byte (no need to set it yourself). Size is the fixed-length size for this packet, or MSGLEN_VARIABLE if it is variable length (no need to figure out the size in advance, the packet buffer will be resized as need by using the Set* methods).</explain>
+	<explain>Notes: polsys.em constants for this function:
+<code>
+const MSGLEN_VARIABLE := -1;</code></explain>
+    <return>A new packet object or Error</return>
+	<error>"Invalid parameter type."</error>
+	<error>"Packet type too high"</error>
+	<related>Packet</related>
+  </function>
+  
+  <function name="AddRealm">
+    <prototype>AddRealm(realm_name, base_realm)</prototype>
+    <parameter name="realm_name" value="String - case-sensitive name of the realm" />
+    <parameter name="base_realm" value="String - case-sensitive name of the realm" />
+    <explain>Creates a new Realm based on an other realm, uses same map and regions.</explain>
+    <return>1</return> 
+    <error>"BaseRealm not found."</error>
+    <error>"BaseRealm is a ShadowRealm."</error>
+    <error>"Realmname already defined."</error>
+  </function>
+  
+  <function name="DeleteRealm">
+    <prototype>DeleteRealm(realm)</prototype>
+    <parameter name="realm" value="String - case-sensitive name of the realm" />
+    <explain>Deletes a ShadowRealm, only if the realm is "clean"</explain>
+    <return>1</return> 
+    <error>"Realm not found."</error>
+    <error>"Realm is not a ShadowRealm."</error>
+    <error>"Mobiles in Realm."</error>
+    <error>"Items in Realm."</error>
+  </function>
+  
+  <function name="MD5Encrypt">
+    <prototype>MD5Encrypt(str)</prototype>
+    <parameter name="str" value="String" />
+    <explain>Encrypts given string.</explain>
+    <return>MD5 hash string on success</return> 
+    <error>"Invalid parameter"</error>
+    <error>"String is empty"</error>
+    <error>"Failed to encrypt"</error>
+  </function>
+        
+</ESCRIPT>

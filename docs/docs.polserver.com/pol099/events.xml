@@ -1,0 +1,177 @@
+<?xml version='1.0' encoding="iso-8859-1"?>
+<?xml-stylesheet type="text/xsl" href="events.xslt" ?>
+<!DOCTYPE ESCRIPT SYSTEM "events.dtd">
+<ESCRIPT>
+<header>
+    <fname>POL System Events</fname>
+    <hdesc>This document describes all the "System Events" (Sysevents) that the POL core uses. These are enabled in Control Scripts using the EnableEvents() function. Only these events listed here should be used in the EnableEvents() function. You may not define User Events with any of these values (or any of the reserved values in sysEvent.inc). To use a user event in your script, you must not use EnableEvents(), just send it using SendEvent() (or process_obj.sendevent()) and look for it normally in the receiving script. Some of the Sysevents below are ranged, meaning you may specify a world distance in EnableEvents() beyond which the script will not receive the event. Use DisableEvents() to disable any of the Sysevents.
+    </hdesc>
+    <datemodified>10/27/2007</datemodified>
+</header>    
+
+<event>
+  <name>SYSEVENT_SPEECH</name>
+  <explain>This event comes in two types: Normal and Unicode. The latter is sent when the source is a client speaking in Unicode speech.</explain>
+  <ID>0x00000001</ID>
+  <member mname="type" value="SYSEVENT_SPEECH (0x00000001)"/>
+  <member mname="source" value="Character Reference"/>
+  <member mname="text" value="string normal text (junk if unicode)"/>
+  <member mname="texttype" value="type of speech: &quot;yell&quot;, &quot;whisper&quot;, &quot;emote&quot;, or &quot;default&quot;"/>
+  <member mname="uc_text" value="(Unicode only) a &quot;Unicode array&quot; of 2-byte &quot;Big Endian&quot; integers corresponding to the unicode characters sent. will be an 'error' type if the Unicode input is &quot;bad&quot;.  will be uninitialized if no Unicode text is available (ie, when a non-Unicode client types the command)"/>
+  <member mname="langcode" value="(Unicode only) string 3-character, uppercase language code, i.e. &quot;ENU&quot;, &quot;DEU&quot;, etc."/>
+  <whensent>When a player speaks in range of an item listening point, or NPC that has enabled the event. Note Ghost speech is a seperate event.</whensent>
+  <ranged>Yes</ranged>
+</event>
+
+<event>
+  <name>SYSEVENT_ENGAGED</name>
+  <explain>Combat Engaged event.</explain>
+  <ID>0x00000002</ID>
+  <member mname="type" value="SYSEVENT_ENGAGED (0x00000002)"/>
+  <member mname="source" value="Character Reference"/>
+  <whensent>When an attack is initiated against an NPC. (set opponent, or Target with the Harmful flag set)</whensent>
+  <ranged>No</ranged>
+</event>
+
+<event>
+  <name>SYSEVENT_DISENGAGED</name>
+  <explain>Combat Disengaged event.</explain>
+  <ID>0x00000004</ID>
+  <member mname="type" value="SYSEVENT_DISENGAGED (0x00000004)"/>
+  <member mname="source" value="Character Reference"/>
+  <whensent>When an attack is stopped against an NPC. (set opponent null, attacker dies)</whensent>
+  <ranged>No</ranged>
+</event>
+
+
+<event>
+  <name>SYSEVENT_DAMAGED</name>
+  <explain>The NPC was damaged.</explain>
+  <ID>0x00000008</ID>
+  <member mname="type" value="SYSEVENT_DAMAGED (0x00000008)"/>
+  <member mname="source" value="Character Reference, or 0 if no character source"/>
+  <member mname="damage" value="integer damage amount"/>
+  <whensent>The NPC recevied damage.</whensent>
+  <ranged>No</ranged>
+</event>
+
+
+<event>
+  <name>SYSEVENT_ENTEREDAREA</name>
+  <explain>A character entered inside a range around the NPC. Note, ignores Z distance.</explain>
+  <ID>0x00000010</ID>
+  <member mname="type" value="SYSEVENT_ENTEREDAREA (0x00000010)"/>
+  <member mname="source" value="Character Reference"/>
+  <whensent>The mobile walked into the range, a new NPC was created inside the range, or a character un-hid inside the range.</whensent>
+  <ranged>Yes</ranged>
+</event>
+
+
+<event>
+  <name>SYSEVENT_LEFTAREA</name>
+  <explain>A character left the range around the NPC. Note, ignores Z distance.</explain>
+  <ID>0x00000020</ID>
+  <member mname="type" value="SYSEVENT_LEFTAREA (0x00000020)"/>
+  <member mname="source" value="Character Reference"/>
+  <whensent>The mobile walked out of the range. Not sent if mobile hides, dies, or deleted.</whensent>
+  <ranged>Yes</ranged>
+</event>
+
+
+<event>
+  <name>SYSEVENT_OPPONENT_MOVED</name>
+  <explain>The NPC's opponent moved.</explain>
+  <ID>0x00000040</ID>
+  <member mname="type" value="SYSEVENT_OPPONENT_MOVED (0x00000040)"/>
+  <member mname="source" value="Character Reference"/>
+  <whensent>The NPC's current opponent moved. Inhibits the Enter/Leave events for the NPC's opponent.</whensent>
+  <ranged>No</ranged>
+</event>
+
+
+<event>
+  <name>SYSEVENT_HOSTILE_MOVED</name>
+  <explain>Not Implimented.</explain>
+  <ID>0x00000080</ID>
+  <whensent>Not Implimented</whensent>
+  <ranged>No</ranged>
+</event>
+
+
+<event>
+  <name>SYSEVENT_MERCHANT_BOUGHT</name>
+  <explain>Only sent to the merchant NPC that bought the items.</explain>
+  <ID>0x00000100</ID>
+  <member mname="type" value="SYSEVENT_MERCHANT_BOUGHT (0x00000100)"/>
+  <member mname="source" value="Character Reference"/>
+  <member mname="amount" value="amount of gold items sold for"/>
+  <whensent>After an NPC merchant buys items from a player.</whensent>
+  <ranged>No</ranged>
+</event>
+
+
+<event>
+  <name>SYSEVENT_MERCHANT_SOLD</name>
+  <explain>Only sent to the merchant NPC that sold the items.</explain>
+  <ID>0x00000200</ID>
+  <member mname="type" value="SYSEVENT_MERCHANT_SOLD (0x00000200)"/>
+  <member mname="source" value="Character Reference"/>
+  <member mname="amount" value="amount of gold items sold for"/>
+  <whensent>After an NPC merchant sells items to a player.</whensent>
+  <ranged>No</ranged>
+</event>
+
+
+<event>
+  <name>SYSEVENT_ITEM_GIVEN</name>
+  <explain>Item dropped on an NPC generates this event. Also sets the following cprops on the item: &quot;GivenBy&quot;: PC's serial, &quot;GivenTo&quot;:NPC's serial, &quot;GivenTime&quot;:gameclock value when item was given.</explain>
+  <explain>Important: The item is moved to a storage area until the script handling the event moves it to a real container. If the item is not before by the time the event object goes out of scope (including passed to a subroutine! use 'byref' to prevent the event from being destroyed before it can be passed to the handling subroutine), the item will automatically be moved back to its old container, and the aformentioned cprops are erased.</explain>
+  <ID>0x00000400</ID>
+  <member mname="type" value="SYSEVENT_ITEM_GIVEN (0x00000400)"/>
+  <member mname="source" value="Character Reference"/>
+  <member mname="item" value="Item Reference"/>
+  <whensent>A player drops an item on an NPC.</whensent>
+  <ranged>No</ranged>
+</event>
+
+
+<event>
+  <name>SYSEVENT_DOUBLECLICKED</name>
+  <explain>Allows the NPC to receive double-click events (i.e. for mounting horses, pack llamas, etc.)</explain>
+  <ID>0x00000800</ID>
+  <member mname="type" value="SYSEVENT_DOUBLECLICKED (0x00000800)"/>
+  <member mname="source" value="Character Reference"/>
+  <whensent>A player double-clicked on an NPC.</whensent>
+  <ranged>No</ranged>
+</event>
+
+<event>
+  <name>SYSEVENT_GHOST_SPEECH</name>
+  <explain>Dead players generate this event when speaking, not SYSEVENT_SPEECH. Otherwise, see SYSEVENT_SPEECH for the struct members.</explain>
+  <ID>0x00001000</ID>
+  <whensent>A dead player speaks.</whensent>
+  <ranged>Yes</ranged>
+</event>
+
+<event>
+  <name>SYSEVENT_GONE_CRIMINAL</name>
+  <explain>The GONE_CRIMINAL event lets the system tell the NPC when a mobile has become a criminal (from a previously non-criminal state) by firing this event and placing a character reference to the new criminal in the source field of the event. If used in conjunction with the ENTERED_AREA system event, then guards should be able to do their guarding work without needing to do polling scans of the area around them periodically. On ENTERED_AREA events, you check to see if the person entering the area is a criminal or not.  On GONE_CRIMINAL events, you know that the person who was already in the area has become a criminal from previously being innocent.</explain>
+  <ID>0x00002000</ID>
+  <member mname="type" value="SYSEVENT_GONE_CRIMINAL (0x00002000)"/>
+  <member mname="source" value="Character Reference"/>
+  <whensent>A player inrange has become a criminal.</whensent>
+  <ranged>Yes</ranged>
+</event>
+
+<event>
+  <name>AUX_Connection_Receive_Event</name>
+  <explain>This event is the method by which the AUX connection script received data from an external application. (Data may be sent with aux_connection.send())</explain>
+  <explain>Note: ONLY received in AUX connection handler scripts.</explain>
+  <ID>n/a</ID>
+  <member mname="type" value="string &quot;recv&quot;"/>
+  <member mname="value" value="unpacked scripting object"/>  
+  <whensent>When an external application connected to an AUX handler script sends packed data, wait_for_event() will return this struct.</whensent>
+  <ranged>Yes</ranged>
+</event>
+
+</ESCRIPT>

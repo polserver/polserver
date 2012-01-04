@@ -1,0 +1,49 @@
+<?xml version='1.0' encoding="iso-8859-1"?>
+<?xml-stylesheet type="text/xsl" href="escript.xslt" ?>
+<!DOCTYPE ESCRIPT SYSTEM "escript.dtd">
+<ESCRIPT>  
+  <fileheader fname="Guilds.em">
+    <filedesc>Functions for working with guilds in eScript.</filedesc>
+    <datemodified>10/27/2007</datemodified>
+  </fileheader>
+  
+<function name="ListGuilds">
+	<prototype>ListGuilds()</prototype>
+	<explain>Gets a list of all guilds.</explain>
+	<return>An Array of Guild References.</return>
+	<related>Guild</related>
+	<related>Array</related>
+</function>
+
+<function name="FindGuild">
+	<prototype>FindGuild( guildid )</prototype>
+	<parameter name="guildid" value="integer" />
+	<explain>Gets a Guild Reference for a given Guild ID number</explain>
+	<return>Guild Reference on success</return>
+	<error>"Guild not found"</error>
+	<error>"Invalid parameter type"</error>
+	<related>Guild</related>
+</function>
+
+<function name="CreateGuild">
+	<prototype>CreateGuild()</prototype>
+	<explain>Creates a new Guild Object.</explain>
+	<return>A Guild Reference to the new guild.</return>
+	<related>Guild</related>
+</function>
+	
+<function name="DestroyGuild">
+	<prototype>DestroyGuild( guild )</prototype>
+	<parameter name="guild" value="Guild Reference" />
+	<explain>Destroys an empty guild.</explain>
+	<explain>Notes: Must first empty the guild of members, allies, and enemies (see guildref methods)</explain>
+	<return>1 on success</return>
+	<error>"Guild has members"</error>
+	<error>"Guild has allies"</error>
+	<error>"Guild has enemies"</error>
+	<error>"Guild has disbanded"</error>
+	<error>"Invalid parameter type"</error>
+	<related>Guild</related>
+</function>
+
+</ESCRIPT>

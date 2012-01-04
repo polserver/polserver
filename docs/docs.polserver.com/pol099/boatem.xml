@@ -1,0 +1,89 @@
+<?xml version='1.0' encoding="iso-8859-1"?>
+<?xml-stylesheet type="text/xsl" href="escript.xslt" ?>
+<!DOCTYPE ESCRIPT SYSTEM "escript.dtd">
+<ESCRIPT>
+  <fileheader fname="Boat.em">
+    <filedesc>Functions for manipulating Multi Boat objects.</filedesc>
+    <datemodified>10/27/2007</datemodified>
+  </fileheader>
+    
+  <function name="MoveBoat"> 
+    <prototype>MoveBoat( boat, facing )</prototype>
+    <parameter name="boat" value="Boat Reference" />
+    <parameter name="facing" value="Integer (0..7)" />
+    <explain>Moves a boat in the direction of an absolute facing</explain>
+    <explain>0=N, 1=NE, 2=E, 3=SE, 4=S, 5=SW, 6=W, 7=NW</explain>
+    <return>1 always</return>
+    <error>none (returns 0 on invalid param)</error>
+    <related>Boat</related>
+  </function>
+
+  <function name="MoveBoatXY"> 
+    <prototype>MoveBoatXY( boat, x, y )</prototype>
+    <parameter name="boat" value="Boat Reference" />
+    <parameter name="x" value="Integer world coordinate" />
+    <parameter name="y" value="Integer world coordinate" />
+    <explain>Moves a boat to the specified world coordinates.</explain>
+    <explain>Careful moving close to the world edge where a part of the boat might be out of bounds.</explain>
+    <return>1 on success, 0 on failure</return>
+    <error>Invalid Parameter</error>
+    <related>Boat</related>
+  </function>
+
+  <function name="MoveBoatRelative"> 
+    <prototype>MoveBoatRelative( boat, direction )</prototype>
+    <parameter name="boat" value="Boat Reference" />
+    <parameter name="facing" value="Integer (0..7)" />
+    <explain>Move a boat in the direction of a relative facing. Same as MoveBoat, but adjusted for boat's facing.</explain>
+    <explain>If boat faces East, 0 will move E, 1 will move SE, etc.</explain>
+    <return>1 always</return>
+    <error>none (returns 0 on invalid param)</error>
+    <related>Boat</related>
+  </function>
+
+  <function name="RegisterItemWithBoat"> 
+    <prototype>RegisterItemWithBoat( boat, item )</prototype>
+    <parameter name="boat" value="Boat Reference" />
+    <parameter name="item" value="Item Reference)" />
+    <explain>'registering' an item with a boat causes the boat to move the item when it moves, if and only if the item is still on the boat.</explain>
+    <return>1 always</return>
+    <error>none (returns 0 on invalid param)</error>
+    <related>Boat</related>
+    <related>Item</related>
+  </function>
+
+  <function name="BoatFromItem"> 
+    <prototype>BoatFromItem( item )</prototype>
+    <parameter name="item" value="Item Ref" />
+    <explain>if you have an itemref referring to a boat (typically in a doubleclick script) this will convert it into a boatref.</explain>
+	<explain>Note that this should not be necessary anymore.</explain>
+    <return>Boat Reference</return>
+    <error>"Item wasn't a multi"</error>
+    <error>"Multi wasn't a boat"</error>
+    <error>"Invalid parameter type."</error>
+    <related>Boat</related>
+    <related>Item</related>
+  </function>
+  
+  <function name="TurnBoat"> 
+    <prototype>TurnBoat( boat, direction )</prototype>
+    <parameter name="boat" value="Boat Reference" />
+    <parameter name="direction" value="Integer (0..3)" />
+    <explain>Turn a boat in a direction, relative to its current directon.</explain>
+    <explain>direction is 0=none, 1=right, 2=flip, 3=left</explain>
+    <return>true/false if the boat could be turned (i.e. wouldn't be in an invalid location after the turn)</return>
+    <error>"Invalid Parameter type"</error>
+    <related>Boat</related>
+  </function>
+  
+  <function name="SystemFindBoatBySerial"> 
+    <prototype>SystemFindBoatBySerial( serial )</prototype>
+    <parameter name="serial" value="Integer" />
+    <explain>given the serial number of a boat, return a boatref that can be used with MoveBoat, TurnBoat, etc.</explain>
+    <explain>SystemFindObjectBySerial can find boats as well, should use that.</explain>
+    <return>Boat Reference on success</return>
+    <error>"Boat not found."</error>
+    <related>Boat</related>
+  </function>
+
+</ESCRIPT>
