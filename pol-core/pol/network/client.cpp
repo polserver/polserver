@@ -51,6 +51,7 @@ Notes
 #include "../ufunc.h"
 
 unsigned int Client::instance_counter_;
+Mutex Client::_SocketMutex;
 
 Client::Client( ClientInterface& aInterface, TCryptInfo& encryption ) :
 	preDisconnect(0),
@@ -107,7 +108,10 @@ void cancel_trade( Character* chr1 );
 
 void Client::Delete( Client* client )
 {
+	LocalMutex guard(&_SocketMutex);
     client->PreDelete();
+	delete client->cryptengine;
+	client->cryptengine = NULL;
     delete client;
 }
 
@@ -118,7 +122,7 @@ Client::~Client()
 void Client::closeConnection()
 {
     Interface.deregister_client( this );
-	LocalMutex guard(&_SocketMutex);
+	//LocalMutex guard(&_SocketMutex);
 	if (csocket != INVALID_SOCKET)//>= 0)
 	{
 #ifdef _WIN32
@@ -432,8 +436,14 @@ void Client::queue_data( const void *data, unsigned short datalen )
 
 void Client::xmit( const void *data, unsigned short datalen )
 {
+	if (csocket == INVALID_SOCKET)
+		return;
 	if(encrypt_server_stream)
+	{
+		if (cryptengine==NULL)
+			return;
 		this->cryptengine->Encrypt((void *)data, (void *)data, datalen);
+	}
     THREAD_CHECKPOINT( active_client, 200 );
 	if (last_xmit_buffer) // this client already backlogged, schedule for later
 	{
