@@ -1,0 +1,20 @@
+<!ELEMENT ESCRIPT (fileheader,function*)>
+<!ELEMENT fileheader (filedesc, datemodified,constant*)>
+  <!ATTLIST fileheader fname CDATA #REQUIRED>
+  <!ELEMENT filedesc (#PCDATA)>
+  <!ELEMENT datemodified (#PCDATA)>
+  <!ELEMENT constant (#PCDATA)> 
+  
+<!ELEMENT function (prototype, parameter*, explain*, return*, error*, related*, relatedcfg*)>
+  <!ATTLIST function name CDATA #REQUIRED>
+  <!ELEMENT prototype (#PCDATA)>
+  <!ELEMENT parameter EMPTY>
+    <!ATTLIST parameter name CDATA #REQUIRED>
+    <!ATTLIST parameter value CDATA #REQUIRED>
+  <!ELEMENT explain (#PCDATA | code)*>
+    <!ELEMENT code (#PCDATA)>
+  <!ELEMENT return (#PCDATA)>
+  <!ELEMENT error (#PCDATA)>
+  <!ELEMENT related (#PCDATA)>
+  <!ELEMENT relatedcfg (#PCDATA)>
+

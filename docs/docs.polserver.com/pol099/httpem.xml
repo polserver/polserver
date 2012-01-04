@@ -1,0 +1,49 @@
+<?xml version='1.0' encoding="iso-8859-1"?>
+<?xml-stylesheet type="text/xsl" href="escript.xslt" ?>
+<!DOCTYPE ESCRIPT SYSTEM "escript.dtd">
+<ESCRIPT>
+  <fileheader fname="HTTP.em">
+    <filedesc>Functions to send and receive data over an HTTP connection using POL's internal webserver. Scripts in /scripts/www are considered at the top level directory. I.e. http://192.168.0.5:8088/online.ecl </filedesc>
+    <datemodified>10/27/2007</datemodified>
+  </fileheader>
+    
+  <function name="WriteHtml"> 
+    <prototype>WriteHtml( html )</prototype>
+    <parameter name="html" value="String" />
+    <explain>Writes a line of HTML to the "virtual webpage" that will be sent to the connecting browser and appends a new-line.</explain>
+    <return>1 always</return>
+    <error>"Socket is disconnected"</error>
+    <error>"Invalid parameter type"</error>
+  </function>
+
+  <function name="WriteHtmlRaw"> 
+    <prototype>WriteHtmlRaw( html )</prototype>
+    <parameter name="html" value="String" />
+    <explain>Writes a line of HTML to the "virtual webpage" that will be sent to the connecting browser, does NOT append a new-line.</explain>
+    <return>1 always</return>
+    <error>"Socket is disconnected"</error>
+    <error>"Invalid parameter type"</error>
+  </function>
+
+  <function name="QueryParam"> 
+    <prototype>QueryParam( param )</prototype>
+    <parameter name="param" value="String" />
+    <explain>Query's the accessed URL for any embedded parameters. (see your favorite HTML docs for parameter embedding! :) )</explain>
+    <explain>Example: http://pol.server.com:8080/querytest.ecl?par=wibble&amp;name=
+<code>
+QueryParam( "par" ) ---> "wibble"
+QueryParam( "name" ) --> ""
+QueryParam( "heat" ) --> 0 [integer]
+</code></explain>
+    <return>String value of the embedded param, or 0 if not found.</return>
+    <error>"Invalid parameter type"</error>
+  </function>
+
+  <function name="QueryIP"> 
+    <prototype>QueryIP()</prototype>
+    <explain>returns the IP address of the connecting browser</explain>
+    <return>String IP address, i.e. "192.168.0.5"</return>
+  </function>
+
+  
+</ESCRIPT>

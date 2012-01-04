@@ -1,0 +1,64 @@
+<?xml version='1.0' encoding="iso-8859-1"?>
+<?xml-stylesheet type="text/xsl" href="escript.xslt" ?>
+<!DOCTYPE ESCRIPT SYSTEM "escript.dtd">
+<ESCRIPT>
+  <fileheader fname="Util.em">
+    <filedesc>Utility functions</filedesc>
+    <datemodified>08/02/2010</datemodified>
+  </fileheader>
+    
+  <function name="RandomInt"> 
+    <prototype>RandomInt(integer below_this_number)</prototype>
+    <parameter name="below_this_number" value="Integer" />
+    <explain>Returns a random integer below the passed parameter and greater or equal to zero.</explain>
+    <return>Integer R such that 0 less or equal to R less than below_this_number</return>
+	<error>"RandomInt() expects a positive integer"</error>
+  </function>
+
+  <function name="RandomIntMinMax"> 
+    <prototype>RandomIntMinMax(integer min_integer, integer max_integer)</prototype>
+    <parameter name="min_integer" value="Integer" />
+    <parameter name="max_integer" value="Integer" />
+    <explain>Returns a random integer between the Min and Max integers passed. Accepts negative Integers and if parameters in wrong order swaps them.</explain>
+    <return>Integer Randomly between Min and Max parameters</return>
+	<error>"RandomIntMinMax() expects an integer"</error>
+  </function>
+
+  <function name="RandomFloat"> 
+    <prototype>RandomFloat(real below_this_number)</prototype>
+    <parameter name="below_this_number" value="Real" />
+    <explain>Returns a random real below the passed parameter and greater or equal to zero.</explain>
+    <return>Real R such that 0 less or equal to R less than below_this_number</return>
+	<error>"RandomFloat() expects a Real parameter"</error>
+  </function>
+
+  <function name="RandomDiceRoll"> 
+    <prototype>RandomDiceRoll(String dice_string)</prototype>
+    <parameter name="dice_string" value="String" />
+    <explain>Returns a random number according to the passed die roll string. This is standard NdS+X format. N=number of dies to roll, S=number of sides per die, X=integer to add(or subtract) after roll.</explain>
+    <explain>Here's some acceptable examples:
+<code>
+4
+d4
+d6+6
+d6-2
+2d12
+2d8+12
+2d8-4
+</code></explain>
+    <return>Valkyrie's pedantic wording: "returns an integer greater or equal to N+X and not more than N*S+X"</return>
+  </function>
+
+  <function name="StrFormatTime"> 
+    <prototype>StrFormatTime( format_string, time_stamp:=0 )</prototype>
+    <parameter name="format_string" value="String" />
+    <parameter name="time_stamp" value="Integer" />
+    <explain>Takes in the StrFTime() specifiers for the format string.</explain>
+    <explain>If time_stamp is 0, it will use POLCore().systime.</explain>
+    <explain>For format_string information, please go to http://www.cppreference.com/stddate/strftime.html</explain>
+    <return>String</return>
+    <error>"No time string passed."</error>
+    <error>"Format string exceeded 100 characters."</error>
+  </function>
+
+</ESCRIPT>

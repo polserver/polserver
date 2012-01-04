@@ -1,0 +1,5 @@
+<!ELEMENT ESCRIPT (header,pre)>
+<!ELEMENT header (topic,text,datemodified)>
+  <!ELEMENT topic  (#PCDATA)>
+  <!ELEMENT datemodified (#PCDATA)>
+<!ELEMENT pre (#PCDATA)>

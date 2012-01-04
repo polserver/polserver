@@ -1,0 +1,12 @@
+<!ELEMENT ESCRIPT (header,pre)>
+<!ELEMENT header (topic,text,datemodified)>
+  <!ELEMENT topic  (#PCDATA)>
+  <!ELEMENT datemodified (#PCDATA)>
+<!ELEMENT version (entry*)>
+  <!ATTLIST version name CDATA #REQUIRED>
+  <!ELEMENT entry (date,author,change*)>
+    <!ELEMENT date (#PCDATA)>
+    <!ELEMENT author (#PCDATA)>
+    <!ELEMENT change (#PCDATA |br)*>
+      <!ATTLIST change type CDATA #REQUIRED>  
+      <!ELEMENT br EMPTY>   

@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="privileges.xslt" ?>
+<!DOCTYPE ESCRIPT SYSTEM "privileges.dtd">
+<ESCRIPT>
+<header>
+  <topic>List of Player Privileges</topic>
+  <text>First grant the privilege with an admin-level character (.grantpriv [name]), then .enable [name]. NPCs may have privilege as well, see npcdesc.cfg.</text>
+  <datemodified>02/25/2010</datemodified>
+</header>
+<list name="moveany">can move any item</list>
+<list name="renameany">can rename any character</list>
+<list name="clotheany">can equip items on any character</list>
+<list name="showadv">does nothing</list>
+<list name="invul">cannot be killed</list>
+<list name="seehidden">hidden characters can be seen</list>
+<list name="seeghosts">ghosts can always be seen</list>
+<list name="hearghosts">ghosts are heard normally</list>
+<list name="seeinvisitems">can see items that are inivisble</list>
+<list name="dblclickany">can use any item, regardless of LOS or distance</list>
+<list name="losany">always has Line-of-sight to any object</list>
+<list name="ignoredoors">doors do not block movement</list>
+<list name="freemove">immune to paralyze, frozen, stamina cost for movement, ignores PushThrough syshook.</list>
+<list name="firewhilemoving">swingtimer will not be reset if char is moving with projectile weapon</list>
+<list name="attackhidden">char can attack hidden opponents</list>
+<list name="hiddenattack">char can attack while hidden</list>
+<list name="all">grants and enables all available privileges</list>
+<list name="plogany">used with startlog and stoplog commands to activate target cursor</list>
+<list name="moveanydist">allow moving items regardless of distance</list>
+<list name="canbeheardasghost">everyone can hear you when speaking as ghost</list>
+<list name="runwhilestealth">you can run while you are in stealth for as many stealthsteps you have</list>
+<list name="speedhack">disables Speedhack Prevention for chr</list>
+</ESCRIPT>

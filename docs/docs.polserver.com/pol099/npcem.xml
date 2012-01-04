@@ -1,0 +1,385 @@
+<?xml version='1.0' encoding="iso-8859-1"?>
+<?xml-stylesheet type="text/xsl" href="escript.xslt" ?>
+<!DOCTYPE ESCRIPT SYSTEM "escript.dtd">
+<ESCRIPT>
+  <fileheader fname="NPC.em">
+    <filedesc>Functions for manipulating non-player character mobiles. All (most?) these functions are limited to use in an NPC context (meaning an AI script).</filedesc>
+    <datemodified>02/10/2009</datemodified>
+
+    <constant>// Constants for texttype flags in the Say() function</constant>
+    <constant>const SAY_TEXTTYPE_DEFAULT := "default";</constant>
+    <constant>const SAY_TEXTTYPE_WHISPER := "whisper";</constant>
+    <constant>const SAY_TEXTTYPE_YELL := "yell";</constant>
+    <constant> </constant>
+
+    <constant>// Constant for Unicode Language flag in the SayUC() function</constant>
+    <constant>const SAY_LANG := "ENU";</constant>
+
+    <constant> </constant>
+    <constant>// Constants for doevent flag in Say() function</constant>
+    <constant>const SAY_DOEVENT_DISABLE := 0x0;</constant>
+    <constant>const SAY_DOEVENT_ENABLE := 0x1;</constant>
+    <constant> </constant>
+    <constant>const FACE_NORMAL := 0x0;</constant>
+    <constant>const FACE_FORCE := 0x1;</constant>
+  </fileheader>
+    
+<function name="SetAnchor"> 
+    <prototype>SetAnchor( centerx, centery, distance_start, percent_subtract )</prototype>
+    <parameter name="centerx" value="Integer world coordinate" />
+    <parameter name="centery" value="Integer world coordinate" />
+    <parameter name="distance_start" value="Integer" />
+    <parameter name="percent_subtract" value="Integer" />
+    <explain>Sets the NPC's 'anchor' point. The NPC will have difficulty moving far away from this coordinate, and will generally stay near it.</explain>
+    <explain>centerx and centery define the anchor point.</explain>
+    <explain>distance_start is the distance away from the anchor point at which the npc may not be able to move beyond. Under this distance there is a 100% chance the move will succeed. If 0, it disables the anchor point.</explain>
+    <explain>percent_subtract is how much to subtract from the normal 100% chance for each move beyond the distance_start boundary. So if this value is "20", the first move beyond the distance_start range (and away from the anchor point) will only have an 80% chance of succeeding. The next one will have a 60% chance. So the NPC will tend to move back toward its anchor point.</explain>
+    <explain>The anchor point has no effect as long as the NPC is in war mode.</explain>
+    <return>1 on success</return>
+    <error>"Invalid parameter type"</error>
+	<error>"Invalid Coordinates for Realm"</error>
+    <related>NPC</related>
+</function>
+
+<function name="Self">
+    <prototype>Self()</prototype>
+    <explain>return a mobileref to self</explain>
+    <return>A Character Reference to this NPC</return>
+    <related>NPC</related>
+</function>
+
+<function name="Wander">
+    <prototype>Wander()</prototype>
+    <explain>walk, usually forward, sometimes turning</explain>
+    <return>1 if the move succeeded, 0 if it failed</return>
+    <related>NPC</related>
+</function>
+
+<function name="Move">
+    <prototype>Move( direction )</prototype>
+    <parameter name="direction" value="Direction String, Facing Integer, or Bounding Box"/>
+    <explain>A Direction String is one of: N, S, E, W, NW, NE, SW, SE</explain>
+    <explain>A Facing Integer is 0 through 7 where 0 is North, 1 is NorthEast, etc.</explain>
+    <explain>See MakeBoundingBox for info on the bounding box.</explain>
+    <return>Boolean for move success, or Direction String if bounding box was used</return>
+    <error>none, returns 0 on failures</error>
+    <related>NPC</related>
+</function>
+
+<function name="WalkToward">
+    <prototype>WalkToward( object )</prototype>
+    <parameter name="object" value="UObject"/>
+    <explain>Walk toward object one tile. Puts the script to sleep for a period of time proportional to the NPC's run_speed (or dexterity if not defined).</explain>
+	<explain>Note also, walking in range of your opponent may cause you to attack.</explain>
+	<explain>See the NPC members run_speed and use_adjustments. If use_adjustments is 1 the NPC will adjust the direction of the move to attempt to avoid small obsticles. Also, this function will always return true as a result. If it is 0, the NPC will not attempt to adjust the move, and the function will return false.</explain>
+	<explain>The success of this function is affected by the NPC's anchor point. See SetAnchor().</explain>
+	<explain>In the future, this function will activate a pathfinding system.</explain>
+	<return>Boolean for move success</return>
+	<error>"Invalid parameter type"</error>
+	<error>"Mobile specified cannot be seen" if object is a character and invisible</error>
+	<related>NPC</related>
+	<related>UObject</related>
+</function>
+    
+<function name="WalkAwayFrom">
+    <prototype>WalkAwayFrom( object )</prototype>
+    <parameter name="object" value="UObject"/>
+    <explain>Walk away from object one tile. Puts the script to sleep for a period of time proportional to the NPC's run_speed (or dexterity if not defined).</explain>
+	<explain>Note also, walking in range of your opponent may cause you to attack.</explain>
+	<explain>See the NPC members run_speed and use_adjustments. If use_adjustments is 1 the NPC will adjust the direction of the move to attempt to avoid small obsticles. Also, this function will always return true as a result. If it is 0, the NPC will not attempt to adjust the move, and the function will return false.</explain>
+	<explain>The success of this function is affected by the NPC's anchor point. See SetAnchor().</explain>
+	<explain>In the future, this function will activate a pathfinding system.</explain>
+	<return>Boolean for move success</return>
+	<error>"Invalid parameter type"</error>
+	<error>"Mobile specified cannot be seen" if object is a character and invisible</error>
+	<related>NPC</related>
+	<related>UObject</related>
+</function>
+
+<function name="RunToward">
+    <prototype>RunToward( object )</prototype>
+    <parameter name="object" value="UObject"/>
+    <explain>Runs toward object one tile. Puts the script to sleep for a period of time proportional to the NPC's run_speed (or dexterity if not defined).</explain>
+	<explain>Note also, walking in range of your opponent may cause you to attack.</explain>
+	<explain>See the NPC members run_speed and use_adjustments. If use_adjustments is 1 the NPC will adjust the direction of the move to attempt to avoid small obsticles. Also, this function will always return true as a result. If it is 0, the NPC will not attempt to adjust the move, and the function will return false.</explain>
+	<explain>The success of this function is affected by the NPC's anchor point. See SetAnchor().</explain>
+	<explain>In the future, this function will activate a pathfinding system.</explain>
+	<return>Boolean for move success</return>
+	<error>"Invalid parameter type"</error>
+	<error>"Mobile specified cannot be seen" if object is a character and invisible</error>
+	<related>NPC</related>
+	<related>UObject</related>
+</function>
+
+<function name="RunAwayFrom">
+    <prototype>RunAwayFrom( object )</prototype>
+    <parameter name="object" value="UObject"/>
+    <explain>Runs away from object one tile. Puts the script to sleep for a period of time proportional to the NPC's run_speed (or dexterity if not defined).</explain>
+	<explain>Note also, walking in range of your opponent may cause you to attack.</explain>
+	<explain>See the NPC members run_speed and use_adjustments. If use_adjustments is 1 the NPC will adjust the direction of the move to attempt to avoid small obsticles. Also, this function will always return true as a result. If it is 0, the NPC will not attempt to adjust the move, and the function will return false.</explain>
+	<explain>The success of this function is affected by the NPC's anchor point. See SetAnchor().</explain>
+	<explain>In the future, this function will activate a pathfinding system.</explain>
+	<return>Boolean for move success</return>
+	<error>"Invalid parameter type"</error>
+	<error>"Mobile specified cannot be seen" if object is a character and invisible</error>
+	<related>NPC</related>
+	<related>UObject</related>
+</function>
+
+<function name="TurnToward">
+    <prototype>TurnToward( object, flags := FACE_NORMAL )</prototype>
+    <parameter name="object" value="UObject"/>
+    <parameter name="flags" value="Integer"/>
+    <explain>Adjust facing to turn toward object. Puts the script to sleep for a period of time proportional to the NPC's run_speed (or dexterity if not defined).</explain>
+    <explain>See Face() for flags explanation<code>
+const FACE_NORMAL := 0x0;
+const FACE_FORCE := 0x1;</code></explain>
+	<return>Boolean for move success</return>
+	<error>"Invalid parameter type"</error>
+	<error>"Mobile specified cannot be seen" if object is a character and invisible</error>
+	<related>NPC</related>
+	<related>UObject</related>
+</function>
+
+<function name="TurnAwayFrom">
+    <prototype>TurnAwayFrom( object, flags := FACE_NORMAL )</prototype>
+    <parameter name="object" value="UObject"/>
+    <parameter name="flags" value="Integer"/>
+    <explain>Adjust facing to turn away from object. Puts the script to sleep for a period of time proportional to the NPC's run_speed (or dexterity if not defined).</explain>
+    <explain>See Face() for flags explanation<code>
+const FACE_NORMAL := 0x0;
+const FACE_FORCE := 0x1;</code></explain>
+	<return>Boolean for move success</return>
+	<error>"Invalid parameter type"</error>
+	<error>"Mobile specified cannot be seen" if object is a character and invisible</error>
+	<related>NPC</related>
+	<related>UObject</related>
+</function>
+
+<function name="WalkTowardLocation">
+    <prototype>WalkTowardLocation( x, y )</prototype>
+    <parameter name="x" value="Integer World Coordinate"/>
+    <parameter name="y" value="Integer World Coordinate"/>
+    <explain>Walk toward the given coordinates one tile. Puts the script to sleep for a period of time proportional to the NPC's run_speed (or dexterity if not defined).</explain>
+	<explain>Note also, walking in range of your opponent may cause you to attack.</explain>
+	<explain>See the NPC members run_speed and use_adjustments. If use_adjustments is 1 the NPC will adjust the direction of the move to attempt to avoid small obsticles. Also, this function will always return true as a result. If it is 0, the NPC will not attempt to adjust the move, and the function will return false.</explain>
+	<explain>The success of this function is affected by the NPC's anchor point. See SetAnchor().</explain>
+	<explain>In the future, this function will activate a pathfinding system.</explain>
+	<return>Boolean for move success</return>
+	<error>"Invalid parameter type"</error>
+	<error>"Invalid Coordinates for Realm"</error>
+	<related>NPC</related>
+</function>
+
+<function name="WalkAwayFromLocation">
+    <prototype>WalkAwayFromLocation( x, y )</prototype>
+    <parameter name="x" value="Integer World Coordinate"/>
+    <parameter name="y" value="Integer World Coordinate"/>
+    <explain>Walk away from the given coordinates one tile. Puts the script to sleep for a period of time proportional to the NPC's run_speed (or dexterity if not defined).</explain>
+	<explain>Note also, walking in range of your opponent may cause you to attack.</explain>
+	<explain>See the NPC members run_speed and use_adjustments. If use_adjustments is 1 the NPC will adjust the direction of the move to attempt to avoid small obsticles. Also, this function will always return true as a result. If it is 0, the NPC will not attempt to adjust the move, and the function will return false.</explain>
+	<explain>The success of this function is affected by the NPC's anchor point. See SetAnchor().</explain>
+	<explain>In the future, this function will activate a pathfinding system.</explain>
+	<return>Boolean for move success</return>
+	<error>"Invalid parameter type"</error>
+	<error>"Invalid Coordinates for Realm"</error>
+	<related>NPC</related>
+</function>	
+	
+<function name="RunTowardLocation">
+    <prototype>RunTowardLocation( x, y )</prototype>
+    <parameter name="x" value="Integer World Coordinate"/>
+    <parameter name="y" value="Integer World Coordinate"/>
+    <explain>Runs toward the given coordinates one tile. Puts the script to sleep for a period of time proportional to the NPC's run_speed (or dexterity if not defined).</explain>
+	<explain>Note also, walking in range of your opponent may cause you to attack.</explain>
+	<explain>See the NPC members run_speed and use_adjustments. If use_adjustments is 1 the NPC will adjust the direction of the move to attempt to avoid small obsticles. Also, this function will always return true as a result. If it is 0, the NPC will not attempt to adjust the move, and the function will return false.</explain>
+	<explain>The success of this function is affected by the NPC's anchor point. See SetAnchor().</explain>
+	<explain>In the future, this function will activate a pathfinding system.</explain>
+	<return>Boolean for move success</return>
+	<error>"Invalid parameter type"</error>
+	<error>"Invalid Coordinates for Realm"</error>
+	<related>NPC</related>
+</function>
+
+<function name="RunAwayFromLocation">
+    <prototype>RunAwayFromLocation( x, y )</prototype>
+    <parameter name="x" value="Integer World Coordinate"/>
+    <parameter name="y" value="Integer World Coordinate"/>
+    <explain>Runs away from the given coordinates one tile. Puts the script to sleep for a period of time proportional to the NPC's run_speed (or dexterity if not defined).</explain>
+	<explain>Note also, walking in range of your opponent may cause you to attack.</explain>
+	<explain>See the NPC members run_speed and use_adjustments. If use_adjustments is 1 the NPC will adjust the direction of the move to attempt to avoid small obsticles. Also, this function will always return true as a result. If it is 0, the NPC will not attempt to adjust the move, and the function will return false.</explain>
+	<explain>The success of this function is affected by the NPC's anchor point. See SetAnchor().</explain>
+	<explain>In the future, this function will activate a pathfinding system.</explain>
+	<return>Boolean for move success</return>
+	<error>"Invalid parameter type"</error>
+	<error>"Invalid Coordinates for Realm"</error>
+	<related>NPC</related>
+</function>	
+
+<function name="TurnTowardLocation">
+    <prototype>TurnTowardLocation( x, y, flags := FACE_NORMAL )</prototype>
+    <parameter name="x" value="Integer World Coordinate"/>
+    <parameter name="y" value="Integer World Coordinate"/>
+    <parameter name="flags" value="Integer"/>
+    <explain>Adjust facing to turn toward given coordinates one tile. Puts the script to sleep for a period of time proportional to the NPC's run_speed (or dexterity if not defined).</explain>
+    <explain>See Face() for flags explanation<code>
+const FACE_NORMAL := 0x0;
+const FACE_FORCE := 0x1;</code></explain>
+	<return>Boolean for move success</return>
+	<error>"Invalid parameter type"</error>
+	<error>"Invalid Coordinates for Realm"</error>
+	<related>NPC</related>
+</function>	
+
+<function name="TurnAwayFromLocation">
+    <prototype>TurnAwayFromLocation( x, y, flags := FACE_NORMAL )</prototype>
+    <parameter name="x" value="Integer World Coordinate"/>
+    <parameter name="y" value="Integer World Coordinate"/>
+    <parameter name="flags" value="Integer"/>
+    <explain>Adjust facing to turn away from given coordinates one tile. Puts the script to sleep for a period of time proportional to the NPC's run_speed (or dexterity if not defined).</explain>
+    <explain>See Face() for flags explanation<code>
+const FACE_NORMAL := 0x0;
+const FACE_FORCE := 0x1;</code></explain>
+	<return>Boolean for move success</return>
+	<error>"Invalid parameter type"</error>
+	<error>"Invalid Coordinates for Realm"</error>
+	<related>NPC</related>
+</function>	
+
+<function name="SetOpponent">
+    <prototype>SetOpponent( character )</prototype>
+    <parameter name="character" value="CharacterRef"/>
+    <explain>Set your opponent.  If you are in range (or are carrying a projectile weapon and have LOS), you will attack. If a player character is connected, the NPC will highlight.</explain>
+	<explain>Implicitly sets war mode.</explain>
+	<explain>pass 0 to clear the opponent.</explain>
+	<return>0 on invalid param or clear, 1 on successful set</return>
+	<related>Character</related>
+	<related>NPC</related>
+</function>
+
+<function name="SetWarMode">
+    <prototype>SetWarMode( warmode )</prototype>
+    <parameter name="warmode" value="Integer 1/0"/>
+    <explain>Usually used to leave warmode, but can be used to enter warmode independently of setting an opponent.</explain>
+	<explain>Setting war mode to 0 clears your opponent.</explain>
+	<return>1 on success, 0 on invalid param or clear</return>
+	<related>NPC</related>
+</function>
+
+<function name="Say">
+    <prototype>Say( text, text_type:=SAY_TEXTTYPE_DEFAULT, do_event:=SAY_DOEVENT_DISABLE )</prototype>
+    <parameter name="text" value="String"/>
+    <parameter name="text_type" value="Integer"/>
+    <parameter name="do_event" value="Integer"/>
+    <explain>Makes the NPC print text above its head. Uses the NPC member speech_font and speech_color.</explain>
+    <explain>If do_event is enabled with SAY_DOEVENT_ENABLE, it will send a speech event to nearby npcs.</explain>
+	<explain>Notes: npc.em constant for this function:
+<code>
+// Constants for texttype flags in the Say() function
+const SAY_TEXTTYPE_DEFAULT := "default";
+const SAY_TEXTTYPE_WHISPER := "whisper";
+const SAY_TEXTTYPE_YELL := "yell";
+
+// Constants for doevent flag in Say() function
+const SAY_DOEVENT_DISABLE := 0x0;
+const SAY_DOEVENT_ENABLE := 0x1;</code></explain>
+    <return>0</return>
+    <error>"NPC is squelched"</error>
+    <error>"texttype string param must be either 'default', 'whisper', or 'yell'"</error>
+    <related>NPC</related>
+</function>
+
+<function name="SayUC">
+    <prototype>SayUC( uc_text, text_type:=SAY_TEXTTYPE_DEFAULT, langcode:=SAY_LANG, do_event:=SAY_DOEVENT_DISABLE )</prototype>
+    <parameter name="uc_text" value="Array of 2-byte integers, where each integer is a Unicode character"/>
+    <parameter name="text_type" value="Integer"/>
+    <parameter name="langcode" value="3-character 'Originating Language' string code  e.g. ENU, CHT, DEU, RUS, KOR, etc." />
+    <parameter name="do_event" value="Integer" />
+    <explain>Makes the NPC print text above its head. Uses the NPC member speech_font and speech_color.</explain>
+    <explain>If do_event is enabled with SAY_DOEVENT_ENABLE, it will send a speech event to nearby npcs.</explain>
+    <explain>uc_text MUST be an array of integers representing unicode characters.</explain>
+    <explain>Integers must be "Big Endian" (0x1234) and not "Little Endian" (0x3412).</explain>
+    <explain>Integers will be clipped internally to 2-bytes (value masked with 0xFFFF)</explain>
+    <explain>The Array must be terminated with zero. (0x0000)</explain>
+    <return>0</return>
+    <error>"A parameter was invalid"</error>
+    <error>"NPC is squelched"</error>
+    <error>"texttype string param must be either 'default', 'whisper', or 'yell'"</error>
+    <error>"Unicode array exceeds maximum size."</error>
+    <error>"langcode must be a 3-character code."</error>
+    <error>"Invalid value in Unicode array."</error>
+    <related>NPC</related>
+</function>
+
+<function name="Position">
+    <prototype>Position()</prototype>
+    <explain>Deprecated. Use Self().x, Self().y, Self().z instead.</explain>
+    <return>A struct with x,y, and z members.</return>
+    <related>NPC</related>
+</function>
+
+<function name="GetProperty">
+    <prototype>GetProperty( propertyname )</prototype>
+    <parameter name="propertyname" value="String"/>
+    <explain>Deprecated. Equivalent to GetObjProperty( Self(), propertyname )</explain>
+    <return>An unpacked object. See GetObjProperty in UO.EM</return>
+    <error>"Property not found"</error>
+    <error>"Invalid parameter type"</error>
+    <related>NPC</related>
+</function>
+
+<function name="SetProperty">
+    <prototype>SetProperty( propertyname, propertyvalue )</prototype>
+    <parameter name="propertyname" value="String"/>
+    <parameter name="propertyvalue" value="Packable script object (int, string, array, etc)"/>
+    <explain>Deprecated. Equivalent to SetObjProperty( Self(), propertyname, propertyvalue )</explain>
+    <return>1. See SetObjProperty in UO.EM</return>
+    <error>"Invalid parameter type"</error>
+    <related>NPC</related>
+</function>
+
+<function name="MakeBoundingBox">
+    <prototype>MakeBoundingBox( areastring )</prototype>
+    <parameter name="areastring" value="String, see explanation"/>
+    <explain>Make a bounding box from an area string.  An area string is a number of 'x1 y1 x2 y2' world coordinate entries.</explain>
+	<explain>&quot;1 1 4 4 2 5 3 7&quot; would create a walk area something like this:
+<code>
+   XXXX
+   XXXXXXX
+   XXXXXXX
+   XXXX
+</code></explain>
+    <explain>Used with Move() and IsLegalMove() functions</explain>
+    <return>boundingbox on success, empty string on invalid param (ick). Careful, not much error checking!</return>
+</function>
+
+<function name="IsLegalMove">
+    <prototype>IsLegalMove( move, boundingbox )</prototype>
+    <parameter name="move" value="String, one of N, S, E, W, NW, NE, SW, SE"/>
+    <parameter name="boundingbox" value="Bounding box, from CreateBoundingBox"/>
+    <explain>Given your position, and a tentative move, would it fall within a bounding box. This function ignores facing. It checks explicity for moving in a given direction, regardless of facing.</explain>
+    <return>0 on invalid parameter, or illegal move. 1 on legal move</return>
+    <related>NPC</related>
+</function>
+
+<function name="CanMove">
+    <prototype>CanMove( direction )</prototype>
+    <parameter name="direction" value="String, one of N, S, E, W, NW, NE, SW, SE"/>
+    <explain>Given current position and direction, would it be possible to move there?</explain>
+    <return>0 on invalid parameter, or illegal move. 1 on legal move</return>
+    <related>NPC</related>
+</function>
+
+<function name="Face">
+    <prototype>Face( direction, flags := FACE_NORMAL )</prototype>
+    <parameter name="direction" value="Integer (0 - 7) or String, one of N, S, E, W, NW, NE, SW, SE"/>
+    <parameter name="flags" value="Integer"/>
+    <explain>Sets Facing to given direction. If FACE_FORCE is set frozen/paralysed is not checked.
+    <code>
+const FACE_NORMAL := 0x0;
+const FACE_FORCE := 0x1;</code></explain>
+    <return>0 on invalid parameter, illegal direction, or failed to face. New direction on success.</return>
+    <related>NPC</related>
+</function>
+
+</ESCRIPT>
