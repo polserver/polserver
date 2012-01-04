@@ -155,7 +155,7 @@ public:
 	void send_queued_data();
 
 	SOCKET csocket;		// socket to client ACK  - requires header inclusion.
-	Mutex _SocketMutex;
+	static Mutex _SocketMutex;
     unsigned short listen_port;
 	bool aosresist; // UOClient.Cfg Entry
 
@@ -176,7 +176,7 @@ public:
 
 	struct sockaddr ipaddr;
 
-    std::auto_ptr<CCryptBase> cryptengine;
+    CCryptBase* cryptengine;
 
 	bool encrypt_server_stream;				// encrypt the server stream (data sent to client)?
 

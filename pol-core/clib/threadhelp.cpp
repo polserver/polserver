@@ -195,22 +195,22 @@ unsigned thread_pid()
 
 void inc_child_thread_count( bool need_lock )
 {
-    if (need_lock)
+    //if (need_lock)
         threadsem_lock();
     
     ++child_threads;
     
-    if (need_lock)
+    //if (need_lock)
         threadsem_unlock();
 }
 void dec_child_thread_count( bool need_lock )
 {
-    if (need_lock)
+    //if (need_lock)
         threadsem_lock();
     
     --child_threads;
     
-    if (need_lock)
+    //if (need_lock)
         threadsem_unlock();
 }
 
