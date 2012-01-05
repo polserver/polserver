@@ -1,0 +1,22 @@
+dict{ "resist_fire_mod" -> 4 }
+struct{ resist_fire_mod = 4 }
+2
+dict{ "resist_fire_mod" -> 3 }
+struct{ resist_fire_mod = 3 }
+dict{ "resist_fire_mod" -> 6 }
+struct{ resist_fire_mod = 6 }
+dict{ "resist_fire_mod" -> 2 }
+struct{ resist_fire_mod = 2 }
+dict{ "blubb" -> 4 }
+struct{ blubb = 4 }
+2
+dict{ "blubb" -> 3 }
+struct{ blubb = 3 }
+dict{ "blubb" -> 6 }
+struct{ blubb = 6 }
+dict{ "blubb" -> 2 }
+struct{ blubb = 2 }
+struct{ blubb = <uninitialized object> }
+dict{  }
+struct{ resist_fire_mod = <uninitialized object> }
+dict{  }

@@ -106,6 +106,7 @@ OTESTS = \
     bitop001.ok bitop002.ok bitop003.ok \
     recurs01.ok recurs02.ok \
     bug001.ok bug002.ok bug003.ok \
+    setmember.ok \
     filemod\xml.ok
 !endif
 #  bug004.ok

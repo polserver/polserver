@@ -1402,24 +1402,16 @@ void Executor::ins_set_member_id_consume_plusequal( const Instruction& ins )
     BObject& right = *rightref;
     BObject& left = *leftref;
 
-    BObjectImp& rightimpref = right.impref();
+    BObjectImp& leftimpref = left.impref();
 
-    if (right.count() == 1 && rightimpref.count() == 1)
-    {
-		BObjectRef& tmp = left.impref().get_member_id( ins.token.lval );
-		BObject& btmp = *tmp;
-		btmp.impref().operPlusEqual( btmp , rightimpref );
-        left.impref().set_member_id( ins.token.lval, btmp.impptr()->copy()); // FIXME: is this a leak? set_member needs a copy cause tmp gets destroyed... eg dictionarys
-    }
-    else
-    {
-        BObjectImp* imp = rightimpref.copy();
-        BObject obj(imp);
-		BObjectRef& tmp = left.impref().get_member_id( ins.token.lval );
-		BObject& btmp = *tmp;
-		btmp.impref().operPlusEqual( btmp , *imp );
-        left.impref().set_member_id( ins.token.lval, btmp.impptr()->copy() );
-    }
+	BObjectRef tmp = leftimpref.get_member_id( ins.token.lval );
+	BObject obj(*tmp);
+
+	if (!obj.isa(BObjectImp::OTUninit) && !obj.isa(BObjectImp::OTError)) // do nothing if curval is uninit or error
+	{
+		tmp->impref().operPlusEqual( obj , right.impref() );
+		leftimpref.set_member_id( ins.token.lval, &tmp->impref());
+	}
     ValueStack.pop();
 }
 
@@ -1432,25 +1424,17 @@ void Executor::ins_set_member_id_consume_minusequal( const Instruction& ins )
     BObject& right = *rightref;
     BObject& left = *leftref;
 
-    BObjectImp& rightimpref = right.impref();
+	BObjectImp& leftimpref = left.impref();
 
-    if (right.count() == 1 && rightimpref.count() == 1)
-    {
-		BObjectRef& tmp = left.impref().get_member_id( ins.token.lval );
-		BObject& btmp = *tmp;
-		btmp.impref().operMinusEqual( btmp , rightimpref );
-        left.impref().set_member_id( ins.token.lval, btmp.impptr()->copy());
-    }
-    else
-    {
-        BObjectImp* imp = rightimpref.copy();
-        BObject obj(imp);
-		BObjectRef& tmp = left.impref().get_member_id( ins.token.lval );
-		BObject& btmp = *tmp;
-		btmp.impref().operMinusEqual( btmp , *imp );
-        left.impref().set_member_id( ins.token.lval, btmp.impptr()->copy() );
-    }
-    ValueStack.pop();
+	BObjectRef tmp = leftimpref.get_member_id( ins.token.lval );
+	BObject obj(*tmp);
+
+	if (!obj.isa(BObjectImp::OTUninit) && !obj.isa(BObjectImp::OTError)) // do nothing if curval is uninit or error
+	{
+		tmp->impref().operMinusEqual( obj , right.impref() );
+		leftimpref.set_member_id( ins.token.lval, &tmp->impref());
+	}
+	ValueStack.pop();
 }
 
 void Executor::ins_set_member_id_consume_timesequal( const Instruction& ins )
@@ -1462,25 +1446,17 @@ void Executor::ins_set_member_id_consume_timesequal( const Instruction& ins )
     BObject& right = *rightref;
     BObject& left = *leftref;
 
-    BObjectImp& rightimpref = right.impref();
+	BObjectImp& leftimpref = left.impref();
 
-    if (right.count() == 1 && rightimpref.count() == 1)
-    {
-		BObjectRef& tmp = left.impref().get_member_id( ins.token.lval );
-		BObject& btmp = *tmp;
-		btmp.impref().operTimesEqual( btmp , rightimpref );
-        left.impref().set_member_id( ins.token.lval, btmp.impptr()->copy());
-    }
-    else
-    {
-        BObjectImp* imp = rightimpref.copy();
-        BObject obj(imp);
-		BObjectRef& tmp = left.impref().get_member_id( ins.token.lval );
-		BObject& btmp = *tmp;
-		btmp.impref().operTimesEqual( btmp , *imp );
-        left.impref().set_member_id( ins.token.lval, btmp.impptr()->copy() );
-    }
-    ValueStack.pop();
+	BObjectRef tmp = leftimpref.get_member_id( ins.token.lval );
+	BObject obj(*tmp);
+
+	if (!obj.isa(BObjectImp::OTUninit) && !obj.isa(BObjectImp::OTError)) // do nothing if curval is uninit or error
+	{
+		tmp->impref().operTimesEqual( obj , right.impref() );
+		leftimpref.set_member_id( ins.token.lval, &tmp->impref());
+	}
+	ValueStack.pop();
 }
 
 void Executor::ins_set_member_id_consume_divideequal( const Instruction& ins )
@@ -1492,25 +1468,17 @@ void Executor::ins_set_member_id_consume_divideequal( const Instruction& ins )
     BObject& right = *rightref;
     BObject& left = *leftref;
 
-    BObjectImp& rightimpref = right.impref();
+	BObjectImp& leftimpref = left.impref();
 
-    if (right.count() == 1 && rightimpref.count() == 1)
-    {
-		BObjectRef& tmp = left.impref().get_member_id( ins.token.lval );
-		BObject& btmp = *tmp;
-		btmp.impref().operDivideEqual( btmp , rightimpref );
-        left.impref().set_member_id( ins.token.lval, btmp.impptr()->copy());
-    }
-    else
-    {
-        BObjectImp* imp = rightimpref.copy();
-        BObject obj(imp);
-		BObjectRef& tmp = left.impref().get_member_id( ins.token.lval );
-		BObject& btmp = *tmp;
-		btmp.impref().operDivideEqual( btmp , *imp );
-        left.impref().set_member_id( ins.token.lval, btmp.impptr()->copy() );
-    }
-    ValueStack.pop();
+	BObjectRef tmp = leftimpref.get_member_id( ins.token.lval );
+	BObject obj(*tmp);
+
+	if (!obj.isa(BObjectImp::OTUninit) && !obj.isa(BObjectImp::OTError)) // do nothing if curval is uninit or error
+	{
+		tmp->impref().operDivideEqual( obj , right.impref() );
+		leftimpref.set_member_id( ins.token.lval, &tmp->impref());
+	}
+	ValueStack.pop();
 }
 
 void Executor::ins_set_member_id_consume_modulusequal( const Instruction& ins )
@@ -1522,25 +1490,17 @@ void Executor::ins_set_member_id_consume_modulusequal( const Instruction& ins )
     BObject& right = *rightref;
     BObject& left = *leftref;
 
-    BObjectImp& rightimpref = right.impref();
+	BObjectImp& leftimpref = left.impref();
 
-    if (right.count() == 1 && rightimpref.count() == 1)
-    {
-		BObjectRef& tmp = left.impref().get_member_id( ins.token.lval );
-		BObject& btmp = *tmp;
-		btmp.impref().operModulusEqual( btmp , rightimpref );
-        left.impref().set_member_id( ins.token.lval, btmp.impptr()->copy());
-    }
-    else
-    {
-        BObjectImp* imp = rightimpref.copy();
-        BObject obj(imp);
-		BObjectRef& tmp = left.impref().get_member_id( ins.token.lval );
-		BObject& btmp = *tmp;
-		btmp.impref().operModulusEqual( btmp , *imp );
-        left.impref().set_member_id( ins.token.lval, btmp.impptr()->copy() );
-    }
-    ValueStack.pop();
+	BObjectRef tmp = leftimpref.get_member_id( ins.token.lval );
+	BObject obj(*tmp);
+
+	if (!obj.isa(BObjectImp::OTUninit) && !obj.isa(BObjectImp::OTError)) // do nothing if curval is uninit or error
+	{
+		tmp->impref().operModulusEqual( obj , right.impref() );
+		leftimpref.set_member_id( ins.token.lval, &tmp->impref());
+	}
+	ValueStack.pop();
 }
 
 void Executor::ins_get_member( const Instruction& ins )
