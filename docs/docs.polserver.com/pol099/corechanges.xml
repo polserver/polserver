@@ -7,13 +7,21 @@
     <datemodified>01/04/2012</datemodified>
   </header>
   <version name="POL099">
-  	    <entry>
+    <entry>
       <date>01-03-2012</date>
       <author>Turley</author>
-      <change type="Changed">major rewrite of primitive operators +,-,*,/,...<br/>
+      <change type="Changed">major rewrite of primitive operators +,-,*,/,...
         major speedup of +=,-=,...
       </change>
       <change type="Added">finally support for +=,-=,*=,/=,%= with objectmembers, like who.resist_fire_mod+=1
+      </change>
+      <change type="Note">if member would return UnInit or Error it does nothing
+        so its like (only faster and atomic):
+        var temp:=who.resist_fire_mod;
+        if (!(TypeOfInt(temp) in {OT_UNINIT,OT_ERROR}))
+        temp+=1;
+        who.resist_fire_mod:=temp;
+        endif
       </change>
     </entry>
     <entry>

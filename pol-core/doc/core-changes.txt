@@ -1,8 +1,15 @@
 ﻿-- POL099 --
 01-03-2012 Turley:
-	Changed: major rewrite of primitive operators +,-,*,/,...
-			 major speedup of +=,-=,...
-	  Added: finally support for +=,-=,*=,/=,%= with objectmembers, like who.resist_fire_mod+=1
+    Changed: major rewrite of primitive operators +,-,*,/,...
+             major speedup of +=,-=,...
+      Added: finally support for +=,-=,*=,/=,%= with objectmembers, like who.resist_fire_mod+=1
+       Note: if member would return UnInit or Error it does nothing
+             so its like (only faster and atomic):
+             var temp:=who.resist_fire_mod;
+             if (!(TypeOfInt(temp) in {OT_UNINIT,OT_ERROR}))
+                temp+=1;
+                who.resist_fire_mod:=temp;
+             endif
 
 01-02-2012 Turley:
 	  Added: XMLFile/XMLNode.removexmlnode(int value)
