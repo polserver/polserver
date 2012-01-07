@@ -199,10 +199,14 @@ void Client::transmit( const void *data, int len, bool needslock)
 			if (needslock)
 			{
 				PolLock lock;
+				LocalMutex guard(&_SocketMutex);
 				CallOutgoingPacketExportedFunction(this, data, len, p, phd, handled);
 			}
 			else
+			{
+				LocalMutex guard(&_SocketMutex);
 				CallOutgoingPacketExportedFunction(this, data, len, p, phd, handled);
+			}
 		}
 	}	
 
