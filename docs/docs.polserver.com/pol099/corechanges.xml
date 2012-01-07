@@ -16,11 +16,11 @@
       <change type="Added">finally support for +=,-=,*=,/=,%= with objectmembers, like who.resist_fire_mod+=1
       </change>
       <change type="Note">if member would return UnInit or Error it does nothing
-        so its like (only faster and atomic):
-        var temp:=who.resist_fire_mod;
-        if (!(TypeOfInt(temp) in {OT_UNINIT,OT_ERROR}))
-        temp+=1;
-        who.resist_fire_mod:=temp;
+        so its like (only faster and atomic):<br/>
+        var temp:=who.resist_fire_mod;<br/>
+        if (!(TypeOfInt(temp) in {OT_UNINIT,OT_ERROR}))<br/>
+        temp+=1;<br/>
+        who.resist_fire_mod:=temp;<br/>
         endif
       </change>
     </entry>
