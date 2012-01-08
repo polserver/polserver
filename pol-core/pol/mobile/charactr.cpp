@@ -1323,22 +1323,22 @@ void Character::refresh_cached_settings( bool update )
 	cached_settings.hearghosts	     = setting_enabled( "hearghosts" );
 	oldvalue = cached_settings.invul;
 	cached_settings.invul		     = setting_enabled( "invul" );
-	if ( oldvalue != cached_settings.invul && update )
+	if ( update && oldvalue != cached_settings.invul )
 		PrivUpdater::on_change_invul( this, cached_settings.invul );
 	cached_settings.losany		     = setting_enabled( "losany" );
 	cached_settings.moveany		     = setting_enabled( "moveany" );
 	cached_settings.renameany	     = setting_enabled( "renameany" );
 	oldvalue = cached_settings.seeghosts;
 	cached_settings.seeghosts	     = setting_enabled( "seeghosts" );
-	if ( oldvalue != cached_settings.seeghosts && update )
+	if ( update && oldvalue != cached_settings.seeghosts )
 		PrivUpdater::on_change_see_ghosts( this, cached_settings.seeghosts );
 	oldvalue = cached_settings.seehidden;
 	cached_settings.seehidden	     = setting_enabled( "seehidden" );
-	if ( oldvalue != cached_settings.seehidden && update )
+	if ( update && oldvalue != cached_settings.seehidden )
 		PrivUpdater::on_change_see_hidden( this, cached_settings.seehidden );
 	oldvalue = cached_settings.seeinvisitems;
 	cached_settings.seeinvisitems    = setting_enabled( "seeinvisitems" );
-	if ( oldvalue != cached_settings.seeinvisitems && update )
+	if ( update && oldvalue != cached_settings.seeinvisitems )
 		PrivUpdater::on_change_see_invis_items( this, cached_settings.seeinvisitems );
 	cached_settings.ignoredoors	     = setting_enabled( "ignoredoors" );
 	cached_settings.freemove		 = setting_enabled( "freemove" );
