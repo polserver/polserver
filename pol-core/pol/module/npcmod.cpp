@@ -881,7 +881,7 @@ BObjectImp* NPCExecutorModule::SayUC()
 				ntextbuf[ ntextbuflen++ ] = std::wcout.narrow((wchar_t)gwtext[i], '?');
 			}
 			ntextbuf[ ntextbuflen++ ] = 0;
-			for_nearby_npcs( npc_spoke, &npc, ntextbuf, ntextbuflen, texttype, gwtext, languc, textlen);
+			for_nearby_npcs( npc_spoke, &npc, ntextbuf, ntextbuflen, texttype, gwtext, languc, textlen, NULL);
 		}
 	}
 	else

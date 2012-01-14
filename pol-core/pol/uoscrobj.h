@@ -214,9 +214,9 @@ class UnicodeSpeechEvent : public BStruct
 {
 public:
     UnicodeSpeechEvent( Character* speaker, const char* speech,
-											const u16* wspeech, const char lang[4]);
+											const u16* wspeech, const char lang[4], ObjArray* speechtokens=NULL);
 	UnicodeSpeechEvent( Character* speaker, const char* speech, const char* texttype,
-											const u16* wspeech, const char lang[4]);
+											const u16* wspeech, const char lang[4], ObjArray* speechtokens=NULL);
 };
 
 class DamageEvent : public BStruct
