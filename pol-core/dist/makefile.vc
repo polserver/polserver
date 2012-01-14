@@ -44,6 +44,7 @@ dist:
 	copy ..\..\support\scripts\guilds.em scripts\modules
 	copy ..\..\support\scripts\storage.em scripts\modules
 	copy ..\..\support\scripts\vitals.em scripts\modules
+	copy ..\..\support\scripts\sql.em scripts\modules
 !	IF "$(PLATFORM)"=="x64"
 		copy ..\..\..\lib\mysql-connector-c-6.0.2-winx64\lib\libmysql.dll .
 !	ELSE
