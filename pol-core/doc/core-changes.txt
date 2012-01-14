@@ -1,7 +1,4 @@
 ﻿-- POL099 --
-01-15-2012 Tomi:
-    Fixed: speechmul hook doesnt need to enabled anymore for tokens to be added to listeners.
-
 01-14-2012 Turley:
     Changed: UnicodespeechEvent additional Member "tokens" if speech has (speech.mul) Tokens, gives array of spoken TokenIDs
 	  Added: servspecopt.cfg SeperateSpeechTokens=1/0 default 0 when set RegisterForSpeechEvents() and EnableEvents/DisableEvents behave different
