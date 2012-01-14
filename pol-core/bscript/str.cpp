@@ -258,23 +258,23 @@ void String::selfPlusObjImp(BObjectImp& objimp , BObject& obj)
 }
 void String::selfPlusObj(BObjectImp& objimp, BObject& obj)
 {
-	value_ + objimp.getStringRep();
+	value_ += objimp.getStringRep();
 }
 void String::selfPlusObj(BLong& objimp, BObject& obj)
 {
-	value_ + objimp.getStringRep();
+	value_ += objimp.getStringRep();
 }
 void String::selfPlusObj(Double& objimp, BObject& obj)
 {
-	value_ + objimp.getStringRep();
+	value_ += objimp.getStringRep();
 }
 void String::selfPlusObj(String& objimp, BObject& obj)
 {
-	value_ + objimp.getStringRep();
+	value_ += objimp.getStringRep();
 }
 void String::selfPlusObj(ObjArray& objimp, BObject& obj)
 {
-	value_ + objimp.getStringRep();
+	value_ += objimp.getStringRep();
 }
 
 
