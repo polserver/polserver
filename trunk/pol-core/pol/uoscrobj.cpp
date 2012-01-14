@@ -3505,7 +3505,7 @@ SpeechEvent::SpeechEvent( Character* speaker, const char* speech, const char* te
 }
 
 UnicodeSpeechEvent::UnicodeSpeechEvent( Character* speaker, const char* speech,
-															const u16* wspeech, const char lang[4] )
+															const u16* wspeech, const char lang[4], ObjArray* speechtokens )
 {
 	ObjArray* arr;
 	addMember( "type", new BLong( EVID_SPOKE ) );
@@ -3521,9 +3521,11 @@ UnicodeSpeechEvent::UnicodeSpeechEvent( Character* speaker, const char* speech,
 		addMember( "uc_text", arr );
 		addMember( "langcode", new String( lang ) );
 	}
+	if (speechtokens!=NULL)
+		addMember( "tokens", speechtokens);
 }
 UnicodeSpeechEvent::UnicodeSpeechEvent( Character* speaker, const char* speech, const char* texttype,
-															const u16* wspeech, const char lang[4] )
+															const u16* wspeech, const char lang[4], ObjArray* speechtokens )
 {
 	ObjArray* arr;
 	addMember( "type", new BLong( EVID_SPOKE ) );
@@ -3540,6 +3542,8 @@ UnicodeSpeechEvent::UnicodeSpeechEvent( Character* speaker, const char* speech, 
 		addMember( "langcode", new String( lang ) );
 	}
 	addMember( "texttype", new String(texttype) );
+	if (speechtokens!=NULL)
+		addMember( "tokens", speechtokens);
 }
 
 DamageEvent::DamageEvent( Character* source, unsigned short damage )

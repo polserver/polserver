@@ -7,6 +7,26 @@
     <datemodified>01/04/2012</datemodified>
   </header>
   <version name="POL099">
+  	<entry>
+      <date>01-14-2012</date>
+      <author>Turley</author>
+      <change type="Changed">UnicodespeechEvent additional Member "tokens" if speech has (speech.mul) Tokens, gives array of spoken TokenIDs
+      </change>
+      <change type="Added">servspecopt.cfg SeperateSpeechTokens=1/0 default 0 when set RegisterForSpeechEvents() and EnableEvents/DisableEvents behave different
+      </change>
+      <change type="Added">uo:RegisterForSpeechEvents Flags LISTENPT_HEAR_TOKENS,LISTENPT_ONLY_HEAR_TOKENS
+      </change>
+      <change type="Added">SYSEVENT_TOKEN_SPEECH:=0x4000 and SYSEVENT_TOKEN_GHOST_SPEECH:=0x8000 for uo:EnableEvents/DisableEvents
+      </change>
+      <change type="Note">if SeperateSpeechTokens is set you can control which events you get,<br/>
+        for NPCs you only get speech with tokens if you set SYSEVENT_TOKEN_SPEECH/SYSEVENT_TOKEN_GHOST_SPEECH
+        and non Token speech with SYSEVENT_SPEECH,SYSEVENT_GHOST_SPEECH<br/>
+        for RegisterForSpeechEvents() you get speech with and without Tokens when setting LISTENPT_HEAR_TOKENS and only speech with Tokens
+        setting LISTENPT_ONLY_HEAR_TOKENS
+      </change>
+      <change type="Note">Token and nonToken Eventtype is still the same (SYSEVENT_SPEECH)
+      </change>
+    </entry>
     <entry>
       <date>01-03-2012</date>
       <author>Turley</author>
