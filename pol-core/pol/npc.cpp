@@ -700,35 +700,53 @@ void NPC::on_ghost_pc_spoke( Character* src_chr, const char* speech, u8 texttype
 }
 
 void NPC::on_pc_spoke( Character *src_chr, const char *speech, u8 texttype,
-					   const u16* wspeech, const char lang[4])
+					   const u16* wspeech, const char lang[4], ObjArray* speechtokens)
 {
     if (ex != NULL)
     {
-        if ((ex->eventmask & EVID_SPOKE) &&
+		if (ssopt.seperate_speechtoken)
+		{
+			if (speechtokens != NULL && (ex->eventmask & EVID_TOKEN_SPOKE==0))
+				return;
+			else if (speechtokens == NULL && (ex->eventmask & EVID_SPOKE==0))
+				return;
+		}
+        if (((ex->eventmask & EVID_SPOKE) || (ex->eventmask & EVID_TOKEN_SPOKE)) &&
             inrangex( this, src_chr, ex->speech_size ) &&
             !deafened())
         {
             if ( (!ssopt.event_visibility_core_checks) || is_visible_to_me( src_chr ))
+			{
 				ex->os_module->signal_event( new UnicodeSpeechEvent( src_chr, speech,
 																	 TextTypeToString(texttype),
-																	 wspeech, lang ) );
+																	 wspeech, lang, speechtokens ) );
+			}
         }
     }
 }
 
 void NPC::on_ghost_pc_spoke( Character* src_chr, const char* speech, u8 texttype,
-							 const u16* wspeech, const char lang[4])
+							 const u16* wspeech, const char lang[4], ObjArray* speechtokens)
 {
     if (ex != NULL)
     {
-        if ((ex->eventmask & EVID_GHOST_SPEECH) &&
+		if (ssopt.seperate_speechtoken)
+		{
+			if (speechtokens != NULL && (ex->eventmask & EVID_TOKEN_GHOST_SPOKE==0))
+				return;
+			else if (speechtokens == NULL && (ex->eventmask & EVID_GHOST_SPEECH==0))
+				return;
+		}
+        if (((ex->eventmask & EVID_GHOST_SPEECH) || (ex->eventmask & EVID_TOKEN_GHOST_SPOKE)) &&
             inrangex( this, src_chr, ex->speech_size ) &&
             !deafened())
         {
             if ( (!ssopt.event_visibility_core_checks) || is_visible_to_me( src_chr ))
+			{
 				ex->os_module->signal_event( new UnicodeSpeechEvent( src_chr, speech,
 																	 TextTypeToString(texttype),
-																	 wspeech, lang ) );
+																	wspeech, lang, speechtokens ) );
+			}
         }
     }
 }

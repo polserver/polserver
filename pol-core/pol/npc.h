@@ -50,9 +50,9 @@ public:
 
 	// Speech: Unicode (and ASCII) versions
     virtual void on_pc_spoke( Character *src_chr, const char *speech, u8 texttype,
-							  const u16* wspeech, const char lang[4]);
+							  const u16* wspeech, const char lang[4], ObjArray* speechtokens=NULL);
     virtual void on_ghost_pc_spoke( Character* src_chr, const char* speech, u8 texttype,
-									const u16* wspeech, const char lang[4]);
+									const u16* wspeech, const char lang[4], ObjArray* speechtokens=NULL);
 
 	virtual unsigned short ar() const;
 	virtual void refresh_ar();
@@ -174,10 +174,10 @@ inline void npc_spoke( NPC& npc, Character *chr, const char *text, int textlen, 
 		npc.on_pc_spoke( chr, text, texttype );
 }
 
-inline void npc_spoke( NPC& npc, Character *chr, const char *text, int textlen, u8 texttype, const u16 *wtext, const char lang[4], int wtextlen )
+inline void npc_spoke( NPC& npc, Character *chr, const char *text, int textlen, u8 texttype, const u16 *wtext, const char lang[4], int wtextlen, ObjArray* speechtokens=NULL )
 {
 	if ( npc.serial != chr->serial )
-		npc.on_pc_spoke( chr, text, texttype, wtext, lang );
+		npc.on_pc_spoke( chr, text, texttype, wtext, lang, speechtokens );
 }
 
 inline unsigned short NPC::ar() const

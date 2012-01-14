@@ -76,6 +76,7 @@ struct ServSpecOpt {
 	unsigned short speedhack_footwalkdelay;
 
 	std::vector<std::string> total_stats_at_creation;
+	bool seperate_speechtoken;
 };
 
 extern ServSpecOpt ssopt;

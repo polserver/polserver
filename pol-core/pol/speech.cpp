@@ -58,13 +58,13 @@ void ghost_pc_spoke( NPC& npc, Character* chr, const char* text, int textlen, u8
 }
 
 // UNICODE VERSIONS
-void pc_spoke( NPC& npc, Character *chr, const char *text, int textlen, u8 texttype, const u16 *wtext, const char lang[4], int wtextlen )
+void pc_spoke( NPC& npc, Character *chr, const char *text, int textlen, u8 texttype, const u16 *wtext, const char lang[4], int wtextlen, ObjArray* speechtokens=NULL )
 {
-	npc.on_pc_spoke( chr, text, texttype, wtext, lang );
+	npc.on_pc_spoke( chr, text, texttype, wtext, lang, speechtokens );
 }
-void ghost_pc_spoke( NPC& npc, Character* chr, const char *text, int textlen, u8 texttype, const u16 *wtext, const char lang[4], int wtextlen )
+void ghost_pc_spoke( NPC& npc, Character* chr, const char *text, int textlen, u8 texttype, const u16 *wtext, const char lang[4], int wtextlen, ObjArray* speechtokens=NULL )
 {
-	npc.on_ghost_pc_spoke( chr, text, texttype, wtext, lang );
+	npc.on_ghost_pc_spoke( chr, text, texttype, wtext, lang, speechtokens );
 }
 
 void handle_processed_speech( Client* client, char* textbuf, int textbuflen, char firstchar, u8 type, u16 color, u16 font )
@@ -220,7 +220,7 @@ void SpeechHandler( Client *client, PKTIN_03 *mymsg )
 
 MESSAGE_HANDLER_VARLEN( PKTIN_03, SpeechHandler );
 
-void SendUnicodeSpeech(Client *client, PKTIN_AD *msgin, u16* wtext, size_t wtextlen, char* ntext, size_t ntextlen)
+void SendUnicodeSpeech(Client *client, PKTIN_AD *msgin, u16* wtext, size_t wtextlen, char* ntext, size_t ntextlen, ObjArray* speechtokens)
 {
 	using std::wstring;
 
@@ -334,13 +334,13 @@ void SendUnicodeSpeech(Client *client, PKTIN_AD *msgin, u16* wtext, size_t wtext
 
     if (!client->chr->dead())
 		for_nearby_npcs( pc_spoke, client->chr, ntext, static_cast<int>(ntextlen), msgin->type,
-						 wtext, msgin->lang, static_cast<int>(wtextlen));
+						 wtext, msgin->lang, static_cast<int>(wtextlen), speechtokens);
 	else
 		for_nearby_npcs( ghost_pc_spoke, client->chr, ntext, static_cast<int>(ntextlen), msgin->type,
-						 wtext, msgin->lang, static_cast<int>(wtextlen));
+						 wtext, msgin->lang, static_cast<int>(wtextlen), speechtokens);
 
 	sayto_listening_points( client->chr, ntext, static_cast<int>(ntextlen), msgin->type,
-							wtext, msgin->lang, static_cast<int>(wtextlen));
+							wtext, msgin->lang, static_cast<int>(wtextlen), speechtokens);
 }
 u16 Get12BitNumber(u8 * thearray, u16 theindex)
 {	
@@ -467,12 +467,12 @@ void UnicodeSpeechHandler( Client *client, PKTIN_AD *msgin )
 				atoken = new BLong(Get12BitNumber((u8 *) (msgin->wtext), j+1));
 				speechtokens->addElement(atoken);
 			}
-			system_hooks.speechmul_hook->call( make_mobileref(client->chr), speechtokens.release(), new String(ntextbuf) );
+			system_hooks.speechmul_hook->call( make_mobileref(client->chr), new ObjArray(*speechtokens.get()), new String(ntextbuf) );
 		}
 		msgin->type &= (~0xC0);  // Client won't accept C0 text type messages, so must set to 0
 	}
 	
-	SendUnicodeSpeech(client, msgin, wtextbuf, wtextbuflen, ntextbuf, ntextbuflen);
+	SendUnicodeSpeech(client, msgin, wtextbuf, wtextbuflen, ntextbuf, ntextbuflen, speechtokens.release());
 }
 
 MESSAGE_HANDLER_VARLEN( PKTIN_AD, UnicodeSpeechHandler );

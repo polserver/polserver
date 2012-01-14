@@ -63,7 +63,7 @@ const char* TextTypeToString(u8 texttype)
 
 void sayto_listening_points( Character* speaker, const char* p_text, int p_textlen, u8 texttype, //DAVE
 							const u16* p_wtext /*NULL*/, const char* p_lang /*NULL*/,
-							int p_wtextlen /*0*/)
+							int p_wtextlen /*0*/, ObjArray* speechtokens /*NULL*/)
 {
     for( ListenPoints::iterator itr = listen_points.begin(), end = listen_points.end(); itr != end; )
     {
@@ -81,13 +81,26 @@ void sayto_listening_points( Character* speaker, const char* p_text, int p_textl
         { 
             if (!speaker->dead() || (lp->flags&LISTENPT_HEAR_GHOSTS))
             {
+				if (ssopt.seperate_speechtoken)
+				{
+					if (speechtokens != NULL && ((lp->flags & LISTENPT_HEAR_TOKENS)==0))
+					{
+						++itr;
+						continue;
+					}
+					else if (speechtokens == NULL && (lp->flags & LISTENPT_ONLY_HEAR_TOKENS))
+					{
+						++itr;
+						continue;
+					}
+				}
                 const UObject* toplevel = lp->object->toplevel_owner();
                 if ((speaker->realm == toplevel->realm) && (inrangex( speaker, toplevel->x, toplevel->y, lp->range )))
                 {
 					if ( p_wtext && p_lang && p_wtextlen > 0 )
 						lp->uoexec->os_module->signal_event( new UnicodeSpeechEvent(speaker,p_text,
 																			 TextTypeToString(texttype),
-																			 p_wtext,p_lang) );
+																			 p_wtext,p_lang, speechtokens) );
 					else
 	                    lp->uoexec->os_module->signal_event( new SpeechEvent(speaker, p_text,
 																			 TextTypeToString(texttype)) );
