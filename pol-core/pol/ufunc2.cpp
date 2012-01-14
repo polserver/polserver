@@ -105,8 +105,8 @@ void for_nearby_npcs( void (*f)(NPC& npc, Character *chr, const char *text, int 
 }
 
 // UNICODE version
-void for_nearby_npcs( void (*f)(NPC& npc, Character *chr, const char *text, int textlen, u8 texttype, const u16 *wtext, const char lang[4], int wtextlen),
-                      Character *p_chr, const char *p_text, int p_textlen, u8 texttype, const u16 *p_wtext, const char p_lang[4], int p_wtextlen )
+void for_nearby_npcs( void (*f)(NPC& npc, Character *chr, const char *text, int textlen, u8 texttype, const u16 *wtext, const char lang[4], int wtextlen, ObjArray* speechtokens),
+                      Character *p_chr, const char *p_text, int p_textlen, u8 texttype, const u16 *p_wtext, const char p_lang[4], int p_wtextlen, ObjArray* speechtokens )
 {
     int range;
     switch( texttype )
@@ -133,7 +133,7 @@ void for_nearby_npcs( void (*f)(NPC& npc, Character *chr, const char *text, int 
                     NPC* npc = static_cast<NPC*>(chr);
 
 			        if (inrangex( p_chr, npc, range ))
-                        (*f)( *npc, p_chr, p_text, p_textlen, texttype, p_wtext, p_lang, p_wtextlen );
+                        (*f)( *npc, p_chr, p_text, p_textlen, texttype, p_wtext, p_lang, p_wtextlen, speechtokens );
                 }
             }
         }

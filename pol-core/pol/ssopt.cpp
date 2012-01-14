@@ -93,6 +93,7 @@ void read_servspecopt()
 	ssopt.speedhack_mountwalkdelay = elem.remove_ushort("SpeedHack_MountWalkDelay",PKTIN_02_MOUNT_WALK);
 	ssopt.speedhack_footrundelay = elem.remove_ushort("SpeedHack_FootRunDelay",PKTIN_02_FOOT_RUN);
 	ssopt.speedhack_footwalkdelay = elem.remove_ushort("SpeedHack_FootWalkDelay",PKTIN_02_FOOT_WALK);
+	ssopt.seperate_speechtoken = elem.remove_bool("SeperateSpeechTokens",false);
 	ssopt_parse_totalstats(elem);
 
 // Turley 2009/11/06 u8 range...
