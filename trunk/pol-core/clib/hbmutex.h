@@ -1,7 +1,7 @@
 /*
  * With permission to reuse:
  * Author:  Thomas Volkert
- * Libary:  Homerbase www.silvo.de
+ * Libary:  Homerbase http://www.homer-conferencing.com/
  * Since:   2010-09-20
  */
 
