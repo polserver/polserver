@@ -88,7 +88,7 @@ void sayto_listening_points( Character* speaker, const char* p_text, int p_textl
 						++itr;
 						continue;
 					}
-					else if (speechtokens == NULL && (lp->flags & LISTENPT_ONLY_HEAR_TOKENS))
+					else if (speechtokens == NULL && (lp->flags & LISTENPT_NO_SPEECH))
 					{
 						++itr;
 						continue;

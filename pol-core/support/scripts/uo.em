@@ -33,7 +33,7 @@ const SENDDIALOGMENU_FORCE_OLD  := 0x01;    // send UnCompressed Gump
 // RegisterForSpeechEvents flags
 const LISTENPT_HEAR_GHOSTS      := 0x01;    // hear ghost speech in addition to living speech
 const LISTENPT_HEAR_TOKENS      := 0x02;    // hear also speechtokens (only with ssopt.SeperateSpeechTokens)
-const LISTENPT_ONLY_HEAR_TOKENS := 0x04;    // hear only speechtokens (only with ssopt.SeperateSpeechTokens)
+const LISTENPT_NO_SPEECH        := 0x04;    // hear no normal speech (only with ssopt.SeperateSpeechTokens)
 
 // List[Statics/Items]* flags
 const ITEMS_IGNORE_STATICS      := 0x01;    // Don't list Static Items
