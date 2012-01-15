@@ -23,7 +23,7 @@ void sayto_listening_points( Character* speaker, const char* p_text, int p_textl
 
 const int LISTENPT_HEAR_GHOSTS = 0x01;
 const int LISTENPT_HEAR_TOKENS = 0x02;
-const int LISTENPT_ONLY_HEAR_TOKENS = 0x04;
+const int LISTENPT_NO_SPEECH = 0x04;
 
 void register_for_speech_events( UObject* obj, UOExecutor* uoexec, int range, int flags );
 void deregister_from_speech_events( UOExecutor* uoexec );

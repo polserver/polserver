@@ -706,9 +706,9 @@ void NPC::on_pc_spoke( Character *src_chr, const char *speech, u8 texttype,
     {
 		if (ssopt.seperate_speechtoken)
 		{
-			if (speechtokens != NULL && (ex->eventmask & EVID_TOKEN_SPOKE==0))
+			if (speechtokens != NULL && ((ex->eventmask & EVID_TOKEN_SPOKE)==0))
 				return;
-			else if (speechtokens == NULL && (ex->eventmask & EVID_SPOKE==0))
+			else if (speechtokens == NULL && ((ex->eventmask & EVID_SPOKE)==0))
 				return;
 		}
         if (((ex->eventmask & EVID_SPOKE) || (ex->eventmask & EVID_TOKEN_SPOKE)) &&
@@ -732,9 +732,9 @@ void NPC::on_ghost_pc_spoke( Character* src_chr, const char* speech, u8 texttype
     {
 		if (ssopt.seperate_speechtoken)
 		{
-			if (speechtokens != NULL && (ex->eventmask & EVID_TOKEN_GHOST_SPOKE==0))
+			if (speechtokens != NULL && ((ex->eventmask & EVID_TOKEN_GHOST_SPOKE)==0))
 				return;
-			else if (speechtokens == NULL && (ex->eventmask & EVID_GHOST_SPEECH==0))
+			else if (speechtokens == NULL && ((ex->eventmask & EVID_GHOST_SPEECH)==0))
 				return;
 		}
         if (((ex->eventmask & EVID_GHOST_SPEECH) || (ex->eventmask & EVID_TOKEN_GHOST_SPOKE)) &&
