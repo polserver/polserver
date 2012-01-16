@@ -29,7 +29,7 @@ extern bool static_debug_on;
 
 void readstatics( StaticList& vec, unsigned short x, unsigned short y )
 {
-    USTRUCT_STATIC* srecarr;
+    vector<USTRUCT_STATIC> srecarr;
     int nrec;
 
     readstaticblock( &srecarr, &nrec, x, y );
@@ -65,7 +65,7 @@ void readstatics( StaticList& vec, unsigned short x, unsigned short y )
 }
 void readstatics( StaticList& vec, unsigned short x, unsigned short y, unsigned int flags )
 {
-    USTRUCT_STATIC* srecarr;
+    vector<USTRUCT_STATIC> srecarr;
     int nrec;
 
     readstaticblock( &srecarr, &nrec, x, y );
@@ -101,7 +101,7 @@ void readstatics( StaticList& vec, unsigned short x, unsigned short y, unsigned 
 }
 void readallstatics( StaticList& vec, unsigned short x, unsigned short y )
 {
-    USTRUCT_STATIC* srecarr;
+    vector<USTRUCT_STATIC> srecarr;
     int nrec;
 
     readstaticblock( &srecarr, &nrec, x, y );
