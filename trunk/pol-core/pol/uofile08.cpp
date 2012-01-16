@@ -56,52 +56,53 @@ void read_map_difs()
 }
 
 static USTRUCT_MAPINFO_BLOCK rawmap_buffer;
+static vector<USTRUCT_MAPINFO_BLOCK> rawmap_buffer_vec;
+static bool rawmap_init=false;
 static unsigned int last_block = ~0u;
 
 signed char rawmapinfo( unsigned short x, unsigned short y, USTRUCT_MAPINFO* gi )
 {
+	if (!rawmap_init) // FIXME just for safety cause I'm lazy
+		rawmapfullread();
     passert( x < uo_map_width && y < uo_map_height );
 
     unsigned int x_block = x / 8;
     unsigned int y_block = y / 8;
     unsigned int block = (x_block * (uo_map_height/8) + y_block);
 
-    if (block != last_block)
-    {
-        MapBlockIndex::const_iterator citr = mapdifl.find( block );
-        if (citr == mapdifl.end())
-        {
-            unsigned int file_offset = block * sizeof(USTRUCT_MAPINFO_BLOCK);
-            if (fseek( mapfile, file_offset, SEEK_SET ) != 0)
-                throw runtime_error( "rawmapinfo: fseek(mapfile) failure" );
-            if (fread( &rawmap_buffer, sizeof rawmap_buffer, 1, mapfile ) != 1)
-                throw runtime_error( "rawmapinfo: fread(mapfile) failure" );
-        }
-        else
-        {
-            // it's in the dif file.. get it from there.
-            unsigned dif_index = (*citr).second;
-            unsigned int file_offset = dif_index * sizeof(USTRUCT_MAPINFO_BLOCK);
-            if (fseek( mapdif_file, file_offset, SEEK_SET ) != 0)
-                throw runtime_error( "rawmapinfo: fseek(mapdif_file) failure" );
-
-            if (fread( &rawmap_buffer, sizeof rawmap_buffer, 1, mapdif_file ) != 1)
-                throw runtime_error( "rawmapinfo: fread(mapdif_file) failure" );
-        }
-
-        last_block = block;
-        ++mapcache_misses;
-    }
-    else
-    {
-        ++mapcache_hits;
-    }
-
     unsigned int x_offset = x & 0x7;
     unsigned int y_offset = y & 0x7;
 
-    *gi = rawmap_buffer.cell[y_offset][x_offset];
+    *gi = rawmap_buffer_vec.at(block).cell[y_offset][x_offset];
     return gi->z;
+}
+
+void rawmapfullread()
+{
+	unsigned int block=0;
+	USTRUCT_MAPINFO_BLOCK buffer;
+	while (fread( &buffer, sizeof buffer, 1, mapfile ) == 1)
+	{
+		MapBlockIndex::const_iterator citr = mapdifl.find( block );
+		if (citr == mapdifl.end())
+		{
+			rawmap_buffer_vec.push_back(buffer);
+		}
+		else
+		{
+			// it's in the dif file.. get it from there.
+			unsigned dif_index = (*citr).second;
+			unsigned int file_offset = dif_index * sizeof(USTRUCT_MAPINFO_BLOCK);
+			if (fseek( mapdif_file, file_offset, SEEK_SET ) != 0)
+				throw runtime_error( "rawmapinfo: fseek(mapdif_file) failure" );
+
+			if (fread( &buffer, sizeof buffer, 1, mapdif_file ) != 1)
+				throw runtime_error( "rawmapinfo: fread(mapdif_file) failure" );
+			rawmap_buffer_vec.push_back(buffer);
+		}
+		++block;
+	}
+	rawmap_init=true;
 }
 
 /* 

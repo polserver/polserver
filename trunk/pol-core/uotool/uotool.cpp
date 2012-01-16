@@ -778,7 +778,7 @@ int statics_histogram()
         cout << ".";
         for( u16 y = 0; y < 4095; y += 8 )
         {
-            USTRUCT_STATIC* p;
+            vector<USTRUCT_STATIC> p;
             int count;
 
             readstaticblock( &p, &count, x, y );
@@ -1124,7 +1124,7 @@ int defragstatics( int argc, char **argv )
         }
         for( u16 y = 0; y < descriptor.height; y += STATICBLOCK_CHUNK )
         {
-            USTRUCT_STATIC* pstat;
+            vector<USTRUCT_STATIC> pstat;
             int num;
             vector<USTRUCT_STATIC> tilelist;
             readstaticblock( &pstat, &num, x, y );
