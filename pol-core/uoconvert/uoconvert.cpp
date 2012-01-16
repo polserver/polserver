@@ -456,7 +456,8 @@ void update_map( const string& realm, unsigned short x, unsigned short y )
 {
     MapWriter mapwriter;
     mapwriter.OpenExistingFiles(realm);
-
+	rawmapfullread();
+	rawstaticfullread();
     unsigned short x_base = x / SOLIDX_X_SIZE * SOLIDX_X_SIZE;
     unsigned short y_base = y / SOLIDX_Y_SIZE * SOLIDX_Y_SIZE;
 
@@ -478,8 +479,10 @@ void create_map( const string& realm, unsigned short width, unsigned short heigh
     cout << "Initializing files: ";
     mapwriter.CreateNewFiles(realm, width, height);
     cout << "Done." << endl;
-
-    wallclock_t start = wallclock();
+	wallclock_t start = wallclock();
+	rawmapfullread();
+	rawstaticfullread();
+	cout << "  Reading mapfiles time: " << wallclock_diff_ms( start, wallclock() ) << " ms." << endl;
     for( unsigned short y_base = 0; y_base < height; y_base += SOLIDX_Y_SIZE )
     {
         for( unsigned short x_base = 0; x_base < width; x_base += SOLIDX_X_SIZE )
