@@ -25,11 +25,13 @@ class UMulti;
 class Item;
 
 extern signed char rawmapinfo( unsigned short x, unsigned short y, struct USTRUCT_MAPINFO* gi );
+void rawmapfullread();
 void getmapinfo( unsigned short x, unsigned short y, short* z, USTRUCT_MAPINFO* mi );
 void readtile(unsigned short tilenum, USTRUCT_TILE *tile);
 void readtile(unsigned short tilenum, USTRUCT_TILE_HSA *tile);
 void clear_tiledata();
-void readstaticblock( USTRUCT_STATIC** ppst, int* pnum, unsigned short x, unsigned short y );
+void readstaticblock( std::vector<USTRUCT_STATIC>* ppst, int* pnum, unsigned short x, unsigned short y );
+void rawstaticfullread();
 bool uo_passable( unsigned short x, unsigned short y );
 
 /* All these moved to clidata.h

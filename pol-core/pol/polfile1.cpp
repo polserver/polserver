@@ -105,7 +105,7 @@ int write_pol_static_files( const string& realm )
             idx.index = index;
             fwrite( &idx, sizeof idx, 1, fidx );
 
-            USTRUCT_STATIC* pstat;
+            vector<USTRUCT_STATIC> pstat;
             int num;
             vector<STATIC_ENTRY> vec;
             readstaticblock( &pstat, &num, x, y );

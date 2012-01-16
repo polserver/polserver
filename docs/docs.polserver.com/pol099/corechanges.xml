@@ -4,9 +4,14 @@
 <ESCRIPT>
   <header>
     <topic>Latest Core Changes</topic>
-    <datemodified>01/04/2012</datemodified>
+    <datemodified>01-16-2012</datemodified>
   </header>
   <version name="POL099">
+    <entry>
+      <date>01-16-2012</date>
+      <author>Turley</author>
+      <change type="Changed">SpeedUp for uoconvert</change>
+    </entry>
   	<entry>
       <date>01-14-2012</date>
       <author>Turley</author>
