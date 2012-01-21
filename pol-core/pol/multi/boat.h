@@ -83,7 +83,7 @@ protected:
     static bool on_ship( const BoatContext& bc, const UObject* obj );
     void move_offline_mobiles( xcoord x, ycoord y, zcoord z, Realm* realm );
     const MultiDef& multi_ifturn( RELATIVE_DIR dir );
-    unsigned short graphic_ifturn( RELATIVE_DIR dir );
+    unsigned short multiid_ifturn( RELATIVE_DIR dir );
 
 
     void do_tellmoves();
@@ -135,7 +135,7 @@ enum BOAT_COMPONENT {
 BObjectImp* destroy_boat( UBoat* boat );
 void send_boat_to_inrange( const UBoat* item, u16 oldx=USHRT_MAX, u16 oldy=USHRT_MAX  );
 unsigned int get_component_objtype( unsigned char type );
-bool BoatShapeExists( u16 graphic );
+bool BoatShapeExists( u16 multiid );
 void clean_boatshapes();
 
 #endif

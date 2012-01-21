@@ -98,7 +98,7 @@ public:
     void operator=(CustomHouseDesign& design);
     void Add(CUSTOM_HOUSE_ELEMENT& elem);
     void AddOrReplace(CUSTOM_HOUSE_ELEMENT& elem);
-    void AddMultiAtOffset(u16 graphic, s8 x, s8 y, s8 z);
+    void AddMultiAtOffset(u16 multiid, s8 x, s8 y, s8 z);
 
     bool Erase(u32 xoffset, u32 yoffset, u8 z, int minheight = 0);
     bool EraseGraphicAt(u16 graphic, u32 xoffset, u32 yoffset, u8 z);
