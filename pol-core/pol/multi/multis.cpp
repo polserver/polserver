@@ -36,7 +36,9 @@ Notes
 UMulti::UMulti( const ItemDesc& itemdesc )
     : Item(itemdesc, CLASS_MULTI)
 {
-    if (!MultiDefByGraphicExists( itemdesc.graphic ))
+	multiid = itemdesc.multiid;
+
+    if (!MultiDefByMultiIDExists( itemdesc.multiid ))
     {
         cerr << "Tried to create a Multi type " << hexint(itemdesc.objtype) << endl;
         throw runtime_error( "Unvalid Multi type" );
@@ -80,9 +82,9 @@ const char* UMulti::classname() const
 
 const MultiDef& UMulti::multidef() const
 {
-    passert( MultiDefByGraphicExists(graphic));
+    passert( MultiDefByMultiIDExists(multiid));
 
-    return *MultiDefByGraphic(graphic);
+    return *MultiDefByMultiID(multiid);
 }
 
 BStruct* UMulti::footprint() const

@@ -51,7 +51,6 @@ public:
 
     u16 multiid;
     enum { UNKNOWN, BOAT, HOUSE, STAIRS } type;
-    u16 graphic;
 
     vector< MULTI_ELEM > elems;
 
@@ -109,14 +108,11 @@ public:
 
 typedef map< u16, MultiDef* > MultiDefs;
 
-bool MultiDefByGraphicExists( u16 graphic );
-const MultiDef* MultiDefByGraphic( u16 graphic );
+bool MultiDefByMultiIDExists( u16 multiid );
+const MultiDef* MultiDefByMultiID( u16 multiid );
 //extern MultiDefs multishapes_by_graphic;
 
 extern MultiDefs multidefs_by_multiid;
-
-typedef map<u16,u16> ObjtypeByMultiID;
-extern ObjtypeByMultiID objtype_by_multiid;
 
 void clean_multidefs();
 

@@ -362,12 +362,12 @@ unsigned char CustomHouseDesign::NumUsedPlanes() const
 //used to add the base foundation to initialize a design, and multi stairs. not tested with anything else.
 //I guess you could add a boat or something inside a house, but deleting would be impossible. 
 //Deleting stairs is handled explicitly (CustomHouseDesign::DeleteStairs).
-void CustomHouseDesign::AddMultiAtOffset(u16 graphic, s8 x, s8 y, s8 z)
+void CustomHouseDesign::AddMultiAtOffset(u16 multiid, s8 x, s8 y, s8 z)
 {
-    const MultiDef* multidef = MultiDefByGraphic(graphic);
+    const MultiDef* multidef = MultiDefByMultiID(multiid);
     if(multidef == NULL)
     {
-        cerr << "Trying to add Multi to customhouse, graphic " << hex << graphic << dec << " multi definition doesn't exist!" << endl;
+        cerr << "Trying to add Multi to customhouse, multiid " << hex << multiid << dec << " multi definition doesn't exist!" << endl;
         return;
     }
 
@@ -724,7 +724,7 @@ void CustomHousesClear(PKTBI_D7* msg)
     house->WorkingCompressed.swap(newvec);
 
     //add foundation back to design
-    house->WorkingDesign.AddMultiAtOffset(house->graphic,0,0,0);
+    house->WorkingDesign.AddMultiAtOffset(house->multiid,0,0,0);
     if(chr != NULL && chr->client != NULL)
         CustomHousesSendFull(house, chr->client,HOUSE_DESIGN_WORKING);
 
@@ -1040,7 +1040,7 @@ void UHouse::CustomHouseSetInitialState()
     BackupDesign.Clear();
     BackupDesign.InitDesign(ysize+1,xsize,xbase,ybase); //+1 for front steps outside multidef footprint
 
-    CurrentDesign.AddMultiAtOffset(graphic,0,0,0);
+    CurrentDesign.AddMultiAtOffset(multiid,0,0,0);
     WorkingDesign = CurrentDesign;
     vector<u8> newvec;
     WorkingCompressed.swap(newvec);

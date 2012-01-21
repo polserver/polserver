@@ -4580,13 +4580,13 @@ BObjectImp* UOExecutorModule::mf_DestroyMulti()
 
 BObjectImp* UOExecutorModule::mf_GetMultiDimensions()
 {
-	u16 graphic;
-	if (getParam( 0, graphic ))
+	u16 multiid;
+	if (getParam( 0, multiid ))
 	{
-		if(!MultiDefByGraphicExists(graphic))
-			return new BError("Multi Graphic not found");
+		if(!MultiDefByMultiIDExists(multiid))
+			return new BError("MultiID not found");
 
-		const MultiDef& md = *MultiDefByGraphic(graphic);
+		const MultiDef& md = *MultiDefByMultiID(multiid);
 		auto_ptr<BStruct> ret (new BStruct);
 		ret->addMember( "xmin", new BLong( md.minrx ) );
 		ret->addMember( "xmax", new BLong( md.maxrx ) );
