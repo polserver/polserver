@@ -1,4 +1,7 @@
 ﻿-- POL099 --
+01-21-2012 Turley:
+     Fixed: RequestInputUC() for eg russian chars
+
 01-16-2012 Turley:
 	Changed: SpeedUp for uoconvert
 
