@@ -68,6 +68,8 @@ private:
     fstream _ofs_maptile;
     int _cur_maptile_index;
     MAPTILE_BLOCK _maptile_block;
+	size_t solidx2_offset;
+	size_t solids_offset;
 };
 
 #endif
