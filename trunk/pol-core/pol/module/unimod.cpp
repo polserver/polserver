@@ -87,8 +87,7 @@ void handle_unicode_prompt( Client* client, PKTBI_C2* msg )
 #endif
 
 	char lang[4];
-	memcpy(lang, msg->lang, 3);
-	lang[3] = 0x00;
+	memcpy(lang, msg->lang, 4);
 
 	if ( ok )
 	{
@@ -96,7 +95,7 @@ void handle_unicode_prompt( Client* client, PKTBI_C2* msg )
 		int i;
 		for ( i = 0; i < textlen; i++ )
 		{
-			u16 wc = cfBEu16(msg->wtext[i]);
+			u16 wc = msg->wtext[i]; // its not flipped!! ...i hate osi...
 			if ( wc < (u16)0x20 || wc == (u16)0x7F ) // control character! >_<
 			{
 				ok = false;
