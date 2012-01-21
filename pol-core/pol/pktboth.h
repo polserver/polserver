@@ -846,14 +846,14 @@ struct PKTBI_C2
 	u32 msg_id;
 	// When a server-sent message, these next 10+ bytes must all be 0x00.
 	u32 unk; // unknown -- always 0 0 0 1 (from client)
-	char lang[3]; // "enu" - US english
+	char lang[4]; // "enu" - US english
 	u16 wtext[2]; // wide-character, double-null terminated
 
 	enum {
 		SERVER_MSGLEN = 0x15
 	};
 };
-asserteql( sizeof(PKTBI_C2), 22 );
+asserteql( sizeof(PKTBI_C2), 23 );
 
 struct PKTBI_C8 {
 	u8 msgtype;
