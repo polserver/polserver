@@ -209,18 +209,33 @@ ItemDesc::ItemDesc( u32 objtype, ConfigElem& elem, Type type, const Package* pkg
 	quality(elem.remove_double("QUALITY", 1.0) ),
 	method_script(NULL)
 {
-	if (graphic == 0)
+	if (type == BOATDESC || type == HOUSEDESC)
 	{
-		if (objtype <= config.max_tile_id)
+		multiid = elem.remove_ushort("MultiID", 0xFFFF);
+
+		if (multiid == 0xFFFF)
 		{
-			graphic = static_cast<u16>(objtype);
-		}
-		else
-		{
-			cerr << "Itemdesc has no 'graphic' specified, and no 'objtype' is valid either." << endl;
+			cerr << "Itemdesc has no 'multiid' specified for a multi." << endl;
+			cerr << "      Note: read corechanges.txt for the new multi format" << endl;
 			elem.throw_error( "Configuration error" );
 		}
 	}
+	else
+	{
+		if (graphic == 0)
+		{
+			if (objtype <= config.max_tile_id)
+			{
+				graphic = static_cast<u16>(objtype);
+			}
+			else
+			{
+				cerr << "Itemdesc has no 'graphic' specified, and no 'objtype' is valid either." << endl;
+				elem.throw_error( "Configuration error" );
+			}
+		}
+	}
+	
 
 	unsigned short stacklimit = elem.remove_ushort( "StackLimit", MAX_STACK_ITEMS );
 
@@ -558,6 +573,7 @@ void ItemDesc::PopulateStruct( BStruct* descriptor ) const
 	descriptor->addMember( "PoisonDamage",		new BLong(element_damage.poison) );
 	descriptor->addMember( "PhysicalDamage",	new BLong(element_damage.physical) );
 	descriptor->addMember( "Quality",			new Double(quality) );
+	descriptor->addMember( "MultiID",			new BLong(multiid) );
 
 	std::set<std::string>::const_iterator set_itr;
 	auto_ptr<ObjArray> ignorecp (new ObjArray);
@@ -698,21 +714,19 @@ void SpellScrollDesc::PopulateStruct( BStruct* descriptor ) const
 }
 
 MultiDesc::MultiDesc( u32 objtype, ConfigElem& elem, Type type, const Package* pkg ) :
-	ItemDesc( objtype, elem, type, pkg ),
-	multiid( elem.remove_ushort( "MULTIID" ) )
+	ItemDesc( objtype, elem, type, pkg )
 {
-	if (!MultiDefByGraphicExists(graphic))
+	if (!MultiDefByMultiIDExists(multiid))
 	{
 		elem.throw_error( "Multi definition not found.  Objtype="
 							+ hexint(objtype)
-							+ ", graphic="
-							+ hexint(graphic) );
+							+ ", multiid="
+							+ hexint(multiid) );
 	}
 }
 void MultiDesc::PopulateStruct( BStruct* descriptor ) const
 {
 	base::PopulateStruct( descriptor );
-	descriptor->addMember( "MultiID", new BLong(multiid) );
 }
 
 BoatDesc::BoatDesc( u32 objtype, ConfigElem& elem, const Package* pkg ) :
@@ -756,6 +770,11 @@ bool objtype_is_lockable( u32 objtype )
 unsigned short getgraphic( u32 objtype )
 {
 	const ItemDesc& id = find_itemdesc(objtype);
+
+	// Check here to make sure multis are created without a graphic entry in itemdesc.
+	if (id.type == id.BOATDESC || id.type == id.HOUSEDESC)
+		return 0;
+
 	if (id.graphic)
 	{
 		return id.graphic;

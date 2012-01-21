@@ -284,7 +284,7 @@ GetGlobalPropertyNames();
 GetHarvestDifficulty( resource, x, y, tiletype, realm := _DEFAULT_REALM );
 GetMapInfo( x, y, realm := _DEFAULT_REALM );
 GetMenuObjTypes( menuname );
-GetMultiDimensions( graphic );
+GetMultiDimensions( multiid );
 GetObjProperty( object, property_name );
 GetObjPropertyNames( object );
 GetObjType( object );

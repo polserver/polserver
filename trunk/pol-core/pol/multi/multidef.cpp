@@ -41,7 +41,6 @@ bool BoatShapeExists( u16 graphic );
 MultiDef::MultiDef( ConfigElem& elem, u16 multiid ) :
     multiid(multiid),
     type(UNKNOWN),
-    graphic( elem.remove_unsigned( "Graphic" ) ),
     elems(),
 
     xbase(0),
@@ -58,10 +57,9 @@ MultiDef::MultiDef( ConfigElem& elem, u16 multiid ) :
 {
     if (elem.type_is("BOAT"))
     {
-        if (!BoatShapeExists(graphic))
-            elem.throw_error( "Entry for Boat " 
+        if (!BoatShapeExists(multiid))
+            elem.throw_error( "Entry for Boat (multiid " 
                                 + hexint(multiid) 
-                                + " (graphic " + hexint(graphic)
                                 + ") not found in boats.cfg" );
         type = BOAT;
     }
@@ -273,10 +271,8 @@ void MultiDef::init()
     computehull();
 }
 
-
-static MultiDefs my_multidefs_by_graphic;
+static MultiDefs my_multidefs_by_multiid;
 MultiDefs multidefs_by_multiid;
-ObjtypeByMultiID objtype_by_multiid;
 
 short MultiDef::global_minrx;
 short MultiDef::global_minry;
@@ -285,34 +281,31 @@ short MultiDef::global_maxrx;
 short MultiDef::global_maxry;
 short MultiDef::global_maxrz;
 
-bool MultiDefByGraphicExists( u16 graphic )
+bool MultiDefByMultiIDExists( u16 multiid )
 {
-    return my_multidefs_by_graphic.count( graphic ) != 0;
+	return my_multidefs_by_multiid.count( multiid ) != 0;
 }
-const MultiDef* MultiDefByGraphic( u16 graphic )
+const MultiDef* MultiDefByMultiID( u16 multiid )
 {
-    passert( my_multidefs_by_graphic.count( graphic ) != 0 );
+	passert( my_multidefs_by_multiid.count( multiid ) != 0 );
 
-    MultiDefs::const_iterator citr = my_multidefs_by_graphic.find(graphic);
-    if (citr != my_multidefs_by_graphic.end())
-    {
-        return (*citr).second;
-    }
-    else
-    {
-        return NULL;
-    }
+	MultiDefs::const_iterator citr = my_multidefs_by_multiid.find(multiid);
+	if (citr != my_multidefs_by_multiid.end())
+		return (*citr).second;
+	else
+		return NULL;
 }
+	
 
 void clean_multidefs() 
 {
-	MultiDefs::iterator iter = my_multidefs_by_graphic.begin();
-	for ( ; iter != my_multidefs_by_graphic.end(); ++iter) {
+	MultiDefs::iterator iter = my_multidefs_by_multiid.begin();
+	for ( ; iter != my_multidefs_by_multiid.end(); ++iter) {
 		if (iter->second != NULL)
 			delete iter->second;
 		iter->second = NULL;
 	}
-	my_multidefs_by_graphic.clear();
+	my_multidefs_by_multiid.clear();
 	multidefs_by_multiid.clear();
 }
 
@@ -328,7 +321,7 @@ void read_multidefs()
         mdef = new MultiDef( elem, multiid ); 
         mdef->init();
 
-        my_multidefs_by_graphic[ mdef->graphic ] = mdef;
+		my_multidefs_by_multiid[ mdef->multiid ] = mdef;
         multidefs_by_multiid[ mdef->multiid ] = mdef;
     }
 }

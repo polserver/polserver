@@ -781,12 +781,12 @@ bool statics_cause_problems( unsigned short x1, unsigned short y1,
 
 BObjectImp* UHouse::scripted_create( const ItemDesc& descriptor, u16 x, u16 y, s8 z, Realm* realm, int flags )
 {
-    const MultiDef* md = MultiDefByGraphic( descriptor.graphic );
+    const MultiDef* md = MultiDefByMultiID( descriptor.multiid );
     if (md == NULL)
     {
         return new BError( "Multi definition not found for House, objtype=" 
-                           + hexint(descriptor.objtype) + ", graphic=" 
-                           + hexint(descriptor.graphic) );
+                           + hexint(descriptor.objtype) + ", multiid=" 
+                           + hexint(descriptor.multiid) );
     }
 
 	if ((!realm->valid(x + md->minrx, y + md->minry, z + md->minrz)) ||
