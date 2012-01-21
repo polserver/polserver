@@ -36,7 +36,9 @@ MapWriter::MapWriter() :
     _ofs_solidx2(),
     _ofs_solids(),
     _ofs_maptile(),
-    _cur_maptile_index(-1)
+    _cur_maptile_index(-1),
+	solidx2_offset(0),
+	solids_offset(0)
 {
     _ofs_base.exceptions( std::ios_base::failbit | std::ios_base::badbit );
     _ofs_solidx1.exceptions( std::ios_base::failbit | std::ios_base::badbit );
@@ -100,11 +102,13 @@ void MapWriter::CreateNewFiles(const string& realm_name, unsigned short width, u
     filename = directory + "solidx2.dat";
     open_file( _ofs_solidx2, filename, ios::trunc|ios::in|ios::out|ios::binary );
     _ofs_solidx2.write( "fill", 4 );
+	solidx2_offset=4;
 
     // Solids data (solids)
     filename = directory + "solids.dat";
     open_file( _ofs_solids, filename, ios::trunc|ios::in|ios::out|ios::binary );
     _ofs_solids.write( "filler", 6 ); // multiple of 3
+	solids_offset=6;
 
 
     // Maptile file (maptile.dat)
@@ -144,11 +148,13 @@ void MapWriter::OpenExistingFiles( const string& realm_name )
     filename = directory + "solidx2.dat";
     open_file( _ofs_solidx2, filename, ios::in|ios::out|ios::binary );
     _ofs_solidx2.seekp( 0, ios::end );
+	solidx2_offset=_ofs_solidx2.tellp();
 
     // Solids data (solids)
     filename = directory + "solids.dat";
     open_file( _ofs_solids, filename, ios::in|ios::out|ios::binary );
     _ofs_solids.seekp( 0, ios::end );
+	solids_offset=_ofs_solids.tellp();
 
     // Maptile (maptile.dat)
     filename = directory + "maptile.dat";
@@ -253,7 +259,7 @@ void MapWriter::FlushMapTileFile()
 
 unsigned int MapWriter::NextSolidOffset()
 {
-    return static_cast<unsigned int>(_ofs_solids.tellp());
+	return static_cast<unsigned int>(solids_offset);
 }
 
 unsigned int MapWriter::NextSolidIndex()
@@ -263,17 +269,19 @@ unsigned int MapWriter::NextSolidIndex()
 
 unsigned int MapWriter::NextSolidx2Offset()
 {
-    return static_cast<unsigned int>(_ofs_solidx2.tellp());
+	return static_cast<unsigned int>(solidx2_offset);
 }
 
 void MapWriter::AppendSolid( const SOLIDS_ELEM& solid )
 {
     _ofs_solids.write( reinterpret_cast<const char*>(&solid), sizeof(SOLIDS_ELEM) );
+	solids_offset+=sizeof(SOLIDS_ELEM);
 }
 
 void MapWriter::AppendSolidx2Elem( const SOLIDX2_ELEM& elem )
 {
     _ofs_solidx2.write( reinterpret_cast<const char*>( &elem ), sizeof elem );
+	solidx2_offset+=sizeof elem;
 }
 
 void MapWriter::SetSolidx2Offset( unsigned short x_base, unsigned short y_base, unsigned int offset )
