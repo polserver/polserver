@@ -44,6 +44,9 @@ class UMulti : public Item
 {
 	typedef Item base;
 public:
+
+	u16 multiid;
+
     static UMulti* create( const ItemDesc& descriptor, u32 serial = 0 );
     
     static BObjectImp* scripted_create( const ItemDesc& descriptor, u16 x, u16 y, s8 z, Realm* realm, int flags );

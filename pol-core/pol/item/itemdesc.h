@@ -101,6 +101,7 @@ public:
 	unsigned short base_str_req;
 	unsigned short stack_limit;
 	double quality;
+	u16 multiid;
 
 	Dice resist_dice;
 
@@ -178,7 +179,6 @@ class MultiDesc : public ItemDesc
 public:
 	MultiDesc( u32 objtype, ConfigElem& elem, Type type, const Package* pkg );
 	virtual void PopulateStruct( BStruct* descriptor ) const;
-	u16 multiid;
 };
 
 class BoatDesc : public MultiDesc

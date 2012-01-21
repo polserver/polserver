@@ -250,13 +250,13 @@ void read_boat_cfg(void)
     ConfigElem elem;
     while (cf.read( elem ))
     {
-        unsigned short graphic = elem.remove_ushort( "ObjType" );
+        unsigned short multiid = elem.remove_ushort( "MultiID" );
         try {
-            boatshapes[graphic] = new BoatShape(elem);
+            boatshapes[multiid] = new BoatShape(elem);
         }
         catch(exception&)
         {
-            cerr << "Error occurred reading definition for boat 0x" << hex << graphic << dec << endl;
+            cerr << "Error occurred reading definition for boat 0x" << hex << multiid << dec << endl;
             throw;
         }
     }
@@ -273,9 +273,9 @@ void clean_boatshapes()
 	boatshapes.clear();
 }
 
-bool BoatShapeExists( u16 graphic )
+bool BoatShapeExists( u16 multiid )
 {
-    return boatshapes.count(graphic) != 0;
+    return boatshapes.count(multiid) != 0;
 }
 
 vector<Client*> boat_sent_to;
@@ -357,7 +357,7 @@ void unpause_paused()
 
 UBoat::UBoat( const ItemDesc& descriptor ) : UMulti( descriptor )
 {
-    passert( boatshapes.count(graphic) != 0 );
+    passert( boatshapes.count(multiid) != 0 );
 	tillerman = NULL;
 	hold = NULL;
 	portplank = NULL;
@@ -954,27 +954,27 @@ bool UBoat::move( UFACING facing )
     return result;
 }
 
-inline unsigned short UBoat::graphic_ifturn( RELATIVE_DIR dir )
+inline unsigned short UBoat::multiid_ifturn( RELATIVE_DIR dir )
 {
-    return (graphic & ~3u) | ((graphic + dir) & 3);
+    return (multiid & ~3u) | ((multiid + dir) & 3);
 }
 
 const MultiDef& UBoat::multi_ifturn( RELATIVE_DIR dir )
 {
-    unsigned short graphic = graphic_ifturn(dir);
-    passert( MultiDefByGraphicExists(graphic) );
-    return *MultiDefByGraphic(graphic);
+    unsigned short multiid = multiid_ifturn(dir);
+	passert( MultiDefByMultiIDExists(multiid) );
+	return *MultiDefByMultiID(multiid);
 }
 
 UFACING UBoat::boat_facing() const
 {
-    return static_cast<UFACING>((graphic&3)*2);
+    return static_cast<UFACING>((multiid&3)*2);
 }
 
 const BoatShape& UBoat::boatshape() const
 {
-    passert( boatshapes.count(graphic) != 0 );
-    return *boatshapes[ graphic ];
+    passert( boatshapes.count(multiid) != 0 );
+    return *boatshapes[ multiid ];
 }
 
 
@@ -1047,7 +1047,7 @@ bool UBoat::turn( RELATIVE_DIR dir )
         const BoatShape& old_boatshape = boatshape();
 
         set_dirty();
-        graphic = graphic_ifturn(dir);
+        multiid = multiid_ifturn(dir);
 
         send_boat_to_inrange(this); // pauses those it sends to
         transform_components( old_boatshape, NULL );
@@ -1170,23 +1170,23 @@ void UBoat::printProperties( ostream& os ) const
 
 BObjectImp* UBoat::scripted_create( const ItemDesc& descriptor, u16 x, u16 y, s8 z, Realm* realm, int flags )
 {
-    unsigned short graphic = descriptor.graphic;
-	unsigned short graphic_offset = static_cast<unsigned short>((flags & CRMULTI_FACING_MASK) >> CRMULTI_FACING_SHIFT);
-	unsigned char facing = static_cast<unsigned char>(graphic_offset * 2);
-	graphic += graphic_offset;
+    unsigned short multiid = descriptor.multiid;
+	unsigned short multiid_offset = static_cast<unsigned short>((flags & CRMULTI_FACING_MASK) >> CRMULTI_FACING_SHIFT);
+	unsigned char facing = static_cast<unsigned char>(multiid_offset * 2);
+	multiid += multiid_offset;
 
-    const MultiDef* md = MultiDefByGraphic( graphic );
+    const MultiDef* md = MultiDefByMultiID( multiid );
     if (md == NULL)
     {
         return new BError( "Multi definition not found for Boat, objtype=" 
-                           + hexint(descriptor.objtype) + ", graphic=" 
-                           + hexint(graphic) );
+                           + hexint(descriptor.objtype) + ", multiid=" 
+                           + hexint(multiid) );
     }
-    if (!boatshapes.count( descriptor.graphic ))
+    if (!boatshapes.count( descriptor.multiid ))
     {
         return new BError( "No boatshape for Boat in boats.cfg, objtype="
-                           + hexint(descriptor.objtype) + ", graphic=" 
-                           + hexint(graphic) );
+                           + hexint(descriptor.objtype) + ", multiid=" 
+                           + hexint(multiid) );
     }
 
     if (!navigable( *md, x, y, z, realm ))
@@ -1195,7 +1195,7 @@ BObjectImp* UBoat::scripted_create( const ItemDesc& descriptor, u16 x, u16 y, s8
     }
 
     UBoat* boat = new UBoat( descriptor );
-    boat->graphic = graphic;
+    boat->multiid = multiid;
     boat->serial = GetNewItemSerialNumber();
     boat->serial_ext = ctBEu32( boat->serial );
     boat->x = x;

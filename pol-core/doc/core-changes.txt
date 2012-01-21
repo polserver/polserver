@@ -1,4 +1,18 @@
 ﻿-- POL099 --
+01-21-2012 Tomi:
+     Removed: Graphic from multis, no graphic entry needed for multis in itemdescs anymore, uoconvert doesnt add a graphic value to multis anymore.
+     Added: MultiID entry to boats.cfg instead of the ObjType.
+     Changed: Multi itemdescs now require MultiID to be defined for each multi.
+     Note: Multi objtypes still need to be > MaxTileID from pol.cfg
+     Example of a multi entry in itemdesc
+            Boat 0x10000
+            {
+	          Name      SmallBoatN
+	          MultiID   0x0
+            }
+     Added: boats.cfg is now shipped with the core too with boats up to date with HSA so just remove what you dont use.
+     Note: Reconvert of multis.cfg with UOConvert needed
+
 01-21-2012 Turley:
      Fixed: RequestInputUC() for eg russian chars
 
