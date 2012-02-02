@@ -1113,6 +1113,8 @@ void UBoat::readProperties( ConfigElem& elem )
 {
     base::readProperties( elem );
 
+	multiid = elem.remove_ushort( "MultiID", 0 );
+
     BoatContext bc(*this);
     const BoatShape& bshape = boatshape();
     u32 tmp_serial;
@@ -1167,6 +1169,8 @@ void UBoat::readProperties( ConfigElem& elem )
 void UBoat::printProperties( ostream& os ) const
 {
     base::printProperties( os );
+
+	os << "\tMultiID\t" << multiid << pf_endl;
 
     BoatContext bc(*this);
 
