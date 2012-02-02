@@ -30,6 +30,7 @@ History
 2009/10/10 Turley:	Added spellbook.addspell() & .removespell() methods
 2009/10/14 Turley:	Added char.deaf() methods & char.deafened member
 2011/12/13 Tomi:    Boat members MBR_COMPONENT, MBR_HULL, MBR_ROPE, MBR_SAILS, MBR_WHEEL, MBR_TILLER, MBR_RUDDER, MBR_STORAGE, MBR_WEAPONSLOT
+2012/02/02 Tomi:    Multi member MBR_MULTIID
 
 Notes
 =======
@@ -452,8 +453,9 @@ ObjMember object_members[] = {
 	{ MBR_RUDDER, "rudder", true},
 	{ MBR_SAILS, "sails", true}, //195
 	{ MBR_STORAGE, "storage", true},
-	{ MBR_WEAPONSLOT, "weaponslot", true}
+	{ MBR_WEAPONSLOT, "weaponslot", true},
 	// New boat stuff end
+	{ MBR_MULTIID, "multiid", true}
 };
 int n_objmembers = sizeof object_members / sizeof object_members[0];
 ObjMember* getKnownObjMember(const char* token)
