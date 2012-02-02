@@ -7,6 +7,7 @@ History
 2009/09/14 MuadDib:   Squatters code added to register.unregister mobs.
 2009/09/15 MuadDib:   Better cleanup handling on house destroy. Alos clears registered_house off character.
                       Houses now only allow mobiles to be registered. May add items later for other storage.
+2012/02/02 Tomi:      Added boat member MBR_MULTIID
 
 Notes
 =======
@@ -234,6 +235,7 @@ BObjectImp* UHouse::get_script_member_id( const int id ) const ///id test
         case MBR_MOBILES: return mobiles_list(); break;
 		case MBR_CUSTOM: return new BLong(IsCustom()); break;
 		case MBR_EDITING: return new BLong(IsEditing()); break;
+		case MBR_MULTIID: return new BLong(multiid); break;
 		case MBR_HOUSEPARTS: 
 			if (!IsCustom())
 				return new BError( "House is not custom" );

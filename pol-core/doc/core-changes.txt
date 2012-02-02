@@ -1,5 +1,6 @@
 ﻿-- POL099 --
 02-02-2012 Tomi:
+     Added: Readonly member .multiid for boats and houses
      Fixed: Old boats didnt read the components correctly on server restart
 
 01-21-2012 Tomi:

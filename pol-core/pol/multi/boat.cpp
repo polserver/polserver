@@ -1092,10 +1092,9 @@ void UBoat::rescan_components()
 
 void UBoat::reread_components()
 {
-    const BoatShape& bshape = boatshape();
-	for (vector<BoatShape::ComponentShape>::const_iterator itr = bshape.Componentshapes.begin(), end = bshape.Componentshapes.end(); itr != end; ++itr)
+	for( vector<Item*>::const_iterator itr = Components.begin(), end = Components.end(); itr != end; ++itr )
     {
-		Item* component = Item::create( itr->objtype );
+		Item* component = *itr;
         if (component == NULL) 
                 continue;
 		// check boat members here

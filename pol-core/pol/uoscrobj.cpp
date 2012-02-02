@@ -36,6 +36,7 @@ History
 2010/01/15 Turley:    (Tomi) season stuff
 2010/02/03 Turley:    MethodScript support for mobiles
 2011/12/13 Tomi:      Boat members MBR_COMPONENT, MBR_HULL, MBR_ROPE, MBR_SAILS, MBR_WHEEL, MBR_TILLER, MBR_RUDDER, MBR_STORAGE, MBR_WEAPONSLOT
+2012/02/02 Tomi:      Added boat member MBR_MULTIID
 
 Notes
 =======
@@ -2730,6 +2731,7 @@ BObjectImp* UBoat::get_script_member_id( const int id ) const
 		case MBR_ITEMS: return items_list(); break;
 		case MBR_MOBILES: return mobiles_list(); break;
 		case MBR_HAS_OFFLINE_MOBILES: return new BLong( has_offline_mobiles() ? 1 : 0 ); break;
+		case MBR_MULTIID: return new BLong(multiid); break;
 		default: return NULL;
 	}
 }
