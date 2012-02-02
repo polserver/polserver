@@ -1113,7 +1113,7 @@ void UBoat::readProperties( ConfigElem& elem )
 {
     base::readProperties( elem );
 
-	multiid = elem.remove_ushort( "MultiID", 0 );
+	multiid = elem.remove_ushort( "MultiID" );
 
     BoatContext bc(*this);
     const BoatShape& bshape = boatshape();
