@@ -494,7 +494,7 @@ void UHouse::readProperties( ConfigElem& elem )
 {
     base::readProperties( elem );
     u32 tmp_serial;
-	multiid = elem.remove_ushort( "MultiID" );
+	multiid = elem.remove_ushort( "MultiID", this->multidef().multiid );
     
     while (elem.remove_prop( "Component", &tmp_serial ))
     {
