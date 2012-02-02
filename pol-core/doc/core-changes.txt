@@ -16,6 +16,7 @@
             }
      Added: boats.cfg is now shipped with the core too with boats up to date with HSA so just remove what you dont use.
      Note: Reconvert of multis.cfg with UOConvert needed
+           Make sure you have a itemdesc entry for every boat direction
 
 01-21-2012 Turley:
      Fixed: RequestInputUC() for eg russian chars
