@@ -17,6 +17,7 @@ History
 2009/09/06 Turley:	Removed chr.isUOKR added chr.ClientType
 2009/10/14 Turley:	Added char.deaf() methods & char.deafened member
 2011/12/13 Tomi:    Boat members MBR_COMPONENT, MBR_HULL, MBR_ROPE, MBR_SAILS, MBR_WHEEL, MBR_TILLER, MBR_RUDDER, MBR_STORAGE, MBR_WEAPONSLOT
+2012/02/02 Tomi:    Multi member MBR_MULTIID
 
 Notes
 =======
@@ -225,8 +226,9 @@ enum MemberID
 	MBR_RUDDER,
 	MBR_SAILS,
 	MBR_STORAGE,			//195
-	MBR_WEAPONSLOT
+	MBR_WEAPONSLOT,
 	// New boat stuff end
+	MBR_MULTIID
 };
 
 
