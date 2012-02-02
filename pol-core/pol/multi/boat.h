@@ -89,6 +89,7 @@ protected:
     void do_tellmoves();
     const BoatShape& boatshape() const;
     void rescan_components();
+	void reread_components();
     void transform_components( const BoatShape& old_boatshape, Realm* oldrealm );
 	void move_components( Realm* oldrealm );
 
