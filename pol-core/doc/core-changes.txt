@@ -1,4 +1,7 @@
 ﻿-- POL099 --
+02-02-2012 Tomi:
+     Fixed: Old boats didnt read the components correctly on server restart
+
 01-21-2012 Tomi:
      Removed: Graphic from multis, no graphic entry needed for multis in itemdescs anymore, uoconvert doesnt add a graphic value to multis anymore.
      Added: MultiID entry to boats.cfg instead of the ObjType.
