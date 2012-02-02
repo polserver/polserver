@@ -1090,6 +1090,26 @@ void UBoat::rescan_components()
 	}
 }
 
+void UBoat::reread_components()
+{
+    const BoatShape& bshape = boatshape();
+	for (vector<BoatShape::ComponentShape>::const_iterator itr = bshape.Componentshapes.begin(), end = bshape.Componentshapes.end(); itr != end; ++itr)
+    {
+		Item* component = Item::create( itr->objtype );
+        if (component == NULL) 
+                continue;
+		// check boat members here
+		if ( component->objtype_ == extobj.tillerman && tillerman == NULL )
+			tillerman = component;
+		if ( component->objtype_ == extobj.port_plank && portplank == NULL )
+			portplank = component;
+		if ( component->objtype_ == extobj.starboard_plank && starboardplank == NULL )
+			starboardplank = component;
+		if ( component->objtype_ == extobj.hold && hold == NULL )
+			hold = component;
+	}
+}
+
 void UBoat::readProperties( ConfigElem& elem )
 {
     base::readProperties( elem );
@@ -1136,6 +1156,7 @@ void UBoat::readProperties( ConfigElem& elem )
             }
         }
     }
+	reread_components();
     rescan_components();
 
     regself(); // do this after our x,y are known.
