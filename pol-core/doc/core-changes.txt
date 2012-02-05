@@ -1,4 +1,8 @@
 ﻿-- POL099 --
+02-05-2012 Tomi:
+     Changed: AR not required in ArmorDescs for Pol to start anymore, so now if Physical Resist used only no need to define AR 0 in the ArmorDesc.
+     Changed: AR in ArmorDescs defaults to 0.
+
 02-02-2012 Tomi:
      Added: Readonly member .multiid for boats and houses
      Fixed: Old boats didnt read the components correctly on server restart
