@@ -36,7 +36,7 @@ unsigned short zone_name_to_zone( const char *zname );
 
 ArmorDesc::ArmorDesc( u32 objtype, ConfigElem& elem, const Package* pkg ) :
 	EquipDesc( objtype, elem, ARMORDESC, pkg ),
-	ar( elem.remove_ushort( "AR" ) ),
+	ar( elem.remove_ushort( "AR", 0 ) ),
 	zones(),
 	on_hit_script( elem.remove_string( "ONHITSCRIPT", "" ), pkg, "scripts/items/" )
 {
