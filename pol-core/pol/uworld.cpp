@@ -4,6 +4,7 @@ History
 2005/01/23 Shinigami: check_item_integrity & check_character_integrity - fix for multi realm support (had used WGRID_X & WGRID_Y)
                       ClrCharacterWorldPosition - Tokuno MapDimension doesn't fit blocks of 64x64 (WGRID_SIZE)
 2009/09/03 MuadDib:   Relocation of multi related cpp/h
+2012/02/06 MuadDib:   Added Old Serial for debug on orphaned items that make it to remove_item_from_world.
 
 Notes
 =======
@@ -12,6 +13,7 @@ Notes
 
 #include "../clib/stl_inc.h"
 
+#include "../clib/endian.h"
 #include "../clib/logfile.h"
 #include "../clib/passert.h"
 #include "../clib/stlutil.h"
@@ -42,10 +44,10 @@ void remove_item_from_world( Item* item )
     ZoneItems::iterator itr = find_in( zone.items, item );
     if (itr == zone.items.end())
     {
-        Log2( "remove_item_from_world: item 0x%lx at %d,%d does not exist in world zone\n",
-                    item->serial, item->x, item->y );
+        Log2( "remove_item_from_world: item 0x%lx at %d,%d does not exist in world zone ( Old Serial: 0x%2x )\n",
+                    item->serial, item->x, item->y, cfBEu32(item->serial_ext));
 
-        passert( itr != zone.items.end() );
+		passert( itr != zone.items.end() );
     }
 
     --item->realm->toplevel_item_count;
