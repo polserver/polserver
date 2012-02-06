@@ -3633,6 +3633,7 @@ BObjectImp* UOExecutorModule::mf_GetFacing()
 	return new BLong(facing);
 }
 
+// FIXME : Should we do an Orphan check here as well? Ugh.
 void true_extricate( Item* item )
 {
 	ConstForEach( clients, send_remove_object_if_inrange, item );
