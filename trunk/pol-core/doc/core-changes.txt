@@ -13,18 +13,18 @@
 
 01-21-2012 Tomi:
      Removed: Graphic from multis, no graphic entry needed for multis in itemdescs anymore, uoconvert doesnt add a graphic value to multis anymore.
-     Added: MultiID entry to boats.cfg instead of the ObjType.
+     Added:   MultiID entry to boats.cfg instead of the ObjType.
      Changed: Multi itemdescs now require MultiID to be defined for each multi.
-     Note: Multi objtypes still need to be > MaxTileID from pol.cfg
+     Note:    Multi objtypes still need to be > MaxTileID from pol.cfg
      Example of a multi entry in itemdesc
-            Boat 0x10000
-            {
+              Boat 0x10000
+              {
 	          Name      SmallBoatN
 	          MultiID   0x0
-            }
-     Added: boats.cfg is now shipped with the core too with boats up to date with HSA so just remove what you dont use.
-     Note: Reconvert of multis.cfg with UOConvert needed
-           Make sure you have a itemdesc entry for every boat direction
+              }
+     Added:   boats.cfg is now shipped with the core too with boats up to date with HSA so just remove what you dont use.
+     Note:    Reconvert of multis.cfg with UOConvert needed
+              Make sure you have a itemdesc entry for every boat direction
 
 01-21-2012 Turley:
      Fixed: RequestInputUC() for eg russian chars
@@ -79,8 +79,6 @@
              Patch Submitted by Agata
 
 12-14-2011 Tomi:
-    Removed: pol.cfg MaxObjtype limit removed, now it accepts up to 0xFFFFFFFF ( 4294967295 )
-             but try to keep it as low as possible, default value still 0x20000
     Changed: objtype vectors changed to maps to only reserve as much memory as there are
              itemdesc entries, not reserving memory for up to 4 billions of objtypes.
     Changed: boats.cfg entries changed from "Name Graphic X Y" to "Name Graphic X Y Z"
@@ -94,7 +92,7 @@
     Added: Support for HSA boats ( no smooth move yet, but now all boats are usable )
     Changed: boat.cfg to support new entries "Rope", "Wheel", "Hull", "Tiller", "Rudder", "Sails", "Storage", "Weaponslot"
              there can be more than 1 of each entry 
-             the old entries "Tillerman", "Hold", "PortGangplankExtended", "PortGangplankRetracted", "StarboarGangplankExtended",        "StarboardGangplankRetracted" support just 1 entry each or the boat members get broken
+             the old entries "Tillerman", "Hold", "PortGangplankExtended", "PortGangplankRetracted", "StarboarGangplankExtended", "StarboardGangplankRetracted" support just 1 entry each or the boat members get broken
     Added: ReadOnly members for boats
            .components returns an array of ItemRefs of all the components on the boat
            .hull returns an array of ItemRefs of all the hull components on the boat, or empty array if none.
@@ -126,6 +124,7 @@
                    Secure_Trade_Container=0x1FF01
                    Wornitems_Container=0x1FF02
     Note:   extobj entries just let you define the objtypes, all of these still have to be defined in itemdescs for boats to work correctly.
+            extobj.cfg is now shipped with the core.
 
 12-05-2011 Tomi:
     Fixed:  Door methods .open() and .close() were working opposite what they should.
@@ -135,17 +134,9 @@
     Added:  UO::UpdateItem( item );
             updates the item to every client in range, good to use for example after returning 1 in some packethook and the item get invisible.
 
-12-03-2011 Tomi:
-    Changed: startlocs.cfg readded default values for MapID ( 0 ) and Cliloc ( 1075072 which is the Yew town information )
-             Pol doesnt anymore throw an error if these values are missing.
-
 12-01-2011 Nando:
     Fixed: Client hanging after having his connection refused on login. I recommend testing
            different ways of having a client disconnected, like acct.disable(), .ban() and others.
-
-12-01-2011 Tomi:
-  Changed: Polcfg setting MaxObjtype now limited to max 0xFFFFFF (16777215)
-  Note:    Try to keep it as low as possible
 
 12-01-2011 MuadDib:
   Changed: UoClientGeneral.maxskills changed to unsigned short. Few places in loops with it changed to use same for the loop counter.
@@ -165,8 +156,6 @@
            if the break_at_first_null parameter is 0 it uses the old behaviour to just skip the nulls and still convert everything
            if the break_at_first_null parameter is set to 1 it stops the conversion to string at the first null it finds.
   Changed: All Write(ctBeu16( calls for graphics and colors to use WriteFlipped, this seems to have fixed the assertion errors that occured with removal of the color_ext and graphic_ext
-  Changed: Pol throws now an error if some location is missing the MapID or Cliloc Definition in startloc.cfg ( New clients crashed when some were missing )
-           Removed the defualt values 0 for MapID and Cliloc ( for older clients it doesnt matter what the values are but clients >= 7.0.13.0 needs them )
 
 11-28-2011 MuadDib:
   Removed: UObject->Color_Ext : Removed, and when used is replaced with ctBEu16() calls. This includes read/write of /data files.
@@ -240,43 +229,41 @@
 
 11-12-2011 Tomi:
     Added:	 Pol/config/extobj.cfg
-         Values it accept now and default values are
-            Tillerman=0xF010
-            Port_Plank=0xF011
-            Starboard_Plank=0xF012
-            Hold=0xF013
-            Wrestling=0xF020
-            Mount=0xF021
-            Secure_Trade_Container=0xFF01
-            Wornitems_Container=0xFF02
+                 Values it accept now and default values are
+
+                 Tillerman=0xF010
+                 Port_Plank=0xF011
+                 Starboard_Plank=0xF012
+                 Hold=0xF013
+                 Wrestling=0xF020
+                 Mount=0xF021
+                 Secure_Trade_Container=0xFF01
+                 Wornitems_Container=0xFF02
     Note:	 These values HAVE TO BE > pol.cfg max_tile_id and the same as objtype for them in itemdescs
-    Changed: uoconvert now adds to multis 0x1000 to the ID
-    Note:	 boats.cfg uses the same value as multis.cfg and itemdesc graphic entry for multis have to be the same.
-         itemdesc entries for multis need to have the entry MultiID for updating multis ( you can find values using UOFiddler )
     Added:	 UOExpansion HSA server sends now 0x387DF
 
 11-11-2011 Tomi:
-    Changed: Objtypes are now from 2 up to max_objtype from pol.cfg
+    Changed:     Objtypes are now from 2 up to max_objtype from pol.cfg
     Note:	 if objtypes <= pol.cfg max_tile_id and no graphic defined in itemdesc Pol uses objtype as graphic.
-         Multis and custom items should all be moved to > pol.cfg max_tile_id
-    Added:  support for new 0xA9 packet for clients >= 7.0.13.0
-    Changed: startloc.cfg now have Cliloc and MapID entry for every startlocation ( default values 0 )
+                 Multis and custom items should all be moved to > pol.cfg max_tile_id
+    Added:       support for new 0xA9 packet for clients >= 7.0.13.0
+    Changed:     startlocs.cfg default values for MapID ( 0 ) and Cliloc ( 1075072 which is the Yew town information )
     Example:
-        StartingLocation Yew
-        {
-            City		Yew
-            Description	Town Center
-            Coordinate	535,992,0
-            MapID		0
-            Cliloc		1075072
-        }
-    Note: 	MapID is the same number as in mapX.mul files
-        Cliloc values are the description of the start locations
-        Newest clients has max stats during char creation 90 
+                 StartingLocation Yew
+                 {
+                        City		Yew
+                        Description	Town Center
+                        Coordinate	535,992,0
+                        MapID		0
+                        Cliloc		1075072
+                 }
+    Note: 	 MapID is the same number as in mapX.mul files
+                 Cliloc values are the description of the start locations
+                 Newest clients has max stats during char creation 90 
 
 11-06-2011 Tomi:
     Added:  pol.cfg setting MaxObjtype <default 0x20000>
-    Note:	the value can only be any value between 0x20000 and 0xFFFFFFFF
+    Note:   can be any value between 0x20000 and 0xFFFFFFFF
 
 10-26-2011 Tomi:
     Added:	support for clients >= 7.0.16.0 ( 2D ) char create packet 0xF8
