@@ -61,7 +61,8 @@ History
 2010/01/15 Turley:    (Tomi) priv runwhilestealth
 2010/01/22 Turley:    Speedhack Prevention System
 2011/11/12 Tomi:	  added extobj.mount and extobj.secure_trade_container
-
+2012/02/06 MuadDib:   Added serial check at root of Character::get_from_ground to make sure not trying to move orphaned items.
+                      In loop, if an found is an orphan it logs it and skips rest of individual itr to ensure movement not attempted.
 
 Notes
 =======
@@ -4213,6 +4214,11 @@ u16 Character::intelligence() const
 // the items collection).
 Item* Character::get_from_ground( u32 serial, UContainer** found_in )
 {
+	if (serial == 0)
+	{
+		Log2( "get_from_ground: Passed serial 0x%1x, blocking movement.\n", serial);
+		return NULL;
+	}
 	unsigned short wxL, wyL, wxH, wyH;
 	zone_convert_clip( x - 3, y - 3, realm, wxL, wyL );
 	zone_convert_clip( x + 3, y + 3, realm, wxH, wyH );
@@ -4225,6 +4231,15 @@ Item* Character::get_from_ground( u32 serial, UContainer** found_in )
 			{
 
 				Item* item = *itr;
+				if (item->serial == 0)
+				{
+					Log2( "get_from_ground: Item 0x%1x, desc %s class %s, orphan! (old serial: 0x%lx)\n",
+							item->serial,
+							item->description().c_str(),
+							item->classname(),
+							cfBEu32(item->serial_ext) );
+					continue;
+				}
 				if (inrange( this, item )) // FIXME needs to check smaller range.
 				{
 					if (item->serial == serial)
