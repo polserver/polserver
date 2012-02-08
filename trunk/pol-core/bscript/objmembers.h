@@ -228,7 +228,8 @@ enum MemberID
 	MBR_STORAGE,			//195
 	MBR_WEAPONSLOT,
 	// New boat stuff end
-	MBR_MULTIID
+	MBR_MULTIID,
+	MBR_TRADEWINDOW
 };
 
 
