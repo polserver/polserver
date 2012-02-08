@@ -1293,6 +1293,15 @@ BObjectImp* Character::get_script_member_id( const int id ) const
 				return new BError( "That has no backpack" );
 			break;
 		}
+		case MBR_TRADEWINDOW:
+		{
+			UContainer* tw = trading_cont.get();
+			if (trading_with != NULL)
+				return tw->make_ref();
+			else
+				return new BError( "That has no active tradewindow" );
+			break;
+		}
 		case MBR_WEAPON:
 			if (weapon != NULL)
 				return weapon->make_ref();
