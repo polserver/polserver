@@ -1,4 +1,8 @@
 ﻿-- POL099 --
+02-08-2012 Tomi:
+     Added:   character readonly member .tradewindow
+              return ContainerRef if the char has an active trade and error if no active trade
+
 02-06-2012 MuadDib:
      Fixed:   Added orphan checks in Character::get_from_ground for both passed serial and items it itr through. Proper logging, returns, and 
 	              continue used to keep from attempting movement of orphaned items after log report.

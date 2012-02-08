@@ -455,7 +455,8 @@ ObjMember object_members[] = {
 	{ MBR_STORAGE, "storage", true},
 	{ MBR_WEAPONSLOT, "weaponslot", true},
 	// New boat stuff end
-	{ MBR_MULTIID, "multiid", true}
+	{ MBR_MULTIID, "multiid", true},
+	{ MBR_TRADEWINDOW, "tradewindow", true}
 };
 int n_objmembers = sizeof object_members / sizeof object_members[0];
 ObjMember* getKnownObjMember(const char* token)
