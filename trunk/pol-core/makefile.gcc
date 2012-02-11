@@ -333,11 +333,15 @@ gzipfile: bin/pol bin/ecompile bin/runecl bin/uoconvert bin/uotool #bin/poltool
 	cp doc/packethooks.txt dist
 	cp doc/packets.zip dist
 	cp support/uoconvert.cfg dist
-	(cd dist ; tar -cvf pol-$(POL_BUILDNAME)bin-$(POL_RELEASE)-`date +%Y-%m-%d`-$(POL_BUILDTAG).tar pol uoconvert uotool core-changes.txt uoconvert.txt uoconvert.cfg packethooks.txt packets.zip scripts ; gzip -9 pol-$(POL_BUILDNAME)bin-$(POL_RELEASE)-`date +%Y-%m-%d`-$(POL_BUILDTAG).tar )
+	cp support/boats.cfg dist
+	cp support/extobj.cfg dist
+	(cd dist ; tar -cvf pol-$(POL_BUILDNAME)bin-$(POL_RELEASE)-`date +%Y-%m-%d`-$(POL_BUILDTAG).tar pol uoconvert uotool core-changes.txt uoconvert.txt uoconvert.cfg boats.cfg extobj.cfg packethooks.txt packets.zip scripts ; gzip -9 pol-$(POL_BUILDNAME)bin-$(POL_RELEASE)-`date +%Y-%m-%d`-$(POL_BUILDTAG).tar )
 	rm -f dist/core-changes.txt dist/pol dist/uoconvert dist/uotool
 	rm -f dist/packethooks.txt
 	rm -f dist/packets.zip
 	rm -f dist/uoconvert.cfg
+	rm -f dist/boats.cfg
+	rm -f dist/extobj.cfg
 	rm -rf dist/scripts
 
 gzipfile-dynamic: bin/pol-dynamic bin/ecompile-dynamic bin/runecl-dynamic bin/uoconvert-dynamic bin/uotool-dynamic
@@ -355,11 +359,15 @@ gzipfile-dynamic: bin/pol-dynamic bin/ecompile-dynamic bin/runecl-dynamic bin/uo
 	cp doc/packethooks.txt dist
 	cp doc/packets.zip dist
 	cp support/uoconvert.cfg dist
-	(cd dist ; tar -cvf pol-$(POL_BUILDNAME)bin-$(POL_RELEASE)-`date +%Y-%m-%d`-$(POL_BUILDTAG)-dynamic.tar pol uoconvert uotool core-changes.txt uoconvert.txt uoconvert.cfg packethooks.txt packets.zip scripts ; gzip -9 pol-$(POL_BUILDNAME)bin-$(POL_RELEASE)-`date +%Y-%m-%d`-$(POL_BUILDTAG)-dynamic.tar )
+	cp support/boats.cfg dist
+	cp support/extobj.cfg dist
+	(cd dist ; tar -cvf pol-$(POL_BUILDNAME)bin-$(POL_RELEASE)-`date +%Y-%m-%d`-$(POL_BUILDTAG)-dynamic.tar pol uoconvert uotool core-changes.txt uoconvert.txt uoconvert.cfg boats.cfg extobj.cfg packethooks.txt packets.zip scripts ; gzip -9 pol-$(POL_BUILDNAME)bin-$(POL_RELEASE)-`date +%Y-%m-%d`-$(POL_BUILDTAG)-dynamic.tar )
 	rm -f dist/core-changes.txt dist/pol dist/uoconvert dist/uotool
 	rm -f dist/packethooks.txt
 	rm -f dist/packets.zip
 	rm -f dist/uoconvert.cfg
+	rm -f dist/boats.cfg
+	rm -f dist/extobj.cfg
 	rm -rf dist/scripts
 
 #  $(clib_objects)
