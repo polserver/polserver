@@ -107,6 +107,7 @@ OTESTS = \
     recurs01.ok recurs02.ok \
     bug001.ok bug002.ok bug003.ok \
     setmember.ok \
+    plusequal.ok \
     filemod\xml.ok
 !endif
 #  bug004.ok
