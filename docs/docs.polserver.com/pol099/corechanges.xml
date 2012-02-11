@@ -4,20 +4,75 @@
 <ESCRIPT>
   <header>
     <topic>Latest Core Changes</topic>
-    <datemodified>01-21-2012</datemodified>
+    <datemodified>02-08-2012</datemodified>
   </header>
   <version name="POL099">
   	<entry>
+      <date>02-08-2012</date>
+      <author>Tomi</author>
+      <change type="Added">character readonly member .tradewindow<br/>
+        return ContainerRef if the char has an active trade and error if no active trade
+      </change>
+    </entry>
+    <entry>
+      <date>02-06-2012</date>
+      <author>MuadDib</author>
+      <change type="Fixed">Added orphan checks in Character::get_from_ground for both passed serial and items it itr through. Proper logging, returns, and
+        continue used to keep from attempting movement of orphaned items after log report.
+      </change>
+    </entry>
+    <entry>
+      <date>02-05-2012</date>
+      <author>Tomi</author>
+      <change type="Changed">AR not required in ArmorDescs for Pol to start anymore, so now if Physical Resist used only no need to define AR 0 in the ArmorDesc.
+      </change>
+      <change type="Changed">AR in ArmorDescs defaults to 0.
+      </change>
+    </entry>
+    <entry>
+      <date>02-02-2012</date>
+      <author>Tomi</author>
+      <change type="Added">Readonly member .multiid for boats and houses
+      </change>
+      <change type="Fixed">Old boats didnt read the components correctly on server restart
+      </change>
+    </entry>
+    <entry>
+      <date>01-21-2012</date>
+      <author>Tomi</author>
+      <change type="Removed">Graphic from multis, no graphic entry needed for multis in itemdescs anymore, uoconvert doesnt add a graphic value to multis anymore.
+      </change>
+      <change type="Added">MultiID entry to boats.cfg instead of the ObjType.
+      </change>
+      <change type="Changed">Multi itemdescs now require MultiID to be defined for each multi.
+      </change>
+      <change type="Note">Multi objtypes still need to be &gt; MaxTileID from pol.cfg<br/>
+        Example of a multi entry in itemdesc<br/>
+        Boat 0x10000<br/>
+        {<br/>
+        Name      SmallBoatN<br/>
+        MultiID   0x0<br/>
+        }
+      </change>
+      <change type="Added">boats.cfg is now shipped with the core too with boats up to date with HSA so just remove what you dont use.
+      </change>
+      <change type="Note">Reconvert of multis.cfg with UOConvert needed<br/>
+        Make sure you have a itemdesc entry for every boat direction
+      </change>
+    </entry>
+    <entry>
       <date>01-21-2012</date>
       <author>Turley</author>
-      <change type="Fixed">RequestInputUC() for eg russian chars</change>
+      <change type="Fixed">RequestInputUC() for eg russian chars
+      </change>
     </entry>
     <entry>
       <date>01-16-2012</date>
       <author>Turley</author>
-      <change type="Changed">SpeedUp for uoconvert</change>
+      <change type="Changed">SpeedUp for uoconvert
+      </change>
     </entry>
-  	<entry>
+    <entry>
       <date>01-14-2012</date>
       <author>Turley</author>
       <change type="Changed">UnicodespeechEvent additional Member "tokens" if speech has (speech.mul) Tokens, gives array of spoken TokenIDs
@@ -29,9 +84,9 @@
       <change type="Added">SYSEVENT_TOKEN_SPEECH:=0x4000 and SYSEVENT_TOKEN_GHOST_SPEECH:=0x8000 for uo:EnableEvents/DisableEvents
       </change>
       <change type="Note">if SeperateSpeechTokens is set you can control which events you get,<br/>
-        for NPCs you only get speech with tokens if you set SYSEVENT_TOKEN_SPEECH/SYSEVENT_TOKEN_GHOST_SPEECH
+        for NPCs you only get speech with tokens if you set SYSEVENT_TOKEN_SPEECH/SYSEVENT_TOKEN_GHOST_SPEECH<br/>
         and non Token speech with SYSEVENT_SPEECH,SYSEVENT_GHOST_SPEECH<br/>
-        for RegisterForSpeechEvents() you get speech with and without Tokens when setting LISTENPT_HEAR_TOKENS and no speech without Tokens
+        for RegisterForSpeechEvents() you get speech with and without Tokens when setting LISTENPT_HEAR_TOKENS and no speech without Tokens<br/>
         setting LISTENPT_NO_SPEECH
       </change>
       <change type="Note">Token and nonToken Eventtype is still the same (SYSEVENT_SPEECH)
@@ -40,7 +95,7 @@
     <entry>
       <date>01-03-2012</date>
       <author>Turley</author>
-      <change type="Changed">major rewrite of primitive operators +,-,*,/,...
+      <change type="Changed">major rewrite of primitive operators +,-,*,/,...<br/>
         major speedup of +=,-=,...
       </change>
       <change type="Added">finally support for +=,-=,*=,/=,%= with objectmembers, like who.resist_fire_mod+=1
@@ -85,20 +140,17 @@
     <entry>
       <date>12-17-2011</date>
       <author>Tomi</author>
-      <change type="Added">Support for hued boats, use the normal .color r/w member to change the hue
+      <change type="Added">Support for hued boats, use the normal .color r/w member to change the hue<br/>
         Patch Submitted by Agata
       </change>
     </entry>
     <entry>
       <date>12-14-2011</date>
       <author>Tomi</author>
-      <change type="Removed">pol.cfg MaxObjtype limit removed, now it accepts up to 0xFFFFFFFF ( 4294967295 )
-        but try to keep it as low as possible, default value still 0x20000
-      </change>
       <change type="Changed">objtype vectors changed to maps to only reserve as much memory as there are
         itemdesc entries, not reserving memory for up to 4 billions of objtypes.
       </change>
-      <change type="Changed">boats.cfg entries changed from "Name Graphic X Y" to "Name Graphic X Y Z"
+      <change type="Changed">boats.cfg entries changed from "Name Graphic X Y" to "Name Graphic X Y Z"<br/>
         because some of the new boat components requires different Z levels than the boat
         itself.
       </change>
@@ -116,7 +168,7 @@
       </change>
       <change type="Changed">boat.cfg to support new entries "Rope", "Wheel", "Hull", "Tiller", "Rudder", "Sails", "Storage", "Weaponslot"<br/>
         there can be more than 1 of each entry<br/>
-        the old entries "Tillerman", "Hold", "PortGangplankExtended", "PortGangplankRetracted", "StarboarGangplankExtended",        "StarboardGangplankRetracted" support just 1 entry each or the boat members get broken
+        the old entries "Tillerman", "Hold", "PortGangplankExtended", "PortGangplankRetracted", "StarboarGangplankExtended", "StarboardGangplankRetracted" support just 1 entry each or the boat members get broken
       </change>
       <change type="Added">ReadOnly members for boats<br/>
         .components returns an array of ItemRefs of all the components on the boat<br/>
@@ -145,9 +197,10 @@
         Wrestling=0x1F020<br/>
         Mount=0x1F021<br/>
         Secure_Trade_Container=0x1FF01<br/>
-        Wornitems_Container=0x1FF02<br/>
+        Wornitems_Container=0x1FF02
       </change>
-      <change type="Note">extobj entries just let you define the objtypes, all of these still have to be defined in itemdescs for boats to work correctly.
+      <change type="Note">extobj entries just let you define the objtypes, all of these still have to be defined in itemdescs for boats to work correctly.<br/>
+        extobj.cfg is now shipped with the core.
       </change>
     </entry>
     <entry>
@@ -166,25 +219,10 @@
       </change>
     </entry>
     <entry>
-      <date>12-03-2011</date>
-      <author>Tomi</author>
-      <change type="Changed">startlocs.cfg readded default values for MapID ( 0 ) and Cliloc ( 1075072 which is the Yew town information )
-        Pol doesnt anymore throw an error if these values are missing.
-      </change>
-    </entry>
-    <entry>
       <date>12-01-2011</date>
       <author>Nando</author>
-      <change type="Fixed">Client hanging after having his connection refused on login. I recommend testing
+      <change type="Fixed">Client hanging after having his connection refused on login. I recommend testing<br/>
         different ways of having a client disconnected, like acct.disable(), .ban() and others.
-      </change>
-    </entry>
-    <entry>
-      <date>12-01-2011</date>
-      <author>Tomi</author>
-      <change type="Changed">Polcfg setting MaxObjtype now limited to max 0xFFFFFF (16777215)
-      </change>
-      <change type="Note">Try to keep it as low as possible
       </change>
     </entry>
     <entry>
@@ -212,7 +250,7 @@
       <author>Tomi</author>
       <change type="Added">Opengraphic itemdesc entry for Doors ( optional parameter, no need to define if you dont want to use the built in methods )
       </change>
-      <change type="Changed">how built in .open() .close() and .toggle() methods works. The now read the graphic what to open to from itemdesc instead of just checking with &amp; 0x1.
+      <change type="Changed">how built in .open() .close() and .toggle() methods works. The now read the graphic what to open to from itemdesc instead of just checking with &amp; 0x1.<br/>
         this makes those methods works for new doors too and not only T2A era doors.
       </change>
       <change type="Changed">basic::CChrz( intarray ) to basic::CChrz( intarray, break_at_first_null := 0 );<br/>
@@ -220,9 +258,6 @@
         if the break_at_first_null parameter is set to 1 it stops the conversion to string at the first null it finds.
       </change>
       <change type="Changed">All Write(ctBeu16( calls for graphics and colors to use WriteFlipped, this seems to have fixed the assertion errors that occured with removal of the color_ext and graphic_ext
-      </change>
-      <change type="Changed">Pol throws now an error if some location is missing the MapID or Cliloc Definition in startloc.cfg ( New clients crashed when some were missing )
-        Removed the defualt values 0 for MapID and Cliloc ( for older clients it doesnt matter what the values are but clients &gt;= 7.0.13.0 needs them )
       </change>
     </entry>
     <entry>
@@ -298,27 +333,27 @@
         Moved AuxClient-related classes to its own header file (shared between auxclient.cpp and osmod.cpp)<br/>
         Implemented os::OpenConnection() to create outgoing TCP/IP connections.
       </change>
-      <change type="Changed">runecl/runecl.cpp<br/>
+      <change type="Changed">runecl/runecl.cpp
         Added the sql module to runecl to allow quick testing
       </change>
       <change type="Changed">pol/uoscrobj.cpp pol/mobile/charactr.cpp pol/mobile/character.h bscript/parser.cpp bscript/objmembers.h<br/>
         Added read/write property "mountedsteps" for mobiles. Represents number of steps taken while character was mounted.
       </change>
-      <change type="Changed">bscript/parser.cpp<br/>
+      <change type="Changed">bscript/parser.cpp
         Declaring an array only using "{}" will show a compiler warning; please explicitly state 'array', 'struct', or 'dictionary'
       </change>
-      <change type="Changed">pol/pol.cpp<br/>
+      <change type="Changed">pol/pol.cpp
         If using Linux, remove pol.pid on shutdown of pol.
       </change>
-      <change type="Changed">pol/uoexec.h pol/scrsched.cpp<br/>
+      <change type="Changed">pol/uoexec.h pol/scrsched.cpp
         Added script option "AUXSVC_ASSUME_STRING" which will allow aux service connections to send and receive non-packed strings.
       </change>
-      <change type="Changed">ecompile/ecompile.cpp<br/>
+      <change type="Changed">ecompile/ecompile.cpp
         If using Linux, a slash ("/") cannot be used to define ecompile options to allow support for absolute filenames.
       </change>
       <change type="Changed">bscript/object.cpp bscript/bobject.h<br/>
         Implemented array operation MultiSubscript. Will return a splice of an array, eg:<br/>
-        array{"a","b","c","d","e"}[2,4] will return array{"b","c","d"}
+        array{"a","b","c","d","e"}[2,4] will return array{"b","c","d"}<br/>
       </change>
     </entry>
     <entry>
@@ -333,14 +368,9 @@
         Wrestling=0xF020<br/>
         Mount=0xF021<br/>
         Secure_Trade_Container=0xFF01<br/>
-        Wornitems_Container=0xFF02<br/>
+        Wornitems_Container=0xFF02
       </change>
       <change type="Note">These values HAVE TO BE &gt; pol.cfg max_tile_id and the same as objtype for them in itemdescs
-      </change>
-      <change type="Changed">uoconvert now adds to multis 0x1000 to the ID
-      </change>
-      <change type="Note">boats.cfg uses the same value as multis.cfg and itemdesc graphic entry for multis have to be the same.
-        itemdesc entries for multis need to have the entry MultiID for updating multis ( you can find values using UOFiddler )
       </change>
       <change type="Added">UOExpansion HSA server sends now 0x387DF
       </change>
@@ -350,12 +380,12 @@
       <author>Tomi</author>
       <change type="Changed">Objtypes are now from 2 up to max_objtype from pol.cfg
       </change>
-      <change type="Note">if objtypes &lt;= pol.cfg max_tile_id and no graphic defined in itemdesc Pol uses objtype as graphic.
+      <change type="Note">if objtypes &lt;= pol.cfg max_tile_id and no graphic defined in itemdesc Pol uses objtype as graphic.<br/>
         Multis and custom items should all be moved to &gt; pol.cfg max_tile_id
       </change>
       <change type="Added">support for new 0xA9 packet for clients &gt;= 7.0.13.0
       </change>
-      <change type="Changed">startloc.cfg now have Cliloc and MapID entry for every startlocation ( default values 0 )<br/>
+      <change type="Changed">startlocs.cfg default values for MapID ( 0 ) and Cliloc ( 1075072 which is the Yew town information )<br/>
         Example:<br/>
         StartingLocation Yew<br/>
         {<br/>
@@ -364,7 +394,7 @@
         Coordinate	535,992,0<br/>
         MapID		0<br/>
         Cliloc		1075072<br/>
-        }<br/>
+        }
       </change>
       <change type="Note">MapID is the same number as in mapX.mul files<br/>
         Cliloc values are the description of the start locations<br/>
@@ -376,7 +406,7 @@
       <author>Tomi</author>
       <change type="Added">pol.cfg setting MaxObjtype &lt;default 0x20000&gt;
       </change>
-      <change type="Note">the value can only be any value between 0x20000 and 0xFFFFFFFF
+      <change type="Note">can be any value between 0x20000 and 0xFFFFFFFF
       </change>
     </entry>
     <entry>
