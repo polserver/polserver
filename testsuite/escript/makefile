@@ -52,7 +52,7 @@ OTESTS = \
     array05.ok array06.ok array07.ok array08.ok array09.ok array10.ok \
     array11.ok array12.ok array13.ok array15.ok array16.ok array17.ok array18.ok \
     enum01.ok enum02.ok enum03.ok enum04.ok enum05.ok enum06.ok\
-    oper001.ok oper002.ok oper003.ok oper004.ok \
+    oper001.ok oper002.ok oper003.ok oper004.ok oper005.ok oper006.ok oper007.ok \
     prog01.ok prog02.ok prog03.ok \
     prec01.ok prec02.ok prec03.ok \
     while13.ok \
