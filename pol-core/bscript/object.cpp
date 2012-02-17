@@ -369,7 +369,7 @@ BObjectImp* BObjectImp::selfMinusObj(const ObjArray& objimp) const
 }
 void BObjectImp::selfMinusObjImp(BObjectImp& objimp, BObject& obj)
 {
-	objimp.selfMinusObjImp(*this, obj);
+	objimp.selfMinusObj(*this, obj);
 }
 void BObjectImp::selfMinusObj(BObjectImp& objimp, BObject& obj)
 {
@@ -418,7 +418,7 @@ BObjectImp* BObjectImp::selfTimesObj(const ObjArray& objimp) const
 }
 void BObjectImp::selfTimesObjImp(BObjectImp& objimp, BObject& obj)
 {
-	objimp.selfTimesObjImp(*this, obj);
+	objimp.selfTimesObj(*this, obj);
 }
 void BObjectImp::selfTimesObj(BObjectImp& objimp, BObject& obj)
 {
