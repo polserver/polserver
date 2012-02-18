@@ -359,7 +359,7 @@ BObjectImp* AccountObjImp::call_method_id( const int id, Executor& ex, bool forc
 		const String* expansion_str;
 		if (ex.getStringParam( 0, expansion_str ))
 		{
-			if ( expansion_str->value().empty() || (expansion_str->value()=="SA") || (expansion_str->value()=="KR") ||
+			if ( expansion_str->value().empty() || (expansion_str->value()=="HSA") || (expansion_str->value()=="SA") || (expansion_str->value()=="KR") ||
 				(expansion_str->value()=="ML") || (expansion_str->value()=="SE") ||
 				(expansion_str->value()=="AOS") || (expansion_str->value()=="LBR") ||
 				(expansion_str->value()=="T2A") )
@@ -369,7 +369,7 @@ BObjectImp* AccountObjImp::call_method_id( const int id, Executor& ex, bool forc
 					send_feature_enable(obj_->active_character->client);
 			}
 			else
-				return new BError( "Invalid Parameter Value. Supported Values: \"\", T2A, LBR, AOS, SE, ML, KR, SA" );
+				return new BError( "Invalid Parameter Value. Supported Values: \"\", T2A, LBR, AOS, SE, ML, KR, SA, HSA" );
 		}
 		else
 			return new BError("Invalid Parameter Type");
