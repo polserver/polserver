@@ -444,7 +444,7 @@ typedef PacketTemplate<PKTOUT_C1_ID,48+(SPEECH_MAX_LEN+1)+2> PktOut_C1;
 typedef PacketTemplate<PKTBI_C2_ID,21> PktOut_C2;
 typedef PacketTemplate<PKTOUT_C7_ID,49> PktOut_C7;
 typedef PacketTemplate<PKTOUT_CC_ID,49+(SPEECH_MAX_LEN+1)*2+SPEECH_MAX_LEN+1> PktOut_CC;
-typedef PacketTemplate<PKTBI_D6_OUT_ID,25+(4*SPEECH_MAX_LEN)> PktOut_D6;
+typedef PacketTemplate<PKTBI_D6_OUT_ID,0xFFFF> PktOut_D6;
 typedef PacketTemplate<PKTOUT_DC_ID,9> PktOut_DC;
 typedef PacketTemplate<PKTOUT_DD_ID,0xFFFF> PktOut_DD;
 typedef PacketTemplate<PKTOUT_E3_ID,77> PktOut_E3;
