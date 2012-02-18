@@ -167,9 +167,15 @@ void SendAOSTooltip(Client* client, UObject* obj, bool vendor_content)
 	else
 		msg->WriteFlipped(static_cast<u32>(1042971));   //1 text argument only
 
-	msg->WriteFlipped(static_cast<u16>(desc.size()*2));
+	u16 textlen=desc.size();
+	if ((textlen*2)>(0xFFFF - 22))
+	{
+		textlen=0xFFFF/2 - 22;
+	}
+	msg->WriteFlipped(textlen*2);
 	const char* string = desc.c_str();
-	while (*string) //unicode
+
+	while (*string && textlen--) //unicode
 		msg->Write(static_cast<u16>(*string++));
 	msg->offset+=4; // indicates end of property list
 	u16 len=msg->offset;
