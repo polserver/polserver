@@ -405,16 +405,16 @@ void send_trade_container( Client* client,
                            UContainer* cont )
 {
 	PktHelper::PacketOut<PktOut_25> msg;
-	msg->Write(cont->serial_ext);
-	msg->WriteFlipped(cont->graphic);
+	msg->Write<u32>(cont->serial_ext);
+	msg->WriteFlipped<u16>(cont->graphic);
 	msg->offset++; //unk7 layer?
-	msg->WriteFlipped(static_cast<u16>(1)); //amount
-	msg->WriteFlipped(static_cast<u16>(0)); //x
-	msg->WriteFlipped(static_cast<u16>(0)); //y
+	msg->WriteFlipped<u16>(static_cast<u16>(1)); //amount
+	msg->WriteFlipped<u16>(static_cast<u16>(0)); //x
+	msg->WriteFlipped<u16>(static_cast<u16>(0)); //y
 	if ( client->ClientType & CLIENTTYPE_6017 )
-		msg->Write(cont->slot_index());
-	msg->Write(whos->serial_ext);
-	msg->WriteFlipped(cont->color);
+		msg->Write<u8>(cont->slot_index());
+	msg->Write<u32>(whos->serial_ext);
+	msg->WriteFlipped<u16>(cont->color);
 	msg.Send(client);
 }
 
@@ -521,20 +521,20 @@ bool do_open_trade_window( Client* client, Item* item, Character* dropon )
     send_trade_container( dropon->client, client->chr, client->chr->trade_container() );
 
 	PktHelper::PacketOut<PktOut_6F> msg;
-	msg->WriteFlipped(static_cast<u16>(sizeof msg->buffer));
-	msg->Write(static_cast<u8>(PKTBI_6F::ACTION_INIT));
-	msg->Write(dropon->serial_ext);
-	msg->Write(client->chr->trade_container()->serial_ext);
-	msg->Write(dropon->trade_container()->serial_ext);
-	msg->Write(static_cast<u8>(1));
+	msg->WriteFlipped<u16>(static_cast<u16>(sizeof msg->buffer));
+	msg->Write<u8>(static_cast<u8>(PKTBI_6F::ACTION_INIT));
+	msg->Write<u32>(dropon->serial_ext);
+	msg->Write<u32>(client->chr->trade_container()->serial_ext);
+	msg->Write<u32>(dropon->trade_container()->serial_ext);
+	msg->Write<u8>(static_cast<u8>(1));
 	msg->Write(dropon->name().c_str(),30,false);
 
 	msg.Send(client);
 
 	msg->offset=4;
-	msg->Write(client->chr->serial_ext);
-	msg->Write(dropon->trade_container()->serial_ext);
-	msg->Write(client->chr->trade_container()->serial_ext);
+	msg->Write<u32>(client->chr->serial_ext);
+	msg->Write<u32>(dropon->trade_container()->serial_ext);
+	msg->Write<u32>(client->chr->trade_container()->serial_ext);
 	msg->offset++; // u8 havename same as above
 	msg->Write(client->chr->name().c_str(),30,false);
 	msg.Send(dropon->client);
@@ -914,9 +914,9 @@ void cancel_trade( Character* chr1 )
     if (chr1->client)
     {
 		PktHelper::PacketOut<PktOut_6F> msg;
-		msg->WriteFlipped(static_cast<u16>(17)); // no name
-		msg->Write(static_cast<u8>(PKTBI_6F::ACTION_CANCEL));
-		msg->Write(chr1->trade_container()->serial_ext);
+		msg->WriteFlipped<u16>(static_cast<u16>(17)); // no name
+		msg->Write<u8>(static_cast<u8>(PKTBI_6F::ACTION_CANCEL));
+		msg->Write<u32>(chr1->trade_container()->serial_ext);
 		msg->offset+=9; // u32 cont1_serial, cont2_serial, u8 havename
 		msg.Send(chr1->client);
 		send_full_statmsg( chr1->client, chr1 );
@@ -929,9 +929,9 @@ void cancel_trade( Character* chr1 )
         if (chr2->client)
         {
 			PktHelper::PacketOut<PktOut_6F> msg;
-			msg->WriteFlipped(static_cast<u16>(17)); // no name
-			msg->Write(static_cast<u8>(PKTBI_6F::ACTION_CANCEL));
-			msg->Write(chr2->trade_container()->serial_ext);
+			msg->WriteFlipped<u16>(static_cast<u16>(17)); // no name
+			msg->Write<u8>(static_cast<u8>(PKTBI_6F::ACTION_CANCEL));
+			msg->Write<u32>(chr2->trade_container()->serial_ext);
 			msg->offset+=9; // u32 cont1_serial, cont2_serial, u8 havename
 			msg.Send( chr2->client );
 			send_full_statmsg( chr2->client, chr2 );
@@ -945,17 +945,17 @@ void send_trade_statuses( Character* chr )
     unsigned int stat2 = chr->trading_with->trade_accepted?1:0;
 
 	PktHelper::PacketOut<PktOut_6F> msg;
-	msg->WriteFlipped(static_cast<u16>(17)); // no name
-	msg->Write(static_cast<u8>(PKTBI_6F::ACTION_STATUS));
-	msg->Write(chr->trade_container()->serial_ext);
-	msg->WriteFlipped(stat1);
-	msg->WriteFlipped(stat2);
+	msg->WriteFlipped<u16>(static_cast<u16>(17)); // no name
+	msg->Write<u8>(static_cast<u8>(PKTBI_6F::ACTION_STATUS));
+	msg->Write<u32>(chr->trade_container()->serial_ext);
+	msg->WriteFlipped<u32>(stat1);
+	msg->WriteFlipped<u32>(stat2);
 	msg->offset++; // u8 havename
 	transmit( chr->client, &msg->buffer, msg->offset );
 	msg->offset=4;
-	msg->Write(chr->trading_with->trade_container()->serial_ext);
-	msg->WriteFlipped(stat2);
-	msg->WriteFlipped(stat1);
+	msg->Write<u32>(chr->trading_with->trade_container()->serial_ext);
+	msg->WriteFlipped<u32>(stat2);
+	msg->WriteFlipped<u32>(stat1);
 	msg->offset++;
 	msg.Send( chr->trading_with->client );
 }

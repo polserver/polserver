@@ -90,32 +90,32 @@ void ClientInterface::tell_attribute_changed( Character* who, const Attribute* a
 void send_uo_hits( Client* client, Character* me, const Vital* vital )
 {
 	PktHelper::PacketOut<PktOut_A1> msg;
-	msg->Write(me->serial_ext);
+	msg->Write<u32>(me->serial_ext);
 	int v = me->vital( vital->vitalid ).maximum_ones();
 	if (v > 0xFFFF)
 		v = 0xFFFF;
-	msg->WriteFlipped(static_cast<u16>(v));
+	msg->WriteFlipped<u16>(static_cast<u16>(v));
 
     v = me->vital( vital->vitalid ).current_ones();
     if (v > 0xFFFF)
         v = 0xFFFF;
-    msg->WriteFlipped(static_cast<u16>(v));
+    msg->WriteFlipped<u16>(static_cast<u16>(v));
     msg.Send(client);
 }
 
 void send_uo_mana( Client* client, Character* me, const Vital* vital )
 {
 	PktHelper::PacketOut<PktOut_A2> msg;
-	msg->Write(me->serial_ext);
+	msg->Write<u32>(me->serial_ext);
 	int v = me->vital( vital->vitalid ).maximum_ones();
 	if (v > 0xFFFF)
 		v = 0xFFFF;
-	msg->WriteFlipped(static_cast<u16>(v));
+	msg->WriteFlipped<u16>(static_cast<u16>(v));
 
 	v = me->vital( vital->vitalid ).current_ones();
 	if (v > 0xFFFF)
 		v = 0xFFFF;
-	msg->WriteFlipped(static_cast<u16>(v));
+	msg->WriteFlipped<u16>(static_cast<u16>(v));
 	msg.Send(client);
 
 	if (me->party() != NULL)
@@ -125,16 +125,16 @@ void send_uo_mana( Client* client, Character* me, const Vital* vital )
 void send_uo_stamina( Client* client, Character* me, const Vital* vital )
 {
 	PktHelper::PacketOut<PktOut_A3> msg;
-	msg->Write(me->serial_ext);
+	msg->Write<u32>(me->serial_ext);
 	int v = me->vital( vital->vitalid ).maximum_ones();
 	if (v > 0xFFFF)
 		v = 0xFFFF;
-	msg->WriteFlipped(static_cast<u16>(v));
+	msg->WriteFlipped<u16>(static_cast<u16>(v));
 
 	v = me->vital( vital->vitalid ).current_ones();
 	if (v > 0xFFFF)
 		v = 0xFFFF;
-	msg->WriteFlipped(static_cast<u16>(v));
+	msg->WriteFlipped<u16>(static_cast<u16>(v));
 	msg.Send(client);
 
 	if (me->party()!=NULL)
@@ -159,19 +159,19 @@ void send_uo_skill( Client* client, Character* me, const Attribute* attr )
 	PktHelper::PacketOut<PktOut_3A> msg;
 	msg->offset+=2;
 	if (!ssopt.core_sends_caps)
-		msg->Write(static_cast<u8>(PKTBI_3A_VALUES::SINGLE_SKILL));
+		msg->Write<u8>(static_cast<u8>(PKTBI_3A_VALUES::SINGLE_SKILL));
 	else
-		msg->Write(static_cast<u8>(PKTBI_3A_VALUES::SINGLE_SKILL_CAP));
-	msg->WriteFlipped(static_cast<u16>(cau.pUOSkill->skillid));
+		msg->Write<u8>(static_cast<u8>(PKTBI_3A_VALUES::SINGLE_SKILL_CAP));
+	msg->WriteFlipped<u16>(static_cast<u16>(cau.pUOSkill->skillid));
 	const AttributeValue& av = me->attribute(attr->attrid);
-	msg->WriteFlipped(static_cast<u16>(av.effective_tenths())); //value
-	msg->WriteFlipped(static_cast<u16>(av.base())); //value_unmod base is always in tenths...
-	msg->Write(static_cast<u8>(av.lock()));
+	msg->WriteFlipped<u16>(static_cast<u16>(av.effective_tenths())); //value
+	msg->WriteFlipped<u16>(static_cast<u16>(av.base())); //value_unmod base is always in tenths...
+	msg->Write<u8>(static_cast<u8>(av.lock()));
 	if (ssopt.core_sends_caps)
-		msg->WriteFlipped(static_cast<u16>(av.cap()));
+		msg->WriteFlipped<u16>(static_cast<u16>(av.cap()));
 	u16 len = msg->offset;
 	msg->offset=1;
-	msg->WriteFlipped(len);
+	msg->WriteFlipped<u16>(len);
 	msg.Send(client, len);
 }
 void ClientInterface::Initialize()

@@ -590,13 +590,13 @@ ObjArray* CustomHouseDesign::list_parts() const
 void CustomHouseStopEditing(Character* chr, UHouse* house)
 {
 	PktHelper::PacketOut<PktOut_BF_Sub20> msg;
-	msg->WriteFlipped(static_cast<u16>(17));
+	msg->WriteFlipped<u16>(static_cast<u16>(17));
 	msg->offset+=2; //sub
-	msg->Write(house->serial_ext);
-	msg->Write(static_cast<u8>(0x5)); //end
+	msg->Write<u32>(house->serial_ext);
+	msg->Write<u8>(static_cast<u8>(0x5)); //end
 	msg->offset+=2; // u16 unk2 FIXME what's the meaning
-	msg->Write(static_cast<u32>(0xFFFFFFFF)); // fixme
-	msg->Write(static_cast<u8>(0xFF)); // fixme
+	msg->Write<u32>(static_cast<u32>(0xFFFFFFFF)); // fixme
+	msg->Write<u8>(static_cast<u8>(0xFF)); // fixme
 	msg.Send(chr->client);
 
 	const MultiDef& def = house->multidef();
@@ -1011,10 +1011,10 @@ void CustomHousesSendFullToInRange(UHouse* house, int design, int range)
 void CustomHousesSendShort(UHouse* house, Client* client)
 {
 	PktHelper::PacketOut<PktOut_BF_Sub1D> msg;
-	msg->WriteFlipped(static_cast<u16>(13));
+	msg->WriteFlipped<u16>(static_cast<u16>(13));
 	msg->offset+=2;
-	msg->Write(house->serial_ext);
-	msg->WriteFlipped(house->revision);
+	msg->Write<u32>(house->serial_ext);
+	msg->WriteFlipped<u32>(house->revision);
 	msg.Send(client);
 }
 

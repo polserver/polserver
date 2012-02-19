@@ -148,9 +148,9 @@ bool TargetCursor::send_object_cursor( Client *client,
 	if (!client->chr->target_cursor_busy())
 	{
 		PktHelper::PacketOut<PktOut_6C> msg;
-		msg->Write(static_cast<u8>(PKTBI_6C::UNK1_00));
-		msg->WriteFlipped(cursorid_);
-		msg->Write(static_cast<u8>(crstype));
+		msg->Write<u8>(static_cast<u8>(PKTBI_6C::UNK1_00));
+		msg->WriteFlipped<u32>(cursorid_);
+		msg->Write<u8>(static_cast<u8>(crstype));
 		// rest 0
 		msg.Send(client, sizeof msg->buffer );
 		client->chr->tcursor2 = this;
@@ -355,9 +355,9 @@ bool LosCheckedCoordCursor::send_coord_cursor( Client* client )
 	if (!client->chr->target_cursor_busy())
 	{
 		PktHelper::PacketOut<PktOut_6C> msg;
-		msg->Write(static_cast<u8>(PKTBI_6C::UNK1_01));
-		msg->WriteFlipped(cursorid_);
-		msg->Write(static_cast<u8>(PKTBI_6C::CURSOR_TYPE_NEUTRAL));
+		msg->Write<u8>(static_cast<u8>(PKTBI_6C::UNK1_01));
+		msg->WriteFlipped<u32>(cursorid_);
+		msg->Write<u8>(static_cast<u8>(PKTBI_6C::CURSOR_TYPE_NEUTRAL));
 		// rest 0
 		msg.Send(client, sizeof msg->buffer );
 		client->chr->tcursor2 = this;
@@ -386,14 +386,14 @@ MultiPlacementCursor::MultiPlacementCursor( void (*func)(Character*, PKTBI_6C*) 
 void MultiPlacementCursor::send_placemulti( Client* client, unsigned int objtype, int flags, s16 xoffset, s16 yoffset )
 {
 	PktHelper::PacketOut<PktOut_99> msg;
-	msg->Write(static_cast<u8>(0x1));
-	msg->WriteFlipped(cursorid_);
+	msg->Write<u8>(0x1);
+	msg->WriteFlipped<u32>(cursorid_);
 	msg->offset+=12; // 12x u8 unk
 	u16 multiid = find_multidesc(objtype).multiid;
 	multiid += static_cast<u16>((flags & CRMULTI_FACING_MASK) >> CRMULTI_FACING_SHIFT);
-	msg->WriteFlipped(multiid);
-	msg->WriteFlipped(xoffset);
-	msg->WriteFlipped(yoffset);
+	msg->WriteFlipped<u16>(multiid);
+	msg->WriteFlipped<s16>(xoffset);
+	msg->WriteFlipped<s16>(yoffset);
 	msg->offset+=2; // u16 maybe_zoffset
 	if (client->ClientType & CLIENTTYPE_7090)
 		msg->offset+=4;

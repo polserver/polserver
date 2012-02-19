@@ -57,14 +57,14 @@ void send_skillmsg( Client *client, const Character *chr )
 	PktHelper::PacketOut<PktOut_3A> msg;
 	msg->offset+=2;
 	if (ssopt.core_sends_caps)
-		msg->Write(static_cast<u8>(PKTBI_3A_VALUES::FULL_LIST_CAP));
+		msg->Write<u8>(static_cast<u8>(PKTBI_3A_VALUES::FULL_LIST_CAP));
 	else
-		msg->Write(static_cast<u8>(PKTBI_3A_VALUES::FULL_LIST));
+		msg->Write<u8>(static_cast<u8>(PKTBI_3A_VALUES::FULL_LIST));
 
 	for( unsigned short i = 0; i <= uoclient_general.maxskills; ++i )
 	{
 		const UOSkill& uoskill = GetUOSkill(i);
-		msg->WriteFlipped(static_cast<u16>(i+1)); // for some reason, we send this 1-based
+		msg->WriteFlipped<u16>(static_cast<u16>(i+1)); // for some reason, we send this 1-based
 		if (uoskill.pAttr)
 		{
 			const AttributeValue& av = chr->attribute(uoskill.pAttr->attrid);
@@ -72,29 +72,29 @@ void send_skillmsg( Client *client, const Character *chr )
 			value = av.effective_tenths();
 			if (value > 0xFFFF) 
 				value = 0xFFFF;
-			msg->WriteFlipped(static_cast<u16>(value));
+			msg->WriteFlipped<u16>(static_cast<u16>(value));
 
 			value = av.base();
 			if (value > 0xFFFF)
 				value = 0xFFFF;
-			msg->WriteFlipped(static_cast<u16>(value));
-			msg->Write(static_cast<u8>(av.lock()));
+			msg->WriteFlipped<u16>(static_cast<u16>(value));
+			msg->Write<u8>(static_cast<u8>(av.lock()));
 			if (ssopt.core_sends_caps)
-				msg->WriteFlipped(static_cast<u16>(av.cap()));
+				msg->WriteFlipped<u16>(static_cast<u16>(av.cap()));
 		}
 		else
 		{
 			msg->offset+=4; // u16 value/value_unmod
-			msg->Write(static_cast<u8>(PKTBI_3A_VALUES::LOCK_DOWN));
+			msg->Write<u8>(static_cast<u8>(PKTBI_3A_VALUES::LOCK_DOWN));
 			if (ssopt.core_sends_caps)
-				msg->WriteFlipped(static_cast<u16>(ssopt.default_attribute_cap));
+				msg->WriteFlipped<u16>(static_cast<u16>(ssopt.default_attribute_cap));
 		}
 	}
 	if (!ssopt.core_sends_caps)
 		msg->offset+=2; // u16 nullterm
 	u16 len=msg->offset;
 	msg->offset=1;
-	msg->WriteFlipped(len);
+	msg->WriteFlipped<u16>(len);
 	msg.Send(client, len );
 }
 

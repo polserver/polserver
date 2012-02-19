@@ -50,9 +50,9 @@ u16 gwtext[ (SPEECH_MAX_LEN + 1) ];
 void send_unicode_prompt( Client* client, u32 serial )
 {
 	PktHelper::PacketOut<PktOut_C2> msg;
-	msg->WriteFlipped(static_cast<u16>(PKTBI_C2::SERVER_MSGLEN));
-	msg->Write(serial); //serial
-	msg->Write(serial); //msg_id  Server-"decided" message ID. o_O
+	msg->WriteFlipped<u16>(static_cast<u16>(PKTBI_C2::SERVER_MSGLEN));
+	msg->Write<u32>(serial); //serial
+	msg->Write<u32>(serial); //msg_id  Server-"decided" message ID. o_O
 	msg->offset+=10; // 10x u8 unk
 	msg.Send(client);
 }

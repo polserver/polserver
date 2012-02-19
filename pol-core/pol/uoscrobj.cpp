@@ -1887,8 +1887,8 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 				if( client && client->getversiondetail().major>=1 )
 				{
 					PktHelper::PacketOut<PktOut_BC> msg;
-					msg->Write(static_cast<u8>(season_id));
-					msg->Write(static_cast<u8>(playsound));
+					msg->Write<u8>(static_cast<u8>(season_id));
+					msg->Write<u8>(static_cast<u8>(playsound));
 					msg.Send(client);
 					return new BLong(1);
 				}
