@@ -392,7 +392,7 @@ void Party::send_member_list(Character* to_chr)
 {
 	PktHelper::PacketOut<PktOut_BF_Sub6> msg;
 	msg->offset+=4; //len+sub
-	msg->Write(static_cast<u8>(PKTBI_BF_06::PARTYCMD_ADD));
+	msg->Write<u8>(static_cast<u8>(PKTBI_BF_06::PARTYCMD_ADD));
 	msg->offset++; //nummembers
 	vector<u32>::iterator itr = _member_serials.begin();
 	while( itr != _member_serials.end() )
@@ -400,7 +400,7 @@ void Party::send_member_list(Character* to_chr)
         Character* chr = system_find_mobile( *itr );
         if (chr != NULL)
 		{
-			msg->Write(chr->serial_ext);
+			msg->Write<u32>(chr->serial_ext);
 			++itr;
 		}
         else
@@ -408,9 +408,9 @@ void Party::send_member_list(Character* to_chr)
 	}
 	u16 len=msg->offset;
 	msg->offset=6;
-	msg->Write(static_cast<u8>(_member_serials.size()));
+	msg->Write<u8>(static_cast<u8>(_member_serials.size()));
 	msg->offset=1;
-	msg->WriteFlipped(len);
+	msg->WriteFlipped<u16>(len);
 
 	if (to_chr==NULL)
 	{
@@ -476,9 +476,9 @@ void Party::send_remove_member(Character* remchr, bool *disband)
 	{
 		PktHelper::PacketOut<PktOut_BF_Sub6> msg;
 		msg->offset+=4; //len+sub
-		msg->Write(static_cast<u8>(PKTBI_BF_06::PARTYCMD_REMOVE));
+		msg->Write<u8>(static_cast<u8>(PKTBI_BF_06::PARTYCMD_REMOVE));
 		msg->offset++; // nummembers
-		msg->Write(remchr->serial_ext);
+		msg->Write<u32>(remchr->serial_ext);
 
 		vector<u32>::iterator itr = _member_serials.begin();
 		while( itr != _member_serials.end() )
@@ -486,7 +486,7 @@ void Party::send_remove_member(Character* remchr, bool *disband)
 			Character* chr = system_find_mobile( *itr );
 			if (chr != NULL)
 			{
-				msg->Write(chr->serial_ext);
+				msg->Write<u32>(chr->serial_ext);
 				++itr;
 			}
 			else
@@ -494,9 +494,9 @@ void Party::send_remove_member(Character* remchr, bool *disband)
 		}
 		u16 len=msg->offset;
 		msg->offset=6;
-		msg->Write(static_cast<u8>(_member_serials.size()));
+		msg->Write<u8>(static_cast<u8>(_member_serials.size()));
 		msg->offset=1;
-		msg->WriteFlipped(len);
+		msg->WriteFlipped<u16>(len);
 
 		for(vector<u32>::iterator _itr = _member_serials.begin(), itrend=_member_serials.end(); _itr != itrend; ++_itr)
 		{
@@ -583,7 +583,7 @@ void Party::send_stats_on_add(Character* newmember)
 void Party::on_mana_changed(Character* chr)
 {
 	PktHelper::PacketOut<PktOut_A2> msg;
-	msg->Write(chr->serial_ext);
+	msg->Write<u32>(chr->serial_ext);
 
 	int h, mh;
 	h = chr->vital(uoclient_general.mana.id).current_ones();
@@ -592,8 +592,8 @@ void Party::on_mana_changed(Character* chr)
 	mh = chr->vital(uoclient_general.mana.id).maximum_ones();
 	if (mh > 0xFFFF)
 		mh = 0xFFFF;
-	msg->WriteFlipped(static_cast<u16>(1000));
-	msg->WriteFlipped(static_cast<u16>(h * 1000 / mh));
+	msg->WriteFlipped<u16>(static_cast<u16>(1000));
+	msg->WriteFlipped<u16>(static_cast<u16>(h * 1000 / mh));
 
 	for( vector<u32>::iterator itr = _member_serials.begin(), itrend=_member_serials.end(); itr != itrend; ++itr)
 	{
@@ -611,7 +611,7 @@ void Party::on_mana_changed(Character* chr)
 void Party::on_stam_changed(Character* chr)
 {
 	PktHelper::PacketOut<PktOut_A3> msg;
-	msg->Write(chr->serial_ext);
+	msg->Write<u32>(chr->serial_ext);
 
 	int h, mh;
 	h = chr->vital(uoclient_general.mana.id).current_ones();
@@ -620,8 +620,8 @@ void Party::on_stam_changed(Character* chr)
 	mh = chr->vital(uoclient_general.mana.id).maximum_ones();
 	if (mh > 0xFFFF)
 		mh = 0xFFFF;
-	msg->WriteFlipped(static_cast<u16>(1000));
-	msg->WriteFlipped(static_cast<u16>(h * 1000 / mh));
+	msg->WriteFlipped<u16>(static_cast<u16>(1000));
+	msg->WriteFlipped<u16>(static_cast<u16>(h * 1000 / mh));
 
 	for( vector<u32>::iterator itr = _member_serials.begin(), itrend=_member_serials.end(); itr != itrend; ++itr)
 	{
@@ -641,8 +641,8 @@ void Party::send_member_msg_public(Character* chr,u16* wtext, size_t wtextlen)
 {
 	PktHelper::PacketOut<PktOut_BF_Sub6> msg;
 	msg->offset+=4; //len+sub
-	msg->Write(static_cast<u8>(PKTBI_BF_06::PARTYCMD_PARTY_MSG));
-	msg->Write(chr->serial_ext);
+	msg->Write<u8>(static_cast<u8>(PKTBI_BF_06::PARTYCMD_PARTY_MSG));
+	msg->Write<u32>(chr->serial_ext);
 
 	if (party_cfg.Hooks.ChangePublicChat)
 	{
@@ -669,7 +669,7 @@ void Party::send_member_msg_public(Character* chr,u16* wtext, size_t wtextlen)
 	msg->Write(&wtext[0],static_cast<u16>(wtextlen),false);
 	u16 len=msg->offset;
 	msg->offset=1;
-	msg->WriteFlipped(len);
+	msg->WriteFlipped<u16>(len);
 
 	for( vector<u32>::iterator itr = _member_serials.begin(), itrend=_member_serials.end(); itr != itrend; ++itr)
 	{
@@ -688,8 +688,8 @@ void Party::send_member_msg_private(Character* chr, Character* tochr, u16* wtext
 		return;
 	PktHelper::PacketOut<PktOut_BF_Sub6> msg;
 	msg->offset+=4; //len+sub
-	msg->Write(static_cast<u8>(PKTBI_BF_06::PARTYCMD_MEMBER_MSG));
-	msg->Write(chr->serial_ext);
+	msg->Write<u8>(static_cast<u8>(PKTBI_BF_06::PARTYCMD_MEMBER_MSG));
+	msg->Write<u32>(chr->serial_ext);
 
 	if (party_cfg.Hooks.ChangePrivateChat)
 	{
@@ -721,7 +721,7 @@ void Party::send_member_msg_private(Character* chr, Character* tochr, u16* wtext
 	msg->Write(&wtext[0],static_cast<u16>(wtextlen),false);
 	u16 len=msg->offset;
 	msg->offset=1;
-	msg->WriteFlipped(len);
+	msg->WriteFlipped<u16>(len);
 
 	msg.Send(tochr->client,len);
 }
@@ -755,11 +755,11 @@ void send_empty_party(Character* chr)
 	if (chr != NULL && chr->has_active_client())
 	{
 		PktHelper::PacketOut<PktOut_BF_Sub6> msg;
-		msg->WriteFlipped(static_cast<u16>(11));
+		msg->WriteFlipped<u16>(static_cast<u16>(11));
 		msg->offset+=2; //sub
-		msg->Write(static_cast<u8>(PKTBI_BF_06::PARTYCMD_REMOVE));
+		msg->Write<u8>(static_cast<u8>(PKTBI_BF_06::PARTYCMD_REMOVE));
 		msg->offset++; //nummembers
-		msg->Write(chr->serial_ext);
+		msg->Write<u32>(chr->serial_ext);
 		msg.Send(chr->client);
 	}
 }
@@ -1414,10 +1414,10 @@ void invite_timeout(Character* mem)
 void send_invite(Character* member,Character* leader)
 {
 	PktHelper::PacketOut<PktOut_BF_Sub6> msg;
-	msg->WriteFlipped(static_cast<u16>(10));
+	msg->WriteFlipped<u16>(static_cast<u16>(10));
 	msg->offset+=2; //sub
-	msg->Write(static_cast<u8>(PKTBI_BF_06::PARTYCMD_INVITE_MEMBER));
-	msg->Write(leader->serial_ext);
+	msg->Write<u8>(static_cast<u8>(PKTBI_BF_06::PARTYCMD_INVITE_MEMBER));
+	msg->Write<u32>(leader->serial_ext);
 	msg.Send(member->client);
 
 	// : You are invited to join the party. Type /accept to join or /decline to decline the offer.
@@ -1428,7 +1428,7 @@ void send_invite(Character* member,Character* leader)
 void send_attributes_normalized(Character* chr, Character* bob)
 {
 	PktHelper::PacketOut<PktOut_2D> msg;
-	msg->Write(bob->serial_ext);
+	msg->Write<u32>(bob->serial_ext);
 	int h, mh;
 
     h = bob->vital(uoclient_general.hits.id).current_ones();
@@ -1437,8 +1437,8 @@ void send_attributes_normalized(Character* chr, Character* bob)
     mh = bob->vital(uoclient_general.hits.id).maximum_ones();
     if (mh > 0xFFFF)
         mh = 0xFFFF;
-	msg->WriteFlipped(static_cast<u16>(1000));
-	msg->WriteFlipped(static_cast<u16>(h * 1000 / mh));
+	msg->WriteFlipped<u16>(static_cast<u16>(1000));
+	msg->WriteFlipped<u16>(static_cast<u16>(h * 1000 / mh));
 
 	h = bob->vital(uoclient_general.mana.id).current_ones();
     if (h > 0xFFFF)
@@ -1446,8 +1446,8 @@ void send_attributes_normalized(Character* chr, Character* bob)
 	mh = bob->vital(uoclient_general.mana.id).maximum_ones();
     if (mh > 0xFFFF)
         mh = 0xFFFF;
-	msg->WriteFlipped(static_cast<u16>(1000));
-	msg->WriteFlipped(static_cast<u16>(h * 1000 / mh));
+	msg->WriteFlipped<u16>(static_cast<u16>(1000));
+	msg->WriteFlipped<u16>(static_cast<u16>(h * 1000 / mh));
 
 	h = bob->vital(uoclient_general.stamina.id).current_ones();
     if (h > 0xFFFF)
@@ -1455,8 +1455,8 @@ void send_attributes_normalized(Character* chr, Character* bob)
 	mh = bob->vital(uoclient_general.stamina.id).maximum_ones();
     if (mh > 0xFFFF)
         mh = 0xFFFF;
-	msg->WriteFlipped(static_cast<u16>(1000));
-	msg->WriteFlipped(static_cast<u16>(h * 1000 / mh));
+	msg->WriteFlipped<u16>(static_cast<u16>(1000));
+	msg->WriteFlipped<u16>(static_cast<u16>(h * 1000 / mh));
 
 	msg.Send(chr->client);
 }

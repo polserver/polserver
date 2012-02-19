@@ -831,9 +831,9 @@ BObjectImp* UOExecutorModule::mf_TargetCancel()
 			if (chr->target_cursor_busy())
 			{
 				PktHelper::PacketOut<PktOut_6C> msg;
-				msg->Write(static_cast<u8>(PKTBI_6C::UNK1_00));
+				msg->Write<u8>(static_cast<u8>(PKTBI_6C::UNK1_00));
 				msg->offset+=4; // u32 target_cursor_serial
-				msg->Write(static_cast<u8>(0x3));
+				msg->Write<u8>(static_cast<u8>(0x3));
 				// rest 0
 				msg.Send(chr->client, sizeof msg->buffer);
 				return new BLong(0);
@@ -4233,16 +4233,16 @@ BObjectImp* UOExecutorModule::mf_SendQuestArrow()
 		PktHelper::PacketOut<PktOut_BA> msg;
 		if ( x == -1 && y == -1 )
 		{
-			msg->Write(static_cast<u8>(PKTOUT_BA_ARROW_OFF));
+			msg->Write<u8>(static_cast<u8>(PKTOUT_BA_ARROW_OFF));
 			msg->offset+=4; // u16 x_tgt,y_tgt
 		}
 		else
 		{
 			if(!chr->realm->valid(static_cast<unsigned short>(x),static_cast<unsigned short>(y),0))
 				return new BError("Invalid Coordinates for Realm");
-			msg->Write(static_cast<u8>(PKTOUT_BA_ARROW_ON));
-			msg->WriteFlipped(static_cast<unsigned short>(x & 0xFFFF));
-			msg->WriteFlipped(static_cast<unsigned short>(y & 0xFFFF));
+			msg->Write<u8>(static_cast<u8>(PKTOUT_BA_ARROW_ON));
+			msg->WriteFlipped<u16>(static_cast<unsigned short>(x & 0xFFFF));
+			msg->WriteFlipped<u16>(static_cast<unsigned short>(y & 0xFFFF));
 		}
 		if (!chr->has_active_client())
 			return new BError( "No client attached" );
@@ -5775,8 +5775,8 @@ BObjectImp* UOExecutorModule::mf_SendOverallSeason(/*season_id, playsound := 1*/
 			return new BError("Invalid season id");
 			
 		PktHelper::PacketOut<PktOut_BC> msg;
-		msg->Write(static_cast<u8>(season_id));
-		msg->Write(static_cast<u8>(playsound));
+		msg->Write<u8>(static_cast<u8>(season_id));
+		msg->Write<u8>(static_cast<u8>(playsound));
 
 		for( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
 		{

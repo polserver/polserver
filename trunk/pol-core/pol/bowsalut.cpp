@@ -87,13 +87,13 @@ void send_action_to_inrange( const Character* obj, UACTION action,
         }
     }
 	PktHelper::PacketOut<PktOut_6E> msg;
-	msg->Write(obj->serial_ext);
-	msg->WriteFlipped(static_cast<u16>(action));
-	msg->WriteFlipped(framecount);
-	msg->WriteFlipped(repeatcount);
-	msg->Write(static_cast<u8>(backward));
-	msg->Write(static_cast<u8>(repeatflag));
-	msg->Write(delay);
+	msg->Write<u32>(obj->serial_ext);
+	msg->WriteFlipped<u16>(static_cast<u16>(action));
+	msg->WriteFlipped<u16>(framecount);
+	msg->WriteFlipped<u16>(repeatcount);
+	msg->Write<u8>(static_cast<u8>(backward));
+	msg->Write<u8>(static_cast<u8>(repeatflag));
+	msg->Write<u8>(delay);
 	transmit_to_inrange( obj, &msg->buffer, msg->offset, false, false );
 }
 

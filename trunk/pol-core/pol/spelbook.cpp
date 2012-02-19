@@ -120,17 +120,17 @@ void Spellbook::double_click( Client* client )
 		send_open_gump(client, *this);
 
 		PktHelper::PacketOut<PktOut_BF_Sub1B> msg;
-		msg->WriteFlipped(static_cast<u16>(23));
+		msg->WriteFlipped<u16>(23);
 		msg->offset+=2; //sub
-		msg->WriteFlipped(static_cast<u16>(1));
-		msg->Write(serial_ext);
-		msg->WriteFlipped(graphic);
+		msg->WriteFlipped<u16>(1);
+		msg->Write<u32>(serial_ext);
+		msg->WriteFlipped<u16>(graphic);
 
 		// Check Mysticism spell here
 		if (spell_school == 3)
-			msg->WriteFlipped(static_cast<u16>(678));
+			msg->WriteFlipped<u16>(678);
 		else
-			msg->WriteFlipped(static_cast<u16>((spell_school * 100) + 1));
+			msg->WriteFlipped<u16>(static_cast<u16>((spell_school * 100) + 1));
 
 		msg->Write(bitwise_contents,8);
 		msg.Send(client);
@@ -368,22 +368,22 @@ void send_spellbook_contents( Client *client, Spellbook& spellbook )
 		if(spellpos == 0) spellpos = 8;
 		if ( ((spellbook.bitwise_contents[ ((spellnumber-1) >> 3) ]) & (1 << (spellpos-1))) != 0 )
 		{
-			msg->Write(static_cast<u32>(0x7FFFFFFF - spellnumber));
-			msg->WriteFlipped(static_cast<u16>(objtype));
+			msg->Write<u32>(static_cast<u32>(0x7FFFFFFF - spellnumber));
+			msg->WriteFlipped<u16>(static_cast<u16>(objtype));
 			msg->offset++; //unk6
-			msg->WriteFlipped(spellnumber); //amount
-			msg->WriteFlipped(static_cast<u16>(1)); //x
-			msg->WriteFlipped(static_cast<u16>(1)); //y
+			msg->WriteFlipped<u16>(spellnumber); //amount
+			msg->WriteFlipped<u16>(1); //x
+			msg->WriteFlipped<u16>(1); //y
 			if ( client->ClientType & CLIENTTYPE_6017 )
-				msg->Write(static_cast<u8>(0)); //slotindex
-			msg->Write(spellbook.serial_ext);
-			msg->WriteFlipped(static_cast<u16>(0)); //color
+				msg->Write<u8>(0); //slotindex
+			msg->Write<u32>(spellbook.serial_ext);
+			msg->WriteFlipped<u16>(0); //color
 			++count;
 		}
 	}
 	u16 len=msg->offset;
 	msg->offset=1;
-	msg->WriteFlipped(len);
-	msg->WriteFlipped(count);
+	msg->WriteFlipped<u16>(len);
+	msg->WriteFlipped<u16>(count);
 	msg.Send(client, len );
 }

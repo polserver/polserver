@@ -47,7 +47,7 @@ Notes
 void send_paperdoll( Client *client, Character *chr )
 {
 	PktHelper::PacketOut<PktOut_88> msg;
-	msg->Write(chr->serial_ext);
+	msg->Write<u32>(chr->serial_ext);
 
 	if ((!ssopt.privacy_paperdoll) || (client->chr == chr))
 	{
@@ -74,7 +74,7 @@ void send_paperdoll( Client *client, Character *chr )
 	}
 	else
 		flag1 = chr->warmode ? 1 : 0;
-	msg->Write(flag1);
+	msg->Write<u8>(flag1);
 
 	msg.Send(client);
 }

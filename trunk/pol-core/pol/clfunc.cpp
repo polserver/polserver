@@ -44,12 +44,12 @@ void send_sysmessage_cl(Client *client, /*Character *chr_from, ObjArray* oText,*
 	if (textlen > (SPEECH_MAX_LEN))
 		textlen = SPEECH_MAX_LEN;
 
-	msg->Write(static_cast<u32>(0xFFFFFFFF)); // serial
-	msg->Write(static_cast<u16>(0xFFFF));     // body
-	msg->Write(static_cast<u8>(6));           // type 6 lower left, 7 on player
-	msg->WriteFlipped(color);
-	msg->WriteFlipped(font);
-	msg->WriteFlipped(cliloc_num);
+	msg->Write<u32>(static_cast<u32>(0xFFFFFFFF)); // serial
+	msg->Write<u16>(static_cast<u16>(0xFFFF));     // body
+	msg->Write<u8>(static_cast<u8>(6));           // type 6 lower left, 7 on player
+	msg->WriteFlipped<u16>(color);
+	msg->WriteFlipped<u16>(font);
+	msg->WriteFlipped<u32>(cliloc_num);
 	msg->Write("System",30,false);
 	if (arguments != NULL)
 		msg->Write(arguments,static_cast<u16>(textlen),true); //ctLEu16
@@ -57,7 +57,7 @@ void send_sysmessage_cl(Client *client, /*Character *chr_from, ObjArray* oText,*
 		msg->offset+=2;
 	u16 len=msg->offset;
 	msg->offset=1;
-	msg->WriteFlipped(len);
+	msg->WriteFlipped<u16>(len);
 	msg.Send(client, len);
 }
 
@@ -78,12 +78,12 @@ void say_above_cl(UObject *obj, unsigned int cliloc_num,
 	if (textlen > (SPEECH_MAX_LEN))
 		textlen = SPEECH_MAX_LEN;
 
-	msg->Write(obj->serial_ext);
-	msg->WriteFlipped(obj->graphic);     // body
-	msg->Write(static_cast<u8>(7));           // type 6 lower left, 7 on player
-	msg->WriteFlipped(color);
-	msg->WriteFlipped(font);
-	msg->WriteFlipped(cliloc_num);
+	msg->Write<u32>(obj->serial_ext);
+	msg->WriteFlipped<u16>(obj->graphic);     // body
+	msg->Write<u8>(static_cast<u8>(7));           // type 6 lower left, 7 on player
+	msg->WriteFlipped<u16>(color);
+	msg->WriteFlipped<u16>(font);
+	msg->WriteFlipped<u32>(cliloc_num);
 	msg->Write("System",30,false);
 	if (arguments != NULL)
 		msg->Write(arguments,static_cast<u16>(textlen),true); //ctLEu16
@@ -91,7 +91,7 @@ void say_above_cl(UObject *obj, unsigned int cliloc_num,
 		msg->offset+=2;
 	u16 len=msg->offset;
 	msg->offset=1;
-	msg->WriteFlipped(len);
+	msg->WriteFlipped<u16>(len);
 	//  MuadDib - FIXME: only send to those that I'm visible to. 
 	transmit_to_inrange( obj, &msg->buffer, len, false, false );
 }
@@ -113,12 +113,12 @@ void private_say_above_cl(Character *chr, const UObject* obj,
 	if (textlen > (SPEECH_MAX_LEN))
 		textlen = SPEECH_MAX_LEN;
 
-	msg->Write(obj->serial_ext);
-	msg->WriteFlipped(obj->graphic);     // body
-	msg->Write(static_cast<u8>(7));           // type 6 lower left, 7 on player
-	msg->WriteFlipped(color);
-	msg->WriteFlipped(font);
-	msg->WriteFlipped(cliloc_num);
+	msg->Write<u32>(obj->serial_ext);
+	msg->WriteFlipped<u16>(obj->graphic);     // body
+	msg->Write<u8>(static_cast<u8>(7));           // type 6 lower left, 7 on player
+	msg->WriteFlipped<u16>(color);
+	msg->WriteFlipped<u16>(font);
+	msg->WriteFlipped<u32>(cliloc_num);
 	msg->Write("System",30,false);
 	if (arguments != NULL)
 		msg->Write(arguments,static_cast<u16>(textlen),true); //ctLEu16
@@ -126,7 +126,7 @@ void private_say_above_cl(Character *chr, const UObject* obj,
 		msg->offset+=2;
 	u16 len=msg->offset;
 	msg->offset=1;
-	msg->WriteFlipped(len);
+	msg->WriteFlipped<u16>(len);
 	msg.Send(chr->client, len);
 }
 
@@ -151,13 +151,13 @@ void send_sysmessage_cl_affix(Client *client, unsigned int cliloc_num, const cha
 	if (textlen > (SPEECH_MAX_LEN))
 		textlen = SPEECH_MAX_LEN;
 
-	msg->Write(static_cast<u32>(0xFFFFFFFF)); // serial
-	msg->Write(static_cast<u16>(0xFFFF));     // body
-	msg->Write(static_cast<u8>(6));           // type 6 lower left, 7 on player
-	msg->WriteFlipped(color);
-	msg->WriteFlipped(font);
-	msg->WriteFlipped(cliloc_num);
-	msg->Write(static_cast<u8>((prepend) ? 1 : 0));
+	msg->Write<u32>(static_cast<u32>(0xFFFFFFFF)); // serial
+	msg->Write<u16>(static_cast<u16>(0xFFFF));     // body
+	msg->Write<u8>(static_cast<u8>(6));           // type 6 lower left, 7 on player
+	msg->WriteFlipped<u16>(color);
+	msg->WriteFlipped<u16>(font);
+	msg->WriteFlipped<u32>(cliloc_num);
+	msg->Write<u8>(static_cast<u8>((prepend) ? 1 : 0));
 	msg->Write("System",30,false);
 	msg->Write(affix,static_cast<u16>(affix_len));
 	if (arguments != NULL)
@@ -166,7 +166,7 @@ void send_sysmessage_cl_affix(Client *client, unsigned int cliloc_num, const cha
 		msg->offset+=2;
 	u16 len=msg->offset;
 	msg->offset=1;
-	msg->WriteFlipped(len);
+	msg->WriteFlipped<u16>(len);
 	msg.Send(client, len);
 }
 
@@ -190,13 +190,13 @@ void say_above_cl_affix(UObject *obj, unsigned int cliloc_num, const char* affix
 	if (textlen > (SPEECH_MAX_LEN))
 		textlen = SPEECH_MAX_LEN;
 
-	msg->Write(obj->serial_ext); // serial
-	msg->WriteFlipped(obj->graphic);     // body
-	msg->Write(static_cast<u8>(7));           // type 6 lower left, 7 on player
-	msg->WriteFlipped(color);
-	msg->WriteFlipped(font);
-	msg->WriteFlipped(cliloc_num);
-	msg->Write(static_cast<u8>((prepend) ? 1 : 0));
+	msg->Write<u32>(obj->serial_ext); // serial
+	msg->WriteFlipped<u16>(obj->graphic);     // body
+	msg->Write<u8>(static_cast<u8>(7));           // type 6 lower left, 7 on player
+	msg->WriteFlipped<u16>(color);
+	msg->WriteFlipped<u16>(font);
+	msg->WriteFlipped<u32>(cliloc_num);
+	msg->Write<u8>(static_cast<u8>((prepend) ? 1 : 0));
 	msg->Write("System",30,false);
 	msg->Write(affix,static_cast<u16>(affix_len));
 	if (arguments != NULL)
@@ -205,7 +205,7 @@ void say_above_cl_affix(UObject *obj, unsigned int cliloc_num, const char* affix
 		msg->offset+=2;
 	u16 len=msg->offset;
 	msg->offset=1;
-	msg->WriteFlipped(len);
+	msg->WriteFlipped<u16>(len);
 
 	// MuadDib - FIXME: only send to those that I'm visible to.
 	transmit_to_inrange( obj, &msg->buffer, len, false, false );
@@ -231,13 +231,13 @@ void private_say_above_cl_affix(Character *chr, const UObject* obj, unsigned int
 	if (textlen > (SPEECH_MAX_LEN))
 		textlen = SPEECH_MAX_LEN;
 
-	msg->Write(obj->serial_ext); // serial
-	msg->WriteFlipped(obj->graphic);     // body
-	msg->Write(static_cast<u8>(7));           // type 6 lower left, 7 on player
-	msg->WriteFlipped(color);
-	msg->WriteFlipped(font);
-	msg->WriteFlipped(cliloc_num);
-	msg->Write(static_cast<u8>((prepend) ? 1 : 0));
+	msg->Write<u32>(obj->serial_ext); // serial
+	msg->WriteFlipped<u16>(obj->graphic);     // body
+	msg->Write<u8>(static_cast<u8>(7));           // type 6 lower left, 7 on player
+	msg->WriteFlipped<u16>(color);
+	msg->WriteFlipped<u16>(font);
+	msg->WriteFlipped<u32>(cliloc_num);
+	msg->Write<u8>(static_cast<u8>((prepend) ? 1 : 0));
 	msg->Write("System",30,false);
 	msg->Write(affix,static_cast<u16>(affix_len));
 	if (arguments != NULL)
@@ -246,7 +246,7 @@ void private_say_above_cl_affix(Character *chr, const UObject* obj, unsigned int
 		msg->offset+=2;
 	u16 len=msg->offset;
 	msg->offset=1;
-	msg->WriteFlipped(len);
+	msg->WriteFlipped<u16>(len);
 
 	msg.Send(chr->client, len);
 }
@@ -266,12 +266,12 @@ void build_sysmessage_cl(PktOut_C1* msg, unsigned int cliloc_num, const u16 *arg
 	if (textlen > (SPEECH_MAX_LEN))
 		textlen = SPEECH_MAX_LEN;
 
-	msg->Write(static_cast<u32>(0xFFFFFFFF)); // serial
-	msg->Write(static_cast<u16>(0xFFFF));     // body
-	msg->Write(static_cast<u8>(6));           // type 6 lower left, 7 on player
-	msg->WriteFlipped(color);
-	msg->WriteFlipped(font);
-	msg->WriteFlipped(cliloc_num);
+	msg->Write<u32>(static_cast<u32>(0xFFFFFFFF)); // serial
+	msg->Write<u16>(static_cast<u16>(0xFFFF));     // body
+	msg->Write<u8>(static_cast<u8>(6));           // type 6 lower left, 7 on player
+	msg->WriteFlipped<u16>(color);
+	msg->WriteFlipped<u16>(font);
+	msg->WriteFlipped<u32>(cliloc_num);
 	msg->Write("System",30,false);
 	if (arguments != NULL)
 		msg->Write(arguments,static_cast<u16>(textlen),true); //ctLEu16
@@ -279,7 +279,7 @@ void build_sysmessage_cl(PktOut_C1* msg, unsigned int cliloc_num, const u16 *arg
 		msg->offset+=2;
 	u16 len=msg->offset;
 	msg->offset=1;
-	msg->WriteFlipped(len);
+	msg->WriteFlipped<u16>(len);
 	msg->offset=len;
 }
 
@@ -302,13 +302,13 @@ void build_sysmessage_cl_affix(PktOut_CC* msg,unsigned int cliloc_num, const cha
 	if (textlen > (SPEECH_MAX_LEN))
 		textlen = SPEECH_MAX_LEN;
 
-	msg->Write(static_cast<u32>(0xFFFFFFFF)); // serial
-	msg->Write(static_cast<u16>(0xFFFF));     // body
-	msg->Write(static_cast<u8>(6));           // type 6 lower left, 7 on player
-	msg->WriteFlipped(color);
-	msg->WriteFlipped(font);
-	msg->WriteFlipped(cliloc_num);
-	msg->Write(static_cast<u8>((prepend) ? 1 : 0));
+	msg->Write<u32>(static_cast<u32>(0xFFFFFFFF)); // serial
+	msg->Write<u16>(static_cast<u16>(0xFFFF));     // body
+	msg->Write<u8>(static_cast<u8>(6));           // type 6 lower left, 7 on player
+	msg->WriteFlipped<u16>(color);
+	msg->WriteFlipped<u16>(font);
+	msg->WriteFlipped<u32>(cliloc_num);
+	msg->Write<u8>(static_cast<u8>((prepend) ? 1 : 0));
 	msg->Write("System",30,false);
 	msg->Write(affix,static_cast<u16>(affix_len));
 	if (arguments != NULL)
@@ -317,7 +317,7 @@ void build_sysmessage_cl_affix(PktOut_CC* msg,unsigned int cliloc_num, const cha
 		msg->offset+=2;
 	u16 len=msg->offset;
 	msg->offset=1;
-	msg->WriteFlipped(len);
+	msg->WriteFlipped<u16>(len);
 	msg->offset=len;
 }
 

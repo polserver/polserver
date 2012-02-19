@@ -253,20 +253,20 @@ void send_startup( Client *client )
 {
 	Character *chr = client->chr;
 	PktHelper::PacketOut<PktOut_1B> msg;
-	msg->Write(chr->serial_ext);
+	msg->Write<u32>(chr->serial_ext);
 	msg->offset+=4; //u8 unk5, unk6, unk7, unk8
-	msg->WriteFlipped(chr->graphic);
-	msg->WriteFlipped(chr->x);
-	msg->WriteFlipped(chr->y);
+	msg->WriteFlipped<u16>(chr->graphic);
+	msg->WriteFlipped<u16>(chr->x);
+	msg->WriteFlipped<u16>(chr->y);
 	msg->offset++; // u8 unk_15
-	msg->Write(chr->z);
-	msg->Write(chr->facing);
+	msg->Write<s8>(chr->z);
+	msg->Write<u8>(chr->facing);
 	msg->offset+=3; //u8 unk18,unk19,unk20
-	msg->Write(static_cast<u8>(0x7F));
+	msg->Write<u8>(static_cast<u8>(0x7F));
 	msg->offset++; // u8 unk22
 	msg->offset+=4; // u16 map_startx, map_starty
-	msg->WriteFlipped(client->chr->realm->width());
-	msg->WriteFlipped(client->chr->realm->height());
+	msg->WriteFlipped<u16>(client->chr->realm->width());
+	msg->WriteFlipped<u16>(client->chr->realm->height());
 	msg->offset+=6; // u8 unk31, unk32, unk33, unk34, unk35, unk36
 	msg.Send(client);
 }
@@ -868,32 +868,32 @@ bool process_data( Client *client )
 					printf( "UOKR Seed Message Received: Type 0x%X\n", cstype );
 				}
 				PktHelper::PacketOut<PktOut_E3> msg;
-				msg->WriteFlipped(static_cast<u16>(77));
-				msg->WriteFlipped(static_cast<u32>(0x03));
-				msg->Write(static_cast<u8>(0x02));	msg->Write(static_cast<u8>(0x01));	msg->Write(static_cast<u8>(0x03));
-				msg->WriteFlipped(static_cast<u32>(0x13));
-				msg->Write(static_cast<u8>(0x02));	msg->Write(static_cast<u8>(0x11));	msg->Write(static_cast<u8>(0x00));
-				msg->Write(static_cast<u8>(0xfc));	msg->Write(static_cast<u8>(0x2f));	msg->Write(static_cast<u8>(0xe3));
-				msg->Write(static_cast<u8>(0x81));	msg->Write(static_cast<u8>(0x93));	msg->Write(static_cast<u8>(0xcb));
-				msg->Write(static_cast<u8>(0xaf));	msg->Write(static_cast<u8>(0x98));	msg->Write(static_cast<u8>(0xdd));
-				msg->Write(static_cast<u8>(0x83));	msg->Write(static_cast<u8>(0x13));	msg->Write(static_cast<u8>(0xd2));
-				msg->Write(static_cast<u8>(0x9e));	msg->Write(static_cast<u8>(0xea));	msg->Write(static_cast<u8>(0xe4));
-				msg->Write(static_cast<u8>(0x13));
-				msg->WriteFlipped(static_cast<u32>(0x10));
-				msg->Write(static_cast<u8>(0x78));	msg->Write(static_cast<u8>(0x13));	msg->Write(static_cast<u8>(0xb7));
-				msg->Write(static_cast<u8>(0x7b));	msg->Write(static_cast<u8>(0xce));	msg->Write(static_cast<u8>(0xa8));
-				msg->Write(static_cast<u8>(0xd7));	msg->Write(static_cast<u8>(0xbc));	msg->Write(static_cast<u8>(0x52));
-				msg->Write(static_cast<u8>(0xde));	msg->Write(static_cast<u8>(0x38));	msg->Write(static_cast<u8>(0x30));
-				msg->Write(static_cast<u8>(0xea));	msg->Write(static_cast<u8>(0xe9));	msg->Write(static_cast<u8>(0x1e));
-				msg->Write(static_cast<u8>(0xa3));
-				msg->WriteFlipped(static_cast<u32>(0x20));
-				msg->WriteFlipped(static_cast<u32>(0x10));
-				msg->Write(static_cast<u8>(0x5a));	msg->Write(static_cast<u8>(0xce));	msg->Write(static_cast<u8>(0x3e));
-				msg->Write(static_cast<u8>(0xe3));	msg->Write(static_cast<u8>(0x97));	msg->Write(static_cast<u8>(0x92));
-				msg->Write(static_cast<u8>(0xe4));	msg->Write(static_cast<u8>(0x8a));	msg->Write(static_cast<u8>(0xf1));
-				msg->Write(static_cast<u8>(0x9a));	msg->Write(static_cast<u8>(0xd3));	msg->Write(static_cast<u8>(0x04));
-				msg->Write(static_cast<u8>(0x41));	msg->Write(static_cast<u8>(0x03));	msg->Write(static_cast<u8>(0xcb));
-				msg->Write(static_cast<u8>(0x53));
+				msg->WriteFlipped<u16>(static_cast<u16>(77));
+				msg->WriteFlipped<u32>(static_cast<u32>(0x03));
+				msg->Write<u8>(static_cast<u8>(0x02));	msg->Write<u8>(static_cast<u8>(0x01));	msg->Write<u8>(static_cast<u8>(0x03));
+				msg->WriteFlipped<u32>(static_cast<u32>(0x13));
+				msg->Write<u8>(static_cast<u8>(0x02));	msg->Write<u8>(static_cast<u8>(0x11));	msg->Write<u8>(static_cast<u8>(0x00));
+				msg->Write<u8>(static_cast<u8>(0xfc));	msg->Write<u8>(static_cast<u8>(0x2f));	msg->Write<u8>(static_cast<u8>(0xe3));
+				msg->Write<u8>(static_cast<u8>(0x81));	msg->Write<u8>(static_cast<u8>(0x93));	msg->Write<u8>(static_cast<u8>(0xcb));
+				msg->Write<u8>(static_cast<u8>(0xaf));	msg->Write<u8>(static_cast<u8>(0x98));	msg->Write<u8>(static_cast<u8>(0xdd));
+				msg->Write<u8>(static_cast<u8>(0x83));	msg->Write<u8>(static_cast<u8>(0x13));	msg->Write<u8>(static_cast<u8>(0xd2));
+				msg->Write<u8>(static_cast<u8>(0x9e));	msg->Write<u8>(static_cast<u8>(0xea));	msg->Write<u8>(static_cast<u8>(0xe4));
+				msg->Write<u8>(static_cast<u8>(0x13));
+				msg->WriteFlipped<u32>(static_cast<u32>(0x10));
+				msg->Write<u8>(static_cast<u8>(0x78));	msg->Write<u8>(static_cast<u8>(0x13));	msg->Write<u8>(static_cast<u8>(0xb7));
+				msg->Write<u8>(static_cast<u8>(0x7b));	msg->Write<u8>(static_cast<u8>(0xce));	msg->Write<u8>(static_cast<u8>(0xa8));
+				msg->Write<u8>(static_cast<u8>(0xd7));	msg->Write<u8>(static_cast<u8>(0xbc));	msg->Write<u8>(static_cast<u8>(0x52));
+				msg->Write<u8>(static_cast<u8>(0xde));	msg->Write<u8>(static_cast<u8>(0x38));	msg->Write<u8>(static_cast<u8>(0x30));
+				msg->Write<u8>(static_cast<u8>(0xea));	msg->Write<u8>(static_cast<u8>(0xe9));	msg->Write<u8>(static_cast<u8>(0x1e));
+				msg->Write<u8>(static_cast<u8>(0xa3));
+				msg->WriteFlipped<u32>(static_cast<u32>(0x20));
+				msg->WriteFlipped<u32>(static_cast<u32>(0x10));
+				msg->Write<u8>(static_cast<u8>(0x5a));	msg->Write<u8>(static_cast<u8>(0xce));	msg->Write<u8>(static_cast<u8>(0x3e));
+				msg->Write<u8>(static_cast<u8>(0xe3));	msg->Write<u8>(static_cast<u8>(0x97));	msg->Write<u8>(static_cast<u8>(0x92));
+				msg->Write<u8>(static_cast<u8>(0xe4));	msg->Write<u8>(static_cast<u8>(0x8a));	msg->Write<u8>(static_cast<u8>(0xf1));
+				msg->Write<u8>(static_cast<u8>(0x9a));	msg->Write<u8>(static_cast<u8>(0xd3));	msg->Write<u8>(static_cast<u8>(0x04));
+				msg->Write<u8>(static_cast<u8>(0x41));	msg->Write<u8>(static_cast<u8>(0x03));	msg->Write<u8>(static_cast<u8>(0xcb));
+				msg->Write<u8>(static_cast<u8>(0x53));
 				client->recv_state = Client::RECV_STATE_MSGTYPE_WAIT;
 				client->setClientType(CLIENTTYPE_UOKR); // UO:KR logging in				
 				msg.Send(client);
@@ -1050,7 +1050,7 @@ client->checkpoint = 61; //CNXBUG
 						CLIENT_CHECKPOINT(4);
 						PolLock lck; //multithread
 						PktHelper::PacketOut<PktOut_53> msg;
-						msg->Write(static_cast<u8>(PKTOUT_53_WARN_CHARACTER_IDLE));
+						msg->Write<u8>(static_cast<u8>(PKTOUT_53_WARN_CHARACTER_IDLE));
 						CLIENT_CHECKPOINT(5);
 						msg.Send(client);
 						CLIENT_CHECKPOINT(18);
