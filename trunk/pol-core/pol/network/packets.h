@@ -131,6 +131,42 @@ class PacketWriter : public PacketInterface
 		char* getBuffer() { return &buffer[offset]; };
 		inline u8 getID() { return _id; };
 
+		//TODO: I start to hate this... maybe following is better? at least less functions defs
+		/*
+		template <typename T>
+		void Write(T x)
+		{
+			passert_always_r(offset+sizeof(T)<=_size, "pkt "+hexint(_id));
+			(*(T*)(void*)&buffer[offset]) = x;
+			offset += sizeof(T);
+		}
+
+		template <typename T>
+		void WriteFlipped(T x)
+		{
+			passert_always_r(offset+sizeof(T)<=_size, "pkt "+hexint(_id));
+			(*(T*)(void*)&buffer[offset]) = cfBEu32(x);
+			offset += sizeof(T);
+		}
+		template <>
+		void WriteFlipped<u16>(u16 x)
+		{
+			passert_always_r(offset+sizeof(u16)<=_size, "pkt "+hexint(_id));
+			(*(u16*)(void*)&buffer[offset]) = cfBEu16(x);
+			offset += sizeof(u16);
+		}
+		template <>
+		void WriteFlipped<s16>(s16 x)
+		{
+			passert_always_r(offset+sizeof(s16)<=_size, "pkt "+hexint(_id));
+			(*(s16*)(void*)&buffer[offset]) = cfBEu16(x);
+			offset += sizeof(s16);
+		}
+		usage:
+		msg.WriteFlipped<u32>(blubb); 
+		good thing is something like msg.WriteFlipped<u16>(u16*2) will not be (silently) converted to u32 
+		*/
+
 		void Write(u32 x)
 		{
 			passert_always_r(offset+4<=_size, "pkt "+hexint(_id));

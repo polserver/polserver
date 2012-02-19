@@ -192,7 +192,7 @@ void say_above_cl_affix(UObject *obj, unsigned int cliloc_num, const char* affix
 
 	msg->Write(obj->serial_ext); // serial
 	msg->WriteFlipped(obj->graphic);     // body
-	msg->Write(7);           // type 6 lower left, 7 on player
+	msg->Write(static_cast<u8>(7));           // type 6 lower left, 7 on player
 	msg->WriteFlipped(color);
 	msg->WriteFlipped(font);
 	msg->WriteFlipped(cliloc_num);
@@ -233,7 +233,7 @@ void private_say_above_cl_affix(Character *chr, const UObject* obj, unsigned int
 
 	msg->Write(obj->serial_ext); // serial
 	msg->WriteFlipped(obj->graphic);     // body
-	msg->Write(7);           // type 6 lower left, 7 on player
+	msg->Write(static_cast<u8>(7));           // type 6 lower left, 7 on player
 	msg->WriteFlipped(color);
 	msg->WriteFlipped(font);
 	msg->WriteFlipped(cliloc_num);
