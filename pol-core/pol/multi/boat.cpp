@@ -285,29 +285,29 @@ void send_boat_to_inrange( const UBoat* item, u16 oldx, u16 oldy )
 	PktHelper::PacketOut<PktOut_1A> msg;
 	msg->offset+=2;
 	u16 graphic=item->multidef().multiid | 0x4000;
-	msg->Write(item->serial_ext);
-	msg->WriteFlipped(graphic);
-	msg->WriteFlipped(item->x);
-	msg->WriteFlipped(item->y);
-	msg->Write(item->z);
+	msg->Write<u32>(item->serial_ext);
+	msg->WriteFlipped<u16>(graphic);
+	msg->WriteFlipped<u16>(item->x);
+	msg->WriteFlipped<u16>(item->y);
+	msg->Write<s8>(item->z);
 	u16 len1A=msg->offset;
 	msg->offset=1;
-	msg->WriteFlipped(len1A);
+	msg->WriteFlipped<u16>(len1A);
 
 	// Client >= 7.0.0.0 ( SA )
 	PktHelper::PacketOut<PktOut_F3> msg2;
-	msg2->WriteFlipped(static_cast<u16>(0x1));
-	msg2->Write(static_cast<u8>(0x02));
-	msg2->Write(item->serial_ext);
-	msg2->WriteFlipped(item->multidef().multiid);
+	msg2->WriteFlipped<u16>(static_cast<u16>(0x1));
+	msg2->Write<u8>(static_cast<u8>(0x02));
+	msg2->Write<u32>(item->serial_ext);
+	msg2->WriteFlipped<u16>(item->multidef().multiid);
 	msg2->offset++; // 0;
-	msg2->WriteFlipped(static_cast<u16>(0x1)); //amount
-	msg2->WriteFlipped(static_cast<u16>(0x1)); //amount2
-	msg2->WriteFlipped(item->x);
-	msg2->WriteFlipped(item->y);
-	msg2->Write(item->z);
+	msg2->WriteFlipped<u16>(static_cast<u16>(0x1)); //amount
+	msg2->WriteFlipped<u16>(static_cast<u16>(0x1)); //amount2
+	msg2->WriteFlipped<u16>(item->x);
+	msg2->WriteFlipped<u16>(item->y);
+	msg2->Write<s8>(item->z);
 	msg2->offset++; // u8 facing
-	msg2->WriteFlipped(item->color); // u16 color
+	msg2->WriteFlipped<u16>(item->color); // u16 color
 	msg2->offset++; // u8 flags
 
 	// Client >= 7.0.9.0 ( HSA )
@@ -316,7 +316,7 @@ void send_boat_to_inrange( const UBoat* item, u16 oldx, u16 oldy )
 	msg3->offset=26; //unk short at the end
 
 	PktHelper::PacketOut<PktOut_1D> msgremove;
-	msgremove->Write(item->serial_ext);
+	msgremove->Write<u32>(item->serial_ext);
     
 	for( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
 	{

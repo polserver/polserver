@@ -392,8 +392,8 @@ void handle_allnames( Client *client, PKTBI_98_IN *msg )
 		}
 
 		PktHelper::PacketOut<PktOut_98> msgOut;
-		msgOut->WriteFlipped(static_cast<u16>(37)); // static length
-		msgOut->Write(the_mob->serial_ext);
+		msgOut->WriteFlipped<u16>(static_cast<u16>(37)); // static length
+		msgOut->Write<u32>(the_mob->serial_ext);
 		msgOut->Write(the_mob->name().c_str(),30,false);
 		msgOut.Send( client );
 	}

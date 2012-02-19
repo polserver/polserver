@@ -156,7 +156,7 @@ bool send_vendorwindow_contents( Client* client, UContainer* for_sale, bool send
 {
 	PktHelper::PacketOut<PktOut_74> msg;
 	msg->offset+=2; //msglen
-	msg->Write(for_sale->serial_ext);
+	msg->Write<u32>(for_sale->serial_ext);
 	msg->offset++; //num_items
 	u8 num_items=0;
 	// FIXME: ick! apparently we need to iterate backwards... WTF?
@@ -170,8 +170,8 @@ bool send_vendorwindow_contents( Client* client, UContainer* for_sale, bool send
 		{
 			return false;
 		}
-		msg->WriteFlipped(item->sellprice());
-		msg->Write(static_cast<u8>(desc.size()+1)); //Don't forget the NULL
+		msg->WriteFlipped<u32>(item->sellprice());
+		msg->Write<u8>(static_cast<u8>(desc.size()+1)); //Don't forget the NULL
 		msg->Write(desc.c_str(),static_cast<u16>(desc.size()+1));
 		++num_items;
 
@@ -180,9 +180,9 @@ bool send_vendorwindow_contents( Client* client, UContainer* for_sale, bool send
 	}
 	u16 len=msg->offset;
 	msg->offset=1;
-	msg->WriteFlipped(len);
+	msg->WriteFlipped<u16>(len);
 	msg->offset+=4;
-	msg->Write(num_items);
+	msg->Write<u8>(num_items);
 	msg.Send(client, len);
 	return true;
 }
@@ -290,10 +290,10 @@ BObjectImp* UOExecutorModule::mf_SendBuyWindow(/* character, container, vendor, 
 
 	//This looks good
 	PktHelper::PacketOut<PktOut_24> open_window;
-	open_window->Write(merchant->serial_ext);
-	open_window->WriteFlipped(static_cast<u16>(0x0030)); // FIXME: Serial of buy gump needs #define or enum?
+	open_window->Write<u32>(merchant->serial_ext);
+	open_window->WriteFlipped<u16>(static_cast<u16>(0x0030)); // FIXME: Serial of buy gump needs #define or enum?
 	if (chr->client->ClientType & CLIENTTYPE_7090)
-		open_window->WriteFlipped(static_cast<u16>(0x00));
+		open_window->WriteFlipped<u16>(static_cast<u16>(0x00));
 	open_window.Send(chr->client);
 
 	// Tell the client how much gold the character has, I guess
@@ -308,9 +308,9 @@ BObjectImp* UOExecutorModule::mf_SendBuyWindow(/* character, container, vendor, 
 void send_clear_vendorwindow( Client* client, Character* vendor )
 {
 	PktHelper::PacketOut<PktOut_3B> msg;
-	msg->WriteFlipped(static_cast<u16>(sizeof msg->buffer));
-	msg->Write(vendor->serial_ext);
-	msg->Write(static_cast<u8>(PKTBI_3B::STATUS_NOTHING_BOUGHT));
+	msg->WriteFlipped<u16>(static_cast<u16>(sizeof msg->buffer));
+	msg->Write<u32>(vendor->serial_ext);
+	msg->Write<u8>(static_cast<u8>(PKTBI_3B::STATUS_NOTHING_BOUGHT));
 	msg.Send(client);
 }
 
@@ -610,7 +610,7 @@ bool send_vendorsell( Client* client, NPC* merchant, UContainer* sellfrom, bool 
 	unsigned short num_items = 0;
 	PktHelper::PacketOut<PktOut_9E> msg;
 	msg->offset+=2;
-	msg->Write(merchant->serial_ext);
+	msg->Write<u32>(merchant->serial_ext);
 	msg->offset+=2; //numitems
 
 
@@ -636,12 +636,12 @@ bool send_vendorsell( Client* client, NPC* merchant, UContainer* sellfrom, bool 
 			{
 				return false;
 			}
-			msg->Write(item->serial_ext);
-			msg->WriteFlipped(item->graphic);
-			msg->WriteFlipped(item->color);
-			msg->WriteFlipped(item->getamount());
-			msg->WriteFlipped(static_cast<u16>(buyprice));
-			msg->WriteFlipped(static_cast<u16>(desc.size()));
+			msg->Write<u32>(item->serial_ext);
+			msg->WriteFlipped<u16>(item->graphic);
+			msg->WriteFlipped<u16>(item->color);
+			msg->WriteFlipped<u16>(item->getamount());
+			msg->WriteFlipped<u16>(static_cast<u16>(buyprice));
+			msg->WriteFlipped<u16>(static_cast<u16>(desc.size()));
 			msg->Write(desc.c_str(),static_cast<u16>(desc.size()),false); //No null term
 			++num_items;
 
@@ -653,9 +653,9 @@ bool send_vendorsell( Client* client, NPC* merchant, UContainer* sellfrom, bool 
 	}
 	u16 len=msg->offset;
 	msg->offset=1;
-	msg->WriteFlipped(len);
+	msg->WriteFlipped<u16>(len);
 	msg->offset+=4;
-	msg->WriteFlipped(num_items);
+	msg->WriteFlipped<u16>(num_items);
 	msg.Send(client, len);
 	return true;
 }
@@ -930,10 +930,10 @@ BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu(Character* chr, 
 {
 	PktHelper::PacketOut<PktOut_B0> msg;
 	msg->offset+=2;
-	msg->Write(chr->serial_ext);
-	msg->WriteFlipped(this->uoexec.os_module->pid());
-	msg->WriteFlipped(x);
-	msg->WriteFlipped(y);
+	msg->Write<u32>(chr->serial_ext);
+	msg->WriteFlipped<u32>(this->uoexec.os_module->pid());
+	msg->WriteFlipped<u32>(x);
+	msg->WriteFlipped<u32>(y);
 	u16 pos=msg->offset;
 	msg->offset+=2; //layoutlen
 	size_t layoutlen = 0;
@@ -965,7 +965,7 @@ BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu(Character* chr, 
 	
 	u16 len=msg->offset;
 	msg->offset=pos;
-	msg->WriteFlipped(static_cast<u16>(layoutlen));
+	msg->WriteFlipped<u16>(static_cast<u16>(layoutlen));
 	msg->offset=len;
 
 	pos=msg->offset;
@@ -994,10 +994,10 @@ BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu(Character* chr, 
 			return new BError( "Buffer length exceeded" );
 		}
 
-		msg->WriteFlipped(static_cast<u16>(textlen));
+		msg->WriteFlipped<u16>(static_cast<u16>(textlen));
 
 		while (*string) //unicode
-			msg->Write(static_cast<u16>((*string++) << 8));
+			msg->Write<u16>(static_cast<u16>((*string++) << 8));
 	}
 	
 	if (msg->offset+1 > static_cast<int>(sizeof msg->buffer))
@@ -1008,9 +1008,9 @@ BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu(Character* chr, 
 	
 	len=msg->offset;
 	msg->offset=pos;
-	msg->WriteFlipped(numlines);
+	msg->WriteFlipped<u16>(numlines);
 	msg->offset=1;
-	msg->WriteFlipped(len);
+	msg->WriteFlipped<u16>(len);
 	msg.Send(chr->client, len);
 	chr->client->gd->add_gumpmod( this );
 	//old_gump_uoemod = this;
@@ -1025,10 +1025,10 @@ BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu(Character* chr, Ob
 	PktHelper::PacketOut<PktOut_DD> bfr; // compress buffer
 	bfr->offset=0;
 	msg->offset+=2;
-	msg->Write(chr->serial_ext);
-	msg->WriteFlipped(this->uoexec.os_module->pid());
-	msg->WriteFlipped(x);
-	msg->WriteFlipped(y);
+	msg->Write<u32>(chr->serial_ext);
+	msg->WriteFlipped<u32>(this->uoexec.os_module->pid());
+	msg->WriteFlipped<u32>(x);
+	msg->WriteFlipped<u32>(y);
 	msg->offset+=8; //u32 layout_clen,layout_dlen
 
 	u32 layoutdlen=0;
@@ -1069,8 +1069,8 @@ BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu(Character* chr, Ob
 		return new BError( "Compression error" );
 	}
 	msg->offset-=8;
-	msg->WriteFlipped(static_cast<u32>(cbuflen+4));
-	msg->WriteFlipped(layoutdlen);
+	msg->WriteFlipped<u32>(static_cast<u32>(cbuflen+4));
+	msg->WriteFlipped<u32>(layoutdlen);
 	msg->offset+=static_cast<u16>(cbuflen);
 
 	bfr->offset=0;
@@ -1094,11 +1094,11 @@ BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu(Character* chr, Ob
 			return new BError( "Buffer length exceeded" );
 		}
 		datadlen+=static_cast<u32>(addlen);
-		bfr->WriteFlipped(static_cast<u16>(s.length()));
+		bfr->WriteFlipped<u16>(static_cast<u16>(s.length()));
 		while (*string) //unicode
-			bfr->Write(static_cast<u16>((*string++) << 8));
+			bfr->Write<u16>(static_cast<u16>((*string++) << 8));
 	}
-	msg->WriteFlipped(numlines);
+	msg->WriteFlipped<u32>(numlines);
 	if (numlines !=0)
 	{
 		msg->offset+=8; //u32 text_clen, text_dlen
@@ -1114,15 +1114,15 @@ BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu(Character* chr, Ob
 		}
 
 		msg->offset-=8;
-		msg->WriteFlipped(static_cast<u32>(cbuflen+4));
-		msg->WriteFlipped(datadlen);
+		msg->WriteFlipped<u32>(static_cast<u32>(cbuflen+4));
+		msg->WriteFlipped<u32>(datadlen);
 		msg->offset+=static_cast<u16>(cbuflen);
 	}
 	else
-		msg->Write((int)0);
+		msg->Write<u32>(0);
 	u16 len= msg->offset;
 	msg->offset=1;
-	msg->WriteFlipped(len);
+	msg->WriteFlipped<u16>(len);
 
 	msg.Send(chr->client, len);
 	chr->client->gd->add_gumpmod( this );
@@ -1266,9 +1266,9 @@ BObjectImp* UOExecutorModule::mf_CloseGump(/* who, pid, response := 0 */)
 	}
 
 	PktHelper::PacketOut<PktOut_BF_Sub4> msg;
-	msg->WriteFlipped(static_cast<u16>(13));
+	msg->WriteFlipped<u16>(static_cast<u16>(13));
 	msg->offset+=2;
-	msg->WriteFlipped(pid);
+	msg->WriteFlipped<u32>(pid);
 	msg->offset+=4; //buttonid
 
 	msg.Send(client);
@@ -1305,10 +1305,10 @@ BObjectImp* UOExecutorModule::mf_CloseWindow(/* chr, type, obj */)
 		return new BError( "Invalid type" );
 	
 	PktHelper::PacketOut<PktOut_BF_Sub16> msg;
-	msg->WriteFlipped(static_cast<u16>(13));
+	msg->WriteFlipped<u16>(static_cast<u16>(13));
 	msg->offset+=2; //sub
-	msg->WriteFlipped(type);
-	msg->Write(obj->serial_ext);
+	msg->WriteFlipped<u32>(type);
+	msg->Write<u32>(obj->serial_ext);
 
 	msg.Send(chr->client);
 
@@ -1452,26 +1452,26 @@ BObjectImp* UOExecutorModule::mf_SendTextEntryGump()
 
 	PktHelper::PacketOut<PktOut_AB> msg;
 	msg->offset+=2;
-	msg->Write(chr->serial_ext);
+	msg->Write<u32>(chr->serial_ext);
 	msg->offset+=2; // u8 type,index
 
 	size_t numbytes = line1->length()+1;
 	if (numbytes > 256)
 		numbytes = 256;
-	msg->WriteFlipped(static_cast<u16>(numbytes));
+	msg->WriteFlipped<u16>(static_cast<u16>(numbytes));
 	msg->Write(line1->data(),static_cast<u16>(numbytes)); // null-terminated
 
-	msg->Write(static_cast<u8>(cancel));
-	msg->Write(static_cast<u8>(style));
-	msg->WriteFlipped(maximum);
+	msg->Write<u8>(static_cast<u8>(cancel));
+	msg->Write<u8>(static_cast<u8>(style));
+	msg->WriteFlipped<s32>(maximum);
 	numbytes = line2->length() + 1;
 	if (numbytes > 256)
 		numbytes = 256;
-	msg->WriteFlipped(static_cast<u16>(numbytes));
+	msg->WriteFlipped<u16>(static_cast<u16>(numbytes));
 	msg->Write(line2->data(),static_cast<u16>(numbytes)); // null-terminated
 	u16 len=msg->offset;
 	msg->offset=1;
-	msg->WriteFlipped(len);
+	msg->WriteFlipped<u16>(len);
 	msg.Send(chr->client, len);
 	chr->client->gd->textentry_uoemod = this;
 	textentry_chr = chr;
@@ -1956,7 +1956,7 @@ BObjectImp* UOExecutorModule::mf_SendInstaResDialog()
 		return new BError( "Client busy with another instares dialog" );
 
 	PktHelper::PacketOut<PktOut_20> msg;
-	msg->Write(static_cast<u8>(RESURRECT_CHOICE_SELECT));
+	msg->Write<u8>(static_cast<u8>(RESURRECT_CHOICE_SELECT));
 	msg.Send(chr->client);
 	chr->client->gd->resurrect_uoemod = this;
 	resurrect_chr = chr;
@@ -2014,9 +2014,9 @@ BObjectImp* UOExecutorModule::mf_SelectColor()
 		return new BError( "Client is already selecting a color" );
 
 	PktHelper::PacketOut<PktOut_95> msg;
-	msg->Write(item->serial_ext);
+	msg->Write<u32>(item->serial_ext);
 	msg->offset+=2; // u16 unk
-	msg->WriteFlipped(item->graphic);
+	msg->WriteFlipped<u16>(item->graphic);
 	msg.Send(chr->client);
 
 	chr->client->gd->selcolor_uoemod = this;
@@ -2071,10 +2071,10 @@ BObjectImp* UOExecutorModule::mf_SendOpenBook()
 	}
 
 	PktHelper::PacketOut<PktOut_93> msg93;
-	msg93->Write(book->serial_ext);
-	msg93->Write(static_cast<u8>(writable?1:0));
-	msg93->Write(static_cast<u8>(1));
-	msg93->WriteFlipped(static_cast<u16>(npages));
+	msg93->Write<u32>(book->serial_ext);
+	msg93->Write<u8>(static_cast<u8>(writable?1:0));
+	msg93->Write<u8>(static_cast<u8>(1));
+	msg93->WriteFlipped<u16>(static_cast<u16>(npages));
 	msg93->Write(title.c_str(),60,false);
 	msg93->Write(author.c_str(),30,false);
 	msg93.Send(chr->client);
@@ -2083,8 +2083,8 @@ BObjectImp* UOExecutorModule::mf_SendOpenBook()
 	{
 		PktHelper::PacketOut<PktOut_66> msg;
 		msg->offset+=2;
-		msg->Write(book->serial_ext);
-		msg->WriteFlipped(static_cast<u16>(npages));
+		msg->Write<u32>(book->serial_ext);
+		msg->WriteFlipped<u16>(static_cast<u16>(npages));
 
 		ObjArray* arr = static_cast<ObjArray*>(contents_ob.impptr());
 
@@ -2095,7 +2095,7 @@ BObjectImp* UOExecutorModule::mf_SendOpenBook()
 			{
 				return new BError( "Buffer overflow" );
 			}
-			msg->WriteFlipped(static_cast<u16>(page));
+			msg->WriteFlipped<u16>(static_cast<u16>(page));
 			u16 offset= msg->offset;
 			msg->offset+=2;
 
@@ -2114,7 +2114,7 @@ BObjectImp* UOExecutorModule::mf_SendOpenBook()
 			}
 			u16 len=msg->offset;
 			msg->offset=offset;
-			msg->WriteFlipped(static_cast<u16>(pagelines));
+			msg->WriteFlipped<u16>(static_cast<u16>(pagelines));
 			msg->offset=len;
 		}
 
@@ -2149,7 +2149,7 @@ BObjectImp* UOExecutorModule::mf_SendOpenBook()
 */
 		u16 len=msg->offset;
 		msg->offset=1;
-		msg->WriteFlipped(len);
+		msg->WriteFlipped<u16>(len);
 		msg.Send(chr->client, len);
 	}
 
@@ -2184,12 +2184,12 @@ void read_book_page_handler( Client* client, PKTBI_66* msg )
 
 		PktHelper::PacketOut<PktOut_66> msgOut;
 		msgOut->offset+=2;
-		msgOut->Write(book->serial_ext);
-		msgOut->WriteFlipped(static_cast<u16>(1));
+		msgOut->Write<u32>(book->serial_ext);
+		msgOut->WriteFlipped<u16>(static_cast<u16>(1));
 
 		int linenum = (page-1)*8+1;
 
-		msgOut->WriteFlipped(static_cast<u16>(page));
+		msgOut->WriteFlipped<u16>(static_cast<u16>(page));
 		u16 offset= msgOut->offset;
 		msgOut->offset+=2;
 
@@ -2212,9 +2212,9 @@ void read_book_page_handler( Client* client, PKTBI_66* msg )
 
 		u16 len=msgOut->offset;
 		msgOut->offset=offset;
-		msgOut->WriteFlipped(static_cast<u16>(pagelines));
+		msgOut->WriteFlipped<u16>(static_cast<u16>(pagelines));
 		msgOut->offset=1;
-		msgOut->WriteFlipped(len);
+		msgOut->WriteFlipped<u16>(len);
 		msgOut.Send(client, len);
 	}
 	else
@@ -2331,13 +2331,13 @@ BObjectImp* UOExecutorModule::mf_SendHousingTool()
 
 	{
 		PktHelper::PacketOut<PktOut_BF_Sub20> msg;
-		msg->WriteFlipped(static_cast<u16>(17));
+		msg->WriteFlipped<u16>(static_cast<u16>(17));
 		msg->offset+=2; //sub
-		msg->Write(house->serial_ext);
-		msg->Write(static_cast<u8>(0x4)); //begin
+		msg->Write<u32>(house->serial_ext);
+		msg->Write<u8>(static_cast<u8>(0x4)); //begin
 		msg->offset+=2; // u16 unk2 FIXME what's the meaning
-		msg->Write(static_cast<u32>(0xFFFFFFFF)); // fixme
-		msg->Write(static_cast<u8>(0xFF)); // fixme
+		msg->Write<u32>(0xFFFFFFFF); // fixme
+		msg->Write<u8>(0xFF); // fixme
 		msg.Send(chr->client);
 	}
 	move_character_to(chr,house->x,house->y,house->z+7,MOVEITEM_FORCELOCATION, NULL);
@@ -2380,10 +2380,10 @@ BObjectImp* UOExecutorModule::mf_SendCharacterRaceChanger(/* Character */)
 	if (getCharacterParam( exec, 0, chr ))
 	{
 		PktHelper::PacketOut<PktOut_BF_Sub2A> msg;
-		msg->WriteFlipped(static_cast<u16>(7));
+		msg->WriteFlipped<u16>(static_cast<u16>(7));
 		msg->offset+=2; //sub
-		msg->Write(static_cast<u8>(chr->gender));
-		msg->Write(static_cast<u8>(chr->race+1));
+		msg->Write<u8>(static_cast<u8>(chr->gender));
+		msg->Write<u8>(static_cast<u8>(chr->race+1));
 		msg.Send(chr->client);
 		return new BLong(1);
 	}
