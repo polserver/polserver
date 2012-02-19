@@ -172,7 +172,7 @@ void SendAOSTooltip(Client* client, UObject* obj, bool vendor_content)
 	{
 		textlen=0xFFFF/2 - 22;
 	}
-	msg->WriteFlipped(textlen*2);
+	msg->WriteFlipped(static_cast<u16>(textlen*2));
 	const char* string = desc.c_str();
 
 	while (*string && textlen--) //unicode
