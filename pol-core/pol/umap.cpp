@@ -135,20 +135,20 @@ void Map::builtin_on_use( Client* client )
     if (gumpwidth && gumpheight)
     {
 		PktHelper::PacketOut<PktOut_90> msg90;
-		msg90->Write(serial_ext);
-		msg90->Write(static_cast<u8>(0x13));
-		msg90->Write(static_cast<u8>(0x9d));
-		msg90->WriteFlipped(xwest);
-		msg90->WriteFlipped(ynorth);
-		msg90->WriteFlipped(xeast);
-		msg90->WriteFlipped(ysouth);
-		msg90->WriteFlipped(gumpwidth);
-		msg90->WriteFlipped(gumpheight);
+		msg90->Write<u32>(serial_ext);
+		msg90->Write<u8>(static_cast<u8>(0x13));
+		msg90->Write<u8>(static_cast<u8>(0x9d));
+		msg90->WriteFlipped<u16>(xwest);
+		msg90->WriteFlipped<u16>(ynorth);
+		msg90->WriteFlipped<u16>(xeast);
+		msg90->WriteFlipped<u16>(ysouth);
+		msg90->WriteFlipped<u16>(gumpwidth);
+		msg90->WriteFlipped<u16>(gumpheight);
 		msg90.Send(client);
 
 		PktHelper::PacketOut<PktOut_56> msg56;
-		msg56->Write(serial_ext);
-		msg56->Write(static_cast<u8>(PKTBI_56::TYPE_REMOVE_ALL));
+		msg56->Write<u32>(serial_ext);
+		msg56->Write<u8>(static_cast<u8>(PKTBI_56::TYPE_REMOVE_ALL));
 		msg56->offset+=5; // u8 pinidx,u16 pinx,piny
 		msg56.Send(client);
 
@@ -157,14 +157,14 @@ void Map::builtin_on_use( Client* client )
 		if(!pin_points.empty())
 		{
 			msg56->offset=5; //msgtype+serial_ext
-			msg56->Write(static_cast<u8>(PKTBI_56::TYPE_ADD));
+			msg56->Write<u8>(static_cast<u8>(PKTBI_56::TYPE_ADD));
 			// u8 pinidx still 0
 
 			for( pin_points_itr itr = pin_points.begin(), end=pin_points.end(); itr != end; ++itr )
 			{
 				msg56->offset=7; //msgtype+serial_ext+type,pinidx
-				msg56->WriteFlipped( worldXtoGumpX(itr->x) );
-				msg56->WriteFlipped( worldYtoGumpY(itr->y) );
+				msg56->WriteFlipped<u16>( worldXtoGumpX(itr->x) );
+				msg56->WriteFlipped<u16>( worldYtoGumpY(itr->y) );
 				msg56.Send(client);
 			}
 		}
@@ -471,11 +471,11 @@ void handle_map_pin( Client* client, PKTBI_56* msg )
 			//hmm msg->plotstate never seems to be 1 when type is 6
 			my_map->plotting = my_map->plotting ? 0 : 1;
 			PktHelper::PacketOut<PktOut_56> msg56;
-			msg56->Write(msg->serial);
-			msg56->Write(static_cast<u8>(PKTBI_56::TYPE_TOGGLE_RESPONSE));
-			msg56->Write(static_cast<u8>(my_map->plotting));
-			msg56->Write(msg->pinx);
-			msg56->Write(msg->piny);
+			msg56->Write<u32>(msg->serial);
+			msg56->Write<u8>(static_cast<u8>(PKTBI_56::TYPE_TOGGLE_RESPONSE));
+			msg56->Write<u8>(static_cast<u8>(my_map->plotting));
+			msg56->Write<u16>(msg->pinx);
+			msg56->Write<u16>(msg->piny);
 			msg56.Send(client);
 			break;
 		}

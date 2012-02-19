@@ -112,16 +112,16 @@ void handle_processed_speech( Client* client, char* textbuf, int textbuflen, cha
 
 	PktHelper::PacketOut<PktOut_1C> talkmsg;
 	talkmsg->offset+=2;
-	talkmsg->Write(client->chr->serial_ext);
-	talkmsg->WriteFlipped(client->chr->graphic);
-	talkmsg->Write(type); // FIXME authorize
-	talkmsg->WriteFlipped(textcol);
-	talkmsg->WriteFlipped(font);
+	talkmsg->Write<u32>(client->chr->serial_ext);
+	talkmsg->WriteFlipped<u16>(client->chr->graphic);
+	talkmsg->Write<u8>(type); // FIXME authorize
+	talkmsg->WriteFlipped<u16>(textcol);
+	talkmsg->WriteFlipped<u16>(font);
 	talkmsg->Write(client->chr->name().c_str(),30);
 	talkmsg->Write(textbuf,textlen);
 	u16 len=talkmsg->offset;
 	talkmsg->offset=1;
-	talkmsg->WriteFlipped(len);
+	talkmsg->WriteFlipped<u16>(len);
 	talkmsg.Send(client, len );
 
 	PktHelper::PacketOut<PktOut_1C> ghostmsg;
@@ -266,17 +266,17 @@ void SendUnicodeSpeech(Client *client, PKTIN_AD *msgin, u16* wtext, size_t wtext
 	PktHelper::PacketOut<PktOut_AE> ghostmsg;
 	PktHelper::PacketOut<PktOut_AE> talkmsg;
 	talkmsg->offset+=2;
-	talkmsg->Write(client->chr->serial_ext);
-	talkmsg->WriteFlipped(client->chr->graphic);
-	talkmsg->Write(msgin->type); // FIXME authorize
-	talkmsg->WriteFlipped(textcol);
-	talkmsg->WriteFlipped(msgin->font);
+	talkmsg->Write<u32>(client->chr->serial_ext);
+	talkmsg->WriteFlipped<u16>(client->chr->graphic);
+	talkmsg->Write<u8>(msgin->type); // FIXME authorize
+	talkmsg->WriteFlipped<u16>(textcol);
+	talkmsg->WriteFlipped<u16>(msgin->font);
 	talkmsg->Write(msgin->lang,4);
 	talkmsg->Write(client->chr->name().c_str(),30);
 	talkmsg->Write(&wtext[0],static_cast<u16>(wtextlen), false); //nullterm already included
 	u16 len=talkmsg->offset;
 	talkmsg->offset=1;
-	talkmsg->WriteFlipped(len);
+	talkmsg->WriteFlipped<u16>(len);
 	talkmsg.Send(client, len); // self
 
 	if (client->chr->dead() && !client->chr->can_be_heard_as_ghost())

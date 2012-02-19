@@ -149,9 +149,9 @@ void play_object_centered_effect( const UObject* center,
                                   u8 speed,
                                   u8 loop );
 
-void play_stationary_effect( u16 x, u16 y, u8 z, u16 effect, u8 speed, u8 loop, u8 explode, Realm* realm );
+void play_stationary_effect( u16 x, u16 y, s8 z, u16 effect, u8 speed, u8 loop, u8 explode, Realm* realm );
 
-void play_stationary_effect_ex( u16 x, u16 y, u8 z, Realm* realm, u16 effect, u8 speed, u8 duration, u32 hue, 
+void play_stationary_effect_ex( u16 x, u16 y, s8 z, Realm* realm, u16 effect, u8 speed, u8 duration, u32 hue, 
 							   u32 render, u16 effect3d );
 void play_object_centered_effect_ex( const UObject* center, u16 effect, u8 speed, u8 duration, u32 hue, 
 							         u32 render, u8 layer, u16 effect3d );
@@ -163,8 +163,8 @@ void play_moving_effect2_ex( u16 xs, u16 ys, s8 zs,
                              u16 effect, u8 speed, u8 duration, u32 hue, 
 							 u32 render, u8 direction, u8 explode, u16 effect3d, u16 effect3dexplode, u16 effect3dsound);
 void partical_effect(PktOut_C7* msg,u8 type, u32 srcserial, u32 dstserial,
-					 u16 srcx, u16 srcy, u8 srcz,
-					 u16 dstx, u16 dsty, u8 dstz,
+					 u16 srcx, u16 srcy, s8 srcz,
+					 u16 dstx, u16 dsty, s8 dstz,
 					 u16 effect, u8 speed, u8 duration, u8 direction,
 					 u8 explode, u32 hue, u32 render, 
 					 u16 effect3d, u16 effect3dexplode, u16 effect3dsound,

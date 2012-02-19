@@ -159,11 +159,11 @@ void handle_walk( Client *client, PKTIN_02 *msg02 )
 		//drop pkt if last request was denied, should fix the "client hopping"
 
 		/*PktHelper::PacketOut<PktOut_21> msg;
-		msg->Write(msg02->movenum);
-		msg->WriteFlipped(chr->x);
-		msg->WriteFlipped(chr->y);
-		msg->Write(chr->facing);
-		msg->Write(chr->z);
+		msg->Write<u8>(msg02->movenum);
+		msg->WriteFlipped<u16>(chr->x);
+		msg->WriteFlipped<u16>(chr->y);
+		msg->Write<u8>(chr->facing);
+		msg->Write<s8>(chr->z);
 		msg.Send(client);*/
 
 		return;
@@ -188,8 +188,8 @@ void handle_walk( Client *client, PKTIN_02 *msg02 )
 			}
 			client->pause();
 			PktHelper::PacketOut<PktOut_22> msg;
-			msg->Write(msg02->movenum);
-			msg->Write(client->chr->hilite_color_idx( client->chr ));
+			msg->Write<u8>(msg02->movenum);
+			msg->Write<u8>(client->chr->hilite_color_idx( client->chr ));
 			msg.Send(client);
 
 			client->movementsequence = msg02->movenum;
@@ -220,11 +220,11 @@ void handle_walk( Client *client, PKTIN_02 *msg02 )
 		else
 		{
 			PktHelper::PacketOut<PktOut_21> msg;
-			msg->Write(msg02->movenum);
-			msg->WriteFlipped(chr->x);
-			msg->WriteFlipped(chr->y);
-			msg->Write(chr->facing);
-			msg->Write(chr->z);
+			msg->Write<u8>(msg02->movenum);
+			msg->WriteFlipped<u16>(chr->x);
+			msg->WriteFlipped<u16>(chr->y);
+			msg->Write<u8>(chr->facing);
+			msg->Write<s8>(chr->z);
 			msg.Send(client);
 			client->movementsequence = 0;
 		}

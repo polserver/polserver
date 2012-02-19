@@ -1865,11 +1865,11 @@ void Character::on_poison_changed()
         if (!poisoned)
         {
 			PktHelper::PacketOut<PktOut_17> msg;
-			msg->WriteFlipped(static_cast<u16>(sizeof msg->buffer));
-			msg->Write(this->serial_ext);
-			msg->Write(static_cast<u16>(1)); //unk
-			msg->Write(static_cast<u16>(1)); // status_type
-			msg->Write(static_cast<u8>(0)); //flag
+			msg->WriteFlipped<u16>(static_cast<u16>(sizeof msg->buffer));
+			msg->Write<u32>(this->serial_ext);
+			msg->Write<u16>(static_cast<u16>(1)); //unk
+			msg->Write<u16>(static_cast<u16>(1)); // status_type
+			msg->Write<u8>(static_cast<u8>(0)); //flag
             transmit_to_inrange( this, &msg->buffer, msg->offset, false, true );
         }
     }
@@ -2141,9 +2141,9 @@ Item* create_backpack()
 void Character::send_warmode()
 {
 	PktHelper::PacketOut<PktOut_72> msg;
-	msg->Write(static_cast<u8>(warmode ? 1 : 0));
+	msg->Write<u8>(warmode ? 1 : 0);
 	msg->offset++; // u8 unk2
-	msg->Write(static_cast<u8>(0x32));
+	msg->Write<u8>(0x32);
 	msg->offset++; // u8 unk4
 	msg.Send(client);
 }
@@ -2809,7 +2809,7 @@ bool Character::is_visible_to_me( const Character* chr ) const
 void PropagateMove( /*Client *client,*/ Character *chr )
 {
 	PktHelper::PacketOut<PktOut_1D> msgremove;
-	msgremove->Write(chr->serial_ext);
+	msgremove->Write<u32>(chr->serial_ext);
 	PktHelper::PacketOut<PktOut_77> msgmove;
 	PktHelper::PacketOut<PktOut_17> msgpoison;
 	PktHelper::PacketOut<PktOut_78> msgcreate;
@@ -3045,7 +3045,7 @@ void Character::send_highlight() const
 
 		PktHelper::PacketOut<PktOut_AA> msg;
 		if (opponent != NULL)
-			msg->Write(opponent->serial_ext);
+			msg->Write<u32>(opponent->serial_ext);
 		else
 			msg->offset+=4;
 		msg.Send(client);

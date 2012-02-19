@@ -752,16 +752,16 @@ BObjectImp* NPCExecutorModule::say()
 
 	PktHelper::PacketOut<PktOut_1C> msg;
 	msg->offset+=2;
-	msg->Write(npc.serial_ext);
-	msg->WriteFlipped(npc.graphic);
-	msg->Write(texttype);
-	msg->WriteFlipped(npc.speech_color_);
-	msg->WriteFlipped(npc.speech_font_);
+	msg->Write<u32>(npc.serial_ext);
+	msg->WriteFlipped<u16>(npc.graphic);
+	msg->Write<u8>(texttype);
+	msg->WriteFlipped<u16>(npc.speech_color_);
+	msg->WriteFlipped<u16>(npc.speech_font_);
 	msg->Write(npc.name().c_str(),30);
 	msg->Write(text,(strlen( text )>SPEECH_MAX_LEN+1) ? SPEECH_MAX_LEN+1 : static_cast<u16>(strlen( text )+1));
 	u16 len=msg->offset;
 	msg->offset=1;
-	msg->WriteFlipped(len);
+	msg->WriteFlipped<u16>(len);
 
 	//cout << npc.name() << " ["<<texttype_str<<"] ["<<talkmsg.textdef.type<<"] ["<<doevent<<"] \n";
 
@@ -843,17 +843,17 @@ BObjectImp* NPCExecutorModule::SayUC()
 
 		PktHelper::PacketOut<PktOut_AE> talkmsg;
 		talkmsg->offset+=2;
-		talkmsg->Write(npc.serial_ext);
-		talkmsg->WriteFlipped(npc.graphic);
-		talkmsg->Write(texttype);
-		talkmsg->WriteFlipped(npc.speech_color_);
-		talkmsg->WriteFlipped(npc.speech_font_);
+		talkmsg->Write<u32>(npc.serial_ext);
+		talkmsg->WriteFlipped<u16>(npc.graphic);
+		talkmsg->Write<u8>(texttype);
+		talkmsg->WriteFlipped<u16>(npc.speech_color_);
+		talkmsg->WriteFlipped<u16>(npc.speech_font_);
 		talkmsg->Write(languc,4);
 		talkmsg->Write(npc.description().c_str(),30);
 		talkmsg->WriteFlipped(&gwtext[0],static_cast<u16>(textlen));
 		u16 len=talkmsg->offset;
 		talkmsg->offset=1;
-		talkmsg->WriteFlipped(len);
+		talkmsg->WriteFlipped<u16>(len);
 
 		for( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
 		{

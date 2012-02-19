@@ -32,9 +32,9 @@ Notes
 void send_prompt( Client* client, u32 serial )
 {
 	PktHelper::PacketOut<PktOut_9A> msg;
-	msg->WriteFlipped(static_cast<u16>(sizeof msg->buffer));
-	msg->Write(serial);
-	msg->WriteFlipped(static_cast<u32>(0x15));
+	msg->WriteFlipped<u16>(static_cast<u16>(sizeof msg->buffer));
+	msg->Write<u32>(serial);
+	msg->WriteFlipped<u32>(static_cast<u32>(0x15));
 	msg->offset+=5; // u32 type u8 text[0]
 	msg.Send(client);
 }

@@ -35,13 +35,13 @@ bool send_menu( Client *client, Menu *menu )
 	PktHelper::PacketOut<PktOut_7C> msg;
 	msg->offset+=2;
 	msg->offset+=4; //used_item_serial
-	msg->WriteFlipped(menu->menu_id);
+	msg->WriteFlipped<u16>(menu->menu_id);
 	size_t stringlen = strlen( menu->title );
 	if (stringlen > 80)
 		stringlen = 80;
-	msg->Write(static_cast<u8>(stringlen));// NOTE null-term not included!
+	msg->Write<u8>(static_cast<u8>(stringlen));// NOTE null-term not included!
 	msg->Write(menu->title, static_cast<u16>(stringlen), false);
-	msg->Write(static_cast<u8>(menu->menuitems_.size()));
+	msg->Write<u8>(static_cast<u8>(menu->menuitems_.size()));
 
 	for( unsigned idx = 0; idx < menu->menuitems_.size(); idx++ )
 	{
@@ -50,17 +50,17 @@ bool send_menu( Client *client, Menu *menu )
             return false;
 		}
 		MenuItem* mi = &menu->menuitems_[ idx ];
-		msg->WriteFlipped(mi->graphic_);
-		msg->WriteFlipped(mi->color_);
+		msg->WriteFlipped<u16>(mi->graphic_);
+		msg->WriteFlipped<u16>(mi->color_);
 		stringlen = strlen( mi->title );
 		if (stringlen > 80)
 			stringlen = 80;
-		msg->Write(static_cast<u8>(stringlen));// NOTE null-term not included!
+		msg->Write<u8>(static_cast<u8>(stringlen));// NOTE null-term not included!
 		msg->Write(mi->title, static_cast<u16>(stringlen), false);
 	}
 	u16 len = msg->offset;
 	msg->offset = 1;
-	msg->WriteFlipped(len);
+	msg->WriteFlipped<u16>(len);
 	msg.Send(client, len);
     return true;
 }
@@ -143,10 +143,10 @@ void for_nearby_npcs( void (*f)(NPC& npc, Character *chr, const char *text, int 
 void send_open_gump( Client *client, const UContainer& cont )
 {
 	PktHelper::PacketOut<PktOut_24> msg;
-	msg->Write(cont.serial_ext);
-	msg->WriteFlipped(cont.gump());
+	msg->Write<u32>(cont.serial_ext);
+	msg->WriteFlipped<u16>(cont.gump());
 	if (client->ClientType & CLIENTTYPE_7090)
-		msg->WriteFlipped(static_cast<u16>(0x7D));
+		msg->WriteFlipped<u16>(static_cast<u16>(0x7D));
 	msg.Send(client);
 }
 
@@ -161,16 +161,16 @@ void send_container_contents( Client *client, const UContainer& cont, bool show_
 		const Item* item = GET_ITEM_PTR( itr );
 		if ( show_invis || (!item->invisible() || client->chr->can_seeinvisitems()) )
 		{
-			msg->Write(item->serial_ext);
-			msg->WriteFlipped(item->graphic);
+			msg->Write<u32>(item->serial_ext);
+			msg->WriteFlipped<u16>(item->graphic);
 			msg->offset++; //unk6
-			msg->WriteFlipped(item->get_senditem_amount());
-			msg->WriteFlipped(item->x);
-			msg->WriteFlipped(item->y);
+			msg->WriteFlipped<u16>(item->get_senditem_amount());
+			msg->WriteFlipped<u16>(item->x);
+			msg->WriteFlipped<u16>(item->y);
 			if ( client->ClientType & CLIENTTYPE_6017 )
-				msg->Write(item->slot_index());
-			msg->Write(cont.serial_ext);
-			msg->WriteFlipped(item->color); //color
+				msg->Write<u8>(item->slot_index());
+			msg->Write<u32>(cont.serial_ext);
+			msg->WriteFlipped<u16>(item->color); //color
 			++count;
 		}
 		else
@@ -180,8 +180,8 @@ void send_container_contents( Client *client, const UContainer& cont, bool show_
 	}
 	u16 len=msg->offset;
 	msg->offset=1;
-	msg->WriteFlipped(len);
-	msg->WriteFlipped(count);
+	msg->WriteFlipped<u16>(len);
+	msg->WriteFlipped<u16>(count);
 	msg.Send(client,len);
 
 	if(client->UOExpansionFlag & AOS)

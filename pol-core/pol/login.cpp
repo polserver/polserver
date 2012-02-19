@@ -60,7 +60,7 @@ bool is_banned_ip(Client* client);
 void send_login_error( Client *client, unsigned char reason )
 {
 	PktHelper::PacketOut<PktOut_82> msg;
-	msg->Write(reason);
+	msg->Write<u8>(reason);
 	msg.Send(client);
 }
 
@@ -160,7 +160,7 @@ void loginserver_login( Client *client, PKTIN_80 *msg )
 
 	PktHelper::PacketOut<PktOut_A8> msgA8;
 	msgA8->offset+=2;
-	msgA8->Write(static_cast<u8>(0xFF));
+	msgA8->Write<u8>(static_cast<u8>(0xFF));
 	msgA8->offset+=2; //servcount
 
     unsigned short servcount = 0;
@@ -194,18 +194,18 @@ void loginserver_login( Client *client, PKTIN_80 *msg )
         if (server_applies( client, idx ))
         {
             ++servcount;
-			msgA8->WriteFlipped(static_cast<u16>(idx+1));
+			msgA8->WriteFlipped<u16>(static_cast<u16>(idx+1));
 			msgA8->Write(server->name.c_str(),30);
-			msgA8->WriteFlipped(static_cast<u16>(idx+1));
+			msgA8->WriteFlipped<u16>(static_cast<u16>(idx+1));
 			msgA8->offset+=2; //u8 percentfull, s8 timezone
 			msgA8->Write(server->ip,4);
         }
 	}
 	u16 len = msgA8->offset;
 	msgA8->offset=1;
-	msgA8->WriteFlipped(len);
+	msgA8->WriteFlipped<u16>(len);
 	msgA8->offset++;
-	msgA8->WriteFlipped(servcount);
+	msgA8->WriteFlipped<u16>(servcount);
 
 	msgA8.Send(client, len);
 
@@ -265,21 +265,21 @@ void select_server(Client *client, PKTIN_A0 *msg ) // Relay player to a certain 
 	ServerDescription *svr = servers[ servernum ];
 
 	PktHelper::PacketOut<PktOut_8C> rsp;
-	rsp->Write(svr->ip[3]);
-	rsp->Write(svr->ip[2]);
-	rsp->Write(svr->ip[1]);
-	rsp->Write(svr->ip[0]);
+	rsp->Write<u8>(svr->ip[3]);
+	rsp->Write<u8>(svr->ip[2]);
+	rsp->Write<u8>(svr->ip[1]);
+	rsp->Write<u8>(svr->ip[0]);
 
 	if (client->listen_port != 0)
-        rsp->WriteFlipped( client->listen_port );
+        rsp->WriteFlipped<u16>( client->listen_port );
     else
-        rsp->WriteFlipped( svr->port );
+        rsp->WriteFlipped<u16>( svr->port );
 	// MuadDib Added new seed system. This is for transferring KR/6017/Normal client detection from loginserver
 	// to the gameserver. Allows keeping client flags from remote loginserver to gameserver for 6017 and kr
 	// packets.
 	
 	unsigned int nseed = 0xFEFE0000 | client->ClientType;
-	rsp->WriteFlipped(nseed); // This was set to 0xffffffff in the past but this will conflict with UO:KR detection
+	rsp->WriteFlipped<u32>(nseed); // This was set to 0xffffffff in the past but this will conflict with UO:KR detection
 
 	rsp.Send(client);
 	
@@ -310,7 +310,7 @@ void send_start( Client *client )
 
 	PktHelper::PacketOut<PktOut_A9> msg;
 	msg->offset+=2;
-	msg->Write(char_count);
+	msg->Write<u8>(char_count);
 
 	for( i = 0; i < char_count; i++ )
 	{
@@ -330,11 +330,11 @@ void send_start( Client *client )
 			msg->offset+=60;
 	}
 
-	msg->Write(static_cast<u8>(startlocations.size()));
+	msg->Write<u8>(static_cast<u8>(startlocations.size()));
 
 	for( i = 0; i < startlocations.size(); i++ )
 	{
-		msg->Write(static_cast<u8>(i));
+		msg->Write<u8>(static_cast<u8>(i));
 		if (client->ClientType & CLIENTTYPE_70130)
 		{
 			msg->Write(startlocations[i]->city.c_str(),32,false);
@@ -342,11 +342,11 @@ void send_start( Client *client )
 
 			Coordinate coord = startlocations[i]->coords[0];
 
-			msg->WriteFlipped(static_cast<u32>(coord.x));
-			msg->WriteFlipped(static_cast<u32>(coord.y));
-			msg->WriteFlipped(static_cast<s32>(coord.z));
-			msg->WriteFlipped(static_cast<u32>(startlocations[i]->mapid)); // MapID
-			msg->WriteFlipped(static_cast<u32>(startlocations[i]->cliloc_desc)); // Cliloc Description
+			msg->WriteFlipped<u32>(static_cast<u32>(coord.x));
+			msg->WriteFlipped<u32>(static_cast<u32>(coord.y));
+			msg->WriteFlipped<s32>(static_cast<s32>(coord.z));
+			msg->WriteFlipped<u32>(static_cast<u32>(startlocations[i]->mapid)); // MapID
+			msg->WriteFlipped<u32>(static_cast<u32>(startlocations[i]->cliloc_desc)); // Cliloc Description
 			msg->offset+=4;
 		}
 		else
@@ -368,10 +368,10 @@ void send_start( Client *client )
 	else if (char_slots == 1)
 		clientflag |= 0x14; // Only one character (SIEGE (0x04) + LIMIT_CHAR (0x10))		
 
-	msg->WriteFlipped(clientflag);
+	msg->WriteFlipped<u32>(clientflag);
 	u16 len=msg->offset;
 	msg->offset=1;
-	msg->WriteFlipped(len);
+	msg->WriteFlipped<u16>(len);
 	msg.Send(client, len );
 }
 

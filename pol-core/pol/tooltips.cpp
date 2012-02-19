@@ -46,14 +46,14 @@ void handle_request_tooltip( Client* client, PKTIN_B6* msgin )
             {
 				PacketOut<PktOut_B7> msg;
 				msg->offset+=2;
-				msg->Write(item->serial_ext);
+				msg->Write<u32>(item->serial_ext);
 				const char* string = id.tooltip.c_str();
 				while (*string) //unicode
-					msg->Write(static_cast<u16>((*string++) << 8));
+					msg->Write<u16>(static_cast<u16>((*string++) << 8));
 				msg->offset+=2; //nullterm
 				u16 len=msg->offset;
 				msg->offset=1;
-				msg->WriteFlipped(len);
+				msg->WriteFlipped<u16>(len);
 				msg.Send(client, len);
             }
         }
@@ -69,17 +69,17 @@ void send_object_cache(Client* client, const UObject* obj)
 		if ((ssopt.force_new_objcache_packets) || (client->ClientType & CLIENTTYPE_5000))
 		{
 			PacketOut<PktOut_DC> msgdc;
-			msgdc->Write(obj->serial_ext);
-			msgdc->WriteFlipped(obj->rev());
+			msgdc->Write<u32>(obj->serial_ext);
+			msgdc->WriteFlipped<u32>(obj->rev());
 			msgdc.Send(client);
 		}
 		else
 		{
 			PacketOut<PktOut_BF_Sub10> msgbf10;
-			msgbf10->WriteFlipped(static_cast<u16>(0xD));
+			msgbf10->WriteFlipped<u16>(0xD);
 			msgbf10->offset+=2; //sub
-			msgbf10->Write(obj->serial_ext);
-			msgbf10->WriteFlipped(obj->rev());
+			msgbf10->Write<u32>(obj->serial_ext);
+			msgbf10->WriteFlipped<u32>(obj->rev());
 			msgbf10.Send(client);
 		}
 	}
@@ -111,8 +111,8 @@ void send_object_cache_to_inrange(const UObject* obj)
 					{
 						if (msgdc->offset==1)
 						{
-							msgdc->Write(obj->serial_ext);
-							msgdc->WriteFlipped(obj->rev());
+							msgdc->Write<u32>(obj->serial_ext);
+							msgdc->WriteFlipped<u32>(obj->rev());
 						}
 						msgdc.Send(client2);						
 					}
@@ -120,10 +120,10 @@ void send_object_cache_to_inrange(const UObject* obj)
 					{
 						if (msgbf10->offset==1)
 						{
-							msgbf10->WriteFlipped(static_cast<u16>(0xD));
+							msgbf10->WriteFlipped<u16>(0xD);
 							msgbf10->offset+=2; //sub
-							msgbf10->Write(obj->serial_ext);
-							msgbf10->WriteFlipped(obj->rev());
+							msgbf10->Write<u32>(obj->serial_ext);
+							msgbf10->WriteFlipped<u32>(obj->rev());
 						}
 						msgbf10.Send(client2);
 					}
@@ -158,29 +158,29 @@ void SendAOSTooltip(Client* client, UObject* obj, bool vendor_content)
 
 	PacketOut<PktOut_D6> msg;
 	msg->offset+=2;
-	msg->WriteFlipped(static_cast<u16>(1)); //u16 unk1
-	msg->Write(obj->serial_ext);
+	msg->WriteFlipped<u16>(1); //u16 unk1
+	msg->Write<u32>(obj->serial_ext);
 	msg->offset+=2; // u8 unk2,unk3
-	msg->WriteFlipped(obj->rev());
+	msg->WriteFlipped<u32>(obj->rev());
 	if(obj->isa(UObject::CLASS_CHARACTER))
-		msg->WriteFlipped(static_cast<u32>(1050045));   //1 text argument only
+		msg->WriteFlipped<u32>(1050045);   //1 text argument only
 	else
-		msg->WriteFlipped(static_cast<u32>(1042971));   //1 text argument only
+		msg->WriteFlipped<u32>(1042971);   //1 text argument only
 
-	u16 textlen=desc.size();
+	u16 textlen=static_cast<u16>(desc.size());
 	if ((textlen*2)>(0xFFFF - 22))
 	{
 		textlen=0xFFFF/2 - 22;
 	}
-	msg->WriteFlipped(static_cast<u16>(textlen*2));
+	msg->WriteFlipped<u16>(static_cast<u16>(textlen*2));
 	const char* string = desc.c_str();
 
 	while (*string && textlen--) //unicode
-		msg->Write(static_cast<u16>(*string++));
+		msg->Write<u16>(static_cast<u16>(*string++));
 	msg->offset+=4; // indicates end of property list
 	u16 len=msg->offset;
 	msg->offset=1;
-	msg->WriteFlipped(len);
+	msg->WriteFlipped<u16>(len);
 	msg.Send(client, len);
 }
 
