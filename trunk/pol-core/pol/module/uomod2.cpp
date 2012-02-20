@@ -1690,6 +1690,7 @@ BObjectImp* GetQueuedIoStats()
 
 BObjectImp* GetPktStatusObj( )
 {
+	using namespace PacketWriterDefs;
 	auto_ptr<ObjArray> pkts (new ObjArray);
 	PacketQueueMap* map = Packets::instance()->getPackets();
 	for ( PacketQueueMap::iterator it=map->begin(); it != map->end(); ++it )

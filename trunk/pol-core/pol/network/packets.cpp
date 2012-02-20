@@ -20,6 +20,7 @@ Notes
 #include "packets.h"
 
 using namespace PktHelper;
+using namespace PacketWriterDefs;
 
 PacketsSingleton::PacketsSingleton()
 {
