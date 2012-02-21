@@ -210,7 +210,7 @@ void send_short_statmsg( Client *client, Character *chr )
 {
 	PacketOut<PktOut_11> msg;
 	msg->offset+=2; // msglen
-	msg->Write<u16>(chr->serial_ext);
+	msg->Write<u32>(chr->serial_ext);
 	msg->Write(chr->name().c_str(),30,false);
 
 	if (uoclient_general.hits.any)
