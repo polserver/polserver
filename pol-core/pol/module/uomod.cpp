@@ -1506,14 +1506,13 @@ BObjectImp* UOExecutorModule::mf_PlaySoundEffectXYZ()
 	short cz;
 	int effect;
 	const String* strrealm;
-	Realm* realm = find_realm(string("britannia"));
 	if (getParam( 0, cx ) &&
 		getParam( 1, cy ) &&
 		getParam( 2, cz ) &&
 		getParam( 3, effect ) &&
 		getStringParam( 4, strrealm) )		
 	{
-		realm = find_realm(strrealm->value());
+		Realm* realm = find_realm(strrealm->value());
 		if(!realm) return new BError("Realm not found");
 		if(!realm->valid(cx,cy,cz))
 			return new BError("Invalid Coordinates for realm");
@@ -1950,7 +1949,6 @@ BObjectImp* UOExecutorModule::mf_PlayMovingEffectXyz()
 	int loop;
 	int explode;
 	const String* strrealm;
-	Realm* realm = find_realm(string("britannia"));
 
 	if (getParam( 0, sx ) &&
 		getParam( 1, sy ) &&
@@ -1964,7 +1962,7 @@ BObjectImp* UOExecutorModule::mf_PlayMovingEffectXyz()
 		getParam( 9, explode, UCHAR_MAX ) &&
 		getStringParam( 10, strrealm) )
 	{
-		realm = find_realm(strrealm->value());
+		Realm* realm = find_realm(strrealm->value());
 		if(!realm) return new BError("Realm not found");
 		if(!realm->valid(sx,sy,sz) || !realm->valid(dx,dy,dz))
 			return new BError("Invalid Coordinates for realm");
@@ -2019,7 +2017,6 @@ BObjectImp* UOExecutorModule::mf_PlayStationaryEffect()
 	unsigned short effect;
 	int speed, loop, explode;
 	const String* strrealm;
-	Realm* realm = find_realm(string("britannia"));
 	if (getParam( 0, x ) &&
 		getParam( 1, y ) &&
 		getParam( 2, z ) &&
@@ -2029,7 +2026,7 @@ BObjectImp* UOExecutorModule::mf_PlayStationaryEffect()
 		getParam( 6, explode, UCHAR_MAX ) &&
 		getStringParam( 7, strrealm))
 	{
-		realm = find_realm(strrealm->value());
+		Realm* realm = find_realm(strrealm->value());
 		if(!realm) return new BError("Realm not found");
 		if(!realm->valid(x,y,z)) return new BError("Invalid Coordinates for realm");
 
@@ -2116,8 +2113,6 @@ BObjectImp* UOExecutorModule::mf_PlayMovingEffectXyz_Ex()
 	unsigned short effect3dexplode;
 	unsigned short effect3dsound;
 	
-	Realm* realm = find_realm(string("britannia"));
-
 	if (getParam( 0, sx ) &&
 		getParam( 1, sy ) &&
 		getParam( 2, sz ) &&
@@ -2136,7 +2131,7 @@ BObjectImp* UOExecutorModule::mf_PlayMovingEffectXyz_Ex()
 		getParam( 15, effect3dexplode ) &&
 		getParam( 16, effect3dsound ))
 	{
-		realm = find_realm(strrealm->value());
+		Realm* realm = find_realm(strrealm->value());
 		if(!realm) return new BError("Realm not found");
 		if(!realm->valid(sx,sy,sz) || !realm->valid(dx,dy,dz))
 			return new BError("Invalid Coordinates for realm");
@@ -2213,7 +2208,6 @@ BObjectImp* UOExecutorModule::mf_PlayStationaryEffect_Ex()
 	int render;
 	unsigned short effect3d;
 	
-	Realm* realm = find_realm(string("britannia"));
 	if (getParam( 0, x ) &&
 		getParam( 1, y ) &&
 		getParam( 2, z ) &&
@@ -2225,7 +2219,7 @@ BObjectImp* UOExecutorModule::mf_PlayStationaryEffect_Ex()
 		getParam( 8, render, INT_MAX ) &&
 		getParam( 9, effect3d ))
 	{
-		realm = find_realm(strrealm->value());
+		Realm* realm = find_realm(strrealm->value());
 		if(!realm) return new BError("Realm not found");
 		if(!realm->valid(x,y,z)) return new BError("Invalid Coordinates for realm");
 
@@ -2701,7 +2695,6 @@ BObjectImp* UOExecutorModule::mf_ListGhostsNearLocation()
 	int z;
 	int range;
 	const String* strrealm;
-	Realm* realm = find_realm(string("britannia"));
 
 	if (getParam( 0, x ) &&
 		getParam( 1, y ) &&
@@ -2709,7 +2702,7 @@ BObjectImp* UOExecutorModule::mf_ListGhostsNearLocation()
 		getParam( 3, range ) &&
 		getStringParam( 4, strrealm) )
 	{
-		realm = find_realm(strrealm->value());
+		Realm* realm = find_realm(strrealm->value());
 		if(!realm) return new BError("Realm not found");
 
 		auto_ptr<ObjArray> newarr( new ObjArray );
@@ -3443,7 +3436,6 @@ BObjectImp* UOExecutorModule::mf_AssignRectToWeatherRegion()
 	const String* region_name_str;
 	unsigned short xwest, ynorth, xeast, ysouth;
 	const String* strrealm;
-	Realm* realm = find_realm(string("britannia"));
 
 	if (! (getStringParam( 0, region_name_str ) &&
 		   getParam( 1, xwest ) &&
@@ -3454,7 +3446,7 @@ BObjectImp* UOExecutorModule::mf_AssignRectToWeatherRegion()
 	{
 		return new BError( "Invalid Parameter type" );
 	}
-	realm = find_realm(strrealm->value());
+	Realm* realm = find_realm(strrealm->value());
 	if(!realm) return new BError("Realm not found");
 	if(!realm->valid(xwest,ynorth,0)) return new BError("Invalid Coordinates for realm");
 	if(!realm->valid(xeast,ysouth,0)) return new BError("Invalid Coordinates for realm");
@@ -3931,7 +3923,6 @@ BObjectImp* UOExecutorModule::mf_GetHarvestDifficulty()
 	ycoord y;
 	unsigned short tiletype;
 	const String* strrealm;
-	Realm* realm = find_realm(string("britannia"));
 
 	if (getStringParam( 0, resource ) &&
 		getParam( 1, x ) &&
@@ -3939,7 +3930,7 @@ BObjectImp* UOExecutorModule::mf_GetHarvestDifficulty()
 		getParam( 3, tiletype ) &&
 		getStringParam( 4, strrealm) )
 	{
-		realm = find_realm(strrealm->value());
+		Realm* realm = find_realm(strrealm->value());
 		if(!realm) return new BError("Realm not found");
 		if(!realm->valid(x,y,0)) return new BError("Invalid Coordinates for realm");
 
@@ -3959,7 +3950,6 @@ BObjectImp* UOExecutorModule::mf_HarvestResource()
 	int b;
 	int n;
 	const String* strrealm;
-	Realm* realm = find_realm(string("britannia"));
 
 	if (getStringParam( 0, resource ) &&
 		getParam( 1, x ) &&
@@ -3968,7 +3958,7 @@ BObjectImp* UOExecutorModule::mf_HarvestResource()
 		getParam( 4, n ) &&
 		getStringParam( 5, strrealm) )
 	{
-		realm = find_realm(strrealm->value());
+		Realm* realm = find_realm(strrealm->value());
 		if(!realm) return new BError("Realm not found");
 		if(!realm->valid(x,y,0)) return new BError("Invalid Coordinates for realm");
 
@@ -4045,7 +4035,6 @@ BObjectImp* UOExecutorModule::mf_GetRegionString()
 	unsigned short x,y;
 	const String* propname;
 	const String* strrealm;
-	Realm* realm = find_realm(string("britannia"));
 
 	if (getStringParam( 0, resource ) &&
 		getParam( 1, x ) &&
@@ -4053,7 +4042,7 @@ BObjectImp* UOExecutorModule::mf_GetRegionString()
 		getStringParam( 3, propname ) &&
 		getStringParam( 4, strrealm ))
 	{
-		realm = find_realm(strrealm->value());
+		Realm* realm = find_realm(strrealm->value());
 		if(!realm) return new BError("Realm not found");
 		if(!realm->valid(x,y,0)) return new BError("Invalid Coordinates for realm");
 
@@ -4448,7 +4437,6 @@ BObjectImp* UOExecutorModule::mf_GetMapInfo()
 	xcoord x;
 	ycoord y;
 	const String* strrealm;
-	Realm* realm = find_realm(string("britannia"));
 
 		// note that this uses WORLD_MAX_X, not WORLD_X,
 		// because we can't read the outermost edge of the map
@@ -4456,7 +4444,7 @@ BObjectImp* UOExecutorModule::mf_GetMapInfo()
 		getParam( 1, y ) &&
 		getStringParam(2, strrealm) ) // FIXME realm size
 	{
-		realm = find_realm(strrealm->value());
+		Realm* realm = find_realm(strrealm->value());
 		if(!realm) return new BError("Realm not found");
 		if(!realm->valid(x,y,0)) return new BError("Invalid Coordinates for realm");
 
@@ -4477,12 +4465,11 @@ BObjectImp* UOExecutorModule::mf_GetWorldHeight()
 {
 	unsigned short x, y;
 	const String* strrealm;
-	Realm* realm = find_realm(string("britannia"));
 	if (getParam( 0, x ) &&
 		getParam( 1, y ) &&
 		getStringParam( 2, strrealm) )
 	{
-		realm = find_realm(strrealm->value());
+		Realm* realm = find_realm(strrealm->value());
 		if(!realm) return new BError("Realm not found");
 		if(!realm->valid(x,y,0)) return new BError("Invalid Coordinates for Realm");
 
@@ -4663,13 +4650,12 @@ BObjectImp* UOExecutorModule::mf_GetStandingHeight()
 	unsigned short x, y;
 	short z;
 	const String* strrealm;
-	Realm* realm = find_realm(string("britannia"));
 	if (getParam( 0, x ) &&
 		getParam( 1, y ) &&
 		getParam( 2, z ) &&
 		getStringParam( 3, strrealm) )
 	{
-		realm = find_realm(strrealm->value());
+		Realm* realm = find_realm(strrealm->value());
 		if(!realm) return new BError("Realm not found");
 		if(!realm->valid(x,y,z)) return new BError("Coordinates Invalid for Realm");
 		short newz;

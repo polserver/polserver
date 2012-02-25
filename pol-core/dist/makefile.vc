@@ -72,7 +72,7 @@ debug:
     xcopy /I /S /EXCLUDE:..\debug-exclude.lst ..\..\uoconvert\* uoconvert
     xcopy /I /S /EXCLUDE:..\debug-exclude.lst ..\..\uotool\* uotool
 	..\7za a -tzip -mx9 -r ..\pol-debug-.zip *
-    "c:\program files\winzip\wzzip" -ex -ybc -r -P ..\pol-debug-.zip  *
+#    "c:\program files\winzip\wzzip" -ex -ybc -r -P ..\pol-debug-.zip  *
     cd ..
 #    rmdir /S /Q debug-zip
 
@@ -92,7 +92,7 @@ src:
     cd src-zip
     xcopy /S ..\..\pol\*.cpp .
     xcopy /S ..\..\pol\*.h .
-    "c:\program files\winzip\wzzip" -ex -ybc -P ..\pol-src.zip @..\src.lst
+#    "c:\program files\winzip\wzzip" -ex -ybc -P ..\pol-src.zip @..\src.lst
 	..\7za a -tzip -mx9 -r ..\pol-src-.zip @..\src.lst
     cd ..
 #    rmdir /S /Q src-zip
