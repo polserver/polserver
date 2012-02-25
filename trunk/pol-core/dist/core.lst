@@ -31,3 +31,4 @@ scripts\modules\cliloc.em
 scripts\modules\guilds.em
 scripts\modules\storage.em
 scripts\modules\vitals.em
+scripts\modules\sql.em
