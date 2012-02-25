@@ -278,7 +278,7 @@ void send_startup( Client *client )
 */
 bool check_inactivity( Client* client )
 {
-	if ((client->buffer[0] == PKTIN_09_ID)) 
+	if (client->buffer[0] == PKTIN_09_ID) 
 	{
 		return true;
 	}
@@ -699,7 +699,7 @@ bool process_data( Client *client )
 		// It's in the 6017 handlers
 		if ( ( client->ClientType & CLIENTTYPE_6017 ) && (handler_v2[ msgtype ].msglen) )
 		{
-			if  ( (handler_v2[msgtype].msglen == MSGLEN_2BYTELEN_DATA) )
+			if  ( handler_v2[msgtype].msglen == MSGLEN_2BYTELEN_DATA )
 			{
 				client->recv_state = Client::RECV_STATE_MSGLEN_WAIT;
 			}
@@ -710,9 +710,9 @@ bool process_data( Client *client )
 				client->message_length = handler_v2[msgtype].msglen;
 			}
 		}
-		else if ( (handler[ msgtype ].msglen) )
+		else if ( handler[ msgtype ].msglen )
 		{
-			if ( (handler[msgtype].msglen == MSGLEN_2BYTELEN_DATA) )
+			if ( handler[msgtype].msglen == MSGLEN_2BYTELEN_DATA )
 			{
 				client->recv_state = Client::RECV_STATE_MSGLEN_WAIT;
 			}

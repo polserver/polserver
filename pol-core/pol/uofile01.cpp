@@ -247,8 +247,6 @@ char tileheight(unsigned short tilenum)
 		if (cfg_use_new_hsa_format)
 		{
 			USTRUCT_TILE_HSA tile;
-			height = 0;
-			flags = 0;
 			readtile(tilenum, &tile);
 			height = tile.height;
 			flags = tile.flags;
@@ -256,8 +254,6 @@ char tileheight(unsigned short tilenum)
 		else
 		{
 			USTRUCT_TILE tile;
-			height = 0;
-			flags = 0;
 			readtile(tilenum, &tile);
 			height = tile.height;
 			flags = tile.flags;
