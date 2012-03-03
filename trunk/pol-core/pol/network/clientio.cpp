@@ -217,9 +217,19 @@ void Client::transmit( const void *data, int len, bool needslock)
 
 	if (fpLog != NULL)
     {
-		fprintf( fpLog, "Server -> Client: 0x%X, %d bytes\n", msgtype, len );
-		fdump( fpLog, data, len );
-		fprintf( fpLog, "\n" );
+		if (needslock)
+		{
+			PolLock lock;
+			fprintf( fpLog, "Server -> Client: 0x%X, %d bytes\n", msgtype, len );
+			fdump( fpLog, data, len );
+			fprintf( fpLog, "\n" );
+		}
+		else
+		{
+			fprintf( fpLog, "Server -> Client: 0x%X, %d bytes\n", msgtype, len );
+			fdump( fpLog, data, len );
+			fprintf( fpLog, "\n" );
+		}
     }
 
 	LocalMutex guard(&_SocketMutex);
