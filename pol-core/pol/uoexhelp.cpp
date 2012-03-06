@@ -443,7 +443,7 @@ bool getObjtypeParam( Executor& exec, unsigned param, unsigned int& objtype )
         return false;
     }
 
-    if ((objtype_long >= config.max_tile_id) && (objtype_long <= config.max_objtype)) 
+    if ((objtype_long > config.max_tile_id) && (objtype_long <= config.max_objtype)) 
     {
         objtype = objtype_long;
         if( has_itemdesc( objtype ) )
@@ -457,7 +457,7 @@ bool getObjtypeParam( Executor& exec, unsigned param, unsigned int& objtype )
         }
 
     }
-    else if ((objtype_long > 0) && (objtype_long < config.max_tile_id) )
+    else if ((objtype_long >= 0) && (objtype_long <= config.max_tile_id) )
     {
         objtype = objtype_long;
         return true;
@@ -556,7 +556,7 @@ bool getObjtypeParam( Executor& exec, unsigned param, const ItemDesc*& itemdesc_
         }
 
     }
-    else if ((objtype_long >= 0) && (objtype_long < config.max_tile_id))
+    else if ((objtype_long >= 0) && (objtype_long <= config.max_tile_id))
     {
         unsigned int objtype = objtype_long;
         itemdesc_out = &find_itemdesc( objtype );
