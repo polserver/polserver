@@ -1,6 +1,6 @@
 ﻿-- POL099 --
 03-07-2012 Tomi:
-     Added:   scripts/misc/dblckickitem.ecl to run a script on every double click on items.
+     Added:   scripts/misc/dblclickitem.ecl to run a script on every double click on items.
               params are (mobile, item)
               usefull for removing meditation stuff and such in 1 place instead of every script.
      Note:    this script will not be attached to the mobile and will run before any usescript.
