@@ -215,6 +215,16 @@ void doubleclick( Client *client, PKTIN_06 *msg )
 				return;
 			}
 
+			ScriptDef sd;
+			sd.quickconfig("scripts/misc/dblclickitem.ecl");
+			if ( sd.exists() )
+			{
+				ref_ptr<EScriptProgram> prog;
+				prog = find_script2(sd, false, config.cache_interactive_scripts);
+				if ( prog.get() != NULL )
+					client->chr->start_script(prog.get(), false, new EItemRefObjImp(item));
+			}
+
 			item->double_click( client );
 			return;
 		}
