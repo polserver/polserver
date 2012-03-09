@@ -1956,7 +1956,7 @@ BObjectImp* UOExecutorModule::mf_SendInstaResDialog()
 	if (chr->client->gd->resurrect_uoemod != NULL)
 		return new BError( "Client busy with another instares dialog" );
 
-	PktHelper::PacketOut<PktOut_20> msg;
+	PktHelper::PacketOut<PktOut_2C> msg;
 	msg->Write<u8>(static_cast<u8>(RESURRECT_CHOICE_SELECT));
 	msg.Send(chr->client);
 	chr->client->gd->resurrect_uoemod = this;
