@@ -1,4 +1,6 @@
 ﻿-- POL099 --
+03-09-2012 Tomi:
+     Fixed:   uo::SendInstaResDialog() was sending wrong packet 
 03-07-2012 Tomi:
      Added:   scripts/misc/dblclickitem.ecl to run a script on every double click on items.
               params are (mobile, item)
