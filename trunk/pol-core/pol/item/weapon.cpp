@@ -198,7 +198,7 @@ void WeaponDesc::PopulateStruct( BStruct* descriptor ) const
 	descriptor->addMember( "MinRange", new BLong(minrange) );
 	descriptor->addMember( "MaxRange", new BLong(maxrange) );
 
-	descriptor->addMember( "Intrinsic", new BLong(is_intrinsic) );
+	//descriptor->addMember( "Intrinsic", new BLong(is_intrinsic) );
 	descriptor->addMember( "TwoHanded", new BLong(two_handed) );
 
 	descriptor->addMember( "Anim", new BLong(anim) );
