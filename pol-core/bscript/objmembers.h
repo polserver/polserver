@@ -18,6 +18,7 @@ History
 2009/10/14 Turley:	Added char.deaf() methods & char.deafened member
 2011/12/13 Tomi:    Boat members MBR_COMPONENT, MBR_HULL, MBR_ROPE, MBR_SAILS, MBR_WHEEL, MBR_TILLER, MBR_RUDDER, MBR_STORAGE, MBR_WEAPONSLOT
 2012/02/02 Tomi:    Multi member MBR_MULTIID
+2012/03/26 Tomi:    Added MBR_LASTX, MBR_LASTY and MBR_LASTZ
 
 Notes
 =======
@@ -229,7 +230,10 @@ enum MemberID
 	MBR_WEAPONSLOT,
 	// New boat stuff end
 	MBR_MULTIID,
-	MBR_TRADEWINDOW
+	MBR_TRADEWINDOW,
+	MBR_LASTX,
+	MBR_LASTY,				//200
+	MBR_LASTZ
 };
 
 
