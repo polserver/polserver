@@ -1,4 +1,6 @@
 ﻿-- POL099 --
+03-26-2012 Tomi:
+     Added:   character readonly members .lastx, .lasty and .lastz
 03-09-2012 Tomi:
      Fixed:   uo::SendInstaResDialog() was sending wrong packet 
 03-07-2012 Tomi:
