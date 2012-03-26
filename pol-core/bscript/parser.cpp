@@ -31,6 +31,7 @@ History
 2009/10/14 Turley:	Added char.deaf() methods & char.deafened member
 2011/12/13 Tomi:    Boat members MBR_COMPONENT, MBR_HULL, MBR_ROPE, MBR_SAILS, MBR_WHEEL, MBR_TILLER, MBR_RUDDER, MBR_STORAGE, MBR_WEAPONSLOT
 2012/02/02 Tomi:    Multi member MBR_MULTIID
+2012/03/26 Tomi:    Added MBR_LASTX, MBR_LASTY and MBR_LASTZ
 
 Notes
 =======
@@ -456,7 +457,10 @@ ObjMember object_members[] = {
 	{ MBR_WEAPONSLOT, "weaponslot", true},
 	// New boat stuff end
 	{ MBR_MULTIID, "multiid", true},
-	{ MBR_TRADEWINDOW, "tradewindow", true}
+	{ MBR_TRADEWINDOW, "tradewindow", true},
+	{ MBR_LASTX, "lastx", true}, //200
+	{ MBR_LASTY, "lasty", true},
+	{ MBR_LASTZ, "lastz", true}
 };
 int n_objmembers = sizeof object_members / sizeof object_members[0];
 ObjMember* getKnownObjMember(const char* token)
