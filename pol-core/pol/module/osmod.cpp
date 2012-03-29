@@ -673,16 +673,15 @@ BObjectImp* OSExecutorModule::mf_OpenURL()
 
 
 BObjectImp* OSExecutorModule::mf_OpenConnection() {
-	const String* host;
-	const String* scriptname_str;
-	unsigned short port;
-
 	UOExecutorModule* this_uoemod = static_cast<UOExecutorModule*>(exec.findModule( "uo" ));
 	UOExecutor* this_uoexec = static_cast<UOExecutor*>(&this_uoemod->exec);
 
 	if(this_uoexec->pChild == NULL)
 	{
-	if (  (host = getStringParam( 0 )) != NULL && getParam( 1, port ) && (scriptname_str = getStringParam( 2 )) != NULL)
+		const String* host;
+		const String* scriptname_str;
+		unsigned short port;
+		if (  (host = getStringParam( 0 )) != NULL && getParam( 1, port ) && (scriptname_str = getStringParam( 2 )) != NULL)
 		{
 			// FIXME needs to inherit available modules?
 			ScriptDef sd;// = new ScriptDef();

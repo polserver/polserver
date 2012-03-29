@@ -41,7 +41,7 @@ class weak_ptr : protected ref_ptr< weak_ptr_link<T> >
 public:
     explicit weak_ptr( weak_ptr_link<T>* wpl ) : ref_ptr< weak_ptr_link<T> >(wpl) {}
 
-    weak_ptr& operator=( const weak_ptr_link<T>* wpl ) { base::set(wpl); }
+    weak_ptr& operator=( const weak_ptr_link<T>* wpl ) { base::set(wpl); return *this;}
     weak_ptr& operator=( const weak_ptr_owner<T>& wpo );
     
     T* get_weakptr( void ) const { return this->get()->get_weakptr(); }

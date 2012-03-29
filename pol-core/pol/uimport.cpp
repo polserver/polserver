@@ -337,8 +337,7 @@ string elapsed( clock_t start, clock_t end )
 void slurp( const char* filename, const char* tags, int sysfind_flags )
 {
 	static int num_until_dot = 1000;
-	unsigned int nobjects = 0;
-
+	
 	if (FileExists( filename ))
 	{
 		cout << "  " << filename << ":";
@@ -346,7 +345,8 @@ void slurp( const char* filename, const char* tags, int sysfind_flags )
 		ConfigElem elem;
 
 		wallclock_t start = wallclock();
-
+		
+		unsigned int nobjects = 0;
 		while (cf.read( elem ))
 		{
 			if (--num_until_dot == 0)
@@ -772,113 +772,113 @@ SaveContext::SaveContext() :
 	ofs_datastore.open( (config.world_data_path + "datastore.ndt").c_str(), ios::out );
 	ofs_party.open( (config.world_data_path + "parties.ndt").c_str(), ios::out );
 
-	ofs_pcs << "#" << endl
-			<< "#  PCS.TXT: Player-Character Data" << endl
-			<< "#" << endl
-			<< "#  In addition to PC data, this also contains hair, beards, death shrouds," << endl
-			<< "#  and backpacks, but not the contents of each backpack." << endl
-			<< "#" << endl
-			<< endl;
+	ofs_pcs << "#" << pf_endl
+			<< "#  PCS.TXT: Player-Character Data" << pf_endl
+			<< "#" << pf_endl
+			<< "#  In addition to PC data, this also contains hair, beards, death shrouds," << pf_endl
+			<< "#  and backpacks, but not the contents of each backpack." << pf_endl
+			<< "#" << pf_endl
+			<< pf_endl;
 
 	ofs_pcequip 
-			<< "#" << endl
-			<< "#  PCEQUIP.TXT: Player-Character Equipment Data" << endl
-			<< "#" << endl
-			<< "#  This file can be deleted to wipe all items held/equipped by characters" << endl
-			<< "#  Note that hair, beards, empty backpacks, and death shrouds are in PCS.TXT." << endl
-			<< "#" << endl
-			<< endl;
+			<< "#" << pf_endl
+			<< "#  PCEQUIP.TXT: Player-Character Equipment Data" << pf_endl
+			<< "#" << pf_endl
+			<< "#  This file can be deleted to wipe all items held/equipped by characters" << pf_endl
+			<< "#  Note that hair, beards, empty backpacks, and death shrouds are in PCS.TXT." << pf_endl
+			<< "#" << pf_endl
+			<< pf_endl;
 
 	ofs_npcs
-			<< "#" << endl
-			<< "#  NPCS.TXT: Nonplayer-Character Data" << endl
-			<< "#" << endl
-			<< "#  If you delete this file to perform an NPC wipe," << endl
-			<< "#  be sure to also delete NPCEQUIP.TXT" << endl
-			<< "#" << endl
-			<< endl;
+			<< "#" << pf_endl
+			<< "#  NPCS.TXT: Nonplayer-Character Data" << pf_endl
+			<< "#" << pf_endl
+			<< "#  If you delete this file to perform an NPC wipe," << pf_endl
+			<< "#  be sure to also delete NPCEQUIP.TXT" << pf_endl
+			<< "#" << pf_endl
+			<< pf_endl;
 
 	ofs_npcequip
-			<< "#" << endl
-			<< "#  NPCEQUIP.TXT: Nonplayer-Character Equipment Data" << endl
-			<< "#" << endl
-			<< "#  Delete this file along with NPCS.TXT to perform an NPC wipe" << endl
-			<< "#" << endl
-			<< endl;
+			<< "#" << pf_endl
+			<< "#  NPCEQUIP.TXT: Nonplayer-Character Equipment Data" << pf_endl
+			<< "#" << pf_endl
+			<< "#  Delete this file along with NPCS.TXT to perform an NPC wipe" << pf_endl
+			<< "#" << pf_endl
+			<< pf_endl;
 
 	ofs_items
-			<< "#" << endl
-			<< "#  ITEMS.TXT: Item data" << endl
-			<< "#" << endl
-			<< "#  This file also contains ship and house components (doors, planks etc)" << endl
-			<< "#" << endl
-			<< endl;
+			<< "#" << pf_endl
+			<< "#  ITEMS.TXT: Item data" << pf_endl
+			<< "#" << pf_endl
+			<< "#  This file also contains ship and house components (doors, planks etc)" << pf_endl
+			<< "#" << pf_endl
+			<< pf_endl;
 
 	ofs_multis
-			<< "#" << endl
-			<< "#  MULTIS.TXT: Ship and House data" << endl
-			<< "#" << endl
-			<< "#  Deleting this file will not properly wipe houses and ships," << endl
-			<< "#  because doors, planks, and tillermen will be left in the world." << endl
-			<< "#" << endl
-			<< endl;
+			<< "#" << pf_endl
+			<< "#  MULTIS.TXT: Ship and House data" << pf_endl
+			<< "#" << pf_endl
+			<< "#  Deleting this file will not properly wipe houses and ships," << pf_endl
+			<< "#  because doors, planks, and tillermen will be left in the world." << pf_endl
+			<< "#" << pf_endl
+			<< pf_endl;
 
 	ofs_storage
-			<< "#" << endl
-			<< "#  STORAGE.TXT: Contains bank boxes, vendor inventories, and other data." << endl
-			<< "#" << endl
-			<< "#  This file can safely be deleted to wipe bank boxes and vendor inventories." << endl
-			<< "#  Note that scripts may use this for other types of storage as well" << endl
-			<< "#" << endl
-			<< endl;
+			<< "#" << pf_endl
+			<< "#  STORAGE.TXT: Contains bank boxes, vendor inventories, and other data." << pf_endl
+			<< "#" << pf_endl
+			<< "#  This file can safely be deleted to wipe bank boxes and vendor inventories." << pf_endl
+			<< "#  Note that scripts may use this for other types of storage as well" << pf_endl
+			<< "#" << pf_endl
+			<< pf_endl;
 
 	ofs_resource
-			<< "#" << endl
-			<< "#  RESOURCE.TXT: Resource System Data" << endl
-			<< "#" << endl
-			<< endl;
+			<< "#" << pf_endl
+			<< "#  RESOURCE.TXT: Resource System Data" << pf_endl
+			<< "#" << pf_endl
+			<< pf_endl;
 
 	ofs_guilds
-			<< "#" << endl
-			<< "#  GUILDS.TXT: Guild Data" << endl
-			<< "#" << endl
-			<< endl;
+			<< "#" << pf_endl
+			<< "#  GUILDS.TXT: Guild Data" << pf_endl
+			<< "#" << pf_endl
+			<< pf_endl;
 
 	ofs_datastore
-			<< "#" << endl
-			<< "#  DATASTORE.TXT: DataStore Data" << endl
-			<< "#" << endl
-			<< endl;
+			<< "#" << pf_endl
+			<< "#  DATASTORE.TXT: DataStore Data" << pf_endl
+			<< "#" << pf_endl
+			<< pf_endl;
 	ofs_party
-			<< "#" << endl
-			<< "#  PARTIES.TXT: Party Data" << endl
-			<< "#" << endl
-			<< endl;
+			<< "#" << pf_endl
+			<< "#  PARTIES.TXT: Party Data" << pf_endl
+			<< "#" << pf_endl
+			<< pf_endl;
 }
 
 
 
 void write_global_properties( ostream& ofs )
 {
-	ofs << "GlobalProperties" << endl
-		<< "{" << endl;
+	ofs << "GlobalProperties" << pf_endl
+		<< "{" << pf_endl;
 	global_properties.printProperties( ofs );
-	ofs << "}" << endl
-		<< endl;
+	ofs << "}" << pf_endl
+		<< pf_endl;
 }
 
 void write_system_data( ostream& ofs )
 {
-	ofs << "System" << endl
-		<< "{" << endl
-		<< "\tCoreVersion\t" << progver << endl
-		<< "\tCoreVersionString\t" << polverstr << endl
-		<< "\tCompileDate\t" << compiledate << endl
-		<< "\tCompileTime\t" << compiletime << endl
-		<< "\tLastItemSerialNumber\t" << GetCurrentItemSerialNumber() << endl //dave 3/9/3
-		<< "\tLastCharSerialNumber\t" << GetCurrentCharSerialNumber() << endl //dave 3/9/3
-		<< "}" << endl
-		<< endl;
+	ofs << "System" << pf_endl
+		<< "{" << pf_endl
+		<< "\tCoreVersion\t" << progver << pf_endl
+		<< "\tCoreVersionString\t" << polverstr << pf_endl
+		<< "\tCompileDate\t" << compiledate << pf_endl
+		<< "\tCompileTime\t" << compiletime << pf_endl
+		<< "\tLastItemSerialNumber\t" << GetCurrentItemSerialNumber() << pf_endl //dave 3/9/3
+		<< "\tLastCharSerialNumber\t" << GetCurrentCharSerialNumber() << pf_endl //dave 3/9/3
+		<< "}" << pf_endl
+		<< pf_endl;
 }
 
 void write_shadow_realms( ostream& ofs )
@@ -888,12 +888,12 @@ void write_shadow_realms( ostream& ofs )
 	{
 		if( (*itr)->is_shadowrealm )
 		{
-			ofs << "Realm" << endl
-			<< "{" << endl;
+			ofs << "Realm" << pf_endl
+			<< "{" << pf_endl;
 			ofs << "\tName\t" << (*itr)->shadowname << pf_endl;
 			ofs << "\tBaseRealm\t" << (*itr)->baserealm->name() << pf_endl;
-			ofs << "}" << endl
-			<< endl;
+			ofs << "}" << pf_endl
+			<< pf_endl;
 		}
 	}
 }
@@ -1094,12 +1094,12 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, unsigned
 
 		tx.push_back(wallclock());
 
-		sc.ofs_pol << "#" << endl;
-		sc.ofs_pol << "#  Created by Version: " << polverstr << endl;
-		sc.ofs_pol << "#  Mobiles:		 " << get_mobile_count() << endl;
-		sc.ofs_pol << "#  Top-level Items: " << get_toplevel_item_count() << endl;
-		sc.ofs_pol << "#" << endl;
-		sc.ofs_pol << endl;
+		sc.ofs_pol << "#" << pf_endl;
+		sc.ofs_pol << "#  Created by Version: " << polverstr << pf_endl;
+		sc.ofs_pol << "#  Mobiles:		 " << get_mobile_count() << pf_endl;
+		sc.ofs_pol << "#  Top-level Items: " << get_toplevel_item_count() << pf_endl;
+		sc.ofs_pol << "#" << pf_endl;
+		sc.ofs_pol << pf_endl;
 
 
 		tx.push_back(wallclock());

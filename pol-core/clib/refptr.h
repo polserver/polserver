@@ -117,7 +117,7 @@ public:
     bool operator>( T* ptr ) const { return get() > ptr; }
     bool operator>=( T* ptr ) const { return get() >= ptr; }
 
-    const ref_ptr & operator=( const ref_ptr & rptr )
+    ref_ptr & operator=( const ref_ptr & rptr )
     {
         release();
         _ptr = rptr._ptr;
