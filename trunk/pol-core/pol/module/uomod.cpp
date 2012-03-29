@@ -3125,17 +3125,13 @@ void UContainer::enumerate_contents( ObjArray* arr, int flags )
 BObjectImp* UOExecutorModule::mf_EnumerateItemsInContainer()
 {
 	Item* item;
-	int flags;
 	if (getItemParam( exec, 0, item ))
 	{
+		int flags = 0;
 		if (exec.fparams.size() >= 2)
 		{
 			if (!getParam( 1, flags ))
 				return new BError( "Invalid parameter type" );
-		}
-		else
-		{
-			flags = 0;
 		}
 
 		if (item->isa( UObject::CLASS_CONTAINER ))
@@ -3172,10 +3168,10 @@ BObjectImp* UOExecutorModule::mf_RegisterForSpeechEvents()
 {
 	UObject* center;
 	int range;
-	int flags = 0;
 	if (getUObjectParam( exec, 0, center ) &&
 		getParam( 1, range ))
 	{
+		int flags = 0;
 		if (exec.hasParams(3))
 		{
 			if (!getParam( 2, flags ))
@@ -3245,12 +3241,11 @@ BObjectImp* UOExecutorModule::mf_DisableEvents()
 BObjectImp* UOExecutorModule::mf_Resurrect()
 {
 	Character* chr;
-	int flags = 0;
 	if (getCharacterParam( exec, 0, chr ))
 	{
 		if (!chr->dead())
 			return new BError( "That is not dead" );
-
+		int flags = 0;
 		if (exec.hasParams( 2 ))
 		{
 			if (!getParam( 1, flags ))
@@ -3283,9 +3278,9 @@ BObjectImp* UOExecutorModule::mf_Resurrect()
 BObjectImp* UOExecutorModule::mf_SystemFindObjectBySerial()
 {
 	int serial;
-	int sysfind_flags = 0;
 	if (getParam( 0, serial ))
 	{
+		int sysfind_flags = 0;
 		if (exec.hasParams(2))
 		{
 			if (!getParam( 1, sysfind_flags ))
@@ -5257,10 +5252,7 @@ BObjectImp* UOExecutorModule::mf_FindPath()
 	unsigned short x1, x2;
 	unsigned short y1, y2;
 	short z1, z2;
-	int flags;
-	short theSkirt;
-	const String* strrealm;
-	Realm* realm;
+
 	if (getParam( 0, x1 ) &&
 		getParam( 1, y1 ) &&
 		getParam( 2, z1, WORLD_MIN_Z, WORLD_MAX_Z ) &&
@@ -5270,20 +5262,23 @@ BObjectImp* UOExecutorModule::mf_FindPath()
 	{
 		if (pol_distance(x1, y1, x2, y2) > ssopt.max_pathfind_range)
 			return new BError("Beyond Max Range.");
-
+		
+		const String* strrealm;
+		short theSkirt;
+		int flags;
 		if(!getStringParam(6,strrealm))
 			strrealm = new String("britannia");
 
 		if (!getParam(7, flags))
 			flags = FP_IGNORE_MOBILES;
-
+		
 		if (!getParam(8, theSkirt))
 			theSkirt = 5;
 
 		if (theSkirt < 0)
 			theSkirt = 0;
 
-		realm = find_realm(strrealm->value());
+		Realm* realm = find_realm(strrealm->value());
 		if(!realm) return new BError("Realm not found");
 		if(!realm->valid(x1,y1,z1)) return new BError("Start Coordinates Invalid for Realm");
 		if(!realm->valid(x2,y2,z2)) return new BError("End Coordinates Invalid for Realm");
@@ -5489,15 +5484,14 @@ BObjectImp* UOExecutorModule::mf_FindSubstance()
 	Item* cont_item;
 	unsigned int objtype;
 	int amount;
-	int amthave;
-	int makeInUseLong;
-	bool makeInUse;
-	int flags;
 
 	if (getItemParam( exec, 0, cont_item ) &&
 		getObjtypeParam( exec, 1, objtype ) &&
 		getParam( 2, amount ))
 	{
+		int makeInUseLong;
+		bool makeInUse;
+		int flags;
 		if (!getParam(3, makeInUseLong))
 			makeInUse = false;
 		else
@@ -5511,7 +5505,7 @@ BObjectImp* UOExecutorModule::mf_FindSubstance()
 			return new BError( "Amount cannot be negative" );
 
 		UContainer* cont = static_cast<UContainer*>(cont_item);
-		amthave = cont->find_sumof_objtype_noninuse(objtype, amount, substanceVector, flags);
+		int amthave = cont->find_sumof_objtype_noninuse(objtype, amount, substanceVector, flags);
 		if ( (amthave < amount) && ( !(flags & FINDSUBSTANCE_FIND_ALL) ) )
 			return new BError( "Not enough of that substance in container" );
 		else
@@ -5710,7 +5704,6 @@ BObjectImp* UOExecutorModule::mf_SendCharProfile(/*chr, of_who, title, uneditabl
 {
 	Character *chr, *of_who;
 	const String* title;
-	size_t ulen, elen;
 	ObjArray* uText;
 	ObjArray* eText;
 
@@ -5726,14 +5719,14 @@ BObjectImp* UOExecutorModule::mf_SendCharProfile(/*chr, of_who, title, uneditabl
 			u16 uwtext[ (SPEECH_MAX_LEN + 1) ];
 			u16 ewtext[ (SPEECH_MAX_LEN + 1) ];
 
-			ulen = uText->ref_arr.size();
+			size_t ulen = uText->ref_arr.size();
 			if ( ulen > SPEECH_MAX_LEN )
 				return new BError( "Unicode array exceeds maximum size." );
 
 			if(!convertArrayToUC(uText, uwtext, ulen))
 				return new BError("Invalid parameter type");
 
-			elen = eText->ref_arr.size();
+			size_t elen = eText->ref_arr.size();
 			if ( elen > SPEECH_MAX_LEN )
 				return new BError( "Unicode array exceeds maximum size." );
 

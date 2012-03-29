@@ -27,13 +27,12 @@ keyboard::~keyboard()
 
 int keyboard::kbhit()
 {
-unsigned char ch;
-int nread;
-
     if (peek_character != -1) return 1;
+	
     new_settings.c_cc[VMIN]=0;
     tcsetattr(0, TCSANOW, &new_settings);
-    nread = read(0,&ch,1);
+	unsigned char ch;
+    int nread = read(0,&ch,1);
     new_settings.c_cc[VMIN]=1;
     tcsetattr(0, TCSANOW, &new_settings);
 
@@ -47,8 +46,7 @@ int nread;
 
 int keyboard::getch()
 {
-char ch;
-int numread;
+	char ch;
 
     if (peek_character != -1) 
     {
@@ -57,7 +55,7 @@ int numread;
     }
 	else 
 	{
-		numread=read(0,&ch,1);
+		int numread=read(0,&ch,1);
 		if (numread != 1)
 			throw;
 	}

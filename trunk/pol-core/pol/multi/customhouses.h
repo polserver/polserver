@@ -95,7 +95,7 @@ public:
     ~CustomHouseDesign();
     void InitDesign(u32 _height, u32 _width, s32 xoffset, s32 yoffset);
 
-    void operator=(CustomHouseDesign& design);
+    CustomHouseDesign& operator=(const CustomHouseDesign& design);
     void Add(CUSTOM_HOUSE_ELEMENT& elem);
     void AddOrReplace(CUSTOM_HOUSE_ELEMENT& elem);
     void AddMultiAtOffset(u16 multiid, s8 x, s8 y, s8 z);

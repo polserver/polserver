@@ -78,18 +78,18 @@ void Account::readfrom( ConfigElem& elem )
 
 void Account::writeto( std::ostream& os )
 {
-    os << "Account" << std::endl
-		<< "{" << std::endl
-       << "\tName\t"     << name_     << std::endl;
+	os << "Account" << pf_endl
+		<< "{" << pf_endl
+       << "\tName\t"     << name_     << pf_endl;
 
 	//dave 6/5/3 don't write cleartext unless configured to
 	if(config.retain_cleartext_passwords && !password_.empty())
-		os << "\tPassword\t" << password_ << std::endl;
+		os << "\tPassword\t" << password_ << pf_endl;
 
-	os << "\tPasswordHash\t" << passwordhash_ << std::endl;  //MD5
+	os << "\tPasswordHash\t" << passwordhash_ << pf_endl;  //MD5
 
-    os << "\tEnabled\t"  << enabled_  << std::endl
-       << "\tBanned\t"   << banned_   << std::endl;
+    os << "\tEnabled\t"  << enabled_  << pf_endl
+       << "\tBanned\t"   << banned_   <<pf_endl;
 
     if (!default_privs_.empty())
     {
@@ -105,8 +105,8 @@ void Account::writeto( std::ostream& os )
 	}
     props_.printProperties( os );
     
-    os << "}" << endl
-       << endl;
+    os << "}" << pf_endl
+       << pf_endl;
 }
 
 void Account::writeto( ConfigElem& elem ) const

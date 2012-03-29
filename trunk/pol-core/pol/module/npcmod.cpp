@@ -823,8 +823,7 @@ BObjectImp* NPCExecutorModule::SayUC()
 		if ( !convertArrayToUC(oText, gwtext, textlenucc) )
 			return new BError( "Invalid value in Unicode array." );
 
-		const char* languc;
-		languc = strupper(lang->value()).c_str();
+		string languc = strupper(lang->value());
 		unsigned textlen = 0;
 
 		//textlen = wcslen((const wchar_t*)wtext) + 1;
@@ -848,7 +847,7 @@ BObjectImp* NPCExecutorModule::SayUC()
 		talkmsg->Write<u8>(texttype);
 		talkmsg->WriteFlipped<u16>(npc.speech_color_);
 		talkmsg->WriteFlipped<u16>(npc.speech_font_);
-		talkmsg->Write(languc,4);
+		talkmsg->Write(languc.c_str(),4);
 		talkmsg->Write(npc.description().c_str(),30);
 		talkmsg->WriteFlipped(&gwtext[0],static_cast<u16>(textlen));
 		u16 len=talkmsg->offset;
@@ -881,7 +880,7 @@ BObjectImp* NPCExecutorModule::SayUC()
 				ntextbuf[ ntextbuflen++ ] = std::wcout.narrow((wchar_t)gwtext[i], '?');
 			}
 			ntextbuf[ ntextbuflen++ ] = 0;
-			for_nearby_npcs( npc_spoke, &npc, ntextbuf, ntextbuflen, texttype, gwtext, languc, textlen, NULL);
+			for_nearby_npcs( npc_spoke, &npc, ntextbuf, ntextbuflen, texttype, gwtext, languc.c_str(), textlen, NULL);
 		}
 	}
 	else

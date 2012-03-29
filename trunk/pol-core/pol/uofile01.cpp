@@ -337,7 +337,7 @@ u32 tile_uoflags( unsigned short tilenum )
 
 static void read_veridx()
 {
-    int num_version_records, i;
+    int num_version_records;
     USTRUCT_VERSION vrec;
 
     if (verfile != NULL)
@@ -346,7 +346,7 @@ static void read_veridx()
         fseek(verfile, 0, SEEK_SET);
         fread(&num_version_records, sizeof num_version_records, 1, verfile); // ENDIAN-BROKEN
 
-        for (i = 0; i < num_version_records; i++)
+        for (int i = 0; i < num_version_records; i++)
         {
             fread(&vrec, sizeof vrec, 1, verfile);
 
