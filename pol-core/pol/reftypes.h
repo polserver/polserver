@@ -51,7 +51,7 @@ public:
     CharacterRef( const CharacterRef& rptr );
     ~CharacterRef();
 
-    const CharacterRef& operator=( const CharacterRef& rptr );
+    CharacterRef& operator=( const CharacterRef& rptr );
     void set( Character* chr );
     void clear();
 

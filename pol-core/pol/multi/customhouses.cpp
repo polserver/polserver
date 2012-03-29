@@ -110,13 +110,14 @@ void CustomHouseDesign::InitDesign(u32 _height,u32 _width, s32 xoffset, s32 yoff
     }
 }
 
-void CustomHouseDesign::operator=(CustomHouseDesign& design)
+CustomHouseDesign& CustomHouseDesign::operator=(const CustomHouseDesign& design)
 {
     for(int i = 0; i<CUSTOM_HOUSE_NUM_PLANES; i++)
     {
         Elements[i] = design.Elements[i];
         floor_sizes[i] = design.floor_sizes[i];
     }
+	return *this;
 }
 
 //Adds the element to the design

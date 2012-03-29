@@ -39,7 +39,7 @@ namespace PacketWriterDefs
 	class PacketInterface
 	{
 	public:
-		PacketInterface(){};
+		PacketInterface():offset(0){};
 		virtual ~PacketInterface(){};
 		u16 offset;
 		virtual void ReSetBuffer() {};
