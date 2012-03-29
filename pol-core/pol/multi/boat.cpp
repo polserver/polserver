@@ -98,12 +98,12 @@ BoatShape::ComponentShape::ComponentShape( const string& str, unsigned char type
         if (graphic)
         {
             unsigned short xd, yd;
-			signed short zd;
             if (is >> xd >> yd)
             {
                 xdelta = xd;
                 ydelta = yd;
 				zdelta = 0;
+				signed short zd;
 				if (is >> zd)
 					zdelta = zd;
                 return;
@@ -127,12 +127,12 @@ BoatShape::ComponentShape::ComponentShape( const string& str, const string& alts
         if (graphic)
         {
 			unsigned short xd, yd;
-			signed short zd;
             if (is >> xd >> yd)
             {
                 xdelta = xd;
                 ydelta = yd;
 				zdelta = 0;
+				signed short zd;
 				if (is >> zd)
 					zdelta = zd;
                 ok = true;

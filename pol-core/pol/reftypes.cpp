@@ -101,7 +101,7 @@ CharacterRef::~CharacterRef()
     }
 }
 
-const CharacterRef& CharacterRef::operator=( const CharacterRef& rptr )
+CharacterRef& CharacterRef::operator=( const CharacterRef& rptr )
 {
     set( rptr.get() );
 
