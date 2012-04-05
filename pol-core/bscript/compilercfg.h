@@ -28,6 +28,7 @@ struct CompilerConfig
     bool DisplaySummary;
     bool DisplayUpToDateScripts;
     bool OptimizeObjectMembers;
+    bool ErrorOnWarning;
 
     void Read( const std::string& path );
     void SetDefaults();
