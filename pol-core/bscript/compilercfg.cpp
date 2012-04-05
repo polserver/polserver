@@ -46,6 +46,7 @@ void CompilerConfig::Read( const string& path )
     OnlyCompileUpdatedScripts = elem.remove_bool( "OnlyCompileUpdatedScripts", false );
     DisplaySummary = elem.remove_bool( "DisplaySummary", false );
     OptimizeObjectMembers = elem.remove_bool( "OptimizeObjectMembers", true);
+    ErrorOnWarning = elem.remove_bool( "ErrorOnWarning", false);
     GenerateDependencyInfo = elem.remove_bool( "GenerateDependencyInfo", OnlyCompileUpdatedScripts );
 
     DisplayUpToDateScripts = elem.remove_bool( "DisplayUpToDateScripts", true );

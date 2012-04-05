@@ -98,6 +98,7 @@ void usage(void)
     cerr << "       -vN          verbosity level" << endl;
     cerr << "       -w           display warnings" << endl;
     cerr << "       -W           generate wordfile" << endl;
+    cerr << "       -y           treat warnings as errors" << endl;
     cerr << "       -x           write external .dbg file" << endl;
     cerr << "       -xt          write external .dbg.txt info file" << endl;
 	cerr << endl;
@@ -365,6 +366,9 @@ int readargs(int argc, char **argv)
 
                 case 'w':
                     compilercfg.DisplayWarnings = setting_value( arg );
+                    break;
+                case 'y':
+                    compilercfg.ErrorOnWarning = setting_value( arg );
                     break;
 
                 case 'l':
