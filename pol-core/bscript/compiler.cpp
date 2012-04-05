@@ -114,10 +114,13 @@ void Scope::popblock(bool varsOnly = false)
 	for (;bd.varcount;bd.varcount--) // To enable popping variables only
 	{
 		Variable& bk = variables_.back();
-		if (!bk.used && compilercfg.DisplayWarnings)
+		if (!bk.used && (compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning))
 		{
 			cout << "Warning: local variable '" << bk.name << "' not used." << endl;
-			cout << bk.ctx;
+			if (compilercfg.ErrorOnWarning)
+				throw runtime_error("Warnings treated as errors.");
+			else
+				cout << bk.ctx;
 		}
 		variables_.pop_back();
 	}
@@ -910,6 +913,8 @@ int Compiler::isLegal(Token& token)
 		{
 			cout << "Warning! possible incorrect assignment." << endl;
 			cout << "Near: " << curLine << endl;
+			if (compilercfg.ErrorOnWarning)
+				throw runtime_error("Warnings treated as errors.");
 		}
 	}
 
@@ -1648,7 +1653,7 @@ int Compiler::validate( const Expression& expr, CompilerContext& ctx ) const
 			return -1;
 		}
 
-		if (tkn->deprecated)
+		if (tkn->deprecated && (compilercfg.ErrorOnWarning || compilercfg.DisplayWarnings))
 		{
 			cout << "Warning: Found deprecated "
 					<< (tkn->type == TYP_OPERATOR ? "operator " : "token ")
@@ -1656,6 +1661,8 @@ int Compiler::validate( const Expression& expr, CompilerContext& ctx ) const
 					<< " on line " << ctx.line
 					<< " of " << ctx.filename << endl;
 			// warning only; doesn't bail out.
+			if (compilercfg.ErrorOnWarning)
+				throw runtime_error("Warnings treated as errors.");
 		}
 
 		if (tkn->type == TYP_OPERATOR)
@@ -2139,11 +2146,14 @@ int Compiler::handleSwitch( CompilerContext& ctx, int level )
 	//program->leaveblock();
 
 		// if only a 'default' block was defined, print a warning
-	if (onlydefault)
+	if (onlydefault && (compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning))
 	{
 		cout << "Warning: CASE block only has a DEFAULT clause defined." << endl;
 		cout << "near: " << curLine << endl;
-		cout << ctx;
+		if (compilercfg.ErrorOnWarning)
+			throw runtime_error("Warnings treated as errors.");
+		else
+			cout << ctx;
 	}
 
 		// if no default specified, pretend 'default' was specified at the end.
@@ -2966,11 +2976,14 @@ int Compiler::handleVarDeclare( CompilerContext& ctx, unsigned save_id )
 		else
 		{
 			unsigned idx;
-			if (compilercfg.DisplayWarnings && globalexists( tk_varname.tokval(), idx ))
+			if ((compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning) && globalexists( tk_varname.tokval(), idx ))
 			{
 				cout << "Warning: Local variable '" << tk_varname.tokval() 
 						<< "' hides Global variable of same name." << endl;
-				cout << ctx;
+				if (compilercfg.ErrorOnWarning)
+					throw runtime_error("Warnings treated as errors.");
+				else
+					cout << ctx;
 
 			}
 			varindex = localscope.numVariables();
@@ -2989,10 +3002,13 @@ int Compiler::handleVarDeclare( CompilerContext& ctx, unsigned save_id )
 		if (tk_delim.id == TOK_ARRAY)
 		{
 			// declaring an array.
-			if (compilercfg.DisplayWarnings)
+			if (compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning)
 			{
 				cout << "Warning! Deprecated array-declaration syntax used." << endl;
-				cout << ctx;
+				if (compilercfg.ErrorOnWarning)
+					throw runtime_error("Warnings treated as errors.");
+				else
+					cout << ctx;
 			}
 			program->append( StoredToken( Mod_Basic, INS_DECLARE_ARRAY, TYP_RESERVED, 0 ) );
 			
@@ -4027,12 +4043,14 @@ int Compiler::_getStatement(CompilerContext& ctx, int level)
 	else
 		last_position = program->tokens.count();
 
-	if (token.deprecated)
+	if (token.deprecated && (compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning))
 	{
 		cout << "Warning: Found deprecated token "
 				<< "'" << token.tokval() << "'"
 				<< " on line " << ctx.line
 				<< " of " << ctx.filename << endl;
+		if (compilercfg.ErrorOnWarning)
+			throw runtime_error("Warnings treated as errors.");
 		// warning only; doesn't bail out.
 	}
 
@@ -4154,19 +4172,27 @@ int Compiler::_getStatement(CompilerContext& ctx, int level)
 		{
 			// ok! These operators actually accomplish something.
 		}
-		else if (tmptoken.id == TOK_EQUAL1)
-		{
-			cout << "Warning: Equals test result ignored.  Did you mean := for assign?" << endl;
-			cout << "near: " << curLine << endl;
-			cout << ctx;
-		}
-		else
-		{
-			// warn code has no effect/value lost
-			cout << "Warning: Result of operation may have no effect." << endl;
-			cout << "Token ID: " << tmptoken.id << endl;
-			cout << "near: " << curLine << endl;
-			cout << ctx;
+		else if (compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning) {
+			if (tmptoken.id == TOK_EQUAL1)
+			{
+				cout << "Warning: Equals test result ignored.  Did you mean := for assign?" << endl;
+				cout << "near: " << curLine << endl;
+				if (compilercfg.ErrorOnWarning)
+					throw runtime_error("Warnings treated as errors.");
+				else
+					cout << ctx;
+			}
+			else
+			{
+				// warn code has no effect/value lost
+				cout << "Warning: Result of operation may have no effect." << endl;
+				cout << "Token ID: " << tmptoken.id << endl;
+				cout << "near: " << curLine << endl;
+				if (compilercfg.ErrorOnWarning)
+					throw runtime_error("Warnings treated as errors.");
+				else
+					cout << ctx;
+			}
 		}
 	//	cout << "Statement: " << Parser.CA << endl;
 	}
@@ -4865,6 +4891,11 @@ int Compiler::compile(CompilerContext& ctx)
 		 //program->append( StoredToken( Mod_Basic, CTRL_MAKELOCAL, TYP_CONTROL, 0 ) );
 		try {
 			res = handleProgram2( program_ctx, 1 );
+		}
+		catch(runtime_error& excep)
+		{
+			cout << excep.what() << endl;
+			res = -1;
 		}
 		catch(...)
 		{
