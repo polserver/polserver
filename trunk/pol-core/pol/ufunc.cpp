@@ -212,8 +212,8 @@ void send_poisonhealthbar( Client *client, const Character *chr )
 	PktHelper::PacketOut<PktOut_17> msg;
 	msg->WriteFlipped<u16>(static_cast<u16>(sizeof msg->buffer));
 	msg->Write<u32>(chr->serial_ext);
-	msg->Write<u16>(1); //unk
-	msg->Write<u16>(1); // status_type
+	msg->WriteFlipped<u16>(1); //unk
+	msg->WriteFlipped<u16>(1); // status_type
 	msg->Write<u8>(( chr->poisoned ) ? 1 : 0); //flag
 	msg.Send( client);
 }
@@ -221,8 +221,8 @@ void build_poisonhealthbar( const Character *chr, PktOut_17* msg )
 {
 	msg->WriteFlipped<u16>(static_cast<u16>(sizeof msg->buffer));
 	msg->Write<u32>(chr->serial_ext);
-	msg->Write<u16>(1); //unk
-	msg->Write<u16>(1); // status_type
+	msg->WriteFlipped<u16>(1); //unk
+	msg->WriteFlipped<u16>(1); // status_type
 	msg->Write<u8>(( chr->poisoned ) ? 1 : 0); //flag
 }
 
