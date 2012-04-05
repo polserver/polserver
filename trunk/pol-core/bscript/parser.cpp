@@ -2004,9 +2004,12 @@ int SmartParser::IIP(Expression& expr, CompilerContext& ctx, unsigned flags)
 				}
 				break;
 			}
-		} else if (last_type == TYP_TERMINATOR && token.type == TYP_LEFTBRACE && compilercfg.DisplayWarnings) {
+		} else if (last_type == TYP_TERMINATOR && token.type == TYP_LEFTBRACE && (compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning)) {
 			cout << "Warning: Using { } is inappropriate; please define array, struct or dictionary." << endl;
-			cout << ctx;
+			if (compilercfg.ErrorOnWarning)
+					throw runtime_error("Warnings treated as errors.");
+			else
+				cout << ctx;
 		}
 		last_type = token.type;
 		last_token = token;

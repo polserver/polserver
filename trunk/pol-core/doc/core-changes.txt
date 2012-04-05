@@ -1,4 +1,9 @@
 ﻿-- POL099 --
+04-05-2012 Kevin:
+     Added:   ecompile.cfg directive "ErrorOnWarning" and ecompile switch -y to treat warnings 
+              on errors during ecompile. Default is 'false'
+     Fixed:   various locations were showing warnings even without the -w switch provided.
+
 03-26-2012 Tomi:
      Added:   character readonly members .lastx, .lasty and .lastz
 03-09-2012 Tomi:
