@@ -1,11 +1,16 @@
 ﻿-- POL099 --
+04-06-2012 Tomi:
+     Fixed:   Roof problem at 4th floor on a custom house. 
+              Patch submitted by Agata
+     Added:   Packet 0xD6 to be ignored for activity ( fixes inactivity logout for ML+ )
+              Patch submitted by OWHorus
 04-05-2012 Kevin:
      Added:   ecompile.cfg directive "ErrorOnWarning" and ecompile switch -y to treat warnings 
               on errors during ecompile. Default is 'false'
      Fixed:   various locations were showing warnings even without the -w switch provided.
 
 03-26-2012 Tomi:
-     Added:   character readonly members .lastx, .lasty and .lastz
+     Added:   character readonly member .lastcoord returns struct{.lastx, .lasty, .lastz}
 03-09-2012 Tomi:
      Fixed:   uo::SendInstaResDialog() was sending wrong packet 
 03-07-2012 Tomi:
