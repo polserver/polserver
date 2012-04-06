@@ -37,7 +37,7 @@ History
 2010/02/03 Turley:    MethodScript support for mobiles
 2011/12/13 Tomi:      Boat members MBR_COMPONENT, MBR_HULL, MBR_ROPE, MBR_SAILS, MBR_WHEEL, MBR_TILLER, MBR_RUDDER, MBR_STORAGE, MBR_WEAPONSLOT
 2012/02/02 Tomi:      Added boat member MBR_MULTIID
-2012/03/26 Tomi:      Added MBR_LASTX, MBR_LASTY and MBR_LASTZ
+2012/03/26 Tomi:      Added MBR_LASTCOORD
 
 Notes
 =======
@@ -1504,12 +1504,15 @@ BObjectImp* Character::get_script_member_id( const int id ) const
 			break;
 		case MBR_EDITING:
 			return new BLong(is_house_editing() ? 1 : 0  ); break;
-		case MBR_LASTX:
-			return new BLong(lastx); break;
-		case MBR_LASTY:
-			return new BLong(lasty); break;
-		case MBR_LASTZ:
-			return new BLong(lastz); break;
+		case MBR_LASTCOORD:
+			if (client != NULL)
+			{
+				auto_ptr<BStruct> lastcoord (new BStruct);
+				lastcoord->addMember("lastx", new BLong(lastx));
+				lastcoord->addMember("lasty", new BLong(lasty));
+				lastcoord->addMember("lastz", new BLong(lastz));
+				return lastcoord.release();
+			}
 		default:
 			return NULL;
 	}

@@ -60,7 +60,7 @@ tool. Should suffice.
 #define BYTES_PER_TILE 5
 
 //fixed z offsets for each floor
-const char CustomHouseDesign::custom_house_z_xlate_table[CUSTOM_HOUSE_NUM_PLANES] = {0,7,27,47,67}; 
+const char CustomHouseDesign::custom_house_z_xlate_table[CUSTOM_HOUSE_NUM_PLANES] = {0,7,27,47,67,80}; 
 
 //translate z offset to floor number, use floor below passed-in z value, unless exact match
 char CustomHouseDesign::z_to_custom_house_table(char z)
