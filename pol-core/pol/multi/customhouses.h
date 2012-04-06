@@ -19,7 +19,7 @@ Notes
 #include "../network/client.h"
 #include "../pktboth.h"
 
-#define CUSTOM_HOUSE_NUM_PLANES 5
+#define CUSTOM_HOUSE_NUM_PLANES 6
 #define STAIR_MULTIID_MIN 0x1DB0
 #define STAIR_MULTIID_MAX 0x1DEB
 #define DIRTY_TILE 0x31F4

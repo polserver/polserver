@@ -271,22 +271,23 @@ void send_startup( Client *client )
 	msg.Send(client);
 }
 
-/*
-	Returns true for "inactivity"
-	FIXME: Should be optimized to switch/case function instead
-	if possible.
-*/
 bool check_inactivity( Client* client )
 {
-	if (client->buffer[0] == PKTIN_09_ID) 
-	{
-		return true;
-	}
-	if ((client->buffer[0] == PKTBI_73_ID) || (((client->buffer[0] == PKTBI_BF_ID) &&
-		(client->buffer[3] == 0) && (client->buffer[4] == PKTBI_BF::TYPE_SESPAM))))
-	{
-		return true;
-	}
+	switch(client->buffer[0])
+ 	{
+		case PKTBI_73_ID:
+			// Fallthrough
+		case PKTIN_09_ID:
+			// Fallthrough
+		case PKTBI_D6_IN_ID:
+ 			return true;
+		case PKTBI_BF_ID:
+			if ((client->buffer[3] == 0) && (client->buffer[4] == PKTBI_BF::TYPE_SESPAM))
+				return true;
+			break;
+		default:
+			return false;
+ 	}
 
 	return false;
 }
