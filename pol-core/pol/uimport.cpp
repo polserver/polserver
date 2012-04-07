@@ -692,7 +692,7 @@ int read_data()
 	while (!parent_conts.empty())
 		parent_conts.pop();
 
-	for( ObjectHash::hs::const_iterator citr = objecthash.begin(); citr != objecthash.end(); ++citr )
+	for( ObjectHash::hl::const_iterator citr = objecthash.begin(), citrend=objecthash.end(); citr != citrend; ++citr )
 	{
 		UObject* obj = (*citr).second.get();
 		if (obj->ismobile())
@@ -916,7 +916,7 @@ inline void WriteGottenItem(Character* chr, SaveContext& sc)
 
 void write_characters( SaveContext& sc )
 {
-	for( ObjectHash::hs::const_iterator citr = objecthash.begin(); citr != objecthash.end(); ++citr )
+	for( ObjectHash::hl::const_iterator citr = objecthash.begin(), citrend=objecthash.end(); citr != citrend; ++citr )
 	{
 		UObject* obj = (*citr).second.get();
 		if (obj->ismobile() && !obj->orphan())
