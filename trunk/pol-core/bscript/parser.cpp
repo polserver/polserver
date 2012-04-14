@@ -32,6 +32,7 @@ History
 2011/12/13 Tomi:    Boat members MBR_COMPONENT, MBR_HULL, MBR_ROPE, MBR_SAILS, MBR_WHEEL, MBR_TILLER, MBR_RUDDER, MBR_STORAGE, MBR_WEAPONSLOT
 2012/02/02 Tomi:    Multi member MBR_MULTIID
 2012/03/26 Tomi:    Added MBR_LASTCOORD
+2012/04/14 Tomi:    Added MBR_FACETID for new map message packet
 
 Notes
 =======
@@ -458,7 +459,8 @@ ObjMember object_members[] = {
 	// New boat stuff end
 	{ MBR_MULTIID, "multiid", true},
 	{ MBR_TRADEWINDOW, "tradewindow", true},
-	{ MBR_LASTCOORD, "lastcoord", true} //200
+	{ MBR_LASTCOORD, "lastcoord", true}, //200
+	{ MBR_FACETID, "facetid", true}
 };
 int n_objmembers = sizeof object_members / sizeof object_members[0];
 ObjMember* getKnownObjMember(const char* token)
