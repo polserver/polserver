@@ -7,6 +7,47 @@
     <datemodified>02-08-2012</datemodified>
   </header>
   <version name="POL099">
+    <entry>
+      <date>04-06-2012</date>
+      <author>Tomi</author>
+      <change type="Fixed">Roof problem at 4th floor on a custom house.
+        Patch submitted by Agata
+      </change>
+      <change type="Added">Packet 0xD6 to be ignored for activity ( fixes inactivity logout for ML+ )
+        Patch submitted by OWHorus
+      </change>
+    </entry>
+    <entry>
+      <date>04-05-2012</date>
+      <author>Kevin</author>
+      <change type="Added">ecompile.cfg directive "ErrorOnWarning" and ecompile switch -y to treat warnings
+        on errors during ecompile. Default is 'false'
+      </change>
+      <change type="Fixed">various locations were showing warnings even without the -w switch provided.
+      </change>
+    </entry>
+    <entry>
+      <date>03-26-2012</date>
+      <author>Tomi</author>
+      <change type="Added">character readonly member .lastcoord returns struct{.lastx, .lasty, .lastz}
+      </change>
+    </entry>
+    <entry>
+      <date>03-09-2012</date>
+      <author>Tomi</author>
+      <change type="Fixed">uo::SendInstaResDialog() was sending wrong packet
+      </change>
+    </entry>
+    <entry>
+      <date>03-07-2012</date>
+      <author>Tomi</author>
+      <change type="Added">scripts/misc/dblclickitem.ecl to run a script on every double click on items.
+        params are (mobile, item)
+        usefull for removing meditation stuff and such in 1 place instead of every script.
+      </change>
+      <change type="Note">this script will not be attached to the mobile and will run before any usescript.
+      </change>
+    </entry>
   	<entry>
       <date>02-08-2012</date>
       <author>Tomi</author>
