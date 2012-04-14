@@ -72,6 +72,7 @@ private:
     u16 xeast;
     u16 ynorth;
     u16 ysouth;
+	u16 facetid;
 
 private: // not implemented
     Map( const Map& map );

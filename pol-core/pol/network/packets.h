@@ -505,6 +505,7 @@ typedef PacketWriterDefs::PacketTemplate<PKTOUT_DD_ID,0xFFFF> PktOut_DD;
 typedef PacketWriterDefs::PacketTemplate<PKTOUT_E3_ID,77> PktOut_E3;
 // HSA 26 old 24
 typedef PacketWriterDefs::PacketTemplate<PKTOUT_F3_ID,26> PktOut_F3;
+typedef PacketWriterDefs::PacketTemplate<PKTOUT_F5_ID,21> PktOut_F5;
 // Packet defs end
 
 
