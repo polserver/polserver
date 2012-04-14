@@ -141,7 +141,7 @@ void write_dirty_data( ostream& ofs_data )
     // iterate over the object hash, writing dirty elements.
     // the only tricky bit here is we want to write dirty containers first.
     // this includes Characters.
-    ObjectHash::hl::const_iterator citr = objecthash.begin(), end = objecthash.end();
+    ObjectHash::hs::const_iterator citr = objecthash.begin(), end = objecthash.end();
     for( ; citr != end; ++citr )
     {
         const UObjectRef& ref = (*citr).second;
