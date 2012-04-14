@@ -31,9 +31,9 @@ public:
 	//typedef hash_map<u32,UObjectRef> hs;
 # endif
 	typedef pair<u32,UObjectRef> hashpair;
-	typedef list<hashpair> hl;
-	typedef hl::iterator OH_iterator;
-	typedef hl::const_iterator OH_const_iterator;
+	typedef map<u32,UObjectRef> hs;
+	typedef hs::iterator OH_iterator;
+	typedef hs::const_iterator OH_const_iterator;
 
 	ObjectHash();
 	~ObjectHash();
@@ -48,8 +48,8 @@ public:
 	u32 GetNextUnusedCharSerial();
 	void PrintContents( std::ostream& os ) const;
 
-    hl::const_iterator begin() const;
-    hl::const_iterator end() const;
+    hs::const_iterator begin() const;
+    hs::const_iterator end() const;
     void ClearCharacterAccountReferences();
 
     ds::const_iterator dirty_deleted_begin() const;
@@ -61,7 +61,7 @@ public:
     void RegisterCleanDeletedSerial( u32 serial );
 
 private:
-	hl hash;
+	hs hash;
     OH_iterator reap_iterator;
 
     ds dirty_deleted;
@@ -69,5 +69,4 @@ private:
 };
 
 extern ObjectHash objecthash;
-bool compare_hash_list(ObjectHash::hashpair first, ObjectHash::hashpair second);
 #endif
