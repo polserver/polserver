@@ -19,6 +19,7 @@ History
 2011/12/13 Tomi:    Boat members MBR_COMPONENT, MBR_HULL, MBR_ROPE, MBR_SAILS, MBR_WHEEL, MBR_TILLER, MBR_RUDDER, MBR_STORAGE, MBR_WEAPONSLOT
 2012/02/02 Tomi:    Multi member MBR_MULTIID
 2012/03/26 Tomi:    Added MBR_LASTCOORD
+2012/04/14 Tomi:    Added MBR_FACETID for new map message packet
 
 Notes
 =======
@@ -231,7 +232,8 @@ enum MemberID
 	// New boat stuff end
 	MBR_MULTIID,
 	MBR_TRADEWINDOW,
-	MBR_LASTCOORD
+	MBR_LASTCOORD,
+	MBR_FACETID		//200
 };
 
 

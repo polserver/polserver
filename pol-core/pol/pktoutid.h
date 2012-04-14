@@ -6,6 +6,7 @@ History
 2009/08/09 MuadDib:   Re factor of Packet 0x25, 0x11 for naming convention
 2009/09/10 Turley:    CompressedGump support (Grin)
 2009/12/02 Turley:    PKTOUT_F3 -Tomi
+2012/04/14 Tomi:      PKTOUT_F5
 
 Notes
 =======
@@ -116,7 +117,8 @@ enum PKTOUTID {
 	PKTOUT_DD_ID = 0xDD,    // Compressed Gump
 
 	PKTOUT_E3_ID = 0xE3,	// KR Encryption Response
-	PKTOUT_F3_ID = 0xF3 // SA Object Information
+	PKTOUT_F3_ID = 0xF3,	// SA Object Information
+	PKTOUT_F5_ID = 0xF5		// New Map Message
 };
 
 #endif

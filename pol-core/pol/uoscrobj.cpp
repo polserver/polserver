@@ -38,6 +38,7 @@ History
 2011/12/13 Tomi:      Boat members MBR_COMPONENT, MBR_HULL, MBR_ROPE, MBR_SAILS, MBR_WHEEL, MBR_TILLER, MBR_RUDDER, MBR_STORAGE, MBR_WEAPONSLOT
 2012/02/02 Tomi:      Added boat member MBR_MULTIID
 2012/03/26 Tomi:      Added MBR_LASTCOORD
+2012/04/14 Tomi:      Added MBR_FACETID for new map message packet
 
 Notes
 =======
@@ -2875,6 +2876,7 @@ BObjectImp* Map::get_script_member_id( const int id ) const
 		case MBR_YSOUTH: return new BLong(ysouth); break;
 		case MBR_GUMPWIDTH: return new BLong(gumpwidth); break;
 		case MBR_GUMPHEIGHT: return new BLong(gumpheight); break;
+		case MBR_FACETID: return new BLong(facetid); break;
 		default: return NULL;
 	}
 }
@@ -2901,6 +2903,7 @@ BObjectImp* Map::set_script_member_id( const int id, int value )
 		case MBR_YSOUTH: return new BLong( ysouth = static_cast<unsigned short>(value) );
 		case MBR_GUMPWIDTH: return new BLong( gumpwidth = static_cast<unsigned short>(value) );
 		case MBR_GUMPHEIGHT: return new BLong( gumpheight = static_cast<unsigned short>(value) );
+		case MBR_FACETID: return new BLong( facetid = static_cast<unsigned short>(value) );
 		default: return NULL;
 	}
 }
