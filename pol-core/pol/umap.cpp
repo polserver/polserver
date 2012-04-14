@@ -3,6 +3,7 @@ History
 =======
 2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
 2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
+2012/04/14 Tomi:      added new map message packet 0xF5 for new clients >= 7.0.13.0 and facetid member for maps
 
 Notes
 =======
@@ -43,7 +44,8 @@ Map::Map( const MapDesc& mapdesc ) :
     xwest(0),
     xeast(0),
     ynorth(0),
-    ysouth(0)
+    ysouth(0),
+	facetid(0)
 {
 }
 
@@ -61,6 +63,7 @@ void Map::printProperties( std::ostream& os ) const
     os << "\tysouth\t"      << ysouth << pf_endl;
     os << "\tgumpwidth\t"   << gumpwidth << pf_endl;
     os << "\tgumpheight\t"  << gumpheight << pf_endl;
+	os << "\tfacetid\t"		<< facetid << pf_endl;
 
 	os << "\teditable\t"  << editable << pf_endl;
 	
@@ -108,6 +111,7 @@ void Map::readProperties( ConfigElem& elem )
     ysouth      = elem.remove_ushort( "ysouth", 0 );
     gumpwidth   = elem.remove_ushort( "gumpwidth", 0 );
     gumpheight  = elem.remove_ushort( "gumpheight", 0 );
+	facetid		= elem.remove_ushort( "facetid", 0 );
 	editable	= elem.remove_bool( "editable" , 0 );
 
 	unsigned short numpins = elem.remove_ushort( "NumPins", 0 );
@@ -144,7 +148,23 @@ void Map::builtin_on_use( Client* client )
 		msg90->WriteFlipped<u16>(ysouth);
 		msg90->WriteFlipped<u16>(gumpwidth);
 		msg90->WriteFlipped<u16>(gumpheight);
-		msg90.Send(client);
+
+		PktHelper::PacketOut<PktOut_F5> msgF5;
+		msgF5->Write<u32>(serial_ext);
+		msgF5->Write<u8>(static_cast<u8>(0x13));
+		msgF5->Write<u8>(static_cast<u8>(0x9d));
+		msgF5->WriteFlipped<u16>(xwest);
+		msgF5->WriteFlipped<u16>(ynorth);
+		msgF5->WriteFlipped<u16>(xeast);
+		msgF5->WriteFlipped<u16>(ysouth);
+		msgF5->WriteFlipped<u16>(gumpwidth);
+		msgF5->WriteFlipped<u16>(gumpheight);
+		msgF5->WriteFlipped<u16>(facetid);
+
+		if (client->ClientType & CLIENTTYPE_70130)
+			msgF5.Send(client);
+		else
+			msg90.Send(client);
 
 		PktHelper::PacketOut<PktOut_56> msg56;
 		msg56->Write<u32>(serial_ext);
@@ -447,6 +467,7 @@ Item* Map::clone() const
     map->xeast = xeast;
     map->ynorth = ynorth;
     map->ysouth = ysouth;
+	map->facetid = facetid;
     return map;
 }
 

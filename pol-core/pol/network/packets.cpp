@@ -106,6 +106,7 @@ PacketsSingleton::PacketsSingleton()
 	packets.insert(PacketQueuePair(PKTOUT_DD_ID,new PacketQueueSingle()));
 	packets.insert(PacketQueuePair(PKTOUT_E3_ID,new PacketQueueSingle()));
 	packets.insert(PacketQueuePair(PKTOUT_F3_ID,new PacketQueueSingle()));
+	packets.insert(PacketQueuePair(PKTOUT_F5_ID,new PacketQueueSingle()));
 }
 
 PacketsSingleton::~PacketsSingleton()
@@ -349,6 +350,7 @@ namespace PktHelper
 			case PKTOUT_DD_ID: return new PktOut_DD();
 			case PKTOUT_E3_ID: return new PktOut_E3();
 			case PKTOUT_F3_ID: return new PktOut_F3();
+			case PKTOUT_F5_ID: return new PktOut_F5();
 			default: throw runtime_error( "Request of undefined Packet: " + hexint(id) + "-" + hexint(sub)); return NULL;
 		}
 	}
