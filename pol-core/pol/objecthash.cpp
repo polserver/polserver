@@ -31,15 +31,16 @@ ObjectHash::~ObjectHash()
 
 bool ObjectHash::Insert(UObject* obj)
 {
-	hash.push_back( make_pair( obj->serial,UObjectRef(obj)) );
+	OH_iterator itr = hash.find(obj->serial);
+	if(itr != hash.end())
+	{
+		if( config.loglevel >= 5)
+			Log("ObjectHash insert failed for object serial %x. (duplicate serial?)\n", obj->serial);
+		//cout << "ObjectHash insert failed for object serial " << hex << obj->serial << ". (duplicate serial?)" << endl;
+		return false;
+	}
+	hash.insert(hash.end(), make_pair(obj->serial,UObjectRef(obj)) );
 	return true;
-	//pair<OH_const_iterator,bool> ret = 
-	//passert_always( ret.second );
- //   if( !ret.second )
- //       if( config.loglevel >= 5)
-	//		Log("ObjectHash insert failed for object serial %x. (duplicate serial?)\n", obj->serial);
-	//		//cout << "ObjectHash insert failed for object serial " << hex << obj->serial << ". (duplicate serial?)" << endl;
-	//return ret.second;
 }
 
 bool ObjectHash::Remove(u32 serial)
@@ -52,17 +53,11 @@ bool ObjectHash::Remove(u32 serial)
 
 UObject* ObjectHash::Find(u32 serial)
 {
-	for (OH_iterator itr=hash.begin(), itrend=hash.end(); itr!=itrend; ++itr)
-	{
-		if (itr->first == serial)
-			return (itr->second).get();
-	}
-	return NULL;
-	/*OH_iterator itr = hash.find(serial);
+	OH_iterator itr = hash.find(serial);
 	if(itr != hash.end())
-	return (itr->second).get();
+		return (itr->second).get();
 	else
-	return NULL;*/
+		return NULL;
 }
 
 u32 ObjectHash::GetNextUnusedItemSerial()
@@ -76,20 +71,12 @@ u32 ObjectHash::GetNextUnusedItemSerial()
 		if(tempserial > ITEMSERIAL_END)
 			tempserial = ITEMSERIAL_START;
 
-		bool found=false;
-		for (OH_const_iterator itr=hash.begin(), itrend=hash.end(); itr!=itrend; ++itr)
+		if (hash.find(tempserial) != hash.end())
 		{
-			if (itr->first == tempserial)
-			{
-				tempserial++;
-				found=true;
-				break;
-			}
-		}
-		if (found)
+			tempserial++;
 			continue;
-
-        if (dirty_deleted.count(tempserial))
+		}
+		else if (dirty_deleted.count(tempserial))
         {
 			tempserial++;
             continue;
@@ -118,19 +105,12 @@ u32 ObjectHash::GetNextUnusedCharSerial()
 		if(tempserial > CHARACTERSERIAL_END)
 			tempserial = CHARACTERSERIAL_START;
 
-		bool found=false;
-		for (OH_const_iterator itr=hash.begin(), itrend=hash.end(); itr!=itrend; ++itr)
+		if (hash.find(tempserial) != hash.end())
 		{
-			if (itr->first == tempserial)
-			{
-				tempserial++;
-				found=true;
-				break;
-			}
-		}
-		if (found)
+			tempserial++;
 			continue;
-        if (dirty_deleted.find(tempserial) != dirty_deleted.end())
+		}
+		else if (dirty_deleted.find(tempserial) != dirty_deleted.end())
         {
 			tempserial++;
             continue;
@@ -159,10 +139,6 @@ void ObjectHash::PrintContents( std::ostream& os ) const
 
 }
 
-bool compare_hash_list(ObjectHash::hashpair first, ObjectHash::hashpair second)
-{
-	return first.first < second.first;
-}
 void ObjectHash::Reap()
 {
     // this is called every 2 seconds (approximately)
@@ -171,10 +147,10 @@ void ObjectHash::Reap()
     // 30 minutes = 1800 seconds = 900 reap calls per sweep
     
     // first, figure out how many objects to check:
-    hl::size_type count = hash.size();
+    hs::size_type count = hash.size();
     if (count == 0)
         return;
-    hl::size_type count_this = count / 60;
+    hs::size_type count_this = count / 60;
     if (count_this < 1)
         count_this = 1;
     if (reap_iterator == hash.end())
@@ -189,14 +165,13 @@ void ObjectHash::Reap()
         if (obj->orphan() && obj->ref_counted_count() == 1)
         {
             dirty_deleted.insert( cfBEu32(obj->serial_ext) );
-            reap_iterator = hash.erase( reap_iterator );
+            hash.erase( reap_iterator++ );
         }
 		else
 			++reap_iterator;
 
         if (reap_iterator == hash.end())
         {
-			hash.sort(compare_hash_list); // optimize it once per ~30min
             reap_iterator = hash.begin();
             if (reap_iterator == hash.end())
                 break;
@@ -217,7 +192,7 @@ void ObjectHash::Clear()
 
             if (obj->orphan() && obj->ref_counted_count() == 1)
             {
-                itr=hash.erase( itr );
+                hash.erase( itr++ );
                 any = true;
             }
             else
@@ -235,7 +210,7 @@ void ObjectHash::Clear()
         // this usually causes assertion failures and crashes.
         // creating a copy of the internal hash will ensure no refcounts reach zero.
         cout << "Leaking a copy of the objecthash in order to avoid a crash." << endl;
-        new hl( hash );
+        new hs( hash );
     }
 //    hash.clear();
 }
@@ -260,12 +235,12 @@ void ObjectHash::ClearCharacterAccountReferences()
 	}
 }
 
-ObjectHash::hl::const_iterator ObjectHash::begin() const
+ObjectHash::hs::const_iterator ObjectHash::begin() const
 {
     return hash.begin();
 }
 
-ObjectHash::hl::const_iterator ObjectHash::end() const
+ObjectHash::hs::const_iterator ObjectHash::end() const
 {
     return hash.end();
 }
