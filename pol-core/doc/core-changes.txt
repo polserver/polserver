@@ -1,4 +1,6 @@
 ﻿-- POL099 --
+04-15-2012 Tomi:
+     Added    R/W member editable 0/1 for maps
 04-14-2012 Tomi:
      Added    Support for new map message packet 0xF5 for clients 7.0.13+
               This packet supports the new facetXX.mul files and now can use every different realm for cartography maps and sea charts.

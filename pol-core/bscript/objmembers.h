@@ -20,6 +20,7 @@ History
 2012/02/02 Tomi:    Multi member MBR_MULTIID
 2012/03/26 Tomi:    Added MBR_LASTCOORD
 2012/04/14 Tomi:    Added MBR_FACETID for new map message packet
+2012/04/15 Tomi:    Added MBR_EDITABLE for maps
 
 Notes
 =======
@@ -233,7 +234,8 @@ enum MemberID
 	MBR_MULTIID,
 	MBR_TRADEWINDOW,
 	MBR_LASTCOORD,
-	MBR_FACETID		//200
+	MBR_FACETID,		//200
+	MBR_EDITABLE
 };
 
 

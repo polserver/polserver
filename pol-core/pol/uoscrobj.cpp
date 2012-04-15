@@ -39,6 +39,7 @@ History
 2012/02/02 Tomi:      Added boat member MBR_MULTIID
 2012/03/26 Tomi:      Added MBR_LASTCOORD
 2012/04/14 Tomi:      Added MBR_FACETID for new map message packet
+2012/04/15 Tomi:      Added MBR_EDITABLE for maps
 
 Notes
 =======
@@ -2877,6 +2878,7 @@ BObjectImp* Map::get_script_member_id( const int id ) const
 		case MBR_GUMPWIDTH: return new BLong(gumpwidth); break;
 		case MBR_GUMPHEIGHT: return new BLong(gumpheight); break;
 		case MBR_FACETID: return new BLong(facetid); break;
+		case MBR_EDITABLE: return new BLong( editable ? 1 : 0 ); break;
 		default: return NULL;
 	}
 }
@@ -2904,6 +2906,7 @@ BObjectImp* Map::set_script_member_id( const int id, int value )
 		case MBR_GUMPWIDTH: return new BLong( gumpwidth = static_cast<unsigned short>(value) );
 		case MBR_GUMPHEIGHT: return new BLong( gumpheight = static_cast<unsigned short>(value) );
 		case MBR_FACETID: return new BLong( facetid = static_cast<unsigned short>(value) );
+		case MBR_EDITABLE: return new BLong( editable = value?true:false );
 		default: return NULL;
 	}
 }
