@@ -33,6 +33,7 @@ History
 2012/02/02 Tomi:    Multi member MBR_MULTIID
 2012/03/26 Tomi:    Added MBR_LASTCOORD
 2012/04/14 Tomi:    Added MBR_FACETID for new map message packet
+2012/04/15 Tomi:    Added MBR_EDITABLE for maps
 
 Notes
 =======
@@ -460,7 +461,8 @@ ObjMember object_members[] = {
 	{ MBR_MULTIID, "multiid", true},
 	{ MBR_TRADEWINDOW, "tradewindow", true},
 	{ MBR_LASTCOORD, "lastcoord", true}, //200
-	{ MBR_FACETID, "facetid", true}
+	{ MBR_FACETID, "facetid", true},
+	{ MBR_EDITABLE, "editable", true}
 };
 int n_objmembers = sizeof object_members / sizeof object_members[0];
 ObjMember* getKnownObjMember(const char* token)
