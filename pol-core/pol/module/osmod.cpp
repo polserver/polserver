@@ -333,10 +333,10 @@ BObjectImp* OSExecutorModule::start_skill_script()
 
 			if (prog.get() != NULL)
 			{
-				UObject* object;
-				if (getUObjectParam( exec, 3, object ))
+				BObjectImp* imp = exec.getParamImp( 3 );
+				if (imp)
 				{
-					if ( chr->start_script( prog.get(), true, object->make_ref() ) )
+					if ( chr->start_script( prog.get(), true, imp->copy() ) )
 					{ 
 						if ( chr->hidden() && attr->unhides )
 							chr->unhide();
