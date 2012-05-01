@@ -1008,19 +1008,69 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
 			saveonexit(value?true:false);
 			return new BLong( saveonexit() );
 		case MBR_FIRE_RESIST_MOD:
-			return new BLong( element_resist_mod.fire = static_cast<short>(value) );
+			element_resist_mod.fire = static_cast<short>(value);
+			if (container != NULL)
+			{
+				if (IsCharacter( container->serial ))
+				{
+					Character* chr = chr_from_wornitems( container );
+					if (chr!=NULL)
+						chr->refresh_ar();
+				}
+			}
+			return new BLong( element_resist_mod.fire);
 			break;
 		case MBR_COLD_RESIST_MOD:
-			return new BLong( element_resist_mod.cold = static_cast<short>(value) );
+			element_resist_mod.cold = static_cast<short>(value);
+			if (container != NULL)
+			{
+				if (IsCharacter( container->serial ))
+				{
+					Character* chr = chr_from_wornitems( container );
+					if (chr!=NULL)
+						chr->refresh_ar();
+				}
+			}
+			return new BLong( element_resist_mod.cold );
 			break;
 		case MBR_ENERGY_RESIST_MOD:
-			return new BLong( element_resist_mod.energy = static_cast<short>(value) );
+			element_resist_mod.energy = static_cast<short>(value);
+			if (container != NULL)
+			{
+				if (IsCharacter( container->serial ))
+				{
+					Character* chr = chr_from_wornitems( container );
+					if (chr!=NULL)
+						chr->refresh_ar();
+				}
+			}
+			return new BLong( element_resist_mod.energy );
 			break;
 		case MBR_POISON_RESIST_MOD:
-			return new BLong( element_resist_mod.poison = static_cast<short>(value) );
+			element_resist_mod.poison = static_cast<short>(value);
+			if (container != NULL)
+			{
+				if (IsCharacter( container->serial ))
+				{
+					Character* chr = chr_from_wornitems( container );
+					if (chr!=NULL)
+						chr->refresh_ar();
+				}
+			}
+			return new BLong( element_resist_mod.poison );
 			break;
 		case MBR_PHYSICAL_RESIST_MOD:
-			return new BLong( element_resist_mod.physical = static_cast<short>(value) );
+			element_resist_mod.physical = static_cast<short>(value);
+			if (container != NULL)
+			{
+				if (IsCharacter( container->serial ))
+				{
+					Character* chr = chr_from_wornitems( container );
+					if (chr!=NULL)
+						chr->refresh_ar();
+				}
+			}
+			return new BLong( element_resist_mod.physical );
 			break;
 		case MBR_FIRE_DAMAGE_MOD:
 			return new BLong( element_damage_mod.fire = static_cast<short>(value) );
