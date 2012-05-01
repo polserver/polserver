@@ -1,6 +1,11 @@
 ﻿-- POL099 --
+05-01-2012 Tomi:
+     Fixed    On equipped items .resist_*_mod members did not update character status window when changed
+              Patch submitted by Agata
+
 04-15-2012 Tomi:
      Added    R/W member editable 0/1 for maps
+
 04-14-2012 Tomi:
      Added    Support for new map message packet 0xF5 for clients 7.0.13+
               This packet supports the new facetXX.mul files and now can use every different realm for cartography maps and sea charts.
@@ -18,8 +23,10 @@
 
 03-26-2012 Tomi:
      Added:   character readonly member .lastcoord returns struct{.lastx, .lasty, .lastz}
+
 03-09-2012 Tomi:
      Fixed:   uo::SendInstaResDialog() was sending wrong packet 
+
 03-07-2012 Tomi:
      Added:   scripts/misc/dblclickitem.ecl to run a script on every double click on items.
               params are (mobile, item)
