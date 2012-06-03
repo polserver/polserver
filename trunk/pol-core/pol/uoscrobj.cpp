@@ -40,6 +40,7 @@ History
 2012/03/26 Tomi:      Added MBR_LASTCOORD
 2012/04/14 Tomi:      Added MBR_FACETID for new map message packet
 2012/04/15 Tomi:      Added MBR_EDITABLE for maps
+2012/06/02 Tomi:      Added MBR_ACTIVE_SKILL and MBR_CASTING_SPELL for characters
 
 Notes
 =======
@@ -1565,6 +1566,10 @@ BObjectImp* Character::get_script_member_id( const int id ) const
 				lastcoord->addMember("lastz", new BLong(lastz));
 				return lastcoord.release();
 			}
+		case MBR_ACTIVE_SKILL:
+			return new BLong( skill_ex_active() );
+		case MBR_CASTING_SPELL:
+			return new BLong( casting_spell() );
 		default:
 			return NULL;
 	}
