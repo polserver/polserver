@@ -18,6 +18,7 @@ Notes
 #include "../clib/logfile.h"
 #include "../clib/stlutil.h"
 
+#include "cmbtcfg.h"
 #include "mobile/charactr.h"
 #include "fnsearch.h"
 #include "module/guildmod.h"
@@ -448,8 +449,11 @@ void RepSystem::on_pc_attacks_pc( Character* amy_attacker, Character* bob_defend
 	{
 		if (!amy_attacker->is_aggressor_to(bob_defender))
 		{
-			string msg = "*" + amy_attacker->name() + " is attacking you!*";
-			private_say_above_ex( bob_defender, bob_defender, msg.c_str(), repsys_cfg.NameColoring.Murderer );
+			if (combat_config.send_attack_msg)
+			{
+				string msg = "*" + amy_attacker->name() + " is attacking you!*";
+				private_say_above_ex( bob_defender, bob_defender, msg.c_str(), repsys_cfg.NameColoring.Murderer );
+			}		
 			refresh = true;
 		}
 		amy_attacker->restart_aggressor_timer( bob_defender, aggr_timeout_at );

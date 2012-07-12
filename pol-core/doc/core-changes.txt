@@ -1,4 +1,8 @@
 ﻿-- POL099 --
+07-12-2012 Tomi:
+    Added:    combat.cfg entry "SendAttackMsg" values 0/1 defaults to 1
+              setting this to 0 stops the core repsys system sending "is attacking you" messages.
+
 06-03-2012 Tomi:
     Added     Readonly members .active_skill and .casting_spell for characters
               return values 0/1 if character has an active attached skill or spell script
