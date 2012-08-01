@@ -83,6 +83,7 @@ protected:
     BObjectImp* events_waiting();
     BObjectImp* set_critical();
 	BObjectImp* is_critical();
+
 	BObjectImp* start_script();
 	BObjectImp* start_skill_script();
 	BObjectImp* run_script_to_completion();
@@ -97,6 +98,7 @@ protected:
 	BObjectImp* mf_set_event_queue_size(); //DAVE 11/24
     BObjectImp* mf_OpenURL();
     BObjectImp* mf_OpenConnection();
+    BObjectImp* mf_debugger();
 
 	BObjectImp* mf_clear_event_queue(); //DAVE
     bool blocked_;
