@@ -1,5 +1,9 @@
 ﻿-- POL099 --
 08-01-2012 Kevin:
+    Added:    R/W member carrying_capacity_mod for mobiles to modify carrying capacity on a 
+              mobile-per-mobile basis. Is taken into account prior to global ssopt modifier.
+
+08-01-2012 Kevin:
     Added:    osmod::Debugger() to put current script in debug state to be attached by external
               debugging application
     Added:    stacktrace debug command to print stacktrace. Displays:

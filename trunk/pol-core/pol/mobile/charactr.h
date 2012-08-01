@@ -747,6 +747,7 @@ protected:
     s16 delay_mod_;
 	s16 hitchance_mod_;
 	s16 evasionchance_mod_;
+	s16 carrying_capacity_mod_;
 
     UWeapon* weapon;
     UArmor* shield;
