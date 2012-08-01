@@ -105,3 +105,4 @@ Is_Critical();
 
 OpenURL( character, url );
 OpenConnection( host, port, scriptdef);
+Debugger(); // put script in debug state
