@@ -1498,6 +1498,7 @@ BObjectImp* Character::get_script_member_id( const int id ) const
 		}
 		case MBR_HITCHANCE_MOD:     return new BLong(hitchance_mod_); break;
 		case MBR_EVASIONCHANCE_MOD: return new BLong(evasionchance_mod_); break;
+		case MBR_CARRYINGCAPACITY_MOD: return new BLong(carrying_capacity_mod_); break;
 		case MBR_FIRE_RESIST:     return new BLong(element_resist.fire); break;
 		case MBR_COLD_RESIST:     return new BLong(element_resist.cold); break;
 		case MBR_ENERGY_RESIST:   return new BLong(element_resist.energy); break;
@@ -1687,6 +1688,13 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
 			return new BLong( hitchance_mod_ = static_cast<short>(value) );
 		case MBR_EVASIONCHANCE_MOD:
 			return new BLong( evasionchance_mod_ = static_cast<short>(value) );
+		case MBR_CARRYINGCAPACITY_MOD:
+			carrying_capacity_mod_ = static_cast<short>(value);
+			if (client != NULL)
+			{   // CHECKME consider sending less frequently
+				send_full_statmsg( client, this );
+			}
+			return new BLong( carrying_capacity_mod_ );
 		case MBR_FACING:
 			if(!face(static_cast<UFACING>(value & PKTIN_02_FACING_MASK), 0))
 				return new BLong(0);
