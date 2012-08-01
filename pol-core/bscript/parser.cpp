@@ -465,7 +465,8 @@ ObjMember object_members[] = {
 	{ MBR_FACETID, "facetid", true},
 	{ MBR_EDITABLE, "editable", true},
 	{ MBR_ACTIVE_SKILL, "active_skill", true },
-	{ MBR_CASTING_SPELL, "casting_spell", true }
+	{ MBR_CASTING_SPELL, "casting_spell", true },
+	{ MBR_CARRYINGCAPACITY_MOD, "carrying_capacity_mod", false }
 };
 int n_objmembers = sizeof object_members / sizeof object_members[0];
 ObjMember* getKnownObjMember(const char* token)
