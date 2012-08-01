@@ -1,4 +1,17 @@
 ﻿-- POL099 --
+08-01-2012 Kevin:
+    Added:    osmod::Debugger() to put current script in debug state to be attached by external
+              debugging application
+    Added:    stacktrace debug command to print stacktrace. Displays:
+ 				<size of stack>
+ 				foreach stack element:
+ 					<program counter>
+ 					<file number>
+ 					<line number>
+ 					<number of local variables>
+ 					foreach local variable:
+ 						<variable name> <packed value>
+ 					
 07-12-2012 Tomi:
     Added:    combat.cfg entry "SendAttackMsg" values 0/1 defaults to 1
               setting this to 0 stops the core repsys system sending "is attacking you" messages.

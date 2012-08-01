@@ -146,7 +146,8 @@ OSFunctionDef OSExecutorModule::function_table[] =
 	{ "clear_event_queue",			&OSExecutorModule::mf_clear_event_queue },
 	{ "set_event_queue_size",		&OSExecutorModule::mf_set_event_queue_size },
 	{ "OpenURL",					&OSExecutorModule::mf_OpenURL },
-	{ "OpenConnection",				&OSExecutorModule::mf_OpenConnection }
+	{ "OpenConnection",				&OSExecutorModule::mf_OpenConnection },
+	{ "Debugger",					&OSExecutorModule::mf_debugger }
 };
 
 int OSExecutorModule::functionIndex( const char *name )
@@ -172,6 +173,18 @@ std::string OSExecutorModule::functionName( unsigned idx )
 BObjectImp* OSExecutorModule::create_debug_context()
 {
 	return ::create_debug_context();
+}
+
+BObjectImp* OSExecutorModule::mf_debugger()
+{
+	UOExecutor* uoexec;
+	if (find_uoexec( pid_, &uoexec )) {
+		uoexec->attach_debugger();
+		return new BLong(1);
+	}
+	else
+		return new BError( "Could not find UOExecutor for current process." );
+
 }
 
 BObjectImp* OSExecutorModule::getprocess()
