@@ -99,6 +99,7 @@ protected:
     string cmd_clrallbp();
     string cmd_fileline( const string& rest );
     string cmd_files( Results& results );
+    string cmd_stacktrace( Results& results );
     string cmd_filecont( const string& rest, Results& results );
     string cmd_funcprof( const string& rest, Results& results );
     string cmd_localvars( Results& results );
@@ -269,6 +270,7 @@ bool DebugContext::process( const std::string& cmdline, vector<string>& results 
         }
 
         if (cmd == "attach")        result = cmd_attach( atoi( rest.c_str() ) );
+        else if (cmd == "stacktrace") result = cmd_stacktrace( results );
         else if (cmd == "quit")     result = cmd_quit();
         else if (cmd == "detach")   result = cmd_detach();
         else if (cmd == "start")    result = cmd_start( rest );
@@ -323,6 +325,76 @@ bool DebugContext::process( const std::string& cmdline, vector<string>& results 
     }
 }
 
+string DebugContext::cmd_stacktrace( Results& results )
+{
+    if (!uoexec_wptr.exists())
+        return "No script attached.";
+
+    UOExecutor* exec = uoexec_wptr.get_weakptr();
+    if (!exec->halt())
+   	{
+    	return "Script must be halted to retreive stack trace.";
+   	}
+    EScriptProgram* prog = const_cast<EScriptProgram*>(exec->prog());
+    prog->read_dbg_file();
+
+	const_cast<EScriptProgram*>(prog)->read_dbg_file();
+	if (!prog->debug_loaded)
+		return "No debugging information available.";
+
+
+	stack<BObjectRefVec*> upperLocals2 = exec->upperLocals2;
+	stack<ReturnContext> stack = exec->ControlStack;
+
+	unsigned int PC;
+
+	ReturnContext rc;
+    rc.PC = exec->PC;
+    rc.ValueStackDepth = static_cast<unsigned int>(exec->ValueStack.size());
+	stack.push( rc );
+
+	upperLocals2.push(exec->Locals2);
+
+	results.push_back(decint(stack.size()));
+
+	while (!stack.empty()) {
+		ReturnContext& rc = stack.top();
+		BObjectRefVec* Locals2 = upperLocals2.top();
+		PC = rc.PC;
+		stack.pop();
+		upperLocals2.pop();
+
+		BStruct stackEntry;
+
+		size_t left = Locals2->size();
+
+		results.push_back( decint(PC) );
+		results.push_back( decint(prog->dbg_filenum[PC]));
+		results.push_back( decint(prog->dbg_linenum[PC]));
+
+		vector<string> results2;
+		unsigned block = prog->dbg_ins_blocks[ PC ];
+		while (left)
+		{
+			while (left <= prog->blocks[block].parentvariables)
+			{
+				block = prog->blocks[block].parentblockidx;
+			}
+			const EPDbgBlock &progblock = prog->blocks[block];
+			size_t varidx = left - 1 - progblock.parentvariables;
+			left--;
+			BObjectImp* ptr = (*Locals2)[varidx]->impptr();
+
+			results2.push_back(progblock.localvarnames[varidx]+" "+ ptr->pack());
+		}
+		results.push_back( decint(results2.size() ));
+
+		for ( vector<string>::iterator it=results2.begin() ; it < results2.end(); it++ )
+			results.push_back(*it);
+	}
+	return "";
+
+}
 string DebugContext::cmd_attach( unsigned pid )
 {
     UOExecutor* uoexec;
@@ -851,6 +923,7 @@ std::string DebugContext::cmd_filecont( const std::string& rest, Results& result
     }
     while ( (lastline == 0 || firstline++ <= lastline) && getline(ifs,tmp) )
     {
+    	tmp.erase(tmp.find_last_not_of("\n\r")+1);
         results.push_back( tmp );
     }
            
