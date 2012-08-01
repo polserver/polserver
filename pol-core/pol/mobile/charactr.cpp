@@ -523,6 +523,7 @@ Character::Character( u32 objtype, UOBJ_CLASS uobj_class ) :
 	delay_mod_(0),
 	hitchance_mod_(0),
 	evasionchance_mod_(0),
+	carrying_capacity_mod_(0),
 
 	weapon(wrestling_weapon),
 	shield(NULL),
@@ -760,7 +761,7 @@ unsigned int Character::weight() const
 ///
 unsigned short Character::carrying_capacity() const
 {
-	return static_cast<u16>(floor( (40 + strength() * 7 / 2) * ssopt.carrying_capacity_mod ));
+	return static_cast<u16>(floor( (40 + strength() * 7 / 2 + carrying_capacity_mod_) * ssopt.carrying_capacity_mod ));
 }
 
 int Character::charindex() const
@@ -849,6 +850,9 @@ void Character::printProperties( ostream& os ) const
 		os << "\tMovementWalkMountedMod\t" << static_cast<double>(movement_cost.walk_mounted) << pf_endl;
 	if (movement_cost.run_mounted != 1.0)
 		os << "\tMovementRunMountedMod\t" << static_cast<double>(movement_cost.run_mounted) << pf_endl;
+
+	if (carrying_capacity_mod_)
+		os << "\tCarryingCapacityMod\t" << static_cast<int>(carrying_capacity_mod_) << pf_endl;
 
 
 	// output Attributes
@@ -1110,6 +1114,8 @@ void Character::readCommonProperties( ConfigElem& elem )
 	movement_cost.run = elem.remove_double( "MovementRunMod", 1.0 );
 	movement_cost.walk_mounted = elem.remove_double( "MovementWalkMountedMod", 1.0 );
 	movement_cost.run_mounted = elem.remove_double( "MovementRunMountedMod", 1.0 );
+
+	carrying_capacity_mod_ = static_cast<s16>(elem.remove_int("CarryingCapacityMod", 0) );
 
 	height = PLAYER_CHARACTER_HEIGHT; //no really, height is 9
    
