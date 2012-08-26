@@ -1,4 +1,8 @@
 ﻿-- POL099 --
+08-26-2012 Nando:
+  Removed:    Support for ListenPort in pol.cfg when Multithread is activated. Everyone should
+              be using uoclients.cfg by now! 
+
 08-01-2012 Kevin:
     Added:    R/W member carrying_capacity_mod for mobiles to modify carrying capacity on a 
               mobile-per-mobile basis. Is taken into account prior to global ssopt modifier.
