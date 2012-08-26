@@ -1289,147 +1289,9 @@ CLIENT_CHECKPOINT(17);
 	}
 }
 
-void client_io_thread_stub2( void *arg )
-{
-	Client* client = static_cast<Client*>(arg);
-client->checkpoint = 59; //CNXBUG
-	client_io_thread( client );
-}
 
-#ifdef _WIN32
-unsigned __stdcall client_io_thread_stub( void *arg )
-{
-	InstallStructuredExceptionHandler();
-	Client* client = static_cast<Client*>(arg);
-	threadmap.Register( threadhelp::thread_pid(),string("Client#")+decint(client->instance_));
-	SetThreadPriority( GetCurrentThread(), THREAD_PRIORITY_HIGHEST );
-	threadhelp::run_thread( client_io_thread_stub2, arg );
-	_endthreadex(0);
-	return 0;
-}
-
-#else
-#include <pthread.h>
-void * client_io_thread_stub( void *arg )
-{
-	InstallStructuredExceptionHandler();
-
-	Client* client = static_cast<Client*>(arg);
-	threadmap.Register( threadhelp::thread_pid(),string("Client#")+decint(client->instance_));
 	
-	run_thread( client_io_thread_stub2, arg );
-	
-	pthread_exit(NULL);
-}
-#endif
 
-void listen_thread( void )
-{
-	fd_set l_listen_fd;
-	struct timeval l_listen_timeout = { 0, 0 };
-
-#ifdef _WIN32
-	SetThreadPriority( GetCurrentThread(), THREAD_PRIORITY_HIGHEST );
-#else
-	pthread_attr_t attr;
-	pthread_attr_init( &attr );
-	pthread_attr_setdetachstate( &attr, PTHREAD_CREATE_DETACHED );
-#endif
-
-	while (!exit_signalled)
-	{
-		int nfds = 0;
-		FD_ZERO( &l_listen_fd );
-
-		FD_SET( listen_socket, &l_listen_fd );
-#ifndef _WIN32
-		nfds = listen_socket + 1;
-#endif
-
-		int res;
-		do
-		{
-			l_listen_timeout.tv_sec = 5;
-			l_listen_timeout.tv_usec = 0;
-			res = select( nfds, &l_listen_fd, NULL, NULL, &l_listen_timeout );
-		} while (res < 0 && !exit_signalled && socket_errno == SOCKET_ERRNO(EINTR));
-		
-		if (res <= 0)
-			continue;
-		
-		if ( FD_ISSET( listen_socket, &l_listen_fd ))
-		{
-			struct sockaddr client_addr, host_addr; // inet_addr
-			socklen_t addrlen = sizeof client_addr;
-			socklen_t host_addrlen = sizeof host_addr;
-			SOCKET client_socket = accept( listen_socket, &client_addr, &addrlen );
-			if (client_socket == INVALID_SOCKET)
-				return;
-			apply_socket_options( client_socket );
-
-			PolLock lck;
-			Client *client = new Client( uo_client_interface, config.client_encryption_version );
-client->checkpoint = 50; //CNXBUG
-			client->csocket = client_socket;
-			memcpy( &client->ipaddr, &client_addr, sizeof client->ipaddr );
-			client->acct = NULL;
-client->checkpoint = 51; //CNXBUG
-			clients.push_back( client );
-client->checkpoint = 52; //CNXBUG
-			CoreSetSysTrayToolTip( tostring(clients.size()) + " clients connected", ToolTipPrioritySystem );
-			cout << "Client connected from " << AddressToString( &client_addr )
-				 << " (" << clients.size() << " connections)"
-				 << endl;
-			string ifdesc = "";
-client->checkpoint = 53; //CNXBUG
-			if (getsockname( client_socket, &host_addr, &host_addrlen ) == 0)
-			{
-				ifdesc = " on interface ";
-				ifdesc += AddressToString( &host_addr );
-			}
-			Log( "Client#%lu connected from %s (%d connections)%s\n", 
-					client->instance_,
-					AddressToString( &client_addr ),
-					clients.size(),
-					ifdesc.c_str() );
-client->checkpoint = 54; //CNXBUG
-			threadhelp::inc_child_thread_count( false );
-#ifdef _WIN32
-			unsigned threadid;
-			HANDLE h = (HANDLE) _beginthreadex( NULL, 0, client_io_thread_stub, client, 0, &threadid );
-client->checkpoint = 55; //CNXBUG
-			if (h == 0)
-			{
-				Log( "Failed to create worker thread for Client#%lu (errno = %d)\n", client->instance_, errno );
-//				PolLock lck;
-				threadhelp::dec_child_thread_count ( false ); // needed here because we inc'd
-				clients.erase( find_in( clients, client ) );
-				Client::Delete( client );	
-			} 
-			else
-			{
-#ifdef _WIN32
-				threadhelp::SetThreadName( threadid, std::string("Client")+decint(client->instance_));
-#endif
-				client->thread_pid = (int)threadid;
-			}
-			CloseHandle( h );
-
-#else
-			pthread_t th;
-			int res = pthread_create( &th, &attr, client_io_thread_stub, client ); 
-			if (res)
-			{
-				Log( "Failed to create worker thread for Client#%lu (res = %d)\n", client->instance_, res );
-//				PolLock lck;
-				threadhelp::dec_child_thread_count ( false ); // needed here because we inc'd
-				clients.erase( find_in( clients, client ) );
-				Client::Delete( client );	
-			}
-#endif
-		}
-	}
-}
 
 #define clock_t_to_ms(x) (x)
 
@@ -1710,9 +1572,6 @@ void start_threads()
 {
 	threadmap.Register( thread_pid(), "Main" );
 	
-	if (config.listen_port)
-		threadhelp::start_thread( listen_thread, "Listen" );
-
 	if (config.web_server)
 		start_http_server();
 
@@ -2179,21 +2038,7 @@ int xmain_inner( int argc, char *argv[] )
 		cout << "Unable to initialize sockets library." << endl;
 		return 1;
 	}
-/*
-	if (argc == 1)
-	{
-		if (config.listen_port)
-		{
-			checkpoint( "opening listen socket" );
-			listen_socket = open_listen_socket( config.listen_port );
-			if (listen_socket < 0)
-			{
-				cout << "Unable to listen on socket " << config.listen_port << endl;
-				return 1;
-			}
-		}
-	}
-*/
+
 	checkpoint( "loading configuration" );
 	load_data();
 
@@ -2250,6 +2095,21 @@ int xmain_inner( int argc, char *argv[] )
 
 	if ( config.listen_port )
 	{
+		if (config.multithread)
+		{
+			// TODO: remove this warning after some releases...
+			PolLock lck;
+			
+			cerr << endl << endl;
+			cerr << "+----------------------------------------------------------------------+" << endl;
+			cerr << "| Option ListenPort in pol.cfg is now only for non-multithreading      |" << endl;
+			cerr << "| systems. If you still haven't done it, please read the documentation |" << endl;
+			cerr << "| on how to create a uoclients.cfg.                                    |" << endl;
+			cerr << "+----------------------------------------------------------------------+" << endl;
+			cerr << endl << endl;
+
+			throw runtime_error("ListenPort is no longer used for multithreading programs (Multithread == 1).");
+		}
 		checkpoint( "opening listen socket" );
 		listen_socket = open_listen_socket( config.listen_port );
 		if (listen_socket == INVALID_SOCKET)
