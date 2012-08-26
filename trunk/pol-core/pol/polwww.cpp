@@ -821,7 +821,7 @@ void start_http_conn_thread( SOCKET* client_socket )
 	}
 	else
 	{
-#ifdef _Win32
+#ifdef _WIN32
 				threadhelp::SetThreadName( threadid, std::string("HTTP"+*client_socket));
 #endif
 		CloseHandle( h );
