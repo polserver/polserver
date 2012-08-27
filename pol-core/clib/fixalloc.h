@@ -83,6 +83,9 @@ void fixed_allocator<N,B>::log_stuff(const std::string& detail)
 template<size_t N, size_t B>
 void* fixed_allocator<N,B>::allocate()
 {
+#ifdef LEAK_DEBUG
+	return ::operator new(N);
+#endif
 #ifdef MEMORYLEAK
     requests++;
     if (max_requests < requests)
@@ -128,6 +131,9 @@ void* fixed_allocator<N,B>::refill()
 template<size_t N, size_t B>
 void fixed_allocator<N,B>::deallocate( void* vp )
 {
+#ifdef LEAK_DEBUG
+	return ::operator delete(vp);
+#endif
 #ifdef MEMORYLEAK
     requests--;
 #endif
@@ -140,6 +146,9 @@ void fixed_allocator<N,B>::deallocate( void* vp )
 template<size_t N, size_t B>
 void* fixed_allocator<N,B>::allocate( size_t size ) 
 {
+#ifdef LEAK_DEBUG
+	return ::operator new(size);
+#endif
     assert( size == B );
     if (size == B)
         return allocate();
@@ -150,6 +159,9 @@ void* fixed_allocator<N,B>::allocate( size_t size )
 template<size_t N, size_t B>
 void fixed_allocator<N,B>::deallocate( void* vp, size_t size )
 {
+#ifdef LEAK_DEBUG
+	return ::operator delete(vp);
+#endif
     assert( size == B );
     if (size == B)
         deallocate(vp);

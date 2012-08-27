@@ -82,7 +82,6 @@ void load_party_cfg( bool reload );
 
 void load_movecost( bool reload );
 
-void unload_npc_templates();
 void unload_tiles();
 
 void check_config()
@@ -271,7 +270,8 @@ void unload_data()
 {
 	unload_armor_zones();
 
-	unload_npc_templates();  //quick and nasty fix until npcdesc usage is rewritten
+	//Turley 2012-08-27: moved before objecthash due to npc-method_script cleanup
+	//unload_npc_templates();  //quick and nasty fix until npcdesc usage is rewritten 
 
 	unload_repsys_cfg(); // Any better place?
 
