@@ -3640,10 +3640,12 @@ BObjectImp* UOExecutorModule::mf_MoveItemToContainer()
 	Item* cont_item;
 	int px;
 	int py;
+	int add_to_existing_stack;
 	if ( !(getItemParam( exec, 0, item ) &&
 		   getItemParam( exec, 1, cont_item ) &&
 		   getParam( 2, px, -1, 65535 ) &&
-		   getParam( 3, py, -1, 65535 )) )
+		   getParam( 3, py, -1, 65535 ) &&
+		   getParam( 4, add_to_existing_stack, 0, 1 )) )
 	{
 		return new BError( "Invalid parameter type" );
 	}
@@ -3687,6 +3689,7 @@ BObjectImp* UOExecutorModule::mf_MoveItemToContainer()
 
 	//daved changed order 1/26/3 check canX scripts before onX scripts.
 	UContainer* oldcont = item->container;
+	Item* existing_stack = NULL;
 
 	if( (oldcont != NULL) &&
 		(!oldcont->check_can_remove_script( chr_owner, item, UContainer::MT_CORE_MOVED )) )
@@ -3696,8 +3699,23 @@ BObjectImp* UOExecutorModule::mf_MoveItemToContainer()
 		return new BError( "Item was destroyed in CanRemove script" );
 	}
 
-	if(!cont->can_insert_add_item( chr_owner, UContainer::MT_CORE_MOVED, item ))
-		return new BError( "Could not insert item into container." );
+	if ( add_to_existing_stack )
+	{
+		existing_stack = cont->find_addable_stack(item);
+		if ( existing_stack != NULL )
+		{
+			if(!cont->can_insert_increase_stack( chr_owner, UContainer::MT_CORE_MOVED, existing_stack, item->getamount(), item ) )
+				return new BError( "Could not add to existing stack" );
+		}
+		else
+			return new BError( "There is no existing stack" );
+	}
+	else
+	{
+		if(!cont->can_insert_add_item( chr_owner, UContainer::MT_CORE_MOVED, item ))
+			return new BError( "Could not insert item into container." );
+	}
+
 	if(item->orphan()) //dave added 1/28/3, item might be destroyed in RTC script
 	{
 		return new BError( "Item was destroyed in CanInsert Script" );
@@ -3719,43 +3737,58 @@ BObjectImp* UOExecutorModule::mf_MoveItemToContainer()
 		}
 	}
 
-	u8 slotIndex = item->slot_index();
-	if (!cont->can_add_to_slot(slotIndex))
+	if ( !add_to_existing_stack )
 	{
-		item->destroy();
-		return new BError( "No slots available in new container" );
+		u8 slotIndex = item->slot_index();
+		if (!cont->can_add_to_slot(slotIndex))
+		{
+			item->destroy();
+			return new BError( "No slots available in new container" );
+		}
+		if ( !item->slot_index(slotIndex) )
+		{
+			item->destroy();
+			return new BError( "Couldn't set slot index on item" );
+		}
+
+		short x = static_cast<short>(px);
+		short y = static_cast<short>(py);
+		if (/*x < 0 || y < 0 ||*/ !cont->is_legal_posn( item, x, y ))
+		{
+			u16 tx, ty;
+			cont->get_random_location( &tx, &ty );
+			x = tx;
+			y = ty;
+		}
+
+		// item->set_dirty();
+
+		true_extricate( item );
+
+		item->x = x;
+		item->y = y;
+		item->z = 0;
+
+		cont->add( item );
+		update_item_to_inrange( item );
+		//DAVE added this 11/17: if in a Character's pack, update weight.
+		UpdateCharacterWeight(item);
+
+		cont->on_insert_add_item( chr_owner, UContainer::MT_CORE_MOVED, item );
+		if(item->orphan()) //dave added 1/28/3, item might be destroyed in RTC script
+		{
+			return new BError( "Item was destroyed in OnInsert script" );
+		}
 	}
-	if ( !item->slot_index(slotIndex) )
+	else
 	{
-		item->destroy();
-		return new BError( "Couldn't set slot index on item" );
-	}
+		u16 amount = item->getamount();
+		true_extricate( item );
+		existing_stack->add_to_self(item);
+		update_item_to_inrange( existing_stack );
+		UpdateCharacterWeight( existing_stack );
 
-	short x = static_cast<short>(px);
-	short y = static_cast<short>(py);
-	if (/*x < 0 || y < 0 ||*/ !cont->is_legal_posn( item, x, y ))
-	{
-		u16 tx, ty;
-		cont->get_random_location( &tx, &ty );
-		x = tx;
-		y = ty;
-	}
-
-	true_extricate( item );
-
-	item->x = x;
-	item->y = y;
-	item->z = 0;
-
-	cont->add( item );
-	update_item_to_inrange( item );
-	//DAVE added this 11/17: if in a Character's pack, update weight.
-	UpdateCharacterWeight(item);
-
-	cont->on_insert_add_item( chr_owner, UContainer::MT_CORE_MOVED, item );
-	if(item->orphan()) //dave added 1/28/3, item might be destroyed in RTC script
-	{
-		return new BError( "Item was destroyed in OnInsert script" );
+		cont->on_insert_increase_stack( chr_owner, UContainer::MT_CORE_MOVED, existing_stack, amount );
 	}
 
 	return new BLong(1);

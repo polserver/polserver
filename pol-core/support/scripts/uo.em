@@ -316,7 +316,7 @@ ListObjectsInBox( x1,y1,z1, x2,y2,z2, realm := _DEFAULT_REALM );
 ListStaticsAtLocation( x, y, z, flags := 0, realm := _DEFAULT_REALM );
 ListStaticsInBox( x1,y1,z1, x2,y2,z2, flags := 0, realm := _DEFAULT_REALM );
 ListStaticsNearLocation( x, y, z, range, flags := 0, realm := _DEFAULT_REALM );
-MoveItemToContainer( item, container, x := -1, y := -1 );
+MoveItemToContainer( item, container, x := -1, y := -1, add_to_existing_stack := 0 );
 MoveItemToSecureTradeWin( item, character );
 MoveObjectToLocation( object, x, y, z, realm := _DEFAULT_REALM, flags := MOVEOBJECT_NORMAL );
 OpenPaperdoll( towhom, forwhom );

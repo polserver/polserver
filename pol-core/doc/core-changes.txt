@@ -1,4 +1,11 @@
 ﻿-- POL099 --
+08-27-2012 Tomi:
+  Changed:    MoveItemToContainer( item, container, x := -1, y := -1 ); to MoveItemToContainer( item, container, x := -1, y := -1, add_to_existing_stack := 0 );
+  Changed:    item.SplitStackInto( container, amount ) to item.SplitStackInto( container, amount, add_to_existing_stack := 0 )
+  Note:       The optional add_to_existing_stack parameter defines if the items moved to the container will look for an existing stack and add to it or just add as a new item ( old behaviour )
+              If add_to_existing_stack == 1 and there is no stack in the container, it will return Error "There is no existing stack", so its up to scripts to check this.
+  Added:      item.HasExistingStack( container ) to allow scripts to check if there is an existing stack in a container or not, returns the ItemRef of the stack if it exists.           
+
 08-26-2012 Nando:
   Removed:    Support for ListenPort in pol.cfg when Multithread is activated. Everyone should
               be using uoclients.cfg by now! 
