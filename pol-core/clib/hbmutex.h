@@ -59,7 +59,10 @@ inline LocalMutex::LocalMutex(Mutex* mutex):_mutex(mutex)
 }
 inline LocalMutex::~LocalMutex()
 {
-	_mutex->unlock();
+	if (_mutex != 0)
+	{
+		_mutex->unlock();
+	}
 }
 inline void LocalMutex::unlock()
 {

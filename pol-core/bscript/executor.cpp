@@ -59,6 +59,7 @@ void display_executor_instances()
 }
 
 extern int executor_count;
+Mutex Executor::_executor_mutex;
 Executor::Executor( ostream& cerr ) :
         done(0),
         error_(false),
@@ -77,33 +78,34 @@ Executor::Executor( ostream& cerr ) :
         bp_skip_(~0u),
         func_result_(NULL)
 {
-    ++executor_count;
-    executor_instances.insert( this );
-        
-    if (!UninitObject::SharedInstance)
-    {
-        UninitObject::SharedInstance = new UninitObject;
-        UninitObject::SharedInstanceOwner.set( UninitObject::SharedInstance );
-    }
+	LocalMutex guard(&_executor_mutex);
+	++executor_count;
+	executor_instances.insert( this );
 
+	if (!UninitObject::SharedInstance)
+	{
+		UninitObject::SharedInstance = new UninitObject;
+		UninitObject::SharedInstanceOwner.set( UninitObject::SharedInstance );
+	}
 }
 
 Executor::~Executor()
 {
-    --executor_count;
-    executor_instances.erase( this );
+	LocalMutex guard(&_executor_mutex);
+	--executor_count;
+	executor_instances.erase( this );
 
-    delete Locals2;
-    Locals2 = NULL;
+	delete Locals2;
+	Locals2 = NULL;
 
-    while (!upperLocals2.empty())
-    {
-        delete upperLocals2.top();
-        upperLocals2.pop();
-    }
+	while (!upperLocals2.empty())
+	{
+		delete upperLocals2.top();
+		upperLocals2.pop();
+	}
 
-    execmodules.clear();
-    delete_all( availmodules );
+	execmodules.clear();
+	delete_all( availmodules );
 }
 
 size_t Executor::sizeEstimate() const

@@ -22,6 +22,7 @@ Notes
 FILE *logfile = NULL;
 
 bool LogfileTimestampEveryLine = false;
+Mutex _logfile_mutex;
 
 static string namebase;
 static string log_filename;
@@ -65,85 +66,87 @@ void CloseLogFile(void)
 
 void Log( const char *fmt, ... )
 {
-    if (logfile)
-    {
-        va_list va;
-        time_t now = time(NULL);
-        if ((now != last_timestamp) || (LogfileTimestampEveryLine))
-        {
-            char buffer[30];
+	LocalMutex guard(&_logfile_mutex);
+	if (logfile)
+	{
+		va_list va;
+		time_t now = time(NULL);
+		if ((now != last_timestamp) || (LogfileTimestampEveryLine))
+		{
+			char buffer[30];
 
-            struct tm* tm_now = localtime( &now );
-            if (rollover && (tm_now->tm_mday != open_tm.tm_mday || 
-                             tm_now->tm_mon != open_tm.tm_mon))
-            {
-                // roll the log file over
-                strftime( buffer, sizeof buffer, "%Y-%m-%d", &open_tm );
-                string archive_name = namebase + "-" + buffer + ".log";
-                fclose( logfile );
+			struct tm* tm_now = localtime( &now );
+			if (rollover && (tm_now->tm_mday != open_tm.tm_mday || 
+								tm_now->tm_mon != open_tm.tm_mon))
+			{
+				// roll the log file over
+				strftime( buffer, sizeof buffer, "%Y-%m-%d", &open_tm );
+				string archive_name = namebase + "-" + buffer + ".log";
+				fclose( logfile );
                 
-                // whether the rename succeeds or fails, the action is the same.
-                rename( log_filename.c_str(), archive_name.c_str() );
+				// whether the rename succeeds or fails, the action is the same.
+				rename( log_filename.c_str(), archive_name.c_str() );
 
-                // moved.  open the new file
-                logfile = fopen( log_filename.c_str(), "a+t" );
-                if (!logfile)
-                    return;
-                open_tm = *tm_now;
-            }
+				// moved.  open the new file
+				logfile = fopen( log_filename.c_str(), "a+t" );
+				if (!logfile)
+					return;
+				open_tm = *tm_now;
+			}
 
-            strftime( buffer, sizeof buffer, "%m/%d %H:%M:%S", tm_now );
-            fprintf( logfile, "[%s] ", buffer );
-            last_timestamp = now;
-        }
-        va_start(va,fmt);
-        vfprintf( logfile, fmt, va );
-        va_end(va);
-        fflush( logfile );
-    }
+			strftime( buffer, sizeof buffer, "%m/%d %H:%M:%S", tm_now );
+			fprintf( logfile, "[%s] ", buffer );
+			last_timestamp = now;
+		}
+		va_start(va,fmt);
+		vfprintf( logfile, fmt, va );
+		va_end(va);
+		fflush( logfile );
+	}
 }
 
 void Log2( const char *fmt, ... )
 {
-    if (logfile)
-    {
-        va_list va;
-        time_t now = time(NULL);
-        if ((now != last_timestamp) || (LogfileTimestampEveryLine))
-        {
-            char buffer[30];
+	LocalMutex guard(&_logfile_mutex);
+	if (logfile)
+	{
+		va_list va;
+		time_t now = time(NULL);
+		if ((now != last_timestamp) || (LogfileTimestampEveryLine))
+		{
+			char buffer[30];
 
-            struct tm* tm_now = localtime( &now );
-            if (rollover && (tm_now->tm_mday != open_tm.tm_mday || 
-                             tm_now->tm_mon != open_tm.tm_mon))
-            {
-                // roll the log file over
-                strftime( buffer, sizeof buffer, "%Y-%m-%d", &open_tm );
-                string archive_name = namebase + "-" + buffer + ".log";
-                fclose( logfile );
+			struct tm* tm_now = localtime( &now );
+			if (rollover && (tm_now->tm_mday != open_tm.tm_mday || 
+								tm_now->tm_mon != open_tm.tm_mon))
+			{
+				// roll the log file over
+				strftime( buffer, sizeof buffer, "%Y-%m-%d", &open_tm );
+				string archive_name = namebase + "-" + buffer + ".log";
+				fclose( logfile );
                 
-                // whether the rename succeeds or fails, the action is the same.
-                rename( log_filename.c_str(), archive_name.c_str() );
+				// whether the rename succeeds or fails, the action is the same.
+				rename( log_filename.c_str(), archive_name.c_str() );
 
-                // moved.  open the new file
-                logfile = fopen( log_filename.c_str(), "a+t" );
-                if (!logfile) 
-                    return;
-                open_tm = *tm_now;
-            }
+				// moved.  open the new file
+				logfile = fopen( log_filename.c_str(), "a+t" );
+				if (!logfile) 
+					return;
+				open_tm = *tm_now;
+			}
 
-            strftime( buffer, sizeof buffer, "%m/%d %H:%M:%S", tm_now );
-            fprintf( logfile, "[%s] ", buffer );
-            last_timestamp = now;
-        }
-        va_start(va,fmt);
-        vfprintf( logfile, fmt, va );
-        va_end(va);
-        fflush( logfile );
-    }
-    va_list va;
-    va_start( va, fmt );
-    vfprintf( stdout, fmt, va );
-    va_end( va );
+			strftime( buffer, sizeof buffer, "%m/%d %H:%M:%S", tm_now );
+			fprintf( logfile, "[%s] ", buffer );
+			last_timestamp = now;
+		}
+		va_start(va,fmt);
+		vfprintf( logfile, fmt, va );
+		va_end(va);
+		fflush( logfile );
+	}
+	va_list va;
+	va_start( va, fmt );
+	vfprintf( stdout, fmt, va );
+	va_end( va );
 }
 

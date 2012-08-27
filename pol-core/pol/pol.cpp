@@ -1810,6 +1810,7 @@ void unload_system_hooks();
 void start_tasks();
 void UnloadAllConfigFiles();
 void allocate_intrinsic_weapon_serials();
+void unload_npc_templates();
 
 #ifdef _WIN32
 #include "../clib/mdump.h"
@@ -1958,11 +1959,12 @@ int xmain_inner( int argc, char *argv[] )
 
 #ifndef NDEBUG
 	printf( "Sizes: \n" );
-	printf( "   UObject:	%d\n", sizeof(UObject) );
-	printf( "   Item:	   %d\n", sizeof(Item) );
+	printf( "   UObject:    %d\n", sizeof(UObject) );
+	printf( "   Item:       %d\n", sizeof(Item) );
 	printf( "   UContainer: %d\n", sizeof(UContainer) );
 	printf( "   Character:  %d\n", sizeof(Character) );
-	printf( "   Client:	 %d\n", sizeof(Client) );
+	printf( "   Client:     %d\n", sizeof(Client) );
+	printf( "   NPC:        %d\n", sizeof(NPC) );
 #ifdef __unix__
 #ifdef PTHREAD_THREADS_MAX
 	printf( "   Max Threads:%d\n", (int)PTHREAD_THREADS_MAX );
@@ -2268,9 +2270,9 @@ int xmain_inner( int argc, char *argv[] )
 	UnloadAllConfigFiles();
 
 	unload_packages(); // Nando - 2009-01-19
+	unload_npc_templates();  //quick and nasty fix until npcdesc usage is rewritten Turley 2012-08-27: moved before objecthash due to npc-method_script cleanup
 
 	UninitObject::ReleaseSharedInstance();
-	
 	objecthash.Clear();
 	display_leftover_objects();
 
