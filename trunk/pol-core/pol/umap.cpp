@@ -138,37 +138,39 @@ void Map::builtin_on_use( Client* client )
 {
     if (gumpwidth && gumpheight)
     {
-		PktHelper::PacketOut<PktOut_90> msg90;
-		msg90->Write<u32>(serial_ext);
-		msg90->Write<u8>(static_cast<u8>(0x13));
-		msg90->Write<u8>(static_cast<u8>(0x9d));
-		msg90->WriteFlipped<u16>(xwest);
-		msg90->WriteFlipped<u16>(ynorth);
-		msg90->WriteFlipped<u16>(xeast);
-		msg90->WriteFlipped<u16>(ysouth);
-		msg90->WriteFlipped<u16>(gumpwidth);
-		msg90->WriteFlipped<u16>(gumpheight);
-
-		PktHelper::PacketOut<PktOut_F5> msgF5;
-		msgF5->Write<u32>(serial_ext);
-		msgF5->Write<u8>(static_cast<u8>(0x13));
-		msgF5->Write<u8>(static_cast<u8>(0x9d));
-		msgF5->WriteFlipped<u16>(xwest);
-		msgF5->WriteFlipped<u16>(ynorth);
-		msgF5->WriteFlipped<u16>(xeast);
-		msgF5->WriteFlipped<u16>(ysouth);
-		msgF5->WriteFlipped<u16>(gumpwidth);
-		msgF5->WriteFlipped<u16>(gumpheight);
-		msgF5->WriteFlipped<u16>(facetid);
-
 		if (client->ClientType & CLIENTTYPE_70130)
+		{
+			PktHelper::PacketOut<PktOut_F5> msgF5;
+			msgF5->Write<u32>(serial_ext);
+			msgF5->Write<u8>(0x13);
+			msgF5->Write<u8>(0x9d);
+			msgF5->WriteFlipped<u16>(xwest);
+			msgF5->WriteFlipped<u16>(ynorth);
+			msgF5->WriteFlipped<u16>(xeast);
+			msgF5->WriteFlipped<u16>(ysouth);
+			msgF5->WriteFlipped<u16>(gumpwidth);
+			msgF5->WriteFlipped<u16>(gumpheight);
+			msgF5->WriteFlipped<u16>(facetid);
 			msgF5.Send(client);
+		}
 		else
+		{
+			PktHelper::PacketOut<PktOut_90> msg90;
+			msg90->Write<u32>(serial_ext);
+			msg90->Write<u8>(0x13);
+			msg90->Write<u8>(0x9d);
+			msg90->WriteFlipped<u16>(xwest);
+			msg90->WriteFlipped<u16>(ynorth);
+			msg90->WriteFlipped<u16>(xeast);
+			msg90->WriteFlipped<u16>(ysouth);
+			msg90->WriteFlipped<u16>(gumpwidth);
+			msg90->WriteFlipped<u16>(gumpheight);
 			msg90.Send(client);
+		}
 
 		PktHelper::PacketOut<PktOut_56> msg56;
 		msg56->Write<u32>(serial_ext);
-		msg56->Write<u8>(static_cast<u8>(PKTBI_56::TYPE_REMOVE_ALL));
+		msg56->Write<u8>(PKTBI_56::TYPE_REMOVE_ALL);
 		msg56->offset+=5; // u8 pinidx,u16 pinx,piny
 		msg56.Send(client);
 
@@ -177,7 +179,7 @@ void Map::builtin_on_use( Client* client )
 		if(!pin_points.empty())
 		{
 			msg56->offset=5; //msgtype+serial_ext
-			msg56->Write<u8>(static_cast<u8>(PKTBI_56::TYPE_ADD));
+			msg56->Write<u8>(PKTBI_56::TYPE_ADD);
 			// u8 pinidx still 0
 
 			for( pin_points_itr itr = pin_points.begin(), end=pin_points.end(); itr != end; ++itr )

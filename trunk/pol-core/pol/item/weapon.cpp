@@ -117,6 +117,7 @@ WeaponDesc::WeaponDesc( u32 objtype, ConfigElem& elem, const Package* pkg ) :
 	hit_sound( elem.remove_ushort( "HITSOUND", 0 ) ),
 	miss_sound( elem.remove_ushort( "MISSSOUND", 0 ) ),
 	is_intrinsic( false ),
+	is_pc_weapon( false ),
 	two_handed( elem.remove_bool( "TWOHANDED", false ) ),
 	minrange( elem.remove_ushort( "MINRANGE", projectile?2:0 ) ),
 	maxrange( elem.remove_ushort( "MAXRANGE", projectile?20:1 ) )
@@ -287,6 +288,7 @@ void load_intrinsic_weapons()
 			// sets wrestling weapondesc as intrinsic
 			WeaponDesc* wdesc = const_cast<WeaponDesc*>(weapon_descriptor);
 			wdesc->is_intrinsic = true; 
+			wdesc->is_pc_weapon = true;
 		}
 		wrestling_weapon->inuse(true);
 
@@ -418,13 +420,15 @@ UWeapon::~UWeapon()
 	// Only exception is the wrestling weapon, which should be deferred 
 	// to the global desctable cleaning.
 
-	if (is_intrinsic() && tmpl != NULL && tmpl->objtype != extobj.wrestling) {
+	if (is_intrinsic() && tmpl != NULL) {
 		WeaponDesc* wd = const_cast<WeaponDesc*>(tmpl); 
+		if (!wd->is_pc_weapon)
+		{
+			wd->unload_scripts();
 
-		wd->unload_scripts();
-
-		delete tmpl;
-		tmpl = NULL;
+			delete tmpl;
+			tmpl = NULL;
+		}
 	}
 }
 
