@@ -626,7 +626,8 @@ ObjMethod object_methods[] = {
 	{ MTH_SPLITSTACK_AT, "splitstackat" },
 	{ MTH_SPLITSTACK_INTO, "splitstackinto" },
 	{ MTH_CANCEL_EDITING, "cancelediting" },
-	{ MTH_CLONENODE, "clonenode" }
+	{ MTH_CLONENODE, "clonenode" },
+	{ MTH_HAS_EXISTING_STACK, "hasexistingstack" }	//140
 };
 int n_objmethods = sizeof object_methods / sizeof object_methods[0];
 ObjMethod* getKnownObjMethod(const char* token)

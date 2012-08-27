@@ -1153,6 +1153,7 @@ BObjectImp* Item::script_method_id(const int id, Executor& ex)
 		case MTH_SPLITSTACK_INTO:
 		{
 			int amt;
+			unsigned short add_to_existing_stack;
 			Item* cont_item;
 			Item* new_stack;
 			if ( !ex.hasParams(2) )
@@ -1171,6 +1172,7 @@ BObjectImp* Item::script_method_id(const int id, Executor& ex)
 				return new BError( "Non-container selected as target" );
 
 			UContainer* container = static_cast<UContainer*>(cont_item);
+			ex.getParam( 2, add_to_existing_stack );
 
 			if ( amt == this->getamount() )
 				new_stack = this;
@@ -1179,19 +1181,68 @@ BObjectImp* Item::script_method_id(const int id, Executor& ex)
 			
 			if ( !container->can_add(*new_stack) )
 					return new BError("Could not add new stack to container");
-			
-			bool can_insert = container->can_insert_add_item(NULL, UContainer::MT_CORE_MOVED, new_stack);
-			if ( !can_insert )
+
+			if ( add_to_existing_stack )
 			{
-				// Put newstack back with the original stack
-				if ( new_stack != this )
-					this->add_to_self(new_stack);
-				return new BError("Could not insert new stack into container");
+				Item* existing_stack = container->find_addable_stack(new_stack);
+				if ( existing_stack != NULL )
+				{
+					if(!container->can_insert_increase_stack( NULL, UContainer::MT_CORE_MOVED, existing_stack, new_stack->getamount(), new_stack ) )
+						return new BError( "Could not add to existing stack" );
+				}
+				else
+					return new BError( "There is no existing stack" );
+
+				u16 amount = new_stack->getamount();
+				existing_stack->add_to_self(new_stack);
+				update_item_to_inrange( existing_stack );
+				UpdateCharacterWeight( existing_stack );
+
+				container->on_insert_increase_stack( NULL, UContainer::MT_CORE_MOVED, existing_stack, amount );
+
+				return new EItemRefObjImp(existing_stack);
 			}
-			container->add_at_random_location(new_stack);
-			update_item_to_inrange(new_stack);
-			return new EItemRefObjImp(new_stack);
+			else
+			{
+				bool can_insert = container->can_insert_add_item(NULL, UContainer::MT_CORE_MOVED, new_stack);
+				if ( !can_insert )
+				{
+					// Put newstack back with the original stack
+					if ( new_stack != this )
+						this->add_to_self(new_stack);
+					return new BError("Could not insert new stack into container");
+				}
+				container->add_at_random_location(new_stack);
+				update_item_to_inrange(new_stack);
+				UpdateCharacterWeight( new_stack );
+				container->on_insert_add_item( NULL, UContainer::MT_CORE_MOVED, new_stack );
+				return new EItemRefObjImp(new_stack);
+			}
 			
+			break;
+		}
+		case MTH_HAS_EXISTING_STACK:
+		{
+			Item* cont = NULL;
+
+			if ( !ex.hasParams(1) )
+				return new BError( "Not enough params" );
+			else if	( !getItemParam( ex, 0, cont ) )
+				return new BError( "No container specified" );
+			else if ( this->inuse() ) 
+				return new BError( "Item is in use" );
+			else if ( !cont->isa(UObject::CLASS_CONTAINER) )
+				return new BError( "Non-container selected as target" );
+
+			UContainer* container = static_cast<UContainer*>(cont);
+
+			Item* existing_stack = container->find_addable_stack(this);
+
+			if ( existing_stack != NULL )
+				return new EItemRefObjImp(existing_stack);
+			else
+				return NULL;
+
 			break;
 		}
 		default:
