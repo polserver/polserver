@@ -24,7 +24,7 @@ class UOExecutorModule;
 class BObjectImp;
 class ScriptDef;
 
-typedef std::list<UOExecutor*> ExecList;
+typedef std::deque<UOExecutor*> ExecList;
 extern ExecList runlist;
 extern ExecList ranlist;
 extern ExecList deadlist;
