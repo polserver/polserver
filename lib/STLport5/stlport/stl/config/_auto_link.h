@@ -59,7 +59,9 @@
 # ifdef __ICL
 #  define _STLP_LIB_BASENAME "stlport_icl"_STLP_LIB_ARCHNAME
 # else
-# if (_MSC_VER >= 1600) 
+# if (_MSC_VER >= 1700) 
+#   define _STLP_LIB_BASENAME "stlport_vc11"_STLP_LIB_ARCHNAME
+# elif (_MSC_VER >= 1600) 
 #   define _STLP_LIB_BASENAME "stlport_vc10"_STLP_LIB_ARCHNAME
 # elif (_MSC_VER >= 1500) 
 #   define _STLP_LIB_BASENAME "stlport_vc9"_STLP_LIB_ARCHNAME
