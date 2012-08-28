@@ -295,6 +295,7 @@ void run_ready()
     {
         ExecList::iterator itr = runlist.begin();
         UOExecutor* ex = *itr;
+		runlist.pop_front(); // remove it directly, since itr can get invalid during execution
         OSExecutorModule* os_module = ex->os_module;
         scripts_thread_script = ex->scriptname();
         int inscount = 0;
@@ -363,12 +364,13 @@ void run_ready()
 
 				if((ex->pParent != NULL) && ex->pParent->runnable())
 				{
-					ranlist.splice( ranlist.end(), runlist, itr );
+					ranlist.push_back(ex);
+					//ranlist.splice( ranlist.end(), runlist, itr );
 					ex->pParent->os_module->revive();
 				}
 				else
 				{
-					runlist.erase( itr );
+					//runlist.erase( itr );
 	                delete ex;
 				}
                 continue;
@@ -377,7 +379,7 @@ void run_ready()
             {
                 THREAD_CHECKPOINT( scripts, 115 );
 
-                runlist.erase( itr );
+                //runlist.erase( itr );
                 ex->os_module->in_hold_list_ = OSExecutorModule::DEBUGGER_LIST;
                 debuggerholdlist.insert( ex );
                 continue;
@@ -399,7 +401,7 @@ void run_ready()
                 notimeoutholdlist.insert( ex );
             }
 
-            runlist.erase( itr );
+            //runlist.erase( itr );
             --ex->sleep_cycles; // it'd get counted twice otherwise
             --sleep_cycles;
             
@@ -407,7 +409,8 @@ void run_ready()
 		}
         else
         {
-            ranlist.splice( ranlist.end(), runlist, itr );
+			ranlist.push_back(ex);
+            //ranlist.splice( ranlist.end(), runlist, itr );
         }
     }
     THREAD_CHECKPOINT( scripts, 118 );
@@ -1061,8 +1064,22 @@ void schedule_executor( UOExecutor* ex )
 
 void deschedule_executor( UOExecutor* ex )
 {
-	runlist.remove( ex );
-    ranlist.remove( ex );
+	for (ExecList::iterator itr=runlist.begin(), itrend=runlist.end();itr!=itrend;++itr)
+	{
+		if (*itr == ex)
+		{
+			runlist.erase(itr);
+			break;
+		}
+	}
+	for (ExecList::iterator itr=ranlist.begin(), itrend=ranlist.end();itr!=itrend;++itr)
+	{
+		if (*itr == ex)
+		{
+			ranlist.erase(itr);
+			break;
+		}
+	}
     if (ex->os_module->blocked_)
     {
         if (ex->os_module->in_hold_list_ == OSExecutorModule::TIMEOUT_LIST)
