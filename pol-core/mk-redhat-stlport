@@ -1,3 +1,0 @@
-#!/bin/bash
-
-USE_STLPORT=1 LIBCRYPT="crypto" POL_BUILDTAG="redhat-stlport" CXX_MORE_OPTS=" -DUSE_STLPORT -DHAVE_OPENSSL -DNDEBUG -D_REENTRANT -DPOL_BUILDTAG=\\\"redhat-stlport\\\"" make -f makefile.gcc $*

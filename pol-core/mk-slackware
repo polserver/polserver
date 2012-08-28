@@ -1,3 +1,0 @@
-#!/bin/bash
-
-USE_STLPORT=1 LIBCRYPT="crypt" CXX_MORE_OPTS="-O3 -DNDEBUG -D_REENTRANT -DUSE_STLPORT -DPOL_BUILDTAG=\\\"slackware-9\\\"" make -f makefile.gcc $*
