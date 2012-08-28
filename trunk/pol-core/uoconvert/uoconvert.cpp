@@ -377,8 +377,8 @@ void create_maptile( const string& realmname )
     cout << "  Use Dif files: " << (descriptor.uodif ? "Yes" : "No") << endl;
     cout << "  Size: " << uo_map_width << "x" << uo_map_height << endl;
 
-    MapWriter writer;
-    writer.OpenExistingFiles( realmname );
+    MapWriter* writer=new MapWriter();
+    writer->OpenExistingFiles( realmname );
 
     for( unsigned short y_base = 0; y_base < uo_map_height; y_base += MAPTILE_CHUNK )
     {
@@ -406,14 +406,15 @@ void create_maptile( const string& realmname )
                     MAPTILE_CELL cell;
                     cell.landtile = mi.landtile;
                     cell.z = static_cast<signed char>(z);
-                    writer.SetMapTile( x, y, cell );
+                    writer->SetMapTile( x, y, cell );
 
                 }
             }
         }
         cout << "\rConverting: " << y_base*100/uo_map_height << "%";
     }
-    writer.Flush();
+    writer->Flush();
+	delete writer;
     cout << "\rConversion complete." << endl;
 }
 
@@ -454,15 +455,15 @@ void ProcessSolidBlock( unsigned short x_base, unsigned short y_base, MapWriter&
 
 void update_map( const string& realm, unsigned short x, unsigned short y )
 {
-    MapWriter mapwriter;
-    mapwriter.OpenExistingFiles(realm);
+    MapWriter* mapwriter=new MapWriter();
+    mapwriter->OpenExistingFiles(realm);
 	rawmapfullread();
 	rawstaticfullread();
     unsigned short x_base = x / SOLIDX_X_SIZE * SOLIDX_X_SIZE;
     unsigned short y_base = y / SOLIDX_Y_SIZE * SOLIDX_Y_SIZE;
 
-    ProcessSolidBlock( x_base, y_base, mapwriter );
-
+    ProcessSolidBlock( x_base, y_base, *mapwriter );
+	delete mapwriter;
     cout << "empty=" << empty << ", nonempty=" << nonempty << endl;
     cout << "with more_solids: " << with_more_solids << endl;
     cout << "total statics=" << total_statics << endl;
@@ -470,14 +471,14 @@ void update_map( const string& realm, unsigned short x, unsigned short y )
 
 void create_map( const string& realm, unsigned short width, unsigned short height )
 {
-    MapWriter mapwriter;
+	MapWriter* mapwriter=new MapWriter();
     cout << "Creating map base and solids files." << endl;
     cout << "  Realm: " << realm << endl;
     cout << "  Map ID: " << uo_mapid << endl;
     cout << "  Use Dif files: " << (uo_usedif ? "Yes" : "No") << endl;
     cout << "  Size: " << uo_map_width << "x" << uo_map_height << endl;
     cout << "Initializing files: ";
-    mapwriter.CreateNewFiles(realm, width, height);
+    mapwriter->CreateNewFiles(realm, width, height);
     cout << "Done." << endl;
 	wallclock_t start = wallclock();
 	rawmapfullread();
@@ -487,13 +488,14 @@ void create_map( const string& realm, unsigned short width, unsigned short heigh
     {
         for( unsigned short x_base = 0; x_base < width; x_base += SOLIDX_X_SIZE )
         {
-            ProcessSolidBlock( x_base, y_base, mapwriter );
+            ProcessSolidBlock( x_base, y_base, *mapwriter );
         }
         cout << "\rConverting: " << y_base*100/height << "%";
     }
     wallclock_t finish = wallclock();
 
-    mapwriter.WriteConfigFile();
+    mapwriter->WriteConfigFile();
+	delete mapwriter;
 
     cout << "\rConversion complete.              " << endl;
     cout << "Conversion details:" << endl;
