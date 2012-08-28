@@ -547,7 +547,7 @@ public: // methods
 
 	UserState *GetOpenListNext( float &f, float &g, float &h )
 	{
-		iterDbgOpen++;
+		++iterDbgOpen;
 		if( iterDbgOpen != m_OpenList.end() )
 		{
 			f = (*iterDbgOpen)->f;
@@ -587,7 +587,7 @@ public: // methods
 
 	UserState *GetClosedListNext( float &f, float &g, float &h )
 	{
-		iterDbgClosed++;
+		++iterDbgClosed;
 		if( iterDbgClosed != m_ClosedList.end() )
 		{
 			f = (*iterDbgClosed)->f;

@@ -808,7 +808,7 @@ void ProcessSolidBlock( unsigned short x_base, unsigned short y_base, MapWriter&
                 }
             }
             // shadows above caves
-            if (is_cave_shadow(mi) && statics.size())
+            if (is_cave_shadow(mi) && !statics.empty())
             {
                 addMap = false;
             }
@@ -816,7 +816,7 @@ void ProcessSolidBlock( unsigned short x_base, unsigned short y_base, MapWriter&
 
 
             // If the map is a NODRAW tile, and there are statics, discard the map tile
-            if (mi.landtile == 2 && statics.size())
+            if (mi.landtile == 2 && !statics.empty())
                 addMap = false;
 
             if (addMap)

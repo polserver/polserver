@@ -249,7 +249,7 @@ bool compile_file(const char *path)
             else if (FileExists( filename_lst.c_str() ) )
             {
                 if (!quiet) cout << "Deleting:  " << filename_lst << endl;
-                RemoveFile( filename_lst.c_str() );
+                RemoveFile( filename_lst );
             }
 
             if (compilercfg.GenerateDebugInfo)
@@ -265,7 +265,7 @@ bool compile_file(const char *path)
             else if (FileExists( filename_dbg.c_str() ) )
             {
                 if (!quiet) cout << "Deleting:  " << filename_dbg << endl;
-                RemoveFile( filename_dbg.c_str() );
+                RemoveFile( filename_dbg );
             }
 
             if (compilercfg.GenerateDependencyInfo)
@@ -277,7 +277,7 @@ bool compile_file(const char *path)
             else if (FileExists( filename_dep.c_str() ) )
             {
                 if (!quiet) cout << "Deleting:  " << filename_dep << endl;
-                RemoveFile( filename_dep.c_str() );
+                RemoveFile( filename_dep );
             }
 
         }

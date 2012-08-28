@@ -28,9 +28,10 @@ Notes
 #	pragma warning( disable: 4244 )
 #endif
 
-String::String(BObjectImp& objimp) : BObjectImp( OTString )
+String::String(BObjectImp& objimp) : 
+	BObjectImp( OTString ),
+	value_(objimp.getStringRep())
 {
-    value_ = objimp.getStringRep();
 }
 
 String::String(const char *s, int len) :

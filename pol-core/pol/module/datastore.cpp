@@ -928,7 +928,7 @@ void commit_datastore()
 		if (dsf->delversion != dsf->version &&
 			dsf->delversion != dsf->oldversion)
 		{
-			RemoveFile( dsf->filename(dsf->delversion).c_str() );
+			RemoveFile( dsf->filename(dsf->delversion) );
 		}
 
 		if (dsf->unload)

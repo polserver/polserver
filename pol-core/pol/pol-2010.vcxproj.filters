@@ -122,9 +122,6 @@
     <ClCompile Include="gflag.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="gprepos.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="guardrgn.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -743,9 +740,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gflag.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="gprepos.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gprops.h">
