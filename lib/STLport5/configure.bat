@@ -115,6 +115,8 @@ echo    msvc9     Microsoft Visual C++ 2008
 echo    msvc9x64  Microsoft Visual C++ 2008 x64 Build (+)
 echo    msvc10    Microsoft Visual C++ 2010
 echo    msvc10x64 Microsoft Visual C++ 2010 x64 Build (+)
+echo    msvc11    Microsoft Visual C++ 2012
+echo    msvc11x64 Microsoft Visual C++ 2012 x64 Build (+)
 echo    icl       Intel C++ Compiler
 echo    evc3      Microsoft eMbedded Visual C++ 3 (*)
 echo    evc4      Microsoft eMbedded Visual C++ .NET (*)
@@ -214,6 +216,8 @@ if "%1" == "msvc9" goto oc_msvc9
 if "%1" == "msvc9x64" goto oc_ms964
 if "%1" == "msvc10" goto oc_msvc10
 if "%1" == "msvc10x64" goto oc_ms1064
+if "%1" == "msvc11" goto oc_msvc11
+if "%1" == "msvc11x64" goto oc_ms1164
 if "%1" == "icl"   goto oc_icl
 
 if "%1" == "evc3" goto oc_evc3
@@ -277,6 +281,18 @@ goto oc_msvc
 :oc_ms1064
 echo Setting compiler: Microsoft Visual C++ 2010 (x64)
 echo COMPILER_NAME=vc10 >> build\Makefiles\nmake\config.mak
+set SELECTED_COMPILER_VERSION=100
+goto oc_msvc64
+
+:oc_msvc11
+echo Setting compiler: Microsoft Visual C++ 2012
+echo COMPILER_NAME=vc11 >> build\Makefiles\nmake\config.mak
+set SELECTED_COMPILER_VERSION=100
+goto oc_msvc
+
+:oc_ms1164
+echo Setting compiler: Microsoft Visual C++ 2012 (x64)
+echo COMPILER_NAME=vc11 >> build\Makefiles\nmake\config.mak
 set SELECTED_COMPILER_VERSION=100
 goto oc_msvc64
 
