@@ -68,6 +68,54 @@ void MapWriter::WriteConfigFile()
     ofs_cfg << "}" << endl;
 }
 
+void MapWriter::CreateBaseDat(const string& realm_name, const string& directory)
+{
+	string filename = directory + "base.dat";
+    open_file( _ofs_base, filename, ios::trunc|ios::in|ios::out|ios::binary );
+    MAPBLOCK empty;
+    memset( &empty, 0, sizeof empty );
+    for( unsigned i = 0; i < total_blocks(); ++i )
+    {
+        _ofs_base.write( reinterpret_cast<const char*>(&empty), sizeof empty );
+    }
+}
+void MapWriter::CreateSolidx1Dat(const string& realm_name, const string& directory)
+{
+    string filename = directory + "solidx1.dat";
+    open_file( _ofs_solidx1, filename, ios::trunc|ios::in|ios::out|ios::binary );
+    SOLIDX1_ELEM elem;
+    elem.offset = 0;
+    for( unsigned i = 0; i < total_solid_blocks(); ++i )
+    {
+        _ofs_solidx1.write( reinterpret_cast<const char*>(&elem), sizeof elem );
+    }
+}
+void MapWriter::CreateSolidx2Dat(const string& realm_name, const string& directory)
+{
+    string filename = directory + "solidx2.dat";
+    open_file( _ofs_solidx2, filename, ios::trunc|ios::in|ios::out|ios::binary );
+    _ofs_solidx2.write( "fill", 4 );
+	solidx2_offset=4;
+}
+void MapWriter::CreateSolidsDat(const string& realm_name, const string& directory)
+{
+    string filename = directory + "solids.dat";
+    open_file( _ofs_solids, filename, ios::trunc|ios::in|ios::out|ios::binary );
+    _ofs_solids.write( "filler", 6 ); // multiple of 3
+	solids_offset=6;
+}
+void MapWriter::CreateMaptileDat(const string& realm_name, const string& directory)
+{
+    string filename = directory + "maptile.dat";
+    open_file( _ofs_maptile, filename, ios::trunc|ios::in|ios::out|ios::binary );
+    MAPTILE_BLOCK maptile_empty;
+    memset( &maptile_empty, 0, sizeof maptile_empty );
+    for( unsigned i = 0; i < total_maptile_blocks(); ++i )
+    {
+        _ofs_maptile.write( reinterpret_cast<const char*>(&maptile_empty), sizeof maptile_empty );
+    }
+}
+
 void MapWriter::CreateNewFiles(const string& realm_name, unsigned short width, unsigned short height)
 {
     _realm_name = realm_name;
@@ -76,50 +124,16 @@ void MapWriter::CreateNewFiles(const string& realm_name, unsigned short width, u
 
     string directory = "realm/" + _realm_name + "/"; 
     make_dir( directory.c_str() );
-    string filename = directory + "base.dat";
-    
-    open_file( _ofs_base, filename, ios::trunc|ios::in|ios::out|ios::binary );
 
-
-    MAPBLOCK empty;
-    memset( &empty, 0, sizeof empty );
-    for( unsigned i = 0; i < total_blocks(); ++i )
-    {
-        _ofs_base.write( reinterpret_cast<const char*>(&empty), sizeof empty );
-    }
-
-    // First-level Solids index (solidx1)
-    filename = directory + "solidx1.dat";
-    open_file( _ofs_solidx1, filename, ios::trunc|ios::in|ios::out|ios::binary );
-    SOLIDX1_ELEM elem;
-    elem.offset = 0;
-    for( unsigned i = 0; i < total_solid_blocks(); ++i )
-    {
-        _ofs_solidx1.write( reinterpret_cast<const char*>(&elem), sizeof elem );
-    }
-
-    // Second-level Solids index (solidx2)
-    filename = directory + "solidx2.dat";
-    open_file( _ofs_solidx2, filename, ios::trunc|ios::in|ios::out|ios::binary );
-    _ofs_solidx2.write( "fill", 4 );
-	solidx2_offset=4;
-
+	CreateBaseDat(realm_name, directory);
+	// First-level Solids index (solidx1)
+	CreateSolidx1Dat(realm_name, directory);
+	// Second-level Solids index (solidx2)
+	CreateSolidx2Dat(realm_name, directory);
     // Solids data (solids)
-    filename = directory + "solids.dat";
-    open_file( _ofs_solids, filename, ios::trunc|ios::in|ios::out|ios::binary );
-    _ofs_solids.write( "filler", 6 ); // multiple of 3
-	solids_offset=6;
-
-
+	CreateSolidsDat(realm_name, directory);
     // Maptile file (maptile.dat)
-    filename = directory + "maptile.dat";
-    open_file( _ofs_maptile, filename, ios::trunc|ios::in|ios::out|ios::binary );
-    MAPTILE_BLOCK maptile_empty;
-    memset( &maptile_empty, 0, sizeof maptile_empty );
-    for( unsigned i = 0; i < total_maptile_blocks(); ++i )
-    {
-        _ofs_maptile.write( reinterpret_cast<const char*>(&maptile_empty), sizeof maptile_empty );
-    }
+    CreateMaptileDat(realm_name, directory);
 }
 
 void MapWriter::OpenExistingFiles( const string& realm_name )
