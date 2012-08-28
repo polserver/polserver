@@ -20,7 +20,7 @@ void load_special_storedconfig( string cfgname )
 {
 	string main_cfg = "config/" + cfgname + ".cfg";
 	
-	CreateEmptyStoredConfigFile(main_cfg.c_str());
+	CreateEmptyStoredConfigFile(main_cfg);
 	ref_ptr<StoredConfigFile> scfg = FindConfigFile(main_cfg, "");
 	if ( FileExists(main_cfg.c_str()) )
 	{

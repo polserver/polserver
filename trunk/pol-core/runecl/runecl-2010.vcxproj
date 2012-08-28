@@ -258,6 +258,7 @@
       <DataExecutionPrevention>
       </DataExecutionPrevention>
       <MinimumRequiredVersion>5.02</MinimumRequiredVersion>
+      <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

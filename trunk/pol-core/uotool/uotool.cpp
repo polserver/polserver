@@ -432,10 +432,10 @@ int print_statics()
         {
             std::vector<StaticRec> vec;
             readallstatics( vec, x, y );
-            bool hdrshown = false;
 
             if (!vec.empty())
             {
+				bool hdrshown = false;
                 for( std::vector<StaticRec>::iterator itr = vec.begin(); itr != vec.end(); ++itr )
                 {
                     int height = tileheight( (*itr).graphic );

@@ -1233,7 +1233,7 @@ void read_starting_locations()
 		startlocations.push_back( loc.release() );
 	}
 
-	if (startlocations.size() == 0)
+	if (startlocations.empty())
 		throw runtime_error( "STARTLOC.CFG: No starting locations found.  Clients will crash on character creation." );
 }
 
@@ -1365,6 +1365,6 @@ void read_gameservers()
 
 		servers.push_back( svr.release() );
 	}
-	if (servers.size() == 0)
+	if (servers.empty())
 		throw runtime_error( "There must be at least one GameServer in SERVERS.CFG." );
 }

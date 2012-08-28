@@ -271,7 +271,6 @@
     <ClInclude Include="cfgelem.h" />
     <ClInclude Include="cfgfile.h" />
     <ClInclude Include="cfgsect.h" />
-    <ClInclude Include="cistring.h" />
     <ClInclude Include="clib.h" />
     <ClInclude Include="clibopt.h" />
     <ClInclude Include="cmdargs.h" />

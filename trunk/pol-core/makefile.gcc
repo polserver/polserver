@@ -79,7 +79,7 @@ cpp_sources = \
 	pol/extobj.cpp \
 	pol/module/filemod.cpp pol/fnsearch.cpp \
 	pol/gameclck.cpp pol/getitem.cpp pol/getmsg.cpp pol/gflag.cpp \
-	pol/gprepos.cpp pol/guardrgn.cpp\
+	pol/guardrgn.cpp\
 	pol/module/guildmod.cpp \
 	pol/module/basiciomod.cpp pol/module/basicmod.cpp \
 	pol/help.cpp pol/multi/house.cpp \
@@ -169,8 +169,6 @@ cpp_sources = \
 	clib/pkthelper.cpp \
 	clib/hbmutex.cpp \
 	pol/xmlfilescrobj.cpp #\
-#	gp/gendef.cpp gp/gphelp.cpp gp/gtree.cpp \
-#	gp/treegen.cpp
 
 
 hold_cpp_sources = \
