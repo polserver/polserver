@@ -324,10 +324,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\gprepos.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\guardrgn.cpp"
 				>
 			</File>
@@ -1006,10 +1002,6 @@
 			</File>
 			<File
 				RelativePath=".\gflag.h"
-				>
-			</File>
-			<File
-				RelativePath=".\gprepos.h"
 				>
 			</File>
 			<File

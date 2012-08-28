@@ -181,6 +181,7 @@
       </DataExecutionPrevention>
       <MinimumRequiredVersion>5.02</MinimumRequiredVersion>
       <TargetMachine>MachineX64</TargetMachine>
+      <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -292,7 +293,6 @@
     <ClCompile Include="getitem.cpp" />
     <ClCompile Include="getmsg.cpp" />
     <ClCompile Include="gflag.cpp" />
-    <ClCompile Include="gprepos.cpp" />
     <ClCompile Include="guardrgn.cpp" />
     <ClCompile Include="help.cpp" />
     <ClCompile Include="irequest.cpp" />
@@ -551,7 +551,6 @@
     <ClInclude Include="gameclck.h" />
     <ClInclude Include="getitem.h" />
     <ClInclude Include="gflag.h" />
-    <ClInclude Include="gprepos.h" />
     <ClInclude Include="gprops.h" />
     <ClInclude Include="guardrgn.h" />
     <ClInclude Include="layers.h" />

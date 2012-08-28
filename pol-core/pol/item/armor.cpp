@@ -18,7 +18,6 @@ Notes
 #include "../../bscript/impstr.h"
 
 #include "../../clib/cfgelem.h"
-#include "../../clib/cistring.h"
 #include "../../clib/endian.h"
 #include "../../plib/pkg.h"
 
