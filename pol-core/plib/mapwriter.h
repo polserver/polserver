@@ -32,6 +32,12 @@ public:
     void OpenExistingFiles(const std::string& realm_name);
     void WriteConfigFile();
 
+	void CreateBaseDat(const string& realm_name, const string& directory);
+	void CreateSolidx1Dat(const string& realm_name, const string& directory);
+	void CreateSolidx2Dat(const string& realm_name, const string& directory);
+	void CreateSolidsDat(const string& realm_name, const string& directory);
+	void CreateMaptileDat(const string& realm_name, const string& directory);
+
     unsigned int NextSolidIndex();
     unsigned int NextSolidOffset();
 
