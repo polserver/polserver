@@ -1,0 +1,13 @@
+#!/bin/bash
+#
+# Build Official 32bit Release
+
+#export USE_MYSQL=1
+
+export LIBCRYPT="crypto"
+export POL_BUILDTAG="ubuntu"
+
+export CXX_MORE_OPTS="-m32 -O3 -DUSE_SYSTEM_ZLIB -DHAVE_OPENSSL -DNDEBUG -D_REENTRANT -DPOL_BUILDTAG=\\\"ubuntu\\\""
+#export CXX_MORE_OPTS="-m32 -O3 -DUSE_SYSTEM_ZLIB -DHAVE_OPENSSL -DNDEBUG -D_REENTRANT -DHAVE_MYSQL -DPOL_BUILDTAG==\\\"ubuntu\\\""
+
+make -f makefile.gcc dist
