@@ -24,7 +24,6 @@ Notes
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
-#include "../clib/cistring.h"
 #include "../clib/endian.h"
 #include "../clib/esignal.h"
 #include "../clib/fileutil.h"

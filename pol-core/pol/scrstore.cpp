@@ -16,7 +16,6 @@ Notes
 
 #include "../bscript/eprog.h"
 
-#include "../clib/cistring.h"
 #include "../clib/logfile.h"
 #include "../clib/refptr.h"
 #include "../clib/strutil.h"
