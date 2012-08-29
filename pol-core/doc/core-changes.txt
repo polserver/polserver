@@ -1,4 +1,6 @@
 ﻿-- POL099 --
+08-29-2012 Turley:
+  Fixed:      Crash if a attached script kills the attached npc
 08-27-2012 Tomi:
   Changed:    MoveItemToContainer( item, container, x := -1, y := -1 ); to MoveItemToContainer( item, container, x := -1, y := -1, add_to_existing_stack := 0 );
   Changed:    item.SplitStackInto( container, amount ) to item.SplitStackInto( container, amount, add_to_existing_stack := 0 )
@@ -32,20 +34,20 @@
               setting this to 0 stops the core repsys system sending "is attacking you" messages.
 
 06-03-2012 Tomi:
-    Added     Readonly members .active_skill and .casting_spell for characters
+    Added:     Readonly members .active_skill and .casting_spell for characters
               return values 0/1 if character has an active attached skill or spell script
 
 05-01-2012 Tomi:
-     Fixed    On equipped items .resist_*_mod members did not update character status window when changed
+     Fixed:    On equipped items .resist_*_mod members did not update character status window when changed
               Patch submitted by Agata
 
 04-15-2012 Tomi:
-     Added    R/W member editable 0/1 for maps
+     Added:    R/W member editable 0/1 for maps
 
 04-14-2012 Tomi:
-     Added    Support for new map message packet 0xF5 for clients 7.0.13+
+     Added:    Support for new map message packet 0xF5 for clients 7.0.13+
               This packet supports the new facetXX.mul files and now can use every different realm for cartography maps and sea charts.
-     Added    r/w member .facetid for Maps
+     Added:    r/w member .facetid for Maps
               This has actually nothing to do with realms, the value is the same as in FacetXX.mul file
 04-06-2012 Tomi:
      Fixed:   Roof problem at 4th floor on a custom house. 

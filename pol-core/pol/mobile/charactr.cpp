@@ -730,9 +730,12 @@ void Character::stop_skill_script()
 {
 	if (script_ex != NULL)
 	{
-		deschedule_executor( script_ex );
-		delete script_ex;
-		passert( script_ex == NULL );
+		// this will force the execution engine to stop running this script immediately
+		// dont delete the executor here, since it could currently run
+		script_ex->seterror(true);
+		script_ex->os_module->revive();
+		if (script_ex->os_module->in_debugger_holdlist())
+			script_ex->os_module->revive_debugged();
 	}
 }
 

@@ -4,9 +4,92 @@
 <ESCRIPT>
   <header>
     <topic>Latest Core Changes</topic>
-    <datemodified>02-08-2012</datemodified>
+    <datemodified>08-29-2012</datemodified>
   </header>
   <version name="POL099">
+    <entry>
+      <date>08-29-2012</date>
+      <author>Turley</author>
+      <change type="Fixed">Crash if a attached script kills the attached npc
+      </change>
+    </entry>
+    <entry>
+      <date>08-27-2012</date>
+      <author>Tomi</author>
+      <change type="Changed">MoveItemToContainer( item, container, x := -1, y := -1 ); to MoveItemToContainer( item, container, x := -1, y := -1, add_to_existing_stack := 0 );
+      </change>
+      <change type="Changed">item.SplitStackInto( container, amount ) to item.SplitStackInto( container, amount, add_to_existing_stack := 0 )
+      </change>
+      <change type="Note">The optional add_to_existing_stack parameter defines if the items moved to the container will look for an existing stack and add to it or just add as a new item ( old behaviour )
+        If add_to_existing_stack == 1 and there is no stack in the container, it will return Error "There is no existing stack", so its up to scripts to check this.
+      </change>
+      <change type="Added">item.HasExistingStack( container ) to allow scripts to check if there is an existing stack in a container or not, returns the ItemRef of the stack if it exists.
+      </change>
+    </entry>
+    <entry>
+      <date>08-26-2012</date>
+      <author>Nando</author>
+      <change type="Removed">Support for ListenPort in pol.cfg when Multithread is activated. Everyone should
+        be using uoclients.cfg by now!
+      </change>
+    </entry>
+    <entry>
+      <date>08-01-2012</date>
+      <author>Kevin</author>
+      <change type="Added">R/W member carrying_capacity_mod for mobiles to modify carrying capacity on a
+        mobile-per-mobile basis. Is taken into account prior to global ssopt modifier.
+      </change>
+    </entry>
+    <entry>
+      <date>08-01-2012</date>
+      <author>Kevin</author>
+      <change type="Added">osmod::Debugger() to put current script in debug state to be attached by external
+        debugging application
+      </change>
+      <change type="Added">stacktrace debug command to print stacktrace. Displays:<br/>
+        &lt;size of stack&gt;<br/>
+        foreach stack element:<br/>
+        &lt;program counter&gt;<br/>
+        &lt;file number&gt;<br/>
+        &lt;line number&gt;<br/>
+        &lt;number of local variables&gt;<br/>
+        foreach local variable:<br/>
+        &lt;variable name&gt; &lt;packed value&gt;
+      </change>
+    </entry>
+    <entry>
+      <date>07-12-2012</date>
+      <author>Tomi</author>
+      <change type="Added">combat.cfg entry "SendAttackMsg" values 0/1 defaults to 1<br/>
+        setting this to 0 stops the core repsys system sending "is attacking you" messages.
+      </change>
+    </entry>
+    <entry>
+      <date>06-03-2012</date>
+      <author>Tomi</author>
+      <change type="Added">Readonly members .active_skill and .casting_spell for characters<br/>
+        return values 0/1 if character has an active attached skill or spell script
+      </change>
+    </entry>
+	<entry>
+	  <date>05-01-2012</date>
+      <author>Tomi</author>
+      <change type="Fixed">On equipped items .resist_*_mod members did not update character status window when changed<br/>
+	  Patch submitted by Agata</change>
+	</entry>
+	<entry>
+	  <date>04-15-2012</date>
+      <author>Tomi</author>
+      <change type="Added">R/W member editable 0/1 for maps</change>
+	</entry>
+	<entry>
+	  <date>04-14-2012</date>
+      <author>Tomi</author>
+      <change type="Added">Support for new map message packet 0xF5 for clients 7.0.13+<br/>
+              This packet supports the new facetXX.mul files and now can use every different realm for cartography maps and sea charts.</change>
+      <change type="Added">r/w member .facetid for Maps<br/>
+              This has actually nothing to do with realms, the value is the same as in FacetXX.mul file</change>
+	</entry>
     <entry>
       <date>04-06-2012</date>
       <author>Tomi</author>
