@@ -122,9 +122,12 @@ void NPC::stop_scripts()
 {
     if (ex != NULL)
 	{
-		deschedule_executor( ex );
-    	delete ex;
-    	ex = NULL;
+		// this will force the execution engine to stop running this script immediately
+		// dont delete the executor here, since it could currently run
+		ex->seterror(true);
+		ex->os_module->revive();
+		if (ex->os_module->in_debugger_holdlist())
+			ex->os_module->revive_debugged();
 	}
 }
 
