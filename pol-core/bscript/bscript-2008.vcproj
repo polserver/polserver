@@ -44,7 +44,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;..\..\lib\STLport5\stlport&quot;;"
-				PreprocessorDefinitions="_DEBUG,_LIB"
+				PreprocessorDefinitions="_DEBUG;_LIB;_STLP_DEBUG"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
 				ForceConformanceInForLoopScope="true"
@@ -71,6 +71,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile=".\Debug\bscript.lib"
+				AdditionalLibraryDirectories="..\..\lib\boost_1_51_0\lib\x86\lib"
 				SuppressStartupBanner="true"
 			/>
 			<Tool
@@ -147,6 +148,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile=".\Release\bscript.lib"
+				AdditionalLibraryDirectories="..\..\lib\boost_1_51_0\lib\x86\lib"
 				SuppressStartupBanner="true"
 			/>
 			<Tool
