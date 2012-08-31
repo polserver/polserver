@@ -38,7 +38,15 @@ ifdef USE_MYSQL
 LIB_MORE += -lmysqlclient -lz -lpthread
 endif
 
-CXX_OPTS=-gstabs+ -fno-strict-aliasing -Wno-unused-result -DINC_PASSERT=1 -DTIXML_USE_STL -Wall $(CXX_MORE_OPTS) $(INC_STL)
+ifdef BUILD64POL
+LIB_MORE += -L../lib/boost_1_51_0/lib/x64/lib
+# plus all used libaries eg: -lboost_regex
+else
+LIB_MORE += -L../lib/boost_1_51_0/lib/x86/lib
+# plus all used libaries eg: -lboost_regex
+endif
+
+CXX_OPTS=-gstabs+ -fno-strict-aliasing -Wno-unused-result -DINC_PASSERT=1 -DTIXML_USE_STL -Wall $(CXX_MORE_OPTS) $(INC_STL) -I../lib/boost_1_51_0
 
 CXX_RELEASE_OPTS=$(CXX_OPTS)
 
@@ -396,14 +404,14 @@ clib_library:
 #		| sed 's#^$(@F)#$<#g'
 
 %.d: %.cpp
-	set -e; $(CC) -x c++ $(CPPFLAGS) -I. -MM $< \
+	@set -e; $(CC) -x c++ $(CPPFLAGS) -I. -MM $< \
 		| sed 's#\($(*F)\)\.o[ :]*#$(*D)/\1.o $@ : #g' > $@; \
 		[ -s $@ ] || rm -f $@
 
 %.d: %.c
-	set -e; $(CC) $(CPPFLAGS) -I. -MM $< \
+	@set -e; $(CC) $(CPPFLAGS) -I. -MM $< \
 		| sed 's#\($(*F)\)\.o[ :]*#$(*D)/\1.o $@ : #g' > $@; \
 		[ -s $@ ] || rm -f $@
 
 
-include $(sort $(objects:.o=.d) $(ecompile_objects:.o=.d) $(runecl_objects:.o=.d) $(uoconvert_objects:.o=.d))
+include $(@sort $(objects:.o=.d) $(ecompile_objects:.o=.d) $(runecl_objects:.o=.d) $(uoconvert_objects:.o=.d))
