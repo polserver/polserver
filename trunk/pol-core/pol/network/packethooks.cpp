@@ -118,18 +118,20 @@ void ExportedPacketHookHandler(Client* client, void* data)
 			phd->default_handler(client, data);
         return;
     }
-
-    //This packet has fixed length
+	
+	// Sends a client reference if still connecting
+	BObjectImp* calling_ref;
+	if (client->chr)
+		calling_ref = client->chr->make_ref();
+	else
+		calling_ref = client->make_ref();
+    
+	//This packet has fixed length
     if(phd->length != 0)
     {
         ref_ptr<BPacket> pkt( new BPacket(message, static_cast<unsigned short>(phd->length), false) );
         //if function returns 0, we need to call the default handler
 
-		BObjectImp* calling_ref;
-		if (client->chr)
-			calling_ref = client->chr->make_ref();
-		else
-			calling_ref = client->make_ref();
 
 		if( phd->function->call(calling_ref , pkt.get()) == 0 )
         {
@@ -143,12 +145,6 @@ void ExportedPacketHookHandler(Client* client, void* data)
         unsigned short len = cfBEu16(*( reinterpret_cast<unsigned short*>(&message[1]) ));
         ref_ptr<BPacket> pkt( new BPacket(message, len, true) );
         //if function returns 0, we need to call the default handler
-
-		BObjectImp* calling_ref;
-		if (client->chr)
-			calling_ref = client->chr->make_ref();
-		else
-			calling_ref = client->make_ref();
 
 		if( phd->function->call(calling_ref ,pkt.get()) == 0 )
         {
@@ -167,17 +163,19 @@ void ExportedPacketHookHandler(Client* client, void* data)
 void CallOutgoingPacketExportedFunction(Client* client, const void*& data, int& inlength, ref_ptr<BPacket>& outpacket, PacketHookData* phd, bool& handled)
 {
 	const unsigned char* message = static_cast<const unsigned char*>(data);
-    //This packet has fixed length
+	
+	// Sends a client reference if still connecting
+	BObjectImp* calling_ref;
+	if (client->chr)
+		calling_ref = client->chr->make_ref();
+	else
+		calling_ref = client->make_ref();
+	
+	//This packet has fixed length
     if(phd->length != 0)
     {
 		outpacket.set(new BPacket(message, static_cast<unsigned short>(phd->length), false) );
         //if function returns 0, we need to call the default handler
-
-		BObjectImp* calling_ref;
-		if (client->chr)
-			calling_ref = client->chr->make_ref();
-		else
-			calling_ref = client->make_ref();
 
 		if( phd->outgoing_function->call(calling_ref , outpacket.get()) == 0 )
         {
@@ -195,12 +193,6 @@ void CallOutgoingPacketExportedFunction(Client* client, const void*& data, int& 
         unsigned short len = cfBEu16(*( reinterpret_cast<const unsigned short*>(&message[1]) ));
         outpacket.set(new BPacket(message, len, true) );
         //if function returns 0, we need to call the default handler
-
-		BObjectImp* calling_ref;
-		if (client->chr)
-			calling_ref = client->chr->make_ref();
-		else
-			calling_ref = client->make_ref();
 
 		if( phd->outgoing_function->call(calling_ref ,outpacket.get()) == 0 )
         {
