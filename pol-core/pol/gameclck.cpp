@@ -22,7 +22,7 @@ static gameclock_t gameclock;
 
 static time_t last_read;
 
-static Mutex _gameclock_mutex;
+Mutex _gameclock_mutex;
 
 void start_gameclock()
 {
