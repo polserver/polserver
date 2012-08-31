@@ -7,5 +7,5 @@ call bootstrap
 ECHO using stlport : 5.2 : ../STLport5/stlport : ../STLport5/lib ; >> project-config.jam
 ECHO. >> project-config.jam
 
-bjam -j%NUMBER_OF_PROCESSORS% toolset=msvc-9.0 stdlib=stlport link=static runtime-link=static address-model=64 variant=release --abbreviate-paths --stagedir=lib\x64 --build-dir=build\x64 --build-type=complete stage
-bjam -j%NUMBER_OF_PROCESSORS% toolset=msvc-9.0 stdlib=stlport link=static runtime-link=static address-model=64 variant=debug define=_STLP_DEBUG --abbreviate-paths --stagedir=lib\x64 --build-dir=build\x64 --build-type=complete stage
+bjam -j%NUMBER_OF_PROCESSORS% toolset=msvc-9.0 stdlib=stlport link=static runtime-link=static address-model=64 variant=release --abbreviate-paths --stagedir=lib\x64 --build-dir=build\x64 stage
+bjam -j%NUMBER_OF_PROCESSORS% toolset=msvc-9.0 stdlib=stlport link=static runtime-link=static address-model=64 variant=debug define=_STLP_DEBUG --abbreviate-paths --stagedir=lib\x64 --build-dir=build\x64 stage
