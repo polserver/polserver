@@ -1153,7 +1153,7 @@ BObjectImp* Item::script_method_id(const int id, Executor& ex)
 		case MTH_SPLITSTACK_INTO:
 		{
 			int amt;
-			unsigned short add_to_existing_stack;
+			int add_to_existing_stack;
 			Item* cont_item;
 			Item* new_stack;
 			if ( !ex.hasParams(2) )
@@ -1172,7 +1172,6 @@ BObjectImp* Item::script_method_id(const int id, Executor& ex)
 				return new BError( "Non-container selected as target" );
 
 			UContainer* container = static_cast<UContainer*>(cont_item);
-			ex.getParam( 2, add_to_existing_stack );
 
 			if ( amt == this->getamount() )
 				new_stack = this;
@@ -1182,7 +1181,7 @@ BObjectImp* Item::script_method_id(const int id, Executor& ex)
 			if ( !container->can_add(*new_stack) )
 					return new BError("Could not add new stack to container");
 
-			if ( add_to_existing_stack )
+			if ( ex.getParam( 2, add_to_existing_stack ) && add_to_existing_stack != 0 )
 			{
 				Item* existing_stack = container->find_addable_stack(new_stack);
 				if ( existing_stack != NULL )
