@@ -446,9 +446,8 @@ ObjMember object_members[] = {
 	{ MBR_ATTRIBUTES, "attributes", true },
 	{ MBR_EDITING, "house_editing", true }, //185
 	{ MBR_HOUSEPARTS, "house_parts", true },
-	{ MBR_MOUNTEDSTEPS, "mountedsteps", false },
-	{ MBR_HOUSEPARTS, "house_parts", true },
 	{ MBR_DOUBLECLICKRANGE, "doubleclickrange", false},
+	{ MBR_MOUNTEDSTEPS, "mountedsteps", false },	
 	// New boat stuff start
 	{ MBR_ROPE, "rope", true}, //190
 	{ MBR_WHEEL, "wheel", true},
@@ -837,20 +836,37 @@ static void init_tables()
 
 void Parser::write_words( ostream& os )
 {
+	os << "Reserved:"<<endl;
 	for( unsigned i = 0; i < n_reserved; ++i )
 	{
 		os << reserved_words[i].word
 			<< (reserved_words[i].deprecated ? " (deprecated)" : "") << endl;
 	}
+	os<<endl;
+	os << "Binary:"<<endl;
 	for( int i = 0; i < n_operators; ++i )
 	{
 		os << binary_operators[i].code
 			<< (binary_operators[i].deprecated ? " (deprecated)" : "") << endl;
 	}
+	os<<endl;
+	os << "Unary:"<<endl;
 	for( int i = 0; i < n_unary; ++i )
 	{
 		os << unary_operators[i].code
 			<< (unary_operators[i].deprecated ? " (deprecated)" : "") << endl;
+	}
+	os<<endl;
+	os << "Methodlist:"<<endl;
+	for(int i=0;i < n_objmethods; i++)
+	{
+		os << object_methods[i].id << " " << object_methods[i].code << endl;
+	}
+	os<<endl;
+	os << "Memberlist:"<<endl;
+	for(int i=0;i < n_objmembers; i++)
+	{
+		os << object_members[i].id << " " << object_members[i].code << endl;
 	}
 }
 
