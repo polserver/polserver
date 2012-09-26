@@ -283,7 +283,7 @@ void SendUnicodeSpeech(Client *client, PKTIN_AD *msgin, u16* wtext, size_t wtext
 
 	if (msgin->type == 0x0d)
 	{
-		if (ssopt.core_sends_guildmsgs)
+		if (ssopt.core_sends_guildmsgs && client->chr->guildid() > 0)
 			for (unsigned cli = 0 ; cli < clients.size(); cli++)
 			{
 				Client *client2 = clients[cli];
@@ -294,12 +294,12 @@ void SendUnicodeSpeech(Client *client, PKTIN_AD *msgin, u16* wtext, size_t wtext
 	}
 	else if (msgin->type == 0x0e)
 	{
-		if (ssopt.core_sends_guildmsgs)
+		if (ssopt.core_sends_guildmsgs && client->chr->guildid() > 0)
 			for (unsigned cli = 0 ; cli < clients.size(); cli++)
 			{
 				Client *client2 = clients[cli];
 				if (!client2->ready) continue;
-				if (client->chr->guildid() == client2->chr->guildid() || client->chr->guild()->hasAlly(client2->chr->guild()))
+				if (client->chr->guildid() == client2->chr->guildid() || (client2->chr->guild() > 0 && client->chr->guild()->hasAlly(client2->chr->guild())))
 					talkmsg.Send(client2,len);
 			}
 	}
