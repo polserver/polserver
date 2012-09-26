@@ -44,6 +44,8 @@ Notes
 #include "ufunc.h"
 #include "ufuncstd.h"
 
+#include "module/guildmod.h"
+
 #include "../clib/fdump.h"
 #include "../bscript/impstr.h"
 
@@ -277,70 +279,96 @@ void SendUnicodeSpeech(Client *client, PKTIN_AD *msgin, u16* wtext, size_t wtext
 	u16 len=talkmsg->offset;
 	talkmsg->offset=1;
 	talkmsg->WriteFlipped<u16>(len);
-	talkmsg.Send(client, len); // self
 
-	if (client->chr->dead() && !client->chr->can_be_heard_as_ghost())
+
+	if (msgin->type == 0x0d)
 	{
-		memcpy( &ghostmsg->buffer, &talkmsg->buffer, sizeof ghostmsg->buffer );
-
-		ghostmsg->offset = 48;
-		u16* t = ((u16*)&ghostmsg->buffer[ghostmsg->offset]);
-		while (ghostmsg->offset < len-2) // dont convert nullterm
-		{
-			wchar_t wch = (*t);
-			if (!iswspace(wch))
+		if (ssopt.core_sends_guildmsgs)
+			for (unsigned cli = 0 ; cli < clients.size(); cli++)
 			{
-				if (random_int( 4 ) == 0)
-					*t = ctBEu16(L'o');
-				else
-					*t = ctBEu16(L'O');
+				Client *client2 = clients[cli];
+				if (!client2->ready) continue;
+				if (client->chr->guildid() == client2->chr->guildid())
+					talkmsg.Send(client2,len);
 			}
-			++t;
-			ghostmsg->offset+=2;
-		}
 	}
-		// send to those nearby
-	for( unsigned cli = 0; cli < clients.size(); cli++ )
+	else if (msgin->type == 0x0e)
 	{
-		Client *client2 = clients[cli];
-		if (!client2->ready) continue;
-		if (client == client2) continue;
-		if (!client2->chr->is_visible_to_me( client->chr )) 
-			continue;
-        if (client2->chr->deafened()) continue;
-
-        bool rangeok;
-        if (msgin->type == TEXTTYPE_WHISPER)
-            rangeok = in_whisper_range(  client->chr, client2->chr ); //DAVE changed from hardcoded "2"
-        else if (msgin->type == TEXTTYPE_YELL)
-            rangeok = in_yell_range( client->chr, client2->chr ); //DAVE changed from hardcoded "25"
-        else
-            rangeok = in_say_range( client->chr, client2->chr ); //DAVE changed from "visual" range check, should be "say" range check.
-        if (rangeok)
-		{
-            if (!client->chr->dead() || 
-				client2->chr->dead() || 
-				client2->chr->can_hearghosts() ||
-                client->chr->can_be_heard_as_ghost() )
+		if (ssopt.core_sends_guildmsgs)
+			for (unsigned cli = 0 ; cli < clients.size(); cli++)
 			{
-    			talkmsg.Send(client2, len );
+				Client *client2 = clients[cli];
+				if (!client2->ready) continue;
+				if (client->chr->guildid() == client2->chr->guildid() || client->chr->guild()->hasAlly(client2->chr->guild()))
+					talkmsg.Send(client2,len);
 			}
-			else
-			{
-                ghostmsg.Send( client2, len );
-			}
-		}
 	}
-
-    if (!client->chr->dead())
-		for_nearby_npcs( pc_spoke, client->chr, ntext, static_cast<int>(ntextlen), msgin->type,
-						 wtext, msgin->lang, static_cast<int>(wtextlen), speechtokens);
 	else
-		for_nearby_npcs( ghost_pc_spoke, client->chr, ntext, static_cast<int>(ntextlen), msgin->type,
-						 wtext, msgin->lang, static_cast<int>(wtextlen), speechtokens);
+	{
+		talkmsg.Send(client, len); // self
+		if (client->chr->dead() && !client->chr->can_be_heard_as_ghost())
+		{
+			memcpy( &ghostmsg->buffer, &talkmsg->buffer, sizeof ghostmsg->buffer );
 
-	sayto_listening_points( client->chr, ntext, static_cast<int>(ntextlen), msgin->type,
-							wtext, msgin->lang, static_cast<int>(wtextlen), speechtokens);
+			ghostmsg->offset = 48;
+			u16* t = ((u16*)&ghostmsg->buffer[ghostmsg->offset]);
+			while (ghostmsg->offset < len-2) // dont convert nullterm
+			{
+				wchar_t wch = (*t);
+				if (!iswspace(wch))
+				{
+					if (random_int( 4 ) == 0)
+						*t = ctBEu16(L'o');
+					else
+						*t = ctBEu16(L'O');
+				}
+				++t;
+				ghostmsg->offset+=2;
+			}
+		}
+			// send to those nearby
+		for( unsigned cli = 0; cli < clients.size(); cli++ )
+		{
+			Client *client2 = clients[cli];
+			if (!client2->ready) continue;
+			if (client == client2) continue;
+			if (!client2->chr->is_visible_to_me( client->chr ))
+				continue;
+			if (client2->chr->deafened()) continue;
+
+			bool rangeok;
+			if (msgin->type == TEXTTYPE_WHISPER)
+				rangeok = in_whisper_range(  client->chr, client2->chr ); //DAVE changed from hardcoded "2"
+			else if (msgin->type == TEXTTYPE_YELL)
+				rangeok = in_yell_range( client->chr, client2->chr ); //DAVE changed from hardcoded "25"
+			else
+				rangeok = in_say_range( client->chr, client2->chr ); //DAVE changed from "visual" range check, should be "say" range check.
+			if (rangeok)
+			{
+				if (!client->chr->dead() ||
+					client2->chr->dead() ||
+					client2->chr->can_hearghosts() ||
+					client->chr->can_be_heard_as_ghost() )
+				{
+					talkmsg.Send(client2, len );
+				}
+				else
+				{
+					ghostmsg.Send( client2, len );
+				}
+			}
+		}
+
+		if (!client->chr->dead())
+			for_nearby_npcs( pc_spoke, client->chr, ntext, static_cast<int>(ntextlen), msgin->type,
+							 wtext, msgin->lang, static_cast<int>(wtextlen), speechtokens);
+		else
+			for_nearby_npcs( ghost_pc_spoke, client->chr, ntext, static_cast<int>(ntextlen), msgin->type,
+							 wtext, msgin->lang, static_cast<int>(wtextlen), speechtokens);
+
+		sayto_listening_points( client->chr, ntext, static_cast<int>(ntextlen), msgin->type,
+								wtext, msgin->lang, static_cast<int>(wtextlen), speechtokens);
+	}
 }
 u16 Get12BitNumber(u8 * thearray, u16 theindex)
 {	
