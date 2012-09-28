@@ -50,10 +50,10 @@ public:
 
 protected:
 
-	unsigned int	RS_MDS_Encode( unsigned int k0, unsigned int k1 );
-	unsigned int	F32( unsigned int x, unsigned int *k32, int keyLen );
+	static unsigned int	RS_MDS_Encode( unsigned int k0, unsigned int k1 );
+	static unsigned int	F32( unsigned int x, unsigned int *k32, int keyLen );
 	void			ReKey( KeyInstance *key );
-	void			CipherInit( CipherInstance *cipher, unsigned char mode, char *IV );
+	static void		CipherInit( CipherInstance *cipher, unsigned char mode, char *IV );
 	void			MakeKey( KeyInstance *key, unsigned char direction, int keyLen, char *keyMaterial);
 	void			BlockEncrypt( CipherInstance *cipher, KeyInstance *key, unsigned char *input, int inputLen, unsigned char *outBuffer );
 

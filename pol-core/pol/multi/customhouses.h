@@ -142,7 +142,7 @@ public:
 	ObjArray* list_parts() const;
 
 private:
-    char z_to_custom_house_table(char z);
+    static char z_to_custom_house_table(char z);
 };
 
 //House Tool Command Implementations:

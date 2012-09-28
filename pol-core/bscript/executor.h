@@ -183,9 +183,9 @@ class Executor
     void pushArg( BObjectImp* arg );
     void pushArg( const BObjectRef& ref );
 
-    BObjectRef addmember( BObject& left, const BObject& right );
-	BObjectRef removemember( BObject& left, const BObject& right);
-	BObjectRef checkmember( BObject& left, const BObject& right);
+    static BObjectRef addmember( BObject& left, const BObject& right );
+	static BObjectRef removemember( BObject& left, const BObject& right);
+	static BObjectRef checkmember( BObject& left, const BObject& right);
     void addmember2( BObject& left, const BObject& right );
 
     // execmodules: modules associated with the current program.  References modules owned by availmodules.
@@ -314,9 +314,9 @@ class Executor
     void ins_initfor( const Instruction& ins );
     void ins_nextfor( const Instruction& ins );
 
-    int ins_casejmp_findlong( const Token& token, BLong* blong );
-    int ins_casejmp_findstring( const Token& token, String* bstringimp );
-    int ins_casejmp_finddefault( const Token& token );
+    static int ins_casejmp_findlong( const Token& token, BLong* blong );
+    static int ins_casejmp_findstring( const Token& token, String* bstringimp );
+    static int ins_casejmp_finddefault( const Token& token );
     
     
     bool runnable() const;

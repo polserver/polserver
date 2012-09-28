@@ -83,7 +83,7 @@ bool knows_spell( Character* chr, u16 spellid )
 	UContainer* cont = chr->backpack();
 	if (cont != NULL)
 	{
-		for( UContainer::const_iterator itr = cont->begin(); itr !=  cont->end(); ++itr )
+		for( UContainer::const_iterator itr = cont->begin(), end = cont->end(); itr != end; ++itr )
 		{
 			const Item* _item = GET_ITEM_PTR( itr );
 			

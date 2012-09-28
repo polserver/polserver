@@ -134,7 +134,7 @@ public:
     const std::string& getversion() const { return version_; }
 	VersionDetailStruct getversiondetail() const { return versiondetail_; }
 	void setversiondetail( VersionDetailStruct& detail ) { versiondetail_ = detail; }
-	void itemizeclientversion( const std::string& ver, VersionDetailStruct& detail );
+	static void itemizeclientversion( const std::string& ver, VersionDetailStruct& detail );
 	bool compareVersion( const std::string& ver );
 	bool compareVersion(const VersionDetailStruct& ver2);
 	void setClientType(ClientTypeFlag type);
