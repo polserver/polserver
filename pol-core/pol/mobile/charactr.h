@@ -563,7 +563,6 @@ public:
     unsigned int get_raw_skill( USKILLID skillid ) const;
     void set_raw_skill( USKILLID skillid, unsigned int raw_value );
 
-    void recalc_all_skills( void );
     void recalc_skill( int skillnum );
     int charindex() const; // find account character index, or -1 if not found.
 

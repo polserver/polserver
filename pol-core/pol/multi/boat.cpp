@@ -82,7 +82,7 @@ struct BoatShape {
     };
     vector<ComponentShape> Componentshapes;
 
-    bool objtype_is_component( unsigned int objtype ) const;
+    static bool objtype_is_component( unsigned int objtype );
     BoatShape( ConfigElem& elem );
     BoatShape();
 };
@@ -191,7 +191,7 @@ BoatShape::BoatShape( ConfigElem& elem )
 		Componentshapes.push_back( ComponentShape( tmp_str, COMPONENT_WEAPONSLOT ) );
 }
 
-bool BoatShape::objtype_is_component( unsigned int objtype ) const
+bool BoatShape::objtype_is_component( unsigned int objtype )
 {
 	if(objtype == extobj.tillerman)
 		return true;

@@ -24,6 +24,7 @@ int main( int argc, char *argv[] )
         dif = 1;
     }
 
+	size_t address=0;
     while (!dif)
     {
         char cha, chb;
@@ -38,12 +39,13 @@ int main( int argc, char *argv[] )
         }
         if (cha != chb)
         {
-            printf( "Files %s and %s are different.\n", argv[1], argv[2] );
+            printf( "Files %s and %s are different. Address %X\n", argv[1], argv[2],address );
             dif = 1;
             break;
         }
         if (resa == 0)
             break;
+		++address;
     }
 
     if (fb) fclose( fb );

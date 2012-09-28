@@ -248,7 +248,6 @@ public:
     virtual const UObject* self_as_owner() const;
 
 	virtual void for_each_item( void (*f)(Item* item, void* a), void* arg );
-    void SetInitialSize();
 
     Item* GetItemOnLayer( unsigned idx ) const;
     void PutItemOnLayer( Item* item );

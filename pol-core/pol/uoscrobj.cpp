@@ -2411,8 +2411,8 @@ ObjArray* Character::GetReportables() const
 {
 	auto_ptr<ObjArray> arr (new ObjArray);
 
-	for( ReportableList::const_iterator itr = reportable_.begin();
-			itr != reportable_.end(); ++itr )
+	for( ReportableList::const_iterator itr = reportable_.begin(), end=reportable_.end();
+			itr != end; ++itr )
 	{
 		const reportable_t& rt = (*itr);
 
@@ -2437,8 +2437,8 @@ ObjArray* Character::GetAggressorTo() const
 {
 	auto_ptr<ObjArray> arr (new ObjArray);
 
-	for( Character::MobileCont::const_iterator itr = aggressor_to_.begin();
-			itr != aggressor_to_.end(); ++itr )
+	for( Character::MobileCont::const_iterator itr = aggressor_to_.begin(), end = aggressor_to_.end();
+			itr != end; ++itr )
 	{
 		auto_ptr<BObjectImp> member (NULL);
 		Character* chr = system_find_mobile( (*itr).first->serial);
@@ -2461,8 +2461,8 @@ ObjArray* Character::GetLawFullyDamaged() const
 {
 	auto_ptr<ObjArray> arr (new ObjArray);
 
-	for( Character::MobileCont::const_iterator itr = lawfully_damaged_.begin();
-			itr != lawfully_damaged_.end(); ++itr )
+	for( Character::MobileCont::const_iterator itr = lawfully_damaged_.begin(), end = lawfully_damaged_.end();
+			itr != end; ++itr )
 	{
 		auto_ptr<BObjectImp> member (NULL);
 		Character* chr = system_find_mobile( (*itr).first->serial);
@@ -3563,31 +3563,6 @@ BObjectRef EClientRefObjImp::set_member_id( const int id, BObjectImp* value )
 	if ((obj_.ConstPtr() == NULL) || (!obj_->isConnected()))
 		return BObjectRef(new BError( "Client not ready or disconnected" ));
 	return BObjectRef(UninitObject::create());
-	//BObjectImp* result = NULL;
-	//if (value->isa( BObjectImp::OTLong ))
-	//{
-	//	BLong* lng = static_cast<BLong*>(value);
-	//	switch(id)
-	//	{
-	//	default: result=NULL;
-	//	}
-	//}
-	//else if (value->isa( BObjectImp::OTString ))
-	//{
-	//	String* str = static_cast<String*>(value);
-	//	switch(id)
-	//	{
-	//	default: result=NULL;
-	//	}
-	//}
-	//if (result != NULL)
-	//{
-	//	return BObjectRef( result );
-	//}
-	//else
-	//{
-	//	return BObjectRef(UninitObject::create());
-	//}
 }
 
 BObjectImp* EClientRefObjImp::call_method( const char* methodname, Executor& ex )
@@ -3683,7 +3658,7 @@ UnicodeSpeechEvent::UnicodeSpeechEvent( Character* speaker, const char* speech, 
 	}
 	addMember( "texttype", new String(texttype) );
 	if (speechtokens!=NULL)
-		addMember( "tokens", speechtokens);
+		addMember( "tokens", new ObjArray(*speechtokens));
 }
 
 DamageEvent::DamageEvent( Character* source, unsigned short damage )

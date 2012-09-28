@@ -923,9 +923,6 @@ WornItemsContainer::WornItemsContainer() :
 //{
 //}
 
-void WornItemsContainer::SetInitialSize()
-{
-}
 
 void WornItemsContainer::for_each_item( void (*f)(Item* item, void* a), void* arg )
 {

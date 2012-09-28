@@ -288,7 +288,7 @@ void Spellbook::printSelfOn( ostream& os ) const
 
 void Spellbook::calc_current_bitwise_contents()
 {
-    for( UContainer::const_iterator itr = begin(); itr != end(); ++itr )
+    for( UContainer::const_iterator itr = begin(), itrend=end(); itr != itrend; ++itr )
 	{
 		const Item* scroll = GET_ITEM_PTR( itr );
 		u16 spellnum = USpellScroll::convert_objtype_to_spellnum(scroll->objtype_, spell_school);
@@ -298,7 +298,7 @@ void Spellbook::calc_current_bitwise_contents()
 	}	
 
 	// ok, it's been upgraded. Destroy everything inside it.
-	for( UContainer::iterator itr = begin(); itr != end(); ++itr )
+	for( UContainer::iterator itr = begin(), itrend=end(); itr != itrend; ++itr )
 	{
 		Item* scroll = GET_ITEM_PTR( itr );
 		scroll->destroy();

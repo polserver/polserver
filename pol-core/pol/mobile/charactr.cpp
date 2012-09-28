@@ -573,7 +573,6 @@ Character::Character( u32 objtype, UOBJ_CLASS uobj_class ) :
 	gradual_boost = 0;
 	height = PLAYER_CHARACTER_HEIGHT; //this gets overwritten in UObject::readProperties!
 	wornitems.chr_owner = this; //FIXME, dangerous.
-	wornitems.SetInitialSize();
 
 	set_caps_to_default();
 
@@ -2593,10 +2592,6 @@ void Character::die()
 	on_death( corpse );
 
 	CLEAR_CHECKPOINT();
-}
-
-void Character::recalc_all_skills( void )
-{
 }
 
 void Character::refresh_ar()
