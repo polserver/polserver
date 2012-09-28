@@ -952,7 +952,7 @@ ObjArray::ObjArray( const ObjArray& copyfrom ) :
 
 void ObjArray::deepcopy()
 {
-	for( iterator itr = ref_arr.begin(); itr != ref_arr.end(); ++itr )
+	for( iterator itr = ref_arr.begin(), end = ref_arr.end(); itr != end; ++itr )
 	{
 		if (itr->get())
 		{
@@ -979,13 +979,13 @@ size_t ObjArray::sizeEstimate() const
 {
 	size_t size = sizeof(ObjArray);
 
-	for( const_iterator itr = ref_arr.begin(); itr != ref_arr.end(); ++itr )
+	for( const_iterator itr = ref_arr.begin(), end = ref_arr.end(); itr != end; ++itr )
 	{
 		size += (*itr).sizeEstimate();
 	}
 	
 	size += name_arr.size() * sizeof(string);
-	for( const_name_iterator itr = name_arr.begin(); itr != name_arr.end(); ++itr )
+	for( const_name_iterator itr = name_arr.begin(), end = name_arr.end(); itr != end; ++itr )
 	{
 		size += (*itr).capacity();
 	}
@@ -1113,7 +1113,7 @@ BObjectImp* ObjArray::selfPlusObj(const ObjArray& objimp) const
 {
 	auto_ptr<ObjArray> result (new ObjArray( *this ));
 
-	for( const_iterator itr = objimp.ref_arr.begin(); itr != objimp.ref_arr.end(); ++itr )
+	for( const_iterator itr = objimp.ref_arr.begin(), end = objimp.ref_arr.end(); itr != end; ++itr )
 	{
 		if (itr->get())
 		{
@@ -1224,7 +1224,7 @@ BObjectRef ObjArray::OperMultiSubscript( stack<BObjectRef>& indices )
 
 	//auto_ptr<ObjArray> result (new ObjArray());
 	unsigned i = 0;
-	for( const_iterator itr = ref_arr.begin(); itr != ref_arr.end(); ++itr )
+	for( const_iterator itr = ref_arr.begin(), itrend = ref_arr.end(); itr != itrend; ++itr )
 	{
 		if (++i < index) continue;
 		if (i > end) break;
@@ -1285,8 +1285,8 @@ BObjectRef ObjArray::OperSubscript( const BObject& rightobj )
 BObjectRef ObjArray::get_member( const char* membername )
 {
 	int i = 0;
-	for( const_name_iterator itr = name_arr.begin();
-		 itr != name_arr.end();
+	for( const_name_iterator itr = name_arr.begin(), end=name_arr.end();
+		 itr != end;
 		 ++itr, ++i )
 	{
 		const string& name = (*itr);
@@ -1302,8 +1302,8 @@ BObjectRef ObjArray::get_member( const char* membername )
 BObjectRef ObjArray::set_member( const char* membername, BObjectImp* valueimp )
 {
 	int i = 0;
-	for( const_name_iterator itr = name_arr.begin();
-		 itr != name_arr.end();
+	for( const_name_iterator itr = name_arr.begin(), end=name_arr.end();
+		 itr != end;
 		 ++itr, ++i )
 	{
 		const string& name = (*itr);
@@ -1318,7 +1318,7 @@ BObjectRef ObjArray::set_member( const char* membername, BObjectImp* valueimp )
 
 BObjectRef ObjArray::operDotPlus( const char* name )
 {
-	for( name_iterator itr = name_arr.begin(); itr != name_arr.end(); ++itr )
+	for( name_iterator itr = name_arr.begin(), end=name_arr.end(); itr != end; ++itr )
 	{
 		if (stricmp( name, (*itr).c_str() ) == 0)
 		{
@@ -1341,7 +1341,7 @@ string ObjArray::getStringRep() const
 	OSTRINGSTREAM os;
 	os << "{ ";
 	bool any = false;
-	for( Cont::const_iterator itr = ref_arr.begin(); itr != ref_arr.end(); ++itr )
+	for( Cont::const_iterator itr = ref_arr.begin(), end=ref_arr.end(); itr != end; ++itr )
 	{
 		if (any)
 			os << ", ";
@@ -1363,7 +1363,7 @@ string ObjArray::getStringRep() const
 
 long ObjArray::contains( const BObjectImp& imp ) const
 {
-	for( Cont::const_iterator itr = ref_arr.begin(); itr != ref_arr.end(); ++itr )
+	for( Cont::const_iterator itr = ref_arr.begin(), end = ref_arr.end(); itr != end; ++itr )
 	{
 		if ( itr->get() )
 		{
@@ -1580,7 +1580,7 @@ BObjectImp* ObjArray::call_method( const char* methodname, Executor& ex )
 void ObjArray::packonto( ostream& os ) const
 {
 	os << "a" << ref_arr.size() << ":";
-	for( const_iterator itr = ref_arr.begin(); itr != ref_arr.end(); ++itr )
+	for( const_iterator itr = ref_arr.begin(), end = ref_arr.end(); itr != end; ++itr )
 	{
 		if (itr->get())
 		{

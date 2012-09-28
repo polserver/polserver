@@ -111,7 +111,7 @@ SerialSet::SerialSet( ConfigElem& elem, const char* tag )
 
 void SerialSet::writeOn( ostream& os, const char* tag ) const
 {
-    for( const_iterator citr = begin(); citr != end(); ++citr )
+    for( const_iterator citr = begin(), citrend=end(); citr != citrend; ++citr )
     {
         os << "\t" << tag << "\t0x" << hex << (*citr) << dec << pf_endl;
     }
@@ -300,7 +300,7 @@ void write_guilds( ostream& os )
        << "}" << pf_endl
        << pf_endl;
 
-    for( Guilds::const_iterator itr = guilds.begin(); itr != guilds.end(); ++itr )
+    for( Guilds::const_iterator itr = guilds.begin(), end = guilds.end(); itr != end; ++itr )
     {
         const Guild* guild = (*itr).second.get();
         guild->printOn( os );
@@ -417,76 +417,84 @@ BObjectRef EGuildRefObjImp::get_member_id( const int id ) //id test
     if (obj_->_disbanded)
         return BObjectRef( new BError( "Guild has disbanded" ) );
  
-    auto_ptr<ObjArray> arr;
     switch(id)
     {
     case MBR_MEMBERS:
-		arr.reset(new ObjArray);
-        for( SerialSet::iterator itr = obj_->_member_serials.begin();
-             itr != obj_->_member_serials.end();
-             /* do this earlier */)
-        {
-            unsigned int mserial = (*itr);
-            SerialSet::iterator last_itr = itr;
-            ++itr;
+		{
+			auto_ptr<ObjArray> arr;
+			arr.reset(new ObjArray);
+			for( SerialSet::iterator itr = obj_->_member_serials.begin();
+				 itr != obj_->_member_serials.end();
+				 /* do this earlier */)
+			{
+				unsigned int mserial = (*itr);
+				SerialSet::iterator last_itr = itr;
+				++itr;
 
-            Character* chr = system_find_mobile( mserial );
-            if (chr != NULL)
-            {
-                arr->addElement( new EOfflineCharacterRefObjImp( chr ) );
-            }
-            else
-            {
-                obj_->_member_serials.erase( last_itr );
-            }
-        }
-		return BObjectRef( arr.release() );
+				Character* chr = system_find_mobile( mserial );
+				if (chr != NULL)
+				{
+					arr->addElement( new EOfflineCharacterRefObjImp( chr ) );
+				}
+				else
+				{
+					obj_->_member_serials.erase( last_itr );
+				}
+			}
+			return BObjectRef( arr.release() );
+		}
 
     case MBR_ALLYGUILDS:
-        arr.reset(new ObjArray);
-        for( SerialSet::iterator itr = obj_->_allyguild_serials.begin();
-             itr != obj_->_allyguild_serials.end();
-             /* do this earlier */)
-        {
-            unsigned int gserial = (*itr);
-            SerialSet::iterator last_itr = itr;
-            ++itr;
+		{
+			auto_ptr<ObjArray> arr;
+			arr.reset(new ObjArray);
+			for( SerialSet::iterator itr = obj_->_allyguild_serials.begin();
+				 itr != obj_->_allyguild_serials.end();
+				 /* do this earlier */)
+			{
+				unsigned int gserial = (*itr);
+				SerialSet::iterator last_itr = itr;
+				++itr;
 
-            Guild* guild = FindGuild( gserial );
+				Guild* guild = FindGuild( gserial );
 
-            if (guild != NULL)
-            {
-                arr->addElement( new EGuildRefObjImp( ref_ptr<Guild>(guild) ) );
-            }
-            else
-            {
-                obj_->_allyguild_serials.erase( last_itr );
-            }
-        }
-		return BObjectRef( arr.release() );
+				if (guild != NULL)
+				{
+					arr->addElement( new EGuildRefObjImp( ref_ptr<Guild>(guild) ) );
+				}
+				else
+				{
+					obj_->_allyguild_serials.erase( last_itr );
+				}
+			}
+			return BObjectRef( arr.release() );
+		}
 
     case MBR_ENEMYGUILDS:
-        arr.reset(new ObjArray);
-        for( SerialSet::iterator itr = obj_->_enemyguild_serials.begin();
-             itr != obj_->_enemyguild_serials.end();
-             /* do this earlier */)
-        {
-            unsigned int gserial = (*itr);
-            SerialSet::iterator last_itr = itr;
-            ++itr;
+		{
+			auto_ptr<ObjArray> arr;
+			arr.reset(new ObjArray);
+			for( SerialSet::iterator itr = obj_->_enemyguild_serials.begin();
+				 itr != obj_->_enemyguild_serials.end();
+				 /* do this earlier */)
+			{
+				unsigned int gserial = (*itr);
+				SerialSet::iterator last_itr = itr;
+				++itr;
 
-            Guild* guild = FindGuild( gserial );
+				Guild* guild = FindGuild( gserial );
 
-            if (guild != NULL)
-            {
-                arr->addElement( new EGuildRefObjImp( ref_ptr<Guild>(guild) ) );
-            }
-            else
-            {
-                obj_->_enemyguild_serials.erase( last_itr );
-            }
-        }
-		return BObjectRef( arr.release() );
+				if (guild != NULL)
+				{
+					arr->addElement( new EGuildRefObjImp( ref_ptr<Guild>(guild) ) );
+				}
+				else
+				{
+					obj_->_enemyguild_serials.erase( last_itr );
+				}
+			}
+			return BObjectRef( arr.release() );
+		}
 
     case MBR_GUILDID:
         return BObjectRef( new BLong( obj_->_guildid ) );
@@ -504,83 +512,6 @@ BObjectRef EGuildRefObjImp::get_member( const char* membername )
 		return this->get_member_id(objmember->id);
 	else
 		return BObjectRef(UninitObject::create());
-	/*
-    if (stricmp( membername, "members") == 0)
-    {
-        ObjArray* arr = new ObjArray;
-        for( SerialSet::iterator itr = obj_->_member_serials.begin(); itr != obj_->_member_serials.end(); )
-             //do this earlier
-        {
-            unsigned int mserial = (*itr);
-            SerialSet::iterator last_itr = itr;
-            ++itr;
-
-            Character* chr = system_find_mobile( mserial, SYSFIND_SEARCH_OFFLINE_MOBILES );
-            if (chr != NULL)
-            {
-                arr->addElement( new EOfflineCharacterRefObjImp( chr ) );
-            }
-            else
-            {
-                obj_->_member_serials.erase( last_itr );
-            }
-        }
-        return BObjectRef( arr );
-    }
-    else if (stricmp( membername, "allyguilds") == 0)
-    {
-        ObjArray* arr = new ObjArray;
-        for( SerialSet::iterator itr = obj_->_allyguild_serials.begin(); itr != obj_->_allyguild_serials.end(); )
-             //do this earlier
-        {
-            unsigned int gserial = (*itr);
-            SerialSet::iterator last_itr = itr;
-            ++itr;
-
-            Guild* guild = FindGuild( gserial );
-
-            if (guild != NULL)
-            {
-                arr->addElement( new EGuildRefObjImp( ref_ptr<Guild>(guild) ) );
-            }
-            else
-            {
-                obj_->_allyguild_serials.erase( last_itr );
-            }
-        }
-        return BObjectRef( arr );
-    }
-    else if (stricmp( membername, "enemyguilds") == 0)
-    {
-        ObjArray* arr = new ObjArray;
-        for( SerialSet::iterator itr = obj_->_enemyguild_serials.begin();
-             itr != obj_->_enemyguild_serials.end(); )
-             //do this earlier
-        {
-            unsigned int gserial = (*itr);
-            SerialSet::iterator last_itr = itr;
-            ++itr;
-
-            Guild* guild = FindGuild( gserial );
-
-            if (guild != NULL)
-            {
-                arr->addElement( new EGuildRefObjImp( ref_ptr<Guild>(guild) ) );
-            }
-            else
-            {
-                obj_->_enemyguild_serials.erase( last_itr );
-            }
-        }
-        return BObjectRef( arr );
-    }
-    else if (stricmp( membername, "guildid") == 0)
-    {
-        return BObjectRef( new BLong( obj_->_guildid ) );
-    }
-    else
-        return BObjectRef( UninitObject::create() );
-	*/
 }
 
 BObjectImp* EGuildRefObjImp::call_method_id( const int id, Executor& ex, bool forcebuiltin )
@@ -588,170 +519,185 @@ BObjectImp* EGuildRefObjImp::call_method_id( const int id, Executor& ex, bool fo
     if (obj_->_disbanded)
         return new BError( "Guild has disbanded" );
 
-    Guild* enemyguild;
-    Guild* allyguild;
-    BError* err;
-    Character* chr;
     switch(id)
     {
     case MTH_ISMEMBER:
-        if (!ex.hasParams(1))
-            return new BError( "Not enough parameters" );
-        if (!getCharacterParam( ex, 0, chr ))
-            return new BError( "Invalid parameter type" );
+		{
+			if (!ex.hasParams(1))
+				return new BError( "Not enough parameters" );
+			Character* chr;
+			if (!getCharacterParam( ex, 0, chr ))
+				return new BError( "Invalid parameter type" );
 
-        return new BLong(static_cast<int>(obj_->_member_serials.count( chr->serial )));
+			return new BLong(static_cast<int>(obj_->_member_serials.count( chr->serial )));
+		}
 
     case MTH_ISALLYGUILD:
-		if (!ex.hasParams(1))
-			return new BError( "Not enough parameters" );
-        if (getGuildParam( ex, 0, allyguild, err ))
-        {
-            return new BLong( static_cast<int>(obj_->_allyguild_serials.count(allyguild->guildid())) );
-        }
-        else
-        {
-            return err;
-        }
+		{
+			if (!ex.hasParams(1))
+				return new BError( "Not enough parameters" );
+			Guild* allyguild;
+			BError* err;
+			if (getGuildParam( ex, 0, allyguild, err ))
+				return new BLong( static_cast<int>(obj_->_allyguild_serials.count(allyguild->guildid())) );
+			else
+				return err;
+		}
 
     case MTH_ISENEMYGUILD:
-		if (!ex.hasParams(1))
-			return new BError( "Not enough parameters" );
-        if (getGuildParam( ex, 0, enemyguild, err ))
-        {
-            return new BLong( static_cast<int>(obj_->_enemyguild_serials.count(enemyguild->guildid())) );
-        }
-        else
-        {
-            return err;
-        }
+		{
+			if (!ex.hasParams(1))
+				return new BError( "Not enough parameters" );
+			Guild* enemyguild;
+			BError* err;
+			if (getGuildParam( ex, 0, enemyguild, err ))
+				return new BLong( static_cast<int>(obj_->_enemyguild_serials.count(enemyguild->guildid())) );
+			else
+				return err;
+		}
     
     case MTH_ADDMEMBER:
-        if (!ex.hasParams( 1 ))
-            return new BError( "Not enough parameters" );
-        if (!getCharacterParam( ex, 0, chr ))
-            return new BError( "Invalid parameter type" );
-        if (chr->guildid())
-            return new BError( "Character already belongs to a guild" );
+		{
+			if (!ex.hasParams( 1 ))
+				return new BError( "Not enough parameters" );
+			Character* chr;
+			if (!getCharacterParam( ex, 0, chr ))
+				return new BError( "Invalid parameter type" );
+			if (chr->guildid())
+				return new BError( "Character already belongs to a guild" );
 
-        chr->guild( obj_.get() );
-        obj_->_member_serials.insert( chr->serial );
+			chr->guild( obj_.get() );
+			obj_->_member_serials.insert( chr->serial );
 
-		// MuadDib Added to update online members when status changes.
-		obj_->update_online_members();
+			// MuadDib Added to update online members when status changes.
+			obj_->update_online_members();
 
-        return new BLong(1);
+			return new BLong(1);
+		}
 
     case MTH_ADDALLYGUILD:
-		if (!ex.hasParams(1))
-			return new BError( "Not enough parameters" );
-        if (getGuildParam( ex, 0, allyguild, err ))
-        {
-            if (obj_->_enemyguild_serials.count(allyguild->guildid()))
-                return new BError( "That is an enemy guild" );
-            if (allyguild->guildid() == obj_->guildid())
-                return new BError( "Passed self as new ally guild" );
+		{
+			if (!ex.hasParams(1))
+				return new BError( "Not enough parameters" );
+			Guild* allyguild;
+			BError* err;
+			if (getGuildParam( ex, 0, allyguild, err ))
+			{
+				if (obj_->_enemyguild_serials.count(allyguild->guildid()))
+					return new BError( "That is an enemy guild" );
+				if (allyguild->guildid() == obj_->guildid())
+					return new BError( "Passed self as new ally guild" );
             
-            obj_->_allyguild_serials.insert( allyguild->guildid() );
-            allyguild->_allyguild_serials.insert( obj_->_guildid );
+				obj_->_allyguild_serials.insert( allyguild->guildid() );
+				allyguild->_allyguild_serials.insert( obj_->_guildid );
 
-			// MuadDib Added to update online members when status changes.
-			obj_->update_online_members();
-			allyguild->update_online_members();
+				// MuadDib Added to update online members when status changes.
+				obj_->update_online_members();
+				allyguild->update_online_members();
 
-            return new BLong(1);
-        }
-        else
-        {
-            return err;
-        }
+				return new BLong(1);
+			}
+			else
+				return err;
+		}
 
     case MTH_ADDENEMYGUILD:
-		if (!ex.hasParams(1))
-			return new BError( "Not enough parameters" );
-        if (getGuildParam( ex, 0, enemyguild, err ))
-        {
-            if (obj_->_allyguild_serials.count(enemyguild->guildid()))
-                return new BError( "That is an ally guild" );
-            if (enemyguild->guildid() == obj_->guildid())
-                return new BError( "Passed self as new enemy guild" );
+		{
+			if (!ex.hasParams(1))
+				return new BError( "Not enough parameters" );
+			Guild* enemyguild;
+			BError* err;
+			if (getGuildParam( ex, 0, enemyguild, err ))
+			{
+				if (obj_->_allyguild_serials.count(enemyguild->guildid()))
+					return new BError( "That is an ally guild" );
+				if (enemyguild->guildid() == obj_->guildid())
+					return new BError( "Passed self as new enemy guild" );
 
-            obj_->_enemyguild_serials.insert( enemyguild->guildid() );
-            enemyguild->_enemyguild_serials.insert( obj_->_guildid );
+				obj_->_enemyguild_serials.insert( enemyguild->guildid() );
+				enemyguild->_enemyguild_serials.insert( obj_->_guildid );
 
-			// MuadDib Added to update online members when status changes.
-			obj_->update_online_members();
-			enemyguild->update_online_members();
+				// MuadDib Added to update online members when status changes.
+				obj_->update_online_members();
+				enemyguild->update_online_members();
 
-            return new BLong(1);
-        }
-        else
-        {
-            return err;
+				return new BLong(1);
+			}
+			else
+				return err;
         }
     
     case MTH_REMOVEMEMBER:
-        if (!ex.hasParams( 1 ))
-            return new BError( "Not enough parameters" );
-        if (!getCharacterParam( ex, 0, chr ))
-            return new BError( "Invalid parameter type" );
-        if (chr->guildid() != obj_->_guildid)
-            return new BError( "Character does not belong to this guild" );
+		{
+			if (!ex.hasParams( 1 ))
+				return new BError( "Not enough parameters" );
+			Character* chr;
+			if (!getCharacterParam( ex, 0, chr ))
+				return new BError( "Invalid parameter type" );
+			if (chr->guildid() != obj_->_guildid)
+				return new BError( "Character does not belong to this guild" );
 
-        chr->guild( NULL );
-        obj_->_member_serials.erase( chr->serial );
-
-		// MuadDib Added to update online members when status changes.
-		obj_->update_online_members_remove( chr );
-
-        return new BLong(1);
-
-    case MTH_REMOVEALLYGUILD:
-		if (!ex.hasParams(1))
-			return new BError( "Not enough parameters" );
-        if (getGuildParam( ex, 0, allyguild, err ))
-        {
-            if (!obj_->_allyguild_serials.count(allyguild->guildid()))
-                return new BError( "That is not an ally guild" );
-
-            obj_->_allyguild_serials.erase( allyguild->guildid() );
-            allyguild->_allyguild_serials.erase( obj_->_guildid );
+			chr->guild( NULL );
+			obj_->_member_serials.erase( chr->serial );
 
 			// MuadDib Added to update online members when status changes.
-			obj_->update_online_members();
-			allyguild->update_online_members();
+			obj_->update_online_members_remove( chr );
 
-            return new BLong(1);
-        }
-        else
-        {
-            return err;
+			return new BLong(1);
+		}
+
+    case MTH_REMOVEALLYGUILD:
+		{
+			if (!ex.hasParams(1))
+				return new BError( "Not enough parameters" );
+			Guild* allyguild;
+			BError* err;
+			if (getGuildParam( ex, 0, allyguild, err ))
+			{
+				if (!obj_->_allyguild_serials.count(allyguild->guildid()))
+					return new BError( "That is not an ally guild" );
+
+				obj_->_allyguild_serials.erase( allyguild->guildid() );
+				allyguild->_allyguild_serials.erase( obj_->_guildid );
+
+				// MuadDib Added to update online members when status changes.
+				obj_->update_online_members();
+				allyguild->update_online_members();
+
+				return new BLong(1);
+			}
+			else
+				return err;
         }
 
     case MTH_REMOVEENEMYGUILD:
-		if (!ex.hasParams(1))
-			return new BError( "Not enough parameters" );
-        if (getGuildParam( ex, 0, enemyguild, err ))
-        {
-            if (!obj_->_enemyguild_serials.count(enemyguild->guildid()))
-                return new BError( "That is not an enemy guild" );
+		{
+			if (!ex.hasParams(1))
+				return new BError( "Not enough parameters" );
+			Guild* enemyguild;
+			BError* err;
+			if (getGuildParam( ex, 0, enemyguild, err ))
+			{
+				if (!obj_->_enemyguild_serials.count(enemyguild->guildid()))
+					return new BError( "That is not an enemy guild" );
 
-            obj_->_enemyguild_serials.erase( enemyguild->guildid() );
-            enemyguild->_enemyguild_serials.erase( obj_->_guildid );
+				obj_->_enemyguild_serials.erase( enemyguild->guildid() );
+				enemyguild->_enemyguild_serials.erase( obj_->_guildid );
 
-			// MuadDib Added to update online members when status changes.
-			obj_->update_online_members();
-			enemyguild->update_online_members();
+				// MuadDib Added to update online members when status changes.
+				obj_->update_online_members();
+				enemyguild->update_online_members();
 
-            return new BLong(1);
-        }
-        else
-        {
-            return err;
+				return new BLong(1);
+			}
+			else
+				return err;
         }
     default:
-        bool changed = false;
-        return CallPropertyListMethod_id( obj_->_proplist, id, ex, changed );
+		{
+			bool changed = false;
+			return CallPropertyListMethod_id( obj_->_proplist, id, ex, changed );
+		}
     }
 }
 
@@ -768,181 +714,6 @@ BObjectImp* EGuildRefObjImp::call_method( const char* methodname, Executor& ex )
 		bool changed = false;
         return CallPropertyListMethod( obj_->_proplist, methodname, ex, changed );
     }
-/*
-    if (stricmp( methodname, "ismember" ) == 0)
-    {
-        Character* chr;
-        if (!ex.hasParams(1))
-            return new BError( "Not enough parameters" );
-        if (!getCharacterParam( ex, 0, chr ))
-            return new BError( "Invalid parameter type" );
-
-        return new BLong(obj_->_member_serials.count( chr->serial ));
-    }
-    else if (stricmp( methodname, "isallyguild" ) == 0)
-    {
-        Guild* allyguild;
-        BError* err;
-
-		if (!ex.hasParams(1))
-			return new BError( "Not enough parameters" );
-        if (getGuildParam( ex, 0, allyguild, err ))
-        {
-            return new BLong( obj_->_allyguild_serials.count(allyguild->guildid()) );
-        }
-        else
-        {
-            return err;
-        }
-    }
-    else if (stricmp( methodname, "isenemyguild" ) == 0)
-    {
-        Guild* enemyguild;
-        BError* err;
-
-		if (!ex.hasParams(1))
-			return new BError( "Not enough parameters" );
-        if (getGuildParam( ex, 0, enemyguild, err ))
-        {
-            return new BLong( obj_->_enemyguild_serials.count(enemyguild->guildid()) );
-        }
-        else
-        {
-            return err;
-        }
-    }
-
-    else if (stricmp( methodname, "addmember" ) == 0)
-    {
-        Character* chr;
-        if (!ex.hasParams( 1 ))
-            return new BError( "Not enough parameters" );
-        if (!getCharacterParam( ex, 0, chr ))
-            return new BError( "Invalid parameter type" );
-        if (chr->guildid())
-            return new BError( "Character already belongs to a guild" );
-
-        chr->guild( obj_.get() );
-        obj_->_member_serials.insert( chr->serial );
-        
-        return new BLong(1);
-    }
-    else if (stricmp( methodname, "addallyguild" ) == 0)
-    {
-        Guild* allyguild;
-        BError* err;
-
-		if (!ex.hasParams(1))
-			return new BError( "Not enough parameters" );
-        if (getGuildParam( ex, 0, allyguild, err ))
-        {
-            if (obj_->_enemyguild_serials.count(allyguild->guildid()))
-                return new BError( "That is an enemy guild" );
-            if (allyguild->guildid() == obj_->guildid())
-                return new BError( "Passed self as new ally guild" );
-            
-            obj_->_allyguild_serials.insert( allyguild->guildid() );
-            allyguild->_allyguild_serials.insert( obj_->_guildid );
-            
-            return new BLong(1);
-        }
-        else
-        {
-            return err;
-        }
-    }
-    else if (stricmp( methodname, "addenemyguild" ) == 0)
-    {
-        Guild* enemyguild;
-        BError* err;
-
-		if (!ex.hasParams(1))
-			return new BError( "Not enough parameters" );
-        if (getGuildParam( ex, 0, enemyguild, err ))
-        {
-            if (obj_->_allyguild_serials.count(enemyguild->guildid()))
-                return new BError( "That is an ally guild" );
-            if (enemyguild->guildid() == obj_->guildid())
-                return new BError( "Passed self as new enemy guild" );
-
-            obj_->_enemyguild_serials.insert( enemyguild->guildid() );
-            enemyguild->_enemyguild_serials.insert( obj_->_guildid );
-            
-            return new BLong(1);
-        }
-        else
-        {
-            return err;
-        }
-    }
-
-    else if (stricmp( methodname, "removemember" ) == 0)
-    {
-        Character* chr;
-        if (!ex.hasParams( 1 ))
-            return new BError( "Not enough parameters" );
-        if (!getCharacterParam( ex, 0, chr ))
-            return new BError( "Invalid parameter type" );
-        if (chr->guildid() != obj_->_guildid)
-            return new BError( "Character does not belong to this guild" );
-
-        chr->guild( NULL );
-        obj_->_member_serials.erase( chr->serial );
-        
-        return new BLong(1);
-    }
-    else if (stricmp( methodname, "removeallyguild" ) == 0)
-    {
-        Guild* allyguild;
-        BError* err;
-
-		if (!ex.hasParams(1))
-			return new BError( "Not enough parameters" );
-        if (getGuildParam( ex, 0, allyguild, err ))
-        {
-            if (!obj_->_allyguild_serials.count(allyguild->guildid()))
-                return new BError( "That is not an ally guild" );
-
-            obj_->_allyguild_serials.erase( allyguild->guildid() );
-            allyguild->_allyguild_serials.erase( obj_->_guildid );
-            
-            return new BLong(1);
-        }
-        else
-        {
-            return err;
-        }
-    }
-    else if (stricmp( methodname, "removeenemyguild" ) == 0)
-    {
-        Guild* enemyguild;
-        BError* err;
-
-		if (!ex.hasParams(1))
-			return new BError( "Not enough parameters" );
-        if (getGuildParam( ex, 0, enemyguild, err ))
-        {
-            if (!obj_->_enemyguild_serials.count(enemyguild->guildid()))
-                return new BError( "That is not an enemy guild" );
-
-            obj_->_enemyguild_serials.erase( enemyguild->guildid() );
-            enemyguild->_enemyguild_serials.erase( obj_->_guildid );
-            
-            return new BLong(1);
-        }
-        else
-        {
-            return err;
-        }
-    }
-
-
-    else
-    {
-        bool changed = false;
-        return CallPropertyListMethod( obj_->_proplist, methodname, ex, changed );
-    }
-	*/
 }
 
 
@@ -951,7 +722,7 @@ BObjectImp* EGuildRefObjImp::call_method( const char* methodname, Executor& ex )
 BObjectImp* GuildExecutorModule::mf_ListGuilds()
 {
     auto_ptr<ObjArray> result (new ObjArray);
-    for( Guilds::iterator itr = guilds.begin(); itr != guilds.end(); ++itr )
+    for( Guilds::iterator itr = guilds.begin(), end = guilds.end(); itr != end; ++itr )
     {
         Guild* guild = (*itr).second.get();
         result->addElement( new EGuildRefObjImp( GuildRef(guild )) );

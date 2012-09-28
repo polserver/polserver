@@ -29,7 +29,7 @@ public:
 
 	bool RunEnterScript(Character* chr);
 	bool RunLeaveScript(Character* chr);
-	bool RunNoCombatCheck(Client* client);
+	static bool RunNoCombatCheck(Client* client);
 
 private:
 	bool guarded_;

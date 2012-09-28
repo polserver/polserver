@@ -103,27 +103,27 @@ public:
 	unsigned getUOMapID() {return _Descriptor().uomapid;};
 	unsigned getNumStaticPatches() {return _Descriptor().num_static_patches;};
 	unsigned getNumMapPatches() {return _Descriptor().num_map_patches;};
-	inline unsigned int encode_global_hull( unsigned short ax, unsigned short ay )
+	static inline unsigned int encode_global_hull( unsigned short ax, unsigned short ay )
 	{
 		return (static_cast<unsigned int>(ax) << 16) | ay;
 	}
 protected:
-    void standheight( MOVEMODE movemode, 
+    static void standheight( MOVEMODE movemode, 
                       MapShapeList& shapes, 
                       short oldz, bool* result, 
                       short* newz,
-					  short* gradual_boost = NULL ) const;
+					  short* gradual_boost = NULL );
 
-	 void lowest_standheight( MOVEMODE movemode, 
+	static void lowest_standheight( MOVEMODE movemode, 
 							  MapShapeList& shapes, 
 							  short oldz, bool* result, 
 							  short* newz,
-							  short* gradual_boost = NULL ) const;
+							  short* gradual_boost = NULL );
 
-    bool dropheight( MapShapeList& shapes, 
+    static bool dropheight( MapShapeList& shapes, 
                      short dropz,
                      short chrz, 
-                     short* newz ) const;
+                     short* newz );
 
     void readdynamics( MapShapeList& vec, 
                        unsigned short x, 

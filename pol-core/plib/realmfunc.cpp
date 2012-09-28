@@ -56,7 +56,7 @@ bool Realm::lowest_standheight( unsigned short x, unsigned short y, short* z ) c
 void Realm::standheight( MOVEMODE movemode,
                   MapShapeList& shapes, 
                   short oldz, 
-                  bool* result_out, short * newz_out, short* gradual_boost ) const
+                  bool* result_out, short * newz_out, short* gradual_boost )
 {
 	static vector<const MapShape*> possible_shapes;
 	possible_shapes.clear();
@@ -179,7 +179,7 @@ void Realm::standheight( MOVEMODE movemode,
 void Realm::lowest_standheight( MOVEMODE movemode,
                   MapShapeList& shapes, 
                   short minz, 
-                  bool* result_out, short* newz_out, short* gradual_boost ) const
+                  bool* result_out, short* newz_out, short* gradual_boost )
 {
     bool land_ok = (movemode & MOVEMODE_LAND) ? true : false;
     bool sea_ok  = (movemode & MOVEMODE_SEA) ? true : false;
@@ -549,7 +549,7 @@ bool Realm::dropheight( unsigned short dropx,
 bool Realm::dropheight( MapShapeList& shapes, 
                  short dropz,
                  short chrz, 
-                 short* newz ) const
+                 short* newz )
 {
     short z = -128;
     bool result = false;

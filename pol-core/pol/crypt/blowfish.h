@@ -31,7 +31,7 @@ protected:
     int				stream_pos;
 
     void	InitTables();
-    void	RawDecrypt( unsigned int * values, int table );
+    static void	RawDecrypt( unsigned int * values, int table );
 };
 
 #endif //__BLOWFISH_H__

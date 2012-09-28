@@ -33,7 +33,7 @@ BStruct::BStruct( BObjectType type ) : BObjectImp( type )
 BStruct::BStruct( const BStruct& other, BObjectType type ) :
     BObjectImp( type )
 {
-    for( Contents::const_iterator itr = other.contents_.begin(); itr != other.contents_.end(); ++itr )
+    for( Contents::const_iterator itr = other.contents_.begin(), end = other.contents_.end(); itr != end; ++itr )
     {
         const string& key = (*itr).first;
         const BObjectRef& bvalref = (*itr).second;
@@ -183,7 +183,7 @@ ContIterator* BStruct::createIterator( BObject* pIterVal )
 size_t BStruct::sizeEstimate() const
 {
     size_t size = sizeof(BStruct);
-    for( Contents::const_iterator itr = contents_.begin(); itr != contents_.end(); ++itr )
+    for( Contents::const_iterator itr = contents_.begin(), end = contents_.end(); itr != end; ++itr )
     {
         const string& bkey = (*itr).first;
         const BObjectRef& bvalref = (*itr).second;
