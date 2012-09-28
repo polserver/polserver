@@ -42,7 +42,7 @@ public:
     void disband();
 
 	void update_online_members();
-	void update_online_members_remove( Character* chr );
+	static void update_online_members_remove( Character* chr );
 
     void printOn( std::ostream& os ) const;
     void addMember( unsigned int serial );
@@ -58,13 +58,6 @@ private:
     SerialSet _enemyguild_serials;
     PropertyList _proplist;
     bool _disbanded;
-
-    //typedef std::vector< ref_ptr<Character> > Members;
-    // Members members;
-
-    //typedef std::vector< ref_ptr<Guild> > GuildVec;
-    //GuildVec _allyguilds;
-    //GuildVec _enemyguilds;
 };
 
 class GuildExecutorModule : public TmplExecutorModule<GuildExecutorModule>

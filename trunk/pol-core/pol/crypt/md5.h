@@ -31,8 +31,8 @@ public:
 	void Encrypt( unsigned char *in, unsigned char *out, int len );
 
 protected:
-	void process(md5_state *pms, const unsigned char *data);
-	void start(md5_state *pms);
+	static void process(md5_state *pms, const unsigned char *data);
+	static void start(md5_state *pms);
 	void append(md5_state *pms, const unsigned char *data, int nbytes);
 	void finish(md5_state *pms, unsigned char digest[16]);
 
