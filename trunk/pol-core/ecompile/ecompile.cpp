@@ -577,7 +577,7 @@ void recurse_compile_inc( string basedir, vector<string>* files )
     }
 }
 
-void parallel_compile(vector<string> files)
+void parallel_compile(vector<string> &files)
 {
 	unsigned compiled_scripts=0;
 	unsigned uptodate_scripts=0;
