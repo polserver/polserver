@@ -54,6 +54,7 @@ Notes
 #include "../clib/maputil.h"
 #include "../clib/rstack.h"
 #include "../clib/strutil.h"
+#include "../clib/unittest.h"
 
 #include "compilercfg.h"
 #include "fmodule.h"
@@ -646,6 +647,24 @@ ObjMethod* getObjMethod(int id)
 		 return &(object_methods[id]);
 }
 
+void testparserdefinitions()
+{
+	for(int i=0;i < n_objmethods; i++)
+	{
+		if (object_methods[i].id != i)
+		{
+			cout << "ERROR: Object Method definition of "<< object_methods[i].code << " has an invalid index!" <<endl;
+		}
+	}
+	for(int i=0;i < n_objmembers; i++)
+	{
+		if (object_members[i].id != i)
+		{
+			cout << "ERROR: Object Member definition of "<< object_members[i].code << " has an invalid index!" <<endl;
+		}
+	}
+}
+UnitTest testparserdefinitions_obj(testparserdefinitions);
 
 void matchOperators(Operator *oplist, int n_ops,
 					char *buf,
