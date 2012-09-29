@@ -21,7 +21,7 @@ class MusicRegion : public Region
 {
     typedef Region base;
 public:
-    MusicRegion( ConfigElem& elem );
+    MusicRegion( ConfigElem& elem, RegionId id );
 
     unsigned short getmidi() const;
 private:

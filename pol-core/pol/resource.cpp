@@ -38,7 +38,7 @@ Notes
 
 ///$TITLE=Resource Management
 
-ResourceRegion::ResourceRegion(ConfigElem& elem) : Region(elem),
+ResourceRegion::ResourceRegion(ConfigElem& elem, RegionId id) : Region(elem, id),
 	tilecount_(0),
 
 	units_per_area_(elem.remove_ulong( "UnitsPerArea" )),
