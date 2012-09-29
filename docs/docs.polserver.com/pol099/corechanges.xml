@@ -12,8 +12,8 @@
       <author>Turley</author>
       <change type="Added">ecompile parameter -T
       </change>
-	  <change type="Added">ecompile.cfg entry ThreadedCompilation
-      </change type="Note">if set will use openmp for parallel compilationecompile.cfg entry ThreadedCompilation
+	  <change type="Added">ecompile.cfg entry ThreadedCompilation</change>
+      <change type="Note">if set will use openmp for parallel compilation
       </change>
     </entry>
 	<entry>
