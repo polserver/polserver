@@ -20,7 +20,7 @@ class NoCastRegion : public Region
 {
     typedef Region base;
 public:
-    NoCastRegion( ConfigElem& elem );
+    NoCastRegion( ConfigElem& elem, RegionId id );
 
     bool nocast() const;
 
@@ -43,7 +43,7 @@ class LightRegion : public Region
 {
     typedef Region base;
 public:
-    LightRegion( ConfigElem& elem );
+    LightRegion( ConfigElem& elem, RegionId id );
     unsigned lightlevel;
 };
 
@@ -56,7 +56,7 @@ class WeatherRegion : public Region
 {
     typedef Region base;
 public:
-    WeatherRegion( ConfigElem& elem );
+    WeatherRegion( ConfigElem& elem, RegionId id );
     void setweather( unsigned char weathertype,
                      unsigned char severity,
                      unsigned char aux );

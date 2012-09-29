@@ -25,8 +25,8 @@ Notes
 #include "network/client.h"
 #include "network/cgdata.h"
 
-JusticeRegion::JusticeRegion( ConfigElem& elem ) : 
-	Region(elem),
+JusticeRegion::JusticeRegion( ConfigElem& elem, RegionId id ) : 
+	Region(elem, id),
 	guarded_(elem.remove_bool( "Guarded", false )),
 	nocombat_(elem.remove_bool( "NoCombat", false)),
 	region_name_(elem.rest()),

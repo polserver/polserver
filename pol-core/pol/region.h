@@ -28,7 +28,7 @@ public:
     RegionId regionid() const;
 
 protected:
-    explicit Region( ConfigElem& elem );
+    explicit Region( ConfigElem& elem, RegionId id );
     virtual ~Region();
 
     // virtual void read_config( ConfigElem& elem );
@@ -77,7 +77,7 @@ protected:
 	typedef std::map<Realm*,RegionId**> RegionRealms;
 	RegionRealms regionrealms;
 private:
-    virtual Region* create_region( ConfigElem& elem ) const = 0;
+    virtual Region* create_region( ConfigElem& elem, RegionId id ) const = 0;
 
     RegionId getregionid( xcoord x, ycoord y, Realm* realm );
     void paint_zones( ConfigElem& elem, RegionId ridx );
@@ -101,7 +101,7 @@ public:
     virtual T* getregion( const std::string& regionname );
 
 protected:
-    virtual Region* create_region( ConfigElem& elem ) const;
+    virtual Region* create_region( ConfigElem& elem, RegionId id ) const;
 
 
 };
@@ -125,9 +125,9 @@ T* RegionGroup<T>::getregion( const std::string& regionname )
 }
 
 template<class T>
-Region* RegionGroup<T>::create_region( ConfigElem& elem ) const 
+Region* RegionGroup<T>::create_region( ConfigElem& elem, RegionId id ) const 
 { 
-    return new T(elem); 
+    return new T(elem, id); 
 }
 
 void read_region_data( RegionGroupBase& grp,

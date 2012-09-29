@@ -97,6 +97,8 @@ Notes
 NPC::NPC( u32 objtype, const ConfigElem& elem ) :
     Character(objtype, CLASS_NPC),
 	damaged_sound(0),
+	use_adjustments(true),
+	run_speed(dexterity()),
 	ex(NULL),
 	give_item_ex(NULL),
     script(""),
@@ -109,6 +111,16 @@ NPC::NPC( u32 objtype, const ConfigElem& elem ) :
 	connected = 1;
     logged_in = true;
     anchor.enabled = false;
+	element_resist_.fire=0;
+	element_resist_.cold=0;
+	element_resist_.poison=0;
+	element_resist_.energy=0;
+	element_resist_.physical=0;
+	element_damage_.fire=0;
+	element_damage_.cold=0;
+	element_damage_.poison=0;
+	element_damage_.energy=0;
+	element_damage_.physical=0;
     ++npc_count;
 }
  
