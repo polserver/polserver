@@ -95,6 +95,7 @@ void usage(void)
     cerr << "         -u         compile only updated scripts (.src newer than .ecl)" << endl;
     cerr << "           -f       force compile even if up-to-date" << endl;
     cerr << "       -s           display summary if -q is not set" << endl;
+	cerr << "       -T           use threaded compilation" << endl;
     cerr << "       -vN          verbosity level" << endl;
     cerr << "       -w           display warnings" << endl;
     cerr << "       -W           generate wordfile" << endl;
@@ -459,7 +460,10 @@ int readargs(int argc, char **argv)
                     }
                     break;
 #endif
-
+				case 'T':
+					compilercfg.ThreadedCompilation=true;
+					break;
+					
                 default:
 					unknown_opt = true;
 					break;
@@ -476,7 +480,7 @@ int readargs(int argc, char **argv)
     return 0;
 }
 
-void recurse_compile( string basedir )
+void recurse_compile( string basedir, vector<string>* files )
 {
 	int s_compiled, s_uptodate, s_errors;
 	clock_t start, finish;
@@ -503,19 +507,24 @@ void recurse_compile( string basedir )
 				 (compilercfg.CompileAspPages && !ext.compare(".asp"))) )
 			{
 				s_compiled++;
-				if (compile_file( (basedir + name).c_str() ))
-                {
-                    ++summary.CompiledScripts;
-                }
-                else
-                {
-                    ++s_uptodate;
-                    ++summary.UpToDateScripts;
-                }
+				if (files==NULL)
+				{
+					if (compile_file( (basedir + name).c_str() ))
+					{
+						++summary.CompiledScripts;
+					}
+					else
+					{
+						++s_uptodate;
+						++summary.UpToDateScripts;
+					}
+				}
+				else
+					files->push_back((basedir + name));
 			}
             else
             {
-                recurse_compile( basedir + name + "/" );
+                recurse_compile( basedir + name + "/", files );
             }
         }
         catch( std::exception& )
@@ -527,6 +536,8 @@ void recurse_compile( string basedir )
 			s_errors++;
         }
     }
+	if (files==NULL)
+		return;
 	finish = clock();
 
 	if ( (!quiet || timing_quiet_override) && show_timing_details && s_compiled > 0 ) {
@@ -541,7 +552,7 @@ void recurse_compile( string basedir )
 				 << " had errors." << endl;
 	}
 }
-void recurse_compile_inc( string basedir )
+void recurse_compile_inc( string basedir, vector<string>* files )
 {
     for( DirList dl( basedir.c_str() ); !dl.at_end(); dl.next() )
     {
@@ -554,26 +565,70 @@ void recurse_compile_inc( string basedir )
 
 		if (pos != string::npos && !ext.compare(".inc"))
         {
-            compile_file( (basedir + name).c_str() );
+			if (files==NULL)
+				compile_file( (basedir + name).c_str() );
+			else
+				files->push_back( (basedir + name));
         }
         else
         {
-            recurse_compile( basedir + name + "/" );
+            recurse_compile( basedir + name + "/", files );
         }
     }
+}
+
+void parallel_compile(vector<string> files)
+{
+	unsigned compiled_scripts=0;
+	unsigned uptodate_scripts=0;
+	unsigned error_scripts=0;
+#pragma omp parallel for reduction(+ : compiled_scripts, uptodate_scripts, error_scripts)
+	for (int i=0;i<files.size();++i)
+	{
+		try
+		{
+			if (compile_file( files[i].c_str() ))
+				++compiled_scripts;
+			else
+				++uptodate_scripts;
+		}
+		catch( std::exception& )
+        {
+            ++compiled_scripts;
+            ++error_scripts;
+            if (!keep_building)
+                throw;
+        }
+	}
+	summary.CompiledScripts = compiled_scripts;
+	summary.UpToDateScripts = uptodate_scripts;
+	summary.ScriptsWithCompileErrors = error_scripts;
 }
 
 void AutoCompile()
 {
     bool save = compilercfg.OnlyCompileUpdatedScripts;
     compilercfg.OnlyCompileUpdatedScripts = compilercfg.UpdateOnlyOnAutoCompile;
-
-    recurse_compile( normalized_dir_form( compilercfg.PolScriptRoot ) );
-    for( size_t i = 0; i < packages.size(); ++i )
-    {
-        const Package* pkg = packages[i];
-        recurse_compile( normalized_dir_form( pkg->dir() ) );
-    }
+	if (compilercfg.ThreadedCompilation)
+	{
+		vector<string> files;
+		recurse_compile( normalized_dir_form( compilercfg.PolScriptRoot ),&files );
+		for( size_t i = 0; i < packages.size(); ++i )
+		{
+			const Package* pkg = packages[i];
+			recurse_compile( normalized_dir_form( pkg->dir() ), &files );
+		}
+		parallel_compile(files);
+	}
+	else
+	{
+		recurse_compile( normalized_dir_form( compilercfg.PolScriptRoot ),NULL );
+		for( size_t i = 0; i < packages.size(); ++i )
+		{
+			const Package* pkg = packages[i];
+			recurse_compile( normalized_dir_form( pkg->dir() ), NULL );
+		}
+	}
     compilercfg.OnlyCompileUpdatedScripts = save;
 }
 
@@ -615,10 +670,22 @@ bool run(int argc, char **argv)
 				if (i<argc && argv[i] && argv[i][0] != '-')
 					dir.assign(argv[i]);
 
-				if (compile_inc)
-					recurse_compile_inc( normalized_dir_form( dir ) );
+				if (compilercfg.ThreadedCompilation)
+				{
+					vector<string> files;
+					if (compile_inc)
+						recurse_compile_inc( normalized_dir_form( dir ), &files );
+					else
+						recurse_compile( normalized_dir_form( dir ),&files );
+					parallel_compile(files);
+				}
 				else
-					recurse_compile( normalized_dir_form( dir ) );
+				{
+					if (compile_inc)
+						recurse_compile_inc( normalized_dir_form( dir ), NULL );
+					else
+						recurse_compile( normalized_dir_form( dir ),NULL );
+				}
 			}
             else if (argv[i][1] == 'C')
             {

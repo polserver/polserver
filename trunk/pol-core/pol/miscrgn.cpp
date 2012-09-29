@@ -20,8 +20,8 @@ Notes
 #include "realms.h"
 #include "uworld.h"
 
-NoCastRegion::NoCastRegion( ConfigElem& elem ) :
-    Region( elem ),
+NoCastRegion::NoCastRegion( ConfigElem& elem, RegionId id ) :
+    Region( elem, id ),
     nocast_( elem.remove_bool( "nocast", false ) )
 {
 }
@@ -37,8 +37,8 @@ void read_nocast_zones()
                       "NoCastRegion Region" );
 }
 
-LightRegion::LightRegion( ConfigElem& elem ) :
-    Region( elem ),
+LightRegion::LightRegion( ConfigElem& elem, RegionId id ) :
+    Region( elem, id ),
     lightlevel( elem.remove_ushort( "LightLevel", 0 ) )
 {
 }
@@ -55,8 +55,8 @@ void read_light_zones()
 }
 
 
-WeatherRegion::WeatherRegion( ConfigElem& elem ) :
-    Region( elem ),
+WeatherRegion::WeatherRegion( ConfigElem& elem, RegionId id ) :
+    Region( elem, id ),
     weathertype( static_cast<u8>(elem.remove_ushort( "WeatherType", 255 )) ), //dave changed 6/30/03, 255 is no weather, not 0
     severity( static_cast<u8>(elem.remove_ushort( "WeatherSeverity", 0 )) ),
     aux( static_cast<u8>(elem.remove_ushort( "WeatherAux", 0 )) ),

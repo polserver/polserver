@@ -45,7 +45,7 @@ void clean_resources();
 class ResourceRegion : public Region
 {
 public:
-    explicit ResourceRegion( ConfigElem& elem );
+    explicit ResourceRegion( ConfigElem& elem, RegionId id );
 
     void read_data( ConfigElem& elem );
 

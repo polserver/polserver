@@ -1829,11 +1829,11 @@ const char* Use_low_fragmentation_Heap()
 	if (ssopt.use_win_lfh)
 	{
 		HINSTANCE hKernel32;
-		DynHeapSetInformation ProcAdd;
 		
 		hKernel32 = LoadLibrary("Kernel32");
 		if (hKernel32 != NULL)
 		{
+			DynHeapSetInformation ProcAdd;
 			ProcAdd = (DynHeapSetInformation) GetProcAddress(hKernel32, "HeapSetInformation");
 			if (ProcAdd != NULL)
 			{

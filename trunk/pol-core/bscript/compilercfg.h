@@ -29,6 +29,7 @@ struct CompilerConfig
     bool DisplayUpToDateScripts;
     bool OptimizeObjectMembers;
     bool ErrorOnWarning;
+	bool ThreadedCompilation;
 
     void Read( const std::string& path );
     void SetDefaults();

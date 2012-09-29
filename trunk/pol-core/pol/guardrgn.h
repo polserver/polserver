@@ -21,7 +21,7 @@ class JusticeRegion : public Region
 {
     typedef Region base;
 public:
-    JusticeRegion( ConfigElem& elem );
+    JusticeRegion( ConfigElem& elem, RegionId id );
 
     const std::string& region_name() const;
     const std::string& entertext() const;
