@@ -583,7 +583,7 @@ void parallel_compile(vector<string> files)
 	unsigned uptodate_scripts=0;
 	unsigned error_scripts=0;
 #pragma omp parallel for reduction(+ : compiled_scripts, uptodate_scripts, error_scripts)
-	for (int i=0;i<files.size();++i)
+	for (int i=0;i<(int)files.size();++i)
 	{
 		try
 		{
