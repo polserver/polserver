@@ -21,8 +21,9 @@ Notes
 #include "region.h"
 #include "uworld.h"
 
-Region::Region( ConfigElem& elem ) :
-    name_(elem.rest())
+Region::Region( ConfigElem& elem, RegionId id ) :
+    name_(elem.rest()),
+	regionid_(id)
 {
 }
 
@@ -182,8 +183,7 @@ Region* RegionGroupBase::getregion_byloc( xcoord x, ycoord y, Realm* realm )
 
 void RegionGroupBase::read_region( ConfigElem& elem )
 {
-    Region* rgn = create_region( elem );
-
+    Region* rgn = create_region( elem,static_cast<RegionId>(regions_.size()) );
     regions_.push_back( rgn );
     regions_byname_.insert( RegionsByName::value_type(elem.rest(), rgn) );
 
@@ -193,7 +193,7 @@ void RegionGroupBase::read_region( ConfigElem& elem )
 
 void RegionGroupBase::create_bgnd_region( ConfigElem& elem )
 {
-    Region* rgn = create_region( elem );
+    Region* rgn = create_region( elem,static_cast<RegionId>(regions_.size()) );
 
     regions_.push_back( rgn );
     regions_byname_.insert( RegionsByName::value_type("_background_", rgn) );

@@ -50,6 +50,7 @@ void CompilerConfig::Read( const string& path )
     GenerateDependencyInfo = elem.remove_bool( "GenerateDependencyInfo", OnlyCompileUpdatedScripts );
 
     DisplayUpToDateScripts = elem.remove_bool( "DisplayUpToDateScripts", true );
+	ThreadedCompilation = elem.remove_bool( "ThreadedCompilation", false );
 
 	// This is where we TRY to validate full paths from what was provided in the
 	// ecompile.cfg. Maybe Turley or Shini can find the best way to do this in *nix.

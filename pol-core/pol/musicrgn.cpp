@@ -15,8 +15,8 @@ Notes
 
 #include "musicrgn.h"
 
-MusicRegion::MusicRegion( ConfigElem& elem ) : 
-    Region(elem)
+MusicRegion::MusicRegion( ConfigElem& elem, RegionId id ) : 
+    Region(elem, id)
 {
     unsigned short midi_add;
     while (elem.remove_prop( "Midi", &midi_add ))

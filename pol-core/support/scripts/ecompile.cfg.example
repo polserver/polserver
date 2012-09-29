@@ -14,3 +14,4 @@ OnlyCompileUpdatedScripts 1
 DisplaySummary 1
 GenerateDependencyInfo 1
 DisplayUpToDateScripts 0
+ThreadedCompilation 0
