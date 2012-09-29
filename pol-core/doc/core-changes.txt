@@ -1,4 +1,9 @@
 ﻿-- POL099 --
+09-29-2012 Turley:
+  Added:      ecompile parameter -T
+  Added:      ecompile.cfg entry ThreadedCompilation
+  Note:       if set will use openmp for parallel compilation
+  
 09-25-2012 Kevin:
   Fixed:      Guild and alliance messages no longer send as regular speech messages. They are sent to all guild or alliance members online.
   Added:      servspecopt.cfg CoreGuildMessages=0/1 default 1 to determine if core should handle guild and alliance messages.

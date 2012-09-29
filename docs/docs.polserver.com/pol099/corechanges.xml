@@ -4,9 +4,26 @@
 <ESCRIPT>
   <header>
     <topic>Latest Core Changes</topic>
-    <datemodified>08-29-2012</datemodified>
+    <datemodified>09-29-2012</datemodified>
   </header>
   <version name="POL099">
+	<entry>
+      <date>09-29-2012</date>
+      <author>Turley</author>
+      <change type="Added">ecompile parameter -T
+      </change>
+	  <change type="Added">ecompile.cfg entry ThreadedCompilation
+      </change type="Note">if set will use openmp for parallel compilationecompile.cfg entry ThreadedCompilation
+      </change>
+    </entry>
+	<entry>
+      <date>09-25-2012</date>
+      <author>Kevin</author>
+      <change type="Fixed">Guild and alliance messages no longer send as regular speech messages. They are sent to all guild or alliance members online.
+      </change>
+	  <change type="Added">servspecopt.cfg CoreGuildMessages=0/1 default 1 to determine if core should handle guild and alliance messages.
+      </change>
+    </entry>
     <entry>
       <date>08-29-2012</date>
       <author>Turley</author>
