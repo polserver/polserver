@@ -280,7 +280,14 @@ void UObject::readProperties( ConfigElem& elem )
     color = elem.remove_ushort( "COLOR", 0 );
    
 
-	realm = find_realm( elem.remove_string("Realm", "britannia") );
+	string realmstr = elem.remove_string("Realm", "britannia");
+	realm = find_realm( realmstr );
+	if (!realm)
+	{
+		cerr << classname() << " '" << name() << "' (0x" << hex << serial << dec << "): "
+			<< "has an invalid realm property '" << realmstr << "'." << endl;
+		throw runtime_error( "Data integrity error" );
+	}
     x = elem.remove_ushort( "X" );
 	y = elem.remove_ushort( "Y" );
 	z = static_cast<s8>(elem.remove_int( "Z" ));
