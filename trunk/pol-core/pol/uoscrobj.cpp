@@ -1144,6 +1144,7 @@ BObjectImp* Item::script_method_id(const int id, Executor& ex)
 			new_stack->y = y;
 			new_stack->z = static_cast<s8>(z);
 			new_stack->realm = realm;
+			new_stack->setamount(amt);
 			add_item_to_world(new_stack);
 			move_item(new_stack, x, y, static_cast<signed char>(z), realm);
 			return new EItemRefObjImp(new_stack);
@@ -1212,6 +1213,7 @@ BObjectImp* Item::script_method_id(const int id, Executor& ex)
 					return new BError("Could not insert new stack into container");
 				}
 				container->add_at_random_location(new_stack);
+				new_stack->setamount(amt);
 				update_item_to_inrange(new_stack);
 				UpdateCharacterWeight( new_stack );
 				container->on_insert_add_item( NULL, UContainer::MT_CORE_MOVED, new_stack );
