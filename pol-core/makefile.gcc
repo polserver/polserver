@@ -36,13 +36,16 @@ endif
 
 ifdef USE_MYSQL
 LIB_MORE += -lmysqlclient -lz -lpthread
+CXX_MORE_OPTS += -DHAVE_MYSQL
 endif
 
 ifdef BUILD64POL
 LIB_MORE += -L../lib/boost_1_51_0/lib/x64/lib
+CXX_MORE_OPTS += -m64 
 # plus all used libaries eg: -lboost_regex
 else
 LIB_MORE += -L../lib/boost_1_51_0/lib/x86/lib
+CXX_MORE_OPTS += -m32
 # plus all used libaries eg: -lboost_regex
 endif
 
