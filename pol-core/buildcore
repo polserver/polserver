@@ -2,13 +2,11 @@
 #
 # Build Official Release
 
-
+export BUILD64POL=1
 #export USE_MYSQL=1
 
 export LIBCRYPT="crypto"
 export POL_BUILDTAG="ubuntu"
-export BUILD64POL=1
-export CXX_MORE_OPTS="-m64 -O3 -DUSE_SYSTEM_ZLIB -DHAVE_OPENSSL -DNDEBUG -D_REENTRANT -DPOL_BUILDTAG=\\\"ubuntu\\\""
-#export CXX_MORE_OPTS="-m64 -O3 -DUSE_SYSTEM_ZLIB -DHAVE_OPENSSL -DNDEBUG -D_REENTRANT -DHAVE_MYSQL -DPOL_BUILDTAG=\\\"ubuntu\\\""
+export CXX_MORE_OPTS="-O3 -DUSE_SYSTEM_ZLIB -DHAVE_OPENSSL -DNDEBUG -D_REENTRANT -DPOL_BUILDTAG=\\\"ubuntu\\\""
 
 make -f makefile.gcc dist
