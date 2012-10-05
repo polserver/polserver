@@ -1,4 +1,9 @@
 ﻿-- POL099 --
+10-05-2012 Turley:
+  Added:      ecompile parameter -wP
+  Added:      ecompile.cfg entry ParanoiaWarnings
+  Note:       since "{}" is valid syntax, only complain about it if ParanoiaWarnings is enabled
+
 09-29-2012 Turley:
   Added:      ecompile parameter -T
   Added:      ecompile.cfg entry ThreadedCompilation
