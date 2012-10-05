@@ -4,9 +4,18 @@
 <ESCRIPT>
   <header>
     <topic>Latest Core Changes</topic>
-    <datemodified>09-29-2012</datemodified>
+    <datemodified>10-05-2012</datemodified>
   </header>
   <version name="POL099">
+	<entry>
+      <date>10-05-2012</date>
+      <author>Turley</author>
+      <change type="Added">ecompile parameter -wP
+      </change>
+	  <change type="Added">ecompile.cfg entry ParanoiaWarnings</change>
+      <change type="Note">since "{}" is valid syntax, only complain about it if ParanoiaWarnings is enabled
+      </change>
+    </entry>
 	<entry>
       <date>09-29-2012</date>
       <author>Turley</author>
