@@ -367,6 +367,8 @@ int readargs(int argc, char **argv)
 
                 case 'w':
                     compilercfg.DisplayWarnings = setting_value( arg );
+					if ( argv[i][2] == 'P' )
+						compilercfg.ParanoiaWarnings = true;
                     break;
                 case 'y':
                     compilercfg.ErrorOnWarning = setting_value( arg );
