@@ -20,7 +20,6 @@ Notes
 #endif
 
 #include "../polclock.h"
-#include "../polopt.h"
 
 #include "../uoexhelp.h"
 

@@ -249,7 +249,6 @@
     <ClCompile Include="pkthelper.cpp" />
     <ClCompile Include="progver.cpp" />
     <ClCompile Include="random.cpp" />
-    <ClCompile Include="rarray.cpp" />
     <ClCompile Include="sckutil.cpp" />
     <ClCompile Include="socketsvc.cpp" />
     <ClCompile Include="StdAfx.cpp">
@@ -285,7 +284,6 @@
     <ClInclude Include="compileassert.h" />
     <ClInclude Include="dirfunc.h" />
     <ClInclude Include="dirlist.h" />
-    <ClInclude Include="drarray.h" />
     <ClInclude Include="dualbuf.h" />
     <ClInclude Include="endian.h" />
     <ClInclude Include="esignal.h" />
@@ -310,7 +308,6 @@
     <ClInclude Include="pkthelper.h" />
     <ClInclude Include="progver.h" />
     <ClInclude Include="random.h" />
-    <ClInclude Include="rarray.h" />
     <ClInclude Include="rawtypes.h" />
     <ClInclude Include="RefPtr.h" />
     <ClInclude Include="sckutil.h" />
@@ -329,9 +326,7 @@
     <ClInclude Include="wallclock.h" />
     <ClInclude Include="weakptr.h" />
     <ClInclude Include="wnsckt.h" />
-    <ClInclude Include="xerces_inc.h" />
     <ClInclude Include="xmain.h" />
-    <ClInclude Include="xmlutil.h" />
     <ClInclude Include="..\..\lib\tinyxml\tinystr.h" />
     <ClInclude Include="..\..\lib\tinyxml\tinyxml.h" />
   </ItemGroup>

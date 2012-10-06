@@ -54,7 +54,6 @@ Notes
 #include "armor.h"
 #include "multi/boat.h"
 #include "door.h"
-#include "dye.h"
 #include "objtype.h"
 #include "spelbook.h"
 #include "weapon.h"

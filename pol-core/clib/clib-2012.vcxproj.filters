@@ -95,9 +95,6 @@
     <ClCompile Include="random.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="rarray.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="sckutil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -181,9 +178,6 @@
     <ClInclude Include="dirlist.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="drarray.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="dualbuf.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -250,9 +244,6 @@
     <ClInclude Include="random.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="rarray.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="rawtypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -307,13 +298,7 @@
     <ClInclude Include="wnsckt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="xerces_inc.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="xmain.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="xmlutil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\lib\tinyxml\tinystr.h">
