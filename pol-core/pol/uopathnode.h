@@ -62,7 +62,7 @@ public:
 
 	bool IsBlocking(short x, short y, short z)
 	{	BlockNode * theNode;
-		for( BlockNodeVector::iterator blockNode = m_List.begin(); blockNode != m_List.end(); ++blockNode )
+		for( BlockNodeVector::iterator blockNode = m_List.begin(), blockNode_end = m_List.end(); blockNode != blockNode_end; ++blockNode )
 		{
 			theNode = (*blockNode);
 			if ((theNode->x == x) && (theNode->y == y) && (abs(theNode->z - z) < PLAYER_CHARACTER_HEIGHT))

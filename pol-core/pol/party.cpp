@@ -558,6 +558,7 @@ void Party::send_stat_to(Character* chr,Character* bob)
 
 void Party::send_stats_on_add(Character* newmember)
 {
+	if (newmember==NULL) return;
 	for( vector<u32>::iterator itr = _member_serials.begin(); itr != _member_serials.end(); ++itr)
 	{
 		Character* chr = system_find_mobile( *itr );

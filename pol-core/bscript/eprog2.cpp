@@ -400,7 +400,7 @@ int EScriptProgram::write_dbg( const char *fname, bool gen_txt )
     for( unsigned i = 0; i < dbg_filenames.size(); ++i )
     {
         if (fptext)
-            fprintf( fptext, "File %d: %s\n", i, dbg_filenames[i].c_str() );
+            fprintf( fptext, "File %u: %s\n", i, dbg_filenames[i].c_str() );
         count = static_cast<unsigned int>(dbg_filenames[i].size()+1);
         fwrite( &count, sizeof count, 1, fp );
         fwrite( dbg_filenames[i].c_str(), count, 1, fp );
@@ -410,7 +410,7 @@ int EScriptProgram::write_dbg( const char *fname, bool gen_txt )
     for( unsigned i = 0; i < globalvarnames.size(); ++i )
     {
         if (fptext)
-            fprintf( fptext, "Global %d: %s\n", i, globalvarnames[i].c_str() );
+            fprintf( fptext, "Global %u: %s\n", i, globalvarnames[i].c_str() );
         count = static_cast<unsigned int>(globalvarnames[i].size()+1);
         fwrite( &count, sizeof count, 1, fp );
         fwrite( globalvarnames[i].c_str(), count, 1, fp );
@@ -421,7 +421,7 @@ int EScriptProgram::write_dbg( const char *fname, bool gen_txt )
     {
         if (fptext)
             fprintf( fptext, 
-                     "Ins %d: File %d, Line %d, Block %d %s\n", 
+                     "Ins %u: File %u, Line %u, Block %u %s\n", 
                      i, 
                      dbg_filenum[i], 
                      dbg_linenum[i], 
@@ -443,8 +443,8 @@ int EScriptProgram::write_dbg( const char *fname, bool gen_txt )
         const EPDbgBlock& block = blocks[i];
         if (fptext)
         {
-            fprintf( fptext, "Block %d:\n", i );
-            fprintf( fptext, "  Parent block: %d\n", block.parentblockidx );
+            fprintf( fptext, "Block %u:\n", i );
+            fprintf( fptext, "  Parent block: %u\n", block.parentblockidx );
         }
 
         u32 tmp;
@@ -456,17 +456,17 @@ int EScriptProgram::write_dbg( const char *fname, bool gen_txt )
         count = static_cast<unsigned int>(block.localvarnames.size());
         fwrite( &count, sizeof count, 1, fp );
 
-        int varfirst = block.parentvariables;
-        int varlast = static_cast<int>(varfirst + block.localvarnames.size()-1);
+		unsigned int varfirst = block.parentvariables;
+        unsigned int varlast = static_cast<unsigned int>(varfirst + block.localvarnames.size()-1);
         if (varlast >= varfirst)
         {
             if (fptext)
-                fprintf( fptext, "  Local variables %d-%d: \n", varfirst, varlast );
+                fprintf( fptext, "  Local variables %u-%u: \n", varfirst, varlast );
             for( unsigned j = 0; j < block.localvarnames.size(); ++j )
             {
                 string name = block.localvarnames[j];
                 if (fptext)
-                    fprintf( fptext, "      %d: %s\n", varfirst+j, name.c_str() );
+                    fprintf( fptext, "      %u: %s\n", varfirst+j, name.c_str() );
 
                 count = static_cast<unsigned int>(name.size()+1);
                 fwrite( &count, sizeof count, 1, fp );
@@ -481,7 +481,7 @@ int EScriptProgram::write_dbg( const char *fname, bool gen_txt )
         const EPDbgFunction& func = dbg_functions[i];
         if (fptext)
         {
-            fprintf( fptext, "Function %d: %s\n", i, func.name.c_str() );
+            fprintf( fptext, "Function %u: %s\n", i, func.name.c_str() );
             fprintf( fptext, "  FirstPC=%u, lastPC=%u\n", func.firstPC, func.lastPC );
         }
         count = static_cast<unsigned int>(func.name.size()+1);

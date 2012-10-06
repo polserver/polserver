@@ -2797,6 +2797,7 @@ bool Character::is_concealed_from_me( const Character* chr ) const
 
 bool Character::is_visible_to_me( const Character* chr ) const
 {
+	if (chr == NULL) return false;
 	if(chr == this) return true; //I can always see myself (?)
 	if (is_concealed_from_me(chr)) return false;
 
@@ -2812,6 +2813,7 @@ bool Character::is_visible_to_me( const Character* chr ) const
 // NOTE: chr is at new position, lastx/lasty have old position.
 void PropagateMove( /*Client *client,*/ Character *chr )
 {
+	if (chr == NULL) return;
 	PktHelper::PacketOut<PktOut_1D> msgremove;
 	msgremove->Write<u32>(chr->serial_ext);
 	PktHelper::PacketOut<PktOut_77> msgmove;

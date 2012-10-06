@@ -145,7 +145,7 @@ BObjectImp* GetListenPoints()
     for( ListenPoints::iterator itr = listen_points.begin(), end = listen_points.end(); itr != end; )
     {
         ListenPoint* lp = (*itr).second;
-        if (lp->object->orphan())
+        if (lp==NULL || lp->object->orphan())
         { 
             ListenPoints::iterator next = itr;
             ++next;
