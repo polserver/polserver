@@ -37,7 +37,6 @@ Notes
 #include "polcfg.h"
 #include "polclass.h"
 #include "polsig.h"
-#include "reagents.h"
 #include "schedule.h"
 #include "scrstore.h"
 #include "sockio.h"

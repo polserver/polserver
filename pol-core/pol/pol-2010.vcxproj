@@ -542,7 +542,6 @@
     <ClInclude Include="dice.h" />
     <ClInclude Include="door.h" />
     <ClInclude Include="dtrace.h" />
-    <ClInclude Include="dye.h" />
     <ClInclude Include="equipdsc.h" />
     <ClInclude Include="eventid.h" />
     <ClInclude Include="exscrobj.h" />
@@ -591,7 +590,6 @@
     <ClInclude Include="polclock.h" />
     <ClInclude Include="poldbg.h" />
     <ClInclude Include="polfile.h" />
-    <ClInclude Include="polopt.h" />
     <ClInclude Include="polsem.h" />
     <ClInclude Include="polsig.h" />
     <ClInclude Include="polstats.h" />
@@ -603,7 +601,6 @@
     <ClInclude Include="profile.h" />
     <ClInclude Include="proplist.h" />
     <ClInclude Include="readcfg.h" />
-    <ClInclude Include="reagents.h" />
     <ClInclude Include="realms.h" />
     <ClInclude Include="reftypes.h" />
     <ClInclude Include="region.h" />
