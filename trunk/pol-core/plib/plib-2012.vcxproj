@@ -234,6 +234,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="filemapserver.h" />
+    <ClInclude Include="fsa.h" />
     <ClInclude Include="inmemorymapserver.h" />
     <ClInclude Include="mapblob.h" />
     <ClInclude Include="mapblock.h" />
@@ -251,6 +252,7 @@
     <ClInclude Include="realmdescriptor.h" />
     <ClInclude Include="staticblock.h" />
     <ClInclude Include="staticserver.h" />
+    <ClInclude Include="stlastar.h" />
     <ClInclude Include="testenv.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

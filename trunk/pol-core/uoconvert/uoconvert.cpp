@@ -397,7 +397,7 @@ void create_maptile( const string& realmname )
                     safe_getmapinfo( x, y, &z, &mi );
 
 					if (mi.landtile > 0x3FFF)
-						printf("Tile %d at (%d,%d,%d) is an invalid ID!\n", mi.landtile, x, y, z);
+						printf("Tile %u at (%u,%u,%d) is an invalid ID!\n", mi.landtile, x, y, z);
 
 					// for water, don't average with surrounding tiles.
                     if (landtile_uoflags( mi.landtile ) & USTRUCT_TILE::FLAG_LIQUID)
@@ -720,7 +720,7 @@ void ProcessSolidBlock( unsigned short x_base, unsigned short y_base, MapWriter&
             safe_getmapinfo( x, y, &z, &mi );
 
 			if (mi.landtile > 0x3FFF)
-				printf("Tile %d at (%d,%d,%d) is an invalid ID!\n", mi.landtile, x, y, z);
+				printf("Tile %u at (%u,%u,%d) is an invalid ID!\n", mi.landtile, x, y, z);
 
 			// for water, don't average with surrounding tiles.
             if (landtile_uoflags( mi.landtile ) & USTRUCT_TILE::FLAG_LIQUID)
@@ -732,7 +732,7 @@ void ProcessSolidBlock( unsigned short x_base, unsigned short y_base, MapWriter&
 			z = low_z;
 
 			if (mi.landtile > 0x3FFF)
-				printf("Tile %d at (%d,%d,%d) is an invalid ID!\n", mi.landtile, x, y, z);
+				printf("Tile %u at (%u,%u,%d) is an invalid ID!\n", mi.landtile, x, y, z);
 
 			unsigned int lt_flags = landtile_uoflags( mi.landtile );
             if (~lt_flags & USTRUCT_TILE::FLAG_BLOCKING)
@@ -1219,9 +1219,9 @@ void create_tiles_cfg()
         fprintf( fp, "    Desc %s\n", name );
         fprintf( fp, "    UoFlags 0x%08lx\n", static_cast<unsigned long>(tile.flags));
         if (tile.layer)
-            fprintf( fp, "    Layer %d\n", tile.layer );
-        fprintf( fp, "    Height %d\n", tile.height );
-        fprintf( fp, "    Weight %d\n", tile.weight );
+            fprintf( fp, "    Layer %u\n", tile.layer );
+        fprintf( fp, "    Height %u\n", tile.height );
+        fprintf( fp, "    Weight %u\n", tile.weight );
         write_flags( fp, flags );
         fprintf( fp, "}\n" );
         fprintf( fp, "\n" );
