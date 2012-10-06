@@ -1,4 +1,7 @@
 ﻿-- POL099 --
+10-06-2012 Tomi:
+  Changed:    setting an equipped item on NPC to movable 0 will make it visible on the corpse but invisible in the corpse, same as hair and beard have worked until now.
+
 10-05-2012 Turley:
   Added:      ecompile parameter -wP
   Added:      ecompile.cfg entry ParanoiaWarnings
