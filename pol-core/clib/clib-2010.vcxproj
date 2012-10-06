@@ -279,12 +279,14 @@
     <ClInclude Include="clibopt.h" />
     <ClInclude Include="cmdargs.h" />
     <ClInclude Include="compileassert.h" />
+	<ClInclude Include="dirfunc.h" />
     <ClInclude Include="dirlist.h" />
     <ClInclude Include="drarray.h" />
     <ClInclude Include="dualbuf.h" />
     <ClInclude Include="endian.h" />
     <ClInclude Include="esignal.h" />
     <ClInclude Include="fdump.h" />
+	<ClInclude Include="filecont.h" />
     <ClInclude Include="fileutil.h" />
     <ClInclude Include="fixalloc.h" />
     <ClInclude Include="hbmutex.h" />
@@ -298,6 +300,7 @@
     <ClInclude Include="msjexhnd.h" />
     <ClInclude Include="nlogfile.h" />
     <ClInclude Include="NTService.h" />
+	<ClInclude Include="ntservmsg.h" />
     <ClInclude Include="opnew.h" />
     <ClInclude Include="passert.h" />
     <ClInclude Include="pkthelper.h" />

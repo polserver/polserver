@@ -614,7 +614,7 @@ void handle_unknown_packet( Client* client )
 {
 	if (config.display_unknown_packets)
 	{
-		printf( "Unknown packet type 0x%2.02x: %d bytes (IP:%s, Account:%s)\n", 
+		printf( "Unknown packet type 0x%2.02x: %u bytes (IP:%s, Account:%s)\n", 
 					client->buffer[0], client->bytes_received,
 					client->ipaddrAsString().c_str(), (client->acct != NULL)? client->acct->name():"None" );
 
@@ -623,7 +623,7 @@ void handle_unknown_packet( Client* client )
 
 		if (logfile)
 		{
-			fprintf( logfile, "Unknown packet type 0x%2.02x: %d bytes (IP:%s, Account:%s)\n", 
+			fprintf( logfile, "Unknown packet type 0x%2.02x: %u bytes (IP:%s, Account:%s)\n", 
 					client->buffer[0], client->bytes_received,
 					client->ipaddrAsString().c_str(), (client->acct != NULL)? client->acct->name():"None"  );
 			fdump( logfile, client->buffer, client->bytes_received );
@@ -675,14 +675,14 @@ bool process_data( Client *client )
 		{
 			printf( "Undefined message type %2.02x\n", (unsigned char) msgtype );
 			client->recv_remaining( sizeof client->buffer/2 );
-			printf( "Unexpected message type %2.02x, %d bytes (IP:%s, Account:%s)\n", 
+			printf( "Unexpected message type %2.02x, %u bytes (IP:%s, Account:%s)\n", 
 				(unsigned char) msgtype, client->bytes_received,
 				client->ipaddrAsString().c_str(), (client->acct != NULL)? client->acct->name():"None" );
 			
 			if (logfile)
 			{
 				fprintf( logfile, 
-						 "Client#%lu: Unexpected message type %2.02x, %d bytes (IP:%s, Account:%s)\n", 
+						 "Client#%lu: Unexpected message type %2.02x, %u bytes (IP:%s, Account:%s)\n", 
 						 static_cast<unsigned long>(client->instance_),
 						 (unsigned char) msgtype, 
 						 client->bytes_received,
@@ -767,13 +767,13 @@ bool process_data( Client *client )
 			if (client->fpLog != NULL)
 			{
 				PolLock lck;
-				fprintf( client->fpLog, "Client -> Server: 0x%X, %d bytes\n", msgtype, client->message_length );
+				fprintf( client->fpLog, "Client -> Server: 0x%X, %u bytes\n", msgtype, client->message_length );
 				fdump( client->fpLog, &client->buffer, client->message_length );
 				fprintf( client->fpLog, "\n" );
 			}   
 
 			if (config.verbose)
-				printf( "Message Received: Type 0x%X, Length %d bytes\n", msgtype, client->message_length );
+				printf( "Message Received: Type 0x%X, Length %u bytes\n", msgtype, client->message_length );
 
 			PolLock lck; //multithread
 			// it can happen that a client gets disconnected while waiting for the lock.

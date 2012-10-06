@@ -85,7 +85,7 @@ BOOL CNTService::ParseStandardArgs(int argc, char* argv[])
             if (Install()) {
                 printf("%s installed\n", m_szServiceName);
             } else {
-                printf("%s failed to install. Error %d\n", m_szServiceName, GetLastError());
+                printf("%s failed to install. Error %u\n", m_szServiceName, GetLastError());
             }
         }
         return TRUE; // say we processed the argument
@@ -104,7 +104,7 @@ BOOL CNTService::ParseStandardArgs(int argc, char* argv[])
                 printf("%s removed. (You must delete the file (%s) yourself.)\n",
                        m_szServiceName, szFilePath);
             } else {
-                printf("Could not remove %s. Error %d\n", m_szServiceName, GetLastError());
+                printf("Could not remove %s. Error %u\n", m_szServiceName, GetLastError());
             }
         }
         return TRUE; // say we processed the argument

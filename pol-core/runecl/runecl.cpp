@@ -27,7 +27,6 @@ Notes
 
 #include "../clib/clib.h"
 #include "../clib/progver.h"
-#include "../clib/rstack.h"
 
 #include "../bscript/config.h"
 #include "../bscript/eprog.h"
