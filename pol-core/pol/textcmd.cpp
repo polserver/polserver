@@ -52,7 +52,6 @@ Notes
 #include "../plib/pkg.h"
 #include "polcfg.h"
 #include "polclock.h"
-#include "polopt.h"
 #include "polsem.h"
 #include "profile.h"
 #include "realms.h"

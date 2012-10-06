@@ -295,10 +295,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\rarray.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\sckutil.cpp"
 				>
 			</File>
@@ -408,9 +404,6 @@
 				RelativePath=".\dirlist.h"
 				>
 			</File>
-			<File
-				RelativePath=".\drarray.h"
-				>
 			</File>
 			<File
 				RelativePath=".\dualbuf.h"
@@ -501,10 +494,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\rarray.h"
-				>
-			</File>
-			<File
 				RelativePath=".\rawtypes.h"
 				>
 			</File>
@@ -577,15 +566,7 @@
 				>
 			</File>
 			<File
-				RelativePath="xerces_inc.h"
-				>
-			</File>
-			<File
 				RelativePath=".\xmain.h"
-				>
-			</File>
-			<File
-				RelativePath="xmlutil.h"
 				>
 			</File>
 		</Filter>

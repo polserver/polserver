@@ -52,7 +52,6 @@ Notes
 
 #include "../clib/clib.h"
 #include "../clib/maputil.h"
-#include "../clib/rstack.h"
 #include "../clib/strutil.h"
 #include "../clib/unittest.h"
 

@@ -776,35 +776,6 @@ BObjectRef Executor::getObjRef(void)
 	return ref;
 }
 
-void Executor::check_containers(void)
-{
-#ifdef INC_TMALLOC
-#ifndef NDEBUG
-    /* Values */
-    RArray<Object>& vals = (RArray<Object>& ) Values;
-
-        for(int i=0;i<vals.count();i++) 
-        {
-            if (!tm_isalloced(vals[i])) 
-            {
-                printerror("Values node not alloced!");
-                passert(0);
-            }
-        }
-
-    /* Globals */
-        for(i=0;i<Globals.count();i++) {
-            if (!tm_isalloced(Globals[i])) {
-                printerror("Global Node not alloced!");
-                passert(0);
-            }
-        }
-
-#endif
-#endif
-		/* Locals */
-}
-
 #include <stdlib.h>
 
 void Executor::execFunc(const Token& token)

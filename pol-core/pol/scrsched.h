@@ -14,8 +14,6 @@ Notes
 #include <list>
 #include <set>
 
-#include "polopt.h"
-
 #include "module/osmod.h"
 
 class Executor;

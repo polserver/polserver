@@ -83,7 +83,6 @@ cpp_sources = \
 	pol/multi/customhouses.cpp pol/multi/customhousehelp.cpp \
 	pol/module/datastore.cpp pol/dblclick.cpp pol/decay.cpp pol/dice.cpp \
 	pol/door.cpp pol/dropitem.cpp \
-	pol/dye.cpp \
 	pol/eqpitem.cpp pol/equipdsc.cpp pol/item/equipmnt.cpp clib/esignal.cpp \
 	pol/exscrobj.cpp \
 	pol/extcmd.cpp \
@@ -168,7 +167,6 @@ cpp_sources = \
 	clib/nlogfile.cpp \
 	clib/opnew.cpp \
 	clib/passert.cpp \
-	clib/rarray.cpp \
 	clib/sckutil.cpp clib/strexcpt.cpp clib/strset.cpp clib/strutil.cpp \
 	clib/threadhelp.cpp \
 	clib/tracebuf.cpp \
@@ -199,7 +197,7 @@ ecompile_sources=ecompile/ecompile.cpp \
 	bscript/fmodule.cpp bscript/eprog_read.cpp \
 	clib/cfgfile.cpp \
 	clib/dirlist.cpp clib/esignal.cpp clib/fileutil.cpp \
-	clib/strutil.cpp clib/rarray.cpp clib/filecont.cpp \
+	clib/strutil.cpp clib/filecont.cpp \
 	clib/progver.cpp clib/passert.cpp clib/xmain.cpp \
 	clib/endian.cpp clib/logfile.cpp clib/fdump.cpp clib/stracpy.cpp \
 	clib/random.cpp clib/cmdargs.cpp \
@@ -225,7 +223,7 @@ runecl_sources=runecl/runecl.cpp \
 	bscript/ofstrm.cpp bscript/str.cpp bscript/symcont.cpp \
 	bscript/tkn_strm.cpp bscript/token.cpp bscript/userfunc.cpp \
 	bscript/parser.cpp bscript/compilercfg.cpp \
-	clib/passert.cpp clib/rarray.cpp clib/strutil.cpp  \
+	clib/passert.cpp clib/strutil.cpp  \
 	clib/endian.cpp clib/esignal.cpp clib/logfile.cpp clib/fdump.cpp \
 	clib/stracpy.cpp clib/cfgfile.cpp clib/fileutil.cpp \
 	clib/random.cpp clib/cmdargs.cpp clib/dirlist.cpp \

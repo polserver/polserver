@@ -965,10 +965,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dye.h"
-				>
-			</File>
-			<File
 				RelativePath=".\equipdsc.h"
 				>
 			</File>
@@ -1157,10 +1153,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\polopt.h"
-				>
-			</File>
-			<File
 				RelativePath=".\polsem.h"
 				>
 			</File>
@@ -1202,10 +1194,6 @@
 			</File>
 			<File
 				RelativePath=".\readcfg.h"
-				>
-			</File>
-			<File
-				RelativePath=".\reagents.h"
 				>
 			</File>
 			<File

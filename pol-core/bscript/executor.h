@@ -167,7 +167,6 @@ class Executor
 
     BObject* getParam(unsigned param);
 
-    void check_containers(void);
     BObject getValue(void);
     BObjectRef getObjRef(void);
 
