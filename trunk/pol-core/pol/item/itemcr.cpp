@@ -31,7 +31,6 @@ Notes
 #include "../network/client.h"
 #include "../containr.h"
 #include "../door.h"
-#include "../dye.h"
 #include "../extobj.h"
 #include "../multi/house.h"
 #include "item.h"

@@ -715,9 +715,6 @@
     <ClInclude Include="dtrace.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="dye.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="equipdsc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -856,9 +853,6 @@
     <ClInclude Include="polfile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="polopt.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="polsem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -890,9 +884,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="readcfg.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="reagents.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="realms.h">
