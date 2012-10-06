@@ -322,5 +322,14 @@
     <ClInclude Include="..\..\lib\tinyxml\tinyxml.h">
       <Filter>tinyxml</Filter>
     </ClInclude>
+	<ClInclude Include="dirfunc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="filecont.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ntservmsg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

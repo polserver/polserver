@@ -103,7 +103,7 @@ int print_ctable()
                 valout |= 1;
             inmask <<= 1;
         }
-        printf( "    { %2u, 0x%4.04x, 0x%4.04x },\n", 
+        printf( "    { %2d, 0x%4.04x, 0x%4.04x },\n", 
                    keyid[i] & 0x0F, 
                    keyid[i] >> 4, 
                    valout );
@@ -870,10 +870,9 @@ bool has_water( u16 x, u16 y )
     return false;
 }
 
-u16 wxl = 1420, wxh = 1480, wyl=1760, wyh=1780;
-
 int water_search( int argc, char *argv[])
 {
+	u16 wxl = 1420, wxh = 1480, wyl=1760, wyh=1780;
     open_uo_data_files();
     for( u16 y = wyl; y < wyh; y++ )
     {

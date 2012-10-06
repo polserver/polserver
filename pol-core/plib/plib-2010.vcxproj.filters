@@ -124,5 +124,11 @@
     <ClInclude Include="testenv.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+	<ClInclude Include="fsa.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stlastar.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

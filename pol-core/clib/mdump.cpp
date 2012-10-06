@@ -162,14 +162,14 @@ LONG HiddenMiniDumper::TopLevelFilter( struct _EXCEPTION_POINTERS *pExceptionInf
 			}
 			else
 			{
-				sprintf( szScratch, "Failed to save dump file to '%s' (error %d)", szDumpPath, GetLastError() );
+				sprintf( szScratch, "Failed to save dump file to '%s' (error %u)", szDumpPath, GetLastError() );
 				szResult = szScratch;
 			}
 			::CloseHandle(hFile);
 		}
 		else
 		{
-			sprintf( szScratch, "Failed to create dump file '%s' (error %d)", szDumpPath, GetLastError() );
+			sprintf( szScratch, "Failed to create dump file '%s' (error %u)", szDumpPath, GetLastError() );
 			szResult = szScratch;
 		}
 	}
@@ -179,7 +179,7 @@ LONG HiddenMiniDumper::TopLevelFilter( struct _EXCEPTION_POINTERS *pExceptionInf
 	if (szResult)
     {
         Log( szResult );
-		Log( "Last Script: %s PC: %d\n", scripts_thread_script.c_str(), scripts_thread_scriptPC );
+		Log( "Last Script: %s PC: %u\n", scripts_thread_script.c_str(), scripts_thread_scriptPC );
 		cerr << "##########################################################" << endl;
         printf( "%s", szResult );
 		cerr << "Last Script: " << scripts_thread_script << " PC: " << scripts_thread_scriptPC << endl;
