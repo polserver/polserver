@@ -2006,6 +2006,13 @@ void setrealm(Item* item, void* arg)
 	item->realm = realm;
 }
 
+void setrealmif(Item* item, void* arg)
+{
+	Realm* realm = static_cast<Realm*>(arg);
+	if (item->realm == realm)
+		item->realm = realm->baserealm;
+}
+
 void world_delete( UObject* uobj )
 {
     // std::cout << "world_delete(0x" << hex << uobj->serial << dec << ")" << endl;
