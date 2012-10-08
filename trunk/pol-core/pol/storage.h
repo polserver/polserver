@@ -30,6 +30,7 @@ public:
     Item *find_root_item( const std::string& name );
     void insert_root_item( Item *item );
     bool delete_root_item( const std::string& name );
+	void on_delete_realm(Realm *realm);
 
     void print( std::ostream& os ) const;
     void load_item( ConfigElem& elem );
@@ -54,6 +55,7 @@ public:
     StorageArea* find_area( const std::string& name );
     StorageArea* create_area( const std::string& name );
     StorageArea* create_area( ConfigElem& elem );
+	void on_delete_realm(Realm *realm);
 
     void print( std::ostream& os ) const;
     void read( ConfigFile& cf );
