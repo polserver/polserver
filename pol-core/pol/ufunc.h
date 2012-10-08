@@ -103,6 +103,7 @@ Character *find_character( u32 serial );
 
 UObject* find_toplevel_object( u32 serial );
 void setrealm(Item* item, void* arg);
+void setrealmif(Item* item, void* arg);
 
 void send_remove_character( Client *client, const Character *chr );
 void send_remove_character( Client *client, const Character *chr, PktOut_1D* buffer, bool build=true );

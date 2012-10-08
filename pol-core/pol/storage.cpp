@@ -170,6 +170,25 @@ void StorageArea::print( ostream& os ) const
     }
 }
 
+void StorageArea::on_delete_realm(Realm *realm)
+{
+	for( Cont::const_iterator itr = _items.begin(), itrend=_items.end();
+         itr != itrend;
+         ++itr )
+	{
+		Item *item = (*itr).second;
+        if (item)
+        {
+			setrealmif(item, (void*)realm);
+			if (item->isa( UObject::CLASS_CONTAINER ))
+			{
+				UContainer* cont = static_cast<UContainer*>(item);
+				cont->for_each_item(setrealmif, (void*)realm);
+			}
+        }
+	}
+}
+
 
 ostream& operator<<( ostream& os, const StorageArea& area )
 {
@@ -178,22 +197,15 @@ ostream& operator<<( ostream& os, const StorageArea& area )
 }
 
 
-/*
-bool Storage::destroy_area( const string& name )
+void Storage::on_delete_realm(Realm *realm)
 {
-    AreaCont::iterator itr = areas.find( name );
-    if (itr != areas.end())
-    {
-        delete ( (*itr).second );
-        areas.erase( itr );
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+	for( AreaCont::const_iterator itr  = areas.begin(), itrend = areas.end();
+         itr != itrend;
+         ++itr )
+	{
+		itr->second->on_delete_realm(realm);
+	}
 }
-*/
 
 void Storage::read( ConfigFile& cf )
 {
