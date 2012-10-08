@@ -20,6 +20,7 @@ Notes
 #include "los.h"
 #include "polcfg.h"
 #include "realms.h"
+#include "storage.h"
 
 Realm* main_realm = NULL;
 vector<Realm*>* Realms = new vector<Realm*>();
@@ -98,6 +99,7 @@ void remove_realm(const string& name)
 	{
 		if( (*itr)->name() == name )
 		{
+			storage.on_delete_realm(*itr);
 			shadowrealms_by_id[(*itr)->shadowid] = NULL; // used inside the decaythread
 			delete *itr;
 			Realms->erase(itr);
