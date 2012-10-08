@@ -1,4 +1,7 @@
 ﻿-- POL099 --
+10-08-2012 Turley:
+  Fixed:      secured Shadowrealm delete, it will now iterate through all StorageArea Items and check if old shadowrealm property exists
+  
 10-06-2012 Tomi:
   Changed:    setting an equipped item on NPC to movable 0 will make it visible on the corpse but invisible in the corpse, same as hair and beard have worked until now.
 

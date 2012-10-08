@@ -4,9 +4,21 @@
 <ESCRIPT>
   <header>
     <topic>Latest Core Changes</topic>
-    <datemodified>10-05-2012</datemodified>
+    <datemodified>10-08-2012</datemodified>
   </header>
   <version name="POL099">
+	<entry>
+      <date>10-08-2012</date>
+      <author>Turley</author>
+      <change type="Fixed">secured Shadowrealm delete, it will now iterate through all StorageArea Items and check if old shadowrealm property exists
+      </change>
+    </entry>
+	<entry>
+      <date>10-06-2012</date>
+      <author>Tomi</author>
+      <change type="Changed">setting an equipped item on NPC to movable 0 will make it visible on the corpse but invisible in the corpse, same as hair and beard have worked until now.
+      </change>
+    </entry>
 	<entry>
       <date>10-05-2012</date>
       <author>Turley</author>
