@@ -1875,8 +1875,8 @@ void Character::on_poison_changed()
 			PktHelper::PacketOut<PktOut_17> msg;
 			msg->WriteFlipped<u16>(static_cast<u16>(sizeof msg->buffer));
 			msg->Write<u32>(this->serial_ext);
-			msg->Write<u16>(static_cast<u16>(1)); //unk
-			msg->Write<u16>(static_cast<u16>(1)); // status_type
+			msg->WriteFlipped<u16>(static_cast<u16>(1)); //unk
+			msg->WriteFlipped<u16>(static_cast<u16>(1)); // status_type
 			msg->Write<u8>(static_cast<u8>(0)); //flag
             transmit_to_inrange( this, &msg->buffer, msg->offset, false, true );
         }

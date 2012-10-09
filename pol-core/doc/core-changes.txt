@@ -1,4 +1,7 @@
 ﻿-- POL099 --
+10-09-2012 Tomi:
+  Fixed:      packet 0x17 ( poison health bar packet ) was sending 2 bytes with wrong endian when sending to nearby clients
+
 10-08-2012 Turley:
   Fixed:      secured Shadowrealm delete, it will now iterate through all StorageArea Items and check if old shadowrealm property exists
   
