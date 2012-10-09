@@ -584,23 +584,31 @@ void parallel_compile(vector<string> &files)
 	unsigned compiled_scripts=0;
 	unsigned uptodate_scripts=0;
 	unsigned error_scripts=0;
-#pragma omp parallel for reduction(+ : compiled_scripts, uptodate_scripts, error_scripts)
+	bool keep_building=false;
+#pragma omp parallel for reduction(+ : compiled_scripts, uptodate_scripts, error_scripts) shared(keep_building)
 	for (int i=0;i<(int)files.size();++i)
 	{
-		try
+		#pragma omp flush(keep_building)
+		if (keep_building)
 		{
-			if (compile_file( files[i].c_str() ))
+			try
+			{
+				if (compile_file( files[i].c_str() ))
+					++compiled_scripts;
+				else
+					++uptodate_scripts;
+			}
+			catch( std::exception& )
+			{
 				++compiled_scripts;
-			else
-				++uptodate_scripts;
+				++error_scripts;
+				if (!keep_building)
+				{
+					#pragma omp critical(building_break)
+					keep_building=true;
+				}
+			}
 		}
-		catch( std::exception& )
-        {
-            ++compiled_scripts;
-            ++error_scripts;
-            if (!keep_building)
-                throw;
-        }
 	}
 	summary.CompiledScripts = compiled_scripts;
 	summary.UpToDateScripts = uptodate_scripts;
