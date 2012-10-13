@@ -108,7 +108,8 @@ SystemHooks::SystemHooks() :
     ouch_hook(NULL),
     can_die(NULL),
 	un_hide(NULL),
-	close_customhouse_hook(NULL)
+	close_customhouse_hook(NULL),
+	warmode_change(NULL)
 {
 }
 
@@ -194,6 +195,11 @@ void hook( ExportScript* shs, const string& hookname, const string& exfuncname )
 	{
 		nargs = 2;
 		pphook = &system_hooks.close_customhouse_hook;
+	}
+	else if (hookname == "WarmodeChange")
+	{
+		nargs = 2;
+		pphook = &system_hooks.warmode_change;
 	}
 	else
 	{
@@ -299,6 +305,8 @@ void unload_system_hooks()
         delete system_hooks.un_hide;
 	if (system_hooks.close_customhouse_hook != NULL)
 		delete system_hooks.close_customhouse_hook;
+	if (system_hooks.warmode_change != NULL)
+		delete system_hooks.warmode_change;
 }
 
 ExportScript* FindExportScript( const ScriptDef& sd )
