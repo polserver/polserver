@@ -2,6 +2,7 @@
 10-14-2012 Tomi:
   Added:      SystemHook "WarmodeChange" called when a character changes warmode status either by member .warmode or by clicking the warmode button on the paperdoll
               Params CharRef and new_warmode_status
+              Return value is ignored
 
 10-09-2012 Tomi:
   Fixed:      packet 0x17 ( poison health bar packet ) was sending 2 bytes with wrong endian when sending to nearby clients
