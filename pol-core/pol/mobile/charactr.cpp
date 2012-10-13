@@ -3177,6 +3177,9 @@ void Character::disable_regeneration_for( int seconds )
 
 void Character::set_warmode( bool i_warmode )
 {
+	if ( system_hooks.warmode_change )
+		system_hooks.warmode_change->call( new ECharacterRefObjImp(this), new BLong(i_warmode) );
+
 	if (warmode != i_warmode)
 	{
 		disable_regeneration_for( 2 );

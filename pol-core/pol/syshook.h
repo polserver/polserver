@@ -66,6 +66,7 @@ public:
     ExportedFunction* can_die;
 	ExportedFunction* un_hide;
 	ExportedFunction* close_customhouse_hook;
+	ExportedFunction* warmode_change;
 };
 extern SystemHooks system_hooks;
 
