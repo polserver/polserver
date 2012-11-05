@@ -2894,7 +2894,6 @@ BObjectImp* UBoat::script_method_id( const int id, Executor& ex )
 			xcoord x;
 			ycoord y;
 			zcoord z;
-			const String* strrealm;
 
 			if (ex.numParams()==3)
 			{
@@ -2916,6 +2915,7 @@ BObjectImp* UBoat::script_method_id( const int id, Executor& ex )
 			{
 				if (ex.numParams()==4)
 				{
+					const String* strrealm;
 					if (ex.getParam( 0, x ) &&
 							ex.getParam( 1, y ) &&
 							ex.getParam( 2, z, ZCOORD_MIN, ZCOORD_MAX ) &&

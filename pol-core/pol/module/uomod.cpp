@@ -1169,7 +1169,6 @@ BObjectImp* UOExecutorModule::mf_CreateMultiAtLocation(/* x,y,z,objtype,flags,re
 	short z;
 	const ItemDesc* descriptor;
 	int flags = 0;
-	const String* strrealm;
 	Realm* realm = find_realm(string("britannia"));
 	if (! (getParam( 0, x ) &&
 		   getParam( 1, y ) &&
@@ -1185,6 +1184,7 @@ BObjectImp* UOExecutorModule::mf_CreateMultiAtLocation(/* x,y,z,objtype,flags,re
 	}
 	if (exec.hasParams(6))
 	{
+		const String* strrealm;
 		if (!getStringParam(5, strrealm))
 			return new BError( "Invalid parameter type" );
 		realm = find_realm(strrealm->value());
@@ -2502,7 +2502,6 @@ BObjectImp* UOExecutorModule::mf_ListStaticsInBox(/* x1, y1, z1, x2, y2, z2, fla
 	short z1, z2;
 	int flags;
 	const String* strrealm;
-	Realm* realm;
 
 	if (getParam( 0, x1 ) &&
 		getParam( 1, y1 ) &&
@@ -2513,7 +2512,7 @@ BObjectImp* UOExecutorModule::mf_ListStaticsInBox(/* x1, y1, z1, x2, y2, z2, fla
 		getParam( 6, flags ) &&
 		getStringParam( 7, strrealm) )
 	{
-		realm = find_realm(strrealm->value());
+		Realm* realm = find_realm(strrealm->value());
 		if (!realm)
 			return new BError("Realm not found");
 
@@ -2587,7 +2586,6 @@ BObjectImp* UOExecutorModule::mf_ListItemsNearLocationOfType(/* x, y, z, range, 
 	int z, range;
 	unsigned int objtype;
 	const String* strrealm;
-	Realm* realm;
 
 	if (getParam( 0, x ) &&
 		getParam( 1, y ) &&
@@ -2596,7 +2594,7 @@ BObjectImp* UOExecutorModule::mf_ListItemsNearLocationOfType(/* x, y, z, range, 
 		getObjtypeParam( exec, 4, objtype ) &&
 		getStringParam(5, strrealm) )
 	{
-		realm = find_realm(strrealm->value());
+		Realm* realm = find_realm(strrealm->value());
 		if (!realm)
 			return new BError("Realm not found");
 
@@ -4003,10 +4001,10 @@ BObjectImp* UOExecutorModule::mf_HarvestResource()
 BObjectImp* UOExecutorModule::mf_GetRegionName(/* objref */)
 {
 	UObject* obj;
-	JusticeRegion* justice_region;
 
 	if (getUObjectParam( exec, 0, obj ))
 	{
+		JusticeRegion* justice_region;
 		if (obj->isa(UObject::CLASS_ITEM))
 			obj = obj->toplevel_owner();
 
@@ -4035,13 +4033,12 @@ BObjectImp* UOExecutorModule::mf_GetRegionNameAtLocation(/* x, y, realm */)
 {
 	unsigned short x, y;
 	const String* strrealm;
-	Realm* realm;
 
 	if (getParam( 0, x ) &&
 		getParam( 1, y ) &&
 		getStringParam( 2, strrealm ))
 	{
-		realm = find_realm(strrealm->value());
+		Realm* realm = find_realm(strrealm->value());
 		if (!realm)
 			return new BError("Realm not found");
 		if (!realm->valid(x,y,0))
@@ -4086,13 +4083,12 @@ BObjectImp* UOExecutorModule::mf_GetRegionLightLevelAtLocation(/* x, y, realm */
 {
 	unsigned short x, y;
 	const String* strrealm;
-	Realm* realm;
 
 	if (getParam( 0, x ) &&
 		getParam( 1, y ) &&
 		getStringParam( 2, strrealm ))
 	{
-		realm = find_realm(strrealm->value());
+		Realm* realm = find_realm(strrealm->value());
 		if (!realm)
 			return new BError("Realm not found");
 		if (!realm->valid(x,y,0))
@@ -4713,14 +4709,13 @@ BObjectImp* UOExecutorModule::mf_GetStandingLayers(/* x, y, flags, realm */)
 	unsigned short x, y;
 	int flags;
 	const String* strrealm;
-	Realm* realm;
 	
 	if (getParam( 0, x ) &&
 		getParam( 1, y ) &&
 		getParam( 2, flags ) &&
 		getStringParam( 3, strrealm) )
 	{
-		realm = find_realm(strrealm->value());
+		Realm* realm = find_realm(strrealm->value());
 		if (!realm)
 			return new BError("Realm not found");
 		
@@ -5021,7 +5016,6 @@ BObjectImp* UOExecutorModule::mf_ListStaticsAtLocation(/* x, y, z, flags, realm 
 	unsigned short x, y;
 	int z, flags;
 	const String* strrealm;
-	Realm* realm;
 	
 	if (getParam( 0, x ) &&
 		getParam( 1, y ) &&
@@ -5029,7 +5023,7 @@ BObjectImp* UOExecutorModule::mf_ListStaticsAtLocation(/* x, y, z, flags, realm 
 		getParam( 3, flags ) &&
 		getStringParam( 4, strrealm) )
 	{
-		realm = find_realm(strrealm->value());
+		Realm* realm = find_realm(strrealm->value());
 		if (!realm)
 			return new BError("Realm not found");
 

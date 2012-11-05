@@ -85,7 +85,7 @@ public:
     bool findcomponents( Components::const_iterator& beg, Components::const_iterator& end,
                          short rx, short ry) const;
 
-    unsigned short getkey( short rx, short ry ) const;
+    static unsigned short getkey( short rx, short ry );
 
         // returns true if it finds anything at this rx,ry
     bool readobjects( StaticList& vec, short rx, short ry, short zbase ) const;
@@ -116,7 +116,7 @@ extern MultiDefs multidefs_by_multiid;
 
 void clean_multidefs();
 
-inline unsigned short MultiDef::getkey( short rx, short ry ) const
+inline unsigned short MultiDef::getkey( short rx, short ry )
 {
     unsigned char crx = static_cast<unsigned char>(rx);
     unsigned char cry = static_cast<unsigned char>(ry);

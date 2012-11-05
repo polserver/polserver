@@ -725,10 +725,9 @@ void ProcessSolidBlock( unsigned short x_base, unsigned short y_base, MapWriter&
 			// for water, don't average with surrounding tiles.
             if (landtile_uoflags( mi.landtile ) & USTRUCT_TILE::FLAG_LIQUID)
                 z = mi.z;
-            short lt_height = 0;
 			short low_z = get_lowestadjacentz(x,y,z);
 
-			lt_height = z - low_z;
+			short lt_height = z - low_z;
 			z = low_z;
 
 			if (mi.landtile > 0x3FFF)
