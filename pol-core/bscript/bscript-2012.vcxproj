@@ -224,7 +224,6 @@
     <ClCompile Include="fmodule.cpp" />
     <ClCompile Include="object.cpp" />
     <ClCompile Include="objstrm.cpp" />
-    <ClCompile Include="ofstrm.cpp" />
     <ClCompile Include="parser.cpp" />
     <ClCompile Include="StdAfx.cpp" />
     <ClCompile Include="str.cpp" />
@@ -258,7 +257,6 @@
     <ClInclude Include="modules.h" />
     <ClInclude Include="objmembers.h" />
     <ClInclude Include="objmethods.h" />
-    <ClInclude Include="ofile.h" />
     <ClInclude Include="operator.h" />
     <ClInclude Include="options.h" />
     <ClInclude Include="parser.h" />
