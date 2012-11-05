@@ -33,8 +33,8 @@ public:
 protected:
 	static void process(md5_state *pms, const unsigned char *data);
 	static void start(md5_state *pms);
-	void append(md5_state *pms, const unsigned char *data, int nbytes);
-	void finish(md5_state *pms, unsigned char digest[16]);
+	static void append(md5_state *pms, const unsigned char *data, int nbytes);
+	static void finish(md5_state *pms, unsigned char digest[16]);
 
 	unsigned int	TableIdx;
 	unsigned char	Digest[16];

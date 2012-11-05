@@ -81,7 +81,6 @@ private:
     
     ElementsByNum elements_bynum_;
 
-    bool unloadable_;
     time_t modified_; // used to detect modification
 
     // not implemented:
