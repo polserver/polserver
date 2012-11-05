@@ -110,7 +110,8 @@ protected:
 
     enum WAIT_TYPE {
         WAIT_SLEEP,
-        WAIT_EVENT
+        WAIT_EVENT,
+		WAIT_UNKNOWN
     } wait_type;
 
     enum { MAX_EVENTQUEUE_SIZE = 20 };

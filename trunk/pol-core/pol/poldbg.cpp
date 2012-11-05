@@ -389,7 +389,7 @@ string DebugContext::cmd_stacktrace( Results& results )
 		}
 		results.push_back( decint(results2.size() ));
 
-		for ( vector<string>::iterator it=results2.begin() ; it < results2.end(); it++ )
+		for ( vector<string>::iterator it=results2.begin() ; it < results2.end(); ++it )
 			results.push_back(*it);
 	}
 	return "";

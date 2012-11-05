@@ -216,7 +216,7 @@ const unsigned short Account::uo_expansion_flag() const
 	return uo_expansion_;
 }
 
-u16 Account::convert_uo_expansion(const std::string& expansion) const
+u16 Account::convert_uo_expansion(const std::string& expansion)
 {
 	if(expansion.find("HSA") != string::npos)
 		return HSA;

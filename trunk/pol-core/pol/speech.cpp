@@ -429,7 +429,6 @@ void UnicodeSpeechHandler( Client *client, PKTIN_AD *msgin )
 	u8 *  bytemsg;
 	int wtextoffset = 0;
 	auto_ptr<ObjArray> speechtokens(NULL);
-    BLong * atoken = NULL;
 	int i;
 
 	u16 tempbuf[ SPEECH_MAX_LEN+1 ];
@@ -487,6 +486,7 @@ void UnicodeSpeechHandler( Client *client, PKTIN_AD *msgin )
 
 	if (msgin->type & 0xc0)
 	{
+		BLong * atoken = NULL;
 		for (u16 j = 0; j < numtokens; j++)
 		{
 			if (speechtokens.get() == NULL)

@@ -614,7 +614,7 @@ Item *UContainer::find_toplevel( u32 serial ) const
 
 void UContainer::for_each_item( void (*f)(Item* item, void* a), void* arg )
 {
-	for( UContainer::iterator itr = begin(); itr != end(); ++itr )
+	for( UContainer::iterator itr = begin(), itrend = end(); itr != itrend; ++itr )
 	{
 		Item* item = GET_ITEM_PTR( itr );
 		

@@ -95,6 +95,7 @@ sleep_until_clock_(0),
 in_hold_list_(NO_LIST),
 hold_itr_(),
 pid_(getnewpid( static_cast<UOExecutor*>(&exec) )),
+wait_type(WAIT_UNKNOWN),
 max_eventqueue_size(MAX_EVENTQUEUE_SIZE),
 events_()
 {

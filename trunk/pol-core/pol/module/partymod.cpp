@@ -423,10 +423,10 @@ BObjectImp* PartyExecutorModule::mf_SendPartyMsg()
 {
 	Party* party;
 	BError* err;
-	ObjArray* oText;
-	Character* chr;
 	if (getPartyParam( exec, 0, party, err ))
 	{
+		ObjArray* oText;
+		Character* chr;
 		if ((getCharacterParam( exec, 1, chr )) &&
 			(getObjArrayParam( 2, oText )))
 		{
@@ -454,11 +454,11 @@ BObjectImp* PartyExecutorModule::mf_SendPrivatePartyMsg()
 {
 	Party* party;
 	BError* err;
-	ObjArray* oText;
-	Character* chr;
-	Character* tochr;
 	if (getPartyParam( exec, 0, party, err ))
 	{
+		ObjArray* oText;
+		Character* chr;
+		Character* tochr;
 		if ((getCharacterParam( exec, 1, chr )) &&
 			(getCharacterParam( exec, 2, tochr )) &&
 			(getObjArrayParam( 3, oText )))
