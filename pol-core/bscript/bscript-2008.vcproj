@@ -260,10 +260,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\ofstrm.cpp"
-				>
-			</File>
-			<File
 				RelativePath="parser.cpp"
 				>
 			</File>
@@ -390,10 +386,6 @@
 			</File>
 			<File
 				RelativePath="objmethods.h"
-				>
-			</File>
-			<File
-				RelativePath=".\ofile.h"
 				>
 			</File>
 			<File
