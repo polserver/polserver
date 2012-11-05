@@ -140,7 +140,8 @@ void DumpScript( const char *path )
     E.setProgram( program.get() );
 
     program->dump( cout );
-    return;
+ 
+/* return;
 	
 	Token token;
 	unsigned PC;
@@ -161,6 +162,7 @@ void DumpScript( const char *path )
             }
 		}
 	}
+*/
 }
 
 void display_bobjectimp_instances();

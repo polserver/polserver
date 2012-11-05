@@ -30,7 +30,7 @@ protected:
     int				block_pos;
     int				stream_pos;
 
-    void	InitTables();
+    static void	InitTables();
     static void	RawDecrypt( unsigned int * values, int table );
 };
 

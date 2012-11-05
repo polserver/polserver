@@ -317,8 +317,7 @@ void read_multidefs()
     {
         u16 multiid = static_cast<u16>(strtoul( elem.rest(), NULL, 0 ));
 
-        MultiDef* mdef = NULL;
-        mdef = new MultiDef( elem, multiid ); 
+        MultiDef* mdef = new MultiDef( elem, multiid ); 
         mdef->init();
 
 		my_multidefs_by_multiid[ mdef->multiid ] = mdef;

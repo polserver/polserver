@@ -154,7 +154,7 @@ cpp_sources = \
 	bscript/escript_config.cpp bscript/escriptv.cpp bscript/execmodl.cpp \
 	bscript/executor.cpp \
 	bscript/fmodule.cpp \
-	bscript/object.cpp bscript/ofstrm.cpp bscript/objstrm.cpp \
+	bscript/object.cpp bscript/objstrm.cpp \
 	bscript/parser.cpp \
 	bscript/str.cpp bscript/symcont.cpp \
 	bscript/tkn_strm.cpp bscript/token.cpp \
@@ -220,7 +220,7 @@ runecl_sources=runecl/runecl.cpp \
 	bscript/eprog3.cpp bscript/eprog_read.cpp bscript/escript_config.cpp \
 	bscript/escriptv.cpp bscript/escrutil.cpp bscript/fmodule.cpp \
 	pol/module/mathmod.cpp bscript/object.cpp bscript/objstrm.cpp \
-	bscript/ofstrm.cpp bscript/str.cpp bscript/symcont.cpp \
+	bscript/str.cpp bscript/symcont.cpp \
 	bscript/tkn_strm.cpp bscript/token.cpp bscript/userfunc.cpp \
 	bscript/parser.cpp bscript/compilercfg.cpp \
 	clib/passert.cpp clib/strutil.cpp  \
