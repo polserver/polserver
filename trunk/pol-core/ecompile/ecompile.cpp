@@ -542,7 +542,8 @@ void recurse_compile( string basedir, vector<string>* files )
 		return;
 	finish = clock();
 
-	if ( (!quiet || timing_quiet_override) && show_timing_details && s_compiled > 0 ) {
+	if ( (!quiet || timing_quiet_override) && show_timing_details && s_compiled > 0 && files==NULL)
+	{
 		cout << "Compiled " << s_compiled << " script" << (s_compiled==1?"":"s")
 			 << " in " << basedir
 			 << " in " << (int)((finish-start)/CLOCKS_PER_SEC) << " second(s)" << endl;
@@ -584,8 +585,8 @@ void parallel_compile(vector<string> &files)
 	unsigned compiled_scripts=0;
 	unsigned uptodate_scripts=0;
 	unsigned error_scripts=0;
-	bool keep_building=false;
-#pragma omp parallel for reduction(+ : compiled_scripts, uptodate_scripts, error_scripts) shared(keep_building)
+	bool keep_building=true;
+	#pragma omp parallel for reduction(+ : compiled_scripts, uptodate_scripts, error_scripts) shared(keep_building)
 	for (int i=0;i<(int)files.size();++i)
 	{
 		#pragma omp flush(keep_building)
@@ -602,10 +603,10 @@ void parallel_compile(vector<string> &files)
 			{
 				++compiled_scripts;
 				++error_scripts;
-				if (!keep_building)
+				if (keep_building)
 				{
 					#pragma omp critical(building_break)
-					keep_building=true;
+					keep_building=false;
 				}
 			}
 		}
