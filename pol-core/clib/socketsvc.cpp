@@ -20,6 +20,8 @@ Notes
 
 #include "socketsvc.h"
 
+#include <boost/shared_ptr.hpp>
+
 SocketListener::SocketListener( unsigned short port ) :
     _listen_sck()
 {
@@ -59,11 +61,16 @@ SocketClientThread::SocketClientThread( Socket& S ) :
 
 static void _thread_stub2( void *arg )
 {
-    auto_ptr<SocketClientThread> sct( static_cast<SocketClientThread*>(arg) );
+	boost::shared_ptr<SocketClientThread> sct( static_cast<SocketClientThread*>(arg) );
     sct->run();
 }
 
 void SocketClientThread::start()
 {
     threadhelp::start_thread( _thread_stub2, "SocketClientThread", this );
+}
+
+void SocketClientThread::start_thread(SocketClientThread* instance)
+{
+	threadhelp::start_thread( _thread_stub2, "SocketClientThread", instance );
 }

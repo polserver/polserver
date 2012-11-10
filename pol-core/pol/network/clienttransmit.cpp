@@ -3,7 +3,7 @@
 #include "../../clib/esignal.h"
 #include "../polsem.h"
 
-ClientTransmit::ClientTransmit()
+ClientTransmit::ClientTransmit() : _transmitqueue()
 {
 
 }
