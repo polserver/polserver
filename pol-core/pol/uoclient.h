@@ -61,6 +61,7 @@ public:
     TCryptInfo encryption;
 	unsigned short port;
 	bool aosresist;
+	bool sticky;
 };
 
 typedef vector< UoClientListener > UoClientListeners;

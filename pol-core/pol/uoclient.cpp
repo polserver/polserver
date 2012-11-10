@@ -29,7 +29,9 @@ UoClientListeners uoclient_listeners;
 
 UoClientListener::UoClientListener( ConfigElem& elem ) :
     port( elem.remove_ushort( "PORT" ) ),
-	aosresist( elem.remove_bool( "AOSRESISTANCES", false ) )
+	aosresist( elem.remove_bool( "AOSRESISTANCES", false ) ),
+	sticky(elem.remove_bool("KeepClients",false))
+
 {
 	CalculateCryptKeys(elem.remove_string( "ENCRYPTION", "none" ), encryption);
 }

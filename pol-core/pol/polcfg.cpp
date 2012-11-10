@@ -217,6 +217,8 @@ void read_pol_config( bool initial_load )
 	config.retain_cleartext_passwords = elem.remove_bool( "RetainCleartextPasswords", false);
 	config.discard_old_events = elem.remove_bool("DiscardOldEvents",false);
     LogfileTimestampEveryLine = elem.remove_bool("TimestampEveryLine",false); // clib/logfile.h bool
+	config.use_single_thread_login = elem.remove_bool("UseSingleThreadLogin",false);
+
 #ifdef _WIN32
     MiniDumper::SetMiniDumpType( config.minidump_type );
 #endif
