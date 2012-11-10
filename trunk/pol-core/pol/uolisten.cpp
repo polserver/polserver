@@ -25,24 +25,38 @@ Notes
 #include "polsem.h"
 #include "sockio.h"
 #include "uvars.h"
+#include "polcfg.h"
 
 class UoClientThread : public SocketClientThread
 {
 public:
     UoClientThread( UoClientListener* def, SocketListener& SL ) : 
-        SocketClientThread(SL),_def(*def) {}
+        SocketClientThread(SL),_def(*def), client(NULL) {}
+	UoClientThread(UoClientThread& copy): SocketClientThread(copy._sck), _def(copy._def), client(copy.client) {}
     virtual void run();
+	void create();
+	~UoClientThread() { }
 
 private:
     UoClientListener _def;
+public:
+	Client* client;
 };
 
-void client_io_thread( Client* client );
+bool client_io_thread( Client* client, bool login=false );
 
 void UoClientThread::run()
 {
-    Client* client = NULL;
+	if (!config.use_single_thread_login)
+	{
+		create();
+	}
+	client->thread_pid = threadhelp::thread_pid();
+    client_io_thread( client );
+}
 
+void UoClientThread::create()
+{
     {
         struct sockaddr client_addr = _sck.peer_address();
         struct sockaddr host_addr;
@@ -51,7 +65,8 @@ void UoClientThread::run()
         PolLock lck;
         client = new Client( uo_client_interface, _def.encryption );
         client->csocket = _sck.release_handle(); // client cleans up its socket.
-        client->listen_port = _def.port;
+		if (_def.sticky)
+			client->listen_port = _def.port;
 		if ( _def.aosresist )
 			client->aosresist = true; // UOCLient.cfg Entry
 		// Added null setting for pre-char selection checks using NULL validation
@@ -76,9 +91,8 @@ void UoClientThread::run()
                 clients.size(),
                 ifdesc.c_str() );
     }
-
-    client_io_thread( client );
 }
+
 
 void uo_client_listener_thread( void* arg )
 {
@@ -88,15 +102,54 @@ void uo_client_listener_thread( void* arg )
 		+ " (encryption: " + decint(ls->encryption.eType) + "," + hexint(ls->encryption.uiKey1) + "," + hexint(ls->encryption.uiKey2) + ")");
 
     SocketListener SL( ls->port, Socket::option(Socket::nonblocking|Socket::reuseaddr) );
+	list<UoClientThread *> login_clients;
     while (!exit_signalled)
     {
-        if (SL.GetConnection( 5 ))
+		unsigned int timeout = 2;
+		if (!login_clients.empty())
+			timeout = 1;
+        if (SL.GetConnection( timeout ))
         {
             // create an appropriate Client object
-
-            SocketClientThread* thread = new UoClientThread( ls, SL );
-            thread->start();
+			if (!config.use_single_thread_login)
+			{
+				UoClientThread* thread = new UoClientThread( ls, SL );
+				login_clients.push_back(thread);
+				thread->create();
+				client_io_thread( thread->client, true );
+			}
+			else
+			{
+				SocketClientThread* thread = new UoClientThread( ls, SL );
+				thread->start();
+			}
         }
+		list<UoClientThread*>::iterator itr = login_clients.begin();
+		while( itr != login_clients.end() )
+		{
+			if ((*itr)->client != NULL && (*itr)->client->isReallyConnected())
+			{
+				if (!client_io_thread((*itr)->client, true))
+				{
+					itr = login_clients.erase( itr );
+					continue;
+				}
+
+				if ((*itr)->client->isConnected() && (*itr)->client->chr)
+				{
+					SocketClientThread::start_thread(new UoClientThread(*(*itr)));
+					itr = login_clients.erase( itr );
+				}
+				else
+				{
+					++itr;
+				}
+			}
+			else
+			{
+				itr = login_clients.erase( itr );
+			}
+		}
     }
 }
 

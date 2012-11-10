@@ -1,4 +1,12 @@
 ﻿-- POL099 --
+11-10-2012 Turley:
+  Added:      uoclient.cfg Listener property "KeepClients" 1/0 default 0
+			  if set to 1 clients keep this listener port even after different gameserver select
+  Note:       actually 1 is the old behaviour and 0 the old behaviour of pol.cfg ListenPort
+  Added:      pol.cfg "UseSingleThreadLogin" 1/0 default 0
+              if set all prelogin clients are handled inside the listener thread and not inside an extra thread
+			  this will reduce the amount of thread creates and destroys
+			  
 10-14-2012 Tomi:
   Added:      SystemHook "WarmodeChange" called when a character changes warmode status either by member .warmode or by clicking the warmode button on the paperdoll
               Params CharRef and new_warmode_status
