@@ -978,7 +978,7 @@ void polclock_checkin()
 	checkin_clock_times_out_at = polclock() + 30 * POLCLOCKS_PER_SEC;
 }
 
-void client_io_thread( Client* client )
+bool client_io_thread( Client* client, bool login )
 {
 	fd_set c_recv_fd;
 	fd_set c_err_fd;
@@ -988,22 +988,26 @@ void client_io_thread( Client* client )
 	int nidle = 0;
 	polclock_t last_activity;
 	polclock_t last_packet_at  = polclock();
-	if (config.loglevel >= 11)
+	if (!login)
 	{
-		Log( "Client#%lu i/o thread starting\n", client->instance_ );
+		if (config.loglevel >= 11)
+		{
+			Log( "Client#%lu i/o thread starting\n", client->instance_ );
+		}
 	}
-client->checkpoint = 60; //CNXBUG
-	{ 
-		PolLock lck;  
-client->checkpoint = 61; //CNXBUG
-		last_activity = polclock(); 
-	}
-
-	if (config.loglevel >= 11)
+	client->checkpoint = 60; //CNXBUG
+		{ 
+			PolLock lck;  
+	client->checkpoint = 61; //CNXBUG
+			last_activity = polclock(); 
+		}
+	if (!login)
 	{
-		Log( "Client#%lu i/o thread past initial lock\n", client->instance_ );
+		if (config.loglevel >= 11)
+		{
+			Log( "Client#%lu i/o thread past initial lock\n", client->instance_ );
+		}
 	}
-
 	CLIENT_CHECKPOINT(0);
 	try
 	{
@@ -1026,8 +1030,16 @@ client->checkpoint = 61; //CNXBUG
 			int res;
 			do
 			{
-				c_select_timeout.tv_sec = 2;
-				c_select_timeout.tv_usec = 0;
+				if (login)
+				{
+					c_select_timeout.tv_sec = 0;
+					c_select_timeout.tv_usec = config.select_timeout_usecs;
+				}
+				else
+				{
+					c_select_timeout.tv_sec = 2;
+					c_select_timeout.tv_usec = 0;
+				}
 				CLIENT_CHECKPOINT(2);
 				res = select( static_cast<int>(nfds), &c_recv_fd, &c_send_fd, &c_err_fd, &c_select_timeout );
 				CLIENT_CHECKPOINT(3);
@@ -1178,6 +1190,8 @@ client->checkpoint = 61; //CNXBUG
 			}
 			checkpoint = 7;
 			CLIENT_CHECKPOINT(21);
+			if (login)
+				break;
 		}
 	}
 	catch( string& str )
@@ -1196,6 +1210,9 @@ client->checkpoint = 61; //CNXBUG
 			  client->instance_, ex.what(), checkpoint );
 	}
 CLIENT_CHECKPOINT(20);
+	
+	if (login && client->isConnected())
+		return true;
 	Log( "Client#%lu (%s): disconnected (account %s)\n", 
 		 client->instance_,
 		 AddressToString( &client->ipaddr ),
@@ -1287,6 +1304,7 @@ CLIENT_CHECKPOINT(17);
 		Client::Delete( client );
 		client = NULL;
 	}
+	return false;
 }
 
 

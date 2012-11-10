@@ -78,6 +78,7 @@ struct PolConfig {
 	std::string minidump_type;
 
 	int account_save;
+	bool use_single_thread_login;
 };
 
 extern PolConfig config;
