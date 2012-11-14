@@ -1,4 +1,10 @@
 ﻿-- POL099 --
+11-14-2012 Turley:
+  Changed:    SplitWords( str, delimiter := " ", max_split := -1 )
+              it has now an additional parameter max_split, if given it limits the number of times that a string will be split
+			  default: -1 no limit
+			  (Patch submitted by andenixa)
+			  
 11-10-2012 Turley:
   Added:      uoclient.cfg Listener property "KeepClients" 1/0 default 0
 			  if set to 1 clients keep this listener port even after different gameserver select
