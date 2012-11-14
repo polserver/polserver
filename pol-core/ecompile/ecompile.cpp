@@ -344,7 +344,7 @@ int readargs(int argc, char **argv)
                     break;
 
 				case 'D':
-					compilercfg.GenerateDependencyInfo = true;
+					compilercfg.GenerateDependencyInfo = setting_value( arg );
                     break;
 
                 case 'e':
@@ -447,7 +447,7 @@ int readargs(int argc, char **argv)
                     break;
 
                 case 'x':
-                    compilercfg.GenerateDebugInfo = true;
+                    compilercfg.GenerateDebugInfo = setting_value( arg );
                     compilercfg.GenerateDebugTextInfo = (argv[i][2] == 't');
                     break;
                         
@@ -585,12 +585,12 @@ void parallel_compile(vector<string> &files)
 	unsigned compiled_scripts=0;
 	unsigned uptodate_scripts=0;
 	unsigned error_scripts=0;
-	bool keep_building=true;
-	#pragma omp parallel for reduction(+ : compiled_scripts, uptodate_scripts, error_scripts) shared(keep_building)
+	bool omp_keep_building=true;
+	#pragma omp parallel for reduction(+ : compiled_scripts, uptodate_scripts, error_scripts) shared(omp_keep_building)
 	for (int i=0;i<(int)files.size();++i)
 	{
-		#pragma omp flush(keep_building)
-		if (keep_building)
+		#pragma omp flush(omp_keep_building)
+		if (omp_keep_building)
 		{
 			try
 			{
@@ -603,10 +603,10 @@ void parallel_compile(vector<string> &files)
 			{
 				++compiled_scripts;
 				++error_scripts;
-				if (keep_building)
+				if (!keep_building)
 				{
 					#pragma omp critical(building_break)
-					keep_building=false;
+					omp_keep_building=false;
 				}
 			}
 		}
