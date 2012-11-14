@@ -1,0 +1,62 @@
+0: decl local #0
+1: "hello world again,blah  three    four,blah"
+2: :=
+3: #
+4: local #0
+5: " "
+6: -1L
+7: Func(0,0): SplitWords
+8: initforeach @16
+9: "A: '"
+10: local #1
+11: +
+12: "'"
+13: +
+14: Func(1,0): Print
+15: #
+16: stepforeach @9
+17: leave block(3)
+18: local #0
+19: ","
+20: -1L
+21: Func(0,0): SplitWords
+22: initforeach @30
+23: "B: '"
+24: local #1
+25: +
+26: "'"
+27: +
+28: Func(1,0): Print
+29: #
+30: stepforeach @23
+31: leave block(3)
+32: local #0
+33: " "
+34: 2L
+35: Func(0,0): SplitWords
+36: initforeach @44
+37: "C: '"
+38: local #1
+39: +
+40: "'"
+41: +
+42: Func(1,0): Print
+43: #
+44: stepforeach @37
+45: leave block(3)
+46: local #0
+47: ","
+48: 1L
+49: Func(0,0): SplitWords
+50: initforeach @58
+51: "D: '"
+52: local #1
+53: +
+54: "'"
+55: +
+56: Func(1,0): Print
+57: #
+58: stepforeach @51
+59: leave block(3)
+60: leave block(1)
+61: progend

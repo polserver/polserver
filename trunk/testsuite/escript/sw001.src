@@ -4,4 +4,5 @@ program test()
     foreach a in SplitWords(x)
         print("A: " + a);
     endforeach
+	print("finished");
 endprogram
