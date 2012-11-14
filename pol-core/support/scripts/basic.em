@@ -76,7 +76,8 @@ Compare(str1, str2, pos1_start:=0, pos1_end:=0, pos2_start:=0, pos2_end:=0);
 	
 	// SplitWords: returns an array of words contained in str, based
 	// on optional delimiter. Default delim is blank space.
-SplitWords( str, delimiter := " " );
+	// on optional max_split. Default -1 for unlimited.
+SplitWords( str, delimiter := " ", max_split := -1 );
 	// SubStr(): Returns substring beginning at start until length.
 SubStr(str, start, length);
 	// Trim(): Returns string with whitespace cleared based on Type and Character to trim.
