@@ -445,6 +445,14 @@ BObjectImp* BasicExecutorModule::mf_SplitWords()
 		return new BError("Invalid parameter type.");
 	}
 	string delimiter = bimp_delimiter->getStringRep();
+	
+	// max_split parameter
+	int max_split = -1;
+	int count = 0;
+	
+	if (exec.hasParams(2)) {
+		max_split = static_cast<int>(exec.paramAsLong(2));
+	}	
 
 	auto_ptr<ObjArray> objarr (new ObjArray);
 
@@ -454,11 +462,28 @@ BObjectImp* BasicExecutorModule::mf_SplitWords()
 	{
 		ISTRINGSTREAM is(source);
 		string tmp;
+		int tellg;
+		bool splitted = false;		
+		
 		while ( is >> tmp )
 		{
+			tellg = is.tellg();
+			if (count==max_split && tellg!=-1) { // added max_split parameter
+				splitted = true;
+				break;
+			}				
 			objarr->addElement(new String(tmp));
 			tmp = "";
+			count += 1;					
 		}
+		
+		// Merges the remaining of the string						
+		if(splitted) {							
+			string remaining_string;
+			remaining_string = source.substr(tellg-tmp.length(), source.length());			
+			objarr->addElement(new String(remaining_string));
+		}		
+				
 		return objarr.release();
 	}
 
@@ -470,6 +495,9 @@ BObjectImp* BasicExecutorModule::mf_SplitWords()
 		found = new_string.find(delimiter, 0);
 		if ( found == string::npos )
 			break;
+		else if (count==max_split){ // added max_split parameter
+			break;
+		}		
 		
 		string add_string = new_string.substr(0, found);
 		
@@ -480,6 +508,7 @@ BObjectImp* BasicExecutorModule::mf_SplitWords()
 		objarr->addElement(new String(add_string));
 		string tmp_string = new_string.substr(found+delimiter.length(), new_string.length());
 		new_string = tmp_string;
+		count += 1;		
 	}
 	while ( found != string::npos/*-1*/ );
 
