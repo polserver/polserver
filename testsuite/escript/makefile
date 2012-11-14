@@ -108,7 +108,8 @@ OTESTS = \
     bug001.ok bug002.ok bug003.ok \
     setmember.ok \
     plusequal.ok \
-    filemod\xml.ok
+    filemod\xml.ok \
+	sw001.ok sw002.ok sw003.ok sw004.ok
 !endif
 #  bug004.ok
 
@@ -129,9 +130,9 @@ test:   copy otests ctests
 
 copy:
 !   ifndef X64
-        @copy ..\..\lib\mysql-connector-c-6.0.2-win32\lib\libmysql.dll .
+        @copy ..\..\lib\mysql-connector-c-6.0.2-win32\lib\libmysql.dll . >NUL
 !   else
-        @copy ..\..\lib\mysql-connector-c-6.0.2-winx64\lib\libmysql.dll .
+        @copy ..\..\lib\mysql-connector-c-6.0.2-winx64\lib\libmysql.dll . >NUL
 !   endif
 
 otests: $(OTESTS)
@@ -208,22 +209,22 @@ help:
     @del $(@R).tst 2>NUL
     @del $(@R).tsi 2>NUL
 !ifndef BINCOMP
-    $(COMPIL) -l -xt -q $(@R).src
-    $(EXEC) -q -v$(@R).ecl >$(@R).tsi
-    $(EXEC) -q $(@R).ecl >$(@R).tst
-    $(EXEC) -p -q $(@R).ecl >$(@R).prf
-    $(DIFF) $(@R).out $(@R).tst
+    @$(COMPIL) -l -xt -q $(@R).src
+    @$(EXEC) -q -v$(@R).ecl >$(@R).tsi
+    @$(EXEC) -q $(@R).ecl >$(@R).tst
+    @$(EXEC) -p -q $(@R).ecl >$(@R).prf
+    @$(DIFF) $(@R).out $(@R).tst
     @echo $(@R).src: output PASSED
     @echo $(@R).src: instructions TESTING
     @REM copy $(@R).tsi $(@R).ins
-    -$(DIFF) $(@R).ins $(@R).tsi
+    @-$(DIFF) $(@R).ins $(@R).tsi
     @echo $(@R).src: instructions PASSED
     @echo $(@R).src: PASSED >$(@R).ok
 !else
-    $(COMPIL32) -l -xt -q $(@R).src
+    @$(COMPIL32) -l -xt -q $(@R).src
     @move $(@R).ecl $(@R).ecl32
-    $(COMPIL64) -l -xt -q $(@R).src
-    $(DIFF) $(@R).ecl32 $(@R).ecl
+    @$(COMPIL64) -l -xt -q $(@R).src
+    @$(DIFF) $(@R).ecl32 $(@R).ecl
     @echo $(@R).src: output PASSED
 !endif
 
