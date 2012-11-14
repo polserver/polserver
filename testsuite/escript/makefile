@@ -140,19 +140,21 @@ otests: $(OTESTS)
 ctests: $(CTESTS)
 
 clean:
-    @del /S *.ok 2>NUL
-    @del /S *.cok 2>NUL
-    @del /S *.ecl 2>NUL
-    @del /S *.ecl32 2>NUL
-    @del /S *.lst 2>NUL
-    @del /S *.dep 2>NUL
-    @del /S *.dbg 2>NUL
-    @del /S *.dbg.txt 2>NUL
-    @del /S *.tst 2>NUL
-    @del /S *.prf 2>NUL
-    @del /S *.tsi 2>NUL
-    @del /S *.ctt 2>NUL
-    @del libmysql.dll 2>NUL
+    @del /S *.ok 2>NUL >NUL
+    @del /S *.cok 2>NUL >NUL
+    @del /S *.ecl 2>NUL >NUL
+    @del /S *.ecl32 2>NUL >NUL
+    @del /S *.lst 2>NUL >NUL
+    @del /S *.dep 2>NUL >NUL
+    @del /S *.dbg 2>NUL >NUL
+    @del /S *.dbg.txt 2>NUL >NUL
+    @del /S *.tst 2>NUL >NUL
+    @del /S *.prf 2>NUL >NUL
+    @del /S *.tsi 2>NUL >NUL
+    @del /S *.ctt 2>NUL >NUL
+	@del /S *.omp_ecl 2>NUL >NUL
+    @del libmysql.dll 2>NUL >NUL
+	@echo cleaned
 
 perf: copy perfout $(PERFS)
 
@@ -182,6 +184,14 @@ create: copy
         @echo you need to define FILE
 !   endif
 
+
+omp_test: clean copy
+	$(COMPIL) -b -f -q -T -w- -l- -D- -x- 2>NUL >NUL
+	@rename *.ecl *.omp_ecl
+	$(COMPIL) -b -f -q -w- -l- -D- -x- 2>NUL >NUL
+	@for %f in ("*.ecl") do @$(DIFF) %f %~dpnf.omp_ecl
+	@echo All tests passed.
+
 help:
     @echo "Build configurations:"
     @echo "    test      entire test suite (default)"
@@ -191,8 +201,9 @@ help:
     @echo "    clean     clean for new test run"
     @echo "    create    creates ref out,ins files for given FILE
     @echo "    BINCOMP=1 use this parameter to compare 64bit ecompile output against 32bit
+	@echo "    omp_test  compares compiler output between threaded and non threaded compilation"
 
-.SUFFIXES : .src .out .prf
+.SUFFIXES : .src .out .prf .omp_ecl
 
 # Main Rule:
 #  A .SRC file is compiled into a .ECL file.
@@ -249,6 +260,3 @@ help:
     @-$(DIFF) $(@R).cot $(@R).ctt
     @echo $(@R).src: PASSED >$(@R).cok
     @echo $(@R).src: PASSED
-
-
-

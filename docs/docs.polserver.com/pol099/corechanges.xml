@@ -15,7 +15,11 @@
 	  default: -1 no limit<br/>
 	  (Patch submitted by andenixa)
       </change>
-    </entry>
+	  <change type="Added">ecompile its now possible to override through the cmdline<br/>
+			  GenerateDependencyInfo entry with "-D-"<br/>
+              GenerateDebugInfo entry with "-x-"
+      </change>
+	</entry>
 	<entry>
       <date>11-10-2012</date>
       <author>Turley</author>
