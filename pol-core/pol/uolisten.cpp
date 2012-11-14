@@ -111,7 +111,7 @@ void uo_client_listener_thread( void* arg )
         if (SL.GetConnection( timeout ))
         {
             // create an appropriate Client object
-			if (!config.use_single_thread_login)
+			if (config.use_single_thread_login)
 			{
 				UoClientThread* thread = new UoClientThread( ls, SL );
 				login_clients.push_back(thread);

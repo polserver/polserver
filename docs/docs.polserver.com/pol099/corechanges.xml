@@ -4,9 +4,45 @@
 <ESCRIPT>
   <header>
     <topic>Latest Core Changes</topic>
-    <datemodified>10-08-2012</datemodified>
+    <datemodified>11-14-2012</datemodified>
   </header>
   <version name="POL099">
+	<entry>
+      <date>11-14-2012</date>
+      <author>Turley</author>
+      <change type="Changed">SplitWords( str, delimiter := " ", max_split := -1 )<br/>
+	  it has now an additional parameter max_split, if given it limits the number of times that a string will be split<br/>
+	  default: -1 no limit<br/>
+	  (Patch submitted by andenixa)
+      </change>
+    </entry>
+	<entry>
+      <date>11-10-2012</date>
+      <author>Turley</author>
+      <change type="Added">uoclient.cfg Listener property "KeepClients" 1/0 default 0<br/>
+	  if set to 1 clients keep this listener port even after different gameserver select
+      </change>
+	  <change type="Note">actually 1 is the old behaviour and 0 the old behaviour of pol.cfg ListenPort
+      </change>
+	  <change type="Added">pol.cfg "UseSingleThreadLogin" 1/0 default 0<br/>
+	  if set all prelogin clients are handled inside the listener thread and not inside an extra thread<br/>
+	  this will reduce the amount of thread creates and destroys
+      </change>
+    </entry>
+	<entry>
+      <date>10-14-2012</date>
+      <author>Tomi</author>
+      <change type="Added">SystemHook "WarmodeChange" called when a character changes warmode status either by member .warmode or by clicking the warmode button on the paperdoll<br/>
+	  Params CharRef and new_warmode_status<br/>
+	  Return value is ignored
+      </change>
+    </entry>
+	<entry>
+      <date>10-09-2012</date>
+      <author>Tomi</author>
+      <change type="Fixed">packet 0x17 ( poison health bar packet ) was sending 2 bytes with wrong endian when sending to nearby clients
+      </change>
+    </entry>
 	<entry>
       <date>10-08-2012</date>
       <author>Turley</author>
