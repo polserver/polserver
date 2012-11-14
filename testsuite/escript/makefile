@@ -203,7 +203,7 @@ help:
     @echo "    BINCOMP=1 use this parameter to compare 64bit ecompile output against 32bit
 	@echo "    omp_test  compares compiler output between threaded and non threaded compilation"
 
-.SUFFIXES : .src .out .prf .omp_ecl
+.SUFFIXES : .src .out .prf
 
 # Main Rule:
 #  A .SRC file is compiled into a .ECL file.
