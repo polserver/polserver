@@ -4,6 +4,9 @@
               it has now an additional parameter max_split, if given it limits the number of times that a string will be split
 			  default: -1 no limit
 			  (Patch submitted by andenixa)
+  Added:      ecompile its now possible to override through the cmdline
+			  GenerateDependencyInfo entry with "-D-"
+              GenerateDebugInfo entry with "-x-"
 			  
 11-10-2012 Turley:
   Added:      uoclient.cfg Listener property "KeepClients" 1/0 default 0
