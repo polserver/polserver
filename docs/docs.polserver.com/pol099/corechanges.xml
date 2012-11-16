@@ -4,9 +4,21 @@
 <ESCRIPT>
   <header>
     <topic>Latest Core Changes</topic>
-    <datemodified>11-14-2012</datemodified>
+    <datemodified>11-16-2012</datemodified>
   </header>
   <version name="POL099">
+  	<entry>
+      <date>11-16-2012</date>
+      <author>Turley</author>
+      <change type="Added">string methods:<br/>
+        str.length() : returns like len(str) the length of the string<br/>
+        str.upper() : returns like upper(str) the uppercase version and also modifies the str<br/>
+        str.lower() : returns like lower(str) the lowercase version and also modifies the str<br/>
+        str.find(Search,[Start]) : returns like Find(string, search, start) the index of the first occurance of 'search' after 'start' within str<br/>
+        but unlike the basic.em function the Start parameter is optional if not given it searches the whole string<br/>
+        str.join(array) : returns a string which is the concatenation of the array elements, seperated by str
+      </change>
+    </entry>
 	<entry>
       <date>11-14-2012</date>
       <author>Turley</author>

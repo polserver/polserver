@@ -1,4 +1,13 @@
 ﻿-- POL099 --
+11-16-2012 Turley:
+  Added:      string methods:
+			  str.length() : returns like len(str) the length of the string
+			  str.upper() : returns like upper(str) the uppercase version and also modifies the str
+			  str.lower() : returns like lower(str) the lowercase version and also modifies the str
+			  str.find(Search,[Start]) : returns like Find(string, search, start) the index of the first occurance of 'search' after 'start' within str
+			  but unlike the basic.em function the Start parameter is optional if not given it searches the whole string
+			  str.join(array) : returns a string which is the concatenation of the array elements, seperated by str
+
 11-14-2012 Turley:
   Changed:    SplitWords( str, delimiter := " ", max_split := -1 )
               it has now an additional parameter max_split, if given it limits the number of times that a string will be split
