@@ -143,8 +143,9 @@ void CustomHouseDesign::AddOrReplace(CUSTOM_HOUSE_ELEMENT& elem)
     u32 yidx = elem.yoffset + yoff;
     if(!ValidLocation(xidx,yidx))
         return;
-    for( HouseFloorZColumn::iterator itr = Elements[floor_num].data.at(xidx).at(yidx).begin(),
-		 itrend = Elements[floor_num].data.at(xidx).at(yidx).end(); 
+	HouseFloorZColumn *column = &Elements[floor_num].data.at(xidx).at(yidx);
+    for( HouseFloorZColumn::iterator itr = column->begin(),
+		 itrend = column->end(); 
          itr != itrend; ++itr)
     {
             char existing_height = tileheight(itr->graphic);
@@ -153,7 +154,7 @@ void CustomHouseDesign::AddOrReplace(CUSTOM_HOUSE_ELEMENT& elem)
                 ((existing_height != 0) && (adding_height != 0)) )  //or nonfloor with nonfloor
                                                                    
             {
-                Elements[floor_num].data.at(xidx).at(yidx).erase(itr);
+                column->erase(itr);
                 floor_sizes[floor_num]--;
                 Add(elem);
                 return;
@@ -174,14 +175,15 @@ bool CustomHouseDesign::Erase(u32 xoffset, u32 yoffset, u8 z, int minheight)
     u32 yidx = yoffset + yoff;
     if(!ValidLocation(xidx,yidx))
         return false;
-    for( HouseFloorZColumn::iterator itr = Elements[floor_num].data.at(xidx).at(yidx).begin(),
-		 itrend = Elements[floor_num].data.at(xidx).at(yidx).end(); 
+	HouseFloorZColumn *column = &Elements[floor_num].data.at(xidx).at(yidx);
+    for( HouseFloorZColumn::iterator itr = column->begin(),
+		 itrend = column->end(); 
          itr != itrend; ++itr)
     {
         char height = tileheight(itr->graphic);
         if( (itr->z == z) && (height >= minheight) )
         {
-            Elements[floor_num].data.at(xidx).at(yidx).erase(itr);
+            column->erase(itr);
             floor_sizes[floor_num]--;
             return true;
         }
@@ -200,13 +202,14 @@ bool CustomHouseDesign::EraseGraphicAt(u16 graphic, u32 xoffset, u32 yoffset, u8
     u32 yidx = yoffset + yoff;
     if(!ValidLocation(xidx,yidx))
         return false;
-    for( HouseFloorZColumn::iterator itr = Elements[floor_num].data.at(xidx).at(yidx).begin(),
-		 itrend = Elements[floor_num].data.at(xidx).at(yidx).end(); 
+	HouseFloorZColumn *column = &Elements[floor_num].data.at(xidx).at(yidx);
+    for( HouseFloorZColumn::iterator itr = column->begin(),
+		 itrend = column->end(); 
          itr != itrend; ++itr)
     {
         if( itr->graphic == graphic )
         {
-            Elements[floor_num].data.at(xidx).at(yidx).erase(itr);
+            column->erase(itr);
             floor_sizes[floor_num]--;
             return true;
         }
@@ -227,8 +230,9 @@ void CustomHouseDesign::ReplaceDirtFloor(u32 x, u32 y)
     u32 yidx = y + yoff;
     if(!ValidLocation(xidx,yidx))
         return;
-    for( HouseFloorZColumn::iterator itr = Elements[floor_num].data.at(xidx).at(yidx).begin(),
-		 itrend = Elements[floor_num].data.at(xidx).at(yidx).end(); 
+	HouseFloorZColumn *column = &Elements[floor_num].data.at(xidx).at(yidx);
+    for( HouseFloorZColumn::iterator itr = column->begin(),
+		 itrend = column->end(); 
          itr != itrend; ++itr)
     {
         if( tileheight(itr->graphic) == 0 ) //a floor tile exists
@@ -393,7 +397,7 @@ void CustomHouseDesign::AddMultiAtOffset(u16 multiid, s8 x, s8 y, s8 z)
 
 void CustomHouseDesign::readProperties( ConfigElem& elem, const string& prefix  )
 {
-    string line, sizes;
+    string line;
 
     while (elem.remove_prop( prefix.c_str(), &line ))
     {

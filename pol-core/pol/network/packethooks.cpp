@@ -321,12 +321,20 @@ void load_packet_entries( const Package* pkg, ConfigElem& elem )
 
 	switch (pktversion)
 	{
-		case 1:	existing_in_func = packet_hook_data.at(id).function;
-				existing_out_func = packet_hook_data.at(id).outgoing_function;
+		case 1:
+			{
+				PacketHookData *hook_data = &packet_hook_data.at(id);
+				existing_in_func = hook_data->function;
+				existing_out_func = hook_data->outgoing_function;
 				break;
-		case 2:	existing_in_func = packet_hook_data_v2.at(id).function;
-				existing_out_func = packet_hook_data_v2.at(id).outgoing_function;
+			}
+		case 2:	
+			{
+				PacketHookData *hook_data = &packet_hook_data_v2.at(id);
+				existing_in_func = hook_data->function;
+				existing_out_func = hook_data->outgoing_function;
 				break;
+			}
 		case 3: cout << "Packethook Packet Version 3 not implemented" << endl; return; break;
 		default: cout << "Invalid Packethook Packet Version." << endl; return; break;
 	}
@@ -338,16 +346,19 @@ void load_packet_entries( const Package* pkg, ConfigElem& elem )
 
 	switch (pktversion)
 	{
-		case 1:	packet_hook_data.at(id).function = exfunc; 
-				packet_hook_data.at(id).outgoing_function = exoutfunc;
-				packet_hook_data.at(id).length = length;
-				packet_hook_data.at(id).sub_command_offset = subcmdoff;
-				packet_hook_data.at(id).sub_command_length = subcmdlen;
-				packet_hook_data.at(id).version = pktversion;
-				packet_hook_data.at(id).client_ver = client_struct;
+		case 1:	
+			{
+				PacketHookData* pkt_data = &packet_hook_data.at(id);
+				pkt_data->function = exfunc; 
+				pkt_data->outgoing_function = exoutfunc;
+				pkt_data->length = length;
+				pkt_data->sub_command_offset = subcmdoff;
+				pkt_data->sub_command_length = subcmdlen;
+				pkt_data->version = pktversion;
+				pkt_data->client_ver = client_struct;
 				if (handler[id].msglen)
 				{
-					packet_hook_data.at(id).default_handler = handler[id].func;
+					pkt_data->default_handler = handler[id].func;
 				}
 				if(length == 0)
 				{
@@ -358,16 +369,20 @@ void load_packet_entries( const Package* pkg, ConfigElem& elem )
 					MessageHandler( id, length, ExportedPacketHookHandler );
 				}
 				break;
-		case 2:	packet_hook_data_v2.at(id).function = exfunc; 
-				packet_hook_data_v2.at(id).outgoing_function = exoutfunc;
-				packet_hook_data_v2.at(id).length = length;
-				packet_hook_data_v2.at(id).sub_command_offset = subcmdoff;
-				packet_hook_data_v2.at(id).sub_command_length = subcmdlen;
-				packet_hook_data_v2.at(id).version = pktversion;
-				packet_hook_data_v2.at(id).client_ver = client_struct;
+			}
+		case 2:	
+			{
+				PacketHookData* pkt_data = &packet_hook_data_v2.at(id);
+				pkt_data->function = exfunc; 
+				pkt_data->outgoing_function = exoutfunc;
+				pkt_data->length = length;
+				pkt_data->sub_command_offset = subcmdoff;
+				pkt_data->sub_command_length = subcmdlen;
+				pkt_data->version = pktversion;
+				pkt_data->client_ver = client_struct;
 				if (handler_v2[id].msglen)
 				{
-					packet_hook_data_v2.at(id).default_handler = handler_v2[id].func;
+					pkt_data->default_handler = handler_v2[id].func;
 				}
 				if(length == 0)
 				{
@@ -378,6 +393,7 @@ void load_packet_entries( const Package* pkg, ConfigElem& elem )
 					MessageHandler_V2( id, length, ExportedPacketHookHandler );
 				}
 				break;
+			}
 		case 3: cout << "Packethook Packet Version 3 not implemented" << endl; return; break;
 		default: cout << "Invalid Packethook Packet Version." << endl; return; break;
 	}
