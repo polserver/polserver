@@ -176,7 +176,7 @@ BObjectImp* place_item_in_secure_trade_container( Client* client, Item* item )
     if (!cont->can_insert_add_item( client->chr, UContainer::MT_CORE_MOVED, item))
 	{
 		send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
-        return false;
+        return new BError( "Could not insert item into container." );
 	}
     
 	// FIXME : Add Grid Index Default Location Checks here.

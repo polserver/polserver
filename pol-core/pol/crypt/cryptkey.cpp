@@ -22,7 +22,7 @@ bool compareVersion(int ver1major, int ver1minor, int ver1build, int ver2major, 
 
 void CalculateCryptKeys(const string& name, TCryptInfo& infoCrypt)
 {
-	size_t len = strlen( name.c_str() );
+	size_t len = name.length();
 	if ( (  strnicmp( "none",     name.c_str(), len ) == 0 )
 		||( strnicmp( "ignition", name.c_str(), len ) == 0 )
 		||( strnicmp( "uorice",   name.c_str(), len ) == 0 ) )

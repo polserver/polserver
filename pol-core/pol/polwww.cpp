@@ -501,7 +501,6 @@ bool decode_page( const string& ipage,
 	}
 
 	string filename = filedir + page;
-	string fileret;
 	
 	string pagetype = get_pagetype( page );
 
@@ -526,30 +525,6 @@ bool decode_page( const string& ipage,
 		}
 		*redirect_to = page;
 		return true;
-	}
-	
-	if (pagetype == "") // didn't specify, so assume it's a directory.
-	{				   // have to redirect...
-		if (page.empty() || page[ page.size()-1 ] != '/')
-		{
-			page += "/";
-			filename += "/";
-		}
-	
-		string test;
-		test = filename + "index.ecl";
-		if (FileExists( test.c_str() ))
-		{
-			page += "index.ecl";
-			filename += "index.ecl";
-			pagetype = "ecl";
-		}
-		else
-		{
-			page += "index.htm";
-			filename += "index.htm";
-			pagetype = "htm";
-		}
 	}
 
 	if (pkg)

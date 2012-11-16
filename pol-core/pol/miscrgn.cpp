@@ -115,14 +115,15 @@ void WeatherDef::copy_default_regions()
 	RegionRealms::iterator itr;
 	for( itr = regionrealms.begin(); itr != regionrealms.end(); ++itr )
 	{
-		unsigned int gridwidth = itr->first->width() / WGRID_SIZE;
-		unsigned int gridheight = itr->first->height() / WGRID_SIZE;
+		Realm* realm = itr->first;
+		unsigned int gridwidth = realm->width() / WGRID_SIZE;
+		unsigned int gridheight = realm->height() / WGRID_SIZE;
 
-    // Tokuno-Fix
-    if (gridwidth * WGRID_SIZE < itr->first->width())
-      gridwidth++;
-    if (gridheight * WGRID_SIZE < itr->first->height())
-      gridheight++;
+		// Tokuno-Fix
+		if (gridwidth * WGRID_SIZE < realm->width())
+		  gridwidth++;
+		if (gridheight * WGRID_SIZE < realm->height())
+		  gridheight++;
 
 		//RegionId** zone = new RegionId*[gridwidth];
 
@@ -130,7 +131,7 @@ void WeatherDef::copy_default_regions()
 		{
 			for(unsigned int j=0; j<gridheight; j++)
 			{
-				default_regionrealms[itr->first][i][j] = regionrealms[itr->first][i][j];
+				default_regionrealms[realm][i][j] = regionrealms[realm][i][j];
 			}
 		}
 	}
