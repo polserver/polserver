@@ -2647,7 +2647,7 @@ void Character::refresh_ar()
 	// FIXME: Should we allow this to be adjustable via a prop? Hrmmmmm
 	if (shield != NULL)
 	{
-		double add = shield->ar() * attribute(pAttrParry->attrid).effective() * 0.5 * 0.01;
+		double add = 0.5 * 0.01 * shield->ar() * attribute(pAttrParry->attrid).effective();
 		if (add > 1.0)
 			new_ar += add;
 		else

@@ -306,12 +306,13 @@ int EScriptProgram::write( const char *fname )
 		fwrite( &modhdr, sizeof modhdr, 1, fp );
 		for( unsigned funcnum = 0; funcnum < module->used_functions.size(); funcnum++ )
 		{
+			ModuleFunction* module_func = module->used_functions[funcnum];
 			BSCRIPT_MODULE_FUNCTION func;
 			memset( &func, 0, sizeof func );
-			passert( module->used_functions[funcnum]->used );
+			passert( module_func->used );
             
-            strzcpy( func.funcname, module->used_functions[funcnum]->name.c_str(), sizeof func.funcname );
-			func.nargs = static_cast<unsigned char>(module->used_functions[funcnum]->nargs);
+            strzcpy( func.funcname, module_func->name.c_str(), sizeof func.funcname );
+			func.nargs = static_cast<unsigned char>(module_func->nargs);
             
 			fwrite( &func, sizeof func, 1, fp );
 		}

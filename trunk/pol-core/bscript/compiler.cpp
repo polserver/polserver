@@ -1875,8 +1875,8 @@ int Compiler::eatToken( CompilerContext& ctx, BTokenId tokenid )
 int Compiler::handleDoClause(CompilerContext& ctx, int level)
 {
 	if (!quiet) cout << "DO clause.." << endl;
-
-	unsigned body_start = program->tokens.next();
+	StoredTokenContainer* prog_tokens = &program->tokens;
+	unsigned body_start = prog_tokens->next();
 	enterblock( CanBeLabelled );
 
 	Token endblock_tkn;
@@ -1890,7 +1890,7 @@ int Compiler::handleDoClause(CompilerContext& ctx, int level)
 
 	// continue should jump to where the WHILE expression is evaluated,
 	// which is the next token after this block
-	patchblock_continues( program->tokens.next() );
+	patchblock_continues( prog_tokens->next() );
 	program->setstatementbegin();
 
 	localscope.popblock(true); // Pop only variables.
@@ -1898,7 +1898,7 @@ int Compiler::handleDoClause(CompilerContext& ctx, int level)
 	if (res < 0) return res;
 	program->append(StoredToken(Mod_Basic, RSV_JMPIFTRUE, TYP_RESERVED, body_start));
 	// break should completely exit, of course.
-	patchblock_breaks( program->tokens.next() );
+	patchblock_breaks( prog_tokens->next() );
 	localscope.popblock(); // Pop block.
 
 	// do-while loops until its expression evaluates to false.
@@ -1914,8 +1914,8 @@ int Compiler::handleDoClause(CompilerContext& ctx, int level)
 int Compiler::handleRepeatUntil(CompilerContext& ctx, int level)
 {
 	if (!quiet) cout << "REPEAT clause.." << endl;
-
-	unsigned body_start = program->tokens.next();
+	StoredTokenContainer* prog_tokens = &program->tokens;
+	unsigned body_start = prog_tokens->next();
 	enterblock( CanBeLabelled );
 
 	Token endblock_tkn;
@@ -1930,7 +1930,7 @@ int Compiler::handleRepeatUntil(CompilerContext& ctx, int level)
 
 	program->update_dbg_pos( endblock_tkn );
 	// continue should jump to where the UNTIL expression is evaluated.
-	patchblock_continues( program->tokens.next() );
+	patchblock_continues( prog_tokens->next() );
 	program->setstatementbegin();
 	localscope.popblock(true);
 	res = getExpr(ctx, EXPR_FLAG_SEMICOLON_TERM_ALLOWED );
@@ -1938,7 +1938,7 @@ int Compiler::handleRepeatUntil(CompilerContext& ctx, int level)
 	// repeat-until loops until its expression evaluates to true.
 	program->append(StoredToken(Mod_Basic, RSV_JMPIFFALSE, TYP_RESERVED, body_start));
 	// break should completely exit, of course.
-	patchblock_breaks( program->tokens.next() );
+	patchblock_breaks( prog_tokens->next() );
 	localscope.popblock();
 
 
@@ -1965,6 +1965,7 @@ int Compiler::handleSwitch( CompilerContext& ctx, int level )
 		//  until we peek-see an OPTION or an ENDCASE
 	bool done = false;	
 	bool onlydefault = true;
+	StoredTokenContainer* prog_tokens = &program->tokens;
 	while (!done)
 	{
 		bool anycases = false;
@@ -1990,7 +1991,7 @@ int Compiler::handleSwitch( CompilerContext& ctx, int level )
 						cout << "CASE statement can have only one DEFAULT clause." << endl;
 						return -1;
 					}
-					default_posn = program->tokens.next();
+					default_posn = prog_tokens->next();
 					anycases = true;
 					continue;
 				}
@@ -2029,7 +2030,7 @@ int Compiler::handleSwitch( CompilerContext& ctx, int level )
 				onlydefault = false;
 				if (token.id == TOK_LONG)
 				{
-					unsigned short offset = static_cast<unsigned short>(program->tokens.next());
+					unsigned short offset = static_cast<unsigned short>(prog_tokens->next());
 					unsigned char* tmppch = reinterpret_cast<unsigned char*>(&offset);
 					caseblock.push_back( tmppch[0] );
 					caseblock.push_back( tmppch[1] );
@@ -2047,7 +2048,7 @@ int Compiler::handleSwitch( CompilerContext& ctx, int level )
 						cout << "String expressions in CASE statements must be <= 253 characters." << endl;
 						return -1;;
 					}
-					unsigned short offset = static_cast<unsigned short>(program->tokens.next());
+					unsigned short offset = static_cast<unsigned short>(prog_tokens->next());
 					unsigned char* tmppch = reinterpret_cast<unsigned char*>(&offset);
 					caseblock.push_back( tmppch[0] );
 					caseblock.push_back( tmppch[1] );
@@ -2129,7 +2130,7 @@ int Compiler::handleSwitch( CompilerContext& ctx, int level )
 		 // NOTE, the "jump to -> jump to" optimizer will be helpful here, optimizing breaks.
 		
 		emit_leaveblock();
-		patchblock_breaks( program->tokens.next() );
+		patchblock_breaks( prog_tokens->next() );
 
 		localscope.popblock();
 		program->leaveblock();
@@ -2158,7 +2159,7 @@ int Compiler::handleSwitch( CompilerContext& ctx, int level )
 
 		// if no default specified, pretend 'default' was specified at the end.
 	if (default_posn == 0)
-		default_posn = program->tokens.next();
+		default_posn = prog_tokens->next();
 
 		// the default case must go at the end.
 //	if (1)
@@ -2173,7 +2174,7 @@ int Compiler::handleSwitch( CompilerContext& ctx, int level )
 	{
 		unsigned posn = jmpend.back();
 		jmpend.pop_back();
-		patchoffset( posn, program->tokens.next() );
+		patchoffset( posn, prog_tokens->next() );
 	}
 
 	// now, we have to emit the casecmp block.
@@ -2556,6 +2557,7 @@ int Compiler::handleIf(CompilerContext& ctx, int level)
 
 		// if an ELSE follows, grab the ELSE and following statement
 	peekToken(ctx, token);
+	StoredTokenContainer* prog_tokens = &program->tokens;
 	if (token.id == RSV_ELSE) 
 	{
 		unsigned else_token_posn;
@@ -2563,24 +2565,24 @@ int Compiler::handleIf(CompilerContext& ctx, int level)
 		program->append(
 			StoredToken(Mod_Basic, RSV_GOTO, TYP_RESERVED, 0),
 			&else_token_posn);
-		jump_false = program->tokens.next();
+		jump_false = prog_tokens->next();
 		getToken(ctx, token);  // eat the else
 		if (!quiet) cout << "else clause.." << endl;
 		getStatement(ctx, level);
 				// now that we know where the ELSE part ends, patch in the address
 				// which skips past it.
-		program->tokens.atPut1(
-			 StoredToken(Mod_Basic, RSV_GOTO, TYP_RESERVED, program->tokens.next()),
+		prog_tokens->atPut1(
+			 StoredToken(Mod_Basic, RSV_GOTO, TYP_RESERVED, prog_tokens->next()),
 			 else_token_posn);
 	} 
 	else 
 	{
-		jump_false = program->tokens.next();
+		jump_false = prog_tokens->next();
 	}
  
 
 	// patch up orig. IF token to skip past if false
-	program->tokens.atPut1(
+	prog_tokens->atPut1(
 		  StoredToken(Mod_Basic, RSV_JMPIFFALSE, TYP_RESERVED, jump_false),
 		  if_token_posn);
 	return 0;
@@ -2635,6 +2637,7 @@ int Compiler::handleBracketedIf(CompilerContext& ctx, int level)
 	bool included_any_tests = false;
 	unsigned last_if_token_posn = static_cast<unsigned>(-1);
 	unsigned if_token_posn = static_cast<unsigned>(-1);
+	StoredTokenContainer* prog_tokens = &program->tokens;
 	while (token.id == RSV_ST_IF || token.id == RSV_ELSEIF)
 	{
 		EScriptProgramCheckpoint checkpt_expr( *program );
@@ -2648,8 +2651,8 @@ int Compiler::handleBracketedIf(CompilerContext& ctx, int level)
 		last_if_token_posn = if_token_posn;
 		if (ex.tokens.back()->id == TOK_LOG_NOT)
 		{
-			if_token_posn = program->tokens.count()-1;
-			program->tokens.atPut1(
+			if_token_posn = prog_tokens->count()-1;
+			prog_tokens->atPut1(
 				 StoredToken(Mod_Basic, RSV_JMPIFTRUE, TYP_RESERVED, 0),
 				 if_token_posn);
 		}
@@ -2743,9 +2746,9 @@ int Compiler::handleBracketedIf(CompilerContext& ctx, int level)
 		if (patch_if_token)
 		{
 			StoredToken tkn;
-			program->tokens.atGet1( if_token_posn, tkn );
-			tkn.offset = static_cast<unsigned short>(program->tokens.next());
-			program->tokens.atPut1( tkn, if_token_posn );
+			prog_tokens->atGet1( if_token_posn, tkn );
+			tkn.offset = static_cast<unsigned short>(prog_tokens->next());
+			prog_tokens->atPut1( tkn, if_token_posn );
 		}
 
 //dump(cout);
@@ -2756,12 +2759,12 @@ int Compiler::handleBracketedIf(CompilerContext& ctx, int level)
 				jumpend.pop_back();
 
 			if (last_if_token_posn != static_cast<unsigned>(-1) &&
-				last_if_token_posn < program->tokens.count())
+				last_if_token_posn < prog_tokens->count())
 			{
 				StoredToken tkn;
-				program->tokens.atGet1( last_if_token_posn, tkn );
-				tkn.offset = static_cast<unsigned short>(program->tokens.next());
-				program->tokens.atPut1( tkn, last_if_token_posn );
+				prog_tokens->atGet1( last_if_token_posn, tkn );
+				tkn.offset = static_cast<unsigned short>(prog_tokens->next());
+				prog_tokens->atPut1( tkn, last_if_token_posn );
 			}
 		}
 //dump(cout);
@@ -2814,8 +2817,8 @@ int Compiler::handleBracketedIf(CompilerContext& ctx, int level)
 		jumpend.pop_back();
 		// patch up orig. IF token to skip past if false
 		
-		program->tokens.atPut1(
-			  StoredToken(Mod_Basic, RSV_GOTO, TYP_RESERVED, program->tokens.next()),
+		prog_tokens->atPut1(
+			  StoredToken(Mod_Basic, RSV_GOTO, TYP_RESERVED, prog_tokens->next()),
 			  pc);
 	}
 
@@ -2859,8 +2862,8 @@ int Compiler::readblock( CompilerContext& ctx,
 int Compiler::handleBracketedWhile(CompilerContext& ctx, int level)
 {
 	if (!quiet) cout << "while clause.." << endl;
-
-	unsigned conditional_expr_posn = program->tokens.next();
+	StoredTokenContainer* prog_tokens = &program->tokens;
+	unsigned conditional_expr_posn = prog_tokens->next();
 	int res = getExprInParens(ctx); // (expr) (parens required)
 	if (res < 0) return res;
 
@@ -2884,8 +2887,8 @@ int Compiler::handleBracketedWhile(CompilerContext& ctx, int level)
 		 conditional_expr_posn), 0);
 
 		// Control should jump past the loop when the expr evaluates to false.
-	unsigned exit_loop_posn = program->tokens.next();
-	program->tokens.atPut1( StoredToken(Mod_Basic, 
+	unsigned exit_loop_posn = prog_tokens->next();
+	prog_tokens->atPut1( StoredToken(Mod_Basic, 
 										RSV_JMPIFFALSE, 
 										TYP_RESERVED, 
 										exit_loop_posn),
@@ -2894,7 +2897,7 @@ int Compiler::handleBracketedWhile(CompilerContext& ctx, int level)
 		// continues re-test the expression, which is at the top of the loop.		 
 	patchblock_continues( conditional_expr_posn );
 		// breaks exit the loop, which has been wholly emitted by now.
-	patchblock_breaks( program->tokens.count() );
+	patchblock_breaks( prog_tokens->count() );
 
 	localscope.popblock();
 	program->leaveblock();
@@ -3454,7 +3457,7 @@ int Compiler::includeModule( const std::string& modulename )
 		else
 		{
 			cout << "Unable to read include file '" << modulename << "'" << endl;
-			return false;
+			return -1;
 		}
 	}
 	else
@@ -3778,7 +3781,8 @@ int Compiler::handleBracketedFor_basic( CompilerContext& ctx )
 	program->addlocalvar( "_" + string(itrvar.tokval()) + "_end" );
 	localscope.addvar( "_" + string(itrvar.tokval()) + "_end", for_ctx, false );
 
-	unsigned again_posn = program->tokens.next();
+	StoredTokenContainer* prog_tokens = &program->tokens;
+	unsigned again_posn = prog_tokens->next();
 	enterblock( CanBeLabelled );
 	Token endblock_tkn;
 	res = readblock( ctx, 1, RSV_ENDFOR, NULL, &endblock_tkn );
@@ -3793,13 +3797,13 @@ int Compiler::handleBracketedFor_basic( CompilerContext& ctx )
 							 &nextfor_posn );
 
 	patchblock_continues( nextfor_posn );
-	patchblock_breaks( program->tokens.next() );
+	patchblock_breaks( prog_tokens->next() );
 	localscope.popblock();
 	program->leaveblock();
 
 	leaveblock(0,0);
 
-	patchoffset( initfor_posn, program->tokens.next() );
+	patchoffset( initfor_posn, prog_tokens->next() );
 
 	return 0;
 }
@@ -3856,27 +3860,27 @@ int Compiler::handleFor_c( CompilerContext& ctx )
 
 	inject( initial_expr );
 	program->append( StoredToken(Mod_Basic, TOK_CONSUMER, TYP_UNARY_OPERATOR, 0) );
-
-	unsigned againPC = program->tokens.next();
+	StoredTokenContainer* prog_tokens = &program->tokens;
+	unsigned againPC = prog_tokens->next();
 	inject( predicate_expr );
 
 	unsigned if_posn;
 	program->append( StoredToken( Mod_Basic, RSV_JMPIFTRUE, TYP_RESERVED, 0 ), &if_posn );
 
 	insertBreak( "" );
-	patchoffset( if_posn, program->tokens.next() );
+	patchoffset( if_posn, prog_tokens->next() );
 
 	int res = getStatement( ctx, 1 );
 	if (res < 0)
 		return -1;
-	unsigned nextPC = program->tokens.next();
+	unsigned nextPC = prog_tokens->next();
 	
 	inject( iterate_expr );
 	program->append( StoredToken(Mod_Basic, TOK_CONSUMER, TYP_UNARY_OPERATOR, 0) );
 	
 	program->append( StoredToken( Mod_Basic, RSV_GOTO, TYP_RESERVED, againPC ), 0 );
 
-	leaveblock( program->tokens.next(), nextPC );
+	leaveblock( prog_tokens->next(), nextPC );
 
 	return 0;
 }
@@ -3932,8 +3936,8 @@ int Compiler::handleBracketedFor_c( CompilerContext& ctx )
 
 	inject( initial_expr );
 	program->append( StoredToken(Mod_Basic, TOK_CONSUMER, TYP_UNARY_OPERATOR, 0) );
-
-	unsigned againPC = program->tokens.next();
+	StoredTokenContainer* prog_tokens = &program->tokens;
+	unsigned againPC = prog_tokens->next();
 	inject( predicate_expr );
 
 	unsigned if_posn;
@@ -3946,16 +3950,16 @@ int Compiler::handleBracketedFor_c( CompilerContext& ctx )
 		return res;
 	leaveblock(0,0);
 	
-	unsigned continuePC = program->tokens.next();
+	unsigned continuePC = prog_tokens->next();
 	
 	program->update_dbg_pos( endblock_tkn );
 	inject( iterate_expr );
 	program->append( StoredToken(Mod_Basic, TOK_CONSUMER, TYP_UNARY_OPERATOR, 0) );
 	
 	program->append( StoredToken( Mod_Basic, RSV_GOTO, TYP_RESERVED, againPC ), 0 );
-	patchoffset( if_posn, program->tokens.next() );
+	patchoffset( if_posn, prog_tokens->next() );
 
-	leaveblock( program->tokens.next(), continuePC );
+	leaveblock( prog_tokens->next(), continuePC );
 
 	return 0;
 }
@@ -4134,10 +4138,11 @@ int Compiler::_getStatement(CompilerContext& ctx, int level)
 	if (exprlen != 0)
 	{
 		StoredToken tmptoken;
-		program->tokens.atGet1( program->tokens.count()-1, tmptoken );
+		StoredTokenContainer* prog_tokens = &program->tokens;
+		prog_tokens->atGet1( prog_tokens->count()-1, tmptoken );
 		if (tmptoken.id == TOK_CONSUMER)
 		{
-			program->tokens.atGet1( program->tokens.count()-2, tmptoken );
+			prog_tokens->atGet1( prog_tokens->count()-2, tmptoken );
 		}
 
 		if (tmptoken.id == TOK_ASSIGN ||
@@ -4264,6 +4269,7 @@ int Compiler::handleFunction( CompilerContext& ctx )
 
 	unsigned skip_goto_posn;
 	
+	StoredTokenContainer* prog_tokens = &program->tokens;
 	if (include_debug)
 	{
 		/*
@@ -4283,12 +4289,12 @@ int Compiler::handleFunction( CompilerContext& ctx )
 
 		// STATEMENT
 		StoredToken tmptoken;
-		program->tokens.atGet1( program->tokens.count()-1, tmptoken );
+		prog_tokens->atGet1( prog_tokens->count()-1, tmptoken );
 		program->append( tmptoken, &userfunc.position ); // STATEMENT, STATEMENT
 
 		// skip_goto_posn: a goto is inserted, so prog ctrl will skip over this function
-		skip_goto_posn = program->tokens.count()-2;
-		program->tokens.atPut1( StoredToken(Mod_Basic, RSV_GOTO, TYP_RESERVED, 0), skip_goto_posn );
+		skip_goto_posn = prog_tokens->count()-2;
+		prog_tokens->atPut1( StoredToken(Mod_Basic, RSV_GOTO, TYP_RESERVED, 0), skip_goto_posn );
 														/* GOTO, STATEMENT */
 
 		program->symbols.append(userfunc.name.c_str(), posn);
@@ -4297,7 +4303,7 @@ int Compiler::handleFunction( CompilerContext& ctx )
 	else
 	{
 		program->append( StoredToken(Mod_Basic, RSV_GOTO, TYP_RESERVED, 0 ), &skip_goto_posn );
-		userfunc.position = posn = program->tokens.count();
+		userfunc.position = posn = prog_tokens->count();
 	}
 
 	res = getToken(ctx,token);
@@ -4316,20 +4322,21 @@ int Compiler::handleFunction( CompilerContext& ctx )
 
 	for( int i = static_cast<unsigned int>(userfunc.parameters.size()-1); i >= 0 ; --i )
 	{
-		program->symbols.append( userfunc.parameters[i].name.c_str(), posn );
+		UserParam* user_param= &userfunc.parameters[i];
+		program->symbols.append( user_param->name.c_str(), posn );
 		program->append( StoredToken(Mod_Basic, 
-								 userfunc.parameters[i].pass_by_reference?INS_POP_PARAM_BYREF:INS_POP_PARAM, 
+								 user_param->pass_by_reference?INS_POP_PARAM_BYREF:INS_POP_PARAM, 
 								 TYP_OPERATOR, posn), 0 );
-		program->addlocalvar( userfunc.parameters[i].name );
+		program->addlocalvar( user_param->name );
 
-		localscope.addvar( userfunc.parameters[i].name, ctx );
+		localscope.addvar( user_param->name, ctx );
 	}
 
 	res = handleBlock( ctx, 1 /* level */ );
 	if (res < 0) return res;
 
 	StoredToken tmp;
-	program->tokens.atGet1( program->tokens.count()-1, tmp );
+	prog_tokens->atGet1( prog_tokens->count()-1, tmp );
 	if (tmp.id != RSV_RETURN)
 	{
 		program->symbols.append("", posn);
@@ -4341,7 +4348,7 @@ int Compiler::handleFunction( CompilerContext& ctx )
 	program->leavefunction();
 
 	/* now, the skip goto must be patched up with the correct PC address*/
-	patchoffset( skip_goto_posn, program->tokens.next() );
+	patchoffset( skip_goto_posn, prog_tokens->next() );
 
 
 	inFunction = 0;
@@ -4393,6 +4400,7 @@ int Compiler::handleBracketedFunction( CompilerContext& ctx )
 
 	unsigned skip_goto_posn;
 	
+	StoredTokenContainer* prog_tokens = &program->tokens;
 	if (include_debug)
 	{
 		/*
@@ -4411,12 +4419,12 @@ int Compiler::handleBracketedFunction( CompilerContext& ctx )
 		*/
 														 /* STATEMENT */
 		StoredToken tmptoken;
-		program->tokens.atGet1( program->tokens.count()-1, tmptoken );
+		prog_tokens->atGet1( prog_tokens->count()-1, tmptoken );
 		program->append( tmptoken, &userfunc.position ); /* STATEMENT, STATEMENT */
 
 		/* skip_goto_posn: a goto is inserted, so prog ctrl will skip over this function */
-		skip_goto_posn = program->tokens.count()-2;
-		program->tokens.atPut1( StoredToken(Mod_Basic, RSV_GOTO, TYP_RESERVED, 0), skip_goto_posn );
+		skip_goto_posn = prog_tokens->count()-2;
+		prog_tokens->atPut1( StoredToken(Mod_Basic, RSV_GOTO, TYP_RESERVED, 0), skip_goto_posn );
 														/* GOTO, STATEMENT */
 
 		program->symbols.append(userfunc.name.c_str(), posn);
@@ -4425,7 +4433,7 @@ int Compiler::handleBracketedFunction( CompilerContext& ctx )
 	else
 	{
 		program->append( StoredToken(Mod_Basic, RSV_GOTO, TYP_RESERVED, 0 ), &skip_goto_posn );
-		userfunc.position = posn = program->tokens.count();
+		userfunc.position = posn = prog_tokens->count();
 	}
 
 	program->enterfunction();
@@ -4433,13 +4441,14 @@ int Compiler::handleBracketedFunction( CompilerContext& ctx )
 
 	for( int i = static_cast<unsigned int>(userfunc.parameters.size()-1); i >= 0 ; --i )
 	{
-		program->symbols.append( userfunc.parameters[i].name.c_str(), posn );
+		UserParam* params = &userfunc.parameters[i];
+		program->symbols.append( params->name.c_str(), posn );
 		program->append( StoredToken(Mod_Basic, 
-			userfunc.parameters[i].pass_by_reference?INS_POP_PARAM_BYREF:INS_POP_PARAM, 
+			params->pass_by_reference?INS_POP_PARAM_BYREF:INS_POP_PARAM, 
 			TYP_OPERATOR, posn), 0 );
 
-		program->addlocalvar( userfunc.parameters[i].name );
-		localscope.addvar( userfunc.parameters[i].name, ctx );
+		program->addlocalvar( params->name );
+		localscope.addvar( params->name, ctx );
 	}
 	
 	Token endblock_tkn;
@@ -4454,7 +4463,7 @@ int Compiler::handleBracketedFunction( CompilerContext& ctx )
 
 	program->update_dbg_pos( endblock_tkn );
 	StoredToken tmp;
-	program->tokens.atGet1( program->tokens.count()-1, tmp );
+	prog_tokens->atGet1( prog_tokens->count()-1, tmp );
 	if (tmp.id != RSV_RETURN)
 	{
 		program->symbols.append("", posn);
@@ -4466,7 +4475,7 @@ int Compiler::handleBracketedFunction( CompilerContext& ctx )
 	program->leavefunction();
 
 	/* now, the skip goto must be patched up with the correct PC address*/
-	patchoffset( skip_goto_posn, program->tokens.next() );
+	patchoffset( skip_goto_posn, prog_tokens->next() );
 
 
 	inFunction = 0;
@@ -4641,11 +4650,12 @@ int Compiler::handleProgram2( CompilerContext& ctx, int level )
 
 int Compiler::handleBracketedFunction3( UserFunction& userfunc, CompilerContext& ctx )
 {
-	unsigned first_PC = program->tokens.count();
+	StoredTokenContainer* program_tokens = &program->tokens;
+	unsigned first_PC = program_tokens->count();
 
 	emitFileLine( ctx );
-	program->function_decls.resize( program->tokens.count() + 1 );
-	program->function_decls[ program->tokens.count() ] = userfunc.declaration;
+	program->function_decls.resize( program_tokens->count() + 1 );
+	program->function_decls[ program_tokens->count() ] = userfunc.declaration;
 	CompilerContext save_ctx( ctx );
 	int res;
 	Token token;
@@ -4669,7 +4679,7 @@ int Compiler::handleBracketedFunction3( UserFunction& userfunc, CompilerContext&
 		EPExportedFunction ef;
 		ef.name = userfunc.name;
 		ef.nargs = static_cast<unsigned int>(userfunc.parameters.size());
-		ef.PC = program->tokens.count();
+		ef.PC = program_tokens->count();
 		program->exported_functions.push_back( ef );
 
 		// insert the stub:
@@ -4678,7 +4688,7 @@ int Compiler::handleBracketedFunction3( UserFunction& userfunc, CompilerContext&
 		program->append( StoredToken(Mod_Basic,CTRL_PROGEND, TYP_CONTROL, 0), ctx );
 	}
 	
-	userfunc.position = posn = program->tokens.count();
+	userfunc.position = posn = program_tokens->count();
 
 
 	program->enterfunction();
@@ -4686,15 +4696,16 @@ int Compiler::handleBracketedFunction3( UserFunction& userfunc, CompilerContext&
 
 	for( int i = static_cast<unsigned int>(userfunc.parameters.size()-1); i >= 0 ; --i )
 	{
-		program->symbols.append( userfunc.parameters[i].name.c_str(), posn );
+		UserParam* params = &userfunc.parameters[i];
+		program->symbols.append( params->name.c_str(), posn );
 		program->append( StoredToken(Mod_Basic, 
-									 userfunc.parameters[i].pass_by_reference?INS_POP_PARAM_BYREF:INS_POP_PARAM, 
+									 params->pass_by_reference?INS_POP_PARAM_BYREF:INS_POP_PARAM, 
 									 TYP_OPERATOR, 
 									 posn), 
 						 save_ctx,
 						 0 );
-		program->addlocalvar( userfunc.parameters[i].name );
-		localscope.addvar( userfunc.parameters[i].name, ctx );
+		program->addlocalvar( params->name );
+		localscope.addvar( params->name, ctx );
 	}
 
 	BTokenId last_statement_id;
@@ -4708,7 +4719,7 @@ int Compiler::handleBracketedFunction3( UserFunction& userfunc, CompilerContext&
 	program->update_dbg_pos( endblock_tkn );
 
 	StoredToken tmp;
-	program->tokens.atGet1( program->tokens.count()-1, tmp );
+	program_tokens->atGet1( program_tokens->count()-1, tmp );
 	
 	/* 
 		This used to check to see if the last instruction was a RETURN; 
@@ -4731,7 +4742,7 @@ int Compiler::handleBracketedFunction3( UserFunction& userfunc, CompilerContext&
 	program->leaveblock();
 	program->leavefunction();
 
-	unsigned last_PC = program->tokens.count()-1;
+	unsigned last_PC = program_tokens->count()-1;
 	program->addfunction( userfunc.name, first_PC, last_PC );
 
 	inFunction = 0;

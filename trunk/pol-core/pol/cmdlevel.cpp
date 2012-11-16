@@ -104,8 +104,9 @@ ObjArray* GetCommandsInPackage(Package* m_pkg, int cmdlvl_num)
 	
 	for( unsigned diridx = 0; diridx < cmdlevel.searchlist.size(); ++diridx )
 	{	
-		Package* pkg = cmdlevel.searchlist[diridx].pkg;
-		string dir_name = cmdlevel.searchlist[diridx].dir;
+		CmdLevel::SearchDir* search_dir = &cmdlevel.searchlist[diridx];
+		Package* pkg = search_dir->pkg;
+		string dir_name = search_dir->dir;
 		if ( (!pkg && m_pkg) || (pkg && !m_pkg) )
 			continue;
 		if ( pkg && m_pkg )
@@ -127,7 +128,7 @@ ObjArray* GetCommandsInPackage(Package* m_pkg, int cmdlvl_num)
 			if ( pos != string::npos && (!ext.compare(".ecl")) )
 			{
 				auto_ptr<BStruct> cmdinfo (new BStruct());
-				cmdinfo->addMember("dir", new String(cmdlevel.searchlist[diridx].dir));
+				cmdinfo->addMember("dir", new String(search_dir->dir));
 				cmdinfo->addMember("script", new String(name.c_str()));
 				script_names->addElement(cmdinfo.release());
 			}

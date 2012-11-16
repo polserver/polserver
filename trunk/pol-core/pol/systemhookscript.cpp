@@ -45,17 +45,18 @@ bool ExportScript::FindExportedFunction( const std::string& name, unsigned args,
     const EScriptProgram* prog = uoexec.prog();
     for( unsigned i = 0; i < prog->exported_functions.size(); ++i )
     {
-        if (stricmp( prog->exported_functions[i].name.c_str(), name.c_str() ) == 0)
+		const EPExportedFunction* exportedfunc = &prog->exported_functions[i];
+        if (stricmp( exportedfunc->name.c_str(), name.c_str() ) == 0)
         {
-            if (args != prog->exported_functions[i].nargs)
+            if (args != exportedfunc->.nargs)
             {
                 cout << "Exported function " << name 
                      << " in script " << scriptname() 
-                     << " takes " << prog->exported_functions[i].nargs 
+                     << " takes " << exportedfunc->nargs 
                      << " parameters, expected " << args << endl;
                 return false;
             }
-            PC = prog->exported_functions[i].PC;
+            PC = exportedfunc->PC;
             return true;
         }
     }
@@ -67,17 +68,18 @@ bool ExportScript::FindExportedFunction( const char* name, unsigned args, unsign
     const EScriptProgram* prog = uoexec.prog();
     for( unsigned i = 0; i < prog->exported_functions.size(); ++i )
     {
-        if (stricmp( prog->exported_functions[i].name.c_str(), name ) == 0)
+		const EPExportedFunction* exportedfunc = &prog->exported_functions[i];
+        if (stricmp( exportedfunc->name.c_str(), name ) == 0)
         {
-            if (args != prog->exported_functions[i].nargs)
+            if (args != exportedfunc->nargs)
             {
                 cout << "Exported function " << name 
                      << " in script " << scriptname() 
-                     << " takes " << prog->exported_functions[i].nargs 
+                     << " takes " << exportedfunc->nargs 
                      << " parameters, expected " << args << endl;
                 return false;
             }
-            PC = prog->exported_functions[i].PC;
+            PC = exportedfunc->PC;
             return true;
         }
     }
