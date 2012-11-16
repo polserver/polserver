@@ -48,7 +48,7 @@ bool ExportScript::FindExportedFunction( const std::string& name, unsigned args,
 		const EPExportedFunction* exportedfunc = &prog->exported_functions[i];
         if (stricmp( exportedfunc->name.c_str(), name.c_str() ) == 0)
         {
-            if (args != exportedfunc->.nargs)
+            if (args != exportedfunc->nargs)
             {
                 cout << "Exported function " << name 
                      << " in script " << scriptname() 
