@@ -83,7 +83,7 @@ OTESTS = \
     substr01.ok substr02.ok substr03.ok substr04.ok \
     string17.ok string16.ok string15.ok string14.ok \
     string13.ok string01.ok string02.ok string03.ok string04.ok string05.ok string06.ok \
-    string07.ok string08.ok string09.ok string10.ok string11.ok string12.ok \
+    string07.ok string08.ok string09.ok string10.ok string11.ok string12.ok string18.ok \
     error01.ok inctst01.ok hello2.ok \
     const01.ok const02.ok const03.ok  \
     in001.ok in002.ok in003.ok in004.ok \

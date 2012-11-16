@@ -15,6 +15,7 @@ Notes
 
 #include <stdlib.h>
 #include <string.h>
+#include <boost/foreach.hpp>
 
 #ifdef __GNUG__
 #	include <streambuf>
@@ -23,6 +24,9 @@ Notes
 #include "berror.h"
 #include "bobject.h"
 #include "impstr.h"
+#include "objmethods.h"
+#include "executor.h"
+#include "../clib/stlutil.h"
 
 #ifdef _MSC_VER
 #	pragma warning( disable: 4244 )
@@ -383,18 +387,18 @@ String *String::midstring(int begin, int len) const
 
 void String::toUpper( void )
 {
-    for( string::iterator itr = value_.begin(); itr != value_.end(); ++itr )
-    {
-        *itr = toupper(*itr);
-    }
+	BOOST_FOREACH(char &c, value_)
+	{
+		c = toupper(c);
+	}
 }
 
 void String::toLower( void )
 {
-    for( string::iterator itr = value_.begin(); itr != value_.end(); ++itr )
-    {
-        *itr = tolower(*itr);
-    }
+	BOOST_FOREACH(char &c, value_)
+	{
+		c = tolower(c);
+	}
 }
 
 BObjectImp* String::array_assign( BObjectImp* idx, BObjectImp* target )
@@ -610,3 +614,92 @@ BObjectRef String::OperSubscript( const BObject& rightobj )
     }
 }
 
+
+BObjectImp* String::call_method( const char* methodname, Executor& ex )
+{
+	ObjMethod* objmethod = getKnownObjMethod(methodname);
+	if ( objmethod != NULL )
+		return this->call_method_id(objmethod->id, ex);
+	else
+		return NULL;
+}
+BObjectImp* String::call_method_id( const int id, Executor& ex, bool forcebuiltin )
+{
+	switch (id)
+	{
+	case MTH_LENGTH:
+		if (ex.numParams() == 0)
+			return new BLong( static_cast<int>(value_.length()) );
+		else
+			return new BError( "string.length() doesn't take parameters." );
+		break;
+	case MTH_FIND:
+		{
+			if (ex.numParams() > 2)
+				return new BError("string.find(Search, [Start]) takes only two parameters");
+			if (ex.numParams() < 1)
+				return new BError("string.find(Search, [Start]) takes at least one parameter");
+			const char *s = ex.paramAsString(0);
+			int d = 0;
+			if (ex.numParams() == 2)
+				d = ex.paramAsLong(1);
+			int posn = find(d ? (d - 1) : 0, s) + 1;
+			return new BLong (posn);
+		}
+	case MTH_UPPER:
+		{
+			if (ex.numParams() == 0)
+			{
+				toUpper();
+				return this;
+			}
+			else
+				return new BError( "string.upper() doesn't take parameters." );
+		}
+
+	case MTH_LOWER:
+		{
+			if (ex.numParams() == 0)
+			{
+				toLower();
+				return this;
+			}
+			else
+				return new BError( "string.lower() doesn't take parameters." );
+		}
+	case MTH_JOIN:
+		{
+			BObject* cont;
+			if (ex.numParams() == 1 &&
+				(cont = ex.getParamObj( 0 )) != NULL )
+			{
+				if (! (cont->isa( OTArray )))
+					return new BError( "string.join expects an array" );
+				ObjArray* container = static_cast<ObjArray*>(cont->impptr());
+				// no empty check here on purpose
+				OSTRINGSTREAM joined;
+				bool first=true;
+				BOOST_FOREACH(const BObjectRef &ref, container->ref_arr)
+				{
+					if ( ref.get() )
+					{
+						BObject *bo = ref.get();
+
+						if ( bo == NULL )
+							continue;
+						if (!first)
+							joined << value_;
+						else
+							first = false;
+						joined << bo->impptr()->getStringRep();
+					}
+				}
+				return new String(OSTRINGSTREAM_STR(joined));
+			}
+			else
+				return new BError( "string.join(array) requires a parameter." );
+		}
+	default:
+		return NULL;
+	}
+}
