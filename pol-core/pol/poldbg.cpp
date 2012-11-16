@@ -999,8 +999,6 @@ std::string DebugContext::cmd_localvarmembers( const std::string& rest, Results&
     BObjectImp& var = (*uoexec->Locals2)[varidx]->impref();
 
 	string strrep = var.getStringRep();
-	string varline;
-	string str_memname;
 	const char* memname;
 	int i;
 	OSTRINGSTREAM os;

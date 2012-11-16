@@ -1474,10 +1474,11 @@ BObjectImp* Character::get_script_member_id( const int id ) const
 			if (client != NULL)
 			{
 				auto_ptr<BStruct> info (new BStruct);
-				info->addMember("major",  new BLong(client->getversiondetail().major));
-				info->addMember("minor",  new BLong(client->getversiondetail().minor));
-				info->addMember("rev",    new BLong(client->getversiondetail().rev));
-				info->addMember("patch",  new BLong(client->getversiondetail().patch));
+				VersionDetailStruct* version = &client->getversiondetail();
+				info->addMember("major",  new BLong(version->major));
+				info->addMember("minor",  new BLong(version->minor));
+				info->addMember("rev",    new BLong(version->rev));
+				info->addMember("patch",  new BLong(version->patch));
 				return info.release();
 			}
 			else
@@ -3518,10 +3519,11 @@ BObjectRef EClientRefObjImp::get_member_id( const int id )
 		case MBR_CLIENTVERSIONDETAIL:
 			{
 				auto_ptr<BStruct> info (new BStruct);
-				info->addMember("major",  new BLong(obj_->getversiondetail().major));
-				info->addMember("minor",  new BLong(obj_->getversiondetail().minor));
-				info->addMember("rev",    new BLong(obj_->getversiondetail().rev));
-				info->addMember("patch",  new BLong(obj_->getversiondetail().patch));
+				VersionDetailStruct* version = &obj_->getversiondetail();
+				info->addMember("major",  new BLong(version->major));
+				info->addMember("minor",  new BLong(version->minor));
+				info->addMember("rev",    new BLong(version->rev));
+				info->addMember("patch",  new BLong(version->patch));
 				return BObjectRef(info.release());
 			}
 			break;
