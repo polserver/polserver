@@ -129,6 +129,9 @@ class String : public BObjectImp
     virtual bool isEqual(const BObjectImp& objimp) const;
     virtual bool isLessThan(const BObjectImp& objimp) const;
 
+	virtual BObjectImp* call_method( const char* methodname, Executor& ex );
+	virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin=false );
+
   private:
     std::string value_;
     String *midstring(int begin, int len) const;
