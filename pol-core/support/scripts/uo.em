@@ -47,6 +47,8 @@ const LISTEX_FLAG_NORMAL := 0x01;
 const LISTEX_FLAG_HIDDEN := 0x02;
 const LISTEX_FLAG_GHOST := 0x04;
 const LISTEX_FLAG_CONCEALED := 0x08;
+const LISTEX_FLAG_PLAYERS_ONLY := 0x10;
+cosnt LISTEX_FLAG_NPC_ONLY := 0x20;
 
 // ListItemsNearLocationWithFlag( x,y,z, range, flags ); tiledata flags
 // Thanks to Alazane: http://dkbush.cablenet-va.com/alazane/file_formats.html#3.17

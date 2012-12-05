@@ -1,6 +1,7 @@
 ﻿-- POL099 --
 
 12-05-2012 Tomi:
+  Changed:    UO:ListMobilesNearLocationEx added 2 new flags LISTEX_FLAG_PLAYERS_ONLY and LISTEX_FLAG_NPC_ONLY
   Changed:    combat.cfg option "SendAttackmsg" to "SendAttackMsg" to match cases of other options
   Fixed:      UO:MoveItemToContainer doesnt crash anymore when using add_to_exisitng stack parameter
   Fixed:      item methods .SplitStackAt and .SplitStackInto doesnt crash Pol anymore when using add_to_existing_stack parameter
