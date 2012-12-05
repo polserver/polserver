@@ -47,5 +47,5 @@ void read_combat_config()
 	combat_config.send_swing_packet = elem.remove_bool("SendSwingPacket",true);
     combat_config.send_damage_packet = elem.remove_bool("SendDamagePacket",false);
 	combat_config.attack_while_frozen = elem.remove_bool("AttackWhileFrozen", true);
-	combat_config.send_attack_msg = elem.remove_bool("SendAttackmsg", true);
+	combat_config.send_attack_msg = elem.remove_bool("SendAttackMsg", true);
 }
