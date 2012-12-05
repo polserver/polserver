@@ -1,4 +1,9 @@
 ﻿-- POL099 --
+
+12-05-2012 Tomi:
+  Fixed:      UO:MoveItemToContainer doesnt crash anymore when using add_to_exisitng stack parameter
+  Fixed:      item methods .SplitStackAt and .SplitStackInto doesnt crash Pol anymore when using add_to_existing_stack parameter
+
 11-16-2012 Turley:
   Added:      string methods:
 			  str.length() : returns like len(str) the length of the string
@@ -55,6 +60,7 @@
 
 08-29-2012 Turley:
   Fixed:      Crash if a attached script kills the attached npc
+
 08-27-2012 Tomi:
   Changed:    MoveItemToContainer( item, container, x := -1, y := -1 ); to MoveItemToContainer( item, container, x := -1, y := -1, add_to_existing_stack := 0 );
   Changed:    item.SplitStackInto( container, amount ) to item.SplitStackInto( container, amount, add_to_existing_stack := 0 )

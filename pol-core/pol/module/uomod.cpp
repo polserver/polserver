@@ -3781,8 +3781,8 @@ BObjectImp* UOExecutorModule::mf_MoveItemToContainer()
 	else
 	{
 		u16 amount = item->getamount();
-		true_extricate( item );
 		existing_stack->add_to_self(item);
+		true_extricate( item );
 		update_item_to_inrange( existing_stack );
 		UpdateCharacterWeight( existing_stack );
 
