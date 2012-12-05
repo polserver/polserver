@@ -2805,9 +2805,9 @@ BObjectImp* UOExecutorModule::mf_ListMobilesNearLocationEx(/* x, y, z, range, fl
 							{
 								if (!inc_players_only && !inc_npc_only)
 									newarr->addElement( chr->make_ref() );
-								else if (inc_players_only && chr->client->ready)
+								else if (inc_players_only && chr->client)
 									newarr->addElement( chr->make_ref() );
-								else if (inc_npc_only && chr->script_isa(POLCLASS_NPC))
+								else if (inc_npc_only && chr->isa( UObject::CLASS_NPC ))
 									newarr->addElement( chr->make_ref() );
 							}
 						}
