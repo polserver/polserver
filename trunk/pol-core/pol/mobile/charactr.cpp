@@ -456,7 +456,9 @@ private:
         if ( in_range_chr->client && in_range_chr->client->ready ) 
         {
             if ( in_range_chr != chr && in_range_chr->is_visible_to_me( chr ) )
+			{
                 send_owncreate( in_range_chr->client, chr );
+			}
         }
     }
     static void disable_invul( Character* in_range_chr, Character* chr )
@@ -464,7 +466,9 @@ private:
         if ( in_range_chr->client && in_range_chr->client->ready ) 
         {
             if ( in_range_chr != chr && in_range_chr->is_visible_to_me( chr ) )
+			{
                 send_owncreate( in_range_chr->client, chr );
+			}
         }
     }
 };
@@ -1876,7 +1880,7 @@ void Character::on_poison_changed()
 			msg->WriteFlipped<u16>(static_cast<u16>(sizeof msg->buffer));
 			msg->Write<u32>(this->serial_ext);
 			msg->WriteFlipped<u16>(static_cast<u16>(1)); //unk
-			msg->WriteFlipped<u16>(static_cast<u16>(1)); // status_type
+			msg->WriteFlipped<u16>(static_cast<u16>(1)); // 1 = Green, 2 = Yellow, 3 = Red
 			msg->Write<u8>(static_cast<u8>(0)); //flag
             transmit_to_inrange( this, &msg->buffer, msg->offset, false, true );
         }
@@ -2818,9 +2822,13 @@ void PropagateMove( /*Client *client,*/ Character *chr )
 	msgremove->Write<u32>(chr->serial_ext);
 	PktHelper::PacketOut<PktOut_77> msgmove;
 	PktHelper::PacketOut<PktOut_17> msgpoison;
+	PktHelper::PacketOut<PktOut_17> msginvul;
+	PktHelper::PacketOut<PktOut_17> msgmurderer;
 	PktHelper::PacketOut<PktOut_78> msgcreate;
 	build_send_move(chr,msgmove.Get());
 	build_poisonhealthbar(chr, msgpoison.Get());
+	build_invulhealthbar(chr, msginvul.Get());
+	build_murdererhealthbar(chr, msgmurderer.Get());
 	build_owncreate(chr, msgcreate.Get());
 
 	for( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
@@ -2853,15 +2861,15 @@ void PropagateMove( /*Client *client,*/ Character *chr )
 				#else
 				//send_remove_character( client, chr );
 				#endif
-				send_owncreate( client, chr, msgcreate.Get(), msgpoison.Get() );
+				send_owncreate( client, chr, msgcreate.Get(), msgpoison.Get(), msginvul.Get(), msgmurderer.Get() );
 			}
 			else if (were_inrange)
 			{
-				send_move( client, chr, msgmove.Get(), msgpoison.Get() );
+				send_move( client, chr, msgmove.Get(), msgpoison.Get(), msginvul.Get(), msgmurderer.Get() );
 			}
 			else
 			{
-				send_owncreate( client, chr, msgcreate.Get(), msgpoison.Get() );
+				send_owncreate( client, chr, msgcreate.Get(), msgpoison.Get(), msginvul.Get(), msgmurderer.Get() );
 			}
 		}
 		else if ( were_inrange ) 

@@ -161,6 +161,12 @@ void send_goxyz( Client *client, const Character *chr )
 
     if ((client->ClientType & CLIENTTYPE_UOKR) && (chr->poisoned)) //if poisoned send 0x17 for newer clients
         send_poisonhealthbar( client, chr );
+
+    if ((client->ClientType & CLIENTTYPE_UOKR) && (chr->invul())) //if invul send 0x17 for newer clients
+        send_invulhealthbar( client, chr );
+
+	if ((client->ClientType & CLIENTTYPE_UOKR) && (chr->is_murderer())) //if murderer send 0x17 for newer clients
+		send_murdererhealthbar( client, chr );
 }
 
 // Character chr has moved.  Tell a client about it.
@@ -184,16 +190,24 @@ void send_move( Client *client, const Character *chr )
 
     if ((client->ClientType & CLIENTTYPE_UOKR) && (chr->poisoned)) //if poisoned send 0x17 for newer clients
         send_poisonhealthbar( client, chr );
+
+    if ((client->ClientType & CLIENTTYPE_UOKR) && (chr->invul())) //if invul send 0x17 for newer clients
+        send_invulhealthbar( client, chr );
+
+	if ((client->ClientType & CLIENTTYPE_UOKR) && (chr->is_murderer())) //if murderer send 0x17 for newer clients
+		send_murdererhealthbar( client, chr );
 }
 
-void send_move( Client *client, const Character *chr, PktOut_77* movebuffer, PktOut_17* poisonbuffer )
+void send_move( Client *client, const Character *chr, PktOut_77* movebuffer, PktOut_17* poisonbuffer, PktOut_17* invulbuffer, PktOut_17* murdererbuffer )
 {
 	movebuffer->offset=15;
 	movebuffer->Write<u8>(chr->get_flag1(client));
 	movebuffer->Write<u8>(chr->hilite_color_idx( client->chr ));
 	ADDTOSENDQUEUE( client, &movebuffer->buffer, movebuffer->offset );
-	if ((client->ClientType & CLIENTTYPE_UOKR) && (chr->poisoned)) //if poisoned send 0x17 for newer clients
+	if ((client->ClientType & CLIENTTYPE_UOKR) && (chr->poisoned)) //if poisoned/invul/murderer send 0x17 for newer clients
 		ADDTOSENDQUEUE( client, &poisonbuffer->buffer, poisonbuffer->offset );
+		ADDTOSENDQUEUE( client, &invulbuffer->buffer, invulbuffer->offset );
+		ADDTOSENDQUEUE( client, &murdererbuffer->buffer, murdererbuffer->offset );
 }
 
 void build_send_move( const Character *chr, PktOut_77* msg )
@@ -217,13 +231,54 @@ void send_poisonhealthbar( Client *client, const Character *chr )
 	msg->Write<u8>(( chr->poisoned ) ? 1 : 0); //flag
 	msg.Send( client);
 }
+
+void send_invulhealthbar( Client *client, const Character *chr )
+{
+	PktHelper::PacketOut<PktOut_17> msg;
+	msg->WriteFlipped<u16>(static_cast<u16>(sizeof msg->buffer));
+	msg->Write<u32>(chr->serial_ext);
+	msg->WriteFlipped<u16>(1); //unk
+	msg->WriteFlipped<u16>(2); // 1 = Green, 2 = Yellow, 3 = Red
+	msg->Write<u8>((chr->invul() ) ? 1 : 0); //flag
+	msg.Send( client);
+}
+
+void send_murdererhealthbar( Client *client, const Character *chr )
+{
+	PktHelper::PacketOut<PktOut_17> msg;
+	msg->WriteFlipped<u16>(static_cast<u16>(sizeof msg->buffer));
+	msg->Write<u32>(chr->serial_ext);
+	msg->WriteFlipped<u16>(1); //unk
+	msg->WriteFlipped<u16>(3); // 1 = Green, 2 = Yellow, 3 = Red
+	msg->Write<u8>(( chr->is_murderer() ) ? 1 : 0); //flag
+	msg.Send( client);
+}
+
 void build_poisonhealthbar( const Character *chr, PktOut_17* msg )
 {
 	msg->WriteFlipped<u16>(static_cast<u16>(sizeof msg->buffer));
 	msg->Write<u32>(chr->serial_ext);
 	msg->WriteFlipped<u16>(1); //unk
-	msg->WriteFlipped<u16>(1); // status_type
+	msg->WriteFlipped<u16>(1); // 1 = Green, 2 = Yellow, 3 = Red
 	msg->Write<u8>(( chr->poisoned ) ? 1 : 0); //flag
+}
+
+void build_invulhealthbar( const Character *chr, PktOut_17* msg )
+{
+	msg->WriteFlipped<u16>(static_cast<u16>(sizeof msg->buffer));
+	msg->Write<u32>(chr->serial_ext);
+	msg->WriteFlipped<u16>(1); //unk
+	msg->WriteFlipped<u16>(2); // 1 = Green, 2 = Yellow, 3 = Red
+	msg->Write<u8>(( chr->invul() ) ? 1 : 0); //flag
+}
+
+void build_murdererhealthbar( const Character *chr, PktOut_17* msg )
+{
+	msg->WriteFlipped<u16>(static_cast<u16>(sizeof msg->buffer));
+	msg->Write<u32>(chr->serial_ext);
+	msg->WriteFlipped<u16>(1); //unk
+	msg->WriteFlipped<u16>(3); // 1 = Green, 2 = Yellow, 3 = Red
+	msg->Write<u8>(( chr->is_murderer() ) ? 1 : 0); //flag
 }
 
 void send_owncreate( Client *client, const Character *chr )
@@ -288,6 +343,12 @@ void send_owncreate( Client *client, const Character *chr )
 
     if ((client->ClientType & CLIENTTYPE_UOKR) && (chr->poisoned)) //if poisoned send 0x17 for newer clients
         send_poisonhealthbar( client, chr );
+
+    if ((client->ClientType & CLIENTTYPE_UOKR) && (chr->invul())) //if invul send 0x17 for newer clients
+        send_invulhealthbar( client, chr );
+
+	if ((client->ClientType & CLIENTTYPE_UOKR) && (chr->is_murderer())) //if murderer send 0x17 for newer clients
+		send_murdererhealthbar( client, chr );
 }
 
 void build_owncreate(const Character *chr, PktOut_78* owncreate)
@@ -301,7 +362,7 @@ void build_owncreate(const Character *chr, PktOut_78* owncreate)
 	owncreate->Write<u8>(chr->facing);
 	owncreate->WriteFlipped<u16>(chr->color);//17
 }
-void send_owncreate( Client *client, const Character *chr, PktOut_78* owncreate, PktOut_17* poisonbuffer )
+void send_owncreate( Client *client, const Character *chr, PktOut_78* owncreate, PktOut_17* poisonbuffer, PktOut_17* invulbuffer, PktOut_17* murdererbuffer )
 {
 	owncreate->offset=17;
 	owncreate->Write<u8>(chr->get_flag1(client));
@@ -353,8 +414,10 @@ void send_owncreate( Client *client, const Character *chr, PktOut_78* owncreate,
 		}
 	}
 
-	if ((client->ClientType & CLIENTTYPE_UOKR) && (chr->poisoned)) //if poisoned send 0x17 for newer clients
+	if ((client->ClientType & CLIENTTYPE_UOKR) && (chr->poisoned)) //if poisoned/invul/murderer send 0x17 for newer clients
 		ADDTOSENDQUEUE( client, &poisonbuffer->buffer, poisonbuffer->offset );
+		ADDTOSENDQUEUE( client, &invulbuffer->buffer, invulbuffer->offset );
+		ADDTOSENDQUEUE( client, &murdererbuffer->buffer, murdererbuffer->offset );
 }
 
 
