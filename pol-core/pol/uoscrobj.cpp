@@ -1115,6 +1115,7 @@ BObjectImp* Item::script_method_id(const int id, Executor& ex)
 			short z;
 			const String* realm_name;
 			Item* new_stack;
+			u16 item_amount = this->getamount();
 
 			if ( !ex.hasParams(5) )
 				return new BError("Not enough parameters");
@@ -1136,7 +1137,7 @@ BObjectImp* Item::script_method_id(const int id, Executor& ex)
 			else if ( !realm->valid(x, y, z) )
 				return new BError("Invalid coordinates for realm");
 			else if ( amt == this->getamount() )
-				new_stack = this;
+				new_stack = this->clone();
 			else
 				new_stack = this->remove_part_of_stack((u16)amt);
 			
@@ -1147,6 +1148,10 @@ BObjectImp* Item::script_method_id(const int id, Executor& ex)
 			new_stack->setamount(amt);
 			add_item_to_world(new_stack);
 			move_item(new_stack, x, y, static_cast<signed char>(z), realm);
+
+			if ( amt == item_amount )
+				destroy_item(this);
+
 			return new EItemRefObjImp(new_stack);
 
 			break;
@@ -1157,6 +1162,8 @@ BObjectImp* Item::script_method_id(const int id, Executor& ex)
 			int add_to_existing_stack;
 			Item* cont_item;
 			Item* new_stack;
+			u16 item_amount = this->getamount();
+
 			if ( !ex.hasParams(2) )
 				return new BError("Not enough parameters");
 			else if ( !getItemParam(ex, 0, cont_item) )
@@ -1175,12 +1182,15 @@ BObjectImp* Item::script_method_id(const int id, Executor& ex)
 			UContainer* container = static_cast<UContainer*>(cont_item);
 
 			if ( amt == this->getamount() )
-				new_stack = this;
+				new_stack = this->clone();
 			else
 				new_stack = this->remove_part_of_stack(amt);
 			
 			if ( !container->can_add(*new_stack) )
-					return new BError("Could not add new stack to container");
+					// Put newstack back with the original stack
+					if ( new_stack != this )
+						this->add_to_self(new_stack);
+ 					return new BError("Could not add new stack to container");
 
 			if ( ex.getParam( 2, add_to_existing_stack ) && add_to_existing_stack != 0 )
 			{
@@ -1200,6 +1210,9 @@ BObjectImp* Item::script_method_id(const int id, Executor& ex)
 
 				container->on_insert_increase_stack( NULL, UContainer::MT_CORE_MOVED, existing_stack, amount );
 
+				if ( amt == item_amount )
+					destroy_item(this);
+
 				return new EItemRefObjImp(existing_stack);
 			}
 			else
@@ -1217,6 +1230,10 @@ BObjectImp* Item::script_method_id(const int id, Executor& ex)
 				update_item_to_inrange(new_stack);
 				UpdateCharacterWeight( new_stack );
 				container->on_insert_add_item( NULL, UContainer::MT_CORE_MOVED, new_stack );
+
+				if ( amt == item_amount )
+					destroy_item(this);
+
 				return new EItemRefObjImp(new_stack);
 			}
 			
