@@ -2741,6 +2741,8 @@ const unsigned LMBLEX_FLAG_NORMAL = 0x01;
 const unsigned LMBLEX_FLAG_HIDDEN = 0x02;
 const unsigned LMBLEX_FLAG_DEAD   = 0x04;
 const unsigned LMBLEX_FLAG_CONCEALED = 0x8;
+const unsigned LMBLEX_FLAG_PLAYERS_ONLY = 0x10;
+const unsigned LMBLEX_FLAG_NPC_ONLY = 0x20;
 
 BObjectImp* UOExecutorModule::mf_ListMobilesNearLocationEx(/* x, y, z, range, flags, realm */)
 {
@@ -2776,6 +2778,8 @@ BObjectImp* UOExecutorModule::mf_ListMobilesNearLocationEx(/* x, y, z, range, fl
 		bool inc_hidden = (flags & LMBLEX_FLAG_HIDDEN) ? true:false;
 		bool inc_dead = (flags & LMBLEX_FLAG_DEAD)? true:false;
 		bool inc_concealed = (flags & LMBLEX_FLAG_CONCEALED)? true:false;
+		bool inc_players_only = (flags & LMBLEX_FLAG_PLAYERS_ONLY)? true:false;
+		bool inc_npc_only = (flags & LMBLEX_FLAG_NPC_ONLY)? true:false;
 		
 		auto_ptr<ObjArray> newarr(new ObjArray);
 
@@ -2793,13 +2797,21 @@ BObjectImp* UOExecutorModule::mf_ListMobilesNearLocationEx(/* x, y, z, range, fl
 				{
 					Character* chr = *itr;
 
-					if ( (inc_hidden && chr->hidden()) ||
-						(inc_dead   && chr->dead()) ||
-						(inc_concealed && chr->concealed()) ||
-						(inc_normal && !(chr->hidden()||chr->dead()||chr->concealed())) )
+					if ( (inc_hidden && chr->hidden()) || (inc_dead   && chr->dead()) || (inc_concealed && chr->concealed()) || (inc_normal && !(chr->hidden()||chr->dead()||chr->concealed())) )
+					{
 						if ((abs(chr->x - x) <= range) && (abs(chr->y - y) <= range))
+						{
 							if ((z == LIST_IGNORE_Z) || (abs(chr->z - z) < CONST_DEFAULT_ZRANGE))
-								newarr->addElement( chr->make_ref() );
+							{
+								if (!inc_players_only && !inc_npc_only)
+									newarr->addElement( chr->make_ref() );
+								else if (inc_players_only && chr->client->ready)
+									newarr->addElement( chr->make_ref() );
+								else if (inc_npc_only && chr->script_isa(POLCLASS_NPC))
+									newarr->addElement( chr->make_ref() );
+							}
+						}
+					}
 				}
 			}
 		}
