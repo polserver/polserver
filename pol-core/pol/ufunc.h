@@ -76,20 +76,24 @@ bool in_yell_range( const Character *c1, const Character *c2 );
 bool in_whisper_range( const Character *c1, const Character *c2 );
 
 void send_owncreate( Client *client, const Character *chr );
-void send_owncreate( Client *client, const Character *chr, PktOut_78* owncreate, PktOut_17* poisonbuffer );
+void send_owncreate( Client *client, const Character *chr, PktOut_78* owncreate, PktOut_17* poisonbuffer, PktOut_17* invulbuffer, PktOut_17* murdererbuffer );
 void build_owncreate(const Character *chr, PktOut_78* msg);
 
 void send_item( Client *client, const Item *item );
 void send_wornitem( Client *client, const Character *chr, const Item *item );
 
 void send_move( Client *client, const Character *chr );
-void send_move( Client *client, const Character *chr, PktOut_77* movebuffer, PktOut_17* poisonbuffer );
+void send_move( Client *client, const Character *chr, PktOut_77* movebuffer, PktOut_17* poisonbuffer, PktOut_17* invulbuffer, PktOut_17* murdererbuffer );
 void build_send_move( const Character *chr, PktOut_77* msg );
 void send_move_if_inrange( Client *client, const Character *chr );
 void send_objdesc( Client *client, Item *item );
 
 void send_poisonhealthbar( Client *client, const Character *chr );
+void send_invulhealthbar( Client* client, const Character *chr );
+void send_murdererhealthbar( Client* client, const Character *chr );
 void build_poisonhealthbar( const Character *chr, PktOut_17* msg );
+void build_invulhealthbar( const Character *chr, PktOut_17* msg );
+void build_murdererhealthbar( const Character *chr, PktOut_17* msg );
 
 void send_item_to_inrange( const Item *item );
 void update_item_to_inrange( const Item* item );

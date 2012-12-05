@@ -1753,7 +1753,9 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
 			ConcealedUpdater::on_change( this );
 			return new BLong( cmdlevel );
 		case MBR_MURDERER:
-			return new BLong( murderer_ = value?true:false );
+			murderer_ = value?true:false;
+			send_move_mobile_to_nearby_cansee( this );
+			return new BLong( murderer_ );
 		case MBR_HITCHANCE_MOD:
 			return new BLong( hitchance_mod_ = static_cast<short>(value) );
 		case MBR_EVASIONCHANCE_MOD:
