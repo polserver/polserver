@@ -2158,6 +2158,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 			}
 			set_dirty();
 			make_murderer( lnewval?true:false );
+			send_move_mobile_to_nearby_cansee( this );
 			return new BLong(1);
 		}
 	case MTH_REMOVEREPORTABLE:
