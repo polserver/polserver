@@ -194,12 +194,13 @@ const _DEFAULT_TEXT_FONT     := 3;
 const _DEFAULT_TEXT_COLOR    := 1000;
 
 // Realms
-const _DEFAULT_REALM  := "britannia";
-const REALM_BRITANNIA := _DEFAULT_REALM;
-const REALM_ILSHENAR  := "ilshenar";
-const REALM_MALAS     := "malas";
-const REALM_TOKUNO    := "tokuno";
-const REALM_TERMUR    := "termur";
+const _DEFAULT_REALM  		:= "britannia";
+const REALM_BRITANNIA 		:= _DEFAULT_REALM;
+const REALM_BRITANNIA_ALT	:= "britannia_alt";
+const REALM_ILSHENAR  		:= "ilshenar";
+const REALM_MALAS     		:= "malas";
+const REALM_TOKUNO    		:= "tokuno";
+const REALM_TERMUR    		:= "termur";
 
 //PerformAction
 const ACTION_DIR_FORWARD  := 0;
