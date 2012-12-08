@@ -1,5 +1,9 @@
 ﻿-- POL099 --
 
+12-08-2012 Tomi:
+  Fixed:      Typo in uo.em with new LISTEX flags
+  Added:      const REALM_BRITANNIA_ALT to uo.em
+
 12-05-2012 Tomi:
   Added:      Pol now send on invul/murderer status changed for >= KR Clients packet 0x17 to get Yellow or Red color health bars
   Changed:    UO:ListMobilesNearLocationEx added 2 new flags LISTEX_FLAG_PLAYERS_ONLY and LISTEX_FLAG_NPC_ONLY
