@@ -223,32 +223,33 @@ MESSAGE_HANDLER( PKTIN_A4, handle_A4 );
 
 void handle_D9( Client *client, PKTIN_D9 *msg )
 {
+  PKTIN_D9 _msg; // got crashes here under *nix -> modify a new local instance
   // Transform Little-Endian <-> Big-Endian
-  msg->instance =       cfBEu32(msg->instance);       // Unique Instance ID of UO
-  msg->os_major =       cfBEu32(msg->os_major);       // OS Major
-  msg->os_minor =       cfBEu32(msg->os_minor);       // OS Minor
-  msg->os_revision =    cfBEu32(msg->os_revision);    // OS Revision
-  msg->cpu_family =     cfBEu32(msg->cpu_family);     // CPU Family
-  msg->cpu_model =      cfBEu32(msg->cpu_model);      // CPU Model
-  msg->cpu_clockspeed = cfBEu32(msg->cpu_clockspeed); // CPU Clock Speed [Mhz]
-  msg->memory =         cfBEu32(msg->memory);         // Memory [MB]
-  msg->screen_width =   cfBEu32(msg->screen_width);   // Screen Width
-  msg->screen_height =  cfBEu32(msg->screen_height);  // Screen Height
-  msg->screen_depth =   cfBEu32(msg->screen_depth);   // Screen Depth [Bit]
-  msg->directx_major =  cfBEu16(msg->directx_major);  // DirectX Major
-  msg->directx_minor =  cfBEu16(msg->directx_minor);  // DirectX Minor
+  _msg.instance =       cfBEu32(msg->instance);       // Unique Instance ID of UO
+  _msg.os_major =       cfBEu32(msg->os_major);       // OS Major
+  _msg.os_minor =       cfBEu32(msg->os_minor);       // OS Minor
+  _msg.os_revision =    cfBEu32(msg->os_revision);    // OS Revision
+  _msg.cpu_family =     cfBEu32(msg->cpu_family);     // CPU Family
+  _msg.cpu_model =      cfBEu32(msg->cpu_model);      // CPU Model
+  _msg.cpu_clockspeed = cfBEu32(msg->cpu_clockspeed); // CPU Clock Speed [Mhz]
+  _msg.memory =         cfBEu32(msg->memory);         // Memory [MB]
+  _msg.screen_width =   cfBEu32(msg->screen_width);   // Screen Width
+  _msg.screen_height =  cfBEu32(msg->screen_height);  // Screen Height
+  _msg.screen_depth =   cfBEu32(msg->screen_depth);   // Screen Depth [Bit]
+  _msg.directx_major =  cfBEu16(msg->directx_major);  // DirectX Major
+  _msg.directx_minor =  cfBEu16(msg->directx_minor);  // DirectX Minor
 
   for ( unsigned i = 0; i < sizeof(msg->video_description) / sizeof(msg->video_description[0]); ++i )
-    msg->video_description[i] = cfBEu16(msg->video_description[i]); // Video Card Description [wide-character]
+    _msg.video_description[i] = cfBEu16(msg->video_description[i]); // Video Card Description [wide-character]
 
-  msg->video_vendor =   cfBEu32(msg->video_vendor);   // Video Card Vendor ID
-  msg->video_device =   cfBEu32(msg->video_device);   // Video Card Device ID
-  msg->video_memory =   cfBEu32(msg->video_memory);   // Video Card Memory [MB]
+  _msg.video_vendor =   cfBEu32(msg->video_vendor);   // Video Card Vendor ID
+  _msg.video_device =   cfBEu32(msg->video_device);   // Video Card Device ID
+  _msg.video_memory =   cfBEu32(msg->video_memory);   // Video Card Memory [MB]
 
   for ( unsigned i = 0; i < sizeof(msg->langcode) / sizeof(msg->langcode[0]); ++i )
-    msg->langcode[i] = cfBEu16(msg->langcode[i]); // Language Code [wide-character]
+    _msg.langcode[i] = cfBEu16(msg->langcode[i]); // Language Code [wide-character]
 
-  client->setclientinfo(msg);
+  client->setclientinfo(&_msg);
 }
 MESSAGE_HANDLER( PKTIN_D9, handle_D9 );
 
