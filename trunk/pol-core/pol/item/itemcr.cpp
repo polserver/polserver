@@ -154,6 +154,11 @@ Item* Item::create( const ItemDesc& id, u32 serial)
 	// 12-17-2008 MuadDib added for reading the tilelayer at all times while retaining item.layer useage.
 	item->tile_layer = tilelayer( graphic );
 
+	// Have to be set after the item is created, because item graphic changes
+	// Because items can have facing 0 as the lightsource we use as default 127 to check
+	if ( item->facing == 127 )
+		item->facing = item->tile_layer;
+
 	if (serial)
 	{
 		item->serial = UseItemSerialNumber(serial);
