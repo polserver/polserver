@@ -1,5 +1,9 @@
 ﻿-- POL099 --
 
+12-15-2012 Tomi:
+  Fixed:      Items now get their facing from tiledata flag if no itemdesc entry is found
+              This fixes wrong lightsources for items such as lampposts
+
 12-08-2012 Tomi:
   Fixed:      Typo in uo.em with new LISTEX flags
   Added:      const REALM_BRITANNIA_ALT to uo.em

@@ -180,7 +180,7 @@ ItemDesc::ItemDesc( u32 objtype, ConfigElem& elem, Type type, const Package* pkg
 	graphic( elem.remove_ushort( "GRAPHIC", 0 ) ),
 // Changed from Valid Color Mask to cfg mask in ssopt.
 	color( elem.remove_ushort( "COLOR", 0 ) & ssopt.item_color_mask ),
-	facing( static_cast<unsigned char>(elem.remove_ushort( "FACING", 0 )) ),
+	facing( static_cast<unsigned char>(elem.remove_ushort( "FACING", 127 )) ),
 	desc( elem.remove_string( "DESC", "" ) ),
 	tooltip( elem.remove_string( "TOOLTIP", "" ) ),
 	walk_on_script( elem.remove_string( "WALKONSCRIPT", "" ), pkg, "scripts/items/" ),
@@ -479,7 +479,7 @@ ItemDesc::ItemDesc(Type type) :
 	objtype(0),
 	graphic(0),
 	color(0),
-	facing(0),
+	facing(127),
 	weightmult(1),
 	weightdiv(1),
 	desc(""),
