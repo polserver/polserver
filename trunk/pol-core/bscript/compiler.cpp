@@ -662,7 +662,7 @@ bool Expression::optimize_token( int i )
 				//3: 1L
 				//4: +=
 				//5: #
-				if (tokens.size()>static_cast<size_t>(i+2))
+				if (i < 3 && tokens.size()>static_cast<size_t>(i+2))
 				{
 					operand = tokens[i+1];
 					if (operand->id == TOK_PLUSEQUAL ||
