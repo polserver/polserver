@@ -487,10 +487,10 @@ void UnicodeSpeechHandler( Client *client, PKTIN_AD *msgin )
 	if (msgin->type & 0xc0)
 	{
 		BLong * atoken = NULL;
+		if (speechtokens.get() == NULL)
+			speechtokens.reset(new ObjArray());
 		for (u16 j = 0; j < numtokens; j++)
 		{
-			if (speechtokens.get() == NULL)
-				speechtokens.reset(new ObjArray());
 			atoken = new BLong(Get12BitNumber((u8 *) (msgin->wtext), j+1));
 			speechtokens->addElement(atoken);
 		}
