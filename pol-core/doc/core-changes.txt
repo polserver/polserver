@@ -1,5 +1,10 @@
 ﻿-- POL099 --
 
+01-04-2013 Tomi:
+  Added:      Syshook CanTrade
+	      parameters ( character, drop_on_chr, item )
+  Note:       This syshook runs when dropping an item on a character or when trying to add an item to a tradewindow
+
 12-15-2012 Tomi:
   Fixed:      Items now get their facing from tiledata flag if no itemdesc entry is found
               This fixes wrong lightsources for items such as lampposts
