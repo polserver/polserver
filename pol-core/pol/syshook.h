@@ -67,6 +67,7 @@ public:
 	ExportedFunction* un_hide;
 	ExportedFunction* close_customhouse_hook;
 	ExportedFunction* warmode_change;
+	ExportedFunction* can_trade;
 };
 extern SystemHooks system_hooks;
 
