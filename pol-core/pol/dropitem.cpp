@@ -45,6 +45,7 @@ FIXME: Does STW use slots with KR or newest 2d? If so, we must do slot checks th
 #include "getitem.h"
 #include "layers.h"
 #include "los.h"
+#include "mkscrobj.h"
 #include "mobile/charactr.h"
 #include "msghandl.h"
 #include "multi/boat.h"
@@ -62,6 +63,7 @@ FIXME: Does STW use slots with KR or newest 2d? If so, we must do slot checks th
 #include "ssopt.h"
 #include "statmsg.h"
 #include "storage.h"
+#include "syshook.h"
 #include "ucfg.h"
 #include "ufunc.h"
 #include "uofile.h"
@@ -143,6 +145,14 @@ bool place_item_in_secure_trade_container( Client* client, Item* item, u16 x, u1
         send_sysmessage( client, "Unable to complete trade" );
         return false;
     }
+	if (system_hooks.can_trade)
+	{
+		if (!system_hooks.can_trade->call(new ECharacterRefObjImp(client->chr),new ECharacterRefObjImp(dropon),new EItemRefObjImp(item)))
+		{
+			send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
+			return false;
+		}
+	}
     if (!cont->can_add( *item ))
 	{
         send_sysmessage( client, "That's too heavy to trade." );
@@ -169,6 +179,14 @@ BObjectImp* place_item_in_secure_trade_container( Client* client, Item* item )
     {
         return new BError( "Unable to complete trade" );
     }
+	if (system_hooks.can_trade)
+	{
+		if (!system_hooks.can_trade->call(new ECharacterRefObjImp(client->chr),new ECharacterRefObjImp(dropon),new EItemRefObjImp(item)))
+		{
+			send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
+			return false;
+		}
+	}
     if (!cont->can_add( *item ))
 	{
         return new BError( "That's too heavy to trade." );
@@ -568,6 +586,14 @@ bool drop_item_on_mobile( Client* client, Item* item, u32 target_serial, u8 slot
     
 	if (!dropon->isa( UObject::CLASS_NPC)) 
     {
+		if (system_hooks.can_trade)
+		{
+			if (!system_hooks.can_trade->call(new ECharacterRefObjImp(client->chr),new ECharacterRefObjImp(dropon),new EItemRefObjImp(item)))
+			{
+				send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
+				return false;
+			}
+		}
         bool res = open_trade_window( client, item, dropon );
         if (!res)
 	        send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );

@@ -109,7 +109,8 @@ SystemHooks::SystemHooks() :
     can_die(NULL),
 	un_hide(NULL),
 	close_customhouse_hook(NULL),
-	warmode_change(NULL)
+	warmode_change(NULL),
+	can_trade(NULL)
 {
 }
 
@@ -200,6 +201,11 @@ void hook( ExportScript* shs, const string& hookname, const string& exfuncname )
 	{
 		nargs = 2;
 		pphook = &system_hooks.warmode_change;
+	}
+	else if (hookname == "CanTrade")
+	{
+		nargs = 3;
+		pphook = &system_hooks.can_trade;
 	}
 	else
 	{
@@ -307,6 +313,8 @@ void unload_system_hooks()
 		delete system_hooks.close_customhouse_hook;
 	if (system_hooks.warmode_change != NULL)
 		delete system_hooks.warmode_change;
+	if (system_hooks.can_trade != NULL)
+		delete system_hooks.can_trade;
 }
 
 ExportScript* FindExportScript( const ScriptDef& sd )
