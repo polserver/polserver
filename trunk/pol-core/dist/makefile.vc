@@ -63,7 +63,6 @@ debug:
     xcopy /I /S /EXCLUDE:..\debug-exclude.lst ..\..\bscript\* bscript
     xcopy /I /S /EXCLUDE:..\debug-exclude.lst ..\..\clib\* clib
     xcopy /I /S /EXCLUDE:..\debug-exclude.lst ..\..\ecompile\* ecompile
-    xcopy /I /S /EXCLUDE:..\debug-exclude.lst ..\..\gp\* gp
     xcopy /I /S /EXCLUDE:..\debug-exclude.lst ..\..\plib\* plib
     xcopy /I /S /EXCLUDE:..\debug-exclude.lst ..\..\pol\* pol
     xcopy /I /S /EXCLUDE:..\debug-exclude.lst ..\..\poltool\* poltool
@@ -103,7 +102,6 @@ lib:
     xcopy /I /S /EXCLUDE:..\bscriptexclude.lst ..\..\bscript\* lib\bscript
     xcopy /I /S /EXCLUDE:..\libexclude.lst ..\..\clib\* lib\clib
     xcopy /I /S /EXCLUDE:..\libexclude.lst ..\..\ecompile\* lib\ecompile
-    xcopy /I /S /EXCLUDE:..\libexclude.lst ..\..\gp\* lib\gp
     xcopy /I /S /EXCLUDE:..\libexclude.lst ..\..\plib\* lib\plib
     xcopy /I /S /EXCLUDE:..\libexclude.lst ..\..\runecl\* lib\runecl
 	..\7za a -tzip -mx9 -r ..\pol-lib.zip *
