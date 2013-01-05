@@ -42,10 +42,12 @@ endif
 ifdef BUILD64POL
 LIB_MORE += -L../lib/boost_1_51_0/lib/x64/lib
 CXX_MORE_OPTS += -m64 
+POL_BUILDPLATFORM=x64
 # plus all used libaries eg: -lboost_regex
 else
 LIB_MORE += -L../lib/boost_1_51_0/lib/x86/lib
 CXX_MORE_OPTS += -m32
+POL_BUILDPLATFORM=x86
 # plus all used libaries eg: -lboost_regex
 endif
 
@@ -343,7 +345,7 @@ gzipfile: bin/pol bin/ecompile bin/runecl bin/uoconvert bin/uotool #bin/poltool
 	cp support/uoconvert.cfg dist
 	cp support/boats.cfg dist
 	cp support/extobj.cfg dist
-	(cd dist ; tar -cvf pol-$(POL_BUILDNAME)bin-$(POL_RELEASE)-`date +%Y-%m-%d`-$(POL_BUILDTAG).tar pol uoconvert uotool core-changes.txt uoconvert.txt uoconvert.cfg boats.cfg extobj.cfg packethooks.txt packets.zip scripts ; gzip -9 pol-$(POL_BUILDNAME)bin-$(POL_RELEASE)-`date +%Y-%m-%d`-$(POL_BUILDTAG).tar )
+	(cd dist ; tar -cvf pol-$(POL_BUILDNAME)-$(POL_BUILDPLATFORM)bin-$(POL_RELEASE)-`date +%Y-%m-%d`-$(POL_BUILDTAG).tar pol uoconvert uotool core-changes.txt uoconvert.txt uoconvert.cfg boats.cfg extobj.cfg packethooks.txt packets.zip scripts ; gzip -9 pol-$(POL_BUILDNAME)-$(POL_BUILDPLATFORM)bin-$(POL_RELEASE)-`date +%Y-%m-%d`-$(POL_BUILDTAG).tar )
 	rm -f dist/core-changes.txt dist/pol dist/uoconvert dist/uotool
 	rm -f dist/packethooks.txt
 	rm -f dist/packets.zip
@@ -369,7 +371,7 @@ gzipfile-dynamic: bin/pol-dynamic bin/ecompile-dynamic bin/runecl-dynamic bin/uo
 	cp support/uoconvert.cfg dist
 	cp support/boats.cfg dist
 	cp support/extobj.cfg dist
-	(cd dist ; tar -cvf pol-$(POL_BUILDNAME)bin-$(POL_RELEASE)-`date +%Y-%m-%d`-$(POL_BUILDTAG)-dynamic.tar pol uoconvert uotool core-changes.txt uoconvert.txt uoconvert.cfg boats.cfg extobj.cfg packethooks.txt packets.zip scripts ; gzip -9 pol-$(POL_BUILDNAME)bin-$(POL_RELEASE)-`date +%Y-%m-%d`-$(POL_BUILDTAG)-dynamic.tar )
+	(cd dist ; tar -cvf pol-$(POL_BUILDNAME)-$(POL_BUILDPLATFORM)bin-$(POL_RELEASE)-`date +%Y-%m-%d`-$(POL_BUILDTAG)-dynamic.tar pol uoconvert uotool core-changes.txt uoconvert.txt uoconvert.cfg boats.cfg extobj.cfg packethooks.txt packets.zip scripts ; gzip -9 pol-$(POL_BUILDNAME)-$(POL_BUILDPLATFORM)bin-$(POL_RELEASE)-`date +%Y-%m-%d`-$(POL_BUILDTAG)-dynamic.tar )
 	rm -f dist/core-changes.txt dist/pol dist/uoconvert dist/uotool
 	rm -f dist/packethooks.txt
 	rm -f dist/packets.zip
