@@ -871,6 +871,15 @@ void sellhandler(Client* client, PKTIN_9F* msg)
 
 		Item* item = backpack->find_toplevel(serial);
 
+		if (item == NULL)
+			return;
+		if (item->newbie())
+			continue;
+		if (item->inuse())
+			continue;
+		if (amount > item->getamount())
+			amount = item->getamount();
+
 		auto_ptr<BStruct> entry (new BStruct);
 		entry->addMember("item", item->make_ref());
 		entry->addMember("amount", new BLong(amount));
