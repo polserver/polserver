@@ -662,9 +662,12 @@ bool Expression::optimize_token( int i )
 				//3: 1L
 				//4: +=
 				//5: #
-				if (i < 3 && tokens.size()>static_cast<size_t>(i+2))
+				if (i < 3 ) // has to be the first op
 				{
-					operand = tokens[i+1];
+					if (tokens[tokens.size()-1]->id == TOK_CONSUMER)
+						operand = tokens[tokens.size()-2];
+					else
+						operand = tokens[tokens.size()-1];
 					if (operand->id == TOK_PLUSEQUAL ||
 						operand->id == TOK_MINUSEQUAL ||
 						operand->id == TOK_TIMESEQUAL ||
@@ -674,7 +677,8 @@ bool Expression::optimize_token( int i )
 					//12: local #0
 					//13: 1L
 					//14: set member id 'warmode' (27) += #
-						tokens.pop_back(); // delete consumer
+						if (tokens[tokens.size()-1]->id == TOK_CONSUMER)
+							tokens.pop_back(); // delete consumer
 						
 						if (operand->id == TOK_PLUSEQUAL)
 							oper->id = INS_SET_MEMBER_ID_CONSUME_PLUSEQUAL;
@@ -688,9 +692,8 @@ bool Expression::optimize_token( int i )
 							oper->id = INS_SET_MEMBER_ID_CONSUME_MODULUSEQUAL;
 						delete operand;
 						tokens.pop_back(); // delete +=
-						Token* _operand = tokens.back();
-						tokens.insert(tokens.begin()+i-1,_operand);
-						tokens.pop_back();
+						tokens.erase( tokens.begin() + i-1, tokens.begin() + i ); // remove setmember
+						tokens.insert(tokens.end(),oper); // and append it
 						OSTRINGSTREAM os;
 						os << oper->lval;
 						oper->copyStr( OSTRINGSTREAM_STR(os).c_str() );
