@@ -1,5 +1,8 @@
 ﻿-- POL099 --
 
+02-15-2013 Tomi:
+  Fixed:      item.SplitStackInto method
+
 01-04-2013 Tomi:
   Added:      Syshook CanTrade
 	      parameters ( character, drop_on_chr, item )

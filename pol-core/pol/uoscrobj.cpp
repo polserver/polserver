@@ -1185,12 +1185,6 @@ BObjectImp* Item::script_method_id(const int id, Executor& ex)
 				new_stack = this->clone();
 			else
 				new_stack = this->remove_part_of_stack(amt);
-			
-			if ( !container->can_add(*new_stack) )
-					// Put newstack back with the original stack
-					if ( new_stack != this )
-						this->add_to_self(new_stack);
- 					return new BError("Could not add new stack to container");
 
 			if ( ex.getParam( 2, add_to_existing_stack ) && add_to_existing_stack != 0 )
 			{
