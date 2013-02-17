@@ -453,6 +453,9 @@ private:
     }
     static void enable_invul( Character* in_range_chr, Character* chr )
     {
+		if ( chr->client != NULL )
+			send_move( chr->client, chr );
+
         if ( in_range_chr->client && in_range_chr->client->ready ) 
         {
             if ( in_range_chr != chr && in_range_chr->is_visible_to_me( chr ) )
@@ -463,6 +466,9 @@ private:
     }
     static void disable_invul( Character* in_range_chr, Character* chr )
     {
+		if ( chr->client != NULL )
+			send_move( chr->client, chr );
+
         if ( in_range_chr->client && in_range_chr->client->ready ) 
         {
             if ( in_range_chr != chr && in_range_chr->is_visible_to_me( chr ) )
