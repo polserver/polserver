@@ -1,5 +1,8 @@
 ﻿-- POL099 --
 
+02-17-2013 Tomi:
+  Fixed:      Changing invul status now updates it for the character itself too, not just all mobiles around
+
 02-15-2013 Tomi:
   Fixed:      item.SplitStackInto method
 
