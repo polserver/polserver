@@ -1,5 +1,9 @@
 ﻿-- POL099 --
 
+02-20-2013 Tomi:
+  Fixed:      When changing graphic of a lightsource item, it now changes correctly the facing too.
+  Fixed:      Status bar now shows for weapon mindamage ( id.mindamage + dmg_mod ) and for maxdamage ( id.maxdamage + dmg_mod )
+
 02-17-2013 Tomi:
   Fixed:      Changing invul status now updates it for the character itself too, not just all mobiles around
 
