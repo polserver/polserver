@@ -35,6 +35,7 @@ public:
 
     unsigned short speed() const;
     unsigned short delay() const;
+	unsigned short damage_mod() const;
     const Attribute& attribute() const;
     unsigned short get_random_damage() const;
     bool is_projectile() const;
