@@ -764,6 +764,16 @@ bool Item::setgraphic( u16 newgraphic )
         graphic = newgraphic;
         height = tileheight( graphic );
 		tile_layer = tilelayer( graphic );
+
+		// Update facing on graphic change
+		const ItemDesc& id = find_itemdesc( graphic );
+
+		if ( id.facing == 127 )
+			facing = tile_layer;
+		else
+			facing = id.facing;
+
+		facing = tile_layer;
 		increv();
 		update_item_to_inrange( this );
         return true;

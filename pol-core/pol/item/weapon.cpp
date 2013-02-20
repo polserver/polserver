@@ -442,6 +442,11 @@ unsigned short UWeapon::delay() const
 	return tmpl->delay;
 }
 
+unsigned short UWeapon::damage_mod() const
+{
+	return this->dmg_mod_;
+}
+
 const Attribute& UWeapon::attribute() const
 {
 	return *(tmpl->pAttr);
