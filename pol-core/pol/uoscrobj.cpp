@@ -1186,31 +1186,40 @@ BObjectImp* Item::script_method_id(const int id, Executor& ex)
 			else
 				new_stack = this->remove_part_of_stack(amt);
 
-			if ( ex.getParam( 2, add_to_existing_stack ) && add_to_existing_stack != 0 )
+			if (!ex.hasParams(3) || (ex.getParam( 2, add_to_existing_stack ) && add_to_existing_stack != 0 ))
 			{
 				Item* existing_stack = container->find_addable_stack(new_stack);
 				if ( existing_stack != NULL )
 				{
 					if(!container->can_insert_increase_stack( NULL, UContainer::MT_CORE_MOVED, existing_stack, new_stack->getamount(), new_stack ) )
+					{
+						if ( new_stack != this )
+							this->add_to_self(new_stack);
 						return new BError( "Could not add to existing stack" );
+					}
 				}
 				else
-					return new BError( "There is no existing stack" );
+					goto create_new_stack;
 
 				u16 amount = new_stack->getamount();
 				existing_stack->add_to_self(new_stack);
 				update_item_to_inrange( existing_stack );
+
 				UpdateCharacterWeight( existing_stack );
 
 				container->on_insert_increase_stack( NULL, UContainer::MT_CORE_MOVED, existing_stack, amount );
 
 				if ( amt == item_amount )
 					destroy_item(this);
+				else
+					update_item_to_inrange(this);
 
 				return new EItemRefObjImp(existing_stack);
 			}
 			else
 			{
+				create_new_stack:
+
 				bool can_insert = container->can_insert_add_item(NULL, UContainer::MT_CORE_MOVED, new_stack);
 				if ( !can_insert )
 				{
@@ -1227,6 +1236,8 @@ BObjectImp* Item::script_method_id(const int id, Executor& ex)
 
 				if ( amt == item_amount )
 					destroy_item(this);
+				else
+					update_item_to_inrange(this);
 
 				return new EItemRefObjImp(new_stack);
 			}
