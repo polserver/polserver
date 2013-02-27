@@ -1,5 +1,11 @@
 ﻿-- POL099 --
-
+02-26-2013 Kevin:
+  Fixed:      item.SplitStackInto(container,amount,add_to_existing_stack := 1) no longer requires three parameters and will default
+              the add_to_existing_stack to 1/true if not present
+  Fixed:	  item.SplitStackInto() with add_to_existing_stack == 1 will re-add the removed-portion of stack back to original item
+              if it cannot add to the existing stack (ie, container's caninsert script returns false)
+  Changed:    item.SplitStackInto() with add_to_existing_stack == 1 will first attempt to add to an existing stack if found, and otherwise 
+              will create a new stack if no existing stack found. This is similar to how the existing CreateItemInContainer() works
 02-20-2013 Tomi:
   Fixed:      When changing graphic of a lightsource item, it now changes correctly the facing too.
   Fixed:      Status bar now shows for weapon mindamage ( id.mindamage + dmg_mod ) and for maxdamage ( id.maxdamage + dmg_mod )
