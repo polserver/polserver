@@ -223,7 +223,7 @@ public:
   }
 
   reference operator[](size_type __n) {
-    _STLP_VERBOSE_ASSERT(__n < this->size(), _StlMsg_OUT_OF_BOUNDS)
+    _STLP_VERBOSE_ASSERT(__n <= this->size(), _StlMsg_OUT_OF_BOUNDS)
     return _M_non_dbg_impl[__n];
   }
 
