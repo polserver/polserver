@@ -1,4 +1,8 @@
 ﻿-- POL099 --
+05-25-2013 Kevin:
+  Fixed:      bug in mysql_select_db() returning error on successful calls
+  Fixed:      adding missing mysql_free_result() entry to sql.em
+
 02-26-2013 Kevin:
   Fixed:      item.SplitStackInto(container,amount,add_to_existing_stack := 1) no longer requires three parameters and will default
               the add_to_existing_stack to 1/true if not present

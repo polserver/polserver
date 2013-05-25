@@ -194,7 +194,7 @@ bool BSQLConnection::select_db(const char *db) {
 		_error = "No active MYSQL object instance.";
 		return false;
 	}
-	else if (!mysql_select_db(_conn,db))
+	else if (mysql_select_db(_conn,db))
 	{
 		_errno = mysql_errno(_conn);
 		_error = mysql_error(_conn);
