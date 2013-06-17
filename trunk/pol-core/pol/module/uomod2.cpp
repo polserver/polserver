@@ -613,7 +613,9 @@ bool send_vendorsell( Client* client, NPC* merchant, UContainer* sellfrom, UCont
 	msg->Write<u32>(merchant->serial_ext);
 	msg->offset+=2; //numitems
 
-	UContainer::iterator buyable_itr, buyable_end=buyable->end();
+	UContainer::iterator buyable_itr, buyable_end;
+	if (buyable != NULL)
+		buyable_end = buyable->end();
 
 	UContainer* cont = sellfrom;
 	while (cont != NULL)
@@ -637,14 +639,16 @@ bool send_vendorsell( Client* client, NPC* merchant, UContainer* sellfrom, UCont
 			{
 				return false;
 			}
-			for(buyable_itr = buyable->begin(); buyable_itr != buyable_end; ++buyable_itr )
-			{
-				Item* buyable_item = GET_ITEM_PTR( buyable_itr );
-				if (buyable_item->objtype_ == item->objtype_)
-					break;
+			if (buyable != NULL) {
+				for(buyable_itr = buyable->begin(); buyable_itr != buyable_end; ++buyable_itr )
+				{
+					Item* buyable_item = GET_ITEM_PTR( buyable_itr );
+					if (buyable_item->objtype_ == item->objtype_)
+						break;
+				}
+				if (buyable_itr == buyable_end)
+					continue;
 			}
-			if (buyable_itr == buyable_end)
-				continue;
 
 			msg->Write<u32>(item->serial_ext);
 			msg->WriteFlipped<u16>(item->graphic);
@@ -679,7 +683,7 @@ BObjectImp* UOExecutorModule::mf_SendSellWindow(/* character, vendor, i1, i2, i3
 	Item* wi1c;
 	int flags;
 	UContainer* merchant_bought;
-	UContainer* merchant_buyable;
+	UContainer* merchant_buyable = NULL;
 
 	if( !(getCharacterParam( exec, 0, chr ) &&
 		  getCharacterParam( exec, 1, mrchnt ) &&
@@ -712,12 +716,15 @@ BObjectImp* UOExecutorModule::mf_SendSellWindow(/* character, vendor, i1, i2, i3
 	{
 		return new BError( "Parameter 2 must be a container" );
 	}
-	if (wi1c->isa(UObject::CLASS_CONTAINER))
-	{
-		merchant_buyable = static_cast<UContainer*>(wi1c);
-	} else
-	{
-		return new BError( "Parameter 3 must be a container" );
+
+	if (flags & VENDOR_BUYABLE_CONTAINER_FILTER) {
+		if (wi1c->isa(UObject::CLASS_CONTAINER))
+		{
+			merchant_buyable = static_cast<UContainer*>(wi1c);
+		} else
+		{
+			return new BError( "Parameter 3 must be a container" );
+		}
 	}
 
 	if (chr->backpack() == NULL)
