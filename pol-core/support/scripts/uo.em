@@ -27,6 +27,7 @@ const FP_IGNORE_DOORS           := 0x02;    // ignore Doors (you've to open door
 
 // Send*Window flags
 const VENDOR_SEND_AOS_TOOLTIP   := 0x01;    // send Item Description using AoS Tooltips
+const VENDOR_BUYABLE_CONTAINER_FILTER := 0x02; // filter items in the SendSellWindow() by what is in the buyable container
 
 const SENDDIALOGMENU_FORCE_OLD  := 0x01;    // send UnCompressed Gump
 
