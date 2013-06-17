@@ -1,4 +1,8 @@
 ﻿-- POL099 --
+06-17-2013 Kevin:
+  Fixed:      adding missing mysql_close() entry to sql.em
+  Fixed:      OpenSellWindow() "Buyable" container wasn't actually restricting what entries showed 
+
 05-25-2013 Kevin:
   Fixed:      bug in mysql_select_db() returning error on successful calls
   Fixed:      adding missing mysql_free_result() entry to sql.em
