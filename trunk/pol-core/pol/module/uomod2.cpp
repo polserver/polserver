@@ -605,7 +605,7 @@ void buyhandler( Client* client, PKTBI_3B* msg)
 MESSAGE_HANDLER_VARLEN(PKTBI_3B, buyhandler );
 
 
-bool send_vendorsell( Client* client, NPC* merchant, UContainer* sellfrom, bool send_aos_tooltip )
+bool send_vendorsell( Client* client, NPC* merchant, UContainer* sellfrom, UContainer* buyable, bool send_aos_tooltip )
 {
 	unsigned short num_items = 0;
 	PktHelper::PacketOut<PktOut_9E> msg;
@@ -613,6 +613,7 @@ bool send_vendorsell( Client* client, NPC* merchant, UContainer* sellfrom, bool 
 	msg->Write<u32>(merchant->serial_ext);
 	msg->offset+=2; //numitems
 
+	UContainer::iterator buyable_itr, buyable_end=buyable->end();
 
 	UContainer* cont = sellfrom;
 	while (cont != NULL)
@@ -636,6 +637,15 @@ bool send_vendorsell( Client* client, NPC* merchant, UContainer* sellfrom, bool 
 			{
 				return false;
 			}
+			for(buyable_itr = buyable->begin(); buyable_itr != buyable_end; ++buyable_itr )
+			{
+				Item* buyable_item = GET_ITEM_PTR( buyable_itr );
+				if (buyable_item->objtype_ == item->objtype_)
+					break;
+			}
+			if (buyable_itr == buyable_end)
+				continue;
+
 			msg->Write<u32>(item->serial_ext);
 			msg->WriteFlipped<u16>(item->graphic);
 			msg->WriteFlipped<u16>(item->color);
@@ -669,6 +679,7 @@ BObjectImp* UOExecutorModule::mf_SendSellWindow(/* character, vendor, i1, i2, i3
 	Item* wi1c;
 	int flags;
 	UContainer* merchant_bought;
+	UContainer* merchant_buyable;
 
 	if( !(getCharacterParam( exec, 0, chr ) &&
 		  getCharacterParam( exec, 1, mrchnt ) &&
@@ -701,6 +712,13 @@ BObjectImp* UOExecutorModule::mf_SendSellWindow(/* character, vendor, i1, i2, i3
 	{
 		return new BError( "Parameter 2 must be a container" );
 	}
+	if (wi1c->isa(UObject::CLASS_CONTAINER))
+	{
+		merchant_buyable = static_cast<UContainer*>(wi1c);
+	} else
+	{
+		return new BError( "Parameter 3 must be a container" );
+	}
 
 	if (chr->backpack() == NULL)
 	{
@@ -724,7 +742,7 @@ BObjectImp* UOExecutorModule::mf_SendSellWindow(/* character, vendor, i1, i2, i3
 
 	bool send_aos_tooltip = flags & VENDOR_SEND_AOS_TOOLTIP ? true : false;
 
-	send_vendorsell( chr->client, merchant, chr->backpack(), send_aos_tooltip );
+	send_vendorsell( chr->client, merchant, chr->backpack(), merchant_buyable, send_aos_tooltip );
 
 	chr->client->gd->vendor.set( merchant );
 	chr->client->gd->vendor_bought.set( merchant_bought );
