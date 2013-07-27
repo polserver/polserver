@@ -383,7 +383,7 @@ MultiPlacementCursor::MultiPlacementCursor( void (*func)(Character*, PKTBI_6C*) 
 {
 }
 
-void MultiPlacementCursor::send_placemulti( Client* client, unsigned int objtype, int flags, s16 xoffset, s16 yoffset )
+void MultiPlacementCursor::send_placemulti( Client* client, unsigned int objtype, int flags, s16 xoffset, s16 yoffset, u32 hue )
 {
 	PktHelper::PacketOut<PktOut_99> msg;
 	msg->Write<u8>(0x1);
@@ -396,7 +396,7 @@ void MultiPlacementCursor::send_placemulti( Client* client, unsigned int objtype
 	msg->WriteFlipped<s16>(yoffset);
 	msg->offset+=2; // u16 maybe_zoffset
 	if (client->ClientType & CLIENTTYPE_7090)
-		msg->offset+=4;
+		msg->WriteFlipped<u32>(hue);
 	msg.Send(client);
 	client->chr->tcursor2 = this;
 }

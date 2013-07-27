@@ -943,14 +943,15 @@ MultiPlacementCursor multi_placement_cursor( &handle_coord_cursor );
 BObjectImp* UOExecutorModule::mf_TargetMultiPlacement()
 {
 	Character* chr;
-	unsigned int objtype;
+	unsigned int objtype, hue;
 	int flags;
 	int xoffset, yoffset;
 	if (! (getCharacterParam( exec, 0, chr ) &&
 		   getObjtypeParam( exec, 1, objtype ) &&
 		   getParam(2, flags) &&
 		   getParam(3, xoffset) &&
-		   getParam(4, yoffset)) )
+		   getParam(4, yoffset) &&
+		   getParam(5, hue)) )
 	{
 		return new BError( "Invalid parameter type" );
 	}
@@ -974,7 +975,7 @@ BObjectImp* UOExecutorModule::mf_TargetMultiPlacement()
 
 	chr->client->gd->target_cursor_uoemod = this;
 	target_cursor_chr = chr;
-	multi_placement_cursor.send_placemulti( chr->client, objtype, flags, (s16)xoffset, (s16)yoffset );
+	multi_placement_cursor.send_placemulti( chr->client, objtype, flags, (s16)xoffset, (s16)yoffset, hue );
 	uoexec.os_module->suspend();
 	return new BLong(0);
 }
