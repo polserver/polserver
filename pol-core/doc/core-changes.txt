@@ -1,4 +1,9 @@
 ﻿-- POL099 --
+07-27-2013 Tomi:
+  Changed:    UO::TargetMultiPlacement( character, objtype, flags := 0, xoffset := 0, yoffset := 0, hue := 0 );
+              New optional hue parameter to show hued multis which are supprted by clients >= 7.0.9 ( HSA )
+              Older clients ignores this option
+
 06-17-2013 Kevin:
   Fixed:      adding missing mysql_close() entry to sql.em
   Fixed:      OpenSellWindow() "Buyable" container wasn't actually restricting what entries showed. 
@@ -15,6 +20,7 @@
               if it cannot add to the existing stack (ie, container's caninsert script returns false)
   Changed:    item.SplitStackInto() with add_to_existing_stack == 1 will first attempt to add to an existing stack if found, and otherwise 
               will create a new stack if no existing stack found. This is similar to how the existing CreateItemInContainer() works
+
 02-20-2013 Tomi:
   Fixed:      When changing graphic of a lightsource item, it now changes correctly the facing too.
   Fixed:      Status bar now shows for weapon mindamage ( id.mindamage + dmg_mod ) and for maxdamage ( id.maxdamage + dmg_mod )
