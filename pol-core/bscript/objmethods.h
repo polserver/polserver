@@ -168,7 +168,8 @@ enum MethodID
 	MTH_JOIN,
 	MTH_FIND,
 	MTH_UPPER,
-	MTH_LOWER
+	MTH_LOWER,
+	MTH_FORMAT
 };
 
 
