@@ -614,6 +614,107 @@ BObjectRef String::OperSubscript( const BObject& rightobj )
     }
 }
 
+// -- format related stuff --
+
+bool s_parse_int(int &i, string const &s)
+{	
+	if(s.empty())
+		return false;
+
+	char* end;
+	i = strtol(s.c_str(), &end, 10);
+
+	if (!*end) {
+		return true;
+	}
+	else {		
+		return false;
+	}
+}
+
+// remove leading/trailing spaces
+void s_trim(string &s)
+{
+	std::stringstream trimmer;
+	trimmer << s;
+	s.clear();
+	trimmer >> s;
+}
+
+void int_to_binstr(int& value, std::stringstream &s)
+{
+	int i;
+	for(i = 31; i > 0; i--) {
+		if(value & (1 << i))
+			break;
+	}
+	for(; i >= 0; i--) {
+		if(value & (1 << i))
+			s << "1";
+		else
+			s << "0";
+	}
+}
+
+bool try_to_format( std::stringstream &to_stream, BObjectImp *what, string& frmt )
+{
+	if(frmt.empty()) {
+		to_stream << what->getStringRep();
+		return false;
+	}
+
+	if(frmt.find('b')!=string::npos) {
+		if(!what->isa( BObjectImp::OTLong )) {
+			to_stream << "<int required>";
+			return false;
+		}
+		BLong* plong = static_cast<BLong*>(what);
+		int n = plong->value();
+		if(frmt.find('#')!=string::npos)
+			to_stream << ((n<0)?"-":"") << "0b";
+		int_to_binstr(n, to_stream);
+	} else if(frmt.find('x')!=string::npos) {
+		if(!what->isa( BObjectImp::OTLong )) {
+			to_stream << "<int required>";
+			return false;
+		}
+		BLong* plong = static_cast<BLong*>(what);
+		int n = plong->value();
+		if(frmt.find('#')!=string::npos)
+			to_stream << "0x";
+		to_stream << std::hex << n;
+	} else if(frmt.find('o')!=string::npos) {
+		if(!what->isa( BObjectImp::OTLong )) {
+			to_stream << "<int required>";
+			return false;
+		}
+		BLong* plong = static_cast<BLong*>(what);
+		int n = plong->value();
+		if(frmt.find('#')!=string::npos)
+			to_stream << "0o";
+		to_stream << std::oct << n;
+	} else if(frmt.find('d')!=string::npos) {
+		int n;
+		if(what->isa( BObjectImp::OTLong )) {
+			BLong* plong = static_cast<BLong*>(what);
+			n = plong->value();
+		} else if(what->isa( BObjectImp::OTDouble )) {
+			Double* pdbl = static_cast<Double*>(what);
+			n = (int) pdbl->value();
+		} else {
+			to_stream << "<int or double required>";
+			return false;
+		}		
+		to_stream << std::dec << n;
+	} else {
+		to_stream << "<unknown format: " << frmt << ">";
+		return false;
+	}		
+	return true;
+}
+
+// --
+
 
 BObjectImp* String::call_method( const char* methodname, Executor& ex )
 {
@@ -667,6 +768,99 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool forcebuilti
 			else
 				return new BError( "string.lower() doesn't take parameters." );
 		}
+	case MTH_FORMAT:
+		{
+			if(ex.numParams() > 0) {
+
+			string s = this->getStringRep(); // string itself
+			std::stringstream result;
+
+			unsigned int tag_start_pos; // the position of tag's start "{"
+			unsigned int tag_stop_pos;  // the position of tag's end "}"
+			unsigned int tag_dot_pos;
+			int tag_param_idx;			
+
+			unsigned int str_pos=0; // current string position		
+			unsigned int next_param_idx = 0; // next index of .format() parameter
+
+			while((tag_start_pos = s.find("{", str_pos)) != string::npos) {
+				if((tag_stop_pos=s.find("}", tag_start_pos)) != string::npos) {
+
+					result << s.substr(str_pos, tag_start_pos - str_pos);
+					str_pos = tag_stop_pos + 1;
+					
+					string tag_body = s.substr(tag_start_pos+1, (tag_stop_pos - tag_start_pos)-1);					
+					s_trim( tag_body ); // trim the tag of whitespaces
+
+					string frmt;
+					int formatter_pos = tag_body.find(':');
+
+					if( formatter_pos!=string::npos) {
+						frmt = tag_body.substr(formatter_pos + 1, string::npos); //
+						tag_body = tag_body.substr(0, formatter_pos); // remove property from the tag
+					}					
+
+					string prop_name;									
+					// parsing {1.this_part}
+					tag_dot_pos = tag_body.find(".", 0);
+
+					// '.' is found within the tag, there is a property name
+					if(tag_dot_pos!=string::npos) {
+						prop_name = tag_body.substr(tag_dot_pos + 1, string::npos); //
+						tag_body = tag_body.substr(0, tag_dot_pos); // remove property from the tag
+
+						// if s_tag_body is numeric then use it as an index
+						if(s_parse_int(tag_param_idx, tag_body)) {
+							tag_param_idx -= 1; // sinse POL indexes are 1-based
+						} else {
+							result << "<idx required before: '"<< prop_name <<"'>";
+							continue;
+						}						
+					} else {						
+						if(s_parse_int(tag_param_idx, tag_body)) {
+							tag_param_idx -= 1; // sinse POL indexes are 1-based
+						}
+						else { // non-integer body has just next idx in line
+							prop_name = tag_body;
+							tag_param_idx = next_param_idx++;
+						}
+					}
+
+					// -- end of property parsing
+
+					//cout << "prop_name: '" << prop_name << "' tag_body: '" << tag_body << "'";
+
+					// Checks that tag_param_idx is >0, otherwise it would fail when compared with ex.numParams()
+					if( tag_param_idx < 0 || ex.numParams() <= static_cast<size_t>(tag_param_idx) ) {						
+						result << "<idx out of range: #" << (tag_param_idx + 1) << ">";						
+						continue;
+					}					
+
+					BObjectImp *imp = ex.getParamImp(tag_param_idx);
+
+					if(prop_name.empty()==false) { // accesing object member
+						BObjectRef obj_member = imp->get_member(prop_name.c_str());
+						BObjectImp *member_imp = obj_member->impptr();
+						try_to_format(result, member_imp, frmt);				
+					} else {			
+						try_to_format(result, imp, frmt);
+					}
+				} else {
+					break;
+				}
+			}
+
+			if( str_pos < s.length() ) {
+				result << s.substr( str_pos, string::npos ); 
+			}					
+
+			return new String( result.str() );
+			
+		} else {
+			return new BError( "string.format() requires a parameter." );
+		}
+
+	}
 	case MTH_JOIN:
 		{
 			BObject* cont;

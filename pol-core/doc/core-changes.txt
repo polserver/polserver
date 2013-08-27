@@ -1,4 +1,41 @@
 ﻿-- POL099 --
+08-27-2013 Nando (patch by andenixa, text adapted from forum post):
+    Added:    string.format( args ) - formats a string using the data from args
+			  Accepts the following format:
+				{:x} for hex representation
+				{:o} for octal
+				{:b} for binary
+	
+	          Add a # to get notation prefix:
+	          E.g. "{:x}".format(10) -> "a"
+			       "{:#x}".format(10) -> "0xa"
+				   
+			  Parameters can be simple:   
+			  
+				"You have {} gold coins".format(120) -> "You have 120 gold coins"
+			
+			  and are unpacked implicitly by their order:
+
+				"{} hits {} for {} of damage".format("John", "Bob", 120) -> "John hits Bob for 120 of damage"
+			
+			  However you can specify parameters explicitly (first argument is at 1):
+			    
+				"You hit {2} for {1} damage".format(120, "John Doe") -> "You hit John Doe for 120 damage"
+				
+			  Format allows accessing object members:
+
+     			"Spell {1.spell_name} requires reagents: {1.reagents}".format(struct{spell_name:="Fire Wrath", "Ba, Bm, Ga"}) 
+				       -> "Spell Fire Wrath requires reagents: Ba, Bm, Ga"
+
+			  Implicit members also work:
+
+			    "{name} you hit level {level}".format(struct{name:="Jane Doe", level:=4}) 
+						-> "Jane Doe you hit level 4"
+
+			  Character or item members are accessed the same way:
+
+			    "{1.name}, your shield {2.desc} has {2.hp} hp".format(who, who.shield)" 
+						-> "Admin, your shield Buckler of Death has 150 hp"
 07-27-2013 Tomi:
   Changed:    UO::TargetMultiPlacement( character, objtype, flags := 0, xoffset := 0, yoffset := 0, hue := 0 );
               New optional hue parameter to show hued multis which are supprted by clients >= 7.0.9 ( HSA )
