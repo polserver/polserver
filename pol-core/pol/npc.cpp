@@ -244,7 +244,6 @@ bool NPC::npc_path_blocked( UFACING dir ) const
     for( ZoneCharacters::iterator itr = wchr.begin(), end = wchr.end(); itr != end; ++itr )
     {
         Character* chr = *itr;
-		NPC* npc = dynamic_cast<NPC*>(chr);
 
 		// First check if there really is a character blocking
         if (chr->x == newx &&
@@ -255,7 +254,8 @@ bool NPC::npc_path_blocked( UFACING dir ) const
 			// Check first with the ssopt false to now allow npcs of same master running on top of each other
 			if ( !ssopt.mobiles_block_npc_movement )
 			{
-				if ( ( npc != NULL && this->master() == npc->master() ) && !chr->dead() && is_visible_to_me(chr) )
+				NPC* npc = static_cast<NPC*>(chr);
+				if ( ( chr->acct == NULL && this->master() == npc->master() ) && !chr->dead() && is_visible_to_me(chr) )
 					return true;
 			}
 			else
