@@ -78,6 +78,7 @@ struct ServSpecOpt {
 	std::vector<std::string> total_stats_at_creation;
 	bool seperate_speechtoken;
 	bool core_sends_guildmsgs;
+	bool mobiles_block_npc_movement;
 };
 
 extern ServSpecOpt ssopt;

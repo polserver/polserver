@@ -231,8 +231,9 @@ bool NPC::could_move( UFACING dir ) const
 
 bool NPC::npc_path_blocked( UFACING dir ) const
 {
-	if (cached_settings.freemove)
+	if (cached_settings.freemove || ( !this->master() && !ssopt.mobiles_block_npc_movement ) )
 		return false;
+
     unsigned short newx = x + move_delta[ dir ].xmove;
     unsigned short newy = y + move_delta[ dir ].ymove;
         
@@ -243,13 +244,25 @@ bool NPC::npc_path_blocked( UFACING dir ) const
     for( ZoneCharacters::iterator itr = wchr.begin(), end = wchr.end(); itr != end; ++itr )
     {
         Character* chr = *itr;
+		NPC* npc = dynamic_cast<NPC*>(chr);
+
+		// First check if there really is a character blocking
         if (chr->x == newx &&
             chr->y == newy &&
-            chr->z >= z-10 && chr->z <= z+10 &&
-            !chr->dead() &&
-            is_visible_to_me(chr))
-        {
-            return true;
+            chr->z >= z-10 && chr->z <= z+10 ) 
+		{
+			
+			// Check first with the ssopt false to now allow npcs of same master running on top of each other
+			if ( !ssopt.mobiles_block_npc_movement )
+			{
+				if ( ( npc != NULL && this->master() == npc->master() ) && !chr->dead() && is_visible_to_me(chr) )
+					return true;
+			}
+			else
+			{
+				if ( !chr->dead() && is_visible_to_me(chr) )
+					return true;
+			}
         }
     }
     return false;

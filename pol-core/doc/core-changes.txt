@@ -1,4 +1,8 @@
 ﻿-- POL099 --
+08-28-2013 Tomi ( based on andenixas patch )
+    Added: ssopt.MobilesBlockNpcMovement ( default true ) to determine if mobiles block the movement of npcs
+    Note:  Tamed npcs with same master ( npc.master ) still blocks each others movement even with the flag false to not allow them run on top of each others when following the master
+
 08-27-2013 Nando (patch by andenixa, text adapted from forum post):
     Added:    string.format( args ) - formats a string using the data from args
 			  Accepts the following format:

@@ -95,6 +95,7 @@ void read_servspecopt()
 	ssopt.speedhack_footwalkdelay = elem.remove_ushort("SpeedHack_FootWalkDelay",PKTIN_02_FOOT_WALK);
 	ssopt.seperate_speechtoken = elem.remove_bool("SeperateSpeechTokens",false);
 	ssopt.core_sends_guildmsgs = elem.remove_bool("CoreGuildMessages",true);
+	ssopt.mobiles_block_npc_movement = elem.remove_bool("MobilesBlockNpcMovement",true);
 	ssopt_parse_totalstats(elem);
 
 // Turley 2009/11/06 u8 range...
