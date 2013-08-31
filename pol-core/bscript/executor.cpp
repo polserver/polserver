@@ -1283,16 +1283,7 @@ void Executor::ins_set_member( const Instruction& ins )
 
     BObjectImp& rightimpref = right.impref();
 
-    if (right.count() == 1 && rightimpref.count() == 1)
-    {
-        left.impref().set_member( ins.token.tokval(), &rightimpref );
-    }
-    else
-    {
-        BObjectImp* imp = rightimpref.copy();
-        BObject obj(imp);
-        left.impref().set_member( ins.token.tokval(), imp );
-    }
+    left.impref().set_member( ins.token.tokval(), &rightimpref );
 }
 
 void Executor::ins_set_member_id( const Instruction& ins )
@@ -1305,17 +1296,7 @@ void Executor::ins_set_member_id( const Instruction& ins )
     BObject& left = *leftref;
 
     BObjectImp& rightimpref = right.impref();
-
-    if (right.count() == 1 && rightimpref.count() == 1)
-    {
-        left.impref().set_member_id( ins.token.lval, &rightimpref );
-    }
-    else
-    {
-        BObjectImp* imp = rightimpref.copy();
-        BObject obj(imp);
-        left.impref().set_member_id( ins.token.lval, imp );
-    }
+    left.impref().set_member_id( ins.token.lval, &rightimpref );
 }
 
 void Executor::ins_set_member_consume( const Instruction& ins )
@@ -1328,17 +1309,7 @@ void Executor::ins_set_member_consume( const Instruction& ins )
     BObject& left = *leftref;
 
     BObjectImp& rightimpref = right.impref();
-
-    if (right.count() == 1 && rightimpref.count() == 1)
-    {
-        left.impref().set_member( ins.token.tokval(), &rightimpref );
-    }
-    else
-    {
-        BObjectImp* imp = rightimpref.copy();
-        BObject obj(imp);
-        left.impref().set_member( ins.token.tokval(), imp );
-    }
+    left.impref().set_member( ins.token.tokval(), &rightimpref );
     ValueStack.pop();
 }
 
@@ -1353,16 +1324,7 @@ void Executor::ins_set_member_id_consume( const Instruction& ins )
 
     BObjectImp& rightimpref = right.impref();
 
-    if (right.count() == 1 && rightimpref.count() == 1)
-    {
-        left.impref().set_member_id( ins.token.lval, &rightimpref );
-    }
-    else
-    {
-        BObjectImp* imp = rightimpref.copy();
-        BObject obj(imp);
-        left.impref().set_member_id( ins.token.lval, imp );
-    }
+    left.impref().set_member_id( ins.token.lval, &rightimpref );
     ValueStack.pop();
 }
 
@@ -1629,16 +1591,7 @@ void Executor::ins_array_assign( const Instruction& ins )
     BObject& x = *x_ref;
 
     BObjectImp* result;
-    
-
-    if (y.count() == 1)// && y_ref->count() == 1)
-    {
-        result = x->array_assign( i.impptr(), y.impptr() );
-    }
-    else
-    {
-        result = x->array_assign( i.impptr(), y->copy() );
-    }
+    result = x->array_assign( i.impptr(), y.impptr() );
     
     x_ref.set( new BObject(result) );
 }
@@ -1665,16 +1618,7 @@ void Executor::ins_array_assign_consume( const Instruction& ins )
     BObject& x = *x_ref;
 
     BObjectImp* result;
-    
-
-    if (y.count() == 1)// && y_ref->count() == 1)
-    {
-        result = x->array_assign( i.impptr(), y.impptr() );
-    }
-    else
-    {
-        result = x->array_assign( i.impptr(), y->copy() );
-    }
+    result = x->array_assign( i.impptr(), y.impptr() );
     
     BObject obj(result);
     ValueStack.pop();
