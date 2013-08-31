@@ -54,8 +54,8 @@ public:
     virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin=false );
     virtual BObjectRef get_member( const char* membername );
     virtual BObjectRef get_member_id( const int id ); ///id test
-    virtual BObjectRef set_member( const char* membername, BObjectImp* value );
-    virtual BObjectRef set_member_id( const int id, BObjectImp* value );//id test
+    virtual BObjectRef set_member( const char* membername, BObjectImp* value, bool copy );
+    virtual BObjectRef set_member_id( const int id, BObjectImp* value, bool copy );//id test
 
     virtual bool isTrue() const;
     virtual bool isEqual(const BObjectImp& objimp) const;
@@ -106,8 +106,8 @@ public:
     virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin=false );
     virtual BObjectRef get_member( const char* membername );
     virtual BObjectRef get_member_id( const int id ); //id test
-    virtual BObjectRef set_member( const char* membername, BObjectImp* value );
-    virtual BObjectRef set_member_id( const int id, BObjectImp* value ); //id test
+    virtual BObjectRef set_member( const char* membername, BObjectImp* value, bool copy );
+    virtual BObjectRef set_member_id( const int id, BObjectImp* value, bool copy ); //id test
 
     virtual bool isTrue() const;
     virtual bool isEqual(const BObjectImp& objimp) const;
@@ -130,8 +130,8 @@ public:
     virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin=false );
     virtual BObjectRef get_member( const char* membername );
     virtual BObjectRef get_member_id( const int id ); //id test
-    virtual BObjectRef set_member( const char* membername, BObjectImp* value );
-    virtual BObjectRef set_member_id( const int id, BObjectImp* value ); //id test
+    virtual BObjectRef set_member( const char* membername, BObjectImp* value, bool copy );
+    virtual BObjectRef set_member_id( const int id, BObjectImp* value, bool copy ); //id test
 
     virtual bool isTrue() const;
 	virtual bool isEqual(const BObjectImp& objimp) const;
@@ -151,8 +151,8 @@ public:
     virtual BObjectImp* copy() const;
     virtual BObjectRef get_member( const char* membername );
     virtual BObjectRef get_member_id( const int id ); //id test
-    virtual BObjectRef set_member( const char* membername, BObjectImp* value );
-    virtual BObjectRef set_member_id( const int id, BObjectImp* value ); //test id
+    virtual BObjectRef set_member( const char* membername, BObjectImp* value, bool copy );
+    virtual BObjectRef set_member_id( const int id, BObjectImp* value, bool copy ); //test id
     virtual bool isTrue() const;
 	virtual BObjectImp* call_method( const char* methodname, Executor& ex );
     virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin=false );
@@ -193,8 +193,8 @@ public:
 	virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin=false );
 	virtual BObjectRef get_member( const char* membername );
 	virtual BObjectRef get_member_id( const int id ); //id test
-	virtual BObjectRef set_member( const char* membername, BObjectImp* value );
-	virtual BObjectRef set_member_id( const int id, BObjectImp* value ); //id test
+	virtual BObjectRef set_member( const char* membername, BObjectImp* value, bool copy );
+	virtual BObjectRef set_member_id( const int id, BObjectImp* value, bool copy ); //id test
 
 	virtual bool isTrue() const;
 	virtual bool isEqual(const BObjectImp& objimp) const;

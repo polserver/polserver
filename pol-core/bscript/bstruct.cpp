@@ -198,10 +198,10 @@ size_t BStruct::mapcount() const
 }
 
 
-BObjectRef BStruct::set_member( const char* membername, BObjectImp* value )
+BObjectRef BStruct::set_member( const char* membername, BObjectImp* value, bool copy )
 {
     string key( membername );
-	BObjectImp* target = value->count()<1 ? value : value->copy();
+	BObjectImp* target = copy ? value->copy() : value;
     Contents::iterator itr = contents_.find( key );
     if (itr != contents_.end())
     {
@@ -275,11 +275,11 @@ BObjectRef BStruct::OperSubscript( const BObject& obj )
     }
 }
 
-BObjectImp* BStruct::array_assign( BObjectImp* idx, BObjectImp* target )
+BObjectImp* BStruct::array_assign( BObjectImp* idx, BObjectImp* target, bool copy )
 {
     if (idx->isa( OTString ))
     {
-		BObjectImp* new_target = target->count() < 1 ? target : target->copy();
+		BObjectImp* new_target = copy ? target->copy() : target;
 
         String* keystr = static_cast<String*>(idx);
 

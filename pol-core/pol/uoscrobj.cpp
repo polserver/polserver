@@ -148,7 +148,7 @@ BObjectRef ECharacterRefObjImp::get_member( const char* membername )
 		return BObjectRef(UninitObject::create());
 }
 
-BObjectRef ECharacterRefObjImp::set_member_id( const int id, BObjectImp* value )
+BObjectRef ECharacterRefObjImp::set_member_id( const int id, BObjectImp* value, bool copy )
 {
 	BObjectImp* result = NULL;
 	if (value->isa( BObjectImp::OTLong ))
@@ -172,11 +172,11 @@ BObjectRef ECharacterRefObjImp::set_member_id( const int id, BObjectImp* value )
 		return BObjectRef(UninitObject::create());
 }
 
-BObjectRef ECharacterRefObjImp::set_member( const char* membername, BObjectImp* value )
+BObjectRef ECharacterRefObjImp::set_member( const char* membername, BObjectImp* value, bool copy )
 {
 	ObjMember* objmember = getKnownObjMember(membername);
 	if ( objmember != NULL )
-		return this->set_member_id(objmember->id, value);
+		return this->set_member_id(objmember->id, value, copy);
 	else
 		return BObjectRef(UninitObject::create());
 }
@@ -327,7 +327,7 @@ BObjectRef EItemRefObjImp::get_member( const char* membername )
 		return BObjectRef(UninitObject::create());
 }
 
-BObjectRef EItemRefObjImp::set_member_id( const int id, BObjectImp* value )
+BObjectRef EItemRefObjImp::set_member_id( const int id, BObjectImp* value, bool copy )
 {
 	BObjectImp* result = NULL;
 	if (value->isa( BObjectImp::OTLong ))
@@ -351,11 +351,11 @@ BObjectRef EItemRefObjImp::set_member_id( const int id, BObjectImp* value )
 		return BObjectRef(UninitObject::create());
 }
 
-BObjectRef EItemRefObjImp::set_member( const char* membername, BObjectImp* value )
+BObjectRef EItemRefObjImp::set_member( const char* membername, BObjectImp* value, bool copy )
 {
 	ObjMember* objmember = getKnownObjMember(membername);
 	if ( objmember != NULL )
-		return this->set_member_id(objmember->id, value);
+		return this->set_member_id(objmember->id, value, copy);
 	else
 		return BObjectRef(UninitObject::create());
 }
@@ -487,7 +487,7 @@ BObjectRef EUBoatRefObjImp::get_member( const char* membername )
 		return BObjectRef(UninitObject::create());
 }
 
-BObjectRef EUBoatRefObjImp::set_member_id( const int id, BObjectImp* value )
+BObjectRef EUBoatRefObjImp::set_member_id( const int id, BObjectImp* value, bool copy )
 {
 	BObjectImp* result = NULL;
 	if (value->isa( BObjectImp::OTLong ))
@@ -511,11 +511,11 @@ BObjectRef EUBoatRefObjImp::set_member_id( const int id, BObjectImp* value )
 		return BObjectRef(UninitObject::create());
 }
 
-BObjectRef EUBoatRefObjImp::set_member( const char* membername, BObjectImp* value )
+BObjectRef EUBoatRefObjImp::set_member( const char* membername, BObjectImp* value, bool copy )
 {
 	ObjMember* objmember = getKnownObjMember(membername);
 	if ( objmember != NULL )
-		return this->set_member_id(objmember->id, value);
+		return this->set_member_id(objmember->id, value, copy);
 	else
 		return BObjectRef(UninitObject::create());
 }
@@ -650,7 +650,7 @@ BObjectRef EMultiRefObjImp::get_member( const char* membername )
 		return BObjectRef(UninitObject::create());
 }
 
-BObjectRef EMultiRefObjImp::set_member_id( const int id, BObjectImp* value )
+BObjectRef EMultiRefObjImp::set_member_id( const int id, BObjectImp* value, bool copy )
 {
 	BObjectImp* result = NULL;
 	if (value->isa( BObjectImp::OTLong ))
@@ -673,11 +673,11 @@ BObjectRef EMultiRefObjImp::set_member_id( const int id, BObjectImp* value )
 	else
 		return BObjectRef(UninitObject::create());
 }
-BObjectRef EMultiRefObjImp::set_member( const char* membername, BObjectImp* value )
+BObjectRef EMultiRefObjImp::set_member( const char* membername, BObjectImp* value, bool copy )
 {
 	ObjMember* objmember = getKnownObjMember(membername);
 	if ( objmember != NULL )
-		return this->set_member_id(objmember->id, value);
+		return this->set_member_id(objmember->id, value, copy);
 	else
 		return BObjectRef(UninitObject::create());
 }
@@ -3576,18 +3576,18 @@ BObjectRef EClientRefObjImp::get_member( const char* membername )
 		return BObjectRef(UninitObject::create());
 }
 
-BObjectRef EClientRefObjImp::set_member( const char* membername, BObjectImp* value )
+BObjectRef EClientRefObjImp::set_member( const char* membername, BObjectImp* value, bool copy )
 {
 	if ((obj_.ConstPtr() == NULL) || (!obj_->isConnected()))
 		return BObjectRef(new BError( "Client not ready or disconnected" ));
 	ObjMember* objmember = getKnownObjMember(membername);
 	if ( objmember != NULL )
-		return this->set_member_id(objmember->id, value);
+		return this->set_member_id(objmember->id, value, copy);
 	else
 		return BObjectRef(UninitObject::create());
 }
 
-BObjectRef EClientRefObjImp::set_member_id( const int id, BObjectImp* value )
+BObjectRef EClientRefObjImp::set_member_id( const int id, BObjectImp* value, bool copy )
 {
 	if ((obj_.ConstPtr() == NULL) || (!obj_->isConnected()))
 		return BObjectRef(new BError( "Client not ready or disconnected" ));
