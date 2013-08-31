@@ -1282,8 +1282,7 @@ void Executor::ins_set_member( const Instruction& ins )
     BObject& left = *leftref;
 
     BObjectImp& rightimpref = right.impref();
-
-    left.impref().set_member( ins.token.tokval(), &rightimpref );
+	left.impref().set_member( ins.token.tokval(), &rightimpref, !(right.count() == 1 && rightimpref.count() == 1) );
 }
 
 void Executor::ins_set_member_id( const Instruction& ins )
@@ -1296,7 +1295,7 @@ void Executor::ins_set_member_id( const Instruction& ins )
     BObject& left = *leftref;
 
     BObjectImp& rightimpref = right.impref();
-    left.impref().set_member_id( ins.token.lval, &rightimpref );
+    left.impref().set_member_id( ins.token.lval, &rightimpref,!(right.count() == 1 && rightimpref.count() == 1) );
 }
 
 void Executor::ins_set_member_consume( const Instruction& ins )
@@ -1309,7 +1308,7 @@ void Executor::ins_set_member_consume( const Instruction& ins )
     BObject& left = *leftref;
 
     BObjectImp& rightimpref = right.impref();
-    left.impref().set_member( ins.token.tokval(), &rightimpref );
+    left.impref().set_member( ins.token.tokval(), &rightimpref, !(right.count() == 1 && rightimpref.count() == 1) );
     ValueStack.pop();
 }
 
@@ -1324,7 +1323,7 @@ void Executor::ins_set_member_id_consume( const Instruction& ins )
 
     BObjectImp& rightimpref = right.impref();
 
-    left.impref().set_member_id( ins.token.lval, &rightimpref );
+    left.impref().set_member_id( ins.token.lval, &rightimpref, !(right.count() == 1 && rightimpref.count() == 1) );
     ValueStack.pop();
 }
 
@@ -1345,7 +1344,7 @@ void Executor::ins_set_member_id_consume_plusequal( const Instruction& ins )
 	if (!obj.isa(BObjectImp::OTUninit) && !obj.isa(BObjectImp::OTError)) // do nothing if curval is uninit or error
 	{
 		tmp->impref().operPlusEqual( obj , right.impref() );
-		leftimpref.set_member_id( ins.token.lval, &tmp->impref());
+		leftimpref.set_member_id( ins.token.lval, &tmp->impref(), false);
 	}
     ValueStack.pop();
 }
@@ -1367,7 +1366,7 @@ void Executor::ins_set_member_id_consume_minusequal( const Instruction& ins )
 	if (!obj.isa(BObjectImp::OTUninit) && !obj.isa(BObjectImp::OTError)) // do nothing if curval is uninit or error
 	{
 		tmp->impref().operMinusEqual( obj , right.impref() );
-		leftimpref.set_member_id( ins.token.lval, &tmp->impref());
+		leftimpref.set_member_id( ins.token.lval, &tmp->impref(),false);
 	}
 	ValueStack.pop();
 }
@@ -1389,7 +1388,7 @@ void Executor::ins_set_member_id_consume_timesequal( const Instruction& ins )
 	if (!obj.isa(BObjectImp::OTUninit) && !obj.isa(BObjectImp::OTError)) // do nothing if curval is uninit or error
 	{
 		tmp->impref().operTimesEqual( obj , right.impref() );
-		leftimpref.set_member_id( ins.token.lval, &tmp->impref());
+		leftimpref.set_member_id( ins.token.lval, &tmp->impref(), false);
 	}
 	ValueStack.pop();
 }
@@ -1411,7 +1410,7 @@ void Executor::ins_set_member_id_consume_divideequal( const Instruction& ins )
 	if (!obj.isa(BObjectImp::OTUninit) && !obj.isa(BObjectImp::OTError)) // do nothing if curval is uninit or error
 	{
 		tmp->impref().operDivideEqual( obj , right.impref() );
-		leftimpref.set_member_id( ins.token.lval, &tmp->impref());
+		leftimpref.set_member_id( ins.token.lval, &tmp->impref(), false);
 	}
 	ValueStack.pop();
 }
@@ -1433,7 +1432,7 @@ void Executor::ins_set_member_id_consume_modulusequal( const Instruction& ins )
 	if (!obj.isa(BObjectImp::OTUninit) && !obj.isa(BObjectImp::OTError)) // do nothing if curval is uninit or error
 	{
 		tmp->impref().operModulusEqual( obj , right.impref() );
-		leftimpref.set_member_id( ins.token.lval, &tmp->impref());
+		leftimpref.set_member_id( ins.token.lval, &tmp->impref(), false);
 	}
 	ValueStack.pop();
 }
@@ -1591,7 +1590,7 @@ void Executor::ins_array_assign( const Instruction& ins )
     BObject& x = *x_ref;
 
     BObjectImp* result;
-    result = x->array_assign( i.impptr(), y.impptr() );
+    result = x->array_assign( i.impptr(), y.impptr(),(y.count() != 1) );
     
     x_ref.set( new BObject(result) );
 }
@@ -1618,7 +1617,7 @@ void Executor::ins_array_assign_consume( const Instruction& ins )
     BObject& x = *x_ref;
 
     BObjectImp* result;
-    result = x->array_assign( i.impptr(), y.impptr() );
+    result = x->array_assign( i.impptr(), y.impptr(),(y.count()!=1) );
     
     BObject obj(result);
     ValueStack.pop();

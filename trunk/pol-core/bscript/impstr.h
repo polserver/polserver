@@ -117,7 +117,7 @@ class String : public BObjectImp
     void reverse();
     void unary_minus() { reverse(); }
 
-    virtual BObjectImp* array_assign( BObjectImp* idx, BObjectImp* target );
+    virtual BObjectImp* array_assign( BObjectImp* idx, BObjectImp* target, bool copy );
     int find(char *s, int *posn);
 
     virtual std::string getStringRep() const { return value_; }

@@ -53,12 +53,12 @@ protected:
     virtual BObjectRef OperSubscript( const BObject& obj );
     virtual BObjectImp* call_method( const char* methodname, Executor& ex );
     virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin=false );
-    virtual BObjectRef set_member( const char* membername, BObjectImp* value );
+    virtual BObjectRef set_member( const char* membername, BObjectImp* value, bool copy );
     virtual BObjectRef get_member( const char* membername );
     virtual BObjectRef operDotPlus( const char* name );
 	virtual BObjectRef operDotMinus( const char* name );
 	virtual BObjectRef operDotQMark( const char* name );
-    virtual BObjectImp* array_assign( BObjectImp* idx, BObjectImp* target );
+    virtual BObjectImp* array_assign( BObjectImp* idx, BObjectImp* target, bool copy );
 
     friend class BStructIterator;
 
