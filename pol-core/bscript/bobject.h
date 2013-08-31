@@ -299,10 +299,10 @@ public:
     
     virtual BObjectImp* call_method( const char* methodname, Executor& ex );
     virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin=false );
-    virtual BObjectRef set_member( const char* membername, BObjectImp* valueimp );
+    virtual BObjectRef set_member( const char* membername, BObjectImp* valueimp, bool copy );
     virtual BObjectRef get_member( const char* membername );
     virtual BObjectRef get_member_id( const int id ); //test id
-    virtual BObjectRef set_member_id( const int id, BObjectImp* valueimp ); //test id
+    virtual BObjectRef set_member_id( const int id, BObjectImp* valueimp, bool copy ); //test id
 
     virtual BObjectRef OperSubscript( const BObject& obj );
     virtual BObjectRef OperMultiSubscript( stack<BObjectRef>& indices );
@@ -311,7 +311,7 @@ public:
     virtual bool isTrue() const;
     virtual long contains( const BObjectImp& objimp ) const;
 
-    virtual BObjectImp* array_assign( BObjectImp* idx, BObjectImp* target );
+    virtual BObjectImp* array_assign( BObjectImp* idx, BObjectImp* target, bool copy );
     
     virtual BObjectImp* inverse() const;
 
@@ -517,7 +517,7 @@ public:
 
     virtual BObjectImp* call_method( const char* methodname, Executor& ex );
     virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin=false );
-    virtual BObjectRef set_member( const char* membername, BObjectImp* value );
+    virtual BObjectRef set_member( const char* membername, BObjectImp* value, bool copy );
     virtual BObjectRef get_member( const char* membername );
 
     void addElement( BObjectImp* imp );
@@ -527,7 +527,7 @@ public:
     virtual std::string getStringRep() const;
     virtual void printOn( std::ostream& os ) const;
 
-    virtual BObjectImp* array_assign( BObjectImp* idx, BObjectImp* target );
+    virtual BObjectImp* array_assign( BObjectImp* idx, BObjectImp* target, bool copy );
     virtual BObjectRef OperSubscript( const BObject& obj );
     virtual BObjectRef OperMultiSubscript( stack<BObjectRef>& indices );
 

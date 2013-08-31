@@ -262,7 +262,7 @@ bool BObjectImp::isGE( int val ) const
 	return false;
 }
 
-BObjectImp* BObjectImp::array_assign( BObjectImp* idx, BObjectImp* target )
+BObjectImp* BObjectImp::array_assign( BObjectImp* idx, BObjectImp* target, bool copy )
 {
 	return this;
 }
@@ -284,7 +284,7 @@ BObjectRef BObjectImp::OperMultiSubscriptAssign( stack<BObjectRef>& indices, BOb
 	indices.pop();
 	if (indices.empty())
 	{
-		BObjectImp* imp = array_assign( (*index).impptr(), target );
+		BObjectImp* imp = array_assign( (*index).impptr(), target, false );
 		return BObjectRef( imp );
 	}
 	else
@@ -859,8 +859,9 @@ BObjectImp* BObjectImp::call_method_id( const int id, Executor& ex, bool forcebu
 	os << "Method id '" << id << "' (" << getObjMethod(id)->code << ") not found";
 	return new BError( string(OSTRINGSTREAM_STR(os)) );
 }
-BObjectRef BObjectImp::set_member( const char* membername, BObjectImp* valueimp )
+BObjectRef BObjectImp::set_member( const char* membername, BObjectImp* valueimp, bool copy)
 {
+	(void) copy;
 	return BObjectRef( new BError( string("Member '") + membername + "' not found" ) );
 }
 BObjectRef BObjectImp::get_member( const char* membername )
@@ -873,11 +874,11 @@ BObjectRef BObjectImp::get_member_id( const int id )
 
 	return get_member(memb->code);
 }
-BObjectRef BObjectImp::set_member_id( const int id, BObjectImp* valueimp )
+BObjectRef BObjectImp::set_member_id( const int id, BObjectImp* valueimp, bool copy)
 {
 	ObjMember* memb = getObjMember(id);
 
-	return set_member(memb->code, valueimp);
+	return set_member(memb->code, valueimp, copy);
 }
 long BObjectImp::contains( const BObjectImp& imp ) const
 {
@@ -1049,7 +1050,7 @@ const BObjectImp* ObjArray::imp_at( unsigned index /* 1-based */ ) const
 	return ref.get()->impptr();
 }
 
-BObjectImp* ObjArray::array_assign( BObjectImp* idx, BObjectImp* target )
+BObjectImp* ObjArray::array_assign( BObjectImp* idx, BObjectImp* target, bool copy )
 {
 	if (idx->isa( OTLong ))
 	{
@@ -1064,7 +1065,7 @@ BObjectImp* ObjArray::array_assign( BObjectImp* idx, BObjectImp* target )
 		BObjectRef& ref = ref_arr[ index-1 ];
 		BObject* refobj = ref.get();
 
-		BObjectImp* new_target = target->count() < 1 ? target : target->copy();
+		BObjectImp* new_target = copy ? target->copy() : target;
 
 		if (refobj != NULL)
 		{
@@ -1302,7 +1303,7 @@ BObjectRef ObjArray::get_member( const char* membername )
 	 return BObjectRef( UninitObject::create() );
 }
 
-BObjectRef ObjArray::set_member( const char* membername, BObjectImp* valueimp )
+BObjectRef ObjArray::set_member( const char* membername, BObjectImp* valueimp, bool copy )
 {
 	int i = 0;
 	for( const_name_iterator itr = name_arr.begin(), end=name_arr.end();
@@ -1312,7 +1313,7 @@ BObjectRef ObjArray::set_member( const char* membername, BObjectImp* valueimp )
 		const string& name = (*itr);
 		if (stricmp( name.c_str(), membername ) == 0)
 		{
-			BObjectImp* target = valueimp->count()<1 ? valueimp : valueimp->copy();
+			BObjectImp* target = copy ? valueimp->copy() : valueimp;
 			ref_arr[i].get()->setimp( target );
 			return ref_arr[i];
 		}

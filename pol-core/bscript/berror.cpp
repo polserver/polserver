@@ -116,7 +116,7 @@ BObjectRef BError::OperSubscript( const BObject& obj )
     return BObjectRef( this );
 }
 
-BObjectImp* BError::array_assign( BObjectImp* /*idx*/, BObjectImp* /*target*/ )
+BObjectImp* BError::array_assign( BObjectImp* /*idx*/, BObjectImp* /*target*/, bool copy )
 {
     return this;
 }

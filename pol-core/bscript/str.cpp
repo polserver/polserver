@@ -401,8 +401,9 @@ void String::toLower( void )
 	}
 }
 
-BObjectImp* String::array_assign( BObjectImp* idx, BObjectImp* target )
+BObjectImp* String::array_assign( BObjectImp* idx, BObjectImp* target, bool copy )
 {
+	(void) copy;
     string::size_type pos, len;
 
     // first, determine position and length.

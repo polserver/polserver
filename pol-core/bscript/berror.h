@@ -29,7 +29,7 @@ protected:
     
     virtual BObjectImp* copy() const;
     virtual BObjectRef OperSubscript( const BObject& obj );
-    virtual BObjectImp* array_assign( BObjectImp* idx, BObjectImp* target );
+    virtual BObjectImp* array_assign( BObjectImp* idx, BObjectImp* target, bool copy );
 
     virtual char packtype() const;
     virtual const char* typetag() const;
