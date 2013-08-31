@@ -1,4 +1,7 @@
 ﻿-- POL099 --
+08-31-2013 Turley
+	Fixed: EScript memoryleak (eg myvar[blubb]:=othervar) 
+
 08-28-2013 Tomi ( based on andenixas patch )
     Added: ssopt.MobilesBlockNpcMovement ( default true ) to determine if mobiles block the movement of npcs
     Note:  Tamed npcs with same master ( npc.master ) still blocks each others movement even with the flag false to not allow them run on top of each others when following the master

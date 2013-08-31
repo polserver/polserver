@@ -1063,13 +1063,16 @@ BObjectImp* ObjArray::array_assign( BObjectImp* idx, BObjectImp* target )
 		
 		BObjectRef& ref = ref_arr[ index-1 ];
 		BObject* refobj = ref.get();
+
+		BObjectImp* new_target = target->count() < 1 ? target : target->copy();
+
 		if (refobj != NULL)
 		{
-			refobj->setimp( target );
+			refobj->setimp( new_target );
 		}
 		else
 		{
-			ref.set( new BObject( target ) );
+			ref.set( new BObject( new_target ) );
 		}
 		return ref->impptr();
 	}
@@ -1309,8 +1312,9 @@ BObjectRef ObjArray::set_member( const char* membername, BObjectImp* valueimp )
 		const string& name = (*itr);
 		if (stricmp( name.c_str(), membername ) == 0)
 		{
-		   ref_arr[i].get()->setimp( valueimp );
-		   return ref_arr[i];
+			BObjectImp* target = valueimp->count()<1 ? valueimp : valueimp->copy();
+			ref_arr[i].get()->setimp( target );
+			return ref_arr[i];
 		}
 	}
 	return BObjectRef( UninitObject::create() );
