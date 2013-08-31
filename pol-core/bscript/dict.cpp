@@ -151,17 +151,18 @@ size_t BDictionary::mapcount() const
 BObjectRef BDictionary::set_member( const char* membername, BObjectImp* value )
 {
     BObject key( new String(membername) );
+	BObjectImp* target = value->count()<1 ? value : value->copy();
 
     Contents::iterator itr = contents_.find( key );
     if (itr != contents_.end())
     {
         BObjectRef& oref = (*itr).second;
-        oref->setimp( value );
+        oref->setimp( target );
         return oref;
     }
     else
     {
-        BObjectRef ref( new BObject( value ) );
+        BObjectRef ref( new BObject( target ) );
         contents_[ key ] = ref;
         return ref;
     }
@@ -208,18 +209,20 @@ BObjectImp* BDictionary::array_assign( BObjectImp* idx, BObjectImp* target )
 {
     if (idx->isa( OTString ) || idx->isa( OTLong ) || idx->isa( OTDouble ) || idx->isa( OTApplicObj ))
     {
+		BObjectImp* new_target = target->count() < 1 ? target : target->copy();
+
         BObject obj( idx );
         Contents::iterator itr = contents_.find( obj );
         if (itr != contents_.end())
         {
             BObjectRef& oref = (*itr).second;
-            oref->setimp( target );
-            return target;
+            oref->setimp( new_target );
+            return new_target;
         }
         else
         {
-            contents_[ BObject(obj->copy()) ].set( new BObject( target ) );
-            return target;
+            contents_[ BObject(obj->copy()) ].set( new BObject( new_target ) );
+            return new_target;
         }
     }
     else
