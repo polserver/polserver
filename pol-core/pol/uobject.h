@@ -32,6 +32,7 @@ Notes
 
 #include "../clib/refptr.h"
 #include "proplist.h"
+#include <boost/any.hpp>
 
 class BObjectImp;
 class ConfigElem;
@@ -160,6 +161,23 @@ public:
     void getpropnames( std::vector< std::string >& propnames ) const;
 	const PropertyList& getprops() const;
 
+	template <class T>
+	T getmember( unsigned short member ) const
+	{
+		map<unsigned short,boost::any>::const_iterator itr = dynmap.find(member);
+
+		if ( itr == dynmap.end() )
+			return 0;
+		else
+			return boost::any_cast<T>((*itr).second);
+	};
+	template <class T>
+	void setmember( unsigned short member, T value )
+	{
+		dynmap[member] = value;
+	};
+
+
     bool orphan() const;
 
     virtual void destroy();
@@ -284,6 +302,7 @@ protected:
     std::string name_;
 private:
     PropertyList proplist_;
+	map<unsigned short, boost::any> dynmap;
 
 
 private: // not implemented:

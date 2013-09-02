@@ -16,6 +16,7 @@ Notes
 
 #include "../../bscript/bstruct.h"
 #include "../../bscript/impstr.h"
+#include "../../bscript/objmembers.h"
 
 #include "../../clib/cfgelem.h"
 #include "../../clib/endian.h"
@@ -96,17 +97,17 @@ void ArmorDesc::PopulateStruct( BStruct* descriptor ) const
 UArmor::UArmor( const ArmorDesc& descriptor, const ArmorDesc* permanent_descriptor ) :
 	Equipment( descriptor, CLASS_ARMOR ),
 	tmpl( permanent_descriptor ),
-	ar_mod_(0),
 	onhitscript_( descriptor.on_hit_script )
 {
 }
 
 unsigned short UArmor::ar() const
 {
+	short ar_mod = getmember<s16>(MBR_AR_MOD);
 	int ar = tmpl->ar * hp_ / maxhp();
-	if (ar_mod_ != 0)
+	if (ar_mod != 0)
 	{
-		ar += ar_mod_;
+		ar += ar_mod;
 	}
 
 	if (ar < 0)
@@ -125,7 +126,7 @@ bool UArmor::covers( unsigned short layer ) const
 Item* UArmor::clone() const
 {
 	UArmor* armor = static_cast<UArmor*>(base::clone());
-	armor->ar_mod_ = ar_mod_;
+	armor->setmember<s16>(MBR_AR_MOD, this->getmember<s16>(MBR_AR_MOD));
 	armor->onhitscript_ = onhitscript_;
 	armor->tmpl = tmpl;
 	return armor;
@@ -134,6 +135,7 @@ Item* UArmor::clone() const
 void UArmor::printProperties( ostream& os ) const
 {
 	base::printProperties( os );
+	short ar_mod_ = getmember<s16>(MBR_AR_MOD);
 	if (ar_mod_)
 		os << "\tAR_mod\t" << ar_mod_ << pf_endl;
 	if (! (onhitscript_ == tmpl->on_hit_script) )
@@ -143,7 +145,7 @@ void UArmor::printProperties( ostream& os ) const
 void UArmor::readProperties( ConfigElem& elem )
 {
 	base::readProperties( elem );
-	ar_mod_ = static_cast<short>(elem.remove_int( "AR_MOD", 0 ));
+	setmember<s16>(MBR_AR_MOD, static_cast<short>(elem.remove_int( "AR_MOD", 0 )));
 	set_onhitscript( elem.remove_string( "ONHITSCRIPT", "" ) );
 }
 
