@@ -55,7 +55,6 @@ public:
 
     virtual void destroy();
     void destroy_contents();
-
     typedef std::vector<Item*> Contents;
     typedef Contents::iterator iterator;
     typedef Contents::const_iterator const_iterator;
@@ -71,7 +70,6 @@ public:
 	virtual void add( Item *item ); // NOTE: points item->container to self on insertion
     void add_at_random_location( Item* item );
 	unsigned count() const;
-
 
     virtual unsigned int item_count() const;
     virtual unsigned int weight() const;
@@ -122,7 +120,12 @@ public:
     // TODO: rework these too.
     bool check_can_remove_script( Character* chr, Item* item, MoveType move = MT_PLAYER );
     void on_remove( Character* chr, Item* item, MoveType move = MT_PLAYER );
+	virtual void printProperties( std::ostream& os ) const;
     virtual void readProperties( ConfigElem& elem );
+    virtual class BObjectImp* get_script_member( const char* membername ) const;
+    virtual class BObjectImp* get_script_member_id( const int id ) const; ///id test
+    virtual class BObjectImp* set_script_member( const char* membername, int value );
+    virtual class BObjectImp* set_script_member_id( const int id, int value ); //id test
 
     bool can_insert_increase_stack( Character* mob, MoveType move, Item* existing_item, unsigned short amt_to_add, Item* adding_item );
     bool can_insert_add_item( Character* mob, MoveType move, Item* new_item );
@@ -149,6 +152,12 @@ public:
     const_iterator begin() const;
     iterator end();
     const_iterator end() const;
+
+	// Add max_items(), max_weight() and max_slots() functions to make the code more clear
+	unsigned short max_items() const;
+	unsigned short max_weight() const;
+	u8 max_slots() const;
+
 protected:
     Contents contents_;
     
