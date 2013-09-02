@@ -2698,7 +2698,56 @@ BObjectImp* ULockable::set_script_member_id( const int id, int value )
 		default: return NULL;
 	}
 }
+
 BObjectImp* ULockable::set_script_member( const char *membername, int value )
+{
+	ObjMember* objmember = getKnownObjMember(membername);
+	if ( objmember != NULL )
+		return this->set_script_member_id(objmember->id, value);
+	else
+		return NULL;
+}
+
+BObjectImp* UContainer::get_script_member_id( const int id ) const
+{
+	BObjectImp* imp = Item::get_script_member_id( id );
+	if (imp != NULL)
+		return imp;
+
+	switch(id)
+	{
+		case MBR_MAX_ITEMS_MOD: return new BLong( getmember<s16>(MBR_MAX_ITEMS_MOD)); break;
+		case MBR_MAX_WEIGHT_MOD: return new BLong( getmember<s16>(MBR_MAX_WEIGHT_MOD)); break;
+		case MBR_MAX_SLOTS_MOD: return new BLong( getmember<s8>(MBR_MAX_SLOTS_MOD)); break;
+		default: return NULL;
+	}
+}
+
+BObjectImp* UContainer::get_script_member( const char *membername ) const
+{
+	ObjMember* objmember = getKnownObjMember(membername);
+	if ( objmember != NULL )
+		return this->get_script_member_id(objmember->id);
+	else
+		return NULL;
+}
+
+BObjectImp* UContainer::set_script_member_id( const int id, int value )
+{
+	BObjectImp* imp = Item::set_script_member_id( id, value );
+	if (imp != NULL)
+		return imp;
+	switch(id)
+	{
+		case MBR_MAX_ITEMS_MOD: setmember<s16>(MBR_MAX_ITEMS_MOD, value); break;
+		case MBR_MAX_WEIGHT_MOD: setmember<s16>(MBR_MAX_WEIGHT_MOD, value); break;
+		case MBR_MAX_SLOTS_MOD: setmember<s16>(MBR_MAX_SLOTS_MOD, value ); break;
+		default: return NULL;
+	}
+	return new BLong( value );
+}
+
+BObjectImp* UContainer::set_script_member( const char *membername, int value )
 {
 	ObjMember* objmember = getKnownObjMember(membername);
 	if ( objmember != NULL )
@@ -3409,7 +3458,7 @@ BObjectImp* UArmor::get_script_member_id( const int id ) const
 
 	switch(id)
 	{
-		case MBR_AR_MOD: return new BLong(this->getmember<s16>(MBR_AR_MOD)); break;
+		case MBR_AR_MOD: return new BLong(getmember<s16>(MBR_AR_MOD)); break;
 		case MBR_AR: return new BLong( ar() ); break;
 		case MBR_AR_BASE: return new BLong( tmpl->ar ); break;
 		case MBR_ONHIT_SCRIPT: return new String( onhitscript_.relativename( tmpl->pkg ) ); break;
@@ -3456,7 +3505,7 @@ BObjectImp* UArmor::set_script_member_id( const int id, int value )
 	switch(id)
 	{
 		case MBR_AR_MOD:
-			this->setmember<s16>(MBR_AR_MOD, static_cast<short>(value));
+			setmember<s16>(MBR_AR_MOD, static_cast<short>(value));
 			if (container != NULL)
 			{
 				if (IsCharacter( container->serial ))

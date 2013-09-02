@@ -174,7 +174,10 @@ public:
 	template <class T>
 	void setmember( unsigned short member, T value )
 	{
-		dynmap[member] = value;
+		if ( value == 0 )
+			dynmap.erase(member);
+		else
+			dynmap[member] = value;
 	};
 
 
