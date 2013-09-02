@@ -1,4 +1,7 @@
 ﻿-- POL099 --
+09-02-2013 Tomi:
+    Added: Container RW members .max_items_mod( −32,768 to 32,767 ) .max_weight_mod( −32,768 to 32,767 ) and .max_slots_mod( −128 to 127 ) ( default values 0 )
+
 08-31-2013 Turley
 	Fixed: EScript memoryleak (eg myvar[blubb]:=othervar) 
 

@@ -27,6 +27,8 @@ Notes
 #include <limits.h>
 #include <stddef.h>
 
+#include "../bscript/objmembers.h"
+
 #include "../clib/endian.h"
 #include "../clib/cfgfile.h"
 #include "../clib/logfile.h"
@@ -82,6 +84,8 @@ void UContainer::destroy_contents()
         contents_.pop_back();
     }
 }
+
+
 void UContainer::destroy()
 {
     destroy_contents();
@@ -125,7 +129,7 @@ bool UContainer::can_add_bulk( int tli_diff, int item_count_diff, int weight_dif
 			if (contents_.size()+tli_diff >= MAX_SLOTS)
 				return false;
 			
-			if (contents_.size()+tli_diff >= desc.max_slots)
+			if (contents_.size()+tli_diff >= max_slots())
 				return false;
 		}
 
@@ -135,10 +139,10 @@ bool UContainer::can_add_bulk( int tli_diff, int item_count_diff, int weight_dif
         if (weight() + weight_diff > USHRT_MAX /* gcc...std::numeric_limits<unsigned short>::max()*/)
             return false;
 
-        if (desc.max_weight && (held_weight_ + weight_diff > desc.max_weight))
+        if ( held_weight_ + weight_diff > max_weight())
             return false;
 
-        if (desc.max_items && (held_item_count_ + item_count_diff > desc.max_items))
+        if (held_item_count_ + item_count_diff > max_items())
             return false;
 
         if (container != NULL)
@@ -173,7 +177,7 @@ bool UContainer::can_add_to_slot( u8& slotIndex )
 {
 	if (ssopt.use_slot_index)
 	{
-		if ( slotIndex > desc.max_slots)
+		if ( slotIndex > max_slots())
 			return false;
 
 		if ( is_slot_empty(slotIndex) )
@@ -247,15 +251,15 @@ bool UContainer::is_slot_empty(u8& slotIndex)
 
 bool UContainer::find_empty_slot(u8& slotIndex)
 {
-	if ( held_item_count_ >= desc.max_items )
+	if ( held_item_count_ >= max_items() )
 		return false;
 
-	if ( ssopt.default_max_slots >= held_item_count_ )
+	if ( held_item_count_ >= max_slots() )
 		return false;
 
 	bool slot_check = false;
 
-	for( u8 slot_location = 1; slot_location <= desc.max_items; ++slot_location )
+	for( u8 slot_location = 1; slot_location <= max_items(); ++slot_location )
 	{
 		for( Contents::const_iterator itr = contents_.begin(); itr != contents_.end(); ++itr )
 		{
@@ -870,9 +874,27 @@ bool UContainer::check_can_remove_script( Character* chr, Item* item, MoveType m
     }
 }
 
+void UContainer::printProperties( ostream& os ) const
+{
+	base::printProperties( os );
+	short max_items_mod = getmember<s16>(MBR_MAX_ITEMS_MOD);
+	short max_weight_mod = getmember<s16>(MBR_MAX_WEIGHT_MOD);
+	s8 max_slots_mod = getmember<s8>(MBR_MAX_SLOTS_MOD);
+
+	if ( max_items_mod )
+		os << "\tMax_Items_mod\t" << max_items_mod << pf_endl;
+	if ( max_weight_mod )
+		os << "\tMax_Weight_mod\t" << max_weight_mod << pf_endl;
+	if ( max_slots_mod )
+		os << "\tMax_Slots_mod\t" << max_slots_mod << pf_endl;
+}
+
 void UContainer::readProperties( ConfigElem& elem )
 {
     base::readProperties( elem );
+	setmember<s16>(MBR_MAX_ITEMS_MOD, static_cast<s16>(elem.remove_int("MAX_ITEMS_MOD", 0)));
+	setmember<s16>(MBR_MAX_WEIGHT_MOD, static_cast<s16>(elem.remove_int("MAX_WEIGHT_MOD", 0)));
+	setmember<s8>(MBR_MAX_SLOTS_MOD, static_cast<s8>(elem.remove_int("MAX_SLOTS_MOD", 0)));
 }
 
 unsigned int UContainer::find_sumof_objtype_noninuse( u32 objtype, u32 amtToGet, Contents& saveItemsTo, int flags ) const
@@ -907,6 +929,36 @@ unsigned int UContainer::find_sumof_objtype_noninuse( u32 objtype, u32 amtToGet,
 		}
     }
     return amt;
+}
+
+unsigned short UContainer::max_items() const
+{
+	unsigned short max_items = desc.max_items + getmember<s16>(MBR_MAX_ITEMS_MOD);
+
+	if ( max_items < 1 )
+		return 1;
+	else
+		return max_items;
+}
+
+unsigned short UContainer::max_weight() const
+{
+	unsigned short max_weight = desc.max_weight + getmember<s16>(MBR_MAX_WEIGHT_MOD);
+
+	if ( max_weight < 0 )
+		return 1;
+	else
+		return max_weight;
+}
+
+u8 UContainer::max_slots() const
+{
+	unsigned short max_slots = desc.max_slots + getmember<s8>(MBR_MAX_SLOTS_MOD);
+
+	if ( max_slots < 0 )
+		return 0;
+	else
+		return max_slots;
 }
 
 
