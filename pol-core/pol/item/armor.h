@@ -53,7 +53,6 @@ protected:
 
 private:
     const ArmorDesc* tmpl;
-    short ar_mod_;
     
     ScriptDef onhitscript_;
 };
