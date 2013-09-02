@@ -4,6 +4,13 @@ Development Changes - stuff that really doesn't belong in core-changes.txt
 Format:
 Date, Author, Files changed, Description of change
 ---
+2013-09-02 Tomi
+      Added Uobject->setmember<type>(member constant, value) and UObject->getmember<type>(member constant)
+            These are for adding dynamic rw members stored in a map and using memory only when needed
+	    These uses the constants from objmembers.h
+	    Return value of a member defaults to 0 when it does not exist
+            As an example UArmor .ar_mod is now changed to use this system
+
 2010-07-09 Nando
       Fixed: strncpy(dst,src,n) does not always null-terminate the string dst. (in ssopt_parse_totalstat())
 
