@@ -935,7 +935,9 @@ unsigned short UContainer::max_items() const
 {
 	unsigned short max_items = desc.max_items + getmember<s16>(MBR_MAX_ITEMS_MOD);
 
-	if ( max_items < 1 )
+	if ( max_items >= MAX_CONTAINER_ITEMS )
+		return MAX_CONTAINER_ITEMS;
+	else if ( max_items < 1 )
 		return 1;
 	else
 		return max_items;
@@ -945,7 +947,9 @@ unsigned short UContainer::max_weight() const
 {
 	unsigned short max_weight = desc.max_weight + getmember<s16>(MBR_MAX_WEIGHT_MOD);
 
-	if ( max_weight < 0 )
+	if ( max_weight >= USHRT_MAX )
+		return USHRT_MAX;
+	else if ( max_weight < 0 )
 		return 1;
 	else
 		return max_weight;
@@ -955,13 +959,13 @@ u8 UContainer::max_slots() const
 {
 	unsigned short max_slots = desc.max_slots + getmember<s8>(MBR_MAX_SLOTS_MOD);
 
-	if ( max_slots < 0 )
+	if ( max_slots >= MAX_SLOTS )
+		return  MAX_SLOTS;
+	else if ( max_slots < 0 )
 		return 0;
 	else
 		return max_slots;
 }
-
-
 
 WornItemsContainer::WornItemsContainer() : 
     UContainer( find_container_desc(extobj.wornitems_container)), 
