@@ -409,7 +409,7 @@ void Item::printProperties( ostream& os ) const
 	if (maxhp_mod)
 		os << "\tMaxHp_mod\t" << maxhp_mod << pf_endl;
 
-	os << "\Hp\t" << hp_ << pf_endl;
+	os << "\tHp\t" << hp_ << pf_endl;
 	os << "\tQuality\t" << quality_ << pf_endl;
 }
 
