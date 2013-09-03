@@ -94,8 +94,6 @@ private:
 
     const WeaponDesc* tmpl;
 
-    short dmg_mod_;
-
     ScriptDef hit_script_;
 };
 

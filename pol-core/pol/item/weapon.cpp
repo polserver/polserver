@@ -31,6 +31,7 @@ Notes
 
 #include "../../bscript/bstruct.h"
 #include "../../bscript/impstr.h"
+#include "../../bscript/objmembers.h"
 
 #include "../../plib/pkg.h"
 #include "../../plib/realm.h"
@@ -408,7 +409,6 @@ void unload_weapon_templates()
 UWeapon::UWeapon( const WeaponDesc& descriptor, const WeaponDesc* permanent_descriptor ) :
 	Equipment( descriptor, CLASS_WEAPON ),
 	tmpl( permanent_descriptor ),
-	dmg_mod_(0),
 	hit_script_( descriptor.hit_script )
 {
 }
@@ -434,7 +434,14 @@ UWeapon::~UWeapon()
 
 unsigned short UWeapon::speed() const
 {
-	return tmpl->speed;
+	unsigned short speed = tmpl->speed + getmember<s16>(MBR_SPEED_MOD);
+
+	if ( speed >= USHRT_MAX )
+		return USHRT_MAX;
+	else if ( speed < 0 )
+		return 0;
+	else
+		return speed;
 }
 
 unsigned short UWeapon::delay() const
@@ -444,7 +451,7 @@ unsigned short UWeapon::delay() const
 
 unsigned short UWeapon::damage_mod() const
 {
-	return this->dmg_mod_;
+	return getmember<s16>(MBR_DMG_MOD);
 }
 
 const Attribute& UWeapon::attribute() const
@@ -456,7 +463,7 @@ const Attribute& UWeapon::attribute() const
 unsigned short UWeapon::get_random_damage() const
 {
 	int dmg = int(tmpl->get_random_damage()) * hp_ / maxhp();
-	dmg += dmg_mod_;
+	dmg += getmember<s16>(MBR_DMG_MOD);
 	if (dmg < 0)
 		return 0;
 	else if (dmg <= USHRT_MAX)
@@ -549,16 +556,23 @@ bool UWeapon::in_range( const Character* wielder,
 Item* UWeapon::clone() const
 {
 	UWeapon* wpn = static_cast<UWeapon*>(base::clone());
-	wpn->dmg_mod_ = dmg_mod_;
 	wpn->hit_script_ = hit_script_;
+	wpn->setmember<s16>(MBR_DMG_MOD, this->getmember<s16>(MBR_DMG_MOD));
+	wpn->setmember<s16>(MBR_SPEED_MOD, this->getmember<s16>(MBR_SPEED_MOD));
 	return wpn;
 }
 
 void UWeapon::printProperties( ostream& os ) const
 {
 	base::printProperties( os );
-	if (dmg_mod_)
-		os << "\tdmg_mod\t" << dmg_mod_ << pf_endl;
+
+	short speed_mod = getmember<s16>(MBR_SPEED_MOD);
+	short dmg_mod = getmember<s16>(MBR_DMG_MOD);
+
+	if (dmg_mod)
+		os << "\tdmg_mod\t" << dmg_mod << pf_endl;
+	if (speed_mod)
+		os << "tspeed_mod\t" << speed_mod << pf_endl;
 	if (!(hit_script_ == tmpl->hit_script))
 		os << "\tHitScript\t" << hit_script_.relativename( tmpl->pkg ) << pf_endl;
 }
@@ -567,7 +581,8 @@ void UWeapon::readProperties( ConfigElem& elem )
 {
 	base::readProperties( elem );
 	
-	dmg_mod_ = static_cast<short>(elem.remove_int( "DMG_MOD", 0 ));
+	setmember<s16>(MBR_DMG_MOD, static_cast<short>(elem.remove_int( "DMG_MOD", 0 )));
+	setmember<s16>(MBR_SPEED_MOD, static_cast<s16>(elem.remove_int( "SPEED_MOD", 0 )));
 
 	// if the HITSCRIPT is not specified in the data file, keep the value from the template.
 	if (elem.has_prop( "HITSCRIPT" ))

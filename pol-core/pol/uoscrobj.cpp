@@ -2739,9 +2739,9 @@ BObjectImp* UContainer::set_script_member_id( const int id, int value )
 		return imp;
 	switch(id)
 	{
-		case MBR_MAX_ITEMS_MOD: setmember<s16>(MBR_MAX_ITEMS_MOD, value); break;
-		case MBR_MAX_WEIGHT_MOD: setmember<s16>(MBR_MAX_WEIGHT_MOD, value); break;
-		case MBR_MAX_SLOTS_MOD: setmember<s16>(MBR_MAX_SLOTS_MOD, value ); break;
+		case MBR_MAX_ITEMS_MOD: setmember<s16>(MBR_MAX_ITEMS_MOD, static_cast<short>(value)); break;
+		case MBR_MAX_WEIGHT_MOD: setmember<s16>(MBR_MAX_WEIGHT_MOD, static_cast<short>(value)); break;
+		case MBR_MAX_SLOTS_MOD: setmember<s16>(MBR_MAX_SLOTS_MOD, static_cast<short>(value)); break;
 		default: return NULL;
 	}
 	return new BLong( value );
@@ -3372,7 +3372,8 @@ BObjectImp* UWeapon::get_script_member_id( const int id ) const
 
 	switch(id)
 	{
-		case MBR_DMG_MOD: return new BLong( dmg_mod_ ); break;
+		case MBR_DMG_MOD: return new BLong( getmember<s16>(MBR_DMG_MOD) ); break;
+		case MBR_SPEED_MOD:	return new BLong( getmember<s16>(MBR_SPEED_MOD) ); break;
 		case MBR_ATTRIBUTE: return new String( attribute().name ); break;
 		case MBR_HITSCRIPT: return new String( hit_script_.relativename( tmpl->pkg ) ); break;
 		case MBR_INTRINSIC: return new BLong(is_intrinsic()); break;
@@ -3420,9 +3421,11 @@ BObjectImp* UWeapon::set_script_member_id( const int id, int value )
 
 	switch(id)
 	{
-		case MBR_DMG_MOD: return new BLong( dmg_mod_ = static_cast<short>(value) );
+		case MBR_DMG_MOD: setmember<s16>(MBR_DMG_MOD, static_cast<short>(value)); break;
+		case MBR_SPEED_MOD: setmember<s16>(MBR_SPEED_MOD, static_cast<short>(value)); break;
 		default: return NULL;
 	}
+	return new BLong( value );
 }
 
 BObjectImp* UWeapon::set_script_member( const char *membername, int value )
