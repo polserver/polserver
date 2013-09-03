@@ -1,0 +1,63 @@
+0: decl local #0
+1: array
+2: 1L
+3: +=
+4: 12L
+5: +=
+6: 3L
+7: +=
+8: 32L
+9: +=
+10: 57L
+11: +=
+12: :=
+13: #
+14: local #0
+15: initforeach @19
+16: local #1
+17: Func(1,0): print
+18: #
+19: stepforeach @16
+20: leave block(3)
+21: "deleting 3rd element"
+22: Func(1,0): print
+23: #
+24: local #0
+25: 3L
+26: Call Method erase (1 params)
+27: #
+28: local #0
+29: initforeach @33
+30: local #1
+31: Func(1,0): print
+32: #
+33: stepforeach @30
+34: leave block(3)
+35: "size: "
+36: local #0
+37: Call Method size (0 params)
+38: +
+39: Func(1,0): print
+40: #
+41: "deleting 4th element"
+42: Func(1,0): print
+43: #
+44: local #0
+45: 4L
+46: Call Method erase (1 params)
+47: #
+48: local #0
+49: initforeach @53
+50: local #1
+51: Func(1,0): print
+52: #
+53: stepforeach @50
+54: leave block(3)
+55: "size: "
+56: local #0
+57: Call Method size (0 params)
+58: +
+59: Func(1,0): print
+60: #
+61: leave block(1)
+62: progend

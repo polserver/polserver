@@ -1,0 +1,97 @@
+0: decl global #0
+1: array
+2: 5L
+3: +=
+4: 1.2LF
+5: +=
+6: 7L
+7: +=
+8: "hello world"
+9: +=
+10: :=
+11: #
+12: decl global #1
+13: "a4:i5r1.2i7S11:hello world"
+14: :=
+15: #
+16: global #0
+17: global #1
+18: makelocal
+19: jmp userfunc @22
+20: #
+21: progend
+22: pop param 'exrep'
+23: pop param 'obj'
+24: "Testing Pack for: "
+25: local #1
+26: +
+27: Func(1,0): print
+28: #
+29: "Expected representation: "
+30: local #0
+31: +
+32: Func(1,0): print
+33: #
+34: decl local #2
+35: local #1
+36: Func(0,0): Pack
+37: :=
+38: #
+39: "Result representation:   "
+40: local #2
+41: +
+42: Func(1,0): print
+43: #
+44: local #0
+45: local #2
+46: ==
+47: if false goto 52
+48: "Successful!"
+49: Func(1,0): print
+50: #
+51: goto57
+52: "Failure!"
+53: Func(1,0): print
+54: #
+55: 0L
+56: return
+57: decl local #3
+58: local #2
+59: Func(0,1): Unpack
+60: :=
+61: #
+62: "Unpacked: "
+63: local #3
+64: +
+65: Func(1,0): print
+66: #
+67: local #3
+68: local #1
+69: ==
+70: if false goto 75
+71: "Unpack matches!"
+72: Func(1,0): print
+73: #
+74: goto95
+75: "Unpack doesn't match!"
+76: Func(1,0): print
+77: #
+78: local #3
+79: Func(0,0): Pack
+80: local #2
+81: ==
+82: if false goto 87
+83: "repack does match, however."
+84: Func(1,0): print
+85: #
+86: goto93
+87: "repack is "
+88: local #3
+89: Func(0,0): Pack
+90: +
+91: Func(1,0): print
+92: #
+93: 0L
+94: return
+95: 1L
+96: return

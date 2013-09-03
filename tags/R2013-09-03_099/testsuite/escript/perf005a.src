@@ -1,0 +1,12 @@
+
+include "perf";
+
+setup();
+
+var x;
+
+foreach elem in arr
+    x := elem;
+endforeach
+
+print( "done" );

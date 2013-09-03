@@ -1,0 +1,19 @@
+// switch06
+// 
+
+var a array;
+a[1] := "hello";
+a[2] := "world";
+a[3] := "again";
+a[4] := "there";
+
+foreach elem in a
+    case( elem )
+        "world": continue;      // this should continue the FOREACH
+        "again": break;         // this should exit the CASE
+        default:  print( "case element: " + elem );
+    endcase
+
+    print( "element: " + elem );
+endforeach
+print( "done" );

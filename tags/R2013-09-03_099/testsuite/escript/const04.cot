@@ -1,0 +1,3 @@
+FOO is already a defined constant.
+Near: global FOO := 3;
+File: D:\ensprj\bscript\testsuite\const04.src, Line 4

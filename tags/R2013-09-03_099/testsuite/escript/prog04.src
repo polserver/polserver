@@ -1,0 +1,10 @@
+program foo( )
+    print( "hello world" );
+	
+    print( "bar: " + bar() );
+    return;
+endprogram
+
+function bar()
+    return "rab";
+endfunction

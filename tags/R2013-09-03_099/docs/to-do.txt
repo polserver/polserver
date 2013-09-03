@@ -1,0 +1,117 @@
+TO-DO before next release:
+==========================
+1. Linux: HTTP freeze http://groups.yahoo.com/group/pol-core-test/message/7138
+    (Approach: a separate thread that will watch a counter of the last time each thread passed its
+     game-lock checkpoint.  When no thread has obtained the lock for over 30 seconds, report
+     on their checkpoints.  This will tell which thread has the lock, and where it is)
+
+Other
+=====
+
+deal with NPC good/neutral/evil changing on npcdesc reload
+
+
+Planning
+========
+
+096 - Vestal Virgin
+    Syzygy
+        Look into what happens when an offline mobile is moved. (MoveCharacterToLocation)
+    Unknown
+        Full script interface to tip window? (blocking, a la gumps etc)
+        Admin login auto bumps timing-out characters (or ignores)
+    Syzygy
+        store 'gotten item' on a layer
+        Find memory leaks in ecompile
+        given item contianer objtype
+
+097 - The Coregina
+    Slogan
+	"POL - Providing mature development for 7 years...
+	 Not sure what happened after that though.. now the drinkers have it... "
+
+098 - BAW (Beer and Waffles)
+	    
+099 - BEER - (Break Everything Even Rudders)
+
+      Tomi: Add the two new Login Error reasons where needed.
+            Check all 0xA9 packet flags, make sure we have them all.
+            Implement packet 0x86 as it should be. Which client versions know this method?
+            Move CryptEngine from Client class to Client->Listener once objtype storage is redone and after boats redone.
+
+   MuadDib: Make sure all changes to color, graphic, etc are calling thier on_*_changed, to updated nearbly clients.
+            Finish up the "FIXME: Add Grid" fixes, to fully have slotted containers supported.
+	    Overload for send_remove_object() etc, for using with Character class. To reduce manual
+                 builds of the Delete packet. Centralize damnit :P
+ 
+     Nando: Find remaining Memory Leaks in Executor.
+            Find remaining Memory leaks in Config handling.
+            Add Disconnect bool for packet queue system for packets to auto disconnect a client after sent. Should help resolve issues where 
+                 clients get disconnected before final packets sent thus causing clients to hang. Also require a member to show awaiting disconnect.
+
+    Turley: Fix? Issue with timeout not working under linux cores (Inactivity timeout).
+ 
+    Austin:
+
+Unassigned: Combat.cfg handling rewrote to add syshook ability within like repsys.cfg
+            Look into Executor Instructions PC crashes. Could this be from a memory bug, where
+                something is overwriting memory like the old config and packetobj unicode leaks?
+	    Total rewrite of internal gump handling. Utilizing an internal map with the PID
+                as the key for reference. Storage can be done by reference to uoemod and the unique
+                ID (GumpID) for the script. This would also allow us to let the scripter pass a
+                GumpID for sending to the client. It optimizes the handling of gumps to scripts checks
+                and allows for v5+ clients with POL to open on the same position they was closed in last
+                by passing the same gump id as per OSI standards (scripter doing it).
+            Item.Quality needs implemented for AOS Elemental also like it is for AR. Right
+                now, cannot see how Quality affects ANYTHING except reporting maxhp member o_O
+            Rewrite SEND SKILLS (0x3A) message. (Should make a buffer instead of a big array of skills,
+                and just one packet struct instead of two.)
+            Cleanup spells.cpp, removing the client->chr->schedule_spell(spell) and replacing it with
+                spell->cast(client->chr). Clean the whole Spelltask class, as it's no longer used (it always
+                schedules for NOW). This includes the schedule_spell() method from Character class. For now,
+                they're only wasting space, memory and processing.
+            send_menu( Client *client, Menu *menu ) Just is terrible I think. Hard on the eyes. Need to redo this and the packet.
+            Character::move( unsigned char i_dir ) - Does this need to have on_facing_change() added to it? Answer and resolve
+            Review packet 0x66 to cleanup code if needed (including old code, that is commented out, blah).
+            Look at expanding regions to use XYZ XYZ instead of just XY XY
+            Split fileaccess code out from the filemod.cpp/h code.
+            Split guilds and guildmod code apart
+            Rewrite Privs system to use flags like UOFeatureEnable does. This allows to do away with Privs struct among other areas such as where
+                privs are stored as their named strings and full struct with bool. Should have a decent reaction to memory used. Especially 
+                when considering how many may use Invul on large shards with tons of Invul npcs.
+            Rewrite POL/Module code, to have a centralized Modules.cpp/h for the major assigning, and the actual Module code in the relative
+                cpp/h
+            Consolidate NPC Classed code to npc,cpp/h, instead of scattered around.
+            Consolidate NPC Template Handling to npctmplate files, like npc base code.
+	    Organize Module code files into a new project, with EM files located in a subfolder. Remember to update mkdist and linux files.
+	    Analyze all combat code to move into a centralized .cpp/.h for combat related only.
+	    Move existing servspecopt.cfg settings that are for CLIENT SPECIFIC STUFF to 
+	        uoclient.cfg system and make them client specific members populated at creation like StatCap already is!
+	    uoclient::listener::UOFeatureEnable, moved from ssopt::UOFeatureEnable. Client->UOFeatureEnable, to access uoclient setting.
+            Itemdesc::Container::Weightmod=None/Half/Double/Normal(default)    R/O
+                 None = Items give no weight
+                 Half = Items give half weight
+                 Double = Items give double weight
+                 Normal = Normal weight effect. Same as not using this entry at all.
+                     For this to be R/W, would have to trigger resending the weight information to people
+                     around it just as though something was inserted/removed etc. Would this be a pain in
+                     the ass to make r/w more than maxweight etc?
+            Rewrite of 0x11 Status Packet. To include all message types, and settable based on Client Feature Settings so the server
+                 automatically knows which kind of packet type to send for full system messages. Better handling this way, optimized,
+                 and better support for all client versions dynamically.
+
+
+
+        
+
+100 - MASS - (Midget Asian Strippers Survive!)
+Unassigned: Implement SQL Storage for accounts (optional). Save/Load handled to SQL as needed. During world save should we save a file copy? If they 
+                switch from file to SQL, there should be a way to switch back easily. Could always do a utility to read the SQL and export, and read
+                the file to import. Along with a base .sql file to build the db tables needed. Definately recommend including an additional SALT key
+                in the table as well. Configurable via the cfg file, but always read from the SQL table when used to do pass checks. This way, an 
+                admin can periodically change it if needed for new accounts/pass changes. This resolves any hardcoded salts in an Open Source.
+            Complete the Incremental Save system, with a few tweaks. This should be geared toward incremental/uobject changes to update SQL. 
+            Should we consider the move to pure SQL? If so, we could greatly reduce overhead using incremental load and saves with realtime use of the
+                SQL. Not loading characters, but reserving their serials, for example until they actually sign in. This can also be reversed to keep
+                serial reserved, but unload the character after full logout.
+        

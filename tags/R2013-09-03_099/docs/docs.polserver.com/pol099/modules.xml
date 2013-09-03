@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!DOCTYPE MODULES SYSTEM "modules.dtd">
+<MODULES>
+  <em name="attributesem" nice="Attribute"/>
+  <em name="basicem" nice="Basic"/>
+  <em name="boatem" nice="Boat"/>
+  <em name="cfgfileem" nice="CfgFile"/>
+  <em name="clilocem" nice="CliLoc"/>
+  <em name="datafileem" nice="DataFile"/>
+  <em name="fileem" nice="File"/>
+  <em name="guildsem" nice="Guild"/>
+  <em name="httpem" nice="Http"/>
+  <em name="mathem" nice="Math"/>
+  <em name="npcem" nice="Npc"/>
+  <em name="osem" nice="OS"/>
+  <em name="partyem" nice="Party"/>
+  <em name="polsysem" nice="PolSys"/>
+  <em name="storageem" nice="Storage"/>
+  <em name="unicodeem" nice="Unicode"/>
+  <em name="uoem" nice="UO"/>
+  <em name="utilem" nice="Util"/>
+  <em name="vitalsem" nice="Vitals"/>
+</MODULES>

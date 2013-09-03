@@ -1,0 +1,14 @@
+<!ELEMENT ESCRIPT (header,event*)>
+<!ELEMENT header (fname, hdesc, datemodified)>
+  <!ELEMENT fname (#PCDATA)>
+  <!ELEMENT hdesc (#PCDATA)>
+  <!ELEMENT datemodified (#PCDATA)>
+<!ELEMENT event (name, explain*, ID, member*, whensent, ranged)>
+  <!ELEMENT name (#PCDATA)>
+  <!ELEMENT explain (#PCDATA)>
+  <!ELEMENT ID (#PCDATA)>
+  <!ELEMENT member EMPTY>
+  <!ATTLIST  member mname CDATA #REQUIRED>
+  <!ATTLIST  member value CDATA #REQUIRED>
+  <!ELEMENT whensent (#PCDATA)>
+  <!ELEMENT ranged (#PCDATA)>

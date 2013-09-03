@@ -1,0 +1,11 @@
+AUTHORS
+TERM OF USE AGREEMENT
+*.user
+*.ncb
+*.zip
+*.txt
+*.bak
+*.doc
+\.svn\
+\CVS\
+\Debug\

@@ -1,0 +1,73 @@
+0: decl global #0
+1: "testvalue"
+2: :=
+3: #
+4: decl global #1
+5: "value2"
+6: :=
+7: #
+8: decl global #2
+9: "value"
+10: :=
+11: #
+12: global #1
+13: 1L
+14: [] 0
+15: 5L
+16: [] 1
+17: global #2
+18: ==
+19: if false goto 24
+20: "1: Success!"
+21: Func(1,0): print
+22: #
+23: goto27
+24: "1: Failure!"
+25: Func(1,0): print
+26: #
+27: global #2
+28: global #1
+29: 1L
+30: [] 0
+31: 5L
+32: [] 1
+33: ==
+34: if false goto 39
+35: "1: Success!"
+36: Func(1,0): print
+37: #
+38: goto42
+39: "1: Failure!"
+40: Func(1,0): print
+41: #
+42: global #1
+43: 1L
+44: [] 0
+45: 5L
+46: [] 1
+47: global #2
+48: <>
+49: if false goto 54
+50: "1: Failure!"
+51: Func(1,0): print
+52: #
+53: goto57
+54: "1: Success!"
+55: Func(1,0): print
+56: #
+57: global #2
+58: global #1
+59: 1L
+60: [] 0
+61: 5L
+62: [] 1
+63: <>
+64: if false goto 69
+65: "1: Failure!"
+66: Func(1,0): print
+67: #
+68: goto72
+69: "1: Success!"
+70: Func(1,0): print
+71: #
+72: progend

@@ -1,0 +1,15 @@
+program test()
+    
+    var b := {};
+    print( b );
+
+    b.append( "hello" );
+    print( b );
+    b.append( "goodbye" );
+    print( b );
+
+endprogram
+
+/**** Expected Output Begins: *****
+(no)
+*****  Expected Output Ends   ****/

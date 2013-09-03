@@ -1,0 +1,296 @@
+0xD7 AOS General Command
+-----------------------
+
+0x02 Backup
+BYTE cmd (0xD7)
+WORD size (0x0A)
+DWORD playerID
+WORD subcommand (0x02)
+BYTE unk (0x07)
+
+0x03 Restore
+BYTE cmd (0xD7)
+WORD size (0x0A)
+DWORD playerID
+WORD subcommand (0x03)
+BYTE unk (0x07)
+
+0x04 Commit
+BYTE cmd (0xD7)
+WORD size (0x0A)
+DWORD playerID
+WORD subcommand (0x04)
+BYTE unk (0x07)
+
+0x05 Erase
+(unknown: which 0 is floor number)
+BYTE cmd (0xD7)
+WORD size (0x1E)
+DWORD playerID
+WORD subcommand (0x05)
+BYTE unk 0x00
+BYTE unk 0x00
+BYTE unk 0x00
+WORD tileID
+BYTE unk 0x00
+DWORD x offset from multi object center
+BYTE unk 0x00
+DWORD y offset from multi object center
+BYTE unk 0x00
+DWORD z offset
+BYTE unk 0x07
+
+0x06 Add
+Current Floor is implied
+BYTE cmd (0xD7)
+WORD size (0x19)
+DWORD playerID
+WORD subcommand (0x06)
+BYTE unk 0x00
+BYTE unk 0x00
+BYTE unk 0x00
+WORD tileID
+BYTE unk 0x00
+DWORD x offset from multi object center
+BYTE unk 0x00
+DWORD y offset from multi object center
+BYTE unk 0x07
+
+0x0c Quit
+BYTE cmd (0xD7)
+WORD size (0x0A)
+DWORD playerID
+WORD subcommand (0x0C)
+BYTE unk (0x07)
+
+0x0d Add Multi
+Current Floor is implied
+BYTE cmd (0xD7)
+WORD size (0x19)
+DWORD playerID
+WORD subcommand (0x0D)
+BYTE unk 0x00
+BYTE unk 0x00
+BYTE unk 0x00
+WORD multiID
+BYTE unk 0x00
+DWORD x offset from multi object center
+BYTE unk 0x00
+DWORD y offset from multi object center
+BYTE unk 0x07
+
+0x0e Synch
+BYTE cmd (0xD7)
+WORD size (0x0A)
+DWORD playerID
+WORD subcommand (0x0E)
+BYTE unk (0x07)
+
+0x10 Clear
+BYTE cmd (0xD7)
+WORD size (0x0A)
+DWORD playerID
+WORD subcommand (0x10)
+BYTE unk (0x07)
+
+0x12 Select floor
+BYTE cmd (0xD7)
+WORD size (0x0F)
+DWORD playerID
+WORD subcommand (0x12)
+DWORD unk (0x00)
+BYTE floor number
+BYTE unk (0x07)
+
+0x1a Revert
+BYTE cmd (0xD7)
+WORD size (0x0A)
+DWORD playerID
+WORD subcommand (0x1a)
+BYTE unk (0x07)
+
+
+0xBF LBR general command related subcmds
+-----------------------
+
+0x1D Custom House Short (server->client)
+BYTE cmd (0xBF)
+WORD size (0xD)
+WORD subcmd (0x1D)
+DWORD houseserial
+DWORD revision
+
+0x1E Request Full Custom House (client->server)
+BYTE cmd (0xBF)
+WORD size (0x9)
+WORD subcmd (0x1E)
+DWORD houseserial
+
+0x20 De/Activate House Tool (server->client)
+BYTE cmd (0xBF)
+WORD size (0x11)
+WORD subcmd (0x20)
+DWORD houseserial
+BYTE mode (0x4 activate, 0x5 deactivate)
+WORD unk1 (0)
+DWORD unk2 (all FF)
+BYTE unk3 (FF)
+
+0xD8 Full CustomHouse 
+---------------------
+originally sent to LB (coder of lonewolf):
+
+...some details about compression in 0xD8.
+
+byte packetID = 0xD8;
+short length;
+byte compressionType = 0x03;
+byte unknown; // usually 0
+int serial; // serial of the house
+int revision; // design state revision--used to invalidate cache--incremented
+whenever content changes
+short numtiles;
+short bufferLength;
+byte[bufferLength] buffer;
+
+Here's the 'buffer' format and descriptions for type 3:
+
+byte planeCount;
+
+loop[planeCount]
+{
+   byte[4] header; // bitpacked: TTTTZZZZ UUUUUUUU LLLLLLLL UUUULLLL
+   byte[L] buffer;
+}
+
+The header is bitpacked as mentioned above, here's some clarification:
+
+T : numeric type value from 0-2, determines how to process 'buffer'
+Z : encoded Z offset value used in type 1 and 2, actual Z value translated from
+table below
+U : uncompressed length of 'buffer'
+L : compressed length of 'buffer'
+
+U and L are 12 bytes each. The last header byte hold the 4 MSBs.
+
+Translation table for encoded Z values: (<input: <output>)
+0: 0
+1: 7
+2: 27
+3: 47
+4: 67
+5: 7
+6: 27
+7: 47
+8: 67
+
+The 'buffer' field in the plane is compressed with a standard compression
+algorithm; deflate. You can use a library like zlib ( http://www.zlib.org/ ) to
+decompress(inflate).
+
+After we uncompress the buffer, there are three ways to process it's data,
+signaled by 'type' header field.
+
+
+Type 0:
+
+loop[buffer.length / 5]
+{
+   short itemiD;
+   sbyte x;
+   sbyte y;
+   sbyte z;
+}
+
+This type ignores the Z value encoded into the header.
+
+
+Type 1:
+
+loop[buffer.length / 4]
+{
+   short itemID;
+   sbyte x;
+   sbyte y;
+}
+
+Here the Z is fixed at what was specified in the header.
+
+
+Type 2:
+
+loop[buffer.length / 2]
+{
+   short itemID;
+}
+
+This is the most often used on OSI; and the most interesting. The X and Y
+position values are completely implied. It not only uses the Z specified in the
+header for the Z coordinate, but also for X/Y ranges. Here's how it works.
+
+In order to calculate proper positioning information, we must calculate offset
+and size values.
+
+For Z encoded 0, range={ 0, 0, width, height+1 };
+For Z encoded 1-4, range={ 1, 1, width-1, height-1 };
+For Z encoded 5-8, range={ 0, 0, width, height }:
+
+Z encoded 0 is the foundation; it contains both walls and front steps.
+Z encoded 1-4 are floors; smaller because they do not contain north and west
+walls
+Z encoded 5-8 are walls; must be larger to accomodate outer walls
+
+With this, all positioning information is implied:
+
+x = tileIndex / tileHeight;
+y = tileIndex % tileHeight;
+z = decodedHeaderZ;
+
+When a 'tile spot' is empty--has no tile there--itemID is 0.
+
+
+Sample uncompressed output:
+
+Dirt floor of an 11x11 house, Z encoded 1:
+
+31 F4 31 F4 31 F4 31 F4 31 F4 31 F4 31 F4 31 F4
+31 F4 31 F4 31 F4 31 F4 31 F4 31 F4 31 F4 31 F4
+31 F4 31 F4 31 F4 31 F4 31 F4 31 F4 31 F4 31 F4
+31 F4 31 F4 31 F4 31 F4 31 F4 31 F4 31 F4 31 F4
+31 F4 31 F4 31 F4 31 F4 31 F4 31 F4 31 F4 31 F4
+31 F4 31 F4 31 F4 31 F4 31 F4 31 F4 31 F4 31 F4
+31 F4 31 F4 31 F4 31 F4 31 F4 31 F4 31 F4 31 F4
+31 F4 31 F4 31 F4 31 F4 31 F4 31 F4 31 F4 31 F4
+31 F4 31 F4 31 F4 31 F4 31 F4 31 F4 31 F4 31 F4
+31 F4 31 F4 31 F4 31 F4 31 F4 31 F4 31 F4 31 F4
+31 F4 31 F4 31 F4 31 F4 31 F4 31 F4 31 F4 31 F4
+31 F4 31 F4 31 F4 31 F4 31 F4 31 F4 31 F4 31 F4
+31 F4 31 F4 31 F4 31 F4
+
+Tile 0x31F4: dirt
+
+There are 100 (10x10) itemIDs, not 121 (11x11), because floors do not contain
+north and west walls.
+
+
+Foundation of an 11x11 house, Z encoded 0:
+
+00 66 00 64 00 64 00 64 00 64 00 64 00 64 00 64
+00 64 00 64 00 64 00 00 00 63 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 63 07 51
+00 63 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 63 07 51 00 63 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 63 07 51
+00 63 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 63 07 51 00 63 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 63 07 51
+00 63 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 63 07 51 00 63 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 63 07 51
+00 63 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 63 07 51 00 63 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 63 07 51
+00 63 00 64 00 64 00 64 00 64 00 64 00 64 00 64
+00 64 00 64 00 65 07 51
+
+132 entries here: 11x12 (11x11 with steps)

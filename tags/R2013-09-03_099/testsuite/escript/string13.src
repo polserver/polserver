@@ -1,0 +1,8 @@
+// test modification of a substring after an assignment.
+
+var a := "testvalue";
+
+a["val"] := "hello";
+
+
+print(a);

@@ -1,0 +1,10 @@
+function foo( a, b,c,d )
+	return a*b+c*d;
+endfunction
+
+
+var a;
+
+a := foo( 2, 3.5, 6.7, 9 );
+
+print( "A=" + a );

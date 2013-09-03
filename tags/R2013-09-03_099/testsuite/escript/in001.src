@@ -1,0 +1,7 @@
+var a;
+
+if (5 in a)
+    print( "Failure!" );
+else
+    print( "Success!" );
+endif

@@ -1,0 +1,11 @@
+include "relops";
+
+var x := 1.0;
+var y := 2.0;
+
+compareTest( x, y );
+
+compareTest( 1,   2 );
+compareTest( 1,   2.0 );
+compareTest( 1.0, 2.0 );
+compareTest( 1.0, 2 );

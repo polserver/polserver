@@ -1,0 +1,1544 @@
+<?xml version='1.0' encoding="iso-8859-1"?>
+<?xml-stylesheet type="text/xsl" href="configfiles.xslt" ?>
+<!DOCTYPE ESCRIPT SYSTEM "configfiles.dtd">
+<ESCRIPT>
+<fileheader name="POL Configuration Files">
+    <subheader>This is a list of all the files that are read by or used by the Core. Any other files are used by user scripts and are not listed here.</subheader>
+    <desc>
+      <top>In the following config file explanations, some punctuation is used to show repetition, arbitrary values, and optional entries:</top>
+      <list>No punctuation: text must be the same verbatim.</list>
+      <list>enclosed in brackets [ ]: text is an optional entry.</list>
+      <list>enclosed in parenthesis ( ): text is an arbitrary value.</list>
+      <list>enclosed in curly braces { }: text is the default value.</list>
+      <list>elipsis ... : repeat entries are allowed.</list>
+      <bottom>This means the punctuation in these cases should NOT be in the actual config files used by POL, they only appear here for information purposes. Exception: curly braces { } are used to define an element in a config file. These must be present in the actual file.</bottom>
+    </desc>
+    <datemodified>02/25/2010</datemodified>
+</fileheader>
+<cfgfile name="attributes.cfg">
+    <location>Any Package</location>
+    <numberallowed>any</numberallowed>
+    <requiredtostart>Yes</requiredtostart>
+    <requiredby>Core</requiredby>
+    <purpose>Defines Attribute names and aliases</purpose>
+    <structure>
+Attribute (Attribute_Name)
+{
+    [Alias                      (Alias_Name)]...
+    [GetIntrinsicModFunction    (script_name:exported_func_name)]
+    [Delay                      (Skill Delay for skills with buttons on Skill Window)]
+    [Unhides                    (Unhides on skill use (0/1)]
+    [Script                     (Location of script for skills with buttons on Skill Window)]
+    [DefaultCap                 (cap in tenth of attribute {default ssopt:DefaultAttributeCap}]
+    [DisableCoreChecks          (0/1 {default 0}]
+}
+[Attribute...]
+</structure>
+    <explain>Attribute_Name defines the UNIQUE name for this attribute, like 'Cooking', 'Tactics', 'Strength', etc.</explain>
+    <explain>Aliases are optional and any number maybe be assigned for each attribute. This way 'STR' may be used in place of 'Strength'</explain>
+    <explain>At the LEAST, these attributes must be defined: 'Strength', 'Intelligence', 'Dexterity', 'Parry', and 'Tactics' for use in internal calculations.</explain>
+    <explain>GetIntrinsicModFunction returns a value between -30000 and +30000 that is added to the Attribute "base" value to obtain the "effective" value for the attribute. The function is called when UO.EM RecalVitals is called.</explain>
+    <explain>DisableCoreChecks if true the core will not check during skill_use ( from skillwindow ) for active skills,active spells, frozen, paralyzed or delay</explain>
+    <related>uoclient.cfg</related>
+    <related>vitals.cfg</related>
+    <related>servspecopt.cfg</related>
+</cfgfile>
+
+
+<cfgfile name="vitals.cfg">
+    <location>Any Package</location>
+    <numberallowed>any</numberallowed>
+    <requiredtostart>Yes</requiredtostart>
+    <requiredby>Core</requiredby>
+    <purpose>Defines Attribute names and aliases</purpose>
+    <structure>
+Vital (Vital_Name)
+{
+    RegenRateFunction   (string scriptname:exported_func_name)
+    MaximumFunction     (string scriptname:exported_func_name)
+    [Alias              (string Alias_Name)]...
+    [UnderflowFunction  (string scriptname:exported_func_name)]
+    [RegenWhileDead     (integer 0/1 {default 0})]
+}
+[Vital...]
+</structure>
+    <explain>Vital_Name defines the UNIQUE name for this vital, like 'Mana', 'Stamina', etc.</explain>
+    <explain>Aliases are optional and any number maybe be assigned for each vital. This way 'Hits' may be used in place of 'Life'</explain>
+    <explain>At the LEAST, these attributes must be defined: 'Life', 'Stamina', 'Mana' for use in internal calculations.</explain>
+    <explain>RegenRateFunction should return value from -30000 to 30000. Regen rates are in 'hundredths of points per minute.' A current regen rate of 100 (1 point per 5 seconds) would therefore be 1200 (12 points per minute)</explain>
+    <explain>MaximumFunction should return the maximum value for this vital, an integer in 'hundreths' between 100 and 10000000 (1-100,000)</explain>
+    <explain>UnderflowFunction not implimented.</explain>
+    <related>uoclient.cfg</related>
+    <related>attributes.cfg</related>
+</cfgfile>
+
+
+<cfgfile name="uoclient.cfg">
+    <location>Any Package</location>
+    <numberallowed>1</numberallowed>
+    <requiredtostart>Yes</requiredtostart>
+    <requiredby>Core</requiredby>
+    <purpose>Maps vital and attribute names onto UO Client idioms for character status.</purpose>
+    <structure>
+General
+{
+    Strength        (string Strength)
+    Intelligence    (string Intelligence)
+    Dexterity       (string Dexterity)
+
+    Hits            (string Life)
+    Mana            (string Mana)
+    Stamina         (string Stamina)
+    MaxSkillID      (integer maximum UO client skill ID)  
+    [MethodScript   (string scriptname)]  
+}
+Protocol
+{
+    #
+    # EnableFlowControlPackets: use the 0x33 (0x00 / 0x01) pause/restart packets.
+    # Though OSI seems to no longer send these packets, they seem to help with smoothness,
+    # particularly with boat movement.
+    # NOTE: causes clients 4.0.0e and newer to fail login
+    EnableFlowControlPackets    (integer 0/1)
+}
+Listener
+{
+    Port           (int port number 1024..65535)
+    Encryption     (string encryption type {default none})
+    AOSResistances (integer 0/1)
+}
+[Listener ...]
+
+</structure>
+    <explain>The right-hand-side "Strength", "Intelligence", and "Dexterity" are Attribute names that MUST be defined in attributes.cfg. </explain>
+    <explain>The right-hand-side "Life", "Mana", and "Stamina" are Vital names that MUST be defined in vitals.cfg.</explain>
+    <explain>MaxSkillID allows you to use new client skills, but setting it too high can crash older clients. You must define attributes.cfg/uoskills.cfg entries for each skillID up to MaxSkillID (default 57).</explain>
+    <explain>The Protocol and Listener sections are optional.</explain>
+    <explain>Each Listener section allows you to listen for different client encryption types on different ports. This means you can listen for "1.26.4" clients on port 5003 and "ignition" clients on port 5555. Valid encryption types are found in the pol.cfg section. If you use Listeners set ListenPort in pol.cfg to 0.</explain>
+    <explain>AOSResistances: This flag aids in deciding which version of Armor to send in the StatMsg packets. With this enabled, a client who uses an account with AOS Expansion enabled will see their Physical Resist instead of AR member.</explain>
+    <explain>MethodScript: General Methodscript for characters</explain>
+    <related>attributes.cfg</related>
+    <related>pol.cfg</related>
+    <related>uoskills.cfg</related>
+    <related>vitals.cfg</related>
+</cfgfile>
+
+
+<cfgfile name="uoconvert.cfg">
+    <location>root directory only</location>
+    <numberallowed>1</numberallowed>
+    <requiredtostart>Yes</requiredtostart>
+    <requiredby>UOConvert</requiredby>
+    <purpose>Defining what Multi IDs are what type (Boat, House, Stairs). Defining what Item IDs are Mounts. Configures options for UOConvert.</purpose>
+    <structure>
+#
+# UseNoShoot:         means uoconvert will determine whether or not something blocks LOS by use of
+#                     the NoShoot tiledata flag instead of the Blocking tiledata flag.
+# LOSThroughWindows:  only matters if UseNoShoot is 1. If LOSThroughWindows is 1, then
+#                     items marked as windows in tiledata will not impede LOS.
+#
+# Both of these options default to false. When UseNoShoot is false, the old method of
+# determining sight blocking as being equivalent to ability to pass will be used for LOS.
+#
+LOSOptions
+{
+    UseNoShoot        (integer 0/1)
+    LOSThroughWindows (integer 0/1)
+}
+
+#
+# MaxStaticsPerBlock:         max. Amount of Static Items per Block of 8x8x256
+#                             it is hard limited to 10000. default is 1000.
+#
+# WarningStaticsPerBlock:     max. Amount of Static Items per Block of 8x8x256 - just a Warning Level
+#                             it is hard limited to 10000. default is 1000.
+#
+# ShowIllegalGraphicWarning:  show warning if Static with illegal Graphic# found
+#                             0 or 1. default is 1.
+#
+StaticOptions
+{
+    MaxStaticsPerBlock        (int statics number 0..10000)
+    WarningStaticsPerBlock    (int statics number 0..10000)
+    ShowIllegalGraphicWarning (integer 0/1)
+}
+
+#
+# ShowRoofAndPlatformWarning: show warning if Roof and Platform Flag are used at same Tile
+#                             0 or 1. default is 1.
+#
+TileOptions
+{
+    ShowRoofAndPlatformWarning (integer 0/1)
+}
+
+MultiTypes
+{
+  Boats (int MultiID) [(int MultiID) ...]
+  
+  Houses (int MultiID) [(int MultiID) ...]
+  
+  Stairs (int MultiID) [(int MultiID) ...]
+}
+
+Mounts
+{
+  Tiles (int ItemID) [(int ItemID) ...]
+}
+</structure>
+    <explain>MultiIDs depends on your multi.mul/idx.</explain>
+    <explain>ItemIDs depends on your anim.mul and tiledata.mul.</explain>
+</cfgfile>
+
+
+<cfgfile name="uoskills.cfg">
+    <location>Any Package</location>
+    <numberallowed>any</numberallowed>
+    <requiredtostart>Yes</requiredtostart>
+    <requiredby>Core</requiredby>
+    <purpose>Maps Attribute names onto the UO Skill ID numbers.</purpose>
+    <structure>
+Skill (SkillID)
+{
+    Attribute   (Attribute_name)
+}
+Additional entries required up to maximum UO skill id
+</structure>
+    <explain>Attribute_name defines the Attribute associated with this UO Skill. Only one attribute may be mapped to a skill id. Attribute_name must be found in attributes.cfg!</explain>
+    <explain>SkillID must be an integer between 0 and 500, though any entries past the maximum UO skill id will not be sent to the UO client.</explain>
+    <related>uoclient.cfg</related>
+    <related>attributes.cfg</related>
+</cfgfile>
+
+
+<cfgfile name="watch.cfg">
+    <location>/config only</location>
+    <numberallowed>1</numberallowed>
+    <requiredtostart>No</requiredtostart>
+    <requiredby>Core</requiredby>
+    <purpose>Turns on certain spammy debugging messages.</purpose>
+    <structure>
+[Combat (0 or 1)]
+[ProfileScripts (0 or 1)]
+</structure>
+    <explain>If 'Combat 1' is in this file, information regarding combat damage, hits and misses, etc will be printed.</explain>
+    <explain>If 'ProfileScripts 1' is in this file, profiling information will be printed when any script exits.</explain>
+</cfgfile>
+
+<cfgfile name="syshook.cfg">
+    <location>Any package</location>
+    <numberallowed>any</numberallowed>
+    <requiredtostart>no</requiredtostart>
+    <requiredby>Core</requiredby>
+    <purpose>Defines the hook scripts to be called by the core at certain times.</purpose>
+    <structure>
+SystemHookScript (string script_name_with_ecl)
+{
+    (SyshookName) (string exported_func_name)
+}
+[SystemHookScript...]
+</structure>
+    <explain>Defines the script file and function to call for the core to call. The script should be in the same package as the syshook.cfg.</explain>
+    <explain>The script_name_with_ecl should define a 'program' which will be run on server start.</explain>
+    <explain>The exported_func_name should be defined with the 'exported' keyword.</explain>
+    <explain>The list of SyshookNames: CheckSkill, OpenSpellbook, GetBookPage, CombatAdvancement, ParryAdvancement, Attack, Pushthrough, SpeechMul, HitMiss, OnCast, CanDecay, Ouch, CanDie, UnHide</explain>
+</cfgfile>
+
+
+<cfgfile name="startloc.cfg">
+    <location>/config only</location>
+    <numberallowed>1</numberallowed>
+    <requiredtostart>yes</requiredtostart>
+    <requiredby>Core</requiredby>
+    <purpose>Defines the starting locations for new clients. They must be in this order to match the character creation screens in the UO client: Yew, Minoc, Britain, Moonglow, Trinsic, Magincia, Jhelom, Skara Brae, Vesper</purpose>
+    <structure>
+StartingLocation
+{
+    City        (string CityName)
+    Description (string Description)
+    Coordinate  (int x),(int y),(int z)
+}
+[StartingLocation...]
+</structure>
+    <explain>CityName and Description are sent to the client! no larger than 30 characters please.</explain>
+    <explain>x,y,z is where the character will be placed after created. You could set all the locations to the same coordinate to force players to start in one town.</explain>
+</cfgfile>
+
+
+<cfgfile name="spells.cfg">
+    <location>/config and/or any package</location>
+    <numberallowed>any</numberallowed>
+    <requiredtostart>No</requiredtostart>
+    <requiredby>Core</requiredby>
+    <requiredby>SpeakPowerWords()</requiredby>
+    <requiredby>ConsumeReagents()</requiredby>
+    <requiredby>StartSpellEffect()</requiredby>
+    <requiredby>GetSpellDifficulty()</requiredby>
+    <purpose>Defines the spells used by the UO Client</purpose>
+    <structure>
+Spell (int spellid)
+{
+    SpellID     (int spellid)
+    Name        (string name)
+    PowerWords  (string power words)
+    Script      (string script name)
+    Animation   (int casting animation ID)
+    [Circle     (int Circle number)]
+    [Reagent    (string item name)]...
+  
+    [Mana       (int manacost)]
+    [Difficulty (int difficulty)]
+    [PointValue (int skillbonus)]
+    [Delay      (int cast delay)]
+}
+[Spell...]
+</structure>
+    <explain>Script is in current package or searches through /scripts</explain>
+    <explain>Animation is less or equal to 0x22</explain>
+    <explain>If the Circle property is found, Mana,Difficulty,PointValue, and Delay is gathered from circles.cfg.</explain>
+    <explain>Reagent name corresponds to the "Name" property for the reagent's itemdesc.cfg entry.</explain>
+  <explain>SpellID: Magery = 1+, Necro = 101+, Paladin = 201+, Bushido = 401+, Ninjitsu = 501+, SpellWeaving = 601+. Sorry this is hardcoded :P</explain>
+    <related>itemdesc.cfg</related>
+    <related>circles.cfg</related>
+</cfgfile>
+
+<cfgfile name="servspecopt.cfg">
+    <location>/config only</location>
+    <numberallowed>1</numberallowed>
+    <requiredtostart>no</requiredtostart>
+    <requiredby>Core</requiredby>
+    <purpose>Defines certain "Server Specific Options" that shard admins can set. If the file 'servspecopt.local.cfg' exists, the entries will be used in that file instead (to keep changes from being destroyed if a new servspecopt.cfg is installed from, say, the official distribution)</purpose>
+    <structure>
+[AllowSecureTradingInWarMode    (0/1)]
+[DefaultDecayTime               (int minutes)]
+[DefaultDoubleclickRange        (int range)]
+[DefaultLightLevel              (int level)]
+[MovementUsesStamina            (0/1)]
+[TotalStatsAtCreation           (string see below)]
+[DefaultContainerMaxItems       (int 0-150)]
+[DefaultContainerMaxWeight      (int 0-65535)]
+[UOFeatureEnable                (int flags {default 0})]
+[MaxPathFindRange               (int distance {default 50})]
+[HiddenTurnsCount               (0/1 {default 1})]
+[ItemColorMask                  (int mask {default 0xfff})]
+[DecayItems                     (0/1 {default 1})]
+[UseTileFlagPrefix              (0/1 {default 1})]
+[UseWinLFH                      (0/1 {default 0})]
+[EventVisibilityCoreChecks      (0/1 {default 0})]
+[DoubleClickWait                (int seconds {default 0})]
+[InvulTag                       (0/1/2 {default 1})]
+[StartingGold                   (int {default 100})]
+[PrivacyPaperdoll               (0/1 {default 0})]
+[ForceNewObjCachePackets        (0/1 {default 0})]
+[AllowMovingTrade               (0/1 {default 0})]
+[CoreHandledLocks               (0/1 {default 0})]
+[DefaultAttributeCap            (int in tenths {default 1000})]
+[CoreSendsCaps                  (0/1 {default 0})]
+[SendStatLocks                  (0/1 {default 0})]
+[MaxContainerSlots              (int {default 125})]
+[UseContainerSlots              (0/1 {default 0})]
+[CarryingCapacityMod            (double {default 1.0})]
+[SpeechRange                    (int range {default 12})]
+[WhisperRange                   (int range {default 2})]
+[YellRange                      (int range {default 25})]
+[CoreSendsSeason                (0/1 {default 1})]
+[CoreHandledTags                (int bitfield {default 0xffff})]
+[SupportFaces                   (0/1/2 {default 0})]
+[SpeedhackPrevention            (0/1 {default 0})]
+</structure>
+  <explain><i>TotalStatsAtCreation:</i> takes a comma-delimited lists of values and/or ranges (default = '65,80'). Example: TotalStatsAtCreation=65,80,90-95,100-110</explain>
+  <explain><i>MovementUsesStamina:</i> if enabled stamina costs are defined in movecost.cfg</explain>
+  <explain><i>DefaultContainerMaxItems:</i> default is 125, DefaultContainerMaxWeight default is 250. itemdesc.cfg "MaxItems" and "MaxWeight" override these defaults.</explain>
+  <explain><i>UOFeatureEnable:</i> will be sent as the last DWORD flag in the 0xA9 login message. See 095+ package for values and warnings. Core will block Bit 6 (support up to 6 Chars). To enable AoS stuff set Bit 5 (use 0x20), to enable SE stuff set Bit 7 and 5 (use 0xa0) and to enable ML stuff set Bit 8, 7 and 5 (use 0x1a0).</explain>
+  <explain><i>HiddenTurnsCount:</i> will define whether or not turns made while hidden will count as a "move".</explain>
+  <explain><i>ItemColorMask:</i> is a bitmask of what colors should be considered valid. It was left a mask instead of given as a range in order to allow specifying certain bits to be on. So, for instance, with the newer clients, a mask of 0x4fff will allow the third bit (value 4) of the most significant nibble to be turned on, but no others in that nibble. Bear in mind, older clients may well crash if you set colors to be outside of the non-default mask of 0xfff.</explain>
+  <explain><i>UseTileFlagPrefix:</i> will control Core to prepend "a"/"an" according to tiles.cfg flags to formatted item names.</explain>
+  <explain><i>UseWinLFH:</i> will enable usage of Windows XP/2003 low-fragmentation Heap for better memory management.</explain>
+  <explain><i>EventVisibilityCoreChecks:</i> You have to do visibility checking by your Scripts if disabled or Core uses the old way.</explain>
+  <explain><i>DoubleClickWait:</i> Time that must pass before a player can double click something again.</explain>
+  <explain><i>InvulTag:</i> 0 Disables invul tags totally. 1 keeps them as they are now, giving [Invul] tag when single clicked. 2 will work only on 3.x+ clients, and makes the mob's highlight color Yellow with no [Invul] tag when single clicked. Only recommend using 2 if your shard requires a 3.x or higher client!</explain>
+  <explain><i>PrivacyPaperdoll:</i> If enabled Paperdoll gives only char name for others.</explain>
+  <explain><i>ForceNewObjCachePackets:</i> Forces to only send new ObjectCacheInfos for Tooltips (since 5.0.0)</explain>
+  <explain><i>AllowMovingTrade:</i>  0 Disables moving more than 4 tiles away with an open trade window, cancels trading window.</explain>
+  <explain><i>CoreHandledLocks:</i> If enabled, core will handle the change of skill locks and stat locks from the client (setting the attribute locks).</explain>
+  <explain><i>DefaultAttributeCap:</i> defines which value POL should use as cap for attributes.</explain>
+  <explain><i>CoreSendsCaps:</i> makes POL send attribute cap information in the Send Skills (0x3A) packet</explain>
+  <explain><i>SendStatLocks:</i> makes POL send stat lock message (Client version &gt; 3)</explain>
+  <explain><i>MaxContainerSlots:</i> This will allow setting the internal overall allowed item count for containers. This is introduced for future KR support.</explain>
+  <explain><i>UseContainerSlots:</i> check to can add bulk code to ensure not going over max slot capacity of 255 and a container's max slot capacity.</explain>
+  <explain><i>CarryingCapacityMod:</i> * modifier for mobile max_weight</explain>
+  <explain><i>SpeechRange:</i> definies the range of normal speech</explain>
+  <explain><i>WhisperRange:</i> definies the range of whispered speech</explain>
+  <explain><i>YellRange:</i> definies the range of yelled speech</explain>
+  <explain><i>CoreSendsSeason:</i> Determines if the core should send season packet on char creation/logon/reconnect and realm
+        change based on the season entry in realm.cfg</explain>
+  <explain><i>CoreHandledTags:</i> bitfield to determine which tags are displayed on singleclick, current used bits are:<br/>
+    0x1  [title_guild]<br/>
+    0x2  [frozen]<br/>
+    0x4  [paralyzed]<br/>
+    0x8  [squelched]<br/>
+    0x10 [deafened]</explain>
+  <explain><i>SupportFaces :</i> 0 disables faces support, 1 basic faces support, 2 roleplay faces (sets 0x2000 flag in 0xB9 packet) (KR/SA feature)</explain>
+  <explain><i>SpeedhackPrevention :</i> 1 activates the intern SpeedHackPrevention system</explain>
+  <related>movecost.cfg</related>
+  <related>repsys.cfg</related>
+</cfgfile>
+
+
+<cfgfile name="servers.cfg">
+    <location>/config only</location>
+    <numberallowed>1</numberallowed>
+    <requiredtostart>Yes</requiredtostart>
+    <requiredby>Core</requiredby>
+    <purpose>Defines the Game Servers the login server will forward clients to. Normally the game server and login server are the same machine on a POL shard, but you could run a minimal POL server to act as a login server for one or more game servers.</purpose>
+    <structure>
+GameServer
+{
+    Name       (string name of server)
+    IP         (string ip address, or --ip-- or --lan--, see below)
+    Port       (int TCP port number)
+    [IPMatch   (IPaddrr)/(netmask)]...
+    [AcctMatch (string account name)]...
+}
+[GameServer...]
+</structure>
+    <explain>IP address must match the address in the clients' login.cfg files. This means if your game server is on a LAN not accessable from the internet (doing port forwarding from a router), you must define this game server IP as your router's internet IP address.</explain>
+    <explain>--ip-- attempts to find your non-LAN, non-localhost IP address. If you have a multihomed server, this may behave strangely.</explain>
+    <explain>--lan-- attempts to find you non-routable LAN IP address, if any (i.e. '192.168.*.*' or '10.*.*.*').</explain>
+    <explain>Port is the listening port of the Game Server, not the login server (though they may be the same). See ListenPort in pol.cfg</explain>
+    <explain>Example IPMatch value: 192.168.0.0/255.255.255.0 would prevent anyone with an IP address other than 192.168.0.* from seeing the gameserver.</explain>
+    <explain>AcctMatch lines have one account name per line, and are those accounts to show the given server to on login to the 'login server'.</explain>
+    <related>movecost.cfg</related>
+    <related>pol.cfg</related>
+</cfgfile>
+
+
+<cfgfile name="repsys.cfg">
+    <location>/config only</location>
+    <numberallowed>1</numberallowed>
+    <requiredtostart>Yes</requiredtostart>
+    <requiredby>Core</requiredby>
+    <purpose>Defines coloring and timeouts for the reputation system.</purpose>
+    <structure>
+NameColoring
+{
+    Murderer        (int color 38 is red)
+    Criminal        (int color 905 is grey)
+    Attackable      (int color 905 is grey)
+    Innocent        (int color 90 is blue)
+    Invulnerable    (int color)
+    GuildAlly       (int color 68 is green)
+    GuildEnemy      (int color 44 is something)
+}
+
+General
+{
+    CriminalFlagInterval (int seconds)
+    AggressorFlagTimeout (int seconds)
+    PartyHelpFullCountsAsCriminal (1/0 default 0)
+}
+
+HookList
+{
+    NameColor      (string exported_func_name)
+    HighLightColor (string exported_func_name)
+    OnAttack       (string exported_func_name)
+    OnDamage       (string exported_func_name)
+    OnHelp         (string exported_func_name)
+}
+</structure>
+  <explain>NameColoring defines the single-click name colors for mobiles with various reputation states.</explain>
+  <explain>Repsys coloring for Invulnerable names will only occur when InvulTag in ServSpecOpt.cfg is set to 2.</explain>
+  <explain>HookList section is only needed if you wish to define repsys hooks.</explain>
+  <explain>HighLightColor function should be made as fast as possible, as it is called many times.</explain>
+  <explain>PartyHelpFullCountsAsCriminal defines if HelpFull action counts as criminal act on murderers/criminals if in same party</explain>
+  <related>servspecopt.cfg</related>
+</cfgfile>
+
+
+<cfgfile name="pkg.cfg">
+    <location>Any package</location>
+    <numberallowed>1 per package</numberallowed>
+    <requiredtostart>No</requiredtostart>
+    <requiredby>Core</requiredby>
+    <purpose>Package descriptor file. One is required for every package. It is read only on POL startup.</purpose>
+    <structure>
+Enabled       (0/1)
+Name          (string package name)
+Requires      (string package name) [(int version)] ...
+Replaces      (string package name) ...
+Conflicts     (string package name) ...
+[Version      (string version number)]
+[CoreRequired (int core version without leading 0, or full version string)]
+[ProvidesSystemHomePage (0/1)]
+
+[Maintainer   (string name)]
+[Email        (string email)]
+</structure>
+    <explain>Maintainer and Email aren't read by the core, but you should still include them in your own packages.</explain>
+    <explain>Requires and Replaces refer to other package names that relate to this packet. If a package is defined that is 'required' and is not found, or is not a new enough version, an error will be printed.</explain>
+    <explain>Version is normal version syntax, i.e 1.0, 2.3, 0.1.1.2, etc.</explain>
+    <explain>CoreVersion is the POL version that is required for the package to function. Values should be formed like 94 or 95, not 094 or 095.</explain>
+    <explain>Enabled 0 causes none of the scripts or configs in this package to be read</explain>
+    <explain>CoreRequired can take a full version string like "POL095-2003-02-01"</explain>
+    <explain>ProvidesSystemHomePage lets a SINGLE pkg to act as directory the root for the web server</explain>
+</cfgfile>
+
+
+<cfgfile name="pkgroots.cfg">
+    <location>/config only</location>
+    <numberallowed>1</numberallowed>
+    <requiredtostart>No</requiredtostart>
+    <requiredby>Core</requiredby>
+    <purpose>Defines the local file system paths to the root directories for packages. /pol/pkg is automatically checked. </purpose>
+    <structure>
+PackageRoot
+{
+    dir (string fully qualified path)
+    [dir...]
+}
+</structure>
+    <explain>If my path was D:\beer\morepol, then subdirectories of that path would be searched for packages along with /pol/pkg</explain>
+</cfgfile>
+
+
+<cfgfile name="multis.cfg">
+    <location>/config only</location>
+    <numberallowed>1</numberallowed>
+    <requiredtostart>Yes</requiredtostart>
+    <requiredby>Core</requiredby>
+    <purpose>Maps the UO 'MultiID' number with the graphic number for the multi.</purpose>
+    <structure>
+House (int multid)
+{
+    Graphic (int graphic)
+}
+[House...]
+
+Boat (int multid)
+{
+    (int graphic)
+}
+[Boat...]
+</structure>
+    <explain>Use InsideUO to get the MultiIDs. Multi Graphics start at 0x4000 and are equal to 0x4000 + MultiID.</explain>
+</cfgfile>
+
+
+<cfgfile name="movecost.cfg">
+    <location>/config only</location>
+    <numberallowed>1</numberallowed>
+    <requiredtostart>No</requiredtostart>
+    <requiredby>Core</requiredby>
+    <purpose>Defines the stamina cost to move based on percent maximum weight carried.</purpose>
+    <structure>
+MovementCost
+{
+    [(integer percent max carried)   (real multiplier for movement)]...
+    [Over                            (real multiplier for movement if over maximum)]
+}
+
+-or-
+
+Walking
+{
+    {same as above}
+}
+Running
+{
+    {same as above}
+}
+[Walking_Mounted
+{
+    {same as above}
+}]
+[Running_Mounted
+{
+    {same as above}
+}]
+</structure>
+    <explain>You can specify a number of percentage capacity lines, and values in between will be linearly interpolated. 'Over' defines cost if maximum carrying capacity was exceeded.</explain>
+    <explain>Maximum carrying capacity is determined as ((Strength * 7) / 2) + 40. The multiplier used will be the current weight/max capacity. This multiplier is multiplied by 8 to find the amount of stamina 'hundreths' to consume per move. So a multiplier of 10 will consume 0.8 of a stamina 'point' per move.</explain>
+    <explain>The 'MovementCost' section overrides both the 'Walking' and 'Running' sections if present. If you don't declare Mounted sections, Core will use unmounted values.</explain>
+    <explain>Used only of MovementUsesStamina=1 in servspecopt[.local].cfg</explain>
+    <related>servspecopt.cfg</related>
+</cfgfile>
+
+<cfgfile name="bannedips.cfg">
+    <location>/config only</location>
+    <numberallowed>1</numberallowed>
+    <requiredtostart>No</requiredtostart>
+    <requiredby>Core</requiredby>
+    <purpose>Defines IP address ranges that are not allowed to connect to the game server.</purpose>
+    <structure>
+BannedIP
+{
+    IPMatch (IPaddress)[/(netmask)]
+}
+[BannedIP...]
+</structure>
+    <explain>If netmask is not defined, the default is 255.255.255.255 (exact IP match).</explain>
+</cfgfile>
+
+
+<cfgfile name="auxsvc.cfg">
+    <location>Any Package</location>
+    <numberallowed>1</numberallowed>
+    <requiredtostart>No</requiredtostart>
+    <requiredby>Core</requiredby>
+    <purpose>Defines an Auxilliary Interface Service script in the current package.</purpose>
+    <structure>
+AuxService
+{
+    Port     (intger port)
+    Script   (string script filename)
+    [IPMatch (IPaddress)[/(netmask)]]
+}
+</structure>
+    <explain>Port is a different port than the gameserver uses. This will be the port your AUX interface external program uses to connect to the server.</explain>
+    <explain>Script is the script filename the core will call when it receives an AUX connection (the 'program' in the file will be called)</explain>
+    <explain>Example IPMatch value: 192.168.0.0/255.255.255.0 would prevent anyone with an IP address other than 192.168.0.* from connecting. The illegal ip will be treated by immediately closing the connection.</explain>
+</cfgfile>
+
+
+<cfgfile name="animxlate.cfg">
+    <location>/config only</location>
+    <numberallowed>1</numberallowed>
+    <requiredtostart>No</requiredtostart>
+    <requiredby>Core</requiredby>
+    <purpose>Defines the mappings for animation codes for standing and while on horseback.</purpose>
+    <structure>
+OnMount
+{
+    [(int normal animation) (int mounted animation)]...
+}
+</structure>
+</cfgfile>
+
+
+<cfgfile name="armrzone.cfg">
+    <location>/config only</location>
+    <numberallowed>1</numberallowed>
+    <requiredtostart>No</requiredtostart>
+    <requiredby>Core</requiredby>
+    <purpose>Defines armor zones for character layers, and chance to hit each zone.</purpose>
+    <structure>
+ArmorZone
+{
+    Name    (string zone name)
+    Chance  (int chance to hit)
+    [Layer  (int UO client layer)]...
+}
+[ArmorZone...]
+</structure>
+    <explain>Chance is a percent chance to hit this zone. I.e. 'Body' might be a 44 percent chance to hit, and 'Head' a 14 percent chance.</explain>
+    <explain>Layer is for the different equipped item layers the UO client uses. For example, items that are only equipped on the arms (like platemail arms) are layer 19. You may define multiple layers per zone.</explain>
+</cfgfile>
+
+<cfgfile name="combat.cfg">
+    <location>/config only</location>
+    <numberallowed>1</numberallowed>
+    <requiredtostart>No</requiredtostart>
+    <requiredby>Core</requiredby>
+    <purpose>Defines some combat-specific options.</purpose>
+    <structure>
+[DisplayParrySuccessMessages (0/1) {default 0})]
+[WarmodeInhibitsRegen        (0/1) {default 0})]
+[WarModeDelay                (int Seconds) {default 1})]
+[SingleCombat                (0/1 {default 0})]
+[CoreHitSounds               (0/1 {default 0})]
+[ScriptedAttackChecks        (0/1 {default 0})]
+[ResetSwingOnTurn            (0/1 {default 0})]
+[SendSwingPacket             (0/1 {default 1})]
+[SendDamagePacket            (0/1 {default 0})]
+[AttackWhileFrozen           (0/1 {default 1})]
+</structure>
+    <explain><i>WarModeDelay:</i> is a delay between ability to toggle war mode status via client. Does not affect using SetWarMode method.</explain>
+    <explain><i>SingleCombat:</i> allows players to attack themselves.</explain>
+    <explain><i>CoreHitSounds:</i> If enabled, the core handles sending sounds for hit on combat. When mobile hit is an NPC, it uses the NPC's DamagedSound from the NPCTemplate. If disabled, scripts must handle this.</explain>
+    <explain><i>ScriptedAttackChecks:</i> If enabled, the combat hook must check distance, line of sight, visibility, and if both combatants are alive.</explain>
+    <explain><i>ResetSwingOnTurn:</i> Should SwingTimer be reset with projectile weapon on facing change</explain>
+    <explain><i>SendSwingPacket:</i> Should packet 0x2F be send on swing.</explain>
+    <explain><i>SendDamagePacket:</i> Should 0xB (0xBF sub 0x22 for clients&lt;4.0.7a) be send on damage</explain>
+    <explain><i>AttackWhileFrozen:</i> if set to false attack checks if chr is frozen or paralyzed</explain>
+</cfgfile>
+
+<cfgfile name="equip.cfg">
+    <location>/config only</location>
+    <numberallowed>1</numberallowed>
+    <requiredtostart>No</requiredtostart>
+    <requiredby>Core, on behalf of UO::EquipFromTemplate</requiredby>
+    <purpose>Defines default outfit templates, usually for NPCs, using EquipFromTemplate(character,templatename).</purpose>
+    <structure>
+Equipment (templatename)
+{
+    [Armor  (item name or objtype) [(color)]]
+    [Weapon (item name or objtype) [(color)]]
+    [Equip  (item name or objtype) [(color)]]
+}
+[Equipment...]
+</structure>
+    <explain>Note 'Armor', 'Weapon', and 'Equip' are all equvilent, they no longer hold any seperate meaning.</explain>
+    <explain>Careful with comment lines in this file, they might cause problems.</explain>
+</cfgfile>
+
+
+<cfgfile name="console.cfg">
+    <location>/config only</location>
+    <numberallowed>1</numberallowed>
+    <requiredtostart>No</requiredtostart>
+    <requiredby>Core</requiredby>
+    <purpose>Configures command characters that activate scripts when typed on the POL console.</purpose>
+    <structure>
+Commands
+{
+    [CMD  (letter)  (script) [(description}]]
+    [CMD...]
+}
+</structure>
+    <explain>'letter' is case sensative, so 'a' can run a different script than 'A'. And '^A' is activated with CTRL-A</explain>
+    <explain>'script' must be placed in /scripts/console.</explain>
+    <explain>'?' is the help command - it prints the descriptions of all the other console commands.</explain>
+    <explain>The number keys (0-9) are reserved for the shutdown scripts (after a certain delay)</explain>
+    <explain>'^C' (CTRL-C) is reserved for immediate core shutdown.</explain>
+    <explain>There are three special command script names: [lock] locks the console, no further console commands may be entered. [unlock] unlocks the console from the locked state, and [lock/unlock] toggles the lock status of the console.</explain>
+    <explain>Reloadable with ReloadConfiguration() (polsys.em) or SIGHUP under linux</explain>
+</cfgfile>
+
+
+<cfgfile name="cmds.cfg">
+    <location>/config only</location>
+    <numberallowed>1</numberallowed>
+    <requiredtostart>Yes</requiredtostart>
+    <requiredby>Core</requiredby>
+    <purpose>Configures the command level heirarchy for the server.</purpose>
+    <structure>
+CmdLevel (cmdlevel name)
+{
+    DIR   (string path to this cmdlevel's textcmd directory)
+    [DIR...]
+    Alias (string alias name for this cmdlevel)
+    [Alias...]
+}
+[CmdLevel...] {each successive element is one level higher than the last}
+</structure>
+    <explain>Command levels are defined in increasing order of power. Command level 'numbers' will be assigned automatically from this file.</explain>
+    <explain>If you change the cmdlevel names from player/coun/seer/gm/admin/test, it is recommended you define 'Alias' lines to associate these basic cmdlevels with your custom cmdlevels. This way, package cmds.cfg files will place their commands into your command structure.</explain>
+    <explain>Additional DIR properties allow you to specify additional commands in packages, just set your path to i.e. /pkg/mypkg/textcmd/admin .</explain>
+</cfgfile>
+
+
+<cfgfile name="circles.cfg">
+    <location>/config only</location>
+    <numberallowed>1</numberallowed>
+    <requiredtostart>No</requiredtostart>
+    <requiredby>Core</requiredby>
+    <purpose>Configures the 'spell circles', groups of increasing power spells.</purpose>
+    <structure>
+Circle (int number)
+{
+    Mana        (int manacost)
+    Difficulty  (int spell difficulty)
+    PointValue  (int skill gain value)
+    Delay       (int second casting delay)
+}
+[Circle...]
+</structure>
+    <explain>This file used to determine mana, skill gain, etc. for each group of spells, but it's probably obselete now.</explain>
+</cfgfile>
+
+
+<cfgfile name="menus.cfg">
+    <location>/config only</location>
+    <numberallowed>1</numberallowed>
+    <requiredtostart>Yes</requiredtostart>
+    <requiredby>Core</requiredby>
+    <requiredby>SelectMenuItem2()</requiredby>
+    <purpose>Configures old-style static menus for client selection (i.e. tailoring, fletching, etc.)</purpose>
+    <structure>
+ItemMenu
+{
+    Name        (string unique name)
+    Title       (string title to show on menu)
+    Entry       (objtype number to show)   (string description)
+    [Entry...]
+    [SubMenu    (string menuname) (objtype number to show)    (Description Of SubMenu)]
+    [SubMenu...]
+}
+[ItemMenu...]
+</structure>
+    <explain>The 'Name' property must exactly match with the 'SubMenu' menuname for the submenu element.</explain>
+    <explain>Static menus in this file are used with UO::SelectMenuItem2()</explain>
+</cfgfile>
+
+
+<cfgfile name="pol.cfg">
+    <location>root directory only</location>
+    <numberallowed>1</numberallowed>
+    <requiredtostart>Yes</requiredtostart>
+    <requiredby>Core</requiredby>
+    <purpose>Configures many critical options for the POL server.</purpose>
+    <structure>
+UoDataFileRoot=(path to UO MUL files)
+WorldDataPath=(path to POL Data files {default data/})
+RealmDataPath=(path to POL Realm files {default realm/})
+[ListenPort=(integer TCP port)]
+[ClientEncryptionVersion=(string {default none})]
+[CountResourceTiles=(1/0 {default 1}]
+[Multithread=(1/0 {default 0})]
+[WebServer=(1/0 {default 0})]
+[WebServerPort=(int port {default 8080})]
+[IgnoreLoadErrors=(1/0 {default 0})]
+[DebugPort=(int port {default 0})]
+
+[Verbose=(1/0 {default 0})]
+[LogLevel=(int level {default 0})]
+[SelectTimeout=(int {default 10})]
+[WatchRpm=(1/0 {default 0})]
+[WatchSysLoad=(1/0 {default 0})]
+[WatchMapCache=(1/0 {default 0})]
+[LogSysLoad=(1/0 {default 0})]
+[InhibitSaves=(1/0 {default 0})]
+[LogScriptCycles=(1/0 {default 0})]
+[WebServerLocalOnly=(1/0 {default 1})]
+[WebServerDebug=(1/0 {default 0})]
+[WebServerPassword=(string {default empty})]
+[CacheInteractiveScripts=(1/0 {default 1})]
+[ShowSpeechColors=(1/0 {default 0})]
+[RequireSpellbooks=(1/0 {default 1})]
+[EnableSecureTrading=(1/0 {default 0})]
+[RunawayScriptThreshold=(long {default 5000})]
+[InactivityWarningTimeout=(int minutes {default 4})]
+[InactivityDisconnectTimeout=(int minutes {default 5})]
+[MinCmdlevelToLogin=(int level {default 0})]
+[MinCmdLvlToIgnoreInactivity=(int level {default 1})]
+[MaxCallDepth=(int depth {default 100})]
+[EnableAssertions=(1/0 {default 1})]
+[DumpStackOnAssertionFailure=(1/0 {default 0})]
+[DisplayUnknownPackets=(1/0 {default 0})]
+[ExpLosChecksMap=(1/0 {default 1})]
+[EnableDebugLog=(1/0 {default 0})]
+[ReportMissingConfigs=(1/0 {default 1})]
+[DebugPassword=(string {default empty})]
+[DebugLocalOnly=(1/0 {default 1})]
+[DebugLevel=(int level {default 0})]
+[ReportRunToCompletionScripts=(1/0 {default 1})]
+[ReportCriticalScripts=(1/0 {default 1})]
+[MaximumClients=(int {default 300})]
+[MaximumClientsBypassCmdLevel=(int cmdlevel {default 1})]
+[CharacterSlots=(int {default 5})]
+[MiniDumpType=(string small/large/variable {default variable})]
+[RetainCleartextPasswords=(1/0 {default 0})]
+[AssertionFailureAction=(abort/continue/shutdown/shutdown-nosave {default abort})]
+[TimestampEveryLine=(1/0 {default 0})]
+[MaxTileID=(0x3FFF/0x7FFF {default 0x3FFF})]
+[DiscardOldEvents=(1/0 {default 0})]
+</structure>
+    <explain>Your own pol.cfg should give descriptions on most of these. I'll describe them here if people want me to.</explain>
+    ignition = uorice = none, 2.0.0x and due to autocalculation major.minor.build (no patch)
+            e.g. 7.0.4 for latest client 7.0.4.1
+            default for both is "none"
+    <explain>Clarification: for ClientEncryptionVersion, the allowable values are 'major.minor.build', '2.0.0x', 'ignition', 'uorice', and 'none'. Here, 'ignition', 'uorice', and 'none' all mean 'no encryption'.</explain>
+    <explain>Due to autocalculation 'major.minor.build' means setting a listener for client 7.0.4.1 '7.0.4' (no patch)</explain>
+    <explain>ListenPort is now optional, use uoclient.cfg Listener sections to define listening ports.</explain>
+    <explain>AssertionFailureAction options: abort: (like old behavior) aborts immediately, without saving data. continue: allows execution to continue. shutdown: attempts graceful shutdown. shutdown-nosave: attempts graceful shutdown, without saving data. If the assertion occurred during execution of a script, either 'shutdown', 'shutdown-nosave', or 'continue' will abort that script, displaying the script name and PC.</explain>
+    <explain>Hint: LogLevel can be used to debug issues at startup of POL and various other places (unloadall for example). By setting this higher than 1, up to 11 (just sounds good), it will force printing of better information to help you find out problems during Loading and such. Setting it for example, above 0, core will start spitting out "Checkpoint" data during startup to say what it is about to load/process. Such as the configuration, load realms, load multis, etc etc.</explain>
+    <explain>DiscardOldEvents: if set instead of discarding new event if queue is full it discards oldest event and adds the new event</explain>
+</cfgfile>
+
+<cfgfile name="ecompile.cfg">
+    <location>same directory as ecompile.exe only</location>
+    <numberallowed>1</numberallowed>
+    <requiredtostart>No</requiredtostart>
+    <requiredby>ecompile</requiredby>
+    <purpose>Configures module, include, and package paths for compiling.</purpose>
+    <structure>
+ModuleDirectory (path to .em files)
+IncludeDirectory (path to parent dir of non-packaged includes)
+PolScriptRoot (path to non-packaged scripts)
+PackageRoot (path to package root)
+[PackageRoot...]
+[GenerateListing (0/1 {default 0})]
+[GenerateDebugInfo  (0/1 {default 0})]
+[GenerateDebugTextInfo (0/1 {default 0})]
+[DisplayWarnings (0/1 {default 0})]           //same as -w flag
+[CompileAspPages (0/1 {default 0})]           //same as -a flag
+[OnlyCompileUpdatedScripts (0/1 {default 0})] //same as -u flag
+[GenerateDependencyInfo (0/1 {default 0})]    //Generate .dep files whether or not updating
+[DisplayUpToDateScripts (0/1 {default 0})]    //Display the "xxx/script.ecl is up-to-date" message, or not.
+[AutoCompileByDefault (0/1 {default 0})]      //If set, and you don't pass any script names or -r or -A, 
+                                              //will perform an auto compile.
+[UpdateOnlyOnAutoCompile (0/1 {default 0})]   //If set, autocompile will only update modified scripts.
+[DisplaySummary (0/1 {default 0})]            //Displays overall totals after compilation, unless compilation 
+                                              //aborted due to a compile error.
+[OptimizeObjectMembers (0/1 {default 1})]     //-m flag will set it to 0
+
+</structure>
+    <explain>The 'generate' properties allow default behavior for generating listing or debug files.</explain>
+    <explain>If not found, ecompile will try to locate module and include directories from the system environment variables ECOMPILE_PATH_EM and ECOMPILE_PATH_INC.</explain>
+    <explain>use ECOMPILE_CFG_PATH environment variable to find ecompile.cfg. (note that normally it tries to look where the executable is.  Some shells don't always pass this, particularly if you're using batch files or shell scripts - try putting the full path to ecompile in your batch file)</explain>
+    <explain>Using this file allows 'packaged includes' because now ecompile knows about the path to packages, allowing it to find include files using the normal package descriptor format ':pkgname:includename:'</explain>
+</cfgfile>
+
+
+<cfgfile name="boats.cfg">
+    <location>/config only</location>
+    <numberallowed>1</numberallowed>
+    <requiredtostart>Yes</requiredtostart>
+    <requiredby>Core</requiredby>
+    <purpose>Defines the locations of all item components for each boat 'facing' graphic.</purpose>
+    <structure>
+Boat
+{
+    ObjType                     (int boat multi graphic)
+    TillerMan                   (int item graphic) (x offset) (y offset)
+    PortGangplankExtended       (int item graphic) (x offset) (y offset)
+    PortGangplankRetracted      (int item graphic) (x offset) (y offset)
+    StarboardGangplankExtended  (int item graphic) (x offset) (y offset)
+    StarboardGangplankRetracted (int item graphic) (x offset) (y offset)
+    Hold                        (int item graphic) (x offset) (y offset)
+}
+[Boat...]
+</structure>
+    <explain>ObjType should be &gt;= 0x4000.</explain>
+    <explain>All the x,y tile distance offsets are from the ship's mast. As normal on the map, positive X is east, positive Y is south. It doesn't matter what 'facing' of the boat this is for, parts of the boat that are east of the mast are defined with positive X values, parts south of the mast are defined with positive Y values, and vice versa.</explain>
+</cfgfile>
+
+
+<cfgfile name="regions.cfg">
+    <location>/regions only</location>
+    <numberallowed>1</numberallowed>
+    <requiredtostart>No</requiredtostart>
+    <requiredby>Core</requiredby>
+    <purpose>Defines the regions in the world and various settings on each. See Explanation about splitting up this file.</purpose>
+    <structure>
+Region (region name)
+{
+    Range             (x-west) (y-north) (x-east) (y-south)
+    [Realm            (string realmname {default "britannia"})]
+    [Guarded          (0/1 {default 0})]
+    [EnterText        (string message)]
+    [LeaveText        (string message)]
+    [EnterScript      (string script)]
+    [LeaveScript      (string script)]
+    [Midi             (int music number)]
+    [NoCast           (0/1 {default 0})]
+    [NoCombat         (0/1 {default 0})]
+    [Light            (int light level {default 0}]
+    [WeatherType      (int type {default 0})]
+    [WeatherSeverity  (int severity {default 0})]
+    [WeatherAux       (int {default 0})]
+    [LightOverride    (int light level override {default 1})]
+}
+[Region...]
+</structure>
+    <explain>Important: regions only override regions found earlier in the file. So the first region should cover the entire map, and further regions override portions of the world.</explain>
+    <explain>'Guarded', 'EnterText', and 'LeaveText' are for 'justice' regions, and may be split into /regions/justice.cfg. guard.cfg will be the prefered location for these properties</explain>
+    <explain>'Midi' are for 'music' regions, and may be split into /regions/music.cfg, the prefered location for these regions.</explain>
+    <explain>'NoCast' are for 'nocast' regions and may be split into /regions/nocast.cfg, the prefered location for these regions.</explain>
+    <explain>'NoCombat' regions will not allow the Clicking of a mobile to select as a new opponent if they are in this region. It will also reset opponent data for mob if one enters this region. This is a PvP specific addon. It does NOT check for npcs, this will have to be done via packethooks. When Entering a NoCombat region, while already in combat, if YOU are the attacker, it will reset your fight. If you are the one being attacked, it will reset the fight with the first "opponent" you have listed.</explain>
+    <explain>'Light' are for 'light' regions and may be split into /regions/light.cfg, the prefered location for these regions.</explain>
+    <explain>'WeatherType', 'WeatherSeverity', 'WeatherAux', and 'LightOverride' are for 'weather' regions and may be split into /regions/weather.cfg, the prefered location for these regions.</explain>
+    <explain>IMPORTANT: Regions are limited to POL's internal 4x4 tile zones and will internally expand to fill all of these zones the Range is contained in.</explain>
+</cfgfile>
+
+
+<cfgfile name="justice.cfg">
+    <location>/regions only</location>
+    <numberallowed>1</numberallowed>
+    <requiredtostart>No</requiredtostart>
+    <requiredby>Core</requiredby>
+    <purpose>Defines the justice regions (protected by guards). See also regions.cfg.</purpose>
+    <structure>
+Region (region name)
+{
+    Range        (x-west) (y-north) (x-east) (y-south)
+    [Realm       (string realmname {default "britannia"})]
+    [Guarded     (0/1 {default 0})]
+    [EnterText   (string message)]
+    [LeaveText   (string message)]
+    [EnterScript (string script)]
+    [LeaveScript (string script)]
+}
+[Region...]
+</structure>
+    <explain>Important: regions only override regions found earlier in the file. So the first region should cover the entire map, and further regions override portions of the world.</explain>
+    <explain>This file is preferred over regions.cfg for the above properties.</explain>
+    <explain>IMPORTANT: Regions are limited to POL's internal 4x4 tile zones and will internally expand to fill all of these zones the Range is contained in.</explain>
+    <related>regions.cfg</related>
+</cfgfile>
+
+
+<cfgfile name="light.cfg">
+    <location>/regions only</location>
+    <numberallowed>1</numberallowed>
+    <requiredtostart>No</requiredtostart>
+    <requiredby>Core</requiredby>
+    <purpose>Defines the light regions (light levels sent to clients). See also regions.cfg.</purpose>
+    <structure>
+Region (region name)
+{
+    Range        (x-west) (y-north) (x-east) (y-south)
+    [Realm       (string realmname {default "britannia"})]
+    [Light       (int light level {default 0}]
+}
+[Region...]
+</structure>
+    <explain>Important: regions only override regions found earlier in the file. So the first region should cover the entire map, and further regions override portions of the world.</explain>
+    <explain>This file is preferred over regions.cfg for the above properties.</explain>
+    <explain>IMPORTANT: Regions are limited to POL's internal 4x4 tile zones and will internally expand to fill all of these zones the Range is contained in.</explain>
+    <related>regions.cfg</related>
+</cfgfile>
+
+<cfgfile name="nocast.cfg">
+    <location>/regions only</location>
+    <numberallowed>1</numberallowed>
+    <requiredtostart>No</requiredtostart>
+    <requiredby>Core</requiredby>
+    <purpose>Defines the "no spell casting allowed" regions. See also regions.cfg.</purpose>
+    <structure>
+Region (region name)
+{
+    Range        (x-west) (y-north) (x-east) (y-south)
+    [Realm       (string realmname {default "britannia"})]
+    [Nocast      (0/1 {default 0})]
+}
+[Region...]
+</structure>
+    <explain>Important: regions only override regions found earlier in the file. So the first region should cover the entire map, and further regions override portions of the world.</explain>
+    <explain>This file is preferred over regions.cfg for the above properties.</explain>
+    <explain>IMPORTANT: Regions are limited to POL's internal 4x4 tile zones and will internally expand to fill all of these zones the Range is contained in.</explain>
+    <related>regions.cfg</related>
+</cfgfile>
+
+
+<cfgfile name="weather.cfg">
+    <location>/regions only</location>
+    <numberallowed>1</numberallowed>
+    <requiredtostart>No</requiredtostart>
+    <requiredby>Core</requiredby>
+    <purpose>Defines the weather regions. See also regions.cfg.</purpose>
+    <structure>
+Region (region name)
+{
+    Range             (x-west) (y-north) (x-east) (y-south)
+    [Realm            (string realmname {default "britannia"})]
+    [WeatherType      (int type {default 255})]
+    [WeatherSeverity  (int severity {default 0})]
+    [WeatherAux       (int {default 0})]
+    [LightOverride    (int light level override {default 1})]
+}
+[Region...]
+</structure>
+    <explain>Important: regions only override regions found earlier in the file. So the first region should cover the entire map, and further regions override portions of the world.</explain>
+    <explain>This file is preferred over regions.cfg for the above properties.</explain>
+    <explain>IMPORTANT: Regions are limited to POL's internal 4x4 tile zones and will internally expand to fill all of these zones the Range is contained in.</explain>
+    <explain>type:<br/>
+    0 - light rain ("It starts to rain")<br/>
+    1 - rain/thunder ("A fierce storm approaches")<br/>
+    2 - snow ("It begins to snow")<br/>
+    3 - brewing storm - ("A storm is brewing")<br/>
+    255 - None (Turns sound effects off)<br/>
+      
+    severity:is set on a 0-70 scale, 70=torrential rain, 0=light drizzle. <br/>    
+    aux: nothing<br/>
+    lightoverride: light level amount overrides current level. -1 means no override.</explain>
+    <related>regions.cfg</related>
+</cfgfile>
+
+
+<cfgfile name="music.cfg">
+    <location>/regions only</location>
+    <numberallowed>1</numberallowed>
+    <requiredtostart>No</requiredtostart>
+    <requiredby>Core</requiredby>
+    <purpose>Defines the music regions. See also regions.cfg.</purpose>
+    <structure>
+Region (region name)
+{
+    Range        (x-west) (y-north) (x-east) (y-south)
+    [Realm       (string realmname {default "britannia"})]
+    [Midi        (int music number)]
+}
+[Region...]
+</structure>
+    <explain>Important: regions only override regions found earlier in the file. So the first region should cover the entire map, and further regions override portions of the world.</explain>
+    <explain>This file is preferred over regions.cfg for the above properties.</explain>
+    <explain>IMPORTANT: Regions are limited to POL's internal 4x4 tile zones and will internally expand to fill all of these zones the Range is contained in.</explain>
+    <related>regions.cfg</related>
+</cfgfile>
+
+
+<cfgfile name="resource.cfg">
+    <location>/regions only</location>
+    <numberallowed>1</numberallowed>
+    <requiredtostart>No</requiredtostart>
+    <requiredby>Core</requiredby>
+    <purpose>Defines the resource types in the world. Other .cfg files are then read for specific resource configurations.</purpose>
+    <structure>
+ResourceSystem
+{
+    ResourceType        (string resource type)
+    [ResourceType...]
+}
+</structure>
+    <explain>Important: regions only override regions found earlier in the file. So the first region should cover the entire map, and further regions override portions of the world.</explain>
+    <explain>If the resource type is 'ore', then 'ore.cfg' in the same directory will be read for resource region configurations for the ore resource.</explain>
+    <explain>Most of the configuration is done in these other files, so please see resourcetype.cfg (note not an actual file, just denotes files like ore.cfg)</explain>
+    <related>resourcetype.cfg</related>
+</cfgfile>
+
+
+<cfgfile name="resourcetype.cfg">
+    <location>/regions only</location>
+    <numberallowed>1</numberallowed>
+    <requiredtostart>No</requiredtostart>
+    <requiredby>Core</requiredby>
+    <purpose>Defines the configuration for the resource filename. Note: 'resourcetype.cfg' does not exist, this only denotes files like 'ore.cfg' or 'wood.cfg'. See resource.cfg for how to define these resource types.</purpose>
+    <structure>
+Global
+{
+    InitialUnits     (long number of resource units world has to start)
+    [LandTile        (int landtile ID)]...
+    [ObjType         (int arttile ID)]...
+}
+Region  (string regionname)
+{
+    Range               (x-west) (y-north) (x-east) (y-south)
+    UnitsPerArea        (int resource units per tile)
+    SecondsPerRegrow    (int seconds delay between regrows)
+    Capacity            (int unit capacity for this region)
+}
+[Region...]
+</structure>
+    <explain>Important: regions only override regions found earlier in the file. So the first region should cover the entire map, and further regions override portions of the world.</explain>
+    <explain>Landtiles are the 'map' tiles, and 'ObjType' is for static art tiles. These numbers are used to know what tiles grow this type of resource. I.e. a static tree type for wood.</explain>
+    <explain>Example: this file is for wood resources, and UnitsPerArea is 15. This means I can get a maximum of 15 wood from a tree until the resources 'regrow'. I could define another region that has very plentiful, or fast growing trees and adjust the UnitsPerArea and SecondsPerRegrow accordingly.</explain>
+    <related>resource.cfg</related>
+</cfgfile>
+
+
+<cfgfile name="npcdesc.cfg">
+    <location>/config and/or any package</location>
+    <numberallowed>at least 1 in /config, can be packaged.</numberallowed>
+    <requiredtostart>No</requiredtostart>
+    <requiredby>Core</requiredby>
+    <requiredby>CreateNpcFromTemplate</requiredby>
+    <purpose>Configures NPC Templates for creating new NPCs and assigning properties to them.</purpose>
+    <structure>
+NpcTemplate (string unique templatename)
+{
+    Name                   (string paperdoll name)
+    ObjType                (integer body model type)
+    Script                 (string AI script)
+    Gender                 (0=male 1=female)
+    TrueColor              (int original body skin color)
+    Color                  (int current body skin color)
+    AR                     (die-string natural armor rating)
+    [FireResist]           (int/die-string)]
+    [ColdResist]           (int/die-string)]
+    [EnergyResist]         (int/die-string)]
+    [PoisonResist]         (int/die-string)]
+    [PhysicalResist]       (int/die-string)]
+    Alignment              ('good' 'neutral' or 'evil)
+
+    [(VitalName)           (die-string value)]
+    [VitalName...]
+    
+    [(AttributeName)       (die-string value)]
+    [AttributeName...]
+    
+    [AttackDelay           (int intrinsic weapon delay in ms {default 0})]
+    AttackDamage           (die-string damage for intrinsic weapon)
+    AttackAttribute        (string attribute name used for intrinsic weapon)
+    [AttackHitSound        (int sound ID for intrinsic weapon {default 0})]
+    [AttackMissSound       (int sound ID for intrinsic weapon {default 0})]
+    [AttackHitScript       (string script for intrinsic weapon hit)]
+    [AttackMinRange        (int intrinsic weapon minimum range {default 0})]
+    [AttackMaxRange        (int intrinsic weapon maximum range {default 0})]
+    [AttackAnimation       (int animation ID {default 0 (wrestling)})]
+    
+    [FireDamage]            (int/(die-string value))]
+    [ColdDamage]            (int/(die-string value))]
+    [EnergyDamage]          (int/(die-string value))]
+    [PoisonDamage]          (int/(die-string value))]
+    [PhysicalDamage]        (int/(die-string value))]
+
+    [AttackProjectile...]
+    [AttackProjectileAnim...]
+    [AttackProjectileType...]
+    [AttackProjectileSound...]
+
+    [MaxHp                 (int maximum hitpoints for intrinsic weapon {default 1}]
+
+    [MoveMode              (movemode string {default 'L'})]
+    [Privs                 (string privilege) [(more privs)]...]
+    [Settings              (string priv set 'on') [(more privs)]...]
+    
+    [SpeechColor           (int speech color {default 0x3B2})]
+    [SpeechFont            (int speech color {default 3})]
+    
+    [UseAdjustments        (0/1 {default 1})]
+    [RunSpeed              (int 0-250 {default dexterity})]
+    [SaveOnExit            (0/1 {default 1})]
+    [MethodScript          (string scriptname)]
+}
+[NpcTemplate...]
+</structure>
+    <explain>Movemode string is 'L' for land 'S' for sea, and 'A' for air. I.e. 'LS' would be good for a water elemental.</explain>
+    <explain>An 'intrinsic' weapon is used if the NPC does not have a weapon item equipped. It represents (usually), the Wrestling 'weapon' for the NPC. You can define sounds, damage, animation etc.</explain>
+    <explain>Vital and Attribute names can use the aliases defined in attributes.cfg and vitals.cfg, i.e. 'STR' instead of 'Strength'. A Die-string may be used for the value of any of these.</explain>
+    <explain>Privs and settings can be like 'invul losany' and any more seperated by spaces. Unless they also appear in 'Settings', the privileges are not active.</explain>
+    <explain>UseAdjustments 1 means the NPC will adjust its facing while moving to try to avoid small obsticles. If 0, the NPC will not move if it cannot move forward, and the move function will return 0.</explain>
+    <explain>RunSpeed is only useful from 0-250, the higher the number, the shorter delay between moves.</explain>
+    <explain>SpeechColor and Font are only used if NPC::Say() is used.</explain>
+    <explain>Alignment determines NPC's name color and their participation in the reputation system.</explain>
+    <explain>Of course, you may define other config properties and cprops in this file that are not used by the core. npcdesc.cfg may be accessed with the normal Config file access functions (ReadConfigFile, etc). Note CProps in this file will be assigned to each NPC created with that template. This takes extra memory than if you look up properties using the config file access functions.</explain>
+    <explain>If you have npcdes.cfg in a package, the NPC's template name becomes :packagename:templatename</explain>
+    <explain>If AttackDelay != 0 Core will use it to calculate Weapon speed.</explain>
+    <related>resource.cfg</related>
+</cfgfile>
+
+
+<cfgfile name="itemdesc.cfg">
+    <location>/config and/or any package</location>
+    <numberallowed>any</numberallowed>
+    <requiredtostart>Yes</requiredtostart>
+    <requiredby>Core</requiredby>
+    <requiredby>CreateItem functions</requiredby>
+    <purpose>Defines Item descriptions, to be assigned to individual items on creation. Note each UObject class expects different properties to be present, so each will be listed below. An actual itemdesc.cfg file would not look exactly like this. Class Name must be one of: ITEM CONTAINER SPELLBOOK DOOR HOUSE BOAT MAP WEAPON ARMOR.</purpose>
+    <structure>
+(Class Name)  (integer unique 'objtype')
+{
+    (PropertyName)      (value)
+    [PropertyName...]
+}
+
+Item (objtype)
+{
+    Name                    (string unique object name)
+    Graphic                 (int tile number)
+    [Color                  (int color {default 0})]
+    [Facing                 (int facing {default 0})]
+    [Desc                   (string description {default empty})]
+    [Tooltip                (string tooltip {default empty})]
+    [WalkOnScript           (string scriptname)]
+    [Script                 (string scriptname)]
+    [EquipScript            (string scriptname)]
+    [UnequipScript          (string scriptname)]
+    [ControlScript          (string scriptname)]
+    [CreateScript           (string scriptname)]
+    [DestroyScript          (string scriptname)]
+    [MethodScript           (string scriptname)]
+    [RequiresAttention      (0/1 {default 1})]
+    [Lockable               (0/1 {default 0})]
+    [VendorSellsFor         (int gold {default 0})]
+    [VendorBuysFor          (int gold {default 0})]
+    [DecayTime              (int minutes {default servspecopt.cfg option})]
+    [SaveOnExit             (0/1 {default 1})]
+    [Movable                (0/1)]
+    [DoubleClickRange       (int range {default servspecopt.cfg option})]
+    [UseRequiresLOS         (0/1 {default 1})]
+    [GhostsCanUse           (0/1 {default 0})]
+    [CanUseWhileFrozen      (0/1 {default 0})]
+    [CanUseWhileParalyzed   (0/1 {default 0})]
+    [Newbie                 (0/1 {default 0})]
+    [Invisible              (0/1 {default 0})]
+    [DecaysOnMultis         (0/1 {default 0})]
+    [BlocksCastingIfInHand  (0/1 {default 0})]
+    [StrRequired            (int strength {default 0})]
+    [Weight                 (int weight {default tiledata value})]
+    [OldObjtype             (int old objtype)]...
+    [StackingIgnoresCProps  (propname1) [(propname2)]... ]
+    [Resource               (string resource name) (int amount)]
+    [Resource...]
+    [FireResist             (int/(die-string value))]
+    [ColdResist             (int/(die-string value))]
+    [EnergyResist           (int/(die-string value))]
+    [PoisonResist           (int/(die-string value))]
+    [PhysicalResist         (int/(die-string value))]
+    [FireDamage             (int/(die-string value))]
+    [ColdDamage             (int/(die-string value))]
+    [EnergyDamage           (int/(die-string value))]
+    [PoisonDamage           (int/(die-string value))]
+    [PhysicalDamage         (int/(die-string value))]
+    [StackLimit             (int {default 60000})]
+}
+
+Container (objtype)
+{
+    {everything Item can have, plus: }
+    Gump            (int gump graphic)
+    MinX            (int gump pixel coordinate)
+    MaxX            (int gump pixel coordinate)
+    MinY            (int gump pixel coordinate)
+    MaxY            (int gump pixel coordinate)
+    [MaxWeight      (int weight {default to servspecopt.cfg})]
+    [MaxItems       (int number {default to servspecopt.cfg})]
+    [MaxSlots       (int 1-255 {default to servspecopt.cfg})]
+    [CanInsertScript    (string scriptname)]
+    [OnInsertScript     (string scriptname)]
+    [CanRemoveScript    (string scriptname)]
+    [OnRemoveScript     (string scriptname)]
+}
+
+Spellbook (objtype)
+{
+    {everything Container can have, plus: }
+    SpellType  (string {"Magic", "Paladin", "Necro", "Bushido", "Ninjitsu" or "SpellWeaving"})
+}
+
+Door (objtype)
+{    
+    {everything Item can have, plus: }
+    XMod            (int x modification when door toggled)
+    YMod            (int y modification when door toggled)
+}
+
+House (objtype)
+{
+    {everything Item can have, plus: }
+    MultiID         (int multiID number for this house)
+}
+
+Boat (objtype)
+{
+    {everything Item can have, plus: }
+    MultiID         (int multiID number for this house)
+}
+
+Map (objtype)
+{
+    {everything Item can have, plus: }
+    Editable        (0/1 {default 1})]
+}
+
+Weapon (objtype)
+{
+    {everything Item can have, plus: }
+    Speed            (int weapon attack speed)
+    [Delay           (int weapon delay in ms {default 0})]
+    Damage           (die-string value)
+    Attribute        (string attribute name for skill this weapon requires)
+    [Anim            (int animation ID number for attack {default 0x9})]
+    [MountedAnim     (int animationID on mount {defaults to value in animxlate.cfg})]
+    [HitSound        (int soundID)]
+    [MissSound       (int soundID)]
+    [HitScript       (string script name)]
+    
+    [Projectile      (0/1 {default 0})]
+    [ProjectileType  (int objtype of projectile)]
+    [ProjectileAnim  (int tile number of animation)]
+    [ProjectileSound (int soundID for projectile shoot)]
+    
+    [TwoHanded       (0/1 {default 0})]
+    [MinRange        (int minimum range to attack {default 2 if projectile weapon, 0 else})]
+    [MaxRange        (int maximum range to attack {default 20 if projectile weapon, 1 else})]
+    [Intrinsic       (0/1 {default 0})]
+}
+
+Armor (objtype)
+{
+    {everything Item can have, plus: }
+    AR               (int armor rating)
+    [OnHitScript     (string script name)]   
+    [Coverage        (string armor zone name {defaults to layer number zone})]
+    [Coverage...]
+}
+
+...and lots of any of these in the file...
+</structure>
+    <explain>Note: if objtype &lt; 0x4000, the 'graphic' property is not required, it is assumed objtype=graphic in this case.</explain>
+    <explain>Valid ranges for custom items are 0x5000-0xEFFF (0xF000-0xFFFF reserved by core)</explain>
+    <explain>Properties having to do with equipping an item is only meaningful if the item is actualy equippable (determined by the graphic number's tiledata flags).</explain>
+    <explain>Item Create, Destroy, and Control scripts are in pkg format or in scripts/control. Method scripts must be packaged.</explain>
+    <explain>Container scripts are in pkg format, or in scripts/control</explain>
+    <explain>RequiresAttention 1 causes container gumps to close when you move, or to unhide you if the item is used.</explain>
+    <explain>StackingIgnoresCProps is a space-delimited list of case-sensative CProp names that are ignored when stacking 2 of this item objtype. See also stacking.cfg for a global list.</explain>
+    <explain>Spellbook: Recognized scroll objects are: Magic: 0x1F2D - 0x1F6C, Necro 0x2260 - 0x226F, Paladin: 0x2270 - 0x227C, Bushido: 0x238D - 0x2392, Ninjitsu: 0x23A1 - 0x23A8, SpellWeaving: 0x2D51 - 0x2D60. The list of spellids for spells.cfg is now as follows: Magery = 1+, Necro = 101+, Paladin = 201+, Bushido = 401+, Ninjitsu = 501+, SpellWeaving = 601+. Sorry this is hardcoded :P</explain>
+    <explain>Weapon: If Delay != 0 Core will use it to calculate Weapon speed. Speed Entry is optional ONLY if Delay is populated.</explain>
+    <related>spells.cfg</related>
+    <related>stacking.cfg</related>
+</cfgfile>
+
+
+<cfgfile name="stacking.cfg">
+    <location>Any Package and/or /config</location>
+    <numberallowed>any</numberallowed>
+    <requiredtostart>No</requiredtostart>
+    <requiredby>Core Item Stacking</requiredby>
+    <purpose>Specifies CProp names to ignore when stacking two items.</purpose>
+    <structure>
+Stacking
+{
+    IgnoreCprops  [(propname1) [(propname2)]...]  //space delimited
+}
+</structure>
+    <explain>propnames are space-delimited, and are case-sensative.</explain>
+    <explain>This config may be packaged, so it's a good idea to only specify the cprops in the package which "belong" to that package.</explain>
+</cfgfile>
+
+
+<cfgfile name="fileaccess.cfg">
+    <location>/config only</location>
+    <numberallowed>1</numberallowed>
+    <requiredtostart>No</requiredtostart>
+    <requiredby>per-package file.em access</requiredby>
+    <purpose>Specifies what packages have file read/write/append access.</purpose>
+    <structure>
+FileAccess
+{
+  [Package (string package name, or *)]...
+  [Directory (string directory name, or *)]...
+  [Extension (string file extension name, or *)]...
+  [AllowRead (0/1 {default 0})]
+  [AllowWrite (0/1 {default 0})]
+  [AllowAppend (0/1 {default 0})]
+  [AllowRemote (0/1 {default 0})] 
+}
+</structure>
+  <explain>'*' above means it applies to all packages.</explain>
+    <explain>AllowRemote means the package has access to other files, not just files in its package directory.</explain>
+    <explain>Package matches the string name in a pkg.cfg. You can define multiple Package properties.</explain>
+    <explain>Directory not implimented yet</explain>
+    <explain>Extension examples are '.cfg', '.htm', etc. You can define multiple Extension properties.</explain>
+    <explain>This config is reloadable on-demand. Use ReloadConfiguration() (polsys.em) or SIGHUP under linux.</explain>
+</cfgfile>
+
+<cfgfile name="www.cfg">
+    <location>/config only</location>
+    <numberallowed>1</numberallowed>
+    <requiredtostart>no</requiredtostart>
+    <requiredby>Core</requiredby>
+    <purpose>Defines custom MIME types for web server.</purpose>
+    <structure>
+MIME (string extension)
+{
+    Extension (string extension)
+    MIME      (string mime)
+}
+[MIME...]
+</structure>
+    <explain>This allows you to add new file types that the web server can handle, for example PNG images, PDF files or favicon.ico. If you don't supply a www.cfg, old defaults are used ("jpg", "jpeg" and "gif").</explain>
+</cfgfile>
+
+<cfgfile name="uopacket.cfg">
+    <location>Any Package</location>
+    <numberallowed>any</numberallowed>
+    <requiredtostart>No</requiredtostart>
+    <requiredby>Core</requiredby>
+    <purpose>Defines a Packet Hook which allow the scripter to intercept incoming client messages and outgoing server messages. This allows the scripter to decide how to implement the UO client's feature-of-the-week, without having to wait for the POL team to create a customizable solution for each packet. You will need a UO Network Protocol document to successfully create packet hook scripts. Note not all client features can be completely implemented in packet hook scripts, some will require core support, which we will endevour to provide.</purpose>
+    <structure>
+Packet (packet ID byte)
+{
+  Length            (fixed integer length or 'variable' without quotes)
+  [Version          (1,2 {default 1})]
+  [ClientVersion    (ClientVersion string {default 1.25.25.0})]
+  [ReceiveFunction  (string scriptname:functionname)]
+  [SendFunction     (string scriptname:functionname)]
+  [SubCommandOffset (int)]
+  [SubCommandLength (1, 2 or 4)]
+}
+[Packet...]
+
+SubPacket (main packet ID byte)
+{
+  SubCommandID     (int sub-command id)
+  [Version          (1,2 {default 1})]
+  [ClientVersion    (ClientVersion string {default 1.25.25.0})]
+  [ReceiveFunction (string scriptname:functionname)]
+  [SendFunction    (string scriptname:functionname)]
+}
+[SubPacket...]
+</structure>
+  <explain><i>Packet ID:</i> must be a byte integer, i.e. 12 or 0xAE.</explain>
+  <explain><i>Version:</i> is used to define multiple packethooks of the same packet type. This is due
+to major packet changes by EA. It allows you to hook packets that have a different
+packet structure based on the client version. Default is 1. Max right now is 2.</explain>
+  <explain><i>Client string:</i> is used to determine the minimum required client version for a
+packethook to work with. Note, all pre-login packets before 6.0.5.0 do not know
+the client's version number in the core.</explain>
+  <explain><i>Length:</i> MUST be exactly correct for fixed-length packets and in bytes (i.e. message 0x20 is 19 bytes), or the string 'variable' for variable-length packets (i.e. 0xAE unicode speech).</explain>
+  <explain><i>ReceiveFunction:</i> is the function to intercept a packet coming from a client. SendFunction is to intercept an outgoing packet created by the core (i.e. player status update). Normally a Packet element will only define one of these two, unless the packet is bi-directional AND the core currently sends the packet.</explain>
+  <explain><i>SubCommandOffset:</i> is the 0-based offset into the packet that contains the sub-command ID number, if applicable for this packet. SubCommandLength is the number of bytes to extract to determine the sub command (ex. 2 for 0xBF, 1 for 0x12).</explain>
+  <explain><i>SubCommandID:</i> is the 2-byte ID to be found at the parent packet's SubCommandOffset. You need not define Receive and Send functions for the parent packet if you define subpacket entries. If a subcommand is received or being sent that is not hooked, the default behavior will occur. As normal, the parent packet entry must only be defined once.</explain>
+  <explain><i>Hint:</i> Please do not try to hook Sub-Sub-Commands (like the 0xBF 0x06 Party System subsubcommands), instead use a case statement in the subcommand hook.</explain>
+  <explain><i>Hint:</i> You can find examples in packethooks.txt</explain>
+</cfgfile>
+
+<cfgfile name="party.cfg">
+    <location>/config only</location>
+    <numberallowed>1</numberallowed>
+    <requiredtostart>No</requiredtostart>
+    <requiredby>Core</requiredby>
+    <purpose>Defines general settings and hooks for the party system.</purpose>
+    <structure>
+General
+{
+    //How many chars are allowed in a Party (normal clients only have 10 slots)
+    [MaxPartyMembers int (default 10)]
+    //Newer Clients (>=3.0.6e) does not automatically change "/# "
+    //to private msg (they use "/t #")
+    //set to true any public msg will be checked for "# " (0-9 0=slot 10)
+    [TreatNoAsPrivate (1/0) (default 0)]
+    //How long is an invite valid befor automatic decline
+    //set to 0 disables the timeout
+    [DeclineTimeout int seconds (default 10)]
+    //Prefix for a private Msg (e.g. P:)
+    [PrivateMsgPrefix string (default "")]
+    //Member gets removed on logoff
+    //if partyleader logoffs the next member becomes the leader
+    [RemoveMemberOnLogoff (1/0) (default 0)]
+    //rejoins party member on logon
+    //RejoinPartyOnLogon is only used if RemoveMemberOnLogoff is true
+    [RejoinPartyOnLogon (1/0) (default 0)]
+}
+HookList
+{
+    // CanAddToParty(leader,member) return check true/false
+    // called when a leader invites someone
+    CanAddToParty (string exported_func_name)
+    // OnAddToParty(who) return check none
+    // called when a member is added to a party
+    OnAddToParty(string exported_func_name)
+    // CanRemoveMember(leader,member) return check true/false
+    // called when leader wants to remove member
+    CanRemoveMember (string exported_func_name)
+    // CanLeaveParty (member) return check true/false
+    // called when member wants to leave the party
+    CanLeaveParty (string exported_func_name)
+    // OnLeaveParty(who,fromwho) return check none
+    // called when member leaves the party
+    OnLeaveParty(string exported_func_name)
+    // OnPublicChat(member,uctext) return check none
+    // called when a member sends a PartyMsg e.g. for logging
+    OnPublicChat (string exported_func_name)
+    // OnPrivateChat(member,tomember,uctext) return check none
+    // called when a member sends a PrivateMsg e.g. for logging
+    OnPrivateChat (string exported_func_name)
+    // OnDisband(partyref) return check none
+    // called when a Party is about to be disbanded
+    OnDisband (string exported_func_name)
+    // ChangePublicChat(member,uctext) return new uctext/true/false
+    // called when a member sends a PartyMsg return value is the new uctextarray,
+    // or true for no change, or false to block the msg
+    ChangePublicChat (string exported_func_name)
+    // ChangePrivateChat(member,tomember,uctext) return new uctext/true/false
+    // called when a member sends a PrivateMsg return value is the new uctextarray,
+    // or true for no change, or false to block the msg
+    ChangePrivateChat (string exported_func_name)
+    // OnPartyCreate(party) return check none
+    // called when a party is created
+    OnPartyCreate (string exported_func_name)
+    // OnDecline(who) return check none
+    // called when a Char declines a partyinvite
+    OnDecline (string exported_func_name)
+    // OnLootPermChange(who) return check none
+    // called when a Char changes the LootPermission
+    OnLootPermChange (string exported_func_name)
+} 
+</structure>
+  <explain>HookList section is only needed if you wish to define party hooks.</explain>
+</cfgfile>
+
+</ESCRIPT>

@@ -1,0 +1,13 @@
+program test()
+	foreach i in array( 1,12,3,32,57 )
+	    print( i );
+	endforeach
+endprogram
+
+/**** Expected Output Begins: *****
+1
+12
+3
+32
+57
+*****  Expected Output Ends   ****/

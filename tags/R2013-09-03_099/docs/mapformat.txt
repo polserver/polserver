@@ -1,0 +1,60 @@
+Maps will be stored in /pol/map/(mapname)
+
+the key here
+base.dat: 64x64 location blocks
+
+solidx1.dat: first-level solid index
+divides world into 16x16 location blocks
+If there are any blobs in the 16x16 block, this entry will contain the offset within the second index.
+
+solidx2.dat: second-level blob index
+zooms in to the 16x16 blob block.
+
+solids.dat: the blob data
+<Syzygy> well, we can try this, anyway.  The first divides the world into 16x16 squares. 
+ that is used as the starting point into the first index. 
+  (the assumption is that most of the world doesn't have statics, so it's a 
+  sparsely populated index).  Anyway.  The second index (what we read using the
+   first bit of information) is a 64x64 array of offsets of the statics. 
+    0 means there are no statics at that x/y.  Otherwise, the offset is used 
+    to get at the list of actual statics there, which will be a bunch of 
+    triplets - z, height, flags.  Flags are the same as on the map.  
+    Somehow we need a count, too.  how many statics at that location.
+<Syzygy> Okay, hm, I odn't understand, maybe.  THe first index says 
+"there are statics in that 16x16 block.  Their details are stored at offset N in the second index."
+
+<Syzygy> The second index stores a 16x16 array, which has a count, and an offset, for each location.
+
+MAP CELLS
+=========
+    each solid has a Z-coordinate, a height, and flags.
+    The map stores each solid's Z coordinate.  Their Z coordinate is actually -128.
+        
+    Every map location's Z-coordinate is 
+
+MAP FLAGS
+=========
+ 0x01  FLAG_STANDABLE
+        Indicates you can STAND on the thing.
+
+
+STATICS
+=======
+statidx.dat: index to statics
+    divides map into 8x8-cell blocks
+    format: u32 offset
+    use the next cell's offset to determine the count for a particular block
+    
+statics.dat: statics
+    format:
+        struct USTRUCT_POL_STATIC {
+            u16 graphic;
+            u8 xy; // x: high 4 bits y: low 4 bits (bit 7 and bit 3 are unused)
+            s8 z;
+            u16 hue;
+        };
+
+MAP TILES
+=========
+maptile.dat
+    format:

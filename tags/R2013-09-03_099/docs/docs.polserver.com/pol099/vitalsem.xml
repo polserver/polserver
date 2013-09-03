@@ -1,0 +1,194 @@
+<?xml version='1.0' encoding="iso-8859-1"?>
+<?xml-stylesheet type="text/xsl" href="escript.xslt" ?>
+<!DOCTYPE ESCRIPT SYSTEM "escript.dtd">
+<ESCRIPT>  
+  <fileheader fname="Vitals.em">
+    <filedesc>Functions for working with mobile vitals.</filedesc>
+    <datemodified>02/25/2010</datemodified>
+<constant>//Apply*Damage constants</constant>
+<constant>const DAMAGE_USE_REPSYS  := 1;</constant>
+<constant>const DAMAGE_NO_REPSYS   := 0;</constant>
+<constant>const DAMAGE_NO_SHOW     := 0;</constant>
+<constant>const DAMAGE_SHOW        := 1;</constant>
+<constant>const DAMAGE_USE_DEFAULT := 2;</constant>
+<constant>//RecalcVital constants</constant>
+<constant>const RECALC_INTRINSIC_MOD    := 1;</constant>
+<constant>const RECALC_NO_INTRINSIC_MOD := 0;</constant>
+<constant>const RECALC_VITALS           := 1;</constant>
+<constant>const RECALC_NO_VITALS        := 0;</constant>
+  </fileheader>
+  
+<function name="ApplyDamage">
+    <prototype>ApplyDamage( Character, Hits, userepsys := DAMAGE_USE_REPSYS, send_damage := DAMAGE_USE_DEFAULT )</prototype>
+	<parameter name="Character" value="Character Reference" />
+	<parameter name="Hits" value="Real (0.0 to 30000.0)" />
+	<parameter name="userepsys" value="Integer (optional, default DAMAGE_USE_REPSYS)" />
+	<parameter name="send_damage" value="Integer (optional, default DAMAGE_USE_DEFAULT)" />
+	<explain>Decreases a character's hit points, after reducing damage due to armor.</explain>
+	<explain>Notes: vitals.em constants for userepsys:
+<code>
+const DAMAGE_USE_REPSYS  := 1;
+const DAMAGE_NO_REPSYS   := 0;
+const DAMAGE_NO_SHOW     := 0;
+const DAMAGE_SHOW        := 1;
+const DAMAGE_USE_DEFAULT := 2;</code></explain>
+  <explain>DAMAGE_USE_DEFAULT uses the SendDamagePacket setting from combat.cfg</explain>
+ 	<explain>(Old notes:) The steps taken are as follows:
+			A piece of armor is chosen randomly, based on probabilities in ARMRZONE.CFG. 
+			Damage is reduced by 50% to 100% of the armor's AR. 
+			Remaining damage is halved. 
+			"I'm Hit" animation is played. 
+			Damage is applied. 
+			Mobile is killed if hit points are now zero. 
+		   Invokes Reputation system effects.</explain>
+	<return>Real damage applied to mobile on success</return>
+	<error>"Invalid parameter type"</error>
+	<error>"Damage is out of range"</error>
+	<related>Character</related>
+</function>
+
+<function name="ApplyRawDamage">
+    <prototype>ApplyRawDamage( Character, Hits, userepsys := DAMAGE_USE_REPSYS, send_damage := DAMAGE_USE_DEFAULT )</prototype>
+	<parameter name="Character" value="Character Reference" />
+	<parameter name="Hits" value="Integer (0..255)" />
+	<parameter name="userepsys" value="Integer (optional, default DAMAGE_USE_REPSYS)" />
+	<parameter name="send_damage" value="Integer (optional, default DAMAGE_USE_DEFAULT)" />
+	<explain>Decreases a character's hit points.  If this causes hit points to drop to zero, kills the character.</explain>
+ 	<explain>Notes: Armor is ignored.</explain>
+  <explain>Invokes Reputation system effects.</explain>
+  <explain>Notes: vitals.em constants for userepsys:
+<code>
+const DAMAGE_USE_REPSYS  := 1;
+const DAMAGE_NO_REPSYS   := 0;
+const DAMAGE_NO_SHOW     := 0;
+const DAMAGE_SHOW        := 1;
+const DAMAGE_USE_DEFAULT := 2;</code></explain>
+  <explain>DAMAGE_USE_DEFAULT uses the SendDamagePacket setting from combat.cfg</explain>
+  <return>1 on success</return>
+	<error>none (returns 0 on invalid parameter)</error>
+  <related>Character</related>
+</function>
+
+<function name="HealDamage">
+    <prototype>HealDamage( Character, Hits )</prototype>
+	<parameter name="Character" value="Character Reference" />
+	<parameter name="Hits" value="Integer (0..255)" />
+	<explain>Increases a character's hit points, up to the character's maximum.</explain>
+	<explain>Notes: Invokes Reputation system effects.</explain>
+	<return>1 if some part of the damage could be healed.</return>
+	<error>"Invalid parameter"</error>
+	<related>Character</related>
+</function>
+
+<function name="ConsumeMana">
+	<prototype>ConsumeMana( who, spellid )</prototype>
+	<parameter name="who" value="Character Reference" />
+	<parameter name="spellid" value="Integer" />
+	<explain>Consumes amount of "Mana" for "who" for the spell as defined in spells.cfg</explain>
+	<explain>Notes: spells.cfg files define spells and spell ids.</explain>
+	<explain>Consumes from "Mana" vital.</explain>
+	<return>1 on success</return>
+	<error>"Invalid parameter"</error>
+	<error>"No such spell"</error>
+	<error>"Spell ID out of range"</error>
+	<related>Character</related>
+	<relatedcfg>spells.cfg</relatedcfg>
+</function>
+
+<function name="ConsumeVital">
+	<prototype>ConsumeVital( who, vital, hundredths )</prototype>
+	<parameter name="who" value="Character Reference" />
+	<parameter name="vital" value="String (vital name)" />
+	<parameter name="hundreths" value="Integer" />
+	<explain>Consumes an amount of vital "vital" in hundreths. for example, ConsumeVital(who, "Stamina", 100) 
+consumes one point of stamina.</explain>
+	<return>1 on consume success or 0 on failure (insufficient value for the vital)</return>
+	<error>"Invalid parameter type" including if vital was not found as a vital name</error>
+	<related>Character</related>
+	<relatedcfg>vitals.cfg</relatedcfg>
+</function>
+
+<function name="GetVital">
+	<prototype>GetVital( character, vitalname )</prototype>
+	<parameter name="character" value="Character Reference" />
+	<parameter name="vitalname" value="String (vital name)" />
+	<explain>Gets the current value of "vitalname" on "character".</explain>
+	<return>Integer current value of the vital on success or Error</return>
+	<error>"Invalid parameter type" including if vitalname was not found as a vital</error>
+	<related>Character</related>
+	<relatedcfg>vitals.cfg</relatedcfg>
+</function>
+
+<function name="GetVitalName">
+	<prototype>GetVitalName( alias_name )</prototype>
+	<parameter name="alias_name" value="String" />
+	<explain>Returns the real vital name from an alias</explain>
+	<return>String</return>
+	<error>"Invalid parameter type"</error>
+	<related>Character</related>
+	<relatedcfg>vitals.cfg</relatedcfg>
+</function>
+
+<function name="GetVitalMaximumValue">
+	<prototype>GetVitalMaximumValue( character, vitalname )</prototype>
+	<parameter name="character" value="Character Reference" />
+	<parameter name="vitalname" value="String (vital name)" />
+	<explain>Gets the maximum value of "vitalname" on "character" </explain>
+  	<return>Integer maximum value of the vital on success or Error</return>
+	<error>"Invalid parameter type" including if vitalname was not found as a vital</error>
+  	<related>Character</related>
+  	<relatedcfg>vitals.cfg</relatedcfg>
+</function>
+
+<function name="GetVitalRegenRate">	
+	<prototype>GetVitalRegenRate( character, vitalname )</prototype>
+	<parameter name="character" value="Character Reference" />
+	<parameter name="vitalname" value="String (vital name)" />
+	<explain>Returns the regeneration rate for "vitalname" on "character"</explain>
+	<return>Integer regeneration rate of the vital on success</return>
+	<error>"Invalid parameter type" including if vitalname was not found as a vital</error>
+	<related>Character</related>
+	<related>String</related>
+	<relatedcfg>vitals.cfg</relatedcfg>
+</function>
+	
+<function name="RecalcVitals">
+	<prototype>RecalcVitals( character, calc_attribute := RECALC_INTRINSIC_MOD, calc_vital := RECALC_VITALS )</prototype>
+	<parameter name="character" value="Character Reference" />
+	<parameter name="calc_attribute" value="Integer/String (attribute name)" />
+	<parameter name="calc_vital" value="Integer/String (vital name)" />
+	<explain>if default values are passed recalculates regen rates and maximum values from the exported functions in vitals.cfg for all vitals on a mobile
+	  and the intrinsic modifier from the exported functions in attributes.cfg for all attributes</explain>
+	<explain>if calc_attribute is set to RECALC_NO_INTRINSIC_MOD it skips the recalculation of attributes</explain>
+	<explain>if calc_attribute is set to an attribute name it only calculates for given attribute</explain>
+	<explain>if calc_vital is set to RECALC_NO_VITALS it skips the recalculation of vitals</explain>
+	<explain>if calc_vital is set to an vital name it only calculates for given vital</explain>
+	<explain>Notes: vitals.em constants:
+<code>
+const RECALC_INTRINSIC_MOD    := 1;
+const RECALC_NO_INTRINSIC_MOD := 0;
+const RECALC_VITALS           := 1;
+const RECALC_NO_VITALS        := 0;</code></explain>
+	<return>1 on success</return>
+	<error>"Mobile must be online."</error>
+	<error>"Invalid parameter type"</error>
+	<error>"Vital not defined: {given name}"</error>
+	<error>"Attribute not defined: {given name}"</error>
+	<related>Character</related>
+	<relatedcfg>vitals.cfg</relatedcfg>
+	<relatedcfg>attributes.cfg</relatedcfg>
+</function>
+	
+<function name="SetVital">
+	<prototype>SetVital( character, vitalname, value )</prototype>
+	<parameter name="character" value="Character Reference" />
+	<parameter name="vitalname" value="String (vital name)" />
+	<parameter name="value" value="Integer (in hundreths)" />
+	<explain>Sets the current value for "vitalname" on "character" in hundreths.</explain>
+	<return>1 on success</return>
+	<error>"Invalid parameter type" including if vitalname was not found as a vital</error>
+	<related>Character</related>
+	<relatedcfg>vitals.cfg</relatedcfg>
+</function>
+
+</ESCRIPT>

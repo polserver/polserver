@@ -1,0 +1,6 @@
+var QueueList;
+
+QueueList := { };
+
+Print("Size:"+QueueList.Size());
+Print("Len :"+Len(QueueList));

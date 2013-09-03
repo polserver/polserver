@@ -1,0 +1,44 @@
+0: decl global #0
+1: #
+2: global #0
+3: 0L
+4: :=
+5: #
+6: global #0
+7: 10L
+8: <
+9: if false goto 40
+10: global #0
+11: 4L
+12: >
+13: if false goto 15
+14: goto40
+15: decl local #0
+16: global #0
+17: 4L
+18: +
+19: :=
+20: #
+21: "I="
+22: global #0
+23: +
+24: ", A="
+25: +
+26: local #0
+27: +
+28: Func(1,0): print
+29: #
+30: leave block(1)
+31: goto33
+32: leave block(1)
+33: global #0
+34: global #0
+35: 1L
+36: +
+37: :=
+38: #
+39: goto6
+40: "done"
+41: Func(1,0): print
+42: #
+43: progend

@@ -1,0 +1,7 @@
+var a := struct;
+
+a.+name;
+
+a.name := "x";
+
+print(a);

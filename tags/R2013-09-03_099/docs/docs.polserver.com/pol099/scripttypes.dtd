@@ -1,0 +1,23 @@
+<!ELEMENT ESCRIPT (fileheader,scripttype*)>
+<!ELEMENT fileheader (desc,datemodified)>
+  <!ATTLIST fileheader name CDATA #REQUIRED>
+  <!ELEMENT desc (#PCDATA)>
+  <!ELEMENT datemodified (#PCDATA)>
+<!ELEMENT scripttype (prototype, parameter*, return?, schedtype, def_prio, whencalled, wherelives, todefine, explain*, example*, relatedobj*, relatedcfg*, relatedtype*)>
+  <!ATTLIST scripttype name CDATA #REQUIRED>
+  <!ELEMENT prototype (#PCDATA)>
+  <!ELEMENT parameter EMPTY>
+  <!ATTLIST parameter name CDATA #REQUIRED>
+  <!ATTLIST parameter value CDATA #REQUIRED>
+  <!ELEMENT return (#PCDATA)>
+  <!ELEMENT schedtype (#PCDATA)>
+  <!ELEMENT def_prio (#PCDATA)>
+  <!ELEMENT whencalled (#PCDATA)>
+  <!ELEMENT wherelives (#PCDATA)>
+  <!ELEMENT todefine (#PCDATA)>
+  <!ELEMENT explain (#PCDATA | code)*>
+    <!ELEMENT code (#PCDATA)>
+  <!ELEMENT example (#PCDATA)>
+  <!ELEMENT relatedobj (#PCDATA)>
+  <!ELEMENT relatedcfg (#PCDATA)>
+  <!ELEMENT relatedtype (#PCDATA)>

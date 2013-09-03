@@ -1,0 +1,6 @@
+Testing Pack for: { 5, 1.2, 7, hello world }
+Expected representation: a4:i5r1.2i7S11:hello world
+Result representation:   a4:i5r1.2i7S11:hello world
+Successful!
+Unpacked: { 5, 1.2, 7, hello world }
+Unpack matches!

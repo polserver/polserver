@@ -1,0 +1,2 @@
+var d := dictionary { "abc", "def" -> "ghi" };
+print(d);

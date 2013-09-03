@@ -1,0 +1,11 @@
+Testing Simple IF:
+1b: ok
+Testing IF..ELSEIF..ENDIF
+2: ok
+Testing IF..ELSE..ENDIF
+3a: ok
+3b: ok
+Testing IF..ELSEIF..ELSE..ENDIF
+4a: ok
+4b: ok
+4c: ok
