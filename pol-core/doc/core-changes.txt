@@ -1,5 +1,7 @@
 ﻿-- POL099 --
 09-03-2013 Tomi:
+    Changed: Equipment members .maxhp_mod .hp .maxhp and .quality moved to Item
+           only Weapons and Armors need to have the MaxHP defined in itemdesc because core combat is using it, for all other items there is a default value 1
     Added: Weapon RW member .speed_mod ( -32,768 to 32,767 ) as an optional way to delay if you want to use the default speed math and just add to that
     Fixed: upper limits using the container members .max_items_mod .max_weight_mod and .max_slots_mod
            if max_items >= 3200 it will be set to 3200

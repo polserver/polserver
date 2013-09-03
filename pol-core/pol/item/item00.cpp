@@ -40,7 +40,9 @@ Item::Item( const ItemDesc& id, UOBJ_CLASS uobj_class) :
 	is_gotten_(0),
     invisible_(id.invisible),
 	slot_index_(0),
-	layer(0)
+	layer(0),
+	hp_(id.maxhp),
+	quality_(id.quality)
 {
     graphic = id.graphic;
     color = id.color;
