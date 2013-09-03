@@ -81,10 +81,10 @@ obj:
 !	IF "$(PLATFORM)"=="x64"
    	copy ..\..\pol\release\x64\*.obj .
     	copy ..\..\pol\release\x64\*.pdb .
-!	ELSE
+	ELSE
    	copy ..\..\pol\release\*.obj .
     	copy ..\..\pol\release\*.pdb .
-!	ENDIF
+	ENDIF
 	..\7za a -tzip -mx9 -r ..\pol-obj-$(PLATFORM).zip @..\obj.lst
     cd ..
     rmdir /S /Q obj-zip

@@ -2,6 +2,7 @@
 #
 # Build Official 32bit Release
 
+unset BUILD64POL
 #export USE_MYSQL=1
 
 export LIBCRYPT="crypto"
