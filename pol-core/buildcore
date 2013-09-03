@@ -10,3 +10,4 @@ export POL_BUILDTAG="ubuntu"
 export CXX_MORE_OPTS="-O3 -DUSE_SYSTEM_ZLIB -DHAVE_OPENSSL -DNDEBUG -D_REENTRANT -DPOL_BUILDTAG=\\\"ubuntu\\\""
 
 make -f makefile.gcc dist
+
