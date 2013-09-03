@@ -17,7 +17,7 @@ Notes
 #include "../clib/progver.h"
 #include "polver.h"
 
-const char polverstr[] = "POL099-2011-05-02 Break Everything Even Rudder";
+const char polverstr[] = "POL099-2013-09-03 Break Everything Even Rudder";
 unsigned int polver = 99;
 
 #ifdef PERGON
