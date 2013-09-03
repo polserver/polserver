@@ -23,8 +23,6 @@ public:
     EquipDesc( u32 objtype, ConfigElem& elem, Type type, const Package* pkg );
     EquipDesc(); // for dummy template
 	virtual void PopulateStruct( BStruct* descriptor ) const;
-
-    unsigned short maxhp;
 };
 
 #endif
