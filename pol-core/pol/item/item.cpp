@@ -26,6 +26,7 @@ Notes
 
 #include "../../bscript/berror.h"
 #include "../../bscript/bobject.h"
+#include "../../bscript/objmembers.h"
 
 #include "../../plib/mapcell.h"
 
@@ -84,6 +85,8 @@ Item* Item::clone() const
 
 	item->invisible_ = invisible_;	//dave 12-20
 	item->movable_ = movable_;		//dave 12-20
+	item->hp_ = hp_;
+	item->quality_ = quality_;
 
 	item->on_use_script_ = on_use_script_;	//dave 12-20
     item->equip_script_ = equip_script_;	//dave 12-20
@@ -121,6 +124,8 @@ Item* Item::clone() const
 	item->element_damage_mod.fire = element_damage_mod.fire;
 	item->element_damage_mod.poison = element_damage_mod.poison;
 	item->element_damage_mod.physical = element_damage_mod.physical;
+
+	item->setmember<s16>(MBR_MAXHP_MOD, this->getmember<s16>(MBR_MAXHP_MOD));
 
 	return item;
 }
@@ -325,9 +330,24 @@ bool Item::default_newbie() const
     return itemdesc().newbie;
 }
 
+unsigned short Item::maxhp() const
+{
+	int maxhp = itemdesc().maxhp + getmember<s16>(MBR_MAXHP_MOD);
+
+	if ( maxhp < 1 )
+		return 1;
+	else if ( maxhp <= USHRT_MAX )
+		return static_cast<u16>(maxhp);
+	else
+		return USHRT_MAX;
+}
+
 void Item::printProperties( ostream& os ) const
 {
     base::printProperties(os);
+
+	short maxhp_mod = getmember<s16>(MBR_MAXHP_MOD);
+
     if (amount_ != 1)
         os << "\tAmount\t" << amount_ << pf_endl;
     
@@ -385,6 +405,12 @@ void Item::printProperties( ostream& os ) const
 
     if (newbie_ != default_newbie())
         os << "\tNewbie\t" << newbie_ << pf_endl;
+
+	if (maxhp_mod)
+		os << "\tMaxHp_mod\t" << maxhp_mod << pf_endl;
+
+	os << "\Hp\t" << hp_ << pf_endl;
+	os << "\tQuality\t" << quality_ << pf_endl;
 }
 
 void Item::printDebugProperties( ostream& os ) const
@@ -421,6 +447,8 @@ void Item::readProperties( ConfigElem& elem )
     if (buyprice_ == 2147483647)
         buyprice_ = UINT_MAX;
     newbie_ = elem.remove_bool( "NEWBIE", default_newbie() );
+	hp_ = elem.remove_ushort( "HP", itemdesc().maxhp );
+	quality_ = elem.remove_double( "QUALITY", itemdesc().quality );
 
 	element_resist_mod.fire = static_cast<s16>(elem.remove_int( "FIRERESISTMOD", 0 ));
 	element_resist_mod.cold = static_cast<s16>(elem.remove_int( "COLDRESISTMOD", 0 ));
@@ -433,6 +461,8 @@ void Item::readProperties( ConfigElem& elem )
 	element_damage_mod.energy = static_cast<s16>(elem.remove_int( "ENERGYDAMAGEMOD", 0 ));
 	element_damage_mod.poison = static_cast<s16>(elem.remove_int( "POISONDAMAGEMOD", 0 ));
 	element_damage_mod.physical = static_cast<s16>(elem.remove_int( "PHYSICALDAMAGEMOD", 0 ));
+
+	setmember<s16>(MBR_MAXHP_MOD, static_cast<s16>(elem.remove_int( "MAXHP_MOD", 0 )));
 
 }
 

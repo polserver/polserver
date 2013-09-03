@@ -235,7 +235,15 @@ ItemDesc::ItemDesc( u32 objtype, ConfigElem& elem, Type type, const Package* pkg
 			}
 		}
 	}
-	
+
+	maxhp = elem.remove_ushort( "MAXHP", 0 );
+
+	// Make sure Weapons and Armors ALL have this value defined to not break the core combat system
+	if ( maxhp == 0 && ( type == WEAPONDESC || type == ARMORDESC ) )
+	{
+			cerr << "itemdesc.cfg, objtype " << hexint(objtype) << " has no MaxHP specified." << endl;
+			elem.throw_error( "Configuration error" );
+	}
 
 	unsigned short stacklimit = elem.remove_ushort( "StackLimit", MAX_STACK_ITEMS );
 
@@ -574,6 +582,7 @@ void ItemDesc::PopulateStruct( BStruct* descriptor ) const
 	descriptor->addMember( "PhysicalDamage",	new BLong(element_damage.physical) );
 	descriptor->addMember( "Quality",			new Double(quality) );
 	descriptor->addMember( "MultiID",			new BLong(multiid) );
+	descriptor->addMember( "MaxHp",				new BLong(maxhp) );
 
 	std::set<std::string>::const_iterator set_itr;
 	auto_ptr<ObjArray> ignorecp (new ObjArray);

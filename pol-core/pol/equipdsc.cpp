@@ -17,15 +17,13 @@ Notes
 
 
 EquipDesc::EquipDesc( u32 objtype, ConfigElem& elem, Type type, const Package* pkg ) :
-    ItemDesc( objtype, elem, type, pkg ),
-    maxhp( elem.remove_ushort( "MAXHP" ))
+    ItemDesc( objtype, elem, type, pkg )   
 {
 }
 
 void EquipDesc::PopulateStruct( BStruct* descriptor ) const
 {
     base::PopulateStruct( descriptor );
-	descriptor->addMember( "MaxHP", new BLong(maxhp) );
 }
 /*
 EquipDesc::EquipDesc()

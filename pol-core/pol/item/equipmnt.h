@@ -38,14 +38,10 @@ protected:
     virtual BObjectImp* set_script_member_id_double( const int id, double value ); //id test
 
     virtual bool script_isa( unsigned isatype ) const;
-    unsigned short maxhp() const;
     virtual Item* clone() const;
 
 protected:
     const EquipDesc& eq_tmpl_;
-    double quality_;
-    unsigned short hp_;
-    short maxhp_mod_;
 };
 
 #endif

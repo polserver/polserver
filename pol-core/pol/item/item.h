@@ -156,6 +156,8 @@ public:
 	virtual BObjectImp* set_script_member( const char *membername, int value );
 	virtual BObjectImp* set_script_member_id( const int id, const std::string& value );///id test
 	virtual BObjectImp* set_script_member_id( const int id, int value );///id test
+    virtual BObjectImp* set_script_member_double( const char *membername, double value );
+    virtual BObjectImp* set_script_member_id_double( const int id, double value ); //id test
 	virtual BObjectImp* script_method( const char *methodname, Executor& ex );
 	virtual BObjectImp* script_method_id( const int id, Executor& ex );
 
@@ -193,6 +195,9 @@ protected:
 public:
 	u8 layer;
 	u8 tile_layer;
+    unsigned short hp_;
+	unsigned short maxhp() const;
+	double quality_;
 
 	s16 calc_element_resist( unsigned element ) const;
 	s16 calc_element_damage( unsigned element ) const;

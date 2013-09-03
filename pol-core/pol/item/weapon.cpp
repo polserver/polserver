@@ -434,14 +434,14 @@ UWeapon::~UWeapon()
 
 unsigned short UWeapon::speed() const
 {
-	unsigned short speed = tmpl->speed + getmember<s16>(MBR_SPEED_MOD);
+	int speed_ = tmpl->speed + getmember<s16>(MBR_SPEED_MOD);
 
-	if ( speed >= USHRT_MAX )
-		return USHRT_MAX;
-	else if ( speed < 0 )
+	if ( speed_ < 0 )
 		return 0;
+	else if ( speed_ <= USHRT_MAX )
+		return static_cast<u16>(speed_);
 	else
-		return speed;
+		return USHRT_MAX;		
 }
 
 unsigned short UWeapon::delay() const
