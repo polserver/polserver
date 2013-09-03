@@ -794,7 +794,7 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool forcebuilti
 					s_trim( tag_body ); // trim the tag of whitespaces
 
 					string frmt;
-					int formatter_pos = tag_body.find(':');
+					size_t formatter_pos = tag_body.find(':');
 
 					if( formatter_pos!=string::npos) {
 						frmt = tag_body.substr(formatter_pos + 1, string::npos); //
