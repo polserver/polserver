@@ -54,7 +54,7 @@ dist:
 !	ENDIF
 	..\7za a -tzip -mx9 -r ..\pol-core-$(PLATFORM)-.zip @..\core.lst
 	cd ..
-#	rmdir /S /Q build
+	rmdir /S /Q build
 
 debug:
     mkdir debug-zip
@@ -78,13 +78,16 @@ debug:
 obj:
     mkdir obj-zip
     cd obj-zip
-    copy ..\..\pol\release\*.obj .
-    copy ..\..\pol\release\*.pdb .
-    copy ..\..\pol\release\*.idb .
-    copy ..\..\pol\release\*.map .
-	..\7za a -tzip -mx9 -r ..\pol-obj-.zip @..\obj.lst
+!	IF "$(PLATFORM)"=="x64"
+   	copy ..\..\pol\release\x64\*.obj .
+    	copy ..\..\pol\release\x64\*.pdb .
+	ELSE
+   	copy ..\..\pol\release\*.obj .
+    	copy ..\..\pol\release\*.pdb .
+	ENDIF
+	..\7za a -tzip -mx9 -r ..\pol-obj-$(PLATFORM).zip @..\obj.lst
     cd ..
-#    rmdir /S /Q obj-zip
+    rmdir /S /Q obj-zip
 
 src:
     mkdir src-zip
