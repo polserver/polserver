@@ -927,6 +927,10 @@ BObjectImp* Item::get_script_member_id( const int id ) const
 			return new BLong(itemdesc.doubleclick_range);
 			break;
 		}
+		case MBR_QUALITY: return new Double( quality_ ); break;
+		case MBR_HP: return new BLong( hp_ ); break;
+		case MBR_MAXHP_MOD: return new BLong( getmember<s16>(MBR_MAXHP_MOD) ); break;
+		case MBR_MAXHP: return new BLong( static_cast<int>(maxhp() * quality_) ); break;
 		default: return NULL;
 	}
 }
@@ -1088,6 +1092,39 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
 		case MBR_PHYSICAL_DAMAGE_MOD:
 			return new BLong( element_damage_mod.physical = static_cast<short>(value) );
 			break;
+		case MBR_QUALITY: return new Double( (quality_ = double(value)) );
+			break;
+		case MBR_HP:
+			hp_ = static_cast<unsigned short>(value);
+
+			if (this->isa(CLASS_ARMOR))
+			{
+				if (container != NULL)
+				{
+					if (IsCharacter( container->serial ))
+					{
+						Character* chr = chr_from_wornitems( container );
+						if (chr!=NULL)
+							chr->refresh_ar();
+					}
+				}
+			}
+			return new BLong( hp_ );
+		case MBR_MAXHP_MOD:
+			this->setmember<s16>(MBR_MAXHP_MOD, static_cast<s16>(value));
+			if (this->isa(CLASS_ARMOR))
+			{
+				if (container != NULL)
+				{
+					if (IsCharacter( container->serial ))
+					{
+						Character* chr = chr_from_wornitems( container );
+						if (chr!=NULL)
+							chr->refresh_ar();
+					}
+				}
+			}
+			return new BLong( value );
 		default: return NULL;
 	}
 }
@@ -1097,6 +1134,27 @@ BObjectImp* Item::set_script_member( const char *membername, int value )
 	ObjMember* objmember = getKnownObjMember(membername);
 	if ( objmember != NULL )
 		return this->set_script_member_id(objmember->id, value);
+	else
+		return NULL;
+}
+
+BObjectImp* Item::set_script_member_id_double( const int id, double value )
+{
+	BObjectImp* imp = base::set_script_member_id_double( id, value );
+	if (imp != NULL)
+		return imp;
+	switch(id)
+	{
+		case MBR_QUALITY: return new Double( (quality_ = double(value)) ); break;
+		default: return NULL;
+	}
+}
+
+BObjectImp* Item::set_script_member_double( const char *membername, double value )
+{
+	ObjMember* objmember = getKnownObjMember(membername);
+	if ( objmember != NULL )
+		return this->set_script_member_id_double(objmember->id, value);
 	else
 		return NULL;
 }
@@ -3277,10 +3335,6 @@ BObjectImp* Equipment::get_script_member_id( const int id ) const
 
 	switch(id)
 	{
-		case MBR_QUALITY: return new Double( quality_ ); break;
-		case MBR_HP: return new BLong( hp_ ); break;
-		case MBR_MAXHP_MOD: return new BLong( maxhp_mod_ ); break;
-		case MBR_MAXHP: return new BLong( static_cast<int>(maxhp() * quality_) ); break;
 		default: return NULL;
 	}
 }
@@ -3300,37 +3354,6 @@ BObjectImp* Equipment::set_script_member_id( const int id, int value )
 		return imp;
 	switch(id)
 	{
-		case MBR_HP:
-			hp_ = static_cast<unsigned short>(value);
-			if (this->isa(CLASS_ARMOR))
-			{
-				if (container != NULL)
-				{
-					if (IsCharacter( container->serial ))
-					{
-						Character* chr = chr_from_wornitems( container );
-						if (chr!=NULL)
-							ARUpdater::on_change(chr);
-					}
-				}
-			}
-			return new BLong( hp_ );
-		case MBR_MAXHP_MOD:
-			maxhp_mod_ = static_cast<unsigned short>(value);
-			if (this->isa(CLASS_ARMOR))
-			{
-				if (container != NULL)
-				{
-					if (IsCharacter( container->serial ))
-					{
-						Character* chr = chr_from_wornitems( container );
-						if (chr!=NULL)
-							ARUpdater::on_change(chr);
-					}
-				}
-			}
-			return new BLong( maxhp_mod_ );
-		case MBR_QUALITY: return new Double( (quality_ = double(value)) );
 		default: return NULL;
 	}
 }
@@ -3350,7 +3373,6 @@ BObjectImp* Equipment::set_script_member_id_double( const int id, double value )
 		return imp;
 	switch(id)
 	{
-		case MBR_QUALITY: return new Double( (quality_ = double(value)) );
 		default: return NULL;
 	}
 }

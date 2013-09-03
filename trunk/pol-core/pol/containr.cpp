@@ -933,38 +933,38 @@ unsigned int UContainer::find_sumof_objtype_noninuse( u32 objtype, u32 amtToGet,
 
 unsigned short UContainer::max_items() const
 {
-	unsigned short max_items = desc.max_items + getmember<s16>(MBR_MAX_ITEMS_MOD);
+	int max_items = desc.max_items + getmember<s16>(MBR_MAX_ITEMS_MOD);
 
-	if ( max_items >= MAX_CONTAINER_ITEMS )
-		return MAX_CONTAINER_ITEMS;
-	else if ( max_items < 1 )
+	if ( max_items < 1 )
 		return 1;
+	else if ( max_items <= MAX_CONTAINER_ITEMS )
+		return static_cast<u16>(max_items);
 	else
-		return max_items;
+		return MAX_CONTAINER_ITEMS;
 }
 
 unsigned short UContainer::max_weight() const
 {
-	unsigned short max_weight = desc.max_weight + getmember<s16>(MBR_MAX_WEIGHT_MOD);
+	int max_weight = desc.max_weight + getmember<s16>(MBR_MAX_WEIGHT_MOD);
 
-	if ( max_weight >= USHRT_MAX )
-		return USHRT_MAX;
-	else if ( max_weight < 0 )
+	if ( max_weight < 1 )
 		return 1;
+	else if ( max_weight <= USHRT_MAX )
+		return static_cast<u16>(max_weight);
 	else
-		return max_weight;
+		return USHRT_MAX;
 }
 
 u8 UContainer::max_slots() const
 {
-	unsigned short max_slots = desc.max_slots + getmember<s8>(MBR_MAX_SLOTS_MOD);
+	short max_slots = desc.max_slots + getmember<s8>(MBR_MAX_SLOTS_MOD);
 
-	if ( max_slots >= MAX_SLOTS )
-		return  MAX_SLOTS;
-	else if ( max_slots < 0 )
+	if ( max_slots < 0 )
 		return 0;
+	else if ( max_slots <= MAX_SLOTS )
+		return static_cast<u8>(max_slots);
 	else
-		return max_slots;
+		return MAX_SLOTS;
 }
 
 WornItemsContainer::WornItemsContainer() : 

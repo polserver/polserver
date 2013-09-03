@@ -101,7 +101,8 @@ public:
 	unsigned short base_str_req;
 	unsigned short stack_limit;
 	double quality;
-	u16 multiid;
+	unsigned short multiid;
+	unsigned short maxhp;
 
 	Dice resist_dice;
 
