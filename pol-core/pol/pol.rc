@@ -1,4 +1,6 @@
-#include "afxres.h"
+//#include "afxres.h"
+#include "WinResrc.h"
+#define IDC_STATIC -1
 #include "polresource.h"
 
 LANGUAGE 0x9,0x1
