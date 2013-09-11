@@ -40,12 +40,12 @@ CXX_MORE_OPTS += -DHAVE_MYSQL
 endif
 
 ifdef BUILD64POL
-LIB_MORE += -L../lib/boost_1_51_0/lib/x64/lib
+LIB_MORE += -L../lib/boost_1_54_0/lib/x64/lib
 CXX_MORE_OPTS += -m64 
 POL_BUILDPLATFORM=x64
 # plus all used libaries eg: -lboost_regex
 else
-LIB_MORE += -L../lib/boost_1_51_0/lib/x86/lib
+LIB_MORE += -L../lib/boost_1_54_0/lib/x86/lib
 CXX_MORE_OPTS += -m32
 POL_BUILDPLATFORM=x86
 # plus all used libaries eg: -lboost_regex
