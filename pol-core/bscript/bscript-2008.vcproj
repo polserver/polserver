@@ -71,7 +71,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile=".\Debug\bscript.lib"
-				AdditionalLibraryDirectories="..\..\lib\boost_1_51_0\lib\x86\lib"
+				AdditionalLibraryDirectories="..\..\lib\boost_1_54_0\lib\x86\lib"
 				SuppressStartupBanner="true"
 			/>
 			<Tool
@@ -148,7 +148,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile=".\Release\bscript.lib"
-				AdditionalLibraryDirectories="..\..\lib\boost_1_51_0\lib\x86\lib"
+				AdditionalLibraryDirectories="..\..\lib\boost_1_54_0\lib\x86\lib"
 				SuppressStartupBanner="true"
 			/>
 			<Tool

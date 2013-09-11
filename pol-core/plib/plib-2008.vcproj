@@ -72,7 +72,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile=".\Debug\plib.lib"
-				AdditionalLibraryDirectories="..\..\lib\boost_1_51_0\lib\x86\lib"
+				AdditionalLibraryDirectories="..\..\lib\boost_1_54_0\lib\x86\lib"
 				SuppressStartupBanner="true"
 			/>
 			<Tool
@@ -150,7 +150,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile=".\Release\plib.lib"
-				AdditionalLibraryDirectories="..\..\lib\boost_1_51_0\lib\x86\lib"
+				AdditionalLibraryDirectories="..\..\lib\boost_1_54_0\lib\x86\lib"
 				SuppressStartupBanner="true"
 			/>
 			<Tool
