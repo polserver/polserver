@@ -1090,32 +1090,32 @@ void ObjArray::operInsertInto(BObject& obj, const BObjectImp& objimp)
 
 BObjectImp* ObjArray::selfPlusObj(const BObjectImp& objimp) const
 {
-	auto_ptr<ObjArray> result (new ObjArray( *this ));
+	std::unique_ptr<ObjArray> result (new ObjArray( *this ));
 	result->ref_arr.push_back( BObjectRef( new BObject( objimp.copy() ) ) );
 	return result.release();
 }
 BObjectImp* ObjArray::selfPlusObj(const BLong& objimp) const
 {
-	auto_ptr<ObjArray> result (new ObjArray( *this ));
+	std::unique_ptr<ObjArray> result (new ObjArray( *this ));
 	result->ref_arr.push_back( BObjectRef( new BObject( objimp.copy() ) ) );
 	return result.release();
 }
 BObjectImp* ObjArray::selfPlusObj(const Double& objimp) const
 {
-	auto_ptr<ObjArray> result (new ObjArray( *this ));
+	std::unique_ptr<ObjArray> result (new ObjArray( *this ));
 	result->ref_arr.push_back( BObjectRef( new BObject( objimp.copy() ) ) );
 	return result.release();
 }
 BObjectImp* ObjArray::selfPlusObj(const String& objimp) const
 {
-	auto_ptr<ObjArray> result (new ObjArray( *this ));
+	std::unique_ptr<ObjArray> result (new ObjArray( *this ));
 	result->ref_arr.push_back( BObjectRef( new BObject( objimp.copy() ) ) );
 	return result.release();
 }
 
 BObjectImp* ObjArray::selfPlusObj(const ObjArray& objimp) const
 {
-	auto_ptr<ObjArray> result (new ObjArray( *this ));
+	std::unique_ptr<ObjArray> result (new ObjArray( *this ));
 
 	for( const_iterator itr = objimp.ref_arr.begin(), end = objimp.ref_arr.end(); itr != end; ++itr )
 	{
@@ -1226,7 +1226,7 @@ BObjectRef ObjArray::OperMultiSubscript( stack<BObjectRef>& indices )
 	ObjArray* str = new ObjArray();
 
 
-	//auto_ptr<ObjArray> result (new ObjArray());
+	//std::unique_ptr<ObjArray> result (new ObjArray());
 	unsigned i = 0;
 	for( const_iterator itr = ref_arr.begin(), itrend = ref_arr.end(); itr != itrend; ++itr )
 	{
@@ -1615,7 +1615,7 @@ BObjectImp* ObjArray::unpack( istream& is )
 	{ 
 		return new BError( "Unable to unpack array elemcount. Bad format. Colon not found!" ); 
 	}
-	auto_ptr<ObjArray> arr (new ObjArray);
+	std::unique_ptr<ObjArray> arr (new ObjArray);
 	arr->ref_arr.resize( arrsize );
 	for( unsigned i = 0; i < arrsize; ++i )
 	{

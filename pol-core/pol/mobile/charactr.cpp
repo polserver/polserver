@@ -2058,7 +2058,7 @@ void Character::run_hit_script( Character* defender, double damage )
 	if (prog.get() == NULL)
 		return;
 
-	auto_ptr<UOExecutor> ex( create_script_executor() );
+	std::unique_ptr<UOExecutor> ex( create_script_executor() );
 	UOExecutorModule* uoemod = new UOExecutorModule( *ex );
 	ex->addModule( uoemod );
 

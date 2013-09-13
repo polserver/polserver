@@ -3234,7 +3234,7 @@ int Compiler::useModule( const char *modulename )
 			return 0;
 	}
 
-	auto_ptr<FunctionalityModule> compmodl(new FunctionalityModule( modulename ));
+	std::unique_ptr<FunctionalityModule> compmodl(new FunctionalityModule( modulename ));
 
 	string filename_part = modulename;
 	filename_part += ".em";
@@ -3307,7 +3307,7 @@ int Compiler::useModule( const char *modulename )
 			else
 				continue;
 		}
-		auto_ptr<UserFunction> puserfunc( new UserFunction );
+		std::unique_ptr<UserFunction> puserfunc( new UserFunction );
 		if (readFunctionDeclaration( mod_ctx, *puserfunc ))
 		{
 			cout << "Error reading function declaration in module " << modulename << endl;

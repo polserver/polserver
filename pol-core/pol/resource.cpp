@@ -348,7 +348,7 @@ void read_resource_cfg( const char* resource )
 	ConfigFile cf( filename.c_str(), "GLOBAL REGION" );
 	ConfigElem elem;
 	
-	auto_ptr<ResourceDef> rd( new ResourceDef( resource ) );
+	std::unique_ptr<ResourceDef> rd( new ResourceDef( resource ) );
 
 	while (cf.read( elem ))
 	{

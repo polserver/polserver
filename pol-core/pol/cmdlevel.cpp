@@ -100,7 +100,7 @@ ObjArray* GetCommandsInPackage(Package* m_pkg, int cmdlvl_num)
 
 	CmdLevel& cmdlevel = cmdlevels2[cmdlvl_num];
 	
-	auto_ptr<ObjArray> script_names(new ObjArray);
+	std::unique_ptr<ObjArray> script_names(new ObjArray);
 	
 	for( unsigned diridx = 0; diridx < cmdlevel.searchlist.size(); ++diridx )
 	{	
@@ -127,7 +127,7 @@ ObjArray* GetCommandsInPackage(Package* m_pkg, int cmdlvl_num)
 		
 			if ( pos != string::npos && (!ext.compare(".ecl")) )
 			{
-				auto_ptr<BStruct> cmdinfo (new BStruct());
+				std::unique_ptr<BStruct> cmdinfo (new BStruct);
 				cmdinfo->addMember("dir", new String(search_dir->dir));
 				cmdinfo->addMember("script", new String(name.c_str()));
 				script_names->addElement(cmdinfo.release());

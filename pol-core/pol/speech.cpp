@@ -428,7 +428,7 @@ void UnicodeSpeechHandler( Client *client, PKTIN_AD *msgin )
 	u16 * themsg = msgin->wtext;
 	u8 *  bytemsg;
 	int wtextoffset = 0;
-	auto_ptr<ObjArray> speechtokens(NULL);
+	std::unique_ptr<ObjArray> speechtokens(nullptr);
 	int i;
 
 	u16 tempbuf[ SPEECH_MAX_LEN+1 ];
@@ -487,7 +487,7 @@ void UnicodeSpeechHandler( Client *client, PKTIN_AD *msgin )
 	if (msgin->type & 0xc0)
 	{
 		BLong * atoken = NULL;
-		if (speechtokens.get() == NULL)
+		if (speechtokens.get() == nullptr)
 			speechtokens.reset(new ObjArray());
 		for (u16 j = 0; j < numtokens; j++)
 		{

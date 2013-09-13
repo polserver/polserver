@@ -88,7 +88,7 @@ void load_party_cfg_general( ConfigElem& elem )
 		party_cfg.General.PrivateMsgPrefixLen=0;
 	else
 	{
-		auto_ptr<ObjArray> arr (new ObjArray);
+		std::unique_ptr<ObjArray> arr (new ObjArray);
 		tmp+=" ";
 		for( unsigned i = 0; i < tmp.size(); ++i )
 		{
@@ -101,7 +101,6 @@ void load_party_cfg_general( ConfigElem& elem )
 		ObjArray* arrPtr = arr.get();
 		if ( !convertArrayToUC(arrPtr, party_cfg.General.PrivateMsgPrefix, party_cfg.General.PrivateMsgPrefixLen, true) )
 			party_cfg.General.PrivateMsgPrefixLen=0;
-		//auto_ptr deletes
 	}
 }
 

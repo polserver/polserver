@@ -296,6 +296,7 @@
     <ClInclude Include="MD5.h" />
     <ClInclude Include="mdump.h" />
     <ClInclude Include="mdumpimp.h" />
+    <ClInclude Include="message_queue.h" />
     <ClInclude Include="mlog.h" />
     <ClInclude Include="msjexhnd.h" />
     <ClInclude Include="nlogfile.h" />

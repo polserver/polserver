@@ -90,7 +90,7 @@ const MultiDef& UMulti::multidef() const
 BStruct* UMulti::footprint() const
 {
 	const MultiDef& md = multidef();
-    auto_ptr<BStruct> ret (new BStruct);
+    std::unique_ptr<BStruct> ret (new BStruct);
 	ret->addMember( "xmin", new BLong( x + md.minrx ) );
     ret->addMember( "xmax", new BLong( x + md.maxrx ) );
 	ret->addMember( "ymin", new BLong( y + md.minry ) );

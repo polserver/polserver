@@ -179,9 +179,9 @@ void AuxClientThread::run()
             if(result)
             {
 				istringstream is(tmp);
-				auto_ptr<BObjectImp> value ( _uoexec->auxsvc_assume_string ? new String(tmp) : BObjectImp::unpack( is ) );
+				std::unique_ptr<BObjectImp> value ( _uoexec->auxsvc_assume_string ? new String(tmp) : BObjectImp::unpack( is ) );
 
-				auto_ptr<BStruct> event (new BStruct);
+				std::unique_ptr<BStruct> event (new BStruct);
 				event->addMember( "type", new String( "recv" ) );
 				event->addMember( "value", value.release() );
 				_uoexec->os_module->signal_event( event.release() );
