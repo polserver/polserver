@@ -13,18 +13,6 @@ Notes
 #define CLIB_STL_INC_H
 
 #ifdef _WIN32
-//Set to _USE_STLPORT_WIN32 to 0 to use MSCVs STL.
-#	if defined(_MSC_VER) && (_MSC_VER <= 1600) // up to VS2010
-#		define _USE_STLPORT_WIN32 1
-#       if (_MSC_VER >= 1400) // 2005 and higher
-#			include <cctype>
-#			include <cstring>
-#           include <iosfwd>
-#			include <locale>
-#       endif
-#	else // Above 2010
-#		define _USE_STLPORT_WIN32 0
-#	endif
 #	pragma warning( disable: 4786 )//'identifier' : identifier was truncated to 'number' characters in the debug information
 #	pragma warning( push, 4 )
 #endif
@@ -90,112 +78,52 @@ Notes
   #include <hash_set>
 #endif
 
-#if defined (_WIN32) && (_USE_STLPORT_WIN32 == 1)
-	using stlport::auto_ptr;
-	using stlport::basic_string;
-	using stlport::bind2nd;
-	using stlport::binder2nd;
-	using stlport::char_traits;
-	using stlport::dec;
-	using stlport::equal_to;
-	using stlport::filebuf;
-	using stlport::find;
-	using stlport::for_each;
-	using stlport::fstream;
-	using stlport::getline;
-	using stlport::hex;
-	using stlport::hash_map;
-	using stlport::hash_set;
-	using stlport::ios;
-	using stlport::ifstream;
-	using stlport::istream;
-	using stlport::istringstream;
-	using stlport::less;
-	using stlport::logic_error;
-	using stlport::list;
-	using stlport::make_pair;
-	using stlport::map;
-	using stlport::multimap;
-	using stlport::not_equal_to;
-	using stlport::ofstream;
-	using stlport::ostream;
-	using stlport::ostringstream;
-	using stlport::pair;
-	using stlport::priority_queue;
-	using stlport::queue;
-	using stlport::remove_if;
-	using stlport::reverse;
-	using stlport::runtime_error;
-	using stlport::set;
-	using stlport::setw;
-	using stlport::sort;
-	using stlport::stack;
-	using stlport::streambuf;
-	using stlport::streamsize;
-	using stlport::string;
-	using stlport::swap;
-	using stlport::vector;
+  using std::basic_string;
+  using std::bind2nd;
+  using std::binder2nd;
+  using std::char_traits;
+  using std::dec;
+  using std::equal_to;
+  using std::exception;
+  using std::filebuf;
+  using std::find;
+  using std::for_each;
+  using std::fstream;
+  using std::getline;
+  using std::hex;
+  using std::ios;
+  using std::ifstream;
+  using std::istream;
+  using std::istringstream;
+  using std::less;
+  using std::list;
+  using std::logic_error;
+  using std::make_pair;
+  using std::map;
+  using std::multimap;
+  using std::not_equal_to;
+  using std::ofstream;
+  using std::ostream;
+  using std::ostringstream;
+  using std::pair;
+  using std::priority_queue;
+  using std::queue;
+  using std::remove_if;
+  using std::reverse;
+  using std::runtime_error;
+  using std::set;
+  using std::setw;
+  using std::sort;
+  using std::stack;
+  using std::streambuf;
+  using std::streamsize;
+  using std::string;
+  using std::swap;
+  using std::vector;
 
-	using stlport::cerr;
-	using stlport::cout;
-	using stlport::endl;
-
-#	if (_MSC_VER >= 1400) // 2005 and up
-		using stlport::ctype;
-		using stlport::exception;
-		using stlport::locale;
-#	endif
-
-#else
-	// GCC
-	// we will try libstdc++ on linux
-	using std::auto_ptr;
-	using std::basic_string;
-	using std::bind2nd;
-	using std::binder2nd;
-	using std::char_traits;
-	using std::dec;
-	using std::equal_to;
-	using std::exception;
-	using std::filebuf;
-	using std::find;
-	using std::for_each;
-	using std::fstream;
-	using std::getline;
-	using std::hex;
-	using std::ios;
-	using std::ifstream;
-	using std::istream;
-	using std::istringstream;
-	using std::less;
-	using std::list;
-	using std::logic_error;
-	using std::make_pair;
-	using std::map;
-	using std::multimap;
-	using std::not_equal_to;
-	using std::ofstream;
-	using std::ostream;
-	using std::ostringstream;
-	using std::pair;
-	using std::priority_queue;
-	using std::queue;
-	using std::remove_if;
-	using std::reverse;
-	using std::runtime_error;
-	using std::set;
-	using std::setw;
-	using std::sort;
-	using std::stack;
-	using std::streambuf;
-	using std::streamsize;
-	using std::string;
-	using std::swap;
-	using std::vector;
-
-	using std::cerr;
-	using std::cout;
-	using std::endl;
+  using std::cerr;
+  using std::cout;
+  using std::endl;
 
 #	ifdef _WIN32
 #		if defined(_MSC_VER) && (_MSC_VER <= 1600) // up to VS2010
@@ -215,7 +143,6 @@ Notes
 #     endif
 #	endif
 
-#endif
 
 #ifdef _WIN32
 #	pragma warning( pop )

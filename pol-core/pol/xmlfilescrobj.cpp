@@ -552,7 +552,7 @@ BObjectImp* BXmlAttribute::call_method_id( const int id, Executor& ex, bool forc
 	{
 		case MTH_PROPNAMES:
 		{
-			auto_ptr<ObjArray> arr (new ObjArray);
+			std::unique_ptr<ObjArray> arr (new ObjArray);
 			TiXmlAttribute* attrib=node->FirstAttribute();
 			while(attrib)
 			{
@@ -645,7 +645,7 @@ BObject* BXMLAttributeIterator::step()
 		nodeAttrib=nodeAttrib->Next();
 	if (nodeAttrib)
 	{
-		auto_ptr<BStruct> details (new BStruct());
+		std::unique_ptr<BStruct> details (new BStruct());
 		details->addMember(nodeAttrib->Name(), new String(nodeAttrib->Value()));
 		return new BObject(details.release());
 	}

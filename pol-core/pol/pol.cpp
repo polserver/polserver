@@ -1545,6 +1545,7 @@ void threadstatus_thread( void )
 			{
 				send_pulse();
 				wake_tasks_thread();
+				ClientTransmitSingleton::instance()->Cancel();
 				sent_wakeups = true;
 			}
 		 

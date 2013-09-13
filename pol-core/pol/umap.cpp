@@ -203,11 +203,11 @@ BObjectImp* Map::script_method_id( const int id, Executor& ex )
     {
     case MTH_GETPINS:
         {
-		    auto_ptr<ObjArray> arr (new ObjArray);
+		    std::unique_ptr<ObjArray> arr (new ObjArray);
 		    for( PinPoints::iterator itr = pin_points.begin(); itr != pin_points.end(); ++itr )
 		    {
 
-			    auto_ptr<BStruct> struc (new BStruct);
+			    std::unique_ptr<BStruct> struc (new BStruct);
 			    struc->addMember( "x", new BLong( itr->x) );
 			    struc->addMember( "y", new BLong( itr->y) );		
     		

@@ -379,7 +379,7 @@ BObjectImp* BStruct::call_method_id( const int id, Executor& ex, bool forcebuilt
     case MTH_KEYS:
 		if (ex.numParams() == 0)
 		{
-	        auto_ptr<ObjArray> arr (new ObjArray);
+	        std::unique_ptr<ObjArray> arr (new ObjArray);
 		    Contents::const_iterator itr = contents_.begin(), end = contents_.end();
 	        for( ; itr != end; ++itr )
 			{

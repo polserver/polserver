@@ -640,7 +640,7 @@ bool start_textcmd_script( Client* client, const char *text,
 			{
 				// Unicode stuff
 
-				auto_ptr<UOExecutor> ex(create_script_executor());
+				std::unique_ptr<UOExecutor> ex(create_script_executor());
 				if (prog->haveProgram)
 				{
 					if ( wtext && lang )

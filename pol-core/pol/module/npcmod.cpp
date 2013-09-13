@@ -892,7 +892,7 @@ BObjectImp* NPCExecutorModule::SayUC()
 
 BObjectImp* NPCExecutorModule::position()
 {
-	auto_ptr<BStruct> oa (new BStruct);
+	std::unique_ptr<BStruct> oa (new BStruct);
 
 	oa->addMember( "x", new BLong( npc.x ) );
 	oa->addMember( "y", new BLong( npc.y ) );
@@ -950,7 +950,7 @@ BObjectImp* NPCExecutorModule::CreateBackpack()
 	{
 		Item* i = Item::create( UOBJ_BACKPACK );
 		i->realm = npc.realm;
-		auto_ptr<Item> item( i );
+		std::unique_ptr<Item> item( i );
 		item->layer = LAYER_BACKPACK;
 		if (npc.equippable(item.get()))
 		{
@@ -973,7 +973,7 @@ BObjectImp* NPCExecutorModule::CreateItem()
 
 	Item* i = Item::create( static_cast<unsigned int>(objtype->value()) );
 	i->realm = npc.realm;
-	auto_ptr<Item> item( i );
+	std::unique_ptr<Item> item( i );
 	if (item.get() == NULL)
 		return new BLong(0);
 
@@ -1001,7 +1001,7 @@ BObjectImp* NPCExecutorModule::makeboundingbox( /* areastring */ )
 		return new String( "" );
 
 	BoundingBoxObjImp* bbox = new BoundingBoxObjImp;
-	auto_ptr< BoundingBoxObjImp > bbox_owner( bbox );
+	std::unique_ptr< BoundingBoxObjImp > bbox_owner( bbox );
 
 	//    const std::string& areas = arealist->value();
 

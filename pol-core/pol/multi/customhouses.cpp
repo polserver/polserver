@@ -564,7 +564,7 @@ void CustomHouseDesign::FillComponents( UHouse* house, bool add_as_component )
 
 ObjArray* CustomHouseDesign::list_parts() const
 {
-	auto_ptr<ObjArray> arr (new ObjArray);
+	std::unique_ptr<ObjArray> arr (new ObjArray);
 	for(int i=0; i<CUSTOM_HOUSE_NUM_PLANES; i++)
 	{
 		for( HouseFloor::const_iterator xitr = Elements[i].data.begin(),
@@ -579,7 +579,7 @@ ObjArray* CustomHouseDesign::list_parts() const
 					zitrend = yitr->end(); 
 					zitr != zitrend; ++zitr)
 				{
-					auto_ptr<BStruct> itemstruct (new BStruct);
+					std::unique_ptr<BStruct> itemstruct (new BStruct);
 					itemstruct->addMember("graphic",new BLong(zitr->graphic));
 					itemstruct->addMember("xoffset",new BLong(zitr->xoffset));
 					itemstruct->addMember("yoffset",new BLong(zitr->yoffset));

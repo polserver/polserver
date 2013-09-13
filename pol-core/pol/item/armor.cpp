@@ -82,7 +82,7 @@ void ArmorDesc::PopulateStruct( BStruct* descriptor ) const
 	descriptor->addMember( "OnHitScript", new String(on_hit_script.relativename(pkg)) );
 	descriptor->addMember( "AR", new BLong(ar) );
 
-	auto_ptr<ObjArray> arr_zones (new ObjArray());
+	std::unique_ptr<ObjArray> arr_zones (new ObjArray());
 	std::set<unsigned short>::const_iterator itr;
 	for(itr = zones.begin(); itr != zones.end(); ++itr)
 		arr_zones->addElement( new String( zone_to_zone_name(*itr) ) );
@@ -90,8 +90,6 @@ void ArmorDesc::PopulateStruct( BStruct* descriptor ) const
 
 	if(arr_zones->ref_arr.size() > 0)
 		descriptor->addMember( "Coverage", arr_zones.release() );
-	
-	// auto_ptr<> takes care of deleting if it's not released
 }
 
 UArmor::UArmor( const ArmorDesc& descriptor, const ArmorDesc* permanent_descriptor ) :

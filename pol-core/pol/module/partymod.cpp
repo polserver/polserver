@@ -121,7 +121,7 @@ BObjectRef EPartyRefObjImp::get_member_id( const int id ) //id test
 	{
 	case MBR_MEMBERS:
 		{
-			auto_ptr<ObjArray> arr (new ObjArray);
+			std::unique_ptr<ObjArray> arr (new ObjArray);
 			vector<u32>::iterator itr = obj_->_member_serials.begin();
 			while( itr != obj_->_member_serials.end() )
 			{
@@ -148,7 +148,7 @@ BObjectRef EPartyRefObjImp::get_member_id( const int id ) //id test
 
 	case MBR_CANDIDATES:
 		{
-			auto_ptr<ObjArray> arr (new ObjArray);
+			std::unique_ptr<ObjArray> arr (new ObjArray);
 			vector<u32>::iterator itr = obj_->_candidates_serials.begin();
 			while( itr != obj_->_candidates_serials.end() )
 			{

@@ -544,9 +544,9 @@ void ClientCreateChar( Client* client, PKTIN_00* msg)
 	ref_ptr<EScriptProgram> prog = find_script( "misc/oncreate", true, config.cache_interactive_scripts );
 	if (prog.get() != NULL)
 	{
-		auto_ptr<UOExecutor> ex(create_script_executor());
+		std::unique_ptr<UOExecutor> ex(create_script_executor());
 		
-		auto_ptr<ObjArray> arr (new ObjArray);
+		std::unique_ptr<ObjArray> arr (new ObjArray);
 		arr->addElement( new BLong( msg->SkillNumber1 ) );
 		arr->addElement( new BLong( msg->SkillNumber2 ) );
 		arr->addElement( new BLong( msg->SkillNumber3 ) );
@@ -918,9 +918,9 @@ void ClientCreateCharKR( Client* client, PKTIN_8D* msg)
 	ref_ptr<EScriptProgram> prog = find_script( "misc/oncreate", true, config.cache_interactive_scripts );
 	if (prog.get() != NULL)
 	{
-		auto_ptr<UOExecutor> ex(create_script_executor());
+		std::unique_ptr<UOExecutor> ex(create_script_executor());
 		
-		auto_ptr<ObjArray> arr (new ObjArray);
+		std::unique_ptr<ObjArray> arr (new ObjArray);
 		arr->addElement( new BLong( msg->skillnumber1 ) );
 		arr->addElement( new BLong( msg->skillnumber2 ) );
 		arr->addElement( new BLong( msg->skillnumber3 ) );
@@ -1324,9 +1324,9 @@ void ClientCreateChar70160( Client* client, PKTIN_F8* msg)
 	ref_ptr<EScriptProgram> prog = find_script( "misc/oncreate", true, config.cache_interactive_scripts );
 	if (prog.get() != NULL)
 	{
-		auto_ptr<UOExecutor> ex(create_script_executor());
+		std::unique_ptr<UOExecutor> ex(create_script_executor());
 		
-		auto_ptr<ObjArray> arr (new ObjArray);
+		std::unique_ptr<ObjArray> arr (new ObjArray);
 		arr->addElement( new BLong( msg->SkillNumber1 ) );
 		arr->addElement( new BLong( msg->SkillNumber2 ) );
 		arr->addElement( new BLong( msg->SkillNumber3 ) );

@@ -200,7 +200,7 @@ BObjectImp* PolSystemExecutorModule::mf_GetCmdLevelNumber()
 
 BObjectImp* PolSystemExecutorModule::mf_Packages()
 {
-	auto_ptr<ObjArray> arr (new ObjArray);
+	std::unique_ptr<ObjArray> arr (new ObjArray);
 	for( unsigned i = 0; i < packages.size(); ++i )
 	{
 		PackageObjImp* imp = new PackageObjImp( PackagePtrHolder( packages[i] ) );
@@ -225,10 +225,10 @@ BObjectImp* PolSystemExecutorModule::mf_GetPackageByName()
 
 BObjectImp* PolSystemExecutorModule::mf_ListTextCommands()
 {
-	auto_ptr<BDictionary> pkg_list (new BDictionary);
+	std::unique_ptr<BDictionary> pkg_list (new BDictionary);
 	// Sets up text commands not in a package.
 	{
-		auto_ptr<BDictionary> cmd_lvl_list(new BDictionary);
+		std::unique_ptr<BDictionary> cmd_lvl_list(new BDictionary);
 		for( unsigned num = 0; num < cmdlevels2.size(); ++num )
 		{
 			ObjArray* script_list = GetCommandsInPackage(NULL, num);
@@ -245,7 +245,7 @@ BObjectImp* PolSystemExecutorModule::mf_ListTextCommands()
 	for( Packages::iterator itr = packages.begin(); itr != packages.end(); ++itr )
 	{
 		Package* pkg = (*itr);
-		auto_ptr<BDictionary> cmd_lvl_list(new BDictionary);
+		std::unique_ptr<BDictionary> cmd_lvl_list(new BDictionary);
 		for( unsigned num = 0; num < cmdlevels2.size(); ++num )
 		{
 			ObjArray* script_list = GetCommandsInPackage(pkg, num);
@@ -281,7 +281,7 @@ BObjectImp* PolSystemExecutorModule::mf_ListenPoints()
 
 BStruct* SetupRealmDetails(Realm* realm)
 {
-	auto_ptr<BStruct> details (new BStruct());
+	std::unique_ptr<BStruct> details (new BStruct());
 	details->addMember("width", new BLong(realm->width()));
 	details->addMember("height", new BLong(realm->height()));
 	details->addMember("season", new BLong(realm->season()));
@@ -346,7 +346,7 @@ BObjectImp* PolSystemExecutorModule::mf_GetItemDescriptor()
 		if(id.objtype == 0 && id.graphic == 0)
 			return new BError( "Itemdesc.cfg entry for objtype " + hexint(objtype) + " not found." );
 
-		auto_ptr<BStruct> descriptor(new BStruct());
+		std::unique_ptr<BStruct> descriptor(new BStruct());
 		
 		id.PopulateStruct( descriptor.get() );
 		

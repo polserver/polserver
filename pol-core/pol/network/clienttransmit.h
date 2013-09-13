@@ -2,8 +2,11 @@
 #define CLIENTSEND_H
 #include "../../clib/stl_inc.h"
 #include "../../clib/singleton.h"
-#include "../../clib/hbmutex.h"
 #include "../../clib/rawtypes.h"
+
+#include "../../clib/message_queue.h"
+
+#include <boost/noncopyable.hpp>
 
 class Client;
 
@@ -17,9 +20,10 @@ struct TransmitData
 	TransmitData() : client(NULL), len(0), disconnects(false) {};
 };
 
-typedef queue<TransmitData> ClientTransmitQueue;
+typedef std::shared_ptr<TransmitData> TransmitDataSPtr;
+typedef message_queue<TransmitDataSPtr> ClientTransmitQueue;
 
-class ClientTransmit
+class ClientTransmit : boost::noncopyable
 {
 public:
 	ClientTransmit();
@@ -27,14 +31,11 @@ public:
 
 	void AddToQueue(Client* client, const void *data, int len);
 	void QueueDisconnection(Client* client);
+	void Cancel();
 
-	bool HasQueueEntries();
-	TransmitData NextQueueEntry();
-
-
+	TransmitDataSPtr NextQueueEntry();
 private:
 	ClientTransmitQueue _transmitqueue;
-	Mutex _TransmitQueueMutex;
 };
 
 

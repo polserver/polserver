@@ -311,7 +311,7 @@ BObjectImp* ConfigFileExecutorModule::mf_GetConfigStringKeys()
 	StoredConfigFile* cfile;
 	if (getStoredConfigFileParam( *this, 0, cfile ))
 	{
-		auto_ptr<ObjArray> arr (new ObjArray);
+		std::unique_ptr<ObjArray> arr (new ObjArray);
 		StoredConfigFile::ElementsByName::const_iterator itr = cfile->byname_begin(), end = cfile->byname_end();
 		for( ; itr != end; ++itr )
 		{
@@ -330,7 +330,7 @@ BObjectImp* ConfigFileExecutorModule::mf_GetConfigIntKeys()
 	StoredConfigFile* cfile;
 	if (getStoredConfigFileParam( *this, 0, cfile ))
 	{
-		auto_ptr<ObjArray> arr (new ObjArray);
+		std::unique_ptr<ObjArray> arr (new ObjArray);
 		StoredConfigFile::ElementsByNum::const_iterator itr = cfile->bynum_begin(), end = cfile->bynum_end();
 		for( ; itr != end; ++itr )
 		{
@@ -420,7 +420,7 @@ BObjectImp* ConfigFileExecutorModule::mf_GetConfigStringArray()
 		StoredConfigElem::const_iterator itr = pr.first;
 		StoredConfigElem::const_iterator end = pr.second;
 
-		auto_ptr<ObjArray> ar (new ObjArray);
+		std::unique_ptr<ObjArray> ar (new ObjArray);
 		for( ; itr != end; ++itr )
 		{
 			BObjectImp* imp = (*itr).second.get();
@@ -449,7 +449,7 @@ BObjectImp* ConfigFileExecutorModule::mf_GetConfigStringDictionary()
 		StoredConfigElem::const_iterator itr = pr.first;
 		StoredConfigElem::const_iterator end = pr.second;
 		
-		auto_ptr<BDictionary> dict ( new BDictionary );
+		std::unique_ptr<BDictionary> dict ( new BDictionary );
 		for( ; itr != end; ++itr )
 		{
 			BObjectImp* line = (*itr).second.get();
