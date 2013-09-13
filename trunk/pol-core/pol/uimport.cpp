@@ -1194,7 +1194,7 @@ void read_starting_locations()
 			throw runtime_error( "Error in configuration file." );
 		}
 
-		auto_ptr<StartingLocation> loc( new StartingLocation );
+		std::unique_ptr<StartingLocation> loc( new StartingLocation );
 		loc->city = elem.remove_string( "CITY" );
 		loc->desc = elem.remove_string( "DESCRIPTION" );
 		loc->mapid = elem.remove_ushort( "MAPID", 0 );
@@ -1257,7 +1257,7 @@ void read_gameservers()
 		if (!elem.type_is( "GameServer" ))
 			continue;
 
-		auto_ptr<ServerDescription> svr( new ServerDescription );
+		std::unique_ptr<ServerDescription> svr( new ServerDescription );
 		
 		svr->name = elem.remove_string( "NAME" );
 		

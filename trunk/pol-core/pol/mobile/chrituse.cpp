@@ -42,7 +42,7 @@ bool Character::start_script( EScriptProgram* prog,
     BObject ob3(param3?param3:UninitObject::create());
 	BObject ob4(param4?param4:UninitObject::create());
 
-    auto_ptr<UOExecutor> ex( create_script_executor() );
+    std::unique_ptr<UOExecutor> ex( create_script_executor() );
     UOExecutorModule* uoemod = new UOExecutorModule( *ex );
     ex->addModule( uoemod );
     
@@ -94,7 +94,7 @@ void Item::walk_on( Character* chr )
                             config.cache_interactive_scripts);
         if (prog.get() != NULL)
         {
-            auto_ptr<UOExecutor> ex(create_script_executor());
+            std::unique_ptr<UOExecutor> ex(create_script_executor());
             ex->addModule( new UOExecutorModule( *ex ) );
             if (prog->haveProgram)
             {

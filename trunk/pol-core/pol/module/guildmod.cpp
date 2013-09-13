@@ -421,7 +421,7 @@ BObjectRef EGuildRefObjImp::get_member_id( const int id ) //id test
     {
     case MBR_MEMBERS:
 		{
-			auto_ptr<ObjArray> arr;
+			std::unique_ptr<ObjArray> arr;
 			arr.reset(new ObjArray);
 			for( SerialSet::iterator itr = obj_->_member_serials.begin();
 				 itr != obj_->_member_serials.end();
@@ -446,7 +446,7 @@ BObjectRef EGuildRefObjImp::get_member_id( const int id ) //id test
 
     case MBR_ALLYGUILDS:
 		{
-			auto_ptr<ObjArray> arr;
+			std::unique_ptr<ObjArray> arr;
 			arr.reset(new ObjArray);
 			for( SerialSet::iterator itr = obj_->_allyguild_serials.begin();
 				 itr != obj_->_allyguild_serials.end();
@@ -472,7 +472,7 @@ BObjectRef EGuildRefObjImp::get_member_id( const int id ) //id test
 
     case MBR_ENEMYGUILDS:
 		{
-			auto_ptr<ObjArray> arr;
+			std::unique_ptr<ObjArray> arr;
 			arr.reset(new ObjArray);
 			for( SerialSet::iterator itr = obj_->_enemyguild_serials.begin();
 				 itr != obj_->_enemyguild_serials.end();
@@ -721,7 +721,7 @@ BObjectImp* EGuildRefObjImp::call_method( const char* methodname, Executor& ex )
 ///  ListGuilds(); // returns an array of Guild objects
 BObjectImp* GuildExecutorModule::mf_ListGuilds()
 {
-    auto_ptr<ObjArray> result (new ObjArray);
+    std::unique_ptr<ObjArray> result (new ObjArray);
     for( Guilds::iterator itr = guilds.begin(), end = guilds.end(); itr != end; ++itr )
     {
         Guild* guild = (*itr).second.get();

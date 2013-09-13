@@ -317,7 +317,7 @@ BObjectImp* FileAccessExecutorModule::mf_ReadFile()
 	if (!ifs.is_open())
 		return new BError( "File not found: " + filepath );
 
-	auto_ptr<ObjArray> arr (new ObjArray());
+	std::unique_ptr<ObjArray> arr (new ObjArray());
 
 	string line;
 	while (getline(ifs, line))

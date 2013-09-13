@@ -585,7 +585,7 @@ void ItemDesc::PopulateStruct( BStruct* descriptor ) const
 	descriptor->addMember( "MaxHp",				new BLong(maxhp) );
 
 	std::set<std::string>::const_iterator set_itr;
-	auto_ptr<ObjArray> ignorecp (new ObjArray);
+	std::unique_ptr<ObjArray> ignorecp (new ObjArray);
 	for(set_itr = ignore_cprops.begin(); set_itr != ignore_cprops.end(); ++set_itr)
 		ignorecp->addElement( new String(*set_itr) );
 

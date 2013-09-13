@@ -173,7 +173,7 @@ void UHouse::add_component(Item* item, s32 xoff, s32 yoff, u8 zoff)
 
 ObjArray* UHouse::component_list() const
 {
-    auto_ptr<ObjArray> arr (new ObjArray);
+    std::unique_ptr<ObjArray> arr (new ObjArray);
 	for( Components::const_iterator itr = components_.begin(), end = components_.end(); itr != end; ++itr )
 	{
 		Item* item = (*itr).get();
@@ -190,7 +190,7 @@ ObjArray* UHouse::items_list() const
     ItemList itemlist;
     MobileList moblist;
     list_contents( this, itemlist, moblist );
-    auto_ptr<ObjArray> arr (new ObjArray);
+    std::unique_ptr<ObjArray> arr (new ObjArray);
     for( ItemList::iterator itr = itemlist.begin(); itr != itemlist.end(); ++itr )
     {
         Item* item = (*itr);
@@ -208,7 +208,7 @@ ObjArray* UHouse::mobiles_list() const
     ItemList itemlist;
     MobileList moblist;
     list_contents( this, itemlist, moblist );
-    auto_ptr<ObjArray> arr (new ObjArray);
+    std::unique_ptr<ObjArray> arr (new ObjArray);
     for( MobileList::iterator itr = moblist.begin(); itr != moblist.end(); ++itr )
     {
         Character* chr = (*itr);
@@ -964,7 +964,7 @@ void UHouse::walk_on( Character* chr )
 			config.cache_interactive_scripts);
 		if (prog.get() != NULL)
 		{
-			auto_ptr<UOExecutor> ex(create_script_executor());
+			std::unique_ptr<UOExecutor> ex(create_script_executor());
 			ex->addModule( new UOExecutorModule( *ex ) );
 			if (prog->haveProgram)
 			{

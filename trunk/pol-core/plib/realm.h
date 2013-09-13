@@ -143,9 +143,9 @@ protected:
 private:
     RealmDescriptor _descriptor;
 public:
-    auto_ptr<MapServer> _mapserver;
-    auto_ptr<StaticServer> _staticserver;
-    auto_ptr<MapTileServer> _maptileserver;
+    std::unique_ptr<MapServer> _mapserver;
+    std::unique_ptr<StaticServer> _staticserver;
+    std::unique_ptr<MapTileServer> _maptileserver;
 private:
     // not implemented:
     Realm& operator=( const Realm& );

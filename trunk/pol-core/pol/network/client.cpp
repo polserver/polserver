@@ -206,7 +206,7 @@ void Client::PreDelete()
 // ClientInfo - delivers a lot of usefull infomation about client PC
 BStruct* Client::getclientinfo() const
 {
-    auto_ptr<BStruct> ret (new BStruct);
+    std::unique_ptr<BStruct> ret (new BStruct);
 
     ret->addMember( "unknown1",          new BLong( clientinfo_.unknown1 ) );          // Unknown - allways 0x02
     ret->addMember( "instance",          new BLong( clientinfo_.instance ) );          // Unique Instance ID of UO
@@ -255,7 +255,7 @@ BStruct* Client::getclientinfo() const
       ret->addMember( "langcode", arr_lc ); // Language Code [wide-character]
     }
 
-    auto_ptr<ObjArray> arr_u2 (new ObjArray);
+    std::unique_ptr<ObjArray> arr_u2 (new ObjArray);
     for ( unsigned i = 0; i < sizeof(clientinfo_.unknown2); ++i )
       arr_u2->addElement( new BLong( clientinfo_.unknown2[i] ) );
 	ret->addMember( "unknown2", arr_u2.release() ); // Unknown

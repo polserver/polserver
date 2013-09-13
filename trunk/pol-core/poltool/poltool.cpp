@@ -42,7 +42,7 @@ int mapdump( int argc, char* argv[] )
 	}
     RealmDescriptor descriptor = RealmDescriptor::Load( realmname );
     MapServer* mapserver = MapServer::Create( descriptor);
-    std::auto_ptr<MapServer> _owner(mapserver);
+    std::unique_ptr<MapServer> _owner(mapserver);
 
     MapTileServer* mts = new MapTileServer(descriptor);
     if (argc >= 3)

@@ -63,7 +63,7 @@ struct ReturnContext
 
 struct BackupStruct
 {
-	auto_ptr<BObjectRefVec> Locals;
+	std::unique_ptr<BObjectRefVec> Locals;
 	ValueStackCont ValueStack;
 	unsigned PC;
 };

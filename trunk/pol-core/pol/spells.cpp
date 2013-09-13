@@ -507,7 +507,7 @@ void load_spells_cfg( const char* path, Package* pkg )
 
 	while (cf.read( elem ))
 	{
-		auto_ptr<USpell> spell( new USpell(elem, pkg) );
+		std::unique_ptr<USpell> spell( new USpell(elem, pkg) );
 
 		unsigned short spellid = spell->spell_id();
 

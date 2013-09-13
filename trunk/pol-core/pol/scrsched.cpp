@@ -546,7 +546,7 @@ UOExecutorModule* start_script( const ScriptDef& script, BObjectImp* param ) thr
         return NULL;
 	}
 
-    auto_ptr<UOExecutor> ex( create_script_executor() );
+    std::unique_ptr<UOExecutor> ex( create_script_executor() );
     if (program->haveProgram && (param != NULL))
     {
         ex->pushArg( param );
@@ -588,7 +588,7 @@ UOExecutorModule* start_script( const ScriptDef& script,
         return NULL;
 	}
 
-    auto_ptr<UOExecutor> ex( create_script_executor() );
+    std::unique_ptr<UOExecutor> ex( create_script_executor() );
     if (program->haveProgram)
     {
         if (param3 != NULL)
@@ -1036,7 +1036,7 @@ UOExecutor *create_script_executor()
 
 UOExecutor *create_full_script_executor()
 {
-	auto_ptr<UOExecutor> ex (new UOExecutor());
+	std::unique_ptr<UOExecutor> ex (new UOExecutor);
 
     add_common_exmods( *ex );
 	ex->addModule( new UOExecutorModule( *ex ) );	

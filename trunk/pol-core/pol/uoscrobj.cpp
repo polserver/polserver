@@ -1553,7 +1553,7 @@ BObjectImp* Character::get_script_member_id( const int id ) const
 		case MBR_CLIENTVERSIONDETAIL:
 			if (client != NULL)
 			{
-				auto_ptr<BStruct> info (new BStruct);
+				std::unique_ptr<BStruct> info (new BStruct);
 				VersionDetailStruct version = client->getversiondetail();
 				info->addMember("major",  new BLong(version.major));
 				info->addMember("minor",  new BLong(version.minor));
@@ -1563,7 +1563,7 @@ BObjectImp* Character::get_script_member_id( const int id ) const
 			}
 			else
 			{
-				auto_ptr<BStruct> info (new BStruct);
+				std::unique_ptr<BStruct> info (new BStruct);
 				info->addMember("major",  new BLong(0));
 				info->addMember("minor",  new BLong(0));
 				info->addMember("rev",    new BLong(0));
@@ -1694,7 +1694,7 @@ BObjectImp* Character::get_script_member_id( const int id ) const
 		case MBR_LASTCOORD:
 			if (client != NULL)
 			{
-				auto_ptr<BStruct> lastcoord (new BStruct);
+				std::unique_ptr<BStruct> lastcoord (new BStruct);
 				lastcoord->addMember("lastx", new BLong(lastx));
 				lastcoord->addMember("lasty", new BLong(lasty));
 				lastcoord->addMember("lastz", new BLong(lastz));
@@ -2167,7 +2167,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 
 	case MTH_PRIVILEGES:
 		{
-			auto_ptr<BDictionary> dict (new BDictionary);
+			std::unique_ptr<BDictionary> dict (new BDictionary);
 			ISTRINGSTREAM istrm(all_privs());
 			string tmp;
 			while ( istrm >> tmp )
@@ -2495,21 +2495,21 @@ BObjectImp* Character::custom_script_method( const char* methodname, Executor& e
 
 ObjArray* Character::GetReportables() const
 {
-	auto_ptr<ObjArray> arr (new ObjArray);
+	std::unique_ptr<ObjArray> arr (new ObjArray);
 
 	for( ReportableList::const_iterator itr = reportable_.begin(), end=reportable_.end();
 			itr != end; ++itr )
 	{
 		const reportable_t& rt = (*itr);
 
-		auto_ptr<BObjectImp> kmember (NULL);
+		std::unique_ptr<BObjectImp> kmember (nullptr);
 		Character* killer = system_find_mobile( rt.serial );
 		if (killer)
 			kmember.reset(new EOfflineCharacterRefObjImp(killer));
 		else
 			kmember.reset(new BError("Mobile not found"));
 
-		auto_ptr<BStruct> elem (new BStruct);
+		std::unique_ptr<BStruct> elem (new BStruct);
 		elem->addMember( "serial", new BLong( rt.serial ) );
 		elem->addMember( "killer", kmember.release() );
 		elem->addMember( "gameclock", new BLong( rt.polclock ) );
@@ -2521,19 +2521,19 @@ ObjArray* Character::GetReportables() const
 
 ObjArray* Character::GetAggressorTo() const
 {
-	auto_ptr<ObjArray> arr (new ObjArray);
+	std::unique_ptr<ObjArray> arr (new ObjArray);
 
 	for( Character::MobileCont::const_iterator itr = aggressor_to_.begin(), end = aggressor_to_.end();
 			itr != end; ++itr )
 	{
-		auto_ptr<BObjectImp> member (NULL);
+		std::unique_ptr<BObjectImp> member (nullptr);
 		Character* chr = system_find_mobile( (*itr).first->serial);
 		if (chr)
 			member.reset(new EOfflineCharacterRefObjImp(chr));
 		else
 			member.reset(new BError("Mobile not found"));
 
-		auto_ptr<BStruct> elem (new BStruct);
+		std::unique_ptr<BStruct> elem (new BStruct);
 		elem->addMember( "serial", new BLong( (*itr).first->serial ) );
 		elem->addMember( "ref", member.release() );
 		elem->addMember( "seconds", new BLong( ( (*itr).second - polclock() ) / POLCLOCKS_PER_SEC ) );
@@ -2545,19 +2545,19 @@ ObjArray* Character::GetAggressorTo() const
 
 ObjArray* Character::GetLawFullyDamaged() const
 {
-	auto_ptr<ObjArray> arr (new ObjArray);
+	std::unique_ptr<ObjArray> arr (new ObjArray);
 
 	for( Character::MobileCont::const_iterator itr = lawfully_damaged_.begin(), end = lawfully_damaged_.end();
 			itr != end; ++itr )
 	{
-		auto_ptr<BObjectImp> member (NULL);
+		std::unique_ptr<BObjectImp> member (nullptr);
 		Character* chr = system_find_mobile( (*itr).first->serial);
 		if (chr)
 			member.reset(new EOfflineCharacterRefObjImp(chr));
 		else
 			member.reset(new BError("Mobile not found"));
 
-		auto_ptr<BStruct> elem (new BStruct);
+		std::unique_ptr<BStruct> elem (new BStruct);
 		elem->addMember( "serial", new BLong( (*itr).first->serial ) );
 		elem->addMember( "ref", member.release() );
 		elem->addMember( "seconds", new BLong( ( (*itr).second - polclock() ) / POLCLOCKS_PER_SEC ) );
@@ -2865,7 +2865,7 @@ BObjectImp* Spellbook::script_method_id( const int id, Executor& ex )
 			}
 		case MTH_SPELLS:
 			{
-				auto_ptr<ObjArray> arr (new ObjArray);
+				std::unique_ptr<ObjArray> arr (new ObjArray);
 				for ( u16 i = 0; i < 64; ++i )
 				{
 					unsigned int sid;
@@ -3617,7 +3617,7 @@ BObjectRef EClientRefObjImp::get_member_id( const int id )
 			break;
 		case MBR_CLIENTVERSIONDETAIL:
 			{
-				auto_ptr<BStruct> info (new BStruct);
+				std::unique_ptr<BStruct> info (new BStruct);
 				VersionDetailStruct version = obj_->getversiondetail();
 				info->addMember("major",  new BLong(version.major));
 				info->addMember("minor",  new BLong(version.minor));

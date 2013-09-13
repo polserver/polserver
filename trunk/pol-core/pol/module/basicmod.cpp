@@ -101,7 +101,7 @@ StrReplace(str, to_replace, replace_with);
 BObjectImp* BasicExecutorModule::mf_StrReplace()
 {
 	BObjectImp* imp = exec.getParamImp( 0 );
-	auto_ptr<String> string( new String(imp->getStringRep().c_str()) );
+	std::unique_ptr<String> string( new String(imp->getStringRep().c_str()) );
 	String *to_replace = static_cast<String*>(exec.getParamImp(1,BObjectImp::OTString));
 	if (!to_replace)
 		return new BError( "Invalid parameter type" );
@@ -123,7 +123,7 @@ BObjectImp* BasicExecutorModule::mf_StrReplace()
 BObjectImp* BasicExecutorModule::mf_SubStrReplace()
 {
 	BObjectImp* imp = exec.getParamImp( 0 );
-	auto_ptr<String> string( new String(imp->getStringRep().c_str()) );
+	std::unique_ptr<String> string( new String(imp->getStringRep().c_str()) );
 	String *replace_with = static_cast<String*>(exec.getParamImp(1,BObjectImp::OTString));
 	if (!replace_with)
 		return new BError( "Invalid parameter type" );
@@ -300,7 +300,7 @@ BObjectImp* BasicExecutorModule::mf_CAscZ()
 	BObjectImp* imp = exec.getParamImp( 0 );
 	string tmp = imp->getStringRep();
 	int nullterm = static_cast<int>(exec.paramAsLong(1));
-	auto_ptr<ObjArray> arr (new ObjArray);
+	std::unique_ptr<ObjArray> arr (new ObjArray);
 	for( size_t i = 0; i < tmp.size(); ++i )
 	{
 		arr->addElement( new BLong( static_cast<unsigned char>(tmp[i]) ) );
@@ -454,7 +454,7 @@ BObjectImp* BasicExecutorModule::mf_SplitWords()
 		max_split = static_cast<int>(exec.paramAsLong(2));
 	}	
 
-	auto_ptr<ObjArray> objarr (new ObjArray);
+	std::unique_ptr<ObjArray> objarr (new ObjArray);
 
 	// Support for how it previously worked.
 	// Kept to support spaces and tabs as the same.

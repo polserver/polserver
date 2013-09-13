@@ -250,7 +250,7 @@ void Package::check_conflicts() const
 
 void load_package( const std::string& pkg_dir, ConfigElem& elem, bool quiet )
 {
-	auto_ptr<Package> pkg(new Package( pkg_dir, elem )); 
+	std::unique_ptr<Package> pkg(new Package( pkg_dir, elem )); 
 	Package* existing_pkg = find_package( pkg->name() );
 
 	if (existing_pkg != NULL)

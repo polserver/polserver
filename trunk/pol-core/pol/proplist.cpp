@@ -251,7 +251,7 @@ BObjectImp* CallPropertyListMethod_id( PropertyList& proplist, const int id, Exe
         {
             vector<string> propnames;
             proplist.getpropnames( propnames );
-            auto_ptr<ObjArray> arr (new ObjArray);
+            std::unique_ptr<ObjArray> arr (new ObjArray);
             for( unsigned i = 0; i < propnames.size(); ++i )
             {
                 arr->addElement( new String(propnames[i]) );

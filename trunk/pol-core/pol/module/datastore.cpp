@@ -320,7 +320,7 @@ BObjectImp* DataFileContents::methodDeleteElement( const string& key )
 
 BObjectImp* DataFileContents::methodKeys() const
 {
-	auto_ptr<ObjArray> arr (new ObjArray);
+	std::unique_ptr<ObjArray> arr (new ObjArray);
 	
 	for( ElementsByString::const_iterator citr = elements_by_string.begin();
 		 citr != elements_by_string.end();
@@ -608,11 +608,11 @@ DataStoreFile* DataFileExecutorModule::GetDataStoreFile( const std::string& insp
 
 BObjectImp* DataFileExecutorModule::mf_ListDataFiles()
 {
-	auto_ptr<ObjArray> file_list (new ObjArray);
+	std::unique_ptr<ObjArray> file_list (new ObjArray);
 	for( DataStore::iterator itr = datastore.begin(); itr != datastore.end(); ++itr )
 	{
 		DataStoreFile* dsf = (*itr).second;
-		auto_ptr<BStruct> file_name (new BStruct);
+		std::unique_ptr<BStruct> file_name (new BStruct);
 		file_name->addMember("pkg", new String(dsf->pkgname));
 		file_name->addMember("name", new String(dsf->name));
 		file_name->addMember("descriptor", new String(dsf->descriptor));

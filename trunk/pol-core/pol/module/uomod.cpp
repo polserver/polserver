@@ -1677,7 +1677,7 @@ BObjectImp* UOExecutorModule::mf_GetMenuObjTypes()
 	Menu* menu;
 	if (getStaticOrDynamicMenuParam( 0, menu ))
 	{
-		auto_ptr<ObjArray> objarr( new ObjArray );
+		std::unique_ptr<ObjArray> objarr( new ObjArray );
 
 		append_objtypes( objarr.get(), menu );
 
@@ -1698,7 +1698,7 @@ BObjectImp* UOExecutorModule::mf_ApplyConstraint()
 		getStringParam( 2, propname_str ) &&
 		getParam( 3, amthave ))
 	{
-		auto_ptr<ObjArray> newarr( new ObjArray );
+		std::unique_ptr<ObjArray> newarr( new ObjArray );
 
 		for( unsigned i = 0; i < arr->ref_arr.size(); i++ )
 		{
@@ -1834,7 +1834,7 @@ BObjectImp* UOExecutorModule::mf_GetObjPropertyNames()
 	{
 		vector<string> propnames;
 		uobj->getpropnames( propnames );
-		auto_ptr<ObjArray> arr (new ObjArray);
+		std::unique_ptr<ObjArray> arr (new ObjArray);
 		for( unsigned i = 0; i < propnames.size(); ++i )
 		{
 			arr->addElement( new String(propnames[i]) );
@@ -1902,7 +1902,7 @@ BObjectImp* UOExecutorModule::mf_GetGlobalPropertyNames()
 {
 	vector<string> propnames;
 	global_properties.getpropnames( propnames );
-	auto_ptr<ObjArray> arr (new ObjArray);
+	std::unique_ptr<ObjArray> arr (new ObjArray);
 	for( unsigned i = 0; i < propnames.size(); ++i )
 	{
 		arr->addElement( new String(propnames[i]) );
@@ -2285,7 +2285,7 @@ BObjectImp* UOExecutorModule::mf_ListItemsNearLocation(/* x, y, z, range, realm 
 				return new BError("Invalid Coordinates for realm");
 		}
 
-		auto_ptr<ObjArray> newarr( new ObjArray );
+		std::unique_ptr<ObjArray> newarr( new ObjArray );
 
 		unsigned short wxL, wyL, wxH, wyH;
 		zone_convert_clip( x - range, y - range, realm, wxL, wyL );
@@ -2361,7 +2361,7 @@ BObjectImp* UOExecutorModule::mf_ListObjectsInBox(/* x1, y1, z1, x2, y2, z2, rea
 	//	 return new BError("Invalid Coordinates for realm");
 	internal_InBoxAreaChecks(x1, y1, z1, x2, y2, z2, realm);
 
-	auto_ptr<ObjArray> newarr( new ObjArray );
+	std::unique_ptr<ObjArray> newarr( new ObjArray );
 
 	unsigned short wxL, wyL, wxH, wyH;
 	zone_convert_clip( x1, y1, realm, wxL, wyL );
@@ -2435,7 +2435,7 @@ BObjectImp* UOExecutorModule::mf_ListMultisInBox(/* x1, y1, z1, x2, y2, z2, real
 	//	 return new BError("Invalid Coordinates for realm");
 	internal_InBoxAreaChecks(x1, y1, z1, x2, y2, z2, realm);
 
-	auto_ptr<ObjArray> newarr( new ObjArray );
+	std::unique_ptr<ObjArray> newarr( new ObjArray );
 
 	unsigned short wxL, wyL, wxH, wyH;
 	zone_convert_clip( x1+MultiDef::global_minrx, y1+MultiDef::global_minry, realm, wxL, wyL );
@@ -2528,7 +2528,7 @@ BObjectImp* UOExecutorModule::mf_ListStaticsInBox(/* x1, y1, z1, x2, y2, z2, fla
 		//	 return new BError("Invalid Coordinates for realm");
 		internal_InBoxAreaChecks(x1, y1, z1, x2, y2, z2, realm);
 
-		auto_ptr<ObjArray> newarr( new ObjArray );
+		std::unique_ptr<ObjArray> newarr( new ObjArray );
 
 		for( unsigned short wx = x1; wx <= x2; ++wx )
 		{
@@ -2543,7 +2543,7 @@ BObjectImp* UOExecutorModule::mf_ListStaticsInBox(/* x1, y1, z1, x2, y2, z2, fla
 					{
 						if ((z1 <= slist[i].z) && (slist[i].z <= z2))
 						{
-							auto_ptr<BStruct> arr ( new BStruct );
+							std::unique_ptr<BStruct> arr ( new BStruct );
 							arr->addMember( "x", new BLong( wx ) );
 							arr->addMember( "y", new BLong( wy ) );
 							arr->addMember( "z", new BLong( slist[i].z ) );
@@ -2563,7 +2563,7 @@ BObjectImp* UOExecutorModule::mf_ListStaticsInBox(/* x1, y1, z1, x2, y2, z2, fla
 					{
 						if ((z1 <= mlist[i].z) && (mlist[i].z <= z2))
 						{
-							auto_ptr<BStruct> arr  ( new BStruct );
+							std::unique_ptr<BStruct> arr  ( new BStruct );
 							arr->addMember( "x", new BLong( wx ) );
 							arr->addMember( "y", new BLong( wy ) );
 							arr->addMember( "z", new BLong( mlist[i].z ) );
@@ -2599,7 +2599,7 @@ BObjectImp* UOExecutorModule::mf_ListItemsNearLocationOfType(/* x, y, z, range, 
 		if (!realm)
 			return new BError("Realm not found");
 
-		auto_ptr<ObjArray> newarr( new ObjArray );
+		std::unique_ptr<ObjArray> newarr( new ObjArray );
 
 		if (z == LIST_IGNORE_Z)
 		{
@@ -2666,7 +2666,7 @@ BObjectImp* UOExecutorModule::mf_ListItemsAtLocation(/* x, y, z, realm */)
 				return new BError("Invalid Coordinates for realm");
 		}
 
-		auto_ptr<ObjArray> newarr( new ObjArray );
+		std::unique_ptr<ObjArray> newarr( new ObjArray );
 
 		unsigned short wx, wy;
 		zone_convert_clip( x, y, realm, wx, wy );
@@ -2704,7 +2704,7 @@ BObjectImp* UOExecutorModule::mf_ListGhostsNearLocation()
 		Realm* realm = find_realm(strrealm->value());
 		if(!realm) return new BError("Realm not found");
 
-		auto_ptr<ObjArray> newarr( new ObjArray );
+		std::unique_ptr<ObjArray> newarr( new ObjArray );
 
 		unsigned short wxL, wyL, wxH, wyH;
 		zone_convert_clip( x - range, y - range, realm, wxL, wyL );
@@ -2782,7 +2782,7 @@ BObjectImp* UOExecutorModule::mf_ListMobilesNearLocationEx(/* x, y, z, range, fl
 		bool inc_players_only = (flags & LMBLEX_FLAG_PLAYERS_ONLY)? true:false;
 		bool inc_npc_only = (flags & LMBLEX_FLAG_NPC_ONLY)? true:false;
 		
-		auto_ptr<ObjArray> newarr(new ObjArray);
+		std::unique_ptr<ObjArray> newarr(new ObjArray);
 
 		unsigned short wxL, wyL, wxH, wyH;
 		zone_convert_clip( x - range, y - range, realm, wxL, wyL );
@@ -2854,7 +2854,7 @@ BObjectImp* UOExecutorModule::mf_ListMobilesNearLocation(/* x, y, z, range, real
 				return new BError("Invalid Coordinates for realm");
 		}
 
-		auto_ptr<ObjArray> newarr( new ObjArray );
+		std::unique_ptr<ObjArray> newarr( new ObjArray );
 
 		unsigned short wxL, wyL, wxH, wyH;
 		zone_convert_clip( x - range, y - range, realm, wxL, wyL );
@@ -2894,7 +2894,7 @@ BObjectImp* UOExecutorModule::mf_ListMobilesInLineOfSight()
 		getParam( 1, range ))
 	{
 		obj = obj->toplevel_owner();
-		auto_ptr<ObjArray> newarr( new ObjArray );
+		std::unique_ptr<ObjArray> newarr( new ObjArray );
 
 		unsigned short wxL, wyL, wxH, wyH;
 		zone_convert_clip( obj->x - range, obj->y - range, obj->realm, wxL, wyL );
@@ -2944,7 +2944,7 @@ BObjectImp* UOExecutorModule::mf_ListHostiles()
 		getParam( 1, range ) &&
 		getParam( 2, flags ))
 	{
-		auto_ptr<ObjArray> arr(new ObjArray);
+		std::unique_ptr<ObjArray> arr(new ObjArray);
 
 		const Character::CharacterSet& cont = chr->hostiles();
 		Character::CharacterSet::const_iterator itr = cont.begin(), end = cont.end();
@@ -3102,7 +3102,7 @@ BObjectImp* UOExecutorModule::mf_GetPosition()
 	UObject* obj;
 	if (getUObjectParam( exec, 0, obj ))
 	{
-		auto_ptr<BStruct> arr (new BStruct);
+		std::unique_ptr<BStruct> arr (new BStruct);
 		arr->addMember( "x", new BLong( obj->x ) );
 		arr->addMember( "y", new BLong( obj->y ) );
 		arr->addMember( "z", new BLong( obj->z ) );
@@ -3147,7 +3147,7 @@ BObjectImp* UOExecutorModule::mf_EnumerateItemsInContainer()
 
 		if (item->isa( UObject::CLASS_CONTAINER ))
 		{
-			auto_ptr<ObjArray> newarr( new ObjArray );
+			std::unique_ptr<ObjArray> newarr( new ObjArray );
 
 			static_cast<UContainer*>(item)->enumerate_contents( newarr.get(), flags );
 
@@ -3162,7 +3162,7 @@ BObjectImp* UOExecutorModule::mf_EnumerateItemsInContainer()
 
 BObjectImp* UOExecutorModule::mf_EnumerateOnlineCharacters()
 {
-	auto_ptr<ObjArray> newarr( new ObjArray );
+	std::unique_ptr<ObjArray> newarr( new ObjArray );
 
 	for( Clients::const_iterator itr = clients.begin(), end=clients.end(); itr != end; ++itr )
 	{
@@ -3563,7 +3563,7 @@ BObjectImp* UOExecutorModule::mf_GetCoordsInLine()
 	else if ( y2 < y1 )
 		vy = -1;
 	
-	auto_ptr<ObjArray> coords (new ObjArray);
+	std::unique_ptr<ObjArray> coords (new ObjArray);
 	if ( dx >= dy )
 	{
 		dy = dy / dx;
@@ -3577,7 +3577,7 @@ BObjectImp* UOExecutorModule::mf_GetCoordsInLine()
 				float_y = ceil(float_y);
 			int point_y = int(float_y) + y1;
 			
-			auto_ptr<BStruct> point ( new BStruct );
+			std::unique_ptr<BStruct> point ( new BStruct );
 			point->addMember("x", new BLong(point_x));
 			point->addMember("y", new BLong(point_y));
 			coords->addElement(point.release());
@@ -3595,7 +3595,7 @@ BObjectImp* UOExecutorModule::mf_GetCoordsInLine()
 				float_x = ceil(float_x);
 			int point_x = int(float_x) + x1;
 			
-			auto_ptr<BStruct> point (new BStruct);
+			std::unique_ptr<BStruct> point (new BStruct);
 			point->addMember("x", new BLong(point_x));
 			point->addMember("y", new BLong(point_y));
 			coords->addElement(point.release());
@@ -4390,7 +4390,7 @@ BObjectImp* UOExecutorModule::mf_ListEquippedItems()
 	Character* chr;
 	if (getCharacterParam( exec, 0, chr ))
 	{
-		auto_ptr<ObjArray> arr (new ObjArray);
+		std::unique_ptr<ObjArray> arr (new ObjArray);
 		for( int layer = LAYER_EQUIP__LOWEST; layer <= LAYER_EQUIP__HIGHEST; ++layer )
 		{
 			Item* item = chr->wornitem( layer );
@@ -4487,7 +4487,7 @@ BObjectImp* UOExecutorModule::mf_GetMapInfo()
 
 		MAPTILE_CELL cell = realm->getmaptile( static_cast<unsigned short>(x), static_cast<unsigned short>(y) );
 
-		auto_ptr<BStruct> result (new BStruct);
+		std::unique_ptr<BStruct> result (new BStruct);
 		result->addMember( "z", new BLong( cell.z ) );
 		result->addMember( "landtile", new BLong( cell.landtile ) );
 
@@ -4612,7 +4612,7 @@ BObjectImp* UOExecutorModule::mf_GetMultiDimensions()
 			return new BError("MultiID not found");
 
 		const MultiDef& md = *MultiDefByMultiID(multiid);
-		auto_ptr<BStruct> ret (new BStruct);
+		std::unique_ptr<BStruct> ret (new BStruct);
 		ret->addMember( "xmin", new BLong( md.minrx ) );
 		ret->addMember( "xmax", new BLong( md.maxrx ) );
 		ret->addMember( "ymin", new BLong( md.minry ) );
@@ -4700,7 +4700,7 @@ BObjectImp* UOExecutorModule::mf_GetStandingHeight()
 		Item* walkon;
 		if (realm->lowest_walkheight( x, y, z, &newz, &multi, &walkon, true, MOVEMODE_LAND ))
 		{
-			auto_ptr<BStruct> arr (new BStruct);
+			std::unique_ptr<BStruct> arr (new BStruct);
 			arr->addMember( "z", new BLong( newz ) );
 			if (multi != NULL)
 				arr->addMember( "multi", new EMultiRefObjImp( multi ) );
@@ -4735,7 +4735,7 @@ BObjectImp* UOExecutorModule::mf_GetStandingLayers(/* x, y, flags, realm */)
 		if (!realm->valid(x, y, 0))
 			return new BError("Coordinates Invalid for Realm");
 		
-		auto_ptr<ObjArray> newarr( new ObjArray );
+		std::unique_ptr<ObjArray> newarr( new ObjArray );
 
 		MapShapeList mlist;
 		realm->readmultis( mlist, x, y, flags );
@@ -4743,7 +4743,7 @@ BObjectImp* UOExecutorModule::mf_GetStandingLayers(/* x, y, flags, realm */)
 
 		for( unsigned i = 0; i < mlist.size(); ++i )
 		{
-			auto_ptr<BStruct> arr  ( new BStruct );
+			std::unique_ptr<BStruct> arr  ( new BStruct );
 			
 			if ( mlist[i].flags & (FLAG::MOVELAND | FLAG::MOVESEA) )
 				arr->addMember( "z", new BLong( mlist[i].z + 1 ) );
@@ -4994,7 +4994,7 @@ BObjectImp* UOExecutorModule::mf_ListItemsNearLocationWithFlag(/* x, y, z, range
 				return new BError("Invalid Coordinates for realm");
 		}
 
-		auto_ptr<ObjArray> newarr( new ObjArray );
+		std::unique_ptr<ObjArray> newarr( new ObjArray );
 
 		unsigned short wxL, wyL, wxH, wyH;
 		zone_convert_clip( x - range, y - range, realm, wxL, wyL );
@@ -5051,7 +5051,7 @@ BObjectImp* UOExecutorModule::mf_ListStaticsAtLocation(/* x, y, z, flags, realm 
 				return new BError("Invalid Coordinates for realm");
 		}
 
-		auto_ptr<ObjArray> newarr( new ObjArray );
+		std::unique_ptr<ObjArray> newarr( new ObjArray );
 
 		if (!( flags & ITEMS_IGNORE_STATICS ))
 		{
@@ -5062,7 +5062,7 @@ BObjectImp* UOExecutorModule::mf_ListStaticsAtLocation(/* x, y, z, flags, realm 
 			{
 				if ((z == LIST_IGNORE_Z) || (slist[i].z == z))
 				{
-					auto_ptr<BStruct> arr (new BStruct);
+					std::unique_ptr<BStruct> arr (new BStruct);
 					arr->addMember( "x", new BLong( x ) );
 					arr->addMember( "y", new BLong( y ) );
 					arr->addMember( "z", new BLong( slist[i].z ) );
@@ -5082,7 +5082,7 @@ BObjectImp* UOExecutorModule::mf_ListStaticsAtLocation(/* x, y, z, flags, realm 
 			{
 				if ((z == LIST_IGNORE_Z) || (mlist[i].z == z))
 				{
-					auto_ptr<BStruct> arr ( new BStruct );
+					std::unique_ptr<BStruct> arr ( new BStruct );
 					arr->addMember( "x", new BLong( x ) );
 					arr->addMember( "y", new BLong( y ) );
 					arr->addMember( "z", new BLong( mlist[i].z ) );
@@ -5128,7 +5128,7 @@ BObjectImp* UOExecutorModule::mf_ListStaticsNearLocation(/* x, y, z, range, flag
 				return new BError("Invalid Coordinates for realm");
 		}
 
-		auto_ptr<ObjArray> newarr( new ObjArray );
+		std::unique_ptr<ObjArray> newarr( new ObjArray );
 		
 		short wxL, wyL, wxH, wyH;
 		wxL = x - range;
@@ -5157,7 +5157,7 @@ BObjectImp* UOExecutorModule::mf_ListStaticsNearLocation(/* x, y, z, range, flag
 					{
 						if ((z == LIST_IGNORE_Z) || (abs(slist[i].z - z) < CONST_DEFAULT_ZRANGE))
 						{
-							auto_ptr<BStruct> arr ( new BStruct );
+							std::unique_ptr<BStruct> arr ( new BStruct );
 							arr->addMember( "x", new BLong( wx ) );
 							arr->addMember( "y", new BLong( wy ) );
 							arr->addMember( "z", new BLong( slist[i].z ) );
@@ -5177,7 +5177,7 @@ BObjectImp* UOExecutorModule::mf_ListStaticsNearLocation(/* x, y, z, range, flag
 					{
 						if ((z == LIST_IGNORE_Z) || (abs(mlist[i].z - z) < CONST_DEFAULT_ZRANGE))
 						{
-							auto_ptr<BStruct> arr ( new BStruct );
+							std::unique_ptr<BStruct> arr ( new BStruct );
 							arr->addMember( "x", new BLong( wx ) );
 							arr->addMember( "y", new BLong( wy ) );
 							arr->addMember( "z", new BLong( mlist[i].z ) );
@@ -5550,7 +5550,7 @@ BObjectImp* UOExecutorModule::mf_FindSubstance()
 			return new BError( "Not enough of that substance in container" );
 		else
 		{
-			auto_ptr<ObjArray> theArray ( new ObjArray() );
+			std::unique_ptr<ObjArray> theArray ( new ObjArray() );
 			Item * item;
 
 			for( UContainer::Contents::const_iterator itr = substanceVector.begin(); itr != substanceVector.end(); ++itr )
