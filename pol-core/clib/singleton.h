@@ -9,7 +9,6 @@ Notes
 
 #ifndef CLIB_SINGLETON_H
 #define CLIB_SINGLETON_H
-#include "hbmutex.h"
 
 template <typename T>
 class Singleton
@@ -21,7 +20,7 @@ class Singleton
 		{
 			if (!_instance)
 			{
-				LocalMutex guard(&_SingletonMutex); //critical double check
+				std::lock_guard<std::mutex> lock (_SingletonMutex); //critical double check
 				if (!_instance)
 				{
 					_instance = new T();
@@ -32,7 +31,7 @@ class Singleton
 		}
 	private:
 		static T* _instance;
-		static Mutex _SingletonMutex;
+		static std::mutex _SingletonMutex;
 	protected:
 		Singleton() { }
 		~Singleton() { }
@@ -41,7 +40,7 @@ class Singleton
 		Singleton& operator=( Singleton& );
 };
 template <typename T> T* Singleton <T>::_instance = NULL;
-template <typename T> Mutex Singleton <T>::_SingletonMutex;
+template <typename T> std::mutex Singleton <T>::_SingletonMutex;
 
 #endif
 

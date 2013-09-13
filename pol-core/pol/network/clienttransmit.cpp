@@ -49,7 +49,7 @@ void ClientTransmitThread()
 		try
 		{
 			auto data = clienttransmit->NextQueueEntry();
-			if (data->client != NULL)
+			if (data->client != nullptr)
 			{
 				if (data->disconnects)
 					data->client->forceDisconnect();
