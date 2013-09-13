@@ -18,7 +18,6 @@ Notes
 #include "../../clib/passert.h"
 #include "../../clib/rawtypes.h"
 #include "../../clib/singleton.h"
-#include "../../clib/hbmutex.h"
 #include "../../clib/strutil.h"
 #include "../layers.h"
 #include "../pktboth.h"
@@ -74,7 +73,7 @@ namespace PacketWriterDefs
 		~PacketQueueSingle();
 	private:
 		PacketInterfaceQueue packets;
-		Mutex _PacketQueueSingleMutex;
+		std::mutex _PacketQueueSingleMutex;
 	public:
 		PacketInterface* GetNext(u8 id, u16 sub=0);
 		void Add(PacketInterface* pkt);
@@ -89,7 +88,7 @@ namespace PacketWriterDefs
 		~PacketQueueSubs();
 	private:
 		PacketInterfaceQueueMap packets;
-		Mutex _PacketQueueSubsMutex;
+		std::mutex _PacketQueueSubsMutex;
 	public:
 		PacketInterface* GetNext(u8 id, u16 sub=0);
 		void Add(PacketInterface* pkt);
