@@ -22,7 +22,7 @@ Notes
 FILE *logfile = NULL;
 
 bool LogfileTimestampEveryLine = false;
-Mutex _logfile_mutex;
+std::mutex _logfile_mutex;
 
 static string namebase;
 static string log_filename;
@@ -66,7 +66,7 @@ void CloseLogFile(void)
 
 void Log( const char *fmt, ... )
 {
-	LocalMutex guard(&_logfile_mutex);
+	std::lock_guard<std::mutex> lock (_logfile_mutex);
 	if (logfile)
 	{
 		va_list va;
@@ -107,7 +107,7 @@ void Log( const char *fmt, ... )
 
 void Log2( const char *fmt, ... )
 {
-	LocalMutex guard(&_logfile_mutex);
+	std::lock_guard<std::mutex> lock (_logfile_mutex);
 	if (logfile)
 	{
 		va_list va;

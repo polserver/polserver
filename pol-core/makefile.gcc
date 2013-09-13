@@ -178,7 +178,6 @@ cpp_sources = \
 	clib/xmain.cpp \
 	clib/unicode.cpp \
 	clib/pkthelper.cpp \
-	clib/hbmutex.cpp \
 	pol/xmlfilescrobj.cpp #\
 
 
@@ -204,7 +203,7 @@ ecompile_sources=ecompile/ecompile.cpp \
 	clib/endian.cpp clib/logfile.cpp clib/fdump.cpp clib/stracpy.cpp \
 	clib/random.cpp clib/cmdargs.cpp \
 	clib/strexcpt.cpp  clib/wallclock.cpp clib/threadhelp.cpp \
-	clib/hbmutex.cpp #clib/wallclock.cpp
+	#clib/wallclock.cpp
 
 runecl_sources=runecl/runecl.cpp \
 	../lib/tinyxml/tinystr.cpp ../lib/tinyxml/tinyxml.cpp \
@@ -231,7 +230,7 @@ runecl_sources=runecl/runecl.cpp \
 	clib/random.cpp clib/cmdargs.cpp clib/dirlist.cpp \
 	clib/progver.cpp \
 	clib/mlog.cpp  clib/xmain.cpp clib/strexcpt.cpp clib/threadhelp.cpp \
-	clib/wallclock.cpp clib/hbmutex.cpp 
+	clib/wallclock.cpp
 
 uoconvert_sources=uoconvert/uoconvert.cpp  \
 	pol/uofile00.cpp pol/uofile01.cpp pol/uofile02.cpp \
@@ -242,7 +241,7 @@ uoconvert_sources=uoconvert/uoconvert.cpp  \
 	clib/fileutil.cpp clib/passert.cpp clib/dirlist.cpp clib/iohelp.cpp \
 	clib/logfile.cpp \
 	clib/progver.cpp clib/esignal.cpp clib/random.cpp clib/strexcpt.cpp \
-	clib/wallclock.cpp clib/hbmutex.cpp \
+	clib/wallclock.cpp \
 	clib/xmain.cpp
 
 uotool_sources=uotool/uotool.cpp \
@@ -255,7 +254,7 @@ uotool_sources=uotool/uotool.cpp \
 	clib/fileutil.cpp clib/passert.cpp clib/dirlist.cpp clib/iohelp.cpp \
 	clib/logfile.cpp clib/fdump.cpp \
 	clib/progver.cpp clib/esignal.cpp clib/strexcpt.cpp \
-	clib/xmain.cpp clib/hbmutex.cpp 
+	clib/xmain.cpp
 
 poltool_sources=poltool/poltool.cpp
 

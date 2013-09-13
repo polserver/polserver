@@ -17,7 +17,7 @@ struct TransmitData
 	vector<u8> data;
 	bool disconnects;
 	
-	TransmitData() : client(NULL), len(0), disconnects(false) {};
+	TransmitData() : client(nullptr), len(0), disconnects(false) {};
 };
 
 typedef std::shared_ptr<TransmitData> TransmitDataSPtr;

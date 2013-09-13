@@ -34,7 +34,6 @@ Notes
 #include <vector>
 #include <exception>
 
-#include "../clib/hbmutex.h"
 
 class Executor;
 class EScriptProgram;
@@ -71,7 +70,7 @@ struct BackupStruct
 class Executor
 {
   public:
-	static Mutex _executor_mutex;
+	static std::mutex _executor_mutex;
     size_t sizeEstimate() const;
 
     friend void list_script( class UOExecutor* uoexec );

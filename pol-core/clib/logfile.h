@@ -14,11 +14,11 @@ Notes
 #define __CLIB_LOGFILE_H
 
 #include <stdio.h>
-#include "hbmutex.h"
+#include <mutex>
 
 extern bool LogfileTimestampEveryLine;
 extern FILE *logfile;
-extern Mutex _logfile_mutex;
+extern std::mutex _logfile_mutex;
 int OpenLogFileName( const char* namebase, bool rollover );
 int OpenLogFile(void);
 void CloseLogFile(void);

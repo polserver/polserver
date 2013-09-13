@@ -140,7 +140,6 @@ bool BObject::operator>=(const BObject& obj) const
 
 ////////////////////// BObjectImp //////////////////////
 #if BOBJECTIMP_DEBUG
-#include "../clib/hbmutex.h"
 # if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3 )
 typedef unordered_map<unsigned int, BObjectImp*> bobjectimps;
 # else
@@ -165,12 +164,12 @@ void display_bobjectimp_instances()
 
 #if !INLINE_BOBJECTIMP_CTOR
 unsigned int BObjectImp::instances_ = 0;
-Mutex BObjectImp::bobjectimp_mutex;
+std::mutex BObjectImp::bobjectimp_mutex;
 BObjectImp::BObjectImp( BObjectType type ) :
 	type_(type),
 	instance_(0)
 {
-	LocalMutex guard(&bobjectimp_mutex);
+	std::lock_guard<std::mutex> lock (bobjectimp_mutex);
 	instance_=instances_++;
 	++eobject_imp_count;
 	++eobject_imp_constructions;
@@ -179,7 +178,7 @@ BObjectImp::BObjectImp( BObjectType type ) :
 
 BObjectImp::~BObjectImp()
 {
-	LocalMutex guard(&bobjectimp_mutex);
+	std::lock_guard<std::mutex> lock (bobjectimp_mutex);
 	bobjectimp_instances.erase( instance_ );
 	--eobject_imp_count;
 }

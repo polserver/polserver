@@ -16,7 +16,6 @@ Notes
 
 #include "../../clib/rawtypes.h"
 #include "../../clib/logfile.h"
-#include "../../clib/hbmutex.h"
 #include "packets.h"
 
 using namespace PktHelper;
@@ -139,7 +138,7 @@ void PacketsSingleton::ReAddPacket(PacketInterface* pkt)
 PacketInterface* PacketQueueSingle::GetNext(u8 id, u16 sub)
 {
 	//critical start
-	LocalMutex guard (&_PacketQueueSingleMutex);
+	std::lock_guard<std::mutex> lock (_PacketQueueSingleMutex);
 	PacketInterface* pkt;
 	if (!packets.empty()) 
 	{
@@ -170,7 +169,7 @@ void PacketQueueSingle::Add(PacketInterface* pkt)
 	else
 	{
 		//critical start
-		LocalMutex guard (&_PacketQueueSingleMutex);
+		std::lock_guard<std::mutex> lock (_PacketQueueSingleMutex);
 		packets.push(pkt); // readd it
 		//critical end
 	}
@@ -193,7 +192,7 @@ PacketQueueSubs::~PacketQueueSubs()
 PacketInterface* PacketQueueSubs::GetNext(u8 id, u16 sub)
 {
 	//critical start
-	LocalMutex guard (&_PacketQueueSubsMutex);
+	std::lock_guard<std::mutex> lock (_PacketQueueSubsMutex);
 	PacketInterface* pkt;
 	if (!packets.empty()) 
 	{
@@ -218,7 +217,7 @@ void PacketQueueSubs::Add(PacketInterface* pkt)
 {
 	u16 sub=pkt->getSubID();
 	//critical start
-	LocalMutex guard (&_PacketQueueSubsMutex);
+	std::lock_guard<std::mutex> lock (_PacketQueueSubsMutex);
 	PacketInterfaceQueueMap::iterator itr = packets.find(sub);
 	if (itr != packets.end())
 	{

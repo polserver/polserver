@@ -59,7 +59,7 @@ void display_executor_instances()
 }
 
 extern int executor_count;
-Mutex Executor::_executor_mutex;
+std::mutex Executor::_executor_mutex;
 Executor::Executor( ostream& cerr ) :
         done(0),
         error_(false),
@@ -78,7 +78,7 @@ Executor::Executor( ostream& cerr ) :
         bp_skip_(~0u),
         func_result_(NULL)
 {
-	LocalMutex guard(&_executor_mutex);
+	std::lock_guard<std::mutex> lock (_executor_mutex);
 	++executor_count;
 	executor_instances.insert( this );
 
@@ -91,7 +91,7 @@ Executor::Executor( ostream& cerr ) :
 
 Executor::~Executor()
 {
-	LocalMutex guard(&_executor_mutex);
+	std::lock_guard<std::mutex> lock (_executor_mutex);
 	--executor_count;
 	executor_instances.erase( this );
 

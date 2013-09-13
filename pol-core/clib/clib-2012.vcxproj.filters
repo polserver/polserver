@@ -53,9 +53,6 @@
     <ClCompile Include="forspcnt.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="hbmutex.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="iohelp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -194,9 +191,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="fixalloc.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="hbmutex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="iohelp.h">

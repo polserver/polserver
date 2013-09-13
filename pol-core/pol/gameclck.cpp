@@ -22,11 +22,11 @@ static gameclock_t gameclock;
 
 static time_t last_read;
 
-Mutex _gameclock_mutex;
+std::mutex _gameclock_mutex;
 
 void start_gameclock()
 {
-	LocalMutex guard(&_gameclock_mutex);
+	std::lock_guard<std::mutex> lock (_gameclock_mutex);
 	string gameclock_str;
 	if (global_properties.getprop( "gameclock", gameclock_str ))
 	{
@@ -56,7 +56,7 @@ void stop_gameclock()
 
 gameclock_t read_gameclock()
 {
-	LocalMutex guard(&_gameclock_mutex);
+	std::lock_guard<std::mutex> lock (_gameclock_mutex);
 	time_t new_last_read = poltime();
 	unsigned int diff = static_cast<unsigned int>(new_last_read - last_read);
 	gameclock += diff;

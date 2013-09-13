@@ -43,7 +43,7 @@ void Client::recv_remaining( int total_expected)
     int max_expected = total_expected - bytes_received;
 
 	{
-		LocalMutex guard(&_SocketMutex);
+		std::lock_guard<std::mutex> lock (_SocketMutex);
 		count = cryptengine->Receive(&buffer[bytes_received],max_expected,csocket);
 	}
 
@@ -72,7 +72,7 @@ void Client::recv_remaining_nocrypt( int total_expected)
 	int count;
 
 	{
-		LocalMutex guard(&_SocketMutex);
+		std::lock_guard<std::mutex> lock (_SocketMutex);
 		count=recv(csocket, 
 				   (char *) &buffer[ bytes_received ], 
 				   total_expected - bytes_received, 0);
@@ -199,12 +199,12 @@ void Client::transmit( const void *data, int len, bool needslock)
 			if (needslock)
 			{
 				PolLock lock;
-				LocalMutex guard(&_SocketMutex);
+				std::lock_guard<std::mutex> guard (_SocketMutex);
 				CallOutgoingPacketExportedFunction(this, data, len, p, phd, handled);
 			}
 			else
 			{
-				LocalMutex guard(&_SocketMutex);
+				std::lock_guard<std::mutex> guard (_SocketMutex);
 				CallOutgoingPacketExportedFunction(this, data, len, p, phd, handled);
 			}
 		}
@@ -232,7 +232,7 @@ void Client::transmit( const void *data, int len, bool needslock)
 		}
     }
 
-	LocalMutex guard(&_SocketMutex);
+	std::lock_guard<std::mutex> guard (_SocketMutex);
 	if (disconnect)
 	{
 		Log2("Warning: Trying to send to a disconnected client! \n");

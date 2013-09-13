@@ -45,6 +45,7 @@ Notes
 #include <string>
 #include <utility> // pair
 #include <vector>
+#include <mutex>
 
 #ifdef __GNUC__
   #ifndef USE_STLPORT

@@ -233,7 +233,6 @@
     <ClCompile Include="filecont.cpp" />
     <ClCompile Include="fileutil.cpp" />
     <ClCompile Include="forspcnt.cpp" />
-    <ClCompile Include="hbmutex.cpp" />
     <ClCompile Include="iohelp.cpp" />
     <ClCompile Include="logfile.cpp" />
     <ClCompile Include="MD5.cpp" />
@@ -289,7 +288,6 @@
     <ClInclude Include="filecont.h" />
     <ClInclude Include="fileutil.h" />
     <ClInclude Include="fixalloc.h" />
-    <ClInclude Include="hbmutex.h" />
     <ClInclude Include="iohelp.h" />
     <ClInclude Include="logfile.h" />
     <ClInclude Include="maputil.h" />
