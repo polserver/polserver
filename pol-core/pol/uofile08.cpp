@@ -55,10 +55,8 @@ void read_map_difs()
 	num_map_patches = index;
 }
 
-static USTRUCT_MAPINFO_BLOCK rawmap_buffer;
 static vector<USTRUCT_MAPINFO_BLOCK> rawmap_buffer_vec;
 static bool rawmap_init=false;
-static unsigned int last_block = ~0u;
 
 signed char rawmapinfo( unsigned short x, unsigned short y, USTRUCT_MAPINFO* gi )
 {

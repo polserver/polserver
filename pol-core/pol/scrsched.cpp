@@ -228,7 +228,7 @@ UOExecutor::~UOExecutor()
     if ((instr_cycles >= 500) && watch.profile_scripts)
     {
         int elapsed = static_cast<int>(poltime() - start_time); // Doh! A script can't run more than 68 years, for this to work.
-        Log( "Script %s: %"OUT64"d instr cycles, %"OUT64"d sleep cycles, %ld seconds\n",
+        Log( "Script %s: %" OUT64 "d instr cycles, %" OUT64 "d sleep cycles, %ld seconds\n",
                 scriptname().c_str(), instr_cycles, sleep_cycles, elapsed );
         cerr << "Script " << scriptname() << ": "
                 << instr_cycles << " instr cycles, "

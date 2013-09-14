@@ -47,37 +47,8 @@ Notes
 #include <vector>
 #include <mutex>
 
-#ifdef __GNUC__
-  #ifndef USE_STLPORT
-    #if __GNUC__ < 3
-      #include <hash_map.h>
-      #include <hash_set.h>
-
-      namespace SGI { using ::hash_map; using ::hash_set; }; // inherit globals
-    #else
-       #if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3 )
-         #include <tr1/unordered_map>
-         #include <tr1/unordered_set>
-       #else     
-         #include <ext/hash_map>
-         #include <ext/hash_set>
-         #if __GNUC_MINOR__ == 0
-           namespace SGI = std;               // GCC 3.0
-         #else
-           namespace SGI = ::__gnu_cxx;       // GCC 3.1 and later
-         #endif
-       #endif
-    #endif
-  #else
-    #include <hash_map>
-    #include <hash_set>
-    namespace SGI = std;
-  #endif
-#else      // ...  there are other compilers, right?
-  namespace SGI = std;
-  #include <hash_map>
-  #include <hash_set>
-#endif
+#include <unordered_map>
+#include <unordered_set>
 
   using std::basic_string;
   using std::bind2nd;
@@ -126,23 +97,8 @@ Notes
   using std::cout;
   using std::endl;
 
-#	ifdef _WIN32
-#		if defined(_MSC_VER) && (_MSC_VER <= 1600) // up to VS2010
-			using std::hash_map;
-			using std::hash_set;
-#		else // VS2005 ff.
-			using stdext::hash_map;
-			using stdext::hash_set;
-#		endif
-#	else
-#     if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3 )
-		using std::tr1::unordered_map;
-		using std::tr1::unordered_set;
-#     else
-		using SGI::hash_map;
-		using SGI::hash_set;
-#     endif
-#	endif
+  using std::unordered_map;
+  using std::unordered_set;
 
 
 #ifdef _WIN32

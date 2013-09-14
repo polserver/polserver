@@ -184,7 +184,7 @@ BObjectImp* place_item_in_secure_trade_container( Client* client, Item* item )
 		if (!system_hooks.can_trade->call(new ECharacterRefObjImp(client->chr),new ECharacterRefObjImp(dropon),new EItemRefObjImp(item)))
 		{
 			send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
-			return false;
+			return new BError( "Could not insert item into container." );
 		}
 	}
     if (!cont->can_add( *item ))
