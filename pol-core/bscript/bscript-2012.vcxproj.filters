@@ -71,9 +71,6 @@
     <ClCompile Include="objstrm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ofstrm.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="parser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -167,9 +164,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="objmethods.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ofile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="operator.h">

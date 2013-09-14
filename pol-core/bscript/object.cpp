@@ -143,7 +143,7 @@ bool BObject::operator>=(const BObject& obj) const
 # if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3 )
 typedef unordered_map<unsigned int, BObjectImp*> bobjectimps;
 # else
-typedef hash_map<unsigned int, BObjectImp*> bobjectimps;
+typedef unordered_map<unsigned int, BObjectImp*> bobjectimps;
 # endif
 
 bobjectimps bobjectimp_instances;

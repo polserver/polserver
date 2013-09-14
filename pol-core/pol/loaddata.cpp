@@ -38,11 +38,8 @@ unsigned incremental_save_count = 0;
 unsigned current_incremental_save = 0;
 
 // if index is UINT_MAX, has been deleted
-# if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3 )
-	typedef unordered_map<pol_serial_t, unsigned> SerialIndexMap;
-# else
-	typedef hash_map<pol_serial_t, unsigned> SerialIndexMap;
-# endif
+typedef unordered_map<pol_serial_t, unsigned> SerialIndexMap;
+
 SerialIndexMap incremental_serial_index;
 
 void load_incremental_indexes() // indices is such a stupid word

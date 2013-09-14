@@ -172,7 +172,7 @@ void log_all_script_cycle_counts( bool clear_counters )
     if (config.multithread)
     {
         Log( "Scheduler passes: %ld\n", GET_PROFILEVAR(scheduler_passes) );
-        Log( "Script passes:    %"OUT64"d\n", script_passes );
+        Log( "Script passes:    %" OUT64 "d\n", script_passes );
     }
     else
     {
@@ -183,7 +183,7 @@ void log_all_script_cycle_counts( bool clear_counters )
     for(; itr != end; ++itr )
     {
         EScriptProgram* eprog = ((*itr).second).get();
-        Log( "%-38s %12"OUT64"d %6ld %12"OUT64"d %.2f\n", 
+        Log( "%-38s %12" OUT64 "d %6ld %12" OUT64 "d %.2f\n", 
                eprog->name.c_str(), 
                eprog->instr_cycles,
                eprog->invocations,
