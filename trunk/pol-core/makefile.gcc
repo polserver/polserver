@@ -51,7 +51,7 @@ POL_BUILDPLATFORM=x86
 # plus all used libaries eg: -lboost_regex
 endif
 
-CXX_OPTS=-std=c++0x -gstabs+ -fno-strict-aliasing -fopenmp -Wno-unused-result -DINC_PASSERT=1 -DTIXML_USE_STL -Wall $(CXX_MORE_OPTS) $(INC_STL) -I../lib/boost_1_54_0
+CXX_OPTS=-fno-strict-aliasing -fopenmp -Wno-unused-result -DINC_PASSERT=1 -DTIXML_USE_STL -Wall $(CXX_MORE_OPTS) $(INC_STL) -I../lib/boost_1_54_0
 
 CXX_RELEASE_OPTS=$(CXX_OPTS)
 
@@ -326,6 +326,9 @@ dyndebug: $(objects_debug)
 
 clean:
 	rm -f $(objects) $(clib_objects) $(ecompile_objects) $(runecl_objects) $(uoconvert_objects)
+	rm bin/*
+	rm pol.map
+	rm -rf dist/scripts
 
 gzipfile: bin/pol bin/ecompile bin/runecl bin/uoconvert bin/uotool #bin/poltool
 	mkdir dist/scripts

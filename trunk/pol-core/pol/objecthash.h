@@ -27,7 +27,7 @@ public:
 	typedef unordered_set<u32> ds;
 	//typedef unordered_map<u32,UObjectRef> hs;
 # else
-	typedef hash_set<u32> ds;
+	typedef unordered_set<u32> ds;
 	//typedef hash_map<u32,UObjectRef> hs;
 # endif
 	typedef pair<u32,UObjectRef> hashpair;

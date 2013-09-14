@@ -3224,7 +3224,7 @@ void Executor::execInstr()
     {
         string err_string = "Exception in: ";
 		err_string += prog_->name.c_str();
-		err_string += " PC="+onPC;
+		err_string += " PC="+decint(onPC);
 		err_string += ": ";
 		err_string += ex.what();
 		err_string += "\n";
@@ -3233,8 +3233,8 @@ void Executor::execInstr()
 		if ( PC < nLines )
 		{
 			err_string += " PC < nLines: (";
-			err_string += PC+" < ";
-			err_string += nLines+") \n";
+			err_string += decint(PC)+" < ";
+			err_string += decint(nLines)+") \n";
 		}
 		if ( error_ )
 			err_string += "error_ = true\n";
