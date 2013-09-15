@@ -1,0 +1,37 @@
+#!/bin/bash
+#
+# Build with CLANG
+
+export BUILD64POL=1
+export USE_MYSQL=1
+
+export LIBCRYPT="crypto"
+export POL_BUILDTAG="ubuntu"
+export CXX_MORE_OPTS="-O3 -DUSE_SYSTEM_ZLIB -DHAVE_OPENSSL -DNDEBUG -D_REENTRANT -DPOL_BUILDTAG=\\\"ubuntu\\\""
+
+
+case "$1" in
+	-n|--normal)
+		##use clang normal build
+		CC="clang -std=c++11" LINKER="clang -std=c++11" make -f makefile.gcc release
+		exit 0
+		;;
+	-a|--analyze)
+		# normal build + static analyze
+		# pipe into a file (will loose the nice colors, but way to many lines for direct console)
+		CC="clang -std=c++11 --analyze -Xanalyzer -analyzer-output=text" LINKER="clang -std=c++11" make -f makefile.gcc release 2>&1 | tee clanganalyze.log
+		exit 0
+		;;
+	-m|--modernize)
+		# perform modernize on sourcecode
+		# keep it for newer versions (maybe more fanzy stuff)
+		CC="clang -std=c++11" LINKER="clang -std=c++11" make -f makefile.gcc modernize
+		exit 0
+		;;
+esac
+
+echo "Clang builds"
+echo "-n, --normal      perform normal build"
+echo "-a, --analyze     perform static analyze (pipes into clanganalyze.log)"
+echo "-m, --modernize   modernize code into c++11"
+

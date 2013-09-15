@@ -51,7 +51,8 @@ POL_BUILDPLATFORM=x86
 # plus all used libaries eg: -lboost_regex
 endif
 
-CXX_OPTS=-fno-strict-aliasing -fopenmp -Wno-unused-result -DINC_PASSERT=1 -DTIXML_USE_STL -Wall $(CXX_MORE_OPTS) $(INC_STL) -I../lib/boost_1_54_0
+
+CXX_OPTS=-fno-strict-aliasing  -Wno-unused-result -DINC_PASSERT=1 -DTIXML_USE_STL -Wall $(CXX_MORE_OPTS) $(INC_STL) -I../lib/boost_1_54_0
 
 CXX_RELEASE_OPTS=$(CXX_OPTS)
 
@@ -180,13 +181,6 @@ cpp_sources = \
 	clib/pkthelper.cpp \
 	pol/xmlfilescrobj.cpp #\
 
-
-hold_cpp_sources = \
-	uvars.cpp target.cpp ufunc.cpp \
-	speech.cpp tips.cpp login.cpp \
-		dropitem.cpp getitem.cpp eqpitem.cpp \
-		sockio.cpp clientio.cpp \
-		stubdata.cpp
 
 ecompile_sources=ecompile/ecompile.cpp \
 	plib/polver.cpp plib/pkg.cpp \
@@ -326,9 +320,19 @@ dyndebug: $(objects_debug)
 
 clean:
 	rm -f $(objects) $(clib_objects) $(ecompile_objects) $(runecl_objects) $(uoconvert_objects)
-	rm bin/*
 	rm pol.map
+	rm bin/*
 	rm -rf dist/scripts
+	
+	
+modernize:
+	clang-modernize-3.4 -for-compilers=clang-3.0,gcc-4.6,msvc-11   -summary -final-syntax-check  $(cpp_sources) -- $(CXX_OPTS) -std=c++11
+	clang-modernize-3.4 -for-compilers=clang-3.0,gcc-4.6,msvc-11   -summary -final-syntax-check  $(ecompile_sources) -- $(CXX_OPTS) -std=c++11
+	clang-modernize-3.4 -for-compilers=clang-3.0,gcc-4.6,msvc-11   -summary -final-syntax-check  $(runecl_sources) -- $(CXX_OPTS) -std=c++11
+	clang-modernize-3.4 -for-compilers=clang-3.0,gcc-4.6,msvc-11   -summary -final-syntax-check  $(uoconvert_sources) -- $(CXX_OPTS) -std=c++11
+	clang-modernize-3.4 -for-compilers=clang-3.0,gcc-4.6,msvc-11   -summary -final-syntax-check  $(uotool_sources) -- $(CXX_OPTS) -std=c++11
+	clang-modernize-3.4 -for-compilers=clang-3.0,gcc-4.6,msvc-11   -summary -final-syntax-check  $(poltool_sources) -- $(CXX_OPTS) -std=c++11
+	
 
 gzipfile: bin/pol bin/ecompile bin/runecl bin/uoconvert bin/uotool #bin/poltool
 	mkdir dist/scripts
