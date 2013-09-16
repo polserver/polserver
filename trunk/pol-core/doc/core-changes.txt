@@ -1,4 +1,7 @@
 ﻿-- POL099 --
+09-17-2013 Tomi:
+    Fixed: Mountpieces will not be copied into corpses during character death anymore even if they are non movable
+
 09-03-2013 Tomi:
     Changed: Equipment members .maxhp_mod .hp .maxhp and .quality moved to Item
            only Weapons and Armors need to have the MaxHP defined in itemdesc because core combat is using it, for all other items there is a default value 1

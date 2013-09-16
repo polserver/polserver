@@ -2415,7 +2415,7 @@ void Character::die()
 		if (item == NULL)
 			continue;
 
-		if (item->layer == LAYER_BEARD || item->layer == LAYER_HAIR || item->layer == LAYER_FACE || item->movable() == false)
+		if (item->layer != LAYER_MOUNT && ( item->layer == LAYER_BEARD || item->layer == LAYER_HAIR || item->layer == LAYER_FACE || item->movable() == false ))
 		{
 			//Copies hair items onto the corpse
 			Item* copy = item->clone();
@@ -2542,8 +2542,7 @@ void Character::die()
 			if (item == NULL)
 				continue;
 
-			if ( item->layer == LAYER_BEARD || item->layer == LAYER_HAIR || 
-				item->layer == LAYER_FACE || item->layer == LAYER_BACKPACK )
+			if (item->layer != LAYER_MOUNT && ( item->layer == LAYER_BEARD || item->layer == LAYER_HAIR || item->layer == LAYER_FACE || item->movable() == false ))
 			{
 				continue;
 			}

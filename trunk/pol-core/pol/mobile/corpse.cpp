@@ -44,7 +44,7 @@ void UCorpse::spill_contents( UMulti* multi )
         for( iterator itr = begin(); itr != end(); ++itr )
         {
             Item *item = GET_ITEM_PTR( itr );
-            if (item->tile_layer == LAYER_HAIR || item->tile_layer == LAYER_BEARD || item->tile_layer == LAYER_FACE)
+            if (item->tile_layer == LAYER_HAIR || item->tile_layer == LAYER_BEARD || item->tile_layer == LAYER_FACE || item->movable() == false)
             {
                 ::destroy_item( item );
                 any = true;
