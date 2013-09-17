@@ -1313,7 +1313,7 @@ BObjectImp* Item::script_method_id(const int id, Executor& ex)
 			if (!ex.hasParams(3) || (ex.getParam( 2, add_to_existing_stack ) && add_to_existing_stack != 0 ))
 			{
 				Item* existing_stack = container->find_addable_stack(new_stack);
-				if ( existing_stack != NULL )
+				if ( existing_stack != NULL && new_stack->stackable() )
 				{
 					if(!container->can_insert_increase_stack( NULL, UContainer::MT_CORE_MOVED, existing_stack, new_stack->getamount(), new_stack ) )
 					{
