@@ -1194,7 +1194,37 @@ BObjectImp* Item::script_method_id(const int id, Executor& ex)
 				return new BError("Realm not found");
 			else if ( !realm->valid(x, y, z) )
 				return new BError("Invalid coordinates for realm");
-			else if ( amt == this->getamount() )
+
+			// Check first if the item is non-stackable and just force stacked with CreateItemInInventory
+			if ( !this->stackable() && amt > 1 )
+			{
+				unsigned short i;
+
+				for(i = 1; i <= amt; i++)
+				{
+
+					if ( this->getamount() == 1 )
+						new_stack = this->clone();
+					else
+						new_stack = this->remove_part_of_stack(1);
+
+					new_stack->x = x;
+					new_stack->y = y;
+					new_stack->z = static_cast<s8>(z);
+					new_stack->realm = realm;
+					add_item_to_world(new_stack);
+					move_item(new_stack, x, y, static_cast<signed char>(z), realm);
+				}
+
+				if ( this->getamount() == 1 )
+					destroy_item( this );
+				else
+					update_item_to_inrange(this);
+				return new EItemRefObjImp(new_stack);
+			}
+
+
+			if ( amt == this->getamount() )
 				new_stack = this->clone();
 			else
 				new_stack = this->remove_part_of_stack((u16)amt);
@@ -1238,6 +1268,42 @@ BObjectImp* Item::script_method_id(const int id, Executor& ex)
 				return new BError( "Non-container selected as target" );
 
 			UContainer* container = static_cast<UContainer*>(cont_item);
+
+			// Check first if the item is non-stackable and just force stacked with CreateItemInInventory
+
+			if ( !this->stackable() && amt > 1 )
+			{
+				unsigned short i;
+
+				for(i = 1; i <= amt; i++)
+				{
+
+					if ( this->getamount() == 1 )
+						new_stack = this->clone();
+					else
+						new_stack = this->remove_part_of_stack(1);
+
+					bool can_insert = container->can_insert_add_item(NULL, UContainer::MT_CORE_MOVED, new_stack);
+					if ( !can_insert )
+					{
+						// Put new_stack back with the original stack
+						if ( new_stack != this )
+							this->add_to_self(new_stack);
+						return new BError("Could not insert new stack into container");
+					}
+
+					container->add_at_random_location(new_stack);
+					update_item_to_inrange(new_stack);
+					UpdateCharacterWeight( new_stack );
+					container->on_insert_add_item( NULL, UContainer::MT_CORE_MOVED, new_stack );
+				}
+
+				if ( this->getamount() == 1 )
+					destroy_item( this );
+				else
+					update_item_to_inrange(this);
+				return new EItemRefObjImp(new_stack);
+			}
 
 			if ( amt == this->getamount() )
 				new_stack = this->clone();
