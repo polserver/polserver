@@ -931,6 +931,17 @@ unsigned int UContainer::find_sumof_objtype_noninuse( u32 objtype, u32 amtToGet,
     return amt;
 }
 
+Item* UContainer::clone() const
+{
+    UContainer* item = static_cast<UContainer*>(base::clone());
+
+	item->setmember<s16>(MBR_MAX_ITEMS_MOD, this->getmember<s16>(MBR_MAX_ITEMS_MOD));
+	item->setmember<s16>(MBR_MAX_WEIGHT_MOD, this->getmember<s16>(MBR_MAX_WEIGHT_MOD));
+	item->setmember<s8>(MBR_MAX_SLOTS_MOD, this->getmember<s8>(MBR_MAX_SLOTS_MOD));
+
+    return item;
+}
+
 unsigned short UContainer::max_items() const
 {
 	int max_items = desc.max_items + getmember<s16>(MBR_MAX_ITEMS_MOD);
