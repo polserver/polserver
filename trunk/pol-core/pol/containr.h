@@ -97,7 +97,7 @@ public:
 	virtual void for_each_item( void (*f)(Item* item, void* a), void* arg );
 
     virtual bool script_isa( unsigned isatype ) const;
-    
+  	virtual Item* clone() const;  
     
     unsigned int find_sumof_objtype_noninuse( u32 objtype ) const;
 	unsigned int find_sumof_objtype_noninuse( u32 objtype, u32 amtToGet, Contents& saveItemsTo, int flags ) const;
