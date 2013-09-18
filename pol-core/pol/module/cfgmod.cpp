@@ -47,6 +47,7 @@ TmplExecutorModule<ConfigFileExecutorModule>::function_table[] =
 	{ "GetConfigStringArray",   &ConfigFileExecutorModule::mf_GetConfigStringArray },
 	{ "GetConfigStringDictionary",   &ConfigFileExecutorModule::mf_GetConfigStringDictionary },
 	{ "GetConfigInt",		   &ConfigFileExecutorModule::mf_GetConfigInt },
+	{ "GetConfigIntArray",		&ConfigFileExecutorModule::mf_GetConfigIntArray },
 	{ "GetConfigReal",		  &ConfigFileExecutorModule::mf_GetConfigReal },
 	{ "GetConfigMaxIntKey",	 &ConfigFileExecutorModule::mf_GetConfigMaxIntKey },
 	{ "GetConfigStringKeys",	&ConfigFileExecutorModule::mf_GetConfigStringKeys },
@@ -515,6 +516,52 @@ BObjectImp* ConfigFileExecutorModule::mf_GetConfigInt()
 		{
 			return new BError( "Property not found" );
 		}
+	}
+	else
+	{
+		return new BError( "Invalid parameter type" );
+	}
+}
+
+BObjectImp* ConfigFileExecutorModule::mf_GetConfigIntArray()
+{ 
+	StoredConfigElem* celem;
+	const String* propname_str;
+
+	if (getStoredConfigElemParam( *this, 0, celem ) &&
+		getStringParam( 1, propname_str ))
+	{
+		pair<StoredConfigElem::const_iterator,StoredConfigElem::const_iterator> pr = celem->equal_range( propname_str->data() );
+		StoredConfigElem::const_iterator itr = pr.first;
+		StoredConfigElem::const_iterator end = pr.second;
+
+		std::unique_ptr<ObjArray> ar (new ObjArray);
+		for( ; itr != end; ++itr )
+		{
+			BObjectImp* imp = (*itr).second.get();
+			//Will no longer place the string right into the array.
+			//Instead a check is done to make sure something is there.
+
+			if ( imp->getStringRep().length() >= 1 )
+			{
+				if (imp->isa( BObjectImp::OTLong ))
+				{
+					ar->addElement( imp );
+				}
+				else if (imp->isa( BObjectImp::OTDouble ))
+				{
+					Double* dbl = static_cast<Double*>(imp);
+					ar->addElement( new  BLong( static_cast<int>(dbl->value()) ));
+				}
+				else if (imp->isa( BObjectImp::OTString ))
+				{
+					String* str = static_cast<String*>(imp);
+					ar->addElement( new  BLong( strtoul( str->data(), NULL, 0 ) ));
+				}
+
+			}
+		}
+		return ar.release();
 	}
 	else
 	{
