@@ -204,9 +204,11 @@ void send_move( Client *client, const Character *chr, PktOut_77* movebuffer, Pkt
 	movebuffer->Write<u8>(chr->get_flag1(client));
 	movebuffer->Write<u8>(chr->hilite_color_idx( client->chr ));
 	ADDTOSENDQUEUE( client, &movebuffer->buffer, movebuffer->offset );
-	if ((client->ClientType & CLIENTTYPE_UOKR) && (chr->poisoned)) //if poisoned/invul/murderer send 0x17 for newer clients
+	if ((client->ClientType & CLIENTTYPE_UOKR) && (chr->poisoned)) //if poisoned send 0x17 for newer clients
 		ADDTOSENDQUEUE( client, &poisonbuffer->buffer, poisonbuffer->offset );
+	if ((client->ClientType & CLIENTTYPE_UOKR) && (chr->invul())) //if invul send 0x17 for newer clients
 		ADDTOSENDQUEUE( client, &invulbuffer->buffer, invulbuffer->offset );
+	if ((client->ClientType & CLIENTTYPE_UOKR) && (chr->is_murderer())) //if murderer send 0x17 for newer clients
 		ADDTOSENDQUEUE( client, &murdererbuffer->buffer, murdererbuffer->offset );
 }
 
@@ -414,9 +416,11 @@ void send_owncreate( Client *client, const Character *chr, PktOut_78* owncreate,
 		}
 	}
 
-	if ((client->ClientType & CLIENTTYPE_UOKR) && (chr->poisoned)) //if poisoned/invul/murderer send 0x17 for newer clients
+	if ((client->ClientType & CLIENTTYPE_UOKR) && (chr->poisoned)) //if poisoned send 0x17 for newer clients
 		ADDTOSENDQUEUE( client, &poisonbuffer->buffer, poisonbuffer->offset );
+	if ((client->ClientType & CLIENTTYPE_UOKR) && (chr->invul())) //if invul send 0x17 for newer clients
 		ADDTOSENDQUEUE( client, &invulbuffer->buffer, invulbuffer->offset );
+	if ((client->ClientType & CLIENTTYPE_UOKR) && (chr->is_murderer())) //if murderer send 0x17 for newer clients
 		ADDTOSENDQUEUE( client, &murdererbuffer->buffer, murdererbuffer->offset );
 }
 
