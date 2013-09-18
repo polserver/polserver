@@ -749,7 +749,7 @@ BObjectImp* UObject::get_script_member_id( const int id ) const
 		case MBR_X: return new BLong(x); break;
 		case MBR_Y: return new BLong(y); break;
 		case MBR_Z: return new BLong(z); break;
-		case MBR_NAME: return new String(name_); break;
+		case MBR_NAME: return new String(name()); break;
 		case MBR_OBJTYPE: return new BLong(objtype_); break;
 		case MBR_GRAPHIC: return new BLong(graphic); break;
 		case MBR_SERIAL: return new BLong(serial); break;
