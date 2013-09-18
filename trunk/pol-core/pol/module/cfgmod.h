@@ -30,6 +30,7 @@ public:
     BObjectImp* mf_GetConfigStringArray();
 	BObjectImp* mf_GetConfigStringDictionary();
     BObjectImp* mf_GetConfigInt();
+	BObjectImp* mf_GetConfigIntArray();
     BObjectImp* mf_GetConfigReal();
     BObjectImp* mf_GetConfigMaxIntKey();
     BObjectImp* mf_GetConfigStringKeys();

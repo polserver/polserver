@@ -3399,10 +3399,13 @@ BObjectImp* Equipment::get_script_member_id( const int id ) const
 	if (imp != NULL)
 		return imp;
 
+	return NULL;
+	/*
 	switch(id)
 	{
 		default: return NULL;
 	}
+	*/
 }
 BObjectImp* Equipment::get_script_member( const char *membername ) const
 {
@@ -3418,10 +3421,14 @@ BObjectImp* Equipment::set_script_member_id( const int id, int value )
 	BObjectImp* imp = Item::set_script_member_id( id, value );
 	if (imp != NULL)
 		return imp;
+
+	return NULL;
+	/*
 	switch(id)
 	{
 		default: return NULL;
 	}
+	*/
 }
 BObjectImp* Equipment::set_script_member( const char *membername, int value )
 {
@@ -3437,10 +3444,14 @@ BObjectImp* Equipment::set_script_member_id_double( const int id, double value )
 	BObjectImp* imp = Item::set_script_member_id_double( id, value );
 	if (imp != NULL)
 		return imp;
+
+	return NULL;
+	/*
 	switch(id)
 	{
 		default: return NULL;
 	}
+	*/
 }
 BObjectImp* Equipment::set_script_member_double( const char *membername, double value )
 {
