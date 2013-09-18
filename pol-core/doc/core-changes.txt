@@ -1,5 +1,6 @@
 ﻿-- POL099 --
 09-18-2013 Tomi:
+    Added:   cfgfile::GetConfigIntArray, works the same way as GetConfigStringArray but returns an array of ints instead of strings
     Changed: Item.name now returns itemdesc.Desc without singluar/plural formatting if no name is set and name from tiledata if no itemdesc entry found
 
 09-17-2013 Tomi:

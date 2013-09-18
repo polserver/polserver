@@ -17,6 +17,7 @@ GetConfigString( element, property_name );  // : string;
     // For elements with multiple occurrences of a given property,
     // return an array containing each occurrence.
 GetConfigStringArray( element, property_name ); // : array of strings;
+GetConfigIntArray( element, property_name ); // array of ints
 GetConfigStringDictionary( element, property_name );
 
 
