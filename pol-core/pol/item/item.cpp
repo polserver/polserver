@@ -138,7 +138,12 @@ string Item::name() const
     }
     else
     {
-        return tile_desc( graphic );
+		const ItemDesc& id = find_itemdesc( objtype_ );
+
+		if ( id.desc.empty() )
+			return tile_desc( graphic );
+		else
+			return id.desc;
     }
 }
 

@@ -1,4 +1,7 @@
 ﻿-- POL099 --
+09-18-2013 Tomi:
+    Changed: Item.name now returns itemdesc.Desc without singluar/plural formatting if no name is set and name from tiledata if no itemdesc entry found
+
 09-17-2013 Tomi:
     Fixed: Item.SplitStackInto and Item.SplitStackAt methods for non stackable items ( now also works splitting non stackable items 1 by 1 from a stack force created )
     Fixed: Mountpieces will not be copied into corpses during character death anymore even if they are non movable
