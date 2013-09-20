@@ -1101,10 +1101,8 @@ void Character::make_criminal( int level )
 
 	if ( !orphan() && was_criminal != is_criminal() )
 	{
-// Changed to update!
-		if (this->client)
-			send_move( this->client, this );
-		send_create_mobile_to_nearby_cansee( this );
+		// Changed to update!
+		on_criminal_changed();
 	}
 }
 
@@ -1117,10 +1115,8 @@ void Character::make_murderer( bool newval )
 	
 	if ( !orphan() && refresh )
 	{
-// Changed to update!
-		if (this->client)
-			send_move( this->client, this );
-		send_create_mobile_to_nearby_cansee( this );
+		// Changed to update!
+		on_murderer_changed();
 	}
 	RepSystem::schedule_repsys_task( this, polclock() - 1 );
 }
@@ -1131,9 +1127,7 @@ void Character::make_aggressor_to( Character* chr)
 	restart_aggressor_timer( chr, aggr_timeout_at );
 
     // Changed to update!
-	if (this->client)
-		send_move( this->client, this );
-	send_create_mobile_to_nearby_cansee( this );
+	on_aggressor_changed();
 
 	RepSystem::schedule_repsys_task( this, aggr_timeout_at+1 );
 }
@@ -1144,9 +1138,7 @@ void Character::make_lawfullydamaged_to( Character* chr)
 	restart_lawfully_damaged_timer( chr, aggr_timeout_at );
 
 	// Changed to update!
-	if (this->client)
-		send_move( this->client, this );
-	send_create_mobile_to_nearby_cansee( chr );
+	on_lawfullydamaged_changed();
 
 	RepSystem::schedule_repsys_task( this, aggr_timeout_at+1 );
 }
@@ -1244,5 +1236,36 @@ void Character::remove_as_lawful_damager( Character* chr )
 	{
 		send_create_mobile_if_nearby_cansee( client, chr );
 	}
+}
+
+// Keep these as separate functions if there will be in the future something specific for them
+// For now they are just copies of each other
+
+void Character::on_criminal_changed()
+{
+	if (this->client)
+		send_move( this->client, this );
+	send_create_mobile_to_nearby_cansee( this );
+}
+
+void Character::on_murderer_changed()
+{
+	if (this->client)
+		send_move( this->client, this );
+	send_create_mobile_to_nearby_cansee( this );
+}
+
+void Character::on_aggressor_changed()
+{
+	if (this->client)
+		send_move( this->client, this );
+	send_create_mobile_to_nearby_cansee( this );
+}
+
+void Character::on_lawfullydamaged_changed()
+{
+	if (this->client)
+		send_move( this->client, this );
+	send_create_mobile_to_nearby_cansee( this );
 }
 

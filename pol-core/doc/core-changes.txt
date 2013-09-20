@@ -1,4 +1,9 @@
 ﻿-- POL099 --
+09-20-2013 Tomi:
+    Fixed:   Invul changes now sends the healthbar color correctly for UOKR and later clients
+    Fixed:   All repsys changes now send the update correctly to yourself and all client around you
+    Removed: support for murderer healthbars for UOKR clients.
+
 09-18-2013 Tomi:
     Added:   cfgfile::GetConfigIntArray, works the same way as GetConfigStringArray but returns an array of ints instead of strings
     Changed: Item.name now returns itemdesc.Desc without singluar/plural formatting if no name is set and name from tiledata if no itemdesc entry found
