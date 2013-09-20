@@ -467,13 +467,19 @@ private:
     static void disable_invul( Character* in_range_chr, Character* chr )
     {
 		if ( chr->client != NULL )
+		{
 			send_move( chr->client, chr );
+			if ( chr->client->ClientType & CLIENTTYPE_UOKR )
+				send_invulhealthbar( chr->client, chr );
+		}
 
         if ( in_range_chr->client && in_range_chr->client->ready ) 
         {
             if ( in_range_chr != chr && in_range_chr->is_visible_to_me( chr ) )
 			{
                 send_owncreate( in_range_chr->client, chr );
+				if ( in_range_chr->client->ClientType & CLIENTTYPE_UOKR )
+					send_invulhealthbar( in_range_chr->client, chr );
 			}
         }
     }
@@ -2828,12 +2834,10 @@ void PropagateMove( /*Client *client,*/ Character *chr )
 	PktHelper::PacketOut<PktOut_77> msgmove;
 	PktHelper::PacketOut<PktOut_17> msgpoison;
 	PktHelper::PacketOut<PktOut_17> msginvul;
-	PktHelper::PacketOut<PktOut_17> msgmurderer;
 	PktHelper::PacketOut<PktOut_78> msgcreate;
 	build_send_move(chr,msgmove.Get());
 	build_poisonhealthbar(chr, msgpoison.Get());
 	build_invulhealthbar(chr, msginvul.Get());
-	build_murdererhealthbar(chr, msgmurderer.Get());
 	build_owncreate(chr, msgcreate.Get());
 
 	for( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
@@ -2866,15 +2870,15 @@ void PropagateMove( /*Client *client,*/ Character *chr )
 				#else
 				//send_remove_character( client, chr );
 				#endif
-				send_owncreate( client, chr, msgcreate.Get(), msgpoison.Get(), msginvul.Get(), msgmurderer.Get() );
+				send_owncreate( client, chr, msgcreate.Get(), msgpoison.Get(), msginvul.Get() );
 			}
 			else if (were_inrange)
 			{
-				send_move( client, chr, msgmove.Get(), msgpoison.Get(), msginvul.Get(), msgmurderer.Get() );
+				send_move( client, chr, msgmove.Get(), msgpoison.Get(), msginvul.Get() );
 			}
 			else
 			{
-				send_owncreate( client, chr, msgcreate.Get(), msgpoison.Get(), msginvul.Get(), msgmurderer.Get() );
+				send_owncreate( client, chr, msgcreate.Get(), msgpoison.Get(), msginvul.Get() );
 			}
 		}
 		else if ( were_inrange ) 
