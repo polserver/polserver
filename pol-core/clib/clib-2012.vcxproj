@@ -317,6 +317,7 @@
     <ClInclude Include="strset.h" />
     <ClInclude Include="strutil.h" />
     <ClInclude Include="threadhelp.h" />
+    <ClInclude Include="timer.h" />
     <ClInclude Include="tracebuf.h" />
     <ClInclude Include="unicode.h" />
     <ClInclude Include="unittest.h" />
