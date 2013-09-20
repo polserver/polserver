@@ -1882,8 +1882,8 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
 			ConcealedUpdater::on_change( this );
 			return new BLong( cmdlevel );
 		case MBR_MURDERER:
-			murderer_ = value?true:false;
-			send_move_mobile_to_nearby_cansee( this );
+			// make_murderer handles the updating
+			make_murderer(value?true:false);		
 			return new BLong( murderer_ );
 		case MBR_HITCHANCE_MOD:
 			return new BLong( hitchance_mod_ = static_cast<short>(value) );
@@ -2121,6 +2121,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
   				return new BError( "Level must be >= 0" );
   		}
   		set_dirty();
+		// make_criminal handles the updating
   		make_criminal( level );
   		return new BLong(1);
 		}
@@ -2286,8 +2287,8 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 					return new BError( "Invalid parameter type" );
 			}
 			set_dirty();
+			// make_murderer handles the updating
 			make_murderer( lnewval?true:false );
-			send_move_mobile_to_nearby_cansee( this );
 			return new BLong(1);
 		}
 	case MTH_REMOVEREPORTABLE:
@@ -2457,6 +2458,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 			Character* chr;
 			if (getCharacterParam( ex, 0, chr ))
 			{
+				// make_aggressor_to handles the updating
 				this->make_aggressor_to(chr);
 				return new BLong(1);
 			}
@@ -2472,6 +2474,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 			Character* chr;
 			if (getCharacterParam( ex, 0, chr ))
 			{
+				// make_lawfullydamaged_to handled the updating
 				this->make_lawfullydamaged_to(chr);
 				return new BLong(1);
 			}

@@ -540,6 +540,11 @@ public: // REPUTATION SYSTEM
     void clear_my_lawful_damagers();
     void check_undamaged();
 
+	void on_criminal_changed();
+	void on_murderer_changed();
+	void on_aggressor_changed();
+	void on_lawfullydamaged_changed();
+
 public: // SECURE TRADING
     bool is_trading() const;
     void create_trade_container();
