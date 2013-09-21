@@ -894,19 +894,26 @@ bool UContainer::check_can_remove_script( Character* chr, Item* item, MoveType m
     }
 }
 
+
 void UContainer::printProperties( ostream& os ) const
 {
-	base::printProperties( os );
+	fmt::Writer writer;
+	printProperties(writer);
+	os << writer.c_str();
+}
+void UContainer::printProperties( fmt::Writer& writer ) const
+{
+	base::printProperties( writer );
 	short max_items_mod = getmember<s16>(MBR_MAX_ITEMS_MOD);
 	short max_weight_mod = getmember<s16>(MBR_MAX_WEIGHT_MOD);
 	s8 max_slots_mod = getmember<s8>(MBR_MAX_SLOTS_MOD);
 
 	if ( max_items_mod )
-		os << "\tMax_Items_mod\t" << max_items_mod << pf_endl;
+		writer << "\tMax_Items_mod\t" << max_items_mod << pf_endl;
 	if ( max_weight_mod )
-		os << "\tMax_Weight_mod\t" << max_weight_mod << pf_endl;
+		writer << "\tMax_Weight_mod\t" << max_weight_mod << pf_endl;
 	if ( max_slots_mod )
-		os << "\tMax_Slots_mod\t" << max_slots_mod << pf_endl;
+		writer << "\tMax_Slots_mod\t" << max_slots_mod << pf_endl;
 }
 
 void UContainer::readProperties( ConfigElem& elem )

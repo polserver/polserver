@@ -55,49 +55,44 @@ Map::~Map()
 
 void Map::printProperties( std::ostream& os ) const
 {
-    base::printProperties( os );
+	fmt::Writer writer;
+	printProperties(writer);
+	os << writer.c_str();
+}
 
-    os << "\txwest\t"       << xwest << pf_endl;
-    os << "\tynorth\t"      << ynorth << pf_endl;
-    os << "\txeast\t"       << xeast << pf_endl;
-    os << "\tysouth\t"      << ysouth << pf_endl;
-    os << "\tgumpwidth\t"   << gumpwidth << pf_endl;
-    os << "\tgumpheight\t"  << gumpheight << pf_endl;
-	os << "\tfacetid\t"		<< facetid << pf_endl;
+void Map::printProperties( fmt::Writer& writer ) const 
+{
+    base::printProperties( writer );
 
-	os << "\teditable\t"  << editable << pf_endl;
+    writer << "\txwest\t"       << xwest << pf_endl;
+    writer << "\tynorth\t"      << ynorth << pf_endl;
+    writer << "\txeast\t"       << xeast << pf_endl;
+    writer << "\tysouth\t"      << ysouth << pf_endl;
+    writer << "\tgumpwidth\t"   << gumpwidth << pf_endl;
+    writer << "\tgumpheight\t"  << gumpheight << pf_endl;
+	writer << "\tfacetid\t"		<< facetid << pf_endl;
+
+	writer << "\teditable\t"  << editable << pf_endl;
 	
-	printPinPoints(os);
+	printPinPoints(writer);
 
-	os << pf_endl;
+	writer << pf_endl;
 	
 }
 
 void Map::printPinPoints( std::ostream& os ) const
 {
-/*
-	ObjArray* arr = new ObjArray;
-	PinPoints::const_iterator itr;
 
-	for( itr = pin_points.begin(); itr != pin_points.end(); itr++ )
-	{
-
-		ObjArray* struc = new ObjArray;
-		struc->addMember( "x", new BLong( itr->x) );
-		struc->addMember( "y", new BLong( itr->y) );		
-	
-		arr->addElement( struc );
-	}
-	arr->packonto(os);
-	delete arr;
-*/
+}
+void Map::printPinPoints( fmt::Writer& writer ) const
+{
 	PinPoints::const_iterator itr;
 	int i=0;
-	os << "\tNumPins " << pin_points.size() << pf_endl;
+	writer << "\tNumPins " << pin_points.size() << pf_endl;
 
 	for( itr = pin_points.begin(); itr != pin_points.end(); ++itr, ++i )
 	{
-		os << "\tPin" << i << " " << itr->x << "," << itr->y << pf_endl;
+		writer << "\tPin" << i << " " << itr->x << "," << itr->y << pf_endl;
 	}
 }
 
