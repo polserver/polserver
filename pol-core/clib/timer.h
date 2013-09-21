@@ -71,7 +71,7 @@ namespace Tools // global ns is enough polluted
 		};
 		void print()
 		{
-			Debug::print(_name,ellapsed());
+			DebugT::print(_name,ellapsed());
 		};
 	private:
 		std::string _name;
