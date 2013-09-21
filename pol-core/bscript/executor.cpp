@@ -115,9 +115,9 @@ size_t Executor::sizeEstimate() const
     {
         size += elem.sizeEstimate();
     }
-    for( BObjectRefVec::const_iterator itr = Locals2->begin(); itr != Locals2->end(); ++itr )
+    for(const auto &elem : *Locals2)
     {
-        size += (*itr).sizeEstimate();
+        size += elem.sizeEstimate();
     }
     return size;
 }
