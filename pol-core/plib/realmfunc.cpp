@@ -637,9 +637,8 @@ void Realm::readmultis( MapShapeList& vec, unsigned short x, unsigned short y, u
         {
             ZoneMultis& wmultis = zone[wx][wy].multis;
 
-            for( ZoneMultis::iterator itr = wmultis.begin(), end = wmultis.end(); itr != end; ++itr )
+            for(auto multi : wmultis)
             {
-                UMulti* multi = *itr;
                 UHouse* house = multi->as_house();
                 if( house != NULL && house->IsCustom() ) //readshapes switches to working design if the house is being edited, 
                                                          //everyone in the house would use it for walking...
@@ -666,9 +665,8 @@ void Realm::readmultis( MapShapeList& vec, unsigned short x, unsigned short y, u
         {
             ZoneMultis& wmultis = zone[wx][wy].multis;
 
-            for( ZoneMultis::iterator itr = wmultis.begin(), end = wmultis.end(); itr != end; ++itr )
+            for(auto multi : wmultis)
             {
-                UMulti* multi = *itr;
                 UHouse* house = multi->as_house();
                 if( house != NULL && house->IsCustom() )
                 {
@@ -700,9 +698,8 @@ void Realm::readmultis( StaticList& vec, unsigned short x, unsigned short y ) co
         {
             ZoneMultis& wmultis = zone[wx][wy].multis;
 
-            for( ZoneMultis::iterator itr = wmultis.begin(), end = wmultis.end(); itr != end; ++itr )
+            for(auto multi : wmultis)
             {
-                UMulti* multi = *itr;
                 UHouse* house = multi->as_house();
                 if( house != NULL && house->IsCustom() ) //readshapes switches to working design if the house is being edited, 
                                                          //everyone in the house would use it for walking...

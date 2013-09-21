@@ -377,7 +377,7 @@ void create_maptile( const string& realmname )
     cout << "  Use Dif files: " << (descriptor.uodif ? "Yes" : "No") << endl;
     cout << "  Size: " << uo_map_width << "x" << uo_map_height << endl;
 
-    MapWriter* writer=new MapWriter();
+    auto writer=new MapWriter();
     writer->OpenExistingFiles( realmname );
 
     for( unsigned short y_base = 0; y_base < uo_map_height; y_base += MAPTILE_CHUNK )
@@ -455,7 +455,7 @@ void ProcessSolidBlock( unsigned short x_base, unsigned short y_base, MapWriter&
 
 void update_map( const string& realm, unsigned short x, unsigned short y )
 {
-    MapWriter* mapwriter=new MapWriter();
+    auto mapwriter=new MapWriter();
     mapwriter->OpenExistingFiles(realm);
 	rawmapfullread();
 	rawstaticfullread();
@@ -471,7 +471,7 @@ void update_map( const string& realm, unsigned short x, unsigned short y )
 
 void create_map( const string& realm, unsigned short width, unsigned short height )
 {
-	MapWriter* mapwriter=new MapWriter();
+	auto mapwriter=new MapWriter();
     cout << "Creating map base and solids files." << endl;
     cout << "  Realm: " << realm << endl;
     cout << "  Map ID: " << uo_mapid << endl;
@@ -787,10 +787,8 @@ void ProcessSolidBlock( unsigned short x_base, unsigned short y_base, MapWriter&
 
             bool addMap = true;
 
-            for( unsigned i = 0; i < statics.size(); ++i )
+            for(const auto &srec : statics)
             {
-                const StaticRec& srec = statics[i];
-
                 // Look for water tiles.  If there are any, discard the map (which is usually at -15 anyway)
                 if (z+lt_height <= srec.z && ((srec.z - (z+lt_height)) <= 10) && // only where the map is below or same Z as the static
                     srec.graphic >= 0x1796 && srec.graphic <= 0x17B2) // FIXME hardcoded

@@ -89,9 +89,9 @@ bool MD5_Encrypt(const string& in, string& out)
     MD5( reinterpret_cast<const unsigned char*>(in.c_str()), in.length(), sum );
 
 	ostringstream os;
-	for(unsigned int i=0; i<sizeof(sum); i++)
+	for(auto &elem : sum)
 	{
-		os << std::setfill('0') << std::setw(2) <<  hex << (int)sum[i];
+		os << std::setfill('0') << std::setw(2) <<  hex << (int)elem;
 	}
 	out = os.str();
 

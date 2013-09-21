@@ -60,9 +60,9 @@ bool Realm::dynamic_item_blocks_los( const LosObj& att, const LosObj& target,
 {
     ZoneItems& witems = getzone(x,y,const_cast<Realm*>(this)).items;
 
-    for( ZoneItems::iterator itr = witems.begin(), end = witems.end(); itr != end; ++itr )
+    for(const auto &item : witems)
     {
-        Item* item = *itr;
+        
         if ((item->x == x) && 
             (item->y == y))
         {

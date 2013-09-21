@@ -58,7 +58,7 @@ void FunctionalityModule::addFunction( const char *funcname,
                                        int nparams,
                                        UserFunction* uf )
 {
-    ModuleFunction* mf = new ModuleFunction( funcname, nparams, uf );
+    auto mf = new ModuleFunction( funcname, nparams, uf );
     mf->funcidx = static_cast<unsigned int>(functions.size());
     functions.push_back( mf );
 
@@ -70,7 +70,7 @@ void FunctionalityModule::addFunction( const char *funcname,
 // compiler only:
 bool FunctionalityModule::isFunc(const char *funcName, ModuleFunction **pmf, int *funcidx )
 {
-    FunctionsByName::iterator itr = functionsByName.find( funcName );
+    auto itr = functionsByName.find( funcName );
     if (itr != functionsByName.end())
     {
 		ModuleFunction* mf = (*itr).second;;
@@ -101,9 +101,8 @@ bool FunctionalityModule::isFunc(const char *funcName, ModuleFunction **pmf, int
 
 void FunctionalityModule::fillFunctionsByName()
 {
-    for( unsigned i = 0; i < functions.size(); ++i )
+    for(auto &mf : functions)
     {
-        ModuleFunction* mf = functions[i];
         functionsByName[ mf->name ] = mf;
     }
 }

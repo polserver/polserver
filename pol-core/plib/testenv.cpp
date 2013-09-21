@@ -80,7 +80,7 @@ NPC* add_npc( const char* npctype, unsigned short x, unsigned short y, short z )
         throw runtime_error(string("NPC template '") + npctype + "' not found");
     }
 
-    NPC* npc = new NPC( elem.remove_ushort( "OBJTYPE" ), elem );
+    auto  npc = new NPC( elem.remove_ushort( "OBJTYPE" ), elem );
     elem.clear_prop( "Serial" );
     elem.clear_prop( "X" );
     elem.clear_prop( "Y" );
