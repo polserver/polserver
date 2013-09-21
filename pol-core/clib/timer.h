@@ -41,38 +41,38 @@ namespace Tools // global ns is enough polluted
 	class Timer: protected printer
 	{
 		typedef std::chrono::high_resolution_clock Clock;
+		typedef std::chrono::milliseconds ms;
 	public:
 		Timer(std::string name) : _name(name)
 		{
 			start();
-		};
+		}
 		~Timer()
 		{
 			if (_start == _end)
 				stop();
 			printer::print(_name,ellapsed());
-		};
+		}
 		void start()
 		{
 			_start = _end = Clock::now();
-		};
+		}
 		void stop()
 		{
 			_end = Clock::now();		
-		};
+		}
 		// no one wants to know more then milliseconds..
 		double ellapsed()
 		{
 			if (_start == _end)
 				stop();
-			auto msratio = std::chrono::milliseconds::period::ratio();
-			auto diff = std::chrono::duration_cast<std::chrono::milliseconds>(_end - _start).count();
-			return (diff * static_cast<double>(msratio.num) / msratio.den);
-		};
+			auto diff = std::chrono::duration_cast<ms>(_end - _start).count();
+			return diff * static_cast<double>(ms::period::num) / ms::period::den;
+		}
 		void print()
 		{
 			DebugT::print(_name,ellapsed());
-		};
+		}
 	private:
 		std::string _name;
 		Clock::time_point _start;
