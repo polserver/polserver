@@ -3769,9 +3769,13 @@ bool Character::can_face( UFACING i_facing )
 
 	if (frozen() || paralyzed())
 	{
-		if ((client != NULL) && frozen())
-			private_say_above( this, this, "I am frozen and cannot move." );
-
+		if ( client != NULL )
+		{
+			if (frozen())
+				private_say_above( this, this, "I am frozen and cannot move." );
+			else if (paralyzed())
+				private_say_above( this, this, "I am paralyzed and cannot move." );
+		}
 		return false;
 	}
 

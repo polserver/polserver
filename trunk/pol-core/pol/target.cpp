@@ -186,7 +186,12 @@ void TargetCursor::handle_target_cursor( Character* chr, PKTBI_6C* msg )
 		if ( (chr->frozen() || chr->paralyzed()) && !chr->setting_enabled("freemove") )
 		{
 			if ( chr->client != NULL )
-				private_say_above( chr, chr, "I am frozen and cannot do that." );
+			{	
+				if ( chr->frozen() )
+					private_say_above( chr, chr, "I am frozen and cannot do that." );
+				else if ( chr->paralyzed() )
+					private_say_above( chr, chr, "I am paralyzed and cannot do that." );
+			}
 			cancel(chr);
 			return;
 		}

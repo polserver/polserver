@@ -196,7 +196,7 @@ void doubleclick( Client *client, PKTIN_06 *msg )
 			}
 			if (!id.can_use_while_paralyzed && client->chr->paralyzed())
 			{
-				private_say_above( client->chr, client->chr, "I am frozen and cannot do that." );
+				private_say_above( client->chr, client->chr, "I am paralyzed and cannot do that." );
 				return;
 			}
 			
