@@ -261,15 +261,14 @@ void UObject::printProperties( fmt::Writer& writer ) const
 		writer << "\tRealm\tbritannia" << pf_endl;
 	else
 		writer << "\tRealm\t" << realm->name() << pf_endl;
+
+   proplist_.printProperties(writer);
 }
 
 void UObject::printProperties( ostream& os ) const
 {
    fmt::Writer writer;
-
-   this->printProperties(writer);
-   proplist_.printProperties(writer);
-
+   printProperties(writer);
    os << writer.c_str();
 }
 
