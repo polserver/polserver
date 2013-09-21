@@ -320,18 +320,18 @@ dyndebug: $(objects_debug)
 
 clean:
 	rm -f $(objects) $(clib_objects) $(ecompile_objects) $(runecl_objects) $(uoconvert_objects)
-	rm pol.map
-	rm bin/*
+	rm -f pol.map
+	rm -f bin/*
 	rm -rf dist/scripts
 	
 	
 modernize:
-	clang-modernize-3.4 -for-compilers=clang-3.0,gcc-4.6,msvc-11   -summary -final-syntax-check  $(cpp_sources) -- $(CXX_OPTS) -std=c++11
-	clang-modernize-3.4 -for-compilers=clang-3.0,gcc-4.6,msvc-11   -summary -final-syntax-check  $(ecompile_sources) -- $(CXX_OPTS) -std=c++11
-	clang-modernize-3.4 -for-compilers=clang-3.0,gcc-4.6,msvc-11   -summary -final-syntax-check  $(runecl_sources) -- $(CXX_OPTS) -std=c++11
-	clang-modernize-3.4 -for-compilers=clang-3.0,gcc-4.6,msvc-11   -summary -final-syntax-check  $(uoconvert_sources) -- $(CXX_OPTS) -std=c++11
-	clang-modernize-3.4 -for-compilers=clang-3.0,gcc-4.6,msvc-11   -summary -final-syntax-check  $(uotool_sources) -- $(CXX_OPTS) -std=c++11
-	clang-modernize-3.4 -for-compilers=clang-3.0,gcc-4.6,msvc-11   -summary -final-syntax-check  $(poltool_sources) -- $(CXX_OPTS) -std=c++11
+	clang-modernize-3.4 -loop-convert -use-auto -pass-by-value -replace-auto_ptr -summary -final-syntax-check  $(cpp_sources)       -- $(CXX_OPTS) -std=c++11
+	clang-modernize-3.4 -loop-convert -use-auto -pass-by-value -replace-auto_ptr -summary -final-syntax-check  $(ecompile_sources)  -- $(CXX_OPTS) -std=c++11
+	clang-modernize-3.4 -loop-convert -use-auto -pass-by-value -replace-auto_ptr -summary -final-syntax-check  $(runecl_sources)    -- $(CXX_OPTS) -std=c++11
+	clang-modernize-3.4 -loop-convert -use-auto -pass-by-value -replace-auto_ptr -summary -final-syntax-check  $(uoconvert_sources) -- $(CXX_OPTS) -std=c++11
+	clang-modernize-3.4 -loop-convert -use-auto -pass-by-value -replace-auto_ptr -summary -final-syntax-check  $(uotool_sources)    -- $(CXX_OPTS) -std=c++11
+	clang-modernize-3.4 -loop-convert -use-auto -pass-by-value -replace-auto_ptr -summary -final-syntax-check  $(poltool_sources)   -- $(CXX_OPTS) -std=c++11
 	
 
 gzipfile: bin/pol bin/ecompile bin/runecl bin/uoconvert bin/uotool #bin/poltool
