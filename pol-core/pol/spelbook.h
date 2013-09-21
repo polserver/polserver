@@ -33,9 +33,12 @@ public:
 	u8 bitwise_contents[8];
 	u8 spell_school;
 	virtual void add( Item *item );
+	virtual void printProperties( fmt::Writer& writer ) const;
 	virtual void printProperties( std::ostream& os ) const;
 	virtual void readProperties( ConfigElem& elem );
+	virtual void printOn( fmt::Writer& writer ) const;
 	virtual void printOn( std::ostream& os ) const;
+	virtual void printSelfOn( fmt::Writer& writer ) const;
 	virtual void printSelfOn( std::ostream& os ) const;
 	virtual void double_click( Client* client );
 	void send_book_old( Client* client );

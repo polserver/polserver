@@ -799,78 +799,80 @@ int Character::charindex() const
 
 
 
-void Character::printProperties( ostream& os ) const
+void Character::printProperties( fmt::Writer& writer ) const
 {
+	using namespace fmt;
+
 	if (acct != NULL)
 	{
-		os << "\tAccount\t" << acct->name() << pf_endl;
-		os << "\tCharIdx\t" << charindex() << pf_endl;
+		writer << "\tAccount\t" << acct->name() << pf_endl;
+		writer << "\tCharIdx\t" << charindex() << pf_endl;
 	}
 
-	base::printProperties(os);
+	base::printProperties(writer);
  
 	if (cmdlevel)
 	{
-		os << "\tCmdLevel\t" << cmdlevels2[cmdlevel].name << pf_endl;
+		writer << "\tCmdLevel\t" << cmdlevels2[cmdlevel].name << pf_endl;
 	}
 	if (concealed_)
 	{
-		os << "\tConcealed\t" << int(concealed_) << pf_endl;
+		writer << "\tConcealed\t" << int(concealed_) << pf_endl;
 	}
-	os << "\tTrueColor\t0x" << hex << truecolor << dec << pf_endl;
-	os << "\tTrueObjtype\t0x" << hex << trueobjtype << dec << pf_endl;
+	writer << "\tTrueColor\t0x" << hex(truecolor) << pf_endl;
+	writer << "\tTrueObjtype\t0x" << hex(trueobjtype) << pf_endl;
 
 	if (registered_house)
-		os << "\tRegisteredHouse\t0x" << hex << registered_house << dec << pf_endl;
+		writer << "\tRegisteredHouse\t0x" << hex(registered_house) << pf_endl;
 
-	os << "\tGender\t" << static_cast<int>(gender) << pf_endl;
-	os << "\tRace\t" << static_cast<int>(race) << pf_endl;
+	writer << "\tGender\t" << static_cast<int>(gender) << pf_endl;
+	writer << "\tRace\t" << static_cast<int>(race) << pf_endl;
 	
 	if (dead_)
-		os << "\tDead\t" << static_cast<int>(dead_) << pf_endl;
+		writer << "\tDead\t" << static_cast<int>(dead_) << pf_endl;
 
 	if (mountedsteps_)
-		os << "\tMountedSteps\t" << static_cast<unsigned int>(mountedsteps_) << pf_endl;
+		writer << "\tMountedSteps\t" << static_cast<unsigned int>(mountedsteps_) << pf_endl;
 
 	if (hidden_)
-		os << "\tHidden\t" << static_cast<int>(hidden_) << pf_endl;
+		writer << "\tHidden\t" << static_cast<int>(hidden_) << pf_endl;
 
 	if (frozen_)
-		os << "\tFrozen\t" << static_cast<int>(frozen_) << pf_endl;
+		writer << "\tFrozen\t" << static_cast<int>(frozen_) << pf_endl;
 
 	if (element_resist_mod.fire != 0)
-		os << "\tFireResistMod\t" << static_cast<int>(element_resist_mod.fire) << pf_endl;
+		writer << "\tFireResistMod\t" << static_cast<int>(element_resist_mod.fire) << pf_endl;
 	if (element_resist_mod.cold  != 0)
-		os << "\tColdResistMod\t" << static_cast<int>(element_resist_mod.cold) << pf_endl;
+		writer << "\tColdResistMod\t" << static_cast<int>(element_resist_mod.cold) << pf_endl;
 	if (element_resist_mod.energy != 0)
-		os << "\tEnergyResistMod\t" << static_cast<int>(element_resist_mod.energy) << pf_endl;
+		writer << "\tEnergyResistMod\t" << static_cast<int>(element_resist_mod.energy) << pf_endl;
 	if (element_resist_mod.poison != 0)
-		os << "\tPoisonResistMod\t" << static_cast<int>(element_resist_mod.poison) << pf_endl;
+		writer << "\tPoisonResistMod\t" << static_cast<int>(element_resist_mod.poison) << pf_endl;
 	if (element_resist_mod.physical != 0)
-		os << "\tPhysicalResistMod\t" << static_cast<int>(element_resist_mod.physical) << pf_endl;
+		writer << "\tPhysicalResistMod\t" << static_cast<int>(element_resist_mod.physical) << pf_endl;
 
 	if (element_damage_mod.fire != 0)
-		os << "\tFireDamageMod\t" << static_cast<int>(element_damage_mod.fire) << pf_endl;
+		writer << "\tFireDamageMod\t" << static_cast<int>(element_damage_mod.fire) << pf_endl;
 	if (element_damage_mod.cold  != 0)
-		os << "\tColdDamageMod\t" << static_cast<int>(element_damage_mod.cold) << pf_endl;
+		writer << "\tColdDamageMod\t" << static_cast<int>(element_damage_mod.cold) << pf_endl;
 	if (element_damage_mod.energy != 0)
-		os << "\tEnergyDamageMod\t" << static_cast<int>(element_damage_mod.energy) << pf_endl;
+		writer << "\tEnergyDamageMod\t" << static_cast<int>(element_damage_mod.energy) << pf_endl;
 	if (element_damage_mod.poison != 0)
-		os << "\tPoisonDamageMod\t" << static_cast<int>(element_damage_mod.poison) << pf_endl;
+		writer << "\tPoisonDamageMod\t" << static_cast<int>(element_damage_mod.poison) << pf_endl;
 	if (element_damage_mod.physical != 0)
-		os << "\tPhysicalDamageMod\t" << static_cast<int>(element_damage_mod.physical) << pf_endl;
+		writer << "\tPhysicalDamageMod\t" << static_cast<int>(element_damage_mod.physical) << pf_endl;
 
 	if (movement_cost.walk != 1.0)
-		os << "\tMovementWalkMod\t" << static_cast<double>(movement_cost.walk) << pf_endl;
+		writer << "\tMovementWalkMod\t" << static_cast<double>(movement_cost.walk) << pf_endl;
 	if (movement_cost.run != 1.0)
-		os << "\tMovementRunMod\t" << static_cast<double>(movement_cost.run) << pf_endl;
+		writer << "\tMovementRunMod\t" << static_cast<double>(movement_cost.run) << pf_endl;
 	if (movement_cost.walk_mounted != 1.0)
-		os << "\tMovementWalkMountedMod\t" << static_cast<double>(movement_cost.walk_mounted) << pf_endl;
+		writer << "\tMovementWalkMountedMod\t" << static_cast<double>(movement_cost.walk_mounted) << pf_endl;
 	if (movement_cost.run_mounted != 1.0)
-		os << "\tMovementRunMountedMod\t" << static_cast<double>(movement_cost.run_mounted) << pf_endl;
+		writer << "\tMovementRunMountedMod\t" << static_cast<double>(movement_cost.run_mounted) << pf_endl;
 
 	if (carrying_capacity_mod_)
-		os << "\tCarryingCapacityMod\t" << static_cast<int>(carrying_capacity_mod_) << pf_endl;
+		writer << "\tCarryingCapacityMod\t" << static_cast<int>(carrying_capacity_mod_) << pf_endl;
 
 
 	// output Attributes
@@ -884,28 +886,28 @@ void Character::printProperties( ostream& os ) const
 		{
 			unsigned ones = av.base()/10;
 			unsigned tenths = av.base()%10;
-			os << "\t" << pAttr->name << "\t" << ones;
+			writer << "\t" << pAttr->name << "\t" << ones;
 			if (tenths)
-				os << "." << tenths;
+				writer << "." << tenths;
 			
 			if (cap != pAttr->default_cap) {
 				unsigned cap_ones = cap/10;
 				unsigned cap_tenths = cap%10;
 
-				os << ":" << cap_ones;
+				writer << ":" << cap_ones;
 				if (tenths)
-					os << "." << cap_tenths;
+					writer << "." << cap_tenths;
 			}
 
 			if (lock)
-				os << ";" << lock;
+				writer << ";" << lock;
 
-			os << pf_endl;
+			writer << pf_endl;
 		}
 	}
 
 	if (skillcap_ != 0)
-		os << "\tSkillcap\t" << static_cast<int>(skillcap_) << pf_endl;
+		writer << "\tSkillcap\t" << static_cast<int>(skillcap_) << pf_endl;
 	
 	// output Vitals
 	for( Vital* pVital = FindVital(0); pVital != NULL; pVital = pVital->next )
@@ -913,71 +915,84 @@ void Character::printProperties( ostream& os ) const
 		const VitalValue& vv = vital(pVital->vitalid);
 		if (vv.current_ones())
 		{
-			os << "\t" << pVital->name << "\t" << vv.current_ones() << pf_endl;
+			writer << "\t" << pVital->name << "\t" << vv.current_ones() << pf_endl;
 		}
 	}
 
 	if (expanded_statbar.statcap != 0)
-		os << "\tStatcap\t" << static_cast<int>(expanded_statbar.statcap) << pf_endl;
+		writer << "\tStatcap\t" << static_cast<int>(expanded_statbar.statcap) << pf_endl;
 
 	if (expanded_statbar.luck != 0)
-		os << "\tLuck\t" << static_cast<int>(expanded_statbar.luck) << pf_endl;
+		writer << "\tLuck\t" << static_cast<int>(expanded_statbar.luck) << pf_endl;
 	if (expanded_statbar.followers_max != 0)
-		os << "\tFollowersMax\t" << static_cast<int>(expanded_statbar.followers_max) << pf_endl;
+		writer << "\tFollowersMax\t" << static_cast<int>(expanded_statbar.followers_max) << pf_endl;
 	if (expanded_statbar.tithing != 0)
-		os << "\tTithing\t" << static_cast<int>(expanded_statbar.tithing) << pf_endl;
+		writer << "\tTithing\t" << static_cast<int>(expanded_statbar.tithing) << pf_endl;
 	if (expanded_statbar.followers != 0)
-		os << "\tFollowers\t" << static_cast<int>(expanded_statbar.followers) << pf_endl;
+		writer << "\tFollowers\t" << static_cast<int>(expanded_statbar.followers) << pf_endl;
 
 	if (movemode != MOVEMODE_LAND)
-		os << "\tMoveMode\t" << encode_movemode( movemode ) << pf_endl;
+		writer << "\tMoveMode\t" << encode_movemode( movemode ) << pf_endl;
 
 	if (!privs.empty())
 	{
-		os << "\tPrivs\t" << privs.extract() << pf_endl;
+		writer << "\tPrivs\t" << privs.extract() << pf_endl;
 	}
 	if (!settings.empty())
 	{
-		os << "\tSettings\t" << settings.extract() << pf_endl;
+		writer << "\tSettings\t" << settings.extract() << pf_endl;
 	}
 
-	os << "\tCreatedAt\t" << created_at << pf_endl;
+	writer << "\tCreatedAt\t" << created_at << pf_endl;
 
 	if (squelched_until)
-		os << "\tSquelchedUntil\t" << squelched_until << pf_endl;
+		writer << "\tSquelchedUntil\t" << squelched_until << pf_endl;
     if (deafened_until)
-		os << "\tDeafenedUntil\t" << deafened_until << pf_endl;
+		writer << "\tDeafenedUntil\t" << deafened_until << pf_endl;
 
 	if (!title_prefix.empty())
-		os << "\tTitlePrefix\t" << getencodedquotedstring(title_prefix) << pf_endl;
+		writer << "\tTitlePrefix\t" << getencodedquotedstring(title_prefix) << pf_endl;
 	if (!title_suffix.empty())
-		os << "\tTitleSuffix\t" << getencodedquotedstring(title_suffix) << pf_endl;
+		writer << "\tTitleSuffix\t" << getencodedquotedstring(title_suffix) << pf_endl;
 	if (!title_guild.empty())
-		os << "\tTitleGuild\t" << getencodedquotedstring(title_guild) << pf_endl;
+		writer << "\tTitleGuild\t" << getencodedquotedstring(title_guild) << pf_endl;
 	if (!title_race.empty())
-		os << "\tTitleRace\t" << getencodedquotedstring(title_race) << pf_endl;
+		writer << "\tTitleRace\t" << getencodedquotedstring(title_race) << pf_endl;
 
 //	if (guildid_)
-//		os << "\tGuildId\t" << guildid_ << pf_endl;
+//		writer << "\tGuildId\t" << guildid_ << pf_endl;
 	if (murderer_)
-		os << "\tMurderer\t" << murderer_ << pf_endl;
+		writer << "\tMurderer\t" << murderer_ << pf_endl;
 	if (party_can_loot_)
-		os << "\tPartyCanLoot\t" << party_can_loot_ << pf_endl;
+		writer << "\tPartyCanLoot\t" << party_can_loot_ << pf_endl;
 	for(ReportableList::const_iterator itr = reportable_.begin();
 		itr != reportable_.end();
 		++itr)
 	{
 		const reportable_t& rt = (*itr);
-		os << "\tReportable\t" << hexint(rt.serial) << " " << rt.polclock << pf_endl;
+		writer << "\tReportable\t" << hexint(rt.serial) << " " << rt.polclock << pf_endl;
 	}
 	
 	UCorpse* corpse_obj = static_cast<UCorpse*>(system_find_item(last_corpse));
 	if ( corpse_obj != NULL && !corpse_obj->orphan() )
-		os << "\tLastCorpse\t" << last_corpse << pf_endl;
+		writer << "\tLastCorpse\t" << last_corpse << pf_endl;
+}
+void Character::printProperties( ostream& os ) const
+{
+	fmt::Writer writer;
+	printProperties( writer );
+	os << writer.c_str();
+}
+
+void Character::printDebugProperties( fmt::Writer& writer ) const
+{
+	base::printDebugProperties(writer);
 }
 void Character::printDebugProperties( std::ostream& os ) const
 {
-	base::printDebugProperties( os );
+	fmt::Writer writer;
+	printDebugProperties( writer );
+	os << writer.c_str();
 }
 
 const char *Character::classname() const
@@ -985,14 +1000,26 @@ const char *Character::classname() const
 	return "Character";
 }
 
+void Character::printSelfOn( fmt::Writer& writer ) const
+{
+	base::printOn(writer);
+}
 void Character::printSelfOn( ostream& os ) const
 {
-	base::printOn( os );
+	fmt::Writer writer;
+	printSelfOn( writer );
+	os << writer.c_str();
 }
 
+void Character::printOn( fmt::Writer& writer ) const
+{
+	base::printOn( writer );
+}
 void Character::printOn( ostream& os ) const
 { 
-	base::printOn( os );
+	fmt::Writer writer;
+	printOn( writer );
+	os << writer.c_str();
 }
 void Character::printWornItems( ostream& ofs_pc, ostream& ofs_equip ) const
 {

@@ -27,10 +27,16 @@ void ULockable::readProperties( ConfigElem& elem )
 
 void ULockable::printProperties( std::ostream& os ) const
 {
-    base::printProperties(os);
+	fmt::Writer writer;
+	printProperties(writer);
+	os << writer.c_str();
+}
+void ULockable::printProperties( fmt::Writer& writer ) const
+{
+    base::printProperties(writer);
     
     if (locked_)
-        os << "\tLocked\t" << locked_ << pf_endl;
+        writer << "\tLocked\t" << locked_ << pf_endl;
 }
 
 //dave 12-20

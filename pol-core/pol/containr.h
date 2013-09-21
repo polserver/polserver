@@ -120,6 +120,7 @@ public:
     // TODO: rework these too.
     bool check_can_remove_script( Character* chr, Item* item, MoveType move = MT_PLAYER );
     void on_remove( Character* chr, Item* item, MoveType move = MT_PLAYER );
+	virtual void printProperties( fmt::Writer& writer ) const;
 	virtual void printProperties( std::ostream& os ) const;
     virtual void readProperties( ConfigElem& elem );
     virtual class BObjectImp* get_script_member( const char* membername ) const;
@@ -184,8 +185,11 @@ protected:
 	//DAVE added this 11/17 so WornItemsContainer could pass up its class to UObject constructor
 	UContainer(u32 objtype, UOBJ_CLASS pol_class);
     // uses Item::classname()
+	virtual void printOn( fmt::Writer& writer ) const;
     virtual void printOn( std::ostream& os ) const;
+	virtual void printSelfOn( fmt::Writer& writer ) const;
     virtual void printSelfOn( std::ostream& os ) const;
+	void printContents( fmt::Writer& writer ) const;
     void printContents( std::ostream& os ) const;
 };
 
@@ -224,6 +228,7 @@ public:
 protected:
     explicit UCorpse( const ContainerDesc& desc );
     virtual void spill_contents( UMulti* supporting_multi );
+	virtual void printProperties( fmt::Writer& writer ) const;
     virtual void printProperties( std::ostream& os ) const;
     virtual void readProperties( ConfigElem& elem );
     friend Item* Item::create( const ItemDesc& itemdesc, u32 serial );

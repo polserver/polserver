@@ -170,7 +170,10 @@ public:
 
 protected: // only derived classes need the constructor
 	virtual void printProperties( std::ostream& os ) const;
+	virtual void printProperties( fmt::Writer& writer ) const;
 	virtual void printDebugProperties( std::ostream& os ) const;
+	virtual void printDebugProperties( fmt::Writer& writer ) const;
+
 	Item(const ItemDesc& itemdesc, UOBJ_CLASS uobj_class);
 
 public:
