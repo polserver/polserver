@@ -12,6 +12,9 @@
     <Filter Include="tinyxml">
       <UniqueIdentifier>{5847ce3c-0bd9-4c36-a96c-de8cedaf38b3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="format">
+      <UniqueIdentifier>{ac8f842c-1bdd-412c-ba83-563baa6fc512}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="binaryfile.cpp">
@@ -142,6 +145,9 @@
     </ClCompile>
     <ClCompile Include="..\..\lib\tinyxml\tinyxmlparser.cpp">
       <Filter>tinyxml</Filter>
+    </ClCompile>
+    <ClCompile Include="format\format.cc">
+      <Filter>format</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -315,6 +321,9 @@
     </ClInclude>
     <ClInclude Include="timer.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="format\format.h">
+      <Filter>format</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
