@@ -85,7 +85,7 @@ int dualbuf::sync()
         return EOF == 0?1:0;
 }
 
-std::streamsize dualbuf::xsputn( const char* str, int size )
+std::streamsize dualbuf::xsputn( const char* str, streamsize size )
 {
     std::streamsize n1 = buf1_->sputn( str, size);
     std::streamsize n2 = buf2_->sputn( str, size );

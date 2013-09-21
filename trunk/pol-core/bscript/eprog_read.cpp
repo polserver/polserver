@@ -171,7 +171,7 @@ int EScriptProgram::read_module( FILE *fp )
 	BSCRIPT_MODULE_HDR hdr;
 	if (fread( &hdr, sizeof hdr, 1, fp ) != 1)
 		return -1;
-	FunctionalityModule *fm = new FunctionalityModule( hdr.modulename );
+	auto fm = new FunctionalityModule( hdr.modulename );
 	for( unsigned i = 0; i < hdr.nfuncs; i++ )
 	{
 		BSCRIPT_MODULE_FUNCTION func;
@@ -320,7 +320,7 @@ int EScriptProgram::read_globalvarnames( FILE* fp )
         return -1;
     int res = 0;
     unsigned bufalloc = 20;
-    char* buffer = new char[bufalloc];
+    auto buffer = new char[bufalloc];
     for( unsigned idx = 0; idx < hdr.nGlobalVars; ++idx )
     {
         BSCRIPT_GLOBALVARNAME_HDR ghdr;
@@ -392,13 +392,13 @@ int EScriptProgram::read_dbg_file()
     }
     
     size_t bufalloc = 20;
-    char* buffer = new char[bufalloc];
+    auto buffer = new char[bufalloc];
     int res = 0;
 
     u32 count;
     fread_res=fread( &count, sizeof count, 1, fp );
     dbg_filenames.resize( count );
-    for( unsigned i = 0; i < dbg_filenames.size(); ++i )
+    for(auto &elem : dbg_filenames)
     {
         fread_res=fread( &count, sizeof count, 1, fp );
         if (count >= bufalloc)
@@ -408,12 +408,12 @@ int EScriptProgram::read_dbg_file()
             buffer = new char[bufalloc];
         }
         fread_res=fread( buffer, count, 1, fp );
-        dbg_filenames[i] = buffer;
+        elem = buffer;
     }
 
     fread_res=fread( &count, sizeof count, 1, fp );
     globalvarnames.resize( count );
-    for( unsigned i = 0; i < globalvarnames.size(); ++i )
+    for(auto &elem : globalvarnames)
     {
         fread_res=fread( &count, sizeof count, 1, fp );
         if (count >= bufalloc)
@@ -423,7 +423,7 @@ int EScriptProgram::read_dbg_file()
             buffer = new char[bufalloc];
         }
         fread_res=fread( buffer, count, 1, fp );
-        globalvarnames[i] = buffer;
+        elem = buffer;
     }
 
     fread_res=fread( &count, sizeof count, 1, fp );
@@ -442,9 +442,8 @@ int EScriptProgram::read_dbg_file()
     }
     fread_res=fread( &count, sizeof count, 1, fp );
     blocks.resize( count );
-    for( unsigned i = 0; i < blocks.size(); ++i )
+    for(auto &block : blocks)
     {
-        EPDbgBlock& block = blocks[i];
         u32 tmp;
         
         fread_res=fread( &tmp, sizeof tmp, 1, fp );
@@ -456,7 +455,7 @@ int EScriptProgram::read_dbg_file()
         fread_res=fread( &tmp, sizeof tmp, 1, fp );
         block.localvarnames.resize( tmp );
 
-        for( unsigned j = 0; j < block.localvarnames.size(); ++j )
+        for(auto &elem : block.localvarnames)
         {
             fread_res=fread( &count, sizeof count, 1, fp );
             if (count >= bufalloc)
@@ -466,16 +465,15 @@ int EScriptProgram::read_dbg_file()
                 buffer = new char[bufalloc];
             }
             fread_res=fread( buffer, count, 1, fp );
-            block.localvarnames[j] = buffer;
+            elem = buffer;
         }
     }
     if (version >= 3)
     {
         fread_res=fread( &count, sizeof count, 1, fp );
         dbg_functions.resize( count );
-        for( unsigned i = 0; i < dbg_functions.size(); ++i )
+        for(auto &func : dbg_functions)
         {
-            EPDbgFunction& func = dbg_functions[i];
             u32 tmp;
             fread_res=fread( &tmp, sizeof tmp, 1, fp );
             if (tmp >= bufalloc)

@@ -15,9 +15,8 @@ unsigned int UserFunction::_instances;
 set<UserFunction*> UserFunction::_instancelist;
 void UserFunction::show_instances()
 {
-    for( std::set<UserFunction*>::const_iterator citr = _instancelist.begin(); citr != _instancelist.end(); ++citr )
+    for(auto uf : _instancelist)
     {
-        UserFunction* uf = (*citr);
         cerr << uf->name << endl;
     }
 }

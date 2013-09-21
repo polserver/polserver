@@ -46,9 +46,9 @@ void StringSet::readfrom( const std::string& str )
 std::string StringSet::extract() const
 {
     std::string temp;
-    for( std::set<std::string>::const_iterator itr = strings_.begin(); itr != strings_.end(); ++itr )
+    for(const auto &elem : strings_)
     {
-        temp += *itr;
+        temp += elem;
         temp += " ";
     }
     return temp;

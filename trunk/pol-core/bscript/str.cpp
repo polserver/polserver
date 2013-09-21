@@ -571,7 +571,7 @@ BObjectRef String::OperMultiSubscript( stack<BObjectRef>& indices )
         return BObjectRef( copy() );
     }
 
-    String* str = new String( value_, index-1, len );
+    auto str = new String( value_, index-1, len );
     return BObjectRef( str );
 }
 
@@ -776,12 +776,12 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool forcebuilti
 			string s = this->getStringRep(); // string itself
 			std::stringstream result;
 
-			unsigned int tag_start_pos; // the position of tag's start "{"
-			unsigned int tag_stop_pos;  // the position of tag's end "}"
-			unsigned int tag_dot_pos;
+			size_t tag_start_pos; // the position of tag's start "{"
+			size_t tag_stop_pos;  // the position of tag's end "}"
+			size_t tag_dot_pos;
 			int tag_param_idx;			
 
-			unsigned int str_pos=0; // current string position		
+			size_t str_pos=0; // current string position		
 			unsigned int next_param_idx = 0; // next index of .format() parameter
 
 			while((tag_start_pos = s.find("{", str_pos)) != string::npos) {

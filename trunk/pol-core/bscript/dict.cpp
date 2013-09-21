@@ -34,10 +34,10 @@ BDictionary::BDictionary(BObjectType type) : BObjectImp( type )
 BDictionary::BDictionary( const BDictionary& dict, BObjectType type ) :
     BObjectImp( type )
 {
-    for( Contents::const_iterator itr = dict.contents_.begin(); itr != dict.contents_.end(); ++itr )
+    for(const auto &elem : dict.contents_)
     {
-        const BObject& bkeyobj = (*itr).first;
-        const BObjectRef& bvalref = (*itr).second;
+        const BObject& bkeyobj = elem.first;
+        const BObjectRef& bvalref = elem.second;
 
         contents_[ bkeyobj ] = BObjectRef( new BObject( bvalref->impref().copy() ) );
     }
@@ -91,7 +91,7 @@ BObject* BDictionaryIterator::step()
 {
     if (m_First)
     {
-        BDictionary::Contents::iterator itr = m_pDict->contents_.begin();
+        auto itr = m_pDict->contents_.begin();
         if (itr == m_pDict->contents_.end())
             return NULL;
 
@@ -105,7 +105,7 @@ BObject* BDictionaryIterator::step()
     }
     else
     {
-        BDictionary::Contents::iterator itr = m_pDict->contents_.find( m_Key );
+        auto itr = m_pDict->contents_.find( m_Key );
         if (itr == m_pDict->contents_.end())
             return NULL;
         ++itr;
@@ -134,10 +134,10 @@ BObjectImp* BDictionary::copy() const
 size_t BDictionary::sizeEstimate() const
 {
     size_t size = sizeof(BDictionary);
-    for( Contents::const_iterator itr = contents_.begin(); itr != contents_.end(); ++itr )
+    for(const auto &elem : contents_)
     {
-        const BObject& bkeyobj = (*itr).first;
-        const BObjectRef& bvalref = (*itr).second;
+        const BObject& bkeyobj = elem.first;
+        const BObjectRef& bvalref = elem.second;
         size += bkeyobj.sizeEstimate() + bvalref.sizeEstimate();
     }
     return size;
@@ -153,7 +153,7 @@ BObjectRef BDictionary::set_member( const char* membername, BObjectImp* value, b
     BObject key( new String(membername) );
 	BObjectImp* target = copy ? value->copy() : value;
 
-    Contents::iterator itr = contents_.find( key );
+    auto itr = contents_.find( key );
     if (itr != contents_.end())
     {
         BObjectRef& oref = (*itr).second;
@@ -172,7 +172,7 @@ BObjectRef BDictionary::get_member( const char* membername )
 {
     BObject key( new String(membername) );
 
-    Contents::iterator itr = contents_.find( key );
+    auto itr = contents_.find( key );
     if (itr != contents_.end())
     {
         return (*itr).second;
@@ -188,7 +188,7 @@ BObjectRef BDictionary::OperSubscript( const BObject& obj )
 {
     if (obj->isa( OTString ) || obj->isa( OTLong ) || obj->isa( OTDouble ) || obj->isa( OTApplicObj ))
     {
-        Contents::iterator itr = contents_.find( obj );
+        auto itr = contents_.find( obj );
         if (itr != contents_.end())
         {
             BObjectRef& oref = (*itr).second;
@@ -212,7 +212,7 @@ BObjectImp* BDictionary::array_assign( BObjectImp* idx, BObjectImp* target, bool
 		BObjectImp* new_target = copy ? target->copy() : target;
 
         BObject obj( idx );
-        Contents::iterator itr = contents_.find( obj );
+        auto itr = contents_.find( obj );
         if (itr != contents_.end())
         {
             BObjectRef& oref = (*itr).second;
@@ -308,11 +308,10 @@ BObjectImp* BDictionary::call_method_id( const int id, Executor& ex, bool forceb
     case MTH_KEYS:
 		if (ex.numParams() == 0)
 		{
-	        ObjArray* arr = new ObjArray;
-		    Contents::const_iterator itr = contents_.begin(), end = contents_.end();
-	        for( ; itr != end; ++itr )
+	        auto arr = new ObjArray;
+	        for( const auto &content : contents_ )
 			{
-	            const BObject& bkeyobj = (*itr).first;
+	            const BObject& bkeyobj = content.first;
 
 	            arr->addElement( bkeyobj.impref().copy() );
 			}
@@ -357,11 +356,10 @@ int BDictionary::typeOfInt() const
 void BDictionary::packonto( ostream& os ) const
 {
     os << packtype() << contents_.size() << ":";
-    Contents::const_iterator itr = contents_.begin(), end = contents_.end();
-    for( ; itr != end; ++itr )
+    for( const auto& content : contents_ )
     {
-        const BObject& bkeyobj = (*itr).first;
-        const BObjectRef& bvalref = (*itr).second;
+        const BObject& bkeyobj = content.first;
+        const BObjectRef& bvalref = content.second;
 
         bkeyobj.impref().packonto( os );
         bvalref->impref().packonto( os );
@@ -394,11 +392,10 @@ string BDictionary::getStringRep() const
     os << typetag() << "{ ";
     bool any = false;
 
-    Contents::const_iterator itr = contents_.begin(), end = contents_.end();
-    for( ; itr != end; ++itr )
+    for( const auto &content : contents_ )
     {
-        const BObject& bkeyobj = (*itr).first;
-        const BObjectRef& bvalref = (*itr).second;
+        const BObject& bkeyobj = content.first;
+        const BObjectRef& bvalref = content.second;
 
         if (any)
             os << ", ";
@@ -428,7 +425,7 @@ BObjectRef BDictionary::operDotPlus( const char* name )
     BObject key( new String(name) );
     if (contents_.count( key ) == 0)
     {
-        BObject* pnewobj = new BObject(new UninitObject);
+        auto pnewobj = new BObject(new UninitObject);
         contents_[ key ] = BObjectRef( pnewobj );
         return BObjectRef(pnewobj);
     }

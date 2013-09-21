@@ -19,11 +19,11 @@ void EScriptProgram::dump( ostream& os )
     {
         os << "Exported Functions:" << endl;
         os << "   PC  Args  Name" << endl;
-        for( unsigned i = 0; i < exported_functions.size(); ++i )
+        for(auto &elem : exported_functions)
         {
-            os << setw(5) << exported_functions[i].PC
-               << setw(6) << exported_functions[i].nargs
-               << "  " << exported_functions[i].name 
+            os << setw(5) << elem.PC
+               << setw(6) << elem.nargs
+               << "  " << elem.name 
                << endl;
         }
     }

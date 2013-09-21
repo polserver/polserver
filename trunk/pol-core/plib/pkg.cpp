@@ -29,7 +29,7 @@ typedef std::map<string,Package*,ci_cmp_pred> PackagesByName;
 PackagesByName packages_byname;
 Package* find_package( const std::string& pkgname )
 {
-	PackagesByName::iterator itr = packages_byname.find( pkgname );
+	auto itr = packages_byname.find( pkgname );
 	if (itr != packages_byname.end())
 	{
 		return (*itr).second;
@@ -42,14 +42,14 @@ Package* find_package( const std::string& pkgname )
 
 void remove_package( Package* pkg )
 {
-	Packages::iterator last = remove_if(packages.begin(), packages.end(),
+	auto last = remove_if(packages.begin(), packages.end(),
 										bind2nd(equal_to<Package*>(), pkg) ) ;
 	packages.erase( last );
 	
-	PackagesByName::iterator itr = packages_byname.begin();
+	auto itr = packages_byname.begin();
 	while (itr != packages_byname.end())
 	{
-		PackagesByName::iterator tempitr = itr;
+		auto tempitr = itr;
 		++itr;
 		if ((*tempitr).second == pkg)
 			packages_byname.erase( tempitr );
@@ -170,9 +170,8 @@ string Package::desc() const
 bool Package::check_replacements() const
 {
 	bool any = false;
-	for( size_t i = 0; i < replaces_.elems.size(); ++i )
+	for(const auto &elem : replaces_.elems)
 	{
-		const PackageList::Elem& elem = replaces_.elems[i];
 		Package* found = find_package( elem.pkgname );
 		if (found != NULL)
 		{
@@ -209,9 +208,8 @@ void Package::check_dependencies() const
 			throw runtime_error("Package requires a newer core version");
 		}
 	}
-	for( size_t i = 0; i < requires_.elems.size(); ++i )
+	for(const auto &elem : requires_.elems)
 	{
-		const PackageList::Elem& elem = requires_.elems[i];
 		Package* found = find_package( elem.pkgname );
 		if (found == NULL)
 		{
@@ -235,9 +233,8 @@ void Package::check_dependencies() const
 
 void Package::check_conflicts() const
 {
-	for( size_t i = 0; i < conflicts_.elems.size(); ++i )
+	for(const auto &elem : conflicts_.elems)
 	{
-		const PackageList::Elem& elem = conflicts_.elems[i];
 		Package* found = find_package( elem.pkgname );
 		if (found != NULL)
 		{
@@ -351,9 +348,8 @@ void replace_packages()
 	{
 		done = true;
 
-		for( size_t i = 0; i < packages.size(); ++i )
+		for(auto& pkg : packages)
 		{
-			Package* pkg = packages[i];
 			bool change = pkg->check_replacements();
 			if (change)
 			{

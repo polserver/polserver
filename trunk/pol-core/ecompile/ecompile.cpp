@@ -624,9 +624,8 @@ void AutoCompile()
 	{
 		vector<string> files;
 		recurse_compile( normalized_dir_form( compilercfg.PolScriptRoot ),&files );
-		for( size_t i = 0; i < packages.size(); ++i )
+		for(const auto &pkg : packages)
 		{
-			const Package* pkg = packages[i];
 			recurse_compile( normalized_dir_form( pkg->dir() ), &files );
 		}
 		parallel_compile(files);
@@ -634,9 +633,8 @@ void AutoCompile()
 	else
 	{
 		recurse_compile( normalized_dir_form( compilercfg.PolScriptRoot ),NULL );
-		for( size_t i = 0; i < packages.size(); ++i )
+		for(const auto &pkg : packages)
 		{
-			const Package* pkg = packages[i];
 			recurse_compile( normalized_dir_form( pkg->dir() ), NULL );
 		}
 	}
@@ -645,9 +643,9 @@ void AutoCompile()
 
 bool run(int argc, char **argv)
 {
-    for( size_t pi = 0; pi < compilercfg.PackageRoot.size(); ++pi )
+    for(auto &elem : compilercfg.PackageRoot)
     {
-        load_packages( compilercfg.PackageRoot[pi], true /* quiet */ );
+        load_packages( elem, true /* quiet */ );
     }
     replace_packages();
     check_package_deps();

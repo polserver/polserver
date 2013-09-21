@@ -952,9 +952,9 @@ ObjArray::ObjArray( const ObjArray& copyfrom ) :
 
 void ObjArray::deepcopy()
 {
-	for( iterator itr = ref_arr.begin(), end = ref_arr.end(); itr != end; ++itr )
+	for(auto &elem : ref_arr)
 	{
-		if (itr->get())
+		if (elem.get())
 		{
 			/*
 				NOTE: all BObjectRefs in an ObjArray reference BNamedObjects not BObjects
@@ -963,15 +963,15 @@ void ObjArray::deepcopy()
 				(SO, bno's refcount should be >1 here)
 			*/
 
-			BObject *bo = itr->get();
-			itr->set( new BObject( bo->impptr()->copy() ) );
+			BObject *bo = elem.get();
+			elem.set( new BObject( bo->impptr()->copy() ) );
 		}
 	}
 }
 
 BObjectImp *ObjArray::copy( void ) const
 {  
-	ObjArray *nobj = new ObjArray(*this);
+	auto nobj = new ObjArray(*this);
 	return nobj;
 }
 
@@ -979,15 +979,15 @@ size_t ObjArray::sizeEstimate() const
 {
 	size_t size = sizeof(ObjArray);
 
-	for( const_iterator itr = ref_arr.begin(), end = ref_arr.end(); itr != end; ++itr )
+	for(const auto &elem : ref_arr)
 	{
-		size += (*itr).sizeEstimate();
+		size += elem.sizeEstimate();
 	}
 	
 	size += name_arr.size() * sizeof(string);
-	for( const_name_iterator itr = name_arr.begin(), end = name_arr.end(); itr != end; ++itr )
+	for(const auto &elem : name_arr)
 	{
-		size += (*itr).capacity();
+		size += elem.capacity();
 	}
 
 	return size;
@@ -1116,9 +1116,9 @@ BObjectImp* ObjArray::selfPlusObj(const ObjArray& objimp) const
 {
 	std::unique_ptr<ObjArray> result (new ObjArray( *this ));
 
-	for( const_iterator itr = objimp.ref_arr.begin(), end = objimp.ref_arr.end(); itr != end; ++itr )
+	for(const auto &elem : objimp.ref_arr)
 	{
-		if (itr->get())
+		if (elem.get())
 		{
 			/*
 				NOTE: all BObjectRefs in an ObjArray reference BNamedObjects not BObjects
@@ -1126,7 +1126,7 @@ BObjectImp* ObjArray::selfPlusObj(const ObjArray& objimp) const
 				No, we're making a copy, leaving the original be.
 				(SO, bno's refcount should be >1 here)
 			*/
-			BObject *bo = itr->get();
+			BObject *bo = elem.get();
 
 			result->ref_arr.push_back( BObjectRef( new BObject( (*bo)->copy() ) ) );
 		}
@@ -1222,7 +1222,7 @@ BObjectRef ObjArray::OperMultiSubscript( stack<BObjectRef>& indices )
     }
     else return BObjectRef(copy());
 
-	ObjArray* str = new ObjArray();
+	auto str = new ObjArray();
 
 
 	//std::unique_ptr<ObjArray> result (new ObjArray());
@@ -1322,15 +1322,15 @@ BObjectRef ObjArray::set_member( const char* membername, BObjectImp* valueimp, b
 
 BObjectRef ObjArray::operDotPlus( const char* name )
 {
-	for( name_iterator itr = name_arr.begin(), end=name_arr.end(); itr != end; ++itr )
+	for(auto &elem : name_arr)
 	{
-		if (stricmp( name, (*itr).c_str() ) == 0)
+		if (stricmp( name, elem.c_str() ) == 0)
 		{
 			return BObjectRef( new BError( "Member already exists" ) );
 		}
 	}
 	name_arr.push_back( name );
-	BObject* pnewobj = new BObject( UninitObject::create() );
+	auto pnewobj = new BObject( UninitObject::create() );
 	ref_arr.push_back( BObjectRef( pnewobj ) );
 	return BObjectRef( pnewobj );
 }
@@ -1345,14 +1345,14 @@ string ObjArray::getStringRep() const
 	OSTRINGSTREAM os;
 	os << "{ ";
 	bool any = false;
-	for( Cont::const_iterator itr = ref_arr.begin(), end=ref_arr.end(); itr != end; ++itr )
+	for(const auto &elem : ref_arr)
 	{
 		if (any)
 			os << ", ";
 		else
 			any = true;
 
-		BObject *bo = (itr->get());
+		BObject *bo = elem.get();
 
 		if (bo != NULL)
 		{
@@ -1367,7 +1367,7 @@ string ObjArray::getStringRep() const
 
 long ObjArray::contains( const BObjectImp& imp ) const
 {
-	for( Cont::const_iterator itr = ref_arr.begin(), end = ref_arr.end(); itr != end; ++itr )
+	for( auto itr = ref_arr.begin(), end = ref_arr.end(); itr != end; ++itr )
 	{
 		if ( itr->get() )
 		{
@@ -1584,11 +1584,11 @@ BObjectImp* ObjArray::call_method( const char* methodname, Executor& ex )
 void ObjArray::packonto( ostream& os ) const
 {
 	os << "a" << ref_arr.size() << ":";
-	for( const_iterator itr = ref_arr.begin(), end = ref_arr.end(); itr != end; ++itr )
+	for(const auto &elem : ref_arr)
 	{
-		if (itr->get())
+		if (elem.get())
 		{
-			BObject *bo = itr->get();
+			BObject *bo = elem.get();
 			bo->impptr()->packonto( os );
 		}
 		else

@@ -33,10 +33,10 @@ BStruct::BStruct( BObjectType type ) : BObjectImp( type )
 BStruct::BStruct( const BStruct& other, BObjectType type ) :
     BObjectImp( type )
 {
-    for( Contents::const_iterator itr = other.contents_.begin(), end = other.contents_.end(); itr != end; ++itr )
+    for(const auto &elem : other.contents_)
     {
-        const string& key = (*itr).first;
-        const BObjectRef& bvalref = (*itr).second;
+        const string& key = elem.first;
+        const BObjectRef& bvalref = elem.second;
 
         contents_[ key ] = BObjectRef( new BObject( bvalref->impref().copy() ) );
     }
@@ -147,7 +147,7 @@ BObject* BStructIterator::step()
 {
     if (m_First)
     {
-        BStruct::Contents::iterator itr = m_pStruct->contents_.begin();
+        auto itr = m_pStruct->contents_.begin();
         if (itr == m_pStruct->contents_.end())
             return NULL;
 
@@ -160,7 +160,7 @@ BObject* BStructIterator::step()
     }
     else
     {
-        BStruct::Contents::iterator itr = m_pStruct->contents_.find( key );
+        auto itr = m_pStruct->contents_.find( key );
         if (itr == m_pStruct->contents_.end())
             return NULL;
         ++itr;
@@ -183,10 +183,10 @@ ContIterator* BStruct::createIterator( BObject* pIterVal )
 size_t BStruct::sizeEstimate() const
 {
     size_t size = sizeof(BStruct);
-    for( Contents::const_iterator itr = contents_.begin(), end = contents_.end(); itr != end; ++itr )
+    for(const auto &elem : contents_)
     {
-        const string& bkey = (*itr).first;
-        const BObjectRef& bvalref = (*itr).second;
+        const string& bkey = elem.first;
+        const BObjectRef& bvalref = elem.second;
         size += bkey.size() + bvalref.sizeEstimate();
     }
     return size;
@@ -202,7 +202,7 @@ BObjectRef BStruct::set_member( const char* membername, BObjectImp* value, bool 
 {
     string key( membername );
 	BObjectImp* target = copy ? value->copy() : value;
-    Contents::iterator itr = contents_.find( key );
+    auto itr = contents_.find( key );
     if (itr != contents_.end())
     {
         BObjectRef& oref = (*itr).second;
@@ -222,7 +222,7 @@ const BObjectImp* BStruct::FindMember( const char* name )
 {
     string key( name );
 
-    Contents::iterator itr = contents_.find( key );
+    auto itr = contents_.find( key );
     if (itr != contents_.end())
     {
         return (*itr).second->impptr();
@@ -237,7 +237,7 @@ BObjectRef BStruct::get_member( const char* membername )
 {
     string key( membername );
 
-    Contents::iterator itr = contents_.find( key );
+    auto itr = contents_.find( key );
     if (itr != contents_.end())
     {
         return (*itr).second;
@@ -254,7 +254,7 @@ BObjectRef BStruct::OperSubscript( const BObject& obj )
     {
         const String* keystr = static_cast<const String*>(obj.impptr());
 
-        Contents::iterator itr = contents_.find( keystr->value() );
+        auto itr = contents_.find( keystr->value() );
         if (itr != contents_.end())
         {
             BObjectRef& oref = (*itr).second;
@@ -283,7 +283,7 @@ BObjectImp* BStruct::array_assign( BObjectImp* idx, BObjectImp* target, bool cop
 
         String* keystr = static_cast<String*>(idx);
 
-        Contents::iterator itr = contents_.find( keystr->value() );
+        auto itr = contents_.find( keystr->value() );
         if (itr != contents_.end())
         {
             BObjectRef& oref = (*itr).second;
@@ -409,11 +409,10 @@ BObjectImp* BStruct::call_method( const char* methodname, Executor& ex )
 void BStruct::packonto( ostream& os ) const
 {
     os << packtype() << contents_.size() << ":";
-    Contents::const_iterator itr = contents_.begin(), end = contents_.end();
-    for( ; itr != end; ++itr )
+    for( const auto& content : contents_ )
     {
-        const string& key = (*itr).first;
-        const BObjectRef& bvalref = (*itr).second;
+        const string& key = content.first;
+        const BObjectRef& bvalref = content.second;
 
         String::packonto( os, key );
         bvalref->impref().packonto( os );
@@ -426,11 +425,10 @@ string BStruct::getStringRep() const
     os << typetag() << "{ ";
     bool any = false;
 
-    Contents::const_iterator itr = contents_.begin(), end = contents_.end();
-    for( ; itr != end; ++itr )
+    for( const auto &content : contents_ )
     {
-        const string& key = (*itr).first;
-        const BObjectRef& bvalref = (*itr).second;
+        const string& key = content.first;
+        const BObjectRef& bvalref = content.second;
 
         if (any)
             os << ", ";
@@ -451,7 +449,7 @@ BObjectRef BStruct::operDotPlus( const char* name )
     string key(name);
     if (contents_.count( key ) == 0)
     {
-        BObject* pnewobj = new BObject(new UninitObject);
+        auto pnewobj = new BObject(new UninitObject);
         contents_[ key ] = BObjectRef( pnewobj );
         return BObjectRef(pnewobj);
     }

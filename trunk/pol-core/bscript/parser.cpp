@@ -1245,7 +1245,7 @@ bool Parser::recognize_reserved_word(Token& tok, const char *buf)
 	if (tok.id != TOK_IDENT)
 		return false;
 
-	ReservedWords::iterator itr = reservedWordsByName.find( buf );
+	auto itr = reservedWordsByName.find( buf );
 	if (itr != reservedWordsByName.end())
 	{
 		ReservedWord* rv = (*itr).second;
@@ -2130,7 +2130,7 @@ int SmartParser::IIP(Expression& expr, CompilerContext& ctx, unsigned flags)
 		}
 		else if (token.id == TOK_ARRAY)
 		{
-			Token* array_tkn = new Token( TOK_ARRAY, TYP_OPERAND );
+			auto array_tkn = new Token( TOK_ARRAY, TYP_OPERAND );
 			array_tkn->dbg_filenum = token.dbg_filenum;
 			array_tkn->dbg_linenum = token.dbg_linenum;
 
@@ -2176,7 +2176,7 @@ int SmartParser::IIP(Expression& expr, CompilerContext& ctx, unsigned flags)
 		}
 		else if ( token.id == TOK_ERROR )
 		{
-			Token* error_tkn = new Token( TOK_ERROR, TYP_OPERAND );
+			auto error_tkn = new Token( TOK_ERROR, TYP_OPERAND );
 			error_tkn->dbg_filenum = token.dbg_filenum;
 			error_tkn->dbg_linenum = token.dbg_linenum;
 			expr.CA.push( error_tkn );
@@ -2188,7 +2188,7 @@ int SmartParser::IIP(Expression& expr, CompilerContext& ctx, unsigned flags)
 		}
 		else if ( token.id == TOK_STRUCT )
 		{
-			Token* struct_tkn = new Token( TOK_STRUCT, TYP_OPERAND );
+			auto struct_tkn = new Token( TOK_STRUCT, TYP_OPERAND );
 			struct_tkn->dbg_filenum = token.dbg_filenum;
 			struct_tkn->dbg_linenum = token.dbg_linenum;
 			expr.CA.push( struct_tkn );
@@ -2200,7 +2200,7 @@ int SmartParser::IIP(Expression& expr, CompilerContext& ctx, unsigned flags)
 		}
 		else if ( token.id == TOK_DICTIONARY )
 		{
-			Token* dict_tkn = new Token( token ); //Mod_Basic, TOK_DICTIONARY, TYP_OPERAND );
+			auto dict_tkn = new Token( token ); //Mod_Basic, TOK_DICTIONARY, TYP_OPERAND );
 			//struct_tkn->dbg_filenum = token.dbg_filenum;
 			//struct_tkn->dbg_linenum = token.dbg_linenum;
 			expr.CA.push( dict_tkn );
