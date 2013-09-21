@@ -146,7 +146,7 @@
     <ClCompile Include="..\..\lib\tinyxml\tinyxmlparser.cpp">
       <Filter>tinyxml</Filter>
     </ClCompile>
-    <ClCompile Include="format\format.cc">
+    <ClCompile Include="..\..\lib\format\format.cc">
       <Filter>format</Filter>
     </ClCompile>
   </ItemGroup>
@@ -322,7 +322,7 @@
     <ClInclude Include="timer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="format\format.h">
+    <ClInclude Include="..\..\lib\format\format.h">
       <Filter>format</Filter>
     </ClInclude>
   </ItemGroup>

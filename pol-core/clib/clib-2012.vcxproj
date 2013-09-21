@@ -215,6 +215,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\lib\format\format.cc" />
     <ClCompile Include="binaryfile.cpp" />
     <ClCompile Include="cfgfile.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
@@ -232,7 +233,6 @@
     <ClCompile Include="fdump.cpp" />
     <ClCompile Include="filecont.cpp" />
     <ClCompile Include="fileutil.cpp" />
-    <ClCompile Include="format\format.cc" />
     <ClCompile Include="forspcnt.cpp" />
     <ClCompile Include="iohelp.cpp" />
     <ClCompile Include="logfile.cpp" />
@@ -271,6 +271,7 @@
     <ClCompile Include="..\..\lib\tinyxml\tinyxmlparser.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\lib\format\format.h" />
     <ClInclude Include="binaryfile.h" />
     <ClInclude Include="bitutil.h" />
     <ClInclude Include="cfgelem.h" />
@@ -289,7 +290,6 @@
     <ClInclude Include="filecont.h" />
     <ClInclude Include="fileutil.h" />
     <ClInclude Include="fixalloc.h" />
-    <ClInclude Include="format\format.h" />
     <ClInclude Include="iohelp.h" />
     <ClInclude Include="logfile.h" />
     <ClInclude Include="maputil.h" />
