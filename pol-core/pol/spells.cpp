@@ -340,9 +340,15 @@ void do_cast( Client *client, u16 spellid )
 //	if (client->chr->hidden())
 //		client->chr->unhide();
 
-	if (client->chr->frozen() || client->chr->paralyzed())
+	if (client->chr->frozen())
 	{
 		private_say_above( client->chr, client->chr, "I am frozen and cannot cast spells" );
+		return;
+	}
+
+	if (client->chr->paralyzed())
+	{
+		private_say_above( client->chr, client->chr, "I am paralyzed and cannot cast spells" );
 		return;
 	}
 

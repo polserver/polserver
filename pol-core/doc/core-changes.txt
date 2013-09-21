@@ -1,4 +1,7 @@
 ﻿-- POL099 --
+09-21-2013 Tomi:
+    Changed: Pol doesnt send "I am frozen" messages anymore when paralyzed, now it sends in all those cases "I am paralyzed" messages
+
 09-20-2013 Tomi:
     Fixed:   Invul changes now sends the healthbar color correctly for UOKR and later clients
     Fixed:   All repsys changes now send the update correctly to yourself and all client around you
