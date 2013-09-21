@@ -63,9 +63,8 @@ void MapServer::LoadSecondLevelIndex()
     infile.Read( &_index2[0], count );
     
     // integrity check
-    for( size_t i = 0; i < _index2.size(); ++i )
+    for(const auto &elem : _index2)
     {
-        SOLIDX2_ELEM& elem = _index2.at(i);
         passert( elem.baseindex < _shapedata.size() );
 
         for( unsigned x = 0; x < SOLIDX_X_SIZE; ++x )

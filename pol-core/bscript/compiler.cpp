@@ -262,7 +262,7 @@ Token* optimize_long_operation( Token* left, Token* oper, Token* right )
 			break;
 	}
 
-	Token* ntoken = new Token(*left);
+	auto ntoken = new Token(*left);
 	ntoken->lval = lval;
 	return ntoken;
 }
@@ -292,7 +292,7 @@ Token* optimize_double_operation( Token* left, Token* oper, Token* right )
 			break;
 	}
 	
-	Token* ntoken = new Token(*left);
+	auto ntoken = new Token(*left);
 	ntoken->dval = dval;
 	return ntoken;
 }
@@ -804,11 +804,8 @@ void Compiler::patchblock_breaks( unsigned breakPC )
 	// now, patch up the GOTO part of BREAK statements.
 	// they each have a LEAVE_BLOCK appropriate to where they are.
 	const BlockDesc& bd = localscope.blockdesc();
-	for( BlockDesc::TokenAddrs::const_iterator itr = bd.break_tokens.begin();
-		 itr != bd.break_tokens.end();
-		 ++itr )
+	for(auto patchip : bd.break_tokens)
 	{
-		unsigned patchip = *itr;
 		patchoffset( patchip, breakPC ); // program->tokens.next()
 	}
 }
@@ -816,11 +813,8 @@ void Compiler::patchblock_breaks( unsigned breakPC )
 void Compiler::patchblock_continues( unsigned continuePC )
 {
 	const BlockDesc& bd = localscope.blockdesc();
-	for( BlockDesc::TokenAddrs::const_iterator itr = bd.continue_tokens.begin();
-		 itr != bd.continue_tokens.end();
-		 ++itr )
+	for(auto patchip : bd.continue_tokens)
 	{
-		unsigned patchip = *itr;
 		patchoffset( patchip, continuePC );
 	}
 
@@ -1008,7 +1002,7 @@ int Compiler::isUserFunc( Token& token, UserFunction **f)
 	if (token.id != TOK_IDENT) return 0;
 	passert( token.tokval());
 
-	UserFunctions::iterator itr = userFunctions.find( token.tokval() );
+	auto itr = userFunctions.find( token.tokval() );
 	if (itr != userFunctions.end())
 	{
 		token.module = Mod_Basic;
@@ -1214,7 +1208,7 @@ int Compiler::getStructMembers( Expression& expr, CompilerContext& ctx )
 				if (res < 0)
 					return res;
 
-				Token* addmem = new Token( ident_tkn );
+				auto addmem = new Token( ident_tkn );
 				addmem->id = INS_ADDMEMBER_ASSIGN;
 				
 				expr.eat2( eex );
@@ -1228,7 +1222,7 @@ int Compiler::getStructMembers( Expression& expr, CompilerContext& ctx )
 			}
 			else
 			{
-				Token* addmem = new Token( ident_tkn );
+				auto addmem = new Token( ident_tkn );
 				addmem->id = INS_ADDMEMBER2;
 				expr.CA.push( addmem );
 			}
@@ -1570,9 +1564,9 @@ int Compiler::getUserArgs( Expression& ex, CompilerContext& ctx, bool inject_jsr
 
 	if (!params_passed.empty())
 	{
-		for( ParamList::iterator itr = params_passed.begin(); itr != params_passed.end(); ++itr )
+		for(const auto &elem : params_passed)
 		{
-			cout << "Parameter '" << (*itr).first << "' passed by name to " 
+			cout << "Parameter '" << elem.first << "' passed by name to " 
 				 << userfunc->name << ", which takes no such parameter." << endl;
 		}
 
@@ -1590,7 +1584,7 @@ int Compiler::getUserArgs( Expression& ex, CompilerContext& ctx, bool inject_jsr
 
 	if (inject_jsr)
 	{
-		Token* t = new Token( CTRL_MAKELOCAL, TYP_CONTROL );
+		auto t = new Token( CTRL_MAKELOCAL, TYP_CONTROL );
 		t->dbg_filenum = ctx.dbg_filenum;
 		t->dbg_linenum = ctx.line;
 		ex.CA.push( t );
@@ -1610,11 +1604,8 @@ void Compiler::addToken(Token& token)
 
 void Compiler::convert_variables( Expression& expr ) const
 {
-	for( Expression::Tokens::const_iterator itr = expr.tokens.begin();
-		 itr != expr.tokens.end();
-		 ++itr )
+	for( auto &tkn : expr.tokens )
 	{
-		Token* tkn = *itr;
 		if (tkn->id == TOK_IDENT)
 		{
 			unsigned idx;
@@ -1698,7 +1689,7 @@ int Compiler::validate( const Expression& expr, CompilerContext& ctx ) const
 
 bool Compiler::substitute_constant( Token* tkn ) const
 {
-	Constants::const_iterator srch = constants.find( tkn->tokval() );
+	auto srch = constants.find( tkn->tokval() );
 	if (srch != constants.end())
 	{
 		int dbg_filenum = tkn->dbg_filenum;
@@ -1716,12 +1707,8 @@ bool Compiler::substitute_constant( Token* tkn ) const
 
 void Compiler::substitute_constants( Expression& expr ) const
 {
-	for( Expression::Tokens::const_iterator itr = expr.tokens.begin();
-		 itr != expr.tokens.end();
-		 ++itr )
+	for( auto &tkn : expr.tokens )
 	{
-		Token* tkn = *itr;
-
 		if (tkn->id == TOK_IDENT)
 			substitute_constant( tkn );
 	}
@@ -1744,7 +1731,7 @@ int Compiler::readexpr( Expression& expr,
 	}
 	if ((flags & EXPR_FLAG_CONSUME_RESULT) && !expr.tokens.empty())
 	{
-		Token* tkn = new Token( TOK_CONSUMER, TYP_UNARY_OPERATOR );
+		auto tkn = new Token( TOK_CONSUMER, TYP_UNARY_OPERATOR );
 		expr.tokens.push_back( tkn );
 	}
 	substitute_constants( expr );
@@ -2182,7 +2169,7 @@ int Compiler::handleSwitch( CompilerContext& ctx, int level )
 
 	// now, we have to emit the casecmp block.
 	unsigned caseblock_posn;
-	unsigned char* casecmp_raw = new unsigned char[ caseblock.size() ];
+	auto casecmp_raw = new unsigned char[ caseblock.size() ];
 	for( size_t i = 0; i < caseblock.size(); ++i )
 		casecmp_raw[i] = caseblock[i];
 	program->symbols.append( casecmp_raw, static_cast<unsigned int>(caseblock.size()), caseblock_posn );
@@ -3228,9 +3215,9 @@ int Compiler::handleEnumDeclare( CompilerContext& ctx )
 int Compiler::useModule( const char *modulename )
 {
 
-	for( unsigned idx = 0; idx < program->modules.size(); idx++ )
+	for(const auto &elem : program->modules)
 	{
-		if (modulename == program->modules[idx]->modulename)
+		if (modulename == elem->modulename)
 			return 0;
 	}
 
@@ -5209,9 +5196,9 @@ int Compiler::emit_functions()
 	bool any;
 	do {
 		any = false;
-		for( UserFunctions::iterator itr = userFunctions.begin(); itr != userFunctions.end(); ++itr )
+		for(auto &elem : userFunctions)
 		{
-			UserFunction& uf = (*itr).second;
+			UserFunction& uf = elem.second;
 			if ((uf.exported || compiling_include || !uf.forward_callers.empty()) && 
 				!uf.emitted)
 			{
@@ -5222,9 +5209,9 @@ int Compiler::emit_functions()
 		}
 	} while (any);
 
-	for( UserFunctions::iterator itr = userFunctions.begin(); itr != userFunctions.end(); ++itr )
+	for(auto &elem : userFunctions)
 	{
-		UserFunction& uf = (*itr).second;
+		UserFunction& uf = elem.second;
 		if (uf.emitted)
 		{
 			patch_callers( uf );
@@ -5259,9 +5246,9 @@ void Compiler::rollback( EScriptProgram& prog, const EScriptProgramCheckpoint& c
 		prog.statementbegin = false;
 	}
 
-	for( UserFunctions::iterator itr = userFunctions.begin(); itr != userFunctions.end(); ++itr )
+	for(auto &elem : userFunctions)
 	{
-		UserFunction& uf = (*itr).second;
+		UserFunction& uf = elem.second;
 		while (!uf.forward_callers.empty() && 
 			   uf.forward_callers.back() >= checkpoint.tokens_count)
 		{
@@ -5417,9 +5404,9 @@ void Compiler::writeIncludedFilenames( const char* fname ) const
 {
 	ofstream ofs( fname, ios::out|ios::trunc );
 //	ofs << current_file_path << endl;
-	for( unsigned i = 0; i < referencedPathnames.size(); ++i )
+	for(const auto &elem : referencedPathnames)
 	{
-		ofs << referencedPathnames[i] << endl;
+		ofs << elem << endl;
 	}
 }
 

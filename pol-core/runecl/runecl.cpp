@@ -53,6 +53,8 @@ Notes
 
 #include "../pol/polcfg.h"
 
+#include "../clib/timer.h"
+
 #if REFPTR_DEBUG
 	unsigned int ref_counted::_ctor_calls;
 #endif
@@ -70,7 +72,6 @@ void usage(void)
     cerr << "            -q    Quiet" << endl;
     cerr << "            -d    Debug output" << endl;
     cerr << "            -p    Profile" << endl;
-    exit(1);
 }
 
 void DumpCaseJmp( ostream& os, const Token& token, EScriptProgram* prog )

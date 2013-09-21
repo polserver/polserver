@@ -256,9 +256,9 @@ int landtilehist( int argc, char **argv )
         tilecount[ landtile.name ] = tilecount[ landtile.name ] + 1;
 	}
 
-    for( M::iterator itr = tilecount.begin(); itr != tilecount.end(); ++itr )
+    for(const auto &elem : tilecount)
     {
-        cout << (*itr).first << ": " << (*itr).second << endl;
+        cout << elem.first << ": " << elem.second << endl;
     }
 	clear_tiledata();
 	return 0;
@@ -282,9 +282,9 @@ int landtilecfg( int argc, char **argv )
         tilecount[ landtile.name ] = tilecount[ landtile.name ] + 1;
 	}
 
-    for( M::iterator itr = tilecount.begin(); itr != tilecount.end(); ++itr )
+    for(const auto &elem : tilecount)
     {
-        cout << (*itr).first << ": " << (*itr).second << endl;
+        cout << elem.first << ": " << elem.second << endl;
     }
 	clear_tiledata();
 	return 0;
@@ -436,12 +436,12 @@ int print_statics()
             if (!vec.empty())
             {
 				bool hdrshown = false;
-                for( std::vector<StaticRec>::iterator itr = vec.begin(); itr != vec.end(); ++itr )
+                for(const auto &elem : vec)
                 {
-                    int height = tileheight( (*itr).graphic );
-                    if ((*itr).graphic >= 0x1796 && (*itr).graphic <= 0x17b2)
+                    int height = tileheight( elem.graphic );
+                    if (elem.graphic >= 0x1796 && elem.graphic <= 0x17b2)
                     {
-                        if ( (*itr).z == -5 && height == 0 )
+                        if ( elem.z == -5 && height == 0 )
                             water++;
                         else
                             strange_water++;
@@ -450,9 +450,9 @@ int print_statics()
                     if (!hdrshown)
                         cout << x << "," << y << ":" << endl;
                     hdrshown = true;
-                    cout << "\tOBJT= 0x" << hex << (*itr).graphic << dec 
-                         << "  Z=" << int( (*itr).z ) << "  HT=" << height 
-                         << "  FLAGS=" << hex << tile_uoflags( (*itr).graphic ) << dec
+                    cout << "\tOBJT= 0x" << hex << elem.graphic << dec 
+                         << "  Z=" << int( elem.z ) << "  HT=" << height 
+                         << "  FLAGS=" << hex << tile_uoflags( elem.graphic ) << dec
                          << endl;
                     ++cnt;
                 }
@@ -706,11 +706,9 @@ void print_multidata( u16 i, MultiDef* multi )
     cout << "Multi 0x" << hex << i+(config.max_tile_id+1) << dec 
          << " -- " << tile.name << ":" << endl;
     
-    for( MultiDef::Components::iterator itr = multi->components.begin(), end = multi->components.end();
-         itr != end;
-         ++itr )
+    for(const auto &_itr : multi->components)
     {
-        const MULTI_ELEM* elem = itr->second;
+        const MULTI_ELEM* elem = _itr.second;
         cout << "0x" << hex << elem->objtype
              << " %d" << (int) elem->is_static 
              << ":" << dec <<  elem->x << "," << elem->y << "," << elem->z << endl;
@@ -861,9 +859,8 @@ bool has_water( u16 x, u16 y )
     StaticList vec;
     vec.clear();
     readstatics( vec, x, y );
-    for( StaticList::iterator itr = vec.begin(), end = vec.end(); itr != end; ++itr )
+    for(const auto &rec : vec)
     {
-        const StaticRec& rec = *itr;
         if (is_water(rec.graphic))
             return true;
     }
@@ -940,10 +937,9 @@ int mapdump( int argc, char* argv[] )
             {
                 ofs << "<table border=1 cellpadding=5 cellspacing=0>" << endl;
                 ofs << "<tr><td>graphic</td><td>z</td><td>flags</td><td>ht</td>" << endl;
-                for( unsigned i = 0; i < statics.size(); ++i )
+                for(const auto &rec : statics)
                 {
                     ofs << "<tr>";
-                    StaticRec& rec = statics[i];
                     ofs << "<td>" << hexint( rec.graphic ) << "</td>";
                     ofs << "<td>" << int(rec.z) << "</td>";
                     ofs << "<td>" << hexint( rec.flags ) << "</td>";
@@ -971,7 +967,7 @@ int contour( int argc, char **argv )
     open_uo_data_files();
     read_uo_data();
 
-    MapContour* mc = new MapContour;
+    auto mc = new MapContour;
     for( u16 y = 0; y < 4095; ++y )
     {
         for( u16 x = 0; x < 6143; ++x )
@@ -1045,9 +1041,8 @@ int findgraphic( int argc, char **argv )
         {
             StaticList statics;
             readallstatics( statics, x, y );
-            for( unsigned i = 0; i < statics.size(); ++i )
+            for(const auto &rec : statics)
             {
-                StaticRec& rec = statics[i];
                 if (rec.graphic == graphic)
                 {
                     cout << x << "," << y << "," << rec.z << endl;
@@ -1136,9 +1131,8 @@ int defragstatics( int argc, char **argv )
                     if (tile.graphic < 0x4000)
                     {
                         bool first = true;
-                        for( unsigned j = 0; j < tilelist.size(); ++j )
+                        for(const auto &stile : tilelist)
                         {
-                            USTRUCT_STATIC& stile = tilelist[j];
                             if ((tile.graphic==stile.graphic)
                                 && (tile.x_offset==stile.x_offset)
                                 && (tile.y_offset==stile.y_offset)
@@ -1168,9 +1162,9 @@ int defragstatics( int argc, char **argv )
                 if (!tilelist.empty())
                 {
                     idx.offset=currwritepos;
-                    for( unsigned i = 0; i < tilelist.size(); ++i )
+                    for(const auto &elem : tilelist)
                     {
-                        fwrite( &tilelist[i],sizeof(USTRUCT_STATIC),1, fmul);
+                        fwrite( &elem,sizeof(USTRUCT_STATIC),1, fmul);
                     }
                     currwritepos=ftell(fmul)-currwritepos;
                     idx.length=currwritepos;

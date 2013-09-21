@@ -292,9 +292,8 @@ int EScriptProgram::write( const char *fname )
         fwrite( &progdef_hdr, sizeof progdef_hdr, 1, fp );
     }
 
-	for( unsigned idx = 0; idx < program.modules.size(); idx++ )
+	for(auto &module : program.modules)
 	{
-		FunctionalityModule* module = program.modules[ idx ];
 		sechdr.type = BSCRIPT_SECTION_MODULE;
 		sechdr.length = 0;
 		fwrite( &sechdr, sizeof sechdr, 1, fp );
@@ -304,9 +303,8 @@ int EScriptProgram::write( const char *fname )
 		strzcpy( modhdr.modulename, module->modulename.c_str(), sizeof modhdr.modulename );
 		modhdr.nfuncs = static_cast<unsigned int>(module->used_functions.size());
 		fwrite( &modhdr, sizeof modhdr, 1, fp );
-		for( unsigned funcnum = 0; funcnum < module->used_functions.size(); funcnum++ )
+		for(auto &module_func : module->used_functions)
 		{
-			ModuleFunction* module_func = module->used_functions[funcnum];
 			BSCRIPT_MODULE_FUNCTION func;
 			memset( &func, 0, sizeof func );
 			passert( module_func->used );
@@ -334,11 +332,11 @@ int EScriptProgram::write( const char *fname )
         sechdr.type = BSCRIPT_SECTION_EXPORTED_FUNCTIONS;
         sechdr.length = static_cast<unsigned int>(exported_functions.size() * sizeof bef);
         fwrite( &sechdr, sizeof sechdr, 1, fp );
-        for( unsigned i = 0; i < exported_functions.size(); ++i )
+        for(auto &elem : exported_functions)
         {
-            strzcpy( bef.funcname, exported_functions[i].name.c_str(), sizeof bef.funcname );
-            bef.nargs = exported_functions[i].nargs;
-            bef.PC = exported_functions[i].PC;
+            strzcpy( bef.funcname, elem.name.c_str(), sizeof bef.funcname );
+            bef.nargs = elem.nargs;
+            bef.PC = elem.PC;
             fwrite( &bef, sizeof bef, 1, fp );
         }
     }
@@ -567,10 +565,10 @@ void EScriptProgram::leaveblock()
     if (remove)
     {
         blocks.pop_back();
-        for( unsigned i = 0; i < dbg_ins_blocks.size(); ++i )
+        for(auto &elem : dbg_ins_blocks)
         {
-            if (dbg_ins_blocks[i] >= blocks.size())
-                dbg_ins_blocks[i] = curblock;
+            if (elem >= blocks.size())
+                elem = curblock;
         }
     }
 }

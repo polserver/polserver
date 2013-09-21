@@ -49,9 +49,9 @@ escript_profile_map EscriptProfileMap;
 
 void display_executor_instances()
 {
-    for( std::set<Executor*>::iterator itr = executor_instances.begin(); itr != executor_instances.end(); ++itr )
+    for(const auto &ex: executor_instances)
     {
-        Executor* ex =(*itr);
+        
 		// Fix for crashes due to orphaned script instances.
 		if ( !ex->empty_scriptname() )
 			cout << ex->scriptname() << endl;
@@ -111,9 +111,9 @@ Executor::~Executor()
 size_t Executor::sizeEstimate() const
 {
     size_t size = 0;
-    for( BObjectRefVec::const_iterator itr = Globals2.begin(); itr != Globals2.end(); ++itr )
+    for(const auto &elem : Globals2)
     {
-        size += (*itr).sizeEstimate();
+        size += elem.sizeEstimate();
     }
     for( BObjectRefVec::const_iterator itr = Locals2->begin(); itr != Locals2->end(); ++itr )
     {
@@ -126,11 +126,9 @@ size_t Executor::sizeEstimate() const
 
 bool Executor::AttachFunctionalityModules()
 {
-	for( unsigned midx = 0; midx < prog_->modules.size(); midx++ )
+	for(auto &fm : prog_->modules)
 	{
-		FunctionalityModule* fm = prog_->modules[ midx ];
- 
-            // if no function in the module is actually called, don't go searching for it.
+        // if no function in the module is actually called, don't go searching for it.
         if (fm->functions.empty())
         {
             execmodules.push_back( NULL );
@@ -854,7 +852,7 @@ void Executor::ins_declareArray( const Instruction& ins )
 		seterror( true );
 		return;
 	}
-    ObjArray *arr = new ObjArray;
+    auto   arr = new ObjArray;
 
     objref->setimp( arr );
 
@@ -955,7 +953,7 @@ class ArrayIterator : public ContIterator
 {
 public:
     ArrayIterator( ObjArray* pArr, BObject* pIterVal );
-    virtual BObject* step();
+    virtual BObject* step() override;
 private:
     size_t m_Index;
     BObject m_Array;
@@ -994,7 +992,7 @@ ContIterator* BObjectImp::createIterator( BObject* pIterVal )
 }
 ContIterator* ObjArray::createIterator( BObject* pIterVal )
 {
-    ArrayIterator* pItr = new ArrayIterator( this, pIterVal );
+    auto   pItr = new ArrayIterator( this, pIterVal );
     return pItr;
 }
 
@@ -1049,7 +1047,7 @@ void Executor::ins_initforeach2( const Instruction& ins )
     Locals2->push_back( BObjectRef() ); // the iterator
 
 
-    BObject* pIterVal = new BObject(UninitObject::create());
+    auto   pIterVal = new BObject(UninitObject::create());
 
     // this is almost like popParam, only we don't want a copy.
     BObjectRef objref = getObjRef();

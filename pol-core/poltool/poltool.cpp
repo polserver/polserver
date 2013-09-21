@@ -44,7 +44,7 @@ int mapdump( int argc, char* argv[] )
     MapServer* mapserver = MapServer::Create( descriptor);
     std::unique_ptr<MapServer> _owner(mapserver);
 
-    MapTileServer* mts = new MapTileServer(descriptor);
+    auto mts = new MapTileServer(descriptor);
     if (argc >= 3)
     {
         wxl = wxh = static_cast<short>(atoi( argv[1] ));

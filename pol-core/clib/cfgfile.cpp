@@ -128,7 +128,7 @@ bool ConfigElem::remove_first_prop( std::string* propname,
 	if (properties.empty())
 		return false;
 	
-    Props::iterator itr = properties.begin();
+    auto itr = properties.begin();
     *propname = (*itr).first;
     *value = (*itr).second;
     properties.erase( itr );
@@ -141,11 +141,8 @@ bool ConfigElem::has_prop( const char *propname ) const
 }
 bool VectorConfigElem::has_prop( const char *propname ) const
 {
-	
-    Props::const_iterator itr = properties.begin(), end = properties.end();
-	for( ; itr != end; ++itr )
+	for( const auto &prop : properties )
 	{
-		ConfigProperty *prop = *itr;
 		if ( stricmp( prop->name_.c_str(), propname) == 0 )
 		{
             return true;
@@ -156,7 +153,7 @@ bool VectorConfigElem::has_prop( const char *propname ) const
 
 bool ConfigElem::remove_prop( const char *propname, std::string* value )
 {
-	Props::iterator itr = properties.find( propname );
+	auto itr = properties.find( propname );
     if (itr != properties.end())
     {
 		*value = (*itr).second;
@@ -170,7 +167,7 @@ bool ConfigElem::remove_prop( const char *propname, std::string* value )
 }
 bool VectorConfigElem::remove_prop( const char *propname, std::string* value )
 {
-    Props::iterator itr = properties.begin(), end = properties.end();
+    auto itr = properties.begin(), end = properties.end();
 	for( ; itr != end; ++itr )
 	{
 		ConfigProperty *prop = *itr;
@@ -187,7 +184,7 @@ bool VectorConfigElem::remove_prop( const char *propname, std::string* value )
 
 bool ConfigElem::read_prop( const char *propname, std::string* value ) const
 {
-	Props::const_iterator itr = properties.find( propname );
+	auto itr = properties.find( propname );
     if (itr != properties.end())
     {
 		*value = (*itr).second;
@@ -200,11 +197,8 @@ bool ConfigElem::read_prop( const char *propname, std::string* value ) const
 }
 bool VectorConfigElem::read_prop( const char *propname, std::string* value ) const
 {
-	
-    Props::const_iterator itr = properties.begin(), end = properties.end();
-	for( ; itr != end; ++itr )
+	for( const auto &prop : properties )
 	{
-		const ConfigProperty *prop = *itr;
 		if ( stricmp( prop->name_.c_str(), propname) == 0 )
 		{
 			*value = prop->value_;
@@ -216,7 +210,7 @@ bool VectorConfigElem::read_prop( const char *propname, std::string* value ) con
 
 void ConfigElem::get_prop( const char *propname, unsigned int* plong ) const
 {
-    Props::const_iterator itr = properties.find( propname );
+    auto itr = properties.find( propname );
 	if (itr != properties.end())
 	{
 		*plong = strtoul( (*itr).second.c_str(), NULL, 0 );
@@ -229,7 +223,7 @@ void ConfigElem::get_prop( const char *propname, unsigned int* plong ) const
 
 bool ConfigElem::remove_prop( const char *propname, unsigned int *plong )
 {
-    Props::iterator itr = properties.find( propname );
+    auto itr = properties.find( propname );
 	if (itr != properties.end())
 	{
 		*plong = strtoul( (*itr).second.c_str(), NULL, 0 );
@@ -243,7 +237,7 @@ bool ConfigElem::remove_prop( const char *propname, unsigned int *plong )
 }
 bool VectorConfigElem::remove_prop( const char *propname, unsigned int *plong )
 {
-    Props::iterator itr = properties.begin(), end = properties.end();
+    auto itr = properties.begin(), end = properties.end();
 	for( ; itr != end; ++itr )
 	{
 		ConfigProperty *prop = *itr;
@@ -292,7 +286,7 @@ bool ConfigElem::remove_prop( const char *propname, unsigned short *psval )
 
 bool VectorConfigElem::remove_prop( const char *propname, unsigned short *psval )
 {
-    Props::iterator itr = properties.begin(), end = properties.end();
+    auto itr = properties.begin(), end = properties.end();
 	for( ; itr != end; ++itr )
 	{
 		ConfigProperty *prop = *itr;
@@ -894,7 +888,7 @@ bool ConfigFile::read_properties( VectorConfigElem& elem )
             decodequotedstring( propvalue );
         }
 
-		ConfigProperty *prop = new ConfigProperty( &propname, &propvalue );
+		auto prop = new ConfigProperty( &propname, &propvalue );
 		elem.properties.push_back( prop );
 	}
     return false;
@@ -935,11 +929,9 @@ bool ConfigFile::_read( ConfigElem& elem )
                 OSTRINGSTREAM os;
                 os << "Unexpected type '" << type << "'" << endl;
                 os << "\tValid types are:";
-                for( AllowedTypesCont::const_iterator itr = allowed_types_.begin();
-                     itr != allowed_types_.end();
-                     ++itr)
+                for(const auto &elem : allowed_types_)
                 {
-                    os << " " << (*itr).c_str();
+                    os << " " << elem.c_str();
                 }
                 throw runtime_error( OSTRINGSTREAM_STR(os) );
             }
@@ -1003,11 +995,9 @@ bool ConfigFile::_read( VectorConfigElem& elem )
                 OSTRINGSTREAM os;
                 os << "Unexpected type '" << type << "'" << endl;
                 os << "\tValid types are:";
-                for( AllowedTypesCont::const_iterator itr = allowed_types_.begin();
-                     itr != allowed_types_.end();
-                     ++itr)
+                for(const auto &elem : allowed_types_)
                 {
-                    os << " " << (*itr).c_str();
+                    os << " " << elem.c_str();
                 }
                 throw runtime_error( OSTRINGSTREAM_STR(os) );
             }

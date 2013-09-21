@@ -325,7 +325,7 @@ void create_thread( ThreadData* td, bool dec_child = false )
 
 void start_thread( void (*entry)(void*), const char* thread_name, void* arg )
 {
-    ThreadData* td = new ThreadData;
+    auto td = new ThreadData;
     td->name = thread_name;
     td->entry = entry;
     td->entry_noparam = NULL;
@@ -338,7 +338,7 @@ void start_thread( void (*entry)(void*), const char* thread_name, void* arg )
 
 void start_thread( void (*entry)(void), const char* thread_name )
 {
-    ThreadData* td = new ThreadData;
+    auto td = new ThreadData;
     td->name = thread_name;
     td->entry = NULL;
     td->entry_noparam = entry;
