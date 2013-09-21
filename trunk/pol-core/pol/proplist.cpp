@@ -87,16 +87,23 @@ void PropertyList::getpropnames( std::vector< std::string >& propnames ) const
     }
 }
 
-void PropertyList::printProperties( ostream& os ) const
-{   
+void PropertyList::printProperties( fmt::Writer& writer ) const
+{
     for( Properties::const_iterator itr = properties.begin(); itr != properties.end(); ++itr )
     {
         const string& first = (*itr).first;
         if (first[0] != '#')
         {
-            os << "\tCProp\t" << first << " " << (*itr).second << pf_endl;
+            writer << "\tCProp\t" << first << " " << (*itr).second << pf_endl;
         }
     }
+}
+
+void PropertyList::printProperties( ostream& os ) const
+{   
+	fmt::Writer writer;
+	this->printProperties(writer);
+	os << writer.c_str();
 }
 void PropertyList::printProperties( ConfigElem& elem ) const
 {   
@@ -109,16 +116,23 @@ void PropertyList::printProperties( ConfigElem& elem ) const
         }
     }
 }
-void PropertyList::printPropertiesAsStrings( ostream& os ) const
-{   
-    for( Properties::const_iterator itr = properties.begin(); itr != properties.end(); ++itr )
+
+void PropertyList::printPropertiesAsStrings( fmt::Writer& writer ) const
+{
+	for( Properties::const_iterator itr = properties.begin(); itr != properties.end(); ++itr )
     {
         const string& first = (*itr).first;
         if (first[0] != '#')
         {
-            os << "\t" << first << " " << (*itr).second << pf_endl;
+            writer << "\t" << first << " " << (*itr).second << pf_endl;
         }
     }
+}
+void PropertyList::printPropertiesAsStrings( ostream& os ) const
+{   
+	fmt::Writer writer;
+	this->printPropertiesAsStrings(writer);
+	os << writer.c_str();
 }
 
 void PropertyList::readProperties( ConfigElem& elem )

@@ -614,9 +614,13 @@ protected:
     void printWornItems( std::ostream& pc, std::ostream& equip ) const;
 
     virtual const char *classname() const;
-    virtual void printOn( std::ostream& os ) const;
+    virtual void printOn( fmt::Writer& writer ) const;
+	virtual void printOn( std::ostream& os ) const;
+    virtual void printSelfOn( fmt::Writer& writer ) const;
     virtual void printSelfOn( std::ostream& os ) const;
+    virtual void printProperties( fmt::Writer& writer ) const;
     virtual void printProperties( std::ostream& os ) const;
+    virtual void printDebugProperties( fmt::Writer& writer ) const;
     virtual void printDebugProperties( std::ostream& os ) const;
 
 private:

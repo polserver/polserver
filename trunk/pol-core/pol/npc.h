@@ -94,12 +94,17 @@ public:
 	virtual BObjectImp* custom_script_method( const char* methodname, Executor& ex );
     virtual bool script_isa( unsigned isatype ) const;
 
-    const char *classname() const;
-    virtual void printOn( std::ostream& os ) const;
+    virtual const char *classname() const;
+    virtual void printOn( fmt::Writer& writer ) const;
+	virtual void printOn( std::ostream& os ) const;
+    virtual void printSelfOn( fmt::Writer& writer ) const;
     virtual void printSelfOn( std::ostream& os ) const;
+    virtual void printProperties( fmt::Writer& writer ) const;
     virtual void printProperties( std::ostream& os ) const;
+    virtual void printDebugProperties( fmt::Writer& writer ) const;
     virtual void printDebugProperties( std::ostream& os ) const;
-    virtual void readProperties( ConfigElem& elem );
+	
+	virtual void readProperties( ConfigElem& elem );
     void readNpcProperties( ConfigElem& elem );
     void loadResistances( int resistanceType, ConfigElem& elem );
     void loadDamages( int damageType, ConfigElem& elem );

@@ -93,18 +93,38 @@ void UContainer::destroy()
 }
 // Consider: writing an "item count" property.  On read,
 // recursively read items (eliminate a lot of searching)
+
+void UContainer::printOn( fmt::Writer& writer ) const
+{
+	base::printOn( writer );
+    printContents( writer );
+}
 void UContainer::printOn( ostream& os ) const
 {
-    base::printOn( os );
-    printContents( os );
+	fmt::Writer writer;
+    printOn(writer);
+	os << writer.c_str();
 }
 
+void UContainer::printSelfOn( fmt::Writer& writer ) const
+{
+	base::printOn( writer );
+}
 void UContainer::printSelfOn( ostream& os ) const
 {
-    base::printOn( os );
+	fmt::Writer writer;
+	printSelfOn(writer);
+	os << writer.c_str();
 }
 
 void UContainer::printContents( ostream& os ) const
+{
+	fmt::Writer writer;
+	printContents(writer);
+	os << writer.c_str();
+}
+
+void UContainer::printContents( fmt::Writer& writer ) const
 {
     for( Contents::const_iterator itr = contents_.begin(); itr != contents_.end(); ++itr )
     {
@@ -113,7 +133,7 @@ void UContainer::printContents( ostream& os ) const
         {
 			if (!dont_save_itemtype(item->objtype_) && item->saveonexit())
             {
-                os << *item;
+                writer << *item;
                 item->clear_dirty();
             }
         }
