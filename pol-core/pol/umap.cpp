@@ -82,7 +82,9 @@ void Map::printProperties( fmt::Writer& writer ) const
 
 void Map::printPinPoints( std::ostream& os ) const
 {
-
+	fmt::Writer writer;
+	printPinPoints( writer );
+	os << writer.c_str();
 }
 void Map::printPinPoints( fmt::Writer& writer ) const
 {
