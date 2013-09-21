@@ -76,10 +76,16 @@ void UCorpse::RemoveItemFromLayer( Item* item )
 
 void UCorpse::printProperties( std::ostream& os ) const
 {
-    base::printProperties( os );
-    os << "\tCorpseType\t" << corpsetype << pf_endl;
-	os << "\tOwnerSerial\t" << ownerserial << pf_endl;
-    os << "\tTakeContentsToGrave\t" << take_contents_to_grave << pf_endl;
+	fmt::Writer writer;
+	printProperties( writer );
+	os << writer.c_str();
+}
+void UCorpse::printProperties( fmt::Writer& writer ) const
+{
+    base::printProperties( writer );
+    writer << "\tCorpseType\t" << corpsetype << pf_endl;
+	writer << "\tOwnerSerial\t" << ownerserial << pf_endl;
+    writer << "\tTakeContentsToGrave\t" << take_contents_to_grave << pf_endl;
 }
 
 void UCorpse::readProperties( ConfigElem& elem )

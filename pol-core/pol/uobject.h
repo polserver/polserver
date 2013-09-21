@@ -20,6 +20,8 @@ Notes
 #include <map>
 #include <string>
 
+#include "../../lib/format/format.h"
+
 #define pf_endl '\n'
 
 #ifndef __UCONST_H
@@ -205,9 +207,12 @@ public:
     virtual bool saveonexit() const;
     virtual void saveonexit( bool newvalue );
 
+	virtual void printOn(fmt::Writer& writer) const;
     virtual void printOn(std::ostream&) const;
+	virtual void printSelfOn(fmt::Writer& writer) const;
     virtual void printSelfOn( std::ostream& os ) const;
 
+	virtual void printOnDebug( fmt::Writer& writer) const;
     virtual void printOnDebug( std::ostream& os ) const;
     virtual void readProperties( ConfigElem& elem );
     //virtual BObjectImp* script_member( const char *membername );
@@ -259,7 +264,9 @@ public:
 
 protected:
 
-    virtual void printProperties( std::ostream& os ) const;
+	virtual void printProperties( fmt::Writer& writer ) const;
+	virtual void printProperties( std::ostream& os ) const;
+	virtual void printDebugProperties( fmt::Writer& writer ) const;
     virtual void printDebugProperties( std::ostream& os ) const;
 
     UObject(u32 objtype, UOBJ_CLASS uobj_class);
@@ -314,6 +321,8 @@ private: // not implemented:
 };
 
 extern std::ostream& operator << (std::ostream&, const UObject& );
+extern fmt::Writer& operator << (fmt::Writer&, const UObject& );
+
 
 inline bool UObject::specific_name() const
 {

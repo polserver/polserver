@@ -20,6 +20,8 @@ Notes
 #include <string>
 #include <vector>
 
+#include "../../lib/format/format.h"
+
 class ConfigElem;
 class BObjectImp;
 class Executor;
@@ -35,10 +37,12 @@ public:
     void getpropnames( std::vector< std::string >& propnames ) const;
     void clear();
 
+	void printProperties( fmt::Writer& writer ) const;
     void printProperties( std::ostream& os ) const;
     void printProperties( ConfigElem& elem ) const;
     void readProperties( ConfigElem& elem );
 
+	void printPropertiesAsStrings( fmt::Writer& writer ) const;
     void printPropertiesAsStrings( std::ostream& os ) const;
     void readRemainingPropertiesAsStrings( ConfigElem& elem );
 

@@ -234,36 +234,54 @@ const UObject* UObject::toplevel_owner() const
     return this;
 }
 
-void UObject::printProperties( ostream& os ) const
-{
-    if (!name_.empty())
-        os << "\tName\t" << name_ << pf_endl;
 
-    os << "\tSerial\t0x" << hex << serial << dec << pf_endl;
-    os << "\tObjType\t0x" << hex << objtype_ << dec << pf_endl;
-    os << "\tGraphic\t0x" << hex << graphic << dec << pf_endl;
+void UObject::printProperties( fmt::Writer& writer ) const
+{
+	using namespace fmt;
+
+	if (!name_.empty())
+        writer << "\tName\t" << name_ << pf_endl;
+
+    writer << "\tSerial\t0x" << hex(serial) << pf_endl;
+    writer << "\tObjType\t0x" << hex(objtype_) << pf_endl;
+    writer << "\tGraphic\t0x" << hex(graphic) << pf_endl;
     
     if (color != 0)
-        os << "\tColor\t0x" << hex << color << dec << pf_endl;
+        writer << "\tColor\t0x" << hex(color) << pf_endl;
     
-    os << "\tX\t" << x << pf_endl;
-    os << "\tY\t" << y << pf_endl;
-    os << "\tZ\t" << (int) z << pf_endl;
+    writer << "\tX\t" << x << pf_endl;
+    writer << "\tY\t" << y << pf_endl;
+    writer << "\tZ\t" << (int) z << pf_endl;
     
     if (facing)
-        os << "\tFacing\t" << static_cast<int>(facing) << pf_endl;
+        writer << "\tFacing\t" << static_cast<int>(facing) << pf_endl;
 
-    os << "\tRevision\t" << rev() << pf_endl;
+    writer << "\tRevision\t" << rev() << pf_endl;
 	if (realm == NULL)
-		os << "\tRealm\tbritannia" << pf_endl;
+		writer << "\tRealm\tbritannia" << pf_endl;
 	else
-		os << "\tRealm\t" << realm->name() << pf_endl;
+		writer << "\tRealm\t" << realm->name() << pf_endl;
+}
 
-    proplist_.printProperties( os );
+void UObject::printProperties( ostream& os ) const
+{
+   fmt::Writer writer;
+
+   this->printProperties(writer);
+   proplist_.printProperties(writer);
+
+   os << writer.c_str();
+}
+
+void UObject::printDebugProperties( fmt::Writer& writer ) const
+{
+	writer << "# uobj_class: " << (int)uobj_class_ << pf_endl;
 }
 void UObject::printDebugProperties( std::ostream& os ) const
 {
-    os << "# uobj_class: " << (int)uobj_class_ << pf_endl;
+	fmt::Writer writer;
+	printDebugProperties( writer );
+	os << writer.c_str();
 }
 
 void UObject::readProperties( ConfigElem& elem )
@@ -308,33 +326,60 @@ void UObject::readProperties( ConfigElem& elem )
 
 }
 
+void UObject::printSelfOn( fmt::Writer& writer ) const
+{
+	printOn( writer );
+}
 void UObject::printSelfOn( ostream& os ) const
 {
-    printOn( os );
+	fmt::Writer writer;
+    printSelfOn( writer );
+	os << writer.c_str();
+}
+
+void UObject::printOn( fmt::Writer& writer ) const
+{
+	writer << classname() << pf_endl;
+    writer << "{" << pf_endl;
+    printProperties( writer );
+    writer << "}" << pf_endl;
+    writer << pf_endl;
 }
 
 void UObject::printOn( ostream& os ) const
 {
-    os << classname() << pf_endl;
-    os << "{" << pf_endl;
-    printProperties( os );
-    os << "}" << pf_endl;
-    os << pf_endl;
+	fmt::Writer writer;
+	printOn(writer);
+	os << writer.c_str();
+}
+
+void UObject::printOnDebug( fmt::Writer& writer) const
+{	
+    writer << classname() << pf_endl;
+    writer << "{" << pf_endl;
+    printProperties( writer );
+    printDebugProperties( writer );
+    writer << "}" << pf_endl;
+    writer << pf_endl;
 }
 
 void UObject::printOnDebug( ostream& os ) const
 {
-    os << classname() << pf_endl;
-    os << "{" << pf_endl;
-    printProperties( os );
-    printDebugProperties( os );
-    os << "}" << pf_endl;
-    os << pf_endl;
+	fmt::Writer writer;
+	printOnDebug( writer );
+	os << writer.c_str();
 }
 
+fmt::Writer& operator << (fmt::Writer& writer, const UObject& obj)
+{
+    obj.printOn(writer);
+    return writer;
+}
 ostream& operator << (ostream& os, const UObject& obj)
 {
-    obj.printOn(os);
+	fmt::Writer writer;
+    obj.printOn(writer);
+	os << writer.c_str();
     return os;
 }
 

@@ -268,78 +268,105 @@ bool NPC::npc_path_blocked( UFACING dir ) const
     return false;
 }
 
-void NPC::printOn( ostream& os ) const
+void NPC::printOn( fmt::Writer& writer ) const
 { 
-    os << classname() << " " << template_name << pf_endl;
-    os << "{" << pf_endl;
-    printProperties( os );
-    os << "}" << pf_endl;
-    os << pf_endl;
+    writer << classname() << " " << template_name << pf_endl;
+    writer << "{" << pf_endl;
+    printProperties( writer );
+    writer << "}" << pf_endl;
+    writer << pf_endl;
+}
+void NPC::printOn( ostream& os ) const
+{
+	fmt::Writer writer;
+	printOn( writer );
+	os << writer.c_str();
 }
 
+void NPC::printSelfOn( fmt::Writer& writer ) const
+{
+	printOn(writer);
+}
 void NPC::printSelfOn( ostream& os ) const
 {
-   printOn( os );
+	fmt::Writer writer;
+	printSelfOn(writer);
+	os << writer.c_str();
 }
 
 void NPC::printProperties( std::ostream& os ) const
 {
-    base::printProperties( os );
+	fmt::Writer writer;
+	printProperties( writer );
+	os << writer.c_str();
+}
+
+void NPC::printProperties( fmt::Writer& writer ) const
+{
+	using namespace fmt;
+
+    base::printProperties( writer );
 
 	if (registered_house)
-		os << "\tRegisteredHouse\t0x" << hex << registered_house << dec << pf_endl;
+		writer << "\tRegisteredHouse\t0x" << hex(registered_house) << pf_endl;
 
     if (npc_ar_)
-        os << "\tAR\t" << npc_ar_ << pf_endl;
+        writer << "\tAR\t" << npc_ar_ << pf_endl;
 
     if (script != "")
-        os << "\tscript\t" << script << pf_endl;
+        writer << "\tscript\t" << script << pf_endl;
 
     if (master_.get() != NULL)
-        os << "\tmaster\t" << master_->serial << pf_endl;
+        writer << "\tmaster\t" << master_->serial << pf_endl;
 
     if (speech_color_ != DEFAULT_TEXT_COLOR)
-        os << "\tSpeechColor\t" << speech_color_ << pf_endl;
+        writer << "\tSpeechColor\t" << speech_color_ << pf_endl;
 
     if (speech_font_ != DEFAULT_TEXT_FONT)
-        os << "\tSpeechFont\t" << speech_font_ << pf_endl;
+        writer << "\tSpeechFont\t" << speech_font_ << pf_endl;
 
 	if (run_speed != dexterity())
-        os << "\tRunSpeed\t" << run_speed << pf_endl;
+        writer << "\tRunSpeed\t" << run_speed << pf_endl;
 
 	if (use_adjustments != true)
-        os << "\tUseAdjustments\t" << use_adjustments << pf_endl;
+        writer << "\tUseAdjustments\t" << use_adjustments << pf_endl;
 
 	if (element_resist_.fire != 0)
-		os << "\tFireResist\t" << static_cast<int>(element_resist_.fire) << pf_endl;
+		writer << "\tFireResist\t" << static_cast<int>(element_resist_.fire) << pf_endl;
 	if (element_resist_.cold  != 0)
-		os << "\tColdResist\t" << static_cast<int>(element_resist_.cold) << pf_endl;
+		writer << "\tColdResist\t" << static_cast<int>(element_resist_.cold) << pf_endl;
 	if (element_resist_.energy != 0)
-		os << "\tEnergyResist\t" << static_cast<int>(element_resist_.energy) << pf_endl;
+		writer << "\tEnergyResist\t" << static_cast<int>(element_resist_.energy) << pf_endl;
 	if (element_resist_.poison != 0)
-		os << "\tPoisonResist\t" << static_cast<int>(element_resist_.poison) << pf_endl;
+		writer << "\tPoisonResist\t" << static_cast<int>(element_resist_.poison) << pf_endl;
 	if (element_resist_.physical != 0)
-		os << "\tPhysicalResist\t" << static_cast<int>(element_resist_.physical) << pf_endl;
+		writer << "\tPhysicalResist\t" << static_cast<int>(element_resist_.physical) << pf_endl;
 
 	if (element_damage_.fire != 0)
-		os << "\tFireDamage\t" << static_cast<int>(element_damage_.fire) << pf_endl;
+		writer << "\tFireDamage\t" << static_cast<int>(element_damage_.fire) << pf_endl;
 	if (element_damage_.cold  != 0)
-		os << "\tColdDamage\t" << static_cast<int>(element_damage_.cold) << pf_endl;
+		writer << "\tColdDamage\t" << static_cast<int>(element_damage_.cold) << pf_endl;
 	if (element_damage_.energy != 0)
-		os << "\tEnergyDamage\t" << static_cast<int>(element_damage_.energy) << pf_endl;
+		writer << "\tEnergyDamage\t" << static_cast<int>(element_damage_.energy) << pf_endl;
 	if (element_damage_.poison != 0)
-		os << "\tPoisonDamage\t" << static_cast<int>(element_damage_.poison) << pf_endl;
+		writer << "\tPoisonDamage\t" << static_cast<int>(element_damage_.poison) << pf_endl;
 	if (element_damage_.physical != 0)
-		os << "\tPhysicalDamage\t" << static_cast<int>(element_damage_.physical) << pf_endl;
+		writer << "\tPhysicalDamage\t" << static_cast<int>(element_damage_.physical) << pf_endl;
 }
 
 void NPC::printDebugProperties( std::ostream& os ) const
 {
-    base::printDebugProperties( os );
-    os << "# template: " << template_.name << pf_endl;
+	fmt::Writer writer;
+	printDebugProperties( writer );
+	os << writer.c_str();
+}
+void NPC::printDebugProperties( fmt::Writer& writer ) const
+{
+    base::printDebugProperties( writer );
+    writer << "# template: " << template_.name << pf_endl;
     if (anchor.enabled)
     {
-        os << "# anchor: x=" << anchor.x 
+        writer << "# anchor: x=" << anchor.x 
            << " y=" << anchor.y 
            << " dstart=" << anchor.dstart 
            << " psub=" << anchor.psub << pf_endl;
