@@ -232,6 +232,7 @@
     <ClCompile Include="fdump.cpp" />
     <ClCompile Include="filecont.cpp" />
     <ClCompile Include="fileutil.cpp" />
+    <ClCompile Include="format\format.cc" />
     <ClCompile Include="forspcnt.cpp" />
     <ClCompile Include="iohelp.cpp" />
     <ClCompile Include="logfile.cpp" />
@@ -288,6 +289,7 @@
     <ClInclude Include="filecont.h" />
     <ClInclude Include="fileutil.h" />
     <ClInclude Include="fixalloc.h" />
+    <ClInclude Include="format\format.h" />
     <ClInclude Include="iohelp.h" />
     <ClInclude Include="logfile.h" />
     <ClInclude Include="maputil.h" />
