@@ -3,7 +3,7 @@
 # Build with CLANG
 
 export BUILD64POL=1
-export USE_MYSQL=1
+#export USE_MYSQL=1
 
 export LIBCRYPT="crypto"
 export POL_BUILDTAG="ubuntu"
@@ -28,10 +28,15 @@ case "$1" in
 		CC="clang -std=c++11" LINKER="clang -std=c++11" make -f makefile.gcc modernize
 		exit 0
 		;;
+	-c|--clean)
+		make -f makefile.gcc clean
+		exit 0
+		;;
 esac
 
 echo "Clang builds"
 echo "-n, --normal      perform normal build"
+echo "-c, --clean       clean build"
 echo "-a, --analyze     perform static analyze (pipes into clanganalyze.log)"
 echo "-m, --modernize   modernize code into c++11"
 
