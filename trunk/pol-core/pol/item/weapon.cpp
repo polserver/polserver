@@ -565,7 +565,7 @@ Item* UWeapon::clone() const
 void UWeapon::printProperties( ostream& os ) const
 {
 	fmt::Writer writer;
-	printProperties(writer);
+	UWeapon::printProperties(writer);
 	os << writer.c_str();
 }
 void UWeapon::printProperties( fmt::Writer& writer ) const

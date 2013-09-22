@@ -267,7 +267,7 @@ void Spellbook::printProperties( fmt::Writer& writer ) const
 void Spellbook::printProperties( ostream& os ) const
 {
 	fmt::Writer writer;
-	printProperties(writer);
+	Spellbook::printProperties(writer);
 	os << writer.c_str();
 }
 
@@ -292,7 +292,7 @@ void Spellbook::printOn( fmt::Writer& writer ) const
 void Spellbook::printOn( ostream& os ) const
 {
 	fmt::Writer writer;
-	printOn(writer);
+	Spellbook::printOn(writer);
 	os << writer.c_str();
 }
 
@@ -303,7 +303,7 @@ void Spellbook::printSelfOn( fmt::Writer& writer ) const
 void Spellbook::printSelfOn( ostream& os ) const
 {
 	fmt::Writer writer;
-    printSelfOn( writer );
+    Spellbook::printSelfOn( writer );
 	os << writer.c_str();
 }
 

@@ -77,7 +77,7 @@ void UCorpse::RemoveItemFromLayer( Item* item )
 void UCorpse::printProperties( std::ostream& os ) const
 {
 	fmt::Writer writer;
-	printProperties( writer );
+	UCorpse::printProperties( writer );
 	os << writer.c_str();
 }
 void UCorpse::printProperties( fmt::Writer& writer ) const
