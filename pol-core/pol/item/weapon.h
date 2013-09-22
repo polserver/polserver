@@ -58,6 +58,7 @@ public:
     virtual Item* clone() const;
 
 protected:
+	virtual void printProperties( fmt::Writer& writer) const;
     virtual void printProperties( std::ostream& os ) const;
     virtual void readProperties( ConfigElem& elem );
     //BObjectImp* script_member( const char *membername );

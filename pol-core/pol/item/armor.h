@@ -33,6 +33,8 @@ public:
 	std::set<unsigned short> tmplzones();
     
 protected:
+	
+	virtual void printProperties( fmt::Writer& writer ) const;
     virtual void printProperties( std::ostream& os ) const;
     virtual void readProperties( ConfigElem& elem );
     virtual BObjectImp* get_script_member( const char *membername ) const;
