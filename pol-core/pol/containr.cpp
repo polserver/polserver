@@ -102,7 +102,7 @@ void UContainer::printOn( fmt::Writer& writer ) const
 void UContainer::printOn( ostream& os ) const
 {
 	fmt::Writer writer;
-    printOn(writer);
+    UContainer::printOn(writer);
 	os << writer.c_str();
 }
 
@@ -113,14 +113,14 @@ void UContainer::printSelfOn( fmt::Writer& writer ) const
 void UContainer::printSelfOn( ostream& os ) const
 {
 	fmt::Writer writer;
-	printSelfOn(writer);
+	UContainer::printSelfOn(writer);
 	os << writer.c_str();
 }
 
 void UContainer::printContents( ostream& os ) const
 {
 	fmt::Writer writer;
-	printContents(writer);
+	UContainer::printContents(writer);
 	os << writer.c_str();
 }
 
@@ -898,7 +898,7 @@ bool UContainer::check_can_remove_script( Character* chr, Item* item, MoveType m
 void UContainer::printProperties( ostream& os ) const
 {
 	fmt::Writer writer;
-	printProperties(writer);
+	UContainer::printProperties(writer);
 	os << writer.c_str();
 }
 void UContainer::printProperties( fmt::Writer& writer ) const
@@ -1093,7 +1093,7 @@ void WornItemsContainer::print( ostream& ofs_pc, ostream& ofs_equip ) const
                     // write the backpack to the PC file,
                     // and the backpack contents to the PCEQUIP file
                 const UContainer* cont = static_cast<const UContainer*>(item);
-                cont->UContainer::base::printOn( ofs_pc );
+                cont->printSelfOn( ofs_pc );
                 cont->clear_dirty();
                 cont->printContents( ofs_equip) ;
             }

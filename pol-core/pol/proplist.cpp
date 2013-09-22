@@ -102,7 +102,7 @@ void PropertyList::printProperties( fmt::Writer& writer ) const
 void PropertyList::printProperties( ostream& os ) const
 {   
 	fmt::Writer writer;
-	this->printProperties(writer);
+	PropertyList::printProperties(writer);
 	os << writer.c_str();
 }
 void PropertyList::printProperties( ConfigElem& elem ) const
@@ -131,7 +131,7 @@ void PropertyList::printPropertiesAsStrings( fmt::Writer& writer ) const
 void PropertyList::printPropertiesAsStrings( ostream& os ) const
 {   
 	fmt::Writer writer;
-	this->printPropertiesAsStrings(writer);
+	PropertyList::printPropertiesAsStrings(writer);
 	os << writer.c_str();
 }
 

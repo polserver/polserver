@@ -133,7 +133,7 @@ Item* UArmor::clone() const
 void UArmor::printProperties( ostream& os ) const
 {
 	fmt::Writer writer;
-	printProperties(writer);
+	UArmor::printProperties(writer);
 	os << writer.c_str();
 }
 void UArmor::printProperties( fmt::Writer& writer ) const

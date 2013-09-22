@@ -980,7 +980,7 @@ void Character::printProperties( fmt::Writer& writer ) const
 void Character::printProperties( ostream& os ) const
 {
 	fmt::Writer writer;
-	printProperties( writer );
+	Character::printProperties( writer );
 	os << writer.c_str();
 }
 
@@ -991,7 +991,7 @@ void Character::printDebugProperties( fmt::Writer& writer ) const
 void Character::printDebugProperties( std::ostream& os ) const
 {
 	fmt::Writer writer;
-	printDebugProperties( writer );
+	Character::printDebugProperties( writer );
 	os << writer.c_str();
 }
 
@@ -1007,7 +1007,7 @@ void Character::printSelfOn( fmt::Writer& writer ) const
 void Character::printSelfOn( ostream& os ) const
 {
 	fmt::Writer writer;
-	printSelfOn( writer );
+	Character::printSelfOn( writer );
 	os << writer.c_str();
 }
 
@@ -1018,7 +1018,7 @@ void Character::printOn( fmt::Writer& writer ) const
 void Character::printOn( ostream& os ) const
 { 
 	fmt::Writer writer;
-	printOn( writer );
+	Character::printOn( writer );
 	os << writer.c_str();
 }
 void Character::printWornItems( ostream& ofs_pc, ostream& ofs_equip ) const

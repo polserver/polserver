@@ -350,7 +350,7 @@ unsigned short Item::maxhp() const
 void Item::printProperties( ostream& os ) const
 {
 	fmt::Writer writer;
-	printProperties( writer );
+	Item::printProperties( writer );
 	os << writer.c_str();
 }
 void Item::printProperties( fmt::Writer& writer ) const
@@ -433,7 +433,7 @@ void Item::printDebugProperties( fmt::Writer& writer ) const
 void Item::printDebugProperties( ostream& os ) const
 {
 	fmt::Writer writer;
-    printDebugProperties( writer );
+    Item::printDebugProperties( writer );
 	os << writer.c_str();
 }
 
