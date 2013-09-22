@@ -28,7 +28,7 @@ void ULockable::readProperties( ConfigElem& elem )
 void ULockable::printProperties( std::ostream& os ) const
 {
 	fmt::Writer writer;
-	printProperties(writer);
+	ULockable::printProperties(writer);
 	os << writer.c_str();
 }
 void ULockable::printProperties( fmt::Writer& writer ) const

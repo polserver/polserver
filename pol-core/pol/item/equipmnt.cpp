@@ -35,7 +35,7 @@ Item* Equipment::clone() const
 void Equipment::printProperties( std::ostream& os ) const
 {
 	fmt::Writer writer;
-	printProperties(writer);
+	Equipment::printProperties(writer);
 	os << writer.c_str();
 }
 void Equipment::printProperties( fmt::Writer& writer ) const

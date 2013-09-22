@@ -279,7 +279,7 @@ void NPC::printOn( fmt::Writer& writer ) const
 void NPC::printOn( ostream& os ) const
 {
 	fmt::Writer writer;
-	printOn( writer );
+	NPC::printOn( writer );
 	os << writer.c_str();
 }
 
@@ -290,14 +290,14 @@ void NPC::printSelfOn( fmt::Writer& writer ) const
 void NPC::printSelfOn( ostream& os ) const
 {
 	fmt::Writer writer;
-	printSelfOn(writer);
+	NPC::printSelfOn(writer);
 	os << writer.c_str();
 }
 
 void NPC::printProperties( std::ostream& os ) const
 {
 	fmt::Writer writer;
-	printProperties( writer );
+	NPC::printProperties( writer );
 	os << writer.c_str();
 }
 

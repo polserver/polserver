@@ -268,7 +268,7 @@ void UObject::printProperties( fmt::Writer& writer ) const
 void UObject::printProperties( ostream& os ) const
 {
    fmt::Writer writer;
-   printProperties(writer);
+   UObject::printProperties(writer);
    os << writer.c_str();
 }
 
@@ -279,7 +279,7 @@ void UObject::printDebugProperties( fmt::Writer& writer ) const
 void UObject::printDebugProperties( std::ostream& os ) const
 {
 	fmt::Writer writer;
-	printDebugProperties( writer );
+	UObject::printDebugProperties( writer );
 	os << writer.c_str();
 }
 
@@ -332,7 +332,7 @@ void UObject::printSelfOn( fmt::Writer& writer ) const
 void UObject::printSelfOn( ostream& os ) const
 {
 	fmt::Writer writer;
-    printSelfOn( writer );
+    UObject::printSelfOn( writer );
 	os << writer.c_str();
 }
 
@@ -348,7 +348,7 @@ void UObject::printOn( fmt::Writer& writer ) const
 void UObject::printOn( ostream& os ) const
 {
 	fmt::Writer writer;
-	printOn(writer);
+	UObject::printOn(writer);
 	os << writer.c_str();
 }
 
@@ -365,7 +365,7 @@ void UObject::printOnDebug( fmt::Writer& writer) const
 void UObject::printOnDebug( ostream& os ) const
 {
 	fmt::Writer writer;
-	printOnDebug( writer );
+	UObject::printOnDebug( writer );
 	os << writer.c_str();
 }
 
