@@ -302,6 +302,11 @@ void fmt::BasicWriter<Char>::FormatDouble(
   Char fill = static_cast<Char>(spec.fill());
   for (;;) {
     std::size_t size = buffer_.capacity() - offset;
+	if (size < 100) // TODO: Hacked solution
+	{
+		GrowBuffer(100-size);
+		size = buffer_.capacity() - offset;
+	}
     Char *start = &buffer_[offset];
     int n = internal::CharTraits<Char>::FormatFloat(
         start, size, format, width_for_sprintf, precision, value);
