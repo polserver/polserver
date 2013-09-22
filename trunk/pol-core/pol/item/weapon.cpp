@@ -564,17 +564,23 @@ Item* UWeapon::clone() const
 
 void UWeapon::printProperties( ostream& os ) const
 {
-	base::printProperties( os );
+	fmt::Writer writer;
+	printProperties(writer);
+	os << writer.c_str();
+}
+void UWeapon::printProperties( fmt::Writer& writer ) const
+{
+	base::printProperties( writer );
 
 	short speed_mod = getmember<s16>(MBR_SPEED_MOD);
 	short dmg_mod = getmember<s16>(MBR_DMG_MOD);
 
 	if (dmg_mod)
-		os << "\tdmg_mod\t" << dmg_mod << pf_endl;
+		writer << "\tdmg_mod\t" << dmg_mod << pf_endl;
 	if (speed_mod)
-		os << "tspeed_mod\t" << speed_mod << pf_endl;
+		writer << "tspeed_mod\t" << speed_mod << pf_endl;
 	if (!(hit_script_ == tmpl->hit_script))
-		os << "\tHitScript\t" << hit_script_.relativename( tmpl->pkg ) << pf_endl;
+		writer << "\tHitScript\t" << hit_script_.relativename( tmpl->pkg ) << pf_endl;
 }
 
 void UWeapon::readProperties( ConfigElem& elem )

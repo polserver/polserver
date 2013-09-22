@@ -27,6 +27,7 @@ public:
 
 protected:
     Equipment( const ItemDesc& itemdesc, UOBJ_CLASS uobj_class );
+	virtual void printProperties( fmt::Writer& writer ) const;
     virtual void printProperties( std::ostream& os ) const;
     virtual void readProperties( ConfigElem& elem );
     virtual BObjectImp* get_script_member( const char *membername ) const;

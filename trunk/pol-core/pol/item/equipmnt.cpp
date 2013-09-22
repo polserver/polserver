@@ -32,10 +32,15 @@ Item* Equipment::clone() const
     return eq;
 }
 
-
 void Equipment::printProperties( std::ostream& os ) const
 {
-    base::printProperties( os );
+	fmt::Writer writer;
+	printProperties(writer);
+	os << writer.c_str();
+}
+void Equipment::printProperties( fmt::Writer& writer ) const
+{
+    base::printProperties( writer );
 }
 
 void Equipment::readProperties( ConfigElem& elem )
