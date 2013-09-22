@@ -203,7 +203,7 @@ unsigned int String::SafeCharAmt() const
 	int strlen = static_cast<int>(this->length());
 	for ( int i=0; i < strlen; i++ )
 	{
-		char tmp = value_[i];
+		unsigned char tmp = value_[i];
 		if ( isalnum(tmp) ) // a-z A-Z 0-9
 			continue;
 		else if ( ispunct(tmp) ) // !"#$%&'()*+,-./:;<=>?@{|}~
