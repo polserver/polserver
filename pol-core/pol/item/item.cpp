@@ -421,9 +421,10 @@ void Item::printProperties( fmt::Writer& writer ) const
 
 	if (maxhp_mod)
 		writer << "\tMaxHp_mod\t" << maxhp_mod << pf_endl;
-
-	writer << "\tHp\t" << hp_ << pf_endl;
-	writer << "\tQuality\t" << quality_ << pf_endl;
+	if (hp_ != itemdesc().maxhp)
+		writer << "\tHp\t" << hp_ << pf_endl;
+	if (quality_ !=  itemdesc().quality)
+		writer << "\tQuality\t" << quality_ << pf_endl;
 }
 
 void Item::printDebugProperties( fmt::Writer& writer ) const
@@ -1058,10 +1059,8 @@ void preload_test_scripts(const std::string& script_ecl)
     {
         find_script2( sd, true, true );
     }
-    Packages::iterator itr = packages.begin(), end = packages.end();
-    for( ; itr != end; ++itr )
+    for( auto &pkg : packages )
     {
-        Package* pkg = *itr;
         sd.quickconfig( pkg, script_ecl );
         if (sd.exists())
         {
@@ -1091,10 +1090,8 @@ bool Item::check_test_scripts( Character* chr, const std::string& script_ecl, bo
 		if (!res)
             return false;
     }
-    Packages::iterator itr = packages.begin(), end = packages.end();
-    for( ; itr != end; ++itr )
+    for( auto &pkg : packages )
     {
-        Package* pkg = *itr;
         sd.quickconfig( pkg, script_ecl );
         if ( script_loaded( sd ) )
         {
