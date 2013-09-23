@@ -302,7 +302,7 @@ void fmt::BasicWriter<Char>::FormatDouble(
   Char fill = static_cast<Char>(spec.fill());
   for (;;) {
     std::size_t size = buffer_.capacity() - offset;
-	if (size == 0) // TODO: Verfiy with the author
+	if (size < 100) // TODO: Verify with the author
 	{
 		 buffer_.reserve(2 * buffer_.capacity());
 		 continue;
