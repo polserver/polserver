@@ -25,7 +25,7 @@ class ItemDesc;
 class UMulti;
 struct USTRUCT_TILE;
 
-std::string format_description( unsigned int polflags, const std::string& descdef, unsigned short amount );
+std::string format_description( unsigned int polflags, const std::string& descdef, unsigned short amount, const std::string suffix );
 
 // NOTE: All derived classes should have protected constructors, 
 //			and make Item a friend.

@@ -931,6 +931,7 @@ BObjectImp* Item::get_script_member_id( const int id ) const
 		case MBR_HP: return new BLong( hp_ ); break;
 		case MBR_MAXHP_MOD: return new BLong( getmember<s16>(MBR_MAXHP_MOD) ); break;
 		case MBR_MAXHP: return new BLong( static_cast<int>(maxhp() * quality_) ); break;
+		case MBR_NAME_SUFFIX: return new String( getmember<string>(MBR_NAME_SUFFIX) ); break;
 		default: return NULL;
 	}
 }
@@ -960,6 +961,9 @@ BObjectImp* Item::set_script_member_id( const int id, const std::string& value )
 			return new String( value );
 		case MBR_UNEQUIPSCRIPT:
 			unequip_script_ = value;
+			return new String( value );
+		case MBR_NAME_SUFFIX:
+			setmember<string>(MBR_NAME_SUFFIX, value );
 			return new String( value );
 		default: return NULL;
 	}
@@ -2533,6 +2537,22 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 					deafened_until = read_gameclock() + duration;
 				return new BLong(deafened_until);
 			}
+			break;
+		}
+	case MTH_DISABLE_SKILLS_FOR:
+		{
+			int duration;
+			if (!ex.hasParams(1))
+				return new BError( "Not enough parameters" );
+			if (ex.getParam( 0, duration ))
+			{
+				if ( duration < 0 )
+					return new BError( "Duration must be >= 0" );
+				disable_skills_until = poltime() + duration;
+				return new BLong( disable_skills_until );
+			}
+			else
+				return new BError( "Invalid parameter type" );
 			break;
 		}
 	default:

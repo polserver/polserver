@@ -126,13 +126,14 @@ Item* Item::clone() const
 	item->element_damage_mod.physical = element_damage_mod.physical;
 
 	item->setmember<s16>(MBR_MAXHP_MOD, this->getmember<s16>(MBR_MAXHP_MOD));
+	item->setmember<string>(MBR_NAME_SUFFIX, this->getmember<string>(MBR_NAME_SUFFIX));
 
 	return item;
 }
 
 string Item::name() const
 {
-    if (name_ != "")
+    if (!name_.empty())
     {
         return name_;
     }
@@ -167,20 +168,21 @@ const ItemDesc& Item::itemdesc() const
 */
 string Item::description() const
 {
+	std::string suffix = getmember<string>(MBR_NAME_SUFFIX);
     if (specific_name())
     {
-		return ::format_description( 0, name(), amount_ ); //dave monkeyed with this 2/4/3
+		return ::format_description( 0, name(), amount_, suffix ); //dave monkeyed with this 2/4/3
     }
     else
     {
         const ItemDesc& id = find_itemdesc( objtype_ );
         if (id.desc.empty())
         {
-            return ::format_description( tile_flags( graphic ), tile_desc( graphic ), amount_ );
+            return ::format_description( tile_flags( graphic ), tile_desc( graphic ), amount_, suffix );
         }
         else
         {
-            return ::format_description( tile_flags( graphic ), id.desc, amount_ );
+            return ::format_description( tile_flags( graphic ), id.desc, amount_, suffix );
         }
     }
 }
@@ -192,20 +194,21 @@ string Item::get_use_script_name() const
 
 string Item::merchant_description() const
 {
+	std::string suffix = getmember<string>(MBR_NAME_SUFFIX);
     if (specific_name())
     {
-        return name();
+        return ::format_description( 0, name(), 1, suffix );
     }
     else
     {
         const ItemDesc& id = find_itemdesc( objtype_ );
         if (id.desc.empty())
         {
-            return ::format_description( 0, tile_desc( graphic ), 1 );
+            return ::format_description( 0, tile_desc( graphic ), 1, suffix );
         }
         else
         {
-            return ::format_description( 0, id.desc, 1 );
+            return ::format_description( 0, id.desc, 1, suffix );
         }
     }
 }
@@ -360,6 +363,7 @@ void Item::printProperties( fmt::Writer& writer ) const
     base::printProperties(writer);
 
 	short maxhp_mod = getmember<s16>(MBR_MAXHP_MOD);
+	string suffix = getmember<string>(MBR_NAME_SUFFIX);
 
     if (amount_ != 1)
         writer << "\tAmount\t" << amount_ << pf_endl;
@@ -425,6 +429,8 @@ void Item::printProperties( fmt::Writer& writer ) const
 		writer << "\tHp\t" << hp_ << pf_endl;
 	if (quality_ !=  itemdesc().quality)
 		writer << "\tQuality\t" << quality_ << pf_endl;
+	if (!suffix.empty())
+		writer << "\tNameSuffix\t" << suffix << pf_endl;
 }
 
 void Item::printDebugProperties( fmt::Writer& writer ) const
@@ -483,6 +489,7 @@ void Item::readProperties( ConfigElem& elem )
 	element_damage_mod.physical = static_cast<s16>(elem.remove_int( "PHYSICALDAMAGEMOD", 0 ));
 
 	setmember<s16>(MBR_MAXHP_MOD, static_cast<s16>(elem.remove_int( "MAXHP_MOD", 0 )));
+	setmember<string>(MBR_NAME_SUFFIX, elem.remove_string( "NAMESUFFIX", ""));
 
 }
 

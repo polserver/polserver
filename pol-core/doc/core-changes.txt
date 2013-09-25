@@ -1,4 +1,12 @@
 ﻿-- POL099 --
+09-25-2013 Tomi:
+    Added:   character.DisableSkillsFor( duration ) method to disable skills that are started with start_skill_script or by scritps defined in attributes.cfg for duration ( seconds )
+             This method overrides the default Delay setting in attributes.cfg if used ( for example if on failing a skill you want no delay just set it to 0 )
+             This can also be used to disable skills for example during an event or pvp
+    Added:   item.name_suffix for adding crafter marks or such
+             item.desc returns the formatted name and suffix added to it without formatting if it exists
+             item.name does not include this suffix, so that can be used to get the item name without formatting and without suffix
+
 09-21-2013 Tomi:
     Changed: Pol doesnt send "I am frozen" messages anymore when paralyzed, now it sends in all those cases "I am paralyzed" messages
 
