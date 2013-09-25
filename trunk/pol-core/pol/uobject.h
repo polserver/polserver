@@ -173,10 +173,26 @@ public:
 		else
 			return boost::any_cast<T>((*itr).second);
 	};
+	template <> string getmember<string>( unsigned short member ) const
+	{
+		map<unsigned short,boost::any>::const_iterator itr = dynmap.find(member);
+
+		if ( itr == dynmap.end() )
+			return "";
+		else
+			return boost::any_cast<string>((*itr).second);
+	};
 	template <class T>
 	void setmember( unsigned short member, T value )
 	{
 		if ( value == 0 )
+			dynmap.erase(member);
+		else
+			dynmap[member] = value;
+	};
+	template<> void setmember<string>( unsigned short member, string value )
+	{
+		if ( value.empty() )
 			dynmap.erase(member);
 		else
 			dynmap[member] = value;

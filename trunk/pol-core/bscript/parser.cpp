@@ -469,7 +469,8 @@ ObjMember object_members[] = {
 	{ MBR_MAX_ITEMS_MOD, "max_items_mod", false },
 	{ MBR_MAX_WEIGHT_MOD, "max_weight_mod", false },
 	{ MBR_MAX_SLOTS_MOD, "max_slots_mod", false },
-	{ MBR_SPEED_MOD, "speed_mod", false }
+	{ MBR_SPEED_MOD, "speed_mod", false },
+	{ MBR_NAME_SUFFIX, "name_suffix", false }    //210
 };
 int n_objmembers = sizeof object_members / sizeof object_members[0];
 ObjMember* getKnownObjMember(const char* token)
@@ -635,8 +636,9 @@ ObjMethod object_methods[] = {
 	{ MTH_JOIN, "join"},
 	{ MTH_FIND, "find"},
 	{ MTH_UPPER, "upper"},
-	{ MTH_LOWER, "lower"},
-	{ MTH_FORMAT, "format"}
+	{ MTH_LOWER, "lower"},					//145
+	{ MTH_FORMAT, "format"},
+	{ MTH_DISABLE_SKILLS_FOR, "disableskillsfor" }
 };
 int n_objmethods = sizeof object_methods / sizeof object_methods[0];
 ObjMethod* getKnownObjMethod(const char* token)

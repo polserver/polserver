@@ -2408,7 +2408,7 @@ void update_all_weatherregions()
 	1 gold coin displays as "gold coin".  There must be a bit somewhere 
 	that I just don't understand yet.
 */
-string format_description( unsigned int polflags, const string& descdef, unsigned short amount )
+string format_description( unsigned int polflags, const string& descdef, unsigned short amount, const std::string suffix )
 {
     string desc;
 
@@ -2481,6 +2481,9 @@ string format_description( unsigned int polflags, const string& descdef, unsigne
 	
     if (!singular && !plural_handled)
 		desc += 's';
+
+	if ( !suffix.empty() )
+		desc += " " + suffix;
 
     return desc;
 }
