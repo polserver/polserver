@@ -963,6 +963,9 @@ BObjectImp* Item::set_script_member_id( const int id, const std::string& value )
 			unequip_script_ = value;
 			return new String( value );
 		case MBR_NAME_SUFFIX:
+			set_dirty();
+			increv();
+			send_object_cache_to_inrange(this);
 			setmember<string>(MBR_NAME_SUFFIX, value );
 			return new String( value );
 		default: return NULL;
