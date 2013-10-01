@@ -2860,7 +2860,7 @@ BObjectImp* ULockable::set_script_member( const char *membername, int value )
 
 BObjectImp* UContainer::get_script_member_id( const int id ) const
 {
-	BObjectImp* imp = Item::get_script_member_id( id );
+	BObjectImp* imp = base::get_script_member_id( id );
 	if (imp != NULL)
 		return imp;
 
@@ -2884,7 +2884,7 @@ BObjectImp* UContainer::get_script_member( const char *membername ) const
 
 BObjectImp* UContainer::set_script_member_id( const int id, int value )
 {
-	BObjectImp* imp = Item::set_script_member_id( id, value );
+	BObjectImp* imp = base::set_script_member_id( id, value );
 	if (imp != NULL)
 		return imp;
 	switch(id)
