@@ -17,15 +17,13 @@ Notes
 
 #include "../clib/stl_inc.h"
 
-#include <time.h>
-
 #include "../clib/stlutil.h"
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/cmdargs.h"
 #include "../clib/fileutil.h"
 #include "../clib/passert.h"
-#include "../clib/wallclock.h"
+#include "../clib/timer.h"
 
 #include "../pol/uofile.h"
 #include "../pol/objtype.h"
@@ -480,10 +478,10 @@ void create_map( const string& realm, unsigned short width, unsigned short heigh
     cout << "Initializing files: ";
     mapwriter->CreateNewFiles(realm, width, height);
     cout << "Done." << endl;
-	wallclock_t start = wallclock();
+	Tools::Timer<> timer;
 	rawmapfullread();
 	rawstaticfullread();
-	cout << "  Reading mapfiles time: " << wallclock_diff_ms( start, wallclock() ) << " ms." << endl;
+	cout << "  Reading mapfiles time: " << timer.ellapsed() << " ms." << endl;
     for( unsigned short y_base = 0; y_base < height; y_base += SOLIDX_Y_SIZE )
     {
         for( unsigned short x_base = 0; x_base < width; x_base += SOLIDX_X_SIZE )
@@ -492,7 +490,7 @@ void create_map( const string& realm, unsigned short width, unsigned short heigh
         }
         cout << "\rConverting: " << y_base*100/height << "%";
     }
-    wallclock_t finish = wallclock();
+	timer.stop();
 
     mapwriter->WriteConfigFile();
 	delete mapwriter;
@@ -504,7 +502,7 @@ void create_map( const string& realm, unsigned short width, unsigned short heigh
     cout << "  Blocks without solids: " << empty << " (" << (empty*100/(empty+nonempty)) << "%)" << endl;
     cout << "  Locations with solids: " << with_more_solids << endl;
     cout << "  Total number of solids: " << total_statics << endl;
-    cout << "  Elapsed time: " << wallclock_diff_ms( start, finish ) << " ms." << endl;
+    cout << "  Elapsed time: " << timer.ellapsed() << " ms." << endl;
 }
 
 bool is_no_draw(USTRUCT_MAPINFO& mi)

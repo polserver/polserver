@@ -33,6 +33,7 @@ Notes
 #include "../clib/progver.h"
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
+#include "../clib/timer.h"
 
 #include "../plib/polver.h"
 #include "../plib/realm.h"
@@ -344,7 +345,7 @@ void slurp( const char* filename, const char* tags, int sysfind_flags )
 		ConfigFile cf( filename, tags );
 		ConfigElem elem;
 
-		wallclock_t start = wallclock();
+		Tools::Timer<> timer;
 		
 		unsigned int nobjects = 0;
 		while (cf.read( elem ))
@@ -386,9 +387,9 @@ void slurp( const char* filename, const char* tags, int sysfind_flags )
 			++nobjects;
 		}
 
-		wallclock_t finish = wallclock();
+		timer.stop();
 
-		cout << " " << nobjects << " elements in " << wallclock_diff_ms(start,finish) << " ms." << endl;
+		cout << " " << nobjects << " elements in " << timer.ellapsed() << " ms." << endl;
 	}
 }
 
@@ -1076,7 +1077,7 @@ bool should_write_data()
 	return true;
 }
 
-int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, unsigned int& elapsed_ms )
+int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long long& elapsed_ms )
 {
 	if (!should_write_data())
 	{
@@ -1087,12 +1088,13 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, unsigned
 	UObject::dirty_writes = 0;
 	UObject::clean_writes = 0;
 
-	vector<wallclock_t> tx;
+	vector<long long> times;
+	Tools::Timer<> timer;
 
 	{
 		SaveContext sc;
 
-		tx.push_back(wallclock());
+		times.push_back(timer.ellapsed());
 
 		sc.ofs_pol << "#" << pf_endl;
 		sc.ofs_pol << "#  Created by Version: " << polverstr << pf_endl;
@@ -1102,42 +1104,42 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, unsigned
 		sc.ofs_pol << pf_endl;
 
 
-		tx.push_back(wallclock());
+		times.push_back(timer.ellapsed());
 		write_system_data( sc.ofs_pol );
-		tx.push_back(wallclock());
+		times.push_back(timer.ellapsed());
 		write_global_properties( sc.ofs_pol );
-		tx.push_back(wallclock());
+		times.push_back(timer.ellapsed());
 		write_shadow_realms( sc.ofs_pol );
 
-		tx.push_back(wallclock());
+		times.push_back(timer.ellapsed());
 		write_characters( sc );
-		tx.push_back(wallclock());
+		times.push_back(timer.ellapsed());
 
 		write_items( sc.ofs_items );
-		tx.push_back(wallclock());
+		times.push_back(timer.ellapsed());
 
 		write_multis( sc.ofs_multis );
-		tx.push_back(wallclock());
+		times.push_back(timer.ellapsed());
 
 		sc.ofs_storage << storage;
-		tx.push_back(wallclock());
+		times.push_back(timer.ellapsed());
 
 		write_resources_dat( sc.ofs_resource );
-		tx.push_back(wallclock());
+		times.push_back(timer.ellapsed());
 
 		write_guilds( sc.ofs_guilds );
-		tx.push_back(wallclock());
+		times.push_back(timer.ellapsed());
 
 		write_datastore( sc.ofs_datastore );
-		tx.push_back(wallclock());
+		times.push_back(timer.ellapsed());
 
 		write_party( sc.ofs_party );
-		tx.push_back(wallclock());
+		times.push_back(timer.ellapsed());
 
 		if (accounts_txt_dirty)
 		{
 			write_account_data();
-			tx.push_back(wallclock());
+			times.push_back(timer.ellapsed());
 		}
 
 	}
@@ -1145,7 +1147,7 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, unsigned
 	// Atomically (hopefully) perform the switch.
 	commit_datastore();
 
-	tx.push_back(wallclock());
+	times.push_back(timer.ellapsed());
 
 	commit( "pol" );
 	commit( "objects" );
@@ -1163,8 +1165,8 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, unsigned
 
 	commit_incremental_saves();
 	incremental_save_count = 0;
-
-	tx.push_back(wallclock());
+	timer.stop();
+	times.push_back(timer.ellapsed());
 
 	objecthash.ClearDeleted();
 
@@ -1174,7 +1176,7 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, unsigned
 	//cout << "Clean: " << UObject::clean_writes << " Dirty: " << UObject::dirty_writes << endl;
 	clean_writes = UObject::clean_writes;
 	dirty_writes = UObject::dirty_writes;
-	elapsed_ms = wallclock_diff_ms( tx.front(),tx.back() );
+	elapsed_ms = times.back();
 
 	incremental_saves_disabled = false;
 	return 0;

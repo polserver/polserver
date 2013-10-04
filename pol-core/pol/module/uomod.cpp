@@ -3352,7 +3352,8 @@ BObjectImp* UOExecutorModule::mf_SaveWorldState()
 
 		PolClockPauser pauser;
 
-		unsigned int dirty, clean, elapsed_ms;
+		unsigned int dirty, clean;
+		long long elapsed_ms;
 		int res;
 		if (flags & SAVE_INCREMENTAL)
 		{
