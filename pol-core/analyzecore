@@ -19,6 +19,7 @@ case "$1" in
 	-a|--analyze)
 		# normal build + static analyze
 		# pipe into a file (will loose the nice colors, but way to many lines for direct console)
+		export CXX_MORE_OPTS="-O0 -DUSE_SYSTEM_ZLIB -DHAVE_OPENSSL -DDEBUG -D_REENTRANT -DPOL_BUILDTAG=\\\"ubuntu\\\""
 		CC="clang -std=c++11 --analyze -Xanalyzer -analyzer-output=text" LINKER="clang -std=c++11" make -f makefile.gcc release 2>&1 | tee clanganalyze.log
 		exit 0
 		;;
@@ -26,6 +27,12 @@ case "$1" in
 		# perform modernize on sourcecode
 		# keep it for newer versions (maybe more fanzy stuff)
 		CC="clang -std=c++11" LINKER="clang -std=c++11" make -f makefile.gcc modernize
+		exit 0
+		;;
+	-s|--scanbuild)
+		# scan build
+		export CXX_MORE_OPTS=" -std=c++11 -O0 -DUSE_SYSTEM_ZLIB -DHAVE_OPENSSL -DDEBUG -D_REENTRANT -DPOL_BUILDTAG=\\\"ubuntu\\\""
+		scan-build -v -o . --use-cc clang --use-c++ clang++ make -f makefile.gcc release
 		exit 0
 		;;
 	-c|--clean)
@@ -39,4 +46,5 @@ echo "-n, --normal      perform normal build"
 echo "-c, --clean       clean build"
 echo "-a, --analyze     perform static analyze (pipes into clanganalyze.log)"
 echo "-m, --modernize   modernize code into c++11"
+echo "-s, --scanbuild   perform static analyze (html report)"
 

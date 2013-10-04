@@ -320,7 +320,7 @@ dyndebug: $(objects_debug)
 	$(LINKER) $(CXX_OPTS) -o bin/poldyndebug $(objects_debug) -l$(LIB_STL) -lpthread -lrt -lm -l$(LIBCRYPT) -lz $(LIB_MORE)
 
 clean:
-	rm -f $(objects) $(clib_objects) $(ecompile_objects) $(runecl_objects) $(uoconvert_objects)
+	rm -rf *.o
 	rm -f pol.map
 	rm -f bin/*
 	rm -rf dist/scripts

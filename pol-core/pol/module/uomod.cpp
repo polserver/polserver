@@ -310,7 +310,8 @@ BObjectImp* _create_item_in_container(
 				//DAVE added this 11/17, call can/onInsert scripts for this container
 				Character* chr_owner = cont->GetCharacterOwner();
 				if(chr_owner == NULL)
-					chr_owner = uoemod->controller_.get();
+					if (uoemod != NULL)
+						chr_owner = uoemod->controller_.get();
 
 				//If the can insert script fails for combining a stack, we'll let the create new item code below handle it
 				// what if a cannInsert script modifies (adds to) the container we're iterating over? (they shouldn't do that)
@@ -393,7 +394,8 @@ BObjectImp* _create_item_in_container(
 			//DAVE added this 11/17, call can/onInsert scripts for this container
 			Character* chr_owner = cont->GetCharacterOwner();
 			if(chr_owner == NULL)
-				chr_owner = uoemod->controller_.get();
+				if (uoemod != NULL)
+					chr_owner = uoemod->controller_.get();
 
 			if(!cont->can_insert_add_item( chr_owner, UContainer::MT_CORE_CREATED, item ))
 			{
