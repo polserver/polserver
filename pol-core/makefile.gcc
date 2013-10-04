@@ -67,6 +67,7 @@ endif
 cpp_sources = \
 	../lib/tinyxml/tinystr.cpp ../lib/tinyxml/tinyxml.cpp \
 	../lib/tinyxml/tinyxmlerror.cpp ../lib/tinyxml/tinyxmlparser.cpp \
+	../lib/format/format.cc \
 	clib/progver.cpp plib/polver.cpp \
 	pol/accounts/account.cpp pol/accounts/accounts.cpp pol/accounts/acscrobj.cpp pol/allocd.cpp \
 	pol/item/armor.cpp pol/mobile/attack.cpp \
