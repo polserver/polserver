@@ -82,9 +82,9 @@ void write_account_data()
     
     {
         ofstream ofs( accountsndtfile.c_str(), std::ios::trunc|ios::out );
-        for( Accounts::iterator itr = accounts.begin(); itr != accounts.end(); ++itr )
+        for(auto &account : accounts)
         {
-            Account* acct = (*itr).get();
+            Account* acct = account.get();
             acct->writeto( ofs );
         }
     }
@@ -107,7 +107,7 @@ Account* create_new_account( const string& acctname, const string& password, boo
 	elem.add_prop( "password", password.c_str() );
 		
     elem.add_prop( "enabled", ((unsigned int)(enabled?1:0)) );
-    Account* acct = new Account( elem );
+    auto acct = new Account( elem );
     accounts.push_back( AccountRef(acct) );
 	if (config.account_save == -1)
 		write_account_data();
@@ -128,7 +128,7 @@ Account* duplicate_account( const string& oldacctname, const string& newacctname
         elem.remove_string( "name" );
         elem.add_prop( "name", newacctname.c_str() );	
         
-        Account* acct = new Account( elem );
+        auto acct = new Account( elem );
         accounts.push_back( AccountRef(acct) );
 		if (config.account_save == -1)
 			write_account_data();
@@ -141,11 +141,11 @@ Account* duplicate_account( const string& oldacctname, const string& newacctname
 
 Account* find_account( const char* acctname )
 {
-  	for( size_t idx = 0; idx < accounts.size(); idx++ )
+  	for(auto &account : accounts)
 	{
-		if (stricmp( accounts[idx]->name(), acctname ) == 0)
+		if (stricmp( account->name(), acctname ) == 0)
 		{
-			return accounts[idx].get();
+			return account.get();
 		}
 	}
     return NULL;
@@ -153,7 +153,7 @@ Account* find_account( const char* acctname )
 
 int delete_account( const char* acctname )
 {
-    for( Accounts::iterator itr = accounts.begin(), end = accounts.end(); itr != end; ++itr )
+    for( auto itr = accounts.begin(), end = accounts.end(); itr != end; ++itr )
     {
         Account* account = (*itr).get();
         if (stricmp( account->name(), acctname ) == 0)
