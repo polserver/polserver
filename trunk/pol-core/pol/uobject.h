@@ -132,6 +132,49 @@ struct MovementCost_Mod
 #	pragma pack()
 #endif
 
+template<typename T>
+struct MemberHelper
+{
+public:
+	static T getmember(const map<unsigned short,boost::any> &_map,unsigned short member)
+	{
+		auto itr = _map.find(member);
+
+		if ( itr == _map.end() )
+			return 0;
+		else
+			return boost::any_cast<T>((*itr).second);
+	};
+	static void setmember(map<unsigned short,boost::any> &_map, unsigned short member, T value)
+	{
+		if ( value == 0 )
+			_map.erase(member);
+		else
+			_map[member] = value;
+	};
+};
+template<>
+struct MemberHelper<string>
+{
+public:
+	static string getmember(const map<unsigned short,boost::any> &_map, unsigned short member)
+	{
+		auto itr = _map.find(member);
+
+		if ( itr == _map.end() )
+			return "";
+		else
+			return boost::any_cast<string>((*itr).second);
+	};
+	static void setmember(map<unsigned short,boost::any> &_map, unsigned short member, string value)
+	{
+		if ( value.empty() )
+			_map.erase(member);
+		else
+			_map[member] = value;
+	};
+};
+
 /* NOTES: 
         if you add fields, be sure to update Item::create().
 */
@@ -162,43 +205,18 @@ public:
     void copyprops( const PropertyList& proplist );
     void getpropnames( std::vector< std::string >& propnames ) const;
 	const PropertyList& getprops() const;
-
-	template <class T>
+	
+	template <typename T>
 	T getmember( unsigned short member ) const
 	{
-		map<unsigned short,boost::any>::const_iterator itr = dynmap.find(member);
-
-		if ( itr == dynmap.end() )
-			return 0;
-		else
-			return boost::any_cast<T>((*itr).second);
-	};
-	template <> string getmember<string>( unsigned short member ) const
-	{
-		map<unsigned short,boost::any>::const_iterator itr = dynmap.find(member);
-
-		if ( itr == dynmap.end() )
-			return "";
-		else
-			return boost::any_cast<string>((*itr).second);
-	};
-	template <class T>
+		return MemberHelper<T>::getmember(dynmap,member);
+	}
+	template <typename T>
 	void setmember( unsigned short member, T value )
 	{
-		if ( value == 0 )
-			dynmap.erase(member);
-		else
-			dynmap[member] = value;
-	};
-	template<> void setmember<string>( unsigned short member, string value )
-	{
-		if ( value.empty() )
-			dynmap.erase(member);
-		else
-			dynmap[member] = value;
-	};
-
-
+		MemberHelper<T>::setmember(dynmap,member,value);
+	}
+	
     bool orphan() const;
 
     virtual void destroy();
@@ -338,7 +356,6 @@ private: // not implemented:
 
 extern std::ostream& operator << (std::ostream&, const UObject& );
 extern fmt::Writer& operator << (fmt::Writer&, const UObject& );
-
 
 inline bool UObject::specific_name() const
 {
