@@ -965,11 +965,8 @@ void Character::printProperties( fmt::Writer& writer ) const
 		writer << "\tMurderer\t" << murderer_ << pf_endl;
 	if (party_can_loot_)
 		writer << "\tPartyCanLoot\t" << party_can_loot_ << pf_endl;
-	for(ReportableList::const_iterator itr = reportable_.begin();
-		itr != reportable_.end();
-		++itr)
+	for(const auto &rt : reportable_)
 	{
-		const reportable_t& rt = (*itr);
 		writer << "\tReportable\t" << hexint(rt.serial) << " " << rt.polclock << pf_endl;
 	}
 	
@@ -1290,10 +1287,10 @@ void Character::readAttributesAndVitals( ConfigElem& elem )
 	for( Vital* pVital = FindVital(0); pVital != NULL; pVital = pVital->next )
 	{
 		VitalValue& vv = vital(pVital->vitalid);
-		for( unsigned i = 0; i < pVital->aliases.size(); ++i )
+		for(auto & _i : pVital->aliases)
 		{
 			unsigned int temp;
-			if (elem.remove_prop( pVital->aliases[i].c_str(), &temp ))
+			if (elem.remove_prop( _i.c_str(), &temp ))
 			{
 				// read
 				// these are always just stored as points
@@ -1301,7 +1298,7 @@ void Character::readAttributesAndVitals( ConfigElem& elem )
 					temp > VITAL_MAX_VALUE)
 					elem.throw_error( "Character " + hexint(serial)
 										+ " vital "
-										+ pVital->aliases[i]
+										+ _i
 										+ " is out of range" );
 				vv.current_ones( temp );
 				break;
@@ -2092,7 +2089,7 @@ void Character::run_hit_script( Character* defender, double damage )
 		return;
 
 	std::unique_ptr<UOExecutor> ex( create_script_executor() );
-	UOExecutorModule* uoemod = new UOExecutorModule( *ex );
+	auto  uoemod = new UOExecutorModule( *ex );
 	ex->addModule( uoemod );
 
 	unsigned short rawdamage = 0;
@@ -2867,9 +2864,8 @@ void PropagateMove( /*Client *client,*/ Character *chr )
 	build_invulhealthbar(chr, msginvul.Get());
 	build_owncreate(chr, msgcreate.Get());
 
-	for( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
+	for(auto &client : clients)
 	{
-		Client *client = *itr;
 		if (!client->ready)
 			continue;
 		if (client->chr == NULL || client->chr == chr)
@@ -3074,9 +3070,8 @@ Character* Character::get_attackable_opponent() const
 	
 	if (!opponent_of.empty())
 	{
-		for( CharacterSet::const_iterator itr = opponent_of.begin(), end = opponent_of.end(); itr != end; ++itr )
-		{
-			Character* who = (*itr);
+		for(auto &who : opponent_of)
+		{	
 			dtrace(20) << "get_attackable_opponent(" << this 
 					   << "): checking opponent_of, " << who << endl;
 			if (is_attackable( who ))
@@ -4090,13 +4085,10 @@ bool Character::CheckPushthrough()
 		zone_convert_clip( newx, newy, realm, wx, wy );
 
 		ZoneCharacters& wchr = realm->zone[wx][wy].characters;
-		ZoneCharacters::iterator itr = wchr.begin();
-		ZoneCharacters::iterator end = wchr.end();
 
 		ObjArray* mobs = NULL;
-		for( ; itr != end; ++itr )
+		for( auto &chr : wchr)
 		{
-			Character* chr = *itr;
 			if (chr->x == newx &&
 				chr->y == newy &&
 				chr->z >= z-10 && chr->z <= z+10 &&
@@ -4165,11 +4157,9 @@ Item* Character::search_remote_containers( u32 serial, bool* isRemoteContainer )
 {
 	if (isRemoteContainer)
 		*isRemoteContainer = false;
-	for( std::vector<ItemRef>::const_iterator itr = remote_containers_.begin();
-		 itr != remote_containers_.end();
-		 ++itr )
+	for(const auto &elem : remote_containers_)
 	{
-		Item* item = (*itr).get();
+		Item* item = elem.get();
 		if (item->orphan())
 			continue; // it'll be cleaned up when they move
 		if (item->serial == serial)
@@ -4197,11 +4187,9 @@ bool Character::mightsee( const Item *item ) const
 	while (item->container != NULL)
 		item = item->container;
 	
-	for( std::vector<ItemRef>::const_iterator itr = remote_containers_.begin(), end = remote_containers_.end();
-		 itr != end;
-		 ++itr )
+	for(const auto &elem : remote_containers_)
 	{
-		Item* additional_item = (*itr).get();
+		Item* additional_item = elem.get();
 		if (additional_item == item)
 			return true;
 	}
@@ -4284,10 +4272,8 @@ Item* Character::get_from_ground( u32 serial, UContainer** found_in )
 		for( unsigned short wy = wyL; wy <= wyH; ++wy )
 		{
 			ZoneItems& witem = realm->zone[wx][wy].items;
-			for( ZoneItems::iterator itr = witem.begin(), end = witem.end(); itr != end; ++itr )
+			for(auto &item : witem)
 			{
-
-				Item* item = *itr;
 				if (item->serial == 0)
 				{
 					Log2( "get_from_ground: Item 0x%1x, desc %s class %s, orphan! (old serial: 0x%lx)\n",
