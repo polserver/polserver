@@ -72,7 +72,7 @@ Attribute::Attribute( const Package* pkg, ConfigElem& elem ) :
 
 void load_attribute_entry( const Package* pkg, ConfigElem& elem )
 {
-	Attribute* attr = new Attribute( pkg, elem );
+	auto attr = new Attribute( pkg, elem );
 	
 	const Attribute* existing = FindAttribute( attr->name );
 	if (existing)
@@ -111,7 +111,7 @@ void load_attributes_cfg()
 
 void clean_attributes()
 {
-	std::vector<Attribute*>::iterator iter = attributes.begin();
+	auto iter = attributes.begin();
 	for ( ; iter != attributes.end(); ++iter) {
 		delete *iter;
 		*iter=NULL;

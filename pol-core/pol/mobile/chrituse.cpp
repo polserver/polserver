@@ -43,7 +43,7 @@ bool Character::start_script( EScriptProgram* prog,
 	BObject ob4(param4?param4:UninitObject::create());
 
     std::unique_ptr<UOExecutor> ex( create_script_executor() );
-    UOExecutorModule* uoemod = new UOExecutorModule( *ex );
+    auto uoemod = new UOExecutorModule( *ex );
     ex->addModule( uoemod );
     
     if (prog->haveProgram)

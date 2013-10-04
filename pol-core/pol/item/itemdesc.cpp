@@ -591,7 +591,7 @@ void ItemDesc::PopulateStruct( BStruct* descriptor ) const
 
 	descriptor->addMember( "StackingIgnoresCProps", ignorecp.release() );
 
-	BDictionary* cpropdict = new BDictionary();
+	auto cpropdict = new BDictionary();
 	vector<string> propnames;
 	std::vector<std::string>::const_iterator vec_itr;
 	string tempval;
@@ -1021,10 +1021,10 @@ void write_objtypes_txt()
 {
 	ofstream ofs( "objtypes.txt" );
 	unsigned int last_objtype = 0;
-	for( map<u32,ItemDesc*>::iterator itr = desctable.begin(), end = desctable.end(); itr != end; ++itr )
+	for(const auto &elem : desctable)
 	{
-		const ItemDesc* itemdesc = itr->second;
-		unsigned int i = itr->first;
+		const ItemDesc* itemdesc = elem.second;
+		unsigned int i = elem.first;
 
 		if (i != last_objtype+1)
 		{
@@ -1092,12 +1092,12 @@ void load_itemdesc()
 
 void unload_itemdesc()
 {
-	for( map<u32,ItemDesc*>::iterator itr = desctable.begin(), end = desctable.end(); itr != end; ++itr )
+	for(auto &elem : desctable)
 	{
 		//cout << "Objtype: " << hexint(itr->first) << " " << itr->second << " " << &empty_itemdesc << endl;
-		if (itr->second != &empty_itemdesc) {
-			delete itr->second;
-			itr->second = &empty_itemdesc;
+		if (elem.second != &empty_itemdesc) {
+			delete elem.second;
+			elem.second = &empty_itemdesc;
 		}
 	}
 
@@ -1108,19 +1108,17 @@ void unload_itemdesc()
 
 void unload_itemdesc_scripts()
 {
-	for( map<u32,ItemDesc*>::iterator itr = desctable.begin(), end = desctable.end(); itr != end; ++itr )
+	for(auto &elem : desctable)
 	{
-		itr->second->unload_scripts();
+		elem.second->unload_scripts();
 	}
 }
 
 void remove_resources( u32 objtype, u16 amount )
 {
 	const ItemDesc& id = find_itemdesc( objtype );
-	std::vector<ResourceComponent>::const_iterator itr = id.resources.begin(), end=id.resources.end();
-	for( ; itr != end; ++itr )
+	for(const auto& rc : id.resources)
 	{
-		const ResourceComponent& rc = (*itr);
 		rc.rd->consume( rc.amount );
 	}
 }
@@ -1133,10 +1131,8 @@ void return_resources( u32 objtype, u16 amount )
 	if ( !exit_signalled )
 	{
 		const ItemDesc& id = find_itemdesc( objtype );
-		std::vector<ResourceComponent>::const_iterator itr = id.resources.begin(), end=id.resources.end();
-		for( ; itr != end; ++itr )
+		for(const auto& rc : id.resources)
 		{
-			const ResourceComponent& rc = (*itr);
 			rc.rd->produce( rc.amount );
 		}
 	}

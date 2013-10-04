@@ -223,7 +223,7 @@ void load_npc_weapon_templates();
 
 UWeapon* find_intrinsic_weapon( const string& name )
 {
-	IntrinsicWeapons::iterator itr = intrinsic_weapons.find( name );
+	auto itr = intrinsic_weapons.find( name );
 	if (itr != intrinsic_weapons.end())
 	{
 		return (*itr).second;
@@ -236,9 +236,9 @@ UWeapon* find_intrinsic_weapon( const string& name )
 
 void allocate_intrinsic_weapon_serials()
 {
-	for( IntrinsicWeapons::iterator itr = intrinsic_weapons.begin(); itr != intrinsic_weapons.end(); ++itr )
+	for(auto &intrinsic_weapon : intrinsic_weapons)
 	{
-		UWeapon* wpn = (*itr).second;
+		UWeapon* wpn = intrinsic_weapon.second;
 
 		wpn->serial = GetNewItemSerialNumber();
 		wpn->serial_ext = ctBEu32( wpn->serial );
@@ -248,9 +248,9 @@ void allocate_intrinsic_weapon_serials()
 
 UWeapon* create_intrinsic_weapon( const char* name, ConfigElem& elem, const Package* pkg )
 {
-	WeaponDesc* tmpl = new WeaponDesc( extobj.wrestling, elem, pkg );
+	auto tmpl = new WeaponDesc( extobj.wrestling, elem, pkg );
 	tmpl->is_intrinsic = true;
-	UWeapon* wpn = new UWeapon(*tmpl, tmpl);
+	auto wpn = new UWeapon(*tmpl, tmpl);
 	wpn->tmpl = tmpl;
 
 	wpn->inuse( true );
@@ -372,9 +372,9 @@ void load_npc_weapon_templates()
 			create_intrinsic_weapon_from_npctemplate(elem, NULL);
 		}
 	}
-	for( Packages::iterator itr = packages.begin(); itr != packages.end(); ++itr )
+	for(auto &pkg : packages)
 	{
-		Package* pkg = (*itr);
+		
 		string filename = GetPackageCfgPath(pkg, "npcdesc.cfg");
 		
 		if ( FileExists(filename.c_str()) )
