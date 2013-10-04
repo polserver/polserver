@@ -21,7 +21,7 @@ Notes
 #include "../clib/iohelp.h"
 #include "../clib/logfile.h"
 #include "../clib/strutil.h"
-#include "../clib/wallclock.h"
+#include "../clib/timer.h"
 
 #include "item/item.h"
 #include "item/itemdesc.h"
@@ -233,7 +233,7 @@ bool commit_incremental( const string& basename )
     return any;
 }
 
-int save_incremental( unsigned int& dirty, unsigned int& clean, wallclock_diff_t& elapsed_ms )
+int save_incremental( unsigned int& dirty, unsigned int& clean, long long& elapsed_ms )
 {
     if (!should_write_data())
     {
@@ -246,7 +246,7 @@ int save_incremental( unsigned int& dirty, unsigned int& clean, wallclock_diff_t
 
     try
     {
-        wallclock_t start = wallclock();
+        Tools::Timer<> timer;
         clean_objects = dirty_objects = 0;
 
         modified_serials.clear();
@@ -289,10 +289,10 @@ int save_incremental( unsigned int& dirty, unsigned int& clean, wallclock_diff_t
         commit_incremental( index_basename );
         ++incremental_save_count;
 
-        wallclock_t finish = wallclock();
+        timer.stop();
         dirty = dirty_objects;
         clean = clean_objects;
-        elapsed_ms = wallclock_diff_ms( start, finish );
+        elapsed_ms = timer.ellapsed();
     }
     catch( std::exception& ex )
     {

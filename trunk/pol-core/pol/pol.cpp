@@ -72,7 +72,6 @@ Notes
 
 #include <stdio.h>
 #include <string.h>
-#include <time.h>
 
 #include "dtrace.h"
 #include "../clib/dualbuf.h"
@@ -90,6 +89,7 @@ Notes
 #include "../clib/strutil.h"
 #include "../clib/threadhelp.h"
 #include "../clib/tracebuf.h"
+#include "../clib/timer.h"
 
 #include "../plib/pkg.h"
 #include "../plib/realm.h"
@@ -2091,15 +2091,16 @@ int xmain_inner( int argc, char *argv[] )
 	
 	// PrintAllocationData();
 	cout << "Reading data files:\n";
-	wallclock_t rd_start = wallclock();
+	{
+		Tools::Timer<> timer;
 		checkpoint( "reading account data" );
 		read_account_data();
 
 		checkpoint( "reading data" );
 		read_data();
-	wallclock_t rd_end = wallclock();
-	int ms = wallclock_diff_ms( rd_start, rd_end );
-	cout << "Done! " << ms << " milliseconds."<< endl;
+		cout << "Done! " << timer.ellapsed() << " milliseconds."<< endl;
+	}
+	
 
 	allocate_intrinsic_weapon_serials();
 	gflag_in_system_startup = false;
@@ -2233,7 +2234,8 @@ int xmain_inner( int argc, char *argv[] )
 		cout << "Writing data files...";
 
 		PolLock lck;
-		unsigned int dirty, clean, elapsed_ms;
+		unsigned int dirty, clean;
+		long long elapsed_ms;
 		int savetype;
 
 		if (passert_shutdown_due_to_assertion)
@@ -2247,7 +2249,7 @@ int xmain_inner( int argc, char *argv[] )
 			write_data( dirty, clean, elapsed_ms );
 		else
 			save_incremental( dirty, clean, elapsed_ms );
-			cout << "Data save completed in " << elapsed_ms << " ms." << endl;
+		cout << "Data save completed in " << elapsed_ms << " ms." << endl;
 	}
 	else
 	{

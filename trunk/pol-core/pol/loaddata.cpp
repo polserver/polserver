@@ -17,7 +17,7 @@ Notes
 #include "../clib/cfgelem.h"
 #include "../clib/fileutil.h"
 #include "../clib/strutil.h"
-#include "../clib/wallclock.h"
+#include "../clib/timer.h"
 
 #include "mobile/charactr.h"
 #include "clidata.h"
@@ -126,7 +126,7 @@ void insert_deferred_items()
 
 	int num_until_dot = 1000;
 	unsigned int nobjects = 0;
-	wallclock_t start = wallclock();
+	Tools::Timer<> timer;
 
 	cout << "  deferred inserts:";
 
@@ -196,9 +196,8 @@ void insert_deferred_items()
 		}
 		++nobjects;
 	}
-	wallclock_t finish = wallclock();
-
-	cout << " " << nobjects << " elements in " << wallclock_diff_ms(start,finish) << " ms." << endl;
+	timer.stop();
+	cout << " " << nobjects << " elements in " << timer.ellapsed() << " ms." << endl;
 
 	deferred_insertions.clear();
 }

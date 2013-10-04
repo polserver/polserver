@@ -5,20 +5,14 @@
 
 namespace Tools // global ns is enough polluted 
 {
-	template<typename U>
-	class Timer;
-
 	// automatically print into the console
 	struct DebugT
 	{
-		template<typename U>
-		friend class Timer;
-
 	protected:
-		static void print(std::string name, double time)
+		static void print(const std::string &name, long long time)
 		{
 			cout << endl << "----------------------------------" << endl;
-			cout << name << ": " << time << " s" << endl;
+			cout << name << ": " << time << " ms" << endl;
 			cout <<  "----------------------------------" << endl;
 		}
 	};
@@ -26,7 +20,7 @@ namespace Tools // global ns is enough polluted
 	struct SilentT
 	{
 	protected:
-		static void print(std::string name, double time)
+		static void print(const std::string &name, long long time)
 		{
 		}
 	};
@@ -35,15 +29,19 @@ namespace Tools // global ns is enough polluted
 	// simple Timer class
 	// instantiate it by giving it a name and wait for destroy
 	// or use start/stop methods to control it
-	// use default template version for Debug print
-	// or Silent version for calculation and stuff
-	template <class printer = DebugT>
+	// uses by default Silent version for calculation and stuff
+	// or template version for Debug print
+	template <class printer = SilentT>
 	class Timer: protected printer
 	{
 		typedef std::chrono::high_resolution_clock Clock;
 		typedef std::chrono::milliseconds ms;
 	public:
 		Timer(std::string name) : _name(name)
+		{
+			start();
+		}
+		Timer() : _name("")
 		{
 			start();
 		}
@@ -62,14 +60,18 @@ namespace Tools // global ns is enough polluted
 			_end = Clock::now();		
 		}
 		// no one wants to know more then milliseconds..
-		double ellapsed()
+		long long ellapsed() const
 		{
-			if (_start == _end)
-				stop();
-			auto diff = std::chrono::duration_cast<ms>(_end - _start).count();
-			return diff * static_cast<double>(ms::period::num) / ms::period::den;
+			Clock::time_point _now = Clock::now();
+			if (_start != _end) // already stopped
+				_now = _end;
+			return std::chrono::duration_cast<ms>(_now - _start).count();
 		}
-		void print()
+		double ellapsed_s() const
+		{
+			return ellapsed() * static_cast<double>(ms::period::num) / ms::period::den;
+		}
+		void print() const
 		{
 			DebugT::print(_name,ellapsed());
 		}

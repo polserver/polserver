@@ -13,7 +13,7 @@ Notes
 #include "../clib/binaryfile.h"
 #include "../clib/passert.h"
 #include "../clib/stlutil.h"
-#include "../clib/wallclock.h"
+#include "../clib/timer.h"
 
 #include "staticblock.h"
 #include "staticserver.h"
@@ -48,8 +48,8 @@ StaticServer::~StaticServer()
 
 void StaticServer::Validate() const
 {
-	wallclock_t start = wallclock();
-    cout << "Validating statics files: ";
+	cout << "Validating statics files: ";
+	Tools::Timer<> timer;
     for( unsigned short y = 0; y < _descriptor.height; y += STATICBLOCK_CHUNK )
     {
         for( unsigned short x = 0; x < _descriptor.width; x += STATICBLOCK_CHUNK )
@@ -57,10 +57,7 @@ void StaticServer::Validate() const
             ValidateBlock( x, y );
         }
     }
-	wallclock_t end = wallclock();
-    int ms = wallclock_diff_ms( start, end );
-
-    cout << "Completed in " << ms << " ms." << endl;
+    cout << "Completed in " << timer.ellapsed() << " ms." << endl;
 }
 
 void StaticServer::ValidateBlock( unsigned short x, unsigned short y ) const
