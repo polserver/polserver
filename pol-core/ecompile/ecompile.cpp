@@ -17,14 +17,13 @@ Notes
 
 #include <string.h>
 #include <stdio.h>
-#include <time.h>
 #include <memory>
 #include "../clib/clib.h"
 #include "../clib/dirlist.h"
 #include "../clib/fileutil.h"
 #include "../clib/mdump.h"
 #include "../clib/progver.h"
-#include "../clib/wallclock.h"
+#include "../clib/timer.h"
 
 #include "../plib/pkg.h"
 
@@ -650,7 +649,7 @@ bool run(int argc, char **argv)
     replace_packages();
     check_package_deps();
 
-	wallclock_t start = wallclock();
+	Tools::Timer<> timer;
     bool any = false;
 
 	for(int i=1;i<argc;i++)
@@ -719,7 +718,7 @@ bool run(int argc, char **argv)
         AutoCompile();
     }
 
-    wallclock_t finish = wallclock();
+	timer.stop();
 
     unload_packages();
 
@@ -728,7 +727,7 @@ bool run(int argc, char **argv)
         cout << "Compilation Summary:" << endl;
 		if (summary.CompiledScripts)
             cout << "    Compiled " << summary.CompiledScripts << " script" << (summary.CompiledScripts==1?"":"s")
-			     << " in " << wallclock_diff_ms( start, finish ) << " ms." << endl;
+			     << " in " << timer.ellapsed() << " ms." << endl;
         
         if (summary.ScriptsWithCompileErrors)
             cout << "    " << summary.ScriptsWithCompileErrors << " of those script" << (summary.ScriptsWithCompileErrors==1?"":"s")

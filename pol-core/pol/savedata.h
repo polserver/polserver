@@ -13,7 +13,7 @@ Notes
 
 #include "../clib/wallclock.h"
 
-int save_incremental(unsigned int& dirty_writes, unsigned int& clean_objects, wallclock_diff_t& elapsed_ms);
+int save_incremental(unsigned int& dirty_writes, unsigned int& clean_objects, long long& elapsed_ms);
 
 void write_system_data( std::ostream& ofs );
 void write_global_properties( std::ostream& ofs );

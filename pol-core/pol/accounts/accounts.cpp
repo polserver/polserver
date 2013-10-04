@@ -17,13 +17,12 @@ Notes
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <stdio.h>
-#include <time.h>
 
 #include "../../clib/cfgfile.h"
 #include "../../clib/cfgelem.h"
 #include "../../clib/fileutil.h"
 #include "../../clib/passert.h"
-#include "../../clib/wallclock.h"
+#include "../../clib/timer.h"
 
 #include "account.h"
 #include "accounts.h"
@@ -38,7 +37,7 @@ void read_account_data()
 {
 	unsigned int naccounts = 0;
     static int num_until_dot = 1000;
-	wallclock_t start = wallclock();
+	Tools::Timer<> timer;
 	
 	string accountsfile = config.world_data_path + "accounts.txt";
 	
@@ -65,10 +64,8 @@ void read_account_data()
 	{
 		write_account_data();
 	}
-	wallclock_t end = wallclock();
-    int ms = wallclock_diff_ms( start, end );
 
-    cout << " " << naccounts << " elements in " << ms << " ms." << std::endl;
+    cout << " " << naccounts << " elements in " << timer.ellapsed() << " ms." << std::endl;
 }
 
 void write_account_data()

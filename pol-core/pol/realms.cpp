@@ -21,6 +21,8 @@ Notes
 #include "polcfg.h"
 #include "realms.h"
 #include "storage.h"
+#include "../clib/timer.h"
+
 
 Realm* main_realm = NULL;
 vector<Realm*>* Realms = new vector<Realm*>();
@@ -43,8 +45,9 @@ bool load_realms()
 			"You can't use more than " + decint(MAX_NUMER_REALMS) + " realms");
 
 		cout << "Loading Realm " << realm_name << "." << endl;
-
+		Tools::Timer<> timer;
 		temprealm = new Realm( realm_name, config.realm_data_path+realm_name );
+		cout << "Completed in " << timer.ellapsed() << " ms." << endl;
 		Realms->push_back( temprealm );
 		++realm_counter;
 
@@ -64,21 +67,19 @@ bool load_realms()
 
 Realm* find_realm(const string& name)
 {
-	vector<Realm*>::iterator itr;
-	for(itr = Realms->begin(); itr != Realms->end(); ++itr)
+	for(auto &realm : *Realms)
 	{
-		if( (*itr)->name() == name )
-			return *itr;
+		if( realm->name() == name )
+			return realm;
 	}
 	return NULL;
 }
 
 bool defined_realm(const string& name)
 {
-	vector<Realm*>::iterator itr;
-	for(itr = Realms->begin(); itr != Realms->end(); ++itr)
+	for( const auto &realm : *Realms)
 	{
-		if( (*itr)->name() == name )
+		if( realm->name() == name )
 			return true;
 	}
 	return false;
