@@ -69,8 +69,8 @@ void compare_versions( const std::string& verleft,
 	while ((vneed != NULL && vneed[0] != '\0') || 
 		   (vhave != NULL && vhave[0] != '\0'))
 	{
-		char* new_vneed;
-		char* new_vhave;
+		char* new_vneed = NULL;
+		char* new_vhave = NULL;
 		unsigned int vneedpart, vhavepart;
 		vneedpart = (vneed != NULL) ? strtoul( vneed, &new_vneed, 0 ) : 0;
 		vhavepart = (vhave != NULL) ? strtoul( vhave, &new_vhave, 0 ) : 0;

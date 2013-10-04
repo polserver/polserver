@@ -1978,12 +1978,12 @@ int xmain_inner( int argc, char *argv[] )
 
 #ifndef NDEBUG
 	printf( "Sizes: \n" );
-	printf( "   UObject:    %d\n", sizeof(UObject) );
-	printf( "   Item:       %d\n", sizeof(Item) );
-	printf( "   UContainer: %d\n", sizeof(UContainer) );
-	printf( "   Character:  %d\n", sizeof(Character) );
-	printf( "   Client:     %d\n", sizeof(Client) );
-	printf( "   NPC:        %d\n", sizeof(NPC) );
+	printf( "   UObject:    %lu\n", sizeof(UObject) );
+	printf( "   Item:       %lu\n", sizeof(Item) );
+	printf( "   UContainer: %lu\n", sizeof(UContainer) );
+	printf( "   Character:  %lu\n", sizeof(Character) );
+	printf( "   Client:     %lu\n", sizeof(Client) );
+	printf( "   NPC:        %lu\n", sizeof(NPC) );
 #ifdef __unix__
 #ifdef PTHREAD_THREADS_MAX
 	printf( "   Max Threads:%d\n", (int)PTHREAD_THREADS_MAX );

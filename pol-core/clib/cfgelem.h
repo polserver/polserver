@@ -11,6 +11,7 @@ Notes
 #define CLIB_CFGELEM_H
 
 #include "maputil.h"
+#include "passert.h"
 
 class ConfigProperty
 {
@@ -97,7 +98,7 @@ public:
 	void add_prop( const char *propname, unsigned short sval );
 	void add_prop( const char *propname, short sval );
 
-    void throw_error( const std::string& errmsg ) const;
+    void throw_error( const std::string& errmsg ) const CLANG_ANALYZER_NORETURN;
     void warn( const std::string& errmsg ) const;
 	void warn_with_line( const std::string& errmsg ) const;
 
@@ -158,7 +159,7 @@ public:
 	void add_prop( const char *propname, unsigned int lval );
 	void add_prop( const char *propname, unsigned short sval );
 
-    void throw_error( const std::string& errmsg ) const;
+    void throw_error( const std::string& errmsg ) const CLANG_ANALYZER_NORETURN;
     void warn( const std::string& errmsg ) const;
 
     void set_rest( const char* newrest );
