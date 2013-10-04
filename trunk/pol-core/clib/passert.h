@@ -58,9 +58,19 @@ extern unsigned scripts_thread_scriptPC;
 //#endif
 
 #undef  passert
+#ifndef CLANG_ANALYZER_NORETURN
+# ifndef __has_feature
+#  define __has_feature(x) 0
+# endif
+# if __has_feature(attribute_analyzer_noreturn)
+#  define CLANG_ANALYZER_NORETURN __attribute__((analyzer_noreturn))
+# else
+#  define CLANG_ANALYZER_NORETURN
+# endif
+#endif
 
-void passert_failed(const char *expr, const char *file, unsigned line);
-void passert_failed(const char *expr, const std::string& reason, const char *file, unsigned line);
+void passert_failed(const char *expr, const char *file, unsigned line) CLANG_ANALYZER_NORETURN;
+void passert_failed(const char *expr, const std::string& reason, const char *file, unsigned line) CLANG_ANALYZER_NORETURN;
 
 #if  INC_PASSERT
 

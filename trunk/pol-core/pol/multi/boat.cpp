@@ -657,8 +657,8 @@ void UBoat::turn_travellers( RELATIVE_DIR dir, const BoatContext& oldlocation )
             Item* item = static_cast<Item*>(obj);
             s16 xd = item->x - x;
             s16 yd = item->y - y;
-            u16 newx = item->x;
-			u16 newy = item->y;
+            u16 newx;
+			u16 newy;
             switch( dir )
             {
                 case NO_TURN:
