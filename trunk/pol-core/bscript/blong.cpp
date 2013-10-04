@@ -273,7 +273,7 @@ void BLong::selfDividedByObj(BLong& objimp, BObject& obj)
 	if (!objimp.lval_)
 		obj.setimp(new BError( "Divide by Zero" ));
 	else
-		lval_ *= objimp.lval_;
+		lval_ /= objimp.lval_;
 }
 void BLong::selfDividedByObj(Double& objimp, BObject& obj)
 {

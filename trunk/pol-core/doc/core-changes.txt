@@ -1,4 +1,7 @@
 ﻿-- POL099 --
+10-04-2013 Turley:
+	Fixed:   \= operation
+	
 10-01-2013 Tomi:
     Fixed:   Container.locked works again
 
