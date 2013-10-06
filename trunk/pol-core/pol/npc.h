@@ -95,14 +95,10 @@ public:
     virtual bool script_isa( unsigned isatype ) const;
 
     virtual const char *classname() const;
-    virtual void printOn( fmt::Writer& writer ) const;
-	virtual void printOn( std::ostream& os ) const;
-    virtual void printSelfOn( fmt::Writer& writer ) const;
-    virtual void printSelfOn( std::ostream& os ) const;
-    virtual void printProperties( fmt::Writer& writer ) const;
-    virtual void printProperties( std::ostream& os ) const;
-    virtual void printDebugProperties( fmt::Writer& writer ) const;
-    virtual void printDebugProperties( std::ostream& os ) const;
+	virtual void printOn( StreamWriter& sw ) const;
+    virtual void printSelfOn( StreamWriter& sw ) const;
+    virtual void printProperties( StreamWriter& sw ) const;
+    virtual void printDebugProperties( StreamWriter& sw ) const;
 	
 	virtual void readProperties( ConfigElem& elem );
     void readNpcProperties( ConfigElem& elem );

@@ -21,8 +21,7 @@ public:
 protected:
     bool locked_;
 
-	virtual void printProperties( fmt::Writer& writer ) const;
-    virtual void printProperties( std::ostream& os ) const;
+    virtual void printProperties( StreamWriter& sw ) const;
     virtual void readProperties( ConfigElem& elem );
     virtual class BObjectImp* get_script_member( const char* membername ) const;
     virtual class BObjectImp* get_script_member_id( const int id ) const; ///id test

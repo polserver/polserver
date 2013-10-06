@@ -80,59 +80,45 @@ void PropertyList::clear()
 
 void PropertyList::getpropnames( std::vector< std::string >& propnames ) const
 {
-    for( Properties::const_iterator itr = properties.begin(); itr != properties.end(); ++itr )
+    for( const auto &prop : properties )
     {
-        const string& first = (*itr).first;
-        propnames.push_back( first );
+        propnames.push_back( prop.first );
     }
 }
 
-void PropertyList::printProperties( fmt::Writer& writer ) const
-{
-    for( Properties::const_iterator itr = properties.begin(); itr != properties.end(); ++itr )
-    {
-        const string& first = (*itr).first;
-        if (first[0] != '#')
-        {
-            writer << "\tCProp\t" << first << " " << (*itr).second << pf_endl;
-        }
-    }
-}
-
-void PropertyList::printProperties( ostream& os ) const
+void PropertyList::printProperties( StreamWriter& sw ) const
 {   
-	fmt::Writer writer;
-	PropertyList::printProperties(writer);
-	os << writer.c_str();
+	for( const auto &prop : properties )
+	{
+		const string& first = prop.first;
+		if (first[0] != '#')
+		{
+			sw() << "\tCProp\t" << first << " " << prop.second << pf_endl;
+		}
+	}
 }
 void PropertyList::printProperties( ConfigElem& elem ) const
 {   
-    for( Properties::const_iterator itr = properties.begin(); itr != properties.end(); ++itr )
+    for( const auto &prop : properties )
     {
-        const string& first = (*itr).first;
+        const string& first = prop.first;
         if (first[0] != '#')
         {
-            elem.add_prop( "CProp", (first + "\t" + (*itr).second).c_str() );
+            elem.add_prop( "CProp", (first + "\t" + prop.second).c_str() );
         }
     }
 }
 
-void PropertyList::printPropertiesAsStrings( fmt::Writer& writer ) const
+void PropertyList::printPropertiesAsStrings( StreamWriter& sw ) const
 {
-	for( Properties::const_iterator itr = properties.begin(); itr != properties.end(); ++itr )
+	for( const auto &prop : properties )
     {
-        const string& first = (*itr).first;
+        const string& first = prop.first;
         if (first[0] != '#')
         {
-            writer << "\t" << first << " " << (*itr).second << pf_endl;
+            sw() << "\t" << first << " " << prop.second << pf_endl;
         }
     }
-}
-void PropertyList::printPropertiesAsStrings( ostream& os ) const
-{   
-	fmt::Writer writer;
-	PropertyList::printPropertiesAsStrings(writer);
-	os << writer.c_str();
 }
 
 void PropertyList::readProperties( ConfigElem& elem )

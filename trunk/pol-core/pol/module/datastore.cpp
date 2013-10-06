@@ -31,6 +31,7 @@ Notes
 #include "../../plib/pkg.h"
 #include "../proplist.h"
 #include "../uoexhelp.h"
+#include "../../clib/streamsaver.h"
 
 class DataFileElement;
 class DataStoreFile;
@@ -48,7 +49,7 @@ class DataFileElement : public ref_counted
 public:
 	DataFileElement();
 	explicit DataFileElement( ConfigElem& elem );
-	void printOn( ostream& os ) const;
+	void printOn( StreamWriter& sw ) const;
 
 	PropertyList proplist;
 };
@@ -64,7 +65,7 @@ public:
 	virtual ~DataFileContents();
 
 	void load( ConfigFile& cf );
-	void save( ostream& os );
+	void save( StreamWriter& sw );
 
 	BObjectImp* methodCreateElement( int key );
 	BObjectImp* methodCreateElement( const string& key );
@@ -144,7 +145,7 @@ virtual ~DataStoreFile();
 	void save() const;
 	std::string filename() const;
 	std::string filename( unsigned ver ) const;
-	void printOn( ostream& os ) const;
+	void printOn( StreamWriter& sw ) const;
 
 	string descriptor;
 	string name;
@@ -209,26 +210,24 @@ void DataFileContents::load( ConfigFile& cf )
 	}
 }
 
-void DataFileContents::save( ostream& os )
+void DataFileContents::save( StreamWriter& sw )
 {
-	for( ElementsByString::const_iterator citr = elements_by_string.begin();
-		 citr != elements_by_string.end();
-		 ++citr )
+	for( const auto &element : elements_by_string )
 	{
-		os << "Element " << (*citr).first << "\n"
+		sw() << "Element " << element.first << "\n"
 		   << "{\n";
-		(*citr).second->printOn( os );
-		os << "}\n\n";
+		element.second->printOn( sw );
+		sw() << "}\n\n";
+		sw.flush();
 	}
 
-	for( ElementsByInteger::const_iterator citr = elements_by_integer.begin();
-		 citr != elements_by_integer.end();
-		 ++citr )
+	for( const auto &element : elements_by_integer )
 	{
-		os << "Element " << (*citr).first << "\n"
+		sw() << "Element " << element.first << "\n"
 		   << "{\n";
-		(*citr).second->printOn( os );
-		os << "}\n\n";
+		element.second->printOn( sw );
+		sw() << "}\n\n";
+		sw.flush();
 	}
 }
 
@@ -827,17 +826,17 @@ DataStoreFile::~DataStoreFile()
 
 }
 
-void DataStoreFile::printOn( ostream& os ) const
+void DataStoreFile::printOn( StreamWriter& sw ) const
 {
-	os << "DataFile\n"
+	sw() << "DataFile\n"
 	   << "{\n"
 	   << "\tDescriptor\t" << descriptor << "\n"
 	   << "\tName\t" << name << "\n";
 	
 	if (!pkgname.empty())
-	   os << "\tPackage\t" << pkgname << "\n";
+	   sw() << "\tPackage\t" << pkgname << "\n";
 
-	os << "\tFlags\t" << flags << "\n"
+	sw() << "\tFlags\t" << flags << "\n"
 	   << "\tVersion\t" << version << "\n"
 	   << "\tOldVersion\t" << oldversion << "\n"
 	   << "}\n\n";
@@ -860,8 +859,9 @@ std::string DataStoreFile::filename() const
 void DataStoreFile::save() const
 {
 	string fname = filename();
-	ofstream ofs( fname.c_str(), ios::out );
-	dfcontents->save( ofs );
+	std::ofstream ofs( fname.c_str(), ios::out );
+	OFStreamWriter sw(&ofs);
+	dfcontents->save( sw );
 }
 
 DataFileElement::DataFileElement() :
@@ -874,9 +874,9 @@ DataFileElement::DataFileElement( ConfigElem& elem )
 	proplist.readRemainingPropertiesAsStrings( elem );
 }
 
-void DataFileElement::printOn( ostream& os ) const
+void DataFileElement::printOn( StreamWriter& sw ) const
 {
-	proplist.printPropertiesAsStrings(os);
+	proplist.printPropertiesAsStrings(sw);
 }
 
 void read_datastore_dat()
@@ -896,7 +896,7 @@ void read_datastore_dat()
 	}
 }
 
-void write_datastore( ostream& os )
+void write_datastore( StreamWriter& sw )
 {
 	for( DataStore::iterator itr = datastore.begin(); itr != datastore.end(); ++itr )
 	{
@@ -915,7 +915,8 @@ void write_datastore( ostream& os )
 			dsf->dfcontents->dirty = false;
 		}
 
-		dsf->printOn( os );
+		dsf->printOn( sw );
+		sw.flush();
 	}
 }
 

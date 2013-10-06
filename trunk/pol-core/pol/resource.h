@@ -37,7 +37,7 @@ BObjectImp* get_region_string( const char* resource,
                                const std::string& propname );
 
 ResourceDef* find_resource_def( const std::string& rname );
-void write_resources_dat( std::ostream& ofs_resource );
+void write_resources_dat( StreamWriter& sw_resource );
 void read_resources_dat();
 void clean_resources();
 
@@ -53,7 +53,7 @@ public:
     BObjectImp* harvest_resource( xcoord x, ycoord y, int b, int n );
 
     void regenerate( time_t now );
-    void write( std::ostream& os, const std::string& resource_name ) const;
+    void write( StreamWriter& sw, const std::string& resource_name ) const;
 
     unsigned int tilecount_;
     friend class ResourceDef;
@@ -90,7 +90,7 @@ public:
     void consume( unsigned amount );
     void produce( unsigned amount );
     void counttiles();
-    void write( std::ostream& os ) const;
+    void write( StreamWriter& sw ) const;
 protected:
 
 private:

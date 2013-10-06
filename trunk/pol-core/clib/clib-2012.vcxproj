@@ -256,6 +256,7 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stl_inc.h</PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="stracpy.cpp" />
+    <ClCompile Include="streamsaver.cpp" />
     <ClCompile Include="strexcpt.cpp" />
     <ClCompile Include="strset.cpp" />
     <ClCompile Include="strutil.cpp" />
@@ -315,6 +316,7 @@
     <ClInclude Include="StdAfx.h" />
     <ClInclude Include="stl_inc.h" />
     <ClInclude Include="stlutil.h" />
+    <ClInclude Include="streamsaver.h" />
     <ClInclude Include="strexcpt.h" />
     <ClInclude Include="strset.h" />
     <ClInclude Include="strutil.h" />

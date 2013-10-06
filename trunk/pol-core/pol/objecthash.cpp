@@ -128,13 +128,13 @@ u32 ObjectHash::GetNextUnusedCharSerial()
 	return tempserial;
 };
 
-void ObjectHash::PrintContents( std::ostream& os ) const
+void ObjectHash::PrintContents( StreamWriter& sw ) const
 {
 	OH_const_iterator itr, itrend;
-	os << "Object Count: " << hash.size() <<endl;
+	sw() << "Object Count: " << hash.size() <<"\n";
 	for(itr = hash.begin(), itrend=hash.end(); itr != itrend; ++itr)
 	{
-		itr->second->printOn(os);
+		itr->second->printOn(sw);
 	}
 
 }

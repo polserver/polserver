@@ -79,10 +79,11 @@ void write_account_data()
     
     {
         ofstream ofs( accountsndtfile.c_str(), std::ios::trunc|ios::out );
+		OFStreamWriter sw(&ofs);
         for(auto &account : accounts)
         {
             Account* acct = account.get();
-            acct->writeto( ofs );
+            acct->writeto( sw );
         }
     }
     
