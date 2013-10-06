@@ -30,6 +30,7 @@ class BObject;
 class BObjectRef;
 class ContIterator;
 class Executor;
+class StreamWriter;
 
 #ifdef NDEBUG
 	#define BOBJECTIMP_DEBUG 0
@@ -366,7 +367,8 @@ public:
 
     bool isa( BObjectImp::BObjectType type ) const;
 
-    friend std::ostream& operator << (std::ostream&, const BObject& );
+ //   friend StreamWriter& operator << (StreamWriter&, const BObject& );
+	friend std::ostream& operator << (std::ostream&, const BObject& );
     void printOn(std::ostream&) const;
 
     BObjectImp* impptr();

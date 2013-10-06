@@ -46,7 +46,7 @@ public:
 	UObject* Find(u32 serial);
 	u32 GetNextUnusedItemSerial();
 	u32 GetNextUnusedCharSerial();
-	void PrintContents( std::ostream& os ) const;
+	void PrintContents( StreamWriter& sw ) const;
 
     hs::const_iterator begin() const;
     hs::const_iterator end() const;

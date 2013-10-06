@@ -53,48 +53,35 @@ Map::~Map()
 {
 }
 
-void Map::printProperties( std::ostream& os ) const
+void Map::printProperties( StreamWriter& sw ) const 
 {
-	fmt::Writer writer;
-	Map::printProperties(writer);
-	os << writer.c_str();
-}
+    base::printProperties( sw );
 
-void Map::printProperties( fmt::Writer& writer ) const 
-{
-    base::printProperties( writer );
+    sw() << "\txwest\t"       << xwest << pf_endl;
+    sw() << "\tynorth\t"      << ynorth << pf_endl;
+    sw() << "\txeast\t"       << xeast << pf_endl;
+    sw() << "\tysouth\t"      << ysouth << pf_endl;
+    sw() << "\tgumpwidth\t"   << gumpwidth << pf_endl;
+    sw() << "\tgumpheight\t"  << gumpheight << pf_endl;
+	sw() << "\tfacetid\t"		<< facetid << pf_endl;
 
-    writer << "\txwest\t"       << xwest << pf_endl;
-    writer << "\tynorth\t"      << ynorth << pf_endl;
-    writer << "\txeast\t"       << xeast << pf_endl;
-    writer << "\tysouth\t"      << ysouth << pf_endl;
-    writer << "\tgumpwidth\t"   << gumpwidth << pf_endl;
-    writer << "\tgumpheight\t"  << gumpheight << pf_endl;
-	writer << "\tfacetid\t"		<< facetid << pf_endl;
-
-	writer << "\teditable\t"  << editable << pf_endl;
+	sw() << "\teditable\t"  << editable << pf_endl;
 	
-	printPinPoints(writer);
+	printPinPoints(sw);
 
-	writer << pf_endl;
+	sw() << pf_endl;
 	
 }
 
-void Map::printPinPoints( std::ostream& os ) const
-{
-	fmt::Writer writer;
-	Map::printPinPoints( writer );
-	os << writer.c_str();
-}
-void Map::printPinPoints( fmt::Writer& writer ) const
+void Map::printPinPoints( StreamWriter& sw ) const
 {
 	PinPoints::const_iterator itr;
 	int i=0;
-	writer << "\tNumPins " << pin_points.size() << pf_endl;
+	sw() << "\tNumPins " << pin_points.size() << pf_endl;
 
 	for( itr = pin_points.begin(); itr != pin_points.end(); ++itr, ++i )
 	{
-		writer << "\tPin" << i << " " << itr->x << "," << itr->y << pf_endl;
+		sw() << "\tPin" << i << " " << itr->x << "," << itr->y << pf_endl;
 	}
 }
 

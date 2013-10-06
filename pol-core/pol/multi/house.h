@@ -69,7 +69,7 @@ protected:
     void create_components();
 
     virtual void readProperties( ConfigElem& elem );
-    virtual void printProperties( std::ostream& os ) const;
+    virtual void printProperties( StreamWriter& sw ) const;
     virtual BObjectImp* script_method( const char* membername, Executor& ex );
     virtual BObjectImp* script_method_id( const int id, Executor& ex );
     virtual class BObjectImp* get_script_member( const char *membername ) const;

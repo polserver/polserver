@@ -62,10 +62,8 @@ protected:
     virtual BObjectImp* set_script_member_id( const int id , int value ); //id test
     //virtual BObjectImp* set_script_member_double( const char *membername, double value );
     virtual bool script_isa( unsigned isatype ) const;
-	virtual void printProperties( fmt::Writer& writer ) const;
-    virtual void printProperties( std::ostream& os ) const;
-	virtual void printPinPoints( fmt::Writer& writer ) const;
-	virtual void printPinPoints( std::ostream& os ) const;
+    virtual void printProperties( StreamWriter& sw ) const;
+	virtual void printPinPoints( StreamWriter& sw ) const;
     virtual void readProperties( ConfigElem& elem );
 
 

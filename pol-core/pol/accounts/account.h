@@ -49,7 +49,7 @@ public:
     void clear_character( int index );
 
     void readfrom( ConfigElem& elem );
-    void writeto( std::ostream& os );
+    void writeto( StreamWriter& sw );
     void writeto( ConfigElem& elem ) const;
 
     std::string default_privlist() const;

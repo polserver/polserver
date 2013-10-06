@@ -95,7 +95,7 @@ protected:
 
     explicit UBoat( const ItemDesc& descriptor );
     virtual void readProperties( ConfigElem& elem );
-    virtual void printProperties( std::ostream& os ) const;
+    virtual void printProperties( StreamWriter& sw ) const;
     friend class UMulti;
     
     virtual class BObjectImp* get_script_member( const char *membername ) const;

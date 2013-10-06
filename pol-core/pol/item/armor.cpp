@@ -130,20 +130,14 @@ Item* UArmor::clone() const
 	return armor;
 }
 
-void UArmor::printProperties( ostream& os ) const
+void UArmor::printProperties( StreamWriter& sw ) const
 {
-	fmt::Writer writer;
-	UArmor::printProperties(writer);
-	os << writer.c_str();
-}
-void UArmor::printProperties( fmt::Writer& writer ) const
-{
-	base::printProperties( writer );
+	base::printProperties( sw );
 	short ar_mod_ = getmember<s16>(MBR_AR_MOD);
 	if (ar_mod_)
-		writer << "\tAR_mod\t" << ar_mod_ << pf_endl;
+		sw() << "\tAR_mod\t" << ar_mod_ << pf_endl;
 	if (! (onhitscript_ == tmpl->on_hit_script) )
-		writer << "\tOnHitScript\t" << onhitscript_.relativename( tmpl->pkg ) << pf_endl;
+		sw() << "\tOnHitScript\t" << onhitscript_.relativename( tmpl->pkg ) << pf_endl;
 }
 
 void UArmor::readProperties( ConfigElem& elem )

@@ -442,47 +442,48 @@ void read_resources_dat()
 	}
 }
 
-void ResourceDef::write( ostream& os ) const
+void ResourceDef::write( StreamWriter& sw ) const
 {
-	os << "GlobalResourcePool " << name() << endl
-	   << "{" << endl
-	   << "\tUnits\t" << current_units_ << endl
-	   << "}" << endl
-	   << endl;
+	sw() << "GlobalResourcePool " << name() << '\n'
+	   << "{" << '\n'
+	   << "\tUnits\t" << current_units_ << '\n'
+	   << "}" << '\n'
+	   << '\n';
 
 	for( unsigned i = 0; i < regions_.size(); ++i )
 	{
 		ResourceRegion* rrgn = static_cast<ResourceRegion*>(regions_[i]);
-		rrgn->write( os, name() );
+		rrgn->write( sw, name() );
 	}
 }
 
-void ResourceRegion::write( ostream& os, const std::string& resource_name ) const
+void ResourceRegion::write( StreamWriter& sw, const std::string& resource_name ) const
 {
-	os << "RegionalResourcePool " << resource_name << endl
-	   << "{" << endl
-	   << "\tName\t" << name_ << endl
-	   << "\tUnits\t" << units_ << endl
-	   << "#\t(regions/" << resource_name << ".cfg: Capacity is " << capacity_ << ")" << endl
-	   << "}" << endl
-	   << endl;
+	sw() << "RegionalResourcePool " << resource_name << '\n'
+	   << "{" << '\n'
+	   << "\tName\t" << name_ << '\n'
+	   << "\tUnits\t" << units_ << '\n'
+	   << "#\t(regions/" << resource_name << ".cfg: Capacity is " << capacity_ << ")" << '\n'
+	   << "}" << '\n'
+	   << '\n';
+	sw.flush();
 }
 
-void write_resources_dat( ostream& ofs_resource )
+void write_resources_dat( StreamWriter& sw_resource )
 {
    
-	for( ResourceDefs::iterator itr = resourcedefs.begin(), end = resourcedefs.end(); itr != end; ++itr )
+	for( const auto & resdef : resourcedefs )
 	{
-		(*itr).second->write( ofs_resource );
+		resdef.second->write( sw_resource );
 	}
 
 }
 
 void clean_resources()
 {
-	for( ResourceDefs::iterator itr = resourcedefs.begin(), end = resourcedefs.end(); itr != end; ++itr )
+	for( const auto & resdef : resourcedefs )
 	{
-		delete (*itr).second;
+		delete resdef.second;
 	}
 	resourcedefs.clear();
 }

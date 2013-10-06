@@ -1166,11 +1166,11 @@ void UBoat::readProperties( ConfigElem& elem )
     start_script( "misc/boat", make_boatref(this) );
 }
 
-void UBoat::printProperties( ostream& os ) const
+void UBoat::printProperties( StreamWriter& sw ) const
 {
-    base::printProperties( os );
+    base::printProperties( sw );
 
-	os << "\tMultiID\t" << multiid << pf_endl;
+	sw() << "\tMultiID\t" << multiid << pf_endl;
 
     BoatContext bc(*this);
 
@@ -1179,7 +1179,7 @@ void UBoat::printProperties( ostream& os ) const
         UObject* obj = (*itr).get();
         if (!obj->orphan() &&  on_ship(bc,obj))
         {
-            os << "\tTraveller\t0x" << hex << obj->serial << dec << pf_endl;
+            sw() << "\tTraveller\t0x" << fmt::hex(obj->serial) << pf_endl;
         }
     }
     for( vector<Item*>::const_iterator itr = Components.begin(), end = Components.end(); itr != end; ++itr )
@@ -1187,7 +1187,7 @@ void UBoat::printProperties( ostream& os ) const
         Item* item = *itr;
         if (item != NULL && !item->orphan())
         {
-            os << "\tComponent\t0x" << hex << item->serial << dec << pf_endl;
+            sw() << "\tComponent\t0x" << fmt::hex(item->serial) << pf_endl;
         }
     }
 }

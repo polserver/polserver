@@ -45,9 +45,11 @@ ofstream orphans_txt( "orphans.txt", ios::out|ios::trunc );
 int display_orphan( UObject* o )
 {
     bool tmp = false;
-    cout << o->name() << ", " << o->ref_counted_count() << endl;
-    if (tmp) o->printOn( cout );
-    o->printOnDebug( orphans_txt );
+	OStreamWriter sw(&cout);
+	OFStreamWriter sw_orphan(&orphans_txt);
+    sw() << o->name() << ", " << o->ref_counted_count() << '\n';
+    if (tmp) o->printOn( sw );
+    o->printOnDebug( sw_orphan );
     //ref_ptr<UObject>::display_referers( o->as_ref_counted() );
 
     return 0;
@@ -235,52 +237,39 @@ const UObject* UObject::toplevel_owner() const
 }
 
 
-void UObject::printProperties( fmt::Writer& writer ) const
+void UObject::printProperties( StreamWriter& sw ) const
 {
 	using namespace fmt;
 
 	if (!name_.empty())
-        writer << "\tName\t" << name_ << pf_endl;
+        sw() << "\tName\t" << name_ << pf_endl;
 
-    writer << "\tSerial\t0x" << hex(serial) << pf_endl;
-    writer << "\tObjType\t0x" << hex(objtype_) << pf_endl;
-    writer << "\tGraphic\t0x" << hex(graphic) << pf_endl;
+    sw() << "\tSerial\t0x" << hex(serial) << pf_endl;
+    sw() << "\tObjType\t0x" << hex(objtype_) << pf_endl;
+    sw() << "\tGraphic\t0x" << hex(graphic) << pf_endl;
     
     if (color != 0)
-        writer << "\tColor\t0x" << hex(color) << pf_endl;
+        sw() << "\tColor\t0x" << hex(color) << pf_endl;
     
-    writer << "\tX\t" << x << pf_endl;
-    writer << "\tY\t" << y << pf_endl;
-    writer << "\tZ\t" << (int) z << pf_endl;
+    sw() << "\tX\t" << x << pf_endl;
+    sw() << "\tY\t" << y << pf_endl;
+    sw() << "\tZ\t" << (int) z << pf_endl;
     
     if (facing)
-        writer << "\tFacing\t" << static_cast<int>(facing) << pf_endl;
+        sw() << "\tFacing\t" << static_cast<int>(facing) << pf_endl;
 
-    writer << "\tRevision\t" << rev() << pf_endl;
+    sw() << "\tRevision\t" << rev() << pf_endl;
 	if (realm == NULL)
-		writer << "\tRealm\tbritannia" << pf_endl;
+		sw() << "\tRealm\tbritannia" << pf_endl;
 	else
-		writer << "\tRealm\t" << realm->name() << pf_endl;
+		sw() << "\tRealm\t" << realm->name() << pf_endl;
 
-   proplist_.printProperties(writer);
+   proplist_.printProperties(sw);
 }
 
-void UObject::printProperties( ostream& os ) const
+void UObject::printDebugProperties( StreamWriter& sw ) const
 {
-   fmt::Writer writer;
-   UObject::printProperties(writer);
-   os << writer.c_str();
-}
-
-void UObject::printDebugProperties( fmt::Writer& writer ) const
-{
-	writer << "# uobj_class: " << (int)uobj_class_ << pf_endl;
-}
-void UObject::printDebugProperties( std::ostream& os ) const
-{
-	fmt::Writer writer;
-	UObject::printDebugProperties( writer );
-	os << writer.c_str();
+	sw() << "# uobj_class: " << (int)uobj_class_ << pf_endl;
 }
 
 void UObject::readProperties( ConfigElem& elem )
@@ -325,61 +314,36 @@ void UObject::readProperties( ConfigElem& elem )
 
 }
 
-void UObject::printSelfOn( fmt::Writer& writer ) const
+void UObject::printSelfOn( StreamWriter& sw ) const
 {
-	printOn( writer );
-}
-void UObject::printSelfOn( ostream& os ) const
-{
-	fmt::Writer writer;
-    UObject::printSelfOn( writer );
-	os << writer.c_str();
+	printOn( sw );
 }
 
-void UObject::printOn( fmt::Writer& writer ) const
+void UObject::printOn( StreamWriter& sw ) const
 {
-	writer << classname() << pf_endl;
-    writer << "{" << pf_endl;
-    printProperties( writer );
-    writer << "}" << pf_endl;
-    writer << pf_endl;
+	sw() << classname() << pf_endl;
+	sw() << "{" << pf_endl;
+	printProperties( sw );
+	sw() << "}" << pf_endl;
+	sw() << pf_endl;
+	sw.flush();
 }
 
-void UObject::printOn( ostream& os ) const
-{
-	fmt::Writer writer;
-	UObject::printOn(writer);
-	os << writer.c_str();
-}
-
-void UObject::printOnDebug( fmt::Writer& writer) const
+void UObject::printOnDebug( StreamWriter& sw) const
 {	
-    writer << classname() << pf_endl;
-    writer << "{" << pf_endl;
-    printProperties( writer );
-    printDebugProperties( writer );
-    writer << "}" << pf_endl;
-    writer << pf_endl;
+    sw() << classname() << pf_endl;
+    sw() << "{" << pf_endl;
+    printProperties( sw );
+    printDebugProperties( sw );
+    sw() << "}" << pf_endl;
+    sw() << pf_endl;
+	sw.flush();
 }
 
-void UObject::printOnDebug( ostream& os ) const
-{
-	fmt::Writer writer;
-	UObject::printOnDebug( writer );
-	os << writer.c_str();
-}
-
-fmt::Writer& operator << (fmt::Writer& writer, const UObject& obj)
+StreamWriter& operator << (StreamWriter& writer, const UObject& obj)
 {
     obj.printOn(writer);
     return writer;
-}
-ostream& operator << (ostream& os, const UObject& obj)
-{
-	fmt::Writer writer;
-    obj.printOn(writer);
-	os << writer.c_str();
-    return os;
 }
 
 bool UObject::setgraphic( u16 newgraphic )

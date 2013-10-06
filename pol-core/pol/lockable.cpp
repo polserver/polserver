@@ -25,18 +25,12 @@ void ULockable::readProperties( ConfigElem& elem )
     locked_ = elem.remove_bool( "Locked", false );
 }
 
-void ULockable::printProperties( std::ostream& os ) const
+void ULockable::printProperties( StreamWriter& sw ) const
 {
-	fmt::Writer writer;
-	ULockable::printProperties(writer);
-	os << writer.c_str();
-}
-void ULockable::printProperties( fmt::Writer& writer ) const
-{
-    base::printProperties(writer);
+    base::printProperties(sw);
     
     if (locked_)
-        writer << "\tLocked\t" << locked_ << pf_endl;
+        sw() << "\tLocked\t" << locked_ << pf_endl;
 }
 
 //dave 12-20

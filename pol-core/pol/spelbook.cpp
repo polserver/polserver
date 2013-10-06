@@ -256,20 +256,14 @@ void Spellbook::add( Item *item )
 //	item->saveonexit(0);
 }
 
-void Spellbook::printProperties( fmt::Writer& writer ) const
+void Spellbook::printProperties( StreamWriter& sw ) const
 {
-	base::printProperties(writer);
+	base::printProperties(sw);
 	
 	for(int i=0; i<8; ++i)
-		writer << "\tSpellbits" << i << "\t" << (int)bitwise_contents[i] << pf_endl;
+		sw() << "\tSpellbits" << i << "\t" << (int)bitwise_contents[i] << pf_endl;
 }
 
-void Spellbook::printProperties( ostream& os ) const
-{
-	fmt::Writer writer;
-	Spellbook::printProperties(writer);
-	os << writer.c_str();
-}
 
 void Spellbook::readProperties( ConfigElem& elem )
 {
@@ -284,28 +278,17 @@ void Spellbook::readProperties( ConfigElem& elem )
 }
 
 
-void Spellbook::printOn( fmt::Writer& writer ) const
+void Spellbook::printOn( StreamWriter& sw ) const
 {
-    base::printOn( writer );
-	printContents( writer );
-}
-void Spellbook::printOn( ostream& os ) const
-{
-	fmt::Writer writer;
-	Spellbook::printOn(writer);
-	os << writer.c_str();
+    base::printOn( sw );
+	printContents( sw );
 }
 
-void Spellbook::printSelfOn( fmt::Writer& writer ) const
+void Spellbook::printSelfOn( StreamWriter& sw ) const
 {
-	base::printOn( writer );
+	base::printOn( sw );
 }
-void Spellbook::printSelfOn( ostream& os ) const
-{
-	fmt::Writer writer;
-    Spellbook::printSelfOn( writer );
-	os << writer.c_str();
-}
+
 
 void Spellbook::calc_current_bitwise_contents()
 {

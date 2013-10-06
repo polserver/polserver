@@ -726,28 +726,27 @@ void Party::send_member_msg_private(Character* chr, Character* tochr, u16* wtext
 	msg.Send(tochr->client,len);
 }
 
-void Party::printOn( ostream& os ) const
+void Party::printOn( StreamWriter& sw ) const
 {
 	if ( _member_serials.size() <= 1 )
 		return;
 	if ( system_find_mobile( _leaderserial ) == NULL )
 		return;
 
-    os << "Party" << pf_endl
+    sw() << "Party" << pf_endl
        << "{" << pf_endl
-       << "\tLeader\t0x" << hex << _leaderserial << dec << pf_endl;
+       << "\tLeader\t0x" << fmt::hex(_leaderserial) << pf_endl;
 
-	for( vector<u32>::const_iterator itr = _member_serials.begin(); itr != _member_serials.end(); ++itr)
+	for( const auto &mserial : _member_serials)
 	{
-		unsigned int mserial = (*itr);
-
 		Character* mem = system_find_mobile( mserial );
 		if (mem != NULL)
-			os << "\tMember\t0x" << hex << (mserial) << dec << pf_endl;
+			sw() << "\tMember\t0x" << fmt::hex(mserial) << pf_endl;
 	}
-	_proplist.printProperties( os );
-    os << "}" << pf_endl
+	_proplist.printProperties( sw );
+    sw() << "}" << pf_endl
        << pf_endl;
+	sw.flush();
 }
 
 void send_empty_party(Character* chr)
@@ -825,13 +824,13 @@ void read_party_dat()
 	register_party_members();
 }
 
-void write_party( ostream& os )
+void write_party( StreamWriter& sw )
 {
 	if (party_cfg.General.RemoveMemberOnLogoff)
 		return;
-	for( Parties::iterator itr = parties.begin(); itr != parties.end(); ++itr )
+	for( const auto &party : parties )
     {
-		(*itr)->printOn(os);
+		party->printOn(sw);
     }
 }
 

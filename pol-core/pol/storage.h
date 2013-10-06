@@ -32,7 +32,7 @@ public:
     bool delete_root_item( const std::string& name );
 	void on_delete_realm(Realm *realm);
 
-    void print( std::ostream& os ) const;
+    void print( StreamWriter& sw ) const;
     void load_item( ConfigElem& elem );
 private:
 
@@ -44,10 +44,8 @@ private:
 
     friend class StorageAreaImp;
     friend class StorageAreaIterator;
-    friend void write_dirty_storage( ofstream& );
+    friend void write_dirty_storage( StreamWriter& );
 };
-
-extern std::ostream& operator<<( std::ostream& os, const StorageArea& area );
 
 class Storage
 {
@@ -57,7 +55,7 @@ public:
     StorageArea* create_area( ConfigElem& elem );
 	void on_delete_realm(Realm *realm);
 
-    void print( std::ostream& os ) const;
+    void print( StreamWriter& sw ) const;
     void read( ConfigFile& cf );
     void clear();
 private:
@@ -68,9 +66,8 @@ private:
 
     friend class StorageAreasImp;
     friend class StorageAreasIterator;
-    friend void write_dirty_storage( ofstream& );
+    friend void write_dirty_storage( StreamWriter& );
 };
-extern std::ostream& operator<<( std::ostream& os, const Storage& area );
 
 extern Storage storage;
 

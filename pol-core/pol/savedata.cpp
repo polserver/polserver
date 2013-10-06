@@ -62,7 +62,7 @@ vector< u32 > deleted_serials;
 static unsigned int clean_objects;
 static unsigned int dirty_objects;
 bool incremental_saves_disabled = false;
-void write_dirty_storage( ofstream& ofs_data )
+void write_dirty_storage( StreamWriter& sw_data )
 {
     // these will all be processed again in write_dirty_data - but
     // they'll be clean then.  So we'll have to fudge the counters a little.
@@ -89,12 +89,12 @@ void write_dirty_storage( ofstream& ofs_data )
             if (!item->orphan())
             {
                 // write the storage area header, and the item (but not any contents)
-                ofs_data << "StorageArea " << area->_name << pf_endl
+                sw_data() << "StorageArea " << area->_name << pf_endl
                     << "{" << pf_endl
                     << "}" << pf_endl
                     << pf_endl;
 
-                item->printSelfOn( ofs_data );
+                item->printSelfOn( sw_data );
                 modified_serials.push_back( item->serial );
             }
             else
@@ -107,7 +107,7 @@ void write_dirty_storage( ofstream& ofs_data )
 }
 
 
-void write_object_dirty_owners( ostream& ofs_data, const UObject* obj, bool& has_nonsaved_owner )
+void write_object_dirty_owners( StreamWriter& sw_data, const UObject* obj, bool& has_nonsaved_owner )
 {
     const UObject* owner = obj->owner();
     if (owner)
@@ -119,7 +119,7 @@ void write_object_dirty_owners( ostream& ofs_data, const UObject* obj, bool& has
             return;
         }
 
-        write_object_dirty_owners( ofs_data, owner, has_nonsaved_owner );
+        write_object_dirty_owners( sw_data, owner, has_nonsaved_owner );
         if (has_nonsaved_owner)
             return;
 
@@ -129,14 +129,14 @@ void write_object_dirty_owners( ostream& ofs_data, const UObject* obj, bool& has
             // this will get counted again as we iterate through the objecthash
             --clean_objects; 
 
-            owner->printSelfOn( ofs_data );
+            owner->printSelfOn( sw_data );
             modified_serials.push_back( owner->serial );
             owner->clear_dirty();
         }
     }
 }
 
-void write_dirty_data( ostream& ofs_data )
+void write_dirty_data( StreamWriter& sw_data )
 {
     // iterate over the object hash, writing dirty elements.
     // the only tricky bit here is we want to write dirty containers first.
@@ -157,14 +157,14 @@ void write_dirty_data( ostream& ofs_data )
         }
 
         bool has_nonsaved_owner = false;
-        write_object_dirty_owners( ofs_data, obj, has_nonsaved_owner );
+        write_object_dirty_owners( sw_data, obj, has_nonsaved_owner );
         if (has_nonsaved_owner)
             continue;
 
         ++dirty_objects;
         if (!obj->orphan())
         {
-            obj->printSelfOn( ofs_data );
+            obj->printSelfOn( sw_data );
             modified_serials.push_back( obj->serial );
         }
         else
@@ -265,17 +265,17 @@ int save_incremental( unsigned int& dirty, unsigned int& clean, long long& elaps
         string index_pathname = config.world_data_path + index_basename + ".ndt";
         open_file( ofs_data,  data_pathname, ios::out );
         open_file( ofs_index, index_pathname, ios::out );
-
-        write_system_data( ofs_data );
-        write_global_properties( ofs_data);
+		OFStreamWriter sw_data(&ofs_data);
+        write_system_data( sw_data );
+        write_global_properties( sw_data);
 
         // TODO:
         //  guilds
         //  resources
         //  datastore
 
-        write_dirty_storage( ofs_data );
-        write_dirty_data( ofs_data );
+        write_dirty_storage( sw_data );
+        write_dirty_data( sw_data );
 
         write_index( ofs_index );
         
