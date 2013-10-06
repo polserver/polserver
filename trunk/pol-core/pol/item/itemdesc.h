@@ -223,8 +223,9 @@ extern map<u32,bool> has_walkon_script_;
 
 inline bool has_walkon_script( u32 objtype )
 {
-	if( has_walkon_script_.count(objtype) )
-		return has_walkon_script_[objtype];
+	const auto &obj = has_walkon_script_.find(objtype);
+	if( obj != has_walkon_script_.end() )
+		return obj->second;
 	else
 		return false;
 }
@@ -233,8 +234,9 @@ extern map<u32,bool> dont_save_itemtype_;
 
 inline bool dont_save_itemtype( u32 objtype )
 {
-	if( dont_save_itemtype_.count(objtype) )
-		return dont_save_itemtype_[objtype];
+	const auto &obj = dont_save_itemtype_.find(objtype);
+	if( obj != dont_save_itemtype_.end() )
+		return obj->second;
 	else
 		return false;
 }
