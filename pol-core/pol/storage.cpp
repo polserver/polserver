@@ -158,15 +158,13 @@ StorageArea* Storage::create_area( ConfigElem& elem )
 }
 
 
-void StorageArea::print( ostream& os ) const
+void StorageArea::print( StreamWriter& sw ) const
 {
-    for( Cont::const_iterator itr = _items.begin();
-         itr != _items.end();
-         ++itr )
+    for( const auto &cont_item : _items )
     {
-		const Item *item = (*itr).second;
+		const Item *item = cont_item.second;
 		if ( item->saveonexit() )
-			os << *item;
+			sw << *item;
     }
 }
 
@@ -188,14 +186,6 @@ void StorageArea::on_delete_realm(Realm *realm)
         }
 	}
 }
-
-
-ostream& operator<<( ostream& os, const StorageArea& area )
-{
-    area.print( os );
-    return os;
-}
-
 
 void Storage::on_delete_realm(Realm *realm)
 {
@@ -262,26 +252,18 @@ void Storage::read( ConfigFile& cf )
 	cout << " " << nobjects << " elements in " << ms << " ms." << std::endl;
 }
 
-void Storage::print( ostream& os ) const
+void Storage::print( StreamWriter& sw ) const
 {
-    for( AreaCont::const_iterator itr  = areas.begin();
-         itr != areas.end();
-         ++itr )
+    for( const auto &area : areas )
     {
-        os << "StorageArea" << endl
-           << "{" << endl
-           << "\tName\t" << (*itr).first << endl
-           << "}" << endl
-           << endl
-           << *((*itr).second)
-           << endl;
+        sw() << "StorageArea" << '\n'
+           << "{" << '\n'
+           << "\tName\t" << area.first << '\n'
+           << "}" << '\n'
+           << '\n';
+		area.second->print(sw);
+        sw() << '\n';
     }
-}
-
-ostream& operator<<( ostream& os, const Storage& storage )
-{
-    storage.print( os );
-    return os;
 }
 
 void Storage::clear()

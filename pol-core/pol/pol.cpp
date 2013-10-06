@@ -1760,8 +1760,10 @@ void display_leftover_objects()
 	display_bobjectimp_instances();
 #endif
 	display_reftypes();
-ofstream ofs( "leftovers.txt" );
-objecthash.PrintContents(ofs);
+	ofstream ofs;
+OFStreamWriter sw(&ofs);
+sw.init("leftovers.txt");
+objecthash.PrintContents(sw);
 	if (uobject_count != 0)
 		cout << "Remaining UObjects: " << uobject_count << endl;
 	if (ucharacter_count != 0)

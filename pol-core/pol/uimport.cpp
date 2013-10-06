@@ -581,23 +581,19 @@ void rename_dat_files()
 }
 
 void read_guilds_dat();
-void write_guilds( ostream& os );
+void write_guilds( StreamWriter& sw );
 
 void read_datastore_dat();
-void write_datastore( ostream& os );
+void write_datastore( StreamWriter& sw );
 void commit_datastore();
 
 void read_party_dat();
-void write_party( ostream& os );
+void write_party( StreamWriter& sw );
 
 void for_all_mobiles( void (*f)(Character* chr) )
 {
-	vector<Realm*>::iterator itr;
-	Realm* realm;
-	
-	for( itr = Realms->begin(); itr != Realms->end(); ++itr)
+	for( const auto &realm : *Realms )
 	{
-		realm = *itr;
 		unsigned wgridx = realm->width() / WGRID_SIZE;
 		unsigned wgridy = realm->height() / WGRID_SIZE;
 
@@ -611,12 +607,9 @@ void for_all_mobiles( void (*f)(Character* chr) )
 		{
 			for( unsigned wy = 0; wy < wgridy; ++wy )
 			{
-				ZoneCharacters& wchr = realm->zone[wx][wy].characters;
-				for( ZoneCharacters::iterator citr = wchr.begin(), end = wchr.end(); citr != end; ++citr )
+				for( auto &z_chr : realm->zone[wx][wy].characters )
 				{
-					Character* chr = *citr;
-
-					(*f)(chr);
+					(*f)(z_chr);
 				}
 			}
 		}
@@ -709,71 +702,52 @@ int read_data()
 	return 0;
 }
 
-class SaveContext
-{
-public:
 
-	SaveContext();
-
-	ofstream ofs_pol;
-	ofstream ofs_objects;
-	ofstream ofs_pcs;
-	ofstream ofs_pcequip;
-	ofstream ofs_npcs;
-	ofstream ofs_npcequip;
-	ofstream ofs_items;
-	ofstream ofs_multis;
-	ofstream ofs_storage;
-	ofstream ofs_resource;
-	ofstream ofs_guilds;
-	ofstream ofs_datastore;
-	ofstream ofs_party;
-};
 
 SaveContext::SaveContext() :
-	ofs_pol(),
-	ofs_objects(),
-	ofs_pcs(),
-	ofs_pcequip(),
-	ofs_npcs(),
-	ofs_npcequip(),
-	ofs_items(),
-	ofs_multis(),
-	ofs_storage(),
-	ofs_resource(),
-	ofs_guilds(),
-	ofs_datastore(),
-	ofs_party()
+	_pol(),
+	_objects(),
+	_pcs(),
+	_pcequip(),
+	_npcs(),
+	_npcequip(),
+	_items(),
+	_multis(),
+	_storage(),
+	_resource(),
+	_guilds(),
+	_datastore(),
+	_party(),
+	pol(&_pol),
+	objects(&_objects),
+	pcs(&_pcs),
+	pcequip(&_pcequip),
+	npcs(&_npcs),
+	npcequip(&_npcequip),
+	items(&_items),
+	multis(&_multis),
+	storage(&_storage),
+	resource(&_resource),
+	guilds(&_guilds),
+	datastore(&_datastore),
+	party(&_party)
 {
-	ofs_pol.exceptions( std::ios_base::failbit | std::ios_base::badbit );
-	ofs_objects.exceptions( std::ios_base::failbit | std::ios_base::badbit );
-	ofs_pcs.exceptions( std::ios_base::failbit | std::ios_base::badbit );
-	ofs_pcequip.exceptions( std::ios_base::failbit | std::ios_base::badbit );
-	ofs_npcs.exceptions( std::ios_base::failbit | std::ios_base::badbit );
-	ofs_npcequip.exceptions( std::ios_base::failbit | std::ios_base::badbit );
-	ofs_items.exceptions( std::ios_base::failbit | std::ios_base::badbit );
-	ofs_multis.exceptions( std::ios_base::failbit | std::ios_base::badbit );
-	ofs_storage.exceptions( std::ios_base::failbit | std::ios_base::badbit );
-	ofs_resource.exceptions( std::ios_base::failbit | std::ios_base::badbit );
-	ofs_guilds.exceptions( std::ios_base::failbit | std::ios_base::badbit );
-	ofs_datastore.exceptions( std::ios_base::failbit | std::ios_base::badbit );
-	ofs_party.exceptions( std::ios_base::failbit | std::ios_base::badbit );
+	pol.init(config.world_data_path + "pol.ndt");
+	objects.init(config.world_data_path + "objects.ndt");
+	pcs.init(config.world_data_path + "pcs.ndt");
+	pcequip.init(config.world_data_path + "pcequip.ndt");
+	npcs.init(config.world_data_path + "npcs.ndt");
+	npcequip.init(config.world_data_path + "npcequip.ndt");
+	items.init(config.world_data_path + "items.ndt");
+	multis.init(config.world_data_path + "multis.ndt");
+	storage.init(config.world_data_path + "storage.ndt");
+	resource.init(config.world_data_path + "resource.ndt");
+	guilds.init(config.world_data_path + "guilds.ndt");
+	datastore.init(config.world_data_path + "datastore.ndt");
+	party.init(config.world_data_path + "parties.ndt");
 
-	ofs_pol.open(		(config.world_data_path + "pol.ndt").c_str(),		ios::out );
-	ofs_objects.open(	(config.world_data_path + "objects.ndt").c_str(),	ios::out );
-	ofs_pcs.open(		(config.world_data_path + "pcs.ndt").c_str(),		ios::out );
-	ofs_pcequip.open(	(config.world_data_path + "pcequip.ndt").c_str(),	ios::out );
-	ofs_npcs.open(	    (config.world_data_path + "npcs.ndt").c_str(),	    ios::out );
-	ofs_npcequip.open(  (config.world_data_path + "npcequip.ndt").c_str(),  ios::out );
-	ofs_items.open(	    (config.world_data_path + "items.ndt").c_str(),	    ios::out );
-	ofs_multis.open(	(config.world_data_path + "multis.ndt").c_str(),	ios::out );
-	ofs_storage.open(	(config.world_data_path + "storage.ndt").c_str(),	ios::out );
-	ofs_resource.open(  (config.world_data_path + "resource.ndt").c_str(),  ios::out );
-	ofs_guilds.open(	(config.world_data_path + "guilds.ndt").c_str(),	ios::out );
-	ofs_datastore.open( (config.world_data_path + "datastore.ndt").c_str(), ios::out );
-	ofs_party.open( (config.world_data_path + "parties.ndt").c_str(), ios::out );
-
-	ofs_pcs << "#" << pf_endl
+	pcs()
+			<< "#" << pf_endl
 			<< "#  PCS.TXT: Player-Character Data" << pf_endl
 			<< "#" << pf_endl
 			<< "#  In addition to PC data, this also contains hair, beards, death shrouds," << pf_endl
@@ -781,7 +755,7 @@ SaveContext::SaveContext() :
 			<< "#" << pf_endl
 			<< pf_endl;
 
-	ofs_pcequip 
+	pcequip()
 			<< "#" << pf_endl
 			<< "#  PCEQUIP.TXT: Player-Character Equipment Data" << pf_endl
 			<< "#" << pf_endl
@@ -790,7 +764,7 @@ SaveContext::SaveContext() :
 			<< "#" << pf_endl
 			<< pf_endl;
 
-	ofs_npcs
+	npcs()
 			<< "#" << pf_endl
 			<< "#  NPCS.TXT: Nonplayer-Character Data" << pf_endl
 			<< "#" << pf_endl
@@ -799,7 +773,7 @@ SaveContext::SaveContext() :
 			<< "#" << pf_endl
 			<< pf_endl;
 
-	ofs_npcequip
+	npcequip()
 			<< "#" << pf_endl
 			<< "#  NPCEQUIP.TXT: Nonplayer-Character Equipment Data" << pf_endl
 			<< "#" << pf_endl
@@ -807,7 +781,7 @@ SaveContext::SaveContext() :
 			<< "#" << pf_endl
 			<< pf_endl;
 
-	ofs_items
+	items()
 			<< "#" << pf_endl
 			<< "#  ITEMS.TXT: Item data" << pf_endl
 			<< "#" << pf_endl
@@ -815,7 +789,7 @@ SaveContext::SaveContext() :
 			<< "#" << pf_endl
 			<< pf_endl;
 
-	ofs_multis
+	multis()
 			<< "#" << pf_endl
 			<< "#  MULTIS.TXT: Ship and House data" << pf_endl
 			<< "#" << pf_endl
@@ -824,7 +798,7 @@ SaveContext::SaveContext() :
 			<< "#" << pf_endl
 			<< pf_endl;
 
-	ofs_storage
+	storage()
 			<< "#" << pf_endl
 			<< "#  STORAGE.TXT: Contains bank boxes, vendor inventories, and other data." << pf_endl
 			<< "#" << pf_endl
@@ -833,24 +807,24 @@ SaveContext::SaveContext() :
 			<< "#" << pf_endl
 			<< pf_endl;
 
-	ofs_resource
+	resource()
 			<< "#" << pf_endl
 			<< "#  RESOURCE.TXT: Resource System Data" << pf_endl
 			<< "#" << pf_endl
 			<< pf_endl;
 
-	ofs_guilds
+	guilds()
 			<< "#" << pf_endl
 			<< "#  GUILDS.TXT: Guild Data" << pf_endl
 			<< "#" << pf_endl
 			<< pf_endl;
 
-	ofs_datastore
+	datastore()
 			<< "#" << pf_endl
 			<< "#  DATASTORE.TXT: DataStore Data" << pf_endl
 			<< "#" << pf_endl
 			<< pf_endl;
-	ofs_party
+	party()
 			<< "#" << pf_endl
 			<< "#  PARTIES.TXT: Party Data" << pf_endl
 			<< "#" << pf_endl
@@ -859,18 +833,22 @@ SaveContext::SaveContext() :
 
 
 
-void write_global_properties( ostream& ofs )
+void write_global_properties( StreamWriter& sw )
 {
-	ofs << "GlobalProperties" << pf_endl
+	sw()
+		<< "GlobalProperties" << pf_endl
 		<< "{" << pf_endl;
-	global_properties.printProperties( ofs );
-	ofs << "}" << pf_endl
+	global_properties.printProperties( sw );
+	sw()
+		<< "}" << pf_endl
 		<< pf_endl;
+	sw.flush();
 }
 
-void write_system_data( ostream& ofs )
+void write_system_data( StreamWriter& sw )
 {
-	ofs << "System" << pf_endl
+	sw()
+		<< "System" << pf_endl
 		<< "{" << pf_endl
 		<< "\tCoreVersion\t" << progver << pf_endl
 		<< "\tCoreVersionString\t" << polverstr << pf_endl
@@ -880,23 +858,25 @@ void write_system_data( ostream& ofs )
 		<< "\tLastCharSerialNumber\t" << GetCurrentCharSerialNumber() << pf_endl //dave 3/9/3
 		<< "}" << pf_endl
 		<< pf_endl;
+	sw.flush();
 }
 
-void write_shadow_realms( ostream& ofs )
+void write_shadow_realms( StreamWriter& sw )
 {
-	vector<Realm*>::iterator itr;
-	for(itr = Realms->begin(); itr != Realms->end(); ++itr)
+	for(const auto &realm : *Realms)
 	{
-		if( (*itr)->is_shadowrealm )
+		if( realm->is_shadowrealm )
 		{
-			ofs << "Realm" << pf_endl
-			<< "{" << pf_endl;
-			ofs << "\tName\t" << (*itr)->shadowname << pf_endl;
-			ofs << "\tBaseRealm\t" << (*itr)->baserealm->name() << pf_endl;
-			ofs << "}" << pf_endl
-			<< pf_endl;
+			sw ()
+				<< "Realm" << pf_endl
+				<< "{" << pf_endl
+				<< "\tName\t" << realm->shadowname << pf_endl
+				<< "\tBaseRealm\t" << realm->baserealm->name() << pf_endl
+				<< "}" << pf_endl
+				<< pf_endl;
 		}
 	}
+	sw.flush();
 }
 
 // Austin (Oct. 17, 2006)
@@ -910,34 +890,24 @@ inline void WriteGottenItem(Character* chr, SaveContext& sc)
 	item->z = chr->z;
 	item->realm = chr->realm;
 
-	item->printOn(sc.ofs_items);
+	item->printOn(sc.items);
 
 	item->x = item->y = item->z = 0;
 }
 
 void write_characters( SaveContext& sc )
 {
-	for( ObjectHash::hs::const_iterator citr = objecthash.begin(), citrend=objecthash.end(); citr != citrend; ++citr )
+	for( const auto &objitr : objecthash )
 	{
-		UObject* obj = (*citr).second.get();
+		UObject* obj = objitr.second.get();
 		if (obj->ismobile() && !obj->orphan())
 		{
 			Character* chr = static_cast<Character*>(obj);
-			if (chr->isa( UObject::CLASS_NPC ))
-
+			if (!chr->isa( UObject::CLASS_NPC ))
 			{
-				if (chr->saveonexit())
-				{
-					chr->printOn( sc.ofs_npcs );
-					chr->clear_dirty();
-					chr->printWornItems( sc.ofs_npcs, sc.ofs_npcequip );
-				}
-			}
-			else
-			{
-				chr->printOn( sc.ofs_pcs );
+				chr->printOn( sc.pcs );
 				chr->clear_dirty();
-				chr->printWornItems( sc.ofs_pcs, sc.ofs_pcequip );
+				chr->printWornItems( sc.pcs, sc.pcequip );
 
 				// Figure out where to save the 'gotten item' - Austin (Oct. 17, 2006)
 				if ( chr->gotten_item && !chr->gotten_item->orphan() )
@@ -947,13 +917,31 @@ void write_characters( SaveContext& sc )
 	}
 }
 
-void write_items( ostream& ofs_items )
+void write_npcs( SaveContext& sc )
 {
-	vector<Realm*>::iterator itr;
-	Realm* realm;
-	for( itr = Realms->begin(); itr != Realms->end(); ++itr)
+	for( const auto &objitr : objecthash )
 	{
-		realm = *itr;
+		UObject* obj = objitr.second.get();
+		if (obj->ismobile() && !obj->orphan())
+		{
+			Character* chr = static_cast<Character*>(obj);
+			if (chr->isa( UObject::CLASS_NPC ))
+			{
+				if (chr->saveonexit())
+				{
+					chr->printOn( sc.npcs );
+					chr->clear_dirty();
+					chr->printWornItems( sc.npcs, sc.npcequip );
+				}
+			}
+		}
+	}
+}
+
+void write_items( StreamWriter& sw_items )
+{
+	for( const auto &realm : *Realms )
+	{
 		unsigned wgridx = realm->width() / WGRID_SIZE;
 		unsigned wgridy = realm->height() / WGRID_SIZE;
 
@@ -967,14 +955,11 @@ void write_items( ostream& ofs_items )
 		{
 			for( unsigned wy = 0; wy < wgridy; ++wy )
 			{
-				ZoneItems& witem = realm->zone[wx][wy].items;
-				for( ZoneItems::iterator iitr = witem.begin(), end = witem.end(); iitr != end; ++iitr )
+				for( const auto &item : realm->zone[wx][wy].items )
 				{
-					Item* item = *iitr;
-
 					if (!dont_save_itemtype(item->objtype_) && item->saveonexit())
 					{
-						ofs_items << *item;
+						sw_items << *item;
 						item->clear_dirty();
 					}
 				}
@@ -983,14 +968,10 @@ void write_items( ostream& ofs_items )
 	}
 }
 
-void write_multis( ostream& ofs )
+void write_multis( StreamWriter& ofs )
 {
-	vector<Realm*>::iterator itr;
-	Realm* realm;
-	
-	for( itr = Realms->begin(); itr != Realms->end(); ++itr)
+	for( const auto &realm : *Realms )
 	{
-		realm = *itr;
 		unsigned wgridx = realm->width() / WGRID_SIZE;
 		unsigned wgridy = realm->height() / WGRID_SIZE;
 
@@ -1004,10 +985,8 @@ void write_multis( ostream& ofs )
 		{
 			for( unsigned wy = 0; wy < wgridy; ++wy )
 			{
-				ZoneMultis& wmulti = realm->zone[wx][wy].multis;
-				for( ZoneMultis::iterator mitr = wmulti.begin(), end = wmulti.end(); mitr != end; ++mitr )
+				for( auto & multi : realm->zone[wx][wy].multis )
 				{
-					UMulti* multi = *mitr;
 					if (exit_signalled) // drop waiting commit on shutdown
 					{
 						UHouse* house = multi->as_house();
@@ -1094,60 +1073,81 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
 	{
 		SaveContext sc;
 
-		times.push_back(timer.ellapsed());
-
-		sc.ofs_pol << "#" << pf_endl;
-		sc.ofs_pol << "#  Created by Version: " << polverstr << pf_endl;
-		sc.ofs_pol << "#  Mobiles:		 " << get_mobile_count() << pf_endl;
-		sc.ofs_pol << "#  Top-level Items: " << get_toplevel_item_count() << pf_endl;
-		sc.ofs_pol << "#" << pf_endl;
-		sc.ofs_pol << pf_endl;
-
-
-		times.push_back(timer.ellapsed());
-		write_system_data( sc.ofs_pol );
-		times.push_back(timer.ellapsed());
-		write_global_properties( sc.ofs_pol );
-		times.push_back(timer.ellapsed());
-		write_shadow_realms( sc.ofs_pol );
-
-		times.push_back(timer.ellapsed());
-		write_characters( sc );
-		times.push_back(timer.ellapsed());
-
-		write_items( sc.ofs_items );
-		times.push_back(timer.ellapsed());
-
-		write_multis( sc.ofs_multis );
-		times.push_back(timer.ellapsed());
-
-		sc.ofs_storage << storage;
-		times.push_back(timer.ellapsed());
-
-		write_resources_dat( sc.ofs_resource );
-		times.push_back(timer.ellapsed());
-
-		write_guilds( sc.ofs_guilds );
-		times.push_back(timer.ellapsed());
-
-		write_datastore( sc.ofs_datastore );
-		times.push_back(timer.ellapsed());
-
-		write_party( sc.ofs_party );
-		times.push_back(timer.ellapsed());
-
-		if (accounts_txt_dirty)
 		{
-			write_account_data();
-			times.push_back(timer.ellapsed());
+			{
+				sc.pol()
+					<< "#" << pf_endl
+					<< "#  Created by Version: " << polverstr << pf_endl
+					<< "#  Mobiles:		 " << get_mobile_count() << pf_endl
+					<< "#  Top-level Items: " << get_toplevel_item_count() << pf_endl
+					<< "#" << pf_endl
+					<< pf_endl;
+
+
+				write_system_data( sc.pol );
+				write_global_properties( sc.pol );
+				write_shadow_realms( sc.pol );
+				sc.pol.flush_file();
+			}
+
+			{
+				write_items( sc.items );
+				sc.items.flush_file();
+			}
+
+			{
+				write_characters( sc ); // this writes wornitems into items.txt, can they safely be moved into pcequip? 
+				sc.pcs.flush_file();
+				sc.pcequip.flush_file();
+			}
+
+			{
+				write_npcs( sc );
+				sc.npcs.flush_file();
+				sc.npcequip.flush_file();
+			}
+
+			{
+				write_multis( sc.multis );
+				sc.multis.flush_file();
+			}
+
+			{
+				storage.print(sc.storage);
+				sc.storage.flush_file();
+			}
+
+			{
+				write_resources_dat( sc.resource );
+				sc.resource.flush_file();
+			}
+
+			{
+				write_guilds( sc.guilds );
+				sc.guilds.flush_file();
+			}
+
+			{
+				write_datastore( sc.datastore );
+				sc.datastore.flush_file();
+				// Atomically (hopefully) perform the switch.
+				commit_datastore();
+			}
+
+			{
+				write_party( sc.party );
+				sc.party.flush_file();
+			}
+
+			{
+				if (accounts_txt_dirty)
+				{
+					write_account_data();
+				}
+			}
 		}
-
+		times.push_back(timer.ellapsed());
 	}
-
-	// Atomically (hopefully) perform the switch.
-	commit_datastore();
-
-	times.push_back(timer.ellapsed());
 
 	commit( "pol" );
 	commit( "objects" );
@@ -1162,17 +1162,17 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
 	commit( "guilds" );
 	commit( "datastore" );
 	commit( "parties" );
+	times.push_back(timer.ellapsed());
 
 	commit_incremental_saves();
 	incremental_save_count = 0;
 	timer.stop();
 	times.push_back(timer.ellapsed());
-
 	objecthash.ClearDeleted();
 
-	//for( unsigned i = 1; i < tx.size(); ++i )
-	//	cout << "t" << i << "=" << elapsed(tx[i-1],tx[i]);
-	//cout << endl;
+	//cout << "times" << endl;
+	//for (const auto &time : times)
+	//	cout << time << endl;
 	//cout << "Clean: " << UObject::clean_writes << " Dirty: " << UObject::dirty_writes << endl;
 	clean_writes = UObject::clean_writes;
 	dirty_writes = UObject::dirty_writes;
@@ -1370,3 +1370,6 @@ void read_gameservers()
 	if (servers.empty())
 		throw runtime_error( "There must be at least one GameServer in SERVERS.CFG." );
 }
+
+
+

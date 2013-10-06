@@ -109,11 +109,11 @@ SerialSet::SerialSet( ConfigElem& elem, const char* tag )
     }
 }
 
-void SerialSet::writeOn( ostream& os, const char* tag ) const
+void SerialSet::writeOn( StreamWriter& os, const char* tag ) const
 {
     for( const_iterator citr = begin(), citrend=end(); citr != citrend; ++citr )
     {
-        os << "\t" << tag << "\t0x" << hex << (*citr) << dec << pf_endl;
+        os() << "\t" << tag << "\t0x" << fmt::hex(*citr) << pf_endl;
     }
 }
 
@@ -238,17 +238,18 @@ bool Guild::hasEnemy( const Guild* g2 ) const
 }
 
 
-void Guild::printOn( ostream& os ) const
+void Guild::printOn( StreamWriter& sw ) const
 {
-    os << "Guild" << pf_endl
+    sw() << "Guild" << pf_endl
        << "{" << pf_endl
        << "\tGuildId\t" << _guildid << pf_endl;
-    _member_serials.writeOn( os, "Member" );
-    _allyguild_serials.writeOn( os, "AllyGuild" );
-    _enemyguild_serials.writeOn( os, "EnemyGuild" );
-    _proplist.printProperties( os );
-    os << "}" << pf_endl
+    _member_serials.writeOn( sw, "Member" );
+    _allyguild_serials.writeOn( sw, "AllyGuild" );
+    _enemyguild_serials.writeOn( sw, "EnemyGuild" );
+    _proplist.printProperties( sw );
+    sw() << "}" << pf_endl
        << pf_endl;
+	sw.flush();
 }
 
 void Guild::addMember( unsigned int serial )
@@ -292,18 +293,18 @@ void read_guilds_dat()
     register_guilds();
 }
 
-void write_guilds( ostream& os )
+void write_guilds( StreamWriter& sw )
 {
-    os << "General" << pf_endl
+    sw() << "General" << pf_endl
        << "{" << pf_endl
        << "\tNextGuildId\t" << nextguildid << pf_endl
        << "}" << pf_endl
        << pf_endl;
 
-    for( Guilds::const_iterator itr = guilds.begin(), end = guilds.end(); itr != end; ++itr )
+    for(const auto &_guild : guilds)
     {
-        const Guild* guild = (*itr).second.get();
-        guild->printOn( os );
+        const Guild* guild = _guild.second.get();
+        guild->printOn( sw );
     }
 }
 

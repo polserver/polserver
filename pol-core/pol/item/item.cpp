@@ -350,98 +350,86 @@ unsigned short Item::maxhp() const
 		return USHRT_MAX;
 }
 
-void Item::printProperties( ostream& os ) const
-{
-	fmt::Writer writer;
-	Item::printProperties( writer );
-	os << writer.c_str();
-}
-void Item::printProperties( fmt::Writer& writer ) const
+void Item::printProperties( StreamWriter& sw ) const
 {
 	using namespace fmt;
 
-    base::printProperties(writer);
+    base::printProperties(sw);
 
 	short maxhp_mod = getmember<s16>(MBR_MAXHP_MOD);
 	string suffix = getmember<string>(MBR_NAME_SUFFIX);
 
     if (amount_ != 1)
-        writer << "\tAmount\t" << amount_ << pf_endl;
+        sw() << "\tAmount\t" << amount_ << pf_endl;
     
     if (layer != 0)
-        writer << "\tLayer\t" << (int) layer << pf_endl;
+        sw() << "\tLayer\t" << (int) layer << pf_endl;
 
     if (movable_ != default_movable())
-        writer << "\tMovable\t" << movable_ << pf_endl;
+        sw() << "\tMovable\t" << movable_ << pf_endl;
 
     if (invisible_ != default_invisible())
-        writer << "\tInvisible\t" << invisible_ << pf_endl;
+        sw() << "\tInvisible\t" << invisible_ << pf_endl;
     
 	if (element_resist_mod.fire != 0)
-		writer << "\tFireResistMod\t" << static_cast<int>(element_resist_mod.fire) << pf_endl;
+		sw() << "\tFireResistMod\t" << static_cast<int>(element_resist_mod.fire) << pf_endl;
 	if (element_resist_mod.cold != 0)
-		writer << "\tColdResistMod\t" << static_cast<int>(element_resist_mod.cold) << pf_endl;
+		sw() << "\tColdResistMod\t" << static_cast<int>(element_resist_mod.cold) << pf_endl;
 	if (element_resist_mod.energy != 0)
-		writer << "\tEnergyResistMod\t" << static_cast<int>(element_resist_mod.energy) << pf_endl;
+		sw() << "\tEnergyResistMod\t" << static_cast<int>(element_resist_mod.energy) << pf_endl;
 	if (element_resist_mod.poison != 0)
-		writer << "\tPoisonResistMod\t" << static_cast<int>(element_resist_mod.poison) << pf_endl;
+		sw() << "\tPoisonResistMod\t" << static_cast<int>(element_resist_mod.poison) << pf_endl;
 	if (element_resist_mod.physical != 0)
-		writer << "\tPhysicalResistMod\t" << static_cast<int>(element_resist_mod.physical) << pf_endl;
+		sw() << "\tPhysicalResistMod\t" << static_cast<int>(element_resist_mod.physical) << pf_endl;
 
 	if (element_damage_mod.fire != 0)
-		writer << "\tFireDamageMod\t" << static_cast<int>(element_damage_mod.fire) << pf_endl;
+		sw() << "\tFireDamageMod\t" << static_cast<int>(element_damage_mod.fire) << pf_endl;
 	if (element_damage_mod.cold != 0)
-		writer << "\tColdDamageMod\t" << static_cast<int>(element_damage_mod.cold) << pf_endl;
+		sw() << "\tColdDamageMod\t" << static_cast<int>(element_damage_mod.cold) << pf_endl;
 	if (element_damage_mod.energy != 0)
-		writer << "\tEnergyDamageMod\t" << static_cast<int>(element_damage_mod.energy) << pf_endl;
+		sw() << "\tEnergyDamageMod\t" << static_cast<int>(element_damage_mod.energy) << pf_endl;
 	if (element_damage_mod.poison != 0)
-		writer << "\tPoisonDamageMod\t" << static_cast<int>(element_damage_mod.poison) << pf_endl;
+		sw() << "\tPoisonDamageMod\t" << static_cast<int>(element_damage_mod.poison) << pf_endl;
 	if (element_damage_mod.physical != 0)
-		writer << "\tPhysicalDamageMod\t" << static_cast<int>(element_damage_mod.physical) << pf_endl;
+		sw() << "\tPhysicalDamageMod\t" << static_cast<int>(element_damage_mod.physical) << pf_endl;
 
 	if (container != NULL)
-        writer << "\tContainer\t0x" << hex(container->serial) << pf_endl;
+        sw() << "\tContainer\t0x" << hex(container->serial) << pf_endl;
 
     if (!on_use_script_.empty())
-        writer << "\tOnUseScript\t" << on_use_script_ << pf_endl;
+        sw() << "\tOnUseScript\t" << on_use_script_ << pf_endl;
 
     if (equip_script_ != itemdesc().equip_script)
-        writer << "\tEquipScript\t" << equip_script_ << pf_endl;
+        sw() << "\tEquipScript\t" << equip_script_ << pf_endl;
 
     if (unequip_script_ != itemdesc().unequip_script)
-        writer << "\tUnequipScript\t" << unequip_script_ << pf_endl;
+        sw() << "\tUnequipScript\t" << unequip_script_ << pf_endl;
 
     if (decayat_gameclock_ != 0)
-        writer << "\tDecayAt\t" << decayat_gameclock_ << pf_endl;
+        sw() << "\tDecayAt\t" << decayat_gameclock_ << pf_endl;
 
     if (sellprice_ != UINT_MAX) // recall that UINT_MAX means use default
-        writer << "\tSellPrice\t" << sellprice_ << pf_endl;
+        sw() << "\tSellPrice\t" << sellprice_ << pf_endl;
 
     if (buyprice_ != UINT_MAX) // recall that UINT_MAX means use default
-        writer << "\tBuyPrice\t" << buyprice_ << pf_endl;
+        sw() << "\tBuyPrice\t" << buyprice_ << pf_endl;
 
     if (newbie_ != default_newbie())
-        writer << "\tNewbie\t" << newbie_ << pf_endl;
+        sw() << "\tNewbie\t" << newbie_ << pf_endl;
 
 	if (maxhp_mod)
-		writer << "\tMaxHp_mod\t" << maxhp_mod << pf_endl;
+		sw() << "\tMaxHp_mod\t" << maxhp_mod << pf_endl;
 	if (hp_ != itemdesc().maxhp)
-		writer << "\tHp\t" << hp_ << pf_endl;
+		sw() << "\tHp\t" << hp_ << pf_endl;
 	if (quality_ !=  itemdesc().quality)
-		writer << "\tQuality\t" << quality_ << pf_endl;
+		sw() << "\tQuality\t" << quality_ << pf_endl;
 	if (!suffix.empty())
-		writer << "\tNameSuffix\t" << suffix << pf_endl;
+		sw() << "\tNameSuffix\t" << suffix << pf_endl;
 }
 
-void Item::printDebugProperties( fmt::Writer& writer ) const
+void Item::printDebugProperties( StreamWriter& sw ) const
 {
-	base::printDebugProperties(writer);
-}
-void Item::printDebugProperties( ostream& os ) const
-{
-	fmt::Writer writer;
-    Item::printDebugProperties( writer );
-	os << writer.c_str();
+	base::printDebugProperties(sw);
 }
 
 void Item::readProperties( ConfigElem& elem )

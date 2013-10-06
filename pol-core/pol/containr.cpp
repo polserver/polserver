@@ -94,46 +94,26 @@ void UContainer::destroy()
 // Consider: writing an "item count" property.  On read,
 // recursively read items (eliminate a lot of searching)
 
-void UContainer::printOn( fmt::Writer& writer ) const
+void UContainer::printOn( StreamWriter& sw ) const
 {
-	base::printOn( writer );
-    printContents( writer );
-}
-void UContainer::printOn( ostream& os ) const
-{
-	fmt::Writer writer;
-    UContainer::printOn(writer);
-	os << writer.c_str();
+	base::printOn( sw );
+    printContents( sw );
 }
 
-void UContainer::printSelfOn( fmt::Writer& writer ) const
+void UContainer::printSelfOn( StreamWriter& sw ) const
 {
-	base::printOn( writer );
-}
-void UContainer::printSelfOn( ostream& os ) const
-{
-	fmt::Writer writer;
-	UContainer::printSelfOn(writer);
-	os << writer.c_str();
+	base::printOn( sw );
 }
 
-void UContainer::printContents( ostream& os ) const
+void UContainer::printContents( StreamWriter& sw ) const
 {
-	fmt::Writer writer;
-	UContainer::printContents(writer);
-	os << writer.c_str();
-}
-
-void UContainer::printContents( fmt::Writer& writer ) const
-{
-    for( Contents::const_iterator itr = contents_.begin(); itr != contents_.end(); ++itr )
+    for(const auto& item : contents_ )
     {
-        const Item *item = GET_ITEM_PTR( itr );
         if (item != NULL) 
         {
 			if (!dont_save_itemtype(item->objtype_) && item->saveonexit())
             {
-                writer << *item;
+                sw << *item;
                 item->clear_dirty();
             }
         }
@@ -895,25 +875,19 @@ bool UContainer::check_can_remove_script( Character* chr, Item* item, MoveType m
 }
 
 
-void UContainer::printProperties( ostream& os ) const
+void UContainer::printProperties( StreamWriter& sw ) const
 {
-	fmt::Writer writer;
-	UContainer::printProperties(writer);
-	os << writer.c_str();
-}
-void UContainer::printProperties( fmt::Writer& writer ) const
-{
-	base::printProperties( writer );
+	base::printProperties( sw );
 	short max_items_mod = getmember<s16>(MBR_MAX_ITEMS_MOD);
 	short max_weight_mod = getmember<s16>(MBR_MAX_WEIGHT_MOD);
 	s8 max_slots_mod = getmember<s8>(MBR_MAX_SLOTS_MOD);
 
 	if ( max_items_mod )
-		writer << "\tMax_Items_mod\t" << max_items_mod << pf_endl;
+		sw() << "\tMax_Items_mod\t" << max_items_mod << pf_endl;
 	if ( max_weight_mod )
-		writer << "\tMax_Weight_mod\t" << max_weight_mod << pf_endl;
+		sw() << "\tMax_Weight_mod\t" << max_weight_mod << pf_endl;
 	if ( max_slots_mod )
-		writer << "\tMax_Slots_mod\t" << max_slots_mod << pf_endl;
+		sw() << "\tMax_Slots_mod\t" << max_slots_mod << pf_endl;
 }
 
 void UContainer::readProperties( ConfigElem& elem )
@@ -1066,7 +1040,7 @@ void WornItemsContainer::RemoveItemFromLayer( Item* item )
     remove_bulk( item );
 }
 
-void WornItemsContainer::print( ostream& ofs_pc, ostream& ofs_equip ) const
+void WornItemsContainer::print( StreamWriter& sw_pc, StreamWriter& sw_equip ) const
 {
 	if (!saveonexit())
 	{
@@ -1085,7 +1059,7 @@ void WornItemsContainer::print( ostream& ofs_pc, ostream& ofs_equip ) const
                 (layer == LAYER_FACE) ||
                 (layer == LAYER_ROBE_DRESS && item->objtype_ == UOBJ_DEATH_SHROUD))
             {
-                ofs_pc << *item;
+                sw_pc << *item;
                 item->clear_dirty();
             }
             else if (layer == LAYER_BACKPACK)
@@ -1093,13 +1067,13 @@ void WornItemsContainer::print( ostream& ofs_pc, ostream& ofs_equip ) const
                     // write the backpack to the PC file,
                     // and the backpack contents to the PCEQUIP file
                 const UContainer* cont = static_cast<const UContainer*>(item);
-                cont->printSelfOn( ofs_pc );
+                cont->printSelfOn( sw_pc );
                 cont->clear_dirty();
-                cont->printContents( ofs_equip) ;
+                cont->printContents( sw_equip) ;
             }
             else
             {
-                ofs_equip << *item;
+                sw_equip << *item;
                 item->clear_dirty();
             }
         }

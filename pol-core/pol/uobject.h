@@ -241,13 +241,10 @@ public:
     virtual bool saveonexit() const;
     virtual void saveonexit( bool newvalue );
 
-	virtual void printOn(fmt::Writer& writer) const;
-    virtual void printOn(std::ostream&) const;
-	virtual void printSelfOn(fmt::Writer& writer) const;
-    virtual void printSelfOn( std::ostream& os ) const;
+    virtual void printOn(StreamWriter&) const;
+    virtual void printSelfOn( StreamWriter& sw ) const;
 
-	virtual void printOnDebug( fmt::Writer& writer) const;
-    virtual void printOnDebug( std::ostream& os ) const;
+    virtual void printOnDebug( StreamWriter& sw ) const;
     virtual void readProperties( ConfigElem& elem );
     //virtual BObjectImp* script_member( const char *membername );
     virtual BObjectImp* make_ref() = 0;
@@ -298,10 +295,8 @@ public:
 
 protected:
 
-	virtual void printProperties( fmt::Writer& writer ) const;
-	virtual void printProperties( std::ostream& os ) const;
-	virtual void printDebugProperties( fmt::Writer& writer ) const;
-    virtual void printDebugProperties( std::ostream& os ) const;
+	virtual void printProperties( StreamWriter& sw ) const;
+	virtual void printDebugProperties( StreamWriter& sw ) const;
 
     UObject(u32 objtype, UOBJ_CLASS uobj_class);
 	virtual ~UObject();
@@ -354,8 +349,7 @@ private: // not implemented:
     UObject& operator=( const UObject& );
 };
 
-extern std::ostream& operator << (std::ostream&, const UObject& );
-extern fmt::Writer& operator << (fmt::Writer&, const UObject& );
+extern StreamWriter& operator << (StreamWriter&, const UObject& );
 
 inline bool UObject::specific_name() const
 {

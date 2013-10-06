@@ -149,6 +149,9 @@
     <ClCompile Include="..\..\lib\format\format.cc">
       <Filter>format</Filter>
     </ClCompile>
+    <ClCompile Include="streamsaver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="binaryfile.h">
@@ -324,6 +327,9 @@
     </ClInclude>
     <ClInclude Include="..\..\lib\format\format.h">
       <Filter>format</Filter>
+    </ClInclude>
+    <ClInclude Include="streamsaver.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -77,37 +77,38 @@ void Account::readfrom( ConfigElem& elem )
     props_.readProperties( elem );
 }
 
-void Account::writeto( std::ostream& os )
+void Account::writeto( StreamWriter& sw )
 {
-	os << "Account" << pf_endl
+	sw() << "Account" << pf_endl
 		<< "{" << pf_endl
        << "\tName\t"     << name_     << pf_endl;
 
 	//dave 6/5/3 don't write cleartext unless configured to
 	if(config.retain_cleartext_passwords && !password_.empty())
-		os << "\tPassword\t" << password_ << pf_endl;
+		sw() << "\tPassword\t" << password_ << pf_endl;
 
-	os << "\tPasswordHash\t" << passwordhash_ << pf_endl;  //MD5
+	sw() << "\tPasswordHash\t" << passwordhash_ << pf_endl;  //MD5
 
-    os << "\tEnabled\t"  << enabled_  << pf_endl
+    sw() << "\tEnabled\t"  << enabled_  << pf_endl
        << "\tBanned\t"   << banned_   <<pf_endl;
 
     if (!default_privs_.empty())
     {
-        os << "\tDefaultPrivs\t" << default_privs_.extract() << pf_endl;
+        sw() << "\tDefaultPrivs\t" << default_privs_.extract() << pf_endl;
     }
     if (default_cmdlevel_)
     {
-        os << "\tDefaultCmdLevel\t" << cmdlevels2[default_cmdlevel_].name.c_str() << pf_endl;
+        sw() << "\tDefaultCmdLevel\t" << cmdlevels2[default_cmdlevel_].name.c_str() << pf_endl;
     }
 	if (uo_expansion_)
 	{
-		os << "\tUOExpansion\t" << uo_expansion() << pf_endl;
+		sw() << "\tUOExpansion\t" << uo_expansion() << pf_endl;
 	}
-    props_.printProperties( os );
+    props_.printProperties( sw );
     
-    os << "}" << pf_endl
+    sw() << "}" << pf_endl
        << pf_endl;
+	sw.flush();
 }
 
 void Account::writeto( ConfigElem& elem ) const

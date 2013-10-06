@@ -419,7 +419,7 @@ void CustomHouseDesign::readProperties( ConfigElem& elem, const string& prefix  
     }
 }
 
-void CustomHouseDesign::printProperties( ostream& os, const string& prefix ) const
+void CustomHouseDesign::printProperties( StreamWriter& sw, const string& prefix ) const
 {
     if(!IsEmpty())
     {
@@ -437,7 +437,7 @@ void CustomHouseDesign::printProperties( ostream& os, const string& prefix ) con
 						                                  zitrend = yitr->end(); 
 														  zitr != zitrend; ++zitr)
                     {
-                        os << "\t" << prefix << "\t " << zitr->graphic << " " << zitr->xoffset << " " << zitr->yoffset << " " << (u16)zitr->z << endl;
+                        sw() << "\t" << prefix << "\t " << zitr->graphic << " " << zitr->xoffset << " " << zitr->yoffset << " " << (u16)zitr->z << '\n';
                     }
                 }
             }

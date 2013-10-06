@@ -525,27 +525,27 @@ void UHouse::readProperties( ConfigElem& elem )
     }
 }
 
-void UHouse::printProperties( ostream& os ) const
+void UHouse::printProperties( StreamWriter& sw ) const
 {
-    base::printProperties( os );
+    base::printProperties( sw );
 
-	os << "\tMultiID\t" << multiid << pf_endl;
+	sw() << "\tMultiID\t" << multiid << pf_endl;
 
     for( Components::const_iterator itr = components_.begin(), end = components_.end(); itr != end; ++itr )
     {
         Item* item = (*itr).get();
         if (item != NULL && !item->orphan())
         {
-            os << "\tComponent\t" << hexint( item->serial ) << pf_endl;
+            sw() << "\tComponent\t" << fmt::hex(item->serial ) << pf_endl;
         }
     }
-    os << "\tCustom\t" << custom << pf_endl;
+    sw() << "\tCustom\t" << custom << pf_endl;
     if(custom)
     {
-        CurrentDesign.printProperties(os, "Current");
-        WorkingDesign.printProperties(os, "Working");
-        BackupDesign.printProperties(os, "Backup");
-        os << "\tDesignRevision\t" << revision << pf_endl;
+        CurrentDesign.printProperties(sw, "Current");
+        WorkingDesign.printProperties(sw, "Working");
+        BackupDesign.printProperties(sw, "Backup");
+        sw() << "\tDesignRevision\t" << revision << pf_endl;
     }
 }
 
