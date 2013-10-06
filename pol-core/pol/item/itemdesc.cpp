@@ -808,8 +808,9 @@ unsigned short getcolor( unsigned int objtype )
 
 const ItemDesc& find_itemdesc( unsigned int objtype )
 {
-    if( desctable.count(objtype) )
-		return *desctable[objtype];
+	const auto &obj = desctable.find(objtype);
+    if( obj != desctable.end() )
+		return *(obj->second);
 	else
 		return empty_itemdesc;
 }
