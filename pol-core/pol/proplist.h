@@ -20,7 +20,7 @@ Notes
 #include <string>
 #include <vector>
 
-#include "savedata.h"
+#include "../clib/streamsaver.h"
 #include "../../lib/format/format.h"
 
 class ConfigElem;
