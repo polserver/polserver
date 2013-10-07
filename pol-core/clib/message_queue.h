@@ -2,6 +2,7 @@
 #define MESSAGE_QUEUE_H
 #include <chrono>
 #include <mutex>
+#include <list>
 #include <condition_variable>
 
 #include <boost/noncopyable.hpp>
@@ -50,7 +51,7 @@ class message_queue : boost::noncopyable
     // push new message into queue and notify possible wait_pop
     void push(Message const& msg)
     {
-        list<Message> tmp;
+        std::list<Message> tmp;
         tmp.push_back(msg);  // costly pushback outside the lock
         {
             std::lock_guard<std::mutex> lock(_mutex);
@@ -99,7 +100,7 @@ class message_queue : boost::noncopyable
     };
 
    private:
-    list<Message> _queue;
+    std::list<Message> _queue;
     mutable std::mutex _mutex;
     std::condition_variable _notifier;
     bool _cancel;

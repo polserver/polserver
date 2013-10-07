@@ -15,6 +15,8 @@ Notes
 
 class SaveContext : boost::noncopyable
 {
+	typedef ThreadedOFStreamWriter SaveStrategy;
+	//typedef OFStreamWriter SaveStrategy;
 private:
 	std::ofstream _pol;
 	std::ofstream _objects;
@@ -31,19 +33,19 @@ private:
 	std::ofstream _party;
 public:
 	SaveContext();
-	OFStreamWriter pol;
-	OFStreamWriter objects;
-	OFStreamWriter pcs;
-	OFStreamWriter pcequip;
-	OFStreamWriter npcs;
-	OFStreamWriter npcequip;
-	OFStreamWriter items;
-	OFStreamWriter multis;
-	OFStreamWriter storage;
-	OFStreamWriter resource;
-	OFStreamWriter guilds;
-	OFStreamWriter datastore;
-	OFStreamWriter party;
+	SaveStrategy pol;
+	SaveStrategy objects;
+	SaveStrategy pcs;
+	SaveStrategy pcequip;
+	SaveStrategy npcs;
+	SaveStrategy npcequip;
+	SaveStrategy items;
+	SaveStrategy multis;
+	SaveStrategy storage;
+	SaveStrategy resource;
+	SaveStrategy guilds;
+	SaveStrategy datastore;
+	SaveStrategy party;
 };
 
 int save_incremental(unsigned int& dirty_writes, unsigned int& clean_objects, long long& elapsed_ms);
