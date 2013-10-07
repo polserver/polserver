@@ -881,7 +881,7 @@ void write_shadow_realms( StreamWriter& sw )
 
 // Austin (Oct. 17, 2006)
 // Added to handle gotten item saving.
-inline void WriteGottenItem(Character* chr, SaveContext& sc)
+inline void WriteGottenItem(Character* chr, StreamWriter& sw)
 {
 	Item* item = chr->gotten_item;
 	// For now, it just saves the item in items.txt 
@@ -890,7 +890,7 @@ inline void WriteGottenItem(Character* chr, SaveContext& sc)
 	item->z = chr->z;
 	item->realm = chr->realm;
 
-	item->printOn(sc.items);
+	item->printOn(sw);
 
 	item->x = item->y = item->z = 0;
 }
@@ -908,10 +908,6 @@ void write_characters( SaveContext& sc )
 				chr->printOn( sc.pcs );
 				chr->clear_dirty();
 				chr->printWornItems( sc.pcs, sc.pcequip );
-
-				// Figure out where to save the 'gotten item' - Austin (Oct. 17, 2006)
-				if ( chr->gotten_item && !chr->gotten_item->orphan() )
-					WriteGottenItem(chr, sc);
 			}
 		}
 	}
@@ -963,6 +959,21 @@ void write_items( StreamWriter& sw_items )
 						item->clear_dirty();
 					}
 				}
+			}
+		}
+	}
+	
+	for( const auto &objitr : objecthash )
+	{
+		UObject* obj = objitr.second.get();
+		if (obj->ismobile() && !obj->orphan())
+		{
+			Character* chr = static_cast<Character*>(obj);
+			if (!chr->isa( UObject::CLASS_NPC ))
+			{
+				// Figure out where to save the 'gotten item' - Austin (Oct. 17, 2006)
+				if ( chr->gotten_item && !chr->gotten_item->orphan() )
+					WriteGottenItem(chr, sw_items);
 			}
 		}
 	}
@@ -1101,7 +1112,7 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
 			}
 
 			{
-				write_characters( sc ); // this writes wornitems into items.txt, can they safely be moved into pcequip? 
+				write_characters( sc );
 				sc.pcs.flush_file();
 				sc.pcequip.flush_file();
 			}

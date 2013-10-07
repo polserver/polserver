@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include <thread>
+#include <chrono>
 #include "message_queue.h"
 #include "streamsaver.h"
 
@@ -147,6 +148,11 @@ void ThreadedOFStreamWriter::start_worker()
 ThreadedOFStreamWriter::~ThreadedOFStreamWriter() 
 {
 	flush();
+	while (!_msg_queue.empty()) // since its single producer/writer its safe to use empty check
+	{
+		std::chrono::milliseconds dur( 50 );
+		std::this_thread::sleep_for( dur );
+	}
 	_msg_queue.cancel();
 	_writethread.join();
 	_stream->flush();
