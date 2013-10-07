@@ -1012,34 +1012,39 @@ bool commit( const string& basename )
 	string bakfile = config.world_data_path + basename + ".bak";
 	string datfile = config.world_data_path + basename + ".txt";
 	string ndtfile = config.world_data_path + basename + ".ndt";
+	const char* bakfile_c = bakfile.c_str();
+	const char* datfile_c = datfile.c_str();
+	const char* ndtfile_c = ndtfile.c_str();
 	
 	bool any = false;
 
-	if (FileExists( bakfile ))
+	if (FileExists( bakfile_c ))
 	{
 		any = true;
-		if (unlink( bakfile.c_str() ))
+		if (unlink( bakfile_c ))
 		{
 			int err = errno;
-			Log2( "Unable to remove %s: %s (%d)\n", bakfile.c_str(), strerror(err), err );
+			Log2( "Unable to remove %s: %s (%d)\n", bakfile_c, strerror(err), err );
 		}
 	}
-	if (FileExists( datfile ))
+
+	if (FileExists( datfile_c ))
 	{
 		any = true;
-		if (rename( datfile.c_str(), bakfile.c_str() ))
+		if (rename( datfile_c, bakfile_c ))
 		{
 			int err = errno;
-			Log2( "Unable to rename %s to %s: %s (%d)\n", datfile.c_str(), bakfile.c_str(), strerror(err), err );
+			Log2( "Unable to rename %s to %s: %s (%d)\n", datfile_c, bakfile_c, strerror(err), err );
 		}
 	}
-	if (FileExists( ndtfile ))
+
+	if (FileExists( ndtfile_c ))
 	{
 		any = true;
-		if (rename( ndtfile.c_str(), datfile.c_str() ))
+		if (rename( ndtfile_c, datfile_c ))
 		{
 			int err = errno;
-			Log2( "Unable to rename %s to %s: %s (%d)\n", ndtfile.c_str(), datfile.c_str(), strerror(err), err );
+			Log2( "Unable to rename %s to %s: %s (%d)\n", ndtfile_c, datfile_c, strerror(err), err );
 		}
 	}
 

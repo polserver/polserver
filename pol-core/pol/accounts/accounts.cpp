@@ -73,13 +73,16 @@ void write_account_data()
 	string accountstxtfile = config.world_data_path + "accounts.txt";
 	string accountsbakfile = config.world_data_path + "accounts.bak";
 	string accountsndtfile = config.world_data_path + "accounts.ndt";
+	const char *accountstxtfile_c = accountstxtfile.c_str();
+	const char *accountsbakfile_c = accountsbakfile.c_str();
+	const char *accountsndtfile_c = accountsndtfile.c_str();
 
-	RemoveFile( accountsbakfile );
-    RemoveFile( accountsndtfile );
+	unlink( accountsbakfile_c );
+    unlink( accountsndtfile_c );
     
     {
-        ofstream ofs( accountsndtfile.c_str(), std::ios::trunc|ios::out );
-		OFStreamWriter sw(&ofs);
+        ofstream ofs( accountsndtfile_c, std::ios::trunc|ios::out );
+		ThreadedOFStreamWriter sw(&ofs);
         for(auto &account : accounts)
         {
             Account* acct = account.get();
@@ -87,11 +90,11 @@ void write_account_data()
         }
     }
     
-    rename( accountstxtfile.c_str(), accountsbakfile.c_str() );
-    rename( accountsndtfile.c_str(), accountstxtfile.c_str() );
+    rename( accountstxtfile_c, accountsbakfile_c );
+    rename( accountsndtfile_c, accountstxtfile_c );
 
 	struct stat newst;
-    stat( accountstxtfile.c_str(), &newst );
+    stat( accountstxtfile_c, &newst );
     memcpy( &accounts_txt_stat, &newst, sizeof accounts_txt_stat );
 	accounts_txt_dirty = false;
 }

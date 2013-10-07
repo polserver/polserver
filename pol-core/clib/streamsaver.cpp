@@ -149,6 +149,7 @@ ThreadedOFStreamWriter::~ThreadedOFStreamWriter()
 	flush();
 	_msg_queue.cancel();
 	_writethread.join();
+	_stream->flush();
 }
 
 void ThreadedOFStreamWriter::init(const std::string &filepath)
