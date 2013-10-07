@@ -1170,10 +1170,10 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
 	times.push_back(timer.ellapsed());
 	objecthash.ClearDeleted();
 
-	//cout << "times" << endl;
-	//for (const auto &time : times)
-	//	cout << time << endl;
-	//cout << "Clean: " << UObject::clean_writes << " Dirty: " << UObject::dirty_writes << endl;
+	cout << "times" << endl;
+	for (const auto &time : times)
+		cout << time << endl;
+	cout << "Clean: " << UObject::clean_writes << " Dirty: " << UObject::dirty_writes << endl;
 	clean_writes = UObject::clean_writes;
 	dirty_writes = UObject::dirty_writes;
 	elapsed_ms = times.back();
