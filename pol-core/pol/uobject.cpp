@@ -15,6 +15,7 @@ Notes
 #pragma warning( disable: 4786 )
 #endif
 
+#include <atomic>
 
 #include "../clib/cfgelem.h"
 #include "../clib/endian.h"
@@ -63,8 +64,8 @@ void display_unreaped_orphan_instances()
     //for( std::set<UObject*>::iterator itr = unreaped_orphan_instances.begin();
 }
 
-unsigned int UObject::dirty_writes;
-unsigned int UObject::clean_writes;
+std::atomic<unsigned int> UObject::dirty_writes;
+std::atomic<unsigned int> UObject::clean_writes;
 
 UObject::UObject(u32 objtype, UOBJ_CLASS i_uobj_class) :
 	serial(0),
