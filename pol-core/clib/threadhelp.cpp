@@ -367,4 +367,68 @@ void ThreadMap::CopyContents( Contents& out ) const
     out = _contents;
     threadmap_unlock();
 }
+
+
+// Creates a local threadpool of workers.
+// blocks on deconstruction
+// eg:
+// LocalThreadPool workers;
+// for (....)
+//   workers.push([&](){dosomework();});
+LocalThreadPool::LocalThreadPool() 
+	: _done(false), _msg_queue()
+{
+    // get the count of processors
+    unsigned int max_count = std::thread::hardware_concurrency();
+    if (!max_count)  // can fail so at least one
+        max_count = 1;
+    init(max_count);
+}
+
+LocalThreadPool::LocalThreadPool(unsigned int max_count)
+    : _done(false), _msg_queue()
+{
+    init(max_count);
+}
+
+void LocalThreadPool::init(unsigned int max_count)
+{
+    for (unsigned int i = 0; i < max_count; ++i)
+    {
+        _threads.emplace_back([=]() {
+            auto f = msg();
+            try
+            {
+                while (!_done)
+                {
+                    _msg_queue.pop_wait(f);
+                    f();
+                }
+            }
+            catch (msg_queue::Canceled& e)
+            {
+            }
+            // try_pop does not check cancel, purge the queue empty
+            while (_msg_queue.try_pop(f))
+                f();
+        });
+    }
+}
+
+LocalThreadPool::~LocalThreadPool()
+{
+    // send both done and cancel to wake up all workers
+    _msg_queue.push([&]() {
+        _done = true;
+        _msg_queue.cancel();
+    });
+    for (auto& thread : _threads) 
+		thread.join();
+}
+
+void LocalThreadPool::push(msg msg)
+{
+    _msg_queue.push(msg);
+}
+
 }

@@ -11,6 +11,9 @@ Notes
 #ifndef THREADHELP_H
 #define THREADHELP_H
 
+#include <thread>
+#include "message_queue.h"
+
 namespace threadhelp
 {
     extern unsigned int child_threads;
@@ -42,6 +45,24 @@ namespace threadhelp
 #ifdef _WIN32
 	void SetThreadName( int dwThreadID, std::string threadName);
 #endif
+
+
+
+	class LocalThreadPool
+	{
+		typedef std::function<void()> msg;
+		typedef message_queue<msg> msg_queue;
+	public:
+		LocalThreadPool();
+		LocalThreadPool(unsigned int max_count);
+		~LocalThreadPool();
+		void push(msg msg);
+	private:
+		void init(unsigned int max_count);
+		bool _done;
+		msg_queue _msg_queue;
+		std::vector<std::thread> _threads;
+	};
 
 
 } // namespace threadhelp
