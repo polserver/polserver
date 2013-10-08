@@ -426,9 +426,29 @@ LocalThreadPool::~LocalThreadPool()
 		thread.join();
 }
 
+// simply fire and forget only the deconstructor ensures the msg to be finished
 void LocalThreadPool::push(msg msg)
 {
     _msg_queue.push(msg);
+}
+
+// returns a future which will be set once the msg is processed
+std::future<bool> LocalThreadPool::checked_push(msg msg)
+{
+    auto promise = std::make_shared<std::promise<bool>>();
+    auto ret = promise->get_future();
+    _msg_queue.push([=]() {
+        try
+        {
+            msg();
+            promise->set_value(true);
+        }
+        catch (...)
+        {
+            promise->set_exception(std::current_exception());
+        }
+    });
+    return ret;
 }
 
 }
