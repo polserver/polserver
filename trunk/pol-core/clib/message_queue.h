@@ -67,6 +67,13 @@ class message_queue : boost::noncopyable
         return _queue.empty();
     }
 
+	// return current size (unsafe aka senseless)
+	std::size_t size() const
+	{
+		std::lock_guard<std::mutex> lock(_mutex);
+		return _queue.size();
+	}
+
     // tries to get a message true on success false otherwise
     bool try_pop(Message& msg)
     {
