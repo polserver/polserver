@@ -12,6 +12,7 @@ Notes
 #define THREADHELP_H
 
 #include <thread>
+#include <future>
 #include "message_queue.h"
 
 namespace threadhelp
@@ -57,6 +58,7 @@ namespace threadhelp
 		LocalThreadPool(unsigned int max_count);
 		~LocalThreadPool();
 		void push(msg msg);
+		std::future<bool> checked_push(msg msg);
 	private:
 		void init(unsigned int max_count);
 		bool _done;
