@@ -941,11 +941,11 @@ void write_items( StreamWriter& sw_items )
 		unsigned wgridx = realm->width() / WGRID_SIZE;
 		unsigned wgridy = realm->height() / WGRID_SIZE;
 
-	// Tokuno-Fix
-	if (wgridx * WGRID_SIZE < realm->width())
-	  wgridx++;
-	if (wgridy * WGRID_SIZE < realm->height())
-	  wgridy++;
+		// Tokuno-Fix
+		if (wgridx * WGRID_SIZE < realm->width())
+		  wgridx++;
+		if (wgridy * WGRID_SIZE < realm->height())
+		  wgridy++;
 	
 		for( unsigned wx = 0; wx < wgridx; ++wx )
 		{
@@ -1088,8 +1088,9 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
 
 	{
 		SaveContext sc;
-
+#pragma omp parallel sections
 		{
+#pragma omp section			
 			{
 				sc.pol()
 					<< "#" << pf_endl
@@ -1105,56 +1106,56 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
 				write_shadow_realms( sc.pol );
 				sc.pol.flush_file();
 			}
-
+#pragma omp section
 			{
 				write_items( sc.items );
 				sc.items.flush_file();
 			}
-
+#pragma omp section
 			{
 				write_characters( sc );
 				sc.pcs.flush_file();
 				sc.pcequip.flush_file();
 			}
-
+#pragma omp section
 			{
 				write_npcs( sc );
 				sc.npcs.flush_file();
 				sc.npcequip.flush_file();
 			}
-
+#pragma omp section
 			{
 				write_multis( sc.multis );
 				sc.multis.flush_file();
 			}
-
+#pragma omp section
 			{
 				storage.print(sc.storage);
 				sc.storage.flush_file();
 			}
-
+#pragma omp section
 			{
 				write_resources_dat( sc.resource );
 				sc.resource.flush_file();
 			}
-
+#pragma omp section
 			{
 				write_guilds( sc.guilds );
 				sc.guilds.flush_file();
 			}
-
+#pragma omp section
 			{
 				write_datastore( sc.datastore );
 				sc.datastore.flush_file();
 				// Atomically (hopefully) perform the switch.
 				commit_datastore();
 			}
-
+#pragma omp section
 			{
 				write_party( sc.party );
 				sc.party.flush_file();
 			}
-
+#pragma omp section
 			{
 				if (accounts_txt_dirty)
 				{
@@ -1186,10 +1187,10 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
 	times.push_back(timer.ellapsed());
 	objecthash.ClearDeleted();
 
-	cout << "times" << endl;
-	for (const auto &time : times)
-		cout << time << endl;
-	cout << "Clean: " << UObject::clean_writes << " Dirty: " << UObject::dirty_writes << endl;
+	//cout << "times" << endl;
+	//for (const auto &time : times)
+	//	cout << time << endl;
+	//cout << "Clean: " << UObject::clean_writes << " Dirty: " << UObject::dirty_writes << endl;
 	clean_writes = UObject::clean_writes;
 	dirty_writes = UObject::dirty_writes;
 	elapsed_ms = times.back();

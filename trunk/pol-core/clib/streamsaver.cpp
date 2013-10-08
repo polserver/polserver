@@ -7,7 +7,7 @@
 #include "message_queue.h"
 #include "streamsaver.h"
 
-const size_t flush_limit=500;
+const std::size_t flush_limit=500;
 
 // BaseClass implements only writer operator logic
 StreamWriter::StreamWriter() 
@@ -127,11 +127,11 @@ ThreadedOFStreamWriter::ThreadedOFStreamWriter(std::ofstream *stream)
 void ThreadedOFStreamWriter::start_worker()
 {
 	_writethread = std::thread([this](){
+		auto writer = WriterPtr();
 		try
 		{
 			while (1)
 			{
-				auto writer = WriterPtr();
 				_msg_queue.pop_wait(writer);
 				if (writer->size())
 					*_stream << writer->c_str();
@@ -139,23 +139,21 @@ void ThreadedOFStreamWriter::start_worker()
 		}
 		catch (writer_queue::Canceled& e)
 		{
-			_stream->flush();
-			return;
 		}
+		while (_msg_queue.try_pop(writer))
+		{
+			if (writer->size())
+				*_stream << writer->c_str();
+		}
+		_stream->flush();
 	});
 }
 
 ThreadedOFStreamWriter::~ThreadedOFStreamWriter() 
 {
 	flush();
-	while (!_msg_queue.empty()) // since its single producer/writer its safe to use empty check
-	{
-		std::chrono::milliseconds dur( 50 );
-		std::this_thread::sleep_for( dur );
-	}
 	_msg_queue.cancel();
 	_writethread.join();
-	_stream->flush();
 }
 
 void ThreadedOFStreamWriter::init(const std::string &filepath)
