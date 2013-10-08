@@ -19,6 +19,7 @@ Notes
 #include <iosfwd>
 #include <map>
 #include <string>
+#include <atomic>
 
 #include "../../lib/format/format.h"
 
@@ -285,8 +286,8 @@ public:
     bool dirty() const;
     void set_dirty() { dirty_ = true; }
     void clear_dirty() const;
-    static unsigned int dirty_writes;
-    static unsigned int clean_writes;
+    static std::atomic<unsigned int> dirty_writes;
+    static std::atomic<unsigned int>  clean_writes;
 
 	Resistances element_resist;
 	ElementDamages element_damage;
