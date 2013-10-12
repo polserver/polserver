@@ -18,25 +18,25 @@ void ClientTransmit::Cancel()
 void ClientTransmit::AddToQueue(Client* client, const void *data, int len)
 {
 	const u8* message = static_cast<const u8*>(data);
-	auto transmitdata = std::make_shared<TransmitData>();
+	auto transmitdata = TransmitDataSPtr(new TransmitData);
 	transmitdata->client=client;
 	transmitdata->len=len;
 	transmitdata->data.assign(message,message+len);
 	transmitdata->disconnects = false;
-	_transmitqueue.push(transmitdata);
+	_transmitqueue.push_move(transmitdata);
 }
 
 void ClientTransmit::QueueDisconnection(Client* client)
 {
-	auto transmitdata = std::make_shared<TransmitData>();
+	auto transmitdata = TransmitDataSPtr(new TransmitData);
 	transmitdata->disconnects = true;
 	transmitdata->client = client;
-	_transmitqueue.push(transmitdata);
+	_transmitqueue.push_move(transmitdata);
 }
 
 TransmitDataSPtr ClientTransmit::NextQueueEntry()
 {
-	auto transmitdata = std::make_shared<TransmitData>();
+	auto transmitdata = TransmitDataSPtr();
 	_transmitqueue.pop_wait(transmitdata);
 	return transmitdata;
 }

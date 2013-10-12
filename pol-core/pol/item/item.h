@@ -193,6 +193,7 @@ protected:
 	std::string on_use_script_;
 	std::string equip_script_;
 	std::string unequip_script_;
+	mutable const ItemDesc *_itemdesc;
 public:
 	u8 layer;
 	u8 tile_layer;

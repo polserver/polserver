@@ -42,25 +42,25 @@ void UDoor::builtin_on_use( Client *client )
 
 void UDoor::toggle()
 {
-    const DoorDesc& dd = fast_find_doordesc( objtype_ );
+    const DoorDesc* dd = static_cast<const DoorDesc*>(&itemdesc());
 
     unsigned short oldx = x, oldy = y;
 
     set_dirty();
     if (is_open())
     {
-        if (dd.graphic)
-			graphic = dd.graphic;
+        if (dd->graphic)
+			graphic = dd->graphic;
 		else
 			graphic = static_cast<u16>(objtype_);
-		x -= dd.xmod;
-		y -= dd.ymod;
+		x -= dd->xmod;
+		y -= dd->ymod;
     }
     else
     {
-        graphic = dd.open_graphic;
-		x += dd.xmod;
-		y += dd.ymod;
+        graphic = dd->open_graphic;
+		x += dd->xmod;
+		y += dd->ymod;
     }
     
     MoveItemWorldPosition( oldx, oldy, this, NULL );
@@ -70,9 +70,8 @@ void UDoor::toggle()
 
 bool UDoor::is_open() const
 {
-	const DoorDesc& dd = fast_find_doordesc( objtype_ );
-
-    if (graphic == dd.open_graphic)
+	const DoorDesc* dd = static_cast<const DoorDesc*>(&itemdesc());
+    if (graphic == dd->open_graphic)
         return true;
     else
         return false;

@@ -63,8 +63,6 @@ ItemDesc empty_itemdesc( ItemDesc::ITEMDESC );
 ItemDesc temp_itemdesc( ItemDesc::ITEMDESC );
 
 map<u32,ItemDesc*> desctable;
-map<u32,bool> has_walkon_script_;
-map<u32,bool> dont_save_itemtype_;
 
 OldObjtypeConversions old_objtype_conversions;
 
@@ -207,7 +205,8 @@ ItemDesc::ItemDesc( u32 objtype, ConfigElem& elem, Type type, const Package* pkg
 	blocks_casting_if_in_hand( elem.remove_bool( "BlocksCastingIfInHand", true ) ),
 	base_str_req( elem.remove_ushort( "StrRequired", 0 ) * 10 ),
 	quality(elem.remove_double("QUALITY", 1.0) ),
-	method_script(NULL)
+	method_script(NULL),
+	save_on_exit( elem.remove_bool( "SaveOnExit", true ) )
 {
 	if (type == BOATDESC || type == HOUSEDESC)
 	{
@@ -510,7 +509,8 @@ ItemDesc::ItemDesc(Type type) :
 	blocks_casting_if_in_hand( true ),
 	base_str_req(0),
 	stack_limit(MAX_STACK_ITEMS),
-	method_script(NULL)
+	method_script(NULL),
+	save_on_exit(true)
 {
 }
 
@@ -817,39 +817,24 @@ const ItemDesc& find_itemdesc( unsigned int objtype )
 
 const ContainerDesc& find_container_desc( u32 objtype )
 {
-	ContainerDesc* cd;
-	if( has_itemdesc(objtype) )
-		cd = static_cast<ContainerDesc*>(desctable[objtype]);
-	else
-		cd = static_cast<ContainerDesc*>(&empty_itemdesc);
+	const ContainerDesc* cd = static_cast<const ContainerDesc*>(&find_itemdesc(objtype));
 	passert_r( (cd->type == ItemDesc::CONTAINERDESC) || (cd->type == ItemDesc::SPELLBOOKDESC),
 	  "ObjType " + hexint(objtype) + " should be defined as container or spellbook, but is not");
-   // if ( (cd->type != ItemDesc::CONTAINERDESC) && (cd->type != ItemDesc::SPELLBOOKDESC) )
-   //	 throw runtime_error( "Objtype " + hexint(objtype) + " should be defined as a container or spellbook, but is not." );
-
 	return *cd;
 }
 
 const DoorDesc& fast_find_doordesc( u32 objtype )
 {
-	DoorDesc* dd;
-	if( has_itemdesc(objtype) )
-		dd = static_cast<DoorDesc*>(desctable[objtype]);
-	else
-		dd = static_cast<DoorDesc*>(&empty_itemdesc);
+	const DoorDesc* dd = static_cast<const DoorDesc*>(&find_itemdesc(objtype));
 	passert( dd->type == ItemDesc::DOORDESC );
 	return *dd;
 }
 
 const MultiDesc& find_multidesc( u32 objtype )
 {
-   const ItemDesc* id;
-   if( has_itemdesc(objtype) )
-	   id = desctable[objtype];
-   else
-	   id = &empty_itemdesc;
-   passert( id->type == ItemDesc::BOATDESC || id->type == ItemDesc::HOUSEDESC );
-   return *static_cast<const MultiDesc*>(id);
+	const MultiDesc* md = static_cast<const MultiDesc*>(&find_itemdesc(objtype));
+	passert( md->type == ItemDesc::BOATDESC || md->type == ItemDesc::HOUSEDESC );
+	return *md;
 }
 
 vector< ItemDesc* > dynamic_item_descriptors;
@@ -999,10 +984,8 @@ void read_itemdesc_file( const char* filename, Package* pkg = NULL )
 
 			elem.throw_error( "ObjType " + hexint( descriptor->objtype ) + " defined more than once." );
 		}
-		has_walkon_script_[ descriptor->objtype ] = (!descriptor->walk_on_script.empty());
 		desctable[ descriptor->objtype ] = descriptor;
 
-		dont_save_itemtype_[descriptor->objtype] = !elem.remove_bool( "SaveOnExit", true );
 		// just make sure this will work later.
 		getgraphic( descriptor->objtype );
 	}

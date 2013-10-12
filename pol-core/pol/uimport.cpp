@@ -953,7 +953,7 @@ void write_items( StreamWriter& sw_items )
 			{
 				for( const auto &item : realm->zone[wx][wy].items )
 				{
-					if (!dont_save_itemtype(item->objtype_) && item->saveonexit())
+					if (item->itemdesc().save_on_exit && item->saveonexit())
 					{
 						sw_items << *item;
 						item->clear_dirty();

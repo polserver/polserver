@@ -40,6 +40,7 @@ Item::Item( const ItemDesc& id, UOBJ_CLASS uobj_class) :
 	is_gotten_(0),
     invisible_(id.invisible),
 	slot_index_(0),
+	_itemdesc(nullptr),
 	layer(0),
 	hp_(id.maxhp),
 	quality_(id.quality)

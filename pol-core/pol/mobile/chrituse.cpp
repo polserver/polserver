@@ -85,7 +85,7 @@ bool Character::start_itemuse_script( EScriptProgram* prog, Item* item, bool sta
 #include "../scrstore.h"
 void Item::walk_on( Character* chr )
 {
-    const ItemDesc& itemdesc = find_itemdesc( objtype_ );
+    const ItemDesc& itemdesc = this->itemdesc();
     if (!itemdesc.walk_on_script.empty())
     {
         ref_ptr<EScriptProgram> prog;

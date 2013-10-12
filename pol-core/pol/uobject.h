@@ -345,6 +345,7 @@ private:
 	map<unsigned short, boost::any> dynmap;
 
 
+
 private: // not implemented:
     UObject( const UObject& );
     UObject& operator=( const UObject& );

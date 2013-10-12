@@ -60,6 +60,19 @@ class message_queue : boost::noncopyable
         }
     }
 
+	// push new message into queue and notify possible wait_pop
+	// will move the msg into the queue, thus the reference is likely to be invalid afterwards
+	void push_move(Message &msg)
+	{
+		std::list<Message> tmp;
+		tmp.emplace_back(std::move(msg));  // costly pushback outside the lock
+		{
+			std::lock_guard<std::mutex> lock(_mutex);
+			_queue.splice(_queue.end(), tmp);  // fast splice inside
+			_notifier.notify_one();
+		}
+	}
+
     // check if empty (unsafe aka senseless)
     bool empty() const
     {
@@ -79,7 +92,7 @@ class message_queue : boost::noncopyable
     {
         std::lock_guard<std::mutex> lock(_mutex);
         if (_queue.empty()) return false;
-        msg = _queue.front();
+        msg = std::move(_queue.front());
         _queue.pop_front();
         return true;
     }
@@ -91,7 +104,7 @@ class message_queue : boost::noncopyable
         while (_queue.empty() && !_cancel)
             _notifier.wait(lock);  // will unlock mutex during wait
         if (_cancel) throw Canceled();
-        msg = _queue.front();
+        msg = std::move(_queue.front());
         _queue.pop_front();
     }
 
