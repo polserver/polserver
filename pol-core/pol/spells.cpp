@@ -105,7 +105,7 @@ bool hands_are_free( Character* chr )
 	item = chr->wornitem( LAYER_HAND1 );
 	if (item != NULL)
 	{
-		const ItemDesc& id = find_itemdesc( item->objtype_ );
+		const ItemDesc& id = item->itemdesc();
 		if (id.blocks_casting_if_in_hand)
 			return false;
 	}
@@ -113,7 +113,7 @@ bool hands_are_free( Character* chr )
 	item = chr->wornitem( LAYER_HAND2 );
 	if (item != NULL)
 	{
-		const ItemDesc& id = find_itemdesc( item->objtype_ );
+		const ItemDesc& id = item->itemdesc();
 		if (id.blocks_casting_if_in_hand)
 			return false;
 	}

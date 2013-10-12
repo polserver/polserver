@@ -67,7 +67,7 @@ void decay_worldzone( unsigned wx, unsigned wy, Realm* realm )
 					continue;
 			}
 
-			const ItemDesc& descriptor = find_itemdesc( item->objtype_ );
+			const ItemDesc& descriptor = item->itemdesc();
 			UMulti* multi = realm->find_supporting_multi( item->x, item->y, item->z );
 
 			// some things don't decay on multis:

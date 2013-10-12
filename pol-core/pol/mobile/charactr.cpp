@@ -1555,7 +1555,7 @@ bool Character::valid_equip_layer( const Item* item )
 
 bool Character::strong_enough_to_equip( const Item* item ) const
 {
-	const ItemDesc& desc = find_itemdesc( item->objtype_ );
+	const ItemDesc& desc = item->itemdesc();
 	return ( attribute(pAttrStrength->attrid).base() >= desc.base_str_req );
 }
 
@@ -1566,7 +1566,7 @@ bool Character::equippable( const Item* item ) const
 		return (!layer_is_equipped( LAYER_MOUNT ));
 	}
 
-	const ItemDesc& desc = find_itemdesc( item->objtype_ );
+	const ItemDesc& desc = item->itemdesc();
 
 	if (!valid_equip_layer( item ))
 	{

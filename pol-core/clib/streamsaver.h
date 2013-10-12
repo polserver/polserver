@@ -51,7 +51,7 @@ private:
 
 class ThreadedOFStreamWriter : public StreamWriter
 {
-	typedef std::shared_ptr<fmt::Writer> WriterPtr;
+	typedef std::unique_ptr<fmt::Writer> WriterPtr;
 	typedef message_queue<WriterPtr> writer_queue;
 public:
 	ThreadedOFStreamWriter();

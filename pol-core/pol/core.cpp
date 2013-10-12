@@ -179,7 +179,7 @@ Item* find_walkon_item( Items& ivec, short z )
         //cout << item->description << " at z= " << int(item->z) << endl;
         if (z == item->z || z == item->z+1) 
         {
-            if (has_walkon_script( item->objtype_ ))
+			if (!item->itemdesc().walk_on_script.empty())
             {
                 return item;
             }

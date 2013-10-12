@@ -308,7 +308,7 @@ void Realm::readdynamics( MapShapeList& vec, unsigned short x, unsigned short y,
                 }
             }
  
-            if (has_walkon_script( item->objtype_ ))
+            if (!item->itemdesc().walk_on_script.empty())
             {
                 walkon_items.push_back( item );
             }
