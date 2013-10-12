@@ -23,7 +23,7 @@ void ClientTransmit::AddToQueue(Client* client, const void *data, int len)
 	transmitdata->len=len;
 	transmitdata->data.assign(message,message+len);
 	transmitdata->disconnects = false;
-	_transmitqueue.push_move(transmitdata);
+	_transmitqueue.push_move(std::move(transmitdata));
 }
 
 void ClientTransmit::QueueDisconnection(Client* client)
@@ -31,7 +31,7 @@ void ClientTransmit::QueueDisconnection(Client* client)
 	auto transmitdata = TransmitDataSPtr(new TransmitData);
 	transmitdata->disconnects = true;
 	transmitdata->client = client;
-	_transmitqueue.push_move(transmitdata);
+	_transmitqueue.push_move(std::move(transmitdata));
 }
 
 TransmitDataSPtr ClientTransmit::NextQueueEntry()
