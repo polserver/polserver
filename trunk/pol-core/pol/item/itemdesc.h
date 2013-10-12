@@ -116,6 +116,8 @@ public:
 
 	ExportScript* method_script;
 
+	bool save_on_exit;
+
 	void unload_scripts();
 };
 
@@ -216,30 +218,6 @@ const MultiDesc& find_multidesc( u32 objtype );
 
 extern ItemDesc empty_itemdesc;
 extern ItemDesc temp_itemdesc;
-
-//extern std::map< unsigned short, ItemDesc > itemdesc;
-
-extern map<u32,bool> has_walkon_script_;
-
-inline bool has_walkon_script( u32 objtype )
-{
-	const auto &obj = has_walkon_script_.find(objtype);
-	if( obj != has_walkon_script_.end() )
-		return obj->second;
-	else
-		return false;
-}
-
-extern map<u32,bool> dont_save_itemtype_;
-
-inline bool dont_save_itemtype( u32 objtype )
-{
-	const auto &obj = dont_save_itemtype_.find(objtype);
-	if( obj != dont_save_itemtype_.end() )
-		return obj->second;
-	else
-		return false;
-}
 
 extern map<u32,ItemDesc*> desctable;
 

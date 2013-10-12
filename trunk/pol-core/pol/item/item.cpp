@@ -139,7 +139,7 @@ string Item::name() const
     }
     else
     {
-		const ItemDesc& id = find_itemdesc( objtype_ );
+		const ItemDesc& id = this->itemdesc();
 
 		if ( id.desc.empty() )
 			return tile_desc( graphic );
@@ -150,7 +150,9 @@ string Item::name() const
 
 const ItemDesc& Item::itemdesc() const
 {
-    return find_itemdesc( objtype_ );
+	if (_itemdesc == nullptr)
+		_itemdesc = &find_itemdesc( objtype_ );
+	return *_itemdesc;
 }
 
 /* there are four forms of 'name' in objinfo:
@@ -175,7 +177,7 @@ string Item::description() const
     }
     else
     {
-        const ItemDesc& id = find_itemdesc( objtype_ );
+		const ItemDesc& id = this->itemdesc();
         if (id.desc.empty())
         {
             return ::format_description( tile_flags( graphic ), tile_desc( graphic ), amount_, suffix );
@@ -201,7 +203,7 @@ string Item::merchant_description() const
     }
     else
     {
-        const ItemDesc& id = find_itemdesc( objtype_ );
+        const ItemDesc& id = this->itemdesc();
         if (id.desc.empty())
         {
             return ::format_description( 0, tile_desc( graphic ), 1, suffix );
@@ -321,11 +323,10 @@ const char* Item::classname() const
 
 bool Item::default_movable() const
 {
-    const ItemDesc& id = find_itemdesc( objtype_ );
-    if (id.movable == ItemDesc::DEFAULT)
+    if (itemdesc().movable == ItemDesc::DEFAULT)
         return ((tile_flags( graphic ) & FLAG::MOVABLE) != 0);
     else
-        return id.movable ? true : false;
+        return itemdesc().movable ? true : false;
 }
 
 bool Item::default_invisible() const
@@ -488,7 +489,7 @@ void Item::builtin_on_use( Client* client )
 
 void Item::double_click( Client* client )
 {
-    const ItemDesc& itemdesc = find_itemdesc( objtype_ );
+    const ItemDesc& itemdesc = this->itemdesc();
 
     if (itemdesc.requires_attention && (client->chr->skill_ex_active() ||
                                         client->chr->casting_spell()))
@@ -811,7 +812,7 @@ bool Item::setgraphic( u16 newgraphic )
 		tile_layer = tilelayer( graphic );
 
 		// Update facing on graphic change
-		const ItemDesc& id = find_itemdesc( graphic );
+		const ItemDesc& id = this->itemdesc();
 
 		if ( id.facing == 127 )
 			facing = tile_layer;
@@ -893,7 +894,7 @@ void Item::spill_contents( UMulti* multi )
 
 unsigned int Item::weight_of( unsigned short amount ) const
 {
-    const ItemDesc& id = find_itemdesc( objtype_ );
+    const ItemDesc& id = this->itemdesc();
     unsigned int amt = amount;
     amt *= id.weightmult;
     if (id.weightdiv != 1 && id.weightdiv != 0)

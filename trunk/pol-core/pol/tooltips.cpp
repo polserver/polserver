@@ -41,7 +41,7 @@ void handle_request_tooltip( Client* client, PKTIN_B6* msgin )
         Item* item = find_legal_item( client->chr, serial );
         if (item != NULL)
         {
-            const ItemDesc& id = find_itemdesc( item->objtype_ );
+            const ItemDesc& id = item->itemdesc();
             if (!id.tooltip.empty())
             {
 				PacketOut<PktOut_B7> msg;

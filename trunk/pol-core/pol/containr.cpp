@@ -111,7 +111,7 @@ void UContainer::printContents( StreamWriter& sw ) const
     {
         if (item != NULL) 
         {
-			if (!dont_save_itemtype(item->objtype_) && item->saveonexit())
+			if (item->itemdesc().save_on_exit && item->saveonexit())
             {
                 sw << *item;
                 item->clear_dirty();
@@ -1051,7 +1051,7 @@ void WornItemsContainer::print( StreamWriter& sw_pc, StreamWriter& sw_equip ) co
         const Item* item = contents_[ layer ];
         if (item)
         {
-			if (dont_save_itemtype(item->objtype_) || !item->saveonexit())
+			if (!item->itemdesc().save_on_exit || !item->saveonexit())
                 continue;
 
             if ((layer == LAYER_HAIR) || 

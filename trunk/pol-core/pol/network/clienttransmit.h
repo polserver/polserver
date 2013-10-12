@@ -20,7 +20,7 @@ struct TransmitData
 	TransmitData() : client(nullptr), len(0), disconnects(false) {};
 };
 
-typedef std::shared_ptr<TransmitData> TransmitDataSPtr;
+typedef std::unique_ptr<TransmitData> TransmitDataSPtr;
 typedef message_queue<TransmitDataSPtr> ClientTransmitQueue;
 
 class ClientTransmit : boost::noncopyable

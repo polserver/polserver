@@ -112,7 +112,8 @@ void write_object_dirty_owners( StreamWriter& sw_data, const UObject* obj, bool&
     const UObject* owner = obj->owner();
     if (owner)
     {
-        if (dont_save_itemtype(owner->objtype_) ||
+		auto id = find_itemdesc(owner->objtype_);
+		if (!id.save_on_exit ||
 			owner->orphan() || !owner->saveonexit())
         {
             has_nonsaved_owner = true;
@@ -147,7 +148,8 @@ void write_dirty_data( StreamWriter& sw_data )
         const UObjectRef& ref = (*citr).second;
         const UObject* obj = ref.get();
 
-        if (dont_save_itemtype(obj->objtype_))
+		auto id = find_itemdesc(obj->objtype_);
+		if (!id.save_on_exit)
             continue;
 
         if (!obj->dirty())
