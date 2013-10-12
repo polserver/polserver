@@ -2247,11 +2247,13 @@ int xmain_inner( int argc, char *argv[] )
 		
 		// TODO: full save if incremental_saves_disabled ?
 		// otherwise could have really, really bad timewarps
+		Tools::Timer<> timer;
 		if (savetype == SAVE_FULL)
 			write_data( dirty, clean, elapsed_ms );
 		else
 			save_incremental( dirty, clean, elapsed_ms );
-		cout << "Data save completed in " << elapsed_ms << " ms." << endl;
+		SaveContext::ready();
+		cout << "Data save completed in " << elapsed_ms << " ms. " << timer.ellapsed() << " total." << endl;
 	}
 	else
 	{

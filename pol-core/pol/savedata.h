@@ -12,6 +12,7 @@ Notes
 #define SAVEDATA_H
 
 #include "../clib/streamsaver.h"
+#include <future>
 
 class SaveContext : boost::noncopyable
 {
@@ -46,6 +47,8 @@ public:
 	SaveStrategy guilds;
 	SaveStrategy datastore;
 	SaveStrategy party;
+	static std::shared_future<bool> finished;
+	static void ready();
 };
 
 int save_incremental(unsigned int& dirty_writes, unsigned int& clean_objects, long long& elapsed_ms);

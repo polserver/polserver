@@ -23,6 +23,7 @@ Notes
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+#include <future>
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
@@ -66,6 +67,8 @@ Notes
 ////HASH
 #include "objecthash.h"
 ////
+
+std::shared_future<bool> SaveContext::finished;
 
 typedef std::vector<Item*> ContItemArr;
 ContItemArr contained_items;
@@ -831,6 +834,15 @@ SaveContext::SaveContext() :
 			<< pf_endl;
 }
 
+/// blocks till possible last commit finishes
+void SaveContext::ready()
+{
+	if (SaveContext::finished.valid())
+	{
+		//Tools::Timer<Tools::DebugT> t("future");
+		SaveContext::finished.wait();
+	}
+}
 
 
 void write_global_properties( StreamWriter& sw )
@@ -1072,133 +1084,140 @@ bool should_write_data()
 	return true;
 }
 
-int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long long& elapsed_ms )
+int write_data(unsigned int& dirty_writes, unsigned int& clean_writes,
+               long long& elapsed_ms)
 {
-	if (!should_write_data())
-	{
-		dirty_writes = clean_writes = elapsed_ms = 0;
-		return -1;
-	}
+    SaveContext::ready();  // allow only one active
+    if (!should_write_data())
+    {
+        dirty_writes = clean_writes = elapsed_ms = 0;
+        return -1;
+    }
 
-	UObject::dirty_writes = 0;
-	UObject::clean_writes = 0;
+    UObject::dirty_writes = 0;
+    UObject::clean_writes = 0;
 
-	vector<long long> times;
-	Tools::Timer<> timer;
-
-	{
-		SaveContext sc;
+    Tools::Timer<> timer;
+    // launch complete save as seperate thread
+    // but wait till the first critical part is finished
+    // which means all objects got written into a format object
+    // the remaining operations are only pure buffered i/o
+    auto critical_promise = std::make_shared<std::promise<bool>>();
+    auto critical_future = critical_promise->get_future();
+    SaveContext::finished =
+        std::move(std::async(std::launch::async, [&, critical_promise]()->bool
+    {
+            // Tools::Timer<Tools::DebugT> timersc;
+            {
+                SaveContext sc;
 #pragma omp parallel sections
-		{
-#pragma omp section			
-			{
-				sc.pol()
-					<< "#" << pf_endl
-					<< "#  Created by Version: " << polverstr << pf_endl
-					<< "#  Mobiles:		 " << get_mobile_count() << pf_endl
-					<< "#  Top-level Items: " << get_toplevel_item_count() << pf_endl
-					<< "#" << pf_endl
-					<< pf_endl;
+                {
+#pragma omp section
+                    {
+                        sc.pol() << "#" << pf_endl
+                                 << "#  Created by Version: " << polverstr
+                                 << pf_endl
+                                 << "#  Mobiles:		 " << get_mobile_count()
+                                 << pf_endl << "#  Top-level Items: "
+                                 << get_toplevel_item_count() << pf_endl << "#"
+                                 << pf_endl << pf_endl;
 
+                        write_system_data(sc.pol);
+                        write_global_properties(sc.pol);
+                        write_shadow_realms(sc.pol);
+                        sc.pol.flush_file();
+                    }
+#pragma omp section
+                    {
+                        write_items(sc.items);
+                        sc.items.flush_file();
+                    }
+#pragma omp section
+                    {
+                        write_characters(sc);
+                        sc.pcs.flush_file();
+                        sc.pcequip.flush_file();
+                    }
+#pragma omp section
+                    {
+                        write_npcs(sc);
+                        sc.npcs.flush_file();
+                        sc.npcequip.flush_file();
+                    }
+#pragma omp section
+                    {
+                        write_multis(sc.multis);
+                        sc.multis.flush_file();
+                    }
+#pragma omp section
+                    {
+                        storage.print(sc.storage);
+                        sc.storage.flush_file();
+                    }
+#pragma omp section
+                    {
+                        write_resources_dat(sc.resource);
+                        sc.resource.flush_file();
+                    }
+#pragma omp section
+                    {
+                        write_guilds(sc.guilds);
+                        sc.guilds.flush_file();
+                    }
+#pragma omp section
+                    {
+                        write_datastore(sc.datastore);
+                        sc.datastore.flush_file();
+                        // Atomically (hopefully) perform the switch.
+                        commit_datastore();
+                    }
+#pragma omp section
+                    {
+                        write_party(sc.party);
+                        sc.party.flush_file();
+                    }
+#pragma omp section
+                    {
+                        if (accounts_txt_dirty)
+                        {
+                            write_account_data();
+                        }
+                    }
+                }
+                critical_promise->set_value(true);  // critical part end
+            }
 
-				write_system_data( sc.pol );
-				write_global_properties( sc.pol );
-				write_shadow_realms( sc.pol );
-				sc.pol.flush_file();
-			}
-#pragma omp section
-			{
-				write_items( sc.items );
-				sc.items.flush_file();
-			}
-#pragma omp section
-			{
-				write_characters( sc );
-				sc.pcs.flush_file();
-				sc.pcequip.flush_file();
-			}
-#pragma omp section
-			{
-				write_npcs( sc );
-				sc.npcs.flush_file();
-				sc.npcequip.flush_file();
-			}
-#pragma omp section
-			{
-				write_multis( sc.multis );
-				sc.multis.flush_file();
-			}
-#pragma omp section
-			{
-				storage.print(sc.storage);
-				sc.storage.flush_file();
-			}
-#pragma omp section
-			{
-				write_resources_dat( sc.resource );
-				sc.resource.flush_file();
-			}
-#pragma omp section
-			{
-				write_guilds( sc.guilds );
-				sc.guilds.flush_file();
-			}
-#pragma omp section
-			{
-				write_datastore( sc.datastore );
-				sc.datastore.flush_file();
-				// Atomically (hopefully) perform the switch.
-				commit_datastore();
-			}
-#pragma omp section
-			{
-				write_party( sc.party );
-				sc.party.flush_file();
-			}
-#pragma omp section
-			{
-				if (accounts_txt_dirty)
-				{
-					write_account_data();
-				}
-			}
-		}
-		times.push_back(timer.ellapsed());
-	}
+            commit("pol");
+            commit("objects");
+            commit("pcs");
+            commit("pcequip");
+            commit("npcs");
+            commit("npcequip");
+            commit("items");
+            commit("multis");
+            commit("storage");
+            commit("resource");
+            commit("guilds");
+            commit("datastore");
+            commit("parties");
 
-	commit( "pol" );
-	commit( "objects" );
-	commit( "pcs" );
-	commit( "pcequip" );
-	commit( "npcs" );
-	commit( "npcequip" );
-	commit( "items" );
-	commit( "multis" );
-	commit( "storage" );
-	commit( "resource" );
-	commit( "guilds" );
-	commit( "datastore" );
-	commit( "parties" );
-	times.push_back(timer.ellapsed());
+            return true;
+        }));
+    critical_future.wait();  // wait for end of critical part
 
-	commit_incremental_saves();
-	incremental_save_count = 0;
-	timer.stop();
-	times.push_back(timer.ellapsed());
-	objecthash.ClearDeleted();
+    commit_incremental_saves();
+    incremental_save_count = 0;
+    timer.stop();
+    objecthash.ClearDeleted();
+    // cout << "Clean: " << UObject::clean_writes << " Dirty: " <<
+    // UObject::dirty_writes << endl;
+    clean_writes = UObject::clean_writes;
+    dirty_writes = UObject::dirty_writes;
+    elapsed_ms = timer.ellapsed();
 
-	//cout << "times" << endl;
-	//for (const auto &time : times)
-	//	cout << time << endl;
-	//cout << "Clean: " << UObject::clean_writes << " Dirty: " << UObject::dirty_writes << endl;
-	clean_writes = UObject::clean_writes;
-	dirty_writes = UObject::dirty_writes;
-	elapsed_ms = times.back();
-
-	incremental_saves_disabled = false;
-	return 0;
+    incremental_saves_disabled = false;
+    return 0;
 }
-
 
 void read_starting_locations()
 {

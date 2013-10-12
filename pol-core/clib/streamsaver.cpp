@@ -166,7 +166,7 @@ void ThreadedOFStreamWriter::flush()
 {
 	if (_writer->size()) 
 	{
-		_msg_queue.push_move(_writer);
+		_msg_queue.push_move(std::move(_writer));
 		_writer.reset(new fmt::Writer);
 	}
 }

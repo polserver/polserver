@@ -62,7 +62,7 @@ class message_queue : boost::noncopyable
 
 	// push new message into queue and notify possible wait_pop
 	// will move the msg into the queue, thus the reference is likely to be invalid afterwards
-	void push_move(Message &msg)
+	void push_move(Message &&msg)
 	{
 		std::list<Message> tmp;
 		tmp.emplace_back(std::move(msg));  // costly pushback outside the lock
