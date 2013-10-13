@@ -29,10 +29,9 @@ void pop_wait(Message& msg)
  while (!try_pop(msg)) 
  {
   t= some time (a few ms)
-  _notifier.timed_wait(lock, t); // timed wait just to be sure that no deadlocks
-can accur
-                                 // since between the try_pop a new entry can be
-inserted
+  // timed wait just to be sure that no deadlocks can accur
+  // since between the try_pop a new entry can be inserted
+  _notifier.timed_wait(lock, t);                            
  }
 }
 */
@@ -40,7 +39,7 @@ template <typename Message>
 class message_queue : boost::noncopyable
 {
    public:
-    message_queue() : _queue(), _mutex(), _notifier(), _cancel(false)
+    message_queue() : _queue(), _mutex(), _notifier(), _cancel( false )
     {
     }
     ~message_queue()
@@ -48,69 +47,87 @@ class message_queue : boost::noncopyable
         cancel();
     }
 
-    // push new message into queue and notify possible wait_pop
-    void push(Message const& msg)
+    /// push new message into queue and notify possible wait_pop
+    void push( Message const& msg )
     {
         std::list<Message> tmp;
-        tmp.push_back(msg);  // costly pushback outside the lock
+        tmp.push_back( msg );  // costly pushback outside the lock
         {
-            std::lock_guard<std::mutex> lock(_mutex);
-            _queue.splice(_queue.end(), tmp);  // fast splice inside
+            std::lock_guard<std::mutex> lock( _mutex );
+            _queue.splice( _queue.end(), tmp );  // fast splice inside
             _notifier.notify_one();
         }
     }
 
-	// push new message into queue and notify possible wait_pop
-	// will move the msg into the queue, thus the reference is likely to be invalid afterwards
-	void push_move(Message &&msg)
-	{
-		std::list<Message> tmp;
-		tmp.emplace_back(std::move(msg));  // costly pushback outside the lock
-		{
-			std::lock_guard<std::mutex> lock(_mutex);
-			_queue.splice(_queue.end(), tmp);  // fast splice inside
-			_notifier.notify_one();
-		}
-	}
+    /// push new message into queue and notify possible wait_pop
+    /// will move the msg into the queue, thus the reference is likely to be
+    /// invalid afterwards
+    void push_move( Message&& msg )
+    {
+        std::list<Message> tmp;
+        tmp.emplace_back(
+            std::move( msg ) );  // costly pushback outside the lock
+        {
+            std::lock_guard<std::mutex> lock( _mutex );
+            _queue.splice( _queue.end(), tmp );  // fast splice inside
+            _notifier.notify_one();
+        }
+    }
 
-    // check if empty (unsafe aka senseless)
+    /// check if empty (a bit senseless)
     bool empty() const
     {
-        std::lock_guard<std::mutex> lock(_mutex);
+        std::lock_guard<std::mutex> lock( _mutex );
         return _queue.empty();
     }
 
-	// return current size (unsafe aka senseless)
-	std::size_t size() const
-	{
-		std::lock_guard<std::mutex> lock(_mutex);
-		return _queue.size();
-	}
-
-    // tries to get a message true on success false otherwise
-    bool try_pop(Message& msg)
+    /// return current size (unsafe aka senseless)
+    std::size_t size() const
     {
-        std::lock_guard<std::mutex> lock(_mutex);
-        if (_queue.empty()) return false;
-        msg = std::move(_queue.front());
+        std::lock_guard<std::mutex> lock( _mutex );
+        return _queue.size();
+    }
+
+    /// tries to get a message true on success false otherwise
+    bool try_pop( Message* msg )
+    {
+        std::lock_guard<std::mutex> lock( _mutex );
+        if ( _queue.empty() ) return false;
+        *msg = std::move( _queue.front() );
         _queue.pop_front();
         return true;
     }
 
-    // waits till queue is non empty
-    void pop_wait(Message& msg)
+    /// waits till queue is non empty
+    void pop_wait( Message* msg )
     {
-        std::unique_lock<std::mutex> lock(_mutex);
-        while (_queue.empty() && !_cancel)
-            _notifier.wait(lock);  // will unlock mutex during wait
-        if (_cancel) throw Canceled();
-        msg = std::move(_queue.front());
+        std::unique_lock<std::mutex> lock( _mutex );
+        while ( _queue.empty() && !_cancel )
+            _notifier.wait( lock );  // will unlock mutex during wait
+        if ( _cancel ) throw Canceled();
+        *msg = std::move( _queue.front() );
         _queue.pop_front();
+    }
+
+    /// waits till queue is non empty and fill list
+    void pop_wait( std::list<Message>* msgs )
+    {
+        std::unique_lock<std::mutex> lock( _mutex );
+        while ( _queue.empty() && !_cancel )
+            _notifier.wait( lock );  // will unlock mutex during wait
+        if ( _cancel ) throw Canceled();
+        msgs->splice( msgs->end(), _queue );
+    }
+
+	/// empties the queue (unsafe)
+    void pop_remaining( std::list<Message>* msgs )
+    {
+        msgs->splice( msgs->end(), _queue );
     }
 
     void cancel()
     {
-        std::lock_guard<std::mutex> lock(_mutex);
+        std::lock_guard<std::mutex> lock( _mutex );
         _cancel = true;
         _notifier.notify_all();
     }
