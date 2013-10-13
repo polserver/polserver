@@ -49,14 +49,14 @@ namespace threadhelp
 
 
 
-	class LocalThreadPool
+	class TaskThreadPool
 	{
 		typedef std::function<void()> msg;
 		typedef message_queue<msg> msg_queue;
 	public:
-		LocalThreadPool();
-		LocalThreadPool(unsigned int max_count);
-		~LocalThreadPool();
+		TaskThreadPool();
+		TaskThreadPool(unsigned int max_count);
+		~TaskThreadPool();
 		void push(msg msg);
 		std::future<bool> checked_push(msg msg);
 	private:

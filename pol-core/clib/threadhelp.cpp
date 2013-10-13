@@ -369,13 +369,13 @@ void ThreadMap::CopyContents( Contents& out ) const
 }
 
 
-// Creates a local threadpool of workers.
-// blocks on deconstruction
-// eg:
-// LocalThreadPool workers;
-// for (....)
-//   workers.push([&](){dosomework();});
-LocalThreadPool::LocalThreadPool() 
+/// Creates a threadpool of workers.
+/// blocks on deconstruction
+/// eg:
+/// TaskThreadPool workers;
+/// for (....)
+///   workers.push([&](){dosomework();});
+TaskThreadPool::TaskThreadPool() 
 	: _done(false), _msg_queue()
 {
     // get the count of processors
@@ -385,13 +385,13 @@ LocalThreadPool::LocalThreadPool()
     init(max_count);
 }
 
-LocalThreadPool::LocalThreadPool(unsigned int max_count)
+TaskThreadPool::TaskThreadPool(unsigned int max_count)
     : _done(false), _msg_queue()
 {
     init(max_count);
 }
 
-void LocalThreadPool::init(unsigned int max_count)
+void TaskThreadPool::init(unsigned int max_count)
 {
     for (unsigned int i = 0; i < max_count; ++i)
     {
@@ -401,21 +401,23 @@ void LocalThreadPool::init(unsigned int max_count)
             {
                 while (!_done)
                 {
-                    _msg_queue.pop_wait(f);
+                    _msg_queue.pop_wait(&f);
                     f();
                 }
             }
             catch (msg_queue::Canceled& e)
             {
             }
-            // try_pop does not check cancel, purge the queue empty
-            while (_msg_queue.try_pop(f))
-                f();
+			//purge the queue empty
+			std::list<msg> remaining;
+			_msg_queue.pop_remaining( &remaining );
+			for (auto& _f : remaining)
+				_f();
         });
     }
 }
 
-LocalThreadPool::~LocalThreadPool()
+TaskThreadPool::~TaskThreadPool()
 {
     // send both done and cancel to wake up all workers
     _msg_queue.push([&]() {
@@ -426,14 +428,14 @@ LocalThreadPool::~LocalThreadPool()
 		thread.join();
 }
 
-// simply fire and forget only the deconstructor ensures the msg to be finished
-void LocalThreadPool::push(msg msg)
+/// simply fire and forget only the deconstructor ensures the msg to be finished
+void TaskThreadPool::push(msg msg)
 {
     _msg_queue.push(msg);
 }
 
-// returns a future which will be set once the msg is processed
-std::future<bool> LocalThreadPool::checked_push(msg msg)
+/// returns a future which will be set once the msg is processed
+std::future<bool> TaskThreadPool::checked_push(msg msg)
 {
     auto promise = std::make_shared<std::promise<bool>>();
     auto ret = promise->get_future();
