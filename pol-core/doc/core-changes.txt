@@ -1,4 +1,7 @@
 ﻿-- POL099 --
+10-20-2013 Tomi:
+    Changed:  GetItemDescriptor(objtype).desc now dont just return the Desc entry from itemdescs, now it uses the singular/plural formatting and return the desc for singular part
+
 10-04-2013 Turley:
 	Fixed:   \= operation
 	
