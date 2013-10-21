@@ -31,6 +31,7 @@ Notes
 
 #include "../core.h"
 #include "../cmdlevel.h"
+#include "../item/item.h"
 #include "../item/itemdesc.h"
 #include "../listenpt.h"
 #include "polsystemmod.h"
@@ -92,6 +93,7 @@ TmplExecutorModule<PolSystemExecutorModule>::FunctionDef
   { "ListenPoints",			&PolSystemExecutorModule::mf_ListenPoints },
   { "SetSysTrayPopupText",	&PolSystemExecutorModule::mf_SetSysTrayPopupText },
   { "GetItemDescriptor",		&PolSystemExecutorModule::mf_GetItemDescriptor },
+  { "FormatItemDescription",	&PolSystemExecutorModule::mf_FormatItemDescription },
   { "CreatePacket",			&PolSystemExecutorModule::mf_CreatePacket },
   { "AddRealm",		        &PolSystemExecutorModule::mf_AddRealm },
   { "DeleteRealm",			&PolSystemExecutorModule::mf_DeleteRealm },
@@ -351,6 +353,22 @@ BObjectImp* PolSystemExecutorModule::mf_GetItemDescriptor()
 		id.PopulateStruct( descriptor.get() );
 		
 		return descriptor.release();
+	}
+	else
+	{
+		return new BError( "Invalid parameter type" );
+	}
+}
+
+BObjectImp* PolSystemExecutorModule::mf_FormatItemDescription()
+{
+	const String* desc;
+	unsigned short amount;
+	const String* suffix;
+
+	if ( getStringParam(0, desc) && getParam(1, amount) && getStringParam(2, suffix) )
+	{
+		return new String( format_description(0,desc->value(),amount,suffix->value()) );
 	}
 	else
 	{

@@ -36,6 +36,7 @@ public:
 	BObjectImp* mf_AddRealm(/*name,base*/);
 	BObjectImp* mf_DeleteRealm(/*name*/);
     BObjectImp* mf_MD5Encrypt(/*string*/);
+	BObjectImp* mf_FormatItemDescription(/*string,amount,suffix*/);
 };
 
 #endif
