@@ -41,7 +41,6 @@ Notes
 #include "../cfgrepos.h"
 #include "../clidata.h"
 #include "../objtype.h"
-#include "item.h"
 #include "itemdesc.h"
 #include "../multi/multidef.h"
 #include "../../plib/pkg.h"
@@ -543,7 +542,7 @@ void ItemDesc::PopulateStruct( BStruct* descriptor ) const
 	descriptor->addMember( "Name",	new String(objtypename) );
 	descriptor->addMember( "Color",	new BLong(color) );
 	descriptor->addMember( "Facing",	new BLong(facing) );
-	descriptor->addMember( "Desc",	new String(format_description( 0, desc, 1, "" )));
+	descriptor->addMember( "Desc",	new String(desc));
 	descriptor->addMember( "Tooltip",	new String(tooltip) );
 	descriptor->addMember( "WalkOnScript",	new String(walk_on_script.relativename(pkg)) );
 	descriptor->addMember( "Script",		new String(on_use_script.relativename(pkg)) );
