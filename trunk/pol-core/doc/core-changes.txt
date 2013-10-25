@@ -1,4 +1,7 @@
 ﻿-- POL099 --
+10-25-2013 Turley:
+    Fixed:   newbie flagged backpack caused endless loop on death
+
 10-21-2013 Tomi:
     Added:   polsys::FormatItemDescription( desc, amount := 1, suffix := "" )
              This formats the desc using Pols built in Singular/Plular formatter
