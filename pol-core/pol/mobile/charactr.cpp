@@ -2328,35 +2328,17 @@ void Character::die()
 		graphic == UOBJ_ELF_MALE || graphic == UOBJ_ELF_FEMALE ||
         graphic == UOBJ_GARGOYLE_MALE || graphic == UOBJ_GARGOYLE_FEMALE )
 	{
-		if (gender == GENDER_MALE)
+		switch (race)
 		{
-			if (race == RACE_HUMAN)
-			{
-				graphic = UOBJ_HUMAN_MALE_GHOST;
-			}
-            else if (race == RACE_ELF)
-			{
-				graphic = UOBJ_ELF_MALE_GHOST;
-			}
-            else
-            {
-                graphic = UOBJ_GARGOYLE_MALE_GHOST;
-            }
-		}
-		else
-		{
-			if (race == RACE_HUMAN)
-			{
-				graphic = UOBJ_HUMAN_FEMALE_GHOST;
-			}
-			else if (race == RACE_ELF)
-			{
-				graphic = UOBJ_ELF_FEMALE_GHOST;
-			}
-            else
-            {
-                graphic = UOBJ_GARGOYLE_FEMALE_GHOST;
-            }
+		case RACE_HUMAN:
+			graphic = (gender == GENDER_MALE) ? UOBJ_HUMAN_MALE_GHOST : UOBJ_HUMAN_FEMALE_GHOST;
+			break;
+		case RACE_ELF:
+			graphic = (gender == GENDER_MALE) ? UOBJ_ELF_MALE_GHOST : UOBJ_ELF_FEMALE_GHOST;
+			break;
+		case RACE_GARGOYLE:
+			graphic = (gender == GENDER_MALE) ? UOBJ_GARGOYLE_MALE_GHOST : UOBJ_GARGOYLE_FEMALE_GHOST;
+			break;
 		}
 	}
 	DECLARE_CHECKPOINT;
@@ -2415,28 +2397,50 @@ void Character::die()
 	color = 0;
 	UPDATE_CHECKPOINT();
 
+	// small lambdas to reduce the mess inside the loops
+	auto _copy_item = [&](Item* _item) { // copy a item into the corpse
+		Item* copy = _item->clone();
+		copy->invisible(true);
+		copy->movable(false);
+		corpse->add( copy );
+	};
+	auto _drop_item_to_world = [&](Item* _item) { // places the item onto the corpse coords
+		_item->x = corpse->x;
+		_item->y = corpse->y;
+		_item->z = corpse->z;
+		add_item_to_world( _item );
+		register_with_supporting_multi( _item );
+		move_item( _item, corpse->x, corpse->y, corpse->z, NULL );
+	};
+
+	// WARNING: never ever touch or be 10000% sure what you are doing!!!!
 	for( unsigned layer = LAYER_EQUIP__LOWEST; layer <= LAYER_EQUIP__HIGHEST; ++layer )
 	{
 		Item *item = wornitems.GetItemOnLayer( layer );
 		if (item == NULL)
 			continue;
-
-		if (item->layer != LAYER_MOUNT && ( item->layer == LAYER_BEARD || item->layer == LAYER_HAIR || item->layer == LAYER_FACE || item->movable() == false ))
+		if (item->layer == LAYER_BACKPACK) // These needs to be the first!!!!
+			continue;
+		// never ever touch this order
+		// first only copy the hair layers and only these!
+		// then check for newbie and then I dont care
+		if (item->layer == LAYER_BEARD || item->layer == LAYER_HAIR || item->layer == LAYER_FACE)
 		{
 			//Copies hair items onto the corpse
-			Item* copy = item->clone();
-			copy->invisible(true);
-			copy->movable(false);
-			corpse->add( copy );
+			_copy_item(item);
 			continue;
 		}
-
-		if (item->newbie() || item->layer == LAYER_BACKPACK)
+		if (item->newbie())
 			continue;
 		else if ( ssopt.honor_unequip_script_on_death )
 		{
 			if ( !item->check_unequip_script() || !item->check_unequiptest_scripts() )
 				continue;
+		}
+		else if (item->layer != LAYER_MOUNT && !item->movable())
+		{
+			_copy_item(item);
+			continue;
 		}
 		///
 		/// Unequip scripts aren't honored when moving a dead mobile's equipment
@@ -2451,12 +2455,7 @@ void Character::die()
 		u8 newSlot = 1;
 		if ( !corpse->can_add_to_slot(newSlot) || !item->slot_index(newSlot) )
 		{
-			item->x = corpse->x;
-			item->y = corpse->y;
-			item->z = corpse->z;
-			add_item_to_world( item );
-			register_with_supporting_multi( item );
-			move_item( item, corpse->x, corpse->y, corpse->z, NULL );
+			_drop_item_to_world(item);
 		}
 		else
 		{
@@ -2495,12 +2494,7 @@ void Character::die()
 			{
 				if ( !bp->can_add_to_slot(packSlot) || !bp_item->slot_index(packSlot) )
 				{
-					bp_item->x = corpse->x;
-					bp_item->y = corpse->y;
-					bp_item->z = corpse->z;
-					add_item_to_world( bp_item );
-					register_with_supporting_multi( bp_item );
-					move_item( bp_item, corpse->x, corpse->y, corpse->z, NULL );
+					_drop_item_to_world(bp_item);
 				}
 				else
 				{
@@ -2512,12 +2506,7 @@ void Character::die()
 			{
 				if ( !corpse->can_add_to_slot(packSlot) || !bp_item->slot_index(packSlot) )
 				{
-					bp_item->x = corpse->x;
-					bp_item->y = corpse->y;
-					bp_item->z = corpse->z;
-					add_item_to_world( bp_item );
-					register_with_supporting_multi( bp_item );
-					move_item( bp_item, corpse->x, corpse->y, corpse->z, NULL );
+					_drop_item_to_world(bp_item);
 				}
 				else
 				{
@@ -2528,13 +2517,7 @@ void Character::die()
 			else
 			{
 				UPDATE_CHECKPOINT();
-				bp_item->x = corpse->x;
-				bp_item->y = corpse->y;
-				// move_item calls MoveItemWorldLocation, so this gets it
-				// in the right place to start with.
-				add_item_to_world( bp_item );
-				register_with_supporting_multi( bp_item );
-				move_item( bp_item, corpse->x, corpse->y, corpse->z, NULL );
+				_drop_item_to_world(bp_item);
 			}
 			UPDATE_CHECKPOINT();
 
@@ -2547,16 +2530,17 @@ void Character::die()
 			Item *item = wornitems.GetItemOnLayer( layer );
 			if (item == NULL)
 				continue;
-
-			if (item->layer != LAYER_MOUNT && ( item->layer == LAYER_BEARD || item->layer == LAYER_HAIR || item->layer == LAYER_FACE || item->movable() == false ))
-			{
+			if (item->layer == LAYER_BACKPACK) // These needs to be the first!!!!
 				continue;
-			}
+			if (item->layer == LAYER_BEARD || item->layer == LAYER_HAIR || item->layer == LAYER_FACE)
+				continue;
 			if ( ssopt.honor_unequip_script_on_death )
 			{
 				if ( !item->check_unequip_script() || !item->check_unequiptest_scripts() )
 					continue;
 			}
+			if (item->layer != LAYER_MOUNT && !item->movable())
+				continue;
 			if (item->newbie() && bp->can_add(*item))
 			{
 				UPDATE_CHECKPOINT();
@@ -2567,12 +2551,7 @@ void Character::die()
 				UPDATE_CHECKPOINT();
 				if ( !bp->can_add_to_slot(packSlot) || !item->slot_index(packSlot) )
 				{
-					item->x = corpse->x;
-					item->y = corpse->y;
-					item->z = corpse->z;
-					add_item_to_world( item );
-					register_with_supporting_multi( item );
-					move_item( item, corpse->x, corpse->y, corpse->z, NULL );
+					_drop_item_to_world(item);
 				}
 				else
 				{
