@@ -125,6 +125,10 @@ public:
 /*
 	 Preprocessor macro for defining get/set of dynamic properties. This requires the object
 	 to have the functions this->getProp<T,key>() and this->setProp<T,key>(newValue).
+
+	 Example:
+		PROPERTY_MAP( ar_mod, s16, MBR_AR_MOD );
+
  */
 #define PROPERTY_MAP(propName,type,key) \
 	type propName () const {\
