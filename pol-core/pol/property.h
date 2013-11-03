@@ -13,52 +13,6 @@ Notes
 #ifdef USE_SAFEINT
 	#include "SafeInt.hpp"
 #endif
-/*
- Class for emulating getter/setter. By itself it's not very useful, but will return
- SafeInt<T> if USE_SAFEINT is defined. Can also be used for capping min/max values
- via constraints. Also helps normalizing the interface to public variables, so that later on
- we can change some of them (those which need updaters, for e.g.) to use getter/setters.
-
- If no constraints are used, has no impact on performance when compiled for release
- compared to using a public variable.
-
- Example:
-
-   class X {
-       ...
-	   Property<u16> ar;
-   }
-
-   X obj;
-   
-   int y = obj.ar();   // gets the value
-   obj.ar( 100 );      // sets the value
-
-*/
-template <class T, class constraint = NoConstraint>
-class Property {
-private:
-	T _value;
-
-public:
-#ifdef USE_SAFEINT
-	SafeInt<T> operator()() {
-		return SafeInt<T>(_value);
-	}
-#else
-	T operator()() {
-		return _value;
-	}
-#endif
-
-	T unsafe() {
-		return _value;
-	}
-
-	void operator()(const T newValue) {
-			_value = constraint::apply<T>(newValue);
-	}
-};
 
 
 /*
@@ -68,7 +22,6 @@ public:
  conjunction with Property<T, constraint = NoConstraint>.
 
 */
-
 struct NoConstraint {	
 	template<class T>	
 	static T apply(const T x) {
@@ -105,6 +58,68 @@ struct MinMaxValue {
 	}
 };
 
+/*
+ Class for emulating getter/setter. By itself it's not very useful, but will return
+ SafeInt<T> if USE_SAFEINT is defined. Can also be used for capping min/max values
+ via constraints. Also helps normalizing the interface to public variables, so that later on
+ we can change some of them (those which need updaters, for e.g.) to use getter/setters.
+
+ If no constraints are used, has no impact on performance when compiled for release
+ compared to using a public variable.
+
+ Example:
+
+   class X {
+       ...
+	   Property<u16> ar;
+   }
+
+   X obj;
+   
+   int y = obj.ar();   // gets the value
+   obj.ar( 100 );      // sets the value
+
+*/
+template <class T, class constraint = NoConstraint>
+class Property {
+private:
+	T _value;
+
+public:
+	Property(T x) {
+		_value = x;
+	}
+	Property() {
+		_value = 0;
+	}
+
+#ifdef USE_SAFEINT
+	SafeInt<T> operator()() const {
+		return SafeInt<T>(_value);
+	}
+
+	SafeInt<T> operator()(const T newValue) {
+			_value = constraint::apply<T>(newValue);
+			return SafeInt<T>(_value);
+	}
+#else
+	T operator()() const {
+		return _value;
+	}
+
+	T operator()(const T newValue) {
+			_value = constraint::apply<T>(newValue);
+			return _value;
+	}
+#endif
+
+	T unsafe() const {
+		return _value;
+	}
+};
+
+
+
 
 
 /*
@@ -112,11 +127,12 @@ struct MinMaxValue {
 	 to have the functions this->getProp<T,key>() and this->setProp<T,key>(newValue).
  */
 #define PROPERTY_MAP(propName,type,key) \
-	type propName () {\
+	type propName () const {\
 		return this->getmember<type,key>();\
 	}\
-	void propName (type tmp) {\
+	type propName (type tmp) {\
 		this->setmember<type,key>(tmp);\
+		return tmp;\
 	}
 
 #endif
