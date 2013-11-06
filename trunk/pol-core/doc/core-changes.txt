@@ -1,4 +1,7 @@
 ﻿-- POL099 --
+11-03-2013 Tomi:
+    Fixed:  Container Max Weight works now like it did earlier before _mod changes, all values <= 0 sets it as 0xFFFF max weight
+
 10-25-2013 Turley:
     Fixed:   newbie flagged backpack caused endless loop on death
 
