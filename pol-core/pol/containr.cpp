@@ -960,7 +960,7 @@ unsigned short UContainer::max_weight() const
 	int max_weight = desc.max_weight + getmember<s16>(MBR_MAX_WEIGHT_MOD);
 
 	if ( max_weight < 1 )
-		return 1;
+		return USHRT_MAX;
 	else if ( max_weight <= USHRT_MAX )
 		return static_cast<u16>(max_weight);
 	else
