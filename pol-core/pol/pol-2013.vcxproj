@@ -1,0 +1,764 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectName>pol</ProjectName>
+    <ProjectGuid>{9931FF8E-092B-4E67-8E99-E237E1A481EB}</ProjectGuid>
+    <RootNamespace>pol</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v120_xp</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v120_xp</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v120_xp</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v120_xp</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\globalsettings.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\globalsettings.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\globalsettings.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\globalsettings.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\Release\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\Release\x64/</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\Release\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\Release\x64/</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\Debug\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\Debug\x64/</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\Debug\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\Debug\x64/</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|x64'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Midl>
+      <TypeLibraryName>.\Release/pol.tlb</TypeLibraryName>
+    </Midl>
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\..\lib\mysql-connector-c-6.0.2-win32\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
+      <PrecompiledHeaderOutputFile>.\Release/pol.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>.\Release/</AssemblerListingLocation>
+      <ObjectFileName>.\Release/</ObjectFileName>
+      <ProgramDataBaseFileName>.\Release/</ProgramDataBaseFileName>
+      <WarningLevel>Level1</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>Default</CompileAs>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <Link>
+      <AdditionalOptions>/MACHINE:I386 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>wsock32.lib;odbc32.lib;odbccp32.lib;libmysql.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>.\Release/pol.exe</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>..\..\lib\boost_1_54_0\lib\x86\lib;..\..\lib\mysql-connector-c-6.0.2-win32\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <DelayLoadDLLs>%(DelayLoadDLLs)</DelayLoadDLLs>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>.\Release/pol.pdb</ProgramDatabaseFile>
+      <GenerateMapFile>true</GenerateMapFile>
+      <MapFileName>.\Release/pol.map</MapFileName>
+      <SubSystem>Console</SubSystem>
+      <LargeAddressAware>true</LargeAddressAware>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <MinimumRequiredVersion>5.0</MinimumRequiredVersion>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Midl>
+      <TypeLibraryName>.\Release/x64/pol.tlb</TypeLibraryName>
+    </Midl>
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\..\lib\mysql-connector-c-6.0.2-winx64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
+      <PrecompiledHeaderOutputFile>.\Release/x64/pol.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>.\Release/x64/</AssemblerListingLocation>
+      <ObjectFileName>.\Release/x64/</ObjectFileName>
+      <ProgramDataBaseFileName>.\Release/x64/</ProgramDataBaseFileName>
+      <WarningLevel>Level1</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>Default</CompileAs>
+      <OpenMPSupport>true</OpenMPSupport>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <Link>
+      <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>wsock32.lib;odbc32.lib;odbccp32.lib;libmysql.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>.\Release/x64/pol.exe</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>..\..\lib\boost_1_54_0\lib\x64\lib;..\..\lib\mysql-connector-c-6.0.2-winx64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <DelayLoadDLLs>%(DelayLoadDLLs)</DelayLoadDLLs>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>.\Release/x64/pol.pdb</ProgramDatabaseFile>
+      <GenerateMapFile>true</GenerateMapFile>
+      <MapFileName>.\Release/x64/pol.map</MapFileName>
+      <SubSystem>Console</SubSystem>
+      <LargeAddressAware>true</LargeAddressAware>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <MinimumRequiredVersion>5.02</MinimumRequiredVersion>
+      <TargetMachine>MachineX64</TargetMachine>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Midl>
+      <TypeLibraryName>.\Debug/pol.tlb</TypeLibraryName>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\lib\mysql-connector-c-6.0.2-win32\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
+      <PrecompiledHeaderOutputFile>.\Debug/pol.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>.\Debug/</AssemblerListingLocation>
+      <ObjectFileName>.\Debug/</ObjectFileName>
+      <ProgramDataBaseFileName>.\Debug/</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>Default</CompileAs>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <Link>
+      <AdditionalOptions>/MACHINE:I386 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>wsock32.lib;odbc32.lib;odbccp32.lib;libmysql.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>.\Debug/pol.exe</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>..\..\lib\boost_1_54_0\lib\x86\lib;..\..\lib\mysql-connector-c-6.0.2-win32\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <DelayLoadDLLs>%(DelayLoadDLLs)</DelayLoadDLLs>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>.\Debug/pol.pdb</ProgramDatabaseFile>
+      <SubSystem>Console</SubSystem>
+      <LargeAddressAware>true</LargeAddressAware>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Midl>
+      <TypeLibraryName>.\Debug/x64/pol.tlb</TypeLibraryName>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\lib\mysql-connector-c-6.0.2-winx64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;NOMINMAX;_WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
+      <PrecompiledHeaderOutputFile>.\Debug/x64/pol.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>.\Debug/x64/</AssemblerListingLocation>
+      <ObjectFileName>.\Debug/x64/</ObjectFileName>
+      <ProgramDataBaseFileName>.\Debug/x64/</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>Default</CompileAs>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <Link>
+      <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>wsock32.lib;odbc32.lib;odbccp32.lib;libmysql.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>.\Debug/x64/pol.exe</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>..\..\lib\boost_1_54_0\lib\x64\lib;..\..\lib\mysql-connector-c-6.0.2-winx64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <DelayLoadDLLs>%(DelayLoadDLLs)</DelayLoadDLLs>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>.\Debug/x64/pol.pdb</ProgramDatabaseFile>
+      <SubSystem>Console</SubSystem>
+      <LargeAddressAware>true</LargeAddressAware>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="allocd.cpp" />
+    <ClCompile Include="binaryfilescrobj.cpp" />
+    <ClCompile Include="bowsalut.cpp" />
+    <ClCompile Include="cfgrepos.cpp" />
+    <ClCompile Include="checkpnt.cpp" />
+    <ClCompile Include="clfunc.cpp" />
+    <ClCompile Include="cmbtcfg.cpp" />
+    <ClCompile Include="cmdlevel.cpp" />
+    <ClCompile Include="console.cpp" />
+    <ClCompile Include="containr.cpp" />
+    <ClCompile Include="core.cpp" />
+    <ClCompile Include="create.cpp" />
+    <ClCompile Include="ctable.cpp" />
+    <ClCompile Include="dblclick.cpp" />
+    <ClCompile Include="decay.cpp" />
+    <ClCompile Include="dice.cpp" />
+    <ClCompile Include="door.cpp" />
+    <ClCompile Include="dropitem.cpp" />
+    <ClCompile Include="eqpitem.cpp" />
+    <ClCompile Include="equipdsc.cpp" />
+    <ClCompile Include="exscrobj.cpp" />
+    <ClCompile Include="extcmd.cpp" />
+    <ClCompile Include="extobj.cpp" />
+    <ClCompile Include="fnsearch.cpp" />
+    <ClCompile Include="gameclck.cpp" />
+    <ClCompile Include="getitem.cpp" />
+    <ClCompile Include="getmsg.cpp" />
+    <ClCompile Include="gflag.cpp" />
+    <ClCompile Include="guardrgn.cpp" />
+    <ClCompile Include="help.cpp" />
+    <ClCompile Include="irequest.cpp" />
+    <ClCompile Include="landtile.cpp" />
+    <ClCompile Include="listenpt.cpp" />
+    <ClCompile Include="loaddata.cpp" />
+    <ClCompile Include="loadunld.cpp" />
+    <ClCompile Include="lockable.cpp" />
+    <ClCompile Include="logfiles.cpp" />
+    <ClCompile Include="login.cpp" />
+    <ClCompile Include="los.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="los2.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="menu.cpp" />
+    <ClCompile Include="menusel.cpp" />
+    <ClCompile Include="miscmsg.cpp" />
+    <ClCompile Include="miscrgn.cpp" />
+    <ClCompile Include="mkscrobj.cpp" />
+    <ClCompile Include="movecost.cpp" />
+    <ClCompile Include="movement.cpp" />
+    <ClCompile Include="msgfiltr.cpp" />
+    <ClCompile Include="musicrgn.cpp" />
+    <ClCompile Include="network\clienttransmit.cpp" />
+    <ClCompile Include="npc.cpp" />
+    <ClCompile Include="npctemplates.cpp" />
+    <ClCompile Include="npctmpl.cpp" />
+    <ClCompile Include="objecthash.cpp" />
+    <ClCompile Include="packetscrobj.cpp" />
+    <ClCompile Include="party.cpp" />
+    <ClCompile Include="pol.cpp" />
+    <ClCompile Include="polcfg.cpp" />
+    <ClCompile Include="polclock.cpp" />
+    <ClCompile Include="poldbg.cpp" />
+    <ClCompile Include="polfile1.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="polfile2.cpp" />
+    <ClCompile Include="polsem.cpp" />
+    <ClCompile Include="polservice.cpp" />
+    <ClCompile Include="polsig.cpp" />
+    <ClCompile Include="polstats.cpp" />
+    <ClCompile Include="poltest.cpp" />
+    <ClCompile Include="polvar.cpp" />
+    <ClCompile Include="polwww.cpp" />
+    <ClCompile Include="profile.cpp" />
+    <ClCompile Include="proplist.cpp" />
+    <ClCompile Include="readcfg.cpp" />
+    <ClCompile Include="realms.cpp" />
+    <ClCompile Include="reftypes.cpp" />
+    <ClCompile Include="region.cpp" />
+    <ClCompile Include="repsys.cpp" />
+    <ClCompile Include="resource.cpp" />
+    <ClCompile Include="savedata.cpp" />
+    <ClCompile Include="schedule.cpp" />
+    <ClCompile Include="scrdef.cpp" />
+    <ClCompile Include="scrsched.cpp" />
+    <ClCompile Include="scrstore.cpp" />
+    <ClCompile Include="skilladv.cpp" />
+    <ClCompile Include="sngclick.cpp" />
+    <ClCompile Include="sockio.cpp" />
+    <ClCompile Include="speech.cpp" />
+    <ClCompile Include="spelbook.cpp" />
+    <ClCompile Include="spells.cpp" />
+    <ClCompile Include="sqlscrobj.cpp" />
+    <ClCompile Include="ssopt.cpp" />
+    <ClCompile Include="stackcfg.cpp" />
+    <ClCompile Include="startloc.cpp" />
+    <ClCompile Include="statmsg.cpp" />
+    <ClCompile Include="storage.cpp" />
+    <ClCompile Include="syshook.cpp" />
+    <ClCompile Include="systemhookscript.cpp" />
+    <ClCompile Include="target.cpp" />
+    <ClCompile Include="tasks.cpp" />
+    <ClCompile Include="textcmd.cpp" />
+    <ClCompile Include="tildecmd.cpp" />
+    <ClCompile Include="tiles.cpp" />
+    <ClCompile Include="tiplstwn.cpp" />
+    <ClCompile Include="tips.cpp" />
+    <ClCompile Include="tmpvars.cpp" />
+    <ClCompile Include="tooltips.cpp" />
+    <ClCompile Include="ufunc.cpp" />
+    <ClCompile Include="ufunc2.cpp" />
+    <ClCompile Include="uimport.cpp" />
+    <ClCompile Include="umap.cpp" />
+    <ClCompile Include="uobjcnt.cpp" />
+    <ClCompile Include="uobject.cpp" />
+    <ClCompile Include="uobjhelp.cpp" />
+    <ClCompile Include="uoclient.cpp" />
+    <ClCompile Include="uoexhelp.cpp" />
+    <ClCompile Include="uofile00.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="uofile01.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="uofile02.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="uofile03.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="uofile06.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="uofile07.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="uofile08.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="uolisten.cpp" />
+    <ClCompile Include="uoscrobj.cpp" />
+    <ClCompile Include="uoskills.cpp" />
+    <ClCompile Include="useskill.cpp" />
+    <ClCompile Include="uvars.cpp" />
+    <ClCompile Include="uworld.cpp" />
+    <ClCompile Include="vital.cpp" />
+    <ClCompile Include="xmlfilescrobj.cpp" />
+    <ClCompile Include="zone.cpp" />
+    <ClCompile Include="crypt\blowfish.cpp" />
+    <ClCompile Include="crypt\crypt.cpp" />
+    <ClCompile Include="crypt\cryptbase.cpp" />
+    <ClCompile Include="crypt\cryptengine.cpp" />
+    <ClCompile Include="crypt\cryptkey.cpp" />
+    <ClCompile Include="crypt\logincrypt.cpp" />
+    <ClCompile Include="crypt\md5.cpp" />
+    <ClCompile Include="crypt\twofish.cpp" />
+    <ClCompile Include="..\..\lib\zlib\adler32.c" />
+    <ClCompile Include="..\..\lib\zlib\compress.c" />
+    <ClCompile Include="..\..\lib\zlib\crc32.c" />
+    <ClCompile Include="..\..\lib\zlib\deflate.c" />
+    <ClCompile Include="..\..\lib\zlib\trees.c" />
+    <ClCompile Include="..\..\lib\zlib\zutil.c" />
+    <ClCompile Include="accounts\account.cpp" />
+    <ClCompile Include="accounts\accounts.cpp" />
+    <ClCompile Include="accounts\acscrobj.cpp" />
+    <ClCompile Include="mobile\attack.cpp" />
+    <ClCompile Include="mobile\attribute.cpp" />
+    <ClCompile Include="mobile\boundbox.cpp" />
+    <ClCompile Include="mobile\charactr.cpp" />
+    <ClCompile Include="mobile\chrcast.cpp" />
+    <ClCompile Include="mobile\chrituse.cpp" />
+    <ClCompile Include="mobile\chrskuse.cpp" />
+    <ClCompile Include="mobile\combat.cpp" />
+    <ClCompile Include="mobile\corpse.cpp" />
+    <ClCompile Include="multi\boat.cpp" />
+    <ClCompile Include="multi\boatcomp.cpp" />
+    <ClCompile Include="multi\customhousehelp.cpp" />
+    <ClCompile Include="multi\customhouses.cpp" />
+    <ClCompile Include="multi\house.cpp" />
+    <ClCompile Include="multi\multicfg.cpp" />
+    <ClCompile Include="multi\multicr.cpp" />
+    <ClCompile Include="multi\multidef.cpp" />
+    <ClCompile Include="multi\multidef2.cpp" />
+    <ClCompile Include="multi\multis.cpp" />
+    <ClCompile Include="network\auxclient.cpp" />
+    <ClCompile Include="network\bannedips.cpp" />
+    <ClCompile Include="network\cgdata.cpp" />
+    <ClCompile Include="network\client.cpp" />
+    <ClCompile Include="network\clientio.cpp" />
+    <ClCompile Include="network\cliface.cpp" />
+    <ClCompile Include="network\iostats.cpp" />
+    <ClCompile Include="network\packethooks.cpp" />
+    <ClCompile Include="network\packets.cpp" />
+    <ClCompile Include="module\attributemod.cpp" />
+    <ClCompile Include="module\basiciomod.cpp" />
+    <ClCompile Include="module\basicmod.cpp" />
+    <ClCompile Include="module\boatmod.cpp" />
+    <ClCompile Include="module\cfgmod.cpp" />
+    <ClCompile Include="module\clmod.cpp" />
+    <ClCompile Include="module\datastore.cpp" />
+    <ClCompile Include="module\filemod.cpp" />
+    <ClCompile Include="module\guildmod.cpp" />
+    <ClCompile Include="module\httpmod.cpp" />
+    <ClCompile Include="module\mathmod.cpp" />
+    <ClCompile Include="module\npcmod.cpp" />
+    <ClCompile Include="module\osmod.cpp" />
+    <ClCompile Include="module\partymod.cpp" />
+    <ClCompile Include="module\polsystemmod.cpp" />
+    <ClCompile Include="module\sqlmod.cpp" />
+    <ClCompile Include="module\storagemod.cpp" />
+    <ClCompile Include="module\unimod.cpp" />
+    <ClCompile Include="module\uomod.cpp" />
+    <ClCompile Include="module\uomod2.cpp" />
+    <ClCompile Include="module\uomod3.cpp" />
+    <ClCompile Include="module\uomod4.cpp" />
+    <ClCompile Include="module\utilmod.cpp" />
+    <ClCompile Include="module\vitalmod.cpp" />
+    <ClCompile Include="item\armor.cpp" />
+    <ClCompile Include="item\equipmnt.cpp" />
+    <ClCompile Include="item\item.cpp" />
+    <ClCompile Include="item\item00.cpp" />
+    <ClCompile Include="item\itemcr.cpp" />
+    <ClCompile Include="item\itemdesc.cpp" />
+    <ClCompile Include="item\weapon.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="action.h" />
+    <ClInclude Include="allocd.h" />
+    <ClInclude Include="anim.h" />
+    <ClInclude Include="binaryfilescrobj.h" />
+    <ClInclude Include="cfgrepos.h" />
+    <ClInclude Include="checkpnt.h" />
+    <ClInclude Include="clfunc.h" />
+    <ClInclude Include="clidata.h" />
+    <ClInclude Include="cmbtcfg.h" />
+    <ClInclude Include="cmdlevel.h" />
+    <ClInclude Include="config.h" />
+    <ClInclude Include="containr.h" />
+    <ClInclude Include="core.h" />
+    <ClInclude Include="ctable.h" />
+    <ClInclude Include="decay.h" />
+    <ClInclude Include="dice.h" />
+    <ClInclude Include="door.h" />
+    <ClInclude Include="dtrace.h" />
+    <ClInclude Include="equipdsc.h" />
+    <ClInclude Include="eventid.h" />
+    <ClInclude Include="exscrobj.h" />
+    <ClInclude Include="extcmd.h" />
+    <ClInclude Include="extobj.h" />
+    <ClInclude Include="fnsearch.h" />
+    <ClInclude Include="gameclck.h" />
+    <ClInclude Include="getitem.h" />
+    <ClInclude Include="gflag.h" />
+    <ClInclude Include="gprops.h" />
+    <ClInclude Include="guardrgn.h" />
+    <ClInclude Include="layers.h" />
+    <ClInclude Include="lightlvl.h" />
+    <ClInclude Include="listenpt.h" />
+    <ClInclude Include="loaddata.h" />
+    <ClInclude Include="loadunld.h" />
+    <ClInclude Include="lockable.h" />
+    <ClInclude Include="logfiles.h" />
+    <ClInclude Include="los.h" />
+    <ClInclude Include="mdelta.h" />
+    <ClInclude Include="menu.h" />
+    <ClInclude Include="miscrgn.h" />
+    <ClInclude Include="mkscrobj.h" />
+    <ClInclude Include="movecost.h" />
+    <ClInclude Include="msgfiltr.h" />
+    <ClInclude Include="msghandl.h" />
+    <ClInclude Include="musicrgn.h" />
+    <ClInclude Include="network\clienttransmit.h" />
+    <ClInclude Include="npc.h" />
+    <ClInclude Include="npctmpl.h" />
+    <ClInclude Include="objecthash.h" />
+    <ClInclude Include="objtype.h" />
+    <ClInclude Include="packetscrobj.h" />
+    <ClInclude Include="party.h" />
+    <ClInclude Include="pktboth.h" />
+    <ClInclude Include="pktbothid.h" />
+    <ClInclude Include="pktdef.h" />
+    <ClInclude Include="pktin.h" />
+    <ClInclude Include="pktinid.h" />
+    <ClInclude Include="pktni.h" />
+    <ClInclude Include="pktniid.h" />
+    <ClInclude Include="pktout.h" />
+    <ClInclude Include="pktoutid.h" />
+    <ClInclude Include="polcfg.h" />
+    <ClInclude Include="polclass.h" />
+    <ClInclude Include="polclock.h" />
+    <ClInclude Include="poldbg.h" />
+    <ClInclude Include="polfile.h" />
+    <ClInclude Include="polsem.h" />
+    <ClInclude Include="polsig.h" />
+    <ClInclude Include="polstats.h" />
+    <ClInclude Include="poltest.h" />
+    <ClInclude Include="poltimer.h" />
+    <ClInclude Include="poltype.h" />
+    <ClInclude Include="polvar.h" />
+    <ClInclude Include="polwww.h" />
+    <ClInclude Include="profile.h" />
+    <ClInclude Include="proplist.h" />
+    <ClInclude Include="readcfg.h" />
+    <ClInclude Include="realms.h" />
+    <ClInclude Include="reftypes.h" />
+    <ClInclude Include="region.h" />
+    <ClInclude Include="repsys.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="savedata.h" />
+    <ClInclude Include="schedule.h" />
+    <ClInclude Include="scrdef.h" />
+    <ClInclude Include="scrsched.h" />
+    <ClInclude Include="scrstore.h" />
+    <ClInclude Include="servdesc.h" />
+    <ClInclude Include="sfx.h" />
+    <ClInclude Include="skilladv.h" />
+    <ClInclude Include="skillid.h" />
+    <ClInclude Include="skills.h" />
+    <ClInclude Include="sockets.h" />
+    <ClInclude Include="sockio.h" />
+    <ClInclude Include="spelbook.h" />
+    <ClInclude Include="spells.h" />
+    <ClInclude Include="sqlscrobj.h" />
+    <ClInclude Include="ssopt.h" />
+    <ClInclude Include="startloc.h" />
+    <ClInclude Include="statmsg.h" />
+    <ClInclude Include="storage.h" />
+    <ClInclude Include="stubdata.h" />
+    <ClInclude Include="syshook.h" />
+    <ClInclude Include="syshookscript.h" />
+    <ClInclude Include="target.h" />
+    <ClInclude Include="tasks.h" />
+    <ClInclude Include="textcmd.h" />
+    <ClInclude Include="tildecmd.h" />
+    <ClInclude Include="tiles.h" />
+    <ClInclude Include="tiplist.h" />
+    <ClInclude Include="tmpvars.h" />
+    <ClInclude Include="tooltips.h" />
+    <ClInclude Include="ucfg.h" />
+    <ClInclude Include="uconst.h" />
+    <ClInclude Include="udatfile.h" />
+    <ClInclude Include="ufunc.h" />
+    <ClInclude Include="ufuncinl.h" />
+    <ClInclude Include="ufuncstd.h" />
+    <ClInclude Include="uimport.h" />
+    <ClInclude Include="umanip.h" />
+    <ClInclude Include="umap.h" />
+    <ClInclude Include="uobjcnt.h" />
+    <ClInclude Include="uobject.h" />
+    <ClInclude Include="uobjhelp.h" />
+    <ClInclude Include="uoclient.h" />
+    <ClInclude Include="uoexec.h" />
+    <ClInclude Include="uoexhelp.h" />
+    <ClInclude Include="uofile.h" />
+    <ClInclude Include="uofilei.h" />
+    <ClInclude Include="uoscrobj.h" />
+    <ClInclude Include="uoskills.h" />
+    <ClInclude Include="ustruct.h" />
+    <ClInclude Include="utype.h" />
+    <ClInclude Include="uvars.h" />
+    <ClInclude Include="uworld.h" />
+    <ClInclude Include="vital.h" />
+    <ClInclude Include="watch.h" />
+    <ClInclude Include="wrldsize.h" />
+    <ClInclude Include="wthrtype.h" />
+    <ClInclude Include="xbuffer.h" />
+    <ClInclude Include="xmlfilescrobj.h" />
+    <ClInclude Include="zone.h" />
+    <ClInclude Include="crypt\blowfish.h" />
+    <ClInclude Include="crypt\crypt.h" />
+    <ClInclude Include="crypt\cryptbase.h" />
+    <ClInclude Include="crypt\cryptengine.h" />
+    <ClInclude Include="crypt\cryptkey.h" />
+    <ClInclude Include="crypt\logincrypt.h" />
+    <ClInclude Include="crypt\md5.h" />
+    <ClInclude Include="crypt\twofish.h" />
+    <ClInclude Include="polresource.h" />
+    <ClInclude Include="accounts\account.h" />
+    <ClInclude Include="accounts\accounts.h" />
+    <ClInclude Include="accounts\acscrobj.h" />
+    <ClInclude Include="mobile\attribute.h" />
+    <ClInclude Include="mobile\boundbox.h" />
+    <ClInclude Include="mobile\charactr.h" />
+    <ClInclude Include="mobile\combat.h" />
+    <ClInclude Include="mobile\ufacing.h" />
+    <ClInclude Include="multi\boat.h" />
+    <ClInclude Include="multi\boatcomp.h" />
+    <ClInclude Include="multi\customhouses.h" />
+    <ClInclude Include="multi\house.h" />
+    <ClInclude Include="multi\multi.h" />
+    <ClInclude Include="multi\multidef.h" />
+    <ClInclude Include="network\auxclient.h" />
+    <ClInclude Include="network\bannedips.h" />
+    <ClInclude Include="network\cgdata.h" />
+    <ClInclude Include="network\client.h" />
+    <ClInclude Include="network\cliface.h" />
+    <ClInclude Include="network\iostats.h" />
+    <ClInclude Include="network\packethooks.h" />
+    <ClInclude Include="network\packets.h" />
+    <ClInclude Include="module\attributemod.h" />
+    <ClInclude Include="module\basiciomod.h" />
+    <ClInclude Include="module\basicmod.h" />
+    <ClInclude Include="module\boatmod.h" />
+    <ClInclude Include="module\cfgmod.h" />
+    <ClInclude Include="module\clmod.h" />
+    <ClInclude Include="module\datastore.h" />
+    <ClInclude Include="module\filemod.h" />
+    <ClInclude Include="module\guildmod.h" />
+    <ClInclude Include="module\httpmod.h" />
+    <ClInclude Include="module\mathmod.h" />
+    <ClInclude Include="module\npcmod.h" />
+    <ClInclude Include="module\osmod.h" />
+    <ClInclude Include="module\partymod.h" />
+    <ClInclude Include="module\polsystemmod.h" />
+    <ClInclude Include="module\sqlmod.h" />
+    <ClInclude Include="module\storagemod.h" />
+    <ClInclude Include="module\unimod.h" />
+    <ClInclude Include="module\uomod.h" />
+    <ClInclude Include="module\utilmod.h" />
+    <ClInclude Include="module\vitalmod.h" />
+    <ClInclude Include="item\armor.h" />
+    <ClInclude Include="item\armrtmpl.h" />
+    <ClInclude Include="item\equipmnt.h" />
+    <ClInclude Include="item\item.h" />
+    <ClInclude Include="item\itemdesc.h" />
+    <ClInclude Include="item\weapon.h" />
+    <ClInclude Include="item\wepntmpl.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="pol.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="..\clib\win2kcompat.masm">
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <UseSafeExceptionHandlers Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</UseSafeExceptionHandlers>
+      <UseSafeExceptionHandlers Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</UseSafeExceptionHandlers>
+      <UseSafeExceptionHandlers Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</UseSafeExceptionHandlers>
+      <UseSafeExceptionHandlers Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</UseSafeExceptionHandlers>
+    </MASM>
+    <None Include="poltray.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\bscript\bscript-2013.vcxproj">
+      <Project>{5005476b-7bd3-42a2-94ca-3ad2d0e2947c}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\clib\clib-2013.vcxproj">
+      <Project>{7cd5572b-8a78-46c5-ac2d-39ee47acd01a}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\plib\plib-2013.vcxproj">
+      <Project>{d45c6577-00e3-4995-a909-9c704a472565}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets" />
+  </ImportGroup>
+</Project>
