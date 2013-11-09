@@ -819,7 +819,6 @@ bool Item::setgraphic( u16 newgraphic )
 		else
 			facing = id.facing;
 
-		facing = tile_layer;
 		increv();
 		update_item_to_inrange( this );
         return true;
