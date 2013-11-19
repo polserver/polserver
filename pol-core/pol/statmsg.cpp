@@ -56,6 +56,8 @@ void send_full_statmsg( Client *client, Character *chr )
 		msg->WriteFlipped<u16>(0);  // max_hits
 	}
 	msg->Write<u8>(0); // (client->chr->can_rename( chr ) ? 0xFF : 0);
+	if ( client->ClientType & CLIENTTYPE_70300 )
+		msg->Write<u8>(6); // New entries for classic client
 	if ( (client->UOExpansionFlag & ML) && (client->ClientType & CLIENTTYPE_5000) )
 		msg->Write<u8>(5); // Set to ML level
 	else if ( (client->UOExpansionFlag & AOS) )
@@ -178,6 +180,11 @@ void send_full_statmsg( Client *client, Character *chr )
 		msg->WriteFlipped<s32>( chr->expanded_statbar.tithing );
 	}
 	u16 len=msg->offset;
+
+	// Add the new length until new entries are supported by Pol
+	if ( client->ClientType & CLIENTTYPE_70300 )
+		len+=30;
+
 	msg->offset=1;
 	msg->WriteFlipped<u16>(len);
 	msg.Send(client,len);
