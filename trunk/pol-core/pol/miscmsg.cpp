@@ -224,6 +224,8 @@ void handle_client_version( Client* client, PKTBI_BD* msg )
 		client->itemizeclientversion(ver2, vers_det);
 		client->setversiondetail(vers_det);
 
+		if (client->compareVersion(CLIENT_VER_70300))
+			client->setClientType(CLIENTTYPE_70300);
 		if (client->compareVersion(CLIENT_VER_70130))
 			client->setClientType(CLIENTTYPE_70130);
 		else if (client->compareVersion(CLIENT_VER_7090))
