@@ -24,69 +24,73 @@ Notes
 
 #include "network/client.h"
 #include "network/cgdata.h"
+namespace Pol {
+  namespace Core {
+	JusticeRegion::JusticeRegion( Clib::ConfigElem& elem, RegionId id ) :
+	  Region( elem, id ),
+	  guarded_( elem.remove_bool( "Guarded", false ) ),
+	  nocombat_( elem.remove_bool( "NoCombat", false ) ),
+	  region_name_( elem.rest() ),
+	  entertext_( elem.remove_string( "EnterText", "" ) ),
+	  leavetext_( elem.remove_string( "LeaveText", "" ) ),
+	  enter_script_( elem.remove_string( "EnterScript", "" ) ),
+	  leave_script_( elem.remove_string( "LeaveScript", "" ) )
+	{}
+	JusticeDef* justicedef;
 
-JusticeRegion::JusticeRegion( ConfigElem& elem, RegionId id ) : 
-	Region(elem, id),
-	guarded_(elem.remove_bool( "Guarded", false )),
-	nocombat_(elem.remove_bool( "NoCombat", false)),
-	region_name_(elem.rest()),
-	entertext_(elem.remove_string( "EnterText", "" )),
-	leavetext_(elem.remove_string( "LeaveText", "" )),
-	enter_script_(elem.remove_string("EnterScript", "")),
-	leave_script_(elem.remove_string("LeaveScript", ""))
-{
-}
-JusticeDef* justicedef;
-
-void read_justice_zones()
-{
-	justicedef = new JusticeDef( "Justice" );
-    read_region_data( *justicedef, 
-                      "regions/justice.cfg", // preferred
-                      "regions/regions.cfg", // other
-                      "JusticeRegion Region" );
-
-
-}
-
-bool JusticeRegion::RunEnterScript(Character* chr)
-{
-	if ( enter_script_.empty() )
-		return false;
-
-	ScriptDef sd;
-	if (!sd.config_nodie( enter_script_, 0, 0 ))
-		return false;
-	if ( !sd.exists() )
-		return false;
-    
-	BObjectImp* res = run_script_to_completion(sd, new ECharacterRefObjImp(chr), new String(region_name_));
-	return res->isTrue();
-}
-
-bool JusticeRegion::RunLeaveScript(Character* chr)
-{
-	if ( leave_script_.empty() )
-		return false;
-
-	ScriptDef sd;
-	if (!sd.config_nodie( leave_script_, 0, 0 ))
-		return false;
-	if ( !sd.exists() )
-		return false;
-    
-	BObjectImp* res = run_script_to_completion(sd, new ECharacterRefObjImp(chr), new String(region_name_));
-	return res->isTrue();
-}
-
-bool JusticeRegion::RunNoCombatCheck(Client* client)
-{
-	JusticeRegion* cur_justice_region = client->gd->justice_region;
-
-	if ( (cur_justice_region != NULL) && cur_justice_region->nocombat_ != false )
+	void read_justice_zones()
 	{
-		return true;
-	} else {
-		return false;
+	  justicedef = new JusticeDef( "Justice" );
+	  read_region_data( *justicedef,
+						"regions/justice.cfg", // preferred
+						"regions/regions.cfg", // other
+						"JusticeRegion Region" );
+
+
 	}
+
+	bool JusticeRegion::RunEnterScript( Mobile::Character* chr )
+	{
+	  if ( enter_script_.empty() )
+		return false;
+
+	  ScriptDef sd;
+	  if ( !sd.config_nodie( enter_script_, 0, 0 ) )
+		return false;
+	  if ( !sd.exists() )
+		return false;
+
+      Bscript::BObjectImp* res = run_script_to_completion( sd, new Module::ECharacterRefObjImp( chr ), new Bscript::String( region_name_ ) );
+	  return res->isTrue();
+	}
+
+	bool JusticeRegion::RunLeaveScript( Mobile::Character* chr )
+	{
+	  if ( leave_script_.empty() )
+		return false;
+
+	  ScriptDef sd;
+	  if ( !sd.config_nodie( leave_script_, 0, 0 ) )
+		return false;
+	  if ( !sd.exists() )
+		return false;
+
+      Bscript::BObjectImp* res = run_script_to_completion( sd, new Module::ECharacterRefObjImp( chr ), new Bscript::String( region_name_ ) );
+	  return res->isTrue();
+	}
+
+	bool JusticeRegion::RunNoCombatCheck( Network::Client* client )
+	{
+	  JusticeRegion* cur_justice_region = client->gd->justice_region;
+
+	  if ( ( cur_justice_region != NULL ) && cur_justice_region->nocombat_ != false )
+	  {
+		return true;
+	  }
+	  else
+	  {
+		return false;
+	  }
+	}
+  }
 }

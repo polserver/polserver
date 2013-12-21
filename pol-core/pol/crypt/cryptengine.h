@@ -6,7 +6,9 @@
 
 #include "cryptbase.h"
 #include "cryptkey.h"
-
-CCryptBase* create_crypt_engine( TCryptInfo& infoCrypt );
-
+namespace Pol {
+  namespace Crypt {
+	CCryptBase* create_crypt_engine( TCryptInfo& infoCrypt );
+  }
+}
 #endif

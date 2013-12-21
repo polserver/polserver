@@ -12,90 +12,94 @@ Notes
 
 #include <string>
 #include <vector>
+namespace Pol {
+  namespace Clib {
+	class ConfigElem;
+  }
+  namespace Plib {
+	
+	class PackageList
+	{
+	private:
+	  friend class Package;
+	  PackageList( Clib::ConfigElem& elem, const char* tag );
 
-class ConfigElem;
+	  struct Elem
+	  {
+		std::string pkgname;
+		std::string version;
+	  };
 
-class PackageList
-{
-private:
-    friend class Package;
-    PackageList( ConfigElem& elem, const char* tag );
+	  std::vector<Elem> elems;
+	};
 
-    struct Elem
-    {
-        std::string pkgname;
-        std::string version;
-    };
+	class Package
+	{
+	public:
+	  Package( const std::string& pkg_dir, Clib::ConfigElem& elem );
 
-    std::vector<Elem> elems;
-};
+	  const std::string& dir() const;
+	  const std::string& name() const;
+	  const std::string& version() const;
+	  std::string desc() const;
+	  bool provides_system_home_page() const;
 
-class Package 
-{
-public:
-    Package( const std::string& pkg_dir, ConfigElem& elem );
+	  bool check_replacements() const;
+	  void check_dependencies() const;
+	  void check_conflicts() const;
 
-    const std::string& dir() const;
-    const std::string& name() const;
-    const std::string& version() const;
-    std::string desc() const;
-    bool provides_system_home_page() const;
+	private:
+	  std::string dir_;
+	  std::string name_;
+	  std::string version_;
 
-    bool check_replacements() const;
-    void check_dependencies() const;
-    void check_conflicts() const;
+	  // only one of these two will be set.
+	  unsigned short core_required_;
+	  std::string core_versionstring_required_;
 
-private:
-    std::string dir_;
-    std::string name_;
-    std::string version_;
+	  PackageList requires_;
+	  PackageList conflicts_;
+	  PackageList replaces_;
 
-    // only one of these two will be set.
-    unsigned short core_required_;
-    std::string core_versionstring_required_;
+	  bool provides_system_home_page_;
 
-    PackageList requires_;
-    PackageList conflicts_;
-    PackageList replaces_;
+	private: // not implemented:
+	  Package( const Package& );
+	  Package& operator=( const Package& );
+	};
 
-    bool provides_system_home_page_;
+	typedef std::vector<Package*> Packages;
+	extern Packages packages;
 
-private: // not implemented:
-    Package( const Package& );
-    Package& operator=( const Package& );
-};
+	inline const std::string& Package::dir() const
+	{
+	  return dir_;
+	}
+	inline const std::string& Package::name() const
+	{
+	  return name_;
+	}
+	inline const std::string& Package::version() const
+	{
+	  return version_;
+	}
+	Package* find_package( const std::string& pkgname );
 
-typedef std::vector<Package*> Packages;
-extern Packages packages;
+	bool pkgdef_split( const std::string& spec, const Package* inpkg,
+					   const Package** outpkg, std::string* path );
 
-inline const std::string& Package::dir() const
-{
-    return dir_;
+	void load_packaged_cfgs( const char* cfgname,
+							 const char* taglist,
+							 void( *loadentry )( const Package*, Clib::ConfigElem& ) );
+	void load_all_cfgs( const char* cfgname,
+						const char* taglist,
+						void( *loadentry )( const Package*, Clib::ConfigElem& ) );
+
+	void load_packages( std::string basedir, bool quiet = false );
+	void replace_packages();
+	void check_package_deps();
+	void unload_packages();
+	std::string GetPackageCfgPath( Package* pkg, std::string filename );
+  }
 }
-inline const std::string& Package::name() const
-{
-    return name_;
-}
-inline const std::string& Package::version() const
-{
-    return version_;
-}
-Package* find_package( const std::string& pkgname );
-
-bool pkgdef_split( const std::string& spec, const Package* inpkg,
-                  const Package** outpkg, std::string* path );
-
-void load_packaged_cfgs( const char* cfgname,
-                         const char* taglist,
-                         void(*loadentry)(const Package*,ConfigElem&) );
-void load_all_cfgs( const char* cfgname,
-                         const char* taglist,
-                         void(*loadentry)(const Package*,ConfigElem&) );
-
-void load_packages( std::string basedir, bool quiet = false );
-void replace_packages();
-void check_package_deps();
-void unload_packages();
-std::string GetPackageCfgPath(Package* pkg, std::string filename);
-
 #endif

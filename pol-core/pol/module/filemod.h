@@ -11,53 +11,56 @@ Notes
 
 #ifndef FILEACCESS_H
 #define FILEACCESS_H
+namespace Pol {
+  namespace Bscript {
+	class ExecutorModule;
+	class Executor;
+  }
+  namespace Module {
+	class FileAccessExecutorModule : public Bscript::TmplExecutorModule<FileAccessExecutorModule>
+	{
+	public:
+	  FileAccessExecutorModule( Bscript::Executor& exec ) :
+		TmplExecutorModule<FileAccessExecutorModule>( "file", exec ) {}
 
-class ExecutorModule;
-class Executor;
+	  Bscript::BObjectImp* mf_FileExists();
+	  Bscript::BObjectImp* mf_ReadFile();
+	  Bscript::BObjectImp* mf_WriteFile();
+	  Bscript::BObjectImp* mf_AppendToFile();
+	  Bscript::BObjectImp* mf_LogToFile();
+	  Bscript::BObjectImp* mf_OpenBinaryFile();
+	  Bscript::BObjectImp* mf_CreateDirectory();
+	  Bscript::BObjectImp* mf_ListDirectory();
+	  Bscript::BObjectImp* mf_OpenXMLFile();
+	  Bscript::BObjectImp* mf_CreateXMLFile();
+	};
 
-class FileAccessExecutorModule : public TmplExecutorModule<FileAccessExecutorModule>
-{
-public:
-	FileAccessExecutorModule( Executor& exec ) :
-	  TmplExecutorModule<FileAccessExecutorModule>( "file", exec ) {}
+	Bscript::ExecutorModule* CreateFileAccessExecutorModule( Bscript::Executor& exec );
 
-	  BObjectImp* mf_FileExists();
-	  BObjectImp* mf_ReadFile();
-	  BObjectImp* mf_WriteFile();
-	  BObjectImp* mf_AppendToFile();
-	  BObjectImp* mf_LogToFile();
-	  BObjectImp* mf_OpenBinaryFile();
-	  BObjectImp* mf_CreateDirectory();
-	  BObjectImp* mf_ListDirectory();
-	  BObjectImp* mf_OpenXMLFile();
-	  BObjectImp* mf_CreateXMLFile();
-};
+	class FileAccess
+	{
+	public:
+	  explicit FileAccess( Clib::ConfigElem& elem );
+	  bool AllowsAccessTo( const Plib::Package* pkg, const Plib::Package* filepackage ) const;
+	  bool AppliesToPackage( const Plib::Package* pkg ) const;
+	  bool AppliesToPath( const std::string& path ) const;
 
-ExecutorModule* CreateFileAccessExecutorModule( Executor& exec );
+	  bool AllowWrite;
+	  bool AllowAppend;
+	  bool AllowRead;
 
-class FileAccess
-{
-public:
-	explicit FileAccess( ConfigElem& elem );
-	bool AllowsAccessTo( const Package* pkg, const Package* filepackage ) const;
-	bool AppliesToPackage( const Package* pkg ) const;
-	bool AppliesToPath( const std::string& path ) const;
+	  bool AllowRemote;
 
-	bool AllowWrite;
-	bool AllowAppend;
-	bool AllowRead;
+	  bool AllPackages;
+	  bool AllDirectories; // not used
+	  bool AllExtensions;
 
-	bool AllowRemote;
+	  set<std::string, Clib::ci_cmp_pred> Packages;
+	  vector< std::string > Directories; // not used
+	  vector< std::string > Extensions;
+	};
 
-	bool AllPackages;
-	bool AllDirectories; // not used
-	bool AllExtensions;
-
-	set<std::string, ci_cmp_pred> Packages;
-	vector< std::string > Directories; // not used
-	vector< std::string > Extensions;
-};
-
-bool HasWriteAccess( const Package* pkg, const Package* filepackage, const std::string& path );
-
+	bool HasWriteAccess( const Plib::Package* pkg, const Plib::Package* filepackage, const std::string& path );
+  }
+}
 #endif

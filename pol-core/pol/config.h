@@ -21,7 +21,10 @@ Notes
 #ifndef OPT_LOG_CLIENT_DATA
 #define OPT_LOG_CLIENT_DATA		0
 #endif
-
+namespace Pol {
+  namespace Core {
+  }
+}
 
 
 #endif

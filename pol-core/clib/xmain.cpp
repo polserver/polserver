@@ -21,18 +21,20 @@ Notes
 #	include <crtdbg.h>
 #endif
 
-unsigned int refptr_count;
-
-static void parse_args( int argc, char *argv[] );
+namespace Pol {
+  unsigned int refptr_count;
+  static void parse_args( int argc, char *argv[] );
+}
 
 int main( int argc, char *argv[] )
 {
+  using namespace Pol;
 	setlocale(LC_TIME,"");
     int exitcode = 0;
 
     try 
     {
-        InstallStructuredExceptionHandler();
+        Clib::InstallStructuredExceptionHandler();
 	// FIXME: 2008 Upgrades needed here? Make sure this still valid on 2008
 #if defined(_WIN32) && defined(_DEBUG) && _MSC_VER >= 1300
         // on VS.NET, disable obnoxious heap checking
@@ -80,43 +82,44 @@ int main( int argc, char *argv[] )
     return exitcode;
 }
 
-string xmain_exepath;
-string xmain_exedir;
+namespace Pol {
+  string xmain_exepath;
+  string xmain_exedir;
 
-string fix_slashes( string pathname )
-{
-    string::size_type bslashpos;
-    while (string::npos != (bslashpos = pathname.find( '\\')))
-    {
-        pathname.replace( bslashpos, 1, 1, '/' );
-    }
-    return pathname;
-}
+  string fix_slashes( string pathname )
+  {
+	string::size_type bslashpos;
+	while ( string::npos != ( bslashpos = pathname.find( '\\' ) ) )
+	{
+	  pathname.replace( bslashpos, 1, 1, '/' );
+	}
+	return pathname;
+  }
 
-static void parse_args( int argc, char *argv[] )
-{
+  static void parse_args( int argc, char *argv[] )
+  {
 	string exe_path;
 
 #ifdef _WIN32
 	// useless windows shell (cmd) usually doesn't tell us the whole path.  
-	char module_path[ _MAX_PATH ];
-	if (GetModuleFileName( NULL, module_path, sizeof module_path ))
-		exe_path = module_path;
+	char module_path[_MAX_PATH];
+	if ( GetModuleFileName( NULL, module_path, sizeof module_path ) )
+	  exe_path = module_path;
 	else
-		exe_path = argv[0];
+	  exe_path = argv[0];
 #else
 	// linux shells are generally more informative.
 	exe_path = argv[0];
 #endif
 
-    xmain_exepath = fix_slashes( exe_path );
-    xmain_exedir = fix_slashes( exe_path );
+	xmain_exepath = fix_slashes( exe_path );
+	xmain_exedir = fix_slashes( exe_path );
 
-    string::size_type pos = xmain_exedir.find_last_of( "/" );
-    if (pos != string::npos)
-    {
-        xmain_exedir.erase( pos );
-        xmain_exedir += "/";
-    }
+	string::size_type pos = xmain_exedir.find_last_of( "/" );
+	if ( pos != string::npos )
+	{
+	  xmain_exedir.erase( pos );
+	  xmain_exedir += "/";
+	}
+  }
 }
-

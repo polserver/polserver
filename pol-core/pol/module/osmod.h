@@ -22,128 +22,138 @@ Notes
 #include "../polclock.h"
 
 #include "../uoexhelp.h"
+namespace Pol {
+  namespace Core {
+	class UOExecutor;
+    void run_ready( void );
+    void check_blocked( polclock_t* pclocksleft );
+    void deschedule_executor( UOExecutor* ex );
+    polclock_t calc_script_clocksleft( polclock_t now );
+  }
+  namespace Module {
+	class OSExecutorModule;
 
-class OSExecutorModule;
-class UOExecutor;
-
-typedef BObjectImp* (OSExecutorModule::*OSExecutorModuleFn)();
+	typedef Bscript::BObjectImp* ( OSExecutorModule::*OSExecutorModuleFn )( );
 
 #ifdef _MSC_VER
 #	pragma pack( push, 1 )
 #else
-/* Ok, my build of GCC supports this, yay! */
+	/* Ok, my build of GCC supports this, yay! */
 #	pragma pack(1)
 #endif
-struct OSFunctionDef
-{
-	char funcname[ 33 ];
-	OSExecutorModuleFn fptr;
-};
+	struct OSFunctionDef
+	{
+	  char funcname[33];
+	  OSExecutorModuleFn fptr;
+	};
 #ifdef _MSC_VER
 #	pragma pack( pop )
 #else
 #	pragma pack()
 #endif
 
-typedef std::multimap<polclock_t,UOExecutor*> HoldList;
- 
-class OSExecutorModule : public ExecutorModule
-{
-public:
-    bool signal_event( BObjectImp* eventimp );
-    void suspend();
-    void revive();
+	typedef std::multimap<Core::polclock_t, Core::UOExecutor*> HoldList;
 
-    explicit OSExecutorModule(Executor& exec);
-    ~OSExecutorModule();
+	class OSExecutorModule : public Bscript::ExecutorModule
+	{
+	public:
+	  bool signal_event( Bscript::BObjectImp* eventimp );
+	  void suspend();
+	  void revive();
 
-    bool critical;
-    unsigned char priority;
-    bool warn_on_runaway;
+	  explicit OSExecutorModule( Bscript::Executor& exec );
+	  ~OSExecutorModule();
 
-    void SleepFor( int secs );
-    void SleepForMs( int msecs );
+	  bool critical;
+	  unsigned char priority;
+	  bool warn_on_runaway;
 
-    unsigned int pid() const;
-    bool blocked() const;
+	  void SleepFor( int secs );
+	  void SleepForMs( int msecs );
 
-    bool in_debugger_holdlist() const;
-    void revive_debugged();
-	BObjectImp* clear_event_queue(); //DAVE
+	  unsigned int pid() const;
+	  bool blocked() const;
 
-protected:
-    bool getCharacterParam( unsigned param, Character*& chrptr );
-    BObjectImp* create_debug_context();
-    BObjectImp* getpid();
-    BObjectImp* getprocess();
-	BObjectImp* sleep();
-    BObjectImp* sleepms();
-    BObjectImp* wait_for_event();
-    BObjectImp* events_waiting();
-    BObjectImp* set_critical();
-	BObjectImp* is_critical();
+	  bool in_debugger_holdlist() const;
+	  void revive_debugged();
+	  Bscript::BObjectImp* clear_event_queue( ); //DAVE
 
-	BObjectImp* start_script();
-	BObjectImp* start_skill_script();
-	BObjectImp* run_script_to_completion();
-	BObjectImp* run_script();
-    BObjectImp* mf_parameter();
-    BObjectImp* mf_set_debug();
-    BObjectImp* mf_Log();
-    BObjectImp* mf_system_rpm();
-    BObjectImp* mf_set_priority();
-    BObjectImp* mf_unload_scripts();
-    BObjectImp* mf_set_script_option();
-	BObjectImp* mf_set_event_queue_size(); //DAVE 11/24
-    BObjectImp* mf_OpenURL();
-    BObjectImp* mf_OpenConnection();
-    BObjectImp* mf_debugger();
+	protected:
+	  bool getCharacterParam( unsigned param, Mobile::Character*& chrptr );
+	  Bscript::BObjectImp* create_debug_context( );
+	  Bscript::BObjectImp* getpid( );
+	  Bscript::BObjectImp* getprocess( );
+	  Bscript::BObjectImp* sleep( );
+	  Bscript::BObjectImp* sleepms( );
+	  Bscript::BObjectImp* wait_for_event( );
+	  Bscript::BObjectImp* events_waiting( );
+	  Bscript::BObjectImp* set_critical( );
+	  Bscript::BObjectImp* is_critical( );
 
-	BObjectImp* mf_clear_event_queue(); //DAVE
-    bool blocked_;
-	polclock_t sleep_until_clock_; // 0 if wait forever
+	  Bscript::BObjectImp* start_script( );
+	  Bscript::BObjectImp* start_skill_script( );
+	  Bscript::BObjectImp* run_script_to_completion( );
+	  Bscript::BObjectImp* run_script( );
+	  Bscript::BObjectImp* mf_parameter( );
+	  Bscript::BObjectImp* mf_set_debug( );
+	  Bscript::BObjectImp* mf_Log( );
+	  Bscript::BObjectImp* mf_system_rpm( );
+	  Bscript::BObjectImp* mf_set_priority( );
+	  Bscript::BObjectImp* mf_unload_scripts( );
+	  Bscript::BObjectImp* mf_set_script_option( );
+	  Bscript::BObjectImp* mf_set_event_queue_size( ); //DAVE 11/24
+	  Bscript::BObjectImp* mf_OpenURL( );
+	  Bscript::BObjectImp* mf_OpenConnection( );
+	  Bscript::BObjectImp* mf_debugger( );
 
-    enum { NO_LIST, TIMEOUT_LIST, NOTIMEOUT_LIST, DEBUGGER_LIST } in_hold_list_;
-    HoldList::iterator hold_itr_;
+	  Bscript::BObjectImp* mf_clear_event_queue( ); //DAVE
+	  bool blocked_;
+	  Core::polclock_t sleep_until_clock_; // 0 if wait forever
 
-    unsigned int pid_;
+	  enum { NO_LIST, TIMEOUT_LIST, NOTIMEOUT_LIST, DEBUGGER_LIST } in_hold_list_;
+	  HoldList::iterator hold_itr_;
 
-    enum WAIT_TYPE {
-        WAIT_SLEEP,
-        WAIT_EVENT,
+	  unsigned int pid_;
+
+	  enum WAIT_TYPE
+	  {
+		WAIT_SLEEP,
+		WAIT_EVENT,
 		WAIT_UNKNOWN
-    } wait_type;
+	  } wait_type;
 
-    enum { MAX_EVENTQUEUE_SIZE = 20 };
-	unsigned short max_eventqueue_size; //DAVE 11/24
-    std::queue<BObjectImp*> events_;
-
-
-	friend class NPCExecutorModule;
-	friend void step_scripts(void);
-	friend void run_ready(void);
-	friend void check_blocked( polclock_t* pclocksleft );
-	friend void new_check_blocked(void);
-    friend void deschedule_executor( UOExecutor* ex );
-    friend polclock_t calc_script_clocksleft( polclock_t now );
+	  enum { MAX_EVENTQUEUE_SIZE = 20 };
+	  unsigned short max_eventqueue_size; //DAVE 11/24
+	  std::queue<Bscript::BObjectImp*> events_;
 
 
-    void event_occurred( BObject event );
-	// class machinery
+	  friend class NPCExecutorModule;
+      friend void step_scripts( void );
+	  friend void Core::run_ready( void );
+      friend void Core::check_blocked( Core::polclock_t* pclocksleft );
+      friend void new_check_blocked( void );
+      friend void Core::deschedule_executor( Core::UOExecutor* ex );
+      friend Core::polclock_t Core::calc_script_clocksleft( Core::polclock_t now );
 
-protected:
-	virtual BObjectImp* execFunc( unsigned idx );
-	virtual int functionIndex( const char *func );
-	virtual std::string functionName( unsigned idx );
-	static OSFunctionDef function_table[];
-};
 
-inline bool OSExecutorModule::getCharacterParam( unsigned param, Character*& chrptr )
-{
-    return ::getCharacterParam( exec, param, chrptr );
+	  void event_occurred( Bscript::BObject event );
+	  // class machinery
+
+	protected:
+	  virtual Bscript::BObjectImp* execFunc( unsigned idx );
+	  virtual int functionIndex( const char *func );
+	  virtual std::string functionName( unsigned idx );
+	  static OSFunctionDef function_table[];
+	};
+
+	inline bool OSExecutorModule::getCharacterParam( unsigned param, Mobile::Character*& chrptr )
+	{
+	  return Core::getCharacterParam( exec, param, chrptr );
+	}
+
+	typedef std::map<unsigned int, Core::UOExecutor*> PidList;
+	extern PidList pidlist;
+  }
 }
-
-typedef std::map<unsigned int, UOExecutor*> PidList;
-extern PidList pidlist;
 
 #endif

@@ -11,18 +11,21 @@ Notes
 #include "../clib/stl_inc.h"
 #include "mkscrobj.h"
 #include "uoscrobj.h"
+namespace Pol {
+  namespace Core {
+	Bscript::BObjectImp* make_mobileref( Mobile::Character* chr )
+	{
+	  return new Module::ECharacterRefObjImp( chr );
+	}
 
-BObjectImp* make_mobileref( Character* chr )
-{
-    return new ECharacterRefObjImp( chr );
-}
+    Bscript::BObjectImp* make_itemref( Items::Item* item )
+	{
+      return new Module::EItemRefObjImp( item );
+	}
 
-BObjectImp* make_itemref( Item* item )
-{
-    return new EItemRefObjImp( item );
-}
-
-BObjectImp* make_boatref( UBoat* boat )
-{
-    return new EUBoatRefObjImp( boat );
+    Bscript::BObjectImp* make_boatref( Multi::UBoat* boat )
+	{
+      return new Module::EUBoatRefObjImp( boat );
+	}
+  }
 }

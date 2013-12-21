@@ -12,7 +12,10 @@ Notes
 #define DTRACE_H
 
 #include "polcfg.h"
+namespace Pol {
+  namespace Core {
 
-#define dtrace(n) if (config.debug_level < n) ; else cout
-
+  }
+#define dtrace(n) if (Core::config.debug_level < n) ; else cout
+}
 #endif

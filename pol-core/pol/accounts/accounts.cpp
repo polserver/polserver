@@ -30,207 +30,209 @@ Notes
 #include "../polsig.h"
 #include "../schedule.h"
 #include "../uvars.h"
-
-struct stat accounts_txt_stat;
-bool accounts_txt_dirty = false;
-void read_account_data()
-{
-	unsigned int naccounts = 0;
-    static int num_until_dot = 1000;
-	Tools::Timer<> timer;
-	
-	string accountsfile = config.world_data_path + "accounts.txt";
-	
-	cout << "  " << accountsfile << ":";
-    stat( accountsfile.c_str(), &accounts_txt_stat );
-
+namespace Pol {
+  namespace Accounts {
+	struct stat accounts_txt_stat;
+	bool accounts_txt_dirty = false;
+	void read_account_data()
 	{
-		ConfigFile cf( accountsfile, "Account" );
-		ConfigElem elem;
+	  unsigned int naccounts = 0;
+	  static int num_until_dot = 1000;
+	  Tools::Timer<> timer;
 
-		while (cf.read( elem ))
+	  string accountsfile = Core::config.world_data_path + "accounts.txt";
+
+	  cout << "  " << accountsfile << ":";
+	  stat( accountsfile.c_str(), &accounts_txt_stat );
+
+	  {
+		Clib::ConfigFile cf( accountsfile, "Account" );
+		Clib::ConfigElem elem;
+
+		while ( cf.read( elem ) )
 		{
-            if (--num_until_dot == 0)
-            {
-                cout << ".";
-                num_until_dot = 1000;
-            }
-	        accounts.push_back( AccountRef(new Account( elem )) );
-			naccounts++;
+		  if ( --num_until_dot == 0 )
+		  {
+			cout << ".";
+			num_until_dot = 1000;
+		  }
+		  Core::accounts.push_back( Core::AccountRef( new Account( elem ) ) );
+		  naccounts++;
 		}
+	  }
+
+	  if ( accounts_txt_dirty )
+	  {
+		write_account_data();
+	  }
+
+	  cout << " " << naccounts << " elements in " << timer.ellapsed() << " ms." << std::endl;
 	}
-	
-	if(accounts_txt_dirty)
+
+	void write_account_data()
 	{
-		write_account_data();
+	  string accountstxtfile = Core::config.world_data_path + "accounts.txt";
+	  string accountsbakfile = Core::config.world_data_path + "accounts.bak";
+	  string accountsndtfile = Core::config.world_data_path + "accounts.ndt";
+	  const char *accountstxtfile_c = accountstxtfile.c_str();
+	  const char *accountsbakfile_c = accountsbakfile.c_str();
+	  const char *accountsndtfile_c = accountsndtfile.c_str();
+
+	  unlink( accountsbakfile_c );
+	  unlink( accountsndtfile_c );
+
+	  {
+		ofstream ofs( accountsndtfile_c, std::ios::trunc | ios::out );
+		Clib::ThreadedOFStreamWriter sw( &ofs );
+		for ( auto &account : Core::accounts )
+		{
+		  Account* acct = account.get();
+		  acct->writeto( sw );
+		}
+	  }
+
+	  rename( accountstxtfile_c, accountsbakfile_c );
+	  rename( accountsndtfile_c, accountstxtfile_c );
+
+	  struct stat newst;
+	  stat( accountstxtfile_c, &newst );
+	  memcpy( &accounts_txt_stat, &newst, sizeof accounts_txt_stat );
+	  accounts_txt_dirty = false;
 	}
 
-    cout << " " << naccounts << " elements in " << timer.ellapsed() << " ms." << std::endl;
-}
+	Account* create_new_account( const string& acctname, const string& password, bool enabled )
+	{
+	  passert( !find_account( acctname.c_str() ) );
 
-void write_account_data()
-{
-	string accountstxtfile = config.world_data_path + "accounts.txt";
-	string accountsbakfile = config.world_data_path + "accounts.bak";
-	string accountsndtfile = config.world_data_path + "accounts.ndt";
-	const char *accountstxtfile_c = accountstxtfile.c_str();
-	const char *accountsbakfile_c = accountsbakfile.c_str();
-	const char *accountsndtfile_c = accountsndtfile.c_str();
+	  Clib::ConfigElem elem;
+	  elem.add_prop( "name", acctname.c_str() );
+	  elem.add_prop( "password", password.c_str() );
 
-	unlink( accountsbakfile_c );
-    unlink( accountsndtfile_c );
-    
-    {
-        ofstream ofs( accountsndtfile_c, std::ios::trunc|ios::out );
-		ThreadedOFStreamWriter sw(&ofs);
-        for(auto &account : accounts)
-        {
-            Account* acct = account.get();
-            acct->writeto( sw );
-        }
-    }
-    
-    rename( accountstxtfile_c, accountsbakfile_c );
-    rename( accountsndtfile_c, accountstxtfile_c );
-
-	struct stat newst;
-    stat( accountstxtfile_c, &newst );
-    memcpy( &accounts_txt_stat, &newst, sizeof accounts_txt_stat );
-	accounts_txt_dirty = false;
-}
-
-Account* create_new_account( const string& acctname, const string& password, bool enabled )
-{
-    passert( !find_account( acctname.c_str() ) );
-
-    ConfigElem elem;
-    elem.add_prop( "name", acctname.c_str() );	
-	elem.add_prop( "password", password.c_str() );
-		
-    elem.add_prop( "enabled", ((unsigned int)(enabled?1:0)) );
-    auto acct = new Account( elem );
-    accounts.push_back( AccountRef(acct) );
-	if (config.account_save == -1)
+	  elem.add_prop( "enabled", ( (unsigned int)( enabled ? 1 : 0 ) ) );
+	  auto acct = new Account( elem );
+	  Core::accounts.push_back( Core::AccountRef( acct ) );
+	  if ( Core::config.account_save == -1 )
 		write_account_data();
-	else
+	  else
 		accounts_txt_dirty = true;
-    return acct;
-}
+	  return acct;
+	}
 
-Account* duplicate_account( const string& oldacctname, const string& newacctname )
-{
-    passert( !find_account( newacctname.c_str() ) );
-    
-    Account* oldacct = find_account( oldacctname.c_str() );
-    if (oldacct != NULL)
-    {
-        ConfigElem elem;
-        oldacct->writeto( elem );
-        elem.remove_string( "name" );
-        elem.add_prop( "name", newacctname.c_str() );	
-        
-        auto acct = new Account( elem );
-        accounts.push_back( AccountRef(acct) );
-		if (config.account_save == -1)
-			write_account_data();
-		else
-			accounts_txt_dirty = true;
-        return acct;
-    }
-    return NULL;
-}
-
-Account* find_account( const char* acctname )
-{
-  	for(auto &account : accounts)
+	Account* duplicate_account( const string& oldacctname, const string& newacctname )
 	{
-		if (stricmp( account->name(), acctname ) == 0)
+	  passert( !find_account( newacctname.c_str() ) );
+
+	  Account* oldacct = find_account( oldacctname.c_str() );
+	  if ( oldacct != NULL )
+	  {
+		Clib::ConfigElem elem;
+		oldacct->writeto( elem );
+		elem.remove_string( "name" );
+		elem.add_prop( "name", newacctname.c_str() );
+
+		auto acct = new Account( elem );
+		Core::accounts.push_back( Core::AccountRef( acct ) );
+		if ( Core::config.account_save == -1 )
+		  write_account_data();
+		else
+		  accounts_txt_dirty = true;
+		return acct;
+	  }
+	  return NULL;
+	}
+
+	Account* find_account( const char* acctname )
+	{
+	  for ( auto &account : Core::accounts )
+	  {
+		if ( stricmp( account->name(), acctname ) == 0 )
 		{
-			return account.get();
+		  return account.get();
 		}
+	  }
+	  return NULL;
 	}
-    return NULL;
-}
 
-int delete_account( const char* acctname )
-{
-    for( auto itr = accounts.begin(), end = accounts.end(); itr != end; ++itr )
-    {
-        Account* account = (*itr).get();
-        if (stricmp( account->name(), acctname ) == 0)
-        {
-            if (account->numchars() == 0)
-            {
-                accounts.erase(itr);
-				if (config.account_save == -1)
-					write_account_data();
-				else
-					accounts_txt_dirty = true;
-                return 1;
-            }
-            else
-                return -1;
+	int delete_account( const char* acctname )
+	{
+	  for ( auto itr = Core::accounts.begin( ), end = Core::accounts.end( ); itr != end; ++itr )
+	  {
+		Account* account = ( *itr ).get();
+		if ( stricmp( account->name(), acctname ) == 0 )
+		{
+		  if ( account->numchars() == 0 )
+		  {
+			Core::accounts.erase( itr );
+			if ( Core::config.account_save == -1 )
+			  write_account_data();
+			else
+			  accounts_txt_dirty = true;
+			return 1;
+		  }
+		  else
+			return -1;
 		}
+	  }
+	  return -2;
 	}
-    return -2;
-}
 
-void reread_account( ConfigElem& elem )
-{
-    string name = elem.remove_string( "NAME" );
-    Account* existing = find_account( name.c_str() );
-    if (existing != NULL)
-    {
-        existing->readfrom( elem );
-    }
-    else
-    {
-        elem.add_prop( "NAME", name.c_str() );
-        accounts.push_back( AccountRef(new Account( elem )) );
-    }
-}
+	void reread_account( Clib::ConfigElem& elem )
+	{
+	  string name = elem.remove_string( "NAME" );
+	  Account* existing = find_account( name.c_str() );
+	  if ( existing != NULL )
+	  {
+		existing->readfrom( elem );
+	  }
+	  else
+	  {
+		elem.add_prop( "NAME", name.c_str() );
+		Core::accounts.push_back( Core::AccountRef( new Account( elem ) ) );
+	  }
+	}
 
-void reload_account_data(void)
-{
-    THREAD_CHECKPOINT( tasks, 500 );
-    try
-    {
-		string accountsfile = config.world_data_path + "accounts.txt";
+	void reload_account_data( void )
+	{
+	  THREAD_CHECKPOINT( tasks, 500 );
+	  try
+	  {
+		string accountsfile = Core::config.world_data_path + "accounts.txt";
 
-        struct stat newst;
-        stat( accountsfile.c_str(), &newst );
-        if ((newst.st_mtime != accounts_txt_stat.st_mtime) &&
-            (newst.st_mtime < time(NULL)-10))
-        {
-            cout << "Reloading accounts.txt...";
-            memcpy( &accounts_txt_stat, &newst, sizeof accounts_txt_stat );
-            
+		struct stat newst;
+		stat( accountsfile.c_str(), &newst );
+		if ( ( newst.st_mtime != accounts_txt_stat.st_mtime ) &&
+			 ( newst.st_mtime < time( NULL ) - 10 ) )
+		{
+		  cout << "Reloading accounts.txt...";
+		  memcpy( &accounts_txt_stat, &newst, sizeof accounts_txt_stat );
+
+		  {
+			Clib::ConfigFile cf( accountsfile, "Account" );
+			Clib::ConfigElem elem;
+			while ( cf.read( elem ) )
 			{
-				ConfigFile cf( accountsfile, "Account" );
-				ConfigElem elem;
-				while (cf.read( elem ))
-				{
-					reread_account( elem );
-				}
-				cout << "Done!" << endl;
+			  reread_account( elem );
 			}
-			if(accounts_txt_dirty)
-			{
-				write_account_data();
-			}
-        }
-    }
-    catch( ... )
-    {
-        cout << "Error reading accounts.txt!" << endl;
-    }
-    THREAD_CHECKPOINT( tasks, 599 );
-}
-PeriodicTask reload_accounts_task( reload_account_data, 30, "LOADACCT" );
+			cout << "Done!" << endl;
+		  }
+		  if ( accounts_txt_dirty )
+		  {
+			write_account_data();
+		  }
+		}
+	  }
+	  catch ( ... )
+	  {
+		cout << "Error reading accounts.txt!" << endl;
+	  }
+	  THREAD_CHECKPOINT( tasks, 599 );
+	}
 
-void write_account_data_task(void)
-{
-	if(accounts_txt_dirty)
+	void write_account_data_task( void )
+	{
+	  if ( accounts_txt_dirty )
 		write_account_data();
+	}
+	
+  }
 }
-PeriodicTask write_account_task( write_account_data_task, 60, "WRITEACCT" );

@@ -48,460 +48,466 @@ Notes
 
 #include "../clib/fdump.h"
 #include "../bscript/impstr.h"
+namespace Pol {
+  namespace Core {
+    using namespace Network;
 
-// ASCII-ONLY VERSIONS
-void pc_spoke( NPC& npc, Character *chr, const char *text, int textlen, u8 texttype ) //DAVE
-{
-    npc.on_pc_spoke( chr, text, texttype );
-}
-void ghost_pc_spoke( NPC& npc, Character* chr, const char* text, int textlen, u8 texttype ) //DAVE
-{
-    npc.on_ghost_pc_spoke( chr, text, texttype );
-}
+	// ASCII-ONLY VERSIONS
+	void pc_spoke( NPC& npc, Mobile::Character *chr, const char *text, int textlen, u8 texttype ) //DAVE
+	{
+	  npc.on_pc_spoke( chr, text, texttype );
+	}
+    void ghost_pc_spoke( NPC& npc, Mobile::Character* chr, const char* text, int textlen, u8 texttype ) //DAVE
+	{
+	  npc.on_ghost_pc_spoke( chr, text, texttype );
+	}
 
-// UNICODE VERSIONS
-void pc_spoke( NPC& npc, Character *chr, const char *text, int textlen, u8 texttype, const u16 *wtext, const char lang[4], int wtextlen, ObjArray* speechtokens=NULL )
-{
-	npc.on_pc_spoke( chr, text, texttype, wtext, lang, speechtokens );
-}
-void ghost_pc_spoke( NPC& npc, Character* chr, const char *text, int textlen, u8 texttype, const u16 *wtext, const char lang[4], int wtextlen, ObjArray* speechtokens=NULL )
-{
-	npc.on_ghost_pc_spoke( chr, text, texttype, wtext, lang, speechtokens );
-}
+	// UNICODE VERSIONS
+    void pc_spoke( NPC& npc, Mobile::Character *chr, const char *text, int textlen, u8 texttype, const u16 *wtext, const char lang[4], int wtextlen, Bscript::ObjArray* speechtokens = NULL )
+	{
+	  npc.on_pc_spoke( chr, text, texttype, wtext, lang, speechtokens );
+	}
+    void ghost_pc_spoke( NPC& npc, Mobile::Character* chr, const char *text, int textlen, u8 texttype, const u16 *wtext, const char lang[4], int wtextlen, Bscript::ObjArray* speechtokens = NULL )
+	{
+	  npc.on_ghost_pc_spoke( chr, text, texttype, wtext, lang, speechtokens );
+	}
 
-void handle_processed_speech( Client* client, char* textbuf, int textbuflen, char firstchar, u8 type, u16 color, u16 font )
-{
-	// ENHANCE: if (intextlen+1) != textbuflen, then the input line was 'dirty'.  May want to log this fact.
-			
-	if (textbuflen == 1)
+	void handle_processed_speech( Client* client, char* textbuf, int textbuflen, char firstchar, u8 type, u16 color, u16 font )
+	{
+	  // ENHANCE: if (intextlen+1) != textbuflen, then the input line was 'dirty'.  May want to log this fact.
+
+	  if ( textbuflen == 1 )
 		return;
 
-	if (textbuf[0] == '.' || textbuf[0] == '=')
-	{
-		if (!process_command( client, textbuf ))
-            send_sysmessage( client, string("Unknown command: ") + textbuf );
-        return;
-	}
+	  if ( textbuf[0] == '.' || textbuf[0] == '=' )
+	  {
+		if ( !process_command( client, textbuf ) )
+		  send_sysmessage( client, string( "Unknown command: " ) + textbuf );
+		return;
+	  }
 
-    if (firstchar == '~') // we strip tildes out
-    {
-        process_tildecommand( client, textbuf );
-        return;
-    }
-    
-    if (client->chr->squelched())
-        return;
+	  if ( firstchar == '~' ) // we strip tildes out
+	  {
+		process_tildecommand( client, textbuf );
+		return;
+	  }
 
-    if (client->chr->hidden())
-        client->chr->unhide();
+	  if ( client->chr->squelched() )
+		return;
 
-    if (config.show_speech_colors)
-    {
-        cout << client->chr->name() << " speaking w/ color " 
-             << hexint( cfBEu16(color) ) << endl;
-    }
+	  if ( client->chr->hidden() )
+		client->chr->unhide();
 
-	// validate text color
-	u16 textcol = cfBEu16(color);
-	if ( textcol < 2 || textcol > 1001 )
-	{
+	  if ( config.show_speech_colors )
+	  {
+		cout << client->chr->name() << " speaking w/ color "
+		  << Clib::hexint( cfBEu16( color ) ) << endl;
+	  }
+
+	  // validate text color
+	  u16 textcol = cfBEu16( color );
+	  if ( textcol < 2 || textcol > 1001 )
+	  {
 		textcol = 1001;
-	}
+	  }
 
-	u16 textlen= static_cast<u16>(textbuflen + 1);
-	if (textlen > SPEECH_MAX_LEN+1)
-		textlen = SPEECH_MAX_LEN+1;
+	  u16 textlen = static_cast<u16>( textbuflen + 1 );
+	  if ( textlen > SPEECH_MAX_LEN + 1 )
+		textlen = SPEECH_MAX_LEN + 1;
 
-	PktHelper::PacketOut<PktOut_1C> talkmsg;
-	talkmsg->offset+=2;
-	talkmsg->Write<u32>(client->chr->serial_ext);
-	talkmsg->WriteFlipped<u16>(client->chr->graphic);
-	talkmsg->Write<u8>(type); // FIXME authorize
-	talkmsg->WriteFlipped<u16>(textcol);
-	talkmsg->WriteFlipped<u16>(font);
-	talkmsg->Write(client->chr->name().c_str(),30);
-	talkmsg->Write(textbuf,textlen);
-	u16 len=talkmsg->offset;
-	talkmsg->offset=1;
-	talkmsg->WriteFlipped<u16>(len);
-	talkmsg.Send(client, len );
+	  PktHelper::PacketOut<PktOut_1C> talkmsg;
+	  talkmsg->offset += 2;
+	  talkmsg->Write<u32>( client->chr->serial_ext );
+	  talkmsg->WriteFlipped<u16>( client->chr->graphic );
+	  talkmsg->Write<u8>( type ); // FIXME authorize
+	  talkmsg->WriteFlipped<u16>( textcol );
+	  talkmsg->WriteFlipped<u16>( font );
+	  talkmsg->Write( client->chr->name().c_str(), 30 );
+	  talkmsg->Write( textbuf, textlen );
+	  u16 len = talkmsg->offset;
+	  talkmsg->offset = 1;
+	  talkmsg->WriteFlipped<u16>( len );
+	  talkmsg.Send( client, len );
 
-	PktHelper::PacketOut<PktOut_1C> ghostmsg;
-	if (client->chr->dead() && !client->chr->can_be_heard_as_ghost())
-    {
-        memcpy( &ghostmsg->buffer, &talkmsg->buffer, sizeof ghostmsg->buffer );
+	  PktHelper::PacketOut<PktOut_1C> ghostmsg;
+	  if ( client->chr->dead() && !client->chr->can_be_heard_as_ghost() )
+	  {
+		memcpy( &ghostmsg->buffer, &talkmsg->buffer, sizeof ghostmsg->buffer );
 		ghostmsg->offset = 44;
-        char* t = &ghostmsg->buffer[ghostmsg->offset];
-        while (ghostmsg->offset < len)
-        {
-            if (!isspace(*t))
-            {
-                if (random_int( 4 ) == 0)
-                    *t = 'o';
-                else
-                    *t = 'O';
-            }
-            ++t;
-			ghostmsg->offset++;
-        }
-    }
-	// send to those nearby
-	for( unsigned cli = 0; cli < clients.size(); cli++ )
-	{
+		char* t = &ghostmsg->buffer[ghostmsg->offset];
+		while ( ghostmsg->offset < len )
+		{
+		  if ( !isspace( *t ) )
+		  {
+			if ( random_int( 4 ) == 0 )
+			  *t = 'o';
+			else
+			  *t = 'O';
+		  }
+		  ++t;
+		  ghostmsg->offset++;
+		}
+	  }
+	  // send to those nearby
+	  for ( unsigned cli = 0; cli < clients.size(); cli++ )
+	  {
 		Client *client2 = clients[cli];
-		if (!client2->ready) continue;
-		if (client == client2) continue;
-        if (!client2->chr->is_visible_to_me( client->chr ))
-            continue;
-        if (client2->chr->deafened()) continue;
-		
-        bool rangeok;
-        if (type == TEXTTYPE_WHISPER)
-            rangeok = in_whisper_range(  client->chr, client2->chr );
-        else if (type == TEXTTYPE_YELL)
-            rangeok = in_yell_range( client->chr, client2->chr );
-        else
-            rangeok = in_say_range( client->chr, client2->chr );
-        if (rangeok)
-        {
-            if (!client->chr->dead() || 
-                 client2->chr->dead() || 
-                 client2->chr->can_hearghosts() ||
-                 client->chr->can_be_heard_as_ghost() )
-            {
-    			talkmsg.Send(client2, len );
-            }
-            else
-            {
-                ghostmsg.Send( client2, len );
-            }
-        }
+		if ( !client2->ready ) continue;
+		if ( client == client2 ) continue;
+		if ( !client2->chr->is_visible_to_me( client->chr ) )
+		  continue;
+		if ( client2->chr->deafened() ) continue;
+
+		bool rangeok;
+		if ( type == TEXTTYPE_WHISPER )
+		  rangeok = in_whisper_range( client->chr, client2->chr );
+		else if ( type == TEXTTYPE_YELL )
+		  rangeok = in_yell_range( client->chr, client2->chr );
+		else
+		  rangeok = in_say_range( client->chr, client2->chr );
+		if ( rangeok )
+		{
+		  if ( !client->chr->dead() ||
+			   client2->chr->dead() ||
+			   client2->chr->can_hearghosts() ||
+			   client->chr->can_be_heard_as_ghost() )
+		  {
+			talkmsg.Send( client2, len );
+		  }
+		  else
+		  {
+			ghostmsg.Send( client2, len );
+		  }
+		}
+	  }
+
+	  if ( !client->chr->dead() )
+		for_nearby_npcs( pc_spoke, client->chr, textbuf, textbuflen, type );
+	  else
+		for_nearby_npcs( ghost_pc_spoke, client->chr, textbuf, textbuflen, type );
+
+	  sayto_listening_points( client->chr, textbuf, textbuflen, type );
 	}
 
-    if (!client->chr->dead())
-        for_nearby_npcs( pc_spoke, client->chr, textbuf, textbuflen, type );
-    else
-        for_nearby_npcs( ghost_pc_spoke, client->chr, textbuf, textbuflen, type );
-    
-    sayto_listening_points( client->chr, textbuf, textbuflen, type );
-}
 
-                              
 
-void SpeechHandler( Client *client, PKTIN_03 *mymsg )
-{
-	int i;
-	int intextlen;
-	
-	char textbuf[ SPEECH_MAX_LEN+1 ];
-	int textbuflen;
+	void SpeechHandler( Client *client, PKTIN_03 *mymsg )
+	{
+	  int i;
+	  int intextlen;
 
-	intextlen = cfBEu16(mymsg->msglen) - offsetof( PKTIN_03, text ) - 1;
+	  char textbuf[SPEECH_MAX_LEN + 1];
+	  int textbuflen;
 
-	// Preprocess the text into a sanity-checked, printable, null-terminated form in textbuf
-	if (intextlen < 0)
+	  intextlen = cfBEu16( mymsg->msglen ) - offsetof( PKTIN_03, text ) - 1;
+
+	  // Preprocess the text into a sanity-checked, printable, null-terminated form in textbuf
+	  if ( intextlen < 0 )
 		intextlen = 0;
-	if (intextlen > SPEECH_MAX_LEN) 
+	  if ( intextlen > SPEECH_MAX_LEN )
 		intextlen = SPEECH_MAX_LEN;	// ENHANCE: May want to log this
 
-	for( i = 0, textbuflen = 0; i < intextlen; i++ )
-	{
+	  for ( i = 0, textbuflen = 0; i < intextlen; i++ )
+	  {
 		char ch = mymsg->text[i];
 
-		if (ch == 0) break;
-		if (ch == '~') continue;	// skip unprintable tildes.  Probably not a reportable offense.
+		if ( ch == 0 ) break;
+		if ( ch == '~' ) continue;	// skip unprintable tildes.  Probably not a reportable offense.
 
-		if (isprint( ch ))
-			textbuf[ textbuflen++ ] = ch;
+		if ( isprint( ch ) )
+		  textbuf[textbuflen++] = ch;
 		// ENHANCE: else report client data error? Just log? 
+	  }
+	  textbuf[textbuflen++] = 0;
+
+	  handle_processed_speech( client, textbuf, textbuflen, mymsg->text[0], mymsg->type, mymsg->color, mymsg->font );
 	}
-	textbuf[ textbuflen++ ] = 0;
 
-    handle_processed_speech( client, textbuf, textbuflen, mymsg->text[0], mymsg->type, mymsg->color, mymsg->font );
-}
+	MESSAGE_HANDLER_VARLEN( PKTIN_03, SpeechHandler );
 
-MESSAGE_HANDLER_VARLEN( PKTIN_03, SpeechHandler );
-
-void SendUnicodeSpeech(Client *client, PKTIN_AD *msgin, u16* wtext, size_t wtextlen, char* ntext, size_t ntextlen, ObjArray* speechtokens)
-{
-	using std::wstring;
-
-	if (wtext[0] == ctBEu16(L'.') || wtext[0] == ctBEu16(L'='))
+    void SendUnicodeSpeech( Client *client, PKTIN_AD *msgin, u16* wtext, size_t wtextlen, char* ntext, size_t ntextlen, Bscript::ObjArray* speechtokens )
 	{
-		if (!process_command( client, ntext, wtext, msgin->lang ))
+	  using std::wstring;
+
+	  if ( wtext[0] == ctBEu16( L'.' ) || wtext[0] == ctBEu16( L'=' ) )
+	  {
+		if ( !process_command( client, ntext, wtext, msgin->lang ) )
 		{
-			wstring wtmp(L"Unknown command: ");
-			// Needs to be done char-by-char due to linux's 4-byte unicode!
-			for(size_t i = 0; i < wtextlen; i++)
-			wtmp += static_cast<wchar_t>(cfBEu16(wtext[i]));
-			send_sysmessage( client, wtmp, msgin->lang );
+		  wstring wtmp( L"Unknown command: " );
+		  // Needs to be done char-by-char due to linux's 4-byte unicode!
+		  for ( size_t i = 0; i < wtextlen; i++ )
+			wtmp += static_cast<wchar_t>( cfBEu16( wtext[i] ) );
+		  send_sysmessage( client, wtmp, msgin->lang );
 		}
-        return;
-	}
+		return;
+	  }
 
-    if (cfBEu16(msgin->wtext[0]) == L'~') // we strip tildes out
-    {
-        process_tildecommand( client, wtext );
-        return;
-    }
+	  if ( cfBEu16( msgin->wtext[0] ) == L'~' ) // we strip tildes out
+	  {
+		process_tildecommand( client, wtext );
+		return;
+	  }
 
-	if (client->chr->squelched())
+	  if ( client->chr->squelched() )
 		return;
 
-    if (client->chr->hidden())
-        client->chr->unhide();
+	  if ( client->chr->hidden() )
+		client->chr->unhide();
 
-    if (config.show_speech_colors)
-    {
-        cout << client->chr->name() << " speaking w/ color " 
-             << hexint( cfBEu16(msgin->color) ) << endl;
-    }
+	  if ( config.show_speech_colors )
+	  {
+		cout << client->chr->name() << " speaking w/ color "
+		  << Clib::hexint( cfBEu16( msgin->color ) ) << endl;
+	  }
 
-	// validate text color
-	u16 textcol = cfBEu16(msgin->color);
-	if ( textcol < 2 || textcol > 1001 )
-	{
+	  // validate text color
+	  u16 textcol = cfBEu16( msgin->color );
+	  if ( textcol < 2 || textcol > 1001 )
+	  {
 		// 3/8/2009 MuadDib Changed to default color instead of complain.
 		textcol = 1001;
-	}
+	  }
 
-	PktHelper::PacketOut<PktOut_AE> ghostmsg;
-	PktHelper::PacketOut<PktOut_AE> talkmsg;
-	talkmsg->offset+=2;
-	talkmsg->Write<u32>(client->chr->serial_ext);
-	talkmsg->WriteFlipped<u16>(client->chr->graphic);
-	talkmsg->Write<u8>(msgin->type); // FIXME authorize
-	talkmsg->WriteFlipped<u16>(textcol);
-	talkmsg->WriteFlipped<u16>(msgin->font);
-	talkmsg->Write(msgin->lang,4);
-	talkmsg->Write(client->chr->name().c_str(),30);
-	talkmsg->Write(&wtext[0],static_cast<u16>(wtextlen), false); //nullterm already included
-	u16 len=talkmsg->offset;
-	talkmsg->offset=1;
-	talkmsg->WriteFlipped<u16>(len);
+	  PktHelper::PacketOut<PktOut_AE> ghostmsg;
+	  PktHelper::PacketOut<PktOut_AE> talkmsg;
+	  talkmsg->offset += 2;
+	  talkmsg->Write<u32>( client->chr->serial_ext );
+	  talkmsg->WriteFlipped<u16>( client->chr->graphic );
+	  talkmsg->Write<u8>( msgin->type ); // FIXME authorize
+	  talkmsg->WriteFlipped<u16>( textcol );
+	  talkmsg->WriteFlipped<u16>( msgin->font );
+	  talkmsg->Write( msgin->lang, 4 );
+	  talkmsg->Write( client->chr->name().c_str(), 30 );
+	  talkmsg->Write( &wtext[0], static_cast<u16>( wtextlen ), false ); //nullterm already included
+	  u16 len = talkmsg->offset;
+	  talkmsg->offset = 1;
+	  talkmsg->WriteFlipped<u16>( len );
 
 
-	if (msgin->type == 0x0d)
-	{
-		if (ssopt.core_sends_guildmsgs && client->chr->guildid() > 0)
-			for (unsigned cli = 0 ; cli < clients.size(); cli++)
-			{
-				Client *client2 = clients[cli];
-				if (!client2->ready) continue;
-				if (client->chr->guildid() == client2->chr->guildid())
-					talkmsg.Send(client2,len);
-			}
-	}
-	else if (msgin->type == 0x0e)
-	{
-		if (ssopt.core_sends_guildmsgs && client->chr->guildid() > 0)
-			for (unsigned cli = 0 ; cli < clients.size(); cli++)
-			{
-				Client *client2 = clients[cli];
-				if (!client2->ready) continue;
-				if (client->chr->guildid() == client2->chr->guildid() || (client2->chr->guild() > 0 && client->chr->guild()->hasAlly(client2->chr->guild())))
-					talkmsg.Send(client2,len);
-			}
-	}
-	else
-	{
-		talkmsg.Send(client, len); // self
-		if (client->chr->dead() && !client->chr->can_be_heard_as_ghost())
+	  if ( msgin->type == 0x0d )
+	  {
+		if ( ssopt.core_sends_guildmsgs && client->chr->guildid() > 0 )
+		for ( unsigned cli = 0; cli < clients.size(); cli++ )
 		{
-			memcpy( &ghostmsg->buffer, &talkmsg->buffer, sizeof ghostmsg->buffer );
-
-			ghostmsg->offset = 48;
-			u16* t = ((u16*)&ghostmsg->buffer[ghostmsg->offset]);
-			while (ghostmsg->offset < len-2) // dont convert nullterm
-			{
-				wchar_t wch = (*t);
-				if (!iswspace(wch))
-				{
-					if (random_int( 4 ) == 0)
-						*t = ctBEu16(L'o');
-					else
-						*t = ctBEu16(L'O');
-				}
-				++t;
-				ghostmsg->offset+=2;
-			}
+		  Client *client2 = clients[cli];
+		  if ( !client2->ready ) continue;
+		  if ( client->chr->guildid() == client2->chr->guildid() )
+			talkmsg.Send( client2, len );
 		}
-			// send to those nearby
-		for( unsigned cli = 0; cli < clients.size(); cli++ )
+	  }
+	  else if ( msgin->type == 0x0e )
+	  {
+		if ( ssopt.core_sends_guildmsgs && client->chr->guildid() > 0 )
+		for ( unsigned cli = 0; cli < clients.size(); cli++ )
 		{
-			Client *client2 = clients[cli];
-			if (!client2->ready) continue;
-			if (client == client2) continue;
-			if (!client2->chr->is_visible_to_me( client->chr ))
-				continue;
-			if (client2->chr->deafened()) continue;
+		  Client *client2 = clients[cli];
+		  if ( !client2->ready ) continue;
+		  if ( client->chr->guildid() == client2->chr->guildid() || ( client2->chr->guild() > 0 && client->chr->guild()->hasAlly( client2->chr->guild() ) ) )
+			talkmsg.Send( client2, len );
+		}
+	  }
+	  else
+	  {
+		talkmsg.Send( client, len ); // self
+		if ( client->chr->dead() && !client->chr->can_be_heard_as_ghost() )
+		{
+		  memcpy( &ghostmsg->buffer, &talkmsg->buffer, sizeof ghostmsg->buffer );
 
-			bool rangeok;
-			if (msgin->type == TEXTTYPE_WHISPER)
-				rangeok = in_whisper_range(  client->chr, client2->chr ); //DAVE changed from hardcoded "2"
-			else if (msgin->type == TEXTTYPE_YELL)
-				rangeok = in_yell_range( client->chr, client2->chr ); //DAVE changed from hardcoded "25"
+		  ghostmsg->offset = 48;
+		  u16* t = ( (u16*)&ghostmsg->buffer[ghostmsg->offset] );
+		  while ( ghostmsg->offset < len - 2 ) // dont convert nullterm
+		  {
+			wchar_t wch = ( *t );
+			if ( !iswspace( wch ) )
+			{
+			  if ( random_int( 4 ) == 0 )
+				*t = ctBEu16( L'o' );
+			  else
+				*t = ctBEu16( L'O' );
+			}
+			++t;
+			ghostmsg->offset += 2;
+		  }
+		}
+		// send to those nearby
+		for ( unsigned cli = 0; cli < clients.size(); cli++ )
+		{
+		  Client *client2 = clients[cli];
+		  if ( !client2->ready ) continue;
+		  if ( client == client2 ) continue;
+		  if ( !client2->chr->is_visible_to_me( client->chr ) )
+			continue;
+		  if ( client2->chr->deafened() ) continue;
+
+		  bool rangeok;
+		  if ( msgin->type == TEXTTYPE_WHISPER )
+			rangeok = in_whisper_range( client->chr, client2->chr ); //DAVE changed from hardcoded "2"
+		  else if ( msgin->type == TEXTTYPE_YELL )
+			rangeok = in_yell_range( client->chr, client2->chr ); //DAVE changed from hardcoded "25"
+		  else
+			rangeok = in_say_range( client->chr, client2->chr ); //DAVE changed from "visual" range check, should be "say" range check.
+		  if ( rangeok )
+		  {
+			if ( !client->chr->dead() ||
+				 client2->chr->dead() ||
+				 client2->chr->can_hearghosts() ||
+				 client->chr->can_be_heard_as_ghost() )
+			{
+			  talkmsg.Send( client2, len );
+			}
 			else
-				rangeok = in_say_range( client->chr, client2->chr ); //DAVE changed from "visual" range check, should be "say" range check.
-			if (rangeok)
 			{
-				if (!client->chr->dead() ||
-					client2->chr->dead() ||
-					client2->chr->can_hearghosts() ||
-					client->chr->can_be_heard_as_ghost() )
-				{
-					talkmsg.Send(client2, len );
-				}
-				else
-				{
-					ghostmsg.Send( client2, len );
-				}
+			  ghostmsg.Send( client2, len );
 			}
+		  }
 		}
 
-		if (!client->chr->dead())
-			for_nearby_npcs( pc_spoke, client->chr, ntext, static_cast<int>(ntextlen), msgin->type,
-							 wtext, msgin->lang, static_cast<int>(wtextlen), speechtokens);
+		if ( !client->chr->dead() )
+		  for_nearby_npcs( pc_spoke, client->chr, ntext, static_cast<int>( ntextlen ), msgin->type,
+		  wtext, msgin->lang, static_cast<int>( wtextlen ), speechtokens );
 		else
-			for_nearby_npcs( ghost_pc_spoke, client->chr, ntext, static_cast<int>(ntextlen), msgin->type,
-							 wtext, msgin->lang, static_cast<int>(wtextlen), speechtokens);
+		  for_nearby_npcs( ghost_pc_spoke, client->chr, ntext, static_cast<int>( ntextlen ), msgin->type,
+		  wtext, msgin->lang, static_cast<int>( wtextlen ), speechtokens );
 
-		sayto_listening_points( client->chr, ntext, static_cast<int>(ntextlen), msgin->type,
-								wtext, msgin->lang, static_cast<int>(wtextlen), speechtokens);
+		sayto_listening_points( client->chr, ntext, static_cast<int>( ntextlen ), msgin->type,
+								wtext, msgin->lang, static_cast<int>( wtextlen ), speechtokens );
+	  }
 	}
-}
-u16 Get12BitNumber(u8 * thearray, u16 theindex)
-{	
-    u16 theresult = 0;
-    int thenibble = theindex * 3;
-    int thebyte = thenibble / 2;
-    if (thenibble % 2)
-        theresult = cfBEu16(*((u16 *) (thearray + thebyte))) & 0x0FFF;
-    else
-        theresult = cfBEu16(*((u16 *) (thearray + thebyte))) >> 4;
-    return theresult;
-}
-
-int GetNextUTF8(u8 * bytemsg, int i,u16& unicodeChar)
-{	u16 result = 0;
-
-	if ((bytemsg[i] & 0x80) == 0)
+	u16 Get12BitNumber( u8 * thearray, u16 theindex )
 	{
+	  u16 theresult = 0;
+	  int thenibble = theindex * 3;
+	  int thebyte = thenibble / 2;
+	  if ( thenibble % 2 )
+		theresult = cfBEu16( *( (u16 *)( thearray + thebyte ) ) ) & 0x0FFF;
+	  else
+		theresult = cfBEu16( *( (u16 *)( thearray + thebyte ) ) ) >> 4;
+	  return theresult;
+	}
+
+	int GetNextUTF8( u8 * bytemsg, int i, u16& unicodeChar )
+	{
+	  u16 result = 0;
+
+	  if ( ( bytemsg[i] & 0x80 ) == 0 )
+	  {
 		unicodeChar = bytemsg[i];
-		return i+1;
-	}
+		return i + 1;
+	  }
 
-	if ((bytemsg[i] & 0xE0) == 0xC0)
-	{
+	  if ( ( bytemsg[i] & 0xE0 ) == 0xC0 )
+	  {
 		// two byte sequence :
-		if ((bytemsg[i+1] & 0xC0) == 0x80)
+		if ( ( bytemsg[i + 1] & 0xC0 ) == 0x80 )
 		{
-			result = ((bytemsg[i] & 0x1F) << 6) | (bytemsg[i+1] & 0x3F);
-			unicodeChar = result;
-			return i+2;
+		  result = ( ( bytemsg[i] & 0x1F ) << 6 ) | ( bytemsg[i + 1] & 0x3F );
+		  unicodeChar = result;
+		  return i + 2;
 		}
-	}
-	else if ((bytemsg[i] & 0xF0) == 0xE0)
-	{
+	  }
+	  else if ( ( bytemsg[i] & 0xF0 ) == 0xE0 )
+	  {
 		// three byte sequence
-		if (((bytemsg[i+1] & 0xC0) == 0x80) &&
-			((bytemsg[i+2] & 0xC0) == 0x80)
-		   )
+		if ( ( ( bytemsg[i + 1] & 0xC0 ) == 0x80 ) &&
+			 ( ( bytemsg[i + 2] & 0xC0 ) == 0x80 )
+			 )
 		{
-			result = ((bytemsg[i] & 0x0F) << 12) | ((bytemsg[i+1] & 0x3F) < 6) | (bytemsg[i+2] & 0x3F);
-			unicodeChar = result;
-			return i+3;
+		  result = ( ( bytemsg[i] & 0x0F ) << 12 ) | ( ( bytemsg[i + 1] & 0x3F ) < 6 ) | ( bytemsg[i + 2] & 0x3F );
+		  unicodeChar = result;
+		  return i + 3;
 		}
+	  }
+
+	  // An error occurred in the sequence(or sequence > 16 bits) :
+	  unicodeChar = 0x20;  // Set unicode char to a "space" character instead"
+	  return i + 1;
 	}
-	
-	// An error occurred in the sequence(or sequence > 16 bits) :
-	unicodeChar = 0x20;  // Set unicode char to a "space" character instead"
-	return i+1;
-}
 
-void UnicodeSpeechHandler( Client *client, PKTIN_AD *msgin )
-{
-	using std::wcout; // wcout.narrow() function r0x! :-)
-
-	int intextlen;
-	u16 numtokens = 0;
-	u16 * themsg = msgin->wtext;
-	u8 *  bytemsg;
-	int wtextoffset = 0;
-	std::unique_ptr<ObjArray> speechtokens(nullptr);
-	int i;
-
-	u16 tempbuf[ SPEECH_MAX_LEN+1 ];
-
-    u16 wtextbuf[ SPEECH_MAX_LEN+1 ];
-    size_t wtextbuflen;
-
-	char ntextbuf[SPEECH_MAX_LEN+1];
-	size_t ntextbuflen;
-
-	if (msgin->type & 0xc0)
+	void UnicodeSpeechHandler( Client *client, PKTIN_AD *msgin )
 	{
-		numtokens = Get12BitNumber((u8 *) (msgin->wtext), 0);
-		wtextoffset = ((((numtokens+1)*3)/2) + ((numtokens+1) % 2));		
-		bytemsg = (((u8*) themsg) + wtextoffset);
-		int bytemsglen = cfBEu16(msgin->msglen) - wtextoffset - offsetof( PKTIN_AD, wtext ) - 1;
-        intextlen = 0;
+	  using std::wcout; // wcout.narrow() function r0x! :-)
+
+	  int intextlen;
+	  u16 numtokens = 0;
+	  u16 * themsg = msgin->wtext;
+	  u8 *  bytemsg;
+	  int wtextoffset = 0;
+      std::unique_ptr<Bscript::ObjArray> speechtokens( nullptr );
+	  int i;
+
+	  u16 tempbuf[SPEECH_MAX_LEN + 1];
+
+	  u16 wtextbuf[SPEECH_MAX_LEN + 1];
+	  size_t wtextbuflen;
+
+	  char ntextbuf[SPEECH_MAX_LEN + 1];
+	  size_t ntextbuflen;
+
+	  if ( msgin->type & 0xc0 )
+	  {
+		numtokens = Get12BitNumber( (u8 *)( msgin->wtext ), 0 );
+		wtextoffset = ( ( ( ( numtokens + 1 ) * 3 ) / 2 ) + ( ( numtokens + 1 ) % 2 ) );
+		bytemsg = ( ( (u8*)themsg ) + wtextoffset );
+		int bytemsglen = cfBEu16( msgin->msglen ) - wtextoffset - offsetof( PKTIN_AD, wtext ) - 1;
+		intextlen = 0;
 
 		i = 0;
 		int j = 0;
-        u16 unicodeChar;
-		while ((i < bytemsglen) && (i < SPEECH_MAX_LEN))
+		u16 unicodeChar;
+		while ( ( i < bytemsglen ) && ( i < SPEECH_MAX_LEN ) )
 		{
-			i = GetNextUTF8(bytemsg, i, unicodeChar);
-			tempbuf[j++] = cfBEu16(unicodeChar);
-			intextlen++;
+		  i = GetNextUTF8( bytemsg, i, unicodeChar );
+		  tempbuf[j++] = cfBEu16( unicodeChar );
+		  intextlen++;
 		}
 
 		themsg = tempbuf;
-	}
-	else
-		intextlen = (cfBEu16(msgin->msglen) - offsetof( PKTIN_AD, wtext ))
-					/ sizeof(msgin->wtext[0]) - 1;
+	  }
+	  else
+		intextlen = ( cfBEu16( msgin->msglen ) - offsetof( PKTIN_AD, wtext ) )
+		/ sizeof( msgin->wtext[0] ) - 1;
 
-	// Preprocess the text into a sanity-checked, printable, null-terminated form in textbuf
-	if (intextlen < 0)
+	  // Preprocess the text into a sanity-checked, printable, null-terminated form in textbuf
+	  if ( intextlen < 0 )
 		intextlen = 0;
-	if (intextlen > SPEECH_MAX_LEN) 
+	  if ( intextlen > SPEECH_MAX_LEN )
 		intextlen = SPEECH_MAX_LEN;	// ENHANCE: May want to log this
 
-	// Preprocess the text into a sanity-checked, printable, null-terminated form
-	// in 'wtextbuf' and 'ntextbuf'
-	ntextbuflen = 0;
-	wtextbuflen = 0;
-    for( i = 0; i < intextlen; i++ )
-    {
-		u16 wc = cfBEu16(themsg[i]);
-		if (wc == 0) break;		// quit early on embedded nulls
-		if (wc == L'~') continue;	// skip unprintable tildes. 
-		wtextbuf[ wtextbuflen++ ] = ctBEu16(wc);
-		ntextbuf[ ntextbuflen++ ] = wcout.narrow((wchar_t)wc, '?');
-	}
-	wtextbuf[ wtextbuflen++ ] = (u16)0;
-	ntextbuf[ ntextbuflen++ ] = 0;
+	  // Preprocess the text into a sanity-checked, printable, null-terminated form
+	  // in 'wtextbuf' and 'ntextbuf'
+	  ntextbuflen = 0;
+	  wtextbuflen = 0;
+	  for ( i = 0; i < intextlen; i++ )
+	  {
+		u16 wc = cfBEu16( themsg[i] );
+		if ( wc == 0 ) break;		// quit early on embedded nulls
+		if ( wc == L'~' ) continue;	// skip unprintable tildes. 
+		wtextbuf[wtextbuflen++] = ctBEu16( wc );
+		ntextbuf[ntextbuflen++] = wcout.narrow( (wchar_t)wc, '?' );
+	  }
+	  wtextbuf[wtextbuflen++] = (u16)0;
+	  ntextbuf[ntextbuflen++] = 0;
 
-	if (msgin->type & 0xc0)
-	{
-		BLong * atoken = NULL;
-		if (speechtokens.get() == nullptr)
-			speechtokens.reset(new ObjArray());
-		for (u16 j = 0; j < numtokens; j++)
+	  if ( msgin->type & 0xc0 )
+	  {
+        Bscript::BLong * atoken = NULL;
+		if ( speechtokens.get() == nullptr )
+          speechtokens.reset( new Bscript::ObjArray( ) );
+		for ( u16 j = 0; j < numtokens; j++ )
 		{
-			atoken = new BLong(Get12BitNumber((u8 *) (msgin->wtext), j+1));
-			speechtokens->addElement(atoken);
+          atoken = new Bscript::BLong( Get12BitNumber( (u8 *)( msgin->wtext ), j + 1 ) );
+		  speechtokens->addElement( atoken );
 		}
-		if(system_hooks.speechmul_hook != NULL)
+		if ( system_hooks.speechmul_hook != NULL )
 		{
-			system_hooks.speechmul_hook->call( make_mobileref(client->chr), new ObjArray(*speechtokens.get()), new String(ntextbuf) );
+          system_hooks.speechmul_hook->call( make_mobileref( client->chr ), new Bscript::ObjArray( *speechtokens.get( ) ), new Bscript::String( ntextbuf ) );
 		}
-		msgin->type &= (~0xC0);  // Client won't accept C0 text type messages, so must set to 0
+		msgin->type &= ( ~0xC0 );  // Client won't accept C0 text type messages, so must set to 0
+	  }
+
+	  SendUnicodeSpeech( client, msgin, wtextbuf, wtextbuflen, ntextbuf, ntextbuflen, speechtokens.release() );
 	}
-	
-	SendUnicodeSpeech(client, msgin, wtextbuf, wtextbuflen, ntextbuf, ntextbuflen, speechtokens.release());
+
+	MESSAGE_HANDLER_VARLEN( PKTIN_AD, UnicodeSpeechHandler );
+  }
 }
-
-MESSAGE_HANDLER_VARLEN( PKTIN_AD, UnicodeSpeechHandler );

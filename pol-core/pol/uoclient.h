@@ -13,59 +13,63 @@ Notes
 #define UOCLIENT_H
 
 #include "crypt/cryptkey.h"
+namespace Pol {
+  namespace Clib {
+	class ConfigElem;
+  }
+  namespace Core {
+	class ExportScript;
 
-class ExportScript;
+	class UoClientGeneral
+	{
+	public:
+	  void check( std::string& var, const char* tag, const char* deflt );
 
-class UoClientGeneral
-{
-public:
-    void check( std::string& var, const char* tag, const char* deflt );
+	public:
+	  ~UoClientGeneral();
 
-public:
-	~UoClientGeneral();
+	  class Mapping
+	  {
+	  public:
+		bool any;
+		std::string name;
+		unsigned id;
+	  };
 
-    class Mapping
-    {
-    public:
-        bool any;
-        std::string name;
-        unsigned id;
-    };
+	  Mapping strength;
+	  Mapping intelligence;
+	  Mapping dexterity;
 
-    Mapping strength;
-    Mapping intelligence;
-    Mapping dexterity;
+	  Mapping hits;
+	  Mapping stamina;
+	  Mapping mana;
+	  unsigned short maxskills; //dave changed 3/15/03, support configurable max skillid
+	  ExportScript* method_script;
+	};
 
-    Mapping hits;
-    Mapping stamina;
-    Mapping mana;
-	unsigned short maxskills; //dave changed 3/15/03, support configurable max skillid
-	ExportScript* method_script;
-};
+	extern UoClientGeneral uoclient_general;
 
-extern UoClientGeneral uoclient_general;
+	class UoClientProtocol
+	{
+	public:
+	  bool EnableFlowControlPackets;
+	};
+	extern UoClientProtocol uoclient_protocol;
 
-class UoClientProtocol
-{
-public:
-    bool EnableFlowControlPackets;
-};
-extern UoClientProtocol uoclient_protocol;
+	class UoClientListener
+	{
+	public:
+	  UoClientListener( Clib::ConfigElem& elem );
 
-class ConfigElem;
-class UoClientListener
-{
-public:
-    UoClientListener( ConfigElem& elem );
+	  Crypt::TCryptInfo encryption;
+	  unsigned short port;
+	  bool aosresist;
+	  bool sticky;
+	};
 
-    TCryptInfo encryption;
-	unsigned short port;
-	bool aosresist;
-	bool sticky;
-};
+	typedef vector< UoClientListener > UoClientListeners;
 
-typedef vector< UoClientListener > UoClientListeners;
-
-extern UoClientListeners uoclient_listeners;
-
+	extern UoClientListeners uoclient_listeners;
+  }
+}
 #endif

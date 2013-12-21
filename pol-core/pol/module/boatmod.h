@@ -14,26 +14,27 @@ Notes
 #define BOATEMOD_H
 
 #include "../../bscript/execmodl.h"
+namespace Pol {
+  namespace Module {
 
-class BObject;
+	class UBoatExecutorModule : public Bscript::TmplExecutorModule<UBoatExecutorModule>
+	{
+	public:
+	  UBoatExecutorModule( Bscript::Executor& exec ) :
+		Bscript::TmplExecutorModule<UBoatExecutorModule>( "boat", exec ) {};
 
-class UBoatExecutorModule : public TmplExecutorModule<UBoatExecutorModule>
-{
-public:
-    UBoatExecutorModule( Executor& exec ) :
-        TmplExecutorModule<UBoatExecutorModule>( "boat", exec ) {};
+	  Bscript::BObjectImp* mf_MoveBoat( );
+	  Bscript::BObjectImp* mf_MoveBoatRelative( );
 
-    BObjectImp* mf_MoveBoat();
-    BObjectImp* mf_MoveBoatRelative();
+	  Bscript::BObjectImp* mf_TurnBoat( );
 
-    BObjectImp* mf_TurnBoat();
+	  Bscript::BObjectImp* mf_RegisterItemWithBoat( );
+	  Bscript::BObjectImp* mf_BoatFromItem( );
 
-    BObjectImp* mf_RegisterItemWithBoat();
-    BObjectImp* mf_BoatFromItem();
+	  Bscript::BObjectImp* mf_SystemFindBoatBySerial( );
 
-    BObjectImp* mf_SystemFindBoatBySerial();
-
-	BObjectImp* mf_MoveBoatXY();
-};
-
+	  Bscript::BObjectImp* mf_MoveBoatXY( );
+	};
+  }
+}
 #endif

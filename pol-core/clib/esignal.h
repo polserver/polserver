@@ -7,6 +7,10 @@ Notes
 
 */
 
-extern volatile bool exit_signalled;
+namespace Pol {
+  namespace Clib {
+	extern volatile bool exit_signalled;
 
-void enable_exit_signaller();
+	void enable_exit_signaller();
+  }
+}

@@ -47,513 +47,514 @@ Notes
 #include "ufunc.h"
 #include "umanip.h"
 #include "vital.h"
+namespace Pol {
+  namespace Core {
+	// Magery is repeated at array entry 3, because as of right now, NO spellbook
+	// on OSI uses the 301+ spellrange that we can find. 5/30/06 - MuadDib
+	// We use Mysticism at array entry 3 because Mysticism spellids are 678 -> 693 and this slot is free.
+	u32 spell_scroll_objtype_limits[8][2] = { { 0x1F2D, 0x1F6C }, { 0x2260, 0x226F },
+	{ 0x2270, 0x227C }, { 0x2D9E, 0x2DAD },
+	{ 0x238D, 0x2392 }, { 0x23A1, 0x23A8 }, { 0x2D51, 0x2D60 }, { 0x574B, 0x5750 } };
 
-// Magery is repeated at array entry 3, because as of right now, NO spellbook
-// on OSI uses the 301+ spellrange that we can find. 5/30/06 - MuadDib
-// We use Mysticism at array entry 3 because Mysticism spellids are 678 -> 693 and this slot is free.
-u32 spell_scroll_objtype_limits[8][2] = { {0x1F2D,0x1F6C}, {0x2260,0x226F},
-										  {0x2270,0x227C}, {0x2D9E,0x2DAD},
-{0x238D,0x2392}, {0x23A1,0x23A8}, {0x2D51,0x2D60}, {0x574B,0x5750}};
-
-static bool nocast_here( Character* chr )
-{
-	NoCastRegion* rgn = nocastdef->getregion( chr->x, chr->y, chr->realm );
-	if (rgn == NULL)
+	static bool nocast_here( Mobile::Character* chr )
 	{
+	  NoCastRegion* rgn = nocastdef->getregion( chr->x, chr->y, chr->realm );
+	  if ( rgn == NULL )
+	  {
 		return false;
-	}
-	else
-	{
+	  }
+	  else
+	  {
 		return rgn->nocast();
-	}
-}
-
-bool knows_spell( Character* chr, u16 spellid )
-{
-	//copied code from Character::spellbook to support multiple spellbooks in the pack
-	Item* item = chr->wornitem( LAYER_HAND1 );
-	if (item != NULL && item->script_isa(POLCLASS_SPELLBOOK) )
-	{
-		Spellbook* book = static_cast<Spellbook*>(item);
-		if(book->has_spellid( spellid ))
-			return true;
+	  }
 	}
 
-	UContainer* cont = chr->backpack();
-	if (cont != NULL)
+    bool knows_spell( Mobile::Character* chr, u16 spellid )
 	{
-		for( UContainer::const_iterator itr = cont->begin(), end = cont->end(); itr != end; ++itr )
+	  //copied code from Character::spellbook to support multiple spellbooks in the pack
+	  Items::Item* item = chr->wornitem( LAYER_HAND1 );
+	  if ( item != NULL && item->script_isa( POLCLASS_SPELLBOOK ) )
+	  {
+		Spellbook* book = static_cast<Spellbook*>( item );
+		if ( book->has_spellid( spellid ) )
+		  return true;
+	  }
+
+	  UContainer* cont = chr->backpack();
+	  if ( cont != NULL )
+	  {
+		for ( UContainer::const_iterator itr = cont->begin(), end = cont->end(); itr != end; ++itr )
 		{
-			const Item* _item = GET_ITEM_PTR( itr );
-			
-			if(_item != NULL && _item->script_isa(POLCLASS_SPELLBOOK))
-			{
-				const Spellbook* book = static_cast<const Spellbook*>(_item);
-				if(book->has_spellid( spellid ))
-					return true;
-			}
+		  const Items::Item* _item = GET_ITEM_PTR( itr );
+
+		  if ( _item != NULL && _item->script_isa( POLCLASS_SPELLBOOK ) )
+		  {
+			const Spellbook* book = static_cast<const Spellbook*>( _item );
+			if ( book->has_spellid( spellid ) )
+			  return true;
+		  }
 		}
+	  }
+
+	  return false;
 	}
 
-	return false;
-}
-
-bool hands_are_free( Character* chr )
-{
-	Item* item;
-	
-	item = chr->wornitem( LAYER_HAND1 );
-	if (item != NULL)
+    bool hands_are_free( Mobile::Character* chr )
 	{
-		const ItemDesc& id = item->itemdesc();
-		if (id.blocks_casting_if_in_hand)
-			return false;
+      Items::Item* item;
+
+	  item = chr->wornitem( LAYER_HAND1 );
+	  if ( item != NULL )
+	  {
+        const Items::ItemDesc& id = item->itemdesc( );
+		if ( id.blocks_casting_if_in_hand )
+		  return false;
+	  }
+
+	  item = chr->wornitem( LAYER_HAND2 );
+	  if ( item != NULL )
+	  {
+        const Items::ItemDesc& id = item->itemdesc( );
+		if ( id.blocks_casting_if_in_hand )
+		  return false;
+	  }
+
+	  return true;
 	}
 
-	item = chr->wornitem( LAYER_HAND2 );
-	if (item != NULL)
+	USpellParams::USpellParams() :
+	  manacost( 0 ),
+	  difficulty( 0 ),
+	  pointvalue( 0 ),
+	  delay( 0 )
+	{}
+
+	USpellParams::USpellParams( Clib::ConfigElem& elem ) :
+	  manacost( elem.remove_ushort( "MANA" ) ),
+	  difficulty( elem.remove_ushort( "DIFFICULTY" ) ),
+	  pointvalue( elem.remove_ushort( "POINTVALUE" ) ),
+	  delay( elem.remove_ushort( "DELAY" ) )
+	{}
+
+	class SpellCircle
 	{
-		const ItemDesc& id = item->itemdesc();
-		if (id.blocks_casting_if_in_hand)
-			return false;
-	}
+	public:
+	  SpellCircle( Clib::ConfigElem& elem );
 
-	return true;
-}
+	public:
+	  USpellParams params;
 
-USpellParams::USpellParams() :
-	manacost(0),
-	difficulty(0),
-	pointvalue(0),
-	delay(0)
-{
-}
+	private:
+	  // not implemented:
+	  SpellCircle( const SpellCircle& );
+	  SpellCircle& operator=( const SpellCircle& );
+	};
 
-USpellParams::USpellParams( ConfigElem& elem ) :
-	manacost( elem.remove_ushort( "MANA" ) ),
-	difficulty( elem.remove_ushort( "DIFFICULTY" ) ),
-	pointvalue( elem.remove_ushort( "POINTVALUE" ) ),
-	delay( elem.remove_ushort( "DELAY" ) )
-{
-}
-
-class SpellCircle
-{
-public:
-	SpellCircle( ConfigElem& elem );
-
-public:
-	USpellParams params;
-
-private:
-	// not implemented:
-	SpellCircle( const SpellCircle& );
-	SpellCircle& operator=( const SpellCircle& );
-};
-
-SpellCircle::SpellCircle( ConfigElem& elem ) :
-	params( elem )
-{
-}
+	SpellCircle::SpellCircle( Clib::ConfigElem& elem ) :
+	  params( elem )
+	{}
 
 
 
-vector<SpellCircle*> spellcircles;
+	vector<SpellCircle*> spellcircles;
 
-USpell::USpell( ConfigElem& elem, Package* pkg ) :
-	pkg_(pkg),
-	spellid_( elem.remove_ushort( "SPELLID" ) ),
-	name_( elem.remove_string( "NAME" )),
-	power_words_( elem.remove_string( "POWERWORDS" ) ),
-	scriptdef_( elem.remove_string( "SCRIPT", "" ), pkg, "scripts/" )
-{
-	unsigned short action;
-	if (elem.remove_prop( "ANIMATION", &action ))
+	USpell::USpell( Clib::ConfigElem& elem, Plib::Package* pkg ) :
+	  pkg_( pkg ),
+	  spellid_( elem.remove_ushort( "SPELLID" ) ),
+	  name_( elem.remove_string( "NAME" ) ),
+	  power_words_( elem.remove_string( "POWERWORDS" ) ),
+	  scriptdef_( elem.remove_string( "SCRIPT", "" ), pkg, "scripts/" )
 	{
-		if (UACTION_IS_VALID( action ))
+	  unsigned short action;
+	  if ( elem.remove_prop( "ANIMATION", &action ) )
+	  {
+		if ( UACTION_IS_VALID( action ) )
 		{
-			action_ = static_cast<UACTION>(action);
+		  action_ = static_cast<UACTION>( action );
 		}
 		else
 		{
-			elem.throw_error( "Animation is out of range" );
+		  elem.throw_error( "Animation is out of range" );
 		}
-	}
-	else
-	{
+	  }
+	  else
+	  {
 		action_ = ACTION_CAST_SPELL1;
-	}
+	  }
 
-	unsigned short circle;
-	if (elem.remove_prop( "CIRCLE", &circle ))
-	{
-		if (circle < 1 || circle > spellcircles.size() ||
-			spellcircles[ circle-1 ] == NULL)
+	  unsigned short circle;
+	  if ( elem.remove_prop( "CIRCLE", &circle ) )
+	  {
+		if ( circle < 1 || circle > spellcircles.size() ||
+			 spellcircles[circle - 1] == NULL )
 		{
-			cerr << "Error reading spell " << name_
-				 << ": Circle " << circle << " is not defined."
-				 << endl;
-			throw runtime_error( "Config file error" );
+		  cerr << "Error reading spell " << name_
+			<< ": Circle " << circle << " is not defined."
+			<< endl;
+		  throw runtime_error( "Config file error" );
 		}
 
-		params_ = spellcircles[circle-1]->params;
-	}
-	else
-	{
+		params_ = spellcircles[circle - 1]->params;
+	  }
+	  else
+	  {
 		params_ = USpellParams( elem );
-	}
-	
-	std::string reagent_name;
-	while (elem.remove_prop( "Reagent", &reagent_name ))
-	{
-		unsigned short reagent = get_objtype_from_string( reagent_name );
+	  }
 
-		reglist_.push_back(reagent);
-	}
-}	
+	  std::string reagent_name;
+	  while ( elem.remove_prop( "Reagent", &reagent_name ) )
+	  {
+        unsigned short reagent = Items::get_objtype_from_string( reagent_name );
 
-void USpell::cast( Character* chr )
-{
-	if (nocast_here( chr ))
+		reglist_.push_back( reagent );
+	  }
+	}
+
+    void USpell::cast( Mobile::Character* chr )
 	{
-		if (chr->client != NULL)
-			send_sysmessage( chr->client, "Spells cannot be cast here." );
+	  if ( nocast_here( chr ) )
+	  {
+		if ( chr->client != NULL )
+		  send_sysmessage( chr->client, "Spells cannot be cast here." );
 		return;
-	}
+	  }
 
-	if (!scriptdef_.empty())
-	{
-		ref_ptr<EScriptProgram> prog = find_script2( scriptdef_,
-													true,
-													config.cache_interactive_scripts );
+	  if ( !scriptdef_.empty() )
+	  {
+		ref_ptr<Bscript::EScriptProgram> prog = find_script2( scriptdef_,
+													 true,
+													 config.cache_interactive_scripts );
 
-		if (prog.get() != NULL)
+		if ( prog.get() != NULL )
 		{
-			if (chr->start_spell_script( prog.get(), this ))
-				return;
+		  if ( chr->start_spell_script( prog.get(), this ) )
+			return;
 		}
 
+	  }
+
+	  if ( chr->client != NULL )
+		send_sysmessage( chr->client, "That spell doesn't seem to work." );
 	}
 
-	if (chr->client != NULL)
-		send_sysmessage( chr->client, "That spell doesn't seem to work." );
-}
-
-bool USpell::consume_reagents( Character *chr )
-{
-	UContainer* bp = chr->backpack();
-	if (bp == NULL)
+    bool USpell::consume_reagents( Mobile::Character *chr )
+	{
+	  UContainer* bp = chr->backpack();
+	  if ( bp == NULL )
 		return false;
 
-	for( RegList::iterator itr = reglist_.begin(), end =reglist_.end();
-		 itr != end;
-		 ++itr )
-	{
-		Item* item = bp->find_objtype_noninuse( *itr );
-		if (item == NULL)
-			return false;
-		subtract_amount_from_item(item, 1);
+	  for ( RegList::iterator itr = reglist_.begin(), end = reglist_.end();
+			itr != end;
+			++itr )
+	  {
+        Items::Item* item = bp->find_objtype_noninuse( *itr );
+		if ( item == NULL )
+		  return false;
+		subtract_amount_from_item( item, 1 );
+	  }
+
+	  return true;
 	}
-	
-	return true;
-}
 
-bool USpell::check_mana( Character *chr )
-{
-	return (chr->vital(pVitalMana->vitalid).current_ones() >= manacost());
-}
-
-bool USpell::check_skill( Character *chr )
-{
-	return chr->check_skill( SKILLID_MAGERY, params_.difficulty, params_.pointvalue );
-}
-
-void USpell::consume_mana( Character *chr )
-{
-	chr->consume( pVitalMana, chr->vital(pVitalMana->vitalid), manacost() * 100 );
-}
-
-void USpell::speak_power_words( Character* chr, unsigned short font, unsigned short color )
-{
-	if ( chr->client != NULL && chr->hidden() )
+    bool USpell::check_mana( Mobile::Character *chr )
 	{
-		private_say_above(chr, chr, power_words_.c_str(), font, color);
+	  return ( chr->vital( pVitalMana->vitalid ).current_ones() >= manacost() );
 	}
-	else if ( !chr->hidden() )
+
+    bool USpell::check_skill( Mobile::Character *chr )
 	{
+	  return chr->check_skill( SKILLID_MAGERY, params_.difficulty, params_.pointvalue );
+	}
+
+    void USpell::consume_mana( Mobile::Character *chr )
+	{
+	  chr->consume( pVitalMana, chr->vital( pVitalMana->vitalid ), manacost() * 100 );
+	}
+
+    void USpell::speak_power_words( Mobile::Character* chr, unsigned short font, unsigned short color )
+	{
+	  if ( chr->client != NULL && chr->hidden() )
+	  {
+		private_say_above( chr, chr, power_words_.c_str(), font, color );
+	  }
+	  else if ( !chr->hidden() )
+	  {
 		say_above( chr, power_words_.c_str(), font, color );
+	  }
 	}
-}
 
-SpellTask::SpellTask( OneShotTask** handle, polclock_t run_when_clock, Character* caster, USpell* spell, bool dummy ) :
-	OneShotTask( handle, run_when_clock ),
-	caster_(caster),
-	spell_(spell)
-{
-}
+    SpellTask::SpellTask( OneShotTask** handle, polclock_t run_when_clock, Mobile::Character* caster, USpell* spell, bool dummy ) :
+	  OneShotTask( handle, run_when_clock ),
+	  caster_( caster ),
+	  spell_( spell )
+	{}
 
-void play_spell_fizzle( Character* caster )
-{
-	play_object_centered_effect( caster, 
-								 0x3735, // HARDCODE
-								 0,
-								 30 );
-	play_sound_effect( caster, 0x5D ); // HARDCODE
-}
-
-void SpellTask::on_run()
-{
-	THREAD_CHECKPOINT( tasks, 900 );
-	Character* caster = caster_.get();
-	if (!caster->orphan())
+    void play_spell_fizzle( Mobile::Character* caster )
 	{
+	  play_object_centered_effect( caster,
+								   0x3735, // HARDCODE
+								   0,
+								   30 );
+	  play_sound_effect( caster, 0x5D ); // HARDCODE
+	}
+
+	void SpellTask::on_run()
+	{
+	  THREAD_CHECKPOINT( tasks, 900 );
+	  Mobile::Character* caster = caster_.get();
+	  if ( !caster->orphan() )
+	  {
 		THREAD_CHECKPOINT( tasks, 911 );
 		spell_->cast( caster );
 		THREAD_CHECKPOINT( tasks, 912 );
+	  }
+	  THREAD_CHECKPOINT( tasks, 999 );
 	}
-	THREAD_CHECKPOINT( tasks, 999 );
-}
 
-vector<USpell*> spells2;
+	vector<USpell*> spells2;
 
 
-void do_cast( Client *client, u16 spellid )
-{
-	if (system_hooks.on_cast_hook != NULL)
+	void do_cast( Network::Client *client, u16 spellid )
 	{
-		if (system_hooks.on_cast_hook->call(make_mobileref(client->chr),new BLong(spellid)))
-			return;
-	}
-	// CHECKME should this look at spellnum, instead? static_cast behavior undefined if out of range.
-	if (spellid > spells2.size())
+	  if ( system_hooks.on_cast_hook != NULL )
+	  {
+		if ( system_hooks.on_cast_hook->call( make_mobileref( client->chr ), new Bscript::BLong( spellid ) ) )
+		  return;
+	  }
+	  // CHECKME should this look at spellnum, instead? static_cast behavior undefined if out of range.
+	  if ( spellid > spells2.size() )
 		return;
 
-	USpell *spell = spells2[ spellid ];
-	if (spell == NULL)
-	{
+	  USpell *spell = spells2[spellid];
+	  if ( spell == NULL )
+	  {
 		cerr << "Spell " << spellid << " is not implemented." << endl;
 		send_sysmessage( client, "That spell does not function." );
 		return;
-	}
+	  }
 
-// Let scripts handle this.
-//	if (client->chr->hidden())
-//		client->chr->unhide();
+	  // Let scripts handle this.
+	  //	if (client->chr->hidden())
+	  //		client->chr->unhide();
 
-	if (client->chr->frozen())
-	{
+	  if ( client->chr->frozen() )
+	  {
 		private_say_above( client->chr, client->chr, "I am frozen and cannot cast spells" );
 		return;
-	}
+	  }
 
-	if (client->chr->paralyzed())
-	{
+	  if ( client->chr->paralyzed() )
+	  {
 		private_say_above( client->chr, client->chr, "I am paralyzed and cannot cast spells" );
 		return;
-	}
+	  }
 
-	if (client->chr->skill_ex_active())
-	{
+	  if ( client->chr->skill_ex_active() )
+	  {
 		send_sysmessage( client, "You are already doing something else." );
 		return;
-	}
+	  }
 
-	if (client->chr->casting_spell())
-	{
+	  if ( client->chr->casting_spell() )
+	  {
 		send_sysmessage( client, "You are already casting a spell." );
 		return;
-	}
+	  }
 
-	if (nocast_here( client->chr ))
-	{
+	  if ( nocast_here( client->chr ) )
+	  {
 		send_sysmessage( client, "Spells cannot be cast here." );
 		return;
-	}
+	  }
 
-	if (config.require_spellbooks)
-	{
-		if (!knows_spell( client->chr, spellid ))
+	  if ( config.require_spellbooks )
+	  {
+		if ( !knows_spell( client->chr, spellid ) )
 		{
-			send_sysmessage( client, "You don't know that spell." );
-			return;
+		  send_sysmessage( client, "You don't know that spell." );
+		  return;
 		}
-	}
+	  }
 
 #if 1
-	client->chr->schedule_spell( spell );
+	  client->chr->schedule_spell( spell );
 #else
-	spell->cast( client );
-	client->restart();
+	  spell->cast( client );
+	  client->restart();
 #endif
-}
-
-void handle_cast_spell( Client *client, PKTIN_12 *msg )
-{
-	u16 spellnum = static_cast<u16>(strtoul( (char*) msg->data, NULL, 10 ));
-
-	do_cast( client, spellnum );
-}
-ExtendedMessageHandler spell_msg_handler1( EXTMSGID_CASTSPELL1, handle_cast_spell );
-ExtendedMessageHandler spell_msg_handler2( EXTMSGID_CASTSPELL2, handle_cast_spell );
-
-void handle_open_spellbook( Client *client, PKTIN_12 *msg )
-{
-	if (system_hooks.open_spellbook_hook != NULL)
-	{
-		if (system_hooks.open_spellbook_hook->call( make_mobileref(client->chr) ))
-			return;
 	}
 
-	if (client->chr->dead())
+	void handle_cast_spell( Network::Client *client, PKTIN_12 *msg )
 	{
+	  u16 spellnum = static_cast<u16>( strtoul( (char*)msg->data, NULL, 10 ) );
+
+	  do_cast( client, spellnum );
+	}
+	ExtendedMessageHandler spell_msg_handler1( EXTMSGID_CASTSPELL1, handle_cast_spell );
+	ExtendedMessageHandler spell_msg_handler2( EXTMSGID_CASTSPELL2, handle_cast_spell );
+
+    void handle_open_spellbook( Network::Client *client, PKTIN_12 *msg )
+	{
+	  if ( system_hooks.open_spellbook_hook != NULL )
+	  {
+		if ( system_hooks.open_spellbook_hook->call( make_mobileref( client->chr ) ) )
+		  return;
+	  }
+
+	  if ( client->chr->dead() )
+	  {
 		send_sysmessage( client, "I am dead and cannot do that." );
 		return;
-	}
+	  }
 
-	
-	Item* spellbook = client->chr->wornitem( LAYER_HAND1 );
-	if (spellbook == NULL)
-	{
+
+	  Items::Item* spellbook = client->chr->wornitem( LAYER_HAND1 );
+	  if ( spellbook == NULL )
+	  {
 		UContainer* backpack = client->chr->backpack();
-		if (backpack != NULL)
+		if ( backpack != NULL )
 		{
-			spellbook = backpack->find_toplevel_polclass( POLCLASS_SPELLBOOK );
-			
-				//
-				// Client crashes if the pack isn't open and you don't tell him
-				// about the spellbook
-				//
-			if (spellbook != NULL)
-				send_put_in_container( client, spellbook );
+		  spellbook = backpack->find_toplevel_polclass( POLCLASS_SPELLBOOK );
+
+		  //
+		  // Client crashes if the pack isn't open and you don't tell him
+		  // about the spellbook
+		  //
+		  if ( spellbook != NULL )
+			send_put_in_container( client, spellbook );
 		}
-	}
+	  }
 
-	if (spellbook != NULL)
-	{
+	  if ( spellbook != NULL )
+	  {
 		spellbook->double_click( client );
+	  }
 	}
-}
-ExtendedMessageHandler open_spellbook_handler( EXTMSGID_SPELLBOOK, handle_open_spellbook );
+	ExtendedMessageHandler open_spellbook_handler( EXTMSGID_SPELLBOOK, handle_open_spellbook );
 
-void register_spell( USpell *spell, unsigned short spellid )
-{
-	if (spellid >= spells2.size())
+	void register_spell( USpell *spell, unsigned short spellid )
 	{
+	  if ( spellid >= spells2.size() )
+	  {
 		spells2.resize( spellid + 1, 0 );
-	}
-	
-	if (spells2[ spellid ])
-	{
+	  }
+
+	  if ( spells2[spellid] )
+	  {
 		USpell* origspell = spells2[spellid];
 		cerr << "Spell ID " << spellid << " (" << origspell->name() << ") multiply defined" << endl;
-		if (origspell->pkg_ != NULL)
+		if ( origspell->pkg_ != NULL )
 		{
-			cerr << "	Spell originally defined in package '" 
-					<< origspell->pkg_->name() << "' (" << origspell->pkg_->dir() << ")" << endl;
+		  cerr << "	Spell originally defined in package '"
+			<< origspell->pkg_->name() << "' (" << origspell->pkg_->dir() << ")" << endl;
 		}
 		else
 		{
-			cerr << "	Spell originally defined in main" << endl;
+		  cerr << "	Spell originally defined in main" << endl;
 		}
-		if (spell->pkg_ != NULL)
+		if ( spell->pkg_ != NULL )
 		{
-			cerr << "	Spell redefined in package '" 
-					<< spell->pkg_->name() << "' (" << spell->pkg_->dir() << ")" << endl;
+		  cerr << "	Spell redefined in package '"
+			<< spell->pkg_->name() << "' (" << spell->pkg_->dir() << ")" << endl;
 		}
 		else
 		{
-			cerr << "	Spell redefined in main" << endl;
+		  cerr << "	Spell redefined in main" << endl;
 		}
 		throw runtime_error( "Spell ID multiply defined" );
+	  }
+
+	  spells2[spellid] = spell;
 	}
-	
-	spells2[ spellid ] = spell;
-}
 
 
 
 
-void load_circle_data()
-{
-	if ( !FileExists("config/circles.cfg") )
+	void load_circle_data()
 	{
+	  if ( !Clib::FileExists( "config/circles.cfg" ) )
+	  {
 		if ( config.loglevel > 1 )
-			cout << "File config/circles not found, skipping.\n";
+		  cout << "File config/circles not found, skipping.\n";
 		return;
-	}
+	  }
 
-	ConfigFile cf("config/circles.cfg", "Circle");
-	ConfigElem elem;
+      Clib::ConfigFile cf( "config/circles.cfg", "Circle" );
+      Clib::ConfigElem elem;
 
-	while ( cf.read(elem) )
-	{
+	  while ( cf.read( elem ) )
+	  {
 		int index = strtoul( elem.rest(), NULL, 0 ) - 1;
 		if ( index < 0 || index >= 100 )
 		{
-			cerr << "Error in CIRCLES.CFG: Circle must fall between 1 and 100" << endl;
-			throw runtime_error("Config file error");
+		  cerr << "Error in CIRCLES.CFG: Circle must fall between 1 and 100" << endl;
+		  throw runtime_error( "Config file error" );
 		}
 
-		spellcircles.resize(index+1, NULL);
+		spellcircles.resize( index + 1, NULL );
 
-		if ( spellcircles[ index ] != NULL )
+		if ( spellcircles[index] != NULL )
 		{
-			cerr << "Error in CIRCLES.CFG: Circle " << index+1 << " is multiply defined." << endl;
-			throw runtime_error("Config file error");
+		  cerr << "Error in CIRCLES.CFG: Circle " << index + 1 << " is multiply defined." << endl;
+		  throw runtime_error( "Config file error" );
 		}
 
-		spellcircles[ index ] = new SpellCircle(elem);
+		spellcircles[index] = new SpellCircle( elem );
+	  }
 	}
-}
 
-void load_spells_cfg( const char* path, Package* pkg )
-{
-	ConfigFile cf( path, "Spell" );
-	ConfigElem elem;
-
-	while (cf.read( elem ))
+	void load_spells_cfg( const char* path, Plib::Package* pkg )
 	{
-		std::unique_ptr<USpell> spell( new USpell(elem, pkg) );
+      Clib::ConfigFile cf( path, "Spell" );
+      Clib::ConfigElem elem;
+
+	  while ( cf.read( elem ) )
+	  {
+		std::unique_ptr<USpell> spell( new USpell( elem, pkg ) );
 
 		unsigned short spellid = spell->spell_id();
 
 		register_spell( spell.release(), spellid );
+	  }
 	}
-}
 
-void load_spell_data()
-{
-	load_circle_data();
+	void load_spell_data()
+	{
+	  load_circle_data();
 
-	if ( FileExists("config/spells.cfg") )
-		load_spells_cfg("config/spells.cfg", NULL);
-	else if ( config.loglevel > 1 )
+      if ( Clib::FileExists( "config/spells.cfg" ) )
+		load_spells_cfg( "config/spells.cfg", NULL );
+	  else if ( config.loglevel > 1 )
 		cout << "File config/spells.cfg not found, skipping\n";
 
-	for( Packages::iterator itr = packages.begin(); itr != packages.end(); ++itr )
-	{
-		Package* pkg = (*itr);
-		string filename = GetPackageCfgPath(pkg, "spells.cfg");
-		if ( FileExists(filename.c_str()) )
+      for ( Plib::Packages::iterator itr = Plib::packages.begin( ); itr != Plib::packages.end( ); ++itr )
+	  {
+        Plib::Package* pkg = ( *itr );
+        string filename = Plib::GetPackageCfgPath( pkg, "spells.cfg" );
+        if ( Clib::FileExists( filename.c_str( ) ) )
 		{
-			load_spells_cfg(filename.c_str(), pkg);
+		  load_spells_cfg( filename.c_str(), pkg );
 		}
+	  }
 	}
-}
 
-void clean_spells()
-{
-	std::vector<SpellCircle*>::iterator c_iter = spellcircles.begin();
-	for ( ; c_iter != spellcircles.end(); ++c_iter) {
+	void clean_spells()
+	{
+	  std::vector<SpellCircle*>::iterator c_iter = spellcircles.begin();
+	  for ( ; c_iter != spellcircles.end(); ++c_iter )
+	  {
 		delete *c_iter;
-		*c_iter=NULL;
-	}
-	spellcircles.clear();
-	std::vector<USpell*>::iterator s_iter = spells2.begin();
-	for ( ; s_iter != spells2.end(); ++s_iter) {
+		*c_iter = NULL;
+	  }
+	  spellcircles.clear();
+	  std::vector<USpell*>::iterator s_iter = spells2.begin();
+	  for ( ; s_iter != spells2.end(); ++s_iter )
+	  {
 		delete *s_iter;
-		*s_iter=NULL;
+		*s_iter = NULL;
+	  }
+	  spells2.clear();
 	}
-	spells2.clear();
-}
 
+  }
+}

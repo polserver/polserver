@@ -12,32 +12,34 @@ Notes
 
 #include "wnsckt.h"
 
+namespace Pol {
+  namespace Clib {
+	class SocketListener
+	{
+	public:
+	  explicit SocketListener( unsigned short port );
+	  SocketListener( unsigned short port, Socket::option opt );
+	  bool GetConnection( unsigned int timeout_sec );
 
-class SocketListener
-{
-public:
-    explicit SocketListener( unsigned short port );
-    SocketListener( unsigned short port, Socket::option opt );
-    bool GetConnection( unsigned int timeout_sec );
+	  void accept( Socket& newsck );
 
-    void accept( Socket& newsck );
+	  friend class SocketClientThread;
+	private:
+	  Socket _listen_sck;
+	};
 
-    friend class SocketClientThread;
-private:
-    Socket _listen_sck;
-};
-
-class SocketClientThread
-{
-public:
-    explicit SocketClientThread( SocketListener& SL );
-    explicit SocketClientThread( Socket& S );
-    virtual ~SocketClientThread() {}
-    void start();
-    virtual void run() = 0;
-	static void start_thread(SocketClientThread* instance);
-protected:
-    Socket _sck;
-};
-
+	class SocketClientThread
+	{
+	public:
+	  explicit SocketClientThread( SocketListener& SL );
+	  explicit SocketClientThread( Socket& S );
+	  virtual ~SocketClientThread() {}
+	  void start();
+	  virtual void run() = 0;
+	  static void start_thread( SocketClientThread* instance );
+	protected:
+	  Socket _sck;
+	};
+  }
+}
 #endif

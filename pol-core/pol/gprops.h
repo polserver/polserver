@@ -9,5 +9,8 @@ Notes
 */
 
 #include "proplist.h"
-
-extern PropertyList global_properties;
+namespace Pol {
+  namespace Core {
+	extern PropertyList global_properties;
+  }
+}

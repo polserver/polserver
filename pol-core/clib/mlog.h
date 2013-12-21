@@ -10,9 +10,13 @@ Notes
 */
 
 #include "stl_inc.h"
-
-extern ofstream mlog;
+namespace Pol {
+  namespace Clib {
+	extern ofstream mlog;
 #ifdef MEMORYLEAK
 	extern ofstream llog;
 	extern bool memoryleak_debug;
 #endif
+
+  }
+}

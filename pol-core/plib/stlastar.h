@@ -730,7 +730,7 @@ private: // data
 	Node *m_CurrentSolutionNode;
 
 	// Memory
- 	FixedSizeAllocator<Node> m_FixedSizeAllocator;
+ 	Pol::Plib::FixedSizeAllocator<Node> m_FixedSizeAllocator;
 	
 	//Debug : need to keep these two iterators around
 	// for the user Dbg functions

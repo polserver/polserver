@@ -16,85 +16,92 @@ Notes
 #include "../../bscript/execmodl.h"
 
 #include "../../clib/random.h"
+namespace Pol {
+  namespace Bscript {
+	class BObjectImp;
+  }
+  namespace Core {
+    class NPC;
+  }
 
-class NPC;
-class OSExecutorModule;
-class BObjectImp;
-class NPCExecutorModule;
+  namespace Module {
+	class OSExecutorModule;
+	class NPCExecutorModule;
 
-typedef BObjectImp* (NPCExecutorModule::*NPCExecutorModuleFn)();
+	typedef Bscript::BObjectImp* ( NPCExecutorModule::*NPCExecutorModuleFn )( );
 
 #ifdef _MSC_VER
 #	pragma pack( push, 1 )
 #else
-/* Ok, my build of GCC supports this, yay! */
+	/* Ok, my build of GCC supports this, yay! */
 #	pragma pack(1)
 #endif
-struct NPCFunctionDef 
-{
-	char funcname[ 33 ];
-	NPCExecutorModuleFn fptr;
-};
+	struct NPCFunctionDef
+	{
+	  char funcname[33];
+	  NPCExecutorModuleFn fptr;
+	};
 #ifdef _MSC_VER
 #	pragma pack( pop )
 #else
 #	pragma pack()
 #endif
 
-class NPCExecutorModule : public ExecutorModule
-{
-public:
-	NPCExecutorModule( Executor& ex, NPC& npc );
-    virtual ~NPCExecutorModule();
+	class NPCExecutorModule : public Bscript::ExecutorModule
+	{
+	public:
+      NPCExecutorModule( Bscript::Executor& ex, Core::NPC& npc );
+	  virtual ~NPCExecutorModule();
 
-    NPCRef npcref;
-    NPC& npc;
+	  Core::NPCRef npcref;
+	  Core::NPC& npc;
 
-protected:
-	OSExecutorModule* os_module;
-    
-    BObjectImp* mf_Wander();
-    BObjectImp* mf_Self();
-	BObjectImp* face();
-	BObjectImp* move();
-    BObjectImp* mf_WalkToward();
-    BObjectImp* mf_RunToward();
-    BObjectImp* mf_WalkAwayFrom();
-    BObjectImp* mf_RunAwayFrom();
-    BObjectImp* mf_TurnToward();
-    BObjectImp* mf_TurnAwayFrom();
+	protected:
+	  OSExecutorModule* os_module;
 
-    BObjectImp* mf_WalkTowardLocation();
-    BObjectImp* mf_RunTowardLocation();
-    BObjectImp* mf_WalkAwayFromLocation();
-    BObjectImp* mf_RunAwayFromLocation();
-    BObjectImp* mf_TurnTowardLocation();
-    BObjectImp* mf_TurnAwayFromLocation();
+	  Bscript::BObjectImp* mf_Wander();
+	  Bscript::BObjectImp* mf_Self();
+	  Bscript::BObjectImp* face();
+	  Bscript::BObjectImp* move();
+	  Bscript::BObjectImp* mf_WalkToward();
+	  Bscript::BObjectImp* mf_RunToward();
+	  Bscript::BObjectImp* mf_WalkAwayFrom();
+	  Bscript::BObjectImp* mf_RunAwayFrom();
+	  Bscript::BObjectImp* mf_TurnToward();
+	  Bscript::BObjectImp* mf_TurnAwayFrom();
+
+	  Bscript::BObjectImp* mf_WalkTowardLocation();
+	  Bscript::BObjectImp* mf_RunTowardLocation();
+	  Bscript::BObjectImp* mf_WalkAwayFromLocation();
+	  Bscript::BObjectImp* mf_RunAwayFromLocation();
+	  Bscript::BObjectImp* mf_TurnTowardLocation();
+	  Bscript::BObjectImp* mf_TurnAwayFromLocation();
 
 
-    BObjectImp* say();
-    BObjectImp* SayUC();
-    BObjectImp* position();
-    BObjectImp* facing();
-    BObjectImp* getproperty( /* propertyname */ );
-    BObjectImp* setproperty( /* propertyname propertyvalue */ );
-    BObjectImp* makeboundingbox( /* areastring */ );
-    BObjectImp* IsLegalMove();
-    BObjectImp* CanMove();
-    BObjectImp* CreateBackpack();
-    BObjectImp* CreateItem();
-    BObjectImp* mf_SetOpponent();
-    BObjectImp* mf_SetWarMode();
-    BObjectImp* mf_SetAnchor();
+	  Bscript::BObjectImp* say();
+	  Bscript::BObjectImp* SayUC();
+	  Bscript::BObjectImp* position();
+	  Bscript::BObjectImp* facing();
+	  Bscript::BObjectImp* getproperty( /* propertyname */ );
+	  Bscript::BObjectImp* setproperty( /* propertyname propertyvalue */ );
+	  Bscript::BObjectImp* makeboundingbox( /* areastring */ );
+	  Bscript::BObjectImp* IsLegalMove();
+	  Bscript::BObjectImp* CanMove();
+	  Bscript::BObjectImp* CreateBackpack();
+	  Bscript::BObjectImp* CreateItem();
+	  Bscript::BObjectImp* mf_SetOpponent();
+	  Bscript::BObjectImp* mf_SetWarMode();
+	  Bscript::BObjectImp* mf_SetAnchor();
 
-    BObjectImp* move_self( UFACING facing, bool run, bool adjust_ok = false );
-	// class machinery 
-	virtual BObjectImp* execFunc( unsigned idx );
-	virtual int functionIndex( const char* func );
-	virtual std::string functionName( unsigned idx );
-	static NPCFunctionDef function_table[];
+	  Bscript::BObjectImp* move_self( Core::UFACING facing, bool run, bool adjust_ok = false );
+	  // class machinery 
+	  virtual Bscript::BObjectImp* execFunc( unsigned idx );
+	  virtual int functionIndex( const char* func );
+	  virtual std::string functionName( unsigned idx );
+	  static NPCFunctionDef function_table[];
 
-	inline bool _internal_move(UFACING facing, int run); //DAVE
-};
-
+	  inline bool _internal_move( Core::UFACING facing, int run ); //DAVE
+	};
+  }
+}
 #endif

@@ -10,10 +10,11 @@ Notes
 
 #include "stl_inc.h"
 #include "progver.h"
+namespace Pol {
+	const char compiledate[] = __DATE__;
+	const char compiletime[] = __TIME__;
 
-const char compiledate[] = __DATE__;
-const char compiletime[] = __TIME__;
-
-char progverstr[64];
-char buildtagstr[64];
-unsigned int progver;
+	char progverstr[64];
+	char buildtagstr[64];
+	unsigned int progver;
+}

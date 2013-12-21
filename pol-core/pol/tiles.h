@@ -13,18 +13,20 @@ Notes
 #define TILES_H
 
 #include "../clib/rawtypes.h"
+namespace Pol {
+  namespace Core {
+	class Tile
+	{
+	public:
+	  std::string desc;
+	  unsigned int uoflags; // USTRUCT_TILE::*
+	  unsigned int flags; // FLAG::*
+	  u8 layer;
+	  u8 height;
+	  u8 weight; // todo mult, div
+	};
 
-class Tile
-{
-public:
-    std::string desc;
-    unsigned int uoflags; // USTRUCT_TILE::*
-    unsigned int flags; // FLAG::*
-    u8 layer;
-    u8 height;
-    u8 weight; // todo mult, div
-};
-
-extern Tile *tile;
-
+	extern Tile *tile;
+  }
+}
 #endif

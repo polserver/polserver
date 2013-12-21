@@ -16,46 +16,49 @@ Notes
 #endif
 
 #include <iosfwd>
+namespace Pol {
+  namespace Module {
+	class BasicIoExecutorModule;
 
-class BasicIoExecutorModule;
-
-typedef BObjectImp* (BasicIoExecutorModule::*BasicIoExecutorModuleFn)();
+	typedef Bscript::BObjectImp* ( BasicIoExecutorModule::*BasicIoExecutorModuleFn )( );
 
 #ifdef _MSC_VER
 #	pragma pack( push, 1 )
 #else
-/* Ok, my build of GCC supports this, yay! */
+	/* Ok, my build of GCC supports this, yay! */
 #	pragma pack(1)
 #endif
-struct BasicIoFunctionDef
-{
-	char funcname[ 33 ];
-	BasicIoExecutorModuleFn fptr;
-};
+	struct BasicIoFunctionDef
+	{
+	  char funcname[33];
+	  BasicIoExecutorModuleFn fptr;
+	};
 #ifdef _MSC_VER
 #	pragma pack( pop )
 #else
 #	pragma pack()
 #endif
- 
 
-class BasicIoExecutorModule : public ExecutorModule
-{
-  public:
-    BObjectImp* print();
 
-    BasicIoExecutorModule(Executor& exec,
-                          std::ostream& cout) : ExecutorModule("BasicIo", exec),
-                                                cout_(cout) { }
+	class BasicIoExecutorModule : public Bscript::ExecutorModule
+	{
+	public:
+	  Bscript::BObjectImp* print();
 
-	// class machinery
-  protected:
-	virtual BObjectImp* execFunc( unsigned idx );
-	virtual int functionIndex( const char *func );
-	virtual std::string functionName( unsigned idx );
-	static BasicIoFunctionDef function_table[];
-  private:
-    std::ostream& cout_;
-};
+	  BasicIoExecutorModule( Bscript::Executor& exec,
+                             std::ostream& cout ) : Bscript::ExecutorModule( "BasicIo", exec ),
+							 cout_( cout )
+	  {}
 
+	  // class machinery
+	protected:
+	  virtual Bscript::BObjectImp* execFunc( unsigned idx );
+	  virtual int functionIndex( const char *func );
+	  virtual std::string functionName( unsigned idx );
+	  static BasicIoFunctionDef function_table[];
+	private:
+	  std::ostream& cout_;
+	};
+  }
+}
 #endif

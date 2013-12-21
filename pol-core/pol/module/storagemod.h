@@ -13,19 +13,21 @@ add_common_exmods()
 #define STORAGEEMOD_H
 
 #include "../../bscript/execmodl.h"
+namespace Pol {
+  namespace Module {
+	class StorageExecutorModule : public Bscript::TmplExecutorModule<StorageExecutorModule>
+	{
+	public:
+      StorageExecutorModule( Bscript::Executor& exec ) :
+        Bscript::TmplExecutorModule<StorageExecutorModule>( "Storage", exec ) {};
 
-class StorageExecutorModule : public TmplExecutorModule<StorageExecutorModule>
-{
-public:
-	StorageExecutorModule( Executor& exec ) :
-	TmplExecutorModule<StorageExecutorModule>("Storage", exec) {};
-
-	BObjectImp* mf_StorageAreas();		
-	BObjectImp* mf_DestroyRootItemInStorageArea();
-	BObjectImp* mf_FindStorageArea();
-	BObjectImp* mf_CreateStorageArea();
-	BObjectImp* mf_FindRootItemInStorageArea();
-	BObjectImp* mf_CreateRootItemInStorageArea();
-};
-
+      Bscript::BObjectImp* mf_StorageAreas( );
+      Bscript::BObjectImp* mf_DestroyRootItemInStorageArea( );
+      Bscript::BObjectImp* mf_FindStorageArea( );
+      Bscript::BObjectImp* mf_CreateStorageArea( );
+      Bscript::BObjectImp* mf_FindRootItemInStorageArea( );
+      Bscript::BObjectImp* mf_CreateRootItemInStorageArea( );
+	};
+  }
+}
 #endif

@@ -18,6 +18,9 @@ Notes
 */
 
 #define ESCRIPT_INCLUDE_GOTO 0
-
+namespace Pol {
+  namespace Bscript {
+  }
+}
 
 #endif // H_ESCRIPT_H

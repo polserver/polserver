@@ -17,83 +17,84 @@
 #include "cryptkey.h"
 #include "../../clib/logfile.h"
 #include <cstring>
+namespace Pol {
+  namespace Crypt {
+	bool compareVersion( int ver1major, int ver1minor, int ver1build, int ver2major, int ver2minor, int ver2build );
 
-bool compareVersion(int ver1major, int ver1minor, int ver1build, int ver2major, int ver2minor, int ver2build);
-
-void CalculateCryptKeys(const string& name, TCryptInfo& infoCrypt)
-{
-	size_t len = name.length();
-	if ( (  strnicmp( "none",     name.c_str(), len ) == 0 )
-		||( strnicmp( "ignition", name.c_str(), len ) == 0 )
-		||( strnicmp( "uorice",   name.c_str(), len ) == 0 ) )
+	void CalculateCryptKeys( const string& name, TCryptInfo& infoCrypt )
 	{
+	  size_t len = name.length();
+	  if ( ( strnicmp( "none", name.c_str(), len ) == 0 )
+		   || ( strnicmp( "ignition", name.c_str(), len ) == 0 )
+		   || ( strnicmp( "uorice", name.c_str(), len ) == 0 ) )
+	  {
 		infoCrypt.eType = CRYPT_NOCRYPT;
 		infoCrypt.uiKey1 = 0;
 		infoCrypt.uiKey2 = 0;
-	}
-	else if ( strnicmp( "2.0.0x", name.c_str(), 6) == 0 )
-	{
+	  }
+	  else if ( strnicmp( "2.0.0x", name.c_str(), 6 ) == 0 )
+	  {
 		infoCrypt.eType = CRYPT_BLOWFISH_TWOFISH;
 		infoCrypt.uiKey1 = 0x2D13A5FD;
 		infoCrypt.uiKey2 = 0xA39D527F;
-	}
-	else
-	{
+	  }
+	  else
+	  {
 		try
 		{
-			size_t dot1 = name.find_first_of('.', 0);
-			size_t dot2 = name.find_first_of('.', dot1 + 1);
+		  size_t dot1 = name.find_first_of( '.', 0 );
+		  size_t dot2 = name.find_first_of( '.', dot1 + 1 );
 
-			int major = atoi(name.substr(0, dot1).c_str());
-			int minor = atoi(name.substr(dot1+1, dot2 - dot1 - 1).c_str());
-			int build = atoi(name.substr(dot2+1, len - dot2 - 1).c_str());
+		  int major = atoi( name.substr( 0, dot1 ).c_str() );
+		  int minor = atoi( name.substr( dot1 + 1, dot2 - dot1 - 1 ).c_str() );
+		  int build = atoi( name.substr( dot2 + 1, len - dot2 - 1 ).c_str() );
 
-			int temp = ((major<<9|minor)<<10|build)^((build*build)<<5);
-			infoCrypt.uiKey1 = (temp<<4)^(minor*minor)^(minor*0x0B000000)^(build*0x380000)^0x2C13A5FD;
-			temp = (((major<<9|build)<<10|minor)*8)^(build*build*0x0c00);
-			infoCrypt.uiKey2 = temp^(minor*minor)^(minor*0x6800000)^(build*0x1c0000)^0x0A31D527F;
+		  int temp = ( ( major << 9 | minor ) << 10 | build ) ^ ( ( build*build ) << 5 );
+		  infoCrypt.uiKey1 = ( temp << 4 ) ^ ( minor*minor ) ^ ( minor * 0x0B000000 ) ^ ( build * 0x380000 ) ^ 0x2C13A5FD;
+		  temp = ( ( ( major << 9 | build ) << 10 | minor ) * 8 ) ^ ( build*build * 0x0c00 );
+		  infoCrypt.uiKey2 = temp ^ ( minor*minor ) ^ ( minor * 0x6800000 ) ^ ( build * 0x1c0000 ) ^ 0x0A31D527F;
 
-			if (compareVersion(1,25,35,major,minor,build))
-				infoCrypt.eType = CRYPT_OLD_BLOWFISH;
-			else if ((major == 1) && (minor == 25) && (build == 36))
-				infoCrypt.eType = CRYPT_1_25_36;
-			else if (compareVersion(2,0,0,major,minor,build))
-				infoCrypt.eType = CRYPT_BLOWFISH;
-			else if (compareVersion(2,0,3,major,minor,build))
-				infoCrypt.eType = CRYPT_BLOWFISH_TWOFISH;
-			else
-				infoCrypt.eType = CRYPT_TWOFISH;
+		  if ( compareVersion( 1, 25, 35, major, minor, build ) )
+			infoCrypt.eType = CRYPT_OLD_BLOWFISH;
+		  else if ( ( major == 1 ) && ( minor == 25 ) && ( build == 36 ) )
+			infoCrypt.eType = CRYPT_1_25_36;
+		  else if ( compareVersion( 2, 0, 0, major, minor, build ) )
+			infoCrypt.eType = CRYPT_BLOWFISH;
+		  else if ( compareVersion( 2, 0, 3, major, minor, build ) )
+			infoCrypt.eType = CRYPT_BLOWFISH_TWOFISH;
+		  else
+			infoCrypt.eType = CRYPT_TWOFISH;
 		}
-		catch(...)
+		catch ( ... )
 		{
-			infoCrypt.eType = CRYPT_NOCRYPT;
-			infoCrypt.uiKey1 = 0;
-			infoCrypt.uiKey2 = 0;
-			cerr << "Malformed encryption version string: " << name << "using Ignition encryption engine" << endl;
-			Log( "Malformed encryption version string: %s using Ignition encryption engine\n",name.c_str());
+		  infoCrypt.eType = CRYPT_NOCRYPT;
+		  infoCrypt.uiKey1 = 0;
+		  infoCrypt.uiKey2 = 0;
+		  cerr << "Malformed encryption version string: " << name << "using Ignition encryption engine" << endl;
+		  Clib::Log( "Malformed encryption version string: %s using Ignition encryption engine\n", name.c_str() );
 		}
+	  }
 	}
-}
 
-bool compareVersion(int ver1major, int ver1minor, int ver1build, int ver2major, int ver2minor, int ver2build)
-{
-	if      ( ver1major > ver2major )
+	bool compareVersion( int ver1major, int ver1minor, int ver1build, int ver2major, int ver2minor, int ver2build )
+	{
+	  if ( ver1major > ver2major )
 		return true;
-	else if ( ver1major < ver2major )
+	  else if ( ver1major < ver2major )
 		return false;
-	else if ( ver1minor > ver2minor )
+	  else if ( ver1minor > ver2minor )
 		return true;
-	else if ( ver1minor < ver2minor )
+	  else if ( ver1minor < ver2minor )
 		return false;
-	else if ( ver1build > ver2build )
+	  else if ( ver1build > ver2build )
 		return true;
-	else if ( ver1build < ver2build )
+	  else if ( ver1build < ver2build )
 		return false;
-	else
+	  else
 		return true;
-}
+	}
 
-// Just for the docs, old list of all Cryptkeys
+	// Just for the docs, old list of all Cryptkeys
 	// TWOFISH
 	//AddClient("7.0.4",   0x2F7385BD, 0xA2AD127F, CRYPT_TWOFISH);
 	//AddClient("7.0.3",   0x2F3BB7CD, 0xA2895E7F, CRYPT_TWOFISH);
@@ -213,3 +214,5 @@ bool compareVersion(int ver1major, int ver1minor, int ver1build, int ver2major, 
 	//AddClient("ignition", 0,          0,          CRYPT_NOCRYPT);
 	//AddClient("none",	  0,          0,          CRYPT_NOCRYPT); //dave added 3/14, avoid newbie confusion
 	//AddClient("uorice",	  0,          0,          CRYPT_NOCRYPT); //dave added 3/14, avoid newbie confusion
+  }
+}

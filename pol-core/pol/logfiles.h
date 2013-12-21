@@ -12,10 +12,12 @@ Notes
 #define LOGFILES_H
 
 #include "../clib/nlogfile.h"
+namespace Pol {
+  namespace Core {
+	extern Clib::LogFile script_log;
 
-extern LogFile script_log;
-
-void open_logfiles();
-void close_logfiles();
-
+	void open_logfiles();
+	void close_logfiles();
+  }
+}
 #endif

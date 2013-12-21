@@ -34,32 +34,31 @@ Notes
 #if CFGFILE_USES_TRANSLATION_TABLE
 #	include "xlate.h"
 #endif
-
-bool commentline( const std::string& str )
-{
+namespace Pol {
+  namespace Clib {
+	bool commentline( const std::string& str )
+	{
 #ifdef __GNUC__
-    return ( (str[0] == '#') 
-                  || 
-             (str.substr(0,2) == "//") );
+	  return ( (str[0] == '#') 
+			   || 
+			   (str.substr(0,2) == "//") );
 #else
-    return ( (str[0] == '#')
-                  || 
-             (str.compare( 0,2,"//" ) == 0) );
+	  return ( ( str[0] == '#' )
+			   ||
+			   ( str.compare( 0, 2, "//" ) == 0 ) );
 #endif
-}
+	}
 
 
-ConfigProperty::ConfigProperty( const char *name, const char *value ) :
-    name_(name),
-	value_(value)
-{
-}
+	ConfigProperty::ConfigProperty( const char *name, const char *value ) :
+	  name_( name ),
+	  value_( value )
+	{}
 
-ConfigProperty::ConfigProperty( const string& name, const string& value ) :
-    name_(name),
-	value_(value)
-{
-}
+	ConfigProperty::ConfigProperty( const string& name, const string& value ) :
+	  name_( name ),
+	  value_( value )
+	{}
 
 ConfigProperty::ConfigProperty( string* pname, string* pvalue )
 {
@@ -1120,3 +1119,5 @@ void StubConfigSource::display_error( const std::string& msg,
         << "\t" << msg << endl;
 }
 
+}
+}

@@ -11,9 +11,12 @@ Notes
 #define BSCRIPT_ESCRUTIL_H
 
 #include <string>
-class BObjectImp;
+namespace Pol {
+  namespace Bscript {
+	class BObjectImp;
 
-BObjectImp* bobject_from_string( const std::string& str, int radix = 0 );
-std::string normalize_ecl_filename( const std::string& filename );
-
+	BObjectImp* bobject_from_string( const std::string& str, int radix = 0 );
+	std::string normalize_ecl_filename( const std::string& filename );
+  }
+}
 #endif

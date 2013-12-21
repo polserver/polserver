@@ -10,5 +10,8 @@ Notes
 
 #include "../clib/stl_inc.h"
 #include "polstats.h"
-
-PolStats polstats;
+namespace Pol {
+  namespace Core {
+	PolStats polstats;
+  }
+}

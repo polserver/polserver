@@ -16,59 +16,65 @@ Notes
 #endif
 
 #include "../clib/maputil.h"
+namespace Pol {
+  namespace Items {
+	class Item;
+  }
+  namespace Clib {
+	class ConfigFile;
+	class ConfigElem;
+    class StreamWriter;
+  }
+  namespace Core {
+	class StorageArea
+	{
+	public:
+	  StorageArea( std::string name );
+	  ~StorageArea();
 
-class ConfigFile;
-class ConfigElem;
-class Item;
+	  Items::Item *find_root_item( const std::string& name );
+	  void insert_root_item( Items::Item *item );
+	  bool delete_root_item( const std::string& name );
+	  void on_delete_realm( Plib::Realm *realm );
 
-class StorageArea
-{
-public:
-    StorageArea( std::string name );
-    ~StorageArea();
+	  void print( Clib::StreamWriter& sw ) const;
+	  void load_item( Clib::ConfigElem& elem );
+	private:
 
-    Item *find_root_item( const std::string& name );
-    void insert_root_item( Item *item );
-    bool delete_root_item( const std::string& name );
-	void on_delete_realm(Realm *realm);
+	  std::string _name;
 
-    void print( StreamWriter& sw ) const;
-    void load_item( ConfigElem& elem );
-private:
+	  // TODO: ref_ptr<Item> ?
+	  typedef map< std::string, Items::Item*, Clib::ci_cmp_pred > Cont;
+	  Cont _items; // owns its items.
 
-    std::string _name;
+	  friend class StorageAreaImp;
+	  friend class StorageAreaIterator;
+	  friend void write_dirty_storage( Clib::StreamWriter& );
+	};
 
-    // TODO: ref_ptr<Item> ?
-    typedef map< std::string, Item*, ci_cmp_pred > Cont;
-    Cont _items; // owns its items.
+	class Storage
+	{
+	public:
+	  StorageArea* find_area( const std::string& name );
+	  StorageArea* create_area( const std::string& name );
+	  StorageArea* create_area( Clib::ConfigElem& elem );
+	  void on_delete_realm( Plib::Realm *realm );
 
-    friend class StorageAreaImp;
-    friend class StorageAreaIterator;
-    friend void write_dirty_storage( StreamWriter& );
-};
+	  void print( Clib::StreamWriter& sw ) const;
+	  void read( Clib::ConfigFile& cf );
+	  void clear();
+	private:
+	  // TODO: investigate if this could store objects. Does find() 
+	  // return object copies, or references?
+	  typedef map<std::string, StorageArea*> AreaCont;
+	  AreaCont areas;
 
-class Storage
-{
-public:    
-    StorageArea* find_area( const std::string& name );
-    StorageArea* create_area( const std::string& name );
-    StorageArea* create_area( ConfigElem& elem );
-	void on_delete_realm(Realm *realm);
+	  friend class StorageAreasImp;
+	  friend class StorageAreasIterator;
+	  friend void write_dirty_storage( Clib::StreamWriter& );
+	};
 
-    void print( StreamWriter& sw ) const;
-    void read( ConfigFile& cf );
-    void clear();
-private:
-    // TODO: investigate if this could store objects. Does find() 
-    // return object copies, or references?
-    typedef map<std::string, StorageArea*> AreaCont;
-    AreaCont areas;
-
-    friend class StorageAreasImp;
-    friend class StorageAreasIterator;
-    friend void write_dirty_storage( StreamWriter& );
-};
-
-extern Storage storage;
-
+	extern Storage storage;
+  }
+}
 #endif
