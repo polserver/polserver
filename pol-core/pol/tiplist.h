@@ -20,13 +20,18 @@ Notes
 #include <vector>
 
 
+namespace Pol {
+  namespace Network {
+    class Client;
+  }
+  namespace Core {
+	typedef vector<std::string> TipFilenames;
+	extern TipFilenames tipfilenames;
 
-typedef vector<std::string> TipFilenames;
-extern TipFilenames tipfilenames;
+	void load_tips();
 
-void load_tips();
+	bool send_tip( Network::Client* client, const char* tipname );
 
-bool send_tip( class Client* client, const char* tipname );
-
-
+  }
+}
 #endif

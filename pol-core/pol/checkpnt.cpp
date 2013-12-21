@@ -13,22 +13,24 @@ Notes
 
 #include "polcfg.h"
 #include "checkpnt.h"
+namespace Pol {
+  namespace Core {
+	const char* last_checkpoint = "";
+	void checkpoint( const char* msg, unsigned short minlvl /* = 11 */ )
+	{
+	  last_checkpoint = msg;
+	  if ( config.loglevel >= minlvl )
+	  {
+		cout << "checkpoint: " << msg << endl;
+	  }
+	}
 
-const char* last_checkpoint = "";
-void checkpoint( const char* msg, unsigned short minlvl /* = 11 */ )
-{
-    last_checkpoint = msg;
-    if (config.loglevel >= minlvl)
-    {
-        cout << "checkpoint: " << msg << endl;
-    }
-}
-
-Checkpoint::Checkpoint( const char* file ) : _file(file), _line(0)
-{
-}
-Checkpoint::~Checkpoint()
-{
-    if (_line)
-        Log2( "Abnormal end after checkpoint: File %s, line %u\n", _file, _line );
+	Checkpoint::Checkpoint( const char* file ) : _file( file ), _line( 0 )
+	{}
+	Checkpoint::~Checkpoint()
+	{
+	  if ( _line )
+		Clib::Log2( "Abnormal end after checkpoint: File %s, line %u\n", _file, _line );
+	}
+  }
 }

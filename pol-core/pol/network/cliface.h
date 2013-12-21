@@ -12,66 +12,73 @@ Notes
 #define CLIFACE_H
 
 #include <vector>
+namespace Pol {
+  namespace Mobile {
+	class Character;
+	class Attribute;
+  }
+  namespace Core {
+	class Vital;
+	class UOSkill;
+  }
 
-class Attribute;
-class Client;
-class Character;
-class Vital;
-class UOSkill;
+  namespace Network {
+	class Client;
 
-struct ClientVitalUpdaters
-{
-public:
-    ClientVitalUpdaters();
+	struct ClientVitalUpdaters
+	{
+	public:
+	  ClientVitalUpdaters();
 
-    void (*my_vital_changed)(Client* client, Character* me, const Vital* vital);
-    void (*others_vital_changed)(Client* client, Character* him, const Vital* vital);
-};
+	  void( *my_vital_changed )( Client* client, Mobile::Character* me, const Core::Vital* vital );
+	  void( *others_vital_changed )( Client* client, Mobile::Character* him, const Core::Vital* vital );
+	};
 
-struct ClientAttributeUpdaters
-{
-public:
-    ClientAttributeUpdaters();
+	struct ClientAttributeUpdaters
+	{
+	public:
+	  ClientAttributeUpdaters();
 
-    void (*my_attr_changed)(Client* client, Character* me, const Attribute* attr);
-    
-    const UOSkill* pUOSkill;
-};
+	  void( *my_attr_changed )( Client* client, Mobile::Character* me, const Mobile::Attribute* attr );
 
-class ClientInterface
-{
-public:
-    virtual ~ClientInterface() {}
+	  const Core::UOSkill* pUOSkill;
+	};
 
-    void register_client( Client* client );
-    void deregister_client( Client* client );
+	class ClientInterface
+	{
+	public:
+	  virtual ~ClientInterface() {}
 
-    static void tell_vital_changed( Character* who, const Vital* vital );
-    static void tell_attribute_changed( Character* who, const Attribute* attr );
+	  void register_client( Client* client );
+	  void deregister_client( Client* client );
 
-protected:
-    virtual void Initialize();
+	  static void tell_vital_changed( Mobile::Character* who, const Core::Vital* vital );
+	  static void tell_attribute_changed( Mobile::Character* who, const Mobile::Attribute* attr );
 
-    virtual void bcast_vital_changed( Character* who, const Vital* vital ) const = 0;
+	protected:
+	  virtual void Initialize();
 
-    std::vector<ClientVitalUpdaters> vital_updaters;
-    std::vector<ClientAttributeUpdaters> attribute_updaters;
+	  virtual void bcast_vital_changed( Mobile::Character* who, const Core::Vital* vital ) const = 0;
 
-    std::vector<Client*> clients;
+	  std::vector<ClientVitalUpdaters> vital_updaters;
+	  std::vector<ClientAttributeUpdaters> attribute_updaters;
 
-    friend void send_uo_skill( Client* client, Character* me, const Attribute* attr );
+	  std::vector<Client*> clients;
 
-};
+	  friend void send_uo_skill( Client* client, Mobile::Character* me, const Mobile::Attribute* attr );
 
-class UOClientInterface : public ClientInterface
-{
-public:
-    void Initialize();
+	};
 
-protected:
-    friend class ClientInterface;
-    virtual void bcast_vital_changed( Character* who, const Vital* vital ) const;
-};
-extern UOClientInterface uo_client_interface;
+	class UOClientInterface : public ClientInterface
+	{
+	public:
+	  void Initialize();
 
+	protected:
+	  friend class ClientInterface;
+	  virtual void bcast_vital_changed( Mobile::Character* who, const Core::Vital* vital ) const;
+	};
+	extern UOClientInterface uo_client_interface;
+  }
+}
 #endif

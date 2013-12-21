@@ -12,12 +12,15 @@ Notes
 #include <string.h>
 
 #include "iostats.h"
+namespace Pol {
+  namespace Network {
+	IOStats::IOStats()
+	{
+	  memset( &sent, 0, sizeof sent );
+	  memset( &received, 0, sizeof received );
+	}
 
-IOStats::IOStats()
-{
-    memset( &sent, 0, sizeof sent );
-    memset( &received, 0, sizeof received );
+	IOStats iostats;
+	IOStats queuedmode_iostats;
+  }
 }
-
-IOStats iostats;
-IOStats queuedmode_iostats;

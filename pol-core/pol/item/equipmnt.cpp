@@ -18,43 +18,45 @@ Notes
 #include "../equipdsc.h"
 #include "../tooltips.h"
 #include "../mobile/charactr.h"
+namespace Pol {
+  namespace Items {
+	Equipment::Equipment( const ItemDesc& itemdesc, UOBJ_CLASS uobj_class ) :
+	  Item( itemdesc, uobj_class ),
+	  eq_tmpl_( static_cast<const Core::EquipDesc&>( find_itemdesc( objtype_ ) ) ) // be sure to grab the permanent entry
+	{}
 
-Equipment::Equipment( const ItemDesc& itemdesc, UOBJ_CLASS uobj_class ) :
-    Item( itemdesc, uobj_class ),
-    eq_tmpl_(static_cast<const EquipDesc&>(find_itemdesc( objtype_ ))) // be sure to grab the permanent entry
-{
-}
+	Item* Equipment::clone() const
+	{
+	  Equipment* eq = static_cast<Equipment*>( base::clone() );
 
-Item* Equipment::clone() const
-{
-    Equipment* eq = static_cast<Equipment*>(base::clone());
+	  return eq;
+	}
 
-    return eq;
-}
+	void Equipment::printProperties( Clib::StreamWriter& sw ) const
+	{
+	  base::printProperties( sw );
+	}
 
-void Equipment::printProperties( StreamWriter& sw ) const
-{
-    base::printProperties( sw );
-}
+	void Equipment::readProperties( Clib::ConfigElem& elem )
+	{
+	  base::readProperties( elem );
+	}
 
-void Equipment::readProperties( ConfigElem& elem )
-{
-    base::readProperties( elem );
-}
-
-void Equipment::reduce_hp_from_hit()
-{
-    if (hp_ >= 1 && random_int(100) == 0)
-    {
-        set_dirty();
-        --hp_;
-        increv();
-		if (isa(CLASS_ARMOR))
+	void Equipment::reduce_hp_from_hit()
+	{
+	  if ( hp_ >= 1 && random_int( 100 ) == 0 )
+	  {
+		set_dirty();
+		--hp_;
+		increv();
+		if ( isa( CLASS_ARMOR ) )
 		{
-			Character* chr= GetCharacterOwner();
-			if (chr != NULL)
-				chr->refresh_ar();
+		  Mobile::Character* chr = GetCharacterOwner();
+		  if ( chr != NULL )
+			chr->refresh_ar();
 		}
-        send_object_cache_to_inrange(this);
-    }
+		send_object_cache_to_inrange( this );
+	  }
+	}
+  }
 }

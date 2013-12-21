@@ -23,241 +23,249 @@ Notes
 #include "item/item.h"
 #include "multi/boat.h"
 #include "uobjcnt.h"
-
-extern BApplicObjType eitemrefobjimp_type;
-extern BApplicObjType echaracterrefobjimp_type;
-extern BApplicObjType echaracterequipobjimp_type;
-extern BApplicObjType euboatrefobjimp_type;
-extern BApplicObjType emultirefobjimp_type;
-extern BApplicObjType storage_area_type;
-extern BApplicObjType menu_type;
-extern BApplicObjType eclientrefobjimp_type;
-
-class ExecutorModule;
-
-class ECharacterRefObjImp : public BApplicObj< CharacterRef >
-{
-    typedef BApplicObj< CharacterRef > base;
-public:
-    explicit ECharacterRefObjImp( Character* chr ) : 
-        BApplicObj< CharacterRef >( &echaracterrefobjimp_type, CharacterRef(chr) ) 
-        { 
-            ++uobj_count_echrref; 
-            passert( obj_->ref_counted_count() > 1 );
-        }
-    virtual ~ECharacterRefObjImp() { --uobj_count_echrref; }
-
-    virtual const char* typeOf() const;
-	virtual int typeOfInt() const;
-    virtual BObjectImp* copy() const;
-    virtual BObjectImp* call_method( const char* methodname, Executor& ex );
-    virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin=false );
-    virtual BObjectRef get_member( const char* membername );
-    virtual BObjectRef get_member_id( const int id ); ///id test
-    virtual BObjectRef set_member( const char* membername, BObjectImp* value, bool copy );
-    virtual BObjectRef set_member_id( const int id, BObjectImp* value, bool copy );//id test
-
-    virtual bool isTrue() const;
-    virtual bool isEqual(const BObjectImp& objimp) const;
-    virtual bool isLessThan(const BObjectImp& objimp) const;
-
-    virtual bool offline_access_ok() const { return false; }
-};
-
-class EOfflineCharacterRefObjImp : public ECharacterRefObjImp
-{
-public:
-    explicit EOfflineCharacterRefObjImp( Character* chr ) :
-        ECharacterRefObjImp( chr ) {}
-
-    virtual const char* typeOf() const;
-	virtual int typeOfInt() const;
-    virtual BObjectImp* copy() const;
-
-    virtual bool isTrue() const;
-    virtual bool offline_access_ok() const { return true; }
-};
-
-class ECharacterEquipObjImp : public BApplicObj< CharacterRef >
-{
-    typedef BApplicObj< CharacterRef > base;
-public:
-    explicit ECharacterEquipObjImp( Character* chr ) : 
-        BApplicObj< CharacterRef >( &echaracterequipobjimp_type, CharacterRef(chr) ) 
-        {}
-
-    virtual BObjectImp* copy() const;
-    virtual BObjectRef OperSubscript( const BObject& obj );
-};
-
-
-class EItemRefObjImp : public BApplicObj < ItemRef >
-{
-    typedef BApplicObj< ItemRef > base;
-public:
-    explicit EItemRefObjImp( Item* item ) :
-        BApplicObj< ItemRef >( &eitemrefobjimp_type, ItemRef(item) )
-        {}
-
-    virtual const char* typeOf() const;
-	virtual int typeOfInt() const;
-    virtual BObjectImp* copy() const;
-    virtual BObjectImp* call_method( const char* methodname, Executor& ex );
-    virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin=false );
-    virtual BObjectRef get_member( const char* membername );
-    virtual BObjectRef get_member_id( const int id ); //id test
-    virtual BObjectRef set_member( const char* membername, BObjectImp* value, bool copy );
-    virtual BObjectRef set_member_id( const int id, BObjectImp* value, bool copy ); //id test
-
-    virtual bool isTrue() const;
-    virtual bool isEqual(const BObjectImp& objimp) const;
-    virtual bool isLessThan(const BObjectImp& objimp) const;
-};
-
-
-class EUBoatRefObjImp : public BApplicObj < ref_ptr<UBoat> >
-{
-    typedef BApplicObj< ref_ptr<UBoat> > base;
-public:
-    explicit EUBoatRefObjImp( UBoat* boat ) :
-        BApplicObj< ref_ptr<UBoat> >( &euboatrefobjimp_type, ref_ptr<UBoat>(boat) )
-        {}
-
-    virtual const char* typeOf() const;
-	virtual int typeOfInt() const;
-    virtual BObjectImp* copy() const;
-    virtual BObjectImp* call_method( const char* methodname, Executor& ex );
-    virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin=false );
-    virtual BObjectRef get_member( const char* membername );
-    virtual BObjectRef get_member_id( const int id ); //id test
-    virtual BObjectRef set_member( const char* membername, BObjectImp* value, bool copy );
-    virtual BObjectRef set_member_id( const int id, BObjectImp* value, bool copy ); //id test
-
-    virtual bool isTrue() const;
-	virtual bool isEqual(const BObjectImp& objimp) const;
-};
-
-
-class EMultiRefObjImp : public BApplicObj < ref_ptr<UMulti> >
-{
-    typedef BApplicObj< ref_ptr<UMulti> > base;
-public:
-    explicit EMultiRefObjImp( UMulti* multi ) :
-        BApplicObj< ref_ptr<UMulti> >( &emultirefobjimp_type, ref_ptr<UMulti>(multi) )
-        {}
-
-    virtual const char* typeOf() const;
-	virtual int typeOfInt() const;
-    virtual BObjectImp* copy() const;
-    virtual BObjectRef get_member( const char* membername );
-    virtual BObjectRef get_member_id( const int id ); //id test
-    virtual BObjectRef set_member( const char* membername, BObjectImp* value, bool copy );
-    virtual BObjectRef set_member_id( const int id, BObjectImp* value, bool copy ); //test id
-    virtual bool isTrue() const;
-	virtual BObjectImp* call_method( const char* methodname, Executor& ex );
-    virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin=false );
-	virtual bool isEqual(const BObjectImp& objimp) const;
-};
-
-class ClientPtrHolder
-{
-public:
-	explicit ClientPtrHolder( ClientRef i_client ) : client(i_client) {}
-	Client* operator->() { return client.get(); }
-	const Client* operator->() const { return client.get(); }
-	/*bool operator!=(const ClientPtrHolder& a) const	{ return ConstPtr() != a.ConstPtr(); }
-	bool operator==(const ClientPtrHolder& a) const	{ return ConstPtr() == a.ConstPtr(); }
-	bool operator!=(const ClientPtrHolder a) const	{ return ConstPtr() != a.ConstPtr(); }
-	bool operator==(const ClientPtrHolder a) const	{ return ConstPtr() == a.ConstPtr(); }*/
-
-	Client* Ptr() { return client.get(); }
-	const Client* ConstPtr() const { return client.get(); }
-private:
-	ClientRef client;
-};
-
-class EClientRefObjImp : public BApplicObj < ClientPtrHolder >
-{
-	typedef BApplicObj< ClientPtrHolder > base;
-public:
-	explicit EClientRefObjImp( const ClientPtrHolder& client ) :
-	BApplicObj< ClientPtrHolder >( &eclientrefobjimp_type, client )
-	{}
-	virtual ~EClientRefObjImp() {};
-
-
-	virtual const char* typeOf() const;
-	virtual int typeOfInt() const;
-	virtual BObjectImp* copy() const;
-	virtual BObjectImp* call_method( const char* methodname, Executor& ex );
-	virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin=false );
-	virtual BObjectRef get_member( const char* membername );
-	virtual BObjectRef get_member_id( const int id ); //id test
-	virtual BObjectRef set_member( const char* membername, BObjectImp* value, bool copy );
-	virtual BObjectRef set_member_id( const int id, BObjectImp* value, bool copy ); //id test
-
-	virtual bool isTrue() const;
-	virtual bool isEqual(const BObjectImp& objimp) const;
-};
-
-// EMenuObjImp defined on UOEMOD.CPP
-
-
-class SpeechEvent : public BStruct
-{
-public:
-    SpeechEvent( Character* speaker, const char* speech);
-	SpeechEvent( Character* speaker, const char* speech, const char* texttype); //DAVE
-};
-
-class UnicodeSpeechEvent : public BStruct
-{
-public:
-    UnicodeSpeechEvent( Character* speaker, const char* speech,
-											const u16* wspeech, const char lang[4], ObjArray* speechtokens=NULL);
-	UnicodeSpeechEvent( Character* speaker, const char* speech, const char* texttype,
-											const u16* wspeech, const char lang[4], ObjArray* speechtokens=NULL);
-};
-
-class DamageEvent : public BStruct
-{
-public:
-    DamageEvent( Character* source, unsigned short damage );
-};
-
 #include "eventid.h"
 
-class SourcedEvent : public BStruct
-{
-public:
-    SourcedEvent( EVENTID type, Character* source );
-};
+namespace Pol {
+  namespace Bscript {
+	class ExecutorModule;
+  }
+  namespace Module {
+	extern Bscript::BApplicObjType eitemrefobjimp_type;
+	extern Bscript::BApplicObjType echaracterrefobjimp_type;
+	extern Bscript::BApplicObjType echaracterequipobjimp_type;
+	extern Bscript::BApplicObjType euboatrefobjimp_type;
+	extern Bscript::BApplicObjType emultirefobjimp_type;
+	extern Bscript::BApplicObjType storage_area_type;
+	extern Bscript::BApplicObjType menu_type;
+	extern Bscript::BApplicObjType eclientrefobjimp_type;
 
-class EngageEvent : public SourcedEvent
-{
-public:
-    explicit EngageEvent( Character* engaged ) :
-      SourcedEvent( EVID_ENGAGED, engaged ) {};
-};
+	class ECharacterRefObjImp : public Bscript::BApplicObj< Core::CharacterRef >
+	{
+	  typedef Bscript::BApplicObj< Core::CharacterRef > base;
+	public:
+	  explicit ECharacterRefObjImp( Mobile::Character* chr ) :
+		BApplicObj< Core::CharacterRef >( &echaracterrefobjimp_type, Core::CharacterRef( chr ) )
+	  {
+		  ++Core::uobj_count_echrref;
+		  passert( obj_->ref_counted_count() > 1 );
+		}
+	  virtual ~ECharacterRefObjImp( ) { --Core::uobj_count_echrref; }
 
-class DisengageEvent : public SourcedEvent
-{
-public:
-    explicit DisengageEvent( Character* disengaged ) : 
-      SourcedEvent( EVID_DISENGAGED, disengaged ) {};
-};
+	  virtual const char* typeOf() const;
+	  virtual int typeOfInt() const;
+	  virtual Bscript::BObjectImp* copy( ) const;
+	  virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex );
+	  virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false );
+	  virtual Bscript::BObjectRef get_member( const char* membername );
+	  virtual Bscript::BObjectRef get_member_id( const int id ); ///id test
+	  virtual Bscript::BObjectRef set_member( const char* membername, Bscript::BObjectImp* value, bool copy );
+	  virtual Bscript::BObjectRef set_member_id( const int id, Bscript::BObjectImp* value, bool copy );//id test
 
-class ItemGivenEvent : public SourcedEvent
-{
-public:
-    ItemGivenEvent( Character* chr_givenby, Item* item_given, NPC* chr_givento );
-    virtual ~ItemGivenEvent();
+	  virtual bool isTrue() const;
+	  virtual bool isEqual( const Bscript::BObjectImp& objimp ) const;
+	  virtual bool isLessThan( const Bscript::BObjectImp& objimp ) const;
 
-private:
-    ItemRef item_;
-    ref_ptr< UContainer > cont_;
-    CharacterRef given_by_;
-    gameclock_t given_time_;
-};
+	  virtual bool offline_access_ok() const { return false; }
+	};
 
+	class EOfflineCharacterRefObjImp : public ECharacterRefObjImp
+	{
+	public:
+	  explicit EOfflineCharacterRefObjImp( Mobile::Character* chr ) :
+		ECharacterRefObjImp( chr )
+	  {}
+
+	  virtual const char* typeOf() const;
+	  virtual int typeOfInt() const;
+	  virtual Bscript::BObjectImp* copy( ) const;
+
+	  virtual bool isTrue() const;
+	  virtual bool offline_access_ok() const { return true; }
+	};
+
+	class ECharacterEquipObjImp : public Bscript::BApplicObj< Core::CharacterRef >
+	{
+	  typedef Bscript::BApplicObj< Core::CharacterRef > base;
+	public:
+	  explicit ECharacterEquipObjImp( Mobile::Character* chr ) :
+		BApplicObj< Core::CharacterRef >( &echaracterequipobjimp_type, Core::CharacterRef( chr ) )
+	  {}
+
+	  virtual Bscript::BObjectImp* copy( ) const;
+	  virtual Bscript::BObjectRef OperSubscript( const Bscript::BObject& obj );
+	};
+
+
+	class EItemRefObjImp : public Bscript::BApplicObj < Core::ItemRef >
+	{
+	  typedef Bscript::BApplicObj< Core::ItemRef > base;
+	public:
+	  explicit EItemRefObjImp( Items::Item* item ) :
+		BApplicObj< Core::ItemRef >( &eitemrefobjimp_type, Core::ItemRef( item ) )
+	  {}
+
+	  virtual const char* typeOf() const;
+	  virtual int typeOfInt() const;
+	  virtual Bscript::BObjectImp* copy( ) const;
+	  virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex );
+	  virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false );
+	  virtual Bscript::BObjectRef get_member( const char* membername );
+	  virtual Bscript::BObjectRef get_member_id( const int id ); //id test
+	  virtual Bscript::BObjectRef set_member( const char* membername, Bscript::BObjectImp* value, bool copy );
+	  virtual Bscript::BObjectRef set_member_id( const int id, Bscript::BObjectImp* value, bool copy ); //id test
+
+	  virtual bool isTrue() const;
+	  virtual bool isEqual( const Bscript::BObjectImp& objimp ) const;
+	  virtual bool isLessThan( const Bscript::BObjectImp& objimp ) const;
+	};
+
+
+	class EUBoatRefObjImp : public Bscript::BApplicObj < ref_ptr<Multi::UBoat> >
+	{
+	  typedef BApplicObj< ref_ptr<Multi::UBoat> > base;
+	public:
+	  explicit EUBoatRefObjImp( Multi::UBoat* boat ) :
+		Bscript::BApplicObj< ref_ptr<Multi::UBoat> >( &euboatrefobjimp_type, ref_ptr<Multi::UBoat>( boat ) )
+	  {}
+
+	  virtual const char* typeOf() const;
+	  virtual int typeOfInt() const;
+	  virtual Bscript::BObjectImp* copy( ) const;
+	  virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex );
+	  virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false );
+	  virtual Bscript::BObjectRef get_member( const char* membername );
+	  virtual Bscript::BObjectRef get_member_id( const int id ); //id test
+	  virtual Bscript::BObjectRef set_member( const char* membername, Bscript::BObjectImp* value, bool copy );
+	  virtual Bscript::BObjectRef set_member_id( const int id, Bscript::BObjectImp* value, bool copy ); //id test
+
+	  virtual bool isTrue() const;
+	  virtual bool isEqual( const Bscript::BObjectImp& objimp ) const;
+	};
+
+
+	class EMultiRefObjImp : public Bscript::BApplicObj < ref_ptr<Multi::UMulti> >
+	{
+	  typedef Bscript::BApplicObj< ref_ptr<Multi::UMulti> > base;
+	public:
+	  explicit EMultiRefObjImp( Multi::UMulti* multi ) :
+		BApplicObj< ref_ptr<Multi::UMulti> >( &emultirefobjimp_type, ref_ptr<Multi::UMulti>( multi ) )
+	  {}
+
+	  virtual const char* typeOf() const;
+	  virtual int typeOfInt() const;
+	  virtual Bscript::BObjectImp* copy( ) const;
+	  virtual Bscript::BObjectRef get_member( const char* membername );
+	  virtual Bscript::BObjectRef get_member_id( const int id ); //id test
+	  virtual Bscript::BObjectRef set_member( const char* membername, Bscript::BObjectImp* value, bool copy );
+	  virtual Bscript::BObjectRef set_member_id( const int id, Bscript::BObjectImp* value, bool copy ); //test id
+	  virtual bool isTrue() const;
+	  virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex );
+	  virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false );
+	  virtual bool isEqual( const Bscript::BObjectImp& objimp ) const;
+	};
+
+	class ClientPtrHolder
+	{
+	public:
+	  explicit ClientPtrHolder( Core::ClientRef i_client ) : client( i_client ) {}
+	  Network::Client* operator->( ) { return client.get(); }
+	  const Network::Client* operator->( ) const { return client.get(); }
+	  /*bool operator!=(const ClientPtrHolder& a) const	{ return ConstPtr() != a.ConstPtr(); }
+	  bool operator==(const ClientPtrHolder& a) const	{ return ConstPtr() == a.ConstPtr(); }
+	  bool operator!=(const ClientPtrHolder a) const	{ return ConstPtr() != a.ConstPtr(); }
+	  bool operator==(const ClientPtrHolder a) const	{ return ConstPtr() == a.ConstPtr(); }*/
+
+	  Network::Client* Ptr( ) { return client.get( ); }
+	  const Network::Client* ConstPtr( ) const { return client.get( ); }
+	private:
+	  Core::ClientRef client;
+	};
+
+	class EClientRefObjImp : public Bscript::BApplicObj < ClientPtrHolder >
+	{
+	  typedef Bscript::BApplicObj< ClientPtrHolder > base;
+	public:
+	  explicit EClientRefObjImp( const ClientPtrHolder& client ) :
+		Bscript::BApplicObj< ClientPtrHolder >( &eclientrefobjimp_type, client )
+	  {}
+	  virtual ~EClientRefObjImp() {};
+
+
+	  virtual const char* typeOf() const;
+	  virtual int typeOfInt() const;
+	  virtual Bscript::BObjectImp* copy( ) const;
+	  virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex );
+	  virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false );
+	  virtual Bscript::BObjectRef get_member( const char* membername );
+	  virtual Bscript::BObjectRef get_member_id( const int id ); //id test
+	  virtual Bscript::BObjectRef set_member( const char* membername, Bscript::BObjectImp* value, bool copy );
+	  virtual Bscript::BObjectRef set_member_id( const int id, Bscript::BObjectImp* value, bool copy ); //id test
+
+	  virtual bool isTrue() const;
+	  virtual bool isEqual( const Bscript::BObjectImp& objimp ) const;
+	};
+
+	// EMenuObjImp defined on UOEMOD.CPP
+
+
+	class SpeechEvent : public Bscript::BStruct
+	{
+	public:
+	  SpeechEvent( Mobile::Character* speaker, const char* speech );
+	  SpeechEvent( Mobile::Character* speaker, const char* speech, const char* texttype ); //DAVE
+	};
+
+	class UnicodeSpeechEvent : public Bscript::BStruct
+	{
+	public:
+	  UnicodeSpeechEvent( Mobile::Character* speaker, const char* speech,
+						  const u16* wspeech, const char lang[4], Bscript::ObjArray* speechtokens = NULL );
+	  UnicodeSpeechEvent( Mobile::Character* speaker, const char* speech, const char* texttype,
+						  const u16* wspeech, const char lang[4], Bscript::ObjArray* speechtokens = NULL );
+	};
+
+	class DamageEvent : public Bscript::BStruct
+	{
+	public:
+	  DamageEvent( Mobile::Character* source, unsigned short damage );
+	};
+
+
+
+	class SourcedEvent : public Bscript::BStruct
+	{
+	public:
+	  SourcedEvent( Core::EVENTID type, Mobile::Character* source );
+	};
+
+	class EngageEvent : public SourcedEvent
+	{
+	public:
+	  explicit EngageEvent( Mobile::Character* engaged ) :
+		SourcedEvent( Core::EVID_ENGAGED, engaged )
+	  {};
+	};
+
+	class DisengageEvent : public SourcedEvent
+	{
+	public:
+	  explicit DisengageEvent( Mobile::Character* disengaged ) :
+		SourcedEvent( Core::EVID_DISENGAGED, disengaged )
+	  {};
+	};
+
+	class ItemGivenEvent : public SourcedEvent
+	{
+	public:
+	  ItemGivenEvent( Mobile::Character* chr_givenby, Items::Item* item_given, Core::NPC* chr_givento );
+	  virtual ~ItemGivenEvent();
+
+	private:
+	  Core::ItemRef item_;
+	  ref_ptr< Core::UContainer > cont_;
+	  Core::CharacterRef given_by_;
+	  Core::gameclock_t given_time_;
+	};
+  }
+}
 #endif // UOSCROBJ_H

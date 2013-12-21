@@ -12,7 +12,9 @@ Notes
 
 #include "bobject.h"
 #include <vector>
-
-typedef vector<BObjectRef> BObjectRefVec;
-
+namespace Pol {
+  namespace Bscript {
+	typedef vector<BObjectRef> BObjectRefVec;
+  }
+}
 #endif

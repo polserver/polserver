@@ -14,23 +14,25 @@ Notes
 
 #include "../bscript/bobject.h"
 #include "../clib/weakptr.h"
+namespace Pol {
+  namespace Core {
+	class UOExecutor;
 
-class UOExecutor;
-
-extern BApplicObjType scriptexobjimp_type;
-typedef weak_ptr<UOExecutor> ScriptExPtr;
-class ScriptExObjImp : public BApplicObj< ScriptExPtr >
-{
-    typedef BApplicObj< ScriptExPtr > base;
-public:
-    explicit ScriptExObjImp( UOExecutor* uoexec );
-    virtual const char* typeOf() const;
-	virtual int typeOfInt() const;
-    virtual BObjectImp* copy() const;
-    virtual BObjectImp* call_method( const char* methodname, Executor& ex );
-    virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin=false );
-    virtual BObjectRef get_member( const char* membername );
-    virtual BObjectRef get_member_id( const int id );
-};
-
+	extern Bscript::BApplicObjType scriptexobjimp_type;
+	typedef weak_ptr<UOExecutor> ScriptExPtr;
+	class ScriptExObjImp : public Bscript::BApplicObj< ScriptExPtr >
+	{
+	  typedef Bscript::BApplicObj< ScriptExPtr > base;
+	public:
+	  explicit ScriptExObjImp( UOExecutor* uoexec );
+	  virtual const char* typeOf() const;
+	  virtual int typeOfInt() const;
+	  virtual Bscript::BObjectImp* copy( ) const;
+	  virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex );
+	  virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false );
+	  virtual Bscript::BObjectRef get_member( const char* membername );
+	  virtual Bscript::BObjectRef get_member_id( const int id );
+	};
+  }
+}
 #endif

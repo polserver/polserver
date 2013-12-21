@@ -11,9 +11,9 @@ Notes
 #define POLVER_H
 
 #include "../clib/progver.h"
-
-extern const char polverstr[];
-extern const char polbuildtag[];
-extern unsigned int polver;
-
+namespace Pol {
+  extern const char polverstr[];
+  extern const char polbuildtag[];
+  extern unsigned int polver;
+}
 #endif

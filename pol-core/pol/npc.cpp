@@ -85,6 +85,9 @@ Notes
 #include "item/weapon.h"
 #include "wrldsize.h"
 #include "multi/house.h"
+#include "mdelta.h"
+#include "uofile.h"
+#include "uworld.h"
 
 /* An area definition is as follows:
    pt: (x,y)
@@ -93,1056 +96,1049 @@ Notes
    So, format is: [(x1,y1)-(x2,y2)],[],[],...
    Well, right now, the format is x1 y1 x2 y2 ... (ick)
 */
-
-NPC::NPC( u32 objtype, const ConfigElem& elem ) :
-    Character(objtype, CLASS_NPC),
-	damaged_sound(0),
-	use_adjustments(true),
-	run_speed(dexterity()),
-	ex(NULL),
-	give_item_ex(NULL),
-    script(""),
-    npc_ar_(0),
-    master_(NULL),
-    template_( find_npc_template( elem ) ),
-    speech_color_(DEFAULT_TEXT_COLOR),
-    speech_font_(DEFAULT_TEXT_FONT)
-{
-	connected = 1;
-    logged_in = true;
-    anchor.enabled = false;
-	element_resist_.fire=0;
-	element_resist_.cold=0;
-	element_resist_.poison=0;
-	element_resist_.energy=0;
-	element_resist_.physical=0;
-	element_damage_.fire=0;
-	element_damage_.cold=0;
-	element_damage_.poison=0;
-	element_damage_.energy=0;
-	element_damage_.physical=0;
-    ++npc_count;
-}
- 
-NPC::~NPC()
-{
-	stop_scripts();
-    --npc_count;
-}
-
-void NPC::stop_scripts()
-{
-    if (ex != NULL)
+namespace Pol {
+  namespace Mobile {
+    unsigned short calc_thru_damage( double damage, unsigned short ar );
+  }
+  namespace Core {
+	NPC::NPC( u32 objtype, const Clib::ConfigElem& elem ) :
+	  Character( objtype, CLASS_NPC ),
+	  damaged_sound( 0 ),
+	  use_adjustments( true ),
+	  run_speed( dexterity() ),
+	  ex( NULL ),
+	  give_item_ex( NULL ),
+	  script( "" ),
+	  npc_ar_( 0 ),
+	  master_( NULL ),
+	  template_( find_npc_template( elem ) ),
+	  speech_color_( DEFAULT_TEXT_COLOR ),
+	  speech_font_( DEFAULT_TEXT_FONT )
 	{
+	  connected = 1;
+	  logged_in = true;
+	  anchor.enabled = false;
+	  element_resist_.fire = 0;
+	  element_resist_.cold = 0;
+	  element_resist_.poison = 0;
+	  element_resist_.energy = 0;
+	  element_resist_.physical = 0;
+	  element_damage_.fire = 0;
+	  element_damage_.cold = 0;
+	  element_damage_.poison = 0;
+	  element_damage_.energy = 0;
+	  element_damage_.physical = 0;
+	  ++npc_count;
+	}
+
+	NPC::~NPC()
+	{
+	  stop_scripts();
+	  --npc_count;
+	}
+
+	void NPC::stop_scripts()
+	{
+	  if ( ex != NULL )
+	  {
 		// this will force the execution engine to stop running this script immediately
 		// dont delete the executor here, since it could currently run
-		ex->seterror(true);
+		ex->seterror( true );
 		ex->os_module->revive();
-		if (ex->os_module->in_debugger_holdlist())
-			ex->os_module->revive_debugged();
+		if ( ex->os_module->in_debugger_holdlist() )
+		  ex->os_module->revive_debugged();
+	  }
 	}
-}
 
-void NPC::destroy()
-{
-   // stop_scripts();
-    wornitems.destroy_contents();
-	if ( registered_house > 0 )
+	void NPC::destroy()
 	{
-		UMulti* multi = system_find_multi(registered_house);
-		if(multi != NULL)
+	  // stop_scripts();
+	  wornitems.destroy_contents();
+	  if ( registered_house > 0 )
+	  {
+		Multi::UMulti* multi = system_find_multi( registered_house );
+		if ( multi != NULL )
 		{
-			UHouse* house = multi->as_house();
-			if(house != NULL)
-				house->unregister_object((UObject*)this);
+          Multi::UHouse* house = multi->as_house();
+		  if ( house != NULL )
+			house->unregister_object( ( UObject* )this );
 		}
 		registered_house = 0;
+	  }
+	  base::destroy();
 	}
-    base::destroy();
-}
 
-const char* NPC::classname() const
-{
-    return "NPC";
-}
-#include "mdelta.h"
-#include "uofile.h"
-#include "uworld.h"
-
-// 8-25-05 Austin
-// Moved unsigned short pol_distance( unsigned short x1, unsigned short y1, 
-//									unsigned short x2, unsigned short y2 )
-// to ufunc.cpp
-
-bool NPC::anchor_allows_move( UFACING dir ) const
-{
-    unsigned short newx = x + move_delta[ dir ].xmove;
-    unsigned short newy = y + move_delta[ dir ].ymove;
-
-    if (anchor.enabled && !warmode)
-    {
-        unsigned short curdist = pol_distance( x,    y,    anchor.x, anchor.y );
-        unsigned short newdist = pol_distance( newx, newy, anchor.x, anchor.y );
-        if (newdist > curdist) // if we're moving further away, see if we can
-        {
-            if (newdist > anchor.dstart)
-            {
-                int perc = 100 - (newdist-anchor.dstart)*anchor.psub;
-                if (perc < 5)
-                    perc = 5;
-                if (random_int( 100 ) > perc)
-                    return false;
-            }
-        }
-    }
-    return true;
-}
-
-bool NPC::could_move( UFACING dir ) const
-{
-    short newz;
-    UMulti* supporting_multi;
-    Item* walkon_item;
-	// Check for diagonal move - use Nandos change from charactr.cpp -- OWHorus (2011-04-26)
-	if (dir & 1) // check if diagonal movement is allowed -- Nando (2009-02-26)
+	const char* NPC::classname() const
 	{
-		u8 tmp_facing = (dir+1) & 0x7;
-		unsigned short tmp_newx = x + move_delta[ tmp_facing ].xmove;
-		unsigned short tmp_newy = y + move_delta[ tmp_facing ].ymove;
+	  return "NPC";
+	}
+
+
+	// 8-25-05 Austin
+	// Moved unsigned short pol_distance( unsigned short x1, unsigned short y1, 
+	//									unsigned short x2, unsigned short y2 )
+	// to ufunc.cpp
+
+	bool NPC::anchor_allows_move( UFACING dir ) const
+	{
+	  unsigned short newx = x + move_delta[dir].xmove;
+	  unsigned short newy = y + move_delta[dir].ymove;
+
+	  if ( anchor.enabled && !warmode )
+	  {
+		unsigned short curdist = pol_distance( x, y, anchor.x, anchor.y );
+		unsigned short newdist = pol_distance( newx, newy, anchor.x, anchor.y );
+		if ( newdist > curdist ) // if we're moving further away, see if we can
+		{
+		  if ( newdist > anchor.dstart )
+		  {
+			int perc = 100 - ( newdist - anchor.dstart )*anchor.psub;
+			if ( perc < 5 )
+			  perc = 5;
+			if ( random_int( 100 ) > perc )
+			  return false;
+		  }
+		}
+	  }
+	  return true;
+	}
+
+	bool NPC::could_move( UFACING dir ) const
+	{
+	  short newz;
+	  Multi::UMulti* supporting_multi;
+	  Items::Item* walkon_item;
+	  // Check for diagonal move - use Nandos change from charactr.cpp -- OWHorus (2011-04-26)
+	  if ( dir & 1 ) // check if diagonal movement is allowed -- Nando (2009-02-26)
+	  {
+		u8 tmp_facing = ( dir + 1 ) & 0x7;
+		unsigned short tmp_newx = x + move_delta[tmp_facing].xmove;
+		unsigned short tmp_newy = y + move_delta[tmp_facing].ymove;
 
 		// needs to save because if only one direction is blocked, it shouldn't block ;)
 		short current_boost = gradual_boost;
-		bool walk1 = realm->walkheight(this, tmp_newx, tmp_newy, z, &newz, &supporting_multi, &walkon_item, &current_boost );
+		bool walk1 = realm->walkheight( this, tmp_newx, tmp_newy, z, &newz, &supporting_multi, &walkon_item, &current_boost );
 
-		tmp_facing = (dir-1) & 0x7;
-		tmp_newx = x + move_delta[ tmp_facing ].xmove;
-		tmp_newy = y + move_delta[ tmp_facing ].ymove;
+		tmp_facing = ( dir - 1 ) & 0x7;
+		tmp_newx = x + move_delta[tmp_facing].xmove;
+		tmp_newy = y + move_delta[tmp_facing].ymove;
 		current_boost = gradual_boost;
-		if (!walk1 && !realm->walkheight(this, tmp_newx, tmp_newy, z, &newz, &supporting_multi, &walkon_item, &current_boost ))
-			return false;
+		if ( !walk1 && !realm->walkheight( this, tmp_newx, tmp_newy, z, &newz, &supporting_multi, &walkon_item, &current_boost ) )
+		  return false;
+	  }
+	  unsigned short newx = x + move_delta[dir].xmove;
+	  unsigned short newy = y + move_delta[dir].ymove;
+	  short current_boost = gradual_boost;
+	  return realm->walkheight( this, newx, newy, z, &newz, &supporting_multi, &walkon_item, &current_boost ) &&
+		!npc_path_blocked( dir ) &&
+		anchor_allows_move( dir );
 	}
-    unsigned short newx = x + move_delta[ dir ].xmove;
-	unsigned short newy = y + move_delta[ dir ].ymove;
-	short current_boost = gradual_boost;
-    return realm->walkheight( this, newx, newy, z, &newz, &supporting_multi, &walkon_item, &current_boost) &&
-           !npc_path_blocked( dir ) &&
-           anchor_allows_move( dir );
-}
 
-bool NPC::npc_path_blocked( UFACING dir ) const
-{
-	if (cached_settings.freemove || ( !this->master() && !ssopt.mobiles_block_npc_movement ) )
+	bool NPC::npc_path_blocked( UFACING dir ) const
+	{
+	  if ( cached_settings.freemove || ( !this->master() && !ssopt.mobiles_block_npc_movement ) )
 		return false;
 
-    unsigned short newx = x + move_delta[ dir ].xmove;
-    unsigned short newy = y + move_delta[ dir ].ymove;
-        
-    unsigned short wx, wy;
-    zone_convert_clip( newx, newy, realm, wx, wy );
+	  unsigned short newx = x + move_delta[dir].xmove;
+	  unsigned short newy = y + move_delta[dir].ymove;
 
-    ZoneCharacters& wchr = realm->zone[wx][wy].characters;
-    for( ZoneCharacters::iterator itr = wchr.begin(), end = wchr.end(); itr != end; ++itr )
-    {
-        Character* chr = *itr;
+	  unsigned short wx, wy;
+	  zone_convert_clip( newx, newy, realm, wx, wy );
+
+	  ZoneCharacters& wchr = realm->zone[wx][wy].characters;
+	  for ( ZoneCharacters::iterator itr = wchr.begin(), end = wchr.end(); itr != end; ++itr )
+	  {
+		Character* chr = *itr;
 
 		// First check if there really is a character blocking
-        if (chr->x == newx &&
-            chr->y == newy &&
-            chr->z >= z-10 && chr->z <= z+10 ) 
+		if ( chr->x == newx &&
+			 chr->y == newy &&
+			 chr->z >= z - 10 && chr->z <= z + 10 )
 		{
-			
-			// Check first with the ssopt false to now allow npcs of same master running on top of each other
-			if ( !ssopt.mobiles_block_npc_movement )
-			{
-				NPC* npc = static_cast<NPC*>(chr);
-				if ( ( chr->acct == NULL && this->master() == npc->master() ) && !chr->dead() && is_visible_to_me(chr) )
-					return true;
-			}
-			else
-			{
-				if ( !chr->dead() && is_visible_to_me(chr) )
-					return true;
-			}
-        }
-    }
-    return false;
-}
 
-void NPC::printOn( StreamWriter& sw ) const
-{ 
-    sw() << classname() << " " << template_name << pf_endl;
-    sw() << "{" << pf_endl;
-    printProperties( sw );
-    sw() << "}" << pf_endl;
-    sw() << pf_endl;
-	sw.flush();
-}
-
-void NPC::printSelfOn( StreamWriter& sw ) const
-{
-	printOn(sw);
-}
-
-void NPC::printProperties( StreamWriter& sw ) const
-{
-	using namespace fmt;
-
-    base::printProperties( sw );
-
-	if (registered_house)
-		sw() << "\tRegisteredHouse\t0x" << hex(registered_house) << pf_endl;
-
-    if (npc_ar_)
-        sw() << "\tAR\t" << npc_ar_ << pf_endl;
-
-    if (script != "")
-        sw() << "\tscript\t" << script << pf_endl;
-
-    if (master_.get() != NULL)
-        sw() << "\tmaster\t" << master_->serial << pf_endl;
-
-    if (speech_color_ != DEFAULT_TEXT_COLOR)
-        sw() << "\tSpeechColor\t" << speech_color_ << pf_endl;
-
-    if (speech_font_ != DEFAULT_TEXT_FONT)
-        sw() << "\tSpeechFont\t" << speech_font_ << pf_endl;
-
-	if (run_speed != dexterity())
-        sw() << "\tRunSpeed\t" << run_speed << pf_endl;
-
-	if (use_adjustments != true)
-        sw() << "\tUseAdjustments\t" << use_adjustments << pf_endl;
-
-	if (element_resist_.fire != 0)
-		sw() << "\tFireResist\t" << static_cast<int>(element_resist_.fire) << pf_endl;
-	if (element_resist_.cold  != 0)
-		sw() << "\tColdResist\t" << static_cast<int>(element_resist_.cold) << pf_endl;
-	if (element_resist_.energy != 0)
-		sw() << "\tEnergyResist\t" << static_cast<int>(element_resist_.energy) << pf_endl;
-	if (element_resist_.poison != 0)
-		sw() << "\tPoisonResist\t" << static_cast<int>(element_resist_.poison) << pf_endl;
-	if (element_resist_.physical != 0)
-		sw() << "\tPhysicalResist\t" << static_cast<int>(element_resist_.physical) << pf_endl;
-
-	if (element_damage_.fire != 0)
-		sw() << "\tFireDamage\t" << static_cast<int>(element_damage_.fire) << pf_endl;
-	if (element_damage_.cold  != 0)
-		sw() << "\tColdDamage\t" << static_cast<int>(element_damage_.cold) << pf_endl;
-	if (element_damage_.energy != 0)
-		sw() << "\tEnergyDamage\t" << static_cast<int>(element_damage_.energy) << pf_endl;
-	if (element_damage_.poison != 0)
-		sw() << "\tPoisonDamage\t" << static_cast<int>(element_damage_.poison) << pf_endl;
-	if (element_damage_.physical != 0)
-		sw() << "\tPhysicalDamage\t" << static_cast<int>(element_damage_.physical) << pf_endl;
-}
-
-void NPC::printDebugProperties( StreamWriter& sw ) const
-{
-    base::printDebugProperties( sw );
-    sw() << "# template: " << template_.name << pf_endl;
-    if (anchor.enabled)
-    {
-        sw() << "# anchor: x=" << anchor.x 
-           << " y=" << anchor.y 
-           << " dstart=" << anchor.dstart 
-           << " psub=" << anchor.psub << pf_endl;
-    }
-}
-
-void NPC::readNpcProperties( ConfigElem& elem )
-{
-	registered_house = elem.remove_ulong( "REGISTEREDHOUSE", 0 );
-
-    UWeapon* wpn = find_intrinsic_weapon( elem.rest() );
-    if (wpn == NULL)
-    {
-        wpn = create_intrinsic_weapon_from_npctemplate( elem, template_.pkg );
-    }
-    if ( wpn != NULL )
-        weapon = wpn;
-    
-	// Load the base, equiping items etc will refresh_ar() to update for reals.
-	for (int i = 0; i < 6; i++)
-	{
-		loadResistances( i, elem);
-		if ( i > 0)
-			loadDamages( i, elem);
-	}
-
-	//dave 3/19/3, read templatename only if empty
-	if(template_name.empty())
-	{
-		template_name = elem.rest();
-    
-		if (template_name == "")
-		{
-			string tmp;
-			if (getprop( "template", tmp))
-			{
-				template_name = tmp.c_str()+1; 
-			}
+		  // Check first with the ssopt false to now allow npcs of same master running on top of each other
+		  if ( !ssopt.mobiles_block_npc_movement )
+		  {
+			NPC* npc = static_cast<NPC*>( chr );
+			if ( ( chr->acct == NULL && this->master() == npc->master() ) && !chr->dead() && is_visible_to_me( chr ) )
+			  return true;
+		  }
+		  else
+		  {
+			if ( !chr->dead() && is_visible_to_me( chr ) )
+			  return true;
+		  }
 		}
+	  }
+	  return false;
 	}
 
-    unsigned int master_serial;
-    if (elem.remove_prop( "MASTER", &master_serial ))
-    {
-		Character* chr = system_find_mobile(  master_serial );
-        if (chr != NULL)
-            master_.set( chr );
-    }
+	void NPC::printOn( Clib::StreamWriter& sw ) const
+	{
+	  sw() << classname() << " " << template_name << pf_endl;
+	  sw() << "{" << pf_endl;
+	  printProperties( sw );
+	  sw() << "}" << pf_endl;
+	  sw() << pf_endl;
+	  sw.flush();
+	}
 
-    script = elem.remove_string( "script", "" );
-    if (!script.empty())
-        start_script();
+    void NPC::printSelfOn( Clib::StreamWriter& sw ) const
+	{
+	  printOn( sw );
+	}
 
-    speech_color_ = elem.remove_ushort( "SpeechColor", DEFAULT_TEXT_COLOR );
-    speech_font_ = elem.remove_ushort( "SpeechFont", DEFAULT_TEXT_FONT );
-	saveonexit_ = elem.remove_bool( "SaveOnExit", true );
+    void NPC::printProperties( Clib::StreamWriter& sw ) const
+	{
+	  using namespace fmt;
 
-	use_adjustments = elem.remove_bool( "UseAdjustments", true );
-	run_speed = elem.remove_ushort( "RunSpeed", dexterity() );
+	  base::printProperties( sw );
 
-	damaged_sound = elem.remove_ushort("DamagedSound", 0);
-}
+	  if ( registered_house )
+		sw() << "\tRegisteredHouse\t0x" << hex( registered_house ) << pf_endl;
 
-// This now handles all resistances, including AR to simplify the code.
-void NPC::loadResistances( int resistanceType, ConfigElem& elem )
-{
-    string tmp;
-    bool passed = false;
-    // 0 = AR
-    // 1 = Fire
-    // 2 = Cold
-    // 3 = Energy
-    // 4 = Poison
-    // 5 = Physical
-    switch(resistanceType)
-    {
-        case 0: passed = elem.remove_prop( "AR", &tmp ); break;
-        case 1: passed = elem.remove_prop( "FIRERESIST", &tmp ); break;
-        case 2: passed = elem.remove_prop( "COLDRESIST", &tmp ); break;
-        case 3: passed = elem.remove_prop( "ENERGYRESIST", &tmp ); break;
-        case 4: passed = elem.remove_prop( "POISONRESIST", &tmp ); break;
-        case 5: passed = elem.remove_prop( "PHYSICALRESIST", &tmp ); break;
-    }
+	  if ( npc_ar_ )
+		sw() << "\tAR\t" << npc_ar_ << pf_endl;
 
-    if (passed)
-    {
-        Dice dice;
-        string errmsg;
-        if (!dice.load( tmp.c_str(), &errmsg ))
-        {
-            switch(resistanceType)
-            {
-                case 0: npc_ar_ = static_cast<u16>(atoi(tmp.c_str())); break;
-                case 1: element_resist_.fire = element_resist.fire = static_cast<s16>(atoi(tmp.c_str())); break;
-                case 2: element_resist_.cold = element_resist.cold = static_cast<s16>(atoi(tmp.c_str())); break;
-                case 3: element_resist_.energy = element_resist.energy = static_cast<s16>(atoi(tmp.c_str())); break;
-                case 4: element_resist_.poison = element_resist.poison = static_cast<s16>(atoi(tmp.c_str())); break;
-                case 5: element_resist_.physical = element_resist.physical = static_cast<s16>(atoi(tmp.c_str())); break;
-            }
-        }
-        else
-        {
-            switch(resistanceType)
-            {
-                case 0: npc_ar_ = dice.roll(); break;
-                case 1: element_resist_.fire = element_resist.fire = dice.roll(); break;
-                case 2: element_resist_.cold = element_resist.cold = dice.roll(); break;
-                case 3: element_resist_.energy = element_resist.energy = dice.roll(); break;
-                case 4: element_resist_.poison = element_resist.poison = dice.roll(); break;
-                case 5: element_resist_.physical = element_resist.physical = dice.roll(); break;
-            }
-        }
-    }
-    else
-    {
-        switch(resistanceType)
-        {
-            case 0: npc_ar_ = 0; break;
-            case 1: element_resist_.fire = element_resist.fire = 0; break;
-            case 2: element_resist_.cold = element_resist.cold = 0; break;
-            case 3: element_resist_.energy = element_resist.energy = 0; break;
-            case 4: element_resist_.poison = element_resist.poison = 0; break;
-            case 5: element_resist_.physical = element_resist.physical = 0; break;
-        }
-    }
+	  if ( script != "" )
+		sw() << "\tscript\t" << script << pf_endl;
 
-    switch(resistanceType)
-    {
-        case 0: break; // ArMod isnt saved
-        case 1: element_resist.fire += element_resist_mod.fire; break;
-        case 2: element_resist.cold += element_resist_mod.cold; break;
-        case 3: element_resist.energy += element_resist_mod.energy; break;
-        case 4: element_resist.poison += element_resist_mod.poison; break;
-        case 5: element_resist.physical += element_resist_mod.physical; break;
-    }
-}
+	  if ( master_.get() != NULL )
+		sw() << "\tmaster\t" << master_->serial << pf_endl;
 
-// This now handles all resistances, including AR to simplify the code.
-void NPC::loadDamages( int damageType, ConfigElem& elem )
-{
-    string tmp;
-    bool passed = false;
-    // 1 = Fire
-    // 2 = Cold
-    // 3 = Energy
-    // 4 = Poison
-    // 5 = Physical
-    switch(damageType)
-    {
-        case 1: passed = elem.remove_prop( "FIREDAMAGE", &tmp ); break;
-        case 2: passed = elem.remove_prop( "COLDDAMAGE", &tmp ); break;
-        case 3: passed = elem.remove_prop( "ENERGYDAMAGE", &tmp ); break;
-        case 4: passed = elem.remove_prop( "POISONDAMAGE", &tmp ); break;
-        case 5: passed = elem.remove_prop( "PHYSICALDAMAGE", &tmp ); break;
-    }
+	  if ( speech_color_ != DEFAULT_TEXT_COLOR )
+		sw() << "\tSpeechColor\t" << speech_color_ << pf_endl;
 
-    if (passed)
-    {
-        Dice dice;
-        string errmsg;
-        if (!dice.load( tmp.c_str(), &errmsg ))
-        {
-            switch(damageType)
-            {
-                case 1: element_damage_.fire = element_damage.fire = static_cast<s16>(atoi(tmp.c_str())); break;
-                case 2: element_damage_.cold = element_damage.cold = static_cast<s16>(atoi(tmp.c_str())); break;
-                case 3: element_damage_.energy = element_damage.energy = static_cast<s16>(atoi(tmp.c_str())); break;
-                case 4: element_damage_.poison = element_damage.poison = static_cast<s16>(atoi(tmp.c_str())); break;
-                case 5: element_damage_.physical = element_damage.physical = static_cast<s16>(atoi(tmp.c_str())); break;
-            }
-        }
-        else
-        {
-            switch(damageType)
-            {
-                case 1: element_damage_.fire = element_damage.fire = dice.roll(); break;
-                case 2: element_damage_.cold = element_damage.cold = dice.roll(); break;
-                case 3: element_damage_.energy = element_damage.energy = dice.roll(); break;
-                case 4: element_damage_.poison = element_damage.poison = dice.roll(); break;
-                case 5: element_damage_.physical = element_damage.physical = dice.roll(); break;
-            }
-        }
-    }
-    else
-    {
-        switch(damageType)
-        {
-            case 1: element_damage_.fire = element_damage.fire = 0; break;
-            case 2: element_damage_.cold = element_damage.cold = 0; break;
-            case 3: element_damage_.energy = element_damage.energy = 0; break;
-            case 4: element_damage_.poison = element_damage.poison = 0; break;
-            case 5: element_damage_.physical = element_damage.physical = 0; break;
-        }
-    }
+	  if ( speech_font_ != DEFAULT_TEXT_FONT )
+		sw() << "\tSpeechFont\t" << speech_font_ << pf_endl;
 
-    switch(damageType)
-    {
-        case 1: element_damage.fire += element_damage_mod.fire; break;
-        case 2: element_damage.cold += element_damage_mod.cold; break;
-        case 3: element_damage.energy += element_damage_mod.energy; break;
-        case 4: element_damage.poison += element_damage_mod.poison; break;
-        case 5: element_damage.physical += element_damage_mod.physical; break;
-    }
-}
+	  if ( run_speed != dexterity() )
+		sw() << "\tRunSpeed\t" << run_speed << pf_endl;
 
-void NPC::readProperties( ConfigElem& elem )
-{
-	//3/18/3 dave copied this npctemplate code from readNpcProperties, because base::readProperties 
-	//will call the exported vital functions before npctemplate is set (distro uses npctemplate in the exported funcs).
-    template_name = elem.rest();
-    
-    if (template_name == "")
-    {
-        string tmp;
-        if (getprop( "template", tmp))
-        {
-            template_name = tmp.c_str()+1; 
-        }
-    }
-    base::readProperties( elem );
-    readNpcProperties( elem );
-}
+	  if ( use_adjustments != true )
+		sw() << "\tUseAdjustments\t" << use_adjustments << pf_endl;
 
-void NPC::readNewNpcAttributes( ConfigElem& elem )
-{
-    string diestring;
-    Dice dice;
-    string errmsg;
+	  if ( element_resist_.fire != 0 )
+		sw() << "\tFireResist\t" << static_cast<int>( element_resist_.fire ) << pf_endl;
+	  if ( element_resist_.cold != 0 )
+		sw() << "\tColdResist\t" << static_cast<int>( element_resist_.cold ) << pf_endl;
+	  if ( element_resist_.energy != 0 )
+		sw() << "\tEnergyResist\t" << static_cast<int>( element_resist_.energy ) << pf_endl;
+	  if ( element_resist_.poison != 0 )
+		sw() << "\tPoisonResist\t" << static_cast<int>( element_resist_.poison ) << pf_endl;
+	  if ( element_resist_.physical != 0 )
+		sw() << "\tPhysicalResist\t" << static_cast<int>( element_resist_.physical ) << pf_endl;
 
-    for( Attribute* pAttr = FindAttribute(0); pAttr; pAttr = pAttr->next )
-    {
-        AttributeValue& av = attribute(pAttr->attrid);
-        for( unsigned i = 0; i < pAttr->aliases.size(); ++i )
-        {
-            if (elem.remove_prop( pAttr->aliases[i].c_str(), &diestring ))
-            {
-                if (!dice.load( diestring.c_str(), &errmsg ) )
-                {
-                    elem.throw_error( "Error reading Attribute "
-                                + pAttr->name +
-                                ": " + errmsg );
-                }
-                int base = dice.roll() * 10;
-                if (base > static_cast<int>(ATTRIBUTE_MAX_BASE))
-                    base = ATTRIBUTE_MAX_BASE;
+	  if ( element_damage_.fire != 0 )
+		sw() << "\tFireDamage\t" << static_cast<int>( element_damage_.fire ) << pf_endl;
+	  if ( element_damage_.cold != 0 )
+		sw() << "\tColdDamage\t" << static_cast<int>( element_damage_.cold ) << pf_endl;
+	  if ( element_damage_.energy != 0 )
+		sw() << "\tEnergyDamage\t" << static_cast<int>( element_damage_.energy ) << pf_endl;
+	  if ( element_damage_.poison != 0 )
+		sw() << "\tPoisonDamage\t" << static_cast<int>( element_damage_.poison ) << pf_endl;
+	  if ( element_damage_.physical != 0 )
+		sw() << "\tPhysicalDamage\t" << static_cast<int>( element_damage_.physical ) << pf_endl;
+	}
 
-                av.base( static_cast<unsigned short>(base) );
+    void NPC::printDebugProperties( Clib::StreamWriter& sw ) const
+	{
+	  base::printDebugProperties( sw );
+	  sw() << "# template: " << template_.name << pf_endl;
+	  if ( anchor.enabled )
+	  {
+		sw() << "# anchor: x=" << anchor.x
+		  << " y=" << anchor.y
+		  << " dstart=" << anchor.dstart
+		  << " psub=" << anchor.psub << pf_endl;
+	  }
+	}
 
-                break;
-            }
-        }
-    }
-}
+    void NPC::readNpcProperties( Clib::ConfigElem& elem )
+	{
+	  registered_house = elem.remove_ulong( "REGISTEREDHOUSE", 0 );
 
-void NPC::readPropertiesForNewNPC( ConfigElem& elem )
-{
-    readCommonProperties( elem );
-    readNewNpcAttributes( elem );
-    readNpcProperties( elem );
-    calc_vital_stuff();
-    set_vitals_to_maximum();
+	  Items::UWeapon* wpn = Items::find_intrinsic_weapon( elem.rest() );
+	  if ( wpn == NULL )
+	  {
+		wpn = Items::create_intrinsic_weapon_from_npctemplate( elem, template_.pkg );
+	  }
+	  if ( wpn != NULL )
+		weapon = wpn;
 
-//    readNpcProperties( elem );
-}
+	  // Load the base, equiping items etc will refresh_ar() to update for reals.
+	  for ( int i = 0; i < 6; i++ )
+	  {
+		loadResistances( i, elem );
+		if ( i > 0 )
+		  loadDamages( i, elem );
+	  }
 
-void NPC::restart_script()
-{
-    if (ex != NULL)
-    {
-        ex->seterror( true );
+	  //dave 3/19/3, read templatename only if empty
+	  if ( template_name.empty() )
+	  {
+		template_name = elem.rest();
+
+		if ( template_name == "" )
+		{
+		  string tmp;
+		  if ( getprop( "template", tmp ) )
+		  {
+			template_name = tmp.c_str() + 1;
+		  }
+		}
+	  }
+
+	  unsigned int master_serial;
+	  if ( elem.remove_prop( "MASTER", &master_serial ) )
+	  {
+		Character* chr = system_find_mobile( master_serial );
+		if ( chr != NULL )
+		  master_.set( chr );
+	  }
+
+	  script = elem.remove_string( "script", "" );
+	  if ( !script.empty() )
+		start_script();
+
+	  speech_color_ = elem.remove_ushort( "SpeechColor", DEFAULT_TEXT_COLOR );
+	  speech_font_ = elem.remove_ushort( "SpeechFont", DEFAULT_TEXT_FONT );
+	  saveonexit_ = elem.remove_bool( "SaveOnExit", true );
+
+	  use_adjustments = elem.remove_bool( "UseAdjustments", true );
+	  run_speed = elem.remove_ushort( "RunSpeed", dexterity() );
+
+	  damaged_sound = elem.remove_ushort( "DamagedSound", 0 );
+	}
+
+	// This now handles all resistances, including AR to simplify the code.
+    void NPC::loadResistances( int resistanceType, Clib::ConfigElem& elem )
+	{
+	  string tmp;
+	  bool passed = false;
+	  // 0 = AR
+	  // 1 = Fire
+	  // 2 = Cold
+	  // 3 = Energy
+	  // 4 = Poison
+	  // 5 = Physical
+	  switch ( resistanceType )
+	  {
+		case 0: passed = elem.remove_prop( "AR", &tmp ); break;
+		case 1: passed = elem.remove_prop( "FIRERESIST", &tmp ); break;
+		case 2: passed = elem.remove_prop( "COLDRESIST", &tmp ); break;
+		case 3: passed = elem.remove_prop( "ENERGYRESIST", &tmp ); break;
+		case 4: passed = elem.remove_prop( "POISONRESIST", &tmp ); break;
+		case 5: passed = elem.remove_prop( "PHYSICALRESIST", &tmp ); break;
+	  }
+
+	  if ( passed )
+	  {
+		Dice dice;
+		string errmsg;
+		if ( !dice.load( tmp.c_str(), &errmsg ) )
+		{
+		  switch ( resistanceType )
+		  {
+			case 0: npc_ar_ = static_cast<u16>( atoi( tmp.c_str() ) ); break;
+			case 1: element_resist_.fire = element_resist.fire = static_cast<s16>( atoi( tmp.c_str() ) ); break;
+			case 2: element_resist_.cold = element_resist.cold = static_cast<s16>( atoi( tmp.c_str() ) ); break;
+			case 3: element_resist_.energy = element_resist.energy = static_cast<s16>( atoi( tmp.c_str() ) ); break;
+			case 4: element_resist_.poison = element_resist.poison = static_cast<s16>( atoi( tmp.c_str() ) ); break;
+			case 5: element_resist_.physical = element_resist.physical = static_cast<s16>( atoi( tmp.c_str() ) ); break;
+		  }
+		}
+		else
+		{
+		  switch ( resistanceType )
+		  {
+			case 0: npc_ar_ = dice.roll(); break;
+			case 1: element_resist_.fire = element_resist.fire = dice.roll(); break;
+			case 2: element_resist_.cold = element_resist.cold = dice.roll(); break;
+			case 3: element_resist_.energy = element_resist.energy = dice.roll(); break;
+			case 4: element_resist_.poison = element_resist.poison = dice.roll(); break;
+			case 5: element_resist_.physical = element_resist.physical = dice.roll(); break;
+		  }
+		}
+	  }
+	  else
+	  {
+		switch ( resistanceType )
+		{
+		  case 0: npc_ar_ = 0; break;
+		  case 1: element_resist_.fire = element_resist.fire = 0; break;
+		  case 2: element_resist_.cold = element_resist.cold = 0; break;
+		  case 3: element_resist_.energy = element_resist.energy = 0; break;
+		  case 4: element_resist_.poison = element_resist.poison = 0; break;
+		  case 5: element_resist_.physical = element_resist.physical = 0; break;
+		}
+	  }
+
+	  switch ( resistanceType )
+	  {
+		case 0: break; // ArMod isnt saved
+		case 1: element_resist.fire += element_resist_mod.fire; break;
+		case 2: element_resist.cold += element_resist_mod.cold; break;
+		case 3: element_resist.energy += element_resist_mod.energy; break;
+		case 4: element_resist.poison += element_resist_mod.poison; break;
+		case 5: element_resist.physical += element_resist_mod.physical; break;
+	  }
+	}
+
+	// This now handles all resistances, including AR to simplify the code.
+    void NPC::loadDamages( int damageType, Clib::ConfigElem& elem )
+	{
+	  string tmp;
+	  bool passed = false;
+	  // 1 = Fire
+	  // 2 = Cold
+	  // 3 = Energy
+	  // 4 = Poison
+	  // 5 = Physical
+	  switch ( damageType )
+	  {
+		case 1: passed = elem.remove_prop( "FIREDAMAGE", &tmp ); break;
+		case 2: passed = elem.remove_prop( "COLDDAMAGE", &tmp ); break;
+		case 3: passed = elem.remove_prop( "ENERGYDAMAGE", &tmp ); break;
+		case 4: passed = elem.remove_prop( "POISONDAMAGE", &tmp ); break;
+		case 5: passed = elem.remove_prop( "PHYSICALDAMAGE", &tmp ); break;
+	  }
+
+	  if ( passed )
+	  {
+		Dice dice;
+		string errmsg;
+		if ( !dice.load( tmp.c_str(), &errmsg ) )
+		{
+		  switch ( damageType )
+		  {
+			case 1: element_damage_.fire = element_damage.fire = static_cast<s16>( atoi( tmp.c_str() ) ); break;
+			case 2: element_damage_.cold = element_damage.cold = static_cast<s16>( atoi( tmp.c_str() ) ); break;
+			case 3: element_damage_.energy = element_damage.energy = static_cast<s16>( atoi( tmp.c_str() ) ); break;
+			case 4: element_damage_.poison = element_damage.poison = static_cast<s16>( atoi( tmp.c_str() ) ); break;
+			case 5: element_damage_.physical = element_damage.physical = static_cast<s16>( atoi( tmp.c_str() ) ); break;
+		  }
+		}
+		else
+		{
+		  switch ( damageType )
+		  {
+			case 1: element_damage_.fire = element_damage.fire = dice.roll(); break;
+			case 2: element_damage_.cold = element_damage.cold = dice.roll(); break;
+			case 3: element_damage_.energy = element_damage.energy = dice.roll(); break;
+			case 4: element_damage_.poison = element_damage.poison = dice.roll(); break;
+			case 5: element_damage_.physical = element_damage.physical = dice.roll(); break;
+		  }
+		}
+	  }
+	  else
+	  {
+		switch ( damageType )
+		{
+		  case 1: element_damage_.fire = element_damage.fire = 0; break;
+		  case 2: element_damage_.cold = element_damage.cold = 0; break;
+		  case 3: element_damage_.energy = element_damage.energy = 0; break;
+		  case 4: element_damage_.poison = element_damage.poison = 0; break;
+		  case 5: element_damage_.physical = element_damage.physical = 0; break;
+		}
+	  }
+
+	  switch ( damageType )
+	  {
+		case 1: element_damage.fire += element_damage_mod.fire; break;
+		case 2: element_damage.cold += element_damage_mod.cold; break;
+		case 3: element_damage.energy += element_damage_mod.energy; break;
+		case 4: element_damage.poison += element_damage_mod.poison; break;
+		case 5: element_damage.physical += element_damage_mod.physical; break;
+	  }
+	}
+
+    void NPC::readProperties( Clib::ConfigElem& elem )
+	{
+	  //3/18/3 dave copied this npctemplate code from readNpcProperties, because base::readProperties 
+	  //will call the exported vital functions before npctemplate is set (distro uses npctemplate in the exported funcs).
+	  template_name = elem.rest();
+
+	  if ( template_name == "" )
+	  {
+		string tmp;
+		if ( getprop( "template", tmp ) )
+		{
+		  template_name = tmp.c_str() + 1;
+		}
+	  }
+	  base::readProperties( elem );
+	  readNpcProperties( elem );
+	}
+
+    void NPC::readNewNpcAttributes( Clib::ConfigElem& elem )
+	{
+	  string diestring;
+	  Dice dice;
+	  string errmsg;
+
+      for ( Mobile::Attribute* pAttr = Mobile::FindAttribute( 0 ); pAttr; pAttr = pAttr->next )
+	  {
+        Mobile::AttributeValue& av = attribute( pAttr->attrid );
+		for ( unsigned i = 0; i < pAttr->aliases.size(); ++i )
+		{
+		  if ( elem.remove_prop( pAttr->aliases[i].c_str(), &diestring ) )
+		  {
+			if ( !dice.load( diestring.c_str(), &errmsg ) )
+			{
+			  elem.throw_error( "Error reading Attribute "
+								+ pAttr->name +
+								": " + errmsg );
+			}
+			int base = dice.roll() * 10;
+            if ( base > static_cast<int>( Mobile::ATTRIBUTE_MAX_BASE ) )
+              base = Mobile::ATTRIBUTE_MAX_BASE;
+
+			av.base( static_cast<unsigned short>( base ) );
+
+			break;
+		  }
+		}
+	  }
+	}
+
+	void NPC::readPropertiesForNewNPC( Clib::ConfigElem& elem )
+	{
+	  readCommonProperties( elem );
+	  readNewNpcAttributes( elem );
+	  readNpcProperties( elem );
+	  calc_vital_stuff();
+	  set_vitals_to_maximum();
+
+	  //    readNpcProperties( elem );
+	}
+
+	void NPC::restart_script()
+	{
+	  if ( ex != NULL )
+	  {
+		ex->seterror( true );
 		// A Sleeping script would otherwise sit and wait until it wakes up to be killed.
 		ex->os_module->revive();
-		if (ex->os_module->in_debugger_holdlist())
-			ex->os_module->revive_debugged();
-        ex = NULL;
-        // when the NPC executor module destructs, it checks this NPC to see if it points
-        // back at it.  If not, it leaves us alone.
-    }
-    if (!script.empty())
-        start_script();
-}
+		if ( ex->os_module->in_debugger_holdlist() )
+		  ex->os_module->revive_debugged();
+		ex = NULL;
+		// when the NPC executor module destructs, it checks this NPC to see if it points
+		// back at it.  If not, it leaves us alone.
+	  }
+	  if ( !script.empty() )
+		start_script();
+	}
 
-void NPC::on_death( Item* corpse )
-{
-    // base::on_death intentionally not called
-    send_remove_character_to_nearby( this );
+	void NPC::on_death( Items::Item* corpse )
+	{
+	  // base::on_death intentionally not called
+	  send_remove_character_to_nearby( this );
 
 
-    corpse->setprop( "npctemplate", "s" + template_name );
-	if (FileExists("scripts/misc/death.ecl"))
-		::start_script( "misc/death", new EItemRefObjImp( corpse ) );
-    
-    ClrCharacterWorldPosition( this, "NPC death" );
-    if (ex != NULL)
-    {
-        // this will force the execution engine to stop running this script immediately
-        ex->seterror(true);
+	  corpse->setprop( "npctemplate", "s" + template_name );
+	  if ( Clib::FileExists( "scripts/misc/death.ecl" ) )
+		Core::start_script( "misc/death", new Module::EItemRefObjImp( corpse ) );
+
+	  ClrCharacterWorldPosition( this, "NPC death" );
+	  if ( ex != NULL )
+	  {
+		// this will force the execution engine to stop running this script immediately
+		ex->seterror( true );
 		ex->os_module->revive();
-		if (ex->os_module->in_debugger_holdlist())
-			ex->os_module->revive_debugged();
-    }
-    
-    destroy();
-}
+		if ( ex->os_module->in_debugger_holdlist() )
+		  ex->os_module->revive_debugged();
+	  }
+
+	  destroy();
+	}
 
 
-void NPC::start_script()
-{
-    passert( ex == NULL );
-    passert( !script.empty() );
-    ScriptDef sd( script, template_.pkg, "scripts/ai/" );
-    // Log( "NPC script starting: %s\n", sd.name().c_str() );
+	void NPC::start_script()
+	{
+	  passert( ex == NULL );
+	  passert( !script.empty() );
+	  ScriptDef sd( script, template_.pkg, "scripts/ai/" );
+	  // Log( "NPC script starting: %s\n", sd.name().c_str() );
 
-    ref_ptr<EScriptProgram> prog = find_script2( sd );
-        // find_script( "ai/" + script );
-    
-    if (prog.get() == NULL)
-    {
-        cerr << "Unable to read script " << sd.name() 
-             << " for NPC " << name() << "(" << hexint(serial) << ")" << endl;
-        throw runtime_error( "Error loading NPCs" );
-    }
+	  ref_ptr<Bscript::EScriptProgram> prog = find_script2( sd );
+	  // find_script( "ai/" + script );
 
-	ex = create_script_executor();
-	ex->addModule( new NPCExecutorModule( *ex, *this ) );
-    UOExecutorModule* uoemod = new UOExecutorModule( *ex );
-    ex->addModule( uoemod );
-	if (ex->setProgram( prog.get() ) == false)
-    {
-        cerr << "There was an error running script " << script << " for NPC "
-            << name() << "(0x" << hex << serial << dec << ")" << endl;
-        throw runtime_error( "Error loading NPCs" );
-    }
+	  if ( prog.get() == NULL )
+	  {
+		cerr << "Unable to read script " << sd.name()
+		  << " for NPC " << name() << "(" << Clib::hexint( serial ) << ")" << endl;
+		throw runtime_error( "Error loading NPCs" );
+	  }
 
-	uoemod->attached_npc_ = this;
+	  ex = create_script_executor();
+	  ex->addModule( new Module::NPCExecutorModule( *ex, *this ) );
+      Module::UOExecutorModule* uoemod = new Module::UOExecutorModule( *ex );
+	  ex->addModule( uoemod );
+	  if ( ex->setProgram( prog.get() ) == false )
+	  {
+		cerr << "There was an error running script " << script << " for NPC "
+		  << name() << "(0x" << hex << serial << dec << ")" << endl;
+		throw runtime_error( "Error loading NPCs" );
+	  }
 
-	schedule_executor( ex );
-}
+	  uoemod->attached_npc_ = this;
 
-
-bool NPC::can_be_renamed_by( const Character* chr ) const
-{
-    return (master_.get() == chr);
-}
-
-void NPC::on_give_item()
-{
-}
+	  schedule_executor( ex );
+	}
 
 
+	bool NPC::can_be_renamed_by( const Character* chr ) const
+	{
+	  return ( master_.get() == chr );
+	}
 
-void NPC::on_pc_spoke( Character* src_chr, const char* speech, u8 texttype)
-{
-    /*
-    cerr << "PC " << src_chr->name()
-         << " spoke in range of NPC " << name() 
-         << ": '" << speech << "'" << endl;
-         */
+	void NPC::on_give_item()
+	{}
 
-    if (ex != NULL)
-    {
-		if ((ex->eventmask & EVID_SPOKE) &&
-            inrangex( this, src_chr, ex->speech_size ) &&
-            !deafened())
-        {
-            if ( (!ssopt.event_visibility_core_checks) || is_visible_to_me( src_chr ) )
-				ex->os_module->signal_event( new SpeechEvent( src_chr, speech,
-															  TextTypeToString(texttype) ) ); //DAVE added texttype
-        }
-    }
-}
 
-void NPC::on_ghost_pc_spoke( Character* src_chr, const char* speech, u8 texttype)
-{
-    if (ex != NULL)
-    {
-        if ((ex->eventmask & EVID_GHOST_SPEECH) &&
-            inrangex( this, src_chr, ex->speech_size ) &&
-            !deafened())
-        {
-            if ( (!ssopt.event_visibility_core_checks) || is_visible_to_me( src_chr ) )
-				ex->os_module->signal_event( new SpeechEvent( src_chr, speech,
-															  TextTypeToString(texttype) ) ); //DAVE added texttype
-        }
-    }
-}
 
-void NPC::on_pc_spoke( Character *src_chr, const char *speech, u8 texttype,
-					   const u16* wspeech, const char lang[4], ObjArray* speechtokens)
-{
-    if (ex != NULL)
-    {
-		if (ssopt.seperate_speechtoken)
+	void NPC::on_pc_spoke( Character* src_chr, const char* speech, u8 texttype )
+	{
+	  /*
+	  cerr << "PC " << src_chr->name()
+	  << " spoke in range of NPC " << name()
+	  << ": '" << speech << "'" << endl;
+	  */
+
+	  if ( ex != NULL )
+	  {
+		if ( ( ex->eventmask & EVID_SPOKE ) &&
+			 inrangex( this, src_chr, ex->speech_size ) &&
+			 !deafened() )
 		{
-			if (speechtokens != NULL && ((ex->eventmask & EVID_TOKEN_SPOKE)==0))
-				return;
-			else if (speechtokens == NULL && ((ex->eventmask & EVID_SPOKE)==0))
-				return;
+		  if ( ( !ssopt.event_visibility_core_checks ) || is_visible_to_me( src_chr ) )
+            ex->os_module->signal_event( new Module::SpeechEvent( src_chr, speech,
+			TextTypeToString( texttype ) ) ); //DAVE added texttype
 		}
-        if (((ex->eventmask & EVID_SPOKE) || (ex->eventmask & EVID_TOKEN_SPOKE)) &&
-            inrangex( this, src_chr, ex->speech_size ) &&
-            !deafened())
-        {
-            if ( (!ssopt.event_visibility_core_checks) || is_visible_to_me( src_chr ))
-			{
-				ex->os_module->signal_event( new UnicodeSpeechEvent( src_chr, speech,
-																	 TextTypeToString(texttype),
-																	 wspeech, lang, speechtokens ) );
-			}
-        }
-    }
-}
+	  }
+	}
 
-void NPC::on_ghost_pc_spoke( Character* src_chr, const char* speech, u8 texttype,
-							 const u16* wspeech, const char lang[4], ObjArray* speechtokens)
-{
-    if (ex != NULL)
-    {
-		if (ssopt.seperate_speechtoken)
+	void NPC::on_ghost_pc_spoke( Character* src_chr, const char* speech, u8 texttype )
+	{
+	  if ( ex != NULL )
+	  {
+		if ( ( ex->eventmask & EVID_GHOST_SPEECH ) &&
+			 inrangex( this, src_chr, ex->speech_size ) &&
+			 !deafened() )
 		{
-			if (speechtokens != NULL && ((ex->eventmask & EVID_TOKEN_GHOST_SPOKE)==0))
-				return;
-			else if (speechtokens == NULL && ((ex->eventmask & EVID_GHOST_SPEECH)==0))
-				return;
+		  if ( ( !ssopt.event_visibility_core_checks ) || is_visible_to_me( src_chr ) )
+            ex->os_module->signal_event( new Module::SpeechEvent( src_chr, speech,
+			TextTypeToString( texttype ) ) ); //DAVE added texttype
 		}
-        if (((ex->eventmask & EVID_GHOST_SPEECH) || (ex->eventmask & EVID_TOKEN_GHOST_SPOKE)) &&
-            inrangex( this, src_chr, ex->speech_size ) &&
-            !deafened())
-        {
-            if ( (!ssopt.event_visibility_core_checks) || is_visible_to_me( src_chr ))
+	  }
+	}
+
+	void NPC::on_pc_spoke( Mobile::Character *src_chr, const char *speech, u8 texttype,
+						   const u16* wspeech, const char lang[4], Bscript::ObjArray* speechtokens )
+	{
+	  if ( ex != NULL )
+	  {
+		if ( ssopt.seperate_speechtoken )
+		{
+		  if ( speechtokens != NULL && ( ( ex->eventmask & EVID_TOKEN_SPOKE ) == 0 ) )
+			return;
+		  else if ( speechtokens == NULL && ( ( ex->eventmask & EVID_SPOKE ) == 0 ) )
+			return;
+		}
+		if ( ( ( ex->eventmask & EVID_SPOKE ) || ( ex->eventmask & EVID_TOKEN_SPOKE ) ) &&
+			 inrangex( this, src_chr, ex->speech_size ) &&
+			 !deafened() )
+		{
+		  if ( ( !ssopt.event_visibility_core_checks ) || is_visible_to_me( src_chr ) )
+		  {
+			ex->os_module->signal_event( new Module::UnicodeSpeechEvent( src_chr, speech,
+			  TextTypeToString( texttype ),
+			  wspeech, lang, speechtokens ) );
+		  }
+		}
+	  }
+	}
+
+	void NPC::on_ghost_pc_spoke( Character* src_chr, const char* speech, u8 texttype,
+								 const u16* wspeech, const char lang[4], Bscript::ObjArray* speechtokens )
+	{
+	  if ( ex != NULL )
+	  {
+		if ( ssopt.seperate_speechtoken )
+		{
+		  if ( speechtokens != NULL && ( ( ex->eventmask & EVID_TOKEN_GHOST_SPOKE ) == 0 ) )
+			return;
+		  else if ( speechtokens == NULL && ( ( ex->eventmask & EVID_GHOST_SPEECH ) == 0 ) )
+			return;
+		}
+		if ( ( ( ex->eventmask & EVID_GHOST_SPEECH ) || ( ex->eventmask & EVID_TOKEN_GHOST_SPOKE ) ) &&
+			 inrangex( this, src_chr, ex->speech_size ) &&
+			 !deafened() )
+		{
+		  if ( ( !ssopt.event_visibility_core_checks ) || is_visible_to_me( src_chr ) )
+		  {
+            ex->os_module->signal_event( new Module::UnicodeSpeechEvent( src_chr, speech,
+			  TextTypeToString( texttype ),
+			  wspeech, lang, speechtokens ) );
+		  }
+		}
+	  }
+	}
+
+	void NPC::inform_engaged( Character* engaged )
+	{
+	  // someone has targetted us. Create an event if appropriate.
+	  if ( ex != NULL )
+	  {
+		if ( ex->eventmask & EVID_ENGAGED )
+		{
+          ex->os_module->signal_event( new Module::EngageEvent( engaged ) );
+		}
+	  }
+	  // Note, we don't do the base class thing, 'cause we have no client.
+	}
+
+	void NPC::inform_disengaged( Character* disengaged )
+	{
+	  // someone has targetted us. Create an event if appropriate.
+	  if ( ex != NULL )
+	  {
+		if ( ex->eventmask & EVID_DISENGAGED )
+		{
+          ex->os_module->signal_event( new Module::DisengageEvent( disengaged ) );
+		}
+	  }
+	  // Note, we don't do the base class thing, 'cause we have no client.
+	}
+
+	void NPC::inform_criminal( Character* thecriminal )
+	{
+	  if ( ex != NULL )
+	  {
+		if ( ( ex->eventmask & ( EVID_GONE_CRIMINAL ) ) && inrangex( this, thecriminal, ex->area_size ) )
+		{
+		  if ( ( !ssopt.event_visibility_core_checks ) || is_visible_to_me( thecriminal ) )
+            ex->os_module->signal_event( new Module::SourcedEvent( EVID_GONE_CRIMINAL, thecriminal ) );
+		}
+	  }
+	}
+
+	void NPC::inform_leftarea( Character* wholeft )
+	{
+	  if ( ex != NULL )
+	  {
+		if ( ex->eventmask & ( EVID_LEFTAREA ) )
+		{
+		  if ( pol_distance( this, wholeft ) <= ex->area_size )
+		  {
+			if ( ( !ssopt.event_visibility_core_checks ) || is_visible_to_me( wholeft ) )
+              ex->os_module->signal_event( new Module::SourcedEvent( EVID_LEFTAREA, wholeft ) );
+		  }
+		}
+	  }
+	}
+
+	void NPC::inform_enteredarea( Character* whoentered )
+	{
+	  if ( ex != NULL )
+	  {
+		if ( ex->eventmask & ( EVID_ENTEREDAREA ) )
+		{
+		  if ( pol_distance( this, whoentered ) <= ex->area_size )
+		  {
+			if ( ( !ssopt.event_visibility_core_checks ) || is_visible_to_me( whoentered ) )
+              ex->os_module->signal_event( new Module::SourcedEvent( EVID_ENTEREDAREA, whoentered ) );
+		  }
+		}
+	  }
+	}
+
+	void NPC::inform_moved( Character* moved )
+	{
+	  // 8-26-05    Austin
+	  // Note: This does not look at realms at all, just X Y coords.
+	  // ^is_visible_to_me checks realm - Turley
+
+	  if ( ex != NULL )
+	  {
+		bool signaled = false;
+		passert( this != NULL );
+		passert( moved != NULL );
+		if ( ex->eventmask & ( EVID_ENTEREDAREA | EVID_LEFTAREA ) )
+		{
+		  // egcs may have a compiler bug when calling these as inlines
+		  bool are_inrange = ( abs( x - moved->x ) <= ex->area_size ) &&
+			( abs( y - moved->y ) <= ex->area_size );
+
+		  // inrangex_inline( this, moved, ex->area_size );
+		  bool were_inrange = ( abs( x - moved->lastx ) <= ex->area_size ) &&
+			( abs( y - moved->lasty ) <= ex->area_size );
+
+		  if ( ( !ssopt.event_visibility_core_checks ) || is_visible_to_me( moved ) )
+		  {
+			if ( are_inrange && !were_inrange && ( ex->eventmask & ( EVID_ENTEREDAREA ) ) )
 			{
-				ex->os_module->signal_event( new UnicodeSpeechEvent( src_chr, speech,
-																	 TextTypeToString(texttype),
-																	wspeech, lang, speechtokens ) );
+              ex->os_module->signal_event( new Module::SourcedEvent( EVID_ENTEREDAREA, moved ) );
+			  signaled = true;
 			}
-        }
-    }
-}
+			else if ( !are_inrange && were_inrange && ( ex->eventmask & ( EVID_LEFTAREA ) ) )
+			{
+              ex->os_module->signal_event( new Module::SourcedEvent( EVID_LEFTAREA, moved ) );
+			  signaled = true;
+			}
+		  }
+		}
 
-void NPC::inform_engaged( Character* engaged )
-{
-    // someone has targetted us. Create an event if appropriate.
-    if (ex != NULL)
-    {
-        if (ex->eventmask & EVID_ENGAGED)
-        {
-            ex->os_module->signal_event( new EngageEvent( engaged ) );
-        }
-    }
-    // Note, we don't do the base class thing, 'cause we have no client.
-}
-
-void NPC::inform_disengaged( Character* disengaged )
-{
-    // someone has targetted us. Create an event if appropriate.
-    if (ex != NULL)
-    {
-        if (ex->eventmask & EVID_DISENGAGED)
-        {
-            ex->os_module->signal_event( new DisengageEvent( disengaged ) );
-        }
-    }
-    // Note, we don't do the base class thing, 'cause we have no client.
-}
-
-void NPC::inform_criminal( Character* thecriminal )
-{
-    if (ex != NULL)
-    {
-        if ((ex->eventmask & (EVID_GONE_CRIMINAL)) && inrangex( this, thecriminal, ex->area_size ))
-        {
-            if ( (!ssopt.event_visibility_core_checks) || is_visible_to_me( thecriminal ))
-                ex->os_module->signal_event( new SourcedEvent( EVID_GONE_CRIMINAL, thecriminal ) );
-        }
+		if ( !signaled ) // only send moved event if left/enteredarea wasnt send
+		{
+		  if ( ( moved == opponent_ ) && ( ex->eventmask & ( EVID_OPPONENT_MOVED ) ) )
+		  {
+			if ( ( !ssopt.event_visibility_core_checks ) || is_visible_to_me( moved ) )
+              ex->os_module->signal_event( new Module::SourcedEvent( EVID_OPPONENT_MOVED, moved ) );
+		  }
+		}
+	  }
 	}
-}
 
-void NPC::inform_leftarea( Character* wholeft )
-{
-	if (ex != NULL)
-    {
-        if ( ex->eventmask & (EVID_LEFTAREA) )
-        {
-			if ( pol_distance(this, wholeft) <= ex->area_size )
-            {
-                if ( (!ssopt.event_visibility_core_checks) || is_visible_to_me( wholeft ) )
-                    ex->os_module->signal_event( new SourcedEvent( EVID_LEFTAREA, wholeft ) );
-            }
-        }
+	//
+	// This NPC moved.  Tell him about other mobiles that have "entered" his area
+	// (through his own movement) 
+	//
+
+	void NPC::inform_imoved( Character* chr )
+	{
+	  if ( ex != NULL )
+	  {
+		passert( this != NULL );
+		passert( chr != NULL );
+		if ( ex->eventmask & ( EVID_ENTEREDAREA | EVID_LEFTAREA ) )
+		{
+		  // egcs may have a compiler bug when calling these as inlines
+		  bool are_inrange = ( abs( x - chr->x ) <= ex->area_size ) &&
+			( abs( y - chr->y ) <= ex->area_size );
+
+		  // inrangex_inline( this, moved, ex->area_size );
+		  bool were_inrange = ( abs( lastx - chr->x ) <= ex->area_size ) &&
+			( abs( lasty - chr->y ) <= ex->area_size );
+
+		  if ( ( !ssopt.event_visibility_core_checks ) || is_visible_to_me( chr ) )
+		  {
+			if ( are_inrange && !were_inrange && ( ex->eventmask & ( EVID_ENTEREDAREA ) ) )
+              ex->os_module->signal_event( new Module::SourcedEvent( EVID_ENTEREDAREA, chr ) );
+			else if ( !are_inrange && were_inrange && ( ex->eventmask & ( EVID_LEFTAREA ) ) )
+              ex->os_module->signal_event( new Module::SourcedEvent( EVID_LEFTAREA, chr ) );
+		  }
+		}
+	  }
 	}
-}
 
-void NPC::inform_enteredarea( Character* whoentered )
-{
-	if (ex != NULL)
-    {
-        if ( ex->eventmask & (EVID_ENTEREDAREA) )
-        {
-			if ( pol_distance(this, whoentered) <= ex->area_size )
-            {
-                if ( (!ssopt.event_visibility_core_checks) || is_visible_to_me( whoentered ) )
-                    ex->os_module->signal_event( new SourcedEvent( EVID_ENTEREDAREA, whoentered ) );
-            }
-        }
+	bool NPC::can_accept_event( EVENTID eventid )
+	{
+	  if ( ex == NULL )
+		return false;
+	  if ( ex->eventmask & eventid )
+		return true;
+	  else
+		return false;
 	}
-}
 
-void NPC::inform_moved( Character* moved )
-{
-    // 8-26-05    Austin
-    // Note: This does not look at realms at all, just X Y coords.
-    // ^is_visible_to_me checks realm - Turley
-
-    if (ex != NULL)
-    {
-        bool signaled=false;
-        passert( this != NULL );
-        passert( moved != NULL );
-        if ( ex->eventmask & (EVID_ENTEREDAREA | EVID_LEFTAREA) )
-        {
-                // egcs may have a compiler bug when calling these as inlines
-            bool are_inrange = (abs( x - moved->x ) <= ex->area_size) &&
-                               (abs( y - moved->y ) <= ex->area_size);
-
-                // inrangex_inline( this, moved, ex->area_size );
-            bool were_inrange =(abs( x - moved->lastx ) <= ex->area_size) &&
-                               (abs( y - moved->lasty ) <= ex->area_size);
-
-            if ( (!ssopt.event_visibility_core_checks) || is_visible_to_me( moved ) )
-            {
-                if ( are_inrange && !were_inrange && (ex->eventmask & (EVID_ENTEREDAREA)) )
-                {
-                    ex->os_module->signal_event( new SourcedEvent( EVID_ENTEREDAREA, moved ) );
-                    signaled=true;
-                }
-                else if ( !are_inrange && were_inrange && (ex->eventmask & (EVID_LEFTAREA)) )
-                {
-                    ex->os_module->signal_event( new SourcedEvent( EVID_LEFTAREA, moved ) );
-                    signaled=true;
-                }
-            }
-        }
-
-        if (!signaled) // only send moved event if left/enteredarea wasnt send
-        {
-            if ((moved == opponent_) && (ex->eventmask & (EVID_OPPONENT_MOVED)))
-            {
-                if ( (!ssopt.event_visibility_core_checks) || is_visible_to_me( moved ) )
-                    ex->os_module->signal_event( new SourcedEvent( EVID_OPPONENT_MOVED, moved ) );
-            }
-        }
-    }
-}
-
-//
-// This NPC moved.  Tell him about other mobiles that have "entered" his area
-// (through his own movement) 
-//
-
-void NPC::inform_imoved( Character* chr )
-{
-    if (ex != NULL)
-    {
-        passert( this != NULL );
-        passert( chr != NULL );
-        if ( ex->eventmask & (EVID_ENTEREDAREA | EVID_LEFTAREA) )
-        {
-                // egcs may have a compiler bug when calling these as inlines
-            bool are_inrange = (abs( x - chr->x ) <= ex->area_size) &&
-                               (abs( y - chr->y ) <= ex->area_size);
-
-                // inrangex_inline( this, moved, ex->area_size );
-            bool were_inrange =(abs( lastx - chr->x ) <= ex->area_size) &&
-                               (abs( lasty - chr->y ) <= ex->area_size);
-
-            if ( (!ssopt.event_visibility_core_checks) || is_visible_to_me( chr ) )
-            {
-                if ( are_inrange && !were_inrange && (ex->eventmask & (EVID_ENTEREDAREA)) )
-                    ex->os_module->signal_event( new SourcedEvent( EVID_ENTEREDAREA, chr ) );
-                else if ( !are_inrange && were_inrange && (ex->eventmask & (EVID_LEFTAREA)) )
-                    ex->os_module->signal_event( new SourcedEvent( EVID_LEFTAREA, chr ) );
-            }
-        }
-    }
-}
-
-bool NPC::can_accept_event( EVENTID eventid )
-{
-    if (ex == NULL)
-        return false;
-    if (ex->eventmask & eventid)
-        return true;
-    else
-        return false;
-}
-
-BObjectImp* NPC::send_event( BObjectImp* event )
-{
-    if (ex != NULL)
-    {
-        if (ex->os_module->signal_event( event ))
-			return new BLong(1);
+    Bscript::BObjectImp* NPC::send_event( Bscript::BObjectImp* event )
+	{
+	  if ( ex != NULL )
+	  {
+		if ( ex->os_module->signal_event( event ) )
+          return new Bscript::BLong( 1 );
 		else
-			return new BError( "Event queue is full, discarding event" );
-    }
-    else
-    {
-        BObject bo( event );
-        return new BError( "That NPC doesn't have a control script" );
-    }
-}
-
-void NPC::apply_raw_damage_hundredths( unsigned int damage, Character* source, bool userepsys, bool send_damage_packet )
-{
-    if (ex != NULL)
-    {
-        if (ex->eventmask & EVID_DAMAGED)
-        {
-            ex->os_module->signal_event( new DamageEvent( source, static_cast<unsigned short>(damage/100) ) );
-        }
-    }
-
-    base::apply_raw_damage_hundredths( damage, source, userepsys, send_damage_packet );
-}
-
-/*
-void NPC::on_swing_failure( Character* attacker )
-{
-    base::on_swing_failure(attacker);
-}
-*/
-
-// keep this in sync with Character::armor_absorb_damage
-double NPC::armor_absorb_damage( double damage )
-{
-    if (!npc_ar_)
-    {
-        return base::armor_absorb_damage( damage );
-    }
-    else
-    {
-        int blocked = npc_ar_ + ar_mod();
-        if (blocked < 0) blocked = 0;
-        int absorbed = blocked / 2;
-        
-        blocked -= absorbed;
-        absorbed += random_int( blocked+1 );
-        if (watch.combat) cout << absorbed << " hits absorbed by NPC armor." << endl;
-        damage -= absorbed;
-        if (damage < 0)
-            damage = 0;
-    }
-    return damage;
-}
-
-unsigned short calc_thru_damage( double damage, unsigned short ar );
-
-void NPC::get_hitscript_params( double damage,
-                                UArmor** parmor,
-                                unsigned short* rawdamage )
-{
-    if (!npc_ar_)
-    {
-        base::get_hitscript_params( damage, parmor, rawdamage );
-    }
-    else
-    {
-        *rawdamage = static_cast<unsigned short>(calc_thru_damage( damage, npc_ar_ + ar_mod() ));
-    }
-}
-
-UWeapon* NPC::intrinsic_weapon()
-{
-    if (template_.intrinsic_weapon)
-        return template_.intrinsic_weapon;
-    else
-        return wrestling_weapon;
-}
-
-struct ArmorZone {
-	string name;
-	double chance;
-	vector<unsigned short> layers;
-};
-typedef vector<ArmorZone> ArmorZones;
-extern ArmorZones armorzones;
-
-void NPC::refresh_ar()
-{
-	// This is an npc, we need to check to see if any armor is being wore
-	// otherwise we just reset this to the base values from their template.
-	bool hasArmor = false;
-	for( unsigned layer = LAYER_EQUIP__LOWEST; layer <= LAYER_EQUIP__HIGHEST; ++layer )
-	{
-		Item *item = wornitems.GetItemOnLayer( layer );
-		if (item == NULL)
-			continue;
-		for( unsigned element = 0; element <= ELEMENTAL_TYPE_MAX; ++element )
-		{
-			if (item->calc_element_resist( element ) != 0 || item->calc_element_damage( element )!= 0 )
-			{
-				hasArmor = true;
-				break;
-				}
-		}
+          return new Bscript::BError( "Event queue is full, discarding event" );
+	  }
+	  else
+	  {
+        Bscript::BObject bo( event );
+        return new Bscript::BError( "That NPC doesn't have a control script" );
+	  }
 	}
 
-	if ( !hasArmor )
+	void NPC::apply_raw_damage_hundredths( unsigned int damage, Character* source, bool userepsys, bool send_damage_packet )
 	{
-		ar_ = 0;
-		for( unsigned element = 0; element <= ELEMENTAL_TYPE_MAX; ++element )
+	  if ( ex != NULL )
+	  {
+		if ( ex->eventmask & EVID_DAMAGED )
 		{
-			reset_element_resist(element);
-			reset_element_damage(element);
+          ex->os_module->signal_event( new Module::DamageEvent( source, static_cast<unsigned short>( damage / 100 ) ) );
+		}
+	  }
+
+	  base::apply_raw_damage_hundredths( damage, source, userepsys, send_damage_packet );
+	}
+
+	/*
+	void NPC::on_swing_failure( Character* attacker )
+	{
+	base::on_swing_failure(attacker);
+	}
+	*/
+
+	// keep this in sync with Character::armor_absorb_damage
+	double NPC::armor_absorb_damage( double damage )
+	{
+	  if ( !npc_ar_ )
+	  {
+		return base::armor_absorb_damage( damage );
+	  }
+	  else
+	  {
+		int blocked = npc_ar_ + ar_mod();
+		if ( blocked < 0 ) blocked = 0;
+		int absorbed = blocked / 2;
+
+		blocked -= absorbed;
+		absorbed += random_int( blocked + 1 );
+		if ( watch.combat ) cout << absorbed << " hits absorbed by NPC armor." << endl;
+		damage -= absorbed;
+		if ( damage < 0 )
+		  damage = 0;
+	  }
+	  return damage;
+	}
+
+	void NPC::get_hitscript_params( double damage,
+                                    Items::UArmor** parmor,
+									unsigned short* rawdamage )
+	{
+	  if ( !npc_ar_ )
+	  {
+		base::get_hitscript_params( damage, parmor, rawdamage );
+	  }
+	  else
+	  {
+		*rawdamage = static_cast<unsigned short>( Mobile::calc_thru_damage( damage, npc_ar_ + ar_mod() ) );
+	  }
+	}
+
+    Items::UWeapon* NPC::intrinsic_weapon( )
+	{
+	  if ( template_.intrinsic_weapon )
+		return template_.intrinsic_weapon;
+	  else
+		return wrestling_weapon;
+	}
+
+	void NPC::refresh_ar()
+	{
+	  // This is an npc, we need to check to see if any armor is being wore
+	  // otherwise we just reset this to the base values from their template.
+	  bool hasArmor = false;
+	  for ( unsigned layer = LAYER_EQUIP__LOWEST; layer <= LAYER_EQUIP__HIGHEST; ++layer )
+	  {
+        Items::Item *item = wornitems.GetItemOnLayer( layer );
+		if ( item == NULL )
+		  continue;
+		for ( unsigned element = 0; element <= ELEMENTAL_TYPE_MAX; ++element )
+		{
+		  if ( item->calc_element_resist( element ) != 0 || item->calc_element_damage( element ) != 0 )
+		  {
+			hasArmor = true;
+			break;
+		  }
+		}
+	  }
+
+	  if ( !hasArmor )
+	  {
+		ar_ = 0;
+		for ( unsigned element = 0; element <= ELEMENTAL_TYPE_MAX; ++element )
+		{
+		  reset_element_resist( element );
+		  reset_element_damage( element );
 		}
 		return;
-	}
+	  }
 
-	for( unsigned zone = 0; zone < armorzones.size(); ++zone )
-		armor_[ zone ] = NULL;
-	// we need to reset each resist to 0, then add the base back using calc.
-	for( unsigned element = 0; element <= ELEMENTAL_TYPE_MAX; ++element )
-	{
-		refresh_element(element);
-	}
+	  for ( unsigned zone = 0; zone < Mobile::armorzones.size(); ++zone )
+		armor_[zone] = NULL;
+	  // we need to reset each resist to 0, then add the base back using calc.
+	  for ( unsigned element = 0; element <= ELEMENTAL_TYPE_MAX; ++element )
+	  {
+		refresh_element( element );
+	  }
 
-	for( unsigned layer = LAYER_EQUIP__LOWEST; layer <= LAYER_EQUIP__HIGHEST; ++layer )
-	{
-		Item *item = wornitems.GetItemOnLayer( layer );
-		if (item == NULL)
-			continue;
+	  for ( unsigned layer = LAYER_EQUIP__LOWEST; layer <= LAYER_EQUIP__HIGHEST; ++layer )
+	  {
+        Items::Item *item = wornitems.GetItemOnLayer( layer );
+		if ( item == NULL )
+		  continue;
 		// Let's check all items as base, and handle their element_resists.
-		for( unsigned element = 0; element <= ELEMENTAL_TYPE_MAX; ++element )
+		for ( unsigned element = 0; element <= ELEMENTAL_TYPE_MAX; ++element )
 		{
-			update_element(element, item);
+		  update_element( element, item );
 		}
-		if (item->isa( CLASS_ARMOR ))
+		if ( item->isa( CLASS_ARMOR ) )
 		{
-			UArmor* armor = static_cast<UArmor*>(item);
-			std::set<unsigned short> tmplzones = armor->tmplzones();
-			std::set<unsigned short>::iterator itr;
-			for ( itr = tmplzones.begin(); itr != tmplzones.end(); ++itr )
-			{
-				if ((armor_[*itr] == NULL) || (armor->ar() > armor_[*itr]->ar()))
-					armor_[*itr] = armor;
-			}
+          Items::UArmor* armor = static_cast<Items::UArmor*>( item );
+		  std::set<unsigned short> tmplzones = armor->tmplzones();
+		  std::set<unsigned short>::iterator itr;
+		  for ( itr = tmplzones.begin(); itr != tmplzones.end(); ++itr )
+		  {
+			if ( ( armor_[*itr] == NULL ) || ( armor->ar() > armor_[*itr]->ar() ) )
+			  armor_[*itr] = armor;
+		  }
 		}
-	}
+	  }
 
-	double new_ar = 0.0;
-	for( unsigned zone = 0; zone < armorzones.size(); ++zone )
-	{
-		UArmor* armor = armor_[ zone ];
-		if (armor != NULL)
+	  double new_ar = 0.0;
+      for ( unsigned zone = 0; zone < Mobile::armorzones.size( ); ++zone )
+	  {
+		Items::UArmor* armor = armor_[zone];
+		if ( armor != NULL )
 		{
-			new_ar += armor->ar() * armorzones[ zone ].chance;
+          new_ar += armor->ar( ) * Mobile::armorzones[zone].chance;
 		}
-	}
+	  }
 
-	/* add AR due to shield : parry skill / 2 is percent of AR */
-	// FIXME: Should we allow this to be adjustable via a prop? Hrmmmmm
-	if (shield != NULL)
-	{
-		double add = 0.5 * 0.01 * shield->ar() * attribute(pAttrParry->attrid).effective();
-		if (add > 1.0)
-			new_ar += add;
+	  /* add AR due to shield : parry skill / 2 is percent of AR */
+	  // FIXME: Should we allow this to be adjustable via a prop? Hrmmmmm
+	  if ( shield != NULL )
+	  {
+		double add = 0.5 * 0.01 * shield->ar() * attribute( Mobile::pAttrParry->attrid ).effective();
+		if ( add > 1.0 )
+		  new_ar += add;
 		else
-			new_ar += 1.0;
-	}
+		  new_ar += 1.0;
+	  }
 
-	new_ar += ar_mod();
+	  new_ar += ar_mod();
 
-	short s_new_ar = static_cast<short>(new_ar);
-	if (s_new_ar >= 0)
+	  short s_new_ar = static_cast<short>( new_ar );
+	  if ( s_new_ar >= 0 )
 		ar_ = s_new_ar;
-	else
+	  else
 		ar_ = 0;
 
-}
-
-void NPC::reset_element_resist( unsigned resist )
-{
-	switch(resist)
-	{
-	case ELEMENTAL_FIRE: element_resist.fire = element_resist_.fire + element_resist_mod.fire; break;
-	case ELEMENTAL_COLD: element_resist.cold = element_resist_.cold + element_resist_mod.cold; break;
-	case ELEMENTAL_ENERGY: element_resist.energy = element_resist_.energy + element_resist_mod.energy; break;
-	case ELEMENTAL_POISON: element_resist.poison = element_resist_.poison + element_resist_mod.poison; break;
-	case ELEMENTAL_PHYSICAL: element_resist.physical = element_resist_.physical + element_resist_mod.physical; break;
 	}
-}
 
-void NPC::reset_element_damage( unsigned damage )
-{
-	switch(damage)
+	void NPC::reset_element_resist( unsigned resist )
 	{
-	case ELEMENTAL_FIRE: element_damage.fire = element_damage_.fire + element_damage_mod.fire; break;
-	case ELEMENTAL_COLD: element_damage.cold = element_damage_.cold + element_damage_mod.cold; break;
-	case ELEMENTAL_ENERGY: element_damage.energy = element_damage_.energy + element_damage_mod.energy; break;
-	case ELEMENTAL_POISON: element_damage.poison = element_damage_.poison + element_damage_mod.poison; break;
-	case ELEMENTAL_PHYSICAL: element_damage.physical = element_damage_.physical + element_damage_mod.physical; break;
+	  switch ( resist )
+	  {
+		case ELEMENTAL_FIRE: element_resist.fire = element_resist_.fire + element_resist_mod.fire; break;
+		case ELEMENTAL_COLD: element_resist.cold = element_resist_.cold + element_resist_mod.cold; break;
+		case ELEMENTAL_ENERGY: element_resist.energy = element_resist_.energy + element_resist_mod.energy; break;
+		case ELEMENTAL_POISON: element_resist.poison = element_resist_.poison + element_resist_mod.poison; break;
+		case ELEMENTAL_PHYSICAL: element_resist.physical = element_resist_.physical + element_resist_mod.physical; break;
+	  }
 	}
+
+	void NPC::reset_element_damage( unsigned damage )
+	{
+	  switch ( damage )
+	  {
+		case ELEMENTAL_FIRE: element_damage.fire = element_damage_.fire + element_damage_mod.fire; break;
+		case ELEMENTAL_COLD: element_damage.cold = element_damage_.cold + element_damage_mod.cold; break;
+		case ELEMENTAL_ENERGY: element_damage.energy = element_damage_.energy + element_damage_mod.energy; break;
+		case ELEMENTAL_POISON: element_damage.poison = element_damage_.poison + element_damage_mod.poison; break;
+		case ELEMENTAL_PHYSICAL: element_damage.physical = element_damage_.physical + element_damage_mod.physical; break;
+	  }
+	}
+  }
 }

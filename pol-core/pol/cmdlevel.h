@@ -12,41 +12,47 @@ Notes
 #include <vector>
 
 #include "../bscript/bobject.h"
+namespace Pol {
+  namespace Clib {
+	class ConfigElem;
+  }
+  namespace Plib {
+	class Package;
+  }
+  namespace Core {
+	
+	class CmdLevel
+	{
+	public:
+	  CmdLevel( Clib::ConfigElem& elem, int cmdlevelnum );
 
-class ConfigElem;
-class Package;
+	  bool matches( const std::string& name ) const;
+	  void add_searchdir( Plib::Package* pkg, const std::string& dir );
+	  void add_searchdir_front( Plib::Package* pkg, const std::string& dir );
 
-class CmdLevel
-{
-public:
-    CmdLevel( ConfigElem& elem, int cmdlevelnum );
+	  std::string name;
+	  unsigned char cmdlevel;
 
-    bool matches( const std::string& name ) const;
-    void add_searchdir( Package* pkg, const std::string& dir );
-    void add_searchdir_front( Package* pkg, const std::string& dir );
+	  struct SearchDir
+	  {
+		Plib::Package* pkg;
+		std::string dir;
+	  };
 
-    std::string name;
-    unsigned char cmdlevel;
-    
-    struct SearchDir
-    {
-        Package* pkg;
-        std::string dir;
-    };
+	  typedef std::vector< SearchDir > SearchList;
+	  SearchList searchlist;
 
-    typedef std::vector< SearchDir > SearchList;
-    SearchList searchlist;
+	  typedef std::vector< std::string > Aliases;
+	  Aliases aliases;
+	};
 
-    typedef std::vector< std::string > Aliases;
-    Aliases aliases;
-};
+	typedef std::vector< CmdLevel > CmdLevels;
+	extern CmdLevels cmdlevels2;
 
-typedef std::vector< CmdLevel > CmdLevels;
-extern CmdLevels cmdlevels2;
+	CmdLevel* find_cmdlevel( const char* name );
+	CmdLevel* FindCmdLevelByAlias( const std::string& str );
 
-CmdLevel* find_cmdlevel( const char* name );
-CmdLevel* FindCmdLevelByAlias( const std::string& str );
+	Bscript::ObjArray* GetCommandsInPackage( Plib::Package* m_pkg, int cmdlvl_num );
 
-ObjArray* GetCommandsInPackage(Package* m_pkg, int cmdlvl_num);
-
-
+  }
+}

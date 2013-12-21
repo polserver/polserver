@@ -12,14 +12,16 @@ Notes
 
 #include "clib.h"
 #include <cstring>
-
-class ci_cmp_pred
-{
-public:
-    bool operator()(const std::string& x1, const std::string& x2) const
-    {
-        return stricmp( x1.c_str(), x2.c_str() ) < 0;
-    }
-};
-
+namespace Pol {
+  namespace Clib {
+	class ci_cmp_pred
+	{
+	public:
+	  bool operator()( const std::string& x1, const std::string& x2 ) const
+	  {
+		return stricmp( x1.c_str(), x2.c_str() ) < 0;
+	  }
+	};
+  }
+}
 #endif

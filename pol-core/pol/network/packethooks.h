@@ -19,43 +19,45 @@ new Handler added to the core needs a new Version number here. As of 8/3/09 ther
 #include "client.h"
 #include "../packetscrobj.h"
 #include "../syshook.h"
+namespace Pol {
+  namespace Network {
+	class PacketHookData
+	{
+	public:
+	  PacketHookData() :
+		length( 0 ),
+		function( NULL ),
+		outgoing_function( NULL ),
+		default_handler( NULL ),
+		sub_command_offset( 0 ),
+		sub_command_length( 0 ),
+		version( 0 )
+	  {
+		memset( &client_ver, 0, sizeof( client_ver ) );
+	  };
+	  ~PacketHookData();
 
-class PacketHookData 
-{
-public:
-    PacketHookData() :
-        length(0),
-        function(NULL),
-        outgoing_function(NULL),
-        default_handler(NULL),
-        sub_command_offset(0),
-        sub_command_length(0),
-		version(0)
-    {
-		memset( &client_ver, 0, sizeof(client_ver) );
+	  int length; // if 0, variable length
+	  Core::ExportedFunction* function;
+	  Core::ExportedFunction* outgoing_function;
+	  void( *default_handler )( Client *client, void *msg );
+	  unsigned short sub_command_offset;
+	  unsigned short sub_command_length;
+	  unsigned short version;
+	  VersionDetailStruct client_ver;
+	  map<u32, PacketHookData*>SubCommands;
 	};
-	~PacketHookData();
 
-    int length; // if 0, variable length
-    ExportedFunction* function;
-    ExportedFunction* outgoing_function;
-    void(*default_handler)(Client *client, void *msg);
-    unsigned short sub_command_offset;
-    unsigned short sub_command_length;
-	unsigned short version;
-	VersionDetailStruct client_ver;
-    map<u32,PacketHookData*>SubCommands;
-};
+	extern std::vector<PacketHookData> packet_hook_data;
+	extern std::vector<PacketHookData> packet_hook_data_v2;
+	void load_packet_hooks();
+	void ExportedPacketHookHandler( Client* client, void* data );
+	void CallOutgoingPacketExportedFunction( Client* client, const void*& data, int& inlength, ref_ptr<Core::BPacket>& outpacket, PacketHookData* phd, bool& handled );
+	bool GetAndCheckPacketHooked( Client* client, const void*& data, PacketHookData*& phd );
+	void clean_packethooks();
 
-extern std::vector<PacketHookData> packet_hook_data;
-extern std::vector<PacketHookData> packet_hook_data_v2;
-void load_packet_hooks();
-void ExportedPacketHookHandler(Client* client, void* data);
-void CallOutgoingPacketExportedFunction(Client* client, const void*& data, int& inlength, ref_ptr<BPacket>& outpacket, PacketHookData* phd, bool& handled);
-bool GetAndCheckPacketHooked(Client* client,const void*& data, PacketHookData*& phd);
-void clean_packethooks();
-
-void SetVersionDetailStruct( const std::string& ver, VersionDetailStruct& detail );
-bool CompareVersionDetail(VersionDetailStruct ver1, VersionDetailStruct ver2);
-
+	void SetVersionDetailStruct( const std::string& ver, VersionDetailStruct& detail );
+	bool CompareVersionDetail( VersionDetailStruct ver1, VersionDetailStruct ver2 );
+  }
+}
 #endif

@@ -14,10 +14,13 @@ Notes
 #include <fstream>
 
 #include "mlog.h"
-
-ofstream mlog;
+namespace Pol {
+  namespace Clib {
+	ofstream mlog;
 #ifdef MEMORYLEAK
-ofstream llog;
-bool memoryleak_debug = false;
+	ofstream llog;
+	bool memoryleak_debug = false;
 #endif
+  }
+}
 

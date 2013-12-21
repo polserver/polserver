@@ -6,27 +6,29 @@
 
 #ifndef __LOGINCRYPT_H__
 #define __LOGINCRYPT_H__
+namespace Pol {
+  namespace Crypt {
+	class LoginCrypt
+	{
 
-class LoginCrypt
-{
+	  // Constructor / Destructor
+	public:
+	  LoginCrypt();
+	  ~LoginCrypt();
 
-// Constructor / Destructor
-public:
-	LoginCrypt();
-	~LoginCrypt();
+	  // Member Functions
 
-// Member Functions
+	public:
+	  void	Init( unsigned char * lseed, unsigned int k1, unsigned int k2 );
+	  void	Decrypt( unsigned char * in, unsigned char * out, int len );
+	  void	Decrypt_Old( unsigned char * in, unsigned char * out, int len );
+	  void	Decrypt_1_25_36( unsigned char * in, unsigned char * out, int len );
 
-public:	
-	void	Init( unsigned char * lseed, unsigned int k1, unsigned int k2 );
-	void	Decrypt( unsigned char * in, unsigned char * out, int len );
-	void	Decrypt_Old( unsigned char * in, unsigned char * out, int len );
-	void	Decrypt_1_25_36( unsigned char * in, unsigned char * out, int len );
+	  unsigned int lkey[2];
 
-	unsigned int lkey[2];
-
-protected:
-	unsigned int m_k1, m_k2;
-};
-
+	protected:
+	  unsigned int m_k1, m_k2;
+	};
+  }
+}
 #endif //__LOGINCRYPT_H__

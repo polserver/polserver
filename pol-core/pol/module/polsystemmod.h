@@ -13,30 +13,32 @@ Notes
 #define POLSYSTEMEMOD_H
 
 #include "../../bscript/execmodl.h"
+namespace Pol {
+  namespace Module {
+	class PolSystemExecutorModule : public Bscript::TmplExecutorModule<PolSystemExecutorModule>
+	{
+	public:
+      PolSystemExecutorModule( Bscript::Executor& exec ) :
+        Bscript::TmplExecutorModule<PolSystemExecutorModule>( "polsys", exec ) {};
 
-class PolSystemExecutorModule : public TmplExecutorModule<PolSystemExecutorModule>
-{
-public:
-    PolSystemExecutorModule( Executor& exec ) :
-      TmplExecutorModule<PolSystemExecutorModule>( "polsys", exec ) {};
-
-	BObjectImp* mf_IncRevision( /* uobject */ );
-    BObjectImp* mf_Packages();
-	BObjectImp* mf_GetCmdLevelName();
-	BObjectImp* mf_GetCmdLevelNumber();
-    BObjectImp* mf_GetPackageByName();
-	BObjectImp* mf_ListTextCommands();
-    BObjectImp* mf_Realms();
-    BObjectImp* mf_ReloadConfiguration();
-    BObjectImp* mf_ReadMillisecondClock();
-    BObjectImp* mf_ListenPoints();
-    BObjectImp* mf_SetSysTrayPopupText();
-    BObjectImp* mf_GetItemDescriptor();
-    BObjectImp* mf_CreatePacket();
-	BObjectImp* mf_AddRealm(/*name,base*/);
-	BObjectImp* mf_DeleteRealm(/*name*/);
-    BObjectImp* mf_MD5Encrypt(/*string*/);
-	BObjectImp* mf_FormatItemDescription(/*string,amount,suffix*/);
-};
-
+      Bscript::BObjectImp* mf_IncRevision( /* uobject */ );
+      Bscript::BObjectImp* mf_Packages( );
+      Bscript::BObjectImp* mf_GetCmdLevelName( );
+      Bscript::BObjectImp* mf_GetCmdLevelNumber( );
+      Bscript::BObjectImp* mf_GetPackageByName( );
+      Bscript::BObjectImp* mf_ListTextCommands( );
+      Bscript::BObjectImp* mf_Realms( );
+      Bscript::BObjectImp* mf_ReloadConfiguration( );
+      Bscript::BObjectImp* mf_ReadMillisecondClock( );
+      Bscript::BObjectImp* mf_ListenPoints( );
+      Bscript::BObjectImp* mf_SetSysTrayPopupText( );
+      Bscript::BObjectImp* mf_GetItemDescriptor( );
+      Bscript::BObjectImp* mf_CreatePacket( );
+      Bscript::BObjectImp* mf_AddRealm(/*name,base*/ );
+      Bscript::BObjectImp* mf_DeleteRealm(/*name*/ );
+      Bscript::BObjectImp* mf_MD5Encrypt(/*string*/ );
+      Bscript::BObjectImp* mf_FormatItemDescription(/*string,amount,suffix*/ );
+	};
+  }
+}
 #endif

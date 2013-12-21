@@ -7,5 +7,8 @@ Notes
 =======
 
 */
-
-void PrintAllocationData();
+namespace Pol {
+  namespace Core {
+	void PrintAllocationData();
+  }
+}

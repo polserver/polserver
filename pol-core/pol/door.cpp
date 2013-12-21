@@ -22,69 +22,71 @@ Notes
 #include "objtype.h"
 #include "ufunc.h"
 #include "uworld.h"
+namespace Pol {
+  namespace Core {
+	UDoor::UDoor( const Items::DoorDesc& descriptor ) :
+	  ULockable( descriptor, CLASS_ITEM )
+	{}
 
-UDoor::UDoor( const DoorDesc& descriptor ) :
-	ULockable( descriptor, CLASS_ITEM )
-{
-}
+	void UDoor::builtin_on_use( Network::Client *client )
+	{
+	  if ( locked_ )
+	  {
+		private_say_above( client->chr, this, "That is locked." );
+	  }
+	  else
+	  {
+		toggle();
+	  }
+	}
 
-void UDoor::builtin_on_use( Client *client )
-{
-    if (locked_)
-    {
-        private_say_above( client->chr, this, "That is locked." );
-    }
-    else
-    {
-        toggle();
-    }
-}
+	void UDoor::toggle()
+	{
+      const Items::DoorDesc* dd = static_cast<const Items::DoorDesc*>( &itemdesc( ) );
 
-void UDoor::toggle()
-{
-    const DoorDesc* dd = static_cast<const DoorDesc*>(&itemdesc());
+	  unsigned short oldx = x, oldy = y;
 
-    unsigned short oldx = x, oldy = y;
-
-    set_dirty();
-    if (is_open())
-    {
-        if (dd->graphic)
-			graphic = dd->graphic;
+	  set_dirty();
+	  if ( is_open() )
+	  {
+		if ( dd->graphic )
+		  graphic = dd->graphic;
 		else
-			graphic = static_cast<u16>(objtype_);
+		  graphic = static_cast<u16>( objtype_ );
 		x -= dd->xmod;
 		y -= dd->ymod;
-    }
-    else
-    {
-        graphic = dd->open_graphic;
+	  }
+	  else
+	  {
+		graphic = dd->open_graphic;
 		x += dd->xmod;
 		y += dd->ymod;
-    }
-    
-    MoveItemWorldPosition( oldx, oldy, this, NULL );
-	
-	send_item_to_inrange( this );
-}
+	  }
 
-bool UDoor::is_open() const
-{
-	const DoorDesc* dd = static_cast<const DoorDesc*>(&itemdesc());
-    if (graphic == dd->open_graphic)
-        return true;
-    else
-        return false;
-}
+	  MoveItemWorldPosition( oldx, oldy, this, NULL );
 
-void UDoor::open()
-{
-    if (!is_open())
-        toggle();
-}
+	  send_item_to_inrange( this );
+	}
 
-void UDoor::close()
-{
-    if (is_open())
-	    toggle();
+	bool UDoor::is_open() const
+	{
+      const Items::DoorDesc* dd = static_cast<const Items::DoorDesc*>( &itemdesc( ) );
+	  if ( graphic == dd->open_graphic )
+		return true;
+	  else
+		return false;
+	}
+
+	void UDoor::open()
+	{
+	  if ( !is_open() )
+		toggle();
+	}
+
+	void UDoor::close()
+	{
+	  if ( is_open() )
+		toggle();
+	}
+  }
 }

@@ -12,29 +12,31 @@ Notes
 #define PLIB_STATICSERVER_H
 
 #include "realmdescriptor.h"
+namespace Pol {
+  namespace Plib {
+	struct STATIC_INDEX;
+	struct STATIC_ENTRY;
 
-struct STATIC_INDEX;
-struct STATIC_ENTRY;
+	class StaticServer
+	{
+	public:
+	  explicit StaticServer( const RealmDescriptor& descriptor );
+	  ~StaticServer();
+	  StaticServer & operator=( const StaticServer & ) { return *this; }
 
-class StaticServer
-{
-public:
-    explicit StaticServer( const RealmDescriptor& descriptor );
-    ~StaticServer();
-	StaticServer & operator=( const StaticServer & ) { return *this; }
+	  bool findstatic( unsigned short x, unsigned short y, unsigned short objtype ) const;
+	  void getstatics( StaticEntryList& statics, unsigned short x, unsigned short y ) const;
 
-    bool findstatic( unsigned short x, unsigned short y, unsigned short objtype ) const;
-    void getstatics( StaticEntryList& statics, unsigned short x, unsigned short y ) const;
+	protected:
+	  void Validate() const;
+	  void ValidateBlock( unsigned short x, unsigned short y ) const;
 
-protected:
-    void Validate() const;
-    void ValidateBlock( unsigned short x, unsigned short y ) const;
+	private:
+	  RealmDescriptor _descriptor;
 
-private:
-    RealmDescriptor _descriptor;
-
-    vector<STATIC_INDEX> _index;
-    vector<STATIC_ENTRY> _statics;
-};
-
+	  vector<STATIC_INDEX> _index;
+	  vector<STATIC_ENTRY> _statics;
+	};
+  }
+}
 #endif

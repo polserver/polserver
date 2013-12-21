@@ -10,9 +10,12 @@ Notes
 
 #ifndef MOVECOST_H
 #define MOVECOST_H
-
-class Character;
-
-unsigned short movecost( const Character* chr, int carry_perc, bool running, bool mounted );
-
+namespace Pol {
+  namespace Mobile {
+    class Character;
+  }
+  namespace Core {
+	unsigned short movecost( const Mobile::Character* chr, int carry_perc, bool running, bool mounted );
+  }
+}
 #endif

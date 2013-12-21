@@ -12,34 +12,45 @@ Notes
 #define __UVARS_H
 
 #include "reftypes.h"
+#include "item/item.h"
 
-class Account;
-class Character;
-class Client;
-class Item;
-class ServerDescription;
-class StartingLocation;
-class UObject;
-class UMulti;
-class UWeapon;
-class WeaponTemplate;
+namespace Pol {
+  namespace Items {
+	class UWeapon;
+  }
+  namespace Accounts {
+	class Account;
+  }
+  namespace Mobile {
+	class Character;
+  }
+  namespace Network {
+	class Client;
+  }
+  namespace Multi {
+	class UMulti;
+  }
+  namespace Core {
+	class ServerDescription;
+	class StartingLocation;
+	class UObject;
+	
 
-typedef vector<AccountRef>           Accounts;
-//typedef vector<Character*>         Characters;
-typedef vector<Client*>            Clients;
-class Items : public vector<Item*> {};
-typedef vector<ServerDescription*> Servers;
-typedef vector<StartingLocation*>  StartingLocations;
+	typedef vector<AccountRef>           AccountsVector;
+	//typedef vector<Character*>         Characters;
+	typedef vector<Network::Client*>            Clients;
+	class ItemsVector : public vector<Items::Item*> {};
+	typedef vector<ServerDescription*> Servers;
+	typedef vector<StartingLocation*>  StartingLocations;
 
-extern Accounts accounts;
-//extern Characters characters;
-//extern Characters offline_characters;
-extern Clients clients;
-extern Clients pending_clients; // these are Clients with ready==false
-extern Servers servers;
-extern StartingLocations startlocations;
-
-extern WeaponTemplate* wrestling_template;
-extern UWeapon* wrestling_weapon;
-
+    extern AccountsVector accounts;
+	//extern Characters characters;
+	//extern Characters offline_characters;
+	extern Clients clients;
+	extern Clients pending_clients; // these are Clients with ready==false
+	extern Servers servers;
+	extern StartingLocations startlocations;
+	extern Items::UWeapon* wrestling_weapon;
+  }
+}
 #endif

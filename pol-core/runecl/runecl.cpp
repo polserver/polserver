@@ -55,252 +55,258 @@ Notes
 
 #include "../clib/timer.h"
 
+namespace Pol {
+  namespace Core {
+    PolConfig config; // needed but not really used def
+  }
+  namespace Runecl {
+    using namespace Bscript;
+    using namespace Module;
 #if REFPTR_DEBUG
-	unsigned int ref_counted::_ctor_calls;
+    unsigned int ref_counted::_ctor_calls;
 #endif
 
-PolConfig config; // needed but not really used def
-
-int quiet = 0;
-int debug = 0;
-bool profile = false;
-void usage(void)
-{
-    cerr << "  Usage:" << endl;
-    cerr << "    " << progverstr << " [options] filespec [filespec ...]" << endl;
-    cerr << "        Options:" << endl;
-    cerr << "            -q    Quiet" << endl;
-    cerr << "            -d    Debug output" << endl;
-    cerr << "            -p    Profile" << endl;
-}
-
-void DumpCaseJmp( ostream& os, const Token& token, EScriptProgram* prog )
-{
-    const unsigned char* dataptr = token.dataptr;
-    for (;;)
+    int quiet = 0;
+    int debug = 0;
+    bool profile = false;
+    void usage( void )
     {
-        unsigned short offset = * (const unsigned short*) dataptr;
+      cerr << "  Usage:" << endl;
+      cerr << "    " << progverstr << " [options] filespec [filespec ...]" << endl;
+      cerr << "        Options:" << endl;
+      cerr << "            -q    Quiet" << endl;
+      cerr << "            -d    Debug output" << endl;
+      cerr << "            -p    Profile" << endl;
+    }
+
+    void DumpCaseJmp( ostream& os, const Token& token, EScriptProgram* prog )
+    {
+      const unsigned char* dataptr = token.dataptr;
+      for ( ;; )
+      {
+        unsigned short offset = *(const unsigned short*)dataptr;
         dataptr += 2;
         unsigned char type = *dataptr;
         dataptr += 1;
-        if (type == CASE_TYPE_LONG)
+        if ( type == CASE_TYPE_LONG )
         {
-            unsigned int lval = * (const unsigned int*) dataptr;
-            dataptr += 4;
-            os << "\t" << lval << ": @" << offset << endl;
+          unsigned int lval = *(const unsigned int*)dataptr;
+          dataptr += 4;
+          os << "\t" << lval << ": @" << offset << endl;
         }
-        else if (type == CASE_TYPE_DEFAULT)
+        else if ( type == CASE_TYPE_DEFAULT )
         {
-            os << "\tdefault: @" << offset << endl;
-            break;
+          os << "\tdefault: @" << offset << endl;
+          break;
         }
         else
         { // type is the length of the string, otherwise
-            os << "\t\"" << string( (const char*)dataptr, type ) << "\": @" << offset << endl;
-            dataptr += type;
+          os << "\t\"" << string( (const char*)dataptr, type ) << "\": @" << offset << endl;
+          dataptr += type;
         }
+      }
     }
-}
 
-BObjectImp::BObjectType ot = BObjectImp::OTLong;
-BApplicObjType aot;
-int x;
+    Bscript::BObjectImp::BObjectType ot = Bscript::BObjectImp::OTLong;
+    BApplicObjType aot;
+    int x;
 
-void foo( BApplicObjType* laot, BObjectImp::BObjectType lot )
-{
-    if (laot == &aot)
+    void foo( BApplicObjType* laot, Bscript::BObjectImp::BObjectType lot )
     {
+      if ( laot == &aot )
+      {
         x = 5;
-    }
+      }
 
-    if (lot == BObjectImp::OTLong)
-    {
+      if ( lot == Bscript::BObjectImp::OTLong )
+      {
         x = 6;
+      }
     }
-}
 
-void DumpScript( const char *path )
-{
-    string fname( path );
-    if (fname.size() >= 4)
-        fname.replace( fname.size()-4, 4, ".ecl" );
-
-    Executor E(cerr);
-    E.setViewMode(true);
-    E.addModule( new BasicExecutorModule(E) );
-    E.addModule( new BasicIoExecutorModule(E, cout) );
-    E.addModule( new MathExecutorModule(E) );
-    E.addModule( new SQLExecutorModule(E));
-	E.addModule( new UtilExecutorModule(E));
-	E.addModule( new FileAccessExecutorModule(E));
-	E.addModule( new ConfigFileExecutorModule(E));
-	E.addModule( new DataFileExecutorModule(E));
-
-    ref_ptr<EScriptProgram> program( new EScriptProgram );
-    program->read( fname.c_str() );
-    E.setProgram( program.get() );
-
-    program->dump( cout );
- 
-/* return;
-	
-	Token token;
-	unsigned PC;
-	for( PC = 0; PC < E.nLines; PC++ )
-	{
-	    if (E.getToken(token, PC)) 
-		{
-		    return;
-		}
-		else
-		{
-			cout << PC << ": " << token;
-            if (debug) cout << " (" << token.id << "," << token.type << ")";
-            cout << endl;
-            if (token.id == INS_CASEJMP)
-            {
-                DumpCaseJmp( cout, token, program.get() );
-            }
-		}
-	}
-*/
-}
-
-void display_bobjectimp_instances();
-int exec_script(const char *path)
-{
-    string fname( path );
-    // TODO: autoconvert to .ecl ?
-
-    Executor E(cerr);
-    E.addModule( new BasicExecutorModule(E) );
-    E.addModule( new BasicIoExecutorModule(E, cout) );
-    E.addModule( new MathExecutorModule(E) );
-    E.addModule( new SQLExecutorModule(E) );
-	E.addModule( new UtilExecutorModule(E));
-	E.addModule( new FileAccessExecutorModule(E));
-	E.addModule( new ConfigFileExecutorModule(E));
-	E.addModule( new DataFileExecutorModule(E));
-
-    ref_ptr<EScriptProgram> program( new EScriptProgram );
-    if (program->read( fname.c_str() ))
+    void DumpScript( const char *path )
     {
+      string fname( path );
+      if ( fname.size() >= 4 )
+        fname.replace( fname.size() - 4, 4, ".ecl" );
+
+      Executor E( cerr );
+      E.setViewMode( true );
+      E.addModule( new BasicExecutorModule( E ) );
+      E.addModule( new BasicIoExecutorModule( E, cout ) );
+      E.addModule( new MathExecutorModule( E ) );
+      E.addModule( new SQLExecutorModule( E ) );
+      E.addModule( new UtilExecutorModule( E ) );
+      E.addModule( new FileAccessExecutorModule( E ) );
+      E.addModule( new ConfigFileExecutorModule( E ) );
+      E.addModule( new DataFileExecutorModule( E ) );
+
+      ref_ptr<EScriptProgram> program( new EScriptProgram );
+      program->read( fname.c_str() );
+      E.setProgram( program.get() );
+
+      program->dump( cout );
+
+      /* return;
+
+          Token token;
+          unsigned PC;
+          for( PC = 0; PC < E.nLines; PC++ )
+          {
+          if (E.getToken(token, PC))
+          {
+          return;
+          }
+          else
+          {
+          cout << PC << ": " << token;
+          if (debug) cout << " (" << token.id << "," << token.type << ")";
+          cout << endl;
+          if (token.id == INS_CASEJMP)
+          {
+          DumpCaseJmp( cout, token, program.get() );
+          }
+          }
+          }
+          */
+    }
+
+    void display_bobjectimp_instances();
+    int exec_script( const char *path )
+    {
+      string fname( path );
+      // TODO: autoconvert to .ecl ?
+
+      Executor E( cerr );
+      E.addModule( new BasicExecutorModule( E ) );
+      E.addModule( new BasicIoExecutorModule( E, cout ) );
+      E.addModule( new MathExecutorModule( E ) );
+      E.addModule( new SQLExecutorModule( E ) );
+      E.addModule( new UtilExecutorModule( E ) );
+      E.addModule( new FileAccessExecutorModule( E ) );
+      E.addModule( new ConfigFileExecutorModule( E ) );
+      E.addModule( new DataFileExecutorModule( E ) );
+
+      ref_ptr<EScriptProgram> program( new EScriptProgram );
+      if ( program->read( fname.c_str() ) )
+      {
         cerr << "Error reading " << fname << endl;
         return 1;
-    }
-    E.setProgram( program.get() );
+      }
+      E.setProgram( program.get() );
 
-    E.setDebugLevel(debug ? Executor::INSTRUCTIONS : Executor::NONE);
-    clock_t start = clock();
+      E.setDebugLevel( debug ? Executor::INSTRUCTIONS : Executor::NONE );
+      clock_t start = clock();
 #ifdef _WIN32
-    FILETIME dummy;
-    FILETIME kernelStart, userStart;
-    GetThreadTimes( GetCurrentThread(), &dummy, &dummy, &kernelStart, &userStart );
+      FILETIME dummy;
+      FILETIME kernelStart, userStart;
+      GetThreadTimes( GetCurrentThread(), &dummy, &dummy, &kernelStart, &userStart );
 #endif
-    bool exres = E.exec();
+      bool exres = E.exec();
 #ifdef _WIN32
-    FILETIME kernelEnd, userEnd;
-    GetThreadTimes( GetCurrentThread(), &dummy, &dummy, &kernelEnd, &userEnd );
+      FILETIME kernelEnd, userEnd;
+      GetThreadTimes( GetCurrentThread(), &dummy, &dummy, &kernelEnd, &userEnd );
 #endif
-    clock_t clocks = clock()-start;
-    double seconds = static_cast<double>(clocks)/CLOCKS_PER_SEC;
+      clock_t clocks = clock() - start;
+      double seconds = static_cast<double>( clocks ) / CLOCKS_PER_SEC;
 
-    if (profile)
-    {
+      if ( profile )
+      {
         cout << "Profiling information: " << endl;
         cout << "\tEObjectImp constructions: " << eobject_imp_constructions << endl;
-        if (eobject_imp_count)
-            cout << "\tRemaining BObjectImps: " << eobject_imp_count << endl;
+        if ( eobject_imp_count )
+          cout << "\tRemaining BObjectImps: " << eobject_imp_count << endl;
         cout << "\tInstruction cycles: " << escript_instr_cycles << endl;
         cout << "\tInnerExec calls: " << escript_execinstr_calls << endl;
         cout << "\tClocks: " << clocks << " (" << seconds << " seconds)" << endl;
 #ifdef _WIN32
-        cout << "\tKernel Time: " << (*(__int64*)&kernelEnd) - (*(__int64*)&kernelStart) << endl;
-        cout << "\tUser Time:   " << (*(__int64*)&userEnd) - (*(__int64*)&userStart) << endl;
+        cout << "\tKernel Time: " << ( *(__int64*)&kernelEnd ) - ( *(__int64*)&kernelStart ) << endl;
+        cout << "\tUser Time:   " << ( *(__int64*)&userEnd ) - ( *(__int64*)&userStart ) << endl;
 #endif
         cout << "\tSpace used: " << E.sizeEstimate() << endl;
         cout << endl;
-        cout.precision(0);
-        cout << "\tCycles Per Second: " << std::fixed << std::noshowpoint << setw(14) << escript_instr_cycles / seconds << endl;
-        cout << "\tCycles Per Minute: " << std::fixed << std::noshowpoint << setw(14) << 60.0 * escript_instr_cycles / seconds << endl;
-        cout << "\tCycles Per Hour:   " << std::fixed << std::noshowpoint << setw(14) << 3600.0 * escript_instr_cycles / seconds << endl;
+        cout.precision( 0 );
+        cout << "\tCycles Per Second: " << std::fixed << std::noshowpoint << setw( 14 ) << escript_instr_cycles / seconds << endl;
+        cout << "\tCycles Per Minute: " << std::fixed << std::noshowpoint << setw( 14 ) << 60.0 * escript_instr_cycles / seconds << endl;
+        cout << "\tCycles Per Hour:   " << std::fixed << std::noshowpoint << setw( 14 ) << 3600.0 * escript_instr_cycles / seconds << endl;
 #if BOBJECTIMP_DEBUG
-	display_bobjectimp_instances();
+        display_bobjectimp_instances();
 #endif
 #ifdef ESCRIPT_PROFILE
-		cout << "FuncName,Count,Min,Max,Sum,Avarage" << endl;
-		for (escript_profile_map::iterator itr=EscriptProfileMap.begin();itr!=EscriptProfileMap.end();++itr)
-		{
-			cout << itr->first << "," << itr->second.count << "," << itr->second.min << "," << itr->second.max << "," << itr->second.sum << "," 
-				<< (itr->second.sum / itr->second.count) << endl;
-		}
-#endif
-    }
-    return exres ? 0 : 1;
-}
-
-int run(int argc, char **argv)
-{
-    for(int i=1;i<argc;i++) 
-    {
-        switch(argv[i][0]) 
+        cout << "FuncName,Count,Min,Max,Sum,Avarage" << endl;
+        for (escript_profile_map::iterator itr=EscriptProfileMap.begin();itr!=EscriptProfileMap.end();++itr)
         {
-            case '/': case '-':
-                switch(argv[i][1]) 
-                {
-                    case 'a': case 'A':
-                    case 'd': case 'D':
-                    case 'v': case 'V':
-                    case 'q': case 'Q':
-                    case 'p': case 'P':
-                        break;
-                    default:
-                        cerr << "Unknown option: " << argv[i] << endl;
-                        usage();
-                        return 1;
-                }
-                break;
-            default:
-                return exec_script( argv[i] );
+          cout << itr->first << "," << itr->second.count << "," << itr->second.min << "," << itr->second.max << "," << itr->second.sum << "," 
+            << (itr->second.sum / itr->second.count) << endl;
         }
+#endif
+      }
+      return exres ? 0 : 1;
     }
-    return 0;
-}
 
-int xmain(int argc, char *argv[])
-{
-    StoreCmdArgs( argc, argv );
-    
+    int run( int argc, char **argv )
+    {
+      for ( int i = 1; i < argc; i++ )
+      {
+        switch ( argv[i][0] )
+        {
+          case '/': case '-':
+            switch ( argv[i][1] )
+            {
+              case 'a': case 'A':
+              case 'd': case 'D':
+              case 'v': case 'V':
+              case 'q': case 'Q':
+              case 'p': case 'P':
+                break;
+              default:
+                cerr << "Unknown option: " << argv[i] << endl;
+                usage();
+                return 1;
+            }
+            break;
+          default:
+            return exec_script( argv[i] );
+        }
+      }
+      return 0;
+    }
+  }
+  int xmain( int argc, char *argv[] )
+  {
+    Clib::StoreCmdArgs( argc, argv );
+
     strcpy( progverstr, "RUNECL" );
     progver = 1;
 
-	escript_config.max_call_depth = 100;
-    quiet = FindArg("q") ? 1 : 0;
-    debug = FindArg("d") ? 1 : 0;
-    profile = FindArg( "p" ) ? 1 : 0;
-    passert_disabled = FindArg( "a" ) ? false : true;
+    Runecl::escript_config.max_call_depth = 100;
+    Runecl::quiet = Clib::FindArg( "q" ) ? 1 : 0;
+    Runecl::debug = Clib::FindArg( "d" ) ? 1 : 0;
+    Runecl::profile = Clib::FindArg( "p" ) ? 1 : 0;
+    Clib::passert_disabled = Clib::FindArg( "a" ) ? false : true;
 
-    if (!quiet)
+    if ( !Runecl::quiet )
     {
-		// vX.YY
-		double vernum = (double)progver + (double)(ESCRIPT_FILE_VER_CURRENT / 100.0f);
-        cerr << "EScript Executor v" << vernum << endl;
-        cerr << "Copyright (C) 1993-2013 Eric N. Swanson" << endl;
-        cerr << endl;
+      // vX.YY
+      double vernum = (double)progver + (double)( ESCRIPT_FILE_VER_CURRENT / 100.0f );
+      cerr << "EScript Executor v" << vernum << endl;
+      cerr << "Copyright (C) 1993-2013 Eric N. Swanson" << endl;
+      cerr << endl;
     }
 
-    if (argc==1) 
+    if ( argc == 1 )
     {
-        usage();
-        return 1;
+      Runecl::usage( );
+      return 1;
     }
 
-    const char *todump = FindArg( "v" );
-    if (todump)
+    const char *todump = Clib::FindArg( "v" );
+    if ( todump )
     {
-        DumpScript( todump );
-        return 0;
+      Runecl::DumpScript( todump );
+      return 0;
     }
 
-    return run(argc, argv);
+    return Runecl::run( argc, argv );
+  }
 }

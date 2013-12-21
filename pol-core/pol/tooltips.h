@@ -15,9 +15,11 @@ Notes
 #include "network/client.h"
 #include "uconst.h"
 #include "uobject.h"
-
-void send_object_cache(Client* client, const UObject* obj);
-void send_object_cache_to_inrange(const UObject* obj);
-void SendAOSTooltip(Client* client,UObject* item, bool vendor_content = false);
-
+namespace Pol {
+  namespace Core {
+	void send_object_cache( Network::Client* client, const UObject* obj );
+	void send_object_cache_to_inrange( const UObject* obj );
+    void SendAOSTooltip( Network::Client* client, UObject* item, bool vendor_content = false );
+  }
+}
 #endif

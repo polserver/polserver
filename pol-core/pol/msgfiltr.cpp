@@ -18,63 +18,66 @@ Notes
 #include "pktin.h"
 
 #include "msgfiltr.h"
+namespace Pol {
+  namespace Core {
+	MessageTypeFilter::MessageTypeFilter( MessageDefault def, int* exceptions )
+	{
+	  unsigned char normal;
+	  unsigned char abnormal;
+	  if ( def == NormallyDisabled )
+		normal = 0;
+	  else
+		normal = 1;
+	  abnormal = !normal;
 
-MessageTypeFilter::MessageTypeFilter( MessageDefault def, int* exceptions )
-{
-    unsigned char normal;
-    unsigned char abnormal;
-    if (def == NormallyDisabled)
-        normal = 0;
-    else
-        normal = 1;
-    abnormal = !normal;
+	  memset( msgtype_allowed, normal, sizeof msgtype_allowed );
 
-    memset( msgtype_allowed, normal, sizeof msgtype_allowed );
-    
-    while (*exceptions != -1)
-    {
-        msgtype_allowed[ *exceptions & 0xFF ] = abnormal;
-        ++exceptions;
-    }
+	  while ( *exceptions != -1 )
+	  {
+		msgtype_allowed[*exceptions & 0xFF] = abnormal;
+		++exceptions;
+	  }
+	}
+
+	int login_exceptions[] =
+	{
+	  PKTIN_00_ID,
+	  PKTIN_5D_ID,
+	  PKTBI_73_ID,
+	  PKTIN_80_ID,
+	  PKTIN_83_ID,
+	  PKTIN_91_ID,
+	  PKTIN_A0_ID,
+	  PKTIN_A4_ID,
+	  PKTIN_D9_ID,
+	  PKTIN_E1_ID, // Used by UO:KR & SA
+	  PKTIN_E4_ID, // Used by UO:KR
+	  PKTIN_8D_ID,
+	  PKTIN_F8_ID,
+	  -1
+	};
+	MessageTypeFilter login_filter( MessageTypeFilter::NormallyDisabled, login_exceptions );
+
+	int game_exceptions[] =
+	{
+	  PKTIN_00_ID,
+	  PKTIN_5D_ID,
+	  PKTIN_80_ID,
+	  PKTIN_83_ID,
+	  PKTIN_91_ID,
+	  PKTIN_A0_ID,
+	  PKTIN_A4_ID,
+	  PKTIN_D9_ID,
+	  PKTIN_8D_ID,
+	  PKTIN_F8_ID,
+	  -1
+	};
+	MessageTypeFilter game_filter( MessageTypeFilter::NormallyEnabled, game_exceptions );
+
+	int no_exceptions[] =
+	{
+	  -1
+	};
+	MessageTypeFilter disconnected_filter( MessageTypeFilter::NormallyDisabled, no_exceptions );
+  }
 }
-
-int login_exceptions[] =
-{
-    PKTIN_00_ID,
-    PKTIN_5D_ID,
-    PKTBI_73_ID,
-	PKTIN_80_ID,
-    PKTIN_83_ID,
-    PKTIN_91_ID,
-    PKTIN_A0_ID,
-    PKTIN_A4_ID,
-    PKTIN_D9_ID,
-	PKTIN_E1_ID, // Used by UO:KR & SA
-	PKTIN_E4_ID, // Used by UO:KR
-    PKTIN_8D_ID,
-	PKTIN_F8_ID,
-    -1
-};
-MessageTypeFilter login_filter( MessageTypeFilter::NormallyDisabled, login_exceptions );
-
-int game_exceptions[] =
-{
-    PKTIN_00_ID,
-    PKTIN_5D_ID,
-	PKTIN_80_ID,
-    PKTIN_83_ID,
-    PKTIN_91_ID,
-    PKTIN_A0_ID,
-    PKTIN_A4_ID,
-    PKTIN_D9_ID,
-    PKTIN_8D_ID,
-	PKTIN_F8_ID,
-    -1
-};
-MessageTypeFilter game_filter( MessageTypeFilter::NormallyEnabled, game_exceptions );
-
-int no_exceptions[] =
-{
-    -1
-};
-MessageTypeFilter disconnected_filter( MessageTypeFilter::NormallyDisabled, no_exceptions );

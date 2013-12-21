@@ -13,11 +13,14 @@ Notes
 
 #ifndef ACCOUNTS_H
 #define ACCOUNTS_H
-
-Account* create_new_account( const std::string& acctname, const std::string& password, bool enabled );
-Account* duplicate_account( const std::string& oldacctname, const std::string& newacctname );
-Account* find_account( const char* acctname );
-int delete_account( const char* acctname );
-void write_account_data();
-extern bool accounts_txt_dirty;
+namespace Pol {
+  namespace Accounts {
+	Account* create_new_account( const std::string& acctname, const std::string& password, bool enabled );
+	Account* duplicate_account( const std::string& oldacctname, const std::string& newacctname );
+	Account* find_account( const char* acctname );
+	int delete_account( const char* acctname );
+	void write_account_data();
+	extern bool accounts_txt_dirty;
+  }
+}
 #endif

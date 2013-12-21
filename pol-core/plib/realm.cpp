@@ -19,91 +19,95 @@ Notes
 #include "maptileserver.h"
 #include "../pol/uworld.h"
 
-Realm::Realm( const string& realm_name, const string& realm_path ) :
-	is_shadowrealm(false),
-	toplevel_item_count(0),
-	mobile_count(0),
-	_descriptor( RealmDescriptor::Load( realm_name, realm_path ) ),
-	_mapserver( MapServer::Create( _descriptor ) ),
-	_staticserver( new StaticServer( _descriptor ) ),
-	_maptileserver( new MapTileServer( _descriptor ) )
-{
+namespace Pol {
+  namespace Plib {
+	Realm::Realm( const string& realm_name, const string& realm_path ) :
+	  is_shadowrealm( false ),
+	  toplevel_item_count( 0 ),
+	  mobile_count( 0 ),
+	  _descriptor( RealmDescriptor::Load( realm_name, realm_path ) ),
+	  _mapserver( MapServer::Create( _descriptor ) ),
+	  _staticserver( new StaticServer( _descriptor ) ),
+	  _maptileserver( new MapTileServer( _descriptor ) )
+	{
 
-	size_t gridwidth = width() / WGRID_SIZE;
-	size_t gridheight = height() / WGRID_SIZE;
+	  size_t gridwidth = width( ) / Core::WGRID_SIZE;
+	  size_t gridheight = height( ) / Core::WGRID_SIZE;
 
-	// Tokuno-Fix
-	if (gridwidth * WGRID_SIZE < width())
+	  // Tokuno-Fix
+	  if ( gridwidth * Core::WGRID_SIZE < width( ) )
 		gridwidth++;
-	if (gridheight * WGRID_SIZE < height())
+	  if ( gridheight * Core::WGRID_SIZE < height( ) )
 		gridheight++;
 
-	zone = new Zone*[gridwidth];
+	  zone = new Core::Zone*[gridwidth];
 
-	for(size_t i=0; i<gridwidth; i++)
-		zone[i] = new Zone[gridheight];
-}
+	  for ( size_t i = 0; i < gridwidth; i++ )
+		zone[i] = new Core::Zone[gridheight];
+	}
 
-Realm::Realm( const string& realm_name, Realm* realm ) :
-	is_shadowrealm(true),
-	baserealm(realm),
-	shadowname(realm_name),
-	toplevel_item_count(0),
-	mobile_count(0),
-	_descriptor( )
-{
-	size_t gridwidth = width() / WGRID_SIZE;
-	size_t gridheight = height() / WGRID_SIZE;
+	Realm::Realm( const string& realm_name, Realm* realm ) :
+	  is_shadowrealm( true ),
+	  baserealm( realm ),
+	  shadowname( realm_name ),
+	  toplevel_item_count( 0 ),
+	  mobile_count( 0 ),
+	  _descriptor()
+	{
+	  size_t gridwidth = width( ) / Core::WGRID_SIZE;
+	  size_t gridheight = height( ) / Core::WGRID_SIZE;
 
-	// Tokuno-Fix
-	if (gridwidth * WGRID_SIZE < width())
+	  // Tokuno-Fix
+	  if ( gridwidth * Core::WGRID_SIZE < width( ) )
 		gridwidth++;
-	if (gridheight * WGRID_SIZE < height())
+	  if ( gridheight * Core::WGRID_SIZE < height( ) )
 		gridheight++;
 
-	zone = new Zone*[gridwidth];
+	  zone = new Core::Zone*[gridwidth];
 
-	for(size_t i=0; i<gridwidth; i++)
-		zone[i] = new Zone[gridheight];
-}
+	  for ( size_t i = 0; i < gridwidth; i++ )
+		zone[i] = new Core::Zone[gridheight];
+	}
 
-Realm::~Realm()
-{
-	size_t gridwidth = width() / WGRID_SIZE;
+	Realm::~Realm()
+	{
+	  size_t gridwidth = width() / Core::WGRID_SIZE;
 
-	// Tokuno-Fix
-	if (gridwidth * WGRID_SIZE < width())
+	  // Tokuno-Fix
+	  if ( gridwidth * Core::WGRID_SIZE < width( ) )
 		gridwidth++;
 
-	for(size_t i=0; i<gridwidth; i++)
+	  for ( size_t i = 0; i < gridwidth; i++ )
 		delete[] zone[i];
-	delete[] zone;
-}
+	  delete[] zone;
+	}
 
-unsigned short Realm::width() const
-{
-	return _Descriptor().width;
-}
+	unsigned short Realm::width() const
+	{
+	  return _Descriptor().width;
+	}
 
-unsigned short Realm::height() const
-{
-    return _Descriptor().height;
-}
+	unsigned short Realm::height() const
+	{
+	  return _Descriptor().height;
+	}
 
-unsigned Realm::season() const
-{
-    return _Descriptor().season;
-}
+	unsigned Realm::season() const
+	{
+	  return _Descriptor().season;
+	}
 
-bool Realm::valid( unsigned short x, unsigned short y, short z ) const
-{
-    return (x < _Descriptor().width && y < _Descriptor().height &&
-            z >= -128 && z <= 127);
-}
+	bool Realm::valid( unsigned short x, unsigned short y, short z ) const
+	{
+	  return ( x < _Descriptor().width && y < _Descriptor().height &&
+			   z >= -128 && z <= 127 );
+	}
 
-const string Realm::name() const
-{
-	if (is_shadowrealm)
+	const string Realm::name() const
+	{
+	  if ( is_shadowrealm )
 		return shadowname;
-	return _descriptor.name;
+	  return _descriptor.name;
+	}
+  }
 }

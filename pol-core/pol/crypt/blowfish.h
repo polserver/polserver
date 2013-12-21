@@ -8,30 +8,32 @@
 #define __BLOWFISH_H__
 
 #include "cryptbase.h"
+namespace Pol {
+  namespace Crypt {
+	class BlowFish
+	{
 
-class BlowFish
-{
+	  // Constructor / Destructor
+	public:
+	  BlowFish();
+	  ~BlowFish();
 
-// Constructor / Destructor
-public:
-	BlowFish();
-	~BlowFish();
+	  // Member Functions
 
-// Member Functions
+	public:
+	  void	Init();
+	  void	Decrypt( unsigned char * in, unsigned char * out, int len );
 
-public:	
-	void	Init();
-	void	Decrypt( unsigned char * in, unsigned char * out, int len );
+	protected:
+	  static bool		tables_ready;
+	  unsigned char	game_seed[CRYPT_GAMESEED_LENGTH];
+	  int				table_index;
+	  int				block_pos;
+	  int				stream_pos;
 
-protected:
-    static bool		tables_ready;
-    unsigned char	game_seed[CRYPT_GAMESEED_LENGTH];
-    int				table_index;
-    int				block_pos;
-    int				stream_pos;
-
-    static void	InitTables();
-    static void	RawDecrypt( unsigned int * values, int table );
-};
-
+	  static void	InitTables();
+	  static void	RawDecrypt( unsigned int * values, int table );
+	};
+  }
+}
 #endif //__BLOWFISH_H__

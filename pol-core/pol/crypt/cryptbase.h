@@ -66,47 +66,49 @@
 #include "../ucfg.h"
 #include "../../clib/passert.h"
 #include "logincrypt.h"
+namespace Pol {
+  namespace Crypt {
+	//basic class only used directly by NoCrypt
+	class CCryptBase
+	{
+	  // Constructor / Destructor
+	public:
+	  CCryptBase();
+	  virtual ~CCryptBase();
 
-//basic class only used directly by NoCrypt
-class CCryptBase
-{
-// Constructor / Destructor
-public:
-	CCryptBase();
-	virtual ~CCryptBase();
+	  enum e_crypttype { typeLogin, typeGame, typeAuto };
 
-	enum e_crypttype { typeLogin, typeGame, typeAuto };
+	  // Member Functions
+	public:
+	  virtual int	Receive( void *buffer, int max_expected, SOCKET socket ) = 0;
+	  virtual void	Init( void *pvSeed, int type = typeAuto ) = 0;
+	  virtual void	Encrypt( void *pvIn, void *pvOut, int len ) {};
+	};
 
-// Member Functions
-public:
-	virtual int		Receive(void *buffer, int max_expected, SOCKET socket) = 0;
-	virtual void	Init(void *pvSeed, int type = typeAuto) = 0;
-	virtual void	Encrypt(void *pvIn, void *pvOut, int len) {};
-};
+	//crypt class
 
-//crypt class
+	class CCryptBaseCrypt : public CCryptBase
+	{
+	  // Constructor / Destructor
+	public:
+	  CCryptBaseCrypt();
+	  virtual ~CCryptBaseCrypt();
 
-class CCryptBaseCrypt : public CCryptBase
-{
-// Constructor / Destructor
-public:
-	CCryptBaseCrypt();
-	virtual ~CCryptBaseCrypt();
+	  LoginCrypt lcrypt;
 
-	LoginCrypt lcrypt;
+	  // Member Variables
+	protected:
+	  int				m_type;
+	  unsigned int	m_masterKey[2];
+	  unsigned char	encrypted_data[MAXBUFFER];
 
-// Member Variables
-protected:
-	int				m_type;
-	unsigned int	m_masterKey[2];
-	unsigned char	encrypted_data[ MAXBUFFER ];
+	  // Member Functions
+	public:
+	  virtual void	SetMasterKeys( unsigned int masterKey1, unsigned int masterKey2 ) = 0;
 
-// Member Functions
-public:
-	virtual void	SetMasterKeys(unsigned int masterKey1, unsigned int masterKey2) = 0;
-
-protected:
-	virtual void	Decrypt(void *pvIn, void *pvOut, int len) = 0;
-};
-
+	protected:
+	  virtual void	Decrypt( void *pvIn, void *pvOut, int len ) = 0;
+	};
+  }
+}
 #endif //__CRYPTBASE_H__
