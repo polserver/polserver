@@ -123,7 +123,7 @@
     <Lib>
       <OutputFile>.\Release\clib.lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>..\..\lib\boost_1_54_0\lib\x86\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\lib\boost_1_55_0\lib\x86\lib</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -153,7 +153,7 @@
       <OutputFile>.\Release\x64/clib.lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TargetMachine>MachineX64</TargetMachine>
-      <AdditionalLibraryDirectories>..\..\lib\boost_1_54_0\lib\x64\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\lib\boost_1_55_0\lib\x64\lib</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -183,7 +183,7 @@
     <Lib>
       <OutputFile>.\Debug\clib.lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>..\..\lib\boost_1_54_0\lib\x86\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\lib\boost_1_55_0\lib\x86\lib</AdditionalLibraryDirectories>
     </Lib>
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>
@@ -215,7 +215,7 @@
     <Lib>
       <OutputFile>.\Debug\x64/clib.lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>..\..\lib\boost_1_54_0\lib\x64\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\lib\boost_1_55_0\lib\x64\lib</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>

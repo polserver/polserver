@@ -126,7 +126,7 @@
       <AdditionalDependencies>wsock32.lib;odbc32.lib;odbccp32.lib;libmysql.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>.\Release/pol.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>..\..\lib\boost_1_54_0\lib\x86\lib;..\..\lib\mysql-connector-c-6.0.2-win32\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\lib\boost_1_55_0\lib\x86\lib;..\..\lib\mysql-connector-c-6.0.2-win32\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <DelayLoadDLLs>%(DelayLoadDLLs)</DelayLoadDLLs>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>.\Release/pol.pdb</ProgramDatabaseFile>
@@ -171,7 +171,7 @@
       <AdditionalDependencies>wsock32.lib;odbc32.lib;odbccp32.lib;libmysql.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>.\Release/x64/pol.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>..\..\lib\boost_1_54_0\lib\x64\lib;..\..\lib\mysql-connector-c-6.0.2-winx64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\lib\boost_1_55_0\lib\x64\lib;..\..\lib\mysql-connector-c-6.0.2-winx64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <DelayLoadDLLs>%(DelayLoadDLLs)</DelayLoadDLLs>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>.\Release/x64/pol.pdb</ProgramDatabaseFile>
@@ -216,7 +216,7 @@
       <AdditionalDependencies>wsock32.lib;odbc32.lib;odbccp32.lib;libmysql.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>.\Debug/pol.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>..\..\lib\boost_1_54_0\lib\x86\lib;..\..\lib\mysql-connector-c-6.0.2-win32\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\lib\boost_1_55_0\lib\x86\lib;..\..\lib\mysql-connector-c-6.0.2-win32\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <DelayLoadDLLs>%(DelayLoadDLLs)</DelayLoadDLLs>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>.\Debug/pol.pdb</ProgramDatabaseFile>
@@ -256,7 +256,7 @@
       <AdditionalDependencies>wsock32.lib;odbc32.lib;odbccp32.lib;libmysql.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>.\Debug/x64/pol.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>..\..\lib\boost_1_54_0\lib\x64\lib;..\..\lib\mysql-connector-c-6.0.2-winx64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\lib\boost_1_55_0\lib\x64\lib;..\..\lib\mysql-connector-c-6.0.2-winx64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <DelayLoadDLLs>%(DelayLoadDLLs)</DelayLoadDLLs>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>.\Debug/x64/pol.pdb</ProgramDatabaseFile>
