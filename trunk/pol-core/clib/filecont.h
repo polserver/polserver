@@ -2,16 +2,18 @@
 #define CLIB_FILECONT_H
 
 #include <string>
+namespace Pol {
+  namespace Clib {
+	class FileContents
+	{
+	public:
+	  FileContents( const char* filname );
 
-class FileContents
-{
-public:
-    FileContents( const char* filname );
-
-    const char* contents() const;
-    void set_contents( const std::string& str );
-private:
-    std::string contents_;
-};
-
+	  const char* contents() const;
+	  void set_contents( const std::string& str );
+	private:
+	  std::string contents_;
+	};
+  }
+}
 #endif

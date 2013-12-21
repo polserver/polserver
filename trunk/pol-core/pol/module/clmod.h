@@ -11,18 +11,20 @@ Notes
 #define CLILOCEMOD_H
 
 #include "../../bscript/execmodl.h"
+namespace Pol {
+  namespace Module {
+	class ClilocExecutorModule : public Bscript::TmplExecutorModule<ClilocExecutorModule>
+	{
+	public:
+	  ClilocExecutorModule( Bscript::Executor& exec ) :
+		Bscript::TmplExecutorModule<ClilocExecutorModule>( "cliloc", exec ) {};
 
-class ClilocExecutorModule : public TmplExecutorModule<ClilocExecutorModule>
-{
-public:
-	ClilocExecutorModule( Executor& exec ) :
-	TmplExecutorModule<ClilocExecutorModule>( "cliloc", exec ) {};
+	  Bscript::BObjectImp* mf_SendSysMessageCL( );
+	  Bscript::BObjectImp* mf_PrintTextAboveCL( );
+	  Bscript::BObjectImp* mf_PrintTextAbovePrivateCL( );
 
-	BObjectImp* mf_SendSysMessageCL( );
-	BObjectImp* mf_PrintTextAboveCL( );
-	BObjectImp* mf_PrintTextAbovePrivateCL( );
-
-};
-
+	};
+  }
+}
 
 #endif

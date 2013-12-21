@@ -11,30 +11,33 @@ Notes
 
 #ifndef EXTOBJ_H
 #define EXTOBJ_H
+namespace Pol {
+  namespace Core {
+	struct ExternalObject
+	{
+	  unsigned int tillerman;
+	  unsigned int port_plank;
+	  unsigned int starboard_plank;
+	  unsigned int hold;
+	  unsigned int rope;
+	  unsigned int wheel;
+	  unsigned int hull;
+	  unsigned int tiller;
+	  unsigned int rudder;
+	  unsigned int sails;
+	  unsigned int storage;
+	  unsigned int weaponslot;
 
-struct ExternalObject {
-	unsigned int tillerman;
-	unsigned int port_plank;
-	unsigned int starboard_plank;
-	unsigned int hold;
-	unsigned int rope;
-	unsigned int wheel;
-	unsigned int hull;
-	unsigned int tiller;
-	unsigned int rudder;
-	unsigned int sails;
-	unsigned int storage;
-	unsigned int weaponslot;
+	  unsigned int wrestling;
+	  unsigned int mount;
 
-	unsigned int wrestling;
-	unsigned int mount;
+	  unsigned int secure_trade_container;
+	  unsigned int wornitems_container;
+	};
 
-	unsigned int secure_trade_container;
-	unsigned int wornitems_container;
-};
+	extern ExternalObject extobj;
 
-extern ExternalObject extobj;
-
-void read_extobj();
-
+	void read_extobj();
+  }
+}
 #endif

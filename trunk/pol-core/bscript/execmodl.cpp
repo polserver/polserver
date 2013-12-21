@@ -20,8 +20,11 @@ Notes
 #include "execmodl.h"
 #include "impstr.h"
  
-
-const string& ExecutorModule::scriptname() const
-{
-    return exec.prog_->name;
+namespace Pol {
+  namespace Bscript {
+	const string& ExecutorModule::scriptname() const
+	{
+	  return exec.prog_->name;
+	}
+  }
 }

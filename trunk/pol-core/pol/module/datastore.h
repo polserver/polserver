@@ -12,22 +12,25 @@ Notes
 #define DATASTORE_H
 
 #include "../../bscript/execmodl.h"
+namespace Pol {
+  namespace Module {
+	class DataStoreFile;
 
-class DataStoreFile;
+	class DataFileExecutorModule : public Bscript::TmplExecutorModule<DataFileExecutorModule>
+	{
+	public:
+	  DataFileExecutorModule( Bscript::Executor& exec ) :
+		Bscript::TmplExecutorModule<DataFileExecutorModule>( "datafile", exec ) {}
 
-class DataFileExecutorModule : public TmplExecutorModule<DataFileExecutorModule>
-{
-public:
-    DataFileExecutorModule( Executor& exec ) :
-        TmplExecutorModule<DataFileExecutorModule>( "datafile", exec ) {}
+	  Bscript::BObjectImp* mf_ListDataFiles();
+	  Bscript::BObjectImp* mf_CreateDataFile();
+	  Bscript::BObjectImp* mf_OpenDataFile();
+	  Bscript::BObjectImp* mf_UnloadDataFile();
 
-	BObjectImp* mf_ListDataFiles();
-	BObjectImp* mf_CreateDataFile();
-	BObjectImp* mf_OpenDataFile();
-	BObjectImp* mf_UnloadDataFile();
-
-private:
-    DataStoreFile* GetDataStoreFile( const std::string& inspec );
-};
+	private:
+	  DataStoreFile* GetDataStoreFile( const std::string& inspec );
+	};
+  }
+}
 
 #endif

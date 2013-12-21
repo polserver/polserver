@@ -13,12 +13,15 @@ Notes
 
 #include <string>
 #include <vector>
+namespace Pol {
+  namespace Network {
+	struct IPRule
+	{
+	  unsigned int ipMatch;
+	  unsigned int ipMask;
+	};
 
-struct IPRule
-{
-	unsigned int ipMatch;
-	unsigned int ipMask;
-};
+	std::vector< IPRule > banned_ips;
 
-std::vector< IPRule > banned_ips;
-
+  }
+}

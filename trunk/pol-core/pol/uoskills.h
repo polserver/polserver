@@ -12,25 +12,31 @@ Notes
 #define UOSKILLS_H
 
 #include <string>
+namespace Pol {
+  namespace Plib {
+	class Package;
+  }
+  namespace Mobile {
+	class Attribute;
+  }
+  namespace Core {
 
-class Attribute;
-class Package;
+	class UOSkill
+	{
+	public:
+	  UOSkill( const Plib::Package* pkg, Clib::ConfigElem& elem );
+	  UOSkill();
 
-class UOSkill
-{
-public:
-    UOSkill( const Package* pkg, ConfigElem& elem );
-    UOSkill();
+	  bool inited;
+	  unsigned skillid;
+	  std::string attributename;
+	  const Mobile::Attribute* pAttr;
 
-    bool inited;
-    unsigned skillid;
-    std::string attributename;
-    const Attribute* pAttr;
-    
-    const Package* pkg;
-};
+	  const Plib::Package* pkg;
+	};
 
-const UOSkill& GetUOSkill( unsigned skillid );
-void clean_skills();
-
+	const UOSkill& GetUOSkill( unsigned skillid );
+	void clean_skills();
+  }
+}
 #endif

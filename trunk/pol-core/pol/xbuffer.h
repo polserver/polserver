@@ -16,13 +16,15 @@ Notes
 // while lenleft will move to 0.
 // Also note that malloc/free are used to allocate this structure, since 
 // data[] will be followed by (lenleft-1) more bytes, to house the data.
-
-struct XmitBuffer
-{
-	XmitBuffer *next;
-	unsigned short nsent;		// how many bytes sent already
-	unsigned short lenleft;		// how many bytes left to send
-	unsigned char data[1];
-};
-
+namespace Pol {
+  namespace Core {
+	struct XmitBuffer
+	{
+	  XmitBuffer *next;
+	  unsigned short nsent;		// how many bytes sent already
+	  unsigned short lenleft;		// how many bytes left to send
+	  unsigned char data[1];
+	};
+  }
+}
 #endif

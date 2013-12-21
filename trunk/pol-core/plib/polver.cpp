@@ -17,8 +17,9 @@ Notes
 #include "../clib/progver.h"
 #include "polver.h"
 
-const char polverstr[] = "POL099-2013-09-03 Break Everything Even Rudder";
-unsigned int polver = 99;
+namespace Pol {
+  const char polverstr[] = "POL099-2013-09-03 Break Everything Even Rudder";
+  unsigned int polver = 99;
 
 #ifdef PERGON
 #define PERGON_TAG " - Pergon"
@@ -51,3 +52,4 @@ unsigned int polver = 99;
 #elif defined(_MSC_VER) && (_MSC_VER <= 1800)
   const char polbuildtag[] = "VS.NET 2013" PERGON_TAG "" MEMORYLEAK_TAG "" PROFILE_TAG "" POL_64;
 #endif
+}

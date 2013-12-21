@@ -16,6 +16,9 @@ Notes
 #endif
 
 #include "modules.h"
-
+namespace Pol {
+  namespace Bscript {
+  }
+}
 
 #endif

@@ -15,15 +15,17 @@ Notes
 
 #include <stdio.h>
 #include <mutex>
-
-extern bool LogfileTimestampEveryLine;
-extern FILE *logfile;
-extern std::mutex _logfile_mutex;
-int OpenLogFileName( const char* namebase, bool rollover );
-int OpenLogFile(void);
-void CloseLogFile(void);
-void Log( const char *fmt, ... );
-void Log2( const char *fmt, ... ); // outputs to stderr also
-
+namespace Pol {
+  namespace Clib {
+	extern bool LogfileTimestampEveryLine;
+	extern FILE *logfile;
+	extern std::mutex _logfile_mutex;
+	int OpenLogFileName( const char* namebase, bool rollover );
+	int OpenLogFile( void );
+	void CloseLogFile( void );
+	void Log( const char *fmt, ... );
+	void Log2( const char *fmt, ... ); // outputs to stderr also
+  }
+}
 
 #endif

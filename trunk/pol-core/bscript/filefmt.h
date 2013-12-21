@@ -16,7 +16,8 @@ Notes
 #define __BSCRIPT_FILEFMT_H
 
 #include "../clib/rawtypes.h"
-
+namespace Pol {
+  namespace Bscript {
 #ifdef _MSC_VER
 #pragma pack(push,1)
 #else
@@ -39,94 +40,96 @@ Notes
 #define ESCRIPT_FILE_VER_000B		0x000B
 #define ESCRIPT_FILE_VER_000C		0x000C
 
-/*
-	NOTE: Update ESCRIPT_FILE_VER_CURRENT when you make a
-	new escript file version, to force recompile of scripts
-	and report this to users when an older compiled version
-	is attempted to be executed - TJ
-*/
+	/*
+		NOTE: Update ESCRIPT_FILE_VER_CURRENT when you make a
+		new escript file version, to force recompile of scripts
+		and report this to users when an older compiled version
+		is attempted to be executed - TJ
+		*/
 #define ESCRIPT_FILE_VER_CURRENT	(ESCRIPT_FILE_VER_000C)
 
-struct BSCRIPT_FILE_HDR
-{
-	char magic2[2];
-	unsigned short version;
-    unsigned short globals;
-};
-asserteql( sizeof(BSCRIPT_FILE_HDR), 6 );
+	struct BSCRIPT_FILE_HDR
+	{
+	  char magic2[2];
+	  unsigned short version;
+	  unsigned short globals;
+	};
+	asserteql( sizeof( BSCRIPT_FILE_HDR ), 6 );
 
-struct BSCRIPT_SECTION_HDR
-{
-	unsigned short type;
-	unsigned int length;
-};
-asserteql( sizeof(BSCRIPT_SECTION_HDR), 6 );
+	struct BSCRIPT_SECTION_HDR
+	{
+	  unsigned short type;
+	  unsigned int length;
+	};
+	asserteql( sizeof( BSCRIPT_SECTION_HDR ), 6 );
 
-enum BSCRIPT_SECTION {
-    BSCRIPT_SECTION_MODULE  =   1,
-    BSCRIPT_SECTION_CODE	=   2,
-    BSCRIPT_SECTION_SYMBOLS =   3,
-    BSCRIPT_SECTION_PROGDEF =   4,
-    BSCRIPT_SECTION_GLOBALVARNAMES  = 5,
-    BSCRIPT_SECTION_EXPORTED_FUNCTIONS = 6
-};
+	enum BSCRIPT_SECTION
+	{
+	  BSCRIPT_SECTION_MODULE = 1,
+	  BSCRIPT_SECTION_CODE = 2,
+	  BSCRIPT_SECTION_SYMBOLS = 3,
+	  BSCRIPT_SECTION_PROGDEF = 4,
+	  BSCRIPT_SECTION_GLOBALVARNAMES = 5,
+	  BSCRIPT_SECTION_EXPORTED_FUNCTIONS = 6
+	};
 
 
-struct BSCRIPT_MODULE_HDR
-{
-	char modulename[ 14 ];
-	unsigned int nfuncs;
-};
-asserteql( sizeof(BSCRIPT_MODULE_HDR), 18 );
+	struct BSCRIPT_MODULE_HDR
+	{
+	  char modulename[14];
+	  unsigned int nfuncs;
+	};
+	asserteql( sizeof( BSCRIPT_MODULE_HDR ), 18 );
 
-struct BSCRIPT_MODULE_FUNCTION
-{
-	char funcname[ 33 ];
-	unsigned char nargs;
-};
-asserteql( sizeof(BSCRIPT_MODULE_FUNCTION), 34 );
+	struct BSCRIPT_MODULE_FUNCTION
+	{
+	  char funcname[33];
+	  unsigned char nargs;
+	};
+	asserteql( sizeof( BSCRIPT_MODULE_FUNCTION ), 34 );
 
-struct BSCRIPT_PROGDEF_HDR
-{
-    unsigned expectedArgs;
-    unsigned char rfu[12];
-};
-asserteql( sizeof(BSCRIPT_PROGDEF_HDR), 16 );
+	struct BSCRIPT_PROGDEF_HDR
+	{
+	  unsigned expectedArgs;
+	  unsigned char rfu[12];
+	};
+	asserteql( sizeof( BSCRIPT_PROGDEF_HDR ), 16 );
 
-struct BSCRIPT_GLOBALVARNAMES_HDR
-{
-    unsigned nGlobalVars;
-};
-asserteql( sizeof(BSCRIPT_GLOBALVARNAMES_HDR), 4 );
-struct BSCRIPT_GLOBALVARNAME_HDR
-{
-    unsigned namelen;
-};
-asserteql( sizeof(BSCRIPT_GLOBALVARNAME_HDR), 4 );
+	struct BSCRIPT_GLOBALVARNAMES_HDR
+	{
+	  unsigned nGlobalVars;
+	};
+	asserteql( sizeof( BSCRIPT_GLOBALVARNAMES_HDR ), 4 );
+	struct BSCRIPT_GLOBALVARNAME_HDR
+	{
+	  unsigned namelen;
+	};
+	asserteql( sizeof( BSCRIPT_GLOBALVARNAME_HDR ), 4 );
 
-struct BSCRIPT_DBG_INSTRUCTION
-{
-    unsigned filenum;
-    unsigned linenum;
-    unsigned blocknum;
-    unsigned statementbegin;
-    unsigned rfu1;
-    unsigned rfu2;
-};
-asserteql( sizeof(BSCRIPT_DBG_INSTRUCTION), 24 );
+	struct BSCRIPT_DBG_INSTRUCTION
+	{
+	  unsigned filenum;
+	  unsigned linenum;
+	  unsigned blocknum;
+	  unsigned statementbegin;
+	  unsigned rfu1;
+	  unsigned rfu2;
+	};
+	asserteql( sizeof( BSCRIPT_DBG_INSTRUCTION ), 24 );
 
-struct BSCRIPT_EXPORTED_FUNCTION
-{
-    char funcname[33];
-    unsigned nargs;
-    unsigned PC;
-};
-asserteql( sizeof(BSCRIPT_EXPORTED_FUNCTION),41 );
+	struct BSCRIPT_EXPORTED_FUNCTION
+	{
+	  char funcname[33];
+	  unsigned nargs;
+	  unsigned PC;
+	};
+	asserteql( sizeof( BSCRIPT_EXPORTED_FUNCTION ), 41 );
 
 #ifdef _MSC_VER
 #pragma pack(pop)
 #else
 #pragma pack()
 #endif
-
+  }
+}
 #endif

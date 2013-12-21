@@ -16,49 +16,55 @@ Notes
 
 #include "scrdef.h"
 #include "uoexec.h"
+namespace Pol {
+  namespace Plib {
+	class Package;
+  }
+  namespace Core {
+	
+	class ExportScript
+	{
+	public:
+	  ExportScript( const Plib::Package* pkg, std::string scriptname );
+	  ExportScript( const ScriptDef& isd );
+	  bool Initialize();
+	  const std::string& scriptname() const;
+	  bool FindExportedFunction( const std::string& name, unsigned args, unsigned& PC ) const;
+	  bool FindExportedFunction( const char* name, unsigned args, unsigned& PC ) const;
 
-class Package;
-class ExportScript
-{
-public:
-    ExportScript( const Package* pkg, std::string scriptname );
-    ExportScript( const ScriptDef& isd );
-    bool Initialize();
-    const std::string& scriptname() const;
-    bool FindExportedFunction( const std::string& name, unsigned args, unsigned& PC ) const;
-    bool FindExportedFunction( const char* name, unsigned args, unsigned& PC ) const;
+	  bool call( unsigned PC,
+				 Bscript::BObjectImp* p0 ); // throw()
+	  bool call( unsigned PC,
+				 Bscript::BObjectImp* p0, Bscript::BObjectImp* p1 ); // throw()
+	  bool call( unsigned PC,
+				 Bscript::BObjectImp* p0, Bscript::BObjectImp* p1, Bscript::BObjectImp* p2 ); // throw()
+	  bool call( unsigned PC,
+				 Bscript::BObjectImp* p0, Bscript::BObjectImp* p1, Bscript::BObjectImp* p2, Bscript::BObjectImp* p3 ); // throw()
 
-    bool call( unsigned PC,
-               BObjectImp* p0 ); // throw()
-    bool call( unsigned PC,
-               BObjectImp* p0, BObjectImp* p1 ); // throw()
-    bool call( unsigned PC,
-               BObjectImp* p0, BObjectImp* p1, BObjectImp* p2 ); // throw()
-    bool call( unsigned PC,
-               BObjectImp* p0, BObjectImp* p1, BObjectImp* p2, BObjectImp* p3 ); // throw()
+	  std::string call_string( unsigned PC,
+							   Bscript::BObjectImp* p0, Bscript::BObjectImp* p1 ); // throw()
+	  std::string call_string( unsigned PC,
+							   Bscript::BObjectImp* p0, Bscript::BObjectImp* p1, Bscript::BObjectImp* p2 ); // throw()
 
-    std::string call_string( unsigned PC,
-                             BObjectImp* p0, BObjectImp* p1 ); // throw()
-    std::string call_string( unsigned PC,
-                                              BObjectImp* p0, BObjectImp* p1, BObjectImp* p2 ); // throw()
+	  int call_long( unsigned PC, Bscript::BObjectImp* p0 ); // throw()
+	  int call_long( unsigned PC, Bscript::BObjectImp* p0, Bscript::BObjectImp* p1 ); // throw()
 
-    int call_long( unsigned PC, BObjectImp* p0 ); // throw()
-	int call_long( unsigned PC, BObjectImp* p0, BObjectImp* p1 ); // throw()
-    
-    BObjectImp* call( unsigned PC, BObjectImp* p0, std::vector<BObjectRef>& pmore );
-    BObject call( unsigned PC, BObjectImp* p0, BObjectImpRefVec& pmore );
+	  Bscript::BObjectImp* call( unsigned PC, Bscript::BObjectImp* p0, std::vector<Bscript::BObjectRef>& pmore );
+	  Bscript::BObject call( unsigned PC, Bscript::BObjectImp* p0, Bscript::BObjectImpRefVec& pmore );
 
-	BObject call_object( unsigned PC, BObjectImp* p0, BObjectImp* p1 );
-	BObject call_object( unsigned PC, BObjectImp* p0, BObjectImp* p1, BObjectImp* p2 );
+	  Bscript::BObject call_object( unsigned PC, Bscript::BObjectImp* p0, Bscript::BObjectImp* p1 );
+	  Bscript::BObject call_object( unsigned PC, Bscript::BObjectImp* p0, Bscript::BObjectImp* p1, Bscript::BObjectImp* p2 );
 
-	void SaveStack(BackupStruct& backup);
-	void LoadStack(BackupStruct& backup);
+	  void SaveStack( Bscript::BackupStruct& backup );
+	  void LoadStack( Bscript::BackupStruct& backup );
 
-    friend class SystemHook;
+	  friend class SystemHook;
 
-private:
-    ScriptDef sd;
-    UOExecutor uoexec;
-};
+	private:
+	  ScriptDef sd;
+	  UOExecutor uoexec;
+	};
+  }
+}
 
 #endif

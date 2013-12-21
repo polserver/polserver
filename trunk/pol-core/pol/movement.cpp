@@ -32,130 +32,133 @@ Notes
 #include "network/clienttransmit.h"
 #include "../clib/pkthelper.h"
 
+namespace Pol {
+  namespace Core {
+    void cancel_trade( Mobile::Character* chr1 );
 
-void send_char_if_newly_inrange( Character *chr, Client *client	)
-{
-	if (  inrange( chr, client->chr ) &&  !inrange( chr->x, chr->y, client->chr->lastx, client->chr->lasty ) &&
-          client->chr->is_visible_to_me( chr ) && client->chr != chr)
+	void send_char_if_newly_inrange( Mobile::Character *chr, Network::Client *client )
 	{
+	  if ( inrange( chr, client->chr ) && !inrange( chr->x, chr->y, client->chr->lastx, client->chr->lasty ) &&
+		   client->chr->is_visible_to_me( chr ) && client->chr != chr )
+	  {
 		send_owncreate( client, chr );
+	  }
 	}
-}
 
-void send_item_if_newly_inrange( Item *item, Client *client )
-{
-	if (  inrange( client->chr, item ) && !inrange( item->x, item->y, client->chr->lastx, client->chr->lasty ))
+    void send_item_if_newly_inrange( Items::Item *item, Network::Client *client )
 	{
+	  if ( inrange( client->chr, item ) && !inrange( item->x, item->y, client->chr->lastx, client->chr->lasty ) )
+	  {
 		send_item( client, item );
+	  }
 	}
-}
 
-void send_multi_if_newly_inrange( UMulti *multi, Client *client )
-{
-	if (  multi_inrange( client->chr, multi ) && !multi_inrange( multi->x, multi->y, client->chr->lastx, client->chr->lasty ))
+    void send_multi_if_newly_inrange( Multi::UMulti *multi, Network::Client *client )
 	{
+	  if ( multi_inrange( client->chr, multi ) && !multi_inrange( multi->x, multi->y, client->chr->lastx, client->chr->lasty ) )
+	  {
 		send_multi( client, multi );
-        UHouse* house = multi->as_house();
-        if( (client->UOExpansionFlag & AOS) && house != NULL && house->IsCustom())
-            CustomHousesSendShort(house, client);
+		Multi::UHouse* house = multi->as_house();
+		if ( ( client->UOExpansionFlag & Network::AOS ) && house != NULL && house->IsCustom() )
+          Multi::CustomHousesSendShort( house, client );
+	  }
 	}
-}
 
-void send_objects_newly_inrange( Client* client )
-{
-    Character* chr = client->chr;
-    unsigned short wxL, wyL, wxH, wyH;
-
-	zone_convert_clip( chr->x - RANGE_VISUAL_LARGE_BUILDINGS, chr->y - RANGE_VISUAL_LARGE_BUILDINGS, chr->realm, wxL, wyL );
-    zone_convert_clip( chr->x + RANGE_VISUAL_LARGE_BUILDINGS, chr->y + RANGE_VISUAL_LARGE_BUILDINGS, chr->realm, wxH, wyH );
-    for( unsigned short wx = wxL; wx <= wxH; ++wx )
-    {
-        for( unsigned short wy = wyL; wy <= wyH; ++wy )
-        {
-            ZoneMultis& wmulti = chr->realm->zone[wx][wy].multis;
-            for( ZoneMultis::iterator itr = wmulti.begin(), end = wmulti.end(); itr != end; ++itr )
-            {
-                UMulti* multi = *itr;
-                send_multi_if_newly_inrange( multi, client );
-            }
-        }
-    }
-
-    zone_convert_clip( chr->x - RANGE_VISUAL, chr->y - RANGE_VISUAL, chr->realm, wxL, wyL );
-    zone_convert_clip( chr->x + RANGE_VISUAL, chr->y + RANGE_VISUAL, chr->realm, wxH, wyH );
-    for( unsigned short wx = wxL; wx <= wxH; ++wx )
-    {
-        for( unsigned short wy = wyL; wy <= wyH; ++wy )
-        {
-            ZoneCharacters& wchr = chr->realm->zone[wx][wy].characters;
-            for( ZoneCharacters::iterator itr = wchr.begin(), end = wchr.end(); itr != end; ++itr )
-            {
-                Character* _chr = *itr;
-                send_char_if_newly_inrange( _chr, client );
-            }
-
-
-            ZoneItems& witem = chr->realm->zone[wx][wy].items;
-            for( ZoneItems::iterator itr = witem.begin(), end = witem.end(); itr != end; ++itr )
-            {
-                Item* item = *itr;
-                send_item_if_newly_inrange( item, client );
-            }
-        }
-    }
-}
-
-void remove_objects_inrange( Client* client )
-{
-    Character* chr = client->chr;
-    unsigned short wxL, wyL, wxH, wyH;
-	PktHelper::PacketOut<PktOut_1D> msgremove;
-	zone_convert_clip( chr->x - RANGE_VISUAL_LARGE_BUILDINGS, chr->y - RANGE_VISUAL_LARGE_BUILDINGS, chr->realm, wxL, wyL );
-    zone_convert_clip( chr->x + RANGE_VISUAL_LARGE_BUILDINGS, chr->y + RANGE_VISUAL_LARGE_BUILDINGS, chr->realm, wxH, wyH );
-    for( unsigned short wx = wxL; wx <= wxH; ++wx )
-    {
-        for( unsigned short wy = wyL; wy <= wyH; ++wy )
-        {
-            ZoneMultis& wmulti = chr->realm->zone[wx][wy].multis;
-            for( ZoneMultis::iterator itr = wmulti.begin(), end = wmulti.end(); itr != end; ++itr )
-            {
-                UMulti* multi = *itr;
-				send_remove_object( client, static_cast<const Item*>(multi), msgremove.Get() );
-            }
-        }
-    }
-
-    zone_convert_clip( chr->x - RANGE_VISUAL, chr->y - RANGE_VISUAL, chr->realm, wxL, wyL );
-    zone_convert_clip( chr->x + RANGE_VISUAL, chr->y + RANGE_VISUAL, chr->realm, wxH, wyH );
-    for( unsigned short wx = wxL; wx <= wxH; ++wx )
-    {
-        for( unsigned short wy = wyL; wy <= wyH; ++wy )
-        {
-            ZoneCharacters& wchr = chr->realm->zone[wx][wy].characters;
-            for( ZoneCharacters::iterator itr = wchr.begin(), end = wchr.end(); itr != end; ++itr )
-            {
-                Character* _chr = *itr;
-				send_remove_character( client, _chr, msgremove.Get() );
-            }
-
-
-            ZoneItems& witem = chr->realm->zone[wx][wy].items;
-            for( ZoneItems::iterator itr = witem.begin(), end = witem.end(); itr != end; ++itr )
-            {
-                Item* item = *itr;
-				send_remove_object( client, item, msgremove.Get() );
-            }
-        }
-    }
-}
-
-void cancel_trade( Character* chr1 );
-void handle_walk( Client *client, PKTIN_02 *msg02 )
-{
-	Character *chr = client->chr;
-
-	if ( (client->movementsequence == 0 ) && ( msg02->movenum != 0 ) )
+    void send_objects_newly_inrange( Network::Client* client )
 	{
+      Mobile::Character* chr = client->chr;
+	  unsigned short wxL, wyL, wxH, wyH;
+
+	  zone_convert_clip( chr->x - RANGE_VISUAL_LARGE_BUILDINGS, chr->y - RANGE_VISUAL_LARGE_BUILDINGS, chr->realm, wxL, wyL );
+	  zone_convert_clip( chr->x + RANGE_VISUAL_LARGE_BUILDINGS, chr->y + RANGE_VISUAL_LARGE_BUILDINGS, chr->realm, wxH, wyH );
+	  for ( unsigned short wx = wxL; wx <= wxH; ++wx )
+	  {
+		for ( unsigned short wy = wyL; wy <= wyH; ++wy )
+		{
+		  ZoneMultis& wmulti = chr->realm->zone[wx][wy].multis;
+		  for ( ZoneMultis::iterator itr = wmulti.begin(), end = wmulti.end(); itr != end; ++itr )
+		  {
+            Multi::UMulti* multi = *itr;
+			send_multi_if_newly_inrange( multi, client );
+		  }
+		}
+	  }
+
+	  zone_convert_clip( chr->x - RANGE_VISUAL, chr->y - RANGE_VISUAL, chr->realm, wxL, wyL );
+	  zone_convert_clip( chr->x + RANGE_VISUAL, chr->y + RANGE_VISUAL, chr->realm, wxH, wyH );
+	  for ( unsigned short wx = wxL; wx <= wxH; ++wx )
+	  {
+		for ( unsigned short wy = wyL; wy <= wyH; ++wy )
+		{
+		  ZoneCharacters& wchr = chr->realm->zone[wx][wy].characters;
+		  for ( ZoneCharacters::iterator itr = wchr.begin(), end = wchr.end(); itr != end; ++itr )
+		  {
+            Mobile::Character* _chr = *itr;
+			send_char_if_newly_inrange( _chr, client );
+		  }
+
+
+		  ZoneItems& witem = chr->realm->zone[wx][wy].items;
+		  for ( ZoneItems::iterator itr = witem.begin(), end = witem.end(); itr != end; ++itr )
+		  {
+			Items::Item* item = *itr;
+			send_item_if_newly_inrange( item, client );
+		  }
+		}
+	  }
+	}
+
+    void remove_objects_inrange( Network::Client* client )
+	{
+      Mobile::Character* chr = client->chr;
+	  unsigned short wxL, wyL, wxH, wyH;
+      Network::PktHelper::PacketOut<Network::PktOut_1D> msgremove;
+	  zone_convert_clip( chr->x - RANGE_VISUAL_LARGE_BUILDINGS, chr->y - RANGE_VISUAL_LARGE_BUILDINGS, chr->realm, wxL, wyL );
+	  zone_convert_clip( chr->x + RANGE_VISUAL_LARGE_BUILDINGS, chr->y + RANGE_VISUAL_LARGE_BUILDINGS, chr->realm, wxH, wyH );
+	  for ( unsigned short wx = wxL; wx <= wxH; ++wx )
+	  {
+		for ( unsigned short wy = wyL; wy <= wyH; ++wy )
+		{
+		  ZoneMultis& wmulti = chr->realm->zone[wx][wy].multis;
+		  for ( ZoneMultis::iterator itr = wmulti.begin(), end = wmulti.end(); itr != end; ++itr )
+		  {
+            Multi::UMulti* multi = *itr;
+			send_remove_object( client, static_cast<const Items::Item*>( multi ), msgremove.Get() );
+		  }
+		}
+	  }
+
+	  zone_convert_clip( chr->x - RANGE_VISUAL, chr->y - RANGE_VISUAL, chr->realm, wxL, wyL );
+	  zone_convert_clip( chr->x + RANGE_VISUAL, chr->y + RANGE_VISUAL, chr->realm, wxH, wyH );
+	  for ( unsigned short wx = wxL; wx <= wxH; ++wx )
+	  {
+		for ( unsigned short wy = wyL; wy <= wyH; ++wy )
+		{
+		  ZoneCharacters& wchr = chr->realm->zone[wx][wy].characters;
+		  for ( ZoneCharacters::iterator itr = wchr.begin(), end = wchr.end(); itr != end; ++itr )
+		  {
+            Mobile::Character* _chr = *itr;
+			send_remove_character( client, _chr, msgremove.Get() );
+		  }
+
+
+		  ZoneItems& witem = chr->realm->zone[wx][wy].items;
+		  for ( ZoneItems::iterator itr = witem.begin(), end = witem.end(); itr != end; ++itr )
+		  {
+			Items::Item* item = *itr;
+			send_remove_object( client, item, msgremove.Get() );
+		  }
+		}
+	  }
+	}
+
+    
+    void handle_walk( Network::Client *client, PKTIN_02 *msg02 )
+	{
+	  Mobile::Character *chr = client->chr;
+
+	  if ( ( client->movementsequence == 0 ) && ( msg02->movenum != 0 ) )
+	  {
 		//drop pkt if last request was denied, should fix the "client hopping"
 
 		/*PktHelper::PacketOut<PktOut_21> msg;
@@ -167,67 +170,69 @@ void handle_walk( Client *client, PKTIN_02 *msg02 )
 		msg.Send(client);*/
 
 		return;
-	}
-	else
-	{	
-		u8 oldfacing=chr->facing;
+	  }
+	  else
+	  {
+		u8 oldfacing = chr->facing;
 
-		if (chr->move( msg02->dir ))
+		if ( chr->move( msg02->dir ) )
 		{
-			// If facing is dir they are walking, check to see if already 4 tiles away
-			// from the person trading with. If so, cancel trading!!!!
-			if ( !ssopt.allow_moving_trade )
+		  // If facing is dir they are walking, check to see if already 4 tiles away
+		  // from the person trading with. If so, cancel trading!!!!
+		  if ( !ssopt.allow_moving_trade )
+		  {
+			if ( chr->is_trading() )
 			{
-				if ( chr->is_trading() )
-				{
-					if ( (oldfacing == (msg02->dir& PKTIN_02_FACING_MASK)) && (pol_distance(chr->x, chr->y, chr->trading_with->x, chr->trading_with->y) > 3) )
-					{
-						cancel_trade( chr );
-					}
-				}
+			  if ( ( oldfacing == ( msg02->dir& PKTIN_02_FACING_MASK ) ) && ( pol_distance( chr->x, chr->y, chr->trading_with->x, chr->trading_with->y ) > 3 ) )
+			  {
+				cancel_trade( chr );
+			  }
 			}
-			client->pause();
-			PktHelper::PacketOut<PktOut_22> msg;
-			msg->Write<u8>(msg02->movenum);
-			msg->Write<u8>(client->chr->hilite_color_idx( client->chr ));
-			msg.Send(client);
+		  }
+		  client->pause();
+          Network::PktHelper::PacketOut<Network::PktOut_22> msg;
+		  msg->Write<u8>( msg02->movenum );
+		  msg->Write<u8>( client->chr->hilite_color_idx( client->chr ) );
+		  msg.Send( client );
 
-			client->movementsequence = msg02->movenum;
-			if (client->movementsequence == 255)
-				client->movementsequence = 1;
+		  client->movementsequence = msg02->movenum;
+		  if ( client->movementsequence == 255 )
+			client->movementsequence = 1;
+		  else
+			client->movementsequence++;
+
+
+		  // FIXME: Make sure we only tell those who can see us.
+		  chr->tellmove();
+
+		  send_objects_newly_inrange( client );
+
+		  client->restart();
+
+		  // here we set the delay for SpeedHackPrevention see Client::SpeedHackPrevention()
+		  if ( oldfacing == ( msg02->dir & PKTIN_02_FACING_MASK ) )
+		  {
+			if ( client->chr->on_mount() )
+			  client->next_movement += ( msg02->dir & PKTIN_02_DIR_RUNNING_BIT ) ? ssopt.speedhack_mountrundelay : ssopt.speedhack_mountwalkdelay;
 			else
-				client->movementsequence++;
-
-
-			// FIXME: Make sure we only tell those who can see us.
-			chr->tellmove();
-
-			send_objects_newly_inrange( client );
-
-			client->restart();
-
-			// here we set the delay for SpeedHackPrevention see Client::SpeedHackPrevention()
-			if (oldfacing == (msg02->dir & PKTIN_02_FACING_MASK))
-			{
-				if( client->chr->on_mount() )
-					client->next_movement += (msg02->dir & PKTIN_02_DIR_RUNNING_BIT) ? ssopt.speedhack_mountrundelay : ssopt.speedhack_mountwalkdelay;
-				else
-					client->next_movement += (msg02->dir & PKTIN_02_DIR_RUNNING_BIT) ? ssopt.speedhack_footrundelay  : ssopt.speedhack_footwalkdelay;
-			}
-			else // changing only facing is fast
-				client->next_movement += ssopt.speedhack_mountrundelay;
+			  client->next_movement += ( msg02->dir & PKTIN_02_DIR_RUNNING_BIT ) ? ssopt.speedhack_footrundelay : ssopt.speedhack_footwalkdelay;
+		  }
+		  else // changing only facing is fast
+			client->next_movement += ssopt.speedhack_mountrundelay;
 		}
 		else
 		{
-			PktHelper::PacketOut<PktOut_21> msg;
-			msg->Write<u8>(msg02->movenum);
-			msg->WriteFlipped<u16>(chr->x);
-			msg->WriteFlipped<u16>(chr->y);
-			msg->Write<u8>(chr->facing);
-			msg->Write<s8>(chr->z);
-			msg.Send(client);
-			client->movementsequence = 0;
+          Network::PktHelper::PacketOut<Network::PktOut_21> msg;
+		  msg->Write<u8>( msg02->movenum );
+		  msg->WriteFlipped<u16>( chr->x );
+		  msg->WriteFlipped<u16>( chr->y );
+		  msg->Write<u8>( chr->facing );
+		  msg->Write<s8>( chr->z );
+		  msg.Send( client );
+		  client->movementsequence = 0;
 		}
+	  }
 	}
+	MESSAGE_HANDLER( PKTIN_02, handle_walk );
+  }
 }
-MESSAGE_HANDLER( PKTIN_02, handle_walk );

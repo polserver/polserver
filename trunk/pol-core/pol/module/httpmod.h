@@ -9,34 +9,37 @@ Notes
 
 #ifndef __HTTPMOD_H
 #define __HTTPMOD_H
+namespace Pol {
+  namespace Module {
+	class HttpExecutorModule : public Bscript::TmplExecutorModule<HttpExecutorModule>
+	{
+	public:
+      HttpExecutorModule( Bscript::Executor& exec, Clib::Socket& isck ) :
+        Bscript::TmplExecutorModule<HttpExecutorModule>( "http", exec ),
+		sck_( isck ),
+		continuing_offset( 0 ),
+		uoexec( static_cast<Core::UOExecutor&>( exec ) )
+	  {};
 
-class HttpExecutorModule : public TmplExecutorModule<HttpExecutorModule>
-{
-public:
-	HttpExecutorModule( Executor& exec, Socket& isck ) :
-	  TmplExecutorModule<HttpExecutorModule>( "http", exec ), 
-		  sck_(isck),
-		  continuing_offset(0),
-		  uoexec( static_cast<UOExecutor&>(exec) ) {};
-
-	  BObjectImp* mf_WriteHtml();
-	  BObjectImp* mf_WriteHtmlRaw();
-	  BObjectImp* mf_QueryParam();
-	  BObjectImp* mf_QueryIP();
+      Bscript::BObjectImp* mf_WriteHtml( );
+      Bscript::BObjectImp* mf_WriteHtmlRaw( );
+      Bscript::BObjectImp* mf_QueryParam( );
+      Bscript::BObjectImp* mf_QueryIP( );
 
 	  void read_query_string( const string& query_string );
 	  void read_query_ip();
 
 	  // TODO: clean up the socket ownership thing so these can be private again
-public:
-	Socket sck_;
-	typedef std::map<std::string,std::string, ci_cmp_pred> QueryParamMap;
-	QueryParamMap params_;
-	int continuing_offset;
-	UOExecutor& uoexec;
-	std::string query_ip_;
+	public:
+	  Clib::Socket sck_;
+	  typedef std::map<std::string, std::string, Clib::ci_cmp_pred> QueryParamMap;
+	  QueryParamMap params_;
+	  int continuing_offset;
+	  Core::UOExecutor& uoexec;
+	  std::string query_ip_;
 
-};
-
+	};
+  }
+}
 #endif // HTTPMOD_H
 

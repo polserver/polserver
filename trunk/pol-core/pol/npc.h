@@ -30,163 +30,173 @@ Notes
 #include "eventid.h"
 #include "npctmpl.h"
 #include "uoscrobj.h"
-
-class UOExecutor;
-class ConfigElem;
-class RepSystem;
-
-class NPC : public Character
-{
-    typedef Character base;
-public:
-	explicit NPC( u32 objtype, const ConfigElem& elem );
-
-    virtual void on_death( Item* corpse );
-    virtual void on_give_item();
-
-	// Speech: ASCII versions
-    virtual void on_pc_spoke( Character *src_chr, const char *speech, u8 texttype);
-    virtual void on_ghost_pc_spoke( Character* src_chr, const char* speech, u8 texttype);
-
-	// Speech: Unicode (and ASCII) versions
-    virtual void on_pc_spoke( Character *src_chr, const char *speech, u8 texttype,
-							  const u16* wspeech, const char lang[4], ObjArray* speechtokens=NULL);
-    virtual void on_ghost_pc_spoke( Character* src_chr, const char* speech, u8 texttype,
-									const u16* wspeech, const char lang[4], ObjArray* speechtokens=NULL);
-
-	virtual unsigned short ar() const;
-	virtual void refresh_ar();
-
-    virtual void apply_raw_damage_hundredths( unsigned int damage, Character* source, bool userepsys=true, bool send_damage_packet = false );
-    virtual void inform_engaged( Character* engaged );
-    virtual void inform_disengaged( Character* disengaged );
-    virtual void inform_criminal( Character* thecriminal );
-	virtual void inform_leftarea( Character* wholeft );
-    virtual void inform_enteredarea( Character* whoentered );
-	virtual void inform_moved( Character* moved );
-    virtual void inform_imoved( Character* chr );
-    virtual bool can_be_renamed_by( const Character* chr ) const;
-    bool can_accept_event( EVENTID eventid );
-    BObjectImp* send_event( BObjectImp* event );
-    Character* master() const;
-
-    virtual double armor_absorb_damage( double damage );
-    virtual void get_hitscript_params( double damage,
-                                       UArmor** parmor,
-                                       unsigned short* rawdamage );
-    virtual UWeapon* intrinsic_weapon();
-
-    void restart_script();
-    void start_script();
-
-    bool could_move( UFACING dir ) const;
-    bool anchor_allows_move( UFACING dir ) const;
-    bool npc_path_blocked( UFACING dir ) const;
-    
-    virtual BObjectImp* get_script_member( const char *membername ) const;
-    virtual BObjectImp* get_script_member_id( const int id ) const; ///id test
-    virtual BObjectImp* set_script_member( const char *membername, int value );
-    virtual BObjectImp* set_script_member( const char *membername, const std::string& );
-    virtual BObjectImp* set_script_member_id( const int id, int value );//id test
-    virtual BObjectImp* set_script_member_id( const int id, const std::string& );//id test
-    virtual BObjectImp* script_method( const char* methodname, Executor& ex );
-    virtual BObjectImp* script_method_id( const int id, Executor& ex );
-	virtual BObjectImp* custom_script_method( const char* methodname, Executor& ex );
-    virtual bool script_isa( unsigned isatype ) const;
-
-    virtual const char *classname() const;
-	virtual void printOn( StreamWriter& sw ) const;
-    virtual void printSelfOn( StreamWriter& sw ) const;
-    virtual void printProperties( StreamWriter& sw ) const;
-    virtual void printDebugProperties( StreamWriter& sw ) const;
+#include "item/item.h"
+namespace Pol {
+  namespace Clib {
+	class ConfigElem;
+  }
+  namespace Module {
+    class NPCExecutorModule;
+  }
+  namespace Core {
+	class UOExecutor;
 	
-	virtual void readProperties( ConfigElem& elem );
-    void readNpcProperties( ConfigElem& elem );
-    void loadResistances( int resistanceType, ConfigElem& elem );
-    void loadDamages( int damageType, ConfigElem& elem );
-    void readNewNpcAttributes( ConfigElem& elem );
-    void readPropertiesForNewNPC( ConfigElem& elem );
-    virtual void destroy();
+	class RepSystem;
 
-    NpcTemplate::ALIGNMENT alignment() const;
-	
-	unsigned short damaged_sound;
-	bool use_adjustments; //DAVE
-	unsigned short run_speed; //DAVE
-protected:
-	UOExecutor *ex;
-	UOExecutor *give_item_ex;
+	class NPC : public Mobile::Character
+	{
+	  typedef Mobile::Character base;
+	public:
+	  explicit NPC( u32 objtype, const Clib::ConfigElem& elem );
 
-    std::string template_name;
-    void stop_scripts();
-    friend class NPCExecutorModule;
-    friend class ref_ptr<NPC>;
+	  virtual void on_death( Items::Item* corpse );
+	  virtual void on_give_item();
 
-private: // REPUTATION SYSTEM:
-    virtual void repsys_on_attack( Character* defender );
-    virtual void repsys_on_damage( Character* defender );
-    virtual void repsys_on_help( Character* recipient );
+	  // Speech: ASCII versions
+	  virtual void on_pc_spoke( Mobile::Character *src_chr, const char *speech, u8 texttype );
+	  virtual void on_ghost_pc_spoke( Mobile::Character* src_chr, const char* speech, u8 texttype );
 
-    virtual unsigned char hilite_color_idx( const Character* seen_by ) const;
-    virtual unsigned short name_color( const Character* seen_by ) const;
-	friend class RepSystem;
+	  // Speech: Unicode (and ASCII) versions
+	  virtual void on_pc_spoke( Mobile::Character *src_chr, const char *speech, u8 texttype,
+								const u16* wspeech, const char lang[4], Bscript::ObjArray* speechtokens = NULL );
+	  virtual void on_ghost_pc_spoke( Mobile::Character* src_chr, const char* speech, u8 texttype,
+                                      const u16* wspeech, const char lang[4], Bscript::ObjArray* speechtokens = NULL );
 
-private:
-    virtual ~NPC();
-	std::string script;
-    
-	unsigned short npc_ar_;
-	Resistances element_resist_;
-	ElementDamages element_damage_;
-	void reset_element_resist( unsigned resist );
-	void reset_element_damage( unsigned damage );
+	  virtual unsigned short ar() const;
+	  virtual void refresh_ar();
 
-    CharacterRef master_;
-    const NpcTemplate& template_;
-    struct {
-        bool enabled;
-        unsigned short x;
-        unsigned short y;
-        unsigned short dstart;
-        unsigned short psub;
-    } anchor;
-    unsigned short speech_color_;
-    unsigned short speech_font_;
+	  virtual void apply_raw_damage_hundredths( unsigned int damage, Mobile::Character* source, bool userepsys = true, bool send_damage_packet = false );
+	  virtual void inform_engaged( Mobile::Character* engaged );
+	  virtual void inform_disengaged( Mobile::Character* disengaged );
+	  virtual void inform_criminal( Mobile::Character* thecriminal );
+	  virtual void inform_leftarea( Mobile::Character* wholeft );
+	  virtual void inform_enteredarea( Mobile::Character* whoentered );
+	  virtual void inform_moved( Mobile::Character* moved );
+	  virtual void inform_imoved( Mobile::Character* chr );
+	  virtual bool can_be_renamed_by( const Mobile::Character* chr ) const;
+	  bool can_accept_event( EVENTID eventid );
+	  Bscript::BObjectImp* send_event( Bscript::BObjectImp* event );
+	  Mobile::Character* master( ) const;
 
-private: // not implemented
-    NPC( const NPC& npc );
-    NPC& operator=( const NPC& npc );
-};
+	  virtual double armor_absorb_damage( double damage );
+	  virtual void get_hitscript_params( double damage,
+										 Items::UArmor** parmor,
+										 unsigned short* rawdamage );
+	  virtual Items::UWeapon* intrinsic_weapon();
 
-inline Character* NPC::master() const
-{
-    return master_.get();
-}
+	  void restart_script();
+	  void start_script();
 
-inline NpcTemplate::ALIGNMENT NPC::alignment() const
-{
-    return template_.alignment;
-}
+	  bool could_move( UFACING dir ) const;
+	  bool anchor_allows_move( UFACING dir ) const;
+	  bool npc_path_blocked( UFACING dir ) const;
 
-inline void npc_spoke( NPC& npc, Character *chr, const char *text, int textlen, u8 texttype )
-{
-	// Not happy with this comparison style, but can't think of a better alternative.
-	if ( npc.serial != chr->serial )
+	  virtual Bscript::BObjectImp* get_script_member( const char *membername ) const;
+	  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const; ///id test
+	  virtual Bscript::BObjectImp* set_script_member( const char *membername, int value );
+	  virtual Bscript::BObjectImp* set_script_member( const char *membername, const std::string& );
+	  virtual Bscript::BObjectImp* set_script_member_id( const int id, int value );//id test
+	  virtual Bscript::BObjectImp* set_script_member_id( const int id, const std::string& );//id test
+	  virtual Bscript::BObjectImp* script_method( const char* methodname, Bscript::Executor& ex );
+	  virtual Bscript::BObjectImp* script_method_id( const int id, Bscript::Executor& ex );
+	  virtual Bscript::BObjectImp* custom_script_method( const char* methodname, Bscript::Executor& ex );
+	  virtual bool script_isa( unsigned isatype ) const;
+
+	  virtual const char *classname() const;
+	  virtual void printOn( Clib::StreamWriter& sw ) const;
+	  virtual void printSelfOn( Clib::StreamWriter& sw ) const;
+	  virtual void printProperties( Clib::StreamWriter& sw ) const;
+	  virtual void printDebugProperties( Clib::StreamWriter& sw ) const;
+
+	  virtual void readProperties( Clib::ConfigElem& elem );
+	  void readNpcProperties( Clib::ConfigElem& elem );
+	  void loadResistances( int resistanceType, Clib::ConfigElem& elem );
+	  void loadDamages( int damageType, Clib::ConfigElem& elem );
+	  void readNewNpcAttributes( Clib::ConfigElem& elem );
+	  void readPropertiesForNewNPC( Clib::ConfigElem& elem );
+	  virtual void destroy();
+
+	  NpcTemplate::ALIGNMENT alignment() const;
+
+	  unsigned short damaged_sound;
+	  bool use_adjustments; //DAVE
+	  unsigned short run_speed; //DAVE
+	protected:
+	  UOExecutor *ex;
+	  UOExecutor *give_item_ex;
+
+	  std::string template_name;
+	  void stop_scripts();
+	  friend class Module::NPCExecutorModule;
+	  friend class ref_ptr<NPC>;
+
+	private: // REPUTATION SYSTEM:
+	  virtual void repsys_on_attack( Mobile::Character* defender );
+	  virtual void repsys_on_damage( Mobile::Character* defender );
+	  virtual void repsys_on_help( Mobile::Character* recipient );
+
+	  virtual unsigned char hilite_color_idx( const Mobile::Character* seen_by ) const;
+	  virtual unsigned short name_color( const Mobile::Character* seen_by ) const;
+	  friend class RepSystem;
+
+	private:
+	  virtual ~NPC();
+	  std::string script;
+
+	  unsigned short npc_ar_;
+	  Resistances element_resist_;
+	  ElementDamages element_damage_;
+	  void reset_element_resist( unsigned resist );
+	  void reset_element_damage( unsigned damage );
+
+	  CharacterRef master_;
+	  const NpcTemplate& template_;
+	  struct
+	  {
+		bool enabled;
+		unsigned short x;
+		unsigned short y;
+		unsigned short dstart;
+		unsigned short psub;
+	  } anchor;
+	  unsigned short speech_color_;
+	  unsigned short speech_font_;
+
+	private: // not implemented
+	  NPC( const NPC& npc );
+	  NPC& operator=( const NPC& npc );
+	};
+
+	inline Mobile::Character* NPC::master( ) const
+	{
+	  return master_.get();
+	}
+
+	inline NpcTemplate::ALIGNMENT NPC::alignment() const
+	{
+	  return template_.alignment;
+	}
+
+	inline void npc_spoke( NPC& npc, Mobile::Character *chr, const char *text, int textlen, u8 texttype )
+	{
+	  // Not happy with this comparison style, but can't think of a better alternative.
+	  if ( npc.serial != chr->serial )
 		npc.on_pc_spoke( chr, text, texttype );
-}
+	}
 
-inline void npc_spoke( NPC& npc, Character *chr, const char *text, int textlen, u8 texttype, const u16 *wtext, const char lang[4], int wtextlen, ObjArray* speechtokens=NULL )
-{
-	if ( npc.serial != chr->serial )
+    inline void npc_spoke( NPC& npc, Mobile::Character *chr, const char *text, int textlen, u8 texttype, const u16 *wtext, const char lang[4], int wtextlen, Bscript::ObjArray* speechtokens = NULL )
+	{
+	  if ( npc.serial != chr->serial )
 		npc.on_pc_spoke( chr, text, texttype, wtext, lang, speechtokens );
-}
+	}
 
-inline unsigned short NPC::ar() const
-{
-	if ( ar_ == 0 )
+	inline unsigned short NPC::ar() const
+	{
+	  if ( ar_ == 0 )
 		return npc_ar_;
-	else
+	  else
 		return ar_;
+	}
+  }
 }
-
 #endif

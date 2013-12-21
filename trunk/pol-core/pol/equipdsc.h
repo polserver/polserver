@@ -12,17 +12,23 @@ Notes
 #define EQUIPDSC_H
 
 #include "item/itemdesc.h"
+namespace Pol {
+  namespace Clib {
+	class ConfigElem;
+  }
+  namespace Plib {
+	class Package;
+  }
+  namespace Core {
 
-class ConfigElem;
-class Package;
-
-class EquipDesc : public ItemDesc
-{
-public:
-	typedef ItemDesc base;
-    EquipDesc( u32 objtype, ConfigElem& elem, Type type, const Package* pkg );
-    EquipDesc(); // for dummy template
-	virtual void PopulateStruct( BStruct* descriptor ) const;
-};
-
+	class EquipDesc : public Items::ItemDesc
+	{
+	public:
+	  typedef Items::ItemDesc base;
+	  EquipDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::Package* pkg );
+	  EquipDesc(); // for dummy template
+	  virtual void PopulateStruct( Bscript::BStruct* descriptor ) const;
+	};
+  }
+}
 #endif

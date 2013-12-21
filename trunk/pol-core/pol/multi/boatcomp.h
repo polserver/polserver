@@ -16,22 +16,27 @@ Notes
 
 #include "boat.h"
 #include "../lockable.h"
+namespace Pol {
+  namespace Bscript {
+	class BObjectImp;
+  }
+  namespace Multi {
+	class UPlank : public Core::ULockable
+	{
+	  typedef Core::ULockable base;
+	public:
+	  void setboat( UBoat* boat );
+	protected:
+	  explicit UPlank( const Items::ItemDesc& descriptor );
+	  friend Items::Item* Items::Item::create( const Items::ItemDesc& descriptor, u32 serial );
 
-class UPlank : public ULockable
-{
-    typedef ULockable base;
-public:
-    void setboat( UBoat* boat );
-protected:
-    explicit UPlank( const ItemDesc& descriptor );
-    friend Item* Item::create( const ItemDesc& descriptor, u32 serial );
+	  virtual void destroy();
+	  virtual Bscript::BObjectImp* get_script_member( const char* membername ) const;
+	  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const; ///id test
 
-    virtual void destroy();
-    virtual class BObjectImp* get_script_member( const char* membername ) const;
-    virtual class BObjectImp* get_script_member_id( const int id ) const; ///id test
-    
-private:
-    ref_ptr<UBoat> boat_;
-};
-
+	private:
+	  ref_ptr<UBoat> boat_;
+	};
+  }
+}
 #endif

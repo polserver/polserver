@@ -14,22 +14,26 @@ Notes
 
 #ifndef REALMS_H
 #define REALMS_H
+namespace Pol {
+  namespace Plib {
+	class Realm;
+  }
+  namespace Core {
 
-class Realm;
+	extern Plib::Realm* main_realm;
+	extern vector<Plib::Realm*>* Realms;
+	extern std::map<int, Plib::Realm*> shadowrealms_by_id;
+	extern unsigned int baserealm_count;
+	extern unsigned int shadowrealm_count;
 
-extern Realm* main_realm;
-extern vector<Realm*>* Realms;
-extern std::map<int,Realm*> shadowrealms_by_id;
-extern unsigned int baserealm_count;
-extern unsigned int shadowrealm_count;
-
-Realm* find_realm(const std::string& name);
-void add_realm(const std::string& name, Realm* base);
-bool defined_realm(const std::string& name);
-void remove_realm(const std::string& name);
+	Plib::Realm* find_realm( const std::string& name );
+	void add_realm( const std::string& name, Plib::Realm* base );
+	bool defined_realm( const std::string& name );
+	void remove_realm( const std::string& name );
 #define ENABLE_OLD_MAPCODE 0
 
-// Support up to 5 Maps: Britannia, Britannia_alt, Ilshenar, Malas, Tokuno, TerMur
+	// Support up to 5 Maps: Britannia, Britannia_alt, Ilshenar, Malas, Tokuno, TerMur
 #define MAX_NUMER_REALMS 6
-
+  }
+}
 #endif

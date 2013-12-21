@@ -12,39 +12,41 @@ Notes
 #define BSCRIPT_MATHEMOD_H
 
 #include "../../bscript/execmodl.h"
+namespace Pol {
+  namespace Module {
+	class MathExecutorModule : public Bscript::TmplExecutorModule<MathExecutorModule>
+	{
+	public:
+      MathExecutorModule( Bscript::Executor& exec ) :
+		TmplExecutorModule<MathExecutorModule>( "math", exec ) {};
 
-class MathExecutorModule : public TmplExecutorModule<MathExecutorModule>
-{
-public:
-    MathExecutorModule( Executor& exec ) :
-        TmplExecutorModule<MathExecutorModule>( "math", exec ) {};
+	  Bscript::BObjectImp* mf_Sin();
+	  Bscript::BObjectImp* mf_ASin();
+	  Bscript::BObjectImp* mf_Cos();
+	  Bscript::BObjectImp* mf_ACos();
+	  Bscript::BObjectImp* mf_Tan();
+	  Bscript::BObjectImp* mf_ATan();
 
-    BObjectImp* mf_Sin();
-    BObjectImp* mf_ASin();
-    BObjectImp* mf_Cos();
-    BObjectImp* mf_ACos();
-    BObjectImp* mf_Tan();
-    BObjectImp* mf_ATan();
+	  Bscript::BObjectImp* mf_Min();
+	  Bscript::BObjectImp* mf_Max();
+	  Bscript::BObjectImp* mf_Pow();
+	  Bscript::BObjectImp* mf_Sqrt();
+	  Bscript::BObjectImp* mf_Root();
+	  Bscript::BObjectImp* mf_Abs();
+	  Bscript::BObjectImp* mf_Log10();
+	  Bscript::BObjectImp* mf_LogE();
 
-    BObjectImp* mf_Min();
-    BObjectImp* mf_Max();
-    BObjectImp* mf_Pow();
-    BObjectImp* mf_Sqrt();
-    BObjectImp* mf_Root();
-    BObjectImp* mf_Abs();
-    BObjectImp* mf_Log10();
-    BObjectImp* mf_LogE();
+	  Bscript::BObjectImp* mf_ConstPi();
+	  Bscript::BObjectImp* mf_ConstE();
 
-    BObjectImp* mf_ConstPi();
-    BObjectImp* mf_ConstE();
+	  Bscript::BObjectImp* mf_FormatRealToString();
 
-    BObjectImp* mf_FormatRealToString();
+	  Bscript::BObjectImp* mf_RadToDeg();
+	  Bscript::BObjectImp* mf_DegToRad();
 
-    BObjectImp* mf_RadToDeg();
-    BObjectImp* mf_DegToRad();
-
-    BObjectImp* mf_Ceil();
-    BObjectImp* mf_Floor();
-};
-
+	  Bscript::BObjectImp* mf_Ceil();
+	  Bscript::BObjectImp* mf_Floor();
+	};
+  }
+}
 #endif

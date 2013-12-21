@@ -10,7 +10,9 @@ Notes
 
 #ifndef __GETITEM_H
 #define __GETITEM_H
-
-void undo_get_item( Character *chr, Item *item );
-
+namespace Pol {
+  namespace Core {
+	void undo_get_item( Mobile::Character *chr, Items::Item *item );
+  }
+}
 #endif

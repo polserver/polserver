@@ -11,38 +11,41 @@ Notes
 #define BSCRIPT_BERROR_H
 
 #include "bstruct.h"
+namespace Pol {
+  namespace Bscript {
 
-class BError : public BStruct
-{
-public:
-    BError();
-    explicit BError( const char *errortext ); 
-    explicit BError( const std::string& errortext );
+	class BError : public BStruct
+	{
+	public:
+	  BError();
+	  explicit BError( const char *errortext );
+	  explicit BError( const std::string& errortext );
 
-    static BObjectImp* unpack( std::istream& is );
+	  static BObjectImp* unpack( std::istream& is );
 
-    static unsigned int creations();
+	  static unsigned int creations();
 
-protected:
-    BError( const BError& i );
-    BError( std::istream& is, unsigned size );
-    
-    virtual BObjectImp* copy() const;
-    virtual BObjectRef OperSubscript( const BObject& obj );
-    virtual BObjectImp* array_assign( BObjectImp* idx, BObjectImp* target, bool copy );
+	protected:
+	  BError( const BError& i );
+	  BError( std::istream& is, unsigned size );
 
-    virtual char packtype() const;
-    virtual const char* typetag() const;
-    virtual const char* typeOf() const;
-	virtual int typeOfInt() const;
+	  virtual BObjectImp* copy() const;
+	  virtual BObjectRef OperSubscript( const BObject& obj );
+	  virtual BObjectImp* array_assign( BObjectImp* idx, BObjectImp* target, bool copy );
 
-    virtual bool isEqual(const BObjectImp& objimp ) const;
-    virtual bool isTrue() const;
+	  virtual char packtype() const;
+	  virtual const char* typetag() const;
+	  virtual const char* typeOf() const;
+	  virtual int typeOfInt() const;
 
-    ContIterator* createIterator( BObject* pIterVal );
+	  virtual bool isEqual( const BObjectImp& objimp ) const;
+	  virtual bool isTrue() const;
 
-private:
-    static unsigned int creations_;
-};
+	  ContIterator* createIterator( BObject* pIterVal );
 
+	private:
+	  static unsigned int creations_;
+	};
+  }
+}
 #endif

@@ -40,144 +40,149 @@ Notes
 #include "uofilei.h"
 #include "uofile.h"
 
-bool cfg_show_illegal_graphic_warning = 1;
+namespace Pol {
+  namespace Core {
 
-bool newstat_dont_add( vector<STATIC_ENTRY>& vec, USTRUCT_STATIC* pstat)
-{
-    char pheight = tileheight( pstat->graphic );
+    bool cfg_show_illegal_graphic_warning = 1;
 
-    for( unsigned i = 0; i < vec.size(); ++i )
+    bool newstat_dont_add( vector<Plib::STATIC_ENTRY>& vec, USTRUCT_STATIC* pstat )
     {
-        STATIC_ENTRY& prec = vec[i];
+      char pheight = tileheight( pstat->graphic );
+
+      for ( unsigned i = 0; i < vec.size(); ++i )
+      {
+        Plib::STATIC_ENTRY& prec = vec[i];
         passert_always( prec.objtype <= config.max_tile_id );
         char height = tileheight( prec.objtype ); // TODO read from itemdesc?
-        unsigned char xy = (pstat->x_offset << 4) | pstat->y_offset;
+        unsigned char xy = ( pstat->x_offset << 4 ) | pstat->y_offset;
         if (// flags == pflags &&
-            prec.objtype == pstat->graphic && // TODO map objtype->graphic from itemdesc
-            height == pheight &&
-            prec.xy == xy &&
-            prec.z == pstat->z &&
-			prec.hue == pstat->hue)
+             prec.objtype == pstat->graphic && // TODO map objtype->graphic from itemdesc
+             height == pheight &&
+             prec.xy == xy &&
+             prec.z == pstat->z &&
+             prec.hue == pstat->hue )
         {
-            return true;
+          return true;
         }
+      }
+      return false;
     }
-    return false;
-}
 
-int write_pol_static_files( const string& realm )
-{
-    unsigned int duplicates = 0;
-    unsigned int illegales = 0;
-    unsigned int statics = 0;
-    unsigned int empties = 0;
-    unsigned int nonempties = 0;
-    unsigned int maxcount = 0;
-
-    string directory = "realm/" + realm + "/";
-    string statidx_dat = directory + "statidx.dat";
-    string statics_dat = directory + "statics.dat";
-    string statidx_tmp = directory + "statidx.tmp";
-    string statics_tmp = directory + "statics.tmp";
-    RemoveFile( statidx_dat );
-    RemoveFile( statics_dat );
-    RemoveFile( statidx_tmp );
-    RemoveFile( statics_tmp );
-
-    FILE* fidx = fopen( statidx_tmp.c_str(), "wb" );
-    FILE* fdat = fopen( statics_tmp.c_str(), "wb" );
-
-    RealmDescriptor descriptor = RealmDescriptor::Load( realm );
-
-    int lastprogress = -1;
-    unsigned int index = 0;
-    for( u16 y = 0; y < descriptor.height; y += STATICBLOCK_CHUNK )
+    int write_pol_static_files( const string& realm )
     {
-        int progress = y*100L/descriptor.height;
-        if (progress != lastprogress)
+      unsigned int duplicates = 0;
+      unsigned int illegales = 0;
+      unsigned int statics = 0;
+      unsigned int empties = 0;
+      unsigned int nonempties = 0;
+      unsigned int maxcount = 0;
+
+      string directory = "realm/" + realm + "/";
+      string statidx_dat = directory + "statidx.dat";
+      string statics_dat = directory + "statics.dat";
+      string statidx_tmp = directory + "statidx.tmp";
+      string statics_tmp = directory + "statics.tmp";
+      Clib::RemoveFile( statidx_dat );
+      Clib::RemoveFile( statics_dat );
+      Clib::RemoveFile( statidx_tmp );
+      Clib::RemoveFile( statics_tmp );
+
+      FILE* fidx = fopen( statidx_tmp.c_str(), "wb" );
+      FILE* fdat = fopen( statics_tmp.c_str(), "wb" );
+
+      Plib::RealmDescriptor descriptor = Plib::RealmDescriptor::Load( realm );
+
+      int lastprogress = -1;
+      unsigned int index = 0;
+      for ( u16 y = 0; y < descriptor.height; y += Plib::STATICBLOCK_CHUNK )
+      {
+        int progress = y * 100L / descriptor.height;
+        if ( progress != lastprogress )
         {
-             cout << "\rCreating POL statics files: " << progress << "%";
-             lastprogress=progress;
+          cout << "\rCreating POL statics files: " << progress << "%";
+          lastprogress = progress;
         }
-        for( u16 x = 0; x < descriptor.width; x += STATICBLOCK_CHUNK )
+        for ( u16 x = 0; x < descriptor.width; x += Plib::STATICBLOCK_CHUNK )
         {
-            STATIC_INDEX idx;
-            idx.index = index;
-            fwrite( &idx, sizeof idx, 1, fidx );
+          Plib::STATIC_INDEX idx;
+          idx.index = index;
+          fwrite( &idx, sizeof idx, 1, fidx );
 
-            vector<USTRUCT_STATIC> pstat;
-            int num;
-            vector<STATIC_ENTRY> vec;
-            readstaticblock( &pstat, &num, x, y );
-            for( int i = 0; i < num; ++i )
+          vector<USTRUCT_STATIC> pstat;
+          int num;
+          vector<Plib::STATIC_ENTRY> vec;
+          readstaticblock( &pstat, &num, x, y );
+          for ( int i = 0; i < num; ++i )
+          {
+            if ( pstat[i].graphic <= config.max_tile_id )
             {
-                if (pstat[i].graphic <= config.max_tile_id)
-                {
-                    if (!newstat_dont_add(vec,&pstat[i]))
-                    {
-                        STATIC_ENTRY nrec;
+              if ( !newstat_dont_add( vec, &pstat[i] ) )
+              {
+                Plib::STATIC_ENTRY nrec;
 
-                        nrec.objtype = pstat[i].graphic; // TODO map these?
-                        nrec.xy = (pstat[i].x_offset << 4) | pstat[i].y_offset;
-                        nrec.z = pstat[i].z;
-						nrec.hue = pstat[i].hue;
-                        vec.push_back( nrec );
-                        ++statics;
-                    }
-                    else
-                    {
-                        ++duplicates;
-                    }
-                }
-                else
-                {
-                    ++illegales;
-
-                    if (cfg_show_illegal_graphic_warning)
-                        cout << " Warning: Item with illegal Graphic 0x" << hex << pstat[i].graphic
-                             << " in Area " << dec << x << " " << y << " " << (x + STATICBLOCK_CHUNK - 1)
-                             << " " << (y + STATICBLOCK_CHUNK - 1) << endl;
-                }
+                nrec.objtype = pstat[i].graphic; // TODO map these?
+                nrec.xy = ( pstat[i].x_offset << 4 ) | pstat[i].y_offset;
+                nrec.z = pstat[i].z;
+                nrec.hue = pstat[i].hue;
+                vec.push_back( nrec );
+                ++statics;
+              }
+              else
+              {
+                ++duplicates;
+              }
             }
-            for( unsigned i = 0; i < vec.size(); ++i )
-            {
-                fwrite( &vec[i], sizeof(STATIC_ENTRY), 1, fdat );
-                ++index;
-            }
-            if (vec.empty())
-                ++empties;
             else
-                ++nonempties;
-            if (vec.size() > maxcount)
-                maxcount = static_cast<unsigned int>(vec.size());
-        }
-    }
-    STATIC_INDEX idx;
-    idx.index = index;
-    fwrite( &idx, sizeof idx, 1, fidx );
+            {
+              ++illegales;
 
-    int errors = ferror( fdat ) || ferror( fidx );
-    fclose( fdat );
-    fclose( fidx );
-    if (!errors)
-    {
+              if ( cfg_show_illegal_graphic_warning )
+                cout << " Warning: Item with illegal Graphic 0x" << hex << pstat[i].graphic
+                << " in Area " << dec << x << " " << y << " " << ( x + Plib::STATICBLOCK_CHUNK - 1 )
+                << " " << ( y + Plib::STATICBLOCK_CHUNK - 1 ) << endl;
+            }
+          }
+          for ( unsigned i = 0; i < vec.size(); ++i )
+          {
+            fwrite( &vec[i], sizeof( Plib::STATIC_ENTRY ), 1, fdat );
+            ++index;
+          }
+          if ( vec.empty() )
+            ++empties;
+          else
+            ++nonempties;
+          if ( vec.size() > maxcount )
+            maxcount = static_cast<unsigned int>( vec.size() );
+        }
+      }
+      Plib::STATIC_INDEX idx;
+      idx.index = index;
+      fwrite( &idx, sizeof idx, 1, fidx );
+
+      int errors = ferror( fdat ) || ferror( fidx );
+      fclose( fdat );
+      fclose( fidx );
+      if ( !errors )
+      {
         cout << "\rCreating POL statics files: Complete" << endl;
         rename( statidx_tmp.c_str(), statidx_dat.c_str() );
         rename( statics_tmp.c_str(), statics_dat.c_str() );
-    }
-    else
-    {
+      }
+      else
+      {
         cout << "\rCreating POL statics files: Error" << endl;
-    }
+      }
 
 
 #ifndef NDEBUG
-    cout << statics << " statics written" << endl;
-    cout << duplicates << " duplicates eliminated" << endl;
-    cout << illegales << " illegales eliminated" << endl;
-    cout << empties << " empties" << endl;
-    cout << nonempties << " nonempties" << endl;
-    cout << maxcount << " was the highest count" << endl;
+      cout << statics << " statics written" << endl;
+      cout << duplicates << " duplicates eliminated" << endl;
+      cout << illegales << " illegales eliminated" << endl;
+      cout << empties << " empties" << endl;
+      cout << nonempties << " nonempties" << endl;
+      cout << maxcount << " was the highest count" << endl;
 #endif
-    return 0;
+      return 0;
+    }
+  }
 }

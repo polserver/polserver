@@ -9,21 +9,25 @@ Notes
 =======
 
 */
+namespace Pol {
+  namespace Core {
+	struct CombatConfig
+	{
+	  bool display_parry_success_messages;
+	  bool warmode_inhibits_regen;
+	  bool attack_self;
+	  unsigned int warmode_delay;
 
-struct CombatConfig {
-    bool display_parry_success_messages;
-    bool warmode_inhibits_regen;
-	bool attack_self;
-	unsigned int warmode_delay;
+	  bool core_hit_sounds;
+	  bool scripted_attack_checks;
+	  bool reset_swing_onturn;
+	  bool send_swing_packet;
+	  bool send_damage_packet;
+	  bool attack_while_frozen;
+	  bool send_attack_msg;
+	};
 
-	bool core_hit_sounds;
-	bool scripted_attack_checks;
-	bool reset_swing_onturn;
-	bool send_swing_packet;
-    bool send_damage_packet;
-	bool attack_while_frozen;
-	bool send_attack_msg;
-};
-
-extern CombatConfig combat_config;
-void read_combat_config();
+	extern CombatConfig combat_config;
+	void read_combat_config();
+  }
+}

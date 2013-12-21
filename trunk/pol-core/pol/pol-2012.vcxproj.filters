@@ -659,6 +659,9 @@
     <ClCompile Include="sqlscrobj.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="mobile\ufacing.cpp">
+      <Filter>mobile</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="action.h">
@@ -1262,6 +1265,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="network\auxclient.h">
+      <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="uopathnode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

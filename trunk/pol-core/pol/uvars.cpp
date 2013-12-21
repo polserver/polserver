@@ -25,6 +25,7 @@ Notes
 #include "../clib/clib.h"
 #include "../clib/fileutil.h"
 #include "../clib/stlutil.h"
+#include "../clib/cfgfile.h"
 
 #include "accounts/account.h"
 #include "mobile/attribute.h"
@@ -55,144 +56,147 @@ Notes
 #include "vital.h"
 #include "multi/multidef.h"
 
+namespace Pol {
+  namespace Core {
+    AccountsVector accounts;
+	Clients clients;
+	Clients pending_clients;
+	Servers servers;
+	StartingLocations startlocations;
 
-Accounts accounts;
-Clients clients;
-Clients pending_clients;
-Servers servers;
-StartingLocations startlocations;
+	Items::UWeapon* wrestling_weapon;
+	bool pol_startup;
 
-UWeapon* wrestling_weapon;
-bool pol_startup;
+	Watch watch;
+	PropertyList global_properties;
 
-Watch watch;
-PropertyList global_properties;
+	void clean_resources();
 
-void clean_resources();
-
-void KillClient( Client* cli )
-{
-	Client::Delete( cli );
-}
-void cleanup_vars()
-{
-	ForEach( clients, KillClient );
-	clients.clear();
-
-	//dave added 9/27/03: accounts and player characters have a mutual reference that prevents them getting cleaned up
-	//  properly. So clear the references now.
-	for(Accounts::iterator itr = accounts.begin(); itr != accounts.end(); ++itr)
-		for(int i = 0; i < config.character_slots; i++)
-			itr->get()->clear_character(i);
-
-	vector<Realm*>::iterator ritr;
-	for( ritr = Realms->begin(); ritr != Realms->end(); ++ritr)
+	void KillClient( Network::Client* cli )
 	{
-		Realm* realm = *ritr;
+	  Network::Client::Delete( cli );
+	}
+	void cleanup_vars()
+	{
+	  Clib::ForEach( clients, KillClient );
+	  clients.clear();
+
+	  //dave added 9/27/03: accounts and player characters have a mutual reference that prevents them getting cleaned up
+	  //  properly. So clear the references now.
+	  for ( AccountsVector::iterator itr = accounts.begin(); itr != accounts.end(); ++itr )
+	  for ( int i = 0; i < config.character_slots; i++ )
+		itr->get()->clear_character( i );
+
+	  vector<Plib::Realm*>::iterator ritr;
+	  for ( ritr = Realms->begin(); ritr != Realms->end(); ++ritr )
+	  {
+		Plib::Realm* realm = *ritr;
 		unsigned wgridx = realm->width() / WGRID_SIZE;
 		unsigned wgridy = realm->height() / WGRID_SIZE;
 
 		// Tokuno-Fix
-		if (wgridx * WGRID_SIZE < realm->width())
+		if ( wgridx * WGRID_SIZE < realm->width() )
 		  wgridx++;
-		if (wgridy * WGRID_SIZE < realm->height())
+		if ( wgridy * WGRID_SIZE < realm->height() )
 		  wgridy++;
-	
-		for( unsigned wx = 0; wx < wgridx; ++wx )
+
+		for ( unsigned wx = 0; wx < wgridx; ++wx )
 		{
-			for( unsigned wy = 0; wy < wgridy; ++wy )
+		  for ( unsigned wy = 0; wy < wgridy; ++wy )
+		  {
+			ZoneItems& witem = realm->zone[wx][wy].items;
+			ZoneItems::iterator itr = witem.begin(), end = witem.end();
+			for ( ; itr != end; ++itr )
 			{
-				ZoneItems& witem = realm->zone[wx][wy].items;
-				ZoneItems::iterator itr = witem.begin(), end = witem.end();
-				for( ; itr != end; ++itr )
-				{
-					Item* item = *itr;
-					world_delete( item );
-				}
-				witem.clear();
+			  Items::Item* item = *itr;
+			  world_delete( item );
 			}
+			witem.clear();
+		  }
 		}
 
-		for( unsigned wx = 0; wx < wgridx; ++wx )
+		for ( unsigned wx = 0; wx < wgridx; ++wx )
 		{
-			for( unsigned wy = 0; wy < wgridy; ++wy )
+		  for ( unsigned wy = 0; wy < wgridy; ++wy )
+		  {
+			ZoneCharacters& wchr = realm->zone[wx][wy].characters;
+			ZoneCharacters::iterator itr = wchr.begin(), end = wchr.end();
+			for ( ; itr != end; ++itr )
 			{
-				ZoneCharacters& wchr = realm->zone[wx][wy].characters;
-				ZoneCharacters::iterator itr = wchr.begin(), end = wchr.end();
-				for( ; itr != end; ++itr )
-				{
-					Character* chr = *itr;
-					chr->acct.clear(); //dave added 9/27/03, see above comment re: mutual references
-					world_delete( chr );
-				}
-				wchr.clear();
+			  Mobile::Character* chr = *itr;
+			  chr->acct.clear(); //dave added 9/27/03, see above comment re: mutual references
+			  world_delete( chr );
 			}
+			wchr.clear();
+		  }
 		}
 
-		for( unsigned wx = 0; wx < wgridx; ++wx )
+		for ( unsigned wx = 0; wx < wgridx; ++wx )
 		{
-			for( unsigned wy = 0; wy < wgridy; ++wy )
+		  for ( unsigned wy = 0; wy < wgridy; ++wy )
+		  {
+			ZoneMultis& wmulti = realm->zone[wx][wy].multis;
+			ZoneMultis::iterator itr = wmulti.begin(), end = wmulti.end();
+			for ( ; itr != end; ++itr )
 			{
-				ZoneMultis& wmulti = realm->zone[wx][wy].multis;
-				ZoneMultis::iterator itr = wmulti.begin(), end = wmulti.end();
-				for( ; itr != end; ++itr )
-				{
-					UMulti* multi = *itr;
-					world_delete( multi );
-				}
-				wmulti.clear();
+			  Multi::UMulti* multi = *itr;
+			  world_delete( multi );
 			}
+			wmulti.clear();
+		  }
 		}
+	  }
+
+	  // dave renamed this 9/27/03, so we only have to traverse the objhash once, to clear out account references and delete.
+	  // and Nando placed it outside the Realms' loop in 2009-01-18. 
+	  objecthash.ClearCharacterAccountReferences();
+
+	  accounts.clear();
+	  Clib::delete_all( servers );
+	  Clib::delete_all( startlocations );
+
+	  storage.clear();
+
+	  //RegionGroup cleanup _before_ Realm cleanup
+	  delete justicedef;
+	  delete lightdef;
+	  delete nocastdef;
+	  delete weatherdef;
+	  delete musicdef;
+	  clean_resources();
+
+	  Clib::delete_all( *Realms ); // Was leaking... btw, should Realms really be
+	  delete Realms;         // a pointer to a vector<Realm*>? What's the need? (Nando -- 2009-18-01)
+	  Realms = NULL;
+
+	  //delete_all(vitals);
+	  clean_vitals();
+	  Multi::clean_multidefs();
+	  Multi::clean_boatshapes();
+
+	  Mobile::clean_attributes();
+	  cmdlevels2.clear();
+	  clean_spells();
+	  clean_skills();
+	  Network::clean_packethooks();
 	}
 
-	// dave renamed this 9/27/03, so we only have to traverse the objhash once, to clear out account references and delete.
-	// and Nando placed it outside the Realms' loop in 2009-01-18. 
-	objecthash.ClearCharacterAccountReferences();
-
-	accounts.clear();
-	delete_all( servers );
-	delete_all( startlocations );
-
-	storage.clear();
-
-	//RegionGroup cleanup _before_ Realm cleanup
-	delete justicedef;
-	delete lightdef;
-	delete nocastdef;
-	delete weatherdef;
-	delete musicdef;
-	clean_resources();
-
-	delete_all( *Realms ); // Was leaking... btw, should Realms really be
-	delete Realms;         // a pointer to a vector<Realm*>? What's the need? (Nando -- 2009-18-01)
-	Realms = NULL;
-
-	//delete_all(vitals);
-	clean_vitals();
-	clean_multidefs();
-	clean_boatshapes();
-
-	clean_attributes();
-	cmdlevels2.clear();
-	clean_spells();
-	clean_skills();
-	clean_packethooks();
-}
 
 
-#include "../clib/cfgfile.h"
-void set_watch_vars()
-{
-	ConfigFile cf;
-	ConfigElem elem;
-	if ( FileExists("config/watch.cfg") )
+	void set_watch_vars()
 	{
-		cf.open("config/watch.cfg");
+	  Clib::ConfigFile cf;
+	  Clib::ConfigElem elem;
+	  if ( Clib::FileExists( "config/watch.cfg" ) )
+	  {
+		cf.open( "config/watch.cfg" );
 		cf.readraw( elem );
-	}
-	else if ( config.loglevel > 1 )
+	  }
+	  else if ( config.loglevel > 1 )
 		cout << "File config/watch.cfg not found, skipping.\n";
 
-	watch.combat = elem.remove_bool("COMBAT", false);
-	watch.profile_scripts = elem.remove_bool("ProfileScripts", false);
+	  watch.combat = elem.remove_bool( "COMBAT", false );
+	  watch.profile_scripts = elem.remove_bool( "ProfileScripts", false );
+	}
+  }
 }

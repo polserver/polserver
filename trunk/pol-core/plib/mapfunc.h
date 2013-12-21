@@ -12,13 +12,17 @@ Notes
 #define PLIB_MAPFUNC_H
 
 #include "../clib/rawtypes.h"
+namespace Pol {
+  namespace Clib {
+	class ConfigElem;
+  }
+  namespace Plib {
 
-class ConfigElem;
+	u32 polflags_from_tileflags( unsigned short tile, u32 uoflags, bool use_no_shoot, bool LOS_through_windows );
+	u32 polflags_from_landtileflags( unsigned short tile, u32 lt_flags );
 
-u32 polflags_from_tileflags( unsigned short tile, u32 uoflags, bool use_no_shoot, bool LOS_through_windows );
-u32 polflags_from_landtileflags( unsigned short tile, u32 lt_flags );
-
-unsigned int readflags( ConfigElem& elem );
-
+	unsigned int readflags( Clib::ConfigElem& elem );
+  }
+}
 #endif
 

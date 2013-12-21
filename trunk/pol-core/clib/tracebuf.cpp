@@ -10,26 +10,29 @@ Notes
 #include "stl_inc.h"
 #include "logfile.h"
 #include "tracebuf.h"
-
+namespace Pol {
+  namespace Clib {
 #ifndef NDEBUG
-TraceBufferElem tracebuffer[ TRACEBUF_DEPTH ];
-unsigned tracebuffer_insertpoint;
+	TraceBufferElem tracebuffer[ TRACEBUF_DEPTH ];
+	unsigned tracebuffer_insertpoint;
 #endif
 
-void LogTraceBuffer()
-{
+	void LogTraceBuffer()
+	{
 #ifndef NDEBUG
-    Log( "TraceBuffer:\n" );
-    for( unsigned i = tracebuffer_insertpoint; i < TRACEBUF_DEPTH; ++i )
-    {
-        if (tracebuffer[i].tag)
-            Log( "%s=%ld\n", tracebuffer[i].tag, tracebuffer[i].value );
-    }
-    for( unsigned i = 0; i < tracebuffer_insertpoint; ++i )
-    {
-        if (tracebuffer[i].tag)
-            Log( "%s=%ld\n", tracebuffer[i].tag, tracebuffer[i].value );
-    }
-    Log( "End of TraceBuffer.\n" );
+	  Log( "TraceBuffer:\n" );
+	  for( unsigned i = tracebuffer_insertpoint; i < TRACEBUF_DEPTH; ++i )
+	  {
+		if (tracebuffer[i].tag)
+		  Log( "%s=%ld\n", tracebuffer[i].tag, tracebuffer[i].value );
+	  }
+	  for( unsigned i = 0; i < tracebuffer_insertpoint; ++i )
+	  {
+		if (tracebuffer[i].tag)
+		  Log( "%s=%ld\n", tracebuffer[i].tag, tracebuffer[i].value );
+	  }
+	  Log( "End of TraceBuffer.\n" );
 #endif
+	}
+  }
 }

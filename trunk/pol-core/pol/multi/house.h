@@ -15,89 +15,87 @@ Notes
 #include "../../clib/stl_inc.h"
 #include "customhouses.h"
 #include "multi.h"
+namespace Pol {
+  namespace Multi {
 
-class ObjArray;
-class BStruct;
-class BObjectImp;
-class Realm;
-
-typedef list<Item*>         ItemList;
-typedef list<Character*>    MobileList;
+	typedef list<Items::Item*>         ItemList;
+	typedef list<Mobile::Character*>    MobileList;
 
 
-class UHouse : public UMulti
-{
-    typedef UMulti base;
+	class UHouse : public UMulti
+	{
+	  typedef UMulti base;
 
-public:
-    static BObjectImp* scripted_create( const ItemDesc& descriptor, u16 x, u16 y, s8 z, Realm* realm, int flags );
-    void destroy_components();
+	public:
+	  static Bscript::BObjectImp* scripted_create( const Items::ItemDesc& descriptor, u16 x, u16 y, s8 z, Plib::Realm* realm, int flags );
+	  void destroy_components();
 
-    CustomHouseDesign CurrentDesign;
-    CustomHouseDesign WorkingDesign;
-    CustomHouseDesign BackupDesign;
-    vector<u8> CurrentCompressed;
-    vector<u8> WorkingCompressed;
+	  CustomHouseDesign CurrentDesign;
+	  CustomHouseDesign WorkingDesign;
+	  CustomHouseDesign BackupDesign;
+	  vector<u8> CurrentCompressed;
+	  vector<u8> WorkingCompressed;
 
-    bool IsCustom() const {return custom;};
-    void SetCustom(bool custom);
-    void CustomHouseSetInitialState();
-    static UHouse* FindWorkingHouse(u32 chrserial);
-	bool IsEditing() const { return editing; }
-	bool IsWaitingForAccept() const { return waiting_for_accept; }
-    bool editing;
-	bool waiting_for_accept;
-    int editing_floor_num;
-    u32 revision;
+	  bool IsCustom() const { return custom; };
+	  void SetCustom( bool custom );
+	  void CustomHouseSetInitialState();
+	  static UHouse* FindWorkingHouse( u32 chrserial );
+	  bool IsEditing() const { return editing; }
+	  bool IsWaitingForAccept() const { return waiting_for_accept; }
+	  bool editing;
+	  bool waiting_for_accept;
+	  int editing_floor_num;
+	  u32 revision;
 
-	virtual void register_object( UObject* obj );
-	virtual void unregister_object( UObject* obj );
+	  virtual void register_object( Core::UObject* obj );
+	  virtual void unregister_object( Core::UObject* obj );
 
-	virtual void walk_on( Character* chr );
+	  virtual void walk_on( Mobile::Character* chr );
 
-	void ClearSquatters();
-	void add_component(Item* item, s32 xoff, s32 yoff, u8 zoff);
-	static void list_contents( const UHouse* house,
-                    ItemList& items_in,
-                    MobileList& chrs_in );
-	void AcceptHouseCommit(Character* chr, bool accept);
-	void CustomHousesQuit(Character* chr, bool drop_changes);
-	
-
-protected:
-    explicit UHouse( const ItemDesc& itemdesc );
-    void create_components();
-
-    virtual void readProperties( ConfigElem& elem );
-    virtual void printProperties( StreamWriter& sw ) const;
-    virtual BObjectImp* script_method( const char* membername, Executor& ex );
-    virtual BObjectImp* script_method_id( const int id, Executor& ex );
-    virtual class BObjectImp* get_script_member( const char *membername ) const;
-    virtual class BObjectImp* get_script_member_id( const int id ) const; ///id test
-    virtual bool script_isa( unsigned isatype ) const;
-    virtual class UHouse* as_house();
-    virtual bool readshapes( MapShapeList& vec, short x, short y, short zbase );
-    virtual bool readobjects( StaticList& vec, short x, short y, short zbase );
-    ObjArray* component_list() const;
-    ObjArray* items_list() const;
-    ObjArray* mobiles_list() const;
-
-    friend class UMulti;
-	friend class CustomHouseDesign;
-
-	typedef ItemRef Component;
-	typedef std::vector< Component > Components;
-	Components* get_components() { return &components_; }
-    bool custom;
-private:
-	typedef UObjectRef Squatter;
-	typedef std::vector< Squatter > Squatters;
-	Squatters squatters_;
-
-    Components components_;
-};
+	  void ClearSquatters();
+	  void add_component( Items::Item* item, s32 xoff, s32 yoff, u8 zoff );
+	  static void list_contents( const UHouse* house,
+								 ItemList& items_in,
+								 MobileList& chrs_in );
+	  void AcceptHouseCommit( Mobile::Character* chr, bool accept );
+	  void CustomHousesQuit( Mobile::Character* chr, bool drop_changes );
 
 
-BObjectImp* destroy_house( UHouse* house );
+	protected:
+	  explicit UHouse( const Items::ItemDesc& itemdesc );
+	  void create_components();
 
+	  virtual void readProperties( Clib::ConfigElem& elem );
+	  virtual void printProperties( Clib::StreamWriter& sw ) const;
+	  virtual Bscript::BObjectImp* script_method( const char* membername, Bscript::Executor& ex );
+	  virtual Bscript::BObjectImp* script_method_id( const int id, Bscript::Executor& ex );
+	  virtual Bscript::BObjectImp* get_script_member( const char *membername ) const;
+	  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const; ///id test
+	  virtual bool script_isa( unsigned isatype ) const;
+	  virtual class UHouse* as_house();
+      virtual bool readshapes( Plib::MapShapeList& vec, short x, short y, short zbase );
+	  virtual bool readobjects( Core::StaticList& vec, short x, short y, short zbase );
+	  Bscript::ObjArray* component_list() const;
+	  Bscript::ObjArray* items_list( ) const;
+	  Bscript::ObjArray* mobiles_list( ) const;
+
+	  friend class UMulti;
+	  friend class CustomHouseDesign;
+
+	  typedef Core::ItemRef Component;
+	  typedef std::vector< Component > Components;
+	  Components* get_components() { return &components_; }
+	  bool custom;
+	private:
+	  typedef Core::UObjectRef Squatter;
+	  typedef std::vector< Squatter > Squatters;
+	  Squatters squatters_;
+
+	  Components components_;
+	};
+
+
+	Bscript::BObjectImp* destroy_house( UHouse* house );
+  }
+}
 #endif

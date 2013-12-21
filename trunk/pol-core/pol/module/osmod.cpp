@@ -15,6 +15,7 @@ Notes
 #include "../../bscript/eprog.h"
 #include "../../bscript/executor.h"
 #include "../../bscript/impstr.h"
+#include "../../bscript/bobject.h"
 #include "../../clib/endian.h"
 #include "../../clib/logfile.h"
 #include "../../clib/passert.h"
@@ -63,672 +64,678 @@ Notes
 #include "utilmod.h"
 #include "vitalmod.h"
 #include "../network/auxclient.h"
+namespace Pol {
+  namespace Module {
+	using namespace Bscript;
 
-PidList pidlist;
-unsigned int next_pid = 0;
+	PidList pidlist;
+	unsigned int next_pid = 0;
 
-unsigned int getnewpid( UOExecutor* uoexec )
-{
-	for(;;)
+	unsigned int getnewpid( Core::UOExecutor* uoexec )
 	{
+	  for ( ;; )
+	  {
 		unsigned int newpid = ++next_pid;
-		if (newpid != 0 && 
-			pidlist.find(newpid) == pidlist.end())
+		if ( newpid != 0 &&
+			 pidlist.find( newpid ) == pidlist.end() )
 		{
-			pidlist[newpid] = uoexec;
-			return newpid;
+		  pidlist[newpid] = uoexec;
+		  return newpid;
 		}
+	  }
 	}
-}
-void freepid( unsigned int pid )
-{
-	pidlist.erase( pid );
-}
-
-OSExecutorModule::OSExecutorModule( Executor& exec ) :
-ExecutorModule( "OS", exec ),
-critical(false),
-priority(1),
-warn_on_runaway(true),
-blocked_(false),
-sleep_until_clock_(0),
-in_hold_list_(NO_LIST),
-hold_itr_(),
-pid_(getnewpid( static_cast<UOExecutor*>(&exec) )),
-wait_type(WAIT_UNKNOWN),
-max_eventqueue_size(MAX_EVENTQUEUE_SIZE),
-events_()
-{
-}
-
-OSExecutorModule::~OSExecutorModule()
-{
-	freepid( pid_ );
-	pid_ = 0;
-	while (!events_.empty())
+	void freepid( unsigned int pid )
 	{
-		BObject ob( events_.front() );
+	  pidlist.erase( pid );
+	}
+
+	OSExecutorModule::OSExecutorModule( Bscript::Executor& exec ) :
+	  ExecutorModule( "OS", exec ),
+	  critical( false ),
+	  priority( 1 ),
+	  warn_on_runaway( true ),
+	  blocked_( false ),
+	  sleep_until_clock_( 0 ),
+	  in_hold_list_( NO_LIST ),
+	  hold_itr_(),
+	  pid_( getnewpid( static_cast<Core::UOExecutor*>( &exec ) ) ),
+	  wait_type( WAIT_UNKNOWN ),
+	  max_eventqueue_size( MAX_EVENTQUEUE_SIZE ),
+	  events_()
+	{}
+
+	OSExecutorModule::~OSExecutorModule()
+	{
+	  freepid( pid_ );
+	  pid_ = 0;
+	  while ( !events_.empty() )
+	  {
+		Bscript::BObject ob( events_.front( ) );
 		events_.pop();
+	  }
 	}
-}
 
-unsigned int OSExecutorModule::pid() const
-{
-	return pid_;
-}
-
-bool OSExecutorModule::blocked() const
-{
-	return blocked_;
-}
-
-OSFunctionDef OSExecutorModule::function_table[] =
-{
-	{ "create_debug_context",       &OSExecutorModule::create_debug_context },
-	{ "getprocess",                 &OSExecutorModule::getprocess },
-	{ "get_process",                &OSExecutorModule::getprocess },
-	{ "getpid",                     &OSExecutorModule::getpid },
-	{ "sleep",                      &OSExecutorModule::sleep },
-	{ "sleepms",                    &OSExecutorModule::sleepms },
-	{ "wait_for_event",             &OSExecutorModule::wait_for_event },
-	{ "events_waiting",             &OSExecutorModule::events_waiting },
-	{ "start_script",               &OSExecutorModule::start_script },
-	{ "start_skill_script",			&OSExecutorModule::start_skill_script },
-	{ "set_critical",               &OSExecutorModule::set_critical },
-	{ "is_critical",				&OSExecutorModule::is_critical },
-	{ "run_script_to_completion",   &OSExecutorModule::run_script_to_completion },
-	{ "run_script",					&OSExecutorModule::run_script },
-	{ "set_debug",                  &OSExecutorModule::mf_set_debug },
-	{ "syslog",                     &OSExecutorModule::mf_Log },
-	{ "system_rpm",                 &OSExecutorModule::mf_system_rpm },
-	{ "set_priority",               &OSExecutorModule::mf_set_priority },
-	{ "unload_scripts",             &OSExecutorModule::mf_unload_scripts },
-	{ "set_script_option",          &OSExecutorModule::mf_set_script_option },
-	{ "clear_event_queue",			&OSExecutorModule::mf_clear_event_queue },
-	{ "set_event_queue_size",		&OSExecutorModule::mf_set_event_queue_size },
-	{ "OpenURL",					&OSExecutorModule::mf_OpenURL },
-	{ "OpenConnection",				&OSExecutorModule::mf_OpenConnection },
-	{ "Debugger",					&OSExecutorModule::mf_debugger }
-};
-
-int OSExecutorModule::functionIndex( const char *name )
-{
-	for( unsigned idx = 0; idx < arsize(function_table); idx++ )
+	unsigned int OSExecutorModule::pid() const
 	{
-		if (stricmp( name, function_table[idx].funcname ) == 0)
-			return idx;
+	  return pid_;
 	}
-	return -1;
-}
 
-BObjectImp* OSExecutorModule::execFunc( unsigned funcidx )
-{
-	return callMemberFunction(*this, function_table[funcidx].fptr)();
-};
+	bool OSExecutorModule::blocked() const
+	{
+	  return blocked_;
+	}
 
-std::string OSExecutorModule::functionName( unsigned idx )
-{
-	return function_table[idx].funcname;
-}
+	OSFunctionDef OSExecutorModule::function_table[] =
+	{
+	  { "create_debug_context", &OSExecutorModule::create_debug_context },
+	  { "getprocess", &OSExecutorModule::getprocess },
+	  { "get_process", &OSExecutorModule::getprocess },
+	  { "getpid", &OSExecutorModule::getpid },
+	  { "sleep", &OSExecutorModule::sleep },
+	  { "sleepms", &OSExecutorModule::sleepms },
+	  { "wait_for_event", &OSExecutorModule::wait_for_event },
+	  { "events_waiting", &OSExecutorModule::events_waiting },
+	  { "start_script", &OSExecutorModule::start_script },
+	  { "start_skill_script", &OSExecutorModule::start_skill_script },
+	  { "set_critical", &OSExecutorModule::set_critical },
+	  { "is_critical", &OSExecutorModule::is_critical },
+	  { "run_script_to_completion", &OSExecutorModule::run_script_to_completion },
+	  { "run_script", &OSExecutorModule::run_script },
+	  { "set_debug", &OSExecutorModule::mf_set_debug },
+	  { "syslog", &OSExecutorModule::mf_Log },
+	  { "system_rpm", &OSExecutorModule::mf_system_rpm },
+	  { "set_priority", &OSExecutorModule::mf_set_priority },
+	  { "unload_scripts", &OSExecutorModule::mf_unload_scripts },
+	  { "set_script_option", &OSExecutorModule::mf_set_script_option },
+	  { "clear_event_queue", &OSExecutorModule::mf_clear_event_queue },
+	  { "set_event_queue_size", &OSExecutorModule::mf_set_event_queue_size },
+	  { "OpenURL", &OSExecutorModule::mf_OpenURL },
+	  { "OpenConnection", &OSExecutorModule::mf_OpenConnection },
+	  { "Debugger", &OSExecutorModule::mf_debugger }
+	};
 
-BObjectImp* OSExecutorModule::create_debug_context()
-{
-	return ::create_debug_context();
-}
+	int OSExecutorModule::functionIndex( const char *name )
+	{
+	  for ( unsigned idx = 0; idx < arsize( function_table ); idx++ )
+	  {
+		if ( stricmp( name, function_table[idx].funcname ) == 0 )
+		  return idx;
+	  }
+	  return -1;
+	}
 
-BObjectImp* OSExecutorModule::mf_debugger()
-{
-	UOExecutor* uoexec;
-	if (find_uoexec( pid_, &uoexec )) {
+	BObjectImp* OSExecutorModule::execFunc( unsigned funcidx )
+	{
+	  return callMemberFunction( *this, function_table[funcidx].fptr )( );
+	};
+
+	std::string OSExecutorModule::functionName( unsigned idx )
+	{
+	  return function_table[idx].funcname;
+	}
+
+	BObjectImp* OSExecutorModule::create_debug_context()
+	{
+	  return Core::create_debug_context();
+	}
+
+	BObjectImp* OSExecutorModule::mf_debugger()
+	{
+	  Core::UOExecutor* uoexec;
+	  if ( find_uoexec( pid_, &uoexec ) )
+	  {
 		uoexec->attach_debugger();
-		return new BLong(1);
-	}
-	else
+		return new BLong( 1 );
+	  }
+	  else
 		return new BError( "Could not find UOExecutor for current process." );
 
-}
+	}
 
-BObjectImp* OSExecutorModule::getprocess()
-{
-	int pid;
-	if (getParam( 0, pid ))
+	BObjectImp* OSExecutorModule::getprocess()
 	{
-		UOExecutor* uoexec;
-		if (find_uoexec( static_cast<unsigned int>(pid), &uoexec ))
-			return new ScriptExObjImp( uoexec );
+	  int pid;
+	  if ( getParam( 0, pid ) )
+	  {
+		Core::UOExecutor* uoexec;
+		if ( find_uoexec( static_cast<unsigned int>( pid ), &uoexec ) )
+		  return new Core::ScriptExObjImp( uoexec );
 		else
-			return new BError( "Process not found" );
+		  return new BError( "Process not found" );
 
-	}
-	else
-	{
+	  }
+	  else
+	  {
 		return new BError( "Invalid parameter type" );
+	  }
 	}
-}
 
-BObjectImp* OSExecutorModule::getpid()
-{
-	return new BLong( pid_ );
-}
-/*	Ok, this is going to be fun.  In the case where we block,
-the caller is going to take our return value and push
-it on the value stack.  
-
-What we'll do is push the value that should be returned
-if a timeout occurs.  THis way, for timeouts, all we have
-to do is move the script back into the run queue.
-
-When we actually complete something, we'll have to
-pop the value off the stack, and replace it with
-the real result.
-
-Whew!
-*/
-BObjectImp* OSExecutorModule::sleep()
-{
-	int nsecs;
-
-	nsecs = (int) exec.paramAsLong(0);
-
-	SleepFor( nsecs );
-
-	return new BLong( 0 );
-}
-
-BObjectImp* OSExecutorModule::sleepms()
-{
-	int msecs;
-
-	msecs = (int) exec.paramAsLong(0);
-
-	SleepForMs( msecs );
-
-	return new BLong( 0 );
-}
-
-BObjectImp* OSExecutorModule::wait_for_event()
-{
-	if (!events_.empty())
+	BObjectImp* OSExecutorModule::getpid()
 	{
+	  return new BLong( pid_ );
+	}
+	/*	Ok, this is going to be fun.  In the case where we block,
+	the caller is going to take our return value and push
+	it on the value stack.
+
+	What we'll do is push the value that should be returned
+	if a timeout occurs.  THis way, for timeouts, all we have
+	to do is move the script back into the run queue.
+
+	When we actually complete something, we'll have to
+	pop the value off the stack, and replace it with
+	the real result.
+
+	Whew!
+	*/
+	BObjectImp* OSExecutorModule::sleep()
+	{
+	  int nsecs;
+
+	  nsecs = (int)exec.paramAsLong( 0 );
+
+	  SleepFor( nsecs );
+
+	  return new BLong( 0 );
+	}
+
+	BObjectImp* OSExecutorModule::sleepms()
+	{
+	  int msecs;
+
+	  msecs = (int)exec.paramAsLong( 0 );
+
+	  SleepForMs( msecs );
+
+	  return new BLong( 0 );
+	}
+
+	BObjectImp* OSExecutorModule::wait_for_event()
+	{
+	  if ( !events_.empty() )
+	  {
 		BObjectImp* imp = events_.front();
 		events_.pop();
 		return imp;
-	}
-	else
-	{
-		int nsecs = (int) exec.paramAsLong(0);
+	  }
+	  else
+	  {
+		int nsecs = (int)exec.paramAsLong( 0 );
 
-		if (nsecs)
+		if ( nsecs )
 		{
-			wait_type = WAIT_EVENT;
-			blocked_ = true;
-			sleep_until_clock_ = polclock() + nsecs * POLCLOCKS_PER_SEC;
+		  wait_type = WAIT_EVENT;
+		  blocked_ = true;
+          sleep_until_clock_ = Core::polclock( ) + nsecs * Core::POLCLOCKS_PER_SEC;
 		}
 		return new BLong( 0 );
+	  }
 	}
-}
 
-BObjectImp* OSExecutorModule::events_waiting()
-{
-	return new BLong( static_cast<int>(events_.size()) );
-}
-
-BObjectImp* OSExecutorModule::start_script()
-{
-	const String* scriptname_str;
-	if (exec.getStringParam( 0, scriptname_str ))
+	BObjectImp* OSExecutorModule::events_waiting()
 	{
+	  return new BLong( static_cast<int>( events_.size() ) );
+	}
+
+	BObjectImp* OSExecutorModule::start_script()
+	{
+	  const String* scriptname_str;
+	  if ( exec.getStringParam( 0, scriptname_str ) )
+	  {
 		BObjectImp* imp = exec.getParamImp( 1 );
 
 		// FIXME needs to inherit available modules?
-		ScriptDef sd;
-		if (!sd.config_nodie( scriptname_str->value(), exec.prog()->pkg, "scripts/" ))
+        Core::ScriptDef sd;
+		if ( !sd.config_nodie( scriptname_str->value(), exec.prog()->pkg, "scripts/" ) )
 		{
-			return new BError( "Error in script name" );
+		  return new BError( "Error in script name" );
 		}
-		if (!sd.exists())
+		if ( !sd.exists() )
 		{
-			return new BError( "Script " + sd.name() + " does not exist." );
+		  return new BError( "Script " + sd.name() + " does not exist." );
 		}
-		UOExecutorModule* new_uoemod = ::start_script( sd, imp->copy() );
-		if (new_uoemod == NULL)
+        UOExecutorModule* new_uoemod = Core::start_script( sd, imp->copy( ) );
+		if ( new_uoemod == NULL )
 		{
-			return new BError( "Unable to start script" );
+		  return new BError( "Unable to start script" );
 		}
-		UOExecutorModule* this_uoemod = static_cast<UOExecutorModule*>(exec.findModule( "uo" ));
-		if (new_uoemod != NULL && this_uoemod != NULL)
+		UOExecutorModule* this_uoemod = static_cast<UOExecutorModule*>( exec.findModule( "uo" ) );
+		if ( new_uoemod != NULL && this_uoemod != NULL )
 		{
-			new_uoemod->controller_ = this_uoemod->controller_;
+		  new_uoemod->controller_ = this_uoemod->controller_;
 		}
-		UOExecutor* uoexec = static_cast<UOExecutor*>(&new_uoemod->exec);
-		return new ScriptExObjImp( uoexec );
-	}
-	else
-	{
+        Core::UOExecutor* uoexec = static_cast<Core::UOExecutor*>( &new_uoemod->exec );
+        return new Core::ScriptExObjImp( uoexec );
+	  }
+	  else
+	  {
 		return new BError( "Invalid parameter type" );
+	  }
 	}
-}
 
 
-BObjectImp* OSExecutorModule::start_skill_script()
-{
-	Character* chr;
-	const Attribute* attr;
-
-	if (getCharacterParam( 0, chr ) && getAttributeParam(exec, 1, attr))
+	BObjectImp* OSExecutorModule::start_skill_script()
 	{
-		if (!attr->disable_core_checks && !CanUseSkill(chr->client))
-			return new BLong(0);
+	  Mobile::Character* chr;
+      const Mobile::Attribute* attr;
+
+	  if ( getCharacterParam( 0, chr ) && Core::getAttributeParam( exec, 1, attr ) )
+	  {
+		if ( !attr->disable_core_checks && !Core::CanUseSkill( chr->client ) )
+		  return new BLong( 0 );
 		else
 		{
-			const String* script_name;
-			ScriptDef script;
+		  const String* script_name;
+          Core::ScriptDef script;
 
-			if ( exec.getStringParam(2, script_name) )
+		  if ( exec.getStringParam( 2, script_name ) )
+		  {
+			if ( !script.config_nodie( script_name->value(), exec.prog()->pkg, "scripts/skills/" ) )
 			{
-				if (!script.config_nodie( script_name->value(), exec.prog()->pkg, "scripts/skills/" ))
-				{
-					return new BError( "Error in script name" );
-				}
-				if (!script.exists())
-				{
-					return new BError( "Script " + script.name() + " does not exist." );
-				}
+			  return new BError( "Error in script name" );
+			}
+			if ( !script.exists() )
+			{
+			  return new BError( "Script " + script.name() + " does not exist." );
+			}
+		  }
+		  else
+		  {
+			if ( !attr->script_.empty() )
+			  script = attr->script_;
+			else
+			  return new BError( "No script defined for attribute " + attr->name + "." );
+		  }
+
+          ref_ptr<EScriptProgram> prog = find_script2( script, true, /* complain if not found */ Core::config.cache_interactive_scripts );
+
+		  if ( prog.get() != NULL )
+		  {
+			BObjectImp* imp = exec.getParamImp( 3 );
+			if ( imp )
+			{
+			  if ( chr->start_script( prog.get(), true, imp->copy() ) )
+			  {
+				if ( chr->hidden() && attr->unhides )
+				  chr->unhide();
+				if ( attr->delay_seconds )
+                  chr->disable_skills_until = Core::poltime( ) + attr->delay_seconds;
+			  }
 			}
 			else
 			{
-				if (!attr->script_.empty())
-					script = attr->script_;
-				else
-					return new BError( "No script defined for attribute " + attr->name + "." );
+			  if ( chr->start_script( prog.get(), true ) )
+			  {
+				if ( chr->hidden() && attr->unhides )
+				  chr->unhide();
+				if ( attr->delay_seconds )
+                  chr->disable_skills_until = Core::poltime( ) + attr->delay_seconds;
+			  }
 			}
-
-			ref_ptr<EScriptProgram> prog = find_script2( script, true, /* complain if not found */ config.cache_interactive_scripts );
-
-			if (prog.get() != NULL)
-			{
-				BObjectImp* imp = exec.getParamImp( 3 );
-				if (imp)
-				{
-					if ( chr->start_script( prog.get(), true, imp->copy() ) )
-					{ 
-						if ( chr->hidden() && attr->unhides )
-							chr->unhide();
-						if ( attr->delay_seconds )
-							chr->disable_skills_until = poltime() + attr->delay_seconds;
-					}
-				}
-				else
-				{
-					if ( chr->start_script( prog.get(), true ) )
-					{ 
-						if ( chr->hidden() && attr->unhides )
-							chr->unhide();
-						if ( attr->delay_seconds )
-							chr->disable_skills_until = poltime() + attr->delay_seconds;
-					}
-				}
-			}
-			else
-			{
-				string msg = "Unable to start skill script:";
-				msg += script.c_str();
-				send_sysmessage(chr->client, msg.c_str());
-
-				return new BLong(0);
-			}
-			return new BLong(1);
-		}
-	}
-	else
-	{
-		return new BError( "Invalid parameter type" );
-	}
-}
-
-BObjectImp* OSExecutorModule::set_critical()
-{
-	int crit;
-	if (exec.getParam( 0, crit ))
-	{
-		critical = (crit != 0);
-		return new BLong(1);
-	}
-	else
-	{
-		return new BError( "Invalid parameter type" );
-	}
-}
-
-BObjectImp* OSExecutorModule::is_critical()
-{
-	if(critical)
-		return new BLong(1);
-	else
-		return new BLong(0);
-}
-
-BObjectImp* OSExecutorModule::run_script_to_completion()
-{
-	const char* scriptname = exec.paramAsString(0);
-	if (scriptname == NULL)
-		return new BLong(0);
-
-	// FIXME needs to inherit available modules?
-	ScriptDef script;
-
-	if (!script.config_nodie( scriptname, exec.prog()->pkg, "scripts/" ))
-		return new BError( "Script descriptor error" );
-
-	if (!script.exists())
-		return new BError( "Script does not exist" );
-
-	return ::run_script_to_completion( script, getParamImp(1) ); 
-}
-
-BObjectImp* OSExecutorModule::run_script()
-{
-	UOExecutorModule* this_uoemod = static_cast<UOExecutorModule*>(exec.findModule( "uo" ));
-	UOExecutor* this_uoexec = static_cast<UOExecutor*>(&this_uoemod->exec);
-
-	if(this_uoexec->pChild == NULL)
-	{
-		const String* scriptname_str;
-		if (exec.getStringParam( 0, scriptname_str ))
-		{
-			BObjectImp* imp = exec.getParamImp( 1 );
-
-			// FIXME needs to inherit available modules?
-			ScriptDef sd;
-			if (!sd.config_nodie( scriptname_str->value(), exec.prog()->pkg, "scripts/" ))
-			{
-				return new BError( "Error in script name" );
-			}
-			if (!sd.exists())
-			{
-				return new BError( "Script " + sd.name() + " does not exist." );
-			}
-			UOExecutorModule* new_uoemod = ::start_script( sd, imp->copy() );
-			if (new_uoemod == NULL)
-			{
-				return new BError( "Unable to run script" );
-			}
-			if (new_uoemod && this_uoemod)
-			{
-				new_uoemod->controller_ = this_uoemod->controller_;
-			}
-			UOExecutor* new_uoexec = static_cast<UOExecutor*>(&new_uoemod->exec);
-			//			OSExecutorModule* osemod = uoexec->os_module;
-			new_uoexec->pParent = this_uoexec;
-			this_uoexec->pChild = new_uoexec;
-
-			// we want to forcefully do this instruction over again:
-			this_uoexec->PC--;																// run_script(
-			this_uoexec->ValueStack.push(BObjectRef(new BObject(UninitObject::create())));	//   script_name,
-			// No need to push on "param" since the new BLong(0) below will take care of it.//   param )
-
-			// Put me on hold until my child is done.
-			suspend();
+		  }
+		  else
+		  {
+			string msg = "Unable to start skill script:";
+			msg += script.c_str();
+            Core::send_sysmessage( chr->client, msg.c_str( ) );
 
 			return new BLong( 0 );
+		  }
+		  return new BLong( 1 );
+		}
+	  }
+	  else
+	  {
+		return new BError( "Invalid parameter type" );
+	  }
+	}
+
+	BObjectImp* OSExecutorModule::set_critical()
+	{
+	  int crit;
+	  if ( exec.getParam( 0, crit ) )
+	  {
+		critical = ( crit != 0 );
+		return new BLong( 1 );
+	  }
+	  else
+	  {
+		return new BError( "Invalid parameter type" );
+	  }
+	}
+
+	BObjectImp* OSExecutorModule::is_critical()
+	{
+	  if ( critical )
+		return new BLong( 1 );
+	  else
+		return new BLong( 0 );
+	}
+
+	BObjectImp* OSExecutorModule::run_script_to_completion()
+	{
+	  const char* scriptname = exec.paramAsString( 0 );
+	  if ( scriptname == NULL )
+		return new BLong( 0 );
+
+	  // FIXME needs to inherit available modules?
+      Core::ScriptDef script;
+
+	  if ( !script.config_nodie( scriptname, exec.prog()->pkg, "scripts/" ) )
+		return new BError( "Script descriptor error" );
+
+	  if ( !script.exists() )
+		return new BError( "Script does not exist" );
+
+      return Core::run_script_to_completion( script, getParamImp( 1 ) );
+	}
+
+	BObjectImp* OSExecutorModule::run_script()
+	{
+	  UOExecutorModule* this_uoemod = static_cast<UOExecutorModule*>( exec.findModule( "uo" ) );
+      Core::UOExecutor* this_uoexec = static_cast<Core::UOExecutor*>( &this_uoemod->exec );
+
+	  if ( this_uoexec->pChild == NULL )
+	  {
+		const String* scriptname_str;
+		if ( exec.getStringParam( 0, scriptname_str ) )
+		{
+		  BObjectImp* imp = exec.getParamImp( 1 );
+
+		  // FIXME needs to inherit available modules?
+          Core::ScriptDef sd;
+		  if ( !sd.config_nodie( scriptname_str->value(), exec.prog()->pkg, "scripts/" ) )
+		  {
+			return new BError( "Error in script name" );
+		  }
+		  if ( !sd.exists() )
+		  {
+			return new BError( "Script " + sd.name() + " does not exist." );
+		  }
+          UOExecutorModule* new_uoemod = Core::start_script( sd, imp->copy( ) );
+		  if ( new_uoemod == NULL )
+		  {
+			return new BError( "Unable to run script" );
+		  }
+		  if ( new_uoemod && this_uoemod )
+		  {
+			new_uoemod->controller_ = this_uoemod->controller_;
+		  }
+          Core::UOExecutor* new_uoexec = static_cast<Core::UOExecutor*>( &new_uoemod->exec );
+		  //			OSExecutorModule* osemod = uoexec->os_module;
+		  new_uoexec->pParent = this_uoexec;
+		  this_uoexec->pChild = new_uoexec;
+
+		  // we want to forcefully do this instruction over again:
+		  this_uoexec->PC--;																// run_script(
+		  this_uoexec->ValueStack.push( BObjectRef( new BObject( UninitObject::create() ) ) );	//   script_name,
+		  // No need to push on "param" since the new BLong(0) below will take care of it.//   param )
+
+		  // Put me on hold until my child is done.
+		  suspend();
+
+		  return new BLong( 0 );
 		}
 		else
 		{
-			return new BError( "Invalid parameter type" );
+		  return new BError( "Invalid parameter type" );
 		}
-	}
+	  }
 
-	// else I am running a child script, and its ended
-	BObjectImp* ret;
+	  // else I am running a child script, and its ended
+	  BObjectImp* ret;
 
-	if (this_uoexec->pChild->ValueStack.empty())
+	  if ( this_uoexec->pChild->ValueStack.empty() )
 		ret = new BLong( 1 );
-	else
+	  else
 		ret = this_uoexec->pChild->ValueStack.top().get()->impptr()->copy();
 
-	this_uoexec->pChild->pParent = NULL;
-	this_uoexec->pChild = NULL;
+	  this_uoexec->pChild->pParent = NULL;
+	  this_uoexec->pChild = NULL;
 
-	return ret;
-}
-
-BObjectImp* OSExecutorModule::mf_set_debug()
-{
-	int dbg;
-	if (getParam( 0, dbg ))
-	{
-		if (dbg)
-			exec.setDebugLevel( Executor::SOURCELINES );
-		return new BLong(1);
+	  return ret;
 	}
-	else
+
+	BObjectImp* OSExecutorModule::mf_set_debug()
 	{
+	  int dbg;
+	  if ( getParam( 0, dbg ) )
+	  {
+		if ( dbg )
+		  exec.setDebugLevel( Executor::SOURCELINES );
+		return new BLong( 1 );
+	  }
+	  else
+	  {
 		return new BError( "Invalid parameter type" );
+	  }
 	}
-}
 
-BObjectImp* OSExecutorModule::mf_Log()
-{
-	BObjectImp* imp = exec.getParamImp( 0 );
-	if (imp->isa( BObjectImp::OTString ))
+	BObjectImp* OSExecutorModule::mf_Log()
 	{
-		String* str = static_cast<String*>(imp);
-		Log( "[%s]: %s\n", exec.scriptname().c_str(), str->data() );
+	  BObjectImp* imp = exec.getParamImp( 0 );
+	  if ( imp->isa( BObjectImp::OTString ) )
+	  {
+		String* str = static_cast<String*>( imp );
+		Clib::Log( "[%s]: %s\n", exec.scriptname().c_str(), str->data() );
 		cout << "syslog [" << exec.scriptname() << "]: " << str->data() << endl;
-		return new BLong(1);
-	}
-	else
-	{
+		return new BLong( 1 );
+	  }
+	  else
+	  {
 		std::string strval = imp->getStringRep();
-		Log( "[%s]: %s\n", exec.scriptname().c_str(), strval.c_str() );
+        Clib::Log( "[%s]: %s\n", exec.scriptname( ).c_str( ), strval.c_str( ) );
 		cout << "syslog: [" << exec.scriptname() << "]: " << strval << endl;
-		return new BLong(1);
+		return new BLong( 1 );
+	  }
 	}
-}
 
-BObjectImp* OSExecutorModule::mf_system_rpm()
-{
-	return new BLong( static_cast<int>(last_rpm) );
-}
-
-BObjectImp* OSExecutorModule::mf_set_priority()
-{
-	int newpri;
-	if (getParam( 0, newpri, 1, 255 ))
+	BObjectImp* OSExecutorModule::mf_system_rpm()
 	{
+      return new BLong( static_cast<int>( Core::last_rpm ) );
+	}
+
+	BObjectImp* OSExecutorModule::mf_set_priority()
+	{
+	  int newpri;
+	  if ( getParam( 0, newpri, 1, 255 ) )
+	  {
 		int oldpri = priority;
-		priority = static_cast<unsigned char>(newpri);
+		priority = static_cast<unsigned char>( newpri );
 		return new BLong( oldpri );
-	}
-	else
-	{
+	  }
+	  else
+	  {
 		return new BError( "Invalid parameter type" );
+	  }
 	}
-}
 
 
 
 
-BObjectImp* OSExecutorModule::mf_unload_scripts()
-{
-	const String* str;
-	if (getStringParam( 0, str ))
+	BObjectImp* OSExecutorModule::mf_unload_scripts()
 	{
+	  const String* str;
+	  if ( getStringParam( 0, str ) )
+	  {
 		int n;
-		if (str->length() == 0)
-			n = unload_all_scripts();
+		if ( str->length() == 0 )
+          n = Core::unload_all_scripts( );
 		else
-			n = unload_script( str->data() );
-		return new BLong(n);
-	}
-	else
-	{
+          n = Core::unload_script( str->data( ) );
+		return new BLong( n );
+	  }
+	  else
+	  {
 		return new BError( "Invalid parameter type" );
+	  }
 	}
-}
 
-const int SCRIPTOPT_NO_INTERRUPT    = 1;
-const int SCRIPTOPT_DEBUG           = 2;
-const int SCRIPTOPT_NO_RUNAWAY      = 3;
-const int SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES = 4;
-const int SCRIPTOPT_AUXSVC_ASSUME_STRING = 5;
+	const int SCRIPTOPT_NO_INTERRUPT = 1;
+	const int SCRIPTOPT_DEBUG = 2;
+	const int SCRIPTOPT_NO_RUNAWAY = 3;
+	const int SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES = 4;
+	const int SCRIPTOPT_AUXSVC_ASSUME_STRING = 5;
 
-BObjectImp* OSExecutorModule::mf_set_script_option()
-{
-	int optnum;
-	int optval;
-	if (getParam( 0, optnum ) && getParam( 1, optval ))
+	BObjectImp* OSExecutorModule::mf_set_script_option()
 	{
-        int oldval;
-		switch( optnum )
+	  int optnum;
+	  int optval;
+	  if ( getParam( 0, optnum ) && getParam( 1, optval ) )
+	  {
+		int oldval;
+		switch ( optnum )
 		{
-		case SCRIPTOPT_NO_INTERRUPT:
-			oldval = critical?1:0;
-			critical = optval?true:false; 
+		  case SCRIPTOPT_NO_INTERRUPT:
+			oldval = critical ? 1 : 0;
+			critical = optval ? true : false;
 			break;
-		case SCRIPTOPT_DEBUG:
+		  case SCRIPTOPT_DEBUG:
 			oldval = exec.getDebugLevel();
-			if (optval)
-				exec.setDebugLevel( Executor::SOURCELINES );
+			if ( optval )
+			  exec.setDebugLevel( Executor::SOURCELINES );
 			else
-				exec.setDebugLevel( Executor::NONE );
+			  exec.setDebugLevel( Executor::NONE );
 			break;
-		case SCRIPTOPT_NO_RUNAWAY:
-			oldval = warn_on_runaway?1:0;
+		  case SCRIPTOPT_NO_RUNAWAY:
+			oldval = warn_on_runaway ? 1 : 0;
 			warn_on_runaway = !optval;
 			break;
-		case SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES:
-			{
-				UOExecutor& uoexec = static_cast<UOExecutor&>(exec);
-				oldval = uoexec.can_access_offline_mobiles?1:0;
-				uoexec.can_access_offline_mobiles = optval?true:false;
-			}
+		  case SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES:
+		  {
+            Core::UOExecutor& uoexec = static_cast<Core::UOExecutor&>( exec );
+			oldval = uoexec.can_access_offline_mobiles ? 1 : 0;
+			uoexec.can_access_offline_mobiles = optval ? true : false;
+		  }
 			break;
-		case SCRIPTOPT_AUXSVC_ASSUME_STRING:
-			{
-				UOExecutor& uoexec = static_cast<UOExecutor&>(exec);
-				oldval = uoexec.auxsvc_assume_string?1:0;
-				uoexec.auxsvc_assume_string = optval?true:false;
-			}
+		  case SCRIPTOPT_AUXSVC_ASSUME_STRING:
+		  {
+            Core::UOExecutor& uoexec = static_cast<Core::UOExecutor&>( exec );
+		    oldval = uoexec.auxsvc_assume_string ? 1 : 0;
+		    uoexec.auxsvc_assume_string = optval ? true : false;
+		  }
 			break;
-		default:
+		  default:
 			return new BError( "Unknown Script Option" );
 		}
-		return new BLong(oldval);
-	}
-	else
-	{
+		return new BLong( oldval );
+	  }
+	  else
+	  {
 		return new BError( "Invalid parameter type" );
+	  }
 	}
-}
 
-BObjectImp* OSExecutorModule::mf_clear_event_queue() //DAVE
-{ 
-	return( clear_event_queue() );
-}
-
-int max_eventqueue_size = 0;
-
-BObjectImp* OSExecutorModule::clear_event_queue() //DAVE
-{
-	while (!events_.empty())
+	BObjectImp* OSExecutorModule::mf_clear_event_queue() //DAVE
 	{
+	  return( clear_event_queue() );
+	}
+
+	int max_eventqueue_size = 0;
+
+	BObjectImp* OSExecutorModule::clear_event_queue() //DAVE
+	{
+	  while ( !events_.empty() )
+	  {
 		BObject ob( events_.front() );
 		events_.pop();
+	  }
+	  return new BLong( 1 );
 	}
-	return new BLong(1);
-}
 
-BObjectImp* OSExecutorModule::mf_set_event_queue_size() //DAVE 11/24
-{
-	unsigned short param;
-	if (getParam( 0, param ))
+	BObjectImp* OSExecutorModule::mf_set_event_queue_size() //DAVE 11/24
 	{
+	  unsigned short param;
+	  if ( getParam( 0, param ) )
+	  {
 		unsigned short oldsize = max_eventqueue_size;
 		max_eventqueue_size = param;
-		return new BLong(oldsize);
-	}
-	else
+		return new BLong( oldsize );
+	  }
+	  else
 		return new BError( "Invalid parameter type" );
-}
+	}
 
-BObjectImp* OSExecutorModule::mf_OpenURL()
-{
-	Character* chr;
-	const String* str;
-	if (getCharacterParam( 0, chr ) &&
-		( (str = getStringParam( 1 )) != NULL ) )
+	BObjectImp* OSExecutorModule::mf_OpenURL()
 	{
-		if (chr->has_active_client())
+	  Mobile::Character* chr;
+	  const String* str;
+	  if ( getCharacterParam( 0, chr ) &&
+		   ( ( str = getStringParam( 1 ) ) != NULL ) )
+	  {
+		if ( chr->has_active_client() )
 		{
-			PktHelper::PacketOut<PktOut_A5> msg;
-			unsigned urllen;
-			const char *url = str->data();
+		  Network::PktHelper::PacketOut<Network::PktOut_A5> msg;
+		  unsigned urllen;
+		  const char *url = str->data();
 
-			urllen = static_cast<unsigned int>(strlen(url));
-			if (urllen > URL_MAX_LEN)
-				urllen = URL_MAX_LEN;
+		  urllen = static_cast<unsigned int>( strlen( url ) );
+		  if ( urllen > URL_MAX_LEN )
+			urllen = URL_MAX_LEN;
 
-			msg->WriteFlipped<u16>(static_cast<u16>(urllen+4));
-			msg->Write(url,static_cast<u16>(urllen+1));
-			msg.Send(chr->client);
-			return new BLong(1);
+		  msg->WriteFlipped<u16>( static_cast<u16>( urllen + 4 ) );
+		  msg->Write( url, static_cast<u16>( urllen + 1 ) );
+		  msg.Send( chr->client );
+		  return new BLong( 1 );
 		}
 		else
 		{
-			return new BError( "No client attached" );
+		  return new BError( "No client attached" );
 		}
-	}
-	else
-	{
+	  }
+	  else
+	  {
 		return new BError( "Invalid parameter type" );
+	  }
 	}
-}
 
 
-BObjectImp* OSExecutorModule::mf_OpenConnection() {
-	UOExecutorModule* this_uoemod = static_cast<UOExecutorModule*>(exec.findModule( "uo" ));
-	UOExecutor* this_uoexec = static_cast<UOExecutor*>(&this_uoemod->exec);
-
-	if(this_uoexec->pChild == NULL)
+	BObjectImp* OSExecutorModule::mf_OpenConnection()
 	{
+	  UOExecutorModule* this_uoemod = static_cast<UOExecutorModule*>( exec.findModule( "uo" ) );
+      Core::UOExecutor* this_uoexec = static_cast<Core::UOExecutor*>( &this_uoemod->exec );
+
+	  if ( this_uoexec->pChild == NULL )
+	  {
 		const String* host;
 		const String* scriptname_str;
 		unsigned short port;
-		if (  (host = getStringParam( 0 )) != NULL && getParam( 1, port ) && (scriptname_str = getStringParam( 2 )) != NULL)
+		if ( ( host = getStringParam( 0 ) ) != NULL && getParam( 1, port ) && ( scriptname_str = getStringParam( 2 ) ) != NULL )
 		{
-			// FIXME needs to inherit available modules?
-			ScriptDef sd;// = new ScriptDef();
-			cout<<"Starting connection script "<<scriptname_str->value()<<endl;
-			if (!sd.config_nodie( scriptname_str->value(), exec.prog()->pkg, "scripts/" ))
-			{
-				return new BError( "Error in script name" );
-			}
-			if (!sd.exists())
-			{
-				return new BError( "Script " + sd.name() + " does not exist." );
-			}
+		  // FIXME needs to inherit available modules?
+          Core::ScriptDef sd;// = new ScriptDef();
+		  cout << "Starting connection script " << scriptname_str->value() << endl;
+		  if ( !sd.config_nodie( scriptname_str->value(), exec.prog()->pkg, "scripts/" ) )
+		  {
+			return new BError( "Error in script name" );
+		  }
+		  if ( !sd.exists() )
+		  {
+			return new BError( "Script " + sd.name() + " does not exist." );
+		  }
 
-			//Socket* s = new Socket();
-			//bool success_open = s->open(host->value().c_str(),30);
-			Socket s;
-			bool success_open = s.open(host->value().c_str(),port);
+		  //Socket* s = new Socket();
+		  //bool success_open = s->open(host->value().c_str(),30);
+          Clib::Socket s;
+		  bool success_open = s.open( host->value().c_str(), port );
 
-			if (!success_open) {
-				//delete s;
-				return new BError("Error connecting to client");
-			}
-			SocketClientThread* clientthread = new AuxClientThread( sd, s );
-            clientthread->start();
+		  if ( !success_open )
+		  {
+			//delete s;
+			return new BError( "Error connecting to client" );
+		  }
+          Clib::SocketClientThread* clientthread = new Network::AuxClientThread( sd, s );
+		  clientthread->start();
 
-			return new BLong( 1 );
+		  return new BLong( 1 );
 		}
 		else
 		{
-			return new BError( "Invalid parameter type" );
+		  return new BError( "Invalid parameter type" );
 		}
+	  }
+
+	  return new BError( "Invalid parameter type" );
 	}
-
-	return new BError( "Invalid parameter type" );
+  }
 }
-

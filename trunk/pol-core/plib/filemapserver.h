@@ -16,22 +16,27 @@ Notes
 #include "mapcell.h"
 #include "mapserver.h"
 
-class FileMapServer : public MapServer
-{
-public:
-    explicit FileMapServer( const RealmDescriptor& descriptor );
-    virtual ~FileMapServer() { }
+namespace Pol {
+  namespace Plib {
 
-    virtual MAPCELL GetMapCell( unsigned short x, unsigned short y ) const;
+	class FileMapServer : public MapServer
+	{
+	public:
+	  explicit FileMapServer( const RealmDescriptor& descriptor );
+	  virtual ~FileMapServer() {}
 
-protected:
-    mutable BinaryFile _mapfile;
-    mutable int _cur_mapblock_index;
-    mutable MAPBLOCK _cur_mapblock;
+	  virtual MAPCELL GetMapCell( unsigned short x, unsigned short y ) const;
 
-    // not implemented:
-    FileMapServer& operator=( const FileMapServer&);
-    FileMapServer( const FileMapServer& );
-};
+	protected:
+	  mutable Clib::BinaryFile _mapfile;
+	  mutable int _cur_mapblock_index;
+	  mutable MAPBLOCK _cur_mapblock;
+
+	  // not implemented:
+	  FileMapServer& operator=( const FileMapServer& );
+	  FileMapServer( const FileMapServer& );
+	};
+  }
+}
 
 #endif

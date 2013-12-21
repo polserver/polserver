@@ -15,138 +15,141 @@ Notes
 #include "../bscript/bobject.h"
 #include "../bscript/contiter.h"
 
-
-class BXMLNodeIterator : public ContIterator
-{
-public:
-	BXMLNodeIterator( TiXmlDocument* file, BObject* pIter );
-	BXMLNodeIterator( TiXmlNode* node, BObject* pIter );
-	virtual BObject* step();
-private:
-	TiXmlNode* node;
-	TiXmlDocument* _file;
-	bool _init;
-	BObjectRef m_IterVal;
-	BLong* m_pIterVal;
-};
-
-class BXMLAttributeIterator : public ContIterator
-{
-public:
-	BXMLAttributeIterator( TiXmlElement* node, BObject* pIter );
-	virtual BObject* step();
-private:
-	TiXmlElement* node;
-	TiXmlAttribute* nodeAttrib;
-	BObjectRef m_IterVal;
-	BLong* m_pIterVal;
-};
-
-class BXMLfile : public BObjectImp
-{
-public:
-	BXMLfile();
-	BXMLfile(std::string filename);
-	~BXMLfile();
-	virtual BObjectRef get_member( const char* membername );
-	virtual BObjectRef get_member_id( const int id ); //id test
-	virtual BObjectImp* call_method( const char* methodname, Executor& ex );
-	virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin=false );
-	virtual BObjectImp* copy() const;
-	virtual std::string getStringRep() const;
-	virtual size_t sizeEstimate() const { return sizeof(*this); }
-	virtual const char* typeOf() const { return "XMLFile"; }
-	virtual int typeOfInt() const {return OTXMLFile; }
-	virtual bool isTrue() const;
-	virtual BObjectRef OperSubscript( const BObject& obj );
-	ContIterator* createIterator( BObject* pIterVal )
+namespace Pol {
+  namespace Core {
+	class BXMLNodeIterator : public Bscript::ContIterator
 	{
+	public:
+      BXMLNodeIterator( TiXmlDocument* file, Bscript::BObject* pIter );
+      BXMLNodeIterator( TiXmlNode* node, Bscript::BObject* pIter );
+      virtual Bscript::BObject* step( );
+	private:
+	  TiXmlNode* node;
+	  TiXmlDocument* _file;
+	  bool _init;
+      Bscript::BObjectRef m_IterVal;
+      Bscript::BLong* m_pIterVal;
+	};
+
+    class BXMLAttributeIterator : public Bscript::ContIterator
+	{
+	public:
+      BXMLAttributeIterator( TiXmlElement* node, Bscript::BObject* pIter );
+      virtual Bscript::BObject* step( );
+	private:
+	  TiXmlElement* node;
+	  TiXmlAttribute* nodeAttrib;
+      Bscript::BObjectRef m_IterVal;
+      Bscript::BLong* m_pIterVal;
+	};
+
+	class BXMLfile : public Bscript::BObjectImp
+	{
+	public:
+	  BXMLfile();
+	  BXMLfile( std::string filename );
+	  ~BXMLfile();
+      virtual Bscript::BObjectRef get_member( const char* membername );
+      virtual Bscript::BObjectRef get_member_id( const int id ); //id test
+      virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex );
+      virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false );
+	  virtual Bscript::BObjectImp* copy() const;
+	  virtual std::string getStringRep() const;
+	  virtual size_t sizeEstimate() const { return sizeof( *this ); }
+	  virtual const char* typeOf() const { return "XMLFile"; }
+	  virtual int typeOfInt() const { return OTXMLFile; }
+	  virtual bool isTrue() const;
+      virtual Bscript::BObjectRef OperSubscript( const Bscript::BObject& obj );
+      Bscript::ContIterator* createIterator( Bscript::BObject* pIterVal )
+	  {
 		return new BXMLNodeIterator( &file, pIterVal );
-	}
+	  }
 
-private:
-	TiXmlDocument file;
-	std::string _filename;
-};
+	private:
+	  TiXmlDocument file;
+	  std::string _filename;
+	};
 
 
 
-class BXmlNode : public BObjectImp
-{
-public:
-	BXmlNode(TiXmlNode* _node) : BObjectImp( BObjectImp::OTXMLNode ), node(_node) {}
-
-	virtual BObjectImp* copy() const
+	class BXmlNode : public Bscript::BObjectImp
 	{
-		return new BXmlNode(node->Clone());
-	}
+	public:
+	  BXmlNode( TiXmlNode* _node ) : Bscript::BObjectImp( Bscript::BObjectImp::OTXMLNode ), node( _node ) {}
 
-	virtual std::string getStringRep() const
-	{
-		if (node->Type()==TiXmlNode::TINYXML_TEXT)
-			return node->ToText()->Value();
-		else if (node->Type()==TiXmlNode::TINYXML_DECLARATION)
+	  virtual Bscript::BObjectImp* copy() const
+	  {
+		return new BXmlNode( node->Clone() );
+	  }
+
+	  virtual std::string getStringRep() const
+	  {
+		if ( node->Type() == TiXmlNode::TINYXML_TEXT )
+		  return node->ToText()->Value();
+		else if ( node->Type() == TiXmlNode::TINYXML_DECLARATION )
 		{
-			TiXmlDeclaration* dec = node->ToDeclaration();
-			OSTRINGSTREAM os;
-			os << "v:" << dec->Version() << " e:" << dec->Encoding() << " s:" << dec->Standalone();
-			return OSTRINGSTREAM_STR(os);
+		  TiXmlDeclaration* dec = node->ToDeclaration();
+		  OSTRINGSTREAM os;
+		  os << "v:" << dec->Version() << " e:" << dec->Encoding() << " s:" << dec->Standalone();
+		  return OSTRINGSTREAM_STR( os );
 		}
 		return node->Value();
-	}
-	
-	virtual const char* typeOf() const { return "XMLNode"; }
-	virtual int typeOfInt() const { return OTXMLNode; }
+	  }
 
-	virtual size_t sizeEstimate() const
-	{
-		return sizeof(*this);
-	}
-	ContIterator* createIterator( BObject* pIterVal )
-	{
+	  virtual const char* typeOf() const { return "XMLNode"; }
+	  virtual int typeOfInt() const { return OTXMLNode; }
+
+	  virtual size_t sizeEstimate() const
+	  {
+		return sizeof( *this );
+	  }
+      Bscript::ContIterator* createIterator( Bscript::BObject* pIterVal )
+	  {
 		return new BXMLNodeIterator( node, pIterVal );
-	}
+	  }
 
-	virtual BObjectRef get_member( const char* membername );
-	virtual BObjectRef get_member_id( const int id ); //id test
-	virtual BObjectImp* call_method( const char* methodname, Executor& ex );
-	virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin=false );
-	virtual BObjectRef OperSubscript( const BObject& obj );
-	TiXmlNode* getNode() const { return node; }
+      virtual Bscript::BObjectRef get_member( const char* membername );
+      virtual Bscript::BObjectRef get_member_id( const int id ); //id test
+      virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex );
+      virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false );
+      virtual Bscript::BObjectRef OperSubscript( const Bscript::BObject& obj );
+	  TiXmlNode* getNode() const { return node; }
 
-private:
-	TiXmlNode* node;
-};
+	private:
+	  TiXmlNode* node;
+	};
 
-class BXmlAttribute : public BObjectImp
-{
-public:
-	BXmlAttribute(TiXmlNode* _node) : BObjectImp( BObjectImp::OTXMLAttributes ), node(_node->ToElement()) {}
-
-	virtual BObjectImp* copy() const
+	class BXmlAttribute : public Bscript::BObjectImp
 	{
-		return new BXmlAttribute(node->Clone());
-	}
+	public:
+	  BXmlAttribute( TiXmlNode* _node ) : Bscript::BObjectImp( Bscript::BObjectImp::OTXMLAttributes ), node( _node->ToElement() ) {}
 
-	virtual std::string getStringRep() const
-	{
+	  virtual Bscript::BObjectImp* copy() const
+	  {
+		return new BXmlAttribute( node->Clone() );
+	  }
+
+	  virtual std::string getStringRep() const
+	  {
 		return "XMLAttributes";
-	}
-	
-	virtual const char* typeOf() const { return "XMLAttributes"; }
-	virtual int typeOfInt() const { return OTXMLAttributes; }
-	virtual size_t sizeEstimate() const { return sizeof(*this); }
-	
-	ContIterator* createIterator( BObject* pIterVal )
-	{
-		return new BXMLAttributeIterator( node, pIterVal );
-	}
-	virtual BObjectImp* call_method( const char* methodname, Executor& ex );
-	virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin=false );
-	virtual BObjectRef OperSubscript( const BObject& obj );
+	  }
 
-private:
-	TiXmlElement* node;
-};
+	  virtual const char* typeOf() const { return "XMLAttributes"; }
+	  virtual int typeOfInt() const { return OTXMLAttributes; }
+	  virtual size_t sizeEstimate() const { return sizeof( *this ); }
+
+      Bscript::ContIterator* createIterator( Bscript::BObject* pIterVal )
+	  {
+		return new BXMLAttributeIterator( node, pIterVal );
+	  }
+      virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex );
+      virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false );
+      virtual Bscript::BObjectRef OperSubscript( const Bscript::BObject& obj );
+
+	private:
+	  TiXmlElement* node;
+	};
+  }
+}
 
 #endif

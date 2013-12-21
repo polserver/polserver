@@ -13,36 +13,37 @@ Notes
 #define ACSCROBJ_H
 
 #include "../reftypes.h"
+namespace Pol {
+  namespace Accounts {
+	class AccountPtrHolder
+	{
+	public:
+	  explicit AccountPtrHolder( Core::AccountRef i_acct ) : acct( i_acct ) {}
+	  Account* operator->( ) { return acct.get(); }
+	  const Account* operator->( ) const { return acct.get(); }
 
-class AccountPtrHolder
-{
-public:
-    explicit AccountPtrHolder( AccountRef i_acct ) : acct(i_acct) {}
-    Account* operator->() { return acct.get(); }
-    const Account* operator->() const { return acct.get(); }
+	  Account* Ptr() { return acct.get(); }
+	private:
+	  Core::AccountRef acct;
+	};
 
-    Account* Ptr() { return acct.get(); }
-private:
-    AccountRef acct;
-};
+	extern Bscript::BApplicObjType accountobjimp_type;
+	class AccountObjImp : public Bscript::BApplicObj< AccountPtrHolder >
+	{
+	  typedef Bscript::BApplicObj< AccountPtrHolder > base;
+	public:
+	  explicit AccountObjImp( const AccountPtrHolder& other ) :
+		Bscript::BApplicObj< AccountPtrHolder >( &accountobjimp_type, other )
+	  {}
+	  virtual const char* typeOf() const;
+	  virtual int typeOfInt() const;
+	  virtual Bscript::BObjectImp* copy( ) const;
+	  virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex );
+	  virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false );
+	  virtual Bscript::BObjectRef get_member( const char* membername );
+	  virtual Bscript::BObjectRef get_member_id( const int id ); //id test
+	};
 
-extern BApplicObjType accountobjimp_type;
-class AccountObjImp : public BApplicObj< AccountPtrHolder >
-{
-    typedef BApplicObj< AccountPtrHolder > base;
-public:
-    explicit AccountObjImp( const AccountPtrHolder& other ) :
-      BApplicObj< AccountPtrHolder >(&accountobjimp_type, other)
-      {
-      }
-    virtual const char* typeOf() const;
-	virtual int typeOfInt() const;
-    virtual BObjectImp* copy() const;
-    virtual BObjectImp* call_method( const char* methodname, Executor& ex );
-    virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin=false );
-    virtual BObjectRef get_member( const char* membername );
-    virtual BObjectRef get_member_id( const int id ); //id test
-};
-
-
+  }
+}
 #endif

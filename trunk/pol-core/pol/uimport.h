@@ -7,9 +7,15 @@ Notes
 =======
 
 */
-
-int read_data();
-int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long long& elapsed_ms );
-void read_account_data();
-void read_starting_locations();
-void read_gameservers();
+namespace Pol {
+  namespace Core {
+	int read_data();
+	int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long long& elapsed_ms );
+	
+	void read_starting_locations();
+	void read_gameservers();
+  }
+  namespace Accounts {
+    void read_account_data();
+  }
+}

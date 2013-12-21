@@ -15,28 +15,31 @@ Notes
 #include "../../plib/pkg.h"
 
 #include "../cfgrepos.h"
-
-void load_special_storedconfig( string cfgname )
-{
-	string main_cfg = "config/" + cfgname + ".cfg";
-	
-	CreateEmptyStoredConfigFile(main_cfg);
-	ref_ptr<StoredConfigFile> scfg = FindConfigFile(main_cfg, "");
-	if ( FileExists(main_cfg.c_str()) )
+namespace Pol {
+  namespace Multi {
+	void load_special_storedconfig( string cfgname )
 	{
-		ConfigFile cf_main(main_cfg.c_str());
-		scfg->load(cf_main);
-	}
+	  string main_cfg = "config/" + cfgname + ".cfg";
 
-	for( Packages::iterator itr = packages.begin(); itr != packages.end(); ++itr )
-	{
-		Package* pkg = (*itr);
+	  Core::CreateEmptyStoredConfigFile( main_cfg );
+	  ref_ptr<Core::StoredConfigFile> scfg = Core::FindConfigFile( main_cfg, "" );
+      if ( Clib::FileExists( main_cfg.c_str( ) ) )
+	  {
+        Clib::ConfigFile cf_main( main_cfg.c_str( ) );
+		scfg->load( cf_main );
+	  }
+
+      for ( Plib::Packages::iterator itr = Plib::packages.begin( ); itr != Plib::packages.end( ); ++itr )
+	  {
+        Plib::Package* pkg = ( *itr );
 		//string filename = pkg->dir() + cfgname + ".cfg";
-		string filename = GetPackageCfgPath(pkg, cfgname+".cfg");
-		if ( FileExists(filename.c_str()) )
+        string filename = Plib::GetPackageCfgPath( pkg, cfgname + ".cfg" );
+        if ( Clib::FileExists( filename.c_str( ) ) )
 		{
-			ConfigFile cf(filename.c_str());
-			scfg->load(cf);
+          Clib::ConfigFile cf( filename.c_str( ) );
+		  scfg->load( cf );
 		}
+	  }
 	}
+  }
 }

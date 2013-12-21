@@ -10,26 +10,29 @@ Notes
 #ifndef CLIB_CFGSECT_H
 #define CLIB_CFGSECT_H
 
-class ConfigFile;
-class ConfigElem;
+namespace Pol {
+  namespace Clib {
+	class ConfigFile;
+	class ConfigElem;
 
-const unsigned CST_NORMAL=0;
-const unsigned CST_MANDATORY=1;
-const unsigned CST_UNIQUE=2;
+	const unsigned CST_NORMAL = 0;
+	const unsigned CST_MANDATORY = 1;
+	const unsigned CST_UNIQUE = 2;
 
-class ConfigSection
-{
-public:
-    ConfigSection( ConfigFile& cf, const std::string& sectname, unsigned flags = CST_MANDATORY|CST_UNIQUE );
-    ~ConfigSection();
-	ConfigSection & operator=( const ConfigSection & ) { return *this; }
-    bool matches( const ConfigElem& elem );
+	class ConfigSection
+	{
+	public:
+	  ConfigSection( ConfigFile& cf, const std::string& sectname, unsigned flags = CST_MANDATORY | CST_UNIQUE );
+	  ~ConfigSection();
+	  ConfigSection & operator=( const ConfigSection & ) { return *this; }
+	  bool matches( const ConfigElem& elem );
 
-private:
-    ConfigFile& _cf;
-    std::string _sectname;
-    bool _found;
-    unsigned _flags;
-};
-
+	private:
+	  ConfigFile& _cf;
+	  std::string _sectname;
+	  bool _found;
+	  unsigned _flags;
+	};
+  }
+}
 #endif

@@ -21,44 +21,46 @@ Notes
 
 #include "../plib/pkg.h"
 #include "stackcfg.h"
+namespace Pol {
+  namespace Core {
+	PropSet Global_Ignore_CProps;
 
-PropSet Global_Ignore_CProps;
-
-void read_stacking_cfg(ConfigFile& cf)
-{
-	ConfigElem elem;
-	if( cf.read( elem ) )
+	void read_stacking_cfg( Clib::ConfigFile& cf )
 	{
-		if (elem.type_is( "Stacking" ))
+      Clib::ConfigElem elem;
+	  if ( cf.read( elem ) )
+	  {
+		if ( elem.type_is( "Stacking" ) )
 		{
-			string temp = elem.remove_string( "IgnoreCprops" );
-			ISTRINGSTREAM is( temp );
-			string cprop_name;
-			while (is >> cprop_name)
-				Global_Ignore_CProps.insert(cprop_name);
+		  string temp = elem.remove_string( "IgnoreCprops" );
+		  ISTRINGSTREAM is( temp );
+		  string cprop_name;
+		  while ( is >> cprop_name )
+			Global_Ignore_CProps.insert( cprop_name );
 		}
+	  }
 	}
-}
 
-void load_stacking_cfg()
-{
-	string main_cfg = "config/stacking.cfg";
-	
-	if (FileExists( main_cfg.c_str() ) )
+	void load_stacking_cfg()
 	{
-		ConfigFile cf_main( main_cfg.c_str() );
-		read_stacking_cfg(cf_main);
-	}
-	for( Packages::iterator itr = packages.begin(); itr != packages.end(); ++itr )
-	{
-		Package* pkg = (*itr);
+	  string main_cfg = "config/stacking.cfg";
+
+      if ( Clib::FileExists( main_cfg.c_str( ) ) )
+	  {
+        Clib::ConfigFile cf_main( main_cfg.c_str( ) );
+		read_stacking_cfg( cf_main );
+	  }
+      for ( Plib::Packages::iterator itr = Plib::packages.begin( ); itr != Plib::packages.end( ); ++itr )
+	  {
+        Plib::Package* pkg = ( *itr );
 		//string filename = pkg->dir() + cfgname + ".cfg";
-		string filename = GetPackageCfgPath(pkg, "stacking.cfg");
-		if (FileExists( filename.c_str() ) )
+        string filename = Plib::GetPackageCfgPath( pkg, "stacking.cfg" );
+        if ( Clib::FileExists( filename.c_str( ) ) )
 		{
-			ConfigFile cf( filename.c_str() );
-			read_stacking_cfg(cf);
+          Clib::ConfigFile cf( filename.c_str( ) );
+		  read_stacking_cfg( cf );
 		}
+	  }
 	}
+  }
 }
-

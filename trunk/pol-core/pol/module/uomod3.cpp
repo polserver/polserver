@@ -21,24 +21,28 @@ Notes
 
 // f'ed packing:
 #include "../vital.h"
-
-BObjectImp* UOExecutorModule::mf_SendStatus( /* mob */ )
-{
-	Character* chr;
-	if ( getCharacterParam(exec, 0, chr) )
+namespace Pol {
+  namespace Module {
+    using namespace Bscript;
+	BObjectImp* UOExecutorModule::mf_SendStatus( /* mob */ )
 	{
+	  Mobile::Character* chr;
+	  if ( getCharacterParam( exec, 0, chr ) )
+	  {
 		if ( !chr->has_active_client() )
-			return new BError("No client attached");
+		  return new BError( "No client attached" );
 
 		if ( chr->logged_in )
 		{
-			send_full_statmsg(chr->client, chr);
-			return new BLong(1);
+		  send_full_statmsg( chr->client, chr );
+		  return new BLong( 1 );
 		}
 		else
-			return new BError("Mobile must not be offline");
+		  return new BError( "Mobile must not be offline" );
+	  }
+	  else
+		return new BError( "Invalid parameter type" );
 	}
-	else
-		return new BError("Invalid parameter type");
-}
 
+  }
+}

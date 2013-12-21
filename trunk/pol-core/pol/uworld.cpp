@@ -26,295 +26,297 @@ Notes
 #include "realms.h"
 #include "uvars.h"
 #include "uworld.h"
+namespace Pol {
+  namespace Core {
+	void add_item_to_world( Items::Item* item )
+	{
+	  Zone& zone = getzone( item->x, item->y, item->realm );
 
-void add_item_to_world( Item* item )
-{
-	Zone& zone = getzone( item->x, item->y, item->realm );
+	  passert( Clib::find_in( zone.items, item ) == zone.items.end() );
 
-    passert( find_in( zone.items, item) == zone.items.end() );
+	  ++item->realm->toplevel_item_count;
+	  zone.items.push_back( item );
+	}
 
-    ++item->realm->toplevel_item_count;
-    zone.items.push_back( item );
-}
+	void remove_item_from_world( Items::Item* item )
+	{
+	  Zone& zone = getzone( item->x, item->y, item->realm );
 
-void remove_item_from_world( Item* item )
-{
-    Zone& zone = getzone( item->x, item->y, item->realm );
-
-    ZoneItems::iterator itr = find_in( zone.items, item );
-    if (itr == zone.items.end())
-    {
-        Log2( "remove_item_from_world: item 0x%lx at %d,%d does not exist in world zone ( Old Serial: 0x%2x )\n",
-                    item->serial, item->x, item->y, cfBEu32(item->serial_ext));
+	  ZoneItems::iterator itr = Clib::find_in( zone.items, item );
+	  if ( itr == zone.items.end() )
+	  {
+        Clib::Log2( "remove_item_from_world: item 0x%lx at %d,%d does not exist in world zone ( Old Serial: 0x%2x )\n",
+			  item->serial, item->x, item->y, cfBEu32( item->serial_ext ) );
 
 		passert( itr != zone.items.end() );
-    }
+	  }
 
-    --item->realm->toplevel_item_count;
-    zone.items.erase( itr );
-}
+	  --item->realm->toplevel_item_count;
+	  zone.items.erase( itr );
+	}
 
-void add_multi_to_world( UMulti* multi )
-{
-    Zone& zone = getzone( multi->x, multi->y, multi->realm );
-    zone.multis.push_back( multi );
-}
+	void add_multi_to_world( Multi::UMulti* multi )
+	{
+	  Zone& zone = getzone( multi->x, multi->y, multi->realm );
+	  zone.multis.push_back( multi );
+	}
 
-void remove_multi_from_world( UMulti* multi )
-{
-    Zone& zone = getzone( multi->x, multi->y, multi->realm );
-    ZoneMultis::iterator itr = find_in( zone.multis, multi );
-    
-    passert(itr != zone.multis.end());
+	void remove_multi_from_world( Multi::UMulti* multi )
+	{
+	  Zone& zone = getzone( multi->x, multi->y, multi->realm );
+	  ZoneMultis::iterator itr = Clib::find_in( zone.multis, multi );
 
-    zone.multis.erase( itr );
-}
+	  passert( itr != zone.multis.end() );
 
-void move_multi_in_world( unsigned short oldx, unsigned short oldy,
-                          unsigned short newx, unsigned short newy,
-                          UMulti* multi, Realm* oldrealm )
-{
-    Zone& oldzone = getzone( oldx, oldy, oldrealm );
-    Zone& newzone = getzone( newx, newy, multi->realm );
+	  zone.multis.erase( itr );
+	}
 
-    if (&oldzone != &newzone)
-    {
-        ZoneMultis::iterator itr = find_in( oldzone.multis, multi );
-        passert( itr != oldzone.multis.end() );
-        oldzone.multis.erase( itr );
+	void move_multi_in_world( unsigned short oldx, unsigned short oldy,
+							  unsigned short newx, unsigned short newy,
+							  Multi::UMulti* multi, Plib::Realm* oldrealm )
+	{
+	  Zone& oldzone = getzone( oldx, oldy, oldrealm );
+	  Zone& newzone = getzone( newx, newy, multi->realm );
 
-        newzone.multis.push_back( multi );
-    }
-}
+	  if ( &oldzone != &newzone )
+	  {
+		ZoneMultis::iterator itr = Clib::find_in( oldzone.multis, multi );
+		passert( itr != oldzone.multis.end() );
+		oldzone.multis.erase( itr );
 
-int get_toplevel_item_count()
-{
-	std::vector<Realm*>::const_iterator itr;
+		newzone.multis.push_back( multi );
+	  }
+	}
 
-	int count = 0;
-	for(itr = Realms->begin(); itr != Realms->end(); ++itr)
-		count += (*itr)->toplevel_item_count;
-	return count;
-}
+	int get_toplevel_item_count()
+	{
+      std::vector<Plib::Realm*>::const_iterator itr;
 
-int get_mobile_count()
-{
-	std::vector<Realm*>::const_iterator itr;
+	  int count = 0;
+	  for ( itr = Realms->begin(); itr != Realms->end(); ++itr )
+		count += ( *itr )->toplevel_item_count;
+	  return count;
+	}
 
-	int count = 0;
-	for(itr = Realms->begin(); itr != Realms->end(); ++itr)
-		count += (*itr)->mobile_count;
-	return count;
-}
+	int get_mobile_count()
+	{
+      std::vector<Plib::Realm*>::const_iterator itr;
+
+	  int count = 0;
+	  for ( itr = Realms->begin(); itr != Realms->end(); ++itr )
+		count += ( *itr )->mobile_count;
+	  return count;
+	}
 
 
-World::World() :
-    toplevel_item_count(0),
-    mobile_count(0)
-{
-}
+	World::World() :
+	  toplevel_item_count( 0 ),
+	  mobile_count( 0 )
+	{}
 
-//4-17-04 Rac destroyed the world! in favor of splitting its duties amongst the realms
-//World world;
+	//4-17-04 Rac destroyed the world! in favor of splitting its duties amongst the realms
+	//World world;
 
-void SetCharacterWorldPosition( Character* chr )
-{
-    Zone& zone = getzone( chr->x, chr->y, chr->realm );
+    void SetCharacterWorldPosition( Mobile::Character* chr )
+	{
+	  Zone& zone = getzone( chr->x, chr->y, chr->realm );
 
-    passert( !zone.characters.count( chr ) );
+	  passert( !zone.characters.count( chr ) );
 
-    ++chr->realm->mobile_count;
-    zone.characters.insert( chr );
-}
+	  ++chr->realm->mobile_count;
+	  zone.characters.insert( chr );
+	}
 
-void ClrCharacterWorldPosition( Character* chr, const char* reason )
-{
-    Zone& zone = getzone( chr->x, chr->y, chr->realm );
-    unsigned wgridx = chr->realm->width() / WGRID_SIZE;
-    unsigned wgridy = chr->realm->height() / WGRID_SIZE;
-    
-    // Tokuno-Fix
-    if (wgridx * WGRID_SIZE < chr->realm->width())
-      wgridx++;
-    if (wgridy * WGRID_SIZE < chr->realm->height())
-      wgridy++;
-    
-    if (!zone.characters.count( chr ) )
-    {
-        Log( "ClrCharacterWorldPosition(%s): mob (0x%lx,0x%lx) supposedly at (%d,%d) isn't in correct zone\n",
-              reason, chr->serial, chr->serial_ext, chr->x, chr->y );
-        for( unsigned zonex = 0; zonex < wgridx; ++zonex )
-        {
-            for( unsigned zoney = 0; zoney < wgridy; ++zoney )
-            {
-                if (zone.characters.count( chr ))
-                    Log( "ClrCharacterWorldPosition: Found mob in zone (%d,%d)\n",
-                                zonex, zoney );
-            }
-        }
-        passert( zone.characters.count( chr ) );
-    }
+	void ClrCharacterWorldPosition( Mobile::Character* chr, const char* reason )
+	{
+	  Zone& zone = getzone( chr->x, chr->y, chr->realm );
+	  unsigned wgridx = chr->realm->width() / WGRID_SIZE;
+	  unsigned wgridy = chr->realm->height() / WGRID_SIZE;
 
-    --chr->realm->mobile_count;
-    zone.characters.erase( chr );
-}
+	  // Tokuno-Fix
+	  if ( wgridx * WGRID_SIZE < chr->realm->width() )
+		wgridx++;
+	  if ( wgridy * WGRID_SIZE < chr->realm->height() )
+		wgridy++;
 
-void MoveCharacterWorldPosition( unsigned short oldx, unsigned short oldy,
-                                 unsigned short newx, unsigned short newy,
-                                 Character* chr, Realm* oldrealm )
-{
-	if(oldrealm == NULL)
+	  if ( !zone.characters.count( chr ) )
+	  {
+		Clib::Log( "ClrCharacterWorldPosition(%s): mob (0x%lx,0x%lx) supposedly at (%d,%d) isn't in correct zone\n",
+			 reason, chr->serial, chr->serial_ext, chr->x, chr->y );
+		for ( unsigned zonex = 0; zonex < wgridx; ++zonex )
+		{
+		  for ( unsigned zoney = 0; zoney < wgridy; ++zoney )
+		  {
+			if ( zone.characters.count( chr ) )
+			  Clib::Log( "ClrCharacterWorldPosition: Found mob in zone (%d,%d)\n",
+			  zonex, zoney );
+		  }
+		}
+		passert( zone.characters.count( chr ) );
+	  }
+
+	  --chr->realm->mobile_count;
+	  zone.characters.erase( chr );
+	}
+
+	void MoveCharacterWorldPosition( unsigned short oldx, unsigned short oldy,
+									 unsigned short newx, unsigned short newy,
+                                     Mobile::Character* chr, Plib::Realm* oldrealm )
+	{
+	  if ( oldrealm == NULL )
 		oldrealm = chr->realm;
-    Zone& oldzone = getzone( oldx, oldy, oldrealm );
-    Zone& newzone = getzone( newx, newy, chr->realm);
+	  Zone& oldzone = getzone( oldx, oldy, oldrealm );
+	  Zone& newzone = getzone( newx, newy, chr->realm );
 
-    if (&oldzone != &newzone)
-    {
-        passert( oldzone.characters.count( chr ) );
-        passert( !newzone.characters.count( chr ) );
+	  if ( &oldzone != &newzone )
+	  {
+		passert( oldzone.characters.count( chr ) );
+		passert( !newzone.characters.count( chr ) );
 
-        oldzone.characters.erase( chr );
-		
-        newzone.characters.insert( chr );
-		if(chr->realm != oldrealm)
+		oldzone.characters.erase( chr );
+
+		newzone.characters.insert( chr );
+		if ( chr->realm != oldrealm )
 		{
-			--oldrealm->mobile_count;
-			++chr->realm->mobile_count;
+		  --oldrealm->mobile_count;
+		  ++chr->realm->mobile_count;
 		}
-    }
-}
+	  }
+	}
 
-void MoveItemWorldPosition( unsigned short oldx, unsigned short oldy,
-                            Item* item, Realm* oldrealm )
-{
-	if(oldrealm == NULL)
+	void MoveItemWorldPosition( unsigned short oldx, unsigned short oldy,
+                                Items::Item* item, Plib::Realm* oldrealm )
+	{
+	  if ( oldrealm == NULL )
 		oldrealm = item->realm;
-    Zone& oldzone = getzone( oldx, oldy, oldrealm );
-    Zone& newzone = getzone( item->x, item->y, item->realm );
+	  Zone& oldzone = getzone( oldx, oldy, oldrealm );
+	  Zone& newzone = getzone( item->x, item->y, item->realm );
 
-    if (&oldzone != &newzone)
-    {
-        ZoneItems::iterator itr = find_in( oldzone.items, item );
+	  if ( &oldzone != &newzone )
+	  {
+		ZoneItems::iterator itr = Clib::find_in( oldzone.items, item );
 
-        if (itr == oldzone.items.end())
-        {
-            Log2( "MoveItemWorldPosition: item 0x%lx at old-x/y(%d,%d - %s) new-x/y(%d,%d - %s) does not exist in world zone. \n",
-                        item->serial, oldx, oldy, oldrealm->name().c_str(), item->x, item->y, item->realm->name().c_str() );
-
-            passert( itr != oldzone.items.end() );
-        }
-
-        oldzone.items.erase( itr );
-        
-        passert( find_in( newzone.items, item ) == newzone.items.end() );
-        newzone.items.push_back( item );
-    }
-}
-
-// Dave added this for debugging a single zone
-
-bool check_single_zone_item_integrity(int x, int y, Realm* realm)
-{
-    try
-    {
-        ZoneItems& witem = realm->zone[x][y].items;
-
-        for( ZoneItems::iterator itr = witem.begin(), end = witem.end(); itr != end; ++itr )
-        {
-            Item* item = *itr;
-            unsigned short wx, wy;
-            zone_convert( item->x, item->y, wx, wy, realm );
-            if (wx != x || wy != y)
-            {
-                Log( "Item 0x%lx in zone (%d,%d) but location is (%d,%d) (zone %d,%d)\n",
-                         item->serial,
-                         x, y,
-                         item->x, item->y,
-                         wx, wy );
-                return false;
-            }
-        }
-    }
-    catch( ... )
-    {
-        Log( "item integ problem at zone (%d,%d)\n", x, y );
-        return false;
-    }
-	return true;
-}
-
-
-bool check_item_integrity()
-{
-    bool ok = true;
-	std::vector<Realm*>::iterator itr;
-	for(itr = Realms->begin(); itr != Realms->end(); ++itr)
-	{
-		Realm* realm = *itr;
-    
-    unsigned int gridwidth = realm->width() / WGRID_SIZE;
-    unsigned int gridheight = realm->height() / WGRID_SIZE;
-    
-    // Tokuno-Fix
-    if (gridwidth * WGRID_SIZE < realm->width())
-      gridwidth++;
-    if (gridheight * WGRID_SIZE < realm->height())
-      gridheight++;
-
-	    for( unsigned x = 0; x < gridwidth; ++x )
+		if ( itr == oldzone.items.end() )
 		{
-			for( unsigned y = 0; y < gridheight; ++y )
-			{	
-				if (!check_single_zone_item_integrity(x,y,realm))
-				    ok = false;
-			}	
+		  Clib::Log2( "MoveItemWorldPosition: item 0x%lx at old-x/y(%d,%d - %s) new-x/y(%d,%d - %s) does not exist in world zone. \n",
+				item->serial, oldx, oldy, oldrealm->name().c_str(), item->x, item->y, item->realm->name().c_str() );
+
+		  passert( itr != oldzone.items.end() );
 		}
+
+		oldzone.items.erase( itr );
+
+		passert( Clib::find_in( newzone.items, item ) == newzone.items.end() );
+		newzone.items.push_back( item );
+	  }
 	}
-	return ok;
-}
 
-void check_character_integrity()
-{
-    // TODO: iterate through the object hash?
-    //for( unsigned i = 0; i < characters.size(); ++i )
-    //{
-    //    Character* chr = characters[i];
-    //    unsigned short wx, wy;
-    //    w_convert( chr->x, chr->y, wx, wy );
-    //    if (!world.zone[wx][wy].characters.count(chr))
-    //    {
-    //        cout << "Character " << chr->serial << " at " << chr->x << "," << chr->y << " is not in its zone." << endl;
-    //    }
-    //}
-	std::vector<Realm*>::iterator itr;
-	for(itr = Realms->begin(); itr != Realms->end(); ++itr)
+	// Dave added this for debugging a single zone
+
+	bool check_single_zone_item_integrity( int x, int y, Plib::Realm* realm )
 	{
-		Realm* realm = *itr;
+	  try
+	  {
+		ZoneItems& witem = realm->zone[x][y].items;
 
-    unsigned int gridwidth = realm->width() / WGRID_SIZE;
-    unsigned int gridheight = realm->height() / WGRID_SIZE;
-    
-    // Tokuno-Fix
-    if (gridwidth * WGRID_SIZE < realm->width())
-      gridwidth++;
-    if (gridheight * WGRID_SIZE < realm->height())
-      gridheight++;
-    
-    for( unsigned x = 0; x < gridwidth; ++x )
+		for ( ZoneItems::iterator itr = witem.begin(), end = witem.end(); itr != end; ++itr )
 		{
-			for( unsigned y = 0; y < gridheight; ++y )
+		  Items::Item* item = *itr;
+		  unsigned short wx, wy;
+		  zone_convert( item->x, item->y, wx, wy, realm );
+		  if ( wx != x || wy != y )
+		  {
+            Clib::Log( "Item 0x%lx in zone (%d,%d) but location is (%d,%d) (zone %d,%d)\n",
+				 item->serial,
+				 x, y,
+				 item->x, item->y,
+				 wx, wy );
+			return false;
+		  }
+		}
+	  }
+	  catch ( ... )
+	  {
+        Clib::Log( "item integ problem at zone (%d,%d)\n", x, y );
+		return false;
+	  }
+	  return true;
+	}
+
+
+	bool check_item_integrity()
+	{
+	  bool ok = true;
+      std::vector<Plib::Realm*>::iterator itr;
+	  for ( itr = Realms->begin(); itr != Realms->end(); ++itr )
+	  {
+        Plib::Realm* realm = *itr;
+
+		unsigned int gridwidth = realm->width() / WGRID_SIZE;
+		unsigned int gridheight = realm->height() / WGRID_SIZE;
+
+		// Tokuno-Fix
+		if ( gridwidth * WGRID_SIZE < realm->width() )
+		  gridwidth++;
+		if ( gridheight * WGRID_SIZE < realm->height() )
+		  gridheight++;
+
+		for ( unsigned x = 0; x < gridwidth; ++x )
+		{
+		  for ( unsigned y = 0; y < gridheight; ++y )
+		  {
+			if ( !check_single_zone_item_integrity( x, y, realm ) )
+			  ok = false;
+		  }
+		}
+	  }
+	  return ok;
+	}
+
+	void check_character_integrity()
+	{
+	  // TODO: iterate through the object hash?
+	  //for( unsigned i = 0; i < characters.size(); ++i )
+	  //{
+	  //    Character* chr = characters[i];
+	  //    unsigned short wx, wy;
+	  //    w_convert( chr->x, chr->y, wx, wy );
+	  //    if (!world.zone[wx][wy].characters.count(chr))
+	  //    {
+	  //        cout << "Character " << chr->serial << " at " << chr->x << "," << chr->y << " is not in its zone." << endl;
+	  //    }
+	  //}
+      std::vector<Plib::Realm*>::iterator itr;
+	  for ( itr = Realms->begin(); itr != Realms->end(); ++itr )
+	  {
+        Plib::Realm* realm = *itr;
+
+		unsigned int gridwidth = realm->width() / WGRID_SIZE;
+		unsigned int gridheight = realm->height() / WGRID_SIZE;
+
+		// Tokuno-Fix
+		if ( gridwidth * WGRID_SIZE < realm->width() )
+		  gridwidth++;
+		if ( gridheight * WGRID_SIZE < realm->height() )
+		  gridheight++;
+
+		for ( unsigned x = 0; x < gridwidth; ++x )
+		{
+		  for ( unsigned y = 0; y < gridheight; ++y )
+		  {
+			ZoneCharacters& wchr = realm->zone[x][y].characters;
+
+			for ( ZoneCharacters::iterator citr = wchr.begin(), end = wchr.end(); citr != end; ++citr )
 			{
-				ZoneCharacters& wchr = realm->zone[x][y].characters;
-
-				for( ZoneCharacters::iterator citr = wchr.begin(), end = wchr.end(); citr != end; ++citr )
-				{
-					Character* chr = *citr;
-					unsigned short wx, wy;
-					zone_convert( chr->x, chr->y, wx, wy, chr->realm );
-					if (wx != x || wy != y)
-						cout << "Character " << chr->serial << " in a zone, but elsewhere" << endl;
-				}
+			  Mobile::Character* chr = *citr;
+			  unsigned short wx, wy;
+			  zone_convert( chr->x, chr->y, wx, wy, chr->realm );
+			  if ( wx != x || wy != y )
+				cout << "Character " << chr->serial << " in a zone, but elsewhere" << endl;
 			}
+		  }
 		}
+	  }
 	}
+  }
 }

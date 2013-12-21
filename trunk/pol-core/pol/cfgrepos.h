@@ -23,80 +23,87 @@ Notes
 
 #include "../clib/maputil.h"
 #include "../clib/refptr.h"
+namespace Pol {
+  namespace Bscript  {
+	class BObjectImp;
+  }
+  namespace Clib {
+	class ConfigFile;
+	class ConfigElem;
+  }
+  namespace Core {
 
-class ConfigFile;
-class ConfigElem;
-class BObjectImp;
+	class StoredConfigElem : public ref_counted
+	{
+	private:
+	  typedef std::multimap<std::string, ref_ptr<Bscript::BObjectImp>, Clib::ci_cmp_pred > PropImpList;
 
-class StoredConfigElem : public ref_counted
-{
-private:
-    typedef std::multimap<std::string, ref_ptr<BObjectImp>, ci_cmp_pred > PropImpList;
+	public:
+	  StoredConfigElem( Clib::ConfigElem& elem );
+	  StoredConfigElem();
+	  ~StoredConfigElem();
 
-public:
-    StoredConfigElem( ConfigElem& elem );
-    StoredConfigElem();
-    ~StoredConfigElem();
+	  Bscript::BObjectImp* getimp( const std::string& propname ) const;
+	  Bscript::BObjectImp* listprops() const;
+	  void addprop( const std::string& propname, Bscript::BObjectImp* imp );
 
-    BObjectImp* getimp( const std::string& propname ) const;
-	BObjectImp* listprops() const;
-    void addprop( const std::string& propname, BObjectImp* imp );
+	  typedef StoredConfigElem::PropImpList::const_iterator const_iterator;
+	  pair<const_iterator, const_iterator> equal_range( const std::string& propname ) const;
+	private:
+	  PropImpList propimps_;
 
-    typedef StoredConfigElem::PropImpList::const_iterator const_iterator;
-    pair<const_iterator,const_iterator> equal_range( const std::string& propname ) const;
-private:
-    PropImpList propimps_;
+	  // not implemented:
+	  StoredConfigElem( const StoredConfigElem& elem );
+	  StoredConfigElem& operator=( const StoredConfigElem& );
+	};
 
-    // not implemented:
-    StoredConfigElem( const StoredConfigElem& elem );
-    StoredConfigElem& operator=( const StoredConfigElem& );
-};
+	class StoredConfigFile : public ref_counted
+	{
+	public:
+	  StoredConfigFile();
+	  //    ~StoredConfigFile();
+	  void load( Clib::ConfigFile& cf );
+	  void load_tus_scp( const std::string& filename );
 
-class StoredConfigFile : public ref_counted
-{
-public:
-    StoredConfigFile();
-//    ~StoredConfigFile();
-    void load( ConfigFile& cf );
-    void load_tus_scp( const std::string& filename );
+	  typedef ref_ptr<StoredConfigElem> ElemRef;
+	  ElemRef findelem( int key );
+	  ElemRef findelem( const std::string& key );
 
-    typedef ref_ptr<StoredConfigElem> ElemRef;
-    ElemRef findelem( int key );
-    ElemRef findelem( const std::string& key );
+	  int maxintkey() const;
+	  const time_t modified() const;
 
-    int maxintkey() const;
-    const time_t modified() const;
+	  typedef map<std::string, ElemRef, Clib::ci_cmp_pred> ElementsByName;
+	  ElementsByName::const_iterator byname_begin() { return elements_byname_.begin(); }
+	  ElementsByName::const_iterator byname_end() { return elements_byname_.end(); }
 
-    typedef map<std::string, ElemRef, ci_cmp_pred> ElementsByName;
-    ElementsByName::const_iterator byname_begin() { return elements_byname_.begin(); }
-    ElementsByName::const_iterator byname_end() { return elements_byname_.end(); }
+	  typedef map<int, ElemRef> ElementsByNum;
+	  ElementsByNum::const_iterator bynum_begin() { return elements_bynum_.begin(); }
+	  ElementsByNum::const_iterator bynum_end() { return elements_bynum_.end(); }
 
-    typedef map<int, ElemRef> ElementsByNum;
-    ElementsByNum::const_iterator bynum_begin() { return elements_bynum_.begin(); }
-    ElementsByNum::const_iterator bynum_end() { return elements_bynum_.end(); }
+	  bool reload; // try to reload cfg file?
+	private:
+	  ElementsByName elements_byname_;
 
-    bool reload; // try to reload cfg file?
-private:
-    ElementsByName elements_byname_;
-    
-    ElementsByNum elements_bynum_;
+	  ElementsByNum elements_bynum_;
 
-    time_t modified_; // used to detect modification
+	  time_t modified_; // used to detect modification
 
-    // not implemented:
-    StoredConfigFile( const StoredConfigFile& );
-    StoredConfigFile& operator=( const StoredConfigFile& );
-};
+	  // not implemented:
+	  StoredConfigFile( const StoredConfigFile& );
+	  StoredConfigFile& operator=( const StoredConfigFile& );
+	};
 
-typedef ref_ptr<StoredConfigFile> ConfigFileRef;
+	typedef ref_ptr<StoredConfigFile> ConfigFileRef;
 
-ConfigFileRef FindConfigFile( const std::string& filename, const std::string& allpkgbase );
-void CreateEmptyStoredConfigFile( const std::string& filename );
-int UnloadConfigFile( const std::string& filename );
-ConfigFileRef LoadTusScpFile( const std::string& filename );
+	ConfigFileRef FindConfigFile( const std::string& filename, const std::string& allpkgbase );
+	void CreateEmptyStoredConfigFile( const std::string& filename );
+	int UnloadConfigFile( const std::string& filename );
+	ConfigFileRef LoadTusScpFile( const std::string& filename );
 
 #ifdef MEMORYLEAK
-void ConfigFiles_log_stuff();
+	void ConfigFiles_log_stuff();
 #endif
+  }
+}
 
 #endif

@@ -30,47 +30,54 @@ Notes
 #include "../guardrgn.h"
 #include "../network/cgdata.h"
 
-void handle_attack( Client *client, PKTIN_05 *msg )
-{
-    if (client->chr->dead())
-    {
-        private_say_above( client->chr, client->chr, "I am dead and cannot do that." );
-        return;
-    }
-
-	u32 serial = cfBEu32( msg->serial );
-	Character *defender = find_character( serial );
-	if (defender != NULL)
+namespace Pol {
+  namespace Mobile {
+	void handle_attack( Network::Client *client, Core::PKTIN_05 *msg )
 	{
-		if ( !(combat_config.attack_self) )
-		{
-			if ( defender->serial == client->chr->serial )
-			{
-				client->chr->send_highlight();
-				return;
-			}
-		}
+	  if ( client->chr->dead() )
+	  {
+		private_say_above( client->chr, client->chr, "I am dead and cannot do that." );
+		return;
+	  }
 
-		if (!client->chr->is_visible_to_me(defender)) {
+	  u32 serial = cfBEu32( msg->serial );
+	  Character *defender = Core::find_character( serial );
+	  if ( defender != NULL )
+	  {
+		if ( !( Core::combat_config.attack_self ) )
+		{
+		  if ( defender->serial == client->chr->serial )
+		  {
 			client->chr->send_highlight();
 			return;
-		}
-		if (pol_distance(client->chr->x, client->chr->y, defender->x, defender->y) > 20) {
-			client->chr->send_highlight();
-			return;
+		  }
 		}
 
-		if( defender->acct != NULL ) 
+		if ( !client->chr->is_visible_to_me( defender ) )
 		{
-			JusticeRegion* cur_justice_region = client->gd->justice_region;
-			if( cur_justice_region->RunNoCombatCheck(defender->client) == true )
-			{
-				client->chr->send_highlight();
-				send_sysmessage( client, "Combat is not allowed in this area." );
-				return;
-			}
+		  client->chr->send_highlight();
+		  return;
+		}
+		if ( Core::pol_distance( client->chr->x, client->chr->y, defender->x, defender->y ) > 20 )
+		{
+		  client->chr->send_highlight();
+		  return;
+		}
+
+		if ( defender->acct != NULL )
+		{
+		  Core::JusticeRegion* cur_justice_region = client->gd->justice_region;
+		  if ( cur_justice_region->RunNoCombatCheck( defender->client ) == true )
+		  {
+			client->chr->send_highlight();
+			Core::send_sysmessage( client, "Combat is not allowed in this area." );
+			return;
+		  }
 		}
 		client->chr->select_opponent( serial );
+	  }
 	}
+	using namespace Core;
+	MESSAGE_HANDLER( PKTIN_05, handle_attack );
+  }
 }
-MESSAGE_HANDLER( PKTIN_05, handle_attack );

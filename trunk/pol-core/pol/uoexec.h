@@ -16,37 +16,39 @@ Notes
 #endif
 
 #include "../clib/weakptr.h"
+namespace Pol {
+  namespace Module {
+	class OSExecutorModule;
+  }
+  namespace Core {
+	// const int SCRIPT_RUNAWAY_INTERVAL = 5000;
 
-class OSExecutorModule;
+	class UOExecutor : public Bscript::Executor
+	{
+	public:
+	  Module::OSExecutorModule* os_module;
+	  UOExecutor();
+	  virtual ~UOExecutor();
 
-// const int SCRIPT_RUNAWAY_INTERVAL = 5000;
+	  std::string state();
 
-class UOExecutor : public Executor
-{
-public:
-	OSExecutorModule* os_module;
-	UOExecutor();
-	virtual ~UOExecutor();
+	  u64 instr_cycles;
+	  u64 sleep_cycles;
+	  time_t start_time;
 
-    std::string state();
+	  u64 warn_runaway_on_cycle;
+	  u64 runaway_cycles;
 
-    u64 instr_cycles;
-    u64 sleep_cycles;
-    time_t start_time;
+	  unsigned int eventmask;
+	  unsigned short area_size;
+	  unsigned short speech_size;
 
-    u64 warn_runaway_on_cycle;
-    u64 runaway_cycles;
+	  bool can_access_offline_mobiles;
+	  bool auxsvc_assume_string;
+	  weak_ptr_owner<UOExecutor> weakptr;
 
-    unsigned int eventmask;
-    unsigned short area_size;
-    unsigned short speech_size;
-
-    bool can_access_offline_mobiles;
-    bool auxsvc_assume_string;
-    weak_ptr_owner<UOExecutor> weakptr;
-
-	UOExecutor	*pParent,
-				*pChild;
-};
-
+	  UOExecutor	*pParent, *pChild;
+	};
+  }
+}
 #endif
