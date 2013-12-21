@@ -40,19 +40,19 @@ CXX_MORE_OPTS += -DHAVE_MYSQL
 endif
 
 ifdef BUILD64POL
-LIB_MORE += -L../lib/boost_1_54_0/lib/x64/lib
+LIB_MORE += -L../lib/boost_1_55_0/lib/x64/lib
 CXX_MORE_OPTS += -m64 
 POL_BUILDPLATFORM=x64
 # plus all used libaries eg: -lboost_regex
 else
-LIB_MORE += -L../lib/boost_1_54_0/lib/x86/lib
+LIB_MORE += -L../lib/boost_1_55_0/lib/x86/lib
 CXX_MORE_OPTS += -m32
 POL_BUILDPLATFORM=x86
 # plus all used libaries eg: -lboost_regex
 endif
 
 
-CXX_OPTS=-fno-strict-aliasing  -Wno-unused-result -DINC_PASSERT=1 -DTIXML_USE_STL -Wall $(CXX_MORE_OPTS) $(INC_STL) -I../lib/boost_1_54_0
+CXX_OPTS=-fno-strict-aliasing  -Wno-unused-result -DINC_PASSERT=1 -DTIXML_USE_STL -Wall $(CXX_MORE_OPTS) $(INC_STL) -I../lib/boost_1_55_0
 
 CXX_RELEASE_OPTS=$(CXX_OPTS)
 
