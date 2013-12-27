@@ -35,6 +35,7 @@
 
 #include <cctype>
 #include <cmath>
+#include <cstdarg>
 
 namespace {
 
@@ -57,7 +58,7 @@ inline int IsInf(double x) {
 
 #define FMT_SNPRINTF snprintf
 
-#else
+#else  // _MSC_VER
 
 inline int SignBit(double value) {
   if (value < 0) return 1;
@@ -70,7 +71,13 @@ inline int SignBit(double value) {
 
 inline int IsInf(double x) { return !_finite(x); }
 
-#define FMT_SNPRINTF sprintf_s
+inline int FMT_SNPRINTF(char *buffer, size_t size, const char *format, ...) {
+  va_list args;
+  va_start(args, format);
+  int result = vsnprintf_s(buffer, size, _TRUNCATE, format, args);
+  va_end(args);
+  return result;
+}
 
 #endif  // _MSC_VER
 }
@@ -302,11 +309,6 @@ void fmt::BasicWriter<Char>::FormatDouble(
   Char fill = static_cast<Char>(spec.fill());
   for (;;) {
     std::size_t size = buffer_.capacity() - offset;
-	if (size < 100) // TODO: Verify with the author
-	{
-		 buffer_.reserve(2 * buffer_.capacity());
-		 continue;
-	}
     Char *start = &buffer_[offset];
     int n = internal::CharTraits<Char>::FormatFloat(
         start, size, format, width_for_sprintf, precision, value);
@@ -401,13 +403,14 @@ inline const typename fmt::BasicFormatter<Char>::Arg
 
 template <typename Char>
 void fmt::BasicFormatter<Char>::CheckSign(const Char *&s, const Arg &arg) {
+  char sign = static_cast<char>(*s);
   if (arg.type > LAST_NUMERIC_TYPE) {
     ReportError(s,
-        Format("format specifier '{0}' requires numeric argument") << *s);
+        Format("format specifier '{}' requires numeric argument") << sign);
   }
-  if (arg.type == UINT || arg.type == ULONG) {
+  if (arg.type == UINT || arg.type == ULONG || arg.type == ULONG_LONG) {
     ReportError(s,
-        Format("format specifier '{0}' requires signed argument") << *s);
+        Format("format specifier '{}' requires signed argument") << sign);
   }
   ++s;
 }
@@ -418,7 +421,6 @@ void fmt::BasicFormatter<Char>::DoFormat() {
   format_ = 0;
   next_arg_index_ = 0;
   const Char *s = start;
-  typedef internal::Array<Char, BasicWriter<Char>::INLINE_BUFFER_SIZE> Buffer;
   BasicWriter<Char> &writer = *writer_;
   while (*s) {
     Char c = *s++;
@@ -525,7 +527,7 @@ void fmt::BasicFormatter<Char>::DoFormat() {
           ++s;
           ++num_open_braces_;
           const Arg &precision_arg = ParseArgIndex(s);
-          unsigned long value = 0;
+          ULongLong value = 0;
           switch (precision_arg.type) {
           case INT:
             if (precision_arg.int_value < 0)
@@ -543,12 +545,20 @@ void fmt::BasicFormatter<Char>::DoFormat() {
           case ULONG:
             value = precision_arg.ulong_value;
             break;
+          case LONG_LONG:
+            if (precision_arg.long_long_value < 0)
+              ReportError(s, "negative precision in format");
+            value = precision_arg.long_long_value;
+            break;
+          case ULONG_LONG:
+            value = precision_arg.ulong_long_value;
+            break;
           default:
             ReportError(s, "precision is not integer");
           }
           if (value > INT_MAX)
             ReportError(s, "number is too big in format");
-          precision = value;
+          precision = static_cast<int>(value);
           if (*s++ != '}')
             throw FormatError("unmatched '{' in format");
           --num_open_braces_;
@@ -583,6 +593,12 @@ void fmt::BasicFormatter<Char>::DoFormat() {
       break;
     case ULONG:
       writer.FormatInt(arg.ulong_value, spec);
+      break;
+    case LONG_LONG:
+      writer.FormatInt(arg.long_long_value, spec);
+      break;
+    case ULONG_LONG:
+      writer.FormatInt(arg.ulong_long_value, spec);
       break;
     case DOUBLE:
       writer.FormatDouble(arg.double_value, spec, precision);

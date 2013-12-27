@@ -55,7 +55,7 @@ Arguments can be accessed by position and arguments' indices can be repeated:
     std::string s = str(fmt::Format("{0}{1}{0}") << "abra" << "cad");
     // s == "abracadabra"
 
-Format can be used as a safe portable replacement to ``itoa``:
+Format can be used as a safe portable replacement for ``itoa``:
 
 .. code-block:: c++
 
@@ -98,7 +98,8 @@ with an arbitrary action performed when formatting is complete:
 
     // Formats an error message and prints it to std::cerr.
     fmt::Formatter<PrintError> ReportError(const char *format) {
-      return fmt::Formatter<PrintError>(format);
+      fmt::Formatter<PrintError> f(format);
+      return f;
     }
 
     ReportError("File not found: {}") << path;
@@ -356,4 +357,6 @@ Some ideas used in the implementation are borrowed from `Loki
 Format string syntax and the documentation are based on Python's `str.format
 <http://docs.python.org/2/library/stdtypes.html#str.format>`__.
 Thanks `Doug Turnbull <https://github.com/softwaredoug>`__ for his valuable
-comments and contribution to the design of the type-safe API.
+comments and contribution to the design of the type-safe API and
+`Gregory Czajkowski <https://github.com/gcflymoto>`__ for implementing binary
+formatting.
