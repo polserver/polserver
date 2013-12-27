@@ -12,14 +12,16 @@ project(FORMAT)
 
 include(CheckCXXCompilerFlag)
 check_cxx_compiler_flag(-std=c++11 HAVE_STD_CPP11_FLAG)
-if (HAVE_STD_CPP11_FLAG)
-  add_definitions(-std=c++11)
-endif ()
 
 add_library(format format.cc)
 if (CMAKE_COMPILER_IS_GNUCXX)
   set_target_properties(format PROPERTIES COMPILE_FLAGS
     "-Wall -Wextra -pedantic")
+endif ()
+if (HAVE_STD_CPP11_FLAG)
+  set_target_properties(format PROPERTIES COMPILE_FLAGS "-std=c++11")
+  # Test compilation with default flags.
+  add_library(testformat format.cc)
 endif ()
 
 add_subdirectory(doc)
@@ -33,6 +35,9 @@ if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/gtest/CMakeLists.txt)
     gtest_force_shared_crt
     "Use shared (DLL) run-time lib even when Google Test is built as static lib."
     ON)
+  if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    add_definitions(-DGTEST_USE_OWN_TR1_TUPLE=1)
+  endif ()
   add_subdirectory(gtest)
   include_directories(gtest/include)
   link_directories(${CMAKE_CURRENT_BINARY_DIR}/gtest)
@@ -44,19 +49,37 @@ if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/gtest/CMakeLists.txt)
       "-Wall -Wextra -pedantic -Wno-long-long -Wno-variadic-macros")
   endif ()
   add_test(format_test format_test)
+  if (HAVE_STD_CPP11_FLAG)
+    set_target_properties(format_test PROPERTIES COMPILE_FLAGS "-std=c++11")
+  endif ()
+endif ()
+
+find_library(PROFILER_LIB profiler)
+find_path(PROFILER_INCLUDE_DIR gperftools/profiler.h)
+if (PROFILER_LIB AND PROFILER_INCLUDE_DIR)
+  include_directories(${PROFILER_INCLUDE_DIR})
+  set(HAVE_PROFILER TRUE)
 endif ()
 
 find_package(Boost)
 if (Boost_FOUND)
   add_definitions(-DHAVE_BOOST)
+  include_directories(${Boost_INCLUDE_DIRS})
 endif ()
 if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/format-benchmark/tinyformat_test.cpp)
   add_subdirectory(format-benchmark)
 
   add_executable(tinyformat_speed_test format-benchmark/tinyformat_test.cpp)
   target_link_libraries(tinyformat_speed_test format)
+  if (HAVE_PROFILER)
+    target_link_libraries(tinyformat_speed_test ${PROFILER_LIB})
+    set(PROFILE_DEFS ";FMT_PROFILE")
+  endif ()
   set_target_properties(tinyformat_speed_test PROPERTIES COMPILE_DEFINITIONS
-    "SPEED_TEST;HAVE_FORMAT;_SCL_SECURE_NO_WARNINGS")
+    "SPEED_TEST;HAVE_FORMAT;_SCL_SECURE_NO_WARNINGS;${PROFILE_DEFS}")
+  if (HAVE_STD_CPP11_FLAG)
+    set_target_properties(tinyformat_speed_test PROPERTIES COMPILE_FLAGS "-std=c++11")
+  endif ()
 
   add_custom_target(speed_test
     COMMAND @echo running speed tests...
