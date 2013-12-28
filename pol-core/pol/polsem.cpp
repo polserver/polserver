@@ -120,7 +120,7 @@ namespace Pol {
 	}
 	void send_pulse()
 	{
-	  TRACEBUF_ADDELEM( "Pulse", 1 );
+      TRACEBUF_ADDELEM( "Pulse", 1 );
 	  PulseEvent( hEvPulse );
 	}
 
@@ -141,7 +141,7 @@ namespace Pol {
 
 	void send_ClientTransmit_pulse()
 	{
-	  TRACEBUF_ADDELEM( "ClientTransmitPulse", 1 );
+      TRACEBUF_ADDELEM( "ClientTransmitPulse", 1 );
 	  PulseEvent( hEvClientTransmit );
 	}
 

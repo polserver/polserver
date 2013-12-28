@@ -1266,127 +1266,127 @@ namespace Pol {
 		}
 		case MTH_SPLITSTACK_INTO:
 		{
-								  int amt;
-								  int add_to_existing_stack;
-								  Item* cont_item;
-								  Item* new_stack;
-								  u16 item_amount = this->getamount();
+		  int amt;
+		  Item* cont_item;
 
-								  if ( !ex.hasParams( 2 ) )
-									return new BError( "Not enough parameters" );
-								  else if ( !getItemParam( ex, 0, cont_item ) )
-									return new BError( "No container specified" );
-								  else if ( !ex.getParam( 1, amt ) )
-									return new BError( "No amount specified to pull from existing stack" );
-								  else if ( amt > this->getamount() )
-									return new BError( "Amount must be less than or equal to stack amount" );
-								  else if ( amt < 1 )
-									return new BError( "Amount was less than 1" );
-								  else if ( this->inuse() )
-									return new BError( "Item is in use" );
-								  else if ( !cont_item->isa( UObject::CLASS_CONTAINER ) )
-									return new BError( "Non-container selected as target" );
+		  if ( !ex.hasParams( 2 ) )
+			return new BError( "Not enough parameters" );
+		  else if ( !getItemParam( ex, 0, cont_item ) )
+			return new BError( "No container specified" );
+		  else if ( !ex.getParam( 1, amt ) )
+			return new BError( "No amount specified to pull from existing stack" );
+		  else if ( amt > this->getamount() )
+			return new BError( "Amount must be less than or equal to stack amount" );
+		  else if ( amt < 1 )
+			return new BError( "Amount was less than 1" );
+		  else if ( this->inuse() )
+			return new BError( "Item is in use" );
+		  else if ( !cont_item->isa( UObject::CLASS_CONTAINER ) )
+			return new BError( "Non-container selected as target" );
 
-								  Core::UContainer* container = static_cast<Core::UContainer*>( cont_item );
+		  Core::UContainer* container = static_cast<Core::UContainer*>( cont_item );
 
-								  // Check first if the item is non-stackable and just force stacked with CreateItemInInventory
+		  // Check first if the item is non-stackable and just force stacked with CreateItemInInventory
+          
+          Item* new_stack;
+          u16 item_amount = this->getamount();
 
-								  if ( !this->stackable() && amt > 1 )
-								  {
-									unsigned short i;
+		  if ( !this->stackable() && amt > 1 )
+		  {
+            for ( unsigned short i = 1; i <= amt; i++ )
+            {
 
-									for ( i = 1; i <= amt; i++ )
-									{
+              if ( this->getamount() == 1 )
+                new_stack = this->clone();
+              else
+                new_stack = this->remove_part_of_stack( 1 );
 
-									  if ( this->getamount() == 1 )
-										new_stack = this->clone();
-									  else
-										new_stack = this->remove_part_of_stack( 1 );
+              bool can_insert = container->can_insert_add_item( NULL, Core::UContainer::MT_CORE_MOVED, new_stack );
+              if ( !can_insert )
+              {
+                // Put new_stack back with the original stack
+                if ( new_stack != this )
+                  this->add_to_self( new_stack );
+                return new BError( "Could not insert new stack into container" );
+              }
 
-									  bool can_insert = container->can_insert_add_item( NULL, Core::UContainer::MT_CORE_MOVED, new_stack );
-									  if ( !can_insert )
-									  {
-										// Put new_stack back with the original stack
-										if ( new_stack != this )
-										  this->add_to_self( new_stack );
-										return new BError( "Could not insert new stack into container" );
-									  }
+              container->add_at_random_location( new_stack );
+              update_item_to_inrange( new_stack );
+              UpdateCharacterWeight( new_stack );
+              container->on_insert_add_item( NULL, Core::UContainer::MT_CORE_MOVED, new_stack );
+            }
 
-									  container->add_at_random_location( new_stack );
-									  update_item_to_inrange( new_stack );
-									  UpdateCharacterWeight( new_stack );
-									  container->on_insert_add_item( NULL, Core::UContainer::MT_CORE_MOVED, new_stack );
-									}
+			if ( this->getamount() == 1 )
+			  destroy_item( this );
+			else
+			  update_item_to_inrange( this );
+			return new Module::EItemRefObjImp( new_stack );
+		  }
 
-									if ( this->getamount() == 1 )
-									  destroy_item( this );
-									else
-									  update_item_to_inrange( this );
-									return new Module::EItemRefObjImp( new_stack );
-								  }
+		  if ( amt == this->getamount() )
+			new_stack = this->clone();
+		  else
+			new_stack = this->remove_part_of_stack( amt );
 
-								  if ( amt == this->getamount() )
-									new_stack = this->clone();
-								  else
-									new_stack = this->remove_part_of_stack( amt );
+          auto create_new_stack = [&]( ) -> BObjectImp*
+          {
+            bool can_insert = container->can_insert_add_item( NULL, Core::UContainer::MT_CORE_MOVED, new_stack );
+            if ( !can_insert )
+            {
+              // Put newstack back with the original stack
+              if ( new_stack != this )
+                this->add_to_self( new_stack );
+              return new BError( "Could not insert new stack into container" );
+            }
+            container->add_at_random_location( new_stack );
+            new_stack->setamount( amt );
+            update_item_to_inrange( new_stack );
+            UpdateCharacterWeight( new_stack );
+            container->on_insert_add_item( NULL, Core::UContainer::MT_CORE_MOVED, new_stack );
 
-								  if ( !ex.hasParams( 3 ) || ( ex.getParam( 2, add_to_existing_stack ) && add_to_existing_stack != 0 ) )
-								  {
-									Item* existing_stack = container->find_addable_stack( new_stack );
-									if ( existing_stack != NULL && new_stack->stackable() )
-									{
-									  if ( !container->can_insert_increase_stack( NULL, Core::UContainer::MT_CORE_MOVED, existing_stack, new_stack->getamount(), new_stack ) )
-									  {
-										if ( new_stack != this )
-										  this->add_to_self( new_stack );
-										return new BError( "Could not add to existing stack" );
-									  }
-									}
-									else
-									  goto create_new_stack;
+            if ( amt == item_amount )
+              destroy_item( this );
+            else
+              update_item_to_inrange( this );
 
-									u16 amount = new_stack->getamount();
-									existing_stack->add_to_self( new_stack );
-									update_item_to_inrange( existing_stack );
+            return new Module::EItemRefObjImp( new_stack );
+          };
 
-									UpdateCharacterWeight( existing_stack );
+          int add_to_existing_stack;
+		  if ( !ex.hasParams( 3 ) || ( ex.getParam( 2, add_to_existing_stack ) && add_to_existing_stack != 0 ) )
+		  {
+			Item* existing_stack = container->find_addable_stack( new_stack );
+			if ( existing_stack != NULL && new_stack->stackable() )
+			{
+			  if ( !container->can_insert_increase_stack( NULL, Core::UContainer::MT_CORE_MOVED, existing_stack, new_stack->getamount(), new_stack ) )
+			  {
+				if ( new_stack != this )
+				  this->add_to_self( new_stack );
+				return new BError( "Could not add to existing stack" );
+			  }
+			}
+            else
+              return create_new_stack();
 
-									container->on_insert_increase_stack( NULL, Core::UContainer::MT_CORE_MOVED, existing_stack, amount );
+			u16 amount = new_stack->getamount();
+			existing_stack->add_to_self( new_stack );
+			update_item_to_inrange( existing_stack );
 
-									if ( amt == item_amount )
-									  destroy_item( this );
-									else
-									  update_item_to_inrange( this );
+			UpdateCharacterWeight( existing_stack );
 
-									return new Module::EItemRefObjImp( existing_stack );
-								  }
-								  else
-								  {
-								  create_new_stack:
+			container->on_insert_increase_stack( NULL, Core::UContainer::MT_CORE_MOVED, existing_stack, amount );
 
-									bool can_insert = container->can_insert_add_item( NULL, Core::UContainer::MT_CORE_MOVED, new_stack );
-									if ( !can_insert )
-									{
-									  // Put newstack back with the original stack
-									  if ( new_stack != this )
-										this->add_to_self( new_stack );
-									  return new BError( "Could not insert new stack into container" );
-									}
-									container->add_at_random_location( new_stack );
-									new_stack->setamount( amt );
-									update_item_to_inrange( new_stack );
-									UpdateCharacterWeight( new_stack );
-									container->on_insert_add_item( NULL, Core::UContainer::MT_CORE_MOVED, new_stack );
+			if ( amt == item_amount )
+			  destroy_item( this );
+			else
+			  update_item_to_inrange( this );
 
-									if ( amt == item_amount )
-									  destroy_item( this );
-									else
-									  update_item_to_inrange( this );
+			return new Module::EItemRefObjImp( existing_stack );
+		  }
+		  else
+            return create_new_stack();
 
-									return new Module::EItemRefObjImp( new_stack );
-								  }
-
-								  break;
+		  break;
 		}
 		case MTH_HAS_EXISTING_STACK:
 		{

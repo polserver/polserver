@@ -13,11 +13,7 @@ Notes
 
 namespace Pol {
   namespace Clib {
-#ifdef NDEBUG
-
-#define TRACEBUF_ADDELEM(tag,value) /**/
-
-#else
+#ifndef NDEBUG
 
 #ifndef TRACEBUF_DEPTH
 #define TRACEBUF_DEPTH 5000
@@ -32,7 +28,7 @@ namespace Pol {
 	extern TraceBufferElem tracebuffer[ TRACEBUF_DEPTH ];
 	extern unsigned tracebuffer_insertpoint;
 
-	inline void TRACEBUF_ADDELEM( const char* tag, unsigned int value )
+	inline void _tracebuffer_addelem( const char* tag, unsigned int value )
 	{
 	  tracebuffer[ tracebuffer_insertpoint ].tag   = tag;
 	  tracebuffer[ tracebuffer_insertpoint ].value = value;
@@ -45,5 +41,12 @@ namespace Pol {
 
 	void LogTraceBuffer();
   }
+
+#ifdef NDEBUG
+#define TRACEBUF_ADDELEM(tag,value) /**/
+#else
+#define TRACEBUF_ADDELEM(tag,value) Clib::_tracebuffer_addelem(tag, value)
+#endif
 }
+
 #endif

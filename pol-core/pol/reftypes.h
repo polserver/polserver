@@ -64,7 +64,7 @@ namespace Pol {
 	  ~CharacterRef();
 
 	  CharacterRef& operator=( const CharacterRef& rptr );
-	  void set( Character* chr );
+	  void set( Mobile::Character* chr );
 	  void clear();
 
 	  unsigned int cref_instance;

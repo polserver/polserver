@@ -239,9 +239,9 @@ namespace Pol {
 	{
 	  unload_party_hooks();
 
-	  for ( Parties::iterator itr = parties.begin(); itr != parties.end(); ++itr )
+	  for ( auto &party : parties )
 	  {
-		( *itr )->cleanup();
+		party->cleanup();
 	  }
 	  parties.clear();
 	}
@@ -253,29 +253,19 @@ namespace Pol {
 	  _offlinemember_serials.clear();
 	}
 
-	u32 Party::leader()
+	u32 Party::leader() const
 	{
 	  return _leaderserial;
 	}
 
-	bool Party::is_member( u32 serial )
+    bool Party::is_member( u32 serial ) const
 	{
-	  for ( vector<u32>::iterator itr = _member_serials.begin(); itr != _member_serials.end(); ++itr )
-	  {
-		if ( *itr == serial )
-		  return true;
-	  }
-	  return false;
+      return std::find( _member_serials.begin(), _member_serials.end(), serial ) != _member_serials.end();
 	}
 
-	bool Party::is_candidate( u32 serial )
+    bool Party::is_candidate( u32 serial ) const
 	{
-	  for ( vector<u32>::iterator itr = _candidates_serials.begin(); itr != _candidates_serials.end(); ++itr )
-	  {
-		if ( *itr == serial )
-		  return true;
-	  }
-	  return false;
+      return std::find( _candidates_serials.begin(), _candidates_serials.end(), serial ) != _candidates_serials.end();
 	}
 
 	bool Party::register_with_members()
@@ -299,15 +289,15 @@ namespace Pol {
 	  if ( system_find_mobile( _leaderserial ) == NULL )
 		_leaderserial = *_member_serials.begin();
 
-	  return ( true );
+	  return true;
 	}
 
-	bool Party::is_leader( u32 serial )
+    bool Party::is_leader( u32 serial ) const
 	{
 	  return _leaderserial == serial;
 	}
 
-	u32 Party::get_member_at( unsigned short pos )
+	u32 Party::get_member_at( unsigned short pos ) const
 	{
 	  if ( _member_serials.size() < pos )
 		return 0;
@@ -338,65 +328,56 @@ namespace Pol {
 
 	bool Party::remove_candidate( u32 serial )
 	{
-	  for ( vector<u32>::iterator itr = _candidates_serials.begin(); itr != _candidates_serials.end(); ++itr )
-	  {
-		if ( *itr == serial )
-		{
+      auto itr = std::find_if( _candidates_serials.begin(), _candidates_serials.end(), [&]( u32 &i ) { return i == serial; } );
+      if ( itr != _candidates_serials.end() )
+        {
 		  _candidates_serials.erase( itr );
 		  return true;
 		}
-	  }
 	  return false;
 	}
 
 	bool Party::remove_member( u32 serial )
 	{
-	  for ( vector<u32>::iterator itr = _member_serials.begin(); itr != _member_serials.end(); ++itr )
-	  {
-		if ( *itr == serial )
+      auto itr = std::find_if( _member_serials.begin(), _member_serials.end(), [&]( u32 &i ) { return i == serial; } );
+      if ( itr != _member_serials.end() )
 		{
 		  _member_serials.erase( itr );
 		  return true;
 		}
-	  }
 	  return false;
 	}
 
 	bool Party::remove_offline_mem( u32 serial )
 	{
-	  for ( vector<u32>::iterator itr = _offlinemember_serials.begin(); itr != _offlinemember_serials.end(); ++itr )
+      auto itr = std::find_if( _offlinemember_serials.begin(), _offlinemember_serials.end(), [&]( u32 &i ) { return i == serial; } );
+      if ( itr != _offlinemember_serials.end() )
 	  {
-		if ( *itr == serial )
-		{
-		  _offlinemember_serials.erase( itr );
-		  return true;
-		}
+		_offlinemember_serials.erase( itr );
+		return true;
 	  }
 	  return false;
 	}
 
 	void Party::set_leader( u32 serial )
 	{
-	  for ( vector<u32>::iterator itr = _member_serials.begin(); itr != _member_serials.end(); ++itr )
-	  {
-		if ( *itr == serial )
+      auto itr = std::find_if( _member_serials.begin(), _member_serials.end(), [&]( u32 &i ) { return i == serial; } );
+      if ( itr != _member_serials.end() )
 		{
 		  _member_serials.erase( itr );
-		  break;
 		}
-	  }
 	  _member_serials.insert( _member_serials.begin(), serial );
 	  _leaderserial = serial;
 	}
 
-	bool Party::test_size()
+	bool Party::test_size() const
 	{
 	  if ( ( _candidates_serials.empty() ) && ( _member_serials.size() <= 1 ) )
 		return false;
 	  return true;
 	}
 
-	bool Party::can_add()
+	bool Party::can_add() const
 	{
 	  if ( ( _member_serials.size() + _candidates_serials.size() ) >= party_cfg.General.MaxPartyMembers )
 		return false;
@@ -429,9 +410,9 @@ namespace Pol {
 
 	  if ( to_chr == NULL )
 	  {
-		for ( vector<u32>::iterator _itr = _member_serials.begin(), itrend = _member_serials.end(); _itr != itrend; ++_itr )
+		for ( const auto& serial : _member_serials)
 		{
-          Mobile::Character* chr = system_find_mobile( *_itr );
+          Mobile::Character* chr = system_find_mobile( serial );
 		  if ( chr != NULL )
 		  {
 			if ( chr->has_active_client() )
@@ -448,9 +429,9 @@ namespace Pol {
 	  if ( party_cfg.Hooks.OnDisband )
 		party_cfg.Hooks.OnDisband->call( Module::CreatePartyRefObjImp( this ) );
 
-	  for ( vector<u32>::iterator itr = _member_serials.begin(); itr != _member_serials.end(); ++itr )
+      for ( const auto& serial : _member_serials )
 	  {
-		Mobile::Character* chr = system_find_mobile( *itr );
+        Mobile::Character* chr = system_find_mobile( serial );
 		if ( chr != NULL )
 		{
 		  chr->party( NULL );
@@ -461,15 +442,15 @@ namespace Pol {
 		  }
 		}
 	  }
-	  for ( vector<u32>::iterator itr = _candidates_serials.begin(); itr != _candidates_serials.end(); ++itr )
+      for ( const auto& serial : _candidates_serials )
 	  {
-        Mobile::Character* chr = system_find_mobile( *itr );
+        Mobile::Character* chr = system_find_mobile( serial );
 		if ( chr != NULL )
 		  chr->candidate_of( NULL );
 	  }
-	  for ( vector<u32>::iterator itr = _offlinemember_serials.begin(); itr != _offlinemember_serials.end(); ++itr )
+      for ( const auto& serial : _offlinemember_serials )
 	  {
-        Mobile::Character* chr = system_find_mobile( *itr );
+        Mobile::Character* chr = system_find_mobile( serial );
 		if ( chr != NULL )
 		  chr->offline_mem_of( NULL );
 	  }
@@ -513,9 +494,9 @@ namespace Pol {
 		msg->offset = 1;
 		msg->WriteFlipped<u16>( len );
 
-		for ( vector<u32>::iterator _itr = _member_serials.begin(), itrend = _member_serials.end(); _itr != itrend; ++_itr )
+        for ( const auto& serial : _member_serials )
 		{
-		  Mobile::Character* chr = system_find_mobile( *_itr );
+          Mobile::Character* chr = system_find_mobile( serial );
 		  if ( chr != NULL )
 		  {
 			if ( chr->has_active_client() )
@@ -531,7 +512,7 @@ namespace Pol {
 	  }
 	}
 
-    void Party::send_msg_to_all( unsigned int clilocnr, const char* affix, Mobile::Character* exeptchr )
+    void Party::send_msg_to_all( unsigned int clilocnr, const char* affix, Mobile::Character* exeptchr ) const
 	{
       Network::PktHelper::PacketOut<Network::PktOut_C1> msgc1;
       Network::PktHelper::PacketOut<Network::PktOut_CC> msgcc;
@@ -540,9 +521,9 @@ namespace Pol {
 	  else
 		build_sysmessage_cl( msgc1.Get(), clilocnr );
 
-	  for ( vector<u32>::iterator itr = _member_serials.begin(), itrend = _member_serials.end(); itr != itrend; ++itr )
+      for ( const auto& serial : _member_serials )
 	  {
-		Mobile::Character* chr = system_find_mobile( *itr );
+        Mobile::Character* chr = system_find_mobile( serial );
 		if ( chr != NULL )
 		{
 		  if ( chr != exeptchr )
@@ -559,7 +540,7 @@ namespace Pol {
 	  }
 	}
 
-    void Party::send_stat_to( Mobile::Character* chr, Mobile::Character* bob )
+    void Party::send_stat_to( Mobile::Character* chr, Mobile::Character* bob ) const
 	{
 	  if ( ( chr != bob ) && ( is_member( bob->serial ) ) && ( chr->realm == bob->realm )
 		   && ( pol_distance( chr->x, chr->y, bob->x, bob->y ) < 20 ) )
@@ -571,12 +552,12 @@ namespace Pol {
 	  }
 	}
 
-    void Party::send_stats_on_add( Mobile::Character* newmember )
+    void Party::send_stats_on_add( Mobile::Character* newmember ) const
 	{
 	  if ( newmember == NULL ) return;
-	  for ( vector<u32>::iterator itr = _member_serials.begin(); itr != _member_serials.end(); ++itr )
+      for ( const auto& serial : _member_serials )
 	  {
-		Mobile::Character* chr = system_find_mobile( *itr );
+		Mobile::Character* chr = system_find_mobile( serial );
 		if ( chr != NULL )
 		{
 		  if ( newmember != chr )
@@ -596,7 +577,7 @@ namespace Pol {
 	  }
 	}
 
-    void Party::on_mana_changed( Mobile::Character* chr )
+    void Party::on_mana_changed( Mobile::Character* chr ) const
 	{
       Network::PktHelper::PacketOut<Network::PktOut_A2> msg;
 	  msg->Write<u32>( chr->serial_ext );
@@ -611,9 +592,9 @@ namespace Pol {
 	  msg->WriteFlipped<u16>( static_cast<u16>( 1000 ) );
 	  msg->WriteFlipped<u16>( static_cast<u16>( h * 1000 / mh ) );
 
-	  for ( vector<u32>::iterator itr = _member_serials.begin(), itrend = _member_serials.end(); itr != itrend; ++itr )
+      for ( const auto& serial : _member_serials )
 	  {
-		Mobile::Character* mem = system_find_mobile( *itr );
+		Mobile::Character* mem = system_find_mobile( serial );
 		if ( mem != NULL )
 		{
 		  if ( mem != chr )
@@ -624,7 +605,7 @@ namespace Pol {
 		}
 	  }
 	}
-    void Party::on_stam_changed( Mobile::Character* chr )
+    void Party::on_stam_changed( Mobile::Character* chr ) const
 	{
       Network::PktHelper::PacketOut<Network::PktOut_A3> msg;
 	  msg->Write<u32>( chr->serial_ext );
@@ -639,9 +620,9 @@ namespace Pol {
 	  msg->WriteFlipped<u16>( static_cast<u16>( 1000 ) );
 	  msg->WriteFlipped<u16>( static_cast<u16>( h * 1000 / mh ) );
 
-	  for ( vector<u32>::iterator itr = _member_serials.begin(), itrend = _member_serials.end(); itr != itrend; ++itr )
+      for ( const auto& serial : _member_serials )
 	  {
-        Mobile::Character* mem = system_find_mobile( *itr );
+        Mobile::Character* mem = system_find_mobile( serial );
 		if ( mem != NULL )
 		{
 		  if ( mem != chr )
@@ -653,7 +634,7 @@ namespace Pol {
 	  }
 	}
 
-    void Party::send_member_msg_public( Mobile::Character* chr, u16* wtext, size_t wtextlen )
+    void Party::send_member_msg_public( Mobile::Character* chr, u16* wtext, size_t wtextlen ) const
 	{
       Network::PktHelper::PacketOut<Network::PktOut_BF_Sub6> msg;
 	  msg->offset += 4; //len+sub
@@ -687,9 +668,9 @@ namespace Pol {
 	  msg->offset = 1;
 	  msg->WriteFlipped<u16>( len );
 
-	  for ( vector<u32>::iterator itr = _member_serials.begin(), itrend = _member_serials.end(); itr != itrend; ++itr )
+      for ( const auto& serial : _member_serials )
 	  {
-        Mobile::Character* mem = system_find_mobile( *itr );
+        Mobile::Character* mem = system_find_mobile( serial );
 		if ( mem != NULL )
 		{
 		  if ( mem->has_active_client() )
@@ -698,7 +679,7 @@ namespace Pol {
 	  }
 	}
 
-    void Party::send_member_msg_private( Mobile::Character* chr, Mobile::Character* tochr, u16* wtext, size_t wtextlen )
+    void Party::send_member_msg_private( Mobile::Character* chr, Mobile::Character* tochr, u16* wtext, size_t wtextlen ) const
 	{
 	  if ( !tochr->has_active_client() )
 		return;
@@ -796,14 +777,11 @@ namespace Pol {
 
 	void disband_party( u32 leader )
 	{
-	  for ( Parties::iterator itr = parties.begin(); itr != parties.end(); ++itr )
+      auto itr = std::find_if( parties.begin(), parties.end(), [&]( PartyRef &party ) { return party->is_leader( leader ); } );
+	  if (itr != parties.end() )
 	  {
-		if ( ( *itr )->is_leader( leader ) )
-		{
-		  ( *itr )->disband();
-		  parties.erase( itr );
-		  break;
-		}
+		( *itr )->disband();
+		parties.erase( itr );
 	  }
 	}
 
@@ -865,6 +843,7 @@ namespace Pol {
 			  if ( !party->test_size() )
 			  {
 				disband_party( party->leader() );
+                chr->party( NULL );
 				return;
 			  }
 			  party->set_leader( party->get_member_at( 0 ) );
@@ -1463,7 +1442,7 @@ namespace Pol {
                                          this );
       }
 
-      bool Character::has_party_invite_timeout()
+      bool Character::has_party_invite_timeout() const
       {
         if ( this->party_decline_timeout_ != NULL )
           return false;

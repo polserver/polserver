@@ -207,13 +207,13 @@ namespace Pol {
 	  {
 		THREAD_CHECKPOINT( tasks, 103 );
 		ScheduledTask* task = task_queue.top();
-		TRACEBUF_ADDELEM( "check_scheduled_tasks toptask->nextrun", task->next_run_clock() );
+        TRACEBUF_ADDELEM( "check_scheduled_tasks toptask->nextrun", task->next_run_clock() );
 		THREAD_CHECKPOINT( tasks, 104 );
 		if ( !task->ready( now_clock ) )
 		{
 		  *clocksleft = task->clocksleft( now_clock );
 		  *pactivity = activity;
-		  TRACEBUF_ADDELEM( "check_scheduled_tasks clocksleft", *clocksleft );
+          TRACEBUF_ADDELEM( "check_scheduled_tasks clocksleft", *clocksleft );
 		  return;
 		}
 
