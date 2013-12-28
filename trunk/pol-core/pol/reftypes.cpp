@@ -60,7 +60,7 @@ namespace Pol {
 	  }
 	}
 
-	CharacterRef::CharacterRef( Character* ptr ) : ref_ptr<Character>(ptr), cref_instance(0)
+	CharacterRef::CharacterRef( Mobile::Character* ptr ) : ref_ptr<Mobile::Character>(ptr), cref_instance(0)
 	{
 	  if (get() && get()->serial_ext == 0x619d1300)
 	  {
@@ -74,7 +74,7 @@ namespace Pol {
 	  }
 	  ++characterrefs;
 	}
-	CharacterRef::CharacterRef( const CharacterRef& rptr ) : ref_ptr<Character>(rptr), cref_instance(0)
+    CharacterRef::CharacterRef( const CharacterRef& rptr ) : ref_ptr<Mobile::Character>( rptr ), cref_instance( 0 )
 	{
 	  if (get() && get()->serial_ext == 0x619d1300)
 	  {
@@ -108,7 +108,7 @@ namespace Pol {
 
 	  return *this;
 	}
-	void CharacterRef::set( Character* chr )
+    void CharacterRef::set( Mobile::Character* chr )
 	{
 	  if (get() && get()->serial_ext == 0x619d1300)
 	  {
@@ -116,7 +116,7 @@ namespace Pol {
 		--hits;
 	  }
 
-	  ref_ptr<Character>::set( chr );
+      ref_ptr<Mobile::Character>::set( chr );
 
 	  if (get() && get()->serial_ext == 0x619d1300)
 	  {
@@ -133,7 +133,7 @@ namespace Pol {
 		--hits;
 	  }
 
-	  ref_ptr<Character>::clear();
+      ref_ptr<Mobile::Character>::clear( );
 	}
 
 
@@ -164,7 +164,7 @@ namespace Pol {
 	}
 
 
-	ItemRef::ItemRef( Item* ptr ) : ref_ptr<Item>(ptr)
+	ItemRef::ItemRef( Items::Item* ptr ) : ref_ptr<Items::Item>(ptr)
 	{
 	  if (get() && get()->serial_ext == 0x619d1300)
 	  {
@@ -173,7 +173,7 @@ namespace Pol {
 	  ++itemrefs;
 	}
 
-	ItemRef::ItemRef( const ItemRef& rptr ) : ref_ptr<Item>(rptr)
+	ItemRef::ItemRef( const ItemRef& rptr ) : ref_ptr<Items::Item>(rptr)
 	{
 	  if (get() && get()->serial_ext == 0x619d1300)
 	  {

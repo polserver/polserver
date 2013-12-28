@@ -15,7 +15,6 @@ Notes
 
 #include <stdlib.h>
 #include <string.h>
-#include <boost/foreach.hpp>
 
 #ifdef __GNUG__
 #	include <streambuf>
@@ -386,7 +385,7 @@ namespace Pol {
 
 	void String::toUpper( void )
 	{
-	  BOOST_FOREACH( char &c, value_ )
+	  for( char &c : value_ )
 	  {
 		c = toupper( c );
 	  }
@@ -394,7 +393,7 @@ namespace Pol {
 
 	void String::toLower( void )
 	{
-	  BOOST_FOREACH( char &c, value_ )
+	  for( char &c : value_ )
 	  {
 		c = tolower( c );
 	  }
@@ -904,38 +903,38 @@ namespace Pol {
 						 }
 
 		}
-		case MTH_JOIN:
-		{
-					   BObject* cont;
-					   if ( ex.numParams() == 1 &&
-							( cont = ex.getParamObj( 0 ) ) != NULL )
-					   {
-						 if ( !( cont->isa( OTArray ) ) )
-						   return new BError( "string.join expects an array" );
-						 ObjArray* container = static_cast<ObjArray*>( cont->impptr() );
-						 // no empty check here on purpose
-						 OSTRINGSTREAM joined;
-						 bool first = true;
-						 BOOST_FOREACH( const BObjectRef &ref, container->ref_arr )
-						 {
-						   if ( ref.get() )
-						   {
-							 BObject *bo = ref.get();
+        case MTH_JOIN:
+        {
+                       BObject* cont;
+                       if ( ex.numParams() == 1 &&
+                            ( cont = ex.getParamObj( 0 ) ) != NULL )
+                       {
+                         if ( !( cont->isa( OTArray ) ) )
+                           return new BError( "string.join expects an array" );
+                         ObjArray* container = static_cast<ObjArray*>( cont->impptr() );
+                         // no empty check here on purpose
+                         OSTRINGSTREAM joined;
+                         bool first = true;
+                         for ( const BObjectRef &ref : container->ref_arr )
+                         {
+                           if ( ref.get() )
+                           {
+                             BObject *bo = ref.get();
 
-							 if ( bo == NULL )
-							   continue;
-							 if ( !first )
-							   joined << value_;
-							 else
-							   first = false;
-							 joined << bo->impptr()->getStringRep();
-						   }
-						 }
-						 return new String( OSTRINGSTREAM_STR( joined ) );
-					   }
-					   else
-						 return new BError( "string.join(array) requires a parameter." );
-		}
+                             if ( bo == NULL )
+                               continue;
+                             if ( !first )
+                               joined << value_;
+                             else
+                               first = false;
+                             joined << bo->impptr()->getStringRep();
+                           }
+                         }
+                         return new String( OSTRINGSTREAM_STR( joined ) );
+                       }
+                       else
+                         return new BError( "string.join(array) requires a parameter." );
+        }
 		default:
 		  return NULL;
 	  }

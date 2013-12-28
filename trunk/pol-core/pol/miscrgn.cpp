@@ -64,56 +64,53 @@ namespace Pol {
 
 	WeatherDef::WeatherDef( const char *name ) : RegionGroup<WeatherRegion>( name )
 	{
-	  std::vector<Plib::Realm*>::const_iterator itr;
-	  for ( itr = Realms->begin(); itr != Realms->end(); ++itr )
-	  {
-		unsigned int gridwidth = ( *itr )->width() / WGRID_SIZE;
-		unsigned int gridheight = ( *itr )->height() / WGRID_SIZE;
+      for ( auto const &realm : *Realms )
+      {
+        unsigned int gridwidth = realm->width() / WGRID_SIZE;
+        unsigned int gridheight = realm->height() / WGRID_SIZE;
 
-		// Tokuno-Fix
-		if ( gridwidth * WGRID_SIZE < ( *itr )->width() )
-		  gridwidth++;
-		if ( gridheight * WGRID_SIZE < ( *itr )->height() )
-		  gridheight++;
+        // Tokuno-Fix
+        if ( gridwidth * WGRID_SIZE < realm->width() )
+          gridwidth++;
+        if ( gridheight * WGRID_SIZE < realm->height() )
+          gridheight++;
 
-		RegionId** zone = new RegionId*[gridwidth];
+        RegionId** zone = new RegionId*[gridwidth];
 
-		for ( unsigned int i = 0; i < gridwidth; i++ )
-		{
-		  zone[i] = new RegionId[gridheight];
-		  for ( unsigned int j = 0; j < gridheight; j++ )
-		  {
-			zone[i][j] = 0;
-		  }
-		}
-		default_regionrealms.insert( make_pair( *itr, zone ) );
-	  }
+        for ( unsigned int i = 0; i < gridwidth; i++ )
+        {
+          zone[i] = new RegionId[gridheight];
+          for ( unsigned int j = 0; j < gridheight; j++ )
+          {
+            zone[i][j] = 0;
+          }
+        }
+        default_regionrealms.insert( make_pair( realm, zone ) );
+      }
 	}
 
 	WeatherDef::~WeatherDef()
 	{
-	  RegionRealms::iterator itr;
-	  for ( itr = default_regionrealms.begin(); itr != default_regionrealms.end(); ++itr )
+	  for ( auto &realmregion : default_regionrealms )
 	  {
-		unsigned int gridwidth = itr->first->width() / WGRID_SIZE;
+        unsigned int gridwidth = realmregion.first->width() / WGRID_SIZE;
 
 		// Tokuno-Fix
-		if ( gridwidth * WGRID_SIZE < itr->first->width() )
+        if ( gridwidth * WGRID_SIZE < realmregion.first->width() )
 		  gridwidth++;
 
 		for ( unsigned int i = 0; i < gridwidth; i++ )
-		  delete[] itr->second[i];
-		delete[] itr->second;
+          delete[] realmregion.second[i];
+        delete[] realmregion.second;
 	  }
 	}
 
 	void WeatherDef::copy_default_regions()
 	{
 	  //memcpy( &default_regionidx_, regionidx_, sizeof default_regionidx_ );
-	  RegionRealms::iterator itr;
-	  for ( itr = regionrealms.begin(); itr != regionrealms.end(); ++itr )
+      for ( auto &realmregion : regionrealms )
 	  {
-		Plib::Realm* realm = itr->first;
+        Plib::Realm* realm = realmregion.first;
 		unsigned int gridwidth = realm->width() / WGRID_SIZE;
 		unsigned int gridheight = realm->height() / WGRID_SIZE;
 

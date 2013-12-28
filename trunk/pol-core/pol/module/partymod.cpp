@@ -28,6 +28,7 @@ Notes
 #include "../uoscrobj.h"
 #include "../uoexhelp.h"
 #include "partymod.h"
+
 namespace Pol {
   namespace Bscript {
     using namespace Module;

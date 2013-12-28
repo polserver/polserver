@@ -560,7 +560,7 @@ namespace Pol {
 	  bool party_can_loot() const;
 	  void set_party_can_loot( bool );
 	  void set_party_invite_timeout();
-	  bool has_party_invite_timeout();
+	  bool has_party_invite_timeout() const;
 	  void cancel_party_invite_timeout();
 
 	  void make_criminal( int level = 1 );

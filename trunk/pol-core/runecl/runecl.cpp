@@ -59,6 +59,9 @@ namespace Pol {
   namespace Core {
     PolConfig config; // needed but not really used def
   }
+  namespace Bscript {
+    void display_bobjectimp_instances();
+  }
   namespace Runecl {
     using namespace Bscript;
     using namespace Module;
@@ -171,7 +174,7 @@ namespace Pol {
           */
     }
 
-    void display_bobjectimp_instances();
+    
     int exec_script( const char *path )
     {
       string fname( path );

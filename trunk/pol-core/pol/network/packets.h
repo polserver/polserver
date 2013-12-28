@@ -42,9 +42,9 @@ namespace Pol {
 		virtual ~PacketInterface() {};
 		u16 offset;
 		virtual void ReSetBuffer() {};
-		virtual char* getBuffer() { return NULL; };
-		virtual inline u8 getID() { return 0; };
-		virtual inline u16 getSubID() { return 0; };
+        virtual char* getBuffer() { return NULL; };
+        virtual inline u8 getID() const { return 0; };
+        virtual inline u16 getSubID() const { return 0; };
 	  };
 
 	  typedef queue<PacketInterface*> PacketInterfaceQueue;
@@ -60,9 +60,9 @@ namespace Pol {
 	  public:
 		virtual PacketInterface* GetNext( u8 id, u16 sub = 0 ) { return NULL; };
 		virtual void Add( PacketInterface* pkt ) {};
-		virtual size_t Count() { return 0; };
-		virtual bool HasSubs() { return false; };
-		virtual PacketInterfaceQueueMap* GetSubs() { return NULL; };
+		virtual size_t Count() const { return 0; };
+        virtual bool HasSubs() const { return false; };
+        virtual PacketInterfaceQueueMap* GetSubs() { return NULL; };
 	  };
 
 	  // "normal" packet queue
@@ -77,7 +77,7 @@ namespace Pol {
 	  public:
 		PacketInterface* GetNext( u8 id, u16 sub = 0 );
 		void Add( PacketInterface* pkt );
-		size_t Count() { return packets.size(); };
+        size_t Count() const { return packets.size(); };
 	  };
 
 	  // packet with subs queue
@@ -92,8 +92,8 @@ namespace Pol {
 	  public:
 		PacketInterface* GetNext( u8 id, u16 sub = 0 );
 		void Add( PacketInterface* pkt );
-		size_t Count();
-		bool HasSubs() { return true; };
+		size_t Count() const;
+        bool HasSubs() const { return true; };
 		PacketInterfaceQueueMap* GetSubs() { return &packets; };
 	  };
 
@@ -220,8 +220,8 @@ namespace Pol {
 		static const u8 ID = _id;
 		static const u16 SUB = _sub;
 		char buffer[_size];
-		char* getBuffer() { return &buffer[offset]; };
-		inline u8 getID() { return _id; };
+        char* getBuffer() { return &buffer[offset]; };
+        inline u8 getID() const { return _id; };
 
 
 		// will generate LNK2019 if undefined type is used
@@ -319,7 +319,7 @@ namespace Pol {
 		  ( *(u16*)(void*)&PacketWriter<_id, _size, _sub>::buffer[_suboff] ) = cfBEu16( _sub );
 		  PacketWriter<_id, _size, _sub>::offset = 1;
 		};
-		inline u16 getSubID() { return _sub; };
+		inline u16 getSubID() const { return _sub; };
 	  };
 
 	  //special def for encrypted buffer
@@ -336,8 +336,8 @@ namespace Pol {
 		  memset( buffer, 0, _size );
 		  offset = 0;
 		};
-		char* getBuffer() { return &buffer[offset]; };
-		inline u8 getID() { return _id; };
+        char* getBuffer() { return &buffer[offset]; };
+        inline u8 getID() const { return _id; };
 	  };
 
 	}
@@ -378,7 +378,7 @@ namespace Pol {
 		  ReAddPacket( pkt );
 		  pkt = 0;
 		};
-		void Send( Client* client, int len = -1 )
+		void Send( Client* client, int len = -1 ) const
 		{
 		  if ( pkt == 0 )
 			return;
@@ -388,7 +388,7 @@ namespace Pol {
 		};
 		// be really really careful with this function
 		// needs PolLock
-		void SendDirect( Client* client, int len = -1 )
+		void SendDirect( Client* client, int len = -1 ) const
 		{
 		  if ( pkt == 0 )
 			return;

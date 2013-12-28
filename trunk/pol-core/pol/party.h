@@ -40,9 +40,9 @@ namespace Pol {
 	public:
 	  explicit Party( Clib::ConfigElem& elem );
 	  explicit Party( u32 serial );
-	  bool is_leader( u32 serial );
-	  bool is_member( u32 serial );
-	  bool is_candidate( u32 serial );
+	  bool is_leader( u32 serial ) const;
+      bool is_member( u32 serial ) const;
+      bool is_candidate( u32 serial ) const;
 	  bool register_with_members();
 	  bool add_candidate( u32 serial );
 	  bool add_member( u32 serial );
@@ -53,19 +53,19 @@ namespace Pol {
 	  void set_leader( u32 serial );
 	  void send_remove_member( Mobile::Character* chr, bool* disband );
 	  void send_member_list( Mobile::Character* to_chr );
-	  void send_msg_to_all( unsigned int clilocnr, const char* affix = 0, Mobile::Character* exeptchr = NULL );
-	  bool test_size();
-	  bool can_add();
+	  void send_msg_to_all( unsigned int clilocnr, const char* affix = 0, Mobile::Character* exeptchr = NULL ) const;
+	  bool test_size() const;
+	  bool can_add() const;
 	  void disband();
-	  void send_stat_to( Mobile::Character* chr, Mobile::Character* bob );
-	  void send_stats_on_add( Mobile::Character* newmember );
-	  void on_mana_changed( Mobile::Character* chr );
-	  void on_stam_changed( Mobile::Character* chr );
-	  void send_member_msg_public( Mobile::Character* chr, u16* wtext, size_t wtextlen );
-	  void send_member_msg_private( Mobile::Character* chr, Mobile::Character* tochr, u16* wtext, size_t wtextlen );
-	  u32 leader();
+	  void send_stat_to( Mobile::Character* chr, Mobile::Character* bob ) const;
+	  void send_stats_on_add( Mobile::Character* newmember ) const;
+	  void on_mana_changed( Mobile::Character* chr ) const;
+	  void on_stam_changed( Mobile::Character* chr ) const;
+	  void send_member_msg_public( Mobile::Character* chr, u16* wtext, size_t wtextlen ) const;
+	  void send_member_msg_private( Mobile::Character* chr, Mobile::Character* tochr, u16* wtext, size_t wtextlen ) const;
+	  u32 leader() const;
 	  void printOn( Clib::StreamWriter& sw ) const;
-	  u32 get_member_at( unsigned short pos );
+	  u32 get_member_at( unsigned short pos ) const;
 	  void cleanup();
 
 	  friend class Module::EPartyRefObjImp;

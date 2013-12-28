@@ -90,21 +90,17 @@ namespace Pol {
 
 	int get_toplevel_item_count()
 	{
-      std::vector<Plib::Realm*>::const_iterator itr;
-
 	  int count = 0;
-	  for ( itr = Realms->begin(); itr != Realms->end(); ++itr )
-		count += ( *itr )->toplevel_item_count;
+	  for ( const auto &realm : *Realms)
+        count += realm->toplevel_item_count;
 	  return count;
 	}
 
 	int get_mobile_count()
 	{
-      std::vector<Plib::Realm*>::const_iterator itr;
-
 	  int count = 0;
-	  for ( itr = Realms->begin(); itr != Realms->end(); ++itr )
-		count += ( *itr )->mobile_count;
+      for ( const auto &realm : *Realms )
+        count += realm->mobile_count;
 	  return count;
 	}
 

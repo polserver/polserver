@@ -134,18 +134,13 @@ namespace Pol {
 	  {
 		for ( unsigned short wy = wyL; wy <= wyH; ++wy )
 		{
-		  ZoneCharacters& wchr = realm->zone[wx][wy].characters;
-
-		  for ( ZoneCharacters::iterator itr = wchr.begin(), end = wchr.end(); itr != end; ++itr )
-		  {
-			Mobile::Character* chr = *itr;
+          for (auto &chr : realm->zone[wx][wy].characters)
 			( *f )( chr, staticdata );
-		  }
 		}
 	  }
 	}
 	template <class A>
-	void ForEachMobileInVisualRange( Mobile::Character* chr,
+	void ForEachMobileInVisualRange( const Mobile::Character* chr,
 									 void( *f )( Mobile::Character*, A* staticdata ), A* staticdata )
 	{
 	  ForEachMobileInRange( chr->x, chr->y, chr->realm, RANGE_VISUAL, f, staticdata );
@@ -165,18 +160,13 @@ namespace Pol {
 	  {
 		for ( unsigned short wy = wyL; wy <= wyH; ++wy )
 		{
-		  ZoneItems& wchr = realm->zone[wx][wy].items;
-
-		  for ( ZoneItems::iterator itr = wchr.begin(), end = wchr.end(); itr != end; ++itr )
-		  {
-			Items::Item* item = *itr;
-			( *f )( item, staticdata );
-		  }
+          for (auto &item : realm->zone[wx][wy].items)
+            ( *f )( item, staticdata );
 		}
 	  }
 	}
 	template <class A>
-	void ForEachItemInVisualRange( Mobile::Character* chr,
+	void ForEachItemInVisualRange( const Mobile::Character* chr,
 								   void( *f )( Items::Item*, A* staticdata ), A* staticdata )
 	{
 	  ForEachItemInRange( chr->x, chr->y, chr->realm, RANGE_VISUAL, f, staticdata );
