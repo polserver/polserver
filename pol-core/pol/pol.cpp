@@ -176,6 +176,7 @@ Notes
 namespace Pol {
   namespace Bscript {
     void display_executor_instances();
+    void display_bobjectimp_instances();
   }
   namespace Items {
     void unload_itemdesc_scripts();
@@ -1375,7 +1376,7 @@ namespace Pol {
 		  passert( sleeptime > 0 );
 
 		  TRACEBUF_ADDELEM( "tasks wait_for_pulse now", polclock() );
-		  TRACEBUF_ADDELEM( "tasks wait_for_pulse sleeptime", sleeptime );
+          TRACEBUF_ADDELEM( "tasks wait_for_pulse sleeptime", sleeptime );
 
 		  THREAD_CHECKPOINT( tasks, 8 );
 		  tasks_thread_sleep( polticks_t_to_ms( sleeptime ) );
@@ -1409,7 +1410,7 @@ namespace Pol {
 		{
 		  PolLock lck;
 		  polclock_checkin();
-		  TRACEBUF_ADDELEM( "scripts thread now", polclock() );
+          TRACEBUF_ADDELEM( "scripts thread now", polclock( ) );
 		  ++script_passes;
 		  THREAD_CHECKPOINT( scripts, 1 );
 
@@ -1778,7 +1779,7 @@ namespace Pol {
 	}
 
 	void display_unreaped_orphan_instances();
-	void display_bobjectimp_instances();
+	
 	void display_reftypes();
 
 	void display_leftover_objects()
@@ -1786,7 +1787,7 @@ namespace Pol {
 	  Bscript::display_executor_instances();
 	  display_unreaped_orphan_instances();
 #if BOBJECTIMP_DEBUG
-	  display_bobjectimp_instances();
+	  Bscript::display_bobjectimp_instances();
 #endif
 	  display_reftypes();
 	  ofstream ofs;

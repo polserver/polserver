@@ -324,6 +324,10 @@ dyndebug: $(objects_debug)
 
 clean:
 	find . -type f -name \*.o -delete
+	find ../lib/format -type f -name \*.o -delete
+	find ../lib/safeint -type f -name \*.o -delete
+	find ../lib/tinyxml -type f -name \*.o -delete
+	find ../lib/zlib -type f -name \*.o -delete
 	rm -f pol.map
 	rm -f bin/*
 	rm -rf dist/scripts

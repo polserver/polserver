@@ -54,11 +54,10 @@ namespace Pol {
 	  name_( name )
 	{
 	  //memset( &regionidx_, 0, sizeof regionidx_ );
-      std::vector<Plib::Realm*>::const_iterator itr;
-	  for ( itr = Realms->begin(); itr != Realms->end(); ++itr )
+	  for ( const auto& realm : *Realms)
 	  {
-		unsigned int gridwidth = ( *itr )->width() / ZONE_SIZE;
-		unsigned int gridheight = ( *itr )->height() / ZONE_SIZE;
+        unsigned int gridwidth = realm->width( ) / ZONE_SIZE;
+        unsigned int gridheight = realm->height( ) / ZONE_SIZE;
 
 		// Tokuno-Fix removed Turley, 2009/09/08 (for ZONE_SIZE 4 not needed)
 		/*if (gridwidth * ZONE_SIZE < (*itr)->width())
@@ -76,30 +75,28 @@ namespace Pol {
 			zone[i][j] = 0;
 		  }
 		}
-		regionrealms.insert( make_pair( *itr, zone ) );
+		regionrealms.insert( make_pair( realm, zone ) );
 	  }
 	}
 	RegionGroupBase::~RegionGroupBase()
 	{
-	  RegionRealms::iterator itr;
-	  for ( itr = regionrealms.begin(); itr != regionrealms.end(); ++itr )
+	  for ( auto &realm : regionrealms)
 	  {
-		unsigned int gridwidth = itr->first->width() / ZONE_SIZE;
+		unsigned int gridwidth = realm.first->width() / ZONE_SIZE;
 
 		// Tokuno-Fix removed Turley, 2009/09/08 (for ZONE_SIZE 4 not needed)
 		/*if (gridwidth * ZONE_SIZE < itr->first->width())
 		  gridwidth++;*/
 
 		for ( unsigned int i = 0; i < gridwidth; i++ )
-		  delete[] itr->second[i];
-		delete[] itr->second;
+		  delete[] realm.second[i];
+		delete[] realm.second;
 	  }
 
 	  // cleans the regions_ vector...
-	  std::vector<Region*>::iterator reg_itr = regions_.begin(), reg_end = regions_.end();
-	  for ( ; reg_itr != reg_end; ++reg_itr )
+	  for ( auto &region : regions_ )
 	  {
-		delete *reg_itr;
+        delete region;
 	  }
 	  regions_.clear();
 

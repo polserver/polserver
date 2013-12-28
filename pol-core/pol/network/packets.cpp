@@ -112,9 +112,9 @@ namespace Pol {
 
 	PacketsSingleton::~PacketsSingleton()
 	{
-	  for ( PacketQueueMap::iterator itr = packets.begin(), end = packets.end(); itr != end; ++itr )
+      for (auto &pkts : packets )
 	  {
-		delete ( *itr ).second;
+        delete pkts.second;
 	  }
 	  packets.clear();
 	}
@@ -179,12 +179,12 @@ namespace Pol {
 
 	PacketQueueSubs::~PacketQueueSubs()
 	{
-	  for ( PacketInterfaceQueueMap::iterator itr = packets.begin(), end = packets.end(); itr != end; ++itr )
+      for ( auto& pkts : packets )
 	  {
-		while ( !itr->second.empty() )
+        while ( !pkts.second.empty( ) )
 		{
-		  PacketInterface* pkt = itr->second.front();
-		  itr->second.pop();
+          PacketInterface* pkt = pkts.second.front( );
+          pkts.second.pop( );
 		  delete pkt;
 		}
 	  }
@@ -237,12 +237,12 @@ namespace Pol {
 	  //critical end
 	}
 
-	size_t PacketQueueSubs::Count()
+	size_t PacketQueueSubs::Count() const
 	{
 	  size_t count = 0;
-	  for ( PacketInterfaceQueueMap::iterator it = packets.begin(), itrend = packets.end(); it != itrend; ++it )
+	  for ( const auto& pkts : packets )
 	  {
-		count += it->second.size();
+        count += pkts.second.size( );
 	  }
 	  return count;
 	}
