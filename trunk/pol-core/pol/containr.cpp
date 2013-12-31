@@ -516,7 +516,7 @@ namespace Pol {
 		*p = 6;
 	  }
 
-	  iterator itr = Clib::find_in( contents_, item );
+	  iterator itr = std::find(contents_.begin(),contents_.end(), item );
 	  passert_always( itr != contents_.end() );
 
 	  //DAVE added this 11/17. refresh owner's weight on delete

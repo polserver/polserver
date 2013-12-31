@@ -43,6 +43,7 @@ Notes
 #include "uvars.h"
 #include "ufunc.h"
 #include "ufuncstd.h"
+#include "uworld.h"
 
 #include "module/guildmod.h"
 
@@ -149,37 +150,34 @@ namespace Pol {
 		}
 	  }
 	  // send to those nearby
-	  for ( unsigned cli = 0; cli < clients.size(); cli++ )
-	  {
-		Client *client2 = clients[cli];
-		if ( !client2->ready ) continue;
-		if ( client == client2 ) continue;
-		if ( !client2->chr->is_visible_to_me( client->chr ) )
-		  continue;
-		if ( client2->chr->deafened() ) continue;
+      u16 range;
+      if ( type == Core::TEXTTYPE_WHISPER )
+        range = Core::ssopt.whisper_range;
+      else if ( type == Core::TEXTTYPE_YELL )
+        range = Core::ssopt.yell_range;
+      else
+        range = Core::ssopt.speech_range;
+      Core::ForEachPlayerInRange( client->chr->x, client->chr->y, client->chr->realm, range, [&]( Mobile::Character *chr )
+      {
+        if ( !chr->has_active_client() )
+          return;
+        Network::Client* client2 = chr->client;
+        if ( client == client2 ) return;
+        if ( !client2->chr->is_visible_to_me( client->chr ) ) return;
+        if ( client2->chr->deafened( ) ) return;
 
-		bool rangeok;
-		if ( type == TEXTTYPE_WHISPER )
-		  rangeok = in_whisper_range( client->chr, client2->chr );
-		else if ( type == TEXTTYPE_YELL )
-		  rangeok = in_yell_range( client->chr, client2->chr );
-		else
-		  rangeok = in_say_range( client->chr, client2->chr );
-		if ( rangeok )
-		{
-		  if ( !client->chr->dead() ||
-			   client2->chr->dead() ||
-			   client2->chr->can_hearghosts() ||
-			   client->chr->can_be_heard_as_ghost() )
-		  {
-			talkmsg.Send( client2, len );
-		  }
-		  else
-		  {
-			ghostmsg.Send( client2, len );
-		  }
-		}
-	  }
+        if ( !client->chr->dead() ||
+             client2->chr->dead() ||
+             client2->chr->can_hearghosts() ||
+             client->chr->can_be_heard_as_ghost() )
+        {
+          talkmsg.Send( client2, len );
+        }
+        else
+        {
+          ghostmsg.Send( client2, len );
+        }
+      } );
 
 	  if ( !client->chr->dead() )
 		for_nearby_npcs( pc_spoke, client->chr, textbuf, textbuflen, type );
@@ -330,37 +328,34 @@ namespace Pol {
 		  }
 		}
 		// send to those nearby
-		for ( unsigned cli = 0; cli < clients.size(); cli++ )
-		{
-		  Client *client2 = clients[cli];
-		  if ( !client2->ready ) continue;
-		  if ( client == client2 ) continue;
-		  if ( !client2->chr->is_visible_to_me( client->chr ) )
-			continue;
-		  if ( client2->chr->deafened() ) continue;
+        u16 range;
+        if ( msgin->type == Core::TEXTTYPE_WHISPER )
+          range = Core::ssopt.whisper_range;
+        else if ( msgin->type == Core::TEXTTYPE_YELL )
+          range = Core::ssopt.yell_range;
+        else
+          range = Core::ssopt.speech_range;
+        Core::ForEachPlayerInRange( client->chr->x, client->chr->y, client->chr->realm, range, [&]( Mobile::Character *chr )
+        {
+          if ( !chr->has_active_client() )
+            return;
+          Network::Client* client2 = chr->client;
+          if ( client == client2 ) return;
+          if ( !client2->chr->is_visible_to_me( client->chr ) ) return;
+          if ( client2->chr->deafened() ) return;
 
-		  bool rangeok;
-		  if ( msgin->type == TEXTTYPE_WHISPER )
-			rangeok = in_whisper_range( client->chr, client2->chr ); //DAVE changed from hardcoded "2"
-		  else if ( msgin->type == TEXTTYPE_YELL )
-			rangeok = in_yell_range( client->chr, client2->chr ); //DAVE changed from hardcoded "25"
-		  else
-			rangeok = in_say_range( client->chr, client2->chr ); //DAVE changed from "visual" range check, should be "say" range check.
-		  if ( rangeok )
-		  {
-			if ( !client->chr->dead() ||
-				 client2->chr->dead() ||
-				 client2->chr->can_hearghosts() ||
-				 client->chr->can_be_heard_as_ghost() )
-			{
-			  talkmsg.Send( client2, len );
-			}
-			else
-			{
-			  ghostmsg.Send( client2, len );
-			}
-		  }
-		}
+          if ( !client->chr->dead( ) ||
+               client2->chr->dead( ) ||
+               client2->chr->can_hearghosts( ) ||
+               client->chr->can_be_heard_as_ghost( ) )
+          {
+            talkmsg.Send( client2, len );
+          }
+          else
+          {
+            ghostmsg.Send( client2, len );
+          }
+        } );
 
 		if ( !client->chr->dead() )
 		  for_nearby_npcs( pc_spoke, client->chr, ntext, static_cast<int>( ntextlen ), msgin->type,

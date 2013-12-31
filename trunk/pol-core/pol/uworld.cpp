@@ -32,7 +32,7 @@ namespace Pol {
 	{
 	  Zone& zone = getzone( item->x, item->y, item->realm );
 
-	  passert( Clib::find_in( zone.items, item ) == zone.items.end() );
+      passert( std::find( zone.items.begin(), zone.items.end(), item ) == zone.items.end() );
 
 	  ++item->realm->toplevel_item_count;
 	  zone.items.push_back( item );
@@ -42,7 +42,7 @@ namespace Pol {
 	{
 	  Zone& zone = getzone( item->x, item->y, item->realm );
 
-	  ZoneItems::iterator itr = Clib::find_in( zone.items, item );
+      ZoneItems::iterator itr = std::find( zone.items.begin(), zone.items.end(), item );
 	  if ( itr == zone.items.end() )
 	  {
         Clib::Log2( "remove_item_from_world: item 0x%lx at %d,%d does not exist in world zone ( Old Serial: 0x%2x )\n",
@@ -64,7 +64,7 @@ namespace Pol {
 	void remove_multi_from_world( Multi::UMulti* multi )
 	{
 	  Zone& zone = getzone( multi->x, multi->y, multi->realm );
-	  ZoneMultis::iterator itr = Clib::find_in( zone.multis, multi );
+      ZoneMultis::iterator itr = std::find( zone.multis.begin(), zone.multis.end(), multi );
 
 	  passert( itr != zone.multis.end() );
 
@@ -80,7 +80,7 @@ namespace Pol {
 
 	  if ( &oldzone != &newzone )
 	  {
-		ZoneMultis::iterator itr = Clib::find_in( oldzone.multis, multi );
+        ZoneMultis::iterator itr = std::find( oldzone.multis.begin( ), oldzone.multis.end( ), multi );
 		passert( itr != oldzone.multis.end() );
 		oldzone.multis.erase( itr );
 
@@ -104,24 +104,25 @@ namespace Pol {
 	  return count;
 	}
 
-
-	World::World() :
-	  toplevel_item_count( 0 ),
-	  mobile_count( 0 )
-	{}
-
 	//4-17-04 Rac destroyed the world! in favor of splitting its duties amongst the realms
 	//World world;
 
     void SetCharacterWorldPosition( Mobile::Character* chr )
-	{
-	  Zone& zone = getzone( chr->x, chr->y, chr->realm );
+    {
+      Zone& zone = getzone( chr->x, chr->y, chr->realm );
 
-	  passert( !zone.characters.count( chr ) );
+      auto set_pos = [&]( ZoneCharacters &set )
+      {
+        passert( std::find( set.begin(), set.end(), chr ) == set.end() );
+        ++chr->realm->mobile_count;
+        set.push_back( chr );
+      };
 
-	  ++chr->realm->mobile_count;
-	  zone.characters.insert( chr );
-	}
+      if ( chr->isa( Core::UObject::CLASS_NPC ) )
+        set_pos( zone.npcs );
+      else
+        set_pos( zone.characters );
+    }
 
 	void ClrCharacterWorldPosition( Mobile::Character* chr, const char* reason )
 	{
@@ -135,24 +136,44 @@ namespace Pol {
 	  if ( wgridy * WGRID_SIZE < chr->realm->height() )
 		wgridy++;
 
-	  if ( !zone.characters.count( chr ) )
-	  {
-		Clib::Log( "ClrCharacterWorldPosition(%s): mob (0x%lx,0x%lx) supposedly at (%d,%d) isn't in correct zone\n",
-			 reason, chr->serial, chr->serial_ext, chr->x, chr->y );
-		for ( unsigned zonex = 0; zonex < wgridx; ++zonex )
-		{
-		  for ( unsigned zoney = 0; zoney < wgridy; ++zoney )
-		  {
-			if ( zone.characters.count( chr ) )
-			  Clib::Log( "ClrCharacterWorldPosition: Found mob in zone (%d,%d)\n",
-			  zonex, zoney );
-		  }
-		}
-		passert( zone.characters.count( chr ) );
-	  }
+      auto clear_pos = [&]( ZoneCharacters &set )
+      {
+        auto itr = std::find( set.begin(), set.end(), chr );
+        if ( itr == set.end() )
+        {
+          Clib::Log( "ClrCharacterWorldPosition(%s): mob (0x%lx,0x%lx) supposedly at (%d,%d) isn't in correct zone\n",
+                     reason, chr->serial, chr->serial_ext, chr->x, chr->y );
+          bool is_npc = chr->isa( Core::UObject::CLASS_NPC );
+          for ( unsigned zonex = 0; zonex < wgridx; ++zonex )
+          {
+            for ( unsigned zoney = 0; zoney < wgridy; ++zoney )
+            {
+              bool found = false;
+              if ( is_npc )
+              {
+                auto _z = chr->realm->zone[zonex][zoney].npcs;
+                found = std::find( _z.begin(), _z.end(), chr ) != _z.end();
+              }
+              else
+              {
+                auto _z = chr->realm->zone[zonex][zoney].characters;
+                found = std::find( _z.begin(), _z.end(), chr ) != _z.end();
+              }
+              if ( found )
+                Clib::Log( "ClrCharacterWorldPosition: Found mob in zone (%d,%d)\n",
+                zonex, zoney );
+            }
+          }
+          passert( itr != set.end() );
+        }
+        --chr->realm->mobile_count;
+        set.erase( itr );
+      };
 
-	  --chr->realm->mobile_count;
-	  zone.characters.erase( chr );
+      if ( !chr->isa( Core::UObject::CLASS_NPC ) )
+        clear_pos( zone.characters );
+      else
+        clear_pos( zone.npcs );
 	}
 
 	void MoveCharacterWorldPosition( unsigned short oldx, unsigned short oldy,
@@ -166,17 +187,24 @@ namespace Pol {
 
 	  if ( &oldzone != &newzone )
 	  {
-		passert( oldzone.characters.count( chr ) );
-		passert( !newzone.characters.count( chr ) );
+        auto move_pos = [&]( ZoneCharacters &oldset, ZoneCharacters &newset )
+        {
+          passert( std::find( oldset.begin(), oldset.end(), chr ) != oldset.end() );
+          passert( std::find( newset.begin(), newset.end(), chr ) == newset.end() );
 
-		oldzone.characters.erase( chr );
+          oldset.erase( std::find( oldset.begin(), oldset.end(), chr ) );
 
-		newzone.characters.insert( chr );
-		if ( chr->realm != oldrealm )
-		{
-		  --oldrealm->mobile_count;
-		  ++chr->realm->mobile_count;
-		}
+          newset.push_back( chr );
+          if ( chr->realm != oldrealm )
+          {
+            --oldrealm->mobile_count;
+            ++chr->realm->mobile_count;
+          }
+        };
+        if ( !chr->isa( Core::UObject::CLASS_NPC ) )
+          move_pos( oldzone.characters, newzone.characters );
+        else
+          move_pos( oldzone.npcs, newzone.npcs );
 	  }
 	}
 
@@ -190,7 +218,7 @@ namespace Pol {
 
 	  if ( &oldzone != &newzone )
 	  {
-		ZoneItems::iterator itr = Clib::find_in( oldzone.items, item );
+        ZoneItems::iterator itr = std::find( oldzone.items.begin(), oldzone.items.end(), item );
 
 		if ( itr == oldzone.items.end() )
 		{
@@ -202,7 +230,7 @@ namespace Pol {
 
 		oldzone.items.erase( itr );
 
-		passert( Clib::find_in( newzone.items, item ) == newzone.items.end() );
+        passert( std::find( newzone.items.begin(), newzone.items.end(), item ) == newzone.items.end() );
 		newzone.items.push_back( item );
 	  }
 	}
@@ -215,21 +243,20 @@ namespace Pol {
 	  {
 		ZoneItems& witem = realm->zone[x][y].items;
 
-		for ( ZoneItems::iterator itr = witem.begin(), end = witem.end(); itr != end; ++itr )
-		{
-		  Items::Item* item = *itr;
-		  unsigned short wx, wy;
-		  zone_convert( item->x, item->y, wx, wy, realm );
-		  if ( wx != x || wy != y )
-		  {
+        for ( const auto &item : witem )
+        {
+          unsigned short wx, wy;
+          zone_convert( item->x, item->y, wx, wy, realm );
+          if ( wx != x || wy != y )
+          {
             Clib::Log( "Item 0x%lx in zone (%d,%d) but location is (%d,%d) (zone %d,%d)\n",
-				 item->serial,
-				 x, y,
-				 item->x, item->y,
-				 wx, wy );
-			return false;
-		  }
-		}
+                       item->serial,
+                       x, y,
+                       item->x, item->y,
+                       wx, wy );
+            return false;
+          }
+        }
 	  }
 	  catch ( ... )
 	  {
@@ -243,11 +270,8 @@ namespace Pol {
 	bool check_item_integrity()
 	{
 	  bool ok = true;
-      std::vector<Plib::Realm*>::iterator itr;
-	  for ( itr = Realms->begin(); itr != Realms->end(); ++itr )
+	  for ( auto &realm : *Realms )
 	  {
-        Plib::Realm* realm = *itr;
-
 		unsigned int gridwidth = realm->width() / WGRID_SIZE;
 		unsigned int gridheight = realm->height() / WGRID_SIZE;
 
@@ -282,11 +306,8 @@ namespace Pol {
 	  //        cout << "Character " << chr->serial << " at " << chr->x << "," << chr->y << " is not in its zone." << endl;
 	  //    }
 	  //}
-      std::vector<Plib::Realm*>::iterator itr;
-	  for ( itr = Realms->begin(); itr != Realms->end(); ++itr )
+	  for ( auto &realm : *Realms )
 	  {
-        Plib::Realm* realm = *itr;
-
 		unsigned int gridwidth = realm->width() / WGRID_SIZE;
 		unsigned int gridheight = realm->height() / WGRID_SIZE;
 
@@ -296,23 +317,52 @@ namespace Pol {
 		if ( gridheight * WGRID_SIZE < realm->height() )
 		  gridheight++;
 
+        auto check_zone = []( Mobile::Character* chr, unsigned y, unsigned x )
+        {
+          unsigned short wx, wy;
+          zone_convert( chr->x, chr->y, wx, wy, chr->realm );
+          if ( wx != x || wy != y )
+            cout << "Character " << chr->serial << " in a zone, but elsewhere" << endl;
+        };
+
 		for ( unsigned x = 0; x < gridwidth; ++x )
 		{
 		  for ( unsigned y = 0; y < gridheight; ++y )
 		  {
-			ZoneCharacters& wchr = realm->zone[x][y].characters;
-
-			for ( ZoneCharacters::iterator citr = wchr.begin(), end = wchr.end(); citr != end; ++citr )
-			{
-			  Mobile::Character* chr = *citr;
-			  unsigned short wx, wy;
-			  zone_convert( chr->x, chr->y, wx, wy, chr->realm );
-			  if ( wx != x || wy != y )
-				cout << "Character " << chr->serial << " in a zone, but elsewhere" << endl;
-			}
+            for ( const auto &chr : realm->zone[x][y].characters )
+              check_zone( chr, y, x );
+            for ( const auto &chr : realm->zone[x][y].npcs )
+              check_zone( chr, y, x );
 		  }
 		}
 	  }
 	}
+
+    // reallocates all vectors to fit the current size
+    void optimize_zones( )
+    {
+      for ( auto &realm : *Realms )
+      {
+        unsigned int gridwidth = realm->width( ) / WGRID_SIZE;
+        unsigned int gridheight = realm->height( ) / WGRID_SIZE;
+
+        // Tokuno-Fix
+        if ( gridwidth * WGRID_SIZE < realm->width( ) )
+          gridwidth++;
+        if ( gridheight * WGRID_SIZE < realm->height( ) )
+          gridheight++;
+
+        for ( unsigned x = 0; x < gridwidth; ++x )
+        {
+          for ( unsigned y = 0; y < gridheight; ++y )
+          {
+            realm->zone[x][y].characters.shrink_to_fit();
+            realm->zone[x][y].npcs.shrink_to_fit();
+            realm->zone[x][y].items.shrink_to_fit();
+            realm->zone[x][y].multis.shrink_to_fit();
+          }
+        }
+      }
+    }
   }
 }

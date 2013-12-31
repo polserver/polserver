@@ -493,11 +493,8 @@ namespace Pol {
 	{
 	  unsigned short wx, wy;
 	  zone_convert( x, y, wx, wy, realm );
-	  ZoneItems& witem = realm->zone[wx][wy].items;
-	  for ( ZoneItems::iterator itr = witem.begin(), end = witem.end(); itr != end; ++itr )
+      for ( auto &item : realm->zone[wx][wy].items)
 	  {
-		Items::Item* item = *itr;
-
 		// FIXME won't find doors which have been perturbed
 		if ( item->objtype_ == objtype &&
 			 item->x == x &&
@@ -616,6 +613,10 @@ namespace Pol {
 			{
 			  ( *f )( z_chr );
 			}
+            for ( auto &z_chr : realm->zone[wx][wy].npcs )
+            {
+              ( *f )( z_chr );
+            }
 		  }
 		}
 	  }
@@ -1092,7 +1093,8 @@ namespace Pol {
 	  SaveContext::ready();  // allow only one active
 	  if ( !should_write_data() )
 	  {
-		dirty_writes = clean_writes = elapsed_ms = 0;
+        dirty_writes = clean_writes = 0;
+        elapsed_ms = 0;
 		return -1;
 	  }
 
@@ -1210,7 +1212,9 @@ namespace Pol {
 	  commit_incremental_saves();
 	  incremental_save_count = 0;
 	  timer.stop();
-	  objecthash.ClearDeleted();
+      objecthash.ClearDeleted();
+      optimize_zones(); // shrink zone vectors
+
 	  // cout << "Clean: " << UObject::clean_writes << " Dirty: " <<
 	  // UObject::dirty_writes << endl;
 	  clean_writes = UObject::clean_writes;

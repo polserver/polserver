@@ -66,64 +66,43 @@ namespace Pol {
 								MobileList& chrs_in )
 	{
 	  const MultiDef& md = house->multidef();
-	  unsigned short wxL, wyL, wxH, wyH;
 	  short x1 = house->x + md.minrx, y1 = house->y + md.minry;
 	  short x2 = house->x + md.maxrx, y2 = house->y + md.maxry;
-	  Core::zone_convert_clip( x1, y1, house->realm, wxL, wyL );
-      Core::zone_convert_clip( x2, y2, house->realm, wxH, wyH );
-	  for ( unsigned short wx = wxL; wx <= wxH; ++wx )
-	  {
-		for ( unsigned short wy = wyL; wy <= wyH; ++wy )
-		{
-          Core::ZoneCharacters& wchr = house->realm->zone[wx][wy].characters;
-          for ( Core::ZoneCharacters::iterator itr = wchr.begin( ), end = wchr.end( ); itr != end; ++itr )
-		  {
-			Mobile::Character* chr = *itr;
-			if ( chr->x >= x1 && chr->x <= x2 &&
-				 chr->y >= y1 && chr->y <= y2 )
-			{
-			  Items::Item* walkon;
-			  UMulti* multi;
-			  short newz;
-			  if ( house->realm->walkheight( chr, chr->x, chr->y, chr->z, &newz, &multi, &walkon ) )
-			  {
-				if ( const_cast<const UMulti*>( multi ) == house )
-				  chrs_in.push_back( chr );
-			  }
-			}
-		  }
 
-          Core::ZoneItems& witem = house->realm->zone[wx][wy].items;
-          for ( Core::ZoneItems::iterator itr = witem.begin( ), end = witem.end( ); itr != end; ++itr )
-		  {
-			Items::Item* item = *itr;
-			if ( item->x >= x1 && item->x <= x2 &&
-				 item->y >= y1 && item->y <= y2 )
-			{
-			  Items::Item* walkon;
-			  UMulti* multi;
-			  short newz;
-			  unsigned short sx = item->x;
-			  unsigned short sy = item->y;
-			  item->x = 0;    // move 'self' a bit so it doesn't interfere with itself
-			  item->y = 0;
-			  bool res = house->realm->walkheight( sx, sy, item->z, &newz, &multi, &walkon, true, Core::MOVEMODE_LAND );
-			  item->x = sx;
-			  item->y = sy;
-			  if ( res )
-			  {
-				if ( const_cast<const UMulti*>( multi ) == house )
-				{
-                  if ( Core::tile_flags( item->graphic ) & Plib::FLAG::WALKBLOCK )
-					items_in.push_front( item );
-				  else
-					items_in.push_back( item );
-				}
-			  }
-			}
-		  }
-		}
-	  }
+      Core::ForEachMobileInBox( x1, y1, x2, y2, house->realm, [&]( Mobile::Character* chr )
+      {
+        Items::Item* walkon;
+        UMulti* multi;
+        short newz;
+        if ( house->realm->walkheight( chr, chr->x, chr->y, chr->z, &newz, &multi, &walkon ) )
+        {
+          if ( const_cast<const UMulti*>( multi ) == house )
+            chrs_in.push_back( chr );
+        }
+      } );
+      Core::ForEachItemInBox( x1, y1, x2, y2, house->realm, [&]( Items::Item* item )
+      {
+        Items::Item* walkon;
+        UMulti* multi;
+        short newz;
+        unsigned short sx = item->x;
+        unsigned short sy = item->y;
+        item->x = 0;    // move 'self' a bit so it doesn't interfere with itself
+        item->y = 0;
+        bool res = house->realm->walkheight( sx, sy, item->z, &newz, &multi, &walkon, true, Core::MOVEMODE_LAND );
+        item->x = sx;
+        item->y = sy;
+        if ( res )
+        {
+          if ( const_cast<const UMulti*>( multi ) == house )
+          {
+            if ( Core::tile_flags( item->graphic ) & Plib::FLAG::WALKBLOCK )
+              items_in.push_front( item );
+            else
+              items_in.push_back( item );
+          }
+        }
+      } );
 	}
 
 	UHouse::UHouse( const Items::ItemDesc& itemdesc ) : UMulti( itemdesc ),
@@ -185,23 +164,21 @@ namespace Pol {
 	  return arr.release();
 	}
 
-    Bscript::ObjArray* UHouse::items_list( ) const
-	{
-	  ItemList itemlist;
-	  MobileList moblist;
-	  list_contents( this, itemlist, moblist );
+    Bscript::ObjArray* UHouse::items_list() const
+    {
+      ItemList itemlist;
+      MobileList moblist;
+      list_contents( this, itemlist, moblist );
       std::unique_ptr<Bscript::ObjArray> arr( new Bscript::ObjArray );
-	  for ( ItemList::iterator itr = itemlist.begin(); itr != itemlist.end(); ++itr )
-	  {
-		Items::Item* item = ( *itr );
-
-		if ( Clib::const_find_in( components_, Component( item ) ) == components_.end() )
-		{
-		  arr->addElement( new Module::EItemRefObjImp( item ) );
-		}
-	  }
-	  return arr.release();
-	}
+      for ( auto &item : itemlist )
+      {
+        if ( std::find( components_.cbegin(), components_.cend(), Component( item ) ) == components_.cend() )
+        {
+          arr->addElement( new Module::EItemRefObjImp( item ) );
+        }
+      }
+      return arr.release();
+    }
 
     Bscript::ObjArray* UHouse::mobiles_list( ) const
 	{
@@ -209,9 +186,8 @@ namespace Pol {
 	  MobileList moblist;
 	  list_contents( this, itemlist, moblist );
       std::unique_ptr<Bscript::ObjArray> arr( new Bscript::ObjArray );
-	  for ( MobileList::iterator itr = moblist.begin(); itr != moblist.end(); ++itr )
+	  for ( auto &chr : moblist )
 	  {
-		Mobile::Character* chr = ( *itr );
         arr->addElement( new Module::ECharacterRefObjImp( chr ) );
 	  }
 	  return arr.release();
@@ -669,19 +645,16 @@ namespace Pol {
 	  {
 		for ( unsigned short wy = wyL; wy <= wyH; ++wy )
 		{
-          Core::ZoneMultis& wmulti = realm->zone[wx][wy].multis;
-
-          for ( Core::ZoneMultis::iterator itr = wmulti.begin( ), end = wmulti.end( ); itr != end; ++itr )
+          for ( const auto &multi : realm->zone[wx][wy].multis )
 		  {
-			UMulti* it = ( *itr );
-			const MultiDef& edef = it->multidef();
+            const MultiDef& edef = multi->multidef( );
 			// find out if any of our walls would fall within its footprint. 
 			unsigned short itswest, itseast, itsnorth, itssouth;
 
-			itswest = static_cast<unsigned short>( it->x + edef.minrx );
-			itseast = static_cast<unsigned short>( it->x + edef.maxrx );
-			itsnorth = static_cast<unsigned short>( it->y + edef.minry );
-			itssouth = static_cast<unsigned short>( it->y + edef.maxry );
+            itswest = static_cast<unsigned short>( multi->x + edef.minrx );
+            itseast = static_cast<unsigned short>( multi->x + edef.maxrx );
+            itsnorth = static_cast<unsigned short>( multi->y + edef.minry );
+            itssouth = static_cast<unsigned short>( multi->y + edef.maxry );
 
 			if ( mynorth >= itsnorth && mynorth <= itssouth )         // North
 			{
@@ -728,31 +701,31 @@ namespace Pol {
 	  unsigned short wxL, wyL, wxH, wyH;
       Core::zone_convert_clip( x1, y1, realm, wxL, wyL );
       Core::zone_convert_clip( x2, y2, realm, wxH, wyH );
+      auto includes = [&]( Core::UObject *obj )
+      {
+        if ( obj->x >= x1 && obj->x <= x2 &&
+             obj->y >= y1 && obj->y <= y2 )
+          {
+            return true;
+          }
+        return false;
+      };
 	  for ( unsigned short wx = wxL; wx <= wxH; ++wx )
 	  {
 		for ( unsigned short wy = wyL; wy <= wyH; ++wy )
 		{
-          Core::ZoneCharacters& wchr = realm->zone[wx][wy].characters;
-          for ( Core::ZoneCharacters::iterator itr = wchr.begin( ), end = wchr.end( ); itr != end; ++itr )
-		  {
-			Mobile::Character* chr = *itr;
-			if ( chr->x >= x1 && chr->x <= x2 &&
-				 chr->y >= y1 && chr->y <= y2 )
-			{
-			  return true;
-			}
-		  }
-
-          Core::ZoneItems& witem = realm->zone[wx][wy].items;
-          for ( Core::ZoneItems::iterator itr = witem.begin( ), end = witem.end( ); itr != end; ++itr )
-		  {
-			Items::Item* item = *itr;
-			if ( item->x >= x1 && item->x <= x2 &&
-				 item->y >= y1 && item->y <= y2 )
-			{
-			  return true;
-			}
-		  }
+          for ( auto &chr : realm->zone[wx][wy].characters )
+          {
+            if ( includes( chr ) ) return true;
+          }
+          for ( auto &chr : realm->zone[wx][wy].npcs )
+          {
+            if ( includes( chr ) ) return true;
+          }
+          for ( auto &item : realm->zone[wx][wy].items )
+          {
+            if ( includes( item ) ) return true;
+          }
 		}
 	  }
 	  return false;
@@ -902,7 +875,12 @@ namespace Pol {
 	  MobileList chr_contents;
 	  UHouse::list_contents( house, item_contents, chr_contents );
 
-      Clib::ConstForEach( Core::clients, Core::send_remove_object_if_inrange, static_cast<const Items::Item*>( house ) );
+      Network::PktHelper::PacketOut<Network::PktOut_1D> msgremove;
+      msgremove->Write<u32>( house->serial_ext );
+      Core::ForEachPlayerInVisualRange( house, [&]( Mobile::Character* chr )
+      {
+        Core::send_remove_object( chr->client, msgremove.Get( ) );
+      } );
 	  remove_multi_from_world( house );
 
 	  while ( !item_contents.empty() )

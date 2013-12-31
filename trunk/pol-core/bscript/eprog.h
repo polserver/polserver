@@ -88,15 +88,14 @@ namespace Pol {
 	  void append( const StoredToken& stoken, const CompilerContext& ctx );
 	  void append( const StoredToken& stoken, const CompilerContext& ctx, unsigned* posn );
 	  void erase();
-
+      void clear_modules();
+      unsigned nglobals;
+      unsigned expectedArgs;
+      bool haveProgram;
 	  std::string name;
-	  unsigned nglobals;
-	  void clear_modules();
 	  vector< FunctionalityModule* > modules;
 	  StoredTokenContainer tokens;
 	  SymbolContainer symbols;
-	  bool haveProgram;
-	  unsigned expectedArgs;
 
 	  void dump( std::ostream& os );
 	  void dump_casejmp( std::ostream& os, const Token& token );
@@ -113,32 +112,31 @@ namespace Pol {
 	  int write_dbg( const char *fname, bool gen_txt );
 
 	  // compiler only:
+      unsigned program_PC;
+      std::string program_decl;
 	  vector<std::string> sourcelines;
 	  vector<std::string> fileline;
-	  unsigned program_PC;
-	  std::string program_decl;
 	  vector<std::string> function_decls;
 
 	  vector<EPExportedFunction> exported_functions;
 
 	  // executor only:
 	  unsigned short version;
+      unsigned int invocations;
+      u64 instr_cycles; // FIXME need an enable-profiling flag
+      Plib::Package const * pkg;
 	  vector<Instruction> instr;
-	  unsigned int invocations;
-	  u64 instr_cycles; // FIXME need an enable-profiling flag
-
-	  Plib::Package const * pkg;
 
 	  // debug data:
 	  bool debug_loaded;
-	  vector< std::string > globalvarnames;
-	  vector< EPDbgBlock > blocks;
-	  vector< EPDbgFunction > dbg_functions;
 	  unsigned savecurblock;
 	  unsigned curblock;
 	  unsigned curfile;
 	  unsigned curline;
 	  bool statementbegin;
+      vector< std::string > globalvarnames;
+      vector< EPDbgBlock > blocks;
+      vector< EPDbgFunction > dbg_functions;
 	  vector< std::string > dbg_filenames;
 
 	  // per instruction:

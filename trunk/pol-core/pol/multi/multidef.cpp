@@ -274,9 +274,9 @@ namespace Pol {
 	static MultiDefs my_multidefs_by_multiid;
 	MultiDefs multidefs_by_multiid;
 
-	short MultiDef::global_minrx;
-	short MultiDef::global_minry;
-	short MultiDef::global_minrz;
+    short MultiDef::global_minrx;
+    short MultiDef::global_minry;
+    short MultiDef::global_minrz;
 	short MultiDef::global_maxrx;
 	short MultiDef::global_maxry;
 	short MultiDef::global_maxrz;

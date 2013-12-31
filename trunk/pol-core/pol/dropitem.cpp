@@ -118,8 +118,12 @@ namespace Pol {
 	  item->set_dirty();
 
 	  client->pause();
-
-	  Clib::ConstForEach( clients, send_remove_object_if_inrange, item );
+      Network::PktHelper::PacketOut<Network::PktOut_1D> msgremove;
+      msgremove->Write<u32>( item->serial_ext );
+      Core::ForEachPlayerInVisualRange( item, [&]( Mobile::Character* chr )
+      {
+        send_remove_object( chr->client, msgremove.Get() );
+      } );
 
 	  item->x = x;
 	  item->y = y;
@@ -217,7 +221,12 @@ namespace Pol {
 	  dropon->trade_accepted = false;
 	  send_trade_statuses( client->chr );
 
-	  Clib::ConstForEach( clients, send_remove_object_if_inrange, item );
+      Network::PktHelper::PacketOut<Network::PktOut_1D> msgremove;
+      msgremove->Write<u32>( item->serial_ext );
+      Core::ForEachPlayerInVisualRange( item, [&]( Mobile::Character* chr )
+      {
+        send_remove_object( chr->client, msgremove.Get( ) );
+      } );
 
 	  item->x = x;
 	  item->y = y;
@@ -265,8 +274,12 @@ namespace Pol {
 		   We don't know: (FIXME)
 		   if a container that the target_item is in will overfill from this
 		   */
-
-	  Clib::ConstForEach( clients, send_remove_object_if_inrange, item );
+      Network::PktHelper::PacketOut<Network::PktOut_1D> msgremove;
+      msgremove->Write<u32>( item->serial_ext );
+      Core::ForEachPlayerInVisualRange( item, [&]( Mobile::Character* chr )
+      {
+        send_remove_object( chr->client, msgremove.Get( ) );
+      } );
 
 	  u16 amtadded = item->getamount();
 
@@ -624,7 +637,12 @@ namespace Pol {
 
 	  client->pause();
 
-	  Clib::ConstForEach( clients, send_remove_object_if_inrange, item );
+      Network::PktHelper::PacketOut<Network::PktOut_1D> msgremove;
+      msgremove->Write<u32>( item->serial_ext );
+      Core::ForEachPlayerInVisualRange( item, [&]( Mobile::Character* chr )
+      {
+        send_remove_object( chr->client, msgremove.Get( ) );
+      } );
 
 	  u16 rx, ry;
 	  cont->get_random_location( &rx, &ry );
@@ -1044,9 +1062,8 @@ namespace Pol {
 
 	void cancel_all_trades()
 	{
-	  for ( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
+	  for ( auto &client : clients )
 	  {
-		Network::Client* client = ( *itr );
 		if ( client->ready && client->chr )
 		{
 		  Mobile::Character* chr = client->chr;
