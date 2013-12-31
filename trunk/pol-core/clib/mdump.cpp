@@ -36,7 +36,11 @@ typedef BOOL (WINAPI *MINIDUMPWRITEDUMP)(HANDLE hProcess, DWORD dwPid, HANDLE hF
 									CONST PMINIDUMP_USER_STREAM_INFORMATION UserStreamParam,
 									CONST PMINIDUMP_CALLBACK_INFORMATION CallbackParam
 									);
-
+typedef BOOL( WINAPI *__SymInitialize )( _In_ HANDLE hProcess, _In_opt_ PCSTR UserSearchPath, _In_ BOOL fInvadeProcess );
+typedef BOOL( WINAPI *__SymFromAddr )( _In_ HANDLE hProcess, _In_ DWORD64 Address, _Out_opt_ PDWORD64 Displacement, _Inout_ PSYMBOL_INFO Symbol);
+typedef DWORD( WINAPI *__SymGetOptions )( VOID );
+typedef DWORD( WINAPI *__SymSetOptions )( _In_ DWORD   SymOptions);
+typedef BOOL( WINAPI *__SymGetLineFromAddr64 )( _In_ HANDLE hProcess, _In_ DWORD64 qwAddr, _Out_ PDWORD pdwDisplacement, _Out_ PIMAGEHLP_LINE64 Line64 );
 
 #include "mdumpimp.h"
 namespace Pol {
@@ -100,8 +104,8 @@ namespace Pol {
 	  if( hDbgHelpDll )
 	  {
 		MINIDUMPWRITEDUMP pDump = ( MINIDUMPWRITEDUMP )::GetProcAddress( hDbgHelpDll, "MiniDumpWriteDump" );
-		if( pDump )
-		  ::SetUnhandledExceptionFilter( TopLevelFilter );
+        if ( pDump )
+          ::SetUnhandledExceptionFilter( TopLevelFilter );
 		else
 		  szResult = "Warning: DBGHELP.DLL too old, version 5.1+ required.";
 	  }
@@ -116,6 +120,7 @@ namespace Pol {
 	  }
 	}
 
+    
 	LONG HiddenMiniDumper::TopLevelFilter( struct _EXCEPTION_POINTERS *pExceptionInfo )
 	{
 	  LONG retval = EXCEPTION_CONTINUE_SEARCH;
@@ -174,7 +179,7 @@ namespace Pol {
 		  szResult = szScratch;
 		}
 	  }
-
+      print_backtrace();
 	  FreeLibrary( hDbgHelpDll );
 
 	  if( szResult )
@@ -188,5 +193,60 @@ namespace Pol {
 	  }
 	  return retval;
 	}
+
+    void HiddenMiniDumper::print_backtrace()
+    {
+      // works only with 64bit
+#ifdef _WIN64
+      if ( !hDbgHelpDll )
+        return;
+      Log2( "\n##########################################################\n" );
+      Log2( "Current StackBackTrace\n" );
+
+      void * stack[100];
+      unsigned short frames;
+      SYMBOL_INFO * symbol;
+      HANDLE process;
+
+      process = GetCurrentProcess( );
+      
+      __SymInitialize pInit = ( __SymInitialize )::GetProcAddress( hDbgHelpDll, "SymInitialize" );
+      __SymFromAddr pAddr = ( __SymFromAddr )::GetProcAddress( hDbgHelpDll, "SymFromAddr" );
+      __SymGetOptions pGetOpt = ( __SymGetOptions )::GetProcAddress( hDbgHelpDll, "SymGetOptions" );
+      __SymSetOptions pSetOpt = ( __SymSetOptions )::GetProcAddress( hDbgHelpDll, "SymSetOptions" );
+      __SymGetLineFromAddr64 pGetLine = ( __SymGetLineFromAddr64 )::GetProcAddress( hDbgHelpDll, "SymGetLineFromAddr64" );
+      
+      if ( !pInit || !pAddr || !pGetOpt || !pSetOpt || !pGetLine )
+      {
+        Log2( "failed to load needed functions for backtrace!" );
+        return;
+      }
+
+      pSetOpt( pGetOpt( ) | SYMOPT_LOAD_LINES | SYMOPT_DEFERRED_LOADS );
+      pInit( process, NULL, TRUE );
+
+      frames = CaptureStackBackTrace( 1, 100, stack, NULL ); // skip first info (current function)
+      symbol = (SYMBOL_INFO *)calloc( sizeof(SYMBOL_INFO)+256 * sizeof( char ), 1 );
+      symbol->MaxNameLen = 255;
+      symbol->SizeOfStruct = sizeof( SYMBOL_INFO );
+
+      IMAGEHLP_LINE64 ih_line;
+      DWORD line_disp = 0;
+      
+      for ( int i = 0; i < frames; i++ )
+      {
+        pAddr( process, (DWORD64)( stack[i] ), 0, symbol );
+
+        Log2( "%i: %s - 0x%0X\n", frames - i - 1, symbol->Name, symbol->Address );
+        ih_line.SizeOfStruct = sizeof( IMAGEHLP_LINE );
+        if ( pGetLine( process, symbol->Address, &line_disp, &ih_line ) != 0 )
+        {
+          Log2( "    at %s:%d \n", ih_line.FileName, ih_line.LineNumber );
+        }
+      }
+      Log2( "##########################################################\n" );
+      free( symbol );
+#endif
+    }
   }
 }
