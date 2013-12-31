@@ -87,10 +87,8 @@ namespace Pol {
 	  for ( int i = 0; i < config.character_slots; i++ )
 		itr->get()->clear_character( i );
 
-	  vector<Plib::Realm*>::iterator ritr;
-	  for ( ritr = Realms->begin(); ritr != Realms->end(); ++ritr )
+	  for ( auto &realm : *Realms)
 	  {
-		Plib::Realm* realm = *ritr;
 		unsigned wgridx = realm->width() / WGRID_SIZE;
 		unsigned wgridy = realm->height() / WGRID_SIZE;
 
@@ -102,47 +100,44 @@ namespace Pol {
 
 		for ( unsigned wx = 0; wx < wgridx; ++wx )
 		{
-		  for ( unsigned wy = 0; wy < wgridy; ++wy )
-		  {
-			ZoneItems& witem = realm->zone[wx][wy].items;
-			ZoneItems::iterator itr = witem.begin(), end = witem.end();
-			for ( ; itr != end; ++itr )
-			{
-			  Items::Item* item = *itr;
-			  world_delete( item );
-			}
-			witem.clear();
-		  }
+          for ( unsigned wy = 0; wy < wgridy; ++wy )
+          {
+            for ( auto &item : realm->zone[wx][wy].items )
+            {
+              world_delete( item );
+            }
+            realm->zone[wx][wy].items.clear();
+          }
+		}
+
+		for ( unsigned wx = 0; wx < wgridx; ++wx )
+		{
+          for ( unsigned wy = 0; wy < wgridy; ++wy )
+          {
+            for ( auto &chr : realm->zone[wx][wy].characters )
+            {
+              chr->acct.clear(); //dave added 9/27/03, see above comment re: mutual references
+              world_delete( chr );
+            }
+            realm->zone[wx][wy].characters.clear();
+            for ( auto &chr : realm->zone[wx][wy].npcs )
+            {
+              chr->acct.clear(); //dave added 9/27/03, see above comment re: mutual references
+              world_delete( chr );
+            }
+            realm->zone[wx][wy].npcs.clear();
+          }
 		}
 
 		for ( unsigned wx = 0; wx < wgridx; ++wx )
 		{
 		  for ( unsigned wy = 0; wy < wgridy; ++wy )
 		  {
-			ZoneCharacters& wchr = realm->zone[wx][wy].characters;
-			ZoneCharacters::iterator itr = wchr.begin(), end = wchr.end();
-			for ( ; itr != end; ++itr )
+            for ( auto &multi : realm->zone[wx][wy].multis )
 			{
-			  Mobile::Character* chr = *itr;
-			  chr->acct.clear(); //dave added 9/27/03, see above comment re: mutual references
-			  world_delete( chr );
-			}
-			wchr.clear();
-		  }
-		}
-
-		for ( unsigned wx = 0; wx < wgridx; ++wx )
-		{
-		  for ( unsigned wy = 0; wy < wgridy; ++wy )
-		  {
-			ZoneMultis& wmulti = realm->zone[wx][wy].multis;
-			ZoneMultis::iterator itr = wmulti.begin(), end = wmulti.end();
-			for ( ; itr != end; ++itr )
-			{
-			  Multi::UMulti* multi = *itr;
 			  world_delete( multi );
 			}
-			wmulti.clear();
+            realm->zone[wx][wy].multis.clear();
 		  }
 		}
 	  }

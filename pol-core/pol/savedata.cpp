@@ -240,7 +240,8 @@ namespace Pol {
 	{
 	  if ( !should_write_data() )
 	  {
-		dirty = clean = elapsed_ms = 0;
+        dirty = clean = 0;
+        elapsed_ms = 0;
 		return -1;
 	  }
 

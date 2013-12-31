@@ -84,9 +84,8 @@ namespace Pol {
 	  short newz = -200;
 
 	  // first check only possible walkon shapes and build a list
-	  for ( MapShapeList::const_iterator itr = shapes.begin(), itrend = shapes.end(); itr != itrend; ++itr )
+	  for ( const auto &shape : shapes )
 	  {
-		const MapShape& shape = ( *itr );
 		unsigned int flags = shape.flags;
 		short ztop = shape.z + shape.height;
 #if ENABLE_POLTEST_OUTPUT
@@ -126,14 +125,12 @@ namespace Pol {
 	  if ( !possible_shapes.empty() )
 	  {
 		// loop through all possible shapes and test if other shape blocks
-		for ( vector<const MapShape*>::const_iterator pos_itr = possible_shapes.begin(), pos_itr_end = possible_shapes.end(); pos_itr != pos_itr_end; ++pos_itr )
+		for ( const auto &pos_shape : possible_shapes )
 		{
 		  bool result = true;
-		  const MapShape* pos_shape = ( *pos_itr );
 		  newz = pos_shape->z + pos_shape->height;
-		  for ( MapShapeList::const_iterator itr = shapes.begin(), itrend = shapes.end(); itr != itrend; ++itr )
+		  for ( const auto &shape : shapes )
 		  {
-			const MapShape& shape = ( *itr );
 			if ( ( shape.flags & ( FLAG::MOVELAND | FLAG::MOVESEA | FLAG::BLOCKING ) ) == 0 )
 			  continue;
 			int shape_top = shape.z + shape.height;
@@ -215,9 +212,8 @@ namespace Pol {
 	  short newz = 255;
 	  bool result = false;
 
-	  for ( MapShapeList::const_iterator itr = shapes.begin(), itrend = shapes.end(); itr != itrend; ++itr )
+	  for ( const auto &shape : shapes )
 	  {
-		const MapShape& shape = ( *itr );
 		unsigned int flags = shape.flags;
 		short ztop = shape.z + shape.height;
 #if ENABLE_POLTEST_OUTPUT
@@ -244,9 +240,8 @@ namespace Pol {
 #endif
 			bool valid = true;
 			// validate that its actually standable
-			for ( MapShapeList::const_iterator itrCheck = shapes.begin(), itrCheckend = shapes.end(); itrCheck != itrCheckend; ++itrCheck )
+			for ( const auto &shapeCheck : shapes )
 			{
-			  const MapShape& shapeCheck = ( *itrCheck );
 			  if ( ( shapeCheck.flags & ( FLAG::MOVELAND | FLAG::MOVESEA | FLAG::BLOCKING ) ) == 0 )
 				continue;
 
@@ -299,9 +294,8 @@ namespace Pol {
 	void Realm::readdynamics( MapShapeList& vec, unsigned short x, unsigned short y, Core::ItemsVector& walkon_items, bool doors_block )
 	{
 	  Core::ZoneItems& witems = Core::getzone( x, y, this ).items;
-	  for ( Core::ZoneItems::const_iterator itr = witems.begin( ), itrend = witems.end( ); itr != itrend; ++itr )
+	  for ( auto &item : witems )
 	  {
-		Items::Item *item = *itr;
 		if ( ( item->x == x ) && ( item->y == y ) )
 		{
 		  if ( Core::tile_flags( item->graphic ) & FLAG::WALKBLOCK )
@@ -562,9 +556,8 @@ namespace Pol {
 	  short z = -128;
 	  bool result = false;
 
-	  for ( MapShapeList::const_iterator itr = shapes.begin(), itrend = shapes.end(); itr != itrend; ++itr )
+	  for ( const auto &shape : shapes )
 	  {
-		const MapShape& shape = ( *itr );
 		unsigned int flags = shape.flags;
 		short ztop = shape.z + shape.height;
 #if ENABLE_POLTEST_OUTPUT
@@ -595,9 +588,8 @@ namespace Pol {
 
 	  if ( result )
 	  {
-		for ( MapShapeList::const_iterator itr = shapes.begin(), itrend = shapes.end(); itr != itrend; ++itr )
+		for ( const auto &shape : shapes )
 		{
-		  const MapShape& shape = ( *itr );
 		  if ( shape.flags & FLAG::BLOCKING )
 		  {
 			short ztop = shape.z + shape.height;
@@ -635,91 +627,55 @@ namespace Pol {
 
 	void Realm::readmultis( MapShapeList& vec, unsigned short x, unsigned short y, unsigned int anyflags ) const
 	{
-	  unsigned short wxL, wyL, wxH, wyH;
-	  Core::zone_convert_clip( x - 64, y - 64, this, wxL, wyL );
-      Core::zone_convert_clip( x + 64, y + 64, this, wxH, wyH );
-
-	  for ( unsigned short wx = wxL; wx <= wxH; ++wx )
-	  {
-		for ( unsigned short wy = wyL; wy <= wyH; ++wy )
-		{
-          Core::ZoneMultis& wmultis = zone[wx][wy].multis;
-
-		  for ( auto multi : wmultis )
-		  {
-			Multi::UHouse* house = multi->as_house();
-			if ( house != NULL && house->IsCustom() ) //readshapes switches to working design if the house is being edited, 
-			  //everyone in the house would use it for walking...
-			  multi->readshapes( vec, s16( x ) - multi->x, s16( y ) - multi->y, multi->z );
-			else
-			{
-			  const Multi::MultiDef& def = multi->multidef();
-			  def.readshapes( vec, s16( x ) - multi->x, s16( y ) - multi->y, multi->z, anyflags );
-			}
-		  }
-		}
-	  }
+      Core::ForEachMultiInRange( x, y, this, 64, [&]( Multi::UMulti* multi )
+      {
+        Multi::UHouse* house = multi->as_house();
+        if ( house != NULL && house->IsCustom() ) //readshapes switches to working design if the house is being edited, 
+          //everyone in the house would use it for walking...
+          multi->readshapes( vec, s16( x ) - multi->x, s16( y ) - multi->y, multi->z );
+        else
+        {
+          const Multi::MultiDef& def = multi->multidef();
+          def.readshapes( vec, s16( x ) - multi->x, s16( y ) - multi->y, multi->z, anyflags );
+        }
+      } );
 	}
 
-	void Realm::readmultis( MapShapeList& vec, unsigned short x, unsigned short y, unsigned int anyflags, MultiList& mvec )
+	void Realm::readmultis( MapShapeList& vec, unsigned short x, unsigned short y, unsigned int anyflags, MultiList& mvec ) const
 	{
-	  unsigned short wxL, wyL, wxH, wyH;
-      Core::zone_convert_clip( x - 64, y - 64, this, wxL, wyL );
-      Core::zone_convert_clip( x + 64, y + 64, this, wxH, wyH );
-
-	  for ( unsigned short wx = wxL; wx <= wxH; ++wx )
-	  {
-		for ( unsigned short wy = wyL; wy <= wyH; ++wy )
-		{
-          Core::ZoneMultis& wmultis = zone[wx][wy].multis;
-
-		  for ( auto multi : wmultis )
-		  {
-			Multi::UHouse* house = multi->as_house();
-			if ( house != NULL && house->IsCustom() )
-			{
-			  if ( multi->readshapes( vec, s16( x ) - multi->x, s16( y ) - multi->y, multi->z ) )
-				mvec.push_back( multi );
-			}
-			else
-			{
-			  const Multi::MultiDef& def = multi->multidef();
-			  if ( def.readshapes( vec, s16( x ) - multi->x, s16( y ) - multi->y, multi->z, anyflags ) )
-			  {
-				mvec.push_back( multi );
-			  }
-			}
-		  }
-		}
-	  }
+      Core::ForEachMultiInRange( x, y, this, 64, [&]( Multi::UMulti* multi )
+      {
+        Multi::UHouse* house = multi->as_house();
+        if ( house != NULL && house->IsCustom() )
+        {
+          if ( multi->readshapes( vec, s16( x ) - multi->x, s16( y ) - multi->y, multi->z ) )
+            mvec.push_back( multi );
+        }
+        else
+        {
+          const Multi::MultiDef& def = multi->multidef();
+          if ( def.readshapes( vec, s16( x ) - multi->x, s16( y ) - multi->y, multi->z, anyflags ) )
+          {
+            mvec.push_back( multi );
+          }
+        }
+      } );
 	}
 
 	void Realm::readmultis( Core::StaticList& vec, unsigned short x, unsigned short y ) const
 	{
-	  unsigned short wxL, wyL, wxH, wyH;
-      Core::zone_convert_clip( x - 64, y - 64, this, wxL, wyL );
-      Core::zone_convert_clip( x + 64, y + 64, this, wxH, wyH );
-
-	  for ( unsigned short wx = wxL; wx <= wxH; ++wx )
-	  {
-		for ( unsigned short wy = wyL; wy <= wyH; ++wy )
-		{
-          Core::ZoneMultis& wmultis = zone[wx][wy].multis;
-
-		  for ( auto multi : wmultis )
-		  {
-			Multi::UHouse* house = multi->as_house();
-			if ( house != NULL && house->IsCustom() ) //readshapes switches to working design if the house is being edited, 
-			  //everyone in the house would use it for walking...
-			  multi->readobjects( vec, int( x ) - multi->x, int( y ) - multi->y, multi->z );
-			else
-			{
-			  const Multi::MultiDef& def = multi->multidef();
-			  def.readobjects( vec, int( x ) - multi->x, int( y ) - multi->y, multi->z );
-			}
-		  }
-		}
-	  }
+      Core::ForEachMultiInRange( x, y, this, 64, [&]( Multi::UMulti* multi )
+      {
+        Multi::UHouse* house = multi->as_house();
+        if ( house != NULL && house->IsCustom() ) //readshapes switches to working design if the house is being edited, 
+          //everyone in the house would use it for walking...
+          multi->readobjects( vec, int( x ) - multi->x, int( y ) - multi->y, multi->z );
+        else
+        {
+          const Multi::MultiDef& def = multi->multidef();
+          def.readobjects( vec, int( x ) - multi->x, int( y ) - multi->y, multi->z );
+        }
+      } );
 	}
 
 	bool Realm::navigable( unsigned short x, unsigned short y, short z, short height = 0 ) const
@@ -738,9 +694,8 @@ namespace Pol {
 	  // possible: readdynamic, readmultis
 	  getmapshapes( shapes, x, y, FLAG::ALL );
 
-	  for ( MapShapeList::const_iterator itr = shapes.begin(), itrend = shapes.end(); itr != itrend; ++itr )
+	  for ( const auto &shape : shapes)
 	  {
-		const MapShape& shape = ( *itr );
 		if ( shape.flags & FLAG::MOVESEA )
 		{
 		  onwater = true;
@@ -779,9 +734,8 @@ namespace Pol {
 	Multi::UMulti* Realm::find_supporting_multi( MultiList& mvec, short z )
 	{
 	  Multi::UMulti* found = NULL;
-	  for ( MultiList::const_iterator itr = mvec.begin(), end = mvec.end(); itr != end; ++itr )
+	  for ( auto &multi : mvec )
 	  {
-		Multi::UMulti* multi = ( *itr );
 		if ( multi->z <= z )
 		{
 		  if ( ( found == NULL ) ||

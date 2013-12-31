@@ -268,14 +268,14 @@ namespace Pol {
 	  {
 		if ( enable )
 		{
-		  if ( chr->client && chr->client->ready )
+		  if ( chr->has_active_client() )
 			on_enable_see_hidden( chr );
           else if ( chr->isa( Core::UObject::CLASS_NPC ) )
 			on_enable_see_hidden( chr );
 		}
 		else
 		{
-		  if ( chr->client && chr->client->ready )
+          if ( chr->has_active_client() )
 			on_disable_see_hidden( chr );
           else if ( chr->isa( Core::UObject::CLASS_NPC ) )
 			on_disable_see_hidden( chr );
@@ -285,14 +285,14 @@ namespace Pol {
 	  {
 		if ( enable )
 		{
-		  if ( chr->client && chr->client->ready )
+          if ( chr->has_active_client() )
 			on_enable_see_ghosts( chr );
           else if ( chr->isa( Core::UObject::CLASS_NPC ) )
 			on_enable_see_ghosts( chr );
 		}
 		else
 		{
-		  if ( chr->client && chr->client->ready )
+          if ( chr->has_active_client() )
 			on_disable_see_ghosts( chr );
           else if ( chr->isa( Core::UObject::CLASS_NPC ) )
 			on_disable_see_ghosts( chr );
@@ -302,12 +302,12 @@ namespace Pol {
 	  {
 		if ( enable )
 		{
-		  if ( chr->client && chr->client->ready )
+          if ( chr->has_active_client() )
 			on_enable_see_invis_items( chr );
 		}
 		else
 		{
-		  if ( chr->client && chr->client->ready )
+          if ( chr->has_active_client() )
 			on_disable_see_invis_items( chr );
 		}
 	  }
@@ -315,14 +315,14 @@ namespace Pol {
 	  {
 		if ( enable )
 		{
-		  if ( chr->client && chr->client->ready )
+          if ( chr->has_active_client() )
 			on_enable_invul( chr );
           else if ( chr->isa( Core::UObject::CLASS_NPC ) )
 			on_enable_invul( chr );
 		}
 		else
 		{
-		  if ( chr->client && chr->client->ready )
+          if ( chr->has_active_client() )
 			on_disable_invul( chr );
           else if ( chr->isa( Core::UObject::CLASS_NPC ) )
 			on_disable_invul( chr );
@@ -438,13 +438,13 @@ namespace Pol {
 
 	  static void on_enable_invul( Character* chr )
 	  {
-		if ( chr != NULL )
-		  ForEachMobileInVisualRange( chr, enable_invul, chr );
+        if ( chr != NULL )
+          ForEachPlayerInVisualRange( chr, [&]( Character* zonechr ) { enable_invul( zonechr, chr ); } );
 	  }
 	  static void on_disable_invul( Character* chr )
 	  {
 		if ( chr != NULL )
-		  ForEachMobileInVisualRange( chr, disable_invul, chr );
+          ForEachPlayerInVisualRange( chr, [&]( Character* zonechr ) { disable_invul( zonechr, chr ); } );
 	  }
 	  static void enable_invul( Character* in_range_chr, Character* chr )
 	  {
@@ -2262,7 +2262,10 @@ namespace Pol {
 	  send_remove_character_to_nearby_cansee( this );
 	  send_create_mobile_to_nearby_cansee( this );
 
-	  ForEachMobileInRange( x, y, realm, 32, NpcPropagateEnteredArea, this );
+      Core::ForEachNPCInRange( x, y, realm, 32, [&]( Character* chr )
+      {
+        NpcPropagateEnteredArea( chr, this );
+      } );
 	}
 
 	void Character::on_death( Items::Item* corpse )
@@ -2806,53 +2809,58 @@ namespace Pol {
 	  build_invulhealthbar( chr, msginvul.Get() );
 	  build_owncreate( chr, msgcreate.Get() );
 
-	  for ( auto &client : Core::clients )
-	  {
-		if ( !client->ready )
-		  continue;
-		if ( client->chr == NULL || client->chr == chr )
-		  continue;
-		if ( !client->chr->is_visible_to_me( chr ) )
-		  continue;
-
-		int are_inrange = Core::inrange( client->chr, chr );
-		int were_inrange = Core::inrange( client->chr->x, client->chr->y, chr->lastx, chr->lasty );
-		if ( are_inrange )
-		{
-		  /* The two characters exist, and are in range of each other.
-			 Character 'chr''s lastx and lasty coordinates are valid.
-			 SO, if lastx/lasty are out of range of client->chr, we
-			 should send a 'create' type message.  If they are in range,
-			 we should just send a move.
-			 */
-		  if ( chr->move_reason == Character::MULTIMOVE )
-		  {
-			// NOTE: uncomment this line to make movement smoother (no stepping anims)
-			// but basically makes it very difficult to talk while the ship
-			// is moving.
+      Core::ForEachPlayerInVisualRange( chr, [&]( Character* zonechr )
+      {
+        if ( !zonechr->has_active_client() )
+          return;
+        Client *client = zonechr->client;
+        if ( zonechr == chr )
+          return;
+        if ( !zonechr->is_visible_to_me( chr ) )
+          return;
+        /* The two characters exist, and are in range of each other.
+        Character 'chr''s lastx and lasty coordinates are valid.
+        SO, if lastx/lasty are out of range of client->chr, we
+        should send a 'create' type message.  If they are in range,
+        we should just send a move.
+        */
+        if ( chr->move_reason == Character::MULTIMOVE )
+        {
+          // NOTE: uncomment this line to make movement smoother (no stepping anims)
+          // but basically makes it very difficult to talk while the ship
+          // is moving.
 #ifdef PERGON
-			send_remove_character( client, chr, msgremove.Get(), false );
+          send_remove_character( client, chr, msgremove.Get( ), false );
 #else
-			//send_remove_character( client, chr );
+          //send_remove_character( client, chr );
 #endif
-			send_owncreate( client, chr, msgcreate.Get(), msgpoison.Get(), msginvul.Get() );
-		  }
-		  else if ( were_inrange )
-		  {
-			send_move( client, chr, msgmove.Get(), msgpoison.Get(), msginvul.Get() );
-		  }
-		  else
-		  {
-			send_owncreate( client, chr, msgcreate.Get(), msgpoison.Get(), msginvul.Get() );
-		  }
-		}
-		else if ( were_inrange )
-		{
-		  // if we just walked out of range of this character, send its
-		  // client a remove object, or else a ghost character will remain.
-		  send_remove_character( client, chr, msgremove.Get(), false );
-		}
-	  }
+          send_owncreate( client, chr, msgcreate.Get( ), msgpoison.Get( ), msginvul.Get( ) );
+        }
+        else if ( Core::inrange( zonechr->x, zonechr->y, chr->lastx, chr->lasty ) )
+        {
+          send_move( client, chr, msgmove.Get( ), msgpoison.Get( ), msginvul.Get( ) );
+        }
+        else
+        {
+          send_owncreate( client, chr, msgcreate.Get( ), msgpoison.Get( ), msginvul.Get( ) );
+        }
+      } );
+
+      // iter over all old in range players and send remove
+      Core::ForEachPlayerInRange( chr->lastx, chr->lasty, chr->realm, RANGE_VISUAL, [&]( Character* zonechr )
+      {
+        if ( !zonechr->has_active_client() )
+          return;
+        Client *client = zonechr->client;
+        if ( !zonechr->is_visible_to_me( chr ) )
+          return;
+
+        if ( Core::inrange( zonechr, chr ) ) // already handled
+          return;
+        // if we just walked out of range of this character, send its
+        // client a remove object, or else a ghost character will remain.
+        send_remove_character( client, chr, msgremove.Get(), false );
+      } );
 	}
 
 	void Character::getpos_ifmove( Core::UFACING i_facing, unsigned short* px, unsigned short* py )
@@ -3186,7 +3194,14 @@ namespace Pol {
 	  }
 	  else
 	  {
-        Clib::ConstForEach( Core::clients, Core::send_move_if_inrange, this );
+        Core::ForEachPlayerInVisualRange( this, [&]( Character* chr )
+        {
+          if ( !chr->has_active_client() )
+            return;
+          if ( chr == this )
+            return;
+          send_move( chr->client, this );
+        } );
 	  }
 	}
 
@@ -3678,7 +3693,16 @@ namespace Pol {
 	  {
 		if ( client != NULL )
 		  send_owncreate( client, this );
-        Clib::ForEach( Core::clients, Core::send_char_data, this );
+        Core::ForEachPlayerInVisualRange( this, [&]( Character* chr )
+        {
+          if ( !chr->has_active_client() )
+            return;
+          if ( chr == this )
+            return;
+          if ( !chr->is_visible_to_me( this ) )
+            return;
+          send_owncreate( chr->client, this );
+        } );
 
 		//dave 12-21 added this hack to get enteredarea events fired when unhiding
 		u16 oldlastx = lastx;
@@ -3686,7 +3710,11 @@ namespace Pol {
 		lastx = 0;
 		lasty = 0;
 		//tellmove();
-		ForEachMobileInRange( x, y, realm, 32, NpcPropagateMove, this );
+
+        Core::ForEachNPCInRange( x, y, realm, 32, [&]( Character* chr )
+        {
+          NpcPropagateMove( chr, this );
+        } );
 		lastx = oldlastx;
 		lasty = oldlasty;
 	  }
@@ -4017,31 +4045,23 @@ namespace Pol {
 	  {
         unsigned short newx = x + Core::move_delta[facing].xmove;
         unsigned short newy = y + Core::move_delta[facing].ymove;
+        auto mobs = std::unique_ptr<Bscript::ObjArray>();
 
-		unsigned short wx, wy;
-        Core::zone_convert_clip( newx, newy, realm, wx, wy );
+        Core::ForEachMobileInRange( newx, newy, realm, 0, [&]( Mobile::Character* _chr )
+        {
+          if ( _chr->z >= z - 10 && _chr->z <= z + 10 &&
+               !_chr->dead() &&
+               ( is_visible_to_me( _chr ) || _chr->hidden() ) ) //add hidden mobs even if they're not visible to me
+          {
+            if ( !mobs )
+              mobs.reset( new Bscript::ObjArray );
+            mobs->addElement( make_mobileref( _chr ) );
+          }
+        } );
 
-        Core::ZoneCharacters& wchr = realm->zone[wx][wy].characters;
-
-		Bscript::ObjArray* mobs = NULL;
-		for ( auto &chr : wchr )
+        if ( mobs )
 		{
-		  if ( chr->x == newx &&
-			   chr->y == newy &&
-			   chr->z >= z - 10 && chr->z <= z + 10 &&
-			   !chr->dead() &&
-			   ( is_visible_to_me( chr ) || chr->hidden() ) ) //add hidden mobs even if they're not visible to me
-		  {
-			if ( mobs == NULL )
-			{
-			  mobs = new Bscript::ObjArray();
-			}
-			mobs->addElement( make_mobileref( chr ) );
-		  }
-		}
-		if ( mobs != NULL )
-		{
-          return Core::system_hooks.pushthrough_hook->call( make_mobileref( this ), mobs );
+          return Core::system_hooks.pushthrough_hook->call( make_mobileref( this ), mobs.release() );
 		}
 		return true;
 
@@ -4065,11 +4085,17 @@ namespace Pol {
 	  // TO DO: Place in realm change support so npcs know when you enter/leave one?
       if ( Core::pol_distance( lastx, lasty, x, y ) > 32 )
 	  {
-		ForEachMobileInRange( lastx, lasty, realm, 32, NpcPropagateMove, this );
+        Core::ForEachNPCInRange( lastx, lasty, realm, 32, [&]( Character* chr )
+        {
+          NpcPropagateMove( chr, this );
+        } );
 	  }
 
 	  // Inform nearby NPCs that a movement has been made.
-	  ForEachMobileInRange( x, y, realm, 32, NpcPropagateMove, this );
+      Core::ForEachNPCInRange( x, y, realm, 32, [&]( Character* chr )
+      {
+        NpcPropagateMove( chr, this );
+      } );
 
 	  //ForEach( characters, NpcPropagateMove, this );
 
@@ -4208,8 +4234,7 @@ namespace Pol {
 	  {
 		for ( unsigned short wy = wyL; wy <= wyH; ++wy )
 		{
-          Core::ZoneItems& witem = realm->zone[wx][wy].items;
-		  for ( auto &item : witem )
+          for ( auto &item : realm->zone[wx][wy].items )
 		  {
 			if ( item->serial == 0 )
 			{

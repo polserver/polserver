@@ -144,7 +144,12 @@ namespace Pol {
 
 	  UObject* my_owner = item->toplevel_owner();
 
-	  Clib::ConstForEach( clients, send_remove_object_if_inrange, item );
+      Network::PktHelper::PacketOut<Network::PktOut_1D> msgremove;
+      msgremove->Write<u32>( item->serial_ext );
+      Core::ForEachPlayerInVisualRange( item, [&]( Mobile::Character* chr )
+      {
+        send_remove_object( chr->client, msgremove.Get() );
+      } );
 
 	  UContainer* orig_container = item->container;
 	  u16 orig_x = item->x, orig_y = item->y;

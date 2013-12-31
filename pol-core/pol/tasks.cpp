@@ -56,10 +56,51 @@ namespace Pol {
 	  unsigned nonempty_zones = 0;
 
 	  unsigned wgridx, wgridy;
-	  vector<Plib::Realm*>::iterator itr;
-	  for ( itr = Realms->begin(); itr != Realms->end(); ++itr )
+
+      auto stat_regen = [&now_gameclock, &now]( Mobile::Character* chr )
+      {
+        THREAD_CHECKPOINT( tasks, 402 );
+
+        if ( chr->lightoverride != -1 )
+        {
+          if ( chr->lightoverride_until < now_gameclock && chr->lightoverride_until != ~0u )
+          {
+            chr->lightoverride = -1;
+            chr->lightoverride_until = 0;
+            THREAD_CHECKPOINT( tasks, 403 );
+            chr->check_region_changes( );
+          }
+        }
+        THREAD_CHECKPOINT( tasks, 404 );
+
+        // If in warmode, don't regenerate.
+        // If regeneration is currently disabled, don't do it either.
+        if ( ( chr->warmode && combat_config.warmode_inhibits_regen ) ||
+             ( now <= chr->disable_regeneration_until ) )
+        {
+          return;
+        }
+
+        THREAD_CHECKPOINT( tasks, 405 );
+        for ( const Vital* pVital = FindVital( 0 ); pVital; pVital = pVital->next )
+        {
+          THREAD_CHECKPOINT( tasks, 406 );
+          if ( !chr->dead( ) || pVital->regen_while_dead )
+            chr->regen_vital( pVital );
+          THREAD_CHECKPOINT( tasks, 407 );
+        }
+
+        if ( !chr->dead( ) )
+        {
+          THREAD_CHECKPOINT( tasks, 408 );
+          chr->check_undamaged( );
+          THREAD_CHECKPOINT( tasks, 409 );
+        }
+      };
+
+
+	  for ( auto &realm : *Realms)
 	  {
-        Plib::Realm* realm = *itr;
 		wgridx = realm->width() / WGRID_SIZE;
 		wgridy = realm->height() / WGRID_SIZE;
 
@@ -74,50 +115,16 @@ namespace Pol {
 		  for ( unsigned wy = 0; wy < wgridy; ++wy )
 		  {
 			bool any = false;
-			ZoneCharacters& wchr = realm->zone[wx][wy].characters;
-			ZoneCharacters::iterator citr = wchr.begin(), end = wchr.end();
-			for ( ; citr != end; ++citr )
+            for ( auto &chr : realm->zone[wx][wy].characters )
 			{
-			  Mobile::Character* chr = *citr;
 			  any = true;
-			  THREAD_CHECKPOINT( tasks, 402 );
-
-			  if ( chr->lightoverride != -1 )
-			  {
-				if ( chr->lightoverride_until < now_gameclock && chr->lightoverride_until != ~0u )
-				{
-				  chr->lightoverride = -1;
-				  chr->lightoverride_until = 0;
-				  THREAD_CHECKPOINT( tasks, 403 );
-				  chr->check_region_changes();
-				}
-			  }
-			  THREAD_CHECKPOINT( tasks, 404 );
-
-			  // If in warmode, don't regenerate.
-			  // If regeneration is currently disabled, don't do it either.
-			  if ( ( chr->warmode && combat_config.warmode_inhibits_regen ) ||
-				   ( now <= chr->disable_regeneration_until ) )
-			  {
-				continue;
-			  }
-
-			  THREAD_CHECKPOINT( tasks, 405 );
-			  for ( const Vital* pVital = FindVital( 0 ); pVital; pVital = pVital->next )
-			  {
-				THREAD_CHECKPOINT( tasks, 406 );
-				if ( !chr->dead() || pVital->regen_while_dead )
-				  chr->regen_vital( pVital );
-				THREAD_CHECKPOINT( tasks, 407 );
-			  }
-
-			  if ( !chr->dead() )
-			  {
-				THREAD_CHECKPOINT( tasks, 408 );
-				chr->check_undamaged();
-				THREAD_CHECKPOINT( tasks, 409 );
-			  }
+              stat_regen( chr );
 			}
+            for ( auto &chr : realm->zone[wx][wy].npcs )
+            {
+              any = true;
+              stat_regen( chr );
+            }
 			if ( any )
 			  ++nonempty_zones;
 			else

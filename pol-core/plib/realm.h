@@ -103,7 +103,7 @@ namespace Pol {
 	  MAPTILE_CELL getmaptile( unsigned short x, unsigned short y ) const;
 	  void getmapshapes( MapShapeList& shapes, unsigned short x, unsigned short y, unsigned int anyflags ) const;
 	  void readmultis( MapShapeList& vec, unsigned short x, unsigned short y, unsigned int flags ) const;
-	  void readmultis( MapShapeList& vec, unsigned short x, unsigned short y, unsigned int flags, MultiList& mvec );
+	  void readmultis( MapShapeList& vec, unsigned short x, unsigned short y, unsigned int flags, MultiList& mvec ) const;
 	  void readmultis( Core::StaticList& vec, unsigned short x, unsigned short y ) const;
 
 	  Core::Zone** zone;

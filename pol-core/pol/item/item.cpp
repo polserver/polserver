@@ -571,7 +571,7 @@ namespace Pol {
 		container->add_bulk( 0, newweight - oldweight );
 
 	  increv();
-	  send_object_cache_to_inrange( this );
+      send_object_cache_to_inrange( this );
 	}
 
 	void Item::subamount( u16 amount_subtract )

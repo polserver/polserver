@@ -42,15 +42,18 @@ namespace Pol {
 	  {
 		for ( unsigned short wy = wyL; wy <= wyH; ++wy )
 		{
-		  ZoneCharacters& wchr = chr->realm->zone[wx][wy].characters;
-
-		  for ( ZoneCharacters::iterator itr = wchr.begin(), end = wchr.end(); itr != end; ++itr )
-		  {
-			Mobile::Character* ochr = *itr;
-			Items::Item *_item = ochr->find_wornitem( serial );
-			if ( _item != NULL )
-			  return _item;
-		  }
+          for ( const auto &ochr : chr->realm->zone[wx][wy].characters )
+          {
+            Items::Item *_item = ochr->find_wornitem( serial );
+            if ( _item != NULL )
+              return _item;
+          }
+          for ( const auto &ochr : chr->realm->zone[wx][wy].npcs )
+          {
+            Items::Item *_item = ochr->find_wornitem( serial );
+            if ( _item != NULL )
+              return _item;
+          }
 		}
 	  }
 	  if ( chr->trade_container() )

@@ -245,31 +245,41 @@ namespace Pol {
 	  unsigned short wx, wy;
 	  zone_convert_clip( newx, newy, realm, wx, wy );
 
-	  ZoneCharacters& wchr = realm->zone[wx][wy].characters;
-	  for ( ZoneCharacters::iterator itr = wchr.begin(), end = wchr.end(); itr != end; ++itr )
-	  {
-		Character* chr = *itr;
-
-		// First check if there really is a character blocking
-		if ( chr->x == newx &&
-			 chr->y == newy &&
-			 chr->z >= z - 10 && chr->z <= z + 10 )
-		{
-
-		  // Check first with the ssopt false to now allow npcs of same master running on top of each other
-		  if ( !ssopt.mobiles_block_npc_movement )
-		  {
-			NPC* npc = static_cast<NPC*>( chr );
-			if ( ( chr->acct == NULL && this->master() == npc->master() ) && !chr->dead() && is_visible_to_me( chr ) )
-			  return true;
-		  }
-		  else
-		  {
-			if ( !chr->dead() && is_visible_to_me( chr ) )
-			  return true;
-		  }
-		}
-	  }
+      if ( ssopt.mobiles_block_npc_movement )
+      {
+        for ( auto &chr : realm->zone[wx][wy].characters )
+        {
+          // First check if there really is a character blocking
+          if ( chr->x == newx &&
+               chr->y == newy &&
+               chr->z >= z - 10 && chr->z <= z + 10 )
+          {
+            if ( !chr->dead() && is_visible_to_me( chr ) )
+              return true;
+          }
+        }
+      }
+      for ( auto &chr : realm->zone[wx][wy].npcs )
+      {
+        // First check if there really is a character blocking
+        if ( chr->x == newx &&
+             chr->y == newy &&
+             chr->z >= z - 10 && chr->z <= z + 10 )
+        {
+          // Check first with the ssopt false to now allow npcs of same master running on top of each other
+          if ( !ssopt.mobiles_block_npc_movement )
+          {
+            NPC* npc = static_cast<NPC*>( chr );
+            if ( ( chr->acct == NULL && this->master( ) == npc->master( ) ) && !chr->dead( ) && is_visible_to_me( chr ) )
+              return true;
+          }
+          else
+          {
+            if ( !chr->dead() && is_visible_to_me( chr ) )
+              return true;
+          }
+        }
+      }
 	  return false;
 	}
 
