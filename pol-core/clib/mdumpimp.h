@@ -23,6 +23,7 @@ namespace Pol {
 	  static char _StartTimestamp[32];
 
 	  static LONG WINAPI TopLevelFilter( struct _EXCEPTION_POINTERS *pExceptionInfo );
+      static void print_backtrace();
 	};
   }
 }
