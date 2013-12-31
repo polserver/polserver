@@ -86,6 +86,12 @@ namespace Pol {
 
 		force_backtrace();
 	  }
+      else
+      {
+#ifdef _WIN32
+        HiddenMiniDumper::print_backtrace();
+#endif
+      }
 
 	  if( passert_shutdown )
 	  {
@@ -119,6 +125,12 @@ namespace Pol {
 
 		force_backtrace();
 	  }
+      else
+      {
+#ifdef _WIN32
+        HiddenMiniDumper::print_backtrace();
+#endif
+      }
 
 	  if( passert_shutdown )
 	  {
