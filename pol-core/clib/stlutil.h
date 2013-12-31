@@ -52,28 +52,6 @@ namespace Pol {
 	  }
 	}
 
-	template<class T, class A>
-	typename T::iterator find_in( T& coll, const A& value )
-	{
-	  typename T::iterator itr = coll.begin();
-	  typename T::iterator last = coll.end();
-
-	  while( itr != last && *itr != value )
-		++itr;
-
-	  return itr;
-	}
-	template<class T, class A>
-	typename T::const_iterator const_find_in( const T& coll, const A& value )
-	{
-	  typename T::const_iterator itr = coll.begin();
-	  typename T::const_iterator last = coll.end();
-
-	  while( itr != last && *itr != value )
-		++itr;
-
-	  return itr;
-	}
 	/*
 	works, but don't really want to include sstream, string
 	template<class V>

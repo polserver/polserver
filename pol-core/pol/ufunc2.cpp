@@ -91,12 +91,8 @@ namespace Pol {
 	  {
 		for ( unsigned short wy = wyL; wy <= wyH; ++wy )
 		{
-		  ZoneCharacters& wchr = p_chr->realm->zone[wx][wy].characters;
-
-		  for ( ZoneCharacters::iterator itr = wchr.begin(), end = wchr.end(); itr != end; ++itr )
+          for ( auto &chr : p_chr->realm->zone[wx][wy].npcs )
 		  {
-            Mobile::Character* chr = *itr;
-
 			if ( chr->isa( UObject::CLASS_NPC ) )
 			{
 			  NPC* npc = static_cast<NPC*>( chr );
@@ -128,11 +124,8 @@ namespace Pol {
 	  {
 		for ( unsigned short wy = wyL; wy <= wyH; ++wy )
 		{
-		  ZoneCharacters& wchr = p_chr->realm->zone[wx][wy].characters;
-
-		  for ( ZoneCharacters::iterator itr = wchr.begin(), end = wchr.end(); itr != end; ++itr )
+          for ( auto &chr : p_chr->realm->zone[wx][wy].npcs )
 		  {
-            Mobile::Character* chr = *itr;
 			if ( chr->isa( UObject::CLASS_NPC ) )
 			{
 			  NPC* npc = static_cast<NPC*>( chr );

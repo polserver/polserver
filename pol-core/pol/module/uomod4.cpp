@@ -99,7 +99,7 @@ namespace Pol {
 	  {	// Realm and X Y Z change.
 		// 8-26-05  Austin
 		// Notify NPCs in the old realm that the player left the realm.
-		ForEachMobileInRange( chr->lastx, chr->lasty, oldrealm, 32, NpcPropagateLeftArea, chr );
+        ForEachNPCInRange( chr->lastx, chr->lasty, oldrealm, 32, [&]( Character* zonechr ) { NpcPropagateLeftArea( zonechr, chr ); } );
 
 		send_remove_character_to_nearby( chr );
 		if ( chr->client != NULL )
@@ -123,8 +123,15 @@ namespace Pol {
 		return new BError( "Position indicated is impassable" );
 	  }
 
-	  if ( newrealm != boat->realm ) //boat->move_xy removes on xy change so only realm change check is needed
-		Clib::ConstForEach( clients, send_remove_object_if_inrange, (Item*)boat );
+      if ( newrealm != boat->realm ) //boat->move_xy removes on xy change so only realm change check is needed
+      {
+        Network::PktHelper::PacketOut<Network::PktOut_1D> msgremove;
+        msgremove->Write<u32>( boat->serial_ext );
+        ForEachPlayerInVisualRange( boat, [&]( Character *zonechr )
+        {
+          send_remove_object( zonechr->client, msgremove.Get() );
+        } );
+      }
 	  boat->realm = newrealm;
 
 	  s8 deltaz = static_cast<s8>( z - boat->z );

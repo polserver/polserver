@@ -321,51 +321,21 @@ namespace Pol {
 	  return false;
 	}
 
-	void send_inrange_items( Network::Client* client )
-	{
-	  unsigned short wxL, wyL, wxH, wyH;
-	  zone_convert_clip( client->chr->x - RANGE_VISUAL, client->chr->y - RANGE_VISUAL, client->chr->realm, wxL, wyL );
-	  zone_convert_clip( client->chr->x + RANGE_VISUAL, client->chr->y + RANGE_VISUAL, client->chr->realm, wxH, wyH );
-	  for ( unsigned short wx = wxL; wx <= wxH; ++wx )
-	  {
-		for ( unsigned short wy = wyL; wy <= wyH; ++wy )
-		{
-		  ZoneItems& witem = client->chr->realm->zone[wx][wy].items;
-		  for ( ZoneItems::iterator itr = witem.begin(), end = witem.end(); itr != end; ++itr )
-		  {
-			Items::Item* item = *itr;
-			if ( inrange( client->chr, item ) )
-			{
-			  send_item( client, item );
-			}
-		  }
-		}
-	  }
+    void send_inrange_items( Network::Client* client )
+    {
+      ForEachItemInVisualRange( client->chr, [&]( Items::Item* item )
+      {
+        send_item( client, item );
+      } );
+    }
 
-	}
-
-	void send_inrange_multis( Network::Client* client )
-	{
-	  unsigned short wxL, wyL, wxH, wyH;
-	  zone_convert_clip( client->chr->x - RANGE_VISUAL, client->chr->y - RANGE_VISUAL, client->chr->realm, wxL, wyL );
-	  zone_convert_clip( client->chr->x + RANGE_VISUAL, client->chr->y + RANGE_VISUAL, client->chr->realm, wxH, wyH );
-	  for ( unsigned short wx = wxL; wx <= wxH; ++wx )
-	  {
-		for ( unsigned short wy = wyL; wy <= wyH; ++wy )
-		{
-		  ZoneMultis& wmulti = client->chr->realm->zone[wx][wy].multis;
-		  for ( ZoneMultis::iterator itr = wmulti.begin(), end = wmulti.end(); itr != end; ++itr )
-		  {
-			Multi::UMulti* multi = *itr;
-			if ( inrange( client->chr, multi ) )
-			{
-			  send_multi( client, multi );
-			}
-		  }
-		}
-	  }
-
-	}
+    void send_inrange_multis( Network::Client* client )
+    {
+      ForEachMultiInVisualRange( client->chr, [&]( Multi::UMulti* multi )
+      {
+        send_multi( client, multi );
+      } );
+    }
 
 	void textcmd_startlog( Network::Client* client );
 	void textcmd_stoplog( Network::Client* client );
@@ -1258,7 +1228,7 @@ namespace Pol {
 		{
 		  CLIENT_CHECKPOINT( 9 );
 		  PolLock lck;
-          clients.erase( Clib::find_in( clients, client ) );
+          clients.erase( std::find( clients.begin(), clients.end(), client ) );
 		  std::lock_guard<std::mutex> lock( client->_SocketMutex );
 		  client->closeConnection();
           cout << "Client disconnected from " << Network::AddressToString( &client->ipaddr )
@@ -1320,7 +1290,7 @@ namespace Pol {
 			  Mobile::Character* chr = client->chr;
 			  CLIENT_CHECKPOINT( 16 );
 			  call_chr_scripts( chr, "scripts/misc/logoff.ecl", "logoff.ecl" );
-              ForEachMobileInRange( chr->x, chr->y, chr->realm, 32, Mobile::NpcPropagateLeftArea, chr );
+              ForEachNPCInRange( chr->x, chr->y, chr->realm, 32, [&]( Mobile::Character* zonechr ) { Mobile::NpcPropagateLeftArea( zonechr, chr ); } );
 			}
 		  }
 		}
@@ -1916,6 +1886,74 @@ namespace Pol {
 	
   } // namespace Core
 
+  void polcleanup()
+  {
+    cout << "Initiating POL Cleanup...." << endl;
+
+    for ( Core::Clients::iterator itr = Core::clients.begin(), end = Core::clients.end(); itr != end; ++itr )
+    {
+      Network::Client* sd_client = *itr;
+      sd_client->forceDisconnect();
+    }
+    Core::kill_disconnected_clients();
+
+    Core::deinit_ipc_vars();
+
+    if ( Core::config.log_script_cycles )
+      Core::log_all_script_cycle_counts( false );
+
+    Core::checkpoint( "cleaning up vars" );
+    Core::cleanup_vars();
+    Core::checkpoint( "cleaning up scripts" );
+    Core::cleanup_scripts();
+
+    // scripts remove their listening points when they exit..
+    // so there should be no listening points to clean up.
+    Core::checkpoint( "cleaning listen points" );
+    Core::clear_listen_points();
+
+    Network::unload_aux_services(); // Nando - 2009-01-19
+
+    Core::unload_other_objects();
+    Items::unload_itemdesc_scripts();
+    Core::unload_system_hooks();
+    Core::UnloadAllConfigFiles();
+
+    Plib::unload_packages(); // Nando - 2009-01-19
+    Core::unload_npc_templates();  //quick and nasty fix until npcdesc usage is rewritten Turley 2012-08-27: moved before objecthash due to npc-method_script cleanup
+
+    Bscript::UninitObject::ReleaseSharedInstance();
+    Core::objecthash.Clear();
+    Core::display_leftover_objects();
+
+    Core::checkpoint( "unloading data" );
+    Core::unload_data();
+
+    Clib::MD5_Cleanup();
+
+    Core::checkpoint( "misc cleanup" );
+    Clib::CloseLogFile();
+
+    Core::clear_script_storage();
+
+#ifdef _WIN32
+    closesocket( Core::listen_socket );
+#else
+    close( Core::listen_socket ); // shutdown( listen_socket, 2 ); ??
+#endif
+    Network::deinit_sockets_library();
+
+    Core::checkpoint( "end of xmain2" );
+    //mlog.clear();
+    //pol_lg2 << "Log file closed at <FIXME:time here>" << endl;
+
+    Core::close_logfiles();
+
+#ifdef __linux__
+    unlink( ( Core::config.pidfile_path + "pol.pid" ).c_str( ) );
+#endif
+  }
+
   int xmain_inner( int argc, char *argv[] )
   {
 #ifdef _WIN32
@@ -2085,12 +2123,15 @@ namespace Pol {
     Core::checkpoint( "reading starting locations" );
     Core::read_starting_locations( );
 
-	if ( argc > 1 )
-	{
-	  cout << "Running POL test suite." << endl;
-      Core::run_pol_tests( );
-	  return 0;
-	}
+    if ( argc > 1 )
+    {
+      cout << "Running POL test suite." << endl;
+      Core::run_pol_tests();
+      Core::cancel_all_trades();
+      Core::stop_gameclock();
+      polcleanup();
+      return 0;
+    }
 
 	// PrintAllocationData();
 	cout << "Reading data files:\n";
@@ -2263,71 +2304,7 @@ namespace Pol {
       else if ( Core::config.inhibit_saves )
 		Clib::Log2( "Not writing data due to pol.cfg InhibitSaves=1 setting.\n" );
 	}
-
-	cout << "Initiating POL Cleanup...." << endl;
-
-    for ( Core::Clients::iterator itr = Core::clients.begin( ), end = Core::clients.end( ); itr != end; ++itr )
-	{
-	  Network::Client* sd_client = *itr;
-	  sd_client->forceDisconnect();
-	}
-    Core::kill_disconnected_clients( );
-
-    Core::deinit_ipc_vars( );
-
-    if ( Core::config.log_script_cycles )
-      Core::log_all_script_cycle_counts( false );
-
-    Core::checkpoint( "cleaning up vars" );
-    Core::cleanup_vars( );
-    Core::checkpoint( "cleaning up scripts" );
-    Core::cleanup_scripts( );
-
-	// scripts remove their listening points when they exit..
-	// so there should be no listening points to clean up.
-    Core::checkpoint( "cleaning listen points" );
-    Core::clear_listen_points( );
-
-    Network::unload_aux_services( ); // Nando - 2009-01-19
-
-    Core::unload_other_objects( );
-    Items::unload_itemdesc_scripts( );
-    Core::unload_system_hooks( );
-    Core::UnloadAllConfigFiles( );
-
-    Plib::unload_packages( ); // Nando - 2009-01-19
-    Core::unload_npc_templates( );  //quick and nasty fix until npcdesc usage is rewritten Turley 2012-08-27: moved before objecthash due to npc-method_script cleanup
-
-    Bscript::UninitObject::ReleaseSharedInstance( );
-    Core::objecthash.Clear( );
-    Core::display_leftover_objects( );
-
-    Core::checkpoint( "unloading data" );
-    Core::unload_data( );
-
-    Clib::MD5_Cleanup( );
-
-    Core::checkpoint( "misc cleanup" );
-    Clib::CloseLogFile( );
-
-    Core::clear_script_storage( );
-
-#ifdef _WIN32
-    closesocket( Core::listen_socket );
-#else
-	close( Core::listen_socket ); // shutdown( listen_socket, 2 ); ??
-#endif
-    res = Network::deinit_sockets_library( );
-
-    Core::checkpoint( "end of xmain2" );
-	//mlog.clear();
-	//pol_lg2 << "Log file closed at <FIXME:time here>" << endl;
-
-    Core::close_logfiles( );
-
-#ifdef __linux__
-	unlink((Core::config.pidfile_path+"pol.pid").c_str());
-#endif
+    polcleanup();
 	return 0;
   }
 
@@ -2344,6 +2321,7 @@ namespace Pol {
         cout << "Server Shutdown: " << Core::last_checkpoint << endl;
 		//pol_sleep_ms( 10000 );
 	  }
+      polcleanup();
       Core::objecthash.Clear( );
 
 	  throw;

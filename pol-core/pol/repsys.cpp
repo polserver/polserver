@@ -768,8 +768,10 @@ namespace Pol {
       {
         if ( criminal_until_ < Core::polclock( ) )
         {
-          ForEachMobileInRange( static_cast<unsigned short>( x ), static_cast<unsigned short>( y ), realm, 32,
-                                NpcPropagateCriminal, this );
+          Core::ForEachNPCInRange( x, y, realm, 32, [&]( Character* chr )
+          {
+            NpcPropagateCriminal( chr, this );
+          } );
         }
         criminal_until_ = until;
       }

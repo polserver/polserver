@@ -991,26 +991,11 @@ namespace Pol {
 
 	void CustomHousesSendFullToInRange( UHouse* house, int design, int range )
 	{
-	  unsigned short wxL, wyL, wxH, wyH;
-
-      Core::zone_convert_clip( house->x - range, house->y - range, house->realm, wxL, wyL );
-      Core::zone_convert_clip( house->x + range, house->y + range, house->realm, wxH, wyH );
-	  passert( wxL <= wxH );
-	  passert( wyL <= wyH );
-	  for ( unsigned short wx = wxL; wx <= wxH; ++wx )
-	  {
-		for ( unsigned short wy = wyL; wy <= wyH; ++wy )
-		{
-          Core::ZoneCharacters& wchr = house->realm->zone[wx][wy].characters;
-
-          for ( Core::ZoneCharacters::iterator itr = wchr.begin( ), end = wchr.end( ); itr != end; ++itr )
-		  {
-			Mobile::Character* chr = *itr;
-			if ( chr->has_active_client() )
-			  CustomHousesSendFull( house, chr->client, design );
-		  }
-		}
-	  }
+      Core::ForEachPlayerInRange( house->x, house->y, house->realm, range, [&]( Mobile::Character* chr )
+      {
+        if ( chr->has_active_client() )
+          CustomHousesSendFull( house, chr->client, design );
+      } );
 	}
 
 	void CustomHousesSendShort( UHouse* house, Network::Client* client )

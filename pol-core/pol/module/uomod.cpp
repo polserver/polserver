@@ -1361,12 +1361,18 @@ namespace Pol {
 
 		//characters.push_back( npc.get() );
 		SetCharacterWorldPosition( npc.get() );
-
-        Clib::ForEach( clients, send_char_data, static_cast<Character*>( npc.get( ) ) );
+        ForEachPlayerInVisualRange( npc.get(), [&]( Character *zonechr )
+        {
+          if ( !zonechr->has_active_client() )
+            return;
+          send_char_data( zonechr->client, npc.get() );
+        } );
 
 		//dave added 2/3/3 send entered area events for npc create
-		ForEachMobileInRange( x, y, realm, 32,
-							  NpcPropagateMove, static_cast<Character*>( npc.get() ) );
+        Core::ForEachNPCInRange( x, y, realm, 32, [&]( Character* chr )
+        {
+          NpcPropagateMove( chr, npc.get() );
+        } );
 		// FIXME: Need to add Walkon checks for multi right here if type is house.
 		if ( dummy_multi )
 		{
@@ -2314,26 +2320,14 @@ namespace Pol {
 		}
 
 		std::unique_ptr<ObjArray> newarr( new ObjArray );
-
-		unsigned short wxL, wyL, wxH, wyH;
-		zone_convert_clip( x - range, y - range, realm, wxL, wyL );
-		zone_convert_clip( x + range, y + range, realm, wxH, wyH );
-
-		for ( unsigned short wx = wxL; wx <= wxH; ++wx )
-		{
-		  for ( unsigned short wy = wyL; wy <= wyH; ++wy )
-		  {
-			ZoneItems& witem = realm->zone[wx][wy].items;
-			for ( ZoneItems::iterator itr = witem.begin(), end = witem.end(); itr != end; ++itr )
-			{
-			  Item* item = *itr;
-
-			  if ( ( abs( item->x - x ) <= range ) && ( abs( item->y - y ) <= range ) )
-			  if ( ( z == LIST_IGNORE_Z ) || ( abs( item->z - z ) < CONST_DEFAULT_ZRANGE ) )
-				newarr->addElement( item->make_ref() );
-			}
-		  }
-		}
+        ForEachItemInRange( x, y, realm, range, [&]( Item* item )
+        {
+          if ( ( abs( item->x - x ) <= range ) && ( abs( item->y - y ) <= range ) )
+          {
+            if ( ( z == LIST_IGNORE_Z ) || ( abs( item->z - z ) < CONST_DEFAULT_ZRANGE ) )
+              newarr->addElement( item->make_ref() );
+          }
+        } );
 
 		return newarr.release();
 	  }
@@ -2390,40 +2384,20 @@ namespace Pol {
 	  internal_InBoxAreaChecks( x1, y1, z1, x2, y2, z2, realm );
 
 	  std::unique_ptr<ObjArray> newarr( new ObjArray );
-
-	  unsigned short wxL, wyL, wxH, wyH;
-	  zone_convert_clip( x1, y1, realm, wxL, wyL );
-	  zone_convert_clip( x2, y2, realm, wxH, wyH );
-
-	  for ( unsigned short wx = wxL; wx <= wxH; ++wx )
-	  {
-		for ( unsigned short wy = wyL; wy <= wyH; ++wy )
-		{
-		  ZoneCharacters& wchr = realm->zone[wx][wy].characters;
-		  for ( ZoneCharacters::iterator itr = wchr.begin(), end = wchr.end(); itr != end; ++itr )
-		  {
-			Character* chr = *itr;
-			if ( chr->x >= x1 && chr->x <= x2 &&
-				 chr->y >= y1 && chr->y <= y2 &&
-				 chr->z >= z1 && chr->z <= z2 )
-			{
-			  newarr->addElement( chr->make_ref() );
-			}
-		  }
-
-		  ZoneItems& witem = realm->zone[wx][wy].items;
-		  for ( ZoneItems::iterator itr = witem.begin(), end = witem.end(); itr != end; ++itr )
-		  {
-			Item* item = *itr;
-			if ( item->x >= x1 && item->x <= x2 &&
-				 item->y >= y1 && item->y <= y2 &&
-				 item->z >= z1 && item->z <= z2 )
-			{
-			  newarr->addElement( item->make_ref() );
-			}
-		  }
-		}
-	  }
+      ForEachMobileInBox( x1, y1, x2, y2, realm, [&]( Mobile::Character* chr )
+      {
+        if ( chr->z >= z1 && chr->z <= z2 )
+        {
+          newarr->addElement( chr->make_ref() );
+        }
+      } );
+      ForEachItemInBox( x1, y1, x2, y2, realm, [&]( Items::Item* item )
+      {
+        if ( item->z >= z1 && item->z <= z2 )
+        {
+          newarr->addElement( item->make_ref() );
+        }
+      } );
 
 	  return newarr.release();
 	}
@@ -2465,61 +2439,44 @@ namespace Pol {
 
 	  std::unique_ptr<ObjArray> newarr( new ObjArray );
 
-	  unsigned short wxL, wyL, wxH, wyH;
-      zone_convert_clip( x1 + Multi::MultiDef::global_minrx, y1 + Multi::MultiDef::global_minry, realm, wxL, wyL );
-      zone_convert_clip( x2 + Multi::MultiDef::global_maxrx, y2 + Multi::MultiDef::global_maxry, realm, wxH, wyH );
+      // search for multis.  this is tricky, since the center might lie outside the box
+      ForEachMultiInBox( x1, y1, x2, y2, realm, [&]( Multi::UMulti* multi )
+      {
+        const Multi::MultiDef& md = multi->multidef();
+        if ( multi->x + md.minrx > x2 || // east of the box
+             multi->x + md.maxrx < x1 || // west of the box
+             multi->y + md.minry > y2 || // south of the box
+             multi->y + md.maxry < y1 || // north of the box
+             multi->z + md.minrz > z2 || // above the box
+             multi->z + md.maxrz < z1 ) // below the box
+        {
+          return;
+        }
+        // some part of it is contained in the box.  Look at the individual statics, to see
+        // if any of them lie within.
+        for ( const auto& citr : md.components )
+        {
+          const Multi::MULTI_ELEM* elem = citr.second;
+          int absx = multi->x + elem->x;
+          int absy = multi->y + elem->y;
+          int absz = multi->z + elem->z;
+          if ( x1 <= absx && absx <= x2 &&
+               y1 <= absy && absy <= y2 )
+          {
+            // do Z checking
+            int height = tileheight( getgraphic( elem->objtype ) );
+            int top = absz + height;
 
-	  // search for multis.  this is tricky, since the center might lie outside the box
-	  for ( unsigned short wx = wxL; wx <= wxH; ++wx )
-	  {
-		for ( unsigned short wy = wyL; wy <= wyH; ++wy )
-		{
-		  ZoneMultis& multis = realm->zone[wx][wy].multis;
-		  for ( ZoneMultis::const_iterator citr = multis.begin(), end = multis.end(); citr != end; ++citr )
-		  {
-            Multi::UMulti* multi = *citr;
-            const Multi::MultiDef& md = multi->multidef( );
-			if ( multi->x + md.minrx > x2 || // east of the box
-				 multi->x + md.maxrx < x1 || // west of the box
-				 multi->y + md.minry > y2 || // south of the box
-				 multi->y + md.maxry < y1 || // north of the box
-				 multi->z + md.minrz > z2 || // above the box
-				 multi->z + md.maxrz < z1 ) // below the box
-			{
-			  continue;
-			}
-
-			// some part of it is contained in the box.  Look at the individual statics, to see
-			// if any of them lie within.
-			// Code Analyze: Commented and renaming due to C6246 Warning
-			//				for( MultiDef::Components::const_iterator citr_2 = md.components.begin(), end = md.components.end();
-            for ( Multi::MultiDef::Components::const_iterator citr_2 = md.components.begin( ), end_2 = md.components.end( );
-				  citr_2 != end_2;
-				  ++citr_2 )
-			{
-              const Multi::MULTI_ELEM* elem = ( *citr_2 ).second;
-			  int absx = multi->x + elem->x;
-			  int absy = multi->y + elem->y;
-			  int absz = multi->z + elem->z;
-			  if ( x1 <= absx && absx <= x2 &&
-				   y1 <= absy && absy <= y2 )
-			  {
-				// do Z checking
-				int height = tileheight( getgraphic( elem->objtype ) );
-				int top = absz + height;
-
-				if ( ( z1 <= absz && absz <= z2 ) ||	// bottom point lies between
-					 ( z1 <= top && top <= z2 ) ||	   // top lies between
-					 ( top >= z2 && absz <= z1 ) )		// spans
-				{
-				  newarr->addElement( multi->make_ref() );
-				  break; // out of for
-				}
-			  }
-			}
-		  }
-		}
-	  }
+            if ( ( z1 <= absz && absz <= z2 ) ||	// bottom point lies between
+                 ( z1 <= top && top <= z2 ) ||	   // top lies between
+                 ( top >= z2 && absz <= z1 ) )		// spans
+            {
+              newarr->addElement( multi->make_ref() );
+              break; // out of for
+            }
+          }
+        }
+      } );
 
 	  return newarr.release();
 	}
@@ -2640,26 +2597,15 @@ namespace Pol {
 			return new BError( "Invalid Coordinates for realm" );
 		}
 
-		unsigned short wxL, wyL, wxH, wyH;
-		zone_convert_clip( x - range, y - range, realm, wxL, wyL );
-		zone_convert_clip( x + range, y + range, realm, wxH, wyH );
-
-		for ( unsigned short wx = wxL; wx <= wxH; ++wx )
-		{
-		  for ( unsigned short wy = wyL; wy <= wyH; ++wy )
-		  {
-			ZoneItems& witem = realm->zone[wx][wy].items;
-			for ( ZoneItems::iterator itr = witem.begin(), end = witem.end(); itr != end; ++itr )
-			{
-			  Item* item = *itr;
-
-			  if ( ( item->objtype_ == objtype ) && ( abs( item->x - x ) <= range ) && ( abs( item->y - y ) <= range ) )
-			  if ( ( z == LIST_IGNORE_Z ) || ( abs( item->z - z ) < CONST_DEFAULT_ZRANGE ) )
-				newarr->addElement( item->make_ref() );
-			}
-		  }
-		}
-
+        ForEachItemInRange( x, y, realm, range, [&]( Items::Item* item )
+        {
+          if ( ( item->objtype_ == objtype ) && ( abs( item->x - x ) <= range ) && ( abs( item->y - y ) <= range ) )
+          {
+            if ( ( z == LIST_IGNORE_Z ) || ( abs( item->z - z ) < CONST_DEFAULT_ZRANGE ) )
+              newarr->addElement( item->make_ref() );
+          }
+        } );
+        
 		return newarr.release();
 	  }
 
@@ -2695,20 +2641,15 @@ namespace Pol {
 		}
 
 		std::unique_ptr<ObjArray> newarr( new ObjArray );
-
-		unsigned short wx, wy;
-		zone_convert_clip( x, y, realm, wx, wy );
-		ZoneItems& witem = realm->zone[wx][wy].items;
-
-		for ( ZoneItems::iterator itr = witem.begin(), end = witem.end(); itr != end; ++itr )
-		{
-		  Item* item = *itr;
-
-		  if ( ( item->x == x ) && ( item->y == y ) )
-		  if ( ( z == LIST_IGNORE_Z ) || ( item->z == z ) )
-			newarr->addElement( item->make_ref() );
-		}
-
+        ForEachItemInRange( x, y, realm, 0, [&]( Items::Item* item )
+        {
+          if ( ( item->x == x ) && ( item->y == y ) )
+          {
+            if ( ( z == LIST_IGNORE_Z ) || ( item->z == z ) )
+              newarr->addElement( item->make_ref() );
+          }
+        } );
+        
 		return newarr.release();
 	  }
 
@@ -2733,30 +2674,14 @@ namespace Pol {
 		if ( !realm ) return new BError( "Realm not found" );
 
 		std::unique_ptr<ObjArray> newarr( new ObjArray );
-
-		unsigned short wxL, wyL, wxH, wyH;
-		zone_convert_clip( x - range, y - range, realm, wxL, wyL );
-		zone_convert_clip( x + range, y + range, realm, wxH, wyH );
-		for ( unsigned short wx = wxL; wx <= wxH; ++wx )
-		{
-		  for ( unsigned short wy = wyL; wy <= wyH; ++wy )
-		  {
-			ZoneCharacters& wchr = realm->zone[wx][wy].characters;
-
-			for ( ZoneCharacters::iterator itr = wchr.begin(), end = wchr.end(); itr != end; ++itr )
-			{
-			  Character* chr = *itr;
-
-			  if ( chr->dead() &&
-				   ( abs( chr->z - z ) < CONST_DEFAULT_ZRANGE ) &&
-				   ( abs( chr->x - x ) <= range ) &&
-				   ( abs( chr->y - y ) <= range ) )
-			  {
-				newarr->addElement( chr->make_ref() );
-			  }
-			}
-		  }
-		}
+        ForEachPlayerInRange( x, y, realm, range, [&]( Mobile::Character* chr )
+        {
+          if ( chr->dead() &&
+               ( abs( chr->z - z ) < CONST_DEFAULT_ZRANGE ) )
+          {
+            newarr->addElement( chr->make_ref() );
+          }
+        } );
 
 		return newarr.release();
 	  }
@@ -2779,7 +2704,6 @@ namespace Pol {
 	  int z, flags;
 	  short range;
 	  const String* strrealm;
-	  Plib::Realm* realm;
 
 	  if ( getParam( 0, x ) &&
 		   getParam( 1, y ) &&
@@ -2788,7 +2712,7 @@ namespace Pol {
 		   getParam( 4, flags ) &&
 		   getStringParam( 5, strrealm ) )
 	  {
-		realm = find_realm( strrealm->value() );
+        Plib::Realm* realm = find_realm( strrealm->value( ) );
 		if ( !realm )
 		  return new BError( "Realm not found" );
 
@@ -2812,38 +2736,27 @@ namespace Pol {
 
 		std::unique_ptr<ObjArray> newarr( new ObjArray );
 
-		unsigned short wxL, wyL, wxH, wyH;
-		zone_convert_clip( x - range, y - range, realm, wxL, wyL );
-		zone_convert_clip( x + range, y + range, realm, wxH, wyH );
-
-		for ( unsigned short wx = wxL; wx <= wxH; ++wx )
-		{
-		  for ( unsigned short wy = wyL; wy <= wyH; ++wy )
-		  {
-			ZoneCharacters& wchr = realm->zone[wx][wy].characters;
-
-			for ( ZoneCharacters::iterator itr = wchr.begin(), end = wchr.end(); itr != end; ++itr )
-			{
-			  Character* chr = *itr;
-
-			  if ( ( inc_hidden && chr->hidden() ) || ( inc_dead   && chr->dead() ) || ( inc_concealed && chr->concealed() ) || ( inc_normal && !( chr->hidden() || chr->dead() || chr->concealed() ) ) )
-			  {
-				if ( ( abs( chr->x - x ) <= range ) && ( abs( chr->y - y ) <= range ) )
-				{
-				  if ( ( z == LIST_IGNORE_Z ) || ( abs( chr->z - z ) < CONST_DEFAULT_ZRANGE ) )
-				  {
-					if ( !inc_players_only && !inc_npc_only )
-					  newarr->addElement( chr->make_ref() );
-					else if ( inc_players_only && chr->client )
-					  newarr->addElement( chr->make_ref() );
-					else if ( inc_npc_only && chr->isa( UObject::CLASS_NPC ) )
-					  newarr->addElement( chr->make_ref() );
-				  }
-				}
-			  }
-			}
-		  }
-		}
+        auto fill_mobs = [&]( Mobile::Character* _chr )
+        {
+          if ( ( inc_hidden && _chr->hidden() ) || ( inc_dead   && _chr->dead() ) || ( inc_concealed && _chr->concealed() ) || ( inc_normal && !( _chr->hidden() || _chr->dead() || _chr->concealed() ) ) )
+          {
+            if ( ( z == LIST_IGNORE_Z ) || ( abs( _chr->z - z ) < CONST_DEFAULT_ZRANGE ) )
+            {
+              if ( !inc_players_only && !inc_npc_only )
+                newarr->addElement( _chr->make_ref() );
+              else if ( inc_players_only && _chr->client )
+                newarr->addElement( _chr->make_ref() );
+              else if ( inc_npc_only && _chr->isa( UObject::CLASS_NPC ) )
+                newarr->addElement( _chr->make_ref() );
+            }
+          }
+        };
+        if (inc_players_only)
+          ForEachPlayerInRange( x, y, realm, range, fill_mobs );
+        else if (inc_npc_only)
+          ForEachNPCInRange( x, y, realm, range, fill_mobs );
+        else
+          ForEachMobileInRange( x, y, realm, range, fill_mobs );
 
 		return newarr.release();
 	  }
@@ -2883,29 +2796,12 @@ namespace Pol {
 		}
 
 		std::unique_ptr<ObjArray> newarr( new ObjArray );
-
-		unsigned short wxL, wyL, wxH, wyH;
-		zone_convert_clip( x - range, y - range, realm, wxL, wyL );
-		zone_convert_clip( x + range, y + range, realm, wxH, wyH );
-
-		for ( unsigned short wx = wxL; wx <= wxH; ++wx )
-		{
-		  for ( unsigned short wy = wyL; wy <= wyH; ++wy )
-		  {
-			ZoneCharacters& wchr = realm->zone[wx][wy].characters;
-
-			for ( ZoneCharacters::iterator itr = wchr.begin(), end = wchr.end(); itr != end; ++itr )
-			{
-			  Character* chr = *itr;
-
-			  if ( ( !chr->concealed() ) && ( !chr->hidden() ) && ( !chr->dead() ) &&
-				   ( abs( chr->x - x ) <= range ) && ( abs( chr->y - y ) <= range ) )
-			  if ( ( z == LIST_IGNORE_Z ) || ( abs( chr->z - z ) < CONST_DEFAULT_ZRANGE ) )
-				newarr->addElement( chr->make_ref() );
-			}
-		  }
-		}
-
+        ForEachMobileInRange( x, y, realm, range, [&]( Mobile::Character* chr )
+        {
+          if ( ( !chr->concealed() ) && ( !chr->hidden() ) && ( !chr->dead() ) )
+          if ( ( z == LIST_IGNORE_Z ) || ( abs( chr->z - z ) < CONST_DEFAULT_ZRANGE ) )
+            newarr->addElement( chr->make_ref() );
+        } );
 		return newarr.release();
 	  }
 	  else
@@ -2923,35 +2819,21 @@ namespace Pol {
 	  {
 		obj = obj->toplevel_owner();
 		std::unique_ptr<ObjArray> newarr( new ObjArray );
+        ForEachMobileInRange( obj->x, obj->y, obj->realm, range, [&]( Mobile::Character* chr )
+        {
+          if ( chr->dead() || chr->hidden() || chr->concealed() )
+            return;
+          if ( chr == obj )
+            return;
+          if ( ( abs( chr->z - obj->z ) < CONST_DEFAULT_ZRANGE ) )
+          {
+            if ( obj->realm->has_los( *obj, *chr ) )
+            {
+              newarr->addElement( chr->make_ref() );
+            }
+          }
+        } );
 
-		unsigned short wxL, wyL, wxH, wyH;
-		zone_convert_clip( obj->x - range, obj->y - range, obj->realm, wxL, wyL );
-		zone_convert_clip( obj->x + range, obj->y + range, obj->realm, wxH, wyH );
-		for ( unsigned short wx = wxL; wx <= wxH; ++wx )
-		{
-		  for ( unsigned short wy = wyL; wy <= wyH; ++wy )
-		  {
-			ZoneCharacters& wchr = obj->realm->zone[wx][wy].characters;
-
-			for ( ZoneCharacters::iterator itr = wchr.begin(), end = wchr.end(); itr != end; ++itr )
-			{
-			  Character* chr = *itr;
-			  if ( chr->dead() || chr->hidden() || chr->concealed() )
-				continue;
-			  if ( chr == obj )
-				continue;
-			  if ( ( abs( chr->x - obj->x ) <= range ) &&
-				   ( abs( chr->y - obj->y ) <= range ) &&
-				   ( abs( chr->z - obj->z ) < CONST_DEFAULT_ZRANGE ) )
-			  {
-				if ( obj->realm->has_los( *obj, *chr ) )
-				{
-				  newarr->addElement( chr->make_ref() );
-				}
-			  }
-			}
-		  }
-		}
 		return newarr.release();
 	  }
 	  else
@@ -3638,7 +3520,13 @@ namespace Pol {
 	// FIXME : Should we do an Orphan check here as well? Ugh.
 	void true_extricate( Item* item )
 	{
-	  Clib::ConstForEach( clients, send_remove_object_if_inrange, item );
+      Network::PktHelper::PacketOut<Network::PktOut_1D> msgremove;
+      msgremove->Write<u32>( item->serial_ext );
+      ForEachPlayerInVisualRange( item, [&]( Character *zonechr )
+      {
+        send_remove_object( zonechr->client, msgremove.Get( ) );
+      } );
+
 	  if ( item->container != NULL )
 	  {
 		item->extricate();
@@ -4999,29 +4887,18 @@ namespace Pol {
 		}
 
 		std::unique_ptr<ObjArray> newarr( new ObjArray );
-
-		unsigned short wxL, wyL, wxH, wyH;
-		zone_convert_clip( x - range, y - range, realm, wxL, wyL );
-		zone_convert_clip( x + range, y + range, realm, wxH, wyH );
-
-		for ( unsigned short wx = wxL; wx <= wxH; ++wx )
-		{
-		  for ( unsigned short wy = wyL; wy <= wyH; ++wy )
-		  {
-			ZoneItems& witem = realm->zone[wx][wy].items;
-			for ( ZoneItems::iterator itr = witem.begin(), end = witem.end(); itr != end; ++itr )
-			{
-			  Item* item = *itr;
-
-			  if ( ( tile_uoflags( item->graphic ) & flags ) )
-			  {
-				if ( ( abs( item->x - x ) <= range ) && ( abs( item->y - y ) <= range ) )
-				if ( ( z == LIST_IGNORE_Z ) || ( abs( item->z - z ) < CONST_DEFAULT_ZRANGE ) )
-				  newarr->addElement( new EItemRefObjImp( item ) );
-			  }
-			}
-		  }
-		}
+        ForEachItemInRange( x, y, realm, range, [&]( Item* item )
+        {
+          if ( ( tile_uoflags( item->graphic ) & flags ) )
+          {
+            if ( ( abs( item->x - x ) <= range ) && ( abs( item->y - y ) <= range ) )
+            {
+              if ( ( z == LIST_IGNORE_Z ) || ( abs( item->z - z ) < CONST_DEFAULT_ZRANGE ) )
+                newarr->addElement( new EItemRefObjImp( item ) );
+            }
+          }
+        } );
+        
 		return newarr.release();
 	  }
 
@@ -5371,27 +5248,16 @@ namespace Pol {
 
 		AStarBlockers theBlockers( xL, xH, yL, yH );
 
-		unsigned short wxL, wyL, wxH, wyH;
 		if ( !( flags & FP_IGNORE_MOBILES ) )
 		{
-		  zone_convert_clip( xL, yL, realm, wxL, wyL );
-		  zone_convert_clip( xH, yH, realm, wxH, wyH );
-		  for ( unsigned short wx = wxL; wx <= wxH; ++wx )
-		  {
-			for ( unsigned short wy = wyL; wy <= wyH; ++wy )
-			{
-			  ZoneCharacters& wchr = realm->zone[wx][wy].characters;
-			  for ( ZoneCharacters::iterator itr = wchr.begin(), end = wchr.end(); itr != end; ++itr )
-			  {
-				Character* chr = *itr;
-				theBlockers.AddBlocker( chr->x, chr->y, chr->z );
+          ForEachMobileInBox( xL, yL, xH, yH, realm, [&]( Mobile::Character* chr )
+          {
+            theBlockers.AddBlocker( chr->x, chr->y, chr->z );
 
-				if ( config.loglevel >= 12 )
-				  Clib::Log( "[FindPath]	 add Blocker %s at %d %d %d\n",
-				  chr->name().c_str(), chr->x, chr->y, chr->z );
-			  }
-			}
-		  }
+            if ( config.loglevel >= 12 )
+              Clib::Log( "[FindPath]	 add Blocker %s at %d %d %d\n",
+              chr->name().c_str(), chr->x, chr->y, chr->z );
+          } );
 		}
 
 		// passed via GetSuccessors to realm->walkheight

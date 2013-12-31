@@ -99,7 +99,6 @@ namespace Pol {
 	void send_move( Network::Client *client, const Mobile::Character *chr );
 	void send_move( Network::Client *client, const Mobile::Character *chr, Network::PktOut_77* movebuffer, Network::PktOut_17* poisonbuffer, Network::PktOut_17* invulbuffer );
 	void build_send_move( const Mobile::Character *chr, Network::PktOut_77* msg );
-	void send_move_if_inrange( Network::Client *client, const Mobile::Character *chr );
 	void send_objdesc( Network::Client *client, Items::Item *item );
 
 	void send_poisonhealthbar( Network::Client *client, const Mobile::Character *chr );
@@ -121,12 +120,12 @@ namespace Pol {
 	void setrealm( Items::Item* item, void* arg );
 	void setrealmif( Items::Item* item, void* arg );
 
-	void send_remove_character( Network::Client *client, const Mobile::Character *chr );
-	void send_remove_character( Network::Client *client, const Mobile::Character *chr, Network::PktOut_1D* buffer, bool build = true );
+	void send_remove_character( Network::Client *client, const Mobile::Character *chr, Network::PktOut_1D* buffer = nullptr, bool build = true );
 	void send_remove_object_if_inrange( Network::Client *client, const Items::Item *obj );
 	void send_remove_object_to_inrange( const UObject *centerObject );
-	void send_remove_object( Network::Client *client, const Items::Item *obj );
-	void send_remove_object( Network::Client *client, const Items::Item *obj, Network::PktOut_1D* buffer );
+    void send_remove_object( Network::Client *client, Network::PktOut_1D* buffer );
+    void send_remove_object( Network::Client *client, const UObject *item, Network::PktOut_1D* buffer );
+    void send_remove_object( Network::Client *client, const UObject *obj );
 
 	void send_remove_character_to_nearby( const Mobile::Character* chr );
 	void send_remove_character_to_nearby_cantsee( const Mobile::Character* chr );

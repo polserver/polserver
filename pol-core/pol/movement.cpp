@@ -10,6 +10,7 @@ Notes
 
 */
 
+#include <functional>
 #include "../clib/stl_inc.h"
 
 #include "../clib/endian.h"
@@ -67,89 +68,38 @@ namespace Pol {
     void send_objects_newly_inrange( Network::Client* client )
 	{
       Mobile::Character* chr = client->chr;
-	  unsigned short wxL, wyL, wxH, wyH;
 
-	  zone_convert_clip( chr->x - RANGE_VISUAL_LARGE_BUILDINGS, chr->y - RANGE_VISUAL_LARGE_BUILDINGS, chr->realm, wxL, wyL );
-	  zone_convert_clip( chr->x + RANGE_VISUAL_LARGE_BUILDINGS, chr->y + RANGE_VISUAL_LARGE_BUILDINGS, chr->realm, wxH, wyH );
-	  for ( unsigned short wx = wxL; wx <= wxH; ++wx )
-	  {
-		for ( unsigned short wy = wyL; wy <= wyH; ++wy )
-		{
-		  ZoneMultis& wmulti = chr->realm->zone[wx][wy].multis;
-		  for ( ZoneMultis::iterator itr = wmulti.begin(), end = wmulti.end(); itr != end; ++itr )
-		  {
-            Multi::UMulti* multi = *itr;
-			send_multi_if_newly_inrange( multi, client );
-		  }
-		}
-	  }
-
-	  zone_convert_clip( chr->x - RANGE_VISUAL, chr->y - RANGE_VISUAL, chr->realm, wxL, wyL );
-	  zone_convert_clip( chr->x + RANGE_VISUAL, chr->y + RANGE_VISUAL, chr->realm, wxH, wyH );
-	  for ( unsigned short wx = wxL; wx <= wxH; ++wx )
-	  {
-		for ( unsigned short wy = wyL; wy <= wyH; ++wy )
-		{
-		  ZoneCharacters& wchr = chr->realm->zone[wx][wy].characters;
-		  for ( ZoneCharacters::iterator itr = wchr.begin(), end = wchr.end(); itr != end; ++itr )
-		  {
-            Mobile::Character* _chr = *itr;
-			send_char_if_newly_inrange( _chr, client );
-		  }
-
-
-		  ZoneItems& witem = chr->realm->zone[wx][wy].items;
-		  for ( ZoneItems::iterator itr = witem.begin(), end = witem.end(); itr != end; ++itr )
-		  {
-			Items::Item* item = *itr;
-			send_item_if_newly_inrange( item, client );
-		  }
-		}
-	  }
+      ForEachMobileInVisualRange( chr, [&]( Mobile::Character* zonechr )
+      {
+        send_char_if_newly_inrange( zonechr, client );
+      } );
+      ForEachItemInVisualRange( chr, [&]( Items::Item* zoneitem ) 
+      { 
+        send_item_if_newly_inrange( zoneitem, client );
+      } );
+      ForEachMultiInRange( chr->x, chr->y, chr->realm, RANGE_VISUAL_LARGE_BUILDINGS, [&]( Multi::UMulti* zonemulti )
+      {
+        send_multi_if_newly_inrange( zonemulti, client );
+      } );
 	}
 
     void remove_objects_inrange( Network::Client* client )
-	{
+    {
       Mobile::Character* chr = client->chr;
-	  unsigned short wxL, wyL, wxH, wyH;
       Network::PktHelper::PacketOut<Network::PktOut_1D> msgremove;
-	  zone_convert_clip( chr->x - RANGE_VISUAL_LARGE_BUILDINGS, chr->y - RANGE_VISUAL_LARGE_BUILDINGS, chr->realm, wxL, wyL );
-	  zone_convert_clip( chr->x + RANGE_VISUAL_LARGE_BUILDINGS, chr->y + RANGE_VISUAL_LARGE_BUILDINGS, chr->realm, wxH, wyH );
-	  for ( unsigned short wx = wxL; wx <= wxH; ++wx )
-	  {
-		for ( unsigned short wy = wyL; wy <= wyH; ++wy )
-		{
-		  ZoneMultis& wmulti = chr->realm->zone[wx][wy].multis;
-		  for ( ZoneMultis::iterator itr = wmulti.begin(), end = wmulti.end(); itr != end; ++itr )
-		  {
-            Multi::UMulti* multi = *itr;
-			send_remove_object( client, static_cast<const Items::Item*>( multi ), msgremove.Get() );
-		  }
-		}
-	  }
 
-	  zone_convert_clip( chr->x - RANGE_VISUAL, chr->y - RANGE_VISUAL, chr->realm, wxL, wyL );
-	  zone_convert_clip( chr->x + RANGE_VISUAL, chr->y + RANGE_VISUAL, chr->realm, wxH, wyH );
-	  for ( unsigned short wx = wxL; wx <= wxH; ++wx )
-	  {
-		for ( unsigned short wy = wyL; wy <= wyH; ++wy )
-		{
-		  ZoneCharacters& wchr = chr->realm->zone[wx][wy].characters;
-		  for ( ZoneCharacters::iterator itr = wchr.begin(), end = wchr.end(); itr != end; ++itr )
-		  {
-            Mobile::Character* _chr = *itr;
-			send_remove_character( client, _chr, msgremove.Get() );
-		  }
-
-
-		  ZoneItems& witem = chr->realm->zone[wx][wy].items;
-		  for ( ZoneItems::iterator itr = witem.begin(), end = witem.end(); itr != end; ++itr )
-		  {
-			Items::Item* item = *itr;
-			send_remove_object( client, item, msgremove.Get() );
-		  }
-		}
-	  }
+      ForEachMobileInVisualRange( chr, [&]( Mobile::Character* zonechar )
+      {
+        send_remove_character( client, zonechar, msgremove.Get() );
+      } );
+      ForEachItemInVisualRange( chr, [&]( Items::Item *item )
+      {
+        send_remove_object( client, item, msgremove.Get() );
+      } );
+      ForEachMultiInRange( chr->x, chr->y, chr->realm, RANGE_VISUAL_LARGE_BUILDINGS, [&]( Multi::UMulti *multi )
+      {
+        send_remove_object( client, multi, msgremove.Get() );
+      } );
 	}
 
     

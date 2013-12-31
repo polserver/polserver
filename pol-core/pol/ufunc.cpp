@@ -400,32 +400,6 @@ namespace Pol {
 		ADDTOSENDQUEUE( client, &invulbuffer->buffer, invulbuffer->offset );
 	}
 
-
-	void send_move_if_inrange( Client *client, const Character *chr )
-	{
-	  if ( client->ready &&
-		   client->chr &&
-		   client->chr != chr &&
-		   inrange( client->chr, chr ) )
-	  {
-		send_move( client, chr );
-	  }
-	}
-
-	void send_remove_character( Client *client, const Character *chr )
-	{
-	  if ( !client->ready )     /* if a client is just connecting, don't bother him. */
-		return;
-
-	  /* Don't remove myself */
-	  if ( client->chr == chr )
-		return;
-
-	  PktHelper::PacketOut<PktOut_1D> msgremove;
-	  msgremove->Write<u32>( chr->serial_ext );
-	  msgremove.Send( client );
-	}
-
 	void send_remove_character( Client *client, const Character *chr, PktOut_1D* buffer, bool build )
 	{
 	  if ( !client->ready )     /* if a client is just connecting, don't bother him. */
@@ -434,126 +408,67 @@ namespace Pol {
 	  /* Don't remove myself */
 	  if ( client->chr == chr )
 		return;
-	  if ( build )
-	  {
-		buffer->offset = 1;
-		buffer->Write<u32>( chr->serial_ext );
-	  }
 
-	  ADDTOSENDQUEUE( client, &buffer->buffer, buffer->offset );
+      if ( buffer == nullptr )
+      {
+        PktHelper::PacketOut<PktOut_1D> msgremove;
+        msgremove->Write<u32>( chr->serial_ext );
+        msgremove.Send( client );
+      }
+      else
+      {
+        if ( build )
+        {
+          buffer->offset = 1;
+          buffer->Write<u32>( chr->serial_ext );
+        }
+
+        ADDTOSENDQUEUE( client, &buffer->buffer, buffer->offset );
+      }
 	}
 
-
-	void send_remove_character_if_nearby( Client* client, const Character* chr )
-	{
-	  if ( !client->ready )     /* if a client is just connecting, don't bother him. */
-		return;
-
-	  if ( !inrange( client->chr, chr ) )
-		return;
-
-	  if ( client->chr == chr )
-		return;
-
-	  PktHelper::PacketOut<PktOut_1D> msgremove;
-	  msgremove->Write<u32>( chr->serial_ext );
-	  msgremove.Send( client );
-	}
 	void send_remove_character_to_nearby( const Character* chr )
 	{
 	  PktHelper::PacketOut<PktOut_1D> msgremove;
 	  msgremove->Write<u32>( chr->serial_ext );
-
-	  for ( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
-	  {
-		Client *client = *itr;
-		if ( !client->ready )     /* if a client is just connecting, don't bother him. */
-		  continue;
-
-		if ( !inrange( client->chr, chr ) )
-		  continue;
-
-		if ( client->chr == chr )
-		  continue;
-		msgremove.Send( client );
-	  }
+      ForEachPlayerInVisualRange( chr, [&]( Character *zonechr )
+      {
+        if ( !zonechr->has_active_client() )
+          return;
+        if ( zonechr == chr )
+          return;
+        msgremove.Send( zonechr->client );
+      } );
 	}
 
-	void send_remove_character_if_nearby_cantsee( Client* client, const Character* chr )
-	{
-	  if ( !client->ready )     /* if a client is just connecting, don't bother him. */
-		return;
-
-	  if ( !inrange( client->chr, chr ) )
-		return;
-
-	  if ( client->chr == chr )
-		return;
-
-	  if ( !client->chr->is_visible_to_me( chr ) )
-	  {
-		PktHelper::PacketOut<PktOut_1D> msgremove;
-		msgremove->Write<u32>( chr->serial_ext );
-		msgremove.Send( client );
-	  }
-	}
 	void send_remove_character_to_nearby_cantsee( const Character* chr )
 	{
 	  PktHelper::PacketOut<PktOut_1D> msgremove;
 	  msgremove->Write<u32>( chr->serial_ext );
 
-	  for ( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
-	  {
-		Client *client = *itr;
-		if ( !client->ready )     /* if a client is just connecting, don't bother him. */
-		  continue;
-
-		if ( !inrange( client->chr, chr ) )
-		  continue;
-
-		if ( client->chr == chr )
-		  continue;
-
-		if ( !client->chr->is_visible_to_me( chr ) )
-		{
-		  msgremove.Send( client );
-		}
-	  }
+      ForEachPlayerInVisualRange( chr, [&]( Character *zonechr )
+      {
+        if ( !zonechr->has_active_client() )
+          return;
+        if ( zonechr == chr )
+          return;
+        if ( !zonechr->is_visible_to_me( chr ) )
+          msgremove.Send( zonechr->client );
+      } );
 	}
 
-	// FIXME: This is depreciated unless we find a new place to use it.
-	void send_remove_character_if_nearby_cansee( Client* client, const Character* chr )
-	{
-	  if ( client->ready &&
-		   inrange( client->chr, chr ) &&
-		   client->chr != chr &&
-		   client->chr->is_visible_to_me( chr ) )
-	  {
-		PktHelper::PacketOut<PktOut_1D> msgremove;
-		msgremove->Write<u32>( chr->serial_ext );
-		msgremove.Send( client );
-	  }
-	}
-
-	void send_remove_character_to_nearby_cansee( const Character* chr )
+    void send_remove_character_to_nearby_cansee( const Character* chr )
 	{
 	  PktHelper::PacketOut<PktOut_1D> msgremove;
 	  msgremove->Write<u32>( chr->serial_ext );
-
-	  for ( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
-	  {
-		Client *client = *itr;
-		if ( client->ready &&
-			 inrange( client->chr, chr ) &&
-			 client->chr != chr &&
-			 client->chr->is_visible_to_me( chr ) )
-		{
-		  msgremove.Send( client );
-		}
-	  }
+      ForEachPlayerInVisualRange( chr, [&]( Character* _chr )
+      {
+        if ( _chr->has_active_client() &&
+             _chr != chr &&
+             _chr->is_visible_to_me( chr ) )
+             msgremove.Send( _chr->client );
+      } );
 	}
-
-
 
 	void send_remove_object_if_inrange( Client *client, const Item *item )
 	{
@@ -568,37 +483,43 @@ namespace Pol {
 	  msgremove.Send( client );
 	}
 
+    void send_remove_object( Client* client, const UObject *object )
+    {
+      if ( client == NULL || !client->ready )
+        return;
+      PktHelper::PacketOut<PktOut_1D> msgremove;
+      msgremove->Write<u32>( object->serial_ext );
+      msgremove.Send( client );
+    }
+
 	void send_remove_object_to_inrange( const UObject *centerObject )
 	{
 	  PktHelper::PacketOut<PktOut_1D> msgremove;
 	  msgremove->Write<u32>( centerObject->serial_ext );
 
-	  for ( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
-	  {
-		Client *client2 = *itr;
-		if ( !client2->ready )
-		  continue;
-		// FIXME need to check character's additional_legal_items.
-		// looks like inrange should be a Character member function.
-		if ( inrange( client2->chr, centerObject ) )
-		{
-		  msgremove.Send( client2 );
-		}
-	  }
+      ForEachPlayerInVisualRange( centerObject, [&]( Character *zonechr )
+      {
+        if ( !zonechr->has_active_client() )
+          return;
+        // FIXME need to check character's additional_legal_items.
+        msgremove.Send( zonechr->client );
+      } );
 	}
 
-	void send_remove_object( Client *client, const Item *item )
-	{
-	  PktHelper::PacketOut<PktOut_1D> msgremove;
-	  msgremove->Write<u32>( item->serial_ext );
-	  msgremove.Send( client );
-	}
+    void send_remove_object( Client *client, PktOut_1D* buffer )
+    {
+      if ( client == NULL || !client->ready )     /* if a client is just connecting, don't bother him. */
+        return;
+      ADDTOSENDQUEUE( client, &buffer->buffer, buffer->offset );
+    }
 
-	void send_remove_object( Client *client, const Item *obj, PktOut_1D* buffer )
+    void send_remove_object( Client *client, const UObject *item, PktOut_1D* buffer )
 	{
-	  buffer->offset = 1;
-	  buffer->Write<u32>( obj->serial_ext );
-	  ADDTOSENDQUEUE( client, &buffer->buffer, buffer->offset );
+      if ( !client->ready )     /* if a client is just connecting, don't bother him. */
+        return;
+      buffer->offset = 1;
+      buffer->Write<u32>( item->serial_ext );
+      ADDTOSENDQUEUE( client, &buffer->buffer, buffer->offset );
 	}
 
 	bool inrangex( const Character *c1, const Character *c2, int maxdist )
@@ -720,9 +641,9 @@ namespace Pol {
 	  PktHelper::PacketOut<PktOut_25> legacy_buffer;
 	  PktHelper::PacketOut<PktOut_25> slot_buffer;
 
-	  for ( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
+      // FIXME mightsee also checks remote containers thus the ForEachPlayer functions cannot be used
+	  for ( auto &client2 : clients )
 	  {
-		Client *client2 = *itr;
 		if ( !client2->ready )
 		  continue;
 		// FIXME need to check character's additional_legal_items.
@@ -783,9 +704,8 @@ namespace Pol {
 	  msg->Write<u32>( item->serial_ext );
 
 	  int n_layers_found = 0;
-	  for ( UContainer::const_iterator itr = cont->begin(); itr != cont->end(); ++itr )
+	  for ( const auto &item2 : *cont )
 	  {
-		const Item *item2 = GET_ITEM_PTR( itr );
 		if ( item2->layer == 0 )
 		  continue;
 
@@ -891,7 +811,7 @@ namespace Pol {
 
 	  if ( client->UOExpansionFlag & AOS )
 	  {
-		send_object_cache( client, dynamic_cast<const UObject*>( item ) );
+		send_object_cache( client, item );
 		return;
 	  }
 	}
@@ -904,14 +824,13 @@ namespace Pol {
 	  // (Character-specific flags, like can_move(), make it so we can't)
 	  // However, could build main part of packet before for/loop, then
 	  // adjust per client. Would this be a better solution?
-	  for ( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
-	  {
-		Client *client = *itr;
-		if ( !client->ready )
-		  continue;
-		if ( inrange( client->chr, item ) )
-		  send_item( client, item );
-	  }
+
+      ForEachPlayerInVisualRange( item, [&]( Character *zonechr )
+      {
+        if ( !zonechr->has_active_client() )
+          return;
+        send_item( zonechr->client, item );
+      } );
 	}
 
 
@@ -978,24 +897,6 @@ namespace Pol {
 		send_owncreate( client, chr );
 	  }
 	}
-
-	/*
-	void send_char_data_to_ghosts( Client* client, Character* chr )
-	{
-	if (client->ready &&                // must be logged into game
-	inrange( client->chr, chr ) &&
-	client->chr != chr &&
-	client->chr->is_visible_to_me( chr ))
-	{
-	send_owncreate( client, chr );
-	}
-	}
-
-	void send_char_data_to_nearby_ghosts( Character* chr )
-	{
-	ForEach( clients, send_char_data_to_ghosts, chr );
-	}
-	*/
 
 	/* send_client_char_data: called once for each character when a client
 	   logs on.  If in range, tell the client about each character. */
@@ -1132,11 +1033,8 @@ namespace Pol {
 	  {
 		for ( unsigned short wy = wyL; wy <= wyH; ++wy )
 		{
-		  ZoneItems& witem = chr->realm->zone[wx][wy].items;
-		  for ( ZoneItems::iterator itr = witem.begin(), end = witem.end(); itr != end; ++itr )
+          for ( auto &item : chr->realm->zone[wx][wy].items )
 		  {
-			Item* item = *itr;
-
 			if ( item->isa( UObject::CLASS_CONTAINER ) )
 			{
 			  cont = (UContainer *)item;
@@ -1191,10 +1089,8 @@ namespace Pol {
 	  {
 		for ( unsigned short wy = wyL; wy <= wyH; ++wy )
 		{
-		  ZoneItems& witem = chr->realm->zone[wx][wy].items;
-		  for ( ZoneItems::iterator itr = witem.begin(), end = witem.end(); itr != end; ++itr )
+          for ( auto &_item : chr->realm->zone[wx][wy].items )
 		  {
-			Item* _item = *itr;
 			if ( !inrange( chr, _item ) )
 			  continue;
 			if ( _item->serial == serial )
@@ -1243,19 +1139,12 @@ namespace Pol {
 	  msg->WriteFlipped<u16>( cy );
 	  msg->WriteFlipped<s16>( static_cast<s16>( cz ) );
 
-	  for ( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
-	  {
-		Client* client = *itr;
-
-		if ( !client->ready )
-		  continue;
-		if ( client->chr->realm != realm )
-		  continue;
-		if ( inrange( client->chr, cx, cy ) )
-		{
-		  msg.Send( client );
-		}
-	  }
+      ForEachPlayerInRange( cx, cy, realm, RANGE_VISUAL, [&]( Character *zonechr )
+      {
+        if ( !zonechr->has_active_client() )
+          return;
+        msg.Send( zonechr->client );
+      } );
 	}
 
 	void play_sound_effect_private( const UObject *center, u16 effect, Character* forchr )
@@ -1297,19 +1186,19 @@ namespace Pol {
 	  msg->offset += 3; //unk24,unk25,unk26
 	  msg->Write<u8>( explode );
 
-	  for ( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
-	  {
-		Client* client = *itr;
-
-		if ( !client->ready )
-		  continue;
-		//  -- in range of either source or destination.
-		if ( inrange( client->chr, src ) ||
-			 inrange( client->chr, dst ) )
-		{
-		  msg.Send( client );
-		}
-	  }
+      ForEachPlayerInVisualRange( src->toplevel_owner(), [&]( Character *zonechr )
+      {
+        if ( !zonechr->has_active_client() )
+          return;
+        msg.Send( zonechr->client );
+      } );
+      ForEachPlayerInVisualRange( dst->toplevel_owner(), [&]( Character *zonechr )
+      {
+        if ( !zonechr->has_active_client() )
+          return;
+        if ( !inrange( zonechr, src ) ) // send to char only in range of dst
+          msg.Send( zonechr->client );
+      } );
 	}
 
 	void play_moving_effect2( u16 xs, u16 ys, s8 zs,
@@ -1335,21 +1224,19 @@ namespace Pol {
 	  msg->offset += 3; //unk24,unk25,unk26
 	  msg->Write<u8>( explode );
 
-	  for ( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
-	  {
-		Client* client = *itr;
-
-		if ( !client->ready )
-		  continue;
-		//  -- in range of either source or destination.
-		if ( client->chr->realm != realm )
-		  continue;
-		if ( inrange( client->chr, xs, ys ) ||
-			 inrange( client->chr, xd, yd ) )
-		{
-		  msg.Send( client );
-		}
-	  }
+      ForEachPlayerInRange( xs, ys, realm, RANGE_VISUAL, [&]( Character *zonechr )
+      {
+        if ( !zonechr->has_active_client() )
+          return;
+        msg.Send( zonechr->client );
+      } );
+      ForEachPlayerInRange( xd, yd, realm, RANGE_VISUAL, [&]( Character *zonechr )
+      {
+        if ( !zonechr->has_active_client() )
+          return;
+        if ( !inrange( zonechr, xs, ys ) ) // send to chrs only in range of dest
+          msg.Send( zonechr->client );
+      } );
 	}
 
 
@@ -1402,17 +1289,12 @@ namespace Pol {
 	  msg->Write<u8>( static_cast<u8>( 1 ) ); // this is right for teleport, anyway
 	  msg->Write<u8>( explode );
 
-	  for ( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
-	  {
-		Client* client = *itr;
-
-		if ( !client->ready )
-		  continue;
-		if ( client->chr->realm != realm )
-		  continue;
-		if ( inrange( client->chr->x, client->chr->y, x, y ) )
-		  msg.Send( client );
-	  }
+      ForEachPlayerInRange( x, y, realm, RANGE_VISUAL, [&]( Character *zonechr )
+      {
+        if ( !zonechr->has_active_client() )
+          return;
+        msg.Send( zonechr->client );
+      } );
 	}
 
     void play_stationary_effect_ex( u16 x, u16 y, s8 z, Plib::Realm* realm, u16 effect, u8 speed, u8 duration, u32 hue,
@@ -1425,17 +1307,12 @@ namespace Pol {
 					   hue, render, effect3d, 1, 0,
 					   0, 0xFF );
 
-	  for ( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
-	  {
-		Client* client = *itr;
-
-		if ( !client->ready )
-		  continue;
-		if ( client->chr->realm != realm )
-		  continue;
-		if ( inrange( client->chr->x, client->chr->y, x, y ) )
-		  msg.Send( client );
-	  }
+      ForEachPlayerInRange( x, y, realm, RANGE_VISUAL, [&]( Character *zonechr )
+      {
+        if ( !zonechr->has_active_client() )
+          return;
+        msg.Send( zonechr->client );
+      } );
 	}
 
 	void play_object_centered_effect_ex( const UObject* center, u16 effect, u8 speed, u8 duration, u32 hue,
@@ -1451,7 +1328,6 @@ namespace Pol {
 					   center->serial_ext, layer );
 
 	  transmit_to_inrange( center, &msg->buffer, msg->offset, false, false );
-
 	}
 
 	void play_moving_effect_ex( const UObject *src, const UObject *dst,
@@ -1468,19 +1344,19 @@ namespace Pol {
 					   effect3d, effect3dexplode, effect3dsound,
 					   0, 0xFF );
 
-	  for ( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
-	  {
-		Client* client = *itr;
-
-		if ( !client->ready )
-		  continue;
-		//  -- in range of either source or destination.
-		if ( inrange( client->chr, src ) ||
-			 inrange( client->chr, dst ) )
-		{
-		  msg.Send( client );
-		}
-	  }
+      ForEachPlayerInVisualRange( src, [&]( Character *zonechr )
+      {
+        if ( !zonechr->has_active_client() )
+          return;
+        msg.Send( zonechr->client );
+      } );
+      ForEachPlayerInVisualRange( dst, [&]( Character *zonechr )
+      {
+        if ( !zonechr->has_active_client() )
+          return;
+        if ( !inrange(zonechr, src ) ) // send to chrs only in range of dst
+          msg.Send( zonechr->client );
+      } );
 	}
 
 	void play_moving_effect2_ex( u16 xs, u16 ys, s8 zs,
@@ -1496,21 +1372,19 @@ namespace Pol {
 					   effect3d, effect3dexplode, effect3dsound,
 					   0, 0xFF );
 
-	  for ( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
-	  {
-		Client* client = *itr;
-
-		if ( !client->ready )
-		  continue;
-		//  -- in range of either source or destination.
-		if ( client->chr->realm != realm )
-		  continue;
-		if ( inrange( client->chr, xs, ys ) ||
-			 inrange( client->chr, xd, yd ) )
-		{
-		  msg.Send( client );
-		}
-	  }
+      ForEachPlayerInRange( xs, ys, realm, RANGE_VISUAL, [&]( Character *zonechr )
+      {
+        if ( !zonechr->has_active_client() )
+          return;
+        msg.Send( zonechr->client );
+      } );
+      ForEachPlayerInRange( xd, yd, realm, RANGE_VISUAL, [&]( Character *zonechr )
+      {
+        if ( !zonechr->has_active_client() )
+          return;
+        if ( !inrange(zonechr, xs, ys ) ) // send to chrs only in range of dst
+          msg.Send( zonechr->client );
+      } );
 	}
 
 	// Central function to build 0xC7 packet
@@ -1616,9 +1490,8 @@ namespace Pol {
 
 	void broadcast( const char *text, unsigned short font, unsigned short color )
 	{
-	  for ( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
+	  for ( auto &client : clients )
 	  {
-		Client* client = *itr;
 		if ( !client->ready )
 		  continue;
 
@@ -1629,9 +1502,8 @@ namespace Pol {
 	void broadcast( const u16 *wtext, const char lang[4],
 					unsigned short font, unsigned short color )
 	{
-	  for ( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
+      for ( auto &client : clients )
 	  {
-		Client* client = *itr;
 		if ( !client->ready )
 		  continue;
 
@@ -1924,80 +1796,46 @@ namespace Pol {
 	  msg->Write<u32>( corpse->serial_ext );
 	  msg->offset += 4; // u32 unk4_zero
 
-	  for ( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
-	  {
-		Client *client = *itr;
-		if ( !client->ready )
-		  continue;
-
-		if ( client->chr == chr_died )
-		  continue;
-
-		if ( inrange( client->chr, corpse ) )
-		  msg.Send( client );
-	  }
+      ForEachPlayerInVisualRange( corpse, [&]( Character *zonechr )
+      {
+        if ( !zonechr->has_active_client() )
+          return;
+        if ( zonechr== chr_died )
+          return;
+        msg.Send( zonechr->client );
+      } );
 	}
 
 	void transmit_to_inrange( const UObject* center, const void* msg, unsigned msglen, bool is_6017, bool is_UOKR )
 	{
-	  for ( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
-	  {
-		Client* client = *itr;
-
-		if ( !client->ready )
-		{
-		  continue;
-		}
-		if ( is_6017 && ( !( client->ClientType & CLIENTTYPE_6017 ) ) )
-		{
-		  continue;
-		}
-		if ( is_UOKR && ( !( client->ClientType & CLIENTTYPE_UOKR ) ) )
-		{
-		  continue;
-		}
-		if ( client->chr->realm != center->realm )
-		{
-		  continue;
-		}
-		if ( inrange( client->chr, center ) )
-		{
-		  ADDTOSENDQUEUE( client, msg, msglen );
-		}
-	  }
+      ForEachPlayerInVisualRange( center, [&]( Character *zonechr )
+      {
+        if ( !zonechr->has_active_client() )
+          return;
+        Client* client = zonechr->client;
+        if ( is_6017 && ( !( client->ClientType & CLIENTTYPE_6017 ) ) )
+          return;
+        if ( is_UOKR && ( !( client->ClientType & CLIENTTYPE_UOKR ) ) )
+          return;
+        ADDTOSENDQUEUE( client, msg, msglen );
+      } );
 	}
 
 	void transmit_to_others_inrange( Character* center, const void* msg, unsigned msglen, bool is_6017, bool is_UOKR )
 	{
-	  for ( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
-	  {
-		Client* client = *itr;
-
-		if ( !client->ready )
-		{
-		  continue;
-		}
-		if ( is_6017 && ( !( client->ClientType & CLIENTTYPE_6017 ) ) )
-		{
-		  continue;
-		}
-		if ( is_UOKR && ( !( client->ClientType & CLIENTTYPE_UOKR ) ) )
-		{
-		  continue;
-		}
-		if ( client->chr == center )
-		{
-		  continue;
-		}
-		if ( client->chr->realm != center->realm )
-		{
-		  continue;
-		}
-		if ( inrange( client->chr, center ) )
-		{
-		  ADDTOSENDQUEUE( client, msg, msglen );
-		}
-	  }
+      ForEachPlayerInVisualRange( center, [&]( Character *zonechr )
+      {
+        if ( !zonechr->has_active_client() )
+          return;
+        Client* client = zonechr->client;
+        if ( is_6017 && ( !( client->ClientType & CLIENTTYPE_6017 ) ) )
+          return;
+        if ( is_UOKR && ( !( client->ClientType & CLIENTTYPE_UOKR ) ) )
+          return;
+        if ( zonechr == center )
+          return;
+        ADDTOSENDQUEUE( client, msg, msglen );
+      } );
 	}
 
 	//DAVE made heavy changes to this 11/17 for speed.
@@ -2029,7 +1867,12 @@ namespace Pol {
 			*/
 		item->set_dirty();
 
-        Clib::ConstForEach( clients, send_remove_object_if_inrange, item );
+        PktHelper::PacketOut<PktOut_1D> msgremove;
+        msgremove->Write<u32>( item->serial_ext );
+        ForEachPlayerInVisualRange( item, [&]( Mobile::Character *zonechr )
+        {
+          send_remove_object( zonechr->client, msgremove.Get() );
+        } );
 		if ( item->container == NULL ) // on ground, easy.
 		{
 		  if ( !item->is_gotten() ) // and not in hand
@@ -2104,25 +1947,19 @@ namespace Pol {
 	  PktHelper::PacketOut<PktOut_1D> msgremove;
 	  msgremove->Write<u32>( item->serial_ext );
 
-	  for ( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
-	  {
-		Client *client = *itr;
-		if ( !client->ready )
-		  continue;
-
-		if ( inrange( client->chr, item ) )
-		{
-		  send_item( client, item );
-		}
-		else // not in range.  If old loc was in range, send a delete.
-		{
-		  if ( inrange( client->chr->x, client->chr->y,
-			oldx, oldy ) )
-		  {
-			msgremove.Send( client );
-		  }
-		}
-	  }
+      ForEachPlayerInVisualRange( item, [&]( Character *zonechr )
+      {
+        if ( !zonechr->has_active_client() )
+          return;
+        send_item( zonechr->client, item );
+      } );
+      ForEachPlayerInRange( oldx, oldy, item->realm, RANGE_VISUAL, [&]( Character *zonechr )
+      {
+        if ( !zonechr->has_active_client() )
+          return;
+        if ( !inrange(zonechr, item ) )// not in range.  If old loc was in range, send a delete.
+          msgremove.Send( zonechr->client );
+      } );
 	}
 
 	// FIXME: this is called from some places where the item didn't used
@@ -2147,25 +1984,19 @@ namespace Pol {
 	  PktHelper::PacketOut<PktOut_1D> msgremove;
 	  msgremove->Write<u32>( item->serial_ext );
 
-	  for ( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
-	  {
-		Client *client = *itr;
-		if ( !client->ready )
-		  continue;
-
-		if ( inrange( client->chr, item ) )
-		{
-		  send_item( client, item );
-		}
-		else // not in range.  If old loc was in range, send a delete.
-		{
-		  if ( inrange( client->chr->x, client->chr->y, oldx, oldy )
-			   && client->chr->realm == oldrealm )
-		  {
-			msgremove.Send( client );
-		  }
-		}
-	  }
+      ForEachPlayerInVisualRange( item, [&]( Character *zonechr )
+      {
+        if ( !zonechr->has_active_client() )
+          return;
+        send_item( zonechr->client, item );
+      } );
+      ForEachPlayerInRange( oldx, oldy, oldrealm, RANGE_VISUAL, [&]( Character *zonechr )
+      {
+        if ( !zonechr->has_active_client() )
+          return;
+        if ( !inrange( zonechr, item ) )// not in range.  If old loc was in range, send a delete.
+          msgremove.Send( zonechr->client );
+      } );
 	}
 
 	void move_boat_item( Item* item, unsigned short newx, unsigned short newy, signed char newz, Plib::Realm* oldrealm )
@@ -2214,30 +2045,25 @@ namespace Pol {
 	  PktHelper::PacketOut<PktOut_1D> msgremove;
 	  msgremove->Write<u32>( item->serial_ext );
 
-	  for ( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
-	  {
-		Client *client = *itr;
-		if ( !client->ready )
-		  continue;
-
-		if ( inrange( client->chr, item ) )
-		{
-		  if ( client->ClientType & CLIENTTYPE_7090 )
-			msg3.Send( client );
-		  else if ( client->ClientType & CLIENTTYPE_7000 )
-			msg2.Send( client );
-		  else
-			msg.Send( client, len1A );
-		}
-		else // not in range.  If old loc was in range, send a delete.
-		{
-		  if ( inrange( client->chr->x, client->chr->y,
-			oldx, oldy ) )
-		  {
-			msgremove.Send( client );
-		  }
-		}
-	  }
+      ForEachPlayerInVisualRange( item, [&]( Character *zonechr )
+      {
+        if ( !zonechr->has_active_client() )
+          return;
+        Client* client = zonechr->client;
+        if ( client->ClientType & CLIENTTYPE_7090 )
+          msg3.Send( client );
+        else if ( client->ClientType & CLIENTTYPE_7000 )
+          msg2.Send( client );
+        else
+          msg.Send( client, len1A );
+      } );
+      ForEachPlayerInRange( oldx, oldy, item->realm, RANGE_VISUAL, [&]( Character *zonechr )
+      {
+        if ( !zonechr->has_active_client() )
+          return;
+        if ( !inrange( zonechr, item ) )// not in range.  If old loc was in range, send a delete.
+          msgremove.Send( zonechr->client );
+      } );
 	}
 
 
@@ -2286,14 +2112,12 @@ namespace Pol {
 	  // (Character-specific flags, like can_move(), make it so we can't)
 	  // However, could build main part of packet before for/loop, then
 	  // adjust per client. Would this be a better solution?
-	  for ( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
-	  {
-		Client *client = *itr;
-		if ( !client->ready )
-		  continue;
-		if ( inrange( client->chr, multi ) )
-		  send_multi( client, multi );
-	  }
+      ForEachPlayerInVisualRange( multi, [&]( Character *zonechr )
+      {
+        if ( !zonechr->has_active_client( ) )
+          return;
+        send_multi( zonechr->client, multi );
+      } );
 	}
 
 
@@ -2538,12 +2362,28 @@ namespace Pol {
 
 	void send_create_mobile_to_nearby_cansee( const Character* chr )
 	{
-      Clib::ForEach( clients, send_create_mobile_if_nearby_cansee, chr );
+      ForEachPlayerInVisualRange( chr, [&]( Character *zonechr )
+      {
+        if ( !zonechr->has_active_client() )
+          return;
+        if ( zonechr == chr )
+          return;
+        if ( zonechr->is_visible_to_me( chr ) )
+          send_owncreate( zonechr->client, chr );
+      } );
 	}
 
 	void send_move_mobile_to_nearby_cansee( const Character* chr )
 	{
-      Clib::ForEach( clients, send_move_mobile_if_nearby_cansee, chr );
+      ForEachPlayerInVisualRange( chr, [&]( Character *zonechr )
+      {
+        if ( !zonechr->has_active_client() )
+          return;
+        if ( zonechr == chr )
+          return;
+        if ( zonechr->is_visible_to_me( chr ) )
+          send_move( zonechr->client, chr );
+      } );
 	}
 
 	Character* UpdateCharacterWeight( Item* item )

@@ -66,6 +66,7 @@ Notes
 #include "../uvars.h"
 #include "../watch.h"
 #include "../wrldsize.h"
+#include "../uworld.h"
 #include "npcmod.h"
 #include "osmod.h"
 #include "unimod.h"
@@ -768,25 +769,21 @@ namespace Pol {
 	  //cout << npc.name() << " ["<<texttype_str<<"] ["<<talkmsg.textdef.type<<"] ["<<doevent<<"] \n";
 
 	  // send to those nearby
-	  for ( unsigned cli = 0; cli < Core::clients.size(); cli++ )
-	  {
-        Network::Client* client = Core::clients[cli];
-		if ( !client->ready )
-		  continue;
-		else if ( !client->chr->is_visible_to_me( &npc ) )
-		  continue;
-
-		bool rangeok;
-        if ( texttype == Core::TEXTTYPE_WHISPER )
-		  rangeok = in_whisper_range( &npc, client->chr );
-        else if ( texttype == Core::TEXTTYPE_YELL )
-		  rangeok = in_yell_range( &npc, client->chr );
-		else
-		  rangeok = in_say_range( &npc, client->chr );
-
-		if ( rangeok )
-		  msg.Send( client, len );
-	  }
+      u16 range;
+      if ( texttype == Core::TEXTTYPE_WHISPER )
+        range = Core::ssopt.whisper_range;
+      else if ( texttype == Core::TEXTTYPE_YELL )
+        range = Core::ssopt.yell_range;
+      else
+        range = Core::ssopt.speech_range;
+      Core::ForEachPlayerInRange( npc.x, npc.y, npc.realm, range, [&]( Mobile::Character *chr )
+      {
+        if ( !chr->has_active_client() )
+          return;
+        if ( !chr->is_visible_to_me( &npc ) )
+          return;
+        msg.Send( chr->client, len );
+      } );
 
 	  if ( doevent >= 1 )
 		for_nearby_npcs( Core::npc_spoke, &npc, text, static_cast<int>( strlen( text ) ), texttype );
@@ -856,23 +853,22 @@ namespace Pol {
 		talkmsg->offset = 1;
 		talkmsg->WriteFlipped<u16>( len );
 
-        for ( Core::Clients::iterator itr = Core::clients.begin( ), end = Core::clients.end( ); itr != end; ++itr )
-		{
-          Network::Client* client = *itr;
-		  if ( !client->ready )
-			continue;
+        u16 range;
+        if ( texttype == Core::TEXTTYPE_WHISPER )
+          range = Core::ssopt.whisper_range;
+        else if ( texttype == Core::TEXTTYPE_YELL )
+          range = Core::ssopt.yell_range;
+        else
+          range = Core::ssopt.speech_range;
+        Core::ForEachPlayerInRange( npc.x, npc.y, npc.realm, range, [&]( Mobile::Character *chr )
+        {
+          if ( !chr->has_active_client() )
+            return;
+          else if ( !chr->is_visible_to_me( &npc ) )
+            return;
+          talkmsg.Send( chr->client, len );
+        } );
 
-		  bool rangeok;
-          if ( texttype == Core::TEXTTYPE_WHISPER )
-			rangeok = in_whisper_range( &npc, client->chr );
-          else if ( texttype == Core::TEXTTYPE_YELL )
-			rangeok = in_yell_range( &npc, client->chr );
-		  else
-			rangeok = in_say_range( &npc, client->chr );
-
-		  if ( rangeok )
-			talkmsg.Send( client, len );
-		}
 		if ( doevent >= 1 )
 		{
 		  char ntextbuf[SPEECH_MAX_LEN + 1];

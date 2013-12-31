@@ -27,6 +27,7 @@ Notes
 #include "ssopt.h"
 #include "ufunc.h"
 #include "uvars.h"
+#include "uworld.h"
 
 #include "tooltips.h"
 namespace Pol {
@@ -96,41 +97,37 @@ namespace Pol {
         PacketOut<Network::PktOut_DC> msgdc;
         PacketOut<Network::PktOut_BF_Sub10> msgbf10;
 
-		for ( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
-		{
-          Network::Client *client2 = *itr;
-		  if ( !client2->ready )
-			continue;
-		  // FIXME need to check character's additional_legal_items.
-		  // looks like inrange should be a Character member function.
-          if ( client2->UOExpansionFlag & Network::AOS )
-		  {
-			if ( inrange( client2->chr, obj ) )
-			{
-			  //send_object_cache(client2, obj);
-              if ( ( ssopt.force_new_objcache_packets ) || ( client2->ClientType & Network::CLIENTTYPE_5000 ) )
-			  {
-				if ( msgdc->offset == 1 )
-				{
-				  msgdc->Write<u32>( obj->serial_ext );
-				  msgdc->WriteFlipped<u32>( obj->rev() );
-				}
-				msgdc.Send( client2 );
-			  }
-			  else
-			  {
-				if ( msgbf10->offset == 1 )
-				{
-				  msgbf10->WriteFlipped<u16>( 0xD );
-				  msgbf10->offset += 2; //sub
-				  msgbf10->Write<u32>( obj->serial_ext );
-				  msgbf10->WriteFlipped<u32>( obj->rev() );
-				}
-				msgbf10.Send( client2 );
-			  }
-			}
-		  }
-		}
+        ForEachPlayerInVisualRange( obj->toplevel_owner(), [&]( Mobile::Character *chr )
+        {
+          if ( !chr->has_active_client( ) )
+            return;
+          Network::Client *client = chr->client;
+          // FIXME need to check character's additional_legal_items.
+          if ( client->UOExpansionFlag & Network::AOS )
+          {
+            //send_object_cache(client2, obj);
+            if ( ( ssopt.force_new_objcache_packets ) || ( client->ClientType & Network::CLIENTTYPE_5000 ) )
+            {
+              if ( msgdc->offset == 1 )
+              {
+                msgdc->Write<u32>( obj->serial_ext );
+                msgdc->WriteFlipped<u32>( obj->rev() );
+              }
+              msgdc.Send( client );
+            }
+            else
+            {
+              if ( msgbf10->offset == 1 )
+              {
+                msgbf10->WriteFlipped<u16>( 0xD );
+                msgbf10->offset += 2; //sub
+                msgbf10->Write<u32>( obj->serial_ext );
+                msgbf10->WriteFlipped<u32>( obj->rev() );
+              }
+              msgbf10.Send( client );
+            }
+          }
+        } );
 	  }
 	}
 

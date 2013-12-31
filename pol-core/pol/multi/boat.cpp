@@ -324,28 +324,36 @@ namespace Pol {
 	  Network::PktHelper::PacketOut<Network::PktOut_1D> msgremove;
 	  msgremove->Write<u32>( item->serial_ext );
 
-	  for ( Network::Client* client : Core::clients )
-	  {
-		if ( !client->ready )
-		  continue;
-		if ( inrange( client->chr, item ) )
-		{
-		  client->pause();
-		  if ( client->ClientType & Network::CLIENTTYPE_7090 )
-			msg3.Send( client );
-		  else if ( client->ClientType & Network::CLIENTTYPE_7000 )
-			msg2.Send( client );
-		  else
-			msg.Send( client, len1A );
-		  boat_sent_to.push_back( client );
-		}
-		else if ( ( oldx != USHRT_MAX ) && ( oldy != USHRT_MAX ) && //were inrange
-				  ( client->chr->realm == item->realm ) &&
-				  ( Core::inrange( client->chr->x, client->chr->y, oldx, oldy ) ) )
-		{
-		  msgremove.Send( client );
-		}
-	  }
+      Core::ForEachPlayerInRange(item->x,item->y,item->realm,RANGE_VISUAL_LARGE_BUILDINGS,
+                                  [&]( Mobile::Character* zonechr )
+      {
+        if ( !zonechr->has_active_client() )
+          return;
+        Network::Client* client = zonechr->client;
+        client->pause( );
+        if ( client->ClientType & Network::CLIENTTYPE_7090 )
+          msg3.Send( client );
+        else if ( client->ClientType & Network::CLIENTTYPE_7000 )
+          msg2.Send( client );
+        else
+          msg.Send( client, len1A );
+        boat_sent_to.push_back( client );
+      } );
+
+      if ( oldx != USHRT_MAX && oldy != USHRT_MAX )
+      {
+        Core::ForEachPlayerInRange( oldx, oldy, item->realm, RANGE_VISUAL_LARGE_BUILDINGS,
+                                    [&]( Mobile::Character* zonechr )
+        {
+          if ( !zonechr->has_active_client() )
+            return;
+          Network::Client* client = zonechr->client;
+          if ( inrange( client->chr, item ) ) // send remove to chrs only seeing the old loc
+            return;
+
+          msgremove.Send( client );
+        } );
+      }
 	}
 
 	void unpause_paused()
@@ -1362,9 +1370,12 @@ namespace Pol {
 	  boat->destroy_components();
 	  boat->unregself();
 
-	  Clib::ConstForEach( Core::clients, Core::send_remove_object_if_inrange,
-					static_cast<const Items::Item*>( boat ) );
-
+      Core::ForEachPlayerInVisualRange( boat, [&]( Mobile::Character *zonechr )
+      {
+        if ( !zonechr->has_active_client() )
+          return;
+        Core::send_remove_object( zonechr->client, boat );
+      } );
 	  remove_multi_from_world( boat );
 	  boat->destroy();
 	  return new Bscript::BLong( 1 );
