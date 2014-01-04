@@ -181,10 +181,12 @@ cpp_sources = \
 	clib/xmain.cpp \
 	clib/unicode.cpp \
 	clib/pkthelper.cpp \
+	clib/logfacility.cpp \
 	pol/xmlfilescrobj.cpp #\
 
 
 ecompile_sources=ecompile/ecompile.cpp \
+    ../lib/format/format.cc \
 	plib/polver.cpp plib/pkg.cpp \
 	bscript/compilercfg.cpp bscript/compiler.cpp bscript/parser.cpp \
 	bscript/token.cpp bscript/symcont.cpp \
@@ -199,6 +201,7 @@ ecompile_sources=ecompile/ecompile.cpp \
 	clib/endian.cpp clib/logfile.cpp clib/fdump.cpp clib/stracpy.cpp \
 	clib/random.cpp clib/cmdargs.cpp \
 	clib/strexcpt.cpp  clib/wallclock.cpp clib/threadhelp.cpp \
+	clib/logfacility.cpp
 	#clib/wallclock.cpp
 
 runecl_sources=runecl/runecl.cpp \
@@ -228,21 +231,23 @@ runecl_sources=runecl/runecl.cpp \
 	clib/random.cpp clib/cmdargs.cpp clib/dirlist.cpp \
 	clib/progver.cpp \
 	clib/mlog.cpp  clib/xmain.cpp clib/strexcpt.cpp clib/threadhelp.cpp \
-	clib/wallclock.cpp
+	clib/wallclock.cpp clib/logfacility.cpp
 
 uoconvert_sources=uoconvert/uoconvert.cpp  \
+    ../lib/format/format.cc \
 	pol/uofile00.cpp pol/uofile01.cpp pol/uofile02.cpp \
 	pol/uofile07.cpp pol/uofile08.cpp \
 	pol/polfile1.cpp \
 	plib/mapfunc.cpp plib/mapwriter.cpp plib/realmdescriptor.cpp \
 	clib/cfgfile.cpp clib/cmdargs.cpp clib/strutil.cpp \
 	clib/fileutil.cpp clib/passert.cpp clib/dirlist.cpp clib/iohelp.cpp \
-	clib/logfile.cpp \
+	clib/logfile.cpp clib/logfacility.cpp \
 	clib/progver.cpp clib/esignal.cpp clib/random.cpp clib/strexcpt.cpp \
 	clib/wallclock.cpp \
 	clib/xmain.cpp
 
 uotool_sources=uotool/uotool.cpp \
+    ../lib/format/format.cc \
 	uotool/uofile04.cpp uotool/uofile05.cpp \
 	pol/uofile00.cpp pol/uofile01.cpp pol/uofile02.cpp \
 	pol/uofile06.cpp pol/uofile07.cpp pol/uofile08.cpp \
@@ -250,7 +255,7 @@ uotool_sources=uotool/uotool.cpp \
 	plib/mapfunc.cpp plib/mapwriter.cpp plib/realmdescriptor.cpp \
 	clib/cfgfile.cpp clib/cmdargs.cpp clib/strutil.cpp \
 	clib/fileutil.cpp clib/passert.cpp clib/dirlist.cpp clib/iohelp.cpp \
-	clib/logfile.cpp clib/fdump.cpp \
+	clib/logfile.cpp clib/fdump.cpp clib/logfacility.cpp \
 	clib/progver.cpp clib/esignal.cpp clib/strexcpt.cpp \
 	clib/xmain.cpp
 
