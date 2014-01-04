@@ -152,6 +152,9 @@
     <ClCompile Include="streamsaver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="logfacility.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="binaryfile.h">
@@ -329,6 +332,9 @@
       <Filter>format</Filter>
     </ClInclude>
     <ClInclude Include="streamsaver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="logfacility.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
