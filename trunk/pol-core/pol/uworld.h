@@ -275,15 +275,15 @@ namespace Pol {
         yL = 0;
       int xH = x + range;
       int yH = y + range;
-      _ForEach( iter_chr<decltype( f )>, wxL, wyL, wxH, wyH, realm, f, xL, yL, xH, yH );
-      _ForEach( iter_npc<decltype( f )>, wxL, wyL, wxH, wyH, realm, f, xL, yL, xH, yH );
+      _ForEach( iter_chr<decltype( f )>, wxL, wyL, wxH, wyH, realm, std::forward<F>( f ), xL, yL, xH, yH );
+      _ForEach( iter_npc<decltype( f )>, wxL, wyL, wxH, wyH, realm, std::forward<F>( f ), xL, yL, xH, yH );
     }
 
     // iterate over all mobiles (player+npcs) around chr in visual range
     template <typename F>
     void ForEachMobileInVisualRange( const Mobile::Character* chr, F &&f )
     {
-      ForEachMobileInRange( chr->x, chr->y, chr->realm, RANGE_VISUAL, f );
+      ForEachMobileInRange( chr->x, chr->y, chr->realm, RANGE_VISUAL, std::forward<F>( f ) );
     }
     // iterate over all mobiles (player+npcs) in given box
     template <typename F>
@@ -296,8 +296,8 @@ namespace Pol {
       zone_convert_clip( x2, y2, realm, wxH, wyH );
       passert( wxL <= wxH );
       passert( wyL <= wyH );
-      _ForEach( iter_chr<decltype( f )>, wxL, wyL, wxH, wyH, realm, f, x1, y1, x2, y2 );
-      _ForEach( iter_npc<decltype( f )>, wxL, wyL, wxH, wyH, realm, f, x1, y1, x2, y2 );
+      _ForEach( iter_chr<decltype( f )>, wxL, wyL, wxH, wyH, realm, std::forward<F>( f ), x1, y1, x2, y2 );
+      _ForEach( iter_npc<decltype( f )>, wxL, wyL, wxH, wyH, realm, std::forward<F>( f ), x1, y1, x2, y2 );
     }
 
     // iterate over all players at given loc with given range
@@ -319,13 +319,13 @@ namespace Pol {
         yL = 0;
       int xH = x + range;
       int yH = y + range;
-      _ForEach( iter_chr<decltype( f )>, wxL, wyL, wxH, wyH, realm, f, xL, yL, xH, yH );
+      _ForEach( iter_chr<decltype( f )>, wxL, wyL, wxH, wyH, realm, std::forward<F>( f ), xL, yL, xH, yH );
     }
     // iterate over all players around chr in visual range
     template <typename F>
     void ForEachPlayerInVisualRange( const UObject* chr, F &&f )
     {
-      ForEachPlayerInRange( chr->toplevel_owner()->x, chr->toplevel_owner()->y, chr->toplevel_owner()->realm, RANGE_VISUAL, f );
+      ForEachPlayerInRange( chr->toplevel_owner( )->x, chr->toplevel_owner( )->y, chr->toplevel_owner( )->realm, RANGE_VISUAL, std::forward<F>( f ) );
     }
     // iterate over all players in given box
     template <typename F>
@@ -338,7 +338,7 @@ namespace Pol {
       zone_convert_clip( x2, y2, realm, wxH, wyH );
       passert( wxL <= wxH );
       passert( wyL <= wyH );
-      _ForEach( iter_chr<decltype( f )>, wxL, wyL, wxH, wyH, realm, f, x1, y1, x2, y2 );
+      _ForEach( iter_chr<decltype( f )>, wxL, wyL, wxH, wyH, realm, std::forward<F>( f ), x1, y1, x2, y2 );
     }
 
     // iterate over all npcs at given loc with given range
@@ -360,13 +360,13 @@ namespace Pol {
         yL = 0;
       int xH = x + range;
       int yH = y + range;
-      _ForEach( iter_npc<decltype( f )>, wxL, wyL, wxH, wyH, realm, f, xL, yL, xH, yH );
+      _ForEach( iter_npc<decltype( f )>, wxL, wyL, wxH, wyH, realm, std::forward<F>( f ), xL, yL, xH, yH );
     }
     // iterate over all npcs around chr in visual range
     template <typename F>
     void ForEachNPCInVisualRange( const Mobile::Character* chr, F &&f )
     {
-      ForEachNPCInRange( chr->x, chr->y, chr->realm, RANGE_VISUAL, f );
+      ForEachNPCInRange( chr->x, chr->y, chr->realm, RANGE_VISUAL, std::forward<F>( f ) );
     }
     // iterate over all npcs in given box
     template <typename F>
@@ -379,7 +379,7 @@ namespace Pol {
       zone_convert_clip( x2, y2, realm, wxH, wyH );
       passert( wxL <= wxH );
       passert( wyL <= wyH );
-      _ForEach( iter_npc<decltype( f )>, wxL, wyL, wxH, wyH, realm, f, x1, y1, x2, y2 );
+      _ForEach( iter_npc<decltype( f )>, wxL, wyL, wxH, wyH, realm, std::forward<F>( f ), x1, y1, x2, y2 );
     }
     // iterate over all items at given loc with given range
     template <typename F>
@@ -400,13 +400,13 @@ namespace Pol {
         yL = 0;
       int xH = x + range;
       int yH = y + range;
-      _ForEach( iter_item<decltype( f )>, wxL, wyL, wxH, wyH, realm, f, xL, yL, xH, yH );
+      _ForEach( iter_item < decltype(f)>, wxL, wyL, wxH, wyH, realm, std::forward<F>( f ), xL, yL, xH, yH );
     }
     // iterate over all items around chr in visual range
     template <typename F>
     void ForEachItemInVisualRange( const Mobile::Character* chr, F &&f )
     {
-      ForEachItemInRange( chr->x, chr->y, chr->realm, RANGE_VISUAL, f );
+      ForEachItemInRange( chr->x, chr->y, chr->realm, RANGE_VISUAL, std::forward<F>( f ) );
     }
     // iterate over all items in given box
     template <typename F>
@@ -419,7 +419,7 @@ namespace Pol {
       zone_convert_clip( x2, y2, realm, wxH, wyH );
       passert( wxL <= wxH );
       passert( wyL <= wyH );
-      _ForEach( iter_item<decltype( f )>, wxL, wyL, wxH, wyH, realm, f, x1, y1, x2, y2 );
+      _ForEach( iter_item<decltype( f )>, wxL, wyL, wxH, wyH, realm, std::forward<F>( f ), x1, y1, x2, y2 );
     }
 
     // iterate over all multis at given loc with given range
@@ -441,13 +441,13 @@ namespace Pol {
         yL = 0;
       int xH = x + range;
       int yH = y + range;
-      _ForEach( iter_multi<decltype( f )>, wxL, wyL, wxH, wyH, realm, f, xL, yL, xH, yH );
+      _ForEach( iter_multi<decltype( f )>, wxL, wyL, wxH, wyH, realm, std::forward<F>( f ), xL, yL, xH, yH );
     }
     // iterate over all multis around chr in visual range
     template <typename F>
     void ForEachMultiInVisualRange( const Mobile::Character* chr, F &&f )
     {
-      ForEachMultiInRange( chr->x, chr->y, chr->realm, RANGE_VISUAL, f );
+      ForEachMultiInRange( chr->x, chr->y, chr->realm, RANGE_VISUAL, std::forward<F>( f ) );
     }
     // iterate over all multis in given box
     template <typename F>
@@ -460,7 +460,7 @@ namespace Pol {
       zone_convert_clip( x2, y2, realm, wxH, wyH );
       passert( wxL <= wxH );
       passert( wyL <= wyH );
-      _ForEach( iter_multi<decltype( f )>, wxL, wyL, wxH, wyH, realm, f, x1, y1, x2, y2 );
+      _ForEach( iter_multi<decltype( f )>, wxL, wyL, wxH, wyH, realm, std::forward<F>( f ), x1, y1, x2, y2 );
     }
   }
 }
