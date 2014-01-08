@@ -323,6 +323,7 @@
     <ClCompile Include="miscmsg.cpp" />
     <ClCompile Include="miscrgn.cpp" />
     <ClCompile Include="mkscrobj.cpp" />
+    <ClCompile Include="mobile\ufacing.cpp" />
     <ClCompile Include="movecost.cpp" />
     <ClCompile Include="movement.cpp" />
     <ClCompile Include="msgfiltr.cpp" />
@@ -655,6 +656,7 @@
     <ClInclude Include="uoexhelp.h" />
     <ClInclude Include="uofile.h" />
     <ClInclude Include="uofilei.h" />
+    <ClInclude Include="uopathnode.h" />
     <ClInclude Include="uoscrobj.h" />
     <ClInclude Include="uoskills.h" />
     <ClInclude Include="ustruct.h" />
