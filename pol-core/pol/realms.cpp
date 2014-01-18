@@ -23,6 +23,7 @@ Notes
 #include "storage.h"
 #include "../clib/timer.h"
 #include "../plib/mapserver.h"
+#include "../clib/logfacility.h"
 
 namespace Pol {
   namespace Core {
@@ -46,10 +47,10 @@ namespace Pol {
 		passert_r( Realms->size() < MAX_NUMER_REALMS,
 				   "You can't use more than " + Clib::decint( MAX_NUMER_REALMS ) + " realms" );
 
-		cout << "Loading Realm " << realm_name << "." << endl;
+        POLLOG_INFO << "Loading Realm " << realm_name << ".\n";
 		Tools::Timer<> timer;
 		temprealm = new Plib::Realm( realm_name, config.realm_data_path + realm_name );
-		cout << "Completed in " << timer.ellapsed() << " ms." << endl;
+        POLLOG_INFO << "Completed in " << timer.ellapsed( ) << " ms.\n";
 		Realms->push_back( temprealm );
 		++realm_counter;
 

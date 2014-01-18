@@ -15,6 +15,7 @@ Notes
 #include <stdio.h>
 
 #include "../clib/strutil.h"
+#include "../clib/logfacility.h"
 
 #include "filefmt.h"
 
@@ -40,24 +41,24 @@ namespace Pol {
 		BSCRIPT_FILE_HDR hdr;
 		if ( fread( &hdr, sizeof hdr, 1, fp ) != 1 )
 		{
-		  cerr << "Error loading script " << fname
-			<< ": error reading header" << endl;
+          ERROR_PRINT << "Error loading script " << fname
+            << ": error reading header\n";
 		  fclose( fp );
 		  return -1;
 		}
 		if ( hdr.magic2[0] != BSCRIPT_FILE_MAGIC0 ||
 			 hdr.magic2[1] != BSCRIPT_FILE_MAGIC1 )
 		{
-		  cerr << "Error loading script " << fname
-			<< ": bad magic value '" << hdr.magic2[0] << hdr.magic2[1] << "'" << endl;
+          ERROR_PRINT << "Error loading script " << fname
+            << ": bad magic value '" << hdr.magic2[0] << hdr.magic2[1] << "'\n";
 		  fclose( fp );
 		  return -1;
 		}
 		// auto-check for latest version (see filefmt.h for setting)
 		if ( hdr.version != ESCRIPT_FILE_VER_CURRENT )
 		{
-		  cerr << "Error loading script " << fname
-			<< ": Recompile required. Bad version number " << hdr.version << endl;
+          ERROR_PRINT << "Error loading script " << fname
+            << ": Recompile required. Bad version number " << hdr.version << "\n";
 		  fclose( fp );
 		  return -1;
 		}
@@ -71,8 +72,8 @@ namespace Pol {
 			case BSCRIPT_SECTION_PROGDEF:
 			  if ( read_progdef_hdr( fp ) )
 			  {
-				cerr << "Error loading script " << fname
-				  << ": error reading progdef section" << endl;
+                ERROR_PRINT << "Error loading script " << fname
+				  << ": error reading progdef section\n";
 				fclose( fp );
 				return -1;
 			  }
@@ -81,8 +82,8 @@ namespace Pol {
 			case BSCRIPT_SECTION_MODULE:
 			  if ( read_module( fp ) )
 			  {
-				cerr << "Error loading script " << fname
-				  << ": error reading module section" << endl;
+                ERROR_PRINT << "Error loading script " << fname
+                  << ": error reading module section\n";
 				fclose( fp );
 				return -1;
 			  }
@@ -96,8 +97,8 @@ namespace Pol {
 			case BSCRIPT_SECTION_GLOBALVARNAMES:
 			  if ( read_globalvarnames( fp ) )
 			  {
-				cerr << "Error loading script " << fname
-				  << ": error reading global variable name section" << endl;
+                ERROR_PRINT << "Error loading script " << fname
+                  << ": error reading global variable name section\n";
 				fclose( fp );
 				return -1;
 			  }
@@ -105,15 +106,15 @@ namespace Pol {
 			case BSCRIPT_SECTION_EXPORTED_FUNCTIONS:
 			  if ( read_exported_functions( fp, &sechdr ) )
 			  {
-				cerr << "Error loading script " << fname
-				  << ": error reading exported functions section" << endl;
+                ERROR_PRINT << "Error loading script " << fname
+                  << ": error reading exported functions section\n";
 				fclose( fp );
 				return -1;
 			  }
 			  break;
 			default:
-			  cerr << "Error loading script " << fname
-				<< ": unknown section type " << int( sechdr.type ) << endl;
+              ERROR_PRINT << "Error loading script " << fname
+                << ": unknown section type " << sechdr.type << "\n";
 			  fclose( fp );
 			  return -1;
 		  }
@@ -124,7 +125,7 @@ namespace Pol {
 	  }
 	  catch ( std::exception& ex )
 	  {
-		cerr << "Exception caught while loading script " << fname << ": " << ex.what() << endl;
+        ERROR_PRINT << "Exception caught while loading script " << fname << ": " << ex.what( ) << "\n";
 		if ( fp != NULL )
 		  fclose( fp );
 		return -1;
@@ -132,7 +133,7 @@ namespace Pol {
 #ifndef WIN32
 	  catch(...)
 	  {
-		cerr << "Exception caught while loading script " << fname << endl;
+        ERROR_PRINT << "Exception caught while loading script " << fname << "\n";
 		if (fp != NULL)
 		  fclose(fp);
 		return -1;
@@ -379,7 +380,7 @@ namespace Pol {
 	  FILE* fp = fopen( mname.c_str(), "rb" );
 	  if ( !fp )
 	  {
-		cerr << "Unable to open " << mname << endl;
+        ERROR_PRINT << "Unable to open " << mname << "\n";
 		return -1;
 	  }
 
@@ -387,7 +388,7 @@ namespace Pol {
 	  size_t fread_res = fread( &version, sizeof version, 1, fp );
 	  if ( version != 2 && version != 3 )
 	  {
-		cerr << "Recompile required. Bad version " << version << " in " << mname << ", expected version 2" << endl;
+        ERROR_PRINT << "Recompile required. Bad version " << version << " in " << mname << ", expected version 2\n";
 		fclose( fp );
 		return -1;
 	  }

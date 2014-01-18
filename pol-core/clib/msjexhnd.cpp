@@ -17,7 +17,7 @@ Notes
 #include <imagehlp.h>
 #include "msjexhnd.h"
 #include <algorithm>
-#include "logfile.h"
+#include "logfacility.h"
 namespace Pol {
   namespace Clib {
 	//============================== Global Variables =============================
@@ -426,8 +426,7 @@ namespace Pol {
 	  va_end( argptr );
 
 	  //    WriteFile( m_hReportFile, szBuff, retValue * sizeof(TCHAR), &cbWritten, 0 );
-	  Log( "%s", szBuff );
-	  fwrite( szBuff, 1, strlen( szBuff ), stdout );
+      POLLOG_INFO << szBuff;
 
 	  return retValue;
 	}

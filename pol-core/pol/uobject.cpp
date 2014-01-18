@@ -19,7 +19,7 @@ Notes
 
 #include "../clib/cfgelem.h"
 #include "../clib/endian.h"
-#include "../clib/logfile.h"
+#include "../clib/logfacility.h"
 #include "../clib/passert.h"
 
 #include "../plib/realm.h"
@@ -47,11 +47,12 @@ namespace Pol {
 	int display_orphan( UObject* o )
 	{
 	  bool tmp = false;
-	  Clib::OStreamWriter sw( &cout );
+      Clib::FMTStreamWriter sw;
       Clib::OFStreamWriter sw_orphan( &orphans_txt );
-	  sw() << o->name() << ", " << o->ref_counted_count() << '\n';
+      sw() << o->name() << ", " << o->ref_counted_count() << '\n';
 	  if ( tmp ) o->printOn( sw );
 	  o->printOnDebug( sw_orphan );
+      INFO_PRINT << sw().c_str();
 	  //ref_ptr<UObject>::display_referers( o->as_ref_counted() );
 
 	  return 0;
@@ -95,8 +96,7 @@ namespace Pol {
 	{
 	  if ( ref_counted::count() != 0 )
 	  {
-		cout << "Ouch! UObject::~UObject() with count()==" << ref_counted::count() << endl;
-        Clib::Log( "Ouch! UObject::~UObject() with count==%d\n", ref_counted::count( ) );
+        POLLOG_INFO << "Ouch! UObject::~UObject() with count()==" << ref_counted::count() << "\n";
 	  }
 	  passert( ref_counted::count() == 0 );
 	  if ( serial == 0 )
@@ -121,8 +121,7 @@ namespace Pol {
 	  {
 		if ( ref_counted::count() < 1 )
 		{
-		  cout << "Ouch! UObject::destroy() with count()==" << ref_counted::count() << endl;
-          Clib::Log( "Ouch! UObject::destroy() with count()==%d\n", ref_counted::count( ) );
+		  POLLOG_INFO << "Ouch! UObject::destroy() with count()==" << ref_counted::count() << "\n";
 		}
 
 		set_dirty(); // we will have to write a 'object deleted' directive once
@@ -292,8 +291,7 @@ namespace Pol {
 	  realm = find_realm( realmstr );
 	  if ( !realm )
 	  {
-		cerr << classname() << " '" << name() << "' (0x" << hex << serial << dec << "): "
-		  << "has an invalid realm property '" << realmstr << "'." << endl;
+        ERROR_PRINT.Format( "{} '{}' (0x{:X}): has an invalid realm property '{}'.\n" ) << classname() << name() << serial << realmstr;
 		throw runtime_error( "Data integrity error" );
 	  }
 	  x = elem.remove_ushort( "X" );
@@ -350,7 +348,7 @@ namespace Pol {
 
 	bool UObject::setgraphic( u16 newgraphic )
 	{
-	  cerr << "UOBject::SetGraphic used, object class does not have a graphic member! Object Serial: " << serial << endl;
+      ERROR_PRINT.Format( "UOBject::SetGraphic used, object class does not have a graphic member! Object Serial: 0x{:X}\n" ) << serial;
 	  return false;
 	}
 

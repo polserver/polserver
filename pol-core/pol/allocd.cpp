@@ -16,6 +16,8 @@ Notes
 
 #include <stddef.h>
 #include <stdio.h>
+#include "../clib/logfacility.h"
+
 namespace Pol {
   namespace Core {
 	size_t last_blocks_used = 0;
@@ -43,13 +45,14 @@ namespace Pol {
 		  bytes_free += hinfo._size;
 		}
 	  }
-	  printf( "Heap:  Used %lu blocks, %lu bytes, Free %lu blocks, %lu bytes\n",
-			  blocks_used, bytes_used, blocks_free, bytes_free );
-	  printf( "Delta: Used %ld blocks, %ld bytes, Free %ld blocks, %ld bytes\n",
-			  blocks_used - last_blocks_used,
-			  bytes_used - last_bytes_used,
-			  blocks_free - last_blocks_free,
-			  bytes_free - last_bytes_free );
+      fmt::Writer _tmp;
+      _tmp.Format( "Heap:  Used {} blocks, {} bytes, Free {} blocks, {} bytes\n" )
+        << blocks_used << bytes_used << blocks_free << bytes_free;
+      _tmp.Format( "Delta: Used {} blocks, {} bytes, Free {} blocks, {} bytes\n" )
+        << ( blocks_used - last_blocks_used )
+        << ( bytes_used - last_bytes_used )
+        << ( blocks_free - last_blocks_free )
+        << ( bytes_free - last_bytes_free );
 	  last_blocks_used = blocks_used;
 	  last_bytes_used = bytes_used;
 	  last_blocks_free = blocks_free;
@@ -57,12 +60,13 @@ namespace Pol {
 
 	  switch ( heapstatus )
 	  {
-		case _HEAPEMPTY:      printf( "OK - empty heap\n" );      break;
-		case _HEAPEND:      printf( "OK - end of heap\n" );      break;
-		case _HEAPBADPTR:      printf( "ERROR - bad pointer to heap\n" );      break;
-		case _HEAPBADBEGIN:      printf( "ERROR - bad start of heap\n" );      break;
-		case _HEAPBADNODE:      printf( "ERROR - bad node in heap\n" );      break;
+        case _HEAPEMPTY:      _tmp << "OK - empty heap\n";      break;
+        case _HEAPEND:      _tmp << "OK - end of heap\n";      break;
+        case _HEAPBADPTR:      _tmp << "ERROR - bad pointer to heap\n";      break;
+        case _HEAPBADBEGIN:     _tmp << "ERROR - bad start of heap\n";      break;
+        case _HEAPBADNODE:      _tmp << "ERROR - bad node in heap\n";      break;
 	  }
+      INFO_PRINT << _tmp.c_str();
 #endif
 	}
   }

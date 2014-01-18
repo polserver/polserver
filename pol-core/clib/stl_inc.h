@@ -93,8 +93,6 @@ Notes
   using std::swap;
   using std::vector;
 
-  using std::cerr;
-  using std::cout;
   using std::endl;
 
   using std::unordered_map;

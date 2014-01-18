@@ -12,7 +12,6 @@ Notes
 #include <string.h>
 
 #include "../clib/clib.h"
-#include "../clib/mlog.h"
 #include "../clib/stlutil.h"
 
 #include "eprog.h"

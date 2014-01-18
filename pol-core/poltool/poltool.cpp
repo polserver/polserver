@@ -10,6 +10,7 @@ Notes
 #include "../clib/stl_inc.h"
 
 #include "../clib/strutil.h"
+#include "../clib/logfacility.h"
 
 #include "../plib/mapcell.h"
 #include "../plib/mapserver.h"
@@ -30,8 +31,15 @@ namespace Pol {
 
 	void usage()
 	{
-	  cerr << "Usage: poltool [cmd] [options]" << endl;
-	  cerr << "\t  mapdump x1 y1 [x2 y2 realm]       writes polmap info to polmap.html" << endl;
+      ERROR_PRINT << "Usage: poltool [cmd] [options]\n"
+        << "\t  mapdump x1 y1 [x2 y2 realm]       writes polmap info to polmap.html\n";
+
+      //std::string b = "hallo";
+      unsigned char b[3] = { 65, 12, 13 };
+      const unsigned char *s = &b[0];
+      fmt::Writer t;
+      t.Format( "{}" ) << s[0];
+      ERROR_PRINT << t.c_str();
 	}
 
 	int mapdump( int argc, char* argv[] )
@@ -118,7 +126,7 @@ namespace Pol {
 	}
 	else
 	{
-	  cerr << "Unknown command " << cmd << endl;
+      ERROR_PRINT << "Unknown command " << cmd << "\n";
 	  return 1;
 	}
   }

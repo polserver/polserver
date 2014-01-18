@@ -19,7 +19,7 @@ Notes
 
 #include "../config.h"
 
-#include "../../clib/logfile.h"
+#include "../../clib/logfacility.h"
 #include "../../clib/fdump.h"
 #include "../../clib/passert.h"
 
@@ -220,27 +220,18 @@ namespace Pol {
 
 	  unsigned char msgtype = *(const char*)data;
 
-	  if ( fpLog != NULL )
+	  if ( fpLog != 0 )
 	  {
-		if ( needslock )
-		{
-          Core::PolLock lock;
-		  fprintf( fpLog, "Server -> Client: 0x%X, %d bytes\n", msgtype, len );
-		  Clib::fdump( fpLog, data, len );
-		  fprintf( fpLog, "\n" );
-		}
-		else
-		{
-		  fprintf( fpLog, "Server -> Client: 0x%X, %d bytes\n", msgtype, len );
-          Clib::fdump( fpLog, data, len );
-		  fprintf( fpLog, "\n" );
-		}
+        fmt::Writer tmp;
+        tmp << "Server -> Client: 0x" << fmt::hexu( msgtype ) << ", " << len << " bytes\n";
+        Clib::fdump( tmp, data, len );
+        FLEXLOG( fpLog ) << tmp.c_str() << "\n";
 	  }
 
 	  std::lock_guard<std::mutex> guard( _SocketMutex );
 	  if ( disconnect )
 	  {
-        Clib::Log2( "Warning: Trying to send to a disconnected client! \n" );
+		POLLOG_INFO << "Warning: Trying to send to a disconnected client! \n";
 		return;
 	  }
 
@@ -266,10 +257,12 @@ namespace Pol {
 
 	void Client::transmitmore( const void *data, int len )
 	{
-	  if ( fpLog != NULL )
+	  if ( fpLog != 0 )
 	  {
-		fprintf( fpLog, "Server -> Client (%d bytes)\n", len );
-        Clib::fdump( fpLog, data, len );
+        fmt::Writer tmp;
+        tmp << "Server -> Client (" << len << " bytes)\n";
+        Clib::fdump( tmp, data, len );
+        FLEXLOG( fpLog ) << tmp.c_str() << "\n";
 	  }
 
 	  if ( encrypt_server_stream )

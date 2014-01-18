@@ -24,8 +24,8 @@ Notes
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/fileutil.h"
-#include "../clib/logfile.h"
 #include "../clib/rawtypes.h"
+#include "../clib/logfacility.h"
 #include "ssopt.h"
 #include "pktdef.h"
 
@@ -159,10 +159,8 @@ namespace Pol {
 		ssopt.total_stats_at_creation.clear();
 		ssopt.total_stats_at_creation.push_back( "65" );
 		ssopt.total_stats_at_creation.push_back( "80" );
-		cerr << "Invalid TotalStatsAtCreation value '"
-		  << total_stats << "', using '65,80'" << endl;
-        Clib::Log( "Invalid TotalStatsAtCreation value '%s', using '65,80'\n",
-			 total_stats.c_str() );
+        POLLOG_ERROR << "Invalid TotalStatsAtCreation value '"
+		  << total_stats << "', using '65,80'\n";
 	  }
 	  /*
 		  // DEBUG OUTPUT

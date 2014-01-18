@@ -14,6 +14,7 @@ Notes
 #include "../clib/stl_inc.h"
 
 #include "../clib/cfgelem.h"
+#include "../clib/logfacility.h"
 #include "../clib/endian.h"
 #include "item/itemdesc.h"
 #include "mobile/charactr.h"
@@ -112,7 +113,7 @@ namespace Pol {
 			 && !( ssopt.uo_feature_enable & PKTOUT_A9::FLAG_AOS_FEATURES ) )
 		{
 		  if ( config.loglevel > 1 )
-			cout << "Client with AOS Expansion Account using spellbook without UOFeatureEnable 0x20 Bitflag.\n";
+            INFO_PRINT << "Client with AOS Expansion Account using spellbook without UOFeatureEnable 0x20 Bitflag.\n";
 		  send_book_old( client );
 		  return;
 		}

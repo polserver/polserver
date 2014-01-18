@@ -26,6 +26,7 @@
 
 #include <string>
 #include <stdio.h>
+#include "../clib/logfacility.h"
 namespace Pol {
   namespace Plib {
 	template <class USER_TYPE> class FixedSizeAllocator
@@ -180,24 +181,28 @@ namespace Pol {
 	  // For debugging this displays both lists (using the prev/next list pointers)
 	  void Debug()
 	  {
-		printf( "free list " );
+        INFO_PRINT << "free list";
 		FSA_ELEMENT *p = m_pFirstFree;
+        fmt::Writer _tmp;
 		while ( p )
 		{
-		  printf( "%x!%x ", p->pPrev, p->pNext );
+          _tmp << fmt::hex( p->pPrev ) << "!" << fmt::hex( p->pNext ) << " ";
 		  p = p->pNext;
 		}
-		printf( "\n" );
+        _tmp << "\n";
+        INFO_PRINT << _tmp.c_str();
 
-		printf( "used list " );
+        INFO_PRINT << "used list\n";
+        _tmp.Clear();
 
 		p = m_pFirstUsed;
 		while ( p )
 		{
-		  printf( "%x!%x ", p->pPrev, p->pNext );
+          _tmp << fmt::hex( p->pPrev ) << "!" << fmt::hex( p->pNext ) << " ";
 		  p = p->pNext;
 		}
-		printf( "\n" );
+        _tmp << "\n";
+        INFO_PRINT << _tmp.c_str( );
 	  }
 
 	  // Iterators

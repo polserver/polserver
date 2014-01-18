@@ -196,7 +196,7 @@ namespace Pol {
 	  vector<ExecutorModule*> availmodules; // owns
 
 	public:
-	  explicit Executor( std::ostream& cerr );
+	  Executor();
 	  virtual ~Executor();
 
 	  void addModule( ExecutorModule* module ); // NOTE, executor deletes its modules when done

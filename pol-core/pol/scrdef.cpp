@@ -14,6 +14,7 @@ Notes
 #include "../bscript/escrutil.h"
 
 #include "../clib/fileutil.h"
+#include "../clib/logfacility.h"
 #include "../clib/refptr.h"
 
 #include "../plib/pkg.h"
@@ -64,7 +65,7 @@ namespace Pol {
       const Plib::Package* npkg;
       if ( !Plib::pkgdef_split( iname, ipkg, &npkg, &path ) )
 	  {
-		cerr << "Error reading script descriptor '" << iname << "'" << endl;
+        ERROR_PRINT << "Error reading script descriptor '" << iname << "'\n";
 		throw runtime_error( "Error reading script descriptor" );
 	  }
 
@@ -76,7 +77,7 @@ namespace Pol {
 	  {
 		if ( !empty() && !exists() )
 		{
-		  cerr << "Warning! " << name_ << " does not exist!" << endl;
+          ERROR_PRINT << "Warning! " << name_ << " does not exist!\n";
 		}
 	  }
 	}
@@ -95,7 +96,7 @@ namespace Pol {
       const Plib::Package* npkg;
       if ( !Plib::pkgdef_split( iname, ipkg, &npkg, &path ) )
 	  {
-		cerr << "Error reading script descriptor '" << iname << "'" << endl;
+        ERROR_PRINT << "Error reading script descriptor '" << iname << "'\n";
 		return false;
 	  }
 

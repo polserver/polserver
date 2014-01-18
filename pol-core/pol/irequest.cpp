@@ -13,6 +13,7 @@ Notes
 #include "../clib/endian.h"
 #include "../clib/fdump.h"
 #include "../clib/clib.h"
+#include "../clib/logfacility.h"
 
 #include "mobile/attribute.h"
 #include "mobile/charactr.h"
@@ -111,10 +112,10 @@ namespace Pol {
 		if ( !uoskill.pAttr ) // tried to set lockstate for a skill that isn't defined
 		  return;
 
-		if ( msg->lock_mode < 3 )
-		  client->chr->attribute( uoskill.pAttr->attrid ).lock( msg->lock_mode );
-		else
-		  cout << "Client " + client->chr->name() + " tried to set an illegal lock state." << endl;
+        if ( msg->lock_mode < 3 )
+          client->chr->attribute( uoskill.pAttr->attrid ).lock( msg->lock_mode );
+        else
+          INFO_PRINT << "Client " << client->chr->name() << " tried to set an illegal lock state.\n";
 	  }
 	}
 	MESSAGE_HANDLER( PKTBI_3A_LOCKS, handle_skill_lock );

@@ -720,7 +720,6 @@ namespace Pol {
 
 		res = ( myprops == yourprops );
 
-		//myprops.printProperties(cout);
 	  }
 	  return res;
 	}

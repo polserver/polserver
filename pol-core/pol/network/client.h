@@ -24,7 +24,6 @@ Notes
 #ifndef __CLIENT_H
 #define __CLIENT_H
 
-#include <stdio.h> // for that FILE fpLog down there :(
 #include <memory>
 #include <string>
 
@@ -191,7 +190,7 @@ namespace Pol {
 
 	  const Core::MessageTypeFilter *msgtype_filter;
 
-	  FILE* fpLog;
+	  unsigned int fpLog;
 
 	  std::string status() const;
 

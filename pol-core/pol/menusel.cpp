@@ -13,7 +13,7 @@ Notes
 
 #include "../clib/clib.h"
 #include "../clib/endian.h"
-#include "../clib/logfile.h"
+#include "../clib/logfacility.h"
 #include "../clib/passert.h"
 
 #include "accounts/account.h"
@@ -30,16 +30,16 @@ namespace Pol {
 	{
 	  if ( client->chr->menu == NULL )
 	  {
-		Clib::Log( "%s/%s tried to use a menu, but none was active.\n",
-			 client->acct->name(),
-			 client->chr->name().c_str() );
+        POLLOG.Format( "{}/{} tried to use a menu, but none was active.\n" )
+          << client->acct->name()
+          << client->chr->name();
 		return;
 	  }
 
 	  u16 menu_id = cfBEu16( msg->menu_id );
 	  if ( client->chr->menu->menu_id != menu_id )
 	  {
-		printf( "Client tried to use a menu he wasn't entitled to\n" );
+        INFO_PRINT << "Client tried to use a menu he wasn't entitled to\n";
 		// LOGME illegal menu selection
 		client->chr->cancel_menu();
 		return;
@@ -58,7 +58,7 @@ namespace Pol {
 	  u16 choice = cfBEu16( msg->choice );
 	  if ( choice == 0 || choice > menu->menuitems_.size() )
 	  {
-		printf( "Client menu choice out of range\n" );
+        INFO_PRINT << "Client menu choice out of range\n";
 		client->chr->cancel_menu();
 		return;
 	  }

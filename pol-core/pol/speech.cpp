@@ -22,9 +22,9 @@ Notes
 
 #include "../clib/endian.h"
 #include "../clib/clib.h"
-#include "../clib/logfile.h"
 #include "../clib/random.h"
 #include "../clib/strutil.h"
+#include "../clib/logfacility.h"
 
 #include "accounts/account.h"
 #include "network/client.h"
@@ -101,8 +101,8 @@ namespace Pol {
 
 	  if ( config.show_speech_colors )
 	  {
-		cout << client->chr->name() << " speaking w/ color "
-		  << Clib::hexint( cfBEu16( color ) ) << endl;
+        INFO_PRINT << client->chr->name( ) << " speaking w/ color 0x"
+		  << fmt::hexu( cfBEu16( color ) ) << "\n";
 	  }
 
 	  // validate text color
@@ -254,8 +254,8 @@ namespace Pol {
 
 	  if ( config.show_speech_colors )
 	  {
-		cout << client->chr->name() << " speaking w/ color "
-		  << Clib::hexint( cfBEu16( msgin->color ) ) << endl;
+        INFO_PRINT << client->chr->name( ) << " speaking w/ color 0x"
+		  << fmt::hexu( cfBEu16( msgin->color ) ) << "\n";
 	  }
 
 	  // validate text color

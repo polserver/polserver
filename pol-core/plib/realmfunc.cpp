@@ -91,9 +91,9 @@ namespace Pol {
 #if ENABLE_POLTEST_OUTPUT
 		if (static_debug_on)
 		{
-		  cout << "static: graphic=0x" << std::hex << srec.graphic << std::dec 
-			<< ", z=" << int(srec.z) 
-			<< ", ht=" << int(srec.height) << endl;
+          INFO_PRINT << "static: graphic=0x" << fmt::hexu(srec.graphic)
+            << ", z=" << int(srec.z) 
+            << ", ht=" << int(srec.height) << "\n";
 		}
 #endif
 
@@ -106,7 +106,7 @@ namespace Pol {
 			( ztop >= newz ) )     // but above or same as the highest yet seen
 		  {
 #if ENABLE_POLTEST_OUTPUT
-			if (static_debug_on) cout << "Setting Z to " << int(ztemp) << endl;
+            if (static_debug_on) INFO_PRINT << "Setting Z to " << int(ztemp) << "\n";
 #endif
 			possible_shapes.push_back( &shape );
 			newz = ztop;
@@ -146,10 +146,10 @@ namespace Pol {
 #if ENABLE_POLTEST_OUTPUT
 			  if (static_debug_on)
 			  {
-				cout << "static: objtype=0x" << std::hex << srec.graphic << std::dec 
+                INFO_PRINT << "static: objtype=0x" << fmt::hexu ( srec.graphic )
 				  << ", z=" << int(srec.z) 
 				  << ", ht=" << int(srec.height) 
-				  << " blocks movement to z=" << int(newz) << endl;
+				  << " blocks movement to z=" << int(newz) << "\n";
 			  }
 #endif
 
@@ -219,9 +219,9 @@ namespace Pol {
 #if ENABLE_POLTEST_OUTPUT
 		if (static_debug_on)
 		{
-		  cout << "static: graphic=0x" << std::hex << srec.graphic << std::dec 
+          INFO_PRINT << "static: graphic=0x" << fmt::hexu ( srec.graphic )
 			<< ", z=" << int(srec.z) 
-			<< ", ht=" << int(srec.height) << endl;
+			<< ", ht=" << int(srec.height) << "\n";
 		}
 #endif
 
@@ -236,7 +236,7 @@ namespace Pol {
 			   ( ztop < newz ) )		// lower than we've seen before
 		  {
 #if ENABLE_POLTEST_OUTPUT
-			if (static_debug_on) cout << "Setting Z to " << int(ztemp) << endl;
+			if (static_debug_on) INFO_PRINT << "Setting Z to " << int(ztemp) << "\n";
 #endif
 			bool valid = true;
 			// validate that its actually standable
@@ -255,10 +255,10 @@ namespace Pol {
 #if ENABLE_POLTEST_OUTPUT
 				if (static_debug_on)
 				{
-				  cout << "static: objtype=0x" << std::hex << srec.graphic << std::dec 
+                  INFO_PRINT << "static: objtype=0x" << fmt::hexu(srec.graphic)
 					<< ", z=" << int(srec.z) 
 					<< ", ht=" << int(srec.height) 
-					<< " blocks movement to z=" << int(newz) << endl;
+					<< " blocks movement to z=" << int(newz) << "\n";
 				}
 #endif
 				valid = false;
@@ -563,9 +563,9 @@ namespace Pol {
 #if ENABLE_POLTEST_OUTPUT
 		if (static_debug_on)
 		{
-		  cout << "static: graphic=0x" << std::hex << srec.graphic << std::dec 
-			<< ", z=" << int(srec.z) 
-			<< ", ht=" << int(tileheight(srec.graphic)) << endl;
+          INFO_PRINT << "static: graphic=0x" << fmt::hexu (srec.graphic )
+            << ", z=" << int(srec.z) 
+            << ", ht=" << int(tileheight(srec.graphic)) << "\n";
 		}
 #endif
 
@@ -576,7 +576,7 @@ namespace Pol {
 		  {                           // NOTE, the >= here is so statics at ground height
 			// will override a blocking map tile.
 #if ENABLE_POLTEST_OUTPUT
-			if (static_debug_on) cout << "Setting Z to " << int(ztemp) << endl;
+            if (static_debug_on) INFO_PRINT << "Setting Z to " << int(ztemp) << "\n";
 #endif
 			z = ztop;
 			result = true;
@@ -600,10 +600,10 @@ namespace Pol {
 #if ENABLE_POLTEST_OUTPUT
 			  if (static_debug_on)
 			  {
-				cout << "static: objtype=0x" << std::hex << srec.graphic << std::dec 
+                INFO_PRINT << "static: objtype=0x" << fmt::hexu(srec.graphic)
 				  << ", z=" << int(srec.z) 
 				  << ", ht=" << int(tileheight(srec.graphic)) 
-				  << " blocks movement to z=" << int(z) << endl;
+				  << " blocks movement to z=" << int(z) << "\n";
 			  }
 #endif
 			  result = false;

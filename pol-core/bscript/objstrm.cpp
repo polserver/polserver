@@ -8,6 +8,7 @@ Notes
 */
 
 #include "../clib/stl_inc.h"
+#include "../../lib/format/format.h"
 
 #include <string.h>
 
@@ -20,12 +21,27 @@ namespace Pol {
 	  obj.impptr()->printOn( os );
 	  return os;
 	}
+    fmt::Writer& operator << ( fmt::Writer& w, const BObject& obj )
+    {
+      ostringstream os;
+      obj.impptr( )->printOn( os );
+      w << os.str();
+      return w;
+    }
 
 	ostream& operator << ( ostream& os, const BObjectImp& objimp )
 	{
 	  objimp.printOn( os );
 	  return os;
 	}
+    fmt::Writer& operator << ( fmt::Writer& w, const BObjectImp& objimp )
+    {
+      ostringstream os;
+      objimp.printOn( os );
+      w << os.str( );
+      return w;
+    }
+
 	void BObject::printOn( ostream& os ) const
 	{
 	  os << "{ BObject: " << BObjectImp::typestr( objimp->type() ) << " }";

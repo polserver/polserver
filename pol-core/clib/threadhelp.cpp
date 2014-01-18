@@ -18,7 +18,7 @@ Notes
 
 #include "passert.h"
 #include "threadhelp.h"
-#include "logfile.h"
+#include "logfacility.h"
 
 #include <cstring>
 
@@ -145,7 +145,7 @@ namespace Pol {
 	  int res = pthread_mutex_lock( &threadsem );
 	  if (res != 0)
 	  {
-		Clib::Log( "pthread_mutex_lock: res=%d, pid=%d\n", res, pid );
+        POLLOG << "pthread_mutex_lock: res="<< res << ", pid=" << pid << "\n";
 	  }
 	  passert_always( res == 0 );
 	  passert_always( threadhelp_locker == 0 );
@@ -159,7 +159,7 @@ namespace Pol {
 	  int res = pthread_mutex_unlock( &threadsem );
 	  if (res != 0)
 	  {
-        Clib::Log( "pthread_mutex_unlock: res=%d,pid=%d", res, pid );
+        POLLOG << "pthread_mutex_unlock: res="<< res << ", pid=" << pid << "\n";
 	  }
 	  passert_always( res == 0 );
 	}
@@ -169,7 +169,7 @@ namespace Pol {
 	  int res = pthread_mutex_lock( &threadmap_sem );
 	  if (res != 0)
 	  {
-        Clib::Log( "pthread_mutex_lock(threadmap_sem): res=%d, pid=%d\n", res, getpid() );
+        POLLOG << "pthread_mutex_lock(threadmap_sem): res="<< res << ", pid=" << getpid() << "\n";
 	  }
 	  passert_always( res == 0 );
 	}
@@ -178,7 +178,7 @@ namespace Pol {
 	  int res = pthread_mutex_unlock( &threadmap_sem );
 	  if (res != 0)
 	  {
-        Clib::Log( "pthread_mutex_unlock(threadmap_sem): res=%d,pid=%d", res, getpid() );
+        POLLOG << "pthread_mutex_unlock(threadmap_sem): res="<< res << ", pid=" << getpid() << "\n";
 	  }
 	  passert_always( res == 0 );
 	}
@@ -223,7 +223,7 @@ namespace Pol {
 	  }
 	  catch( std::exception& ex )
 	  {
-		cerr << "Thread exception: " << ex.what() << endl;
+		ERROR_PRINT << "Thread exception: " << ex.what() << "\n";
 	  }
 
 	  dec_child_thread_count();
@@ -239,7 +239,7 @@ namespace Pol {
 	  }
 	  catch( std::exception& ex )
 	  {
-		cerr << "Thread exception: " << ex.what() << endl;
+		ERROR_PRINT << "Thread exception: " << ex.what() << "\n";
 	  }
 
 	  dec_child_thread_count();
@@ -293,9 +293,9 @@ namespace Pol {
 	  HANDLE h = (HANDLE)_beginthreadex( NULL, 0, thread_stub2, td, 0, &threadid );
 	  if( h == 0 ) // added for better debugging
 	  {
-		Clib::Log( "error in create_thread: %d %d \"%s\" \"%s\" %d %d %s %d %d %d\n",
-			 errno, _doserrno, strerror( errno ), strerror( _doserrno ),
-			 threads++, thread_stub2, td->name.c_str(), td->entry, td->entry_noparam, td->arg );
+        POLLOG.Format( "error in create_thread: {:d} {:d} \"{:s}\" \"{:s}\" {:d} {:d} {:s} {:d} {:d} {:d}\n" )
+          << errno << _doserrno << strerror( errno ) << strerror( _doserrno )
+          << threads++ << (unsigned)thread_stub2 << td->name.c_str( ) << (unsigned)td->entry << (unsigned)td->entry_noparam << td->arg;
 
 		// dec_child says that we should dec_child_threads when there's an error... :)
 		if( dec_child )
@@ -314,9 +314,9 @@ namespace Pol {
 	  int result = pthread_create( &thread, &create_detached_attr, thread_stub2, td );
 	  if ( result != 0) // added for better debugging
 	  {
-        Clib::Log( "error in create_thread: %d %d \"%s\" %d %d %s %d %d %d\n",
-			 result, errno, strerror( errno ), 
-			 threads++, thread_stub2, td->name.c_str(), td->entry, td->entry_noparam, td->arg );
+        POLLOG.Format( "error in create_thread: {:d} {:d} \"{:s}\" {:d} {:} {:s} {:} {:} {:d}\n" )
+          << result << errno << strerror( errno )
+          << threads++ << reinterpret_cast<const void*>(thread_stub2) << td->name.c_str() << reinterpret_cast<const void*>(td->entry) << reinterpret_cast<const void*>(td->entry_noparam) << td->arg;
 
 		// dec_child says that we should dec_child_threads when there's an error... :)
 		if (dec_child)
@@ -408,7 +408,7 @@ namespace Pol {
 			  f();
 			}
 		  }
-		  catch( msg_queue::Canceled& e )
+		  catch( msg_queue::Canceled& )
 		  {
 		  }
 		  //purge the queue empty

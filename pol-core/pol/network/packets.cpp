@@ -15,7 +15,6 @@ PacketInterface* GetPacket(u8 id, u16 sub) add pkt create
 #include "../../clib/stl_inc.h"
 
 #include "../../clib/rawtypes.h"
-#include "../../clib/logfile.h"
 #include "packets.h"
 namespace Pol {
   namespace Network {

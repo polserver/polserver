@@ -26,11 +26,10 @@ Notes
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/dirlist.h"
-#include "../clib/logfile.h"
 #include "../clib/mdump.h"
-#include "../clib/mlog.h"
 #include "../clib/passert.h"
 #include "../clib/strutil.h"
+#include "../clib/logfacility.h"
 
 #include "core.h"
 #include "objtype.h"
@@ -182,7 +181,7 @@ namespace Pol {
         Clib::passert_shutdown = false;
         Clib::passert_abort = true;
 		config.assertion_shutdown_save_type = SAVE_FULL; // should never come into play
-        Clib::Log2( "Unknown pol.cfg AssertionFailureAction value: %s (expected abort, continue, shutdown, or shutdown-nosave)\n", tmp.c_str( ) );
+        POLLOG_ERROR.Format("Unknown pol.cfg AssertionFailureAction value: {} (expected abort, continue, shutdown, or shutdown-nosave)\n")<< tmp;
 	  }
 
 	  tmp = elem.remove_string( "ShutdownSaveType", "full" );
@@ -197,7 +196,7 @@ namespace Pol {
 	  else
 	  {
 		config.shutdown_save_type = SAVE_FULL;
-        Clib::Log2( "Unknown pol.cfg ShutdownSaveType value: %s (expected full or incremental)\n", tmp.c_str( ) );
+        POLLOG_ERROR.Format( "Unknown pol.cfg ShutdownSaveType value: {} (expected full or incremental)\n" ) << tmp;
 	  }
 
 	  CalculateCryptKeys( elem.remove_string( "ClientEncryptionVersion", "none" ), config.client_encryption_version );
@@ -217,51 +216,41 @@ namespace Pol {
 	  config.minidump_type = elem.remove_string( "MiniDumpType", "variable" );
 	  config.retain_cleartext_passwords = elem.remove_bool( "RetainCleartextPasswords", false );
 	  config.discard_old_events = elem.remove_bool( "DiscardOldEvents", false );
-      Clib::LogfileTimestampEveryLine = elem.remove_bool( "TimestampEveryLine", false ); // clib/logfile.h bool
+      Clib::LogfileTimestampEveryLine = elem.remove_bool( "TimestampEveryLine", false ); // clib/logfacility.h bool
 	  config.use_single_thread_login = elem.remove_bool( "UseSingleThreadLogin", false );
 
 #ifdef _WIN32
       Clib::MiniDumper::SetMiniDumpType( config.minidump_type );
 #endif
 
-      if ( config.enable_debug_log && !Clib::mlog.is_open( ) )
-	  {
-		Clib::mlog.open( "log/debug.log", ios::out | ios::app );
-	  }
-	  else if ( !config.enable_debug_log && Clib::mlog.is_open() )
-	  {
-		Clib::mlog.close();
-	  }
+      if ( !config.enable_debug_log )
+        DISABLE_DEBUGLOG();
 
 	  config.debug_level = elem.remove_ushort( "DebugLevel", 0 );
 	}
 
 	void reload_pol_cfg( void )
 	{
-	  // cout << "checking for pol.cfg changes" << endl;
 	  THREAD_CHECKPOINT( tasks, 600 );
 	  try
 	  {
 		struct stat newst;
 		stat( "pol.cfg", &newst );
 
-		// cout << "os: " << pol_cfg_stat.st_mtime << endl;
-		// cout << "ns: " << newst.st_mtime << endl;
-
 		if ( ( newst.st_mtime != pol_cfg_stat.st_mtime ) &&
 			 ( newst.st_mtime < time( NULL ) - 10 ) )
 		{
-		  cout << "Reloading pol.cfg...";
+          POLLOG_INFO << "Reloading pol.cfg...";
 		  memcpy( &pol_cfg_stat, &newst, sizeof pol_cfg_stat );
 
 		  read_pol_config( false );
-		  cout << "Done!" << endl;
+          POLLOG_INFO << "Done!\n";
 
 		}
 	  }
 	  catch ( std::exception& ex )
 	  {
-		cout << "Error rereading pol.cfg: " << ex.what() << endl;
+        POLLOG_ERROR << "Error rereading pol.cfg: " << ex.what( ) << "\n";
 	  }
 	  THREAD_CHECKPOINT( tasks, 699 );
 	}

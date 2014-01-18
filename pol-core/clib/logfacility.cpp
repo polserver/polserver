@@ -17,39 +17,47 @@ POLLOG.Format("hello {}") << "world";
 #include "stl_inc.h"
 #include "logfacility.h"
 
-#include "logfile.h" // TODO needed for LogfileTimestampEveryLine move it later here
-
 namespace Pol {
   namespace Clib {
+    bool LogfileTimestampEveryLine = false;
     namespace Logging {
+
+      // helper struct to define log file behaviour
+      struct LogFileBehaviour
+      {
+        std::string basename;
+        bool rollover;
+        std::ios_base::openmode openmode;
+        bool timestamps;
+      };
 
       // definitions of the logfile behaviours
       static LogFileBehaviour startlogBehaviour = {
-        "log/startdraft",
+        "log/start",
         false,
         std::ios_base::out | std::ios_base::trunc,
         false
       };
       static LogFileBehaviour pollogBehaviour = {
-        "log/poldraft",
+        "log/pol",
         true,
         std::ios_base::out | std::ios_base::app,
         true
       };
       static LogFileBehaviour debuglogBehaviour = {
-        "log/debugdraft",
+        "log/debug",
         false,
         std::ios_base::out | std::ios_base::app,
         false
       };
       static LogFileBehaviour scriptlogBehaviour = {
-        "log/scriptdraft",
+        "log/script",
         false,
         std::ios_base::out | std::ios_base::app,
         false
       };
       static LogFileBehaviour leaklogBehaviour = {
-        "log/leakdraft",
+        "log/leak",
         false,
         std::ios_base::out | std::ios_base::app,
         false
@@ -69,12 +77,68 @@ namespace Pol {
         global_logger = logger;
       }
 
-      LogFacility::LogFacility() : _worker() {}
+      // internal worker class which performs the work in a additional thread
+      class LogFacility::LogWorker : boost::noncopyable
+      {
+        typedef std::function<void()> msg;
+        typedef message_queue<msg> msg_queue;
+      public:
+        // run thread on construction
+        LogWorker() : _done( false ), _queue(), _work_thread()
+        {
+          run();
+        }
+        // on deconstruction send exit
+        ~LogWorker()
+        {
+          if ( !_done )
+          {
+            exit();
+          }
+        }
+        // blocks till the queue is empty
+        void exit()
+        {
+          send( [&]() { _done = true; } );
+          _work_thread.join(); // wait for it
+        }
+        // send and move msg into queue
+        void move_send( msg &&msg_ )
+        {
+          _queue.push_move( std::move( msg_ ) );
+        }
+        // send msg into queue
+        void send( msg msg_ )
+        {
+          _queue.push( msg_ );
+        }
+
+      private:
+        // endless loop in thread
+        void run()
+        {
+          _work_thread = std::thread( [&]()
+          {
+            while ( !_done )
+            {
+              msg func;
+              _queue.pop_wait( &func );
+              func(); // execute
+            }
+          } );
+        }
+        bool _done;
+        msg_queue _queue;
+        std::thread _work_thread;
+      };
+
+
+      LogFacility::LogFacility() : _worker( new LogWorker ) {}
 
       // note this blocks till the worker is finished
       LogFacility::~LogFacility()
       {
-        _worker.exit();
+        _worker->exit();
         for ( auto &sink : _registered_sinks )
           delete sink;
       }
@@ -116,7 +180,7 @@ namespace Pol {
       void LogFacility::save( std::unique_ptr<fmt::Writer>&& message, unsigned int id )
       {
         auto moved = makeMoveCopy( std::move( message ) ); // see note above we need to transfer ownership into the lambda
-        _worker.move_send( std::move( [moved, id]()
+        _worker->move_send( std::move( [moved, id]()
         {
           try
           {
@@ -124,7 +188,7 @@ namespace Pol {
           }
           catch ( std::exception& msg )
           {
-            cout << msg.what() << endl;
+            std::cout << msg.what() << endl;
           }
         } ) );
       }
@@ -138,7 +202,7 @@ namespace Pol {
       // disables debuglog
       void LogFacility::disableDebugLog()
       {
-        _worker.send( []()
+        _worker->send( []()
         {
           getSink<LogSink_debuglog>()->disable();
         } );
@@ -147,7 +211,7 @@ namespace Pol {
       // disables startlog ( activates pol.log )
       void LogFacility::deinitializeStartLog()
       {
-        _worker.send( []()
+        _worker->send( []()
         {
           getSink<LogSink_pollog>()->deinitialize_startlog();
         } );
@@ -156,7 +220,7 @@ namespace Pol {
       // closes flex sink of given id
       void LogFacility::closeFlexLog( unsigned int id )
       {
-        _worker.send( [id]()
+        _worker->send( [id]()
         {
           getSink<LogSink_flexlog>()->close( id );
         } );
@@ -168,7 +232,7 @@ namespace Pol {
       {
         auto promise = std::make_shared<std::promise<unsigned int>>();
         auto ret = promise->get_future();
-        _worker.send( [=, &logfilename]()
+        _worker->send( [=, &logfilename]()
         {
           try
           {
@@ -211,52 +275,7 @@ namespace Pol {
           global_logger->save<Sink>( std::move( _formater ), _id );
       }
 
-      namespace Logging_internal {
-        // run thread on construction
-        LogWorker::LogWorker() : _done( false ), _queue(), _work_thread()
-        {
-          run();
-        }
 
-        // on deconstruction send exit
-        LogWorker::~LogWorker()
-        {
-          if ( !_done )
-          {
-            exit();
-          }
-        }
-        // blocks till the queue is empty
-        void LogWorker::exit()
-        {
-          send( [&]() { _done = true; } );
-          _work_thread.join(); // wait for it
-        }
-        // send and move msg into queue
-        void LogWorker::move_send( msg &&msg_ )
-        {
-          _queue.push_move( std::move( msg_ ) );
-        }
-        // send msg into queue
-        void LogWorker::send( msg msg_ )
-        {
-          _queue.push( msg_ );
-        }
-
-        // endless loop in thread
-        void LogWorker::run()
-        {
-          _work_thread = std::thread( [&]()
-          {
-            while ( !_done )
-            {
-              msg func;
-              _queue.pop_wait( &func );
-              func(); // execute
-            }
-          } );
-        }
-      }
 
       // create and get a sink
       template <typename Sink>
@@ -394,16 +413,16 @@ namespace Pol {
       // print given msg into std::cout
       void LogSink_cout::sink( fmt::Writer* msg, unsigned int )
       {
-        cout << msg->c_str();
-        cout.flush();
+        std::cout << msg->c_str();
+        std::cout.flush();
       }
       LogSink_cerr::LogSink_cerr() : LogSink()
       {}
       // print given msg into std::cerr
       void LogSink_cerr::sink( fmt::Writer* msg, unsigned int )
       {
-        cerr << msg->c_str();
-        cerr.flush();
+        std::cerr << msg->c_str();
+        std::cerr.flush();
       }
 
       // on construction this opens not pol.log instead start.log

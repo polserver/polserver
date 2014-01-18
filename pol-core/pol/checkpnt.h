@@ -7,8 +7,10 @@ Notes
 =======
 
 */
-
+#ifndef H_CHECKPNT
+#define H_CHECKPNT
 #include <string>
+
 namespace Pol {
   namespace Core {
 	extern const char* last_checkpoint;
@@ -36,3 +38,4 @@ namespace Pol {
 
 #define CLEAR_CHECKPOINT() checkpoint.clear()
 }
+#endif

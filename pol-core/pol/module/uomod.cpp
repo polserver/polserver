@@ -77,8 +77,7 @@ Notes
 #include "../../clib/clib.h"
 #include "../../clib/endian.h"
 #include "../../clib/esignal.h"
-#include "../../clib/logfile.h"
-#include "../../clib/mlog.h"
+#include "../../clib/logfacility.h"
 #include "../../clib/passert.h"
 #include "../../clib/random.h"
 #include "../../clib/stlutil.h"
@@ -1383,7 +1382,6 @@ namespace Pol {
 			if ( npc->registered_house == 0 )
 			{
 			  npc->registered_house = dummy_multi->serial;
-			  //cout << "walk on multi triggered" << endl;
 			  this_house->walk_on( npc.get() );
 			}
 		  }
@@ -1641,8 +1639,7 @@ namespace Pol {
 		  return true;
 		}
 	  }
-      if ( Clib::mlog.is_open( ) )
-        Clib::mlog << "SelectMenuItem: expected a menu name (static menu) or a CreateMenu() dynamic menu" << endl;
+      DEBUGLOG << "SelectMenuItem: expected a menu name (static menu) or a CreateMenu() dynamic menu\n";
 	  return false;
 	}
 
@@ -3265,7 +3262,7 @@ namespace Pol {
 	  }
 	  catch ( std::exception& ex )
 	  {
-		Clib::Log( "Exception during world save! (%s)\n", ex.what() );
+        POLLOG << "Exception during world save! (" << ex.what() << ")\n";
 		return new BError( "Exception during world save" );
 	  }
 	}
@@ -4106,8 +4103,6 @@ namespace Pol {
 		{
 		  if ( chr->has_active_client() )
 		  {
-			//printf( "SendPacket() data: %d bytes\n", buflen );
-			//fdump( stdout, buffer, buflen );
 			buffer.Send( chr->client );
 			return new BLong( 1 );
 		  }
@@ -5241,9 +5236,9 @@ namespace Pol {
 
 		if ( config.loglevel >= 12 )
 		{
-		  Clib::Log( "[FindPath] Calling FindPath(%d, %d, %d, %d, %d, %d, %s, 0x%x, %d)\n",
-			   x1, y1, z1, x2, y2, z2, strrealm->data(), flags, theSkirt );
-		  Clib::Log( "[FindPath]   search for Blockers inside %d %d %d %d\n", xL, yL, xH, yH );
+          POLLOG.Format( "[FindPath] Calling FindPath({:d}, {:d}, {:d}, {:d}, {:d}, {:d}, {}, 0x{:X}, {:d})\n" )
+            << x1 << y1 << z1 << x2 << y2 << z2 << strrealm->data() << flags << theSkirt;
+          POLLOG.Format( "[FindPath]   search for Blockers inside {:d} {:d} {:d} {:d}\n" ) << xL << yL << xH << yH;
 		}
 
 		AStarBlockers theBlockers( xL, xH, yL, yH );
@@ -5255,8 +5250,8 @@ namespace Pol {
             theBlockers.AddBlocker( chr->x, chr->y, chr->z );
 
             if ( config.loglevel >= 12 )
-              Clib::Log( "[FindPath]	 add Blocker %s at %d %d %d\n",
-              chr->name().c_str(), chr->x, chr->y, chr->z );
+              POLLOG.Format( "[FindPath]	 add Blocker {} at {:d} {:d} {:d}\n" )
+                << chr->name() << chr->x << chr->y << chr->z;
           } );
 		}
 
@@ -5265,8 +5260,8 @@ namespace Pol {
 
 		if ( config.loglevel >= 12 )
 		{
-          Clib::Log( "[FindPath]   use StartNode %d %d %d\n", x1, y1, z1 );
-          Clib::Log( "[FindPath]   use EndNode %d %d %d\n", x2, y2, z2 );
+          POLLOG.Format( "[FindPath]   use StartNode {:d} {:d} {:d}\n" ) << x1 << y1 << z1;
+          POLLOG.Format( "[FindPath]   use EndNode {:d} {:d} {:d}\n" ) << x2 << y2 << z2;
 		}
 
 		// Create a start state

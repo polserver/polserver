@@ -17,8 +17,7 @@ Notes
 #include "../clib/stl_inc.h"
 
 #include "../clib/clib.h"
-#include "../clib/logfile.h"
-#include "../clib/mlog.h"
+#include "../clib/logfacility.h"
 #include "../clib/passert.h"
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
@@ -67,13 +66,13 @@ namespace Pol {
 
 		// Fix for crashes due to orphaned script instances.
 		if ( !ex->empty_scriptname() )
-		  cout << ex->scriptname() << endl;
+          INFO_PRINT << ex->scriptname( ) << "\n";
 	  }
 	}
 
 	extern int executor_count;
 	std::mutex Executor::_executor_mutex;
-	Executor::Executor( ostream& cerr ) :
+	Executor::Executor() :
 	  done( 0 ),
 	  error_( false ),
 	  halt_( false ),
@@ -152,7 +151,7 @@ namespace Pol {
 		execmodules.push_back( em );
 		if ( em == NULL )
 		{
-		  cerr << "WARNING: " << scriptname() << ": Unable to find module " << fm->modulename << endl;
+          ERROR_PRINT << "WARNING: " << scriptname( ) << ": Unable to find module " << fm->modulename << "\n";
 		  return false;
 		}
 
@@ -172,7 +171,7 @@ namespace Pol {
 			  func->funcidx = em->functionIndex( func->name.c_str() );
 			  if ( func->funcidx == -1 )
 			  {
-				cerr << "Unable to find " << fm->modulename << "::" << func->name << endl;
+                ERROR_PRINT << "Unable to find " << fm->modulename << "::" << func->name << "\n";
 				return false;
 			  }
 			}
@@ -192,9 +191,7 @@ namespace Pol {
 		{
 		  if ( ValueStack.empty() )
 		  {
-			Clib::Log( "Fatal error: Value Stack Empty! (%s,PC=%d)\n", prog_->name.c_str(), PC );
-			cerr << "Fatal error: Value Stack Empty!" << endl;
-			cerr << prog_->name << ", PC=" << PC << endl;
+            POLLOG_ERROR.Format( "Fatal error: Value Stack Empty! ({},PC={})\n" ) << prog_->name << PC;
 			seterror( true );
 			return -1;
 		  }
@@ -305,21 +302,23 @@ namespace Pol {
 	  {
 		return imp;
 	  }
-	  else
-	  {
-		if ( Clib::mlog.is_open() )
-		{
-		  Clib::mlog << "Script Error in '" << scriptname() << "' PC=" << PC << ": " << endl;
-		  if ( current_module_function )
-			Clib::mlog << "\tCall to function " << current_module_function->name << ":" << endl;
-		  else
-			Clib::mlog << "\tCall to an object method." << endl;
-		  Clib::mlog << "\tParameter " << param << ": Expected datatype " << BObjectImp::typestr( type )
-			<< ", got datatype " << BObjectImp::typestr( imp->type() ) << endl;
-		}
+      else
+      {
+        if ( !IS_DEBUGLOG_DISABLED )
+        {
+          fmt::Writer tmp;
+          tmp << "Script Error in '" << scriptname( ) << "' PC=" << PC << ": \n";
+          if ( current_module_function )
+            tmp << "\tCall to function " << current_module_function->name << ":\n";
+          else
+            tmp << "\tCall to an object method.\n";
+          tmp << "\tParameter " << param << ": Expected datatype " << BObjectImp::typestr( type )
+            << ", got datatype " << BObjectImp::typestr( imp->type() ) << "\n";
+          DEBUGLOG << tmp.c_str();
+        }
+        return NULL;
 
-		return NULL;
-	  }
+      }
 	}
 
 	BObjectImp* Executor::getParamImp2( unsigned param, BObjectImp::BObjectType type )
@@ -449,11 +448,10 @@ namespace Pol {
 	  }
 	  else
 	  {
-		if ( Clib::mlog.is_open() )
-		  Clib::mlog << "Script Error in '" << scriptname() << "' PC=" << PC << ": " << endl
-		  << "\tCall to function " << current_module_function->name << ":" << endl
-		  << "\tParameter " << param << ": Expected Integer or Real"
-		  << ", got datatype " << BObjectImp::typestr( imp->type() ) << endl;
+        DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << PC << ": \n"
+          << "\tCall to function " << current_module_function->name << ":\n"
+          << "\tParameter " << param << ": Expected Integer or Real"
+          << ", got datatype " << BObjectImp::typestr( imp->type() ) << "\n";
 
 		return false;
 	  }
@@ -477,11 +475,10 @@ namespace Pol {
 	  }
 	  else
 	  {
-		if ( Clib::mlog.is_open() )
-		  Clib::mlog << "Script Error in '" << scriptname() << "' PC=" << PC << ": " << endl
-		  << "\tCall to function " << current_module_function->name << ":" << endl
-		  << "\tParameter " << param << ": Expected datatype " << pointer_type
-		  << ", got datatype " << ap->pointer_type() << endl;
+		  DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << PC << ": \n"
+		  << "\tCall to function " << current_module_function->name << ":\n"
+          << "\tParameter " << param << ": Expected datatype " /*<< pointer_type TODO this is totally useless since its a pointer address*/ 
+          << ", got datatype " << BObjectImp::typestr( ap->type( ) ) << "\n";
 
 		return NULL;
 	  }
@@ -499,11 +496,10 @@ namespace Pol {
 	  }
 	  else
 	  {
-		if ( Clib::mlog.is_open() )
-		  Clib::mlog << "Script Error in '" << scriptname() << "' PC=" << PC << ": " << endl
-		  << "\tCall to function " << current_module_function->name << ":" << endl
-		  << "\tParameter " << param << ": Expected datatype " << object_type
-		  << ", got datatype " << aob->object_type() << endl;
+		  DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << PC << ": \n"
+		  << "\tCall to function " << current_module_function->name << ":\n"
+          << "\tParameter " << param << ": Expected datatype " /*<< object_type TODO this is totally useless since its a pointer address*/ 
+          << ", got datatype " << aob->getStringRep( ) << "\n";
 
 		return NULL;
 	  }
@@ -776,9 +772,7 @@ namespace Pol {
 	{
 	  if ( ValueStack.empty() )
 	  {
-		Clib::Log( "Fatal error: Value Stack Empty! (%s,PC=%d)\n", prog_->name.c_str(), PC );
-		cerr << "Fatal error: Value Stack Empty!" << endl;
-		cerr << prog_->name << ", PC=" << PC << endl;
+        POLLOG_ERROR.Format( "Fatal error: Value Stack Empty! ({},PC={})\n" ) << prog_->name << PC;
 		seterror( true );
 		return BObjectRef( UninitObject::create() );
 	  }
@@ -797,9 +791,8 @@ namespace Pol {
 	  current_module_function = modfunc;
 	  if ( modfunc->funcidx == -1 )
 	  {
-		if ( Clib::mlog.is_open() )
-		  Clib::mlog << "Error in script '" << prog_->name << "':" << endl
-		  << "\tModule Function " << modfunc->name << " was not found." << endl;
+        DEBUGLOG << "Error in script '" << prog_->name << "':\n"
+          << "\tModule Function " << modfunc->name << " was not found.\n";
 
 		throw runtime_error( "No implementation for function found." );
 	  }
@@ -862,7 +855,7 @@ namespace Pol {
 	  if ( !objref->isa( BObjectImp::OTUninit ) )
 	  {
 		// FIXME: weak error message
-		cerr << "variable is already initialized.." << endl;
+        ERROR_PRINT << "variable is already initialized..\n";
 		seterror( true );
 		return;
 	  }
@@ -2336,7 +2329,7 @@ namespace Pol {
 	void Executor::ins_statementbegin( const Instruction& ins )
 	{
 	  if ( debug_level >= SOURCELINES && ins.token.tokval() )
-		cout << ins.token.tokval() << endl;
+        INFO_PRINT << ins.token.tokval( ) << "\n";
 	}
 
 	// case CTRL_PROGEND: 
@@ -2366,15 +2359,16 @@ namespace Pol {
 	  PC = (unsigned)ins.token.lval;
 	  if ( ControlStack.size() >= escript_config.max_call_depth )
 	  {
-		Clib::Log( "Script %s exceeded maximum call depth\n", scriptname().c_str() );
-		Clib::Log( "Return path PCs: " );
+        fmt::Writer tmp;
+        tmp << "Script " << scriptname() << " exceeded maximum call depth\n"
+          << "Return path PCs: ";
 		while ( !ControlStack.empty() )
 		{
 		  rc = ControlStack.top();
 		  ControlStack.pop();
-		  Clib::Log( "%d ", rc.PC );
+          tmp << rc.PC << " ";
 		}
-		Clib::Log( "\n" );
+        POLLOG << tmp.str() << "\n";
 		seterror( true );
 	  }
 	}
@@ -2426,7 +2420,7 @@ namespace Pol {
 	{
 	  if ( ControlStack.empty() )
 	  {
-		cerr << "Return without GOSUB!" << endl;
+		ERROR_PRINT << "Return without GOSUB!\n";
 
 		seterror( true );
 		return;
@@ -2520,10 +2514,10 @@ namespace Pol {
 	  const Token& token = ins.token;
 
 	  // this seems an ideal place for a table of function pointers ...
-	  Clib::Log( "Script %s used undefined token %d at PC %d\n",
-				 scriptname().c_str(),
-				 ins.token.id,
-				 PC );
+      POLLOG.Format( "Script {} used undefined token {} at PC {}\n" )
+        << scriptname()
+        << ins.token.id
+        << PC;
 
 	  switch ( ins.token.id )
 	  {
@@ -2592,8 +2586,8 @@ namespace Pol {
 		}
 
 		case CTRL_STATEMENTBEGIN:   // ins_statementbegin
-		  if ( debug_level >= SOURCELINES && token.tokval() )
-			cout << token.tokval() << endl;
+          if ( debug_level >= SOURCELINES && token.tokval() )
+            INFO_PRINT << token.tokval() << "\n";
 		  return;
 		case CTRL_PROGEND:  // ins_progend
 		  done = 1;
@@ -2614,15 +2608,16 @@ namespace Pol {
 								  PC = (unsigned)token.lval;
 								  if ( ControlStack.size() >= escript_config.max_call_depth )
 								  {
-									Clib::Log( "Script %s exceeded maximum call depth\n", scriptname().c_str() );
-									Clib::Log( "Return path PCs: " );
+                                    fmt::Writer tmp;
+                                    tmp << "Script " << scriptname() << " exceeded maximum call depth\n"
+                                      << "Return path PCs: ";
 									while ( !ControlStack.empty() )
 									{
 									  rc = ControlStack.top();
 									  ControlStack.pop();
-									  Clib::Log( "%d ", rc.PC );
+                                      tmp << rc.PC << " ";
 									}
-									Clib::Log( "\n" );
+                                    POLLOG << tmp.str() << "\n";
 									seterror( true );
 								  }
 								  return;
@@ -2670,7 +2665,7 @@ namespace Pol {
 		{
 							  if ( ControlStack.empty() )
 							  {
-								cerr << "Return without GOSUB!" << endl;
+                                ERROR_PRINT << "Return without GOSUB!\n";
 
 								seterror( true );
 								return;
@@ -3002,7 +2997,7 @@ namespace Pol {
 										  return;
 
 										default:
-										  cerr << "Operator handling not defined in Executor::innerExec for " << token << endl;
+                                          ERROR_PRINT << "Operator handling not defined in Executor::innerExec for " << token << "\n";
 										  seterror( true );
 										  return;
 									  }
@@ -3011,8 +3006,8 @@ namespace Pol {
 		}
 
 		default:
-		  cerr << "Execution error in " << scriptname() << ":" << endl;
-		  cerr << "Unhandled token " << token << " in Executor::innerExec" << endl;
+          ERROR_PRINT << "Execution error in " << scriptname() << ":\n"
+            << "Unhandled token " << token << " in Executor::innerExec\n";
 		  seterror( true );
 		  return;
 	  }
@@ -3152,7 +3147,7 @@ namespace Pol {
 		const Instruction& ins = prog_->instr.at( PC );
 #endif
 		if ( debug_level >= INSTRUCTIONS )
-		  cout << PC << ": " << ins.token << endl;
+          INFO_PRINT << PC << ": " << ins.token << "\n";
 
 		if ( debugging_ )
 		{
@@ -3233,28 +3228,28 @@ namespace Pol {
 	  }
 	  catch ( exception& ex )
 	  {
-		string err_string = "Exception in: ";
-		err_string += prog_->name.c_str();
-		err_string += " PC=" + Clib::decint( onPC );
-		err_string += ": ";
-		err_string += ex.what();
-		err_string += "\n";
-		if ( !run_ok_ )
-		  err_string += "run_ok_ = false\n";
+        fmt::Writer tmp;
+        tmp << "Exception in: "
+          << prog_->name.c_str()
+          << " PC=" << onPC
+          << ": "
+          << ex.what()
+          << "\n";
+        if ( !run_ok_ )
+          tmp << "run_ok_ = false\n";
 		if ( PC < nLines )
 		{
-		  err_string += " PC < nLines: (";
-		  err_string += Clib::decint( PC ) + " < ";
-		  err_string += Clib::decint( nLines ) + ") \n";
+          tmp << " PC < nLines: ("
+            << PC << " < "
+            << nLines << ") \n";
 		}
 		if ( error_ )
-		  err_string += "error_ = true\n";
+          tmp << "error_ = true\n";
 		if ( done )
-		  err_string += "done = true\n";
+          tmp << "done = true\n";
 
 		seterror( true );
-		cerr << err_string;
-		Clib::Log( "%s", err_string.c_str() );
+        POLLOG_ERROR << tmp.str();
 
 		show_context( onPC );
 	  }
@@ -3262,12 +3257,8 @@ namespace Pol {
 	  catch( ... )
 	  {
 		seterror( true );
-		cerr << "Exception in " << prog_->name.c_str() << ", PC=" << onPC
-		  << ": unclassified" << endl;
-
-		Clib::Log( "Exception in %s, PC=%d\n",
-			 prog_->name.c_str(),
-			 onPC );
+        POLLOG_ERROR << "Exception in " << prog_->name << ", PC=" << onPC
+		  << ": unclassified\n";
 
 		show_context( onPC );
 	  }
@@ -3300,7 +3291,7 @@ namespace Pol {
 
 	  for ( unsigned i = start; i <= end; ++i )
 	  {
-		Clib::Log( "%d: %s\n", i, dbg_get_instruction( i ).c_str() );
+        POLLOG.Format( "{}: {}\n" ) << i << dbg_get_instruction( i );
 	  }
 	}
 	void Executor::show_context( ostream& os, unsigned atPC )
@@ -3373,12 +3364,12 @@ namespace Pol {
 		{
 		  if (!data_shown)
 		  {
-			llog << "ValueStack... ";
+			LEAKLOG << "ValueStack... ";
 			data_shown = true;
 		  }
 
 		  ValueStack.top()->impptr()->packonto(llog);
-		  llog << " [" << ValueStack.top()->impptr()->sizeEstimate() << "] ";
+          LEAKLOG << " [" << ValueStack.top()->impptr()->sizeEstimate() << "] ";
 		}
 #endif
 
@@ -3387,8 +3378,8 @@ namespace Pol {
 
 #ifdef MEMORYLEAK
 	  if (memoryleak_debug)
-	  if (data_shown)
-		llog << " ...deleted" << endl;
+      if (data_shown)
+        LEAKLOG << " ...deleted\n";
 #endif
 
 	  delete Locals2;

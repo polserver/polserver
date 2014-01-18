@@ -23,10 +23,9 @@ Notes
 #include "../../clib/strutil.h"
 #include "../../clib/threadhelp.h"
 #include "../../clib/weakptr.h"
+#include "../../clib/logfacility.h"
 
 #include "../../plib/pkg.h"
-
-#include "../core.h"
 #include "../polsem.h"
 #include "../scrdef.h"
 #include "../scrsched.h"
@@ -237,7 +236,7 @@ namespace Pol {
 
 	void AuxService::run()
 	{
-	  Core::atomic_cout( "Starting Aux Listener (" + _scriptdef.relativename() + ", port " + Clib::decint( _port ) + ")" );
+      INFO_PRINT << "Starting Aux Listener (" << _scriptdef.relativename() << ", port " << _port << ")\n";
 
 	  Clib::SocketListener listener( _port );
 	  while ( !Clib::exit_signalled )
@@ -246,7 +245,7 @@ namespace Pol {
 		{
 		  // Shinigami: Just 4 Debugging. We got Crashes here...
 #ifdef PERGON
-		  cerr << "Aux Listener (" << _scriptdef.relativename() << ", port " << decint( _port ) << ") - create Thread" << endl;
+		  ERROR_PRINT << "Aux Listener (" << _scriptdef.relativename() << ", port " << _port << ") - create Thread\n";
 #endif
 		  Clib::SocketClientThread* clientthread = new AuxClientThread( this, listener );
 		  clientthread->start();

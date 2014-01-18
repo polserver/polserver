@@ -8,6 +8,7 @@ Notes
 */
 
 #include "../clib/stl_inc.h"
+#include "../clib/logfacility.h"
 #include "../pol/uconst.h"
 #include "../pol/uobject.h"
 
@@ -32,8 +33,8 @@ namespace Pol {
 	}
 	void display_test_results()
 	{
-	  cout << "Successes: " << successes << endl;
-	  cout << "Failures:  " << failures << endl;
+      INFO_PRINT << "Successes: " << successes << "\n"
+        << "Failures:  " << failures << "\n";
 	}
 
 
@@ -56,17 +57,17 @@ namespace Pol {
 
 	  short newz;
 
-	  cout << "WalkHeight(" << newx << "," << newy << "," << oldz << "): "
+      INFO_PRINT << "WalkHeight(" << newx << "," << newy << "," << oldz << "): "
 		<< "Expect " << exp_result << "," << exp_z << ": ";
 	  UMulti* multi;
 	  Item* itm;
 	  bool res = p_test_realm->walkheight( newx, newy, oldz, &newz, &multi, &itm, true/*doors block*/, MOVEMODE_LAND );
 
-	  cout << "Got " << res << "," << newz << ": ";
+      INFO_PRINT << "Got " << res << "," << newz << ": ";
 
 	  if ( exp_result != res )
 	  {
-		cout << "Failure!" << endl;
+        INFO_PRINT << "Failure!\n";
 		inc_failures();
 		return;
 	  }
@@ -74,13 +75,13 @@ namespace Pol {
 	  {
 		if ( exp_z != newz )
 		{
-		  cout << "Failure!" << endl;
+          INFO_PRINT << "Failure!\n";
 		  inc_failures();
 		  return;
 		}
 	  }
 	  inc_successes();
-	  cout << "Ok!" << endl;
+      INFO_PRINT << "Ok!\n";
 	}
 	static void test_walk2( unsigned short oldx, unsigned short oldy, short oldz,
 							unsigned short newx, unsigned short newy, bool doors_block, MOVEMODE movemode, bool exp_result, short exp_z )
@@ -90,17 +91,17 @@ namespace Pol {
 
 	  short newz;
 
-	  cout << "WalkHeight(" << newx << "," << newy << "," << oldz << "): "
+      INFO_PRINT << "WalkHeight(" << newx << "," << newy << "," << oldz << "): "
 		<< "Expect " << exp_result << "," << exp_z << ": ";
 	  UMulti* multi;
 	  Item* itm;
 	  bool res = p_test_realm->walkheight( newx, newy, oldz, &newz, &multi, &itm, doors_block, movemode );
 
-	  cout << "Got " << res << "," << newz << ": ";
+      INFO_PRINT << "Got " << res << "," << newz << ": ";
 
 	  if ( exp_result != res )
 	  {
-		cout << "Failure!" << endl;
+        INFO_PRINT << "Failure!\n";
 		inc_failures();
 		return;
 	  }
@@ -108,19 +109,19 @@ namespace Pol {
 	  {
 		if ( exp_z != newz )
 		{
-		  cout << "Failure!" << endl;
+          INFO_PRINT << "Failure!\n";
 		  inc_failures();
 		  return;
 		}
 	  }
 	  inc_successes();
-	  cout << "Ok!" << endl;
+      INFO_PRINT << "Ok!\n";
 	}
 
 
 	void pol_walk_test()
 	{
-	  cout << "POL datafile tests:" << endl;
+      INFO_PRINT << "POL datafile tests:\n";
 	  test_walk( 1344, 1637, 72, 1345, 1637, true, 72 );
 
 	  // walk down some stairs in Castle Britannia
@@ -309,7 +310,7 @@ namespace Pol {
 
 	void pol_test_multiwalk()
 	{
-	  cout << "POL datafile multi walk tests:" << endl;
+      INFO_PRINT << "POL datafile multi walk tests:\n";
 	  // now we have a small house in the hills
 	  test_walk( 2016, 1332, 0, 2016, 1331, true, 4 );
 	  test_walk( 2016, 1331, 4, 2017, 1331, true, 4 );

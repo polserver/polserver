@@ -17,6 +17,7 @@ Notes
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/fileutil.h"
+#include "../clib/logfacility.h"
 
 #include "scrdef.h"
 #include "scrsched.h"
@@ -209,22 +210,22 @@ namespace Pol {
 	  }
 	  else
 	  {
-		cout << "Unknown SystemHook " << hookname << endl;
+        INFO_PRINT << "Unknown SystemHook " << hookname << "\n";
 		return;
 	  }
 
 	  if ( *pphook != NULL )
 	  {
-		cout << "SystemHook " << hookname << " multiply defined" << endl;
-		cout << "  Already found in: " << system_hooks.check_skill_hook->scriptname() << endl;
-		cout << "  Also defined in:  " << shs->scriptname() << endl;
+        INFO_PRINT << "SystemHook " << hookname << " multiply defined\n"
+          << "  Already found in: " << system_hooks.check_skill_hook->scriptname() << "\n"
+          << "  Also defined in:  " << shs->scriptname() << "\n";
 		return;
 	  }
 
 	  unsigned PC;
 	  if ( !shs->FindExportedFunction( exfuncname, nargs, PC ) )
 	  {
-		cout << "Exported Function " << exfuncname << " not found in " << shs->scriptname() << endl;
+        INFO_PRINT << "Exported Function " << exfuncname << " not found in " << shs->scriptname( ) << "\n";
 		return;
 	  }
 

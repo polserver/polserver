@@ -54,6 +54,7 @@ Notes
 #include "../clib/maputil.h"
 #include "../clib/strutil.h"
 #include "../clib/unittest.h"
+#include "../clib/logfacility.h"
 
 #include "compilercfg.h"
 #include "fmodule.h"
@@ -73,7 +74,7 @@ namespace Pol {
   namespace Bscript {
 	static void init_tables();
 
-	Parser::Parser( ostream& iCout ) : cout( iCout ), contains_tabs( false )
+	Parser::Parser() : contains_tabs( false )
 	{
 	  quiet = ext_err[0] = buffer[0] = 0;
 	  init_tables();
@@ -670,14 +671,14 @@ namespace Pol {
 	  {
 		if ( object_methods[i].id != i )
 		{
-		  cout << "ERROR: Object Method definition of " << object_methods[i].code << " has an invalid index!" << endl;
+          INFO_PRINT << "ERROR: Object Method definition of " << object_methods[i].code << " has an invalid index!\n";
 		}
 	  }
 	  for ( int i = 0; i < n_objmembers; i++ )
 	  {
 		if ( object_members[i].id != i )
 		{
-		  cout << "ERROR: Object Member definition of " << object_members[i].code << " has an invalid index!" << endl;
+          INFO_PRINT << "ERROR: Object Member definition of " << object_members[i].code << " has an invalid index!\n";
 		}
 	  }
 	}
@@ -1398,7 +1399,7 @@ namespace Pol {
 		return 0;
 	  }
 
-	  cout << "Your syntax frightens and confuses me." << endl;
+      INFO_PRINT << "Your syntax frightens and confuses me.\n";
 	  err = PERR_WAAH;
 	  return -1;
 	}
@@ -1435,8 +1436,8 @@ namespace Pol {
 	int SmartParser::isOkay( const Token& token, BTokenType last_type )
 	{
 	  BTokenType this_type = token.type;
-	  if ( !quiet )
-		cout << "isOkay(" << this_type << "," << last_type << ")" << endl;
+      if ( !quiet )
+        INFO_PRINT << "isOkay(" << this_type << "," << last_type << ")\n";
 	  if ( last_type == TYP_FUNC || last_type == TYP_USERFUNC || last_type == TYP_METHOD )
 		last_type = TYP_OPERAND;
 	  if ( this_type == TYP_FUNC || this_type == TYP_USERFUNC || this_type == TYP_METHOD )
@@ -1548,25 +1549,26 @@ namespace Pol {
 	  //	return Parser::parseToken(token);
 	  if ( !quiet )
 	  {
-		cout << "parseToken( " << *token << ")" << endl;
-		cout << "  CA: ";
+        fmt::Writer _tmp;
+        _tmp << "parseToken( " << *token << ")\n";
+        _tmp << "  CA: ";
 		queue<Token*> ca( expr.CA );
 		while ( !ca.empty() )
 		{
 		  Token* tk = ca.front();
-		  cout << *tk << " ";
+          _tmp << *tk << " ";
 		  ca.pop();
 		}
-		cout << endl;
-		cout << "  TX: ";
+        _tmp << "\n";
+        _tmp << "  TX: ";
 		stack<Token*> tx( expr.TX );
 		while ( !tx.empty() )
 		{
 		  Token* tk = tx.top();
-		  cout << *tk << " ";
+          _tmp << *tk << " ";
 		  tx.pop();
 		}
-		cout << endl;
+        INFO_PRINT << _tmp.c_str() << "\n";
 	  }
 
 	  for ( ;; )
@@ -1665,12 +1667,12 @@ namespace Pol {
 				expr.TX.pop();
 				return 0;
 			  default:
-				cout << "Unmatched ')' in expression. (Trying to match against a '" << *last << "')" << endl;
-				cout << ctx;
+                INFO_PRINT << "Unmatched ')' in expression. (Trying to match against a '" << *last << "')\n"
+                  << ctx;
 
-				cerr << "parseToken(): Not sure what to do." << endl;
-				cerr << "Token: " << *token << endl;
-				cerr << "Last:  " << *last << endl;
+                ERROR_PRINT << "parseToken(): Not sure what to do.\n"
+                  << "Token: " << *token << "\n"
+                  << "Last:  " << *last << "\n";
 				throw runtime_error( "Error in parseToken() (1)" );
 			}
 			break;
@@ -1705,11 +1707,11 @@ namespace Pol {
 				expr.TX.pop();
 				return 0;
 			  default:
-				cout << "Unmatched ']' in expression. (Trying to match against a '" << *last << "')" << endl;
-				cout << ctx;
-				cerr << "parseToken(): Not sure what to do." << endl;
-				cerr << "Token: " << *token << endl;
-				cerr << "Last:  " << *last << endl;
+                INFO_PRINT << "Unmatched ']' in expression. (Trying to match against a '" << *last << "')\n"
+                  << ctx;
+                ERROR_PRINT << "parseToken(): Not sure what to do.\n"
+                  << "Token: " << *token << "\n"
+                  << "Last:  " << *last << "\n";
 				throw runtime_error( "Error in parseToken() (2)" );
 			}
 			break;
@@ -1745,8 +1747,8 @@ namespace Pol {
 			}
 
 		  default:
-			cout << "Don't know what to do with '" << *token << "' in SmartParser::parseToken" << endl;
-			cout << ctx;
+            INFO_PRINT << "Don't know what to do with '" << *token << "' in SmartParser::parseToken\n"
+              << ctx;
 			err = PERR_WAAH;
 			return -1;
 		}
@@ -1951,7 +1953,7 @@ namespace Pol {
 		char buf[80];
 		Clib::stracpy( buf, ctx.s, 80 );
 		strtok( buf, "\r\n" );
-		cout << "Parsing " << buf << endl;
+        INFO_PRINT << "Parsing " << buf << "\n";
 	  }
 
 	  expr.TX.push( new Token ); /* push a terminator token */
@@ -2059,22 +2061,22 @@ namespace Pol {
 			res = -1;
 			err = PERR_ILLEGALCONS;
 			ctx.s = t; // FIXME operator=
-			cout << "Token '" << token << "' cannot follow token '" << last_token << "'" << endl;
+            INFO_PRINT << "Token '" << token << "' cannot follow token '" << last_token << "'\n";
 			if ( last_token.type == TYP_OPERAND &&
 				 token.id == TOK_LPAREN )
 			{
-			  cout << "Function " << last_token << "() is not defined." << endl;
+              INFO_PRINT << "Function " << last_token << "() is not defined.\n";
 			}
 			break;
 		  }
 		}
 		else if ( last_type == TYP_TERMINATOR && token.type == TYP_LEFTBRACE && ( ( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning ) && compilercfg.ParanoiaWarnings ) )
 		{
-		  cout << "Warning: Using { } is inappropriate; please define array, struct or dictionary." << endl;
+          INFO_PRINT << "Warning: Using { } is inappropriate; please define array, struct or dictionary.\n";
 		  if ( compilercfg.ErrorOnWarning )
 			throw runtime_error( "Warnings treated as errors." );
 		  else
-			cout << ctx;
+            INFO_PRINT << ctx;
 		}
 		last_type = token.type;
 		last_token = token;
@@ -2123,8 +2125,8 @@ namespace Pol {
 		  res = getUserArgs( expr, ctx, false );
 		  if ( res < 0 )
 		  {
-			cout << "Error getting arguments for function " << token.tokval() << endl;
-			cout << ctx << endl;
+            INFO_PRINT << "Error getting arguments for function " << token.tokval() << "\n"
+              << ctx << "\n";
 			return res;
 		  }
 		  ptok2 = new Token( token );
@@ -2175,7 +2177,7 @@ namespace Pol {
 			}
 			if ( res < 0 )
 			{
-			  cout << "Error getting elements for array" << endl;
+              INFO_PRINT << "Error getting elements for array\n";
 			}
 		  }
 		}
@@ -2185,7 +2187,7 @@ namespace Pol {
 		  res = getNewArrayElements( expr, ctx );
 		  if ( res < 0 )
 		  {
-			cout << "Error getting elements for array" << endl;
+            INFO_PRINT << "Error getting elements for array\n";
 		  }
 		}
 		else if ( token.id == TOK_ERROR )
@@ -2197,7 +2199,7 @@ namespace Pol {
 		  res = getStructMembers( expr, ctx );
 		  if ( res < 0 )
 		  {
-			cout << "Error reading members for error" << endl;
+            INFO_PRINT << "Error reading members for error\n";
 		  }
 		}
 		else if ( token.id == TOK_STRUCT )
@@ -2209,7 +2211,7 @@ namespace Pol {
 		  res = getStructMembers( expr, ctx );
 		  if ( res < 0 )
 		  {
-			cout << "Error reading members for struct" << endl;
+            INFO_PRINT << "Error reading members for struct\n";
 		  }
 		}
 		else if ( token.id == TOK_DICTIONARY )
@@ -2221,7 +2223,7 @@ namespace Pol {
 		  res = getDictionaryMembers( expr, ctx );
 		  if ( res < 0 )
 		  {
-			cout << "Error reading members for dictionary" << endl;
+            INFO_PRINT << "Error reading members for dictionary\n";
 		  }
 		}
 		else if ( token.id == TOK_MEMBER && callingMethod( ctx ) )
@@ -2296,7 +2298,7 @@ namespace Pol {
 
 	  if ( !comma_term_allowed && !quiet )
 	  {
-		cout << "Result: " << res << endl;
+        INFO_PRINT << "Result: " << res << "\n";
 	  }
 	  return res;
 	}

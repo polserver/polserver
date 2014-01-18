@@ -8,18 +8,22 @@ Notes
 */
 
 #include "../clib/stl_inc.h"
+#include "../clib/logfacility.h"
 
 #include "userfunc.h"
+
 namespace Pol {
   namespace Bscript {
 	unsigned int UserFunction::_instances;
 	set<UserFunction*> UserFunction::_instancelist;
 	void UserFunction::show_instances()
 	{
+      fmt::Writer tmp;
 	  for ( auto uf : _instancelist )
 	  {
-		cerr << uf->name << endl;
+        tmp << uf->name << "\n";
 	  }
+      ERROR_PRINT << tmp.c_str();
 	}
 	void UserFunction::register_instance()
 	{

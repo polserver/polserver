@@ -22,7 +22,6 @@ Notes
 #include <stdio.h>
 
 #include "../clib/endian.h"
-#include "../clib/logfile.h"
 #include "../clib/stlutil.h"
 
 #include "../plib/realm.h"
@@ -66,8 +65,6 @@ namespace Pol {
 	{
 	  u32 serial = cfBEu32( msg->serial );
 	  u16 amount = cfBEu16( msg->amount );
-
-	  // printf( "GET_ITEM: Serial=%08lX, Amount=%d\n", serial, amount );
 
 	  Items::Item *item;
 

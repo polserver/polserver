@@ -10,6 +10,7 @@ Notes
 */
 
 #include "../clib/stl_inc.h"
+#include "../clib/logfacility.h"
 
 
 #include <assert.h>
@@ -58,19 +59,19 @@ namespace Pol {
 	void test_lowest_standheight( int x, int y, int z )
 	{
 	  int actualz;
-	  cout << "LowestStandHeight(" << x << "," << y <<"): Expect " << z << ": ";
+      INFO_PRINT << "LowestStandHeight(" << x << "," << y << "): Expect " << z << ": ";
 	  uo_lowest_standheight( x, y, &actualz );
 
-	  cout << "Got " << actualz << ": ";
+      INFO_PRINT << "Got " << actualz << ": ";
 
 	  if (actualz == z)
 	  {
-		cout << "Success!" << endl;
+        INFO_PRINT << "Success!\n";
         Plib::inc_successes();
 	  }
 	  else
 	  {
-		cout << "Failure!" << endl;
+        INFO_PRINT << "Failure!\n";
 		Plib::inc_failures();
 	  }
 	}
@@ -82,17 +83,17 @@ namespace Pol {
 	{
 	  int newz;
 
-	  cout << "WalkHeight(" << newx << "," << newy << "," << oldz << "): " 
+      INFO_PRINT << "WalkHeight(" << newx << "," << newy << "," << oldz << "): " 
 		<< "Expect " << exp_result << "," << exp_z << ": ";
 	  UMulti* multi;
 	  Item* itm;
 	  bool res = uo_walkheight( chr, newx, newy,oldz, &newz, &multi, &itm );
 
-	  cout << "Got " << res << "," << newz << ": ";
+      INFO_PRINT << "Got " << res << "," << newz << ": ";
 
 	  if (exp_result != res)
 	  {
-		cout << "Failure!" << endl;
+        INFO_PRINT << "Failure!\n";
         Plib::inc_failures();
 		return;
 	  }
@@ -100,30 +101,30 @@ namespace Pol {
 	  {
 		if (exp_z != newz)
 		{
-		  cout << "Failure!" << endl;
+          INFO_PRINT << "Failure!\n";
           Plib::inc_failures();
 		  return;
 		}
 	  }
       Plib::inc_successes();
-	  cout << "Ok!" << endl;
+      INFO_PRINT << "Ok!\n";
 	}
 	void test_walk( int oldx, int oldy, int oldz, 
 					int newx, int newy, bool exp_result, int exp_z )
 	{
 	  int newz;
 
-	  cout << "WalkHeight(" << newx << "," << newy << "," << oldz << "): " 
+      INFO_PRINT << "WalkHeight(" << newx << "," << newy << "," << oldz << "): " 
 		<< "Expect " << exp_result << "," << exp_z << ": ";
 	  UMulti* multi;
 	  Item* itm;
 	  bool res = uo_walkheight( newx, newy,oldz, &newz, &multi, &itm );
 
-	  cout << "Got " << res << "," << newz << ": ";
+      INFO_PRINT << "Got " << res << "," << newz << ": ";
 
 	  if (exp_result != res)
 	  {
-		cout << "Failure!" << endl;
+        INFO_PRINT << "Failure!\n";
         Plib::inc_failures();
 		return;
 	  }
@@ -131,19 +132,19 @@ namespace Pol {
 	  {
 		if (exp_z != newz)
 		{
-		  cout << "Failure!" << endl;
+          INFO_PRINT << "Failure!\n";
           Plib::inc_failures();
 		  return;
 		}
 	  }
       Plib::inc_successes();
-	  cout << "Ok!" << endl;
+      INFO_PRINT << "Ok!\n";
 	}
 
 
 	void walk_test_2()
 	{
-	  cout << "UO datafile mobile walk tests:" << endl;
+      INFO_PRINT << "UO datafile mobile walk tests:\n";
 	  test_walk( test_water_elemental, 1482, 1780, -2,  1482, 1781, true, -5 );
 	  test_walk( test_water_elemental, 1482, 1850, -2,  1482, 1851, true, -5 );
 	  test_walk( test_water_elemental, 1474, 1766, -5,  1474, 1767, true, -5 );
@@ -162,7 +163,7 @@ namespace Pol {
 	  bool result = uo_dropheight( dropx,dropy,chrz, &newz, &multi );
 	  if (exp_result != result)
 	  {
-		cout << "Failure!" << endl;
+        INFO_PRINT << "Failure!\n";
         Plib::inc_failures();
 		return;
 	  }
@@ -170,13 +171,13 @@ namespace Pol {
 	  {
 		if (newz != exp_z)
 		{
-		  cout << "Failure!" << endl;
+          INFO_PRINT << "Failure!\n";
           Plib::inc_failures();
 		  return;
 		}
 	  }
       Plib::inc_successes();
-	  cout << "Ok!" << endl;
+      INFO_PRINT << "Ok!\n";
 	}
 
 	void drop_test( void )
@@ -188,7 +189,7 @@ namespace Pol {
 	void map_test()
 	{
 	  Plib::MAPTILE_CELL cell = main_realm->getmaptile( 1453, 1794 );
-	  cout << cell.landtile << " " << cell.z << endl;
+      INFO_PRINT << cell.landtile << " " << cell.z << "\n";
 	}
 
 #if ENABLE_OLD_MAPCODE
@@ -201,24 +202,24 @@ namespace Pol {
 
 	void test_skilladv( unsigned int raw, unsigned short base )
 	{
-	  cout << "Raw " << raw << ", base " << base << ": ";
+      INFO_PRINT << "Raw " << raw << ", base " << base << ": ";
 	  if ( raw_to_base( raw ) != base )
 	  {
-		cout << "raw_to_base failed!" << endl;
+        INFO_PRINT << "raw_to_base failed!\n";
         Plib::inc_failures( );
 	  }
 	  if ( base_to_raw( base ) != raw )
 	  {
-		cout << "base_to_raw failed!" << endl;
+        INFO_PRINT << "base_to_raw failed!\n";
         Plib::inc_failures( );
 	  }
-	  cout << "Passed" << endl;
+      INFO_PRINT << "Passed\n";
       Plib::inc_successes( );
 	}
 
 	void skilladv_test()
 	{
-	  cout << "Skill advancement tests:" << endl;
+      INFO_PRINT << "Skill advancement tests:\n";
 	  test_skilladv( 20, 1 );
 	  test_skilladv( 512, 25 );
 	  test_skilladv( 1024, 50 );
@@ -248,36 +249,36 @@ namespace Pol {
 
 	  for ( unsigned short base = 0; base < 2000; ++base )
 	  {
-		cout << "Base " << base << ": Raw=";
+        INFO_PRINT << "Base " << base << ": Raw=";
 		unsigned int raw = base_to_raw( base );
-		cout << raw << ": ";
+        INFO_PRINT << raw << ": ";
 		unsigned short calcbase = raw_to_base( raw );
 		if ( calcbase != base )
 		{
-		  cout << "Failed (" << calcbase << ")" << endl;
+          INFO_PRINT << "Failed (" << calcbase << ")\n";
           Plib::inc_failures( );
 		}
 		else
 		{
-		  cout << "Passed" << endl;
+          INFO_PRINT << "Passed\n";
           Plib::inc_successes( );
 		}
 	  }
 
 	  for ( unsigned int raw = 0; raw < 2500; ++raw )
 	  {
-		cout << "Raw " << raw << ": Base=";
+        INFO_PRINT << "Raw " << raw << ": Base=";
 		unsigned short base = raw_to_base( raw );
-		cout << base << ": ";
+        INFO_PRINT << base << ": ";
 		unsigned int calcraw = base_to_raw( base );
 		if ( calcraw != raw )
 		{
-		  cout << "Failed (" << calcraw << ")" << endl;
+          INFO_PRINT << "Failed (" << calcraw << ")\n";
           Plib::inc_failures( );
 		}
 		else
 		{
-		  cout << "Passed" << endl;
+          INFO_PRINT << "Passed\n";
           Plib::inc_successes( );
 		}
 	  }
@@ -286,18 +287,18 @@ namespace Pol {
 #if ENABLE_OLD_MAPCODE
 	void test_los( UObject* src, UObject* target, bool should_have_los )
 	{
-	  cout << "LOS test: " << src->name() << " to " 
+      INFO_PRINT << "LOS test: " << src->name() << " to " 
 		<< target->name() << "(" << should_have_los << "):";
 	  bool res = uo_has_los( *src, *target );
-	  cout << res << " ";
+      INFO_PRINT << res << " ";
 	  if (should_have_los == res)
 	  {
-		cout << "Ok!" << endl;
+        INFO_PRINT << "Ok!\n";
 		inc_successes();
 	  }
 	  else
 	  {
-		cout << "Failure!" << endl;
+        INFO_PRINT << "Failure!\n";
         Plib::inc_failures();
 	  }
 
@@ -306,26 +307,26 @@ namespace Pol {
 				   u16 x2, u16 y2, s8 z2,
 				   bool should_have_los )
 	{
-	  cout << "LOS test: (" << x1 << "," << y1 << "," << int(z1) << ")"
+      INFO_PRINT << "LOS test: (" << x1 << "," << y1 << "," << int(z1) << ")"
 		<< " - (" << x2 << "," << y2 << "," << int(z2) << ")"
 		<< " (" << should_have_los << "):";
 	  bool res = uo_has_los( LosObj(x1,y1,z1), LosObj(x2,y2,z2) );
-	  cout << res << " ";
+      INFO_PRINT << res << " ";
 	  if (should_have_los == res)
 	  {
-		cout << "Ok!" << endl;
+        INFO_PRINT << "Ok!\n";
 		inc_successes();
 	  }
 	  else
 	  {
-		cout << "Failure!" << endl;
+        INFO_PRINT << "Failure!\n";
         Plib::inc_failures();
 	  }
 
 	}
 	void los_test()
 	{
-	  cout << "UO datafile LOS tests:" << endl;
+      INFO_PRINT << "UO datafile LOS tests:\n";
 	  test_los( test_banker, test_guard_door, true );
 	  test_los( 5421,78,10,    5422,89,20,  false );
 	  test_los( 1403,1624,28,  1402,1625,28, true );
@@ -347,7 +348,7 @@ namespace Pol {
 	}
 	void walk_test()
 	{
-	  cout << "UO datafile walk tests:" << endl;
+      INFO_PRINT << "UO datafile walk tests:\n";
 	  test_walk( 1344, 1637, 72,      1345, 1637,     true, 72 );
 
 	  // walk down some stairs in Castle Britannia
@@ -512,7 +513,7 @@ namespace Pol {
 
 	void test_multiwalk()
 	{
-	  cout << "UO datafile multi walk tests:" << endl;
+      INFO_PRINT << "UO datafile multi walk tests:\n";
 	  // now we have a small house in the hills
 	  test_walk( 2016, 1332, 0,       2016, 1331,     true, 4 );
 	  test_walk( 2016, 1331, 4,       2017, 1331,     true, 4 );
@@ -578,7 +579,7 @@ namespace Pol {
 	  }
 	  else
 	  {
-		cerr << "Tried to create multi " << objtype << " but no definition exists in MULTI.MUL" << endl;
+        ERROR_PRINT << "Tried to create multi " << objtype << " but no definition exists in MULTI.MUL\n";
 		return NULL;
 	  }
 
@@ -602,7 +603,7 @@ namespace Pol {
 	int main( int arc, char *argv[] )
 	{
 	  config.uo_datafile_root = "C:/Games/AoS2D/";
-	  cout << "Opening UO data files.." << endl;
+      INFO_PRINT << "Opening UO data files..\n";
 	  open_uo_data_files();
 	  read_uo_data();
 	  Multi::read_multidefs();

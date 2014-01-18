@@ -27,6 +27,7 @@ Notes
 #include "../../clib/cfgfile.h"
 #include "../../clib/endian.h"
 #include "../../clib/fileutil.h"
+#include "../../clib/logfacility.h"
 #include "../../clib/random.h"
 
 #include "../../bscript/bstruct.h"
@@ -40,7 +41,6 @@ Notes
 #include "../extobj.h"
 #include "../mobile/attribute.h"
 #include "../mobile/charactr.h"
-#include "../dtrace.h"
 #include "../gflag.h"
 #include "../los.h"
 #include "../objecthash.h"
@@ -545,11 +545,11 @@ namespace Pol {
 							const Mobile::Character* target ) const
 	{
 	  unsigned short dist = pol_distance( wielder, target );
-	  dtrace( 22 ) << "in_range(" << wielder << "," << target << "):" << endl
-		<< "dist:	 " << dist << endl
-		<< "minrange: " << tmpl->minrange << endl
-		<< "maxrange: " << tmpl->maxrange << endl
-		<< "has_los:  " << wielder->realm->has_los( *wielder, *target ) << endl;
+      INFO_PRINT_TRACE( 22 ) << "in_range(0x" << fmt::hexu(wielder->serial) << ",0x" << fmt::hexu(target->serial) << "):\n"
+        << "dist:	 " << dist << "\n"
+        << "minrange: " << tmpl->minrange << "\n"
+        << "maxrange: " << tmpl->maxrange << "\n"
+        << "has_los:  " << wielder->realm->has_los( *wielder, *target ) << "\n";
 	  return ( dist >= tmpl->minrange &&
 			   dist <= tmpl->maxrange &&
 			   wielder->realm->has_los( *wielder, *target ) );
@@ -594,15 +594,12 @@ namespace Pol {
 
 	void UWeapon::set_hit_script( const string& scriptname )
 	{
-	  // cout << "set_hit_script" << endl;
 	  if ( scriptname.empty() )
 	  {
-		// cout << "clearing hit script" << endl;
 		hit_script_.clear();
 	  }
 	  else
 	  {
-		// cout << "setting hit script" << endl;
 		hit_script_.config( scriptname,
 							tmpl->pkg,
 							"scripts/items/",

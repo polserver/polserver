@@ -17,7 +17,7 @@ Notes
 #include "../../bscript/impstr.h"
 #include "../../bscript/bobject.h"
 #include "../../clib/endian.h"
-#include "../../clib/logfile.h"
+#include "../../clib/logfacility.h"
 #include "../../clib/passert.h"
 #include "../../clib/stlutil.h"
 #include "../../clib/strutil.h"
@@ -30,7 +30,6 @@ Notes
 #include "../network/packets.h"
 #include "../network/clienttransmit.h"
 #include "../exscrobj.h"
-#include "../logfiles.h"
 #include "../npc.h"
 #include "../party.h"
 #include "../polcfg.h"
@@ -517,15 +516,15 @@ namespace Pol {
 	  if ( imp->isa( BObjectImp::OTString ) )
 	  {
 		String* str = static_cast<String*>( imp );
-		Clib::Log( "[%s]: %s\n", exec.scriptname().c_str(), str->data() );
-		cout << "syslog [" << exec.scriptname() << "]: " << str->data() << endl;
+        POLLOG << "[" << exec.scriptname() << "]: " << str->data() << "\n";
+        INFO_PRINT << "syslog [" << exec.scriptname( ) << "]: " << str->data( ) << "\n";
 		return new BLong( 1 );
 	  }
 	  else
 	  {
 		std::string strval = imp->getStringRep();
-        Clib::Log( "[%s]: %s\n", exec.scriptname( ).c_str( ), strval.c_str( ) );
-		cout << "syslog: [" << exec.scriptname() << "]: " << strval << endl;
+        POLLOG << "[" << exec.scriptname( ) << "]: " << strval << "\n";
+        INFO_PRINT << "syslog [" << exec.scriptname( ) << "]: " << strval << "\n";
 		return new BLong( 1 );
 	  }
 	}
@@ -704,7 +703,7 @@ namespace Pol {
 		{
 		  // FIXME needs to inherit available modules?
           Core::ScriptDef sd;// = new ScriptDef();
-		  cout << "Starting connection script " << scriptname_str->value() << endl;
+		  INFO_PRINT << "Starting connection script " << scriptname_str->value() << "\n";
 		  if ( !sd.config_nodie( scriptname_str->value(), exec.prog()->pkg, "scripts/" ) )
 		  {
 			return new BError( "Error in script name" );

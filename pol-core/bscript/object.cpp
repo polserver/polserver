@@ -16,6 +16,7 @@ Notes
 #include "../clib/clib.h"
 #include "../clib/stlutil.h"
 #include "../clib/random.h"
+#include "../clib/logfacility.h"
 
 #include "berror.h"
 #include "bobject.h"
@@ -149,12 +150,12 @@ namespace Pol {
 	bobjectimps bobjectimp_instances;
 	int display_bobjectimp_instance( BObjectImp* imp )
 	{
-	  cout << imp->instance() << ": " << imp->getStringRep() << endl;
+      INFO_PRINT << imp->instance( ) << ": " << imp->getStringRep( ) << "\n";
 	  return 0;
 	}
 	void display_bobjectimp_instances()
 	{
-	  cout << "bobjectimp instances: " << bobjectimp_instances.size() << endl;
+      INFO_PRINT << "bobjectimp instances: " << bobjectimp_instances.size( ) << "\n";
 	  for( bobjectimps::iterator itr = bobjectimp_instances.begin(); itr != bobjectimp_instances.end(); ++itr )
 	  {
 		display_bobjectimp_instance( (*itr).second );
@@ -1372,7 +1373,7 @@ namespace Pol {
 		  BObject *bo = ( itr->get() );
 		  if ( bo == NULL )
 		  {
-			cout << Clib::scripts_thread_script << " - '" << imp << " in array{}' check. Invalid data at index " << ( itr - ref_arr.begin() ) + 1 << endl;
+            INFO_PRINT << Clib::scripts_thread_script << " - '" << imp << " in array{}' check. Invalid data at index " << ( itr - ref_arr.begin( ) ) + 1 << "\n";
 			continue;
 		  }
 		  else if ( bo->impptr()->isEqual( imp ) )

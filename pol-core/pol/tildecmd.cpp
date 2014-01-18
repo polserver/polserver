@@ -11,6 +11,7 @@ Notes
 #include "../clib/stl_inc.h"
 
 #include "../clib/endian.h"
+#include "../clib/logfacility.h"
 
 #include "polcfg.h"
 #include "spells.h"
@@ -37,8 +38,7 @@ namespace Pol {
 	{
 	  if ( textbuf[0] == 'I' && textbuf[1] == 'N' )
 	  {
-		if ( config.loglevel >= 6 )
-		  cout << "INVOKE: " << textbuf << endl;
+        INFO_PRINT_TRACE(6) << "INVOKE: " << textbuf << "\n";
 
 		invoke( client, textbuf + 2 );
 		return true;
@@ -54,10 +54,12 @@ namespace Pol {
 	  {
 		if ( config.loglevel >= 6 )
 		{
-		  wcout << L"INVOKE: ";
+          fmt::Writer tmp;
+          tmp << "INVOKE: ";
 		  for ( size_t i = 0; wtextbuf[i] != L'\0'; i++ )
-			wcout << static_cast<wchar_t>( cfBEu16( wtextbuf[i] ) );
-		  wcout << endl;
+            tmp << wcout.narrow( static_cast<wchar_t>( cfBEu16( wtextbuf[i] ) ), '?' );
+          tmp << "\n";
+          INFO_PRINT << tmp.c_str();
 		}
 
 		invoke( client, wtextbuf + 2 );

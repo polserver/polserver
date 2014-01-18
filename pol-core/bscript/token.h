@@ -18,6 +18,7 @@ Notes
 #endif
 
 #include "options.h"
+#include "../../lib/format/format.h"
 
 #include <iosfwd>
 #include <set>
@@ -88,6 +89,7 @@ namespace Pol {
 	};
 
 	std::ostream& operator << ( std::ostream&, const Token& );
+    fmt::Writer& operator << ( fmt::Writer&, const Token& );
   }
 }
 #endif

@@ -15,6 +15,7 @@ Notes
 
 #include "../../clib/endian.h"
 #include "../../clib/strutil.h"
+#include "../../clib/logfacility.h"
 
 #include "boat.h"
 #include "house.h"
@@ -52,7 +53,7 @@ namespace Pol {
 	  }
 	  else
 	  {
-		cerr << "Tried to create multi " << Clib::hexint( descriptor.objtype ) << " but no definition exists in itemdesc.cfg" << endl;
+        ERROR_PRINT << "Tried to create multi 0x" << fmt::hexu( descriptor.objtype ) << " but no definition exists in itemdesc.cfg\n";
 		return NULL;
 	  }
 

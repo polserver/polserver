@@ -13,6 +13,7 @@ Notes
 
 #include "../clib/cfgelem.h"
 #include "../clib/passert.h"
+#include "../clib/logfacility.h"
 
 #include "../plib/mapfunc.h"
 #include "../plib/pkg.h"
@@ -43,8 +44,8 @@ namespace Pol {
 	{
 	  load_all_cfgs( "landtiles.cfg", "landtile", load_landtile_entry );
 
-	  if ( !landtiles_loaded )
-		cerr << "Warning: No landtiles loaded. Please check landtiles.cfg" << endl;
+      if ( !landtiles_loaded )
+        ERROR_PRINT << "Warning: No landtiles loaded. Please check landtiles.cfg\n";
 	}
 
 	unsigned int landtile_uoflags( unsigned short landtile )

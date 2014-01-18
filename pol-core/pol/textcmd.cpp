@@ -27,7 +27,7 @@ Notes
 #include "../clib/endian.h"
 #include "../clib/esignal.h"
 #include "../clib/fileutil.h"
-#include "../clib/logfile.h"
+#include "../clib/logfacility.h"
 #include "../clib/opnew.h"
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
@@ -158,7 +158,7 @@ namespace Pol {
 			objtype = Items::get_objtype_byname( ot_str );
 			if ( !objtype )
 			{
-			  cerr << "Blech! Can't find '" << ot_str << "' named in equip.cfg" << endl;
+              ERROR_PRINT << "Blech! Can't find '" << ot_str << "' named in equip.cfg\n";
 			  continue;
 			}
 		  }
@@ -342,17 +342,14 @@ namespace Pol {
 	{
 	  if ( mob->connected ) // gotta be connected to get packets right?
 	  {
-		if ( mob->client->fpLog == NULL )
+		if ( mob->client->fpLog == 0 )
 		{
 		  string filename = "log/";
 		  filename += mob->client->acct->name();
 		  filename += ".log";
-
-		  mob->client->fpLog = fopen( filename.c_str(), "a+t" );
-		  if ( mob->client->fpLog != NULL )
+          mob->client->fpLog = OPEN_FLEXLOG( filename );
+		  if ( mob->client->fpLog != 0 )
 		  {
-			time_t now = time( NULL );
-			fprintf( mob->client->fpLog, "Log opened at %s\n", asctime( localtime( &now ) ) );
 			send_sysmessage( looker->client, "I/O log file opened for " + mob->name() );
 		  }
 		  else
@@ -373,19 +370,16 @@ namespace Pol {
 	  }
 	  else
 	  {
-		if ( client->fpLog == NULL )
+		if ( client->fpLog == 0 )
 		{
 		  string filename = "log/";
 		  filename += client->acct->name();
 		  filename += ".log";
-
-		  client->fpLog = fopen( filename.c_str(), "a+t" );
-		  if ( client->fpLog != NULL )
-		  {
-			time_t now = time( NULL );
-			fprintf( client->fpLog, "Log opened at %s\n", asctime( localtime( &now ) ) );
-			send_sysmessage( client, "I/O log file opened." );
-		  }
+          client->fpLog = OPEN_FLEXLOG( filename );
+          if ( client->fpLog != 0 )
+          {
+            send_sysmessage( client, "I/O log file opened." );
+          }
 		  else
 		  {
 			send_sysmessage( client, "Unable to open I/O log file." );
@@ -398,13 +392,12 @@ namespace Pol {
 	{
 	  if ( mob->connected ) // gotta be connected to already have packets right?
 	  {
-		if ( mob->client->fpLog != NULL )
+		if ( mob->client->fpLog != 0 )
 		{
 		  time_t now = time( NULL );
-		  fprintf( mob->client->fpLog, "Log closed at %s\n", asctime( localtime( &now ) ) );
-
-		  fclose( mob->client->fpLog );
-		  mob->client->fpLog = NULL;
+          FLEXLOG( mob->client->fpLog ) << "Log closed at %s" << asctime( localtime( &now ) ) << "\n";
+          CLOSE_FLEXLOG( mob->client->fpLog );
+          mob->client->fpLog = 0;
 		  send_sysmessage( looker->client, "I/O log file closed for " + mob->name() );
 		}
 		else
@@ -424,13 +417,12 @@ namespace Pol {
 	  }
 	  else
 	  {
-		if ( client->fpLog != NULL )
+		if ( client->fpLog != 0 )
 		{
-		  time_t now = time( NULL );
-		  fprintf( client->fpLog, "Log closed at %s\n", asctime( localtime( &now ) ) );
-
-		  fclose( client->fpLog );
-		  client->fpLog = NULL;
+          time_t now = time( NULL );
+          FLEXLOG( client->fpLog ) << "Log closed at %s" << asctime( localtime( &now ) ) << "\n";
+          CLOSE_FLEXLOG( client->fpLog );
+          client->fpLog = 0;
 		  send_sysmessage( client, "I/O log file closed." );
 		}
 		else
@@ -686,7 +678,7 @@ namespace Pol {
 			}
 			else
 			{
-			  cerr << "script " << scriptname << ": setProgram failed" << endl;
+              ERROR_PRINT << "script " << scriptname << ": setProgram failed\n";
 			  // TODO: it seems to keep looking until it finds one it can use..guess this is okay?
 			}
 		  }

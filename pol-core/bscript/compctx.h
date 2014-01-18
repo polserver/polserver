@@ -9,6 +9,7 @@ Notes
 
 #ifndef BSCRIPT_COMPCTX_H
 #define BSCRIPT_COMPCTX_H
+#include "../../lib/format/format.h"
 namespace Pol {
   namespace Bscript {
 	class CompilerContext
@@ -19,8 +20,10 @@ namespace Pol {
 	  CompilerContext( const CompilerContext& );
 	  CompilerContext& operator=( const CompilerContext& );
 
-	  void printOn( std::ostream& os ) const;
+      void printOn( std::ostream& os ) const;
+      void printOn( fmt::Writer& writer ) const;
 	  void printOnShort( std::ostream& os ) const;
+      void printOnShort( fmt::Writer& writer ) const;
 
 	  void skipws();
 	  int skipcomments();
@@ -39,6 +42,12 @@ namespace Pol {
 	  ctx.printOn( os );
 	  return os;
 	}
+
+    inline fmt::Writer& operator<<( fmt::Writer& writer, const CompilerContext& ctx )
+    {
+      ctx.printOn( writer );
+      return writer;
+    }
   }
 }
 #endif

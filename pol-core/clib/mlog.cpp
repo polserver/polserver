@@ -9,16 +9,11 @@ Notes
 
 */
 
-#include "stl_inc.h"
-
-#include <fstream>
 
 #include "mlog.h"
 namespace Pol {
   namespace Clib {
-	ofstream mlog;
 #ifdef MEMORYLEAK
-	ofstream llog;
 	bool memoryleak_debug = false;
 #endif
   }

@@ -93,10 +93,9 @@ namespace Pol {
 	class Parser
 	{
 	public:
-	  Parser( std::ostream& iCout );
+	  Parser();
 	  virtual ~Parser() {}
 	  Parser & operator=( const Parser & ) { return *this; }
-	  std::ostream& cout;
 
 	  int quiet;
 	  ParseError err;
@@ -148,7 +147,7 @@ namespace Pol {
 
 	public:
 
-	  SmartParser( std::ostream& cout ) : Parser( cout ) {}
+	  SmartParser() : Parser() {}
 	  SmartParser & operator=( const SmartParser & ) { return *this; }
 
 	  virtual int isLegal( Token& tok ) { return 1; }
