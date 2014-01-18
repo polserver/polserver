@@ -30,7 +30,7 @@ Notes
 #include "../clib/endian.h"
 #include "../clib/esignal.h"
 #include "../clib/fileutil.h"
-#include "../clib/logfile.h"
+#include "../clib/logfacility.h"
 #include "../clib/progver.h"
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
@@ -161,7 +161,7 @@ namespace Pol {
 	  u32 objtype;
 	  if ( elem.remove_prop( "SERIAL", &serial ) == false )
 	  {
-		cerr << "Item element has no SERIAL property, omitting." << endl;
+        ERROR_PRINT << "Item element has no SERIAL property, omitting.\n";
 		return NULL;
 	  }
 
@@ -169,15 +169,14 @@ namespace Pol {
 	  {
 		if ( system_find_item( serial ) )
 		{
-		  cerr << "Duplicate item read from datafiles (Serial=0x"
-			<< hex << serial << dec << ")"
-			<< endl;
+          ERROR_PRINT.Format( "Duplicate item read from datafiles (Serial=0x{:X})\n" )
+            << serial;
 		  throw runtime_error( "Data integrity error" );
 		}
 	  }
 	  if ( elem.remove_prop( "OBJTYPE", &objtype ) == false )
 	  {
-		cerr << "Item (Serial 0x" << hex << serial << dec << ") has no OBJTYPE property, omitting." << endl;
+        ERROR_PRINT.Format( "Item (Serial 0x{:X}) has no OBJTYPE property, omitting." ) << serial;
 		return NULL;
 	  }
 	  if ( Items::old_objtype_conversions.count( objtype ) )
@@ -186,7 +185,7 @@ namespace Pol {
       Items::Item* item = Items::Item::create( objtype, serial );
 	  if ( item == NULL )
 	  {
-		cerr << "Unable to create item: objtype=" << Clib::hexint( objtype ) << ", serial=0x" << hex << serial << dec << endl;
+        ERROR_PRINT.Format( "Unable to create item: objtype=0x{:X}, serial=0x{:X}" ) << objtype << serial;
 		if ( !config.ignore_load_errors )
 		  throw runtime_error( "Item::create failed!" );
 		else
@@ -299,7 +298,7 @@ namespace Pol {
 	  if ( defined_realm( name ) )
 		elem.warn_with_line( "Realmname already defined" );
 	  add_realm( name, baserealm );
-	  cout << endl << "Shadowrealm " << name;
+	  INFO_PRINT << "\nShadowrealm " << name << "\n";
 	}
 
     void read_multi( Clib::ConfigElem& elem )
@@ -314,19 +313,18 @@ namespace Pol {
 	  u32 objtype;
 	  if ( elem.remove_prop( "SERIAL", &serial ) == false )
 	  {
-		cerr << "A Multi has no SERIAL property." << endl;
+        ERROR_PRINT << "A Multi has no SERIAL property.\n";
 		throw runtime_error( "Config File error." );
 	  }
 	  if ( system_find_multi( serial ) || system_find_item( serial ) )
 	  {
-		cerr << "Duplicate item read from datafiles (Serial=0x"
-		  << hex << serial << dec << ")"
-		  << endl;
+        ERROR_PRINT.Format( "Duplicate item read from datafiles (Serial=0x{:X})\n" )
+          << serial;
 		throw runtime_error( "Data integrity error" );
 	  }
 	  if ( elem.remove_prop( "OBJTYPE", &objtype ) == false )
 	  {
-		cerr << "Multi (Serial 0x" << hex << serial << dec << ") has no OBJTYPE property, omitting." << endl;
+        ERROR_PRINT.Format( "Multi (Serial 0x{:X}) has no OBJTYPE property, omitting." ) << serial;
 		return;
 	  }
 	  if ( Items::old_objtype_conversions.count( objtype ) )
@@ -335,7 +333,7 @@ namespace Pol {
       Multi::UMulti* multi = Multi::UMulti::create( Items::find_itemdesc( objtype ), serial );
 	  if ( multi == NULL )
 	  {
-        cerr << "Unable to create multi: objtype=" << Clib::hexint( objtype ) << ", serial=" << Clib::hexint( serial ) << endl;
+        ERROR_PRINT.Format( "Unable to create multi: objtype=0x{:X}, serial=0x{:X}\n" ) << objtype << serial;
 		throw runtime_error( "Multi::create failed!" );
 	  }
 	  multi->readProperties( elem );
@@ -355,7 +353,7 @@ namespace Pol {
 
       if ( Clib::FileExists( filename ) )
 	  {
-		cout << "  " << filename << ":";
+        INFO_PRINT << "  " << filename << ":";
         Clib::ConfigFile cf( filename, tags );
         Clib::ConfigElem elem;
 
@@ -366,7 +364,7 @@ namespace Pol {
 		{
 		  if ( --num_until_dot == 0 )
 		  {
-			cout << ".";
+            INFO_PRINT << ".";
 			num_until_dot = 1000;
 		  }
 		  try
@@ -404,7 +402,7 @@ namespace Pol {
 
 		timer.stop();
 
-		cout << " " << nobjects << " elements in " << timer.ellapsed() << " ms." << endl;
+        INFO_PRINT << " " << nobjects << " elements in " << timer.ellapsed() << " ms.\n";
 	  }
 	}
 
@@ -416,14 +414,13 @@ namespace Pol {
 
 	  if ( polvar.DataWrittenBy == 0 )
 	  {
-		cerr << "CoreVersion not found in " << polfile << endl << endl;
-		cerr << polfile << " must contain a section similar to: " << endl;
-		cerr << "System" << endl
-		  << "{" << endl
-		  << "	CoreVersion 93" << endl
-		  << "}" << endl
-		  << endl;
-		cerr << "Ensure that the CoreVersion matches the version that created your data files!" << endl;
+        ERROR_PRINT << "CoreVersion not found in " << polfile << "\n\n"
+          << polfile << " must contain a section similar to: \n"
+          << "System\n"
+          << "{\n"
+          << "	CoreVersion 99\n"
+          << "}\n\n"
+          << "Ensure that the CoreVersion matches the version that created your data files!\n";
 		throw runtime_error( "Data file error" );
 	  }
 	}
@@ -483,7 +480,7 @@ namespace Pol {
 
       if ( Clib::FileExists( storagefile ) )
 	  {
-		cout << "  " << storagefile << ":";
+        INFO_PRINT << "  " << storagefile << ":";
         Clib::ConfigFile cf2( storagefile );
 		storage.read( cf2 );
 	  }
@@ -516,7 +513,7 @@ namespace Pol {
 	  objtype = elem.remove_unsigned( "OBJTYPE" );
 	  if ( objtype > config.max_tile_id )
 	  {
-		cerr << "Importing file: " << hex << objtype << dec << " is out of range." << endl;
+        ERROR_PRINT.Format( "Importing file: 0x{:X} is out of range.\n" ) << objtype;
 		throw runtime_error( "Error while importing file." );
 	  }
 
@@ -524,7 +521,7 @@ namespace Pol {
 
 	  if ( item == NULL )
 	  {
-		cerr << "Unable to import item: objtype=" << objtype << endl;
+        ERROR_PRINT.Format( "Unable to import item: objtype=0x{:X}\n" ) << objtype;
 		throw runtime_error( "Item::create failed!" );
 	  }
 
@@ -561,7 +558,7 @@ namespace Pol {
 		  import( elem );
 		}
 		unlink( importfile.c_str() );
-		cout << "Import Results: " << import_count << " imported, " << dupe_count << " duplicates." << endl;
+        INFO_PRINT << "Import Results: " << import_count << " imported, " << dupe_count << " duplicates.\n";
 	  }
 	}
 
@@ -631,24 +628,18 @@ namespace Pol {
       if ( Clib::FileExists( objectsndtfile ) )
 	  {
 		// Display reads "Reading data files..."
-		cerr << "Error!" << endl
-		  << "'" << objectsndtfile << " exists.  This probably means the system"
-		  << endl
-		  << "exited while writing its state.  To avoid loss of data,"
-		  << endl
-		  << "forcing human intervention."
-		  << endl;
+        ERROR_PRINT << "Error!\n"
+          << "'" << objectsndtfile << " exists.  This probably means the system\n"
+          << "exited while writing its state.  To avoid loss of data,\n"
+          << "forcing human intervention.\n";
 		throw runtime_error( "Human intervention required." );
 	  }
       if ( Clib::FileExists( storagendtfile ) )
 	  {
-		cerr << "Error!" << endl
-		  << "'" << storagendtfile << " exists.  This probably means the system"
-		  << endl
-		  << "exited while writing its state.  To avoid loss of data,"
-		  << endl
-		  << "forcing human intervention."
-		  << endl;
+        ERROR_PRINT << "Error!\n"
+          << "'" << storagendtfile << " exists.  This probably means the system\n"
+          << "exited while writing its state.  To avoid loss of data,\n"
+          << "forcing human intervention.\n";
 		throw runtime_error( "Human intervention required." );
 	  }
 
@@ -1050,7 +1041,7 @@ namespace Pol {
 		if ( unlink( bakfile_c ) )
 		{
 		  int err = errno;
-          Clib::Log2( "Unable to remove %s: %s (%d)\n", bakfile_c, strerror( err ), err );
+          POLLOG_ERROR.Format( "Unable to remove {}: {} ({})\n" ) << bakfile_c << strerror( err ) << err;
 		}
 	  }
 
@@ -1060,7 +1051,7 @@ namespace Pol {
 		if ( rename( datfile_c, bakfile_c ) )
 		{
 		  int err = errno;
-          Clib::Log2( "Unable to rename %s to %s: %s (%d)\n", datfile_c, bakfile_c, strerror( err ), err );
+          POLLOG_ERROR.Format( "Unable to rename {} to {}: {} ({})\n" ) << datfile_c << bakfile_c << strerror( err ) << err;
 		}
 	  }
 
@@ -1070,7 +1061,7 @@ namespace Pol {
 		if ( rename( ndtfile_c, datfile_c ) )
 		{
 		  int err = errno;
-          Clib::Log2( "Unable to rename %s to %s: %s (%d)\n", ndtfile_c, datfile_c, strerror( err ), err );
+          POLLOG_ERROR.Format( "Unable to rename {} to {}: {} ({})\n" ) << ndtfile_c << datfile_c << strerror( err ) << err;
 		}
 	  }
 
@@ -1234,7 +1225,7 @@ namespace Pol {
 	  {
 		if ( stricmp( elem.type(), "StartingLocation" ) != 0 )
 		{
-		  cerr << "Unknown element type in startloc.cfg: " << elem.type() << endl;
+          ERROR_PRINT << "Unknown element type in startloc.cfg: " << elem.type( ) << "\n";
 		  throw runtime_error( "Error in configuration file." );
 		}
 
@@ -1254,24 +1245,24 @@ namespace Pol {
 		  }
 		  else
 		  {
-			cerr << "Poorly formed coordinate in startloc.cfg: '"
+            ERROR_PRINT << "Poorly formed coordinate in startloc.cfg: '"
 			  << coord
 			  << "' for city "
 			  << loc->city
 			  << ", description "
 			  << loc->desc
-			  << endl;
+			  << "\n";
 			throw runtime_error( "Configuration file error in startloc.cfg." );
 		  }
 		}
 		if ( loc->coords.size() == 0 )
 		{
-		  cerr << "STARTLOC.CFG: StartingLocation ("
+          ERROR_PRINT << "STARTLOC.CFG: StartingLocation ("
 			<< loc->city
 			<< ","
 			<< loc->desc
 			<< ") has no Coordinate properties."
-			<< endl;
+			<< "\n";
 		  throw runtime_error( "Configuration file error." );
 		}
 		startlocations.push_back( loc.release() );
@@ -1313,7 +1304,7 @@ namespace Pol {
 		  iptext = Network::ipaddr_str;
 		  if ( iptext == "" )
 		  {
-			cout << "Skipping server " << svr->name << " because there is no Internet IP address." << endl;
+            INFO_PRINT << "Skipping server " << svr->name << " because there is no Internet IP address.\n";
 			continue;
 		  }
 		}
@@ -1322,7 +1313,7 @@ namespace Pol {
 		  iptext = Network::lanaddr_str;
 		  if ( iptext == "" )
 		  {
-			cout << "Skipping server " << svr->name << " because there is no LAN IP address." << endl;
+            INFO_PRINT << "Skipping server " << svr->name << " because there is no LAN IP address.\n";
 			continue;
 		  }
 		}
@@ -1331,12 +1322,11 @@ namespace Pol {
 		{
 		  if ( sscanf( iptext.c_str(), "%d.%d.%d.%d", &ip0, &ip1, &ip2, &ip3 ) != 4 )
 		  {
-			cerr << "SERVERS.CFG: Poorly formed IP ("
-			  << iptext
-			  << ") for GameServer '"
-			  << svr->name
-			  << "'."
-			  << endl;
+            ERROR_PRINT << "SERVERS.CFG: Poorly formed IP ("
+              << iptext
+              << ") for GameServer '"
+              << svr->name
+              << "'.\n";
 			throw runtime_error( "Configuration file error." );
 		  }
 		  svr->ip[0] = static_cast<unsigned char>( ip3 );
@@ -1373,8 +1363,8 @@ namespace Pol {
 		  }
 		  else
 		  {
-			Clib::Log2( "Warning: gethostbyname_r failed for server %s (%s): %d\n",
-				  svr->name.c_str(), svr->hostname.c_str(), my_h_errno );
+            POLLOG_ERROR.Format( "Warning: gethostbyname_r failed for server {} ({}): {}\n")
+              << svr->name << svr->hostname << my_h_errno;
 		  }
 #endif
 

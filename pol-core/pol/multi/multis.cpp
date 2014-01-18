@@ -17,6 +17,7 @@ Notes
 
 #include "../../clib/passert.h"
 #include "../../clib/strutil.h"
+#include "../../clib/logfacility.h"
 
 #include "../../bscript/bstruct.h"
 #include "../../bscript/objmembers.h"
@@ -41,7 +42,7 @@ namespace Pol {
 
 	  if ( !MultiDefByMultiIDExists( itemdesc.multiid ) )
 	  {
-		cerr << "Tried to create a Multi type " << Clib::hexint( itemdesc.objtype ) << endl;
+        ERROR_PRINT.Format( "Tried to create a Multi type 0x{:X}\n" ) << itemdesc.objtype;
 		throw runtime_error( "Unvalid Multi type" );
 	  }
 	  ++Core::umulti_count;
@@ -54,7 +55,7 @@ namespace Pol {
 
 	void UMulti::double_click( Network::Client* client )
 	{
-	  cerr << "Ack! You can't double-click a multi!" << endl;
+      ERROR_PRINT << "Ack! You can't double-click a multi!\n";
 	  passert( 0 );
 	  throw runtime_error( "double_click() on a multi should not be possible." );
 	}

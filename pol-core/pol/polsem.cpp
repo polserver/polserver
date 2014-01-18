@@ -9,7 +9,7 @@ Notes
 */
 
 #include "../clib/stl_inc.h"
-#include "../clib/logfile.h"
+#include "../clib/logfacility.h"
 #include "../clib/passert.h"
 #include "../clib/strexcpt.h"
 #include "../clib/threadhelp.h"
@@ -37,14 +37,12 @@ namespace Pol {
 	  EnterCriticalSection( &cs );
 	  passert_always( locker == 0 );
 	  locker = tid;
-	  //std::cout << "LK: " << tid << " ";
 	}
 
 	void polsem_unlock()
 	{
 	  DWORD tid = GetCurrentThreadId();
 	  passert_always( locker == tid );
-	  //std::cout << "UL: " << tid << " ";
 	  locker = 0;
 	  LeaveCriticalSection( &cs );
 	}
@@ -56,7 +54,7 @@ namespace Pol {
 	  int res = pthread_mutex_lock( &polsem );
 	  if (res != 0 || locker != 0)
 	  {
-		Clib::Log( "pthread_mutex_lock: res=%d, pid=%d, locker=%d\n", res, pid, locker );
+        POLLOG.Format( "pthread_mutex_lock: res={}, pid={}, locker={}\n")<< res<< pid<< locker;
 	  }
 	  passert_always( res == 0 );
 	  passert_always( locker == 0 );
@@ -70,7 +68,7 @@ namespace Pol {
 	  int res = pthread_mutex_unlock( &polsem );
 	  if (res != 0)
 	  {
-        Clib::Log( "pthread_mutex_unlock: res=%d,pid=%d", res, pid );
+        POLLOG.Format( "pthread_mutex_unlock: res={},pid={}") << res << pid;
 	  }
 	  passert_always( res == 0 );
 	}

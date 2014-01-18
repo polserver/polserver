@@ -22,6 +22,7 @@ Notes
 #include "../clib/cfgfile.h"
 #include "../clib/clib.h"
 #include "../clib/fileutil.h"
+#include "../clib/logfacility.h"
 #include "../clib/stlutil.h"
 
 #include "item/itemdesc.h"
@@ -34,7 +35,7 @@ namespace Pol {
 	  if ( !Clib::FileExists( "config/menus.cfg" ) )
 	  {
 		if ( config.loglevel > 1 )
-		  cout << "File config/menus.cfg not found, skipping.\n";
+          INFO_PRINT << "File config/menus.cfg not found, skipping.\n";
 		return;
 	  }
 
@@ -118,29 +119,29 @@ namespace Pol {
 
 			if ( objtype_str == "" )
 			{
-			  cerr << "Entry in menu " << menu->name
-				<< " must provide at least an object type" << endl;
+              ERROR_PRINT << "Entry in menu " << menu->name
+                << " must provide at least an object type\n";
 			  throw runtime_error( "Data error in MENUS.CFG" );
 			}
 			u32 objtype = (u32)strtoul( objtype_str.c_str(), NULL, 0 );
 			if ( objtype == 0 ) // 0 specified, or text
 			{
-			  cerr << "Entry in menu " << menu->name
-				<< " cannot specify [" << objtype_str << "] as an Object Type." << endl;
+              ERROR_PRINT << "Entry in menu " << menu->name
+                << " cannot specify [" << objtype_str << "] as an Object Type.\n";
 			  throw runtime_error( "Data error in MENUS.CFG" );
 			}
 			if ( ( stricmp( propname.c_str(), "SubMenu" ) == 0 ) &&
 				 ( submenu_name == "" ) )
 			{
-			  cerr << "SubMenu in menu " << menu->name
-				<< " needs format: Objtype, Title, SubMenuName [got '" << value << "']" << endl;
+              ERROR_PRINT << "SubMenu in menu " << menu->name
+                << " needs format: Objtype, Title, SubMenuName [got '" << value << "']\n";
 			  throw runtime_error( "Data error in MENUS.CFG" );
 			}
 			if ( ( stricmp( propname.c_str(), "Entry" ) == 0 ) &&
 				 ( submenu_name != "" ) )
 			{
-			  cerr << "Entry in menu " << menu->name
-				<< " must not specify SubMenuName [got '" << value << "']" << endl;
+              ERROR_PRINT << "Entry in menu " << menu->name
+                << " must not specify SubMenuName [got '" << value << "']\n";
 			  throw runtime_error( "Data error in MENUS.CFG" );
 			}
 
@@ -165,7 +166,7 @@ namespace Pol {
 		  }
 		  else
 		  {
-			cerr << "Unexpected property in menu " << menu->name << ": " << propname << endl;
+            ERROR_PRINT << "Unexpected property in menu " << menu->name << ": " << propname << "\n";
 			throw runtime_error( "Data error in MENUS.CFG" );
 		  }
 		}
@@ -188,7 +189,7 @@ namespace Pol {
 			}
 			else
 			{
-			  cout << "Unable to find SubMenu " << mi->submenu_name << endl;
+              INFO_PRINT << "Unable to find SubMenu " << mi->submenu_name << "\n";
 			}
 		  }
 		}

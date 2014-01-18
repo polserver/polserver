@@ -8,7 +8,7 @@ Notes
 */
 
 #include "stl_inc.h"
-#include "logfile.h"
+#include "logfacility.h"
 #include "tracebuf.h"
 namespace Pol {
   namespace Clib {
@@ -20,18 +20,20 @@ namespace Pol {
 	void LogTraceBuffer()
 	{
 #ifndef NDEBUG
-	  Log( "TraceBuffer:\n" );
+      fmt::Writer tmp;
+      tmp << "TraceBuffer:\n";
 	  for( unsigned i = tracebuffer_insertpoint; i < TRACEBUF_DEPTH; ++i )
 	  {
-		if (tracebuffer[i].tag)
-		  Log( "%s=%ld\n", tracebuffer[i].tag, tracebuffer[i].value );
+        if ( tracebuffer[i].tag )
+          tmp << tracebuffer[i].tag << "=" << tracebuffer[i].value << "\n";
 	  }
 	  for( unsigned i = 0; i < tracebuffer_insertpoint; ++i )
 	  {
 		if (tracebuffer[i].tag)
-		  Log( "%s=%ld\n", tracebuffer[i].tag, tracebuffer[i].value );
+          tmp << tracebuffer[i].tag << "=" << tracebuffer[i].value << "\n";
 	  }
-	  Log( "End of TraceBuffer.\n" );
+      tmp << "End of TraceBuffer.\n";
+      POLLOG << tmp.c_str();
 #endif
 	}
   }

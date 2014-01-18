@@ -20,6 +20,7 @@ Notes
 
 #include "../../clib/cfgelem.h"
 #include "../../clib/endian.h"
+#include "../../clib/logfacility.h"
 #include "../../plib/pkg.h"
 
 #include "../tiles.h"
@@ -57,7 +58,7 @@ namespace Pol {
 		}
 		catch ( runtime_error& )
 		{
-		  cerr << "Error in ObjType 0x" << hex << objtype << ". Package " << pkg->name() << "." << endl;
+          ERROR_PRINT << "Error in ObjType 0x" << fmt::hexu( objtype ) << ". Package " << pkg->name() << ".\n";
 		  throw;
 		}
 	  }
@@ -76,7 +77,7 @@ namespace Pol {
 		  }
 		  catch ( runtime_error& )
 		  {
-			cerr << "Error in ObjType 0x" << hex << objtype << ". Package " << pkg->name() << "." << endl;
+            ERROR_PRINT << "Error in ObjType 0x" << fmt::hexu( objtype ) << ". Package " << pkg->name() << ".\n";
 			throw;
 		  }
 		}

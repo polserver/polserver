@@ -146,9 +146,6 @@
     <ClCompile Include="lockable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="logfiles.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="login.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -715,9 +712,6 @@
     <ClInclude Include="door.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="dtrace.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="equipdsc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -764,9 +758,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="lockable.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="logfiles.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="los.h">

@@ -13,6 +13,7 @@ Notes
 #include "../clib/clib.h"
 #include "../clib/passert.h"
 #include "../clib/stlutil.h"
+#include "../clib/logfacility.h"
 
 #include "escriptv.h"
 #include "filefmt.h"
@@ -253,13 +254,13 @@ namespace Pol {
 			  break;
 
 			default:
-			  cerr << "AddToken: Can't handle TYP_CONTROL: " << token << endl;
+              ERROR_PRINT << "AddToken: Can't handle TYP_CONTROL: " << token << "\n";
 			  throw runtime_error( "Unexpected token in AddToken() (1)" );
 			  break;
 		  }
 		  break;
 		default:
-		  cerr << "AddToken: Can't handle " << token << endl;
+          ERROR_PRINT << "AddToken: Can't handle " << token << "\n";
 		  throw runtime_error( "Unexpected Token passed to AddToken() (2)" );
 		  break;
 	  }

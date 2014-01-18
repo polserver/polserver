@@ -15,7 +15,7 @@ Notes
 #include <stdio.h>
 
 #include "../clib/endian.h"
-#include "../clib/logfile.h"
+#include "../clib/logfacility.h"
 
 #include "../plib/realm.h"
 
@@ -60,8 +60,7 @@ namespace Pol {
 	  TargetCursor* tcursor = target_cursors[target_cursor_serial];
 	  if ( tcursor != targetter->tcursor2 )
 	  {
-		cerr << targetter->acct->name() << "/" << targetter->name() << " used out of sequence cursor." << endl;
-		Clib::Log( "%s/%s used out-of-sequence target cursor\n", targetter->acct->name(), targetter->name().c_str() );
+        POLLOG_ERROR << targetter->acct->name() << "/" << targetter->name() << " used out of sequence cursor.\n";
 
 		targetter->tcursor2 = NULL;
 		return;
@@ -172,8 +171,6 @@ namespace Pol {
 
     void TargetCursor::handle_target_cursor( Mobile::Character* chr, PKTBI_6C* msg )
 	{
-	  // printf( "Targetting Cursor\n" );
-
 	  if ( msg->selected_serial != 0 )	 // targetted something
 	  {
 
@@ -264,8 +261,6 @@ namespace Pol {
 
 	  u32 selected_serial = cfBEu32( msgin->selected_serial );
 
-	  // printf( "  LOS Checked targetting: selected_serial: %lx\n", selected_serial );
-
 	  UObject* uobj = find_toplevel_object( selected_serial );
 	  // FIXME inefficient, but neither works well by itself.
 	  bool additlegal = false;
@@ -314,8 +309,6 @@ namespace Pol {
 	  }
 
 	  u32 selected_serial = cfBEu32( msgin->selected_serial );
-
-	  // printf( "  LOS Checked targetting: selected_serial: %lx\n", selected_serial );
 
 	  UObject* uobj = find_toplevel_object( selected_serial );
 	  // FIXME inefficient, but neither works well by itself.

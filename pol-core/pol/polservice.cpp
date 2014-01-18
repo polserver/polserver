@@ -17,6 +17,7 @@ Notes
 #include "../clib/progver.h"
 #include "../clib/threadhelp.h"
 #include "../clib/xmain.h"
+#include "../clib/logfacility.h"
 
 #include "../plib/polver.h"
 #include "polresource.h"
@@ -315,7 +316,7 @@ namespace Pol {
 		if ( !rc )
 		{
 		  DWORD err = GetLastError();
-		  cout << "Unable to shutdown systray: " << err << endl;
+		  INFO_PRINT << "Unable to shutdown systray: " << err << "\n";
 		}
 	  }
 	}

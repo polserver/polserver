@@ -2,6 +2,8 @@
 #include <ratio>
 #include <iosfwd>
 #include <string>
+
+#include "logfacility.h"
 namespace Pol {
   namespace Tools // global ns is enough polluted 
   {
@@ -11,9 +13,9 @@ namespace Pol {
 	protected:
 	  static void print( const std::string &name, long long time )
 	  {
-		cout << endl << "----------------------------------" << endl;
-		cout << name << ": " << time << " ms" << endl;
-		cout << "----------------------------------" << endl;
+        INFO_PRINT << "\n----------------------------------\n"
+          << name << ": " << time << " ms\n"
+          << "----------------------------------\n";
 	  }
 	};
 	// silent version

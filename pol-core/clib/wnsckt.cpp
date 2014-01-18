@@ -15,6 +15,8 @@ Notes
 #include <stdio.h>
 #include <cstring>
 
+#include "logfacility.h"
+
 #ifdef _WIN32
 #	include <windows.h>
 #	include <winsock.h>
@@ -326,7 +328,7 @@ namespace Pol {
 	  {
 		sprintf(ErrorBuffer, "Unknown error code 0x%08x", ErrVal);
 	  }
-	  printf("%s\n",ErrorBuffer);
+      INFO_PRINT << ErrorBuffer << "\n";
 #endif
 #else
 	  close();
@@ -338,7 +340,7 @@ namespace Pol {
 	  fd_set fd;
 
 #if SCK_WATCH
-	  printf( "{L;1}" );
+      INFO_PRINT << "{L;1}\n";
 #endif	
 	  FD_ZERO( &fd );
 	  FD_SET( _sck, &fd );
@@ -359,7 +361,7 @@ namespace Pol {
 	  if( res == 0 )
 	  {
 #if SCK_WATCH
-		printf( "{TO}" );
+        INFO_PRINT << "{TO}\n";
 #endif
 		return false;
 	  }
@@ -373,14 +375,14 @@ namespace Pol {
 	  if( res == 1 )
 	  {
 #if SCK_WATCH
-		printf( "{%02.02x}", ch );
+        INFO_PRINT.Format("\{{:#X}\}\n") << ch;
 #endif
 		return true;
 	  }
 	  else if( res == 0 )
 	  {
 #if SCK_WATCH
-		printf( "{CLOSE}" );
+        INFO_PRINT << "{CLOSE}\n";
 #endif
 		close();
 		return false;
@@ -401,7 +403,7 @@ namespace Pol {
 	  while( len )
 	  {
 #if SCK_WATCH
-		printf( "{L:%d}", len );
+        INFO_PRINT << "{L:" << len <<"}\n";
 #endif		
 		FD_ZERO( &fd );
 		FD_SET( _sck, &fd );
@@ -417,7 +419,7 @@ namespace Pol {
 		if( res == 0 )
 		{
 #if SCK_WATCH
-		  printf( "{TO}" );
+          INFO_PRINT << "{TO}\n";
 #endif
 		  return false;
 		}
@@ -434,20 +436,20 @@ namespace Pol {
 
 #if SCK_WATCH
 		  char* tmp = pdest;
-		  printf( "{R:%d[%d]}", res,len );
+          INFO_PRINT.Format("\{R:{}[{}]\}\n") << res<<len;
 #endif
 		  len -= res;
 		  pdest += res;
 
 #if SCK_WATCH
-		  while (res--)
-			printf( "{%02.02x}", (unsigned char)(*tmp++) );
+          while (res--)
+            INFO_PRINT.Format("\{{:#X}\}\n") << (unsigned char)(*tmp++);
 #endif
 		}
 		else if( res == 0 )
 		{
 #if SCK_WATCH
-		  printf( "{CLOSE}" );
+          INFO_PRINT << "{CLOSE}\n";
 #endif
 		  close();
 		  return false;
@@ -468,7 +470,7 @@ namespace Pol {
 	  char* pdest = (char*)vdest;
 
 #if SCK_WATCH
-	  printf( "{L:%d}", len );
+      INFO_PRINT << "{L:"<< len << "}\n";
 #endif		
 	  FD_ZERO( &fd );
 	  FD_SET( _sck, &fd );
@@ -485,7 +487,7 @@ namespace Pol {
 	  if( res == 0 )
 	  {
 #if SCK_WATCH
-		printf( "{TO}" );
+        INFO_PRINT << "{TO}\n";
 #endif
 		return 0;
 	  }
@@ -505,7 +507,7 @@ namespace Pol {
 	  else if( res == 0 )
 	  {
 #if SCK_WATCH
-		printf( "{CLOSE}" );
+        INFO_PRINT << "{CLOSE}\n";
 #endif
 		close();
 		return 0;
@@ -536,7 +538,7 @@ namespace Pol {
 		  else
 		  {
 
-			cout << "Socket::send() error: " << sckerr << endl;
+			INFO_PRINT << "Socket::send() error: " << sckerr << "\n";
 			HandleError();
 			return;
 		  }
@@ -568,7 +570,7 @@ namespace Pol {
 		  }
 		  else
 		  {
-			cout << "Socket::send_nowait() error: " << sckerr << endl;
+            INFO_PRINT << "Socket::send_nowait() error: " << sckerr << "\n";
 			HandleError();
 			return true;
 		  }

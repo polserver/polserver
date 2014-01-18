@@ -17,6 +17,7 @@ Notes
 #include <stdio.h>
 #include <time.h>
 
+#include "../clib/logfacility.h"
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/clib.h"
@@ -219,7 +220,7 @@ namespace Pol {
 	  {
 		if ( --num_until_dot == 0 )
 		{
-		  cout << ".";
+		  INFO_PRINT << ".";
 		  num_until_dot = 1000;
 		}
 		if ( elem.type_is( "StorageArea" ) )
@@ -242,13 +243,13 @@ namespace Pol {
 		  }
 		  else
 		  {
-			cerr << "Storage: Got an ITEM element, but don't have a StorageArea to put it." << endl;
+			ERROR_PRINT << "Storage: Got an ITEM element, but don't have a StorageArea to put it.\n";
 			throw runtime_error( "Data file integrity error" );
 		  }
 		}
 		else
 		{
-		  cerr << "Unexpected element type " << elem.type() << " in storage file." << endl;
+		  ERROR_PRINT << "Unexpected element type " << elem.type() << " in storage file.\n";
 		  throw runtime_error( "Data file integrity error" );
 		}
 		++nobjects;
@@ -257,7 +258,7 @@ namespace Pol {
 	  clock_t end = clock();
 	  int ms = static_cast<int>( ( end - start ) * 1000.0 / CLOCKS_PER_SEC );
 
-	  cout << " " << nobjects << " elements in " << ms << " ms." << std::endl;
+	  INFO_PRINT << " " << nobjects << " elements in " << ms << " ms.\n";
 	}
 
     void Storage::print( Clib::StreamWriter& sw ) const

@@ -9,6 +9,7 @@ Notes
 */
 
 #include "../clib/stl_inc.h"
+#include "../clib/logfacility.h"
 #include "uobject.h"
 #include "mobile/charactr.h"
 #include "item/item.h"
@@ -28,10 +29,12 @@ namespace Pol {
 
 	void display_reftypes()
 	{
+      fmt::Writer tmp;
 	  for ( CharacterRefs::iterator itr = crefs.begin(); itr != crefs.end(); ++itr )
 	  {
-		cout << "cref " << ( *itr ).first << "=" << ( *itr ).second << endl;
+        tmp << "cref " << ( *itr ).first << "=0x" << fmt::hexu(( *itr ).second->get()->serial )<< "\n";
 	  }
+      INFO_PRINT << tmp.c_str();
 	}
 #if REFTYPE_DEBUG
 	UObjectRef::UObjectRef( UObject* ptr ) : ref_ptr<UObject>(ptr)

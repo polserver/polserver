@@ -45,9 +45,7 @@ namespace Pol {
 	public:
 	  Bscript::BObjectImp* print();
 
-	  BasicIoExecutorModule( Bscript::Executor& exec,
-                             std::ostream& cout ) : Bscript::ExecutorModule( "BasicIo", exec ),
-							 cout_( cout )
+	  BasicIoExecutorModule( Bscript::Executor& exec) : Bscript::ExecutorModule( "BasicIo", exec )
 	  {}
 
 	  // class machinery
@@ -56,8 +54,6 @@ namespace Pol {
 	  virtual int functionIndex( const char *func );
 	  virtual std::string functionName( unsigned idx );
 	  static BasicIoFunctionDef function_table[];
-	private:
-	  std::ostream& cout_;
 	};
   }
 }

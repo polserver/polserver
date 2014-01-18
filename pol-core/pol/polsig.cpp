@@ -14,6 +14,7 @@ Notes
 #include "../clib/threadhelp.h"
 
 #include "../bscript/eprog.h"
+#include "../clib/logfacility.h"
 
 #include "polsig.h"
 #ifndef _WIN32
@@ -45,7 +46,7 @@ namespace Pol {
 
 	void sigpipe_handler( int x )
 	{
-	  cout << "SIGPIPE! param=" << x << endl;
+	  INFO_PRINT << "SIGPIPE! param=" << x << "\n";
 	}
 
 	void handle_HUP( int x )
@@ -94,7 +95,7 @@ namespace Pol {
 	  int res = pthread_sigmask( SIG_BLOCK, &blocked_sigs, NULL );
 	  if (res)
 	  {
-		cerr << "pthread_sigmask failed: " << res << endl;
+		ERROR_PRINT << "pthread_sigmask failed: " << res << "\n";
 		exit(1);
 	  }
 
@@ -107,7 +108,7 @@ namespace Pol {
 	  int res = pthread_kill( main_pthread, SIGTERM );
 	  if (res)
 	  {
-		cerr << "pthread_kill failed: " << res << endl;
+        ERROR_PRINT << "pthread_kill failed: " << res << "\n";
 	  }
 	}
 
@@ -132,27 +133,27 @@ namespace Pol {
 		switch( caught )
 		{
 		  case SIGHUP: 
-			cerr << "SIGHUP: reload configuration." << endl;
+            ERROR_PRINT << "SIGHUP: reload configuration.\n";
 			reload_configuration_signalled = true;
 			break;
 		  case SIGUSR1: 
-			cerr << "SIGUSR1: report thread status." << endl;
+            ERROR_PRINT << "SIGUSR1: report thread status.\n";
 			report_status_signalled = true;
 			break;
 		  case SIGINT: 
-			cerr << "SIGINT: exit." << endl;
+            ERROR_PRINT << "SIGINT: exit.\n";
             Clib::exit_signalled = true;
 			break;
 		  case SIGQUIT: 
-			cerr << "SIGQUIT: exit." << endl;
+            ERROR_PRINT << "SIGQUIT: exit.\n";
             Clib::exit_signalled = true;
 			break;
 		  case SIGTERM: 
-			cerr << "SIGTERM: exit." << endl;
+            ERROR_PRINT << "SIGTERM: exit.\n";
             Clib::exit_signalled = true;
 			break;
 		  default: 
-			cerr << "Unexpected signal: " << caught << endl;
+            ERROR_PRINT << "Unexpected signal: " << caught << "\n";
 			break;
 		}
 	  }

@@ -13,7 +13,7 @@ Notes
 #include "stl_inc.h"
 
 #include "esignal.h"
-#include "logfile.h"
+#include "logfacility.h"
 #include "passert.h"
 #include "progver.h"
 #include "stlutil.h"
@@ -56,33 +56,29 @@ namespace Pol {
 
 	void force_backtrace()
 	{
-#define WRITE_STRING( x ) write( STDERR_FILENO, x, strlen(x) )
+      fmt::Writer tmp;
+      tmp << "=== Stack Backtrace ===\nBuild: " << progverstr << " (" << buildtagstr << ")\nStack Backtrace:\n";
+      void* bt[ 200 ];
+      char **strings;
+      int n = backtrace( bt, 200 );
+      strings = backtrace_symbols(bt, n);
+      for (int j = 0; j < n; j++)
+        tmp << strings[j] << "\n";
 
-	  WRITE_STRING( "=== Stack Backtrace ===\n" );
+      free( strings );
 
-	  WRITE_STRING( "Build: " );
-	  WRITE_STRING( progverstr );
-	  WRITE_STRING( " (" ); WRITE_STRING( buildtagstr ); WRITE_STRING( ")\n" );
-	  WRITE_STRING( "Stack Backtrace:\n" );
-
-	  void* bt[ 200 ];
-	  int n = backtrace( bt, 200 );
-	  backtrace_symbols_fd( bt, n, STDERR_FILENO );
-
-	  WRITE_STRING( "=======================\n" );
-
+      tmp << "=======================\n";
+      POLLOG_ERROR << tmp.c_str();
 	}
 #endif
 
 	void passert_failed( const char *expr, const char *file, unsigned line )
 	{
-	  Log( "Assertion Failed: %s, %s, line %d\n", expr, file, line );
-	  cerr << "Assertion Failed: " << expr << ", " << file << ", line " << line << endl;
+	  POLLOG_ERROR << "Assertion Failed: " << expr << ", " << file << ", line " << line << "\n";
 
 	  if( passert_dump_stack )
 	  {
-		Log( "Forcing stack backtrace.\n" );
-		cerr << "Forcing stack backtrace." << endl;
+        POLLOG_ERROR << "Forcing stack backtrace.\n";
 
 		force_backtrace();
 	  }
@@ -95,15 +91,13 @@ namespace Pol {
 
 	  if( passert_shutdown )
 	  {
-		Log( "Shutting down due to assertion failure.\n" );
-		cerr << "Shutting down due to assertion failure." << endl;
+        POLLOG_ERROR << "Shutting down due to assertion failure.\n";
 		exit_signalled = true;
 		passert_shutdown_due_to_assertion = true;
 	  }
 	  if( passert_abort )
 	  {
-		Log( "Aborting due to assertion failure.\n" );
-		cerr << "Aborting due to assertion failure." << endl;
+        POLLOG_ERROR << "Aborting due to assertion failure.\n";
 		abort();
 	  }
 
@@ -115,14 +109,11 @@ namespace Pol {
 
 	void passert_failed( const char *expr, const string& reason, const char *file, unsigned line )
 	{
-	  Log( "Assertion Failed: %s (%s), %s, line %d\n", expr, reason.c_str(), file, line );
-	  cerr << "Assertion Failed: " << expr << " (" << reason << "), " << file << ", line " << line << endl;
+      POLLOG_ERROR << "Assertion Failed: " << expr << " (" << reason << "), " << file << ", line " << line << "\n";
 
 	  if( passert_dump_stack )
 	  {
-		Log( "Forcing stack backtrace.\n" );
-		cerr << "Forcing stack backtrace." << endl;
-
+        POLLOG_ERROR << "Forcing stack backtrace.\n";
 		force_backtrace();
 	  }
       else
@@ -134,15 +125,13 @@ namespace Pol {
 
 	  if( passert_shutdown )
 	  {
-		Log( "Shutting down due to assertion failure.\n" );
-		cerr << "Shutting down due to assertion failure." << endl;
+        POLLOG_ERROR << "Shutting down due to assertion failure.\n";
 		exit_signalled = true;
 		passert_shutdown_due_to_assertion = true;
 	  }
 	  if( passert_abort )
 	  {
-		Log( "Aborting due to assertion failure.\n" );
-		cerr << "Aborting due to assertion failure." << endl;
+        POLLOG_ERROR << "Aborting due to assertion failure.\n";
 		abort();
 	  }
 

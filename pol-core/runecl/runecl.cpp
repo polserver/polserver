@@ -27,6 +27,7 @@ Notes
 
 #include "../clib/clib.h"
 #include "../clib/progver.h"
+#include "../clib/logfacility.h"
 
 #include "../bscript/config.h"
 #include "../bscript/eprog.h"
@@ -74,12 +75,12 @@ namespace Pol {
     bool profile = false;
     void usage( void )
     {
-      cerr << "  Usage:" << endl;
-      cerr << "    " << progverstr << " [options] filespec [filespec ...]" << endl;
-      cerr << "        Options:" << endl;
-      cerr << "            -q    Quiet" << endl;
-      cerr << "            -d    Debug output" << endl;
-      cerr << "            -p    Profile" << endl;
+      ERROR_PRINT << "  Usage:\n"
+        << "    " << progverstr << " [options] filespec [filespec ...]\n"
+        << "        Options:\n"
+        << "            -q    Quiet\n"
+        << "            -d    Debug output\n"
+        << "            -p    Profile\n";
     }
 
     void DumpCaseJmp( ostream& os, const Token& token, EScriptProgram* prog )
@@ -133,10 +134,10 @@ namespace Pol {
       if ( fname.size() >= 4 )
         fname.replace( fname.size() - 4, 4, ".ecl" );
 
-      Executor E( cerr );
+      Executor E;
       E.setViewMode( true );
       E.addModule( new BasicExecutorModule( E ) );
-      E.addModule( new BasicIoExecutorModule( E, cout ) );
+      E.addModule( new BasicIoExecutorModule( E ) );
       E.addModule( new MathExecutorModule( E ) );
       E.addModule( new SQLExecutorModule( E ) );
       E.addModule( new UtilExecutorModule( E ) );
@@ -148,7 +149,9 @@ namespace Pol {
       program->read( fname.c_str() );
       E.setProgram( program.get() );
 
-      program->dump( cout );
+      std::ostringstream os;
+      program->dump( os );
+      INFO_PRINT << os.str();
 
       /* return;
 
@@ -180,9 +183,9 @@ namespace Pol {
       string fname( path );
       // TODO: autoconvert to .ecl ?
 
-      Executor E( cerr );
+      Executor E;
       E.addModule( new BasicExecutorModule( E ) );
-      E.addModule( new BasicIoExecutorModule( E, cout ) );
+      E.addModule( new BasicIoExecutorModule( E ) );
       E.addModule( new MathExecutorModule( E ) );
       E.addModule( new SQLExecutorModule( E ) );
       E.addModule( new UtilExecutorModule( E ) );
@@ -193,7 +196,7 @@ namespace Pol {
       ref_ptr<EScriptProgram> program( new EScriptProgram );
       if ( program->read( fname.c_str() ) )
       {
-        cerr << "Error reading " << fname << endl;
+        ERROR_PRINT << "Error reading " << fname << "\n";
         return 1;
       }
       E.setProgram( program.get() );
@@ -215,34 +218,35 @@ namespace Pol {
 
       if ( profile )
       {
-        cout << "Profiling information: " << endl;
-        cout << "\tEObjectImp constructions: " << eobject_imp_constructions << endl;
+        fmt::Writer tmp;
+        tmp << "Profiling information: \n"
+          << "\tEObjectImp constructions: " << eobject_imp_constructions << "\n";
         if ( eobject_imp_count )
-          cout << "\tRemaining BObjectImps: " << eobject_imp_count << endl;
-        cout << "\tInstruction cycles: " << escript_instr_cycles << endl;
-        cout << "\tInnerExec calls: " << escript_execinstr_calls << endl;
-        cout << "\tClocks: " << clocks << " (" << seconds << " seconds)" << endl;
+          tmp << "\tRemaining BObjectImps: " << eobject_imp_count << "\n";
+        tmp << "\tInstruction cycles: " << escript_instr_cycles << "\n"
+          << "\tInnerExec calls: " << escript_execinstr_calls << "\n"
+          << "\tClocks: " << clocks << " (" << seconds << " seconds)" << "\n"
 #ifdef _WIN32
-        cout << "\tKernel Time: " << ( *(__int64*)&kernelEnd ) - ( *(__int64*)&kernelStart ) << endl;
-        cout << "\tUser Time:   " << ( *(__int64*)&userEnd ) - ( *(__int64*)&userStart ) << endl;
+          << "\tKernel Time: " << ( *(__int64*)&kernelEnd ) - ( *(__int64*)&kernelStart ) << "\n"
+          << "\tUser Time:   " << ( *(__int64*)&userEnd ) - ( *(__int64*)&userStart ) << "\n"
 #endif
-        cout << "\tSpace used: " << E.sizeEstimate() << endl;
-        cout << endl;
-        cout.precision( 0 );
-        cout << "\tCycles Per Second: " << std::fixed << std::noshowpoint << setw( 14 ) << escript_instr_cycles / seconds << endl;
-        cout << "\tCycles Per Minute: " << std::fixed << std::noshowpoint << setw( 14 ) << 60.0 * escript_instr_cycles / seconds << endl;
-        cout << "\tCycles Per Hour:   " << std::fixed << std::noshowpoint << setw( 14 ) << 3600.0 * escript_instr_cycles / seconds << endl;
+          << "\tSpace used: " << E.sizeEstimate() << "\n\n"
+
+          << "\tCycles Per Second: " << escript_instr_cycles / seconds << "\n"
+          << "\tCycles Per Minute: " << 60.0 * escript_instr_cycles / seconds << "\n"
+          << "\tCycles Per Hour:   " << 3600.0 * escript_instr_cycles / seconds << "\n";
 #if BOBJECTIMP_DEBUG
         display_bobjectimp_instances();
 #endif
 #ifdef ESCRIPT_PROFILE
-        cout << "FuncName,Count,Min,Max,Sum,Avarage" << endl;
+        tmp << "FuncName,Count,Min,Max,Sum,Avarage\n";
         for (escript_profile_map::iterator itr=EscriptProfileMap.begin();itr!=EscriptProfileMap.end();++itr)
         {
-          cout << itr->first << "," << itr->second.count << "," << itr->second.min << "," << itr->second.max << "," << itr->second.sum << "," 
-            << (itr->second.sum / itr->second.count) << endl;
+          tmp << itr->first << "," << itr->second.count << "," << itr->second.min << "," << itr->second.max << "," << itr->second.sum << "," 
+            << (itr->second.sum / itr->second.count) << "\n";
         }
 #endif
+        INFO_PRINT << tmp.c_str();
       }
       return exres ? 0 : 1;
     }
@@ -263,7 +267,7 @@ namespace Pol {
               case 'p': case 'P':
                 break;
               default:
-                cerr << "Unknown option: " << argv[i] << endl;
+                ERROR_PRINT << "Unknown option: " << argv[i] << "\n";
                 usage();
                 return 1;
             }
@@ -292,9 +296,8 @@ namespace Pol {
     {
       // vX.YY
       double vernum = (double)progver + (double)( ESCRIPT_FILE_VER_CURRENT / 100.0f );
-      cerr << "EScript Executor v" << vernum << endl;
-      cerr << "Copyright (C) 1993-2013 Eric N. Swanson" << endl;
-      cerr << endl;
+      ERROR_PRINT << "EScript Executor v" << vernum << "\n"
+      << "Copyright (C) 1993-2014 Eric N. Swanson\n\n";
     }
 
     if ( argc == 1 )

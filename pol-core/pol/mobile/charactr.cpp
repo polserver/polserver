@@ -88,7 +88,7 @@ Notes
 #include "../../clib/endian.h"
 #include "../../clib/esignal.h"
 #include "../../clib/fileutil.h"
-#include "../../clib/logfile.h"
+#include "../../clib/logfacility.h"
 #include "../../clib/passert.h"
 #include "../../clib/random.h"
 #include "../../clib/stlutil.h"
@@ -102,7 +102,6 @@ Notes
 #include "../clidata.h"
 #include "../cmbtcfg.h"
 #include "../cmdlevel.h"
-#include "../dtrace.h"
 #include "../extobj.h"
 #include "../fnsearch.h"
 #include "../gflag.h"
@@ -188,7 +187,7 @@ namespace Pol {
 			return zone;
 		}
 	  }
-	  cerr << "Couldn't find an Armor Zone in armrzone.cfg for layer " << layer << endl;
+	  ERROR_PRINT << "Couldn't find an Armor Zone in armrzone.cfg for layer " << layer << "\n";
 	  throw runtime_error( "Configuration file error" );
 	  return 0;
 	}
@@ -207,7 +206,7 @@ namespace Pol {
 		  return zone;
 		}
 	  }
-	  cerr << "Couldn't find an armrzone.cfg config elem named '" << zname << "'" << endl;
+      ERROR_PRINT << "Couldn't find an armrzone.cfg config elem named '" << zname << "'\n";
 
 	  throw runtime_error( "Configuration file error" );
 	  return 0;
@@ -217,7 +216,7 @@ namespace Pol {
 	  if ( !Clib::FileExists( "config/armrzone.cfg" ) )
 	  {
         if ( Core::config.loglevel > 1 )
-		  cout << "File config/armrzone.cfg not found, skipping.\n";
+          INFO_PRINT << "File config/armrzone.cfg not found, skipping.\n";
 		return;
 	  }
 	  Clib::ConfigFile cf( "config/armrzone.cfg" );
@@ -237,13 +236,12 @@ namespace Pol {
 		{
           if ( in_layer < Core::LOWEST_LAYER || in_layer > Core::HIGHEST_LAYER )
 		  {
-			cerr << "ArmorZone " << az.name
-			  << ": Layer " << in_layer
-			  << " is out of range."
-			  << endl;
-            cerr << "Valid range is " << Core::LOWEST_LAYER
+            ERROR_PRINT << "ArmorZone " << az.name
+              << ": Layer " << in_layer
+              << " is out of range.\n"
+              << "Valid range is " << Core::LOWEST_LAYER
               << " to " << Core::HIGHEST_LAYER
-			  << endl;
+              << "\n";
 			throw runtime_error( "Configuration file error" );
 		  }
 		  az.layers.push_back( in_layer );
@@ -786,7 +784,7 @@ namespace Pol {
 		  return i;
 	  }
 
-	  Clib::Log2( "Warning: Can't find charidx for Character 0x%lx\n", serial );
+      POLLOG_INFO << "Warning: Can't find charidx for Character 0x" << fmt::hexu( serial ) << "\n";
 	  return -1;
 	}
 
@@ -1029,7 +1027,7 @@ namespace Pol {
 	  {
         if ( Core::system_find_mobile( serial ) )
 		{
-		  cerr << "Character " << Clib::hexint( serial ) << " defined more than once." << endl;
+          ERROR_PRINT.Format( "Character 0x{:X} defined more than once.\n" ) << serial;
 		  throw runtime_error( "Data integrity error" );
 		}
 	  }
@@ -1044,26 +1042,25 @@ namespace Pol {
 
         if ( charindex >= Core::config.character_slots )
 		{
-		  cerr << "Account " << acctname << ": "
-			<< "CHARIDX of " << charindex
-			<< " is too high for character serial (" << Clib::hexint( serial ) << ")" << endl;
+          ERROR_PRINT << "Account " << acctname << ": "
+            << "CHARIDX of " << charindex
+            << " is too high for character serial (0x" << fmt::hexu( serial ) << ")\n";
 
 		  throw runtime_error( "Data integrity error" );
 		}
 		Accounts::Account *search_acct = Accounts::find_account( acctname.c_str() );
 		if ( search_acct == NULL )
 		{
-		  cerr << "Character '" << name() << "': "
-			<< "Account '" << acctname << "' doesn't exist."
-			<< endl;
+          ERROR_PRINT << "Character '" << name() << "': "
+            << "Account '" << acctname << "' doesn't exist.\n";
 		  throw runtime_error( "Data integrity error" );
 		}
 		if ( search_acct->get_character( charindex ) != NULL )
 		{
-		  cerr << "Account " << acctname
-			<< " has two characters with CHARIDX of "
-			<< charindex
-			<< endl;
+          ERROR_PRINT << "Account " << acctname
+            << " has two characters with CHARIDX of "
+            << charindex
+            << "\n";
 		  throw runtime_error( "Data integrity error" );
 		}
 
@@ -1080,8 +1077,7 @@ namespace Pol {
 
 	  if ( name_ == "" )
 	  {
-		cerr << "Character '" << Clib::hexint( serial ) << "' has no name!"
-		  << endl;
+        ERROR_PRINT << "Character '0x" << fmt::hexu( serial ) << "' has no name!\n";
 		throw runtime_error( "Data integrity error" );
 	  }
 	  wornitems.serial = serial;
@@ -2031,7 +2027,7 @@ namespace Pol {
 	double Character::apply_damage( double damage, Character* source, bool userepsys, bool send_damage_packet )
 	{
 	  damage = armor_absorb_damage( damage );
-      if ( Core::watch.combat ) cout << "Final damage: " << damage << endl;
+      if ( Core::watch.combat ) INFO_PRINT << "Final damage: " << damage << "\n";
 	  do_imhit_effects();
 	  apply_raw_damage_hundredths( static_cast<unsigned int>( damage * 100 ), source, userepsys, send_damage_packet );
 
@@ -2056,7 +2052,6 @@ namespace Pol {
 
 	void Character::run_hit_script( Character* defender, double damage )
 	{
-	  //	cout << "run_hit_script" << endl;
       ref_ptr<Bscript::EScriptProgram> prog = find_script2( weapon->hit_script( ), true, Core::config.cache_interactive_scripts );
 	  if ( prog.get() == NULL )
 		return;
@@ -2092,7 +2087,7 @@ namespace Pol {
 	  }
 	  else
 	  {
-		Clib::Log( "Blech, couldn't start hitscript %s\n", weapon->hit_script().name().c_str() );
+        POLLOG << "Blech, couldn't start hitscript " << weapon->hit_script().name() << "\n";
 	  }
 	}
 
@@ -2194,7 +2189,7 @@ namespace Pol {
 	{
 	  if ( !dead() )
 	  {
-		cerr << "uh, trying to resurrect " << name() << ", who isn't dead." << endl;
+        ERROR_PRINT << "uh, trying to resurrect " << name() << ", who isn't dead.\n";
 		return;
 	  }
 	  set_dirty();
@@ -2872,7 +2867,7 @@ namespace Pol {
 	void Character::swing_task_func( Character* chr )
 	{
 	  THREAD_CHECKPOINT( tasks, 800 );
-	  dtrace( 20 ) << "swing_task_func(" << chr << ")" << endl;
+      INFO_PRINT_TRACE( 20 ) << "swing_task_func(0x" << fmt::hexu( chr->serial ) << ")\n";
 	  chr->ready_to_swing = true;
 	  chr->check_attack_after_move();
 	  THREAD_CHECKPOINT( tasks, 899 );
@@ -2880,7 +2875,7 @@ namespace Pol {
 
 	void Character::schedule_attack()
 	{
-	  dtrace( 18 ) << "schedule_attack(" << this << ")" << endl;
+      INFO_PRINT_TRACE( 18 ) << "schedule_attack(0x" << fmt::hexu( this->serial ) << ")\n";
 	  // we'll get here with a swing_task already set, if 
 	  // while in an adjacent cell to your opponent, you turn/move
 	  // while waiting for your timeout.
@@ -2892,8 +2887,8 @@ namespace Pol {
 
 		if ( !weapon_delay )
 		{
-		  dtrace( 19 ) << "clocks[speed] = (" <<
-            Core::POLCLOCKS_PER_SEC << "*15000)/((" << dexterity( ) << "+100)*" << weapon_speed << ")" << endl;
+          INFO_PRINT_TRACE( 19 ) << "clocks[speed] = (" <<
+            Core::POLCLOCKS_PER_SEC << "*15000)/((" << dexterity() << "+100)*" << weapon_speed << ")\n";
 
           clocks = Core::POLCLOCKS_PER_SEC * static_cast<Core::polclock_t>( 15000L );
 		  clocks /= ( dexterity() + 100 ) * weapon_speed;
@@ -2904,21 +2899,18 @@ namespace Pol {
 		  if ( delay_sum < 0 )
 			delay_sum = 0;
 
-		  dtrace( 19 ) << "clocks[delay] = ((" <<
-            weapon_delay << "+" << delay_mod_ << "=" << delay_sum << ")*" << Core::POLCLOCKS_PER_SEC << ")/1000" << endl;
+          INFO_PRINT_TRACE( 19 ) << "clocks[delay] = ((" <<
+            weapon_delay << "+" << delay_mod_ << "=" << delay_sum << ")*" << Core::POLCLOCKS_PER_SEC << ")/1000\n";
 
           clocks = ( delay_sum * Core::POLCLOCKS_PER_SEC ) / 1000;
 		}
 
         if ( clocks < ( Core::POLCLOCKS_PER_SEC / 5 ) )
 		{
-		  dtrace( 20 ) << name() << " attack timer: " << clocks << endl;
+          INFO_PRINT_TRACE( 20 ) << name( ) << " attack timer: " << clocks << "\n";
 		}
-		dtrace( 19 ) << "clocks=" << clocks << endl;
-		//if (isa(CLASS_CHARACTER))
-		//{
-		//	cout << name() << " attack timer at: " << swing_timer_start_clock_ + clocks + 1 << endl;
-		//}
+        INFO_PRINT_TRACE( 19 ) << "clocks=" << clocks << "\n";
+
         new Core::OneShotTaskInst<Character*>( &swing_task,
 										 swing_timer_start_clock_ + clocks + 1,
 										 swing_task_func,
@@ -2928,7 +2920,7 @@ namespace Pol {
 
 	void Character::reset_swing_timer()
 	{
-	  dtrace( 15 ) << "reset_swing_timer(" << this << ")" << endl;
+      INFO_PRINT_TRACE( 15 ) << "reset_swing_timer(0x" << fmt::hexu( this->serial ) << ")\n";
 	  ready_to_swing = false;
 
       swing_timer_start_clock_ = Core::polclock( );
@@ -2943,7 +2935,7 @@ namespace Pol {
 
     bool Character::manual_set_swing_timer( Core::polclock_t clocks )
 	{
-	  dtrace( 15 ) << "manual_set_swing_timer(" << this << ") delay: " << clocks << endl;
+      INFO_PRINT_TRACE( 15 ) << "manual_set_swing_timer(0x" << fmt::hexu(this->serial) << ") delay: " << clocks << "\n";
 	  ready_to_swing = false;
 
       swing_timer_start_clock_ = Core::polclock( );
@@ -2981,17 +2973,17 @@ namespace Pol {
 	  passert( who != NULL );
       if ( Core::combat_config.scripted_attack_checks )
 	  {
-		dtrace( 21 ) << "is_attackable(" << this << "," << who << "): will be handled by combat hook." << endl;
+        INFO_PRINT_TRACE( 21 ) << "is_attackable(0x" << fmt::hexu( this->serial ) << ",0x" << fmt::hexu(who->serial) << "): will be handled by combat hook.\n";
 		return true;
 	  }
 	  else
 	  {
-		dtrace( 21 ) << "is_attackable(" << this << "," << who << "):" << endl
-		  << "  who->dead:	" << who->dead_ << endl
-		  << "  wpn->inrange: " << weapon->in_range( this, who ) << endl
-		  << "  hidden:	   " << hidden() << endl
-		  << "  who->hidden:  " << who->hidden() << endl
-		  << "  concealed:	" << is_concealed_from_me( who ) << endl;
+        INFO_PRINT_TRACE( 21 ) << "is_attackable(0x" << fmt::hexu( this->serial ) << ",0x" << fmt::hexu( who->serial ) << "):\n"
+          << "  who->dead:	" << who->dead_ << "\n"
+          << "  wpn->inrange: " << weapon->in_range( this, who ) << "\n"
+          << "  hidden:	   " << hidden() << "\n"
+          << "  who->hidden:  " << who->hidden() << "\n"
+          << "  concealed:	" << is_concealed_from_me( who ) << "\n";
 		if ( who->dead() )
 		  return false;
 		else if ( !weapon->in_range( this, who ) )
@@ -3013,7 +3005,7 @@ namespace Pol {
 	{
 	  if ( opponent_ != NULL )
 	  {
-		dtrace( 20 ) << "get_attackable_opponent(" << this << "): checking opponent, " << opponent_ << endl;
+        INFO_PRINT_TRACE( 20 ) << "get_attackable_opponent(0x" << fmt::hexu( this->serial ) << "): checking opponent, 0x" << fmt::hexu( opponent_->serial ) << "\n";
 		if ( is_attackable( opponent_ ) )
 		  return opponent_;
 	  }
@@ -3022,8 +3014,8 @@ namespace Pol {
 	  {
 		for ( auto &who : opponent_of )
 		{
-		  dtrace( 20 ) << "get_attackable_opponent(" << this
-			<< "): checking opponent_of, " << who << endl;
+          INFO_PRINT_TRACE( 20 ) << "get_attackable_opponent(0x" << fmt::hexu( this->serial )
+            << "): checking opponent_of, 0x" << fmt::hexu( who->serial ) << "\n";
 		  if ( is_attackable( who ) )
 			return who;
 		}
@@ -3092,7 +3084,7 @@ namespace Pol {
 
 	void Character::set_opponent( Character* new_opponent, bool inform_old_opponent )
 	{
-	  dtrace( 12 ) << "set_opponent(" << this << "," << new_opponent << ")" << endl;
+      INFO_PRINT_TRACE( 12 ) << "set_opponent(0x" << fmt::hexu( this->serial ) << ",0x" << fmt::hex( new_opponent->serial ) << ")\n";
 	  if ( new_opponent != NULL )
 	  {
 		if ( new_opponent->dead() )
@@ -3334,7 +3326,7 @@ namespace Pol {
 	  }
 
       if ( Core::watch.combat )
-		cout << name() << " attacks " << opponent->name() << endl;
+        INFO_PRINT << name( ) << " attacks " << opponent->name( ) << "\n";
 
 	  if ( weapon->is_projectile() )
 	  {
@@ -3388,17 +3380,17 @@ namespace Pol {
 	  hit_chance += hitchance_mod_ * 0.001f;
 	  hit_chance -= opponent->evasionchance_mod_ * 0.001f;
       if ( Core::watch.combat )
-		cout << "Chance to hit: " << hit_chance << ": ";
+        INFO_PRINT << "Chance to hit: " << hit_chance << ": ";
 	  if ( random_float( 1.0 ) < hit_chance )
 	  {
         if ( Core::watch.combat )
-		  cout << "Hit!" << endl;
+          INFO_PRINT << "Hit!\n";
 		do_hit_success_effects();
 
 		double damage = random_weapon_damage();
 		damage_weapon();
 
-        if ( Core::watch.combat ) cout << "Base damage: " << damage << endl;
+        if ( Core::watch.combat ) INFO_PRINT << "Base damage: " << damage << "\n";
 
 		double damage_multiplier = attribute( pAttrTactics->attrid ).effective() + 50;
 		damage_multiplier += strength() * 0.20f;
@@ -3407,7 +3399,7 @@ namespace Pol {
 		damage *= damage_multiplier;
 
         if ( Core::watch.combat )
-		  cout << "Damage multiplier due to tactics/STR: " << damage_multiplier << " Result: " << damage << endl;
+          INFO_PRINT << "Damage multiplier due to tactics/STR: " << damage_multiplier << " Result: " << damage << "\n";
 
 		if ( opponent->shield != NULL )
 		{
@@ -3420,11 +3412,11 @@ namespace Pol {
 		  }
 
 		  double parry_chance = opponent->attribute( pAttrParry->attrid ).effective() / 200.0;
-          if ( Core::watch.combat ) cout << "Parry Chance: " << parry_chance << ": ";
+          if ( Core::watch.combat ) INFO_PRINT << "Parry Chance: " << parry_chance << ": ";
 		  if ( random_float( 1.0 ) < parry_chance )
 		  {
             if ( Core::watch.combat )
-			  cout << opponent->shield->ar() << " hits deflected" << endl;
+              INFO_PRINT << opponent->shield->ar() << " hits deflected\n";
             if ( Core::combat_config.display_parry_success_messages && opponent->client )
               Core::send_sysmessage( opponent->client, "You successfully parried the attack!" );
 
@@ -3434,7 +3426,7 @@ namespace Pol {
 		  }
 		  else
 		  {
-            if ( Core::watch.combat ) cout << "failed." << endl;
+            if ( Core::watch.combat ) INFO_PRINT << "failed.\n";
 		  }
 		}
 		if ( weapon->hit_script().empty() )
@@ -3449,7 +3441,7 @@ namespace Pol {
 	  else
 	  {
         if ( Core::watch.combat )
-		  cout << "Miss!" << endl;
+          INFO_PRINT << "Miss!\n";
 		opponent->on_swing_failure( this );
 		do_hit_failure_effects();
         if ( Core::system_hooks.hitmiss_hook )
@@ -3466,7 +3458,7 @@ namespace Pol {
 	  FUNCTION_CHECKPOINT( check_attack_after_move, 1 );
 	  Character* opponent = get_attackable_opponent();
 	  FUNCTION_CHECKPOINT( check_attack_after_move, 2 );
-	  dtrace( 20 ) << "check_attack_after_move(" << this << "): opponent is " << opponent << endl;
+      INFO_PRINT_TRACE( 20 ) << "check_attack_after_move(0x" << fmt::hexu( this->serial ) << "): opponent is 0x" << fmt::hexu( opponent->serial ) << "\n";
 	  if ( opponent != NULL &&				   // and I have an opponent
 		   !dead_ &&							 // If I'm not dead
            ( Core::combat_config.attack_while_frozen ||
@@ -3487,7 +3479,7 @@ namespace Pol {
 		else
 		{
 		  FUNCTION_CHECKPOINT( check_attack_after_move, 7 );
-		  dtrace( 20 ) << "not ready to swing" << endl;
+          INFO_PRINT_TRACE( 20 ) << "not ready to swing\n";
 		  schedule_attack();
 		  FUNCTION_CHECKPOINT( check_attack_after_move, 8 );
 		}
@@ -3902,14 +3894,10 @@ namespace Pol {
 		short newz;
 		Multi::UMulti* supporting_multi;
 		Items::Item* walkon_item;
-		//cout << "checking walkheight" << endl;
 
 		short current_boost = gradual_boost;
 		if ( !realm->walkheight( this, newx, newy, z, &newz, &supporting_multi, &walkon_item, &current_boost ) )
 		  return false;
-		//cout << "walkheight is okay" << endl;
-		//if (walkon_item)
-		//	cout << "chr::move walkon item" << endl;
 
 		remote_containers_.clear();
 
@@ -3951,7 +3939,6 @@ namespace Pol {
 			if ( registered_house == 0 )
 			{
 			  registered_house = supporting_multi->serial;
-			  //cout << "walk on multi triggered" << endl;
 			  this_house->walk_on( this );
 			}
 		  }
@@ -3977,7 +3964,6 @@ namespace Pol {
 		position_changed();
 		if ( walkon_item != NULL )
 		{
-		  //cout << "walkon_item found" << endl;
 		  walkon_item->walk_on( this );
 		}
 
@@ -4224,7 +4210,7 @@ namespace Pol {
 	{
 	  if ( serial == 0 )
 	  {
-		Clib::Log2( "get_from_ground: Passed serial 0x%1x, blocking movement.\n", serial );
+        POLLOG_INFO << "get_from_ground: Passed serial 0x" << fmt::hexu( serial ) << ", blocking movement.\n";
 		return NULL;
 	  }
 	  unsigned short wxL, wyL, wxH, wyH;
@@ -4238,11 +4224,11 @@ namespace Pol {
 		  {
 			if ( item->serial == 0 )
 			{
-			  Clib::Log2( "get_from_ground: Item 0x%1x, desc %s class %s, orphan! (old serial: 0x%lx)\n",
-					item->serial,
-					item->description().c_str(),
-					item->classname(),
-					cfBEu32( item->serial_ext ) );
+              POLLOG_INFO.Format( "get_from_ground: Item 0x{:X}, desc {} class {}, orphan! (old serial: 0x{:X})\n" )
+                << item->serial
+                << item->description()
+                << item->classname()
+                << cfBEu32( item->serial_ext );
 			  continue;
 			}
 			if ( inrange( this, item ) ) // FIXME needs to check smaller range.

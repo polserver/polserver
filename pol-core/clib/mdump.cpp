@@ -16,9 +16,9 @@ Notes
 #include <time.h>
 #include "mdump.h"
 #include "progver.h"
-#include "logfile.h"
 #include "strexcpt.h"
 #include "passert.h"
+#include "logfacility.h"
 
 	// FIXME: 2008 Upgrades needed here? Need to check dbg headers to ensure compatibility
 #if _MSC_VER < 1300
@@ -114,8 +114,7 @@ namespace Pol {
 
 	  if( szResult )
 	  {
-		Log( szResult );
-		printf( "%s\n", szResult );
+        POLLOG_INFO << szResult << "\n";
 		InstallOldStructuredExceptionHandler();
 	  }
 	}
@@ -158,7 +157,7 @@ namespace Pol {
 		  else
 			dumptype = MiniDumpNormal;
 
-		  printf( "Unhandled Exception! Minidump started...\n" );
+          ERROR_PRINT << "Unhandled Exception! Minidump started...\n";
 		  BOOL bOK = pDump( GetCurrentProcess(), GetCurrentProcessId(), hFile, dumptype, &ExInfo, NULL, NULL );
 		  if( bOK )
 		  {
@@ -184,12 +183,10 @@ namespace Pol {
 
 	  if( szResult )
 	  {
-		Log( szResult );
-		Log( "Last Script: %s PC: %u\n", scripts_thread_script.c_str(), scripts_thread_scriptPC );
-		cerr << "##########################################################" << endl;
-		printf( "%s", szResult );
-		cerr << "Last Script: " << scripts_thread_script << " PC: " << scripts_thread_scriptPC << endl;
-		cerr << "##########################################################" << endl;
+        POLLOG_ERROR << "##########################################################\n"
+          << szResult << "\n"
+          << "Last Script: " << scripts_thread_script << " PC: " << scripts_thread_scriptPC
+          << "\n##########################################################\n";
 	  }
 	  return retval;
 	}
@@ -200,8 +197,7 @@ namespace Pol {
 #ifdef _WIN64
       if ( !hDbgHelpDll )
         return;
-      Log2( "\n##########################################################\n" );
-      Log2( "Current StackBackTrace\n" );
+      POLLOG_ERROR << "\n##########################################################\nCurrent StackBackTrace\n";
 
       void * stack[100];
       unsigned short frames;
@@ -218,7 +214,7 @@ namespace Pol {
       
       if ( !pInit || !pAddr || !pGetOpt || !pSetOpt || !pGetLine )
       {
-        Log2( "failed to load needed functions for backtrace!" );
+        POLLOG_ERROR << "failed to load needed functions for backtrace!\n";
         return;
       }
 
@@ -232,19 +228,20 @@ namespace Pol {
 
       IMAGEHLP_LINE64 ih_line;
       DWORD line_disp = 0;
-      
+      fmt::Writer tmp;
+
       for ( int i = 0; i < frames; i++ )
       {
         pAddr( process, (DWORD64)( stack[i] ), 0, symbol );
 
-        Log2( "%i: %s - 0x%0X\n", frames - i - 1, symbol->Name, symbol->Address );
+        tmp.Format( "{}: {} - {:#X}\n" ) << ( frames - i - 1 ) << symbol->Name << symbol->Address;
         ih_line.SizeOfStruct = sizeof( IMAGEHLP_LINE );
         if ( pGetLine( process, symbol->Address, &line_disp, &ih_line ) != 0 )
         {
-          Log2( "    at %s:%d \n", ih_line.FileName, ih_line.LineNumber );
+          tmp.Format( "    at {}:{} \n" ) << ih_line.FileName << ih_line.LineNumber;
         }
       }
-      Log2( "##########################################################\n" );
+      POLLOG_ERROR << tmp.c_str() << "##########################################################\n";
       free( symbol );
 #endif
     }

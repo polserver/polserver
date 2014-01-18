@@ -34,8 +34,7 @@ Notes
 #include "../clib/clib.h"
 #include "../clib/endian.h"
 #include "../clib/fileutil.h"
-#include "../clib/logfile.h"
-#include "../clib/mlog.h"
+#include "../clib/logfacility.h"
 #include "../clib/passert.h"
 #include "../clib/random.h"
 #include "../clib/stlutil.h"
@@ -676,8 +675,8 @@ namespace Pol {
 
 	  if ( prog.get() == NULL )
 	  {
-		cerr << "Unable to read script " << sd.name()
-		  << " for NPC " << name() << "(" << Clib::hexint( serial ) << ")" << endl;
+        ERROR_PRINT << "Unable to read script " << sd.name()
+          << " for NPC " << name() << "(0x" << fmt::hexu( serial ) << ")\n";
 		throw runtime_error( "Error loading NPCs" );
 	  }
 
@@ -687,8 +686,8 @@ namespace Pol {
 	  ex->addModule( uoemod );
 	  if ( ex->setProgram( prog.get() ) == false )
 	  {
-		cerr << "There was an error running script " << script << " for NPC "
-		  << name() << "(0x" << hex << serial << dec << ")" << endl;
+        ERROR_PRINT << "There was an error running script " << script << " for NPC "
+          << name() << "(0x" << fmt::hexu( serial ) << ")\n";
 		throw runtime_error( "Error loading NPCs" );
 	  }
 
@@ -1004,7 +1003,7 @@ namespace Pol {
 
 		blocked -= absorbed;
 		absorbed += random_int( blocked + 1 );
-		if ( watch.combat ) cout << absorbed << " hits absorbed by NPC armor." << endl;
+        if ( watch.combat ) INFO_PRINT << absorbed << " hits absorbed by NPC armor.\n";
 		damage -= absorbed;
 		if ( damage < 0 )
 		  damage = 0;

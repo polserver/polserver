@@ -26,6 +26,7 @@ Notes
 #include "../clib/fileutil.h"
 #include "../clib/stlutil.h"
 #include "../clib/cfgfile.h"
+#include "../clib/logfacility.h"
 
 #include "accounts/account.h"
 #include "mobile/attribute.h"
@@ -188,7 +189,7 @@ namespace Pol {
 		cf.readraw( elem );
 	  }
 	  else if ( config.loglevel > 1 )
-		cout << "File config/watch.cfg not found, skipping.\n";
+        INFO_PRINT << "File config/watch.cfg not found, skipping.\n";
 
 	  watch.combat = elem.remove_bool( "COMBAT", false );
 	  watch.profile_scripts = elem.remove_bool( "ProfileScripts", false );

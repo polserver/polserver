@@ -17,7 +17,7 @@ Notes
 #include "../bscript/escriptv.h"
 
 #include "../clib/endian.h"
-#include "../clib/logfile.h"
+#include "../clib/logfacility.h"
 #include "../plib/realm.h"
 
 #include "mobile/charactr.h"
@@ -46,7 +46,6 @@ namespace Pol {
   namespace Core {
 	void regen_stats( void )
 	{
-	  // cout << "regen!";
 	  THREAD_CHECKPOINT( tasks, 400 );
 	  time_t now = poltime();
 	  gameclock_t now_gameclock = read_gameclock();
@@ -216,26 +215,24 @@ namespace Pol {
 	  busy_sysload_cycles = 0;
 	  nonbusy_sysload_cycles = 0;
 	  sysload_nprocs = 0;
-	  if ( config.watch_sysload )
-		cout << "sysload=" << last_sysload << " (" << last_sysload_nprocs << ")"
-		<< " cputime=" << last_cputime << endl;
+      if ( config.watch_sysload )
+        INFO_PRINT.Format( "sysload={} ({}) cputime={}\n" ) << last_sysload << last_sysload_nprocs << last_cputime;
 	  if ( config.log_sysload )
-		Clib::Log( "sysload=%lu (%lu) cputime=%lu\n", last_sysload, last_sysload_nprocs, last_cputime );
+        POLLOG.Format( "sysload={} ({}) cputime={}\n" ) << last_sysload << last_sysload_nprocs << last_cputime;
 	  //cout << "npc_searches:" << GET_PROFILEVAR_PER_MIN( npc_searches ) << " in " << GET_PROFILECLOCK_MS( npc_search ) << " ms" << endl;
 	  //cout << "container_adds:" << GET_PROFILEVAR_PER_MIN( container_adds ) << endl;
 	  //cout << "container_removes:" << GET_PROFILEVAR_PER_MIN( container_removes ) << endl;
 
 #ifndef NDEBUG
-	  cout << "activity: " << last_script_passes_activity
-		<< "  noactivity: " << last_script_passes_noactivity
-		<< endl;
+      INFO_PRINT << "activity: " << last_script_passes_activity
+        << "  noactivity: " << last_script_passes_noactivity
+        << "\n";
 #endif
 	  last_mapcache_hits = mapcache_hits;
 	  last_mapcache_misses = mapcache_misses;
-	  if ( config.watch_mapcache )
-		cout << "mapcache: hits=" << mapcache_hits << ", misses=" << mapcache_misses
-		<< ", rate=" << ( mapcache_hits ? ( mapcache_hits * 100 / ( mapcache_hits + mapcache_misses ) ) : 0 ) << "%"
-		<< endl;
+      if ( config.watch_mapcache )
+        INFO_PRINT << "mapcache: hits=" << mapcache_hits << ", misses=" << mapcache_misses
+        << ", rate=" << ( mapcache_hits ? ( mapcache_hits * 100 / ( mapcache_hits + mapcache_misses ) ) : 0 ) << "%\n";
 	  mapcache_hits = 0;
 	  mapcache_misses = 0;
 
@@ -247,16 +244,15 @@ namespace Pol {
 		TICK_PROFILEVAR( scheduler_passes );
 		TICK_PROFILEVAR( noactivity_scheduler_passes );
 
-		if ( config.watch_rpm )
-		  cout << "scpt: " << last_sppm
-		  << "  task: " << GET_PROFILEVAR_PER_MIN( scheduler_passes );
-		if ( GET_PROFILEVAR_PER_MIN( noactivity_scheduler_passes ) )
-		  cout << "(" << GET_PROFILEVAR_PER_MIN( noactivity_scheduler_passes ) << ")";
-		cout << "  scin: " << last_sipm
-		  << "  scsl: " << last_scpm
-		  << "  MOB: " << get_mobile_count()
-		  << "  TLI: " << get_toplevel_item_count()
-		  << endl;
+        if ( config.watch_rpm )
+          INFO_PRINT << "scpt: " << last_sppm
+          << "  task: " << ( GET_PROFILEVAR_PER_MIN( scheduler_passes ) )
+          << "(" << ( GET_PROFILEVAR_PER_MIN( noactivity_scheduler_passes ) ) << ")"
+          << "  scin: " << last_sipm
+          << "  scsl: " << last_scpm
+          << "  MOB: " << get_mobile_count()
+          << "  TLI: " << get_toplevel_item_count()
+          << "\n";
 	  }
 	  else
 	  {
@@ -270,12 +266,12 @@ namespace Pol {
 		cycles_until_decay_worldzone = cycles_per_decay_worldzone;
 
 		if ( config.watch_rpm )
-		  cout << "RPM: " << last_rpm
+          INFO_PRINT << "RPM: " << last_rpm
 		  << "   SIPM: " << last_sipm
 		  << "   SCPM: " << last_scpm
 		  << "   SI/R: " << ( last_rpm ? ( last_sipm / last_rpm ) : 0 )
 		  << "   SC/R: " << ( last_rpm ? ( last_scpm / last_rpm ) : 0 )
-		  << endl;
+		  << "\n";
 	  }
 	  THREAD_CHECKPOINT( tasks, 399 );
 	}

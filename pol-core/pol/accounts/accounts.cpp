@@ -23,6 +23,7 @@ Notes
 #include "../../clib/fileutil.h"
 #include "../../clib/passert.h"
 #include "../../clib/timer.h"
+#include "../../clib/logfacility.h"
 
 #include "account.h"
 #include "accounts.h"
@@ -42,7 +43,7 @@ namespace Pol {
 
 	  string accountsfile = Core::config.world_data_path + "accounts.txt";
 
-	  cout << "  " << accountsfile << ":";
+	  INFO_PRINT << "  " << accountsfile << ":";
 	  stat( accountsfile.c_str(), &accounts_txt_stat );
 
 	  {
@@ -53,7 +54,7 @@ namespace Pol {
 		{
 		  if ( --num_until_dot == 0 )
 		  {
-			cout << ".";
+            INFO_PRINT << ".";
 			num_until_dot = 1000;
 		  }
 		  Core::accounts.push_back( Core::AccountRef( new Account( elem ) ) );
@@ -66,7 +67,7 @@ namespace Pol {
 		write_account_data();
 	  }
 
-	  cout << " " << naccounts << " elements in " << timer.ellapsed() << " ms." << std::endl;
+      INFO_PRINT << " " << naccounts << " elements in " << timer.ellapsed( ) << " ms.\n";
 	}
 
 	void write_account_data()
@@ -203,7 +204,7 @@ namespace Pol {
 		if ( ( newst.st_mtime != accounts_txt_stat.st_mtime ) &&
 			 ( newst.st_mtime < time( NULL ) - 10 ) )
 		{
-		  cout << "Reloading accounts.txt...";
+		  INFO_PRINT << "Reloading accounts.txt...";
 		  memcpy( &accounts_txt_stat, &newst, sizeof accounts_txt_stat );
 
 		  {
@@ -213,7 +214,7 @@ namespace Pol {
 			{
 			  reread_account( elem );
 			}
-			cout << "Done!" << endl;
+            INFO_PRINT << "Done!\n";
 		  }
 		  if ( accounts_txt_dirty )
 		  {
@@ -223,7 +224,7 @@ namespace Pol {
 	  }
 	  catch ( ... )
 	  {
-		cout << "Error reading accounts.txt!" << endl;
+        INFO_PRINT << "Error reading accounts.txt!\n";
 	  }
 	  THREAD_CHECKPOINT( tasks, 599 );
 	}

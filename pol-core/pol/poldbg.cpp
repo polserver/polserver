@@ -253,7 +253,6 @@ namespace Pol {
 
 	bool DebugContext::process( const std::string& cmdline, vector<string>& results )
 	{
-	  // std::cout << "Debug command is " << cmdline << std::endl;
 	  try
 	  {
 		results.clear();

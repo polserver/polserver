@@ -28,7 +28,7 @@ Notes
 #include "../bscript/executor.h"
 #include "../bscript/impstr.h"
 
-#include "../clib/logfile.h"
+#include "../clib/logfacility.h"
 #include "../clib/endian.h"
 #include "../clib/passert.h"
 #include "../clib/stlutil.h"
@@ -45,7 +45,6 @@ Notes
 #include "exscrobj.h"
 #include "module/filemod.h"
 #include "module/guildmod.h"
-#include "logfiles.h"
 #include "module/mathmod.h"
 #include "npc.h"
 #include "module/npcmod.h"
@@ -127,16 +126,16 @@ namespace Pol {
             BObject ob( imp );
             if ( Core::config.loglevel >= 11 )
             {
-              cout << "Event queue for " << exec.scriptname() << " is full, discarding event." << endl;
+              INFO_PRINT << "Event queue for " << exec.scriptname() << " is full, discarding event.\n";
               ExecutorModule* em = exec.findModule( "npc" );
               if ( em )
               {
                 NPCExecutorModule* npcemod = static_cast<NPCExecutorModule*>( em );
-                cout << "NPC Serial: " << Clib::hexint( npcemod->npc.serial ) <<
-                  " (" << npcemod->npc.x << " " << npcemod->npc.y << " " << (int)npcemod->npc.z << ")" << endl;
+                INFO_PRINT << "NPC Serial: " << fmt::hexu( npcemod->npc.serial ) <<
+                  " (" << npcemod->npc.x << " " << npcemod->npc.y << " " << npcemod->npc.z << ")\n";
               }
 
-              cout << "Event: " << ob->getStringRep() << endl;
+              INFO_PRINT << "Event: " << ob->getStringRep() << "\n";
             }
             return false;
           }
@@ -207,7 +206,7 @@ namespace Pol {
   namespace Core {
 
 	UOExecutor::UOExecutor() :
-	  Executor( std::cerr ),
+	  Executor(),
 	  os_module( NULL ),
 	  instr_cycles( 0 ),
 	  sleep_cycles( 0 ),
@@ -234,13 +233,8 @@ namespace Pol {
 	  if ( ( instr_cycles >= 500 ) && watch.profile_scripts )
 	  {
 		int elapsed = static_cast<int>( poltime() - start_time ); // Doh! A script can't run more than 68 years, for this to work.
-		Clib::Log( "Script %s: %" OUT64 "d instr cycles, %" OUT64 "d sleep cycles, %ld seconds\n",
-			 scriptname().c_str(), instr_cycles, sleep_cycles, elapsed );
-		cerr << "Script " << scriptname() << ": "
-		  << instr_cycles << " instr cycles, "
-		  << sleep_cycles << " sleep cycles, "
-		  << elapsed << " seconds elapsed."
-		  << endl;
+        POLLOG_ERROR.Format( "Script {}: {} instr cycles, {} sleep cycles, {} seconds\n" )
+          << scriptname() << instr_cycles << sleep_cycles << elapsed;
 	  }
 
 	  pParent = NULL;
@@ -333,9 +327,11 @@ namespace Pol {
 			ex->runaway_cycles += config.runaway_script_threshold;
 			if ( os_module->warn_on_runaway )
 			{
-			  script_log << "Runaway script[" << os_module->pid() << "]: " << ex->scriptname()
-				<< " (" << ex->runaway_cycles << " cycles)" << endl;
-			  ex->show_context( script_log, ex->PC );
+              SCRIPTLOG << "Runaway script[" << os_module->pid() << "]: " << ex->scriptname()
+                << " (" << ex->runaway_cycles << " cycles)\n";
+              std::ostringstream os;
+			  ex->show_context( os, ex->PC );
+              SCRIPTLOG << os.str();
 			}
 			ex->warn_runaway_on_cycle += config.runaway_script_threshold;
 		  }
@@ -347,8 +343,8 @@ namespace Pol {
 			if ( inscount > 1000 )
 			{
 			  inscount = 0;
-			  if ( config.report_critical_scripts )
-				cerr << "Critical script " << ex->scriptname() << " has run for " << totcount << " instructions" << endl;
+              if ( config.report_critical_scripts )
+                ERROR_PRINT << "Critical script " << ex->scriptname() << " has run for " << totcount << " instructions\n";
 			}
 			continue;
 		  }
@@ -490,14 +486,12 @@ namespace Pol {
 
 	void step_scripts( polclock_t* clocksleft, bool* pactivity )
 	{
-	  // cerr << "r";
 	  THREAD_CHECKPOINT( scripts, 102 );
 	  *pactivity = ( !runlist.empty() );
 	  THREAD_CHECKPOINT( scripts, 103 );
 
 	  run_ready();
 
-	  // cerr << "h";
 	  THREAD_CHECKPOINT( scripts, 104 );
 
 	  check_blocked( clocksleft );
@@ -517,7 +511,7 @@ namespace Pol {
       ref_ptr<Bscript::EScriptProgram> program = find_script( filename );
 	  if ( program.get() == NULL )
 	  {
-		cerr << "Error reading script " << filename << endl;
+        ERROR_PRINT << "Error reading script " << filename << "\n";
 		throw runtime_error( "Error starting script" );
 	  }
 
@@ -547,7 +541,7 @@ namespace Pol {
       ref_ptr<Bscript::EScriptProgram> program = find_script2( script );
 	  if ( program.get() == NULL )
 	  {
-		cerr << "Error reading script " << script.name() << endl;
+        ERROR_PRINT << "Error reading script " << script.name( ) << "\n";
 		// throw runtime_error( "Error starting script" );
 		return NULL;
 	  }
@@ -589,7 +583,7 @@ namespace Pol {
       ref_ptr<Bscript::EScriptProgram> program = find_script2( script );
 	  if ( program.get() == NULL )
 	  {
-		cerr << "Error reading script " << script.name() << endl;
+        ERROR_PRINT << "Error reading script " << script.name( ) << "\n";
 		// throw runtime_error( "Error starting script" );
 		return NULL;
 	  }
@@ -652,7 +646,7 @@ namespace Pol {
 	{
       using namespace Module;
 	  ex.addModule( new BasicExecutorModule( ex ) );
-	  ex.addModule( new BasicIoExecutorModule( ex, std::cout ) );
+	  ex.addModule( new BasicIoExecutorModule( ex ) );
 	  ex.addModule( new ClilocExecutorModule( ex ) );
 	  ex.addModule( new MathExecutorModule( ex ) );
 	  ex.addModule( new UtilExecutorModule( ex ) );
@@ -683,18 +677,18 @@ namespace Pol {
 	  Clib::scripts_thread_script = ex.scriptname();
 
 	  if ( config.report_rtc_scripts )
-		cout << "Script " << ex.scriptname() << " running..";
+        INFO_PRINT << "Script " << ex.scriptname( ) << " running..";
 
 	  while ( ex.runnable() )
 	  {
-		cout << ".";
+        INFO_PRINT << ".";
 		for ( int i = 0; ( i < 1000 ) && ex.runnable(); i++ )
 		{
 		  Clib::scripts_thread_scriptPC = ex.PC;
 		  ex.execInstr();
 		}
 	  }
-	  cout << endl;
+      INFO_PRINT << "\n";
 	  return ( ex.error_ == false );
 	}
 
@@ -705,7 +699,7 @@ namespace Pol {
       ref_ptr<Bscript::EScriptProgram> program = find_script( filename );
 	  if ( program.get() == NULL )
 	  {
-		cerr << "Error reading script " << filename << endl;
+        ERROR_PRINT << "Error reading script " << filename << "\n";
 		return false;
 	  }
 
@@ -722,7 +716,7 @@ namespace Pol {
       ref_ptr<Bscript::EScriptProgram> program = find_script( filename );
 	  if ( program.get() == NULL )
 	  {
-		cerr << "Error reading script " << filename << endl;
+        ERROR_PRINT << "Error reading script " << filename << "\n";
 		return false;
 	  }
 
@@ -737,7 +731,7 @@ namespace Pol {
       ref_ptr<Bscript::EScriptProgram> program = find_script2( script );
 	  if ( program.get() == NULL )
 	  {
-		cerr << "Error reading script " << script.name() << endl;
+        ERROR_PRINT << "Error reading script " << script.name( ) << "\n";
         return new Bscript::BError( "Unable to read script" );
 	  }
 
@@ -760,13 +754,13 @@ namespace Pol {
 		{
 		  if ( reported )
 		  {
-			cout << ".." << ex.PC;
+            INFO_PRINT << ".." << ex.PC;
 		  }
 		  else
 		  {
 			if ( config.report_rtc_scripts )
 			{
-			  cout << "Script " << script.name() << " running.." << ex.PC;
+              INFO_PRINT << "Script " << script.name( ) << " running.." << ex.PC;
 			  reported = true;
 			}
 		  }
@@ -774,7 +768,7 @@ namespace Pol {
 		}
 	  }
 	  if ( reported )
-		cout << endl;
+        INFO_PRINT << "\n";
 	  if ( ex.error_ )
         return new Bscript::BError( "Script exited with an error condition" );
 
@@ -1109,23 +1103,24 @@ namespace Pol {
 
 	void list_script( UOExecutor* uoexec )
 	{
-	  cout << uoexec->prog_->name;
-	  if ( uoexec->Globals2.size() )
-		cout << " Gl=" << uoexec->Globals2.size();
-	  if ( uoexec->Locals2 && uoexec->Locals2->size() )
-		cout << " Lc=" << uoexec->Locals2->size();
-	  if ( uoexec->ValueStack.size() )
-		cout << " VS=" << uoexec->ValueStack.size();
-	  if ( uoexec->upperLocals2.size() )
-		cout << " UL=" << uoexec->upperLocals2.size();
-	  if ( uoexec->ControlStack.size() )
-		cout << " CS=" << uoexec->ControlStack.size();
-	  cout << endl;
+      fmt::Writer tmp;
+      tmp << uoexec->prog_->name;
+      if ( !uoexec->Globals2.empty() )
+        tmp << " Gl=" << uoexec->Globals2.size();
+      if ( uoexec->Locals2 && !uoexec->Locals2->empty() )
+        tmp << " Lc=" << uoexec->Locals2->size();
+	  if ( !uoexec->ValueStack.empty() )
+        tmp << " VS=" << uoexec->ValueStack.size( );
+	  if ( !uoexec->upperLocals2.empty() )
+        tmp << " UL=" << uoexec->upperLocals2.size( );
+	  if ( !uoexec->ControlStack.empty() )
+        tmp << " CS=" << uoexec->ControlStack.size( );
+	  INFO_PRINT << tmp.str() << "\n";
 	}
 
 	void list_scripts( const char* desc, ExecList& ls )
 	{
-	  cout << desc << " scripts:" << endl;
+      INFO_PRINT << desc << " scripts:\n";
 	  Clib::ForEach( ls, list_script );
 	}
 
@@ -1143,7 +1138,7 @@ namespace Pol {
 	}
 	void list_crit_scripts( const char* desc, ExecList& ls )
 	{
-	  cout << desc << " scripts:" << endl;
+      INFO_PRINT << desc << " scripts:\n";
 	  Clib::ForEach( ls, list_crit_script );
 	}
 

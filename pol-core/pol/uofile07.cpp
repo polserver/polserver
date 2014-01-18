@@ -48,11 +48,10 @@ namespace Pol {
 #if ENABLE_POLTEST_OUTPUT
           if (static_debug_on)
           {
-            cout << "static: " << int(srec->x_offset) 
+            INFO_PRINT << "static: " << int( srec->x_offset )
               << " " << int(srec->y_offset) 
               << " " << int(srec->z)
-              << " " << hex << srec->graphic << dec
-              << endl;
+              << " 0x" << fmt::hexu( srec->graphic) << "\n";
           }
 #endif
 
@@ -84,11 +83,10 @@ namespace Pol {
 #if ENABLE_POLTEST_OUTPUT
           if (static_debug_on)
           {
-            cout << "static: " << int(srec->x_offset) 
+            INFO_PRINT << "static: " << int(srec->x_offset) 
               << " " << int(srec->y_offset) 
               << " " << int(srec->z)
-              << " " << hex << srec->graphic << dec
-              << endl;
+              << " 0x" << fmt::hexu( srec->graphic ) << "\n";
           }
 #endif
 
@@ -120,11 +118,10 @@ namespace Pol {
 #if ENABLE_POLTEST_OUTPUT
           if (static_debug_on)
           {
-            cout << "static: " << int(srec->x_offset) 
+            INFO_PRINT << "static: " << int(srec->x_offset) 
               << " " << int(srec->y_offset) 
               << " " << int(srec->z)
-              << " " << hex << srec->graphic << dec
-              << endl;
+              << " 0x" << fmt::hexu( srec->graphic) << "\n";
           }
 #endif
 

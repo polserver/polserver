@@ -2,11 +2,11 @@
 #define _STREAMSAVER_H
 
 #include <boost/noncopyable.hpp>
-#include "../../lib/format/format.h"
-#include <fstream>
+#include <iosfwd>
 #include <string>
 #include <memory>
 #include <thread>
+#include "../../lib/format/format.h"
 #include "message_queue.h"
 
 namespace Pol {
@@ -23,6 +23,16 @@ namespace Pol {
 	protected:
 	  std::unique_ptr<fmt::Writer> _writer;
 	};
+
+    class FMTStreamWriter : public StreamWriter
+    {
+    public:
+      FMTStreamWriter() : StreamWriter() {};
+      virtual ~FMTStreamWriter() {};
+      virtual void init( const std::string &filepath ) {};
+      virtual void flush() {};
+      virtual void flush_file() {};
+    };
 
 	class OFStreamWriter : public StreamWriter
 	{

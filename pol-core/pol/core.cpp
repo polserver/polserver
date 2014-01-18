@@ -55,12 +55,10 @@ namespace Pol {
 	  Items::Item* walkon_item = NULL;
 	  short new_boost = 0;
 
-	  // cout << "mct z: " << z << endl;
 	  if ( flags & MOVEITEM_FORCELOCATION )
 	  {
 		if ( x >= chr->realm->width() || y >= chr->realm->height() )
 		{
-		  // cout << "mct: 1" << endl;
 		  return false;
 		}
 
@@ -71,7 +69,6 @@ namespace Pol {
 	  {
 		if ( !chr->realm->walkheight( chr, x, y, z, &newz, &supporting_multi, &walkon_item, &new_boost ) )
 		{
-		  // cout << "mct: 2" << endl;
 		  return false;
 		}
 	  }
@@ -110,7 +107,6 @@ namespace Pol {
 		  if ( chr->registered_house == 0 )
 		  {
 			chr->registered_house = supporting_multi->serial;
-			//cout << "walk on multi triggered" << endl;
 			this_house->walk_on( chr );
 		  }
 		}
@@ -173,11 +169,9 @@ namespace Pol {
 
 	Items::Item* find_walkon_item( ItemsVector& ivec, short z )
 	{
-	  //cout << "find walkon item, z=" << z << endl;
       for ( ItemsVector::const_iterator itr = ivec.begin( ), end = ivec.end( ); itr != end; ++itr )
 	  {
 		Items::Item* item = ( *itr );
-		//cout << item->description << " at z= " << int(item->z) << endl;
 		if ( z == item->z || z == item->z + 1 )
 		{
 		  if ( !item->itemdesc().walk_on_script.empty() )
@@ -186,14 +180,7 @@ namespace Pol {
 		  }
 		}
 	  }
-	  //cout << "um, no" << endl;
 	  return NULL;
-	}
-
-	void atomic_cout( const string& msg )
-	{
-	  PolLock lck;
-	  cout << msg << endl;
 	}
   }
 }

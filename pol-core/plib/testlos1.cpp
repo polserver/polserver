@@ -8,6 +8,7 @@ Notes
 */
 
 #include "../clib/stl_inc.h"
+#include "../clib/logfacility.h"
 #include "../pol/uconst.h"
 #include "../pol/uobject.h"
 #include "../pol/los.h"
@@ -29,18 +30,18 @@ namespace Pol {
 	  if ( p_test_realm == NULL )
 		p_test_realm = new Realm( "britannia" );
 
-	  cout << "LOS test: " << src->name() << " to "
+	  INFO_PRINT << "LOS test: " << src->name() << " to "
 		<< target->name() << "(" << should_have_los << "):";
 	  bool res = p_test_realm->has_los( *src, *target );
-	  cout << res << " ";
+      INFO_PRINT << res << " ";
 	  if ( should_have_los == res )
 	  {
-		cout << "Ok!" << endl;
+        INFO_PRINT << "Ok!\n";
 		inc_successes();
 	  }
 	  else
 	  {
-		cout << "Failure!" << endl;
+        INFO_PRINT << "Failure!\n";
 		inc_failures();
 	  }
 
@@ -53,19 +54,19 @@ namespace Pol {
 	  if ( p_test_realm == NULL )
 		p_test_realm = new Realm( "britannia" );
 
-	  cout << "LOS test: (" << x1 << "," << y1 << "," << int( z1 ) << ")"
+      INFO_PRINT << "LOS test: (" << x1 << "," << y1 << "," << int( z1 ) << ")"
 		<< " - (" << x2 << "," << y2 << "," << int( z2 ) << ")"
 		<< " (" << should_have_los << "):";
       bool res = p_test_realm->has_los( Core::LosObj( x1, y1, z1 ), Core::LosObj( x2, y2, z2 ) );
-	  cout << res << " ";
+      INFO_PRINT << res << " ";
 	  if ( should_have_los == res )
 	  {
-		cout << "Ok!" << endl;
+        INFO_PRINT << "Ok!\n";
 		inc_successes();
 	  }
 	  else
 	  {
-		cout << "Failure!" << endl;
+        INFO_PRINT << "Failure!\n";
 		inc_failures();
 	  }
 
@@ -77,26 +78,26 @@ namespace Pol {
 	  if ( p_test_realm == NULL )
 		p_test_realm = new Realm( "britannia" );
 
-	  cout << "LOS test: (" << x1 << "," << y1 << "," << int( z1 ) << ",ht=" << int( h1 ) << ")"
+      INFO_PRINT << "LOS test: (" << x1 << "," << y1 << "," << int( z1 ) << ",ht=" << int( h1 ) << ")"
 		<< " - (" << x2 << "," << y2 << "," << int( z2 ) << ",ht=" << int( h2 ) << ")"
 		<< " (" << should_have_los << "):";
       bool res = p_test_realm->has_los( Core::LosObj( x1, y1, z1, h1 ), Core::LosObj( x2, y2, z2, h2 ) );
-	  cout << res << " ";
+      INFO_PRINT << res << " ";
 	  if ( should_have_los == res )
 	  {
-		cout << "Ok!" << endl;
+        INFO_PRINT << "Ok!\n";
 		inc_successes();
 	  }
 	  else
 	  {
-		cout << "Failure!" << endl;
+        INFO_PRINT << "Failure!\n";
 		inc_failures();
 	  }
 
 	}
 	void pol_los_test()
 	{
-	  cout << "POL datafile LOS tests:" << endl;
+      INFO_PRINT << "POL datafile LOS tests:\n";
 
 	  test_los( 5421, 78, 10, 5422, 89, 20, false );
 	  test_los( 1403, 1624, 28, 1402, 1625, 28, true );

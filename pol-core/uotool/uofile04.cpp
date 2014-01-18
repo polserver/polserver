@@ -12,6 +12,7 @@ Notes
 #endif
 
 #include "../clib/stl_inc.h"
+#include "../clib/logfacility.h"
 
 //#include "../pol/polcfg.h"
 #include "../pol/udatfile.h"
@@ -37,7 +38,7 @@ namespace Pol {
       fseek( Core::sidxfile, 0, SEEK_SET );
       for ( int xblock = 0; xblock < 6144 / 8; ++xblock )
       {
-        std::cout << xblock << "..";
+        INFO_PRINT << xblock << "..";
         for ( int yblock = 0; yblock < 4096 / 8; ++yblock )
         {
           fread( &idxrec, sizeof idxrec, 1, Core::sidxfile );

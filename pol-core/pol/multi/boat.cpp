@@ -34,6 +34,7 @@ Notes
 #include "../../clib/passert.h"
 #include "../../clib/stlutil.h"
 #include "../../clib/strutil.h"
+#include "../../clib/logfacility.h"
 
 #include "../uconst.h"
 #include "../../plib/realm.h"
@@ -116,7 +117,7 @@ namespace Pol {
 		}
 	  }
 
-	  cerr << "Boat component definition '" << str << "' is poorly formed." << endl;
+      ERROR_PRINT << "Boat component definition '" << str << "' is poorly formed.\n";
 	  throw runtime_error( "Poorly formed boat.cfg component definition" );
 	}
 
@@ -157,7 +158,7 @@ namespace Pol {
 
 	  if ( !ok )
 	  {
-		cerr << "Boat component definition '" << str << "' is poorly formed." << endl;
+        ERROR_PRINT << "Boat component definition '" << str << "' is poorly formed.\n";
 		throw runtime_error( "Poorly formed boat.cfg component definition" );
 	  }
 	}
@@ -261,7 +262,7 @@ namespace Pol {
 		}
 		catch ( exception& )
 		{
-		  cerr << "Error occurred reading definition for boat 0x" << hex << multiid << dec << endl;
+          ERROR_PRINT << "Error occurred reading definition for boat 0x" << fmt::hexu( multiid ) << "\n";
 		  throw;
 		}
 	  }
@@ -421,7 +422,7 @@ namespace Pol {
 		   int( y + md.minry ) < int( Core::WORLD_MIN_Y ) || int( y + md.maxry ) > int( realm->height() ) )
 	  {
 #ifdef DEBUG_BOATS
-		cout << "Location " << x << "," << y << " impassable, location is off the map" << endl;
+        INFO_PRINT << "Location " << x << "," << y << " impassable, location is off the map\n";
 #endif
 		return false;
 	  }
@@ -436,7 +437,7 @@ namespace Pol {
 		unsigned short ay = y + ( *itr )->y;
 		short az = z + ( *itr )->z;
 #ifdef DEBUG_BOATS
-		cout << "[" << ax << "," << ay << "]";
+        INFO_PRINT << "[" << ax << "," << ay << "]";
 #endif
 		/*
 		 * See if any other ship hulls occupy this space
@@ -445,7 +446,7 @@ namespace Pol {
 		if ( realm->global_hulls.count( gh ) ) // already a boat there
 		{
 #ifdef DEBUG_BOATS
-		  cout << "Location " << realm->name() << " " << ax << "," << ay << " already has a ship hull present" << endl;
+          INFO_PRINT << "Location " << realm->name() << " " << ax << "," << ay << " already has a ship hull present\n";
 #endif
 		  return false;
 		}

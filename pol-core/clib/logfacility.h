@@ -2,6 +2,7 @@
 #ifndef LOGFACILITY_H
 #define LOGFACILITY_H
 
+#include <map>
 #include <thread>
 #include <future>
 #include <memory>
@@ -12,29 +13,14 @@
 #include "message_queue.h"
 
 namespace Pol {
+  namespace Core {
+    struct PolConfig;
+  }
   namespace Clib {
+    extern bool LogfileTimestampEveryLine;
+
     namespace Logging {
-
-      namespace Logging_internal {
-        // internal worker class which performs the work in a additional thread
-        class LogWorker : boost::noncopyable
-        {
-          typedef std::function<void()> msg;
-          typedef message_queue<msg> msg_queue;
-        public:
-          LogWorker();
-          ~LogWorker();
-          void exit();
-          void send( msg msg_ );
-          void move_send( msg &&msg_ );
-
-        private:
-          void run();
-          bool _done;
-          msg_queue _queue;
-          std::thread _work_thread;
-        };
-      }
+      struct LogFileBehaviour;
 
       // the base class for the differrent sinks
       class LogSink : boost::noncopyable
@@ -48,14 +34,7 @@ namespace Pol {
         static std::string getLoggingTimeStamp();
       };
 
-      // helper struct to define log file behaviour
-      struct LogFileBehaviour
-      {
-        std::string basename;
-        bool rollover;
-        std::ios_base::openmode openmode;
-        bool timestamps;
-      };
+      
 
       // generic sink to log into a file
       class LogSinkGenericFile : public LogSink
@@ -171,7 +150,8 @@ namespace Pol {
         void closeFlexLog( unsigned int id );
         unsigned int registerFlexLogger( std::string logfilename );
       private:
-        Logging_internal::LogWorker _worker;
+        class LogWorker;
+        std::unique_ptr<LogWorker> _worker;
         std::vector<LogSink*> _registered_sinks;
       };
 
@@ -217,6 +197,8 @@ namespace Pol {
 
   // log only into std::cout
 #define INFO_PRINT Clib::Logging::Message<Clib::Logging::LogSink_cout>(0 LOG_PRINT_CALLER_INFO).message()
+  // log only into std::cout if level is equal or higher
+#define INFO_PRINT_TRACE(n) if ( Core::config.debug_level >= n ) INFO_PRINT
   // log only into std::cerr
 #define ERROR_PRINT Clib::Logging::Message<Clib::Logging::LogSink_cerr>(0 LOG_PRINT_CALLER_INFO).message()
 

@@ -27,6 +27,7 @@ Notes
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
 #include "../clib/wallclock.h"
+#include "../clib/logfacility.h"
 
 #include "../plib/realmdescriptor.h"
 #include "../plib/staticblock.h"
@@ -99,7 +100,7 @@ namespace Pol {
         int progress = y * 100L / descriptor.height;
         if ( progress != lastprogress )
         {
-          cout << "\rCreating POL statics files: " << progress << "%";
+          INFO_PRINT << "\rCreating POL statics files: " << progress << "%";
           lastprogress = progress;
         }
         for ( u16 x = 0; x < descriptor.width; x += Plib::STATICBLOCK_CHUNK )
@@ -137,9 +138,9 @@ namespace Pol {
               ++illegales;
 
               if ( cfg_show_illegal_graphic_warning )
-                cout << " Warning: Item with illegal Graphic 0x" << hex << pstat[i].graphic
-                << " in Area " << dec << x << " " << y << " " << ( x + Plib::STATICBLOCK_CHUNK - 1 )
-                << " " << ( y + Plib::STATICBLOCK_CHUNK - 1 ) << endl;
+                INFO_PRINT << " Warning: Item with illegal Graphic 0x" << fmt::hexu(pstat[i].graphic)
+                << " in Area " << x << " " << y << " " << ( x + Plib::STATICBLOCK_CHUNK - 1 )
+                << " " << ( y + Plib::STATICBLOCK_CHUNK - 1 ) << "\n";
             }
           }
           for ( unsigned i = 0; i < vec.size(); ++i )
@@ -164,23 +165,23 @@ namespace Pol {
       fclose( fidx );
       if ( !errors )
       {
-        cout << "\rCreating POL statics files: Complete" << endl;
+        INFO_PRINT << "\rCreating POL statics files: Complete\n";
         rename( statidx_tmp.c_str(), statidx_dat.c_str() );
         rename( statics_tmp.c_str(), statics_dat.c_str() );
       }
       else
       {
-        cout << "\rCreating POL statics files: Error" << endl;
+        INFO_PRINT << "\rCreating POL statics files: Error\n";
       }
 
 
 #ifndef NDEBUG
-      cout << statics << " statics written" << endl;
-      cout << duplicates << " duplicates eliminated" << endl;
-      cout << illegales << " illegales eliminated" << endl;
-      cout << empties << " empties" << endl;
-      cout << nonempties << " nonempties" << endl;
-      cout << maxcount << " was the highest count" << endl;
+      INFO_PRINT << statics << " statics written\n"
+        << duplicates << " duplicates eliminated\n"
+        << illegales << " illegales eliminated\n"
+        << empties << " empties\n"
+        << nonempties << " nonempties\n"
+        << maxcount << " was the highest count\n";
 #endif
       return 0;
     }

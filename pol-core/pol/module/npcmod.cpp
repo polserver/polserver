@@ -18,8 +18,7 @@ Notes
 #include "../../clib/clib.h"
 #include "../../clib/endian.h"
 #include "../../clib/fileutil.h"
-#include "../../clib/logfile.h"
-#include "../../clib/mlog.h"
+#include "../../clib/logfacility.h"
 #include "../../clib/passert.h"
 #include "../../clib/random.h"
 #include "../../clib/stlutil.h"
@@ -199,10 +198,9 @@ namespace Pol {
 
           if ( Mobile::DecodeFacing( dir, facing ) == false )
 		  {
-			if ( Clib::mlog.is_open() )
-			  Clib::mlog << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": " << endl
-			  << "\tCall to function npc::canmove():" << endl
-			  << "\tParameter 0: Expected direction: N S E W NW NE SW SE, got " << dir << endl;
+            DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
+              << "\tCall to function npc::canmove():\n"
+              << "\tParameter 0: Expected direction: N S E W NW NE SW SE, got " << dir << "\n";
 			return new BError( "Invalid facing value" );
 		  }
 
@@ -216,11 +214,10 @@ namespace Pol {
 		}
 		else
 		{
-		  if ( Clib::mlog.is_open() )
-			Clib::mlog << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": " << endl
-			<< "\tCall to function npc::canmove():" << endl
-			<< "\tParameter 0: Expected direction, got datatype "
-			<< BObjectImp::typestr( param0->type() ) << endl;
+          DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
+            << "\tCall to function npc::canmove():\n"
+            << "\tParameter 0: Expected direction, got datatype "
+            << BObjectImp::typestr( param0->type() ) << "\n";
 		  return new BError( "Invalid parameter type" );
 		}
 	  }
@@ -368,10 +365,9 @@ namespace Pol {
 
 		if ( Mobile::DecodeFacing( dir, i_facing ) == false )
 		{
-		  if ( Clib::mlog.is_open() )
-            Clib::mlog << "Script Error in '" << scriptname( ) << "' PC=" << exec.PC << ": " << endl
-			<< "\tCall to function npc::face():" << endl
-			<< "\tParameter 0: Expected direction: N S E W NW NE SW SE, got " << dir << endl;
+          DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
+            << "\tCall to function npc::face():\n"
+            << "\tParameter 0: Expected direction: N S E W NW NE SW SE, got " << dir << "\n";
 		  return NULL;
 		}
 	  }
@@ -382,11 +378,10 @@ namespace Pol {
 	  }
 	  else
 	  {
-        if ( Clib::mlog.is_open( ) )
-          Clib::mlog << "Script Error in '" << scriptname( ) << "' PC=" << exec.PC << ": " << endl
-		  << "\tCall to function npc::face():" << endl
+        DEBUGLOG << "Script Error in '" << scriptname( ) << "' PC=" << exec.PC << ": \n"
+		  << "\tCall to function npc::face():\n"
 		  << "\tParameter 0: Expected direction, "
-		  << ", got datatype " << BObjectImp::typestr( param0->type() ) << endl;
+		  << ", got datatype " << BObjectImp::typestr( param0->type() ) << "\n";
 
 		return NULL;
 	  }
@@ -409,10 +404,9 @@ namespace Pol {
 
         if ( Mobile::DecodeFacing( dir, facing ) == false )
 		{
-          if ( Clib::mlog.is_open( ) )
-            Clib::mlog << "Script Error in '" << scriptname( ) << "' PC=" << exec.PC << ": " << endl
-			<< "\tCall to function npc::move():" << endl
-			<< "\tParameter 0: Expected direction: N S E W NW NE SW SE, got " << dir << endl;
+          DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
+            << "\tCall to function npc::move():\n"
+            << "\tParameter 0: Expected direction: N S E W NW NE SW SE, got " << dir << "\n";
 		  return NULL;
 		}
 
@@ -450,21 +444,19 @@ namespace Pol {
 		}
 		else
 		{
-          if ( Clib::mlog.is_open( ) )
-            Clib::mlog << "Script Error in '" << scriptname( ) << "' PC=" << exec.PC << ": " << endl
-			<< "\tCall to function npc::move():" << endl
-			<< "\tParameter 0: Expected direction or bounding box, "
-			<< ", got datatype " << appobj->object_type() << endl;
+          DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
+            << "\tCall to function npc::move():\n"
+            << "\tParameter 0: Expected direction or bounding box, "
+            << ", got datatype " << BObjectImp::typestr( param0->type() ) << "\n";
 		  return NULL;
 		}
 	  }
 	  else
 	  {
-        if ( Clib::mlog.is_open( ) )
-          Clib::mlog << "Script Error in '" << scriptname( ) << "' PC=" << exec.PC << ": " << endl
-		  << "\tCall to function npc::move():" << endl
-		  << "\tParameter 0: Expected direction or bounding box, "
-		  << ", got datatype " << BObjectImp::typestr( param0->type() ) << endl;
+        DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
+          << "\tCall to function npc::move():\n"
+          << "\tParameter 0: Expected direction or bounding box, "
+          << ", got datatype " << BObjectImp::typestr( param0->type() ) << "\n";
 
 		return NULL;
 	  }
@@ -765,8 +757,6 @@ namespace Pol {
 	  u16 len = msg->offset;
 	  msg->offset = 1;
 	  msg->WriteFlipped<u16>( len );
-
-	  //cout << npc.name() << " ["<<texttype_str<<"] ["<<talkmsg.textdef.type<<"] ["<<doevent<<"] \n";
 
 	  // send to those nearby
       u16 range;

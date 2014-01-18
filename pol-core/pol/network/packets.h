@@ -29,7 +29,6 @@ Notes
 #include "client.h"
 #include "clienttransmit.h"
 
-#include "../../clib/mlog.h" //debug
 namespace Pol {
   namespace Network {
 #define MAX_PACKETS_INSTANCES 100

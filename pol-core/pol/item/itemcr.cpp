@@ -20,7 +20,7 @@ Notes
 
 #include "../../clib/cfgfile.h"
 #include "../../clib/endian.h"
-#include "../../clib/logfile.h"
+#include "../../clib/logfacility.h"
 #include "../../clib/strutil.h"
 
 #include "armor.h"
@@ -69,13 +69,14 @@ namespace Pol {
 	  }
 	  else
 	  {
-		string message = "Objtype not defined: " + Clib::hexint( objtype );
+        fmt::Writer message;
+        message.Format( "Objtype not defined : 0x{:X}" ) << objtype;
 
         if ( !Core::config.ignore_load_errors )
-		  throw runtime_error( message );
+		  throw runtime_error( message.str() );
 		else
 		{
-		  cerr << message << endl;
+          ERROR_PRINT << message.c_str() << "\n";
 		  return NULL;
 		}
 	  }
@@ -201,9 +202,7 @@ namespace Pol {
 		Module::UOExecutorModule* uoemod = start_script( id.control_script, item->make_ref() );
 		if ( !uoemod )
 		{
-		  Clib::Log( "Unable to start control script %s for %s\n",
-			   id.control_script.name().c_str(),
-			   id.objtype_description().c_str() );
+          POLLOG << "Unable to start control script " << id.control_script.name() << " for " << id.objtype_description() << "\n";
 		}
 	  }
 

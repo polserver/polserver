@@ -13,9 +13,10 @@ Notes
 
 #include "../clib/passert.h"
 #include "../clib/tracebuf.h"
+#include "../clib/logfacility.h"
 
-#include "dtrace.h"
 #include "polclock.h"
+#include "polcfg.h"
 #include "polsig.h"
 #include "profile.h"
 #include "schedule.h"
@@ -256,7 +257,7 @@ namespace Pol {
 	  ScheduledTask* task = task_queue.top();
 	  if ( !task->ready( now ) )
 	  {
-		dtrace( 20 ) << "Task " << task << ": " << task->clocksleft( now ) << " clocks left" << endl;
+        INFO_PRINT_TRACE( 20 ) << "Task " << (long long)(reinterpret_cast<const void*>(task)) << ": " << task->clocksleft( now ) << " clocks left\n";
 		return task->clocksleft( now );
 	  }
 	  else

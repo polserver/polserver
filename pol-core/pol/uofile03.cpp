@@ -391,7 +391,7 @@ namespace Pol {
         else
         {
 #ifdef DEBUG_BOATS
-          cout << "Location at " << ax << "," << ay << " has a non-water static: " << hexint( srec.graphic ) << endl;
+          INFO_PRINT << "Location at " << ax << "," << ay << " has a non-water static: 0x" << fmt::hexu( srec.graphic ) << "\n";
 #endif
           return false;
         }
@@ -399,7 +399,7 @@ namespace Pol {
       if ( !onwater )
       {
 #ifdef DEBUG_BOATS
-        cout << "Location at " << ax << "," << ay << " has no water static" << endl;
+        INFO_PRINT << "Location at " << ax << "," << ay << " has no water static\n";
 #endif
         return false;
       }

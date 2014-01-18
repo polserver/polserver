@@ -214,5 +214,13 @@ namespace Pol {
 	  tok.printOn( os );
 	  return os;
 	}
+
+    fmt::Writer& operator << ( fmt::Writer& w, const Token& tok )
+    {
+      ostringstream os;
+      tok.printOn( os );
+      w << os.str();
+      return w;
+    }
   }
 }

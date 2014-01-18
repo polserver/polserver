@@ -15,7 +15,7 @@
 #include "../../clib/stl_inc.h"
 #include "../../clib/clib.h"
 #include "cryptkey.h"
-#include "../../clib/logfile.h"
+#include "../../clib/logfacility.h"
 #include <cstring>
 namespace Pol {
   namespace Crypt {
@@ -70,8 +70,7 @@ namespace Pol {
 		  infoCrypt.eType = CRYPT_NOCRYPT;
 		  infoCrypt.uiKey1 = 0;
 		  infoCrypt.uiKey2 = 0;
-		  cerr << "Malformed encryption version string: " << name << "using Ignition encryption engine" << endl;
-		  Clib::Log( "Malformed encryption version string: %s using Ignition encryption engine\n", name.c_str() );
+          POLLOG_ERROR << "Malformed encryption version string: " << name << "using Ignition encryption engine\n";
 		}
 	  }
 	}

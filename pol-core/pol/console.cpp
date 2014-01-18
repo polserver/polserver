@@ -22,6 +22,7 @@ keyboard kb;
 #include "../clib/cfgfile.h"
 #include "../clib/fileutil.h"
 #include "../clib/stlutil.h"
+#include "../clib/logfacility.h"
 
 #include "polcfg.h"
 #include "polsem.h"
@@ -140,16 +141,18 @@ namespace Pol {
 #endif
 	  if ( ch == '?' )
 	  {
-		cout << "Commands: " << endl;
+        fmt::Writer tmp;
+        tmp << "Commands: \n";
 		for ( unsigned i = 0; i < console_commands.size(); ++i )
 		{
 		  ConsoleCommand& cmd = console_commands[i];
 		  string sc = getcmdstr( cmd.ch );
-		  if ( sc.size() == 1 ) cout << " ";
-		  cout << " " << sc << ": ";
-		  cout << cmd.description << endl;
+		  if ( sc.size() == 1 ) tmp << " ";
+          tmp << " " << sc << ": ";
+          tmp << cmd.description << "\n";
 		}
-		cout << "  ?: Help (This list)" << endl;
+        tmp << "  ?: Help (This list)\n";
+        INFO_PRINT << tmp.c_str();
 		return;
 	  }
 
@@ -157,28 +160,28 @@ namespace Pol {
 	  ConsoleCommand* cmd = find_console_command( ch );
 	  if ( !cmd )
 	  {
-		cout << "Unknown console command: '" << getcmdstr( ch ) << "'" << endl;
+        INFO_PRINT << "Unknown console command: '" << getcmdstr( ch ) << "'\n";
 		return;
 	  }
 	  if ( cmd->script == "[lock]" )
 	  {
 		console_locked = true;
-		cout << "Console is now locked." << endl;
+        INFO_PRINT << "Console is now locked.\n";
 		return;
 	  }
 	  if ( cmd->script == "[unlock]" )
 	  {
 		console_locked = true;
-		cout << "Console is now unlocked." << endl;
+        INFO_PRINT << "Console is now unlocked.\n";
 		return;
 	  }
 	  if ( cmd->script == "[lock/unlock]" )
 	  {
 		console_locked = !console_locked;
 		if ( console_locked )
-		  cout << "Console is now locked." << endl;
+          INFO_PRINT << "Console is now locked.\n";
 		else
-		  cout << "Console is now unlocked." << endl;
+          INFO_PRINT << "Console is now unlocked.\n";
 		return;
 	  }
 	  if ( cmd->script == "[threadstatus]" )
@@ -195,7 +198,7 @@ namespace Pol {
 
 	  if ( console_locked )
 	  {
-		cout << "Console is locked.  Press '" << unlock_char << "' to unlock." << endl;
+        INFO_PRINT << "Console is locked.  Press '" << unlock_char << "' to unlock.\n";
 		return;
 	  }
 
@@ -211,23 +214,23 @@ namespace Pol {
 	  }
 	  catch ( const char *msg )
 	  {
-		cerr << "Command aborted due to: " << msg << endl;
+        ERROR_PRINT << "Command aborted due to: " << msg << "\n";
 	  }
 	  catch ( string& str )
 	  {
-		cerr << "Command aborted due to: " << str << endl;
+        ERROR_PRINT << "Command aborted due to: " << str << "\n";
 	  }       // egcs has some trouble realizing 'exception' should catch
 	  catch ( runtime_error& re )   // runtime_errors, so...
 	  {
-		cerr << "Command aborted due to: " << re.what() << endl;
+        ERROR_PRINT << "Command aborted due to: " << re.what( ) << "\n";
 	  }
 	  catch ( exception& ex )
 	  {
-		cerr << "Command aborted due to: " << ex.what() << endl;
+        ERROR_PRINT << "Command aborted due to: " << ex.what( ) << "\n";
 	  }
 	  catch ( int xn )
 	  {
-		cerr << "Command aborted due to: " << xn << endl;
+        ERROR_PRINT << "Command aborted due to: " << xn << "\n";
 	  }
 	  return;
 	}

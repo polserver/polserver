@@ -21,7 +21,7 @@ Notes
 #include "../../clib/stl_inc.h"
 
 #include "../../clib/fdump.h"
-#include "../../clib/logfile.h"
+#include "../../clib/logfacility.h"
 #include "../../clib/stlutil.h"
 #include "../../clib/strutil.h" //CNXBUG
 #include "../../clib/unicode.h"
@@ -83,7 +83,7 @@ namespace Pol {
 	  cryptengine( create_crypt_engine( encryption ) ),
 	  encrypt_server_stream( 0 ),
 	  msgtype_filter( &Core::login_filter ),
-	  fpLog( NULL ),
+	  fpLog( 0 ),
 	  pause_count( 0 ),
 	  first_xmit_buffer( NULL ),
 	  last_xmit_buffer( NULL ),
@@ -169,7 +169,7 @@ namespace Pol {
 		}
 		else
 		{
-		  cerr << "Uhh...  active character not logged in!??" << endl;
+          ERROR_PRINT << "Uhh...  active character not logged in!??\n";
 		}
 		acct->active_character = NULL;
 	  }
@@ -186,13 +186,12 @@ namespace Pol {
 		chr = NULL;
 	  }
 
-	  if ( fpLog != NULL )
+	  if ( fpLog != 0 )
 	  {
 		time_t now = time( NULL );
-		fprintf( fpLog, "Log closed at %s\n", asctime( localtime( &now ) ) );
-
-		fclose( fpLog );
-		fpLog = NULL;
+        FLEXLOG( fpLog ) << "Log closed at " << asctime( localtime( &now ) ) << "\n";
+        CLOSE_FLEXLOG( fpLog );
+		fpLog = 0;
 	  }
 
 	  delete gd;
@@ -311,7 +310,7 @@ namespace Pol {
 		detail.minor = 0;
 		detail.rev = 0;
 		detail.patch = 0;
-		Clib::Log2( "Malformed clientversion string: %s\n", ver.c_str() );
+        POLLOG.Format( "Malformed clientversion string: {}\n" ) << ver;
 	  }
 	}
 
@@ -439,8 +438,8 @@ namespace Pol {
 	  else
 	  {
 		THREAD_CHECKPOINT( active_client, 307 );
-		Clib::Log( "Client#%lu: Unable to allocate %d bytes for queued data.  Disconnecting.\n",
-			 instance_, sizeof(Core::XmitBuffer)-1 + datalen );
+        POLLOG.Format( "Client#{}: Unable to allocate {} bytes for queued data.  Disconnecting.\n" )
+          << instance_ << ( sizeof( Core::XmitBuffer ) - 1 + datalen );
 		disconnect = true;
 	  }
 	  THREAD_CHECKPOINT( active_client, 309 );
@@ -479,8 +478,7 @@ namespace Pol {
 		if ( sckerr == SOCKET_ERRNO( EWOULDBLOCK ) )
 		{
 		  THREAD_CHECKPOINT( active_client, 205 );
-		  Clib::Log( "Client#%lu: Switching to queued data mode (1, %u bytes)\n", instance_, (unsigned)datalen );
-		  cerr << "Switching to queued data mode (1, " << datalen << " bytes)" << endl;
+          POLLOG_ERROR.Format( "Client#{}: Switching to queued data mode (1, {} bytes)\n" ) << instance_ << datalen;
 		  THREAD_CHECKPOINT( active_client, 206 );
 		  queue_data( data, datalen );
 		  THREAD_CHECKPOINT( active_client, 207 );
@@ -489,8 +487,8 @@ namespace Pol {
 		else
 		{
 		  THREAD_CHECKPOINT( active_client, 208 );
-		  if ( !disconnect )
-			Clib::Log( "Client#%lu: Disconnecting client due to send() error (1): %d\n", instance_, sckerr );
+          if ( !disconnect )
+            POLLOG_ERROR.Format( "Client#{}: Disconnecting client due to send() error (1): {}\n" ) << instance_ << sckerr;
 		  disconnect = 1;
 		  THREAD_CHECKPOINT( active_client, 209 );
 		  return;
@@ -505,8 +503,7 @@ namespace Pol {
 		if ( datalen )	// anything left? if so, queue for later.
 		{
 		  THREAD_CHECKPOINT( active_client, 211 );
-		  Clib::Log( "Client#%lu: Switching to queued data mode (2)\n", instance_ );
-		  cerr << "Switching to queued data mode (2)" << endl;
+          POLLOG_ERROR.Format( "Client#{}: Switching to queued data mode (2)\n" ) << instance_;
 		  THREAD_CHECKPOINT( active_client, 212 );
 		  queue_data( cdata + nsent, datalen );
 		  THREAD_CHECKPOINT( active_client, 213 );
@@ -542,8 +539,8 @@ namespace Pol {
 		  }
 		  else
 		  {
-			if ( !disconnect )
-			  Clib::Log( "Client#%lu: Disconnecting client due to send() error (2): %d\n", instance_, sckerr );
+            if ( !disconnect )
+              POLLOG.Format( "Client#{}: Disconnecting client due to send() error (2): {}\n" ) << instance_ << sckerr;
 			disconnect = 1;
 			return;
 		  }
@@ -560,7 +557,7 @@ namespace Pol {
 			if ( first_xmit_buffer == NULL )
 			{
 			  last_xmit_buffer = NULL;
-			  Clib::Log( "Client#%lu: Leaving queued mode (%ld bytes xmitted)\n", instance_, queued_bytes_counter );
+              POLLOG.Format( "Client#{}: Leaving queued mode ({} bytes xmitted)\n" ) << instance_ << queued_bytes_counter;
 			  queued_bytes_counter = 0;
 			}
 			free( xbuffer );
@@ -588,7 +585,6 @@ namespace Pol {
 		xmit( pause_pre_encrypted, sizeof pause_pre_encrypted );
 #endif
 		paused_ = true;
-		// cout << "Client#" << instance_ << " paused" << endl;
 	  }
 	}
 
@@ -614,7 +610,6 @@ namespace Pol {
 #else
 		xmit( restart_pre_encrypted, sizeof restart_pre_encrypted );
 #endif
-		// cout << "Client#" << instance_ << " restarted" << endl;
 		paused_ = false;
 	  }
 	}
@@ -637,8 +632,7 @@ namespace Pol {
 	  {
 		if ( movementqueue.size() > 100 )
 		{
-		  Clib::Log2( "Client#%lu: More then 100 Movepackets in queue.  Disconnecting.\n",
-				instance_ );
+          POLLOG_ERROR.Format( "Client#{}: More then 100 Movepackets in queue.  Disconnecting.\n" ) << instance_;
 		  disconnect = true;
 		  return false;
 		}
@@ -662,8 +656,7 @@ namespace Pol {
 		{
 		  if ( movementqueue.size() > 100 )
 		  {
-            Clib::Log2( "Client#%lu: More then 100 Movepackets in queue.  Disconnecting.\n",
-				  instance_ );
+            POLLOG_ERROR.Format( "Client#{}: More then 100 Movepackets in queue.  Disconnecting.\n" ) << instance_;
 			disconnect = true;
 			return false;
 		  }

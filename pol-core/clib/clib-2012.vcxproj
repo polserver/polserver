@@ -236,12 +236,10 @@
     <ClCompile Include="forspcnt.cpp" />
     <ClCompile Include="iohelp.cpp" />
     <ClCompile Include="logfacility.cpp" />
-    <ClCompile Include="logfile.cpp" />
     <ClCompile Include="MD5.cpp" />
     <ClCompile Include="mdump.cpp" />
     <ClCompile Include="mlog.cpp" />
     <ClCompile Include="msjexhnd.cpp" />
-    <ClCompile Include="nlogfile.cpp" />
     <ClCompile Include="NTService.cpp" />
     <ClCompile Include="opnew.cpp" />
     <ClCompile Include="passert.cpp" />
@@ -294,7 +292,6 @@
     <ClInclude Include="fixalloc.h" />
     <ClInclude Include="iohelp.h" />
     <ClInclude Include="logfacility.h" />
-    <ClInclude Include="logfile.h" />
     <ClInclude Include="maputil.h" />
     <ClInclude Include="MD5.h" />
     <ClInclude Include="mdump.h" />
@@ -302,7 +299,6 @@
     <ClInclude Include="message_queue.h" />
     <ClInclude Include="mlog.h" />
     <ClInclude Include="msjexhnd.h" />
-    <ClInclude Include="nlogfile.h" />
     <ClInclude Include="NTService.h" />
     <ClInclude Include="ntservmsg.h" />
     <ClInclude Include="opnew.h" />

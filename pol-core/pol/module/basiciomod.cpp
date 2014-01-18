@@ -8,6 +8,7 @@ Notes
 */
 
 #include "../../clib/stl_inc.h"
+#include "../../clib/logfacility.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -24,7 +25,7 @@ namespace Pol {
     
 	Bscript::BObjectImp* BasicIoExecutorModule::print()
 	{
-	  cout_ << exec.getParamImp( 0 )->getStringRep() << endl;
+	  INFO_PRINT << exec.getParamImp( 0 )->getStringRep() << "\n";
 	  return new Bscript::UninitObject;
 	}
 

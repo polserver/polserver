@@ -32,7 +32,7 @@ Notes
 #include "../clib/clib.h"
 #include "../clib/endian.h"
 #include "../clib/fdump.h"
-#include "../clib/logfile.h"
+#include "../clib/logfacility.h"
 #include "../clib/strutil.h"
 
 #include "../clib/stlutil.h"
@@ -114,21 +114,14 @@ namespace Pol {
 			// only allow: a-z, A-Z & spaces
 			if ( *p != ' ' && !isalpha( *p ) )
 			{
-			  char buffer[512];
-			  sprintf( buffer, "Client #%lu (account %s) attempted an invalid rename (packet 0x%2.02x):",
-					   static_cast<unsigned long>( client->instance_ ),
-					   ( client->acct != NULL ) ? client->acct->name() : "unknown",
-					   msg->msgtype );
-			  cout << buffer << endl;
-			  Clib::fdump( stdout, msg->name, static_cast<int>( strlen( msg->name ) ) );
-
-              if ( Clib::logfile )
-			  {
-                Clib::Log( "%s\n", buffer );
-                Clib::fdump( Clib::logfile, msg->name, static_cast<int>( strlen( msg->name ) ) );
-			  }
-
-			  *p = '\0';
+              fmt::Writer tmp;
+              tmp.Format( "Client#{} (account {}) attempted an invalid rename (packet 0x{:X}):\n{}\n" )
+                << client->instance_
+                << ( ( client->acct != NULL ) ? client->acct->name() : "unknown" )
+                << (int)msg->msgtype << msg->name;
+              Clib::fdump( tmp, msg->name, static_cast<int>( strlen( msg->name ) ) );
+              POLLOG_INFO << tmp.c_str();
+              *p = '\0';
 			  send_sysmessage( client, "Invalid name!" );
 			  return; //dave 12/26 if invalid name, do not apply to chr!
 			}
@@ -263,7 +256,7 @@ namespace Pol {
 	  }
 	  else
 	  {
-        Clib::Log2( "Suspect string length in PKTBI_BD packet: %u\n", (unsigned)len );
+		  POLLOG_INFO << "Suspect string length in PKTBI_BD packet: " << len << "\n";
 	  }
 	}
 	MESSAGE_HANDLER_VARLEN( PKTBI_BD, handle_client_version );
@@ -480,7 +473,7 @@ namespace Pol {
 		  client->setClientType( CLIENTTYPE_UOSA );
 		  break;
 		default:
-		  printf( "Unknown client type send with packet 0xE1 : 0x%lx\n", static_cast<unsigned long>( cfBEu32( msg->clienttype ) ) );
+          INFO_PRINT << "Unknown client type send with packet 0xE1 : 0x" << fmt::hexu(static_cast<unsigned long>( cfBEu32( msg->clienttype ) ) ) << "\n";
 		  break;
 	  }
 	}
@@ -489,10 +482,6 @@ namespace Pol {
 
 	void handle_aos_commands( Client *client, PKTBI_D7* msg )
 	{
-	  //cout <<" Sizeof: " << sizeof(PKTBI_D7) << endl;
-	  //cout << "Received AOS command: " << cfBEu16(msg->msglen) << " " << cfBEu16(msg->subcmd) << endl;
-	  //fdump (stdout, client->buffer, client->bytes_received);
-
 	  //should check if serial is valid? client->chr->serial == msg->serial?
 
 	  switch ( cfBEu16( msg->subcmd ) )

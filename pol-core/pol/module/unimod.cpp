@@ -16,7 +16,7 @@ Notes
 #endif
 
 #include "../../clib/endian.h"
-#include "../../clib/logfile.h"
+#include "../../clib/logfacility.h"
 #include "../../clib/stlutil.h"
 #include "../../clib/strutil.h"
 #include "../../clib/unicode.h"
@@ -101,11 +101,9 @@ namespace Pol {
             ok = false;
             valstack = new Bscript::BObject( new Bscript::BError( "Invalid control characters in text entry" ) );
 
-            sprintf( Module::gtext, "Client #%lu (account %s) sent invalid unicode control characters (RequestInputUC)",
-                     static_cast<unsigned long>( client->instance_ ),
-                     ( client->acct != NULL ) ? client->acct->name() : "unknown" );
-            cerr << Module::gtext << endl;
-            Clib::Log( "%s\n", Module::gtext );
+            POLLOG_ERROR << "Client #" << static_cast<unsigned long>( client->instance_ )
+              << " (account " << (( client->acct != NULL ) ? client->acct->name() : "unknown")
+              << ") sent invalid unicode control characters (RequestInputUC)\n";
             break; //for
           }
           uc_text.addElement( new Bscript::BLong( wc ) );
@@ -153,7 +151,6 @@ namespace Pol {
   }
   namespace Module {
     using namespace Bscript;
-    char gtext[2 * 1024];
     u16 gwtext[( SPEECH_MAX_LEN + 1 )];
 
 	UnicodeExecutorModule::UnicodeExecutorModule( Executor& exec ) :

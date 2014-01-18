@@ -15,6 +15,7 @@ Notes
 #include <stdlib.h>
 
 #include "../clib/strutil.h"
+#include "../clib/logfacility.h"
 
 #include "tokens.h"
 #include "symcont.h"
@@ -222,8 +223,8 @@ namespace Pol {
 	{
 	  if ( offset != aOffset )
 	  {
-		cerr << "Data segment overflowed." << endl
-		  << "Flog the programmer for using 2-byte offsets in datafiles." << endl;
+        ERROR_PRINT << "Data segment overflowed.\n"
+          << "Flog the programmer for using 2-byte offsets in datafiles.\n";
 		throw runtime_error( "Data segment overflowed" );
 	  }
 	}

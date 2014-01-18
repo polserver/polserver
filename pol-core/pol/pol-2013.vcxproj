@@ -308,7 +308,6 @@
     <ClCompile Include="loaddata.cpp" />
     <ClCompile Include="loadunld.cpp" />
     <ClCompile Include="lockable.cpp" />
-    <ClCompile Include="logfiles.cpp" />
     <ClCompile Include="login.cpp" />
     <ClCompile Include="los.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -548,7 +547,6 @@
     <ClInclude Include="decay.h" />
     <ClInclude Include="dice.h" />
     <ClInclude Include="door.h" />
-    <ClInclude Include="dtrace.h" />
     <ClInclude Include="equipdsc.h" />
     <ClInclude Include="eventid.h" />
     <ClInclude Include="exscrobj.h" />
@@ -566,7 +564,6 @@
     <ClInclude Include="loaddata.h" />
     <ClInclude Include="loadunld.h" />
     <ClInclude Include="lockable.h" />
-    <ClInclude Include="logfiles.h" />
     <ClInclude Include="los.h" />
     <ClInclude Include="mdelta.h" />
     <ClInclude Include="menu.h" />

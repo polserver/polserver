@@ -13,7 +13,6 @@ Notes
 #include "../clib/stl_inc.h"
 
 #include "../bscript/eprog.h"
-#include "../clib/logfile.h"
 #include "accounts/account.h"
 #include "mobile/attribute.h"
 #include "mobile/charactr.h"

@@ -9,7 +9,8 @@ Notes
 
 #include "../clib/stl_inc.h"
 
-#include "../clib/logfile.h"
+#include "../clib/logfacility.h"
+
 
 #include "polcfg.h"
 #include "checkpnt.h"
@@ -21,7 +22,7 @@ namespace Pol {
 	  last_checkpoint = msg;
 	  if ( config.loglevel >= minlvl )
 	  {
-		cout << "checkpoint: " << msg << endl;
+        POLLOG_INFO << "checkpoint: " << msg << "\n";
 	  }
 	}
 
@@ -29,8 +30,8 @@ namespace Pol {
 	{}
 	Checkpoint::~Checkpoint()
 	{
-	  if ( _line )
-		Clib::Log2( "Abnormal end after checkpoint: File %s, line %u\n", _file, _line );
+      if ( _line )
+        POLLOG_ERROR << "Abnormal end after checkpoint: File " << _file << ", line " << _line << "\n";
 	}
   }
 }

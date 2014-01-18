@@ -96,7 +96,6 @@ namespace Pol {
 	}
 	BSQLRow::~BSQLRow()
 	{
-	  //	cout<<"Destructed row"<<endl;
 	}
 	BSQLResultSet::BSQLResultSet( MYSQL_RES *result ) : Bscript::BObjectImp( OTSQLResultSet ), _result( result ), _affected_rows( 0 )
 	{
@@ -199,7 +198,6 @@ namespace Pol {
 	{
 	  if ( _conn ) mysql_close( _conn );
 	  _conn = 0;
-	  //	cout<<"Destructed connection"<<endl;
 	}
 	std::string BSQLConnection::getStringRep() const
 	{

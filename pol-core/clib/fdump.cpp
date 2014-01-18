@@ -7,59 +7,53 @@ Notes
 
 */
 
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
 #include <ctype.h>
 
 #include "fdump.h"
+#include "logfacility.h"
 
 namespace Pol {
   namespace Clib {
-	static const char *dump16( const void *data, int len )
-	{
-	  int i;
-	  static char buf[80];
-	  char temp[10];
-	  const unsigned char *s = (const unsigned char *)data;
-	  buf[0] = '\0';
 
-	  for( i = 0; i < 16; i++ )
-	  {
-		if( i < len )
-		  sprintf( temp, "%2.02x ", s[i] );
-		else
-		  strcpy( temp, "   " );
-		strcat( buf, temp );
-		if( i == 7 )
-		  strcat( buf, " " );
-	  }
-	  strcat( buf, "  " );
-	  temp[1] = '\0';
-	  for( i = 0; i < 16; i++ )
-	  {
-		if( i >= len || !isprint( s[i] ) )
-		  temp[0] = '.';
-		else
-		  temp[0] = s[i];
-		strcat( buf, temp );
-		if( i == 7 )
-		  strcat( buf, " " );
-	  }
-	  return buf;
-	}
+    void dump16( fmt::Writer& writer, const unsigned char *s, int len )
+    {
+      int i;
+      for ( i = 0; i < 16; i++ )
+      {
+        if ( i < len )
+          writer.Format( "{:02x} " ) << (int)s[i];
+        else
+          writer << "   ";
+        if ( i == 7 )
+          writer << " ";
+      }
+      writer << "  ";
 
-	void fdump( FILE *fp, const void *data, int len )
-	{
-	  int i;
-	  const unsigned char *s = (const unsigned char *)data;
+      for ( i = 0; i < 16; i++ )
+      {
+        if ( i >= len || !isprint( s[i] ) )
+          writer << '.';
+        else
+          writer.Format("{}") << s[i];
 
-	  for( i = 0; i < len; i += 16 )
-	  {
-		int nprint = len - i;
-		if( nprint > 16 ) nprint = 16;
-		fprintf( fp, "%4.04x: %s\n", i, dump16( &s[i], nprint ) );
-	  }
-	}
+        if ( i == 7 )
+          writer << ' ';
+      }
+      writer << '\n';
+    }
+
+    void fdump( fmt::Writer& writer, const void *data, int len )
+    {
+      int i;
+      const unsigned char *s = (const unsigned char *)data;
+
+      for ( i = 0; i < len; i += 16 )
+      {
+        int nprint = len - i;
+        if ( nprint > 16 ) nprint = 16;
+        writer.Format( "{:04x}" ) << i;
+        dump16( writer, &s[i], nprint );
+      }
+    }
   }
 }

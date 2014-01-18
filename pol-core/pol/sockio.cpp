@@ -18,6 +18,7 @@ Notes
 #include "../clib/endian.h"
 #include "../clib/clib.h"
 #include "../clib/strutil.h"
+#include "../clib/logfacility.h"
 
 #include "sockio.h"
 
@@ -33,25 +34,25 @@ namespace Pol {
 	void set_ip_address( const char* ip )
 	{
 	  strzcpy( ipaddr_str, ip, sizeof ipaddr_str );
-	  cout << "Internet IP address is " << ipaddr_str << endl;
+	  POLLOG_INFO << "Internet IP address is " << ipaddr_str << "\n";
 	}
 	void set_lan_address( const char* ip )
 	{
 	  strzcpy( lanaddr_str, ip, sizeof lanaddr_str );
-	  cout << "LAN IP address is " << lanaddr_str << endl;
+      POLLOG_INFO << "LAN IP address is " << lanaddr_str << "\n";
 	}
 
 	void search_name( const char* hostname )
 	{
 	  struct		sockaddr_in server;
-	  cout << "hostname is " << hostname << endl;
+      POLLOG_INFO << "hostname is " << hostname << "\n";
 	  struct hostent* he = gethostbyname( hostname );
 	  for ( int i = 0; ( he != NULL ) && ( he->h_addr_list[i] != NULL ); ++i )
 	  {
 		memcpy( &server.sin_addr, he->h_addr_list[i], he->h_length );
 
 		const char* adstr = inet_ntoa( ( struct in_addr )server.sin_addr );
-		cout << "address: " << adstr << endl;
+        POLLOG_INFO << "address: " << adstr << "\n";
 
 		if ( strncmp( adstr, "192.168.", 8 ) == 0 ||
 			 strncmp( adstr, "10.", 3 ) == 0 ||
@@ -87,14 +88,14 @@ namespace Pol {
 	  res = WSAStartup( WSOCK_VERSION, &wsa_data );
 	  if ( res < 0 )
 	  {
-		cout << "Error starting Winsock 1.1: " << res << endl;
+        POLLOG_ERROR << "Error starting Winsock 1.1: " << res << "\n";
 		return -1;
 	  }
 #endif
 
 	  if ( gethostname( hostname, sizeof hostname ) )
 	  {
-		cout << "gethostname failed: " << socket_errno << endl;
+        POLLOG_ERROR << "gethostname failed: " << socket_errno << "\n";
 	  }
 	  search_name( hostname );
 
@@ -115,7 +116,7 @@ namespace Pol {
 	  res = WSACleanup();
 	  if ( res < 0 )
 	  {
-		cout << "Error stopping Winsock 1.1: " << res << endl;
+        POLLOG_ERROR << "Error stopping Winsock 1.1: " << res << "\n";
 		return -1;
 	  }
 #endif
@@ -166,7 +167,7 @@ namespace Pol {
 	  res = setsockopt( sck, IPPROTO_TCP, TCP_NODELAY, (const char *) &tcp_nodelay, sizeof(tcp_nodelay) );
 	  if (res < 0)
 	  {
-		cout << "Unable to setsockopt (TCP_NODELAY) on listening socket, res=" << res << endl;
+        POLLOG_ERROR << "Unable to setsockopt (TCP_NODELAY) on listening socket, res=" << res << "\n";
 		return -1;
 	  }
 #endif

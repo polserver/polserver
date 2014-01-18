@@ -73,15 +73,12 @@ Notes
 #include <stdio.h>
 #include <string.h>
 
-#include "dtrace.h"
 #include "../clib/dualbuf.h"
 #include "../clib/endian.h"
 #include "../clib/esignal.h"
 #include "../clib/fdump.h"
 #include "../clib/fileutil.h"
-#include "../clib/logfile.h"
 #include "../clib/MD5.h"
-#include "../clib/mlog.h"
 #include "../clib/passert.h"
 #include "../clib/random.h"
 #include "../clib/stlutil.h"
@@ -113,7 +110,6 @@ Notes
 #include "item/itemdesc.h"
 #include "lightlvl.h"
 #include "loadunld.h"
-#include "logfiles.h"
 #include "miscrgn.h"
 #include "msghandl.h"
 #include "msgfiltr.h"
@@ -160,6 +156,8 @@ Notes
 
 #include "stubdata.h"
 #include "uimport.h"
+
+#include "../clib/logfacility.h"
 
 #ifdef _WIN32
 #include "../clib/mdump.h"
@@ -365,7 +363,6 @@ namespace Pol {
 			if ( client->chr->registered_house == 0 )
 			{
 			  client->chr->registered_house = supporting_multi->serial;
-			  //cout << "walk on multi triggered" << endl;
 			  this_house->walk_on( client->chr );
 			}
 		  }
@@ -499,15 +496,15 @@ namespace Pol {
 
 	  Mobile::Character *chosen_char = client->acct->get_character( charidx );
 
-	  Clib::Log( "Account %s selecting character %s\n",
-		   client->acct->name(),
-		   chosen_char->name().c_str() );
+      POLLOG.Format( "Account {} selecting character {}\n" )
+        << client->acct->name()
+        << chosen_char->name();
 
 	  if ( config.min_cmdlevel_to_login > chosen_char->cmdlevel )
 	  {
-		Clib::Log( "Account %s with character %s doesn't fit MinCmdlevelToLogin from pol.cfg. Client disconnected by Core.\n",
-			 client->acct->name(),
-			 chosen_char->name().c_str() );
+        POLLOG.Format( "Account {} with character {} doesn't fit MinCmdlevelToLogin from pol.cfg. Client disconnected by Core.\n" )
+          << client->acct->name()
+          << chosen_char->name();
 
 		send_login_error( client, LOGIN_ERROR_MISC );
 		client->Disconnect();
@@ -518,10 +515,9 @@ namespace Pol {
 	  if ( ( ( std::count_if( clients.begin(), clients.end(), clientHasCharacter ) ) >= config.max_clients ) &&
 		   ( chosen_char->cmdlevel < config.max_clients_bypass_cmdlevel ) )
 	  {
-		Clib::Log( "To much clients connected. Check MaximumClients and/or MaximumClientsBypassCmdLevel in pol.cfg.\n"
-			 "Account %s with character %s Client disconnected by Core.\n",
-			 client->acct->name(),
-			 chosen_char->name().c_str() );
+        POLLOG.Format( "To much clients connected. Check MaximumClients and/or MaximumClientsBypassCmdLevel in pol.cfg.\nAccount {} with character {} Client disconnected by Core.\n" )
+          << client->acct->name()
+          << chosen_char->name();
 
 		send_login_error( client, LOGIN_ERROR_MISC );
 		client->Disconnect();
@@ -613,20 +609,22 @@ namespace Pol {
 	{
 	  if ( config.display_unknown_packets )
 	  {
-		printf( "Unknown packet type 0x%2.02x: %u bytes (IP:%s, Account:%s)\n",
-				client->buffer[0], client->bytes_received,
-				client->ipaddrAsString().c_str(), ( client->acct != NULL ) ? client->acct->name() : "None" );
+        fmt::Writer tmp;
+        tmp.Format( "Unknown packet type 0x{:X}: {} bytes (IP:{}, Account:{})\n" )
+          << (int)client->buffer[0] << client->bytes_received
+          << client->ipaddrAsString() << ( ( client->acct != NULL ) ? client->acct->name() : "None" );
 
-		if ( client->bytes_received <= 64 )
-		  Clib::fdump( stdout, client->buffer, client->bytes_received );
-
-        if ( Clib::logfile )
-		{
-          fprintf( Clib::logfile, "Unknown packet type 0x%2.02x: %u bytes (IP:%s, Account:%s)\n",
-				   client->buffer[0], client->bytes_received,
-				   client->ipaddrAsString().c_str(), ( client->acct != NULL ) ? client->acct->name() : "None" );
-          Clib::fdump( Clib::logfile, client->buffer, client->bytes_received );
-		}
+        if ( client->bytes_received <= 64 )
+        {
+          Clib::fdump( tmp, &client->buffer, client->bytes_received );
+          POLLOG_INFO << tmp.c_str()<<"\n";
+        }
+        else
+        {
+          INFO_PRINT << tmp.c_str() << "\n";
+          Clib::fdump( tmp, &client->buffer, client->bytes_received );
+          POLLOG << tmp.c_str() << "\n";
+        }
 	  }
 	}
 
@@ -667,30 +665,28 @@ namespace Pol {
 
 		unsigned char msgtype = client->buffer[0];
 		client->last_msgtype = msgtype; //CNXBUG
-		if ( config.verbose )
-		  printf( "Incoming msg type: %x\n", msgtype );
+        if ( config.verbose )
+          INFO_PRINT.Format( "Incoming msg type: 0x{:X}\n" ) << (int)msgtype;
 
 		if ( ( !handler[msgtype].msglen ) && ( !handler_v2[msgtype].msglen ) )
 		{
-		  printf( "Undefined message type %2.02x\n", (unsigned char)msgtype );
+          INFO_PRINT.Format( "Undefined message type 0x{:X}\n" ) << (int)msgtype;
 		  client->recv_remaining( sizeof client->buffer / 2 );
-		  printf( "Unexpected message type %2.02x, %u bytes (IP:%s, Account:%s)\n",
-				  (unsigned char)msgtype, client->bytes_received,
-				  client->ipaddrAsString().c_str(), ( client->acct != NULL ) ? client->acct->name() : "None" );
-
-          if ( Clib::logfile )
-		  {
-            fprintf( Clib::logfile,
-					 "Client#%lu: Unexpected message type %2.02x, %u bytes (IP:%s, Account:%s)\n",
-					 static_cast<unsigned long>( client->instance_ ),
-					 (unsigned char)msgtype,
-					 client->bytes_received,
-					 client->ipaddrAsString().c_str(), ( client->acct != NULL ) ? client->acct->name() : "None" );
-            Clib::fdump( Clib::logfile, client->buffer, client->bytes_received );
-		  }
-
-		  if ( client->bytes_received <= 64 )
-            Clib::fdump( stdout, client->buffer, client->bytes_received );
+          fmt::Writer tmp;
+          tmp.Format( "Client#{}: Unexpected message type 0x{:X}, {} bytes( IP : {}, Account : {} )\n" )
+            << client->instance_  << (int)msgtype << client->bytes_received
+            << client->ipaddrAsString() << ( ( client->acct != NULL ) ? client->acct->name() : "None" );
+          if ( client->bytes_received <= 64 )
+          {
+            Clib::fdump( tmp, client->buffer, client->bytes_received );
+            POLLOG_INFO << tmp.c_str() << "\n";
+          }
+          else
+          {
+            INFO_PRINT << tmp.c_str();
+            Clib::fdump( tmp, client->buffer, client->bytes_received );
+            POLLOG << tmp.c_str() << "\n";
+          }
 
 		  // remain in RECV_STATE_MSGTYPE_WAIT
 
@@ -735,17 +731,17 @@ namespace Pol {
 		  client->message_length = ( client->buffer[1] << 8 ) + client->buffer[2];
 		  if ( client->message_length > sizeof client->buffer )
 		  {
-            Clib::Log2( "Client#%lu: Too-long message type %u length %u\n",
-				  client->instance_,
-				  client->buffer[0],
-				  client->message_length );
+            POLLOG_INFO.Format( "Client#{}: Too-long message type 0x{:X} length {}\n" )
+              << client->instance_
+              << (int)client->buffer[0]
+              << client->message_length;
 			client->message_length = sizeof client->buffer;
 		  }
 		  else if ( client->message_length < 3 )
 		  {
-            Clib::Log2( "Client#%lu: Too-short message length of %u\n",
-				  client->instance_,
-				  client->message_length );
+            POLLOG_INFO.Format( "Client#{}: Too-short message length of {}\n" )
+              << client->instance_
+              << client->message_length;
 			client->message_length = 3;
 		  }
 		  client->recv_state = Network::Client::RECV_STATE_MSGDATA_WAIT;
@@ -763,16 +759,16 @@ namespace Pol {
 		  unsigned char msgtype = client->buffer[0];
 		  Network::iostats.received[msgtype].count++;
           Network::iostats.received[msgtype].bytes += client->message_length;
-		  if ( client->fpLog != NULL )
+		  if ( client->fpLog != 0 )
 		  {
-			PolLock lck;
-			fprintf( client->fpLog, "Client -> Server: 0x%X, %u bytes\n", msgtype, client->message_length );
-            Clib::fdump( client->fpLog, &client->buffer, client->message_length );
-			fprintf( client->fpLog, "\n" );
+            fmt::Writer tmp;
+            tmp << "Client -> Server: 0x" << fmt::hexu( msgtype ) << ", " << client->message_length<< " bytes\n";
+            Clib::fdump( tmp, &client->buffer, client->message_length );
+            FLEXLOG( client->fpLog ) << tmp.c_str( ) << "\n";
 		  }
 
-		  if ( config.verbose )
-			printf( "Message Received: Type 0x%X, Length %u bytes\n", msgtype, client->message_length );
+          if ( config.verbose )
+            INFO_PRINT.Format( "Message Received: Type 0x{:X}, Length {} bytes\n" ) << (int)msgtype << client->message_length;
 
 		  PolLock lck; //multithread
 		  // it can happen that a client gets disconnected while waiting for the lock.
@@ -796,7 +792,7 @@ namespace Pol {
 			  {
 				try
 				{
-                  dtrace( 10 ) << "Client#" << client->instance_ << ": message " << Clib::hexint( static_cast<unsigned short>( msgtype ) ) << endl;
+                  INFO_PRINT_TRACE( 10 ) << "Client#" << client->instance_ << ": message 0x" << fmt::hexu( msgtype) << "\n";
 				  CLIENT_CHECKPOINT( 26 );
 				  ( *handler_v2[msgtype].func )( client, client->buffer );
 				  CLIENT_CHECKPOINT( 27 );
@@ -804,12 +800,13 @@ namespace Pol {
 				}
 				catch ( std::exception& ex )
 				{
-                  Clib::Log2( "Client#%lu: Exception in message handler 0x%02.02x: %s\n",
-						client->instance_,
-						msgtype,
-						ex.what() );
-                  if ( Clib::logfile )
-                    Clib::fdump( Clib::logfile, client->buffer, client->bytes_received );
+                  POLLOG_ERROR.Format( "Client#{}: Exception in message handler 0x{:X}: {}\n" )
+                    << client->instance_
+                    << (int)msgtype
+                    << ex.what();
+                  fmt::Writer tmp;
+                  Clib::fdump( tmp, client->buffer, client->bytes_received );
+                  POLLOG << tmp.c_str( ) << "\n";
 				  restart_all_clients();
 				  throw;
 				}
@@ -818,7 +815,7 @@ namespace Pol {
 			  {
 				try
 				{
-                  dtrace( 10 ) << "Client#" << client->instance_ << ": message " << Clib::hexint( static_cast<unsigned short>( msgtype ) ) << endl;
+                  INFO_PRINT_TRACE( 10 ) << "Client#" << client->instance_ << ": message 0x" << fmt::hexu( msgtype ) << "\n";
 				  CLIENT_CHECKPOINT( 26 );
 				  ( *handler[msgtype].func )( client, client->buffer );
 				  CLIENT_CHECKPOINT( 27 );
@@ -826,12 +823,13 @@ namespace Pol {
 				}
 				catch ( std::exception& ex )
 				{
-                  Clib::Log2( "Client#%lu: Exception in message handler 0x%02.02x: %s\n",
-						client->instance_,
-						msgtype,
-						ex.what() );
-                  if ( Clib::logfile )
-                    Clib::fdump( Clib::logfile, client->buffer, client->bytes_received );
+                  POLLOG_ERROR.Format( "Client#{}: Exception in message handler 0x{:X}: {}\n" )
+                    << client->instance_
+                    << (int)msgtype
+                    << ex.what();
+                  fmt::Writer tmp;
+                  Clib::fdump( tmp, client->buffer, client->bytes_received );
+                  POLLOG << tmp.c_str() << "\n";
 				  restart_all_clients();
 				  throw;
 				}
@@ -839,11 +837,11 @@ namespace Pol {
 			}
 			else
 			{
-              Clib::Log2( "Client#%lu (%s, Acct %s) sent non-allowed message type %x.\n",
-					client->instance_,
-                    Network::AddressToString( &client->ipaddr ),
-					client->acct ? client->acct->name() : "unknown",
-					msgtype );
+              POLLOG_ERROR.Format( "Client#{} ({}, Acct {}) sent non-allowed message type 0x{:X}.\n" )
+                << client->instance_
+                << Network::AddressToString( &client->ipaddr )
+                << ( client->acct ? client->acct->name() : "unknown" )
+                << (int)msgtype;
 			}
 		  }
 		  client->recv_state = Network::Client::RECV_STATE_MSGTYPE_WAIT;
@@ -867,7 +865,7 @@ namespace Pol {
 		  {
 			if ( config.verbose )
 			{
-			  printf( "UOKR Seed Message Received: Type 0x%X\n", cstype );
+              INFO_PRINT.Format( "UOKR Seed Message Received: Type 0x{:X}\n" ) << (int)cstype;
 			}
             Network::PktHelper::PacketOut<Network::PktOut_E3> msg;
 			msg->WriteFlipped<u16>( static_cast<u16>( 77 ) );
@@ -904,7 +902,7 @@ namespace Pol {
 		  {
 			if ( config.verbose )
 			{
-			  printf( "6.0.5.0+ Crypt Seed Message Received: Type 0x%X\n", cstype );
+              INFO_PRINT.Format( "6.0.5.0+ Crypt Seed Message Received: Type 0x{:X}\n") << (int)cstype;
 			}
 			client->recv_state = Network::Client::RECV_STATE_CLIENTVERSION_WAIT;
 		  }
@@ -940,26 +938,18 @@ namespace Pol {
 	{
 	  Clients::iterator itr = clients.begin();
 	  while ( itr != clients.end() )
-	  {
+	  { 
 		Network::Client* client = *itr;
 		if ( !client->isReallyConnected() )
 		{
-		  OSTRINGSTREAM os;
-		  os << "Disconnecting Client " << client << "(";
-		  if ( client->acct )
-			os << client->acct->name();
-		  else
-			os << "[no account]";
-		  os << "/";
-		  if ( client->chr )
-			os << client->chr->name();
-		  else
-			os << "[no character]";
-		  os << ")" << endl;
-
-		  cerr << OSTRINGSTREAM_STR( os ) << endl;
-		  if ( config.loglevel >= 4 )
-			Clib::Log( "%s", OSTRINGSTREAM_STR( os ).c_str() );
+          fmt::Writer tmp;
+          tmp.Format( "Disconnecting Client#{} ({}/{})" )
+            << client->instance_
+            << ( client->acct ? client->acct->name() : "[no account]" )
+            << ( client->chr ? client->chr->name() : "[no character]" );
+          ERROR_PRINT << tmp.c_str() << "\n";
+          if ( config.loglevel >= 4 )
+            POLLOG << tmp.c_str() << "\n";
 
 		  Network::Client::Delete( client );
 		  client = NULL;
@@ -993,7 +983,7 @@ namespace Pol {
 	  {
 		if ( config.loglevel >= 11 )
 		{
-		  Clib::Log( "Network::Client#%lu i/o thread starting\n", client->instance_ );
+          POLLOG.Format("Network::Client#{} i/o thread starting\n") << client->instance_;
 		}
 	  }
 	  client->checkpoint = 60; //CNXBUG
@@ -1006,7 +996,7 @@ namespace Pol {
 	  {
 		if ( config.loglevel >= 11 )
 		{
-		  Clib::Log( "Client#%lu i/o thread past initial lock\n", client->instance_ );
+          POLLOG.Format( "Client#{} i/o thread past initial lock\n" ) << client->instance_;
 		}
 	  }
 	  CLIENT_CHECKPOINT( 0 );
@@ -1050,7 +1040,7 @@ namespace Pol {
 		  if ( res < 0 )
 		  {
 			int sckerr = socket_errno;
-			Clib::Log( "Client#%lu: select res=%d, sckerr=%d\n", client->instance_, res, sckerr );
+            POLLOG.Format( "Client#{}: select res={}, sckerr={}\n" ) << client->instance_ << res << sckerr;
 			break;
 		  }
 		  else if ( res == 0 )
@@ -1102,7 +1092,7 @@ namespace Pol {
 				{
 				  try
 				  {
-                    dtrace( 10 ) << "Client#" << client->instance_ << ": message " << Clib::hexint( static_cast<unsigned short>( msgtype ) ) << endl;
+                    INFO_PRINT_TRACE( 10 ) << "Client#" << client->instance_ << ": message 0x" << fmt::hexu( msgtype ) << "\n";
 
 					CLIENT_CHECKPOINT( 26 );
 					( *handler_v2[msgtype].func )( client, pkt.pktbuffer );
@@ -1111,12 +1101,13 @@ namespace Pol {
 				  }
 				  catch ( std::exception& ex )
 				  {
-                    Clib::Log2( "Client#%lu: Exception in message handler 0x%02.02x: %s\n",
-						  client->instance_,
-						  msgtype,
-						  ex.what() );
-                    if ( Clib::logfile )
-                      Clib::fdump( Clib::logfile, pkt.pktbuffer, 7 );
+                    POLLOG_ERROR.Format( "Client#{}: Exception in message handler 0x{:X}: {}\n" )
+                      << client->instance_
+                      << (int)msgtype
+                      << ex.what();
+                    fmt::Writer tmp;
+                    Clib::fdump( tmp, pkt.pktbuffer, 7 );
+                    POLLOG << tmp.c_str() << "\n";
 					restart_all_clients();
 					throw;
 				  }
@@ -1125,7 +1116,7 @@ namespace Pol {
 				{
 				  try
 				  {
-                    dtrace( 10 ) << "Client#" << client->instance_ << ": message " << Clib::hexint( static_cast<unsigned short>( msgtype ) ) << endl;
+                    INFO_PRINT_TRACE( 10 ) << "Client#" << client->instance_ << ": message 0x" << fmt::hexu( msgtype ) << "\n";
 					CLIENT_CHECKPOINT( 26 );
 					( *handler[msgtype].func )( client, pkt.pktbuffer );
 					CLIENT_CHECKPOINT( 27 );
@@ -1133,12 +1124,13 @@ namespace Pol {
 				  }
 				  catch ( std::exception& ex )
 				  {
-                    Clib::Log2( "Client#%lu: Exception in message handler 0x%02.02x: %s\n",
-						  client->instance_,
-						  msgtype,
-						  ex.what() );
-                    if ( Clib::logfile )
-                      Clib::fdump( Clib::logfile, pkt.pktbuffer, 7 );
+                    POLLOG_ERROR.Format( "Client#{}: Exception in message handler 0x{:X}: {}\n" )
+                      << client->instance_
+                      << (int)msgtype
+                      << ex.what();
+                    fmt::Writer tmp;
+                    Clib::fdump( tmp, pkt.pktbuffer, 7 );
+                    POLLOG << tmp.c_str( ) << "\n";
 					restart_all_clients();
 					throw;
 				  }
@@ -1169,7 +1161,6 @@ namespace Pol {
 
 			  checkpoint = 5;
 			  CLIENT_CHECKPOINT( 7 );
-			  //printf( "Client i/o: Pulse!\n" );
 			  send_pulse();
 			  if ( TaskScheduler::is_dirty() )
 				wake_tasks_thread();
@@ -1199,27 +1190,27 @@ namespace Pol {
 	  }
 	  catch ( string& str )
 	  {
-		Clib::Log( "Client#%lu: Exception in i/o thread: %s! (checkpoint=%d)\n",
-			 client->instance_, str.c_str(), checkpoint );
+        POLLOG_ERROR.Format( "Client#{}: Exception in i/o thread: {}! (checkpoint={})\n" )
+          << client->instance_ << str << checkpoint;
 	  }
 	  catch ( const char* msg )
 	  {
-		Clib::Log( "Client#%lu: Exception in i/o thread: %s! (checkpoint=%d)\n",
-			 client->instance_, msg, checkpoint );
+        POLLOG_ERROR.Format( "Client#{}: Exception in i/o thread: {}! (checkpoint={})\n" )
+          << client->instance_ << msg << checkpoint;
 	  }
 	  catch ( exception& ex )
 	  {
-		Clib::Log( "Client#%lu: Exception in i/o thread: %s! (checkpoint=%d)\n",
-			 client->instance_, ex.what(), checkpoint );
+        POLLOG_ERROR.Format( "Client#{}: Exception in i/o thread: {}! (checkpoint={})\n" )
+          << client->instance_ << ex.what() << checkpoint;
 	  }
 	  CLIENT_CHECKPOINT( 20 );
 
 	  if ( login && client->isConnected() )
 		return true;
-	  Clib::Log( "Client#%lu (%s): disconnected (account %s)\n",
-		   client->instance_,
-           Network::AddressToString( &client->ipaddr ),
-		   ( client->acct != NULL ) ? client->acct->name() : "unknown" );
+      POLLOG.Format( "Client#{} ({}): disconnected (account {})\n" )
+        << client->instance_
+        << Network::AddressToString( &client->ipaddr )
+        << ( ( client->acct != NULL ) ? client->acct->name() : "unknown" );
 
 
 	  try
@@ -1231,9 +1222,8 @@ namespace Pol {
           clients.erase( std::find( clients.begin(), clients.end(), client ) );
 		  std::lock_guard<std::mutex> lock( client->_SocketMutex );
 		  client->closeConnection();
-          cout << "Client disconnected from " << Network::AddressToString( &client->ipaddr )
-			<< " (" << clients.size() << " connections)"
-			<< endl;
+          INFO_PRINT << "Client disconnected from " << Network::AddressToString( &client->ipaddr )
+            << " (" << clients.size() << " connections)\n";
 
           CoreSetSysTrayToolTip( Clib::tostring( clients.size( ) ) + " clients connected", ToolTipPrioritySystem );
 		}
@@ -1297,7 +1287,8 @@ namespace Pol {
 	  }
 	  catch ( std::exception& ex )
 	  {
-		Clib::Log( "Client#%lu: Exception in i/o thread! (checkpoint=%d, what=%s)\n", client->instance_, checkpoint, ex.what() );
+        POLLOG.Format( "Client#{}: Exception in i/o thread: {}! (checkpoint={}, what={})\n" )
+          << client->instance_ << checkpoint << ex.what();
 	  }
 
 	  //if (1)
@@ -1355,17 +1346,17 @@ namespace Pol {
 	  }
 	  catch ( const char* msg )
 	  {
-		Clib::Log( "Tasks Thread exits due to exception: %s\n", msg );
+        POLLOG.Format( "Tasks Thread exits due to exception: {}\n" ) << msg;
 		throw;
 	  }
 	  catch ( string& str )
 	  {
-		Clib::Log( "Tasks Thread exits due to exception: %s\n", str.c_str() );
+        POLLOG.Format( "Tasks Thread exits due to exception: {}\n" ) << str;
 		throw;
 	  }
 	  catch ( exception& ex )
 	  {
-		Clib::Log( "Tasks Thread exits due to exception: %s\n", ex.what() );
+        POLLOG.Format( "Tasks Thread exits due to exception: {}\n" ) << ex.what( );
 		throw;
 	  }
 	}
@@ -1498,7 +1489,7 @@ namespace Pol {
 		  polclock_t now = polclock();
 		  if ( now >= checkin_clock_times_out_at )
 		  {
-			cerr << "No clock movement in 30 seconds.  Dumping thread status." << endl;
+            ERROR_PRINT << "No clock movement in 30 seconds.  Dumping thread status.\n";
 			report_status_signalled = true;
 			checkin_clock_times_out_at = now + 30 * POLCLOCKS_PER_SEC;
 		  }
@@ -1506,39 +1497,41 @@ namespace Pol {
 
 		if ( report_status_signalled )
 		{
-		  ofstream pol_log;
-		  pol_log.open( "log/pol.log", ios::out | ios::app );
-		  db_cerr.setbufs( cerr.rdbuf(), pol_log.rdbuf() );
-		  db_cerr.install( &cerr );
-		  cerr << "*Thread Info*" << endl;
-		  cerr << "Semaphore PID: " << locker << endl;
+          fmt::Writer tmp;
+          tmp << "*Thread Info*\n";
+          tmp << "Semaphore PID: " << locker << "\n";
 #ifdef __unix__
 		  if (locker) 
 		  {
-			cerr << "  (\"kill -SIGUSR2 " << locker << "\" to output backtrace)" << endl;
+            tmp << "  (\"kill -SIGUSR2 " << locker << "\" to output backtrace)\n";
 		  }
 		  void* bt[ 200 ];
+          char **strings;
 		  int n = backtrace( bt, 200 );
-		  backtrace_symbols_fd( bt, n, STDERR_FILENO );
+          strings = backtrace_symbols(bt, n);
+          for (int j = 0; j < n; j++)
+            tmp << strings[j] << "\n";
+
+          free( strings );
 #endif
-		  cerr << "Scripts Thread Checkpoint: " << scripts_thread_checkpoint << endl;
-          cerr << "Last Script: " << Clib::scripts_thread_script << " PC: " << Clib::scripts_thread_scriptPC << endl;
-          cerr << "Escript Instruction Cycles: " << Bscript::escript_instr_cycles << endl;
-		  cerr << "Tasks Thread Checkpoint: " << tasks_thread_checkpoint << endl;
-		  cerr << "Active Client Thread Checkpoint: " << active_client_thread_checkpoint << endl;
+		  tmp << "Scripts Thread Checkpoint: " << scripts_thread_checkpoint << "\n";
+          tmp << "Last Script: " << Clib::scripts_thread_script << " PC: " << Clib::scripts_thread_scriptPC << "\n";
+          tmp << "Escript Instruction Cycles: " << Bscript::escript_instr_cycles << "\n";
+          tmp << "Tasks Thread Checkpoint: " << tasks_thread_checkpoint << "\n";
+          tmp << "Active Client Thread Checkpoint: " << active_client_thread_checkpoint << "\n";
 		  if ( check_attack_after_move_function_checkpoint )
-			cerr << "check_attack_after_move() Checkpoint: " << check_attack_after_move_function_checkpoint << endl;
-		  cerr << "Current Threads:" << endl;
+            tmp << "check_attack_after_move() Checkpoint: " << check_attack_after_move_function_checkpoint << "\n";
+          tmp << "Current Threads:" << "\n";
 		  ThreadMap::Contents contents;
 		  threadmap.CopyContents( contents );
 		  for ( ThreadMap::Contents::const_iterator citr = contents.begin(); citr != contents.end(); ++citr )
 		  {
-			cerr << ( *citr ).first << " - " << ( *citr ).second << endl;
+            tmp << ( *citr ).first << " - " << ( *citr ).second << "\n";
 		  }
-		  cerr << "Child threads (child_threads): " << threadhelp::child_threads << endl;
-		  cerr << "Registered threads (ThreadMap): " << contents.size() << endl;
+          tmp << "Child threads (child_threads): " << threadhelp::child_threads << "\n";
+          tmp << "Registered threads (ThreadMap): " << contents.size( ) << "\n";
 		  report_status_signalled = false;
-		  db_cerr.uninstall();
+          ERROR_PRINT << tmp.c_str();
 		}
         if ( Clib::exit_signalled )
 		{
@@ -1551,10 +1544,9 @@ namespace Pol {
 		  }
 
 		  --timeouts_remaining;
-		  //cout << "timeouts remaining: " << timeouts_remaining << endl;
 		  if ( timeouts_remaining == 0 )
 		  {
-			cout << "Waiting for " << threadhelp::child_threads << " child threads to exit" << endl;
+            INFO_PRINT << "Waiting for " << threadhelp::child_threads << " child threads to exit\n";
 			timeouts_remaining = 5;
 		  }
 		}
@@ -1579,10 +1571,10 @@ namespace Pol {
 		if (reload_configuration_signalled)
 		{
 		  PolLock lck;
-		  cout << "Reloading configuration...";
+          INFO_PRINT << "Reloading configuration...";
 		  reload_configuration_signalled = false;
 		  reload_configuration();
-		  cout << "Done." << endl;
+          INFO_PRINT << "Done.\n";
 		}
 #endif
 	  }
@@ -1710,7 +1702,6 @@ namespace Pol {
 
 	  if ( FD_ISSET( listen_socket, &recv_fd ) )
 	  {
-		// cout << "Accepting connection.." << endl;
 		struct sockaddr client_addr; // inet_addr
 		socklen_t addrlen = sizeof client_addr;
 		SOCKET client_socket = accept( listen_socket, &client_addr, &addrlen );
@@ -1719,10 +1710,11 @@ namespace Pol {
 
 		Network::apply_socket_options( client_socket );
 
-		printf( "Client connected from %s\n",
-                Network::AddressToString( &client_addr ) );
-		if ( config.loglevel >= 2 )
-		  Clib::Log( "Client connected from %s\n", Network::AddressToString( &client_addr ) );
+        fmt::Writer tmp;
+        tmp.Format( "Client connected from {}\n" ) << Network::AddressToString( &client_addr );
+        INFO_PRINT << tmp.c_str();
+        if ( config.loglevel >= 2 )
+          POLLOG << tmp.c_str();
 
         Network::Client *client = new Network::Client( Network::uo_client_interface, config.client_encryption_version );
 		client->csocket = client_socket;
@@ -1731,7 +1723,7 @@ namespace Pol {
 		client->acct = NULL;
 
 		clients.push_back( client );
-		printf( "Client connected (Total: %u)\n", static_cast<unsigned int>( clients.size() ) );
+        INFO_PRINT << "Client connected (Total: " << clients.size() << ")\n";
 	  }
 	}
 #if REFPTR_DEBUG
@@ -1745,7 +1737,7 @@ namespace Pol {
 
 	void show_item( Items::Item* item )
 	{
-	  cout << "Remaining item: " << item->serial << ": " << item->name() << endl;
+      INFO_PRINT << "Remaining item: " << item->serial << ": " << item->name( ) << "\n";
 	}
 
 	void display_unreaped_orphan_instances();
@@ -1764,24 +1756,26 @@ namespace Pol {
       Clib::OFStreamWriter sw( &ofs );
 	  sw.init( "leftovers.txt" );
 	  objecthash.PrintContents( sw );
+      fmt::Writer tmp;
 	  if ( uobject_count != 0 )
-		cout << "Remaining UObjects: " << uobject_count << endl;
+        tmp << "Remaining UObjects: " << uobject_count << "\n";
 	  if ( ucharacter_count != 0 )
-		cout << "Remaining Mobiles: " << ucharacter_count << endl;
+        tmp << "Remaining Mobiles: " << ucharacter_count << "\n";
 	  if ( npc_count != 0 )
-		cout << "Remaining NPCs: " << npc_count << endl;
+        tmp << "Remaining NPCs: " << npc_count << "\n";
 	  if ( uitem_count != 0 )
-		cout << "Remaining Items: " << uitem_count << endl;
+        tmp << "Remaining Items: " << uitem_count << "\n";
 	  if ( umulti_count != 0 )
-		cout << "Remaining Multis: " << umulti_count << endl;
+        tmp << "Remaining Multis: " << umulti_count << "\n";
 	  if ( unreaped_orphans != 0 )
-		cout << "Unreaped orphans: " << unreaped_orphans << endl;
+        tmp << "Unreaped orphans: " << unreaped_orphans << "\n";
 	  if ( uobj_count_echrref != 0 )
-		cout << "Remaining EChrRef objects: " << uobj_count_echrref << endl;
+        tmp << "Remaining EChrRef objects: " << uobj_count_echrref << "\n";
 	  if ( Bscript::executor_count )
-        cout << "Remaining Executors: " << Bscript::executor_count << endl;
+        tmp << "Remaining Executors: " << Bscript::executor_count << "\n";
       if ( Bscript::eobject_imp_count )
-        cout << "Remaining script objectimps: " << Bscript::eobject_imp_count << endl;
+        tmp << "Remaining script objectimps: " << Bscript::eobject_imp_count << "\n";
+      INFO_PRINT << tmp.c_str();
 	  if ( !existing_items.empty() )
 	  {
         Clib::ForEach( existing_items, show_item );
@@ -1801,10 +1795,10 @@ namespace Pol {
 
 	void run_start_scripts()
 	{
-	  cout << "Running startup script." << endl;
+      INFO_PRINT << "Running startup script.\n";
 	  run_script_to_completion( "start" );
 	  Clib::ForEach( Plib::packages, run_package_startscript );
-	  cout << "Startup script complete." << endl;
+      INFO_PRINT << "Startup script complete.\n";
 	}
 
 #ifdef _WIN32
@@ -1865,21 +1859,21 @@ namespace Pol {
 	  int build = 0;
 	  ISTRINGSTREAM is( libc_version );
 
-	  if (is >> main_version)
-	  {
-		char delimiter;
-		if (is >> delimiter >> sub_version)
-		{
-		  is >> delimiter >> build;
-		}
-	  }
-	  else
-		cout << "Error in analyzing libc version string [" << libc_version << "]. Please contact Core-Team." << endl;
+      if (is >> main_version)
+      {
+        char delimiter;
+        if (is >> delimiter >> sub_version)
+        {
+          is >> delimiter >> build;
+        }
+      }
+      else
+        POLLOG_ERROR << "Error in analyzing libc version string [" << libc_version << "]. Please contact Core-Team.\n";
 
-	  if (main_version*100000000 + sub_version*10000 + build >= 2*100000000 + 3*10000 + 2)
-		cout << "Found libc " << libc_version << " - ok" << endl;
+      if (main_version*100000000 + sub_version*10000 + build >= 2*100000000 + 3*10000 + 2)
+        POLLOG_INFO << "Found libc " << libc_version << " - ok\n";
 	  else
-		cout << "Found libc " << libc_version << " - Please update to 2.3.2 or above." << endl;
+        POLLOG_ERROR << "Found libc " << libc_version << " - Please update to 2.3.2 or above.\n";
 	}
 #endif
 
@@ -1888,7 +1882,7 @@ namespace Pol {
 
   void polcleanup()
   {
-    cout << "Initiating POL Cleanup...." << endl;
+    INFO_PRINT << "Initiating POL Cleanup....\n";
 
     for ( Core::Clients::iterator itr = Core::clients.begin(), end = Core::clients.end(); itr != end; ++itr )
     {
@@ -1932,7 +1926,6 @@ namespace Pol {
     Clib::MD5_Cleanup();
 
     Core::checkpoint( "misc cleanup" );
-    Clib::CloseLogFile();
 
     Core::clear_script_storage();
 
@@ -1944,10 +1937,6 @@ namespace Pol {
     Network::deinit_sockets_library();
 
     Core::checkpoint( "end of xmain2" );
-    //mlog.clear();
-    //pol_lg2 << "Log file closed at <FIXME:time here>" << endl;
-
-    Core::close_logfiles();
 
 #ifdef __linux__
     unlink( ( Core::config.pidfile_path + "pol.pid" ).c_str( ) );
@@ -1970,7 +1959,7 @@ namespace Pol {
 	if (polpid.is_open())
 	  polpid << Clib::decint(getpid());
 	else
-	  cout << "Cannot create pid file in " << Core::config.pidfile_path << endl;
+      INFO_PRINT << "Cannot create pid file in " << Core::config.pidfile_path << "\n";
 
 	polpid.close();
 #endif
@@ -1984,52 +1973,26 @@ namespace Pol {
 
 	Clib::MakeDirectory( "log" );
 
-    Clib::mlog.open( "log/debug.log", ios::out | ios::app );
-#ifdef MEMORYLEAK
-	llog.open( "log/leak.log", ios::out|ios::app );
-#endif
-
-	Core::start_log.open( "log/start.log", ios::out | ios::trunc );
-
-    Core::db_cout.setbufs( cout.rdbuf( ), Core::start_log.rdbuf( ) );
-    Core::db_cout.install( &cout );
-
-    Core::db_cerr.setbufs( cerr.rdbuf( ), Core::start_log.rdbuf( ) );
-    Core::db_cerr.install( &cerr );
-
-	cout << progverstr << " (" << polbuildtag << ")" << endl;
-	cout << "compiled on " << compiledate << " " << compiletime << endl;
-	cout << "Copyright (C) 1993-2013 Eric N. Swanson" << endl;
-	cout << endl;
-
-    Core::checkpoint( "opening logfiles" );
-    Core::open_logfiles( );
-
-    Clib::OpenLogFileName( "log/pol", true );
-	Clib::Log( "%s (%s) compiled on %s %s running.\n", progverstr, polbuildtag, compiledate, compiletime );
-
-	//cerr << "xmain2 cerr interceptor installed." << endl;
-	/*
-		ofstream pol_lg2( "pol.lg2", ios::out|ios::app );
-		pol_lg2 << "Clib::Log file opened at <FIXME:time here>" << endl;
-
-		mlog.add( cout );
-		mlog.add( pol_lg2 );
-		*/
+    POLLOG_INFO << progverstr << " (" << polbuildtag << ")"
+    << "\ncompiled on " << compiledate << " " << compiletime
+    << "\nCopyright (C) 1993-2014 Eric N. Swanson"
+    << "\n\n";
 
 #ifndef NDEBUG
-	printf( "Sizes: \n" );
-	printf( "   UObject:    %lu\n", sizeof(Core::UObject) );
-	printf( "   Item:       %lu\n", sizeof(Items::Item) );
-	printf( "   UContainer: %lu\n", sizeof(Core::UContainer) );
-	printf( "   Character:  %lu\n", sizeof(Mobile::Character) );
-	printf( "   Client:     %lu\n", sizeof(Network::Client) );
-	printf( "   NPC:        %lu\n", sizeof(Core::NPC) );
+    POLLOG_INFO << "\nSizes: \n"
+      << "   UObject:    " << sizeof( Core::UObject ) << "\n"
+      << "   Item:       " << sizeof( Items::Item ) << "\n"
+      << "   UContainer: " << sizeof( Core::UContainer ) << "\n"
+      << "   Character:  " << sizeof( Mobile::Character ) << "\n"
+      << "   Client:     " << sizeof( Network::Client ) << "\n"
+      << "   NPC:        " << sizeof( Core::NPC ) << "\n";
+
 #ifdef __unix__
 #ifdef PTHREAD_THREADS_MAX
-	printf( "   Max Threads:%d\n", (int)PTHREAD_THREADS_MAX );
+    POLLOG_INFO << "   Max Threads: " <<PTHREAD_THREADS_MAX << "\n";
 #endif
 #endif
+    POLLOG_INFO << "\n";
 #endif
 
 
@@ -2040,7 +2003,7 @@ namespace Pol {
     Core::start_pol_clocks( );
     Core::pause_pol_clocks( );
 
-	cout << "Reading Configuration." << endl;
+    POLLOG_INFO << "Reading Configuration.\n";
 
     Core::gflag_in_system_startup = true;
 
@@ -2069,17 +2032,10 @@ namespace Pol {
     Items::empty_itemdesc.doubleclick_range = Core::ssopt.default_doubleclick_range;
     Items::empty_itemdesc.decay_time = Core::ssopt.default_decay_time;
 
-	//cout << "Opening UO client data files." << endl;
-	//open_uo_data_files();
-
-	//cout << "Reading UO data: ";
-	//read_uo_data();
-	//cout << "Done!" << endl;
-
     Core::checkpoint( "loading POL map file" );
     if ( !Core::load_realms( ) )
 	{
-	  cout << "Unable to load Realms. Please make sure your Realms have been generated by UOConvert and your RealmDataPath is set correctly in Pol.cfg." << endl;
+      POLLOG_ERROR << "Unable to load Realms. Please make sure your Realms have been generated by UOConvert and your RealmDataPath is set correctly in Pol.cfg.\n";
 	  return 1;
 	}
 
@@ -2097,7 +2053,7 @@ namespace Pol {
     res = Network::init_sockets_library( );
 	if ( res < 0 )
 	{
-	  cout << "Unable to initialize sockets library." << endl;
+      POLLOG_ERROR << "Unable to initialize sockets library.\n";
 	  return 1;
 	}
 
@@ -2125,7 +2081,7 @@ namespace Pol {
 
     if ( argc > 1 )
     {
-      cout << "Running POL test suite." << endl;
+      POLLOG_INFO << "Running POL test suite.\n";
       Core::run_pol_tests();
       Core::cancel_all_trades();
       Core::stop_gameclock();
@@ -2134,7 +2090,7 @@ namespace Pol {
     }
 
 	// PrintAllocationData();
-	cout << "Reading data files:\n";
+    POLLOG_INFO << "Reading data files:\n";
 	{
 	  Tools::Timer<> timer;
       Core::checkpoint( "reading account data" );
@@ -2142,7 +2098,7 @@ namespace Pol {
 
       Core::checkpoint( "reading data" );
       Core::read_data( );
-	  cout << "Done! " << timer.ellapsed() << " milliseconds." << endl;
+      POLLOG_INFO << "Done! " << timer.ellapsed( ) << " milliseconds.\n";
 	}
 
 
@@ -2164,15 +2120,14 @@ namespace Pol {
       if ( Core::config.multithread )
 	  {
 		// TODO: remove this warning after some releases...
-        Core::PolLock lck;
 
-		cerr << endl << endl;
-		cerr << "+----------------------------------------------------------------------+" << endl;
-		cerr << "| Option ListenPort in pol.cfg is now only for non-multithreading      |" << endl;
-		cerr << "| systems. If you still haven't done it, please read the documentation |" << endl;
-		cerr << "| on how to create a uoclients.cfg.                                    |" << endl;
-		cerr << "+----------------------------------------------------------------------+" << endl;
-		cerr << endl << endl;
+        POLLOG_ERROR << "\n\n"
+		<< "+----------------------------------------------------------------------+\n"
+		<< "| Option ListenPort in pol.cfg is now only for non-multithreading      |\n"
+		<< "| systems. If you still haven't done it, please read the documentation |\n"
+		<< "| on how to create a uoclients.cfg.                                    |\n"
+		<< "+----------------------------------------------------------------------+\n"
+        << "\n\n";
 
 		throw runtime_error( "ListenPort is no longer used for multithreading programs (Multithread == 1)." );
 	  }
@@ -2180,27 +2135,27 @@ namespace Pol {
       Core::listen_socket = Network::open_listen_socket( Core::config.listen_port );
       if ( Core::listen_socket == INVALID_SOCKET )
 	  {
-        cout << "Unable to listen on socket " << Core::config.listen_port << endl;
+        POLLOG_ERROR << "Unable to listen on socket " << Core::config.listen_port << "\n";
 		return 1;
 	  }
 	}
 
 	//	if( 1 )
 	{
-      Core::PolLock lock;
-	  cout << "Initialization complete.  POL is active.  Ctrl-C to stop." << endl << endl;
+      POLLOG_INFO << "Initialization complete.  POL is active.  Ctrl-C to stop.\n\n";
 	}
 	//if( 1 )
 	{
-      Core::PolLock lock;
+      DEINIT_STARTLOG();
+      /*Core::PolLock lock;
       Core::db_cout.uninstall( );
       Core::db_cerr.uninstall( );
-      Core::start_log.close( );
+      Core::start_log.close( );*/
 	}
+    POLLOG.Format( "{0:s} ({1:s}) compiled on {2:s} {3:s} running.\n" ) << progverstr << polbuildtag << compiledate << compiletime;
 	//if( 1 )
 	{
-      Core::PolLock lock;
-	  Clib::Log( "Game is active.\n" );
+	  POLLOG_INFO << "Game is active.\n";
 	}
     Core::CoreSetSysTrayToolTip( "Running", Core::ToolTipPrioritySystem );
 
@@ -2269,13 +2224,13 @@ namespace Pol {
 	}
     Core::cancel_all_trades( );
     Core::stop_gameclock( );
-	Clib::Log( "Shutting down...\n" );
+    POLLOG_INFO << "Shutting down...\n";
 
     Core::checkpoint( "writing data" );
     if ( Core::should_write_data( ) )
 	{
       Core::CoreSetSysTrayToolTip( "Writing data files", Core::ToolTipPriorityShutdown );
-	  cout << "Writing data files...";
+      POLLOG_INFO << "Writing data files...";
 
       Core::PolLock lck;
 	  unsigned int dirty, clean;
@@ -2295,14 +2250,14 @@ namespace Pol {
 	  else
         Core::save_incremental( dirty, clean, elapsed_ms );
       Core::SaveContext::ready( );
-	  cout << "Data save completed in " << elapsed_ms << " ms. " << timer.ellapsed() << " total." << endl;
+      POLLOG_INFO << "Data save completed in " << elapsed_ms << " ms. " << timer.ellapsed( ) << " total.\n";
 	}
 	else
 	{
       if ( Clib::passert_shutdown_due_to_assertion && Clib::passert_nosave )
-		Clib::Log2( "Not writing data due to assertion failure.\n" );
+        POLLOG_INFO <<  "Not writing data due to assertion failure.\n";
       else if ( Core::config.inhibit_saves )
-		Clib::Log2( "Not writing data due to pol.cfg InhibitSaves=1 setting.\n" );
+        POLLOG_INFO << "Not writing data due to pol.cfg InhibitSaves=1 setting.\n";
 	}
     polcleanup();
 	return 0;
@@ -2318,7 +2273,7 @@ namespace Pol {
 	{
       if ( Core::last_checkpoint != NULL )
 	  {
-        cout << "Server Shutdown: " << Core::last_checkpoint << endl;
+        POLLOG_INFO << "Server Shutdown: " << Core::last_checkpoint << "\n";
 		//pol_sleep_ms( 10000 );
 	  }
       polcleanup();

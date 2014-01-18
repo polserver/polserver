@@ -35,7 +35,7 @@ LIB_MORE=
 endif
 
 ifdef USE_MYSQL
-LIB_MORE += -lmysqlclient -lz -lpthread
+LIB_MORE += -lmysqlclient -lz -lpthread -ldl
 CXX_MORE_OPTS += -DHAVE_MYSQL
 endif
 
@@ -101,7 +101,7 @@ cpp_sources = \
 	pol/network/iostats.cpp pol/irequest.cpp pol/item/item.cpp pol/item/item00.cpp \
 	pol/item/itemcr.cpp pol/item/itemdesc.cpp \
 	pol/landtile.cpp \
-	pol/listenpt.cpp pol/loadunld.cpp pol/lockable.cpp pol/logfiles.cpp \
+	pol/listenpt.cpp pol/loadunld.cpp pol/lockable.cpp \
 	pol/loaddata.cpp pol/login.cpp \
 	pol/module/mathmod.cpp pol/menu.cpp pol/menusel.cpp pol/miscmsg.cpp \
 	pol/miscrgn.cpp pol/mkscrobj.cpp \
@@ -169,13 +169,12 @@ cpp_sources = \
 	clib/fileutil.cpp clib/iohelp.cpp \
 	clib/kbhit.cpp \
 	clib/mlog.cpp clib/MD5.cpp \
-	clib/nlogfile.cpp \
 	clib/opnew.cpp \
 	clib/passert.cpp \
 	clib/sckutil.cpp clib/strexcpt.cpp clib/strset.cpp clib/strutil.cpp \
 	clib/threadhelp.cpp \
 	clib/tracebuf.cpp \
-	clib/endian.cpp clib/logfile.cpp clib/fdump.cpp clib/stracpy.cpp \
+	clib/endian.cpp clib/fdump.cpp clib/stracpy.cpp \
 	clib/random.cpp clib/cmdargs.cpp clib/wallclock.cpp \
 	clib/wnsckt.cpp \
 	clib/xmain.cpp \
@@ -198,7 +197,7 @@ ecompile_sources=ecompile/ecompile.cpp \
 	clib/dirlist.cpp clib/esignal.cpp clib/fileutil.cpp \
 	clib/strutil.cpp clib/filecont.cpp \
 	clib/progver.cpp clib/passert.cpp clib/xmain.cpp \
-	clib/endian.cpp clib/logfile.cpp clib/fdump.cpp clib/stracpy.cpp \
+	clib/endian.cpp clib/fdump.cpp clib/stracpy.cpp \
 	clib/random.cpp clib/cmdargs.cpp \
 	clib/strexcpt.cpp  clib/wallclock.cpp clib/threadhelp.cpp \
 	clib/logfacility.cpp
@@ -226,7 +225,7 @@ runecl_sources=runecl/runecl.cpp \
 	bscript/tkn_strm.cpp bscript/token.cpp bscript/userfunc.cpp \
 	bscript/parser.cpp bscript/compilercfg.cpp \
 	clib/passert.cpp clib/strutil.cpp  \
-	clib/endian.cpp clib/esignal.cpp clib/logfile.cpp clib/fdump.cpp \
+	clib/endian.cpp clib/esignal.cpp clib/fdump.cpp \
 	clib/stracpy.cpp clib/cfgfile.cpp clib/fileutil.cpp \
 	clib/random.cpp clib/cmdargs.cpp clib/dirlist.cpp \
 	clib/progver.cpp \
@@ -241,7 +240,7 @@ uoconvert_sources=uoconvert/uoconvert.cpp  \
 	plib/mapfunc.cpp plib/mapwriter.cpp plib/realmdescriptor.cpp \
 	clib/cfgfile.cpp clib/cmdargs.cpp clib/strutil.cpp \
 	clib/fileutil.cpp clib/passert.cpp clib/dirlist.cpp clib/iohelp.cpp \
-	clib/logfile.cpp clib/logfacility.cpp \
+	clib/logfacility.cpp \
 	clib/progver.cpp clib/esignal.cpp clib/random.cpp clib/strexcpt.cpp \
 	clib/wallclock.cpp \
 	clib/xmain.cpp
@@ -255,7 +254,7 @@ uotool_sources=uotool/uotool.cpp \
 	plib/mapfunc.cpp plib/mapwriter.cpp plib/realmdescriptor.cpp \
 	clib/cfgfile.cpp clib/cmdargs.cpp clib/strutil.cpp \
 	clib/fileutil.cpp clib/passert.cpp clib/dirlist.cpp clib/iohelp.cpp \
-	clib/logfile.cpp clib/fdump.cpp clib/logfacility.cpp \
+	clib/fdump.cpp clib/logfacility.cpp \
 	clib/progver.cpp clib/esignal.cpp clib/strexcpt.cpp \
 	clib/xmain.cpp
 

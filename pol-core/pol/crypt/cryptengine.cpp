@@ -9,7 +9,7 @@ Notes
 
 #include "../../clib/stl_inc.h"
 
-#include "../../clib/logfile.h"
+#include "../../clib/logfacility.h"
 #include "../../clib/strutil.h"
 
 #include "cryptengine.h"
@@ -67,8 +67,7 @@ namespace Pol {
 		case CRYPT_BLOWFISH_TWOFISH:
 		  return create_crypt_blowfish_twofish_engine( infoCrypt.uiKey1, infoCrypt.uiKey2 );
 		default:
-		  cerr << "Unknown ClientEncryptionVersion, using Ignition encryption engine" << endl;
-		  Clib::Log( "Unknown ClientEncryptionVersion, using Ignition encryption engine\n" );
+          POLLOG_ERROR << "Unknown ClientEncryptionVersion, using Ignition encryption engine\n";
 		  return create_nocrypt_engine();
 	  }
 	}

@@ -13,7 +13,7 @@ export CXX_MORE_OPTS="-O3 -DUSE_SYSTEM_ZLIB -DHAVE_OPENSSL -DNDEBUG -D_REENTRANT
 case "$1" in
 	-n|--normal)
 		##use clang normal build
-		CC="clang -std=c++11" LINKER="clang -std=c++11" make -f makefile.gcc release
+		CC="clang -std=c++11 -Wfatal-errors" LINKER="clang -std=c++11" make -j3 -f makefile.gcc release
 		exit 0
 		;;
 	-a|--analyze)

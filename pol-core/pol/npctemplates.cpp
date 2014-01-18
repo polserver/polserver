@@ -16,6 +16,7 @@ Notes
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/fileutil.h"
+#include "../clib/logfacility.h"
 #include "../clib/stlutil.h"
 
 #include "../plib/pkg.h"
@@ -47,19 +48,20 @@ namespace Pol {
 	{
 	  bool showed_elem_line = false;
 
-	  cerr << ( error ? "Error" : "Warning" )
-		<< " reading configuration file " << _filename << ":" << endl;
+      fmt::Writer tmp;
+      tmp << ( error ? "Error" : "Warning" )
+        << " reading configuration file " << _filename << ":\n";
 
-	  cerr << "\t" << msg << endl;
+	  tmp << "\t" << msg << "\n";
 
 	  if ( elem != NULL )
 	  {
 		if ( strlen( elem->type() ) > 0 )
 		{
-		  cerr << "\tElement: " << elem->type() << " " << elem->rest();
+		  tmp << "\tElement: " << elem->type() << " " << elem->rest();
 		  if ( _fileline )
-			cerr << ", found on line " << _fileline;
-		  cerr << endl;
+			tmp << ", found on line " << _fileline;
+		  tmp << "\n";
 		  showed_elem_line = true;
 		}
 	  }
@@ -67,7 +69,8 @@ namespace Pol {
 	  //if (show_curline)
 	  //    cerr << "\tNear line: " << _cur_line << endl;
 	  if ( _fileline && !showed_elem_line )
-		cerr << "\tElement started on line: " << _fileline << endl;
+		tmp << "\tElement started on line: " << _fileline << "\n";
+      ERROR_PRINT << tmp.c_str();
 	}
 
 
@@ -154,19 +157,19 @@ namespace Pol {
 	  }
 	  catch ( const char *msg )
 	  {
-		cerr << "NPC Creation (" << template_name << ") Failed: " << msg << endl;
+        ERROR_PRINT << "NPC Creation (" << template_name << ") Failed: " << msg << "\n";
 	  }
 	  catch ( string& str )
 	  {
-		cerr << "NPC Creation (" << template_name << ") Failed: " << str << endl;
+        ERROR_PRINT << "NPC Creation (" << template_name << ") Failed: " << str << "\n";
 	  }	   // egcs has some trouble realizing 'exception' should catch
 	  catch ( runtime_error& re )   // runtime_errors, so...
 	  {
-		cerr << "NPC Creation (" << template_name << ") Failed: " << re.what() << endl;
+        ERROR_PRINT << "NPC Creation (" << template_name << ") Failed: " << re.what( ) << "\n";
 	  }
 	  catch ( exception& ex )
 	  {
-		cerr << "NPC Creation (" << template_name << ") Failed: " << ex.what() << endl;
+        ERROR_PRINT << "NPC Creation (" << template_name << ") Failed: " << ex.what() << "\n";
 	  }
 #ifndef WIN32
 	  catch ( ... )

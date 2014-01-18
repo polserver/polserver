@@ -17,6 +17,7 @@ Notes
 
 #include "../clib/passert.h"
 #include "../clib/stlutil.h"
+#include "../clib/logfacility.h"
 
 #include "polcfg.h"
 #include "polfile.h"
@@ -77,7 +78,7 @@ namespace Pol {
         rawstaticfullread();
       if ( x >= uo_map_width || y >= uo_map_height )
       {
-        cerr << "readstaticblock: x=" << x << ",y=" << y << endl;
+        ERROR_PRINT << "readstaticblock: x=" << x << ",y=" << y << "\n";
       }
       unsigned int x_block, y_block;
       x_block = x / 8;
@@ -119,8 +120,8 @@ namespace Pol {
 
 
             if ( srec_count > cfg_warning_statics_per_block )
-              cout << " Warning: " << srec_count << " items found in area "
-              << x << " " << y << " " << ( x + 7 ) << " " << ( y + 7 ) << endl;
+              INFO_PRINT << " Warning: " << srec_count << " items found in area "
+              << x << " " << y << " " << ( x + 7 ) << " " << ( y + 7 ) << "\n";
 
             buf.count = srec_count;
           }
@@ -165,8 +166,8 @@ namespace Pol {
             }
 
             if ( srec_count > cfg_warning_statics_per_block )
-              cout << " Warning: " << srec_count << " items found in dif-area "
-              << x << " " << y << " " << ( x + 7 ) << " " << ( y + 7 ) << endl;
+              INFO_PRINT << " Warning: " << srec_count << " items found in dif-area "
+              << x << " " << y << " " << ( x + 7 ) << " " << ( y + 7 ) << "\n";
 
             buf.count = srec_count;
           }

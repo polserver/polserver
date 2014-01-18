@@ -25,7 +25,7 @@ Notes
 
 #include "../clib/endian.h"
 #include "../clib/fdump.h"
-#include "../clib/logfile.h"
+#include "../clib/logfacility.h"
 #include "../clib/random.h"
 #include "../clib/strutil.h"
 
@@ -213,7 +213,7 @@ namespace Pol {
 	{
 	  if ( client->acct == NULL )
 	  {
-        cerr << "Client from " << Network::AddressToString( &client->ipaddr ) << " tried to create a character without an account!" << endl;
+        ERROR_PRINT << "Client from " << Network::AddressToString( &client->ipaddr ) << " tried to create a character without an account!\n";
 		client->forceDisconnect();
 		return;
 	  }
@@ -227,7 +227,7 @@ namespace Pol {
 				client->acct->get_character( msg->CharNumber ) != NULL ||
 				msg->StartIndex >= startlocations.size() )
 	  {
-		cerr << "Create Character: Invalid parameters." << endl;
+        ERROR_PRINT << "Create Character: Invalid parameters.\n";
 		send_login_error( client, LOGIN_ERROR_MISC );
 		client->Disconnect();
 		return;
@@ -304,8 +304,8 @@ namespace Pol {
 			continue;
 		}
 
-		cerr << "Create Character: Attempted to use invalid character '" << tmpchr << "' pos '" << i << "' in name '" << tstr << "'. Client IP: "
-		  << client->ipaddrAsString() << " Client Name: " << client->acct->name() << endl;
+        ERROR_PRINT << "Create Character: Attempted to use invalid character '" << tmpchr << "' pos '" << i << "' in name '" << tstr << "'. Client IP: "
+		  << client->ipaddrAsString() << " Client Name: " << client->acct->name() << "\n";
 		client->forceDisconnect();
 		return;
 	  }
@@ -349,26 +349,27 @@ namespace Pol {
 	  }
 	  if ( !valid_stats )
 	  {
-		cerr << "Create Character: Stats sum to "
-		  << stat_total << "." << endl
+        fmt::Writer tmp;
+        tmp << "Create Character: Stats sum to "
+		  << stat_total << ".\n"
 		  << "Valid values/ranges are: ";
 		for ( sidx = 0; sidx < ssopt.total_stats_at_creation.size(); ++sidx )
 		{
 		  if ( sidx > 0 )
-			cerr << ",";
-		  cerr << ssopt.total_stats_at_creation[sidx];
+            tmp << ",";
+          tmp << ssopt.total_stats_at_creation[sidx];
 		}
-		cerr << endl;
+        ERROR_PRINT << tmp.c_str() << "\n";
 		client->forceDisconnect();
 		return;
 	  }
 	  if ( msg->Strength < 10 || msg->Intelligence < 10 || msg->Dexterity < 10 )
 	  {
-		cerr << "Create Character: A stat was too small."
-		  << " Str=" << msg->Strength
-		  << " Int=" << msg->Intelligence
-		  << " Dex=" << msg->Dexterity
-		  << endl;
+        ERROR_PRINT << "Create Character: A stat was too small."
+          << " Str=" << msg->Strength
+          << " Int=" << msg->Intelligence
+          << " Dex=" << msg->Dexterity
+          << "\n";
 
 		client->forceDisconnect();
 		return;
@@ -384,7 +385,7 @@ namespace Pol {
 		   msg->SkillNumber2 > uoclient_general.maxskills ||
 		   msg->SkillNumber3 > uoclient_general.maxskills )
 	  {
-		cerr << "Create Character: A skill number was out of range" << endl;
+        ERROR_PRINT << "Create Character: A skill number was out of range\n";
 		client->forceDisconnect();
 		return;
 	  }
@@ -394,7 +395,7 @@ namespace Pol {
 		msg->SkillValue2 > 50 ||
 		msg->SkillValue3 > 50 ) )
 	  {
-		cerr << "Create Character: Starting skill values incorrect" << endl;
+        ERROR_PRINT << "Create Character: Starting skill values incorrect\n";
 		client->forceDisconnect();
 		return;
 	  }
@@ -432,7 +433,7 @@ namespace Pol {
 		  chr->equip( tmpitem );
 		else
 		{
-          cerr << "Create Character: Failed to equip hair " << Clib::hexint( tmpitem->graphic ) << endl;
+          ERROR_PRINT.Format( "Create Character: Failed to equip hair 0x{:X}\n" ) << tmpitem->graphic;
 		  tmpitem->destroy();
 		}
 	  }
@@ -447,7 +448,7 @@ namespace Pol {
 		  chr->equip( tmpitem );
 		else
 		{
-		  cerr << "Create Character: Failed to equip beard " << Clib::hexint( tmpitem->graphic ) << endl;
+          ERROR_PRINT.Format( "Create Character: Failed to equip beard 0x{:X}\n" ) << tmpitem->graphic;
 		  tmpitem->destroy();
 		}
 	  }
@@ -534,7 +535,7 @@ namespace Pol {
 	  client->acct->set_character( msg->CharNumber, client->chr );
 	  client->acct->active_character = chr;
 
-      Clib::Log( "Account %s created character 0x%lu\n", client->acct->name( ), chr->serial );
+      POLLOG.Format( "Account {} created character 0x{:X}\n" ) << client->acct->name() << chr->serial;
 	  SetCharacterWorldPosition( chr );
 	  client->msgtype_filter = &game_filter;
 	  start_client_char( client );
@@ -565,7 +566,7 @@ namespace Pol {
 		}
 		else
 		{
-		  cerr << "script misc/oncreate: setProgram failed" << endl;
+          ERROR_PRINT << "script misc/oncreate: setProgram failed\n";
 		}
 	  }
 	}
@@ -601,7 +602,7 @@ namespace Pol {
 	  int charslot = ctBEu32( msg->char_slot );
 	  if ( client->acct == NULL )
 	  {
-        cerr << "Client from " << Network::AddressToString( &client->ipaddr ) << " tried to create a character without an account!" << endl;
+        ERROR_PRINT << "Client from " << Network::AddressToString( &client->ipaddr ) << " tried to create a character without an account!\n";
 		client->Disconnect();
 		return;
 	  }
@@ -614,7 +615,7 @@ namespace Pol {
 	  else if ( charslot >= config.character_slots ||
 				client->acct->get_character( charslot ) != NULL )
 	  {
-		cerr << "Create Character: Invalid parameters." << endl;
+        ERROR_PRINT << "Create Character: Invalid parameters.\n";
 		send_login_error( client, LOGIN_ERROR_MISC );
 		client->Disconnect();
 		return;
@@ -657,8 +658,8 @@ namespace Pol {
 			continue;
 		}
 
-		cerr << "Create Character: Attempted to use invalid character '" << tmpchr << "' pos '" << i << "' in name '" << tstr << "'. Client IP: "
-		  << client->ipaddrAsString() << " Client Name: " << client->acct->name() << endl;
+        ERROR_PRINT << "Create Character: Attempted to use invalid character '" << tmpchr << "' pos '" << i << "' in name '" << tstr << "'. Client IP: "
+		  << client->ipaddrAsString() << " Client Name: " << client->acct->name() << "\n";
 		client->forceDisconnect();
 		return;
 	  }
@@ -702,26 +703,27 @@ namespace Pol {
 	  }
 	  if ( !valid_stats )
 	  {
-		cerr << "Create Character: Stats sum to "
-		  << stat_total << "." << endl
+        fmt::Writer tmp;
+		tmp << "Create Character: Stats sum to "
+		  << stat_total << ".\n"
 		  << "Valid values/ranges are: ";
 		for ( sidx = 0; sidx < ssopt.total_stats_at_creation.size(); ++sidx )
 		{
 		  if ( sidx > 0 )
-			cerr << ",";
-		  cerr << ssopt.total_stats_at_creation[sidx];
+			tmp << ",";
+		  tmp << ssopt.total_stats_at_creation[sidx];
 		}
-		cerr << endl;
+        ERROR_PRINT << tmp.c_str() << "\n";
 		client->forceDisconnect();
 		return;
 	  }
 	  if ( msg->strength < 10 || msg->intelligence < 10 || msg->dexterity < 10 )
 	  {
-		cerr << "Create Character: A stat was too small."
+        ERROR_PRINT << "Create Character: A stat was too small."
 		  << " Str=" << msg->strength
 		  << " Int=" << msg->intelligence
 		  << " Dex=" << msg->dexterity
-		  << endl;
+		  << "\n";
 
 		client->forceDisconnect();
 		return;
@@ -739,7 +741,7 @@ namespace Pol {
 		   msg->skillnumber3 > uoclient_general.maxskills ||
 		   msg->skillnumber4 > uoclient_general.maxskills )
 	  {
-		cerr << "Create Character: A skill number was out of range" << endl;
+        ERROR_PRINT << "Create Character: A skill number was out of range\n";
 		client->forceDisconnect();
 		return;
 	  }
@@ -751,7 +753,7 @@ namespace Pol {
 		msg->skillvalue3 > 50 ||
 		msg->skillvalue4 > 50 ) )
 	  {
-		cerr << "Create Character: Starting skill values incorrect" << endl;
+        ERROR_PRINT << "Create Character: Starting skill values incorrect\n";
 		client->forceDisconnect();
 		return;
 	  }
@@ -791,7 +793,7 @@ namespace Pol {
 		  chr->equip( tmpitem );
 		else
 		{
-          cerr << "Create Character: Failed to equip hair " << Clib::hexint( tmpitem->graphic ) << endl;
+          ERROR_PRINT.Format( "Create Character: Failed to equip hair 0x{:X}\n" ) << tmpitem->graphic;
 		  tmpitem->destroy();
 		}
 	  }
@@ -806,7 +808,7 @@ namespace Pol {
 		  chr->equip( tmpitem );
 		else
 		{
-          cerr << "Create Character: Failed to equip beard " << Clib::hexint( tmpitem->graphic ) << endl;
+          ERROR_PRINT.Format( "Create Character: Failed to equip beard 0x{:X}\n" ) << tmpitem->graphic;
 		  tmpitem->destroy();
 		}
 	  }
@@ -821,7 +823,7 @@ namespace Pol {
 		  chr->equip( tmpitem );
 		else
 		{
-		  cerr << "Create Character: Failed to equip face " << Clib::hexint( tmpitem->graphic ) << endl;
+          ERROR_PRINT.Format( "Create Character: Failed to equip face 0x{:X}\n" ) << tmpitem->graphic;
 		  tmpitem->destroy();
 		}
 	  }
@@ -908,7 +910,7 @@ namespace Pol {
 	  client->acct->set_character( charslot, client->chr );
 	  client->acct->active_character = chr;
 
-	  Clib::Log( "Account %s created character 0x%lu\n", client->acct->name(), chr->serial );
+      POLLOG.Format( "Account {} created character 0x{:X}\n" ) << client->acct->name() << chr->serial;
 	  SetCharacterWorldPosition( chr );
 	  client->msgtype_filter = &game_filter;
 	  start_client_char( client );
@@ -940,7 +942,7 @@ namespace Pol {
 		}
 		else
 		{
-		  cerr << "script misc/oncreate: setProgram failed" << endl;
+          ERROR_PRINT << "script misc/oncreate: setProgram failed\n";
 		}
 	  }
 	}
@@ -950,7 +952,7 @@ namespace Pol {
 	{
 	  if ( client->acct == NULL )
 	  {
-        cerr << "Client from " << Network::AddressToString( &client->ipaddr ) << " tried to create a character without an account!" << endl;
+        ERROR_PRINT << "Client from " << Network::AddressToString( &client->ipaddr ) << " tried to create a character without an account!\n";
 		client->forceDisconnect();
 		return;
 	  }
@@ -964,7 +966,7 @@ namespace Pol {
 				client->acct->get_character( msg->CharNumber ) != NULL ||
 				msg->StartIndex >= startlocations.size() )
 	  {
-		cerr << "Create Character: Invalid parameters." << endl;
+        ERROR_PRINT << "Create Character: Invalid parameters.\n";
 		send_login_error( client, LOGIN_ERROR_MISC );
 		client->Disconnect();
 		return;
@@ -1041,8 +1043,8 @@ namespace Pol {
 			continue;
 		}
 
-		cerr << "Create Character: Attempted to use invalid character '" << tmpchr << "' pos '" << i << "' in name '" << tstr << "'. Client IP: "
-		  << client->ipaddrAsString() << " Client Name: " << client->acct->name() << endl;
+        ERROR_PRINT << "Create Character: Attempted to use invalid character '" << tmpchr << "' pos '" << i << "' in name '" << tstr << "'. Client IP: "
+		  << client->ipaddrAsString() << " Client Name: " << client->acct->name() << "\n";
 		client->Disconnect();
 		return;
 	  }
@@ -1086,26 +1088,27 @@ namespace Pol {
 	  }
 	  if ( !valid_stats )
 	  {
-		cerr << "Create Character: Stats sum to "
-		  << stat_total << "." << endl
+        fmt::Writer tmp;
+        tmp << "Create Character: Stats sum to "
+		  << stat_total << ".\n"
 		  << "Valid values/ranges are: ";
 		for ( sidx = 0; sidx < ssopt.total_stats_at_creation.size(); ++sidx )
 		{
 		  if ( sidx > 0 )
-			cerr << ",";
-		  cerr << ssopt.total_stats_at_creation[sidx];
+			tmp << ",";
+		  tmp << ssopt.total_stats_at_creation[sidx];
 		}
-		cerr << endl;
+        ERROR_PRINT << tmp.c_str() << "\n";
 		client->forceDisconnect();
 		return;
 	  }
 	  if ( msg->Strength < 10 || msg->Intelligence < 10 || msg->Dexterity < 10 )
 	  {
-		cerr << "Create Character: A stat was too small."
+        ERROR_PRINT << "Create Character: A stat was too small."
 		  << " Str=" << msg->Strength
 		  << " Int=" << msg->Intelligence
 		  << " Dex=" << msg->Dexterity
-		  << endl;
+		  << "\n";
 
 		client->forceDisconnect();
 		return;
@@ -1159,7 +1162,7 @@ namespace Pol {
 		   msg->SkillNumber3 > uoclient_general.maxskills ||
 		   msg->SkillNumber4 > uoclient_general.maxskills )
 	  {
-		cerr << "Create Character: A skill number was out of range" << endl;
+        ERROR_PRINT << "Create Character: A skill number was out of range\n";
 		client->forceDisconnect();
 		return;
 	  }
@@ -1172,7 +1175,7 @@ namespace Pol {
 		msg->SkillValue3 > 50 ||
 		msg->SkillValue4 > 50 ) )
 	  {
-		cerr << "Create Character: Starting skill values incorrect" << endl;
+        ERROR_PRINT << "Create Character: Starting skill values incorrect\n";
 		client->forceDisconnect();
 		return;
 	  }
@@ -1212,7 +1215,7 @@ namespace Pol {
 		  chr->equip( tmpitem );
 		else
 		{
-		  cerr << "Create Character: Failed to equip hair " << Clib::hexint( tmpitem->graphic ) << endl;
+          ERROR_PRINT.Format( "Create Character: Failed to equip hair 0x{:X}\n" ) << tmpitem->graphic;
 		  tmpitem->destroy();
 		}
 	  }
@@ -1227,7 +1230,7 @@ namespace Pol {
 		  chr->equip( tmpitem );
 		else
 		{
-		  cerr << "Create Character: Failed to equip beard " << Clib::hexint( tmpitem->graphic ) << endl;
+          ERROR_PRINT.Format( "Create Character: Failed to equip beard 0x{:X}\n" ) << tmpitem->graphic;
 		  tmpitem->destroy();
 		}
 	  }
@@ -1314,7 +1317,7 @@ namespace Pol {
 	  client->acct->set_character( msg->CharNumber, client->chr );
 	  client->acct->active_character = chr;
 
-	  Clib::Log( "Account %s created character 0x%lu\n", client->acct->name(), chr->serial );
+      POLLOG.Format( "Account {} created character 0x{:X}\n" ) << client->acct->name() << chr->serial;
 	  SetCharacterWorldPosition( chr );
 	  client->msgtype_filter = &game_filter;
 	  start_client_char( client );
@@ -1346,7 +1349,7 @@ namespace Pol {
 		}
 		else
 		{
-		  cerr << "script misc/oncreate: setProgram failed" << endl;
+          ERROR_PRINT << "script misc/oncreate: setProgram failed\n";
 		}
 	  }
 	}

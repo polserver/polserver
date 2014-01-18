@@ -14,6 +14,7 @@ Notes
 #include "../clib/passert.h"
 #include "../clib/stlutil.h"
 #include "../clib/timer.h"
+#include "../clib/logfacility.h"
 
 #include "staticblock.h"
 #include "staticserver.h"
@@ -49,7 +50,7 @@ namespace Pol {
 
 	void StaticServer::Validate() const
 	{
-	  cout << "Validating statics files: ";
+      POLLOG_INFO << "Validating statics files: ";
 	  Tools::Timer<> timer;
 	  for ( unsigned short y = 0; y < _descriptor.height; y += STATICBLOCK_CHUNK )
 	  {
@@ -58,7 +59,7 @@ namespace Pol {
 		  ValidateBlock( x, y );
 		}
 	  }
-	  cout << "Completed in " << timer.ellapsed() << " ms." << endl;
+      POLLOG_INFO << "Completed in " << timer.ellapsed( ) << " ms.\n";
 	}
 
 	void StaticServer::ValidateBlock( unsigned short x, unsigned short y ) const

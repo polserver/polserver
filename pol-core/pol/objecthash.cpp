@@ -13,7 +13,7 @@ Notes
 
 #include "../clib/endian.h"
 #include "../clib/passert.h"
-#include "../clib/logfile.h"
+#include "../clib/logfacility.h"
 
 #include "accounts/account.h"
 #include "objecthash.h"
@@ -37,9 +37,8 @@ namespace Pol {
 	  OH_iterator itr = hash.find( obj->serial );
 	  if ( itr != hash.end() )
 	  {
-		if ( config.loglevel >= 5 )
-		  Clib::Log( "ObjectHash insert failed for object serial %x. (duplicate serial?)\n", obj->serial );
-		//cout << "ObjectHash insert failed for object serial " << hex << obj->serial << ". (duplicate serial?)" << endl;
+        if ( config.loglevel >= 5 )
+          POLLOG.Format( "ObjectHash insert failed for object serial 0x{:X}. (duplicate serial?)\n" ) << obj->serial;
 		return false;
 	  }
 	  hash.insert( hash.end(), make_pair( obj->serial, UObjectRef( obj ) ) );
@@ -207,12 +206,12 @@ namespace Pol {
 	  } while ( any );
 	  if ( !hash.empty() )
 	  {
-		cout << "Leftover objects in objecthash: " << hash.size() << endl;
+        INFO_PRINT << "Leftover objects in objecthash: " << hash.size() << "\n";
 
 		// the hash will be cleared after main() exits, with other statics.
 		// this usually causes assertion failures and crashes.
 		// creating a copy of the internal hash will ensure no refcounts reach zero.
-		cout << "Leaking a copy of the objecthash in order to avoid a crash." << endl;
+        INFO_PRINT << "Leaking a copy of the objecthash in order to avoid a crash.\n";
 		new hs( hash );
 	  }
 	  //    hash.clear();

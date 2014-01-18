@@ -14,7 +14,7 @@ Notes
 #include "../clib/stl_inc.h"
 
 #include "../clib/endian.h"
-#include "../clib/logfile.h"
+#include "../clib/logfacility.h"
 #include "../clib/passert.h"
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
@@ -45,8 +45,8 @@ namespace Pol {
       ZoneItems::iterator itr = std::find( zone.items.begin(), zone.items.end(), item );
 	  if ( itr == zone.items.end() )
 	  {
-        Clib::Log2( "remove_item_from_world: item 0x%lx at %d,%d does not exist in world zone ( Old Serial: 0x%2x )\n",
-			  item->serial, item->x, item->y, cfBEu32( item->serial_ext ) );
+        POLLOG_ERROR.Format( "remove_item_from_world: item 0x{:X} at {},{} does not exist in world zone ( Old Serial: 0x{:X} )\n" )
+          << item->serial << item->x << item->y << ( cfBEu32( item->serial_ext ) );
 
 		passert( itr != zone.items.end() );
 	  }
@@ -141,8 +141,8 @@ namespace Pol {
         auto itr = std::find( set.begin(), set.end(), chr );
         if ( itr == set.end() )
         {
-          Clib::Log( "ClrCharacterWorldPosition(%s): mob (0x%lx,0x%lx) supposedly at (%d,%d) isn't in correct zone\n",
-                     reason, chr->serial, chr->serial_ext, chr->x, chr->y );
+          POLLOG_ERROR.Format( "ClrCharacterWorldPosition({}): mob (0x{:X},0x{:X}) supposedly at ({},{}) isn't in correct zone\n" )
+            << reason << chr->serial << chr->serial_ext << chr->x << chr->y;
           bool is_npc = chr->isa( Core::UObject::CLASS_NPC );
           for ( unsigned zonex = 0; zonex < wgridx; ++zonex )
           {
@@ -160,8 +160,8 @@ namespace Pol {
                 found = std::find( _z.begin(), _z.end(), chr ) != _z.end();
               }
               if ( found )
-                Clib::Log( "ClrCharacterWorldPosition: Found mob in zone (%d,%d)\n",
-                zonex, zoney );
+                POLLOG_ERROR.Format( "ClrCharacterWorldPosition: Found mob in zone ({},{})\n" )
+                << zonex << zoney;
             }
           }
           passert( itr != set.end() );
@@ -222,8 +222,8 @@ namespace Pol {
 
 		if ( itr == oldzone.items.end() )
 		{
-		  Clib::Log2( "MoveItemWorldPosition: item 0x%lx at old-x/y(%d,%d - %s) new-x/y(%d,%d - %s) does not exist in world zone. \n",
-				item->serial, oldx, oldy, oldrealm->name().c_str(), item->x, item->y, item->realm->name().c_str() );
+          POLLOG_ERROR.Format( "MoveItemWorldPosition: item 0x{:X} at old-x/y({},{} - {}) new-x/y({},{} - {}) does not exist in world zone. \n" )
+            << item->serial << oldx << oldy << oldrealm->name() << item->x << item->y << item->realm->name();
 
 		  passert( itr != oldzone.items.end() );
 		}
@@ -249,18 +249,18 @@ namespace Pol {
           zone_convert( item->x, item->y, wx, wy, realm );
           if ( wx != x || wy != y )
           {
-            Clib::Log( "Item 0x%lx in zone (%d,%d) but location is (%d,%d) (zone %d,%d)\n",
-                       item->serial,
-                       x, y,
-                       item->x, item->y,
-                       wx, wy );
+            POLLOG_ERROR.Format( "Item 0x{:X} in zone ({},{}) but location is ({},{}) (zone {},{})\n" )
+              << item->serial
+              << x << y
+              << item->x << item->y
+              << wx << wy;
             return false;
           }
         }
 	  }
 	  catch ( ... )
 	  {
-        Clib::Log( "item integ problem at zone (%d,%d)\n", x, y );
+        POLLOG_ERROR.Format( "item integ problem at zone ({},{})\n" ) << x << y;
 		return false;
 	  }
 	  return true;
@@ -322,7 +322,7 @@ namespace Pol {
           unsigned short wx, wy;
           zone_convert( chr->x, chr->y, wx, wy, chr->realm );
           if ( wx != x || wy != y )
-            cout << "Character " << chr->serial << " in a zone, but elsewhere" << endl;
+            INFO_PRINT << "Character 0x" << fmt::hexu( chr->serial ) << " in a zone, but elsewhere\n";
         };
 
 		for ( unsigned x = 0; x < gridwidth; ++x )

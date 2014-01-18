@@ -18,6 +18,7 @@ Notes
 #include "../clib/fileutil.h"
 #include "../clib/strutil.h"
 #include "../clib/timer.h"
+#include "../clib/logfacility.h"
 
 #include "mobile/charactr.h"
 #include "clidata.h"
@@ -129,13 +130,13 @@ namespace Pol {
 	  unsigned int nobjects = 0;
 	  Tools::Timer<> timer;
 
-	  cout << "  deferred inserts:";
+	  INFO_PRINT << "  deferred inserts:";
 
 	  for ( DeferList::iterator itr = deferred_insertions.begin(); itr != deferred_insertions.end(); ++itr )
 	  {
 		if ( --num_until_dot == 0 )
 		{
-		  cout << ".";
+          INFO_PRINT << ".";
 		  num_until_dot = 1000;
 		}
 
@@ -152,10 +153,8 @@ namespace Pol {
 		  }
 		  else
 		  {
-            cerr << "Item " << Clib::hexint( item->serial )
-              << " is supposed to be on Character " << Clib::hexint( container_serial )
-			  << ", but that character cannot be found."
-			  << endl;
+            ERROR_PRINT.Format( "Item 0x{:X} is supposed to be on Character 0x{:X}, but that character cannot be found.\n" ) << item->serial
+              << container_serial;
 
 			// Austin - Aug. 10, 2006
 			// Removes the object if ignore_load_errors is enabled and the character can't be found.
@@ -163,7 +162,7 @@ namespace Pol {
 			  throw runtime_error( "Data file integrity error" );
 			else
 			{
-			  cerr << "Ignore load errors enabled. Removing object." << endl;
+              ERROR_PRINT << "Ignore load errors enabled. Removing object.\n";
 			  obj->destroy();
 			}
 
@@ -179,10 +178,9 @@ namespace Pol {
 		  }
 		  else
 		  {
-            cerr << "Item " << Clib::hexint( item->serial )
-              << " is supposed to be in container " << Clib::hexint( container_serial )
-			  << ", but that container cannot be found."
-			  << endl;
+            ERROR_PRINT << "Item 0x" << fmt::hexu( item->serial )
+              << " is supposed to be in container 0x" << fmt::hexu( container_serial )
+              << ", but that container cannot be found.\n";
 
 			// Austin - Aug. 10, 2006
 			// Removes the object if ignore_load_errors is enabled and the character can't be found.
@@ -190,7 +188,7 @@ namespace Pol {
 			  throw runtime_error( "Data file integrity error" );
 			else
 			{
-			  cerr << "Ignore load errors enabled. Removing object." << endl;
+              ERROR_PRINT << "Ignore load errors enabled. Removing object.\n";
 			  obj->destroy();
 			}
 		  }
@@ -198,7 +196,7 @@ namespace Pol {
 		++nobjects;
 	  }
 	  timer.stop();
-	  cout << " " << nobjects << " elements in " << timer.ellapsed() << " ms." << endl;
+      INFO_PRINT << " " << nobjects << " elements in " << timer.ellapsed() << " ms.\n";
 
 	  deferred_insertions.clear();
 	}
@@ -219,11 +217,10 @@ namespace Pol {
 	  }
 	  else
 	  {
-        cerr << "Item " << Clib::hexint( item->serial )
-		  << " is supposed to be equipped on Character "
-          << Clib::hexint( chr->serial )
-		  << ", but is not 'equippable' on that character."
-		  << endl;
+        ERROR_PRINT << "Item 0x" << fmt::hexu( item->serial )
+          << " is supposed to be equipped on Character "
+          << fmt::hexu( chr->serial )
+          << ", but is not 'equippable' on that character.\n";
 		UContainer* bp = chr->backpack();
 		if ( bp )
 		{
@@ -236,20 +233,20 @@ namespace Pol {
 			bp->add_at_random_location( item );
 			// leaving dirty
 			gflag_enforce_container_limits = true;
-			cerr << "I'm so cool, I put it in the character's backpack!" << endl;
+            ERROR_PRINT << "I'm so cool, I put it in the character's backpack!\n";
 			return;
 		  }
 		  else
 		  {
 			gflag_enforce_container_limits = true;
-			cerr << "Tried to put it in the character's backpack, "
-			  << "but it wouldn't fit." << endl;
+            ERROR_PRINT << "Tried to put it in the character's backpack, "
+              << "but it wouldn't fit.\n";
 		  }
 		}
 		else
 		{
-		  cerr << "Tried to put it in the character's backpack, "
-			<< "but there isn't one.  That's naughty..." << endl;
+          ERROR_PRINT << "Tried to put it in the character's backpack, "
+            << "but there isn't one.  That's naughty...\n";
 		}
 		throw runtime_error( "Data file integrity error" );
 	  }
@@ -290,16 +287,16 @@ namespace Pol {
 		bool add_to_slot = cont->can_add_to_slot( slotIndex );
 		if ( !canadd )
 		{
-          cerr << "Can't add Item " << Clib::hexint( item->serial )
-            << " to container " << Clib::hexint( cont->serial ) << endl;
+          ERROR_PRINT << "Can't add Item 0x" << fmt::hexu( item->serial )
+            << " to container 0x" << fmt::hexu( cont->serial ) << "\n";
 		  throw runtime_error( "Data file error" );
 		}
 
 		if ( !add_to_slot || !item->slot_index( slotIndex ) )
 		{
-          cerr << "Can't add Item " << Clib::hexint( item->serial )
-            << " to container " << Clib::hexint( cont->serial )
-            << " at slot " << Clib::hexint( slotIndex ) << endl;
+          ERROR_PRINT << "Can't add Item 0x" << fmt::hexu( item->serial )
+            << " to container 0x" << fmt::hexu( cont->serial )
+            << " at slot 0x" << fmt::hexu( slotIndex ) << "\n";
 		  throw runtime_error( "Data file error" );
 		}
 
@@ -315,8 +312,8 @@ namespace Pol {
 	  }
 	  else
 	  {
-        cout << "Container type " << Clib::hexint( cont_item->objtype_ )
-		  << " contains items, but is not a container class" << endl;
+        INFO_PRINT << "Container type 0x" << fmt::hexu( cont_item->objtype_ )
+		  << " contains items, but is not a container class\n";
 		throw runtime_error( "Config file error" );
 	  }
 	}

@@ -31,7 +31,7 @@ FIXME: Does STW use slots with KR or newest 2d? If so, we must do slot checks th
 #include <stdio.h>
 
 #include "../clib/endian.h"
-#include "../clib/logfile.h"
+#include "../clib/logfacility.h"
 #include "../clib/passert.h"
 #include "../clib/random.h"
 #include "../clib/stlutil.h"
@@ -41,7 +41,6 @@ FIXME: Does STW use slots with KR or newest 2d? If so, we must do slot checks th
 
 #include "../plib/realm.h"
 
-#include "dtrace.h"
 #include "getitem.h"
 #include "layers.h"
 #include "los.h"
@@ -351,16 +350,15 @@ namespace Pol {
 	  short newz;
 	  if ( !inrangex( chr, x, y, 2 ) && !client->chr->can_moveanydist() )
 	  {
-		Clib::Log( "Client (Character %s) tried to drop an item out of range.\n", client->chr->name().c_str() );
+        POLLOG_ERROR.Format( "Client (Character {}) tried to drop an item out of range.\n" ) << client->chr->name();
 		send_item_move_failure( client, MOVE_ITEM_FAILURE_TOO_FAR_AWAY );
 		return false;
 	  }
 
 	  if ( !chr->realm->dropheight( x, y, z, client->chr->z, &newz, &multi ) )
 	  {
-		Clib::Log( "Client (Character %s) tried to drop an item at (%d,%d,%d), which is a blocked location.\n",
-			 client->chr->name().c_str(),
-			 int( x ), int( y ), int( z ) );
+        POLLOG_ERROR.Format( "Client (Character {}) tried to drop an item at ({},{},{}), which is a blocked location.\n" )
+          << client->chr->name() << x << y << z;
 		return false;
 	  }
 
@@ -776,17 +774,17 @@ namespace Pol {
 	  Items::Item *item = client->chr->gotten_item;
 	  if ( item == NULL )
 	  {
-		Clib::Log( "Character %08lX tried to drop item %08lX, but had not gotten an item.\n",
-			 client->chr->serial,
-			 item_serial );
+        POLLOG_ERROR.Format( "Character 0x{:X} tried to drop item 0x{:X}, but had not gotten an item.\n" )
+          << client->chr->serial
+          << item_serial;
 		return;
 	  }
 	  if ( item->serial != item_serial )
 	  {
-		Clib::Log( "Character %08lX tried to drop item %08lX, but instead had gotten item %08lX.\n",
-			 client->chr->serial,
-			 item_serial,
-			 item->serial );
+        POLLOG_ERROR.Format( "Character 0x{:X} tried to drop item 0x{:X}, but instead had gotten item 0x{:X}.\n" )
+          << client->chr->serial
+          << item_serial
+          << item->serial;
 		item->gotten_by = NULL;
 		return;
 	  }
@@ -845,17 +843,17 @@ namespace Pol {
 	  Items::Item *item = client->chr->gotten_item;
 	  if ( item == NULL )
 	  {
-		Clib::Log( "Character %08lX tried to drop item %08lX, but had not gotten an item.\n",
-			 client->chr->serial,
-			 item_serial );
+        POLLOG_ERROR.Format( "Character 0x{:X} tried to drop item 0x{:X}, but had not gotten an item.\n" )
+          << client->chr->serial
+          << item_serial;
 		return;
 	  }
 	  if ( item->serial != item_serial )
 	  {
-		Clib::Log( "Character %08lX tried to drop item %08lX, but instead had gotten item %08lX.\n",
-			 client->chr->serial,
-			 item_serial,
-			 item->serial );
+        POLLOG_ERROR.Format( "Character 0x{:X} tried to drop item 0x{:X}, but instead had gotten item 0x{:X}.\n" )
+          << client->chr->serial
+          << item_serial
+          << item->serial;
 		item->gotten_by = NULL;
 		return;
 	  }
@@ -1023,11 +1021,11 @@ namespace Pol {
 		}
 		else
 		{
-		  Clib::Log( "Can't swap trade containers: ic0=%ld,w0=%ld, ic1=%ld,w1=%ld\n",
-			   cont0->item_count(),
-			   cont0->weight(),
-			   cont1->item_count(),
-			   cont1->weight() );
+          POLLOG_ERROR.Format( "Can't swap trade containers: ic0={},w0={}, ic1={},w1={}\n" )
+            << cont0->item_count()
+            << cont0->weight()
+            << cont1->item_count()
+            << cont1->weight();
 		}
 	  }
 	}
@@ -1039,22 +1037,26 @@ namespace Pol {
 	  switch ( msg->action )
 	  {
 		case PKTBI_6F::ACTION_CANCEL:
-		  dtrace( 5 ) << "Cancel secure trade" << endl;
+          INFO_PRINT_TRACE( 5 ) << "Cancel secure trade\n";
 		  cancel_trade( client->chr );
 		  break;
 
 		case PKTBI_6F::ACTION_STATUS:
 		  bool set;
 		  set = msg->cont1_serial ? true : false;
-		  if ( set )
-			dtrace( 5 ) << "Set secure trade indicator" << endl;
-		  else
-			dtrace( 5 ) << "Clear secure trade indicator" << endl;
+          if ( set )
+          {
+            INFO_PRINT_TRACE( 5 ) << "Set secure trade indicator\n";
+          }
+          else
+          {
+            INFO_PRINT_TRACE( 5 ) << "Clear secure trade indicator\n";
+          }
 		  change_trade_status( client->chr, set );
 		  break;
 
 		default:
-		  dtrace( 5 ) << "Unknown secure trade action: " << (int)msg->action << endl;
+          INFO_PRINT_TRACE( 5 ) << "Unknown secure trade action: " << msg->action << "\n";
 		  break;
 	  }
 	}

@@ -16,7 +16,6 @@ Notes
 
 #include "../clib/clib.h"
 #include "../clib/endian.h"
-#include "../clib/logfile.h"
 #include "../clib/passert.h"
 
 #include "mobile/charactr.h"

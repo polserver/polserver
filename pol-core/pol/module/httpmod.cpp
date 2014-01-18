@@ -8,6 +8,7 @@ Notes
 */
 
 #include "../../clib/stl_inc.h"
+#include "../../clib/logfacility.h"
 
 #include "../../bscript/impstr.h"
 #include "../../bscript/berror.h"
@@ -187,8 +188,8 @@ namespace Pol {
 		  }
 		  params_[name.c_str()] = value;
 
-		  if ( Core::config.web_server_debug )
-			cout << "http-param: '" << param << "', '" << Core::http_decodestr( param ) << "'" << endl;
+          if ( Core::config.web_server_debug )
+            INFO_PRINT << "http-param: '" << param << "', '" << Core::http_decodestr( param ) << "'\n";
 
 		  start = brk + 1;
 		} while ( brk != string::npos );

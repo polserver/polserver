@@ -13,6 +13,7 @@ Notes
 #include <string.h>
 
 #include "../clib/fileutil.h"
+#include "../clib/logfacility.h"
 #include "../clib/stlutil.h"
 
 #include "polcfg.h"
@@ -41,16 +42,16 @@ namespace Pol {
       FILE *fp = fopen( filename.c_str(), "rb" );
       if ( !fp )
       {
-        cerr << "Unable to open UO datafile: " << filename << endl;
-        cerr << "POL.CFG specifies UODataFileRoot as '" << config.uo_datafile_root << "'.  Is this correct?" << endl;
-        cerr << "  The following files must be present in that directory:" << endl
-          << "      map0.mul" << endl
-          << "      multi.idx" << endl
-          << "      multi.mul" << endl
-          << "      staidx0.mul" << endl
-          << "      statics0.mul" << endl
-          << "      tiledata.mul" << endl
-          << "      verdata.mul    (optional - only if present on client install)" << endl;
+        ERROR_PRINT << "Unable to open UO datafile: " << filename << "\n"
+          << "POL.CFG specifies UODataFileRoot as '" << config.uo_datafile_root << "'.  Is this correct?\n"
+          << "  The following files must be present in that directory:\n"
+          << "      map0.mul\n"
+          << "      multi.idx\n"
+          << "      multi.mul\n"
+          << "      staidx0.mul\n"
+          << "      statics0.mul\n"
+          << "      tiledata.mul\n"
+          << "      verdata.mul    (optional - only if present on client install)\n";
 
         throw runtime_error( "Error opening UO datafile." );
       }
@@ -64,7 +65,7 @@ namespace Pol {
       filename = name + Clib::tostring( map_id ) + ".mul";
       if ( uo_mapid == 1 && !Clib::FileExists( config.uo_datafile_root + filename ) )
       {
-        cerr << "Unable to find UO file: " << filename << ", reading " + name + "0.mul instead." << endl;
+        ERROR_PRINT << "Unable to find UO file: " << filename << ", reading " + name + "0.mul instead.\n";
         filename = name + "0.mul";
       }
 
