@@ -112,10 +112,21 @@ namespace Pol {
 	  os << "File: " << filename << ", Line " << line << endl;
 	}
 
+    void CompilerContext::printOn( fmt::Writer& writer ) const
+    {
+      writer << "File: " << filename << ", Line " << line << "\n";
+    }
+
 	void CompilerContext::printOnShort( ostream& os ) const
 	{
 	  os << filename << ", Line " << line << endl;
 	}
+
+    void CompilerContext::printOnShort( fmt::Writer& writer ) const
+    {
+      writer << filename << ", Line " << line << "\n";
+    }
+
 
 	int eatToEndOfLine( CompilerContext& ctx )
 	{

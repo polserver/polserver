@@ -9,6 +9,7 @@ Notes
 
 #include "../clib/stl_inc.h"
 #include "../pol/uconst.h"
+#include "../clib/logfacility.h"
 #include "realm.h"
 #include "mapserver.h"
 namespace Pol {
@@ -25,17 +26,19 @@ namespace Pol {
 	  if ( p_test_realm == NULL )
 		p_test_realm = new Realm( "britannia" );
 
-	  cout << "POL DropHeight(" << chrx << "," << chry << "," << chrz << ","
+      fmt::Writer tmp;
+      tmp << "POL DropHeight(" << chrx << "," << chry << "," << chrz << ","
 		<< dropx << "," << dropy << "," << dropz << "): "
 		<< "Expect " << exp_result << "," << exp_z << ": ";
 
 	  short newz;
 	  Multi::UMulti* multi;
 	  bool result = p_test_realm->dropheight( dropx, dropy, dropz, chrz, &newz, &multi );
-	  cout << "Got " << result << "," << newz << ": ";
+      tmp << "Got " << result << "," << newz << ": ";
 	  if ( exp_result != result )
 	  {
-		cout << "Failure!" << endl;
+        tmp << "Failure!\n";
+        INFO_PRINT << tmp.c_str();
 		inc_failures();
 		return;
 	  }
@@ -43,18 +46,19 @@ namespace Pol {
 	  {
 		if ( newz != exp_z )
 		{
-		  cout << "Failure!" << endl;
+          tmp << "Failure!\n";
+          INFO_PRINT << tmp.c_str();
 		  inc_failures();
 		  return;
 		}
 	  }
 	  inc_successes();
-	  cout << "Ok!" << endl;
+      INFO_PRINT << tmp.c_str() << "Ok!\n";
 	}
 
 	void pol_drop_test( void )
 	{
-	  cout << "POL datafile drop tests:" << endl;
+      INFO_PRINT << "POL datafile drop tests:\n";
 	  // first things first.  Gotta be able to drop stuff by the brit bank.
 	  test_drop( 1432, 1696, 0, 1433, 1696, 0, true, 0 );
 	  // in the bank, on the floor

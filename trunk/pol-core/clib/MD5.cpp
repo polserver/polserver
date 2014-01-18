@@ -13,6 +13,7 @@ Notes
 
 #include "stlutil.h"
 #include "MD5.h"
+#include "logfacility.h"
 
 #ifdef _WIN32
 #define _WIN32_WINNT 0x0400 // need this for wincrypt.h to be even looked at
@@ -37,7 +38,7 @@ namespace Pol {
 		{
 		  if( !CryptAcquireContext( &hProv, NULL, NULL, PROV_RSA_FULL, 0 ) )
 		  {
-			cerr << "Error " << GetLastError() << " acquiring crypt context" << std::endl;
+            ERROR_PRINT << "Error " << GetLastError( ) << " acquiring crypt context\n";
 			return false;
 		  }
 		}
@@ -45,21 +46,21 @@ namespace Pol {
 
 	  if( !CryptCreateHash( hProv, CALG_MD5, 0, 0, &hHash ) )
 	  {
-		cerr << "Error " << GetLastError() << " creating hash" << std::endl;
+        ERROR_PRINT << "Error " << GetLastError( ) << " creating hash\n";
 		return false;
 	  }
 
 	  // Hash password string.
 	  if( !CryptHashData( hHash, (const unsigned char*)( in.data() ), static_cast<unsigned long>( in.length() ), 0 ) )
 	  {
-		cerr << "Error " << GetLastError() << " adding data to hash" << std::endl;
+        ERROR_PRINT << "Error " << GetLastError() << " adding data to hash\n";
 		return false;
 	  }
 	  unsigned long len = 16;
 	  unsigned char buf[16];
 	  if( !CryptGetHashParam( hHash, HP_HASHVAL, buf, &len, 0 ) )
 	  {
-		cerr << "Error " << GetLastError() << " getting hash value" << std::endl;
+        ERROR_PRINT << "Error " << GetLastError() << " getting hash value\n";
 		return false;
 	  }
 

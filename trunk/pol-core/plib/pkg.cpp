@@ -12,6 +12,7 @@ Notes
 #include "../clib/cfgfile.h"
 #include "../clib/dirlist.h"
 #include "../clib/fileutil.h"
+#include "../clib/logfacility.h"
 #include "../clib/maputil.h"
 #include "../clib/passert.h"
 #include "../clib/stlutil.h"
@@ -178,7 +179,7 @@ namespace Pol {
 		if ( found != NULL )
 		{
 		  any = true;
-		  cout << "Package " << desc() << " replaces package " << found->desc() << endl;
+		  INFO_PRINT << "Package " << desc() << " replaces package " << found->desc() << "\n";
 		  remove_package( found );
 		  delete found;
 		  found = NULL;
@@ -193,9 +194,9 @@ namespace Pol {
 	  {
 		if ( core_required_ > polver )
 		{
-		  cerr << "Error in package " << desc() << ":" << endl;
-		  cerr << "  Core version " << core_required_
-			<< " is required, but version " << polver << " is running." << endl;
+          ERROR_PRINT << "Error in package " << desc() << ":\n"
+            << "  Core version " << core_required_
+            << " is required, but version " << polver << " is running.\n";
 		  throw runtime_error( "Package requires a newer core version" );
 		}
 	  }
@@ -204,9 +205,9 @@ namespace Pol {
 		int cmp = stricmp( polverstr, core_versionstring_required_.c_str() );
 		if ( cmp < 0 )
 		{
-		  cerr << "Error in package " << desc() << ":" << endl;
-		  cerr << "  Core version " << core_versionstring_required_
-			<< " is required, but version " << polverstr << " is running." << endl;
+          ERROR_PRINT << "Error in package " << desc() << ":\n"
+            << "  Core version " << core_versionstring_required_
+            << " is required, but version " << polverstr << " is running.\n";
 		  throw runtime_error( "Package requires a newer core version" );
 		}
 	  }
@@ -215,18 +216,17 @@ namespace Pol {
 		Package* found = find_package( elem.pkgname );
 		if ( found == NULL )
 		{
-		  cerr << "Error in package '" << name_ << "' (" << dir_ << "):" << endl;
-		  cerr << "	Package '" << elem.pkgname << "' is required, but is not installed." << endl;
+          ERROR_PRINT << "Error in package '" << name_ << "' (" << dir_ << "):\n"
+            << "	Package '" << elem.pkgname << "' is required, but is not installed.\n";
 		  throw runtime_error( "Package dependency error" );
 		}
 		else
 		{
 		  if ( !check_version2( found->version_, elem.version ) )
 		  {
-			cerr << "Error in package '" << name_ << "' (" << dir_ << "):" << endl;
-			cerr << "	Package '" << elem.pkgname << "' version " << elem.version
-			  << " is required, but version " << found->version_ << " was found"
-			  << endl;
+            ERROR_PRINT << "Error in package '" << name_ << "' (" << dir_ << "):\n"
+              << "	Package '" << elem.pkgname << "' version " << elem.version
+              << " is required, but version " << found->version_ << " was found\n";
 			throw runtime_error( "Package dependency error" );
 		  }
 		}
@@ -240,8 +240,8 @@ namespace Pol {
 		Package* found = find_package( elem.pkgname );
 		if ( found != NULL )
 		{
-		  cerr << "Error in package " << desc() << ":" << endl;
-		  cerr << "	Package conflicts with package " << found->desc() << endl;
+          ERROR_PRINT << "Error in package " << desc() << ":\n"
+            << "	Package conflicts with package " << found->desc() << "\n";
 		  throw runtime_error( "Package dependency error" );
 		}
 	  }
@@ -260,29 +260,29 @@ namespace Pol {
 		{
 		  // replace existing package with newer version
 		  if ( !quiet )
-			cout << "Replacing package " << existing_pkg->desc()
+			INFO_PRINT << "Replacing package " << existing_pkg->desc()
 			<< " version " << existing_pkg->version()
 			<< " with version " << pkg->version() << " found in " << pkg->dir()
-			<< endl;
+			<< "\n";
 		  remove_package( existing_pkg );
 		  delete existing_pkg;
 		  existing_pkg = NULL;
 		}
 		else if ( isequal )
 		{
-		  cerr << "Error in package " << pkg->desc() << ":" << endl;
-		  cerr << "	Package by same name already found in " << existing_pkg->desc() << endl;
+          ERROR_PRINT << "Error in package " << pkg->desc() << ":\n"
+            << "	Package by same name already found in " << existing_pkg->desc() << "\n";
 		  throw runtime_error( "Duplicate package found" );
 		}
 		else
 		{
 		  // skip this package, its version is older
 		  if ( !quiet )
-			cout << "Skipping package " << pkg->desc()
+			INFO_PRINT << "Skipping package " << pkg->desc()
 			<< " version " << pkg->version()
 			<< " because version " << existing_pkg->version() << " was already found in "
 			<< existing_pkg->dir()
-			<< endl;
+			<< "\n";
 		  return;
 		}
 	  }
@@ -319,7 +319,7 @@ namespace Pol {
 			!Clib::FileExists( disabled_pkg.c_str( ) ) )
 		  {
 			if ( !quiet )
-			  cout << "Loading package in " << pkg_dir << endl;
+			  INFO_PRINT << "Loading package in " << pkg_dir << "\n";
 			load_package( pkg_dir, elem, quiet );
 
 			load_packages( pkg_dir, quiet );
@@ -384,7 +384,7 @@ namespace Pol {
 		  while ( elem.remove_prop( "dir", &dir ) )
 		  {
 			dir = Clib::normalized_dir_form( dir );
-			cout << "Searching for packages under " << dir << endl;
+			INFO_PRINT << "Searching for packages under " << dir << "\n";
 			load_packages( dir.c_str() );
 		  }
 		}
@@ -426,13 +426,13 @@ namespace Pol {
 			}
 			else
 			{
-			  cerr << "Unable to find package '" << pkgname << "'" << endl;
+              ERROR_PRINT << "Unable to find package '" << pkgname << "'\n";
 			  return false;
 			}
 		  }
 		  else
 		  {
-			cerr << "Poorly formed packagefile descriptor: '" << spec << "'" << endl;
+            ERROR_PRINT << "Poorly formed packagefile descriptor: '" << spec << "'\n";
 			return false;
 		  }
 

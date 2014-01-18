@@ -12,6 +12,7 @@ Notes
 #include "stl_inc.h"
 
 #include "clib.h"
+#include "logfacility.h"
 #include "strexcpt.h"
 
 #include "xmain.h"
@@ -29,6 +30,9 @@ namespace Pol {
 int main( int argc, char *argv[] )
 {
   using namespace Pol;
+  Clib::Logging::LogFacility logger;
+  Clib::Logging::initLogging( &logger );
+
 	setlocale(LC_TIME,"");
     int exitcode = 0;
 
@@ -47,22 +51,22 @@ int main( int argc, char *argv[] )
     }
     catch( const char *msg )
     {
-        cerr << "Execution aborted due to: " << msg << endl;
+        ERROR_PRINT << "Execution aborted due to: " << msg << "\n";
         exitcode = 1;
     }
     catch( string& str )
     {
-        cerr << "Execution aborted due to: " << str << endl;
+      ERROR_PRINT << "Execution aborted due to: " << str << "\n";
         exitcode = 1;
     }       // egcs has some trouble realizing 'exception' should catch
     catch( runtime_error& re )   // runtime_errors, so...
     {
-        cerr << "Execution aborted due to: " << re.what() << endl;
+      ERROR_PRINT << "Execution aborted due to: " << re.what( ) << "\n";
         exitcode = 1;
     }
     catch( exception& ex )
     {
-        cerr << "Execution aborted due to: " << ex.what() << endl;
+      ERROR_PRINT << "Execution aborted due to: " << ex.what( ) << "\n";
         exitcode = 1;
     }
     catch( int xn )
@@ -75,7 +79,7 @@ int main( int argc, char *argv[] )
 #ifndef _WIN32
     catch( ... )
     {
-        cerr << "Execution aborted due to generic exception." << endl;
+      ERROR_PRINT << "Execution aborted due to generic exception." << "\n";
         exitcode = 2;
     }
 #endif    

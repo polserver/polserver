@@ -21,6 +21,7 @@ Notes
 #include "../clib/clib.h"
 #include "../clib/dirlist.h"
 #include "../clib/fileutil.h"
+#include "../clib/logfacility.h"
 #include "../clib/mdump.h"
 #include "../clib/progver.h"
 #include "../clib/timer.h"
@@ -74,51 +75,51 @@ namespace Pol {
 
 	void usage( void )
 	{
-	  cerr << " Usage:" << endl;
-	  cerr << "   " << Pol::progverstr << " [options] filespec [filespec ...]" << endl;
-	  cerr << "   Output is : filespec.ecl" << endl;
-	  cerr << "   Options: " << endl;
-	  cerr << "       -a           compile *.asp pages also" << endl;
-	  cerr << "       -A           automatically compile scripts in main and enabled packages" << endl;
-	  cerr << "       -Au          (as '-A' but only compile updated files)" << endl;
-	  cerr << "       -b           keep building other scripts after errors" << endl;
-	  cerr << "       -C cfgpath   path to configuration (replaces ecompile.cfg)" << endl;
-	  cerr << "       -d           display confusing compiler parse information" << endl;
-	  cerr << "       -D           write dependency information" << endl;
-	  cerr << "       -e           report error on successful compilation (used for testing)" << endl;
+      ERROR_PRINT << " Usage:\n"
+        << "   " << Pol::progverstr << " [options] filespec [filespec ...]\n"
+        << "   Output is : filespec.ecl\n"
+        << "   Options: \n"
+        << "       -a           compile *.asp pages also\n"
+        << "       -A           automatically compile scripts in main and enabled packages\n"
+        << "       -Au          (as '-A' but only compile updated files)\n"
+        << "       -b           keep building other scripts after errors\n"
+        << "       -C cfgpath   path to configuration (replaces ecompile.cfg)\n"
+        << "       -d           display confusing compiler parse information\n"
+        << "       -D           write dependency information\n"
+        << "       -e           report error on successful compilation (used for testing)\n"
 #ifdef WIN32
-	  cerr << "       -Ecfgpath    set or change the ECOMPILE_CFG_PATH Evironment Variable" << endl;
+        << "       -Ecfgpath    set or change the ECOMPILE_CFG_PATH Evironment Variable\n"
 #endif
-	  cerr << "       -i           include intrusive debug info in .ecl file" << endl;
-	  cerr << "       -l           generate listfile" << endl;
-	  cerr << "       -m           don't optimize object members" << endl;
+        << "       -i           include intrusive debug info in .ecl file\n"
+        << "       -l           generate listfile\n"
+        << "       -m           don't optimize object members\n"
 #ifdef WIN32
-	  cerr << "       -Pdir        set or change the EM and INC files Environment Variables" << endl;
+        << "       -Pdir        set or change the EM and INC files Environment Variables\n"
 #endif
-	  cerr << "       -q           quiet mode (suppress normal output)" << endl;
-	  cerr << "       -r [dir]     recurse folder [from 'dir'] (defaults to current folder)" << endl;
-	  cerr << "       -ri [dir]      (as '-r' but only compile .inc files)" << endl;
-	  cerr << "         -t[v]      show timing/profiling information [override quiet mode]" << endl;
-	  cerr << "         -u         compile only updated scripts (.src newer than .ecl)" << endl;
-	  cerr << "           -f       force compile even if up-to-date" << endl;
-	  cerr << "       -s           display summary if -q is not set" << endl;
-	  cerr << "       -T           use threaded compilation" << endl;
-	  cerr << "       -vN          verbosity level" << endl;
-	  cerr << "       -w           display warnings" << endl;
-	  cerr << "       -W           generate wordfile" << endl;
-	  cerr << "       -y           treat warnings as errors" << endl;
-	  cerr << "       -x           write external .dbg file" << endl;
-	  cerr << "       -xt          write external .dbg.txt info file" << endl;
-	  cerr << endl;
-	  cerr << " NOTE:" << endl;
-	  cerr << "   If <filespec> are required after an empty -r[i] option, you MUST specify" << endl;
-	  cerr << "   a literal [dir] of '.' (no quotes) or options will not parse correctly." << endl;
+        << "       -q           quiet mode (suppress normal output)\n"
+        << "       -r [dir]     recurse folder [from 'dir'] (defaults to current folder)\n"
+        << "       -ri [dir]      (as '-r' but only compile .inc files)\n"
+        << "         -t[v]      show timing/profiling information [override quiet mode]\n"
+        << "         -u         compile only updated scripts (.src newer than .ecl)\n"
+        << "           -f       force compile even if up-to-date\n"
+        << "       -s           display summary if -q is not set\n"
+        << "       -T           use threaded compilation\n"
+        << "       -vN          verbosity level\n"
+        << "       -w           display warnings\n"
+        << "       -W           generate wordfile\n"
+        << "       -y           treat warnings as errors\n"
+        << "       -x           write external .dbg file\n"
+        << "       -xt          write external .dbg.txt info file\n"
+        << "\n"
+        << " NOTE:\n"
+        << "   If <filespec> are required after an empty -r[i] option, you MUST specify\n"
+        << "   a literal [dir] of '.' (no quotes) or options will not parse correctly.\n";
 	  exit( 1 );
 	}
 
 	void generate_wordlist()
 	{
-	  cout << "Writing word list to wordlist.txt" << endl;
+      INFO_PRINT << "Writing word list to wordlist.txt\n";
 	  ofstream ofs( "wordlist.txt", ios::out | ios::trunc );
 	  Parser::write_words( ofs );
 	}
@@ -126,9 +127,9 @@ namespace Pol {
 	void compile_inc( const char* path )
 	{
 	  if ( !quiet )
-		cout << "Compiling: " << path << endl;
+        INFO_PRINT << "Compiling: " << path << "\n";
 
-	  Compiler C( cout );
+	  Compiler C;
 
 	  C.setQuiet( !debug );
 	  C.setIncludeCompileMode();
@@ -157,8 +158,8 @@ namespace Pol {
 		   ext.compare( ".hsr" ) != 0 &&
 		   ext.compare( ".asp" ) != 0 )
 	  {
-		cout << "Didn't find '.src', '.hsr', or '.asp' extension on source filename '"
-		  << path << "'!" << endl;
+        INFO_PRINT << "Didn't find '.src', '.hsr', or '.asp' extension on source filename '"
+          << path << "'!\n";
 		throw runtime_error( "Error in source filename" );
 	  }
 	  string filename_ecl = fname.replace( pos, 4, ".ecl" );
@@ -173,7 +174,7 @@ namespace Pol {
         if ( Clib::GetFileTimestamp( filename_src.c_str( ) ) >= ecl_timestamp )
 		{
 		  if ( verbose )
-			cout << filename_src << " is newer than " << filename_ecl << endl;
+            INFO_PRINT << filename_src << " is newer than " << filename_ecl << "\n";
 		  all_old = false;
 		}
 
@@ -189,7 +190,7 @@ namespace Pol {
               if ( Clib::GetFileTimestamp( depname.c_str( ) ) >= ecl_timestamp )
 			  {
 				if ( verbose )
-				  cout << depname << " is newer than " << filename_ecl << endl;
+                  INFO_PRINT << depname << " is newer than " << filename_ecl << "\n";
 				all_old = false;
 				break;
 			  }
@@ -198,14 +199,14 @@ namespace Pol {
 		  else
 		  {
 			if ( verbose )
-			  cout << filename_dep << " does not exist." << endl;
+              INFO_PRINT << filename_dep << " does not exist." << "\n";
 			all_old = false;
 		  }
 		}
 		if ( all_old )
 		{
 		  if ( !quiet && compilercfg.DisplayUpToDateScripts )
-			cout << filename_ecl << " is up-to-date." << endl;
+            INFO_PRINT << filename_ecl << " is up-to-date." << "\n";
 		  return false;
 		}
 
@@ -213,9 +214,9 @@ namespace Pol {
 
 	  {
 		if ( !quiet )
-		  cout << "Compiling: " << path << endl;
+          INFO_PRINT << "Compiling: " << path << "\n";
 
-		Compiler C( cout );
+		Compiler C;
 
 		C.setQuiet( !debug );
 		int res = C.compileFile( path );
@@ -225,7 +226,7 @@ namespace Pol {
 		  if ( res )        // good, it failed
 		  {
 			if ( !quiet )
-			  cout << "Compilation failed as expected." << endl;
+              INFO_PRINT << "Compilation failed as expected." << "\n";
 			return true;
 		  }
 		  else
@@ -240,7 +241,7 @@ namespace Pol {
 
 
 		if ( !quiet )
-		  cout << "Writing:   " << filename_ecl << endl;
+          INFO_PRINT << "Writing:   " << filename_ecl << "\n";
 
 		if ( C.write( filename_ecl.c_str() ) )
 		{
@@ -250,13 +251,13 @@ namespace Pol {
 		if ( compilercfg.GenerateListing )
 		{
 		  if ( !quiet )
-			cout << "Writing:   " << filename_lst << endl;
+            INFO_PRINT << "Writing:   " << filename_lst << "\n";
 		  ofstream ofs( filename_lst.c_str() );
 		  C.dump( ofs );
 		}
         else if ( Clib::FileExists( filename_lst.c_str( ) ) )
 		{
-		  if ( !quiet ) cout << "Deleting:  " << filename_lst << endl;
+          if ( !quiet ) INFO_PRINT << "Deleting:  " << filename_lst << "\n";
           Clib::RemoveFile( filename_lst );
 		}
 
@@ -264,27 +265,27 @@ namespace Pol {
 		{
 		  if ( !quiet )
 		  {
-			cout << "Writing:   " << filename_dbg << endl;
+            INFO_PRINT << "Writing:   " << filename_dbg << "\n";
 			if ( compilercfg.GenerateDebugTextInfo )
-			  cout << "Writing:   " << filename_dbg << ".txt" << endl;
+              INFO_PRINT << "Writing:   " << filename_dbg << ".txt" << "\n";
 		  }
 		  C.write_dbg( filename_dbg.c_str(), compilercfg.GenerateDebugTextInfo );
 		}
         else if ( Clib::FileExists( filename_dbg.c_str( ) ) )
 		{
-		  if ( !quiet ) cout << "Deleting:  " << filename_dbg << endl;
+          if ( !quiet ) INFO_PRINT << "Deleting:  " << filename_dbg << "\n";
           Clib::RemoveFile( filename_dbg );
 		}
 
 		if ( compilercfg.GenerateDependencyInfo )
 		{
 		  if ( !quiet )
-			cout << "Writing:   " << filename_dep << endl;
+            INFO_PRINT << "Writing:   " << filename_dep << "\n";
 		  C.writeIncludedFilenames( filename_dep.c_str() );
 		}
         else if ( Clib::FileExists( filename_dep.c_str( ) ) )
 		{
-		  if ( !quiet ) cout << "Deleting:  " << filename_dep << endl;
+          if ( !quiet ) INFO_PRINT << "Deleting:  " << filename_dep << "\n";
           Clib::RemoveFile( filename_dep );
 		}
 
@@ -481,7 +482,7 @@ namespace Pol {
 
 		if ( unknown_opt )
 		{
-		  cerr << "Unknown option: " << argv[i] << endl;
+		  ERROR_PRINT << "Unknown option: " << argv[i] << "\n";
 		  usage();
 		  return 1;
 		}
@@ -551,15 +552,15 @@ namespace Pol {
 
 	  if ( ( !quiet || timing_quiet_override ) && show_timing_details && s_compiled > 0 && files == NULL )
 	  {
-		cout << "Compiled " << s_compiled << " script" << ( s_compiled == 1 ? "" : "s" )
-		  << " in " << basedir
-		  << " in " << (int)( ( finish - start ) / CLOCKS_PER_SEC ) << " second(s)" << endl;
+        INFO_PRINT << "Compiled " << s_compiled << " script" << ( s_compiled == 1 ? "" : "s" )
+          << " in " << basedir
+          << " in " << (int)( ( finish - start ) / CLOCKS_PER_SEC ) << " second(s)\n";
 		if ( s_uptodate > 0 )
-		  cout << "    " << s_uptodate << " script" << ( s_uptodate == 1 ? " was" : "s were" )
-		  << " already up-to-date." << endl;
+          INFO_PRINT << "    " << s_uptodate << " script" << ( s_uptodate == 1 ? " was" : "s were" )
+		  << " already up-to-date.\n";
 		if ( s_errors > 0 )
-		  cout << "    " << s_errors << " script" << ( s_errors == 1 ? "" : "s" )
-		  << " had errors." << endl;
+          INFO_PRINT << "    " << s_errors << " script" << ( s_errors == 1 ? "" : "s" )
+		  << " had errors.\n";
 	  }
 	}
 	void recurse_compile_inc( string basedir, vector<string>* files )
@@ -732,19 +733,20 @@ namespace Pol {
 
 	  if ( any && compilercfg.DisplaySummary && !quiet )
 	  {
-		cout << "Compilation Summary:" << endl;
-		if ( summary.CompiledScripts )
-		  cout << "    Compiled " << summary.CompiledScripts << " script" << ( summary.CompiledScripts == 1 ? "" : "s" )
-		  << " in " << timer.ellapsed() << " ms." << endl;
+        fmt::Writer tmp;
+        tmp << "Compilation Summary:\n";
+        if ( summary.CompiledScripts )
+          tmp << "    Compiled " << summary.CompiledScripts << " script" << ( summary.CompiledScripts == 1 ? "" : "s" )
+          << " in " << timer.ellapsed() << " ms.\n";
 
-		if ( summary.ScriptsWithCompileErrors )
-		  cout << "    " << summary.ScriptsWithCompileErrors << " of those script" << ( summary.ScriptsWithCompileErrors == 1 ? "" : "s" )
-		  << " had errors." << endl;
+        if ( summary.ScriptsWithCompileErrors )
+          tmp << "    " << summary.ScriptsWithCompileErrors << " of those script" << ( summary.ScriptsWithCompileErrors == 1 ? "" : "s" )
+          << " had errors.\n";
 
-		if ( summary.UpToDateScripts )
-		  cout << "    " << summary.UpToDateScripts << " script" << ( summary.UpToDateScripts == 1 ? " was" : "s were" )
-		  << " already up-to-date." << endl;
-
+        if ( summary.UpToDateScripts )
+          tmp << "    " << summary.UpToDateScripts << " script" << ( summary.UpToDateScripts == 1 ? " was" : "s were" )
+          << " already up-to-date.\n";
+        INFO_PRINT << tmp.c_str();
 	  }
 
 	  return any;
@@ -789,7 +791,7 @@ namespace Pol {
 	  }
 	  else
 	  {
-		cerr << "Could not find " << cfgpath << "; using defaults." << endl;
+        ERROR_PRINT << "Could not find " << cfgpath << "; using defaults.\n";
 		compilercfg.SetDefaults();
 	  }
 	}
@@ -816,9 +818,8 @@ namespace Pol {
 	{
 	  // vX.YY
 	  double vernum = (double)progver + (double)( ESCRIPT_FILE_VER_CURRENT / 100.0f );
-	  cerr << "EScript Compiler v" << vernum << endl;
-	  cerr << "Copyright (C) 1993-2013 Eric N. Swanson" << endl;
-	  cerr << endl;
+      ERROR_PRINT << "EScript Compiler v" << vernum << "\n"
+        << "Copyright (C) 1993-2014 Eric N. Swanson\n\n";
 	}
 
     if ( Ecompile::opt_generate_wordlist )

@@ -23,6 +23,7 @@ Notes
 #include "../clib/cfgfile.h"
 #include "../clib/cmdargs.h"
 #include "../clib/fileutil.h"
+#include "../clib/logfacility.h"
 #include "../clib/fdump.h"
 #include "../clib/passert.h"
 #include "../clib/strutil.h"
@@ -98,9 +99,9 @@ namespace Pol {
 		*/
 	int print_ctable()
 	{
-	  printf( "#include \"ctable.h\"\n\n" );
-
-	  printf( "SVR_KEYDESC keydesc[ 257 ] = {\n" );
+      INFO_PRINT << "#include \"ctable.h\"\n\n"
+        << "SVR_KEYDESC keydesc[ 257 ] = {\n";
+      fmt::Writer _tmp;
 	  for ( int i = 0; i <= 256; i++ )
 	  {
 		int nbits = keyid[i] & 0x0F;
@@ -114,12 +115,13 @@ namespace Pol {
 			valout |= 1;
 		  inmask <<= 1;
 		}
-		printf( "    { %2d, 0x%4.04x, 0x%4.04x },\n",
-				keyid[i] & 0x0F,
-				keyid[i] >> 4,
-				valout );
+        _tmp.Format( "    {{ {:>2}, 0x{:04X}, 0x{:04X}}},\n" )
+          << ( keyid[i] & 0x0F )
+          << ( keyid[i] >> 4 )
+          << valout;
 	  }
-	  printf( "};\n" );
+      _tmp << "};\n";
+      INFO_PRINT << _tmp.c_str();
 	  return 0;
 	}
 
@@ -127,50 +129,50 @@ namespace Pol {
 
 	int Usage( int ret )
 	{
-	  fprintf( stderr, "Usage: uotool func [params ...]\n" );
-	  fprintf( stderr, "  Functions:\n" );
-	  fprintf( stderr, "    tiledump filename        Dump object information\n" );
-	  fprintf( stderr, "    vertile                  Dump updated object info\n" );
-	  fprintf( stderr, "    rawdump filename hdrlen reclen\n" );
-	  fprintf( stderr, "    ctable                   Print Server encryption table\n" );
-	  fprintf( stderr, "    findgraphic graphic      finds coords of statics with graphic\n" );
-	  fprintf( stderr, "    findlandtileflags flags  finds landtiles with flags\n" );
-	  fprintf( stderr, "    contour                  write binary file 6144x4096 z heights\n" );
-	  fprintf( stderr, "    mapdump x1 y1 [x2 y2]    dumps map+statics info to html tables\n" );
-	  fprintf( stderr, "    landtileflagsearch flags [notflags]  prints landtiles matching args\n" );
-	  fprintf( stderr, "    flagsearch flags [notflags]          prints tiles matching flags\n" );
-	  fprintf( stderr, "    landtilehist             prints landtile histogram\n" );
-	  fprintf( stderr, "    staticshist              histogram of number of statics at a location\n" );
-	  fprintf( stderr, "    zhist                    histogram of map z\n" );
-	  fprintf( stderr, "    multis                   prints multi definitions \n" );
-	  fprintf( stderr, "    verdata                  prints verdata info\n" );
-	  fprintf( stderr, "    statics                  prints statics info\n" );
-	  fprintf( stderr, "    sndlist                  prints sound list info\n" );
-	  fprintf( stderr, "    verlandtile              prints verdata landtile info\n" );
-	  fprintf( stderr, "    loschange                prints differences in LOS handling \n" );
-	  fprintf( stderr, "    staticdefrag [realm]     recreates static files {default britannia} \n" );
-	  fprintf( stderr, "    formatdesc name          prints plural and singular form of name \n" );
-	  fprintf( stderr, "    checkmultis              prints infos about multi center items \n" );
+      ERROR_PRINT << "Usage: uotool func [params ...]\n"
+        << "  Functions:\n"
+        << "    tiledump filename        Dump object information\n"
+        << "    vertile                  Dump updated object info\n"
+        << "    rawdump filename hdrlen reclen\n"
+        << "    ctable                   Print Server encryption table\n"
+        << "    findgraphic graphic      finds coords of statics with graphic\n"
+        << "    findlandtileflags flags  finds landtiles with flags\n"
+        << "    contour                  write binary file 6144x4096 z heights\n"
+        << "    mapdump x1 y1 [x2 y2]    dumps map+statics info to html tables\n"
+        << "    landtileflagsearch flags [notflags]  prints landtiles matching args\n"
+        << "    flagsearch flags [notflags]          prints tiles matching flags\n"
+        << "    landtilehist             prints landtile histogram\n"
+        << "    staticshist              histogram of number of statics at a location\n"
+        << "    zhist                    histogram of map z\n"
+        << "    multis                   prints multi definitions \n"
+        << "    verdata                  prints verdata info\n"
+        << "    statics                  prints statics info\n"
+        << "    sndlist                  prints sound list info\n"
+        << "    verlandtile              prints verdata landtile info\n"
+        << "    loschange                prints differences in LOS handling \n"
+        << "    staticdefrag [realm]     recreates static files {default britannia} \n"
+        << "    formatdesc name          prints plural and singular form of name \n"
+        << "    checkmultis              prints infos about multi center items \n";
 	  return ret;
 	}
 #define TILES_START 0x68800
 
 	void display_tileinfo( unsigned short objtype, const Core::USTRUCT_TILE& tile )
 	{
-
-	  printf( "objtype:  0x%4.04x\n", objtype );
-	  printf( "  name:   %s\n", tile.name );
-	  if ( tile.flags )  printf( "  flags:  0x%8.08lX\n", static_cast<unsigned long>( tile.flags ) );
-	  if ( tile.weight ) printf( "  weight: 0x%2.02X\n", tile.weight );
-	  if ( tile.layer )  printf( "  layer:  0x%2.02X\n", tile.layer );
-	  if ( tile.unk6 )   printf( "  unk6:   0x%2.02X\n", tile.unk6 );
-	  if ( tile.unk7 )   printf( "  unk7:   0x%2.02X\n", tile.unk7 );
-	  if ( tile.unk8 )   printf( "  unk8:   0x%2.02X\n", tile.unk8 );
-	  if ( tile.unk9 )   printf( "  unk9:   0x%2.02X\n", tile.unk9 );
-	  if ( tile.anim )   printf( "  anim:   0x%8.08lX\n", static_cast<unsigned long>( tile.anim ) );
-	  if ( tile.height ) printf( "  height: 0x%2.02X\n", tile.height );
-	  if ( tile.unk14 )  printf( "  unk14:  0x%2.02X\n", tile.unk14 );
-	  if ( tile.unk15 )  printf( "  unk15:  0x%2.02X\n", tile.unk15 );
+      fmt::Writer _tmp;
+      _tmp.Format( "objtype:  0x{:04X}\n" ) << objtype;
+      _tmp << "  name:   " << tile.name << "\n";
+      if ( tile.flags )  _tmp.Format( "  flags:  0x{:08X}\n" ) << static_cast<unsigned long>( tile.flags );
+      if ( tile.weight ) _tmp.Format( "  weight: 0x{:02X}\n" ) << (int)tile.weight;
+      if ( tile.layer )  _tmp.Format( "  layer:  0x{:02X}\n" ) << (int)tile.layer;
+      if ( tile.unk6 )   _tmp.Format( "  unk6:   0x{:02X}\n" ) << (int)tile.unk6;
+      if ( tile.unk7 )   _tmp.Format( "  unk7:   0x{:02X}\n" ) << (int)tile.unk7;
+      if ( tile.unk8 )   _tmp.Format( "  unk8:   0x{:02X}\n" ) << (int)tile.unk8;
+      if ( tile.unk9 )   _tmp.Format( "  unk9:   0x{:02X}\n" ) << (int)tile.unk9;
+      if ( tile.anim )   _tmp.Format( "  anim:   0x{:08X}\n" ) << static_cast<unsigned long>( tile.anim );
+      if ( tile.height ) _tmp.Format( "  height: 0x{:02X}\n" ) << (int)tile.height;
+      if ( tile.unk14 )  _tmp.Format( "  unk14:  0x{:02X}\n" ) << (int)tile.unk14;
+      if ( tile.unk15 )  _tmp.Format( "  unk15:  0x{:02X}\n" ) << (int)tile.unk15;
 	}
 
 	int tiledump( int argc, char **argv )
@@ -190,7 +192,7 @@ namespace Pol {
 		{
 		  if ( fread( &version, sizeof version, 1, fp ) != 1 )
 			break;
-		  printf( "Block Version: %08lX\n", static_cast<unsigned long>( version ) );
+          INFO_PRINT.Format( "Block Version: {:08X}\n" ) << static_cast<unsigned long>( version );
 		}
 		if ( fread( &tile, sizeof tile, 1, fp ) != 1 )
 		  break;
@@ -239,10 +241,10 @@ namespace Pol {
 		readlandtile( objtype, &landtile );
 		if ( landtile.flags || landtile.unk || landtile.name[0] )
 		{
-		  cout << "Land Tile: " << hex << objtype << dec << endl;
-		  cout << "\tflags: " << hex << landtile.flags << dec << endl;
-		  cout << "\t  unk: " << hex << landtile.unk << dec << endl;
-		  cout << "\t name: " << landtile.name << endl;
+          INFO_PRINT << "Land Tile: 0x" << fmt::hexu(objtype) << "\n"
+          << "\tflags: 0x" << fmt::hexu( landtile.flags ) << "\n"
+          << "\t  unk: 0x" << fmt::hexu( landtile.unk ) << "\n"
+          << "\t name: " << landtile.name << "\n";
 		}
 	  }
       Core::clear_tiledata( );
@@ -267,10 +269,12 @@ namespace Pol {
 		tilecount[landtile.name] = tilecount[landtile.name] + 1;
 	  }
 
+      fmt::Writer tmp;
 	  for ( const auto &elem : tilecount )
 	  {
-		cout << elem.first << ": " << elem.second << endl;
+        tmp << elem.first << ": " << elem.second << "\n";
 	  }
+      INFO_PRINT << tmp.c_str();
       Core::clear_tiledata( );
 	  return 0;
 	}
@@ -293,10 +297,12 @@ namespace Pol {
 		tilecount[landtile.name] = tilecount[landtile.name] + 1;
 	  }
 
+      fmt::Writer tmp;
 	  for ( const auto &elem : tilecount )
 	  {
-		cout << elem.first << ": " << elem.second << endl;
+		tmp << elem.first << ": " << elem.second << "\n";
 	  }
+      INFO_PRINT << tmp.c_str();
       Core::clear_tiledata( );
 	  return 0;
 	}
@@ -353,10 +359,10 @@ namespace Pol {
 		if ( ( landtile.flags & flags ) == flags &&
 			 ( ~landtile.flags & notflags ) == notflags )
 		{
-		  cout << "Land Tile: " << hex << objtype << dec << endl;
-		  cout << "\tflags: " << hex << landtile.flags << dec << endl;
-		  cout << "\t  unk: " << hex << landtile.unk << dec << endl;
-		  cout << "\t name: " << landtile.name << endl;
+          INFO_PRINT << "Land Tile: 0x" << fmt::hexu( objtype ) << "\n"
+            << "\tflags: 0x" << fmt::hexu( landtile.flags ) << "\n"
+            << "\t  unk: 0x" << fmt::hexu( landtile.unk ) << "\n"
+            << "\t name: " << landtile.name << "\n";
 		}
 	  }
       Core::clear_tiledata( );
@@ -383,8 +389,8 @@ namespace Pol {
 		if ( old_lostest != new_lostest )
 		{
 		  display_tileinfo( objtype, tile );
-		  printf( " Old LOS: %s\n", old_lostest ? "true" : "false" );
-		  printf( " New LOS: %s\n", new_lostest ? "true" : "false" );
+          INFO_PRINT.Format( " Old LOS: %s\n New LOS: %s\n" ) << ( old_lostest ? "true" : "false" )
+            << ( new_lostest ? "true" : "false" );
 
 		}
 
@@ -404,7 +410,7 @@ namespace Pol {
       fseek( Core::verfile, 0, SEEK_SET );
       fread( &num_version_records, sizeof num_version_records, 1, Core::verfile ); // ENDIAN-BROKEN
 
-	  cout << "There are " << num_version_records << " version records." << endl;
+      INFO_PRINT << "There are " << num_version_records << " version records.\n";
 
 	  int filecount[32];
 	  int inv_filecount = 0;
@@ -420,18 +426,18 @@ namespace Pol {
 	  }
 	  for ( int i = 0; i < 32; ++i )
 	  {
-		if ( filecount[i] )
-		  cout << "File " << hex << i << dec << ": " << filecount[i] << " versioned blocks." << endl;
+        if ( filecount[i] )
+          INFO_PRINT << "File 0x" << fmt::hexu( i ) << ": " << filecount[i] << " versioned blocks.\n";
 	  }
-	  if ( inv_filecount )
-		cout << inv_filecount << " invalid file indexes" << endl;
+      if ( inv_filecount )
+        INFO_PRINT << inv_filecount << " invalid file indexes\n";
       Core::clear_tiledata( );
 	  return 0;
 	}
 
 	int print_statics()
 	{
-	  cout << "Reading UO data.." << endl;
+      INFO_PRINT << "Reading UO data..\n";
       Core::open_uo_data_files( );
       Core::read_uo_data( );
 	  int water = 0;
@@ -458,21 +464,20 @@ namespace Pol {
 				  strange_water++;
 				continue;
 			  }
-			  if ( !hdrshown )
-				cout << x << "," << y << ":" << endl;
+              if ( !hdrshown )
+                INFO_PRINT << x << "," << y << ":\n";
 			  hdrshown = true;
-			  cout << "\tOBJT= 0x" << hex << elem.graphic << dec
-				<< "  Z=" << int( elem.z ) << "  HT=" << height
-                << "  FLAGS=" << hex << Core::tile_uoflags( elem.graphic ) << dec
-				<< endl;
+              INFO_PRINT << "\tOBJT= 0x" << fmt::hexu( elem.graphic )
+                << "  Z=" << int( elem.z ) << "  HT=" << height
+                << "  FLAGS=0x" << fmt::hexu( Core::tile_uoflags( elem.graphic ) ) << "\n";
 			  ++cnt;
 			}
 		  }
 		}
 	  }
-	  cout << cnt << " statics exist." << endl;
-	  cout << water << " water tiles exist." << endl;
-	  cout << strange_water << " strange water tiles exist." << endl;
+      INFO_PRINT << cnt << " statics exist.\n"
+        << water << " water tiles exist.\n"
+        << strange_water << " strange water tiles exist.\n";
       Core::clear_tiledata( );
 	  return 0;
 	}
@@ -507,7 +512,7 @@ namespace Pol {
 #if 0
 	int test_new_statics()
 	{
-	  cout << "Reading UO data.." << endl;
+      INFO_PRINT << "Reading UO data..\n";
 	  open_uo_data_files();
 	  read_uo_data();
 	  load_pol_static_files();
@@ -538,24 +543,24 @@ namespace Pol {
 			}
 			if (!found)
 			{
-			  cout << "elem not found: x=" << x << ", y=" << y << ",i=" << i
+              INFO_PRINT << "elem not found: x=" << x << ", y=" << y << ",i=" << i
 				<< ", r1.graphic=" << r1.graphic << ", r1.z=" << int(r1.z)
-				<< endl;
-			  cout << "list1:" << endl;
+				<< "\n";
+              INFO_PRINT << "list1:\n";
 			  for( unsigned j = 0; j < list1.size(); ++j )
 			  {
-				cout << "gid=" << list1[j].graphic 
+                INFO_PRINT << "gid=" << list1[j].graphic 
 				  << " z=" << int(list1[j].z) 
 				  << " ht=" << int(tileheight(list1[j].graphic))
-				  << endl;
+				  << "\n";
 			  }
-			  cout << "list2:" << endl;
+              INFO_PRINT << "list2:\n";
 			  for( unsigned j = 0; j < list2.size(); ++j )
 			  {
-				cout << "gid=" << list2[j].graphic 
+                INFO_PRINT << "gid=" << list2[j].graphic 
 				  << " z=" << int(list2[j].z) 
 				  << " ht=" << int(tileheight(list2[j].graphic))
-				  << endl;
+				  << "\n";
 			  }
 			}
 		  }
@@ -585,17 +590,22 @@ namespace Pol {
 		  fclose( fp );
 		  return 1;
 		}
-		printf( "Header:\n" );
-		Clib::fdump( stdout, buffer, hdrlen );
+        fmt::Writer tmp;
+        tmp << "Header:\n";
+        Clib::fdump( tmp, buffer, hdrlen );
+        INFO_PRINT << tmp.c_str() << "\n";
 	  }
+
 	  while ( fread( buffer, reclen, 1, fp ) == 1 )
 	  {
-		printf( "Record %ld (%lx):\n", static_cast<signed long>( recnum ), static_cast<unsigned long>( recnum ) );
-		Clib::fdump( stdout, buffer, reclen );
+        fmt::Writer tmp;
+        tmp.Format( "Record {} (0x{:X}):\n" ) << recnum << recnum;
+        Clib::fdump( tmp, buffer, reclen );
+        INFO_PRINT << tmp.c_str( ) << "\n";
 
 		++recnum;
 	  }
-	  printf( "%ld records read.\n", static_cast<signed long>( recnum ) );
+      INFO_PRINT << recnum << " records read.\n";
 	  fclose( fp );
 	  return 0;
 	}
@@ -637,8 +647,8 @@ namespace Pol {
 		  break;
 
 		sound.read( filename, sizeof filename );
-		cout << hex << i << ", " << hex << serial << dec << ": " << filename << endl;
-		cout << "len " << length << endl;
+        INFO_PRINT << "0x" << fmt::hexu( i ) << ", 0x" << fmt::hexu( serial ) << ": " << filename << "\n"
+          << "len " << length << "\n";
 	  }
 	  return 0;
 	}
@@ -650,8 +660,9 @@ namespace Pol {
 
 	  Core::USTRUCT_TILE tile;
       read_objinfo( static_cast<u16>( i + ( Core::config.max_tile_id + 1 ) ), tile );
-      cout << "Multi 0x" << hex << i + i + ( Core::config.max_tile_id + 1 ) << dec
-		<< " -- " << tile.name << ":" << endl;
+      INFO_PRINT << "Multi 0x" << fmt::hexu (i + i + ( Core::config.max_tile_id + 1 ) )
+		<< " -- " << tile.name << ":\n";
+      fmt::Writer tmp;
 	  for ( short y = multi->minry; y <= multi->maxry; ++y )
 	  {
 		for ( short x = multi->minrx; x <= multi->maxrx; ++x )
@@ -662,19 +673,20 @@ namespace Pol {
 		  bool origin = ( x == 0 && y == 0 );
 
 		  if ( external && !internal )
-			cout << 'H';
+            tmp << 'H';
 		  else if ( !external && internal )
-			cout << 'i';
+            tmp << 'i';
 		  else if ( external && internal )
-			cout << 'I';
+            tmp << 'I';
 		  else if ( origin )
-			cout << '*';
+            tmp << '*';
 		  else
-			cout << ' ';
+            tmp << ' ';
 		}
-		cout << endl;
+        tmp << "\n";
 	  }
-	  cout << endl;
+      tmp << "\n";
+      INFO_PRINT << tmp.c_str( );
 	}
 
 	void print_widedata( u16 i, Multi::MultiDef* multi )
@@ -684,8 +696,9 @@ namespace Pol {
 
 	  Core::USTRUCT_TILE tile;
       read_objinfo( static_cast<u16>( i + ( Core::config.max_tile_id + 1 ) ), tile );
-      cout << "Multi 0x" << hex << i + ( Core::config.max_tile_id + 1 ) << dec
-		<< " -- " << tile.name << ":" << endl;
+      INFO_PRINT << "Multi 0x" << fmt::hexu( i + ( Core::config.max_tile_id + 1 ) )
+		<< " -- " << tile.name << ":\n";
+      fmt::Writer tmp;
 	  for ( short y = multi->minry; y <= multi->maxry; ++y )
 	  {
 		for ( short x = multi->minrx; x <= multi->maxrx; ++x )
@@ -693,16 +706,17 @@ namespace Pol {
 		  const Multi::MULTI_ELEM* elem = multi->find_component( x, y );
 		  if ( elem != NULL )
 		  {
-			cout << hex << setw( 8 ) << elem->is_static << dec << ":";
+            tmp << "0x" << fmt::pad( fmt::hexu( elem->is_static ), 6 ) << ":";
 		  }
 		  else
 		  {
-			cout << hex << "        " << dec << ":";
+            tmp << "        " << ":";
 		  }
 		}
-		cout << endl;
+        tmp << "\n";
 	  }
-	  cout << endl;
+      tmp << "\n";
+      INFO_PRINT << tmp.c_str();
 	}
 
 	void print_multidata( u16 i, Multi::MultiDef* multi )
@@ -712,22 +726,22 @@ namespace Pol {
 
 	  Core::USTRUCT_TILE tile;
       read_objinfo( static_cast<u16>( i + ( Core::config.max_tile_id + 1 ) ), tile );
-      cout << "Multi 0x" << hex << i + ( Core::config.max_tile_id + 1 ) << dec
-		<< " -- " << tile.name << ":" << endl;
-
+      INFO_PRINT << "Multi 0x" << fmt::hexu( i + ( Core::config.max_tile_id + 1 ) )
+        << " -- " << tile.name << ":\n";
+      fmt::Writer tmp;
 	  for ( const auto &_itr : multi->components )
 	  {
 		const Multi::MULTI_ELEM* elem = _itr.second;
-		cout << "0x" << hex << elem->objtype
-		  << " %d" << (int)elem->is_static
-		  << ":" << dec << elem->x << "," << elem->y << "," << elem->z << endl;
-
+        tmp << "0x" << fmt::hexu( elem->objtype)
+		  << " 0x" << fmt::hexu((int)elem->is_static)
+		  << ":"  << elem->x << "," << elem->y << "," << elem->z << "\n";
 	  }
+      INFO_PRINT << tmp.c_str();
 	}
 
 	int print_multis( void )
 	{
-	  cout << "Reading UO data.." << endl;
+      INFO_PRINT << "Reading UO data..\n";
       Core::open_uo_data_files( );
       Core::read_uo_data( );
 	  Multi::read_multidefs();
@@ -748,12 +762,12 @@ namespace Pol {
 	int z_histogram()
 	{
 	  unsigned int zcount[256];
-	  cout << "Reading UO data.." << endl;
+      INFO_PRINT << "Reading UO data..\n";
       Core::open_uo_data_files( );
       Core::read_uo_data( );
 	  for ( u16 x = 0; x < 6143; ++x )
 	  {
-		cout << ".";
+        INFO_PRINT << ".";
 		for ( u16 y = 0; y < 4095; ++y )
 		{
 		  Core::USTRUCT_MAPINFO mi;
@@ -763,11 +777,11 @@ namespace Pol {
 		  ++zcount[z + 128];
 		}
 	  }
-	  cout << endl;
+      INFO_PRINT << "\n";
 	  for ( int i = 0; i < 256; ++i )
 	  {
 		if ( zcount[i] )
-		  cout << i - 128 << ": " << zcount[i] << endl;
+          INFO_PRINT << i - 128 << ": " << zcount[i] << "\n";
 	  }
       Core::clear_tiledata( );
 	  return 0;
@@ -777,12 +791,12 @@ namespace Pol {
 	{
 	  unsigned int counts[1000];
 	  memset( counts, 0, sizeof counts );
-	  cout << "Reading UO data.." << endl;
+      INFO_PRINT << "Reading UO data..\n";
       Core::open_uo_data_files( );
       Core::read_uo_data( );
 	  for ( u16 x = 0; x < 6143; x += 8 )
 	  {
-		cout << ".";
+        INFO_PRINT << ".";
 		for ( u16 y = 0; y < 4095; y += 8 )
 		{
 		  vector<Core::USTRUCT_STATIC> p;
@@ -790,17 +804,17 @@ namespace Pol {
 
 		  readstaticblock( &p, &count, x, y );
 		  if ( count > 1000 )
-			cerr << "doh: count=" << count << endl;
+			ERROR_PRINT << "doh: count=" << count << "\n";
 
 		  ++counts[count];
 
 		}
 	  }
-	  cout << endl;
+      INFO_PRINT << "\n";
 	  for ( int i = 0; i < 1000; ++i )
 	  {
 		if ( counts[i] )
-		  cout << i << ": " << counts[i] << endl;
+          INFO_PRINT << i << ": " << counts[i] << "\n";
 	  }
       Core::clear_tiledata( );
 	  return 0;
@@ -808,13 +822,13 @@ namespace Pol {
 
 	int write_polmap( const char* filename, unsigned short xbegin, unsigned short xend )
 	{
-	  cout << "Writing " << filename << endl;
+      INFO_PRINT << "Writing " << filename << "\n";
 	  FILE* fp = fopen( filename, "wb" );
 	  int num = xend + 1 - xbegin;
 	  for ( u16 xs = xbegin; xs < xend; xs += 8 )
 	  {
 		int percent = ( xs - xbegin ) * 100 / num;
-		cout << "\r" << percent << "%";
+        INFO_PRINT << "\r" << percent << "%";
 		for ( u16 ys = 0; ys < 4096; ys += 8 )
 		{
 		  short z;
@@ -843,7 +857,7 @@ namespace Pol {
 
 	int write_polmap()
 	{
-	  cout << "Reading UO data.." << endl;
+      INFO_PRINT << "Reading UO data..\n";
       Core::open_uo_data_files( );
       Core::read_uo_data( );
 	  write_polmap( "dngnmap0.pol", 5120, 6144 );
@@ -885,13 +899,13 @@ namespace Pol {
 		for ( u16 x = wxl; x < wxh; x++ )
 		{
 		  if ( has_water( x, y ) )
-			cout << "W";
+            INFO_PRINT << "W";
 		  else
-			cout << ".";
+            INFO_PRINT << ".";
 		}
-		cout << endl;
+        INFO_PRINT << "\n";
 	  }
-	  cout << endl;
+      INFO_PRINT << "\n";
 	  return 0;
 	}
 
@@ -1022,10 +1036,10 @@ namespace Pol {
 		  safe_getmapinfo( x, y, &z, &mi );
 		  if ( mi.landtile == landtile )
 		  {
-			cout << x << "," << y << "," << (int)mi.z;
+            INFO_PRINT << x << "," << y << "," << (int)mi.z;
 			if ( mi.z != z )
-			  cout << " (" << z << ")";
-			cout << endl;
+              INFO_PRINT << " (" << z << ")";
+            INFO_PRINT << "\n";
 		  }
 		}
 	  }
@@ -1037,7 +1051,7 @@ namespace Pol {
 	int findgraphic( int argc, char **argv )
 	{
 	  int graphic = strtoul( argv[1], NULL, 0 );
-	  cout << "Searching map for statics with graphic=" << Clib::hexint( graphic ) << endl;
+      INFO_PRINT << "Searching map for statics with graphic=0x" << fmt::hexu( graphic ) << "\n";
 
       Core::open_uo_data_files( );
       Core::read_uo_data( );
@@ -1052,7 +1066,7 @@ namespace Pol {
 		  {
 			if ( rec.graphic == graphic )
 			{
-			  cout << x << "," << y << "," << rec.z << endl;
+              INFO_PRINT << x << "," << y << "," << rec.z << "\n";
 			}
 		  }
 		}
@@ -1076,10 +1090,10 @@ namespace Pol {
 		  safe_getmapinfo( x, y, &z, &mi );
           if ( Core::landtile_uoflags( mi.landtile ) & flags )
 		  {
-			cout << x << "," << y << "," << (int)mi.z;
-			cout << ": landtile " << Clib::hexint( mi.landtile )
-              << ", flags " << Clib::hexint( Core::landtile_uoflags( mi.landtile ) );
-			cout << endl;
+            INFO_PRINT << x << "," << y << "," << (int)mi.z
+              << ": landtile 0x" << fmt::hexu( mi.landtile )
+              << ", flags 0x" << fmt::hexu( Core::landtile_uoflags( mi.landtile ) )
+              << "\n";
 		  }
 		}
 	  }
@@ -1120,7 +1134,7 @@ namespace Pol {
 		int progress = x * 100L / descriptor.width;
 		if ( progress != lastprogress )
 		{
-		  cout << "\rRewriting statics files: " << progress << "%";
+          INFO_PRINT << "\rRewriting statics files: " << progress << "%";
 		  lastprogress = progress;
 		}
 		for ( u16 y = 0; y < descriptor.height; y += Plib::STATICBLOCK_CHUNK )
@@ -1191,7 +1205,7 @@ namespace Pol {
 		}
 	  }
 
-	  cout << "\rRewriting statics files: Complete" << endl;
+      INFO_PRINT << "\rRewriting statics files: Complete\n";
 	  fclose( fidx );
 	  fclose( fmul );
 	  return 0;
@@ -1269,9 +1283,9 @@ namespace Pol {
 		  desc += 's';
 
 		if ( amount == 1 )
-		  cout << "Singular: " << desc << endl;
+          INFO_PRINT << "Singular: " << desc << "\n";
 		else
-		  cout << "Plural: " << desc << endl;
+          INFO_PRINT << "Plural: " << desc << "\n";
 	  }
 	  return 0;
 	}
@@ -1282,7 +1296,7 @@ namespace Pol {
       FILE *multi_mul = Core::open_uo_file( "multi.mul" );
 	  if ( fseek( multi_idx, 0, SEEK_SET ) != 0 )
 	  {
-		cout << "Failed seek check" << endl;
+        INFO_PRINT << "Failed seek check\n";
 		return 0;
 	  }
 	  unsigned count = 0;
@@ -1299,7 +1313,7 @@ namespace Pol {
 		fread( &elem, sizeof elem, 1, multi_mul );
 		if ( elem.x != 0 || elem.y != 0 || elem.z != 0 )
 		{
-		  cout << "ERROR: First tile not in center: " << elem.x << " " << elem.y << " " << elem.z << " MultiID: " << Clib::hexint( i ) << endl;
+          INFO_PRINT << "ERROR: First tile not in center: " << elem.x << " " << elem.y << " " << elem.z << " MultiID: 0x" << fmt::hexu( i ) << "\n";
 		  ++errors;
 		  continue;
 		}
@@ -1314,18 +1328,18 @@ namespace Pol {
 			fread( &elem, sizeof elem, 1, multi_mul );
 			if ( elem.x == 0 && elem.y == 0 && elem.z == 0 && elem.graphic != 0x0001 && elem.flags )
 			{
-			  cout << "Warning: Found invis tile as center, but could use " << Clib::hexint( elem.graphic ) << " at 0 0 0 MultiID: " << Clib::hexint( i ) << endl;
+              INFO_PRINT << "Warning: Found invis tile as center, but could use 0x" << fmt::hexu( elem.graphic ) << " at 0 0 0 MultiID: 0x" << fmt::hexu( i ) << "\n";
 			  ++warnings;
 			  found = true;
 			  break;
 			}
 		  }
 		  if ( !found )
-			cout << "Info: MultiID: " << Clib::hexint( i ) << " needs an invis center" << endl;
+            INFO_PRINT << "Info: MultiID: 0x" << fmt::hexu( i ) << " needs an invis center\n";
 		}
 		++count;
 	  }
-	  cout << "Checked Multis: " << count << " with invis center: " << invisitems << " Warnings: " << warnings << " Errors: " << errors << endl;
+      INFO_PRINT << "Checked Multis: " << count << " with invis center: " << invisitems << " Warnings: " << warnings << " Errors: " << errors << "\n";
 	  fclose( multi_idx );
 	  fclose( multi_mul );
 	  return 1;
@@ -1445,7 +1459,7 @@ namespace Pol {
 	}
 	else if ( stricmp( argv[1], "writekeys" ) == 0 )
 	{
-	  printf( "Keys written to current.key" );
+      INFO_PRINT << "Keys written to current.key\n";
 	  return 0;
 	}
 	else if ( stricmp( argv[1], "mapdump" ) == 0 )

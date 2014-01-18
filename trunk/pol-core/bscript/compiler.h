@@ -183,7 +183,7 @@ namespace Pol {
 	  int insertBreak( const std::string& label );
 	public:
 
-	  Compiler( std::ostream& cout );
+	  Compiler();
 	  ~Compiler();
 
 	  void dump( std::ostream& os );

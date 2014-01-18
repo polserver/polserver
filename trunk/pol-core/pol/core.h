@@ -86,7 +86,6 @@ namespace Pol {
 	const int JOURNAL_PRINT_YOU_SEE = 0x01;
 
 	Items::Item* find_walkon_item( ItemsVector& ivec, short z );
-	void atomic_cout( const std::string& msg );
 	void restart_all_clients();
   }
 }

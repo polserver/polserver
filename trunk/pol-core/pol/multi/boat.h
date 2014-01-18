@@ -55,7 +55,7 @@ namespace Pol {
 	  bool move( Core::UFACING dir );
 	  bool move_xy( unsigned short x, unsigned short y, int flags, Plib::Realm* oldrealm );
 
-	  enum RELATIVE_DIR { NO_TURN, RIGHT, AROUND, LEFT };
+      enum RELATIVE_DIR { NO_TURN, RIGHT, AROUND, LEFT };
 	  bool turn( RELATIVE_DIR dir );
 
 	  virtual void register_object( Core::UObject* obj );

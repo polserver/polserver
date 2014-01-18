@@ -17,8 +17,7 @@ Notes
 #include "../clib/cfgelem.h"
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
-#include "../clib/mlog.h"
-#include "../clib/logfile.h"
+#include "../clib/logfacility.h"
 
 #include "../bscript/berror.h"
 #include "../bscript/execmodl.h"
@@ -225,7 +224,7 @@ namespace Pol {
 						  Bscript::BObjectImp* propval = ex.getParamImp( 1 );
 						  if ( propval->isa( Bscript::BObjectImp::OTError ) )
 						  {
-                            Clib::Log( "wtf, setprop w/ an error '%s' PC:%d\n", ex.scriptname( ).c_str( ), ex.PC );
+                            POLLOG.Format( "wtf, setprop w/ an error '{}' PC:{}\n" ) << ex.scriptname().c_str() << ex.PC;
 						  }
 						  string propname = propname_str->value();
 						  proplist.setprop( propname, propval->pack() );

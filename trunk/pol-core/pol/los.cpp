@@ -102,7 +102,7 @@ namespace Pol {
 			if ( item->serial != target.serial && item->serial != att.serial )
 			{
 #if ENABLE_POLTEST_OUTPUT
-			  cout << "LOS blocked by " << item->description() << endl;
+              INFO_PRINT << "LOS blocked by " << item->description( ) << "\n";
 #endif
 			  return true;
 			}
@@ -126,9 +126,9 @@ namespace Pol {
 		int ob_ht = tileheight( itr->graphic );
 		int ob_z = itr->z;
 #if ENABLE_POLTEST_OUTPUT
-		cout << "static type " << hexint( itr->graphic )
-		  << " (flags " << hexint( tile_flags( itr->graphic ) ) << ", ht=" << ob_ht << ")"
-		  << " at z-coord " << (int)itr->z << endl;
+        INFO_PRINT << "static type 0x" << fmt::hexu( itr->graphic )
+		  << " (flags 0x" << fmt::hexu( tile_flags( itr->graphic ) ) << ", ht=" << ob_ht << ")"
+		  << " at z-coord " << (int)itr->z << "\n";
 #endif
 
 		if ( ob_ht == 0 )
@@ -142,7 +142,7 @@ namespace Pol {
 		if ( z >= ob_z && z < ob_z + ob_ht )
 		{
 #if ENABLE_POLTEST_OUTPUT
-		  cout << "LOS blocked by static object" << endl;
+          INFO_PRINT << "LOS blocked by static object\n";
 #endif
 		  return true;
 		}
@@ -154,7 +154,6 @@ namespace Pol {
 	bool los_blocked( const LosObj& att, const LosObj& target,
 					  int x, int y, int z )
 	{
-	  //cout << "los_blocked: (" << x << "," << y << "," << z << ")" << endl;
 	  // if the target inhabits the location, LOS can't be blocked:
 	  if ( att.x == x &&
 		   att.y == y &&

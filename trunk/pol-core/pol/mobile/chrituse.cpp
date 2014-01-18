@@ -11,7 +11,7 @@ Notes
 
 #include "../../clib/stl_inc.h"
 
-#include "../../clib/logfile.h"
+#include "../../clib/logfacility.h"
 #include "../../clib/passert.h"
 #include "../module/cfgmod.h"
 #include "../module/osmod.h"
@@ -35,9 +35,9 @@ namespace Pol {
 	{
 	  if ( !( !start_attached || ( script_ex == NULL ) ) )
 	  {
-		Clib::Log( "Character::start_script hiccup\n" );
-		Clib::Log( "Trying to start script %s\n", prog->name.c_str() );
-		Clib::Log( "Script %s is already running\n", script_ex->scriptname().c_str() );
+        POLLOG << "Character::start_script hiccup\n"
+          << "Trying to start script " << prog->name << "\n"
+          << "Script " << script_ex->scriptname() << " is already running\n";
 		return false; // if it's going to have a passert() error, just return false.
 	  }
 	  passert( !start_attached || ( script_ex == NULL ) );
@@ -73,7 +73,7 @@ namespace Pol {
 	  }
 	  else
 	  {
-		Clib::Log( "Unable to setProgram(%s)\n", prog->name.c_str() );
+        POLLOG << "Unable to setProgram(" << prog->name.c_str() << ")\n";
 		return false;
 	  }
 	}

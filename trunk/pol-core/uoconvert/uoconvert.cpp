@@ -22,6 +22,7 @@ Notes
 #include "../clib/cfgfile.h"
 #include "../clib/cmdargs.h"
 #include "../clib/fileutil.h"
+#include "../clib/logfacility.h"
 #include "../clib/passert.h"
 #include "../clib/timer.h"
 
@@ -99,7 +100,7 @@ namespace Pol {
 
 				  unsigned int polflags = Plib::polflags_from_tileflags( 0x4000, flags, cfg_use_no_shoot, cfg_LOS_through_windows );
 				  unsigned moveland = ( polflags & Plib::FLAG::MOVELAND ) ? 1 : 0;
-				  printf( "%u %u %u %u %u %u: %u\n", blocking, platform, walk, wall, half, floor, moveland );
+                  INFO_PRINT.Format( "{} {} {} {} {} {}: {}\n" ) << blocking << platform << walk << wall << half << floor << moveland;
 				}
 			  }
 			}
@@ -127,11 +128,11 @@ namespace Pol {
 	  uo_map_height = static_cast<unsigned short>( descriptor.height );
 	  uo_map_width = static_cast<unsigned short>( descriptor.width );
 
-	  cout << "Creating maptile file." << endl;
-	  cout << "  Realm: " << realmname << endl;
-	  cout << "  Map ID: " << descriptor.uomapid << endl;
-	  cout << "  Use Dif files: " << ( descriptor.uodif ? "Yes" : "No" ) << endl;
-	  cout << "  Size: " << uo_map_width << "x" << uo_map_height << endl;
+      INFO_PRINT << "Creating maptile file.\n"
+        << "  Realm: " << realmname << "\n"
+        << "  Map ID: " << descriptor.uomapid << "\n"
+        << "  Use Dif files: " << ( descriptor.uodif ? "Yes" : "No" ) << "\n"
+        << "  Size: " << uo_map_width << "x" << uo_map_height << "\n";
 
 	  auto writer = new Plib::MapWriter();
 	  writer->OpenExistingFiles( realmname );
@@ -152,8 +153,8 @@ namespace Pol {
 
 			  safe_getmapinfo( x, y, &z, &mi );
 
-			  if ( mi.landtile > 0x3FFF )
-				printf( "Tile %u at (%u,%u,%d) is an invalid ID!\n", mi.landtile, x, y, z );
+              if ( mi.landtile > 0x3FFF )
+                INFO_PRINT.Format("Tile 0x{:X} at ({},{},{}) is an invalid ID!\n") << mi.landtile << x << y << z;
 
 			  // for water, don't average with surrounding tiles.
 			  if ( landtile_uoflags( mi.landtile ) & Core::USTRUCT_TILE::FLAG_LIQUID )
@@ -167,11 +168,11 @@ namespace Pol {
 			}
 		  }
 		}
-		cout << "\rConverting: " << y_base * 100 / uo_map_height << "%";
+        INFO_PRINT << "\rConverting: " << y_base * 100 / uo_map_height << "%";
 	  }
 	  writer->Flush();
 	  delete writer;
-	  cout << "\rConversion complete." << endl;
+      INFO_PRINT << "\rConversion complete.\n";
 	}
 
 	class StaticsByZ
@@ -220,47 +221,47 @@ namespace Pol {
 
 	  ProcessSolidBlock( x_base, y_base, *mapwriter );
 	  delete mapwriter;
-	  cout << "empty=" << empty << ", nonempty=" << nonempty << endl;
-	  cout << "with more_solids: " << with_more_solids << endl;
-	  cout << "total statics=" << total_statics << endl;
+      INFO_PRINT << "empty=" << empty << ", nonempty=" << nonempty << "\n"
+        << "with more_solids: " << with_more_solids << "\n"
+        << "total statics=" << total_statics << "\n";
 	}
 
 	void create_map( const string& realm, unsigned short width, unsigned short height )
 	{
 	  auto mapwriter = new MapWriter();
-	  cout << "Creating map base and solids files." << endl;
-	  cout << "  Realm: " << realm << endl;
-	  cout << "  Map ID: " << uo_mapid << endl;
-	  cout << "  Use Dif files: " << ( uo_usedif ? "Yes" : "No" ) << endl;
-	  cout << "  Size: " << uo_map_width << "x" << uo_map_height << endl;
-	  cout << "Initializing files: ";
+      INFO_PRINT << "Creating map base and solids files.\n"
+        << "  Realm: " << realm << "\n"
+        << "  Map ID: " << uo_mapid << "\n"
+        << "  Use Dif files: " << ( uo_usedif ? "Yes" : "No" ) << "\n"
+        << "  Size: " << uo_map_width << "x" << uo_map_height << "\n"
+        << "Initializing files: ";
 	  mapwriter->CreateNewFiles( realm, width, height );
-	  cout << "Done." << endl;
+      INFO_PRINT << "Done.\n";
 	  Tools::Timer<> timer;
 	  rawmapfullread();
 	  rawstaticfullread();
-	  cout << "  Reading mapfiles time: " << timer.ellapsed() << " ms." << endl;
+      INFO_PRINT << "  Reading mapfiles time: " << timer.ellapsed() << " ms.\n";
 	  for ( unsigned short y_base = 0; y_base < height; y_base += SOLIDX_Y_SIZE )
 	  {
 		for ( unsigned short x_base = 0; x_base < width; x_base += SOLIDX_X_SIZE )
 		{
 		  ProcessSolidBlock( x_base, y_base, *mapwriter );
 		}
-		cout << "\rConverting: " << y_base * 100 / height << "%";
+        INFO_PRINT << "\rConverting: " << y_base * 100 / height << "%";
 	  }
 	  timer.stop();
 
 	  mapwriter->WriteConfigFile();
 	  delete mapwriter;
 
-	  cout << "\rConversion complete.              " << endl;
-	  cout << "Conversion details:" << endl;
-	  cout << "  Total blocks: " << empty + nonempty << endl;
-	  cout << "  Blocks with solids: " << nonempty << " (" << ( nonempty * 100 / ( empty + nonempty ) ) << "%)" << endl;
-	  cout << "  Blocks without solids: " << empty << " (" << ( empty * 100 / ( empty + nonempty ) ) << "%)" << endl;
-	  cout << "  Locations with solids: " << with_more_solids << endl;
-	  cout << "  Total number of solids: " << total_statics << endl;
-	  cout << "  Elapsed time: " << timer.ellapsed() << " ms." << endl;
+      INFO_PRINT << "\rConversion complete.              \n"
+        << "Conversion details:\n"
+        << "  Total blocks: " << empty + nonempty << "\n"
+        << "  Blocks with solids: " << nonempty << " (" << ( nonempty * 100 / ( empty + nonempty ) ) << "%)" << "\n"
+        << "  Blocks without solids: " << empty << " (" << ( empty * 100 / ( empty + nonempty ) ) << "%)" << "\n"
+        << "  Locations with solids: " << with_more_solids << "\n"
+        << "  Total number of solids: " << total_statics << "\n"
+        << "  Elapsed time: " << timer.ellapsed() << " ms.\n";
 	}
 
 	bool is_no_draw( USTRUCT_MAPINFO& mi )
@@ -476,8 +477,8 @@ namespace Pol {
 
 		  safe_getmapinfo( x, y, &z, &mi );
 
-		  if ( mi.landtile > 0x3FFF )
-			printf( "Tile %u at (%u,%u,%d) is an invalid ID!\n", mi.landtile, x, y, z );
+          if ( mi.landtile > 0x3FFF )
+            INFO_PRINT.Format( "Tile 0x{:X} at ({},{},{}) is an invalid ID!\n" ) << mi.landtile << x << y << z;
 
 		  // for water, don't average with surrounding tiles.
 		  if ( landtile_uoflags( mi.landtile ) & USTRUCT_TILE::FLAG_LIQUID )
@@ -487,8 +488,8 @@ namespace Pol {
 		  short lt_height = z - low_z;
 		  z = low_z;
 
-		  if ( mi.landtile > 0x3FFF )
-			printf( "Tile %u at (%u,%u,%d) is an invalid ID!\n", mi.landtile, x, y, z );
+          if ( mi.landtile > 0x3FFF )
+            INFO_PRINT.Format( "Tile 0x{:X} at ({},{},{}) is an invalid ID!\n" ) << mi.landtile << x << y << z;
 
 		  unsigned int lt_flags = landtile_uoflags( mi.landtile );
 		  if ( ~lt_flags & USTRUCT_TILE::FLAG_BLOCKING )
@@ -811,7 +812,7 @@ namespace Pol {
 		type = "Stairs";
 	  else
 	  {
-		cerr << "Type 0x" << hex << id << " not found in uoconvert.cfg, assuming \"House\" type." << endl;
+        ERROR_PRINT << "Type 0x" << fmt::hexu( id ) << " not found in uoconvert.cfg, assuming \"House\" type.\n";
 		type = "House";
 	  }
 	  mytype = type;
@@ -884,7 +885,7 @@ namespace Pol {
 		  ++count;
 		}
 	  }
-	  cout << count << " multi definitions written to multis.cfg" << endl;
+      INFO_PRINT << count << " multi definitions written to multis.cfg\n";
 	}
 
 	void create_multis_cfg()
@@ -983,7 +984,7 @@ namespace Pol {
 	  }
 	  fclose( fp );
 
-	  cout << count << " tile definitions written to tiles.cfg " << endl;
+      INFO_PRINT << count << " tile definitions written to tiles.cfg\n";
 	}
 
 	void create_landtiles_cfg()
@@ -1021,7 +1022,7 @@ namespace Pol {
 	  }
 	  fclose( fp );
 
-	  cout << count << " landtile definitions written to landtiles.cfg" << endl;
+      INFO_PRINT << count << " landtile definitions written to landtiles.cfg\n";
 	}
   }
 
@@ -1038,7 +1039,7 @@ namespace Pol {
     }
     else
     {
-      cout << "Reading pol.cfg." << endl;
+      INFO_PRINT << "Reading pol.cfg.\n";
       Clib::ConfigFile cf( "pol.cfg" );
       Clib::ConfigElem elem;
 
@@ -1065,7 +1066,7 @@ namespace Pol {
     {
       string temp;
       Clib::ConfigElem elem;
-      cout << "Reading uoconvert.cfg." << endl;
+      INFO_PRINT << "Reading uoconvert.cfg.\n";
       Clib::ConfigFile cf_main( main_cfg.c_str( ) );
       while ( cf_main.read( elem ) )
       {
@@ -1114,7 +1115,7 @@ namespace Pol {
             if ( UOConvert::cfg_max_statics_per_block > MAX_STATICS_PER_BLOCK )
             {
               UOConvert::cfg_max_statics_per_block = MAX_STATICS_PER_BLOCK;
-              cout << "max. Statics per Block limited to " << UOConvert::cfg_max_statics_per_block << " Items" << endl;
+              INFO_PRINT << "max. Statics per Block limited to " << UOConvert::cfg_max_statics_per_block << " Items\n";
             }
             else if ( UOConvert::cfg_max_statics_per_block < 0 )
               UOConvert::cfg_max_statics_per_block = 1000;
@@ -1127,8 +1128,8 @@ namespace Pol {
             if ( UOConvert::cfg_warning_statics_per_block > MAX_STATICS_PER_BLOCK )
             {
               UOConvert::cfg_warning_statics_per_block = MAX_STATICS_PER_BLOCK;
-              cout << "max. Statics per Block for Warning limited to "
-                << UOConvert::cfg_warning_statics_per_block << " Items" << endl;
+              INFO_PRINT << "max. Statics per Block for Warning limited to "
+                << UOConvert::cfg_warning_statics_per_block << " Items\n";
             }
             else if ( UOConvert::cfg_warning_statics_per_block < 0 )
               UOConvert::cfg_warning_statics_per_block = 1000;
@@ -1268,14 +1269,14 @@ namespace Pol {
     }
     else
     {
-      cerr << "Usage: uoconvert [command] [options]" << endl;
-      cerr << "Commands: " << endl;
-      cerr << "  map {uodata=Dir} {maxtileid=0x3FFF/0x7FFF} {realm=realmname} {width=Width} {height=Height} {x=X} {y=Y}" << endl;
-      cerr << "  statics {uodata=Dir} {maxtileid=0x3FFF/0x7FFF} {realm=realmname}" << endl;
-      cerr << "  maptile {uodata=Dir} {maxtileid=0x3FFF/0x7FFF} {realm=realmname}" << endl;
-      cerr << "  multis {uodata=Dir} {maxtileid=0x3FFF/0x7FFF}" << endl;
-      cerr << "  tiles {uodata=Dir} {maxtileid=0x3FFF/0x7FFF}" << endl;
-      cerr << "  landtiles {uodata=Dir} {maxtileid=0x3FFF/0x7FFF}" << endl;
+      ERROR_PRINT << "Usage: uoconvert [command] [options]\n"
+        << "Commands: \n"
+        << "  map {uodata=Dir} {maxtileid=0x3FFF/0x7FFF} {realm=realmname} {width=Width} {height=Height} {x=X} {y=Y}\n"
+        << "  statics {uodata=Dir} {maxtileid=0x3FFF/0x7FFF} {realm=realmname}\n"
+        << "  maptile {uodata=Dir} {maxtileid=0x3FFF/0x7FFF} {realm=realmname}\n"
+        << "  multis {uodata=Dir} {maxtileid=0x3FFF/0x7FFF}\n"
+        << "  tiles {uodata=Dir} {maxtileid=0x3FFF/0x7FFF}\n"
+        << "  landtiles {uodata=Dir} {maxtileid=0x3FFF/0x7FFF}\n";
       return 1;
     }
     UOConvert::clear_tiledata( );

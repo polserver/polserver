@@ -27,11 +27,12 @@ Notes
 #include "../../clib/stlutil.h"
 
 #include "datastore.h"
-#include "../dtrace.h"
 #include "../../plib/pkg.h"
 #include "../proplist.h"
 #include "../uoexhelp.h"
 #include "../../clib/streamsaver.h"
+#include "../polcfg.h"
+
 namespace Pol {
 
   namespace Bscript {

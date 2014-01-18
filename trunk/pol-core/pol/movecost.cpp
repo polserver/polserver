@@ -17,6 +17,7 @@ Notes
 #include "../clib/fileutil.h"
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
+#include "../clib/logfacility.h"
 
 #include "mobile/charactr.h"
 #include "movecost.h"
@@ -126,7 +127,7 @@ namespace Pol {
 	  else if ( !Clib::FileExists( "config/movecost.cfg" ) )
 	  {
 		if ( !reload && config.loglevel > 0 )
-		  cout << "File config/movecost.cfg not found, skipping.\n";
+          INFO_PRINT << "File config/movecost.cfg not found, skipping.\n";
 		return;
 	  }
 

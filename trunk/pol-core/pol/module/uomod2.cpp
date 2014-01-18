@@ -46,7 +46,7 @@ Notes
 
 #include "../../clib/endian.h"
 #include "../../clib/fdump.h"
-#include "../../clib/logfile.h"
+#include "../../clib/logfacility.h"
 
 #ifdef MEMORYLEAK
 #	include "../../clib/opnew.h"
@@ -1399,9 +1399,6 @@ namespace Pol {
 		return;
 	  }
 
-	  // printf( "PKTIN_B1: %ld bytes\n", cfBEu16(msg->msglen) );
-	  // fdump( stdout, msg, cfBEu16(msg->msglen) );
-
 	  PKTIN_B1::INTS_HEADER* intshdr = reinterpret_cast<PKTIN_B1::INTS_HEADER*>( hdr + 1 );
 	  u32 ints_count = cfBEu32( intshdr->count );
 	  unsigned stridx = sizeof( PKTIN_B1::HEADER ) +
@@ -1410,7 +1407,7 @@ namespace Pol {
 		sizeof( PKTIN_B1::STRINGS_HEADER );
 	  if ( stridx > msglen )
 	  {
-		cerr << "Blech! B1 message specified too many ints!" << endl;
+        ERROR_PRINT << "Blech! B1 message specified too many ints!\n";
 		clear_gumphandler( client, uoemod );
 		return;
 	  }
@@ -1420,7 +1417,7 @@ namespace Pol {
 	  // even if this is ok, it could still overflow.  Have to check each string.
 	  if ( stridx + ( sizeof( PKTIN_B1::STRING_ENTRY ) - 1 ) * strings_count > msglen + 1u )
 	  {
-		cerr << "Client (Account " << client->acct->name() << ", Character " << client->chr->name() << ") Blech! B1 message specified too many ints and/or strings!" << endl;
+        ERROR_PRINT << "Client (Account " << client->acct->name() << ", Character " << client->chr->name() << ") Blech! B1 message specified too many ints and/or strings!\n";
 		uoemod->uoexec.ValueStack.top().set( new BObject( new BError( "B1 message specified too many ints and/or strings." ) ) );
 		clear_gumphandler( client, uoemod );
 		return;
@@ -1447,7 +1444,7 @@ namespace Pol {
 		  stridx += offsetof( PKTIN_B1::STRING_ENTRY, data ) + length * 2;
 		  if ( stridx > msglen )
 		  {
-			cerr << "Client (Account " << client->acct->name() << ", Character " << client->chr->name() << ") Blech! B1 message strings overflow message buffer!" << endl;
+            ERROR_PRINT << "Client (Account " << client->acct->name() << ", Character " << client->chr->name() << ") Blech! B1 message strings overflow message buffer!\n";
 			break;
 		  }
 		  string str;
@@ -1526,7 +1523,7 @@ namespace Pol {
 	{
 	  if ( client->gd->textentry_uoemod == NULL )
 	  {
-		cerr << "Client (Account " << client->chr->acct->name() << ", Character " << client->chr->name() << ")used out-of-sequence textentry command?" << endl;
+        ERROR_PRINT << "Client (Account " << client->chr->acct->name() << ", Character " << client->chr->name() << ")used out-of-sequence textentry command?\n";
 		return;
 	  }
 	  BObjectImp* resimp = new BLong( 0 );
@@ -1856,10 +1853,8 @@ namespace Pol {
 			struct tm* tm_now = localtime( &now );
 
 			strftime( buffer, sizeof buffer, "%m/%d %H:%M:%S", tm_now );
-			if (mlog.is_open())
-			  mlog << "[" << buffer << "] polcore().internal" << endl;
-			if (llog.is_open())
-			  llog << buffer << ";";
+		    DEBUGLOG << "[" << buffer << "] polcore().internal\n";
+		    LEAKLOG << buffer << ";";
 
 			bobject_alloc.log_stuff("bobject");
 			uninit_alloc.log_stuff("uninit");
@@ -1870,16 +1865,12 @@ namespace Pol {
 		  }
 #endif
 #ifdef ESCRIPT_PROFILE
-		  if (mlog.is_open())
+          DEBUGLOG<< "FuncName,Count,Min,Max,Sum,Avarage\n";
+		  for (escript_profile_map::iterator itr=EscriptProfileMap.begin();itr!=EscriptProfileMap.end();++itr)
 		  {
-			mlog << "FuncName,Count,Min,Max,Sum,Avarage" << endl;
-			for (escript_profile_map::iterator itr=EscriptProfileMap.begin();itr!=EscriptProfileMap.end();++itr)
-			{
-			  mlog << itr->first << "," << itr->second.count << "," << itr->second.min << "," << itr->second.max << "," << itr->second.sum << "," 
-				<< (itr->second.sum / itr->second.count) << endl;
-			}
+            DEBUGLOG << itr->first << "," << itr->second.count << "," << itr->second.min << "," << itr->second.max << "," << itr->second.sum << "," 
+              << (itr->second.sum / itr->second.count) << "\n";
 		  }
-
 #endif
 		  return new BLong( 1 );
 		}
@@ -1970,7 +1961,7 @@ namespace Pol {
 	{
 	  if ( msg->choice )
 	  {
-		cout << "Resurrect Menu Choice: " << int( msg->choice ) << endl;
+        INFO_PRINT << "Resurrect Menu Choice: " << int( msg->choice ) << "\n";
 		// transmit( client, msg, sizeof *msg );
 	  }
 
@@ -2021,14 +2012,11 @@ namespace Pol {
 		{
 		  valstack = new BObject( new BError( "Client selected an out-of-range color" ) );
 
-		  char buffer[300];
 		  //unsigned short newcolor = ((color - 2) % 1000) + 2;
-		  sprintf( buffer, "Client #%lu (account %s) selected an out-of-range color 0x%x",
-				   static_cast<unsigned long>( client->instance_ ),
-				   ( client->acct != NULL ) ? client->acct->name() : "unknown",
-				   color );
-		  cerr << buffer << endl;
-		  Clib::Log( "%s\n", buffer );
+          POLLOG_ERROR.Format( "Client #{:d} (account {}) selected an out-of-range color 0x{:X}\n" )
+            << static_cast<unsigned long>( client->instance_ )
+            << ( ( client->acct != NULL ) ? client->acct->name() : "unknown" )
+            << color;
 		}
 
 		//client->gd->selcolor_uoemod->uoexec.ValueStack.top().set( new BObject( new BLong( color ) ) );
@@ -2204,8 +2192,8 @@ namespace Pol {
 	  Item *book = find_legal_item( client->chr, book_serial );
 	  if ( book == NULL )
 	  {
-		Clib::Log( "Unable to find book 0x%lx for character 0x%lx\n",
-			 book_serial, client->chr->serial );
+        POLLOG.Format( "Unable to find book 0x{:X} for character 0x{:X}\n" )
+          << book_serial << client->chr->serial;
 		return;
 	  }
 
@@ -2260,8 +2248,6 @@ namespace Pol {
 	  }
 	  else
 	  {
-		//cout << "Write book page: " << endl;
-		//fdump( stdout, msg, cfBEu16(msg->msglen) );
 		size_t msglen = cfBEu16( msg->msglen );
 		const char* ptext = msg->text;
 		size_t bytesleft = msglen - offsetof( PKTBI_66, text );
@@ -2323,8 +2309,8 @@ namespace Pol {
 	  Item *book = find_legal_item( client->chr, book_serial );
 	  if ( book == NULL )
 	  {
-		Clib::Log( "Unable to find book 0x%lx for character 0x%lx\n",
-			 book_serial, client->chr->serial );
+        POLLOG.Format( "Unable to find book 0x{:X} for character 0x{:X}\n" )
+          << book_serial << client->chr->serial;
 		return;
 	  }
 	  BObjectImpRefVec params;

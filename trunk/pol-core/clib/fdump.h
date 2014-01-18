@@ -10,11 +10,12 @@ Notes
 #ifndef __FDUMP_H
 #define __FDUMP_H
 
-#include <stdio.h>
+#include "../../lib/format/format.h"
+
 namespace Pol {
   namespace Clib {
 
-	void fdump( FILE *fp, const void *data, int len );
+    void fdump( fmt::Writer& writer, const void *data, int len );
   }
 }
 

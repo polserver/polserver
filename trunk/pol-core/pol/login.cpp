@@ -35,7 +35,7 @@ Notes
 
 #include "../clib/clib.h"
 #include "../clib/endian.h"
-#include "../clib/logfile.h"
+#include "../clib/logfacility.h"
 #include "../clib/fdump.h"
 
 #include "accounts/account.h"
@@ -137,9 +137,9 @@ namespace Pol {
 	  {
 		send_login_error( client, LOGIN_ERROR_WRONG_PASSWORD );
 		client->Disconnect();
-		Clib::Log( "Incorrect password for account %s from %s\n",
-			 acct->name(),
-             Network::AddressToString( &client->ipaddr ) );
+        POLLOG.Format( "Incorrect password for account {} from {}\n" )
+          << acct->name()
+          << Network::AddressToString( &client->ipaddr );
 		return;
 	  }
 	  else
@@ -158,9 +158,9 @@ namespace Pol {
 		return;
 	  }
 
-	  Clib::Log( "Account %s logged in from %s\n",
-		   acct->name(),
-           Network::AddressToString( &client->ipaddr ) );
+      POLLOG_INFO.Format( "Account {} logged in from {}\n" )
+        << acct->name()
+        << Network::AddressToString( &client->ipaddr );
 
 	  client->acct = acct;
 
@@ -190,9 +190,9 @@ namespace Pol {
 		  }
 		  else
 		  {
-            Clib::Log( "gethostbyname(\"%s\") failed for server %s\n",
-				 server->hostname.c_str(),
-				 server->name.c_str() );
+            POLLOG.Format( "gethostbyname(\"{}\") failed for server {}\n" )
+              << server->hostname
+              << server->name;
 			continue;
 		  }
 		}
@@ -217,7 +217,7 @@ namespace Pol {
 
 	  if ( servcount == 0 )
 	  {
-        Clib::Log( "No applicable servers for client connecting from %s\n", Network::AddressToString( &client->ipaddr ) );
+        POLLOG.Format( "No applicable servers for client connecting from {}\n" ) << Network::AddressToString( &client->ipaddr );
 	  }
 	}
 	MESSAGE_HANDLER( PKTIN_80, loginserver_login );
@@ -417,9 +417,9 @@ namespace Pol {
 	  {
 		send_login_error( client, LOGIN_ERROR_WRONG_PASSWORD );
 		client->Disconnect();
-        Clib::Log( "Incorrect password for account %s from %s\n",
-			 acct->name(),
-             Network::AddressToString( &client->ipaddr ) );
+        POLLOG.Format( "Incorrect password for account {} from {}\n" )
+          << acct->name()
+          << Network::AddressToString( &client->ipaddr );
 		return;
 	  }
 	  else
@@ -443,9 +443,9 @@ namespace Pol {
 	  //Dave moved the max_clients check to pol.cpp so character cmdlevel could be checked.
 	  //
 
-      Clib::Log( "Account %s logged in from %s\n",
-		   acct->name(),
-           Network::AddressToString( &client->ipaddr ) );
+      POLLOG.Format( "Account {} logged in from {}\n" )
+        << acct->name()
+        << Network::AddressToString( &client->ipaddr );
 
 	  // ENHANCEMENT: could authenticate with real loginservers.
 
@@ -471,7 +471,7 @@ namespace Pol {
 	{
 	  if ( !chr->logged_in )
 	  {
-        Clib::Log( "Account %s deleting character 0x%lu\n", acct->name( ), chr->serial );
+        POLLOG.Format( "Account {} deleting character 0x{:X}\n" ) << acct->name() << chr->serial;
 
 		chr->acct.clear();
 		acct->clear_character( charidx );

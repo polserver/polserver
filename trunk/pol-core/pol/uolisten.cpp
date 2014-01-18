@@ -12,7 +12,7 @@ Notes
 #include "../clib/stl_inc.h"
 
 #include "../clib/esignal.h"
-#include "../clib/logfile.h"
+#include "../clib/logfacility.h"
 #include "../clib/socketsvc.h"
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
@@ -77,21 +77,16 @@ namespace Pol {
 
 		clients.push_back( client );
 		CoreSetSysTrayToolTip( Clib::tostring( clients.size() ) + " clients connected", ToolTipPrioritySystem );
-        cout << "Client connected from " << Network::AddressToString( &client_addr )
-		  << " (" << clients.size() << " connections)"
-		  << endl;
-		string ifdesc = "";
+        fmt::Writer tmp;
+        tmp.Format( "Client#{} connected from {} ({} connections)" )
+          << client->instance_
+          << Network::AddressToString( &client_addr )
+          << clients.size();
 		if ( getsockname( client->csocket, &host_addr, &host_addrlen ) == 0 )
 		{
-		  // cout << "host address: " << AddressToString( &host_addr ) << endl;
-		  ifdesc = " on interface ";
-          ifdesc += Network::AddressToString( &host_addr );
+          tmp << " on interface " << Network::AddressToString( &host_addr );
 		}
-        Clib::Log( "Client#%lu connected from %s (%d connections)%s\n",
-			 client->instance_,
-             Network::AddressToString( &client_addr ),
-			 clients.size(),
-			 ifdesc.c_str() );
+        POLLOG << tmp.c_str() << "\n";
 	  }
 	}
 
@@ -99,9 +94,8 @@ namespace Pol {
 	void uo_client_listener_thread( void* arg )
 	{
 	  UoClientListener* ls = static_cast<UoClientListener*>( arg );
-
-      atomic_cout( "Listening for UO clients on port " + Clib::decint( ls->port )
-                   + " (encryption: " + Clib::decint( ls->encryption.eType ) + "," + Clib::hexint( ls->encryption.uiKey1 ) + "," + Clib::hexint( ls->encryption.uiKey2 ) + ")" );
+      INFO_PRINT << "Listening for UO clients on port " << ls->port
+        << " (encryption: " << ls->encryption.eType << ",0x" << fmt::hexu( ls->encryption.uiKey1 ) << ",0x" << fmt::hexu( ls->encryption.uiKey2 ) << ")\n";
 
       Clib::SocketListener SL( ls->port, Clib::Socket::option( Clib::Socket::nonblocking | Clib::Socket::reuseaddr ) );
 	  list<UoClientThread *> login_clients;

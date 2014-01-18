@@ -30,7 +30,7 @@ Configuration File Repository
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/fileutil.h"
-#include "../clib/mlog.h"
+#include "../clib/logfacility.h"
 #include "../clib/refptr.h"
 #include "../clib/strutil.h"
 
@@ -280,8 +280,7 @@ namespace Pol {
 		  {
 			if ( config.report_missing_configs )
 			{
-			  if ( Clib::mlog.is_open() )
-				Clib::mlog << "Config File " << filename << " does not exist." << endl;
+              DEBUGLOG << "Config File " << filename << " does not exist.\n";
 			}
 			return ConfigFileRef( 0 );
 		  }
@@ -297,8 +296,7 @@ namespace Pol {
 	  catch ( exception& ex )
 	  {
 		// There was some weird problem reading the config file.
-		if ( Clib::mlog.is_open() )
-		  Clib::mlog << "An exception was encountered while reading " << filename << ": " << ex.what() << endl;
+        DEBUGLOG << "An exception was encountered while reading " << filename << ": " << ex.what() << "\n";
 		return ConfigFileRef( 0 );
 	  }
 	}
@@ -339,12 +337,10 @@ namespace Pol {
 #ifdef MEMORYLEAK
 	void ConfigFiles_log_stuff()
 	{
-	  if (mlog.is_open())
-		mlog << "ConfigFiles: " << cfgfiles.size() << " files loaded and "
-		<< oldcfgfiles.size() << " files 'removed'" << endl;
+      DEBUGLOG << "ConfigFiles: " << cfgfiles.size() << " files loaded and "
+        << oldcfgfiles.size() << " files 'removed'\n";
 
-	  if (llog.is_open())
-		llog << cfgfiles.size() << ";" << oldcfgfiles.size() << ";";
+	  LEAKLOG << cfgfiles.size() << ";" << oldcfgfiles.size() << ";";
 	}
 #endif
 

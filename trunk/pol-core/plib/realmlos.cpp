@@ -77,7 +77,7 @@ namespace Pol {
 			  if ( item->serial != target.serial && item->serial != att.serial )
 			  {
 #if ENABLE_POLTEST_OUTPUT
-				cout << "LOS blocked by " << item->description() << endl;
+                INFO_PRINT << "LOS blocked by " << item->description( ) << "\n";
 #endif
 				return true;
 			  }
@@ -101,9 +101,9 @@ namespace Pol {
 		short ob_ht = shape.height;
 		short ob_z = shape.z;
 #if ENABLE_POLTEST_OUTPUT
-		cout << "static type " << hexint(itr->graphic) 
-		  << " (flags " << hexint( tile_flags( itr->graphic ) ) << ", ht=" << ob_ht << ")"
-		  << " at z-coord " << (int)itr->z << endl;
+        INFO_PRINT << "static type 0x" << fmt::hexu(itr->graphic) 
+		  << " (flags 0x" << fmt::hexu( tile_flags( itr->graphic ) ) << ", ht=" << ob_ht << ")"
+		  << " at z-coord " << (int)itr->z << "\n";
 #endif
 
 		if ( ob_ht == 0 ) // treat a 0-height object as a 1-height object at position z-1
@@ -118,7 +118,7 @@ namespace Pol {
 			 z < ob_z + ob_ht )
 		{
 #if ENABLE_POLTEST_OUTPUT
-		  cout << "LOS blocked by static object" << endl;
+          INFO_PRINT << "LOS blocked by static object\n";
 #endif
 		  return true;
 		}

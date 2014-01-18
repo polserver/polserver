@@ -26,7 +26,7 @@ Notes
 
 #include "../../clib/cfgelem.h"
 #include "../../clib/endian.h"
-#include "../../clib/logfile.h"
+#include "../../clib/logfacility.h"
 #include "../../clib/passert.h"
 #include "../../clib/stlutil.h"
 #include "../../clib/strutil.h"
@@ -410,62 +410,6 @@ namespace Pol {
 		return this->script_method_id( objmethod->id, ex );
 	  else
 		return NULL;
-	  /*
-	  BObjectImp* imp = base::script_method( membername, ex );
-	  if (imp != NULL)
-	  return imp;
-
-	  if (stricmp( membername, "setcustom" ) == 0)
-	  {
-	  int _custom;
-	  if (ex.getParam( 0, _custom ))
-	  {
-	  SetCustom( _custom ? true : false );
-	  return new BLong(1);
-	  }
-	  else
-	  return new BError( "Invalid parameter type" );
-	  }
-	  else if(stricmp( membername, "add_component" ) == 0)
-	  {
-	  BApplicObjBase* aob = NULL;
-	  if(ex.hasParams( 0 ))
-	  aob = ex.getApplicObjParam(0, &eitemrefobjimp_type);
-
-	  if(aob != NULL)
-	  {
-	  EItemRefObjImp* ir = static_cast<EItemRefObjImp*>(aob);
-	  ItemRef iref = ir->value();
-	  components_.push_back(iref);
-	  return new BLong(1);
-	  }
-	  else
-	  return new BError( "Invalid parameter type" );
-
-	  }
-	  else if(stricmp( membername, "erase_component" ) == 0)
-	  {
-	  BApplicObjBase* aob = NULL;
-	  if(ex.hasParams( 0 ))
-	  aob = ex.getApplicObjParam(0, &eitemrefobjimp_type);
-
-	  if(aob != NULL)
-	  {
-	  EItemRefObjImp* ir = static_cast<EItemRefObjImp*>(aob);
-	  ItemRef iref = ir->value();
-	  Components::iterator pos;
-	  pos = find(components_.begin(), components_.end(), iref);
-	  if(pos != components_.end())
-	  components_.erase(pos);
-	  else
-	  return new BError("Component not found");
-	  return new BLong(1);
-	  }
-	  else
-	  return new BError( "Invalid parameter type" );
-	  }
-	  return NULL;
-	  */
 	}
 
 	void UHouse::readProperties( Clib::ConfigElem& elem )
@@ -495,7 +439,6 @@ namespace Pol {
 		WorkingDesign.InitDesign( ysize + 1, xsize, xbase, ybase ); //+1 for front steps outside multidef footprint
 		BackupDesign.InitDesign( ysize + 1, xsize, xbase, ybase ); //+1 for front steps outside multidef footprint
 		CurrentDesign.readProperties( elem, "Current" );
-		//CurrentDesign.testprint(cout);
 		WorkingDesign.readProperties( elem, "Working" );
 		BackupDesign.readProperties( elem, "Backup" );
 
@@ -532,12 +475,12 @@ namespace Pol {
 	  while ( !components_.empty() )
 	  {
 		Items::Item* item = components_.back().get();
-		if ( Core::config.loglevel >= 5 )
-		  Clib::Log( "Destroying component %p, serial=0x%lu\n", item, item->serial );
+        if ( Core::config.loglevel >= 5 )
+          POLLOG.Format( "Destroying component 0x{:X}, serial=0x{:X}\n" ) << item->objtype_ << item->serial;
 		if ( !item->orphan() )
 		  Core::destroy_item( item );
-		if ( Core::config.loglevel >= 5 )
-		  Clib::Log( "Component destroyed\n" );
+        if ( Core::config.loglevel >= 5 )
+          POLLOG << "Component destroyed\n";
 		components_.pop_back();
 	  }
 	}
@@ -744,14 +687,12 @@ namespace Pol {
 		  Items::Item* item;
           if ( !realm->walkheight( x, y, z, &newz, &multi, &item, true, Core::MOVEMODE_LAND ) )
 		  {
-			Clib::Log( "Refusing to place house at %d,%d,%d: can't stand there\n",
-				 int( x ), int( y ), int( z ) );
+            POLLOG.Format( "Refusing to place house at {},{},{}: can't stand there\n" ) << x << y << z;
 			return true;
 		  }
 		  if ( labs( z - newz ) > 2 )
 		  {
-			Clib::Log( "Refusing to place house at %d,%d,%d: result Z (%d) is too far afield\n",
-				 int( x ), int( y ), int( z ), int( newz ) );
+            POLLOG.Format( "Refusing to place house at {},{},{}: result Z ({}) is too far afield\n" ) << x << y << z << newz;
 			return true;
 		  }
 		}

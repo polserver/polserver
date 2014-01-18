@@ -17,7 +17,7 @@ Notes
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/fileutil.h"
-#include "../clib/logfile.h"
+#include "../clib/logfacility.h"
 #include "../clib/passert.h"
 #include "../clib/random.h"
 #include "../clib/stlutil.h"
@@ -216,13 +216,11 @@ namespace Pol {
 		  }
 		}
 	  }
-	  cout << "Resource " << name() << ": " << tilecount << endl;
-      Clib::Log( "Resource %s: %ld\n", name( ).c_str( ), tilecount );
+      POLLOG_INFO << "Resource " << name() << ": " << tilecount << "\n";
 	  for ( unsigned i = 0; i < regions_.size(); ++i )
 	  {
 		ResourceRegion* rrgn = static_cast<ResourceRegion*>( regions_[i] );
-		cout << "Region " << regions_[i]->name() << ": " << rrgn->tilecount_ << endl;
-        Clib::Log( "Region %s: %ld\n", regions_[i]->name( ).c_str( ), rrgn->tilecount_ );
+		POLLOG_INFO << "Region " << regions_[i]->name() << ": " << rrgn->tilecount_ << "\n";
 	  }
 	}
 
@@ -370,7 +368,7 @@ namespace Pol {
       if ( !Clib::FileExists( "regions/resource.cfg" ) )
 	  {
 		if ( config.loglevel > 1 )
-		  cout << "File regions/resource.cfg not found, skipping.\n";
+          INFO_PRINT << "File regions/resource.cfg not found, skipping.\n";
 		return;
 	  }
 
@@ -396,7 +394,7 @@ namespace Pol {
 	  ResourceDef* rd = find_resource_def( elem.rest() );
 	  if ( rd == NULL )
 	  {
-		cerr << "Error reading RESOURCE.DAT: Unable to find resource type " << elem.rest() << endl;
+        ERROR_PRINT << "Error reading RESOURCE.DAT: Unable to find resource type " << elem.rest( ) << "\n";
 		throw runtime_error( "Data file error" );
 	  }
 
@@ -407,14 +405,14 @@ namespace Pol {
 	  ResourceDef* rd = find_resource_def( elem.rest() );
 	  if ( rd == NULL )
 	  {
-		cerr << "Error reading RESOURCE.DAT: Unable to find resource type " << elem.rest() << endl;
+        ERROR_PRINT << "Error reading RESOURCE.DAT: Unable to find resource type " << elem.rest( ) << "\n";
 		throw runtime_error( "Data file error" );
 	  }
 	  std::string regionname = elem.remove_string( "Name" );
 	  ResourceRegion* rgn = rd->getregion( regionname );
 	  if ( rgn == NULL )
 	  {
-		cerr << "Error reading RESOURCE.DAT: Unable to find region " << regionname << " in resource " << elem.rest() << endl;
+        ERROR_PRINT << "Error reading RESOURCE.DAT: Unable to find region " << regionname << " in resource " << elem.rest( ) << "\n";
 		throw runtime_error( "Data file error" );
 	  }
 	  rgn->read_data( elem );

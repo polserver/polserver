@@ -6,6 +6,7 @@
 #include "../../lib/format/format.h"
 #include "message_queue.h"
 #include "streamsaver.h"
+
 namespace Pol {
   namespace Clib {
 	const std::size_t flush_limit = 500;

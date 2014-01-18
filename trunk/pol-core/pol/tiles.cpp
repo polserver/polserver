@@ -14,6 +14,7 @@ Notes
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/passert.h"
+#include "../clib/logfacility.h"
 
 #include "../plib/mapcell.h"
 #include "../plib/mapfunc.h"
@@ -47,8 +48,8 @@ namespace Pol {
 
 	  load_all_cfgs( "tiles.cfg", "TILE", load_tile_entry );
 
-	  if ( !tiles_loaded )
-		cerr << "Warning: No tiles loaded. Please check tiles.cfg" << endl;
+      if ( !tiles_loaded )
+        ERROR_PRINT << "Warning: No tiles loaded. Please check tiles.cfg\n";
 	}
 
 	void unload_tiles()

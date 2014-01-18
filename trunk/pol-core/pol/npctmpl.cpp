@@ -15,6 +15,7 @@ Notes
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/fileutil.h"
+#include "../clib/logfacility.h"
 
 #include "npctmpl.h"
 #include "../plib/pkg.h"
@@ -35,12 +36,14 @@ namespace Pol {
 		if ( table[i].name == name )
 		  return table[i].value;
 	  }
-	  cerr << "Unable to translate value '" << name << "'" << endl;
-	  cerr << "  Expected one of the following values:" << endl;
+      fmt::Writer tmp;
+      tmp << "Unable to translate value '" << name << "'\n";
+      tmp << "  Expected one of the following values:\n";
 	  for ( int i = 0; table[i].name; ++i )
 	  {
-		cerr << "	" << table[i].name << endl;
+		tmp << "	" << table[i].name << "\n";
 	  }
+      ERROR_PRINT << tmp.c_str();
 	  throw runtime_error( "Unable to translate value" );
 	  return 0;
 	}

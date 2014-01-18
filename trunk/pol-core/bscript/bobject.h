@@ -21,6 +21,7 @@ Notes
 #include "../clib/clib.h"
 #include "../clib/fixalloc.h"
 #include "../clib/passert.h"
+#include "../../lib/format/format.h"
 
 #include "../clib/refptr.h"
 #include "escriptv.h"
@@ -319,6 +320,7 @@ namespace Pol {
 	  virtual ContIterator* createIterator( BObject* pIterVal );
 
 	  friend std::ostream& operator << ( std::ostream&, const BObjectImp& );
+      friend fmt::Writer& operator << ( fmt::Writer&, const BObjectImp& );
 	private:
 	  BObjectType type_;
 #if BOBJECTIMP_DEBUG
@@ -370,6 +372,7 @@ namespace Pol {
 
 	  //   friend StreamWriter& operator << (StreamWriter&, const BObject& );
 	  friend std::ostream& operator << ( std::ostream&, const BObject& );
+      friend fmt::Writer& operator << ( fmt::Writer&, const BObject& );
 	  void printOn( std::ostream& ) const;
 
 	  BObjectImp* impptr();

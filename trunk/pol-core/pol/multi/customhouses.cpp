@@ -27,6 +27,7 @@ tool. Should suffice.
 #include "../../clib/cfgelem.h"
 #include "../../clib/endian.h"
 #include "../../clib/stlutil.h"
+#include "../../clib/logfacility.h"
 
 #ifdef USE_SYSTEM_ZLIB
 #	include <zlib.h>
@@ -372,7 +373,7 @@ namespace Pol {
 	  const MultiDef* multidef = MultiDefByMultiID( multiid );
 	  if ( multidef == NULL )
 	  {
-		cerr << "Trying to add Multi to customhouse, multiid " << hex << multiid << dec << " multi definition doesn't exist!" << endl;
+        ERROR_PRINT << "Trying to add Multi to customhouse, multiid 0x" << fmt::hexu( multiid ) << " multi definition doesn't exist!\n";
 		return;
 	  }
 

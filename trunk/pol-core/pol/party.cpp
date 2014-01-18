@@ -30,6 +30,7 @@ Notes
 #include "../clib/refptr.h"
 #include "../clib/stlutil.h"
 #include "../clib/unicode.h"
+#include "../clib/logfacility.h"
 #include "../plib/realm.h"
 #include "clfunc.h"
 #include "fnsearch.h"
@@ -794,7 +795,7 @@ namespace Pol {
 	  if ( party_cfg.General.RemoveMemberOnLogoff )
 		return;
 
-	  cout << "  " << partyfile << ":";
+      INFO_PRINT << "  " << partyfile << ":";
       Clib::ConfigFile cf( partyfile );
       Clib::ConfigSection sect_party( cf, "PARTY", Clib::CST_NORMAL );
       Clib::ConfigElem elem;
@@ -804,7 +805,7 @@ namespace Pol {
 	  {
 		if ( --num_until_dot == 0 )
 		{
-		  cout << ".";
+          INFO_PRINT << ".";
 		  num_until_dot = 1000;
 		}
 		if ( sect_party.matches( elem ) )
@@ -813,7 +814,7 @@ namespace Pol {
 	  clock_t end = clock();
 	  int ms = static_cast<int>( ( end - start ) * 1000.0 / CLOCKS_PER_SEC );
 
-	  cout << " " << parties.size() << " elements in " << ms << " ms." << std::endl;
+      INFO_PRINT << " " << parties.size() << " elements in " << ms << " ms.\n";
 
 	  register_party_members();
 	}

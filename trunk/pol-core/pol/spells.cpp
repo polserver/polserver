@@ -23,6 +23,7 @@ Notes
 #include "../clib/cfgfile.h"
 #include "../clib/endian.h"
 #include "../clib/fileutil.h"
+#include "../clib/logfacility.h"
 
 #include "action.h"
 #include "mobile/charactr.h"
@@ -188,9 +189,8 @@ namespace Pol {
 		if ( circle < 1 || circle > spellcircles.size() ||
 			 spellcircles[circle - 1] == NULL )
 		{
-		  cerr << "Error reading spell " << name_
-			<< ": Circle " << circle << " is not defined."
-			<< endl;
+          ERROR_PRINT << "Error reading spell " << name_
+            << ": Circle " << circle << " is not defined.\n";
 		  throw runtime_error( "Config file error" );
 		}
 
@@ -328,7 +328,7 @@ namespace Pol {
 	  USpell *spell = spells2[spellid];
 	  if ( spell == NULL )
 	  {
-		cerr << "Spell " << spellid << " is not implemented." << endl;
+        ERROR_PRINT << "Spell " << spellid << " is not implemented.\n";
 		send_sysmessage( client, "That spell does not function." );
 		return;
 	  }
@@ -442,25 +442,27 @@ namespace Pol {
 	  if ( spells2[spellid] )
 	  {
 		USpell* origspell = spells2[spellid];
-		cerr << "Spell ID " << spellid << " (" << origspell->name() << ") multiply defined" << endl;
+        fmt::Writer tmp;
+        tmp << "Spell ID " << spellid << " (" << origspell->name() << ") multiply defined\n";
 		if ( origspell->pkg_ != NULL )
 		{
-		  cerr << "	Spell originally defined in package '"
-			<< origspell->pkg_->name() << "' (" << origspell->pkg_->dir() << ")" << endl;
+          tmp << "	Spell originally defined in package '"
+            << origspell->pkg_->name() << "' (" << origspell->pkg_->dir() << ")\n";
 		}
 		else
 		{
-		  cerr << "	Spell originally defined in main" << endl;
+          tmp << "	Spell originally defined in main\n";
 		}
 		if ( spell->pkg_ != NULL )
 		{
-		  cerr << "	Spell redefined in package '"
-			<< spell->pkg_->name() << "' (" << spell->pkg_->dir() << ")" << endl;
+          tmp << "	Spell redefined in package '"
+            << spell->pkg_->name() << "' (" << spell->pkg_->dir() << ")\n";
 		}
 		else
 		{
-		  cerr << "	Spell redefined in main" << endl;
+          tmp << "	Spell redefined in main\n";
 		}
+        ERROR_PRINT << tmp.c_str();
 		throw runtime_error( "Spell ID multiply defined" );
 	  }
 
@@ -475,7 +477,7 @@ namespace Pol {
 	  if ( !Clib::FileExists( "config/circles.cfg" ) )
 	  {
 		if ( config.loglevel > 1 )
-		  cout << "File config/circles not found, skipping.\n";
+		  INFO_PRINT << "File config/circles not found, skipping.\n";
 		return;
 	  }
 
@@ -487,7 +489,7 @@ namespace Pol {
 		int index = strtoul( elem.rest(), NULL, 0 ) - 1;
 		if ( index < 0 || index >= 100 )
 		{
-		  cerr << "Error in CIRCLES.CFG: Circle must fall between 1 and 100" << endl;
+          ERROR_PRINT << "Error in CIRCLES.CFG: Circle must fall between 1 and 100\n";
 		  throw runtime_error( "Config file error" );
 		}
 
@@ -495,7 +497,7 @@ namespace Pol {
 
 		if ( spellcircles[index] != NULL )
 		{
-		  cerr << "Error in CIRCLES.CFG: Circle " << index + 1 << " is multiply defined." << endl;
+          ERROR_PRINT << "Error in CIRCLES.CFG: Circle " << index + 1 << " is multiply defined.\n";
 		  throw runtime_error( "Config file error" );
 		}
 
@@ -525,7 +527,7 @@ namespace Pol {
       if ( Clib::FileExists( "config/spells.cfg" ) )
 		load_spells_cfg( "config/spells.cfg", NULL );
 	  else if ( config.loglevel > 1 )
-		cout << "File config/spells.cfg not found, skipping\n";
+        INFO_PRINT << "File config/spells.cfg not found, skipping\n";
 
       for ( Plib::Packages::iterator itr = Plib::packages.begin( ); itr != Plib::packages.end( ); ++itr )
 	  {

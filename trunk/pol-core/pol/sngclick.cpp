@@ -75,7 +75,6 @@ namespace Pol {
 	void singleclick( Network::Client *client, PKTIN_09 *msg )
 	{
 	  u32 serial = cfBEu32( msg->serial );
-	  //printf( "SingleClick: serial=%08lX\n", serial );
 
 	  if ( IsCharacter( serial ) )
 	  {

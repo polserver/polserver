@@ -17,7 +17,7 @@ Notes
 #include "../bscript/bobject.h"
 
 #include "../clib/endian.h"
-#include "../clib/logfile.h"
+#include "../clib/logfacility.h"
 
 #include "mobile/charactr.h"
 #include "network/client.h"
@@ -44,18 +44,18 @@ namespace Pol {
 
 	  if ( item == NULL )
 	  {
-		Clib::Log( "Character %08lX tried to equip item %08lx, which did not exist in gotten_items.\n",
-			 client->chr->serial, serial );
+        POLLOG_ERROR.Format( "Character 0x{:X} tried to equip item 0x{:X}, which did not exist in gotten_items.\n" )
+          << client->chr->serial << serial;
 		send_item_move_failure( client, MOVE_ITEM_FAILURE_ILLEGAL_EQUIP ); // 5
 		return;
 	  }
 
 	  if ( item->serial != serial )
 	  {
-        Clib::Log( "Character %08lX tried to equip item %08lx, but had gotten item %08lX\n",
-			 client->chr->serial,
-			 serial,
-			 item->serial );
+        POLLOG_ERROR.Format( "Character 0x{:X} tried to equip item 0x{:X}, but had gotten item 0x{:X}\n" )
+          << client->chr->serial
+          << serial
+          << item->serial;
 		send_item_move_failure( client, MOVE_ITEM_FAILURE_ILLEGAL_EQUIP ); // 5
 		item->gotten_by = NULL;
 		return;

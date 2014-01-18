@@ -43,7 +43,7 @@ Notes
 
 #include "../clib/clib.h"
 #include "../clib/endian.h"
-#include "../clib/logfile.h"
+#include "../clib/logfacility.h"
 #include "../clib/passert.h"
 #include "../clib/pkthelper.h"
 #include "../clib/stlutil.h"
@@ -716,7 +716,7 @@ namespace Pol {
 		  static u32 last_serial = 0;
 		  if ( item->serial != last_serial )
 		  {
-			Clib::Log2( "Too many items specify a layer on corpse 0x%lx\n", item->serial );
+            POLLOG_ERROR.Format( "Too many items specify a layer on corpse 0x{:X}\n" ) << item->serial;
 			last_serial = item->serial;
 		  }
 		  break;
@@ -739,9 +739,6 @@ namespace Pol {
 	// Item::sendto( Client* ) ??
 	void send_item( Client *client, const Item *item )
 	{
-	  // printf( "Sending Item %08.08lX to Character %08.08lX\n", 
-	  //         item->serial, client->chr->serial );
-
 	  if ( item->invisible() && !client->chr->can_seeinvisitems() )
 	  {
 		send_remove_object( client, item );
@@ -844,13 +841,12 @@ namespace Pol {
 		  // specifically, handle_dye used to not ever do send_wornitem.
 		  // FIXME way, way inefficient, but nontrivial.
 		  Character* chr = find_character( item->container->serial );
-		  if ( chr )
-		  {
-			update_wornitem_to_inrange( chr, item );
-		  }
-		  else
-            Clib::Log( "Ack! update_item_to_inrange: character 0x%lx doesn't exist!\n",
-			item->container->serial );
+          if ( chr )
+          {
+            update_wornitem_to_inrange( chr, item );
+          }
+          else
+            POLLOG_ERROR.Format( "Ack! update_item_to_inrange: character 0x{:X} doesn't exist!\n" ) << item->container->serial;
 		}
 		else
 		{
@@ -1852,10 +1848,10 @@ namespace Pol {
 	{
 	  if ( item->serial == 0 )
 	  {
-		Clib::Log( "destroy %s: %s, orphan! (old serial: 0x%lx)\n",
-			 item->description().c_str(),
-			 item->classname(),
-			 cfBEu32( item->serial_ext ) );
+        POLLOG_ERROR.Format( "destroy {}: {}, orphan! (old serial: 0x{:X})\n" )
+          << item->description()
+          << item->classname()
+          << ( cfBEu32( item->serial_ext ) );
 	  }
 
 	  if ( item->serial != 0 )
@@ -1901,7 +1897,6 @@ namespace Pol {
 
 	void world_delete( UObject* uobj )
 	{
-	  // std::cout << "world_delete(0x" << hex << uobj->serial << dec << ")" << endl;
 	  uobj->destroy();
 	  /* moved to UObject::destroy()
 		  uobj->serial = 0;

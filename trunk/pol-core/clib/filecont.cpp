@@ -8,7 +8,7 @@ Notes
 */
 
 #include "stl_inc.h"
-
+#include "logfacility.h"
 #include <stdio.h>
 
 #include "filecont.h"
@@ -19,7 +19,7 @@ namespace Pol {
 	  FILE *fp = fopen( filename, "rb" );
 	  if( fp == NULL )
 	  {
-		cerr << "Unable to open '" << filename << "' for reading." << endl;
+        ERROR_PRINT << "Unable to open '" << filename << "' for reading.\n";
 		throw runtime_error( "Error opening file" );
 	  }
 

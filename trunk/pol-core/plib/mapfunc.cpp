@@ -14,6 +14,7 @@ Notes
 
 #include "../clib/cfgelem.h"
 #include "../clib/passert.h"
+#include "../clib/logfacility.h"
 
 #include "../plib/mapcell.h"
 #include "../plib/mapshape.h"
@@ -219,8 +220,8 @@ namespace Pol {
 	  //mapflags |= FLAG::OVERFLIGHT;
 
 	  if ( Core::cfg_show_roof_and_platform_warning )
-	  if ( ( mapflags & FLAG::BLOCKING ) && ( mapflags & ( FLAG::MOVELAND | FLAG::MOVESEA ) ) )
-		cout << " Warning: Tile 0x" << hex << tile << dec << " uses Roof- and Platform-Flag at same time." << endl;
+      if ( ( mapflags & FLAG::BLOCKING ) && ( mapflags & ( FLAG::MOVELAND | FLAG::MOVESEA ) ) )
+        INFO_PRINT << " Warning: Tile 0x" << fmt::hexu( tile ) << " uses Roof- and Platform-Flag at same time.\n";
 
 	  return mapflags;
 	}

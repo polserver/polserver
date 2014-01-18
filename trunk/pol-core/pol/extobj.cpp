@@ -14,7 +14,6 @@ Notes
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/fileutil.h"
-#include "../clib/logfile.h"
 #include "../clib/rawtypes.h"
 #include "extobj.h"
 namespace Pol {

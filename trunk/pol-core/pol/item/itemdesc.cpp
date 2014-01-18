@@ -31,6 +31,7 @@ Notes
 #include "../../clib/cfgfile.h"
 #include "../../clib/esignal.h"
 #include "../../clib/fileutil.h"
+#include "../../clib/logfacility.h"
 #include "../../clib/rawtypes.h"
 #include "../../clib/passert.h"
 #include "../../clib/stlutil.h"
@@ -102,7 +103,7 @@ namespace Pol {
 	{
 	  if ( rd == NULL )
 	  {
-		cerr << "itemdesc.cfg: Resource '" << rname << "' not found\n" << endl;
+        ERROR_PRINT << "itemdesc.cfg: Resource '" << rname << "' not found\n";
 		throw runtime_error( "Configuration error" );
 	  }
 	}
@@ -216,8 +217,8 @@ namespace Pol {
 
 		if ( multiid == 0xFFFF )
 		{
-		  cerr << "Itemdesc has no 'multiid' specified for a multi." << endl;
-		  cerr << "      Note: read corechanges.txt for the new multi format" << endl;
+          ERROR_PRINT << "Itemdesc has no 'multiid' specified for a multi.\n"
+            << "      Note: read corechanges.txt for the new multi format\n";
 		  elem.throw_error( "Configuration error" );
 		}
 	  }
@@ -231,7 +232,7 @@ namespace Pol {
 		  }
 		  else
 		  {
-			cerr << "Itemdesc has no 'graphic' specified, and no 'objtype' is valid either." << endl;
+            ERROR_PRINT << "Itemdesc has no 'graphic' specified, and no 'objtype' is valid either.\n";
 			elem.throw_error( "Configuration error" );
 		  }
 		}
@@ -242,7 +243,7 @@ namespace Pol {
 	  // Make sure Weapons and Armors ALL have this value defined to not break the core combat system
 	  if ( maxhp == 0 && ( type == WEAPONDESC || type == ARMORDESC ) )
 	  {
-		cerr << "itemdesc.cfg, objtype " << Clib::hexint( objtype ) << " has no MaxHP specified." << endl;
+        ERROR_PRINT.Format( "itemdesc.cfg, objtype 0x{:X}  has no MaxHP specified." ) << objtype;
 		elem.throw_error( "Configuration error" );
 	  }
 
@@ -309,8 +310,7 @@ namespace Pol {
 		}
 		else
 		{
-		  cerr << "itemdesc.cfg, objtype 0x" << hex << objtype << dec
-			<< ": Resource '" << temp << "' is malformed." << endl;
+          ERROR_PRINT.Format( "itemdesc.cfg, objtype 0x{:X} : Resource '{}' is malformed.\n" ) << objtype << temp;
 		  throw runtime_error( "Configuration file error" );
 		}
 	  }
@@ -321,10 +321,8 @@ namespace Pol {
 
 		if ( objtype_byname.count( temp.c_str() ) )
 		{
-		  cerr << "Warning! objtype " << Clib::hexint( objtype )
-			<< ": ObjtypeName '" << temp << "' is the same as objtype "
-			<< Clib::hexint( objtype_byname[temp.c_str()] )
-			<< endl;
+          ERROR_PRINT.Format( "Warning! objtype 0x{:X} : ObjtypeName '{}' is the same as objtype {:#X}\n" ) << objtype
+            << temp << objtype_byname[temp.c_str()];
 		  // throw runtime_error( "Configuration file error" );
 		}
 		else
@@ -411,7 +409,7 @@ namespace Pol {
 		  string errmsg;
 		  if ( !dice.load( tmp.c_str(), &errmsg ) )
 		  {
-			cerr << "Error loading itemdesc.cfg Elemental Resistances for " << objtype_description() << " : " << errmsg << endl;
+            ERROR_PRINT << "Error loading itemdesc.cfg Elemental Resistances for " << objtype_description() << " : " << errmsg << "\n";
 			throw runtime_error( "Error loading Item Elemental Resistances" );
 		  }
 		  switch ( resist )
@@ -456,7 +454,7 @@ namespace Pol {
 		  string errmsg;
 		  if ( !dice.load( tmp.c_str(), &errmsg ) )
 		  {
-			cerr << "Error loading itemdesc.cfg elemental damages for " << objtype_description() << " : " << errmsg << endl;
+			ERROR_PRINT << "Error loading itemdesc.cfg elemental damages for " << objtype_description() << " : " << errmsg << "\n";
 			throw runtime_error( "Error loading Item Elemental Damages" );
 		  }
 		  switch ( edamage )
@@ -626,12 +624,11 @@ namespace Pol {
 
 	string ItemDesc::objtype_description() const
 	{
-	  string tmp;
-	  if ( pkg )
-		tmp = ":" + pkg->name() + ":";
-	  tmp += objtypename;
-	  tmp += " (" + Clib::hexint( objtype ) + ")";
-	  return tmp;
+      fmt::Writer tmp;
+      if ( pkg )
+        tmp << ":" << pkg->name() << ":";
+      tmp << objtypename << " (0x" << fmt::hexu( objtype ) << ")";
+      return tmp.str();
 	}
 
 	bool ItemDesc::default_movable() const
@@ -972,12 +969,13 @@ namespace Pol {
 
 		if ( has_itemdesc( descriptor->objtype ) )
 		{
-		  cerr << "Error: Objtype " << Clib::hexint( descriptor->objtype ) << " is already defined in ";
+          fmt::Writer tmp;
+          tmp.Format( "Error: Objtype 0x{:X} is already defined in" ) << descriptor->objtype;
 		  if ( find_itemdesc( descriptor->objtype ).pkg == NULL )
-			cerr << "config/itemdesc.cfg";
+            tmp << "config/itemdesc.cfg\n";
 		  else
-			cerr << find_itemdesc( descriptor->objtype ).pkg->dir() << "itemdesc.cfg";
-		  cerr << endl;
+            tmp << find_itemdesc( descriptor->objtype ).pkg->dir( ) << "itemdesc.cfg\n";
+          ERROR_PRINT << tmp.c_str();
 
 		  elem.throw_error( "ObjType " + Clib::hexint( descriptor->objtype ) + " defined more than once." );
 		}
@@ -1075,7 +1073,6 @@ namespace Pol {
 	{
 	  for ( auto &elem : desctable )
 	  {
-		//cout << "Objtype: " << hexint(itr->first) << " " << itr->second << " " << &empty_itemdesc << endl;
 		if ( elem.second != &empty_itemdesc )
 		{
 		  delete elem.second;

@@ -10,6 +10,7 @@ Notes
 */
 
 #include "../clib/stl_inc.h"
+#include "../clib/logfacility.h"
 
 #include "../bscript/berror.h"
 
@@ -51,10 +52,10 @@ namespace Pol {
 		{
 		  if ( args != exportedfunc->nargs )
 		  {
-			cout << "Exported function " << name
+            INFO_PRINT << "Exported function " << name
 			  << " in script " << scriptname()
 			  << " takes " << exportedfunc->nargs
-			  << " parameters, expected " << args << endl;
+			  << " parameters, expected " << args << "\n";
 			return false;
 		  }
 		  PC = exportedfunc->PC;
@@ -74,10 +75,10 @@ namespace Pol {
 		{
 		  if ( args != exportedfunc->nargs )
 		  {
-			cout << "Exported function " << name
+            INFO_PRINT << "Exported function " << name
 			  << " in script " << scriptname()
 			  << " takes " << exportedfunc->nargs
-			  << " parameters, expected " << args << endl;
+			  << " parameters, expected " << args << "\n";
 			return false;
 		  }
 		  PC = exportedfunc->PC;

@@ -23,7 +23,7 @@ Notes
 #include "../clib/esignal.h"
 #include "../clib/endian.h"
 #include "../clib/fileutil.h"
-#include "../clib/logfile.h"
+#include "../clib/logfacility.h"
 #include "../clib/stlutil.h"
 #include "../clib/strexcpt.h"
 #include "../clib/strutil.h"
@@ -95,7 +95,7 @@ namespace Pol {
 	  }
 	  catch ( ... )
 	  {
-        Clib::Log2( "Error while parsing www.cfg\n" );
+		  POLLOG_ERROR << "Error while parsing www.cfg\n";
 	  }
 	}
 
@@ -108,11 +108,11 @@ namespace Pol {
 		{
 		  if ( wwwroot_pkg != NULL )
 		  {
-            Clib::Log( "Package %s also provides a wwwroot, ignoring\n", pkg->desc( ).c_str( ) );
+            POLLOG.Format( "Package {} also provides a wwwroot, ignoring\n" ) << pkg->desc();
 		  }
 		  else
 		  {
-            Clib::Log( "wwwroot package is %s\n", pkg->desc( ).c_str( ) );
+            POLLOG.Format( "wwwroot package is {}\n" ) << pkg->desc();
 			wwwroot_pkg = pkg;
 		  }
 		}
@@ -125,7 +125,6 @@ namespace Pol {
 
     bool http_readline( Clib::Socket& sck, std::string& s )
 	{
-	  //cout << "{+RL}";
 	  bool res = false;
 	  s = "";
 	  unsigned char ch;
@@ -142,7 +141,6 @@ namespace Pol {
 		}
 		else
 		{
-		  // printf( "[%02.02x]", ch );
 		  if ( ch == '\n' )
 		  {
 			res = true;
@@ -151,7 +149,6 @@ namespace Pol {
 		  }
 		}
 	  }
-	  //cout << "{-RL}";
 	  return res;
 	}
     void http_writeline( Clib::Socket& sck, const std::string& s )
@@ -401,7 +398,6 @@ namespace Pol {
 	{
 	  bool res = true;
 
-	  // cout << "ECL file! fire script" << endl;
 	  ScriptDef page_sd;
 	  if ( pkg )
 		page_sd.quickconfig( pkg, file_ecl );
@@ -410,7 +406,7 @@ namespace Pol {
 
 	  if ( !page_sd.exists() )
 	  {
-        Clib::Log( "WebServer: not found: %s\n", page_sd.name( ).c_str( ) );
+        POLLOG.Format( "WebServer: not found: {}\n" ) << page_sd.name();
 		http_not_found( sck, page );
 		return false;
 	  }
@@ -421,7 +417,7 @@ namespace Pol {
 	  //find_script( filename, true, config.cache_interactive_scripts );
 	  if ( program.get() == NULL )
 	  {
-		cerr << "Error reading script " << page_sd.name() << endl;
+        ERROR_PRINT << "Error reading script " << page_sd.name( ) << "\n";
 		res = false;
 		lck.unlock();
 		http_not_found( sck, page );
@@ -453,7 +449,6 @@ namespace Pol {
 		  http_writeline( hem->sck_, "Content-Type: text/html" );
 		  http_writeline( hem->sck_, "" );
 		  ex->setDebugLevel( Bscript::Executor::NONE );
-		  //std::cout << "scheduling executor" << std::endl;
 		  schedule_executor( ex );
 		}
 	  }
@@ -631,8 +626,8 @@ namespace Pol {
 
 	  while ( sck.connected() && http_readline( sck, tmpstr ) )
 	  {
-		if ( config.web_server_debug )
-		  cout << "http(" << sck.handle() << "): '" << tmpstr << "'" << endl;
+        if ( config.web_server_debug )
+          INFO_PRINT << "http(" << sck.handle() << "): '" << tmpstr << "'\n";
 		if ( tmpstr.empty() ) break;
 		if ( strncmp( tmpstr.c_str(), "GET", 3 ) == 0 )
 		  get = tmpstr;
@@ -643,9 +638,6 @@ namespace Pol {
 	  }
 	  if ( !sck.connected() )
 		return;
-
-
-	  // cout << "http-get: '" << get << "'" << endl;
 
 	  ISTRINGSTREAM is( get );
 
@@ -659,10 +651,10 @@ namespace Pol {
 
 	  if ( config.web_server_debug )
 	  {
-		cout << "http-cmd:   '" << cmd << "'" << endl;
-		cout << "http-host:  '" << host << "'" << endl;
-		cout << "http-url:   '" << url << "'" << endl;
-		cout << "http-proto: '" << proto << "'" << endl;
+        INFO_PRINT << "http-cmd:   '" << cmd << "'\n"
+          << "http-host:  '" << host << "'\n"
+          << "http-url:   '" << url << "'\n"
+          << "http-proto: '" << proto << "'\n";
 	  }
 
 	  //	if (url == "/")
@@ -684,9 +676,9 @@ namespace Pol {
 
 	  if ( config.web_server_debug )
 	  {
-		cout << "http-page:   '" << page << "'" << endl;
-		cout << "http-params: '" << query_string << "'" << endl;
-		cout << "http-decode: '" << http_decodestr( query_string ) << "'" << endl;
+        INFO_PRINT << "http-page:   '" << page << "'\n"
+          << "http-params: '" << query_string << "'\n"
+          << "http-decode: '" << http_decodestr( query_string ) << "'\n";
 	  }
 
 	  if ( !config.web_server_password.empty() )
@@ -699,8 +691,8 @@ namespace Pol {
 		  unpw = decode_base64( coded_unpw );
 		  if ( config.web_server_debug )
 		  {
-			cout << "http-pw: '" << coded_unpw << "'" << endl;
-			cout << "http-pw-decoded: '" << unpw << "'" << endl;
+            INFO_PRINT << "http-pw: '" << coded_unpw << "'\n"
+              << "http-pw-decoded: '" << unpw << "'\n";
 		  }
 		  if ( config.web_server_password != unpw )
 		  {
@@ -740,7 +732,7 @@ namespace Pol {
 	  }
 
 	  if ( config.web_server_debug )
-		cout << "Page type: " << pagetype << endl;
+		INFO_PRINT << "Page type: " << pagetype << "\n";
 
 	  if ( pagetype == "ecl" )
 	  {
@@ -760,8 +752,7 @@ namespace Pol {
 		}
 		else
 		{
-		  // TODO: bitch to log file
-		  cout << "HTTP server: I can't handle pagetype '" << pagetype << "'" << endl;
+          POLLOG_INFO << "HTTP server: I can't handle pagetype '" << pagetype << "'\n";
 		}
 	  }
 	}
@@ -806,9 +797,8 @@ namespace Pol {
 								  &threadid );
 	  if ( h == 0 )
 	  {
-        Clib::Log( "error in start_http_conn_thread: %d %d \"%s\" \"%s\" %d %d\n",
-			 errno, _doserrno, strerror( errno ), strerror( _doserrno ), http_conn_thread_stub, *client_socket );
-		cerr << "start_http_conn_thread error: " << strerror( errno ) << endl;
+        POLLOG_ERROR.Format( "error in start_http_conn_thread: {} {} \"{}\" \"{}\" {} {}\n" )
+          << errno << _doserrno << strerror( errno ) << strerror( _doserrno ) << reinterpret_cast<const void*>(http_conn_thread_stub) << *client_socket;
 
 		dec_child_thread_count();
 	  }
@@ -848,7 +838,7 @@ namespace Pol {
 								client_socket );
 	  if ( res ) // Turley 06-26-2009: removed passert_always so pol doesnt crash
 	  {
-		Clib::Log( "Failed to create worker thread for http (res = %d)\n", res );
+        POLLOG.Format( "Failed to create worker thread for http (res = {})\n") << res;
 		dec_child_thread_count();
 	  }
 	}
@@ -910,15 +900,12 @@ namespace Pol {
 	  init_http_thread_support();
 
 	  //if (1)
-	  {
-		PolLock lck;
-		cout << "Listening for HTTP requests on port " << Core::config.web_server_port << endl;
-	  }
+	  INFO_PRINT << "Listening for HTTP requests on port " << Core::config.web_server_port << "\n";
+
       SOCKET http_socket = Network::open_listen_socket( Core::config.web_server_port );
 	  if ( http_socket == INVALID_SOCKET )
 	  {
-		PolLock lck;
-		cerr << "Unable to listen on socket: " << http_socket << endl;
+        ERROR_PRINT << "Unable to listen on socket: " << http_socket << "\n";
 		return;
 	  }
 	  fd_set listen_fd;
@@ -939,7 +926,6 @@ namespace Pol {
 		{
 		  listen_timeout.tv_sec = 5;
 		  listen_timeout.tv_usec = 0;
-		  // printf( "HTTP Listen!\n" );
 		  res = select( nfds, &listen_fd, NULL, NULL, &listen_timeout );
         } while ( res < 0 && !Clib::exit_signalled && socket_errno == SOCKET_ERRNO( EINTR ) );
 
@@ -951,8 +937,8 @@ namespace Pol {
 
 		if ( FD_ISSET( http_socket, &listen_fd ) )
 		{
-		  if ( config.web_server_debug )
-			cout << "Accepting connection.." << endl;
+          if ( config.web_server_debug )
+            INFO_PRINT << "Accepting connection..\n";
 
 		  struct sockaddr client_addr; // inet_addr
 		  socklen_t addrlen = sizeof client_addr;
@@ -963,7 +949,7 @@ namespace Pol {
 		  Network::apply_socket_options( client_socket );
 
 		  string addrstr = Network::AddressToString( &client_addr );
-		  cout << "HTTP client connected from " << addrstr << endl;
+		  INFO_PRINT << "HTTP client connected from " << addrstr << "\n";
 
 		  threadhelp::inc_child_thread_count();
 		  start_http_conn_thread( &client_socket );

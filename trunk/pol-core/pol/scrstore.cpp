@@ -16,7 +16,7 @@ Notes
 
 #include "../bscript/eprog.h"
 
-#include "../clib/logfile.h"
+#include "../clib/logfacility.h"
 #include "../clib/refptr.h"
 #include "../clib/strutil.h"
 
@@ -68,8 +68,7 @@ namespace Pol {
 	  {
 		if ( complain_if_not_found )
 		{
-		  cerr << "Unable to read script '" << pathname.c_str() << "'" << endl;
-		  Clib::Log( "Unable to read script '%s'\n", pathname.c_str() );
+		  POLLOG_ERROR << "Unable to read script '" << pathname << "'\n";
 		}
         return ref_ptr<Bscript::EScriptProgram>( 0 );
 	  }
@@ -101,8 +100,7 @@ namespace Pol {
 	  {
 		if ( complain_if_not_found )
 		{
-		  cerr << "Unable to read script '" << script.name() << "'" << endl;
-          Clib::Log( "Unable to read script '%s'\n", script.c_str( ) );
+          POLLOG_ERROR << "Unable to read script '" << script.name() << "'\n";
 		}
         return ref_ptr<Bscript::EScriptProgram>( 0 );
 	  }
@@ -131,7 +129,7 @@ namespace Pol {
 		const char* nm_cstr = nm.c_str();
 		if ( strstr( nm_cstr, name_in.c_str() ) )
 		{
-		  cout << "Unloading " << nm_cstr << endl;
+          INFO_PRINT << "Unloading " << nm_cstr << "\n";
 		  scrstore.erase( cur );
 		  ++n;
 
@@ -175,33 +173,36 @@ namespace Pol {
 	  end = scrstore.end();
 	  if ( config.multithread )
 	  {
-        Clib::Log( "Scheduler passes: %ld\n", GET_PROFILEVAR( scheduler_passes ) );
-        Clib::Log( "Script passes:    %" OUT64 "d\n", script_passes );
+        POLLOG.Format( "Scheduler passes: {}\nScript passes:    {}\n" )
+          << ( GET_PROFILEVAR( scheduler_passes ) )
+          << script_passes;
 	  }
 	  else
 	  {
-        Clib::Log( "Total gameloop iterations: %ld\n", rotations );
+        POLLOG.Format( "Total gameloop iterations: {}\n" ) << rotations;
 	  }
 
-      Clib::Log( "%-38s %12s %6s %12s %6s\n", "Script", "cycles", "invoc", "cyc/invoc", "%" );
+      fmt::Writer tmp;
+      tmp.Format( "{:<38} {:>12} {:>6} {:>12} {:>6}\n" ) << "Script" << "cycles" << "incov" << "cyc/invoc" << "%";
 	  for ( ; itr != end; ++itr )
 	  {
         Bscript::EScriptProgram* eprog = ( ( *itr ).second ).get( );
-        Clib::Log( "%-38s %12" OUT64 "d %6ld %12" OUT64 "d %.2f\n",
-			 eprog->name.c_str(),
-			 eprog->instr_cycles,
-			 eprog->invocations,
-			 eprog->instr_cycles /
-			 ( eprog->invocations ? eprog->invocations : 1 ),
-			 static_cast<double>( eprog->instr_cycles ) / total_instr * 100.0 );
+        tmp.Format( "{:<38} {:>12} {:>6} {:>12} {:>6}\n" )
+          << eprog->name
+          << eprog->instr_cycles
+          << eprog->invocations
+          << ( eprog->instr_cycles /
+          ( eprog->invocations ? eprog->invocations : 1 ) )
+          << ( static_cast<double>( eprog->instr_cycles ) / total_instr * 100.0 );
 		if ( clear_counters )
 		{
 		  eprog->instr_cycles = 0;
 		  eprog->invocations = eprog->count() - 1; // 1 count is the scrstore's
 		}
 	  }
-	  if ( clear_counters )
-        Clib::Log( "Profiling counters cleared.\n" );
+      POLLOG << tmp.c_str();
+      if ( clear_counters )
+        POLLOG << "Profiling counters cleared.\n";
 	}
 
 
@@ -216,7 +217,7 @@ namespace Pol {
 		eprog->invocations = eprog->count() - 1; // 1 count is the scrstore's
 	  }
 
-      Clib::Log( "Profiling counters cleared.\n" );
+      POLLOG << "Profiling counters cleared.\n";
 	}
 
   }

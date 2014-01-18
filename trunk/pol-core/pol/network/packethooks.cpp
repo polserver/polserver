@@ -23,7 +23,7 @@ new Handler added to the core needs a new Version number here. As of 8/3/09 ther
 #include "../../clib/cfgelem.h"
 #include "../../clib/cfgfile.h"
 #include "../../clib/endian.h"
-#include "../../clib/logfile.h"
+#include "../../clib/logfacility.h"
 #include "../../clib/fileutil.h"
 #include "../../clib/strutil.h"
 
@@ -82,7 +82,7 @@ namespace Pol {
 	  if ( phd->function == NULL && phd->SubCommands.empty() )
 	  {
 		if ( phd->default_handler == NULL )
-		  Clib::Log( "Expected packet hook function for msg %x but was null!\n", *message );
+          POLLOG.Format( "Expected packet hook function for msg 0x{:X} but was null!\n")<< (int)*message;
 		else  // only SendFunction is definied but default_handler is definied
 		  phd->default_handler( client, data );
 		return;
@@ -323,14 +323,14 @@ namespace Pol {
 				existing_out_func = hook_data->outgoing_function;
 				break;
 		}
-		case 3: cout << "Packethook Packet Version 3 not implemented" << endl; return; break;
-		default: cout << "Invalid Packethook Packet Version." << endl; return; break;
+        case 3: INFO_PRINT << "Packethook Packet Version 3 not implemented\n"; return; break;
+        default: INFO_PRINT << "Invalid Packethook Packet Version.\n"; return; break;
 	  }
 
-	  if ( existing_in_func != NULL )
-		Clib::Log( "Packet hook receive function multiply defined for packet %x!\n", id );
-	  if ( existing_out_func != NULL )
-		Clib::Log( "Packet hook send function multiply defined for packet %x!\n", id );
+      if ( existing_in_func != NULL )
+        POLLOG.Format( "Packet hook receive function multiply defined for packet 0x{:X}!\n" ) << (int)id;
+      if ( existing_out_func != NULL )
+        POLLOG.Format( "Packet hook send function multiply defined for packet 0x{:X}!\n" ) << (int)id;
 
 	  switch ( pktversion )
 	  {
@@ -382,8 +382,8 @@ namespace Pol {
 				}
 				break;
 		}
-		case 3: cout << "Packethook Packet Version 3 not implemented" << endl; return; break;
-		default: cout << "Invalid Packethook Packet Version." << endl; return; break;
+        case 3: INFO_PRINT << "Packethook Packet Version 3 not implemented\n"; return; break;
+        default: INFO_PRINT << "Invalid Packethook Packet Version.\n"; return; break;
 	  }
 	}
 
@@ -429,8 +429,8 @@ namespace Pol {
 	  {
 		case 1:	parent = &packet_hook_data.at( id ); break;
 		case 2:	parent = &packet_hook_data_v2.at( id ); break;
-		case 3: cout << "Packethook Packet Version 3 not implemented" << endl; return; break;
-		default: cout << "Invalid Packethook Packet Version." << endl; return; break;
+        case 3: INFO_PRINT << "Packethook Packet Version 3 not implemented\n"; return; break;
+        default: INFO_PRINT << "Invalid Packethook Packet Version.\n"; return; break;
 	  }
 
 	  //validate that the parent packet has a definition and a SubCommandOffset
@@ -516,7 +516,7 @@ namespace Pol {
 		detail.minor = 0;
 		detail.rev = 0;
 		detail.patch = 0;
-		Clib::Log2( "Malformed client version string in Packethook: %s\n", ver.c_str( ) );
+        POLLOG_ERROR.Format( "Malformed client version string in Packethook: {}\n" ) << ver;
 	  }
 	}
 

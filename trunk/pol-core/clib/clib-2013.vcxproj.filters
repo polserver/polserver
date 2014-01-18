@@ -59,9 +59,6 @@
     <ClCompile Include="iohelp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="logfile.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="MD5.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -72,9 +69,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="msjexhnd.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="nlogfile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="NTService.cpp">
@@ -208,9 +202,6 @@
     <ClInclude Include="iohelp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="logfile.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="maputil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -227,9 +218,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="msjexhnd.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="nlogfile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="NTService.h">

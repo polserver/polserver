@@ -15,7 +15,7 @@ Notes
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/cfgsect.h"
-#include "../clib/logfile.h"
+#include "../clib/logfacility.h"
 #include "../clib/stlutil.h"
 
 #include "cmbtcfg.h"
@@ -274,7 +274,7 @@ namespace Pol {
             send_create_mobile_to_nearby_cansee( other.get() );
           }
           else
-            Clib::Log( "NOTE: repsys crash avoidance...\n" );
+            POLLOG << "NOTE: repsys crash avoidance...\n";
           THREAD_CHECKPOINT( tasks, 1014 );
           refreshall = true;
         }
@@ -312,7 +312,7 @@ namespace Pol {
             send_create_mobile_to_nearby_cansee( other.get() );
           }
           else
-            Clib::Log( "NOTE: repsys crash avoidance...\n" );
+            POLLOG << "NOTE: repsys crash avoidance...\n";
           THREAD_CHECKPOINT( tasks, 1023 );
           refreshall = true;
         }

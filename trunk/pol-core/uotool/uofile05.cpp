@@ -8,6 +8,7 @@ Notes
 */
 
 #include "../clib/stl_inc.h"
+#include "../clib/logfacility.h"
 
 #include "../pol/polcfg.h"
 #include "../pol/udatfile.h"
@@ -35,7 +36,7 @@ namespace Pol {
             if ( idxrec.length > max )
             {
               max = idxrec.length;
-              cout << "Max: " << max << ", X=" << xblock << ", Y=" << yblock << endl;
+              INFO_PRINT << "Max: " << max << ", X=" << xblock << ", Y=" << yblock << "\n";
             }
           }
         }

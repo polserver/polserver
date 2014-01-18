@@ -13,6 +13,7 @@ Notes
 #include "stlutil.h"
 #include "strutil.h"
 #include "unittest.h"
+#include "logfacility.h"
 
 #ifdef _MSC_VER
 #	pragma warning( disable: 4244 )
@@ -142,7 +143,7 @@ namespace Pol {
 	  splitnamevalue( istr, pn, pv );
 	  if( pn != exp_pn || pv != exp_pv )
 	  {
-		cout << "splitnamevalue( \"" << istr << "\" ) fails!" << endl;
+        INFO_PRINT << "splitnamevalue( \"" << istr << "\" ) fails!\n";
 	  }
 	}
 
@@ -241,12 +242,12 @@ namespace Pol {
 	  decodequotedstring( tmp );
 	  if( tmp != out )
 	  {
-		cout << "decodequotedstring( " << in << " ) fails!" << endl;
+        INFO_PRINT << "decodequotedstring( " << in << " ) fails!\n";
 	  }
 	  encodequotedstring( tmp );
 	  if( tmp != in )
 	  {
-		cout << "encodequotedstring( " << out << " ) fails!" << endl;
+        INFO_PRINT << "encodequotedstring( " << out << " ) fails!\n";
 	  }
 	}
 

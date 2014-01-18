@@ -27,6 +27,7 @@ Notes
 #include "cfgfile.h"
 #include "stlutil.h"
 #include "strutil.h"
+#include "logfacility.h"
 
 #undef CFGFILE_USES_TRANSLATION_TABLE
 #define CFGFILE_USES_TRANSLATION_TABLE 0
@@ -36,39 +37,38 @@ Notes
 #endif
 namespace Pol {
   namespace Clib {
-	bool commentline( const std::string& str )
-	{
+    bool commentline( const std::string& str )
+    {
 #ifdef __GNUC__
-	  return ( (str[0] == '#') 
-			   || 
-			   (str.substr(0,2) == "//") );
+      return ( (str[0] == '#') 
+               || 
+               (str.substr(0,2) == "//") );
 #else
-	  return ( ( str[0] == '#' )
-			   ||
-			   ( str.compare( 0, 2, "//" ) == 0 ) );
+      return ( ( str[0] == '#' )
+               ||
+               ( str.compare( 0, 2, "//" ) == 0 ) );
 #endif
-	}
+    }
 
 
-	ConfigProperty::ConfigProperty( const char *name, const char *value ) :
-	  name_( name ),
-	  value_( value )
-	{}
+    ConfigProperty::ConfigProperty( const char *name, const char *value ) :
+      name_( name ),
+      value_( value )
+    {}
 
-	ConfigProperty::ConfigProperty( const string& name, const string& value ) :
-	  name_( name ),
-	  value_( value )
-	{}
+    ConfigProperty::ConfigProperty( const string& name, const string& value ) :
+      name_( name ),
+      value_( value )
+    {}
 
-ConfigProperty::ConfigProperty( string* pname, string* pvalue )
-{
-    pname->swap( name_ );
-    pvalue->swap( value_ );
-}
+    ConfigProperty::ConfigProperty( string* pname, string* pvalue )
+    {
+      pname->swap( name_ );
+      pvalue->swap( value_ );
+    }
 
-ConfigProperty::~ConfigProperty()
-{
-}
+    ConfigProperty::~ConfigProperty()
+    {}
 
 ConfigElemBase::ConfigElemBase() :
 	type_(""),
@@ -669,14 +669,14 @@ void ConfigFile::open( const char *i_filename )
     
     if (!ifs.is_open())
     {
-        cerr << "Unable to open configuration file " << _filename << endl;
+      ERROR_PRINT << "Unable to open configuration file " << _filename << "\n";
         throw runtime_error( string( "Unable to open configuration file " ) + _filename );
     }
 #else
     fp = fopen( i_filename, "rt" );
     if (!fp)
     {
-        cerr << "Unable to open configuration file " << _filename << endl;
+        ERROR_PRINT << "Unable to open configuration file " << _filename << "\n";
         throw runtime_error( string( "Unable to open configuration file " ) + _filename );
     }
 #endif
@@ -1032,28 +1032,28 @@ void ConfigFile::display_error( const string& msg,
                                 bool error) const
 {
     bool showed_elem_line = false;
-
-    cerr << (error?"Error":"Warning")
-         << " reading configuration file " << _filename << ":" << endl;
-
-    cerr << "\t" << msg << endl;
+    fmt::Writer tmp;
+    tmp << ( error ? "Error" : "Warning" )
+      << " reading configuration file " << _filename << ":\n"
+      << "\t" << msg << "\n";
     
     if (elem != NULL)
     {
-        if (strlen(elem->type()) > 0)
-        {
-            cerr << "\tElement: " << elem->type() << " " << elem->rest();
-            if (_element_line_start)
-                cerr << ", found on line " << _element_line_start;
-            cerr << endl;
-            showed_elem_line = true;
-        }
+      if ( strlen( elem->type() ) > 0 )
+      {
+        tmp << "\tElement: " << elem->type() << " " << elem->rest();
+        if ( _element_line_start )
+          tmp << ", found on line " << _element_line_start;
+        tmp << "\n";
+        showed_elem_line = true;
+      }
     }
 
     if (show_curline)
-        cerr << "\tNear line: " << _cur_line << endl;
+      tmp << "\tNear line: " << _cur_line << "\n";
     if (_element_line_start && !showed_elem_line)
-        cerr << "\tElement started on line: " << _element_line_start << endl;
+      tmp << "\tElement started on line: " << _element_line_start << "\n";
+    ERROR_PRINT << tmp.c_str();
 }
 
 void ConfigFile::display_and_rethrow_exception()
@@ -1114,9 +1114,9 @@ void StubConfigSource::display_error( const std::string& msg,
                         const ConfigElemBase* elem,
                         bool error ) const
 {
-    cerr << (error?"Error":"Warning")
-        << " reading configuration element:"
-        << "\t" << msg << endl;
+  ERROR_PRINT << ( error ? "Error" : "Warning" )
+    << " reading configuration element:"
+    << "\t" << msg << "\n";
 }
 
 }

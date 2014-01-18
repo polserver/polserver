@@ -11,7 +11,7 @@ Notes
 
 #include "../clib/stl_inc.h"
 #include "../clib/stlutil.h"
-#include "../clib/logfile.h"
+#include "../clib/logfacility.h"
 #include "../clib/random.h"
 
 #include "dice.h"
@@ -159,10 +159,10 @@ namespace Pol {
 	  }
 	  catch ( exception& ex )
 	  {
-		cerr << "Uh, looks like I found damage of " << dicestr << " confusing." << endl;
-		cerr << "Valid formats look like: 3D6+2, 2D8, D10, 4, 2d20-4" << endl;
-		cerr << "No spaces please!" << endl;
-		Clib::Log( "Dice String %s hurt me!: %s\n", dicestr, ex.what() );
+        ERROR_PRINT << "Uh, looks like I found damage of " << dicestr << " confusing.\n"
+          << "Valid formats look like: 3D6+2, 2D8, D10, 4, 2d20-4\n"
+          << "No spaces please!\n";
+        POLLOG.Format( "Dice String {} hurt me!: {}\n" ) << dicestr << ex.what();
 		*errormsg = "An exception occured trying to decipher dice '";
 		*errormsg += dicestr;
 		*errormsg += "'";

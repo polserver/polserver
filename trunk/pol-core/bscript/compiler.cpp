@@ -39,6 +39,7 @@ Notes
 #include "../clib/fileutil.h"
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
+#include "../clib/logfacility.h"
 
 #include "../plib/pkg.h"
 
@@ -116,11 +117,11 @@ namespace Pol {
 		Variable& bk = variables_.back();
 		if ( !bk.used && ( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning ) )
 		{
-		  cout << "Warning: local variable '" << bk.name << "' not used." << endl;
+		  INFO_PRINT << "Warning: local variable '" << bk.name << "' not used.\n";
 		  if ( compilercfg.ErrorOnWarning )
 			throw runtime_error( "Warnings treated as errors." );
 		  else
-			cout << bk.ctx;
+            INFO_PRINT << bk.ctx;
 		}
 		variables_.pop_back();
 	  }
@@ -842,8 +843,8 @@ namespace Pol {
 	  program->leaveblock();
 	}
 
-	Compiler::Compiler( ostream& iCout ) :
-	  SmartParser( iCout ),
+	Compiler::Compiler() :
+	  SmartParser(),
 	  current_file_path( "" ),
 	  inExpr( 0 ),
 	  inFunction( 0 ),
@@ -908,8 +909,8 @@ namespace Pol {
 	  {
 		if ( verbosity_level_ >= 5 )
 		{
-		  cout << "Warning! possible incorrect assignment." << endl;
-		  cout << "Near: " << curLine << endl;
+          INFO_PRINT << "Warning! possible incorrect assignment.\n"
+            << "Near: " << curLine << "\n";
 		  if ( compilercfg.ErrorOnWarning )
 			throw runtime_error( "Warnings treated as errors." );
 		}
@@ -938,7 +939,7 @@ namespace Pol {
 		string tmp( token.tokval(), colon );
 		if ( tmp.length() >= 9 )
 		{
-		  cout << "'" << tmp << "' is too long to be a module name." << endl;
+          INFO_PRINT << "'" << tmp << "' is too long to be a module name.\n";
 		  return -1;
 		}
 		modulename = tmp;
@@ -980,12 +981,12 @@ namespace Pol {
 	  }
 	  else
 	  {
-		cout << "Function '" << funcname << "' exists in more than module.  It must be qualified." << endl;
+        INFO_PRINT << "Function '" << funcname << "' exists in more than module.  It must be qualified.\n";
 		for ( Candidates::const_iterator itr = candidates.begin();
 			  itr != candidates.end();
 			  ++itr )
 		{
-		  cout << "\t" << program->modules[itr->module]->modulename << endl;
+          INFO_PRINT << "\t" << program->modules[itr->module]->modulename << "\n";
 		}
 
 		return -1;
@@ -1050,12 +1051,12 @@ namespace Pol {
 			*/
 		if ( token.id == TOK_RPAREN )
 		{
-		  cout << "Expected expression following comma before right-brace in array initializer list" << endl;
+          INFO_PRINT << "Expected expression following comma before right-brace in array initializer list\n";
 		  return -1;
 		}
 		if ( token.id == TOK_COMMA )
 		{
-		  cout << "Unexpected comma in array initializer list" << endl;
+          INFO_PRINT << "Unexpected comma in array initializer list\n";
 		  return -1;
 		}
 		Expression eex;
@@ -1080,7 +1081,7 @@ namespace Pol {
 		}
 		else
 		{
-		  cout << "Token '" << token << "' unexpected in array initializer list" << endl;
+          INFO_PRINT << "Token '" << token << "' unexpected in array initializer list\n";
 		  return -1;
 		}
 	  }
@@ -1114,13 +1115,13 @@ namespace Pol {
 		// report this as an error.
 		if ( token.id == TOK_RBRACE )
 		{
-		  cout << "Expected expression following comma before right-brace in array initializer list" << endl;
+          INFO_PRINT << "Expected expression following comma before right-brace in array initializer list\n";
 		  return -1;
 		}
 		// we're expecting an expression, not a comma, at this point
 		if ( token.id == TOK_COMMA )
 		{
-		  cout << "Unexpected comma in array initializer list" << endl;
+          INFO_PRINT << "Unexpected comma in array initializer list\n";
 		  return -1;
 		}
 		Expression eex;
@@ -1146,7 +1147,7 @@ namespace Pol {
 		}
 		else
 		{
-		  cout << "Token '" << token << "' unexpected in array initializer list" << endl;
+          INFO_PRINT << "Token '" << token << "' unexpected in array initializer list\n";
 		  return -1;
 		}
 	  }
@@ -1184,12 +1185,12 @@ namespace Pol {
 		// report this as an error.
 		if ( token.id == TOK_RBRACE )
 		{
-		  cout << "Expected expression following comma before right-brace in struct initializer list" << endl;
+          INFO_PRINT << "Expected expression following comma before right-brace in struct initializer list\n";
 		  return -1;
 		}
 		if ( token.id == TOK_COMMA )
 		{
-		  cout << "Unexpected comma in struct element list" << endl;
+          INFO_PRINT << "Unexpected comma in struct element list\n";
 		  return -1;
 		}
 
@@ -1218,7 +1219,7 @@ namespace Pol {
 		  }
 		  else if ( token.id == TOK_EQUAL1 )
 		  {
-			cout << "Unexpected token: '" << token << "'. Did you mean := for assign?" << endl;
+            INFO_PRINT << "Unexpected token: '" << token << "'. Did you mean := for assign?\n";
 			return -1;
 		  }
 		  else
@@ -1230,7 +1231,7 @@ namespace Pol {
 		}
 		else
 		{
-		  cout << "Unexpected token in struct initializer list: " << token << endl;
+          INFO_PRINT << "Unexpected token in struct initializer list: " << token << "\n";
 		  return -1;
 		}
 
@@ -1247,7 +1248,7 @@ namespace Pol {
 		}
 		else
 		{
-		  cout << "Token '" << token << "' unexpected in struct initializer list" << endl;
+          INFO_PRINT << "Token '" << token << "' unexpected in struct initializer list\n";
 		  return -1;
 		}
 	  }
@@ -1286,12 +1287,12 @@ namespace Pol {
 		// report this as an error.
 		if ( token.id == TOK_RBRACE )
 		{
-		  cout << "Expected expression following comma before right-brace in dictionary initializer list" << endl;
+          INFO_PRINT << "Expected expression following comma before right-brace in dictionary initializer list\n";
 		  return -1;
 		}
 		if ( token.id == TOK_COMMA )
 		{
-		  cout << "Unexpected comma in dictionary element list" << endl;
+          INFO_PRINT << "Unexpected comma in dictionary element list\n";
 		  return -1;
 		}
 
@@ -1345,7 +1346,7 @@ namespace Pol {
 		}
 		else
 		{
-		  cout << "Token '" << token << "' unexpected in struct element list" << endl;
+          INFO_PRINT << "Token '" << token << "' unexpected in struct element list\n";
 		  return -1;
 		}
 	  }
@@ -1372,7 +1373,7 @@ namespace Pol {
 		}
 		if ( token.id == TOK_COMMA )
 		{
-		  cout << "Unexpected comma in array element list" << endl;
+          INFO_PRINT << "Unexpected comma in array element list\n";
 		  return -1;
 		}
 		Expression eex;
@@ -1397,7 +1398,7 @@ namespace Pol {
 		}
 		else
 		{
-		  cout << "Token '" << token << "' unexpected in array element list" << endl;
+          INFO_PRINT << "Token '" << token << "' unexpected in array element list\n";
 		  return -1;
 		}
 	  }
@@ -1444,7 +1445,7 @@ namespace Pol {
 	  getToken( ctx, token );
 	  if ( token.id != TOK_LPAREN )
 	  {
-		cout << "Expected '(' after function name '" << userfunc->name << "'" << endl;
+        INFO_PRINT << "Expected '(' after function name '" << userfunc->name << "'\n";
 		res = -1;
 		err = PERR_MISSLPAREN;
 		return -1;
@@ -1467,14 +1468,14 @@ namespace Pol {
 		  }
 		  else
 		  {
-			cout << "right paren not allowed here\n";
+            INFO_PRINT << "right paren not allowed here\n";
 			return -1;
 		  }
 		}
 
 		if ( params_passed.size() >= userfunc->parameters.size() )
 		{
-		  cout << "Too many parameters passed to " << userfunc->name << endl;
+          INFO_PRINT << "Too many parameters passed to " << userfunc->name << "\n";
 		  return -1;
 		}
 
@@ -1491,7 +1492,7 @@ namespace Pol {
 		  }
 		  else if ( tk2.id == TOK_EQUAL1 )
 		  {
-			cout << "Unexpected token: '" << tk2 << "'. Did you mean := for assign?" << endl;
+            INFO_PRINT << "Unexpected token: '" << tk2 << "'. Did you mean := for assign?\n";
 			return -1;
 		  }
 		}
@@ -1499,7 +1500,7 @@ namespace Pol {
 		{
 		  if ( any_named )
 		  {
-			cout << "unnamed args cannot follow named args" << endl;
+            INFO_PRINT << "unnamed args cannot follow named args\n";
 			return -1;
 		  }
 		  varname = userfunc->parameters[params_passed.size()].name;
@@ -1507,7 +1508,7 @@ namespace Pol {
 		// FIXME case sensitivity!
 		if ( params_passed.find( varname ) != params_passed.end() )
 		{
-		  cout << "Variable " << varname << " passed more than once to " << userfunc->name << endl;
+          INFO_PRINT << "Variable " << varname << " passed more than once to " << userfunc->name << "\n";
 		  return -1;
 		}
 
@@ -1532,7 +1533,7 @@ namespace Pol {
 		}
 		else
 		{
-		  cout << "Token '" << token << "' unexpected (expected comma or right-paren)\n";
+          INFO_PRINT << "Token '" << token << "' unexpected (expected comma or right-paren)\n";
 		  return -1;
 		}
 
@@ -1550,8 +1551,8 @@ namespace Pol {
 		  }
 		  else
 		  {
-			cout << "Function " << userfunc->name << ": Parameter " << itr->name
-			  << " was not passed, and there is no default." << endl;
+            INFO_PRINT << "Function " << userfunc->name << ": Parameter " << itr->name
+              << " was not passed, and there is no default.\n";
 			return -1;
 		  }
 		}
@@ -1567,8 +1568,8 @@ namespace Pol {
 	  {
 		for ( const auto &elem : params_passed )
 		{
-		  cout << "Parameter '" << elem.first << "' passed by name to "
-			<< userfunc->name << ", which takes no such parameter." << endl;
+          INFO_PRINT << "Parameter '" << elem.first << "' passed by name to "
+            << userfunc->name << ", which takes no such parameter.\n";
 		}
 
 		return -1;
@@ -1635,26 +1636,26 @@ namespace Pol {
 		{
 		  if ( !varexists( tkn->tokval() ) )
 		  {
-			cout << "Variable " << tkn->tokval() << " has not been declared"
-			  << " on line " << ctx.line
-			  << "." << endl;
+            INFO_PRINT << "Variable " << tkn->tokval() << " has not been declared"
+              << " on line " << ctx.line
+              << ".\n";
 			return -1;
 		  }
 		}
 		else if ( tkn->id == TOK_EQUAL1 )
 		{
 		  // Single '=' sign? Special error statement (since it could be a typo?)
-		  cout << "Deprecated '=' found: did you mean '==' or ':='?" << endl;
+          INFO_PRINT << "Deprecated '=' found: did you mean '==' or ':='?\n";
 		  return -1;
 		}
 
 		if ( tkn->deprecated && ( compilercfg.ErrorOnWarning || compilercfg.DisplayWarnings ) )
 		{
-		  cout << "Warning: Found deprecated "
+          INFO_PRINT << "Warning: Found deprecated "
 			<< ( tkn->type == TYP_OPERATOR ? "operator " : "token " )
 			<< "'" << tkn->tokval() << "'"
 			<< " on line " << ctx.line
-			<< " of " << ctx.filename << endl;
+			<< " of " << ctx.filename << "\n";
 		  // warning only; doesn't bail out.
 		  if ( compilercfg.ErrorOnWarning )
 			throw runtime_error( "Warnings treated as errors." );
@@ -1837,7 +1838,7 @@ namespace Pol {
 	  }
 	  else
 	  {
-		cout << "Expected variable, function or parenthesized expression, got '" << token << "'" << endl;
+        INFO_PRINT << "Expected variable, function or parenthesized expression, got '" << token << "'\n";
 		return -1;
 	  }
 	  return 0;
@@ -1849,15 +1850,15 @@ namespace Pol {
 	  int res = getToken( ctx, token );
 	  if ( res < 0 )
 	  {
-		cout << ctx;
-		cout << "Error reading token, expected " << Token( tokenid, TYP_RESERVED ) << endl;
+        INFO_PRINT << ctx
+          << "Error reading token, expected " << Token( tokenid, TYP_RESERVED ) << "\n";
 		return res;
 	  }
 
 	  if ( token.id != tokenid )
 	  {
-		cout << ctx;
-		cout << "Expected " << Token( tokenid, TYP_RESERVED ) << ", got " << token << endl;
+        INFO_PRINT << ctx
+          << "Expected " << Token( tokenid, TYP_RESERVED ) << ", got " << token << "\n";
 		return -1;
 	  }
 	  return 0;
@@ -1865,7 +1866,7 @@ namespace Pol {
 
 	int Compiler::handleDoClause( CompilerContext& ctx, int level )
 	{
-	  if ( !quiet ) cout << "DO clause.." << endl;
+      if ( !quiet ) INFO_PRINT << "DO clause..\n";
 	  StoredTokenContainer* prog_tokens = &program->tokens;
 	  unsigned body_start = prog_tokens->next();
 	  enterblock( CanBeLabelled );
@@ -1904,7 +1905,7 @@ namespace Pol {
 
 	int Compiler::handleRepeatUntil( CompilerContext& ctx, int level )
 	{
-	  if ( !quiet ) cout << "REPEAT clause.." << endl;
+      if ( !quiet ) INFO_PRINT << "REPEAT clause..\n";
 	  StoredTokenContainer* prog_tokens = &program->tokens;
 	  unsigned body_start = prog_tokens->next();
 	  enterblock( CanBeLabelled );
@@ -1979,7 +1980,7 @@ namespace Pol {
 			  getToken( ctx, token );
 			  if ( default_posn != 0 )
 			  {
-				cout << "CASE statement can have only one DEFAULT clause." << endl;
+                INFO_PRINT << "CASE statement can have only one DEFAULT clause.\n";
 				return -1;
 			  }
 			  default_posn = prog_tokens->next();
@@ -2036,7 +2037,7 @@ namespace Pol {
 			{
 			  if ( strlen( token.tokval() ) >= 254 )
 			  {
-				cout << "String expressions in CASE statements must be <= 253 characters." << endl;
+                INFO_PRINT << "String expressions in CASE statements must be <= 253 characters.\n";
 				return -1;;
 			  }
 			  unsigned short offset = static_cast<unsigned short>( prog_tokens->next() );
@@ -2106,12 +2107,11 @@ namespace Pol {
 		  // we're about to grab code.  there needs to have been at least one OPTION, then.
 		  if ( !anycases )
 		  {
-			cout << "CASE statement with no options!" << endl
-			  << "Found '" << token.tokval() << "'";
-			if ( token.id == CTRL_LABEL )
-			  cout << " but no such constant is defined." << endl;
-			else
-			  cout << " prematurely." << endl;
+            INFO_PRINT << "CASE statement with no options!\n"
+              << "Found '" << token.tokval() << "'" << (
+              token.id == CTRL_LABEL ?
+              " but no such constant is defined.\n" :
+              " prematurely.\n" );
 			return -1;
 		  }
 
@@ -2141,12 +2141,12 @@ namespace Pol {
 	  // if only a 'default' block was defined, print a warning
 	  if ( onlydefault && ( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning ) )
 	  {
-		cout << "Warning: CASE block only has a DEFAULT clause defined." << endl;
-		cout << "near: " << curLine << endl;
+        INFO_PRINT << "Warning: CASE block only has a DEFAULT clause defined.\n"
+		 << "near: " << curLine << "\n";
 		if ( compilercfg.ErrorOnWarning )
 		  throw runtime_error( "Warnings treated as errors." );
 		else
-		  cout << ctx;
+          INFO_PRINT << ctx;
 	  }
 
 	  // if no default specified, pretend 'default' was specified at the end.
@@ -2192,7 +2192,7 @@ namespace Pol {
 		return res;
 	  if ( itrvar.id != TOK_IDENT )
 	  {
-		cout << "FOREACH iterator must be an identifier, got " << itrvar << endl;
+        INFO_PRINT << "FOREACH iterator must be an identifier, got " << itrvar << "\n";
 		return res;
 	  }
 
@@ -2294,7 +2294,7 @@ namespace Pol {
 	  getToken( ctx, token );
 	  if ( token.id != TOK_SEMICOLON )
 	  {
-		cout << "Missing ';'" << endl;
+        INFO_PRINT << "Missing ';'\n";
 		err = PERR_MISSINGDELIM;
 		return -1;
 	  }
@@ -2307,7 +2307,7 @@ namespace Pol {
 	{
 	  Token token;
 
-	  if ( !quiet ) cout << "BEGIN block.." << endl;
+      if ( !quiet ) INFO_PRINT << "BEGIN block..\n";
 
 	  enterblock( CanNotBeLabelled );
 
@@ -2351,16 +2351,16 @@ namespace Pol {
 		{
 		  if ( funcName.id == TOK_FUNC )
 		  {
-			cout << "'" << funcName.tokval() << "' is already defined as a function." << endl;
-			cout << "Near: " << curLine << endl;
-			cout << ctx;
+            INFO_PRINT << "'" << funcName.tokval() << "' is already defined as a function.\n"
+              << "Near: " << curLine << "\n"
+              << ctx;
 			return -1;
 		  }
 		  else
 		  {
-			cout << "Expected an identifier, got " << funcName << " instead." << endl;
-			cout << "Near: " << curLine << endl;
-			cout << ctx;
+            INFO_PRINT << "Expected an identifier, got " << funcName << " instead.\n"
+              << "Near: " << curLine << "\n"
+              << ctx;
 			return -1;
 		  }
 		}
@@ -2411,27 +2411,27 @@ namespace Pol {
 		  Expression ex;
 		  if ( readexpr( ex, ctx, EXPR_FLAG_RIGHTPAREN_TERM_ALLOWED | EXPR_FLAG_COMMA_TERM_ALLOWED ) != 1 )
 		  {
-			cout << "Error reading expression in const declaration" << endl;
+            INFO_PRINT << "Error reading expression in const declaration\n";
 			return -1;
 		  }
 
 		  if ( ex.tokens.size() != 1 )
 		  {
-			cout << "Const expression must be optimizable" << endl;
+            INFO_PRINT << "Const expression must be optimizable\n";
 			return -1;
 		  }
 
 		  param.dflt_value = *( ex.tokens.back() );
 		  if ( param.dflt_value.type != TYP_OPERAND )
 		  {
-			cout << "[" << funcName.tokval() << "]: Only simple operands are allowed as default arguments (" << token << " is not allowed)" << endl;
+            INFO_PRINT << "[" << funcName.tokval() << "]: Only simple operands are allowed as default arguments (" << token << " is not allowed)\n";
 			return -1;
 		  }
 		  peekToken( ctx, token );
 		}
 		else if ( token.id == TOK_EQUAL1 )
 		{
-		  cout << "Unexpected token: '" << token << "'. Did you mean := for assign?" << endl;
+          INFO_PRINT << "Unexpected token: '" << token << "'. Did you mean := for assign?\n";
 		  return -1;
 		}
 		else
@@ -2513,8 +2513,8 @@ namespace Pol {
 		err = PERR_MISSINGDELIM;
 		return -1;
 	  }
-	  cout << "func decl: " << curLine << endl;
-	  cout << "nParams: " << nParams << endl;
+      INFO_PRINT << "func decl: " << curLine << "\n"
+        << "nParams: " << nParams << "\n";
 	  //addUserFunc(funcName.tokval(), nParams);
 	  return 0;
 	}
@@ -2526,7 +2526,7 @@ namespace Pol {
 	  Token token;
 	  //if_begin = program->tokens.next();
 	  jump_false = 0;
-	  if ( !quiet ) cout << "if clause.." << endl;
+      if ( !quiet ) INFO_PRINT << "if clause..\n";
 
 
 	  int res = getExprInParens( ctx ); // (expr) (parens required)
@@ -2541,7 +2541,7 @@ namespace Pol {
 	  peekToken( ctx, token );
 	  if ( token.id == RSV_THEN )
 		getToken( ctx, token ); // 'then'
-	  if ( !quiet ) cout << "then clause.." << endl;
+      if ( !quiet ) INFO_PRINT << "then clause..\n";
 
 	  // get the part we do
 	  res = getStatement( ctx, level );
@@ -2560,7 +2560,7 @@ namespace Pol {
 		  &else_token_posn );
 		jump_false = prog_tokens->next();
 		getToken( ctx, token );  // eat the else
-		if ( !quiet ) cout << "else clause.." << endl;
+        if ( !quiet ) INFO_PRINT << "else clause..\n";
 		getStatement( ctx, level );
 		// now that we know where the ELSE part ends, patch in the address
 		// which skips past it.
@@ -2600,7 +2600,7 @@ namespace Pol {
 				token.id == RSV_ENDENUM )
 	  {
 		Token t( correct, TYP_RESERVED );
-		cout << "Expected " << t << " before " << token << endl;
+        INFO_PRINT << "Expected " << t << " before " << token << "\n";
 		return true;
 	  }
 	  else
@@ -2616,7 +2616,7 @@ namespace Pol {
 	  vector<unsigned> jumpend;
 
 	  Token token;
-	  if ( !quiet ) cout << "if clause.." << endl;
+      if ( !quiet ) INFO_PRINT << "if clause..\n";
 
 	  token.id = RSV_ST_IF;
 
@@ -2683,7 +2683,7 @@ namespace Pol {
 		peekToken( ctx, token );
 		if ( token.id == RSV_THEN )
 		  getToken( ctx, token ); // 'then'
-		if ( !quiet ) cout << "then clause.." << endl;
+        if ( !quiet ) INFO_PRINT << "then clause..\n";
 
 		//dump(cout);
 		// get the part we do
@@ -2699,7 +2699,7 @@ namespace Pol {
 		  res = getStatement( ctx, level );
 		  if ( res < 0 )
 		  {
-			cout << "Error in IF statement starting at "
+            INFO_PRINT << "Error in IF statement starting at "
 			  << save_ctx;
 
 			return res;
@@ -2764,8 +2764,8 @@ namespace Pol {
 	  peekToken( ctx, token );
 	  if ( token.id != RSV_ENDIF && token.id != RSV_ELSE )
 	  {
-		cout << "Expected ELSE or ENDIF after IF statement starting at " << save_ctx;
-		cout << "Did not expect: " << token << endl;
+        INFO_PRINT << "Expected ELSE or ENDIF after IF statement starting at " << save_ctx
+          << "Did not expect: " << token << "\n";
 		return -1;
 	  }
 
@@ -2773,7 +2773,7 @@ namespace Pol {
 	  if ( token.id == RSV_ELSE )
 	  {
 		getToken( ctx, token );  // eat the else
-		if ( !quiet ) cout << "else clause.." << endl;
+        if ( !quiet ) INFO_PRINT << "else clause..\n";
 		enterblock( CanNotBeLabelled );
 		while ( ctx.s[0] )
 		{
@@ -2845,14 +2845,14 @@ namespace Pol {
 		if ( res < 0 )
 		  return res;
 	  }
-	  cout << "Error in block beginning at " << tctx;
-	  cout << "End-of-File detected, expected '" << Token( Mod_Basic, endtokenid, TYP_RESERVED ) << "'" << endl;
+      INFO_PRINT << "Error in block beginning at " << tctx
+        << "End-of-File detected, expected '" << Token( Mod_Basic, endtokenid, TYP_RESERVED ) << "'\n";
 	  return -1;
 	}
 
 	int Compiler::handleBracketedWhile( CompilerContext& ctx, int level )
 	{
-	  if ( !quiet ) cout << "while clause.." << endl;
+      if ( !quiet ) INFO_PRINT << "while clause..\n";
 	  StoredTokenContainer* prog_tokens = &program->tokens;
 	  unsigned conditional_expr_posn = prog_tokens->next();
 	  int res = getExprInParens( ctx ); // (expr) (parens required)
@@ -2912,12 +2912,12 @@ namespace Pol {
 	  int done = 0;
 	  if ( save_id == RSV_GLOBAL && !inGlobalScope() )
 	  {
-		cout << "Globals can only be declared at global scope." << endl;
+        INFO_PRINT << "Globals can only be declared at global scope.\n";
 		return -1;
 	  }
 	  if ( save_id == RSV_LOCAL && inGlobalScope() )
 	  {
-		cout << "Locals can only be declared within a block or function." << endl;
+        INFO_PRINT << "Locals can only be declared within a block or function.\n";
 		return -1;
 	  }
 
@@ -2933,14 +2933,14 @@ namespace Pol {
 		getToken( ctx, tk_varname );
 		if ( tk_varname.id != TOK_IDENT )
 		{
-		  cout << "Non-identifier declared as a variable: '" << tk_varname.tokval() << "'" << endl;
-		  cout << "Token: " << tk_varname << endl;
+          INFO_PRINT << "Non-identifier declared as a variable: '" << tk_varname.tokval() << "'\n"
+            << "Token: " << tk_varname << "\n";
 		  return -1;
 		}
 
 		if ( constants.find( tk_varname.tokval() ) != constants.end() )
 		{
-		  cout << tk_varname.tokval() << " is already a defined constant." << endl;
+          INFO_PRINT << tk_varname.tokval() << " is already a defined constant.\n";
 		  return -1;
 		}
 
@@ -2964,7 +2964,7 @@ namespace Pol {
 		  }
 		  else
 		  {
-			cout << "Global Variable '" << tk_varname.tokval() << "' is already declared at " << gctx;
+            INFO_PRINT << "Global Variable '" << tk_varname.tokval( ) << "' is already declared at " << gctx;
 			return -1;
 		  }
 		}
@@ -2973,12 +2973,12 @@ namespace Pol {
 		  unsigned idx;
 		  if ( ( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning ) && globalexists( tk_varname.tokval(), idx ) )
 		  {
-			cout << "Warning: Local variable '" << tk_varname.tokval()
-			  << "' hides Global variable of same name." << endl;
+            INFO_PRINT << "Warning: Local variable '" << tk_varname.tokval()
+              << "' hides Global variable of same name.\n";
 			if ( compilercfg.ErrorOnWarning )
 			  throw runtime_error( "Warnings treated as errors." );
 			else
-			  cout << ctx;
+              INFO_PRINT << ctx;
 
 		  }
 		  varindex = localscope.numVariables();
@@ -2999,11 +2999,11 @@ namespace Pol {
 		  // declaring an array.
 		  if ( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning )
 		  {
-			cout << "Warning! Deprecated array-declaration syntax used." << endl;
+            INFO_PRINT << "Warning! Deprecated array-declaration syntax used.\n";
 			if ( compilercfg.ErrorOnWarning )
 			  throw runtime_error( "Warnings treated as errors." );
 			else
-			  cout << ctx;
+              INFO_PRINT << ctx;
 		  }
 		  program->append( StoredToken( Mod_Basic, INS_DECLARE_ARRAY, TYP_RESERVED, 0 ) );
 
@@ -3031,12 +3031,12 @@ namespace Pol {
 		}
 		else if ( tk_delim.id == TOK_EQUAL1 )
 		{
-		  cout << "Unexpected token: '" << tk_delim << "'. Did you mean := for assign?" << endl;
+          INFO_PRINT << "Unexpected token: '" << tk_delim << "'. Did you mean := for assign?\n";
 		  return -1;
 		}
 		else
 		{
-		  cout << "Unexpected token: " << tk_delim << endl;
+          INFO_PRINT << "Unexpected token: " << tk_delim << "\n";
 		  return -1;
 		}
 	  } while ( !done );
@@ -3067,13 +3067,13 @@ namespace Pol {
 	  getToken( ctx, tk_varname );
 	  if ( tk_varname.id != TOK_IDENT )
 	  {
-		cout << "Expected identifier after const declaration" << endl;
+        INFO_PRINT << "Expected identifier after const declaration\n";
 		return -1;
 	  }
 
 	  if ( constants.count( tk_varname.tokval() ) )
 	  {
-		cout << "Constant " << tk_varname << " has already been defined." << endl;
+        INFO_PRINT << "Constant " << tk_varname << " has already been defined.\n";
 		return -1;
 	  }
 
@@ -3081,21 +3081,21 @@ namespace Pol {
 	  getToken( ctx, tk_assign );
 	  if ( tk_assign.id != TOK_ASSIGN )
 	  {
-		cout << "Expected := after identifier in const declaration" << endl;
+        INFO_PRINT << "Expected := after identifier in const declaration\n";
 		return -1;
 	  }
 
 	  Expression ex;
 	  if ( readexpr( ex, ctx, EXPR_FLAG_SEMICOLON_TERM_ALLOWED ) != 1 )
 	  {
-		cout << "Error reading expression in const declaration" << endl;
+        INFO_PRINT << "Error reading expression in const declaration\n";
 		return -1;
 	  }
 
 	  if ( ex.tokens.size() != 1 )
 	  {
-		cout << "Const expression must be optimizable" << endl;
-		return -1;
+        INFO_PRINT << "Const expression must be optimizable\n";
+        return -1;
 	  }
 
 	  constants.insert( Constants::value_type( tk_varname.tokval(), *ex.tokens.back() ) );
@@ -3119,13 +3119,13 @@ namespace Pol {
 
 	  if ( getToken( ctx, tk_enum_tag ) < 0 )
 	  {
-		cout << "Error reading enum tag" << endl;
+        INFO_PRINT << "Error reading enum tag\n";
 		return -1;
 	  }
 
 	  if ( tk_enum_tag.id != TOK_IDENT )
 	  {
-		cout << "Expected an enum tag after 'enum'" << endl;
+        INFO_PRINT << "Expected an enum tag after 'enum'\n";
 		return -1;
 	  }
 
@@ -3136,7 +3136,7 @@ namespace Pol {
 		// int done = 0;
 		if ( getToken( ctx, tk_varname ) < 0 )
 		{
-		  cout << "Error reading identifier in enum declaration" << endl;
+          INFO_PRINT << "Error reading identifier in enum declaration\n";
 		  return -1;
 		}
 
@@ -3145,7 +3145,7 @@ namespace Pol {
 
 		if ( tk_varname.id != TOK_IDENT )
 		{
-		  cout << "Expected identifier in enum statement, got " << tk_varname << endl;
+          INFO_PRINT << "Expected identifier in enum statement, got " << tk_varname << "\n";
 		  return -1;
 		}
 
@@ -3153,7 +3153,7 @@ namespace Pol {
 		// now, the forms.  THis should be followed by a comma, an 'endenum', or a ':='
 		if ( peekToken( ctx, tmp ) < 0 )
 		{
-		  cout << "Error reading token in enum statement" << endl;
+          INFO_PRINT << "Error reading token in enum statement\n";
 		  return -1;
 		}
 		if ( tmp.id == TOK_ASSIGN )
@@ -3164,7 +3164,7 @@ namespace Pol {
 		  // FIXME doesn't work if expression is right before enum
 		  if ( readexpr( ex, ctx, EXPR_FLAG_COMMA_TERM_ALLOWED | EXPR_FLAG_ENDENUM_TERM_ALLOWED ) != 1 )
 		  {
-			cout << "Error reading expression in enum declaration" << endl;
+            INFO_PRINT << "Error reading expression in enum declaration\n";
 			return -1;
 		  }
 		  if ( !peekToken( ctx, _tmp ) )
@@ -3174,7 +3174,7 @@ namespace Pol {
 		  }
 		  if ( ex.tokens.size() != 1 )
 		  {
-			cout << "Enum expression must be optimizable" << endl;
+            INFO_PRINT << "Enum expression must be optimizable\n";
 			return -1;
 		  }
 		  Token* tkn = ex.tokens.back();
@@ -3202,12 +3202,12 @@ namespace Pol {
 		}
 		else if ( tmp.id == TOK_EQUAL1 )
 		{
-		  cout << "Unexpected token: '" << tmp << "'. Did you mean := for assign?" << endl;
+          INFO_PRINT << "Unexpected token: '" << tmp << "'. Did you mean := for assign?\n";
 		  return -1;
 		}
 		else
 		{
-		  cout << "Unexpected token " << tmp << " in enum statement" << endl;
+          INFO_PRINT << "Unexpected token " << tmp << " in enum statement\n";
 		  return -1;
 		}
 	  }
@@ -3231,17 +3231,17 @@ namespace Pol {
 	  string filename_full = current_file_path + filename_part;
 
 	  if ( verbosity_level_ >= 10 )
-		cout << "Searching for " << filename_full << endl;
+        INFO_PRINT << "Searching for " << filename_full << "\n";
 
 	  if ( !Clib::FileExists( filename_full.c_str() ) )
 	  {
 		string try_filename_full = compilercfg.ModuleDirectory + filename_part;
 		if ( verbosity_level_ >= 10 )
-		  cout << "Searching for " << try_filename_full << endl;
+          INFO_PRINT << "Searching for " << try_filename_full << "\n";
 		if ( Clib::FileExists( try_filename_full.c_str() ) )
 		{
 		  if ( verbosity_level_ >= 10 )
-			cout << "Found " << try_filename_full << endl;
+            INFO_PRINT << "Found " << try_filename_full << "\n";
 		  //cout << "Using " << try_filename << endl;
 		  filename_full = try_filename_full;
 		}
@@ -3249,7 +3249,7 @@ namespace Pol {
 	  else
 	  {
 		if ( verbosity_level_ >= 10 )
-		  cout << "Found " << filename_full << endl;
+          INFO_PRINT << "Found " << filename_full << "\n";
 	  }
 
 	  char *orig_mt;
@@ -3257,8 +3257,8 @@ namespace Pol {
 
 	  if ( getFileContents( filename_full.c_str(), &orig_mt ) )
 	  {
-		cout << "Unable to find module " << modulename << endl;
-		cout << "\t(Filename: " << filename_full << ")" << endl;
+        INFO_PRINT << "Unable to find module " << modulename << "\n"
+          << "\t(Filename: " << filename_full << ")\n";
 		return -1;
 	  }
 
@@ -3275,7 +3275,7 @@ namespace Pol {
 		res = peekToken( mod_ctx, tk_dummy );
 		if ( res < 0 )
 		{
-		  cout << "Error reading token in module " << modulename << endl;
+          INFO_PRINT << "Error reading token in module " << modulename << "\n";
 		  free( orig_mt );
 		  break;
 		}
@@ -3299,7 +3299,7 @@ namespace Pol {
 		std::unique_ptr<UserFunction> puserfunc( new UserFunction );
 		if ( readFunctionDeclaration( mod_ctx, *puserfunc ) )
 		{
-		  cout << "Error reading function declaration in module " << modulename << endl;
+          INFO_PRINT << "Error reading function declaration in module " << modulename << "\n";
 		  free( orig_mt );
 		  res = -1;
 		  break;
@@ -3308,8 +3308,8 @@ namespace Pol {
 		Token tk_semicolon;
 		if ( getToken( mod_ctx, tk_semicolon ) )
 		{
-		  cout << filename_full << ": Error in declaration for " << puserfunc->name << ":" << endl
-			<< "  Expected a semicolon, got end-of-file or error" << endl;
+          INFO_PRINT << filename_full << ": Error in declaration for " << puserfunc->name << ":\n"
+            << "  Expected a semicolon, got end-of-file or error\n";
 
 		  free( orig_mt );
 		  res = -1;
@@ -3317,8 +3317,8 @@ namespace Pol {
 		}
 		if ( tk_semicolon.id != TOK_SEMICOLON )
 		{
-		  cout << filename_full << ": Error in declaration for " << puserfunc->name << ":" << endl
-			<< "  Expected a semicolon, got '" << tk_semicolon << "'" << endl;
+          INFO_PRINT << filename_full << ": Error in declaration for " << puserfunc->name << ":\n"
+			<< "  Expected a semicolon, got '" << tk_semicolon << "'\n";
 		  free( orig_mt );
 		  res = -1;
 		  break;
@@ -3348,36 +3348,33 @@ namespace Pol {
 
 	  if ( getToken( ctx, tk_module_name ) )
 	  {
-		cout << "Error in USE statement: USE should be followed by a module name." << endl;
+        INFO_PRINT << "Error in USE statement: USE should be followed by a module name.\n";
 		return -1;
 	  }
 	  if ( tk_module_name.id != TOK_IDENT )
 	  {
-		cout << "Error in USE statement: Expected identifier, got '"
-		  << tk_module_name << "'" << endl;
+        INFO_PRINT << "Error in USE statement: Expected identifier, got '"
+          << tk_module_name << "'\n";
 		return -1;
 	  }
 
 	  if ( getToken( ctx, tk_semicolon ) )
 	  {
-		cout << "Error in USE statement (module " << tk_module_name << "): "
-		  << "Expected ';', got end-of-file or error"
-		  << endl;
+        INFO_PRINT << "Error in USE statement (module " << tk_module_name << "): "
+          << "Expected ';', got end-of-file or error\n";
 		return -1;
 	  }
 	  if ( tk_semicolon.id != TOK_SEMICOLON )
 	  {
-		cout << "Error in USE statement (module " << tk_module_name << "): "
-		  << "Expected ';', got '" << tk_semicolon << "'"
-		  << endl;
+        INFO_PRINT << "Error in USE statement (module " << tk_module_name << "): "
+          << "Expected ';', got '" << tk_semicolon << "'\n";
 		return -1;
 	  }
 
 	  if ( strlen( tk_module_name.tokval() ) > 10 )
 	  {
-		cout << "Error in USE statement: Module names must be <= 10 characters" << endl
-		  << "Module specified was: '" << tk_module_name << "'"
-		  << endl;
+        INFO_PRINT << "Error in USE statement: Module names must be <= 10 characters\n"
+          << "Module specified was: '" << tk_module_name << "'\n";
 		return -1;
 	  }
 
@@ -3410,16 +3407,16 @@ namespace Pol {
 			string try_filename_full = pkg->dir() + "include/" + path;
 
 			if ( verbosity_level_ >= 10 )
-			  cout << "Searching for " << filename_full << endl;
+              INFO_PRINT << "Searching for " << filename_full << "\n";
 
 			if ( !Clib::FileExists( filename_full.c_str() ) )
 			{
 			  if ( verbosity_level_ >= 10 )
-				cout << "Searching for " << try_filename_full << endl;
+                INFO_PRINT << "Searching for " << try_filename_full << "\n";
 			  if ( Clib::FileExists( try_filename_full.c_str() ) )
 			  {
 				if ( verbosity_level_ >= 10 )
-				  cout << "Found " << try_filename_full << endl;
+                  INFO_PRINT << "Found " << try_filename_full << "\n";
 
 				filename_full = try_filename_full;
 			  }
@@ -3427,11 +3424,11 @@ namespace Pol {
 			else
 			{
 			  if ( verbosity_level_ >= 10 )
-				cout << "Found " << filename_full << endl;
+                INFO_PRINT << "Found " << filename_full << "\n";
 
-			  if ( Clib::FileExists( try_filename_full.c_str() ) )
-				cout << "Warning: Found '" << filename_full.c_str() << "' and '"
-				<< try_filename_full.c_str() << "'! Will use first file!" << endl;
+              if ( Clib::FileExists( try_filename_full.c_str() ) )
+                INFO_PRINT << "Warning: Found '" << filename_full.c_str() << "' and '"
+                << try_filename_full.c_str() << "'! Will use first file!\n";
 			}
 		  }
 		  else
@@ -3440,32 +3437,32 @@ namespace Pol {
 
 			if ( verbosity_level_ >= 10 )
 			{
-			  cout << "Searching for " << filename_full << endl;
+              INFO_PRINT << "Searching for " << filename_full << "\n";
 			  if ( Clib::FileExists( filename_full.c_str() ) )
-				cout << "Found " << filename_full << endl;
+                INFO_PRINT << "Found " << filename_full << "\n";
 			}
 		  }
 		}
 		else
 		{
-		  cout << "Unable to read include file '" << modulename << "'" << endl;
+          INFO_PRINT << "Unable to read include file '" << modulename << "'\n";
 		  return -1;
 		}
 	  }
 	  else
 	  {
 		if ( verbosity_level_ >= 10 )
-		  cout << "Searching for " << filename_full << endl;
+          INFO_PRINT << "Searching for " << filename_full << "\n";
 
 		if ( !Clib::FileExists( filename_full.c_str() ) )
 		{
 		  string try_filename_full = compilercfg.IncludeDirectory + filename_part;
 		  if ( verbosity_level_ >= 10 )
-			cout << "Searching for " << try_filename_full << endl;
+            INFO_PRINT << "Searching for " << try_filename_full << "\n";
 		  if ( Clib::FileExists( try_filename_full.c_str() ) )
 		  {
 			if ( verbosity_level_ >= 10 )
-			  cout << "Found " << try_filename_full << endl;
+              INFO_PRINT << "Found " << try_filename_full << "\n";
 
 			//cout << "Using " << try_filename << endl;
 			filename_full = try_filename_full;
@@ -3474,7 +3471,7 @@ namespace Pol {
 		else
 		{
 		  if ( verbosity_level_ >= 10 )
-			cout << "Found " << filename_full << endl;
+            INFO_PRINT << "Found " << filename_full << "\n";
 		}
 	  }
 
@@ -3489,8 +3486,8 @@ namespace Pol {
 
 	  if ( getFileContents( filename_full.c_str(), &orig_mt ) )
 	  {
-		cout << "Unable to find module " << modulename << endl;
-		cout << "\t(Filename: " << filename_full << ")" << endl;
+        INFO_PRINT << "Unable to find module " << modulename << "\n"
+          << "\t(Filename: " << filename_full << ")\n";
 		return -1;
 	  }
 
@@ -3516,28 +3513,26 @@ namespace Pol {
 
 	  if ( getToken( ctx, tk_module_name ) )
 	  {
-		cout << "Error in INCLUDE statement: INCLUDE should be followed by a module name." << endl;
+        INFO_PRINT << "Error in INCLUDE statement: INCLUDE should be followed by a module name.\n";
 		return -1;
 	  }
 	  if ( tk_module_name.id != TOK_IDENT && tk_module_name.id != TOK_STRING )
 	  {
-		cout << "Error in INCLUDE statement: Expected identifier, got '"
-		  << tk_module_name << "'" << endl;
+        INFO_PRINT << "Error in INCLUDE statement: Expected identifier, got '"
+          << tk_module_name << "'\n";
 		return -1;
 	  }
 
 	  if ( getToken( ctx, tk_semicolon ) )
 	  {
-		cout << "Error in INCLUDE statement (module " << tk_module_name << "): "
-		  << "Expected ';', got end-of-file or error"
-		  << endl;
+        INFO_PRINT << "Error in INCLUDE statement (module " << tk_module_name << "): "
+          << "Expected ';', got end-of-file or error\n";
 		return -1;
 	  }
 	  if ( tk_semicolon.id != TOK_SEMICOLON )
 	  {
-		cout << "Error in INCLUDE statement (module " << tk_module_name << "): "
-		  << "Expected ';', got '" << tk_semicolon << "'"
-		  << endl;
+        INFO_PRINT << "Error in INCLUDE statement (module " << tk_module_name << "): "
+		  << "Expected ';', got '" << tk_semicolon << "'\n";
 		return -1;
 	  }
 
@@ -3579,10 +3574,10 @@ namespace Pol {
 
 		}
 	  }
-	  cout << "Couldn't find an appropriate break point";
+      INFO_PRINT << "Couldn't find an appropriate break point";
 	  if ( label != "" )
-		cout << " for label " << label;
-	  cout << "." << endl;
+        INFO_PRINT << " for label " << label;
+      INFO_PRINT << ".\n";
 
 	  return -1;
 	}
@@ -3602,7 +3597,7 @@ namespace Pol {
 	  if ( getToken( ctx, tk ) ||
 		   ( ( tk.id != TOK_IDENT ) && ( tk.id != TOK_SEMICOLON ) ) )
 	  {
-		cout << "break statement: expected 'break;' or 'break label;'" << endl;
+        INFO_PRINT << "break statement: expected 'break;' or 'break label;'\n";
 		return -1;
 	  }
 
@@ -3611,7 +3606,7 @@ namespace Pol {
 		label = tk.tokval();
 		if ( getToken( ctx, tk ) || tk.id != TOK_SEMICOLON )
 		{
-		  cout << "break statement: expected 'break;' or 'break label;'" << endl;
+          INFO_PRINT << "break statement: expected 'break;' or 'break label;'\n";
 		  return -1;
 		}
 	  }
@@ -3636,7 +3631,7 @@ namespace Pol {
 	  if ( getToken( ctx, tk ) ||
 		   ( ( tk.id != TOK_IDENT ) && ( tk.id != TOK_SEMICOLON ) ) )
 	  {
-		cout << "continue statement: expected 'continue;' or 'continue label;'" << endl;
+        INFO_PRINT << "continue statement: expected 'continue;' or 'continue label;'\n";
 		return -1;
 	  }
 
@@ -3645,7 +3640,7 @@ namespace Pol {
 		label = tk.tokval();
 		if ( getToken( ctx, tk ) || tk.id != TOK_SEMICOLON )
 		{
-		  cout << "continue statement: expected 'continue;' or 'continue label;'" << endl;
+          INFO_PRINT << "continue statement: expected 'continue;' or 'continue label;'\n";
 		  return -1;
 		}
 	  }
@@ -3684,10 +3679,10 @@ namespace Pol {
 
 		}
 	  }
-	  cout << "Couldn't find an appropriate continue point";
+      INFO_PRINT << "Couldn't find an appropriate continue point";
 	  if ( label != "" )
-		cout << " for label " << label;
-	  cout << "." << endl;
+        INFO_PRINT << " for label " << label;
+      INFO_PRINT << ".\n";
 
 	  return -1;
 	}
@@ -3718,13 +3713,13 @@ namespace Pol {
 		return res;
 	  if ( itrvar.id != TOK_IDENT )
 	  {
-		cout << "FOR iterator must be an identifier, got " << itrvar << endl;
+        INFO_PRINT << "FOR iterator must be an identifier, got " << itrvar << "\n";
 		return res;
 	  }
 
 	  if ( localscope.varexists( itrvar.tokval() ) )
 	  {
-		cout << "FOR iterator '" << itrvar << "' hides a local variable." << endl;
+        INFO_PRINT << "FOR iterator '" << itrvar << "' hides a local variable.\n";
 		return -1;
 	  }
 
@@ -3796,7 +3791,7 @@ namespace Pol {
 		getToken( ctx, tkn );
 		if ( tkn.id != TOK_LPAREN )
 		{
-		  cout << "FOR: expected '('" << endl;
+          INFO_PRINT << "FOR: expected '('\n";
 		  return -1;
 		}
 	  } while ( 0 );
@@ -3818,7 +3813,7 @@ namespace Pol {
 		Token tkn;
 		if ( getToken( ctx, tkn ) || tkn.id != TOK_RPAREN )
 		{
-		  cout << "FOR: expected '('" << endl;
+          INFO_PRINT << "FOR: expected '('\n";
 		  return -1;
 		}
 	  } while ( 0 );
@@ -3874,7 +3869,7 @@ namespace Pol {
 		getToken( ctx, tkn );
 		if ( tkn.id != TOK_LPAREN )
 		{
-		  cout << "FOR: expected '('" << endl;
+          INFO_PRINT << "FOR: expected '('\n";
 		  return -1;
 		}
 	  } while ( 0 );
@@ -3896,7 +3891,7 @@ namespace Pol {
 		Token tkn;
 		if ( getToken( ctx, tkn ) || tkn.id != TOK_RPAREN )
 		{
-		  cout << "FOR: expected '('" << endl;
+          INFO_PRINT << "FOR: expected '('\n";
 		  return -1;
 		}
 	  } while ( 0 );
@@ -3955,7 +3950,7 @@ namespace Pol {
 	  res = peekToken( ctx, tkn );
 	  if ( res )
 	  {
-		cout << "Error in FOR statement";
+        INFO_PRINT << "Error in FOR statement\n";
 		return -1;
 	  }
 
@@ -4033,10 +4028,10 @@ namespace Pol {
 
 	  if ( token.deprecated && ( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning ) )
 	  {
-		cout << "Warning: Found deprecated token "
+        INFO_PRINT << "Warning: Found deprecated token "
 		  << "'" << token.tokval() << "'"
 		  << " on line " << ctx.line
-		  << " of " << ctx.filename << endl;
+		  << " of " << ctx.filename << "\n";
 		if ( compilercfg.ErrorOnWarning )
 		  throw runtime_error( "Warnings treated as errors." );
 		// warning only; doesn't bail out.
@@ -4048,7 +4043,7 @@ namespace Pol {
 		switch ( token.id )
 		{
 		  case RSV_OPTION_BRACKETED:
-			cout << "_OptionBracketed is obsolete." << endl;
+            INFO_PRINT << "_OptionBracketed is obsolete.\n";
 			// bracketed_if_ = true; 
 			return 0;
 		  case RSV_DECLARE:	   return handleDeclare( ctx );
@@ -4085,7 +4080,7 @@ namespace Pol {
 			//	case RSV_BEGIN:		 return handleBlock(ctx, level+1);
 
 		  default:
-			cout << "Unhandled reserved word: " << token << endl;
+            INFO_PRINT << "Unhandled reserved word: " << token << "\n";
 			return -1;
 			//			   assert(0);
 			break;
@@ -4093,7 +4088,7 @@ namespace Pol {
 	  }
 	  else if ( token.type == TYP_LABEL )
 	  {
-		if ( !quiet ) cout << "Label found! " << token << endl;
+        if ( !quiet ) INFO_PRINT << "Label found! " << token << "\n";
 		getToken( ctx, token );
 
 		Token precedes;
@@ -4106,8 +4101,8 @@ namespace Pol {
 			 precedes.id != RSV_DO &&
 			 precedes.id != RSV_FOR ) )
 		{
-		  cout << "Illegal location for label: " << token.tokval() << endl;
-		  cout << "Labels can only come before DO, WHILE, FOR, FOREACH, REPEAT, and CASE statements." << endl;
+          INFO_PRINT << "Illegal location for label: " << token.tokval() << "\n"
+            << "Labels can only come before DO, WHILE, FOR, FOREACH, REPEAT, and CASE statements.\n";
 		  return -1;
 		}
 		latest_label = token.tokval();
@@ -4166,23 +4161,23 @@ namespace Pol {
 		{
 		  if ( tmptoken.id == TOK_EQUAL1 )
 		  {
-			cout << "Warning: Equals test result ignored.  Did you mean := for assign?" << endl;
-			cout << "near: " << curLine << endl;
+            INFO_PRINT << "Warning: Equals test result ignored.  Did you mean := for assign?\n"
+              << "near: " << curLine << "\n";
 			if ( compilercfg.ErrorOnWarning )
 			  throw runtime_error( "Warnings treated as errors." );
 			else
-			  cout << ctx;
+              INFO_PRINT << ctx;
 		  }
 		  else
 		  {
 			// warn code has no effect/value lost
-			cout << "Warning: Result of operation may have no effect." << endl;
-			cout << "Token ID: " << tmptoken.id << endl;
-			cout << "near: " << curLine << endl;
+            INFO_PRINT << "Warning: Result of operation may have no effect.\n"
+              << "Token ID: " << tmptoken.id << "\n"
+              << "near: " << curLine << "\n";
 			if ( compilercfg.ErrorOnWarning )
 			  throw runtime_error( "Warnings treated as errors." );
 			else
-			  cout << ctx;
+              INFO_PRINT << ctx;
 		  }
 		}
 		//	cout << "Statement: " << Parser.CA << endl;
@@ -4204,15 +4199,19 @@ namespace Pol {
 		res = _getStatement( ctx, level );
 		if ( res < 0 )
 		{
-		  cout << "Error compiling statement at ";
-		  savectx.printOnShort( cout );
+          fmt::Writer _tmp;
+          _tmp << "Error compiling statement at ";
+          savectx.printOnShort( _tmp );
+          INFO_PRINT << _tmp.c_str();
 		}
 	  }
 	  catch ( std::exception& ex )
 	  {
-		cout << "Error compiling statement at ";
-		savectx.printOnShort( cout );
-		cout << ex.what() << endl;
+        fmt::Writer _tmp;
+		_tmp << "Error compiling statement at ";
+		savectx.printOnShort( _tmp );
+        _tmp << ex.what() << "\n";
+        INFO_PRINT << _tmp.c_str();
 		res = -1;
 	  }
 	  return res;
@@ -4227,8 +4226,8 @@ namespace Pol {
 
 	  if ( inFunction )
 	  {
-		cout << "Can't declare a function inside another function." << endl;
-		cout << "(attempt to declare " << funcName << ")" << endl;
+        INFO_PRINT << "Can't declare a function inside another function.\n"
+          << "(attempt to declare " << funcName << ")\n";
 		return -1;
 	  }
 	  inFunction = 1;
@@ -4296,8 +4295,8 @@ namespace Pol {
 	  if ( res ) return res;
 	  if ( token.id != RSV_BEGIN )
 	  {
-		cout << "Error reading function definition for " << userfunc.name << "()" << endl;
-		cout << "Expected BEGIN .. END block, got token: '" << token << "'" << endl;
+        INFO_PRINT << "Error reading function definition for " << userfunc.name << "()\n"
+          << "Expected BEGIN .. END block, got token: '" << token << "'\n";
 
 		//cout << "Functions must contain a BEGIN .. END block." << endl;
 		return -1;
@@ -4349,7 +4348,7 @@ namespace Pol {
 
 	  if ( inFunction )
 	  {
-		cout << "Can't declare a function inside another function." << endl;
+        INFO_PRINT << "Can't declare a function inside another function.\n";
 		return -1;
 	  }
 	  inFunction = 1;
@@ -4431,9 +4430,9 @@ namespace Pol {
 	  res = readblock( ctx, 1, RSV_ENDFUNCTION, NULL, &endblock_tkn );
 	  if ( res < 0 )
 	  {
-		cout << "Error occurred reading function body for '" << userfunc.name << "'" << endl
-		  << "Function location: " << save_ctx;
-		cout << "Error location: " << endl;
+        INFO_PRINT << "Error occurred reading function body for '" << userfunc.name << "'\n"
+		  << "Function location: " << save_ctx
+		 << "Error location: \n";
 		return res;
 	  }
 
@@ -4472,14 +4471,14 @@ namespace Pol {
 		if ( res ) return res;
 		if ( tk_function.id != RSV_FUNCTION )
 		{
-		  cout << "Expected 'function' after 'exported'." << endl;
+          INFO_PRINT << "Expected 'function' after 'exported'.\n";
 		  return -1;
 		}
 	  }
 
 	  if ( inFunction )
 	  {
-		cout << "Can't declare a function inside another function." << endl;
+        INFO_PRINT << "Can't declare a function inside another function.\n";
 		return -1;
 	  }
 	  getToken( ctx, tk_funcname );
@@ -4497,15 +4496,15 @@ namespace Pol {
 	  }
 	  if ( !ctx.s[0] )
 	  {
-		cout << "End-of-File detected, expected 'ENDFUNCTION'" << endl;
+        INFO_PRINT << "End-of-File detected, expected 'ENDFUNCTION'\n";
 		return -1;
 	  }
 
 	  if ( res < 0 )
 	  {
-		cout << "Error occurred reading function body for '" << tk_funcname.tokval() << "'" << endl
-		  << "Function location: " << save_ctx;
-		cout << "Error location: " << endl;
+        INFO_PRINT << "Error occurred reading function body for '" << tk_funcname.tokval() << "'\n"
+          << "Function location: " << save_ctx
+          << "Error location: \n";
 		return res;
 	  }
 
@@ -4519,7 +4518,7 @@ namespace Pol {
 
 	  if ( haveProgram )
 	  {
-		cout << "'program' function has already been defined." << endl;
+        INFO_PRINT << "'program' function has already been defined.\n";
 		return -1;
 	  }
 	  haveProgram = true;
@@ -4546,7 +4545,7 @@ namespace Pol {
 		}
 
 	  }
-	  cout << "End of file detected, expected 'endprogram'" << endl;
+      INFO_PRINT << "End of file detected, expected 'endprogram'\n";
 	  return -1;
 	}
 
@@ -4562,7 +4561,7 @@ namespace Pol {
 	  if ( res < 0 ) return res;
 	  if ( tk_progname.id != TOK_IDENT )
 	  {
-		cout << "Error: expected identified after 'program', got '" << tk_progname << "'" << endl;
+        INFO_PRINT << "Error: expected identified after 'program', got '" << tk_progname << "'\n";
 		return -1;
 	  }
 
@@ -4578,7 +4577,7 @@ namespace Pol {
 		if ( res < 0 ) return res;
 		if ( res > 0 )
 		{
-		  cout << "End-of-file reached reading program argument list" << endl;
+          INFO_PRINT << "End-of-file reached reading program argument list\n";
 		  return -1;
 		}
 		if ( token.id == TOK_RPAREN )
@@ -4590,7 +4589,7 @@ namespace Pol {
 		  unsigned varpos;
 		  if ( localscope.varexists( token.tokval(), varpos ) )
 		  {
-			cout << "Program argument '" << token << "' multiply defined." << endl;
+            INFO_PRINT << "Program argument '" << token << "' multiply defined.\n";
 			return -1;
 		  }
 		  unsigned posn;
@@ -4607,7 +4606,7 @@ namespace Pol {
 		}
 		else
 		{
-		  cout << "Expected arguments or right-paren in program arglist, got '" << token << "'" << endl;
+          INFO_PRINT << "Expected arguments or right-paren in program arglist, got '" << token << "'\n";
 		  return -1;
 		}
 	  }
@@ -4689,7 +4688,7 @@ namespace Pol {
 	  res = readblock( ctx, 1, RSV_ENDFUNCTION, &last_statement_id, &endblock_tkn );
 	  if ( res < 0 )
 	  {
-		cout << "Error in function '" << userfunc.name << "', " << ctx << endl;
+        INFO_PRINT << "Error in function '" << userfunc.name << "', " << ctx << "\n";
 		return res;
 	  }
 	  program->update_dbg_pos( endblock_tkn );
@@ -4743,14 +4742,14 @@ namespace Pol {
 		if ( res ) return res;
 		if ( token.id != RSV_FUNCTION )
 		{
-		  cout << "Expected 'function' after 'exported'" << endl;
+          INFO_PRINT << "Expected 'function' after 'exported'\n";
 		  return -1;
 		}
 	  }
 
 	  if ( readFunctionDeclaration( ctx, userfunc ) )
 	  {
-		cout << save_ctx;
+        INFO_PRINT << save_ctx;
 		return -1;
 	  }
 	  userfunc.ctx = ctx;
@@ -4778,16 +4777,16 @@ namespace Pol {
 	  }
 	  if ( !ctx.s[0] )
 	  {
-		cout << "End-of-File detected, expected 'ENDFUNCTION'" << endl;
-		cout << save_ctx;
+        INFO_PRINT << "End-of-File detected, expected 'ENDFUNCTION'\n"
+          << save_ctx;
 		return -1;
 	  }
 
 	  if ( res < 0 )
 	  {
-		cout << "Error occurred reading function body for '" << userfunc.name << "'" << endl
-		  << "Function location: " << save_ctx;
-		cout << "Error location: " << endl;
+        INFO_PRINT << "Error occurred reading function body for '" << userfunc.name << "'\n"
+          << "Function location: " << save_ctx
+          << "Error location: \n";
 		return res;
 	  }
 	  return res;
@@ -4821,8 +4820,8 @@ namespace Pol {
 	  }
 	  catch ( std::exception& )
 	  {
-		cout << "Exception detected during compilation." << endl;
-		cout << ctx;
+        INFO_PRINT << "Exception detected during compilation.\n"
+		 << ctx;
 		throw;
 	  }
 
@@ -4834,21 +4833,21 @@ namespace Pol {
 	  {
 		if ( err || ext_err[0] )
 		{
-		  cout << "Parse Error: " << ParseErrorStr[err];
-		  if ( ext_err[0] ) cout << " " << ext_err;
-		  cout << endl;
+          INFO_PRINT << "Parse Error: " << ParseErrorStr[err];
+          if ( ext_err[0] ) INFO_PRINT << " " << ext_err;
+          INFO_PRINT << "\n";
 		  err = PERR_NONE;
 		  ext_err[0] = '\0';
 		}
 		else
 		{
-		  cout << "Compilation Error:" << endl;
+          INFO_PRINT << "Compilation Error:\n";
 		}
 		if ( curLine[0] )
 		{
-		  cout << "Near: " << curLine << endl;
+          INFO_PRINT << "Near: " << curLine << "\n";
 		}
-		cout << ctx;
+        INFO_PRINT << ctx;
 		return -1;
 	  }
 	  return 0;
@@ -4882,7 +4881,7 @@ namespace Pol {
 		}
 		catch ( runtime_error& excep )
 		{
-		  cout << excep.what() << endl;
+          INFO_PRINT << excep.what( ) << "\n";
 		  res = -1;
 		}
 		catch ( ... )
@@ -4891,9 +4890,11 @@ namespace Pol {
 		}
 		if ( res < 0 )
 		{
-		  cout << "Error detected in program body." << endl;
-		  cout << "Error occurred at ";
-		  program_ctx.printOnShort( cout );
+          fmt::Writer _tmp;
+          _tmp << "Error detected in program body.\n"
+		   << "Error occurred at ";
+		  program_ctx.printOnShort( _tmp );
+          INFO_PRINT << _tmp.c_str();
 		  // << program_ctx;
 		  return res;
 		}
@@ -4920,9 +4921,9 @@ namespace Pol {
 		std::string filepart = Clib::GetFilePart( file );
 		if ( truename != filepart && Clib::FileExists( file ) )
 		{
-		  std::cout << "Case mismatch: " << endl
-			<< "  Specified:  " << filepart << endl
-			<< "  Filesystem: " << truename << endl;
+          INFO_PRINT << "Case mismatch: \n"
+			<< "  Specified:  " << filepart << "\n"
+			<< "  Filesystem: " << truename << "\n";
 		}
 	  }
 #endif
@@ -4971,16 +4972,16 @@ namespace Pol {
 			string try_filename_full = pkg->dir() + "include/" + path;
 
 			if ( verbosity_level_ >= 10 )
-			  cout << "Searching for " << filename_full << endl;
+              INFO_PRINT << "Searching for " << filename_full << "\n";
 
 			if ( !Clib::FileExists( filename_full.c_str() ) )
 			{
 			  if ( verbosity_level_ >= 10 )
-				cout << "Searching for " << try_filename_full << endl;
+                INFO_PRINT << "Searching for " << try_filename_full << "\n";
 			  if ( Clib::FileExists( try_filename_full.c_str() ) )
 			  {
 				if ( verbosity_level_ >= 10 )
-				  cout << "Found " << try_filename_full << endl;
+                  INFO_PRINT << "Found " << try_filename_full << "\n";
 
 				filename_full = try_filename_full;
 			  }
@@ -4988,11 +4989,11 @@ namespace Pol {
 			else
 			{
 			  if ( verbosity_level_ >= 10 )
-				cout << "Found " << filename_full << endl;
+                INFO_PRINT << "Found " << filename_full << "\n";
 
-			  if ( Clib::FileExists( try_filename_full.c_str() ) )
-				cout << "Warning: Found '" << filename_full.c_str() << "' and '"
-				<< try_filename_full.c_str() << "'! Will use first file!" << endl;
+              if ( Clib::FileExists( try_filename_full.c_str() ) )
+                INFO_PRINT << "Warning: Found '" << filename_full.c_str() << "' and '"
+                << try_filename_full.c_str() << "'! Will use first file!\n";
 			}
 		  }
 		  else
@@ -5001,32 +5002,32 @@ namespace Pol {
 
 			if ( verbosity_level_ >= 10 )
 			{
-			  cout << "Searching for " << filename_full << endl;
+              INFO_PRINT << "Searching for " << filename_full << "\n";
 			  if ( Clib::FileExists( filename_full.c_str() ) )
-				cout << "Found " << filename_full << endl;
+                INFO_PRINT << "Found " << filename_full << "\n";
 			}
 		  }
 		}
 		else
 		{
-		  cout << "Unable to read include file '" << modulename << "'" << endl;
+          INFO_PRINT << "Unable to read include file '" << modulename << "'\n";
 		  return false;
 		}
 	  }
 	  else
 	  {
 		if ( verbosity_level_ >= 10 )
-		  cout << "Searching for " << filename_full << endl;
+          INFO_PRINT << "Searching for " << filename_full << "\n";
 
 		if ( !Clib::FileExists( filename_full.c_str() ) )
 		{
 		  string try_filename_full = compilercfg.IncludeDirectory + filename_part;
 		  if ( verbosity_level_ >= 10 )
-			cout << "Searching for " << try_filename_full << endl;
+            INFO_PRINT << "Searching for " << try_filename_full << "\n";
 		  if ( Clib::FileExists( try_filename_full.c_str() ) )
 		  {
 			if ( verbosity_level_ >= 10 )
-			  cout << "Found " << try_filename_full << endl;
+              INFO_PRINT << "Found " << try_filename_full << "\n";
 
 			filename_full = try_filename_full;
 		  }
@@ -5034,7 +5035,7 @@ namespace Pol {
 		else
 		{
 		  if ( verbosity_level_ >= 10 )
-			cout << "Found " << filename_full << endl;
+            INFO_PRINT << "Found " << filename_full << "\n";
 		}
 	  }
 
@@ -5047,7 +5048,7 @@ namespace Pol {
 
 	  if ( getFileContents( filename_full.c_str(), &orig_mt ) )
 	  {
-		cout << "Unable to read include file '" << filename_full << "'" << endl;
+        INFO_PRINT << "Unable to read include file '" << filename_full << "'\n";
 		return false;
 	  }
 
@@ -5095,8 +5096,8 @@ namespace Pol {
 		{
 		  if ( handleConstDeclare( tctx ) )
 		  {
-			cout << "Error in const declaration" << endl;
-			cout << tctx;
+            INFO_PRINT << "Error in const declaration\n"
+			 << tctx;
 			return false;
 		  }
 		}
@@ -5104,8 +5105,8 @@ namespace Pol {
 		{
 		  if ( handleEnumDeclare( tctx ) )
 		  {
-			cout << "Error in enum declaration" << endl;
-			cout << tctx;
+            INFO_PRINT << "Error in enum declaration\n"
+			 << tctx;
 			return false;
 		  }
 		}
@@ -5114,8 +5115,8 @@ namespace Pol {
 		  tctx = save_ctx;
 		  if ( forward_read_function( tctx ) )
 		  {
-			cout << "Error reading function" << endl;
-			cout << tctx;
+            INFO_PRINT << "Error reading function\n"
+			 << tctx;
 			return false;
 		  }
 		}
@@ -5164,8 +5165,8 @@ namespace Pol {
 	  int res = handleBracketedFunction3( uf, ctx );
 	  if ( res < 0 )
 	  {
-		cout << "Error in function '" << uf.name << "'." << endl;
-		ctx.printOn( cout );
+        INFO_PRINT << "Error in function '" << uf.name << "'.\n"
+          << ctx;
 	  }
 	  return res;
 	}
@@ -5328,7 +5329,7 @@ namespace Pol {
 		referencedPathnames.push_back( filepath );
 		current_file_path = getpathof( filepath );
 		if ( verbosity_level_ >= 11 )
-		  cout << "cfp: " << current_file_path << endl;
+          INFO_PRINT << "cfp: " << current_file_path << "\n";
 		Clib::FileContents fc( filepath.c_str() );
 
 		if ( is_web_script( filepath.c_str() ) )
@@ -5352,13 +5353,13 @@ namespace Pol {
 	  }
 	  catch ( const char *s )
 	  {
-		cout << "Exception Detected:" << s << endl;
+        INFO_PRINT << "Exception Detected:" << s << "\n";
 		res = -1;
 	  }
 	  catch ( exception& ex )
 	  {
-		cout << "Exception Detected:" << endl;
-		cout << ex.what() << endl;
+        INFO_PRINT << "Exception Detected:\n"
+          << ex.what( ) << "\n";
 		res = -1;
 	  }
 	  //	catch(...)
@@ -5367,8 +5368,8 @@ namespace Pol {
 	  //		res = -1;
 	  //	}
 
-	  if ( res < 0 )
-		cout << "Compilation failed." << endl;
+      if ( res < 0 )
+        INFO_PRINT << "Compilation failed.\n";
 
 	  //if (contains_tabs && Compiler.warnings_)
 	  //	cout << "Warning! Source contains TAB characters" << endl;

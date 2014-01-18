@@ -16,6 +16,7 @@ Notes
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/fileutil.h"
+#include "../clib/logfacility.h"
 
 #include "cmbtcfg.h"
 #include "polcfg.h"
@@ -31,12 +32,9 @@ namespace Pol {
 	  {
 		cf.open( "config/combat.cfg" );
 		cf.readraw( elem );
-
-		if ( config.loglevel > 1 )
-		  cout << "Loading combat.cfg options\n";
 	  }
 	  else if ( config.loglevel > 1 )
-		cout << "File config/combat.cfg not found, skipping.\n";
+		INFO_PRINT << "File config/combat.cfg not found, skipping.\n";
 
 	  combat_config.display_parry_success_messages = elem.remove_bool( "DisplayParrySuccessMessages", false );
 	  combat_config.warmode_inhibits_regen = elem.remove_bool( "WarmodeInhibitsRegen", false );

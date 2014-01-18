@@ -31,7 +31,7 @@ Notes
 
 #include "../clib/endian.h"
 #include "../clib/cfgfile.h"
-#include "../clib/logfile.h"
+#include "../clib/logfacility.h"
 #include "../clib/passert.h"
 #include "../clib/random.h"
 #include "../clib/stlutil.h"
@@ -219,7 +219,6 @@ namespace Pol {
 	  // passert( !gflag_enforce_container_limits || (held_weight_ + weight_delta <= MAX_WEIGHT) );
 
 	  held_weight_ += static_cast<unsigned short>( weight_delta );
-	  // cout << "Adding " << delta << " stones to container " << serial << endl;
 	  if ( container != NULL )
 	  {
 		container->add_bulk( 0, weight_delta );
@@ -509,8 +508,8 @@ namespace Pol {
 	{
 	  if ( item->container != this )
 	  {
-		Clib::Log( "UContainer::remove(Item*), serial=0x%lx, item=0x%lx, item->cont=0x%lx\n",
-			 serial, item->serial, item->container->serial );
+        POLLOG.Format( "UContainer::remove(Item*), serial=0x{:X}, item=0x{:X}, item->cont=0x{:X}\n" )
+          << serial << item->serial << item->container->serial;
 		passert_always( item->container == this );
 		int* p = 0;
 		*p = 6;
