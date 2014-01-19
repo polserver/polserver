@@ -91,8 +91,10 @@ namespace Pol {
     };
     class BSQLConnection : public Bscript::BObjectImp
     {
+      class ConnectionWrapper;
     public:
       BSQLConnection();
+      BSQLConnection( std::shared_ptr<ConnectionWrapper> conn );
       BSQLConnection( std::string host, std::string user, std::string password );
       ~BSQLConnection();
       bool connect( const char *host, const char *user, const char *passwd );
@@ -118,10 +120,20 @@ namespace Pol {
 
 
     private:
-      MYSQL* _conn;
+      std::shared_ptr<ConnectionWrapper> _conn;
       int _errno;
       std::string _error;
 
+      class ConnectionWrapper
+      {
+      public:
+        ConnectionWrapper();
+        ~ConnectionWrapper();
+        void set( MYSQL* conn );
+        MYSQL* connection_ptr() { return _conn; };
+      private:
+        MYSQL* _conn;
+      };
     };
 
   }

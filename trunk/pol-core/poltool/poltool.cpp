@@ -33,13 +33,6 @@ namespace Pol {
 	{
       ERROR_PRINT << "Usage: poltool [cmd] [options]\n"
         << "\t  mapdump x1 y1 [x2 y2 realm]       writes polmap info to polmap.html\n";
-
-      //std::string b = "hallo";
-      unsigned char b[3] = { 65, 12, 13 };
-      const unsigned char *s = &b[0];
-      fmt::Writer t;
-      t.Format( "{}" ) << s[0];
-      ERROR_PRINT << t.c_str();
 	}
 
 	int mapdump( int argc, char* argv[] )
