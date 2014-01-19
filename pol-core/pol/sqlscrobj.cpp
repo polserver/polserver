@@ -146,19 +146,19 @@ namespace Pol {
 	  return "SQLResultSet";
 	}
 
-	bool BSQLConnection::close()
-	{
-	  if ( _conn )
-		mysql_close( _conn );
-	  _conn = 0;
-	  return true;
-	}
+    bool BSQLConnection::close()
+    {
+      if ( _conn->connection_ptr() )
+        mysql_close( _conn->connection_ptr() );
+      _conn->set(0);
+      return true;
+    }
 	Bscript::BObjectImp *BSQLConnection::getResultSet() const
 	{
 	  if ( _errno ) return new BError( _error );
 	  MYSQL_RES *result;
 
-	  result = mysql_store_result( _conn );
+      result = mysql_store_result( _conn->connection_ptr() );
 	  if ( result )  // there are rows
 	  {
 		return new BSQLResultSet( result );
@@ -172,23 +172,28 @@ namespace Pol {
 				_errno = mysql_errno(_conn);
 				return new BError(_error);
 				}
-				else */if ( mysql_field_count( _conn ) == 0 )
+                else */if ( mysql_field_count( _conn->connection_ptr() ) == 0 )
 				{
-				  return new BSQLResultSet( static_cast<int>( mysql_affected_rows( _conn ) ) );
+                  return new BSQLResultSet( static_cast<int>( mysql_affected_rows( _conn->connection_ptr() ) ) );
 				}
 	  }
 	  return new BError( "Unknown error getting ResultSet" );
 
 	}
-	BSQLConnection::BSQLConnection() : Bscript::BObjectImp( OTSQLConnection ), _errno( 0 )
+	BSQLConnection::BSQLConnection() : Bscript::BObjectImp( OTSQLConnection ), _conn(new ConnectionWrapper), _errno( 0 )
 	{
-	  _conn = mysql_init( NULL );
-	  if ( !_conn )
+      _conn->set(mysql_init( NULL ));
+      if ( !_conn->connection_ptr() )
 	  {
 		_error = "Insufficient memory";
 		_errno = 1;
 	  }
 	}
+
+    BSQLConnection::BSQLConnection( std::shared_ptr<ConnectionWrapper> conn ) : Bscript::BObjectImp( OTSQLConnection ), _conn( conn ), _errno( 0 )
+    {
+
+    }
 
 	BSQLConnection::BSQLConnection( std::string host, std::string user, std::string password ) : Bscript::BObjectImp( OTSQLConnection ), _errno( 0 )
 	{
@@ -196,8 +201,6 @@ namespace Pol {
 	}
 	BSQLConnection::~BSQLConnection()
 	{
-	  if ( _conn ) mysql_close( _conn );
-	  _conn = 0;
 	}
 	std::string BSQLConnection::getStringRep() const
 	{
@@ -205,53 +208,57 @@ namespace Pol {
 	}
 	bool BSQLConnection::isTrue() const
 	{
-	  return true;
+      if ( !_conn->connection_ptr() )
+        return false; // closed by hand
+      if ( !mysql_ping( _conn->connection_ptr() ) )
+        return true;
+	  return false;
 	}
 	bool BSQLConnection::connect( const char *host, const char *user, const char *passwd )
 	{
 	  //return true;
-	  if ( !_conn )
+      if ( !_conn->connection_ptr() )
 	  {
 		_errno = -1;
 		_error = "No active MYSQL object instance.";
 		return false;
 	  }
-	  if ( !mysql_real_connect( _conn, host, user, passwd, NULL, 0, NULL, 0 ) )
+      if ( !mysql_real_connect( _conn->connection_ptr(), host, user, passwd, NULL, 0, NULL, 0 ) )
 	  {
-		_errno = mysql_errno( _conn );
-		_error = mysql_error( _conn );
+        _errno = mysql_errno( _conn->connection_ptr() );
+        _error = mysql_error( _conn->connection_ptr() );
 		return false;
 	  }
 	  return true;
 	}
 	bool BSQLConnection::select_db( const char *db )
 	{
-	  if ( !_conn )
+      if ( !_conn->connection_ptr() )
 	  {
 		_errno = -1;
 		_error = "No active MYSQL object instance.";
 		return false;
 	  }
-	  else if ( mysql_select_db( _conn, db ) )
+      else if ( mysql_select_db( _conn->connection_ptr(), db ) )
 	  {
-		_errno = mysql_errno( _conn );
-		_error = mysql_error( _conn );
+        _errno = mysql_errno( _conn->connection_ptr() );
+        _error = mysql_error( _conn->connection_ptr() );
 		return false;
 	  }
 	  return true;
 	}
 	bool BSQLConnection::query( const char *query )
 	{
-	  if ( !_conn )
+      if ( !_conn->connection_ptr() )
 	  {
 		_errno = -1;
 		_error = "No active MYSQL object instance.";
 		return false;
 	  }
-	  if ( mysql_query( _conn, query ) )
+      if ( mysql_query( _conn->connection_ptr(), query ) )
 	  {
-		_errno = mysql_errno( _conn );
-		_error = mysql_error( _conn );
+        _errno = mysql_errno( _conn->connection_ptr() );
+        _error = mysql_error( _conn->connection_ptr() );
 		return false;
 	  }
 
@@ -294,8 +301,22 @@ namespace Pol {
 
 	Bscript::BObjectImp* BSQLConnection::copy() const
 	{
-	  return new BSQLConnection();
+	  return new BSQLConnection(_conn);
 	}
+
+
+    BSQLConnection::ConnectionWrapper::ConnectionWrapper( ) : _conn( 0 )
+    {}
+    BSQLConnection::ConnectionWrapper::~ConnectionWrapper( )
+    {
+      if ( _conn )
+        mysql_close( _conn );
+      _conn = 0;
+    }
+    void BSQLConnection::ConnectionWrapper::set( MYSQL* conn )
+    {
+      _conn = conn;
+    }
   }
 }
 #endif
