@@ -605,26 +605,26 @@ namespace Pol {
 	  // get "ct" of first stack - if error, init
 	  if (getprop( "ct", value_self ))
 	  {
-		BObjectImp* imp = BObjectImp::unpack( value_self.c_str() );
-		if (imp != NULL && imp->isa( BObjectImp::OTLong ))
-		  time_self = static_cast<BLong*>(imp)->value();
+        Bscript::BObjectImp* imp = Bscript::BObjectImp::unpack( value_self.c_str( ) );
+        if ( imp != NULL && imp->isa( Bscript::BObjectImp::OTLong ) )
+          time_self = static_cast<Bscript::BLong*>( imp )->value( );
 		else
-		  time_self = read_gameclock();
+		  time_self = Core::read_gameclock();
 	  }
 	  else
-		time_self = read_gameclock();
+        time_self = Core::read_gameclock();
 
 	  // get "ct" of second stack - if error, init
 	  if (item_sub->getprop( "ct", value_sub ))
 	  {
-		BObjectImp* imp = BObjectImp::unpack( value_sub.c_str() );
-		if (imp != NULL && imp->isa( BObjectImp::OTLong ))
-		  time_sub = static_cast<BLong*>(imp)->value();
+        Bscript::BObjectImp* imp = Bscript::BObjectImp::unpack( value_sub.c_str( ) );
+        if ( imp != NULL && imp->isa( Bscript::BObjectImp::OTLong ) )
+          time_sub = static_cast<Bscript::BLong*>( imp )->value( );
 		else
-		  time_sub = read_gameclock();
+          time_sub = Core::read_gameclock();
 	  }
 	  else
-		time_sub = read_gameclock();
+        time_sub = Core::read_gameclock();
 
 	  // calculate new time
 	  if (time_self < time_sub)
@@ -640,7 +640,7 @@ namespace Pol {
 	  else
 		time = time_self;
 
-	  setprop("ct", "i" + decint( time ));
+      setprop("ct", "i" + Clib::decint( time ));
 	  increv();
 	}
 
@@ -653,17 +653,17 @@ namespace Pol {
 	  // get "ct" of first stack - if error, init
 	  if (getprop( "ct", value_self ))
 	  {
-		BObjectImp* imp = BObjectImp::unpack( value_self.c_str() );
-		if (imp != NULL && imp->isa( BObjectImp::OTLong ))
-		  time_self = static_cast<BLong*>(imp)->value();
+        Bscript::BObjectImp* imp = Bscript::BObjectImp::unpack( value_self.c_str( ) );
+        if ( imp != NULL && imp->isa( Bscript::BObjectImp::OTLong ) )
+          time_self = static_cast<Bscript::BLong*>( imp )->value( );
 		else
-		  time_self = read_gameclock();
+          time_self = Core::read_gameclock();
 	  }
 	  else
-		time_self = read_gameclock();
+        time_self = Core::read_gameclock();
 
 	  // set "ct" of second new stack
-	  time_sub = read_gameclock();
+      time_sub = Core::read_gameclock();
 
 	  // calculate new time
 	  if (time_self != time_sub)
@@ -674,7 +674,7 @@ namespace Pol {
 	  else
 		time = time_self;
 
-	  setprop("ct", "i" + decint( time ));
+	  setprop("ct", "i" + Clib::decint( time ));
 	  increv();
 	}
 #endif

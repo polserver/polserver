@@ -164,6 +164,10 @@ namespace Pol {
           zone_convert_clip( x2, y2, realm, coords->wxH, coords->wyH );
           passert( coords->wxL <= coords->wxH );
           passert( coords->wyL <= coords->wyH );
+          coords->xL = x1;
+          coords->yL = y1;
+          coords->xH = x2;
+          coords->yH = y2;
           return true;
         }
       };

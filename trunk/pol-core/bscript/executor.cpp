@@ -21,6 +21,7 @@ Notes
 #include "../clib/passert.h"
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
+#include "../clib/mlog.h"
 
 #include "berror.h"
 #include "config.h"
@@ -3360,7 +3361,7 @@ namespace Pol {
 	  while ( !ValueStack.empty() )
 	  {
 #ifdef MEMORYLEAK
-		if (memoryleak_debug)
+		if (Clib::memoryleak_debug)
 		{
 		  if (!data_shown)
 		  {
@@ -3368,7 +3369,7 @@ namespace Pol {
 			data_shown = true;
 		  }
 
-		  ValueStack.top()->impptr()->packonto(llog);
+		  LEAKLOG << ValueStack.top()->impptr()->pack();
           LEAKLOG << " [" << ValueStack.top()->impptr()->sizeEstimate() << "] ";
 		}
 #endif
@@ -3377,7 +3378,7 @@ namespace Pol {
 	  }
 
 #ifdef MEMORYLEAK
-	  if (memoryleak_debug)
+      if (Clib::memoryleak_debug)
       if (data_shown)
         LEAKLOG << " ...deleted\n";
 #endif

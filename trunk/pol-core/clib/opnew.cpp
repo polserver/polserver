@@ -299,15 +299,7 @@ namespace Pol {
 	  }
 	}
 
-	void* operator new( size_t len )
-	{
-	  return do_new( len );
-	}
-
-	void* operator new[] ( size_t len )
-	{
-	  return do_new( len );
-	}
+	
 
 	void do_delete( void *ptr )
 	{
@@ -449,15 +441,6 @@ namespace Pol {
 	  }
 	}
 
-	void operator delete( void *ptr )
-	{
-	  do_delete( ptr );
-	}
-
-	void operator delete[] ( void *ptr )
-	{
-	  do_delete( ptr );
-	}
 #endif
 
 	void PrintHeapData()
@@ -515,3 +498,25 @@ namespace Pol {
 	}
   }
 }
+
+#ifdef MEMORYLEAK
+void* operator new( size_t len )
+{
+  return Pol::Clib::do_new( len );
+}
+
+void* operator new[]( size_t len )
+{
+  return Pol::Clib::do_new( len );
+}
+
+void operator delete( void *ptr )
+{
+  Pol::Clib::do_delete( ptr );
+}
+
+void operator delete[]( void *ptr )
+{
+  Pol::Clib::do_delete( ptr );
+}
+#endif
