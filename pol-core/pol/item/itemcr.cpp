@@ -194,7 +194,7 @@ namespace Pol {
 #ifdef PERGON
 	  string value_self;
 	  if (!item->getprop( "ct", value_self )) // Pergon: Check if Prop still exist - prevents Overwrite on Server-Restart
-		item->setprop("ct", "i" + decint( read_gameclock() )); // Pergon: Init Property CreateTime for a new Item
+        item->setprop("ct", "i" + Clib::decint( Core::read_gameclock() )); // Pergon: Init Property CreateTime for a new Item
 #endif
 
 	  if ( !id.control_script.empty() )

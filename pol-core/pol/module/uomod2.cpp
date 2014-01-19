@@ -1861,7 +1861,7 @@ namespace Pol {
 			blong_alloc.log_stuff("blong");
 			double_alloc.log_stuff("double");
 			ConfigFiles_log_stuff();
-			PrintHeapData(); // Will print endl in llog
+			Clib::PrintHeapData(); // Will print endl in llog
 		  }
 #endif
 #ifdef ESCRIPT_PROFILE
