@@ -332,12 +332,12 @@ namespace Pol {
 	  static void on_enable_see_hidden( Character* chr )
 	  {
 		if ( chr != NULL )
-		  ForEachMobileInVisualRange( chr, enable_see_hidden, chr );
+          Core::WorldIterator<Core::MobileFilter>::InVisualRange( chr, [&]( Character* zonechr ) { enable_see_hidden( zonechr, chr ); } );
 	  }
 	  static void on_disable_see_hidden( Character* chr )
 	  {
 		if ( chr != NULL )
-		  ForEachMobileInVisualRange( chr, disable_see_hidden, chr );
+          Core::WorldIterator<Core::MobileFilter>::InVisualRange( chr, [&]( Character* zonechr ) { disable_see_hidden( zonechr, chr ); } );
 	  }
 	  static void enable_see_hidden( Character* in_range_chr, Character* chr )
 	  {
@@ -371,12 +371,12 @@ namespace Pol {
 	  static void on_enable_see_ghosts( Character* chr )
 	  {
 		if ( chr != NULL )
-		  ForEachMobileInVisualRange( chr, enable_see_ghosts, chr );
+          Core::WorldIterator<Core::MobileFilter>::InVisualRange( chr, [&]( Character* zonechr ) { enable_see_ghosts( zonechr, chr ); } );
 	  }
 	  static void on_disable_see_ghosts( Character* chr )
 	  {
 		if ( chr != NULL )
-		  ForEachMobileInVisualRange( chr, disable_see_ghosts, chr );
+          Core::WorldIterator<Core::MobileFilter>::InVisualRange( chr, [&]( Character* zonechr ) { disable_see_ghosts( zonechr, chr ); } );
 	  }
 	  static void enable_see_ghosts( Character* in_range_chr, Character* chr )
 	  {
@@ -410,12 +410,12 @@ namespace Pol {
 	  static void on_enable_see_invis_items( Character* chr )
 	  {
 		if ( chr != NULL )
-		  Core::ForEachItemInVisualRange( chr, enable_see_invis_items, chr );
+          Core::WorldIterator<Core::ItemFilter>::InVisualRange( chr, [&]( Items::Item* zoneitem ) { enable_see_invis_items( zoneitem, chr ); } );
 	  }
 	  static void on_disable_see_invis_items( Character* chr )
 	  {
 		if ( chr != NULL )
-          Core::ForEachItemInVisualRange( chr, disable_see_invis_items, chr );
+          Core::WorldIterator<Core::ItemFilter>::InVisualRange( chr, [&]( Items::Item* zoneitem ) { disable_see_invis_items( zoneitem, chr ); } );
 	  }
 	  static void enable_see_invis_items( Items::Item* in_range_item, Character* chr )
 	  {
@@ -437,12 +437,12 @@ namespace Pol {
 	  static void on_enable_invul( Character* chr )
 	  {
         if ( chr != NULL )
-          ForEachPlayerInVisualRange( chr, [&]( Character* zonechr ) { enable_invul( zonechr, chr ); } );
+          Core::WorldIterator<Core::PlayerFilter>::InVisualRange( chr, [&]( Character* zonechr ) { enable_invul( zonechr, chr ); } );
 	  }
 	  static void on_disable_invul( Character* chr )
 	  {
 		if ( chr != NULL )
-          ForEachPlayerInVisualRange( chr, [&]( Character* zonechr ) { disable_invul( zonechr, chr ); } );
+          Core::WorldIterator<Core::PlayerFilter>::InVisualRange( chr, [&]( Character* zonechr ) { disable_invul( zonechr, chr ); } );
 	  }
 	  static void enable_invul( Character* in_range_chr, Character* chr )
 	  {
@@ -2249,7 +2249,7 @@ namespace Pol {
 		send_warmode();
 		send_goxyz( client, this );
 		send_owncreate( client, this );
-		ForEachMobileInVisualRange( client->chr, send_remove_if_hidden_ghost, client );
+        Core::WorldIterator<Core::MobileFilter>::InVisualRange( client->chr, [&]( Character* zonechr ) { send_remove_if_hidden_ghost( zonechr, client ); } );
 		client->restart();
 	  }
 
@@ -2257,7 +2257,7 @@ namespace Pol {
 	  send_remove_character_to_nearby_cansee( this );
 	  send_create_mobile_to_nearby_cansee( this );
 
-      Core::ForEachNPCInRange( x, y, realm, 32, [&]( Character* chr )
+      Core::WorldIterator<Core::NPCFilter>::InRange( x, y, realm, 32, [&]( Character* chr )
       {
         NpcPropagateEnteredArea( chr, this );
       } );
@@ -2279,7 +2279,7 @@ namespace Pol {
 		send_warmode();
 
 		send_goxyz( client, this );
-		ForEachMobileInVisualRange( client->chr, send_create_ghost, client );
+        Core::WorldIterator<Core::MobileFilter>::InVisualRange( client->chr, [&]( Character* zonechr ) { send_create_ghost( zonechr, client ); } );
 	  }
 
 	  // change self to ghost for ghosts, remove self for living
@@ -2804,7 +2804,7 @@ namespace Pol {
 	  build_invulhealthbar( chr, msginvul.Get() );
 	  build_owncreate( chr, msgcreate.Get() );
 
-      Core::ForEachPlayerInVisualRange( chr, [&]( Character* zonechr )
+      Core::WorldIterator<Core::PlayerFilter>::InVisualRange( chr, [&]( Character* zonechr )
       {
         if ( !zonechr->has_active_client() )
           return;
@@ -2842,7 +2842,7 @@ namespace Pol {
       } );
 
       // iter over all old in range players and send remove
-      Core::ForEachPlayerInRange( chr->lastx, chr->lasty, chr->realm, RANGE_VISUAL, [&]( Character* zonechr )
+      Core::WorldIterator<Core::PlayerFilter>::InRange( chr->lastx, chr->lasty, chr->realm, RANGE_VISUAL, [&]( Character* zonechr )
       {
         if ( !zonechr->has_active_client() )
           return;
@@ -3186,7 +3186,7 @@ namespace Pol {
 	  }
 	  else
 	  {
-        Core::ForEachPlayerInVisualRange( this, [&]( Character* chr )
+        Core::WorldIterator<Core::PlayerFilter>::InVisualRange( this, [&]( Character* chr )
         {
           if ( !chr->has_active_client() )
             return;
@@ -3685,7 +3685,7 @@ namespace Pol {
 	  {
 		if ( client != NULL )
 		  send_owncreate( client, this );
-        Core::ForEachPlayerInVisualRange( this, [&]( Character* chr )
+        Core::WorldIterator<Core::PlayerFilter>::InVisualRange( this, [&]( Character* chr )
         {
           if ( !chr->has_active_client() )
             return;
@@ -3703,7 +3703,7 @@ namespace Pol {
 		lasty = 0;
 		//tellmove();
 
-        Core::ForEachNPCInRange( x, y, realm, 32, [&]( Character* chr )
+        Core::WorldIterator<Core::NPCFilter>::InRange( x, y, realm, 32, [&]( Character* chr )
         {
           NpcPropagateMove( chr, this );
         } );
@@ -4033,7 +4033,7 @@ namespace Pol {
         unsigned short newy = y + Core::move_delta[facing].ymove;
         auto mobs = std::unique_ptr<Bscript::ObjArray>();
 
-        Core::ForEachMobileInRange( newx, newy, realm, 0, [&]( Mobile::Character* _chr )
+        Core::WorldIterator<Core::MobileFilter>::InRange( newx, newy, realm, 0, [&]( Mobile::Character* _chr )
         {
           if ( _chr->z >= z - 10 && _chr->z <= z + 10 &&
                !_chr->dead() &&
@@ -4071,14 +4071,14 @@ namespace Pol {
 	  // TO DO: Place in realm change support so npcs know when you enter/leave one?
       if ( Core::pol_distance( lastx, lasty, x, y ) > 32 )
 	  {
-        Core::ForEachNPCInRange( lastx, lasty, realm, 32, [&]( Character* chr )
+        Core::WorldIterator<Core::NPCFilter>::InRange( lastx, lasty, realm, 32, [&]( Character* chr )
         {
           NpcPropagateMove( chr, this );
         } );
 	  }
 
 	  // Inform nearby NPCs that a movement has been made.
-      Core::ForEachNPCInRange( x, y, realm, 32, [&]( Character* chr )
+      Core::WorldIterator<Core::NPCFilter>::InRange( x, y, realm, 32, [&]( Character* chr )
       {
         NpcPropagateMove( chr, this );
       } );

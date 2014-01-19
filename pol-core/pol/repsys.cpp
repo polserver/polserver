@@ -768,7 +768,7 @@ namespace Pol {
       {
         if ( criminal_until_ < Core::polclock( ) )
         {
-          Core::ForEachNPCInRange( x, y, realm, 32, [&]( Character* chr )
+          Core::WorldIterator<Core::NPCFilter>::InRange( x, y, realm, 32, [&]( Character* chr )
           {
             NpcPropagateCriminal( chr, this );
           } );
