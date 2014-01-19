@@ -992,7 +992,7 @@ namespace Pol {
 
 	void CustomHousesSendFullToInRange( UHouse* house, int design, int range )
 	{
-      Core::ForEachPlayerInRange( house->x, house->y, house->realm, range, [&]( Mobile::Character* chr )
+      Core::WorldIterator<Core::PlayerFilter>::InRange( house->x, house->y, house->realm, range, [&]( Mobile::Character* chr )
       {
         if ( chr->has_active_client() )
           CustomHousesSendFull( house, chr->client, design );

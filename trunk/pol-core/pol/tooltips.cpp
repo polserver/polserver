@@ -97,7 +97,7 @@ namespace Pol {
         PacketOut<Network::PktOut_DC> msgdc;
         PacketOut<Network::PktOut_BF_Sub10> msgbf10;
 
-        ForEachPlayerInVisualRange( obj->toplevel_owner(), [&]( Mobile::Character *chr )
+        WorldIterator<PlayerFilter>::InVisualRange( obj->toplevel_owner(), [&]( Mobile::Character *chr )
         {
           if ( !chr->has_active_client( ) )
             return;

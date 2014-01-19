@@ -208,19 +208,18 @@ namespace Pol {
     void textcmd_flag1( Network::Client* client, const char* text )
 	{
 	  tmp_flag1 = (u8)strtoul( text, NULL, 16 );
-	  ForEachMobileInRange( client->chr->x, client->chr->y, client->chr->realm, RANGE_VISUAL,
-							send_move_if_inrange2, client );
+      Core::WorldIterator<Core::MobileFilter>::InVisualRange( client->chr, [&]( Mobile::Character* zonechr ) { send_move_if_inrange2( zonechr, client ); } );
 	}
 
     void textcmd_flag2( Network::Client* client, const char* text )
 	{
 	  tmp_flag2 = (u8)strtoul( text, NULL, 16 );
-	  ForEachMobileInVisualRange( client->chr, send_move_if_inrange2, client );
+      Core::WorldIterator<Core::MobileFilter>::InVisualRange( client->chr, [&]( Mobile::Character* zonechr ) { send_move_if_inrange2( zonechr, client ); } );
 	}
 
     void textcmd_resendchars( Network::Client* client )
 	{
-	  ForEachMobileInVisualRange( client->chr, send_client_char_data, client );
+      Core::WorldIterator<Core::MobileFilter>::InVisualRange( client->chr, [&]( Mobile::Character* zonechr ) { send_client_char_data( zonechr, client ); } );
 	}
 
     void textcmd_shutdown( Network::Client* client )

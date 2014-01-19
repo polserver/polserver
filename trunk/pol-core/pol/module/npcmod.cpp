@@ -766,7 +766,7 @@ namespace Pol {
         range = Core::ssopt.yell_range;
       else
         range = Core::ssopt.speech_range;
-      Core::ForEachPlayerInRange( npc.x, npc.y, npc.realm, range, [&]( Mobile::Character *chr )
+      Core::WorldIterator<Core::PlayerFilter>::InRange( npc.x, npc.y, npc.realm, range, [&]( Mobile::Character *chr )
       {
         if ( !chr->has_active_client() )
           return;
@@ -850,7 +850,7 @@ namespace Pol {
           range = Core::ssopt.yell_range;
         else
           range = Core::ssopt.speech_range;
-        Core::ForEachPlayerInRange( npc.x, npc.y, npc.realm, range, [&]( Mobile::Character *chr )
+        Core::WorldIterator<Core::PlayerFilter>::InRange( npc.x, npc.y, npc.realm, range, [&]( Mobile::Character *chr )
         {
           if ( !chr->has_active_client() )
             return;

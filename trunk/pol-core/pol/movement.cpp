@@ -69,15 +69,15 @@ namespace Pol {
 	{
       Mobile::Character* chr = client->chr;
 
-      ForEachMobileInVisualRange( chr, [&]( Mobile::Character* zonechr )
+      WorldIterator<MobileFilter>::InVisualRange( chr, [&]( Mobile::Character* zonechr )
       {
         send_char_if_newly_inrange( zonechr, client );
       } );
-      ForEachItemInVisualRange( chr, [&]( Items::Item* zoneitem ) 
+      WorldIterator<ItemFilter>::InVisualRange( chr, [&]( Items::Item* zoneitem )
       { 
         send_item_if_newly_inrange( zoneitem, client );
       } );
-      ForEachMultiInRange( chr->x, chr->y, chr->realm, RANGE_VISUAL_LARGE_BUILDINGS, [&]( Multi::UMulti* zonemulti )
+      WorldIterator<MultiFilter>::InRange( chr->x, chr->y, chr->realm, RANGE_VISUAL_LARGE_BUILDINGS, [&]( Multi::UMulti* zonemulti )
       {
         send_multi_if_newly_inrange( zonemulti, client );
       } );
@@ -88,15 +88,15 @@ namespace Pol {
       Mobile::Character* chr = client->chr;
       Network::PktHelper::PacketOut<Network::PktOut_1D> msgremove;
 
-      ForEachMobileInVisualRange( chr, [&]( Mobile::Character* zonechar )
+      WorldIterator<MobileFilter>::InVisualRange( chr, [&]( Mobile::Character* zonechar )
       {
         send_remove_character( client, zonechar, msgremove.Get() );
       } );
-      ForEachItemInVisualRange( chr, [&]( Items::Item *item )
+      WorldIterator<ItemFilter>::InVisualRange( chr, [&]( Items::Item *item )
       {
         send_remove_object( client, item, msgremove.Get() );
       } );
-      ForEachMultiInRange( chr->x, chr->y, chr->realm, RANGE_VISUAL_LARGE_BUILDINGS, [&]( Multi::UMulti *multi )
+      WorldIterator<MultiFilter>::InRange( chr->x, chr->y, chr->realm, RANGE_VISUAL_LARGE_BUILDINGS, [&]( Multi::UMulti *multi )
       {
         send_remove_object( client, multi, msgremove.Get() );
       } );

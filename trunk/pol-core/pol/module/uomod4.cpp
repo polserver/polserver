@@ -99,7 +99,7 @@ namespace Pol {
 	  {	// Realm and X Y Z change.
 		// 8-26-05  Austin
 		// Notify NPCs in the old realm that the player left the realm.
-        ForEachNPCInRange( chr->lastx, chr->lasty, oldrealm, 32, [&]( Character* zonechr ) { NpcPropagateLeftArea( zonechr, chr ); } );
+        WorldIterator<NPCFilter>::InRange( chr->lastx, chr->lasty, oldrealm, 32, [&]( Character* zonechr ) { NpcPropagateLeftArea( zonechr, chr ); } );
 
 		send_remove_character_to_nearby( chr );
 		if ( chr->client != NULL )
@@ -127,7 +127,7 @@ namespace Pol {
       {
         Network::PktHelper::PacketOut<Network::PktOut_1D> msgremove;
         msgremove->Write<u32>( boat->serial_ext );
-        ForEachPlayerInVisualRange( boat, [&]( Character *zonechr )
+        WorldIterator<PlayerFilter>::InVisualRange( boat, [&]( Character *zonechr )
         {
           send_remove_object( zonechr->client, msgremove.Get() );
         } );
