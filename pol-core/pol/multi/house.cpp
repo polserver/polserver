@@ -69,7 +69,7 @@ namespace Pol {
 	  short x1 = house->x + md.minrx, y1 = house->y + md.minry;
 	  short x2 = house->x + md.maxrx, y2 = house->y + md.maxry;
 
-      Core::ForEachMobileInBox( x1, y1, x2, y2, house->realm, [&]( Mobile::Character* chr )
+      Core::WorldIterator<Core::MobileFilter>::InBox( x1, y1, x2, y2, house->realm, [&]( Mobile::Character* chr )
       {
         Items::Item* walkon;
         UMulti* multi;
@@ -80,7 +80,7 @@ namespace Pol {
             chrs_in.push_back( chr );
         }
       } );
-      Core::ForEachItemInBox( x1, y1, x2, y2, house->realm, [&]( Items::Item* item )
+      Core::WorldIterator<Core::ItemFilter>::InBox( x1, y1, x2, y2, house->realm, [&]( Items::Item* item )
       {
         Items::Item* walkon;
         UMulti* multi;
@@ -818,7 +818,7 @@ namespace Pol {
 
       Network::PktHelper::PacketOut<Network::PktOut_1D> msgremove;
       msgremove->Write<u32>( house->serial_ext );
-      Core::ForEachPlayerInVisualRange( house, [&]( Mobile::Character* chr )
+      Core::WorldIterator<Core::PlayerFilter>::InVisualRange( house, [&]( Mobile::Character* chr )
       {
         Core::send_remove_object( chr->client, msgremove.Get( ) );
       } );

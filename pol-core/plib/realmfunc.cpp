@@ -627,7 +627,7 @@ namespace Pol {
 
 	void Realm::readmultis( MapShapeList& vec, unsigned short x, unsigned short y, unsigned int anyflags ) const
 	{
-      Core::ForEachMultiInRange( x, y, this, 64, [&]( Multi::UMulti* multi )
+      Core::WorldIterator<Core::MultiFilter>::InRange( x, y, this, 64, [&]( Multi::UMulti* multi )
       {
         Multi::UHouse* house = multi->as_house();
         if ( house != NULL && house->IsCustom() ) //readshapes switches to working design if the house is being edited, 
@@ -643,7 +643,7 @@ namespace Pol {
 
 	void Realm::readmultis( MapShapeList& vec, unsigned short x, unsigned short y, unsigned int anyflags, MultiList& mvec ) const
 	{
-      Core::ForEachMultiInRange( x, y, this, 64, [&]( Multi::UMulti* multi )
+      Core::WorldIterator<Core::MultiFilter>::InRange( x, y, this, 64, [&]( Multi::UMulti* multi )
       {
         Multi::UHouse* house = multi->as_house();
         if ( house != NULL && house->IsCustom() )
@@ -664,7 +664,7 @@ namespace Pol {
 
 	void Realm::readmultis( Core::StaticList& vec, unsigned short x, unsigned short y ) const
 	{
-      Core::ForEachMultiInRange( x, y, this, 64, [&]( Multi::UMulti* multi )
+      Core::WorldIterator<Core::MultiFilter>::InRange( x, y, this, 64, [&]( Multi::UMulti* multi )
       {
         Multi::UHouse* house = multi->as_house();
         if ( house != NULL && house->IsCustom() ) //readshapes switches to working design if the house is being edited, 

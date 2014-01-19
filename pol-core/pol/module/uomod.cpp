@@ -1360,7 +1360,7 @@ namespace Pol {
 
 		//characters.push_back( npc.get() );
 		SetCharacterWorldPosition( npc.get() );
-        ForEachPlayerInVisualRange( npc.get(), [&]( Character *zonechr )
+        WorldIterator<PlayerFilter>::InVisualRange( npc.get( ), [&]( Character *zonechr )
         {
           if ( !zonechr->has_active_client() )
             return;
@@ -1368,7 +1368,7 @@ namespace Pol {
         } );
 
 		//dave added 2/3/3 send entered area events for npc create
-        Core::ForEachNPCInRange( x, y, realm, 32, [&]( Character* chr )
+        Core::WorldIterator<Core::NPCFilter>::InRange( x, y, realm, 32, [&]( Character* chr )
         {
           NpcPropagateMove( chr, npc.get() );
         } );
@@ -2317,7 +2317,7 @@ namespace Pol {
 		}
 
 		std::unique_ptr<ObjArray> newarr( new ObjArray );
-        ForEachItemInRange( x, y, realm, range, [&]( Item* item )
+        WorldIterator<ItemFilter>::InRange( x, y, realm, range, [&]( Item* item )
         {
           if ( ( abs( item->x - x ) <= range ) && ( abs( item->y - y ) <= range ) )
           {
@@ -2381,14 +2381,14 @@ namespace Pol {
 	  internal_InBoxAreaChecks( x1, y1, z1, x2, y2, z2, realm );
 
 	  std::unique_ptr<ObjArray> newarr( new ObjArray );
-      ForEachMobileInBox( x1, y1, x2, y2, realm, [&]( Mobile::Character* chr )
+      WorldIterator<MobileFilter>::InBox( x1, y1, x2, y2, realm, [&]( Mobile::Character* chr )
       {
         if ( chr->z >= z1 && chr->z <= z2 )
         {
           newarr->addElement( chr->make_ref() );
         }
       } );
-      ForEachItemInBox( x1, y1, x2, y2, realm, [&]( Items::Item* item )
+      WorldIterator<ItemFilter>::InBox( x1, y1, x2, y2, realm, [&]( Items::Item* item )
       {
         if ( item->z >= z1 && item->z <= z2 )
         {
@@ -2437,7 +2437,7 @@ namespace Pol {
 	  std::unique_ptr<ObjArray> newarr( new ObjArray );
 
       // search for multis.  this is tricky, since the center might lie outside the box
-      ForEachMultiInBox( x1, y1, x2, y2, realm, [&]( Multi::UMulti* multi )
+      WorldIterator<MultiFilter>::InBox( x1, y1, x2, y2, realm, [&]( Multi::UMulti* multi )
       {
         const Multi::MultiDef& md = multi->multidef();
         if ( multi->x + md.minrx > x2 || // east of the box
@@ -2594,7 +2594,7 @@ namespace Pol {
 			return new BError( "Invalid Coordinates for realm" );
 		}
 
-        ForEachItemInRange( x, y, realm, range, [&]( Items::Item* item )
+        WorldIterator<ItemFilter>::InRange( x, y, realm, range, [&]( Items::Item* item )
         {
           if ( ( item->objtype_ == objtype ) && ( abs( item->x - x ) <= range ) && ( abs( item->y - y ) <= range ) )
           {
@@ -2638,7 +2638,7 @@ namespace Pol {
 		}
 
 		std::unique_ptr<ObjArray> newarr( new ObjArray );
-        ForEachItemInRange( x, y, realm, 0, [&]( Items::Item* item )
+        WorldIterator<ItemFilter>::InRange( x, y, realm, 0, [&]( Items::Item* item )
         {
           if ( ( item->x == x ) && ( item->y == y ) )
           {
@@ -2671,7 +2671,7 @@ namespace Pol {
 		if ( !realm ) return new BError( "Realm not found" );
 
 		std::unique_ptr<ObjArray> newarr( new ObjArray );
-        ForEachPlayerInRange( x, y, realm, range, [&]( Mobile::Character* chr )
+        WorldIterator<PlayerFilter>::InRange( x, y, realm, range, [&]( Mobile::Character* chr )
         {
           if ( chr->dead() &&
                ( abs( chr->z - z ) < CONST_DEFAULT_ZRANGE ) )
@@ -2749,11 +2749,11 @@ namespace Pol {
           }
         };
         if (inc_players_only)
-          ForEachPlayerInRange( x, y, realm, range, fill_mobs );
+          WorldIterator<PlayerFilter>::InRange( x, y, realm, range, fill_mobs );
         else if (inc_npc_only)
-          ForEachNPCInRange( x, y, realm, range, fill_mobs );
+          WorldIterator<NPCFilter>::InRange( x, y, realm, range, fill_mobs );
         else
-          ForEachMobileInRange( x, y, realm, range, fill_mobs );
+          WorldIterator<MobileFilter>::InRange( x, y, realm, range, fill_mobs );
 
 		return newarr.release();
 	  }
@@ -2793,7 +2793,7 @@ namespace Pol {
 		}
 
 		std::unique_ptr<ObjArray> newarr( new ObjArray );
-        ForEachMobileInRange( x, y, realm, range, [&]( Mobile::Character* chr )
+        WorldIterator<MobileFilter>::InRange( x, y, realm, range, [&]( Mobile::Character* chr )
         {
           if ( ( !chr->concealed() ) && ( !chr->hidden() ) && ( !chr->dead() ) )
           if ( ( z == LIST_IGNORE_Z ) || ( abs( chr->z - z ) < CONST_DEFAULT_ZRANGE ) )
@@ -2816,7 +2816,7 @@ namespace Pol {
 	  {
 		obj = obj->toplevel_owner();
 		std::unique_ptr<ObjArray> newarr( new ObjArray );
-        ForEachMobileInRange( obj->x, obj->y, obj->realm, range, [&]( Mobile::Character* chr )
+        WorldIterator<MobileFilter>::InRange( obj->x, obj->y, obj->realm, range, [&]( Mobile::Character* chr )
         {
           if ( chr->dead() || chr->hidden() || chr->concealed() )
             return;
@@ -3519,7 +3519,7 @@ namespace Pol {
 	{
       Network::PktHelper::PacketOut<Network::PktOut_1D> msgremove;
       msgremove->Write<u32>( item->serial_ext );
-      ForEachPlayerInVisualRange( item, [&]( Character *zonechr )
+      WorldIterator<PlayerFilter>::InVisualRange( item, [&]( Character *zonechr )
       {
         send_remove_object( zonechr->client, msgremove.Get( ) );
       } );
@@ -4882,7 +4882,7 @@ namespace Pol {
 		}
 
 		std::unique_ptr<ObjArray> newarr( new ObjArray );
-        ForEachItemInRange( x, y, realm, range, [&]( Item* item )
+        WorldIterator<ItemFilter>::InRange( x, y, realm, range, [&]( Item* item )
         {
           if ( ( tile_uoflags( item->graphic ) & flags ) )
           {
@@ -5245,7 +5245,7 @@ namespace Pol {
 
 		if ( !( flags & FP_IGNORE_MOBILES ) )
 		{
-          ForEachMobileInBox( xL, yL, xH, yH, realm, [&]( Mobile::Character* chr )
+          WorldIterator<MobileFilter>::InBox( xL, yL, xH, yH, realm, [&]( Mobile::Character* chr )
           {
             theBlockers.AddBlocker( chr->x, chr->y, chr->z );
 

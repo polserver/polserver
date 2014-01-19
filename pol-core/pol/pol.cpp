@@ -321,7 +321,7 @@ namespace Pol {
 
     void send_inrange_items( Network::Client* client )
     {
-      ForEachItemInVisualRange( client->chr, [&]( Items::Item* item )
+      WorldIterator<ItemFilter>::InVisualRange( client->chr, [&]( Items::Item* item )
       {
         send_item( client, item );
       } );
@@ -329,7 +329,7 @@ namespace Pol {
 
     void send_inrange_multis( Network::Client* client )
     {
-      ForEachMultiInVisualRange( client->chr, [&]( Multi::UMulti* multi )
+      WorldIterator<MultiFilter>::InVisualRange( client->chr, [&]( Multi::UMulti* multi )
       {
         send_multi( client, multi );
       } );
@@ -590,7 +590,7 @@ namespace Pol {
 
 	  client->send_pause(); //dave removed force=true 5/10/3, let uoclient.cfg option determine xflow packets (else this hangs 4.0.0e clients)
 
-	  ForEachMobileInVisualRange( client->chr, send_client_char_data, client );
+      Core::WorldIterator<Core::MobileFilter>::InVisualRange( client->chr, [&]( Mobile::Character* zonechr ) { send_client_char_data( zonechr, client ); } );
 
 	  send_inrange_items( client );
 	  send_inrange_multis( client );
@@ -1280,7 +1280,7 @@ namespace Pol {
 			  Mobile::Character* chr = client->chr;
 			  CLIENT_CHECKPOINT( 16 );
 			  call_chr_scripts( chr, "scripts/misc/logoff.ecl", "logoff.ecl" );
-              ForEachNPCInRange( chr->x, chr->y, chr->realm, 32, [&]( Mobile::Character* zonechr ) { Mobile::NpcPropagateLeftArea( zonechr, chr ); } );
+              WorldIterator<NPCFilter>::InRange( chr->x, chr->y, chr->realm, 32, [&]( Mobile::Character* zonechr ) { Mobile::NpcPropagateLeftArea( zonechr, chr ); } );
 			}
 		  }
 		}

@@ -325,7 +325,7 @@ namespace Pol {
 	  Network::PktHelper::PacketOut<Network::PktOut_1D> msgremove;
 	  msgremove->Write<u32>( item->serial_ext );
 
-      Core::ForEachPlayerInRange(item->x,item->y,item->realm,RANGE_VISUAL_LARGE_BUILDINGS,
+      Core::WorldIterator<Core::PlayerFilter>::InRange(item->x,item->y,item->realm,RANGE_VISUAL_LARGE_BUILDINGS,
                                   [&]( Mobile::Character* zonechr )
       {
         if ( !zonechr->has_active_client() )
@@ -343,7 +343,7 @@ namespace Pol {
 
       if ( oldx != USHRT_MAX && oldy != USHRT_MAX )
       {
-        Core::ForEachPlayerInRange( oldx, oldy, item->realm, RANGE_VISUAL_LARGE_BUILDINGS,
+        Core::WorldIterator<Core::PlayerFilter>::InRange( oldx, oldy, item->realm, RANGE_VISUAL_LARGE_BUILDINGS,
                                     [&]( Mobile::Character* zonechr )
         {
           if ( !zonechr->has_active_client() )
@@ -1371,7 +1371,7 @@ namespace Pol {
 	  boat->destroy_components();
 	  boat->unregself();
 
-      Core::ForEachPlayerInVisualRange( boat, [&]( Mobile::Character *zonechr )
+      Core::WorldIterator<Core::PlayerFilter>::InVisualRange( boat, [&]( Mobile::Character *zonechr )
       {
         if ( !zonechr->has_active_client() )
           return;
