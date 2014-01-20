@@ -81,6 +81,8 @@ namespace Pol {
 
 	  int account_save;
 	  bool use_single_thread_login;
+	  
+	  bool disable_nagle;
 	};
 
 	extern PolConfig config;

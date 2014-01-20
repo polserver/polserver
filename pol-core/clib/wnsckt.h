@@ -56,6 +56,8 @@ namespace Pol {
 	  void takesocket( Socket& sck );
 
 	  void set_options( option opt );
+
+	  void disable_nagle();
 	protected:
 	  void apply_socket_options( SOCKET sck );
 	  void apply_prebind_socket_options( SOCKET sck );
