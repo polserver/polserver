@@ -162,6 +162,16 @@ namespace Pol {
 	  }
 	}
 
+	void Socket::disable_nagle()
+	{
+		int tcp_nodelay = -1;
+		int res = setsockopt( _sck, IPPROTO_TCP, TCP_NODELAY, (const char *) &tcp_nodelay, sizeof(tcp_nodelay) );
+		if (res < 0)
+		{
+			throw runtime_error("Unable to setsockopt (TCP_NODELAY) on listening socket, res=" + Clib::decint(res));
+		}
+	}
+
 	void Socket::apply_socket_options( SOCKET sck )
 	{
 	  if( _options & nonblocking )

@@ -123,6 +123,16 @@ namespace Pol {
 	  return 0;
 	}
 
+	void disable_nagle( SOCKET sck )
+	{
+		int tcp_nodelay = -1;
+		int res = setsockopt( sck, IPPROTO_TCP, TCP_NODELAY, (const char *) &tcp_nodelay, sizeof(tcp_nodelay) );
+		if (res < 0)
+		{
+			throw runtime_error("Unable to setsockopt (TCP_NODELAY) on listening socket, res=" + Clib::decint(res));
+		}
+	}
+
 	void apply_socket_options( SOCKET sck )
 	{
 #ifdef _WIN32
@@ -163,13 +173,7 @@ namespace Pol {
 
 #define DISABLE_NAGLE_ALGORITHM 0
 #if DISABLE_NAGLE_ALGORITHM
-	  int tcp_nodelay = -1;
-	  res = setsockopt( sck, IPPROTO_TCP, TCP_NODELAY, (const char *) &tcp_nodelay, sizeof(tcp_nodelay) );
-	  if (res < 0)
-	  {
-        POLLOG_ERROR << "Unable to setsockopt (TCP_NODELAY) on listening socket, res=" << res << "\n";
-		return -1;
-	  }
+	  disable_nagle( sck );
 #endif
 
 	  struct sockaddr_in connection;

@@ -1,4 +1,7 @@
 ﻿-- POL099 --
+01-20-2014 Nando:
+	Added:  DisableNagle option in pol.cfg to disable Nagle's algorithm, default to 0. In theory, latency should improve if DisableNagle=1.
+
 01-20-2014 Turley:
 	Fixed:   Made the sql module atleast a bit script friendly. Removed the mysql_free_result function since the result objects automatically get destroyed on scope exit.
 	         Passing the sql objects as function parameters is now also possible. mysql_close is now also senseless, but kept it for anyone who wants to directly close the connection.
