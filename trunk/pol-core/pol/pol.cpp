@@ -1709,6 +1709,9 @@ namespace Pol {
 		  return;
 
 		Network::apply_socket_options( client_socket );
+		if (config.disable_nagle) {
+			Network::disable_nagle( client_socket );
+		}
 
         fmt::Writer tmp;
         tmp.Format( "Client connected from {}\n" ) << Network::AddressToString( &client_addr );

@@ -49,6 +49,9 @@ namespace Pol {
 
 	void UoClientThread::run()
 	{
+		if ( config.disable_nagle) {
+			_sck.disable_nagle();
+		}
 	  if ( !config.use_single_thread_login )
 	  {
 		create();
