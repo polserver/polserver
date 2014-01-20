@@ -31,6 +31,13 @@ sudo apt-get install subversion -y
 
 echo
 echo -------------------------------------------------------------------------------
+echo MySQL
+echo -------------------------------------------------------------------------------
+echo
+echo sudo apt-get install mysql-client libmysqlclient-dev -y
+
+echo
+echo -------------------------------------------------------------------------------
 echo  add-apt-repository
 echo -------------------------------------------------------------------------------
 echo
@@ -63,7 +70,7 @@ echo ---------------------------------------------------------------------------
 echo install clang
 echo -------------------------------------------------------------------------------
 echo
-sudo apt-get install clang-3.4 clang-3.4-doc libclang-common-3.4-dev libclang-3.4-dev libclang1-3.4 libllvm-3.4-ocaml-dev libllvm3.4 lldb-3.4 llvm-3.4 llvm-3.4-dev llvm-3.4-doc llvm-3.4-examples llvm-3.4-runtime clang-modernize-3.4 clang-format-3.4 -y
+sudo apt-get install clang-3.5 clang-3.5-doc libclang-common-3.5-dev libclang-3.5-dev libclang1-3.5 libllvm-3.5-ocaml-dev libllvm3.5 lldb-3.5 llvm-3.5 llvm-3.5-dev llvm-3.5-doc llvm-3.5-examples llvm-3.5-runtime clang-modernize-3.5 clang-format-3.5 -y
 # libclang1-3.4-dbg
 # libllvm3.4-dbg
 
@@ -72,7 +79,8 @@ echo ---------------------------------------------------------------------------
 echo install gcc 4.8
 echo -------------------------------------------------------------------------------
 echo
-sudo apt-get install g++-4.8 --install-suggests -y
+echo sudo apt-get install g++-4.8 cpp-4.8 gcc-4.8 libcloog-isl4 libisl10 gcc-4.8-locales g++-4.8-multilib gcc-4.8-doc libstdc++6-4.8-dbg gcc-4.8-multilib libmudflap0-4.8-dev libgomp1-dbg libitm1-dbg libatomic1-dbg libasan0-dbg libtsan0-dbg libquadmath0-dbg libmudflap0-dbg binutils-gold -y
+
 
 
 

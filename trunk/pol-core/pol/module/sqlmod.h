@@ -23,7 +23,6 @@ namespace Pol {
 	  Bscript::BObjectImp* mf_ConnectToDB();
 	  Bscript::BObjectImp* mf_Query();
 	  Bscript::BObjectImp* mf_Close();
-	  Bscript::BObjectImp* mf_FreeResult();
 	  Bscript::BObjectImp* mf_NumFields();
 	  Bscript::BObjectImp* mf_AffectedRows();
 	  Bscript::BObjectImp* mf_FetchRow();

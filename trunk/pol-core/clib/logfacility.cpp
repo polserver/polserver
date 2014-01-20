@@ -246,6 +246,18 @@ namespace Pol {
         return ret.get(); // block wait till valid
       }
 
+      // block waits till the queue is empty
+      void LogFacility::wait_for_empty_queue()
+      {
+        auto promise = std::make_shared<std::promise<bool>>( );
+        auto ret = promise->get_future( );
+        _worker->send( [=]( )
+        {
+            promise->set_value( true );
+        } );
+        ret.get( ); // block wait till valid
+      }
+
       // Message default construct
       template <typename Sink>
       Message<Sink>::Message() :_formater( new fmt::Writer() ), _id( 0 )

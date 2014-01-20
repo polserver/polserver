@@ -149,6 +149,7 @@ namespace Pol {
         void deinitializeStartLog();
         void closeFlexLog( unsigned int id );
         unsigned int registerFlexLogger( std::string logfilename );
+        void wait_for_empty_queue();
       private:
         class LogWorker;
         std::unique_ptr<LogWorker> _worker;

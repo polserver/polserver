@@ -1,4 +1,9 @@
 ﻿-- POL099 --
+01-20-2014 Turley:
+	Fixed:   Made the sql module atleast a bit script friendly. Removed the mysql_free_result function since the result objects automatically get destroyed on scope exit.
+	         Passing the sql objects as function parameters is now also possible. mysql_close is now also senseless, but kept it for anyone who wants to directly close the connection.
+			 Boolean check for the connection object performs now a ping and returns false if the connection is lost (eg. timeout)
+
 12-31-2013 Turley:
     Added:   Print small backtrace on crash/passert failure, should help a bit without the need of the dump.
 	         Works only under Windows 64bit
