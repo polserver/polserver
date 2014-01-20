@@ -125,7 +125,7 @@ namespace Pol {
 
 	void disable_nagle( SOCKET sck )
 	{
-		int tcp_nodelay = -1;
+		int tcp_nodelay = 1;
 		int res = setsockopt( sck, IPPROTO_TCP, TCP_NODELAY, (const char *) &tcp_nodelay, sizeof(tcp_nodelay) );
 		if (res < 0)
 		{
