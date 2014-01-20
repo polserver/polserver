@@ -30,13 +30,19 @@ namespace Pol {
   namespace Core {
     using namespace Bscript;
 
-	BSQLRow::BSQLRow( BSQLResultSet *result ) : Bscript::BObjectImp( OTSQLRow )
+    BSQLRow::BSQLRow( BSQLResultSet* resultset ) : Bscript::BObjectImp( OTSQLRow )
+    {
+      _result = resultset->_result;
+      _row = mysql_fetch_row( _result->ptr( ) );
+      _fields = mysql_fetch_fields( _result->ptr( ) );
+    }
+    BSQLRow::BSQLRow( RES_WRAPPER result ) : Bscript::BObjectImp( OTSQLRow )
 	{
-	  _result = result; //->_result;
-	  _row = mysql_fetch_row( _result->_result );
-	  _fields = mysql_fetch_fields( _result->_result );
+	  _result = result;
+	  _row = mysql_fetch_row( _result->ptr() );
+	  _fields = mysql_fetch_fields( _result->ptr() );
 	}
-	BSQLRow::BSQLRow( BSQLResultSet *result, MYSQL_ROW row, MYSQL_FIELD* fields ) : Bscript::BObjectImp( OTSQLRow ), _row( row ), _result( result ), _fields( fields )
+    BSQLRow::BSQLRow( RES_WRAPPER result, MYSQL_ROW row, MYSQL_FIELD* fields ) : Bscript::BObjectImp( OTSQLRow ), _row( row ), _result( result ), _fields( fields )
 	{
 
 	}
@@ -45,7 +51,7 @@ namespace Pol {
 	  const Bscript::BObjectImp& right = obj.impref();
 	  if ( _result == 0 )
 		return BObjectRef( new BError( "No result" ) );
-	  unsigned int num_fields = mysql_num_fields( _result->_result );
+	  unsigned int num_fields = mysql_num_fields( _result->ptr() );
 	  if ( right.isa( OTLong ) ) // vector
 	  {
 		BLong& lng = (BLong &)right;
@@ -97,20 +103,20 @@ namespace Pol {
 	BSQLRow::~BSQLRow()
 	{
 	}
-	BSQLResultSet::BSQLResultSet( MYSQL_RES *result ) : Bscript::BObjectImp( OTSQLResultSet ), _result( result ), _affected_rows( 0 )
+    BSQLResultSet::BSQLResultSet( RES_WRAPPER result ) : Bscript::BObjectImp( OTSQLResultSet ), _result( result ), _affected_rows( 0 )
 	{
-	  _fields = mysql_fetch_fields( result );
+	  _fields = mysql_fetch_fields( result->ptr() );
 	}
-	BSQLResultSet::BSQLResultSet( MYSQL_RES *result, MYSQL_FIELD* fields ) : Bscript::BObjectImp( OTSQLResultSet ), _result( result ), _fields( fields ), _affected_rows( 0 )
+    BSQLResultSet::BSQLResultSet( RES_WRAPPER result, MYSQL_FIELD* fields ) : Bscript::BObjectImp( OTSQLResultSet ), _result( result ), _fields( fields ), _affected_rows( 0 )
 	{}
-	BSQLResultSet::BSQLResultSet( int affected_rows ) : Bscript::BObjectImp( OTSQLResultSet ), _result( 0 ), _affected_rows( affected_rows )
+	BSQLResultSet::BSQLResultSet( int affected_rows ) : Bscript::BObjectImp( OTSQLResultSet ), _result( nullptr ), _affected_rows( affected_rows )
 	{
 
 	}
 	const char * BSQLResultSet::field_name( unsigned int index ) const
 	{
-	  if ( _result == 0 ) return 0;
-	  if ( index <= 0 || index > mysql_num_fields( _result ) )
+	  if ( !_result ) return 0;
+	  if ( index <= 0 || index > mysql_num_fields( _result->ptr() ) )
 	  {
 		return 0;
 	  }
@@ -119,23 +125,15 @@ namespace Pol {
 	int BSQLResultSet::num_fields() const
 	{
 	  if ( _result )
-		return mysql_num_fields( _result );
+		return mysql_num_fields( _result->ptr() );
 	  return 0;
 	}
 	int BSQLResultSet::affected_rows() const
 	{
 	  return _affected_rows;
 	}
-	bool BSQLResultSet::free()
-	{
-	  if ( _result )
-		mysql_free_result( _result );
-	  _result = 0;
-	  return true;
-	}
 	BSQLResultSet::~BSQLResultSet()
 	{
-	  if ( _result != 0 ) mysql_free_result( _result );
 	}
 	bool BSQLResultSet::isTrue() const
 	{
@@ -148,17 +146,13 @@ namespace Pol {
 
     bool BSQLConnection::close()
     {
-      if ( _conn->connection_ptr() )
-        mysql_close( _conn->connection_ptr() );
-      _conn->set(0);
+      _conn->set(nullptr);
       return true;
     }
 	Bscript::BObjectImp *BSQLConnection::getResultSet() const
 	{
 	  if ( _errno ) return new BError( _error );
-	  MYSQL_RES *result;
-
-      result = mysql_store_result( _conn->connection_ptr() );
+      RES_WRAPPER result = std::make_shared<ResultWrapper>( mysql_store_result( _conn->ptr() ) );
 	  if ( result )  // there are rows
 	  {
 		return new BSQLResultSet( result );
@@ -172,9 +166,9 @@ namespace Pol {
 				_errno = mysql_errno(_conn);
 				return new BError(_error);
 				}
-                else */if ( mysql_field_count( _conn->connection_ptr() ) == 0 )
+                else */if ( mysql_field_count( _conn->ptr() ) == 0 )
 				{
-                  return new BSQLResultSet( static_cast<int>( mysql_affected_rows( _conn->connection_ptr() ) ) );
+                  return new BSQLResultSet( static_cast<int>( mysql_affected_rows( _conn->ptr() ) ) );
 				}
 	  }
 	  return new BError( "Unknown error getting ResultSet" );
@@ -183,7 +177,7 @@ namespace Pol {
 	BSQLConnection::BSQLConnection() : Bscript::BObjectImp( OTSQLConnection ), _conn(new ConnectionWrapper), _errno( 0 )
 	{
       _conn->set(mysql_init( NULL ));
-      if ( !_conn->connection_ptr() )
+      if ( !_conn->ptr() )
 	  {
 		_error = "Insufficient memory";
 		_errno = 1;
@@ -208,60 +202,58 @@ namespace Pol {
 	}
 	bool BSQLConnection::isTrue() const
 	{
-      if ( !_conn->connection_ptr() )
+      if ( !_conn->ptr() )
         return false; // closed by hand
-      if ( !mysql_ping( _conn->connection_ptr() ) )
+      if ( !mysql_ping( _conn->ptr() ) )
         return true;
 	  return false;
 	}
 	bool BSQLConnection::connect( const char *host, const char *user, const char *passwd )
 	{
-	  //return true;
-      if ( !_conn->connection_ptr() )
+      if ( !_conn->ptr() )
 	  {
 		_errno = -1;
 		_error = "No active MYSQL object instance.";
 		return false;
 	  }
-      if ( !mysql_real_connect( _conn->connection_ptr(), host, user, passwd, NULL, 0, NULL, 0 ) )
+      if ( !mysql_real_connect( _conn->ptr(), host, user, passwd, NULL, 0, NULL, 0 ) )
 	  {
-        _errno = mysql_errno( _conn->connection_ptr() );
-        _error = mysql_error( _conn->connection_ptr() );
+        _errno = mysql_errno( _conn->ptr() );
+        _error = mysql_error( _conn->ptr() );
 		return false;
 	  }
 	  return true;
 	}
 	bool BSQLConnection::select_db( const char *db )
 	{
-      if ( !_conn->connection_ptr() )
+      if ( !_conn->ptr() )
 	  {
 		_errno = -1;
 		_error = "No active MYSQL object instance.";
 		return false;
 	  }
-      else if ( mysql_select_db( _conn->connection_ptr(), db ) )
+      else if ( mysql_select_db( _conn->ptr(), db ) )
 	  {
-        _errno = mysql_errno( _conn->connection_ptr() );
-        _error = mysql_error( _conn->connection_ptr() );
+        _errno = mysql_errno( _conn->ptr() );
+        _error = mysql_error( _conn->ptr() );
 		return false;
 	  }
 	  return true;
 	}
 	bool BSQLConnection::query( const char *query )
 	{
-      if ( !_conn->connection_ptr() )
+      if ( !_conn->ptr() )
 	  {
 		_errno = -1;
 		_error = "No active MYSQL object instance.";
 		return false;
 	  }
-      if ( mysql_query( _conn->connection_ptr(), query ) )
+      if ( mysql_query( _conn->ptr(), query ) )
 	  {
-        _errno = mysql_errno( _conn->connection_ptr() );
-        _error = mysql_error( _conn->connection_ptr() );
+        _errno = mysql_errno( _conn->ptr() );
+        _error = mysql_error( _conn->ptr() );
 		return false;
 	  }
-
 
 	  return true;
 	}
@@ -305,17 +297,36 @@ namespace Pol {
 	}
 
 
-    BSQLConnection::ConnectionWrapper::ConnectionWrapper( ) : _conn( 0 )
+    BSQLConnection::ConnectionWrapper::ConnectionWrapper( ) : _conn( nullptr )
     {}
     BSQLConnection::ConnectionWrapper::~ConnectionWrapper( )
     {
       if ( _conn )
         mysql_close( _conn );
-      _conn = 0;
+      _conn = nullptr;
     }
     void BSQLConnection::ConnectionWrapper::set( MYSQL* conn )
     {
+      if ( _conn )
+        mysql_close( _conn );
       _conn = conn;
+    }
+
+    ResultWrapper::ResultWrapper( MYSQL_RES* res ) : _result( res )
+    {}
+    ResultWrapper::ResultWrapper() : _result( nullptr )
+    {}
+    ResultWrapper::~ResultWrapper()
+    {
+      if ( _result )
+        mysql_free_result( _result );
+      _result = nullptr;
+    }
+    void ResultWrapper::set( MYSQL_RES* result )
+    {
+      if ( _result )
+        mysql_free_result( _result );
+      _result = result;
     }
   }
 }

@@ -123,21 +123,15 @@ namespace Pol {
 	LONG HiddenMiniDumper::TopLevelFilter( struct _EXCEPTION_POINTERS *pExceptionInfo )
 	{
 	  LONG retval = EXCEPTION_CONTINUE_SEARCH;
-	  char szDumpPath[_MAX_PATH];
-	  char* szResult = NULL;
-	  char szScratch[_MAX_PATH];
+      fmt::Writer result;
+      fmt::Writer dumppath;
 
 	  MINIDUMPWRITEDUMP pDump = ( MINIDUMPWRITEDUMP )::GetProcAddress( hDbgHelpDll, "MiniDumpWriteDump" );
 	  if( pDump )
 	  {
-		strcpy( szDumpPath, progverstr );
-		strcat( szDumpPath, "-" );
-		strcat( szDumpPath, _StartTimestamp );
-		strcat( szDumpPath, "-" );
-		strcat( szDumpPath, itoa( _DumpCount++, szScratch, 16 ) );
-		strcat( szDumpPath, ".dmp" );
+        dumppath << progverstr << "-" << _StartTimestamp << "-" << fmt::hex( _DumpCount++ ) << ".dmp";
 
-		HANDLE hFile = ::CreateFile( szDumpPath, GENERIC_WRITE, FILE_SHARE_WRITE, NULL, CREATE_ALWAYS,
+        HANDLE hFile = ::CreateFile( dumppath.c_str(), GENERIC_WRITE, FILE_SHARE_WRITE, NULL, CREATE_ALWAYS,
 									 FILE_ATTRIBUTE_NORMAL, NULL );
 
 		if( hFile != INVALID_HANDLE_VALUE )
@@ -161,33 +155,32 @@ namespace Pol {
 		  BOOL bOK = pDump( GetCurrentProcess(), GetCurrentProcessId(), hFile, dumptype, &ExInfo, NULL, NULL );
 		  if( bOK )
 		  {
-			sprintf( szScratch, "Unhandled Exception! Writing Minidump file. \nPost this file with explanation and last lines from log files on http://forums.polserver.com/tracker.php for the development team.\nSaved dump file to '%s'\n", szDumpPath );
-			szResult = szScratch;
+            result.Format("Unhandled Exception! Writing Minidump file. \nPost this file with explanation and last lines from log files on http://forums.polserver.com/tracker.php for the development team.\nSaved dump file to '{}'\n") << dumppath.c_str();
 			retval = EXCEPTION_EXECUTE_HANDLER;
 		  }
 		  else
 		  {
-			sprintf( szScratch, "Failed to save dump file to '%s' (error %u)", szDumpPath, GetLastError() );
-			szResult = szScratch;
+            result.Format( "Failed to save dump file to '{}' (error {})" ) << dumppath.c_str() << GetLastError();
 		  }
 		  ::CloseHandle( hFile );
 		}
 		else
 		{
-		  sprintf( szScratch, "Failed to create dump file '%s' (error %u)", szDumpPath, GetLastError() );
-		  szResult = szScratch;
+          result.Format( "Failed to create dump file '{}' (error {})" ) << dumppath.c_str() << GetLastError();
 		}
 	  }
       print_backtrace();
 	  FreeLibrary( hDbgHelpDll );
 
-	  if( szResult )
+      if ( result.size() > 0 )
 	  {
         POLLOG_ERROR << "##########################################################\n"
-          << szResult << "\n"
+          << result.c_str() << "\n"
           << "Last Script: " << scripts_thread_script << " PC: " << scripts_thread_scriptPC
           << "\n##########################################################\n";
 	  }
+      if ( Clib::Logging::global_logger )
+        Clib::Logging::global_logger->wait_for_empty_queue(); // wait here for logging facility to make sure everything was printed
 	  return retval;
 	}
 

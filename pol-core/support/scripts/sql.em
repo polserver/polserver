@@ -9,5 +9,4 @@ mysql_num_fields(result);
 mysql_num_rows(result);
 mysql_select_db(connection,database);
 mysql_field_name(result,column_index);
-mysql_free_result(result);
 mysql_close(connection);

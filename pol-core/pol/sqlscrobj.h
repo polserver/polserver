@@ -26,12 +26,26 @@ namespace Pol {
   namespace Core {
     class BSQLResultSet;
 
+    class ResultWrapper
+    {
+    public:
+      ResultWrapper();
+      explicit ResultWrapper( MYSQL_RES* res);
+      ~ResultWrapper();
+      void set( MYSQL_RES* result );
+      MYSQL_RES* ptr() { return _result; }
+    private:
+      MYSQL_RES* _result;
+    };
+    typedef std::shared_ptr<ResultWrapper> RES_WRAPPER;
+
     class BSQLRow : public Bscript::BObjectImp
     {
     public:
-      BSQLRow( BSQLResultSet *resultset );
+      BSQLRow( RES_WRAPPER resultset );
+      BSQLRow( BSQLResultSet* resultset );
       //BSQLRow(MYSQL_RES *_result, MYSQL_ROW _row);
-      BSQLRow( BSQLResultSet *_result, MYSQL_ROW _row, MYSQL_FIELD *_fields );
+      BSQLRow( RES_WRAPPER _result, MYSQL_ROW _row, MYSQL_FIELD *_fields );
       ~BSQLRow();
 
       //virtual BObjectRef get_member( const char* membername );
@@ -51,25 +65,24 @@ namespace Pol {
 
     private:
       MYSQL_ROW _row;
-      BSQLResultSet* _result;
+      RES_WRAPPER _result;
       MYSQL_FIELD* _fields;
     };
 
     class BSQLResultSet : public Bscript::BObjectImp
     {
     public:
-      BSQLResultSet( MYSQL_RES* result );
-      BSQLResultSet( MYSQL_RES* result, MYSQL_FIELD* fields );
+      BSQLResultSet( RES_WRAPPER result );
+      BSQLResultSet( RES_WRAPPER result, MYSQL_FIELD* fields );
       BSQLResultSet( int affected_rows );
       ~BSQLResultSet();
       int num_fields() const;
       int affected_rows() const;
-      bool free();
       const char *field_name( unsigned int index ) const;
       int num_rows() const
       {
         if ( !_result ) return 0;
-        return static_cast<int>( mysql_num_rows( _result ) );
+        return static_cast<int>( mysql_num_rows( _result->ptr() ) );
       };
       virtual Bscript::BObjectImp* copy() const
       {
@@ -85,7 +98,7 @@ namespace Pol {
 
       friend class BSQLRow;
     private:
-      MYSQL_RES* _result;
+      RES_WRAPPER _result;
       MYSQL_FIELD* _fields;
       int _affected_rows;
     };
@@ -118,7 +131,6 @@ namespace Pol {
       virtual bool isTrue() const;
       // virtual BObjectRef OperSubscript( const BObject& obj );
 
-
     private:
       std::shared_ptr<ConnectionWrapper> _conn;
       int _errno;
@@ -130,7 +142,7 @@ namespace Pol {
         ConnectionWrapper();
         ~ConnectionWrapper();
         void set( MYSQL* conn );
-        MYSQL* connection_ptr() { return _conn; };
+        MYSQL* ptr() { return _conn; };
       private:
         MYSQL* _conn;
       };
