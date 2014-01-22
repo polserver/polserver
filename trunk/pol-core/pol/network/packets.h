@@ -408,7 +408,7 @@ namespace Pol {
 	typedef PacketWriterDefs::EmptyBufferTemplate<ENCRYPTEDPKTBUFFER, 0xFFFF> EncryptedPktBuffer;
 
 	typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_0B_ID, 7> PktOut_0B;
-	typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_11_ID, 91> PktOut_11;
+	typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_11_ID, 121> PktOut_11;
 	typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_17_ID, 12> PktOut_17;
 	typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_1A_ID, 20> PktOut_1A;
 	typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_1B_ID, 37> PktOut_1B;
