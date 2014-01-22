@@ -72,6 +72,8 @@ namespace Pol {
 	  if (sigaction(sig, &sa_null, NULL) == -1)
 	  {
 		perror("sigaction failed");
+        if ( Clib::Logging::global_logger )
+          Clib::Logging::global_logger->wait_for_empty_queue();
 		exit(1);
 	  }
 	}
@@ -96,6 +98,8 @@ namespace Pol {
 	  if (res)
 	  {
 		ERROR_PRINT << "pthread_sigmask failed: " << res << "\n";
+        if ( Clib::Logging::global_logger )
+          Clib::Logging::global_logger->wait_for_empty_queue();
 		exit(1);
 	  }
 
