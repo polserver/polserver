@@ -114,6 +114,8 @@ namespace Pol {
         << " NOTE:\n"
         << "   If <filespec> are required after an empty -r[i] option, you MUST specify\n"
         << "   a literal [dir] of '.' (no quotes) or options will not parse correctly.\n";
+      if ( Clib::Logging::global_logger )
+        Clib::Logging::global_logger->wait_for_empty_queue();
 	  exit( 1 );
 	}
 
