@@ -187,9 +187,9 @@ namespace Pol {
         _forEach( coords, realm, std::forward<F>( f ) );
       }
       template <typename F>
-      static void InVisualRange( const UObject* chr, F &&f )
+      static void InVisualRange( const UObject* obj, F &&f )
       {
-        InRange( chr->x, chr->y, chr->realm, RANGE_VISUAL, std::forward<F>( f ) );
+        InRange( obj->toplevel_owner()->x, obj->toplevel_owner()->y, obj->toplevel_owner()->realm, RANGE_VISUAL, std::forward<F>( f ) );
       }
       template <typename F>
       static void InBox( u16 x1, u16 y1, u16 x2, u16 y2, const Plib::Realm* realm, F &&f )
