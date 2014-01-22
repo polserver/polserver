@@ -58,7 +58,7 @@ namespace Pol {
 	  msg->Write<u8>(0); // (client->chr->can_rename( chr ) ? 0xFF : 0);
       if ( client->ClientType & Network::CLIENTTYPE_70300 )
 		  msg->Write<u8>(6); // New entries for classic client
-      if ( ( client->UOExpansionFlag & Network::ML ) && ( client->ClientType & Network::CLIENTTYPE_5000 ) )
+      else if ( ( client->UOExpansionFlag & Network::ML ) && ( client->ClientType & Network::CLIENTTYPE_5000 ) )
 		  msg->Write<u8>(5); // Set to ML level
       else if ( ( client->UOExpansionFlag & Network::AOS ) )
 		  msg->Write<u8>(4); // Set to AOS level statbar for full info
@@ -179,11 +179,31 @@ namespace Pol {
 		msg->WriteFlipped<u16>( chr->max_weapon_damage() );
 		msg->WriteFlipped<s32>( chr->expanded_statbar.tithing );
 	  }
-	  u16 len=msg->offset;
 
-	  // Add the new length until new entries are supported by Pol
+	  // Add the new entries as 0's for now
       if ( client->ClientType & Network::CLIENTTYPE_70300 )
-		  len+=30;
+	  {
+		  msg->offset += 30;
+		  /*
+		  msg->WriteFlipped<u16>( 0 ); // Physical resist cap
+		  msg->WriteFlipped<u16>( 0 ); // Fire resist cap
+		  msg->WriteFlipped<u16>( 0 ); // Cold resist cap
+		  msg->WriteFlipped<u16>( 0 ); // Poison resist cap
+		  msg->WriteFlipped<u16>( 0 ); // Energy resist cap
+		  msg->WriteFlipped<u16>( 0 ); // Defense chance increase
+		  msg->WriteFlipped<u16>( 0 ); // Defense chance cap increase
+		  msg->WriteFlipped<u16>( 0 ); // Hit chance increase
+		  msg->WriteFlipped<u16>( 0 ); // Swing speed increase
+		  msg->WriteFlipped<u16>( 0 ); // Weapon damage increase
+		  msg->WriteFlipped<u16>( 0 ); // Lower reagent cose
+		  msg->WriteFlipped<u16>( 0 ); // Spell damage increase
+		  msg->WriteFlipped<u16>( 0 ); // Faster cast recovery
+		  msg->WriteFlipped<u16>( 0 ); // Faster casting
+		  msg->WriteFlipped<u16>( 0 ); // Lower mana cost
+		  */
+	  }
+
+	  u16 len=msg->offset;
 
 	  msg->offset=1;
 	  msg->WriteFlipped<u16>(len);
