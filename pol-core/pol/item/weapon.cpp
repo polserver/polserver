@@ -239,7 +239,7 @@ namespace Pol {
 
 	void allocate_intrinsic_weapon_serials()
 	{
-	  for ( auto &intrinsic_weapon : intrinsic_weapons )
+	  for ( const auto &intrinsic_weapon : intrinsic_weapons )
 	  {
 		UWeapon* wpn = intrinsic_weapon.second;
 
@@ -374,7 +374,7 @@ namespace Pol {
 		  create_intrinsic_weapon_from_npctemplate( elem, NULL );
 		}
 	  }
-	  for ( auto &pkg : Plib::packages )
+	  for ( const auto &pkg : Plib::packages )
 	  {
 
 		string filename = Plib::GetPackageCfgPath( pkg, "npcdesc.cfg" );

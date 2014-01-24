@@ -644,7 +644,7 @@ namespace Pol {
 	  unsigned short wxL, wyL, wxH, wyH;
       Core::zone_convert_clip( x1, y1, realm, wxL, wyL );
       Core::zone_convert_clip( x2, y2, realm, wxH, wyH );
-      auto includes = [&]( Core::UObject *obj )
+      auto includes = [&]( const Core::UObject *obj )
       {
         if ( obj->x >= x1 && obj->x <= x2 &&
              obj->y >= y1 && obj->y <= y2 )
@@ -657,15 +657,15 @@ namespace Pol {
 	  {
 		for ( unsigned short wy = wyL; wy <= wyH; ++wy )
 		{
-          for ( auto &chr : realm->zone[wx][wy].characters )
+          for ( const auto &chr : realm->zone[wx][wy].characters )
           {
             if ( includes( chr ) ) return true;
           }
-          for ( auto &chr : realm->zone[wx][wy].npcs )
+          for ( const auto &chr : realm->zone[wx][wy].npcs )
           {
             if ( includes( chr ) ) return true;
           }
-          for ( auto &item : realm->zone[wx][wy].items )
+          for ( const auto &item : realm->zone[wx][wy].items )
           {
             if ( includes( item ) ) return true;
           }

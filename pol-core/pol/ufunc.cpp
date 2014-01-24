@@ -1085,7 +1085,7 @@ namespace Pol {
 	  {
 		for ( unsigned short wy = wyL; wy <= wyH; ++wy )
 		{
-          for ( auto &_item : chr->realm->zone[wx][wy].items )
+          for ( const auto &_item : chr->realm->zone[wx][wy].items )
 		  {
 			if ( !inrange( chr, _item ) )
 			  continue;
@@ -1096,9 +1096,9 @@ namespace Pol {
 			}
 			if ( _item->isa( UObject::CLASS_CONTAINER ) )
 			{
-			  _item = ( (UContainer *)_item )->find( serial );
-			  if ( _item != NULL )
-				return _item;
+			  item = ( (const UContainer *)_item )->find( serial );
+			  if ( item != NULL )
+				return item;
 			}
 		  }
 		}

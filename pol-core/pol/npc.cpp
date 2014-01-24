@@ -246,7 +246,7 @@ namespace Pol {
 
       if ( ssopt.mobiles_block_npc_movement )
       {
-        for ( auto &chr : realm->zone[wx][wy].characters )
+        for ( const auto &chr : realm->zone[wx][wy].characters )
         {
           // First check if there really is a character blocking
           if ( chr->x == newx &&
@@ -258,7 +258,7 @@ namespace Pol {
           }
         }
       }
-      for ( auto &chr : realm->zone[wx][wy].npcs )
+      for ( const auto &chr : realm->zone[wx][wy].npcs )
       {
         // First check if there really is a character blocking
         if ( chr->x == newx &&

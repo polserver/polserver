@@ -1254,7 +1254,7 @@ namespace Pol {
       for ( Core::Vital* pVital = Core::FindVital( 0 ); pVital != NULL; pVital = pVital->next )
 	  {
 		VitalValue& vv = vital( pVital->vitalid );
-		for ( auto & _i : pVital->aliases )
+		for ( const auto & _i : pVital->aliases )
 		{
 		  unsigned int temp;
 		  if ( elem.remove_prop( _i.c_str(), &temp ) )
@@ -4250,9 +4250,9 @@ namespace Pol {
 			  }
 			  if ( item->isa( UObject::CLASS_CONTAINER ) )
 			  {
-                item = ( ( Core::UContainer * )item )->remove( serial, found_in );
-				if ( item )
-				  return item;
+                Items::Item* _item = ( ( Core::UContainer * )item )->remove( serial, found_in );
+				if ( _item )
+				  return _item;
 			  }
 			}
 		  }
