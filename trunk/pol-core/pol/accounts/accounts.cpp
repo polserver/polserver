@@ -85,7 +85,7 @@ namespace Pol {
 	  {
 		ofstream ofs( accountsndtfile_c, std::ios::trunc | ios::out );
 		Clib::ThreadedOFStreamWriter sw( &ofs );
-		for ( auto &account : Core::accounts )
+		for ( const auto &account : Core::accounts )
 		{
 		  Account* acct = account.get();
 		  acct->writeto( sw );

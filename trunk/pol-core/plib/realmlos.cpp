@@ -59,11 +59,12 @@ namespace Pol {
     bool Realm::dynamic_item_blocks_los( const Core::LosObj& att, const Core::LosObj& target,
 										 unsigned short x, unsigned short y, short z ) const
 	{
-      Core::ZoneItems& witems = Core::getzone( x, y, const_cast<Realm*>( this ) ).items;
+      unsigned short wx, wy;
+      Core::zone_convert_clip( x, y, this, wx, wy );
+      Core::ZoneItems& witems = zone[wx][wy].items;
 
 	  for ( const auto &item : witems )
 	  {
-
 		if ( ( item->x == x ) &&
 			 ( item->y == y ) )
 		{

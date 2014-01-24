@@ -294,7 +294,7 @@ namespace Pol {
 	void Realm::readdynamics( MapShapeList& vec, unsigned short x, unsigned short y, Core::ItemsVector& walkon_items, bool doors_block )
 	{
 	  Core::ZoneItems& witems = Core::getzone( x, y, this ).items;
-	  for ( auto &item : witems )
+	  for ( const auto &item : witems )
 	  {
 		if ( ( item->x == x ) && ( item->y == y ) )
 		{
