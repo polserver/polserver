@@ -99,7 +99,7 @@ namespace Pol {
 	void replace_packages();
 	void check_package_deps();
 	void unload_packages();
-	std::string GetPackageCfgPath( Package* pkg, std::string filename );
+	std::string GetPackageCfgPath( const Package* pkg, std::string filename );
   }
 }
 #endif

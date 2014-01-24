@@ -1054,7 +1054,7 @@ namespace Pol {
 	  {
 		find_script2( sd, true, true );
 	  }
-	  for ( auto &pkg : Plib::packages )
+	  for ( const auto &pkg : Plib::packages )
 	  {
 		sd.quickconfig( pkg, script_ecl );
 		if ( sd.exists() )
@@ -1085,7 +1085,7 @@ namespace Pol {
 		if ( !res )
 		  return false;
 	  }
-	  for ( auto &pkg : Plib::packages )
+	  for ( const auto &pkg : Plib::packages )
 	  {
 		sd.quickconfig( pkg, script_ecl );
 		if ( script_loaded( sd ) )

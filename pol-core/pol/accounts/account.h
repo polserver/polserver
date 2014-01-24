@@ -53,7 +53,7 @@ namespace Pol {
 	  void clear_character( int index );
 
 	  void readfrom( Clib::ConfigElem& elem );
-	  void writeto( Clib::StreamWriter& sw );
+	  void writeto( Clib::StreamWriter& sw ) const;
 	  void writeto( Clib::ConfigElem& elem ) const;
 
 	  std::string default_privlist() const;

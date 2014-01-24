@@ -79,7 +79,7 @@ namespace Pol {
 	  props_.readProperties( elem );
 	}
 
-	void Account::writeto( Clib::StreamWriter& sw )
+	void Account::writeto( Clib::StreamWriter& sw ) const
 	{
 	  sw() << "Account" << pf_endl
 		<< "{" << pf_endl

@@ -350,7 +350,7 @@ namespace Pol {
 	  {
 		done = true;
 
-		for ( auto& pkg : packages )
+		for ( const auto& pkg : packages )
 		{
 		  bool change = pkg->check_replacements();
 		  if ( change )
@@ -486,7 +486,7 @@ namespace Pol {
 	}
 
 
-	string GetPackageCfgPath( Package* pkg, string filename )
+	string GetPackageCfgPath( const Package* pkg, string filename )
 	{
 	  string filepath;
 	  if ( pkg == NULL )
