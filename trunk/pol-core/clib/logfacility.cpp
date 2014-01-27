@@ -484,7 +484,7 @@ namespace Pol {
       // create and open new logfile with given name, returns unique id
       unsigned int LogSink_flexlog::create( std::string logfilename )
       {
-        _logfiles.emplace( ++_idcounter, std::make_shared<LogSinkGenericFile>() );
+        _logfiles[++_idcounter] = std::make_shared<LogSinkGenericFile>();
         auto log = _logfiles.at( _idcounter );
         log->setBehaviour( &flexlogBehaviour, logfilename );
         log->open_log_file();
