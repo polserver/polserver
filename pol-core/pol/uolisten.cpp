@@ -49,9 +49,7 @@ namespace Pol {
 
 	void UoClientThread::run()
 	{
-		if ( config.disable_nagle) {
-			_sck.disable_nagle();
-		}
+		
 	  if ( !config.use_single_thread_login )
 	  {
 		create();
@@ -63,6 +61,10 @@ namespace Pol {
 	void UoClientThread::create()
 	{
 	  {
+        if ( config.disable_nagle )
+        {
+          _sck.disable_nagle( );
+        }
 		struct sockaddr client_addr = _sck.peer_address();
 		struct sockaddr host_addr;
 		socklen_t host_addrlen = sizeof host_addr;
