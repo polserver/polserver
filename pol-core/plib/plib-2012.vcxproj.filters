@@ -65,6 +65,9 @@
     <ClCompile Include="testwalk1.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="uoexpansion.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="filemapserver.h">
@@ -128,6 +131,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="stlastar.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="uoexpansion.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
