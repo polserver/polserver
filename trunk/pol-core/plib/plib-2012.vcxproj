@@ -229,6 +229,7 @@
     <ClCompile Include="testenv.cpp" />
     <ClCompile Include="testlos1.cpp" />
     <ClCompile Include="testwalk1.cpp" />
+    <ClCompile Include="uoexpansion.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="filemapserver.h" />
@@ -252,6 +253,7 @@
     <ClInclude Include="staticserver.h" />
     <ClInclude Include="stlastar.h" />
     <ClInclude Include="testenv.h" />
+    <ClInclude Include="uoexpansion.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
