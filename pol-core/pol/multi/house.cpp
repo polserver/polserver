@@ -457,7 +457,7 @@ namespace Pol {
 		Items::Item* item = ( *itr ).get();
 		if ( item != NULL && !item->orphan() )
 		{
-		  sw() << "\tComponent\t" << fmt::hex( item->serial ) << pf_endl;
+		  sw() << "\tComponent\t0x" << fmt::hex( item->serial ) << pf_endl;
 		}
 	  }
 	  sw() << "\tCustom\t" << custom << pf_endl;
