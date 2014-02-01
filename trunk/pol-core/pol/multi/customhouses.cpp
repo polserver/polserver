@@ -176,6 +176,7 @@ namespace Pol {
 	  u32 yidx = yoffset + yoff;
 	  if ( !ValidLocation( xidx, yidx ) )
 		return false;
+
 	  HouseFloorZColumn *column = &Elements[floor_num].data.at( xidx ).at( yidx );
 	  for ( HouseFloorZColumn::iterator itr = column->begin(),
 			itrend = column->end();
@@ -690,16 +691,15 @@ namespace Pol {
 
 	  u32 realx = x + house->WorkingDesign.xoff;
 	  u32 realy = y + house->WorkingDesign.yoff;
+
 	  if ( z == 0 && realx < house->WorkingDesign.width && realy < ( house->WorkingDesign.height - 1 ) )
 	  {
-        Mobile::Character* chr = Core::find_character( serial );
-		if ( chr && chr->client )
-		  CustomHousesSendFull( house, chr->client, HOUSE_DESIGN_WORKING );
 		return;
-	  }
+	  }  
 
 	  //check if not deleting a stairs piece (if we are, DeleteStairs will do it)
-	  if ( !house->WorkingDesign.DeleteStairs( graphic, x, y, z ) )
+	  //check z == 0 to make sure all exterior stairs are deleted with EraseGraphicAt
+	  if ( z == 0 || !house->WorkingDesign.DeleteStairs( graphic, x, y, z ) )
 	  {
 		house->WorkingDesign.EraseGraphicAt( graphic, x, y, z );
 		//maybe replace empty ground floor with dirt tile
@@ -710,6 +710,10 @@ namespace Pol {
 	  //invalidate stored packet
 	  vector<u8> newvec;
 	  house->WorkingCompressed.swap( newvec );
+
+      Mobile::Character* chr = Core::find_character( serial );
+	  if ( chr && chr->client )
+		CustomHousesSendFull( house, chr->client, HOUSE_DESIGN_WORKING );
 
 	  house->revision++;
 
@@ -791,7 +795,7 @@ namespace Pol {
 	  {
         move_character_to( chr, chr->x, chr->y, house->z + CustomHouseDesign::custom_house_z_xlate_table[floor], Core::MOVEITEM_FORCELOCATION, NULL );
 		if ( chr->client )
-		  CustomHousesSendShort( house, chr->client );
+			CustomHousesSendFull( house, chr->client, HOUSE_DESIGN_WORKING );
 	  }
 	}
 
