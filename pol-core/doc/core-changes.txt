@@ -1,4 +1,8 @@
 ﻿-- POL099 --
+02-01-2014 Tomi:
+    Fixed: Customhousing exterior stairs delete is now working, commiting does not readd them anymore
+    Fixed: Customhousing changing floor is now sending a full msg instead of short msg, so no more synch needed after changing floors until you can start working on it
+
 01-20-2014 Nando:
 	Added:  DisableNagle option in pol.cfg to disable Nagle's algorithm, default to 0. In theory, latency should improve if DisableNagle=1.
 
