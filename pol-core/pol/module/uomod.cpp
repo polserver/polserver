@@ -5236,9 +5236,9 @@ namespace Pol {
 
 		if ( config.loglevel >= 12 )
 		{
-          POLLOG.Format( "[FindPath] Calling FindPath({:d}, {:d}, {:d}, {:d}, {:d}, {:d}, {}, 0x{:X}, {:d})\n" )
+          POLLOG.Format( "[FindPath] Calling FindPath({}, {}, {}, {}, {}, {}, {}, 0x{:X}, {})\n" )
             << x1 << y1 << z1 << x2 << y2 << z2 << strrealm->data() << flags << theSkirt;
-          POLLOG.Format( "[FindPath]   search for Blockers inside {:d} {:d} {:d} {:d}\n" ) << xL << yL << xH << yH;
+          POLLOG.Format( "[FindPath]   search for Blockers inside {} {} {} {}\n" ) << xL << yL << xH << yH;
 		}
 
 		AStarBlockers theBlockers( xL, xH, yL, yH );
@@ -5250,7 +5250,7 @@ namespace Pol {
             theBlockers.AddBlocker( chr->x, chr->y, chr->z );
 
             if ( config.loglevel >= 12 )
-              POLLOG.Format( "[FindPath]	 add Blocker {} at {:d} {:d} {:d}\n" )
+              POLLOG.Format( "[FindPath]	 add Blocker {} at {} {} {}\n" )
                 << chr->name() << chr->x << chr->y << chr->z;
           } );
 		}
@@ -5260,8 +5260,8 @@ namespace Pol {
 
 		if ( config.loglevel >= 12 )
 		{
-          POLLOG.Format( "[FindPath]   use StartNode {:d} {:d} {:d}\n" ) << x1 << y1 << z1;
-          POLLOG.Format( "[FindPath]   use EndNode {:d} {:d} {:d}\n" ) << x2 << y2 << z2;
+          POLLOG.Format( "[FindPath]   use StartNode {} {} {}\n" ) << x1 << y1 << z1;
+          POLLOG.Format( "[FindPath]   use EndNode {} {} {}\n" ) << x2 << y2 << z2;
 		}
 
 		// Create a start state
