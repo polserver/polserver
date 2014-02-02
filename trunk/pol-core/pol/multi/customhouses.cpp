@@ -637,7 +637,8 @@ namespace Pol {
 
 	  //the south side of the house can have stairs at z=0
 	  int ysize = house->multidef().maxry - house->multidef().minry;
-	  if ( ( elem.yoffset + ( ysize / 2 ) ) == ysize + 1 )
+
+	  if ( elem.yoffset == house->multidef().maxry + 1 )
 		elem.z = 0;
 
 	  house->WorkingDesign.AddOrReplace( elem );
