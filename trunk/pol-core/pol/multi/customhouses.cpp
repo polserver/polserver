@@ -223,7 +223,7 @@ namespace Pol {
 	{
 	  int floor_num = 1; //dirt always goes on floor 1 (z=7)
 
-	  if ( x + xoff == 0 || y + yoff == 0 ) //don't replace dirt at far-west and far-north sides
+	  if ( x + xoff == 0 || y + yoff == 0 || y + yoff == height ) //don't replace dirt at far-west and far-north sides, check height for y + 1
 		return;
 
 	  bool floor_exists = false;
