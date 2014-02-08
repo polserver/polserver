@@ -105,7 +105,8 @@ namespace Pol {
 	}
     BSQLResultSet::BSQLResultSet( RES_WRAPPER result ) : Bscript::BObjectImp( OTSQLResultSet ), _result( result ), _affected_rows( 0 )
 	{
-	  _fields = mysql_fetch_fields( result->ptr() );
+      if ( result->ptr() != nullptr )
+	    _fields = mysql_fetch_fields( result->ptr() );
 	}
     BSQLResultSet::BSQLResultSet( RES_WRAPPER result, MYSQL_FIELD* fields ) : Bscript::BObjectImp( OTSQLResultSet ), _result( result ), _fields( fields ), _affected_rows( 0 )
 	{}
@@ -115,7 +116,7 @@ namespace Pol {
 	}
 	const char * BSQLResultSet::field_name( unsigned int index ) const
 	{
-	  if ( !_result ) return 0;
+	  if ( !_result || _result->ptr() == nullptr) return 0;
 	  if ( index <= 0 || index > mysql_num_fields( _result->ptr() ) )
 	  {
 		return 0;
@@ -124,7 +125,7 @@ namespace Pol {
 	}
 	int BSQLResultSet::num_fields() const
 	{
-	  if ( _result )
+	  if ( _result && _result->ptr() != nullptr)
 		return mysql_num_fields( _result->ptr() );
 	  return 0;
 	}
@@ -153,7 +154,7 @@ namespace Pol {
 	{
 	  if ( _errno ) return new BError( _error );
       RES_WRAPPER result = std::make_shared<ResultWrapper>( mysql_store_result( _conn->ptr() ) );
-	  if ( result )  // there are rows
+	  if ( result && result->ptr() != nullptr)  // there are rows
 	  {
 		return new BSQLResultSet( result );
 		// retrieve rows, then call mysql_free_result(result)
