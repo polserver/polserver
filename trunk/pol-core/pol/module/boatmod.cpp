@@ -56,12 +56,13 @@ namespace Pol {
 	Bscript::BObjectImp* UBoatExecutorModule::mf_MoveBoat( )
 	{
 	  Multi::UBoat* boat = NULL;
-	  int direction;
+	  int direction, speed;
 	  if ( getUBoatParam( exec, 0, boat ) &&
-		   getParam( 1, direction, 0, 7 ) )
-	  {
-		Core::UFACING facing = static_cast<Core::UFACING>( direction );
-		boat->move( facing );
+		   getParam( 1, direction, 0, 7 ) &&
+		   getParam( 2, speed, 1, 4 ) )
+	  {	 
+		Core::UFACING move_dir = static_cast<Core::UFACING>( direction & 7 );
+		boat->move( move_dir, speed, false );
 		return new Bscript::BLong( 1 );
 	  }
 	  return NULL;
@@ -102,14 +103,13 @@ namespace Pol {
 	Bscript::BObjectImp* UBoatExecutorModule::mf_MoveBoatRelative( )
 	{
 	  Multi::UBoat* boat = NULL;
-	  int direction;
+	  int direction, speed;
 	  if ( getUBoatParam( exec, 0, boat ) &&
-		   getParam( 1, direction, 0, 7 ) )
+		   getParam( 1, direction, 0, 7 ) &&
+		   getParam( 2, speed, 1, 4 ) )
 	  {
-		// FIXME: add bias, &= 0x7
-		Core::UFACING facing = static_cast<Core::UFACING>( ( boat->boat_facing() + direction ) & 7 );
-
-		boat->move( facing );
+		Core::UFACING move_dir = static_cast<Core::UFACING>( direction & 7 );
+		boat->move( move_dir, speed, true );
 		return new Bscript::BLong( 1 );
 	  }
 	  return NULL;

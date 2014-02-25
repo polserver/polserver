@@ -120,7 +120,9 @@ namespace Pol {
 
 	  PKTOUT_E3_ID = 0xE3,	// KR Encryption Response
 	  PKTOUT_F3_ID = 0xF3,	// SA Object Information
-	  PKTOUT_F5_ID = 0xF5		// New Map Message
+	  PKTOUT_F5_ID = 0xF5,	// New Map Message
+	  PKTOUT_F6_ID = 0xF6,	// Boat Smooth Move
+	  PKTOUT_F7_ID = 0xF7	// Display Multi HSA
 	};
   }
 }

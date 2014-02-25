@@ -58,6 +58,7 @@ Notes
 #include "../realms.h"
 #include "../scrsched.h"
 #include "../tiles.h"
+#include "../tooltips.h"
 #include "../ufunc.h"
 #include "../uofile.h"
 #include "../ustruct.h"
@@ -285,76 +286,310 @@ namespace Pol {
 	  return boatshapes.count( multiid ) != 0;
 	}
 
-	
-
-	void send_boat_to_inrange( const UBoat* item, u16 oldx, u16 oldy )
+	void UBoat::send_smooth_move( Network::Client* client, Core::UFACING move_dir, u8 speed, u16 newx, u16 newy, bool relative )
 	{
-	  Network::PktHelper::PacketOut<Network::PktOut_1A> msg;
-	  msg->offset += 2;
-	  u16 graphic = item->multidef().multiid | 0x4000;
-	  msg->Write<u32>( item->serial_ext );
-	  msg->WriteFlipped<u16>( graphic );
-	  msg->WriteFlipped<u16>( item->x );
-	  msg->WriteFlipped<u16>( item->y );
-	  msg->Write<s8>( item->z );
-	  u16 len1A = msg->offset;
-	  msg->offset = 1;
-	  msg->WriteFlipped<u16>( len1A );
+		Network::PktHelper::PacketOut<Network::PktOut_F6> msg;
 
-	  // Client >= 7.0.0.0 ( SA )
-	  Network::PktHelper::PacketOut<Network::PktOut_F3> msg2;
-	  msg2->WriteFlipped<u16>( static_cast<u16>( 0x1 ) );
-	  msg2->Write<u8>( static_cast<u8>( 0x02 ) );
-	  msg2->Write<u32>( item->serial_ext );
-	  msg2->WriteFlipped<u16>( item->multidef().multiid );
-	  msg2->offset++; // 0;
-	  msg2->WriteFlipped<u16>( static_cast<u16>( 0x1 ) ); //amount
-	  msg2->WriteFlipped<u16>( static_cast<u16>( 0x1 ) ); //amount2
-	  msg2->WriteFlipped<u16>( item->x );
-	  msg2->WriteFlipped<u16>( item->y );
-	  msg2->Write<s8>( item->z );
-	  msg2->offset++; // u8 facing
-	  msg2->WriteFlipped<u16>( item->color ); // u16 color
-	  msg2->offset++; // u8 flags
+		u16 xmod = newx - x;
+		u16 ymod = newy - y;
+		Core::UFACING facing = boat_facing();
 
-	  // Client >= 7.0.9.0 ( HSA )
-	  Network::PktHelper::PacketOut<Network::PktOut_F3> msg3;
-	  memcpy( &msg3->buffer, &msg2->buffer, sizeof msg3->buffer );
-	  msg3->offset = 26; //unk short at the end
+		if ( relative == false )
+			move_dir = static_cast<Core::UFACING>( ( facing + move_dir ) * 7 );
 
-	  Network::PktHelper::PacketOut<Network::PktOut_1D> msgremove;
-	  msgremove->Write<u32>( item->serial_ext );
+		msg->offset += 2; // Length
+		msg->Write<u32>( serial_ext );
+		msg->Write<u8>( speed );
 
-      Core::WorldIterator<Core::PlayerFilter>::InRange(item->x,item->y,item->realm,RANGE_VISUAL_LARGE_BUILDINGS,
-                                  [&]( Mobile::Character* zonechr )
-      {
-        if ( !zonechr->has_active_client() )
-          return;
-        Network::Client* client = zonechr->client;
-        client->pause( );
-        if ( client->ClientType & Network::CLIENTTYPE_7090 )
-          msg3.Send( client );
-        else if ( client->ClientType & Network::CLIENTTYPE_7000 )
-          msg2.Send( client );
-        else
-          msg.Send( client, len1A );
-        boat_sent_to.push_back( client );
-      } );
+		msg->Write<u8>( move_dir );
+		msg->Write<u8>( facing );
 
-      if ( oldx != USHRT_MAX && oldy != USHRT_MAX )
-      {
-        Core::WorldIterator<Core::PlayerFilter>::InRange( oldx, oldy, item->realm, RANGE_VISUAL_LARGE_BUILDINGS,
-                                    [&]( Mobile::Character* zonechr )
+		msg->WriteFlipped<u16>( newx );
+		msg->WriteFlipped<u16>( newy );
+		msg->WriteFlipped<u16>( ( z < 0 ) ? static_cast<u16>( 0x10000 + z ) : static_cast<u16>( z ) );
+
+		u16 object_count = travellers_.size() + Components.size();
+
+		msg->WriteFlipped<u16>( object_count );
+
+		for ( auto &travellerRef : travellers_ )
+		{
+			UObject* obj = travellerRef.get();
+
+			if ( !obj->orphan() )
+			{
+				msg->Write<u32>( obj->serial_ext );
+				msg->WriteFlipped<u16>( ( obj->x + xmod ) );
+				msg->WriteFlipped<u16>( ( obj->y + ymod ) );
+				msg->WriteFlipped<u16>( ( obj->z < 0 ) ? static_cast<u16>( 0x10000 + obj->z ) : static_cast<u16>( obj->z ) );
+			}
+		}
+
+		for ( auto &component : Components )
+		{
+			if ( component != NULL && !component->orphan() )
+			{
+				msg->Write<u32>( component->serial_ext );
+				msg->WriteFlipped<u16>( ( component->x + xmod ) );
+				msg->WriteFlipped<u16>( ( component->y + ymod ) );
+				msg->WriteFlipped<u16>( ( component->z < 0 ) ? static_cast<u16>( 0x10000 + component->z ) : static_cast<u16>( component->z ) );
+			}
+		}
+
+		u16 len = msg->offset;
+
+		msg->offset = 1;
+		msg->WriteFlipped<u16>( len );
+
+		msg.Send( client, len );
+	}
+
+	void UBoat::send_smooth_move_to_inrange( Core::UFACING move_dir, u8 speed, u16 newx, u16 newy, bool relative )
+	{
+	       Core::WorldIterator<Core::PlayerFilter>::InRange( newx, newy, realm, RANGE_VISUAL_LARGE_BUILDINGS, [&]( Mobile::Character* zonechr )
         {
           if ( !zonechr->has_active_client() )
             return;
           Network::Client* client = zonechr->client;
-          if ( inrange( client->chr, item ) ) // send remove to chrs only seeing the old loc
+
+          if ( inrange( client->chr, this ) && client->ClientType & Network::CLIENTTYPE_7090 ) // send this only to those who see the old location aswell
+            send_smooth_move( client, move_dir, speed, newx, newy, relative );
+        } );
+	}
+
+	void UBoat::send_display_boat( Network::Client* client )
+	{
+		Network::PktHelper::PacketOut<Network::PktOut_F7> msg;
+
+		msg->offset += 2; // Length
+
+		u16 inner_packet_count = travellers_.size() + Components.size() + 1; // Add 1 for the boat aswell
+
+		msg->WriteFlipped<u16>( inner_packet_count );
+
+		// Build boat part
+
+		msg->Write<u8>( 0xF3 );
+		msg->WriteFlipped<u16>( static_cast<u16>( 0x1 ) );
+		msg->Write<u8>( 0x2 ); // MultiData flag
+		msg->Write<u32>( this->serial_ext );
+		msg->WriteFlipped<u16>( this->multidef().multiid );
+		msg->offset++; // ID offset, TODO CHECK IF NEED THESE
+		msg->WriteFlipped<u16>( static_cast<u16>( 0x1 ) ); // Amount
+		msg->WriteFlipped<u16>( static_cast<u16>( 0x1 ) ); // Amount
+		msg->WriteFlipped<u16>( this->x );
+		msg->WriteFlipped<u16>( this->y );
+		msg->Write<s8>( this->z );
+		msg->offset++; // facing 0 for multis
+		msg->WriteFlipped<u16>( this->color );
+		msg->offset++; // flags 0 for multis
+		msg->offset += 2; // HSA access flags, TODO find out what these are for and implement it
+
+		u8 flags = 0;
+
+		for ( auto &travellerRef : travellers_ )
+		{
+			UObject* obj = travellerRef.get();
+
+			if ( !obj->orphan() )
+			{
+				msg->Write<u8>( 0xF3 );
+				msg->WriteFlipped<u16>( static_cast<u16>( 0x1 ) );
+
+				if ( obj->ismobile() )
+					msg->Write<u8>( 0x1 ); // CharData flag
+				else
+					msg->Write<u8>( 0x0 ); // ItemData flag
+
+				msg->Write<u32>( obj->serial_ext );
+				msg->WriteFlipped<u16>( obj->graphic );
+				msg->offset++; // ID offset, TODO CHECK IF NEED THESE
+
+				if ( obj->ismobile() )
+				{
+					flags = 0;
+
+					msg->WriteFlipped<u16>( static_cast<u16>( 0x1 ) ); // Amount
+					msg->WriteFlipped<u16>( static_cast<u16>( 0x1 ) ); // Amount
+				}
+				else
+				{
+					Items::Item* item = static_cast<Items::Item*>( obj );
+
+					if ( item->invisible() && !client->chr->can_seeinvisitems() )
+					{
+						send_remove_object( client, item );
+						continue;
+					}
+
+					if ( client->chr->can_move( item ) )
+						flags |= ITEM_FLAG_FORCE_MOVABLE;
+
+					msg->WriteFlipped<u16>( static_cast<u16>( item->get_senditem_amount() ) ); // Amount
+					msg->WriteFlipped<u16>( static_cast<u16>( item->get_senditem_amount() ) ); // Amount
+				}
+
+				msg->WriteFlipped<u16>( obj->x );
+				msg->WriteFlipped<u16>( obj->y );
+				msg->Write<s8>( obj->z );
+				msg->Write<u8>( obj->facing );
+				msg->WriteFlipped<u16>( obj->color );
+
+				msg->Write<u8>( flags ); // FLAGS
+				msg->offset += 2; // HSA access flags, TODO find out what these are for and implement it
+			}
+		}
+
+		for ( auto &component : Components )
+		{
+			if ( component != NULL && !component->orphan() )
+			{
+				msg->Write<u8>( 0xF3 );
+				msg->WriteFlipped<u16>( static_cast<u16>( 0x1 ) );
+				msg->Write<u8>( 0x0 ); // ItemData flag
+				msg->Write<u32>( component->serial_ext );
+				msg->WriteFlipped<u16>( component->graphic );
+				msg->offset++; // ID offset, TODO CHECK IF NEED THESE
+				msg->WriteFlipped<u16>( static_cast<u16>( component->get_senditem_amount() ) ); // Amount
+				msg->WriteFlipped<u16>( static_cast<u16>( component->get_senditem_amount() ) ); // Amount
+				msg->WriteFlipped<u16>( component->x );
+				msg->WriteFlipped<u16>( component->y );
+				msg->Write<s8>( component->z );
+				msg->Write<u8>( component->facing );
+				msg->WriteFlipped<u16>( component->color );
+				msg->offset++; // FLAGS, no flags for components
+				msg->offset += 2; // HSA access flags, TODO find out what these are for and implement it
+			}
+		}
+
+		u16 len = msg->offset;
+
+		msg->offset = 1;
+		msg->WriteFlipped<u16>( len );
+
+		msg.Send( client, len );
+	}
+
+	void UBoat::send_boat_newly_inrange( Network::Client* client )
+	{
+		Network::PktHelper::PacketOut<Network::PktOut_F3> msg;
+		msg->WriteFlipped<u16>( static_cast<u16>( 0x1 ) );
+		msg->Write<u8>( static_cast<u8>( 0x02 ) );
+		msg->Write<u32>( serial_ext );
+		msg->WriteFlipped<u16>( multidef().multiid );
+		msg->offset++; // 0;
+		msg->WriteFlipped<u16>( static_cast<u16>( 0x1 ) ); //amount
+		msg->WriteFlipped<u16>( static_cast<u16>( 0x1 ) ); //amount2
+		msg->WriteFlipped<u16>( x );
+		msg->WriteFlipped<u16>( y );
+		msg->Write<s8>( z );
+		msg->offset++; // u8 facing
+		msg->WriteFlipped<u16>( color ); // u16 color
+		msg->offset += 3; // u8 flags + u16 HSA access flags
+
+		msg.Send( client );
+
+		for ( auto &travellerRef : travellers_ )
+		{
+			UObject* obj = travellerRef.get();
+
+			if ( !obj->orphan() )
+			{
+				if ( obj->ismobile() )
+				{
+					Mobile::Character* chr = static_cast<Mobile::Character*>( obj );
+					send_owncreate( client, chr );
+				}
+				else
+				{
+					Items::Item* item = static_cast<Items::Item*>( obj );
+					send_item( client, item );
+				}
+			}
+		}
+
+		for ( auto &component : Components )
+		{
+			if ( component != NULL && !component->orphan() )
+				send_item( client, component );
+		}
+	}
+
+	void UBoat::send_display_boat_to_inrange( u16 oldx, u16 oldy )
+	{
+		Core::WorldIterator<Core::PlayerFilter>::InRange( x, y, realm, RANGE_VISUAL_LARGE_BUILDINGS, [&]( Mobile::Character* zonechr )
+		{
+          if ( !zonechr->has_active_client() )
             return;
 
-          msgremove.Send( client );
+		  Network::Client* client = zonechr->client;
+
+		  if ( client->ClientType & Network::CLIENTTYPE_7090 )
+			send_display_boat( client );
+		  else if ( client->ClientType & Network::CLIENTTYPE_7000 )
+			send_boat( client );
+		  else
+		    send_boat_old( client );		  
+		} );	
+
+        Core::WorldIterator<Core::PlayerFilter>::InRange( oldx, oldy, this->realm, RANGE_VISUAL_LARGE_BUILDINGS, [&]( Mobile::Character* zonechr )
+        {
+          if ( !zonechr->has_active_client() )
+            return;
+          Network::Client* client = zonechr->client;
+
+		  if ( !inrange( client->chr, this ) ) // send remove to chrs only seeing the old loc
+			  send_remove_boat( client );
         } );
-      }
+	}
+
+	void UBoat::send_boat( Network::Client* client )
+	{
+	  // Client >= 7.0.0.0 ( SA )
+	  Network::PktHelper::PacketOut<Network::PktOut_F3> msg2;
+	  msg2->WriteFlipped<u16>( static_cast<u16>( 0x1 ) );
+	  msg2->Write<u8>( static_cast<u8>( 0x02 ) );
+	  msg2->Write<u32>( this->serial_ext );
+	  msg2->WriteFlipped<u16>( this->multidef().multiid );
+	  msg2->offset++; // 0;
+	  msg2->WriteFlipped<u16>( static_cast<u16>( 0x1 ) ); //amount
+	  msg2->WriteFlipped<u16>( static_cast<u16>( 0x1 ) ); //amount2
+	  msg2->WriteFlipped<u16>( this->x );
+	  msg2->WriteFlipped<u16>( this->y );
+	  msg2->Write<s8>( this->z );
+	  msg2->offset++; // u8 facing
+	  msg2->WriteFlipped<u16>( this->color ); // u16 color
+	  msg2->offset++; // u8 flags
+	  msg2->offset += 2;
+
+	  msg2.Send( client );
+	}
+
+	void UBoat::send_boat_old( Network::Client* client )
+	{
+	  Network::PktHelper::PacketOut<Network::PktOut_1A> msg;
+	  msg->offset += 2;
+	  u16 graphic = this->multidef().multiid | 0x4000;
+	  msg->Write<u32>( this->serial_ext );
+	  msg->WriteFlipped<u16>( graphic );
+	  msg->WriteFlipped<u16>( this->x );
+	  msg->WriteFlipped<u16>( this->y );
+	  msg->Write<s8>( this->z );
+	  u16 len1A = msg->offset;
+	  msg->offset = 1;
+	  msg->WriteFlipped<u16>( len1A );
+
+	  client->pause( );
+	  msg.Send( client, len1A );
+	  boat_sent_to.push_back( client );
+	}
+
+	void UBoat::send_remove_boat( Network::Client* client )
+	{
+		Network::PktHelper::PacketOut<Network::PktOut_1D> msgremove;
+		msgremove->Write<u32>( this->serial_ext );
+
+		msgremove.Send( client );
 	}
 
 	void unpause_paused()
@@ -476,21 +711,19 @@ namespace Pol {
 	  return bc.mdef.body_contains( rx, ry );
 	}
 
-	void UBoat::move_travellers( Core::UFACING facing, const BoatContext& oldlocation, unsigned short newx, unsigned short newy, Plib::Realm* oldrealm )
+	void UBoat::move_travellers( Core::UFACING move_dir, const BoatContext& oldlocation, unsigned short newx, unsigned short newy, Plib::Realm* oldrealm )
 	{
 	  bool any_orphans = false;
 
-	  for ( Travellers::iterator itr = travellers_.begin(), end = travellers_.end();
-			itr != end;
-			++itr )
+	  for ( auto &travellerRef : travellers_ )
 	  {
-		UObject* obj = ( *itr ).get();
+		UObject* obj = travellerRef.get();
 
 		// consider: occasional sweeps of all boats to reap orphans
 		if ( obj->orphan() || !on_ship( oldlocation, obj ) )
 		{
 		  any_orphans = true;
-		  ( *itr ).clear();;
+		  travellerRef.clear();;
 		  continue;
 		}
 
@@ -514,8 +747,8 @@ namespace Pol {
 			}
 			else
 			{
-			  chr->x += Core::move_delta[facing].xmove;
-			  chr->y += Core::move_delta[facing].ymove;
+			  chr->x += Core::move_delta[move_dir].xmove;
+			  chr->y += Core::move_delta[move_dir].ymove;
 			}
 
 			MoveCharacterWorldPosition( chr->lastx, chr->lasty, chr->x, chr->y, chr, oldrealm );
@@ -527,13 +760,25 @@ namespace Pol {
 				Core::send_new_subserver( chr->client );
 				Core::send_owncreate( chr->client, chr );
 			  }
-			  chr->client->pause();
-			  Core::send_goxyz( chr->client, chr );
-			  // lastx and lasty are set above so these two calls will work right.
-			  // FIXME these are also called, in this order, in MOVEMENT.CPP.
-			  // should be consolidated.
-			  Core::send_objects_newly_inrange( chr->client );
-			  chr->client->restart();
+
+			  if ( chr->client->ClientType & Network::CLIENTTYPE_7090 )
+			  {
+				  Core::send_objects_newly_inrange_on_boat( chr->client, this->serial );
+
+				  if ( chr->poisoned ) //if poisoned send 0x17 for newer clients
+					send_poisonhealthbar( chr->client, chr );
+
+				  if ( chr->invul() ) //if invul send 0x17 for newer clients
+					send_invulhealthbar( chr->client, chr );
+			  }
+			  else
+			  {
+				Core::send_goxyz( chr->client, chr );
+				// lastx and lasty are set above so these two calls will work right.
+				// FIXME these are also called, in this order, in MOVEMENT.CPP.
+				// should be consolidated.
+				Core::send_objects_newly_inrange_on_boat( chr->client, this->serial );
+			  }
 			}
 			chr->move_reason = Mobile::Character::MULTIMOVE;
 		  }
@@ -554,8 +799,8 @@ namespace Pol {
 			}
 			else
 			{
-			  chr->x += Core::move_delta[facing].xmove;
-			  chr->y += Core::move_delta[facing].ymove;
+			  chr->x += Core::move_delta[move_dir].xmove;
+			  chr->y += Core::move_delta[move_dir].ymove;
 			}
 		  }
 
@@ -563,26 +808,68 @@ namespace Pol {
 		else
 		{
 		  Items::Item* item = static_cast<Items::Item*>( obj );
+
+		  u16 oldx, oldy;
+
 		  if ( newx != USHRT_MAX && newy != USHRT_MAX ) //dave added 4/9/3, if move_xy was used, dont use facing
 		  {
 			s16 dx, dy;
 			dx = item->x - oldlocation.x; //keeps relative distance from boat mast
 			dy = item->y - oldlocation.y;
-			Core::move_item( item, newx + dx, newy + dy, item->z, NULL );
+			//Core::move_item( item, newx + dx, newy + dy, item->z, NULL );
+
+			item->set_dirty();
+
+			oldx = item->x;
+			oldy = item->y;
+
+			item->x = newx + dx;
+			item->y = newy + dy;
+
+			item->restart_decay_timer();
+			MoveItemWorldPosition( oldx, oldy, item, oldrealm );
 		  }
 		  else
 		  {
-			Core::move_item( item, facing );
+			item->set_dirty();
+
+			oldx = item->x;
+			oldy = item->y;
+
+			item->x += Core::move_delta[move_dir].xmove;
+			item->y += Core::move_delta[move_dir].ymove;
+
+			item->restart_decay_timer();
+			MoveItemWorldPosition( oldx, oldy, item, NULL );
 		  }
+
+		  Core::WorldIterator<Core::PlayerFilter>::InRange( item->x, item->y, realm, RANGE_VISUAL, [&]( Mobile::Character* zonechr )
+		  {
+			if ( !zonechr->has_active_client() )
+				return;
+
+			Network::Client* client = zonechr->client;
+
+			if ( !( client->ClientType & Network::CLIENTTYPE_7090 ) )
+				send_item( client, item );
+		  } );
+
+		  Core::WorldIterator<Core::PlayerFilter>::InRange( oldx, oldy, oldrealm, RANGE_VISUAL, [&]( Mobile::Character *zonechr )
+		  {
+			if ( !zonechr->has_active_client() )
+				return;
+
+			Network::Client* client = zonechr->client;
+
+			if ( !inrange( client->chr, item ) ) // not in range.  If old loc was in range, send a delete.
+				send_remove_object( client, item );
+		  } );
 		}
 	  }
 
 	  if ( any_orphans )
 		remove_orphans( );
-
-	  do_tellmoves();
 	}
-
 
 	void UBoat::turn_traveller_coords( Mobile::Character* chr, RELATIVE_DIR dir )
 	{
@@ -618,17 +905,15 @@ namespace Pol {
 	{
 	  bool any_orphans = false;
 
-	  for ( Travellers::iterator itr = travellers_.begin(), end = travellers_.end();
-			itr != end;
-			++itr )
+	  for ( auto &travellerRef : travellers_ )
 	  {
-		UObject* obj = ( *itr ).get();
+		UObject* obj = travellerRef.get();
 
 		// consider: occasional sweeps of all boats to reap orphans
 		if ( obj->orphan() || !on_ship( oldlocation, obj ) )
 		{
 		  any_orphans = true;
-		  ( *itr ).clear();
+		  travellerRef.clear();
 		  continue;
 		}
 
@@ -648,12 +933,24 @@ namespace Pol {
 			chr->position_changed();
 			if ( chr->client != NULL )
 			{
-			  Core::send_goxyz( chr->client, chr );
-			  // lastx and lasty are set above so these two calls will work right.
-			  // FIXME these are also called, in this order, in MOVEMENT.CPP.
-			  // should be consolidated.
+				if ( chr->client->ClientType & Network::CLIENTTYPE_7090 )
+				{
+				    if ( chr->poisoned ) //if poisoned send 0x17 for newer clients
+						send_poisonhealthbar( chr->client, chr );
 
-			  Core::send_objects_newly_inrange( chr->client );
+				    if ( chr->invul() ) //if invul send 0x17 for newer clients
+						send_invulhealthbar( chr->client, chr );
+
+					Core::send_objects_newly_inrange_on_boat( chr->client, this->serial );
+				}
+				else
+				{
+					Core::send_goxyz( chr->client, chr );
+					// lastx and lasty are set above so these two calls will work right.
+					// FIXME these are also called, in this order, in MOVEMENT.CPP.
+					// should be consolidated.
+					Core::send_objects_newly_inrange_on_boat( chr->client, this->serial );
+				}
 			}
 			chr->move_reason = Mobile::Character::MULTIMOVE;
 			//chr->lastx = ~ (unsigned short) 0; // force tellmove() to send "owncreate" and not send deletes.
@@ -690,14 +987,44 @@ namespace Pol {
 			  newy = y + xd;
 			  break;
 		  }
-		  Core::move_item( item, newx, newy, item->z, NULL );
+			item->set_dirty();
+
+			u16 oldx = item->x;
+			u16 oldy = item->y;
+
+			item->x = newx;
+			item->y = newy;
+
+			item->restart_decay_timer();
+
+			MoveItemWorldPosition( oldx, oldy, item, NULL );
+
+		  Core::WorldIterator<Core::PlayerFilter>::InRange( item->x, item->y, realm, RANGE_VISUAL, [&]( Mobile::Character* zonechr )
+		  {
+			if ( !zonechr->has_active_client() )
+				return;
+
+			Network::Client* client = zonechr->client;
+
+			if ( ! ( client->ClientType & Network::CLIENTTYPE_7090 ) )
+				send_item( client, item );
+		  } );
+
+		  Core::WorldIterator<Core::PlayerFilter>::InRange( oldx, oldy, realm, RANGE_VISUAL, [&]( Mobile::Character *zonechr )
+		  {
+			if ( !zonechr->has_active_client() )
+				return;
+
+			Network::Client* client = zonechr->client;
+
+			if ( !inrange( client->chr, item ) ) // not in range.  If old loc was in range, send a delete.
+				send_remove_object( client, item );
+		  } );
 		}
 	  }
 
 	  if ( any_orphans )
 		remove_orphans();
-
-	  do_tellmoves();
 	}
 
 	void UBoat::remove_orphans()
@@ -707,9 +1034,7 @@ namespace Pol {
 	  {
 		any_orphan_travellers = false;
 
-		for ( Travellers::iterator itr = travellers_.begin(), end = travellers_.end();
-			  itr != end;
-			  ++itr )
+	    for ( Travellers::iterator itr = travellers_.begin(), end = travellers_.end(); itr != end; ++itr )
 		{
 		  UObject* obj = ( *itr ).get();
 		  if ( obj == NULL )
@@ -727,16 +1052,14 @@ namespace Pol {
 	{
 	  BoatContext bc( *this );
 
-	  for ( Travellers::iterator itr = travellers_.begin(), end = travellers_.end();
-			itr != end;
-			++itr )
+	  for ( auto &travellerRef : travellers_ )
 	  {
-		UObject* obj = ( *itr ).get();
+		UObject* obj = travellerRef.get();
 
 		if ( obj->orphan() || !on_ship( bc, obj ) )
 		{
 		  set_dirty();
-		  ( *itr ).clear();
+		  travellerRef.clear();
 		}
 	  }
 	  remove_orphans();
@@ -746,11 +1069,9 @@ namespace Pol {
 	{
 	  BoatContext bc( *this );
 
-	  for ( Travellers::const_iterator itr = travellers_.begin(), end = travellers_.end();
-			itr != end;
-			++itr )
+	  for ( const auto &travellerRef : travellers_ )
 	  {
-		UObject* obj = ( *itr ).get();
+		UObject* obj = travellerRef.get();
 
 		if ( !obj->orphan() && on_ship( bc, obj ) && obj->ismobile() )
 		{
@@ -769,11 +1090,9 @@ namespace Pol {
 	{
 	  BoatContext bc( *this );
 
-	  for ( Travellers::iterator itr = travellers_.begin(), end = travellers_.end();
-			itr != end;
-			++itr )
+	  for ( auto &travellerRef : travellers_ )
 	  {
-		UObject* obj = ( *itr ).get();
+		UObject* obj = travellerRef.get();
 
 		if ( !obj->orphan() && on_ship( bc, obj ) && obj->ismobile() )
 		{
@@ -787,7 +1106,7 @@ namespace Pol {
 			chr->z = static_cast<signed char>( z );
 			chr->realm = realm;
 			chr->realm_changed(); // not sure if neccessary...
-			( *itr ).clear();
+			travellerRef.clear();
 		  }
 		}
 	  }
@@ -796,34 +1115,29 @@ namespace Pol {
 
 	void UBoat::adjust_traveller_z( s8 delta_z )
 	{
-	  for ( Travellers::iterator itr = travellers_.begin(), end = travellers_.end();
-			itr != end;
-			++itr )
+	  for ( auto &travellerRef : travellers_ )
 	  {
-		UObject* obj = ( *itr ).get();
+		UObject* obj = travellerRef.get();
 		obj->z += delta_z;
 	  }
-	  for ( vector<Items::Item*>::iterator itr = Components.begin(), end = Components.end(); itr != end; ++itr )
+	  for ( auto &component : Components )
 	  {
-		Items::Item* item = *itr;
-		item->z += delta_z;
+		component->z += delta_z;
 	  }
 	}
 
 	void UBoat::on_color_changed()
 	{
-	  send_boat_to_inrange( this );
+	  send_display_boat_to_inrange();
 	}
 
 	void UBoat::realm_changed()
 	{
 	  BoatContext bc( *this );
 
-	  for ( Travellers::iterator itr = travellers_.begin(), end = travellers_.end();
-			itr != end;
-			++itr )
+	  for ( auto &travellerRef : travellers_ )
 	  {
-		UObject* obj = ( *itr ).get();
+		UObject* obj = travellerRef.get();
 
 		if ( !obj->orphan() && on_ship( bc, obj ) && obj->ismobile() )
 		{
@@ -843,10 +1157,9 @@ namespace Pol {
 		  }
 		}
 	  }
-	  for ( vector<Items::Item*>::iterator itr = Components.begin(), end = Components.end(); itr != end; ++itr )
+	  for ( auto &component : Components )
 	  {
-		Items::Item* item = *itr;
-		item->realm = realm;
+		component->realm = realm;
 	  }
 	}
 
@@ -871,11 +1184,9 @@ namespace Pol {
 	  // we only do tellmove here because tellmove also checks attacks.
 	  // this way, we move everyone, then check for attacks.
 
-	  for ( Travellers::iterator itr = travellers_.begin(), end = travellers_.end();
-			itr != end;
-			++itr )
+	  for ( auto &travellerRef : travellers_ )
 	  {
-		UObject* obj = ( *itr ).get();
+		UObject* obj = travellerRef.get();
 
 		if ( obj != NULL ) // sometimes we've destroyed objects because of control scripts
 		{
@@ -908,10 +1219,12 @@ namespace Pol {
 		x = newx;
 		y = newy;
 
-		// NOTE, send_boat_to_inrange pauses those it sends to.
-		send_boat_to_inrange( this, oldx, oldy );
-		move_components( oldrealm );
 		move_travellers( Core::FACING_N, bc, newx, newy, oldrealm ); //facing is ignored if params 3 & 4 are not USHRT_MAX
+		move_components( oldrealm );
+		// NOTE, send_boat_to_inrange pauses those it sends to.
+		send_display_boat_to_inrange( oldx, oldy );
+		//send_boat_to_inrange( this, oldx, oldy );
+		do_tellmoves();
 		unpause_paused();
 
 		result = true;
@@ -926,19 +1239,28 @@ namespace Pol {
 	  return result;
 	}
 
-	bool UBoat::move( Core::UFACING facing )
+	bool UBoat::move( Core::UFACING dir, u8 speed, bool relative )
 	{
 	  bool result;
 
 	  unregself();
 
+	  Core::UFACING move_dir;
+
+	  if ( relative == false )
+		  move_dir = dir;
+	  else
+		  move_dir = static_cast<Core::UFACING>( ( dir + boat_facing() ) & 7 );
+
 	  unsigned short newx, newy;
-	  newx = x + Core::move_delta[facing].xmove;
-	  newy = y + Core::move_delta[facing].ymove;
+	  newx = x + Core::move_delta[move_dir].xmove;
+	  newy = y + Core::move_delta[move_dir].ymove;
 
 	  if ( navigable( multidef(), newx, newy, z, realm ) )
 	  {
 		BoatContext bc( *this );
+
+		send_smooth_move_to_inrange( move_dir, speed, newx, newy, relative );
 
 		set_dirty();
 
@@ -950,11 +1272,45 @@ namespace Pol {
 		y = newy;
 
 		// NOTE, send_boat_to_inrange pauses those it sends to.
-		send_boat_to_inrange( this, oldx, oldy );
+		// send_boat_to_inrange( this, oldx, oldy );
+		move_travellers( move_dir, bc, x, y, realm );
 		move_components( realm );
-		move_travellers( facing, bc, x, y, realm );
-		unpause_paused();
 
+		Core::WorldIterator<Core::PlayerFilter>::InRange( x, y, realm, RANGE_VISUAL_LARGE_BUILDINGS, [&]( Mobile::Character* zonechr )
+		{
+          if ( !zonechr->has_active_client() )
+            return;
+
+		  Network::Client* client = zonechr->client;
+
+		  if ( client->ClientType & Network::CLIENTTYPE_7090 )
+		  {
+			if ( Core::inrange( client->chr->x, client->chr->y, oldx, oldy ) )
+				return;
+			else
+				send_boat_newly_inrange( client ); // send HSA packet only for newly inrange
+		  }
+		  else
+		  {
+			  if ( client->ClientType & Network::CLIENTTYPE_7000 )
+				send_boat( client ); // Send 
+			  else
+				send_boat_old( client );
+		  }			  
+		} );
+
+        Core::WorldIterator<Core::PlayerFilter>::InRange( oldx, oldy, realm, RANGE_VISUAL_LARGE_BUILDINGS, [&]( Mobile::Character* zonechr )
+        {
+          if ( !zonechr->has_active_client() )
+            return;
+          Network::Client* client = zonechr->client;
+
+          if ( !inrange( client->chr, this ) ) // send remove to chrs only seeing the old loc
+				send_remove_boat( client );
+        } );
+
+		do_tellmoves();
+	    unpause_paused();
 		result = true;
 	  }
 	  else
@@ -963,7 +1319,6 @@ namespace Pol {
 	  }
 
 	  regself();
-
 	  return result;
 	}
 
@@ -993,34 +1348,61 @@ namespace Pol {
 
 	void UBoat::transform_components( const BoatShape& old_boatshape, Plib::Realm* oldrealm )
 	{
-	  const BoatShape& bshape = boatshape();
-	  vector<Items::Item*>::iterator itr;
-	  vector<Items::Item*>::iterator end = Components.end( );
-	  vector<BoatShape::ComponentShape>::const_iterator itr2;
-	  vector<BoatShape::ComponentShape>::const_iterator old_itr;
-	  vector<BoatShape::ComponentShape>::const_iterator end2 = bshape.Componentshapes.end();
-	  vector<BoatShape::ComponentShape>::const_iterator old_end = old_boatshape.Componentshapes.end();
-	  for ( itr = Components.begin(), itr2 = bshape.Componentshapes.begin(), old_itr = old_boatshape.Componentshapes.begin();
-			itr != end && itr2 != end2 && old_itr != old_end;
-			++itr, ++itr2, ++old_itr )
-	  {
-		Items::Item* item = *itr;
-		if ( item != NULL )
+		const BoatShape& bshape = boatshape();
+		vector<Items::Item*>::iterator itr;
+		vector<Items::Item*>::iterator end = Components.end( );
+		vector<BoatShape::ComponentShape>::const_iterator itr2;
+		vector<BoatShape::ComponentShape>::const_iterator old_itr;
+		vector<BoatShape::ComponentShape>::const_iterator end2 = bshape.Componentshapes.end();
+		vector<BoatShape::ComponentShape>::const_iterator old_end = old_boatshape.Componentshapes.end();
+		for ( itr = Components.begin(), itr2 = bshape.Componentshapes.begin(), old_itr = old_boatshape.Componentshapes.begin(); itr != end && itr2 != end2 && old_itr != old_end; ++itr, ++itr2, ++old_itr )
 		{
-		  if ( item->orphan() )
-		  {
-			continue;
-		  }
-		  item->set_dirty();
-		  if ( item->objtype_ == Core::extobj.port_plank && item->graphic == old_itr->altgraphic )
-			item->graphic = itr2->altgraphic;
-		  else if ( item->objtype_ == Core::extobj.starboard_plank && item->graphic == old_itr->altgraphic )
-			item->graphic = itr2->altgraphic;
-		  else
-			item->graphic = itr2->graphic;
-		  move_boat_item( item, x + itr2->xdelta, y + itr2->ydelta, z + static_cast<s8>( itr2->zdelta ), oldrealm );
+			Items::Item* item = *itr;
+			if ( item != NULL )
+			{
+				if ( item->orphan() )
+					continue;
+
+				item->set_dirty();
+				if ( item->objtype_ == Core::extobj.port_plank && item->graphic == old_itr->altgraphic )
+					item->graphic = itr2->altgraphic;
+				else if ( item->objtype_ == Core::extobj.starboard_plank && item->graphic == old_itr->altgraphic )
+					item->graphic = itr2->altgraphic;
+				else
+					item->graphic = itr2->graphic;
+
+				u16 oldx = item->x;
+				u16 oldy = item->y;
+
+				item->x = x + itr2->xdelta;
+				item->y = y + itr2->ydelta;
+				item->z = z + static_cast<s8>( itr2->zdelta );
+
+				MoveItemWorldPosition( oldx, oldy, item, oldrealm );
+
+			  Core::WorldIterator<Core::PlayerFilter>::InRange( item->x, item->y, realm, RANGE_VISUAL, [&]( Mobile::Character* zonechr )
+			  {
+				if ( !zonechr->has_active_client() )
+					return;
+
+				Network::Client* client = zonechr->client;
+
+				if ( !( client->ClientType & Network::CLIENTTYPE_7090 ) )
+					send_item( client, item );
+			  } );
+
+			  Core::WorldIterator<Core::PlayerFilter>::InRange( oldx, oldy, oldrealm, RANGE_VISUAL, [&]( Mobile::Character *zonechr )
+			  {
+				if ( !zonechr->has_active_client() )
+					return;
+
+				Network::Client* client = zonechr->client;
+
+				if ( !inrange( client->chr, item ) ) // not in range.  If old loc was in range, send a delete.
+					send_remove_object( client, item );
+			  } );
+			}
 		}
-	  }
 	}
 
 	void UBoat::move_components( Plib::Realm* oldrealm )
@@ -1042,7 +1424,37 @@ namespace Pol {
 			continue;
 		  }
 		  item->set_dirty();
-		  move_boat_item( item, x + itr2->xdelta, y + itr2->ydelta, z + static_cast<s8>( itr2->zdelta ), oldrealm );
+
+		  u16 oldx = item->x;
+		  u16 oldy = item->y;
+
+		  item->x = x + itr2->xdelta;
+		  item->y = y + itr2->ydelta;
+		  item->z = z + static_cast<s8>( itr2->zdelta );
+
+		  MoveItemWorldPosition( oldx, oldy, item, oldrealm );
+
+		  Core::WorldIterator<Core::PlayerFilter>::InRange( item->x, item->y, realm, RANGE_VISUAL, [&]( Mobile::Character* zonechr )
+		  {
+			if ( !zonechr->has_active_client() )
+				return;
+
+			Network::Client* client = zonechr->client;
+
+			if ( !( client->ClientType & Network::CLIENTTYPE_7090 ) )
+				send_item( client, item );
+		  } );
+
+		  Core::WorldIterator<Core::PlayerFilter>::InRange( oldx, oldy, oldrealm, RANGE_VISUAL, [&]( Mobile::Character *zonechr )
+		  {
+			if ( !zonechr->has_active_client() )
+				return;
+
+			Network::Client* client = zonechr->client;
+
+			if ( !inrange( client->chr, item ) ) // not in range.  If old loc was in range, send a delete.
+				send_remove_object( client, item );
+		  } );
 		}
 	  }
 	}
@@ -1062,9 +1474,11 @@ namespace Pol {
 		set_dirty();
 		multiid = multiid_ifturn( dir );
 
-		send_boat_to_inrange( this ); // pauses those it sends to
-		transform_components( old_boatshape, NULL );
+		//send_boat_to_inrange( this, x ,y, false ); // pauses those it sends to
 		turn_travellers( dir, bc );
+		transform_components( old_boatshape, NULL );
+		send_display_boat_to_inrange( x, y );
+		do_tellmoves();
 		unpause_paused();
 		facing = ( ( dir * 2 ) + facing ) & 7;
 		result = true;
@@ -1083,6 +1497,17 @@ namespace Pol {
 	  {
 		set_dirty();
 		travellers_.push_back( Traveller( obj ) );
+	  }
+	}
+
+	void UBoat::unregister_object( UObject* obj )
+	{
+		Travellers::iterator this_traveller = find( travellers_.begin(), travellers_.end(), obj );
+
+	  if ( this_traveller != travellers_.end() )
+	  {
+		set_dirty();
+		travellers_.erase( this_traveller );
 	  }
 	}
 
@@ -1105,9 +1530,8 @@ namespace Pol {
 
 	void UBoat::reread_components()
 	{
-	  for ( vector<Items::Item*>::const_iterator itr = Components.begin( ), end = Components.end( ); itr != end; ++itr )
+	  for ( auto &component : Components )
 	  {
-		Items::Item* component = *itr;
 		if ( component == NULL )
 		  continue;
 		// check boat members here
@@ -1187,20 +1611,19 @@ namespace Pol {
 
 	  BoatContext bc( *this );
 
-	  for ( Travellers::const_iterator itr = travellers_.begin(), end = travellers_.end(); itr != end; ++itr )
+	  for ( auto &travellerRef : travellers_ )
 	  {
-		UObject* obj = ( *itr ).get();
+		UObject* obj = travellerRef.get();
 		if ( !obj->orphan() && on_ship( bc, obj ) )
 		{
 		  sw() << "\tTraveller\t0x" << fmt::hex( obj->serial ) << pf_endl;
 		}
 	  }
-	  for ( vector<Item*>::const_iterator itr = Components.begin(), end = Components.end(); itr != end; ++itr )
+	  for ( auto &component : Components )
 	  {
-		Item* item = *itr;
-		if ( item != NULL && !item->orphan() )
+		if ( component != NULL && !component->orphan() )
 		{
-		  sw() << "\tComponent\t0x" << fmt::hex( item->serial ) << pf_endl;
+		  sw() << "\tComponent\t0x" << fmt::hex( component->serial ) << pf_endl;
 		}
 	  }
 	}
@@ -1241,7 +1664,8 @@ namespace Pol {
 	  boat->realm = realm;
 	  boat->facing = facing;
 	  add_multi_to_world( boat );
-	  send_boat_to_inrange( boat );
+	  boat->send_display_boat_to_inrange( x, y );
+	  //send_boat_to_inrange( boat, x, y, false );
 	  boat->create_components();
 	  boat->rescan_components();
 	  unpause_paused();
@@ -1293,9 +1717,9 @@ namespace Pol {
 	  BoatContext bc( *this );
 	  Bscript::ObjArray* arr = new Bscript::ObjArray;
 
-	  for ( Travellers::const_iterator itr = travellers_.begin(), end = travellers_.end(); itr != end; ++itr )
+	  for ( const auto &travellerRef : travellers_ )
 	  {
-		UObject* obj = ( *itr ).get();
+		UObject* obj = travellerRef.get();
 		if ( !obj->orphan() && on_ship( bc, obj ) && Core::IsItem( obj->serial ) )
 		{
 		  Item* item = static_cast<Item*>( obj );
@@ -1309,9 +1733,9 @@ namespace Pol {
 	{
 	  BoatContext bc( *this );
 	  Bscript::ObjArray* arr = new Bscript::ObjArray;
-	  for ( Travellers::const_iterator itr = travellers_.begin(), end = travellers_.end(); itr != end; ++itr )
+	  for ( const auto &travellerRef : travellers_ )
 	  {
-		UObject* obj = ( *itr ).get();
+		UObject* obj = travellerRef.get();
 		if ( !obj->orphan() && on_ship( bc, obj ) && obj->ismobile() )
 		{
 		  Mobile::Character* chr = static_cast<Mobile::Character*>( obj );
@@ -1325,19 +1749,18 @@ namespace Pol {
 	Bscript::BObjectImp* UBoat::component_list( unsigned char type ) const
 	{
 	  Bscript::ObjArray* arr = new Bscript::ObjArray;
-	  for ( vector<Item*>::const_iterator itr = Components.begin(), end = Components.end(); itr != end; ++itr )
+	  for ( const auto &component : Components )
 	  {
-		Item* item = *itr;
-		if ( item != NULL && !item->orphan() )
+		if ( component != NULL && !component->orphan() )
 		{
 		  if ( type == COMPONENT_ALL )
 		  {
-			arr->addElement( make_itemref( item ) );
+			arr->addElement( make_itemref( component ) );
 		  }
 		  else
 		  {
-			if ( item->objtype_ == get_component_objtype( type ) )
-			  arr->addElement( make_itemref( item ) );
+			if ( component->objtype_ == get_component_objtype( type ) )
+			  arr->addElement( make_itemref( component ) );
 		  }
 		}
 	  }
@@ -1346,12 +1769,11 @@ namespace Pol {
 
 	void UBoat::destroy_components()
 	{
-	  for ( vector<Item*>::iterator itr = Components.begin(), end = Components.end(); itr != end; ++itr )
+	  for ( auto &component : Components )
 	  {
-		Item* item = *itr;
-		if ( item != NULL && !item->orphan() )
+		if ( component != NULL && !component->orphan() )
 		{
-		  Core::destroy_item( item );
+		  Core::destroy_item( component );
 		}
 	  }
 	  Components.clear();

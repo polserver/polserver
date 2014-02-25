@@ -1,4 +1,17 @@
 ﻿-- POL099 --
+02-25-2014 Tomi:
+    Added:    Boat Smooth move for clients which support it ( HSA+ )
+    Added:    boat.em flags ( These flags are ignored for boat movements sent to old than HSA clients )
+	      const BOAT_SPEED_ONE_TILE 	:= 1;
+	      const BOAT_SPEED_SLOW		:= 2;
+              const BOAT_SPEED_MEDIUM 		:= 3;
+              const BOAT_SPEED_FAST 		:= 4;
+    Changed:  boat.em functions
+              MoveBoat( boat, facing ) to MoveBoat( boat, facing, speed := BOAT_SPEED_ONE_TILE ) 
+              MoveBoatRelative( boat, direction ) to MoveBoatRelative( boat, direction, speed := BOAT_SPEED_ONE_TILE )
+    Note:     The same functions are used to move boats for older and never clients, older clients ignore the speed parameter, but the speed paramter is required for smooth move.
+              The clientversions are checked in core to determine what type of boat movement will be sent
+
 02-01-2014 Tomi:
     Fixed: Customhousing exterior stairs delete is now working, commiting does not readd them anymore
     Fixed: Customhousing changing floor is now sending a full msg instead of short msg, so no more synch needed after changing floors until you can start working on it

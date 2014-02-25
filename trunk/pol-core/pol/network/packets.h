@@ -502,6 +502,8 @@ namespace Pol {
 	// HSA 26 old 24
 	typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_F3_ID, 26> PktOut_F3;
 	typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_F5_ID, 21> PktOut_F5;
+	typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_F6_ID, 0xFFFF> PktOut_F6;
+	typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_F7_ID, 0xFFFF> PktOut_F7;
 	// Packet defs end
 
   }

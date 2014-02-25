@@ -1377,13 +1377,12 @@ namespace Pol {
 		{
 		  dummy_multi->register_object( npc.get() );
 		  Multi::UHouse* this_house = dummy_multi->as_house();
-		  if ( this_house != NULL )
+		  if ( npc->registered_house == 0 )
 		  {
-			if ( npc->registered_house == 0 )
-			{
 			  npc->registered_house = dummy_multi->serial;
-			  this_house->walk_on( npc.get() );
-			}
+
+			  if ( this_house != NULL )
+				this_house->walk_on( npc.get() );
 		  }
 		}
 		else
@@ -1393,9 +1392,7 @@ namespace Pol {
 			Multi::UMulti* multi = system_find_multi( npc->registered_house );
 			if ( multi != NULL )
 			{
-			  Multi::UHouse* house = multi->as_house();
-			  if ( house != NULL )
-				house->unregister_object( npc.get() );
+				multi->unregister_object( npc.get() );
 			}
 			npc->registered_house = 0;
 		  }
@@ -5644,6 +5641,7 @@ namespace Pol {
 	  else
 		return new BError( "Invalid parameter" );
 	}
+
 
 	UOFunctionDef UOExecutorModule::function_table[] =
 	{

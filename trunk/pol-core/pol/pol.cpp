@@ -358,13 +358,12 @@ namespace Pol {
 		{
 		  supporting_multi->register_object( client->chr );
 		  Multi::UHouse* this_house = supporting_multi->as_house();
-		  if ( this_house != NULL )
+		  if ( client->chr->registered_house == 0 )
 		  {
-			if ( client->chr->registered_house == 0 )
-			{
 			  client->chr->registered_house = supporting_multi->serial;
-			  this_house->walk_on( client->chr );
-			}
+
+		      if ( this_house != NULL )
+				  this_house->walk_on( client->chr );
 		  }
 		}
 		else
@@ -374,9 +373,7 @@ namespace Pol {
             Multi::UMulti* multi = system_find_multi( client->chr->registered_house );
 			if ( multi != NULL )
 			{
-              Multi::UHouse* house = multi->as_house( );
-			  if ( house != NULL )
-				house->unregister_object( client->chr );
+				multi->unregister_object( client->chr );
 			}
 			client->chr->registered_house = 0;
 		  }
