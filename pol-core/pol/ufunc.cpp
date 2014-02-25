@@ -1869,6 +1869,7 @@ namespace Pol {
         {
           send_remove_object( zonechr->client, msgremove.Get() );
         } );
+
 		if ( item->container == NULL ) // on ground, easy.
 		{
 		  if ( !item->is_gotten() ) // and not in hand
@@ -1878,6 +1879,7 @@ namespace Pol {
 		{
 		  item->extricate();
 		}
+
 		item->destroy();
 	  }
 	}
@@ -1993,74 +1995,6 @@ namespace Pol {
           msgremove.Send( zonechr->client );
       } );
 	}
-
-	void move_boat_item( Item* item, unsigned short newx, unsigned short newy, signed char newz, Plib::Realm* oldrealm )
-	{
-	  u16 oldx = item->x;
-	  u16 oldy = item->y;
-
-	  item->x = newx;
-	  item->y = newy;
-	  item->z = newz;
-
-	  MoveItemWorldPosition( oldx, oldy, item, oldrealm );
-
-	  PktHelper::PacketOut<PktOut_1A> msg;
-	  msg->offset += 2;
-	  msg->Write<u32>( item->serial_ext );
-	  msg->WriteFlipped<u16>( item->graphic );
-	  msg->WriteFlipped<u16>( item->x );
-	  msg->WriteFlipped<u16>( item->y );
-	  msg->Write<s8>( item->z );
-	  u16 len1A = msg->offset;
-	  msg->offset = 1;
-	  msg->WriteFlipped<u16>( len1A );
-
-	  // Client >= 7.0.0.0 ( SA )
-	  PktHelper::PacketOut<PktOut_F3> msg2;
-	  msg2->WriteFlipped<u16>( static_cast<u16>( 0x1 ) );
-	  msg2->offset++; // datatype
-	  msg2->Write<u32>( item->serial_ext );
-	  msg2->WriteFlipped<u16>( item->graphic );
-	  msg2->Write<u8>( static_cast<u8>( 0 ) );
-	  msg2->WriteFlipped<u16>( static_cast<u16>( 0x1 ) );
-	  msg2->WriteFlipped<u16>( static_cast<u16>( 0x1 ) );
-	  msg2->WriteFlipped<u16>( item->x );
-	  msg2->WriteFlipped<u16>( item->y );
-	  msg2->Write<s8>( item->z );
-	  msg2->Write<u8>( item->facing ); //facing
-	  msg2->WriteFlipped<u16>( item->color );
-	  msg2->offset++; //flags
-
-	  // Client >= 7.0.9.0 ( HSA )
-	  PktHelper::PacketOut<PktOut_F3> msg3;
-	  memcpy( &msg3->buffer, &msg2->buffer, sizeof msg3->buffer );
-	  msg3->offset = 26; //unk short at the end
-
-	  PktHelper::PacketOut<PktOut_1D> msgremove;
-	  msgremove->Write<u32>( item->serial_ext );
-
-      WorldIterator<PlayerFilter>::InVisualRange( item, [&]( Character *zonechr )
-      {
-        if ( !zonechr->has_active_client() )
-          return;
-        Client* client = zonechr->client;
-        if ( client->ClientType & CLIENTTYPE_7090 )
-          msg3.Send( client );
-        else if ( client->ClientType & CLIENTTYPE_7000 )
-          msg2.Send( client );
-        else
-          msg.Send( client, len1A );
-      } );
-      WorldIterator<PlayerFilter>::InRange( oldx, oldy, item->realm, RANGE_VISUAL, [&]( Character *zonechr )
-      {
-        if ( !zonechr->has_active_client() )
-          return;
-        if ( !inrange( zonechr, item ) )// not in range.  If old loc was in range, send a delete.
-          msgremove.Send( zonechr->client );
-      } );
-	}
-
 
 	void send_multi( Client* client, const Multi::UMulti* multi )
 	{

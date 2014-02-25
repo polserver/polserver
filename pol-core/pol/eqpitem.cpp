@@ -134,6 +134,12 @@ namespace Pol {
 		return;
 	  }
 
+	  // Unregister the item if it is on a multi
+	  Multi::UMulti* multi = item->realm->find_supporting_multi( item->x, item->y, item->z );
+
+	  if ( multi != NULL && item->container == NULL )
+		  multi->unregister_object( item );
+
 	  equip_on->equip( item );
 	  send_wornitem_to_inrange( equip_on, item );
 	}

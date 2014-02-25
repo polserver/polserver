@@ -52,14 +52,24 @@ namespace Pol {
 	public:
 	  virtual UBoat* as_boat();
 
-	  bool move( Core::UFACING dir );
+	  bool move( Core::UFACING dir, u8 speed, bool relative );
 	  bool move_xy( unsigned short x, unsigned short y, int flags, Plib::Realm* oldrealm );
 
       enum RELATIVE_DIR { NO_TURN, RIGHT, AROUND, LEFT };
 	  bool turn( RELATIVE_DIR dir );
 
 	  virtual void register_object( Core::UObject* obj );
+	  virtual void unregister_object( Core::UObject* obj );
 	  Core::UFACING boat_facing() const;
+
+	  void send_smooth_move( Network::Client* client, Core::UFACING move_dir, u8 speed, u16 newx, u16 newy, bool relative );
+	  void send_smooth_move_to_inrange( Core::UFACING move_dir, u8 speed, u16 newx, u16 newy, bool relative );
+	  void send_display_boat( Network::Client* client );
+	  void send_display_boat_to_inrange( u16 oldx = USHRT_MAX, u16 oldy = USHRT_MAX );
+	  void send_boat( Network::Client* client );
+	  void send_boat_old( Network::Client* client );
+	  void send_boat_newly_inrange( Network::Client* client );
+	  void send_remove_boat( Network::Client* client );
 
 	  void cleanup_deck();
 	  bool hold_empty() const;
@@ -87,7 +97,7 @@ namespace Pol {
 	  Items::Item* hold;
 
 	protected:
-	  void move_travellers( enum Core::UFACING facing, const BoatContext& oldlocation, unsigned short x = USHRT_MAX, unsigned short y = USHRT_MAX, Plib::Realm* oldrealm = NULL );
+	  void move_travellers( enum Core::UFACING move_dir, const BoatContext& oldlocation, unsigned short x = USHRT_MAX, unsigned short y = USHRT_MAX, Plib::Realm* oldrealm = NULL );
 	  void turn_travellers( RELATIVE_DIR dir, const BoatContext& oldlocation );
 	  void turn_traveller_coords( Mobile::Character* chr, RELATIVE_DIR dir );
 	  static bool on_ship( const BoatContext& bc, const Core::UObject* obj );
@@ -145,7 +155,6 @@ namespace Pol {
 	};
 
 	Bscript::BObjectImp* destroy_boat( UBoat* boat );
-	void send_boat_to_inrange( const UBoat* item, u16 oldx = USHRT_MAX, u16 oldy = USHRT_MAX );
 	unsigned int get_component_objtype( unsigned char type );
 	bool BoatShapeExists( u16 multiid );
 	void clean_boatshapes();

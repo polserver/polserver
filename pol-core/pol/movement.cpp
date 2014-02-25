@@ -83,6 +83,56 @@ namespace Pol {
       } );
 	}
 
+	void send_objects_newly_inrange_on_boat( Network::Client* client, u32 serial )
+	{
+		Mobile::Character* chr = client->chr;
+
+		if ( client->ClientType & Network::CLIENTTYPE_7090 )
+		{
+
+			WorldIterator<MobileFilter>::InVisualRange( chr, [&]( Mobile::Character* zonechr )
+			{
+				Multi::UMulti* multi = zonechr->realm->find_supporting_multi( zonechr->x, zonechr->y, zonechr->z );
+
+				if ( multi != NULL && multi->serial == serial )
+					return;
+
+				send_char_if_newly_inrange( zonechr, client );
+			} );
+			WorldIterator<ItemFilter>::InVisualRange( chr, [&]( Items::Item* zoneitem )
+			{ 
+				Multi::UMulti* multi = zoneitem->realm->find_supporting_multi( zoneitem->x, zoneitem->y, zoneitem->z );
+
+				if ( multi != NULL && multi->serial == serial )
+					return;
+
+				send_item_if_newly_inrange( zoneitem, client );
+			} );
+			WorldIterator<MultiFilter>::InRange( chr->x, chr->y, chr->realm, RANGE_VISUAL_LARGE_BUILDINGS, [&]( Multi::UMulti* zonemulti )
+			{
+				if ( zonemulti->serial == serial )
+					return;
+
+				send_multi_if_newly_inrange( zonemulti, client );
+			} );
+		}
+		else
+		{
+			WorldIterator<MobileFilter>::InVisualRange( chr, [&]( Mobile::Character* zonechr )
+			{
+				send_char_if_newly_inrange( zonechr, client );
+			} );
+			WorldIterator<ItemFilter>::InVisualRange( chr, [&]( Items::Item* zoneitem )
+			{ 
+				send_item_if_newly_inrange( zoneitem, client );
+			} );
+			WorldIterator<MultiFilter>::InRange( chr->x, chr->y, chr->realm, RANGE_VISUAL_LARGE_BUILDINGS, [&]( Multi::UMulti* zonemulti )
+			{
+				send_multi_if_newly_inrange( zonemulti, client );
+			} );
+		}
+	}
+
     void remove_objects_inrange( Network::Client* client )
     {
       Mobile::Character* chr = client->chr;

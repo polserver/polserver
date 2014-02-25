@@ -41,6 +41,7 @@ FIXME: Does STW use slots with KR or newest 2d? If so, we must do slot checks th
 
 #include "../plib/realm.h"
 
+#include "fnsearch.h"
 #include "getitem.h"
 #include "layers.h"
 #include "los.h"
@@ -792,7 +793,6 @@ namespace Pol {
 	  client->chr->gotten_item->gotten_by = NULL;
 	  client->chr->gotten_item = NULL;
 
-
 	  bool res;
 	  if ( target_serial == 0xFFffFFffLu )
 	  {
@@ -804,7 +804,12 @@ namespace Pol {
 	  }
 	  else
 	  {
-		res = place_item( client, item, target_serial, x, y, 0 );
+		Multi::UMulti* multi = system_find_multi( target_serial );
+
+		if ( multi != NULL )
+			res = drop_item_on_ground( client, item, ( multi->x + x ), ( multi->y + y ), z );
+		else
+			res = place_item( client, item, target_serial, x, y, 0 );
 	  }
 
 	  if ( !item->orphan() )
@@ -872,7 +877,12 @@ namespace Pol {
 	  }
 	  else
 	  {
-		res = place_item( client, item, target_serial, x, y, slotIndex );
+		Multi::UMulti* multi = system_find_multi( target_serial );
+
+		if ( multi != NULL )
+			res = drop_item_on_ground( client, item, ( multi->x + x ), ( multi->y + y ), z );
+		else
+			res = place_item( client, item, target_serial, x, y, 0 );
 	  }
 
 	  if ( !item->orphan() )

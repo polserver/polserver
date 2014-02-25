@@ -158,9 +158,7 @@ namespace Pol {
 		Multi::UMulti* multi = system_find_multi( registered_house );
 		if ( multi != NULL )
 		{
-          Multi::UHouse* house = multi->as_house();
-		  if ( house != NULL )
-			house->unregister_object( ( UObject* )this );
+			multi->unregister_object( ( UObject* )this );
 		}
 		registered_house = 0;
 	  }
@@ -268,9 +266,12 @@ namespace Pol {
           // Check first with the ssopt false to now allow npcs of same master running on top of each other
           if ( !ssopt.mobiles_block_npc_movement )
           {
-            NPC* npc = static_cast<NPC*>( chr );
-            if ( ( chr->acct == NULL && this->master( ) == npc->master( ) ) && !chr->dead( ) && is_visible_to_me( chr ) )
-              return true;
+			  if ( chr->acct == NULL )
+			  {
+				NPC* npc = static_cast<NPC*>( chr );
+				if ( npc->master() && this->master() == npc->master() && !npc->dead() && is_visible_to_me( npc ) )
+					return true;
+			  }
           }
           else
           {
