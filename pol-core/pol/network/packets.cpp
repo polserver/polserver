@@ -107,6 +107,8 @@ namespace Pol {
 	  packets.insert( PacketQueuePair( PKTOUT_E3_ID, new PacketQueueSingle() ) );
 	  packets.insert( PacketQueuePair( PKTOUT_F3_ID, new PacketQueueSingle() ) );
 	  packets.insert( PacketQueuePair( PKTOUT_F5_ID, new PacketQueueSingle() ) );
+	  packets.insert( PacketQueuePair( PKTOUT_F6_ID, new PacketQueueSingle() ) );
+	  packets.insert( PacketQueuePair( PKTOUT_F7_ID, new PacketQueueSingle() ) );
 	}
 
 	PacketsSingleton::~PacketsSingleton()
@@ -351,6 +353,8 @@ namespace Pol {
 		  case PKTOUT_E3_ID: return new PktOut_E3();
 		  case PKTOUT_F3_ID: return new PktOut_F3();
 		  case PKTOUT_F5_ID: return new PktOut_F5();
+		  case PKTOUT_F6_ID: return new PktOut_F6();
+		  case PKTOUT_F7_ID: return new PktOut_F7();
 		  default: throw runtime_error( "Request of undefined Packet: " + Clib::hexint( id ) + "-" + Clib::hexint( sub ) ); return NULL;
 		}
 	  }

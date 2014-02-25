@@ -253,11 +253,11 @@ namespace Pol {
 
 	void move_item( Items::Item* item, UFACING facing );
 	void move_item( Items::Item* item, unsigned short newx, unsigned short newy, signed char newz, Plib::Realm* oldrealm );
-	void move_boat_item( Items::Item* item, unsigned short newx, unsigned short newy, signed char newz, Plib::Realm* oldrealm );
 
 	void send_char_if_newly_inrange( Mobile::Character *chr, Network::Client *client );
 	void send_item_if_newly_inrange( Items::Item *item, Network::Client *client );
 	void send_objects_newly_inrange( Network::Client* client );
+	void send_objects_newly_inrange_on_boat( Network::Client* client, u32 serial );
 	void remove_objects_inrange( Network::Client* client );
 
 	void send_create_mobile_if_nearby_cansee( Network::Client* client, const Mobile::Character* chr );

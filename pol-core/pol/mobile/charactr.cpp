@@ -723,9 +723,7 @@ namespace Pol {
         Multi::UMulti* multi = Core::system_find_multi( registered_house );
 		if ( multi != NULL )
 		{
-		  Multi::UHouse* house = multi->as_house();
-		  if ( house != NULL )
-			house->unregister_object( ( UObject* )this );
+			multi->unregister_object( ( UObject* )this );
 		}
 		registered_house = 0;
 	  }
@@ -2819,17 +2817,30 @@ namespace Pol {
         should send a 'create' type message.  If they are in range,
         we should just send a move.
         */
-        if ( chr->move_reason == Character::MULTIMOVE )
+		if ( chr->move_reason == Character::MULTIMOVE )
         {
-          // NOTE: uncomment this line to make movement smoother (no stepping anims)
-          // but basically makes it very difficult to talk while the ship
-          // is moving.
-#ifdef PERGON
-          send_remove_character( client, chr, msgremove.Get( ), false );
-#else
-          //send_remove_character( client, chr );
-#endif
-          send_owncreate( client, chr, msgcreate.Get( ), msgpoison.Get( ), msginvul.Get( ) );
+			if ( client->ClientType & Network::CLIENTTYPE_7090 )
+			{
+				if ( chr->poisoned ) //if poisoned send 0x17 for newer clients
+					send_poisonhealthbar( client, chr );
+
+				if ( chr->invul() ) //if invul send 0x17 for newer clients
+					send_invulhealthbar( client, chr );
+
+				return;
+			}
+			else
+			{
+				// NOTE: uncomment this line to make movement smoother (no stepping anims)
+				// but basically makes it very difficult to talk while the ship
+				// is moving.
+				#ifdef PERGON
+					send_remove_character( client, chr, msgremove.Get( ), false );
+				#else
+						//send_remove_character( client, chr );
+				#endif
+				send_owncreate( client, chr, msgcreate.Get( ), msgpoison.Get( ), msginvul.Get( ) );
+			}
         }
         else if ( Core::inrange( zonechr->x, zonechr->y, chr->lastx, chr->lasty ) )
         {
@@ -3934,13 +3945,12 @@ namespace Pol {
 		{
 		  supporting_multi->register_object( this );
 		  Multi::UHouse* this_house = supporting_multi->as_house();
-		  if ( this_house != NULL )
+		  if ( this->registered_house == 0 )
 		  {
-			if ( registered_house == 0 )
-			{
-			  registered_house = supporting_multi->serial;
-			  this_house->walk_on( this );
-			}
+			  this->registered_house = supporting_multi->serial;
+
+			  if ( this_house != NULL )
+				  this_house->walk_on( this );
 		  }
 		}
 		else
@@ -3950,9 +3960,7 @@ namespace Pol {
             Multi::UMulti* multi = Core::system_find_multi( registered_house );
 			if ( multi != NULL )
 			{
-			  Multi::UHouse* house = multi->as_house();
-			  if ( house != NULL )
-				house->unregister_object( ( UObject* )this );
+				multi->unregister_object( ( UObject* )this );
 			}
 			registered_house = 0;
 		  }

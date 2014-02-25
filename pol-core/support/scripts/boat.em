@@ -1,12 +1,21 @@
+// MoveBoat flags
+
+const BOAT_SPEED_ONE_TILE 	:= 1;
+const BOAT_SPEED_SLOW		:= 2;
+const BOAT_SPEED_MEDIUM 	:= 3;
+const BOAT_SPEED_FAST 		:= 4;
+
 	// MoveBoat: moves a boat in the direction of an absolute facing
 	// 0=N, 1=NE, 2=E, etc
-MoveBoat( boat, facing );
+	// speed to determine how fast the boat movement should be animated for smooth move
+MoveBoat( boat, facing, speed := BOAT_SPEED_ONE_TILE );
 
 
 	// MoveBoatRelative: move a boat in the direction of a relative facing
 	// same as MoveBoat, but adjusted for boat's facing.
 	// If boat faces East, 0 will move E, 1 will move SE, etc.
-MoveBoatRelative( boat, direction );
+	// speed to determine how fast the boat movement should be animated for smooth move
+MoveBoatRelative( boat, direction, speed := BOAT_SPEED_ONE_TILE );
 
 	// MoveBoatXY: moves a boat to the specified X,Y coordinate. Careful moving
 	// close to the world edge where a part of the boat might be out of bounds.
