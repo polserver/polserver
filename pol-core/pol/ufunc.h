@@ -254,6 +254,7 @@ namespace Pol {
 	void move_item( Items::Item* item, UFACING facing );
 	void move_item( Items::Item* item, unsigned short newx, unsigned short newy, signed char newz, Plib::Realm* oldrealm );
 
+	void update_nearby_visible_chars( Network::Client* client ); 
 	void send_char_if_newly_inrange( Mobile::Character *chr, Network::Client *client );
 	void send_item_if_newly_inrange( Items::Item *item, Network::Client *client );
 	void send_objects_newly_inrange( Network::Client* client );

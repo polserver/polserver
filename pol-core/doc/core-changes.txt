@@ -1,5 +1,6 @@
 ﻿-- POL099 --
 02-27-2014 Tomi:
+    Fixed:    changing cmdlevel now updates correctly which concealed characters you see
     Fixed:    crashes when parent script is killed before child script returns
     Fixed:    crashes when reporting error in an armordesc entry defined in config\itemdesc.cfg
 

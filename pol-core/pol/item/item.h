@@ -59,6 +59,8 @@ namespace Pol {
 
 	  bool movable() const;
 	  void movable( bool newvalue );
+	  void on_movable_changed();
+
 	  bool default_movable() const;
 	  bool default_invisible() const;
 
@@ -229,7 +231,11 @@ namespace Pol {
 
 	inline void Item::movable( bool newvalue )
 	{
-	  movable_ = newvalue;
+		if ( movable_ != newvalue )
+		{
+			movable_ = newvalue;
+			on_movable_changed();
+		}
 	}
 
 	inline bool Item::inuse() const
@@ -239,7 +245,7 @@ namespace Pol {
 
 	inline void Item::inuse( bool newvalue )
 	{
-	  inuse_ = newvalue;
+		inuse_ = newvalue;
 	}
 
 	inline bool Item::is_gotten() const
@@ -249,7 +255,7 @@ namespace Pol {
 
 	inline void Item::is_gotten( bool newvalue )
 	{
-	  is_gotten_ = newvalue;
+		is_gotten_ = newvalue;
 	}
 
 	inline bool Item::invisible() const
@@ -259,7 +265,11 @@ namespace Pol {
 
 	inline void Item::invisible( bool newvalue )
 	{
-	  invisible_ = newvalue;
+		if ( invisible_ != newvalue )
+		{
+			invisible_ = newvalue;
+			on_invisible_changed();
+		}
 	}
 
 	inline bool Item::newbie() const
@@ -269,7 +279,7 @@ namespace Pol {
 
 	inline void Item::newbie( bool newvalue )
 	{
-	  newbie_ = newvalue;
+		newbie_ = newvalue;
 	}
 
 	inline u8 Item::slot_index() const
