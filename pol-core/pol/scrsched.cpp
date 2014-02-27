@@ -373,7 +373,12 @@ namespace Pol {
 			else
 			{
 			  //runlist.erase( itr );
-			  delete ex;
+				// Check if the script has a child script running
+				// Set the parent of the child script NULL to stop crashing when trying to return to parent script
+				if ( ex->pChild != NULL )
+				ex->pChild->pParent = NULL;
+
+			    delete ex;
 			}
 			continue;
 		  }

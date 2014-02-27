@@ -1,4 +1,8 @@
 ﻿-- POL099 --
+02-27-2014 Tomi:
+    Fixed:    crashes when parent script is killed before child script returns
+    Fixed:    crashes when reporting error in an armordesc entry defined in config\itemdesc.cfg
+
 02-25-2014 Tomi:
     Added:    Boat Smooth move for clients which support it ( HSA+ )
     Added:    boat.em flags ( These flags are ignored for boat movements sent to old than HSA clients )
