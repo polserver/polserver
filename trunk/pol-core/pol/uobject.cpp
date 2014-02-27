@@ -355,7 +355,12 @@ namespace Pol {
 	bool UObject::setcolor( u16 newcolor )
 	{
 	  set_dirty();
-	  color = newcolor;
+
+	  if ( color != newcolor )
+	  {
+		color = newcolor;
+		on_color_changed();
+	  }
 
 	  return true;
 	}

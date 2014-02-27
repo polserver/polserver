@@ -838,7 +838,6 @@ namespace Pol {
 		case MBR_COLOR:
 		{
 						bool res = setcolor( static_cast<unsigned short>( value ) );
-						on_color_changed();
 						if ( !res ) // TODO log?
 						  return new BError( "Invalid color value " + Clib::hexint( value ) );
 						else
@@ -898,12 +897,12 @@ namespace Pol {
 		case MBR_EQUIPSCRIPT: return new String( equip_script_ ); break;
 		case MBR_UNEQUIPSCRIPT: return new String( unequip_script_ ); break;
 		case MBR_DESC: return new String( description() ); break;
-		case MBR_MOVABLE: return new BLong( movable_ ? 1 : 0 ); break;
-		case MBR_INVISIBLE: return new BLong( invisible_ ? 1 : 0 ); break;
+		case MBR_MOVABLE: return new BLong( movable() ? 1 : 0 ); break;
+		case MBR_INVISIBLE: return new BLong( invisible() ? 1 : 0 ); break;
 		case MBR_DECAYAT: return new BLong( decayat_gameclock_ ); break;
 		case MBR_SELLPRICE: return new BLong( sellprice() ); break;
 		case MBR_BUYPRICE: return new BLong( buyprice() ); break;
-		case MBR_NEWBIE: return new BLong( newbie_ ? 1 : 0 ); break;
+		case MBR_NEWBIE: return new BLong( newbie() ? 1 : 0 ); break;
 		case MBR_ITEM_COUNT: return new BLong( item_count() ); break;
 		case MBR_STACKABLE:  return new BLong( stackable() ? 1 : 0 ); break;
 		case MBR_SAVEONEXIT: return new BLong( saveonexit() ); break;
@@ -1003,16 +1002,14 @@ namespace Pol {
 	  {
 		case MBR_MOVABLE:
 		  restart_decay_timer();
-		  movable_ = value ? true : false;
+		  movable( value ? true : false );
 		  increv();
-		  on_color_changed();
-		  return new BLong( movable_ );
+		  return new BLong( movable() );
 		case MBR_INVISIBLE:
 		  restart_decay_timer();
-		  invisible_ = value ? true : false;
+		  invisible( value ? true : false );
 		  increv();
-		  on_invisible_changed();
-		  return new BLong( invisible_ );
+		  return new BLong( invisible() );
 		case MBR_DECAYAT:
 		  decayat_gameclock_ = value;
 		  return new BLong( decayat_gameclock_ );
@@ -1021,12 +1018,12 @@ namespace Pol {
 		case MBR_BUYPRICE:
 		  return new BLong( buyprice_ = value );
 		case MBR_NEWBIE:
-		  increv();
 		  restart_decay_timer();
-		  return new BLong( newbie_ = value ? true : false );
+		  newbie( value ? true : false );
+		  increv();
+		  return new BLong( newbie() );
 		case MBR_FACING:
 		  setfacing( (u8)value );
-		  on_facing_changed();
 		  return new BLong( facing );
 		case MBR_SAVEONEXIT:
 		  saveonexit( value ? true : false );
@@ -1490,44 +1487,6 @@ namespace Pol {
 		//}
 	  }
 	};
-	class HiddenUpdater
-	{
-	public:
-	  static void on_change( Character* chr )
-	  {
-		if ( chr->hidden() )
-		{
-		  chr->set_stealthsteps( 0 );
-		  if ( chr->client )
-			send_move( chr->client, chr );
-		  send_remove_character_to_nearby_cantsee( chr );
-		  send_create_mobile_to_nearby_cansee( chr );
-		}
-		else
-		{
-		  chr->unhide();
-		  chr->set_stealthsteps( 0 );
-		}
-	  }
-	};
-
-
-	class ConcealedUpdater
-	{
-	public:
-	  static void on_change( Character* chr )
-	  {
-		if ( chr->concealed() )
-		{
-		  if ( chr->client )
-			send_move( chr->client, chr );
-		  send_remove_character_to_nearby_cantsee( chr );
-		  send_create_mobile_to_nearby_cansee( chr );
-		}
-		else if ( chr->is_visible() )
-		  chr->unhide();
-	  }
-	};
 
 	BObjectImp* Character::make_ref()
 	{
@@ -1553,15 +1512,15 @@ namespace Pol {
 		case MBR_TRUECOLOR: return new BLong( truecolor ); break;
 		case MBR_AR_MOD: return new BLong( ar_mod() ); break;
 		case MBR_DELAY_MOD: return new BLong( delay_mod_ ); break;
-		case MBR_HIDDEN: return new BLong( hidden_ ? 1 : 0 ); break;
-		case MBR_CONCEALED: return new BLong( concealed_ ); break;
-		case MBR_FROZEN: return new BLong( frozen_ ? 1 : 0 ); break;
-		case MBR_PARALYZED: return new BLong( paralyzed_ ? 1 : 0 ); break;
-		case MBR_POISONED: return new BLong( poisoned ? 1 : 0 ); break;
+		case MBR_HIDDEN: return new BLong( hidden() ? 1 : 0 ); break;
+		case MBR_CONCEALED: return new BLong( concealed() ); break;
+		case MBR_FROZEN: return new BLong( frozen() ? 1 : 0 ); break;
+		case MBR_PARALYZED: return new BLong( paralyzed() ? 1 : 0 ); break;
+		case MBR_POISONED: return new BLong( poisoned() ? 1 : 0 ); break;
 		case MBR_STEALTHSTEPS: return new BLong( stealthsteps_ ); break;
 		case MBR_MOUNTEDSTEPS: return new BLong( mountedsteps_ ); break;
 		case MBR_SQUELCHED: return new BLong( squelched() ? 1 : 0 ); break;
-		case MBR_DEAD: return new BLong( dead_ ); break;
+		case MBR_DEAD: return new BLong( dead() ); break;
 		case MBR_AR: return new BLong( ar() ); break;
 		case MBR_BACKPACK:
 		{
@@ -1606,8 +1565,8 @@ namespace Pol {
 		  else
 			return new BError( "Not attached to an account" );
 		  break;
-		case MBR_CMDLEVEL:    return new BLong( cmdlevel ); break;
-		case MBR_CMDLEVELSTR: return new String( Core::cmdlevels2[cmdlevel].name ); break;
+		case MBR_CMDLEVEL:    return new BLong( cmdlevel() ); break;
+		case MBR_CMDLEVELSTR: return new String( Core::cmdlevels2[cmdlevel()].name ); break;
 		case MBR_CRIMINAL: return new BLong( is_criminal() ? 1 : 0 ); break;
 		case MBR_IP:
 		  if ( client != NULL )
@@ -1880,34 +1839,29 @@ namespace Pol {
 		case MBR_HIDDEN:
 		{
 		  //FIXME: don't call on_change unless the value actually changed?
-		  bool oldhidden = hidden_;
-		  hidden_ = value ? true : false;
-		  if ( oldhidden != hidden_ )
-			HiddenUpdater::on_change( this );
-		  return new BLong( hidden_ );
+			hidden( value ? true : false );
+		  return new BLong( hidden() );
 		}
 		case MBR_CONCEALED:
-		  concealed_ = static_cast<unsigned char>( value );
-		  ConcealedUpdater::on_change( this );
-		  return new BLong( concealed_ );
+			concealed( static_cast<unsigned char>( value ) );
+			return new BLong( concealed() );
 		case MBR_FROZEN:
 		  return new BLong( frozen_ = value ? true : false );
 		case MBR_PARALYZED:
 		  return new BLong( paralyzed_ = value ? true : false );
 		case MBR_POISONED:
-		  poisoned = value ? true : false;
-		  on_poison_changed();
-		  return new BLong( poisoned );
+			poisoned( value ? true : false );
+			return new BLong( poisoned() );
 		case MBR_STEALTHSTEPS:
 		  return new BLong( stealthsteps_ = static_cast<unsigned short>( value ) );
 		case MBR_MOUNTEDSTEPS:
 		  return new BLong( mountedsteps_ = static_cast<unsigned int>( value ) );
 		case MBR_CMDLEVEL:
-		  cmdlevel = static_cast<unsigned char>( value );
-		  if ( cmdlevel >= Core::cmdlevels2.size( ) )
-			cmdlevel = static_cast<unsigned char>( Core::cmdlevels2.size() ) - 1;
-		  ConcealedUpdater::on_change( this );
-		  return new BLong( cmdlevel );
+			if ( value >= static_cast<int>( Core::cmdlevels2.size() ) )
+				cmdlevel( static_cast<unsigned char>( Core::cmdlevels2.size() ) - 1 );
+			else
+				cmdlevel( static_cast<unsigned char>( value ) );
+			return new BLong( cmdlevel() );
 		case MBR_MURDERER:
 		  // make_murderer handles the updating
 		  make_murderer( value ? true : false );
@@ -2070,10 +2024,10 @@ namespace Pol {
 			  newval = false;
 		  }
 
-		  if ( newval != poisoned )
+		  if ( newval != poisoned() )
 		  {
 			set_dirty();
-			poisoned = newval;
+			poisoned( newval );
 			check_undamaged();
 			Module::UOExecutorModule* uoexec = static_cast<Module::UOExecutorModule*>( ex.findModule( "UO" ) );
 			if ( uoexec != NULL && uoexec->controller_.get() )
@@ -2081,13 +2035,12 @@ namespace Pol {
 			  Character* attacker = uoexec->controller_.get();
 			  if ( !attacker->orphan() )
 			  {
-				if ( poisoned )
+				if ( poisoned() )
 				  attacker->repsys_on_damage( this );
 				else
 				  attacker->repsys_on_help( this );
 			  }
 			}
-			on_poison_changed();
 		  }
 		  return new BLong( 1 );
 		}
@@ -2283,7 +2236,7 @@ namespace Pol {
 			if ( pcmdlevel )
 			{
 			  set_dirty();
-			  cmdlevel = pcmdlevel->cmdlevel;
+			  cmdlevel( pcmdlevel->cmdlevel );
 			  return new BLong( 1 );
 			}
 			else

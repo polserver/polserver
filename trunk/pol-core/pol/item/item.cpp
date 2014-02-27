@@ -797,7 +797,7 @@ namespace Pol {
 
 	void Item::saveonexit( bool newvalue )
 	{
-	  saveonexit_ = newvalue;
+		saveonexit_ = newvalue;
 	}
 
 	bool Item::setgraphic( u16 newgraphic )
@@ -840,7 +840,12 @@ namespace Pol {
 
 	  set_dirty();
 	  newcolor &= ( theMask );
-	  color = newcolor;
+
+	  if ( color != newcolor )
+	  {
+		  color = newcolor;
+		  on_color_changed();
+	  }
 
 	  return res;
 	}
@@ -848,6 +853,11 @@ namespace Pol {
 	void Item::on_color_changed()
 	{
 	  update_item_to_inrange( this );
+	}
+
+	void Item::on_movable_changed()
+	{
+		update_item_to_inrange( this );
 	}
 
 	void Item::on_invisible_changed()
@@ -858,9 +868,14 @@ namespace Pol {
 	void Item::setfacing( u8 newfacing )
 	{
 	  // allow 0-127 (all but MSB)
-	  facing = newfacing;
-	  if ( facing > 127 )
-		facing = 0;
+	  if ( newfacing > 127 )
+		  newfacing = 0;
+
+	  if ( facing != newfacing )
+	  {
+		  facing = newfacing;
+		  on_facing_changed();
+	  }
 	}
 
 	void Item::on_facing_changed()

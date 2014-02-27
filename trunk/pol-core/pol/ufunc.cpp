@@ -168,7 +168,7 @@ namespace Pol {
 	  msg->Write<s8>( chr->z );
 	  msg.Send( client );
 
-	  if ( ( client->ClientType & CLIENTTYPE_UOKR ) && ( chr->poisoned ) ) //if poisoned send 0x17 for newer clients
+	  if ( ( client->ClientType & CLIENTTYPE_UOKR ) && ( chr->poisoned() ) ) //if poisoned send 0x17 for newer clients
 		send_poisonhealthbar( client, chr );
 
 	  if ( ( client->ClientType & CLIENTTYPE_UOKR ) && ( chr->invul() ) ) //if invul send 0x17 for newer clients
@@ -194,7 +194,7 @@ namespace Pol {
 	  msg->Write<u8>( chr->hilite_color_idx( client->chr ) );
 	  msg.Send( client );
 
-	  if ( ( client->ClientType & CLIENTTYPE_UOKR ) && ( chr->poisoned ) ) //if poisoned send 0x17 for newer clients
+	  if ( ( client->ClientType & CLIENTTYPE_UOKR ) && ( chr->poisoned() ) ) //if poisoned send 0x17 for newer clients
 		send_poisonhealthbar( client, chr );
 
 	  if ( ( client->ClientType & CLIENTTYPE_UOKR ) && ( chr->invul() ) ) //if invul send 0x17 for newer clients
@@ -207,7 +207,7 @@ namespace Pol {
 	  movebuffer->Write<u8>( chr->get_flag1( client ) );
 	  movebuffer->Write<u8>( chr->hilite_color_idx( client->chr ) );
 	  ADDTOSENDQUEUE( client, &movebuffer->buffer, movebuffer->offset );
-	  if ( ( client->ClientType & CLIENTTYPE_UOKR ) && ( chr->poisoned ) ) //if poisoned send 0x17 for newer clients
+	  if ( ( client->ClientType & CLIENTTYPE_UOKR ) && ( chr->poisoned() ) ) //if poisoned send 0x17 for newer clients
 		ADDTOSENDQUEUE( client, &poisonbuffer->buffer, poisonbuffer->offset );
 	  if ( ( client->ClientType & CLIENTTYPE_UOKR ) && ( chr->invul() ) ) //if invul send 0x17 for newer clients
 		ADDTOSENDQUEUE( client, &invulbuffer->buffer, invulbuffer->offset );
@@ -231,7 +231,7 @@ namespace Pol {
 	  msg->Write<u32>( chr->serial_ext );
 	  msg->WriteFlipped<u16>( 1 ); //unk
 	  msg->WriteFlipped<u16>( 1 ); // 1 = Green, 2 = Yellow
-	  msg->Write<u8>( ( chr->poisoned ) ? 1 : 0 ); //flag
+	  msg->Write<u8>( ( chr->poisoned() ) ? 1 : 0 ); //flag
 	  msg.Send( client );
 	}
 
@@ -252,7 +252,7 @@ namespace Pol {
 	  msg->Write<u32>( chr->serial_ext );
 	  msg->WriteFlipped<u16>( 1 ); //unk
 	  msg->WriteFlipped<u16>( 1 ); // 1 = Green, 2 = Yellow
-	  msg->Write<u8>( ( chr->poisoned ) ? 1 : 0 ); //flag
+	  msg->Write<u8>( ( chr->poisoned() ) ? 1 : 0 ); //flag
 	}
 
 	void build_invulhealthbar( const Character *chr, PktOut_17* msg )
@@ -324,7 +324,7 @@ namespace Pol {
 		}
 	  }
 
-	  if ( ( client->ClientType & CLIENTTYPE_UOKR ) && ( chr->poisoned ) ) //if poisoned send 0x17 for newer clients
+	  if ( ( client->ClientType & CLIENTTYPE_UOKR ) && ( chr->poisoned() ) ) //if poisoned send 0x17 for newer clients
 		send_poisonhealthbar( client, chr );
 
 	  if ( ( client->ClientType & CLIENTTYPE_UOKR ) && ( chr->invul() ) ) //if invul send 0x17 for newer clients
@@ -394,7 +394,7 @@ namespace Pol {
 		}
 	  }
 
-	  if ( ( client->ClientType & CLIENTTYPE_UOKR ) && ( chr->poisoned ) ) //if poisoned send 0x17 for newer clients
+	  if ( ( client->ClientType & CLIENTTYPE_UOKR ) && ( chr->poisoned() ) ) //if poisoned send 0x17 for newer clients
 		ADDTOSENDQUEUE( client, &poisonbuffer->buffer, poisonbuffer->offset );
 	  if ( ( client->ClientType & CLIENTTYPE_UOKR ) && ( chr->invul() ) ) //if invul send 0x17 for newer clients
 		ADDTOSENDQUEUE( client, &invulbuffer->buffer, invulbuffer->offset );
@@ -468,6 +468,29 @@ namespace Pol {
              _chr->is_visible_to_me( chr ) )
              msgremove.Send( _chr->client );
       } );
+	}
+
+	void update_nearby_visible_chars( Client* client )
+	{
+		unsigned short wxL, wyL, wxH, wyH;
+		PktHelper::PacketOut<PktOut_1D> msgremove;
+		zone_convert_clip( client->chr->x - RANGE_VISUAL, client->chr->y - RANGE_VISUAL, client->chr->realm, wxL, wyL );
+		zone_convert_clip( client->chr->x + RANGE_VISUAL, client->chr->y + RANGE_VISUAL, client->chr->realm, wxH, wyH );
+		for( unsigned short wx = wxL; wx <= wxH; ++wx )
+		{
+			for( unsigned short wy = wyL; wy <= wyH; ++wy )
+			{
+				ZoneCharacters& wchr = client->chr->realm->zone[wx][wy].characters;
+				for( ZoneCharacters::iterator itr = wchr.begin(), end = wchr.end(); itr != end; ++itr )
+				{
+					Character* chr = *itr;
+					if ( client->chr->is_visible_to_me( chr ))
+						send_owncreate( client, chr );
+					else
+						send_remove_character( client, chr, msgremove.Get() );
+				}
+			}
+		}
 	}
 
 	void send_remove_object_if_inrange( Client *client, const Item *item )
