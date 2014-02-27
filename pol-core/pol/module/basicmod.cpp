@@ -465,7 +465,7 @@ namespace Pol {
 	  {
 		ISTRINGSTREAM is( source );
 		string tmp;
-		int tellg;
+		size_t tellg;
 		bool splitted = false;
 
 		while ( is >> tmp )

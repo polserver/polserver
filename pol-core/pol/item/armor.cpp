@@ -58,8 +58,15 @@ namespace Pol {
 		}
 		catch ( runtime_error& )
 		{
-          ERROR_PRINT << "Error in ObjType 0x" << fmt::hexu( objtype ) << ". Package " << pkg->name() << ".\n";
-		  throw;
+			fmt::Writer tmp;
+			tmp.Format( "Error in Objtype 0x{:X}" ) << objtype;
+			if ( pkg == NULL )
+				tmp << "config/itemdesc.cfg\n";
+			else
+				tmp << pkg->dir( ) << "itemdesc.cfg\n";
+
+			ERROR_PRINT << tmp.c_str();
+			throw;
 		}
 	  }
 
@@ -77,7 +84,14 @@ namespace Pol {
 		  }
 		  catch ( runtime_error& )
 		  {
-            ERROR_PRINT << "Error in ObjType 0x" << fmt::hexu( objtype ) << ". Package " << pkg->name() << ".\n";
+			fmt::Writer tmp;
+			tmp.Format( "Error in Objtype 0x{:X}" ) << objtype;
+			if ( pkg == NULL )
+				tmp << "config/itemdesc.cfg\n";
+			else
+				tmp << pkg->dir( ) << "itemdesc.cfg\n";
+
+			ERROR_PRINT << tmp.c_str();
 			throw;
 		  }
 		}
