@@ -544,7 +544,7 @@ namespace Pol {
 	  if ( upp == "AUX" || upp == "CON" || upp == "PRN" || upp == "NUL" )
 		return "";
 
-	  for ( int i = chr->cmdlevel; i >= 0; --i )
+	  for ( int i = chr->cmdlevel(); i >= 0; --i )
 	  {
 		CmdLevel& cmdlevel = cmdlevels2[i];
 		for ( unsigned diridx = 0; diridx < cmdlevel.searchlist.size(); ++diridx )
@@ -611,7 +611,7 @@ namespace Pol {
 	  if ( upp == "AUX" || upp == "CON" || upp == "PRN" || upp == "NUL" )
 		return false;
 
-	  for ( int i = client->chr->cmdlevel; i >= 0; --i )
+	  for ( int i = client->chr->cmdlevel(); i >= 0; --i )
 	  {
 		// cout << "checking cmdlevel " << i << endl;
 		CmdLevel& cmdlevel = cmdlevels2[i];
@@ -723,7 +723,7 @@ namespace Pol {
 		return true;
 
 	  //cout << "checking for builtin commands" << endl;
-	  if ( client->chr->cmdlevel >= cmdlevels2.size() - 2 )
+	  if ( client->chr->cmdlevel() >= cmdlevels2.size() - 2 )
 	  {
 		TextCmds::iterator itr2 = textcmds.find( text );
 		if ( itr2 != textcmds.end() )

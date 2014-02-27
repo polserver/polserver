@@ -102,6 +102,7 @@ namespace Pol {
     void ClientCreateChar70160( Network::Client* client, struct PKTIN_F8* msg );
     void createchar2( Accounts::Account* acct, unsigned index );
     void undo_get_item( Mobile::Character *chr, Items::Item *item );
+	void update_nearby_visible_chars( Network::Client* client );
     void write_characters( SaveContext& sc );
     void write_npcs( SaveContext& sc );
   }
@@ -414,6 +415,8 @@ namespace Pol {
 	  virtual bool setgraphic( u16 newobjtype );
 	  virtual void on_color_changed();
 	  virtual void on_poison_changed(); //dave 12-24
+	  virtual void on_hidden_changed();
+	  virtual void on_concealed_changed();
 	  virtual void setfacing( u8 newfacing );
 	  virtual void on_facing_changed();
 	  void on_aos_ext_stat_changed();
@@ -467,12 +470,18 @@ namespace Pol {
 
 	  bool is_visible() const; // meant to combine "hiding", "concealed", "invisible" etc.
 	  bool hidden() const;
-	  bool concealed() const;
+	  void hidden( bool value );
+	  unsigned char concealed() const;
+	  void concealed( unsigned char value );
 	  bool invul() const;
 	  bool frozen() const;
 	  bool paralyzed() const;
 	  bool squelched() const;
 	  bool deafened() const;
+	  bool poisoned() const;
+	  void poisoned( bool value );
+	  unsigned char cmdlevel() const;
+	  void cmdlevel( unsigned char value );
 
 	  // if a move were made, what would the new position be?
 	  void getpos_ifmove( Core::UFACING i_facing, unsigned short* px, unsigned short* py );
@@ -688,7 +697,7 @@ namespace Pol {
 
 	  u32 registered_house;
 
-	  unsigned char cmdlevel;
+	  unsigned char cmdlevel_;
 	  u8 dir;				// the entire 'dir' from their last MSG02_WALK 
 	  bool warmode;
 	  bool logged_in;		// for NPCs, this is always true.
@@ -707,7 +716,7 @@ namespace Pol {
 	  u32 trueobjtype;
 	  Core::UGENDER gender;
 	  Core::URACE race;
-	  bool poisoned;
+	  bool poisoned_;
 	  short  gradual_boost;
 
 	  u32 last_corpse;
@@ -934,9 +943,27 @@ namespace Pol {
 	  return hidden_;
 	}
 
-	inline bool Character::concealed() const
+	inline void Character::hidden( bool value )
 	{
-	  return concealed_ ? true : false;
+		if ( value != hidden_ )
+		{
+			hidden_ = value;
+			on_hidden_changed();
+		}
+	}
+
+	inline unsigned char Character::concealed() const
+	{
+		return concealed_;
+	}
+
+	inline void Character::concealed( unsigned char value )
+	{
+		if ( concealed_ != value )
+		{
+			concealed_ = value;
+			on_concealed_changed();
+		}
 	}
 
 	inline bool Character::frozen() const
@@ -947,6 +974,34 @@ namespace Pol {
 	inline bool Character::paralyzed() const
 	{
 	  return paralyzed_;
+	}
+
+	inline bool Character::poisoned() const
+	{
+		return poisoned_;
+	}
+
+	inline void Character::poisoned( bool value )
+	{
+		if ( value != poisoned_ )
+		{
+			poisoned_ = value;
+			on_poison_changed();
+		}
+	}
+
+	inline unsigned char Character::cmdlevel() const
+	{
+		return cmdlevel_;
+	}
+
+	inline void Character::cmdlevel( unsigned char value )
+	{
+		if ( cmdlevel_ != value )
+		{
+			cmdlevel_ = value;
+			Core::update_nearby_visible_chars( client );
+		}
 	}
 
 	inline unsigned short Character::ar() const

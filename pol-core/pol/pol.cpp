@@ -497,7 +497,7 @@ namespace Pol {
         << client->acct->name()
         << chosen_char->name();
 
-	  if ( config.min_cmdlevel_to_login > chosen_char->cmdlevel )
+	  if ( config.min_cmdlevel_to_login > chosen_char->cmdlevel() )
 	  {
         POLLOG.Format( "Account {} with character {} doesn't fit MinCmdlevelToLogin from pol.cfg. Client disconnected by Core.\n" )
           << client->acct->name()
@@ -510,7 +510,7 @@ namespace Pol {
 
 	  //Dave moved this from login.cpp so client cmdlevel can be checked before denying login
 	  if ( ( ( std::count_if( clients.begin(), clients.end(), clientHasCharacter ) ) >= config.max_clients ) &&
-		   ( chosen_char->cmdlevel < config.max_clients_bypass_cmdlevel ) )
+		   ( chosen_char->cmdlevel() < config.max_clients_bypass_cmdlevel ) )
 	  {
         POLLOG.Format( "To much clients connected. Check MaximumClients and/or MaximumClientsBypassCmdLevel in pol.cfg.\nAccount {} with character {} Client disconnected by Core.\n" )
           << client->acct->name()
@@ -1042,7 +1042,7 @@ namespace Pol {
 		  }
 		  else if ( res == 0 )
 		  {
-			if ( ( !client->chr || client->chr->cmdlevel < config.min_cmdlvl_ignore_inactivity ) &&
+			if ( ( !client->chr || client->chr->cmdlevel() < config.min_cmdlvl_ignore_inactivity ) &&
 				 config.inactivity_warning_timeout && config.inactivity_disconnect_timeout )
 			{
 			  ++nidle;

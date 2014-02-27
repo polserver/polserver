@@ -765,7 +765,7 @@ namespace Pol {
 			  {
 				  Core::send_objects_newly_inrange_on_boat( chr->client, this->serial );
 
-				  if ( chr->poisoned ) //if poisoned send 0x17 for newer clients
+				  if ( chr->poisoned() ) //if poisoned send 0x17 for newer clients
 					send_poisonhealthbar( chr->client, chr );
 
 				  if ( chr->invul() ) //if invul send 0x17 for newer clients
@@ -935,7 +935,7 @@ namespace Pol {
 			{
 				if ( chr->client->ClientType & Network::CLIENTTYPE_7090 )
 				{
-				    if ( chr->poisoned ) //if poisoned send 0x17 for newer clients
+				    if ( chr->poisoned() ) //if poisoned send 0x17 for newer clients
 						send_poisonhealthbar( chr->client, chr );
 
 				    if ( chr->invul() ) //if invul send 0x17 for newer clients

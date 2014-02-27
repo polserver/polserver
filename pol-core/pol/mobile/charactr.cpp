@@ -486,7 +486,7 @@ namespace Pol {
 	  acct( NULL ),
 	  client( NULL ),
 	  registered_house( 0 ),
-	  cmdlevel( 0 ),
+	  cmdlevel_( 0 ),
 	  dir( 0 ),
 	  warmode( false ),
 	  logged_in( true ), // so initialization scripts etc can see
@@ -504,7 +504,7 @@ namespace Pol {
 	  // this is probably okay, but something to keep in mind.
       gender( Core::GENDER_MALE ),
       race( Core::RACE_HUMAN ),
-	  poisoned( false ),
+	  poisoned_( false ),
 	  last_corpse( 0 ),
 	  dblclick_wait( 0 ),
 	  gotten_item( NULL ),
@@ -800,9 +800,9 @@ namespace Pol {
 
 	  base::printProperties( sw );
 
-	  if ( cmdlevel )
+	  if ( cmdlevel_ )
 	  {
-        sw( ) << "\tCmdLevel\t" << Core::cmdlevels2[cmdlevel].name << pf_endl;
+        sw( ) << "\tCmdLevel\t" << Core::cmdlevels2[cmdlevel_].name << pf_endl;
 	  }
 	  if ( concealed_ )
 	  {
@@ -1086,7 +1086,7 @@ namespace Pol {
       Core::CmdLevel* cmdlevel_search = Core::find_cmdlevel( cmdaccstr.c_str( ) );
 	  if ( cmdlevel_search == NULL )
 		elem.throw_error( "Didn't understand cmdlevel of '" + cmdaccstr + "'" );
-	  cmdlevel = cmdlevel_search->cmdlevel;
+	  cmdlevel_ = cmdlevel_search->cmdlevel;
 
 	  movemode = decode_movemode( elem.remove_string( "MOVEMODE", "L" ) );
 	  concealed_ = static_cast<unsigned char>( elem.remove_ushort( "CONCEALED", 0 ) ); //DAVE changed from remove_bool 11/25. concealed is a char, not a bool!
@@ -1871,13 +1871,13 @@ namespace Pol {
 		{
 		  send_goxyz( client, client->chr );
 		  // if poisoned send_goxyz handles 0x17 packet
-          if ( ( !poisoned ) && ( client->ClientType & Network::CLIENTTYPE_UOKR ) )
+          if ( ( !poisoned() ) && ( client->ClientType & Network::CLIENTTYPE_UOKR ) )
 			send_poisonhealthbar( client, client->chr );
 		}
 		// This is a KR only packet, so transmit it only to KR clients
 		// who are in range.
 		// if poisoned send_move_mobile_to_nearby_cansee handles 0x17 packet
-		if ( !poisoned )
+		if ( !poisoned() )
 		{
 		  Network::PktHelper::PacketOut<Network::PktOut_17> msg;
 		  msg->WriteFlipped<u16>( static_cast<u16>( sizeof msg->buffer ) );
@@ -1890,9 +1890,41 @@ namespace Pol {
 	  }
 	}
 
+	void Character::on_hidden_changed()
+	{
+		if ( hidden() )
+		{
+		  set_stealthsteps( 0 );
+		  if ( client )
+			send_move( client, this );
+		  send_remove_character_to_nearby_cantsee( this );
+		  send_create_mobile_to_nearby_cansee( this );
+		}
+		else
+		{
+		  unhide();
+		  set_stealthsteps( 0 );
+		}
+	}
+
+	void Character::on_concealed_changed()
+	{
+		if ( concealed() )
+		{
+		  if ( client )
+			send_move( client, this );
+		  send_remove_character_to_nearby_cantsee( this );
+		  send_create_mobile_to_nearby_cansee( this );
+		}
+		else if ( is_visible() )
+		  unhide();
+		  set_stealthsteps( 0 );
+	}
+
 	void Character::on_facing_changed()
 	{
-	  if ( client ) send_goxyz( client, client->chr );
+	  if ( client ) 
+		  send_goxyz( client, client->chr );
 	  send_move_mobile_to_nearby_cansee( this );
 	}
 
@@ -1918,7 +1950,7 @@ namespace Pol {
 	  u8 flag1 = 0;
 	  if ( gender )
         flag1 |= Core::CHAR_FLAG1_GENDER;
-	  if ( ( poisoned ) && ( ~client->ClientType & Network::CLIENTTYPE_7000 ) ) // client >=7 receive the poisonflag with 0x17
+	  if ( ( poisoned() ) && ( ~client->ClientType & Network::CLIENTTYPE_7000 ) ) // client >=7 receive the poisonflag with 0x17
         flag1 |= Core::CHAR_FLAG1_POISONED;
       if ( ( movemode & Core::MOVEMODE_FLY ) && ( client->ClientType & Network::CLIENTTYPE_7000 ) )
         flag1 |= Core::CHAR_FLAG1_FLYING;
@@ -2098,7 +2130,7 @@ namespace Pol {
 	void Character::check_undamaged()
 	{
 	  if ( vital( Core::pVitalLife->vitalid ).is_at_maximum() &&
-		   !poisoned &&
+		   !poisoned() &&
 		   !paralyzed() )
 	  {
 		clear_to_be_reportables();
@@ -2760,15 +2792,15 @@ namespace Pol {
 
 	void Character::check_concealment_level()
 	{
-	  if ( concealed_ > cmdlevel )
-		concealed_ = cmdlevel;
+	  if ( concealed() > cmdlevel() )
+		concealed( cmdlevel() );
 	}
 
 	// you can only be concealed from
 	// those of lower stature
 	bool Character::is_concealed_from_me( const Character* chr ) const
 	{
-	  return ( chr->concealed_ > cmdlevel );
+	  return ( chr->concealed() > cmdlevel() );
 	}
 
 	bool Character::is_visible_to_me( const Character* chr ) const
@@ -2821,7 +2853,7 @@ namespace Pol {
         {
 			if ( client->ClientType & Network::CLIENTTYPE_7090 )
 			{
-				if ( chr->poisoned ) //if poisoned send 0x17 for newer clients
+				if ( chr->poisoned() ) //if poisoned send 0x17 for newer clients
 					send_poisonhealthbar( client, chr );
 
 				if ( chr->invul() ) //if invul send 0x17 for newer clients
@@ -3691,7 +3723,7 @@ namespace Pol {
 		  return;
 	  }
 
-	  hidden_ = false;
+	  hidden( false );
 	  if ( is_visible() )
 	  {
 		if ( client != NULL )
