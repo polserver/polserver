@@ -481,7 +481,7 @@ namespace Pol {
 	  bool poisoned() const;
 	  void poisoned( bool value );
 	  unsigned char cmdlevel() const;
-	  void cmdlevel( unsigned char value );
+	  void cmdlevel( unsigned char value, bool update_on_change = true );
 
 	  // if a move were made, what would the new position be?
 	  void getpos_ifmove( Core::UFACING i_facing, unsigned short* px, unsigned short* py );
@@ -995,12 +995,13 @@ namespace Pol {
 		return cmdlevel_;
 	}
 
-	inline void Character::cmdlevel( unsigned char value )
+	inline void Character::cmdlevel( unsigned char value, bool update_on_change )
 	{
 		if ( cmdlevel_ != value )
 		{
 			cmdlevel_ = value;
-			Core::update_nearby_visible_chars( client );
+			if ( update_on_change )
+				Core::update_nearby_visible_chars( client );
 		}
 	}
 
