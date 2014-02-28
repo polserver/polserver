@@ -289,7 +289,7 @@ namespace Pol {
 	  chr->acct.set( client->acct );
 	  chr->client = client;
 	  chr->set_privs( client->acct->default_privlist() );
-	  chr->cmdlevel( client->acct->default_cmdlevel() );
+	  chr->cmdlevel( client->acct->default_cmdlevel(), false );
 
 	  client->UOExpansionFlagClient = ctBEu32( msg->clientflag );
 
@@ -643,7 +643,7 @@ namespace Pol {
 	  chr->acct.set( client->acct );
 	  chr->client = client;
 	  chr->set_privs( client->acct->default_privlist() );
-	  chr->cmdlevel( client->acct->default_cmdlevel() );
+	  chr->cmdlevel( client->acct->default_cmdlevel(), false );
 
 	  client->UOExpansionFlagClient = msg->flags;
 
@@ -1028,7 +1028,7 @@ namespace Pol {
 	  chr->acct.set( client->acct );
 	  chr->client = client;
 	  chr->set_privs( client->acct->default_privlist() );
-	  chr->cmdlevel( client->acct->default_cmdlevel() );
+	  chr->cmdlevel( client->acct->default_cmdlevel(), false );
 
 	  client->UOExpansionFlagClient = ctBEu32( msg->clientflag );
 
