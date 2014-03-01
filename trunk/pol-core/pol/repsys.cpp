@@ -759,8 +759,11 @@ namespace Pol {
     ///
     bool Character::is_criminal() const
     {
-      return ( Core::polclock( ) <= criminal_until_ ) || murderer_;
+		return is_temporally_criminal() || murderer_;
     }
+	bool Character::is_temporally_criminal() const {
+		return ( Core::polclock( ) <= criminal_until_ );
+	}
 
     void Character::restart_criminal_timer( Core::polclock_t until )
     {

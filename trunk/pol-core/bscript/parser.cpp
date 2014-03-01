@@ -473,7 +473,8 @@ namespace Pol {
 	  { MBR_MAX_WEIGHT_MOD, "max_weight_mod", false },
 	  { MBR_MAX_SLOTS_MOD, "max_slots_mod", false },
 	  { MBR_SPEED_MOD, "speed_mod", false },
-	  { MBR_NAME_SUFFIX, "name_suffix", false }    //210
+	  { MBR_NAME_SUFFIX, "name_suffix", false },    //210
+	  { MBR_TEMPORALLY_CRIMINAL, "temporally_criminal", true }
 	};
 	int n_objmembers = sizeof object_members / sizeof object_members[0];
 	ObjMember* getKnownObjMember( const char* token )
