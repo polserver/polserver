@@ -1568,6 +1568,7 @@ namespace Pol {
 		case MBR_CMDLEVEL:    return new BLong( cmdlevel() ); break;
 		case MBR_CMDLEVELSTR: return new String( Core::cmdlevels2[cmdlevel()].name ); break;
 		case MBR_CRIMINAL: return new BLong( is_criminal() ? 1 : 0 ); break;
+		case MBR_TEMPORALLY_CRIMINAL: return new BLong( is_temporally_criminal() ? 1 : 0 ); break;
 		case MBR_IP:
 		  if ( client != NULL )
 			return new String( client->ipaddrAsString() );
