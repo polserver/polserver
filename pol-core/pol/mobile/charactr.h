@@ -539,6 +539,7 @@ namespace Pol {
 	  void remove_as_lawful_damager( Character* chr );
 
 	  bool is_criminal() const;
+	  bool is_temporally_criminal() const;
 	  void restart_criminal_timer( Core::polclock_t until );
 	  void clear_criminal_timer();
 
