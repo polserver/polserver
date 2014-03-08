@@ -359,7 +359,7 @@ namespace Pol {
 	  if ( !chr->realm->dropheight( x, y, z, client->chr->z, &newz, &multi ) )
 	  {
         POLLOG_ERROR.Format( "Client (Character {}) tried to drop an item at ({},{},{}), which is a blocked location.\n" )
-          << client->chr->name() << x << y << z;
+          << client->chr->name() << x << y << (int)z;
 		return false;
 	  }
 
@@ -1066,7 +1066,7 @@ namespace Pol {
 		  break;
 
 		default:
-          INFO_PRINT_TRACE( 5 ) << "Unknown secure trade action: " << msg->action << "\n";
+          INFO_PRINT_TRACE( 5 ) << "Unknown secure trade action: " << (int)msg->action << "\n";
 		  break;
 	  }
 	}
