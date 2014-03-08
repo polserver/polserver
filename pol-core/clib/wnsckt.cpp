@@ -619,7 +619,7 @@ namespace Pol {
 	  }
 	}
 
-	bool Socket::is_local()
+	bool Socket::is_local() const
 	{
 	  string s = getpeername();
 	  return ( s == "127.0.0.1" );
