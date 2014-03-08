@@ -82,15 +82,21 @@ namespace Pol {
 	  unlink( accountsbakfile_c );
 	  unlink( accountsndtfile_c );
 
-	  {
-		ofstream ofs( accountsndtfile_c, std::ios::trunc | ios::out );
-		Clib::ThreadedOFStreamWriter sw( &ofs );
-		for ( const auto &account : Core::accounts )
-		{
-		  Account* acct = account.get();
-		  acct->writeto( sw );
-		}
-	  }
+      try
+      {
+        ofstream ofs( accountsndtfile_c, std::ios::trunc | ios::out );
+        Clib::ThreadedOFStreamWriter sw( &ofs );
+        for ( const auto &account : Core::accounts )
+        {
+          Account* acct = account.get();
+          acct->writeto( sw );
+        }
+      }
+      catch ( ... )
+      {
+        POLLOG_ERROR << "failed to store accounts!\n";
+        Clib::force_backtrace();
+      }
 
 	  rename( accountstxtfile_c, accountsbakfile_c );
 	  rename( accountsndtfile_c, accountstxtfile_c );

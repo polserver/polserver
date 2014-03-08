@@ -75,6 +75,13 @@ namespace Pol {
 		}
 	  }
 
+      void push( std::list<Message>& msg_list )
+      {
+        std::lock_guard<std::mutex> lock( _mutex );
+        _queue.splice( _queue.end( ), msg_list );  // fast splice inside
+        _notifier.notify_one( );
+      }
+
 	  /// check if empty (a bit senseless)
 	  bool empty() const
 	  {
