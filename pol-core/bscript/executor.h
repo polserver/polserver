@@ -347,7 +347,7 @@ namespace Pol {
 	  void reinitExec();
 	  void initForFnCall( unsigned in_PC );
 	  void show_context( unsigned atPC );
-	  void show_context( std::ostream& os, unsigned atPC );
+      void show_context( fmt::Writer& os, unsigned atPC );
 
 	  int getDebugLevel() { return debug_level; }
 	  void setDebugLevel( DEBUG_LEVEL level ) { debug_level = level; }
