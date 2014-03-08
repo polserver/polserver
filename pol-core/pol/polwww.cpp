@@ -29,6 +29,7 @@ Notes
 #include "../clib/strutil.h"
 #include "../clib/threadhelp.h"
 #include "../clib/wnsckt.h"
+#include "../clib/threadhelp.h"
 
 #include "../plib/pkg.h"
 
@@ -607,7 +608,7 @@ namespace Pol {
 	  }
 	}
 
-	void http_func( SOCKET client_socket )
+    void http_func( SOCKET client_socket )
 	{
       Clib::Socket sck( client_socket );
 	  string get;
@@ -758,91 +759,16 @@ namespace Pol {
 	}
 
 
-	void http_conn_thread_stub2( void* arg )
-	{
-	  SOCKET client_socket = *( static_cast<SOCKET*>( arg ) );
-
-	  http_func( client_socket );
-	}
-
 #ifdef _WIN32
-
 	void init_http_thread_support()
 	{}
-	unsigned __stdcall http_conn_thread_stub( void *arg )
-	{
-	  Clib::InstallStructuredExceptionHandler();
-
-	  SOCKET sck = *( static_cast<SOCKET*>( arg ) );
-      threadmap.Register( threadhelp::thread_pid( ), string( "http_conn_thread:" ) + Clib::decint( sck ) ); // Was missing (Nando -- 12-31-2008)
-
-	  threadhelp::run_thread( http_conn_thread_stub2, arg );
-
-	  _endthreadex( 0 ); // missing (Nando -- 12-31)
-	  return 0;
-	}
-
-	void start_http_conn_thread( SOCKET* client_socket )
-	{
-	  // Code Analyze: C6001
-	  //	unsigned threadid;
-	  unsigned threadid = 0;
-	  HANDLE h;
-
-	  h = (HANDLE)_beginthreadex( NULL,
-								  0,
-								  http_conn_thread_stub,
-								  client_socket,
-								  0,
-								  &threadid );
-	  if ( h == 0 )
-	  {
-        POLLOG_ERROR.Format( "error in start_http_conn_thread: {} {} \"{}\" \"{}\" {} {}\n" )
-          << errno << _doserrno << strerror( errno ) << strerror( _doserrno ) << reinterpret_cast<const void*>(http_conn_thread_stub) << *client_socket;
-
-		dec_child_thread_count();
-	  }
-	  else
-	  {
-#ifdef _WIN32
-		threadhelp::SetThreadName( threadid, std::string( "HTTP" + *client_socket ) );
-#endif
-		CloseHandle( h );
-	  }
-	}
 #else
-
 	pthread_attr_t http_attr;
 	void init_http_thread_support()
 	{
 	  pthread_attr_init( &http_attr );
 	  pthread_attr_setdetachstate( &http_attr, PTHREAD_CREATE_DETACHED );
 	}
-
-	void* http_conn_thread_stub( void *arg )
-	{
-	  SOCKET sck = *(static_cast<SOCKET*>(arg));
-	  threadmap.Register( threadhelp::thread_pid(), string("http_conn_thread:")+Clib::decint(sck) );
-
-	  run_thread( http_conn_thread_stub2, arg );
-
-	  pthread_exit(NULL); // Missing (Nando -- 12-31-2008)
-	  return NULL;
-	}
-	void start_http_conn_thread( SOCKET* client_socket )
-	{
-	  pthread_t th;
-	  int res = pthread_create( &th, 
-								&http_attr,
-								http_conn_thread_stub,
-								client_socket );
-	  if ( res ) // Turley 06-26-2009: removed passert_always so pol doesnt crash
-	  {
-        POLLOG.Format( "Failed to create worker thread for http (res = {})\n") << res;
-		dec_child_thread_count();
-	  }
-	}
-
 #endif
 
 	void test_decode( const char* page,
@@ -911,6 +837,7 @@ namespace Pol {
 	  fd_set listen_fd;
 	  struct timeval listen_timeout = { 0, 0 };
 
+      Pol::threadhelp::TaskThreadPool worker_threads( 2 ); // two threads should be enough
       while ( !Clib::exit_signalled )
 	  {
 		int nfds = 0;
@@ -951,8 +878,7 @@ namespace Pol {
 		  string addrstr = Network::AddressToString( &client_addr );
 		  INFO_PRINT << "HTTP client connected from " << addrstr << "\n";
 
-		  threadhelp::inc_child_thread_count();
-		  start_http_conn_thread( &client_socket );
+          worker_threads.push( [=]() { http_func( client_socket ); } ); // copy socket into queue to keep it valid
 		}
 	  }
 	  mime_types.clear(); // cleanup on exit
