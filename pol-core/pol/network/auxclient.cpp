@@ -109,7 +109,7 @@ namespace Pol {
 
 	bool AuxClientThread::init()
 	{
-	  Core::PolLock lock;
+      Core::PolLock lock;
 	  struct sockaddr ConnectingIP = _sck.peer_address();
 	  if ( ipAllowed( ConnectingIP ) )
 	  {
@@ -243,6 +243,7 @@ namespace Pol {
 	  {
 		if ( listener.GetConnection( 5 ) )
 		{
+          Core::PolLock lock;
 		  // Shinigami: Just 4 Debugging. We got Crashes here...
 #ifdef PERGON
 		  ERROR_PRINT << "Aux Listener (" << _scriptdef.relativename() << ", port " << _port << ") - create Thread\n";
