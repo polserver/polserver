@@ -17,8 +17,8 @@ namespace Pol {
   namespace Core {
 	class SaveContext : boost::noncopyable
 	{
-	  typedef Clib::ThreadedOFStreamWriter SaveStrategy;
-	  //typedef OFStreamWriter SaveStrategy;
+	  //typedef Clib::ThreadedOFStreamWriter SaveStrategy; // too many context switches!
+      typedef Clib::OFStreamWriter SaveStrategy;
 	private:
 	  std::ofstream _pol;
 	  std::ofstream _objects;
@@ -35,6 +35,7 @@ namespace Pol {
 	  std::ofstream _party;
 	public:
 	  SaveContext();
+      ~SaveContext();
 	  SaveStrategy pol;
 	  SaveStrategy objects;
 	  SaveStrategy pcs;

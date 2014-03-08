@@ -69,6 +69,8 @@ namespace Pol {
 
       tmp << "=======================\n";
       POLLOG_ERROR << tmp.c_str();
+      if ( Clib::Logging::global_logger )
+        Clib::Logging::global_logger->wait_for_empty_queue( ); // wait here for logging facility to make sure everything was printed
 	}
 #endif
 

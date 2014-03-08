@@ -61,7 +61,9 @@ Notes
 
 
 #include <assert.h>
-
+#ifndef __clang__
+#include <omp.h>
+#endif
 #ifdef _WIN32
 #include <process.h>
 #endif
@@ -188,7 +190,6 @@ namespace Pol {
     void read_bannedips_config( bool initial_load );
   }
   namespace Core {
-    
     void cancel_all_trades( );
     void load_system_hooks( );
     bool load_realms( );
@@ -1979,7 +1980,7 @@ namespace Pol {
     << "\n\n";
 
 #ifndef NDEBUG
-    POLLOG_INFO << "\nSizes: \n"
+    POLLOG_INFO << "Sizes: \n"
       << "   UObject:    " << sizeof( Core::UObject ) << "\n"
       << "   Item:       " << sizeof( Items::Item ) << "\n"
       << "   UContainer: " << sizeof( Core::UContainer ) << "\n"
@@ -1994,7 +1995,15 @@ namespace Pol {
 #endif
     POLLOG_INFO << "\n";
 #endif
-
+#ifndef __clang__
+    int max_threads = omp_get_max_threads();
+    if ( max_threads > 1 )
+    {
+      max_threads /= 2;
+      max_threads = std::max( 2, max_threads );
+    }
+    POLLOG_INFO << "Using " << max_threads << " out of " << omp_get_max_threads() << " worldsave threads\n";
+#endif
 
     Core::checkpoint( "installing signal handlers" );
     Core::install_signal_handlers( );
