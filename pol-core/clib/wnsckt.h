@@ -43,7 +43,7 @@ namespace Pol {
 	  bool connected() const;
 	  void close();
 
-	  bool is_local();
+	  bool is_local() const;
 
 	  std::string getpeername() const;
 	  struct sockaddr peer_address() const;
