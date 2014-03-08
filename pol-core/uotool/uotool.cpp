@@ -1313,11 +1313,10 @@ namespace Pol {
 		fread( &elem, sizeof elem, 1, multi_mul );
 		if ( elem.x != 0 || elem.y != 0 || elem.z != 0 )
 		{
-          INFO_PRINT << "ERROR: First tile not in center: " << elem.x << " " << elem.y << " " << elem.z << " MultiID: 0x" << fmt::hexu( i ) << "\n";
+          INFO_PRINT << "ERROR: First tile not in center: " << elem.x << " " << elem.y << " " << elem.z << " (" << elem.flags << ") MultiID: 0x" << fmt::hexu( i ) << "\n";
 		  ++errors;
-		  continue;
 		}
-		if ( elem.graphic == 0x0001 )
+		else if ( elem.graphic == 0x0001 )
 		{
 		  ++invisitems;
 		  unsigned int itemcount = idxrec.length / sizeof elem;
@@ -1334,8 +1333,6 @@ namespace Pol {
 			  break;
 			}
 		  }
-		  if ( !found )
-            INFO_PRINT << "Info: MultiID: 0x" << fmt::hexu( i ) << " needs an invis center\n";
 		}
 		++count;
 	  }
