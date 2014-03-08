@@ -42,7 +42,7 @@ namespace Pol {
       public:
         LogSinkGenericFile( const LogFileBehaviour* behaviour );
         LogSinkGenericFile();
-        ~LogSinkGenericFile() {};
+        ~LogSinkGenericFile();
         void open_log_file();
         void setBehaviour( const LogFileBehaviour* behaviour, std::string filename );
         void sink( fmt::Writer* msg, unsigned int id = 0 );
@@ -224,6 +224,8 @@ namespace Pol {
 #define DISABLE_DEBUGLOG Clib::Logging::global_logger->disableDebugLog
   // helper bool if the debug.log is disabled (for more complex logging) DEBUGLOG checks also
 #define IS_DEBUGLOG_DISABLED Clib::Logging::LogSink_debuglog::Disabled
+
+#define GET_LOG_FILESTAMP Clib::Logging::LogSink::getLoggingTimeStamp()
 
 }
 

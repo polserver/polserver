@@ -3268,13 +3268,13 @@ namespace Pol {
 
 	string Executor::dbg_get_instruction( size_t atPC ) const
 	{
-	  OSTRINGSTREAM os;
+	  fmt::Writer os;
 	  os << ( ( atPC == PC ) ? ">" : " " )
 		<< atPC
 		<< ( breakpoints_.count( static_cast<unsigned>( atPC ) ) ? "*" : ":" )
 		<< " "
 		<< prog_->instr[atPC].token;
-	  return OSTRINGSTREAM_STR( os );
+      return os.str();
 	}
 
 	void Executor::show_context( unsigned atPC )
@@ -3295,7 +3295,7 @@ namespace Pol {
         POLLOG.Format( "{}: {}\n" ) << i << dbg_get_instruction( i );
 	  }
 	}
-	void Executor::show_context( ostream& os, unsigned atPC )
+    void Executor::show_context( fmt::Writer& os, unsigned atPC )
 	{
 	  unsigned start, end;
 	  if ( atPC >= 5 )
@@ -3310,7 +3310,7 @@ namespace Pol {
 
 	  for ( unsigned i = start; i <= end; ++i )
 	  {
-		os << dbg_get_instruction( i ) << endl;
+		os << dbg_get_instruction( i ) << '\n';
 	  }
 	}
 

@@ -341,6 +341,14 @@ namespace Pol {
       // default constructor does not open directly
       LogSinkGenericFile::LogSinkGenericFile() : LogSink(), _behaviour(), _log_filename(), _active_line( false )
       {}
+      LogSinkGenericFile::~LogSinkGenericFile( ) 
+      { 
+        if ( _filestream.is_open() )
+        {
+          _filestream.flush();
+          _filestream.close( );
+        }
+      }
       // set behaviour and logfilename, does not work with rollover
       void LogSinkGenericFile::setBehaviour( const LogFileBehaviour* behaviour, std::string filename )
       {
@@ -406,6 +414,7 @@ namespace Pol {
           char buffer[30];
           strftime( buffer, sizeof buffer, "%Y-%m-%d", &_opened );
           string archive_name = _behaviour->basename + "-" + buffer + ".log";
+          _filestream.flush();
           _filestream.close();
 
           // whether the rename succeeds or fails, the action is the same.
@@ -444,6 +453,7 @@ namespace Pol {
       // performs the switch between start.log and pol.log
       void LogSink_pollog::deinitialize_startlog()
       {
+        _filestream.flush();
         _filestream.close();
         _behaviour = &pollogBehaviour;
         _log_filename = _behaviour->basename + ".log";
@@ -462,7 +472,10 @@ namespace Pol {
       void LogSink_debuglog::disable()
       {
         if ( _filestream.is_open() )
+        {
+          _filestream.flush();
           _filestream.close();
+        }
         Disabled = true;
       }
       // only print the msg if not Disabled
