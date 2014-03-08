@@ -92,17 +92,17 @@ namespace Pol {
 	}
 
 	/// ofstream implementation with worker thread for file io
-	ThreadedOFStreamWriter::ThreadedOFStreamWriter()
-	  : StreamWriter(), _stream(), _msg_queue(), _writethread()
-	{
-	  start_worker();
-	}
+    ThreadedOFStreamWriter::ThreadedOFStreamWriter()
+      : StreamWriter( ), _stream( ), _msg_queue( ), _writethread( ), _writers_hold( ), _stream_name()
+    {
+      start_worker();
+    }
 
-	ThreadedOFStreamWriter::ThreadedOFStreamWriter( std::ofstream* stream )
-	  : StreamWriter(), _stream( stream ), _msg_queue(), _writethread()
-	{
-	  start_worker();
-	}
+    ThreadedOFStreamWriter::ThreadedOFStreamWriter( std::ofstream* stream )
+      : StreamWriter( ), _stream( stream ), _msg_queue( ), _writethread( ), _writers_hold( ), _stream_name()
+    {
+      start_worker();
+    }
 	void ThreadedOFStreamWriter::start_worker()
 	{
 	  _writethread = std::thread( [this]()
@@ -138,30 +138,41 @@ namespace Pol {
 
 	ThreadedOFStreamWriter::~ThreadedOFStreamWriter()
 	{
-	  flush();
-	  _msg_queue.cancel();
-	  _writethread.join();
-	}
+      flush_file();
+    }
 
 	void ThreadedOFStreamWriter::init( const std::string& filepath )
 	{
 	  _stream->exceptions( std::ios_base::failbit | std::ios_base::badbit );
 	  _stream->open( filepath.c_str(), std::ios::out );
+      _stream_name = filepath;
 	}
 
 	void ThreadedOFStreamWriter::flush()
 	{
 	  if( _writer->size() )
 	  {
-		_msg_queue.push_move( std::move( _writer ) );
+        _writers_hold.emplace_back( std::move( _writer ) );
+        if ( _writers_hold.size() > 10 )
+        {
+          _msg_queue.push( _writers_hold );
+        }
 		_writer.reset( new fmt::Writer );
 	  }
 	}
 
 	void ThreadedOFStreamWriter::flush_file()
 	{
-	  flush();
-	  _stream->flush();
+      if ( _writethread.joinable() )
+      {
+        flush();
+        if ( !_writers_hold.empty() )
+          _msg_queue.push( _writers_hold );
+
+        _msg_queue.cancel();
+        _writethread.join();
+        _stream->close();
+      }
 	}
   }
 }

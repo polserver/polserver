@@ -125,6 +125,8 @@ namespace Pol {
 	  LONG retval = EXCEPTION_CONTINUE_SEARCH;
       fmt::Writer result;
       fmt::Writer dumppath;
+      if ( !_Initialized )
+        Initialize();
 
 	  MINIDUMPWRITEDUMP pDump = ( MINIDUMPWRITEDUMP )::GetProcAddress( hDbgHelpDll, "MiniDumpWriteDump" );
 	  if( pDump )
@@ -171,6 +173,7 @@ namespace Pol {
 	  }
       print_backtrace();
 	  FreeLibrary( hDbgHelpDll );
+      _Initialized = false;
 
       if ( result.size() > 0 )
 	  {

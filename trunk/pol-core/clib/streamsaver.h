@@ -77,6 +77,8 @@ namespace Pol {
 	  std::ofstream *_stream;
 	  writer_queue _msg_queue;
 	  std::thread _writethread;
+      std::list<WriterPtr> _writers_hold;
+      std::string _stream_name;
 	};
 
   }

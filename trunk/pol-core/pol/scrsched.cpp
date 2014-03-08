@@ -327,11 +327,11 @@ namespace Pol {
 			ex->runaway_cycles += config.runaway_script_threshold;
 			if ( os_module->warn_on_runaway )
 			{
-              SCRIPTLOG << "Runaway script[" << os_module->pid() << "]: " << ex->scriptname()
+              fmt::Writer tmp;
+              tmp << "Runaway script[" << os_module->pid( ) << "]: " << ex->scriptname( )
                 << " (" << ex->runaway_cycles << " cycles)\n";
-              std::ostringstream os;
-			  ex->show_context( os, ex->PC );
-              SCRIPTLOG << os.str();
+              ex->show_context( tmp, ex->PC );
+              SCRIPTLOG << tmp.c_str();
 			}
 			ex->warn_runaway_on_cycle += config.runaway_script_threshold;
 		  }
@@ -344,7 +344,12 @@ namespace Pol {
 			{
 			  inscount = 0;
               if ( config.report_critical_scripts )
-                ERROR_PRINT << "Critical script " << ex->scriptname() << " has run for " << totcount << " instructions\n";
+              {
+                fmt::Writer tmp;
+                tmp << "Critical script " << ex->scriptname() << " has run for " << totcount << " instructions\n";
+                ex->show_context( tmp, ex->PC );
+                ERROR_PRINT << tmp.c_str();
+              }
 			}
 			continue;
 		  }
