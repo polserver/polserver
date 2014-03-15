@@ -1,4 +1,9 @@
 ﻿-- POL099 --
+03-15-2014 Turley:
+  Changed: sql functions connect, select and query perform the communication part in background while script itself
+           is stopped (like eg Target()). Which means that these time consuming functions do not block the complete shard.
+		   Removed sql module from runecl, since it no more compatible.
+
 03-01-2014 Nando:
 	Added: Character.temporally_criminal is true when a criminal timer is running on the character. 
 	 Note: The old property chr.criminal stays the same: it is true when the character is temporally

@@ -12,9 +12,14 @@ Notes
 #include "../../bscript/bobject.h"
 #include "../../bscript/berror.h"
 #include "../../bscript/impstr.h"
+#include "../../clib/logfacility.h"
 
+#include "../uoexec.h"
+#include "osmod.h"
+#include "../polsem.h"
 #include "../sqlscrobj.h"
 #include "sqlmod.h"
+
 namespace Pol {
   namespace Bscript {
     using namespace Module;
@@ -39,6 +44,112 @@ namespace Pol {
     using namespace Bscript;
 #ifdef HAVE_MYSQL
 
+    BObjectImp* SQLExecutorModule::background_connect( Core::UOExecutor& uoexec, const std::string host, const std::string username, const std::string password )
+    {
+      auto msg = [&uoexec, host, username, password]()
+      {
+        if ( &uoexec == nullptr )
+        {
+          INFO_PRINT << "uoexec is null\n";
+          return;
+        }
+        std::unique_ptr<Core::BSQLConnection> sql;
+        {
+          Core::PolLock lck;
+          sql = std::unique_ptr<Core::BSQLConnection>( new Core::BSQLConnection() );
+        }
+        if ( sql->getLastErrNo() )
+        {
+          Core::PolLock lck;
+          uoexec.ValueStack.top( ).set( new BObject( new BError( "Insufficient memory" ) ));
+          uoexec.os_module->revive( );
+        }
+        else if ( !sql->connect( host.data(), username.data(), password.data() ) )
+        {
+          Core::PolLock lck;
+          uoexec.ValueStack.top( ).set( new BObject( new BError( sql->getLastError( ) ) ) );
+          uoexec.os_module->revive( );
+        }
+        else
+        {
+          Core::PolLock lck;
+          uoexec.ValueStack.top( ).set( new BObject( sql.release( ) ) );
+          uoexec.os_module->revive( );
+        }
+      };
+      
+      Core::sql_service.push( std::move(msg) );
+      uoexec.os_module->suspend();
+      return new BLong( 0 );
+    }
+
+    BObjectImp* SQLExecutorModule::background_select( Core::UOExecutor& uoexec, Core::BSQLConnection *sql, const std::string db )
+    {
+      auto msg = [&uoexec, sql, db]()
+      {
+        if ( &uoexec == nullptr )
+        {
+          INFO_PRINT << "uoexec is null\n";
+          return;
+        }
+        if ( sql == nullptr )
+        {
+          Core::PolLock lck;
+          uoexec.ValueStack.top( ).set( new BObject( new BError( "Invalid parameters" ) ) );
+          uoexec.os_module->revive( );
+        }
+        else if ( !sql->select_db( db.c_str() ) )
+        {
+          Core::PolLock lck;
+          uoexec.ValueStack.top( ).set( new BObject( new BError( sql->getLastError( ) ) ) );
+          uoexec.os_module->revive( );
+        }
+        else
+        {
+          Core::PolLock lck;
+          uoexec.ValueStack.top( ).set( new BObject( new BLong( 1 ) ) );
+          uoexec.os_module->revive();
+        }
+      };
+      Core::sql_service.push( std::move( msg ) );
+      uoexec.os_module->suspend();
+      return new BLong( 0 );
+    }
+
+    BObjectImp* SQLExecutorModule::background_query( Core::UOExecutor& uoexec, Core::BSQLConnection *sql, const std::string query )
+    {
+      auto msg = [&uoexec, sql, query]()
+      {
+        if ( &uoexec == nullptr )
+        {
+          INFO_PRINT << "uoexec is null\n";
+          return;
+        }
+
+        if ( sql == nullptr )
+        {
+          Core::PolLock lck;
+          uoexec.ValueStack.top( ).set( new BObject( new BError( "Invalid parameters" ) ) );
+          uoexec.os_module->revive( );
+        }
+        else if ( !sql->query( query.c_str() ) )
+        {
+          Core::PolLock lck;
+          uoexec.ValueStack.top( ).set( new BObject( new BError( sql->getLastError( ) ) ) );
+          uoexec.os_module->revive( );
+        }
+        else
+        {
+          Core::PolLock lck;
+          uoexec.ValueStack.top( ).set( new BObject( sql->getResultSet( ) ) );
+          uoexec.os_module->revive( );
+        }
+      };
+      Core::sql_service.push( std::move( msg ) );
+      uoexec.os_module->suspend();
+      return new BLong( 0 );
+    }
+
 	Bscript::BObjectImp* SQLExecutorModule::mf_ConnectToDB()
 	{
       const String *host = getStringParam( 0 );
@@ -48,17 +159,7 @@ namespace Pol {
       {
         return new BError( "Invalid parameters" );
       }
-
-      auto sql = std::unique_ptr<Core::BSQLConnection>( new Core::BSQLConnection() );
-	  if ( sql->getLastErrNo() )
-	  {
-		return new BError( "Insufficient memory" );
-	  }
-	  if ( !sql->connect( host->data(), username->data(), password->data() ) )
-	  {
-		return new BError( sql->getLastError() );
-	  }
-	  return sql.release();
+      return background_connect( uoexec, host->getStringRep(), username->getStringRep(), password->getStringRep() );
 	}
 	Bscript::BObjectImp* SQLExecutorModule::mf_SelectDb()
 	{
@@ -68,25 +169,18 @@ namespace Pol {
       {
         return new BError( "Invalid parameters" );
       }
-	  if ( !sql->select_db( *db ) )
-		return new BError( sql->getLastError() );
-	  return new BLong( 1 );
+      return background_select( uoexec, sql, db->getStringRep() );
 	}
 
 	Bscript::BObjectImp* SQLExecutorModule::mf_Query()
 	{
-      Core::BSQLConnection *sql = static_cast<Core::BSQLConnection*>( getParamImp( 0, Bscript::BObjectImp::OTSQLConnection ) );;
+      Core::BSQLConnection *sql = static_cast<Core::BSQLConnection*>( getParamImp( 0, Bscript::BObjectImp::OTSQLConnection ) );
       const String *query = getStringParam( 1 );
       if ( !sql || !query )
 	  {
 		return new BError( "Invalid parameters" );
 	  }
-	  if ( !sql->query( query->getStringRep().c_str() ) )
-	  {
-		return new BError( sql->getLastError() );
-	  }
-
-	  return sql->getResultSet();
+      return background_query( uoexec, sql, query->getStringRep() );
 	}
 
 	Bscript::BObjectImp* SQLExecutorModule::mf_NumFields()
@@ -102,7 +196,9 @@ namespace Pol {
 	Bscript::BObjectImp* SQLExecutorModule::mf_FieldName()
 	{
       Core::BSQLResultSet *result = static_cast<Core::BSQLResultSet*>( getParamImp( 0, Bscript::BObjectImp::OTSQLResultSet ) );
-      int index = getParam( 1, index );
+      int index;
+      if (!getParam( 1, index ))
+        return new BError( "Invalid parameters" );
 
       if ( !result || !index )
 	  {

@@ -22,6 +22,9 @@ Notes
 #else
 #	include <mysql/mysql.h>
 #endif
+
+#include "../clib/message_queue.h"
+
 namespace Pol {
   namespace Core {
     class BSQLResultSet;
@@ -102,6 +105,7 @@ namespace Pol {
       MYSQL_FIELD* _fields;
       int _affected_rows;
     };
+    class SQLService;
     class BSQLConnection : public Bscript::BObjectImp
     {
       class ConnectionWrapper;
@@ -118,6 +122,7 @@ namespace Pol {
 
       std::string getLastError() const { return _error; };
       int getLastErrNo() const { return _errno; };
+      std::shared_ptr<ConnectionWrapper> getConnection() const { return _conn; };
 
       virtual Bscript::BObjectRef get_member( const char* membername );
       virtual Bscript::BObjectRef get_member_id( const int id ); //id test
@@ -148,6 +153,21 @@ namespace Pol {
       };
     };
 
+    class SQLService
+    {
+    public:
+      typedef std::function<void()> msg;
+      typedef Clib::message_queue<msg> msg_queue;
+      SQLService();
+      ~SQLService();
+      void start();
+      void stop();
+      void push( msg &&msg_ );
+    private:
+      msg_queue _msgs;
+    };
+    extern SQLService sql_service;
+    void start_sql_service();
   }
 }
 
