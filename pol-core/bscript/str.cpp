@@ -91,10 +91,11 @@ namespace Pol {
 
 	void String::EStrReplace( String* str1, String* str2 )
 	{
-	  string::size_type valpos;
-	  while ( string::npos != ( valpos = value_.find( str1->value_ ) ) )
+	  string::size_type valpos = 0;
+      while ( string::npos != ( valpos = value_.find( str1->value_, valpos ) ) )
 	  {
 		value_.replace( valpos, str1->length(), str2->value_ );
+        valpos += str2->length();
 	  }
 	}
 
