@@ -1,3 +1,6 @@
+#ifndef TOOLS_TIMER_H
+#define TOOLS_TIMER_H
+
 #include <chrono>
 #include <ratio>
 #include <iosfwd>
@@ -81,5 +84,23 @@ namespace Pol {
 	  Clock::time_point _start;
 	  Clock::time_point _end;
 	};
+
+    class HighPerfTimer
+    {
+    public:
+      typedef std::chrono::high_resolution_clock Clock;
+      typedef std::chrono::microseconds time_mu;
+      
+      HighPerfTimer() : _start( Clock::now() ) {}
+      time_mu ellapsed() const
+      {
+        Clock::time_point _now = Clock::now();
+        return std::chrono::duration_cast<time_mu>( _now - _start );
+      }
+    private:
+      Clock::time_point _start;
+    };
   }
 }
+
+#endif
