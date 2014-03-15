@@ -139,7 +139,7 @@ namespace Pol {
       E.addModule( new BasicExecutorModule( E ) );
       E.addModule( new BasicIoExecutorModule( E ) );
       E.addModule( new MathExecutorModule( E ) );
-      E.addModule( new SQLExecutorModule( E ) );
+      //E.addModule( new SQLExecutorModule( E ) );
       E.addModule( new UtilExecutorModule( E ) );
       E.addModule( new FileAccessExecutorModule( E ) );
       E.addModule( new ConfigFileExecutorModule( E ) );
@@ -187,7 +187,7 @@ namespace Pol {
       E.addModule( new BasicExecutorModule( E ) );
       E.addModule( new BasicIoExecutorModule( E ) );
       E.addModule( new MathExecutorModule( E ) );
-      E.addModule( new SQLExecutorModule( E ) );
+      //E.addModule( new SQLExecutorModule( E ) );
       E.addModule( new UtilExecutorModule( E ) );
       E.addModule( new FileAccessExecutorModule( E ) );
       E.addModule( new ConfigFileExecutorModule( E ) );
