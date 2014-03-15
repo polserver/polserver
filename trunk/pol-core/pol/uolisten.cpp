@@ -108,7 +108,7 @@ namespace Pol {
 	  {
 		unsigned int timeout = 2;
 		if ( !login_clients.empty() )
-		  timeout = 1;
+		  timeout = 0;
 		if ( SL.GetConnection( timeout ) )
 		{
 		  // create an appropriate Client object

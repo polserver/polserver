@@ -13,6 +13,10 @@ Notes
 #include "../clib/strutil.h"
 #include "../clib/stlutil.h"
 #include "../clib/endian.h"
+#include "../clib/threadhelp.h"
+#include "../clib/logfacility.h"
+#include "../clib/esignal.h"
+#include "../clib/message_queue.h"
 
 #include "sqlscrobj.h"
 
@@ -187,7 +191,6 @@ namespace Pol {
 
     BSQLConnection::BSQLConnection( std::shared_ptr<ConnectionWrapper> conn ) : Bscript::BObjectImp( OTSQLConnection ), _conn( conn ), _errno( 0 )
     {
-
     }
 
 	BSQLConnection::BSQLConnection( std::string host, std::string user, std::string password ) : Bscript::BObjectImp( OTSQLConnection ), _errno( 0 )
@@ -297,7 +300,6 @@ namespace Pol {
 	  return new BSQLConnection(_conn);
 	}
 
-
     BSQLConnection::ConnectionWrapper::ConnectionWrapper( ) : _conn( nullptr )
     {}
     BSQLConnection::ConnectionWrapper::~ConnectionWrapper( )
@@ -328,6 +330,69 @@ namespace Pol {
       if ( _result )
         mysql_free_result( _result );
       _result = result;
+    }
+
+
+    SQLService sql_service;
+    void sql_service_thread_stub()
+    {
+      try
+      {
+        sql_service.start();
+      }
+      catch ( const char* msg )
+      {
+        POLLOG.Format( "SQL Thread exits due to exception: {}\n" ) << msg;
+        throw;
+      }
+      catch ( string& str )
+      {
+        POLLOG.Format( "SQL Thread exits due to exception: {}\n" ) << str;
+        throw;
+      }
+      catch ( exception& ex )
+      {
+        POLLOG.Format( "SQL Thread exits due to exception: {}\n" ) << ex.what( );
+        throw;
+      }
+    }
+
+    SQLService::SQLService( )
+    {
+    }
+    SQLService::~SQLService( )
+    {
+    }
+    void SQLService::stop()
+    {
+      _msgs.cancel();
+    }
+    void SQLService::push( msg &&msg_ )
+    {
+      _msgs.push_move( std::move(msg_) );
+    }
+    void SQLService::start() // executed inside a extra thread
+    {
+      while ( !Clib::exit_signalled )
+      {
+        try
+        {
+          msg task;
+          _msgs.pop_wait( &task );
+          task();
+        }
+        catch ( msg_queue::Canceled& )
+        {
+          break;
+        }
+        // ignore remaining tasks
+      }
+    }
+
+    
+    void start_sql_service()
+    {
+      threadhelp::start_thread( sql_service_thread_stub, "SQLService" );
     }
   }
 }
