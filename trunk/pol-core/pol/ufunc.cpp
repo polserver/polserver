@@ -470,29 +470,6 @@ namespace Pol {
       } );
 	}
 
-	void update_nearby_visible_chars( Client* client )
-	{
-		unsigned short wxL, wyL, wxH, wyH;
-		PktHelper::PacketOut<PktOut_1D> msgremove;
-		zone_convert_clip( client->chr->x - RANGE_VISUAL, client->chr->y - RANGE_VISUAL, client->chr->realm, wxL, wyL );
-		zone_convert_clip( client->chr->x + RANGE_VISUAL, client->chr->y + RANGE_VISUAL, client->chr->realm, wxH, wyH );
-		for( unsigned short wx = wxL; wx <= wxH; ++wx )
-		{
-			for( unsigned short wy = wyL; wy <= wyH; ++wy )
-			{
-				ZoneCharacters& wchr = client->chr->realm->zone[wx][wy].characters;
-				for( ZoneCharacters::iterator itr = wchr.begin(), end = wchr.end(); itr != end; ++itr )
-				{
-					Character* chr = *itr;
-					if ( client->chr->is_visible_to_me( chr ))
-						send_owncreate( client, chr );
-					else
-						send_remove_character( client, chr, msgremove.Get() );
-				}
-			}
-		}
-	}
-
 	void send_remove_object_if_inrange( Client *client, const Item *item )
 	{
 	  if ( !client->ready )     /* if a client is just connecting, don't bother him. */
