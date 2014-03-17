@@ -102,7 +102,6 @@ namespace Pol {
     void ClientCreateChar70160( Network::Client* client, struct PKTIN_F8* msg );
     void createchar2( Accounts::Account* acct, unsigned index );
     void undo_get_item( Mobile::Character *chr, Items::Item *item );
-	void update_nearby_visible_chars( Network::Client* client );
     void write_characters( SaveContext& sc );
     void write_npcs( SaveContext& sc );
   }
@@ -417,6 +416,7 @@ namespace Pol {
 	  virtual void on_poison_changed(); //dave 12-24
 	  virtual void on_hidden_changed();
 	  virtual void on_concealed_changed();
+      void on_cmdlevel_changed();
 	  virtual void setfacing( u8 newfacing );
 	  virtual void on_facing_changed();
 	  void on_aos_ext_stat_changed();
@@ -1001,8 +1001,8 @@ namespace Pol {
 		if ( cmdlevel_ != value )
 		{
 			cmdlevel_ = value;
-			if ( update_on_change )
-				Core::update_nearby_visible_chars( client );
+            if ( update_on_change )
+              on_cmdlevel_changed();
 		}
 	}
 

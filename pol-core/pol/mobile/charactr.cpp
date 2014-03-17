@@ -1921,6 +1921,12 @@ namespace Pol {
 		  set_stealthsteps( 0 );
 	}
 
+    void Character::on_cmdlevel_changed()
+    {
+      send_remove_character_to_nearby_cantsee( this );
+      send_create_mobile_to_nearby_cansee( this );
+    }
+
 	void Character::on_facing_changed()
 	{
 	  if ( client ) 
