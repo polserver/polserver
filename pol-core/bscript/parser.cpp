@@ -867,10 +867,14 @@ namespace Pol {
 	ReservedWords reservedWordsByName;
 	static void init_tables()
 	{
-	  for ( unsigned i = 0; i < n_reserved; ++i )
-	  {
-		reservedWordsByName[reserved_words[i].word] = &reserved_words[i];
-	  }
+      static std::once_flag flag;
+      std::call_once( flag, []( )
+      {
+	    for ( unsigned i = 0; i < n_reserved; ++i )
+	    {
+		  reservedWordsByName[reserved_words[i].word] = &reserved_words[i];
+	    }
+      } );
 	}
 
 	void Parser::write_words( ostream& os )
