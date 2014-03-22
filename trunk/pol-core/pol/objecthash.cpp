@@ -136,7 +136,8 @@ namespace Pol {
 	  sw() << "Object Count: " << hash.size() << "\n";
 	  for ( itr = hash.begin(), itrend = hash.end(); itr != itrend; ++itr )
 	  {
-		itr->second->printOn( sw );
+        sw() << "type: " << itr->second->classname() << " serial: 0x" << fmt::hexu( itr->second->serial ) << " name: " << itr->second->name() << "\n";
+		//itr->second->printOn( sw ); // its no more safe to try to print the complete object
 	  }
 
 	}
