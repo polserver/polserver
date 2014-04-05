@@ -1,4 +1,7 @@
 ﻿-- POL099 --
+04-05-2014 Turley:
+  Fixed:   multi.items returns now all toplevel items inside of the multi
+  
 03-15-2014 Turley:
   Changed: sql functions connect, select and query perform the communication part in background while script itself
            is stopped (like eg Target()). Which means that these time consuming functions do not block the complete shard.
