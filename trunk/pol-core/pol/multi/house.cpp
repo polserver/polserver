@@ -71,36 +71,19 @@ namespace Pol {
 
       Core::WorldIterator<Core::MobileFilter>::InBox( x1, y1, x2, y2, house->realm, [&]( Mobile::Character* chr )
       {
-        Items::Item* walkon;
-        UMulti* multi;
-        short newz;
-        if ( house->realm->walkheight( chr, chr->x, chr->y, chr->z, &newz, &multi, &walkon ) )
-        {
-          if ( const_cast<const UMulti*>( multi ) == house )
-            chrs_in.push_back( chr );
-        }
+        UMulti* multi = house->realm->find_supporting_multi( chr->x, chr->y, chr->z );
+        if ( const_cast<const UMulti*>( multi ) == house )
+          chrs_in.push_back( chr );
       } );
       Core::WorldIterator<Core::ItemFilter>::InBox( x1, y1, x2, y2, house->realm, [&]( Items::Item* item )
       {
-        Items::Item* walkon;
-        UMulti* multi;
-        short newz;
-        unsigned short sx = item->x;
-        unsigned short sy = item->y;
-        item->x = 0;    // move 'self' a bit so it doesn't interfere with itself
-        item->y = 0;
-        bool res = house->realm->walkheight( sx, sy, item->z, &newz, &multi, &walkon, true, Core::MOVEMODE_LAND );
-        item->x = sx;
-        item->y = sy;
-        if ( res )
+        UMulti* multi = house->realm->find_supporting_multi( item->x, item->y, item->z );
+        if ( const_cast<const UMulti*>( multi ) == house )
         {
-          if ( const_cast<const UMulti*>( multi ) == house )
-          {
-            if ( Core::tile_flags( item->graphic ) & Plib::FLAG::WALKBLOCK )
-              items_in.push_front( item );
-            else
-              items_in.push_back( item );
-          }
+          if ( Core::tile_flags( item->graphic ) & Plib::FLAG::WALKBLOCK )
+            items_in.push_front( item );
+          else
+            items_in.push_back( item );
         }
       } );
 	}
