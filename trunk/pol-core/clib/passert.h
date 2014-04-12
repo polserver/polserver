@@ -70,7 +70,7 @@ namespace Pol {
 # endif
 #endif
 
-    void force_backtrace();
+    void force_backtrace(bool complete = false);
 
     void passert_failed( const char *expr, const char *file, unsigned line ) CLANG_ANALYZER_NORETURN;
     void passert_failed( const char *expr, const std::string& reason, const char *file, unsigned line ) CLANG_ANALYZER_NORETURN;
