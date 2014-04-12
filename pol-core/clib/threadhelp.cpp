@@ -68,7 +68,7 @@ namespace Pol {
 	{
 	  Sleep( millis );
 	}
-	unsigned thread_pid()
+    size_t thread_pid( )
 	{
 	  return GetCurrentThreadId();
 	}
@@ -187,9 +187,9 @@ namespace Pol {
 	{
 	  usleep( millis * 1000L );
 	}
-	unsigned thread_pid()
+    size_t thread_pid()
 	{
-	  return getpid();
+      return pthread_self();
 	}
 #endif
 
@@ -351,13 +351,13 @@ namespace Pol {
 	  create_thread( td, true );
 	}
 
-	void ThreadMap::Register( int pid, const string& name )
+    void ThreadMap::Register( size_t pid, const string& name )
 	{
 	  threadmap_lock();
 	  _contents.insert( make_pair( pid, name ) );
 	  threadmap_unlock();
 	}
-	void ThreadMap::Unregister( int pid )
+    void ThreadMap::Unregister( size_t pid )
 	{
 	  threadmap_lock();
 	  _contents.erase( pid );
@@ -370,6 +370,15 @@ namespace Pol {
 	  threadmap_unlock();
 	}
 
+    ThreadRegister::ThreadRegister( const std::string &name )
+    {
+      threadmap.Register( thread_pid(), name );
+    }
+    ThreadRegister::~ThreadRegister()
+    {
+      threadmap.Unregister( thread_pid());
+    }
+
 
 	/// Creates a threadpool of workers.
 	/// blocks on deconstruction
@@ -377,28 +386,29 @@ namespace Pol {
 	/// TaskThreadPool workers;
 	/// for (....)
 	///   workers.push([&](){dosomework();});
-	TaskThreadPool::TaskThreadPool()
+    TaskThreadPool::TaskThreadPool( const std::string& name )
 	  : _done( false ), _msg_queue()
 	{
 	  // get the count of processors
 	  unsigned int max_count = std::thread::hardware_concurrency();
 	  if( !max_count )  // can fail so at least one
 		max_count = 1;
-	  init( max_count );
+	  init( max_count, name );
 	}
 
-	TaskThreadPool::TaskThreadPool( unsigned int max_count )
+    TaskThreadPool::TaskThreadPool( unsigned int max_count, const std::string& name )
 	  : _done( false ), _msg_queue()
 	{
-	  init( max_count );
+	  init( max_count, name );
 	}
 
-	void TaskThreadPool::init( unsigned int max_count )
+    void TaskThreadPool::init( unsigned int max_count, const std::string& name )
 	{
 	  for( unsigned int i = 0; i < max_count; ++i )
 	  {
 		_threads.emplace_back( [=]()
 		{
+          ThreadRegister register_thread( "TaskPool "+name );
 		  auto f = msg();
 		  try
 		  {
