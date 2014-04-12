@@ -121,9 +121,16 @@ namespace Pol {
           {
             while ( !_done )
             {
-              msg func;
-              _queue.pop_wait( &func );
-              func(); // execute
+              try
+              {
+                msg func;
+                _queue.pop_wait( &func );
+                func(); // execute
+              }
+              catch ( std::exception& msg )
+              {
+                std::cout << msg.what( ) << endl;
+              }
             }
           } );
         }

@@ -837,7 +837,7 @@ namespace Pol {
 	  fd_set listen_fd;
 	  struct timeval listen_timeout = { 0, 0 };
 
-      Pol::threadhelp::TaskThreadPool worker_threads( 2 ); // two threads should be enough
+      Pol::threadhelp::TaskThreadPool worker_threads( 2, "http" ); // two threads should be enough
       while ( !Clib::exit_signalled )
 	  {
 		int nfds = 0;

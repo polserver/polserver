@@ -28,15 +28,15 @@ namespace Pol {
 	void start_thread( void( *entry )( void ), const char* thread_name );
 
 	void thread_sleep_ms( unsigned milliseconds );
-	unsigned thread_pid();
+    size_t thread_pid();
 
 	class ThreadMap
 	{
 	public:
-	  typedef std::map<int, std::string> Contents;
+      typedef std::map<size_t, std::string> Contents;
 
-	  void Register( int pid, const std::string& name );
-	  void Unregister( int pid );
+      void Register( size_t pid, const std::string& name );
+      void Unregister( size_t pid );
 	  void CopyContents( Contents& out ) const;
 	private:
 	  Contents _contents;
@@ -46,6 +46,13 @@ namespace Pol {
 	void SetThreadName( int dwThreadID, std::string threadName );
 #endif
 
+    class ThreadRegister
+    {
+    public:
+      ThreadRegister(const std::string &name);
+      ~ThreadRegister();
+    };
+
 
 
 	class TaskThreadPool
@@ -53,13 +60,13 @@ namespace Pol {
 	  typedef std::function<void()> msg;
 	  typedef Clib::message_queue<msg> msg_queue;
 	public:
-	  TaskThreadPool();
-	  TaskThreadPool( unsigned int max_count );
+      TaskThreadPool( const std::string& name );
+	  TaskThreadPool( unsigned int max_count, const std::string& name );
 	  ~TaskThreadPool();
 	  void push( msg msg );
 	  std::future<bool> checked_push( msg msg );
 	private:
-	  void init( unsigned int max_count );
+      void init( unsigned int max_count, const std::string& name );
 	  bool _done;
 	  msg_queue _msg_queue;
 	  std::vector<std::thread> _threads;
