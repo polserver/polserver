@@ -242,7 +242,7 @@ uoconvert_sources=uoconvert/uoconvert.cpp  \
 	clib/fileutil.cpp clib/passert.cpp clib/dirlist.cpp clib/iohelp.cpp \
 	clib/logfacility.cpp \
 	clib/progver.cpp clib/esignal.cpp clib/random.cpp clib/strexcpt.cpp \
-	clib/wallclock.cpp \
+	clib/wallclock.cpp clib/threadhelp.cpp \
 	clib/xmain.cpp
 
 uotool_sources=uotool/uotool.cpp \
@@ -254,7 +254,7 @@ uotool_sources=uotool/uotool.cpp \
 	plib/mapfunc.cpp plib/mapwriter.cpp plib/realmdescriptor.cpp \
 	clib/cfgfile.cpp clib/cmdargs.cpp clib/strutil.cpp \
 	clib/fileutil.cpp clib/passert.cpp clib/dirlist.cpp clib/iohelp.cpp \
-	clib/fdump.cpp clib/logfacility.cpp \
+	clib/fdump.cpp clib/logfacility.cpp clib/threadhelp.cpp \
 	clib/progver.cpp clib/esignal.cpp clib/strexcpt.cpp \
 	clib/xmain.cpp
 

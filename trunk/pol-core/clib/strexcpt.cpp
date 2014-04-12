@@ -212,23 +212,14 @@ void segv_handler(int signal)
   {
     POLLOG_ERROR << "Caught SIGUSR2 (On-demand backtrace).  Please post the following with explanation and last lines from log files on http://forums.polserver.com/tracker.php :\n";
   }
+  
   fmt::Writer tmp;
   tmp << "=== CUT ===\n";
   tmp << "Build: " << progverstr << " (" << buildtagstr << ")\n";
   tmp << "Last Script: " << scripts_thread_script << " PC: " << scripts_thread_scriptPC << "\n";
-  tmp << "Stack Backtrace:\n";
-
-  void* bt[ 200 ];
-  int n = backtrace( bt, 200 );
-  char** strings = backtrace_symbols( bt, n );
-  for (int i = 0; i < n; i++)
-  {
-    tmp << strings[ i ] << "\n";
-  }
-  free( strings );
-
-  tmp << "=== CUT ===\n";
   POLLOG_ERROR << tmp.c_str();
+  force_backtrace(true);
+  POLLOG_ERROR << "=== CUT ===\n";
 
   if (signal == SIGSEGV)
   {

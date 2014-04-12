@@ -617,8 +617,16 @@ namespace Pol {
 			{
 #pragma omp critical(building_break)
 			  omp_keep_building = false;
+              Clib::force_backtrace();
 			}
 		  }
+          catch ( ... )
+          {
+#pragma omp critical(building_break)
+            omp_keep_building = false;
+            Clib::force_backtrace( );
+          }
+
 		}
 	  }
 	  summary.CompiledScripts = compiled_scripts;

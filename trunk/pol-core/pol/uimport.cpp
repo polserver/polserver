@@ -37,6 +37,7 @@ Notes
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
 #include "../clib/timer.h"
+#include "../clib/threadhelp.h"
 
 #include "../plib/polver.h"
 #include "../plib/realm.h"
@@ -1139,6 +1140,7 @@ namespace Pol {
           {
 #pragma omp section
             {
+              threadhelp::ThreadRegister register_thread( "SaveSection: pol" );
               try
               {
                 sc.pol() << "#" << pf_endl
@@ -1162,6 +1164,7 @@ namespace Pol {
             }
 #pragma omp section
             {
+            threadhelp::ThreadRegister register_thread( "SaveSection: items" );
             try
             {
               write_items( sc.items );
@@ -1175,6 +1178,7 @@ namespace Pol {
           }
 #pragma omp section
             {
+              threadhelp::ThreadRegister register_thread( "SaveSection: chars" );
               try
               {
                 write_characters( sc );
@@ -1188,6 +1192,7 @@ namespace Pol {
             }
 #pragma omp section
             {
+              threadhelp::ThreadRegister register_thread( "SaveSection: npcs" );
               try
               {
                 write_npcs( sc );
@@ -1201,6 +1206,7 @@ namespace Pol {
             }
 #pragma omp section
             {
+              threadhelp::ThreadRegister register_thread( "SaveSection: multis" );
               try
               {
                 write_multis( sc.multis );
@@ -1214,6 +1220,7 @@ namespace Pol {
             }
 #pragma omp section
             {
+              threadhelp::ThreadRegister register_thread( "SaveSection: storage" );
               try
               {
                 storage.print( sc.storage );
@@ -1227,6 +1234,7 @@ namespace Pol {
             }
 #pragma omp section
             {
+              threadhelp::ThreadRegister register_thread( "SaveSection: resource" );
               try
               {
                 write_resources_dat( sc.resource );
@@ -1240,6 +1248,7 @@ namespace Pol {
             }
 #pragma omp section
             {
+              threadhelp::ThreadRegister register_thread( "SaveSection: guilds" );
               try
               {
                 Module::write_guilds( sc.guilds );
@@ -1253,6 +1262,7 @@ namespace Pol {
             }
 #pragma omp section
             {
+              threadhelp::ThreadRegister register_thread( "SaveSection: datastore" );
               try
               {
                 Module::write_datastore( sc.datastore );
@@ -1268,6 +1278,7 @@ namespace Pol {
             }
 #pragma omp section
             {
+              threadhelp::ThreadRegister register_thread( "SaveSection: party" );
               try
               {
                 write_party( sc.party );

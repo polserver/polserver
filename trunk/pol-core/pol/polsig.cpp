@@ -83,7 +83,7 @@ namespace Pol {
 	  install_null_handler( SIGPIPE );
 
 	  install_null_handler( SIGHUP );
-	  install_null_handler( SIGUSR1 );
+	  //install_null_handler( SIGUSR1 );
 	  install_null_handler( SIGINT );
 	  install_null_handler( SIGQUIT );
 	  install_null_handler( SIGTERM );
@@ -93,6 +93,7 @@ namespace Pol {
 	  sigfillset( &blocked_sigs );
 	  sigdelset( &blocked_sigs, SIGSEGV );
 	  sigdelset( &blocked_sigs, SIGUSR2 );
+      sigdelset( &blocked_sigs, SIGUSR1 );
 
 	  int res = pthread_sigmask( SIG_BLOCK, &blocked_sigs, NULL );
 	  if (res)
@@ -121,7 +122,7 @@ namespace Pol {
 	  sigset_t expected_signals;
 	  sigemptyset( &expected_signals );
 	  sigaddset( &expected_signals, SIGHUP ); 
-	  sigaddset( &expected_signals, SIGUSR1 ); 
+	  //sigaddset( &expected_signals, SIGUSR1 ); 
 	  sigaddset( &expected_signals, SIGINT );
 	  sigaddset( &expected_signals, SIGQUIT );
 	  sigaddset( &expected_signals, SIGTERM );
