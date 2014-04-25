@@ -73,20 +73,21 @@ namespace Pol {
 
 	void clean_resources();
 
-	void KillClient( Network::Client* cli )
-	{
-	  Network::Client::Delete( cli );
-	}
 	void cleanup_vars()
 	{
-	  Clib::ForEach( clients, KillClient );
+      for (auto &client : clients)
+      {
+        Network::Client::Delete( client );
+      }
 	  clients.clear();
 
 	  //dave added 9/27/03: accounts and player characters have a mutual reference that prevents them getting cleaned up
 	  //  properly. So clear the references now.
-	  for ( AccountsVector::iterator itr = accounts.begin(); itr != accounts.end(); ++itr )
-	  for ( int i = 0; i < config.character_slots; i++ )
-		itr->get()->clear_character( i );
+      for ( auto &account : accounts )
+      {
+        for ( int i = 0; i < config.character_slots; i++ )
+          account->clear_character( i );
+      }
 
 	  for ( auto &realm : *Realms)
 	  {

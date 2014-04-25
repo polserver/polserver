@@ -227,9 +227,8 @@ namespace Pol {
 	  const ClientVitalUpdaters& cvu = vital_updaters[vital->vitalid];
 	  if ( cvu.others_vital_changed != NULL )
 	  {
-		for ( unsigned i = 0; i < clients.size(); ++i )
+		for ( auto &client : clients )
 		{
-		  Client* client = clients[i];
 		  if ( client->ready && inrange( who, client->chr ) )
 		  {
 			cvu.others_vital_changed( client, who, vital );

@@ -220,7 +220,10 @@ namespace Pol {
 	{
 	  npc_templates.clear();
 	  read_npc_templates( NULL );
-      Clib::ForEach( Plib::packages, read_npc_templates );
+      for (auto &pkg : Plib::packages )
+      {
+        read_npc_templates( pkg );
+      }
 	}
   }
 }

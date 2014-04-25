@@ -19,7 +19,7 @@ namespace Pol {
 	void UserFunction::show_instances()
 	{
       fmt::Writer tmp;
-	  for ( auto uf : _instancelist )
+	  for ( const auto &uf : _instancelist )
 	  {
         tmp << uf->name << "\n";
 	  }

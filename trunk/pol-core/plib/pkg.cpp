@@ -293,7 +293,7 @@ namespace Pol {
 	}
 
 
-	void load_packages( string basedir, bool quiet )
+	void load_packages( const string &basedir, bool quiet )
 	{
 
 	  for ( Clib::DirList dl( basedir.c_str( ) ); !dl.at_end( ); dl.next( ) )
@@ -332,12 +332,12 @@ namespace Pol {
 	  }
 	}
 
-	void check_replaced_packages( Package* pkg )
+	void check_replaced_packages( const Package* pkg )
 	{
 	  pkg->check_replacements();
 	}
 
-	void check_deps_for_package( Package* pkg )
+	void check_deps_for_package( const Package* pkg )
 	{
 	  pkg->check_dependencies();
 	  pkg->check_conflicts();
@@ -365,7 +365,8 @@ namespace Pol {
 
 	void check_package_deps()
 	{
-	  Clib::ForEach( packages, check_deps_for_package );
+      for ( const auto &pkg : packages )
+        check_deps_for_package( pkg );
 	}
 
 	void load_packages()
@@ -450,9 +451,8 @@ namespace Pol {
 							 const char* taglist,
 							 void( *loadentry )( const Package*, Clib::ConfigElem& ) )
 	{
-	  for ( Packages::const_iterator itr = packages.begin(); itr != packages.end(); ++itr )
+	  for ( const auto &pkg : packages)
 	  {
-		Package* pkg = ( *itr );
 		string filename = GetPackageCfgPath( pkg, cfgname );
 		if ( Clib::FileExists( filename.c_str( ) ) )
 		{
@@ -486,7 +486,7 @@ namespace Pol {
 	}
 
 
-	string GetPackageCfgPath( const Package* pkg, string filename )
+	string GetPackageCfgPath( const Package* pkg, const string filename )
 	{
 	  string filepath;
 	  if ( pkg == NULL )
