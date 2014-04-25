@@ -13,7 +13,24 @@ project(FORMAT)
 include(CheckCXXCompilerFlag)
 check_cxx_compiler_flag(-std=c++11 HAVE_STD_CPP11_FLAG)
 
-add_library(format format.cc)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
+  "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
+if (CMAKE_GENERATOR MATCHES "Visual Studio")
+  # If Microsoft SDK is installed create script run-msbuild.bat that
+  # calls SetEnv.cmd to to set up build environment and runs msbuild.
+  # It is useful when building Visual Studio projects with the SDK
+  # toolchain rather than Visual Studio.
+  include(FindSetEnv)
+  if (WINSDK_SETENV)
+    set(MSBUILD_SETUP "call \"${WINSDK_SETENV}\"")
+  endif ()
+  file(WRITE run-msbuild.bat "
+    ${MSBUILD_SETUP}
+    ${CMAKE_MAKE_PROGRAM} %*")
+endif ()
+
+add_library(format format.cc format.h)
 if (CMAKE_COMPILER_IS_GNUCXX)
   set_target_properties(format PROPERTIES COMPILE_FLAGS
     "-Wall -Wextra -pedantic")
@@ -39,29 +56,27 @@ add_test(compile-test ${CMAKE_CTEST_COMMAND}
 # See the Google Test FAQ "Why is it not recommended to install a
 # pre-compiled copy of Google Test (for example, into /usr/local)?"
 # at http://code.google.com/p/googletest/wiki/FAQ for more details.
-if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/gtest/CMakeLists.txt)
-  option(
-    gtest_force_shared_crt
-    "Use shared (DLL) run-time lib even when Google Test is built as static lib."
-    ON)
-  if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    add_definitions(-DGTEST_USE_OWN_TR1_TUPLE=1)
-  endif ()
-  
-  add_subdirectory(gtest)
-  include_directories(gtest/include)
-  link_directories(${CMAKE_CURRENT_BINARY_DIR}/gtest)
 
-  add_executable(format-test format-test.cc)
-  target_link_libraries(format-test format gtest)
-  if (CMAKE_COMPILER_IS_GNUCXX)
-    set_target_properties(format-test PROPERTIES COMPILE_FLAGS
-      "-Wall -Wextra -pedantic -Wno-long-long -Wno-variadic-macros")
-  endif ()
-  add_test(format-test format-test)
-  if (HAVE_STD_CPP11_FLAG)
-    set_target_properties(format-test PROPERTIES COMPILE_FLAGS "-std=c++11")
-  endif ()
+include_directories(.)
+
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+  add_definitions(-DGTEST_USE_OWN_TR1_TUPLE=1)
+endif ()
+
+add_library(gtest gtest/gtest-all.cc)
+
+find_package(Threads)
+target_link_libraries(gtest ${CMAKE_THREAD_LIBS_INIT})
+
+add_executable(format-test format-test.cc)
+target_link_libraries(format-test format gtest)
+if (CMAKE_COMPILER_IS_GNUCXX)
+  set_target_properties(format-test PROPERTIES COMPILE_FLAGS
+    "-Wall -Wextra -pedantic -Wno-long-long -Wno-variadic-macros")
+endif ()
+add_test(format-test format-test)
+if (HAVE_STD_CPP11_FLAG)
+  set_target_properties(format-test PROPERTIES COMPILE_FLAGS "-std=c++11")
 endif ()
 
 find_library(PROFILER_LIB profiler)
@@ -135,3 +150,27 @@ if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/format-benchmark/tinyformat_test.cpp)
     WORKING_DIRECTORY tinyformat
     DEPENDS format)
 endif ()
+
+if (EXISTS .gitignore)
+  # Get the list of ignored files from .gitignore.
+  file (STRINGS ".gitignore" lines)
+  LIST(REMOVE_ITEM lines /doc/html)
+  foreach (line ${lines})
+    string(REPLACE "*" ".*" line "${line}")
+    set(ignored_files ${ignored_files} "${line}$" "${line}/")
+  endforeach ()
+  set(ignored_files ${ignored_files} /.git /breathe /format-benchmark)
+
+  set(CPACK_SOURCE_GENERATOR ZIP)
+  set(CPACK_SOURCE_IGNORE_FILES ${ignored_files})
+  set(CPACK_PACKAGE_VERSION_MAJOR 0)
+  set(CPACK_PACKAGE_VERSION_MINOR 9)
+  set(CPACK_PACKAGE_VERSION_PATCH 0)
+  set(CPPFORMAT_VERSION
+    ${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH})
+  set(CPACK_SOURCE_PACKAGE_FILE_NAME cppformat-${CPPFORMAT_VERSION})
+  set(CPACK_RESOURCE_FILE_README ${FORMAT_SOURCE_DIR}/README.rst)
+  include(CPack)
+endif ()
+
+configure_file(doc/conf.py.in doc/conf.py @ONLY)
