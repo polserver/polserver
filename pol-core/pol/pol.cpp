@@ -1467,8 +1467,10 @@ namespace Pol {
           PolLock lck;
           polclock_checkin();
           objecthash.Reap();
-
-          for_each( Items::dynamic_item_descriptors.begin(), Items::dynamic_item_descriptors.end(), delete_ob<Items::ItemDesc>() );
+          for ( auto &item : Items::dynamic_item_descriptors )
+          {
+            delete item;
+          }
           Items::dynamic_item_descriptors.clear();
         }
 
@@ -1747,11 +1749,6 @@ namespace Pol {
       scrstore.clear();
     }
 
-    void show_item( Items::Item* item )
-    {
-      INFO_PRINT << "Remaining item: " << item->serial << ": " << item->name() << "\n";
-    }
-
     void display_unreaped_orphan_instances();
 
     void display_reftypes();
@@ -1790,18 +1787,10 @@ namespace Pol {
       INFO_PRINT << tmp.c_str();
       if ( !existing_items.empty() )
       {
-        Clib::ForEach( existing_items, show_item );
-      }
-    }
-
-    void run_package_startscript( Plib::Package* pkg )
-    {
-      string scriptname = pkg->dir() + "start.ecl";
-
-      if ( Clib::FileExists( scriptname.c_str() ) )
-      {
-        ScriptDef script( "start", pkg, "" );
-        Bscript::BObject obj( run_script_to_completion( script ) );
+        for (const auto &item : existing_items)
+        {
+          INFO_PRINT << "Remaining item: " << item->serial << ": " << item->name() << "\n";
+        }
       }
     }
 
@@ -1809,7 +1798,16 @@ namespace Pol {
     {
       INFO_PRINT << "Running startup script.\n";
       run_script_to_completion( "start" );
-      Clib::ForEach( Plib::packages, run_package_startscript );
+      for ( const auto &pkg : Plib::packages )
+      {
+        string scriptname = pkg->dir() + "start.ecl";
+
+        if ( Clib::FileExists( scriptname.c_str() ) )
+        {
+          ScriptDef script( "start", pkg, "" );
+          Bscript::BObject obj( run_script_to_completion( script ) );
+        }
+      }
       INFO_PRINT << "Startup script complete.\n";
     }
 

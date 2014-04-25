@@ -220,6 +220,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\lib\format\format.cc" />
+    <ClCompile Include="..\..\lib\StackWalker\StackWalker.cpp" />
     <ClCompile Include="binaryfile.cpp" />
     <ClCompile Include="cfgfile.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
@@ -276,6 +277,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\lib\format\format.h" />
+    <ClInclude Include="..\..\lib\StackWalker\StackWalker.h" />
     <ClInclude Include="binaryfile.h" />
     <ClInclude Include="bitutil.h" />
     <ClInclude Include="cfgelem.h" />

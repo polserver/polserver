@@ -95,11 +95,11 @@ namespace Pol {
 						const char* taglist,
 						void( *loadentry )( const Package*, Clib::ConfigElem& ) );
 
-	void load_packages( std::string basedir, bool quiet = false );
+	void load_packages( const std::string &basedir, bool quiet = false );
 	void replace_packages();
 	void check_package_deps();
 	void unload_packages();
-	std::string GetPackageCfgPath( const Package* pkg, std::string filename );
+	std::string GetPackageCfgPath( const Package* pkg, const std::string filename );
   }
 }
 #endif

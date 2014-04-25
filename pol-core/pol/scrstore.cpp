@@ -161,16 +161,12 @@ namespace Pol {
 
 	void log_all_script_cycle_counts( bool clear_counters )
 	{
-	  ScriptStorage::iterator itr = scrstore.begin(), end = scrstore.end();
 	  u64 total_instr = 0;
-	  for ( ; itr != end; ++itr )
+      for ( const auto &scr : scrstore )
 	  {
-        Bscript::EScriptProgram* eprog = ( ( *itr ).second ).get( );
-		total_instr += eprog->instr_cycles;
+        total_instr += scr.second->instr_cycles;
 	  }
 
-	  itr = scrstore.begin();
-	  end = scrstore.end();
 	  if ( config.multithread )
 	  {
         POLLOG.Format( "Scheduler passes: {}\nScript passes:    {}\n" )
@@ -184,9 +180,9 @@ namespace Pol {
 
       fmt::Writer tmp;
       tmp.Format( "{:<38} {:>12} {:>6} {:>12} {:>6}\n" ) << "Script" << "cycles" << "incov" << "cyc/invoc" << "%";
-	  for ( ; itr != end; ++itr )
+      for ( const auto &scr : scrstore )
 	  {
-        Bscript::EScriptProgram* eprog = ( ( *itr ).second ).get( );
+        Bscript::EScriptProgram* eprog = scr.second.get();
         tmp.Format( "{:<38} {:>12} {:>6} {:>12} {:>6}\n" )
           << eprog->name
           << eprog->instr_cycles
@@ -208,11 +204,9 @@ namespace Pol {
 
 	void clear_script_profile_counters()
 	{
-	  ScriptStorage::iterator itr = scrstore.begin(), end = scrstore.end();
-
-	  for ( ; itr != end; ++itr )
+      for ( const auto &scr : scrstore )
 	  {
-        Bscript::EScriptProgram* eprog = ( ( *itr ).second ).get( );
+        Bscript::EScriptProgram* eprog = scr.second.get();
 		eprog->instr_cycles = 0;
 		eprog->invocations = eprog->count() - 1; // 1 count is the scrstore's
 	  }

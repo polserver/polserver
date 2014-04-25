@@ -19,6 +19,8 @@ Notes
 #include "strexcpt.h"
 #include "passert.h"
 #include "logfacility.h"
+#include "threadhelp.h"
+#include "../../lib/StackWalker/StackWalker.h"
 
 	// FIXME: 2008 Upgrades needed here? Need to check dbg headers to ensure compatibility
 #if _MSC_VER < 1300
@@ -187,59 +189,77 @@ namespace Pol {
 	  return retval;
 	}
 
-    void HiddenMiniDumper::print_backtrace()
+    class StackWalkerLogger : public StackWalker
     {
-      // works only with 64bit
-#ifdef _WIN64
-      if ( !hDbgHelpDll )
-        return;
-      POLLOG_ERROR << "\n##########################################################\nCurrent StackBackTrace\n";
-
-      void * stack[100];
-      unsigned short frames;
-      SYMBOL_INFO * symbol;
-      HANDLE process;
-
-      process = GetCurrentProcess( );
-      
-      __SymInitialize pInit = ( __SymInitialize )::GetProcAddress( hDbgHelpDll, "SymInitialize" );
-      __SymFromAddr pAddr = ( __SymFromAddr )::GetProcAddress( hDbgHelpDll, "SymFromAddr" );
-      __SymGetOptions pGetOpt = ( __SymGetOptions )::GetProcAddress( hDbgHelpDll, "SymGetOptions" );
-      __SymSetOptions pSetOpt = ( __SymSetOptions )::GetProcAddress( hDbgHelpDll, "SymSetOptions" );
-      __SymGetLineFromAddr64 pGetLine = ( __SymGetLineFromAddr64 )::GetProcAddress( hDbgHelpDll, "SymGetLineFromAddr64" );
-      
-      if ( !pInit || !pAddr || !pGetOpt || !pSetOpt || !pGetLine )
+    public:
+      StackWalkerLogger( int options ) :StackWalker( options ) {};
+      virtual ~StackWalkerLogger()
       {
-        POLLOG_ERROR << "failed to load needed functions for backtrace!\n";
-        return;
+        if ( _log.size() > 0 )
+          POLLOG_ERROR << _log.c_str();
       }
-
-      pSetOpt( pGetOpt( ) | SYMOPT_LOAD_LINES | SYMOPT_DEFERRED_LOADS );
-      pInit( process, NULL, TRUE );
-
-      frames = CaptureStackBackTrace( 1, 100, stack, NULL ); // skip first info (current function)
-      symbol = (SYMBOL_INFO *)calloc( sizeof(SYMBOL_INFO)+256 * sizeof( char ), 1 );
-      symbol->MaxNameLen = 255;
-      symbol->SizeOfStruct = sizeof( SYMBOL_INFO );
-
-      IMAGEHLP_LINE64 ih_line;
-      DWORD line_disp = 0;
-      fmt::Writer tmp;
-
-      for ( int i = 0; i < frames; i++ )
+      fmt::Writer _log;
+    protected:
+      // no output
+      virtual void OnSymInit( LPCSTR szSearchPath, DWORD symOptions, LPCSTR szUserName ) {}
+      virtual void OnLoadModule( LPCSTR img, LPCSTR mod, DWORD64 baseAddr, DWORD size, DWORD result, LPCSTR symType, LPCSTR pdbName, ULONGLONG fileVersion ) { }
+      virtual void OnDbgHelpErr( LPCSTR szFuncName, DWORD gle, DWORD64 addr ) {};
+      virtual void OnOutput( LPCSTR szText )
       {
-        pAddr( process, (DWORD64)( stack[i] ), 0, symbol );
-
-        tmp.Format( "{}: {} - {:#X}\n" ) << ( frames - i - 1 ) << symbol->Name << symbol->Address;
-        ih_line.SizeOfStruct = sizeof( IMAGEHLP_LINE );
-        if ( pGetLine( process, symbol->Address, &line_disp, &ih_line ) != 0 )
+        _log << szText;
+      }
+      virtual void OnCallstackEntry( CallstackEntryType eType, CallstackEntry &entry )
+      {
+        try
         {
-          tmp.Format( "    at {}:{} \n" ) << ih_line.FileName << ih_line.LineNumber;
+          if ( ( eType != lastEntry ) && ( entry.offset != 0 ) )
+          {
+            if ( entry.undFullName[0] != 0 )
+              _log << entry.undFullName;
+            else if ( entry.undName[0] != 0 )
+              _log << entry.undName;
+            else
+              _log << "(function-name not available)";
+            _log.Format( " - {:p}\n" ) << (LPVOID)entry.offset;
+
+            if ( entry.lineFileName[0] == 0 )
+            {
+              _log << "  (filename not available)\n";
+            }
+            else
+            {
+              _log << "  " << entry.lineFileName << " : " << entry.lineNumber << "\n";
+            }
+          }
+        }
+        catch ( std::exception &e )
+        {
+          POLLOG_ERROR << "failed to format backtrace " << e.what() << "\n";
         }
       }
-      POLLOG_ERROR << tmp.c_str() << "##########################################################\n";
-      free( symbol );
-#endif
+    };
+
+    void HiddenMiniDumper::print_backtrace()
+    {
+      {
+        StackWalkerLogger sw( StackWalker::RetrieveLine );
+        sw._log << "\n##########################################################\nCurrent StackBackTrace\n";
+        sw.ShowCallstack();
+        threadhelp::ThreadMap::Contents contents;
+        threadhelp::threadmap.CopyContents( contents );
+        for ( auto &content : contents )
+        {
+          if ( content.second == "Main" ) // fixme main thread seems to be not suspendable 
+            continue;
+          HANDLE handle = threadhelp::threadmap.getThreadHandle( content.first );
+          if ( handle == GetCurrentThread() )
+            continue;
+          sw._log << "\nThread ID " << content.first << " (" << content.second << ")\n";
+          if ( handle )
+            sw.ShowCallstack( handle);
+        }
+        sw._log << "##########################################################\n";
+      }
     }
   }
 }

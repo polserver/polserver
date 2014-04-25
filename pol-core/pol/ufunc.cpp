@@ -2138,21 +2138,22 @@ namespace Pol {
 	  weatherregion->aux = static_cast<unsigned char>( aux );
 	  weatherregion->lightoverride = lightoverride;
 
-	  Clib::ForEach( clients, update_weatherregion, weatherregion );
-	}
-
-	void check_weather_change( Client* client )
-	{
-	  if ( !client->ready )
-		return;
-
-	  client->chr->check_weather_region_change();
-	  client->chr->check_light_region_change();
+      for ( auto &client : clients )
+      {
+        update_weatherregion( client, weatherregion );
+      }
 	}
 
 	void update_all_weatherregions()
 	{
-	  Clib::ForEach( clients, check_weather_change );
+      for ( auto &client : clients )
+      {
+        if ( !client->ready )
+          return;
+
+        client->chr->check_weather_region_change();
+        client->chr->check_light_region_change();
+      }
 	}
 
 	/* there are four forms of 'name' in objinfo:

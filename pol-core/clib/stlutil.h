@@ -13,35 +13,6 @@ Notes
 #define STLUTIL_H
 namespace Pol {
   namespace Clib {
-	template <class C, class T, class A>
-	void ForEach( C& coll, void( *f )( T elem, A* staticdata ), A* staticdata )
-	{
-	  typename C::iterator itr = coll.begin(), end = coll.end();
-	  for( ; itr != end; ++itr )
-	  {
-		( *f )( *itr, staticdata );
-	  }
-	}
-	template <class C, class T>
-	void ForEach( C& coll, void( *f )( T elem ) )
-	{
-	  typename C::iterator itr = coll.begin(), end = coll.end();
-	  for( ; itr != end; ++itr )
-	  {
-		( *f )( *itr );
-	  }
-	}
-
-	template <class C, class T, class A>
-	void ConstForEach( C& coll, void( *f )( T elem, const A* staticdata ), const A* staticdata )
-	{
-	  typename C::iterator itr = coll.begin(), end = coll.end();
-	  for( ; itr != end; ++itr )
-	  {
-		( *f )( *itr, staticdata );
-	  }
-	}
-
 	template<class T>
 	void delete_all( T& coll )
 	{

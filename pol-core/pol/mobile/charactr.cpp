@@ -2303,8 +2303,16 @@ namespace Pol {
 	{
 	  Items::Item *death_shroud = create_death_shroud();
 	  death_shroud->realm = realm;
-	  equip( death_shroud );
-	  send_wornitem_to_inrange( this, death_shroud );
+      if ( equippable( death_shroud ) ) // check it or passert will trigger
+      {
+        equip( death_shroud );
+        send_wornitem_to_inrange( this, death_shroud );
+      }
+      else
+      {
+        ERROR_PRINT.Format( "Create Character: Failed to equip death shroud 0x{:X}\n" ) << death_shroud->graphic;
+        death_shroud->destroy();
+      }
 
 	  if ( client != NULL )
 	  {
@@ -2470,11 +2478,11 @@ namespace Pol {
 		  if ( !item->check_unequip_script() || !item->check_unequiptest_scripts() )
 			continue;
 		}
-        else if ( item->layer != Core::LAYER_MOUNT && !item->movable( ) )
-		{
-		  _copy_item( item );
-		  continue;
-		}
+        else if ( item->layer != Core::LAYER_MOUNT && item->layer != Core::LAYER_ROBE_DRESS && !item->movable() )  // dress layer needs to be unequipped for deathrobe
+        {
+          _copy_item( item );
+          continue;
+        }
 		///
 		/// Unequip scripts aren't honored when moving a dead mobile's equipment
 		/// onto a corpse if honor_unequip_script_on_death is disabled.
@@ -2572,7 +2580,7 @@ namespace Pol {
 			if ( !item->check_unequip_script() || !item->check_unequiptest_scripts() )
 			  continue;
 		  }
-          if ( item->layer != Core::LAYER_MOUNT && !item->movable( ) )
+          if ( item->layer != Core::LAYER_MOUNT && item->layer != Core::LAYER_ROBE_DRESS && !item->movable( ) )
 			continue;
 		  if ( item->newbie() && bp->can_add( *item ) )
 		  {
@@ -4101,15 +4109,9 @@ namespace Pol {
 	  return true;
 	}
 
-	static void _check_attack( Character* chr )
-	{
-	  chr->check_attack_after_move();
-	}
-
 	void Character::tellmove()
 	{
 	  check_region_changes();
-	  //ForEach( clients, PropagateMove, this );
 	  PropagateMove( this );
 	  // Austin 8-25-05
 	  // if distance > 32 - Inform NPCs in the old position about the movement.
@@ -4129,8 +4131,6 @@ namespace Pol {
         NpcPropagateMove( chr, this );
       } );
 
-	  //ForEach( characters, NpcPropagateMove, this );
-
 	  check_attack_after_move();
 
 	  if ( opponent_ != NULL )
@@ -4138,7 +4138,10 @@ namespace Pol {
 
 	  // attacking can change the opponent_of array drastically.
 	  set<Character*> tmp( opponent_of );
-	  Clib::ForEach( tmp, _check_attack );
+      for (auto &chr : tmp)
+      {
+        chr->check_attack_after_move();
+      }
 
 	  move_reason = OTHER;
 	}
@@ -4358,10 +4361,8 @@ namespace Pol {
 
 	void Character::set_caps_to_default()
 	{
-
 	  for ( unsigned ai = 0; ai < numAttributes; ++ai )
 	  {
-
 		Attribute* pAttr = Mobile::attributes[ai];
 		AttributeValue& av = attribute( ai );
 

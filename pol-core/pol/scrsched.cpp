@@ -1131,7 +1131,10 @@ namespace Pol {
 	void list_scripts( const char* desc, ExecList& ls )
 	{
       INFO_PRINT << desc << " scripts:\n";
-	  Clib::ForEach( ls, list_script );
+      for ( auto &exec : ls )
+      {
+        list_script( exec );
+      }
 	}
 
 	void list_scripts()
@@ -1149,7 +1152,10 @@ namespace Pol {
 	void list_crit_scripts( const char* desc, ExecList& ls )
 	{
       INFO_PRINT << desc << " scripts:\n";
-	  Clib::ForEach( ls, list_crit_script );
+      for ( auto &exec : ls )
+      {
+        list_crit_script( exec );
+      }
 	}
 
 	void list_crit_scripts()
