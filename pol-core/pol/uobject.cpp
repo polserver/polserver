@@ -61,8 +61,10 @@ namespace Pol {
 	{
 	  //    orphans_txt.open( "orphans.txt", ios::out|ios::trunc );
 
-	  for_each( unreaped_orphan_instances.begin(), unreaped_orphan_instances.end(),
-				display_orphan );
+      for ( auto &obj : unreaped_orphan_instances )
+      {
+        display_orphan( obj );
+      }
 	  //for( std::set<UObject*>::iterator itr = unreaped_orphan_instances.begin();
 	}
 

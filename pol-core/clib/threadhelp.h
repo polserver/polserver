@@ -34,12 +34,18 @@ namespace Pol {
 	{
 	public:
       typedef std::map<size_t, std::string> Contents;
-
+#ifdef _WIN32
+      typedef std::map<size_t, HANDLE> HANDLES;
+      HANDLE getThreadHandle( size_t pid ) const;
+#endif
       void Register( size_t pid, const std::string& name );
       void Unregister( size_t pid );
 	  void CopyContents( Contents& out ) const;
 	private:
 	  Contents _contents;
+#ifdef _WIN32
+      HANDLES _handles;
+#endif
 	};
 	extern ThreadMap threadmap;
 #ifdef _WIN32

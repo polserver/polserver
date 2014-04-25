@@ -241,12 +241,13 @@ namespace Pol {
 	  if ( held_item_count_ == 0 )
 		return true;
 
-	  for ( Contents::const_iterator itr = contents_.begin(); itr != contents_.end(); ++itr )
-	  {
-		Items::Item *item = GET_ITEM_PTR( itr );
-		if ( item->slot_index() == slotIndex )
-		  return false;
-	  }
+      for ( const auto &item : contents_ )
+      {
+        if ( item == nullptr )
+          continue;
+        if ( item->slot_index() == slotIndex )
+          return false;
+      }
 	  return true;
 	}
 
@@ -262,9 +263,10 @@ namespace Pol {
 
 	  for ( u8 slot_location = 1; slot_location <= max_items(); ++slot_location )
 	  {
-		for ( Contents::const_iterator itr = contents_.begin(); itr != contents_.end(); ++itr )
+        for ( const auto &item : contents_ )
 		{
-		  Items::Item *item = GET_ITEM_PTR( itr );
+          if ( item == nullptr )
+            continue;
 		  if ( item->slot_index() == slot_location )
 			slot_check = true;
 		  if ( !slot_check )
@@ -299,9 +301,8 @@ namespace Pol {
 
     void UContainer::enumerate_contents( Bscript::ObjArray* arr, int flags )
     {
-      for ( Contents::iterator itr = contents_.begin( ), end = contents_.end( ); itr != end; ++itr )
+      for ( auto &item : contents_ )
       {
-        Item* item = GET_ITEM_PTR( itr );
         if ( item ) //dave 1/1/03, wornitemscontainer can have null items!
         {
           arr->addElement( new Module::EItemRefObjImp( item ) );
@@ -349,9 +350,8 @@ namespace Pol {
 
 	Items::Item* UContainer::find_toplevel_polclass( unsigned int polclass ) const
 	{
-	  for ( Contents::const_iterator itr = contents_.begin(); itr != contents_.end(); ++itr )
+      for ( auto &item : contents_ )
 	  {
-		Items::Item *item = GET_ITEM_PTR( itr );
 		if ( item && ( item->script_isa( polclass ) ) )
 		  return item;
 	  }
@@ -360,9 +360,8 @@ namespace Pol {
 
     Items::Item* UContainer::find_toplevel_objtype( u32 objtype ) const
 	{
-	  for ( Contents::const_iterator itr = contents_.begin(); itr != contents_.end(); ++itr )
+      for ( auto &item : contents_ )
 	  {
-		Items::Item *item = GET_ITEM_PTR( itr );
 		if ( item && ( item->objtype_ == objtype ) )
 		  return item;
 	  }
@@ -370,9 +369,8 @@ namespace Pol {
 	}
     Items::Item* UContainer::find_toplevel_objtype_noninuse( u32 objtype ) const
 	{
-	  for ( Contents::const_iterator itr = contents_.begin(), end = contents_.end(); itr != end; ++itr )
+      for ( auto &item : contents_ )
 	  {
-		Items::Item *item = GET_ITEM_PTR( itr );
 		if ( item && ( item->objtype_ == objtype ) && !item->inuse() )
 		  return item;
 	  }
@@ -381,9 +379,8 @@ namespace Pol {
 
 	Items::Item* UContainer::find_toplevel_objtype( u32 objtype, unsigned short maxamount ) const
 	{
-	  for ( Contents::const_iterator itr = contents_.begin(); itr != contents_.end(); ++itr )
+      for ( auto &item : contents_ )
 	  {
-		Items::Item *item = GET_ITEM_PTR( itr );
 		if ( item && ( item->objtype_ == objtype ) && ( item->getamount() <= maxamount ) )
 		  return item;
 	  }
@@ -391,9 +388,8 @@ namespace Pol {
 	}
 	Items::Item* UContainer::find_toplevel_objtype_noninuse( u32 objtype, unsigned short maxamount ) const
 	{
-	  for ( Contents::const_iterator itr = contents_.begin(); itr != contents_.end(); ++itr )
+      for ( auto &item : contents_ )
 	  {
-		Items::Item *item = GET_ITEM_PTR( itr );
 		if ( item && ( item->objtype_ == objtype ) && ( item->getamount() <= maxamount ) && !item->inuse() )
 		  return item;
 	  }
@@ -406,10 +402,9 @@ namespace Pol {
 
 	  if ( maxamount > 0 )
 	  {
-		for ( Contents::const_iterator itr = contents_.begin(); itr != contents_.end(); ++itr )
+        for ( auto &item : contents_ )
 		{
-		  Items::Item *item = GET_ITEM_PTR( itr );
-		  if ( item->can_add_to_self( *adding_item ) )
+		  if ( item && item->can_add_to_self( *adding_item ) )
 		  {
 			return item;
 		  }
@@ -426,10 +421,8 @@ namespace Pol {
 	  if ( _item != NULL )
 		return _item;
 
-	  for ( Contents::const_iterator itr = contents_.begin(), end = contents_.end(); itr != end; ++itr )
+      for ( const auto& item : contents_ )
 	  {
-		Items::Item* item = GET_ITEM_PTR( itr );
-
 		if ( item &&
 			 item->isa( UObject::CLASS_CONTAINER ) &&
 			 !item->inuse() )
@@ -437,9 +430,9 @@ namespace Pol {
 		  UContainer* cont = static_cast<UContainer*>( item );
 		  if ( !cont->locked_ )
 		  {
-			item = cont->find_objtype_noninuse( objtype );
-			if ( item != NULL )
-			  return item;
+			auto child_item = cont->find_objtype_noninuse( objtype );
+            if ( child_item != NULL )
+              return child_item;
 		  }
 		}
 	  }
@@ -450,10 +443,8 @@ namespace Pol {
 	{
 	  unsigned int amt = 0;
 
-	  for ( Contents::const_iterator itr = contents_.begin(); itr != contents_.end(); ++itr )
+      for ( auto &item : contents_ )
 	  {
-		Items::Item* item = GET_ITEM_PTR( itr );
-
 		if ( item &&
 			 !item->inuse() )
 		{
@@ -549,9 +540,8 @@ namespace Pol {
 	// FIXME this is depth-first.  Not sure I like that.
 	UContainer *UContainer::find_container( u32 serial ) const
 	{
-	  for ( const_iterator itr = contents_.begin(); itr != contents_.end(); ++itr )
+      for ( auto &item : contents_ )
 	  {
-		Items::Item *item = GET_ITEM_PTR( itr );
 		if ( item &&
 			 item->isa( UObject::CLASS_CONTAINER ) )
 		{
@@ -596,9 +586,8 @@ namespace Pol {
 
 	Items::Item *UContainer::find( u32 serial ) const
 	{
-	  for ( Contents::const_iterator itr = contents_.begin(); itr != contents_.end(); ++itr )
+      for ( const auto &item : contents_ )
 	  {
-		Items::Item* item = GET_ITEM_PTR( itr );
 		passert( item != NULL );
 		if ( item != NULL )
 		{
@@ -610,9 +599,9 @@ namespace Pol {
 			UContainer* cont = static_cast<UContainer*>( item );
 			if ( !cont->locked_ )
 			{
-			  item = cont->find( serial );
-			  if ( item != NULL )
-				return item;
+			  auto child_item = cont->find( serial );
+              if ( child_item != NULL )
+                return child_item;
 			}
 		  }
 		}
@@ -622,9 +611,8 @@ namespace Pol {
 
 	Items::Item *UContainer::find_toplevel( u32 serial ) const
 	{
-	  for ( Contents::const_iterator itr = contents_.begin(); itr != contents_.end(); ++itr )
+      for ( auto &item : contents_ )
 	  {
-		Items::Item* item = GET_ITEM_PTR( itr );
 		passert( item != NULL );
 		if ( item != NULL )
 		{
@@ -638,9 +626,8 @@ namespace Pol {
 
 	void UContainer::for_each_item( void( *f )( Items::Item* item, void* a ), void* arg )
 	{
-	  for ( UContainer::iterator itr = begin(), itrend = end(); itr != itrend; ++itr )
+      for ( auto &item : contents_ )
 	  {
-		Items::Item* item = GET_ITEM_PTR( itr );
 
 		if ( item->isa( UObject::CLASS_CONTAINER ) )
 		{
@@ -920,10 +907,8 @@ namespace Pol {
 	{
 	  unsigned int amt = 0;
 
-	  for ( Contents::const_iterator itr = contents_.begin(); itr != contents_.end(); ++itr )
+      for ( auto &item : contents_ )
 	  {
-		Items::Item* item = GET_ITEM_PTR( itr );
-
 		if ( item &&
 			 !item->inuse() )
 		{
@@ -1012,10 +997,8 @@ namespace Pol {
 
 	void WornItemsContainer::for_each_item( void( *f )( Items::Item* item, void* a ), void* arg )
 	{
-	  for ( UContainer::iterator itr = begin(); itr != end(); ++itr )
+      for ( auto &item : contents_ )
 	  {
-		Items::Item* item = GET_ITEM_PTR( itr );
-
 		if ( item != NULL )
 		{
 		  if ( item->isa( UObject::CLASS_CONTAINER ) )

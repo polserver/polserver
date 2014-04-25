@@ -492,7 +492,7 @@ namespace Pol {
 	  return 0;
 	}
 
-	void recurse_compile( string basedir, vector<string>* files )
+	void recurse_compile( const string basedir, vector<string>* files )
 	{
 	  int s_compiled, s_uptodate, s_errors;
 	  clock_t start, finish;
@@ -565,7 +565,7 @@ namespace Pol {
 		  << " had errors.\n";
 	  }
 	}
-	void recurse_compile_inc( string basedir, vector<string>* files )
+	void recurse_compile_inc( const string basedir, vector<string>* files )
 	{
       for ( Clib::DirList dl( basedir.c_str( ) ); !dl.at_end( ); dl.next( ) )
 	  {
@@ -590,7 +590,7 @@ namespace Pol {
 	  }
 	}
 
-	void parallel_compile( vector<string> &files )
+	void parallel_compile( const vector<string> &files )
 	{
 	  unsigned compiled_scripts = 0;
 	  unsigned uptodate_scripts = 0;
@@ -609,15 +609,16 @@ namespace Pol {
 			else
 			  ++uptodate_scripts;
 		  }
-		  catch ( std::exception& )
+		  catch ( std::exception& e )
 		  {
 			++compiled_scripts;
 			++error_scripts;
+            ERROR_PRINT << "failed to compile " << e.what() << "\n";
 			if ( !keep_building )
 			{
 #pragma omp critical(building_break)
 			  omp_keep_building = false;
-              Clib::force_backtrace();
+              //Clib::force_backtrace();
 			}
 		  }
           catch ( ... )
@@ -661,7 +662,7 @@ namespace Pol {
 
 	bool run( int argc, char **argv )
 	{
-	  for ( auto &elem : compilercfg.PackageRoot )
+	  for ( const auto &elem : compilercfg.PackageRoot )
 	  {
 		Plib::load_packages( elem, true /* quiet */ );
 	  }

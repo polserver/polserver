@@ -1063,8 +1063,8 @@ namespace Pol {
 		read_itemdesc_file( "config/itemdesc.cfg" );
 	  //	read_itemdesc_file( "config/wepndesc.cfg" );
 	  //	read_itemdesc_file( "config/armrdesc.cfg" );
-
-      Clib::ForEach( Plib::packages, load_package_itemdesc );
+      for (auto &pkg: Plib::packages )
+        load_package_itemdesc(pkg);
 
 	  write_objtypes_txt();
 	}

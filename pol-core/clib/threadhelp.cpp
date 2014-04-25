@@ -350,17 +350,53 @@ namespace Pol {
 
 	  create_thread( td, true );
 	}
-
+#ifdef _WIN32
+    HANDLE ThreadMap::getThreadHandle( size_t pid ) const
+    {
+      threadmap_lock();
+      auto itr = _handles.find( pid );
+      if ( itr == _handles.end() )
+      {
+        threadmap_unlock();
+        return 0;
+      }
+      threadmap_unlock();
+      return itr->second;
+    }
+#endif
     void ThreadMap::Register( size_t pid, const string& name )
 	{
 	  threadmap_lock();
 	  _contents.insert( make_pair( pid, name ) );
+#ifdef _WIN32
+      HANDLE hThread = 0;
+      if ( !DuplicateHandle(
+        GetCurrentProcess(),
+        GetCurrentThread(),
+        GetCurrentProcess(),
+        &hThread,
+        0,
+        FALSE,
+        DUPLICATE_SAME_ACCESS ) )
+      {
+        threadmap_unlock();
+        ERROR_PRINT << "failed to duplicate thread handle\n";
+        return;
+      }
+      _handles.insert( make_pair( pid, hThread ) );
+#endif
 	  threadmap_unlock();
 	}
     void ThreadMap::Unregister( size_t pid )
 	{
 	  threadmap_lock();
 	  _contents.erase( pid );
+#ifdef _WIN32
+      auto itr = _handles.find( pid );
+      if ( itr != _handles.end() )
+        CloseHandle( itr->second );
+      _handles.erase( pid );
+#endif
 	  threadmap_unlock();
 	}
 	void ThreadMap::CopyContents( Contents& out ) const
@@ -421,6 +457,12 @@ namespace Pol {
 		  catch( msg_queue::Canceled& )
 		  {
 		  }
+          catch ( std::exception& ex )
+          {
+            ERROR_PRINT << "Thread exception: " << ex.what( ) << "\n";
+            Clib::force_backtrace( true );
+            return;
+          }
 		  //purge the queue empty
 		  std::list<msg> remaining;
 		  _msg_queue.pop_remaining( &remaining );

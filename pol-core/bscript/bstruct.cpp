@@ -378,12 +378,9 @@ namespace Pol {
 		  if ( ex.numParams() == 0 )
 		  {
 			std::unique_ptr<ObjArray> arr( new ObjArray );
-			Contents::const_iterator itr = contents_.begin(), end = contents_.end();
-			for ( ; itr != end; ++itr )
+			for ( const auto &content : contents_)
 			{
-			  const string& key = ( *itr ).first;
-
-			  arr->addElement( new String( key ) );
+              arr->addElement( new String( content.first ) );
 			}
 			return arr.release();
 		  }

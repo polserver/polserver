@@ -393,19 +393,17 @@ namespace Pol {
 	  }
 	}
 
-	static void kill_weapon( IntrinsicWeapons::value_type t )
-	{
-	  //	t.second->serial = 1; // just to force the delete to work.
-	  if ( t.second != NULL )
-	  {
-		t.second->destroy();
-		t.second = NULL;
-	  }
-	}
-
 	void unload_weapon_templates()
 	{
-	  for_each( intrinsic_weapons.begin(), intrinsic_weapons.end(), kill_weapon );
+      for ( auto &weapon : intrinsic_weapons )
+      {
+        //	t.second->serial = 1; // just to force the delete to work.
+        if ( weapon.second != NULL )
+        {
+          weapon.second->destroy( );
+          weapon.second = NULL;
+        }
+      }
 	  intrinsic_weapons.clear();
 	}
 
