@@ -44,9 +44,9 @@ call mkdist x64 dist
 call mkdist x64 obj
 if %errorlevel% neq 0 goto :error
 
-call mkdist Win32 clean
-call mkdist Win32 dist
-call mkdist Win32 obj
+call mkdist x86 clean
+call mkdist x86 dist
+call mkdist x86 obj
 if %errorlevel% neq 0 goto :error
 
 
