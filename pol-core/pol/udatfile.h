@@ -13,9 +13,8 @@ Notes
 
 #include <vector>
 
-#ifndef CLIDATA_H
 #include "clidata.h"
-#endif
+
 namespace Pol {
   namespace Core {
 	struct StaticRec
@@ -25,8 +24,8 @@ namespace Pol {
 	  signed char z;
 	  char height;
 
-	  StaticRec( unsigned short graphic, signed char z ) : flags( tile_uoflags( graphic ) ), graphic( graphic ), z( z ), height( tileheight( graphic ) ) {}
-	  StaticRec( unsigned short graphic, signed char z, unsigned int flags, char height ) :
+      StaticRec( unsigned short graphic, signed char z ) : flags( tile_uoflags( graphic ) ), graphic( graphic ), z( z ), height( tileheight( graphic ) ) {}
+      StaticRec( unsigned short graphic, signed char z, unsigned int flags, char height ) :
 		flags( flags ), graphic( graphic ), z( z ), height( height )
 	  {}
 	};

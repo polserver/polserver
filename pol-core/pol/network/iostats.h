@@ -7,6 +7,8 @@ Notes
 =======
 
 */
+#ifndef __IOSTATS_H
+#define __IOSTATS_H
 namespace Pol {
   namespace Network {
 	class IOStats
@@ -28,3 +30,4 @@ namespace Pol {
 	extern IOStats queuedmode_iostats;
   }
 }
+#endif

@@ -26,6 +26,7 @@ Notes
 #include "uofile.h"
 #include "uworld.h"
 #include "ssopt.h"
+#include "containr.h"
 namespace Pol {
   namespace Core {
 	Items::Item* find_legal_singleclick_item( Mobile::Character* chr, u32 serial )

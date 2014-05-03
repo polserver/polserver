@@ -28,6 +28,7 @@ tool. Should suffice.
 #include "../../clib/endian.h"
 #include "../../clib/stlutil.h"
 #include "../../clib/logfacility.h"
+#include "../../clib/streamsaver.h"
 
 #ifdef USE_SYSTEM_ZLIB
 #	include <zlib.h>
@@ -56,6 +57,7 @@ tool. Should suffice.
 #include "../syshook.h"
 #include "../mkscrobj.h"
 #include "../scrsched.h"
+#include "../clidata.h"
 namespace Pol {
   namespace Multi {
 	//bytes per tile - currently only mode 0 works, meaning we send u16 graphic, s8 x,y,z offsets

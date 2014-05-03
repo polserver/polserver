@@ -11,7 +11,6 @@ Notes
 #ifndef __BOUNDBOX_H
 #define __BOUNDBOX_H
 
-#include "../../bscript/execmodl.h"
 namespace Pol {
   namespace Mobile {
 	struct Point

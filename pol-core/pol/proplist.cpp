@@ -18,6 +18,7 @@ Notes
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
 #include "../clib/logfacility.h"
+#include "../clib/streamsaver.h"
 
 #include "../bscript/berror.h"
 #include "../bscript/execmodl.h"

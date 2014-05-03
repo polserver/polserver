@@ -28,6 +28,7 @@ Notes
 #include "packethooks.h"
 #include "packets.h"
 #include "clienttransmit.h"
+#include "../crypt/cryptengine.h"
 #include "../polsig.h"
 #include "../polstats.h"
 #include "../ucfg.h"

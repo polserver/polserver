@@ -30,6 +30,7 @@ Notes
 #include "../ufunc.h"
 #include "../uoscrobj.h"
 #include "../uworld.h"
+#include "../containr.h"
 namespace Pol {
   namespace Module {
     using namespace Bscript;

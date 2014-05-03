@@ -16,12 +16,11 @@ Notes
 #include "../scrdef.h"
 
 #include "equipmnt.h"
-#include "item.h"
-#include "armrtmpl.h"
 
 namespace Pol {
   namespace Items {
 	class ArmorDesc;
+    class Item;
 
 	class UArmor : public Equipment
 	{
@@ -58,8 +57,6 @@ namespace Pol {
 
 	  Core::ScriptDef onhitscript_;
 	};
-
-	inline std::set<unsigned short> UArmor::tmplzones() { return tmpl->zones; }
 
 	void load_armor_templates();
 	void unload_armor_templates();

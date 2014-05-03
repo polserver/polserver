@@ -158,6 +158,7 @@ Notes
 #include "../resource.h"
 #include "../multi/house.h"
 #include "../mobile/ufacing.h"
+#include "../containr.h"
 
 namespace Pol {
   namespace Core {

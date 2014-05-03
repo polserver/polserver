@@ -21,6 +21,7 @@ Notes
 #include "../../clib/cfgelem.h"
 #include "../../clib/endian.h"
 #include "../../clib/logfacility.h"
+#include "../../clib/streamsaver.h"
 #include "../../plib/pkg.h"
 
 #include "../tiles.h"
@@ -29,6 +30,8 @@ Notes
 #include "../ufunc.h"
 
 #include "armor.h"
+#include "item.h"
+#include "armrtmpl.h"
 #include "itemdesc.h"
 #include <climits>
 
@@ -182,5 +185,9 @@ namespace Pol {
 							 true );
 	  }
 	}
+    std::set<unsigned short> UArmor::tmplzones( ) 
+    { 
+      return tmpl->zones;
+    }
   }
 }

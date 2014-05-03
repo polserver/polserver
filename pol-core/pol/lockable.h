@@ -12,9 +12,11 @@ Notes
 #define LOCKABLE_H
 
 #include "item/item.h"
-#include "item/itemdesc.h"
-namespace Pol {
 
+namespace Pol {
+  namespace Items {
+    class Itemdesc;
+  }
   namespace Core {
 	class ULockable : public Items::Item
 	{

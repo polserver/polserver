@@ -102,6 +102,7 @@ Notes
 #include "../uvars.h"
 #include "../uworld.h"
 #include "../msghandl.h"
+#include "../containr.h"
 #include "osmod.h"
 #include "../accounts/account.h"
 #include "../accounts/accounts.h"

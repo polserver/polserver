@@ -12,10 +12,8 @@ Notes
 #define REPSYS_H
 
 #include "polclock.h"
-
-#include "mobile/charactr.h"
 #include "npc.h"
-#include "party.h"
+
 namespace Pol {
   namespace Mobile {
 	class Character;

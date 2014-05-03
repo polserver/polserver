@@ -7,6 +7,8 @@ Notes
 =======
 
 */
+#ifndef __UOBJCNT_H
+#define __UOBJCNT_H
 namespace Pol {
   namespace Items {
 	class Item;
@@ -24,3 +26,4 @@ namespace Pol {
 	extern ItemSet existing_items;
   }
 }
+#endif

@@ -7,7 +7,7 @@ Notes
 =======
 
 */
-
+#include <iostream>
 #include "../../clib/stl_inc.h"
 
 #ifdef _MSC_VER
@@ -66,6 +66,7 @@ Notes
 #include "../watch.h"
 #include "../wrldsize.h"
 #include "../uworld.h"
+#include "../containr.h"
 #include "npcmod.h"
 #include "osmod.h"
 #include "unimod.h"

@@ -16,9 +16,7 @@ Notes
 
 #include "../action.h"
 #include "../dice.h"
-#include "../skillid.h"
 #include "../equipdsc.h"
-#include "itemdesc.h"
 
 namespace Pol {
   namespace Mobile {

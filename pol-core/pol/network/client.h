@@ -25,19 +25,22 @@ Notes
 #define __CLIENT_H
 
 #include <memory>
-#include <string>
+#include <string.h>
 
 #include "../../clib/rawtypes.h"
 #include "../../clib/wallclock.h"
-
-#include "../../bscript/bstruct.h"
+#include "../../clib/refptr.h"
 
 #include "../pktin.h"
 #include "../sockets.h"
 #include "../ucfg.h"
-#include "../crypt/cryptengine.h"
 #include "../crypt/cryptkey.h"
+
 namespace Pol {
+  namespace Bscript {
+    class BStruct;
+    class BObjectImp;
+  }
   namespace Core {
 	class UContainer;
     class MessageTypeFilter;
@@ -48,6 +51,9 @@ namespace Pol {
   }
   namespace Mobile {
 	class Character;
+  }
+  namespace Crypt {
+    class CCryptBase;
   }
   namespace Network {
 	class ClientGameData;

@@ -20,6 +20,7 @@ Notes
 #include "cgdata.h"
 #include "../fnsearch.h"
 #include "../multi/house.h"
+#include "../containr.h"
 
 namespace Pol {
   namespace Network {

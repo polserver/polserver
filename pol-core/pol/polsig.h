@@ -7,6 +7,8 @@ Notes
 =======
 
 */
+#ifndef __POLSIG_H
+#define __POLSIG_H
 namespace Pol {
   namespace Core {
 	void install_signal_handlers();
@@ -43,3 +45,4 @@ namespace Pol {
 #define THREAD_CHECKPOINT(thread,check) Core::thread##_thread_checkpoint = check
 #define FUNCTION_CHECKPOINT(func,check) Core::func##_function_checkpoint = check
 }
+#endif

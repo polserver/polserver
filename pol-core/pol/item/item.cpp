@@ -23,6 +23,7 @@ Notes
 #include "../../clib/cfgelem.h"
 #include "../../clib/endian.h"
 #include "../../clib/strutil.h"
+#include "../../clib/streamsaver.h"
 
 #include "../../bscript/berror.h"
 #include "../../bscript/bobject.h"

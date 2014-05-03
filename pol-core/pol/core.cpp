@@ -22,6 +22,7 @@ Notes
 #include "polsem.h"
 #include "module/polsystemmod.h"
 #include "multi/multi.h"
+#include "multi/house.h"
 #include "realms.h"
 #include "ufunc.h"
 #include "uworld.h"

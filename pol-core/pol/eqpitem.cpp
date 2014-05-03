@@ -19,8 +19,10 @@ Notes
 #include "../clib/endian.h"
 #include "../clib/logfacility.h"
 
+#include "../plib/realm.h"
 #include "mobile/charactr.h"
 #include "network/client.h"
+#include "multi/multi.h"
 #include "msghandl.h"
 #include "pktin.h"
 #include "ufunc.h"

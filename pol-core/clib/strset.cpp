@@ -6,7 +6,7 @@ Notes
 =======
 
 */
-
+#include <sstream>
 #include "stl_inc.h"
 #include "stlutil.h"
 #include "strset.h"

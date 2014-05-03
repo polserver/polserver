@@ -89,6 +89,7 @@ Notes
 #include "../../clib/esignal.h"
 #include "../../clib/fileutil.h"
 #include "../../clib/logfacility.h"
+#include "../../clib/streamsaver.h"
 #include "../../clib/passert.h"
 #include "../../clib/random.h"
 #include "../../clib/stlutil.h"

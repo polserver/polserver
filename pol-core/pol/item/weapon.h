@@ -20,7 +20,7 @@ Notes
 #include "equipmnt.h"
 
 #include "../scrdef.h"
-#include "../skillid.h"
+
 namespace Pol {
   namespace Mobile {
 	class Character;

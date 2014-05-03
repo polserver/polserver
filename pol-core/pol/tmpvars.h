@@ -8,6 +8,8 @@ Notes
 
 */
 
+#ifndef __TMPVARS_H
+#define __TMPVARS_H
 #include "../clib/rawtypes.h"
 namespace Pol {
   namespace Core {
@@ -15,3 +17,4 @@ namespace Pol {
 	extern u8 tmp_flag2;
   }
 }
+#endif

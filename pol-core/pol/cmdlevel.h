@@ -7,12 +7,15 @@ Notes
 =======
 
 */
-
+#ifndef __CMDLEVEL_H
+#define __CMDLEVEL_H
 #include <string>
 #include <vector>
 
-#include "../bscript/bobject.h"
 namespace Pol {
+  namespace Bscript {
+    class ObjArray;
+  }
   namespace Clib {
 	class ConfigElem;
   }
@@ -56,3 +59,4 @@ namespace Pol {
 
   }
 }
+#endif

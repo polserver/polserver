@@ -20,9 +20,10 @@ Notes
 #ifndef CORE_H
 #define CORE_H
 
-#include "item/item.h"
 namespace Pol {
-  
+  namespace Items {
+    class Item;
+  }
   namespace Mobile {
 	class Character;
   }

@@ -26,6 +26,9 @@ Notes
 
 #include "core.h"
 namespace Pol {
+  namespace Bscript {
+    class ObjArray;
+  }
   namespace Network {
 	class Client;
   }

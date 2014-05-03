@@ -39,6 +39,8 @@ In standingheight checks there is a nasty bug. Items NOT locked down
 #include "../pol/multi/multi.h"
 #include "../pol/multi/house.h"
 #include "../pol/uconst.h"
+#include "../pol/clidata.h"
+#include "../pol/objtype.h"
 
 #define HULL_HEIGHT_BUFFER 2
 namespace Pol {
