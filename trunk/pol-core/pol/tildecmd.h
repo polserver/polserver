@@ -7,6 +7,8 @@ Notes
 =======
 
 */
+#ifndef __TILECMD_H
+#define __TILECMD_H
 namespace Pol {
   namespace Network {
     class Client;
@@ -16,3 +18,4 @@ namespace Pol {
     bool process_tildecommand( Network::Client* client, const u16* wtextbuf );
   }
 }
+#endif

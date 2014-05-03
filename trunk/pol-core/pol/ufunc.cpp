@@ -87,6 +87,7 @@ Notes
 #include "zone.h"
 #include "miscrgn.h"
 #include "network/cgdata.h"
+#include "containr.h"
 
 #include "objecthash.h"
 namespace Pol {

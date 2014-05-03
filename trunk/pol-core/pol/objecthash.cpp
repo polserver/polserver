@@ -14,6 +14,7 @@ Notes
 #include "../clib/endian.h"
 #include "../clib/passert.h"
 #include "../clib/logfacility.h"
+#include "../clib/streamsaver.h"
 
 #include "accounts/account.h"
 #include "objecthash.h"

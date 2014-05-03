@@ -13,7 +13,7 @@ Notes
 =======
 
 */
-
+#include <iomanip>
 #include "../clib/stl_inc.h"
 #include "../clib/endian.h"
 #include "../clib/stlutil.h"

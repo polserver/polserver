@@ -7,6 +7,8 @@ Notes
 =======
 
 */
+#ifndef __LOADUNLD_H
+#define __LOADUNLD_H
 namespace Pol {
   namespace Core {
 
@@ -14,3 +16,4 @@ namespace Pol {
 	void unload_data();
   }
 }
+#endif

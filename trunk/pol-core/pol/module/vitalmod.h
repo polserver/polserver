@@ -15,8 +15,10 @@ Notes
 
 #include "../../bscript/execmodl.h"
 
-#include "../mobile/charactr.h"
 namespace Pol {
+  namespace Mobile {
+    class Character;
+  }
   namespace Module {
 	class VitalExecutorModule : public Bscript::TmplExecutorModule<VitalExecutorModule>
 	{

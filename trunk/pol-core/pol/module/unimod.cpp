@@ -8,7 +8,7 @@ Notes
 =======
 
 */
-
+#include <iostream>
 #include "../../clib/stl_inc.h"
 
 #ifdef _MSC_VER

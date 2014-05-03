@@ -30,7 +30,7 @@ Notes
 #include "eventid.h"
 #include "npctmpl.h"
 #include "uoscrobj.h"
-#include "item/item.h"
+
 namespace Pol {
   namespace Clib {
 	class ConfigElem;

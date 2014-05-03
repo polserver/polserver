@@ -7,10 +7,12 @@ Notes
 
 */
 
-#include <cstring>
-
 #ifndef STLUTIL_H
 #define STLUTIL_H
+
+#include <cstring>
+#include <sstream>
+
 namespace Pol {
   namespace Clib {
 	template<class T>

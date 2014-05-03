@@ -13,13 +13,28 @@ Notes
 #define _CUSTOMHOUSES_H
 
 #include "../../clib/stl_inc.h"
-#include "../../clib/cfgelem.h"
 #include "../../clib/rawtypes.h"
-#include "../../clib/streamsaver.h"
 
-#include "../network/client.h"
-#include "../pktboth.h"
 namespace Pol {
+  namespace Bscript {
+    class ObjArray;
+  }
+  namespace Clib {
+    class ConfigElem;
+    class StreamWriter;
+  }
+  namespace Network {
+    class Client;
+  }
+  namespace Mobile {
+    class Character;
+  }
+  namespace Multi {
+    class UHouse;
+  }
+  namespace Core {
+    struct PKTBI_D7;
+  }
   namespace Multi {
 #define CUSTOM_HOUSE_NUM_PLANES 6
 #define STAIR_MULTIID_MIN 0x1DB0

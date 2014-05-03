@@ -15,7 +15,7 @@ Notes
 =======
 
 */
-
+#include <iostream>
 #include "../clib/stl_inc.h"
 
 #include "../bscript/berror.h"
@@ -31,6 +31,7 @@ Notes
 #include "../clib/stlutil.h"
 #include "../clib/unicode.h"
 #include "../clib/logfacility.h"
+#include "../clib/streamsaver.h"
 #include "../plib/realm.h"
 #include "clfunc.h"
 #include "fnsearch.h"

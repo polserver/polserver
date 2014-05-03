@@ -7,7 +7,8 @@ Notes
 =======
 
 */
-
+#ifndef __TASK_H
+#define __TASK_H
 #include "schedule.h"
 namespace Pol {
   namespace Core {
@@ -20,3 +21,4 @@ namespace Pol {
 	extern PeriodicTask reload_pol_cfg_task;
   }
 }
+#endif

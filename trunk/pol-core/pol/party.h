@@ -11,9 +11,14 @@ Notes
 #ifndef PARTY_H
 #define PARTY_H
 
-#include "pktboth.h"
+#include "pktdef.h"
 #include "syshook.h"
+#include "proplist.h"
+#include <vector>
 namespace Pol {
+  namespace Clib {
+    class StreamWriter;
+  }
   namespace Mobile {
 	class Character;
   }
@@ -26,6 +31,8 @@ namespace Pol {
 
   namespace Core {
 	class NPC;
+    struct PKTBI_BF;
+    struct PKTBI_6C;
 
 	void handle_add( Network::Client* client, PKTBI_BF* msg );
 	void handle_remove( Network::Client* client, PKTBI_BF* msg );
@@ -71,16 +78,16 @@ namespace Pol {
 	  friend class Module::EPartyRefObjImp;
 
 	private:
-	  vector<u32> _member_serials;
-	  vector<u32> _candidates_serials;
-	  vector<u32> _offlinemember_serials;
+	  std::vector<u32> _member_serials;
+      std::vector<u32> _candidates_serials;
+      std::vector<u32> _offlinemember_serials;
 	  u32 _leaderserial;
 	  PropertyList _proplist;
 	};
 
 	typedef ref_ptr<Party> PartyRef;
 
-	typedef vector <PartyRef> Parties;
+    typedef std::vector <PartyRef> Parties;
 	extern Parties parties;
 
 	struct Party_Cfg

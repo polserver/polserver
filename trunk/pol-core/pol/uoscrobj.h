@@ -20,6 +20,7 @@ Notes
 #include "../clib/passert.h"
 
 #include "mobile/charactr.h"
+#include "network/client.h"
 #include "item/item.h"
 #include "multi/boat.h"
 #include "uobjcnt.h"

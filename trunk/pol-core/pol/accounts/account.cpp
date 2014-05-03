@@ -14,6 +14,7 @@ Notes
 #include "../../clib/stl_inc.h"
 #include "../../clib/cfgelem.h"
 #include "../../clib/MD5.h"
+#include "../../clib/streamsaver.h"
 
 #include "account.h"
 #include "accounts.h"

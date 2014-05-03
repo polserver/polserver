@@ -43,6 +43,9 @@ Notes
 #include "uoscrobj.h"
 #include "multi/multi.h"
 #include "ssopt.h"
+#include "objtype.h"
+#include "containr.h"
+
 namespace Pol {
   namespace Core {
 	void send_paperdoll( Network::Client *client, Mobile::Character *chr )

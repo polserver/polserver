@@ -38,39 +38,25 @@ Notes
 
 #include <time.h>
 
+#include "../../clib/passert.h"
 #include "../gameclck.h"
 #include "../polclock.h"
-#include "../eventid.h"
-
-#ifndef __UOBJECT_H
-#	include "../uobject.h"
-#endif
-
-#ifndef __CONTAINR_H
-#	include "../containr.h"
-#endif
-
+#include "../uobject.h"
 #include "../action.h"
 #include "../uconst.h"
-#include "../layers.h"
 #include "../skillid.h"
 #include "../utype.h"
 
 #include "../../clib/strset.h"
 #include "../reftypes.h"
 
-#include "../ssopt.h"
-#include "../multi/house.h"
-#include "../savedata.h"
 #include "attribute.h"
-#include "../vital.h"
-#include "../module/guildmod.h"
-#include "../party.h"
 
 namespace Pol {
   namespace Bscript {
 	class BObjectImp;
 	class EScriptProgram;
+    class ObjArray;
   }
   namespace Clib {
 	class ConfigElem;
@@ -97,6 +83,8 @@ namespace Pol {
 	class USpell;
 	class Vital;
     class SaveContext;
+    class Party;
+    struct PKTIN_7D;
     void ClientCreateChar( Network::Client* client, struct PKTIN_00* msg );
     void ClientCreateCharKR( Network::Client* client, struct PKTIN_8D* msg );
     void ClientCreateChar70160( Network::Client* client, struct PKTIN_F8* msg );
@@ -107,6 +95,7 @@ namespace Pol {
   }
   namespace Module {
 	class UOExecutorModule;
+    class Guild;
   }
   namespace Mobile {
 	

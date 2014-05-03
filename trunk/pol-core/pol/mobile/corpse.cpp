@@ -17,6 +17,7 @@ Notes
 
 #include "../../clib/cfgelem.h"
 #include "../../clib/endian.h"
+#include "../../clib/streamsaver.h"
 
 #include "../containr.h"
 #include "../layers.h"

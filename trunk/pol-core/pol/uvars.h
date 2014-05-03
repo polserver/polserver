@@ -12,11 +12,11 @@ Notes
 #define __UVARS_H
 
 #include "reftypes.h"
-#include "item/item.h"
 
 namespace Pol {
   namespace Items {
 	class UWeapon;
+    class Item;
   }
   namespace Accounts {
 	class Account;

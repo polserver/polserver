@@ -7,6 +7,8 @@ Notes
 =======
 
 */
+#ifndef __MSGFILTR_H
+#define __MSGFILTR_H
 namespace Pol {
   namespace Core {
 	class MessageTypeFilter
@@ -24,3 +26,4 @@ namespace Pol {
 	extern MessageTypeFilter disconnected_filter;
   }
 }
+#endif

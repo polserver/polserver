@@ -13,7 +13,6 @@ Notes
 
 #include "../../clib/refptr.h"
 
-#include "../containr.h"
 #include "../npc.h"
 #include "../reftypes.h"
 namespace Pol {
@@ -25,6 +24,7 @@ namespace Pol {
 	class LightRegion;
 	class MusicRegion;
 	class WeatherRegion;
+    class UContainer;
   }
   namespace Network {
 

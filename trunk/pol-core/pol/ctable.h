@@ -7,6 +7,8 @@ Notes
 =======
 
 */
+#ifndef __CTABLE_H
+#define __CTABLE_H
 namespace Pol {
   namespace Core {
 	struct SVR_KEYDESC
@@ -20,3 +22,4 @@ namespace Pol {
 	extern SVR_KEYDESC keydesc[257];
   }
 }
+#endif

@@ -15,8 +15,6 @@ Notes
 #pragma warning( disable: 4786 )
 #endif
 
-#include <map>
-#include <set>
 #include <vector>
 
 

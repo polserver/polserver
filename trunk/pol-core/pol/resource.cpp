@@ -21,6 +21,7 @@ Notes
 #include "../clib/passert.h"
 #include "../clib/random.h"
 #include "../clib/stlutil.h"
+#include "../clib/streamsaver.h"
 
 #include "../plib/maptile.h"
 #include "../plib/realm.h"

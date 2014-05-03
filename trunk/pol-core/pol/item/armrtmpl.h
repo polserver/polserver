@@ -14,7 +14,6 @@ Notes
 #include <string>
 #include <set>
 
-#include "itemdesc.h"
 #include "../equipdsc.h"
 namespace Pol {
   namespace Clib {

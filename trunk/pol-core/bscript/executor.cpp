@@ -960,7 +960,7 @@ namespace Pol {
 	{
 	public:
 	  ArrayIterator( ObjArray* pArr, BObject* pIterVal );
-	  virtual BObject* step() override;
+	  virtual BObject* step();
 	private:
 	  size_t m_Index;
 	  BObject m_Array;

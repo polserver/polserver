@@ -38,6 +38,8 @@ Notes
 #include "ufunc.h"
 #include "uvars.h"
 #include "uworld.h"
+#include "vital.h"
+
 namespace Pol {
   namespace Accounts {
     void reload_account_data( void );

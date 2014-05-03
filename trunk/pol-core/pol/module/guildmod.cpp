@@ -26,6 +26,7 @@ Notes
 #include "../../clib/fileutil.h"
 #include "../../clib/refptr.h"
 #include "../../clib/stlutil.h"
+#include "../../clib/streamsaver.h"
 
 #include "../mobile/charactr.h"
 #include "../fnsearch.h"

@@ -14,6 +14,7 @@ Notes
 namespace Pol {
   namespace Bscript {
 	class BObjectImp;
+    class ObjArray;
   }
   namespace Mobile {
 	class Character;
