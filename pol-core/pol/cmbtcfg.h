@@ -9,6 +9,8 @@ Notes
 =======
 
 */
+#ifndef __CMBTCFG_H
+#define __CMBTCFG_H
 namespace Pol {
   namespace Core {
 	struct CombatConfig
@@ -31,3 +33,4 @@ namespace Pol {
 	void read_combat_config();
   }
 }
+#endif

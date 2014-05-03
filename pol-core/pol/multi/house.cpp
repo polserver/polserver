@@ -30,6 +30,7 @@ Notes
 #include "../../clib/passert.h"
 #include "../../clib/stlutil.h"
 #include "../../clib/strutil.h"
+#include "../../clib/streamsaver.h"
 
 #include "../../plib/mapcell.h"
 #include "../../plib/realm.h"

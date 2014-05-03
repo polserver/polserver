@@ -12,15 +12,18 @@ Notes
 #define __UFACING_H
 
 #include "../poltype.h"
-#include "../uobject.h"
-#include "charactr.h"
+
 namespace Pol {
   namespace Core {
+    class UObject;
+
     extern UFACING away_cvt[8];
     extern int adjustments[];
     extern const int N_ADJUST;
   }
   namespace Mobile {
+    class Character;
+
     bool DecodeFacing( const char* dir, Core::UFACING& facing );
 
     Core::UFACING GetRandomFacing();

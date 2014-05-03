@@ -16,11 +16,14 @@ new Handler added to the core needs a new Version number here. As of 8/3/09 ther
 
 #include "../../clib/stl_inc.h"
 
-#include "client.h"
-#include "../packetscrobj.h"
-#include "../syshook.h"
 namespace Pol {
+  namespace Core {
+    class ExportedFunction;
+    class BPacket;
+  }
   namespace Network {
+    class Client;
+
 	class PacketHookData
 	{
 	public:

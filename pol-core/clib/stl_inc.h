@@ -28,9 +28,9 @@ Notes
 #include <algorithm>
 #include <fstream>
 #include <functional>
-#include <iomanip>
-#include <ios>
-#include <iostream>
+//#include <iomanip>
+//#include <ios>
+//#include <iostream>
 #include <limits>
 #include <list>
 #include <locale.h>
@@ -38,10 +38,10 @@ Notes
 #include <memory>
 #include <queue>
 #include <set>
-#include <sstream>
+//#include <sstream>
 #include <stack>
 #include <stdexcept>
-#include <streambuf>
+//#include <streambuf>
 #include <string>
 #include <utility> // pair
 #include <vector>
@@ -84,7 +84,7 @@ Notes
   using std::reverse;
   using std::runtime_error;
   using std::set;
-  using std::setw;
+ // using std::setw;
   using std::sort;
   using std::stack;
   using std::streambuf;

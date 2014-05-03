@@ -15,11 +15,13 @@ Notes
 
 #include "../clib/cfgelem.h"
 #include "../clib/logfacility.h"
+#include "../clib/streamsaver.h"
 #include "../clib/endian.h"
 #include "item/itemdesc.h"
 #include "mobile/charactr.h"
 #include "network/packets.h"
 #include "network/clienttransmit.h"
+#include "network/client.h"
 #include "objtype.h"
 #include "pktboth.h"
 #include "polcfg.h"
@@ -28,6 +30,7 @@ Notes
 #include "spells.h"
 #include "ssopt.h"
 #include "ufunc.h"
+
 namespace Pol {
   namespace Core {
 	Spellbook::Spellbook( const Items::SpellbookDesc& descriptor ) :

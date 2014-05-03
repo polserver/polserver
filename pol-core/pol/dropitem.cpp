@@ -70,6 +70,7 @@ FIXME: Does STW use slots with KR or newest 2d? If so, we must do slot checks th
 #include "uoscrobj.h"
 #include "uvars.h"
 #include "uworld.h"
+#include "containr.h"
 
 namespace Pol {
   namespace Core {

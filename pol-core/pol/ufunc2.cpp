@@ -27,6 +27,7 @@ Notes
 #include "uworld.h"
 #include "npc.h"
 #include "uvars.h"
+#include "containr.h"
 
 namespace Pol {
   namespace Core {

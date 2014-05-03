@@ -62,6 +62,7 @@ Notes
 #include "scrstore.h"
 #include "uoexec.h"
 #include "module/uomod.h"
+#include "containr.h"
 
 #include "objecthash.h"
 

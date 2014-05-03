@@ -17,7 +17,6 @@ Notes
 
 #include "clidata.h"
 #include "uconst.h"
-#include "item/item.h"
 
 namespace Pol {
 #define MAX_STATICS_PER_BLOCK 10000
@@ -26,6 +25,9 @@ namespace Pol {
   }
   namespace Multi {
 	class UMulti;
+  }
+  namespace Items {
+    class Item;
   }
   namespace Core {
 

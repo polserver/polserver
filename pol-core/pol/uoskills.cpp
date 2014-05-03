@@ -10,6 +10,7 @@ Notes
 
 #include "../clib/stl_inc.h"
 #include <vector>
+#include "../clib/logfacility.h"
 
 #include "../clib/cfgelem.h"
 #include "../clib/stlutil.h"
@@ -54,13 +55,13 @@ namespace Pol {
 		  if ( required )
 		  {
 			elem.throw_error( "Attribute "
-							  + Clib::tostring( attributename )
+							  + attributename 
 							  + " not found." );
 		  }
 		  else
 		  {
 			elem.warn( "Attribute "
-                       + Clib::tostring( attributename )
+                       + attributename 
 					   + " not found." );
 		  }
 		}
@@ -84,7 +85,7 @@ namespace Pol {
 	  if ( uo_skills[uoskill.skillid].inited )
 	  {
 		elem.throw_error( "UOSkill "
-                          + Clib::tostring( uoskill.skillid )
+                          + fmt::FormatInt( uoskill.skillid ).str()
 						  + " already defined by "
 						  + uo_skills[uoskill.skillid].pkg->desc() );
 	  }

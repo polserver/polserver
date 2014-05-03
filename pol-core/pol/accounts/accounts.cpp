@@ -24,6 +24,7 @@ Notes
 #include "../../clib/passert.h"
 #include "../../clib/timer.h"
 #include "../../clib/logfacility.h"
+#include "../../clib/streamsaver.h"
 
 #include "account.h"
 #include "accounts.h"

@@ -10,7 +10,7 @@ Notes
 
 #include "../clib/stl_inc.h"
 #include "../clib/cfgelem.h"
-
+#include "../clib/streamsaver.h"
 #include "lockable.h"
 namespace Pol {
   namespace Core {

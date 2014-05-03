@@ -21,6 +21,7 @@ Notes
 #include "network/packets.h"
 #include "network/clienttransmit.h"
 #include "item/itemdesc.h"
+#include "item/item.h"
 #include "msghandl.h"
 #include "pktboth.h"
 #include "pktin.h"

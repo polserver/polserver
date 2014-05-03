@@ -20,12 +20,17 @@ Notes
 #include <string>
 #include <vector>
 
-#include "../clib/streamsaver.h"
-#include "../clib/cfgelem.h"
-#include "../bscript/bobject.h"
-#include "../bscript/executor.h"
 #include "../../lib/format/format.h"
+
 namespace Pol {
+  namespace Bscript {
+    class Executor;
+    class BObjectImp;
+  }
+  namespace Clib {
+    class StreamWriter;
+    class ConfigElem;
+  }
   namespace Core {
 
 	class PropertyList

@@ -7,6 +7,8 @@ Notes
 =======
 
 */
+#ifndef __DECAY_H
+#define __DECAY_H
 namespace Pol {
   namespace Core {
 	void decay_items();
@@ -16,3 +18,4 @@ namespace Pol {
 	extern size_t cycles_until_decay_worldzone;
   }
 }
+#endif

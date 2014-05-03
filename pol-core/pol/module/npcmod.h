@@ -15,7 +15,6 @@ Notes
 
 #include "../../bscript/execmodl.h"
 
-#include "../../clib/random.h"
 namespace Pol {
   namespace Bscript {
 	class BObjectImp;

@@ -40,6 +40,7 @@ Notes
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
 #include "../clib/unicode.h"
+#include "../clib/streamsaver.h"
 
 #include "../bscript/berror.h"
 #include "../bscript/eprog.h"
@@ -87,6 +88,7 @@ Notes
 #include "mdelta.h"
 #include "uofile.h"
 #include "uworld.h"
+#include "containr.h"
 
 /* An area definition is as follows:
    pt: (x,y)

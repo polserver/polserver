@@ -33,6 +33,7 @@ Notes
 #include "ufunc.h"
 #include "uvars.h"
 #include "uworld.h"
+#include "party.h"
 
 // BUGS:
 //  it looks like you can restart someone's aggressor timer by toggling war mode and setting opponent.

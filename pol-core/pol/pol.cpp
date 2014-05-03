@@ -96,6 +96,7 @@ Notes
 #include "accounts/account.h"
 #include "allocd.h"
 #include "multi/boat.h"
+#include "multi/house.h"
 #include "network/cgdata.h"
 #include "mobile/charactr.h"
 #include "checkpnt.h"

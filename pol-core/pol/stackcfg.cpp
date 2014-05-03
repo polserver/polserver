@@ -11,7 +11,7 @@ Notes
 #ifdef _MSC_VER
 #pragma warning( disable: 4786 )
 #endif
-
+#include <sstream>
 #include "../clib/stl_inc.h"
 #include "../clib/fileutil.h"
 #include "../clib/stlutil.h"

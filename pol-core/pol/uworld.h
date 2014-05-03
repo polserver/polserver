@@ -20,15 +20,11 @@ Notes
 #include "../clib/passert.h"
 #include "../plib/realm.h"
 #include "mobile/charactr.h"
+#include "item/item.h"
+#include "multi/multi.h"
 #include "uvars.h"
 #include "zone.h"
 namespace Pol {
-  namespace Items {
-	class Item;
-  }
-  namespace Multi {
-	class UMulti;
-  }
   namespace Plib {
 	class Realm;
   }

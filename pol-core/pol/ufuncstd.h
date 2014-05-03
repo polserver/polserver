@@ -7,7 +7,8 @@ Notes
 =======
 
 */
-
+#ifndef __UFUNCSTD_H
+#define __UFUNCSTD_H
 namespace Pol {
   namespace Core {
 	void send_sysmessage( Network::Client *client, const std::string& text,
@@ -17,3 +18,4 @@ namespace Pol {
     void send_nametext( Network::Client *client, const Mobile::Character *chr, const std::string& str );
   }
 }
+#endif

@@ -1,5 +1,6 @@
 
 #include "../../clib/stl_inc.h"
+#include "../../clib/clib.h"
 #include "../../clib/random.h"
 #include "../poltype.h"
 #include "../uobject.h"

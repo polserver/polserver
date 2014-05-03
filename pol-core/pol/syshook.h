@@ -13,7 +13,6 @@ Notes
 #ifndef SYSHOOK_H
 #define SYSHOOK_H
 
-#include "scrdef.h"
 #include "uoexec.h"
 
 namespace Pol {

@@ -22,10 +22,12 @@ Notes
 #include "../proplist.h"
 #include "../dice.h"
 #include "../scrdef.h"
-#include "../resource.h"
-#include "../syshookscript.h"
-namespace Pol {
 
+namespace Pol {
+  namespace Core {
+    class ExportScript;
+    class ResourceDef;
+  }
   namespace Items {
 
 	struct ResourceComponent

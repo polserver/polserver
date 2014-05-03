@@ -8,6 +8,7 @@ Notes
 */
 
 #include "../clib/stl_inc.h"
+#include <iomanip>
 
 #include "eprog.h"
 namespace Pol {
@@ -22,8 +23,8 @@ namespace Pol {
 		os << "   PC  Args  Name" << endl;
 		for ( auto &elem : exported_functions )
 		{
-		  os << setw( 5 ) << elem.PC
-			<< setw( 6 ) << elem.nargs
+		  os << std::setw( 5 ) << elem.PC
+			<< std::setw( 6 ) << elem.nargs
 			<< "  " << elem.name
 			<< endl;
 		}

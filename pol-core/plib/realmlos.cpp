@@ -19,6 +19,8 @@ Notes
 #include "../pol/item/item.h"
 #include "../pol/udatfile.h"
 #include "../pol/los.h"
+#include "../pol/clidata.h"
+
 namespace Pol {
   namespace Plib {
 	const int los_range = 20;

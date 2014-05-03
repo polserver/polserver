@@ -13,6 +13,7 @@ POLLOG.Format("hello {}") << "world";
 #include <fstream> 
 #include <chrono>
 #include <iomanip>
+#include <iostream>
 
 #include "stl_inc.h"
 #include "logfacility.h"

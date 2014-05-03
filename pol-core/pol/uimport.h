@@ -7,6 +7,8 @@ Notes
 =======
 
 */
+#ifndef __UIMPORT_H
+#define __UIMPORT_H
 namespace Pol {
   namespace Core {
 	int read_data();
@@ -19,3 +21,4 @@ namespace Pol {
     void read_account_data();
   }
 }
+#endif

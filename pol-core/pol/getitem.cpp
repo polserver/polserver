@@ -39,6 +39,7 @@ Notes
 #include "uofile.h"
 #include "uobject.h"
 #include "uworld.h"
+#include "containr.h"
 
 /* How get_item works:
    when the client drags an item off the ground, 

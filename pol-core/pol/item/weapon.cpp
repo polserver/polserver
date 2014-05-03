@@ -28,6 +28,7 @@ Notes
 #include "../../clib/endian.h"
 #include "../../clib/fileutil.h"
 #include "../../clib/logfacility.h"
+#include "../../clib/streamsaver.h"
 #include "../../clib/random.h"
 
 #include "../../bscript/bstruct.h"
@@ -51,6 +52,7 @@ Notes
 #include "../umanip.h"
 #include "../uvars.h"
 #include "wepntmpl.h"
+#include "../containr.h"
 
 #include "weapon.h"
 namespace Pol {

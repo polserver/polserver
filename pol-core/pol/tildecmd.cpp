@@ -7,7 +7,8 @@ Notes
 =======
 
 */
-
+#include <iomanip>
+#include <iostream>
 #include "../clib/stl_inc.h"
 
 #include "../clib/endian.h"

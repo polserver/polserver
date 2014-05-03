@@ -31,7 +31,9 @@ Notes
 
 #include "../clib/endian.h"
 #include "../clib/cfgfile.h"
+#include "../clib/cfgelem.h"
 #include "../clib/logfacility.h"
+#include "../clib/streamsaver.h"
 #include "../clib/passert.h"
 #include "../clib/random.h"
 #include "../clib/stlutil.h"

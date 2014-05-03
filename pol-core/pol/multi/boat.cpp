@@ -35,6 +35,7 @@ Notes
 #include "../../clib/stlutil.h"
 #include "../../clib/strutil.h"
 #include "../../clib/logfacility.h"
+#include "../../clib/streamsaver.h"
 
 #include "../uconst.h"
 #include "../../plib/realm.h"
@@ -64,6 +65,7 @@ Notes
 #include "../ustruct.h"
 #include "../uvars.h"
 #include "../uworld.h"
+#include "../containr.h"
 
 #include "../objecthash.h"
 

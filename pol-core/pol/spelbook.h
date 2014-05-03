@@ -18,9 +18,13 @@ Notes
 #	include "containr.h"
 #endif
 
-#include "item/itemdesc.h"
-#include "network/client.h"
 namespace Pol {
+  namespace Network {
+    class Client;
+  }
+  namespace Items {
+    class SpellbookDesc;
+  }
   namespace Core {
 	class Spellbook : public UContainer
 	{

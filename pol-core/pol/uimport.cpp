@@ -66,6 +66,8 @@ Notes
 #include "ufunc.h"
 #include "uworld.h"
 #include "multi/multi.h"
+#include "multi/house.h"
+#include "containr.h"
 
 ////HASH
 #include "objecthash.h"
