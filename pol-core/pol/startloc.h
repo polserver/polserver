@@ -14,6 +14,9 @@ Notes
 #include <string>
 #include <vector>
 namespace Pol {
+  namespace Plib {
+	class Realm;
+  }
   namespace Core {
 	class Coordinate
 	{
@@ -34,6 +37,7 @@ namespace Pol {
 	public:
 	  std::string city;
 	  std::string desc;
+	  Plib::Realm* realm;
 	  unsigned short mapid;
 	  unsigned long cliloc_desc;
 	  /* NOTE: this list will be selected from randomly.
