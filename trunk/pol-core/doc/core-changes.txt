@@ -1,4 +1,7 @@
 ﻿-- POL099 --
+05-06-2014 Tomi:
+  Added:   Realm entry to startlocs.cfg, The earlier MapID still needed for the client to show the map correctly, but realm is needed for the server to put the character during creation in the correct realm, default value "britannia"
+
 04-05-2014 Turley:
   Fixed:   multi.items returns now all toplevel items inside of the multi
   

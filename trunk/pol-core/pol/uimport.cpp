@@ -1357,6 +1357,7 @@ namespace Pol {
         loc->desc = elem.remove_string( "DESCRIPTION" );
         loc->mapid = elem.remove_ushort( "MAPID", 0 );
         loc->cliloc_desc = elem.remove_unsigned( "CLILOC", 1075072 );
+		loc->realm = find_realm( elem.remove_string( "REALM", "britannia" ));
 
         string coord;
         while ( elem.remove_prop( "Coordinate", &coord ) )
