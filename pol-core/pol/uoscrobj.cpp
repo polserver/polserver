@@ -1230,6 +1230,7 @@ namespace Pol {
 									new_stack->realm = realm;
 									add_item_to_world( new_stack );
 									move_item( new_stack, x, y, static_cast<signed char>( z ), realm );
+									update_item_to_inrange( new_stack );
 								  }
 
 								  if ( this->getamount() == 1 )
@@ -1252,9 +1253,12 @@ namespace Pol {
 								new_stack->setamount( amt );
 								add_item_to_world( new_stack );
 								move_item( new_stack, x, y, static_cast<signed char>( z ), realm );
+								update_item_to_inrange( new_stack );
 
 								if ( amt == item_amount )
 								  destroy_item( this );
+								else
+								  update_item_to_inrange( this );
 
 								return new Module::EItemRefObjImp( new_stack );
 
