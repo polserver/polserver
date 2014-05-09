@@ -316,7 +316,6 @@ namespace Pol {
 	  chr->serial_ext = ctBEu32( chr->serial );
 	  chr->wornitems.serial = chr->serial;
 	  chr->wornitems.serial_ext = chr->serial_ext;
-	  chr->wornitems.realm = chr->realm;
 
 	  chr->graphic = graphic;
 	  chr->race = race;
@@ -334,6 +333,7 @@ namespace Pol {
 	  chr->z = coord.z;
 	  chr->facing = FACING_W;
 	  chr->realm = realm;
+	  chr->wornitems.realm = chr->realm;
 
 	  bool valid_stats = false;
 	  unsigned int stat_total = msg->Strength + msg->Intelligence + msg->Dexterity;
@@ -671,7 +671,6 @@ namespace Pol {
 	  chr->serial_ext = ctBEu32( chr->serial );
 	  chr->wornitems.serial = chr->serial;
 	  chr->wornitems.serial_ext = chr->serial_ext;
-	  chr->wornitems.realm = chr->realm;
 
 	  chr->graphic = graphic;
 	  chr->race = race;
@@ -688,6 +687,7 @@ namespace Pol {
 	  chr->y = coord.y;
 	  chr->z = coord.z;
 	  chr->realm = realm;
+	  chr->wornitems.realm = chr->realm;
 	  chr->facing = FACING_W;
 
 	  bool valid_stats = false;
@@ -1057,7 +1057,6 @@ namespace Pol {
 	  chr->serial_ext = ctBEu32( chr->serial );
 	  chr->wornitems.serial = chr->serial;
 	  chr->wornitems.serial_ext = chr->serial_ext;
-	  chr->wornitems.realm = chr->realm;
 
 	  chr->graphic = graphic;
 	  chr->race = race;
@@ -1074,6 +1073,7 @@ namespace Pol {
 	  chr->y = coord.y;
 	  chr->z = coord.z;
 	  chr->realm = realm;
+	  chr->wornitems.realm = chr->realm;
 	  chr->facing = FACING_W;
 
 	  bool valid_stats = false;
