@@ -961,7 +961,7 @@ namespace Pol {
 	  }
 	  else if ( config.min_cmdlevel_to_login > client->acct->default_cmdlevel() )
 	  {
-		// FIXME: Add send_login_error() here! 
+		send_login_error( client, LOGIN_ERROR_MISC ); 
 		client->Disconnect();
 		return;
 	  }

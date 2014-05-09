@@ -124,6 +124,12 @@ namespace Pol {
 		client->Disconnect();
 		return;
 	  }
+	  else if ( config.min_cmdlevel_to_login > acct->default_cmdlevel() )
+	  {
+		  send_login_error( client, LOGIN_ERROR_MISC );
+		  client->Disconnect();
+		  return;
+	  }
 
 	  bool correct_password = false;
 
