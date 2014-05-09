@@ -333,7 +333,7 @@ namespace Pol {
 	  chr->z = coord.z;
 	  chr->facing = FACING_W;
 	  chr->realm = realm;
-	  chr->wornitems.realm = chr->realm;
+	  chr->position_changed();
 
 	  bool valid_stats = false;
 	  unsigned int stat_total = msg->Strength + msg->Intelligence + msg->Dexterity;
@@ -587,7 +587,7 @@ namespace Pol {
 	  chr->x = chr->y = chr->z = chr->facing = 1;
 	  chr->wornitems.serial = chr->serial;
 	  chr->wornitems.serial_ext = chr->serial_ext;
-	  chr->wornitems.realm = chr->realm;
+	  chr->position_changed();
 	  chr->graphic = UOBJ_HUMAN_MALE;
 	  chr->gender = GENDER_MALE;
 	  chr->trueobjtype = chr->objtype_;
@@ -687,7 +687,7 @@ namespace Pol {
 	  chr->y = coord.y;
 	  chr->z = coord.z;
 	  chr->realm = realm;
-	  chr->wornitems.realm = chr->realm;
+	  chr->position_changed();
 	  chr->facing = FACING_W;
 
 	  bool valid_stats = false;
@@ -1073,7 +1073,7 @@ namespace Pol {
 	  chr->y = coord.y;
 	  chr->z = coord.z;
 	  chr->realm = realm;
-	  chr->wornitems.realm = chr->realm;
+	  chr->position_changed();
 	  chr->facing = FACING_W;
 
 	  bool valid_stats = false;
