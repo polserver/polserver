@@ -4127,7 +4127,7 @@ namespace Pol {
 	  }
 
 	  // Inform nearby NPCs that a movement has been made.
-      Core::WorldIterator<Core::NPCFilter>::InRange( x, y, realm, 32, [&]( Character* chr )
+      Core::WorldIterator<Core::NPCFilter>::InRange( x, y, realm, 33, [&]( Character* chr )
       {
         NpcPropagateMove( chr, this );
       } );
