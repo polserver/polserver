@@ -224,38 +224,44 @@ namespace Pol {
 	  if ( target_cursor_chr != NULL )
 	  {
 		// CHECKME can we cancel the cursor request?
-		target_cursor_chr->client->gd->target_cursor_uoemod = NULL;
+        if (target_cursor_chr->client != nullptr && target_cursor_chr->client->gd != nullptr )
+		  target_cursor_chr->client->gd->target_cursor_uoemod = NULL;
 		target_cursor_chr = NULL;
 	  }
 	  if ( menu_selection_chr != NULL )
 	  {
-		menu_selection_chr->client->gd->menu_selection_uoemod = NULL;
+        if ( menu_selection_chr->client != nullptr && menu_selection_chr->client->gd != nullptr )
+		  menu_selection_chr->client->gd->menu_selection_uoemod = NULL;
 		menu_selection_chr = NULL;
 	  }
 	  if ( prompt_chr != NULL )
 	  {
-		prompt_chr->client->gd->prompt_uoemod = NULL;
+        if ( prompt_chr->client != nullptr && prompt_chr->client->gd != nullptr )
+		  prompt_chr->client->gd->prompt_uoemod = NULL;
 		prompt_chr = NULL;
 	  }
 	  if ( gump_chr != NULL )
 	  {
-		gump_chr->client->gd->remove_gumpmod( this );
-		// gump_chr->client->gd->gump_uoemod = NULL;
+        if ( gump_chr->client != nullptr && gump_chr->client->gd != nullptr )
+		  gump_chr->client->gd->remove_gumpmod( this );
 		gump_chr = NULL;
 	  }
 	  if ( textentry_chr != NULL )
 	  {
-		textentry_chr->client->gd->textentry_uoemod = NULL;
+        if ( textentry_chr->client != nullptr && textentry_chr->client->gd != nullptr )
+		  textentry_chr->client->gd->textentry_uoemod = NULL;
 		textentry_chr = NULL;
 	  }
 	  if ( resurrect_chr != NULL )
 	  {
-		resurrect_chr->client->gd->resurrect_uoemod = NULL;
+        if ( resurrect_chr->client != nullptr && resurrect_chr->client->gd != nullptr )
+		  resurrect_chr->client->gd->resurrect_uoemod = NULL;
 		resurrect_chr = NULL;
 	  }
 	  if ( selcolor_chr != NULL )
 	  {
-		selcolor_chr->client->gd->selcolor_uoemod = NULL;
+        if ( selcolor_chr->client != nullptr && selcolor_chr->client->gd != nullptr )
+		  selcolor_chr->client->gd->selcolor_uoemod = NULL;
 		selcolor_chr = NULL;
 	  }
 	  if ( attached_chr_ != NULL )
