@@ -516,6 +516,9 @@ namespace Pol {
 	  void set_privs( const std::string& privlist );
 
 	  bool CheckPushthrough();
+
+      u16 last_textcolor() const;
+      void last_textcolor( u16 color );
 	public: // REPUTATION SYSTEM
 	  friend class Core::RepSystem;
 
@@ -777,6 +780,8 @@ namespace Pol {
 	  Core::Expanded_Statbar expanded_statbar;
 	  u16 skillcap_;
 	  Core::MovementCost_Mod movement_cost;
+    private:
+      u16 _last_textcolor;
 
 	protected:
 	  ref_ptr<Core::WornItemsContainer> wornitems_ref;

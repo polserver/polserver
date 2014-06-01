@@ -200,12 +200,11 @@ namespace Pol {
 
 	  std::string status() const;
 
-	  void send_pause( bool bForce = false );
-	  void send_restart( bool bForce = false );
+	  void send_pause();
+	  void send_restart();
 
 	  void pause();
 	  void restart();
-	  void restart2();
 	  int pause_count;
 
 	  std::string ipaddrAsString() const;

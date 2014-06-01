@@ -524,6 +524,7 @@ namespace Pol {
 	  lightoverride_until( 0 ),
 
 	  skillcap_( 700 ),
+      _last_textcolor( 0 ),
 
       wornitems_ref( new Core::WornItemsContainer ),// default objtype is in containr.cpp, WornItemsContainer class
 	  wornitems( *wornitems_ref ),
@@ -4371,5 +4372,15 @@ namespace Pol {
 		av.cap( pAttr->default_cap );
 	  }
 	}
+
+    u16 Character::last_textcolor() const
+    {
+      return _last_textcolor;
+    }
+
+    void Character::last_textcolor( u16 color )
+    {
+      _last_textcolor = color;
+    }
   }
 }

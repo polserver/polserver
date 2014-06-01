@@ -36,6 +36,9 @@ Notes
 
 namespace Pol {
   namespace Network {
+#ifdef PERGON
+    std::unique_ptr<threadhelp::DynTaskThreadPool> auxthreadpool( new threadhelp::DynTaskThreadPool("AuxPool") );
+#endif
 	Bscript::BObjectImp* AuxConnection::copy() const
 	{
 	  return const_cast<AuxConnection*>( this );
@@ -168,8 +171,8 @@ namespace Pol {
 	  for ( ;; )
 	  {
 		result = readline( _sck, tmp, &timeout_exit, 5 );
-		if ( !result && !timeout_exit )
-		  break;
+        if ( !result && !timeout_exit )
+          break;
 
 		Core::PolLock lock;
 
@@ -246,11 +249,19 @@ namespace Pol {
           Core::PolLock lock;
 		  // Shinigami: Just 4 Debugging. We got Crashes here...
 #ifdef PERGON
-		  ERROR_PRINT << "Aux Listener (" << _scriptdef.relativename() << ", port " << _port << ") - create Thread\n";
-#endif
+		  ERROR_PRINT << "Aux Listener (" << _scriptdef.relativename() << ", port " << _port << ") - add task\n";
+          AuxClientThread* client( new AuxClientThread( this, listener ) );
+          auxthreadpool->push( [client]()
+          {
+            std::unique_ptr<AuxClientThread> _clientptr( client );
+            _clientptr->run();
+          } );
+          ERROR_PRINT << "AuxWorkerSize: " << auxthreadpool->threadpoolsize() << "\n";
+#else
 		  Clib::SocketClientThread* clientthread = new AuxClientThread( this, listener );
 		  clientthread->start();
 		  // note SocketClientThread::start deletes the SocketClientThread upon thread exit.
+#endif
 		}
 	  }
 	}
@@ -286,6 +297,9 @@ namespace Pol {
 	void unload_aux_services()
 	{
 	  Clib::delete_all( auxservices );
+#ifdef PERGON
+      auxthreadpool.release();
+#endif
 	}
 
   }

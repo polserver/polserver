@@ -465,7 +465,7 @@ namespace Pol {
 		<< "#\t(regions/" << resource_name << ".cfg: Capacity is " << capacity_ << ")" << '\n'
 		<< "}" << '\n'
 		<< '\n';
-	  sw.flush();
+	  //sw.flush();
 	}
 
     void write_resources_dat( Clib::StreamWriter& sw_resource )

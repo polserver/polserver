@@ -292,7 +292,7 @@ namespace Pol {
 	  printProperties( sw );
 	  sw() << "}" << pf_endl;
 	  sw() << pf_endl;
-	  sw.flush();
+	  //sw.flush();
 	}
 
     void NPC::printSelfOn( Clib::StreamWriter& sw ) const

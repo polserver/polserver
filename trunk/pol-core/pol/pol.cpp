@@ -75,7 +75,6 @@ Notes
 #include <stdio.h>
 #include <string.h>
 
-#include "../clib/dualbuf.h"
 #include "../clib/endian.h"
 #include "../clib/esignal.h"
 #include "../clib/fdump.h"
@@ -212,11 +211,6 @@ namespace Pol {
     extern void cleanup_vars();
 
     using namespace threadhelp;
-
-    ofstream start_log;
-    Clib::dualbuf db_cout;
-    Clib::dualbuf db_cerr;
-
 
 #define CLIENT_CHECKPOINT(x) client->checkpoint = x
     SOCKET listen_socket;
@@ -631,6 +625,8 @@ namespace Pol {
 
     void restart_all_clients()
     {
+      if ( !uoclient_protocol.EnableFlowControlPackets )
+        return;
       for ( Clients::iterator itr = clients.begin(), end = clients.end();
             itr != end;
             ++itr )
@@ -638,7 +634,7 @@ namespace Pol {
         Network::Client* client = ( *itr );
         if ( client->pause_count )
         {
-          client->restart2();
+          client->restart();
         }
       }
     }
@@ -1060,7 +1056,7 @@ namespace Pol {
                 msg.Send( client );
                 CLIENT_CHECKPOINT( 18 );
                 if ( client->pause_count )
-                  client->restart2();
+                  client->restart();
               }
               else if ( nidle == 30 * config.inactivity_disconnect_timeout )
               {
@@ -2166,10 +2162,6 @@ namespace Pol {
     //if( 1 )
     {
       DEINIT_STARTLOG();
-      /*Core::PolLock lock;
-      Core::db_cout.uninstall( );
-      Core::db_cerr.uninstall( );
-      Core::start_log.close( );*/
     }
     POLLOG.Format( "{0:s} ({1:s}) compiled on {2:s} {3:s} running.\n" ) << progverstr << polbuildtag << compiledate << compiletime;
     //if( 1 )

@@ -13,13 +13,7 @@ Notes
 
 #include "uobject.h"
 namespace Pol {
-  namespace Mobile {
-	class Character;
-  }
   namespace Core {
-
-	bool uo_has_los( const UObject& att, const UObject& target );
-	bool uo_has_los( const Mobile::Character& iatt, const UObject& itgt );
 
 	struct LosObj
 	{
@@ -49,7 +43,6 @@ namespace Pol {
 	  u8 obj_height;
 	  u8 look_height; // where you're looking from, or to
 	};
-	bool uo_has_los( const LosObj& att, const LosObj& tgt );
   }
 }
 #endif // H_LOS_H

@@ -111,7 +111,7 @@ namespace Pol {
 
 	  sw() << "}" << pf_endl
 		<< pf_endl;
-	  sw.flush();
+	  //sw.flush();
 	}
 
 	void Account::writeto( Clib::ConfigElem& elem ) const

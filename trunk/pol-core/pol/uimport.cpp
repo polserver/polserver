@@ -870,7 +870,7 @@ namespace Pol {
       sw()
         << "}" << pf_endl
         << pf_endl;
-      sw.flush();
+      //sw.flush();
     }
 
     void write_system_data( Clib::StreamWriter& sw )
@@ -886,7 +886,7 @@ namespace Pol {
         << "\tLastCharSerialNumber\t" << GetCurrentCharSerialNumber() << pf_endl //dave 3/9/3
         << "}" << pf_endl
         << pf_endl;
-      sw.flush();
+      //sw.flush();
     }
 
     void write_shadow_realms( Clib::StreamWriter& sw )
@@ -904,7 +904,7 @@ namespace Pol {
             << pf_endl;
         }
       }
-      sw.flush();
+      //sw.flush();
     }
 
     // Austin (Oct. 17, 2006)

@@ -745,7 +745,7 @@ namespace Pol {
 	  _proplist.printProperties( sw );
 	  sw() << "}" << pf_endl
 		<< pf_endl;
-	  sw.flush();
+	  //sw.flush();
 	}
 
     void send_empty_party( Mobile::Character* chr )

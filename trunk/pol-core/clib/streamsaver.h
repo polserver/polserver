@@ -8,6 +8,7 @@
 #include <thread>
 #include "../../lib/format/format.h"
 #include "message_queue.h"
+#include "timer.h"
 
 namespace Pol {
   namespace Clib {
@@ -45,6 +46,8 @@ namespace Pol {
 	  virtual void flush_file();
 	private:
 	  std::ofstream *_stream;
+      Tools::HighPerfTimer::time_mu _fs_time;
+      std::string _stream_name;
 	};
 
 	class OStreamWriter : public StreamWriter

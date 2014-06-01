@@ -38,7 +38,6 @@ namespace Pol {
 	void readallstatics( StaticList& vec, unsigned short x, unsigned short y );
 	bool findstatic( unsigned short x, unsigned short y, unsigned short graphic );
 
-	void readmultis( StaticList& vec, unsigned short x, unsigned short y );
   }
 }
 #endif
