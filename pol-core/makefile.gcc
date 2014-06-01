@@ -165,7 +165,7 @@ cpp_sources = \
 	bscript/tkn_strm.cpp bscript/token.cpp \
 	bscript/userfunc.cpp \
 	clib/binaryfile.cpp clib/cfgfile.cpp clib/cfgsect.cpp \
-	clib/dirlist.cpp clib/dualbuf.cpp \
+	clib/dirlist.cpp \
 	clib/fileutil.cpp clib/iohelp.cpp \
 	clib/kbhit.cpp \
 	clib/mlog.cpp clib/MD5.cpp \

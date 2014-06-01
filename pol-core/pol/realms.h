@@ -30,7 +30,6 @@ namespace Pol {
 	void add_realm( const std::string& name, Plib::Realm* base );
 	bool defined_realm( const std::string& name );
 	void remove_realm( const std::string& name );
-#define ENABLE_OLD_MAPCODE 0
 
 	// Support up to 5 Maps: Britannia, Britannia_alt, Ilshenar, Malas, Tokuno, TerMur
 #define MAX_NUMER_REALMS 6

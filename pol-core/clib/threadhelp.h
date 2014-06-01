@@ -61,7 +61,7 @@ namespace Pol {
 
 
 
-	class TaskThreadPool
+    class TaskThreadPool : boost::noncopyable
 	{
 	  typedef std::function<void()> msg;
 	  typedef Clib::message_queue<msg> msg_queue;
@@ -77,6 +77,28 @@ namespace Pol {
 	  msg_queue _msg_queue;
 	  std::vector<std::thread> _threads;
 	};
+
+    class DynTaskThreadPool : boost::noncopyable
+    {
+      class PoolWorker;
+      friend class PoolWorker;
+      typedef std::function<void()> msg;
+      typedef Clib::message_queue<msg> msg_queue;
+    public:
+      DynTaskThreadPool( const std::string& name );
+      ~DynTaskThreadPool();
+      void push( msg msg );
+      std::future<bool> checked_push( msg msg );
+      unsigned int threadpoolsize() const;
+    protected:
+      bool _done;
+    private:
+      void create_thread();
+      msg_queue _msg_queue;
+      std::vector<std::unique_ptr<PoolWorker>> _threads;
+      mutable std::mutex _pool_mutex;
+      std::string _name;
+    };
 
 
   } // namespace threadhelp

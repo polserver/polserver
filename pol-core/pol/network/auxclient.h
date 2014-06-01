@@ -9,6 +9,7 @@
 #define AUXCLIENT_H_
 
 #include "../../bscript/bobject.h"
+#include "../../clib/threadhelp.h"
 
 namespace Pol {
   namespace Network {
@@ -59,7 +60,6 @@ namespace Pol {
 	public:
 	  AuxClientThread( AuxService* auxsvc, Clib::SocketListener& listener );
 	  AuxClientThread( Core::ScriptDef scriptdef, Clib::Socket& sock );
-
 	  virtual void run();
 	  void transmit( const Bscript::BObjectImp* imp );
 	  Bscript::BObjectImp* get_ip( );
@@ -73,7 +73,9 @@ namespace Pol {
 	  ref_ptr<AuxConnection> _auxconnection;
 	  weak_ptr<Core::UOExecutor> _uoexec;
 	};
-
+#ifdef PERGOn
+    extern std::unique_ptr<threadhelp::DynTaskThreadPool> auxthreadpool;
+#endif
   }
 }
 

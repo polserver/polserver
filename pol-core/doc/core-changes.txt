@@ -1,4 +1,8 @@
 ﻿-- POL099 --
+05-26-2014 Turley:
+  Added:   character.last_textcolor readonly member returns last textcolor of the character. Values are between 2 and 1001. Returns 0 if not yet spoken.
+           (will not be saved inside of the datafile)
+
 05-06-2014 Tomi:
   Added:   Realm entry to startlocs.cfg, The earlier MapID still needed for the client to show the map correctly, but realm is needed for the server to put the character during creation in the correct realm, default value "britannia"
 

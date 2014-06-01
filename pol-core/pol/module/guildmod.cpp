@@ -254,7 +254,7 @@ namespace Pol {
 	  _proplist.printProperties( sw );
 	  sw() << "}" << pf_endl
 		<< pf_endl;
-	  sw.flush();
+	  //sw.flush();
 	}
 
 	void Guild::addMember( unsigned int serial )

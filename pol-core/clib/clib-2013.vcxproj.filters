@@ -38,9 +38,6 @@
     <ClCompile Include="dirlist.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="dualbuf.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="endian.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -185,9 +182,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="dirlist.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="dualbuf.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="endian.h">

@@ -81,6 +81,14 @@ namespace Pol {
 	  if ( textbuflen == 1 )
 		return;
 
+      // validate text color
+      u16 textcol = cfBEu16( color );
+      if ( textcol < 2 || textcol > 1001 )
+      {
+        textcol = 1001;
+      }
+      client->chr->last_textcolor( textcol );
+
 	  if ( textbuf[0] == '.' || textbuf[0] == '=' )
 	  {
 		if ( !process_command( client, textbuf ) )
@@ -104,13 +112,6 @@ namespace Pol {
 	  {
         INFO_PRINT << client->chr->name( ) << " speaking w/ color 0x"
 		  << fmt::hexu( cfBEu16( color ) ) << "\n";
-	  }
-
-	  // validate text color
-	  u16 textcol = cfBEu16( color );
-	  if ( textcol < 2 || textcol > 1001 )
-	  {
-		textcol = 1001;
 	  }
 
 	  u16 textlen = static_cast<u16>( textbuflen + 1 );
@@ -226,6 +227,15 @@ namespace Pol {
 
     void SendUnicodeSpeech( Client *client, PKTIN_AD *msgin, u16* wtext, size_t wtextlen, char* ntext, size_t ntextlen, Bscript::ObjArray* speechtokens )
 	{
+      // validate text color
+      u16 textcol = cfBEu16( msgin->color );
+      if ( textcol < 2 || textcol > 1001 )
+      {
+        // 3/8/2009 MuadDib Changed to default color instead of complain.
+        textcol = 1001;
+      }
+      client->chr->last_textcolor( textcol );
+
 	  using std::wstring;
 
 	  if ( wtext[0] == ctBEu16( L'.' ) || wtext[0] == ctBEu16( L'=' ) )
@@ -257,14 +267,6 @@ namespace Pol {
 	  {
         INFO_PRINT << client->chr->name( ) << " speaking w/ color 0x"
 		  << fmt::hexu( cfBEu16( msgin->color ) ) << "\n";
-	  }
-
-	  // validate text color
-	  u16 textcol = cfBEu16( msgin->color );
-	  if ( textcol < 2 || textcol > 1001 )
-	  {
-		// 3/8/2009 MuadDib Changed to default color instead of complain.
-		textcol = 1001;
 	  }
 
 	  PktHelper::PacketOut<PktOut_AE> ghostmsg;

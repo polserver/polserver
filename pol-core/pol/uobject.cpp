@@ -329,7 +329,7 @@ namespace Pol {
 	  printProperties( sw );
 	  sw() << "}" << pf_endl;
 	  sw() << pf_endl;
-	  sw.flush();
+	  //sw.flush();
 	}
 
     void UObject::printOnDebug( Clib::StreamWriter& sw ) const
@@ -340,7 +340,7 @@ namespace Pol {
 	  printDebugProperties( sw );
 	  sw() << "}" << pf_endl;
 	  sw() << pf_endl;
-	  sw.flush();
+	  //sw.flush();
 	}
 
     Clib::StreamWriter& operator << ( Clib::StreamWriter& writer, const UObject& obj )

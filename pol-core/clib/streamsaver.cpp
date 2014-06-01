@@ -9,7 +9,7 @@
 
 namespace Pol {
   namespace Clib {
-	const std::size_t flush_limit = 500;
+    const std::size_t flush_limit = 10000;// 500;
 
 	/// BaseClass implements only writer operator logic
 	StreamWriter::StreamWriter() : _writer( new fmt::Writer )
@@ -27,31 +27,48 @@ namespace Pol {
 	}
 
 	/// ofstream implementation (simple non threaded)
-	OFStreamWriter::OFStreamWriter() : StreamWriter(), _stream()
+    OFStreamWriter::OFStreamWriter( ) : StreamWriter( ), _stream( ), _fs_time( 0 ), _stream_name( )
 	{}
 
 	OFStreamWriter::OFStreamWriter( std::ofstream* stream )
-	  : StreamWriter(), _stream( stream )
+      : StreamWriter( ), _stream( stream ), _fs_time( 0 ), _stream_name( )
 	{}
 
 	OFStreamWriter::~OFStreamWriter()
 	{
-	  if( _writer->size() ) *_stream << _writer->c_str();
+#ifdef PERGON
+      if ( _writer->size() )
+      {
+        Tools::HighPerfTimer t;
+        *_stream << _writer->c_str();
+        _fs_time += t.ellapsed();
+      }
+      ERROR_PRINT << "streamwriter " << _stream_name << " io time " << _fs_time.count( ) << "\n";
+#else
+      if ( _writer->size( ) ) *_stream << _writer->c_str( );
+#endif
 	}
 
 	void OFStreamWriter::init( const std::string& filepath )
 	{
 	  _stream->exceptions( std::ios_base::failbit | std::ios_base::badbit );
 	  _stream->open( filepath.c_str(), std::ios::out );
+      _stream_name = filepath;
 	}
 
 	void OFStreamWriter::flush()
 	{
+#ifdef PERGON
+      Tools::HighPerfTimer t;
+#endif
 	  if( _writer->size() )
 	  {
 		*_stream << _writer->c_str();
-		_writer.reset( new fmt::Writer );
+        _writer->Clear();
 	  }
+#ifdef PERGON
+      _fs_time += t.ellapsed( );
+#endif
 	}
 
 	void OFStreamWriter::flush_file()

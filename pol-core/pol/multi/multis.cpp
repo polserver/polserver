@@ -118,17 +118,6 @@ namespace Pol {
 		return this->get_script_member_id( objmember->id );
 	  else
 		return NULL;
-	  /*
-	  BObjectImp* imp = base::get_script_member( membername );
-	  if (imp)
-	  return imp;
-
-	  if (stricmp( membername, "footprint" ) == 0)
-	  {
-	  return footprint();
-	  }
-	  return NULL;
-	  */
 	}
   }
 }

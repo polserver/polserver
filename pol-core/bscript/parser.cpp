@@ -452,29 +452,30 @@ namespace Pol {
 	  { MBR_DOUBLECLICKRANGE, "doubleclickrange", false },
 	  { MBR_MOUNTEDSTEPS, "mountedsteps", false },
 	  // New boat stuff start
-	  { MBR_ROPE, "rope", true }, //190
-	  { MBR_WHEEL, "wheel", true },
+	  { MBR_ROPE, "rope", true }, 
+	  { MBR_WHEEL, "wheel", true }, //190
 	  { MBR_HULL, "hull", true },
 	  { MBR_TILLER, "tiller", true },
 	  { MBR_RUDDER, "rudder", true },
-	  { MBR_SAILS, "sails", true }, //195
-	  { MBR_STORAGE, "storage", true },
+	  { MBR_SAILS, "sails", true },
+      { MBR_STORAGE, "storage", true }, //195
 	  { MBR_WEAPONSLOT, "weaponslot", true },
 	  // New boat stuff end
 	  { MBR_MULTIID, "multiid", true },
 	  { MBR_TRADEWINDOW, "tradewindow", true },
-	  { MBR_LASTCOORD, "lastcoord", true }, //200
-	  { MBR_FACETID, "facetid", true },
+	  { MBR_LASTCOORD, "lastcoord", true }, 
+	  { MBR_FACETID, "facetid", true }, //200
 	  { MBR_EDITABLE, "editable", true },
 	  { MBR_ACTIVE_SKILL, "active_skill", true },
 	  { MBR_CASTING_SPELL, "casting_spell", true },
-	  { MBR_CARRYINGCAPACITY_MOD, "carrying_capacity_mod", false },	//205
-	  { MBR_MAX_ITEMS_MOD, "max_items_mod", false },
+	  { MBR_CARRYINGCAPACITY_MOD, "carrying_capacity_mod", false },
+      { MBR_MAX_ITEMS_MOD, "max_items_mod", false }, //205
 	  { MBR_MAX_WEIGHT_MOD, "max_weight_mod", false },
 	  { MBR_MAX_SLOTS_MOD, "max_slots_mod", false },
 	  { MBR_SPEED_MOD, "speed_mod", false },
-	  { MBR_NAME_SUFFIX, "name_suffix", false },    //210
-	  { MBR_TEMPORALLY_CRIMINAL, "temporally_criminal", true }
+	  { MBR_NAME_SUFFIX, "name_suffix", false },
+	  { MBR_TEMPORALLY_CRIMINAL, "temporally_criminal", true }, //210
+      { MBR_LAST_TEXTCOLOR, "last_textcolor", true }
 	};
 	int n_objmembers = sizeof object_members / sizeof object_members[0];
 	ObjMember* getKnownObjMember( const char* token )
