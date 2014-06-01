@@ -1761,6 +1761,8 @@ namespace Pol {
 		  return new BLong( skill_ex_active() );
 		case MBR_CASTING_SPELL:
 		  return new BLong( casting_spell() );
+        case MBR_LAST_TEXTCOLOR:
+          return new BLong( last_textcolor() );
 		default:
 		  return NULL;
 	  }

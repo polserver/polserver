@@ -223,7 +223,7 @@ namespace Pol {
 		  << "{\n";
 		element.second->printOn( sw );
 		sw() << "}\n\n";
-		sw.flush();
+		//sw.flush();
 	  }
 
 	  for ( const auto &element : elements_by_integer )
@@ -232,7 +232,7 @@ namespace Pol {
 		  << "{\n";
 		element.second->printOn( sw );
 		sw() << "}\n\n";
-		sw.flush();
+		//sw.flush();
 	  }
 	}
 
@@ -917,7 +917,7 @@ namespace Pol {
 		}
 
 		dsf->printOn( sw );
-		sw.flush();
+		//sw.flush();
 	  }
 	}
 

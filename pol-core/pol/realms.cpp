@@ -111,69 +111,6 @@ namespace Pol {
 		}
 	  }
 	}
-
-
-
-	Multi::UMulti* uo_find_supporting_multi( Plib::MultiList& mvec, int z );
-
-#if ENABLE_OLD_MAPCODE
-
-	class DummyRealm : public Realm
-	{
-	public:
-	  DummyRealm() {}
-
-	  virtual bool walkheight( const Character* chr, int x, int y, int oldz,
-							   int* newz, UMulti** pmulti, Item** pwalkon )
-	  {
-		return ::uo_walkheight( chr, x, y, oldz, newz, pmulti, pwalkon );
-	  }
-	  bool walkheight(int x, int y, int oldz,
-					   int* newz,
-					   UMulti** pmulti, Item** pwalkon,
-					   bool doors_block = true,
-					   MOVEMODE movemode = MOVEMODE_LAND )
-	  {
-		return ::uo_walkheight( x, y, oldz, newz, pmulti, pwalkon, doors_block, movemode );
-	  }
-
-
-	  bool dropheight( unsigned short x,
-					   unsigned short y,
-					   int chrz,
-					   int* newz,
-					   UMulti** pmulti )
-	  {
-		return ::uo_dropheight( x, y, chrz, newz, pmulti );
-	  }
-
-	  bool has_los( const LosObj& att, const LosObj& tgt )
-	  {
-		return ::uo_has_los( att, tgt );
-	  }
-	  bool has_los( const UObject& iatt, const UObject& itgt )
-	  {
-		return ::uo_has_los( iatt, itgt );
-	  }
-	  bool has_los( const Character& iatt, const UObject& itgt )
-	  {
-		return ::uo_has_los( iatt, itgt );
-	  }
-	  bool passable( unsigned short x, unsigned short y )
-	  {
-		return ::uo_passable( x, y );
-	  }
-	  UMulti* find_supporting_multi( unsigned short x, unsigned short y, int z )
-	  {
-		return ::uo_find_supporting_multi( x, y, z );
-	  }
-	  UMulti* find_supporting_multi( MultiList& mvec, int z )
-	  {
-		return ::uo_find_supporting_multi( mvec, z );
-	  }
-	};
-
-#endif
   }
 }
 

@@ -232,7 +232,6 @@
     <ClCompile Include="cmdargs.cpp" />
     <ClCompile Include="dirfunc.cpp" />
     <ClCompile Include="dirlist.cpp" />
-    <ClCompile Include="dualbuf.cpp" />
     <ClCompile Include="endian.cpp" />
     <ClCompile Include="esignal.cpp" />
     <ClCompile Include="fdump.cpp" />
@@ -289,7 +288,6 @@
     <ClInclude Include="compileassert.h" />
     <ClInclude Include="dirfunc.h" />
     <ClInclude Include="dirlist.h" />
-    <ClInclude Include="dualbuf.h" />
     <ClInclude Include="endian.h" />
     <ClInclude Include="esignal.h" />
     <ClInclude Include="fdump.h" />

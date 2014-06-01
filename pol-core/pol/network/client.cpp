@@ -572,9 +572,9 @@ namespace Pol {
 	// 33 00 "encrypted": 4C D0
 	static const unsigned char restart_pre_encrypted[2] = { 0x4C, 0xD0 };
 
-	void Client::send_pause( bool bForce /*=false*/ )
+	void Client::send_pause()
 	{
-	  if ( ( bForce || Core::uoclient_protocol.EnableFlowControlPackets ) && !paused_ )
+	  if (Core::uoclient_protocol.EnableFlowControlPackets && !paused_ )
 	  {
 #ifndef PRE_ENCRYPT
 		PKTOUT_33 msg;
@@ -595,10 +595,9 @@ namespace Pol {
 		send_pause();
 		pause_count = 1;
 	  }
-	  // ++pause_count;
 	}
 
-	void Client::send_restart( bool bForce /*=false*/ )
+	void Client::send_restart()
 	{
 	  if ( paused_ )
 	  {
@@ -614,15 +613,11 @@ namespace Pol {
 	  }
 	}
 
-	// FIXME: Why is this empty??
 	void Client::restart()
-	{}
-
-	void Client::restart2()
 	{
-	  send_restart();
-	  pause_count = 0;
-	}
+      send_restart( );
+      pause_count = 0;
+    }
 
 	// Note: this doesnt test single packets it only summs the delay and tests
 	// here only the "start"-value is set the additional delay is set in PKT_02 handler
