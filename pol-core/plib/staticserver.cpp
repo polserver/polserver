@@ -134,5 +134,13 @@ namespace Pol {
 		}
 	  }
 	}
+
+    size_t StaticServer::memorySize() const
+    {
+      size_t size = sizeof( *this ) + _descriptor.memorySize();
+      size += 3 * sizeof(STATIC_INDEX*)+_index.capacity() * sizeof( STATIC_INDEX );
+      size += 3 * sizeof(STATIC_ENTRY*)+_statics.capacity( ) * sizeof( STATIC_ENTRY );
+      return size;
+    }
   }
 }

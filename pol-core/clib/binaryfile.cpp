@@ -90,5 +90,11 @@ namespace Pol {
 	  }
 	  return static_cast<unsigned int>( filesize / elemsize );
 	}
+
+    size_t BinaryFile::memorySize() const
+    {
+      size_t size = sizeof( *this ) + _filename.capacity();
+      return size;
+    }
   }
 }

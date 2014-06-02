@@ -47,5 +47,12 @@ namespace Pol {
 
 	  return _cur_block.cell[xcell][ycell];
 	}
+
+    size_t MapTileServer::memorySize() const
+    {
+      return sizeof( *this ) 
+        + _descriptor.memorySize() 
+        + _file.memorySize();
+    }
   }
 }

@@ -47,6 +47,7 @@ Notes
 #include "../../clib/endian.h"
 #include "../../clib/fdump.h"
 #include "../../clib/logfacility.h"
+#include "../../clib/fileutil.h"
 
 #ifdef MEMORYLEAK
 #	include "../../clib/opnew.h"
@@ -1755,6 +1756,33 @@ namespace Pol {
 	  return pkts.release();
 	}
 
+    void logMemoryUsage()
+    {
+      // std::string footprint is ~ string.capacity()
+      // std::vector footprint is ~ 3 * sizeof(T*) + vector.capacity() * sizeof( T );
+      // std::set footprint is ~ 3 * sizeof( void* ) + set.size() * ( sizeof(T)+3 * sizeof( set<T>::_Node ) + sizeof( void* ) );
+      // std::map footprint is ~ ( sizeof(K)+sizeof( V ) + ( sizeof(void*) * 3 + 1 ) / 2 ) * map.size();
+      bool needs_header = !Clib::FileExists( "log/memoryusage.log" );
+      auto log = OPEN_FLEXLOG( "log/memoryusage.log" );
+      if ( needs_header )
+      {
+        FLEXLOG( log ) << "Time;RealmSize\n";
+      }
+
+      size_t realmsize = 3 * sizeof(void*)+Core::Realms->capacity() * sizeof( void* );
+      for ( const auto &realm : (*Core::Realms) )
+      {
+        realmsize += realm->memorySize();
+      }
+      realmsize += sizeof( Plib::Realm* ); // main_realm
+      realmsize += sizeof( vector<Plib::Realm*>* ); // Realm
+      realmsize += sizeof(unsigned int)* 2; // baserealm_count +shadowrealm_count
+      // std::map estimate for shadowrealms_by_id
+      realmsize += ( sizeof(int)+sizeof( Plib::Realm* ) + ( sizeof(void*)* 3 + 1 ) / 2 ) * shadowrealms_by_id.size();
+      FLEXLOG( log ) << GET_LOG_FILESTAMP << ";" << realmsize <<"\n";
+      CLOSE_FLEXLOG( log );
+    }
+
 	BObjectImp* GetCoreVariable( const char* corevar )
 	{
 #define LONG_COREVAR(name,expr) if (stricmp( corevar, #name ) == 0) return new BLong( static_cast<int>(expr) );
@@ -1873,6 +1901,10 @@ namespace Pol {
               << (itr->second.sum / itr->second.count) << "\n";
 		  }
 #endif
+          if ( type == 2 )
+          {
+            logMemoryUsage();
+          }
 		  return new BLong( 1 );
 		}
 		else
