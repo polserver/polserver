@@ -155,6 +155,7 @@ Notes
 #include "polsem.h"
 #include "tasks.h"
 #include "../bscript/escriptv.h"
+#include "containr.h"
 
 #include "stubdata.h"
 #include "uimport.h"
