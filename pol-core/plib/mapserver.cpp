@@ -162,5 +162,15 @@ namespace Pol {
 		throw runtime_error( "Undefined mapserver type: " + descriptor.mapserver_type );
 	  }
 	}
+
+    size_t MapServer::memorySize() const
+    {
+      size_t size = sizeof( *this );
+      size += _descriptor.memorySize();
+      size += 3 * sizeof(SOLIDX2_ELEM**)+_index1.capacity() * sizeof( SOLIDX2_ELEM* );
+      size += 3 * sizeof(SOLIDX2_ELEM*)+_index2.capacity() * sizeof( SOLIDX2_ELEM );
+      size += 3 * sizeof(SOLIDS_ELEM*)+_shapedata.capacity() * sizeof( SOLIDS_ELEM );
+      return size;
+    }
   }
 }

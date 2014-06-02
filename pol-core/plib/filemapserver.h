@@ -26,7 +26,7 @@ namespace Pol {
 	  virtual ~FileMapServer() {}
 
 	  virtual MAPCELL GetMapCell( unsigned short x, unsigned short y ) const;
-
+      virtual size_t memorySize( ) const;
 	protected:
 	  mutable Clib::BinaryFile _mapfile;
 	  mutable int _cur_mapblock_index;

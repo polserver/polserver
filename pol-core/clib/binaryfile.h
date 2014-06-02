@@ -47,7 +47,7 @@ namespace Pol {
 
 	  void Seek( fstream::pos_type abs_offset );
 	  fstream::pos_type FileSize();
-
+      size_t memorySize() const;
 	private:
 	  void ReadBuffer( void* buffer, streamsize length );
 	  size_t GetElementCount( size_t elemsize );

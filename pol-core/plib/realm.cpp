@@ -82,6 +82,39 @@ namespace Pol {
 	  delete[] zone;
 	}
 
+    size_t Realm::memorySize() const
+    {
+      size_t size = sizeof( *this );
+      size += shadowname.capacity();
+      // zone **
+      unsigned int gridwidth = width() / Core::WGRID_SIZE;
+      unsigned int gridheight = height() / Core::WGRID_SIZE;
+
+      // Tokuno-Fix
+      if ( gridwidth * Core::WGRID_SIZE < width() )
+        gridwidth++;
+      if ( gridheight * Core::WGRID_SIZE < height() )
+        gridheight++;
+      for ( unsigned x = 0; x < gridwidth; ++x )
+      {
+        for ( unsigned y = 0; y < gridheight; ++y )
+        {
+          size += 3 * sizeof(void**)+zone[x][y].characters.capacity() * sizeof( void* );
+          size += 3 * sizeof(void**)+zone[x][y].npcs.capacity() * sizeof( void* );
+          size += 3 * sizeof(void**)+zone[x][y].items.capacity() * sizeof( void* );
+          size += 3 * sizeof(void**)+zone[x][y].multis.capacity() * sizeof( void* );
+        }
+      }
+
+      // estimated set footprint
+      size += 3 * sizeof( void* ) + global_hulls.size() * ( sizeof(unsigned int)+3 * sizeof( set<unsigned int>::_Node ) + sizeof( void* ) );
+      size += _descriptor.memorySize()
+        + ((!_mapserver) ? 0 : _mapserver->memorySize())
+        + ((!_staticserver) ? 0 : _staticserver->memorySize())
+        + ((!_maptileserver) ? 0 : _maptileserver->memorySize());
+      return size;
+    }
+
 	unsigned short Realm::width() const
 	{
 	  return _Descriptor().width;

@@ -20,7 +20,7 @@ namespace Pol {
 	  virtual ~InMemoryMapServer();
 
 	  virtual MAPCELL GetMapCell( unsigned short x, unsigned short y ) const;
-
+      size_t memorySize() const;
 	private:
 	  vector<MAPBLOCK> _mapblocks;
 
