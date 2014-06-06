@@ -1252,6 +1252,9 @@
     <ClInclude Include="uopathnode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="property.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="pol.rc">
