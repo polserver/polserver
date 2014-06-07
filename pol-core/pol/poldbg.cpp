@@ -344,27 +344,27 @@ namespace Pol {
 		return "No debugging information available.";
 
 
-	  stack<BObjectRefVec*> upperLocals2 = exec->upperLocals2;
-	  stack<ReturnContext> stack = exec->ControlStack;
+	  std::deque<BObjectRefVec*> upperLocals2 = exec->upperLocals2;
+      std::deque<ReturnContext> stack = exec->ControlStack;
 
 	  unsigned int PC;
 
 	  ReturnContext rc;
 	  rc.PC = exec->PC;
 	  rc.ValueStackDepth = static_cast<unsigned int>( exec->ValueStack.size() );
-	  stack.push( rc );
+	  stack.push_back( rc );
 
-	  upperLocals2.push( exec->Locals2 );
+	  upperLocals2.push_back( exec->Locals2 );
 
       results.push_back( Clib::decint( stack.size( ) ) );
 
 	  while ( !stack.empty() )
 	  {
-		ReturnContext& rc = stack.top();
-		BObjectRefVec* Locals2 = upperLocals2.top();
+        ReturnContext& rc = stack.back( );
+        BObjectRefVec* Locals2 = upperLocals2.back( );
 		PC = rc.PC;
-		stack.pop();
-		upperLocals2.pop();
+        stack.pop_back( );
+        upperLocals2.pop_back( );
 
 		BStruct stackEntry;
 

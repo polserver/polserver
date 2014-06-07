@@ -27,6 +27,9 @@ namespace Pol {
 	class UDoor : public ULockable
 	{
 	  typedef ULockable base;
+    public:
+      virtual ~UDoor() {};
+      virtual size_t estimatedSize( ) const;
 	private:
 	  virtual void builtin_on_use( Network::Client *client );
 	  void toggle();

@@ -135,9 +135,9 @@ namespace Pol {
 	  }
 	}
 
-    size_t StaticServer::memorySize() const
+    size_t StaticServer::sizeEstimate() const
     {
-      size_t size = sizeof( *this ) + _descriptor.memorySize();
+      size_t size = sizeof( *this ) + _descriptor.sizeEstimate();
       size += 3 * sizeof(STATIC_INDEX*)+_index.capacity() * sizeof( STATIC_INDEX );
       size += 3 * sizeof(STATIC_ENTRY*)+_statics.capacity( ) * sizeof( STATIC_ENTRY );
       return size;

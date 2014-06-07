@@ -25,6 +25,10 @@ namespace Pol {
 	{
 	  base::PopulateStruct( descriptor );
 	}
+    size_t EquipDesc::estimatedSize() const
+    {
+      return sizeof(EquipDesc)+base::estimatedSize();
+    }
 	/*
 	EquipDesc::EquipDesc()
 	{

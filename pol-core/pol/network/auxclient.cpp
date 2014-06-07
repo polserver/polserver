@@ -51,7 +51,7 @@ namespace Pol {
 
 	size_t AuxConnection::sizeEstimate() const
 	{
-	  return sizeof( AuxConnection );
+      return sizeof(AuxConnection)+_ip.capacity();
 	}
 
 	bool AuxConnection::isTrue() const

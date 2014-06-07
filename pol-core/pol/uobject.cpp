@@ -109,6 +109,16 @@ namespace Pol {
 	  --uobject_count;
 	}
 
+    size_t UObject::estimatedSize() const
+    {
+      size_t size = sizeof(UObject) + name_.capacity() + proplist_.estimatedSize();
+      for ( const auto& prop : dynmap )
+      {
+        size += sizeof(unsigned short)+sizeof( boost::any ) * 2 + ( sizeof(void*)* 3 + 1 ) / 2;
+      }
+      return size;
+    }
+
 	//
 	//    Every UObject is registered with the objecthash after creation.
 	//    (This can't happen in the ctor since the object isn't fully created yet)

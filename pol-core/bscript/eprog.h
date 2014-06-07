@@ -161,6 +161,7 @@ namespace Pol {
 
 	  unsigned varcount( unsigned block );
 	  unsigned parentvariables( unsigned parent );
+      size_t sizeEstimate() const;
 	private:
 	  friend class EScriptProgramCheckpoint;
 	  ~EScriptProgram();

@@ -100,7 +100,7 @@ namespace Pol {
         completion condition has already been pushed onto the value
         stack - so, we need to replace it with the real result.
         */
-        exec.ValueStack.top().set( new BObject( imp ) );
+        exec.ValueStack.back().set( new BObject( imp ) );
         /* This executor will get moved to the run queue at the
         next step_scripts(), where blocked is checked looking
         for timed out or completed operations. */
@@ -251,6 +251,11 @@ namespace Pol {
 		return "Running";
 	}
 
+    size_t UOExecutor::sizeEstimate() const
+    {
+      return sizeof(UOExecutor)+base::sizeEstimate();
+    }
+
 
 	// Note, when the program exits, each executor in these queues
 	// will be deleted by cleanup_scripts()
@@ -286,6 +291,43 @@ namespace Pol {
 		debuggerholdlist.erase( debuggerholdlist.begin() );
 	  }
 	}
+
+    size_t sizeEstimate_scripts()
+    {
+      size_t size = 0;
+      size += 3 * sizeof(UOExecutor**)+runlist.size() * sizeof( UOExecutor* );
+      for ( const auto& exec : runlist )
+      {
+        size += exec->sizeEstimate();
+      }
+      size += 3 * sizeof(UOExecutor**)+ranlist.size() * sizeof( UOExecutor* );
+      for ( const auto& exec : ranlist )
+      {
+        size += exec->sizeEstimate();
+      }
+      for ( const auto& hold : holdlist )
+      {
+        size += sizeof( Core::polclock_t ) + hold.second->sizeEstimate() + ( sizeof(void*)* 3 + 1 ) / 2;
+      }
+      size += 3 * sizeof( void* );
+      for ( const auto& hold : notimeoutholdlist )
+      {
+        size += hold->sizeEstimate( ) + 3 * sizeof( void* );
+      }
+      size += 3 * sizeof( void* );
+      for ( const auto& hold : debuggerholdlist )
+      {
+        size += hold->sizeEstimate( ) + 3 * sizeof( void* );
+      }
+
+      for ( const auto& script : scrstore )
+      {
+        size += ( sizeof(void*)* 3 + 1 ) / 2;
+        size += script.first.capacity();
+        size += script.second->sizeEstimate();
+      }
+      return size;
+    }
 
 
 	void run_ready()
@@ -785,7 +827,7 @@ namespace Pol {
 	  if ( ex.ValueStack.empty() )
         return new Bscript::BLong( 1 );
 	  else
-		return ex.ValueStack.top().get()->impptr()->copy();
+		return ex.ValueStack.back().get()->impptr()->copy();
 	}
 
     Bscript::BObjectImp* run_script_to_completion( const ScriptDef& script )

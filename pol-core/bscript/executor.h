@@ -31,6 +31,7 @@ Notes
 #include "eprog.h"
 
 #include <stack>
+#include <deque>
 #include <vector>
 #include <exception>
 
@@ -57,7 +58,7 @@ namespace Pol {
 	extern escript_profile_map EscriptProfileMap;
 #endif
 
-	typedef stack< BObjectRef, vector<BObjectRef> > ValueStackCont;
+	typedef std::deque<BObjectRef> ValueStackCont;
 	// FIXME: how to make this a nested struct in Executor?
 	struct ReturnContext
 	{
@@ -76,7 +77,7 @@ namespace Pol {
 	{
 	public:
 	  static std::mutex _executor_mutex;
-	  size_t sizeEstimate() const;
+	  virtual size_t sizeEstimate() const;
 
 	  friend void Core::list_script( Core::UOExecutor* uoexec );
 	  int done;
@@ -97,9 +98,9 @@ namespace Pol {
 
 	  BObjectRefVec Globals2;
 
-	  stack<BObjectRefVec*> upperLocals2;
+      std::deque<BObjectRefVec*> upperLocals2;
 
-	  stack<ReturnContext> ControlStack;
+      std::deque<ReturnContext> ControlStack;
 
 	  BObjectRefVec* Locals2;
 

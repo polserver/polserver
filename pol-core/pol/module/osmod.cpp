@@ -467,7 +467,7 @@ namespace Pol {
 
 		  // we want to forcefully do this instruction over again:
 		  this_uoexec->PC--;																// run_script(
-		  this_uoexec->ValueStack.push( BObjectRef( new BObject( UninitObject::create() ) ) );	//   script_name,
+		  this_uoexec->ValueStack.push_back( BObjectRef( new BObject( UninitObject::create() ) ) );	//   script_name,
 		  // No need to push on "param" since the new BLong(0) below will take care of it.//   param )
 
 		  // Put me on hold until my child is done.
@@ -487,7 +487,7 @@ namespace Pol {
 	  if ( this_uoexec->pChild->ValueStack.empty() )
 		ret = new BLong( 1 );
 	  else
-		ret = this_uoexec->pChild->ValueStack.top().get()->impptr()->copy();
+        ret = this_uoexec->pChild->ValueStack.back( ).get( )->impptr( )->copy( );
 
 	  this_uoexec->pChild->pParent = NULL;
 	  this_uoexec->pChild = NULL;

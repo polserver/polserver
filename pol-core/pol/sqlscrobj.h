@@ -60,7 +60,7 @@ namespace Pol {
         return new BSQLRow( _result, _row, _fields );
       }
       virtual std::string getStringRep() const { return "SQLRow"; }
-      virtual size_t sizeEstimate() const { return sizeof( *this ); }
+      virtual size_t sizeEstimate( ) const { return sizeof( *this ) + sizeof(MYSQL_FIELD); }
       virtual const char* typeOf() const { return "SQLRow"; }
       virtual int typeOfInt() const { return OTSQLRow; }
       virtual bool isTrue() const { return _row != 0; };
@@ -93,7 +93,7 @@ namespace Pol {
         else return new BSQLResultSet( _result, _fields );
       };
       virtual std::string getStringRep() const;
-      virtual size_t sizeEstimate() const { return sizeof( *this ); }
+      virtual size_t sizeEstimate( ) const { return sizeof( *this ) + sizeof( MYSQL_FIELD); }
       virtual const char* typeOf() const { return "SQLResultSet"; }
       virtual int typeOfInt() const { return OTSQLResultSet; }
       virtual bool isTrue() const;
@@ -130,7 +130,7 @@ namespace Pol {
       virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false );
       virtual Bscript::BObjectImp* copy() const;
       virtual std::string getStringRep() const;
-      virtual size_t sizeEstimate() const { return sizeof( *this ); }
+      virtual size_t sizeEstimate() const { return sizeof( *this )+_error.capacity(); }
       virtual const char* typeOf() const { return "SQLConnection"; }
       virtual int typeOfInt() const { return OTSQLConnection; }
       virtual bool isTrue() const;

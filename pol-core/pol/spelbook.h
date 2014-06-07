@@ -28,9 +28,11 @@ namespace Pol {
   namespace Core {
 	class Spellbook : public UContainer
 	{
+      typedef UContainer base;
 	public:
 	  explicit Spellbook( const Items::SpellbookDesc& descriptor );
 	  virtual ~Spellbook();
+      virtual size_t estimatedSize( ) const;
 
 	  bool has_spellid( unsigned int spellid ) const;
 	  bool remove_spellid( unsigned int spellid );
@@ -59,7 +61,10 @@ namespace Pol {
 
 	class USpellScroll : public Items::Item
 	{
+      typedef Items::Item base;
 	public:
+      virtual ~USpellScroll() {};
+      virtual size_t estimatedSize( ) const;
 	  virtual u16 get_senditem_amount() const;
 	  static u16 convert_objtype_to_spellnum( u32 objtype, u8 school );
 	protected:

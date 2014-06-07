@@ -71,9 +71,11 @@ namespace Pol {
 	  Bscript::BStruct* footprint() const;
 	  virtual bool readshapes( Plib::MapShapeList& vec, s16 rx, s16 ry, s16 zbase ) { return false; };
 	  virtual bool readobjects( Core::StaticList& vec, s16 rx, s16 ry, s16 zbase ) { return false; };
+
+      virtual ~UMulti();
+      virtual size_t estimatedSize( ) const;
 	protected:
 	  explicit UMulti( const Items::ItemDesc& itemdesc );
-	  virtual ~UMulti();
 
 	  virtual const char* classname() const;
 	  friend class ref_ptr<UMulti>;

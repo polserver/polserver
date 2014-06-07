@@ -360,6 +360,12 @@ namespace Pol {
 	  return map;
 	}
 
+    size_t Map::estimatedSize() const
+    {
+      return sizeof(Map)+base::estimatedSize()
+        + 3 * sizeof(PinPoint*)+pin_points.capacity() * sizeof( PinPoint );
+    }
+
     void handle_map_pin( Network::Client* client, PKTBI_56* msg )
 	{
 	  // FIXME you really need to check that the item is in fact a map.

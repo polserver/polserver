@@ -61,19 +61,19 @@ namespace Pol {
         if ( sql->getLastErrNo() )
         {
           Core::PolLock lck;
-          uoexec.ValueStack.top( ).set( new BObject( new BError( "Insufficient memory" ) ));
+          uoexec.ValueStack.back( ).set( new BObject( new BError( "Insufficient memory" ) ));
           uoexec.os_module->revive( );
         }
         else if ( !sql->connect( host.data(), username.data(), password.data() ) )
         {
           Core::PolLock lck;
-          uoexec.ValueStack.top( ).set( new BObject( new BError( sql->getLastError( ) ) ) );
+          uoexec.ValueStack.back( ).set( new BObject( new BError( sql->getLastError( ) ) ) );
           uoexec.os_module->revive( );
         }
         else
         {
           Core::PolLock lck;
-          uoexec.ValueStack.top( ).set( new BObject( sql.release( ) ) );
+          uoexec.ValueStack.back( ).set( new BObject( sql.release( ) ) );
           uoexec.os_module->revive( );
         }
       };
@@ -95,19 +95,19 @@ namespace Pol {
         if ( sql == nullptr )
         {
           Core::PolLock lck;
-          uoexec.ValueStack.top( ).set( new BObject( new BError( "Invalid parameters" ) ) );
+          uoexec.ValueStack.back( ).set( new BObject( new BError( "Invalid parameters" ) ) );
           uoexec.os_module->revive( );
         }
         else if ( !sql->select_db( db.c_str() ) )
         {
           Core::PolLock lck;
-          uoexec.ValueStack.top( ).set( new BObject( new BError( sql->getLastError( ) ) ) );
+          uoexec.ValueStack.back( ).set( new BObject( new BError( sql->getLastError( ) ) ) );
           uoexec.os_module->revive( );
         }
         else
         {
           Core::PolLock lck;
-          uoexec.ValueStack.top( ).set( new BObject( new BLong( 1 ) ) );
+          uoexec.ValueStack.back( ).set( new BObject( new BLong( 1 ) ) );
           uoexec.os_module->revive();
         }
       };
@@ -129,19 +129,19 @@ namespace Pol {
         if ( sql == nullptr )
         {
           Core::PolLock lck;
-          uoexec.ValueStack.top( ).set( new BObject( new BError( "Invalid parameters" ) ) );
+          uoexec.ValueStack.back( ).set( new BObject( new BError( "Invalid parameters" ) ) );
           uoexec.os_module->revive( );
         }
         else if ( !sql->query( query.c_str() ) )
         {
           Core::PolLock lck;
-          uoexec.ValueStack.top( ).set( new BObject( new BError( sql->getLastError( ) ) ) );
+          uoexec.ValueStack.back( ).set( new BObject( new BError( sql->getLastError( ) ) ) );
           uoexec.os_module->revive( );
         }
         else
         {
           Core::PolLock lck;
-          uoexec.ValueStack.top( ).set( new BObject( sql->getResultSet( ) ) );
+          uoexec.ValueStack.back( ).set( new BObject( sql->getResultSet( ) ) );
           uoexec.os_module->revive( );
         }
       };

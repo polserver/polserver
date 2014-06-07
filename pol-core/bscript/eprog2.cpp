@@ -587,5 +587,41 @@ namespace Pol {
 	  func.lastPC = lastPC;
 	  dbg_functions.push_back( func );
 	}
+
+    size_t EScriptProgram::sizeEstimate() const
+    {
+      size_t size = sizeof(EScriptProgram)
+        +name.capacity() + program_decl.capacity();
+      size += 3 * sizeof( std::string* ) + sourcelines.capacity() * sizeof( std::string );
+      for ( const auto& l : sourcelines )
+        size += l.capacity();
+      size += 3 * sizeof( std::string* ) + fileline.capacity() * sizeof( std::string );
+      for ( const auto& l : fileline )
+        size += l.capacity();
+      size += 3 * sizeof( std::string* ) + function_decls.capacity() * sizeof( std::string );
+      for ( const auto& l : function_decls )
+        size += l.capacity();
+      size += 3 * sizeof( std::string* ) + globalvarnames.capacity() * sizeof( std::string );
+      for ( const auto& l : globalvarnames )
+        size += l.capacity();
+      size += 3 * sizeof( std::string* ) + dbg_filenames.capacity() * sizeof( std::string );
+      for ( const auto& l : dbg_filenames )
+        size += l.capacity();
+      size += 3 * sizeof(unsigned*)+dbg_filenum.capacity() * sizeof( unsigned );
+      size += 3 * sizeof(unsigned*)+dbg_linenum.capacity() * sizeof( unsigned );
+      size += 3 * sizeof(unsigned*)+dbg_ins_blocks.capacity() * sizeof( unsigned );
+      size += 3 * sizeof(bool*)+dbg_ins_statementbegin.capacity() * sizeof( bool );
+
+      size += 3 * sizeof(FunctionalityModule**)+modules.capacity() * sizeof( FunctionalityModule* );
+      size += 3 * sizeof(EPExportedFunction*)+exported_functions.capacity() * sizeof( EPExportedFunction );
+
+
+      size += 3 * sizeof(Instruction*)+instr.capacity() * sizeof( Instruction );
+
+      size += 3 * sizeof(EPDbgBlock*)+blocks.capacity() * sizeof( EPDbgBlock );
+      size += 3 * sizeof(EPDbgFunction*)+dbg_functions.capacity() * sizeof( EPDbgFunction );
+
+      return size;
+    }
   }
 }

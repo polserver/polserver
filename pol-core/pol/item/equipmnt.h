@@ -31,6 +31,7 @@ namespace Pol {
 	  typedef Item base;
 
 	public:
+      virtual ~Equipment() {};
 	  void reduce_hp_from_hit();
 
 	protected:
@@ -47,6 +48,8 @@ namespace Pol {
 
 	  virtual bool script_isa( unsigned isatype ) const;
 	  virtual Item* clone() const;
+
+      virtual size_t estimatedSize() const;
 
 	protected:
 	  const Core::EquipDesc& eq_tmpl_;

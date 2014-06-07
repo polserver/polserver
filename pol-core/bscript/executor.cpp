@@ -113,29 +113,13 @@ namespace Pol {
 
 	  while ( !upperLocals2.empty() )
 	  {
-		delete upperLocals2.top();
-		upperLocals2.pop();
+		delete upperLocals2.back();
+        upperLocals2.pop_back( );
 	  }
 
 	  execmodules.clear();
 	  Clib::delete_all( availmodules );
 	}
-
-	size_t Executor::sizeEstimate() const
-	{
-	  size_t size = 0;
-	  for ( const auto &elem : Globals2 )
-	  {
-		size += elem.sizeEstimate();
-	  }
-	  for ( const auto &elem : *Locals2 )
-	  {
-		size += elem.sizeEstimate();
-	  }
-	  return size;
-	}
-
-
 
 	bool Executor::AttachFunctionalityModules()
 	{
@@ -196,8 +180,8 @@ namespace Pol {
 			seterror( true );
 			return -1;
 		  }
-		  fparams[i] = ValueStack.top();
-		  ValueStack.pop();
+		  fparams[i] = ValueStack.back();
+		  ValueStack.pop_back();
 		}
 	  }
 	  return 0;
@@ -778,8 +762,8 @@ namespace Pol {
 		return BObjectRef( UninitObject::create() );
 	  }
 
-	  BObjectRef ref = ValueStack.top();
-	  ValueStack.pop();
+	  BObjectRef ref = ValueStack.back();
+	  ValueStack.pop_back();
 	  return ref;
 	}
 
@@ -820,16 +804,16 @@ namespace Pol {
 		{
 		  BObject obj( resimp );
 		}
-		ValueStack.push( BObjectRef( new BObject( func_result_ ) ) );
+		ValueStack.push_back( BObjectRef( new BObject( func_result_ ) ) );
 		func_result_ = NULL;
 	  }
 	  else if ( resimp )
 	  {
-		ValueStack.push( BObjectRef( new BObject( resimp ) ) );
+		ValueStack.push_back( BObjectRef( new BObject( resimp ) ) );
 	  }
 	  else
 	  {
-		ValueStack.push( BObjectRef( new BObject( UninitObject::create() ) ) );
+		ValueStack.push_back( BObjectRef( new BObject( UninitObject::create() ) ) );
 	  }
 
 	  current_module_function = NULL;
@@ -845,7 +829,7 @@ namespace Pol {
 	  Locals2->push_back( BObjectRef() );
 	  Locals2->back().set( new BObject( UninitObject::create() ) );
 
-	  ValueStack.push( BObjectRef( Locals2->back().get() ) );
+	  ValueStack.push_back( BObjectRef( Locals2->back().get() ) );
 	}
 
 	// RSV_DECLARE_ARRAY
@@ -864,7 +848,7 @@ namespace Pol {
 
 	  objref->setimp( arr );
 
-	  ValueStack.push( BObjectRef( objref ) );
+	  ValueStack.push_back( BObjectRef( objref ) );
 	}
 
 	void Executor::popParam( const Token& token )
@@ -1213,7 +1197,7 @@ namespace Pol {
 
 	void Executor::ins_casejmp( const Instruction& ins )
 	{
-	  BObjectRef& objref = ValueStack.top();
+	  BObjectRef& objref = ValueStack.back();
 	  BObjectImp* objimp = objref->impptr();
 	  if ( objimp->isa( BObjectImp::OTLong ) )
 	  {
@@ -1227,61 +1211,61 @@ namespace Pol {
 	  {
 		PC = ins_casejmp_finddefault( ins.token );
 	  }
-	  ValueStack.pop();
+	  ValueStack.pop_back();
 	}
 
 
 	void Executor::ins_jmpiftrue( const Instruction& ins )
 	{
-	  BObjectRef& objref = ValueStack.top();
+	  BObjectRef& objref = ValueStack.back();
 
 	  if ( objref->impptr()->isTrue() )
 		PC = (unsigned)ins.token.lval;
 
-	  ValueStack.pop();
+	  ValueStack.pop_back();
 	}
 
 	void Executor::ins_jmpiffalse( const Instruction& ins )
 	{
-	  BObjectRef& objref = ValueStack.top();
+	  BObjectRef& objref = ValueStack.back();
 
 	  if ( !objref->impptr()->isTrue() )
 		PC = (unsigned)ins.token.lval;
 
-	  ValueStack.pop();
+	  ValueStack.pop_back();
 	}
 
 
 	// case TOK_LOCALVAR: 
 	void Executor::ins_localvar( const Instruction& ins )
 	{
-	  ValueStack.push( ( *Locals2 )[ins.token.lval] );
+	  ValueStack.push_back( ( *Locals2 )[ins.token.lval] );
 	}
 
 	// case RSV_GLOBAL:
 	// case TOK_GLOBALVAR:
 	void Executor::ins_globalvar( const Instruction& ins )
 	{
-	  ValueStack.push( Globals2[ins.token.lval] );
+	  ValueStack.push_back( Globals2[ins.token.lval] );
 	}
 
 	// case TOK_LONG:
 	void Executor::ins_long( const Instruction& ins )
 	{
-	  ValueStack.push( BObjectRef( new BObject( new BLong( ins.token.lval ) ) ) );
+	  ValueStack.push_back( BObjectRef( new BObject( new BLong( ins.token.lval ) ) ) );
 	}
 
 	// case TOK_CONSUMER:
 	void Executor::ins_consume( const Instruction& ins )
 	{
-	  ValueStack.pop();
+	  ValueStack.pop_back();
 	}
 
 	void Executor::ins_set_member( const Instruction& ins )
 	{
-	  BObjectRef rightref = ValueStack.top();
-	  ValueStack.pop();
-	  BObjectRef& leftref = ValueStack.top();
+	  BObjectRef rightref = ValueStack.back();
+	  ValueStack.pop_back();
+	  BObjectRef& leftref = ValueStack.back();
 
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
@@ -1292,9 +1276,9 @@ namespace Pol {
 
 	void Executor::ins_set_member_id( const Instruction& ins )
 	{
-	  BObjectRef rightref = ValueStack.top();
-	  ValueStack.pop();
-	  BObjectRef& leftref = ValueStack.top();
+	  BObjectRef rightref = ValueStack.back();
+	  ValueStack.pop_back();
+	  BObjectRef& leftref = ValueStack.back();
 
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
@@ -1305,23 +1289,23 @@ namespace Pol {
 
 	void Executor::ins_set_member_consume( const Instruction& ins )
 	{
-	  BObjectRef rightref = ValueStack.top();
-	  ValueStack.pop();
-	  BObjectRef& leftref = ValueStack.top();
+	  BObjectRef rightref = ValueStack.back();
+	  ValueStack.pop_back();
+	  BObjectRef& leftref = ValueStack.back();
 
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
 
 	  BObjectImp& rightimpref = right.impref();
 	  left.impref().set_member( ins.token.tokval(), &rightimpref, !( right.count() == 1 && rightimpref.count() == 1 ) );
-	  ValueStack.pop();
+	  ValueStack.pop_back();
 	}
 
 	void Executor::ins_set_member_id_consume( const Instruction& ins )
 	{
-	  BObjectRef rightref = ValueStack.top();
-	  ValueStack.pop();
-	  BObjectRef& leftref = ValueStack.top();
+	  BObjectRef rightref = ValueStack.back();
+	  ValueStack.pop_back();
+	  BObjectRef& leftref = ValueStack.back();
 
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
@@ -1329,14 +1313,14 @@ namespace Pol {
 	  BObjectImp& rightimpref = right.impref();
 
 	  left.impref().set_member_id( ins.token.lval, &rightimpref, !( right.count() == 1 && rightimpref.count() == 1 ) );
-	  ValueStack.pop();
+	  ValueStack.pop_back();
 	}
 
 	void Executor::ins_set_member_id_consume_plusequal( const Instruction& ins )
 	{
-	  BObjectRef rightref = ValueStack.top();
-	  ValueStack.pop();
-	  BObjectRef& leftref = ValueStack.top();
+	  BObjectRef rightref = ValueStack.back();
+	  ValueStack.pop_back();
+	  BObjectRef& leftref = ValueStack.back();
 
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
@@ -1351,14 +1335,14 @@ namespace Pol {
 		tmp->impref().operPlusEqual( obj, right.impref() );
 		leftimpref.set_member_id( ins.token.lval, &tmp->impref(), false );
 	  }
-	  ValueStack.pop();
+	  ValueStack.pop_back();
 	}
 
 	void Executor::ins_set_member_id_consume_minusequal( const Instruction& ins )
 	{
-	  BObjectRef rightref = ValueStack.top();
-	  ValueStack.pop();
-	  BObjectRef& leftref = ValueStack.top();
+	  BObjectRef rightref = ValueStack.back();
+	  ValueStack.pop_back();
+	  BObjectRef& leftref = ValueStack.back();
 
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
@@ -1373,14 +1357,14 @@ namespace Pol {
 		tmp->impref().operMinusEqual( obj, right.impref() );
 		leftimpref.set_member_id( ins.token.lval, &tmp->impref(), false );
 	  }
-	  ValueStack.pop();
+	  ValueStack.pop_back();
 	}
 
 	void Executor::ins_set_member_id_consume_timesequal( const Instruction& ins )
 	{
-	  BObjectRef rightref = ValueStack.top();
-	  ValueStack.pop();
-	  BObjectRef& leftref = ValueStack.top();
+	  BObjectRef rightref = ValueStack.back();
+	  ValueStack.pop_back();
+	  BObjectRef& leftref = ValueStack.back();
 
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
@@ -1395,14 +1379,14 @@ namespace Pol {
 		tmp->impref().operTimesEqual( obj, right.impref() );
 		leftimpref.set_member_id( ins.token.lval, &tmp->impref(), false );
 	  }
-	  ValueStack.pop();
+	  ValueStack.pop_back();
 	}
 
 	void Executor::ins_set_member_id_consume_divideequal( const Instruction& ins )
 	{
-	  BObjectRef rightref = ValueStack.top();
-	  ValueStack.pop();
-	  BObjectRef& leftref = ValueStack.top();
+	  BObjectRef rightref = ValueStack.back();
+	  ValueStack.pop_back();
+	  BObjectRef& leftref = ValueStack.back();
 
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
@@ -1417,14 +1401,14 @@ namespace Pol {
 		tmp->impref().operDivideEqual( obj, right.impref() );
 		leftimpref.set_member_id( ins.token.lval, &tmp->impref(), false );
 	  }
-	  ValueStack.pop();
+	  ValueStack.pop_back();
 	}
 
 	void Executor::ins_set_member_id_consume_modulusequal( const Instruction& ins )
 	{
-	  BObjectRef rightref = ValueStack.top();
-	  ValueStack.pop();
-	  BObjectRef& leftref = ValueStack.top();
+	  BObjectRef rightref = ValueStack.back();
+	  ValueStack.pop_back();
+	  BObjectRef& leftref = ValueStack.back();
 
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
@@ -1439,12 +1423,12 @@ namespace Pol {
 		tmp->impref().operModulusEqual( obj, right.impref() );
 		leftimpref.set_member_id( ins.token.lval, &tmp->impref(), false );
 	  }
-	  ValueStack.pop();
+	  ValueStack.pop_back();
 	}
 
 	void Executor::ins_get_member( const Instruction& ins )
 	{
-	  BObjectRef& leftref = ValueStack.top();
+	  BObjectRef& leftref = ValueStack.back();
 
 	  BObject& left = *leftref;
 
@@ -1464,7 +1448,7 @@ namespace Pol {
 
 	void Executor::ins_get_member_id( const Instruction& ins )
 	{
-	  BObjectRef& leftref = ValueStack.top();
+	  BObjectRef& leftref = ValueStack.back();
 
 	  BObject& left = *leftref;
 
@@ -1486,7 +1470,7 @@ namespace Pol {
 	{
 	  BObjectRef& lvar = ( *Locals2 )[ins.token.lval];
 
-	  BObjectRef& rightref = ValueStack.top();
+	  BObjectRef& rightref = ValueStack.back();
 
 	  BObject& right = *rightref;
 
@@ -1500,13 +1484,13 @@ namespace Pol {
 	  {
 		lvar->setimp( rightimpref.copy() );
 	  }
-	  ValueStack.pop();
+	  ValueStack.pop_back();
 	}
 	void Executor::ins_assign_globalvar( const Instruction& ins )
 	{
 	  BObjectRef& gvar = Globals2[ins.token.lval];
 
-	  BObjectRef& rightref = ValueStack.top();
+	  BObjectRef& rightref = ValueStack.back();
 
 	  BObject& right = *rightref;
 
@@ -1520,15 +1504,15 @@ namespace Pol {
 	  {
 		gvar->setimp( rightimpref.copy() );
 	  }
-	  ValueStack.pop();
+	  ValueStack.pop_back();
 	}
 
 	// case INS_ASSIGN_CONSUME:
 	void Executor::ins_assign_consume( const Instruction& ins )
 	{
-	  BObjectRef rightref = ValueStack.top();
-	  ValueStack.pop();
-	  BObjectRef& leftref = ValueStack.top();
+	  BObjectRef rightref = ValueStack.back();
+	  ValueStack.pop_back();
+	  BObjectRef& leftref = ValueStack.back();
 
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
@@ -1543,7 +1527,7 @@ namespace Pol {
 	  {
 		left.setimp( rightimpref.copy() );
 	  }
-	  ValueStack.pop();
+	  ValueStack.pop_back();
 	}
 
 	void Executor::ins_assign( const Instruction& ins )
@@ -1553,9 +1537,9 @@ namespace Pol {
 		  We'll leave the second one on the value stack, and
 		  just replace its object with the result
 		  */
-	  BObjectRef rightref = ValueStack.top();
-	  ValueStack.pop();
-	  BObjectRef& leftref = ValueStack.top();
+	  BObjectRef rightref = ValueStack.back();
+	  ValueStack.pop_back();
+	  BObjectRef& leftref = ValueStack.back();
 
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
@@ -1584,11 +1568,11 @@ namespace Pol {
 		  upon exit:
 		  (x[i])
 		  */
-	  BObjectRef y_ref = ValueStack.top();
-	  ValueStack.pop();
-	  BObjectRef i_ref = ValueStack.top();
-	  ValueStack.pop();
-	  BObjectRef& x_ref = ValueStack.top();
+	  BObjectRef y_ref = ValueStack.back();
+	  ValueStack.pop_back();
+	  BObjectRef i_ref = ValueStack.back();
+	  ValueStack.pop_back();
+	  BObjectRef& x_ref = ValueStack.back();
 
 	  BObject& y = *y_ref;
 	  BObject& i = *i_ref;
@@ -1611,11 +1595,11 @@ namespace Pol {
 		  upon exit:
 		  (x[i])
 		  */
-	  BObjectRef y_ref = ValueStack.top();
-	  ValueStack.pop();
-	  BObjectRef i_ref = ValueStack.top();
-	  ValueStack.pop();
-	  BObjectRef& x_ref = ValueStack.top();
+	  BObjectRef y_ref = ValueStack.back();
+	  ValueStack.pop_back();
+	  BObjectRef i_ref = ValueStack.back();
+	  ValueStack.pop_back();
+	  BObjectRef& x_ref = ValueStack.back();
 
 	  BObject& y = *y_ref;
 	  BObject& i = *i_ref;
@@ -1625,7 +1609,7 @@ namespace Pol {
 	  result = x->array_assign( i.impptr(), y.impptr(), ( y.count() != 1 ) );
 
 	  BObject obj( result );
-	  ValueStack.pop();
+	  ValueStack.pop_back();
 	}
 
 	// TOK_ADD:
@@ -1636,9 +1620,9 @@ namespace Pol {
 		  We'll leave the second one on the value stack, and
 		  just replace its object with the result
 		  */
-	  BObjectRef rightref = ValueStack.top();
-	  ValueStack.pop();
-	  BObjectRef& leftref = ValueStack.top();
+	  BObjectRef rightref = ValueStack.back();
+	  ValueStack.pop_back();
+	  BObjectRef& leftref = ValueStack.back();
 
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
@@ -1654,9 +1638,9 @@ namespace Pol {
 		  We'll leave the second one on the value stack, and
 		  just replace its object with the result
 		  */
-	  BObjectRef rightref = ValueStack.top();
-	  ValueStack.pop();
-	  BObjectRef& leftref = ValueStack.top();
+	  BObjectRef rightref = ValueStack.back();
+	  ValueStack.pop_back();
+	  BObjectRef& leftref = ValueStack.back();
 
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
@@ -1672,9 +1656,9 @@ namespace Pol {
 		  We'll leave the second one on the value stack, and
 		  just replace its object with the result
 		  */
-	  BObjectRef rightref = ValueStack.top();
-	  ValueStack.pop();
-	  BObjectRef& leftref = ValueStack.top();
+	  BObjectRef rightref = ValueStack.back();
+	  ValueStack.pop_back();
+	  BObjectRef& leftref = ValueStack.back();
 
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
@@ -1689,9 +1673,9 @@ namespace Pol {
 		  We'll leave the second one on the value stack, and
 		  just replace its object with the result
 		  */
-	  BObjectRef rightref = ValueStack.top();
-	  ValueStack.pop();
-	  BObjectRef& leftref = ValueStack.top();
+	  BObjectRef rightref = ValueStack.back();
+	  ValueStack.pop_back();
+	  BObjectRef& leftref = ValueStack.back();
 
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
@@ -1706,9 +1690,9 @@ namespace Pol {
 		  We'll leave the second one on the value stack, and
 		  just replace its object with the result
 		  */
-	  BObjectRef rightref = ValueStack.top();
-	  ValueStack.pop();
-	  BObjectRef& leftref = ValueStack.top();
+	  BObjectRef rightref = ValueStack.back();
+	  ValueStack.pop_back();
+	  BObjectRef& leftref = ValueStack.back();
 
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
@@ -1723,9 +1707,9 @@ namespace Pol {
 		  We'll leave the second one on the value stack, and
 		  just replace its object with the result
 		  */
-	  BObjectRef rightref = ValueStack.top();
-	  ValueStack.pop();
-	  BObjectRef& leftref = ValueStack.top();
+	  BObjectRef rightref = ValueStack.back();
+	  ValueStack.pop_back();
+	  BObjectRef& leftref = ValueStack.back();
 
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
@@ -1740,9 +1724,9 @@ namespace Pol {
 		  We'll leave the second one on the value stack, and
 		  just replace its object with the result
 		  */
-	  BObjectRef rightref = ValueStack.top();
-	  ValueStack.pop();
-	  BObjectRef& leftref = ValueStack.top();
+	  BObjectRef rightref = ValueStack.back();
+	  ValueStack.pop_back();
+	  BObjectRef& leftref = ValueStack.back();
 
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
@@ -1757,9 +1741,9 @@ namespace Pol {
 		  We'll leave the second one on the value stack, and
 		  just replace its object with the result
 		  */
-	  BObjectRef rightref = ValueStack.top();
-	  ValueStack.pop();
-	  BObjectRef& leftref = ValueStack.top();
+	  BObjectRef rightref = ValueStack.back();
+	  ValueStack.pop_back();
+	  BObjectRef& leftref = ValueStack.back();
 
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
@@ -1774,9 +1758,9 @@ namespace Pol {
 		  We'll leave the second one on the value stack, and
 		  just replace its object with the result
 		  */
-	  BObjectRef rightref = ValueStack.top();
-	  ValueStack.pop();
-	  BObjectRef& leftref = ValueStack.top();
+	  BObjectRef rightref = ValueStack.back();
+	  ValueStack.pop_back();
+	  BObjectRef& leftref = ValueStack.back();
 
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
@@ -1791,9 +1775,9 @@ namespace Pol {
 		  We'll leave the second one on the value stack, and
 		  just replace its object with the result
 		  */
-	  BObjectRef rightref = ValueStack.top();
-	  ValueStack.pop();
-	  BObjectRef& leftref = ValueStack.top();
+	  BObjectRef rightref = ValueStack.back();
+	  ValueStack.pop_back();
+	  BObjectRef& leftref = ValueStack.back();
 
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
@@ -1808,9 +1792,9 @@ namespace Pol {
 		  We'll leave the second one on the value stack, and
 		  just replace its object with the result
 		  */
-	  BObjectRef rightref = ValueStack.top();
-	  ValueStack.pop();
-	  BObjectRef& leftref = ValueStack.top();
+	  BObjectRef rightref = ValueStack.back();
+	  ValueStack.pop_back();
+	  BObjectRef& leftref = ValueStack.back();
 
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
@@ -1825,9 +1809,9 @@ namespace Pol {
 		  We'll leave the second one on the value stack, and
 		  just replace its object with the result
 		  */
-	  BObjectRef rightref = ValueStack.top();
-	  ValueStack.pop();
-	  BObjectRef& leftref = ValueStack.top();
+	  BObjectRef rightref = ValueStack.back();
+	  ValueStack.pop_back();
+	  BObjectRef& leftref = ValueStack.back();
 
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
@@ -1843,9 +1827,9 @@ namespace Pol {
 		  We'll leave the second one on the value stack, and
 		  just replace its object with the result
 		  */
-	  BObjectRef rightref = ValueStack.top();
-	  ValueStack.pop();
-	  BObjectRef& leftref = ValueStack.top();
+	  BObjectRef rightref = ValueStack.back();
+	  ValueStack.pop_back();
+	  BObjectRef& leftref = ValueStack.back();
 
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
@@ -1861,9 +1845,9 @@ namespace Pol {
 		  We'll leave the second one on the value stack, and
 		  just replace its object with the result
 		  */
-	  BObjectRef rightref = ValueStack.top();
-	  ValueStack.pop();
-	  BObjectRef& leftref = ValueStack.top();
+	  BObjectRef rightref = ValueStack.back();
+	  ValueStack.pop_back();
+	  BObjectRef& leftref = ValueStack.back();
 
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
@@ -1879,9 +1863,9 @@ namespace Pol {
 		  We'll leave the second one on the value stack, and
 		  just replace its object with the result
 		  */
-	  BObjectRef rightref = ValueStack.top();
-	  ValueStack.pop();
-	  BObjectRef& leftref = ValueStack.top();
+	  BObjectRef rightref = ValueStack.back();
+	  ValueStack.pop_back();
+	  BObjectRef& leftref = ValueStack.back();
 
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
@@ -1897,9 +1881,9 @@ namespace Pol {
 		  We'll leave the second one on the value stack, and
 		  just replace its object with the result
 		  */
-	  BObjectRef rightref = ValueStack.top();
-	  ValueStack.pop();
-	  BObjectRef& leftref = ValueStack.top();
+	  BObjectRef rightref = ValueStack.back();
+	  ValueStack.pop_back();
+	  BObjectRef& leftref = ValueStack.back();
 
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
@@ -1913,9 +1897,9 @@ namespace Pol {
 		  We'll leave the second one on the value stack, and
 		  just replace its object with the result
 		  */
-	  BObjectRef rightref = ValueStack.top();
-	  ValueStack.pop();
-	  BObjectRef& leftref = ValueStack.top();
+	  BObjectRef rightref = ValueStack.back();
+	  ValueStack.pop_back();
+	  BObjectRef& leftref = ValueStack.back();
 
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
@@ -1930,9 +1914,9 @@ namespace Pol {
 		  We'll leave the second one on the value stack, and
 		  just replace its object with the result
 		  */
-	  BObjectRef rightref = ValueStack.top();
-	  ValueStack.pop();
-	  BObjectRef& leftref = ValueStack.top();
+	  BObjectRef rightref = ValueStack.back();
+	  ValueStack.pop_back();
+	  BObjectRef& leftref = ValueStack.back();
 
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
@@ -1949,9 +1933,9 @@ namespace Pol {
 		  We'll leave the second one on the value stack, and
 		  just replace its object with the result
 		  */
-	  BObjectRef rightref = ValueStack.top();
-	  ValueStack.pop();
-	  BObjectRef& leftref = ValueStack.top();
+	  BObjectRef rightref = ValueStack.back();
+	  ValueStack.pop_back();
+	  BObjectRef& leftref = ValueStack.back();
 
 	  leftref = ( *leftref )->OperSubscript( *rightref );
 	}
@@ -1962,27 +1946,27 @@ namespace Pol {
 	  stack<BObjectRef> indices;
 	  for ( int i = 0; i < ins.token.lval; ++i )
 	  {
-		indices.push( ValueStack.top() );
-		ValueStack.pop();
+		indices.push( ValueStack.back() );
+		ValueStack.pop_back();
 	  }
 
-	  BObjectRef& leftref = ValueStack.top();
+	  BObjectRef& leftref = ValueStack.back();
 	  leftref = ( *leftref )->OperMultiSubscript( indices );
 
 	}
 	void Executor::ins_multisubscript_assign( const Instruction& ins )
 	{
-	  BObjectRef target_ref = ValueStack.top();
-	  ValueStack.pop();
+	  BObjectRef target_ref = ValueStack.back();
+	  ValueStack.pop_back();
 	  // the subscripts are on the value stack in right-to-left order, followed by the array itself
 	  stack<BObjectRef> indices;
 	  for ( int i = 0; i < ins.token.lval; ++i )
 	  {
-		indices.push( ValueStack.top() );
-		ValueStack.pop();
+		indices.push( ValueStack.back() );
+		ValueStack.pop_back();
 	  }
 
-	  BObjectRef& leftref = ValueStack.top();
+	  BObjectRef& leftref = ValueStack.back();
 	  leftref = ( *leftref )->OperMultiSubscriptAssign( indices, target_ref->impptr() );
 
 	}
@@ -1994,9 +1978,9 @@ namespace Pol {
 		  We'll leave the second one on the value stack, and
 		  just replace its object with the result
 		  */
-	  BObjectRef rightref = ValueStack.top();
-	  ValueStack.pop();
-	  BObjectRef& leftref = ValueStack.top();
+	  BObjectRef rightref = ValueStack.back();
+	  ValueStack.pop_back();
+	  BObjectRef& leftref = ValueStack.back();
 
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
@@ -2011,9 +1995,9 @@ namespace Pol {
 		  We'll leave the second one on the value stack, and
 		  just replace its object with the result
 		  */
-	  BObjectRef rightref = ValueStack.top();
-	  ValueStack.pop();
-	  BObjectRef& leftref = ValueStack.top();
+	  BObjectRef rightref = ValueStack.back();
+	  ValueStack.pop_back();
+	  BObjectRef& leftref = ValueStack.back();
 
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
@@ -2028,9 +2012,9 @@ namespace Pol {
 		  We'll leave the second one on the value stack, and
 		  just replace its object with the result
 		  */
-	  BObjectRef rightref = ValueStack.top();
-	  ValueStack.pop();
-	  BObjectRef& leftref = ValueStack.top();
+	  BObjectRef rightref = ValueStack.back();
+	  ValueStack.pop_back();
+	  BObjectRef& leftref = ValueStack.back();
 
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
@@ -2040,7 +2024,7 @@ namespace Pol {
 
 	void Executor::ins_addmember2( const Instruction& ins )
 	{
-	  BObjectRef obref = ValueStack.top();
+	  BObjectRef obref = ValueStack.back();
 
 	  BObject& ob = *obref;
 
@@ -2049,13 +2033,13 @@ namespace Pol {
 
 	void Executor::ins_addmember_assign( const Instruction& ins )
 	{
-	  BObjectRef valref = ValueStack.top();
+	  BObjectRef valref = ValueStack.back();
 	  BObject& valob = *valref;
 	  BObjectImp* valimp = valref->impptr();
 
-	  ValueStack.pop();
+	  ValueStack.pop_back();
 
-	  BObjectRef obref = ValueStack.top();
+	  BObjectRef obref = ValueStack.back();
 	  BObject& ob = *obref;
 
 	  BObjectRef memref = ob.impref().operDotPlus( ins.token.tokval() );
@@ -2085,17 +2069,17 @@ namespace Pol {
 		  adds the (key, value) pair to the dictionary
 		  */
 
-	  BObjectRef valref = ValueStack.top();
-	  ValueStack.pop();
+	  BObjectRef valref = ValueStack.back();
+	  ValueStack.pop_back();
 	  BObject& valob = *valref;
 	  BObjectImp* valimp = valob.impptr();
 
-	  BObjectRef keyref = ValueStack.top();
-	  ValueStack.pop();
+	  BObjectRef keyref = ValueStack.back();
+	  ValueStack.pop_back();
 	  BObject& keyob = *keyref;
 	  BObjectImp* keyimp = keyob.impptr();
 
-	  BObjectRef dictref = ValueStack.top();
+	  BObjectRef dictref = ValueStack.back();
 	  BObject& dictob = *dictref;
 	  BDictionary* dict = static_cast<BDictionary*>( dictob.impptr() );
 
@@ -2119,9 +2103,9 @@ namespace Pol {
 		  We'll leave the second one on the value stack, and
 		  just replace its object with the result
 		  */
-	  BObjectRef rightref = ValueStack.top();
-	  ValueStack.pop();
-	  BObjectRef& leftref = ValueStack.top();
+	  BObjectRef rightref = ValueStack.back();
+	  ValueStack.pop_back();
+	  BObjectRef& leftref = ValueStack.back();
 
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
@@ -2131,9 +2115,9 @@ namespace Pol {
 
 	void Executor::ins_insert_into( const Instruction& ins )
 	{
-	  BObjectRef rightref = ValueStack.top();
-	  ValueStack.pop();
-	  BObjectRef& leftref = ValueStack.top();
+	  BObjectRef rightref = ValueStack.back();
+	  ValueStack.pop_back();
+	  BObjectRef& leftref = ValueStack.back();
 
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
@@ -2148,9 +2132,9 @@ namespace Pol {
 		  We'll leave the second one on the value stack, and
 		  just replace its object with the result
 		  */
-	  BObjectRef rightref = ValueStack.top();
-	  ValueStack.pop();
-	  BObjectRef& leftref = ValueStack.top();
+	  BObjectRef rightref = ValueStack.back();
+	  ValueStack.pop_back();
+	  BObjectRef& leftref = ValueStack.back();
 
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
@@ -2165,9 +2149,9 @@ namespace Pol {
 		  We'll leave the second one on the value stack, and
 		  just replace its object with the result
 		  */
-	  BObjectRef rightref = ValueStack.top();
-	  ValueStack.pop();
-	  BObjectRef& leftref = ValueStack.top();
+	  BObjectRef rightref = ValueStack.back();
+	  ValueStack.pop_back();
+	  BObjectRef& leftref = ValueStack.back();
 
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
@@ -2182,9 +2166,9 @@ namespace Pol {
 		  We'll leave the second one on the value stack, and
 		  just replace its object with the result
 		  */
-	  BObjectRef rightref = ValueStack.top();
-	  ValueStack.pop();
-	  BObjectRef& leftref = ValueStack.top();
+	  BObjectRef rightref = ValueStack.back();
+	  ValueStack.pop_back();
+	  BObjectRef& leftref = ValueStack.back();
 
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
@@ -2199,9 +2183,9 @@ namespace Pol {
 		  We'll leave the second one on the value stack, and
 		  just replace its object with the result
 		  */
-	  BObjectRef rightref = ValueStack.top();
-	  ValueStack.pop();
-	  BObjectRef& leftref = ValueStack.top();
+	  BObjectRef rightref = ValueStack.back();
+	  ValueStack.pop_back();
+	  BObjectRef& leftref = ValueStack.back();
 
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
@@ -2216,9 +2200,9 @@ namespace Pol {
 		  We'll leave the second one on the value stack, and
 		  just replace its object with the result
 		  */
-	  BObjectRef rightref = ValueStack.top();
-	  ValueStack.pop();
-	  BObjectRef& leftref = ValueStack.top();
+	  BObjectRef rightref = ValueStack.back();
+	  ValueStack.pop_back();
+	  BObjectRef& leftref = ValueStack.back();
 
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
@@ -2247,7 +2231,7 @@ namespace Pol {
 	  unsigned nparams = ins.token.type;
 	  getParams( nparams );
 
-	  BObjectRef& objref = ValueStack.top();
+	  BObjectRef& objref = ValueStack.back();
 #ifdef ESCRIPT_PROFILE
 	  std::stringstream strm;
 	  strm << "MTHID_" << objref->impptr()->typeOf() << " ." << ins.token.lval;
@@ -2289,7 +2273,7 @@ namespace Pol {
 	  unsigned nparams = ins.token.lval;
 	  getParams( nparams );
 
-	  BObjectRef& objref = ValueStack.top();
+	  BObjectRef& objref = ValueStack.back();
 #ifdef ESCRIPT_PROFILE
 	  std::stringstream strm;
 	  strm << "MTH_" << objref->impptr()->typeOf() << " ." << ins.token.tokval();
@@ -2345,7 +2329,7 @@ namespace Pol {
 	// case CTRL_MAKELOCAL:
 	void Executor::ins_makelocal( const Instruction& ins )
 	{
-	  if ( Locals2 ) upperLocals2.push( Locals2 );
+	  if ( Locals2 ) upperLocals2.push_back( Locals2 );
 	  Locals2 = new BObjectRefVec;
 	}
 
@@ -2355,7 +2339,7 @@ namespace Pol {
 	  ReturnContext rc;
 	  rc.PC = PC;
 	  rc.ValueStackDepth = static_cast<unsigned int>( ValueStack.size() );
-	  ControlStack.push( rc );
+	  ControlStack.push_back( rc );
 
 	  PC = (unsigned)ins.token.lval;
 	  if ( ControlStack.size() >= escript_config.max_call_depth )
@@ -2365,8 +2349,8 @@ namespace Pol {
           << "Return path PCs: ";
 		while ( !ControlStack.empty() )
 		{
-		  rc = ControlStack.top();
-		  ControlStack.pop();
+          rc = ControlStack.back( );
+          ControlStack.pop_back( );
           tmp << rc.PC << " ";
 		}
         POLLOG << tmp.str() << "\n";
@@ -2409,8 +2393,8 @@ namespace Pol {
 	  ReturnContext rc;
 	  rc.PC = PC;
 	  rc.ValueStackDepth = static_cast<unsigned int>( ValueStack.size() );
-	  ControlStack.push( rc );
-	  if ( Locals2 ) upperLocals2.push( Locals2 );
+	  ControlStack.push_back( rc );
+	  if ( Locals2 ) upperLocals2.push_back( Locals2 );
 	  Locals2 = new BObjectRefVec;
 
 	  PC = (unsigned)ins.token.lval;
@@ -2426,10 +2410,10 @@ namespace Pol {
 		seterror( true );
 		return;
 	  }
-	  ReturnContext& rc = ControlStack.top();
+      ReturnContext& rc = ControlStack.back( );
 	  PC = rc.PC;
 	  // FIXME do something with rc.ValueStackDepth
-	  ControlStack.pop();
+      ControlStack.pop_back( );
 
 	  if ( Locals2 )
 	  {
@@ -2438,8 +2422,8 @@ namespace Pol {
 	  }
 	  if ( !upperLocals2.empty() )
 	  {
-		Locals2 = upperLocals2.top();
-		upperLocals2.pop();
+        Locals2 = upperLocals2.back( );
+        upperLocals2.pop_back( );
 	  }
 	}
 
@@ -2451,35 +2435,35 @@ namespace Pol {
 
 	void Executor::ins_double( const Instruction& ins )
 	{
-	  ValueStack.push( BObjectRef( new BObject( new Double( ins.token.dval ) ) ) );
+	  ValueStack.push_back( BObjectRef( new BObject( new Double( ins.token.dval ) ) ) );
 	}
 	void Executor::ins_string( const Instruction& ins )
 	{
-	  ValueStack.push( BObjectRef( new BObject( new String( ins.token.tokval() ) ) ) );
+	  ValueStack.push_back( BObjectRef( new BObject( new String( ins.token.tokval() ) ) ) );
 	}
 	void Executor::ins_error( const Instruction& ins )
 	{
-	  ValueStack.push( BObjectRef( new BObject( new BError() ) ) );
+	  ValueStack.push_back( BObjectRef( new BObject( new BError() ) ) );
 	}
 	void Executor::ins_struct( const Instruction& ins )
 	{
-	  ValueStack.push( BObjectRef( new BObject( new BStruct ) ) );
+	  ValueStack.push_back( BObjectRef( new BObject( new BStruct ) ) );
 	}
 	void Executor::ins_array( const Instruction& ins )
 	{
-	  ValueStack.push( BObjectRef( new BObject( new ObjArray ) ) );
+	  ValueStack.push_back( BObjectRef( new BObject( new ObjArray ) ) );
 	}
 	void Executor::ins_dictionary( const Instruction& ins )
 	{
-	  ValueStack.push( BObjectRef( new BObject( new BDictionary ) ) );
+	  ValueStack.push_back( BObjectRef( new BObject( new BDictionary ) ) );
 	}
 	void Executor::ins_uninit( const Instruction& ins )
 	{
-	  ValueStack.push( BObjectRef( new BObject( UninitObject::create() ) ) );
+	  ValueStack.push_back( BObjectRef( new BObject( UninitObject::create() ) ) );
 	}
 	void Executor::ins_ident( const Instruction& ins )
 	{
-	  ValueStack.push( BObjectRef( new BObject( new BError( "Please recompile this script" ) ) ) );
+	  ValueStack.push_back( BObjectRef( new BObject( new BError( "Please recompile this script" ) ) ) );
 	}
 
 	// case TOK_UNMINUS:
@@ -2489,14 +2473,14 @@ namespace Pol {
 	  BObjectImp *newobj;
 	  newobj = ref->impref().inverse();
 
-	  ValueStack.push( BObjectRef( new BObject( newobj ) ) );
+	  ValueStack.push_back( BObjectRef( new BObject( newobj ) ) );
 	}
 
 	// case TOK_LOG_NOT:
 	void Executor::ins_logical_not( const Instruction& ins )
 	{
 	  BObjectRef ref = getObjRef();
-	  ValueStack.push( BObjectRef( new BObject( new BLong( (int)!ref->impptr()->isTrue() ) ) ) );
+	  ValueStack.push_back( BObjectRef( new BObject( new BLong( (int)!ref->impptr()->isTrue() ) ) ) );
 	  return;
 	}
 
@@ -2504,7 +2488,7 @@ namespace Pol {
 	void Executor::ins_bitwise_not( const Instruction& ins )
 	{
 	  BObjectRef ref = getObjRef();
-	  ValueStack.push( BObjectRef( new BObject( ref->impptr()->bitnot() ) ) );
+	  ValueStack.push_back( BObjectRef( new BObject( ref->impptr()->bitnot() ) ) );
 	  return;
 	}
 
@@ -2540,7 +2524,7 @@ namespace Pol {
 								  unsigned nparams = token.lval;
 								  getParams( nparams );
 
-								  BObjectRef& objref = ValueStack.top();
+								  BObjectRef& objref = ValueStack.back();
 								  BObjectImp* imp = objref->impptr()->call_method( token.tokval(), *this );
 
 								  if ( func_result_ )
@@ -2565,7 +2549,7 @@ namespace Pol {
 									 unsigned nparams = token.type;
 									 getParams( nparams );
 
-									 BObjectRef& objref = ValueStack.top();
+									 BObjectRef& objref = ValueStack.back();
 									 BObjectImp* imp = objref->impptr()->call_method_id( token.lval, *this );
 
 									 if ( func_result_ )
@@ -2596,7 +2580,7 @@ namespace Pol {
 		  PC = 0;
 		  return;
 		case CTRL_MAKELOCAL:    // ins_makelocal
-		  if ( Locals2 ) upperLocals2.push( Locals2 );
+		  if ( Locals2 ) upperLocals2.push_back( Locals2 );
 		  Locals2 = new BObjectRefVec;
 		  return;
 		case CTRL_JSR_USERFUNC: // ins_jsr_userfunc
@@ -2604,7 +2588,7 @@ namespace Pol {
 								  ReturnContext rc;
 								  rc.PC = PC;
 								  rc.ValueStackDepth = static_cast<unsigned int>( ValueStack.size() );
-								  ControlStack.push( rc );
+								  ControlStack.push_back( rc );
 
 								  PC = (unsigned)token.lval;
 								  if ( ControlStack.size() >= escript_config.max_call_depth )
@@ -2614,8 +2598,8 @@ namespace Pol {
                                       << "Return path PCs: ";
 									while ( !ControlStack.empty() )
 									{
-									  rc = ControlStack.top();
-									  ControlStack.pop();
+                                      rc = ControlStack.back( );
+                                      ControlStack.pop_back( );
                                       tmp << rc.PC << " ";
 									}
                                     POLLOG << tmp.str() << "\n";
@@ -2653,8 +2637,8 @@ namespace Pol {
 						  ReturnContext rc;
 						  rc.PC = PC;
 						  rc.ValueStackDepth = static_cast<unsigned int>( ValueStack.size() );
-						  ControlStack.push( rc );
-						  if ( Locals2 ) upperLocals2.push( Locals2 );
+						  ControlStack.push_back( rc );
+						  if ( Locals2 ) upperLocals2.push_back( Locals2 );
 						  Locals2 = new BObjectRefVec;
 		}
 		  // NOTE fallthrough
@@ -2671,8 +2655,8 @@ namespace Pol {
 								seterror( true );
 								return;
 							  }
-							  ReturnContext rc = ControlStack.top();
-							  ControlStack.pop();
+                              ReturnContext rc = ControlStack.back( );
+                              ControlStack.pop_back( );
 							  PC = rc.PC;
 							  // FIXME do something with rc.ValueStackDepth
 
@@ -2683,8 +2667,8 @@ namespace Pol {
 							  }
 							  if ( !upperLocals2.empty() )
 							  {
-								Locals2 = upperLocals2.top();
-								upperLocals2.pop();
+                                Locals2 = upperLocals2.back( );
+                                upperLocals2.pop_back( );
 							  }
 							  return;
 		}
@@ -2715,23 +2699,23 @@ namespace Pol {
 		case RSV_JMPIFTRUE:     // ins_jmpiftrue
 		  // ins_jmpiftrue
 		{
-								  BObjectRef& objref = ValueStack.top();
+								  BObjectRef& objref = ValueStack.back();
 
 								  if ( objref->impptr()->isTrue() )
 									PC = (unsigned)ins.token.lval;
 
-								  ValueStack.pop();
+								  ValueStack.pop_back();
 		}
 		  return;
 
 		case RSV_JMPIFFALSE:    // ins_jmpiffalse
 		{
-								  BObjectRef& objref = ValueStack.top();
+								  BObjectRef& objref = ValueStack.back();
 
 								  if ( !objref->impptr()->isTrue() )
 									PC = (unsigned)ins.token.lval;
 
-								  ValueStack.pop();
+								  ValueStack.pop_back();
 		}
 		  return;
 
@@ -2747,44 +2731,44 @@ namespace Pol {
 		  passert( Locals2 );
 		  passert( token.lval < static_cast<int>( Locals2->size() ) );
 
-		  ValueStack.push( ( *Locals2 )[token.lval] );
+		  ValueStack.push_back( ( *Locals2 )[token.lval] );
 		  return;
 
 		case RSV_GLOBAL:        // ins_globalvar
 		case TOK_GLOBALVAR:
 		  passert( token.lval < static_cast<int>( Globals2.size() ) );
-		  ValueStack.push( Globals2[token.lval] );
+		  ValueStack.push_back( Globals2[token.lval] );
 		  return;
 
 		case TOK_LONG:  // ins_long
-		  ValueStack.push( BObjectRef( new BObject( new BLong( token.lval ) ) ) );
+		  ValueStack.push_back( BObjectRef( new BObject( new BLong( token.lval ) ) ) );
 		  return;
 		case TOK_DOUBLE:    // ins_double
-		  ValueStack.push( BObjectRef( new BObject( new Double( token.dval ) ) ) );
+		  ValueStack.push_back( BObjectRef( new BObject( new Double( token.dval ) ) ) );
 		  return;
 		case TOK_STRING:
-		  ValueStack.push( BObjectRef( new BObject( new String( token.tokval() ) ) ) );
+		  ValueStack.push_back( BObjectRef( new BObject( new String( token.tokval() ) ) ) );
 		  return;
 		case TOK_ERROR:
-		  ValueStack.push( BObjectRef( new BObject( new BError() ) ) );
+		  ValueStack.push_back( BObjectRef( new BObject( new BError() ) ) );
 		  return;
 		case TOK_STRUCT:
-		  ValueStack.push( BObjectRef( new BObject( new BStruct ) ) );
+		  ValueStack.push_back( BObjectRef( new BObject( new BStruct ) ) );
 		  return;
 		case TOK_ARRAY:
-		  ValueStack.push( BObjectRef( new BObject( new ObjArray ) ) );
+		  ValueStack.push_back( BObjectRef( new BObject( new ObjArray ) ) );
 		  return;
 		case TOK_DICTIONARY:
-		  ValueStack.push( BObjectRef( new BObject( new BDictionary ) ) );
+		  ValueStack.push_back( BObjectRef( new BObject( new BDictionary ) ) );
 		  return;
 
 		case TOK_IDENT:
-		  ValueStack.push( BObjectRef( new BObject( new BError( "Please recompile this script" ) ) ) );
+		  ValueStack.push_back( BObjectRef( new BObject( new BError( "Please recompile this script" ) ) ) );
 		  return;
 
 
 		case TOK_CONSUMER:  // ins_consumer
-		  ValueStack.pop(); // just consume
+		  ValueStack.pop_back(); // just consume
 		  return;
 
 		case TOK_UNMINUS:
@@ -2793,7 +2777,7 @@ namespace Pol {
 						  BObjectImp *newobj;
 						  newobj = ref->impref().inverse();
 
-						  ValueStack.push( BObjectRef( new BObject( newobj ) ) );
+						  ValueStack.push_back( BObjectRef( new BObject( newobj ) ) );
 						  return;
 		}
 
@@ -2803,22 +2787,22 @@ namespace Pol {
 		case TOK_LOG_NOT:       // ins_logical_not
 		{
 								  BObjectRef ref = getObjRef();
-								  ValueStack.push( BObjectRef( new BObject( new BLong( (int)!ref->impptr()->isTrue() ) ) ) );
+								  ValueStack.push_back( BObjectRef( new BObject( new BLong( (int)!ref->impptr()->isTrue() ) ) ) );
 								  return;
 		}
 		case TOK_BITWISE_NOT:   // ins_bitwise_not
 		{
 								  BObjectRef ref = getObjRef();
-								  ValueStack.push( BObjectRef( new BObject( ref->impptr()->bitnot() ) ) );
+								  ValueStack.push_back( BObjectRef( new BObject( ref->impptr()->bitnot() ) ) );
 								  return;
 		}
 
 
 		case INS_ASSIGN_CONSUME:    // ins_assign_consume
 		{
-									  BObjectRef rightref = ValueStack.top();
-									  ValueStack.pop();
-									  BObjectRef& leftref = ValueStack.top();
+									  BObjectRef rightref = ValueStack.back();
+									  ValueStack.pop_back();
+									  BObjectRef& leftref = ValueStack.back();
 
 									  BObject& right = *rightref;
 									  BObject& left = *leftref;
@@ -2833,7 +2817,7 @@ namespace Pol {
 									  {
 										left.setimp( rightimpref.copy() );
 									  }
-									  ValueStack.pop();
+									  ValueStack.pop_back();
 
 									  return;
 		}
@@ -2879,9 +2863,9 @@ namespace Pol {
 										  We'll leave the second one on the value stack, and
 										  just replace its object with the result
 										  */
-									  BObjectRef rightref = ValueStack.top();
-									  ValueStack.pop();
-									  BObjectRef& leftref = ValueStack.top();
+									  BObjectRef rightref = ValueStack.back();
+									  ValueStack.pop_back();
+									  BObjectRef& leftref = ValueStack.back();
 
 									  BObject& right = *rightref;
 									  BObject& left = *leftref;
@@ -3337,7 +3321,7 @@ namespace Pol {
 	  seterror( false );
 
 	  while ( !ValueStack.empty() )
-		ValueStack.pop();
+		ValueStack.pop_back();
 
 	  delete Locals2;
 	  Locals2 = new BObjectRefVec;
@@ -3369,12 +3353,12 @@ namespace Pol {
 			data_shown = true;
 		  }
 
-		  LEAKLOG << ValueStack.top()->impptr()->pack();
-          LEAKLOG << " [" << ValueStack.top()->impptr()->sizeEstimate() << "] ";
+		  LEAKLOG << ValueStack.back()->impptr()->pack();
+          LEAKLOG << " [" << ValueStack.back()->impptr()->sizeEstimate() << "] ";
 		}
 #endif
 
-		ValueStack.pop();
+		ValueStack.pop_back();
 	  }
 
 #ifdef MEMORYLEAK
@@ -3390,12 +3374,12 @@ namespace Pol {
 	void Executor::pushArg( BObjectImp* arg )
 	{
 	  passert_always( arg );
-	  ValueStack.push( BObjectRef( arg ) );
+	  ValueStack.push_back( BObjectRef( arg ) );
 	}
 
 	void Executor::pushArg( const BObjectRef& arg )
 	{
-	  ValueStack.push( arg );
+	  ValueStack.push_back( arg );
 	}
 
 	void Executor::addModule( ExecutorModule *module )
@@ -3464,6 +3448,48 @@ namespace Pol {
 	{
 	  breakpoints_.clear();
 	}
+
+    size_t Executor::sizeEstimate() const
+    {
+      size_t size = sizeof( *this );
+      size += 3 * sizeof(BObjectRefVec**)+upperLocals2.size() * sizeof( BObjectRefVec* );
+      for ( const auto& bojectrefvec : upperLocals2 )
+      {
+        size += 3 * sizeof(BObjectRef*)+bojectrefvec->capacity() * sizeof( BObjectRef );
+        for ( const auto& bojectref : *bojectrefvec )
+        {
+          size += bojectref->sizeEstimate();
+        }
+      }
+      size += 3 * sizeof(ReturnContext*)+ControlStack.size() * sizeof( ReturnContext );
+
+      size += 3 * sizeof(BObjectRef*)+Locals2->size() * sizeof( BObjectRef );
+      for ( const auto& bojectref : *Locals2 )
+      {
+        size += bojectref->sizeEstimate();
+      }
+      size += 3 * sizeof(BObjectRef*)+Globals2.size() * sizeof( BObjectRef );
+      for ( const auto& bojectref : Globals2 )
+      {
+        size += bojectref->sizeEstimate();
+      }
+      size += 3 * sizeof(BObjectRef*)+ValueStack.size() * sizeof( BObjectRef );
+      for ( const auto& bojectref : ValueStack )
+      {
+        size += bojectref->sizeEstimate();
+      }
+      size += 3 * sizeof(BObjectRef*)+fparams.capacity() * sizeof( BObjectRef );
+      for ( const auto& bojectref : fparams )
+      {
+        size += bojectref->sizeEstimate();
+      }
+      size += 3 * sizeof(ExecutorModule**)+execmodules.capacity() * sizeof( ExecutorModule* );
+      size += 3 * sizeof(ExecutorModule**)+availmodules.capacity() * sizeof( ExecutorModule* );
+      size += 3 * sizeof(unsigned*)+breakpoints_.size() * sizeof( unsigned );
+      size += 3 * sizeof(unsigned*)+tmpbreakpoints_.size() * sizeof( unsigned );
+      size += func_result_ != nullptr ? func_result_->sizeEstimate() : 0;
+      return size;
+    }
 
 
 #ifdef ESCRIPT_PROFILE

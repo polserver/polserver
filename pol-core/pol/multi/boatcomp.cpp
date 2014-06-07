@@ -27,5 +27,10 @@ namespace Pol {
 	  boat_.clear();
 	  base::destroy();
 	}
+
+    size_t UPlank::estimatedSize( ) const
+    {
+      return base::estimatedSize( ) + sizeof( UPlank );
+    }
   }
 }

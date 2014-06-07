@@ -117,6 +117,15 @@ namespace Pol {
 		descriptor->addMember( "Coverage", arr_zones.release() );
 	}
 
+    size_t ArmorDesc::estimatedSize() const
+    {
+      size_t size = base::estimatedSize()
+        + sizeof(ArmorDesc)
+        + on_hit_script.estimatedSize();
+      size += 3 * sizeof(void*)+zones.size( ) * ( sizeof(unsigned short)+3 * sizeof( void* ) );
+      return size;
+    }
+
 	UArmor::UArmor( const ArmorDesc& descriptor, const ArmorDesc* permanent_descriptor ) :
 	  Equipment( descriptor, CLASS_ARMOR ),
 	  tmpl( permanent_descriptor ),
@@ -188,6 +197,14 @@ namespace Pol {
     std::set<unsigned short> UArmor::tmplzones( ) 
     { 
       return tmpl->zones;
+    }
+
+    size_t UArmor::estimatedSize() const
+    {
+      size_t size = base::estimatedSize()
+        + sizeof(UArmor)
+        + onhitscript_.estimatedSize();
+      return size;
     }
   }
 }

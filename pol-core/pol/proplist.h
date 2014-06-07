@@ -44,6 +44,7 @@ namespace Pol {
 	  void copyprops( const PropertyList& proplist );
 	  void getpropnames( std::vector< std::string >& propnames ) const;
 	  void clear();
+      size_t estimatedSize() const;
 
 	  void printProperties( Clib::StreamWriter& sw ) const;
 	  void printProperties( Clib::ConfigElem& elem ) const;

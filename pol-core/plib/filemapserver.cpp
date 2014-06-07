@@ -50,9 +50,9 @@ namespace Pol {
 	  return _cur_mapblock.cell[xcell][ycell];
 	}
 
-    size_t FileMapServer::memorySize() const
+    size_t FileMapServer::sizeEstimate() const
     {
-      return sizeof( *this ) + MapServer::memorySize() + _mapfile.memorySize();
+      return sizeof( *this ) + MapServer::sizeEstimate() + _mapfile.sizeEstimate();
     }
   }
 }

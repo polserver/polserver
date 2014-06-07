@@ -61,6 +61,7 @@ namespace Pol {
 	  explicit ItemDesc( Type type );
 	  virtual ~ItemDesc();
 	  virtual void PopulateStruct( Bscript::BStruct* descriptor ) const;
+      virtual size_t estimatedSize() const;
 	  std::string objtype_description() const;
 	  bool default_movable() const;
 
@@ -129,6 +130,8 @@ namespace Pol {
 	public:
 	  ContainerDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg );
 	  virtual void PopulateStruct( Bscript::BStruct* descriptor ) const;
+      virtual ~ContainerDesc() {};
+      virtual size_t estimatedSize( ) const;
 
 	  // string name;
 	  // u16 objtype;
@@ -153,6 +156,8 @@ namespace Pol {
 	public:
 	  DoorDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg );
 	  virtual void PopulateStruct( Bscript::BStruct* descriptor ) const;
+      virtual ~DoorDesc( ) {};
+      virtual size_t estimatedSize( ) const;
 	  s16 xmod;
 	  s16 ymod;
 	  u16 open_graphic;
@@ -164,6 +169,8 @@ namespace Pol {
 	public:
 	  SpellbookDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg );
 	  virtual void PopulateStruct( Bscript::BStruct* descriptor ) const;
+      virtual ~SpellbookDesc( ) {};
+      virtual size_t estimatedSize( ) const;
 
 	  std::string spelltype;
 	};
@@ -174,6 +181,8 @@ namespace Pol {
 	public:
 	  SpellScrollDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg );
 	  virtual void PopulateStruct( Bscript::BStruct* descriptor ) const;
+      virtual ~SpellScrollDesc() {};
+      virtual size_t estimatedSize( ) const;
 
 	  std::string spelltype;
 	};
@@ -184,33 +193,40 @@ namespace Pol {
 	public:
 	  MultiDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::Package* pkg );
 	  virtual void PopulateStruct( Bscript::BStruct* descriptor ) const;
+      virtual ~MultiDesc() {};
+      virtual size_t estimatedSize( ) const;
 	};
 
-	class BoatDesc : public MultiDesc
-	{
-	  typedef MultiDesc base;
-	public:
-	  BoatDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg );
-	  virtual void PopulateStruct( Bscript::BStruct* descriptor ) const;
-	};
+    class BoatDesc : public MultiDesc
+    {
+      typedef MultiDesc base;
+    public:
+      BoatDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg );
+      virtual void PopulateStruct( Bscript::BStruct* descriptor ) const;
+      virtual ~BoatDesc() {};
+      virtual size_t estimatedSize() const;
+    };
 
-	class HouseDesc : public MultiDesc
-	{
-	  typedef MultiDesc base;
-	public:
-	  HouseDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg );
-	  virtual void PopulateStruct( Bscript::BStruct* descriptor ) const;
-	};
+    class HouseDesc : public MultiDesc
+    {
+      typedef MultiDesc base;
+    public:
+      HouseDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg );
+      virtual void PopulateStruct( Bscript::BStruct* descriptor ) const;
+      virtual ~HouseDesc() {};
+      virtual size_t estimatedSize() const;
+    };
 
-	class MapDesc : public ItemDesc
-	{
-	  typedef ItemDesc base;
-	public:
-	  MapDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg );
-	  virtual void PopulateStruct( Bscript::BStruct* descriptor ) const;
-
-	  bool editable;
-	};
+    class MapDesc : public ItemDesc
+    {
+      typedef ItemDesc base;
+    public:
+      MapDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg );
+      virtual void PopulateStruct( Bscript::BStruct* descriptor ) const;
+      virtual ~MapDesc( ) {};
+      virtual size_t estimatedSize() const;
+      bool editable;
+    };
 
 
 	const ItemDesc& find_itemdesc( unsigned int objtype );

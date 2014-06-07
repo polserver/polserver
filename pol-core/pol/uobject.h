@@ -283,6 +283,8 @@ namespace Pol {
 
 	  virtual const char *classname() const = 0;
 
+      virtual size_t estimatedSize() const;
+
 
 	  bool isa( UOBJ_CLASS uobj_class ) const;
 	  bool ismobile() const;

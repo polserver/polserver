@@ -146,5 +146,10 @@ namespace Pol {
 	  pkg_ = NULL;
 	}
 
+    size_t ScriptDef::estimatedSize() const
+    {
+      return sizeof(ScriptDef) + localname_.capacity() + name_.capacity();
+    }
+
   }
 }

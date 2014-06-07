@@ -60,6 +60,8 @@ namespace Pol {
 	  void AcceptHouseCommit( Mobile::Character* chr, bool accept );
 	  void CustomHousesQuit( Mobile::Character* chr, bool drop_changes );
 
+      virtual ~UHouse() {};
+      virtual size_t estimatedSize() const;
 
 	protected:
 	  explicit UHouse( const Items::ItemDesc& itemdesc );

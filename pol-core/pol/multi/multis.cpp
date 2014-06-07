@@ -119,5 +119,10 @@ namespace Pol {
 	  else
 		return NULL;
 	}
+
+    size_t UMulti::estimatedSize() const
+    {
+      return sizeof(UMulti)+base::estimatedSize();
+    }
   }
 }

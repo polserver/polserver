@@ -44,6 +44,7 @@ namespace Pol {
 	  bool stackable() const;
 
 	  virtual ~Item();
+      virtual size_t estimatedSize( ) const;
 
 	  virtual void double_click( Network::Client* client );
 	  virtual void builtin_on_use( Network::Client* client );

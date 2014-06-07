@@ -26,9 +26,12 @@ namespace Pol {
 	{
 	  typedef Equipment base;
 	public:
+      virtual ~UArmor() {};
 	  virtual unsigned short ar() const;
 	  virtual bool covers( unsigned short layer ) const;
 	  virtual Item* clone() const;
+      virtual size_t estimatedSize( ) const;
+
 	  void set_onhitscript( const std::string& scriptname );
 	  std::set<unsigned short> tmplzones();
 

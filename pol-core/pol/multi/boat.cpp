@@ -1781,6 +1781,15 @@ namespace Pol {
 	  Components.clear();
 	}
 
+    size_t UBoat::estimatedSize() const
+    {
+      size_t size = sizeof(UBoat)+base::estimatedSize()
+        // no estimateSize here element is in objhash
+        + 3 * sizeof(Traveller*)+travellers_.capacity() * sizeof(Traveller)
+        + 3 * sizeof(Items::Item**) + Components.capacity() * sizeof(Items::Item*);
+      return size;
+    }
+
 	Bscript::BObjectImp* destroy_boat( UBoat* boat )
 	{
 	  boat->cleanup_deck();

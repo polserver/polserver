@@ -23,7 +23,7 @@ namespace Pol {
 	  ~MapTileServer();
 
 	  MAPTILE_CELL GetMapTile( unsigned short x, unsigned short y );
-      size_t memorySize() const;
+      size_t sizeEstimate() const;
 	private:
 	  RealmDescriptor _descriptor;
 

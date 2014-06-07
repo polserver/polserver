@@ -85,6 +85,8 @@ namespace Pol {
        */
     void interrupt newcrit(PARAMS);
 #endif
+    // returns the current process size in bytes
+    size_t getCurrentMemoryUsage();
 
   }
 #define strzcpy Clib::stracpy
