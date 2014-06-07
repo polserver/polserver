@@ -1,5 +1,6 @@
 ﻿-- POL099 --
 06-07-2014 Tomi:
+  Fixed:    Changing cmdlevel with chr.cmdlevel := or chr.SetCmdLevel() sends updates correctly to see concealed characters
   Old Commits:
      Changed: pol.cfg MinCmdLevel checked already during the first accountlogin, so now it doesnt let those connections go all the way to char creation anymore.
      Fixed: Crash during character creation where equipment realm was not updated and pol crashed when unequipping/equipping.

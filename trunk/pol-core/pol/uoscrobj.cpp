@@ -1865,9 +1865,9 @@ namespace Pol {
 		  return new BLong( mountedsteps_ = static_cast<unsigned int>( value ) );
 		case MBR_CMDLEVEL:
 			if ( value >= static_cast<int>( Core::cmdlevels2.size() ) )
-				cmdlevel( static_cast<unsigned char>( Core::cmdlevels2.size() ) - 1 );
+				cmdlevel( static_cast<unsigned char>( Core::cmdlevels2.size() ) - 1, true );
 			else
-				cmdlevel( static_cast<unsigned char>( value ) );
+				cmdlevel( static_cast<unsigned char>( value ), true );
 			return new BLong( cmdlevel() );
 		case MBR_MURDERER:
 		  // make_murderer handles the updating
@@ -2243,7 +2243,7 @@ namespace Pol {
 			if ( pcmdlevel )
 			{
 			  set_dirty();
-			  cmdlevel( pcmdlevel->cmdlevel );
+			  cmdlevel( pcmdlevel->cmdlevel, true );
 			  return new BLong( 1 );
 			}
 			else
