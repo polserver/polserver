@@ -1375,7 +1375,7 @@ namespace Pol {
         } );
 
 		//dave added 2/3/3 send entered area events for npc create
-        Core::WorldIterator<Core::NPCFilter>::InRange( x, y, realm, 32, [&]( Character* chr )
+        Core::WorldIterator<Core::MobileFilter>::InRange( x, y, realm, 32, [&]( Character* chr )
         {
           NpcPropagateMove( chr, npc.get() );
         } );
@@ -1424,10 +1424,10 @@ namespace Pol {
 	  if ( getItemParam( exec, 0, item ) &&
 		   getParam( 1, amount, 1, item->itemdesc().stack_limit ) )
 	  {
-		if ( item->inuse() && !is_reserved_to_me( item ) )
-		{
-		  return new BError( "That item is being used." );
-		}
+		if ( item->gotten_by != NULL )
+			item->gotten_by->clear_gotten_item();
+		else if ( item->inuse() && !is_reserved_to_me( item ) )
+	 		return new BError( "That item is being used." );
 		subtract_amount_from_item( item, amount );
 		return new BLong( 1 );
 	  }
@@ -2953,17 +2953,10 @@ namespace Pol {
 	  Item* item;
 	  if ( getItemParam( exec, 0, item ) )
 	  {
-		if ( item->inuse() )
-		{
-		  if ( !is_reserved_to_me( item ) )
-		  {
-			return new BError( "That item is reserved." );
-		  }
-		  else if ( item->is_gotten() )
-		  {
-			return new BError( "That item is 'gotten'." );
-		  }
-		}
+		if ( item->gotten_by != NULL )
+			item->gotten_by->clear_gotten_item();
+		else if ( item->inuse() && !is_reserved_to_me( item ) )
+	 		return new BError( "That item is being used." );
 
 		const ItemDesc& id = find_itemdesc( item->objtype_ );
 		if ( !id.destroy_script.empty() )

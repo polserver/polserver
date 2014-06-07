@@ -3762,7 +3762,7 @@ namespace Pol {
 		lasty = 0;
 		//tellmove();
 
-        Core::WorldIterator<Core::NPCFilter>::InRange( x, y, realm, 32, [&]( Character* chr )
+        Core::WorldIterator<Core::MobileFilter>::InRange( x, y, realm, 32, [&]( Character* chr )
         {
           NpcPropagateMove( chr, this );
         } );
@@ -4121,14 +4121,14 @@ namespace Pol {
 	  // TO DO: Place in realm change support so npcs know when you enter/leave one?
       if ( Core::pol_distance( lastx, lasty, x, y ) > 32 )
 	  {
-        Core::WorldIterator<Core::NPCFilter>::InRange( lastx, lasty, realm, 32, [&]( Character* chr )
+        Core::WorldIterator<Core::MobileFilter>::InRange( lastx, lasty, realm, 32, [&]( Character* chr )
         {
           NpcPropagateMove( chr, this );
         } );
 	  }
 
 	  // Inform nearby NPCs that a movement has been made.
-      Core::WorldIterator<Core::NPCFilter>::InRange( x, y, realm, 33, [&]( Character* chr )
+      Core::WorldIterator<Core::MobileFilter>::InRange( x, y, realm, 33, [&]( Character* chr )
       {
         NpcPropagateMove( chr, this );
       } );

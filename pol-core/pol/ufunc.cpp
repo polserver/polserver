@@ -2335,6 +2335,8 @@ namespace Pol {
 	  {
 		if ( item->layer && chr_owner->is_equipped( item ) )
 		{
+		  item->check_unequiptest_scripts();
+		  item->check_unequip_script();			
 		  PktHelper::PacketOut<PktOut_1D> msgremove;
 		  msgremove->Write<u32>( item->serial_ext );
 		  transmit_to_inrange( item, &msgremove->buffer, msgremove->offset, false, false );

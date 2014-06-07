@@ -100,7 +100,7 @@ namespace Pol {
 	  {	// Realm and X Y Z change.
 		// 8-26-05  Austin
 		// Notify NPCs in the old realm that the player left the realm.
-        WorldIterator<NPCFilter>::InRange( chr->lastx, chr->lasty, oldrealm, 32, [&]( Character* zonechr ) { NpcPropagateLeftArea( zonechr, chr ); } );
+        WorldIterator<MobileFilter>::InRange( chr->lastx, chr->lasty, oldrealm, 32, [&]( Character* zonechr ) { NpcPropagateLeftArea( zonechr, chr ); } );
 
 		send_remove_character_to_nearby( chr );
 		if ( chr->client != NULL )
