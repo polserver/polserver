@@ -1,5 +1,12 @@
 ﻿-- POL099 --
 06-07-2014 Tomi:
+  Fixed:    using DestroyItem or SubtractAmount on an item 'gotten' it will now first release the item and then destroy it
+  Fixed:    NPCs looks for players for enter/leftarea events when, these were only looking for npcs 
+            - moved with MoveObjectToLocation function
+            - on every move
+            - unhide
+            - npc creation
+  Fixed:    Destroying an equipped item now calls unequip scripts
   Fixed:    Changing cmdlevel with chr.cmdlevel := or chr.SetCmdLevel() sends updates correctly to see concealed characters
   Old Commits:
      Changed: pol.cfg MinCmdLevel checked already during the first accountlogin, so now it doesnt let those connections go all the way to char creation anymore.
