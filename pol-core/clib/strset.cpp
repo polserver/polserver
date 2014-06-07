@@ -74,5 +74,16 @@ namespace Pol {
 	{
 	  return strings_.end();
 	}
+
+    size_t StringSet::estimatedSize() const
+    {
+      size_t size = sizeof( StringSet )
+        +3 * sizeof( void* );
+      for ( const auto& str : strings_ )
+      {
+        size += str.capacity() + 3 * sizeof( void* );
+      }
+      return size;
+    }
   }
 }

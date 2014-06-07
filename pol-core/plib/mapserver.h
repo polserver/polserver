@@ -26,7 +26,7 @@ namespace Pol {
 
 	  virtual MAPCELL GetMapCell( unsigned short x, unsigned short y ) const = 0;
 	  void GetMapShapes( MapShapeList& list, unsigned short x, unsigned short y, unsigned int anyflags ) const;
-      virtual size_t memorySize( ) const;
+      virtual size_t sizeEstimate( ) const;
 
 	protected:
 	  explicit MapServer( const RealmDescriptor& descriptor );

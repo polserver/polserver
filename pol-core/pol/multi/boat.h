@@ -51,6 +51,8 @@ namespace Pol {
 
 	public:
 	  virtual UBoat* as_boat();
+      virtual ~UBoat() {};
+      virtual size_t estimatedSize( ) const;
 
 	  bool move( Core::UFACING dir, u8 speed, bool relative );
 	  bool move_xy( unsigned short x, unsigned short y, int flags, Plib::Realm* oldrealm );

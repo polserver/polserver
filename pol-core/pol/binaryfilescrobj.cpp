@@ -56,6 +56,11 @@ namespace Pol {
 	  file.Close();
 	}
 
+    size_t BBinaryfile::sizeEstimate( ) const
+    {
+      return sizeof( *this ) + _filename.capacity();
+    }
+
 	Bscript::BObjectRef BBinaryfile::get_member_id( const int id )//id test
 	{
 	  return Bscript::BObjectRef( new Bscript::BLong( 0 ) );

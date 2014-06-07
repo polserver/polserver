@@ -781,7 +781,7 @@ namespace Pol {
 			  chr->repsys_on_help( targetted_chr );
 			}
 		  }
-		  chr->client->gd->target_cursor_uoemod->uoexec.ValueStack.top().set( new BObject( obj->make_ref() ) );
+		  chr->client->gd->target_cursor_uoemod->uoexec.ValueStack.back().set( new BObject( obj->make_ref() ) );
 		}
 		// even on cancel, we wake the script up.
 		chr->client->gd->target_cursor_uoemod->uoexec.os_module->revive();
@@ -928,7 +928,7 @@ namespace Pol {
 		  if ( multi != NULL )
 			arr->addMember( "multi", multi->make_ref() );
 
-		  chr->client->gd->target_cursor_uoemod->uoexec.ValueStack.top().set( new BObject( arr ) );
+		  chr->client->gd->target_cursor_uoemod->uoexec.ValueStack.back().set( new BObject( arr ) );
 
 		}
 
@@ -1599,7 +1599,7 @@ namespace Pol {
 			selection->addMember( "graphic", new BLong( mi->graphic_ ) );
 			selection->addMember( "index", new BLong( cfBEu16( msg->choice ) ) ); // this has been validated
 			selection->addMember( "color", new BLong( mi->color_ ) );
-			chr->client->gd->menu_selection_uoemod->uoexec.ValueStack.top().set( new BObject( selection ) );
+			chr->client->gd->menu_selection_uoemod->uoexec.ValueStack.back().set( new BObject( selection ) );
 		  }
 		  // 0 is already on the value stack, for the case of cancellation.
 		  chr->client->gd->menu_selection_uoemod->uoexec.os_module->revive();

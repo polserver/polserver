@@ -136,7 +136,7 @@ namespace Pol {
 	  {
 		const BObject& bkeyobj = elem.first;
 		const BObjectRef& bvalref = elem.second;
-		size += bkeyobj.sizeEstimate() + bvalref.sizeEstimate();
+        size += bkeyobj.sizeEstimate() + bvalref.sizeEstimate() + ( sizeof(void*)* 3 + 1 ) / 2;
 	  }
 	  return size;
 	}

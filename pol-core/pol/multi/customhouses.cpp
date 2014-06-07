@@ -96,6 +96,14 @@ namespace Pol {
 	CustomHouseDesign::~CustomHouseDesign()
 	{}
 
+    size_t CustomHouseDesign::estimatedSize() const
+    {
+      size_t size = sizeof( CustomHouseDesign );
+      for ( int i = 0; i < CUSTOM_HOUSE_NUM_PLANES; i++ )
+        size += Elements[i].estimatedSize();
+      return size;
+    }
+
 	//init the geometry of the design. the design cannot exist outside the multi foundation boundary (exception: front steps)
 	void CustomHouseDesign::InitDesign( u32 _height, u32 _width, s32 xoffset, s32 yoffset )
 	{

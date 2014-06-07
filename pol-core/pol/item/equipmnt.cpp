@@ -58,5 +58,10 @@ namespace Pol {
 		send_object_cache_to_inrange( this );
 	  }
 	}
+
+    size_t Equipment::estimatedSize() const
+    {
+      return sizeof(Equipment) + base::estimatedSize();
+    }
   }
 }

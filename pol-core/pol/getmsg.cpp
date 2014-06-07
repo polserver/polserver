@@ -63,7 +63,7 @@ namespace Pol {
           if ( ok )
           {
             Bscript::String* str = new Bscript::String( msg->text, textlen );
-            uoemod->uoexec.ValueStack.top().set( new Bscript::BObject( str ) );
+            uoemod->uoexec.ValueStack.back().set( new Bscript::BObject( str ) );
           }
         }
       }

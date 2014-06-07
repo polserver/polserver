@@ -39,6 +39,16 @@ namespace Pol {
 	  copyprops( props );
 	}
 
+    size_t PropertyList::estimatedSize() const
+    {
+      size_t size = sizeof( PropertyList );
+      for ( const auto& prop : properties )
+      {
+        size += prop.first.capacity( ) + prop.second.capacity( ) + ( sizeof(void*)* 3 + 1 ) / 2;
+      }
+      return size;
+    }
+
 
 	bool PropertyList::getprop( const string& propname, string& propval ) const
 	{

@@ -35,6 +35,8 @@ namespace Pol {
 	  virtual bool script_isa( unsigned isatype ) const;
 
 	  virtual Items::Item* clone() const; //dave 12-20
+      virtual ~ULockable() {};
+      virtual size_t estimatedSize( ) const;
 	protected:
 	  explicit ULockable( const Items::ItemDesc& itemdesc, UObject::UOBJ_CLASS uobj_class );
 	  friend class Items::Item;

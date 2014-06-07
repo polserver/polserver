@@ -108,6 +108,7 @@ Notes
 #include "../accounts/account.h"
 #include "../accounts/accounts.h"
 #include "../accounts/acscrobj.h"
+#include "../objecthash.h"
 
 #ifdef USE_SYSTEM_ZLIB
 #	include <zlib.h>
@@ -1215,11 +1216,11 @@ namespace Pol {
 
 	size_t BIntHash::sizeEstimate() const
 	{
-	  size_t size = sizeof( BIntHash );
-	  Contents::const_iterator itr, end;
-	  for ( itr = contents_.begin(), end = contents_.end(); itr != end; ++itr )
+      size_t size = sizeof(BIntHash)+
+        ( sizeof(int)+sizeof(BObjectRef)+( sizeof(void*)* 3 + 1 ) / 2 ) * contents_.size();
+      for ( const auto& p : contents_ )
 	  {
-		size += sizeof(int)+( *itr ).second.sizeEstimate();
+        size += p.second.sizeEstimate();
 	  }
 	  return size;
 	}
@@ -1319,7 +1320,7 @@ namespace Pol {
 
 	  msg.Send( client );
 
-	  uoemod->uoexec.ValueStack.top().set( new BObject( resp ) );
+	  uoemod->uoexec.ValueStack.back().set( new BObject( resp ) );
 	  clear_gumphandler( client, uoemod );
 
 	  return new BLong( 1 );
@@ -1420,7 +1421,7 @@ namespace Pol {
 	  if ( stridx + ( sizeof( PKTIN_B1::STRING_ENTRY ) - 1 ) * strings_count > msglen + 1u )
 	  {
         ERROR_PRINT << "Client (Account " << client->acct->name() << ", Character " << client->chr->name() << ") Blech! B1 message specified too many ints and/or strings!\n";
-		uoemod->uoexec.ValueStack.top().set( new BObject( new BError( "B1 message specified too many ints and/or strings." ) ) );
+		uoemod->uoexec.ValueStack.back().set( new BObject( new BError( "B1 message specified too many ints and/or strings." ) ) );
 		clear_gumphandler( client, uoemod );
 		return;
 	  }
@@ -1428,7 +1429,7 @@ namespace Pol {
 
 	  if ( ints_count == 0 && strings_count == 0 && hdr->gumpid == 0 )
 	  {
-		uoemod->uoexec.ValueStack.top().set( new BObject( new BLong( 0 ) ) );
+		uoemod->uoexec.ValueStack.back().set( new BObject( new BLong( 0 ) ) );
 	  }
 	  else
 	  {
@@ -1462,7 +1463,7 @@ namespace Pol {
 		  // oops we're throwing away tag!
 		  hash->add( cfBEu16( strentry->tag ), new String( str ) );
 		}
-		uoemod->uoexec.ValueStack.top().set( new BObject( hash.release() ) );
+		uoemod->uoexec.ValueStack.back().set( new BObject( hash.release() ) );
 	  }
 
 	  clear_gumphandler( client, uoemod );
@@ -1554,7 +1555,7 @@ namespace Pol {
 
 	  }
 
-	  client->gd->textentry_uoemod->uoexec.ValueStack.top().set( new BObject( resimp ) );
+	  client->gd->textentry_uoemod->uoexec.ValueStack.back().set( new BObject( resimp ) );
 	  client->gd->textentry_uoemod->uoexec.os_module->revive();
 	  client->gd->textentry_uoemod->textentry_chr = NULL;
 	  client->gd->textentry_uoemod = NULL;
@@ -1760,26 +1761,42 @@ namespace Pol {
     {
       // std::string footprint is ~ string.capacity()
       // std::vector footprint is ~ 3 * sizeof(T*) + vector.capacity() * sizeof( T );
-      // std::set footprint is ~ 3 * sizeof( void* ) + set.size() * ( sizeof(T)+3 * sizeof( set<T>::_Node ) + sizeof( void* ) );
+      // std::set footprint is ~ 3 * sizeof( void* ) + set.size() * ( sizeof(T)+3 * sizeof( void* ) );
       // std::map footprint is ~ ( sizeof(K)+sizeof( V ) + ( sizeof(void*) * 3 + 1 ) / 2 ) * map.size();
       bool needs_header = !Clib::FileExists( "log/memoryusage.log" );
       auto log = OPEN_FLEXLOG( "log/memoryusage.log" );
       if ( needs_header )
       {
-        FLEXLOG( log ) << "Time;RealmSize\n";
+        FLEXLOG( log ) << "Time;ProcessSize;RealmSize;ScriptSize;ObjSize\n";
       }
 
       size_t realmsize = 3 * sizeof(void*)+Core::Realms->capacity() * sizeof( void* );
       for ( const auto &realm : (*Core::Realms) )
       {
-        realmsize += realm->memorySize();
+        realmsize += realm->sizeEstimate();
       }
       realmsize += sizeof( Plib::Realm* ); // main_realm
       realmsize += sizeof( vector<Plib::Realm*>* ); // Realm
       realmsize += sizeof(unsigned int)* 2; // baserealm_count +shadowrealm_count
       // std::map estimate for shadowrealms_by_id
       realmsize += ( sizeof(int)+sizeof( Plib::Realm* ) + ( sizeof(void*)* 3 + 1 ) / 2 ) * shadowrealms_by_id.size();
-      FLEXLOG( log ) << GET_LOG_FILESTAMP << ";" << realmsize <<"\n";
+
+      
+      ObjectHash::OH_const_iterator hs_citr = objecthash.begin(), hs_cend = objecthash.end();
+      size_t objsize = 0;
+      for ( ; hs_citr != hs_cend; ++hs_citr )
+      {
+        objsize += ( sizeof(void*)* 3 + 1 ) / 2;
+        const UObjectRef& ref = ( *hs_citr ).second;
+        objsize += ref->estimatedSize();
+      }
+
+      FLEXLOG( log ) << GET_LOG_FILESTAMP << ";"
+        << Clib::getCurrentMemoryUsage() << ";"
+        << realmsize << ";" 
+        << sizeEstimate_scripts( ) << ";"
+        << objsize
+        << "\n";
       CLOSE_FLEXLOG( log );
     }
 
@@ -2002,7 +2019,7 @@ namespace Pol {
 		   client->gd != NULL &&
 		   client->gd->resurrect_uoemod != NULL )
 	  {
-		client->gd->resurrect_uoemod->uoexec.ValueStack.top().set( new BObject( new BLong( msg->choice ) ) );
+		client->gd->resurrect_uoemod->uoexec.ValueStack.back().set( new BObject( new BLong( msg->choice ) ) );
 		client->gd->resurrect_uoemod->uoexec.os_module->revive();
 		client->gd->resurrect_uoemod->resurrect_chr = NULL;
 		client->gd->resurrect_uoemod = NULL;
@@ -2052,8 +2069,8 @@ namespace Pol {
             << color;
 		}
 
-		//client->gd->selcolor_uoemod->uoexec.ValueStack.top().set( new BObject( new BLong( color ) ) );
-		client->gd->selcolor_uoemod->uoexec.ValueStack.top().set( valstack );
+		//client->gd->selcolor_uoemod->uoexec.ValueStack.back().set( new BObject( new BLong( color ) ) );
+		client->gd->selcolor_uoemod->uoexec.ValueStack.back().set( valstack );
 		client->gd->selcolor_uoemod->uoexec.os_module->revive();
 		client->gd->selcolor_uoemod->selcolor_chr = NULL;
 		client->gd->selcolor_uoemod = NULL;

@@ -35,6 +35,7 @@ namespace Pol {
 	{
 	  typedef Equipment base;
 	public:
+      virtual ~UWeapon();
 
 	  unsigned short speed() const;
 	  unsigned short delay() const;
@@ -59,6 +60,7 @@ namespace Pol {
 	  void set_hit_script( const std::string& scriptname );
 
 	  virtual Item* clone() const;
+      virtual size_t estimatedSize() const;
 
 	protected:
 	  virtual void printProperties( Clib::StreamWriter& sw ) const;
@@ -74,7 +76,6 @@ namespace Pol {
 	  virtual Bscript::BObjectImp* set_script_member_id_double( const int id, double value ); //id test
 	  virtual bool script_isa( unsigned isatype ) const;
 	  UWeapon( const WeaponDesc& descriptor, const WeaponDesc* permanent_descriptor );
-	  ~UWeapon();
 	  friend class Item;
 	  friend void load_data();
 	  friend UWeapon* create_intrinsic_weapon( const char* name, Clib::ConfigElem& elem, const Plib::Package* pkg );

@@ -222,6 +222,13 @@ namespace Pol {
 
 	}
 
+    size_t WeaponDesc::estimatedSize() const
+    {
+      return base::estimatedSize()
+        + sizeof(WeaponDesc)
+        + hit_script.estimatedSize();
+    }
+
 	typedef std::map<string, UWeapon*> IntrinsicWeapons;
 	IntrinsicWeapons intrinsic_weapons;
 	void load_npc_weapon_templates();
@@ -434,6 +441,22 @@ namespace Pol {
 		}
 	  }
 	}
+
+    size_t UWeapon::estimatedSize() const
+    {
+      size_t size = base::estimatedSize()
+        + sizeof( UWeapon )
+        + hit_script_.estimatedSize();
+      if ( is_intrinsic() && tmpl != NULL )
+      {
+        WeaponDesc* wd = const_cast<WeaponDesc*>( tmpl );
+        if ( !wd->is_pc_weapon )
+        {
+          size += wd->estimatedSize();
+        }
+      }
+      return size;
+    }
 
 	unsigned short UWeapon::speed() const
 	{

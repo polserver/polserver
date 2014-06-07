@@ -48,6 +48,8 @@ namespace Pol {
 	  typedef Mobile::Character base;
 	public:
 	  explicit NPC( u32 objtype, const Clib::ConfigElem& elem );
+      virtual ~NPC();
+      virtual size_t estimatedSize() const;
 
 	  virtual void on_death( Items::Item* corpse );
 	  virtual void on_give_item();
@@ -140,7 +142,6 @@ namespace Pol {
 	  friend class RepSystem;
 
 	private:
-	  virtual ~NPC();
 	  std::string script;
 
 	  unsigned short npc_ar_;

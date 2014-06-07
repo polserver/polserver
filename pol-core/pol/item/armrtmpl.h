@@ -27,7 +27,9 @@ namespace Pol {
 	  //ArmorTemplate();
 	  typedef EquipDesc base;
 	  ArmorDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg );
+      virtual ~ArmorDesc() {};
 	  virtual void PopulateStruct( Bscript::BStruct* descriptor ) const;
+      virtual size_t estimatedSize( ) const;
 
 	  unsigned short ar;
 	  std::set<unsigned short> zones;

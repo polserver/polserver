@@ -26,7 +26,7 @@ namespace Pol {
 
 	  bool findstatic( unsigned short x, unsigned short y, unsigned short objtype ) const;
 	  void getstatics( StaticEntryList& statics, unsigned short x, unsigned short y ) const;
-      size_t memorySize() const;
+      size_t sizeEstimate() const;
 	protected:
 	  void Validate() const;
 	  void ValidateBlock( unsigned short x, unsigned short y ) const;

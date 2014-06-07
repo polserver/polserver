@@ -37,6 +37,8 @@ namespace Pol {
 	  const_iterator begin() const;
 	  const_iterator end() const;
 
+      size_t estimatedSize() const;
+
 	private:
 	  std::set<std::string> strings_;
 	};

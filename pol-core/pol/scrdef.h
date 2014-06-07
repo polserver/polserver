@@ -50,7 +50,7 @@ namespace Pol {
 	  bool exists() const;
 
 	  std::string relativename( const Plib::Package* pkg = NULL ) const;
-
+      size_t estimatedSize() const;
 	private:
 	  std::string localname_;
 	  std::string name_;

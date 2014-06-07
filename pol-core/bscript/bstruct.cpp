@@ -180,12 +180,12 @@ namespace Pol {
 
 	size_t BStruct::sizeEstimate() const
 	{
-	  size_t size = sizeof( BStruct );
+      size_t size = sizeof( BStruct );
 	  for ( const auto &elem : contents_ )
 	  {
 		const string& bkey = elem.first;
 		const BObjectRef& bvalref = elem.second;
-		size += bkey.size() + bvalref.sizeEstimate();
+        size += bkey.capacity( ) + bvalref.sizeEstimate( ) + ( sizeof(void*)* 3 + 1 ) / 2;
 	  }
 	  return size;
 	}

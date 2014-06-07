@@ -123,7 +123,7 @@ namespace Pol {
         }
       }
 
-      uniemod->exec.ValueStack.top().set( valstack ); // error or struct, regardless.
+      uniemod->exec.ValueStack.back().set( valstack ); // error or struct, regardless.
       uniemod->os_module->revive();
       uniemod->prompt_chr = NULL;
       client->gd->prompt_uniemod = NULL;

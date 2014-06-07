@@ -44,9 +44,9 @@ namespace Pol {
 	  return mapblock.cell[xcell][ycell];
 	}
 
-    size_t InMemoryMapServer::memorySize( ) const
+    size_t InMemoryMapServer::sizeEstimate( ) const
     {
-      size_t size = sizeof( *this ) + MapServer::memorySize();
+      size_t size = sizeof( *this ) + MapServer::sizeEstimate();
       size += 3 * sizeof(MAPBLOCK*)+_mapblocks.capacity() * sizeof( MAPBLOCK );
       return size;
     }

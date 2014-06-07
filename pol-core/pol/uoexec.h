@@ -25,10 +25,12 @@ namespace Pol {
 
 	class UOExecutor : public Bscript::Executor
 	{
+      typedef Bscript::Executor base;
 	public:
 	  Module::OSExecutorModule* os_module;
 	  UOExecutor();
 	  virtual ~UOExecutor();
+      virtual size_t sizeEstimate() const;
 
 	  std::string state();
 
