@@ -328,5 +328,8 @@
     <ClInclude Include="..\..\lib\StackWalker\StackWalker.h">
       <Filter>stackwalker</Filter>
     </ClInclude>
+    <ClInclude Include="compilerspecifics.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

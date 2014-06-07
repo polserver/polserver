@@ -363,8 +363,7 @@ unsigned short ConfigElem::remove_ushort( const char *propname )
     }
     else
     {
-        prop_not_found( propname );
-        return 0; // this is not reached, prop_not_found throws
+        prop_not_found( propname ); // prop_not_found throws
     }
 }
 
@@ -507,8 +506,7 @@ unsigned int ConfigElem::remove_ulong( const char *propname )
     }
     else
     {
-        prop_not_found( propname );
-        return 0; // this is not reached, prop_not_found throws
+        prop_not_found( propname ); // prop_not_found throws
     }
 }
 
@@ -1091,8 +1089,7 @@ bool ConfigFile::read( ConfigElem& elem )
     }
     catch( ... ) 
     {
-        display_and_rethrow_exception();
-        return false;
+        display_and_rethrow_exception(); // throws and doesn't return
     }
 }
 
