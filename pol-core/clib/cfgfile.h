@@ -28,6 +28,7 @@ Notes
 #include <vector>
 
 #include "maputil.h"
+#include "compilerspecifics.h"
 
 namespace Pol {
   namespace Clib {
@@ -75,7 +76,7 @@ namespace Pol {
 						  bool show_curline = true,
 						  const ConfigElemBase* elem = NULL,
 						  bool error = true ) const;
-	  void display_and_rethrow_exception();
+	  POL_NORETURN void display_and_rethrow_exception();
 	  void register_allowed_type( const char* allowed_type );
 
 	private:

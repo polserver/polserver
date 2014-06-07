@@ -112,7 +112,7 @@
       <AssemblerListingLocation>.\Release/</AssemblerListingLocation>
       <ObjectFileName>.\Release/</ObjectFileName>
       <ProgramDataBaseFileName>.\Release/</ProgramDataBaseFileName>
-      <WarningLevel>Level1</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
@@ -141,7 +141,7 @@
       <AssemblerListingLocation>.\Release/x64/</AssemblerListingLocation>
       <ObjectFileName>.\Release/x64/</ObjectFileName>
       <ProgramDataBaseFileName>.\Release/x64/</ProgramDataBaseFileName>
-      <WarningLevel>Level1</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
@@ -171,7 +171,7 @@
       <AssemblerListingLocation>.\Debug/</AssemblerListingLocation>
       <ObjectFileName>.\Debug/</ObjectFileName>
       <ProgramDataBaseFileName>.\Debug/</ProgramDataBaseFileName>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
@@ -200,7 +200,7 @@
       <AssemblerListingLocation>.\Debug/x64/</AssemblerListingLocation>
       <ObjectFileName>.\Debug/x64/</ObjectFileName>
       <ProgramDataBaseFileName>.\Debug/x64/</ProgramDataBaseFileName>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
@@ -282,6 +282,7 @@
     <ClInclude Include="clibopt.h" />
     <ClInclude Include="cmdargs.h" />
     <ClInclude Include="compileassert.h" />
+    <ClInclude Include="compilerspecifics.h" />
     <ClInclude Include="dirfunc.h" />
     <ClInclude Include="dirlist.h" />
     <ClInclude Include="endian.h" />
