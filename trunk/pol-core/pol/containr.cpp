@@ -75,6 +75,14 @@ namespace Pol {
 	  passert_always( contents_.empty() );
 	}
 
+    size_t UContainer::estimatedSize() const
+    {
+      size_t size = base::estimatedSize() + sizeof(UContainer)
+        // no estimateSize here element is in objhash
+        +3 * sizeof( Items::Item** ) + contents_.capacity() * sizeof( Items::Item* );
+      return size;
+    }
+
 	void UContainer::destroy_contents()
 	{
 	  while ( !contents_.empty() )
@@ -995,6 +1003,11 @@ namespace Pol {
 	//    chr_owner(NULL)
 	//{
 	//}
+
+    size_t WornItemsContainer::estimatedSize() const
+    {
+      return sizeof(WornItemsContainer)+base::estimatedSize();
+    }
 
 
 	void WornItemsContainer::for_each_item( void( *f )( Items::Item* item, void* a ), void* arg )

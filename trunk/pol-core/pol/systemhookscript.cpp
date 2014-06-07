@@ -118,8 +118,8 @@ namespace Pol {
 		  istrue = false;
 		else
 		{
-		  istrue = uoexec.ValueStack.top().get()->isTrue();
-		  uoexec.ValueStack.pop();
+		  istrue = uoexec.ValueStack.back().get()->isTrue();
+		  uoexec.ValueStack.pop_back();
 		}
 
 		// delete current state and reenable backup
@@ -160,8 +160,8 @@ namespace Pol {
 		  istrue = false;
 		else
 		{
-		  istrue = uoexec.ValueStack.top().get()->isTrue();
-		  uoexec.ValueStack.pop();
+		  istrue = uoexec.ValueStack.back().get()->isTrue();
+		  uoexec.ValueStack.pop_back();
 		}
 
 		// delete current state and reenable backup
@@ -200,8 +200,8 @@ namespace Pol {
 		  istrue = false;
 		else
 		{
-		  istrue = uoexec.ValueStack.top().get()->isTrue();
-		  uoexec.ValueStack.pop();
+		  istrue = uoexec.ValueStack.back().get()->isTrue();
+		  uoexec.ValueStack.pop_back();
 		}
 
 		// delete current state and reenable backup
@@ -238,8 +238,8 @@ namespace Pol {
 		  istrue = false;
 		else
 		{
-		  istrue = uoexec.ValueStack.top().get()->isTrue();
-		  uoexec.ValueStack.pop();
+		  istrue = uoexec.ValueStack.back().get()->isTrue();
+		  uoexec.ValueStack.pop_back();
 		}
 
 		// delete current state and reenable backup
@@ -277,8 +277,8 @@ namespace Pol {
 		  ret = "error";
 		else
 		{
-		  ret = uoexec.ValueStack.top().get()->impptr()->getStringRep();
-		  uoexec.ValueStack.pop();
+		  ret = uoexec.ValueStack.back().get()->impptr()->getStringRep();
+		  uoexec.ValueStack.pop_back();
 		}
 
 		// delete current state and reenable backup
@@ -318,8 +318,8 @@ namespace Pol {
 		  ret = "error";
 		else
 		{
-		  ret = uoexec.ValueStack.top().get()->impptr()->getStringRep();
-		  uoexec.ValueStack.pop();
+		  ret = uoexec.ValueStack.back().get()->impptr()->getStringRep();
+		  uoexec.ValueStack.pop_back();
 		}
 
 		// delete current state and reenable backup
@@ -357,7 +357,7 @@ namespace Pol {
 		  ret = 0;
 		else
 		{
-		  BObjectImp* imp = uoexec.ValueStack.top().get()->impptr();
+		  BObjectImp* imp = uoexec.ValueStack.back().get()->impptr();
 		  if ( imp->isa( BObjectImp::OTLong ) )
 		  {
 			BLong* pLong = static_cast<BLong*>( imp );
@@ -367,7 +367,7 @@ namespace Pol {
 		  {
 			ret = 0;
 		  }
-		  uoexec.ValueStack.pop();
+		  uoexec.ValueStack.pop_back();
 		}
 
 		// delete current state and reenable backup
@@ -406,7 +406,7 @@ namespace Pol {
 		  ret = 0;
 		else
 		{
-		  BObjectImp* imp = uoexec.ValueStack.top().get()->impptr();
+		  BObjectImp* imp = uoexec.ValueStack.back().get()->impptr();
 		  if ( imp->isa( BObjectImp::OTLong ) )
 		  {
 			BLong* pLong = static_cast<BLong*>( imp );
@@ -416,7 +416,7 @@ namespace Pol {
 		  {
 			ret = 0;
 		  }
-		  uoexec.ValueStack.pop();
+		  uoexec.ValueStack.pop_back();
 		}
 
 		// delete current state and reenable backup
@@ -459,8 +459,8 @@ namespace Pol {
 		  ret = new BError( "There was no return value??" );
 		else
 		{
-		  ret = uoexec.ValueStack.top()->impptr()->copy();
-		  uoexec.ValueStack.pop();
+		  ret = uoexec.ValueStack.back()->impptr()->copy();
+		  uoexec.ValueStack.pop_back();
 		}
 
 		// delete current state and reenable backup
@@ -502,8 +502,8 @@ namespace Pol {
 		  ret = new BError( "There was no return value??" );
 		else
 		{
-		  ret = uoexec.ValueStack.top()->impptr()->copy();
-		  uoexec.ValueStack.pop();
+		  ret = uoexec.ValueStack.back()->impptr()->copy();
+		  uoexec.ValueStack.pop_back();
 		}
 
 		// delete current state and reenable backup
@@ -542,8 +542,8 @@ namespace Pol {
 		  ret = new BError( "There was no return value??" );
 		else
 		{
-		  ret = uoexec.ValueStack.top()->impptr()->copy();
-		  uoexec.ValueStack.pop();
+		  ret = uoexec.ValueStack.back()->impptr()->copy();
+		  uoexec.ValueStack.pop_back();
 		}
 
 		// delete current state and reenable backup
@@ -582,8 +582,8 @@ namespace Pol {
 		  ret = new BError( "There was no return value??" );
 		else
 		{
-		  ret = uoexec.ValueStack.top()->impptr()->copy();
-		  uoexec.ValueStack.pop();
+		  ret = uoexec.ValueStack.back()->impptr()->copy();
+		  uoexec.ValueStack.pop_back();
 		}
 
 		// delete current state and reenable backup
@@ -604,8 +604,8 @@ namespace Pol {
 		backup.PC = uoexec.PC;
 		while ( !uoexec.ValueStack.empty() )
 		{
-		  backup.ValueStack.push( uoexec.ValueStack.top() );
-		  uoexec.ValueStack.pop();
+		  backup.ValueStack.push_back( uoexec.ValueStack.back() );
+		  uoexec.ValueStack.pop_back();
 		}
 		if ( ( uoexec.Locals2 != NULL ) && ( !uoexec.Locals2->empty() ) )
 		{
@@ -624,8 +624,8 @@ namespace Pol {
 		uoexec.initForFnCall( backup.PC );
 		while ( !backup.ValueStack.empty() )
 		{
-		  uoexec.ValueStack.push( backup.ValueStack.top() );
-		  backup.ValueStack.pop();
+		  uoexec.ValueStack.push_back( backup.ValueStack.back() );
+		  backup.ValueStack.pop_back();
 		}
 		if ( backup.Locals.get() != NULL )
 		{

@@ -20,6 +20,10 @@ Notes
 #ifdef _WIN32
 #	include <windows.h> // for GetModuleFileName
 #	include <crtdbg.h>
+#   include <psapi.h>
+#else
+#   include <unistd.h>
+#   include <sys/resource.h>
 #endif
 
 namespace Pol {
@@ -125,5 +129,29 @@ namespace Pol {
 	  xmain_exedir.erase( pos );
 	  xmain_exedir += "/";
 	}
+  }
+  namespace Clib  {
+
+    size_t getCurrentMemoryUsage( )
+    {
+#if defined(_WIN32)
+      PROCESS_MEMORY_COUNTERS info;
+      GetProcessMemoryInfo( GetCurrentProcess( ), &info, sizeof( info ) );
+      return (size_t)info.WorkingSetSize;
+
+#else
+      long rss = 0L;
+      FILE* fp = NULL;
+      if ( ( fp = fopen( "/proc/self/statm", "r" ) ) == NULL )
+        return (size_t)0L;		/* Can't open? */
+      if ( fscanf( fp, "%*s%ld", &rss ) != 1 )
+      {
+        fclose( fp );
+        return (size_t)0L;		/* Can't read? */
+      }
+      fclose( fp );
+      return (size_t)rss * (size_t)sysconf( _SC_PAGESIZE );
+#endif
+    }
   }
 }

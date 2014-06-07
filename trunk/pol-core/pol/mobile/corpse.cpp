@@ -99,6 +99,14 @@ namespace Pol {
 	  take_contents_to_grave = elem.remove_bool( "TakeContentsToGrave", false );
 	  movable_ = false;
 	}
+
+    size_t UCorpse::estimatedSize( ) const
+    {
+      size_t size = base::estimatedSize( ) + sizeof(UCorpse)
+        // no estimateSize here element is in objhash
+        +3 * sizeof( Items::Item** ) + layer_list_.capacity( ) * sizeof( Items::Item* );
+      return size;
+    }
   }
 }
 

@@ -4382,5 +4382,32 @@ namespace Pol {
     {
       _last_textcolor = color;
     }
+
+    size_t Character::estimatedSize() const
+    {
+      size_t size = sizeof(Character)+base::estimatedSize()
+        + uclang.capacity() + title_prefix.capacity() + title_suffix.capacity()
+        + title_guild.capacity() + title_race.capacity()
+        + privs.estimatedSize() + settings.estimatedSize();
+
+      size += 3 * sizeof(AttributeValue*)+attributes.capacity() * sizeof( AttributeValue );
+      size += 3 * sizeof(VitalValue*)+vitals.capacity() * sizeof( VitalValue );
+      size += 3 * sizeof( Items::UArmor** ) + armor_.capacity() * sizeof( Items::UArmor* );
+      size += 3 * sizeof( Core::ItemRef* ) + remote_containers_.capacity() * sizeof( Core::ItemRef );
+
+      for ( const auto& mob : aggressor_to_ )
+      {
+        size += sizeof( mob.first ) + sizeof( mob.second ) + ( sizeof(void*)* 3 + 1 ) / 2;
+      }
+      for ( const auto& mob : lawfully_damaged_ )
+      {
+        size += sizeof( mob.first ) + sizeof( mob.second ) + ( sizeof(void*)* 3 + 1 ) / 2;
+      }
+
+      size += 3 * sizeof(void*)+to_be_reportable_.size( ) * ( sizeof(USERIAL)+3 * sizeof( void* ) );
+      size += 3 * sizeof(void*)+reportable_.size( ) * ( sizeof(reportable_t)+3 * sizeof( void* ) );
+
+      return size;
+    }
   }
 }

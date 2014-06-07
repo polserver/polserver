@@ -82,7 +82,7 @@ namespace Pol {
 	  delete[] zone;
 	}
 
-    size_t Realm::memorySize() const
+    size_t Realm::sizeEstimate() const
     {
       size_t size = sizeof( *this );
       size += shadowname.capacity();
@@ -107,11 +107,11 @@ namespace Pol {
       }
 
       // estimated set footprint
-      size += 3 * sizeof( void* ) + global_hulls.size() * ( sizeof(unsigned int)+3 * sizeof( set<unsigned int>::_Node ) + sizeof( void* ) );
-      size += _descriptor.memorySize()
-        + ((!_mapserver) ? 0 : _mapserver->memorySize())
-        + ((!_staticserver) ? 0 : _staticserver->memorySize())
-        + ((!_maptileserver) ? 0 : _maptileserver->memorySize());
+      size += 3 * sizeof(void*)+global_hulls.size( ) * ( sizeof(unsigned int)+3 * sizeof( void* ) );
+      size += _descriptor.sizeEstimate()
+        + ((!_mapserver) ? 0 : _mapserver->sizeEstimate())
+        + ((!_staticserver) ? 0 : _staticserver->sizeEstimate())
+        + ((!_maptileserver) ? 0 : _maptileserver->sizeEstimate());
       return size;
     }
 

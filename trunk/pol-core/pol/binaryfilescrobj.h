@@ -71,7 +71,7 @@ namespace Pol {
 	  virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false );
 	  virtual Bscript::BObjectImp* copy() const;
 	  virtual std::string getStringRep() const;
-	  virtual size_t sizeEstimate() const { return 0; }
+      virtual size_t sizeEstimate() const;
 	  virtual const char* typeOf() const { return "BinaryFile"; }
 	  virtual int typeOfInt() const { return OTBinaryFile; }
 	  virtual bool isTrue() const;

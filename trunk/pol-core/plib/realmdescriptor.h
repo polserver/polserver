@@ -39,7 +39,7 @@ namespace Pol {
 		return ( name == rdesc.name && uomapid == rdesc.uomapid );
 	  }
 	  RealmDescriptor & operator=( const RealmDescriptor & ) { return *this; }
-      size_t memorySize() const;
+      size_t sizeEstimate() const;
 	private:
 	  RealmDescriptor( const std::string& realm_name, const std::string& realm_path, Clib::ConfigElem& elem );
 	};

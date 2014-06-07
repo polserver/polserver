@@ -55,7 +55,7 @@ namespace Pol {
       virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false );
 	  virtual Bscript::BObjectImp* copy() const;
 	  virtual std::string getStringRep() const;
-	  virtual size_t sizeEstimate() const { return sizeof( *this ); }
+      virtual size_t sizeEstimate( ) const { return sizeof( *this ) + _filename.capacity(); }
 	  virtual const char* typeOf() const { return "XMLFile"; }
 	  virtual int typeOfInt() const { return OTXMLFile; }
 	  virtual bool isTrue() const;
@@ -101,7 +101,7 @@ namespace Pol {
 
 	  virtual size_t sizeEstimate() const
 	  {
-		return sizeof( *this );
+        return sizeof( *this ) + sizeof( TiXmlNode );
 	  }
       Bscript::ContIterator* createIterator( Bscript::BObject* pIterVal )
 	  {

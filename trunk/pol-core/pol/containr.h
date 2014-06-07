@@ -67,6 +67,7 @@ namespace Pol {
 	public:
 	  typedef ULockable base;
 	  virtual ~UContainer();
+      virtual size_t estimatedSize( ) const;
 
 	  virtual void destroy();
 	  void destroy_contents();
@@ -227,6 +228,8 @@ namespace Pol {
 	{
 	  typedef UContainer base;
 	public:
+      virtual ~UCorpse() {};
+      virtual size_t estimatedSize( ) const;
 	  virtual u16 get_senditem_amount() const;
 	  u16 corpsetype;
 	  bool take_contents_to_grave;
@@ -256,9 +259,12 @@ namespace Pol {
 
 	class WornItemsContainer : public UContainer
 	{
+      typedef UContainer base;
 	public:
 	  WornItemsContainer();
 	  //explicit WornItemsContainer(u16 objtype);
+      virtual ~WornItemsContainer() {};
+      virtual size_t estimatedSize( ) const;
 
 	  virtual Bscript::BObjectImp* make_ref();
 	  virtual Mobile::Character* get_chr_owner() { return chr_owner; };

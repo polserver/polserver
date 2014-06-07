@@ -26,6 +26,8 @@ namespace Pol {
 	  typedef Core::ULockable base;
 	public:
 	  void setboat( UBoat* boat );
+      virtual ~UPlank() {};
+      virtual size_t estimatedSize( ) const;
 	protected:
 	  explicit UPlank( const Items::ItemDesc& descriptor );
 	  friend Items::Item* Items::Item::create( const Items::ItemDesc& descriptor, u32 serial );

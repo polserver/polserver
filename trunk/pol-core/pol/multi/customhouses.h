@@ -94,6 +94,21 @@ namespace Pol {
 		width = _width;
 		data.resize( width );
 	  }
+      size_t estimatedSize() const
+      {
+        size_t size = sizeof( CustomHouseElements );
+        size += 3 * sizeof(HouseFloor*)+data.capacity() * sizeof( HouseFloor );
+        for ( const auto& floor : data )
+        {
+          size += 3 * sizeof( list<CUSTOM_HOUSE_ELEMENT>* ) + floor.capacity() * sizeof( list<CUSTOM_HOUSE_ELEMENT> );
+          for ( const auto& l : floor )
+          {
+            size += 3 * sizeof(CUSTOM_HOUSE_ELEMENT*)+l.size() * sizeof( CUSTOM_HOUSE_ELEMENT );
+
+          }
+        }
+        return size;
+      }
 
 	  HouseFloorZColumn* GetElementsAt( s32 xoffset, s32 yoffset );
 
@@ -111,6 +126,7 @@ namespace Pol {
 	  CustomHouseDesign();
 	  CustomHouseDesign( u32 _height, u32 _width, s32 xoffset, s32 yoffset );
 	  ~CustomHouseDesign();
+      size_t estimatedSize() const;
 	  void InitDesign( u32 _height, u32 _width, s32 xoffset, s32 yoffset );
 
 	  CustomHouseDesign& operator=( const CustomHouseDesign& design );

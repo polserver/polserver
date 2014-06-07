@@ -1152,5 +1152,11 @@ namespace Pol {
 		case ELEMENTAL_PHYSICAL: element_damage.physical = element_damage_.physical + element_damage_mod.physical; break;
 	  }
 	}
+
+    size_t NPC::estimatedSize() const
+    {
+      return sizeof(NPC) + base::estimatedSize()
+        + template_name.capacity() + script.capacity();
+    }
   }
 }

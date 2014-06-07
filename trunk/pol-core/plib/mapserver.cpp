@@ -163,10 +163,10 @@ namespace Pol {
 	  }
 	}
 
-    size_t MapServer::memorySize() const
+    size_t MapServer::sizeEstimate() const
     {
       size_t size = sizeof( *this );
-      size += _descriptor.memorySize();
+      size += _descriptor.sizeEstimate();
       size += 3 * sizeof(SOLIDX2_ELEM**)+_index1.capacity() * sizeof( SOLIDX2_ELEM* );
       size += 3 * sizeof(SOLIDX2_ELEM*)+_index2.capacity() * sizeof( SOLIDX2_ELEM );
       size += 3 * sizeof(SOLIDS_ELEM*)+_shapedata.capacity() * sizeof( SOLIDS_ELEM );

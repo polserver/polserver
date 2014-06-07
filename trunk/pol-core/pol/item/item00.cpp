@@ -89,5 +89,14 @@ namespace Pol {
       return_resources( objtype_, amount_ );
 	  //existing_items.erase( this );
 	}
+
+    size_t Item::estimatedSize() const
+    {
+      return base::estimatedSize()
+        + sizeof(Item)
+        + on_use_script_.capacity()
+        + equip_script_.capacity()
+        + unequip_script_.capacity();
+    }
   }
 }

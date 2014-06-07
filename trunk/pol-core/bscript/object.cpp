@@ -976,18 +976,16 @@ namespace Pol {
 	size_t ObjArray::sizeEstimate() const
 	{
 	  size_t size = sizeof( ObjArray );
-
+      size += 3 * sizeof(BObjectRef*)+ref_arr.capacity( ) * sizeof( BObjectRef );
 	  for ( const auto &elem : ref_arr )
 	  {
 		size += elem.sizeEstimate();
 	  }
-
-	  size += name_arr.size() * sizeof( string );
+      size += 3 * sizeof(string*)+name_arr.capacity( ) * sizeof( string );
 	  for ( const auto &elem : name_arr )
 	  {
 		size += elem.capacity();
 	  }
-
 	  return size;
 	}
 

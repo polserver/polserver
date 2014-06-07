@@ -88,5 +88,10 @@ namespace Pol {
 	  if ( is_open() )
 		toggle();
 	}
+
+    size_t UDoor::estimatedSize() const
+    {
+      return sizeof(UDoor)+base::estimatedSize();
+    }
   }
 }

@@ -61,6 +61,11 @@ namespace Pol {
 	Spellbook::~Spellbook()
 	{}
 
+    size_t Spellbook::estimatedSize( ) const
+    {
+      return sizeof(Spellbook)+base::estimatedSize( );
+    }
+
 	void Spellbook::double_click( Network::Client* client )
 	{
 	  if ( client->chr->is_equipped( this ) )
@@ -344,6 +349,10 @@ namespace Pol {
 		return amount_;
 	  }
 	}
+    size_t USpellScroll::estimatedSize( ) const
+    {
+      return sizeof(USpellScroll)+base::estimatedSize( );
+    }
 
     void Spellbook::send_book_old( Network::Client *client )
 	{

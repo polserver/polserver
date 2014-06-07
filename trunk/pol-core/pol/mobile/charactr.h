@@ -296,6 +296,7 @@ namespace Pol {
 	public:
 	  explicit Character( u32 objtype, UOBJ_CLASS uobj_class = CLASS_CHARACTER );
 	  virtual ~Character();
+      virtual size_t estimatedSize( ) const;
 
 
 	  // types:

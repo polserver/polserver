@@ -168,7 +168,7 @@ namespace Pol {
 		  return baserealm->_Descriptor();
 		return _descriptor;
 	  }
-      size_t memorySize() const;
+      size_t sizeEstimate() const;
 	};
 
   }

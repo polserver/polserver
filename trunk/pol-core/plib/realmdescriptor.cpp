@@ -58,7 +58,7 @@ namespace Pol {
 	  mapserver_type( "" )
 	{}
 
-    size_t RealmDescriptor::memorySize() const
+    size_t RealmDescriptor::sizeEstimate() const
     {
       size_t size = sizeof( *this );
       size += name.capacity() + file_path.capacity() + mapserver_type.capacity();

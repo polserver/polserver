@@ -50,10 +50,10 @@ namespace Pol {
 	  virtual u16 worldYtoGumpY( u16 worldy );
 
       virtual Items::Item* clone( ) const; //dave 12-20
+      virtual ~Map( );
+      virtual size_t estimatedSize( ) const;
 	protected:
       Map( const Items::MapDesc& mapdesc );
-	  virtual ~Map();
-
       friend Items::Item* Items::Item::create( const Items::ItemDesc& itemdesc, u32 serial );
 
 	  virtual void builtin_on_use( Network::Client* client );

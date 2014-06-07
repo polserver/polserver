@@ -639,6 +639,29 @@ namespace Pol {
 		return movable ? true : false;
 	}
 
+    size_t ItemDesc::estimatedSize() const
+    {
+      size_t size = sizeof(ItemDesc)
+        +objtypename.capacity()
+        + desc.capacity()
+        + tooltip.capacity()
+        + equip_script.capacity()
+        + unequip_script.capacity()
+        + walk_on_script.estimatedSize()
+        + on_use_script.estimatedSize()
+        + control_script.estimatedSize()
+        + create_script.estimatedSize()
+        + destroy_script.estimatedSize()
+        + 3 * sizeof(ResourceComponent*)+resources.capacity() * sizeof(ResourceComponent)
+        +props.estimatedSize();
+      size += 3 * sizeof( void* );
+      for ( const auto& ignore : ignore_cprops )
+      {
+        size += ignore.capacity( ) + 3 * sizeof( void* );
+      }
+      return size;
+    }
+
 	ContainerDesc::ContainerDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg ) :
 	  ItemDesc( objtype, elem, CONTAINERDESC, pkg ),
 	  gump( elem.remove_ushort( "GUMP" ) ),
@@ -681,6 +704,15 @@ namespace Pol {
 	  descriptor->addMember( "OnRemoveScript", new String( on_remove_script.relativename( pkg ) ) );
 	}
 
+    size_t ContainerDesc::estimatedSize() const
+    {
+      return sizeof(ContainerDesc)+base::estimatedSize()
+        + can_insert_script.estimatedSize()
+        + on_insert_script.estimatedSize()
+        + can_remove_script.estimatedSize()
+        + on_remove_script.estimatedSize();
+    }
+
 	DoorDesc::DoorDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg ) :
 	  ItemDesc( objtype, elem, DOORDESC, pkg ),
 	  xmod( static_cast<s16>( elem.remove_int( "XMOD" ) ) ),
@@ -695,6 +727,10 @@ namespace Pol {
       descriptor->addMember( "YMod", new Bscript::BLong( ymod ) );
       descriptor->addMember( "OpenGraphic", new Bscript::BLong( open_graphic ) );
 	}
+    size_t DoorDesc::estimatedSize( ) const
+    {
+      return sizeof(DoorDesc)+base::estimatedSize();
+    }
 
 	SpellbookDesc::SpellbookDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg ) :
 	  ContainerDesc( objtype, elem, pkg ),
@@ -709,6 +745,11 @@ namespace Pol {
       descriptor->addMember( "Spelltype", new Bscript::String( spelltype ) );
 	}
 
+    size_t SpellbookDesc::estimatedSize( ) const
+    {
+      return sizeof(SpellbookDesc)+base::estimatedSize( ) + spelltype.capacity();
+    }
+
     SpellScrollDesc::SpellScrollDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg ) :
 	  ItemDesc( objtype, elem, SPELLSCROLLDESC, pkg ),
 	  spelltype( elem.remove_string( "SPELLTYPE" ) )
@@ -719,6 +760,11 @@ namespace Pol {
 	  base::PopulateStruct( descriptor );
       descriptor->addMember( "Spelltype", new Bscript::String( spelltype ) );
 	}
+
+    size_t SpellScrollDesc::estimatedSize() const
+    {
+      return sizeof(SpellScrollDesc)+base::estimatedSize() + spelltype.capacity();
+    }
 
     MultiDesc::MultiDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::Package* pkg ) :
 	  ItemDesc( objtype, elem, type, pkg )
@@ -735,6 +781,10 @@ namespace Pol {
 	{
 	  base::PopulateStruct( descriptor );
 	}
+    size_t MultiDesc::estimatedSize( ) const
+    {
+      return sizeof(MultiDesc)+base::estimatedSize();
+    }
 
     BoatDesc::BoatDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg ) :
 	  MultiDesc( objtype, elem, BOATDESC, pkg )
@@ -744,6 +794,10 @@ namespace Pol {
 	{
 	  base::PopulateStruct( descriptor );
 	}
+    size_t BoatDesc::estimatedSize( ) const
+    {
+      return sizeof(BoatDesc)+base::estimatedSize( );
+    }
 
     HouseDesc::HouseDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg ) :
 	  MultiDesc( objtype, elem, HOUSEDESC, pkg )
@@ -753,6 +807,10 @@ namespace Pol {
 	{
 	  base::PopulateStruct( descriptor );
 	}
+    size_t HouseDesc::estimatedSize() const
+    {
+      return sizeof(HouseDesc)+base::estimatedSize();
+    }
 
     MapDesc::MapDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg ) :
 	  ItemDesc( objtype, elem, MAPDESC, pkg ),
@@ -764,6 +822,10 @@ namespace Pol {
 	  base::PopulateStruct( descriptor );
       descriptor->addMember( "Editable", new Bscript::BLong( editable ) );
 	}
+    size_t MapDesc::estimatedSize() const
+    {
+      return sizeof(MapDesc)+base::estimatedSize();
+    }
 
 	bool objtype_is_lockable( u32 objtype )
 	{

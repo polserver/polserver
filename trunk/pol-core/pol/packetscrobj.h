@@ -35,7 +35,7 @@ namespace Pol {
 	  virtual std::string getStringRep() const;
 	  bool SetSize( u16 newsize );
 	  Bscript::BObjectImp* SetSize( u16 newsize, bool giveReturn );
-	  virtual size_t sizeEstimate() const { return buffer.size(); }
+      virtual size_t sizeEstimate( ) const { return sizeof( *this ) + 3 * sizeof(void*) * buffer.capacity( ) * sizeof( unsigned char ); }
 	  virtual const char* typeOf() const { return "Packet"; }
 	  virtual int typeOfInt() const { return OTPacket; }
 
