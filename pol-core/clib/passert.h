@@ -12,20 +12,7 @@ Notes
 #ifndef CLIB_PASSERT_H
 #define CLIB_PASSERT_H
 
-
-
-// Fix for VS CodeAnalysis
-#ifdef _MSC_VER
-
-#include <CodeAnalysis/sourceannotations.h>
-#define passert_assume(x) __analysis_assume(x)
-
-#else
-
-#define passert_assume(x)
-
-#endif
-
+#include "compilerspecifics.h"
 
 #ifndef INC_PASSERT
 #	define INC_PASSERT 0
@@ -59,21 +46,11 @@ namespace Pol {
     //#endif
 
 #undef  passert
-#ifndef CLANG_ANALYZER_NORETURN
-# ifndef __has_feature
-#  define __has_feature(x) 0
-# endif
-# if __has_feature(attribute_analyzer_noreturn)
-#  define CLANG_ANALYZER_NORETURN __attribute__((analyzer_noreturn))
-# else
-#  define CLANG_ANALYZER_NORETURN
-# endif
-#endif
 
-    void force_backtrace(bool complete = false);
+	void force_backtrace(bool complete = false);
 
-    void passert_failed( const char *expr, const char *file, unsigned line ) CLANG_ANALYZER_NORETURN;
-    void passert_failed( const char *expr, const std::string& reason, const char *file, unsigned line ) CLANG_ANALYZER_NORETURN;
+    POL_NORETURN void passert_failed( const char *expr, const char *file, unsigned line );
+    POL_NORETURN void passert_failed( const char *expr, const std::string& reason, const char *file, unsigned line );
   }
 #if  INC_PASSERT
 

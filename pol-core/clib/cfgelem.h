@@ -99,7 +99,7 @@ namespace Pol {
 	  void add_prop( const char *propname, unsigned short sval );
 	  void add_prop( const char *propname, short sval );
 
-	  void throw_error( const std::string& errmsg ) const CLANG_ANALYZER_NORETURN;
+	  POL_NORETURN void throw_error( const std::string& errmsg ) const;
 	  void warn( const std::string& errmsg ) const;
 	  void warn_with_line( const std::string& errmsg ) const;
 
@@ -108,7 +108,7 @@ namespace Pol {
 	  void set_source( const ConfigElem& elem );
 	  void set_source( const ConfigSource* source );
 	protected:
-	  void prop_not_found( const char *propname ) const;
+	  POL_NORETURN void prop_not_found( const char *propname ) const;
 	  typedef std::multimap<std::string, std::string, ci_cmp_pred> Props;
 	  Props properties;
 	};
@@ -160,13 +160,13 @@ namespace Pol {
 	  void add_prop( const char *propname, unsigned int lval );
 	  void add_prop( const char *propname, unsigned short sval );
 
-	  void throw_error( const std::string& errmsg ) const CLANG_ANALYZER_NORETURN;
+	  POL_NORETURN void throw_error( const std::string& errmsg ) const;
 	  void warn( const std::string& errmsg ) const;
 
 	  void set_rest( const char* newrest );
 	  void set_source( const ConfigElem& elem );
 	protected:
-	  void prop_not_found( const char *propname ) const;
+	  POL_NORETURN void prop_not_found( const char *propname ) const;
 	  std::string type_;
 	  std::string rest_;
 
