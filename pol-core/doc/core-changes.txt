@@ -1,4 +1,10 @@
 ﻿-- POL099 --
+06-07-2014 Tomi:
+  Old Commits:
+     Changed: pol.cfg MinCmdLevel checked already during the first accountlogin, so now it doesnt let those connections go all the way to char creation anymore.
+     Fixed: Crash during character creation where equipment realm was not updated and pol crashed when unequipping/equipping.
+     Fixed: Setting Enter/Left area event listening for npcs on range 32 did never send the left area on distance 33
+
 05-26-2014 Turley:
   Added:   character.last_textcolor readonly member returns last textcolor of the character. Values are between 2 and 1001. Returns 0 if not yet spoken.
            (will not be saved inside of the datafile)
