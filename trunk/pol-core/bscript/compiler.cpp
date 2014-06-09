@@ -2469,7 +2469,6 @@ namespace Pol {
 	  if ( funcName.id != TOK_IDENT )
 	  {
 		throw runtime_error( "Tried to declare a non-identifier" );
-		return -1;
 	  }
 	  Token lparen;
 	  res = getToken( ctx, lparen );
