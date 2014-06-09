@@ -294,8 +294,8 @@ namespace Pol {
 	  ps[1] = pszS2;
 	  ps[2] = pszS3;
 
-	  int iStr = 0;
-	  for( int i = 0; i < 3; i++ )
+	  WORD iStr = 0;
+	  for( WORD i = 0; i < 3; i++ )
 	  {
 		if( ps[i] != NULL ) iStr++;
 	  }
@@ -345,7 +345,7 @@ namespace Pol {
 	}
 
 	// static member function (callback)
-	void CNTService::ServiceMain( DWORD dwArgc, LPTSTR* lpszArgv )
+	void CNTService::ServiceMain( DWORD /*dwArgc*/, LPTSTR* /*lpszArgv*/ )
 	{
 	  // Get a pointer to the C++ object
 	  CNTService* pService = m_pThis;

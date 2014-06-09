@@ -89,7 +89,7 @@ namespace Pol {
       ~DynTaskThreadPool();
       void push( msg msg );
       std::future<bool> checked_push( msg msg );
-      unsigned int threadpoolsize() const;
+      size_t threadpoolsize() const;
     protected:
       bool _done;
     private:

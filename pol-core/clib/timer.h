@@ -25,7 +25,7 @@ namespace Pol {
 	struct SilentT
 	{
 	protected:
-	  static void print( const std::string &name, long long time )
+	  static void print( const std::string&, long long )
 	  {}
 	};
 
