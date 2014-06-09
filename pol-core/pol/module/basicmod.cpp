@@ -465,7 +465,7 @@ namespace Pol {
 	  {
 		ISTRINGSTREAM is( source );
 		string tmp;
-		size_t tellg;
+		std::streamoff tellg = -1;
 		bool splitted = false;
 
 		while ( is >> tmp )
