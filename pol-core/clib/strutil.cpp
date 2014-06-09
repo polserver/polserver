@@ -2,6 +2,7 @@
 History
 =======
 2009/09/12 MuadDib:   Disabled 4244 in this file due to it being on a string iter. Makes no sense.
+2014/06/10 Nando:	Removed pragma that disabled 4244. (tolower()/toupper() used ints because -1 is a valid output). 
 
 Notes
 =======
@@ -15,9 +16,8 @@ Notes
 #include "unittest.h"
 #include "logfacility.h"
 
-#ifdef _MSC_VER
-#	pragma warning( disable: 4244 )
-#endif
+#include <boost/algorithm/string/case_conv.hpp>
+
 namespace Pol {
   namespace Clib {
 	string hexint( unsigned short v )
@@ -260,35 +260,25 @@ namespace Pol {
 	}
 	UnitTest test_convertquotedstring_obj( test_convertquotedstring );
 
-
+	// If we have boost, I think we should use it...
 	void mklower( string& str )
 	{
-	  for( auto &elem : str )
-	  {
-		elem = tolower( elem );
-	  }
+		boost::to_lower(str);
 	}
 
 	void mkupper( string& str )
 	{
-	  for( auto &elem : str )
-	  {
-		elem = toupper( elem );
-	  }
+		boost::to_upper(str);
 	}
 
 	string strlower( const string& str )
 	{
-	  string tmp = str;
-	  mklower( tmp );
-	  return tmp;
+		return boost::to_lower_copy(str);
 	}
 
 	string strupper( const string& str )
 	{
-	  string tmp = str;
-	  mkupper( tmp );
-	  return tmp;
+		return boost::to_upper_copy(str);
 	}
   }
 }
