@@ -90,7 +90,7 @@ namespace Pol {
 	  if( _writer->size() ) *_stream << _writer->c_str();
 	}
 
-	void OStreamWriter::init( const std::string& filepath )
+	void OStreamWriter::init( const std::string& )
 	{}
 
 	void OStreamWriter::flush()

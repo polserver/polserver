@@ -587,7 +587,7 @@ namespace Pol {
       : _done( false ), _msg_queue( ), _pool_mutex( ), _name( "DynTaskPool"+name )
     {}
 
-    unsigned int DynTaskThreadPool::threadpoolsize() const
+    size_t DynTaskThreadPool::threadpoolsize() const
     {
       std::lock_guard<std::mutex> guard( _pool_mutex );
       return _threads.size();
@@ -603,7 +603,7 @@ namespace Pol {
         }
       }
       std::lock_guard<std::mutex> guard( _pool_mutex );
-      unsigned int thread_num = _threads.size();
+      size_t thread_num = _threads.size();
       _threads.emplace_back( new PoolWorker( this, _name + " " + fmt::FormatInt( thread_num ).str() ) );
       ERROR_PRINT << "create pool worker " << _name << " " << thread_num << "\n";
     }

@@ -30,7 +30,7 @@ namespace Pol {
     public:
       FMTStreamWriter() : StreamWriter() {};
       virtual ~FMTStreamWriter() {};
-      virtual void init( const std::string &filepath ) {};
+      virtual void init( const std::string& ) {}; // argument is not used
       virtual void flush() {};
       virtual void flush_file() {};
     };
