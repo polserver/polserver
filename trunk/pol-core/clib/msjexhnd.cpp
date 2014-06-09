@@ -7,6 +7,9 @@ Notes
 
 */
 
+#pragma warning(disable:4189) //local variable is initialized but not referenced
+#define _CRT_SECURE_NO_WARNINGS
+
 //==========================================
 // Matt Pietrek
 // Microsoft Systems Journal, May 1997
@@ -18,6 +21,7 @@ Notes
 #include "msjexhnd.h"
 #include <algorithm>
 #include "logfacility.h"
+
 namespace Pol {
   namespace Clib {
 	//============================== Global Variables =============================
