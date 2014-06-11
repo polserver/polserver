@@ -85,6 +85,7 @@
 #include <stdlib.h>
 #pragma comment(lib, "version.lib")  // for "VerQueryValue"
 #pragma warning(disable:4826)
+#pragma warning(disable:4127) // "conditional expression is constant"
 
 #include "StackWalker.h"
 
