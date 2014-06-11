@@ -5,6 +5,11 @@
 
 /* @(#) $Id: zutil.c,v 1.1 2005/08/20 01:48:33 shinigami Exp $ */
 
+
+#ifdef _MSC_VER
+#	pragma warning(disable:4131) // "uses old-style declarator"
+#endif
+
 #include "zutil.h"
 
 #ifndef NO_DUMMY_DECL
