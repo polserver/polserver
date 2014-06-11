@@ -33,6 +33,11 @@
 
 /* #define GEN_TREES_H */
 
+#ifdef _MSC_VER
+#	pragma warning(disable:4131) // "uses old-style declarator"
+#	pragma warning(disable:4244) // "conversion from -- to --, possible loss of data"
+#endif
+
 #include "deflate.h"
 
 #ifdef DEBUG

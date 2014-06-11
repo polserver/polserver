@@ -5,6 +5,11 @@
 
 /* @(#) $Id: compress.c,v 1.1 2005/08/20 01:48:33 shinigami Exp $ */
 
+
+#ifdef _MSC_VER
+#	pragma warning(disable:4131) // "uses old-style declarator"
+#endif
+
 #define ZLIB_INTERNAL
 #include "zlib.h"
 
