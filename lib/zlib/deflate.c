@@ -49,6 +49,13 @@
 
 /* @(#) $Id: deflate.c,v 1.1 2005/08/20 01:48:33 shinigami Exp $ */
 
+
+#ifdef _MSC_VER
+#	pragma warning(disable:4127) // "conditional expression is constant"
+#	pragma warning(disable:4131) // "uses old-style declarator"
+#	pragma warning(disable:4244) // "conversion from -- to --, possible loss of data"
+#endif
+
 #include "deflate.h"
 
 const char deflate_copyright[] =

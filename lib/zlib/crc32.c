@@ -19,6 +19,11 @@
   one thread to use crc32().
  */
 
+#ifdef _MSC_VER
+#	pragma warning(disable:4131) // "uses old-style declarator"
+#	pragma warning(disable:4127) // "conditional expression is constant"
+#endif
+
 #ifdef MAKECRCH
 #  include <stdio.h>
 #  ifndef DYNAMIC_CRC_TABLE
