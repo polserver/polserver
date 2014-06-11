@@ -79,18 +79,19 @@ namespace Pol {
 	  return res->isTrue();
 	}
 
+	// This function is static!
 	bool JusticeRegion::RunNoCombatCheck( Network::Client* client )
 	{
-	  JusticeRegion* cur_justice_region = client->gd->justice_region;
+		JusticeRegion* cur_justice_region = NULL;
+	  
+		if (client != NULL && client->gd != NULL)
+			cur_justice_region = client->gd->justice_region;
 
-	  if ( ( cur_justice_region != NULL ) && cur_justice_region->nocombat_ != false )
-	  {
-		return true;
-	  }
-	  else
-	  {
-		return false;
-	  }
+		bool no_combat = false;
+		if (cur_justice_region != NULL)
+			no_combat = cur_justice_region->nocombat_;
+
+		return no_combat;
 	}
   }
 }

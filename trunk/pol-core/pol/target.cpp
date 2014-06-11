@@ -194,7 +194,6 @@ namespace Pol {
 		  return;
 		}
 
-		JusticeRegion* cur_justice_region = chr->client->gd->justice_region;
 		u32 selected_serial = cfBEu32( msg->selected_serial );
 		UObject* obj = system_find_object( selected_serial );
 		if ( obj != NULL && obj->script_isa( POLCLASS_MOBILE ) &&
@@ -212,14 +211,13 @@ namespace Pol {
 
 			if ( msg->cursor_type == 1 )
 			{
-			  JusticeRegion* cur_justice_region_t = targeted->client->gd->justice_region;
-			  if ( ( cur_justice_region->RunNoCombatCheck( chr->client ) == true )
-				   || ( cur_justice_region_t->RunNoCombatCheck( targeted->client ) == true ) )
-			  {
-				send_sysmessage( chr->client, "Combat is not allowed in this area." );
-				cancel( chr );
-				return;
-			  }
+				if ( ( JusticeRegion::RunNoCombatCheck( chr->client ) == true )
+						|| ( JusticeRegion::RunNoCombatCheck( targeted->client ) == true ) )
+				{
+					send_sysmessage( chr->client, "Combat is not allowed in this area." );
+					cancel( chr );
+					return;
+				}
 			}
 		  }
 		}

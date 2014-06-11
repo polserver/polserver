@@ -65,8 +65,7 @@ namespace Pol {
 
 		if ( defender->acct != NULL )
 		{
-		  Core::JusticeRegion* cur_justice_region = client->gd->justice_region;
-		  if ( cur_justice_region->RunNoCombatCheck( defender->client ) == true )
+		  if ( JusticeRegion::RunNoCombatCheck( defender->client ) == true )
 		  {
 			client->chr->send_highlight();
 			Core::send_sysmessage( client, "Combat is not allowed in this area." );
