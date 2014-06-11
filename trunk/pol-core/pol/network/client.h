@@ -231,7 +231,7 @@ namespace Pol {
 	  static unsigned int instance_counter_;
 	  int checkpoint;//CNXBUG
 	  unsigned char last_msgtype;
-	  int thread_pid;
+	  size_t thread_pid;
 	  u16 UOExpansionFlag;
 	  u32 UOExpansionFlagClient;
 	  u16 ClientType;
