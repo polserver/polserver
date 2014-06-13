@@ -144,7 +144,7 @@ namespace Pol {
 
 	  }
 	  THREAD_CHECKPOINT( active_client, 108 );
-	  do
+
 	  {
 		int nbits = Core::keydesc[0x100].nbits;
 		unsigned short inval = Core::keydesc[0x100].bits_reversed;
@@ -167,7 +167,7 @@ namespace Pol {
 
 		  inval >>= 1;
 		}
-	  } while ( 0 );
+	  }
 	  THREAD_CHECKPOINT( active_client, 113 );
 
 	  if ( bidx == 0 )
@@ -221,7 +221,7 @@ namespace Pol {
 
 	  unsigned char msgtype = *(const char*)data;
 
-	  if ( fpLog != 0 )
+	  if ( !fpLog.empty() )
 	  {
         fmt::Writer tmp;
         tmp << "Server -> Client: 0x" << fmt::hexu( msgtype ) << ", " << len << " bytes\n";
@@ -258,7 +258,7 @@ namespace Pol {
 
 	void Client::transmitmore( const void *data, int len )
 	{
-	  if ( fpLog != 0 )
+	  if ( !fpLog.empty() )
 	  {
         fmt::Writer tmp;
         tmp << "Server -> Client (" << len << " bytes)\n";

@@ -28,7 +28,8 @@ namespace Pol {
       public:
         LogSink();
         virtual ~LogSink() {};
-        virtual void sink( fmt::Writer* msg, unsigned int id = 0 ) = 0;
+        virtual void sink( fmt::Writer* msg) = 0;
+        virtual void sink( fmt::Writer* msg, std::string id ) = 0;
         virtual void close( unsigned int ) {};
         static void printCurrentTimeStamp( std::ostream &stream );
         static std::string getLoggingTimeStamp();
@@ -42,10 +43,11 @@ namespace Pol {
       public:
         LogSinkGenericFile( const LogFileBehaviour* behaviour );
         LogSinkGenericFile();
-        ~LogSinkGenericFile();
-        void open_log_file();
+        virtual ~LogSinkGenericFile( );
+        void open_log_file( bool open_timestamp );
         void setBehaviour( const LogFileBehaviour* behaviour, std::string filename );
-        void sink( fmt::Writer* msg, unsigned int id = 0 );
+        virtual void sink( fmt::Writer* msg);
+        virtual void sink( fmt::Writer* msg, std::string id);
       protected:
         bool test_for_rollover( std::chrono::time_point<std::chrono::system_clock>& now );
         const LogFileBehaviour* _behaviour;
@@ -65,8 +67,9 @@ namespace Pol {
       {
       public:
         LogSink_cout();
-        ~LogSink_cout() {};
-        void sink( fmt::Writer* msg, unsigned int id = 0 );
+        virtual ~LogSink_cout() {};
+        virtual void sink( fmt::Writer* msg );
+        virtual void sink( fmt::Writer* msg, std::string id);
       };
 
       // std::cerr sink
@@ -74,8 +77,9 @@ namespace Pol {
       {
       public:
         LogSink_cerr();
-        ~LogSink_cerr() {};
-        void sink( fmt::Writer* msg, unsigned int id = 0 );
+        virtual ~LogSink_cerr() {};
+        virtual void sink( fmt::Writer* msg );
+        virtual void sink( fmt::Writer* msg, std::string id );
       };
 
       // pol.log (and start.log) file sink
@@ -83,7 +87,7 @@ namespace Pol {
       {
       public:
         LogSink_pollog();
-        ~LogSink_pollog() {};
+        virtual ~LogSink_pollog() {};
         void deinitialize_startlog();
       };
 
@@ -92,7 +96,7 @@ namespace Pol {
       {
       public:
         LogSink_scriptlog();
-        ~LogSink_scriptlog() {};
+        virtual ~LogSink_scriptlog() {};
       };
 
       // debug.log file sink
@@ -100,8 +104,9 @@ namespace Pol {
       {
       public:
         LogSink_debuglog();
-        ~LogSink_debuglog() {};
-        void sink( fmt::Writer* msg, unsigned int id = 0 );
+        virtual ~LogSink_debuglog() {};
+        virtual void sink( fmt::Writer* msg );
+        virtual void sink( fmt::Writer* msg, std::string id );
         void disable();
         static bool Disabled;
       };
@@ -111,20 +116,20 @@ namespace Pol {
       {
       public:
         LogSink_leaklog();
-        ~LogSink_leaklog() {};
+        virtual ~LogSink_leaklog() {};
       };
 
       class LogSink_flexlog : public LogSink
       {
       public:
         LogSink_flexlog();
-        ~LogSink_flexlog();
-        unsigned int create( std::string logfilename );
-        void sink( fmt::Writer* msg, unsigned int id );
-        void close( unsigned int id );
+        virtual ~LogSink_flexlog();
+        std::string create( std::string logfilename, bool open_timestamp );
+        virtual void sink( fmt::Writer* msg);
+        virtual void sink( fmt::Writer* msg, std::string id );
+        void close( std::string id );
       private:
-        std::map<unsigned int, std::shared_ptr<LogSinkGenericFile>> _logfiles;
-        unsigned int _idcounter;
+        std::map<std::string, std::shared_ptr<LogSinkGenericFile>> _logfiles;
       };
       // template class to perform a dual log eg. cout + pol.log
       template <typename log1, typename log2>
@@ -132,8 +137,9 @@ namespace Pol {
       {
       public:
         LogSink_dual();
-        ~LogSink_dual() {};
-        void sink( fmt::Writer* msg, unsigned int id = 0 );
+        virtual ~LogSink_dual() {};
+        virtual void sink( fmt::Writer* msg );
+        virtual void sink( fmt::Writer* msg, std::string id);
       };
 
       // main class which starts the logging
@@ -143,12 +149,12 @@ namespace Pol {
         LogFacility();
         ~LogFacility();
         template <typename Sink>
-        void save( std::unique_ptr<fmt::Writer>&& message, unsigned int id );
+        void save( std::unique_ptr<fmt::Writer>&& message, std::string id );
         void registerSink( LogSink* sink );
         void disableDebugLog();
         void deinitializeStartLog();
-        void closeFlexLog( unsigned int id );
-        unsigned int registerFlexLogger( std::string logfilename );
+        void closeFlexLog( std::string id );
+        std::string registerFlexLogger( std::string logfilename, bool open_timestamp );
         void wait_for_empty_queue();
       private:
         class LogWorker;
@@ -162,16 +168,16 @@ namespace Pol {
       {
       public:
         Message();
-        Message( unsigned int id );
+        Message( const std::string& id );
         Message( const std::string &file, const int line, const std::string& function ); // for internal stuff with __FILE__, __LINE__, __FUNCTION__
-        Message( unsigned int id, const std::string &file, const int line, const std::string& function ); // for internal stuff with __FILE__, __LINE__, __FUNCTION__
+        Message( const std::string& id, const std::string &file, const int line, const std::string& function ); // for internal stuff with __FILE__, __LINE__, __FUNCTION__
         ~Message(); // auto flush
 
         fmt::Writer& message() { return *( _formater.get() ); }
 
       private:
         std::unique_ptr<fmt::Writer> _formater;
-        unsigned int _id;
+        std::string _id;
       };
 
 
@@ -184,36 +190,38 @@ namespace Pol {
   // several helper defines
 //#define DEBUG_LOG_PRINTS
 #ifdef DEBUG_LOG_PRINTS
-#define LOG_PRINT_CALLER_INFO ,__FILE__, __LINE__, __FUNCTION__
+#define LOG_PRINT_CALLER_INFO __FILE__, __LINE__, __FUNCTION__
+#define LOG_PRINT_CALLER_INFO2 ,__FILE__, __LINE__, __FUNCTION__
 #else
 #define LOG_PRINT_CALLER_INFO
+#define LOG_PRINT_CALLER_INFO2
 #endif
 
   // log into pol.log and std::cerr
-#define POLLOG_ERROR Clib::Logging::Message<Clib::Logging::LogSink_dual<Clib::Logging::LogSink_cerr, Clib::Logging::LogSink_pollog>>(0 LOG_PRINT_CALLER_INFO).message()
+#define POLLOG_ERROR Clib::Logging::Message<Clib::Logging::LogSink_dual<Clib::Logging::LogSink_cerr, Clib::Logging::LogSink_pollog>>(LOG_PRINT_CALLER_INFO).message()
   // log into pol.log and std::cout
-#define POLLOG_INFO Clib::Logging::Message<Clib::Logging::LogSink_dual<Clib::Logging::LogSink_cout, Clib::Logging::LogSink_pollog>>(0 LOG_PRINT_CALLER_INFO).message()
+#define POLLOG_INFO Clib::Logging::Message<Clib::Logging::LogSink_dual<Clib::Logging::LogSink_cout, Clib::Logging::LogSink_pollog>>(LOG_PRINT_CALLER_INFO).message()
   // log into pol.log
-#define POLLOG Clib::Logging::Message<Clib::Logging::LogSink_pollog>(0 LOG_PRINT_CALLER_INFO).message()
+#define POLLOG Clib::Logging::Message<Clib::Logging::LogSink_pollog>(LOG_PRINT_CALLER_INFO).message()
 
   // log only into std::cout
-#define INFO_PRINT Clib::Logging::Message<Clib::Logging::LogSink_cout>(0 LOG_PRINT_CALLER_INFO).message()
+#define INFO_PRINT Clib::Logging::Message<Clib::Logging::LogSink_cout>(LOG_PRINT_CALLER_INFO).message()
   // log only into std::cout if level is equal or higher
 #define INFO_PRINT_TRACE(n) if ( Core::config.debug_level >= n ) INFO_PRINT
   // log only into std::cerr
-#define ERROR_PRINT Clib::Logging::Message<Clib::Logging::LogSink_cerr>(0 LOG_PRINT_CALLER_INFO).message()
+#define ERROR_PRINT Clib::Logging::Message<Clib::Logging::LogSink_cerr>(LOG_PRINT_CALLER_INFO).message()
 
   // log into script.log
-#define SCRIPTLOG Clib::Logging::Message<Clib::Logging::LogSink_scriptlog>(0 LOG_PRINT_CALLER_INFO).message()
+#define SCRIPTLOG Clib::Logging::Message<Clib::Logging::LogSink_scriptlog>(LOG_PRINT_CALLER_INFO).message()
   // log into debug.log (if enabled)
-#define DEBUGLOG if (!Clib::Logging::LogSink_debuglog::Disabled) Clib::Logging::Message<Clib::Logging::LogSink_debuglog>(0 LOG_PRINT_CALLER_INFO).message()
+#define DEBUGLOG if (!Clib::Logging::LogSink_debuglog::Disabled) Clib::Logging::Message<Clib::Logging::LogSink_debuglog>(LOG_PRINT_CALLER_INFO).message()
   // log into leak.log
-#define LEAKLOG Clib::Logging::Message<Clib::Logging::LogSink_leaklog>(0 LOG_PRINT_CALLER_INFO).message()
+#define LEAKLOG Clib::Logging::Message<Clib::Logging::LogSink_leaklog>(LOG_PRINT_CALLER_INFO).message()
 
   // log into sink id need a call of OPEN_LOG before
-#define FLEXLOG(id) Clib::Logging::Message<Clib::Logging::LogSink_flexlog>(id LOG_PRINT_CALLER_INFO).message()
+#define FLEXLOG(id) Clib::Logging::Message<Clib::Logging::LogSink_flexlog>(id LOG_PRINT_CALLER_INFO2).message()
   // open logfile of given filename, returns unique unsigned int for usage of logging/closing
-#define OPEN_FLEXLOG(filename) Clib::Logging::global_logger->registerFlexLogger(filename)
+#define OPEN_FLEXLOG(filename, open_timestamp) Clib::Logging::global_logger->registerFlexLogger(filename, open_timestamp)
   // close logfile of given id
 #define CLOSE_FLEXLOG(id) Clib::Logging::global_logger->closeFlexLog(id)
 

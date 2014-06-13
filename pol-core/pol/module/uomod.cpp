@@ -836,12 +836,8 @@ namespace Pol {
 				uoexec.os_module->suspend();
 				return new BLong( 0 );
 			  }
-			  else
-			  {
-				return new BError( "Client has an active target cursor" );
-			  }
+			  return new BError( "Client has an active target cursor" );
 			}
-			return new BLong( 0 );
 		  }
 		  else
 		  {

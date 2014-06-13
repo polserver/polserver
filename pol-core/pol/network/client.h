@@ -196,7 +196,7 @@ namespace Pol {
 
 	  const Core::MessageTypeFilter *msgtype_filter;
 
-	  unsigned int fpLog;
+	  std::string fpLog;
 
 	  std::string status() const;
 
