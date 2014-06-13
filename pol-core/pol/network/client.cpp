@@ -83,7 +83,7 @@ namespace Pol {
 	  cryptengine( create_crypt_engine( encryption ) ),
 	  encrypt_server_stream( 0 ),
 	  msgtype_filter( &Core::login_filter ),
-	  fpLog( 0 ),
+	  fpLog( "" ),
 	  pause_count( 0 ),
 	  first_xmit_buffer( NULL ),
 	  last_xmit_buffer( NULL ),
