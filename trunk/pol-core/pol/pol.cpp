@@ -757,7 +757,7 @@ namespace Pol {
           unsigned char msgtype = client->buffer[0];
           Network::iostats.received[msgtype].count++;
           Network::iostats.received[msgtype].bytes += client->message_length;
-          if ( client->fpLog != 0 )
+          if ( !client->fpLog.empty() )
           {
             fmt::Writer tmp;
             tmp << "Client -> Server: 0x" << fmt::hexu( msgtype ) << ", " << client->message_length << " bytes\n";

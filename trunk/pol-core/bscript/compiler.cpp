@@ -3784,7 +3784,6 @@ namespace Pol {
 
 	int Compiler::handleFor_c( CompilerContext& ctx )
 	{
-	  do
 	  {
 		Token tkn;
 		getToken( ctx, tkn );
@@ -3793,7 +3792,7 @@ namespace Pol {
           INFO_PRINT << "FOR: expected '('\n";
 		  return -1;
 		}
-	  } while ( 0 );
+	  }
 
 	  enterblock( CanBeLabelled );
 
@@ -3807,7 +3806,6 @@ namespace Pol {
 	  if ( readexpr( iterate_expr, ctx, EXPR_FLAG_RIGHTPAREN_TERM_ALLOWED ) != 1 )
 		return -1;
 
-	  do
 	  {
 		Token tkn;
 		if ( getToken( ctx, tkn ) || tkn.id != TOK_RPAREN )
@@ -3815,7 +3813,7 @@ namespace Pol {
           INFO_PRINT << "FOR: expected '('\n";
 		  return -1;
 		}
-	  } while ( 0 );
+	  }
 
 	  /*
 		  The c-style 'for' statement gets generated as follows:
@@ -3862,7 +3860,6 @@ namespace Pol {
 	}
 	int Compiler::handleBracketedFor_c( CompilerContext& ctx )
 	{
-	  do
 	  {
 		Token tkn;
 		getToken( ctx, tkn );
@@ -3871,7 +3868,7 @@ namespace Pol {
           INFO_PRINT << "FOR: expected '('\n";
 		  return -1;
 		}
-	  } while ( 0 );
+	  }
 
 	  enterblock( CanBeLabelled );
 
@@ -3885,7 +3882,6 @@ namespace Pol {
 	  if ( readexpr( iterate_expr, ctx, EXPR_FLAG_RIGHTPAREN_TERM_ALLOWED ) != 1 )
 		return -1;
 
-	  do
 	  {
 		Token tkn;
 		if ( getToken( ctx, tkn ) || tkn.id != TOK_RPAREN )
@@ -3893,7 +3889,7 @@ namespace Pol {
           INFO_PRINT << "FOR: expected '('\n";
 		  return -1;
 		}
-	  } while ( 0 );
+	  }
 
 	  /*
 		  The c-style 'for' statement gets generated as follows:

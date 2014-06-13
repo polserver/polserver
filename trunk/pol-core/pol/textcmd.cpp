@@ -341,13 +341,13 @@ namespace Pol {
 	{
 	  if ( mob->connected ) // gotta be connected to get packets right?
 	  {
-		if ( mob->client->fpLog == 0 )
+		if ( mob->client->fpLog.empty() )
 		{
 		  string filename = "log/";
 		  filename += mob->client->acct->name();
 		  filename += ".log";
-          mob->client->fpLog = OPEN_FLEXLOG( filename );
-		  if ( mob->client->fpLog != 0 )
+          mob->client->fpLog = OPEN_FLEXLOG( filename, true );
+		  if ( !mob->client->fpLog.empty() )
 		  {
 			send_sysmessage( looker->client, "I/O log file opened for " + mob->name() );
 		  }
@@ -369,13 +369,13 @@ namespace Pol {
 	  }
 	  else
 	  {
-		if ( client->fpLog == 0 )
+		if ( client->fpLog.empty() )
 		{
 		  string filename = "log/";
 		  filename += client->acct->name();
 		  filename += ".log";
-          client->fpLog = OPEN_FLEXLOG( filename );
-          if ( client->fpLog != 0 )
+          client->fpLog = OPEN_FLEXLOG( filename, true );
+          if ( !client->fpLog.empty() )
           {
             send_sysmessage( client, "I/O log file opened." );
           }
@@ -391,12 +391,12 @@ namespace Pol {
 	{
 	  if ( mob->connected ) // gotta be connected to already have packets right?
 	  {
-		if ( mob->client->fpLog != 0 )
+		if ( !mob->client->fpLog.empty() )
 		{
 		  time_t now = time( NULL );
           FLEXLOG( mob->client->fpLog ) << "Log closed at %s" << asctime( localtime( &now ) ) << "\n";
           CLOSE_FLEXLOG( mob->client->fpLog );
-          mob->client->fpLog = 0;
+          mob->client->fpLog.clear();
 		  send_sysmessage( looker->client, "I/O log file closed for " + mob->name() );
 		}
 		else
@@ -416,12 +416,12 @@ namespace Pol {
 	  }
 	  else
 	  {
-		if ( client->fpLog != 0 )
+		if ( !client->fpLog.empty() )
 		{
           time_t now = time( NULL );
           FLEXLOG( client->fpLog ) << "Log closed at %s" << asctime( localtime( &now ) ) << "\n";
           CLOSE_FLEXLOG( client->fpLog );
-          client->fpLog = 0;
+          client->fpLog.clear();
 		  send_sysmessage( client, "I/O log file closed." );
 		}
 		else
