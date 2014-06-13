@@ -186,12 +186,12 @@ namespace Pol {
 		chr = NULL;
 	  }
 
-	  if ( fpLog != 0 )
+	  if ( !fpLog.empty() )
 	  {
 		time_t now = time( NULL );
         FLEXLOG( fpLog ) << "Log closed at " << asctime( localtime( &now ) ) << "\n";
         CLOSE_FLEXLOG( fpLog );
-		fpLog = 0;
+		fpLog.clear();
 	  }
 
 	  delete gd;

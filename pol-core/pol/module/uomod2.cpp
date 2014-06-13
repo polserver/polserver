@@ -1764,7 +1764,7 @@ namespace Pol {
       // std::set footprint is ~ 3 * sizeof( void* ) + set.size() * ( sizeof(T)+3 * sizeof( void* ) );
       // std::map footprint is ~ ( sizeof(K)+sizeof( V ) + ( sizeof(void*) * 3 + 1 ) / 2 ) * map.size();
       bool needs_header = !Clib::FileExists( "log/memoryusage.log" );
-      auto log = OPEN_FLEXLOG( "log/memoryusage.log" );
+      auto log = OPEN_FLEXLOG( "log/memoryusage.log", false );
       if ( needs_header )
       {
         FLEXLOG( log ) << "Time;ProcessSize;RealmSize;ScriptSize;ObjSize\n";

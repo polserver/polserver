@@ -185,7 +185,7 @@ namespace Pol {
 
       // send logsink as a lambda to the worker
       template <typename Sink>
-      void LogFacility::save( std::unique_ptr<fmt::Writer>&& message, unsigned int id )
+      void LogFacility::save( std::unique_ptr<fmt::Writer>&& message, std::string id )
       {
         auto moved = makeMoveCopy( std::move( message ) ); // see note above we need to transfer ownership into the lambda
         _worker->move_send( std::move( [moved, id]()
@@ -226,7 +226,7 @@ namespace Pol {
       }
 
       // closes flex sink of given id
-      void LogFacility::closeFlexLog( unsigned int id )
+      void LogFacility::closeFlexLog( std::string id )
       {
         _worker->send( [id]()
         {
@@ -236,15 +236,15 @@ namespace Pol {
 
       // register new flex sink with given filename
       // blocks to return unique identifier
-      unsigned int LogFacility::registerFlexLogger( std::string logfilename )
+      std::string LogFacility::registerFlexLogger( std::string logfilename, bool open_timestamp )
       {
-        auto promise = std::make_shared<std::promise<unsigned int>>();
+        auto promise = std::make_shared<std::promise<std::string>>();
         auto ret = promise->get_future();
         _worker->send( [=, &logfilename]()
         {
           try
           {
-            promise->set_value( getSink<LogSink_flexlog>()->create( logfilename ) );
+            promise->set_value( getSink<LogSink_flexlog>( )->create( logfilename, open_timestamp ) );
           }
           catch ( ... )
           {
@@ -268,21 +268,21 @@ namespace Pol {
 
       // Message default construct
       template <typename Sink>
-      Message<Sink>::Message() :_formater( new fmt::Writer() ), _id( 0 )
+      Message<Sink>::Message() :_formater( new fmt::Writer() ), _id( "" )
       {}
 
       template <typename Sink>
-      Message<Sink>::Message( unsigned int id ) : _formater( new fmt::Writer() ), _id( id )
+      Message<Sink>::Message( const std::string& id ) : _formater( new fmt::Writer( ) ), _id( id )
       {}
       // directly fill on construction the formater with file, line and function
       template <typename Sink>
-      Message<Sink>::Message( const std::string &file, const int line, const std::string& function ) : _formater( new fmt::Writer() ), _id( 0 )
+      Message<Sink>::Message( const std::string &file, const int line, const std::string& function ) : _formater( new fmt::Writer() ), _id( "" )
       {
         *_formater << file << "[" << line << "] " << function << " : ";
       }
       // directly fill on construction the formater with file, line and function
       template <typename Sink>
-      Message<Sink>::Message( unsigned int id, const std::string &file, const int line, const std::string& function )
+      Message<Sink>::Message( const std::string& id, const std::string &file, const int line, const std::string& function )
         : _formater( new fmt::Writer() ), _id( id )
       {
         *_formater << file << "[" << line << "] " << function << " : ";
@@ -344,7 +344,7 @@ namespace Pol {
       LogSinkGenericFile::LogSinkGenericFile( const LogFileBehaviour* behaviour ) : LogSink(),
         _behaviour( behaviour ), _log_filename( behaviour->basename + ".log" ), _active_line( false )
       {
-        open_log_file();
+        open_log_file(true);
       }
       // default constructor does not open directly
       LogSinkGenericFile::LogSinkGenericFile() : LogSink(), _behaviour(), _log_filename(), _active_line( false )
@@ -365,7 +365,7 @@ namespace Pol {
       }
 
       // open file
-      void LogSinkGenericFile::open_log_file()
+      void LogSinkGenericFile::open_log_file( bool open_timestamp )
       {
         _filestream.open( _log_filename, _behaviour->openmode );
         if ( !_filestream.is_open() )
@@ -375,16 +375,18 @@ namespace Pol {
           getSink<LogSink_cerr>()->sink( &tmp );
           return;
         }
-        printCurrentTimeStamp( _filestream );
-        _filestream << "Logfile opened." << endl;
-
+        if ( open_timestamp )
+        {
+          printCurrentTimeStamp( _filestream );
+          _filestream << "Logfile opened." << endl;
+        }
         time_t t_now = std::chrono::system_clock::to_time_t( std::chrono::system_clock::now() );
         _opened = *localtime( &t_now ); // mark current time for later possible rollover
         _active_line = false;
       }
 
       // print given msg into filestream
-      void LogSinkGenericFile::sink( fmt::Writer* msg, unsigned int )
+      void LogSinkGenericFile::sink( fmt::Writer* msg )
       {
         if ( !_filestream.is_open() )
           return;
@@ -408,6 +410,10 @@ namespace Pol {
         _active_line = ( msg->data()[msg->size() - 1] != '\n' ); // is the last character a newline?
         _filestream << msg->c_str();
         _filestream.flush();
+      }
+      void LogSinkGenericFile::sink( fmt::Writer* msg, std::string )
+      {
+        sink( msg );
       }
 
       // check if a rollover is needed (new day)
@@ -440,18 +446,27 @@ namespace Pol {
       LogSink_cout::LogSink_cout() : LogSink()
       {}
       // print given msg into std::cout
-      void LogSink_cout::sink( fmt::Writer* msg, unsigned int )
+      void LogSink_cout::sink( fmt::Writer* msg)
       {
         std::cout << msg->c_str();
         std::cout.flush();
       }
+      void LogSink_cout::sink( fmt::Writer* msg, std::string )
+      {
+        sink( msg );
+      }
+
       LogSink_cerr::LogSink_cerr() : LogSink()
       {}
       // print given msg into std::cerr
-      void LogSink_cerr::sink( fmt::Writer* msg, unsigned int )
+      void LogSink_cerr::sink( fmt::Writer* msg )
       {
         std::cerr << msg->c_str();
         std::cerr.flush();
+      }
+      void LogSink_cerr::sink( fmt::Writer* msg, std::string )
+      {
+        sink( msg );
       }
 
       // on construction this opens not pol.log instead start.log
@@ -465,7 +480,7 @@ namespace Pol {
         _filestream.close();
         _behaviour = &pollogBehaviour;
         _log_filename = _behaviour->basename + ".log";
-        open_log_file();
+        open_log_file(true);
       }
 
       // on construction opens script.log
@@ -487,33 +502,40 @@ namespace Pol {
         Disabled = true;
       }
       // only print the msg if not Disabled
-      void LogSink_debuglog::sink( fmt::Writer* msg, unsigned int )
+      void LogSink_debuglog::sink( fmt::Writer* msg )
       {
         if ( !Disabled )
           LogSinkGenericFile::sink( msg );
+      }
+      void LogSink_debuglog::sink( fmt::Writer* msg, std::string )
+      {
+        sink( msg );
       }
 
       // on construction opens leak.log
       LogSink_leaklog::LogSink_leaklog() : LogSinkGenericFile( &leaklogBehaviour )
       {}
 
-      LogSink_flexlog::LogSink_flexlog() : LogSink(), _idcounter( 0 )
+      LogSink_flexlog::LogSink_flexlog() : LogSink()
       {}
       LogSink_flexlog::~LogSink_flexlog()
       {}
 
       // create and open new logfile with given name, returns unique id
-      unsigned int LogSink_flexlog::create( std::string logfilename )
+      std::string LogSink_flexlog::create( std::string logfilename, bool open_timestamp )
       {
-        _logfiles[++_idcounter] = std::make_shared<LogSinkGenericFile>();
-        auto log = _logfiles.at( _idcounter );
+        auto itr = _logfiles.find( logfilename );
+        if ( itr != _logfiles.end() )
+          return logfilename;
+        _logfiles[logfilename] = std::make_shared<LogSinkGenericFile>( );
+        auto log = _logfiles.at( logfilename );
         log->setBehaviour( &flexlogBehaviour, logfilename );
-        log->open_log_file();
-        return _idcounter;
+        log->open_log_file( open_timestamp );
+        return logfilename;
       }
 
       // sink msg into sink of given id
-      void LogSink_flexlog::sink( fmt::Writer* msg, unsigned int id )
+      void LogSink_flexlog::sink( fmt::Writer* msg, std::string id )
       {
         auto itr = _logfiles.find( id );
         if ( itr != _logfiles.end() )
@@ -521,9 +543,13 @@ namespace Pol {
           itr->second->sink( msg );
         }
       }
+      void LogSink_flexlog::sink( fmt::Writer* msg )
+      {
+        // empty
+      }
 
       // closes logfile of given id
-      void LogSink_flexlog::close( unsigned int id )
+      void LogSink_flexlog::close( std::string id )
       {
         auto itr = _logfiles.find( id );
         if ( itr != _logfiles.end() )
@@ -535,11 +561,17 @@ namespace Pol {
       {}
       // performs the sink with given msg for both sinks
       template <typename log1, typename log2>
-      void LogSink_dual<log1, log2>::sink( fmt::Writer* msg, unsigned int )
+      void LogSink_dual<log1, log2>::sink( fmt::Writer* msg)
       {
         getSink<log1>()->sink( msg );
         getSink<log2>()->sink( msg );
       }
+      template <typename log1, typename log2>
+      void LogSink_dual<log1, log2>::sink( fmt::Writer* msg, std::string )
+      {
+        sink( msg );
+      }
+
 
     }
   }
@@ -553,12 +585,12 @@ namespace Pol {
 #define SINK_TEMPLATE_DEFINES(sink) \
   template class Pol::Clib::Logging::Message<Pol::Clib::Logging::sink>; \
   template Pol::Clib::Logging::sink* Pol::Clib::Logging::getSink<Pol::Clib::Logging::sink>( ); \
-  template void Pol::Clib::Logging::LogFacility::save<Pol::Clib::Logging::sink>( std::unique_ptr<fmt::Writer>&& message, unsigned int id );
+  template void Pol::Clib::Logging::LogFacility::save<Pol::Clib::Logging::sink>( std::unique_ptr<fmt::Writer>&& message, std::string id );
 
 #define SINK_TEMPLATE_DEFINES_DUAL(sink1, sink2) \
   template class Pol::Clib::Logging::Message<Pol::Clib::Logging::LogSink_dual<Pol::Clib::Logging::sink1, Pol::Clib::Logging::sink2>>; \
   template Pol::Clib::Logging::LogSink_dual<Pol::Clib::Logging::sink1, Pol::Clib::Logging::sink2>* Pol::Clib::Logging::getSink<Pol::Clib::Logging::LogSink_dual<Pol::Clib::Logging::sink1, Pol::Clib::Logging::sink2>>( ); \
-  template void Pol::Clib::Logging::LogFacility::save<Pol::Clib::Logging::LogSink_dual<Pol::Clib::Logging::sink1, Pol::Clib::Logging::sink2>>( std::unique_ptr<fmt::Writer>&& message, unsigned int id );
+  template void Pol::Clib::Logging::LogFacility::save<Pol::Clib::Logging::LogSink_dual<Pol::Clib::Logging::sink1, Pol::Clib::Logging::sink2>>( std::unique_ptr<fmt::Writer>&& message, std::string id );
 
 
 SINK_TEMPLATE_DEFINES( LogSink_cout )
