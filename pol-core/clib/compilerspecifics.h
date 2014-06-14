@@ -17,7 +17,17 @@
 #	ifdef _MSC_VER
 #		define POL_NORETURN _declspec(noreturn)
 #	else
-#		define POL_NORETURN [[noreturn]]
+#       ifdef __GNUC__
+#           define POL__GCC_VERSION (__GNUC__ * 100 + __GNUC_MINOR__)
+#           if POL__GCC_VERSION <= 407
+#		        define POL_NORETURN __attribute__((noreturn))
+#           else
+#   		    define POL_NORETURN [[noreturn]]
+#           endif
+#           undef POL__GCC_VERSION
+#       else
+#   		define POL_NORETURN [[noreturn]]
+#       endif
 #	endif
 #endif
 
