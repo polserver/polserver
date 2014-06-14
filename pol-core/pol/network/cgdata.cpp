@@ -150,5 +150,12 @@ namespace Pol {
 	{
 	  gumpmods.erase( uoemod );
 	}
+
+    size_t ClientGameData::estimatedSize() const
+    {
+      size_t size = sizeof( ClientGameData );
+      size += 3 * sizeof(void*)+gumpmods.size( ) * ( sizeof( Module::UOExecutorModule* ) + 3 * sizeof( void* ) );
+      return size;
+    }
   }
 }

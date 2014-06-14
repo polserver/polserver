@@ -123,6 +123,7 @@ namespace Pol {
 	  static void Delete( Client* client );
 	  friend class GCCHelper;
 	  virtual ~Client();
+      size_t estimatedSize() const;
 
 	private:
 	  void PreDelete();

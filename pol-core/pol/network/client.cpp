@@ -669,5 +669,21 @@ namespace Pol {
 	  return new Module::EClientRefObjImp( Module::ClientPtrHolder( Core::ClientRef( this ) ) );
 	}
 
+    size_t Client::estimatedSize() const
+    {
+      size_t size = sizeof(Client)
+        +fpLog.capacity() + version_.capacity();
+      Core::XmitBuffer* buffer_size = first_xmit_buffer;
+      while ( buffer_size != nullptr )
+      {
+        size += sizeof(buffer_size)+buffer_size->lenleft;
+        buffer_size = buffer_size->next;
+      }
+      size += 3 * sizeof(PacketThrottler*)+movementqueue.size() * sizeof( PacketThrottler );
+      if ( gd != nullptr )
+        size += gd->estimatedSize();
+      return size;
+    }
+
   }
 }

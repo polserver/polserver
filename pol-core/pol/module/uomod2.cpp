@@ -1767,7 +1767,7 @@ namespace Pol {
       auto log = OPEN_FLEXLOG( "log/memoryusage.log", false );
       if ( needs_header )
       {
-        FLEXLOG( log ) << "Time;ProcessSize;RealmSize;ScriptSize;ObjSize\n";
+        FLEXLOG( log ) << "Time ;ProcessSize ;RealmSize ;ScriptSize ;ObjCount ;ObjSize ;AccountCount ;AccountSize ;ClientCount ;ClientSize\n";
       }
 
       size_t realmsize = 3 * sizeof(void*)+Core::Realms->capacity() * sizeof( void* );
@@ -1784,6 +1784,7 @@ namespace Pol {
       
       ObjectHash::OH_const_iterator hs_citr = objecthash.begin(), hs_cend = objecthash.end();
       size_t objsize = 0;
+      size_t objcount = std::distance( hs_citr, hs_cend );
       for ( ; hs_citr != hs_cend; ++hs_citr )
       {
         objsize += ( sizeof(void*)* 3 + 1 ) / 2;
@@ -1791,11 +1792,30 @@ namespace Pol {
         objsize += ref->estimatedSize();
       }
 
+      size_t accountsize = 3 * sizeof(AccountRef*)+Core::accounts.capacity( ) * sizeof( AccountRef );
+      size_t accountcount = Core::accounts.size();
+      for ( const auto& acc : Core::accounts )
+      {
+        accountsize += acc->estimatedSize();
+      }
+
+      size_t clientsize = 3 * sizeof( Network::Client** ) + Core::clients.capacity() * sizeof( Network::Client* );
+      size_t clientcount = Core::clients.size();
+      for ( const auto& client : Core::clients )
+      {
+        clientsize += client->estimatedSize();
+      }
+
       FLEXLOG( log ) << GET_LOG_FILESTAMP << ";"
-        << Clib::getCurrentMemoryUsage() << ";"
-        << realmsize << ";" 
-        << sizeEstimate_scripts( ) << ";"
-        << objsize
+        << Clib::getCurrentMemoryUsage() << " ;"
+        << realmsize << " ;"
+        << sizeEstimate_scripts() << " ;"
+        << objcount << " ;"
+        << objsize << " ;"
+        << accountcount << " ;"
+        << accountsize << " ;"
+        << clientcount << " ;"
+        << clientsize
         << "\n";
       CLOSE_FLEXLOG( log );
     }

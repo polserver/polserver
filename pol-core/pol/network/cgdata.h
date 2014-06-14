@@ -34,6 +34,7 @@ namespace Pol {
 	  ClientGameData();
 	  ~ClientGameData();
 	  void clear();
+      size_t estimatedSize() const;
 
 
 	  ref_ptr<Core::UContainer> vendor_bought;
