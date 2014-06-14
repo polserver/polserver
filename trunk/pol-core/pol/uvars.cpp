@@ -61,7 +61,7 @@ namespace Pol {
   namespace Core {
     AccountsVector accounts;
 	Clients clients;
-	Clients pending_clients;
+	//Clients pending_clients;
 	Servers servers;
 	StartingLocations startlocations;
 

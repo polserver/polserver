@@ -170,6 +170,17 @@ namespace Pol {
 	  }
 	}
 
+    size_t Account::estimatedSize() const
+    {
+      size_t size = sizeof( Account )
+        + name_.capacity()+ password_.capacity()+passwordhash_.capacity();
+      size += 3 * sizeof( Core::CharacterRef* ) + characters_.capacity( ) * sizeof( Core::CharacterRef );
+      size += props_.estimatedSize();
+      size += default_privs_.estimatedSize();
+      size += options_.estimatedSize();
+      return size;
+    }
+
 	Mobile::Character* Account::get_character( int index )
 	{
 	  return characters_.at( index ).get();

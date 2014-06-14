@@ -47,7 +47,7 @@ namespace Pol {
 	//extern Characters characters;
 	//extern Characters offline_characters;
 	extern Clients clients;
-	extern Clients pending_clients; // these are Clients with ready==false
+	//extern Clients pending_clients; // these are Clients with ready==false
 	extern Servers servers;
 	extern StartingLocations startlocations;
 	extern Items::UWeapon* wrestling_weapon;

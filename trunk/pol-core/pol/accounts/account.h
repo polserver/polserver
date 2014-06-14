@@ -34,6 +34,8 @@ namespace Pol {
 	  explicit Account( Clib::ConfigElem& elem );
 	  ~Account();
 
+      size_t estimatedSize() const;
+
 	  const char *name() const;
 	  const std::string password() const;
 	  const std::string passwordhash() const;
