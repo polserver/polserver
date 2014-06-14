@@ -112,10 +112,7 @@ namespace Pol {
     size_t UObject::estimatedSize() const
     {
       size_t size = sizeof(UObject) + name_.capacity() + proplist_.estimatedSize();
-      for ( const auto& prop : dynmap )
-      {
-        size += sizeof(unsigned short)+sizeof( boost::any ) * 2 + ( sizeof(void*)* 3 + 1 ) / 2;
-      }
+      size += dynmap.size() * (sizeof( unsigned short ) + sizeof( boost::any ) * 2 + ( sizeof(void*)* 3 + 1 ) / 2);
       return size;
     }
 
