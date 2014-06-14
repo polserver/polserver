@@ -256,7 +256,7 @@ namespace Pol {
 	  ObjArray* arr_lc;
 	  unsigned maxlen_lc = sizeof( clientinfo_.langcode ) / sizeof( clientinfo_.langcode[0] );
 	  unsigned wlen_lc = 0;
-	  while ( ( clientinfo_.langcode[wlen_lc] != L'\0' ) && ( wlen_lc < maxlen_lc ) )
+      while ( ( wlen_lc < maxlen_lc ) && ( clientinfo_.langcode[wlen_lc] != L'\0' ) )
 		++wlen_lc;
 	  if ( !Clib::convertUCtoArray( clientinfo_.langcode, arr_lc, wlen_lc, true ) )
 		ret->addMember( "langcode", new Bscript::BError( "Invalid Unicode speech received." ) );
