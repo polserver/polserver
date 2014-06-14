@@ -333,7 +333,7 @@ namespace Pol {
         struct tm* tm_now = localtime( &now );
         fmt::Writer tmp; // write '[%m/%d %H:%M:%S] '
         tmp << '[' <<
-          fmt::pad( tm_now->tm_mon, 2, '0' ) << '/' << fmt::pad( tm_now->tm_mday, 2, '0' ) << ' '
+          fmt::pad( tm_now->tm_mon+1, 2, '0' ) << '/' << fmt::pad( tm_now->tm_mday, 2, '0' ) << ' '
           << fmt::pad( tm_now->tm_hour, 2, '0' ) << ':'
           << fmt::pad( tm_now->tm_min, 2, '0' ) << ':'
           << fmt::pad( tm_now->tm_sec, 2, '0' ) << "] ";
