@@ -1767,7 +1767,8 @@ namespace Pol {
       auto log = OPEN_FLEXLOG( "log/memoryusage.log", false );
       if ( needs_header )
       {
-        FLEXLOG( log ) << "Time ;ProcessSize ;RealmSize ;ScriptSize ;ObjCount ;ObjSize ;AccountCount ;AccountSize ;ClientCount ;ClientSize\n";
+        FLEXLOG( log ) << "Time ;ProcessSize ;RealmSize ;ScriptCount ;ScriptSize ;ScriptStoreCount ;ScriptStoreSize ;ObjCount ;ObjSize ;AccountCount ;AccountSize ;ClientCount ;ClientSize ;"
+          << "ObjItemCount ;ObjItemSize ;ObjContCount ;ObjContSize ;ObjCharCount ;ObjCharSize ;ObjNpcCount ;ObjNpcSize ;ObjWeaponCount ;ObjWeaponSize ; ObjArmorCount ;ObjArmorSize ;ObjMultiCount ;ObjMultiSize\n";
       }
 
       size_t realmsize = 3 * sizeof(void*)+Core::Realms->capacity() * sizeof( void* );
@@ -1785,14 +1786,66 @@ namespace Pol {
       ObjectHash::OH_const_iterator hs_citr = objecthash.begin(), hs_cend = objecthash.end();
       size_t objsize = 0;
       size_t objcount = std::distance( hs_citr, hs_cend );
+
+      size_t obj_item_size = 0;
+      size_t obj_cont_size = 0;
+      size_t obj_char_size = 0;
+      size_t obj_npc_size = 0;
+      size_t obj_weapon_size = 0;
+      size_t obj_armor_size = 0;
+      size_t obj_multi_size = 0;
+      size_t obj_item_count = 0;
+      size_t obj_cont_count = 0;
+      size_t obj_char_count = 0;
+      size_t obj_npc_count = 0;
+      size_t obj_weapon_count = 0;
+      size_t obj_armor_count = 0;
+      size_t obj_multi_count = 0;
+
       for ( ; hs_citr != hs_cend; ++hs_citr )
       {
-        objsize += ( sizeof(void*)* 3 + 1 ) / 2;
+        size_t size = ( sizeof(void*)* 3 + 1 ) / 2;
         const UObjectRef& ref = ( *hs_citr ).second;
-        objsize += ref->estimatedSize();
+        size += ref->estimatedSize();
+        objsize += size;
+        if ( ref->isa( UObject::CLASS_ITEM ) )
+        {
+          obj_item_size += size;
+          obj_item_count++;
+        }
+        else if ( ref->isa( UObject::CLASS_CONTAINER ) )
+        {
+          obj_cont_size += size;
+          obj_cont_count++;
+        }
+        else if ( ref->isa( UObject::CLASS_CHARACTER ) )
+        {
+          obj_char_size += size;
+          obj_char_count++;
+        }
+        else if ( ref->isa( UObject::CLASS_NPC ) )
+        {
+          obj_npc_size += size;
+          obj_npc_count++;
+        }
+        else if ( ref->isa( UObject::CLASS_WEAPON ) )
+        {
+          obj_weapon_size += size;
+          obj_weapon_count++;
+        }
+        else if ( ref->isa( UObject::CLASS_ARMOR ) )
+        {
+          obj_armor_size += size;
+          obj_armor_count++;
+        }
+        else if ( ref->isa( UObject::CLASS_MULTI ) )
+        {
+          obj_multi_size += size;
+          obj_multi_count++;
+        }
       }
 
-      size_t accountsize = 3 * sizeof(AccountRef*)+Core::accounts.capacity( ) * sizeof( AccountRef );
+      size_t accountsize = 3 * sizeof(AccountRef*)+Core::accounts.capacity() * sizeof( AccountRef );
       size_t accountcount = Core::accounts.size();
       for ( const auto& acc : Core::accounts )
       {
@@ -1806,16 +1859,27 @@ namespace Pol {
         clientsize += client->estimatedSize();
       }
 
+      size_t scriptcount = 0;
+      size_t scriptsize = sizeEstimate_scripts(&scriptcount);
+      size_t scriptstoragecount = 0;
+      size_t scriptstoragesize = sizeEstimate_scriptStorage( &scriptstoragecount );
+      
+
       FLEXLOG( log ) << GET_LOG_FILESTAMP << ";"
         << Clib::getCurrentMemoryUsage() << " ;"
         << realmsize << " ;"
-        << sizeEstimate_scripts() << " ;"
-        << objcount << " ;"
-        << objsize << " ;"
-        << accountcount << " ;"
-        << accountsize << " ;"
-        << clientcount << " ;"
-        << clientsize
+        << scriptcount << " ;" << scriptsize << " ;"
+        << scriptstoragecount << " ;" << scriptstoragesize << " ;"
+        << objcount << " ;" << objsize << " ;"
+        << accountcount << " ;" << accountsize << " ;"
+        << clientcount << " ;"  << clientsize << " ;"
+        << obj_item_count << " ;" << obj_item_size << " ;"
+        << obj_cont_count << " ;" << obj_cont_size << " ;"
+        << obj_char_count << " ;" << obj_char_size << " ;"
+        << obj_npc_count << " ;" << obj_npc_size << " ;"
+        << obj_weapon_count << " ;" << obj_weapon_size << " ;"
+        << obj_armor_count << " ;" << obj_armor_size << " ;"
+        << obj_multi_count << " ;" << obj_multi_size
         << "\n";
       CLOSE_FLEXLOG( log );
     }

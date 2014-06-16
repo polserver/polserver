@@ -292,40 +292,58 @@ namespace Pol {
 	  }
 	}
 
-    size_t sizeEstimate_scripts()
+    size_t sizeEstimate_scripts(size_t* count)
     {
       size_t size = 0;
+      *count = 0;
       size += 3 * sizeof(UOExecutor**)+runlist.size() * sizeof( UOExecutor* );
       for ( const auto& exec : runlist )
       {
         size += exec->sizeEstimate();
       }
+      *count += runlist.size();
+
       size += 3 * sizeof(UOExecutor**)+ranlist.size() * sizeof( UOExecutor* );
       for ( const auto& exec : ranlist )
       {
         size += exec->sizeEstimate();
       }
+      *count += ranlist.size();
+
       for ( const auto& hold : holdlist )
       {
         size += sizeof( Core::polclock_t ) + hold.second->sizeEstimate() + ( sizeof(void*)* 3 + 1 ) / 2;
       }
+      *count += holdlist.size();
+
       size += 3 * sizeof( void* );
       for ( const auto& hold : notimeoutholdlist )
       {
         size += hold->sizeEstimate( ) + 3 * sizeof( void* );
       }
+      *count += notimeoutholdlist.size();
+
       size += 3 * sizeof( void* );
       for ( const auto& hold : debuggerholdlist )
       {
         size += hold->sizeEstimate( ) + 3 * sizeof( void* );
       }
+      *count += debuggerholdlist.size();
 
+      return size;
+    }
+
+    size_t sizeEstimate_scriptStorage( size_t* count )
+    {
+      size_t size = 0;
+      *count = 0;
       for ( const auto& script : scrstore )
       {
         size += ( sizeof(void*)* 3 + 1 ) / 2;
         size += script.first.capacity();
         size += script.second->sizeEstimate();
       }
+      *count += scrstore.size();
       return size;
     }
 

@@ -4395,17 +4395,11 @@ namespace Pol {
       size += 3 * sizeof( Items::UArmor** ) + armor_.capacity() * sizeof( Items::UArmor* );
       size += 3 * sizeof( Core::ItemRef* ) + remote_containers_.capacity() * sizeof( Core::ItemRef );
 
-      for ( const auto& mob : aggressor_to_ )
-      {
-        size += sizeof( mob.first ) + sizeof( mob.second ) + ( sizeof(void*)* 3 + 1 ) / 2;
-      }
-      for ( const auto& mob : lawfully_damaged_ )
-      {
-        size += sizeof( mob.first ) + sizeof( mob.second ) + ( sizeof(void*)* 3 + 1 ) / 2;
-      }
+      size += aggressor_to_.size() * ( sizeof( Core::CharacterRef ) + sizeof( Core::polclock_t ) + ( sizeof(void*)* 3 + 1 ) / 2 );
+      size += lawfully_damaged_.size() * ( sizeof( Core::CharacterRef ) + sizeof( Core::polclock_t ) + ( sizeof(void*)* 3 + 1 ) / 2 );
 
-      size += 3 * sizeof(void*)+to_be_reportable_.size( ) * ( sizeof(USERIAL)+3 * sizeof( void* ) );
-      size += 3 * sizeof(void*)+reportable_.size( ) * ( sizeof(reportable_t)+3 * sizeof( void* ) );
+      size += 3 * sizeof(void*)+to_be_reportable_.size() * ( sizeof(USERIAL)+3 * sizeof( void* ) );
+      size += 3 * sizeof(void*)+reportable_.size() * ( sizeof(reportable_t)+3 * sizeof( void* ) );
 
       return size;
     }
