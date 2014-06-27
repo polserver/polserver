@@ -21,6 +21,7 @@ Notes
 #	include <windows.h> // for GetModuleFileName
 #	include <crtdbg.h>
 #   include <psapi.h>
+#   pragma comment(lib, "psapi.lib") // 32bit is a bit dumb..
 #else
 #   include <unistd.h>
 #   include <sys/resource.h>
