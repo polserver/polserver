@@ -4385,15 +4385,88 @@ namespace Pol {
 
     size_t Character::estimatedSize() const
     {
-      size_t size = sizeof(Character)+base::estimatedSize()
+      size_t size = base::estimatedSize()
         + uclang.capacity() + title_prefix.capacity() + title_suffix.capacity()
         + title_guild.capacity() + title_race.capacity()
         + privs.estimatedSize() + settings.estimatedSize();
+      size += sizeof( Core::AccountRef )/*acct*/
+        + sizeof( Network::Client* )/*client*/
+        + sizeof(u32)/*registered_house*/
+        +sizeof(unsigned char)/*cmdlevel_*/
+        +sizeof(u8)/*dir*/
+        +sizeof(bool)/*warmode*/
+        +sizeof(bool)/*logged_in*/
+        +sizeof(bool)/*connected*/
+        +sizeof(u16)/*lastx*/
+        +sizeof(u16)/*lasty*/
+        +sizeof(s8)/*lastz*/
+        +sizeof( Core::MOVEMODE )/*movemode*/
+        + sizeof(time_t)/*disable_regeneration_until*/
+        +sizeof(time_t)/*disable_skills_until*/
+        +sizeof(u16)/*truecolor*/
+        +sizeof(u32)/*trueobjtype*/
+        +sizeof( Core::UGENDER )/*gender*/
+        + sizeof( Core::URACE )/*race*/
+        + sizeof(bool)/*poisoned_*/
+        +sizeof(short)/*gradual_boost*/
+        +sizeof(u32)/*last_corpse*/
+        +sizeof(unsigned int)/*dblclick_wait*/
+        +sizeof( Items::Item* )/*gotten_item*/
+        + sizeof(unsigned char)/*gotten_item_source*/
+        +sizeof( Core::TargetCursor* )/*tcursor2*/
+        + sizeof( Core::Menu* )/*menu*/
+        + sizeof(int)/*lightoverride*/
+        +sizeof( Core::gameclock_t )/*lightoverride_until*/
+        + sizeof( Core::Expanded_Statbar )/*expanded_statbar*/
+        + sizeof(u16)/*skillcap_*/
+        +sizeof( Core::MovementCost_Mod )/*movement_cost*/
+        + sizeof(u16)/*_last_textcolor*/
+        +sizeof( ref_ptr<Core::WornItemsContainer> )/*wornitems_ref*/
+        + sizeof(unsigned short)/*ar_*/
+        +sizeof(s16)/*ar_mod_*/
+        +sizeof(s16)/*delay_mod_*/
+        +sizeof(s16)/*hitchance_mod_*/
+        +sizeof(s16)/*evasionchance_mod_*/
+        +sizeof(s16)/*carrying_capacity_mod_*/
+        +sizeof( Items::UWeapon* )/*weapon*/
+        + sizeof( Items::UArmor* )/*shield*/
+        + sizeof(bool)/*dead_*/
+        +sizeof(bool)/*hidden_*/
+        +sizeof(unsigned char)/*concealed_*/
+        +sizeof(bool)/*frozen_*/
+        +sizeof(bool)/*paralyzed_*/
+        +sizeof(unsigned short)/*stealthsteps_*/
+        +sizeof(unsigned int)/*mountedsteps_*/
+        +privs.estimatedSize()
+        + settings.estimatedSize()
+        + sizeof(cached_settings)
+        +sizeof( Core::UOExecutor* )/*script_ex*/
+        + sizeof(Character*)/*opponent_*/
+        +sizeof( Core::polclock_t )/*swing_timer_start_clock_*/
+        + sizeof(bool)/*ready_to_swing*/
+        +sizeof( Core::OneShotTask* )/*swing_task*/
+        + sizeof( Core::OneShotTask* )/*spell_task*/
+        + sizeof( Core::gameclock_t )/*created_at*/
+        + sizeof( Core::gameclock_t )/*squelched_until*/
+        + sizeof( Core::gameclock_t )/*deafened_until*/
+        + sizeof( Core::polclock_t )/*criminal_until_*/
+        + sizeof( Core::OneShotTask* )/*repsys_task_*/
+        + sizeof( Module::Guild* )/*guild_*/
+        + sizeof( Core::Party* )/*party_*/
+        + sizeof( Core::Party* )/*candidate_of_*/
+        + sizeof( Core::Party* )/*offline_mem_of_*/
+        + sizeof(bool)/*party_can_loot_*/
+        +sizeof( Core::OneShotTask* )/*party_decline_timeout_*/
+        + sizeof(bool)/*murderer_*/
+        +sizeof( Core::Party* )/*candidate_of_*/
+        ;
 
       size += 3 * sizeof(AttributeValue*)+attributes.capacity() * sizeof( AttributeValue );
       size += 3 * sizeof(VitalValue*)+vitals.capacity() * sizeof( VitalValue );
       size += 3 * sizeof( Items::UArmor** ) + armor_.capacity() * sizeof( Items::UArmor* );
       size += 3 * sizeof( Core::ItemRef* ) + remote_containers_.capacity() * sizeof( Core::ItemRef );
+
+      size += 3 * sizeof(void*)+opponent_of.size() * ( sizeof(Character*)+3 * sizeof( void* ) );
 
       size += aggressor_to_.size() * ( sizeof( Core::CharacterRef ) + sizeof( Core::polclock_t ) + ( sizeof(void*)* 3 + 1 ) / 2 );
       size += lawfully_damaged_.size() * ( sizeof( Core::CharacterRef ) + sizeof( Core::polclock_t ) + ( sizeof(void*)* 3 + 1 ) / 2 );
@@ -4402,6 +4475,7 @@ namespace Pol {
       size += 3 * sizeof(void*)+reportable_.size() * ( sizeof(reportable_t)+3 * sizeof( void* ) );
 
       return size;
+
     }
   }
 }

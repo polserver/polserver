@@ -77,7 +77,9 @@ namespace Pol {
 
     size_t UContainer::estimatedSize() const
     {
-      size_t size = base::estimatedSize() + sizeof(UContainer)
+      size_t size = base::estimatedSize()
+        + sizeof(u16)/*held_weight_*/
+        +sizeof(unsigned int)/*held_item_count_*/
         // no estimateSize here element is in objhash
         +3 * sizeof( Items::Item** ) + contents_.capacity() * sizeof( Items::Item* );
       return size;
@@ -1006,7 +1008,7 @@ namespace Pol {
 
     size_t WornItemsContainer::estimatedSize() const
     {
-      return sizeof(WornItemsContainer)+base::estimatedSize();
+      return sizeof( Mobile::Character*)/*chr_owner*/ + base::estimatedSize( );
     }
 
 

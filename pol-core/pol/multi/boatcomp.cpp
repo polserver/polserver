@@ -30,7 +30,7 @@ namespace Pol {
 
     size_t UPlank::estimatedSize( ) const
     {
-      return base::estimatedSize( ) + sizeof( UPlank );
+      return base::estimatedSize( ) + sizeof( ref_ptr<UBoat> );
     }
   }
 }

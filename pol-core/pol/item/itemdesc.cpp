@@ -706,8 +706,16 @@ namespace Pol {
 
     size_t ContainerDesc::estimatedSize() const
     {
-      return sizeof(ContainerDesc)+base::estimatedSize()
-        + can_insert_script.estimatedSize()
+      return base::estimatedSize()
+        + sizeof(u16) /*gump*/
+        +sizeof(u16) /*minx*/
+        +sizeof(u16) /*maxx*/
+        +sizeof(u16) /*miny*/
+        +sizeof(u16) /*maxy*/
+        +sizeof(u16) /*max_weight*/
+        +sizeof(u16) /*max_items*/
+        +sizeof(u8) /*max_slots*/
+        +can_insert_script.estimatedSize()
         + on_insert_script.estimatedSize()
         + can_remove_script.estimatedSize()
         + on_remove_script.estimatedSize();
@@ -729,7 +737,11 @@ namespace Pol {
 	}
     size_t DoorDesc::estimatedSize( ) const
     {
-      return sizeof(DoorDesc)+base::estimatedSize();
+      return base::estimatedSize()
+        + sizeof(s16)/*xmod*/
+        +sizeof(s16)/*ymod*/
+        +sizeof( u16 )/*open_graphic*/
+        ;
     }
 
 	SpellbookDesc::SpellbookDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg ) :
@@ -747,7 +759,7 @@ namespace Pol {
 
     size_t SpellbookDesc::estimatedSize( ) const
     {
-      return sizeof(SpellbookDesc)+base::estimatedSize( ) + spelltype.capacity();
+      return base::estimatedSize( ) + spelltype.capacity();
     }
 
     SpellScrollDesc::SpellScrollDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg ) :
@@ -763,7 +775,7 @@ namespace Pol {
 
     size_t SpellScrollDesc::estimatedSize() const
     {
-      return sizeof(SpellScrollDesc)+base::estimatedSize() + spelltype.capacity();
+      return base::estimatedSize() + spelltype.capacity();
     }
 
     MultiDesc::MultiDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::Package* pkg ) :
@@ -783,7 +795,7 @@ namespace Pol {
 	}
     size_t MultiDesc::estimatedSize( ) const
     {
-      return sizeof(MultiDesc)+base::estimatedSize();
+      return base::estimatedSize();
     }
 
     BoatDesc::BoatDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg ) :
@@ -796,7 +808,7 @@ namespace Pol {
 	}
     size_t BoatDesc::estimatedSize( ) const
     {
-      return sizeof(BoatDesc)+base::estimatedSize( );
+      return base::estimatedSize( );
     }
 
     HouseDesc::HouseDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg ) :
@@ -809,7 +821,7 @@ namespace Pol {
 	}
     size_t HouseDesc::estimatedSize() const
     {
-      return sizeof(HouseDesc)+base::estimatedSize();
+      return base::estimatedSize();
     }
 
     MapDesc::MapDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg ) :
@@ -824,7 +836,7 @@ namespace Pol {
 	}
     size_t MapDesc::estimatedSize() const
     {
-      return sizeof(MapDesc)+base::estimatedSize();
+      return sizeof(bool)/*editable*/+base::estimatedSize( );
     }
 
 	bool objtype_is_lockable( u32 objtype )
