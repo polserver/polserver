@@ -37,7 +37,7 @@ namespace Pol {
 	  unsigned short get_random_damage() const;
 
 	  const Mobile::Attribute* pAttr;
-	  //USKILLID skillid;
+
 	  unsigned short speed;
 	  unsigned short delay;
 

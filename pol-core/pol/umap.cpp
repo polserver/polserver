@@ -362,7 +362,16 @@ namespace Pol {
 
     size_t Map::estimatedSize() const
     {
-      return sizeof(Map)+base::estimatedSize()
+      return base::estimatedSize()
+        + sizeof(u16)/*gumpwidth*/
+        +sizeof(u16)/*gumpheight*/
+        +sizeof(bool)/*editable*/
+        +sizeof(bool)/*plotting*/
+        +sizeof(u16)/*xwest*/
+        +sizeof(u16)/*xeast*/
+        +sizeof(u16)/*ynorth*/
+        +sizeof(u16)/*ysouth*/
+        +sizeof(u16)/*facetid*/
         + 3 * sizeof(PinPoint*)+pin_points.capacity() * sizeof( PinPoint );
     }
 

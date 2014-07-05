@@ -44,7 +44,7 @@ namespace Pol {
 
     size_t ULockable::estimatedSize() const
     {
-      return base::estimatedSize() + sizeof( ULockable );
+      return base::estimatedSize( ) + sizeof( bool )/* locked_*/;
     }
   }
 }

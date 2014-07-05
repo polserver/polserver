@@ -27,7 +27,7 @@ namespace Pol {
 	}
     size_t EquipDesc::estimatedSize() const
     {
-      return sizeof(EquipDesc)+base::estimatedSize();
+      return base::estimatedSize();
     }
 	/*
 	EquipDesc::EquipDesc()

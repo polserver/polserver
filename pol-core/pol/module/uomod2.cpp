@@ -1863,7 +1863,6 @@ namespace Pol {
       size_t scriptsize = sizeEstimate_scripts(&scriptcount);
       size_t scriptstoragecount = 0;
       size_t scriptstoragesize = sizeEstimate_scriptStorage( &scriptstoragecount );
-      
 
       FLEXLOG( log ) << GET_LOG_FILESTAMP << ";"
         << Clib::getCurrentMemoryUsage() << " ;"

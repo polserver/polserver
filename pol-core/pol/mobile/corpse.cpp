@@ -102,7 +102,10 @@ namespace Pol {
 
     size_t UCorpse::estimatedSize( ) const
     {
-      size_t size = base::estimatedSize( ) + sizeof(UCorpse)
+      size_t size = base::estimatedSize( )
+        + sizeof(u16)/*corpsetype*/
+        +sizeof(bool)/*take_contents_to_grave*/
+        +sizeof(u32)/*ownerserial*/
         // no estimateSize here element is in objhash
         +3 * sizeof( Items::Item** ) + layer_list_.capacity( ) * sizeof( Items::Item* );
       return size;

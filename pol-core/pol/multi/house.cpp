@@ -99,17 +99,20 @@ namespace Pol {
 
     size_t UHouse::estimatedSize() const
     {
-      size_t size = sizeof(UHouse)
-        + base::estimatedSize()
+      size_t size = base::estimatedSize()
+        + CurrentDesign.estimatedSize()
+        + WorkingDesign.estimatedSize()
+        + BackupDesign.estimatedSize()
         + 3 * sizeof(u8*)+CurrentCompressed.capacity( ) * sizeof(u8)
         + 3 * sizeof(u8*)+WorkingCompressed.capacity( ) * sizeof(u8)
+        +sizeof(bool)/*editing*/
+        +sizeof(bool)/*waiting_for_accept*/
+        +sizeof(int)/*editing_floor_num*/
+        +sizeof(u32)/*revision*/
+        +sizeof( bool )/*custom*/
         // no estimateSize here element is in objhash
         + 3 * sizeof(Squatter*)+squatters_.capacity() * sizeof(Squatter)
-        + 3 * sizeof(Component*)+components_.capacity() * sizeof( Component )
-        
-        + BackupDesign.estimatedSize()
-        + WorkingDesign.estimatedSize()
-        + BackupDesign.estimatedSize();
+        + 3 * sizeof(Component*)+components_.capacity() * sizeof( Component );
       return size;
     }
 

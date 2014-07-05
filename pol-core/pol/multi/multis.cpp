@@ -122,7 +122,9 @@ namespace Pol {
 
     size_t UMulti::estimatedSize() const
     {
-      return sizeof(UMulti)+base::estimatedSize();
+      return base::estimatedSize()
+        + sizeof( u16 )/*multiid*/
+        ;
     }
   }
 }

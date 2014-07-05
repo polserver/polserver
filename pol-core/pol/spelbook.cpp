@@ -63,7 +63,9 @@ namespace Pol {
 
     size_t Spellbook::estimatedSize( ) const
     {
-      return sizeof(Spellbook)+base::estimatedSize( );
+      return sizeof( u8)*8/* bitwise_contents*/
+        + sizeof( u8 )/*spell_school*/
+        + base::estimatedSize( );
     }
 
 	void Spellbook::double_click( Network::Client* client )
@@ -351,7 +353,7 @@ namespace Pol {
 	}
     size_t USpellScroll::estimatedSize( ) const
     {
-      return sizeof(USpellScroll)+base::estimatedSize( );
+      return base::estimatedSize( );
     }
 
     void Spellbook::send_book_old( Network::Client *client )
