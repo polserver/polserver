@@ -91,7 +91,7 @@ namespace Pol {
 
     size_t UDoor::estimatedSize() const
     {
-      return sizeof(UDoor)+base::estimatedSize();
+      return base::estimatedSize();
     }
   }
 }

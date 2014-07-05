@@ -118,12 +118,14 @@ namespace Pol {
 
 	BObjectImp* UOExecutorModule::internal_MoveBoat( Multi::UBoat* boat, xcoord x, ycoord y, zcoord z, int flags, Plib::Realm* newrealm )
 	{
-	  Plib::Realm* oldrealm = boat->realm;
-	  if ( !boat->navigable( boat->multidef(), x, y, z, newrealm ) )
-	  {
-		return new BError( "Position indicated is impassable" );
-	  }
-
+      Plib::Realm* oldrealm = boat->realm;
+      { // local scope for reg/unreg guard
+        Multi::UBoat::BoatMoveGuard registerguard( boat );
+        if ( !boat->navigable( boat->multidef(), x, y, z, newrealm ) )
+        {
+          return new BError( "Position indicated is impassable" );
+        }
+      }
       if ( newrealm != boat->realm ) //boat->move_xy removes on xy change so only realm change check is needed
       {
         Network::PktHelper::PacketOut<Network::PktOut_1D> msgremove;

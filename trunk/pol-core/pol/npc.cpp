@@ -1155,7 +1155,19 @@ namespace Pol {
 
     size_t NPC::estimatedSize() const
     {
-      return sizeof(NPC) + base::estimatedSize()
+      return base::estimatedSize()
+        + sizeof(unsigned short)/*damaged_sound*/
+        +sizeof(bool)/*use_adjustments*/
+        +sizeof(unsigned short)/*run_speed*/
+        +sizeof(UOExecutor*)/*ex*/
+        +sizeof(UOExecutor*)/*give_item_ex*/
+        +sizeof(unsigned short)/*npc_ar_*/
+        +sizeof(Resistances)/*element_resist_*/
+        +sizeof(ElementDamages)/*element_damage_*/
+        +sizeof(CharacterRef)/*master_*/
+        +sizeof(anchor)/*anchor*/
+        +sizeof(unsigned short)/*speech_color_*/
+        +sizeof(unsigned short)/*speech_font_*/
         + template_name.capacity() + script.capacity();
     }
   }

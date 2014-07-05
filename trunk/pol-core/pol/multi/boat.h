@@ -48,8 +48,14 @@ namespace Pol {
 		friend class UBoat;
 		BoatContext & operator=( const BoatContext & ) { return *this; }
 	  };
-
 	public:
+      struct BoatMoveGuard
+      {
+        UBoat *_boat;
+        BoatMoveGuard( UBoat *boat ) :_boat( boat ) { if ( boat != nullptr ) boat->unregself( ); };
+        ~BoatMoveGuard( ) { if ( _boat != nullptr ) _boat->regself( ); };
+      };
+
 	  virtual UBoat* as_boat();
       virtual ~UBoat() {};
       virtual size_t estimatedSize( ) const;
@@ -79,8 +85,8 @@ namespace Pol {
 	  bool has_offline_mobiles() const;
 	  void remove_orphans();
 	  void destroy_components();
-	  void regself();
-	  void unregself();
+      void regself();
+      void unregself();
 
 	  static Bscript::BObjectImp* scripted_create( const Items::ItemDesc& descriptor, u16 x, u16 y, s8 z, Plib::Realm* realm, int flags );
 
@@ -130,6 +136,7 @@ namespace Pol {
 	  Bscript::BObjectImp* component_list( unsigned char type ) const;
 
 	  friend class Module::EUBoatRefObjImp;
+      friend struct BoatMoveGuard;
 	private:
 	  void create_components();
 	  typedef Core::UObjectRef Traveller;

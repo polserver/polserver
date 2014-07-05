@@ -225,7 +225,25 @@ namespace Pol {
     size_t WeaponDesc::estimatedSize() const
     {
       return base::estimatedSize()
-        + sizeof(WeaponDesc)
+      +sizeof( const Mobile::Attribute* )/*pAttr*/
+      +sizeof(unsigned short)/*speed*/
+      +sizeof(unsigned short)/*delay*/
+      +sizeof( Core::ScriptDef )/*hit_script*/
+      + sizeof( Core::Dice )/*damage_dice*/
+      + sizeof(bool)/*projectile*/
+      +sizeof(unsigned short)/*projectile_type*/
+      +sizeof(unsigned short)/*projectile_anim*/
+      +sizeof(unsigned short)/*projectile_sound*/
+      +sizeof( Core::UACTION )/*projectile_action*/
+      + sizeof( Core::UACTION )/*anim*/
+      + sizeof( Core::UACTION )/*mounted_anim*/
+      + sizeof(unsigned short)/*hit_sound*/
+      +sizeof(unsigned short)/*miss_sound*/
+      +sizeof(bool)/*is_intrinsic*/
+      +sizeof(bool)/*is_pc_weapon*/
+      +sizeof(bool)/*two_handed*/
+      +sizeof(unsigned short)/*minrange*/
+      +sizeof(unsigned short)/*maxrange*/
         + hit_script.estimatedSize();
     }
 
@@ -445,7 +463,7 @@ namespace Pol {
     size_t UWeapon::estimatedSize() const
     {
       size_t size = base::estimatedSize()
-        + sizeof( UWeapon )
+        + sizeof(const WeaponDesc*) /*tmpl*/
         + hit_script_.estimatedSize();
       if ( is_intrinsic() && tmpl != NULL )
       {

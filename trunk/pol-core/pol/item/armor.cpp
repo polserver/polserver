@@ -120,7 +120,7 @@ namespace Pol {
     size_t ArmorDesc::estimatedSize() const
     {
       size_t size = base::estimatedSize()
-        + sizeof(ArmorDesc)
+        + sizeof(unsigned short) /*ar*/
         + on_hit_script.estimatedSize();
       size += 3 * sizeof(void*)+zones.size( ) * ( sizeof(unsigned short)+3 * sizeof( void* ) );
       return size;
@@ -202,7 +202,7 @@ namespace Pol {
     size_t UArmor::estimatedSize() const
     {
       size_t size = base::estimatedSize()
-        + sizeof(UArmor)
+        + sizeof(const ArmorDesc*) /*tmpl*/
         + onhitscript_.estimatedSize();
       return size;
     }

@@ -61,7 +61,7 @@ namespace Pol {
 
     size_t Equipment::estimatedSize() const
     {
-      return sizeof(Equipment) + base::estimatedSize();
+      return base::estimatedSize();
     }
   }
 }

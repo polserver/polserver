@@ -1206,8 +1206,7 @@ namespace Pol {
 	bool UBoat::move_xy( unsigned short newx, unsigned short newy, int flags, Plib::Realm* oldrealm )
 	{
 	  bool result;
-
-	  unregself();
+      BoatMoveGuard registerguard( this );
 
 	  if ( ( flags & Core::MOVEITEM_FORCELOCATION ) || navigable( multidef( ), newx, newy, z, realm ) )
 	  {
@@ -1236,8 +1235,6 @@ namespace Pol {
 		result = false;
 	  }
 
-	  regself();
-
 	  return result;
 	}
 
@@ -1245,7 +1242,7 @@ namespace Pol {
 	{
 	  bool result;
 
-	  unregself();
+      BoatMoveGuard registerguard( this );
 
 	  Core::UFACING move_dir;
 
@@ -1319,8 +1316,6 @@ namespace Pol {
 	  {
 		result = false;
 	  }
-
-	  regself();
 	  return result;
 	}
 
@@ -1464,7 +1459,7 @@ namespace Pol {
 	bool UBoat::turn( RELATIVE_DIR dir )
 	{
 	  bool result;
-	  unregself();
+      BoatMoveGuard registerguard( this );
 
 	  const MultiDef& newmd = multi_ifturn( dir );
 
@@ -1489,7 +1484,6 @@ namespace Pol {
 	  {
 		result = false;
 	  }
-	  regself();
 	  return result;
 	}
 
@@ -1783,7 +1777,11 @@ namespace Pol {
 
     size_t UBoat::estimatedSize() const
     {
-      size_t size = sizeof(UBoat)+base::estimatedSize()
+      size_t size = base::estimatedSize()
+      +sizeof( Items::Item* )/*tillerman*/
+      + sizeof( Items::Item* )/*portplank*/
+      + sizeof( Items::Item* )/*starboardplank*/
+      + sizeof( Items::Item* )/*hold*/
         // no estimateSize here element is in objhash
         + 3 * sizeof(Traveller*)+travellers_.capacity() * sizeof(Traveller)
         + 3 * sizeof(Items::Item**) + Components.capacity() * sizeof(Items::Item*);

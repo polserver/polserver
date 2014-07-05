@@ -93,7 +93,23 @@ namespace Pol {
     size_t Item::estimatedSize() const
     {
       return base::estimatedSize()
-        + sizeof(Item)
+        + sizeof(Core::UContainer*)/* container*/
+        + sizeof( Mobile::Character* )/* gotten_by*/
+        + sizeof(int)/* decayat_gameclock_*/
+        + sizeof(int)/* sellprice_*/
+        + sizeof(int)/* buyprice_*/
+        + sizeof(u16)/* amount_*/
+        +sizeof(bool)/* newbie_*/
+        +sizeof(bool)/* movable_*/
+        +sizeof(bool)/* inuse_*/
+        +sizeof(bool)/* is_gotten_*/
+        +sizeof(bool)/* invisible_*/
+        +sizeof(u8)/* slot_index_*/
+        +sizeof(const ItemDesc *)/* _itemdesc*/
+        +sizeof(u8)/* layer*/
+        +sizeof(u8)/* tile_layer*/
+        +sizeof(unsigned short)/* hp_*/
+        +sizeof(double)/* quality_*/
         + on_use_script_.capacity()
         + equip_script_.capacity()
         + unequip_script_.capacity();
