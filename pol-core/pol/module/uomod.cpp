@@ -2436,8 +2436,25 @@ namespace Pol {
 
 	  std::unique_ptr<ObjArray> newarr( new ObjArray );
 
+	  // extend the coords to find the center item 
+	  // but only as parameter for the filter function
+	  unsigned short x1range = x1;
+	  unsigned short x2range = x2 + RANGE_VISUAL_LARGE_BUILDINGS;
+	  unsigned short y1range = y1;
+	  unsigned short y2range = y2 + RANGE_VISUAL_LARGE_BUILDINGS;
+	   
+	  if (x1range >= RANGE_VISUAL_LARGE_BUILDINGS)
+	    x1range -= RANGE_VISUAL_LARGE_BUILDINGS;
+	  else
+	    x1range = 0;
+	  if (y1range >= RANGE_VISUAL_LARGE_BUILDINGS)
+	    y1range -= RANGE_VISUAL_LARGE_BUILDINGS;
+	  else
+	    y1range = 0;
+
+	  internal_InBoxAreaChecks( x1range,y1range,z1,x2range,y2range,z2,realm);
       // search for multis.  this is tricky, since the center might lie outside the box
-      WorldIterator<MultiFilter>::InBox( x1, y1, x2, y2, realm, [&]( Multi::UMulti* multi )
+      WorldIterator<MultiFilter>::InBox( x1range, y1range, x2range, y2range, realm, [&]( Multi::UMulti* multi )
       {
         const Multi::MultiDef& md = multi->multidef();
         if ( multi->x + md.minrx > x2 || // east of the box
