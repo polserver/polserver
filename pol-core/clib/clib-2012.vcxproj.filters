@@ -152,6 +152,9 @@
     <ClCompile Include="..\..\lib\StackWalker\StackWalker.cpp">
       <Filter>stackwalker</Filter>
     </ClCompile>
+    <ClCompile Include="boostutils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="binaryfile.h">
@@ -329,6 +332,9 @@
       <Filter>stackwalker</Filter>
     </ClInclude>
     <ClInclude Include="compilerspecifics.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="boostutils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

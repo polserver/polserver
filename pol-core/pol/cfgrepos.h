@@ -23,6 +23,7 @@ Notes
 
 #include "../clib/maputil.h"
 #include "../clib/refptr.h"
+#include "../clib/boostutils.h"
 namespace Pol {
   namespace Bscript  {
 	class BObjectImp;
@@ -36,12 +37,15 @@ namespace Pol {
 	class StoredConfigElem : public ref_counted
 	{
 	private:
-	  typedef std::multimap<std::string, ref_ptr<Bscript::BObjectImp>, Clib::ci_cmp_pred > PropImpList;
+      struct cfg_key_tag {};
+      typedef boost::flyweight<std::string, boost::flyweights::tag<cfg_key_tag>, FLYWEIGHT_HASH_FACTORY> cfg_key;
+      typedef std::multimap<cfg_key, ref_ptr<Bscript::BObjectImp>, Clib::ci_cmp_pred > PropImpList;
 
 	public:
 	  StoredConfigElem( Clib::ConfigElem& elem );
 	  StoredConfigElem();
 	  ~StoredConfigElem();
+      size_t estimateSize() const;
 
 	  Bscript::BObjectImp* getimp( const std::string& propname ) const;
 	  Bscript::BObjectImp* listprops() const;
@@ -64,6 +68,7 @@ namespace Pol {
 	  //    ~StoredConfigFile();
 	  void load( Clib::ConfigFile& cf );
 	  void load_tus_scp( const std::string& filename );
+      size_t estimateSize() const;
 
 	  typedef ref_ptr<StoredConfigElem> ElemRef;
 	  ElemRef findelem( int key );
@@ -99,6 +104,8 @@ namespace Pol {
 	void CreateEmptyStoredConfigFile( const std::string& filename );
 	int UnloadConfigFile( const std::string& filename );
 	ConfigFileRef LoadTusScpFile( const std::string& filename );
+
+    size_t configfileEstimateSize(size_t* count);
 
 #ifdef MEMORYLEAK
 	void ConfigFiles_log_stuff();
