@@ -66,12 +66,12 @@ namespace Pol {
 
 	void StoredConfigElem::addprop( const std::string& propname, Bscript::BObjectImp* imp )
 	{
-	  propimps_.insert( PropImpList::value_type( propname.c_str(), ref_ptr<class Bscript::BObjectImp>( imp ) ) );
+	  propimps_.insert( PropImpList::value_type( cfg_key(propname), ref_ptr<class Bscript::BObjectImp>( imp ) ) );
 	}
 
 	Bscript::BObjectImp* StoredConfigElem::getimp( const std::string& propname ) const
 	{
-	  PropImpList::const_iterator itr = propimps_.find( propname );
+      PropImpList::const_iterator itr = propimps_.find( cfg_key(propname) );
 	  if ( itr == propimps_.end() )
 		return NULL;
 	  else
@@ -82,11 +82,10 @@ namespace Pol {
 	Bscript::BObjectImp* StoredConfigElem::listprops() const
 	{
 	  Bscript::ObjArray* objarr = new Bscript::ObjArray;
-	  Bscript::String propname;
 	  PropImpList::const_iterator itr;
 	  for ( itr = propimps_.begin(); itr != propimps_.end(); ++itr )
 	  {
-		propname = ( *itr ).first.c_str();
+        Bscript::String propname (( *itr ).first);
 		if ( !objarr->contains( propname ) )
 		  objarr->addElement( propname.copy() );
 	  }
@@ -95,8 +94,21 @@ namespace Pol {
 
 	std::pair<StoredConfigElem::const_iterator, StoredConfigElem::const_iterator> StoredConfigElem::equal_range( const std::string& propname ) const
 	{
-	  return propimps_.equal_range( propname );
+	  return propimps_.equal_range( cfg_key(propname) );
 	}
+
+    size_t StoredConfigElem::estimateSize() const
+    {
+      size_t size = 0;
+      for ( const auto& pair : propimps_ )
+      {
+        size_t elemsize = sizeof( ref_ptr<Bscript::BObjectImp> );
+        if ( pair.second.get() != nullptr )
+          elemsize = pair.second->sizeEstimate();
+        size += ( sizeof(pair.first) + elemsize ) + ( sizeof(void*)* 3 + 1 ) / 2;
+      }
+      return size;
+    }
 
 	StoredConfigFile::StoredConfigFile() :
 	  reload( false ),
@@ -215,6 +227,24 @@ namespace Pol {
 		elemref->addprop( propname, newimp );
 	  }
 	}
+
+    size_t StoredConfigFile::estimateSize() const
+    {
+      size_t size = sizeof(bool) /* bool reload*/
+        +sizeof( time_t ); /* time_t modified_*/
+
+      for ( const auto& pair : elements_byname_ )
+      {
+        size_t elemsize = sizeof( ElemRef );
+        if ( pair.second.get() != nullptr )
+          elemsize = pair.second->estimateSize();
+        size += ( pair.first.capacity( ) + elemsize ) + ( sizeof(void*)* 3 + 1 ) / 2;
+      }
+      // both maps share the same ref
+      size += ( ( sizeof(int)+sizeof( ElemRef ) ) + ( sizeof(void*)* 3 + 1 ) / 2 )*elements_bynum_.size();
+      return size;
+    }
+
 
 
 	typedef map<string, ConfigFileRef> CfgFiles;
@@ -343,6 +373,20 @@ namespace Pol {
 	  LEAKLOG << cfgfiles.size() << ";" << oldcfgfiles.size() << ";";
 	}
 #endif
+
+    size_t configfileEstimateSize(size_t* count)
+    {
+      size_t size = 0;
+      *count = cfgfiles.size();
+      for ( const auto& pair : cfgfiles )
+      {
+        size_t cfgsize = 0;
+        if ( pair.second.get() != nullptr )
+          cfgsize += pair.second->estimateSize();
+        size += ( pair.first.capacity( ) + cfgsize ) + ( sizeof(void*)* 3 + 1 ) / 2;
+      }
+      return size;
+    }
 
 	// ToDo: we have to think over... it's a problem with script-inside references
 	void UnloadAllConfigFiles()

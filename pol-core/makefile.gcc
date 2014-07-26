@@ -68,7 +68,7 @@ cpp_sources = \
 	../lib/tinyxml/tinystr.cpp ../lib/tinyxml/tinyxml.cpp \
 	../lib/tinyxml/tinyxmlerror.cpp ../lib/tinyxml/tinyxmlparser.cpp \
 	../lib/format/format.cc \
-	clib/streamsaver.cpp \
+	clib/boostutils.cpp clib/streamsaver.cpp \
 	clib/progver.cpp plib/polver.cpp \
 	pol/accounts/account.cpp pol/accounts/accounts.cpp pol/accounts/acscrobj.cpp pol/allocd.cpp \
 	pol/item/armor.cpp pol/mobile/attack.cpp pol/mobile/ufacing.cpp \
@@ -186,6 +186,7 @@ cpp_sources = \
 
 ecompile_sources=ecompile/ecompile.cpp \
     ../lib/format/format.cc \
+  clib/boostutils.cpp \
 	plib/polver.cpp plib/pkg.cpp \
 	bscript/compilercfg.cpp bscript/compiler.cpp bscript/parser.cpp \
 	bscript/token.cpp bscript/symcont.cpp \
@@ -208,7 +209,7 @@ runecl_sources=runecl/runecl.cpp \
 	../lib/tinyxml/tinystr.cpp ../lib/tinyxml/tinyxml.cpp \
 	../lib/tinyxml/tinyxmlerror.cpp ../lib/tinyxml/tinyxmlparser.cpp \
 	../lib/format/format.cc \
-	clib/streamsaver.cpp \
+	clib/boostutils.cpp clib/streamsaver.cpp \
 	bscript/executor.cpp bscript/execmodl.cpp bscript/dbl.cpp \
 	pol/module/basiciomod.cpp pol/module/basicmod.cpp bscript/berror.cpp \
 	pol/module/utilmod.cpp pol/dice.cpp \
@@ -234,6 +235,7 @@ runecl_sources=runecl/runecl.cpp \
 
 uoconvert_sources=uoconvert/uoconvert.cpp  \
     ../lib/format/format.cc \
+  clib/boostutils.cpp \
 	pol/uofile00.cpp pol/uofile01.cpp pol/uofile02.cpp \
 	pol/uofile07.cpp pol/uofile08.cpp \
 	pol/polfile1.cpp \
@@ -247,6 +249,7 @@ uoconvert_sources=uoconvert/uoconvert.cpp  \
 
 uotool_sources=uotool/uotool.cpp \
     ../lib/format/format.cc \
+  clib/boostutils.cpp \
 	uotool/uofile04.cpp uotool/uofile05.cpp \
 	pol/uofile00.cpp pol/uofile01.cpp pol/uofile02.cpp \
 	pol/uofile06.cpp pol/uofile07.cpp pol/uofile08.cpp \

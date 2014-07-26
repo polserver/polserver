@@ -109,6 +109,7 @@ Notes
 #include "../accounts/accounts.h"
 #include "../accounts/acscrobj.h"
 #include "../objecthash.h"
+#include "../cfgrepos.h"
 
 #ifdef USE_SYSTEM_ZLIB
 #	include <zlib.h>
@@ -1768,9 +1769,14 @@ namespace Pol {
       if ( needs_header )
       {
         FLEXLOG( log ) << "Time ;ProcessSize ;RealmSize ;ScriptCount ;ScriptSize ;ScriptStoreCount ;ScriptStoreSize ;ObjCount ;ObjSize ;AccountCount ;AccountSize ;ClientCount ;ClientSize ;"
-          << "ObjItemCount ;ObjItemSize ;ObjContCount ;ObjContSize ;ObjCharCount ;ObjCharSize ;ObjNpcCount ;ObjNpcSize ;ObjWeaponCount ;ObjWeaponSize ; ObjArmorCount ;ObjArmorSize ;ObjMultiCount ;ObjMultiSize\n";
+          << "ObjItemCount ;ObjItemSize ;ObjContCount ;ObjContSize ;ObjCharCount ;ObjCharSize ;ObjNpcCount ;ObjNpcSize ;ObjWeaponCount ;ObjWeaponSize ; ObjArmorCount ;ObjArmorSize ;ObjMultiCount ;ObjMultiSize ;"
+          << "ConfigCount ;ConfigSize";
+#ifdef DEBUG_FLYWEIGHT
+        for ( int i = 0; i < boost_utils::debug_flyweight_queries.size(); ++i )
+          FLEXLOG( log ) << " ;FlyWeightBucket" << i << "Count ;FlyWeightBucket"<<i<<"Size";
+#endif
+        FLEXLOG( log ) << "\n";
       }
-
       size_t realmsize = 3 * sizeof(void*)+Core::Realms->capacity() * sizeof( void* );
       for ( const auto &realm : (*Core::Realms) )
       {
@@ -1863,6 +1869,8 @@ namespace Pol {
       size_t scriptsize = sizeEstimate_scripts(&scriptcount);
       size_t scriptstoragecount = 0;
       size_t scriptstoragesize = sizeEstimate_scriptStorage( &scriptstoragecount );
+      size_t configcount = 0;
+      size_t configsize = Core::configfileEstimateSize( &configcount );
 
       FLEXLOG( log ) << GET_LOG_FILESTAMP << ";"
         << Clib::getCurrentMemoryUsage() << " ;"
@@ -1871,15 +1879,26 @@ namespace Pol {
         << scriptstoragecount << " ;" << scriptstoragesize << " ;"
         << objcount << " ;" << objsize << " ;"
         << accountcount << " ;" << accountsize << " ;"
-        << clientcount << " ;"  << clientsize << " ;"
+        << clientcount << " ;" << clientsize << " ;"
         << obj_item_count << " ;" << obj_item_size << " ;"
         << obj_cont_count << " ;" << obj_cont_size << " ;"
         << obj_char_count << " ;" << obj_char_size << " ;"
         << obj_npc_count << " ;" << obj_npc_size << " ;"
         << obj_weapon_count << " ;" << obj_weapon_size << " ;"
         << obj_armor_count << " ;" << obj_armor_size << " ;"
-        << obj_multi_count << " ;" << obj_multi_size
-        << "\n";
+        << obj_multi_count << " ;" << obj_multi_size << " ;"
+        << configcount << " ;" << configsize;
+
+#ifdef DEBUG_FLYWEIGHT
+      for ( const auto& ptr : boost_utils::debug_flyweight_queries )
+      {
+        if ( ptr != 0 )
+        {
+          FLEXLOG( log ) << " ;" << ptr->bucket_count() << " ;" << ptr->estimateSize();
+        }
+      }
+#endif
+      FLEXLOG( log ) << "\n";
       CLOSE_FLEXLOG( log );
     }
 
