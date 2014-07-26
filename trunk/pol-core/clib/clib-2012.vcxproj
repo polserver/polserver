@@ -218,6 +218,7 @@
     <ClCompile Include="..\..\lib\format\format.cc" />
     <ClCompile Include="..\..\lib\StackWalker\StackWalker.cpp" />
     <ClCompile Include="binaryfile.cpp" />
+    <ClCompile Include="boostutils.cpp" />
     <ClCompile Include="cfgfile.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
@@ -275,6 +276,7 @@
     <ClInclude Include="..\..\lib\StackWalker\StackWalker.h" />
     <ClInclude Include="binaryfile.h" />
     <ClInclude Include="bitutil.h" />
+    <ClInclude Include="boostutils.h" />
     <ClInclude Include="cfgelem.h" />
     <ClInclude Include="cfgfile.h" />
     <ClInclude Include="cfgsect.h" />

@@ -10,10 +10,14 @@ Notes
 
 #include "stl_inc.h"
 #include "progver.h"
+#include "../svn_version.h"
 namespace Pol {
 	const char compiledate[] = __DATE__;
-	const char compiletime[] = __TIME__;
-
+#ifdef _SVNVER
+	const char compiletime[] = __TIME__ " (Rev. " _SVNVER ")";
+#else
+    const char compiletime[] = __TIME__;
+#endif
 	char progverstr[64];
 	char buildtagstr[64];
 	unsigned int progver;

@@ -15,12 +15,12 @@ Notes
 #pragma warning( disable: 4786 )
 #endif
 
-#include <iosfwd>
 #include <map>
 #include <string>
 #include <vector>
+#include "../clib/boostutils.h"
 
-#include "../../lib/format/format.h"
+#include <boost/flyweight.hpp>
 
 namespace Pol {
   namespace Bscript {
@@ -57,7 +57,12 @@ namespace Pol {
 	  PropertyList& operator-( const std::set<std::string>& );  //dave added 1/26/3
 	  void operator-=( const std::set<std::string>& );  //dave added 1/26/3
 	protected:
-	  typedef std::map<std::string, std::string> Properties;
+      struct cprop_name_tag {};
+      struct cprop_value_tag {};
+      typedef boost::flyweight<std::string, boost::flyweights::tag<cprop_name_tag>, FLYWEIGHT_HASH_FACTORY> cprop_name;
+      typedef boost::flyweight<std::string, boost::flyweights::tag<cprop_value_tag>, FLYWEIGHT_HASH_FACTORY> cprop_value;
+      typedef std::map<cprop_name, cprop_value> Properties;
+
 	  Properties properties;
 
 	private:

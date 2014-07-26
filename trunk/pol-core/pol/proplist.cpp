@@ -31,6 +31,7 @@ Notes
 #define pf_endl '\n'
 namespace Pol {
   namespace Core {
+
 	PropertyList::PropertyList()
 	{}
 
@@ -42,17 +43,13 @@ namespace Pol {
     size_t PropertyList::estimatedSize() const
     {
       size_t size = sizeof( PropertyList );
-      for ( const auto& prop : properties )
-      {
-        size += prop.first.capacity( ) + prop.second.capacity( ) + ( sizeof(void*)* 3 + 1 ) / 2;
-      }
+      size += properties.size( ) * ( sizeof(cprop_name)+sizeof(cprop_value)+( sizeof(void*)* 3 + 1 ) / 2 );
       return size;
     }
 
-
 	bool PropertyList::getprop( const string& propname, string& propval ) const
 	{
-	  Properties::const_iterator itr = properties.find( propname );
+	  Properties::const_iterator itr = properties.find( cprop_name(propname) );
 	  if ( itr == properties.end() )
 	  {
 		return false;
@@ -65,20 +62,20 @@ namespace Pol {
 	}
 	void PropertyList::setprop( const std::string& propname, const std::string& propvalue )
 	{
-	  properties[propname] = propvalue;
+      properties[cprop_name( propname)] = propvalue;
 	}
 
 	void PropertyList::eraseprop( const std::string& propname )
 	{
-	  properties.erase( propname );
+      properties.erase( cprop_name( propname) );
 	}
 
 	void PropertyList::copyprops( const PropertyList& from )
 	{
 	  //dave 4/25/3 map insert won't overwrite with new values, so remove those first and then reinsert.
 	  Properties::const_iterator itr;
-	  for ( itr = from.properties.begin(); itr != from.properties.end(); ++itr )
-		properties.erase( itr->first );
+	  for ( const auto& prop : from.properties)
+        properties.erase( prop.first );
 
 	  properties.insert( from.properties.begin(), from.properties.end() );
 	}
@@ -103,7 +100,7 @@ namespace Pol {
 		const string& first = prop.first;
 		if ( first[0] != '#' )
 		{
-		  sw() << "\tCProp\t" << first << " " << prop.second << pf_endl;
+		  sw() << "\tCProp\t" << first << " " << prop.second.get() << pf_endl;
 		}
 	  }
 	}
@@ -114,7 +111,7 @@ namespace Pol {
 		const string& first = prop.first;
 		if ( first[0] != '#' )
 		{
-		  elem.add_prop( "CProp", ( first + "\t" + prop.second ).c_str() );
+		  elem.add_prop( "CProp", ( first + "\t" + prop.second.get() ).c_str() );
 		}
 	  }
 	}
@@ -126,7 +123,7 @@ namespace Pol {
 		const string& first = prop.first;
 		if ( first[0] != '#' )
 		{
-		  sw() << "\t" << first << " " << prop.second << pf_endl;
+		  sw() << "\t" << first << " " << prop.second.get() << pf_endl;
 		}
 	  }
 	}
@@ -163,23 +160,6 @@ namespace Pol {
 	  }
 	}
 
-	/*
-	void PropertyList::magicReadProperties( ConfigElem& elem )
-	{
-	string propname, propval;
-
-	while (elem.remove_first_prop( &propname, &propval ))
-	{
-	const char* t_real;
-	const char* t_long;
-	if
-	strto
-	char ch = propval[0];
-	if (isxdigit(ch) || ch == '-' || ch == '+')
-	}
-	}
-	*/
-
 	bool PropertyList::operator==( const PropertyList& plist ) const
 	{
 	  return ( this->properties == plist.properties );
@@ -187,10 +167,9 @@ namespace Pol {
 
 	PropertyList& PropertyList::operator-( const std::set<std::string>& CPropNames ) //dave added 1/26/3
 	{
-	  std::set<std::string>::const_iterator itr;
-	  for ( itr = CPropNames.begin(); itr != CPropNames.end(); ++itr )
+	  for ( const auto& name : CPropNames)
 	  {
-		eraseprop( *itr );
+        eraseprop( name );
 	  }
 
 	  return *this;
@@ -198,10 +177,9 @@ namespace Pol {
 
 	void PropertyList::operator-=( const std::set<std::string>& CPropNames )  //dave added 1/26/3
 	{
-	  std::set<std::string>::const_iterator itr;
-	  for ( itr = CPropNames.begin(); itr != CPropNames.end(); ++itr )
+      for ( const auto& name : CPropNames )
 	  {
-		eraseprop( *itr );
+        eraseprop( name );
 	  }
 	}
 
@@ -212,62 +190,62 @@ namespace Pol {
 	  {
 		case MTH_GETPROP:
 		{
-						  if ( !ex.hasParams( 1 ) )
-							return new BError( "Not enough parameters" );
-						  const String* propname_str;
-						  if ( !ex.getStringParam( 0, propname_str ) )
-							return new BError( "Invalid parameter type" );
-						  std::string val;
-						  if ( !proplist.getprop( propname_str->value(), val ) )
-							return new BError( "Property not found" );
+		  if ( !ex.hasParams( 1 ) )
+			return new BError( "Not enough parameters" );
+		  const String* propname_str;
+		  if ( !ex.getStringParam( 0, propname_str ) )
+			return new BError( "Invalid parameter type" );
+		  std::string val;
+		  if ( !proplist.getprop( propname_str->value(), val ) )
+			return new BError( "Property not found" );
 
-						  return Bscript::BObjectImp::unpack( val.c_str() );
+		  return Bscript::BObjectImp::unpack( val.c_str() );
 		}
 
 		case MTH_SETPROP:
 		{
-						  if ( !ex.hasParams( 2 ) )
-							return new BError( "Not enough parameters" );
-						  const String* propname_str;
-						  if ( !ex.getStringParam( 0, propname_str ) )
-							return new BError( "Invalid parameter type" );
+		  if ( !ex.hasParams( 2 ) )
+			return new BError( "Not enough parameters" );
+		  const String* propname_str;
+		  if ( !ex.getStringParam( 0, propname_str ) )
+			return new BError( "Invalid parameter type" );
 
-						  Bscript::BObjectImp* propval = ex.getParamImp( 1 );
-						  if ( propval->isa( Bscript::BObjectImp::OTError ) )
-						  {
-                            POLLOG.Format( "wtf, setprop w/ an error '{}' PC:{}\n" ) << ex.scriptname().c_str() << ex.PC;
-						  }
-						  string propname = propname_str->value();
-						  proplist.setprop( propname, propval->pack() );
-						  if ( propname[0] != '#' )
-							changed = true;
-						  return new BLong( 1 );
+		  Bscript::BObjectImp* propval = ex.getParamImp( 1 );
+		  if ( propval->isa( Bscript::BObjectImp::OTError ) )
+		  {
+            POLLOG.Format( "wtf, setprop w/ an error '{}' PC:{}\n" ) << ex.scriptname().c_str() << ex.PC;
+		  }
+		  string propname = propname_str->value();
+		  proplist.setprop( propname, propval->pack() );
+		  if ( propname[0] != '#' )
+			changed = true;
+		  return new BLong( 1 );
 		}
 
 		case MTH_ERASEPROP:
 		{
-							if ( !ex.hasParams( 1 ) )
-							  return new BError( "Not enough parameters" );
-							const String* propname_str;
-							if ( !ex.getStringParam( 0, propname_str ) )
-							  return new BError( "Invalid parameter type" );
-							string propname = propname_str->value();
-							proplist.eraseprop( propname );
-							if ( propname[0] != '#' )
-							  changed = true;
-							return new BLong( 1 );
+		  if ( !ex.hasParams( 1 ) )
+			return new BError( "Not enough parameters" );
+		  const String* propname_str;
+		  if ( !ex.getStringParam( 0, propname_str ) )
+			return new BError( "Invalid parameter type" );
+		  string propname = propname_str->value();
+		  proplist.eraseprop( propname );
+		  if ( propname[0] != '#' )
+			changed = true;
+		  return new BLong( 1 );
 		}
 
 		case MTH_PROPNAMES:
 		{
-							vector<string> propnames;
-							proplist.getpropnames( propnames );
-							std::unique_ptr<ObjArray> arr( new ObjArray );
-							for ( unsigned i = 0; i < propnames.size(); ++i )
-							{
-							  arr->addElement( new String( propnames[i] ) );
-							}
-							return arr.release();
+		  vector<string> propnames;
+		  proplist.getpropnames( propnames );
+		  std::unique_ptr<ObjArray> arr( new ObjArray );
+		  for ( const auto& name : propnames)
+		  {
+            arr->addElement( new String( name ) );
+		  }
+		  return arr.release();
 		}
 
 		default:
