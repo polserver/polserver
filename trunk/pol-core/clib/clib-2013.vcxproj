@@ -155,9 +155,6 @@
       <TargetMachine>MachineX64</TargetMachine>
       <AdditionalLibraryDirectories>..\..\lib\boost_1_55_0\lib\x64\lib</AdditionalLibraryDirectories>
     </Lib>
-    <PreBuildEvent>
-      <Command>$(SolutionDir)\..\svnversion.bat $(SolutionDir)</Command>
-    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -220,9 +217,6 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\..\lib\boost_1_55_0\lib\x64\lib</AdditionalLibraryDirectories>
     </Lib>
-    <PreBuildEvent>
-      <Command>$(SolutionDir)\..\svnversion.bat $(SolutionDir)</Command>
-    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\lib\format\format.cc" />
