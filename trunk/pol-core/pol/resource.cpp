@@ -79,7 +79,7 @@ namespace Pol {
 	  }
 
 	  unsigned int base_difficulty = 90 - ( units * 80 / units_per_area_ );
-	  unsigned int this_difficulty = random_int( base_difficulty * 2 );
+      unsigned int this_difficulty = Clib::random_int( (base_difficulty * 2)-1 );
       return new Bscript::BLong( this_difficulty );
 	}
 

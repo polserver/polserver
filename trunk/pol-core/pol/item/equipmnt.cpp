@@ -44,7 +44,7 @@ namespace Pol {
 
 	void Equipment::reduce_hp_from_hit()
 	{
-	  if ( hp_ >= 1 && random_int( 100 ) == 0 )
+      if ( hp_ >= 1 && Clib::random_int( 99 ) == 0 )
 	  {
 		set_dirty();
 		--hp_;

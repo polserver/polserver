@@ -694,7 +694,7 @@ namespace Pol {
 	{
 	  if ( desc.minx < desc.maxx )
 	  {
-		*px = desc.minx + static_cast<u16>( random_int( desc.maxx - desc.minx ) );
+		*px = desc.minx + static_cast<u16>( Clib::random_int( desc.maxx - desc.minx-1 ) );
 	  }
 	  else
 	  {
@@ -703,7 +703,7 @@ namespace Pol {
 
 	  if ( desc.miny < desc.maxy )
 	  {
-		*py = desc.miny + static_cast<u16>( random_int( desc.maxy - desc.miny ) );
+        *py = desc.miny + static_cast<u16>( Clib::random_int( desc.maxy - desc.miny -1) );
 	  }
 	  else
 	  {

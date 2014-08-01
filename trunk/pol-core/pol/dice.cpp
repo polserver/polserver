@@ -12,6 +12,7 @@ Notes
 #include "../clib/stl_inc.h"
 #include "../clib/stlutil.h"
 #include "../clib/logfacility.h"
+#include "../clib/rawtypes.h"
 #include "../clib/random.h"
 
 #include "dice.h"
@@ -30,8 +31,7 @@ namespace Pol {
 	  int total = 0;
 	  for ( unsigned i = 0; i < die_count; i++ )
 	  {
-		// random_int returns 0 to n-1
-		total += random_int( die_type ) + 1;
+    	total += Clib::random_int( die_type );
 	  }
 	  total += plus_damage;
 

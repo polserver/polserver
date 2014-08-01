@@ -650,6 +650,9 @@
     <ClCompile Include="mobile\ufacing.cpp">
       <Filter>mobile</Filter>
     </ClCompile>
+    <ClCompile Include="network\packetdefs.cpp">
+      <Filter>network</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="action.h">
@@ -1254,6 +1257,9 @@
     </ClInclude>
     <ClInclude Include="property.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="network\packetdefs.h">
+      <Filter>network</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -646,7 +646,7 @@ namespace Pol {
 	  elem.z = CustomHouseDesign::custom_house_z_xlate_table[house->editing_floor_num];
 
 	  //the south side of the house can have stairs at z=0
-	  int ysize = house->multidef().maxry - house->multidef().minry;
+	  //int ysize = house->multidef().maxry - house->multidef().minry;
 
 	  if ( elem.yoffset == house->multidef().maxry + 1 )
 		elem.z = 0;

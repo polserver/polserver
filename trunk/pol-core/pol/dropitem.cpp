@@ -207,7 +207,7 @@ namespace Pol {
 	  // FIXME : Add Grid Index Default Location Checks here.
 	  // Remember, if index fails, move to the ground.
 
-	  if ( do_place_item_in_secure_trade_container( client, item, cont, dropon, 5 + static_cast<u16>( random_int( 45 ) ), 5 + static_cast<u16>( random_int( 45 ) ), 1 ) )
+      if ( do_place_item_in_secure_trade_container( client, item, cont, dropon, 5 + static_cast<u16>( Clib::random_int( 44 ) ), 5 + static_cast<u16>( Clib::random_int( 44 ) ), 1 ) )
 		return new Bscript::BLong( 1 );
 	  else
 		return new Bscript::BError( "Something went wrong with trade window." );

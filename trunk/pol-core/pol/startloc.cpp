@@ -16,7 +16,7 @@ namespace Pol {
   namespace Core {
 	Coordinate StartingLocation::select_coordinate() const
 	{
-	  u32 sidx = random_int( static_cast<int>( coords.size() ) );
+      int sidx = Clib::random_int( static_cast<int>( coords.size( ) -1) );
 
 	  return coords[sidx];
 	}
