@@ -335,7 +335,7 @@ namespace Pol {
 	{
 	  u8 newfacing = 0;
 	  bool adjust_ok = true;
-	  switch ( random_int( 8 ) )
+      switch ( Clib::random_int( 7 ) )
 	  {
 		case 0: case 1: case 2: case 3: case 4: case 5:
 		  newfacing = npc.facing;

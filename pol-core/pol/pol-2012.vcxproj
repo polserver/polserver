@@ -316,6 +316,7 @@
     <ClCompile Include="msgfiltr.cpp" />
     <ClCompile Include="musicrgn.cpp" />
     <ClCompile Include="network\clienttransmit.cpp" />
+    <ClCompile Include="network\packetdefs.cpp" />
     <ClCompile Include="npc.cpp" />
     <ClCompile Include="npctemplates.cpp" />
     <ClCompile Include="npctmpl.cpp" />
@@ -552,6 +553,7 @@
     <ClInclude Include="msghandl.h" />
     <ClInclude Include="musicrgn.h" />
     <ClInclude Include="network\clienttransmit.h" />
+    <ClInclude Include="network\packetdefs.h" />
     <ClInclude Include="npc.h" />
     <ClInclude Include="npctmpl.h" />
     <ClInclude Include="objecthash.h" />

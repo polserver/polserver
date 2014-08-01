@@ -48,7 +48,7 @@ namespace Pol {
   namespace Mobile {
     Core::UFACING GetRandomFacing()
     {
-      int rval = random_int( 8 );
+      int rval = Clib::random_int( 7 );
       return static_cast<Core::UFACING>( rval );
     }
 

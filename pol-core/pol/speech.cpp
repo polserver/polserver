@@ -142,7 +142,7 @@ namespace Pol {
 		{
 		  if ( !isspace( *t ) )
 		  {
-			if ( random_int( 4 ) == 0 )
+            if ( Clib::random_int( 3 ) == 0 )
 			  *t = 'o';
 			else
 			  *t = 'O';
@@ -321,7 +321,7 @@ namespace Pol {
 			wchar_t wch = ( *t );
 			if ( !iswspace( wch ) )
 			{
-			  if ( random_int( 4 ) == 0 )
+              if ( Clib::random_int( 3 ) == 0 )
 				*t = ctBEu16( L'o' );
 			  else
 				*t = ctBEu16( L'O' );

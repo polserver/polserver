@@ -2031,7 +2031,7 @@ namespace Pol {
 	  int absorbed = blocked / 2;
 
 	  blocked -= absorbed;
-	  absorbed += random_int( blocked + 1 );
+      absorbed += Clib::random_int( blocked );
 	  damage -= absorbed;
 
 	  if ( damage >= 2.0 )
@@ -3286,7 +3286,7 @@ namespace Pol {
 
 	Items::UArmor* Character::choose_armor() const
 	{
-	  double f = static_cast<double>( random_float( static_cast<float>( armor_zone_chance_sum ) ) );
+	  double f = Clib::random_double( armor_zone_chance_sum );
 	  for ( unsigned zone = 0; zone < armorzones.size(); ++zone )
 	  {
 		f -= armorzones[zone].chance;
@@ -3440,7 +3440,7 @@ namespace Pol {
 	  hit_chance -= opponent->evasionchance_mod_ * 0.001f;
       if ( Core::watch.combat )
         INFO_PRINT << "Chance to hit: " << hit_chance << ": ";
-	  if ( random_float( 1.0 ) < hit_chance )
+	  if ( Clib::random_double( 1.0 ) < hit_chance )
 	  {
         if ( Core::watch.combat )
           INFO_PRINT << "Hit!\n";
@@ -3472,7 +3472,7 @@ namespace Pol {
 
 		  double parry_chance = opponent->attribute( pAttrParry->attrid ).effective() / 200.0;
           if ( Core::watch.combat ) INFO_PRINT << "Parry Chance: " << parry_chance << ": ";
-		  if ( random_float( 1.0 ) < parry_chance )
+          if ( Clib::random_double( 1.0 ) < parry_chance )
 		  {
             if ( Core::watch.combat )
               INFO_PRINT << opponent->shield->ar() << " hits deflected\n";

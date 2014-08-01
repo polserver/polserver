@@ -54,7 +54,7 @@ namespace Pol {
 	  if ( exec.getParam( 0, value, 1, INT_MAX ) )
 	  {
 		if ( value > 0 )
-		  return new BLong( random_int( value ) );
+          return new BLong( Clib::random_int( value-1 ) );
 		else
 		  return new BError( "RandomInt() expects a positive integer" );
 	  }
@@ -70,12 +70,11 @@ namespace Pol {
 	  if ( exec.getParam( 0, minvalue, INT_MIN, INT_MAX ) )
 	  {
 		int maxvalue;
-		if ( exec.getParam( 1, maxvalue, INT_MIN, INT_MAX ) )
-		{
-		  if ( maxvalue < minvalue )
-			swap( maxvalue, minvalue );
-		  return new BLong( random_int_range( minvalue, maxvalue ) );
-		}
+        if ( exec.getParam( 1, maxvalue, INT_MIN, INT_MAX ) )
+        {
+          maxvalue--;
+          return new BLong( Clib::random_int_range( minvalue, maxvalue ) );
+        }
 		else
 		  return new BError( "RandomIntMinMax() expects an integer" );
 	  }
@@ -88,7 +87,7 @@ namespace Pol {
 	  double value;
 	  if ( exec.getRealParam( 0, value ) )
 	  {
-		return new Double( static_cast<double>( random_float( static_cast<float>( value ) ) ) );
+        return new Double( Clib::random_double( value ) );
 	  }
 	  else
 	  {

@@ -127,6 +127,7 @@ namespace Pol {
         std::string create( std::string logfilename, bool open_timestamp );
         virtual void sink( fmt::Writer* msg);
         virtual void sink( fmt::Writer* msg, std::string id );
+        virtual void close( unsigned int ) {};
         void close( std::string id );
       private:
         std::map<std::string, std::shared_ptr<LogSinkGenericFile>> _logfiles;
