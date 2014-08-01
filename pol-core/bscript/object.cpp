@@ -1551,7 +1551,7 @@ namespace Pol {
 			{
 			  if ( !ref_arr.empty() )
 			  {
-				const BObjectRef& ref = ref_arr[random_int( static_cast<int>( ref_arr.size() ) )];
+				const BObjectRef& ref = ref_arr[Clib::random_int( static_cast<int>( ref_arr.size() )-1 )];
 				if ( ref.get() == NULL )
 				  return NULL;
 				return ref.get()->impptr();

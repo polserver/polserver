@@ -30,7 +30,7 @@ namespace Pol {
 	{
 	  if ( !midilist_.empty() )
 	  {
-		int idx = random_int( static_cast<int>( midilist_.size() ) );
+        int idx = Clib::random_int( static_cast<int>( midilist_.size( )-1 ) );
 		return midilist_[idx];
 	  }
 	  else

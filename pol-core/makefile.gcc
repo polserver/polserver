@@ -181,7 +181,8 @@ cpp_sources = \
 	clib/unicode.cpp \
 	clib/pkthelper.cpp \
 	clib/logfacility.cpp \
-	pol/xmlfilescrobj.cpp #\
+	pol/xmlfilescrobj.cpp \
+	pol/network/packetdefs.cpp
 
 
 ecompile_sources=ecompile/ecompile.cpp \

@@ -194,7 +194,7 @@ namespace Pol {
 			int perc = 100 - ( newdist - anchor.dstart )*anchor.psub;
 			if ( perc < 5 )
 			  perc = 5;
-			if ( random_int( 100 ) > perc )
+            if ( Clib::random_int( 99 ) > perc )
 			  return false;
 		  }
 		}
@@ -1005,7 +1005,7 @@ namespace Pol {
 		int absorbed = blocked / 2;
 
 		blocked -= absorbed;
-		absorbed += random_int( blocked + 1 );
+        absorbed += Clib::random_int( blocked );
         if ( watch.combat ) INFO_PRINT << absorbed << " hits absorbed by NPC armor.\n";
 		damage -= absorbed;
 		if ( damage < 0 )

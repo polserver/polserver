@@ -88,6 +88,7 @@ Notes
 #include "miscrgn.h"
 #include "network/cgdata.h"
 #include "containr.h"
+#include "network/packetdefs.h"
 
 #include "objecthash.h"
 namespace Pol {
@@ -749,57 +750,9 @@ namespace Pol {
 	  u8 flags = 0;
 	  if ( client->chr->can_move( item ) )
 		flags |= ITEM_FLAG_FORCE_MOVABLE;
-	  if ( client->ClientType & CLIENTTYPE_7000 )
-	  {
-		// Client >= 7.0.0.0 ( SA )
-		PktHelper::PacketOut<PktOut_F3> msg;
-		msg->WriteFlipped<u16>( 0x1 );
-		msg->offset++; // datatype
-		msg->Write<u32>( item->serial_ext );
-		msg->WriteFlipped<u16>( item->graphic );
-		msg->Write<u8>( 0 );
-		msg->WriteFlipped<u16>( item->get_senditem_amount() );
-		msg->WriteFlipped<u16>( item->get_senditem_amount() );
-		msg->WriteFlipped<u16>( item->x );
-		msg->WriteFlipped<u16>( item->y );
-		msg->Write<s8>( item->z );
-		msg->Write<u8>( item->facing );
-		msg->WriteFlipped<u16>( item->color );
-		msg->Write<u8>( flags );
-		if ( client->ClientType & CLIENTTYPE_7090 )
-		  msg->offset += 2;
-		msg.Send( client );
-	  }
-	  else
-	  {
-		PktHelper::PacketOut<PktOut_1A> msg;
-		// transmit item info
-		msg->offset += 2;
-		// If the 0x80000000 is left out, the item won't show up. 
-		msg->WriteFlipped<u32>( static_cast<u32>( 0x80000000 | item->serial ) ); // bit 0x80000000 enables piles
-		msg->WriteFlipped<u16>( item->graphic );
-		msg->WriteFlipped<u16>( item->get_senditem_amount() );
-		if ( item->facing == 0 )
-		{
-		  msg->WriteFlipped<u16>( item->x );
-		  // bits 0x80 and 0x40 are Dye and Move (dunno which is which)
-		  msg->WriteFlipped<u16>( static_cast<u16>( 0xC000 | item->y ) ); // dyeable and moveable?
-		}
-		else
-		{
-		  msg->WriteFlipped<u16>( static_cast<u16>( 0x8000 | item->x ) );
-		  // bits 0x80 and 0x40 are Dye and Move (dunno which is which)
-		  msg->WriteFlipped<u16>( static_cast<u16>( 0xC000 | item->y ) ); // dyeable and moveable?
-		  msg->Write<u8>( item->facing );
-		}
-		msg->Write<s8>( item->z );
-		msg->WriteFlipped<u16>( item->color );
-		msg->Write<u8>( flags );
-		u16 len = msg->offset;
-		msg->offset = 1;
-		msg->WriteFlipped<u16>( len );
-		msg.Send( client, len );
-	  }
+
+      auto pkt = SendWorldItem( item->serial, item->graphic, item->get_senditem_amount( ), item->x, item->y, item->z, item->facing, item->color, flags );
+      pkt.Send(client);
 
 	  // if the item is a corpse, transmit items contained by it
 	  if ( item->objtype_ == UOBJ_CORPSE )
@@ -1999,54 +1952,18 @@ namespace Pol {
 
 	void send_multi( Client* client, const Multi::UMulti* multi )
 	{
-	  if ( client->ClientType & CLIENTTYPE_7000 )
-	  {
-		PktHelper::PacketOut<PktOut_F3> msg;
-		msg->WriteFlipped<u16>( static_cast<u16>( 0x1 ) );
-		msg->Write<u8>( static_cast<u8>( 0x02 ) );
-		msg->Write<u32>( multi->serial_ext );
-		msg->WriteFlipped<u16>( multi->multidef().multiid );
-		msg->offset++; //0;
-		msg->WriteFlipped<u16>( static_cast<u16>( 0x1 ) ); //amount
-		msg->WriteFlipped<u16>( static_cast<u16>( 0x1 ) ); //amount2
-		msg->WriteFlipped<u16>( multi->x );
-		msg->WriteFlipped<u16>( multi->y );
-		msg->Write<s8>( multi->z );
-		msg->offset++; // u8 facing
-		msg->WriteFlipped<u16>( multi->color ); // u16 color
-		msg->offset++; // u8 flags
-		if ( client->ClientType & CLIENTTYPE_7090 )
-		  msg->offset += 2;
-		msg.Send( client );
-	  }
-	  else
-	  {
-		PktHelper::PacketOut<PktOut_1A> msg;
-		msg->offset += 2;
-		msg->Write<u32>( multi->serial_ext );
-		u16 graphic = multi->multidef().multiid | 0x4000;
-		msg->WriteFlipped<u16>( graphic );
-		msg->WriteFlipped<u16>( multi->x );
-		msg->WriteFlipped<u16>( multi->y );
-		msg->Write<s8>( multi->z );
-		u16 len = msg->offset;
-		msg->offset = 1;
-		msg->WriteFlipped<u16>( len );
-		msg.Send( client, len );
-	  }
+      auto pkt = SendWorldMulti( multi->serial_ext, multi->multidef( ).multiid, multi->x, multi->y, multi->z, multi->color );
+      pkt.Send( client );
 	}
 
     void send_multi_to_inrange( const Multi::UMulti* multi )
 	{
-	  // FIXME could use transmit_to_inrange, almost.
-	  // (Character-specific flags, like can_move(), make it so we can't)
-	  // However, could build main part of packet before for/loop, then
-	  // adjust per client. Would this be a better solution?
+      auto pkt = SendWorldMulti( multi->serial_ext, multi->multidef( ).multiid, multi->x, multi->y, multi->z, multi->color );
       WorldIterator<PlayerFilter>::InVisualRange( multi, [&]( Character *zonechr )
       {
         if ( !zonechr->has_active_client( ) )
           return;
-        send_multi( zonechr->client, multi );
+        pkt.Send( zonechr->client );
       } );
 	}
 

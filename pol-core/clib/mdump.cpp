@@ -245,19 +245,19 @@ namespace Pol {
         StackWalkerLogger sw( StackWalker::RetrieveLine );
         sw._log << "\n##########################################################\nCurrent StackBackTrace\n";
         sw.ShowCallstack();
-        threadhelp::ThreadMap::Contents contents;
-        threadhelp::threadmap.CopyContents( contents );
-        for ( auto &content : contents )
-        {
-          if ( content.second == "Main" ) // fixme main thread seems to be not suspendable 
-            continue;
-          HANDLE handle = threadhelp::threadmap.getThreadHandle( content.first );
-          if ( handle == GetCurrentThread() )
-            continue;
-          sw._log << "\nThread ID " << content.first << " (" << content.second << ")\n";
-          if ( handle )
-            sw.ShowCallstack( handle);
-        }
+        //threadhelp::ThreadMap::Contents contents;
+        //threadhelp::threadmap.CopyContents( contents );
+        //for ( auto &content : contents )
+        //{
+        //  if ( content.second == "Main" ) // fixme main thread seems to be not suspendable 
+        //    continue;
+        //  HANDLE handle = threadhelp::threadmap.getThreadHandle( content.first );
+        //  if ( handle == GetCurrentThread() )
+        //    continue;
+        //  sw._log << "\nThread ID " << content.first << " (" << content.second << ")\n";
+        //  if ( handle )
+        //    sw.ShowCallstack( handle);
+        //}
         sw._log << "##########################################################\n";
       }
     }
