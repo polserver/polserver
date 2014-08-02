@@ -51,6 +51,7 @@ FIXME: Does STW use slots with KR or newest 2d? If so, we must do slot checks th
 #include "multi/boat.h"
 #include "network/client.h"
 #include "network/packets.h"
+#include "network/packetdefs.h"
 #include "network/clienttransmit.h"
 #include "npc.h"
 #include "objtype.h"
@@ -433,23 +434,14 @@ namespace Pol {
 	  return NULL;
 	}
 
-	void send_trade_container( Network::Client* client,
-							   Mobile::Character* whos,
-							   UContainer* cont )
-	{
-	  Network::PktHelper::PacketOut<Network::PktOut_25> msg;
-	  msg->Write<u32>( cont->serial_ext );
-	  msg->WriteFlipped<u16>( cont->graphic );
-	  msg->offset++; //unk7 layer?
-	  msg->WriteFlipped<u16>( static_cast<u16>( 1 ) ); //amount
-	  msg->WriteFlipped<u16>( static_cast<u16>( 0 ) ); //x
-	  msg->WriteFlipped<u16>( static_cast<u16>( 0 ) ); //y
-	  if ( client->ClientType & Network::CLIENTTYPE_6017 )
-		msg->Write<u8>( cont->slot_index() );
-	  msg->Write<u32>( whos->serial_ext );
-	  msg->WriteFlipped<u16>( cont->color );
-	  msg.Send( client );
-	}
+    void send_trade_container( Network::Client* client,
+                               Mobile::Character* whos,
+                               UContainer* cont )
+    {
+      auto msg = Network::AddItemContainerMsg( cont->serial_ext, cont->graphic, 1/*amount*/,
+                                               0/*x*/, 0/*y*/, cont->slot_index(), whos->serial_ext, cont->color );
+      msg.Send( client );
+    }
 
 	bool do_open_trade_window( Network::Client* client, Items::Item* item, Mobile::Character* dropon );
 	bool open_trade_window( Network::Client* client, Items::Item* item, Mobile::Character* dropon )

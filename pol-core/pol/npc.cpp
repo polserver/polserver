@@ -48,6 +48,7 @@ Notes
 #include "../bscript/execmodl.h"
 #include "../bscript/modules.h"
 #include "../bscript/impstr.h"
+#include "../bscript/objmembers.h"
 
 #include "../plib/realm.h"
 
@@ -119,16 +120,6 @@ namespace Pol {
 	  connected = 1;
 	  logged_in = true;
 	  anchor.enabled = false;
-	  element_resist_.fire = 0;
-	  element_resist_.cold = 0;
-	  element_resist_.poison = 0;
-	  element_resist_.energy = 0;
-	  element_resist_.physical = 0;
-	  element_damage_.fire = 0;
-	  element_damage_.cold = 0;
-	  element_damage_.poison = 0;
-	  element_damage_.energy = 0;
-	  element_damage_.physical = 0;
 	  ++npc_count;
 	}
 
@@ -287,7 +278,7 @@ namespace Pol {
 
 	void NPC::printOn( Clib::StreamWriter& sw ) const
 	{
-	  sw() << classname() << " " << template_name << pf_endl;
+	  sw() << classname() << " " << template_name.get() << pf_endl;
 	  sw() << "{" << pf_endl;
 	  printProperties( sw );
 	  sw() << "}" << pf_endl;
@@ -312,8 +303,8 @@ namespace Pol {
 	  if ( npc_ar_ )
 		sw() << "\tAR\t" << npc_ar_ << pf_endl;
 
-	  if ( script != "" )
-		sw() << "\tscript\t" << script << pf_endl;
+	  if ( !script.get().empty() )
+		sw() << "\tscript\t" << script.get() << pf_endl;
 
 	  if ( master_.get() != NULL )
 		sw() << "\tmaster\t" << master_->serial << pf_endl;
@@ -330,27 +321,37 @@ namespace Pol {
 	  if ( use_adjustments != true )
 		sw() << "\tUseAdjustments\t" << use_adjustments << pf_endl;
 
-	  if ( element_resist_.fire != 0 )
-		sw() << "\tFireResist\t" << static_cast<int>( element_resist_.fire ) << pf_endl;
-	  if ( element_resist_.cold != 0 )
-		sw() << "\tColdResist\t" << static_cast<int>( element_resist_.cold ) << pf_endl;
-	  if ( element_resist_.energy != 0 )
-		sw() << "\tEnergyResist\t" << static_cast<int>( element_resist_.energy ) << pf_endl;
-	  if ( element_resist_.poison != 0 )
-		sw() << "\tPoisonResist\t" << static_cast<int>( element_resist_.poison ) << pf_endl;
-	  if ( element_resist_.physical != 0 )
-		sw() << "\tPhysicalResist\t" << static_cast<int>( element_resist_.physical ) << pf_endl;
+      s16 value = getCurrentResistance( Core::ELEMENTAL_FIRE );
+	  if ( value != 0 )
+		sw() << "\tFireResist\t" << static_cast<int>( value ) << pf_endl;
+      value = getCurrentResistance( Core::ELEMENTAL_COLD );
+	  if ( value != 0 )
+        sw( ) << "\tColdResist\t" << static_cast<int>( value ) << pf_endl;
+      value = getCurrentResistance( Core::ELEMENTAL_ENERGY );
+      if ( value != 0 )
+        sw( ) << "\tEnergyResist\t" << static_cast<int>( value ) << pf_endl;
+      value = getCurrentResistance( Core::ELEMENTAL_POISON);
+      if ( value != 0 )
+        sw( ) << "\tPoisonResist\t" << static_cast<int>( value ) << pf_endl;
+      value = getCurrentResistance( Core::ELEMENTAL_PHYSICAL );
+      if ( value != 0 )
+        sw( ) << "\tPhysicalResist\t" << static_cast<int>( value ) << pf_endl;
 
-	  if ( element_damage_.fire != 0 )
-		sw() << "\tFireDamage\t" << static_cast<int>( element_damage_.fire ) << pf_endl;
-	  if ( element_damage_.cold != 0 )
-		sw() << "\tColdDamage\t" << static_cast<int>( element_damage_.cold ) << pf_endl;
-	  if ( element_damage_.energy != 0 )
-		sw() << "\tEnergyDamage\t" << static_cast<int>( element_damage_.energy ) << pf_endl;
-	  if ( element_damage_.poison != 0 )
-		sw() << "\tPoisonDamage\t" << static_cast<int>( element_damage_.poison ) << pf_endl;
-	  if ( element_damage_.physical != 0 )
-		sw() << "\tPhysicalDamage\t" << static_cast<int>( element_damage_.physical ) << pf_endl;
+      value = getCurrentElementDamage( Core::ELEMENTAL_FIRE );
+      if ( value != 0 )
+		sw() << "\tFireDamage\t" << static_cast<int>( value) << pf_endl;
+      value = getCurrentElementDamage( Core::ELEMENTAL_COLD );
+      if ( value != 0 )
+        sw( ) << "\tColdDamage\t" << static_cast<int>( value ) << pf_endl;
+      value = getCurrentElementDamage( Core::ELEMENTAL_ENERGY );
+      if ( value != 0 )
+        sw( ) << "\tEnergyDamage\t" << static_cast<int>( value ) << pf_endl;
+      value = getCurrentElementDamage( Core::ELEMENTAL_POISON );
+      if ( value != 0 )
+        sw( ) << "\tPoisonDamage\t" << static_cast<int>( value ) << pf_endl;
+      value = getCurrentElementDamage( Core::ELEMENTAL_PHYSICAL );
+      if ( value != 0 )
+        sw( ) << "\tPhysicalDamage\t" << static_cast<int>( value ) << pf_endl;
 	}
 
     void NPC::printDebugProperties( Clib::StreamWriter& sw ) const
@@ -387,11 +388,11 @@ namespace Pol {
 	  }
 
 	  //dave 3/19/3, read templatename only if empty
-	  if ( template_name.empty() )
+	  if ( template_name.get().empty() )
 	  {
 		template_name = elem.rest();
 
-		if ( template_name == "" )
+		if ( template_name.get().empty() )
 		{
 		  string tmp;
 		  if ( getprop( "template", tmp ) )
@@ -410,7 +411,7 @@ namespace Pol {
 	  }
 
 	  script = elem.remove_string( "script", "" );
-	  if ( !script.empty() )
+      if ( !script.get().empty( ) )
 		start_script();
 
 	  speech_color_ = elem.remove_ushort( "SpeechColor", DEFAULT_TEXT_COLOR );
@@ -453,11 +454,41 @@ namespace Pol {
 		  switch ( resistanceType )
 		  {
 			case 0: npc_ar_ = static_cast<u16>( atoi( tmp.c_str() ) ); break;
-			case 1: element_resist_.fire = element_resist.fire = static_cast<s16>( atoi( tmp.c_str() ) ); break;
-			case 2: element_resist_.cold = element_resist.cold = static_cast<s16>( atoi( tmp.c_str() ) ); break;
-			case 3: element_resist_.energy = element_resist.energy = static_cast<s16>( atoi( tmp.c_str() ) ); break;
-			case 4: element_resist_.poison = element_resist.poison = static_cast<s16>( atoi( tmp.c_str() ) ); break;
-			case 5: element_resist_.physical = element_resist.physical = static_cast<s16>( atoi( tmp.c_str() ) ); break;
+            case 1:
+            {
+                    s16 value = static_cast<s16>( atoi( tmp.c_str() ) );
+                    setCurrentResistance( ELEMENTAL_FIRE, value );
+                    setBaseResistance( ELEMENTAL_FIRE, value );
+                    break;
+            }
+			case 2: 
+            {
+                    s16 value = static_cast<s16>( atoi( tmp.c_str( ) ) );
+                    setCurrentResistance( ELEMENTAL_COLD, value );
+                    setBaseResistance( ELEMENTAL_COLD, value );
+                    break;
+            }
+			case 3: 
+            {
+                    s16 value = static_cast<s16>( atoi( tmp.c_str( ) ) );
+                    setCurrentResistance( ELEMENTAL_ENERGY, value );
+                    setBaseResistance( ELEMENTAL_ENERGY, value );
+                    break;
+            }
+			case 4: 
+            {
+                    s16 value = static_cast<s16>( atoi( tmp.c_str( ) ) );
+                    setCurrentResistance( ELEMENTAL_POISON, value );
+                    setBaseResistance( ELEMENTAL_POISON, value );
+                    break;
+            }
+			case 5: 
+            {
+                    s16 value = static_cast<s16>( atoi( tmp.c_str( ) ) );
+                    setCurrentResistance( ELEMENTAL_PHYSICAL, value );
+                    setBaseResistance( ELEMENTAL_PHYSICAL, value );
+                    break;
+            }
 		  }
 		}
 		else
@@ -465,11 +496,41 @@ namespace Pol {
 		  switch ( resistanceType )
 		  {
 			case 0: npc_ar_ = dice.roll(); break;
-			case 1: element_resist_.fire = element_resist.fire = dice.roll(); break;
-			case 2: element_resist_.cold = element_resist.cold = dice.roll(); break;
-			case 3: element_resist_.energy = element_resist.energy = dice.roll(); break;
-			case 4: element_resist_.poison = element_resist.poison = dice.roll(); break;
-			case 5: element_resist_.physical = element_resist.physical = dice.roll(); break;
+			case 1: 
+            {
+                    s16 value = dice.roll( );
+                    setCurrentResistance( ELEMENTAL_FIRE, value );
+                    setBaseResistance( ELEMENTAL_FIRE, value );
+                    break;
+            }
+			case 2:
+            {
+                    s16 value = dice.roll( );
+                    setCurrentResistance( ELEMENTAL_COLD, value );
+                    setBaseResistance( ELEMENTAL_COLD, value );
+                    break;
+            }
+			case 3:
+            {
+                    s16 value = dice.roll( );
+                    setCurrentResistance( ELEMENTAL_ENERGY, value );
+                    setBaseResistance( ELEMENTAL_ENERGY, value );
+                    break;
+            }
+			case 4:
+            {
+                    s16 value = dice.roll( );
+                    setCurrentResistance( ELEMENTAL_POISON, value );
+                    setBaseResistance( ELEMENTAL_POISON, value );
+                    break;
+            }
+			case 5:
+            {
+                    s16 value = dice.roll( );
+                    setCurrentResistance( ELEMENTAL_PHYSICAL, value );
+                    setBaseResistance( ELEMENTAL_PHYSICAL, value );
+                    break;
+            }
 		  }
 		}
 	  }
@@ -478,22 +539,47 @@ namespace Pol {
 		switch ( resistanceType )
 		{
 		  case 0: npc_ar_ = 0; break;
-		  case 1: element_resist_.fire = element_resist.fire = 0; break;
-		  case 2: element_resist_.cold = element_resist.cold = 0; break;
-		  case 3: element_resist_.energy = element_resist.energy = 0; break;
-		  case 4: element_resist_.poison = element_resist.poison = 0; break;
-		  case 5: element_resist_.physical = element_resist.physical = 0; break;
+		  case 1: 
+            setCurrentResistance( ELEMENTAL_FIRE, 0 );
+            setBaseResistance( ELEMENTAL_FIRE, 0 );
+            break;
+		  case 2: 
+            setCurrentResistance( ELEMENTAL_COLD, 0 );
+            setBaseResistance( ELEMENTAL_COLD, 0 );
+            break;
+		  case 3: 
+            setCurrentResistance( ELEMENTAL_ENERGY, 0 );
+            setBaseResistance( ELEMENTAL_ENERGY, 0 );
+            break;
+		  case 4: 
+            setCurrentResistance( ELEMENTAL_POISON, 0 );
+            setBaseResistance( ELEMENTAL_POISON, 0 );
+            break;
+		  case 5: 
+            setCurrentResistance( ELEMENTAL_PHYSICAL, 0 );
+            setBaseResistance( ELEMENTAL_PHYSICAL, 0 );
+            break;
 		}
 	  }
 
 	  switch ( resistanceType )
 	  {
 		case 0: break; // ArMod isnt saved
-		case 1: element_resist.fire += element_resist_mod.fire; break;
-		case 2: element_resist.cold += element_resist_mod.cold; break;
-		case 3: element_resist.energy += element_resist_mod.energy; break;
-		case 4: element_resist.poison += element_resist_mod.poison; break;
-		case 5: element_resist.physical += element_resist_mod.physical; break;
+		case 1: 
+          setBaseResistance( ELEMENTAL_FIRE, getBaseResistance( ELEMENTAL_FIRE ) + getResistanceMod( ELEMENTAL_FIRE ) );
+          break;
+		case 2: 
+          setBaseResistance( ELEMENTAL_COLD, getBaseResistance( ELEMENTAL_COLD ) + getResistanceMod( ELEMENTAL_COLD ) );
+          break;
+		case 3: 
+          setBaseResistance( ELEMENTAL_ENERGY, getBaseResistance( ELEMENTAL_ENERGY ) + getResistanceMod( ELEMENTAL_ENERGY ) );
+          break;
+		case 4: 
+          setBaseResistance( ELEMENTAL_POISON, getBaseResistance( ELEMENTAL_POISON ) + getResistanceMod( ELEMENTAL_POISON ) );
+          break;
+		case 5: 
+          setBaseResistance( ELEMENTAL_PHYSICAL, getBaseResistance( ELEMENTAL_PHYSICAL ) + getResistanceMod( ELEMENTAL_PHYSICAL ) );
+          break;
 	  }
 	}
 
@@ -524,22 +610,82 @@ namespace Pol {
 		{
 		  switch ( damageType )
 		  {
-			case 1: element_damage_.fire = element_damage.fire = static_cast<s16>( atoi( tmp.c_str() ) ); break;
-			case 2: element_damage_.cold = element_damage.cold = static_cast<s16>( atoi( tmp.c_str() ) ); break;
-			case 3: element_damage_.energy = element_damage.energy = static_cast<s16>( atoi( tmp.c_str() ) ); break;
-			case 4: element_damage_.poison = element_damage.poison = static_cast<s16>( atoi( tmp.c_str() ) ); break;
-			case 5: element_damage_.physical = element_damage.physical = static_cast<s16>( atoi( tmp.c_str() ) ); break;
+			case 1: 
+            {
+                    s16 value = static_cast<s16>( atoi( tmp.c_str( ) ) );
+                    setCurrentElementDamage( ELEMENTAL_FIRE, value );
+                    setBaseElementDamage( ELEMENTAL_FIRE, value );
+                    break;
+            }
+			case 2: 
+            {
+                    s16 value = static_cast<s16>( atoi( tmp.c_str( ) ) );
+                    setCurrentElementDamage( ELEMENTAL_COLD, value );
+                    setBaseElementDamage( ELEMENTAL_COLD, value );
+                    break;
+            }
+			case 3: 
+            {
+                    s16 value = static_cast<s16>( atoi( tmp.c_str( ) ) );
+                    setCurrentElementDamage( ELEMENTAL_ENERGY, value );
+                    setBaseElementDamage( ELEMENTAL_ENERGY, value );
+                    break;
+            }
+			case 4: 
+            {
+                    s16 value = static_cast<s16>( atoi( tmp.c_str( ) ) );
+                    setCurrentElementDamage( ELEMENTAL_POISON, value );
+                    setBaseElementDamage( ELEMENTAL_POISON, value );
+                    break;
+            }
+			case 5: 
+            {
+                    s16 value = static_cast<s16>( atoi( tmp.c_str( ) ) );
+                    setCurrentElementDamage( ELEMENTAL_PHYSICAL, value );
+                    setBaseElementDamage( ELEMENTAL_PHYSICAL, value );
+                    break;
+            }
 		  }
 		}
 		else
 		{
 		  switch ( damageType )
 		  {
-			case 1: element_damage_.fire = element_damage.fire = dice.roll(); break;
-			case 2: element_damage_.cold = element_damage.cold = dice.roll(); break;
-			case 3: element_damage_.energy = element_damage.energy = dice.roll(); break;
-			case 4: element_damage_.poison = element_damage.poison = dice.roll(); break;
-			case 5: element_damage_.physical = element_damage.physical = dice.roll(); break;
+			case 1:
+            {
+                    s16 value = dice.roll( );
+                    setCurrentElementDamage( ELEMENTAL_FIRE, value );
+                    setBaseElementDamage( ELEMENTAL_FIRE, value );
+                    break;
+            }
+			case 2: 
+            {
+                    s16 value = dice.roll( );
+                    setCurrentElementDamage( ELEMENTAL_COLD, value );
+                    setBaseElementDamage( ELEMENTAL_COLD, value );
+                    break;
+            }
+			case 3:
+            {
+                    s16 value = dice.roll( );
+                    setCurrentElementDamage( ELEMENTAL_ENERGY, value );
+                    setBaseElementDamage( ELEMENTAL_ENERGY, value );
+                    break;
+            }
+			case 4: 
+            {
+                    s16 value = dice.roll( );
+                    setCurrentElementDamage( ELEMENTAL_POISON, value );
+                    setBaseElementDamage( ELEMENTAL_POISON, value );
+                    break;
+            }
+			case 5:
+            {
+                    s16 value = dice.roll( );
+                    setCurrentElementDamage( ELEMENTAL_PHYSICAL, value );
+                    setBaseElementDamage( ELEMENTAL_PHYSICAL, value );
+                    break;
+            }
 		  }
 		}
 	  }
@@ -547,21 +693,36 @@ namespace Pol {
 	  {
 		switch ( damageType )
 		{
-		  case 1: element_damage_.fire = element_damage.fire = 0; break;
-		  case 2: element_damage_.cold = element_damage.cold = 0; break;
-		  case 3: element_damage_.energy = element_damage.energy = 0; break;
-		  case 4: element_damage_.poison = element_damage.poison = 0; break;
-		  case 5: element_damage_.physical = element_damage.physical = 0; break;
+		  case 1: 
+            setCurrentElementDamage( ELEMENTAL_FIRE, 0 );
+            setBaseElementDamage( ELEMENTAL_FIRE, 0 );
+            break;
+          case 2: 
+            setCurrentElementDamage( ELEMENTAL_COLD, 0 );
+            setBaseElementDamage( ELEMENTAL_COLD, 0 );
+            break;
+		  case 3: 
+            setCurrentElementDamage( ELEMENTAL_ENERGY, 0 );
+            setBaseElementDamage( ELEMENTAL_ENERGY, 0 );
+            break;
+		  case 4: 
+            setCurrentElementDamage( ELEMENTAL_POISON, 0 );
+            setBaseElementDamage( ELEMENTAL_POISON, 0 );
+            break;
+		  case 5:
+            setCurrentElementDamage( ELEMENTAL_PHYSICAL, 0 );
+            setBaseElementDamage( ELEMENTAL_PHYSICAL, 0 );
+            break;
 		}
 	  }
 
 	  switch ( damageType )
 	  {
-		case 1: element_damage.fire += element_damage_mod.fire; break;
-		case 2: element_damage.cold += element_damage_mod.cold; break;
-		case 3: element_damage.energy += element_damage_mod.energy; break;
-		case 4: element_damage.poison += element_damage_mod.poison; break;
-		case 5: element_damage.physical += element_damage_mod.physical; break;
+        case 1: setBaseElementDamage( ELEMENTAL_FIRE, getBaseElementDamage( ELEMENTAL_FIRE ) + getElementDamageMod( ELEMENTAL_FIRE ) ); break;
+        case 2: setBaseElementDamage( ELEMENTAL_COLD, getBaseElementDamage( ELEMENTAL_COLD ) + getElementDamageMod( ELEMENTAL_COLD ) ); break;
+        case 3: setBaseElementDamage( ELEMENTAL_ENERGY, getBaseElementDamage( ELEMENTAL_ENERGY ) + getElementDamageMod( ELEMENTAL_ENERGY ) ); break;
+        case 4: setBaseElementDamage( ELEMENTAL_POISON, getBaseElementDamage( ELEMENTAL_POISON ) + getElementDamageMod( ELEMENTAL_POISON ) ); break;
+        case 5: setBaseElementDamage( ELEMENTAL_PHYSICAL, getBaseElementDamage( ELEMENTAL_PHYSICAL ) + getElementDamageMod( ELEMENTAL_PHYSICAL ) ); break;
 	  }
 	}
 
@@ -571,7 +732,7 @@ namespace Pol {
 	  //will call the exported vital functions before npctemplate is set (distro uses npctemplate in the exported funcs).
 	  template_name = elem.rest();
 
-	  if ( template_name == "" )
+	  if ( template_name.get().empty() )
 	  {
 		string tmp;
 		if ( getprop( "template", tmp ) )
@@ -638,7 +799,7 @@ namespace Pol {
 		// when the NPC executor module destructs, it checks this NPC to see if it points
 		// back at it.  If not, it leaves us alone.
 	  }
-	  if ( !script.empty() )
+      if ( !script.get().empty() )
 		start_script();
 	}
 
@@ -648,7 +809,7 @@ namespace Pol {
 	  send_remove_character_to_nearby( this );
 
 
-	  corpse->setprop( "npctemplate", "s" + template_name );
+	  corpse->setprop( "npctemplate", "s" + template_name.get() );
 	  if ( Clib::FileExists( "scripts/misc/death.ecl" ) )
 		Core::start_script( "misc/death", new Module::EItemRefObjImp( corpse ) );
 
@@ -669,7 +830,7 @@ namespace Pol {
 	void NPC::start_script()
 	{
 	  passert( ex == NULL );
-	  passert( !script.empty() );
+      passert( !script.get().empty( ) );
 	  ScriptDef sd( script, template_.pkg, "scripts/ai/" );
 	  // Log( "NPC script starting: %s\n", sd.name().c_str() );
 
@@ -689,7 +850,7 @@ namespace Pol {
 	  ex->addModule( uoemod );
 	  if ( ex->setProgram( prog.get() ) == false )
 	  {
-        ERROR_PRINT << "There was an error running script " << script << " for NPC "
+        ERROR_PRINT << "There was an error running script " << script.get()<< " for NPC "
           << name() << "(0x" << fmt::hexu( serial ) << ")\n";
 		throw runtime_error( "Error loading NPCs" );
 	  }
@@ -1048,7 +1209,7 @@ namespace Pol {
 		  continue;
 		for ( unsigned element = 0; element <= ELEMENTAL_TYPE_MAX; ++element )
 		{
-		  if ( item->calc_element_resist( element ) != 0 || item->calc_element_damage( element ) != 0 )
+          if ( item->calc_element_resist( (ElementalType)element ) != 0 || item->calc_element_damage( (ElementalType)element ) != 0 )
 		  {
 			hasArmor = true;
 			break;
@@ -1061,8 +1222,8 @@ namespace Pol {
 		ar_ = 0;
 		for ( unsigned element = 0; element <= ELEMENTAL_TYPE_MAX; ++element )
 		{
-		  reset_element_resist( element );
-		  reset_element_damage( element );
+          reset_element_resist( (ElementalType)element );
+          reset_element_damage( (ElementalType)element );
 		}
 		return;
 	  }
@@ -1072,7 +1233,7 @@ namespace Pol {
 	  // we need to reset each resist to 0, then add the base back using calc.
 	  for ( unsigned element = 0; element <= ELEMENTAL_TYPE_MAX; ++element )
 	  {
-		refresh_element( element );
+        refresh_element( (ElementalType)element );
 	  }
 
 	  for ( unsigned layer = LAYER_EQUIP__LOWEST; layer <= LAYER_EQUIP__HIGHEST; ++layer )
@@ -1083,7 +1244,7 @@ namespace Pol {
 		// Let's check all items as base, and handle their element_resists.
 		for ( unsigned element = 0; element <= ELEMENTAL_TYPE_MAX; ++element )
 		{
-		  update_element( element, item );
+          update_element( (ElementalType)element, item );
 		}
 		if ( item->isa( CLASS_ARMOR ) )
 		{
@@ -1129,28 +1290,14 @@ namespace Pol {
 
 	}
 
-	void NPC::reset_element_resist( unsigned resist )
+    void NPC::reset_element_resist( ElementalType resist )
 	{
-	  switch ( resist )
-	  {
-		case ELEMENTAL_FIRE: element_resist.fire = element_resist_.fire + element_resist_mod.fire; break;
-		case ELEMENTAL_COLD: element_resist.cold = element_resist_.cold + element_resist_mod.cold; break;
-		case ELEMENTAL_ENERGY: element_resist.energy = element_resist_.energy + element_resist_mod.energy; break;
-		case ELEMENTAL_POISON: element_resist.poison = element_resist_.poison + element_resist_mod.poison; break;
-		case ELEMENTAL_PHYSICAL: element_resist.physical = element_resist_.physical + element_resist_mod.physical; break;
-	  }
+      setBaseResistance( resist, getCurrentResistance( resist ) + getResistanceMod( resist ) );
 	}
 
-	void NPC::reset_element_damage( unsigned damage )
+    void NPC::reset_element_damage( ElementalType damage )
 	{
-	  switch ( damage )
-	  {
-		case ELEMENTAL_FIRE: element_damage.fire = element_damage_.fire + element_damage_mod.fire; break;
-		case ELEMENTAL_COLD: element_damage.cold = element_damage_.cold + element_damage_mod.cold; break;
-		case ELEMENTAL_ENERGY: element_damage.energy = element_damage_.energy + element_damage_mod.energy; break;
-		case ELEMENTAL_POISON: element_damage.poison = element_damage_.poison + element_damage_mod.poison; break;
-		case ELEMENTAL_PHYSICAL: element_damage.physical = element_damage_.physical + element_damage_mod.physical; break;
-	  }
+      setBaseElementDamage( damage, getCurrentElementDamage( damage ) + getElementDamageMod( damage ) );
 	}
 
     size_t NPC::estimatedSize() const
@@ -1162,13 +1309,59 @@ namespace Pol {
         +sizeof(UOExecutor*)/*ex*/
         +sizeof(UOExecutor*)/*give_item_ex*/
         +sizeof(unsigned short)/*npc_ar_*/
-        +sizeof(Resistances)/*element_resist_*/
-        +sizeof(ElementDamages)/*element_damage_*/
         +sizeof(CharacterRef)/*master_*/
         +sizeof(anchor)/*anchor*/
         +sizeof(unsigned short)/*speech_color_*/
         +sizeof(unsigned short)/*speech_font_*/
-        + template_name.capacity() + script.capacity();
+        +sizeof( boost_utils::script_name_flystring ) /*script*/
+        + sizeof( boost_utils::npctemplate_name_flystring ); /*template_name*/
+    }
+
+    s16 NPC::getCurrentResistance( ElementalType type ) const
+    {
+      switch ( type )
+      {
+        case ELEMENTAL_FIRE: return getmember<s16>( Bscript::MBR_FIRE_RESIST + 1000 );
+        case ELEMENTAL_COLD: return getmember<s16>( Bscript::MBR_COLD_RESIST + 1000 );
+        case ELEMENTAL_ENERGY: return getmember<s16>( Bscript::MBR_ENERGY_RESIST + 1000 );
+        case ELEMENTAL_POISON: return getmember<s16>( Bscript::MBR_POISON_RESIST + 1000 );
+        case ELEMENTAL_PHYSICAL: return getmember<s16>( Bscript::MBR_PHYSICAL_RESIST + 1000 );
+      }
+      return 0;
+    }
+    void NPC::setCurrentResistance( ElementalType type, s16 value )
+    {
+      switch ( type )
+      {
+        case ELEMENTAL_FIRE: return setmember<s16>( Bscript::MBR_FIRE_RESIST + 1000, value );
+        case ELEMENTAL_COLD: return setmember<s16>( Bscript::MBR_COLD_RESIST + 1000, value );
+        case ELEMENTAL_ENERGY: return setmember<s16>( Bscript::MBR_ENERGY_RESIST + 1000, value );
+        case ELEMENTAL_POISON: return setmember<s16>( Bscript::MBR_POISON_RESIST + 1000, value );
+        case ELEMENTAL_PHYSICAL: return setmember<s16>( Bscript::MBR_PHYSICAL_RESIST + 1000, value );
+      }
+    }
+    s16 NPC::getCurrentElementDamage( ElementalType type ) const
+    {
+      switch ( type )
+      {
+        case ELEMENTAL_FIRE: return getmember<s16>( Bscript::MBR_FIRE_DAMAGE + 1000 );
+        case ELEMENTAL_COLD: return getmember<s16>( Bscript::MBR_COLD_DAMAGE + 1000 );
+        case ELEMENTAL_ENERGY: return getmember<s16>( Bscript::MBR_ENERGY_DAMAGE + 1000 );
+        case ELEMENTAL_POISON: return getmember<s16>( Bscript::MBR_POISON_DAMAGE + 1000 );
+        case ELEMENTAL_PHYSICAL: return getmember<s16>( Bscript::MBR_PHYSICAL_DAMAGE + 1000 );
+      }
+      return 0;
+    }
+    void NPC::setCurrentElementDamage( ElementalType type, s16 value )
+    {
+      switch ( type )
+      {
+        case ELEMENTAL_FIRE: return setmember<s16>( Bscript::MBR_FIRE_DAMAGE + 1000, value );
+        case ELEMENTAL_COLD: return setmember<s16>( Bscript::MBR_COLD_DAMAGE + 1000, value );
+        case ELEMENTAL_ENERGY: return setmember<s16>( Bscript::MBR_ENERGY_DAMAGE + 1000, value );
+        case ELEMENTAL_POISON: return setmember<s16>( Bscript::MBR_POISON_DAMAGE + 1000, value );
+        case ELEMENTAL_PHYSICAL: return setmember<s16>( Bscript::MBR_PHYSICAL_DAMAGE + 1000, value );
+      }
     }
   }
 }

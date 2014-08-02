@@ -396,10 +396,10 @@ namespace Pol {
 	  virtual s16 ar_mod() const;
 	  virtual s16 ar_mod( s16 new_value );
 	  virtual void refresh_ar();
-	  void refresh_element( unsigned element );
-	  void update_element( unsigned element, Items::Item *item );
-	  s16 calc_element_resist( unsigned resist ) const;
-	  s16 calc_element_damage( unsigned element ) const;
+	  void refresh_element( Core::ElementalType element );
+      void update_element( Core::ElementalType element, Items::Item *item );
+      s16 calc_element_resist( Core::ElementalType resist ) const;
+      s16 calc_element_damage( Core::ElementalType element ) const;
 
 	  virtual bool setgraphic( u16 newobjtype );
 	  virtual void on_color_changed();

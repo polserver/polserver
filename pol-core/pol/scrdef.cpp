@@ -77,7 +77,7 @@ namespace Pol {
 	  {
 		if ( !empty() && !exists() )
 		{
-          ERROR_PRINT << "Warning! " << name_ << " does not exist!\n";
+          ERROR_PRINT << "Warning! " << name_.get() << " does not exist!\n";
 		}
 	  }
 	}
@@ -114,7 +114,7 @@ namespace Pol {
 	  else if ( pkg == pkg_ )
 		return localname_;
 	  else
-		return ":" + ( pkg_ ? pkg_->name() : "" ) + ":" + localname_;
+		return ":" + ( pkg_ ? pkg_->name() : "" ) + ":" + localname_.get();
 	}
 
     void ScriptDef::quickconfig( const Plib::Package* pkg,
@@ -148,7 +148,7 @@ namespace Pol {
 
     size_t ScriptDef::estimatedSize() const
     {
-      return sizeof(ScriptDef) + localname_.capacity() + name_.capacity();
+      return sizeof( ScriptDef );
     }
 
   }

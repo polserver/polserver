@@ -60,27 +60,27 @@ namespace Pol {
 
 	  // FIXME : Need to change this to it's own function like Character Class does.
 	  // Let's build the resistances defaults.
-	  element_resist.cold = 0;
-	  element_resist.energy = 0;
-	  element_resist.fire = 0;
-	  element_resist.poison = 0;
-	  element_resist.physical = 0;
-	  element_resist_mod.cold = 0;
-	  element_resist_mod.energy = 0;
-	  element_resist_mod.fire = 0;
-	  element_resist_mod.poison = 0;
-	  element_resist_mod.physical = 0;
+      setBaseResistance( Core::ELEMENTAL_FIRE, 0 );
+      setBaseResistance( Core::ELEMENTAL_COLD, 0 );
+      setBaseResistance( Core::ELEMENTAL_ENERGY, 0 );
+      setBaseResistance( Core::ELEMENTAL_POISON, 0 );
+      setBaseResistance( Core::ELEMENTAL_PHYSICAL, 0 );
+      setResistanceMod( Core::ELEMENTAL_FIRE, 0 );
+      setResistanceMod( Core::ELEMENTAL_COLD, 0 );
+      setResistanceMod( Core::ELEMENTAL_ENERGY, 0 );
+      setResistanceMod( Core::ELEMENTAL_POISON, 0 );
+      setResistanceMod( Core::ELEMENTAL_PHYSICAL, 0 );
 
-	  element_damage.cold = 0;
-	  element_damage.energy = 0;
-	  element_damage.fire = 0;
-	  element_damage.poison = 0;
-	  element_damage.physical = 0;
-	  element_damage_mod.cold = 0;
-	  element_damage_mod.energy = 0;
-	  element_damage_mod.fire = 0;
-	  element_damage_mod.poison = 0;
-	  element_damage_mod.physical = 0;
+      setBaseElementDamage( Core::ELEMENTAL_FIRE, 0 );
+      setBaseElementDamage( Core::ELEMENTAL_COLD, 0 );
+      setBaseElementDamage( Core::ELEMENTAL_ENERGY, 0 );
+      setBaseElementDamage( Core::ELEMENTAL_POISON, 0 );
+      setBaseElementDamage( Core::ELEMENTAL_PHYSICAL, 0 );
+      setElementDamageMod( Core::ELEMENTAL_FIRE, 0 );
+      setElementDamageMod( Core::ELEMENTAL_COLD, 0 );
+      setElementDamageMod( Core::ELEMENTAL_ENERGY, 0 );
+      setElementDamageMod( Core::ELEMENTAL_POISON, 0 );
+      setElementDamageMod( Core::ELEMENTAL_PHYSICAL, 0 );
 	}
 
 	Item::~Item()
@@ -93,12 +93,12 @@ namespace Pol {
     size_t Item::estimatedSize() const
     {
       return base::estimatedSize()
-        + sizeof(Core::UContainer*)/* container*/
+        + sizeof( Core::UContainer* )/* container*/
         + sizeof( Mobile::Character* )/* gotten_by*/
         + sizeof(int)/* decayat_gameclock_*/
-        + sizeof(int)/* sellprice_*/
-        + sizeof(int)/* buyprice_*/
-        + sizeof(u16)/* amount_*/
+        +sizeof(int)/* sellprice_*/
+        +sizeof(int)/* buyprice_*/
+        +sizeof(u16)/* amount_*/
         +sizeof(bool)/* newbie_*/
         +sizeof(bool)/* movable_*/
         +sizeof(bool)/* inuse_*/
@@ -110,9 +110,9 @@ namespace Pol {
         +sizeof(u8)/* tile_layer*/
         +sizeof(unsigned short)/* hp_*/
         +sizeof(double)/* quality_*/
-        + on_use_script_.capacity()
-        + equip_script_.capacity()
-        + unequip_script_.capacity();
+        +sizeof( boost_utils::script_name_flystring ) /*on_use_script_*/
+        +sizeof( boost_utils::script_name_flystring ) /*equip_script_*/
+        +sizeof( boost_utils::script_name_flystring ); /*unequip_script_*/
     }
   }
 }

@@ -618,18 +618,10 @@ namespace Pol {
 
 	void send_put_in_container( Client* client, const Item* item )
 	{
-	  PktHelper::PacketOut<PktOut_25> msg;
-	  msg->Write<u32>( item->serial_ext );
-	  msg->WriteFlipped<u16>( item->graphic );
-	  msg->offset++; //unk7 layer?
-	  msg->WriteFlipped<u16>( item->get_senditem_amount() );
-	  msg->WriteFlipped<u16>( item->x );
-	  msg->WriteFlipped<u16>( item->y );
-	  if ( client->ClientType & CLIENTTYPE_6017 )
-		msg->Write<u8>( item->slot_index() );
-	  msg->Write<u32>( item->container->serial_ext );
-	  msg->WriteFlipped<u16>( item->color );
-	  msg.Send( client );
+
+      auto msg = Network::AddItemContainerMsg( item->serial_ext, item->graphic, item->get_senditem_amount(),
+                                               item->x, item->y, item->slot_index(), item->container->serial_ext, item->color );
+      msg.Send( client );
 
 	  if ( client->UOExpansionFlag & AOS )
 		send_object_cache( client, dynamic_cast<const UObject*>( item ) );
@@ -637,11 +629,8 @@ namespace Pol {
 
 	void send_put_in_container_to_inrange( const Item *item )
 	{
-	  // FIXME there HAS to be a better, more efficient way than this, without
-	  // building these with pointer and NULL to check. Cuz that method requires
-	  // recast and delete. Ewwww.
-	  PktHelper::PacketOut<PktOut_25> legacy_buffer;
-	  PktHelper::PacketOut<PktOut_25> slot_buffer;
+      auto msg = Network::AddItemContainerMsg( item->serial_ext, item->graphic, item->get_senditem_amount( ),
+                                               item->x, item->y, item->slot_index( ), item->container->serial_ext, item->color );
 
       // FIXME mightsee also checks remote containers thus the ForEachPlayer functions cannot be used
 	  for ( auto &client2 : clients )
@@ -653,37 +642,7 @@ namespace Pol {
 		if ( client2->chr->mightsee( item->container ) )
 		{
 		  // FIXME if the container has an owner, and I'm not it, don't tell me?
-		  if ( client2->ClientType & CLIENTTYPE_6017 )
-		  {
-			if ( slot_buffer->offset == 1 )
-			{
-			  slot_buffer->Write<u32>( item->serial_ext );
-			  slot_buffer->WriteFlipped<u16>( item->graphic );
-			  slot_buffer->offset++; //unk7 layer?
-			  slot_buffer->WriteFlipped<u16>( item->get_senditem_amount() );
-			  slot_buffer->WriteFlipped<u16>( item->x );
-			  slot_buffer->WriteFlipped<u16>( item->y );
-			  slot_buffer->Write<u8>( item->slot_index() );
-			  slot_buffer->Write<u32>( item->container->serial_ext );
-			  slot_buffer->WriteFlipped<u16>( item->color );
-			}
-			slot_buffer.Send( client2 );
-		  }
-		  else
-		  {
-			if ( legacy_buffer->offset == 1 )
-			{
-			  legacy_buffer->Write<u32>( item->serial_ext );
-			  legacy_buffer->WriteFlipped<u16>( item->graphic );
-			  legacy_buffer->offset++; //unk7 layer?
-			  legacy_buffer->WriteFlipped<u16>( item->get_senditem_amount() );
-			  legacy_buffer->WriteFlipped<u16>( item->x );
-			  legacy_buffer->WriteFlipped<u16>( item->y );
-			  legacy_buffer->Write<u32>( item->container->serial_ext );
-			  legacy_buffer->WriteFlipped<u16>( item->color );
-			}
-			legacy_buffer.Send( client2 );
-		  }
+          msg.Send( client2 );
 		  if ( client2->UOExpansionFlag & AOS )
 		  {
 			send_object_cache( client2, dynamic_cast<const UObject*>( item ) );

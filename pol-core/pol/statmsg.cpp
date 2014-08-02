@@ -138,10 +138,13 @@ namespace Pol {
 
 	  msg->WriteFlipped<u32>( chr->gold_carried() );
 	  // Adjusted to work with Physical Resist if AOS client, and AOS Resistances enabled.
-	  if ( ( client->UOExpansionFlag & Network::AOS ) && client->aosresist )
-		msg->WriteFlipped<u16>( ( chr->element_resist.physical < 0 ) ?
-		static_cast<u16>( 0x10000 + chr->element_resist.physical ) :
-		static_cast<u16>( chr->element_resist.physical ) );
+      if ( ( client->UOExpansionFlag & Network::AOS ) && client->aosresist )
+      {
+        s16 value = chr->getBaseResistance( Core::ELEMENTAL_PHYSICAL );
+        msg->WriteFlipped<u16>( ( value < 0 ) ?
+                                static_cast<u16>( 0x10000 + value ) :
+                                static_cast<u16>( value ) );
+      }
 	  else
 		msg->WriteFlipped<u16>( chr->ar() );
 
@@ -162,18 +165,22 @@ namespace Pol {
 		msg->Write<s8>( chr->expanded_statbar.followers );
 		msg->Write<s8>( chr->expanded_statbar.followers_max );
 		// moreinfo 4 start
-		msg->WriteFlipped<u16>( ( chr->element_resist.fire < 0 ) ?
-								static_cast<u16>( 0x10000 + chr->element_resist.fire ) :
-								static_cast<u16>( chr->element_resist.fire ) );
-		msg->WriteFlipped<u16>( ( chr->element_resist.cold < 0 ) ?
-								static_cast<u16>( 0x10000 + chr->element_resist.cold ) :
-								static_cast<u16>( chr->element_resist.cold ) );
-		msg->WriteFlipped<u16>( ( chr->element_resist.poison < 0 ) ?
-								static_cast<u16>( 0x10000 + chr->element_resist.poison ) :
-								static_cast<u16>( chr->element_resist.poison ) );
-		msg->WriteFlipped<u16>( ( chr->element_resist.energy < 0 ) ?
-								static_cast<u16>( 0x10000 + chr->element_resist.energy ) :
-								static_cast<u16>( chr->element_resist.energy ) );
+        s16 value = chr->getBaseResistance( Core::ELEMENTAL_FIRE );
+        msg->WriteFlipped<u16>( ( value < 0 ) ?
+                                static_cast<u16>( 0x10000 + value ) :
+                                static_cast<u16>( value ) );
+        value = chr->getBaseResistance( Core::ELEMENTAL_COLD );
+        msg->WriteFlipped<u16>( ( value < 0 ) ?
+                                static_cast<u16>( 0x10000 + value ) :
+                                static_cast<u16>( value ) );
+        value = chr->getBaseResistance( Core::ELEMENTAL_POISON );
+        msg->WriteFlipped<u16>( ( value < 0 ) ?
+                                static_cast<u16>( 0x10000 + value ) :
+                                static_cast<u16>( value ) );
+        value = chr->getBaseResistance( Core::ELEMENTAL_ENERGY );
+        msg->WriteFlipped<u16>( ( value < 0 ) ?
+                                static_cast<u16>( 0x10000 + value ) :
+                                static_cast<u16>( value ) );
 		msg->WriteFlipped<s16>( chr->expanded_statbar.luck );
 		msg->WriteFlipped<u16>( chr->min_weapon_damage() );
 		msg->WriteFlipped<u16>( chr->max_weapon_damage() );
