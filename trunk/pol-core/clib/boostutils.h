@@ -141,6 +141,21 @@ namespace Pol {
 #else
 #define FLYWEIGHT_HASH_FACTORY boost::flyweights::hashed_factory<>
 #endif
+
+    // definition of the different Flyweight factories
+    struct cprop_name_tag {};
+    typedef boost::flyweight<std::string, boost::flyweights::tag<cprop_name_tag>, FLYWEIGHT_HASH_FACTORY> cprop_name_flystring;
+    struct cprop_value_tag {};
+    typedef boost::flyweight<std::string, boost::flyweights::tag<cprop_value_tag>, FLYWEIGHT_HASH_FACTORY> cprop_value_flystring;
+    struct cfg_key_tag {};
+    typedef boost::flyweight<std::string, boost::flyweights::tag<cfg_key_tag>, FLYWEIGHT_HASH_FACTORY> cfg_key_flystring;
+    struct object_name_tag {};
+    typedef boost::flyweight<std::string, boost::flyweights::tag<object_name_tag>, FLYWEIGHT_HASH_FACTORY> object_name_flystring;
+    struct script_name_tag {};
+    typedef boost::flyweight<std::string, boost::flyweights::tag<script_name_tag>, FLYWEIGHT_HASH_FACTORY> script_name_flystring;
+    struct npctemplate_name_tag {};
+    typedef boost::flyweight<std::string, boost::flyweights::tag<npctemplate_name_tag>, FLYWEIGHT_HASH_FACTORY> npctemplate_name_flystring;
+
   }
 }
 #endif

@@ -43,13 +43,13 @@ namespace Pol {
     size_t PropertyList::estimatedSize() const
     {
       size_t size = sizeof( PropertyList );
-      size += properties.size( ) * ( sizeof(cprop_name)+sizeof(cprop_value)+( sizeof(void*)* 3 + 1 ) / 2 );
+      size += properties.size( ) * ( sizeof( boost_utils::cprop_name_flystring ) + sizeof( boost_utils::cprop_value_flystring ) + ( sizeof(void*)* 3 + 1 ) / 2 );
       return size;
     }
 
 	bool PropertyList::getprop( const string& propname, string& propval ) const
 	{
-	  Properties::const_iterator itr = properties.find( cprop_name(propname) );
+      Properties::const_iterator itr = properties.find( boost_utils::cprop_name_flystring( propname ) );
 	  if ( itr == properties.end() )
 	  {
 		return false;
@@ -62,12 +62,12 @@ namespace Pol {
 	}
 	void PropertyList::setprop( const std::string& propname, const std::string& propvalue )
 	{
-      properties[cprop_name( propname)] = propvalue;
+      properties[boost_utils::cprop_name_flystring( propname )] = propvalue;
 	}
 
 	void PropertyList::eraseprop( const std::string& propname )
 	{
-      properties.erase( cprop_name( propname) );
+      properties.erase( boost_utils::cprop_name_flystring( propname ) );
 	}
 
 	void PropertyList::copyprops( const PropertyList& from )

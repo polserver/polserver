@@ -77,12 +77,12 @@ namespace Pol {
 	  u8 facing;
 	  int weightmult;
 	  int weightdiv;
-	  std::string desc;
+	  boost_utils::object_name_flystring desc;
 	  std::string tooltip;
 	  Core::ScriptDef walk_on_script;
 	  Core::ScriptDef on_use_script;
-	  std::string equip_script;
-	  std::string unequip_script;
+      boost_utils::script_name_flystring equip_script;
+      boost_utils::script_name_flystring unequip_script;
 	  Core::ScriptDef control_script;
 	  Core::ScriptDef create_script;
 	  Core::ScriptDef destroy_script;
@@ -258,6 +258,8 @@ namespace Pol {
 
 	const ItemDesc* CreateItemDescriptor( Bscript::BStruct* itemdesc_struct );
 	extern vector< ItemDesc* > dynamic_item_descriptors;
+
+    size_t itemdescSizeEstimate(size_t *count);
   }
 }
 #endif

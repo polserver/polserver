@@ -127,7 +127,7 @@ namespace Pol {
 	  UOExecutor *ex;
 	  UOExecutor *give_item_ex;
 
-	  std::string template_name;
+      boost_utils::npctemplate_name_flystring template_name;
 	  void stop_scripts();
 	  friend class Module::NPCExecutorModule;
 	  friend class ref_ptr<NPC>;
@@ -142,13 +142,16 @@ namespace Pol {
 	  friend class RepSystem;
 
 	private:
-	  std::string script;
+      boost_utils::script_name_flystring script;
 
 	  unsigned short npc_ar_;
-	  Resistances element_resist_;
-	  ElementDamages element_damage_;
-	  void reset_element_resist( unsigned resist );
-	  void reset_element_damage( unsigned damage );
+      s16 getCurrentResistance( ElementalType type ) const;
+      void setCurrentResistance( ElementalType type, s16 value );
+      s16 getCurrentElementDamage( ElementalType type ) const;
+      void setCurrentElementDamage( ElementalType type, s16 value );
+
+	  void reset_element_resist( ElementalType resist );
+      void reset_element_damage( ElementalType damage );
 
 	  CharacterRef master_;
 	  const NpcTemplate& template_;

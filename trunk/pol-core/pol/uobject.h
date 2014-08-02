@@ -35,7 +35,9 @@ Notes
 
 #include "../clib/refptr.h"
 #include "proplist.h"
+#include "../clib/boostutils.h"
 #include <boost/any.hpp>
+#include <boost/flyweight.hpp>
 
 namespace Pol {
   namespace Bscript {
@@ -305,10 +307,15 @@ namespace Pol {
 	  static std::atomic<unsigned int> dirty_writes;
 	  static std::atomic<unsigned int>  clean_writes;
 
-	  Resistances element_resist;
-	  ElementDamages element_damage;
-	  Resistances_Mods element_resist_mod;
-	  ElementDamages_Mods element_damage_mod;
+      s16 getBaseResistance( ElementalType type ) const;
+      void setBaseResistance( ElementalType type, s16 value );
+      s16 getResistanceMod( ElementalType type ) const;
+      void setResistanceMod( ElementalType type, s16 value );
+
+      s16 getBaseElementDamage( ElementalType type ) const;
+      void setBaseElementDamage( ElementalType type, s16 value );
+      s16 getElementDamageMod( ElementalType type ) const;
+      void setElementDamageMod( ElementalType type, s16 value );
 
 	protected:
 
@@ -354,8 +361,9 @@ namespace Pol {
 	  const u8 uobj_class_;
 	  mutable bool dirty_;
 	  u32 _rev;
+
 	protected:
-	  std::string name_;
+      boost_utils::object_name_flystring name_;
 	private:
 	  PropertyList proplist_;
 	  map<unsigned short, boost::any> dynmap;
@@ -371,7 +379,7 @@ namespace Pol {
 
 	inline bool UObject::specific_name() const
 	{
-	  return !name_.empty();
+	  return !name_.get().empty();
 	}
 
 	inline bool UObject::isa( UOBJ_CLASS uobj_class ) const

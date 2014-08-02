@@ -831,27 +831,37 @@ namespace Pol {
 	  if ( frozen_ )
 		sw() << "\tFrozen\t" << static_cast<int>( frozen_ ) << pf_endl;
 
-	  if ( element_resist_mod.fire != 0 )
-		sw() << "\tFireResistMod\t" << static_cast<int>( element_resist_mod.fire ) << pf_endl;
-	  if ( element_resist_mod.cold != 0 )
-		sw() << "\tColdResistMod\t" << static_cast<int>( element_resist_mod.cold ) << pf_endl;
-	  if ( element_resist_mod.energy != 0 )
-		sw() << "\tEnergyResistMod\t" << static_cast<int>( element_resist_mod.energy ) << pf_endl;
-	  if ( element_resist_mod.poison != 0 )
-		sw() << "\tPoisonResistMod\t" << static_cast<int>( element_resist_mod.poison ) << pf_endl;
-	  if ( element_resist_mod.physical != 0 )
-		sw() << "\tPhysicalResistMod\t" << static_cast<int>( element_resist_mod.physical ) << pf_endl;
-
-	  if ( element_damage_mod.fire != 0 )
-		sw() << "\tFireDamageMod\t" << static_cast<int>( element_damage_mod.fire ) << pf_endl;
-	  if ( element_damage_mod.cold != 0 )
-		sw() << "\tColdDamageMod\t" << static_cast<int>( element_damage_mod.cold ) << pf_endl;
-	  if ( element_damage_mod.energy != 0 )
-		sw() << "\tEnergyDamageMod\t" << static_cast<int>( element_damage_mod.energy ) << pf_endl;
-	  if ( element_damage_mod.poison != 0 )
-		sw() << "\tPoisonDamageMod\t" << static_cast<int>( element_damage_mod.poison ) << pf_endl;
-	  if ( element_damage_mod.physical != 0 )
-		sw() << "\tPhysicalDamageMod\t" << static_cast<int>( element_damage_mod.physical ) << pf_endl;
+      s16 value = getResistanceMod( Core::ELEMENTAL_FIRE );
+      if ( value != 0 )
+        sw( ) << "\tFireResistMod\t" << static_cast<int>( value ) << pf_endl;
+      value = getResistanceMod( Core::ELEMENTAL_COLD );
+      if ( value != 0 )
+        sw( ) << "\tColdResistMod\t" << static_cast<int>( value ) << pf_endl;
+      value = getResistanceMod( Core::ELEMENTAL_ENERGY );
+      if ( value != 0 )
+        sw( ) << "\tEnergyResistMod\t" << static_cast<int>( value ) << pf_endl;
+      value = getResistanceMod( Core::ELEMENTAL_POISON );
+      if ( value != 0 )
+        sw( ) << "\tPoisonResistMod\t" << static_cast<int>( value ) << pf_endl;
+      value = getResistanceMod( Core::ELEMENTAL_PHYSICAL );
+      if ( value != 0 )
+        sw( ) << "\tPhysicalResistMod\t" << static_cast<int>( value ) << pf_endl;
+      
+      value = getElementDamageMod( Core::ELEMENTAL_FIRE );
+      if ( value != 0 )
+        sw( ) << "\tFireDamageMod\t" << static_cast<int>( value ) << pf_endl;
+      value = getElementDamageMod( Core::ELEMENTAL_COLD );
+      if ( value != 0 )
+        sw( ) << "\tColdDamageMod\t" << static_cast<int>( value ) << pf_endl;
+      value = getElementDamageMod( Core::ELEMENTAL_ENERGY );
+      if ( value != 0 )
+        sw( ) << "\tEnergyDamageMod\t" << static_cast<int>( value ) << pf_endl;
+      value = getElementDamageMod( Core::ELEMENTAL_POISON );
+      if ( value != 0 )
+        sw( ) << "\tPoisonDamageMod\t" << static_cast<int>( value ) << pf_endl;
+      value = getElementDamageMod( Core::ELEMENTAL_PHYSICAL );
+      if ( value != 0 )
+        sw( ) << "\tPhysicalDamageMod\t" << static_cast<int>( value ) << pf_endl;
 
 	  if ( movement_cost.walk != 1.0 )
 		sw() << "\tMovementWalkMod\t" << static_cast<double>( movement_cost.walk ) << pf_endl;
@@ -1106,17 +1116,17 @@ namespace Pol {
 	  hidden_ = elem.remove_bool( "HIDDEN", false );
 	  frozen_ = elem.remove_bool( "FROZEN", false );
 
-	  element_resist_mod.fire = static_cast<s16>( elem.remove_int( "FIRERESISTMOD", 0 ) );
-	  element_resist_mod.cold = static_cast<s16>( elem.remove_int( "COLDRESISTMOD", 0 ) );
-	  element_resist_mod.energy = static_cast<s16>( elem.remove_int( "ENERGYRESISTMOD", 0 ) );
-	  element_resist_mod.poison = static_cast<s16>( elem.remove_int( "POISONRESISTMOD", 0 ) );
-	  element_resist_mod.physical = static_cast<s16>( elem.remove_int( "PHYSICALRESISTMOD", 0 ) );
+      setResistanceMod( Core::ELEMENTAL_FIRE, static_cast<s16>( elem.remove_int( "FIRERESISTMOD", 0 ) ) );
+      setResistanceMod( Core::ELEMENTAL_COLD, static_cast<s16>( elem.remove_int( "COLDRESISTMOD", 0 ) ) );
+      setResistanceMod( Core::ELEMENTAL_ENERGY, static_cast<s16>( elem.remove_int( "ENERGYRESISTMOD", 0 ) ) );
+      setResistanceMod( Core::ELEMENTAL_POISON, static_cast<s16>( elem.remove_int( "POISONRESISTMOD", 0 ) ) );
+      setResistanceMod( Core::ELEMENTAL_PHYSICAL, static_cast<s16>( elem.remove_int( "PHYSICALRESISTMOD", 0 ) ) );
 
-	  element_damage_mod.fire = static_cast<s16>( elem.remove_int( "FIREDAMAGEMOD", 0 ) );
-	  element_damage_mod.cold = static_cast<s16>( elem.remove_int( "COLDDAMAGEMOD", 0 ) );
-	  element_damage_mod.energy = static_cast<s16>( elem.remove_int( "ENERGYDAMAGEMOD", 0 ) );
-	  element_damage_mod.poison = static_cast<s16>( elem.remove_int( "POISONDAMAGEMOD", 0 ) );
-	  element_damage_mod.physical = static_cast<s16>( elem.remove_int( "PHYSICALDAMAGEMOD", 0 ) );
+      setElementDamageMod( Core::ELEMENTAL_FIRE, static_cast<s16>( elem.remove_int( "FIREDAMAGEMOD", 0 ) ) );
+      setElementDamageMod( Core::ELEMENTAL_COLD, static_cast<s16>( elem.remove_int( "COLDDAMAGEMOD", 0 ) ) );
+      setElementDamageMod( Core::ELEMENTAL_ENERGY, static_cast<s16>( elem.remove_int( "ENERGYDAMAGEMOD", 0 ) ) );
+      setElementDamageMod( Core::ELEMENTAL_POISON, static_cast<s16>( elem.remove_int( "POISONDAMAGEMOD", 0 ) ) );
+      setElementDamageMod( Core::ELEMENTAL_PHYSICAL, static_cast<s16>( elem.remove_int( "PHYSICALDAMAGEMOD", 0 ) ) );
 
 	  movement_cost.walk = elem.remove_double( "MovementWalkMod", 1.0 );
 	  movement_cost.run = elem.remove_double( "MovementRunMod", 1.0 );
@@ -1296,30 +1306,30 @@ namespace Pol {
 	void Character::load_default_elements()
 	{
 	  // Let's build the resistances defaults.
-	  element_resist.cold = 0;
-	  element_resist.energy = 0;
-	  element_resist.fire = 0;
-	  element_resist.poison = 0;
-	  element_resist.physical = 0;
+      setBaseResistance( Core::ELEMENTAL_FIRE, 0 );
+      setBaseResistance( Core::ELEMENTAL_COLD, 0 );
+      setBaseResistance( Core::ELEMENTAL_ENERGY, 0 );
+      setBaseResistance( Core::ELEMENTAL_POISON, 0 );
+      setBaseResistance( Core::ELEMENTAL_PHYSICAL, 0 );
 	  // Mods
-	  element_resist_mod.cold = 0;
-	  element_resist_mod.energy = 0;
-	  element_resist_mod.fire = 0;
-	  element_resist_mod.poison = 0;
-	  element_resist_mod.physical = 0;
+      setResistanceMod( Core::ELEMENTAL_FIRE, 0 );
+      setResistanceMod( Core::ELEMENTAL_COLD, 0 );
+      setResistanceMod( Core::ELEMENTAL_ENERGY, 0 );
+      setResistanceMod( Core::ELEMENTAL_POISON, 0 );
+      setResistanceMod( Core::ELEMENTAL_PHYSICAL, 0 );
 
 	  // Let's build the damages defaults.
-	  element_damage.cold = 0;
-	  element_damage.energy = 0;
-	  element_damage.fire = 0;
-	  element_damage.poison = 0;
-	  element_damage.physical = 0;
+      setBaseElementDamage( Core::ELEMENTAL_FIRE, 0 );
+      setBaseElementDamage( Core::ELEMENTAL_COLD, 0 );
+      setBaseElementDamage( Core::ELEMENTAL_ENERGY, 0 );
+      setBaseElementDamage( Core::ELEMENTAL_POISON, 0 );
+      setBaseElementDamage( Core::ELEMENTAL_PHYSICAL, 0 );
 	  // Mods
-	  element_damage_mod.cold = 0;
-	  element_damage_mod.energy = 0;
-	  element_damage_mod.fire = 0;
-	  element_damage_mod.poison = 0;
-	  element_damage_mod.physical = 0;
+      setElementDamageMod( Core::ELEMENTAL_FIRE, 0 );
+      setElementDamageMod( Core::ELEMENTAL_COLD, 0 );
+      setElementDamageMod( Core::ELEMENTAL_ENERGY, 0 );
+      setElementDamageMod( Core::ELEMENTAL_POISON, 0 );
+      setElementDamageMod( Core::ELEMENTAL_PHYSICAL, 0 );
 
 	  //Movementcost defaults
 	  movement_cost.walk = 1.0;
@@ -2412,7 +2422,7 @@ namespace Pol {
 	  this->last_corpse = corpse->serial;
 
 	  corpse->ownerserial = this->serial;
-	  corpse->setname( "A corpse of " + name_ );
+	  corpse->setname( "A corpse of " + name_.get() );
 	  corpse->take_contents_to_grave = ( acct == NULL );
 
 	  UPDATE_CHECKPOINT();
@@ -2643,7 +2653,7 @@ namespace Pol {
 	  // we need to reset each resist to 0, then add the base back using calc.
       for ( unsigned element = 0; element <= Core::ELEMENTAL_TYPE_MAX; ++element )
 	  {
-		refresh_element( element );
+		refresh_element( (Core::ElementalType)element );
 	  }
 
       for ( unsigned layer = Core::LAYER_EQUIP__LOWEST; layer <= Core::LAYER_EQUIP__HIGHEST; ++layer )
@@ -2654,7 +2664,7 @@ namespace Pol {
 		// Let's check all items as base, and handle their element_resists.
         for ( unsigned element = 0; element <= Core::ELEMENTAL_TYPE_MAX; ++element )
 		{
-		  update_element( element, item );
+          update_element( ( Core::ElementalType )element, item );
 		}
 		if ( item->isa( CLASS_ARMOR ) )
 		{
@@ -2705,64 +2715,26 @@ namespace Pol {
 	  }
 	}
 
-	void Character::update_element( unsigned element, Items::Item *item )
+    void Character::update_element( Core::ElementalType element, Items::Item *item )
 	{
-	  switch ( element )
-	  {
-        case Core::ELEMENTAL_FIRE: element_resist.fire = element_resist.fire + item->calc_element_resist( Core::ELEMENTAL_FIRE );
-          element_damage.fire = element_damage.fire + item->calc_element_damage( Core::ELEMENTAL_FIRE ); break;
-        case Core::ELEMENTAL_COLD: element_resist.cold = element_resist.cold + item->calc_element_resist( Core::ELEMENTAL_COLD );
-          element_damage.cold = element_damage.cold + item->calc_element_damage( Core::ELEMENTAL_COLD ); break;
-        case Core::ELEMENTAL_ENERGY: element_resist.energy = element_resist.energy + item->calc_element_resist( Core::ELEMENTAL_ENERGY );
-          element_damage.energy = element_damage.energy + item->calc_element_damage( Core::ELEMENTAL_ENERGY ); break;
-        case Core::ELEMENTAL_POISON: element_resist.poison = element_resist.poison + item->calc_element_resist( Core::ELEMENTAL_POISON );
-          element_damage.poison = element_damage.poison + item->calc_element_damage( Core::ELEMENTAL_POISON ); break;
-        case Core::ELEMENTAL_PHYSICAL: element_resist.physical = element_resist.physical + item->calc_element_resist( Core::ELEMENTAL_PHYSICAL );
-          element_damage.physical = element_damage.physical + item->calc_element_damage( Core::ELEMENTAL_PHYSICAL ); break;
-	  }
+      setBaseResistance( element, getBaseResistance( element ) + item->calc_element_resist( element ) );
+      setBaseElementDamage( element, getBaseElementDamage( element ) + item->calc_element_damage( element ) );
 	}
 
-	void Character::refresh_element( unsigned element )
+	void Character::refresh_element( Core::ElementalType element )
 	{
-	  switch ( element )
-	  {
-        case Core::ELEMENTAL_FIRE: element_resist.fire = element_resist_mod.fire;
-		  element_damage.fire = element_damage_mod.fire; break;
-        case Core::ELEMENTAL_COLD: element_resist.cold = element_resist_mod.cold;
-		  element_damage.cold = element_damage_mod.cold; break;
-        case Core::ELEMENTAL_ENERGY: element_resist.energy = element_resist_mod.energy;
-		  element_damage.energy = element_damage_mod.energy; break;
-        case Core::ELEMENTAL_POISON: element_resist.poison = element_resist_mod.poison;
-		  element_damage.poison = element_damage_mod.poison; break;
-        case Core::ELEMENTAL_PHYSICAL: element_resist.physical = element_resist_mod.physical;
-		  element_damage.physical = element_damage_mod.physical; break;
-	  }
+      setBaseResistance( element, getResistanceMod( element ) );
+      setBaseElementDamage( element, getElementDamageMod( element ) );
 	}
 
-	s16 Character::calc_element_resist( unsigned resist ) const
+    s16 Character::calc_element_resist( Core::ElementalType resist ) const
 	{
-	  switch ( resist )
-	  {
-        case Core::ELEMENTAL_FIRE: return ( element_resist.fire + element_resist_mod.fire ); break;
-        case Core::ELEMENTAL_COLD: return ( element_resist.cold + element_resist_mod.cold ); break;
-        case Core::ELEMENTAL_ENERGY: return ( element_resist.energy + element_resist_mod.energy ); break;
-        case Core::ELEMENTAL_POISON: return ( element_resist.poison + element_resist_mod.poison ); break;
-        case Core::ELEMENTAL_PHYSICAL: return ( element_resist.physical + element_resist_mod.physical ); break;
-	  }
-	  return 0;
+      return getBaseResistance( resist ) + getResistanceMod( resist );
 	}
 
-	s16 Character::calc_element_damage( unsigned element ) const
+    s16 Character::calc_element_damage( Core::ElementalType element ) const
 	{
-	  switch ( element )
-	  {
-        case Core::ELEMENTAL_FIRE: return ( element_damage.fire + element_damage_mod.fire ); break;
-        case Core::ELEMENTAL_COLD: return ( element_damage.cold + element_damage_mod.cold ); break;
-        case Core::ELEMENTAL_ENERGY: return ( element_damage.energy + element_damage_mod.energy ); break;
-        case Core::ELEMENTAL_POISON: return ( element_damage.poison + element_damage_mod.poison ); break;
-        case Core::ELEMENTAL_PHYSICAL: return ( element_damage.physical + element_damage_mod.physical ); break;
-	  }
-	  return 0;
+      return getBaseElementDamage( element ) + getElementDamageMod( element );
 	}
 
 	void Character::showarmor() const

@@ -57,11 +57,7 @@ namespace Pol {
 	  PropertyList& operator-( const std::set<std::string>& );  //dave added 1/26/3
 	  void operator-=( const std::set<std::string>& );  //dave added 1/26/3
 	protected:
-      struct cprop_name_tag {};
-      struct cprop_value_tag {};
-      typedef boost::flyweight<std::string, boost::flyweights::tag<cprop_name_tag>, FLYWEIGHT_HASH_FACTORY> cprop_name;
-      typedef boost::flyweight<std::string, boost::flyweights::tag<cprop_value_tag>, FLYWEIGHT_HASH_FACTORY> cprop_value;
-      typedef std::map<cprop_name, cprop_value> Properties;
+      typedef std::map<boost_utils::cprop_name_flystring, boost_utils::cprop_value_flystring> Properties;
 
 	  Properties properties;
 
