@@ -66,12 +66,12 @@ namespace Pol {
 
 	void StoredConfigElem::addprop( const std::string& propname, Bscript::BObjectImp* imp )
 	{
-	  propimps_.insert( PropImpList::value_type( cfg_key(propname), ref_ptr<class Bscript::BObjectImp>( imp ) ) );
+	  propimps_.insert( PropImpList::value_type( boost_utils::cfg_key_flystring(propname), ref_ptr<class Bscript::BObjectImp>( imp ) ) );
 	}
 
 	Bscript::BObjectImp* StoredConfigElem::getimp( const std::string& propname ) const
 	{
-      PropImpList::const_iterator itr = propimps_.find( cfg_key(propname) );
+      PropImpList::const_iterator itr = propimps_.find( boost_utils::cfg_key_flystring( propname ) );
 	  if ( itr == propimps_.end() )
 		return NULL;
 	  else
@@ -94,7 +94,7 @@ namespace Pol {
 
 	std::pair<StoredConfigElem::const_iterator, StoredConfigElem::const_iterator> StoredConfigElem::equal_range( const std::string& propname ) const
 	{
-	  return propimps_.equal_range( cfg_key(propname) );
+      return propimps_.equal_range( boost_utils::cfg_key_flystring( propname ) );
 	}
 
     size_t StoredConfigElem::estimateSize() const

@@ -37,9 +37,7 @@ namespace Pol {
 	class StoredConfigElem : public ref_counted
 	{
 	private:
-      struct cfg_key_tag {};
-      typedef boost::flyweight<std::string, boost::flyweights::tag<cfg_key_tag>, FLYWEIGHT_HASH_FACTORY> cfg_key;
-      typedef std::multimap<cfg_key, ref_ptr<Bscript::BObjectImp>, Clib::ci_cmp_pred > PropImpList;
+      typedef std::multimap<boost_utils::cfg_key_flystring, ref_ptr<Bscript::BObjectImp>, Clib::ci_cmp_pred > PropImpList;
 
 	public:
 	  StoredConfigElem( Clib::ConfigElem& elem );

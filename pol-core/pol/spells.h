@@ -90,7 +90,7 @@ namespace Pol {
 	  std::string power_words_;
 	  UACTION action_;
 
-	  typedef std::vector<unsigned short> RegList;
+	  typedef std::vector<unsigned int> RegList;
 	  RegList reglist_;
 	  USpellParams params_;
 

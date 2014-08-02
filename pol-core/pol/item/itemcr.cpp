@@ -208,18 +208,24 @@ namespace Pol {
 
       for ( unsigned element = 0; element <= Core::ELEMENTAL_TYPE_MAX; ++element )
 	  {
+
 		switch ( element )
 		{
-          case Core::ELEMENTAL_FIRE: item->element_resist.fire = id.element_resist.fire;
-			item->element_damage.fire = id.element_damage.fire; break;
-          case Core::ELEMENTAL_COLD: item->element_resist.cold = id.element_resist.cold;
-			item->element_damage.cold = id.element_damage.cold; break;
-          case Core::ELEMENTAL_ENERGY: item->element_resist.energy = id.element_resist.energy;
-			item->element_damage.energy = id.element_damage.energy; break;
-          case Core::ELEMENTAL_POISON: item->element_resist.poison = id.element_resist.poison;
-			item->element_damage.poison = id.element_damage.poison; break;
-          case Core::ELEMENTAL_PHYSICAL: item->element_resist.physical = id.element_resist.physical;
-			item->element_damage.physical = id.element_damage.physical; break;
+          case Core::ELEMENTAL_FIRE: 
+            item->setBaseResistance( Core::ELEMENTAL_FIRE, id.element_resist.fire );
+            item->setBaseElementDamage( Core::ELEMENTAL_FIRE, id.element_damage.fire ); break;
+          case Core::ELEMENTAL_COLD: 
+            item->setBaseResistance( Core::ELEMENTAL_COLD, id.element_resist.cold );
+            item->setBaseElementDamage( Core::ELEMENTAL_COLD, id.element_damage.cold ); break;
+          case Core::ELEMENTAL_ENERGY: 
+            item->setBaseResistance( Core::ELEMENTAL_ENERGY, id.element_resist.energy );
+            item->setBaseElementDamage( Core::ELEMENTAL_ENERGY, id.element_damage.energy ); break;
+          case Core::ELEMENTAL_POISON: 
+            item->setBaseResistance( Core::ELEMENTAL_POISON, id.element_resist.poison );
+            item->setBaseElementDamage( Core::ELEMENTAL_POISON, id.element_damage.poison ); break;
+          case Core::ELEMENTAL_PHYSICAL: 
+            item->setBaseResistance( Core::ELEMENTAL_PHYSICAL, id.element_resist.physical );
+            item->setBaseElementDamage( Core::ELEMENTAL_PHYSICAL, id.element_damage.physical ); break;
 		}
 	  }
 

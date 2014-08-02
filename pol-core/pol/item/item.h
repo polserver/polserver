@@ -201,9 +201,9 @@ namespace Pol {
 
 	  u8 slot_index_;
 
-	  std::string on_use_script_;
-	  std::string equip_script_;
-	  std::string unequip_script_;
+	  boost_utils::script_name_flystring on_use_script_;
+      boost_utils::script_name_flystring equip_script_;
+      boost_utils::script_name_flystring unequip_script_;
 	  mutable const ItemDesc *_itemdesc;
 	public:
 	  u8 layer;
@@ -212,8 +212,8 @@ namespace Pol {
 	  unsigned short maxhp() const;
 	  double quality_;
 
-	  s16 calc_element_resist( unsigned element ) const;
-	  s16 calc_element_damage( unsigned element ) const;
+	  s16 calc_element_resist( Core::ElementalType element ) const;
+      s16 calc_element_damage( Core::ElementalType element ) const;
 	  bool has_resistance( Mobile::Character* chr );
 	  bool has_element_damage();
 	};

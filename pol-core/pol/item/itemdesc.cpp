@@ -643,10 +643,7 @@ namespace Pol {
     {
       size_t size = sizeof(ItemDesc)
         +objtypename.capacity()
-        + desc.capacity()
         + tooltip.capacity()
-        + equip_script.capacity()
-        + unequip_script.capacity()
         + walk_on_script.estimatedSize()
         + on_use_script.estimatedSize()
         + control_script.estimatedSize()
@@ -1190,5 +1187,19 @@ namespace Pol {
 		}
 	  }
 	}
+
+    size_t itemdescSizeEstimate( size_t *count )
+    {
+      size_t size = ( sizeof(u32)+sizeof(ItemDesc*)+( sizeof(void*)* 3 + 1 ) / 2 ) * desctable.size();
+      *count = desctable.size();
+      for ( const auto &elem : desctable )
+      {
+        if ( elem.second != nullptr )
+        {
+          size += elem.second->estimatedSize();
+        }
+      }
+      return size;
+    }
   }
 }

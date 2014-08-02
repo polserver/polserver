@@ -1770,7 +1770,7 @@ namespace Pol {
       {
         FLEXLOG( log ) << "Time ;ProcessSize ;RealmSize ;ScriptCount ;ScriptSize ;ScriptStoreCount ;ScriptStoreSize ;ObjCount ;ObjSize ;AccountCount ;AccountSize ;ClientCount ;ClientSize ;"
           << "ObjItemCount ;ObjItemSize ;ObjContCount ;ObjContSize ;ObjCharCount ;ObjCharSize ;ObjNpcCount ;ObjNpcSize ;ObjWeaponCount ;ObjWeaponSize ; ObjArmorCount ;ObjArmorSize ;ObjMultiCount ;ObjMultiSize ;"
-          << "ConfigCount ;ConfigSize";
+          << "ConfigCount ;ConfigSize ;ItemdescCount ;ItemdescSize";
 #ifdef DEBUG_FLYWEIGHT
         for ( int i = 0; i < boost_utils::debug_flyweight_queries.size(); ++i )
           FLEXLOG( log ) << " ;FlyWeightBucket" << i << "Count ;FlyWeightBucket"<<i<<"Size";
@@ -1871,6 +1871,8 @@ namespace Pol {
       size_t scriptstoragesize = sizeEstimate_scriptStorage( &scriptstoragecount );
       size_t configcount = 0;
       size_t configsize = Core::configfileEstimateSize( &configcount );
+      size_t itemdesccount = 0;
+      size_t itemdescsize = Items::itemdescSizeEstimate( &itemdesccount );
 
       FLEXLOG( log ) << GET_LOG_FILESTAMP << ";"
         << Clib::getCurrentMemoryUsage() << " ;"
@@ -1887,7 +1889,8 @@ namespace Pol {
         << obj_weapon_count << " ;" << obj_weapon_size << " ;"
         << obj_armor_count << " ;" << obj_armor_size << " ;"
         << obj_multi_count << " ;" << obj_multi_size << " ;"
-        << configcount << " ;" << configsize;
+        << configcount << " ;" << configsize << " ;"
+        << itemdesccount << " ;" << itemdescsize;
 
 #ifdef DEBUG_FLYWEIGHT
       for ( const auto& ptr : boost_utils::debug_flyweight_queries )

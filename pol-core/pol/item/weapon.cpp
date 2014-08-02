@@ -439,7 +439,6 @@ namespace Pol {
 	  tmpl( permanent_descriptor ),
 	  hit_script_( descriptor.hit_script )
 	{}
-	extern map<u32, ItemDesc*> desctable;
 
 	UWeapon::~UWeapon()
 	{

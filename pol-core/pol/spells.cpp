@@ -204,7 +204,7 @@ namespace Pol {
 	  std::string reagent_name;
 	  while ( elem.remove_prop( "Reagent", &reagent_name ) )
 	  {
-        unsigned short reagent = Items::get_objtype_from_string( reagent_name );
+        unsigned int reagent = Items::get_objtype_from_string( reagent_name );
 
 		reglist_.push_back( reagent );
 	  }

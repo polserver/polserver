@@ -12,6 +12,7 @@ Notes
 #define SCRDEF_H
 
 #include <string>
+#include "../clib/boostutils.h"
 namespace Pol {
   namespace Plib {
 	class Package;
@@ -40,8 +41,8 @@ namespace Pol {
 	  void quickconfig( const Plib::Package* pkg, const std::string& name_ecl );
 	  void quickconfig( const std::string& name_ecl );
 
-	  bool empty() const { return name_.empty(); }
-	  const char* c_str() const { return name_.c_str(); }
+	  bool empty() const { return name_.get().empty(); }
+	  const char* c_str() const { return name_.get().c_str(); }
 	  void clear();
 
 	  const std::string& name() const { return name_; }
@@ -52,8 +53,8 @@ namespace Pol {
 	  std::string relativename( const Plib::Package* pkg = NULL ) const;
       size_t estimatedSize() const;
 	private:
-	  std::string localname_;
-	  std::string name_;
+      boost_utils::script_name_flystring localname_;
+      boost_utils::script_name_flystring name_;
 	  const Plib::Package* pkg_;
 
 	private: // not implemented
