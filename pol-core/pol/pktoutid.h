@@ -118,6 +118,7 @@ namespace Pol {
 	  PKTOUT_DC_ID = 0xDC,	// Object Cahce/Revision (SE Introduced version)
 	  PKTOUT_DD_ID = 0xDD,    // Compressed Gump
 
+      PKTOUT_E2_ID = 0xE2,  // HSA MobileAnimation
 	  PKTOUT_E3_ID = 0xE3,	// KR Encryption Response
 	  PKTOUT_F3_ID = 0xF3,	// SA Object Information
 	  PKTOUT_F5_ID = 0xF5,	// New Map Message

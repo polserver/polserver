@@ -101,7 +101,9 @@ namespace Pol {
       _z(z),
       _facing(facing),
       _color(color),
-      _flags(flags)
+      _flags(flags),
+      _p_old( ),
+      _p( )
     {
     }
 
@@ -113,7 +115,9 @@ namespace Pol {
       _x( x ),
       _y( y ),
       _z( z ),
-      _color( color )
+      _color( color ),
+      _p_old(),
+      _p()
     {
       
     }
@@ -179,7 +183,9 @@ namespace Pol {
       _y( y ),
       _slotindex( slotindex ),
       _containerserial_ext( containerserial_ext ),
-      _color( color )
+      _color( color ),
+      _p_old(),
+      _p()
     {}
 
     void AddItemContainerMsg::buildLegacy()
@@ -221,6 +227,106 @@ namespace Pol {
         if ( _p_old->offset == 1 )
           buildLegacy();
         _p_old.Send( client, 20 );
+      }
+    }
+
+    MobileAnimationMsg::MobileAnimationMsg( u32 serial_ext )
+      :PktSender(),
+      _serial_ext( serial_ext ),
+      _anim( 0 ),
+      _action( 0 ),
+      _subaction( 0 ),
+      _action_old( 0 ),
+      _framecount_old( 0 ),
+      _repeat_old( 0 ),
+      _backward_old( 0 ),
+      _repeat_flag_old( 0 ),
+      _delay_old( 0 ),
+      _oldanim_valid( false ),
+      _newanim_valid( false ),
+      _p_old( ),
+      _p( )
+    {}
+    MobileAnimationMsg::MobileAnimationMsg( u32 serial_ext, u16 anim, u16 action, u8 subaction,
+                                            u16 action_old, u16 framecount_old, u16 repeat_old,
+                                            DIRECTION_FLAG_OLD backward_old, REPEAT_FLAG_OLD repeat_flag_old, u8 delay_old,
+                                            bool oldanim_valid, bool newanim_valid )
+        : PktSender(),
+        _serial_ext( serial_ext ),
+        _anim( anim ),
+        _action( action ),
+        _subaction( subaction ),
+        _action_old( action_old ),
+        _framecount_old( framecount_old ),
+        _repeat_old( repeat_old ),
+        _backward_old( static_cast<u8>( backward_old ) ),
+        _repeat_flag_old( static_cast<u8>( repeat_flag_old ) ),
+        _delay_old( delay_old ),
+        _oldanim_valid( oldanim_valid ),
+        _newanim_valid( newanim_valid ),
+        _p_old(),
+        _p()
+    {}
+
+    void MobileAnimationMsg::update( u16 anim, u16 action, u8 subaction,
+                                     u16 action_old, u16 framecount_old, u16 repeat_old,
+                                     DIRECTION_FLAG_OLD backward_old, REPEAT_FLAG_OLD repeat_flag_old, u8 delay_old,
+                                     bool oldanim_valid, bool newanim_valid )
+    {
+      _anim = anim;
+      _action = action;
+      _subaction = subaction;
+      _action_old = action_old;
+      _framecount_old = framecount_old;
+      _repeat_old = repeat_old;
+      _backward_old = static_cast<u8>( backward_old );
+      _repeat_flag_old = static_cast<u8>( repeat_flag_old );
+      _delay_old = delay_old;
+      _oldanim_valid = oldanim_valid;
+      _newanim_valid = newanim_valid;
+      if ( _oldanim_valid && _p_old->offset != 1 )
+        build6E();
+      if ( _newanim_valid && _p->offset != 1 )
+        build();
+    }
+    void MobileAnimationMsg::build()
+    {
+      _p->offset = 1;
+      _p->Write<u32>( _serial_ext );
+      _p->WriteFlipped<u16>( _anim );
+      _p->WriteFlipped<u16>( _action );
+      _p->Write<u8>( _subaction );
+    }
+
+    void MobileAnimationMsg::build6E()
+    {
+      _p_old->offset = 1;
+      _p_old->Write<u32>( _serial_ext );
+      _p_old->WriteFlipped<u16>( _action_old );
+      _p_old->WriteFlipped<u16>( _framecount_old );
+      _p_old->WriteFlipped<u16>( _repeat_old );
+      _p_old->Write<u8>( _backward_old );
+      _p_old->Write<u8>( _repeat_flag_old );
+      _p_old->Write<u8>( _delay_old );
+    }
+
+    void MobileAnimationMsg::Send( Client* client )
+    {
+      if ( client->ClientType & CLIENTTYPE_7090 )
+      {
+        if ( !_newanim_valid )
+          return;
+        if ( _p->offset == 1 )
+          build();
+        _p.Send( client, 10 );
+      }
+      else
+      {
+        if ( !_oldanim_valid )
+          return;
+        if ( _p_old->offset == 1 )
+          build6E();
+        _p_old.Send( client, 14 );
       }
     }
   }

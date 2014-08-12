@@ -80,11 +80,41 @@ namespace Pol {
       PktHelper::PacketOut<PktOut_25> _p;
     };
 
+    class MobileAnimationMsg : public PktSender
+    {
+    public:
+      enum DIRECTION_FLAG_OLD { BACKWARD = 1, FORWARD = 0 };
+      enum REPEAT_FLAG_OLD { REPEAT = 1, NOREPEAT = 0 };
 
+      MobileAnimationMsg( u32 serial_ext, u16 anim, u16 action, u8 subaction,
+                          u16 action_old, u16 framecount_old, u16 repeat_old,
+                          DIRECTION_FLAG_OLD backward_old, REPEAT_FLAG_OLD repeat_flag_old, u8 delay_old,
+                          bool oldanim_valid, bool newanim_valid);
+      MobileAnimationMsg( u32 serial_ext );
+      virtual void Send( Client* client );
+      void update( u16 anim, u16 action, u8 subaction,
+                   u16 action_old, u16 framecount_old, u16 repeat_old,
+                   DIRECTION_FLAG_OLD backward_old, REPEAT_FLAG_OLD repeat_flag_old, u8 delay_old,
+                   bool oldanim_valid, bool newanim_valid );
+    private:
+      u32 _serial_ext;
+      u16 _anim;
+      u16 _action;
+      u8 _subaction;
+      u16 _action_old;
+      u16 _framecount_old;
+      u16 _repeat_old;
+      u8 _backward_old;
+      u8 _repeat_flag_old;
+      u8 _delay_old;
+      bool _oldanim_valid;
+      bool _newanim_valid;
+      void build();
+      void build6E();
 
-
-
-
+      PktHelper::PacketOut<PktOut_6E> _p_old;
+      PktHelper::PacketOut<PktOut_E2> _p;
+    };
   }
 }
 #endif

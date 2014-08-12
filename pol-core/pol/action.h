@@ -12,7 +12,7 @@ Notes
 #ifndef ACTION_H
 #define ACTION_H
 
-#include "pktout.h"
+#include "network/packetdefs.h"
 
 namespace Pol {
   namespace Mobile {
@@ -72,8 +72,8 @@ namespace Pol {
 	void send_action_to_inrange( const Mobile::Character* obj, UACTION action,
 								 unsigned short framecount = 0x05,
 								 unsigned short repeatcount = 0x01,
-								 PKTOUT_6E::DIRECTION_FLAG backward = PKTOUT_6E::FORWARD,
-								 PKTOUT_6E::REPEAT_FLAG repeatflag = PKTOUT_6E::NOREPEAT,
+                                 Network::MobileAnimationMsg::DIRECTION_FLAG_OLD backward = Network::MobileAnimationMsg::FORWARD,
+                                 Network::MobileAnimationMsg::REPEAT_FLAG_OLD repeatflag = Network::MobileAnimationMsg::NOREPEAT,
 								 unsigned char delay = 0x01 );
 
   }

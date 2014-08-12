@@ -125,12 +125,6 @@ namespace Pol {
 #define PKTOUT_65_WTYPE_STORM_BREWING  0x03
 #define PKTOUT_65_WTYPE_STOP_WEATHER   0xFF
 
-	struct PKTOUT_6E
-	{
-	  enum DIRECTION_FLAG { BACKWARD = 1, FORWARD = 0 };
-	  enum REPEAT_FLAG { REPEAT = 1, NOREPEAT = 0 };
-	};
-
 #define PKTOUT_A6_TYPE_TIP    0
 #define PKTOUT_A6_TYPE_UPDATE 1
 
