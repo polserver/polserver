@@ -1,0 +1,4 @@
+language: cpp
+compiler:
+  - gcc
+script: cd pol-core && chmod a+x buildcore && ./buildcore
