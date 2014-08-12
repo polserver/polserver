@@ -94,6 +94,7 @@ namespace Pol {
 	const struct VersionDetailStruct CLIENT_VER_7090 = { 7, 0, 9, 0 };
 	const struct VersionDetailStruct CLIENT_VER_70130 = { 7, 0, 13, 0 };
     const struct VersionDetailStruct CLIENT_VER_70300 = { 7, 0, 30, 0 };
+    const struct VersionDetailStruct CLIENT_VER_70331 = { 7, 0, 33, 1 };
 
 	enum ClientTypeFlag
 	{
@@ -108,7 +109,8 @@ namespace Pol {
 	  CLIENTTYPE_UOSA = 0x100,
 	  CLIENTTYPE_7090 = 0x200, // 7.0.9.0 (High Sea Adventures)
 	  CLIENTTYPE_70130 = 0x400, // 7.0.13.0 (New 0xA9 packet)
-      CLIENTTYPE_70300 = 0x800  // 7.0.30.0 (New Status entries for classic client)
+      CLIENTTYPE_70300 = 0x800,  // 7.0.30.0 (New Status entries for classic client)
+      CLIENTTYPE_70331 = 0x1000 // 7.0.33.1 new mobile incoming
 	};
 
     typedef struct

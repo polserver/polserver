@@ -290,7 +290,14 @@ namespace Pol {
 		if ( ( layer == LAYER_FACE ) && ( ( ssopt.support_faces == 0 ) || ( ~client->ClientType & CLIENTTYPE_UOKR ) ) )
 		  continue;
 
-		if ( item->color )
+        if ( client->ClientType & CLIENTTYPE_70331 )
+        {
+          owncreate->Write<u32>( item->serial_ext );
+          owncreate->WriteFlipped<u16>( item->graphic );
+          owncreate->Write<u8>( static_cast<u8>( layer ) );
+          owncreate->WriteFlipped<u16>( item->color );
+        }
+        else if ( item->color )
 		{
 		  owncreate->Write<u32>( item->serial_ext );
 		  owncreate->WriteFlipped<u16>( static_cast<u16>( 0x8000 | item->graphic ) );
@@ -360,10 +367,17 @@ namespace Pol {
 		if ( ( layer == LAYER_FACE ) && ( ( ssopt.support_faces == 0 ) || ( ~client->ClientType & CLIENTTYPE_UOKR ) ) )
 		  continue;
 
-		if ( item->color )
+        if ( client->ClientType & CLIENTTYPE_70331 )
+        {
+          owncreate->Write<u32>( item->serial_ext );
+          owncreate->WriteFlipped<u16>( item->graphic );
+          owncreate->Write<u8>( static_cast<u8>( layer ) );
+          owncreate->WriteFlipped<u16>( item->color );
+        }
+        else if ( item->color )
 		{
 		  owncreate->Write<u32>( item->serial_ext );
-		  owncreate->WriteFlipped<u16>( static_cast<u16>( 0x8000 | item->graphic ) );
+  	      owncreate->WriteFlipped<u16>( static_cast<u16>( 0x8000 | item->graphic ) );
 		  owncreate->Write<u8>( static_cast<u8>( layer ) );
 		  owncreate->WriteFlipped<u16>( item->color );
 		}

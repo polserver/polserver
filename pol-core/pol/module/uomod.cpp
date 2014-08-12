@@ -1488,8 +1488,8 @@ namespace Pol {
 		send_action_to_inrange( chr, action,
 								framecount,
 								repeatcount,
-								static_cast<PKTOUT_6E::DIRECTION_FLAG>( backward ),
-								static_cast<PKTOUT_6E::REPEAT_FLAG>( repeatflag ),
+                                static_cast<Network::MobileAnimationMsg::DIRECTION_FLAG_OLD>( backward ),
+                                static_cast<Network::MobileAnimationMsg::REPEAT_FLAG_OLD>( repeatflag ),
 								static_cast<unsigned char>( delay ) );
 		return new BLong( 1 );
 	  }

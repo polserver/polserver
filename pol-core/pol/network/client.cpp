@@ -351,6 +351,8 @@ namespace Pol {
 	  // with fall through !
 	  switch ( type )
 	  {
+        case CLIENTTYPE_70331:
+          ClientType |= CLIENTTYPE_70331;
         case CLIENTTYPE_70300:
           ClientType |= CLIENTTYPE_70300;
 		case CLIENTTYPE_70130:
