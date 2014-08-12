@@ -10,9 +10,9 @@ export POL_BUILDTAG="ubuntu"
 export CXX_MORE_OPTS="-fopenmp -O3 -DUSE_SYSTEM_ZLIB -DHAVE_OPENSSL -DNDEBUG -D_REENTRANT -DPOL_BUILDTAG=\\\"ubuntu\\\""
 
 #use 4.6
-#CC="gcc -std=c++0x -gstabs+ " LINKER="g++ -std=c++0x -gstabs+ " make -f makefile.gcc dist
+CC="gcc -std=c++0x -gstabs+ " LINKER="g++ -std=c++0x -gstabs+ " make -f makefile.gcc dist
 
 #use 4.8
-CC="gcc-4.8 -std=c++11 -gstabs+ " LINKER="g++-4.8 -std=c++11 -gstabs+" make -f makefile.gcc dist
+#CC="gcc-4.8 -std=c++11 -gstabs+ " LINKER="g++-4.8 -std=c++11 -gstabs+" make -f makefile.gcc dist
 
 
