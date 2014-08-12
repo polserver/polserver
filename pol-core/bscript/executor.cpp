@@ -3458,7 +3458,8 @@ namespace Pol {
         size += 3 * sizeof(BObjectRef*)+bojectrefvec->capacity() * sizeof( BObjectRef );
         for ( const auto& bojectref : *bojectrefvec )
         {
-          size += bojectref->sizeEstimate();
+          if (bojectref != nullptr )
+            size += bojectref->sizeEstimate();
         }
       }
       size += 3 * sizeof(ReturnContext*)+ControlStack.size() * sizeof( ReturnContext );
@@ -3466,22 +3467,26 @@ namespace Pol {
       size += 3 * sizeof(BObjectRef*)+Locals2->size() * sizeof( BObjectRef );
       for ( const auto& bojectref : *Locals2 )
       {
-        size += bojectref->sizeEstimate();
+        if ( bojectref != nullptr )
+          size += bojectref->sizeEstimate();
       }
       size += 3 * sizeof(BObjectRef*)+Globals2.size() * sizeof( BObjectRef );
       for ( const auto& bojectref : Globals2 )
       {
-        size += bojectref->sizeEstimate();
+        if ( bojectref != nullptr )
+          size += bojectref->sizeEstimate();
       }
       size += 3 * sizeof(BObjectRef*)+ValueStack.size() * sizeof( BObjectRef );
       for ( const auto& bojectref : ValueStack )
       {
-        size += bojectref->sizeEstimate();
+        if ( bojectref != nullptr )
+          size += bojectref->sizeEstimate();
       }
       size += 3 * sizeof(BObjectRef*)+fparams.capacity() * sizeof( BObjectRef );
       for ( const auto& bojectref : fparams )
       {
-        size += bojectref->sizeEstimate();
+        if ( bojectref != nullptr )
+          size += bojectref->sizeEstimate();
       }
       size += 3 * sizeof(ExecutorModule**)+execmodules.capacity() * sizeof( ExecutorModule* );
       size += 3 * sizeof(ExecutorModule**)+availmodules.capacity() * sizeof( ExecutorModule* );
