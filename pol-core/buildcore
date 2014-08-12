@@ -1,7 +1,9 @@
 #!/bin/bash
 #
 # Build Official Release
-
+if [ ! -d ../lib/boost_1_55_0/boost ]; then
+  tar xvjf ../lib/boost_1_55_0.tar.bz2
+fi
 export BUILD64POL=1
 #export USE_MYSQL=1
 
