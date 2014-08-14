@@ -3,4 +3,4 @@ compiler:
   - gcc
 script: 
   - cd pol-core && chmod a+x buildcore && ./buildcore
-  - cd ../testsuite/escript && /usr/bin/python performtests.py -c ../../pol-core/bin/scripts/ecompile -r ../../pol-core/bin/scripts/runecl
+  - cd ../testsuite/escript && /usr/bin/python performtests.py -c ../../pol-core/bin/ecompile -r ../../pol-core/bin/runecl

@@ -35,7 +35,7 @@ class Executor:
     try:
       return subprocess.check_output(cmd,shell=True,stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as e:
-      print(e.cmd,e.output)
+      print e.cmd,e.output
 
 class Compiler:
   def __init__(self,comp):
@@ -45,7 +45,7 @@ class Compiler:
     try:
       return subprocess.check_output(self.comp+' -l -xt -q -C ecompile.cfg '+file,shell=True, stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as e:
-      print (e.cmd, e.output)
+      print e.cmd, e.output
 
 class StdTests:
   def __init__(self):
