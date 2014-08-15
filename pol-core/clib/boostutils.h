@@ -155,7 +155,8 @@ namespace Pol {
     typedef boost::flyweight<std::string, boost::flyweights::tag<script_name_tag>, FLYWEIGHT_HASH_FACTORY> script_name_flystring;
     struct npctemplate_name_tag {};
     typedef boost::flyweight<std::string, boost::flyweights::tag<npctemplate_name_tag>, FLYWEIGHT_HASH_FACTORY> npctemplate_name_flystring;
-
+    struct function_name_tag {};
+    typedef boost::flyweight<std::string, boost::flyweights::tag<function_name_tag>, FLYWEIGHT_HASH_FACTORY> function_name_flystring;
   }
 }
 #endif

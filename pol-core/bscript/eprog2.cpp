@@ -303,7 +303,7 @@ namespace Pol {
 
 		BSCRIPT_MODULE_HDR modhdr;
 		memset( &modhdr, 0, sizeof modhdr );
-		strzcpy( modhdr.modulename, module->modulename.c_str(), sizeof modhdr.modulename );
+		strzcpy( modhdr.modulename, module->modulename.get().c_str(), sizeof modhdr.modulename );
 		modhdr.nfuncs = static_cast<unsigned int>( module->used_functions.size() );
 		fwrite( &modhdr, sizeof modhdr, 1, fp );
 		for ( auto &module_func : module->used_functions )
@@ -312,7 +312,7 @@ namespace Pol {
 		  memset( &func, 0, sizeof func );
 		  passert( module_func->used );
 
-		  strzcpy( func.funcname, module_func->name.c_str(), sizeof func.funcname );
+		  strzcpy( func.funcname, module_func->name.get().c_str(), sizeof func.funcname );
 		  func.nargs = static_cast<unsigned char>( module_func->nargs );
 
 		  fwrite( &func, sizeof func, 1, fp );
@@ -591,7 +591,7 @@ namespace Pol {
     size_t EScriptProgram::sizeEstimate() const
     {
       size_t size = sizeof(EScriptProgram)
-        +name.capacity() + program_decl.capacity();
+        + program_decl.capacity();
       size += 3 * sizeof( std::string* ) + sourcelines.capacity() * sizeof( std::string );
       for ( const auto& l : sourcelines )
         size += l.capacity();

@@ -441,7 +441,7 @@ namespace Pol {
 	  else
 	  {
         DEBUGLOG << "Script Error in '" << exec.scriptname() << "' PC=" << exec.PC << ": \n"
-          << "\tCall to function " << exec.current_module_function->name << ":\n"
+          << "\tCall to function " << exec.current_module_function->name.get() << ":\n"
           << "\tParameter " << param << ": Expected Long or String, got datatype "
           << BObjectImp::typestr( imp->type() ) << "\n";
 		return false;
@@ -469,7 +469,7 @@ namespace Pol {
 	  else
 	  {
         DEBUGLOG << "Script Error in '" << exec.scriptname() << "' PC=" << exec.PC << ": \n"
-          << "\tCall to function " << exec.current_module_function->name << ":\n"
+          << "\tCall to function " << exec.current_module_function->name.get() << ":\n"
           << "\tParameter " << param << ": Value " << objtype_long << " is out of range for an objtype\n";
         exec.setFunctionResult( new BError( "Objtype is out of range ( acceptable: 0 - " + Clib::hexint( config.max_objtype ) + " )" ) );
 		return false;
@@ -534,7 +534,7 @@ namespace Pol {
 	  else
 	  {
         DEBUGLOG << "Script Error in '" << exec.scriptname() << "' PC=" << exec.PC << ": \n"
-          << "\tCall to function " << exec.current_module_function->name << ":\n"
+          << "\tCall to function " << exec.current_module_function->name.get() << ":\n"
           << "\tParameter " << param << ": Expected Long, String, or Struct, got datatype "
           << BObjectImp::typestr( imp->type() ) << "\n";
 		return false;
@@ -576,7 +576,7 @@ namespace Pol {
 	  else
 	  {
         DEBUGLOG << "Script Error in '" << exec.scriptname() << "' PC=" << exec.PC << ": \n"
-          << "\tCall to function " << exec.current_module_function->name << ":\n"
+          << "\tCall to function " << exec.current_module_function->name.get() << ":\n"
           << "\tParameter " << param << ": Value " << objtype_long << " is out of range for an objtype\n";
 		exec.setFunctionResult( new BError( "Objtype is out of range (acceptable: 0-0x20000)" ) );
 		return false;

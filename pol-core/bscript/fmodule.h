@@ -14,6 +14,7 @@ Notes
 #include <vector>
 #include "options.h"
 #include "../clib/maputil.h"
+#include "../clib/boostutils.h"
 
 namespace Pol {
   namespace Bscript {
@@ -23,7 +24,7 @@ namespace Pol {
 	class ModuleFunction
 	{
 	public:
-	  std::string name;
+      boost_utils::function_name_flystring name;
 	  unsigned nargs;
 	  int funcidx; // according to the executor, what's its function index 
 
@@ -47,7 +48,7 @@ namespace Pol {
 	  vector<ModuleFunction*> used_functions;
 	  vector<UserFunction*> owned_userfuncs;
 
-	  std::string modulename;
+      boost_utils::function_name_flystring modulename;
 
 	  bool isFunc( const char *funcName, ModuleFunction **pmf, int *funcidx );
 	  explicit FunctionalityModule( const char* modname );
