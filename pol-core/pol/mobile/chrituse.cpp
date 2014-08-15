@@ -36,7 +36,7 @@ namespace Pol {
 	  if ( !( !start_attached || ( script_ex == NULL ) ) )
 	  {
         POLLOG << "Character::start_script hiccup\n"
-          << "Trying to start script " << prog->name << "\n"
+          << "Trying to start script " << prog->name.get() << "\n"
           << "Script " << script_ex->scriptname() << " is already running\n";
 		return false; // if it's going to have a passert() error, just return false.
 	  }
@@ -73,7 +73,7 @@ namespace Pol {
 	  }
 	  else
 	  {
-        POLLOG << "Unable to setProgram(" << prog->name.c_str() << ")\n";
+        POLLOG << "Unable to setProgram(" << prog->name.get() << ")\n";
 		return false;
 	  }
 	}

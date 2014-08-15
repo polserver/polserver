@@ -136,7 +136,7 @@ namespace Pol {
 		execmodules.push_back( em );
 		if ( em == NULL )
 		{
-          ERROR_PRINT << "WARNING: " << scriptname( ) << ": Unable to find module " << fm->modulename << "\n";
+          ERROR_PRINT << "WARNING: " << scriptname( ) << ": Unable to find module " << fm->modulename.get() << "\n";
 		  return false;
 		}
 
@@ -151,12 +151,12 @@ namespace Pol {
 		  {
 			ModuleFunction *func = fm->functions[fidx];
 			// FIXME: should check number of params, blah.
-			if ( !func->name.empty() )
+			if ( !func->name.get().empty() )
 			{
-			  func->funcidx = em->functionIndex( func->name.c_str() );
+			  func->funcidx = em->functionIndex( func->name.get().c_str() );
 			  if ( func->funcidx == -1 )
 			  {
-                ERROR_PRINT << "Unable to find " << fm->modulename << "::" << func->name << "\n";
+                ERROR_PRINT << "Unable to find " << fm->modulename.get() << "::" << func->name.get() << "\n";
 				return false;
 			  }
 			}
@@ -294,7 +294,7 @@ namespace Pol {
           fmt::Writer tmp;
           tmp << "Script Error in '" << scriptname( ) << "' PC=" << PC << ": \n";
           if ( current_module_function )
-            tmp << "\tCall to function " << current_module_function->name << ":\n";
+            tmp << "\tCall to function " << current_module_function->name.get() << ":\n";
           else
             tmp << "\tCall to an object method.\n";
           tmp << "\tParameter " << param << ": Expected datatype " << BObjectImp::typestr( type )
@@ -434,7 +434,7 @@ namespace Pol {
 	  else
 	  {
         DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << PC << ": \n"
-          << "\tCall to function " << current_module_function->name << ":\n"
+          << "\tCall to function " << current_module_function->name.get() << ":\n"
           << "\tParameter " << param << ": Expected Integer or Real"
           << ", got datatype " << BObjectImp::typestr( imp->type() ) << "\n";
 
@@ -461,7 +461,7 @@ namespace Pol {
 	  else
 	  {
 		  DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << PC << ": \n"
-		  << "\tCall to function " << current_module_function->name << ":\n"
+		  << "\tCall to function " << current_module_function->name.get() << ":\n"
           << "\tParameter " << param << ": Expected datatype " /*<< pointer_type TODO this is totally useless since its a pointer address*/ 
           << ", got datatype " << BObjectImp::typestr( ap->type( ) ) << "\n";
 
@@ -482,7 +482,7 @@ namespace Pol {
 	  else
 	  {
 		  DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << PC << ": \n"
-		  << "\tCall to function " << current_module_function->name << ":\n"
+		  << "\tCall to function " << current_module_function->name.get() << ":\n"
           << "\tParameter " << param << ": Expected datatype " /*<< object_type TODO this is totally useless since its a pointer address*/ 
           << ", got datatype " << aob->getStringRep( ) << "\n";
 
@@ -776,8 +776,8 @@ namespace Pol {
 	  current_module_function = modfunc;
 	  if ( modfunc->funcidx == -1 )
 	  {
-        DEBUGLOG << "Error in script '" << prog_->name << "':\n"
-          << "\tModule Function " << modfunc->name << " was not found.\n";
+        DEBUGLOG << "Error in script '" << prog_->name.get() << "':\n"
+          << "\tModule Function " << modfunc->name.get() << " was not found.\n";
 
 		throw runtime_error( "No implementation for function found." );
 	  }
@@ -3215,7 +3215,7 @@ namespace Pol {
 	  {
         fmt::Writer tmp;
         tmp << "Exception in: "
-          << prog_->name.c_str()
+          << prog_->name.get()
           << " PC=" << onPC
           << ": "
           << ex.what()
@@ -3394,7 +3394,7 @@ namespace Pol {
 	  for ( idx = 0; idx < availmodules.size(); idx++ )
 	  {
 		ExecutorModule* module = availmodules[idx];
-		if ( stricmp( module->moduleName, name.c_str() ) == 0 )
+		if ( stricmp( module->moduleName.get().c_str(), name.c_str() ) == 0 )
 		  return module;
 	  }
 	  return NULL;

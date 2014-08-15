@@ -400,7 +400,7 @@ namespace Pol {
 
 	inline bool Executor::empty_scriptname()
 	{
-	  return prog_->name.empty();
+	  return prog_->name.get().empty();
 	}
 
 	inline const EScriptProgram* Executor::prog() const

@@ -44,7 +44,6 @@ namespace Pol {
 		int precedence;
 		int sourceFile;
 	  };
-	  int ownsStr;
 	  int dbg_filenum;
 	  int dbg_linenum;
 	  union
@@ -54,6 +53,7 @@ namespace Pol {
 	  };
 	  UserFunction *userfunc;
 	  bool deprecated;
+      bool ownsStr;
 	  unsigned char module;
 
 	  static unsigned int instances();

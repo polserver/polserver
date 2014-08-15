@@ -1174,7 +1174,7 @@ namespace Pol {
 	void list_script( UOExecutor* uoexec )
 	{
       fmt::Writer tmp;
-      tmp << uoexec->prog_->name;
+      tmp << uoexec->prog_->name.get();
       if ( !uoexec->Globals2.empty() )
         tmp << " Gl=" << uoexec->Globals2.size();
       if ( uoexec->Locals2 && !uoexec->Locals2->empty() )

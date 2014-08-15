@@ -13,6 +13,7 @@ Notes
 
 #include "bobject.h"
 #include "executor.h"
+#include "../clib/boostutils.h"
 
 namespace Pol {
   namespace Bscript {
@@ -91,7 +92,7 @@ namespace Pol {
 		moduleName( moduleName )
 	  {}
 
-	  const char* moduleName;
+	  boost_utils::function_name_flystring moduleName;
 
 	  friend class Executor;
 

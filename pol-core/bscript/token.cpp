@@ -70,12 +70,12 @@ namespace Pol {
 	  type( TYP_TERMINATOR ),
 	  dval( 0.0 ),
 	  precedence( -1 ),
-	  ownsStr( 0 ),
 	  dbg_filenum( 0 ),
 	  dbg_linenum( 0 ),
 	  lval( 0 ),
 	  userfunc( NULL ),
 	  deprecated( false ),
+      ownsStr( false ),
 	  module( Mod_Basic ),
 	  token( NULL )
 	{
@@ -87,12 +87,12 @@ namespace Pol {
 	  type( tok.type ),
 	  dval( tok.dval ),
 	  precedence( tok.precedence ),
-	  ownsStr( 0 ),
 	  dbg_filenum( tok.dbg_filenum ),
 	  dbg_linenum( tok.dbg_linenum ),
 	  lval( tok.lval ),
 	  userfunc( tok.userfunc ),
 	  deprecated( tok.deprecated ),
+      ownsStr( false ),
 	  module( tok.module ),
 	  token( NULL )
 	{
@@ -115,7 +115,7 @@ namespace Pol {
 	  deprecated = tok.deprecated;
 
 	  nulStr();
-	  ownsStr = 0;
+      ownsStr = false;
 	  if ( tok.token )
 	  {
 		if ( !tok.ownsStr )
@@ -141,12 +141,12 @@ namespace Pol {
 				  type( i_type ),
 				  dval( 0.0 ),
 				  precedence( -1 ),
-				  ownsStr( 0 ),
 				  dbg_filenum( 0 ),
 				  dbg_linenum( 0 ),
 				  lval( 0 ),
 				  userfunc( NULL ),
 				  deprecated( false ),
+                  ownsStr( false ),
 				  module( static_cast<unsigned char>( i_module ) ),
 				  token( NULL )
 	{
@@ -159,12 +159,12 @@ namespace Pol {
 				  type( i_type ),
 				  dval( 0.0 ),
 				  precedence( -1 ),
-				  ownsStr( 0 ),
 				  dbg_filenum( 0 ),
 				  dbg_linenum( 0 ),
 				  lval( 0 ),
 				  userfunc( NULL ),
 				  deprecated( false ),
+                  ownsStr( false ),
 				  module( Mod_Basic ),
 				  token( NULL )
 	{
@@ -179,12 +179,12 @@ namespace Pol {
 				  type( i_type ),
 				  dval( 0.0 ),
 				  precedence( -1 ),
-				  ownsStr( 0 ),
 				  dbg_filenum( 0 ),
 				  dbg_linenum( 0 ),
 				  lval( 0 ),
 				  userfunc( i_userfunc ),
 				  deprecated( false ),
+                  ownsStr( false ),
 				  module( static_cast<unsigned char>( i_module ) ),
 				  token( NULL )
 	{
@@ -204,14 +204,14 @@ namespace Pol {
 	void Token::setStr( const char *s )
 	{
 	  nulStr();
-	  ownsStr = 0;
+      ownsStr = false;
 	  token = s;
 	}
 
 	void Token::copyStr( const char *s )
 	{
 	  nulStr();
-	  ownsStr = 1;
+	  ownsStr = true;
 	  size_t len = strlen( s );
 	  auto tmp = new char[len + 1];
 	  if ( tmp )
@@ -228,7 +228,7 @@ namespace Pol {
 	void Token::copyStr( const char *s, int len )
 	{
 	  nulStr();
-	  ownsStr = 1;
+	  ownsStr = true;
 	  auto tmp = new char[static_cast<size_t>( len + 1 )];
 	  if ( tmp )
 	  {

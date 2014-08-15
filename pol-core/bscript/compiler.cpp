@@ -986,7 +986,7 @@ namespace Pol {
 			  itr != candidates.end();
 			  ++itr )
 		{
-          INFO_PRINT << "\t" << program->modules[itr->module]->modulename << "\n";
+          INFO_PRINT << "\t" << program->modules[itr->module]->modulename.get() << "\n";
 		}
 
 		return -1;

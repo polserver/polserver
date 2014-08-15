@@ -298,7 +298,7 @@ namespace Pol {
 			// executor only:
 			modfunc = modl->functions.at( token.lval );
 
-			token.setStr( modfunc->name.c_str() );
+			token.setStr( modfunc->name.get().c_str() );
 		  }
 		  return 0;
 

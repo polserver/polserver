@@ -21,6 +21,7 @@ Notes
 #include "fmodule.h"
 
 #include "../clib/refptr.h"
+#include "../clib/boostutils.h"
 
 #include "executortype.h"
 namespace Pol {
@@ -92,7 +93,7 @@ namespace Pol {
       unsigned nglobals;
       unsigned expectedArgs;
       bool haveProgram;
-	  std::string name;
+	  boost_utils::script_name_flystring name;
 	  vector< FunctionalityModule* > modules;
 	  StoredTokenContainer tokens;
 	  SymbolContainer symbols;
