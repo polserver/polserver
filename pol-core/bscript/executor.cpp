@@ -3242,7 +3242,7 @@ namespace Pol {
 	  catch( ... )
 	  {
 		seterror( true );
-        POLLOG_ERROR << "Exception in " << prog_->name << ", PC=" << onPC
+        POLLOG_ERROR << "Exception in " << prog_->name.get() << ", PC=" << onPC
 		  << ": unclassified\n";
 
 		show_context( onPC );
