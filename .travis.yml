@@ -1,6 +1,16 @@
 language: cpp
 compiler:
   - gcc
-script: 
-  - cd pol-core && chmod a+x buildcore && ./buildcore
-  - cd ../testsuite/escript && /usr/bin/python performtests.py -c ../../pol-core/bin/ecompile-dynamic -r ../../pol-core/bin/runecl-dynamic
+  - clang 
+before-install:
+  - cd lib
+  - tar xjf boost_1_55_0.tar.gz2
+  - cd ../pol-core
+  - chmod a+x buildcore
+  - chmod a+x analyzecore
+install:
+  - if [ "$CXX" = "g++" ]; then ./buildcore; fi
+  - if [ "$CXX" = "clang" ]; then ./analyzecore -n; fi
+script:
+  - cd ../testsuite/escript
+  - /usr/bin/python performtests.py -c ../../pol-core/bin/ecompile-dynamic -r ../../pol-core/bin/runecl-dynamic
