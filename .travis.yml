@@ -4,7 +4,7 @@ compiler:
   - clang 
 before_install:
   - cd lib
-  - tar xjf boost_1_55_0.tar.gz2
+  - tar xjf boost_1_55_0.tar.bz2
   - cd ../pol-core
   - chmod a+x buildcore
   - chmod a+x analyzecore
