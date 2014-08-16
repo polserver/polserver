@@ -57,6 +57,14 @@ class StdTests:
               os.path.exists(os.path.join(root,os.path.splitext(file)[0]+'.out')))
       ]
 
+  def clean(self):
+    for f in self.files:
+      base=os.path.splitext(f)[0]
+      for ext in ('.ecl','.tst','.dbg','.lst','.dbg.txt','.dep'):
+        try:
+          os.unlink(base+ext)
+        except:
+          pass
   def __call__(self,compiler,runecl):
     all_passed=True
     for f in self.files:
@@ -89,5 +97,6 @@ if __name__ == '__main__':
   runecl=Executor(options.r_path)
 
   res=test(compiler,runecl)
+  test.clean()
   sys.exit(0)
 

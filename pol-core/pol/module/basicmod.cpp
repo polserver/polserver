@@ -368,21 +368,21 @@ namespace Pol {
 	  {
 		BLong* plong = static_cast<BLong*>( imp );
 		char s[20];
-		sprintf( s, "0x%lX", static_cast<unsigned long>( plong->value() ) );
+		sprintf( s, "0x%X", static_cast<unsigned int>( plong->value() ) );
 		return new String( s );
 	  }
 	  else if ( imp->isa( Bscript::BObjectImp::OTDouble ) )
 	  {
 		Double* pdbl = static_cast<Double*>( imp );
 		char s[20];
-		sprintf( s, "0x%lX", static_cast<unsigned long>( pdbl->value() ) );
+		sprintf( s, "0x%X", static_cast<unsigned int>( pdbl->value() ) );
 		return new String( s );
 	  }
 	  else if ( imp->isa( Bscript::BObjectImp::OTString ) )
 	  {
 		String* str = static_cast<String*>( imp );
 		char s[20];
-		sprintf( s, "0x%lX", strtoul( str->data(), NULL, 0 ) );
+		sprintf( s, "0x%X", static_cast<unsigned int>(strtoul( str->data(), NULL, 0 ) ) );
 		return new String( s );
 	  }
 	  else
