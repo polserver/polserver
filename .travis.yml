@@ -9,8 +9,9 @@ before-install:
   - chmod a+x buildcore
   - chmod a+x analyzecore
 install:
+  - cd pol-core
   - if [ "$CXX" = "g++" ]; then ./buildcore; fi
-  - if [ "$CXX" = "clang" ]; then ./analyzecore -n; fi
+  - if [ "$CXX" = "clang++" ]; then ./analyzecore -n; fi
 script:
-  - cd ../testsuite/escript
+  - cd testsuite/escript
   - /usr/bin/python performtests.py -c ../../pol-core/bin/ecompile-dynamic -r ../../pol-core/bin/runecl-dynamic
