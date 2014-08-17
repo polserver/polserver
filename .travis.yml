@@ -18,5 +18,5 @@ script:
   - if [ "$CXX" = "g++" ]; then ./buildcore; fi
   - if [ "$CXX" = "clang++" ]; then ./analyzecore -n; fi
   - cd ../testsuite/escript
-  - if [ "$CXX" = "g++" ]; then /usr/bin/python performtests.py -c ../../pol-core/bin/ecompile-dynamic -r ../../pol-core/bin/runecl-dynamic; fi
-  - if [ "$CXX" = "clang++" ]; then /usr/bin/python performtests.py -c ../../pol-core/bin/ecompile -r ../../pol-core/bin/runecl; fi
+  - /usr/bin/python performtests.py -c ../../pol-core/bin/ecompile-dynamic -r ../../pol-core/bin/runecl-dynamic
+
