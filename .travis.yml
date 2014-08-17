@@ -5,9 +5,10 @@ compiler:
 before_install:
   - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
   - sudo apt-get update -qq
-  - sudo apt-get install -y -qq gcc-4.8 g++-4.8  
-  - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 50
-  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 50
+  - sudo apt-get install -y -qq gcc-4.8 g++-4.8
+#currently disabled 4.8 gcc test but use it for clang
+#  - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 50
+#  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 50
   - cd lib
   - tar xjf boost_1_55_0.tar.bz2
   - cd ../pol-core
@@ -17,4 +18,5 @@ script:
   - if [ "$CXX" = "g++" ]; then ./buildcore; fi
   - if [ "$CXX" = "clang++" ]; then ./analyzecore -n; fi
   - cd ../testsuite/escript
-  - /usr/bin/python performtests.py -c ../../pol-core/bin/ecompile-dynamic -r ../../pol-core/bin/runecl-dynamic
+  - if [ "$CXX" = "g++" ]; then /usr/bin/python performtests.py -c ../../pol-core/bin/ecompile-dynamic -r ../../pol-core/bin/runecl-dynamic; fi
+  - if [ "$CXX" = "clang++" ]; then /usr/bin/python performtests.py -c ../../pol-core/bin/ecompile -r ../../pol-core/bin/runecl; fi
