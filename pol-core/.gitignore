@@ -2,3 +2,5 @@
 /*.sdf
 /*.map
 *.suo
+Debug/
+Release/
