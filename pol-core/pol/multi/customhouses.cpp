@@ -840,7 +840,7 @@ namespace Pol {
 	  u32 serial = cfBEu32( msg->serial );
       Mobile::Character* chr = Core::find_character( serial );
 	  UHouse* house = UHouse::FindWorkingHouse( serial );
-	  if ( chr != NULL && chr->client != NULL )
+	  if ( chr != NULL && chr->client != NULL && house != NULL)
 		CustomHousesSendFull( house, chr->client, HOUSE_DESIGN_WORKING );
 	}
 
