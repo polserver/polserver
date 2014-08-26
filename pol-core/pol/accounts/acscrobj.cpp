@@ -499,6 +499,9 @@ namespace Pol {
 
 		  result = new BLong( index + 1 );
 		  Account* acct = find_account( obj_->name_.c_str() );
+          if (acct == NULL) {
+              return new BError("Account doesn't exist.");
+          }
 		  Core::createchar2( acct, unsigned( index ) );
 
 		  break;

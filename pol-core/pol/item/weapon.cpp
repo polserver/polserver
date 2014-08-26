@@ -446,7 +446,7 @@ namespace Pol {
 	  // Only exception is the wrestling weapon, which should be deferred 
 	  // to the global desctable cleaning.
 
-	  if ( is_intrinsic() && tmpl != NULL )
+	  if ( is_intrinsic() )
 	  {
 		WeaponDesc* wd = const_cast<WeaponDesc*>( tmpl );
 		if ( !wd->is_pc_weapon )
@@ -464,7 +464,7 @@ namespace Pol {
       size_t size = base::estimatedSize()
         + sizeof(const WeaponDesc*) /*tmpl*/
         + hit_script_.estimatedSize();
-      if ( is_intrinsic() && tmpl != NULL )
+      if ( is_intrinsic() )
       {
         WeaponDesc* wd = const_cast<WeaponDesc*>( tmpl );
         if ( !wd->is_pc_weapon )
@@ -516,22 +516,26 @@ namespace Pol {
 	}
 
 	bool UWeapon::is_projectile() const
-	{
+    {
+      passert(tmpl != NULL);
 	  return tmpl->projectile;
 	}
 
 	bool UWeapon::is_intrinsic() const
 	{
-	  return tmpl->is_intrinsic;
+        passert(tmpl != NULL);
+        return tmpl->is_intrinsic;
 	}
 
 	unsigned short UWeapon::projectile_sound() const
 	{
+      passert(tmpl != NULL);
 	  return tmpl->projectile_sound;
 	}
 
 	unsigned short UWeapon::projectile_anim() const
 	{
+      passert(tmpl != NULL);
 	  return tmpl->projectile_anim;
 	}
 
@@ -544,31 +548,38 @@ namespace Pol {
 
 	Core::UACTION UWeapon::anim() const
 	{
+      passert(tmpl != NULL);
 	  return tmpl->anim;
 	}
 
 	Core::UACTION UWeapon::mounted_anim() const
 	{
+      passert(tmpl != NULL);
 	  return tmpl->mounted_anim;
 	}
 
 	unsigned short UWeapon::hit_sound() const
-	{
+    {
+      passert(tmpl != NULL);
 	  return tmpl->hit_sound;
 	}
 
 	unsigned short UWeapon::miss_sound() const
 	{
+      passert(tmpl != NULL);
 	  return tmpl->miss_sound;
 	}
 
 	const WeaponDesc& UWeapon::descriptor() const
 	{
+      passert(tmpl != NULL);
 	  return *tmpl;
 	}
 
 	bool UWeapon::consume_projectile( Core::UContainer* cont ) const
 	{
+      passert(tmpl != NULL);
+
 	  Item* item = cont->find_objtype_noninuse( tmpl->projectile_type );
 	  if ( item != NULL )
 	  {
@@ -640,6 +651,7 @@ namespace Pol {
 	  }
 	  else
 	  {
+        passert(tmpl != NULL);
 		hit_script_.config( scriptname,
 							tmpl->pkg,
 							"scripts/items/",
