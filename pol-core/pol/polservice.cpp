@@ -258,7 +258,9 @@ namespace Pol {
 
 	void SetSysTrayPopupText( const char* text )
 	{
-	  strncpy( ndata.szTip, text, sizeof ndata.szTip );
+	  strncpy( ndata.szTip, text, sizeof(ndata.szTip)-1 );
+      ndata.szTip[sizeof(ndata.szTip) - 1] = '\0';
+
 	  if ( hwnd )
 		SendMessage( hwnd, WM_COMMAND, ID_UPDATE_NOTIFYDATA, 0 );
 	}
