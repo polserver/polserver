@@ -4448,7 +4448,7 @@ namespace Pol {
 		  {
 			NPC* npc = static_cast<NPC*>( chr );
 			// event->add_ref(); // UNTESTED
-			return npc->send_event( event->copy() );
+			return npc->send_event_script( event->copy() );
 		  }
 		  else
 		  {
