@@ -1123,7 +1123,10 @@ namespace Pol {
 		if ( ex->os_module->signal_event( event ) )
           return new Bscript::BLong( 1 );
 		else
-          return new Bscript::BError( "Event queue is full, discarding event" );
+		{
+			Bscript::BObject bo( event );
+			return new Bscript::BError( "Event queue is full, discarding event" );
+		}
 	  }
 	  else
 	  {

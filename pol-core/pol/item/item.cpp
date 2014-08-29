@@ -616,9 +616,9 @@ namespace Pol {
 	  // get "ct" of first stack - if error, init
 	  if (getprop( "ct", value_self ))
 	  {
-        Bscript::BObjectImp* imp = Bscript::BObjectImp::unpack( value_self.c_str( ) );
-        if ( imp != NULL && imp->isa( Bscript::BObjectImp::OTLong ) )
-          time_self = static_cast<Bscript::BLong*>( imp )->value( );
+		Bscript::BObject imp(  Bscript::BObjectImp::unpack( value_self.c_str() ) );
+		if (imp.impptr() != NULL && imp->isa( Bscript::BObjectImp::OTLong ))
+			time_self = static_cast<Bscript::BLong*>(imp.impptr())->value();
 		else
 		  time_self = Core::read_gameclock();
 	  }
@@ -628,9 +628,9 @@ namespace Pol {
 	  // get "ct" of second stack - if error, init
 	  if (item_sub->getprop( "ct", value_sub ))
 	  {
-        Bscript::BObjectImp* imp = Bscript::BObjectImp::unpack( value_sub.c_str( ) );
-        if ( imp != NULL && imp->isa( Bscript::BObjectImp::OTLong ) )
-          time_sub = static_cast<Bscript::BLong*>( imp )->value( );
+		  Bscript::BObject imp( Bscript::BObjectImp::unpack( value_sub.c_str() ));
+		  if (imp.impptr() != NULL && imp->isa( Bscript::BObjectImp::OTLong ))
+			  time_sub = static_cast<Bscript::BLong*>(imp.impptr())->value();
 		else
           time_sub = Core::read_gameclock();
 	  }

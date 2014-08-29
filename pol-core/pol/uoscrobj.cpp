@@ -3907,8 +3907,8 @@ namespace Pol {
       item->eraseprop( "GivenTo" );
       item->eraseprop( "GivenTime" );
 
-      BObjectImp* given_value = BObjectImp::unpack( given_time_str.c_str() );
-      int gts = static_cast<BLong*>( given_value )->value();
+	  Bscript::BObject given_value( BObjectImp::unpack( given_time_str.c_str() ));
+      int gts = static_cast<BLong*>( given_value.impptr() )->value();
 
       if ( item->orphan() || cont->orphan() || chr->orphan() )
         return;

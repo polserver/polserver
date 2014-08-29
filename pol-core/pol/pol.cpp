@@ -1539,7 +1539,7 @@ namespace Pol {
           {
             send_pulse();
             wake_tasks_thread();
-            Network::ClientTransmitSingleton::instance()->Cancel();
+            Network::ClientTransmitSingleton::get().Cancel();
 #ifdef HAVE_MYSQL
             sql_service.stop();
 #endif

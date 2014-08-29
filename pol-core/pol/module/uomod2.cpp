@@ -1735,7 +1735,7 @@ namespace Pol {
 	{
 	  using namespace PacketWriterDefs;
 	  std::unique_ptr<ObjArray> pkts( new ObjArray );
-	  PacketQueueMap* map = Packets::instance()->getPackets();
+	  PacketQueueMap* map = Packets::get().getPackets();
 	  for ( PacketQueueMap::iterator it = map->begin(); it != map->end(); ++it )
 	  {
 		std::unique_ptr<BStruct> elem( new BStruct );
@@ -1768,7 +1768,7 @@ namespace Pol {
       auto log = OPEN_FLEXLOG( "log/memoryusage.log", false );
       if ( needs_header )
       {
-        FLEXLOG( log ) << "Time ;ProcessSize ;RealmSize ;ScriptCount ;ScriptSize ;ScriptStoreCount ;ScriptStoreSize ;ObjCount ;ObjSize ;AccountCount ;AccountSize ;ClientCount ;ClientSize ;"
+		FLEXLOG( log ) << "Time ;ProcessSize ;RealmSize ;PacketSize ;ScriptCount ;ScriptSize ;ScriptStoreCount ;ScriptStoreSize ;ObjCount ;ObjSize ;AccountCount ;AccountSize ;ClientCount ;ClientSize ;"
           << "ObjItemCount ;ObjItemSize ;ObjContCount ;ObjContSize ;ObjCharCount ;ObjCharSize ;ObjNpcCount ;ObjNpcSize ;ObjWeaponCount ;ObjWeaponSize ; ObjArmorCount ;ObjArmorSize ;ObjMultiCount ;ObjMultiSize ;"
           << "ConfigCount ;ConfigSize ;ItemdescCount ;ItemdescSize";
 #ifdef DEBUG_FLYWEIGHT
@@ -1874,9 +1874,10 @@ namespace Pol {
       size_t itemdesccount = 0;
       size_t itemdescsize = Items::itemdescSizeEstimate( &itemdesccount );
 
-      FLEXLOG( log ) << GET_LOG_FILESTAMP << ";"
-        << Clib::getCurrentMemoryUsage() << " ;"
-        << realmsize << " ;"
+	  FLEXLOG( log ) << GET_LOG_FILESTAMP << ";"
+		<< Clib::getCurrentMemoryUsage() << " ;"
+		<< realmsize << " ;"
+		<< PacketWriterDefs::Packets::get().estimateSize() << " ;"
         << scriptcount << " ;" << scriptsize << " ;"
         << scriptstoragecount << " ;" << scriptstoragesize << " ;"
         << objcount << " ;" << objsize << " ;"
