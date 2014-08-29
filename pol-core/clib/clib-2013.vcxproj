@@ -316,7 +316,6 @@
     <ClInclude Include="rawtypes.h" />
     <ClInclude Include="RefPtr.h" />
     <ClInclude Include="sckutil.h" />
-    <ClInclude Include="singleton.h" />
     <ClInclude Include="socketsvc.h" />
     <ClInclude Include="StdAfx.h" />
     <ClInclude Include="stl_inc.h" />
