@@ -55,24 +55,21 @@ namespace Pol {
 		   getParam( 3, font ) &&
 		   getParam( 4, color ) )
 	  {
-		if ( chr->has_active_client() )
-		{
-		  u16 cltext[( SPEECH_MAX_LEN + 1 )];
-		  if ( oText != NULL )
-		  {
-			if ( oText->ref_arr.size() > SPEECH_MAX_LEN )
-			  return new BError( "Unicode array exceeds maximum size." );
-			size_t textlen = oText->ref_arr.size();
-			if ( !Clib::convertArrayToUC( oText, cltext, textlen, false ) )
-			  return new BError( "Invalid value in Unicode array." );
-		  }
-		  Core::send_sysmessage_cl( chr->client, cliloc_num, cltext, font, color );
-		  return new BLong( 1 );
-		}
-		else
-		{
-		  return new BError( "Mobile has no active client" );
-		}
+          passert_paranoid(chr != nullptr && oText != nullptr);
+
+          if (!chr->has_active_client())
+              return new BError("Mobile has no active client");
+
+          if (oText->ref_arr.size() > SPEECH_MAX_LEN)
+              return new BError("Unicode array exceeds maximum size.");
+          
+          u16 cltext[(SPEECH_MAX_LEN + 1)];
+          size_t textlen = oText->ref_arr.size();
+          if (!Clib::convertArrayToUC(oText, cltext, textlen, false))
+              return new BError("Invalid value in Unicode array.");
+
+          Core::send_sysmessage_cl(chr->client, cliloc_num, cltext, font, color);
+          return new BLong(1);
 	  }
 	  else
 	  {
