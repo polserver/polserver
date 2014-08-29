@@ -805,11 +805,10 @@ namespace Pol {
 		  int count;
 
 		  readstaticblock( &p, &count, x, y );
-		  if ( count > 1000 )
-			ERROR_PRINT << "doh: count=" << count << "\n";
-
-		  ++counts[count];
-
+		  if ( count < 1000 )
+              ++counts[count];
+          else
+              ERROR_PRINT << "doh: count=" << count << "\n";
 		}
 	  }
       INFO_PRINT << "\n";

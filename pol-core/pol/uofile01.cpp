@@ -139,6 +139,9 @@ namespace Pol {
           fread( tile, sizeof *tile, 1, Core::tilefile );
         }
       }
+
+      // ensure string is null-terminated
+      tile->name[sizeof(tile->name) - 1] = '\0';
     }
 
     void readtile( unsigned short tilenum, Core::USTRUCT_TILE_HSA *tile )
@@ -172,6 +175,9 @@ namespace Pol {
           fread( tile, sizeof *tile, 1, Core::tilefile );
         }
       }
+
+      // ensure string is null-terminated
+      tile->name[sizeof(tile->name) - 1] = '\0';
     }
 
 
@@ -198,6 +204,9 @@ namespace Pol {
           fread( landtile, sizeof *landtile, 1, Core::tilefile );
         }
       }
+
+      // ensure string is null-terminated
+      landtile->name[sizeof(landtile->name) - 1] = '\0';
     }
 
     void readlandtile( unsigned short tilenum, Core::USTRUCT_LAND_TILE_HSA* landtile )
@@ -223,6 +232,9 @@ namespace Pol {
           fread( landtile, sizeof *landtile, 1, Core::tilefile );
         }
       }
+      
+      // ensure string is null-terminated
+      landtile->name[sizeof(landtile->name) - 1] = '\0'; 
     }
 
     void read_objinfo( u16 graphic, Core::USTRUCT_TILE& objinfo )
