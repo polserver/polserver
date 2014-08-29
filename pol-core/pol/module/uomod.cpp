@@ -5178,22 +5178,21 @@ namespace Pol {
 	  unsigned short x1, x2;
 	  unsigned short y1, y2;
 	  short z1, z2;
+	  const String* strrealm;
 
 	  if ( getParam( 0, x1 ) &&
 		   getParam( 1, y1 ) &&
 		   getParam( 2, z1, WORLD_MIN_Z, WORLD_MAX_Z ) &&
 		   getParam( 3, x2 ) &&
 		   getParam( 4, y2 ) &&
-		   getParam( 5, z2, WORLD_MIN_Z, WORLD_MAX_Z ) )
+		   getParam( 5, z2, WORLD_MIN_Z, WORLD_MAX_Z ) &&
+		   getStringParam( 6, strrealm ))
 	  {
 		if ( pol_distance( x1, y1, x2, y2 ) > ssopt.max_pathfind_range )
 		  return new BError( "Beyond Max Range." );
 
-		const String* strrealm;
 		short theSkirt;
 		int flags;
-		if ( !getStringParam( 6, strrealm ) )
-		  strrealm = new String( "britannia" );
 
 		if ( !getParam( 7, flags ) )
 		  flags = FP_IGNORE_MOBILES;

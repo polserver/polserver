@@ -1296,6 +1296,8 @@ namespace Pol {
       FILE *multi_mul = Core::open_uo_file( "multi.mul" );
 	  if ( fseek( multi_idx, 0, SEEK_SET ) != 0 )
 	  {
+		fclose( multi_idx );
+		fclose( multi_mul );
         INFO_PRINT << "Failed seek check\n";
 		return 0;
 	  }

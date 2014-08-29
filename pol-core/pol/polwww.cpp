@@ -882,6 +882,11 @@ namespace Pol {
 		}
 	  }
 	  mime_types.clear(); // cleanup on exit
+#ifdef _WIN32
+	  closesocket( http_socket );
+#else
+	  close( http_socket );
+#endif
 	}
 
 	void start_http_server()
