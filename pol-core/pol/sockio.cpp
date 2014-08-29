@@ -180,7 +180,7 @@ namespace Pol {
 	  connection.sin_family = AF_INET;
 	  connection.sin_addr.s_addr = INADDR_ANY;
 	  connection.sin_port = ctBEu16( port );
-
+      memset(connection.sin_zero, 0, sizeof(connection.sin_zero)); // for completeness
 
 	  res = bind( sck, ( struct sockaddr * ) &connection, sizeof connection );
 	  if ( res < 0 )
