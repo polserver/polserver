@@ -218,7 +218,8 @@ namespace Pol {
 	  local.sin_addr.s_addr = INADDR_ANY;
 	  /* Port MUST be in Network Byte Order */
 	  local.sin_port = htons( port );
-
+      memset(local.sin_zero, 0, sizeof(local.sin_zero)); // not needed, but for completeness
+      
 	  _sck = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP );
 	  if( _sck == INVALID_SOCKET )
 	  {
