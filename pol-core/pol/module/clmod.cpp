@@ -82,11 +82,11 @@ namespace Pol {
 
 	BObjectImp* ClilocExecutorModule::mf_PrintTextAboveCL()
 	{
-	  Core::UObject* obj;
-	  ObjArray* oText;
-	  unsigned int cliloc_num;
-	  unsigned short color;
-	  unsigned short font;
+        Core::UObject* obj;
+        ObjArray* oText;
+        unsigned int cliloc_num;
+        unsigned short color;
+        unsigned short font;
 
 	  if ( getUObjectParam( exec, 0, obj ) &&
 		   getParam( 1, cliloc_num ) &&
@@ -94,18 +94,20 @@ namespace Pol {
 		   getParam( 3, font ) &&
 		   getParam( 4, color ) )
 	  {
-		u16 cltext[( SPEECH_MAX_LEN + 1 )];
-		if ( oText != NULL )
-		{
-		  if ( oText->ref_arr.size() > SPEECH_MAX_LEN )
-			return new BError( "Unicode array exceeds maximum size." );
-		  size_t textlen = oText->ref_arr.size();
-		  if ( !Clib::convertArrayToUC( oText, cltext, textlen, false ) )
-			return new BError( "Invalid value in Unicode array." );
-		}
-		say_above_cl( obj, cliloc_num, cltext, font, color );
-		return new BLong( 1 );
-	  }
+          passert_paranoid(oText != nullptr && obj != nullptr);
+
+          if (oText->ref_arr.size() > SPEECH_MAX_LEN)
+              return new BError("Unicode array exceeds maximum size.");
+          
+
+          u16 cltext[(SPEECH_MAX_LEN + 1)];
+          size_t textlen = oText->ref_arr.size();
+          if (!Clib::convertArrayToUC(oText, cltext, textlen, false))
+              return new BError("Invalid value in Unicode array.");
+          
+          say_above_cl(obj, cliloc_num, cltext, font, color);
+          return new BLong(1);
+      }
 	  else
 	  {
 		return new BError( "Invalid parameter type" );
@@ -114,12 +116,12 @@ namespace Pol {
 
 	BObjectImp* ClilocExecutorModule::mf_PrintTextAbovePrivateCL()
 	{
-	  Mobile::Character* chr;
-	  Core::UObject* obj;
-	  ObjArray* oText;
-	  unsigned int cliloc_num;
-	  unsigned short color;
-	  unsigned short font;
+        Mobile::Character* chr;
+        Core::UObject* obj;
+        ObjArray* oText;
+        unsigned int cliloc_num;
+        unsigned short color;
+        unsigned short font;
 
 	  if ( getCharacterParam( exec, 0, chr ) &&
 		   getUObjectParam( exec, 1, obj ) &&
@@ -128,27 +130,25 @@ namespace Pol {
 		   getParam( 4, font ) &&
 		   getParam( 5, color ) )
 	  {
-		if ( chr->has_active_client() )
-		{
-		  if ( chr->realm != obj->realm )
+        passert_paranoid(chr != nullptr && oText != nullptr && obj != nullptr);
+
+        if (!chr->has_active_client())
+            return new BError("Mobile has no active client");
+		
+        if (chr->realm != obj->realm)
 			return new BError( "Cannot print messages across realms!" );
 
-		  u16 cltext[( SPEECH_MAX_LEN + 1 )];
-		  if ( oText != NULL )
-		  {
-			if ( oText->ref_arr.size() > SPEECH_MAX_LEN )
-			  return new BError( "Unicode array exceeds maximum size." );
-			size_t textlen = oText->ref_arr.size();
-            if ( !Clib::convertArrayToUC( oText, cltext, textlen, false ) )
-			  return new BError( "Invalid value in Unicode array." );
-		  }
-		  private_say_above_cl( chr, obj, cliloc_num, cltext, font, color );
-		  return new BLong( 1 );
-		}
-		else
-		{
-		  return new BError( "Mobile has no active client" );
-		}
+        if (oText->ref_arr.size() > SPEECH_MAX_LEN)
+            return new BError("Unicode array exceeds maximum size.");
+
+
+        u16 cltext[(SPEECH_MAX_LEN + 1)];
+        size_t textlen = oText->ref_arr.size();
+        if (!Clib::convertArrayToUC(oText, cltext, textlen, false))
+            return new BError("Invalid value in Unicode array.");
+
+        private_say_above_cl(chr, obj, cliloc_num, cltext, font, color);
+        return new BLong(1);
 	  }
 	  else
 	  {
