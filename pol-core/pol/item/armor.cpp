@@ -170,7 +170,7 @@ namespace Pol {
 	  short ar_mod_ = getmember<s16>( Bscript::MBR_AR_MOD );
 	  if ( ar_mod_ )
 		sw() << "\tAR_mod\t" << ar_mod_ << pf_endl;
-	  if ( !( tmpl != NULL && onhitscript_ == tmpl->on_hit_script ) )
+	  if ( tmpl != NULL && onhitscript_ != tmpl->on_hit_script )
 		sw() << "\tOnHitScript\t" << onhitscript_.relativename( tmpl->pkg ) << pf_endl;
 	}
 

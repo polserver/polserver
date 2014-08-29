@@ -29,6 +29,7 @@ namespace Pol {
 	public:
 	  Attribute( const Plib::Package* pkg, Clib::ConfigElem& elem );
 	  explicit Attribute( const std::string& name );
+	  ~Attribute();
 
 	  const Plib::Package* pkg;
 	  std::string name;

@@ -55,6 +55,10 @@ namespace Pol {
 	  return pkg_ == other.pkg_ &&
 		name_ == other.name_;
 	}
+	bool ScriptDef::operator!=(const ScriptDef &other) const
+	{
+	  return !(*this == other);
+	}
 
 	void ScriptDef::config( const std::string& iname,
                             const Plib::Package* ipkg,

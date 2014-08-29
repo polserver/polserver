@@ -29,6 +29,7 @@ namespace Pol {
 	  // ScriptDef& operator=( const ScriptDef& ); default operator= is okay
 
 	  bool operator==( const ScriptDef& other ) const;
+	  bool operator!=(const ScriptDef& other) const;
 	  void config( const std::string& name,
 				   const Plib::Package* pkg,
 				   const char* mainpfx,

@@ -55,7 +55,7 @@ namespace Pol {
 	  attrid( 0 ),
 	  aliases(),
 	  next( NULL ),
-	  getintrinsicmod_func( NULL ),
+	  getintrinsicmod_func( nullptr ),
 	  delay_seconds( elem.remove_ushort( "DELAY", 0 ) ),
 	  unhides( elem.remove_bool( "UNHIDES", true ) ),
 	  disable_core_checks( elem.remove_bool( "DisableCoreChecks", false ) ),
@@ -71,6 +71,11 @@ namespace Pol {
 	  {
 		getintrinsicmod_func = Core::FindExportedFunction( elem, pkg, tmp, 1 );
 	  }
+	}
+	Attribute::~Attribute()
+	{
+	  if (getintrinsicmod_func != nullptr)
+		delete getintrinsicmod_func;
 	}
 
 	void load_attribute_entry( const Plib::Package* pkg, Clib::ConfigElem& elem )
