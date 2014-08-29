@@ -120,7 +120,7 @@ namespace Pol {
 								   return new BLong( 0 );
 							   }
 							   else
-								 new BError( "Invalid parameter" );
+								 return new BError( "Invalid parameter" );
 							 }
 		}
 

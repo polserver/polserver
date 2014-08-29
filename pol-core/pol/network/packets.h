@@ -11,13 +11,15 @@ Notes
 #define POL_PACKETS_H
 
 #include <string.h>
+#include <mutex>
+#include <memory>
+#include <boost/noncopyable.hpp>
 
 #include "../../clib/stl_inc.h"
 
 #include "../../clib/endian.h"
 #include "../../clib/passert.h"
 #include "../../clib/rawtypes.h"
-#include "../../clib/singleton.h"
 #include "../../clib/strutil.h"
 #include "../layers.h"
 #include "../pktboth.h"
@@ -44,159 +46,171 @@ namespace Pol {
         virtual char* getBuffer() { return NULL; };
         virtual inline u8 getID() const { return 0; };
         virtual inline u16 getSubID() const { return 0; };
-	  };
+        virtual size_t estimateSize() const { return 0; }
+      };
 
-	  typedef queue<PacketInterface*> PacketInterfaceQueue;
-	  typedef std::map<u16, PacketInterfaceQueue> PacketInterfaceQueueMap;
-	  typedef pair<u16, PacketInterfaceQueue> PacketInterfaceQueuePair;
+      typedef queue<PacketInterface*> PacketInterfaceQueue;
+      typedef std::map<u16, PacketInterfaceQueue> PacketInterfaceQueueMap;
+      typedef pair<u16, PacketInterfaceQueue> PacketInterfaceQueuePair;
 
-	  // interface for the two different types of packetqueues ("normal" packets and packets with subs)
-	  class PacketQueue
-	  {
-	  public:
-		PacketQueue() {};
-		virtual ~PacketQueue() {};
-	  public:
-		virtual PacketInterface* GetNext( u8 id, u16 sub = 0 ) { return NULL; };
-		virtual void Add( PacketInterface* pkt ) {};
-		virtual size_t Count() const { return 0; };
+      // interface for the two different types of packetqueues ("normal" packets
+      // and packets with subs)
+      class PacketQueue
+      {
+       public:
+        PacketQueue(){};
+        virtual ~PacketQueue(){};
+
+       public:
+        virtual PacketInterface* GetNext(u8 id, u16 sub = 0) { return NULL; };
+        virtual void Add(PacketInterface* pkt){};
+        virtual size_t Count() const { return 0; };
         virtual bool HasSubs() const { return false; };
         virtual PacketInterfaceQueueMap* GetSubs() { return NULL; };
-	  };
+        virtual size_t estimateSize() const = 0;
+      };
 
-	  // "normal" packet queue
-	  class PacketQueueSingle : public PacketQueue
-	  {
-	  public:
-		PacketQueueSingle() {};
-		~PacketQueueSingle();
-	  private:
-		PacketInterfaceQueue packets;
-		std::mutex _PacketQueueSingleMutex;
-	  public:
-		PacketInterface* GetNext( u8 id, u16 sub = 0 );
-		void Add( PacketInterface* pkt );
+      // "normal" packet queue
+      class PacketQueueSingle : public PacketQueue
+      {
+       public:
+        PacketQueueSingle(){};
+        ~PacketQueueSingle();
+
+       private:
+        PacketInterfaceQueue packets;
+        mutable std::mutex _PacketQueueSingleMutex;
+
+       public:
+        PacketInterface* GetNext(u8 id, u16 sub = 0);
+        void Add(PacketInterface* pkt);
         size_t Count() const { return packets.size(); };
-	  };
+        size_t estimateSize() const;
+      };
 
-	  // packet with subs queue
-	  class PacketQueueSubs : public PacketQueue
-	  {
-	  public:
-		PacketQueueSubs() {};
-		~PacketQueueSubs();
-	  private:
-		PacketInterfaceQueueMap packets;
-		std::mutex _PacketQueueSubsMutex;
-	  public:
-		PacketInterface* GetNext( u8 id, u16 sub = 0 );
-		void Add( PacketInterface* pkt );
-		size_t Count() const;
+      // packet with subs queue
+      class PacketQueueSubs : public PacketQueue
+      {
+       public:
+        PacketQueueSubs(){};
+        ~PacketQueueSubs();
+
+       private:
+        PacketInterfaceQueueMap packets;
+        mutable std::mutex _PacketQueueSubsMutex;
+
+       public:
+        PacketInterface* GetNext(u8 id, u16 sub = 0);
+        void Add(PacketInterface* pkt);
+        size_t Count() const;
         bool HasSubs() const { return true; };
 		PacketInterfaceQueueMap* GetSubs() { return &packets; };
-	  };
+        size_t estimateSize() const;
+      };
 
-	  typedef pair<u8, PacketQueue*> PacketQueuePair;
-	  typedef std::map<u8, PacketQueue*> PacketQueueMap;
+      typedef pair<u8, PacketQueue*> PacketQueuePair;
+      typedef std::map<u8, PacketQueue*> PacketQueueMap;
 
-	  // singleton "holder" of packets !EntryPoint!
-	  class PacketsSingleton
-	  {
-	  public:
-		PacketsSingleton();
-		~PacketsSingleton();
-	  private:
-		PacketQueueMap packets;
-	  public:
-		PacketInterface* getPacket( u8 id, u16 sub = 0 );
-		void ReAddPacket( PacketInterface* pkt );
-		PacketQueueMap* getPackets() { return &packets; };
-	  };
+      // singleton "holder" of packets !EntryPoint!
+      class PacketsSingleton : boost::noncopyable
+      {
+       public:
+        static PacketsSingleton& get();
+        ~PacketsSingleton();
 
-	  // the real definition
-	  typedef Clib::Singleton<PacketsSingleton> Packets;
+       private:
+        PacketsSingleton();
 
+       private:
+        PacketQueueMap packets;
+        static std::unique_ptr<PacketsSingleton> _instance;
+        static std::once_flag _onceFlag;
 
-	  //wierdo generic template definitions for packets
-	  namespace PktWriterTemplateSpecs {
-		template<typename T>
-		struct WriteHelper
-		{
-		public:
-		  static void Write( T x, char buffer[], u16& offset ); // linker error
-		  static void WriteFlipped( T x, char buffer[], u16& offset );
-		};
+       public:
+        PacketInterface* getPacket(u8 id, u16 sub = 0);
+        void ReAddPacket(PacketInterface* pkt);
+        PacketQueueMap* getPackets() { return &packets; };
+        size_t estimateSize() const;
+      };
 
-		template<>
-		struct WriteHelper<u32>
-		{
-		public:
-		  static void Write( u32 x, char buffer[], u16& offset )
-		  {
-			( *(u32*)(void*)&buffer[offset] ) = x;
-			offset += 4;
-		  };
-		  static void WriteFlipped( u32 x, char buffer[], u16& offset )
-		  {
-			( *(u32*)(void*)&buffer[offset] ) = cfBEu32( x );
-			offset += 4;
-		  };
-		};
-		template<>
-		struct WriteHelper<s32>
-		{
-		  static void Write( s32 x, char buffer[], u16& offset )
-		  {
-			( *(s32*)(void*)&buffer[offset] ) = x;
-			offset += 4;
-		  };
-		  static void WriteFlipped( s32 x, char buffer[], u16& offset )
-		  {
-			( *(s32*)(void*)&buffer[offset] ) = cfBEu32( x );
-			offset += 4;
-		  };
-		};
-		template<>
-		struct WriteHelper<u16>
-		{
-		  static void Write( u16 x, char buffer[], u16& offset )
-		  {
-			( *(u16*)(void*)&buffer[offset] ) = x;
-			offset += 2;
-		  };
-		  static void WriteFlipped( u16 x, char buffer[], u16& offset )
-		  {
-			( *(u16*)(void*)&buffer[offset] ) = cfBEu16( x );
-			offset += 2;
-		  };
-		};
-		template<>
-		struct WriteHelper<s16>
-		{
-		  static void Write( s16 x, char buffer[], u16& offset )
-		  {
-			( *(s16*)(void*)&buffer[offset] ) = x;
-			offset += 2;
-		  };
-		  static void WriteFlipped( s16 x, char buffer[], u16& offset )
-		  {
-			( *(s16*)(void*)&buffer[offset] ) = cfBEu16( x );
-			offset += 2;
-		  };
-		};
-		template<>
-		struct WriteHelper<u8>
-		{
-		  static void Write( u8 x, char buffer[], u16& offset )
-		  {
-			buffer[offset++] = x;
-		  }
-		  static void WriteFlipped( u8 x, char buffer[], u16& offset )
-		  {
-			buffer[offset++] = x;
-		  }
-		};
-		template<>
+      // the real definition
+      typedef PacketsSingleton Packets;
+
+      // wierdo generic template definitions for packets
+      namespace PktWriterTemplateSpecs
+      {
+      template <typename T>
+      struct WriteHelper
+      {
+       public:
+        static void Write(T x, char buffer[], u16& offset);  // linker error
+        static void WriteFlipped(T x, char buffer[], u16& offset);
+      };
+
+      template <>
+      struct WriteHelper<u32>
+      {
+       public:
+        static void Write(u32 x, char buffer[], u16& offset)
+        {
+          (*(u32*)(void*) & buffer[offset]) = x;
+          offset += 4;
+        };
+        static void WriteFlipped(u32 x, char buffer[], u16& offset)
+        {
+          (*(u32*)(void*) & buffer[offset]) = cfBEu32(x);
+          offset += 4;
+        };
+      };
+      template <>
+      struct WriteHelper<s32>
+      {
+        static void Write(s32 x, char buffer[], u16& offset)
+        {
+          (*(s32*)(void*) & buffer[offset]) = x;
+          offset += 4;
+        };
+        static void WriteFlipped(s32 x, char buffer[], u16& offset)
+        {
+          (*(s32*)(void*) & buffer[offset]) = cfBEu32(x);
+          offset += 4;
+        };
+      };
+      template <>
+      struct WriteHelper<u16>
+      {
+        static void Write(u16 x, char buffer[], u16& offset)
+        {
+          (*(u16*)(void*) & buffer[offset]) = x;
+          offset += 2;
+        };
+        static void WriteFlipped(u16 x, char buffer[], u16& offset)
+        {
+          (*(u16*)(void*) & buffer[offset]) = cfBEu16(x);
+          offset += 2;
+        };
+      };
+      template <>
+      struct WriteHelper<s16>
+      {
+        static void Write(s16 x, char buffer[], u16& offset)
+        {
+          (*(s16*)(void*) & buffer[offset]) = x;
+          offset += 2;
+        };
+        static void WriteFlipped(s16 x, char buffer[], u16& offset)
+        {
+          (*(s16*)(void*) & buffer[offset]) = cfBEu16(x);
+          offset += 2;
+        };
+      };
+      template <>
+      struct WriteHelper<u8>
+      {
+        static void Write(u8 x, char buffer[], u16& offset) { buffer[offset++] = x; }
+        static void WriteFlipped(u8 x, char buffer[], u16& offset) { buffer[offset++] = x; }
+      };
+        template<>
 		struct WriteHelper<s8>
 		{
 		  static void Write( s8 x, char buffer[], u16& offset )
@@ -221,84 +235,87 @@ namespace Pol {
 		char buffer[_size];
         char* getBuffer() { return &buffer[offset]; };
         inline u8 getID() const { return _id; };
+        size_t estimateSize() const { return _size + sizeof(PacketInterface); };
 
+        // will generate LNK2019 if undefined type is used
+        // will generate C2660 if no <...> is given
+        template <typename T>
+        struct identity
+        {
+          typedef T type;
+        };  // non deducible context
+        template <typename T>
+        void Write(typename identity<T>::type x)
+        {
+          passert_always_r(offset + sizeof(T) <= _size, "pkt " + Clib::hexint(_id));
+          PktWriterTemplateSpecs::WriteHelper<T>::Write(x, buffer, offset);
+        };
+        template <typename T>
+        void WriteFlipped(typename identity<T>::type x)
+        {
+          passert_always_r(offset + sizeof(T) <= _size, "pkt " + Clib::hexint(_id));
+          PktWriterTemplateSpecs::WriteHelper<T>::WriteFlipped(x, buffer, offset);
+        };
 
-		// will generate LNK2019 if undefined type is used
-		// will generate C2660 if no <...> is given
-		template<typename T> struct identity { typedef T type; }; // non deducible context
-		template<typename T>
-		void Write( typename identity<T>::type x )
-		{
-		  passert_always_r( offset + sizeof( T ) <= _size, "pkt " + Clib::hexint( _id ) );
-		  PktWriterTemplateSpecs::WriteHelper<T>::Write( x, buffer, offset );
-		};
-		template <typename T>
-		void WriteFlipped( typename identity<T>::type x )
-		{
-		  passert_always_r( offset + sizeof( T ) <= _size, "pkt " + Clib::hexint( _id ) );
-		  PktWriterTemplateSpecs::WriteHelper<T>::WriteFlipped( x, buffer, offset );
-		};
+        void Write(const char* x, u16 len, bool nullterm = true)
+        {
+          if (len < 1)
+            return;
+          passert_always_r(offset + len <= _size, "pkt " + Clib::hexint(_id));
+          strncpy(&buffer[offset], x, nullterm ? len - 1 : len);
+          offset += len;
+        };
+        void Write(u8 x[], u16 len)
+        {
+          if (len < 1)
+            return;
+          passert_always_r(offset + len <= _size, "pkt " + Clib::hexint(_id));
+          memcpy(&buffer[offset], x, len);
+          offset += len;
+        };
+        void Write(const u16* x, u16 len, bool nullterm = true)
+        {
+          passert_always_r(offset + len * 2 <= _size, "pkt " + Clib::hexint(_id));
+          u16* _buffer = ((u16*)(void*) & buffer[offset]);
+          offset += len * 2;
+          s32 signedlen = static_cast<s32>(len);
+          while (signedlen-- > 0)
+          {
+            *(_buffer++) = *x++;
+          }
+          if (nullterm)
+          {
+            passert_always_r(offset + 2 <= _size, "pkt " + Clib::hexint(_id));
+            offset += 2;
+          }
+        };
+        void WriteFlipped(const u16* x, u16 len, bool nullterm = true)
+        {
+          passert_always_r(offset + len * 2 <= _size, "pkt " + Clib::hexint(_id));
+          u16* _buffer = ((u16*)(void*) & buffer[offset]);
+          offset += len * 2;
+          s32 signedlen = static_cast<s32>(len);
+          while (signedlen-- > 0)
+          {
+            *(_buffer++) = ctBEu16(*x);
+            ++x;
+          }
+          if (nullterm)
+          {
+            passert_always_r(offset + 2 <= _size, "pkt " + Clib::hexint(_id));
+            offset += 2;
+          }
+        };
+      };
 
-
-		void Write( const char* x, u16 len, bool nullterm = true )
-		{
-		  if ( len < 1 )
-			return;
-		  passert_always_r( offset + len <= _size, "pkt " + Clib::hexint( _id ) );
-		  strncpy( &buffer[offset], x, nullterm ? len - 1 : len );
-		  offset += len;
-		};
-		void Write( u8 x[], u16 len )
-		{
-		  if ( len < 1 )
-			return;
-		  passert_always_r( offset + len <= _size, "pkt " + Clib::hexint( _id ) );
-		  memcpy( &buffer[offset], x, len );
-		  offset += len;
-		};
-		void Write( const u16* x, u16 len, bool nullterm = true )
-		{
-		  passert_always_r( offset + len * 2 <= _size, "pkt " + Clib::hexint( _id ) );
-		  u16* _buffer = ( (u16*)(void*)&buffer[offset] );
-		  offset += len * 2;
-		  s32 signedlen = static_cast<s32>( len );
-		  while ( signedlen-- > 0 )
-		  {
-			*( _buffer++ ) = *x++;
-		  }
-		  if ( nullterm )
-		  {
-			passert_always_r( offset + 2 <= _size, "pkt " + Clib::hexint( _id ) );
-			offset += 2;
-		  }
-		};
-		void WriteFlipped( const u16* x, u16 len, bool nullterm = true )
-		{
-		  passert_always_r( offset + len * 2 <= _size, "pkt " + Clib::hexint( _id ) );
-		  u16* _buffer = ( (u16*)(void*)&buffer[offset] );
-		  offset += len * 2;
-		  s32 signedlen = static_cast<s32>( len );
-		  while ( signedlen-- > 0 )
-		  {
-			*( _buffer++ ) = ctBEu16( *x );
-			++x;
-		  }
-		  if ( nullterm )
-		  {
-			passert_always_r( offset + 2 <= _size, "pkt " + Clib::hexint( _id ) );
-			offset += 2;
-		  }
-		};
-	  };
-
-	  // "normal" pkt
-	  template <u8 _id, u16 _size>
-	  class PacketTemplate : public PacketWriter<_id, _size>
-	  {
-	  public:
-		PacketTemplate() { ReSetBuffer(); };
-		void ReSetBuffer()
-		{
+      // "normal" pkt
+      template <u8 _id, u16 _size>
+      class PacketTemplate : public PacketWriter<_id, _size>
+      {
+       public:
+        PacketTemplate() { ReSetBuffer(); };
+        void ReSetBuffer()
+        {
 		  memset( PacketWriter<_id, _size>::buffer, 0, _size );
 		  PacketWriter<_id, _size>::buffer[0] = _id;
 		  PacketWriter<_id, _size>::offset = 1;
@@ -349,59 +366,54 @@ namespace Pol {
 	  template <class T>
 	  inline T* RequestPacket( u8 id, u16 sub = 0 )
 	  {
-		return static_cast<T*>( Packets::instance()->getPacket( id, sub ) );
-	  };
+        return static_cast<T*>(Packets::get().getPacket(id, sub));
+      };
 
-	  inline void ReAddPacket( PacketInterface* msg )
-	  {
-		Packets::instance()->ReAddPacket( msg );
-	  };
+      inline void ReAddPacket(PacketInterface* msg) { Packets::get().ReAddPacket(msg); };
 
-	  template <class T>
-	  class PacketOut
-	  {
-	  private:
-		T* pkt;
-	  public:
-		PacketOut()
-		{
-		  pkt = RequestPacket<T>( T::ID, T::SUB );
-		};
-		~PacketOut()
-		{
-		  if ( pkt != 0 )
-			ReAddPacket( pkt );
-		};
-		void Release()
-		{
-		  ReAddPacket( pkt );
-		  pkt = 0;
-		};
-		void Send( Client* client, int len = -1 ) const
-		{
-		  if ( pkt == 0 )
-			return;
-		  if ( len == -1 )
-			len = pkt->offset;
-		  ADDTOSENDQUEUE( client, &pkt->buffer, len );
-		};
-		// be really really careful with this function
-		// needs PolLock
-		void SendDirect( Client* client, int len = -1 ) const
-		{
-		  if ( pkt == 0 )
-			return;
-		  if ( len == -1 )
-			len = pkt->offset;
-		  client->transmit( &pkt->buffer, len );
-		};
-		T *operator->( void ) const { return pkt; };
-		T* Get() { return pkt; };
-	  };
-	}
+      template <class T>
+      class PacketOut
+      {
+       private:
+        T* pkt;
 
-	// buffer for encrypted Data send with a dummy pktid
-	// NOTE: redefine id if pkt 0x0 ever gets send
+       public:
+        PacketOut() { pkt = RequestPacket<T>(T::ID, T::SUB); };
+        ~PacketOut()
+        {
+          if (pkt != 0)
+            ReAddPacket(pkt);
+        };
+        void Release()
+        {
+          ReAddPacket(pkt);
+          pkt = 0;
+        };
+        void Send(Client* client, int len = -1) const
+        {
+          if (pkt == 0)
+            return;
+          if (len == -1)
+            len = pkt->offset;
+          ADDTOSENDQUEUE(client, &pkt->buffer, len);
+        };
+        // be really really careful with this function
+        // needs PolLock
+        void SendDirect(Client* client, int len = -1) const
+        {
+          if (pkt == 0)
+            return;
+          if (len == -1)
+            len = pkt->offset;
+          client->transmit(&pkt->buffer, len);
+        };
+        T* operator->(void) const { return pkt; };
+        T* Get() { return pkt; };
+      };
+      }
+
+      // buffer for encrypted Data send with a dummy pktid
+      // NOTE: redefine id if pkt 0x0 ever gets send
 #define ENCRYPTEDPKTBUFFER 0
 
 	// Packet defs start

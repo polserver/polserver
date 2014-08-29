@@ -1,7 +1,9 @@
 #ifndef CLIENTSEND_H
 #define CLIENTSEND_H
+
+#include <memory>
+#include <mutex>
 #include "../../clib/stl_inc.h"
-#include "../../clib/singleton.h"
 #include "../../clib/rawtypes.h"
 
 #include "../../clib/message_queue.h"
@@ -26,23 +28,29 @@ namespace Pol {
 
 	class ClientTransmit : boost::noncopyable
 	{
-	public:
-	  ClientTransmit();
-	  ~ClientTransmit();
+     public:
+      static ClientTransmit& get();
 
-	  void AddToQueue( Client* client, const void *data, int len );
-	  void QueueDisconnection( Client* client );
-	  void Cancel();
+     public:
+      ~ClientTransmit();
 
-	  TransmitDataSPtr NextQueueEntry();
-	private:
-	  ClientTransmitQueue _transmitqueue;
-	};
+      void AddToQueue(Client* client, const void* data, int len);
+      void QueueDisconnection(Client* client);
+      void Cancel();
 
-	typedef Clib::Singleton<ClientTransmit> ClientTransmitSingleton;
+      TransmitDataSPtr NextQueueEntry();
 
-	void ClientTransmitThread();
+     private:
+      ClientTransmit();
+      static std::unique_ptr<ClientTransmit> _instance;
+      static std::once_flag _onceFlag;
+      ClientTransmitQueue _transmitqueue;
+    };
+
+    typedef ClientTransmit ClientTransmitSingleton;
+
+    void ClientTransmitThread();
   }
-#define ADDTOSENDQUEUE(_client,_data,_len) Network::ClientTransmitSingleton::instance()->AddToQueue(_client,_data,_len)
+#define ADDTOSENDQUEUE(_client, _data, _len) Network::ClientTransmitSingleton::get().AddToQueue(_client, _data, _len)
 }
 #endif

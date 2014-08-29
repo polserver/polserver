@@ -3,11 +3,21 @@
 #include "../../clib/esignal.h"
 namespace Pol {
   namespace Network {
-	ClientTransmit::ClientTransmit() : _transmitqueue()
-	{}
+	std::unique_ptr<ClientTransmit> ClientTransmit::_instance;
+	std::once_flag ClientTransmit::_onceFlag;
 
-	ClientTransmit::~ClientTransmit()
-	{}
+	ClientTransmit::ClientTransmit() : _transmitqueue() {}
+
+	ClientTransmit::~ClientTransmit() {}
+
+	ClientTransmit& ClientTransmit::get()
+	{
+		std::call_once( _onceFlag, []()
+		{
+			_instance.reset( new ClientTransmit );
+		} );
+		return *_instance.get();
+	}
 
 	void ClientTransmit::Cancel()
 	{
@@ -41,12 +51,11 @@ namespace Pol {
 
 	void ClientTransmitThread()
 	{
-	  ClientTransmit* clienttransmit = ClientTransmitSingleton::instance();
 	  while ( !Clib::exit_signalled )
 	  {
 		try
 		{
-		  auto data = clienttransmit->NextQueueEntry();
+		  auto data = ClientTransmitSingleton::get().NextQueueEntry();
 		  if ( data->client != nullptr )
 		  {
 			if ( data->disconnects )

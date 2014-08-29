@@ -288,7 +288,7 @@ namespace Pol {
 	  if ( this->isConnected() )
 	  {
 		this->preDisconnect = true;
-		ClientTransmitSingleton::instance()->QueueDisconnection( this );
+		ClientTransmitSingleton::get().QueueDisconnection( this );
 	  }
 	}
   }
