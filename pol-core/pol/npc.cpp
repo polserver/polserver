@@ -1116,7 +1116,18 @@ namespace Pol {
 		return false;
 	}
 
-    Bscript::BObjectImp* NPC::send_event( Bscript::BObjectImp* event )
+	bool NPC::send_event( Bscript::BObjectImp* event )
+	{
+	  if (ex != NULL)
+	  {
+		if (ex->os_module->signal_event( event ))
+		  return true;
+	  }
+	  Bscript::BObject bo( event );
+	  return false;
+	}
+
+    Bscript::BObjectImp* NPC::send_event_script( Bscript::BObjectImp* event )
 	{
 	  if ( ex != NULL )
 	  {
@@ -1124,7 +1135,7 @@ namespace Pol {
           return new Bscript::BLong( 1 );
 		else
 		{
-			Bscript::BObject bo( event );
+			Bscript::BObject bo( event ); // to be sure the rawpointer gets deleted, signal_event should guard it (but only currently)
 			return new Bscript::BError( "Event queue is full, discarding event" );
 		}
 	  }

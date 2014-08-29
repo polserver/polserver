@@ -77,7 +77,8 @@ namespace Pol {
 	  virtual void inform_imoved( Mobile::Character* chr );
 	  virtual bool can_be_renamed_by( const Mobile::Character* chr ) const;
 	  bool can_accept_event( EVENTID eventid );
-	  Bscript::BObjectImp* send_event( Bscript::BObjectImp* event );
+	  Bscript::BObjectImp* send_event_script( Bscript::BObjectImp* event );
+	  bool send_event( Bscript::BObjectImp* event );
 	  Mobile::Character* master( ) const;
 
 	  virtual double armor_absorb_damage( double damage );
