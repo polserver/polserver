@@ -762,6 +762,8 @@ namespace Pol {
 	int z_histogram()
 	{
 	  unsigned int zcount[256];
+      memset(zcount, 0, sizeof(zcount));
+
       INFO_PRINT << "Reading UO data..\n";
       Core::open_uo_data_files( );
       Core::read_uo_data( );
