@@ -250,9 +250,6 @@
     <ClInclude Include="sckutil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="singleton.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="socketsvc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
