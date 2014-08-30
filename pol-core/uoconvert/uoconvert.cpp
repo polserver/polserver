@@ -1005,6 +1005,7 @@ namespace Pol {
 		}
 		else
 		  readlandtile( i, &landtile );
+
 		if ( landtile.name[0] || landtile.flags )
 		{
 		  fprintf( fp, "landtile 0x%x\n", i );
