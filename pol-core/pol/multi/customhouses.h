@@ -71,45 +71,13 @@ namespace Pol {
 	class CustomHouseElements
 	{
 	public:
-	  CustomHouseElements() {};
-	  CustomHouseElements( u32 _height, u32 _width, s32 xoffset, s32 yoffset ) :
-		height( _height ),
-		width( _width ),
-		xoff( xoffset ),
-		yoff( yoffset )
-	  {
-		SetWidth( _width );
-		SetHeight( _height );
-	  };
-	  ~CustomHouseElements() {};
+	  CustomHouseElements();
+	  CustomHouseElements( u32 _height, u32 _width, s32 xoffset, s32 yoffset );
+	  ~CustomHouseElements();
 
-	  void SetHeight( u32 _height )
-	  {
-		height = _height;
-		for ( size_t i = 0; i < width; i++ )
-		  data.at( i ).resize( height );
-	  }
-	  void SetWidth( u32 _width )
-	  {
-		width = _width;
-		data.resize( width );
-	  }
-      size_t estimatedSize() const
-      {
-        size_t size = sizeof( CustomHouseElements );
-        size += 3 * sizeof(HouseFloor*)+data.capacity() * sizeof( HouseFloor );
-        for ( const auto& floor : data )
-        {
-          size += 3 * sizeof( list<CUSTOM_HOUSE_ELEMENT>* ) + floor.capacity() * sizeof( list<CUSTOM_HOUSE_ELEMENT> );
-          for ( const auto& l : floor )
-          {
-            size += 3 * sizeof(CUSTOM_HOUSE_ELEMENT*)+l.size() * sizeof( CUSTOM_HOUSE_ELEMENT );
-
-          }
-        }
-        return size;
-      }
-
+	  void SetHeight( u32 _height );
+	  void SetWidth( u32 _width );
+	  size_t estimatedSize() const;
 	  HouseFloorZColumn* GetElementsAt( s32 xoffset, s32 yoffset );
 
 	  void AddElement( CUSTOM_HOUSE_ELEMENT& elem );

@@ -98,6 +98,7 @@ namespace Pol {
 
 	BoatShape::ComponentShape::ComponentShape( const string& str, unsigned char type )
 	{
+	  altgraphic = 0;
 	  objtype = get_component_objtype( type );
 	  ISTRINGSTREAM is( str );
 	  string tmp;
@@ -126,6 +127,7 @@ namespace Pol {
 
 	BoatShape::ComponentShape::ComponentShape( const string& str, const string& altstr, unsigned char type )
 	{
+	  altgraphic = 0;
 	  bool ok = false;
 	  objtype = get_component_objtype( type );
 	  ISTRINGSTREAM is( str );
@@ -1549,7 +1551,6 @@ namespace Pol {
 	  multiid = elem.remove_ushort( "MultiID", this->multidef().multiid );
 
 	  BoatContext bc( *this );
-	  const BoatShape& bshape = boatshape();
 	  u32 tmp_serial;
 	  while ( elem.remove_prop( "Traveller", &tmp_serial ) )
 	  {
@@ -1558,7 +1559,7 @@ namespace Pol {
 		  Items::Item* item = Core::find_toplevel_item( tmp_serial );
 		  if ( item != NULL )
 		  {
-			if ( bshape.objtype_is_component( item->objtype_ ) )
+			if (BoatShape::objtype_is_component( item->objtype_ ))
 			{
 			  Components.push_back( item );
 			}
@@ -1584,7 +1585,7 @@ namespace Pol {
 		Items::Item* item = Core::system_find_item( tmp_serial );
 		if ( item != NULL )
 		{
-		  if ( bshape.objtype_is_component( item->objtype_ ) )
+		  if (BoatShape::objtype_is_component( item->objtype_ ))
 		  {
 			Components.push_back( item );
 		  }

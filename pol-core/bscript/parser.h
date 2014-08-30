@@ -147,7 +147,7 @@ namespace Pol {
 
 	public:
 
-	  SmartParser() : Parser() {}
+	  SmartParser() : Parser(), modfunc_(nullptr), userfunc_(nullptr) {}
 	  SmartParser & operator=( const SmartParser & ) { return *this; }
 
 	  virtual int isLegal( Token& tok ) { return 1; }

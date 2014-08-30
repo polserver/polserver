@@ -447,35 +447,57 @@ namespace Pol {
 
 	  _SymInitialize = (SYMINITIALIZEPROC)GetProcAddress( hModImagehlp,
 														  "SymInitialize" );
-	  if( !_SymInitialize )
+	  if (!_SymInitialize)
+	  {
+		FreeLibrary( hModImagehlp );
 		return FALSE;
+	  }
+		
 
 	  _SymCleanup = (SYMCLEANUPPROC)GetProcAddress( hModImagehlp, "SymCleanup" );
 	  if( !_SymCleanup )
+	  {
+		FreeLibrary( hModImagehlp );
 		return FALSE;
+	  }
 
 	  _StackWalk = (STACKWALKPROC)GetProcAddress( hModImagehlp, "StackWalk" );
 	  if( !_StackWalk )
+	  {
+		FreeLibrary( hModImagehlp );
 		return FALSE;
+	  }
 
 	  _SymFunctionTableAccess = (SYMFUNCTIONTABLEACCESSPROC)
 		GetProcAddress( hModImagehlp, "SymFunctionTableAccess" );
 
 	  if( !_SymFunctionTableAccess )
+	  {
+		FreeLibrary( hModImagehlp );
 		return FALSE;
+	  }
 
 	  _SymGetModuleBase = (SYMGETMODULEBASEPROC)GetProcAddress( hModImagehlp,
 																"SymGetModuleBase" );
 	  if( !_SymGetModuleBase )
+	  {
+		FreeLibrary( hModImagehlp );
 		return FALSE;
+	  }
 
 	  _SymGetSymFromAddr = (SYMGETSYMFROMADDRPROC)GetProcAddress( hModImagehlp,
 																  "SymGetSymFromAddr" );
 	  if( !_SymGetSymFromAddr )
+	  {
+		FreeLibrary( hModImagehlp );
 		return FALSE;
+	  }
 
 	  if( !_SymInitialize( GetCurrentProcess(), 0, TRUE ) )
+	  {
+		FreeLibrary( hModImagehlp );
 		return FALSE;
+	  }
 
 	  return TRUE;
 	}

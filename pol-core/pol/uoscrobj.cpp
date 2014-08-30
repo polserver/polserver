@@ -1189,7 +1189,7 @@ namespace Pol {
 	  {
 		case MTH_SPLITSTACK_AT:
 		{
-								int amt;
+								unsigned short amt;
 								unsigned short x, y;
 								short z;
 								const String* realm_name;
@@ -1249,7 +1249,7 @@ namespace Pol {
 								if ( amt == this->getamount() )
 								  new_stack = this->clone();
 								else
-								  new_stack = this->remove_part_of_stack( (u16)amt );
+								  new_stack = this->remove_part_of_stack( amt );
 
 								new_stack->x = x;
 								new_stack->y = y;
@@ -1271,7 +1271,7 @@ namespace Pol {
 		}
 		case MTH_SPLITSTACK_INTO:
 		{
-		  int amt;
+		  unsigned short amt;
 		  Item* cont_item;
 
 		  if ( !ex.hasParams( 2 ) )

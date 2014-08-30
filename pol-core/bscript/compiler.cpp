@@ -846,6 +846,7 @@ namespace Pol {
 	Compiler::Compiler() :
 	  SmartParser(),
 	  current_file_path( "" ),
+	  curSourceFile( 0 ),
 	  inExpr( 0 ),
 	  inFunction( 0 ),
 	  haveProgram( false ),
@@ -921,7 +922,7 @@ namespace Pol {
 
 	struct Candidate
 	{
-	  Candidate( int module, int funcidx ) : module( module ), funcidx( funcidx ) {}
+	  Candidate( int module, int funcidx ) : module( module ), funcidx( funcidx ), modfunc(nullptr) {}
 	  int module;
 	  int funcidx;
 	  ModuleFunction* modfunc;

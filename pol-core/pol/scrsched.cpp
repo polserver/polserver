@@ -605,7 +605,7 @@ namespace Pol {
 	  runlist.push_back( ex );
 	}
 	// EXACTLY the same as start_script, except uses find_script2
-    Module::UOExecutorModule* start_script( const ScriptDef& script, Bscript::BObjectImp* param ) throw( )
+    Module::UOExecutorModule* start_script( const ScriptDef& script, Bscript::BObjectImp* param )
 	{
       Bscript::BObject bobj( param ? param : Bscript::UninitObject::create( ) ); // just to delete if it doesn't go somewhere else
       ref_ptr<Bscript::EScriptProgram> program = find_script2( script );
@@ -643,7 +643,7 @@ namespace Pol {
                                             Bscript::BObjectImp* param0,
                                             Bscript::BObjectImp* param1,
                                             Bscript::BObjectImp* param2,
-                                            Bscript::BObjectImp* param3 ) throw( )
+                                            Bscript::BObjectImp* param3 )
 	{
       Bscript::BObject bobj0( param0 ); // just to delete if it doesn't go somewhere else
       Bscript::BObject bobj1( param1 );

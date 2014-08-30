@@ -40,7 +40,8 @@ namespace Pol {
 	{}
 
 	ClientAttributeUpdaters::ClientAttributeUpdaters() :
-	  my_attr_changed( NULL )
+	  my_attr_changed( NULL ),
+	  pUOSkill(nullptr)
 	{}
 
 	void ClientInterface::register_client( Client* client )

@@ -120,6 +120,10 @@ namespace Pol {
 	  connected = 1;
 	  logged_in = true;
 	  anchor.enabled = false;
+	  anchor.x = 0;
+	  anchor.y = 0;
+	  anchor.dstart = 0;
+	  anchor.psub = 0;
 	  ++npc_count;
 	}
 

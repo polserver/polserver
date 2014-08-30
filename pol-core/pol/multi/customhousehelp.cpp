@@ -174,6 +174,49 @@ namespace Pol {
 	  return true;
 	}
 
+	CustomHouseElements::CustomHouseElements() : data(), height( 0 ), width( 0 ), xoff( 0 ), yoff( 0 )
+	{}
+
+	CustomHouseElements::CustomHouseElements( u32 _height, u32 _width, s32 xoffset, s32 yoffset ) :
+		height( _height ),
+		width( _width ),
+		xoff( xoffset ),
+		yoff( yoffset )
+	{
+		SetWidth( _width );
+		SetHeight( _height );
+	}
+	CustomHouseElements::~CustomHouseElements() 
+	{}
+
+	void CustomHouseElements::SetHeight( u32 _height )
+	{
+		height = _height;
+		for (size_t i = 0; i < width; i++)
+			data.at( i ).resize( height );
+	}
+
+	void CustomHouseElements::SetWidth( u32 _width )
+	{
+		width = _width;
+		data.resize( width );
+	}
+
+	size_t CustomHouseElements::estimatedSize() const
+	{
+		size_t size = sizeof( CustomHouseElements );
+		size += 3 * sizeof( HouseFloor* ) + data.capacity() * sizeof( HouseFloor );
+		for (const auto& floor : data)
+		{
+			size += 3 * sizeof( list<CUSTOM_HOUSE_ELEMENT>* ) + floor.capacity() * sizeof( list<CUSTOM_HOUSE_ELEMENT> );
+			for (const auto& l : floor)
+			{
+				size += 3 * sizeof( CUSTOM_HOUSE_ELEMENT* ) + l.size() * sizeof( CUSTOM_HOUSE_ELEMENT );
+
+			}
+		}
+		return size;
+	}
 
 	HouseFloorZColumn* CustomHouseElements::GetElementsAt( s32 xoffset, s32 yoffset )
 	{

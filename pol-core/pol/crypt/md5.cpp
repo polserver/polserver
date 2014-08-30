@@ -74,8 +74,10 @@ namespace Pol {
 #define T64		(T_MASK ^ 0x14792c6e)
 
 	// Constructor / Destructor
-	MD5Crypt::MD5Crypt()
-	{}
+	MD5Crypt::MD5Crypt() : TableIdx(0)
+	{
+	  memset( &Digest, 0, sizeof( Digest ) );
+	}
 	MD5Crypt::~MD5Crypt()
 	{}
 

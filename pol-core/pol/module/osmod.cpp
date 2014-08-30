@@ -456,7 +456,7 @@ namespace Pol {
 		  {
 			return new BError( "Unable to run script" );
 		  }
-		  if ( new_uoemod && this_uoemod )
+		  if ( new_uoemod )
 		  {
 			new_uoemod->controller_ = this_uoemod->controller_;
 		  }
