@@ -107,9 +107,10 @@ namespace Pol {
 
     void readtile( unsigned short tilenum, Core::USTRUCT_TILE *tile )
     {
+        memset(tile, 0, sizeof *tile);
+
       if ( tilenum > Core::config.max_tile_id )
       {
-        memset( tile, 0, sizeof *tile );
         sprintf( tile->name, "multi" );
         tile->weight = 0xFF;
       }
@@ -146,9 +147,10 @@ namespace Pol {
 
     void readtile( unsigned short tilenum, Core::USTRUCT_TILE_HSA *tile )
     {
+        memset(tile, 0, sizeof *tile);
+
       if ( tilenum > Core::config.max_tile_id )
       {
-        memset( tile, 0, sizeof *tile );
         sprintf( tile->name, "multi" );
         tile->weight = 0xFF;
       }
@@ -183,6 +185,8 @@ namespace Pol {
 
     void readlandtile( unsigned short tilenum, Core::USTRUCT_LAND_TILE* landtile )
     {
+        memset(landtile, 0, sizeof(*landtile));
+
       if ( tilenum <= 0x3FFF )
       {
         int block;
@@ -211,6 +215,8 @@ namespace Pol {
 
     void readlandtile( unsigned short tilenum, Core::USTRUCT_LAND_TILE_HSA* landtile )
     {
+        memset(landtile, 0, sizeof(*landtile));
+
       if ( tilenum <= 0x3FFF )
       {
         int block;
