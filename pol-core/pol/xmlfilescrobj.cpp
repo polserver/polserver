@@ -11,6 +11,7 @@ Notes
 #include "../clib/strutil.h"
 #include "../clib/stlutil.h"
 #include "../clib/endian.h"
+#include <memory>
 
 #include "xmlfilescrobj.h"
 
@@ -108,8 +109,8 @@ namespace Pol {
 							 const String* pstr;
 							 if ( ex.getStringParam( 0, pstr ) )
 							 {
-							   TiXmlElement* elem = new TiXmlElement( pstr->value() );
-							   file.LinkEndChild( elem );
+							   std::unique_ptr<TiXmlElement> elem( new TiXmlElement( pstr->value() ) );
+
 							   if ( ex.hasParams( 2 ) )
 							   {
 								 BStruct* attr = static_cast<BStruct*>( ex.getParamImp( 1, Bscript::BObjectImp::OTStruct ) );
@@ -128,6 +129,8 @@ namespace Pol {
 								   }
 								 }
 							   }
+
+                               file.LinkEndChild(elem.release());
 							   return new BLong( 1 );
 							 }
 							 return new BError( "Invalid parameter type" );
@@ -377,10 +380,9 @@ namespace Pol {
 							   return new BError( "Not enough parameters" );
 							 const String* pstr;
 							 if ( ex.getStringParam( 0, pstr ) )
-							 {
-							   TiXmlElement* nodeelem = node->ToElement();
-							   TiXmlElement* elem = new TiXmlElement( pstr->value() );
-							   nodeelem->LinkEndChild( elem );
+							 {							   
+							   std::unique_ptr<TiXmlElement> elem( new TiXmlElement( pstr->value() ) );
+
 							   if ( ex.hasParams( 2 ) )
 							   {
 								 BStruct* attr = static_cast<BStruct*>( ex.getParamImp( 1, Bscript::BObjectImp::OTStruct ) );
@@ -399,6 +401,9 @@ namespace Pol {
 								   }
 								 }
 							   }
+
+                               TiXmlElement* nodeelem = node->ToElement();
+                               nodeelem->LinkEndChild(elem.release());
 							   return new BLong( 1 );
 							 }
 							 return new BError( "Invalid parameter type" );
