@@ -65,10 +65,10 @@ namespace Pol {
       OldAnimDef old_fallback;
       NewAnimDef new_fallback;
       bool supports_mount;
-      MobileTranslate()
+	  MobileTranslate() : graphics(), old_fallback(), new_fallback(), supports_mount(false)
       {
-        memset( old_anim, 0, sizeof old_anim );
-        memset( new_anim, 0, sizeof new_anim );
+		memset( &old_anim, 0, sizeof( old_anim ) );
+		memset( &new_anim, 0, sizeof( new_anim ) );
       }
       bool has_graphic( u16 graphic ) const
       {
@@ -96,7 +96,7 @@ namespace Pol {
 
 	void load_anim_xlate_cfg( bool reload )
 	{
-	  memset( mount_action_xlate, 0, sizeof mount_action_xlate );
+	  memset( &mount_action_xlate, 0, sizeof( mount_action_xlate ) );
       animation_translates.clear();
 
 	  if ( Clib::FileExists( "config/animxlate.cfg" ) )

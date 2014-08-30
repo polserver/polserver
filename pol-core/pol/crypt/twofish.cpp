@@ -79,8 +79,14 @@ namespace Pol {
 	};
 
 	// Constructor / Destructor
-	TwoFish::TwoFish()
-	{}
+	TwoFish::TwoFish() : seed(0), dwIndex(0), tabEnable(0), pos(0)
+	{
+	  memset( &subData3, 0, sizeof( subData3 ) );
+	  memset( &ki, 0, sizeof( ki ) );
+	  memset( &ci, 0, sizeof( ci ) );
+	  memset( &tabUsed, 0, sizeof( tabUsed ) );
+	  memset( &numRounds, 0, sizeof( numRounds ) );
+	}
 	TwoFish::~TwoFish()
 	{}
 

@@ -1268,6 +1268,8 @@ namespace Pol {
 
 	void add_candidate( Mobile::Character* member, Mobile::Character* leader )
 	{
+	  if (leader == nullptr)
+		return;
 	  if ( member == NULL )
 		send_sysmessage_cl( leader->client, CLP_Add_Living ); //You may only add living things to your party!
 	  else if ( member == leader )

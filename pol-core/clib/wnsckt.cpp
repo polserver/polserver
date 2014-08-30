@@ -54,6 +54,7 @@ namespace Pol {
 	  _sck( INVALID_SOCKET ),
 	  _options( none )
 	{
+		memset( &_peer, 0, sizeof( _peer ) );
 #ifdef _WIN32
 	  static bool init;
 	  if( !init )
@@ -68,12 +69,15 @@ namespace Pol {
 	Socket::Socket( SOCKET sock ) :
 	  _sck( sock ),
 	  _options( none )
-	{}
+	{
+		memset( &_peer, 0, sizeof( _peer ) );
+	}
 
 	Socket::Socket( Socket& sock ) :
 	  _sck( sock._sck ),
 	  _options( none )
 	{
+	  memset( &_peer, 0, sizeof( _peer ) );
 	  sock._sck = INVALID_SOCKET;
 	}
 

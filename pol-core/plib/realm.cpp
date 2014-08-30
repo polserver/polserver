@@ -23,6 +23,8 @@ namespace Pol {
   namespace Plib {
 	Realm::Realm( const string& realm_name, const string& realm_path ) :
 	  is_shadowrealm( false ),
+	  shadowid( 0 ),
+	  baserealm( nullptr ), 
 	  toplevel_item_count( 0 ),
 	  mobile_count( 0 ),
 	  _descriptor( RealmDescriptor::Load( realm_name, realm_path ) ),
@@ -48,6 +50,7 @@ namespace Pol {
 
 	Realm::Realm( const string& realm_name, Realm* realm ) :
 	  is_shadowrealm( true ),
+	  shadowid( 0 ),
 	  baserealm( realm ),
 	  shadowname( realm_name ),
 	  toplevel_item_count( 0 ),
