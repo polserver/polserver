@@ -46,12 +46,12 @@ namespace Pol {
 					   Bscript::BObjectImp* param1 = NULL );
 
 	Module::UOExecutorModule* start_script( const ScriptDef& script,
-									Bscript::BObjectImp* param ) throw( );
+									Bscript::BObjectImp* param );
 	Module::UOExecutorModule* start_script( const ScriptDef& script,
 									Bscript::BObjectImp* param0,
 									Bscript::BObjectImp* param1,
 									Bscript::BObjectImp* param2 = NULL,
-									Bscript::BObjectImp* param3 = NULL ) throw( );
+									Bscript::BObjectImp* param3 = NULL );
 	Module::UOExecutorModule* start_script( ref_ptr<Bscript::EScriptProgram> program, Bscript::BObjectImp* param );
 
 	polclock_t calc_script_clocksleft( polclock_t now );

@@ -107,14 +107,14 @@ namespace Pol {
 	BSQLRow::~BSQLRow()
 	{
 	}
-    BSQLResultSet::BSQLResultSet( RES_WRAPPER result ) : Bscript::BObjectImp( OTSQLResultSet ), _result( result ), _affected_rows( 0 )
+	BSQLResultSet::BSQLResultSet( RES_WRAPPER result ) : Bscript::BObjectImp( OTSQLResultSet ), _result( result ), _fields(nullptr), _affected_rows( 0 )
 	{
       if ( result->ptr() != nullptr )
 	    _fields = mysql_fetch_fields( result->ptr() );
 	}
     BSQLResultSet::BSQLResultSet( RES_WRAPPER result, MYSQL_FIELD* fields ) : Bscript::BObjectImp( OTSQLResultSet ), _result( result ), _fields( fields ), _affected_rows( 0 )
 	{}
-	BSQLResultSet::BSQLResultSet( int affected_rows ) : Bscript::BObjectImp( OTSQLResultSet ), _result( nullptr ), _affected_rows( affected_rows )
+	BSQLResultSet::BSQLResultSet( int affected_rows ) : Bscript::BObjectImp( OTSQLResultSet ), _result( nullptr ), _fields( nullptr ), _affected_rows( affected_rows )
 	{
 
 	}

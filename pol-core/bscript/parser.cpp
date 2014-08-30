@@ -74,10 +74,11 @@ namespace Pol {
   namespace Bscript {
 	static void init_tables();
 
-	Parser::Parser() : contains_tabs( false )
+	Parser::Parser() : quiet( 0 ), err( PERR_NONE), contains_tabs( false )
 	{
-	  quiet = ext_err[0] = buffer[0] = 0;
-	  init_tables();
+		memset( &ext_err, 0, sizeof( ext_err ) );
+		memset( &buffer, 0, sizeof( buffer ) );
+		init_tables();
 	}
 
 	const char *ParseErrorStr[PERR_NUM_ERRORS] =

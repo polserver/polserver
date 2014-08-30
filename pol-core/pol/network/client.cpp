@@ -112,6 +112,7 @@ namespace Pol {
 	  memset( &counters, 0, sizeof counters );
 	  memset( &clientinfo_, 0, sizeof( clientinfo_ ) );
 	  memset( &versiondetail_, 0, sizeof( versiondetail_ ) );
+	  memset( &ipaddr, 0, sizeof( ipaddr ) );
 	  this->add_ref(); //NOTE: since Client is ref_counted +1 so escript cannot delete class
 	}
 
@@ -422,7 +423,7 @@ namespace Pol {
 		xbuffer->lenleft = datalen;
 		memcpy( xbuffer->data, data, datalen );
 		THREAD_CHECKPOINT( active_client, 303 );
-		if ( first_xmit_buffer == NULL )
+		if (first_xmit_buffer == NULL || last_xmit_buffer == NULL)
 		{	// in this case, last_xmit_buffer is also NULL, so can't set its ->next.
 		  THREAD_CHECKPOINT( active_client, 304 );
 		  first_xmit_buffer = xbuffer;
@@ -638,7 +639,7 @@ namespace Pol {
 		movementqueue.push( throttlestruct );
 		return false;
 	  }
-	  if ( chr->can_speedhack() )
+	  if ( chr != nullptr && chr->can_speedhack() )
 		return true;
 	  if ( ( next_movement == 0 ) || ( Clib::wallclock() > next_movement ) ) // never moved or in the past
 	  {

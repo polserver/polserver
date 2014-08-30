@@ -84,14 +84,9 @@ namespace Pol {
     short y;
     short z;
     Plib::Realm* realm;
-    char myName[80];
 
-    UOPathState()
+	UOPathState() : theBlockers( nullptr ), x( 0 ), y( 0 ), z( 0 ), realm( Core::find_realm( string( "britannia" ) ) )
     {
-      x = 0;
-      y = 0;
-      z = 0;
-      realm = Core::find_realm( string( "britannia" ) );
     };
     UOPathState( short newx, short newy, short newz, Plib::Realm* newrealm, AStarBlockers * blockers )
     {
@@ -106,7 +101,7 @@ namespace Pol {
     bool GetSuccessors( AStarSearch<UOPathState> *astarsearch, UOPathState *parent_node, bool doors_block );
     float GetCost( UOPathState &successor );
     bool IsSameState( UOPathState &rhs );
-    char * Name();
+    std::string Name();
   };
   bool UOPathState::IsSameState( UOPathState &rhs )
   {
@@ -131,10 +126,11 @@ namespace Pol {
     else
       return 1.0f;
   }
-  char * UOPathState::Name()
+  std::string UOPathState::Name()
   {
-    sprintf( myName, "(%d,%d,%d)", x, y, z );
-    return myName;
+	fmt::Writer writer;
+	writer.Format( "({},{},{})" ) << x << y << z;
+    return writer.str();
   }
   bool UOPathState::GetSuccessors( AStarSearch<UOPathState> *astarsearch, UOPathState *parent_node, bool doors_block )
   {

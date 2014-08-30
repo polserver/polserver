@@ -14,6 +14,7 @@ POLLOG.Format("hello {}") << "world";
 #include <chrono>
 #include <iomanip>
 #include <iostream>
+#include <memory.h>
 
 #include "stl_inc.h"
 #include "logfacility.h"
@@ -342,13 +343,16 @@ namespace Pol {
 
       // first construction also opens the file
       LogSinkGenericFile::LogSinkGenericFile( const LogFileBehaviour* behaviour ) : LogSink(),
-        _behaviour( behaviour ), _log_filename( behaviour->basename + ".log" ), _active_line( false )
+		_behaviour( behaviour ), _log_filename( behaviour->basename + ".log" ), _active_line( false )
       {
+		memset( &_opened, 0, sizeof( _opened ) );
         open_log_file(true);
       }
       // default constructor does not open directly
       LogSinkGenericFile::LogSinkGenericFile() : LogSink(), _behaviour(), _log_filename(), _active_line( false )
-      {}
+      {
+		memset( &_opened, 0, sizeof( _opened ) );
+	  }
       LogSinkGenericFile::~LogSinkGenericFile( ) 
       { 
         if ( _filestream.is_open() )

@@ -777,7 +777,8 @@ namespace Pol {
 	  version( elem.remove_ushort( "Version" ) ),
 	  oldversion( elem.remove_ushort( "OldVersion" ) ),
 	  flags( elem.remove_ulong( "Flags" ) ),
-	  unload( false )
+	  unload( false ),
+	  delversion( 0 )
 	{}
 
 	DataStoreFile::DataStoreFile( const std::string& descriptor,
@@ -791,7 +792,8 @@ namespace Pol {
 								  version( 0 ),
 								  oldversion( 0 ),
 								  flags( flags ),
-								  unload( false )
+								  unload( false ),
+								  delversion( 0 )
 	{
 	  if ( pkg != NULL )
 		pkgname = pkg->name();

@@ -39,7 +39,7 @@ namespace Pol {
 	  _filename( cf.filename() ),
 	  _fileline( cf.element_line_start() )
 	{};
-	NpcTemplateConfigSource::NpcTemplateConfigSource()
+	NpcTemplateConfigSource::NpcTemplateConfigSource() : _filename(""), _fileline(0)
 	{}
 	void NpcTemplateConfigSource::display_error( const std::string& msg,
 												 bool show_curline,

@@ -424,6 +424,8 @@ namespace Pol {
 		while ( numleft )
 		{
 		  unsigned short num;
+		  if (fs_item == NULL)
+			break;
 		  if ( fs_item->stackable() )
 		  {
 			num = numleft;
@@ -1683,7 +1685,9 @@ namespace Pol {
 		elem->addMember( "invocations", new BLong( eprog->invocations ) );
 		u64 cycles_per_invoc = eprog->instr_cycles / ( eprog->invocations ? eprog->invocations : 1 );
 		elem->addMember( "instr_per_invoc", new Double( static_cast<double>( cycles_per_invoc ) ) );
-		double cycle_percent = static_cast<double>( eprog->instr_cycles ) / total_instr * 100.0;
+		double cycle_percent = eprog->instr_cycles != 0 ?
+		  (static_cast<double>(eprog->instr_cycles) / total_instr * 100.0)
+		  : 0;
 		elem->addMember( "instr_percent", new Double( cycle_percent ) );
 
 		arr->addElement( elem.release() );
