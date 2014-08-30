@@ -80,7 +80,7 @@ namespace Pol {
 	  return -1;
 	}
 
-	CustomHouseDesign::CustomHouseDesign()
+	CustomHouseDesign::CustomHouseDesign() : height(0), width(0), xoff(0), yoff(0)
 	{
 	  for ( int i = 0; i < CUSTOM_HOUSE_NUM_PLANES; i++ )
 		floor_sizes[i] = 0;

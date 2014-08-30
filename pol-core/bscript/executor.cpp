@@ -582,7 +582,7 @@ namespace Pol {
 		BLong* plong = Clib::explicit_cast<BLong*, BObjectImp*>( imp );
 
 		int longvalue = plong->value();
-		if ( longvalue >= 0 && longvalue <= (int)INT_MAX )
+		if ( longvalue >= 0 )// && longvalue <= (int)INT_MAX )
 		{
 		  value = static_cast<unsigned>( longvalue );
 		  return true;

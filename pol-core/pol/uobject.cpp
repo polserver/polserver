@@ -48,11 +48,10 @@ namespace Pol {
 
 	int display_orphan( UObject* o )
 	{
-	  bool tmp = false;
       Clib::FMTStreamWriter sw;
       Clib::OFStreamWriter sw_orphan( &orphans_txt );
       sw() << o->name() << ", " << o->ref_counted_count() << '\n';
-	  if ( tmp ) o->printOn( sw );
+	  o->printOn( sw );
 	  o->printOnDebug( sw_orphan );
       INFO_PRINT << sw().c_str();
 	  //ref_ptr<UObject>::display_referers( o->as_ref_counted() );

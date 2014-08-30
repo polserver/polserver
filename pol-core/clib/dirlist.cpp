@@ -22,6 +22,7 @@ namespace Pol {
   namespace Clib {
 	DirList::DirList( const char* dirname )
 	{
+	  memset( &fd_, 0, sizeof( fd_ ) );
 	  string srch = dirname;
 	  srch += "*";
 
@@ -29,7 +30,9 @@ namespace Pol {
 	}
 	DirList::DirList() :
 	  hfd_( INVALID_HANDLE_VALUE )
-	{}
+	{
+	  memset( &fd_, 0, sizeof( fd_ ) );
+	}
 
 	DirList::~DirList()
 	{

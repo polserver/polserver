@@ -105,7 +105,10 @@ public: // methods
 	// constructor just initialises private data
 	AStarSearch( int MaxNodes = 1000 ) :
 		m_State( SEARCH_STATE_NOT_INITIALISED ),
-		m_CurrentSolutionNode( NULL ),
+		m_Steps( 0 ),
+		m_Start( nullptr ),
+		m_Goal( nullptr ),
+		m_CurrentSolutionNode( nullptr ),
 		m_FixedSizeAllocator( MaxNodes ),
 		m_AllocateNodeCount(0),
 		m_FreeNodeCount(0),

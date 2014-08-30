@@ -90,8 +90,8 @@ public:
 	const u32 A9Flags() const { return A9Flag; };
 	const u32 B9Flags() const { return B9Flag; };
 
-	const bool hasFeature(A9Feature x) const { return (bool)(A9Flag & (u32)x); };
-	const bool hasFeature(B9Feature x) const { return (bool)(B9Flag & (u32)x); };
+	const bool hasFeature(A9Feature x) const { return (A9Flag & (u32)x) != 0; };
+	const bool hasFeature(B9Feature x) const { return (B9Flag & (u32)x) != 0; };
 		
 	bool hasCustomHousing() { return false; };
 	bool hasElvenRace() { return hasFeature(A9Feature::ElvenRace); };

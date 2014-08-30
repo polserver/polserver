@@ -27,7 +27,8 @@ namespace Pol {
 	UCorpse::UCorpse( const Items::ContainerDesc& descriptor ) :
 	  UContainer( descriptor ),
 	  corpsetype( 0 ),
-	  take_contents_to_grave( false )
+	  take_contents_to_grave( false ),
+	  ownerserial(0)
 	{
 	  movable_ = false;
 	  layer_list_.resize( HIGHEST_LAYER + 1, EMPTY_ELEM );

@@ -73,7 +73,7 @@ namespace Pol {
 	  ref_ptr<AuxConnection> _auxconnection;
 	  weak_ptr<Core::UOExecutor> _uoexec;
 	};
-#ifdef PERGOn
+#ifdef PERGON
     extern std::unique_ptr<threadhelp::DynTaskThreadPool> auxthreadpool;
 #endif
   }

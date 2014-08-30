@@ -9,8 +9,10 @@ namespace Pol {
 #define N2L(C, LL) LL  = ((unsigned int)(*((C)++))) << 24, LL |= ((unsigned int)(*((C)++))) << 16, LL |= ((unsigned int)(*((C)++))) << 8, LL |= ((unsigned int)(*((C)++)))
 
 	// Constructor / Destructor
-	LoginCrypt::LoginCrypt()
-	{}
+	LoginCrypt::LoginCrypt() : m_k1(0), m_k2(0)
+	{
+		memset( &lkey, 0, sizeof( lkey ) );
+	}
 	LoginCrypt::~LoginCrypt()
 	{}
 
