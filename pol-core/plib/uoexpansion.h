@@ -62,43 +62,104 @@ enum class A9Feature : u32 {
 	UnlockNewFeluccaAreas = 0x8000, // Unlock new felucca areas (factions map0x.mul and such) (7.0.0.0 - SA or HSA, not sure)
 };
 
-class UOExpansion
+
+enum class ExpansionVersion : u8 {
+    T2A, LBR, AOS,
+    SE, ML, KR,
+    SA, HSA,
+
+    LastVersion = HSA
+};
+const int numExpansions = static_cast<int>(ExpansionVersion::LastVersion) + 1;
+const char* getExpansionName(ExpansionVersion x);
+
+
+class UOExpansion {
+public:
+    virtual bool hasFeature(A9Feature feature) const = 0;
+    virtual bool hasFeature(B9Feature feature) const = 0;
+    virtual u32 A9Flags() const = 0;
+    virtual u32 B9Flags() const = 0;
+
+    virtual ExpansionVersion version() const {
+        return ExpansionVersion::T2A;
+    }
+    virtual int characterSlots() const {
+        return 5;
+    }
+};
+
+class ClientFeatures {
+    const UOExpansion &m_expansion;
+
+public:
+    ClientFeatures(UOExpansion &expansion) :
+        m_expansion(expansion)
+    {
+        
+    }
+
+    bool hasCustomHousing() const { 
+        return supports(ExpansionVersion::AOS);
+    }
+    bool hasSamuraiNinja() const {
+        return m_expansion.hasFeature(A9Feature::SamuraiNinja);
+    }
+    bool hasElvenRace() const { 
+        return m_expansion.hasFeature(A9Feature::ElvenRace);
+    }
+    bool hasContextMenus() const { 
+        return m_expansion.hasFeature(A9Feature::ContextMenus);
+    }
+    bool hasNewMovementPacket() const { 
+        return m_expansion.hasFeature(A9Feature::NewMovement); 
+    }
+
+    // Commonly used expansion
+    bool supportsAOS() const {
+        return supports(ExpansionVersion::AOS);
+    }
+
+    bool supports(ExpansionVersion version) const {
+        ExpansionVersion myVersion = m_expansion.version();       
+        return myVersion >= version;
+    }
+};
+
+class FlagExpansion : UOExpansion
 {
 protected:
-	u32 A9Flag;
-	u32 B9Flag;
+	u32 m_A9Flag;
+	u32 m_B9Flag;
+    int m_slots;
+    ExpansionVersion m_version;
 
-	int charSlots;
 public:
-	UOExpansion(void) : A9Flag(0), B9Flag(0), charSlots(5) {};
 
-	UOExpansion(u32 A9Flag, u32 B9Flag, int charSlots) : A9Flag(A9Flag), B9Flag(B9Flag), charSlots(charSlots) {};
+    FlagExpansion(u32 A9Flag, u32 B9Flag, int slots, ExpansionVersion version) :
+        m_A9Flag(A9Flag), m_B9Flag(B9Flag),
+        m_slots(slots), m_version(version)
+    {
+        
+	}
+    
+	u32 A9Flags() const { return m_A9Flag; }
+    u32 B9Flags() const { return m_B9Flag; }
 
-	UOExpansion(u32 A9Flag, u32 B9Flag) : A9Flag(A9Flag), B9Flag(B9Flag), charSlots(5) {
-		if (hasFeature(B9Feature::Has6thSlot))
-			charSlots = 6;
+	bool hasFeature(A9Feature x) const { 
+        return (m_A9Flag & static_cast<u32>(x)) != 0;
+    }
+	bool hasFeature(B9Feature x) const { 
+        return (m_B9Flag & static_cast<u32>(x)) != 0;
+    }
+	
+    ExpansionVersion version() const {
+        return m_version;
+    }
 
-		if (hasFeature(B9Feature::Has7thSlot))
-			charSlots = 7;
-
-		if (hasFeature(A9Feature::SingleCharacter))
-			charSlots = 1;
-	};
-
-
-
-	const u32 A9Flags() const { return A9Flag; };
-	const u32 B9Flags() const { return B9Flag; };
-
-	const bool hasFeature(A9Feature x) const { return (A9Flag & (u32)x) != 0; };
-	const bool hasFeature(B9Feature x) const { return (B9Flag & (u32)x) != 0; };
-		
-	bool hasCustomHousing() { return false; };
-	bool hasElvenRace() { return hasFeature(A9Feature::ElvenRace); };
-	bool hasContextMenus() { return hasFeature(A9Feature::ContextMenus); };
-	bool usesNewMovementPacket() { return hasFeature(A9Feature::NewMovement); };
-
-	int characterSlots() { return charSlots; };
+	int characterSlots() const { 
+        return m_slots;
+    }
 };
 
 	}
