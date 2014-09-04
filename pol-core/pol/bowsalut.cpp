@@ -261,6 +261,7 @@ namespace Pol {
               if ( new_action == 0 )
                 return;
               action = new_action;
+	      oldanim.action = new_action;
             }
           }
           if ( translate != nullptr )
