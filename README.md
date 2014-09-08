@@ -5,10 +5,15 @@
 POL
 =========
 
-PenUltima Online (POL) is a MMO server, compatible with most Ultima Online clients.  POL is customizable via configuration files and has its own scripting language (eScript). 
+PenUltima Online (POL) is a MMO server, compatible with most Ultima Online clients.  POL is customizable via configuration files and has its own scripting language (eScript).
 
-More information: http://www.polserver.com
+More information: http://www.polserver.com. <br/>
+Forum: http://forums.polserver.com/ <br/>
+Docs: http://docs.polserver.com/
 
+If you find bugs, please create an issue with the dump, relevant log lines and your best guess on how to reproduce the bug. 
+
+<b>Current version: POL 099 (beta).</b>
 
 Compiling in Windows
 ---------
