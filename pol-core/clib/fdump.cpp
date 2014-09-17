@@ -51,7 +51,7 @@ namespace Pol {
       {
         int nprint = len - i;
         if ( nprint > 16 ) nprint = 16;
-        writer.Format( "{:04x}" ) << i;
+        writer.Format( "{:04x} " ) << i;
         dump16( writer, &s[i], nprint );
       }
     }
