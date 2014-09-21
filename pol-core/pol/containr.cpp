@@ -846,17 +846,18 @@ namespace Pol {
 
 	void UContainer::on_insert_add_item( Mobile::Character* mob, MoveType movetype, Items::Item* new_item )
 	{
+        // If we are a corpse and the item has a valid_equip_layer, try to equip it
+        if (this->objtype_ == UOBJ_CORPSE && Items::valid_equip_layer(new_item))
+        {
+            UCorpse* corpse = static_cast<UCorpse*>(this);
+            if (corpse->GetItemOnLayer(new_item->tile_layer) == NULL)
+            {
+                corpse->PutItemOnLayer(new_item);
+            }
+        }
+
 	  if ( !desc.on_insert_script.empty() )
 	  {
-          // If we are a corpse and the item has a valid_equip_layer, try to equip it
-        if (this->objtype_ == UOBJ_CORPSE && Items::valid_equip_layer(new_item))
-		{
-		  UCorpse* corpse = static_cast<UCorpse*>( this );
-		  if ( corpse->GetItemOnLayer( new_item->tile_layer ) == NULL )
-		  {
-			corpse->PutItemOnLayer( new_item );
-		  }
-		}
 		Items::Item* existing_stack = find_addable_stack( new_item );
 
 		call_script( desc.on_insert_script,

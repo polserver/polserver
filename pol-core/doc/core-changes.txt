@@ -1,5 +1,6 @@
 ﻿-- POL099 --
 09-21-2014 Nando:
+  Fixed:    Corpses will now equip items that are placed on them, even if they don't have an OnInsert script.
   Fixed:    Possible crash when items having layers larger than 25 were placed/removed from corpses.
 
 06-07-2014 Tomi:
