@@ -302,6 +302,15 @@ namespace Pol {
 	  }
 	  return true;
 	}
+
+    inline bool valid_equip_layer(int layer) {
+        extern const u8 lowest_valid_layer, highest_valid_layer;
+        return layer >= lowest_valid_layer && layer <= highest_valid_layer;
+    }
+
+    inline bool valid_equip_layer(const Item* item) {
+        return valid_equip_layer(item->tile_layer);
+    }
   }
 }
 #endif

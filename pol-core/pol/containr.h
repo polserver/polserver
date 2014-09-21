@@ -255,7 +255,7 @@ namespace Pol {
 	inline Items::Item *UCorpse::GetItemOnLayer( unsigned idx ) const
 	{
 		// Checks if the requested layer is valid
-		if (idx >= LAYER_INFO::LAYER_EQUIP__LOWEST && idx <= LAYER_INFO::LAYER_EQUIP__HIGHEST)
+		if (Items::valid_equip_layer(idx))
 			return ITEM_ELEM_PTR( layer_list_[idx] );
 		
 		return EMPTY_ELEM;
@@ -293,8 +293,7 @@ namespace Pol {
 
 	inline Items::Item *WornItemsContainer::GetItemOnLayer( unsigned idx ) const
 	{
-		// Checks if the requested layer is valid
-		if (idx >= LAYER_INFO::LAYER_EQUIP__LOWEST && idx <= LAYER_INFO::LAYER_EQUIP__HIGHEST)
+		if (Items::valid_equip_layer(idx))
 		  return ITEM_ELEM_PTR( contents_[idx] );
 
 		return NULL;

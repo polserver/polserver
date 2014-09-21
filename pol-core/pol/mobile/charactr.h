@@ -312,7 +312,6 @@ namespace Pol {
 	  virtual unsigned int weight() const;
 	  unsigned short carrying_capacity() const;
 	  bool layer_is_equipped( int layer ) const;
-	  static bool valid_equip_layer( const Items::Item* item );
 
 	  bool strong_enough_to_equip( const Items::Item* item ) const;
 	  bool equippable( const Items::Item* item ) const;

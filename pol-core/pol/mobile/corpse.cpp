@@ -63,6 +63,8 @@ namespace Pol {
 
 	void UCorpse::PutItemOnLayer( Item* item )
 	{
+      passert(Items::valid_equip_layer(item)); // Calling code must make sure that item->tile_layer is valid!
+
 	  item->set_dirty();
 	  set_dirty();
 	  item->layer = item->tile_layer;
@@ -71,7 +73,9 @@ namespace Pol {
 	}
 
 	void UCorpse::RemoveItemFromLayer( Item* item )
-	{
+    {
+      passert(Items::valid_equip_layer(item)); // Calling code must make sure that item->tile_layer is valid!
+
 	  item->set_dirty();
 	  set_dirty();
 	  layer_list_[item->tile_layer] = EMPTY_ELEM;

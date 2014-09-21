@@ -750,16 +750,16 @@ namespace Pol {
 
 	void UContainer::on_remove( Mobile::Character* chr, Items::Item* item, MoveType move )
 	{
-	  if ( this->objtype_ == UOBJ_CORPSE )
+
+        // If we have a corpse and an equippable item, check if we need to unequip it from the corpse
+	  if ( this->objtype_ == UOBJ_CORPSE && Items::valid_equip_layer(item) )
 	  {
 		UCorpse* corpse = static_cast<UCorpse*>( this );
-		if ( corpse->GetItemOnLayer( item->tile_layer ) != NULL )
-		{
-		  if ( corpse->GetItemOnLayer( item->tile_layer )->serial == item->serial )
+        Item* item_on_layer = corpse->GetItemOnLayer(item->tile_layer);
+        if ( item_on_layer != NULL && item_on_layer->serial == item->serial )
 		  {
 			corpse->RemoveItemFromLayer( item );
 		  }
-		}
 	  }
 	  else
 	  {
@@ -848,7 +848,8 @@ namespace Pol {
 	{
 	  if ( !desc.on_insert_script.empty() )
 	  {
-		if ( this->objtype_ == UOBJ_CORPSE )
+          // If we are a corpse and the item has a valid_equip_layer, try to equip it
+        if (this->objtype_ == UOBJ_CORPSE && Items::valid_equip_layer(new_item))
 		{
 		  UCorpse* corpse = static_cast<UCorpse*>( this );
 		  if ( corpse->GetItemOnLayer( new_item->tile_layer ) == NULL )
@@ -1040,6 +1041,8 @@ namespace Pol {
 
 	void WornItemsContainer::PutItemOnLayer( Items::Item* item )
 	{
+      passert(Items::valid_equip_layer(item)); // Calling code must make sure that item->tile_layer is valid!
+
 	  item->set_dirty();
 	  item->container = this;
 	  item->realm = realm;
@@ -1050,7 +1053,9 @@ namespace Pol {
 
 	void WornItemsContainer::RemoveItemFromLayer( Items::Item* item )
 	{
-	  item->set_dirty();
+      passert(Items::valid_equip_layer(item)); // Calling code must make sure that item->tile_layer is valid!
+
+      item->set_dirty();
 	  item->container = NULL;
 	  contents_[item->tile_layer] = EMPTY_ELEM;
 	  // 12-17-2008 MuadDib added to clear item.layer properties.
