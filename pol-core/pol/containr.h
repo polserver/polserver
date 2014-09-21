@@ -231,13 +231,17 @@ namespace Pol {
       virtual ~UCorpse() {};
       virtual size_t estimatedSize( ) const;
 	  virtual u16 get_senditem_amount() const;
+      
+      virtual void add (Item *item);
+
 	  u16 corpsetype;
 	  bool take_contents_to_grave;
 	  u32	ownerserial; // NPCs get deleted on death, so serial is used.
 	  Items::Item* GetItemOnLayer( unsigned idx ) const;
-	  void PutItemOnLayer( Items::Item* item );
 	  void RemoveItemFromLayer( Items::Item* item );
 	protected:
+        void PutItemOnLayer(Items::Item* item);
+
 	  explicit UCorpse( const Items::ContainerDesc& desc );
 	  virtual void spill_contents( Multi::UMulti* supporting_multi );
 	  virtual void printProperties( Clib::StreamWriter& sw ) const;

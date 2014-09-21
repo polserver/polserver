@@ -846,13 +846,14 @@ namespace Pol {
 
 	void UContainer::on_insert_add_item( Mobile::Character* mob, MoveType movetype, Items::Item* new_item )
 	{
-        // If we are a corpse and the item has a valid_equip_layer, try to equip it
+        // If we are a corpse and the item has a valid_equip_layer, we equipped it and need to send an update
         if (this->objtype_ == UOBJ_CORPSE && Items::valid_equip_layer(new_item))
         {
             UCorpse* corpse = static_cast<UCorpse*>(this);
-            if (corpse->GetItemOnLayer(new_item->tile_layer) == NULL)
+            Item* item_on_layer = corpse->GetItemOnLayer(new_item->tile_layer);
+            if (item_on_layer != NULL && item_on_layer->serial == new_item->serial)
             {
-                corpse->PutItemOnLayer(new_item);
+                send_item_to_inrange(static_cast<Item*>(this));
             }
         }
 
@@ -996,7 +997,7 @@ namespace Pol {
 		return MAX_SLOTS;
 	}
 
-	WornItemsContainer::WornItemsContainer() :
+    WornItemsContainer::WornItemsContainer() :
 	  UContainer( Items::find_container_desc( extobj.wornitems_container ) ),
 	  chr_owner( NULL )
 	{

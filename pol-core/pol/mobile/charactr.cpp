@@ -2508,11 +2508,6 @@ namespace Pol {
 		else
 		{
 		  corpse->add_at_random_location( item );
-		  // now let's reset the layer property since this is a Death.
-		  if ( Items::valid_equip_layer(item) && corpse->GetItemOnLayer( item->tile_layer ) == NULL )
-		  {
-			corpse->PutItemOnLayer( item );
-		  }
 		}
 		UPDATE_CHECKPOINT();
 	  }
