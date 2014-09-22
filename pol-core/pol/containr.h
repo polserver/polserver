@@ -231,13 +231,17 @@ namespace Pol {
       virtual ~UCorpse() {};
       virtual size_t estimatedSize( ) const;
 	  virtual u16 get_senditem_amount() const;
+      
+      virtual void add (Item *item);
+
 	  u16 corpsetype;
 	  bool take_contents_to_grave;
 	  u32	ownerserial; // NPCs get deleted on death, so serial is used.
 	  Items::Item* GetItemOnLayer( unsigned idx ) const;
-	  void PutItemOnLayer( Items::Item* item );
 	  void RemoveItemFromLayer( Items::Item* item );
 	protected:
+        void PutItemOnLayer(Items::Item* item);
+
 	  explicit UCorpse( const Items::ContainerDesc& desc );
 	  virtual void spill_contents( Multi::UMulti* supporting_multi );
 	  virtual void printProperties( Clib::StreamWriter& sw ) const;
@@ -255,7 +259,7 @@ namespace Pol {
 	inline Items::Item *UCorpse::GetItemOnLayer( unsigned idx ) const
 	{
 		// Checks if the requested layer is valid
-		if (idx >= LAYER_INFO::LAYER_EQUIP__LOWEST && idx <= LAYER_INFO::LAYER_EQUIP__HIGHEST)
+		if (Items::valid_equip_layer(idx))
 			return ITEM_ELEM_PTR( layer_list_[idx] );
 		
 		return EMPTY_ELEM;
@@ -293,8 +297,7 @@ namespace Pol {
 
 	inline Items::Item *WornItemsContainer::GetItemOnLayer( unsigned idx ) const
 	{
-		// Checks if the requested layer is valid
-		if (idx >= LAYER_INFO::LAYER_EQUIP__LOWEST && idx <= LAYER_INFO::LAYER_EQUIP__HIGHEST)
+		if (Items::valid_equip_layer(idx))
 		  return ITEM_ELEM_PTR( contents_[idx] );
 
 		return NULL;

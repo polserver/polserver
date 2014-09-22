@@ -750,16 +750,16 @@ namespace Pol {
 
 	void UContainer::on_remove( Mobile::Character* chr, Items::Item* item, MoveType move )
 	{
-	  if ( this->objtype_ == UOBJ_CORPSE )
+
+        // If we have a corpse and an equippable item, check if we need to unequip it from the corpse
+	  if ( this->objtype_ == UOBJ_CORPSE && Items::valid_equip_layer(item) )
 	  {
 		UCorpse* corpse = static_cast<UCorpse*>( this );
-		if ( corpse->GetItemOnLayer( item->tile_layer ) != NULL )
-		{
-		  if ( corpse->GetItemOnLayer( item->tile_layer )->serial == item->serial )
+        Item* item_on_layer = corpse->GetItemOnLayer(item->tile_layer);
+        if ( item_on_layer != NULL && item_on_layer->serial == item->serial )
 		  {
 			corpse->RemoveItemFromLayer( item );
 		  }
-		}
 	  }
 	  else
 	  {
@@ -846,16 +846,19 @@ namespace Pol {
 
 	void UContainer::on_insert_add_item( Mobile::Character* mob, MoveType movetype, Items::Item* new_item )
 	{
+        // If we are a corpse and the item has a valid_equip_layer, we equipped it and need to send an update
+        if (this->objtype_ == UOBJ_CORPSE && Items::valid_equip_layer(new_item))
+        {
+            UCorpse* corpse = static_cast<UCorpse*>(this);
+            Item* item_on_layer = corpse->GetItemOnLayer(new_item->tile_layer);
+            if (item_on_layer != NULL && item_on_layer->serial == new_item->serial)
+            {
+                send_item_to_inrange(static_cast<Item*>(this));
+            }
+        }
+
 	  if ( !desc.on_insert_script.empty() )
 	  {
-		if ( this->objtype_ == UOBJ_CORPSE )
-		{
-		  UCorpse* corpse = static_cast<UCorpse*>( this );
-		  if ( corpse->GetItemOnLayer( new_item->tile_layer ) == NULL )
-		  {
-			corpse->PutItemOnLayer( new_item );
-		  }
-		}
 		Items::Item* existing_stack = find_addable_stack( new_item );
 
 		call_script( desc.on_insert_script,
@@ -994,7 +997,7 @@ namespace Pol {
 		return MAX_SLOTS;
 	}
 
-	WornItemsContainer::WornItemsContainer() :
+    WornItemsContainer::WornItemsContainer() :
 	  UContainer( Items::find_container_desc( extobj.wornitems_container ) ),
 	  chr_owner( NULL )
 	{
@@ -1040,6 +1043,8 @@ namespace Pol {
 
 	void WornItemsContainer::PutItemOnLayer( Items::Item* item )
 	{
+      passert(Items::valid_equip_layer(item)); // Calling code must make sure that item->tile_layer is valid!
+
 	  item->set_dirty();
 	  item->container = this;
 	  item->realm = realm;
@@ -1050,7 +1055,9 @@ namespace Pol {
 
 	void WornItemsContainer::RemoveItemFromLayer( Items::Item* item )
 	{
-	  item->set_dirty();
+      passert(Items::valid_equip_layer(item)); // Calling code must make sure that item->tile_layer is valid!
+
+      item->set_dirty();
 	  item->container = NULL;
 	  contents_[item->tile_layer] = EMPTY_ELEM;
 	  // 12-17-2008 MuadDib added to clear item.layer properties.

@@ -1545,15 +1545,10 @@ namespace Pol {
 
 	bool Character::is_equipped( const Items::Item* item ) const
 	{
-	  if ( !valid_equip_layer( item ) )
+	  if ( !Items::valid_equip_layer( item ) )
 		return false;
 
 	  return ( wornitems.GetItemOnLayer( item->tile_layer ) == item );
-	}
-
-	bool Character::valid_equip_layer( const Items::Item* item )
-	{
-	  return ( item->tile_layer >= 1 && item->tile_layer <= Core::HIGHEST_LAYER );
 	}
 
 	bool Character::strong_enough_to_equip( const Items::Item* item ) const
@@ -1571,7 +1566,7 @@ namespace Pol {
 
       const Items::ItemDesc& desc = item->itemdesc( );
 
-	  if ( !valid_equip_layer( item ) )
+	  if ( !Items::valid_equip_layer( item ) )
 	  {
 		return false;
 	  }
@@ -1658,7 +1653,7 @@ namespace Pol {
 
 	void Character::unequip( Items::Item *item )
 	{
-	  passert( valid_equip_layer( item ) );
+	  passert( Items::valid_equip_layer( item ) );
 	  // assume any item being de-equipped is in fact being worn.
 	  passert( item->container == &wornitems );
 	  passert( is_equipped( item ) );
@@ -2513,11 +2508,6 @@ namespace Pol {
 		else
 		{
 		  corpse->add_at_random_location( item );
-		  // now let's reset the layer property since this is a Death.
-		  if ( corpse->GetItemOnLayer( item->tile_layer ) == NULL )
-		  {
-			corpse->PutItemOnLayer( item );
-		  }
 		}
 		UPDATE_CHECKPOINT();
 	  }

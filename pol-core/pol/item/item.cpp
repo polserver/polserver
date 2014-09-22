@@ -1220,5 +1220,8 @@ namespace Pol {
 	  return "item";
 	}
 
+    
+    extern const u8 lowest_valid_layer = Core::LAYER_INFO::LOWEST_LAYER;
+    extern const u8 highest_valid_layer = Core::LAYER_INFO::HIGHEST_LAYER;
   }
 }

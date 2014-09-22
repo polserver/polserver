@@ -670,46 +670,36 @@ namespace Pol {
 	// Uh, WTF.  Looks like we have to send a full "container contents"
 	// message, just to get the clothes on the corpse - without an
 	// 'open gump' message of course
-	void send_corpse_items( Client *client, const Item *item )
-	{
-	  const UContainer *cont = static_cast<const UContainer *>( item );
 
-	  PktHelper::PacketOut<PktOut_89> msg;
-	  msg->offset += 2;
-	  msg->Write<u32>( item->serial_ext );
+    void send_corpse_items(Client *client, const Item *item)
+    {
+        const UContainer *cont = static_cast<const UContainer *>(item);
+        const UCorpse *corpse = static_cast<const UCorpse *>(item);
 
-	  int n_layers_found = 0;
-	  for ( const auto &item2 : *cont )
-	  {
-		if ( item2->layer == 0 )
-		  continue;
+        PktHelper::PacketOut<PktOut_89> msg;
+        msg->offset += 2;
+        msg->Write<u32>(item->serial_ext);
 
-		// FIXME it looks like it's possible for a corpse to have more than NUM_LAYERS items that specify a layer.
-		// probably by dropping something onto a corpse
-		if ( n_layers_found >= NUM_LAYERS )
-		{
-		  static u32 last_serial = 0;
-		  if ( item->serial != last_serial )
-		  {
-            POLLOG_ERROR.Format( "Too many items specify a layer on corpse 0x{:X}\n" ) << item->serial;
-			last_serial = item->serial;
-		  }
-		  break;
-		}
-		msg->Write<u8>( item2->layer );
-		msg->Write<u32>( item2->serial_ext );
-		n_layers_found++;
-	  }
-	  passert_always( n_layers_found <= NUM_LAYERS );
-	  msg->offset += 1; // nullterm byte
-	  u16 len = msg->offset;
-	  msg->offset = 1;
-	  msg->WriteFlipped<u16>( len );
+        for (int layer = Core::LOWEST_LAYER; layer <= Core::HIGHEST_LAYER; ++layer)
+        {
+            Item *item2 = corpse->GetItemOnLayer(layer);
 
-	  msg.Send( client, len );
+            if (!item2)
+                continue;
 
-	  send_container_contents( client, *cont, true );
-	}
+            msg->Write<u8>(item2->layer);
+            msg->Write<u32>(item2->serial_ext);
+        }
+
+        msg->offset += 1; // nullterm byte
+        u16 len = msg->offset;
+        msg->offset = 1;
+        msg->WriteFlipped<u16>(len);
+
+        msg.Send(client, len);
+
+        send_container_contents(client, *cont, true);
+    }
 
 	// Item::sendto( Client* ) ??
 	void send_item( Client *client, const Item *item )

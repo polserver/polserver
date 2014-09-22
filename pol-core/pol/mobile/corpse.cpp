@@ -34,6 +34,17 @@ namespace Pol {
 	  layer_list_.resize( HIGHEST_LAYER + 1, EMPTY_ELEM );
 	}
 
+    void UCorpse::add(Item *item) {
+        // When an item is added, check if it's equippable and add to the appropriate layer        
+        if (Items::valid_equip_layer(item) && GetItemOnLayer(item->tile_layer) == NULL)
+        {
+            PutItemOnLayer(item);
+        }
+
+        // plus the defaults from UContainer
+        base::add(item);
+    }
+
 	u16 UCorpse::get_senditem_amount() const
 	{
 	  return corpsetype;
@@ -63,6 +74,8 @@ namespace Pol {
 
 	void UCorpse::PutItemOnLayer( Item* item )
 	{
+      passert(Items::valid_equip_layer(item)); // Calling code must make sure that item->tile_layer is valid!
+
 	  item->set_dirty();
 	  set_dirty();
 	  item->layer = item->tile_layer;
@@ -71,7 +84,9 @@ namespace Pol {
 	}
 
 	void UCorpse::RemoveItemFromLayer( Item* item )
-	{
+    {
+      passert(Items::valid_equip_layer(item)); // Calling code must make sure that item->tile_layer is valid!
+
 	  item->set_dirty();
 	  set_dirty();
 	  layer_list_[item->tile_layer] = EMPTY_ELEM;
