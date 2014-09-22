@@ -150,7 +150,7 @@ namespace Pol {
 	}
 
 	//dave changed 11/9/3, don't send invis items to those who can't see invis
-	void send_container_contents( Client *client, const UContainer& cont, bool show_invis )
+	void send_container_contents( Client *client, const UContainer& cont )
 	{
 	  PktHelper::PacketOut<PktOut_3C> msg;
 	  msg->offset += 4; //msglen+count
@@ -158,7 +158,7 @@ namespace Pol {
 	  for ( UContainer::const_iterator itr = cont.begin(), itrend = cont.end(); itr != itrend; ++itr )
 	  {
 		const Items::Item* item = GET_ITEM_PTR( itr );
-		if ( show_invis || ( !item->invisible() || client->chr->can_seeinvisitems() ) )
+		if ( !item->invisible() || client->chr->can_seeinvisitems() )
 		{
 		  msg->Write<u32>( item->serial_ext );
 		  msg->WriteFlipped<u16>( item->graphic );
@@ -174,7 +174,7 @@ namespace Pol {
 		}
 		else
 		{
-		  send_remove_object( client, item );
+		  send_remove_object( client, item ); // TODO: Doesn't this send a list of invisible items on the corpse?
 		}
 	  }
 	  u16 len = msg->offset;
@@ -189,7 +189,7 @@ namespace Pol {
 		for ( UContainer::const_iterator itr = cont.begin(), itrend = cont.end(); itr != itrend; ++itr )
 		{
 		  const Items::Item* item = GET_ITEM_PTR( itr );
-		  if ( show_invis || ( !item->invisible() || client->chr->can_seeinvisitems() ) )
+		  if ( !item->invisible() || client->chr->can_seeinvisitems() )
 		  {
 			send_object_cache( client, dynamic_cast<const UObject*>( item ) );
 		  }
