@@ -687,6 +687,10 @@ namespace Pol {
             if (!item2)
                 continue;
 
+            if (item2->invisible() && !client->chr->can_seeinvisitems() &&
+                layer != Core::LAYER_HAIR && layer != Core::LAYER_BEARD)
+                continue;
+            
             msg->Write<u8>(item2->layer);
             msg->Write<u32>(item2->serial_ext);
         }
