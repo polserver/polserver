@@ -239,7 +239,7 @@ namespace Pol {
 
 	bool send_menu( Network::Client *client, Menu *menu );
 	void send_death_message( Mobile::Character *chr_died, Items::Item *corpse );
-	void send_container_contents( Network::Client *client, const UContainer& cont, bool show_invis = false );
+	void send_container_contents( Network::Client *client, const UContainer& cont );
 
 	void send_char_data( Network::Client *client, Mobile::Character *chr );
 

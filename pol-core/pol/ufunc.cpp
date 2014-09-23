@@ -665,26 +665,35 @@ namespace Pol {
 	  }
 	}
 
-	// FIXME it would be better to compose this message once and
-	// send to multiple clients.
-	// Uh, WTF.  Looks like we have to send a full "container contents"
-	// message, just to get the clothes on the corpse - without an
-	// 'open gump' message of course
+    // An item is visible on a corpse if:
+    //   - it's visible
+    //   - or the chr has seeinvisitems() privilege
+    //   - it's hair or beard
+    bool can_see_on_corpse(const Client *client, const Item *item) {
+        bool invisible = (item->invisible() &&
+            !client->chr->can_seeinvisitems() &&
+            item->layer != Core::LAYER_HAIR &&
+            item->layer != Core::LAYER_BEARD && 
+            item->layer != Core::LAYER_FACE);
 
-    void send_corpse_items(Client *client, const Item *item)
-    {
-        const UContainer *cont = static_cast<const UContainer *>(item);
-        const UCorpse *corpse = static_cast<const UCorpse *>(item);
+        return !invisible;
+    }
 
+    // Helper function for send_corpse_items(). Sends packet 0x89 containing information
+    // of equipped items on the corpse.
+    void send_corpse_equip(Client *client, const UCorpse *corpse) {
         PktHelper::PacketOut<PktOut_89> msg;
         msg->offset += 2;
-        msg->Write<u32>(item->serial_ext);
+        msg->Write<u32>(corpse->serial_ext);
 
-        for (int layer = Core::LOWEST_LAYER; layer <= Core::HIGHEST_LAYER; ++layer)
+        for (unsigned layer = Core::LOWEST_LAYER; layer <= Core::HIGHEST_LAYER; ++layer)
         {
             Item *item2 = corpse->GetItemOnLayer(layer);
 
             if (!item2)
+                continue;
+
+            if (!can_see_on_corpse(client, item2))
                 continue;
 
             msg->Write<u8>(item2->layer);
@@ -697,11 +706,60 @@ namespace Pol {
         msg->WriteFlipped<u16>(len);
 
         msg.Send(client, len);
-
-        send_container_contents(client, *cont, true);
     }
 
-	// Item::sendto( Client* ) ??
+    // Helper function for send_corpse_items(). No need to send the full corpse contents,
+    // just the equipped items. Uses packet 0x3C.
+    void send_corpse_contents(Client *client, const UCorpse *corpse) {
+        PktHelper::PacketOut<PktOut_3C> msg;
+        msg->offset += 4; //msglen+count
+        u16 count = 0;
+
+        for (unsigned layer = Core::LOWEST_LAYER; layer <= Core::HIGHEST_LAYER; ++layer)
+        {
+            const Items::Item* item = corpse->GetItemOnLayer(layer);
+
+            if (!item)
+                continue;
+
+            if (!can_see_on_corpse(client, item))
+                continue;
+
+            msg->Write<u32>(item->serial_ext);
+            msg->WriteFlipped<u16>(item->graphic);
+            msg->offset++; //unk6
+            msg->WriteFlipped<u16>(item->get_senditem_amount());
+            msg->WriteFlipped<u16>(item->x);
+            msg->WriteFlipped<u16>(item->y);
+            if (client->ClientType & CLIENTTYPE_6017)
+                msg->Write<u8>(item->slot_index());
+            msg->Write<u32>(corpse->serial_ext);
+            msg->WriteFlipped<u16>(item->color); //color
+            ++count;
+        }
+
+        u16 len = msg->offset;
+        msg->offset = 1;
+        msg->WriteFlipped<u16>(len);
+        msg->WriteFlipped<u16>(count);
+        msg.Send(client, len);
+    }
+
+	// FIXME it would be better to compose this message once and
+	// send to multiple clients.
+	// 
+    // The corpse requires a packet (0x89) to say which items are equipped and another (0x3C)
+    // to describe the equipped items (similar packet as in the send_container_contents(), but
+    // just the outside items).
+    
+    void send_corpse_items(Client *client, const Item *item)
+    {
+        const UCorpse *corpse = static_cast<const UCorpse *>(item);
+        send_corpse_equip(client, corpse);
+        send_corpse_contents(client, corpse);
+    }
+
+   	// Item::sendto( Client* ) ??
 	void send_item( Client *client, const Item *item )
 	{
 	  if ( item->invisible() && !client->chr->can_seeinvisitems() )

@@ -2397,6 +2397,9 @@ namespace Pol {
 			if ( getCharacterParam( ex, 0, chr ) )
 			  chr->repsys_on_damage( this );
 		  }
+          if (dead())
+              return new BError("That is already dead!");
+
 		  die();
 		  return new BLong( 1 );
 		  break;
