@@ -820,13 +820,24 @@ namespace Pol {
 	  fprintf( multis_cfg, "%s 0x%x\n", type.c_str(), id );
 	  fprintf( multis_cfg, "{\n" );
 
-	  fseek( multi_mul, offset, SEEK_SET );
+      if (fseek(multi_mul, offset, SEEK_SET) != 0)
+      {
+          throw runtime_error("write_multi(): fseek() failed");
+      }
+
+
 	  bool first = true;
 	  while ( count-- )
 	  {
-		fread( &elem, sizeof elem, 1, multi_mul );
-		if ( cfg_use_new_hsa_format )
-		  fseek( multi_mul, 4, SEEK_CUR );
+          if (fread(&elem, sizeof elem, 1, multi_mul) != sizeof(elem)) {
+              throw runtime_error("write_multi(): fread() failed");
+          }
+
+          if (cfg_use_new_hsa_format) {
+              if (fseek(multi_mul, 4, SEEK_CUR) != 0)
+                  throw runtime_error("write_multi(): fseek() failed");
+          }
+
 		if ( elem.graphic == GRAPHIC_NODRAW )
 		  continue;
 

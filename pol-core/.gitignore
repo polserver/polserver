@@ -2,6 +2,7 @@
 /*.sdf
 /*.map
 *.suo
+*.aps
 *.user
 Debug/
 Release/
