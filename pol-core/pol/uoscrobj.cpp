@@ -1420,7 +1420,6 @@ namespace Pol {
 		default:
 		  return NULL;
 	  }
-	  return new BError( "Invalid parameter type" );
 	}
 
 	BObjectImp* Item::script_method( const char* methodname, Executor& ex )
@@ -3000,7 +2999,6 @@ namespace Pol {
         default:
           return NULL;
       }
-      return new BLong( 1 );
     }
 
     BObjectImp* Spellbook::script_method( const char* methodname, Executor& ex )
