@@ -390,7 +390,9 @@ namespace Pol {
             {
               StorageArea* storage_area = storage.create_area( elem );
               // this will be followed by an item
-              cf.read( elem );
+              if (!cf.read(elem))
+                  throw runtime_error("Expected an item to exist after the storagearea.");
+
               storage_area->load_item( elem );
             }
             else if ( elem.type_is( "REALM" ) )
