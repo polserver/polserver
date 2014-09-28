@@ -530,7 +530,7 @@ namespace Pol {
 	  }
 	  remove( itr );
 
-	  item->slot_index( 0 );
+      item->reset_slot();
 
 	  if ( chr_owner != NULL && chr_owner->client != NULL )
 	  {
