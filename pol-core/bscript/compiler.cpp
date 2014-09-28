@@ -4931,9 +4931,24 @@ namespace Pol {
 	  if ( fp == NULL )
 		return -1;
 
-	  fseek( fp, 0, SEEK_END );
+      // Goes to the end of file
+      if (fseek(fp, 0, SEEK_END) != 0) {
+          fclose(fp);
+          return -1;
+      }
+      
+      // in order to measure its size
 	  int filelen = ftell( fp );
-	  fseek( fp, 0, SEEK_SET );
+      if (filelen < 0) {
+          fclose(fp);
+          return -1;
+      }
+
+	  // and then return to beginning
+      if (fseek(fp, 0, SEEK_SET) != 0)  {
+          fclose(fp);
+          return -1;
+      }
 
 	  s = (char *)calloc( 1, filelen + 1 );
 	  if ( !s )
