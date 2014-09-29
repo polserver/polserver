@@ -530,8 +530,6 @@ namespace Pol {
 	  }
 	  remove( itr );
 
-      item->reset_slot();
-
 	  if ( chr_owner != NULL && chr_owner->client != NULL )
 	  {
 		send_full_statmsg( chr_owner->client, chr_owner );
@@ -545,6 +543,7 @@ namespace Pol {
 	  Items::Item* item = GET_ITEM_PTR( itr );
 	  contents_.erase( itr );
 	  item->container = NULL;
+      item->reset_slot();
 	  item->set_dirty();
 	  remove_bulk( item );
 	}
