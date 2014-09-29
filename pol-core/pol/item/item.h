@@ -105,6 +105,7 @@ namespace Pol {
 
 	  u8 slot_index() const;
 	  bool slot_index( u8 newvalue );
+      void reset_slot();
 
 	  virtual unsigned int item_count() const;
 	  unsigned int weight_of( unsigned short amount ) const;
@@ -287,6 +288,11 @@ namespace Pol {
 	{
 	  return slot_index_;
 	}
+
+    inline void Item::reset_slot()
+    {
+        slot_index_ = 0;
+    }
 
 	inline bool Item::slot_index( u8 newvalue )
 	{

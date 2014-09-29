@@ -388,7 +388,7 @@ namespace Pol {
 		setrealm( item, (void*)chr->realm );
 	  }
 	  item->container = NULL;
-	  item->slot_index( 0 );
+      item->reset_slot();
 	  add_item_to_world( item );
 	  if ( multi != NULL )
 	  {

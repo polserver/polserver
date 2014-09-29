@@ -140,6 +140,10 @@ namespace Pol {
 	{
 	  close();
 	  _sck = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP );
+      if (_sck == INVALID_SOCKET || _sck < 0) {
+          INFO_PRINT << "Unable to open socket in Socket::open()\n";
+          return false;
+      }
 
 	  struct sockaddr_in sin;
 	  memset( &sin, 0, sizeof sin );
@@ -611,7 +615,7 @@ namespace Pol {
 
 	void Socket::close()
 	{
-	  if( _sck != INVALID_SOCKET )//-1)
+	  if( _sck != INVALID_SOCKET )
 	  {
 #ifdef _WIN32
 		shutdown( _sck, 2 ); //2 is both sides. defined in winsock2.h ...
@@ -620,7 +624,7 @@ namespace Pol {
 		shutdown( _sck,SHUT_RDWR );
 		::close( _sck );
 #endif
-		_sck = INVALID_SOCKET;//-1;
+		_sck = INVALID_SOCKET;
 	  }
 	}
 
