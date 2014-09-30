@@ -239,6 +239,7 @@ namespace Pol {
 	  return true;
 	}
 
+    // TODO: Refactor this function! Those switches have a terrible smell...
     void load_packet_entries( const Plib::Package* pkg, Clib::ConfigElem& elem )
 	{
 	  if ( stricmp( elem.type(), "Packet" ) != 0 )
@@ -324,7 +325,6 @@ namespace Pol {
 				existing_out_func = hook_data->outgoing_function;
 				break;
 		}
-        case 3: INFO_PRINT << "Packethook Packet Version 3 not implemented\n"; return; break;
         default: INFO_PRINT << "Invalid Packethook Packet Version.\n"; return; break;
 	  }
 
@@ -383,7 +383,6 @@ namespace Pol {
 				}
 				break;
 		}
-        case 3: INFO_PRINT << "Packethook Packet Version 3 not implemented\n"; return; break;
         default: INFO_PRINT << "Invalid Packethook Packet Version.\n"; return; break;
 	  }
 	}
