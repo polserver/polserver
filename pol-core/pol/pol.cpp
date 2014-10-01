@@ -113,8 +113,8 @@ Notes
 #include "lightlvl.h"
 #include "loadunld.h"
 #include "miscrgn.h"
-#include "msghandl.h"
-#include "msgfiltr.h"
+#include "network/msghandl.h"
+#include "network/msgfiltr.h"
 #include "musicrgn.h"
 #include "multi/multi.h"
 #include "objecthash.h"
@@ -222,59 +222,6 @@ namespace Pol {
     fd_set err_fd;
     fd_set send_fd;
     struct timeval select_timeout = { 0, 0 };
-
-
-    //PacketRegistry pktRegistry;
-    MSG_HANDLER handler[256];
-    MSG_HANDLER_V2 handler_v2[256];
-
-    MessageHandler::MessageHandler( unsigned char msgtype,
-                                    int msglen,
-                                    PktHandlerFunc func)
-    {
-      passert( msglen != 0 );
-      /*
-      if (handler[msgtype].msglen)
-      {
-      // DIE
-      cerr << "WTF!  Message Handler 0x" << std::hex << msgtype << std::dec << " multiply defined!" << endl;
-      exit(1);
-      }
-      */
-
-      /*
-      if (handler[msgtype].msglen != msglen) {
-      Log2("Packet %X size has been changed from %d to %d", msgtype, handler[msgtype].msglen, msglen);
-      }
-      */
-
-      handler[msgtype].func = func;
-      handler[msgtype].msglen = msglen;
-    }
-
-    MessageHandler_V2::MessageHandler_V2( unsigned char msgtype,
-                                          int msglen,
-                                          PktHandlerFunc func)
-    {
-      passert( msglen != 0 );
-      /*
-      if (handler_v2[msgtype].msglen)
-      {
-      // DIE
-      cerr << "WTF!  Message Handler 0x" << std::hex << msgtype << std::dec << " multiply defined!" << endl;
-      exit(1);
-      }
-      */
-
-      /*
-      if (handler_v2[msgtype].msglen != msglen) {
-      Log2("Packet %X size has been changed from %d to %d", msgtype, handler_v2[msgtype].msglen, msglen);
-      }
-      */
-
-      handler_v2[msgtype].func = func;
-      handler_v2[msgtype].msglen = msglen;
-    }
 
     void send_startup( Network::Client *client )
     {

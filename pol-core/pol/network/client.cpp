@@ -34,7 +34,7 @@ Notes
 #include "client.h"
 #include "cliface.h"
 #include "../crypt/cryptengine.h"
-#include "../msgfiltr.h"
+#include "msgfiltr.h"
 #include "../pktin.h"
 #include "../polcfg.h"
 #include "../polsig.h"

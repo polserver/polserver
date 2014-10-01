@@ -26,7 +26,7 @@ Notes
 #include "fnsearch.h"
 #include "item/itemdesc.h"
 #include "los.h"
-#include "msghandl.h"
+#include "network/msghandl.h"
 #include "objtype.h"
 #include "pktboth.h"
 #include "realms.h"

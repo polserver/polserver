@@ -14,7 +14,7 @@ Notes
 
 #include "../clib/endian.h"
 
-#include "msghandl.h"
+#include "network/msghandl.h"
 #include "network/packets.h"
 #include "pktin.h"
 #include "pktout.h"

@@ -22,7 +22,7 @@ Notes
 #include "network/clienttransmit.h"
 #include "item/itemdesc.h"
 #include "item/item.h"
-#include "msghandl.h"
+#include "network/msghandl.h"
 #include "pktboth.h"
 #include "pktin.h"
 #include "ssopt.h"

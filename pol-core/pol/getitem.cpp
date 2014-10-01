@@ -30,7 +30,7 @@ Notes
 #include "mobile/charactr.h"
 #include "network/client.h"
 #include "los.h"
-#include "msghandl.h"
+#include "network/msghandl.h"
 #include "pktin.h"
 #include "realms.h"
 #include "statmsg.h"

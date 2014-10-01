@@ -47,7 +47,7 @@ FIXME: Does STW use slots with KR or newest 2d? If so, we must do slot checks th
 #include "los.h"
 #include "mkscrobj.h"
 #include "mobile/charactr.h"
-#include "msghandl.h"
+#include "network/msghandl.h"
 #include "multi/boat.h"
 #include "network/client.h"
 #include "network/packets.h"

@@ -20,7 +20,7 @@ Notes
 #include "mobile/charactr.h"
 #include "module/osmod.h"
 #include "module/uomod.h"
-#include "msghandl.h"
+#include "network/msghandl.h"
 #include "network/cgdata.h"
 #include "network/client.h"
 #include "network/packets.h"
