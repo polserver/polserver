@@ -572,6 +572,34 @@ namespace Pol {
       }
     }
 
+    void handle_undefined_packet(Network::Client *client) {
+        int msgtype = (int)client->buffer[0];
+
+        INFO_PRINT.Format("Undefined message type 0x{:X}\n") << msgtype;
+        client->recv_remaining(sizeof client->buffer / 2);
+
+        // TODO: Check if the code below shouldn't just be removed and call handle_unknown_packet() instead...
+        //       
+        //       The only extra information is the client # and the fact that it's an *unexpected* message,
+        //       because the handle_unknown_packet() is called when the packet is registered but doesn't have a proper
+        //       handler.
+        fmt::Writer tmp;
+        tmp.Format("Client#{}: Unexpected message type 0x{:X}, {} bytes( IP : {}, Account : {} )\n")
+            << client->instance_ << msgtype << client->bytes_received
+            << client->ipaddrAsString() << ((client->acct != NULL) ? client->acct->name() : "None");
+        if (client->bytes_received <= 64)
+        {
+            Clib::fdump(tmp, client->buffer, client->bytes_received);
+            POLLOG_INFO << tmp.c_str() << "\n";
+        }
+        else
+        {
+            INFO_PRINT << tmp.c_str();
+            Clib::fdump(tmp, client->buffer, client->bytes_received);
+            POLLOG << tmp.c_str() << "\n";
+        }
+    }
+
     void restart_all_clients()
     {
       if ( !uoclient_protocol.EnableFlowControlPackets )
@@ -587,7 +615,7 @@ namespace Pol {
         }
       }
     }
-
+    
     // bool - return true when a message was processed.
     bool process_data( Network::Client *client )
     {
@@ -614,30 +642,12 @@ namespace Pol {
         if ( config.verbose )
           INFO_PRINT.Format( "Incoming msg type: 0x{:X}\n" ) << (int)msgtype;
 
-        if ( ( !handler[msgtype].msglen ) && ( !handler_v2[msgtype].msglen ) )
+        if (!pktRegistry.isDefined(msgtype))
         {
-          INFO_PRINT.Format( "Undefined message type 0x{:X}\n" ) << (int)msgtype;
-          client->recv_remaining( sizeof client->buffer / 2 );
-          fmt::Writer tmp;
-          tmp.Format( "Client#{}: Unexpected message type 0x{:X}, {} bytes( IP : {}, Account : {} )\n" )
-            << client->instance_ << (int)msgtype << client->bytes_received
-            << client->ipaddrAsString() << ( ( client->acct != NULL ) ? client->acct->name() : "None" );
-          if ( client->bytes_received <= 64 )
-          {
-            Clib::fdump( tmp, client->buffer, client->bytes_received );
-            POLLOG_INFO << tmp.c_str() << "\n";
-          }
-          else
-          {
-            INFO_PRINT << tmp.c_str();
-            Clib::fdump( tmp, client->buffer, client->bytes_received );
-            POLLOG << tmp.c_str() << "\n";
-          }
-
-          // remain in RECV_STATE_MSGTYPE_WAIT
-
-          return false;
+            handle_undefined_packet(client);
+            return false; // remain in RECV_STATE_MSGTYPE_WAIT
         }
+
         // It's in the 6017 handlers
         if ( ( client->ClientType & Network::CLIENTTYPE_6017 ) && ( handler_v2[msgtype].msglen ) )
         {
