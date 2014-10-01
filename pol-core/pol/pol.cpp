@@ -224,12 +224,13 @@ namespace Pol {
     struct timeval select_timeout = { 0, 0 };
 
 
-
+    //PacketRegistry pktRegistry;
     MSG_HANDLER handler[256];
     MSG_HANDLER_V2 handler_v2[256];
+
     MessageHandler::MessageHandler( unsigned char msgtype,
                                     int msglen,
-                                    void( *func )( Network::Client *client, void *msg ) )
+                                    PktHandlerFunc func)
     {
       passert( msglen != 0 );
       /*
@@ -253,7 +254,7 @@ namespace Pol {
 
     MessageHandler_V2::MessageHandler_V2( unsigned char msgtype,
                                           int msglen,
-                                          void( *func )( Network::Client *client, void *msg ) )
+                                          PktHandlerFunc func)
     {
       passert( msglen != 0 );
       /*

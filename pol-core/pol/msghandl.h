@@ -16,38 +16,36 @@ namespace Pol {
   }
   namespace Core {
 
+      typedef void(*PktHandlerFunc)(Network::Client *client, void *msg);
+
 	class MessageHandler
 	{
 	public:
 	  MessageHandler( unsigned char msgtype,
 					  int msglen,
-					  void( *func )( Network::Client *client, void *msg ) );
+                      PktHandlerFunc func);
 	};
 #define MSGLEN_2BYTELEN_DATA -2
 
 #define MESSAGE_HANDLER( type, func ) \
-  void( *f_dummy_##type )( Network::Client *, type * ) = func; \
-  MessageHandler type##_handler( type##_ID, sizeof( type ), reinterpret_cast<void( *)( Network::Client *, void * )>( func ) )
+  MessageHandler type##_handler( type##_ID, sizeof( type ), reinterpret_cast<PktHandlerFunc>( func ) )
 
 #define MESSAGE_HANDLER_VARLEN( type, func ) \
-  void( *f_dummy_##type )( Network::Client *, type * ) = func; \
-  MessageHandler type##_handler( type##_ID, MSGLEN_2BYTELEN_DATA, ( void( *)( Network::Client *, void * ) ) func )
+  MessageHandler type##_handler( type##_ID, MSGLEN_2BYTELEN_DATA, (PktHandlerFunc) func )
 
 	class MessageHandler_V2
 	{
 	public:
 	  MessageHandler_V2( unsigned char msgtype,
 						 int msglen,
-						 void( *func )( Network::Client *client, void *msg ) );
+                         PktHandlerFunc func );
 	};
 
 #define MESSAGE_HANDLER_V2( type, func ) \
-  void( *f_dummy_##type )( Network::Client *, type * ) = func; \
-  MessageHandler_V2 type##_handler_v2( type##_ID, sizeof( type ), reinterpret_cast<void( *)( Network::Client *, void * )>( func ) )
+  MessageHandler_V2 type##_handler_v2( type##_ID, sizeof( type ), reinterpret_cast<PktHandlerFunc>( func ) )
 
 #define MESSAGE_HANDLER_VARLEN_V2( type, func ) \
-  void( *f_dummy_##type )( Network::Client *, type * ) = func; \
-  MessageHandler_V2 type##_handler_v2( type##_ID, MSGLEN_2BYTELEN_DATA, ( void( *)( Network::Client *, void * ) ) func )
+  MessageHandler_V2 type##_handler_v2( type##_ID, MSGLEN_2BYTELEN_DATA, (PktHandlerFunc) func )
 
     /*
     handler[] is used for storing the core MESSAGE_HANDLER
@@ -56,7 +54,7 @@ namespace Pol {
     typedef struct
     {
       int msglen; // if 0, no message handler defined.
-      void( *func )( Network::Client *client, void *msg );
+      PktHandlerFunc func;
     } MSG_HANDLER;
     extern MSG_HANDLER handler[256];
 
@@ -69,9 +67,25 @@ namespace Pol {
     typedef struct
     {
       int msglen; // if 0, no message handler defined.
-      void( *func )( Network::Client *client, void *msg );
+      PktHandlerFunc func;
     } MSG_HANDLER_V2;
     extern MSG_HANDLER_V2 handler_v2[256];
+
+    // This class will be responsible for tracking the handlers. For now, it's only using the previously 
+    // defined arrays.
+    class PacketRegistry {
+        MSG_HANDLER get_handler(unsigned char msgid) {
+            return handler[msgid];
+        }
+
+        MSG_HANDLER_V2 get_handler_v2(unsigned char msgid) {
+            return handler_v2[msgid];
+        }
+
+        bool isDefined(unsigned char msgid) {
+            return get_handler(msgid).msglen || get_handler_v2(msgid).msglen;
+        }
+    };
 
   }
 }
