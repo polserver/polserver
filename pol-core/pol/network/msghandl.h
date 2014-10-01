@@ -64,12 +64,7 @@ namespace Pol {
     any version where a second handler is required due to changed incoming
     packet structure).
     */
-    typedef struct
-    {
-      int msglen; // if 0, no message handler defined.
-      PktHandlerFunc func;
-    } MSG_HANDLER_V2;
-    extern MSG_HANDLER_V2 handler_v2[256];
+    extern MSG_HANDLER handler_v2[256];
 
     // This class will be responsible for tracking the handlers. For now, it's only using the previously 
     // defined arrays.
@@ -79,7 +74,7 @@ namespace Pol {
             return handler[msgid];
         }
 
-        MSG_HANDLER_V2 get_handler_v2(unsigned char msgid) {
+        MSG_HANDLER get_handler_v2(unsigned char msgid) {
             return handler_v2[msgid];
         }
 
@@ -115,6 +110,9 @@ namespace Pol {
         bool isDefined(unsigned char msgid) {
             return handler[msgid].msglen || handler_v2[msgid].msglen;
         }
+
+        // This finds the appropriate handler for the client
+        MSG_HANDLER find_handler(unsigned char msgid, const Network::Client *client);
     };
     extern PacketRegistry pktRegistry;
 
