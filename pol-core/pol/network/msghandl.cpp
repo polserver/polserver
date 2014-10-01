@@ -6,7 +6,7 @@
 namespace Pol {
     namespace Core {
 
-        //PacketRegistry pktRegistry;
+        PacketRegistry pktRegistry;
         MSG_HANDLER handler[256];
         MSG_HANDLER_V2 handler_v2[256];
 
@@ -15,9 +15,7 @@ namespace Pol {
             PktHandlerFunc func)
         {
             passert(msglen != 0);
-
-            handler[msgtype].func = func;
-            handler[msgtype].msglen = msglen;
+            pktRegistry.set_handler(msgtype, msglen, func);
         }
 
         MessageHandler_V2::MessageHandler_V2(unsigned char msgtype,
@@ -25,9 +23,7 @@ namespace Pol {
             PktHandlerFunc func)
         {
             passert(msglen != 0);
-
-            handler_v2[msgtype].func = func;
-            handler_v2[msgtype].msglen = msglen;
+            pktRegistry.set_handler_v2(msgtype, msglen, func);
         }
 
     }

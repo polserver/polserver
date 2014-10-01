@@ -74,6 +74,7 @@ namespace Pol {
     // This class will be responsible for tracking the handlers. For now, it's only using the previously 
     // defined arrays.
     class PacketRegistry {
+    public:
         MSG_HANDLER get_handler(unsigned char msgid) {
             return handler[msgid];
         }
@@ -82,10 +83,40 @@ namespace Pol {
             return handler_v2[msgid];
         }
 
+        PktHandlerFunc get_func(unsigned char msgid) {
+            return handler[msgid].func;
+        }        
+        PktHandlerFunc get_func_v2(unsigned char msgid) {
+            return handler_v2[msgid].func;
+        }
+
+        int msglen(unsigned char msgid) {
+            return handler[msgid].msglen;
+        }
+        int msglen_v2(unsigned char msgid) {
+            return handler_v2[msgid].msglen;
+        }
+                
+        void set_handler(unsigned char msgid, int len, PktHandlerFunc func) {
+            if (len == 0)
+                len = MSGLEN_2BYTELEN_DATA;
+
+            handler[msgid].func = func;
+            handler[msgid].msglen = len;
+        }
+        void set_handler_v2(unsigned char msgid, int len, PktHandlerFunc func) {
+            if (len == 0)
+                len = MSGLEN_2BYTELEN_DATA;
+
+            handler_v2[msgid].func = func;
+            handler_v2[msgid].msglen = len;
+        }
+
         bool isDefined(unsigned char msgid) {
-            return get_handler(msgid).msglen || get_handler_v2(msgid).msglen;
+            return handler[msgid].msglen || handler_v2[msgid].msglen;
         }
     };
+    extern PacketRegistry pktRegistry;
 
   }
 }
