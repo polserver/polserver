@@ -26,6 +26,8 @@ Notes
 
 #include <memory>
 #include <string.h>
+#include <mutex>
+#include <queue>
 
 #include "../../clib/rawtypes.h"
 #include "../../clib/wallclock.h"
@@ -238,7 +240,7 @@ namespace Pol {
 	  u16 UOExpansionFlag;
 	  u32 UOExpansionFlagClient;
 	  u16 ClientType;
-	  queue<PacketThrottler> movementqueue;
+	  std::queue<PacketThrottler> movementqueue;
 	  Clib::wallclock_t next_movement;
 	  u8 movementsequence;
 
