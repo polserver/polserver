@@ -648,34 +648,20 @@ namespace Pol {
             return false; // remain in RECV_STATE_MSGTYPE_WAIT
         }
 
-        // It's in the 6017 handlers
-        if ( ( client->ClientType & Network::CLIENTTYPE_6017 ) && ( handler_v2[msgtype].msglen ) )
+        MSG_HANDLER packetHandler = pktRegistry.find_handler(msgtype, client);
+        if (packetHandler.msglen == MSGLEN_2BYTELEN_DATA)
         {
-          if ( handler_v2[msgtype].msglen == MSGLEN_2BYTELEN_DATA )
-          {
             client->recv_state = Network::Client::RECV_STATE_MSGLEN_WAIT;
-          }
-          else
-          {
-            // (handler_v2[msgtype].msglen > 0) must be true
-            client->recv_state = Network::Client::RECV_STATE_MSGDATA_WAIT;
-            client->message_length = handler_v2[msgtype].msglen;
-          }
         }
-        else if ( handler[msgtype].msglen )
+        else
         {
-          if ( handler[msgtype].msglen == MSGLEN_2BYTELEN_DATA )
-          {
-            client->recv_state = Network::Client::RECV_STATE_MSGLEN_WAIT;
-          }
-          else
-          {
-            // (handler[msgtype].msglen > 0) must be true
+            passert(packetHandler.msglen > 0);
+
             client->recv_state = Network::Client::RECV_STATE_MSGDATA_WAIT;
-            client->message_length = handler[msgtype].msglen;
-          }
+            client->message_length = packetHandler.msglen;
         }
-      }
+
+      } /* endif of RECV_STATE_MSGTYPE_WAIT */
 
       if ( client->recv_state == Network::Client::RECV_STATE_MSGLEN_WAIT )
       {
@@ -703,7 +689,7 @@ namespace Pol {
           client->recv_state = Network::Client::RECV_STATE_MSGDATA_WAIT;
         }
         // else keep waiting. 
-      }
+      } /* endif of RECV_STATE_MSGLEN_WAIT */
 
       if ( client->recv_state == Network::Client::RECV_STATE_MSGDATA_WAIT )
       {
@@ -744,51 +730,30 @@ namespace Pol {
                 }
               }
               //endregion Speedhack
-              if ( ( client->ClientType & Network::CLIENTTYPE_6017 ) && ( handler_v2[msgtype].msglen ) )
+              
+
+              MSG_HANDLER packetHandler = pktRegistry.find_handler(msgtype, client);
+              passert(packetHandler.msglen != 0);
+
+              try
               {
-                try
-                {
-                  INFO_PRINT_TRACE( 10 ) << "Client#" << client->instance_ << ": message 0x" << fmt::hexu( msgtype ) << "\n";
-                  CLIENT_CHECKPOINT( 26 );
-                  ( *handler_v2[msgtype].func )( client, client->buffer );
-                  CLIENT_CHECKPOINT( 27 );
+                  INFO_PRINT_TRACE(10) << "Client#" << client->instance_ << ": message 0x" << fmt::hexu(msgtype) << "\n";
+                  CLIENT_CHECKPOINT(26);
+                  packetHandler.func(client, client->buffer);
+                  CLIENT_CHECKPOINT(27);
                   restart_all_clients();
-                }
-                catch ( std::exception& ex )
-                {
-                  POLLOG_ERROR.Format( "Client#{}: Exception in message handler 0x{:X}: {}\n" )
-                    << client->instance_
-                    << (int)msgtype
-                    << ex.what();
-                  fmt::Writer tmp;
-                  Clib::fdump( tmp, client->buffer, client->bytes_received );
-                  POLLOG << tmp.c_str() << "\n";
-                  restart_all_clients();
-                  throw;
-                }
               }
-              else // else this is the legacy style (pre-uokr)
+              catch (std::exception& ex)
               {
-                try
-                {
-                  INFO_PRINT_TRACE( 10 ) << "Client#" << client->instance_ << ": message 0x" << fmt::hexu( msgtype ) << "\n";
-                  CLIENT_CHECKPOINT( 26 );
-                  ( *handler[msgtype].func )( client, client->buffer );
-                  CLIENT_CHECKPOINT( 27 );
-                  restart_all_clients();
-                }
-                catch ( std::exception& ex )
-                {
-                  POLLOG_ERROR.Format( "Client#{}: Exception in message handler 0x{:X}: {}\n" )
-                    << client->instance_
-                    << (int)msgtype
-                    << ex.what();
+                  POLLOG_ERROR.Format("Client#{}: Exception in message handler 0x{:X}: {}\n")
+                      << client->instance_
+                      << (int)msgtype
+                      << ex.what();
                   fmt::Writer tmp;
-                  Clib::fdump( tmp, client->buffer, client->bytes_received );
+                  Clib::fdump(tmp, client->buffer, client->bytes_received);
                   POLLOG << tmp.c_str() << "\n";
                   restart_all_clients();
                   throw;
-                }
               }
             }
             else
@@ -805,7 +770,7 @@ namespace Pol {
           return true;
         }
         // else keep waiting 
-      }
+      } /* endif RECV_STATE_MSGDATA_WAIT */
       else if ( client->recv_state == Network::Client::RECV_STATE_CRYPTSEED_WAIT )
       {	   // The abnormal case.  
         // The first four bytes after connection are the 
@@ -1043,54 +1008,28 @@ namespace Pol {
             {
               if ( client->isReallyConnected() )
               {
-                unsigned char msgtype = pkt.pktbuffer[0];
-                if ( ( client->ClientType & Network::CLIENTTYPE_6017 ) && ( handler_v2[msgtype].msglen ) )
-                {
+                  unsigned char msgtype = pkt.pktbuffer[0];
+                  MSG_HANDLER packetHandler = pktRegistry.find_handler(msgtype, client);
                   try
                   {
-                    INFO_PRINT_TRACE( 10 ) << "Client#" << client->instance_ << ": message 0x" << fmt::hexu( msgtype ) << "\n";
-
-                    CLIENT_CHECKPOINT( 26 );
-                    ( *handler_v2[msgtype].func )( client, pkt.pktbuffer );
-                    CLIENT_CHECKPOINT( 27 );
-                    restart_all_clients();
+                      INFO_PRINT_TRACE(10) << "Client#" << client->instance_ << ": message 0x" << fmt::hexu(msgtype) << "\n";
+                      CLIENT_CHECKPOINT(26);
+                      packetHandler.func(client, pkt.pktbuffer);
+                      CLIENT_CHECKPOINT(27);
+                      restart_all_clients();
                   }
-                  catch ( std::exception& ex )
+                  catch (std::exception& ex)
                   {
-                    POLLOG_ERROR.Format( "Client#{}: Exception in message handler 0x{:X}: {}\n" )
-                      << client->instance_
-                      << (int)msgtype
-                      << ex.what();
-                    fmt::Writer tmp;
-                    Clib::fdump( tmp, pkt.pktbuffer, 7 );
-                    POLLOG << tmp.c_str() << "\n";
-                    restart_all_clients();
-                    throw;
+                      POLLOG_ERROR.Format("Client#{}: Exception in message handler 0x{:X}: {}\n")
+                          << client->instance_
+                          << (int)msgtype
+                          << ex.what();
+                      fmt::Writer tmp;
+                      Clib::fdump(tmp, pkt.pktbuffer, 7);
+                      POLLOG << tmp.c_str() << "\n";
+                      restart_all_clients();
+                      throw;
                   }
-                }
-                else // else this is the legacy style (pre-uokr)
-                {
-                  try
-                  {
-                    INFO_PRINT_TRACE( 10 ) << "Client#" << client->instance_ << ": message 0x" << fmt::hexu( msgtype ) << "\n";
-                    CLIENT_CHECKPOINT( 26 );
-                    ( *handler[msgtype].func )( client, pkt.pktbuffer );
-                    CLIENT_CHECKPOINT( 27 );
-                    restart_all_clients();
-                  }
-                  catch ( std::exception& ex )
-                  {
-                    POLLOG_ERROR.Format( "Client#{}: Exception in message handler 0x{:X}: {}\n" )
-                      << client->instance_
-                      << (int)msgtype
-                      << ex.what();
-                    fmt::Writer tmp;
-                    Clib::fdump( tmp, pkt.pktbuffer, 7 );
-                    POLLOG << tmp.c_str() << "\n";
-                    restart_all_clients();
-                    throw;
-                  }
-                }
               }
               client->movementqueue.pop();
             }
