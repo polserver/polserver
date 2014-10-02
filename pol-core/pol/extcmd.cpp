@@ -15,7 +15,7 @@ Notes
 #include "../clib/fdump.h"
 #include "../clib/endian.h"
 
-#include "msghandl.h"
+#include "network/msghandl.h"
 #include "pktin.h"
 #include "uvars.h"
 #include "extcmd.h"

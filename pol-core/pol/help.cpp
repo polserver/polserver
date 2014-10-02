@@ -12,7 +12,7 @@ Notes
 
 #include "mobile/charactr.h"
 #include "network/client.h"
-#include "msghandl.h"
+#include "network/msghandl.h"
 #include "pktin.h"
 #include "polcfg.h"
 #include "scrstore.h"

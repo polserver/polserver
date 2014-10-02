@@ -20,7 +20,7 @@ Notes
 #include "network/client.h"
 #include "multi/customhouses.h"
 #include "multi/house.h"
-#include "msghandl.h"
+#include "network/msghandl.h"
 #include "pktin.h"
 #include "pktout.h"
 #include "pktboth.h"

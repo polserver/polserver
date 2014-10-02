@@ -31,7 +31,7 @@ Notes
 #include "network/clienttransmit.h"
 #include "eventid.h"
 #include "item/itemdesc.h"
-#include "msghandl.h"
+#include "network/msghandl.h"
 #include "mobile/charactr.h"
 #include "los.h"
 #include "npc.h"

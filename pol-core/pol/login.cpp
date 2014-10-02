@@ -43,7 +43,7 @@ Notes
 #include "network/client.h"
 #include "network/packets.h"
 #include "core.h"
-#include "msghandl.h"
+#include "network/msghandl.h"
 #include "pktin.h"
 #include "polcfg.h"
 #include "startloc.h"

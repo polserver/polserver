@@ -44,7 +44,7 @@ Notes
 #include "cmbtcfg.h"
 #include "multi/customhouses.h"
 #include "fnsearch.h"
-#include "msghandl.h"
+#include "network/msghandl.h"
 #include "multi/multi.h"
 #include "pktboth.h"
 #include "pktin.h"

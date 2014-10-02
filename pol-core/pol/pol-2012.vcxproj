@@ -313,7 +313,8 @@
     <ClCompile Include="mobile\ufacing.cpp" />
     <ClCompile Include="movecost.cpp" />
     <ClCompile Include="movement.cpp" />
-    <ClCompile Include="msgfiltr.cpp" />
+    <ClCompile Include="network\msgfiltr.cpp" />
+    <ClCompile Include="network\msghandl.cpp" />
     <ClCompile Include="musicrgn.cpp" />
     <ClCompile Include="network\clienttransmit.cpp" />
     <ClCompile Include="network\packetdefs.cpp" />
@@ -549,8 +550,8 @@
     <ClInclude Include="miscrgn.h" />
     <ClInclude Include="mkscrobj.h" />
     <ClInclude Include="movecost.h" />
-    <ClInclude Include="msgfiltr.h" />
-    <ClInclude Include="msghandl.h" />
+    <ClInclude Include="network\msgfiltr.h" />
+    <ClInclude Include="network\msghandl.h" />
     <ClInclude Include="musicrgn.h" />
     <ClInclude Include="network\clienttransmit.h" />
     <ClInclude Include="network\packetdefs.h" />

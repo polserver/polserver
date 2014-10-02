@@ -21,7 +21,7 @@ Notes
 #include "../accounts/account.h"
 #include "../network/client.h"
 #include "charactr.h"
-#include "../msghandl.h"
+#include "../network/msghandl.h"
 #include "../pktin.h"
 #include "../ufunc.h"
 

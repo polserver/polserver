@@ -102,7 +102,7 @@ Notes
 #include "../uoscrobj.h"
 #include "../uvars.h"
 #include "../uworld.h"
-#include "../msghandl.h"
+#include "../network/msghandl.h"
 #include "../containr.h"
 #include "osmod.h"
 #include "../accounts/account.h"

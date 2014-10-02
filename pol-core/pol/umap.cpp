@@ -32,7 +32,7 @@ Notes
 #include "sockio.h"
 #include "umap.h"
 #include "ufunc.h"
-#include "msghandl.h"
+#include "network/msghandl.h"
 
 namespace Pol {
   namespace Core {

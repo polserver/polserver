@@ -19,7 +19,7 @@ Notes
 #include "accounts/account.h"
 #include "mobile/charactr.h"
 #include "network/client.h"
-#include "msghandl.h"
+#include "network/msghandl.h"
 #include "pktin.h"
 #include "menu.h"
 #include "ufunc.h"

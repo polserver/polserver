@@ -32,7 +32,7 @@ Notes
 #include "network/packets.h"
 #include "listenpt.h"
 #include "mkscrobj.h"
-#include "msghandl.h"
+#include "network/msghandl.h"
 #include "npc.h"
 #include "pktin.h"
 #include "pktout.h"

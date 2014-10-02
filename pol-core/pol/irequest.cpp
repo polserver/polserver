@@ -19,7 +19,7 @@ Notes
 #include "mobile/charactr.h"
 #include "network/client.h"
 #include "network/clienttransmit.h"
-#include "msghandl.h"
+#include "network/msghandl.h"
 #include "pktboth.h"
 #include "pktin.h"
 #include "polcfg.h"

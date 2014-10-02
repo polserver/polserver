@@ -36,7 +36,7 @@ new Handler added to the core needs a new Version number here. As of 8/3/09 ther
 #include "../accounts/account.h"
 #include "../mobile/charactr.h"
 #include "client.h"
-#include "../msghandl.h"
+#include "msghandl.h"
 #include "packethooks.h"
 #include "../packetscrobj.h"
 #include "../uoscrobj.h"

@@ -23,7 +23,7 @@ Notes
 #include "mobile/charactr.h"
 #include "network/client.h"
 #include "multi/multi.h"
-#include "msghandl.h"
+#include "network/msghandl.h"
 #include "pktin.h"
 #include "ufunc.h"
 #include "uofile.h"

@@ -30,7 +30,7 @@ Notes
 #include "../network/cgdata.h"
 #include "../mobile/charactr.h"
 #include "../network/client.h"
-#include "../msghandl.h"
+#include "../network/msghandl.h"
 #include "../pktboth.h"
 #include "../sockio.h"
 #include "../ufunc.h"
