@@ -93,16 +93,12 @@ namespace Pol {
         }
                 
         void set_handler(unsigned char msgid, int len, PktHandlerFunc func) {
-            if (len == 0)
-                len = MSGLEN_2BYTELEN_DATA;
-
+            passert(len != 0);
             handler[msgid].func = func;
             handler[msgid].msglen = len;
         }
         void set_handler_v2(unsigned char msgid, int len, PktHandlerFunc func) {
-            if (len == 0)
-                len = MSGLEN_2BYTELEN_DATA;
-
+            passert(len != 0);
             handler_v2[msgid].func = func;
             handler_v2[msgid].msglen = len;
         }
