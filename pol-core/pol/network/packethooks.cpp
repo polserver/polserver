@@ -62,6 +62,12 @@ namespace Pol {
 
 	}
 
+    // Variable length is defined in MSGLEN_2BYTELEN_DATA 
+    bool isFixedLength(const PacketHookData* phd)
+    {
+        return phd->length > 0;
+    }
+
 	//MSG_HANDLER function used for each hooked packet type.
 	void ExportedPacketHookHandler( Client* client, void* data )
 	{
@@ -116,7 +122,7 @@ namespace Pol {
 		calling_ref = client->make_ref();
 
 	  //This packet has fixed length
-	  if ( phd->length != 0 )
+      if (isFixedLength(phd))
 	  {
         ref_ptr<Core::BPacket> pkt( new Core::BPacket( message, static_cast<unsigned short>( phd->length ), false ) );
 		//if function returns 0, we need to call the default handler
@@ -161,7 +167,7 @@ namespace Pol {
 		calling_ref = client->make_ref();
 
 	  //This packet has fixed length
-	  if ( phd->length != 0 )
+      if (isFixedLength(phd))
 	  {
         outpacket.set( new Core::BPacket( message, static_cast<unsigned short>( phd->length ), false ) );
 		//if function returns 0, we need to call the default handler
@@ -220,7 +226,7 @@ namespace Pol {
 
 	  if ( !phd->SubCommands.empty() )
 	  {
-		u32 subcmd = GetSubCmd( message, phd );//cfBEu16(*(reinterpret_cast<const u16*>(&message[phd->sub_command_offset])));
+		u32 subcmd = GetSubCmd( message, phd );
 		map<u32, PacketHookData*>::iterator itr;
 		itr = phd->SubCommands.find( subcmd );
 		if ( itr != phd->SubCommands.end() )
@@ -286,17 +292,18 @@ namespace Pol {
 	  if ( elem.remove_prop( "Length", &lengthstr ) )
 	  {
 		if ( lengthstr == "variable" )
-		  length = 0;
+		  length = MSGLEN_2BYTELEN_DATA; // sets length to indicate variable length
 		else
 		{
 		  unsigned short temp;
 		  endptr = NULL;
 		  temp = (unsigned short)strtoul( lengthstr.c_str(), &endptr, 0 );
-		  if ( ( endptr != NULL ) &&
+		  if ( temp == 0 || 
+              (( endptr != NULL ) &&
 			   ( *endptr != '\0' ) &&
-			   !isspace( *endptr ) )
+			   !isspace( *endptr )) )
 		  {
-			elem.throw_error( "Length must be an integer or 'variable'" );
+			elem.throw_error( "Length must be a positive integer or 'variable'" );
 		  }
 		  else
 			length = temp;
@@ -349,14 +356,8 @@ namespace Pol {
 				{
                   pkt_data->default_handler = Core::handler[id].func;
 				}
-				if ( length == 0 )
-				{
-                  Core::MessageHandler( id, MSGLEN_2BYTELEN_DATA, ExportedPacketHookHandler );
-				}
-				else
-				{
-                  Core::MessageHandler( id, length, ExportedPacketHookHandler );
-				}
+
+                Core::pktRegistry.set_handler(id, length, ExportedPacketHookHandler);
 				break;
 		}
 		case 2:
@@ -373,14 +374,8 @@ namespace Pol {
 				{
                   pkt_data->default_handler = Core::handler_v2[id].func;
 				}
-				if ( length == 0 )
-				{
-                  Core::MessageHandler_V2( id, MSGLEN_2BYTELEN_DATA, ExportedPacketHookHandler );
-				}
-				else
-				{
-                  Core::MessageHandler_V2( id, length, ExportedPacketHookHandler );
-				}
+
+                Core::pktRegistry.set_handler_v2(id, length, ExportedPacketHookHandler);
 				break;
 		}
         default: INFO_PRINT << "Invalid Packethook Packet Version.\n"; return; break;

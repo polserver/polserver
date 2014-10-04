@@ -40,7 +40,7 @@ namespace Pol {
 	  };
 	  ~PacketHookData();
 
-	  int length; // if 0, variable length
+	  int length; // if MSGLEN_2BYTELEN_DATA, variable length
 	  Core::ExportedFunction* function;
 	  Core::ExportedFunction* outgoing_function;
 	  void( *default_handler )( Client *client, void *msg );
