@@ -1,8 +1,6 @@
 #include "msghandl.h"
 
-#include <string> // needed for passert
 #include "../../clib/passert.h"
-
 #include "../network/client.h"
 
 namespace Pol {
@@ -32,7 +30,7 @@ namespace Pol {
         // Tests if the client might send packets with new size,
         // so we know if we should check the handler_v2.
         bool special_client(const Network::Client* client) {
-            return client->ClientType & Network::CLIENTTYPE_6017;
+            return (client->ClientType & Network::CLIENTTYPE_6017) != 0;
         }
 
         MSG_HANDLER PacketRegistry::find_handler(unsigned char msgid, const Network::Client* client) {

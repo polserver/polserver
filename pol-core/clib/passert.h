@@ -13,6 +13,7 @@ Notes
 #define CLIB_PASSERT_H
 
 #include "compilerspecifics.h"
+#include <string>
 
 #ifndef INC_PASSERT
 #	define INC_PASSERT 0
