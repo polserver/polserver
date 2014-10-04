@@ -15,6 +15,7 @@ new Handler added to the core needs a new Version number here. As of 8/3/09 ther
 #define PACKETHOOKS_H
 
 #include "../../clib/stl_inc.h"
+#include "msghandl.h"
 
 namespace Pol {
   namespace Core {
@@ -23,7 +24,7 @@ namespace Pol {
   }
   namespace Network {
     class Client;
-
+   
 	class PacketHookData
 	{
 	public:
@@ -34,7 +35,7 @@ namespace Pol {
 		default_handler( NULL ),
 		sub_command_offset( 0 ),
 		sub_command_length( 0 ),
-		version( 0 )
+        version(PacketVersion::Default)
 	  {
 		memset( &client_ver, 0, sizeof( client_ver ) );
 	  };
@@ -43,10 +44,12 @@ namespace Pol {
 	  int length; // if MSGLEN_2BYTELEN_DATA, variable length
 	  Core::ExportedFunction* function;
 	  Core::ExportedFunction* outgoing_function;
-	  void( *default_handler )( Client *client, void *msg );
+      
+      Core::PktHandlerFunc default_handler;
+
 	  unsigned short sub_command_offset;
 	  unsigned short sub_command_length;
-	  unsigned short version;
+      PacketVersion version;
 	  VersionDetailStruct client_ver;
 	  map<u32, PacketHookData*>SubCommands;
 	};
