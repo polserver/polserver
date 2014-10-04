@@ -26,15 +26,8 @@ namespace Pol {
             pktRegistry.set_handler_v2(msgtype, msglen, func);
         }
 
-
-        // Tests if the client might send packets with new size,
-        // so we know if we should check the handler_v2.
-        bool special_client(const Network::Client* client) {
-            return (client->ClientType & Network::CLIENTTYPE_6017) != 0;
-        }
-
         MSG_HANDLER PacketRegistry::find_handler(unsigned char msgid, const Network::Client* client) {
-            if (special_client(client) && this->msglen_v2(msgid))
+            if (client->might_use_v2_handler() && this->msglen_v2(msgid))
                 return handler_v2[msgid];
             
             return handler[msgid];

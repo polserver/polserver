@@ -158,6 +158,9 @@ namespace Pol {
 	  void setClientType( ClientTypeFlag type );
 	  bool IsUOKRClient();
 
+      // Tells whether we should use a different packet handler for this client version
+      bool might_use_v2_handler() const;
+
 	  void setclientinfo( const Core::PKTIN_D9 *msg ) { memcpy( &clientinfo_, msg, sizeof( clientinfo_ ) ); }
 	  Bscript::BStruct* getclientinfo() const;
 
@@ -287,6 +290,11 @@ namespace Pol {
 	{
 	  return this->ready && this->isConnected();
 	}
+
+    inline bool Client::might_use_v2_handler() const
+    {
+        return (this->ClientType & Network::CLIENTTYPE_6017) != 0;
+    }
   }
 }
 #endif

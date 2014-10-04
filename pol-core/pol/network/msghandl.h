@@ -16,6 +16,12 @@ Notes
 namespace Pol {
   namespace Network {
 	class Client;
+
+    enum class PacketVersion {
+        V1 = 1,
+        V2 = 2,
+        Default = V1
+    };
   }
   namespace Core {
 
