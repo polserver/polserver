@@ -7,24 +7,24 @@ namespace Pol {
     namespace Network {
 
         PacketRegistry pktRegistry;
-        
-        MSG_HANDLER handler[256];
-        MSG_HANDLER handler_v2[256];
+
+        // handler[] is used for storing the core MSG_HANDLER calls.
+        static MSG_HANDLER handler[256];
+
+        /*
+        handler_v2[] is used for storing the core MSG_HANDLER calls for packets that
+        were changed in client 6.0.1.7 (or any newer version where a second handler is
+        required due to changed incoming packet structure).
+        */
+        static MSG_HANDLER handler_v2[256];
 
         MessageHandler::MessageHandler(unsigned char msgtype,
             int msglen,
-            PktHandlerFunc func)
+            PktHandlerFunc func,
+            PacketVersion version)
         {
             passert(msglen != 0);
-            pktRegistry.set_handler(msgtype, msglen, func);
-        }
-
-        MessageHandler_V2::MessageHandler_V2(unsigned char msgtype,
-            int msglen,
-            PktHandlerFunc func)
-        {
-            passert(msglen != 0);
-            pktRegistry.set_handler(msgtype, msglen, func, PacketVersion::V2);
+            pktRegistry.set_handler(msgtype, msglen, func, version);
         }
 
         void PacketRegistry::handle_msg(unsigned char msgid, Client *client, void *msg) {

@@ -847,7 +847,7 @@ namespace Pol {
           tempseed[2] = client->buffer[3];
           tempseed[3] = client->buffer[4];
           client->cryptengine->Init( tempseed, Crypt::CCryptBase::typeLogin );
-          (*Network::handler[PKTIN_EF_ID].func)(client, client->buffer);
+          Network::pktRegistry.handle_msg(PKTIN_EF_ID, client, client->buffer);
         }
       }
 
