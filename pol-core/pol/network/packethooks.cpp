@@ -63,9 +63,27 @@ namespace Pol {
 	}
 
     // Variable length is defined in MSGLEN_2BYTELEN_DATA 
-    bool isFixedLength(const PacketHookData* phd)
+    static bool is_fixed_length(const PacketHookData* phd)
     {
         return phd->length > 0;
+    }
+
+    // Gets the packet hook for a specific packet version
+    PacketHookData* get_packethook(u8 msgid, PacketVersion version = PacketVersion::Default) {
+        if (version == PacketVersion::V2)
+            return &packet_hook_data_v2.at(msgid);
+        
+        return &packet_hook_data.at(msgid);
+    }
+
+    // Gets the packet hook according to the client version
+    PacketHookData* get_packethook(u8 msgid, const Client* client) {
+        PacketHookData *phd = get_packethook(msgid, PacketVersion::V2);
+        if (phd->version == PacketVersion::V2 
+            && CompareVersionDetail(client->getversiondetail(), phd->client_ver))
+            return phd;
+
+        return get_packethook(msgid, PacketVersion::Default);
     }
 
 	//MSG_HANDLER function used for each hooked packet type.
@@ -73,18 +91,9 @@ namespace Pol {
 	{
 	  //find the script handler data
 	  unsigned char* message = static_cast<unsigned char*>( data );
-	  PacketHookData* phd = &( packet_hook_data_v2.at( message[0] ) );
-	  if ( phd->version == 2 )
-	  {
-		if ( !CompareVersionDetail( client->getversiondetail(), phd->client_ver ) )
-		{
-		  phd = &( packet_hook_data.at( message[0] ) );
-		}
-	  }
-	  else
-	  {
-		phd = &( packet_hook_data.at( message[0] ) );
-	  }
+      
+      u8 msgid = message[0];
+      PacketHookData* phd = get_packethook(msgid, client);
 
 	  if ( phd->function == NULL && phd->SubCommands.empty() )
 	  {
@@ -97,7 +106,7 @@ namespace Pol {
 
 	  if ( !phd->SubCommands.empty() )
 	  {
-		u32 subcmd = GetSubCmd( message, phd );//cfBEu16(*(reinterpret_cast<u16*>(&message[phd->sub_command_offset])));
+		u32 subcmd = GetSubCmd( message, phd );
 		map<u32, PacketHookData*>::iterator itr;
 		itr = phd->SubCommands.find( subcmd );
 		if ( itr != phd->SubCommands.end() )
@@ -122,7 +131,7 @@ namespace Pol {
 		calling_ref = client->make_ref();
 
 	  //This packet has fixed length
-      if (isFixedLength(phd))
+      if (is_fixed_length(phd))
 	  {
         ref_ptr<Core::BPacket> pkt( new Core::BPacket( message, static_cast<unsigned short>( phd->length ), false ) );
 		//if function returns 0, we need to call the default handler
@@ -167,7 +176,7 @@ namespace Pol {
 		calling_ref = client->make_ref();
 
 	  //This packet has fixed length
-      if (isFixedLength(phd))
+      if (is_fixed_length(phd))
 	  {
         outpacket.set( new Core::BPacket( message, static_cast<unsigned short>( phd->length ), false ) );
 		//if function returns 0, we need to call the default handler
@@ -211,18 +220,9 @@ namespace Pol {
 	  //find the script handler data
 	  bool subcmd_handler_exists = false;
 	  const unsigned char* message = static_cast<const unsigned char*>( data );
-	  phd = &( packet_hook_data_v2.at( message[0] ) );
-	  if ( phd->version == 2 )
-	  {
-		if ( !CompareVersionDetail( client->getversiondetail(), phd->client_ver ) )
-		{
-		  phd = &( packet_hook_data.at( message[0] ) );
-		}
-	  }
-	  else
-	  {
-		phd = &( packet_hook_data.at( message[0] ) );
-	  }
+
+      u8 msgid = message[0];
+      phd = get_packethook(msgid, client);
 
 	  if ( !phd->SubCommands.empty() )
 	  {
@@ -245,15 +245,97 @@ namespace Pol {
 	  return true;
 	}
 
-    // TODO: Refactor this function! Those switches have a terrible smell...
+    static PacketVersion load_packethook_version(Clib::ConfigElem& elem) 
+    {
+        unsigned short pktversion;
+
+        if (!elem.remove_prop("Version", &pktversion))
+            pktversion = 1;
+
+        switch (pktversion) {
+        case 1:
+            return PacketVersion::V1;
+        case 2:
+            return PacketVersion::V2;
+        default:
+            elem.throw_error("Only versions 1 and 2 are currently implemented.");
+        }
+    }
+
+    static int load_packethook_length(Clib::ConfigElem& elem)
+    {
+        string lengthstr;
+        int length = 0;
+
+        if (!elem.remove_prop("Length", &lengthstr))
+            elem.throw_error("Length property missing.");
+
+        if (lengthstr == "variable")
+            length = MSGLEN_2BYTELEN_DATA; // sets length to indicate variable length
+        else
+        {
+            unsigned short temp;
+            char *endptr = NULL;
+            temp = (unsigned short)strtoul(lengthstr.c_str(), &endptr, 0);
+            if (temp == 0 ||
+                ((endptr != NULL) &&
+                (*endptr != '\0') &&
+                !isspace(*endptr)))
+            {
+                elem.throw_error("Length must be a positive integer or 'variable'");
+            }
+            else
+                length = temp;
+        }
+
+        return length;
+    }
+
+    static void packethook_warn_if_previously_defined(u8 msgid, PacketVersion pktversion) 
+    {
+        PacketHookData *hook_data = get_packethook(msgid, pktversion);
+
+        auto existing_in_func = hook_data->function;
+        auto existing_out_func = hook_data->outgoing_function;
+
+        if (existing_in_func != NULL)
+            POLLOG.Format("Packet hook receive function multiply defined for packet 0x{:X}!\n") << (int)msgid;
+        if (existing_out_func != NULL)
+            POLLOG.Format("Packet hook send function multiply defined for packet 0x{:X}!\n") << (int)msgid;
+    }
+
+    static Core::PktHandlerFunc get_default_handler(u8 msgid, PacketVersion version) 
+    {
+        if (version == PacketVersion::V1 && Core::pktRegistry.msglen(msgid))
+            return Core::pktRegistry.get_func(msgid);
+
+        if (version == PacketVersion::V2 && Core::pktRegistry.msglen_v2(msgid))
+            return Core::pktRegistry.get_func_v2(msgid);
+        
+        return NULL;
+    }
+
+    static void packethook_register(u8 msgid, int length, PacketVersion version) {
+        if (version == PacketVersion::V1) {
+            Core::pktRegistry.set_handler(msgid, length, ExportedPacketHookHandler);
+            return;
+        }
+
+        if (version == PacketVersion::V2) {
+            Core::pktRegistry.set_handler_v2(msgid, length, ExportedPacketHookHandler);
+            return;
+        }
+
+    }
+
     void load_packet_entries( const Plib::Package* pkg, Clib::ConfigElem& elem )
 	{
 	  if ( stricmp( elem.type(), "Packet" ) != 0 )
 		return;
-	  string lengthstr;
+
 	  int length = 0;
 
-	  unsigned short pktversion;
+      PacketVersion pktversion;
 	  string client_string;
 	  VersionDetailStruct client_struct;
 
@@ -275,8 +357,9 @@ namespace Pol {
 	  if ( idlong > 0xFF )
 		elem.throw_error( "Packet ID must be between 0x0 and 0xFF" );
 
-	  if ( !elem.remove_prop( "Version", &pktversion ) )
-		pktversion = 1;
+      // Reads the packet version ("Version") and throws an error if not 1 or 2
+      pktversion = load_packethook_version(elem);
+
 	  client_string = elem.remove_string( "Client", "1.25.25.0" );
 	  SetVersionDetailStruct( client_string, client_struct );
 
@@ -289,98 +372,33 @@ namespace Pol {
 	  if ( !elem.remove_prop( "SubCommandLength", &subcmdlen ) )
 		subcmdlen = 0;
 
-	  if ( elem.remove_prop( "Length", &lengthstr ) )
-	  {
-		if ( lengthstr == "variable" )
-		  length = MSGLEN_2BYTELEN_DATA; // sets length to indicate variable length
-		else
-		{
-		  unsigned short temp;
-		  endptr = NULL;
-		  temp = (unsigned short)strtoul( lengthstr.c_str(), &endptr, 0 );
-		  if ( temp == 0 || 
-              (( endptr != NULL ) &&
-			   ( *endptr != '\0' ) &&
-			   !isspace( *endptr )) )
-		  {
-			elem.throw_error( "Length must be a positive integer or 'variable'" );
-		  }
-		  else
-			length = temp;
-		}
+      // Loads the length ("Length"), which is either 'variable' or a positive integer
+      // if 'variable', length will be MSGLEN_2BYTELEN_DATA
+      length = load_packethook_length(elem);
 
-	  }
-	  else
-		elem.throw_error( "Length property missing." );
+      // Checks if packethook has been previously defined and prints a warning
+      packethook_warn_if_previously_defined(id, pktversion);
 
-      Core::ExportedFunction* existing_in_func = NULL;
-      Core::ExportedFunction* existing_out_func = NULL;
+      PacketHookData* pkt_data = get_packethook(id, pktversion);
+      pkt_data->function = exfunc;
+      pkt_data->outgoing_function = exoutfunc;
+      pkt_data->length = length;
+      pkt_data->sub_command_offset = subcmdoff;
+      pkt_data->sub_command_length = subcmdlen;
+      pkt_data->version = pktversion;
+      pkt_data->client_ver = client_struct;
+      pkt_data->default_handler = get_default_handler(id, pktversion);
 
-	  switch ( pktversion )
-	  {
-		case 1:
-		{
-				PacketHookData *hook_data = &packet_hook_data.at( id );
-				existing_in_func = hook_data->function;
-				existing_out_func = hook_data->outgoing_function;
-				break;
-		}
-		case 2:
-		{
-				PacketHookData *hook_data = &packet_hook_data_v2.at( id );
-				existing_in_func = hook_data->function;
-				existing_out_func = hook_data->outgoing_function;
-				break;
-		}
-        default: INFO_PRINT << "Invalid Packethook Packet Version.\n"; return; break;
-	  }
-
-      if ( existing_in_func != NULL )
-        POLLOG.Format( "Packet hook receive function multiply defined for packet 0x{:X}!\n" ) << (int)id;
-      if ( existing_out_func != NULL )
-        POLLOG.Format( "Packet hook send function multiply defined for packet 0x{:X}!\n" ) << (int)id;
-
-	  switch ( pktversion )
-	  {
-		case 1:
-		{
-				PacketHookData* pkt_data = &packet_hook_data.at( id );
-				pkt_data->function = exfunc;
-				pkt_data->outgoing_function = exoutfunc;
-				pkt_data->length = length;
-				pkt_data->sub_command_offset = subcmdoff;
-				pkt_data->sub_command_length = subcmdlen;
-				pkt_data->version = pktversion;
-				pkt_data->client_ver = client_struct;
-                if ( Core::handler[id].msglen )
-				{
-                  pkt_data->default_handler = Core::handler[id].func;
-				}
-
-                Core::pktRegistry.set_handler(id, length, ExportedPacketHookHandler);
-				break;
-		}
-		case 2:
-		{
-				PacketHookData* pkt_data = &packet_hook_data_v2.at( id );
-				pkt_data->function = exfunc;
-				pkt_data->outgoing_function = exoutfunc;
-				pkt_data->length = length;
-				pkt_data->sub_command_offset = subcmdoff;
-				pkt_data->sub_command_length = subcmdlen;
-				pkt_data->version = pktversion;
-				pkt_data->client_ver = client_struct;
-				if ( Core::handler_v2[id].msglen )
-				{
-                  pkt_data->default_handler = Core::handler_v2[id].func;
-				}
-
-                Core::pktRegistry.set_handler_v2(id, length, ExportedPacketHookHandler);
-				break;
-		}
-        default: INFO_PRINT << "Invalid Packethook Packet Version.\n"; return; break;
-	  }
+      packethook_register(id, length, pktversion);
 	}
+
+    static void packethook_assert_valid_parent(u8 id, PacketHookData *parent, const Clib::ConfigElem& elem) {
+        //validate that the parent packet has a definition and a SubCommandOffset
+        if (!parent->sub_command_offset)
+            elem.throw_error(string("Parent packet " + Clib::hexint(id) + " does not define SubCommandOffset!"));
+        if (!parent->sub_command_length)
+            elem.throw_error(string("Parent packet " + Clib::hexint(id) + " does not define SubCommandLength"));
+    }
 
 	void load_subpacket_entries( const Plib::Package* pkg, Clib::ConfigElem& elem )
 	{
@@ -389,7 +407,7 @@ namespace Pol {
 	  Core::ExportedFunction* exfunc = ( Core::ExportedFunction* )NULL;
 	  Core::ExportedFunction* exoutfunc = ( Core::ExportedFunction* )NULL;
 
-	  unsigned short pktversion;
+	  PacketVersion pktversion;
 	  string client_string;
 	  VersionDetailStruct client_struct;
 
@@ -413,29 +431,18 @@ namespace Pol {
 
 	  unsigned short subid = elem.remove_ushort( "SubCommandID" );
 
-	  if ( !elem.remove_prop( "Version", &pktversion ) )
-		pktversion = 1;
+      // Reads the packet version ("Version") and throws an error if not 1 or 2
+      pktversion = load_packethook_version(elem);
 
 	  client_string = elem.remove_string( "Client", "1.25.25.0" );
 	  SetVersionDetailStruct( client_string, client_struct );
 
-	  PacketHookData* parent = NULL;
-	  switch ( pktversion )
-	  {
-		case 1:	parent = &packet_hook_data.at( id ); break;
-		case 2:	parent = &packet_hook_data_v2.at( id ); break;
-        case 3: INFO_PRINT << "Packethook Packet Version 3 not implemented\n"; return; break;
-        default: INFO_PRINT << "Invalid Packethook Packet Version.\n"; return; break;
-	  }
+      PacketHookData* parent = get_packethook(id, pktversion);
+      packethook_assert_valid_parent(id, parent, elem);
 
-	  //validate that the parent packet has a definition and a SubCommandOffset
-	  if ( !parent->sub_command_offset )
-		elem.throw_error( string( "Parent packet " + Clib::hexint( id ) + " does not define SubCommandOffset!" ) );
-	  if ( !parent->sub_command_length )
-		elem.throw_error( string( "Parent packet " + Clib::hexint( id ) + " does not define SubCommandLength" ) );
-	  if ( parent->SubCommands.find( subid ) != parent->SubCommands.end() )
-		elem.throw_error( string( "SubCommand " + Clib::hexint( subid ) + " for packet " + Clib::hexint( id ) + " multiply defined!" ) );
-
+      if (parent->SubCommands.find(subid) != parent->SubCommands.end())
+          elem.throw_error(string("SubCommand " + Clib::hexint(subid) + " for packet " + Clib::hexint(id) + " multiply defined!"));
+    
 	  PacketHookData* SubData = new PacketHookData();
 	  SubData->function = exfunc;
 	  SubData->outgoing_function = exoutfunc;
