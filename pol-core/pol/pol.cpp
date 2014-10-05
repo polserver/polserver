@@ -642,7 +642,7 @@ namespace Pol {
         if ( config.verbose )
           INFO_PRINT.Format( "Incoming msg type: 0x{:X}\n" ) << (int)msgtype;
 
-        if (!pktRegistry.isDefined(msgtype))
+        if (!pktRegistry.is_defined(msgtype))
         {
             handle_undefined_packet(client);
             return false; // remain in RECV_STATE_MSGTYPE_WAIT

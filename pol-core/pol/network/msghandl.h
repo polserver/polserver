@@ -82,8 +82,8 @@ namespace Pol {
         MSG_HANDLER get_handler(unsigned char msgid);
         MSG_HANDLER get_handler_v2(unsigned char msgid);
 
-        PktHandlerFunc get_func(unsigned char msgid);
-        PktHandlerFunc get_func_v2(unsigned char msgid);
+        PktHandlerFunc get_handler_callback(unsigned char msgid);
+        PktHandlerFunc get_handler_callback_v2(unsigned char msgid);
 
         int msglen(unsigned char msgid);
         int msglen_v2(unsigned char msgid);
@@ -91,52 +91,12 @@ namespace Pol {
         void set_handler(unsigned char msgid, int len, PktHandlerFunc func);
         void set_handler_v2(unsigned char msgid, int len, PktHandlerFunc func);
         
-        bool isDefined(unsigned char msgid);
+        bool is_defined(unsigned char msgid);
 
         // This finds the appropriate handler for the client
         MSG_HANDLER find_handler(unsigned char msgid, const Network::Client *client);
     };
     extern PacketRegistry pktRegistry;
-
-
-    // Implementation for PacketRegistry inlined functions
-
-    inline MSG_HANDLER PacketRegistry::get_handler(unsigned char msgid) {
-        return handler[msgid];
-    }
-
-    inline MSG_HANDLER PacketRegistry::get_handler_v2(unsigned char msgid) {
-        return handler_v2[msgid];
-    }
-
-    inline PktHandlerFunc PacketRegistry::get_func(unsigned char msgid) {
-        return handler[msgid].func;
-    }
-    inline PktHandlerFunc PacketRegistry::get_func_v2(unsigned char msgid) {
-        return handler_v2[msgid].func;
-    }
-
-    inline int PacketRegistry::msglen(unsigned char msgid) {
-        return handler[msgid].msglen;
-    }
-    inline int PacketRegistry::msglen_v2(unsigned char msgid) {
-        return handler_v2[msgid].msglen;
-    }
-
-    inline void PacketRegistry::set_handler(unsigned char msgid, int len, PktHandlerFunc func) {
-        passert(len != 0);
-        handler[msgid].func = func;
-        handler[msgid].msglen = len;
-    }
-    inline void PacketRegistry::set_handler_v2(unsigned char msgid, int len, PktHandlerFunc func) {
-        passert(len != 0);
-        handler_v2[msgid].func = func;
-        handler_v2[msgid].msglen = len;
-    }
-
-    inline bool PacketRegistry::isDefined(unsigned char msgid) {
-        return handler[msgid].msglen || handler_v2[msgid].msglen;
-    }
   }
 }
 #endif

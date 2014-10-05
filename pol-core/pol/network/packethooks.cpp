@@ -307,10 +307,10 @@ namespace Pol {
     static Core::PktHandlerFunc get_default_handler(u8 msgid, PacketVersion version) 
     {
         if (version == PacketVersion::V1 && Core::pktRegistry.msglen(msgid))
-            return Core::pktRegistry.get_func(msgid);
+            return Core::pktRegistry.get_handler_callback(msgid);
 
         if (version == PacketVersion::V2 && Core::pktRegistry.msglen_v2(msgid))
-            return Core::pktRegistry.get_func_v2(msgid);
+            return Core::pktRegistry.get_handler_callback_v2(msgid);
         
         return NULL;
     }
