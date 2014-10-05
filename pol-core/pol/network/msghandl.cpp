@@ -4,7 +4,7 @@
 #include "../network/client.h"
 
 namespace Pol {
-    namespace Core {
+    namespace Network {
 
         PacketRegistry pktRegistry;
         
@@ -27,7 +27,7 @@ namespace Pol {
             pktRegistry.set_handler_v2(msgtype, msglen, func);
         }
 
-        MSG_HANDLER PacketRegistry::find_handler(unsigned char msgid, const Network::Client* client) {
+        MSG_HANDLER PacketRegistry::find_handler(unsigned char msgid, const Client* client) {
             if (client->might_use_v2_handler() && this->msglen_v2(msgid))
                 return handler_v2[msgid];
             

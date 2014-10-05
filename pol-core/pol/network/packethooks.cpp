@@ -304,25 +304,25 @@ namespace Pol {
             POLLOG.Format("Packet hook send function multiply defined for packet 0x{:X}!\n") << (int)msgid;
     }
 
-    static Core::PktHandlerFunc get_default_handler(u8 msgid, PacketVersion version) 
+    static PktHandlerFunc get_default_handler(u8 msgid, PacketVersion version) 
     {
-        if (version == PacketVersion::V1 && Core::pktRegistry.msglen(msgid))
-            return Core::pktRegistry.get_handler_callback(msgid);
+        if (version == PacketVersion::V1 && pktRegistry.msglen(msgid))
+            return pktRegistry.get_handler_callback(msgid);
 
-        if (version == PacketVersion::V2 && Core::pktRegistry.msglen_v2(msgid))
-            return Core::pktRegistry.get_handler_callback_v2(msgid);
+        if (version == PacketVersion::V2 && pktRegistry.msglen_v2(msgid))
+            return pktRegistry.get_handler_callback_v2(msgid);
         
         return NULL;
     }
 
     static void packethook_register(u8 msgid, int length, PacketVersion version) {
         if (version == PacketVersion::V1) {
-            Core::pktRegistry.set_handler(msgid, length, ExportedPacketHookHandler);
+            pktRegistry.set_handler(msgid, length, ExportedPacketHookHandler);
             return;
         }
 
         if (version == PacketVersion::V2) {
-            Core::pktRegistry.set_handler_v2(msgid, length, ExportedPacketHookHandler);
+            pktRegistry.set_handler_v2(msgid, length, ExportedPacketHookHandler);
             return;
         }
 

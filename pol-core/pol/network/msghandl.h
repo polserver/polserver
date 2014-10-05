@@ -22,10 +22,8 @@ namespace Pol {
         V2 = 2,
         Default = V1
     };
-  }
-  namespace Core {
-
-      typedef void(*PktHandlerFunc)(Network::Client *client, void *msg);
+  
+    typedef void(*PktHandlerFunc)(Client *client, void *msg);
 
 	class MessageHandler
 	{
@@ -37,10 +35,10 @@ namespace Pol {
 #define MSGLEN_2BYTELEN_DATA -2
 
 #define MESSAGE_HANDLER( type, func ) \
-  MessageHandler type##_handler( type##_ID, sizeof( type ), reinterpret_cast<PktHandlerFunc>( func ) )
+  Network::MessageHandler type##_handler( type##_ID, sizeof( type ), reinterpret_cast<Network::PktHandlerFunc>( func ) )
 
 #define MESSAGE_HANDLER_VARLEN( type, func ) \
-  MessageHandler type##_handler( type##_ID, MSGLEN_2BYTELEN_DATA, (PktHandlerFunc) func )
+  Network::MessageHandler type##_handler( type##_ID, MSGLEN_2BYTELEN_DATA, (Network::PktHandlerFunc) func )
 
 	class MessageHandler_V2
 	{
@@ -51,10 +49,10 @@ namespace Pol {
 	};
 
 #define MESSAGE_HANDLER_V2( type, func ) \
-  MessageHandler_V2 type##_handler_v2( type##_ID, sizeof( type ), reinterpret_cast<PktHandlerFunc>( func ) )
+  Network::MessageHandler_V2 type##_handler_v2( type##_ID, sizeof( type ), reinterpret_cast<Network::PktHandlerFunc>( func ) )
 
 #define MESSAGE_HANDLER_VARLEN_V2( type, func ) \
-  MessageHandler_V2 type##_handler_v2( type##_ID, MSGLEN_2BYTELEN_DATA, (PktHandlerFunc) func )
+  Network::MessageHandler_V2 type##_handler_v2( type##_ID, MSGLEN_2BYTELEN_DATA, (Network::PktHandlerFunc) func )
 
     /*
     handler[] is used for storing the core MESSAGE_HANDLER
@@ -94,7 +92,7 @@ namespace Pol {
         bool is_defined(unsigned char msgid);
 
         // This finds the appropriate handler for the client
-        MSG_HANDLER find_handler(unsigned char msgid, const Network::Client *client);
+        MSG_HANDLER find_handler(unsigned char msgid, const Client *client);
     };
     extern PacketRegistry pktRegistry;
   }
