@@ -363,9 +363,9 @@ namespace Pol {
       pkt_data->sub_command_length = subcmdlen;
       pkt_data->version = pktversion;
       pkt_data->client_ver = client_struct;
-      pkt_data->default_handler = pktRegistry.get_callback(id, pktversion);
+      pkt_data->default_handler = PacketRegistry::get_callback(id, pktversion);
 
-      pktRegistry.set_handler(id, length, ExportedPacketHookHandler, pktversion);
+      PacketRegistry::set_handler(id, length, ExportedPacketHookHandler, pktversion);
 	}
 
     static void packethook_assert_valid_parent(u8 id, const PacketHookData *parent, const Clib::ConfigElem& elem) {

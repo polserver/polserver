@@ -32,20 +32,27 @@ namespace Pol {
     // Class for keeping the message handlers
     class PacketRegistry {
     public:
-        PktHandlerFunc get_callback(unsigned char msgid, PacketVersion version = PacketVersion::V1);
+        // Returns true if the message is defined in either original or v2 packet handlers
+        static bool is_defined(unsigned char msgid);
 
-        int msglen(unsigned char msgid);
-        int msglen_v2(unsigned char msgid);
-                
-        void set_handler(unsigned char msgid, int len, PktHandlerFunc func, PacketVersion version = PacketVersion::V1);
+        // Returns the message length (or 0 if undefined)
+        static int msglen(unsigned char msgid);
         
-        bool is_defined(unsigned char msgid);
+        // Returns the message length (or 0 if undefined) for a v2 packet
+        static int msglen_v2(unsigned char msgid);
+           
+        // Registers a handler for a certain message type
+        static void set_handler(unsigned char msgid, int len, PktHandlerFunc func, PacketVersion version = PacketVersion::V1);
 
-        // This finds the appropriate handler for the client
-        MSG_HANDLER find_handler(unsigned char msgid, const Client *client);
-        void handle_msg(unsigned char msgid, Client *client, void *data);
+        // Returns the callback function for the handler of a certain message type
+        static PktHandlerFunc get_callback(unsigned char msgid, PacketVersion version = PacketVersion::V1);
+
+        // Finds the appropriate handler for a message type according to client version
+        static MSG_HANDLER find_handler(unsigned char msgid, const Client *client);
+
+        // Handles the specific message type by invoking the callback according to client version
+        static void handle_msg(unsigned char msgid, Client *client, void *data);
     };
-    extern PacketRegistry pktRegistry;
 
     // Helper class for registering message handlers
     class MessageHandler

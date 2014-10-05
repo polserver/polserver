@@ -642,13 +642,13 @@ namespace Pol {
         if ( config.verbose )
           INFO_PRINT.Format( "Incoming msg type: 0x{:X}\n" ) << (int)msgtype;
 
-        if (!Network::pktRegistry.is_defined(msgtype))
+        if (!Network::PacketRegistry::is_defined(msgtype))
         {
             handle_undefined_packet(client);
             return false; // remain in RECV_STATE_MSGTYPE_WAIT
         }
 
-        Network::MSG_HANDLER packetHandler = Network::pktRegistry.find_handler(msgtype, client);
+        Network::MSG_HANDLER packetHandler = Network::PacketRegistry::find_handler(msgtype, client);
         if (packetHandler.msglen == MSGLEN_2BYTELEN_DATA)
         {
             client->recv_state = Network::Client::RECV_STATE_MSGLEN_WAIT;
@@ -732,7 +732,7 @@ namespace Pol {
               //endregion Speedhack
               
 
-              Network::MSG_HANDLER packetHandler = Network::pktRegistry.find_handler(msgtype, client);
+              Network::MSG_HANDLER packetHandler = Network::PacketRegistry::find_handler(msgtype, client);
               passert(packetHandler.msglen != 0);
 
               try
@@ -847,7 +847,7 @@ namespace Pol {
           tempseed[2] = client->buffer[3];
           tempseed[3] = client->buffer[4];
           client->cryptengine->Init( tempseed, Crypt::CCryptBase::typeLogin );
-          Network::pktRegistry.handle_msg(PKTIN_EF_ID, client, client->buffer);
+          Network::PacketRegistry::handle_msg(PKTIN_EF_ID, client, client->buffer);
         }
       }
 
@@ -1009,7 +1009,7 @@ namespace Pol {
               if ( client->isReallyConnected() )
               {
                   unsigned char msgtype = pkt.pktbuffer[0];
-                  Network::MSG_HANDLER packetHandler = Network::pktRegistry.find_handler(msgtype, client);
+                  Network::MSG_HANDLER packetHandler = Network::PacketRegistry::find_handler(msgtype, client);
                   try
                   {
                       INFO_PRINT_TRACE(10) << "Client#" << client->instance_ << ": message 0x" << fmt::hexu(msgtype) << "\n";

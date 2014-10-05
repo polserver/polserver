@@ -6,8 +6,6 @@
 namespace Pol {
     namespace Network {
 
-        PacketRegistry pktRegistry;
-
         // handler[] is used for storing the core MSG_HANDLER calls.
         static MSG_HANDLER handler[256];
 
@@ -24,7 +22,7 @@ namespace Pol {
             PacketVersion version)
         {
             passert(msglen != 0);
-            pktRegistry.set_handler(msgtype, msglen, func, version);
+            PacketRegistry::set_handler(msgtype, msglen, func, version);
         }
 
         void PacketRegistry::handle_msg(unsigned char msgid, Client *client, void *msg) {
@@ -33,7 +31,7 @@ namespace Pol {
         }
 
         MSG_HANDLER PacketRegistry::find_handler(unsigned char msgid, const Client* client) {
-            if (client->might_use_v2_handler() && this->msglen_v2(msgid))
+            if (client->might_use_v2_handler() && PacketRegistry::msglen_v2(msgid))
                 return handler_v2[msgid];
             
             return handler[msgid];
