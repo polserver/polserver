@@ -11,15 +11,13 @@ Notes
 #ifndef MSGHANDL_H
 #define MSGHANDL_H
 
-#include "../../clib/passert.h"
-
 namespace Pol {
   namespace Network {
 	class Client;
 
     enum class PacketVersion {
-        V1 = 1,
-        V2 = 2,
+        V1 = 1, // The default, used by the earlier client versions
+        V2 = 2, // Used to handle packets which were redefined after 6.0.1.5
         Default = V1
     };
   
@@ -77,22 +75,18 @@ namespace Pol {
     // defined arrays.
     class PacketRegistry {
     public:
-        MSG_HANDLER get_handler(unsigned char msgid);
-        MSG_HANDLER get_handler_v2(unsigned char msgid);
-
-        PktHandlerFunc get_handler_callback(unsigned char msgid);
-        PktHandlerFunc get_handler_callback_v2(unsigned char msgid);
+        PktHandlerFunc get_callback(unsigned char msgid, PacketVersion version = PacketVersion::V1);
 
         int msglen(unsigned char msgid);
         int msglen_v2(unsigned char msgid);
                 
-        void set_handler(unsigned char msgid, int len, PktHandlerFunc func);
-        void set_handler_v2(unsigned char msgid, int len, PktHandlerFunc func);
+        void set_handler(unsigned char msgid, int len, PktHandlerFunc func, PacketVersion version = PacketVersion::V1);
         
         bool is_defined(unsigned char msgid);
 
         // This finds the appropriate handler for the client
         MSG_HANDLER find_handler(unsigned char msgid, const Client *client);
+        void handle_msg(unsigned char msgid, Client *client, void *data);
     };
     extern PacketRegistry pktRegistry;
   }
