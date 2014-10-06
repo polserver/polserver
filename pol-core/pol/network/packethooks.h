@@ -45,7 +45,7 @@ namespace Pol {
 	  Core::ExportedFunction* function;
 	  Core::ExportedFunction* outgoing_function;
       
-      Core::PktHandlerFunc default_handler;
+      PktHandlerFunc default_handler;
 
 	  unsigned short sub_command_offset;
 	  unsigned short sub_command_length;

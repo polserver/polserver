@@ -303,31 +303,7 @@ namespace Pol {
         if (existing_out_func != NULL)
             POLLOG.Format("Packet hook send function multiply defined for packet 0x{:X}!\n") << (int)msgid;
     }
-
-    static Core::PktHandlerFunc get_default_handler(u8 msgid, PacketVersion version) 
-    {
-        if (version == PacketVersion::V1 && Core::pktRegistry.msglen(msgid))
-            return Core::pktRegistry.get_func(msgid);
-
-        if (version == PacketVersion::V2 && Core::pktRegistry.msglen_v2(msgid))
-            return Core::pktRegistry.get_func_v2(msgid);
-        
-        return NULL;
-    }
-
-    static void packethook_register(u8 msgid, int length, PacketVersion version) {
-        if (version == PacketVersion::V1) {
-            Core::pktRegistry.set_handler(msgid, length, ExportedPacketHookHandler);
-            return;
-        }
-
-        if (version == PacketVersion::V2) {
-            Core::pktRegistry.set_handler_v2(msgid, length, ExportedPacketHookHandler);
-            return;
-        }
-
-    }
-
+    
     void load_packet_entries( const Plib::Package* pkg, Clib::ConfigElem& elem )
 	{
 	  if ( stricmp( elem.type(), "Packet" ) != 0 )
@@ -387,12 +363,12 @@ namespace Pol {
       pkt_data->sub_command_length = subcmdlen;
       pkt_data->version = pktversion;
       pkt_data->client_ver = client_struct;
-      pkt_data->default_handler = get_default_handler(id, pktversion);
+      pkt_data->default_handler = PacketRegistry::get_callback(id, pktversion);
 
-      packethook_register(id, length, pktversion);
+      PacketRegistry::set_handler(id, length, ExportedPacketHookHandler, pktversion);
 	}
 
-    static void packethook_assert_valid_parent(u8 id, PacketHookData *parent, const Clib::ConfigElem& elem) {
+    static void packethook_assert_valid_parent(u8 id, const PacketHookData *parent, const Clib::ConfigElem& elem) {
         //validate that the parent packet has a definition and a SubCommandOffset
         if (!parent->sub_command_offset)
             elem.throw_error(string("Parent packet " + Clib::hexint(id) + " does not define SubCommandOffset!"));
