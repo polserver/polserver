@@ -3110,8 +3110,6 @@ namespace Pol {
 
 		default:
 		  throw std::runtime_error( "Undefined execution token " + Clib::tostring( token.id ) );
-		  return &Executor::innerExec;
-
 	  }
 
 	}
