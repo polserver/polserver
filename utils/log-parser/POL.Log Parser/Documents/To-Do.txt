@@ -1,5 +1,0 @@
-To-Do List:
-
-1.) Look into seeing if the ArrayList can be Serialized in any fashion in order to
-	make saving code a hell of a lot less bulky for DebugLog and ScriptLog tools.
-2.) Add the Game as a special Easter Egg. :o What game? Wait and find out! :P
