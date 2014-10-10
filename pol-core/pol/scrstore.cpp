@@ -183,7 +183,7 @@ namespace Pol {
       for ( const auto &scr : scrstore )
 	  {
         Bscript::EScriptProgram* eprog = scr.second.get();
-		double cycle_percent = eprog->instr_cycles != 0 ?
+        double cycle_percent = total_instr != 0 ?
 		  (static_cast<double>(eprog->instr_cycles) / total_instr * 100.0)
 		  : 0;
         tmp.Format( "{:<38} {:>12} {:>6} {:>12} {:>6}\n" )
