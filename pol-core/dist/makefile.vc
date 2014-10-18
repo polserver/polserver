@@ -26,6 +26,7 @@ dist:
 	copy ..\..\support\uoconvert.cfg .
 	copy ..\..\support\boats.cfg .
 	copy ..\..\support\extobj.cfg .
+	copy ..\..\support\animxlate.cfg .
 	copy ..\..\support\scripts\basic.em scripts\modules
 	copy ..\..\support\scripts\basicio.em scripts\modules
 	copy ..\..\support\scripts\boat.em scripts\modules
