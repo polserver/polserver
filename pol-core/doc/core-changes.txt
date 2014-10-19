@@ -1,4 +1,11 @@
 ﻿-- POL099 --
+10-19-2014 Turley:
+  Added:    AnimXlate.cfg for newer clients
+  Added:    example animxlate.cfg:
+            defines which graphics support mount translation
+            and per graphic type how to translate animation from older clients to newer (7.0.9.0)
+			see cfg for description of possible entries.
+
 09-23-2014 Nando:
   Changed:  Corpses will no longer send the full list of contents before being open. Only the equipped items will be shown. This
             should decrease slowdowns in areas with many full corpses.
