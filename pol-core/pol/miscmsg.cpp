@@ -158,12 +158,15 @@ namespace Pol {
 		if ( msg->mode == msg->MODE_REQUEST )
 		{
 		  mobile = system_find_mobile( cfBEu32( msg->profile_request.serial ) );
+		  if (mobile == nullptr)
+			return;
           client->chr->start_script( prog.get( ), false, new Module::ECharacterRefObjImp( mobile ), new Bscript::BLong( msg->mode ), new Bscript::BLong( 0 ) );
 		}
 		else if ( msg->mode == msg->MODE_UPDATE )
 		{
 		  mobile = system_find_mobile( cfBEu32( msg->profile_update.serial ) );
-
+		  if (mobile == nullptr)
+			return;
 		  u16 * themsg = msg->profile_update.wtext;
 		  int intextlen = ( cfBEu16( msg->msglen ) - 12 ) / sizeof( msg->profile_update.wtext[0] );
 
