@@ -62,10 +62,8 @@ namespace Pol {
       std::vector<u16> graphics;
       OldAnimDef old_anim[ACTION__HIGHEST + 1];
       NewAnimDef new_anim[ACTION__HIGHEST + 1];
-      OldAnimDef old_fallback;
-      NewAnimDef new_fallback;
       bool supports_mount;
-	  MobileTranslate() : graphics(), old_fallback(), new_fallback(), supports_mount(false)
+	  MobileTranslate() : graphics(), supports_mount(false)
       {
 		memset( &old_anim, 0, sizeof( old_anim ) );
 		memset( &new_anim, 0, sizeof( new_anim ) );
@@ -101,23 +99,7 @@ namespace Pol {
 
 	  if ( Clib::FileExists( "config/animxlate.cfg" ) )
 	  {
-        std::map<string, u16> animation_names;
-        {
-          Clib::ConfigFile cf( "config/animxlate.cfg", "OnMount MobileType AnimationNames" );
-          Clib::ConfigElem elem;
-          while ( cf.read( elem ) ) // first read the names
-          {
-            if ( elem.type_is( "AnimationNames" ) )
-            {
-              string name, id;
-              while ( elem.remove_first_prop( &name, &id ) )
-              {
-                animation_names[Clib::strlower( name )] = static_cast<unsigned short>( strtoul( id.c_str(), NULL, 0 ) );
-              }
-            }
-          }
-        }
-        Clib::ConfigFile cf( "config/animxlate.cfg", "OnMount MobileType AnimationNames" );
+        Clib::ConfigFile cf( "config/animxlate.cfg", "OnMount MobileType" );
         Clib::ConfigElem elem;
         while ( cf.read( elem ) )
 		{
@@ -149,67 +131,59 @@ namespace Pol {
               vector<string> result;
               while ( is >> tmp )
               {
+				if (tmp.empty())
+				  continue;
+				if (tmp.at(0) == '#')
+				  break;
                 result.push_back( tmp );
                 tmp.clear();
               }
               return result;
             };
-
-            while ( elem.has_prop( "OldAnim" ) )
-            {
-              vector<string> values = split_str(elem.remove_string( "OldAnim" ));
-              if ( !values.empty() )
-              {
-                auto itr = animation_names.find( Clib::strlower( values[0] ) );
-                if ( itr != animation_names.end() )
-                {
-                  u16 id = itr->second;
-                  if ( values.size() > 1 )
-                  {
-                    mobiletype.old_anim[id].action = static_cast<u16>( strtoul( values[1].c_str(), NULL, 0 ) );
-                    mobiletype.old_anim[id].valid = true;
-                    mobiletype.old_anim[id].framecount = 5;
-                    mobiletype.old_anim[id].repeatcount = 1;
-                    mobiletype.old_anim[id].backward = 0;
-                    mobiletype.old_anim[id].repeatflag = 0;
-                    mobiletype.old_anim[id].delay = 1;
-                  }
-                  if ( values.size() > 2 )
-                    mobiletype.old_anim[id].framecount = static_cast<u16>( strtoul( values[2].c_str(), NULL, 0 ) );
-                  if ( values.size() > 3 )
-                    mobiletype.old_anim[id].repeatcount = static_cast<u16>( strtoul( values[3].c_str(), NULL, 0 ) );
-                  if ( values.size() > 4 )
-                    mobiletype.old_anim[id].backward = static_cast<u8>( strtoul( values[4].c_str(), NULL, 0 ) );
-                  if ( values.size() > 5 )
-                    mobiletype.old_anim[id].repeatflag = static_cast<u8>( strtoul( values[5].c_str(), NULL, 0 ) );
-                  if ( values.size() > 6 )
-                    mobiletype.old_anim[id].delay = static_cast<u8>( strtoul( values[6].c_str(), NULL, 0 ) );
+			for (int id = 0; id <= ACTION__HIGHEST;++id)
+			{
+			  string entry( "OldAnim" + std::to_string( id ) );
+			  if (elem.has_prop(entry.c_str()))
+			  {
+				vector<string> values = split_str(elem.remove_string( entry.c_str() ));
+				if ( !values.empty() )
+				{
+                  mobiletype.old_anim[id].action = static_cast<u16>( strtoul( values[0].c_str(), NULL, 0 ) );
+                  mobiletype.old_anim[id].valid = true;
+                  mobiletype.old_anim[id].framecount = 5;
+                  mobiletype.old_anim[id].repeatcount = 1;
+                  mobiletype.old_anim[id].backward = 0;
+                  mobiletype.old_anim[id].repeatflag = 0;
+                  mobiletype.old_anim[id].delay = 1;
                 }
-              }
-            }
-            while ( elem.has_prop( "NewAnim" ) )
-            {
-              vector<string> values = split_str( elem.remove_string( "NewAnim" ) );
-              if ( !values.empty( ) )
-              {
-                auto itr = animation_names.find( Clib::strlower( values[0] ) );
-                if ( itr != animation_names.end() )
-                {
-                  u16 id = itr->second;
-                  if ( values.size() > 1 )
-                  {
-                    mobiletype.new_anim[id].anim = static_cast<u16>( strtoul( values[1].c_str(), NULL, 0 ) );
-                    mobiletype.new_anim[id].valid = true;
-                    mobiletype.new_anim[id].action = 0;
-                    mobiletype.new_anim[id].subaction = 0;
-                  }
-                  if ( values.size() > 2 )
-                    mobiletype.new_anim[id].action = static_cast<u16>( strtoul( values[2].c_str(), NULL, 0 ) );
-                  if ( values.size() > 3 )
-                    mobiletype.new_anim[id].subaction = static_cast<u8>( strtoul( values[3].c_str(), NULL, 0 ) );
-                }
-              }
-            }
+                if ( values.size() > 1 )
+                  mobiletype.old_anim[id].framecount = static_cast<u16>( strtoul( values[1].c_str(), NULL, 0 ) );
+                if ( values.size() > 2 )
+                  mobiletype.old_anim[id].repeatcount = static_cast<u16>( strtoul( values[2].c_str(), NULL, 0 ) );
+                if ( values.size() > 3 )
+                  mobiletype.old_anim[id].backward = static_cast<u8>( strtoul( values[3].c_str(), NULL, 0 ) );
+                if ( values.size() > 4 )
+                  mobiletype.old_anim[id].repeatflag = static_cast<u8>( strtoul( values[4].c_str(), NULL, 0 ) );
+                if ( values.size() > 5 )
+                  mobiletype.old_anim[id].delay = static_cast<u8>( strtoul( values[5].c_str(), NULL, 0 ) );
+			  }
+			  entry = "NewAnim" + std::to_string( id );
+			  if (elem.has_prop(entry.c_str()))
+			  {
+				vector<string> values = split_str(elem.remove_string( entry.c_str() ));
+				if ( !values.empty() )
+				{
+                  mobiletype.new_anim[id].anim = static_cast<u16>( strtoul( values[0].c_str(), NULL, 0 ) );
+                  mobiletype.new_anim[id].valid = true;
+                  mobiletype.new_anim[id].action = 0;
+                  mobiletype.new_anim[id].subaction = 0;
+				}
+                if ( values.size() > 1 )
+                  mobiletype.new_anim[id].action = static_cast<u16>( strtoul( values[1].c_str(), NULL, 0 ) );
+                if ( values.size() > 2 )
+                  mobiletype.new_anim[id].subaction = static_cast<u8>( strtoul( values[2].c_str(), NULL, 0 ) );
+			  }
+			}
             animation_translates[elem.rest()] = mobiletype;
           }
 		}
@@ -261,7 +235,7 @@ namespace Pol {
               if ( new_action == 0 )
                 return;
               action = new_action;
-	      oldanim.action = new_action;
+			  oldanim.action = static_cast<u16>(new_action);
             }
           }
           if ( translate != nullptr )
@@ -269,6 +243,10 @@ namespace Pol {
             oldanim = translate->old_anim[action];
             newanim = translate->new_anim[action];
           }
+		  else
+		  {
+			ERROR_PRINT << "Warning: undefined animXlate.cfg entry for graphic 0x" << fmt::hexu( obj->graphic ) << "\n";
+		  }
 
           msg.update(
             newanim.anim, newanim.action, newanim.subaction,

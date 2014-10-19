@@ -74,5 +74,8 @@
     </None>
     <None Include="pol.cfg" />
     <None Include="uoconvert.cfg" />
+    <None Include="extobj.cfg" />
+    <None Include="boats.cfg" />
+    <None Include="animxlate.cfg" />
   </ItemGroup>
 </Project>

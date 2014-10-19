@@ -77,6 +77,9 @@
   <ItemDefinitionGroup>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <None Include="animxlate.cfg" />
+    <None Include="boats.cfg" />
+    <None Include="extobj.cfg" />
     <None Include="scripts\attributes.em" />
     <None Include="scripts\basic.em" />
     <None Include="scripts\basicio.em" />
