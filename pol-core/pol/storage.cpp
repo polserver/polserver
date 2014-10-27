@@ -100,8 +100,8 @@ namespace Pol {
 	  if ( get_save_index( serial ) > current_incremental_save )
 		return;
 
-	  u32 container_serial = 0;
-	  elem.remove_prop( "CONTAINER", &container_serial );
+      u32 container_serial = 0;                                 // defaults to item at storage root,
+      (void)elem.remove_prop( "CONTAINER", &container_serial ); // so the return value can be ignored
 
       Items::Item *item = read_item( elem );
 	  //Austin added 8/10/2006, protect against further crash if item is null. Should throw instead?

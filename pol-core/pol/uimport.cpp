@@ -220,8 +220,8 @@ namespace Pol {
         return;
 
 
-      u32 container_serial = 0;
-      elem.remove_prop( "CONTAINER", &container_serial );
+      u32 container_serial = 0;                                   // defaults to item in the world's top-level
+      (void)elem.remove_prop( "CONTAINER", &container_serial );   // therefore we don't need to check the return value
 
       Items::Item* item = read_item( elem );
       //dave added 1/15/3, protect against further crash if item is null. Should throw instead?
