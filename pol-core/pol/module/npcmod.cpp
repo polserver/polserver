@@ -354,10 +354,12 @@ namespace Pol {
 
 	BObjectImp* NPCExecutorModule::face()
 	{
-	  //int params = exec.numParams();
 	  BObjectImp* param0 = exec.getParamImp( 0 );
 	  int flags;
-	  exec.getParam( 1, flags );
+
+      if (param0 == NULL || !exec.getParam(1, flags))
+          return new BError("Invalid parameter type.");
+      
       Core::UFACING i_facing;
 
 	  if ( param0->isa( BObjectImp::OTString ) )
@@ -569,35 +571,34 @@ namespace Pol {
         return new BLong(1);
     }
 
-	BObjectImp* NPCExecutorModule::mf_TurnAwayFrom()
-	{
-      Core::UObject* obj;
-	  if ( getUObjectParam( exec, 0, obj ) )
-	  {
-		int flags;
-		exec.getParam( 1, flags );
-		if ( obj->ismobile() )
-		{
-          Mobile::Character* chr = static_cast<Mobile::Character*>( obj );
-		  if ( !npc.is_visible_to_me( chr ) )
-			return new BError( "Mobile specified cannot be seen" );
-		}
-        Core::UFACING facing = direction_away( &npc, obj );
-		if ( facing != npc.facing )
-		{
-		  if ( !npc.face( facing, flags ) )
-			return new BLong( 0 );
-		  npc.on_facing_changed();
-		  return new BLong( 1 );
-		}
-		else
-		  return new BLong( 0 );
-	  }
-	  else
-	  {
-		return new BError( "Invalid parameter type" );
-	  }
-	}
+    BObjectImp* NPCExecutorModule::mf_TurnAwayFrom()
+    {
+        Core::UObject* obj;
+        int flags;
+
+        if (!getUObjectParam(exec, 0, obj) || !exec.getParam(1, flags))
+        {
+            return new BError("Invalid parameter type");
+        }
+
+
+        if (obj->ismobile())
+        {
+            Mobile::Character* chr = static_cast<Mobile::Character*>(obj);
+            if (!npc.is_visible_to_me(chr))
+                return new BError("Mobile specified cannot be seen");
+        }
+
+        Core::UFACING facing = direction_away(&npc, obj);
+        if (facing == npc.facing)
+            return new BLong(0); // nothing to do here
+
+        if (!npc.face(facing, flags))
+            return new BLong(0); // couldn't move for some reason
+
+        npc.on_facing_changed();
+        return new BLong(1);
+    }
 
 	BObjectImp* NPCExecutorModule::mf_WalkTowardLocation()
 	{
@@ -668,59 +669,55 @@ namespace Pol {
 	  }
 	}
 
-	BObjectImp* NPCExecutorModule::mf_TurnTowardLocation()
-	{
-      Core::xcoord x;
-      Core::ycoord y;
-	  if ( exec.getParam( 0, x ) &&
-		   exec.getParam( 1, y ) )
-	  {
-		int flags;
-		exec.getParam( 2, flags );
-		if ( !npc.realm->valid( x, y, npc.z ) ) return new BError( "Invalid Coordinates for Realm" );
-        Core::UFACING fac = direction_toward( &npc, x, y );
-		if ( npc.facing != fac )
-		{
-		  if ( !npc.face( fac, flags ) )
-			return new BLong( 0 );
-		  npc.on_facing_changed();
-		  return new BLong( 1 );
-		}
-		else
-		  return new BLong( 0 );
-	  }
-	  else
-	  {
-		return new BError( "Invalid parameter type" );
-	  }
+    BObjectImp* NPCExecutorModule::mf_TurnTowardLocation()
+    {
+        Core::xcoord x;
+        Core::ycoord y;
+        int flags;
+
+        if (!exec.getParam(0, x) ||
+            !exec.getParam(1, y) ||
+            !exec.getParam(2, flags))
+        {
+            return new BError("Invalid parameter type");
+        }
+
+        if (!npc.realm->valid(x, y, npc.z)) return new BError("Invalid Coordinates for Realm");
+        Core::UFACING fac = direction_toward(&npc, x, y);
+        if (npc.facing == fac)
+            return new BLong(0); // nothing to do here
+
+        if (!npc.face(fac, flags))
+            return new BLong(0); // I couldn't move!
+
+        npc.on_facing_changed();
+        return new BLong(1);
 	}
 
-	BObjectImp* NPCExecutorModule::mf_TurnAwayFromLocation()
-	{
-      Core::xcoord x;
-      Core::ycoord y;
-	  if ( exec.getParam( 0, x ) &&
-		   exec.getParam( 1, y ) )
-	  {
-		int flags;
-		exec.getParam( 2, flags );
-		if ( !npc.realm->valid( x, y, npc.z ) ) return new BError( "Invalid Coordinates for Realm" );
-        Core::UFACING fac = direction_away( &npc, x, y );
-		if ( npc.facing != fac )
-		{
-		  if ( !npc.face( fac, flags ) )
-			return new BLong( 0 );
-		  npc.on_facing_changed();
-		  return new BLong( 1 );
-		}
-		else
-		  return new BLong( 0 );
-	  }
-	  else
-	  {
-		return new BError( "Invalid parameter type" );
-	  }
-	}
+    BObjectImp* NPCExecutorModule::mf_TurnAwayFromLocation()
+    {
+        Core::xcoord x;
+        Core::ycoord y;
+        int flags;
+
+        if (!exec.getParam(0, x) ||
+            !exec.getParam(1, y) ||
+            !exec.getParam(2, flags))
+        {
+            return new BError("Invalid parameter type");
+        }
+
+        if (!npc.realm->valid(x, y, npc.z)) return new BError("Invalid Coordinates for Realm");
+        Core::UFACING fac = direction_away(&npc, x, y);
+        if (npc.facing == fac)
+            return new BLong(0); // nothing to do here
+
+        if (!npc.face(fac, flags))
+            return new BLong(0); // I couldn't move!
+
+        npc.on_facing_changed();
+        return new BLong(1);
+    }
 
 
 	BObjectImp* NPCExecutorModule::say()
