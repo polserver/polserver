@@ -464,59 +464,61 @@ namespace Pol {
 							  return new BError( "Invalid parameter" );
 		}
 
-		case MTH_SETUNICODESTRING:
-		{
-								   if ( ex.numParams() != 3 )
-									 return new BError( "SetUnicodeString requires 3 parameters." );
-								   unsigned short offset, nullterm;
-								   ObjArray* unitext;
-								   if ( ex.getParam( 0, offset ) &&
-										ex.getObjArrayParam( 1, unitext ) &&
-										ex.getParam( 2, nullterm ) )
-								   {
-									 u16 textlen = static_cast<u16>( unitext->ref_arr.size() ); //number of unicode chars, not bytes
-									 u16 nulltermlen = nullterm ? 2 : 0;
-									 if ( static_cast<u16>( offset + ( textlen * 2 ) + nulltermlen ) > buffer.size() )
-									 {
-									   if ( !SetSize( ( offset + ( textlen * 2 ) + nulltermlen ) ) )
-									   {
-										 return new BError( "Offset value out of range on a fixed length packet" );;
-									   }
-									 }
-									 Clib::convertArrayToUC( unitext, reinterpret_cast<u16*>( &buffer[offset] ), textlen, true, nullterm ? true : false );
+        case MTH_SETUNICODESTRING:
+        {
+            if (ex.numParams() != 3)
+                return new BError("SetUnicodeString requires 3 parameters.");
+            unsigned short offset, nullterm;
+            ObjArray* unitext;
+            if (ex.getParam(0, offset) &&
+                ex.getObjArrayParam(1, unitext) &&
+                ex.getParam(2, nullterm))
+            {
+                u16 textlen = static_cast<u16>(unitext->ref_arr.size()); //number of unicode chars, not bytes
+                u16 nulltermlen = nullterm ? 2 : 0;
+                if (static_cast<u16>(offset + (textlen * 2) + nulltermlen) > buffer.size())
+                {
+                    if (!SetSize((offset + (textlen * 2) + nulltermlen)))
+                    {
+                        return new BError("Offset value out of range on a fixed length packet");;
+                    }
+                }
+                if (!Clib::convertArrayToUC(unitext, reinterpret_cast<u16*>(&buffer[offset]), textlen, true, nullterm ? true : false))
+                    return new BError("Invalid value in Unicode array.");
 
-									 return new BLong( 1 );
-								   }
-								   else
-									 return new BError( "Invalid parameter" );
-		}
+                return new BLong(1);
+            }
+            else
+                return new BError("Invalid parameter");
+        }
 
-		case MTH_SETUNICODESTRINGFLIPPED:
-		{
-										  if ( ex.numParams() != 3 )
-											return new BError( "SetUnicodeStringFlipped requires 3 parameters." );
-										  unsigned short offset, nullterm;
-										  ObjArray* unitext;
-										  if ( ex.getParam( 0, offset ) &&
-											   ex.getObjArrayParam( 1, unitext ) &&
-											   ex.getParam( 2, nullterm ) )
-										  {
-											u16 textlen = static_cast<u16>( unitext->ref_arr.size() ); //number of unicode chars, not bytes
-											u16 nulltermlen = nullterm ? 2 : 0;
-											if ( static_cast<u16>( offset + ( textlen * 2 ) + nulltermlen ) > buffer.size() )
-											{
-											  if ( !SetSize( ( offset + ( textlen * 2 ) + nulltermlen ) ) )
-											  {
-												return new BError( "Offset value out of range on a fixed length packet" );;
-											  }
-											}
-											Clib::convertArrayToUC( unitext, reinterpret_cast<u16*>( &buffer[offset] ), textlen, false, nullterm ? true : false );
+        case MTH_SETUNICODESTRINGFLIPPED:
+        {
+            if (ex.numParams() != 3)
+                return new BError("SetUnicodeStringFlipped requires 3 parameters.");
+            unsigned short offset, nullterm;
+            ObjArray* unitext;
+            if (ex.getParam(0, offset) &&
+                ex.getObjArrayParam(1, unitext) &&
+                ex.getParam(2, nullterm))
+            {
+                u16 textlen = static_cast<u16>(unitext->ref_arr.size()); //number of unicode chars, not bytes
+                u16 nulltermlen = nullterm ? 2 : 0;
+                if (static_cast<u16>(offset + (textlen * 2) + nulltermlen) > buffer.size())
+                {
+                    if (!SetSize((offset + (textlen * 2) + nulltermlen)))
+                    {
+                        return new BError("Offset value out of range on a fixed length packet");;
+                    }
+                }
+                if (!Clib::convertArrayToUC(unitext, reinterpret_cast<u16*>(&buffer[offset]), textlen, false, nullterm ? true : false))
+                    return new BError("Invalid value in Unicode array.");
 
-											return new BLong( 1 );
-										  }
-										  else
-											return new BError( "Invalid parameter" );
-		}
+                return new BLong(1);
+            }
+            else
+                return new BError("Invalid parameter");
+        }
 
 		default:
 		  return NULL;

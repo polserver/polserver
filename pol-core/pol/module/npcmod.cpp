@@ -541,35 +541,33 @@ namespace Pol {
 	  }
 	}
 
-	BObjectImp* NPCExecutorModule::mf_TurnToward()
-	{
-      Core::UObject* obj;
-	  if ( getUObjectParam( exec, 0, obj ) )
-	  {
-		int flags;
-		exec.getParam( 1, flags );
-		if ( obj->ismobile() )
-		{
-          Mobile::Character* chr = static_cast<Mobile::Character*>( obj );
-		  if ( !npc.is_visible_to_me( chr ) )
-			return new BError( "Mobile specified cannot be seen" );
-		}
-        Core::UFACING facing = direction_toward( &npc, obj );
-		if ( facing != npc.facing )
-		{
-		  if ( !npc.face( facing, flags ) )
-			return new BLong( 0 );
-		  npc.on_facing_changed();
-		  return new BLong( 1 );
-		}
-		else
-		  return new BLong( 0 );
-	  }
-	  else
-	  {
-		return new BError( "Invalid parameter type" );
-	  }
-	}
+    BObjectImp* NPCExecutorModule::mf_TurnToward()
+    {
+        Core::UObject* obj;
+        int flags;
+
+        if (!getUObjectParam(exec, 0, obj) || !exec.getParam(1, flags))
+        {
+            return new BError("Invalid parameter type");
+        }
+
+        if (obj->ismobile())
+        {
+            Mobile::Character* chr = static_cast<Mobile::Character*>(obj);
+            if (!npc.is_visible_to_me(chr))
+                return new BError("Mobile specified cannot be seen");
+        }
+
+        Core::UFACING facing = direction_toward(&npc, obj);
+        if (facing == npc.facing)
+            return new BLong(0); // nothing to do here, I'm already facing that direction
+
+        if (!npc.face(facing, flags))
+            return new BLong(0); // Uh-oh, seems that I can't move to face that
+
+        npc.on_facing_changed();
+        return new BLong(1);
+    }
 
 	BObjectImp* NPCExecutorModule::mf_TurnAwayFrom()
 	{
