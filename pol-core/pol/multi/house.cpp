@@ -260,41 +260,38 @@ namespace Pol {
 		}
 		case MTH_ADD_COMPONENT:
 		{
-								BApplicObjBase* aob;
+								BApplicObjBase* aob = nullptr;
 								if ( ex.hasParams( 0 ) )
                                   aob = ex.getApplicObjParam( 0, &Module::eitemrefobjimp_type );
-								else
-								  return new BError( "Invalid parameter type" );
+                                
+                                if (!aob)
+                                    return new BError("Invalid parameter type");
 
-								if ( aob != NULL )
-								{
-                                  Module::EItemRefObjImp* ir = static_cast<Module::EItemRefObjImp*>( aob );
-                                  Core::ItemRef iref = ir->value( );
-								  components_.push_back( iref );
-								  return new BLong( 1 );
-								}
+                                Module::EItemRefObjImp* ir = static_cast<Module::EItemRefObjImp*>( aob );
+                                Core::ItemRef iref = ir->value( );
+								components_.push_back( iref );
+								return new BLong( 1 );
 		}
 
-		case MTH_ERASE_COMPONENT:
-		{
-								  BApplicObjBase* aob;
-								  if ( ex.hasParams( 0 ) )
-                                    aob = ex.getApplicObjParam( 0, &Module::eitemrefobjimp_type );
-								  else
-									return new BError( "Invalid parameter type" );
-								  if ( aob != NULL )
-								  {
-                                    Module::EItemRefObjImp* ir = static_cast<Module::EItemRefObjImp*>( aob );
-									Core::ItemRef iref = ir->value();
-									Components::iterator pos;
-									pos = find( components_.begin(), components_.end(), iref );
-									if ( pos != components_.end() )
-									  components_.erase( pos );
-									else
-									  return new BError( "Component not found" );
-									return new BLong( 1 );
-								  }
-		}
+        case MTH_ERASE_COMPONENT:
+        {
+            BApplicObjBase* aob = nullptr;
+            if (ex.hasParams(0))
+                aob = ex.getApplicObjParam(0, &Module::eitemrefobjimp_type);
+            
+            if (!aob)
+                return new BError("Invalid parameter type");
+
+            Module::EItemRefObjImp* ir = static_cast<Module::EItemRefObjImp*>(aob);
+            Core::ItemRef iref = ir->value();
+            Components::iterator pos;
+            pos = find(components_.begin(), components_.end(), iref);
+            if (pos != components_.end())
+                components_.erase(pos);
+            else
+                return new BError("Component not found");
+            return new BLong(1);
+        }
 		case MTH_ADD_HOUSE_PART:
 		{
 								 if ( !IsCustom() )
@@ -325,7 +322,8 @@ namespace Pol {
 								   revision++;
 								   CustomHousesSendFullToInRange( this, HOUSE_DESIGN_CURRENT, RANGE_VISUAL_LARGE_BUILDINGS );
 								   return new BLong( 1 );
-								 }
+								 } 
+                                 else return new BError("Invalid parameter type");
 		}
 		case MTH_ERASE_HOUSE_PART:
 		{
@@ -356,7 +354,8 @@ namespace Pol {
 									   CustomHousesSendFullToInRange( this, HOUSE_DESIGN_CURRENT, RANGE_VISUAL_LARGE_BUILDINGS );
 									 }
 									 return new BLong( ret ? 1 : 0 );
-								   }
+                                   }
+                                   else return new BError("Invalid parameter type");
 		}
 		case MTH_ACCEPT_COMMIT:
 		{
