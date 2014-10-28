@@ -319,7 +319,7 @@ namespace Pol {
 	  {
 		double x;
 		// just for debug.log
-		getRealParam( 0, x );
+		(void)getRealParam( 0, x );
 		return new BError( "Invalid parameter type" );
 	  }
 	}

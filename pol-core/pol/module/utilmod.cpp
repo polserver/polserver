@@ -120,14 +120,14 @@ namespace Pol {
 	Bscript::BObjectImp* UtilExecutorModule::mf_StrFormatTime()
 	{
 	  const String* format_string;
-	  getStringParam( 0, format_string );
 	  if ( !getStringParam( 0, format_string ) )
 		return new BError( "No time string passed." );
 	  else if ( format_string->length() > 100 )
 		return new BError( "Format string exceeded 100 characters." );
 
 	  int time_stamp;
-	  getParam( 1, time_stamp, 0, INT_MAX );
+      if (!getParam(1, time_stamp, 0, INT_MAX))
+          time_stamp = 0;
 
 	  time_t seconds;
 	  struct tm* time_struct;
