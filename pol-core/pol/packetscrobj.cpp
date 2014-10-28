@@ -94,34 +94,35 @@ namespace Pol {
 	  {
 		case MTH_SENDPACKET:
 		{
-							 if ( ex.numParams() != 1 )
-							   return new BError( "SendPacket requires 1 parameter." );
+            if (ex.numParams() != 1)
+                return new BError("SendPacket requires 1 parameter.");
 
-							 Mobile::Character* chr = NULL;
-							 Network::Client* client = NULL;
-							 if ( getCharacterOrClientParam( ex, 0, chr, client ) )
-							 {
-							   if ( chr != NULL )
-							   {
-								 if ( !chr->has_active_client() )
-								   return new BLong( 0 );
+            Mobile::Character* chr = NULL;
+            Network::Client* client = NULL;
+            if (!getCharacterOrClientParam(ex, 0, chr, client))
+                return new BError("Invalid parameter");
 
-								 client = chr->client;
-							   }
+            if (chr != NULL)
+            {
+                if (!chr->has_active_client())
+                    return new BLong(0);
 
-							   if ( client != NULL )
-							   {
-								 if ( client->isConnected() )
-								 {
-								   ADDTOSENDQUEUE( client, (void*)( &buffer[0] ), static_cast<int>( buffer.size() ) );
-								   return new BLong( 1 );
-								 }
-								 else
-								   return new BLong( 0 );
-							   }
-							   else
-								 return new BError( "Invalid parameter" );
-							 }
+                client = chr->client;
+            }
+
+            if (client != NULL)
+            {
+                if (client->isConnected())
+                {
+                    ADDTOSENDQUEUE(client, (void*)(&buffer[0]), static_cast<int>(buffer.size()));
+                    return new BLong(1);
+                }
+                else
+                    return new BLong(0);
+            }
+            else
+                return new BError("Invalid parameter");
+
 		}
 
 		case MTH_SENDAREAPACKET:
