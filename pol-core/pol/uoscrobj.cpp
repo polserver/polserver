@@ -2139,7 +2139,9 @@ namespace Pol {
 			  return new BLong( duration );
 			return new BLong( lightoverride_until );
 		  }
+          else return new BError("Invalid parameter type.");
 		}
+
 		case MTH_SETSEASON:
 		{
 		  int season_id, playsound;
@@ -2199,6 +2201,7 @@ namespace Pol {
 			else
 			  return new BError( "Mobile doesn't have that privilege" );
 		  }
+          else return new BError("Invalid parameter type");
 		}
 
 		case MTH_DISABLE:
