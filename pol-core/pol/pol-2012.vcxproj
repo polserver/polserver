@@ -430,6 +430,7 @@
     <ClCompile Include="uvars.cpp" />
     <ClCompile Include="uworld.cpp" />
     <ClCompile Include="vital.cpp" />
+    <ClCompile Include="mobile\wornitems.cpp" />
     <ClCompile Include="xmlfilescrobj.cpp" />
     <ClCompile Include="zone.cpp" />
     <ClCompile Include="crypt\blowfish.cpp" />
@@ -523,6 +524,7 @@
     <ClInclude Include="config.h" />
     <ClInclude Include="containr.h" />
     <ClInclude Include="core.h" />
+    <ClInclude Include="mobile\corpse.h" />
     <ClInclude Include="ctable.h" />
     <ClInclude Include="decay.h" />
     <ClInclude Include="dice.h" />
@@ -648,6 +650,7 @@
     <ClInclude Include="uworld.h" />
     <ClInclude Include="vital.h" />
     <ClInclude Include="watch.h" />
+    <ClInclude Include="mobile\wornitems.h" />
     <ClInclude Include="wrldsize.h" />
     <ClInclude Include="wthrtype.h" />
     <ClInclude Include="xbuffer.h" />

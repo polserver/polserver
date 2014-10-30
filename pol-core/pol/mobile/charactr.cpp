@@ -168,6 +168,9 @@ Notes
 #include "ufacing.h"
 #include "charactr.h"
 
+#include "corpse.h"
+#include "wornitems.h"
+
 
 namespace Pol {
   namespace Core {

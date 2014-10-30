@@ -10,6 +10,7 @@ Notes
 */
 
 #include "../../clib/stl_inc.h"
+#include "corpse.h"
 
 #ifdef _MSC_VER
 #	pragma warning( disable: 4786 )
@@ -19,9 +20,9 @@ Notes
 #include "../../clib/endian.h"
 #include "../../clib/streamsaver.h"
 
-#include "../containr.h"
 #include "../layers.h"
 #include "../ufunc.h"
+
 namespace Pol {
   namespace Core {
 	UCorpse::UCorpse( const Items::ContainerDesc& descriptor ) :
@@ -35,6 +36,7 @@ namespace Pol {
 	}
 
     void UCorpse::add(Item *item) {
+
         // When an item is added, check if it's equippable and add to the appropriate layer        
         if (Items::valid_equip_layer(item) && GetItemOnLayer(item->tile_layer) == EMPTY_ELEM)
         {
@@ -144,6 +146,23 @@ namespace Pol {
         +3 * sizeof( Items::Item** ) + layer_list_.capacity( ) * sizeof( Items::Item* );
       return size;
     }
+
+    void UCorpse::on_insert_add_item(Mobile::Character* mob, MoveType move, Items::Item* new_item)
+    {
+        // If we are a corpse and the item has a valid_equip_layer, we equipped it and need to send an update
+        if (Items::valid_equip_layer(new_item))
+        {
+            UCorpse* corpse = static_cast<UCorpse*>(this);
+            Item* item_on_layer = corpse->GetItemOnLayer(new_item->tile_layer);
+            if (item_on_layer != NULL && item_on_layer->serial == new_item->serial)
+            {
+                send_item_to_inrange(static_cast<Item*>(this));
+            }
+        }
+        
+        base::on_insert_add_item(mob, move, new_item);
+    }
+
   }
 }
 

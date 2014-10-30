@@ -76,6 +76,7 @@ Notes
 #include "mobile/attribute.h"
 #include "multi/boatcomp.h"
 #include "mobile/charactr.h"
+#include "mobile/corpse.h"
 #include "mobile/ufacing.h"
 #include "network/client.h"
 #include "network/packets.h"

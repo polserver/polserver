@@ -80,7 +80,7 @@ cpp_sources = \
 	pol/mobile/chrcast.cpp pol/mobile/chrituse.cpp pol/mobile/chrskuse.cpp pol/network/client.cpp \
 	pol/network/clientio.cpp pol/network/clienttransmit.cpp \
 	pol/network/cliface.cpp pol/cmbtcfg.cpp pol/cmdlevel.cpp pol/containr.cpp \
-	pol/console.cpp pol/core.cpp pol/mobile/corpse.cpp \
+	pol/console.cpp pol/core.cpp pol/mobile/corpse.cpp pol/mobile/wornitems.cpp \
 	pol/create.cpp \
 	pol/crypt/cryptengine.cpp pol/crypt/cryptbase.cpp pol/crypt/cryptkey.cpp \
 	pol/crypt/blowfish.cpp pol/crypt/twofish.cpp pol/crypt/crypt.cpp pol/crypt/logincrypt.cpp pol/crypt/md5.cpp \
