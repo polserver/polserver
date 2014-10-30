@@ -36,7 +36,7 @@ namespace Pol {
 
     void UCorpse::add(Item *item) {
         // When an item is added, check if it's equippable and add to the appropriate layer        
-        if (Items::valid_equip_layer(item) && GetItemOnLayer(item->tile_layer) == NULL)
+        if (Items::valid_equip_layer(item) && GetItemOnLayer(item->tile_layer) == EMPTY_ELEM)
         {
             PutItemOnLayer(item);
         }
@@ -44,6 +44,24 @@ namespace Pol {
         // plus the defaults from UContainer
         base::add(item);
     }
+
+    void UCorpse::remove(iterator itr)
+    {
+        Item *item = GET_ITEM_PTR(itr);
+
+        if (Items::valid_equip_layer(item))
+        {
+            Item* item_on_layer = GetItemOnLayer(item->tile_layer);
+            
+            if (item_on_layer != EMPTY_ELEM && item_on_layer->serial == item->serial)
+            {
+                RemoveItemFromLayer(item);
+            }
+        }
+        base::remove(itr);
+    }
+
+
 
 	u16 UCorpse::get_senditem_amount() const
 	{

@@ -123,9 +123,9 @@ namespace Pol {
 
 	  // remove(): tells what subcontainer used to hold the item
 	  //			 points item->container to NULL on removal			
-	  Items::Item *remove( u32 serial, UContainer * * found_in = NULL );
-	  void remove( Items::Item* item ); // item must be in this container
-	  void remove( iterator itr );
+	  virtual Items::Item *remove( u32 serial, UContainer * * found_in = NULL );
+	  virtual void remove( Items::Item* item ); // item must be in this container
+	  virtual void remove( iterator itr );
 
 	  enum MoveType
 	  {
@@ -232,14 +232,16 @@ namespace Pol {
       virtual size_t estimatedSize( ) const;
 	  virtual u16 get_senditem_amount() const;
       
-      virtual void add (Item *item);
+      virtual void add (Item *item) override;
+      virtual void remove(iterator itr) override;
+
 
 	  u16 corpsetype;
 	  bool take_contents_to_grave;
 	  u32	ownerserial; // NPCs get deleted on death, so serial is used.
 	  Items::Item* GetItemOnLayer( unsigned idx ) const;
-	  void RemoveItemFromLayer( Items::Item* item );
 	protected:
+        void RemoveItemFromLayer(Items::Item* item);
         void PutItemOnLayer(Items::Item* item);
 
 	  explicit UCorpse( const Items::ContainerDesc& desc );

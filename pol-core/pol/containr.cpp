@@ -537,6 +537,11 @@ namespace Pol {
 	  }
 	}
 
+    // This is the only function that actually removes the item from the container. This could be
+    // inlined into UContainer::remove(Item *item) if we change UContainer::remove(u32 serial, ...)
+    // to call remove(*itr) instead of remove(itr). The code would be cleaner at the cost of an extra find.
+    // As I don't have time to test if that would make a big difference, I leave this note for the future.
+    // I wish you luck. (Nando, 2014/10/30)
 	void UContainer::remove( iterator itr )
 	{
 	  INC_PROFILEVAR( container_removes );
@@ -749,23 +754,7 @@ namespace Pol {
 
 	void UContainer::on_remove( Mobile::Character* chr, Items::Item* item, MoveType move )
 	{
-
-        // If we have a corpse and an equippable item, check if we need to unequip it from the corpse
-	  if ( this->objtype_ == UOBJ_CORPSE && Items::valid_equip_layer(item) )
-	  {
-		UCorpse* corpse = static_cast<UCorpse*>( this );
-        Item* item_on_layer = corpse->GetItemOnLayer(item->tile_layer);
-        if ( item_on_layer != NULL && item_on_layer->serial == item->serial )
-		  {
-			corpse->RemoveItemFromLayer( item );
-		  }
-	  }
-	  else
-	  {
-		if ( item->layer > 0 )
-		  item->layer = 0;
-	  }
-
+	 
 	  if ( !desc.on_remove_script.empty() )
 	  {
 		// static code analysis indicates (C6211) that this might leak, but I can't use an auto_ptr<>
@@ -1130,5 +1119,5 @@ namespace Pol {
 	  return chr_owner;
 	}
 
-  }
+}
 }
