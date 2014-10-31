@@ -12,9 +12,21 @@ Notes
 #ifndef __UOBJECT_H
 #define __UOBJECT_H
 
-#ifdef _MSC_VER
-#	pragma warning( disable: 4786 )
+#ifndef __UCONST_H
+#	include "uconst.h"
 #endif
+
+#ifndef __CLIB_RAWTYPES_H
+#	include "../clib/rawtypes.h"
+#endif
+
+#include "../clib/refptr.h"
+#include "proplist.h"
+
+#include "../clib/boostutils.h"
+
+#include <boost/any.hpp>
+#include <boost/flyweight.hpp>
 
 #include <iosfwd>
 #include <map>
@@ -26,19 +38,6 @@ Notes
 
 #define pf_endl '\n'
 
-#ifndef __UCONST_H
-#	include "uconst.h"
-#endif
-
-#ifndef __CLIB_RAWTYPES_H
-#	include "../clib/rawtypes.h"
-#endif
-
-#include "../clib/refptr.h"
-#include "proplist.h"
-#include "../clib/boostutils.h"
-#include <boost/any.hpp>
-#include <boost/flyweight.hpp>
 
 namespace Pol {
   namespace Bscript {
