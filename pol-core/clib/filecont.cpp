@@ -7,11 +7,18 @@ Notes
 
 */
 
-#include "stl_inc.h"
-#include "logfacility.h"
-#include <stdio.h>
-
 #include "filecont.h"
+
+#include "logfacility.h"
+#include <cstdio>
+#include <stdexcept>
+
+// disables unsafe warning for fopen
+#ifdef _MSC_VER
+#pragma warning(disable:4996) 
+#define _CRT_SECURE_NO_WARNINGS 
+#endif
+
 namespace Pol {
   namespace Clib {
 	FileContents::FileContents( const char* filename )
@@ -20,7 +27,7 @@ namespace Pol {
 	  if( fp == NULL )
 	  {
         ERROR_PRINT << "Unable to open '" << filename << "' for reading.\n";
-		throw runtime_error( "Error opening file" );
+		throw std::runtime_error( "Error opening file" );
 	  }
 
 	  char buf[1024];
@@ -39,7 +46,7 @@ namespace Pol {
 	  return contents_.c_str();
 	}
 
-	void FileContents::set_contents( const string& str )
+	void FileContents::set_contents( const std::string& str )
 	{
 	  contents_ = str;
 	}

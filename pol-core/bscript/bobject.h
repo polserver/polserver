@@ -26,6 +26,7 @@ Notes
 #include "../clib/refptr.h"
 #include "escriptv.h"
 
+#include <vector>
 #include <stack>
 
 namespace Pol {

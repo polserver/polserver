@@ -12,6 +12,10 @@ Notes
 
 #include "maputil.h"
 #include "passert.h"
+
+#include <map>
+#include <vector>
+
 namespace Pol {
   namespace Clib {
 	class ConfigProperty

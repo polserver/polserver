@@ -8,12 +8,14 @@ Notes
 
 */
 
-#include "../../clib/stl_inc.h"
+#include "charactr.h"
+
 #include "../../clib/clib.h"
 #include "../../clib/passert.h"
 
 #include "../module/cfgmod.h"
 #include "../module/osmod.h"
+
 #include "../polclock.h"
 #include "../scrsched.h"
 #include "../spells.h"
@@ -21,7 +23,6 @@ Notes
 #include "../module/uomod.h"
 #include "../uoexec.h"
 
-#include "charactr.h"
 
 namespace Pol {
   namespace Mobile {

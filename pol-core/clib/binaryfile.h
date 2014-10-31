@@ -11,6 +11,7 @@ Notes
 #define CLIB_BINARYFILE_H
 
 #include <fstream>
+#include <vector>
 
 namespace Pol {
   namespace Clib {

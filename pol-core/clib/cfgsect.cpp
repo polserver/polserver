@@ -7,11 +7,13 @@ Notes
 
 */
 
-#include "stl_inc.h"
+#include "cfgsect.h"
 
 #include "cfgelem.h"
 #include "cfgfile.h"
-#include "cfgsect.h"
+
+#include <stdexcept>
+
 namespace Pol {
   namespace Clib {
 	ConfigSection::ConfigSection( ConfigFile& cf, const std::string& sectname, unsigned flags ) :

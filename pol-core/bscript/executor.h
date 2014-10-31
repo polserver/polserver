@@ -34,6 +34,7 @@ Notes
 #include <deque>
 #include <vector>
 #include <exception>
+#include <mutex>
 
 namespace Pol {
   namespace Core {
@@ -120,7 +121,7 @@ namespace Pol {
 		  */
 	  unsigned nLines;
 
-	  vector<BObjectRef> fparams;
+	  std::vector<BObjectRef> fparams;
 
 	  friend class ExecutorModule;
 	  void setFunctionResult( BObjectImp* imp );
@@ -193,8 +194,8 @@ namespace Pol {
 	  void addmember2( BObject& left, const BObject& right );
 
 	  // execmodules: modules associated with the current program.  References modules owned by availmodules.
-	  vector<ExecutorModule*> execmodules;
-	  vector<ExecutorModule*> availmodules; // owns
+      std::vector<ExecutorModule*> execmodules;
+      std::vector<ExecutorModule*> availmodules; // owns
 
 	public:
 	  Executor();
@@ -378,8 +379,8 @@ namespace Pol {
 		DEBUG_STATE_STEPPING_OVER
 	  };
 	  DEBUG_STATE debug_state_;
-	  set<unsigned> breakpoints_;
-	  set<unsigned> tmpbreakpoints_;
+	  std::set<unsigned> breakpoints_;
+      std::set<unsigned> tmpbreakpoints_;
 	  unsigned bp_skip_;
 
 	  BObjectImp* func_result_;

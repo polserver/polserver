@@ -174,7 +174,7 @@ cpp_sources = \
 	clib/sckutil.cpp clib/strexcpt.cpp clib/strset.cpp clib/strutil.cpp \
 	clib/threadhelp.cpp \
 	clib/tracebuf.cpp \
-	clib/endian.cpp clib/fdump.cpp clib/stracpy.cpp \
+	clib/fdump.cpp clib/stracpy.cpp \
 	clib/random.cpp clib/cmdargs.cpp clib/wallclock.cpp \
 	clib/wnsckt.cpp \
 	clib/xmain.cpp \
@@ -199,7 +199,7 @@ ecompile_sources=ecompile/ecompile.cpp \
 	clib/dirlist.cpp clib/esignal.cpp clib/fileutil.cpp \
 	clib/strutil.cpp clib/filecont.cpp \
 	clib/progver.cpp clib/passert.cpp clib/xmain.cpp \
-	clib/endian.cpp clib/fdump.cpp clib/stracpy.cpp \
+	clib/fdump.cpp clib/stracpy.cpp \
 	clib/random.cpp clib/cmdargs.cpp \
 	clib/strexcpt.cpp  clib/wallclock.cpp clib/threadhelp.cpp \
 	clib/logfacility.cpp
@@ -227,7 +227,7 @@ runecl_sources=runecl/runecl.cpp \
 	bscript/tkn_strm.cpp bscript/token.cpp bscript/userfunc.cpp \
 	bscript/parser.cpp bscript/compilercfg.cpp \
 	clib/passert.cpp clib/strutil.cpp  \
-	clib/endian.cpp clib/esignal.cpp clib/fdump.cpp \
+	clib/esignal.cpp clib/fdump.cpp \
 	clib/stracpy.cpp clib/cfgfile.cpp clib/fileutil.cpp \
 	clib/random.cpp clib/cmdargs.cpp clib/dirlist.cpp \
 	clib/progver.cpp \

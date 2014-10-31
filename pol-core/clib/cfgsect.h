@@ -10,6 +10,8 @@ Notes
 #ifndef CLIB_CFGSECT_H
 #define CLIB_CFGSECT_H
 
+#include <string>
+
 namespace Pol {
   namespace Clib {
 	class ConfigFile;

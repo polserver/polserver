@@ -15,6 +15,13 @@ Notes
 #include "executor.h"
 #include "../clib/boostutils.h"
 
+#include <string>
+
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable:4996)
+#endif
+
 namespace Pol {
   namespace Bscript {
 
@@ -168,5 +175,9 @@ namespace Pol {
 
   }
 }
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 #endif

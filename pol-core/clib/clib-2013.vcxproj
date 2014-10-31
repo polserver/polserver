@@ -233,7 +233,6 @@
     <ClCompile Include="cmdargs.cpp" />
     <ClCompile Include="dirfunc.cpp" />
     <ClCompile Include="dirlist.cpp" />
-    <ClCompile Include="endian.cpp" />
     <ClCompile Include="esignal.cpp" />
     <ClCompile Include="fdump.cpp" />
     <ClCompile Include="filecont.cpp" />

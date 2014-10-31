@@ -13,6 +13,9 @@ Notes
 #define UOCLIENT_H
 
 #include "crypt/cryptkey.h"
+
+#include <vector>
+
 namespace Pol {
   namespace Clib {
 	class ConfigElem;
@@ -67,7 +70,7 @@ namespace Pol {
 	  bool sticky;
 	};
 
-	typedef vector< UoClientListener > UoClientListeners;
+	typedef std::vector< UoClientListener > UoClientListeners;
 
 	extern UoClientListeners uoclient_listeners;
   }
