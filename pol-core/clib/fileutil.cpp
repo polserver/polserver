@@ -7,7 +7,10 @@ Notes
 
 */
 
-#include "stl_inc.h"
+
+#include "fileutil.h"
+#include "dirlist.h"
+
 #include <sys/stat.h>
 
 #ifdef __unix__
@@ -17,17 +20,19 @@ Notes
 #include <io.h>
 #endif
 
-#include "fileutil.h"
-#include "dirlist.h"
+#ifdef _MSC_VER
+#pragma warning(disable:4996) // disable POSIX deprecation warnings for stricmp
+#endif
+
 namespace Pol {
   namespace Clib {
-	string normalized_dir_form( const string& istr )
+      std::string normalized_dir_form(const std::string& istr)
 	{
-	  string str = istr;
+        std::string str = istr;
 
 	  {
-		string::size_type bslashpos;
-		while( string::npos != ( bslashpos = str.find( '\\' ) ) )
+        std::string::size_type bslashpos;
+        while (std::string::npos != (bslashpos = str.find('\\')))
 		{
 		  str.replace( bslashpos, 1, 1, '/' );
 		}
@@ -67,10 +72,10 @@ namespace Pol {
 #endif
 	}
 
-	int strip_one( string& direc )
+    int strip_one(std::string& direc)
 	{
-	  string::size_type pos = direc.find_last_of( "\\/" );
-	  if( pos == string::npos )
+      std::string::size_type pos = direc.find_last_of("\\/");
+      if (pos == std::string::npos)
 		return -1;
 	  if( pos >= 1 && direc[pos - 1] == ':' ) // at "C:\"
 		return -1;
@@ -93,7 +98,7 @@ namespace Pol {
 		else
 		{
 		  // if didn't make it,
-		  string parent_dir = dir;
+          std::string parent_dir = dir;
 		  if( strip_one( parent_dir ) ) return -1;
 		  if( make_dir( parent_dir.c_str() ) ) return -1;
 #ifdef _WIN32
@@ -132,7 +137,7 @@ namespace Pol {
 	  return (unsigned int)st.st_mtime;
 	}
 
-	void RemoveFile( const string& fname )
+	void RemoveFile( const std::string& fname )
 	{
 	  unlink( fname.c_str() );
 	}
@@ -167,8 +172,8 @@ namespace Pol {
 	std::string GetFilePart( const char* filename )
 	{
 	  std::string fn( filename );
-	  string::size_type lastslash = fn.find_last_of( "\\/" );
-	  if( lastslash == string::npos )
+      std::string::size_type lastslash = fn.find_last_of("\\/");
+      if (lastslash == std::string::npos)
 		return filename;
 	  else
 		return fn.substr( lastslash + 1 );

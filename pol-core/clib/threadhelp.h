@@ -13,7 +13,10 @@ Notes
 
 #include <thread>
 #include <future>
+#include <map>
+
 #include "message_queue.h"
+
 namespace Pol {
   namespace threadhelp {
 	extern unsigned int child_threads;

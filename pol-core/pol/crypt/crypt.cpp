@@ -22,6 +22,7 @@ namespace Pol {
 	void CCryptNoCrypt::Init( void *pvSeed, int type )
 	{
 	  // Nocrypt doesnt need to Initialize anything.
+        (void)pvSeed; (void)type;
 	}
 
 	// BLOWFISH

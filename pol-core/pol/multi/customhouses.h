@@ -12,8 +12,13 @@ Notes
 #ifndef _CUSTOMHOUSES_H
 #define _CUSTOMHOUSES_H
 
-#include "../../clib/stl_inc.h"
 #include "../../clib/rawtypes.h"
+
+#include <vector>
+#include <list>
+#include <string>
+#include <cstddef> // for size_t
+#include <iosfwd> // for testprint()
 
 namespace Pol {
   namespace Bscript {
@@ -59,9 +64,9 @@ namespace Pol {
 	  s32 yoffset;
 	};
 
-	typedef vector<vector<list<CUSTOM_HOUSE_ELEMENT> > > HouseFloor;//vector of N-S rows
-	typedef vector<list<CUSTOM_HOUSE_ELEMENT> > HouseFloorRow;//vector of Z columns
-	typedef list<CUSTOM_HOUSE_ELEMENT> HouseFloorZColumn;
+    typedef std::vector<std::vector<std::list<CUSTOM_HOUSE_ELEMENT>>> HouseFloor;//vector of N-S rows
+    typedef std::vector<std::list<CUSTOM_HOUSE_ELEMENT>> HouseFloorRow;//vector of Z columns
+	typedef std::list<CUSTOM_HOUSE_ELEMENT> HouseFloorZColumn;
 	// [][][][][][] - Xoffset vector
 	// | | | | | |  - vec of yoffsets
 	// v v v v v v

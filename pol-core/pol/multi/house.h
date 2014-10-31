@@ -12,14 +12,17 @@ Notes
 #ifndef _HOUSE_H
 #define _HOUSE_H
 
-#include "../../clib/stl_inc.h"
 #include "customhouses.h"
 #include "multi.h"
+
+#include <list>
+#include <vector>
+
 namespace Pol {
   namespace Multi {
 
-	typedef list<Items::Item*>         ItemList;
-	typedef list<Mobile::Character*>    MobileList;
+	typedef std::list<Items::Item*>         ItemList;
+    typedef std::list<Mobile::Character*>    MobileList;
 
 
 	class UHouse : public UMulti
@@ -33,8 +36,8 @@ namespace Pol {
 	  CustomHouseDesign CurrentDesign;
 	  CustomHouseDesign WorkingDesign;
 	  CustomHouseDesign BackupDesign;
-	  vector<u8> CurrentCompressed;
-	  vector<u8> WorkingCompressed;
+      std::vector<u8> CurrentCompressed;
+      std::vector<u8> WorkingCompressed;
 
 	  bool IsCustom() const { return custom; };
 	  void SetCustom( bool custom );

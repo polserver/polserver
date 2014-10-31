@@ -23,7 +23,8 @@ tool. Should suffice.
 
 */
 
-#include "../../clib/stl_inc.h"
+#include "customhouses.h"
+
 #include "../../clib/cfgelem.h"
 #include "../../clib/endian.h"
 #include "../../clib/stlutil.h"
@@ -44,7 +45,6 @@ tool. Should suffice.
 #include "../core.h"
 #include "../uvars.h"
 #include "house.h"
-#include "customhouses.h"
 #include "../fnsearch.h"
 #include "multi.h"
 #include "multidef.h"
@@ -458,7 +458,7 @@ namespace Pol {
 	}
 
 	//for testing, prints each floor's x,y,z rows
-	void CustomHouseDesign::testprint( ostream& os ) const
+	void CustomHouseDesign::testprint( std::ostream& os ) const
 	{
 	  if ( !IsEmpty() )
 	  {

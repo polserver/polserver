@@ -13,6 +13,11 @@ Notes
 #include <cstring>
 #include <sstream>
 
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable:4996)
+#endif
+
 namespace Pol {
   namespace Clib {
 	template<class T>
@@ -129,5 +134,9 @@ namespace Pol {
 	}
   }
 }
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 #endif

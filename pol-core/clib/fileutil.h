@@ -9,6 +9,9 @@ Notes
 
 #ifndef CLIB_FILEUTIL_H
 #define CLIB_FILEUTIL_H
+
+#include <string>
+
 namespace Pol {
   namespace Clib {
 	bool IsDirectory( const char* dir );

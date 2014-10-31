@@ -14,8 +14,12 @@ new Handler added to the core needs a new Version number here. As of 8/3/09 ther
 #ifndef PACKETHOOKS_H
 #define PACKETHOOKS_H
 
-#include "../../clib/stl_inc.h"
 #include "msghandl.h"
+#include "client.h"
+
+#include <map>
+#include <vector>
+#include <string>
 
 namespace Pol {
   namespace Core {
@@ -51,7 +55,7 @@ namespace Pol {
 	  unsigned short sub_command_length;
       PacketVersion version;
 	  VersionDetailStruct client_ver;
-	  map<u32, PacketHookData*>SubCommands;
+	  std::map<u32, PacketHookData*>SubCommands;
 	};
 
 	extern std::vector<PacketHookData> packet_hook_data;

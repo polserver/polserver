@@ -16,6 +16,8 @@ Notes
 #endif
 
 #include <string>
+#include <stack>
+
 namespace Pol {
   namespace Bscript {
 	class SubString;
@@ -108,8 +110,8 @@ namespace Pol {
 	  virtual void selfMinusObj( ObjArray& objimp, BObject& obj );
 
 	  virtual BObjectRef OperSubscript( const BObject& obj );
-	  virtual BObjectRef OperMultiSubscript( stack<BObjectRef>& indices );
-	  virtual BObjectRef OperMultiSubscriptAssign( stack<BObjectRef>& indices, BObjectImp* target );
+	  virtual BObjectRef OperMultiSubscript( std::stack<BObjectRef>& indices );
+      virtual BObjectRef OperMultiSubscriptAssign(std::stack<BObjectRef>& indices, BObjectImp* target);
 
 	  int find( int begin, const char *target );
 	  unsigned int alnumlen() const;
