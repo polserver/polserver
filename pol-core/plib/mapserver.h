@@ -35,9 +35,9 @@ namespace Pol {
 
 	private:
 	  // the indexes and shape data are always loaded into memory.
-	  vector< SOLIDX2_ELEM* > _index1; // points into _index2
-	  vector< SOLIDX2_ELEM > _index2;
-	  vector< SOLIDS_ELEM > _shapedata;
+	  std::vector< SOLIDX2_ELEM* > _index1; // points into _index2
+      std::vector< SOLIDX2_ELEM > _index2;
+      std::vector< SOLIDS_ELEM > _shapedata;
 
 	  void LoadSolids();
 	  void LoadSecondLevelIndex();

@@ -18,6 +18,8 @@ Notes
 #include <map>
 #include <string>
 #include <vector>
+#include <set>
+
 #include "../clib/boostutils.h"
 
 #include <boost/flyweight.hpp>

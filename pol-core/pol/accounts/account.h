@@ -67,7 +67,7 @@ namespace Pol {
 	  friend class AccountObjImp;
 
 	private:
-	  vector<Core::CharacterRef> characters_;
+	  std::vector<Core::CharacterRef> characters_;
 	  std::string name_;
 	  std::string password_;
 	  std::string passwordhash_;

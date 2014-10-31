@@ -91,7 +91,7 @@ namespace Pol {
 	  int _element_line_start; // what line in the file did this elem start on?
 	  int _cur_line;
 
-	  typedef std::set<string, ci_cmp_pred> AllowedTypesCont;
+	  typedef std::set<std::string, ci_cmp_pred> AllowedTypesCont;
 	  AllowedTypesCont allowed_types_;
 	};
 

@@ -23,7 +23,7 @@ namespace Pol {
 
 	static time_t last_read;
 
-	std::mutex _gameclock_mutex;
+	static std::mutex _gameclock_mutex;
 
 	void start_gameclock()
 	{

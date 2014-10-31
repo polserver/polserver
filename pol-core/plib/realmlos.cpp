@@ -7,8 +7,6 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-
 #include "realm.h"
 #include "mapcell.h"
 #include "mapserver.h"

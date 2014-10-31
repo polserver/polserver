@@ -35,7 +35,7 @@ namespace Pol {
 
 	void decodequotedstring( std::string& str );
 	void encodequotedstring( std::string& str );
-	string getencodedquotedstring( const std::string& in );
+	std::string getencodedquotedstring( const std::string& in );
 
 	void mklower( std::string& str );
 	void mkupper( std::string& str );

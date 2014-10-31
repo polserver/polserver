@@ -30,7 +30,7 @@ namespace Pol {
 
 	  size_t mapcount() const;
 
-	  typedef map<std::string, BObjectRef, Clib::ci_cmp_pred> Contents;
+	  typedef std::map<std::string, BObjectRef, Clib::ci_cmp_pred> Contents;
 	  const Contents& contents() const;
 
 	protected:

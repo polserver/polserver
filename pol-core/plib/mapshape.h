@@ -18,7 +18,7 @@ namespace Pol {
 	  unsigned int flags;
 	};
 
-	class MapShapeList : public vector<MapShape> {};
+    class MapShapeList : public std::vector<MapShape> {};
 
   }
 }

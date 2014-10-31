@@ -36,12 +36,12 @@ namespace Pol {
 	class UObject;
 	
 
-	typedef vector<AccountRef>           AccountsVector;
+	typedef std::vector<AccountRef>           AccountsVector;
 	//typedef vector<Character*>         Characters;
-	typedef vector<Network::Client*>            Clients;
-	class ItemsVector : public vector<Items::Item*> {};
-	typedef vector<ServerDescription*> Servers;
-	typedef vector<StartingLocation*>  StartingLocations;
+    typedef std::vector<Network::Client*>            Clients;
+	class ItemsVector : public std::vector<Items::Item*> {};
+    typedef std::vector<ServerDescription*> Servers;
+    typedef std::vector<StartingLocation*>  StartingLocations;
 
     extern AccountsVector accounts;
 	//extern Characters characters;

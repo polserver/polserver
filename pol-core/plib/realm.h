@@ -17,6 +17,10 @@ Notes
 #include "staticblock.h"
 #include "../pol/uconst.h" // for MOVEMODE under gcc, bleh
 #include "../pol/udatfile.h"
+
+#include <set>
+#include <memory>
+
 namespace Pol {
   namespace Core {
 	enum MOVEMODE;
@@ -107,7 +111,7 @@ namespace Pol {
 	  void readmultis( Core::StaticList& vec, unsigned short x, unsigned short y ) const;
 
 	  Core::Zone** zone;
-	  set<unsigned int> global_hulls; //xy-smashed together
+	  std::set<unsigned int> global_hulls; //xy-smashed together
 	  unsigned int toplevel_item_count;
 	  unsigned int mobile_count;
 	  unsigned getUOMapID() { return _Descriptor().uomapid; };

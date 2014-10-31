@@ -10,6 +10,8 @@ Notes
 #ifndef CLIB_BINARYFILE_H
 #define CLIB_BINARYFILE_H
 
+#include <fstream>
+
 namespace Pol {
   namespace Clib {
 
@@ -18,10 +20,10 @@ namespace Pol {
 	{
 	public:
 	  BinaryFile();
-	  BinaryFile( const std::string& filename, ios::openmode mode );
+      BinaryFile(const std::string& filename, std::ios::openmode mode);
 	  ~BinaryFile();
 
-	  void Open( const std::string& filename, ios::openmode mode );
+      void Open(const std::string& filename, std::ios::openmode mode);
 	  void Close();
 
 	  template<class T>
@@ -37,7 +39,7 @@ namespace Pol {
 	  }
 
 	  template<class T>
-	  void ReadVector( vector<T>& vec )
+      void ReadVector(std::vector<T>& vec)
 	  {
 		size_t count = GetElementCount( sizeof( T ) );
 		vec.resize( count );
@@ -45,14 +47,14 @@ namespace Pol {
 		  Read( &vec[0], count );
 	  }
 
-	  void Seek( fstream::pos_type abs_offset );
-	  fstream::pos_type FileSize();
+      void Seek(std::fstream::pos_type abs_offset);
+      std::fstream::pos_type FileSize();
       size_t sizeEstimate() const;
 	private:
-	  void ReadBuffer( void* buffer, streamsize length );
+      void ReadBuffer(void* buffer, std::streamsize length);
 	  size_t GetElementCount( size_t elemsize );
 
-	  fstream _file;
+      std::fstream _file;
 	  std::string _filename;
 	};
 

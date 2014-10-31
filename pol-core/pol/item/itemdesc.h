@@ -237,7 +237,7 @@ namespace Pol {
 	extern ItemDesc empty_itemdesc;
 	extern ItemDesc temp_itemdesc;
 
-	extern map<u32, ItemDesc*> desctable;
+	extern std::map<u32, ItemDesc*> desctable;
 
 	inline bool has_itemdesc( u32 objtype )
 	{
@@ -257,7 +257,7 @@ namespace Pol {
 	extern OldObjtypeConversions old_objtype_conversions;
 
 	const ItemDesc* CreateItemDescriptor( Bscript::BStruct* itemdesc_struct );
-	extern vector< ItemDesc* > dynamic_item_descriptors;
+	extern std::vector< ItemDesc* > dynamic_item_descriptors;
 
     size_t itemdescSizeEstimate(size_t *count);
   }
