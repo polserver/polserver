@@ -1,7 +1,7 @@
 #ifndef MOBILE_CORPSE_H
 #define MOBILE_CORPSE_H
 
-#include "..\containr.h"
+#include "../containr.h"
 
 namespace Pol {
     namespace Core {

@@ -141,8 +141,8 @@ namespace Pol {
 
 	void UHouse::add_component( Items::Item* item, s32 xoff, s32 yoff, u8 zoff )
 	{
-	  item->x = x + xoff;
-	  item->y = y + yoff;
+	  item->x = static_cast<u16>(x + xoff);
+	  item->y = static_cast<u16>(y + yoff);
 	  item->z = static_cast<s8>( z + zoff );
 	  item->setprop( "house_serial", "i" + Clib::decint( serial ) );
 	  item->disable_decay();
@@ -249,160 +249,162 @@ namespace Pol {
 	  {
 		case MTH_SETCUSTOM:
 		{
-							int _custom;
-							if ( ex.getParam( 0, _custom ) )
-							{
-							  SetCustom( _custom ? true : false );
-							  return new BLong( 1 );
-							}
-							else
-							  return new BError( "Invalid parameter type" );
+		  int _custom;
+		  if ( ex.getParam( 0, _custom ) )
+		  {
+			SetCustom( _custom ? true : false );
+			return new BLong( 1 );
+		  }
+		  break;
 		}
 		case MTH_ADD_COMPONENT:
 		{
-								BApplicObjBase* aob = nullptr;
-								if ( ex.hasParams( 0 ) )
-                                  aob = ex.getApplicObjParam( 0, &Module::eitemrefobjimp_type );
-                                
-                                if (!aob)
-                                    return new BError("Invalid parameter type");
-
-                                Module::EItemRefObjImp* ir = static_cast<Module::EItemRefObjImp*>( aob );
-                                Core::ItemRef iref = ir->value( );
-								components_.push_back( iref );
-								return new BLong( 1 );
+		  BApplicObjBase* aob;
+		  if ( ex.hasParams( 0 ) )
+		  {
+			aob = ex.getApplicObjParam( 0, &Module::eitemrefobjimp_type );
+			if ( aob )
+			{
+			  Module::EItemRefObjImp* ir = static_cast<Module::EItemRefObjImp*>( aob );
+			  Core::ItemRef iref = ir->value( );
+			  components_.push_back( iref );
+			  return new BLong( 1 );
+			}
+		  }
+		  break;
 		}
-
-        case MTH_ERASE_COMPONENT:
-        {
-            BApplicObjBase* aob = nullptr;
-            if (ex.hasParams(0))
-                aob = ex.getApplicObjParam(0, &Module::eitemrefobjimp_type);
-            
-            if (!aob)
-                return new BError("Invalid parameter type");
-
-            Module::EItemRefObjImp* ir = static_cast<Module::EItemRefObjImp*>(aob);
-            Core::ItemRef iref = ir->value();
-            Components::iterator pos;
-            pos = find(components_.begin(), components_.end(), iref);
-            if (pos != components_.end())
-                components_.erase(pos);
-            else
-                return new BError("Component not found");
-            return new BLong(1);
-        }
+		case MTH_ERASE_COMPONENT:
+		{
+		  BApplicObjBase* aob;
+		  if ( ex.hasParams( 0 ) )
+		  {
+			aob = ex.getApplicObjParam( 0, &Module::eitemrefobjimp_type );
+			if ( aob )
+			{
+			  Module::EItemRefObjImp* ir = static_cast<Module::EItemRefObjImp*>( aob );
+			  Core::ItemRef iref = ir->value();
+			  Components::iterator pos;
+			  pos = find( components_.begin(), components_.end(), iref );
+			  if ( pos != components_.end() )
+				components_.erase( pos );
+			  else
+				return new BError( "Component not found" );
+			  return new BLong( 1 );
+			}
+		  }
+		  break;
+		}
 		case MTH_ADD_HOUSE_PART:
 		{
-								 if ( !IsCustom() )
-								   return new BError( "House is not custom" );
-								 else if ( IsEditing() )
-								   return new BError( "House is currently been edited" );
-								 else if ( !ex.hasParams( 4 ) )
-								   return new BError( "Not enough parameters" );
-								 int graphic, xoff, yoff, z;
-								 if ( ex.getParam( 0, graphic ) &&
-									  ex.getParam( 1, xoff ) &&
-									  ex.getParam( 2, yoff ) &&
-									  ex.getParam( 3, z ) )
-								 {
-								   CUSTOM_HOUSE_ELEMENT elem;
-								   elem.graphic = graphic;
-								   elem.xoffset = xoff;
-								   elem.yoffset = yoff;
-								   elem.z = z;
-								   CurrentDesign.Add( elem );
-								   //invalidate
-								   //invalidate
-								   WorkingDesign = CurrentDesign;
-								   vector<u8> newvec;
-								   WorkingCompressed.swap( newvec );
-								   vector<u8> newvec2;
-								   CurrentCompressed.swap( newvec2 );
-								   revision++;
-								   CustomHousesSendFullToInRange( this, HOUSE_DESIGN_CURRENT, RANGE_VISUAL_LARGE_BUILDINGS );
-								   return new BLong( 1 );
-								 } 
-                                 else return new BError("Invalid parameter type");
+		  if ( !IsCustom() )
+			return new BError( "House is not custom" );
+		  else if ( IsEditing() )
+			return new BError( "House is currently been edited" );
+		  else if ( !ex.hasParams( 4 ) )
+			return new BError( "Not enough parameters" );
+		  u16 graphic;
+		  int xoff, yoff, z;
+		  if ( ex.getParam( 0, graphic ) &&
+			  ex.getParam( 1, xoff ) &&
+			  ex.getParam( 2, yoff ) &&
+			  ex.getParam( 3, z ) )
+		  {
+			CUSTOM_HOUSE_ELEMENT elem;
+			elem.graphic = graphic;
+			elem.xoffset = xoff;
+			elem.yoffset = yoff;
+			elem.z = static_cast<u8>(z);
+			CurrentDesign.Add( elem );
+			//invalidate
+			//invalidate
+			WorkingDesign = CurrentDesign;
+			vector<u8> newvec;
+			WorkingCompressed.swap( newvec );
+			vector<u8> newvec2;
+			CurrentCompressed.swap( newvec2 );
+			revision++;
+			CustomHousesSendFullToInRange( this, HOUSE_DESIGN_CURRENT, RANGE_VISUAL_LARGE_BUILDINGS );
+			return new BLong( 1 );
+		  }
+		  break;
 		}
 		case MTH_ERASE_HOUSE_PART:
 		{
-								   if ( !IsCustom() )
-									 return new BError( "House is not custom" );
-								   else if ( IsEditing() )
-									 return new BError( "House is currently been edited" );
-								   else if ( !ex.hasParams( 4 ) )
-									 return new BError( "Not enough parameters" );
-								   int graphic, xoff, yoff, z;
-								   if ( ex.getParam( 0, graphic ) &&
-										ex.getParam( 1, xoff ) &&
-										ex.getParam( 2, yoff ) &&
-										ex.getParam( 3, z ) )
-								   {
-									 bool ret = CurrentDesign.EraseGraphicAt( static_cast<u16>( graphic ),
-																			  static_cast<u32>( xoff ),
-																			  static_cast<u32>( yoff ),
-																			  static_cast<u8>( z ) );
-									 if ( ret )
-									 {
-									   //invalidate
-									   WorkingDesign = CurrentDesign;
-									   vector<u8> newvec;
-									   WorkingCompressed.swap( newvec );
-									   vector<u8> newvec2;
-									   CurrentCompressed.swap( newvec2 );
-									   CustomHousesSendFullToInRange( this, HOUSE_DESIGN_CURRENT, RANGE_VISUAL_LARGE_BUILDINGS );
-									 }
-									 return new BLong( ret ? 1 : 0 );
-                                   }
-                                   else return new BError("Invalid parameter type");
+		  if ( !IsCustom() )
+			return new BError( "House is not custom" );
+		  else if ( IsEditing() )
+			return new BError( "House is currently been edited" );
+		  else if ( !ex.hasParams( 4 ) )
+			return new BError( "Not enough parameters" );
+		  int graphic, xoff, yoff, z;
+		  if ( ex.getParam( 0, graphic ) &&
+			  ex.getParam( 1, xoff ) &&
+			  ex.getParam( 2, yoff ) &&
+			  ex.getParam( 3, z ) )
+		  {
+			bool ret = CurrentDesign.EraseGraphicAt( static_cast<u16>( graphic ),
+													static_cast<u32>( xoff ),
+													static_cast<u32>( yoff ),
+													static_cast<u8>( z ) );
+			if ( ret )
+			{
+			  //invalidate
+			  WorkingDesign = CurrentDesign;
+			  vector<u8> newvec;
+			  WorkingCompressed.swap( newvec );
+			  vector<u8> newvec2;
+			  CurrentCompressed.swap( newvec2 );
+			  CustomHousesSendFullToInRange( this, HOUSE_DESIGN_CURRENT, RANGE_VISUAL_LARGE_BUILDINGS );
+			}
+			return new BLong( ret ? 1 : 0 );
+		  }
+		  break;
 		}
 		case MTH_ACCEPT_COMMIT:
 		{
-								if ( !IsCustom() )
-								  return new BError( "House is not custom" );
-								//else if (!IsEditing())
-								//	return new BError( "House is currently not been edited" );
-								else if ( !IsWaitingForAccept() )
-								  return new BError( "House is currently not waiting for a commit" );
-								else if ( !ex.hasParams( 2 ) )
-								  return new BError( "Not enough parameters" );
-								int accept;
-								Mobile::Character* chr;
-								if ( ex.getParam( 1, accept ) &&
-									 getCharacterParam( ex, 0, chr ) )
-								{
-								  AcceptHouseCommit( chr, accept ? true : false );
-								  return new BLong( 1 );
-								}
-								else
-								  return new BError( "Invalid parameter type" );
+		  if ( !IsCustom() )
+			return new BError( "House is not custom" );
+		  //else if (!IsEditing())
+		  //	return new BError( "House is currently not been edited" );
+		  else if ( !IsWaitingForAccept() )
+			return new BError( "House is currently not waiting for a commit" );
+		  else if ( !ex.hasParams( 2 ) )
+			return new BError( "Not enough parameters" );
+		  int accept;
+		  Mobile::Character* chr;
+		  if ( ex.getParam( 1, accept ) &&
+				getCharacterParam( ex, 0, chr ) )
+		  {
+			AcceptHouseCommit( chr, accept ? true : false );
+			return new BLong( 1 );
+		  }
+  		  break;
 		}
 		case MTH_CANCEL_EDITING:
 		{
-								 if ( !IsCustom() )
-								   return new BError( "House is not custom" );
-								 else if ( !IsEditing() )
-								   return new BError( "House is currently not been edited" );
-								 else if ( !ex.hasParams( 2 ) )
-								   return new BError( "Not enough parameters" );
-								 Mobile::Character* chr;
-								 int drop_changes;
-								 if ( getCharacterParam( ex, 0, chr ) &&
-									  ex.getParam( 1, drop_changes ) )
-								 {
-								   if ( chr->client->gd->custom_house_serial == serial )
-									 CustomHousesQuit( chr, drop_changes ? true : false );
-								   else
-									 return new BError( "Character is not editing this house" );
-								   return new BLong( 1 );
-								 }
-								 else
-								   return new BError( "Invalid parameter type" );
+		  if ( !IsCustom() )
+			return new BError( "House is not custom" );
+		  else if ( !IsEditing() )
+			return new BError( "House is currently not been edited" );
+		  else if ( !ex.hasParams( 2 ) )
+			return new BError( "Not enough parameters" );
+		  Mobile::Character* chr;
+		  int drop_changes;
+		  if ( getCharacterParam( ex, 0, chr ) &&
+			  ex.getParam( 1, drop_changes ) )
+		  {
+			if ( chr->client->gd->custom_house_serial == serial )
+			  CustomHousesQuit( chr, drop_changes ? true : false );
+			else
+			  return new BError( "Character is not editing this house" );
+			return new BLong( 1 );
+		  }
+		  break;
 		}
 
 		default: return NULL;
 	  }
+	  return new BError( "Invalid parameter type" );
 	}
 
     Bscript::BObjectImp* UHouse::script_method( const char* methodname, Bscript::Executor& ex )

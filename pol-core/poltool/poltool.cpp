@@ -79,7 +79,7 @@ namespace Pol {
 
 		  Plib::MAPCELL cell = mapserver->GetMapCell( x, y );
 		  Plib::MapShapeList mlist;
-		  mapserver->GetMapShapes( mlist, x, y, Plib::FLAG::ALL );
+		  mapserver->GetMapShapes( mlist, x, y, static_cast<u32>(Plib::FLAG::ALL) );
 		  Plib::MAPTILE_CELL tile = mts->GetMapTile( x, y );
 
 		  ofs << "landtile=" << int( tile.landtile ) << "<br>";

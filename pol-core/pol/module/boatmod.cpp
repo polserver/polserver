@@ -62,7 +62,7 @@ namespace Pol {
 		   getParam( 2, speed, 1, 4 ) )
 	  {	 
 		Core::UFACING move_dir = static_cast<Core::UFACING>( direction & 7 );
-		boat->move( move_dir, speed, false );
+		boat->move( move_dir, static_cast<u8>(speed), false );
 		return new Bscript::BLong( 1 );
 	  }
 	  return NULL;
@@ -109,7 +109,7 @@ namespace Pol {
 		   getParam( 2, speed, 1, 4 ) )
 	  {
 		Core::UFACING move_dir = static_cast<Core::UFACING>( direction & 7 );
-		boat->move( move_dir, speed, true );
+		boat->move( move_dir, static_cast<u8>(speed), true );
 		return new Bscript::BLong( 1 );
 	  }
 	  return NULL;

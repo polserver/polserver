@@ -389,6 +389,8 @@ namespace Pol {
 		}
 	  }
 
+	  memset( &element_resist, 0, sizeof( element_resist ) );
+	  memset( &element_damage, 0, sizeof( element_damage ) );
       for ( unsigned resist = 0; resist <= Core::ELEMENTAL_TYPE_MAX; ++resist )
 	  {
 		string tmp;
@@ -419,17 +421,6 @@ namespace Pol {
             case Core::ELEMENTAL_ENERGY: element_resist.energy = dice.roll( ); break;
             case Core::ELEMENTAL_POISON: element_resist.poison = dice.roll( ); break;
             case Core::ELEMENTAL_PHYSICAL: element_resist.physical = dice.roll( ); break;
-		  }
-		}
-		else
-		{
-		  switch ( resist )
-		  {
-            case Core::ELEMENTAL_FIRE: element_resist.fire = 0; break;
-            case Core::ELEMENTAL_COLD: element_resist.cold = 0; break;
-            case Core::ELEMENTAL_ENERGY: element_resist.energy = 0; break;
-            case Core::ELEMENTAL_POISON: element_resist.poison = 0; break;
-            case Core::ELEMENTAL_PHYSICAL: element_resist.physical = 0; break;
 		  }
 		}
 	  }
@@ -466,17 +457,6 @@ namespace Pol {
             case Core::ELEMENTAL_PHYSICAL: element_damage.physical = dice.roll( ); break;
 		  }
 		}
-		else
-		{
-		  switch ( edamage )
-		  {
-            case Core::ELEMENTAL_FIRE: element_damage.fire = 0; break;
-            case Core::ELEMENTAL_COLD: element_damage.cold = 0; break;
-            case Core::ELEMENTAL_ENERGY: element_damage.energy = 0; break;
-            case Core::ELEMENTAL_POISON: element_damage.poison = 0; break;
-            case Core::ELEMENTAL_PHYSICAL: element_damage.physical = 0; break;
-		  }
-		}
 	  }
 	}
 
@@ -503,15 +483,25 @@ namespace Pol {
       decay_time( Core::ssopt.default_decay_time ),
 	  movable( DEFAULT ),
       doubleclick_range( Core::ssopt.default_doubleclick_range ),
+	  use_requires_los( true ),
+	  ghosts_can_use( false ),
+	  can_use_while_paralyzed ( false ),
+	  can_use_while_frozen ( false ),
 	  newbie( false ),
 	  invisible( false ),
 	  decays_on_multis( false ),
 	  blocks_casting_if_in_hand( true ),
 	  base_str_req( 0 ),
+	  quality( 1.0 ),
+	  multiid( 0xFFFF ),
+	  maxhp( 0 ),
 	  stack_limit( MAX_STACK_ITEMS ),
 	  method_script( NULL ),
 	  save_on_exit( true )
-	{}
+	{
+	  memset( &element_resist, 0, sizeof( element_resist ) );
+	  memset( &element_damage, 0, sizeof( element_damage ) );
+	}
 
 	ItemDesc::~ItemDesc()
 	{
@@ -1199,6 +1189,12 @@ namespace Pol {
           size += elem.second->estimatedSize();
         }
       }
+	  for (const auto &elem : dynamic_item_descriptors)
+	  {
+		if (elem != nullptr)
+		  size += elem->estimatedSize();
+	  }
+
       return size;
     }
   }

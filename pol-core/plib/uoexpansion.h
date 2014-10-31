@@ -124,6 +124,9 @@ public:
         ExpansionVersion myVersion = m_expansion.version();       
         return myVersion >= version;
     }
+private: // noncopyable
+      ClientFeatures( const ClientFeatures& );
+      ClientFeatures& operator=( const ClientFeatures& );
 };
 
 class FlagExpansion : UOExpansion

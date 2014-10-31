@@ -694,7 +694,7 @@ namespace Pol {
 	  shapes.clear();
 
 	  // possible: readdynamic, readmultis
-	  getmapshapes( shapes, x, y, FLAG::ALL );
+	  getmapshapes( shapes, x, y, static_cast<u32>(FLAG::ALL) );
 
 	  for ( const auto &shape : shapes)
 	  {

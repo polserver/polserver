@@ -2672,8 +2672,8 @@ namespace Pol {
 
 	BObjectImp* UOExecutorModule::mf_ListGhostsNearLocation()
 	{
-	  int x;
-	  int y;
+	  u16 x;
+	  u16 y;
 	  int z;
 	  int range;
 	  const String* strrealm;
@@ -3262,7 +3262,7 @@ namespace Pol {
 		  BStruct* ret = new BStruct();
 		  ret->addMember( "DirtyObjects", new BLong( dirty ) );
 		  ret->addMember( "CleanObjects", new BLong( clean ) );
-		  ret->addMember( "ElapsedMilliseconds", new BLong( elapsed_ms ) );
+		  ret->addMember( "ElapsedMilliseconds", new BLong( static_cast<int>(elapsed_ms) ) );
 		  return ret;
 		}
 		else

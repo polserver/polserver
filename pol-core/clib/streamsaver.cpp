@@ -136,7 +136,7 @@ namespace Pol {
 		};
 		try
 		{
-		  while( 1 )
+		  for (;;)
 		  {
 			writers.clear();
 			_msg_queue.pop_wait( &writers );
