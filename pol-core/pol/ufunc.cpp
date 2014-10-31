@@ -88,6 +88,7 @@ Notes
 #include "miscrgn.h"
 #include "network/cgdata.h"
 #include "containr.h"
+#include "mobile/corpse.h"
 #include "network/packetdefs.h"
 
 #include "objecthash.h"

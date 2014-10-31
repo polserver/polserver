@@ -28,6 +28,7 @@ Notes
 #include "../multi/boat.h"
 #include "../multi/boatcomp.h"
 #include "../mobile/charactr.h"
+#include "../mobile/corpse.h"
 #include "../network/client.h"
 #include "../containr.h"
 #include "../door.h"

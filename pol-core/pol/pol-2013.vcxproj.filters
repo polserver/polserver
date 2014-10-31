@@ -170,9 +170,6 @@
     <ClCompile Include="movement.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="msgfiltr.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="musicrgn.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -653,6 +650,15 @@
     <ClCompile Include="network\packetdefs.cpp">
       <Filter>network</Filter>
     </ClCompile>
+    <ClCompile Include="mobile\wornitems.cpp">
+      <Filter>mobile</Filter>
+    </ClCompile>
+    <ClCompile Include="network\msghandl.cpp">
+      <Filter>network</Filter>
+    </ClCompile>
+    <ClCompile Include="network\msgfiltr.cpp">
+      <Filter>network</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="action.h">
@@ -770,12 +776,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="movecost.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="msgfiltr.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="msghandl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="musicrgn.h">
@@ -1259,6 +1259,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="network\packetdefs.h">
+      <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="mobile\corpse.h">
+      <Filter>mobile</Filter>
+    </ClInclude>
+    <ClInclude Include="mobile\wornitems.h">
+      <Filter>mobile</Filter>
+    </ClInclude>
+    <ClInclude Include="network\msgfiltr.h">
+      <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="network\msghandl.h">
       <Filter>network</Filter>
     </ClInclude>
   </ItemGroup>

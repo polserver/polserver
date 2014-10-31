@@ -91,6 +91,8 @@ Notes
 #include "uworld.h"
 #include "containr.h"
 
+#include "mobile/wornitems.h" // refresh_ar() is the only one which needs this include...
+
 /* An area definition is as follows:
    pt: (x,y)
    rect: [pt-pt]

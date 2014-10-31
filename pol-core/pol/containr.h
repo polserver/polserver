@@ -123,9 +123,9 @@ namespace Pol {
 
 	  // remove(): tells what subcontainer used to hold the item
 	  //			 points item->container to NULL on removal			
-	  Items::Item *remove( u32 serial, UContainer * * found_in = NULL );
-	  void remove( Items::Item* item ); // item must be in this container
-	  void remove( iterator itr );
+	  virtual Items::Item *remove( u32 serial, UContainer * * found_in = NULL );
+	  virtual void remove( Items::Item* item ); // item must be in this container
+	  virtual void remove( iterator itr );
 
 	  enum MoveType
 	  {
@@ -148,7 +148,7 @@ namespace Pol {
 	  bool can_insert_add_item( Mobile::Character* mob, MoveType move, Items::Item* new_item );
 
 	  void on_insert_increase_stack( Mobile::Character* mob, MoveType move, Items::Item* existing_item, unsigned short amt_added );
-	  void on_insert_add_item( Mobile::Character* mob, MoveType move, Items::Item* new_item );
+	  virtual void on_insert_add_item( Mobile::Character* mob, MoveType move, Items::Item* new_item );
 
 	  virtual Mobile::Character* get_chr_owner() { return NULL; };
 	  // system_find: bypasses all locks, etc. 
@@ -220,87 +220,6 @@ namespace Pol {
 	inline Items::Item *UContainer::operator[]( unsigned idx ) const
 	{
 	  return ITEM_ELEM_PTR( contents_[idx] );
-	}
-
-	// Corpses must NEVER EVER be movable.
-	// They can decay even if they are immobile.
-	class UCorpse : public UContainer
-	{
-	  typedef UContainer base;
-	public:
-      virtual ~UCorpse() {};
-      virtual size_t estimatedSize( ) const;
-	  virtual u16 get_senditem_amount() const;
-      
-      virtual void add (Item *item);
-
-	  u16 corpsetype;
-	  bool take_contents_to_grave;
-	  u32	ownerserial; // NPCs get deleted on death, so serial is used.
-	  Items::Item* GetItemOnLayer( unsigned idx ) const;
-	  void RemoveItemFromLayer( Items::Item* item );
-	protected:
-        void PutItemOnLayer(Items::Item* item);
-
-	  explicit UCorpse( const Items::ContainerDesc& desc );
-	  virtual void spill_contents( Multi::UMulti* supporting_multi );
-	  virtual void printProperties( Clib::StreamWriter& sw ) const;
-	  virtual void readProperties( Clib::ConfigElem& elem );
-	  friend Items::Item* Items::Item::create( const Items::ItemDesc& itemdesc, u32 serial );
-	  //virtual Bscript::BObjectImp* script_member( const char *membername );
-	  virtual Bscript::BObjectImp* get_script_member( const char *membername ) const;
-	  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const; ///id test
-	  //virtual Bscript::BObjectImp* set_script_member( const char *membername, const std::string& value );
-	  //virtual Bscript::BObjectImp* set_script_member( const char *membername, int value );
-	  virtual bool script_isa( unsigned isatype ) const;
-	  Contents layer_list_;
-	};
-
-	inline Items::Item *UCorpse::GetItemOnLayer( unsigned idx ) const
-	{
-		// Checks if the requested layer is valid
-		if (Items::valid_equip_layer(idx))
-			return ITEM_ELEM_PTR( layer_list_[idx] );
-		
-		return EMPTY_ELEM;
-	}
-
-	class WornItemsContainer : public UContainer
-	{
-      typedef UContainer base;
-	public:
-	  WornItemsContainer();
-	  //explicit WornItemsContainer(u16 objtype);
-      virtual ~WornItemsContainer() {};
-      virtual size_t estimatedSize( ) const;
-
-	  virtual Bscript::BObjectImp* make_ref();
-	  virtual Mobile::Character* get_chr_owner() { return chr_owner; };
-	  Mobile::Character* chr_owner;
-
-	  virtual UObject* owner();
-	  virtual const UObject* owner() const;
-	  virtual UObject* self_as_owner();
-	  virtual const UObject* self_as_owner() const;
-
-	  virtual void for_each_item( void( *f )( Items::Item* item, void* a ), void* arg );
-
-	  Items::Item* GetItemOnLayer( unsigned idx ) const;
-	  void PutItemOnLayer( Item* item );
-	  void RemoveItemFromLayer( Item* item );
-
-	  virtual bool saveonexit() const;
-	  virtual void saveonexit( bool newvalue );
-
-	  void print( Clib::StreamWriter& sw_pc, Clib::StreamWriter& sw_equip ) const;
-	};
-
-	inline Items::Item *WornItemsContainer::GetItemOnLayer( unsigned idx ) const
-	{
-		if (Items::valid_equip_layer(idx))
-		  return ITEM_ELEM_PTR( contents_[idx] );
-
-		return NULL;
 	}
   }
 }

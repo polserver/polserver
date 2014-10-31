@@ -537,6 +537,11 @@ namespace Pol {
 	  }
 	}
 
+    // This is the only function that actually removes the item from the container. This could be
+    // inlined into UContainer::remove(Item *item) if we change UContainer::remove(u32 serial, ...)
+    // to call remove(*itr) instead of remove(itr). The code would be cleaner at the cost of an extra find.
+    // As I don't have time to test if that would make a big difference, I leave this note for the future.
+    // I wish you luck. (Nando, 2014/10/30)
 	void UContainer::remove( iterator itr )
 	{
 	  INC_PROFILEVAR( container_removes );
@@ -749,23 +754,7 @@ namespace Pol {
 
 	void UContainer::on_remove( Mobile::Character* chr, Items::Item* item, MoveType move )
 	{
-
-        // If we have a corpse and an equippable item, check if we need to unequip it from the corpse
-	  if ( this->objtype_ == UOBJ_CORPSE && Items::valid_equip_layer(item) )
-	  {
-		UCorpse* corpse = static_cast<UCorpse*>( this );
-        Item* item_on_layer = corpse->GetItemOnLayer(item->tile_layer);
-        if ( item_on_layer != NULL && item_on_layer->serial == item->serial )
-		  {
-			corpse->RemoveItemFromLayer( item );
-		  }
-	  }
-	  else
-	  {
-		if ( item->layer > 0 )
-		  item->layer = 0;
-	  }
-
+	 
 	  if ( !desc.on_remove_script.empty() )
 	  {
 		// static code analysis indicates (C6211) that this might leak, but I can't use an auto_ptr<>
@@ -845,17 +834,6 @@ namespace Pol {
 
 	void UContainer::on_insert_add_item( Mobile::Character* mob, MoveType movetype, Items::Item* new_item )
 	{
-        // If we are a corpse and the item has a valid_equip_layer, we equipped it and need to send an update
-        if (this->objtype_ == UOBJ_CORPSE && Items::valid_equip_layer(new_item))
-        {
-            UCorpse* corpse = static_cast<UCorpse*>(this);
-            Item* item_on_layer = corpse->GetItemOnLayer(new_item->tile_layer);
-            if (item_on_layer != NULL && item_on_layer->serial == new_item->serial)
-            {
-                send_item_to_inrange(static_cast<Item*>(this));
-            }
-        }
-
 	  if ( !desc.on_insert_script.empty() )
 	  {
 		Items::Item* existing_stack = find_addable_stack( new_item );
@@ -996,139 +974,6 @@ namespace Pol {
 		return MAX_SLOTS;
 	}
 
-    WornItemsContainer::WornItemsContainer() :
-	  UContainer( Items::find_container_desc( extobj.wornitems_container ) ),
-	  chr_owner( NULL )
-	{
-	  contents_.resize( HIGHEST_LAYER + 1, EMPTY_ELEM );
-	}
-	//WornItemsContainer::WornItemsContainer(u16 objtype) : 
-	//    UContainer(objtype), 
-	//    chr_owner(NULL)
-	//{
-	//}
 
-    size_t WornItemsContainer::estimatedSize() const
-    {
-      return sizeof( Mobile::Character*)/*chr_owner*/ + base::estimatedSize( );
-    }
-
-
-	void WornItemsContainer::for_each_item( void( *f )( Items::Item* item, void* a ), void* arg )
-	{
-      for ( auto &item : contents_ )
-	  {
-		if ( item != NULL )
-		{
-		  if ( item->isa( UObject::CLASS_CONTAINER ) )
-		  {
-			UContainer* cont = static_cast<UContainer*>( item );
-			cont->for_each_item( f, arg );
-		  }
-		  ( *f )( item, arg );
-		}
-	  }
-	}
-
-	bool WornItemsContainer::saveonexit() const
-	{
-	  return saveonexit_;
-	}
-
-	void WornItemsContainer::saveonexit( bool newvalue )
-	{
-	  saveonexit_ = newvalue;
-	}
-
-	void WornItemsContainer::PutItemOnLayer( Items::Item* item )
-	{
-      passert(Items::valid_equip_layer(item)); // Calling code must make sure that item->tile_layer is valid!
-
-	  item->set_dirty();
-	  item->container = this;
-	  item->realm = realm;
-	  item->layer = item->tile_layer;
-	  contents_[item->tile_layer] = Contents::value_type( item );
-	  add_bulk( item );
-	}
-
-	void WornItemsContainer::RemoveItemFromLayer( Items::Item* item )
-	{
-      passert(Items::valid_equip_layer(item)); // Calling code must make sure that item->tile_layer is valid!
-
-      item->set_dirty();
-	  item->container = NULL;
-	  contents_[item->tile_layer] = EMPTY_ELEM;
-	  // 12-17-2008 MuadDib added to clear item.layer properties.
-	  item->layer = 0;
-	  remove_bulk( item );
-	}
-
-	void WornItemsContainer::print( Clib::StreamWriter& sw_pc, Clib::StreamWriter& sw_equip ) const
-	{
-	  if ( !saveonexit() )
-	  {
-		return;
-	  }
-	  for ( unsigned layer = 0; layer < contents_.size(); ++layer )
-	  {
-		const Items::Item* item = contents_[layer];
-		if ( item )
-		{
-		  if ( !item->itemdesc().save_on_exit || !item->saveonexit() )
-			continue;
-
-		  if ( ( layer == LAYER_HAIR ) ||
-			   ( layer == LAYER_BEARD ) ||
-			   ( layer == LAYER_FACE ) ||
-			   ( layer == LAYER_ROBE_DRESS && item->objtype_ == UOBJ_DEATH_SHROUD ) )
-		  {
-			sw_pc << *item;
-			item->clear_dirty();
-		  }
-		  else if ( layer == LAYER_BACKPACK )
-		  {
-			// write the backpack to the PC file,
-			// and the backpack contents to the PCEQUIP file
-			const UContainer* cont = static_cast<const UContainer*>( item );
-			cont->printSelfOn( sw_pc );
-			cont->clear_dirty();
-			cont->printContents( sw_equip );
-		  }
-		  else
-		  {
-			sw_equip << *item;
-			item->clear_dirty();
-		  }
-		}
-	  }
-	}
-
-    Bscript::BObjectImp* WornItemsContainer::make_ref( )
-	{
-	  passert_always( chr_owner != NULL );
-	  return chr_owner->make_offline_ref();
-	}
-
-	UObject* WornItemsContainer::owner()
-	{
-	  return chr_owner;
-	}
-
-	const UObject* WornItemsContainer::owner() const
-	{
-	  return chr_owner;
-	}
-
-	UObject* WornItemsContainer::self_as_owner()
-	{
-	  return chr_owner;
-	}
-
-	const UObject* WornItemsContainer::self_as_owner() const
-	{
-	  return chr_owner;
-	}
-
-  }
+}
 }
