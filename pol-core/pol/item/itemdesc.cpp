@@ -492,10 +492,10 @@ namespace Pol {
 	  decays_on_multis( false ),
 	  blocks_casting_if_in_hand( true ),
 	  base_str_req( 0 ),
+	  stack_limit( MAX_STACK_ITEMS ),
 	  quality( 1.0 ),
 	  multiid( 0xFFFF ),
 	  maxhp( 0 ),
-	  stack_limit( MAX_STACK_ITEMS ),
 	  method_script( NULL ),
 	  save_on_exit( true )
 	{
