@@ -19,7 +19,9 @@ Notes
 #endif
 namespace Pol {
   namespace Clib {
-	volatile bool exit_signalled = false;
+	
+      std::atomic<bool> exit_signalled(false);
+
 #ifdef _WIN32
 	BOOL WINAPI control_handler( DWORD dwCtrlType )
 	{
