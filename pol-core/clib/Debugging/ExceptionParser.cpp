@@ -1,6 +1,6 @@
-#include <cstring>
-
 #include "ExceptionParser.h"
+
+#include <cstring>
 
 #ifndef _WIN32
 #include <signal.h>
