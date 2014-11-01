@@ -88,10 +88,10 @@ string ExceptionParser::GetTrace()
           *tBeginBinaryOffset++ = '\0';
           *tEndBinaryOffset = '\0';
 
-		  int demangling_res;
-		  tFuncnName = abi::__cxa_demangle(tBeginFuncName, tFuncnName, &tFuncNameSize, &demangling_res);
+		  int tRes;
+		  tFuncnName = abi::__cxa_demangle(tBeginFuncName, tFuncnName, &tFuncNameSize, &tRes);
 		  unsigned int tBinaryOffset = strtoul(tBeginBinaryOffset, NULL, 16);
-		  if ( demangling_res == 0 )
+		  if (tRes == 0)
 		  {
 			  if(tBeginBinaryName && strlen(tBeginBinaryName))
 				  sprintf(tStringBuf, "#%02d 0x%016x in %s:[%s] from %s\n", tStackTraceStep, tBinaryOffset, tFuncnName, tBeginFuncOffset, tBeginBinaryName);
