@@ -210,12 +210,14 @@ void GetSignalDescription(int pSignal, string &pSignalName, string &pSignalDescr
 
 static int GetTId()
 {
+#ifndef _WIN32
 	return syscall(__NR_gettid);
+#endif
 }
 
+#ifndef _WIN32
 static void SignalHandler(int pSignal, siginfo_t *pSignalInfo, void *pArg)
 {
-#ifndef _WIN32
     string tSignalName;
     string tSignalDescription;
     GetSignalDescription(pSignal, tSignalName, tSignalDescription);
@@ -255,9 +257,8 @@ static void SignalHandler(int pSignal, siginfo_t *pSignalInfo, void *pArg)
         if (pSignalInfo->si_code != 0)
         	printf("Signal code is %d\n", pSignalInfo->si_code);
     }
-
-#endif
 }
+#endif
 
 void ExceptionParser::InitGlobalExceptionCatching()
 {

@@ -32,6 +32,9 @@
     <ClCompile Include="cmdargs.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+	<ClCompile Include="Debugging\ExceptionParser.cpp">
+	  <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="dirfunc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -327,6 +330,9 @@
     </ClInclude>
     <ClInclude Include="compilerspecifics.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+	<ClInclude Include="Debugging\ExceptionParser.h">
+	  <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="boostutils.h">
       <Filter>Header Files</Filter>
