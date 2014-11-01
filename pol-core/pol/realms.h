@@ -21,7 +21,7 @@ namespace Pol {
   namespace Core {
 
 	extern Plib::Realm* main_realm;
-	extern vector<Plib::Realm*>* Realms;
+	extern std::vector<Plib::Realm*>* Realms;
 	extern std::map<int, Plib::Realm*> shadowrealms_by_id;
 	extern unsigned int baserealm_count;
 	extern unsigned int shadowrealm_count;

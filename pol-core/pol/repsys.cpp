@@ -11,7 +11,9 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
+
+#include "repsys.h"
+
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/cfgsect.h"
@@ -26,7 +28,6 @@ Notes
 #include "npctmpl.h"
 #include "polclock.h"
 #include "polsig.h"
-#include "repsys.h"
 #include "schedule.h"
 #include "ssopt.h"
 #include "syshook.h"

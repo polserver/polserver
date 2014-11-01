@@ -12,6 +12,12 @@ Notes
 
 #include "clib.h"
 #include <cstring>
+
+#ifdef _MSC_VER
+    #pragma warning(push)
+    #pragma warning(disable:4996) // disables POSIX name deprecation warning for stricmp 
+#endif
+
 namespace Pol {
   namespace Clib {
 	class ci_cmp_pred
@@ -24,4 +30,8 @@ namespace Pol {
 	};
   }
 }
+#ifdef _MSC_VER
+    #pragma warning(pop)
+#endif
+
 #endif

@@ -35,9 +35,25 @@ namespace Pol {
 	  name[0] = '\0';
 	  title[0] = '\0';
 	}
+	size_t Menu::estimateSize() const
+	{
+	  size_t size = sizeof( Menu );
+	  size += 3*sizeof(MenuItem*)+menuitems_.capacity()*sizeof( MenuItem );
+	  return size;
+	}
 
 
 	std::vector<Menu> menus;
+
+	size_t estimateMenuSize()
+	{
+	  size_t size = 3 * sizeof( Menu* );
+	  for ( const auto& menu : menus)
+	  {
+		size += menu.estimateSize();
+	  }
+	  return size;
+	}
 
 
 

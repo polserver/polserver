@@ -100,9 +100,9 @@ namespace Pol {
 #endif
 	};
 #else
-#define ISTRINGSTREAM istringstream
+#define ISTRINGSTREAM std::istringstream
 
-#define OSTRINGSTREAM ostringstream
+#define OSTRINGSTREAM std::ostringstream
 #define OSTRINGSTREAM_STR(x) x.str()
 	/*#   include <sstream>
 		class e_istringstream : public istringstream

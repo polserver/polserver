@@ -69,11 +69,7 @@ Notes
 
 */
 
-#include "../../clib/stl_inc.h"
-
-#ifdef _MSC_VER
-#pragma warning( disable: 4786 )
-#endif
+#include "charactr.h"
 
 #ifdef __GNUC__
 #ifndef USE_STLPORT
@@ -81,11 +77,8 @@ Notes
 #endif
 #endif
 
-#include <assert.h>
-
 #include "../../clib/cfgelem.h"
 #include "../../clib/cfgfile.h"
-#include "../../clib/endian.h"
 #include "../../clib/esignal.h"
 #include "../../clib/fileutil.h"
 #include "../../clib/logfacility.h"
@@ -144,7 +137,6 @@ Notes
 #include "../syshook.h"
 #include "../target.h"
 #include "../uconst.h"
-#include "../uconst.h"
 #include "../ufunc.h"
 #include "../ufuncstd.h"
 #include "../umanip.h"
@@ -161,12 +153,10 @@ Notes
 #include "../miscrgn.h"
 #include "../musicrgn.h"
 #include "../network/cgdata.h"
-#include "../sockio.h"
 #include "../syshook.h"
 #include "../mdelta.h"
 #include "attribute.h"
 #include "ufacing.h"
-#include "charactr.h"
 
 #include "corpse.h"
 #include "wornitems.h"

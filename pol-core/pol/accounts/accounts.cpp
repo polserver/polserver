@@ -11,8 +11,12 @@ Notes
 
 */
 
-#include "../../clib/stl_inc.h"
+#ifdef _MSC_VER
+    #pragma warning(disable: 4996) // disables POSIX deprecation warning for unlink / stricmp
+#endif
 
+#include "accounts.h"
+#include "account.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -26,12 +30,11 @@ Notes
 #include "../../clib/logfacility.h"
 #include "../../clib/streamsaver.h"
 
-#include "account.h"
-#include "accounts.h"
 #include "../polcfg.h"
 #include "../polsig.h"
 #include "../schedule.h"
 #include "../uvars.h"
+
 namespace Pol {
   namespace Accounts {
 	struct stat accounts_txt_stat;
@@ -42,7 +45,7 @@ namespace Pol {
 	  static int num_until_dot = 1000;
 	  Tools::Timer<> timer;
 
-	  string accountsfile = Core::config.world_data_path + "accounts.txt";
+	  std::string accountsfile = Core::config.world_data_path + "accounts.txt";
 
 	  INFO_PRINT << "  " << accountsfile << ":";
 	  stat( accountsfile.c_str(), &accounts_txt_stat );
@@ -73,9 +76,9 @@ namespace Pol {
 
 	void write_account_data()
 	{
-	  string accountstxtfile = Core::config.world_data_path + "accounts.txt";
-	  string accountsbakfile = Core::config.world_data_path + "accounts.bak";
-	  string accountsndtfile = Core::config.world_data_path + "accounts.ndt";
+	  std::string accountstxtfile = Core::config.world_data_path + "accounts.txt";
+      std::string accountsbakfile = Core::config.world_data_path + "accounts.bak";
+      std::string accountsndtfile = Core::config.world_data_path + "accounts.ndt";
 	  const char *accountstxtfile_c = accountstxtfile.c_str();
 	  const char *accountsbakfile_c = accountsbakfile.c_str();
 	  const char *accountsndtfile_c = accountsndtfile.c_str();
@@ -85,7 +88,7 @@ namespace Pol {
 
       try
       {
-        ofstream ofs( accountsndtfile_c, std::ios::trunc | ios::out );
+        std::ofstream ofs(accountsndtfile_c, std::ios::trunc | std::ios::out);
         Clib::OFStreamWriter sw( &ofs );
         for ( const auto &account : Core::accounts )
         {
@@ -108,7 +111,7 @@ namespace Pol {
 	  accounts_txt_dirty = false;
 	}
 
-	Account* create_new_account( const string& acctname, const string& password, bool enabled )
+    Account* create_new_account(const std::string& acctname, const std::string& password, bool enabled)
 	{
 	  passert( !find_account( acctname.c_str() ) );
 
@@ -126,7 +129,7 @@ namespace Pol {
 	  return acct;
 	}
 
-	Account* duplicate_account( const string& oldacctname, const string& newacctname )
+    Account* duplicate_account(const std::string& oldacctname, const std::string& newacctname)
 	{
 	  passert( !find_account( newacctname.c_str() ) );
 
@@ -186,7 +189,7 @@ namespace Pol {
 
 	void reread_account( Clib::ConfigElem& elem )
 	{
-	  string name = elem.remove_string( "NAME" );
+      std::string name = elem.remove_string("NAME");
 	  Account* existing = find_account( name.c_str() );
 	  if ( existing != NULL )
 	  {
@@ -204,7 +207,7 @@ namespace Pol {
 	  THREAD_CHECKPOINT( tasks, 500 );
 	  try
 	  {
-		string accountsfile = Core::config.world_data_path + "accounts.txt";
+        std::string accountsfile = Core::config.world_data_path + "accounts.txt";
 
 		struct stat newst;
 		stat( accountsfile.c_str(), &newst );

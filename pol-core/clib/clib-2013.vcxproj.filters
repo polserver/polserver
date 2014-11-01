@@ -38,9 +38,6 @@
     <ClCompile Include="dirlist.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="endian.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="esignal.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

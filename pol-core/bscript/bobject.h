@@ -26,6 +26,9 @@ Notes
 #include "../clib/refptr.h"
 #include "escriptv.h"
 
+#include <vector>
+#include <stack>
+
 namespace Pol {
   namespace Bscript {
 	class BObjectImp;
@@ -307,8 +310,8 @@ namespace Pol {
 	  virtual BObjectRef set_member_id( const int id, BObjectImp* valueimp, bool copy ); //test id
 
 	  virtual BObjectRef OperSubscript( const BObject& obj );
-	  virtual BObjectRef OperMultiSubscript( stack<BObjectRef>& indices );
-	  virtual BObjectRef OperMultiSubscriptAssign( stack<BObjectRef>& indices, BObjectImp* target );
+	  virtual BObjectRef OperMultiSubscript( std::stack<BObjectRef>& indices );
+      virtual BObjectRef OperMultiSubscriptAssign(std::stack<BObjectRef>& indices, BObjectImp* target);
 
 	  virtual bool isTrue() const;
 	  virtual long contains( const BObjectImp& objimp ) const;
@@ -388,7 +391,7 @@ namespace Pol {
 	  BObject& operator=( const BObject& obj );
 	};
 
-	typedef vector< ref_ptr<BObjectImp> > BObjectImpRefVec;
+	typedef std::vector< ref_ptr<BObjectImp> > BObjectImpRefVec;
 
 	extern Clib::fixed_allocator<sizeof( BObject ), 256> bobject_alloc;
 
@@ -485,11 +488,11 @@ namespace Pol {
 	class ObjArray : public BObjectImp
 	{
 	public:
-	  typedef vector<std::string> NameCont;
+	  typedef std::vector<std::string> NameCont;
 	  typedef NameCont::iterator name_iterator;
 	  typedef NameCont::const_iterator const_name_iterator;
 
-	  typedef vector<BObjectRef> Cont;
+	  typedef std::vector<BObjectRef> Cont;
 	  typedef Cont::iterator iterator;
 	  typedef Cont::const_iterator const_iterator;
 
@@ -534,7 +537,7 @@ namespace Pol {
 
 	  virtual BObjectImp* array_assign( BObjectImp* idx, BObjectImp* target, bool copy );
 	  virtual BObjectRef OperSubscript( const BObject& obj );
-	  virtual BObjectRef OperMultiSubscript( stack<BObjectRef>& indices );
+	  virtual BObjectRef OperMultiSubscript( std::stack<BObjectRef>& indices );
 
 	  virtual bool isEqual( const BObjectImp& objimp ) const;
 

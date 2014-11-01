@@ -8,7 +8,7 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
+#include "polclock.h"
 
 #ifdef _WIN32
 # define WIN32_LEAN_AND_MEAN
@@ -18,10 +18,7 @@ Notes
 #include <unistd.h>
 #endif
 
-#include <assert.h>
-
 #include "../clib/passert.h"
-#include "polclock.h"
 
 
 namespace Pol {

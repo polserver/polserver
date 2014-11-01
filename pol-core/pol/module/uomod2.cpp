@@ -110,6 +110,8 @@ Notes
 #include "../accounts/acscrobj.h"
 #include "../objecthash.h"
 #include "../cfgrepos.h"
+#include "../gprops.h"
+#include "../menu.h"
 
 #ifdef USE_SYSTEM_ZLIB
 #	include <zlib.h>
@@ -906,7 +908,8 @@ namespace Pol {
 
 	  int num_items = cfBEu16( msg->num_items );
 	  std::unique_ptr<ObjArray> items_sold( new ObjArray );
-
+	  if (num_items > 0x2AA9) // max size of pkt
+		num_items = 0x2AA9;
 	  for ( int i = 0; i < num_items; ++i )
 	  {
 		u32 serial = cfBEu32( msg->items[i].serial );
@@ -1772,7 +1775,7 @@ namespace Pol {
       auto log = OPEN_FLEXLOG( "log/memoryusage.log", false );
       if ( needs_header )
       {
-		FLEXLOG( log ) << "Time ;ProcessSize ;RealmSize ;PacketSize ;ScriptCount ;ScriptSize ;ScriptStoreCount ;ScriptStoreSize ;ObjCount ;ObjSize ;AccountCount ;AccountSize ;ClientCount ;ClientSize ;"
+		FLEXLOG( log ) << "Time ;ProcessSize ;RealmSize ;PacketSize ;Misc ;ScriptCount ;ScriptSize ;ScriptStoreCount ;ScriptStoreSize ;ObjCount ;ObjSize ;AccountCount ;AccountSize ;ClientCount ;ClientSize ;"
           << "ObjItemCount ;ObjItemSize ;ObjContCount ;ObjContSize ;ObjCharCount ;ObjCharSize ;ObjNpcCount ;ObjNpcSize ;ObjWeaponCount ;ObjWeaponSize ; ObjArmorCount ;ObjArmorSize ;ObjMultiCount ;ObjMultiSize ;"
           << "ConfigCount ;ConfigSize ;ItemdescCount ;ItemdescSize";
 #ifdef DEBUG_FLYWEIGHT
@@ -1878,10 +1881,15 @@ namespace Pol {
       size_t itemdesccount = 0;
       size_t itemdescsize = Items::itemdescSizeEstimate( &itemdesccount );
 
+	  size_t miscsize = Core::global_properties.estimatedSize()
+		+ Core::estimateMenuSize();
+
+
 	  FLEXLOG( log ) << GET_LOG_FILESTAMP << ";"
 		<< Clib::getCurrentMemoryUsage() << " ;"
 		<< realmsize << " ;"
 		<< PacketWriterDefs::Packets::get().estimateSize() << " ;"
+		<< miscsize << " ;"
         << scriptcount << " ;" << scriptsize << " ;"
         << scriptstoragecount << " ;" << scriptstoragesize << " ;"
         << objcount << " ;" << objsize << " ;"

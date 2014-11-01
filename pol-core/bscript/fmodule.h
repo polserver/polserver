@@ -10,11 +10,13 @@ Notes
 #ifndef FMODULE_H
 #define FMODULE_H
 
-#include <string>
-#include <vector>
 #include "options.h"
 #include "../clib/maputil.h"
 #include "../clib/boostutils.h"
+
+#include <map>
+#include <string>
+#include <vector>
 
 namespace Pol {
   namespace Bscript {
@@ -40,13 +42,13 @@ namespace Pol {
 	{
 	public:
 	  bool have_indexes;
-	  vector<ModuleFunction*> functions;
+	  std::vector<ModuleFunction*> functions;
 
 	  // compiler only:
-	  typedef map<std::string, ModuleFunction*, Clib::ci_cmp_pred> FunctionsByName;
+	  typedef std::map<std::string, ModuleFunction*, Clib::ci_cmp_pred> FunctionsByName;
 	  FunctionsByName functionsByName;
-	  vector<ModuleFunction*> used_functions;
-	  vector<UserFunction*> owned_userfuncs;
+	  std::vector<ModuleFunction*> used_functions;
+      std::vector<UserFunction*> owned_userfuncs;
 
       boost_utils::function_name_flystring modulename;
 

@@ -12,19 +12,6 @@ Notes
 #ifndef __UOBJECT_H
 #define __UOBJECT_H
 
-#ifdef _MSC_VER
-#	pragma warning( disable: 4786 )
-#endif
-
-#include <iosfwd>
-#include <map>
-#include <string>
-#include <atomic>
-
-#include "../../lib/format/format.h"
-
-#define pf_endl '\n'
-
 #ifndef __UCONST_H
 #	include "uconst.h"
 #endif
@@ -35,9 +22,22 @@ Notes
 
 #include "../clib/refptr.h"
 #include "proplist.h"
+
 #include "../clib/boostutils.h"
+
 #include <boost/any.hpp>
 #include <boost/flyweight.hpp>
+
+#include <iosfwd>
+#include <map>
+#include <string>
+#include <atomic>
+#include <set>
+
+#include "../../lib/format/format.h"
+
+#define pf_endl '\n'
+
 
 namespace Pol {
   namespace Bscript {
@@ -152,7 +152,7 @@ namespace Pol {
 	struct MemberHelper
 	{
 	public:
-	  static T getmember( const map<unsigned short, boost::any> &_map, unsigned short member )
+	  static T getmember( const std::map<unsigned short, boost::any> &_map, unsigned short member )
 	  {
 		auto itr = _map.find( member );
 
@@ -161,7 +161,7 @@ namespace Pol {
 		else
 		  return boost::any_cast<T>( ( *itr ).second );
 	  };
-	  static void setmember( map<unsigned short, boost::any> &_map, unsigned short member, T value )
+	  static void setmember( std::map<unsigned short, boost::any> &_map, unsigned short member, T value )
 	  {
 		if ( value == 0 )
 		  _map.erase( member );
@@ -170,19 +170,19 @@ namespace Pol {
 	  };
 	};
 	template<>
-	struct MemberHelper<string>
+	struct MemberHelper<std::string>
 	{
 	public:
-	  static string getmember( const map<unsigned short, boost::any> &_map, unsigned short member )
+	  static std::string getmember( const std::map<unsigned short, boost::any> &_map, unsigned short member )
 	  {
 		auto itr = _map.find( member );
 
 		if ( itr == _map.end() )
 		  return "";
 		else
-		  return boost::any_cast<string>( ( *itr ).second );
+		  return boost::any_cast<std::string>( ( *itr ).second );
 	  };
-	  static void setmember( map<unsigned short, boost::any> &_map, unsigned short member, string value )
+      static void setmember(std::map<unsigned short, boost::any> &_map, unsigned short member, std::string value)
 	  {
 		if ( value.empty() )
 		  _map.erase( member );
@@ -366,7 +366,7 @@ namespace Pol {
       boost_utils::object_name_flystring name_;
 	private:
 	  PropertyList proplist_;
-	  map<unsigned short, boost::any> dynmap;
+	  std::map<unsigned short, boost::any> dynmap;
 
 
 

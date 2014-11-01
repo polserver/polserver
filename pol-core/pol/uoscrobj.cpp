@@ -713,38 +713,6 @@ namespace Pol {
 		return false;
 	}
   }
-#define GET_STRING_MEMBER(v) if (stricmp( membername, #v ) == 0) return new String( v )
-#define SET_STRING_MEMBER(v) if (stricmp( membername, #v ) == 0) return new String( v = value )
-
-#define GET_STRING_MEMBER_(v) if (stricmp( membername, #v ) == 0) return new String( v##_ )
-#define SET_STRING_MEMBER_(v) if (stricmp( membername, #v ) == 0) return new String( v##_ = value )
-
-#define GET_SHORT_MEMBER_(v) if (stricmp( membername, #v ) == 0) return new BLong( v##_ )
-#define SET_SHORT_MEMBER_(v) if (stricmp( membername, #v ) == 0) return new BLong( v##_ = static_cast<short>(value) )
-
-#define GET_SHORT_MEMBER(v) if (stricmp( membername, #v ) == 0) return new BLong( v )
-#define SET_SHORT_MEMBER(v) if (stricmp( membername, #v ) == 0) return new BLong( v = static_cast<short>(value) )
-
-#define GET_LONG_MEMBER(v) if (stricmp( membername, #v ) == 0) return new BLong( v )
-#define SET_LONG_MEMBER(v) if (stricmp( membername, #v ) == 0) return new BLong( v = value )
-
-#define GET_LONG_MEMBER_(v) if (stricmp( membername, #v ) == 0) return new BLong( v##_ )
-#define SET_LONG_MEMBER_(v) if (stricmp( membername, #v ) == 0) return new BLong( v##_ = value )
-
-#define GET_BOOL_MEMBER_(v) if (stricmp( membername, #v ) == 0) return new BLong( v##_ ? 1 : 0)
-#define SET_BOOL_MEMBER_(v) if (stricmp( membername, #v ) == 0) return new BLong( v##_ = value?true:false )
-
-#define GET_BOOL_MEMBER(v) if (stricmp( membername, #v ) == 0) return new BLong( v ? 1 : 0)
-#define SET_BOOL_MEMBER(v) if (stricmp( membername, #v ) == 0) return new BLong( v = value?true:false )
-
-#define GET_USHORT_MEMBER_(v) if (stricmp( membername, #v ) == 0) return new BLong( v##_ )
-#define SET_USHORT_MEMBER_(v) if (stricmp( membername, #v ) == 0) return new BLong( v##_ = static_cast<unsigned short>(value) )
-
-#define GET_USHORT_MEMBER(v) if (stricmp( membername, #v ) == 0) return new BLong( v )
-#define SET_USHORT_MEMBER(v) if (stricmp( membername, #v ) == 0) return new BLong( v = static_cast<unsigned short>(value) )
-
-#define GET_DOUBLE_MEMBER_(v) if (stricmp( membername, #v ) == 0) return new Double( v##_ )
-#define SET_DOUBLE_MEMBER_(v) if (stricmp( membername, #v ) == 0) return new Double( v##_ = static_cast<double>(value) )
 
   namespace Core {
 	using namespace Bscript;
@@ -1190,85 +1158,88 @@ namespace Pol {
 	  {
 		case MTH_SPLITSTACK_AT:
 		{
-								unsigned short amt;
-								unsigned short x, y;
-								short z;
-								const String* realm_name;
-								Item* new_stack;
-								u16 item_amount = this->getamount();
+		  unsigned short amt;
+		  unsigned short x, y;
+		  short z;
+		  const String* realm_name;
+		  Item* new_stack(nullptr);
+		  u16 item_amount = this->getamount();
 
-								if ( !ex.hasParams( 5 ) )
-								  return new BError( "Not enough parameters" );
-								else if ( !ex.getParam( 0, x ) || !ex.getParam( 1, y ) || !ex.getParam( 2, z ) || !ex.getStringParam( 3, realm_name ) )
-								  return new BError( "Invalid parameter type" );
-								else if ( !ex.getParam( 4, amt ) )
-								  return new BError( "No amount specified to pull from existing stack" );
-								else if ( amt > this->getamount() )
-								  return new BError( "Amount must be less than or equal to the stack amount" );
-								else if ( amt < 1 )
-								  return new BError( "Amount was less than 1" );
-								else if ( this->inuse() )
-								  return new BError( "Item is in use" );
+		  if ( !ex.hasParams( 5 ) )
+			return new BError( "Not enough parameters" );
+		  else if ( !ex.getParam( 0, x ) || !ex.getParam( 1, y ) || !ex.getParam( 2, z ) || !ex.getStringParam( 3, realm_name ) )
+			return new BError( "Invalid parameter type" );
+		  else if ( !ex.getParam( 4, amt ) )
+			return new BError( "No amount specified to pull from existing stack" );
+		  else if ( amt > this->getamount() )
+			return new BError( "Amount must be less than or equal to the stack amount" );
+		  else if ( amt < 1 )
+			return new BError( "Amount was less than 1" );
+		  else if ( this->inuse() )
+			return new BError( "Item is in use" );
 
-								// Validate where things are going
-								Plib::Realm* realm = Core::find_realm( realm_name->value() );
-								if ( !realm )
-								  return new BError( "Realm not found" );
-								else if ( !realm->valid( x, y, z ) )
-								  return new BError( "Invalid coordinates for realm" );
+		  // Validate where things are going
+		  Plib::Realm* realm = Core::find_realm( realm_name->value() );
+		  if ( !realm )
+			return new BError( "Realm not found" );
+		  else if ( !realm->valid( x, y, z ) )
+			return new BError( "Invalid coordinates for realm" );
 
-								// Check first if the item is non-stackable and just force stacked with CreateItemInInventory
-								if ( !this->stackable() && amt > 1 )
-								{
-								  unsigned short i;
+		  // Check first if the item is non-stackable and just force stacked with CreateItemInInventory
+		  if ( !this->stackable() && amt > 1 )
+		  {
+			unsigned short i;
 
-								  for ( i = 1; i <= amt; i++ )
-								  {
+			for ( i = 1; i <= amt; i++ )
+			{
 
-									if ( this->getamount() == 1 )
-									  new_stack = this->clone();
-									else
-									  new_stack = this->remove_part_of_stack( 1 );
+			  if ( this->getamount() == 1 )
+				new_stack = this->clone();
+			  else
+				new_stack = this->remove_part_of_stack( 1 );
 
-									new_stack->x = x;
-									new_stack->y = y;
-									new_stack->z = static_cast<s8>( z );
-									new_stack->realm = realm;
-									add_item_to_world( new_stack );
-									move_item( new_stack, x, y, static_cast<signed char>( z ), realm );
-									update_item_to_inrange( new_stack );
-								  }
+			  new_stack->x = x;
+			  new_stack->y = y;
+			  new_stack->z = static_cast<s8>( z );
+			  new_stack->realm = realm;
+			  add_item_to_world( new_stack );
+			  move_item( new_stack, x, y, static_cast<signed char>( z ), realm );
+			  update_item_to_inrange( new_stack );
+			}
 
-								  if ( this->getamount() == 1 )
-									destroy_item( this );
-								  else
-									update_item_to_inrange( this );
-								  return new Module::EItemRefObjImp( new_stack );
-								}
+			if ( this->getamount() == 1 )
+			  destroy_item( this );
+			else
+			  update_item_to_inrange( this );
+			if (new_stack != nullptr)
+			  return new Module::EItemRefObjImp( new_stack );
+			else
+			  return nullptr;
+		  }
 
 
-								if ( amt == this->getamount() )
-								  new_stack = this->clone();
-								else
-								  new_stack = this->remove_part_of_stack( amt );
+		  if ( amt == this->getamount() )
+			new_stack = this->clone();
+		  else
+			new_stack = this->remove_part_of_stack( amt );
 
-								new_stack->x = x;
-								new_stack->y = y;
-								new_stack->z = static_cast<s8>( z );
-								new_stack->realm = realm;
-								new_stack->setamount( amt );
-								add_item_to_world( new_stack );
-								move_item( new_stack, x, y, static_cast<signed char>( z ), realm );
-								update_item_to_inrange( new_stack );
+		  new_stack->x = x;
+		  new_stack->y = y;
+		  new_stack->z = static_cast<s8>( z );
+		  new_stack->realm = realm;
+		  new_stack->setamount( amt );
+		  add_item_to_world( new_stack );
+		  move_item( new_stack, x, y, static_cast<signed char>( z ), realm );
+		  update_item_to_inrange( new_stack );
 
-								if ( amt == item_amount )
-								  destroy_item( this );
-								else
-								  update_item_to_inrange( this );
+		  if ( amt == item_amount )
+			destroy_item( this );
+		  else
+			update_item_to_inrange( this );
 
-								return new Module::EItemRefObjImp( new_stack );
+		  return new Module::EItemRefObjImp( new_stack );
 
-								break;
+		  break;
 		}
 		case MTH_SPLITSTACK_INTO:
 		{
@@ -1294,14 +1265,13 @@ namespace Pol {
 
 		  // Check first if the item is non-stackable and just force stacked with CreateItemInInventory
           
-          Item* new_stack;
+          Item* new_stack(nullptr);
           u16 item_amount = this->getamount();
 
 		  if ( !this->stackable() && amt > 1 )
 		  {
             for ( unsigned short i = 1; i <= amt; i++ )
             {
-
               if ( this->getamount() == 1 )
                 new_stack = this->clone();
               else
@@ -1326,7 +1296,10 @@ namespace Pol {
 			  destroy_item( this );
 			else
 			  update_item_to_inrange( this );
-			return new Module::EItemRefObjImp( new_stack );
+			if (new_stack != nullptr)
+			  return new Module::EItemRefObjImp( new_stack );
+			else
+			  return nullptr;
 		  }
 
 		  if ( amt == this->getamount() )
@@ -1396,27 +1369,27 @@ namespace Pol {
 		}
 		case MTH_HAS_EXISTING_STACK:
 		{
-									 Item* cont = NULL;
+		  Item* cont = NULL;
 
-									 if ( !ex.hasParams( 1 ) )
-									   return new BError( "Not enough params" );
-									 else if ( !getItemParam( ex, 0, cont ) )
-									   return new BError( "No container specified" );
-									 else if ( this->inuse() )
-									   return new BError( "Item is in use" );
-									 else if ( !cont->isa( UObject::CLASS_CONTAINER ) )
-									   return new BError( "Non-container selected as target" );
+		  if ( !ex.hasParams( 1 ) )
+			return new BError( "Not enough params" );
+		  else if ( !getItemParam( ex, 0, cont ) )
+			return new BError( "No container specified" );
+		  else if ( this->inuse() )
+			return new BError( "Item is in use" );
+		  else if ( !cont->isa( UObject::CLASS_CONTAINER ) )
+			return new BError( "Non-container selected as target" );
 
-									 Core::UContainer* container = static_cast<Core::UContainer*>( cont );
+		  Core::UContainer* container = static_cast<Core::UContainer*>( cont );
 
-									 Item* existing_stack = container->find_addable_stack( this );
+		  Item* existing_stack = container->find_addable_stack( this );
 
-									 if ( existing_stack != NULL )
-									   return new Module::EItemRefObjImp( existing_stack );
-									 else
-									   return NULL;
+		  if ( existing_stack != NULL )
+			return new Module::EItemRefObjImp( existing_stack );
+		  else
+			return NULL;
 
-									 break;
+		  break;
 		}
 		default:
 		  return NULL;
@@ -2126,21 +2099,21 @@ namespace Pol {
 		  if ( ex.getParam( 0, level ) &&
 				ex.getParam( 1, duration ) )
 		  {
-			lightoverride = level;
-
-			if ( duration == -1 )
-			  lightoverride_until = ~0u;
-			else if ( duration == 0 )
-			  lightoverride_until = 0;
-			else
-			  lightoverride_until = Core::read_gameclock() + duration;
-
-			check_region_changes();
-			if ( duration == -1 )
-			  return new BLong( duration );
-			return new BLong( lightoverride_until );
-		  }
-          else return new BError("Invalid parameter type.");
+				lightoverride = level;
+	
+				if ( duration == -1 )
+				  lightoverride_until = ~0u;
+				else if ( duration == 0 )
+				  lightoverride_until = 0;
+				else
+				  lightoverride_until = Core::read_gameclock() + duration;
+	
+				check_region_changes();
+				if ( duration == -1 )
+				  return new BLong( duration );
+				return new BLong( lightoverride_until );
+			}
+		  break;
 		}
 
 		case MTH_SETSEASON:
@@ -2164,6 +2137,7 @@ namespace Pol {
 			  return new BLong( 1 );
 			}
 		  }
+		  break;
 		}
 		case MTH_SQUELCH:
 		{
@@ -2202,7 +2176,7 @@ namespace Pol {
 			else
 			  return new BError( "Mobile doesn't have that privilege" );
 		  }
-          else return new BError("Invalid parameter type");
+		  break;
 		}
 
 		case MTH_DISABLE:
@@ -2216,6 +2190,7 @@ namespace Pol {
 			set_setting( pstr->data(), false );
 			return new BLong( 1 );
 		  }
+		  break;
 		}
 
 		case MTH_ENABLED:
@@ -2225,6 +2200,7 @@ namespace Pol {
 		  const String* pstr;
 		  if ( ex.getStringParam( 0, pstr ) )
 			return new BLong( setting_enabled( pstr->data() ) ? 1 : 0 );
+		  break;
 		}
 
 		case MTH_PRIVILEGES:
@@ -2298,8 +2274,6 @@ namespace Pol {
 			clear_reportable( serial, gameclock );
 			return new BLong( 1 );
 		  }
-		  else
-			return new BError( "Invalid parameter type" );
 		  break;
 		}
 		case MTH_GETGOTTENITEM:
@@ -2330,8 +2304,6 @@ namespace Pol {
 			  send_warmode();
 		    return new BLong( warmode );
 		  }
-		  else
-		    return new BError( "Invalid parameter type" );
 		  break;
 		}
 		case MTH_GETCORPSE:
@@ -2356,8 +2328,6 @@ namespace Pol {
             clocks = ( time * Core::POLCLOCKS_PER_SEC ) / 1000;
 		    return new BLong( manual_set_swing_timer( clocks ) ? 1 : 0 );
 		  }
-		  else
-		    return new BError( "Invalid parameter type" );
 		  break;
 		}
 		case MTH_ATTACK_ONCE:
@@ -2543,10 +2513,8 @@ namespace Pol {
 			if ( duration < 0 )
 			  return new BError( "Duration must be >= 0" );
 			disable_skills_until = Core::poltime() + duration;
-			return new BLong( disable_skills_until );
+			return new BLong( static_cast<int>(disable_skills_until) );
 		  }
-		  else
-			return new BError( "Invalid parameter type" );
 		  break;
 		}
 		default:
@@ -2928,81 +2896,76 @@ namespace Pol {
       {
         case MTH_HASSPELL:
         {
-                           int sid;
-                           if ( !ex.hasParams( 1 ) )
-                             return new BError( "Not enough parameters" );
-                           if ( ex.getParam( 0, sid ) )
-                           {
-                             if ( sid <= 0 )
-                               return new BError( "SpellID must be >= 1" );
-                             if ( this->has_spellid( static_cast<unsigned int>( sid ) ) )
-                               return new BLong( 1 );
-                             else
-                               return new BLong( 0 );
-                           }
-                           else
-                             return new BError( "Invalid parameter type" );
-                           break;
+		  int sid;
+		  if ( !ex.hasParams( 1 ) )
+			return new BError( "Not enough parameters" );
+		  if ( ex.getParam( 0, sid ) )
+		  {
+			if ( sid <= 0 )
+			  return new BError( "SpellID must be >= 1" );
+			if ( this->has_spellid( static_cast<unsigned int>( sid ) ) )
+			  return new BLong( 1 );
+			else
+			  return new BLong( 0 );
+		  }
+		  break;
         }
         case MTH_SPELLS:
         {
-                         std::unique_ptr<ObjArray> arr( new ObjArray );
-                         for ( u16 i = 0; i < 64; ++i )
-                         {
-                           unsigned int sid;
+          std::unique_ptr<ObjArray> arr( new ObjArray );
+          for ( u16 i = 0; i < 64; ++i )
+          {
+            unsigned int sid;
 
-                           // Check for Mysticism spells here
-                           if ( this->spell_school == 3 )
-                             sid = 678 + i;
-                           else
-                             sid = this->spell_school * 100 + i + 1;
+            // Check for Mysticism spells here
+            if ( this->spell_school == 3 )
+              sid = 678 + i;
+            else
+              sid = this->spell_school * 100 + i + 1;
 
-                           if ( this->has_spellid( sid ) )
-                             arr->addElement( new BLong( sid ) );
-                         }
-                         return arr.release();
-                         break;
+            if ( this->has_spellid( sid ) )
+              arr->addElement( new BLong( sid ) );
+          }
+          return arr.release();
+          break;
         }
         case MTH_REMOVESPELL:
         {
-                              int sid;
-                              if ( !ex.hasParams( 1 ) )
-                                return new BError( "Not enough parameters" );
-                              if ( ex.getParam( 0, sid ) )
-                              {
-                                if ( sid <= 0 )
-                                  return new BError( "SpellID must be >= 1" );
-                                if ( this->remove_spellid( static_cast<unsigned int>( sid ) ) )
-                                  return new BLong( 1 );
-                                else
-                                  return new BLong( 0 );
-                              }
-                              else
-                                return new BError( "Invalid parameter type" );
-                              break;
+          int sid;
+          if ( !ex.hasParams( 1 ) )
+            return new BError( "Not enough parameters" );
+          if ( ex.getParam( 0, sid ) )
+          {
+            if ( sid <= 0 )
+              return new BError( "SpellID must be >= 1" );
+            if ( this->remove_spellid( static_cast<unsigned int>( sid ) ) )
+              return new BLong( 1 );
+            else
+              return new BLong( 0 );
+          }
+          break;
         }
         case MTH_ADDSPELL:
         {
-                           int sid;
-                           if ( !ex.hasParams( 1 ) )
-                             return new BError( "Not enough parameters" );
-                           if ( ex.getParam( 0, sid ) )
-                           {
-                             if ( sid <= 0 )
-                               return new BError( "SpellID must be >= 1" );
-                             if ( this->add_spellid( static_cast<unsigned int>( sid ) ) )
-                               return new BLong( 1 );
-                             else
-                               return new BLong( 0 );
-                           }
-                           else
-                             return new BError( "Invalid parameter type" );
-                           break;
+          int sid;
+          if ( !ex.hasParams( 1 ) )
+            return new BError( "Not enough parameters" );
+          if ( ex.getParam( 0, sid ) )
+          {
+            if ( sid <= 0 )
+              return new BError( "SpellID must be >= 1" );
+            if ( this->add_spellid( static_cast<unsigned int>( sid ) ) )
+              return new BLong( 1 );
+            else
+              return new BLong( 0 );
+          }
+          break;
         }
 
         default:
           return NULL;
       }
+	  return new BError( "Invalid parameter type" );
     }
 
     BObjectImp* Spellbook::script_method( const char* methodname, Executor& ex )
@@ -3037,39 +3000,39 @@ namespace Pol {
       {
         case MBR_TILLERMAN:
         {
-                            Item* cp = tillerman;
-                            if ( cp != NULL )
-                              return new Module::EItemRefObjImp( cp );
-                            else
-                              return new BError( string( "This ship doesn't have that component" ) );
-                            break;
+          Item* cp = tillerman;
+          if ( cp != NULL )
+            return new Module::EItemRefObjImp( cp );
+          else
+            return new BError( string( "This ship doesn't have that component" ) );
+          break;
         }
         case MBR_PORTPLANK:
         {
-                            Item* cp = portplank;
-                            if ( cp != NULL )
-                              return new Module::EItemRefObjImp( cp );
-                            else
-                              return new BError( string( "This ship doesn't have that component" ) );
-                            break;
+          Item* cp = portplank;
+          if ( cp != NULL )
+            return new Module::EItemRefObjImp( cp );
+          else
+            return new BError( string( "This ship doesn't have that component" ) );
+          break;
         }
         case MBR_STARBOARDPLANK:
         {
-                                 Item* cp = starboardplank;
-                                 if ( cp != NULL )
-                                   return new Module::EItemRefObjImp( cp );
-                                 else
-                                   return new BError( string( "This ship doesn't have that component" ) );
-                                 break;
+		  Item* cp = starboardplank;
+		  if ( cp != NULL )
+			return new Module::EItemRefObjImp( cp );
+		  else
+			return new BError( string( "This ship doesn't have that component" ) );
+		  break;
         }
         case MBR_HOLD:
         {
-                       Item* cp = hold;
-                       if ( cp != NULL )
-                         return new Module::EItemRefObjImp( cp );
-                       else
-                         return new BError( string( "This ship doesn't have that component" ) );
-                       break;
+          Item* cp = hold;
+          if ( cp != NULL )
+            return new Module::EItemRefObjImp( cp );
+          else
+            return new BError( string( "This ship doesn't have that component" ) );
+          break;
         }
         case MBR_ROPE: return component_list( COMPONENT_ROPE ); break;
         case MBR_WHEEL: return component_list( COMPONENT_WHEEL ); break;
@@ -3107,54 +3070,54 @@ namespace Pol {
       {
         case MTH_MOVE_OFFLINE_MOBILES:
         {
-                                       Core::xcoord x;
-                                       Core::ycoord y;
-                                       Core::zcoord z;
+          Core::xcoord x;
+          Core::ycoord y;
+          Core::zcoord z;
 
-                                       if ( ex.numParams() == 3 )
-                                       {
-                                         if ( ex.getParam( 0, x ) &&
-                                              ex.getParam( 1, y ) &&
-                                              ex.getParam( 2, z, Core::ZCOORD_MIN, Core::ZCOORD_MAX ) )
-                                         {
-                                           if ( !realm->valid( x, y, z ) )
-                                             return new BError( "Coordinates are out of range" );
+          if ( ex.numParams() == 3 )
+          {
+            if ( ex.getParam( 0, x ) &&
+                ex.getParam( 1, y ) &&
+                ex.getParam( 2, z, Core::ZCOORD_MIN, Core::ZCOORD_MAX ) )
+            {
+              if ( !realm->valid( x, y, z ) )
+                return new BError( "Coordinates are out of range" );
 
-                                           set_dirty();
-                                           move_offline_mobiles( x, y, z, realm );
-                                           return new BLong( 1 );
-                                         }
-                                         else
-                                           return new BError( "Invalid parameter type" );
-                                       }
-                                       else
-                                       {
-                                         if ( ex.numParams() == 4 )
-                                         {
-                                           const String* strrealm;
-                                           if ( ex.getParam( 0, x ) &&
-                                                ex.getParam( 1, y ) &&
-                                                ex.getParam( 2, z, Core::ZCOORD_MIN, Core::ZCOORD_MAX ) &&
-                                                ex.getStringParam( 3, strrealm ) )
-                                           {
-                                             Plib::Realm* realm = Core::find_realm( strrealm->value() );
-                                             if ( !realm )
-                                               return new BError( "Realm not found" );
+              set_dirty();
+              move_offline_mobiles( x, y, z, realm );
+              return new BLong( 1 );
+            }
+            else
+              return new BError( "Invalid parameter type" );
+          }
+          else
+          {
+            if ( ex.numParams() == 4 )
+            {
+              const String* strrealm;
+              if ( ex.getParam( 0, x ) &&
+                  ex.getParam( 1, y ) &&
+                  ex.getParam( 2, z, Core::ZCOORD_MIN, Core::ZCOORD_MAX ) &&
+                  ex.getStringParam( 3, strrealm ) )
+              {
+                Plib::Realm* realm = Core::find_realm( strrealm->value() );
+                if ( !realm )
+                  return new BError( "Realm not found" );
 
-                                             if ( !realm->valid( x, y, z ) )
-                                               return new BError( "Coordinates are out of range" );
+                if ( !realm->valid( x, y, z ) )
+                  return new BError( "Coordinates are out of range" );
 
-                                             set_dirty();
-                                             move_offline_mobiles( x, y, z, realm );
-                                             return new BLong( 1 );
-                                           }
-                                           else
-                                             return new BError( "Invalid parameter type" );
-                                         }
-                                         else
-                                           return new BError( "Not enough parameters" );
-                                       }
-                                       break;
+                set_dirty();
+                move_offline_mobiles( x, y, z, realm );
+                return new BLong( 1 );
+              }
+              else
+                return new BError( "Invalid parameter type" );
+            }
+            else
+              return new BError( "Not enough parameters" );
+          }
+          break;
         }
         default:
           return NULL;
@@ -3259,85 +3222,81 @@ namespace Pol {
       {
         case MTH_ISA:
         {
-                      if ( !ex.hasParams( 1 ) )
-                        return new BError( "Not enough parameters" );
-                      int isatype;
-                      if ( !ex.getParam( 0, isatype ) )
-                        return new BError( "Invalid parameter type" );
-                      return new BLong( script_isa( static_cast<unsigned>( isatype ) ) );
-                      break;
+          if ( !ex.hasParams( 1 ) )
+            return new BError( "Not enough parameters" );
+          int isatype;
+          if ( ex.getParam( 0, isatype ) )
+            return new BLong( script_isa( static_cast<unsigned>( isatype ) ) );
+          break;
         }
         case MTH_SET_MEMBER:
         {
-                             if ( !ex.hasParams( 2 ) )
-                               return new BError( "Not enough parameters" );
-                             BObjectImp* objimp;
-                             const String* mname;
-                             if ( ex.getStringParam( 0, mname ) &&
-                                  ( objimp = ex.getParamImp( 1 ) ) != NULL )
-                             {
-                               BObjectImp* ret;
-                               if ( objimp->isa( BObjectImp::OTLong ) )
-                               {
-                                 BLong* lng = static_cast<BLong*>( objimp );
-                                 ret = set_script_member( mname->value().c_str(), lng->value() );
-                               }
-                               else if ( objimp->isa( BObjectImp::OTDouble ) )
-                               {
-                                 Double* dbl = static_cast<Double*>( objimp );
-                                 ret = set_script_member_double( mname->value().c_str(), dbl->value() );
-                               }
-                               else if ( objimp->isa( BObjectImp::OTString ) )
-                               {
-                                 String* str = static_cast<String*>( objimp );
-                                 ret = set_script_member( mname->value().c_str(), str->value() );
-                               }
-                               else
-                                 return new BError( "Invalid value type" );
+          if ( !ex.hasParams( 2 ) )
+            return new BError( "Not enough parameters" );
+          BObjectImp* objimp;
+          const String* mname;
+          if ( ex.getStringParam( 0, mname ) &&
+              ( objimp = ex.getParamImp( 1 ) ) != NULL )
+          {
+            BObjectImp* ret;
+            if ( objimp->isa( BObjectImp::OTLong ) )
+            {
+              BLong* lng = static_cast<BLong*>( objimp );
+              ret = set_script_member( mname->value().c_str(), lng->value() );
+            }
+            else if ( objimp->isa( BObjectImp::OTDouble ) )
+            {
+              Double* dbl = static_cast<Double*>( objimp );
+              ret = set_script_member_double( mname->value().c_str(), dbl->value() );
+            }
+            else if ( objimp->isa( BObjectImp::OTString ) )
+            {
+              String* str = static_cast<String*>( objimp );
+              ret = set_script_member( mname->value().c_str(), str->value() );
+            }
+            else
+              return new BError( "Invalid value type" );
 
-                               if ( ret != NULL )
-                                 return ret;
-                               else
-                               {
-                                 string message = string( "Member " ) + string( mname->value() ) + string( " not found on that object" );
-                                 return new BError( message );
-                               }
+            if ( ret != NULL )
+              return ret;
+            else
+            {
+              string message = string( "Member " ) + string( mname->value() ) + string( " not found on that object" );
+              return new BError( message );
+            }
 
-                             }
-                             else
-                               return new BError( "Invalid parameter type" );
-                             break;
+          }
+          break;
         }
         case MTH_GET_MEMBER:
         {
-                             if ( !ex.hasParams( 1 ) )
-                               return new BError( "Not enough parameters" );
+          if ( !ex.hasParams( 1 ) )
+            return new BError( "Not enough parameters" );
 
-                             const String* mname;
-                             if ( ex.getStringParam( 0, mname ) )
-                             {
-                               BObjectImp* ret = get_script_member( mname->value().c_str() );
-                               if ( ret != NULL )
-                                 return ret;
-                               else
-                               {
-                                 string message = string( "Member " ) + string( mname->value() ) + string( " not found on that object" );
-                                 return new BError( message );
-                               }
-                             }
-                             else
-                               return new BError( "Invalid parameter type" );
-                             break;
+          const String* mname;
+          if ( ex.getStringParam( 0, mname ) )
+          {
+            BObjectImp* ret = get_script_member( mname->value().c_str() );
+            if ( ret != NULL )
+              return ret;
+            else
+            {
+              string message = string( "Member " ) + string( mname->value() ) + string( " not found on that object" );
+              return new BError( message );
+            }
+          }
+          break;
         }
         default:
         {
-                 bool changed = false;
-                 BObjectImp* imp = CallPropertyListMethod_id( proplist_, id, ex, changed );
-                 if ( changed )
-                   set_dirty();
-                 return imp;
+          bool changed = false;
+          BObjectImp* imp = CallPropertyListMethod_id( proplist_, id, ex, changed );
+          if ( changed )
+            set_dirty();
+          return imp;
         }
       }
+	  return new BError( "Invalid parameter type" );
     }
 
 
@@ -3720,13 +3679,13 @@ namespace Pol {
           break;
         case MBR_CLIENTVERSIONDETAIL:
         {
-                                      std::unique_ptr<BStruct> info( new BStruct );
-                                      Network::VersionDetailStruct version = obj_->getversiondetail();
-                                      info->addMember( "major", new BLong( version.major ) );
-                                      info->addMember( "minor", new BLong( version.minor ) );
-                                      info->addMember( "rev", new BLong( version.rev ) );
-                                      info->addMember( "patch", new BLong( version.patch ) );
-                                      return BObjectRef( info.release() );
+          std::unique_ptr<BStruct> info( new BStruct );
+          Network::VersionDetailStruct version = obj_->getversiondetail();
+          info->addMember( "major", new BLong( version.major ) );
+          info->addMember( "minor", new BLong( version.minor ) );
+          info->addMember( "rev", new BLong( version.rev ) );
+          info->addMember( "patch", new BLong( version.patch ) );
+          return BObjectRef( info.release() );
         }
           break;
         case MBR_CLIENTINFO:
@@ -3790,15 +3749,13 @@ namespace Pol {
       {
         case MTH_COMPAREVERSION:
         {
-                                 if ( !ex.hasParams( 1 ) )
-                                   return new BError( "Not enough parameters" );
-                                 const String* pstr;
-                                 if ( ex.getStringParam( 0, pstr ) )
-                                   return new BLong( obj_->compareVersion( pstr->getStringRep() ) ? 1 : 0 );
-                                 else
-                                   return new BError( "Invalid parameter type" );
+		  if ( !ex.hasParams( 1 ) )
+			return new BError( "Not enough parameters" );
+		  const String* pstr;
+		  if ( ex.getStringParam( 0, pstr ) )
+			return new BLong( obj_->compareVersion( pstr->getStringRep() ) ? 1 : 0 );
+  		  return new BError( "Invalid parameter type" );
         }
-          break;
         default: return NULL;
       }
     }

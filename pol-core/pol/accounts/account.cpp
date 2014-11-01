@@ -11,17 +11,18 @@ Notes
 
 */
 
-#include "../../clib/stl_inc.h"
+#include "account.h"
+#include "accounts.h"
+
 #include "../../clib/cfgelem.h"
 #include "../../clib/MD5.h"
 #include "../../clib/streamsaver.h"
 
-#include "account.h"
-#include "accounts.h"
 #include "../mobile/charactr.h"
 #include "../network/client.h"
 #include "../cmdlevel.h"
 #include "../polcfg.h"
+
 #include <cstring>
 
 namespace Pol {

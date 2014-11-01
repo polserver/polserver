@@ -1,7 +1,7 @@
 #ifndef MOBILE_CORPSE_H
 #define MOBILE_CORPSE_H
 
-#include "..\containr.h"
+#include "../containr.h"
 
 namespace Pol {
     namespace Core {
@@ -16,10 +16,10 @@ namespace Pol {
             virtual size_t estimatedSize() const;
             virtual u16 get_senditem_amount() const;
 
-            virtual void add(Item *item) override;
-            virtual void remove(iterator itr) override;
+			virtual void add( Item *item );// override;
+			virtual void remove( iterator itr );// override;
 
-            virtual void on_insert_add_item(Mobile::Character* mob, MoveType move, Items::Item* new_item) override;
+			virtual void on_insert_add_item( Mobile::Character* mob, MoveType move, Items::Item* new_item );// override;
 
             u16 corpsetype;
             bool take_contents_to_grave;

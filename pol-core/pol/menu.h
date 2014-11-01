@@ -54,12 +54,15 @@ namespace Pol {
 	  char title[80];
 
 	  std::vector<MenuItem> menuitems_;
+	  size_t estimateSize() const;
 	};
 
 	extern std::vector<Menu> menus;
 
 	Menu *find_menu( const char *name );
 	Menu *find_menu( unsigned short menu_id );
+
+	size_t estimateMenuSize();
   }
 }
 #endif

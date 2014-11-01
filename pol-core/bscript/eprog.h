@@ -11,10 +11,6 @@ Notes
 #ifndef BSCRIPT_EPROG_H
 #define BSCRIPT_EPROG_H
 
-#include <iosfwd>
-#include <string>
-#include <vector>
-
 #include "options.h"
 #include "symcont.h"
 #include "token.h"
@@ -24,6 +20,11 @@ Notes
 #include "../clib/boostutils.h"
 
 #include "executortype.h"
+
+#include <iosfwd>
+#include <string>
+#include <vector>
+
 namespace Pol {
   namespace Plib {
 	class Package;
@@ -60,7 +61,7 @@ namespace Pol {
 	{
 	  unsigned parentblockidx;
 	  unsigned parentvariables;
-	  vector< std::string > localvarnames;
+	  std::vector< std::string > localvarnames;
 	};
 
 	struct EPExportedFunction
@@ -94,7 +95,7 @@ namespace Pol {
       unsigned expectedArgs;
       bool haveProgram;
 	  boost_utils::script_name_flystring name;
-	  vector< FunctionalityModule* > modules;
+	  std::vector< FunctionalityModule* > modules;
 	  StoredTokenContainer tokens;
 	  SymbolContainer symbols;
 
@@ -115,18 +116,18 @@ namespace Pol {
 	  // compiler only:
       unsigned program_PC;
       std::string program_decl;
-	  vector<std::string> sourcelines;
-	  vector<std::string> fileline;
-	  vector<std::string> function_decls;
+	  std::vector<std::string> sourcelines;
+      std::vector<std::string> fileline;
+      std::vector<std::string> function_decls;
 
-	  vector<EPExportedFunction> exported_functions;
+      std::vector<EPExportedFunction> exported_functions;
 
 	  // executor only:
 	  unsigned short version;
       unsigned int invocations;
       u64 instr_cycles; // FIXME need an enable-profiling flag
       Plib::Package const * pkg;
-	  vector<Instruction> instr;
+      std::vector<Instruction> instr;
 
 	  // debug data:
 	  bool debug_loaded;
@@ -135,16 +136,16 @@ namespace Pol {
 	  unsigned curfile;
 	  unsigned curline;
 	  bool statementbegin;
-      vector< std::string > globalvarnames;
-      vector< EPDbgBlock > blocks;
-      vector< EPDbgFunction > dbg_functions;
-	  vector< std::string > dbg_filenames;
+      std::vector< std::string > globalvarnames;
+      std::vector< EPDbgBlock > blocks;
+      std::vector< EPDbgFunction > dbg_functions;
+      std::vector< std::string > dbg_filenames;
 
 	  // per instruction:
-	  vector< unsigned > dbg_filenum;
-	  vector< unsigned > dbg_linenum;
-	  vector< unsigned > dbg_ins_blocks;
-	  vector< bool > dbg_ins_statementbegin;
+      std::vector< unsigned > dbg_filenum;
+      std::vector< unsigned > dbg_linenum;
+      std::vector< unsigned > dbg_ins_blocks;
+      std::vector< bool > dbg_ins_statementbegin;
 	  void setcontext( const CompilerContext& ctx );
 	  void setstatementbegin();
 

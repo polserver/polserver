@@ -16,7 +16,7 @@ namespace Pol {
             virtual size_t estimatedSize() const;
 
             virtual Bscript::BObjectImp* make_ref();
-            virtual Mobile::Character* get_chr_owner() { return chr_owner; };
+            virtual Mobile::Character* get_chr_owner();
             Mobile::Character* chr_owner;
 
             virtual UObject* owner();
@@ -42,6 +42,11 @@ namespace Pol {
                 return ITEM_ELEM_PTR(contents_[idx]);
 
             return NULL;
+        }
+
+		inline Mobile::Character *WornItemsContainer::get_chr_owner()
+        {
+            return chr_owner;
         }
 
     }

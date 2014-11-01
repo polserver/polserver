@@ -15,12 +15,20 @@ namespace Pol {
   namespace Core {
 	typedef unsigned int gameclock_t;
 
-	void start_gameclock();
-	void stop_gameclock();
-	void update_gameclock();
-	gameclock_t read_gameclock();
+    /// The functions below deal with reading and updating the gameclock.
+    /// The state is protected by a mutex.
 
-	extern std::mutex _gameclock_mutex;
+    /// Starts the game clock based on the global cprop "gameclock".
+	void start_gameclock();
+
+    /// Stops the game clock and saves the current value into "gameclock"
+	void stop_gameclock();
+
+    /// Saves the current value into the global cprop "gameclock"
+	void update_gameclock();
+
+    /// Reads the current value of the game clock.
+	gameclock_t read_gameclock();
   }
 }
 #endif

@@ -10,12 +10,7 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-#ifdef _MSC_VER
-#pragma warning( disable: 4786 )
-#endif
-
-#include <atomic>
+#include "uobject.h"
 
 #include "../clib/cfgelem.h"
 #include "../clib/endian.h"
@@ -38,13 +33,12 @@ Notes
 #include "uofile.h"
 #include "zone.h"
 
-#include "uobject.h"
-
 #include "objecthash.h"
+
 namespace Pol {
   namespace Core {
 	std::set<UObject*> unreaped_orphan_instances;
-	ofstream orphans_txt( "orphans.txt", ios::out | ios::trunc );
+    std::ofstream orphans_txt("orphans.txt", std::ios::out | std::ios::trunc);
 
 	int display_orphan( UObject* o )
 	{

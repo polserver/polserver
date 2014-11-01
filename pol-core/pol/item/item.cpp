@@ -14,11 +14,11 @@ Notes
 
 */
 
-#include "../../clib/stl_inc.h"
-
 #ifdef _MSC_VER
 #	pragma warning( disable: 4786 )
 #endif
+
+#include "item.h"
 
 #include "../../clib/cfgelem.h"
 #include "../../clib/endian.h"
@@ -31,7 +31,6 @@ Notes
 
 #include "../../plib/mapcell.h"
 
-#include "item.h"
 #include "armor.h"
 #include "../ustruct.h"
 #include "../uofile.h"

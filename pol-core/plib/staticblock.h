@@ -12,6 +12,9 @@ Notes
 #define PLIB_STATICBLOCK_H
 
 #include "../clib/rawtypes.h"
+
+#include <vector>
+
 namespace Pol {
   namespace Plib {
 	struct STATIC_INDEX
@@ -27,7 +30,7 @@ namespace Pol {
 	  u16 hue;
 	};
 
-	class StaticEntryList : public vector<STATIC_ENTRY> {};
+	class StaticEntryList : public std::vector<STATIC_ENTRY> {};
 
 	const unsigned STATICBLOCK_CHUNK = 8;
 	const unsigned STATICBLOCK_SHIFT = 3;

@@ -7,23 +7,27 @@ Notes
 
 */
 
-#include "stl_inc.h"
+#include "dirlist.h"
+
+#ifdef _MSC_VER
+#pragma warning(disable:4996) // disable deprecation warnings for getcwd, chdir
+#endif
 
 #ifdef __unix__
 #include <unistd.h>
 #endif
 
-#include "dirlist.h"
-
 
 #ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h> 
+
 namespace Pol {
   namespace Clib {
 	DirList::DirList( const char* dirname )
 	{
 	  memset( &fd_, 0, sizeof( fd_ ) );
-	  string srch = dirname;
+	  std::string srch = dirname;
 	  srch += "*";
 
 	  hfd_ = FindFirstFile( srch.c_str(), &fd_ );
@@ -56,7 +60,7 @@ namespace Pol {
 	  return ( hfd_ == INVALID_HANDLE_VALUE );
 	}
 
-	string DirList::name() const
+	std::string DirList::name() const
 	{
 	  return fd_.cFileName;
 	}
@@ -106,7 +110,7 @@ bool DirList::at_end() const
     return (dir_ == NULL);
 }
 
-string DirList::name() const
+std::string DirList::name() const
 {
     return cur_name_;
 }
@@ -157,7 +161,7 @@ namespace Pol {
 	  return ok_;
 	}
 
-	string curdir()
+	std::string curdir()
 	{
 #ifdef MAX_PATH
 	  char cdir[_MAX_PATH];

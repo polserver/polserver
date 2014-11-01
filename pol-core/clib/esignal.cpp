@@ -7,12 +7,12 @@ Notes
 
 */
 
-#include "stl_inc.h"
-#include "logfacility.h"
 
 #include "esignal.h"
+#include "logfacility.h"
 
 #ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #else
 #include <signal.h>

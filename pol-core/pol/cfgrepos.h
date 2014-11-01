@@ -50,7 +50,7 @@ namespace Pol {
 	  void addprop( const std::string& propname, Bscript::BObjectImp* imp );
 
 	  typedef StoredConfigElem::PropImpList::const_iterator const_iterator;
-	  pair<const_iterator, const_iterator> equal_range( const std::string& propname ) const;
+      std::pair<const_iterator, const_iterator> equal_range(const std::string& propname) const;
 	private:
 	  PropImpList propimps_;
 
@@ -75,11 +75,11 @@ namespace Pol {
 	  int maxintkey() const;
 	  const time_t modified() const;
 
-	  typedef map<std::string, ElemRef, Clib::ci_cmp_pred> ElementsByName;
+      typedef std::map<std::string, ElemRef, Clib::ci_cmp_pred> ElementsByName;
 	  ElementsByName::const_iterator byname_begin() { return elements_byname_.begin(); }
 	  ElementsByName::const_iterator byname_end() { return elements_byname_.end(); }
 
-	  typedef map<int, ElemRef> ElementsByNum;
+      typedef std::map<int, ElemRef> ElementsByNum;
 	  ElementsByNum::const_iterator bynum_begin() { return elements_bynum_.begin(); }
 	  ElementsByNum::const_iterator bynum_end() { return elements_bynum_.end(); }
 

@@ -77,156 +77,156 @@ namespace Pol {
 	  {
 		case MTH_SETDECLARATION:
 		{
-								 if ( !ex.hasParams( 3 ) )
-								   return new BError( "Not enough parameters" );
-								 const String* version;
-								 const String* encoding;
-								 const String* standalone;
-								 if ( ex.getStringParam( 0, version ) &&
-									  ex.getStringParam( 1, encoding ) &&
-									  ex.getStringParam( 2, standalone ) )
-								 {
-								   TiXmlDeclaration* decl = new TiXmlDeclaration( version->value(), encoding->value(), standalone->value() );
-								   if ( !file.NoChildren() ) // in case its not the first method used
-								   {
-									 if ( file.FirstChild()->Type() == TiXmlNode::TINYXML_DECLARATION )
-									   file.RemoveChild( file.FirstChild() ); // remove old declaration
-									 if ( !file.NoChildren() )
-									   file.InsertBeforeChild( file.FirstChild(), *decl );
-									 else
-									   file.LinkEndChild( decl );
-								   }
-								   else
-									 file.LinkEndChild( decl );
-								   return new BLong( 1 );
-								 }
-								 return new BError( "Invalid parameter type" );
+		  if ( !ex.hasParams( 3 ) )
+			return new BError( "Not enough parameters" );
+		  const String* version;
+		  const String* encoding;
+		  const String* standalone;
+		  if ( ex.getStringParam( 0, version ) &&
+			  ex.getStringParam( 1, encoding ) &&
+			  ex.getStringParam( 2, standalone ) )
+		  {
+			TiXmlDeclaration* decl = new TiXmlDeclaration( version->value(), encoding->value(), standalone->value() );
+			if ( !file.NoChildren() ) // in case its not the first method used
+			{
+			  if ( file.FirstChild()->Type() == TiXmlNode::TINYXML_DECLARATION )
+				file.RemoveChild( file.FirstChild() ); // remove old declaration
+			  if ( !file.NoChildren() )
+				file.InsertBeforeChild( file.FirstChild(), *decl );
+			  else
+				file.LinkEndChild( decl );
+			}
+			else
+			  file.LinkEndChild( decl );
+			return new BLong( 1 );
+		  }
+		  break;
 		}
 		case MTH_APPENDNODE:
 		{
-							 if ( !ex.hasParams( 1 ) )
-							   return new BError( "Not enough parameters" );
-							 const String* pstr;
-							 if ( ex.getStringParam( 0, pstr ) )
-							 {
-							   std::unique_ptr<TiXmlElement> elem( new TiXmlElement( pstr->value() ) );
+		  if ( !ex.hasParams( 1 ) )
+			return new BError( "Not enough parameters" );
+		  const String* pstr;
+		  if ( ex.getStringParam( 0, pstr ) )
+		  {
+			std::unique_ptr<TiXmlElement> elem( new TiXmlElement( pstr->value() ) );
 
-							   if ( ex.hasParams( 2 ) )
-							   {
-								 BStruct* attr = static_cast<BStruct*>( ex.getParamImp( 1, Bscript::BObjectImp::OTStruct ) );
-								 if ( attr )
-								 {
-								   for ( BStruct::Contents::const_iterator citr = attr->contents().begin(), end = attr->contents().end(); citr != end; ++citr )
-								   {
-									 const string& name = ( *citr ).first;
-									 Bscript::BObjectImp* ref = ( *citr ).second->impptr();
-									 if ( ref->isa( Bscript::BObjectImp::OTLong ) )
-									   elem->SetAttribute( name, static_cast<BLong*>( ref )->value() );
-									 else if ( ref->isa( Bscript::BObjectImp::OTDouble ) )
-									   elem->SetDoubleAttribute( name, static_cast<Double*>( ref )->value() );
-									 else
-									   elem->SetAttribute( name, ref->getStringRep() );
-								   }
-								 }
-							   }
+			if ( ex.hasParams( 2 ) )
+			{
+			  BStruct* attr = static_cast<BStruct*>( ex.getParamImp( 1, Bscript::BObjectImp::OTStruct ) );
+			  if ( attr )
+			  {
+				for ( BStruct::Contents::const_iterator citr = attr->contents().begin(), end = attr->contents().end(); citr != end; ++citr )
+				{
+				  const string& name = ( *citr ).first;
+				  Bscript::BObjectImp* ref = ( *citr ).second->impptr();
+				  if ( ref->isa( Bscript::BObjectImp::OTLong ) )
+					elem->SetAttribute( name, static_cast<BLong*>( ref )->value() );
+				  else if ( ref->isa( Bscript::BObjectImp::OTDouble ) )
+					elem->SetDoubleAttribute( name, static_cast<Double*>( ref )->value() );
+				  else
+					elem->SetAttribute( name, ref->getStringRep() );
+				}
+			  }
+			}
 
-                               file.LinkEndChild(elem.release());
-							   return new BLong( 1 );
-							 }
-							 return new BError( "Invalid parameter type" );
+			file.LinkEndChild(elem.release());
+			return new BLong( 1 );
+		  }
+		  break;
 		}
 		case MTH_APPENDXMLCOMMENT:
 		{
-								   if ( !ex.hasParams( 1 ) )
-									 return new BError( "Not enough parameters" );
-								   const String* pstr;
-								   if ( ex.getStringParam( 0, pstr ) )
-								   {
-									 TiXmlComment* comment = new TiXmlComment( pstr->value().c_str() );
-									 file.LinkEndChild( comment );
-									 return new BLong( 1 );
-								   }
-								   return new BError( "Invalid parameter type" );
+		  if ( !ex.hasParams( 1 ) )
+			return new BError( "Not enough parameters" );
+		  const String* pstr;
+		  if ( ex.getStringParam( 0, pstr ) )
+		  {
+			TiXmlComment* comment = new TiXmlComment( pstr->value().c_str() );
+			file.LinkEndChild( comment );
+			return new BLong( 1 );
+		  }
+		  break;
 		}
 		case MTH_REMOVENODE:
 		{
-							 if ( !ex.hasParams( 1 ) )
-							   return new BError( "Not enough parameters" );
-							 Bscript::BObjectImp* imp = ex.getParamImp( 0 );
-							 if ( imp->isa( Bscript::BObjectImp::OTString ) )
-							 {
-							   const String* pstr = Clib::explicit_cast<String*, Bscript::BObjectImp*>( imp );
-							   TiXmlNode* child = file.FirstChild( pstr->value() );
-							   if ( child )
-								 return new BLong( file.RemoveChild( child ) ? 1 : 0 );
-							   else
-								 return new BError( "Failed to find node" );
-							 }
-							 else if ( imp->isa( Bscript::BObjectImp::OTLong ) )
-							 {
-                               const BLong* keyint = Clib::explicit_cast<BLong*, Bscript::BObjectImp*>( imp );
-							   if ( keyint->value() != 1 )
-								 return new BError( "Failed to find node" );
-							   return new BLong( file.RemoveChild( file.RootElement() ) ? 1 : 0 );
-							 }
-							 else if ( imp->isa( Bscript::BObjectImp::OTXMLNode ) )
-							 {
-                               const BXmlNode* pstr = Clib::explicit_cast<BXmlNode*, Bscript::BObjectImp*>( imp );
-							   TiXmlNode* node = file.ToElement();
-							   if ( node != pstr->getNode()->Parent() )
-								 return new BError( "Failed to find node" );
-							   return new BLong( file.RemoveChild( pstr->getNode() ) ? 1 : 0 );
-							 }
-
-							 return new BError( "Invalid parameter type" );
+		  if ( !ex.hasParams( 1 ) )
+			return new BError( "Not enough parameters" );
+		  Bscript::BObjectImp* imp = ex.getParamImp( 0 );
+		  if ( imp->isa( Bscript::BObjectImp::OTString ) )
+		  {
+			const String* pstr = Clib::explicit_cast<String*, Bscript::BObjectImp*>( imp );
+			TiXmlNode* child = file.FirstChild( pstr->value() );
+			if ( child )
+			  return new BLong( file.RemoveChild( child ) ? 1 : 0 );
+			else
+			  return new BError( "Failed to find node" );
+		  }
+		  else if ( imp->isa( Bscript::BObjectImp::OTLong ) )
+		  {
+            const BLong* keyint = Clib::explicit_cast<BLong*, Bscript::BObjectImp*>( imp );
+			if ( keyint->value() != 1 )
+			  return new BError( "Failed to find node" );
+			return new BLong( file.RemoveChild( file.RootElement() ) ? 1 : 0 );
+		  }
+		  else if ( imp->isa( Bscript::BObjectImp::OTXMLNode ) )
+		  {
+            const BXmlNode* pstr = Clib::explicit_cast<BXmlNode*, Bscript::BObjectImp*>( imp );
+			TiXmlNode* node = file.ToElement();
+			if ( node != pstr->getNode()->Parent() )
+			  return new BError( "Failed to find node" );
+			return new BLong( file.RemoveChild( pstr->getNode() ) ? 1 : 0 );
+		  }
+		  break;
 		}
 		case MTH_SAVEXML:
 		{
-						  if ( !ex.hasParams( 1 ) )
-							return new BError( "Not enough parameters" );
-						  const String* pstr;
-						  if ( ex.getStringParam( 0, pstr ) )
-						  {
-							const Plib::Package* outpkg;
-							string path;
-							if ( !pkgdef_split( pstr->value(), ex.prog()->pkg, &outpkg, &path ) )
-							  return new BError( "Error in filename descriptor" );
+		  if ( !ex.hasParams( 1 ) )
+			return new BError( "Not enough parameters" );
+		  const String* pstr;
+		  if ( ex.getStringParam( 0, pstr ) )
+		  {
+			const Plib::Package* outpkg;
+			string path;
+			if ( !pkgdef_split( pstr->value(), ex.prog()->pkg, &outpkg, &path ) )
+			  return new BError( "Error in filename descriptor" );
 
-							if ( path.find( ".." ) != string::npos )
-							  return new BError( "No parent path traversal please." );
+			if ( path.find( ".." ) != string::npos )
+			  return new BError( "No parent path traversal please." );
 
-                            if ( !Module::HasWriteAccess( ex.prog( )->pkg, outpkg, path ) )
-							  return new BError( "Access denied" );
+            if ( !Module::HasWriteAccess( ex.prog( )->pkg, outpkg, path ) )
+			  return new BError( "Access denied" );
 
-							string filepath;
-							if ( outpkg == NULL )
-							  filepath = path;
-							else
-							  filepath = outpkg->dir() + path;
+			string filepath;
+			if ( outpkg == NULL )
+			  filepath = path;
+			else
+			  filepath = outpkg->dir() + path;
 
-							return new BLong( file.SaveFile( filepath ) ? 1 : 0 );
-						  }
-						  return new BError( "Invalid parameter type" );
+			return new BLong( file.SaveFile( filepath ) ? 1 : 0 );
+		  }
+		  break;		  
 		}
 		case MTH_XMLTOSTRING:
 		{
-							  string indent = "\t";
-							  if ( ex.hasParams( 1 ) )
-							  {
-								const String* pstr;
-								if ( ex.getStringParam( 0, pstr ) )
-								  indent = pstr->value();
-							  }
-							  TiXmlPrinter printer;
-							  printer.SetIndent( indent.c_str() );
+		  string indent = "\t";
+		  if ( ex.hasParams( 1 ) )
+		  {
+			const String* pstr;
+			if ( ex.getStringParam( 0, pstr ) )
+			  indent = pstr->value();
+		  }
+		  TiXmlPrinter printer;
+		  printer.SetIndent( indent.c_str() );
 
-							  file.Accept( &printer );
-							  return new String( printer.CStr() );
+		  file.Accept( &printer );
+		  return new String( printer.CStr() );
 		}
 
 		default:
 		  return NULL;
 	  }
+	  return new BError( "Invalid parameter type" );
 	}
 
 	Bscript::BObjectImp* BXMLfile::copy() const
@@ -328,189 +328,191 @@ namespace Pol {
 	  {
 		case MTH_FIRSTCHILD:
 		{
-							 if ( ex.hasParams( 1 ) )
-							 {
-							   const String* pstr;
-							   if ( ex.getStringParam( 0, pstr ) )
-							   {
-								 TiXmlNode* child = node->FirstChild( pstr->value() );
-								 if ( child )
-								   return new BXmlNode( child );
-								 else
-								   return new BError( "Failed to find node" );
-							   }
-							   return new BError( "Invalid parameter type" );
-							 }
-							 else
-							 {
-							   TiXmlNode* child = node->FirstChild();
-							   if ( child )
-								 return new BXmlNode( child );
-							   else
-								 return new BError( "Failed to find node" );
-							 }
-
+		  if ( ex.hasParams( 1 ) )
+		  {
+			const String* pstr;
+			if ( ex.getStringParam( 0, pstr ) )
+			{
+			  TiXmlNode* child = node->FirstChild( pstr->value() );
+			  if ( child )
+				return new BXmlNode( child );
+			  else
+				return new BError( "Failed to find node" );
+			}
+			return new BError( "Invalid parameter type" );
+		  }
+		  else
+		  {
+			TiXmlNode* child = node->FirstChild();
+			if ( child )
+			  return new BXmlNode( child );
+			else
+			  return new BError( "Failed to find node" );
+		  }
+		  break;
 		}
 		case MTH_NEXTSIBLING:
 		{
-							  if ( ex.hasParams( 1 ) )
-							  {
-								const String* pstr;
-								if ( ex.getStringParam( 0, pstr ) )
-								{
-								  TiXmlNode* sibling = node->NextSibling( pstr->value() );
-								  if ( sibling )
-									return new BXmlNode( sibling );
-								  else
-									return new BError( "Failed to find node" );
-								}
-							  }
-							  else
-							  {
-								TiXmlNode* sibling = node->NextSibling();
-								if ( sibling )
-								  return new BXmlNode( sibling );
-								else
-								  return new BError( "Failed to find node" );
-							  }
+		  if ( ex.hasParams( 1 ) )
+		  {
+			const String* pstr;
+			if ( ex.getStringParam( 0, pstr ) )
+			{
+			  TiXmlNode* sibling = node->NextSibling( pstr->value() );
+			  if ( sibling )
+				return new BXmlNode( sibling );
+			  else
+				return new BError( "Failed to find node" );
+			}
+		  }
+		  else
+		  {
+			TiXmlNode* sibling = node->NextSibling();
+			if ( sibling )
+			  return new BXmlNode( sibling );
+			else
+			  return new BError( "Failed to find node" );
+		  }
+		  break;
 		}
 		case MTH_APPENDNODE:
 		{
-							 if ( !ex.hasParams( 1 ) )
-							   return new BError( "Not enough parameters" );
-							 const String* pstr;
-							 if ( ex.getStringParam( 0, pstr ) )
-							 {							   
-							   std::unique_ptr<TiXmlElement> elem( new TiXmlElement( pstr->value() ) );
+		  if ( !ex.hasParams( 1 ) )
+			return new BError( "Not enough parameters" );
+		  const String* pstr;
+		  if ( ex.getStringParam( 0, pstr ) )
+		  {							   
+			std::unique_ptr<TiXmlElement> elem( new TiXmlElement( pstr->value() ) );
 
-							   if ( ex.hasParams( 2 ) )
-							   {
-								 BStruct* attr = static_cast<BStruct*>( ex.getParamImp( 1, Bscript::BObjectImp::OTStruct ) );
-								 if ( attr )
-								 {
-								   for ( BStruct::Contents::const_iterator citr = attr->contents().begin(), end = attr->contents().end(); citr != end; ++citr )
-								   {
-									 const string& name = ( *citr ).first;
-									 Bscript::BObjectImp* ref = ( *citr ).second->impptr();
-									 if ( ref->isa( Bscript::BObjectImp::OTLong ) )
-									   elem->SetAttribute( name, static_cast<BLong*>( ref )->value() );
-									 else if ( ref->isa( Bscript::BObjectImp::OTDouble ) )
-									   elem->SetDoubleAttribute( name, static_cast<Double*>( ref )->value() );
-									 else
-									   elem->SetAttribute( name, ref->getStringRep() );
-								   }
-								 }
-							   }
+			if ( ex.hasParams( 2 ) )
+			{
+			  BStruct* attr = static_cast<BStruct*>( ex.getParamImp( 1, Bscript::BObjectImp::OTStruct ) );
+			  if ( attr )
+			  {
+				for ( BStruct::Contents::const_iterator citr = attr->contents().begin(), end = attr->contents().end(); citr != end; ++citr )
+				{
+				  const string& name = ( *citr ).first;
+				  Bscript::BObjectImp* ref = ( *citr ).second->impptr();
+				  if ( ref->isa( Bscript::BObjectImp::OTLong ) )
+					elem->SetAttribute( name, static_cast<BLong*>( ref )->value() );
+				  else if ( ref->isa( Bscript::BObjectImp::OTDouble ) )
+					elem->SetDoubleAttribute( name, static_cast<Double*>( ref )->value() );
+				  else
+					elem->SetAttribute( name, ref->getStringRep() );
+				}
+			  }
+			}
 
-                               TiXmlElement* nodeelem = node->ToElement();
-                               nodeelem->LinkEndChild(elem.release());
-							   return new BLong( 1 );
-							 }
-							 return new BError( "Invalid parameter type" );
+			TiXmlElement* nodeelem = node->ToElement();
+			nodeelem->LinkEndChild(elem.release());
+			return new BLong( 1 );
+		  }
+		  break;
 		}
 		case MTH_APPENDXMLCOMMENT:
 		{
-								   if ( !ex.hasParams( 1 ) )
-									 return new BError( "Not enough parameters" );
-								   const String* pstr;
-								   if ( ex.getStringParam( 0, pstr ) )
-								   {
-									 TiXmlComment* comment = new TiXmlComment( pstr->value().c_str() );
-									 node->LinkEndChild( comment );
-									 return new BLong( 1 );
-								   }
-								   return new BError( "Invalid parameter type" );
+		  if ( !ex.hasParams( 1 ) )
+			return new BError( "Not enough parameters" );
+		  const String* pstr;
+		  if ( ex.getStringParam( 0, pstr ) )
+		  {
+			TiXmlComment* comment = new TiXmlComment( pstr->value().c_str() );
+			node->LinkEndChild( comment );
+			return new BLong( 1 );
+		  }
+		  break;
 		}
 		case MTH_SETATTRIBUTE:
 		{
-							   if ( !ex.hasParams( 1 ) )
-								 return new BError( "Not enough parameters" );
-							   BStruct* attr = static_cast<BStruct*>( ex.getParamImp( 0, Bscript::BObjectImp::OTStruct ) );
-							   if ( attr )
-							   {
-								 TiXmlElement* elem = node->ToElement();
-								 for ( BStruct::Contents::const_iterator citr = attr->contents().begin(), end = attr->contents().end(); citr != end; ++citr )
-								 {
-								   const string& name = ( *citr ).first;
-								   Bscript::BObjectImp* ref = ( *citr ).second->impptr();
-								   if ( ref->isa( Bscript::BObjectImp::OTLong ) )
-									 elem->SetAttribute( name, static_cast<BLong*>( ref )->value() );
-								   else if ( ref->isa( Bscript::BObjectImp::OTDouble ) )
-									 elem->SetDoubleAttribute( name, static_cast<Double*>( ref )->value() );
-								   else
-									 elem->SetAttribute( name, ref->getStringRep() );
-								 }
-								 return new BLong( 1 );
-							   }
-							   return new BError( "Invalid parameter type" );
+		  if ( !ex.hasParams( 1 ) )
+			return new BError( "Not enough parameters" );
+		  BStruct* attr = static_cast<BStruct*>( ex.getParamImp( 0, Bscript::BObjectImp::OTStruct ) );
+		  if ( attr )
+		  {
+			TiXmlElement* elem = node->ToElement();
+			for ( BStruct::Contents::const_iterator citr = attr->contents().begin(), end = attr->contents().end(); citr != end; ++citr )
+			{
+			  const string& name = ( *citr ).first;
+			  Bscript::BObjectImp* ref = ( *citr ).second->impptr();
+			  if ( ref->isa( Bscript::BObjectImp::OTLong ) )
+				elem->SetAttribute( name, static_cast<BLong*>( ref )->value() );
+			  else if ( ref->isa( Bscript::BObjectImp::OTDouble ) )
+				elem->SetDoubleAttribute( name, static_cast<Double*>( ref )->value() );
+			  else
+				elem->SetAttribute( name, ref->getStringRep() );
+			}
+			return new BLong( 1 );
+		  }
+		  break;
 		}
 		case MTH_REMOVEATTRIBUTE:
 		{
-								  if ( !ex.hasParams( 1 ) )
-									return new BError( "Not enough parameters" );
-								  const String* pstr;
-								  if ( ex.getStringParam( 0, pstr ) )
-								  {
-									TiXmlElement* elem = node->ToElement();
-									elem->RemoveAttribute( pstr->value() );
-									return new BLong( 1 );
-								  }
-								  return new BError( "Invalid parameter type" );
+		  if ( !ex.hasParams( 1 ) )
+			return new BError( "Not enough parameters" );
+		  const String* pstr;
+		  if ( ex.getStringParam( 0, pstr ) )
+		  {
+			TiXmlElement* elem = node->ToElement();
+			elem->RemoveAttribute( pstr->value() );
+			return new BLong( 1 );
+		  }
+		  break;
 		}
 		case MTH_REMOVENODE:
 		{
-							 if ( !ex.hasParams( 1 ) )
-							   return new BError( "Not enough parameters" );
-							 Bscript::BObjectImp* imp = ex.getParamImp( 0 );
-							 if ( imp->isa( Bscript::BObjectImp::OTString ) )
-							 {
-                               const String* pstr = Clib::explicit_cast<String*, Bscript::BObjectImp*>( imp );
-							   TiXmlNode* child = node->FirstChild( pstr->value() );
-							   if ( child )
-								 return new BLong( node->RemoveChild( child ) ? 1 : 0 );
-							   else
-								 return new BError( "Failed to find node" );
-							 }
-							 else if ( imp->isa( Bscript::BObjectImp::OTLong ) )
-							 {
-                               const BLong* keyint = Clib::explicit_cast<BLong*, Bscript::BObjectImp*>( imp );
-							   TiXmlHandle handle( node );
-							   TiXmlNode* child = handle.Child( keyint->value() - 1 ).ToNode(); //keep escript 1based index and change it to 0based
-							   if ( child )
-								 return new BLong( node->RemoveChild( child ) ? 1 : 0 );
-							   else
-								 return new BError( "Failed to find node" );
-							 }
-							 else if ( imp->isa( Bscript::BObjectImp::OTXMLNode ) )
-							 {
-                               const BXmlNode* pstr = Clib::explicit_cast<BXmlNode*, Bscript::BObjectImp*>( imp );
-							   if ( node->Parent() != pstr->getNode()->Parent() )
-								 return new BError( "Failed to find node" );
-							   return new BLong( node->RemoveChild( pstr->getNode() ) ? 1 : 0 );
-							 }
-
-							 return new BError( "Invalid parameter type" );
+		  if ( !ex.hasParams( 1 ) )
+			return new BError( "Not enough parameters" );
+		  Bscript::BObjectImp* imp = ex.getParamImp( 0 );
+		  if ( imp->isa( Bscript::BObjectImp::OTString ) )
+		  {
+			const String* pstr = Clib::explicit_cast<String*, Bscript::BObjectImp*>( imp );
+			TiXmlNode* child = node->FirstChild( pstr->value() );
+			if ( child )
+			  return new BLong( node->RemoveChild( child ) ? 1 : 0 );
+			else
+			  return new BError( "Failed to find node" );
+		  }
+		  else if ( imp->isa( Bscript::BObjectImp::OTLong ) )
+		  {
+			const BLong* keyint = Clib::explicit_cast<BLong*, Bscript::BObjectImp*>( imp );
+			TiXmlHandle handle( node );
+			TiXmlNode* child = handle.Child( keyint->value() - 1 ).ToNode(); //keep escript 1based index and change it to 0based
+			if ( child )
+			  return new BLong( node->RemoveChild( child ) ? 1 : 0 );
+			else
+			  return new BError( "Failed to find node" );
+		  }
+		  else if ( imp->isa( Bscript::BObjectImp::OTXMLNode ) )
+		  {
+			const BXmlNode* pstr = Clib::explicit_cast<BXmlNode*, Bscript::BObjectImp*>( imp );
+			if ( node->Parent() != pstr->getNode()->Parent() )
+			  return new BError( "Failed to find node" );
+			return new BLong( node->RemoveChild( pstr->getNode() ) ? 1 : 0 );
+		  }
+		  break;
 		}
 		case MTH_APPENDTEXT:
 		{
-							 if ( !ex.hasParams( 1 ) )
-							   return new BError( "Not enough parameters" );
-							 const String* pstr;
-							 if ( ex.getStringParam( 0, pstr ) )
-							 {
-							   TiXmlElement* elem = node->ToElement();
-							   elem->LinkEndChild( new TiXmlText( pstr->value() ) );
-							   return new BLong( 1 );
-							 }
-							 return new BError( "Invalid parameter type" );
+		  if ( !ex.hasParams( 1 ) )
+			return new BError( "Not enough parameters" );
+		  const String* pstr;
+		  if ( ex.getStringParam( 0, pstr ) )
+		  {
+			TiXmlElement* elem = node->ToElement();
+			elem->LinkEndChild( new TiXmlText( pstr->value() ) );
+			return new BLong( 1 );
+		  }
+		  break;
+							 
 		}
 		case MTH_CLONENODE:
 		{
-							return copy();
+		  return copy();
 		}
 		default:
 		  return NULL;
 	  }
+	  return new BError( "Invalid parameter type" );
 	}
 
 	BObjectRef BXmlNode::OperSubscript( const BObject& obj )

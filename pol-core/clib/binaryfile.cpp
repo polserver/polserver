@@ -9,17 +9,19 @@ Notes
 
 */
 
-#include "stl_inc.h"
-
 #include "binaryfile.h"
+
 #include "passert.h"
 #include "strutil.h"
+
+#include <stdexcept>
+
 namespace Pol {
   namespace Clib {
 	BinaryFile::BinaryFile()
 	{}
 
-	BinaryFile::BinaryFile( const string& filename, ios::openmode mode ) :
+	BinaryFile::BinaryFile( const std::string& filename, std::ios::openmode mode ) :
 	  _filename( "" )
 	{
 	  Open( filename, mode );
@@ -28,15 +30,15 @@ namespace Pol {
 	BinaryFile::~BinaryFile()
 	{}
 
-	void BinaryFile::Open( const string& filename, ios::openmode mode )
+    void BinaryFile::Open(const std::string& filename, std::ios::openmode mode)
 	{
 	  passert( !_file.is_open() );
 
 	  _filename = filename;
 
-	  _file.open( _filename.c_str(), mode | ios::binary );
+      _file.open(_filename.c_str(), mode | std::ios::binary);
 	  if( !_file.is_open() )
-		throw runtime_error( "BinaryFile::Open('" + _filename + ", " + hexint( mode ) + ") failed." );
+          throw std::runtime_error("BinaryFile::Open('" + _filename + ", " + hexint(mode) + ") failed.");
 	}
 
 	void BinaryFile::Close()
@@ -47,46 +49,46 @@ namespace Pol {
 	  _filename = "";
 	}
 
-	void BinaryFile::Seek( fstream::pos_type abs_offset )
+    void BinaryFile::Seek(std::fstream::pos_type abs_offset)
 	{
 	  passert( _file.is_open() );
 
-	  if( !_file.seekg( abs_offset, ios::beg ) )
-		throw runtime_error( "BinaryFile::Seek('" + _filename + "') failed." );
+      if (!_file.seekg(abs_offset, std::ios::beg))
+          throw std::runtime_error("BinaryFile::Seek('" + _filename + "') failed.");
 	}
 
-	void BinaryFile::ReadBuffer( void* buffer, streamsize length )
+    void BinaryFile::ReadBuffer(void* buffer, std::streamsize length)
 	{
 	  if( !_file.read( reinterpret_cast<char*>( buffer ), length ) )
-		throw runtime_error( "BinaryFile::Read('" + _filename + "') failed to read " + decint( static_cast<int>( length ) ) + " bytes." );
+          throw std::runtime_error("BinaryFile::Read('" + _filename + "') failed to read " + decint(static_cast<int>(length)) + " bytes.");
 	}
 
-	fstream::pos_type BinaryFile::FileSize()
+    std::fstream::pos_type BinaryFile::FileSize()
 	{
 	  passert( _file.is_open() );
 
-	  fstream::pos_type save_pos = _file.tellg();
-	  if( save_pos == fstream::pos_type( -1 ) )
-		throw runtime_error( "BinaryFile::FileSize('" + _filename + "' failed to determine current position." );
+      std::fstream::pos_type save_pos = _file.tellg();
+      if (save_pos == std::fstream::pos_type(-1))
+          throw std::runtime_error("BinaryFile::FileSize('" + _filename + "' failed to determine current position.");
 
-	  if( !_file.seekg( 0, ios::end ) )
-		throw runtime_error( "BinaryFile::FileSize('" + _filename + "') failed to seek to end of file." );
-	  fstream::pos_type size = _file.tellg();
-	  if( size == fstream::pos_type( -1 ) )
-		throw runtime_error( "BinaryFile::FileSize('" + _filename + "') could not determine file size." );
+      if (!_file.seekg(0, std::ios::end))
+          throw std::runtime_error("BinaryFile::FileSize('" + _filename + "') failed to seek to end of file.");
+      std::fstream::pos_type size = _file.tellg();
+      if (size == std::fstream::pos_type(-1))
+          throw std::runtime_error("BinaryFile::FileSize('" + _filename + "') could not determine file size.");
 
 	  if( !_file.seekg( save_pos ) )
-		throw runtime_error( "BinaryFile::FileSize('" + _filename + "') failed to seek to original position." );
+          throw std::runtime_error("BinaryFile::FileSize('" + _filename + "') failed to seek to original position.");
 
 	  return size;
 	}
 
 	size_t BinaryFile::GetElementCount( size_t elemsize )
 	{
-	  fstream::pos_type filesize = FileSize();
+        std::fstream::pos_type filesize = FileSize();
 	  if( ( filesize % elemsize ) != 0 )
 	  {
-		throw runtime_error( _filename + " does not contain an integral number of elements of size " + decint( elemsize ) );
+          throw std::runtime_error(_filename + " does not contain an integral number of elements of size " + decint(elemsize));
 	  }
 	  return static_cast<unsigned int>( filesize / elemsize );
 	}

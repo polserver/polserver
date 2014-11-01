@@ -305,14 +305,14 @@ namespace Pol {
 		msg->Write<u32>( serial_ext );
 		msg->Write<u8>( speed );
 
-		msg->Write<u8>( move_dir );
-		msg->Write<u8>( facing );
+		msg->Write<u8>( static_cast<u8>(move_dir) );
+		msg->Write<u8>( static_cast<u8>(facing) );
 
 		msg->WriteFlipped<u16>( newx );
 		msg->WriteFlipped<u16>( newy );
 		msg->WriteFlipped<u16>( ( z < 0 ) ? static_cast<u16>( 0x10000 + z ) : static_cast<u16>( z ) );
 
-		u16 object_count = travellers_.size() + Components.size();
+		u16 object_count = static_cast<u16>(travellers_.size() + Components.size());
 
 		msg->WriteFlipped<u16>( object_count );
 
@@ -367,7 +367,7 @@ namespace Pol {
 
 		msg->offset += 2; // Length
 
-		u16 inner_packet_count = travellers_.size() + Components.size() + 1; // Add 1 for the boat aswell
+		u16 inner_packet_count = static_cast<u16>(travellers_.size() + Components.size() + 1); // Add 1 for the boat aswell
 
 		msg->WriteFlipped<u16>( inner_packet_count );
 
@@ -970,8 +970,8 @@ namespace Pol {
 		  Items::Item* item = static_cast<Items::Item*>( obj );
 		  s16 xd = item->x - x;
 		  s16 yd = item->y - y;
-		  u16 newx;
-		  u16 newy;
+		  u16 newx(0);
+		  u16 newy(0);
 		  switch ( dir )
 		  {
 			case NO_TURN:
