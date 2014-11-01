@@ -1,7 +1,7 @@
 #ifndef EXCEPTION_PARSER_H
 #define EXCEPTION_PARSER_H
 
-#include "../stl_inc.h" //TODO: fix this header relocation if the build system is beautified
+#include <string>
 
 namespace Pol{ namespace Clib{
 
@@ -14,7 +14,7 @@ public:
 	/**
 	 * Returns a string containing the current stack trace
 	 */
-	static string GetTrace();
+	static std::string GetTrace();
 
 	/**
 	 * Initiates globally the exception catching (signal handlers for Linux)
