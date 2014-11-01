@@ -1171,7 +1171,7 @@ namespace Pol {
       return getBaseElementDamage( element ) + getElementDamageMod( element );
 	}
 
-    bool Item::has_resistance( Mobile::Character* chr )
+    bool Item::has_resistance( Mobile::Character* /*chr*/ )
 	{
       if ( ( calc_element_resist( Core::ELEMENTAL_FIRE ) != 0 ) || ( calc_element_resist( Core::ELEMENTAL_COLD ) != 0 ) ||
            ( calc_element_resist( Core::ELEMENTAL_ENERGY ) != 0 ) || ( calc_element_resist( Core::ELEMENTAL_POISON ) != 0 ) ||

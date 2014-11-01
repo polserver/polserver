@@ -8,11 +8,10 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
+#include "binaryfilescrobj.h"
+
 #include "../clib/strutil.h"
 #include "../clib/endian.h"
-
-#include "binaryfilescrobj.h"
 
 #include "../bscript/executor.h"
 #include "../bscript/berror.h"
@@ -21,19 +20,23 @@ Notes
 #include "../bscript/objmembers.h"
 #include "../bscript/objmethods.h"
 
+#include <fstream>
+
 
 namespace Pol {
   namespace Core {
 	BBinaryfile::BBinaryfile() : Bscript::BObjectImp( OTBinaryFile ),
 	  _filename( "" ),
-	  openmode( ios::in ),
+	  openmode( std::ios::in ),
 	  bigendian( true )
 	{}
 
-	BBinaryfile::BBinaryfile( string filename, unsigned short mode, bool _bigendian ) : Bscript::BObjectImp( OTBinaryFile ),
+    BBinaryfile::BBinaryfile(std::string filename, unsigned short mode, bool _bigendian) : Bscript::BObjectImp(OTBinaryFile),
 	  _filename( filename ),
 	  bigendian( _bigendian )
 	{
+        using std::ios;
+
 	  //FIXME: ms::stl has different flag values then stlport :(
 	  openmode = static_cast<ios::openmode>( 0x0 );
 	  if ( mode & 0x01 )
@@ -61,7 +64,7 @@ namespace Pol {
       return sizeof( *this ) + _filename.capacity();
     }
 
-	Bscript::BObjectRef BBinaryfile::get_member_id( const int id )//id test
+	Bscript::BObjectRef BBinaryfile::get_member_id( const int /*id*/ )//id test
 	{
 	  return Bscript::BObjectRef( new Bscript::BLong( 0 ) );
 	}
@@ -83,7 +86,7 @@ namespace Pol {
 		return NULL;
 	}
 
-	Bscript::BObjectImp* BBinaryfile::call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin )
+	Bscript::BObjectImp* BBinaryfile::call_method_id( const int id, Bscript::Executor& ex, bool /*forcebuiltin*/ )
 	{
 	  using namespace Bscript;
 	  switch ( id )
@@ -95,6 +98,8 @@ namespace Pol {
 		  return new BLong( static_cast<int>( file.FileSize( ex ) ) );
 		case MTH_SEEK:
 		{
+            using std::ios;
+
 		  if ( ex.numParams() != 2 )
 			return new BError( "Seek requires 2 parameter." );
 		  int value, type;
@@ -180,7 +185,7 @@ namespace Pol {
 			return new BError( "Invalid parameter" );
 		  if ( value < 1 )
 			return new BError( "Len is negative or 0." );
-		  vector<unsigned char> _char;
+          std::vector<unsigned char> _char;
 		  _char.resize( value );
 		  if ( !file.Read( &_char[0], value ) )
 			return new BError( "Failed to read" );
@@ -325,7 +330,7 @@ namespace Pol {
 	BinFile::BinFile()
 	{}
 
-	BinFile::BinFile( const string& filename, ios::openmode mode )
+    BinFile::BinFile(const std::string& filename, std::ios::openmode mode)
 	{
 	  Open( filename, mode );
 	}
@@ -335,12 +340,12 @@ namespace Pol {
 	  Close();
 	}
 
-	bool BinFile::Open( const string& filename, ios::openmode mode )
+    bool BinFile::Open(const std::string& filename, std::ios::openmode mode)
 	{
 	  if ( _file.is_open() )
 		return true;
 
-	  _file.open( filename.c_str(), mode | ios::binary );
+      _file.open(filename.c_str(), mode | std::ios::binary);
 	  if ( !_file.is_open() )
 		return false;
 	  return true;
@@ -359,7 +364,7 @@ namespace Pol {
 	  _file.close();
 	}
 
-	bool BinFile::Seek( fstream::pos_type abs_offset, ios::seekdir origin )
+    bool BinFile::Seek(std::fstream::pos_type abs_offset, std::ios::seekdir origin)
 	{
 	  if ( !_file.is_open() )
 		return false;
@@ -369,14 +374,14 @@ namespace Pol {
 	  return true;
 	}
 
-	bool BinFile::ReadBuffer( void* buffer, streamsize length )
+    bool BinFile::ReadBuffer(void* buffer, std::streamsize length)
 	{
 	  if ( !_file.read( reinterpret_cast<char*>( buffer ), length ) )
 		return false;
 	  return true;
 	}
 
-	bool BinFile::WriteBuffer( void* buffer, streamsize length )
+    bool BinFile::WriteBuffer(void* buffer, std::streamsize length)
 	{
 	  if ( !_file.write( reinterpret_cast<char*>( buffer ), length ) )
 		return false;
@@ -390,37 +395,37 @@ namespace Pol {
 	  return true;
 	}
 
-	fstream::pos_type BinFile::FileSize( Bscript::Executor& exec )
+    std::fstream::pos_type BinFile::FileSize(Bscript::Executor& exec)
 	{
 	  if ( !_file.is_open() )
-		return fstream::pos_type( 0 );
+		return std::fstream::pos_type( 0 );
 
-	  fstream::pos_type save_pos = _file.tellg();
-	  if ( save_pos == fstream::pos_type( -1 ) )
+      std::fstream::pos_type save_pos = _file.tellg();
+      if (save_pos == std::fstream::pos_type(-1))
 	  {
 		exec.setFunctionResult( new Bscript::BError( "FileSize failed to determine current position." ) );
-		return fstream::pos_type( 0 );
+        return std::fstream::pos_type(0);
 	  }
-	  if ( !_file.seekg( 0, ios::end ) )
+      if (!_file.seekg(0, std::ios::end))
 	  {
 		exec.setFunctionResult( new Bscript::BError( "FileSize failed to seek to end of file." ) );
-		return fstream::pos_type( 0 );
+        return std::fstream::pos_type(0);
 	  }
-	  fstream::pos_type size = _file.tellg();
-	  if ( size == fstream::pos_type( -1 ) )
+      std::fstream::pos_type size = _file.tellg();
+      if (size == std::fstream::pos_type(-1))
 	  {
 		exec.setFunctionResult( new Bscript::BError( "FileSize could not determine file size." ) );
-		return fstream::pos_type( 0 );
+        return std::fstream::pos_type(0);
 	  }
 	  if ( !_file.seekg( save_pos ) )
 	  {
 		exec.setFunctionResult( new Bscript::BError( "FileSize failed to seek to original position." ) );
-		return fstream::pos_type( 0 );
+        return std::fstream::pos_type(0);
 	  }
 	  return size;
 	}
 
-	fstream::pos_type BinFile::Tell()
+    std::fstream::pos_type BinFile::Tell()
 	{
 	  if ( !_file.is_open() )
 		return -1;

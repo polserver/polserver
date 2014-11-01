@@ -7,19 +7,24 @@ Notes
 
 */
 
-#include "../../clib/stl_inc.h"
-#include "../../clib/logfacility.h"
+#include "basiciomod.h"
 
-#include <stdio.h>
-#include <string.h>
+#include "../../clib/logfacility.h"
 
 #include "../../clib/clib.h"
 #include "../../clib/rawtypes.h"
 
 #include "../../bscript/bobject.h"
-#include "basiciomod.h"
 #include "../../bscript/executor.h"
 #include "../../bscript/impstr.h"
+
+#include <cstdio>
+#include <cstring>
+
+#ifdef _MSC_VER
+#pragma warning(disable:4996) // stricmp deprecation
+#endif
+
 namespace Pol {
   namespace Module {
     

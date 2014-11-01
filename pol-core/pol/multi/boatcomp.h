@@ -16,6 +16,7 @@ Notes
 
 #include "boat.h"
 #include "../lockable.h"
+
 namespace Pol {
   namespace Bscript {
 	class BObjectImp;

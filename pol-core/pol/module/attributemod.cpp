@@ -8,14 +8,12 @@ Notes
 
 */
 
-#include "../../clib/stl_inc.h"
+#include "attributemod.h"
 
 #include "../../bscript/bobject.h"
 #include "../../bscript/berror.h"
 #include "../../bscript/impstr.h"
-
 #include "../mobile/attribute.h"
-#include "attributemod.h"
 #include "../mobile/charactr.h"
 #include "../network/cliface.h"
 #include "../skilladv.h"

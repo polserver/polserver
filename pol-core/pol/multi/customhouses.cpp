@@ -37,6 +37,7 @@ tool. Should suffice.
 #	include "../../../lib/zlib/zlib.h"
 #endif
 
+#include "../item/itemdesc.h"
 #include "../mobile/charactr.h"
 #include "../network/cgdata.h"
 #include "../network/client.h"
@@ -45,19 +46,19 @@ tool. Should suffice.
 #include "../core.h"
 #include "../uvars.h"
 #include "house.h"
-#include "../fnsearch.h"
 #include "multi.h"
 #include "multidef.h"
+#include "../fnsearch.h"
 #include "../polcfg.h"
 #include "../pktboth.h"
 #include "../ufunc.h"
 #include "../ustruct.h"
 #include "../uworld.h"
-#include "../item/itemdesc.h"
 #include "../syshook.h"
 #include "../mkscrobj.h"
 #include "../scrsched.h"
 #include "../clidata.h"
+#include "../uoscrobj.h"
 
 #include <string>
 #include <vector>

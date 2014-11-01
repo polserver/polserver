@@ -11,6 +11,9 @@
 
 #ifndef __CRYPTKEY_H__
 #define __CRYPTKEY_H__
+
+#include <string>
+
 namespace Pol {
   namespace Crypt {
 	// Encryption Types

@@ -161,6 +161,8 @@ Notes
 #include "corpse.h"
 #include "wornitems.h"
 
+#include "../npc.h" // TODO: Remove this abomination!
+
 #include <string>
 #include <set>
 

@@ -8,7 +8,7 @@ Notes
 
 */
 
-#include "../../clib/stl_inc.h"
+#include "auxclient.h"
 
 #include "../../bscript/bobject.h"
 #include "../../bscript/berror.h"
@@ -27,12 +27,15 @@ Notes
 
 #include "../../plib/pkg.h"
 #include "../polsem.h"
-#include "../scrdef.h"
 #include "../scrsched.h"
 #include "../sockets.h"
 #include "../module/uomod.h"
-#include "../uoexec.h"
-#include "auxclient.h"
+
+#include <memory>
+
+#ifdef _MSC_VER
+#pragma warning(disable:4996) // stricmp deprecation
+#endif
 
 namespace Pol {
   namespace Network {
@@ -166,7 +169,7 @@ namespace Pol {
 		return;
 	  }
 
-	  string tmp;
+	  std::string tmp;
 	  bool result, timeout_exit;
 	  for ( ;; )
 	  {
@@ -180,7 +183,7 @@ namespace Pol {
 		{
 		  if ( result )
 		  {
-			istringstream is( tmp );
+            std::istringstream is(tmp);
 			std::unique_ptr<Bscript::BObjectImp> value( _uoexec->auxsvc_assume_string ? new Bscript::String( tmp ) : Bscript::BObjectImp::unpack( is ) );
 
 			std::unique_ptr<Bscript::BStruct> event( new Bscript::BStruct );
@@ -206,7 +209,7 @@ namespace Pol {
 
 	void AuxClientThread::transmit( const Bscript::BObjectImp* value )
 	{
-	  string tmp = _uoexec->auxsvc_assume_string ? value->getStringRep() : value->pack();
+      std::string tmp = _uoexec->auxsvc_assume_string ? value->getStringRep() : value->pack();
 	  writeline( _sck, tmp );
 	}
 
@@ -215,14 +218,14 @@ namespace Pol {
 	  _scriptdef( elem.remove_string( "SCRIPT" ), _pkg ),
 	  _port( elem.remove_ushort( "PORT" ) )
 	{
-	  string iptext;
+      std::string iptext;
 	  while ( elem.remove_prop( "IPMATCH", &iptext ) )
 	  {
-		string::size_type delim = iptext.find_first_of( "/" );
-		if ( delim != string::npos )
+        auto delim = iptext.find_first_of("/");
+        if (delim != std::string::npos)
 		{
-		  string ipaddr_str = iptext.substr( 0, delim );
-		  string ipmask_str = iptext.substr( delim + 1 );
+          std::string ipaddr_str = iptext.substr(0, delim);
+          std::string ipmask_str = iptext.substr(delim + 1);
 		  unsigned int ipaddr = inet_addr( ipaddr_str.c_str() );
 		  unsigned int ipmask = inet_addr( ipmask_str.c_str() );
 		  _aux_ip_match.push_back( ipaddr );
@@ -267,7 +270,7 @@ namespace Pol {
 	}
 
 
-	typedef vector< AuxService* > AuxServices;
+    typedef std::vector< AuxService* > AuxServices;
 	AuxServices auxservices;
 
 	void aux_service_thread_stub( void* arg )

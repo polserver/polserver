@@ -17,7 +17,9 @@ Notes
 #include "multi.h"
 #include "../poltype.h"
 #include "../reftypes.h"
+
 #include <climits>
+#include <vector>
 
 namespace Pol {
   namespace Bscript {

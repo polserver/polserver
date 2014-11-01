@@ -8,11 +8,10 @@ Notes
 
 */
 
-#include "../../clib/stl_inc.h"
-
-#ifdef _MSC_VER
-#pragma warning( disable: 4786 )
-#endif
+#include "armor.h"
+#include "item.h"
+#include "armrtmpl.h"
+#include "itemdesc.h"
 
 #include "../../bscript/bstruct.h"
 #include "../../bscript/impstr.h"
@@ -29,11 +28,8 @@ Notes
 #include "../layers.h"
 #include "../ufunc.h"
 
-#include "armor.h"
-#include "item.h"
-#include "armrtmpl.h"
-#include "itemdesc.h"
 #include <climits>
+#include <stdexcept>
 
 namespace Pol {
   namespace Mobile {
@@ -52,14 +48,14 @@ namespace Pol {
 	  zones(),
 	  on_hit_script( elem.remove_string( "ONHITSCRIPT", "" ), pkg, "scripts/items/" )
 	{
-	  string coverage;
+	  std::string coverage;
 	  while ( elem.remove_prop( "COVERAGE", &coverage ) )
 	  {
 		try
 		{
 		  zones.insert( Mobile::zone_name_to_zone( coverage.c_str() ) );
 		}
-		catch ( runtime_error& )
+        catch (std::runtime_error&)
 		{
 			fmt::Writer tmp;
 			tmp.Format( "Error in Objtype 0x{:X}" ) << objtype;
@@ -85,7 +81,7 @@ namespace Pol {
 		  {
 			zones.insert( Mobile::layer_to_zone( layer ) );
 		  }
-		  catch ( runtime_error& )
+          catch (std::runtime_error&)
 		  {
 			fmt::Writer tmp;
 			tmp.Format( "Error in Objtype 0x{:X}" ) << objtype;
@@ -181,7 +177,7 @@ namespace Pol {
 	  set_onhitscript( elem.remove_string( "ONHITSCRIPT", "" ) );
 	}
 
-	void UArmor::set_onhitscript( const string& scriptname )
+    void UArmor::set_onhitscript(const std::string& scriptname)
 	{
 	  if ( scriptname.empty() )
 	  {

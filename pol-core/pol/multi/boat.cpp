@@ -17,14 +17,11 @@ Notes
 
 */
 
-#include "../../clib/stl_inc.h"
 
-#ifdef _MSC_VER
-#	pragma warning( disable: 4786 )
-#endif
-
-#include <algorithm>
-#include <set>
+#include "boat.h"
+#include "boatcomp.h"
+#include "multi.h"
+#include "multidef.h"
 
 #include "../../bscript/berror.h"
 
@@ -37,11 +34,8 @@ Notes
 #include "../../clib/logfacility.h"
 #include "../../clib/streamsaver.h"
 
-#include "../uconst.h"
 #include "../../plib/realm.h"
 
-#include "boat.h"
-#include "boatcomp.h"
 #include "../mobile/charactr.h"
 #include "../network/client.h"
 #include "../network/packets.h"
@@ -52,8 +46,6 @@ Notes
 #include "../item/itemdesc.h"
 #include "../mdelta.h"
 #include "../mkscrobj.h"
-#include "multi.h"
-#include "multidef.h"
 #include "../objtype.h"
 #include "../pktout.h"
 #include "../realms.h"
@@ -61,6 +53,7 @@ Notes
 #include "../tiles.h"
 #include "../tooltips.h"
 #include "../ufunc.h"
+#include "../uconst.h"
 #include "../uofile.h"
 #include "../ustruct.h"
 #include "../uvars.h"
@@ -69,11 +62,17 @@ Notes
 
 #include "../objecthash.h"
 
+#include <algorithm>
+#include <set>
+#include <map>
+#include <string>
+#include <stdexcept>
+
 namespace Pol {
   namespace Multi {
 	//#define DEBUG_BOATS
 
-	vector<Network::Client*> boat_sent_to;
+	std::vector<Network::Client*> boat_sent_to;
 
 	struct BoatShape
 	{
@@ -86,22 +85,22 @@ namespace Pol {
 		unsigned short xdelta;
 		unsigned short ydelta;
 		signed short zdelta;
-		ComponentShape( const string& str, const string& altstr, unsigned char type );
-		ComponentShape( const string& str, unsigned char type );
+        ComponentShape(const std::string& str, const std::string& altstr, unsigned char type);
+        ComponentShape(const std::string& str, unsigned char type);
 	  };
-	  vector<ComponentShape> Componentshapes;
+      std::vector<ComponentShape> Componentshapes;
 
 	  static bool objtype_is_component( unsigned int objtype );
 	  BoatShape( Clib::ConfigElem& elem );
 	  BoatShape();
 	};
 
-	BoatShape::ComponentShape::ComponentShape( const string& str, unsigned char type )
+    BoatShape::ComponentShape::ComponentShape(const std::string& str, unsigned char type)
 	{
 	  altgraphic = 0;
 	  objtype = get_component_objtype( type );
 	  ISTRINGSTREAM is( str );
-	  string tmp;
+      std::string tmp;
 	  if ( is >> tmp )
 	  {
 		graphic = static_cast<unsigned short>( strtoul( tmp.c_str(), NULL, 0 ) );
@@ -122,16 +121,16 @@ namespace Pol {
 	  }
 
       ERROR_PRINT << "Boat component definition '" << str << "' is poorly formed.\n";
-	  throw runtime_error( "Poorly formed boat.cfg component definition" );
+      throw std::runtime_error("Poorly formed boat.cfg component definition");
 	}
 
-	BoatShape::ComponentShape::ComponentShape( const string& str, const string& altstr, unsigned char type )
+    BoatShape::ComponentShape::ComponentShape(const std::string& str, const std::string& altstr, unsigned char type)
 	{
 	  altgraphic = 0;
 	  bool ok = false;
 	  objtype = get_component_objtype( type );
 	  ISTRINGSTREAM is( str );
-	  string tmp;
+      std::string tmp;
 	  if ( is >> tmp )
 	  {
 		graphic = static_cast<unsigned short>( strtoul( tmp.c_str(), NULL, 0 ) );
@@ -152,7 +151,7 @@ namespace Pol {
 	  }
 
 	  ISTRINGSTREAM altis( altstr );
-	  string alttmp;
+      std::string alttmp;
 	  if ( ok && altis >> alttmp )
 	  {
 		altgraphic = static_cast<unsigned short>( strtoul( alttmp.c_str(), NULL, 0 ) );
@@ -164,7 +163,7 @@ namespace Pol {
 	  if ( !ok )
 	  {
         ERROR_PRINT << "Boat component definition '" << str << "' is poorly formed.\n";
-		throw runtime_error( "Poorly formed boat.cfg component definition" );
+        throw std::runtime_error("Poorly formed boat.cfg component definition");
 	  }
 	}
 
@@ -173,7 +172,7 @@ namespace Pol {
 	{}
 	BoatShape::BoatShape( Clib::ConfigElem& elem )
 	{
-	  string tmp_str;
+      std::string tmp_str;
 
 	  while ( elem.remove_prop( "Tillerman", &tmp_str ) )
 		Componentshapes.push_back( ComponentShape( tmp_str, COMPONENT_TILLERMAN ) );
@@ -251,7 +250,7 @@ namespace Pol {
 	  }
 	}
 
-	typedef map< u16 /* graphic */, BoatShape* > BoatShapes;
+	typedef std::map< u16 /* graphic */, BoatShape* > BoatShapes;
 	BoatShapes boatshapes;
 
 	void read_boat_cfg( void )
@@ -265,7 +264,7 @@ namespace Pol {
 		{
 		  boatshapes[multiid] = new BoatShape( elem );
 		}
-		catch ( exception& )
+		catch ( std::exception& )
 		{
           ERROR_PRINT << "Error occurred reading definition for boat 0x" << fmt::hexu( multiid ) << "\n";
 		  throw;
@@ -1348,12 +1347,12 @@ namespace Pol {
 	void UBoat::transform_components( const BoatShape& old_boatshape, Plib::Realm* oldrealm )
 	{
 		const BoatShape& bshape = boatshape();
-		vector<Items::Item*>::iterator itr;
-		vector<Items::Item*>::iterator end = Components.end( );
-		vector<BoatShape::ComponentShape>::const_iterator itr2;
-		vector<BoatShape::ComponentShape>::const_iterator old_itr;
-		vector<BoatShape::ComponentShape>::const_iterator end2 = bshape.Componentshapes.end();
-		vector<BoatShape::ComponentShape>::const_iterator old_end = old_boatshape.Componentshapes.end();
+        std::vector<Items::Item*>::iterator itr;
+        std::vector<Items::Item*>::iterator end = Components.end();
+        std::vector<BoatShape::ComponentShape>::const_iterator itr2;
+        std::vector<BoatShape::ComponentShape>::const_iterator old_itr;
+        std::vector<BoatShape::ComponentShape>::const_iterator end2 = bshape.Componentshapes.end();
+        std::vector<BoatShape::ComponentShape>::const_iterator old_end = old_boatshape.Componentshapes.end();
 		for ( itr = Components.begin(), itr2 = bshape.Componentshapes.begin(), old_itr = old_boatshape.Componentshapes.begin(); itr != end && itr2 != end2 && old_itr != old_end; ++itr, ++itr2, ++old_itr )
 		{
 			Items::Item* item = *itr;
@@ -1407,10 +1406,10 @@ namespace Pol {
 	void UBoat::move_components( Plib::Realm* oldrealm )
 	{
 	  const BoatShape& bshape = boatshape();
-	  vector<Items::Item*>::iterator itr;
-	  vector<Items::Item*>::iterator end = Components.end( );
-	  vector<BoatShape::ComponentShape>::const_iterator itr2;
-	  vector<BoatShape::ComponentShape>::const_iterator end2 = bshape.Componentshapes.end();
+      std::vector<Items::Item*>::iterator itr;
+      std::vector<Items::Item*>::iterator end = Components.end();
+      std::vector<BoatShape::ComponentShape>::const_iterator itr2;
+      std::vector<BoatShape::ComponentShape>::const_iterator end2 = bshape.Componentshapes.end();
 	  for ( itr = Components.begin(), itr2 = bshape.Componentshapes.begin();
 			itr != end && itr2 != end2;
 			++itr, ++itr2 )
@@ -1679,7 +1678,7 @@ namespace Pol {
 	void UBoat::create_components()
 	{
 	  const BoatShape& bshape = boatshape();
-	  for ( vector<BoatShape::ComponentShape>::const_iterator itr = bshape.Componentshapes.begin(), end = bshape.Componentshapes.end(); itr != end; ++itr )
+      for (std::vector<BoatShape::ComponentShape>::const_iterator itr = bshape.Componentshapes.begin(), end = bshape.Componentshapes.end(); itr != end; ++itr)
 	  {
 		Items::Item* component = Items::Item::create( itr->objtype );
 		if ( component == NULL )

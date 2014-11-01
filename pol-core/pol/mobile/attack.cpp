@@ -12,22 +12,21 @@ Notes
 
 */
 
-#include "../../clib/stl_inc.h"
-
-#include <stdio.h>
-
-#include "../../clib/endian.h"
-
-#include "../accounts/account.h"
-#include "../network/client.h"
 #include "charactr.h"
+
+#include "../network/client.h"
+#include "../network/cgdata.h"
 #include "../network/msghandl.h"
+
 #include "../pktin.h"
 #include "../ufunc.h"
 
 #include "../cmbtcfg.h"
 #include "../guardrgn.h"
-#include "../network/cgdata.h"
+
+#include "../../clib/endian.h"
+
+#include <cstdio>
 
 namespace Pol {
   namespace Mobile {

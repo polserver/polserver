@@ -8,9 +8,8 @@ Notes
 
 */
 
-#include "../../clib/stl_inc.h"
-
 #include "boundbox.h"
+
 namespace Pol {
   namespace Mobile {
 	bool BoundingBox::contains( unsigned short x, unsigned short y ) const

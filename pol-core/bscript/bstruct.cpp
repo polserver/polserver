@@ -11,16 +11,20 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-
-#include "../clib/stlutil.h"
 #include "bstruct.h"
+
 #include "berror.h"
 #include "impstr.h"
 #include "contiter.h"
 #include "executor.h"
 #include "objmembers.h"
 #include "objmethods.h"
+
+#include "../clib/stlutil.h"
+
+#include <istream>
+#include <ostream>
+
 namespace Pol {
   namespace Bscript {
 	BStruct::BStruct() : BObjectImp( OTStruct )
@@ -34,14 +38,14 @@ namespace Pol {
 	{
 	  for ( const auto &elem : other.contents_ )
 	  {
-		const string& key = elem.first;
+		const std::string& key = elem.first;
 		const BObjectRef& bvalref = elem.second;
 
 		contents_[key] = BObjectRef( new BObject( bvalref->impref().copy() ) );
 	  }
 	}
 
-	BStruct::BStruct( istream& is, unsigned size, BObjectType type ) :
+	BStruct::BStruct( std::istream& is, unsigned size, BObjectType type ) :
 	  BObjectImp( type )
 	{
 	  for ( unsigned i = 0; i < size; ++i )
@@ -92,7 +96,7 @@ namespace Pol {
 	}
 
 
-	BObjectImp* BStruct::unpack( istream& is )
+	BObjectImp* BStruct::unpack( std::istream& is )
 	{
 	  unsigned size;
 	  char colon;
@@ -111,8 +115,8 @@ namespace Pol {
 	  return new BStruct( is, size, OTStruct );
 	}
 
-	void BStruct::FormatForStringRep( ostream& os,
-									  const string& key,
+    void BStruct::FormatForStringRep(std::ostream& os,
+									  const std::string& key,
 									  const BObjectRef& bvalref ) const
 	{
 	  os << key
@@ -130,7 +134,7 @@ namespace Pol {
 	  BObject m_StructObj;
 	  BStruct* m_pStruct;
 	  BObjectRef m_IterVal;
-	  string key;
+      std::string key;
 	  bool m_First;
 	};
 	BStructIterator::BStructIterator( BStruct* pStruct, BObject* pIterVal ) :
@@ -183,7 +187,7 @@ namespace Pol {
       size_t size = sizeof( BStruct );
 	  for ( const auto &elem : contents_ )
 	  {
-		const string& bkey = elem.first;
+		const std::string& bkey = elem.first;
 		const BObjectRef& bvalref = elem.second;
         size += bkey.capacity( ) + bvalref.sizeEstimate( ) + ( sizeof(void*)* 3 + 1 ) / 2;
 	  }
@@ -198,7 +202,7 @@ namespace Pol {
 
 	BObjectRef BStruct::set_member( const char* membername, BObjectImp* value, bool copy )
 	{
-	  string key( membername );
+      std::string key(membername);
 	  BObjectImp* target = copy ? value->copy() : value;
 	  auto itr = contents_.find( key );
 	  if ( itr != contents_.end() )
@@ -218,7 +222,7 @@ namespace Pol {
 	// used programmatically
 	const BObjectImp* BStruct::FindMember( const char* name )
 	{
-	  string key( name );
+      std::string key(name);
 
 	  auto itr = contents_.find( key );
 	  if ( itr != contents_.end() )
@@ -233,7 +237,7 @@ namespace Pol {
 
 	BObjectRef BStruct::get_member( const char* membername )
 	{
-	  string key( membername );
+      std::string key(membername);
 
 	  auto itr = contents_.find( key );
 	  if ( itr != contents_.end() )
@@ -265,7 +269,7 @@ namespace Pol {
 	  }
 	  else if ( obj->isa( OTLong ) )
 	  {
-		throw runtime_error( "some fool used operator[] on a struct, with an Integer index" );
+          throw std::runtime_error("some fool used operator[] on a struct, with an Integer index");
 	  }
 	  else
 	  {
@@ -296,7 +300,7 @@ namespace Pol {
 	  }
 	  else if ( idx->isa( OTLong ) )
 	  {
-		throw runtime_error( "some fool tried to use operator[] := on a struct, with an Integer index" );
+          throw std::runtime_error("some fool tried to use operator[] := on a struct, with an Integer index");
 	  }
 	  else
 	  {
@@ -306,17 +310,17 @@ namespace Pol {
 
 	void BStruct::addMember( const char* name, BObjectRef val )
 	{
-	  string key( name );
+      std::string key(name);
 	  contents_[key] = val;
 	}
 
 	void BStruct::addMember( const char* name, BObjectImp* imp )
 	{
-	  string key( name );
+      std::string key(name);
 	  contents_[key] = BObjectRef( imp );
 	}
 
-	BObjectImp* BStruct::call_method_id( const int id, Executor& ex, bool forcebuiltin )
+	BObjectImp* BStruct::call_method_id( const int id, Executor& ex, bool /*forcebuiltin*/ )
 	{
 	  BObject* keyobj;
 	  BObject* valobj;
@@ -401,12 +405,12 @@ namespace Pol {
 		return NULL;
 	}
 
-	void BStruct::packonto( ostream& os ) const
+    void BStruct::packonto(std::ostream& os) const
 	{
 	  os << packtype() << contents_.size() << ":";
 	  for ( const auto& content : contents_ )
 	  {
-		const string& key = content.first;
+		const std::string& key = content.first;
 		const BObjectRef& bvalref = content.second;
 
 		String::packonto( os, key );
@@ -414,7 +418,7 @@ namespace Pol {
 	  }
 	}
 
-	string BStruct::getStringRep() const
+    std::string BStruct::getStringRep() const
 	{
 	  OSTRINGSTREAM os;
 	  os << typetag() << "{ ";
@@ -422,7 +426,7 @@ namespace Pol {
 
 	  for ( const auto &content : contents_ )
 	  {
-		const string& key = content.first;
+		const std::string& key = content.first;
 		const BObjectRef& bvalref = content.second;
 
 		if ( any )
@@ -441,7 +445,7 @@ namespace Pol {
 
 	BObjectRef BStruct::operDotPlus( const char* name )
 	{
-	  string key( name );
+      std::string key(name);
 	  if ( contents_.count( key ) == 0 )
 	  {
 		auto pnewobj = new BObject( new UninitObject );
@@ -456,14 +460,14 @@ namespace Pol {
 
 	BObjectRef BStruct::operDotMinus( const char* name )
 	{
-	  string key( name );
+      std::string key(name);
 	  contents_.erase( key );
 	  return BObjectRef( new BLong( 1 ) );
 	}
 
 	BObjectRef BStruct::operDotQMark( const char* name )
 	{
-	  string key( name );
+      std::string key(name);
 	  int count = static_cast<int>( contents_.count( key ) );
 	  return BObjectRef( new BLong( count ) );
 	}

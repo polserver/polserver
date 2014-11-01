@@ -23,19 +23,19 @@ Notes
 
 */
 
-#include "../../clib/stl_inc.h"
+#include "acscrobj.h"
+
+#include "account.h"
+#include "accounts.h"
+
 #include "../../clib/MD5.h"
 
 #include "../../bscript/berror.h"
-#include "../../bscript/bobject.h"
 #include "../../bscript/executor.h"
 #include "../../bscript/impstr.h"
 #include "../../bscript/objmembers.h"
 #include "../../bscript/objmethods.h"
 
-#include "account.h"
-#include "accounts.h"
-#include "acscrobj.h"
 #include "../mobile/charactr.h"
 #include "../network/client.h"
 #include "../cmdlevel.h"
@@ -80,7 +80,7 @@ namespace Pol {
 	///	 All methods return Error("Not enough parameters") if too few parameters were passed.
 	///	 All methods return Error("Invalid parameter type") if the wrong type was passed.
 	///
-	Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin )
+	Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Executor& ex, bool /*forcebuiltin*/ )
 	{
 	  using namespace Bscript;
 	  BObjectImp* result = NULL;
@@ -102,7 +102,7 @@ namespace Pol {
 			ret = ret->copy();
 			if ( ret->isa( OTUninit ) )
 			{
-			  string message = string( "Member " ) + string( mname->value() ) + string( " not found on that object" );
+              std::string message = std::string("Member ") + std::string(mname->value()) + std::string(" not found on that object");
 			  return new BError( message );
 			}
 			else
@@ -198,7 +198,7 @@ namespace Pol {
 			if ( ex.getStringParam( 0, pwstr ) )
 			{
 			  bool ret;
-			  string temp;
+              std::string temp;
 
 			  Clib::MD5_Encrypt( obj_->name_ + pwstr->value(), temp );//MD5
 			  ret = Clib::MD5_Compare( obj_->passwordhash_, temp );

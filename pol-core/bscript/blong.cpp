@@ -7,17 +7,16 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-
-#include <stdlib.h>
-#include <string.h>
-#include <sstream>
-
-#include "../clib/stlutil.h"
-
 #include "berror.h"
 #include "bobject.h"
 #include "impstr.h"
+
+#include "../clib/stlutil.h"
+
+#include <cstdlib>
+#include <cstring>
+#include <sstream>
+
 namespace Pol {
   namespace Bscript {
 
@@ -33,14 +32,14 @@ namespace Pol {
 
 
 
-	string BLong::pack() const
+	std::string BLong::pack() const
 	{
 	  OSTRINGSTREAM os;
 	  os << "i" << lval_;
 	  return OSTRINGSTREAM_STR( os );
 	}
 
-	string BLong::pack( int val )
+	std::string BLong::pack( int val )
 	{
 	  OSTRINGSTREAM os;
 	  os << "i" << val;
@@ -48,7 +47,7 @@ namespace Pol {
 	}
 
 
-	void BLong::packonto( ostream& os ) const
+    void BLong::packonto(std::ostream& os) const
 	{
 	  os << "i" << lval_;
 	}
@@ -67,7 +66,7 @@ namespace Pol {
 	  }
 	}
 
-	BObjectImp* BLong::unpack( istream& is )
+    BObjectImp* BLong::unpack(std::istream& is)
 	{
 	  int lv;
 	  if ( is >> lv )
@@ -144,7 +143,7 @@ namespace Pol {
 	  return ( lval_ >= val );
 	}
 
-	string BLong::getStringRep() const
+    std::string BLong::getStringRep() const
 	{
 	  OSTRINGSTREAM os;
 
@@ -174,7 +173,7 @@ namespace Pol {
 	{
 	  objimp.selfPlusObj( *this, obj );
 	}
-	void BLong::selfPlusObj( BLong& objimp, BObject& obj )
+	void BLong::selfPlusObj( BLong& objimp, BObject& /*obj*/ )
 	{
 	  lval_ += objimp.value();
 	}
@@ -208,7 +207,7 @@ namespace Pol {
 	{
 	  objimp.selfMinusObj( *this, obj );
 	}
-	void BLong::selfMinusObj( BLong& objimp, BObject& obj )
+	void BLong::selfMinusObj( BLong& objimp, BObject& /*obj*/ )
 	{
 	  lval_ -= objimp.value();
 	}
@@ -237,7 +236,7 @@ namespace Pol {
 	{
 	  objimp.selfTimesObj( *this, obj );
 	}
-	void BLong::selfTimesObj( BLong& objimp, BObject& obj )
+	void BLong::selfTimesObj( BLong& objimp, BObject& /*obj*/ )
 	{
 	  lval_ *= objimp.lval_;
 	}
@@ -331,7 +330,7 @@ namespace Pol {
 	{
 	  objimp.selfBitShiftRightObj( *this, obj );
 	}
-	void BLong::selfBitShiftRightObj( BLong& objimp, BObject& obj )
+	void BLong::selfBitShiftRightObj( BLong& objimp, BObject& /*obj*/ )
 	{
 	  lval_ >>= objimp.lval_;
 	}
@@ -348,7 +347,7 @@ namespace Pol {
 	{
 	  objimp.selfBitShiftLeftObj( *this, obj );
 	}
-	void BLong::selfBitShiftLeftObj( BLong& objimp, BObject& obj )
+	void BLong::selfBitShiftLeftObj( BLong& objimp, BObject& /*obj*/ )
 	{
 	  lval_ <<= objimp.lval_;
 	}
@@ -365,7 +364,7 @@ namespace Pol {
 	{
 	  objimp.selfBitAndObj( *this, obj );
 	}
-	void BLong::selfBitAndObj( BLong& objimp, BObject& obj )
+	void BLong::selfBitAndObj( BLong& objimp, BObject& /*obj*/ )
 	{
 	  lval_ &= objimp.lval_;
 	}
@@ -382,7 +381,7 @@ namespace Pol {
 	{
 	  objimp.selfBitOrObj( *this, obj );
 	}
-	void BLong::selfBitOrObj( BLong& objimp, BObject& obj )
+	void BLong::selfBitOrObj( BLong& objimp, BObject& /*obj*/ )
 	{
 	  lval_ |= objimp.lval_;
 	}
@@ -399,7 +398,7 @@ namespace Pol {
 	{
 	  objimp.selfBitXorObj( *this, obj );
 	}
-	void BLong::selfBitXorObj( BLong& objimp, BObject& obj )
+	void BLong::selfBitXorObj( BLong& objimp, BObject& /*obj*/ )
 	{
 	  lval_ ^= objimp.lval_;
 	}

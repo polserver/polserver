@@ -9,9 +9,25 @@
 #define AUXCLIENT_H_
 
 #include "../../bscript/bobject.h"
+
+#include "../../clib/socketsvc.h"
 #include "../../clib/threadhelp.h"
+#include "../../clib/weakptr.h"
+
+#include "../scrdef.h"
+#include "../uoexec.h"
+
+#include <string>
+#include <vector>
 
 namespace Pol {
+    namespace Plib {
+        class Package;
+    };
+    namespace Clib {
+        class ConfigElem;
+    };
+
   namespace Network {
 
 	class AuxClientThread;
@@ -19,7 +35,7 @@ namespace Pol {
 	class AuxConnection : public Bscript::BObjectImp
 	{
 	public:
-	  AuxConnection( AuxClientThread* auxclientthread, string ip ) :
+	  AuxConnection( AuxClientThread* auxclientthread, std::string ip ) :
 		Bscript::BObjectImp( Bscript::BObjectImp::OTUnknown ),
 		_auxclientthread( auxclientthread ),
 		_ip( ip )
@@ -37,7 +53,7 @@ namespace Pol {
 
 	private:
 	  AuxClientThread* _auxclientthread;
-	  string _ip;
+      std::string _ip;
 	};
 
 	class AuxService

@@ -18,7 +18,8 @@ Notes
 
 */
 
-#include "../../clib/stl_inc.h"
+
+#include "client.h"
 
 #include "../../clib/fdump.h"
 #include "../../clib/logfacility.h"
@@ -31,7 +32,6 @@ Notes
 #include "../accounts/account.h"
 #include "cgdata.h"
 #include "../mobile/charactr.h"
-#include "client.h"
 #include "cliface.h"
 #include "../crypt/cryptengine.h"
 #include "msgfiltr.h"
@@ -46,6 +46,7 @@ Notes
 #include "../uvars.h"
 #include "../uworld.h"
 #include "../xbuffer.h"
+#include "../uoscrobj.h"
 
 // only in here temporarily, until logout-on-disconnect stuff is removed
 #include "../ufunc.h"
@@ -54,6 +55,11 @@ Notes
 
 #ifndef PRE_ENCRYPT
 #include "sockio.h"
+#endif
+
+#ifdef _MSC_VER
+#pragma warning(disable:4351) // new behavior: elements of array '...' will be default initialized
+#pragma warning(disable:4996) // disable warning about unsafe localtime(), asctime()
 #endif
 
 namespace Pol {
@@ -281,7 +287,7 @@ namespace Pol {
 		size_t dot1 = ver.find_first_of( '.', 0 );
 		size_t dot2 = ver.find_first_of( '.', dot1 + 1 );
 		size_t dot3 = ver.find_first_of( '.', dot2 + 1 );
-		if ( dot3 == string::npos )  // since 5.0.7 patch is digit
+		if ( dot3 == std::string::npos )  // since 5.0.7 patch is digit
 		{
 		  dot3 = dot2 + 1;
 		  while ( ( dot3 < ver.length() ) && ( isdigit( ver[dot3] ) ) )

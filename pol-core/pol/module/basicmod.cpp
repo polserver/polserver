@@ -11,11 +11,7 @@ Notes
 
 */
 
-#include "../../clib/stl_inc.h"
-
-#include <stdio.h>
-#include <string.h>
-
+#include "basicmod.h"
 
 #include "../../clib/clib.h"
 #include "../../clib/rawtypes.h"
@@ -28,7 +24,13 @@ Notes
 #include "../../bscript/executor.h"
 #include "../../bscript/impstr.h"
 
-#include "basicmod.h"
+#include <cstdio>
+#include <cstring>
+
+#ifdef _MSC_VER
+#pragma warning(disable:4996) // stricmp, itoa and sprintf warnings
+#endif
+
 namespace Pol {
   namespace Module {
     using namespace Bscript;
@@ -158,8 +160,8 @@ namespace Pol {
 	// just in case someone's code is bugged :(
 	Bscript::BObjectImp* BasicExecutorModule::mf_Compare()
 	{
-	  string str1 = exec.paramAsString( 0 );
-	  string str2 = exec.paramAsString( 1 );
+	  std::string str1 = exec.paramAsString( 0 );
+	  std::string str2 = exec.paramAsString( 1 );
 	  int pos1_index = static_cast<int>( exec.paramAsLong( 2 ) );
 	  int pos1_len = static_cast<int>( exec.paramAsLong( 3 ) );
 	  int pos2_index = static_cast<int>( exec.paramAsLong( 4 ) );
@@ -300,7 +302,7 @@ namespace Pol {
 	Bscript::BObjectImp* BasicExecutorModule::mf_CAscZ()
 	{
 	  Bscript::BObjectImp* imp = exec.getParamImp( 0 );
-	  string tmp = imp->getStringRep();
+	  std::string tmp = imp->getStringRep();
 	  int nullterm = static_cast<int>( exec.paramAsLong( 1 ) );
 	  std::unique_ptr<Bscript::ObjArray> arr( new Bscript::ObjArray );
 	  for ( size_t i = 0; i < tmp.size(); ++i )
@@ -331,7 +333,7 @@ namespace Pol {
 
 	Bscript::BObjectImp* BasicExecutorModule::mf_CChrZ()
 	{
-	  string res;
+	  std::string res;
 	  Bscript::ObjArray* arr = static_cast<Bscript::ObjArray*>( exec.getParamImp( 0, Bscript::BObjectImp::OTArray ) );
 	  int break_first_null = static_cast<int>( exec.paramAsLong( 1 ) );
 	  if ( !arr )
@@ -439,14 +441,14 @@ namespace Pol {
 	Bscript::BObjectImp* BasicExecutorModule::mf_SplitWords()
 	{
 	  Bscript::BObjectImp* bimp_split = exec.getParamImp( 0 );
-	  string source = bimp_split->getStringRep();
+	  std::string source = bimp_split->getStringRep();
 
 	  const String* bimp_delimiter;
 	  if ( !exec.getStringParam( 1, bimp_delimiter ) )
 	  {
 		return new BError( "Invalid parameter type." );
 	  }
-	  string delimiter = bimp_delimiter->getStringRep();
+	  std::string delimiter = bimp_delimiter->getStringRep();
 
 	  // max_split parameter
 	  int max_split = -1;
@@ -464,7 +466,7 @@ namespace Pol {
 	  if ( delimiter == " " )
 	  {
 		ISTRINGSTREAM is( source );
-		string tmp;
+		std::string tmp;
 		std::streamoff tellg = -1;
 		bool splitted = false;
 
@@ -484,7 +486,7 @@ namespace Pol {
 		// Merges the remaining of the string						
 		if ( splitted )
 		{
-		  string remaining_string;
+          std::string remaining_string;
 		  remaining_string = source.substr( tellg - tmp.length(), source.length() );
 		  objarr->addElement( new String( remaining_string ) );
 		}
@@ -493,29 +495,29 @@ namespace Pol {
 	  }
 
 	  // New delimiter support.
-	  string new_string = source;
-	  string::size_type found;
+	  std::string new_string = source;
+	  std::string::size_type found;
 	  do
 	  {
 		found = new_string.find( delimiter, 0 );
-		if ( found == string::npos )
+        if (found == std::string::npos)
 		  break;
 		else if ( count == max_split )
 		{ // added max_split parameter
 		  break;
 		}
 
-		string add_string = new_string.substr( 0, found );
+		std::string add_string = new_string.substr( 0, found );
 
 		// Shinigami: will not hang server on queue of delimiter
 		// if ( add_string.empty() )
 		//	continue;
 
 		objarr->addElement( new String( add_string ) );
-		string tmp_string = new_string.substr( found + delimiter.length(), new_string.length() );
+        std::string tmp_string = new_string.substr(found + delimiter.length(), new_string.length());
 		new_string = tmp_string;
 		count += 1;
-	  } while ( found != string::npos/*-1*/ );
+      } while (found != std::string::npos);
 
 	  // Catch leftovers here.
 	  if ( !new_string.empty() )

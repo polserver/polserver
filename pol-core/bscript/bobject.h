@@ -28,6 +28,7 @@ Notes
 
 #include <vector>
 #include <stack>
+#include <iosfwd>
 
 namespace Pol {
   namespace Bscript {
