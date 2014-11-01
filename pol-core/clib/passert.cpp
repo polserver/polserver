@@ -12,6 +12,8 @@ Notes
 
 #include "stl_inc.h"
 
+#include "Debugging/ExceptionParser.h"
+
 #include "esignal.h"
 #include "logfacility.h"
 #include "passert.h"
@@ -62,16 +64,11 @@ namespace Pol {
 
     void force_backtrace(bool complete)
 	{
+      string stack_trace = Clib::ExceptionParser::GetTrace();
       fmt::Writer tmp;
       tmp << "=== Stack Backtrace ===\nBuild: " << progverstr << " (" << buildtagstr << ")\nStack Backtrace:\n";
-      void* bt[ 200 ];
-      char **strings;
-      int n = backtrace( bt, 200 );
-      strings = backtrace_symbols(bt, n);
-      for (int j = 0; j < n; j++)
-        tmp << strings[j] << "\n";
-
-      free( strings );
+	  tmp << stack_trace;
+	  
       POLLOG_ERROR << tmp.c_str() << "\n";
       if (complete)
       {
@@ -174,17 +171,12 @@ namespace Pol {
         return;
 
       fmt::Writer tmp;
+      string stack_trace = Clib::ExceptionParser::GetTrace();
       threadhelp::ThreadMap::Contents contents;
       threadhelp::threadmap.CopyContents( contents );
       tmp << "Thread ID " << pthread_self() << " (" << contents[pthread_self()] << ")\n";
-      void* bt[200];
-      char **strings;
-      int n = backtrace( bt, 200 );
-      strings = backtrace_symbols( bt, n );
-      for ( int j = 1; j < n; j++ ) // ignore the first entry
-        tmp << strings[j] << "\n";
+	  tmp << stack_trace;
 
-      free( strings );
       POLLOG_ERROR << tmp.c_str() << "\n";
       if ( Clib::Logging::global_logger )
         Clib::Logging::global_logger->wait_for_empty_queue(); // wait for finish

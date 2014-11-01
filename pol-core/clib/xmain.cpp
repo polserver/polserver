@@ -17,6 +17,8 @@ Notes
 
 #include "xmain.h"
 
+#include "Debugging/ExceptionParser.h"
+
 #ifdef _WIN32
 #	include <windows.h> // for GetModuleFileName
 #	include <crtdbg.h>
@@ -34,9 +36,10 @@ namespace Pol {
 
 int main( int argc, char *argv[] )
 {
-  using namespace Pol;
-  Clib::Logging::LogFacility logger;
-  Clib::Logging::initLogging( &logger );
+	using namespace Pol;
+	Clib::Logging::LogFacility logger;
+	Clib::Logging::initLogging( &logger );
+	Clib::ExceptionParser::InitGlobalExceptionCatching();
 
 	setlocale(LC_TIME,"");
     int exitcode = 0;
