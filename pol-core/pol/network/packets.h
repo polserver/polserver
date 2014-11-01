@@ -32,6 +32,10 @@ Notes
 #include <memory>
 #include <boost/noncopyable.hpp>
 
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable:4996) // disable warning about strncpy
+#endif
 
 namespace Pol {
   namespace Network {
@@ -526,5 +530,10 @@ namespace Pol {
 	// Packet defs end
 
   }
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
+
 }
 #endif

@@ -7,13 +7,11 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-
-#include "../clib/logfacility.h"
-
+#include "checkpnt.h"
 
 #include "polcfg.h"
-#include "checkpnt.h"
+#include "../clib/logfacility.h"
+
 namespace Pol {
   namespace Core {
 	const char* last_checkpoint = "";

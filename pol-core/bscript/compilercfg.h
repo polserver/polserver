@@ -9,11 +9,15 @@ Notes
 
 #ifndef BSCRIPT_COMPILERCFG_H
 #define BSCRIPT_COMPILERCFG_H
+
+#include <string>
+#include <vector>
+
 namespace Pol {
   namespace Bscript {
 	struct CompilerConfig
 	{
-	  vector< std::string > PackageRoot;
+	  std::vector< std::string > PackageRoot;
 	  std::string IncludeDirectory;
 	  std::string ModuleDirectory;
 	  std::string PolScriptRoot;

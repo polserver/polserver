@@ -27,9 +27,9 @@ Notes
 #include "eprog.h"
 #include "../clib/maputil.h"
 
-#ifdef WIN32
-#pragma warning(disable:4786)
-#endif
+#include <vector>
+#include <string>
+#include <map>
 
 namespace Pol {
   namespace Bscript {
@@ -56,7 +56,7 @@ namespace Pol {
 
 	  // addresses of tokens whos offset needs to be patched with
 	  // the final break/continue jump addresses.
-	  typedef vector<unsigned> TokenAddrs;
+	  typedef std::vector<unsigned> TokenAddrs;
 	  TokenAddrs break_tokens;
 	  TokenAddrs continue_tokens;
 
@@ -69,7 +69,7 @@ namespace Pol {
 	  mutable bool used;
 	  CompilerContext ctx;
 	};
-	typedef vector<Variable> Variables;
+	typedef std::vector<Variable> Variables;
 
 	class Scope
 	{
@@ -90,7 +90,7 @@ namespace Pol {
 
 	  // we may need a blocktag, too, in which case this
 	  // should be a stack/vector of a struct.
-	  vector<BlockDesc> blockdescs_;
+	  std::vector<BlockDesc> blockdescs_;
 	  friend class Compiler;
 	};
 
@@ -119,19 +119,19 @@ namespace Pol {
 	  CompilerContext program_ctx;
 	  char* program_source;
 
-	  typedef set<std::string, Clib::ci_cmp_pred> INCLUDES;
+      typedef std::set<std::string, Clib::ci_cmp_pred> INCLUDES;
 	  INCLUDES included;
 
-	  vector<std::string> referencedPathnames;
+      std::vector<std::string> referencedPathnames;
 
 	  ref_ptr<EScriptProgram> program;
-	  typedef map<std::string, UserFunction, Clib::ci_cmp_pred> UserFunctions;
+      typedef std::map<std::string, UserFunction, Clib::ci_cmp_pred> UserFunctions;
 	  UserFunctions userFunctions;
 
 	  int findLabel( Token& tok, unsigned& posn );
 	  int enterLabel( Token& tok );
 
-	  typedef map<std::string, Token> Constants;
+      typedef std::map<std::string, Token> Constants;
 	  Constants constants;
 
 	  /*
@@ -286,7 +286,7 @@ namespace Pol {
 	  void patch_callers( UserFunction& uf );
 
 	private:
-	  vector<char*> delete_these_arrays;
+      std::vector<char*> delete_these_arrays;
 	};
 
   }

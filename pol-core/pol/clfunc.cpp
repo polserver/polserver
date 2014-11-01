@@ -9,10 +9,7 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-
-#include <assert.h>
-#include <stddef.h>
+#include "clfunc.h"
 
 #include "../clib/clib.h"
 #include "../clib/endian.h"
@@ -24,7 +21,9 @@ Notes
 #include "network/clienttransmit.h"
 #include "pktoutid.h"
 #include "sockio.h"
-#include "clfunc.h"
+
+#include <cstddef>
+
 namespace Pol {
   namespace Core {
     using namespace Network;

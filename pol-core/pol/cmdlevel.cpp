@@ -8,7 +8,7 @@ Notes
 
 */
 
-#include <string>
+#include "cmdlevel.h"
 
 #include "../clib/stl_inc.h"
 #include "../clib/cfgfile.h"
@@ -23,7 +23,8 @@ Notes
 
 #include "../plib/pkg.h"
 
-#include "cmdlevel.h"
+#include <string>
+
 namespace Pol {
   namespace Core {
 

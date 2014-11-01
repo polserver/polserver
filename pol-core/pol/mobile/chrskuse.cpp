@@ -7,15 +7,10 @@ Notes
 
 */
 
-#include "../../clib/stl_inc.h"
+#include "charactr.h"
 
-#include "../module/cfgmod.h"
-#include "../module/osmod.h"
-#include "../scrsched.h"
-#include "../module/uomod.h"
 #include "../uoexec.h"
 
-#include "charactr.h"
 
 
 namespace Pol {

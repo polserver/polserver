@@ -7,11 +7,11 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-
 #include "compctx.h"
 
 #include <cstring>
+#include <ostream>
+
 namespace Pol {
   namespace Bscript {
 	CompilerContext::CompilerContext() :
@@ -22,7 +22,7 @@ namespace Pol {
 	  dbg_filenum( 0 )
 	{}
 
-	CompilerContext::CompilerContext( const string& filename, int dbg_filenum, const char *s ) :
+	CompilerContext::CompilerContext( const std::string& filename, int dbg_filenum, const char *s ) :
 	  s( s ),
 	  line( 1 ),
 	  filename( filename ),
@@ -107,9 +107,9 @@ namespace Pol {
 	  return 0;
 	}
 
-	void CompilerContext::printOn( ostream& os ) const
+	void CompilerContext::printOn( std::ostream& os ) const
 	{
-	  os << "File: " << filename << ", Line " << line << endl;
+	  os << "File: " << filename << ", Line " << line << std::endl;
 	}
 
     void CompilerContext::printOn( fmt::Writer& writer ) const
@@ -117,9 +117,9 @@ namespace Pol {
       writer << "File: " << filename << ", Line " << line << "\n";
     }
 
-	void CompilerContext::printOnShort( ostream& os ) const
+	void CompilerContext::printOnShort( std::ostream& os ) const
 	{
-	  os << filename << ", Line " << line << endl;
+	  os << filename << ", Line " << line << std::endl;
 	}
 
     void CompilerContext::printOnShort( fmt::Writer& writer ) const

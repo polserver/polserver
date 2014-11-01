@@ -9,7 +9,10 @@ Notes
 
 #ifndef BSCRIPT_COMPCTX_H
 #define BSCRIPT_COMPCTX_H
+
+#include <iosfwd>
 #include "../../lib/format/format.h"
+
 namespace Pol {
   namespace Bscript {
 	class CompilerContext

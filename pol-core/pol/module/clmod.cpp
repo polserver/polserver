@@ -8,7 +8,9 @@ Notes
 
 */
 
-#include "../../clib/stl_inc.h"
+
+#include "clmod.h"
+
 #include "../../clib/unicode.h"
 
 #include "../../bscript/bobject.h"
@@ -19,7 +21,6 @@ Notes
 #include "../uoexhelp.h"
 #include "../clfunc.h"
 
-#include "clmod.h"
 namespace Pol {
   namespace Bscript {
     using namespace Module;

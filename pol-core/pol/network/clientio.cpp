@@ -8,7 +8,12 @@ Notes
 
 */
 
-#include "../../clib/stl_inc.h"
+#include "client.h"
+
+#include "iostats.h"
+#include "packethooks.h"
+#include "packets.h"
+#include "clienttransmit.h"
 
 #include "../ctable.h"
 #include "../uvars.h"
@@ -19,25 +24,20 @@ Notes
 
 #include "../config.h"
 
-#include "../../clib/logfacility.h"
-#include "../../clib/fdump.h"
-#include "../../clib/passert.h"
-
-#include "client.h"
-#include "iostats.h"
-#include "packethooks.h"
-#include "packets.h"
-#include "clienttransmit.h"
 #include "../crypt/cryptengine.h"
 #include "../polsig.h"
 #include "../polstats.h"
 #include "../ucfg.h"
-#include "../polsem.h"
 #include "../packetscrobj.h"
+
+#include "../polsem.h"
+#include "../../clib/logfacility.h"
+#include "../../clib/fdump.h"
+#include "../../clib/passert.h"
 
 namespace Pol {
   namespace Network {
-	string Client::ipaddrAsString() const
+	std::string Client::ipaddrAsString() const
 	{
 	  return AddressToString( const_cast<struct sockaddr*>( &ipaddr ) );
 	}
