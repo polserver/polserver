@@ -25,18 +25,6 @@ FIXME: Does STW use slots with KR or newest 2d? If so, we must do slot checks th
 
 */
 
-#include "../clib/stl_inc.h"
-
-#include <assert.h>
-#include <stdio.h>
-
-#include "../clib/endian.h"
-#include "../clib/logfacility.h"
-#include "../clib/passert.h"
-#include "../clib/random.h"
-#include "../clib/stlutil.h"
-#include "../clib/strutil.h"
-
 #include "../bscript/berror.h"
 
 #include "../plib/realm.h"
@@ -72,6 +60,15 @@ FIXME: Does STW use slots with KR or newest 2d? If so, we must do slot checks th
 #include "uvars.h"
 #include "uworld.h"
 #include "containr.h"
+
+#include "../clib/endian.h"
+#include "../clib/logfacility.h"
+#include "../clib/passert.h"
+#include "../clib/random.h"
+#include "../clib/stlutil.h"
+#include "../clib/strutil.h"
+
+#include <cstdio>
 
 namespace Pol {
   namespace Core {
@@ -406,14 +403,14 @@ namespace Pol {
 
 	  for ( unsigned short i = 0; i < 500; ++i )
 	  {
-		string name = "Cont" + Clib::decint( i );
+		std::string name = "Cont" + Clib::decint( i );
 		Items::Item* item = NULL;
 		item = area->find_root_item( name );
 		if ( item == NULL )
 		{
 		  item = Items::Item::create( UOBJ_BACKPACK );
 		  item->setname( name );
-		  item->realm = find_realm( string( "britannia" ) );
+		  item->realm = find_realm( std::string( "britannia" ) );
 		  area->insert_root_item( item );
 		}
 		// Changed this from a passert to return null. 

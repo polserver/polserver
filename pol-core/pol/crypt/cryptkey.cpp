@@ -12,16 +12,22 @@
 **	  Tomi: Removed the enabled param.
 **
 *********************************************************************/
-#include "../../clib/stl_inc.h"
-#include "../../clib/clib.h"
+
 #include "cryptkey.h"
+
+#include "../../clib/clib.h"
 #include "../../clib/logfacility.h"
 #include <cstring>
+
+#ifdef _MSC_VER
+#pragma warning(disable:4996) // strnicmp POSIX deprecation warning
+#endif
+
 namespace Pol {
   namespace Crypt {
 	bool compareVersion( int ver1major, int ver1minor, int ver1build, int ver2major, int ver2minor, int ver2build );
 
-	void CalculateCryptKeys( const string& name, TCryptInfo& infoCrypt )
+	void CalculateCryptKeys( const std::string& name, TCryptInfo& infoCrypt )
 	{
 	  size_t len = name.length();
 	  if ( ( strnicmp( "none", name.c_str(), len ) == 0 )

@@ -7,13 +7,11 @@ Notes
 =======
 
 */
+#include "equipdsc.h"
 
-#include "../clib/stl_inc.h"
 #include "../clib/cfgelem.h"
-
 #include "../bscript/bstruct.h"
 
-#include "equipdsc.h"
 
 namespace Pol {
   namespace Core {

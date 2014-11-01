@@ -9,21 +9,24 @@ Notes
 */
 
 
-
-#include "../clib/stl_inc.h"
-
-#include <stdio.h>
-
-#include "../clib/strutil.h"
-#include "../clib/logfacility.h"
+#include "eprog.h"
 
 #include "filefmt.h"
-
-#include "eprog.h"
 #include "escriptv.h"
 #include "options.h"
 #include "executor.h"
 #include "objmethods.h"
+
+#include "../clib/strutil.h"
+#include "../clib/logfacility.h"
+
+#include <cstdio>
+#include <stdexcept>
+
+#ifdef _MSC_VER
+#pragma warning(disable:4996) // deprecated POSIX fopen warning
+#endif
+
 namespace Pol {
   namespace Bscript {
 	int EScriptProgram::read( const char *fname )
@@ -36,7 +39,7 @@ namespace Pol {
 
 		fp = fopen( fname, "rb" );
 		if ( !fp )
-		  throw runtime_error( string( "Unable to open " ) + fname + " for reading." );
+		  throw std::runtime_error( std::string( "Unable to open " ) + fname + " for reading." );
 
 		BSCRIPT_FILE_HDR hdr;
 		if ( fread( &hdr, sizeof hdr, 1, fp ) != 1 )
@@ -209,21 +212,21 @@ namespace Pol {
 		case INS_CASEJMP:
 		  if ( st.offset >= symbols.length() )
 		  {
-			throw runtime_error( "Symbol offset of " + Clib::decint( st.offset ) + " exceeds symbol store length of " + Clib::decint( symbols.length() ) + " at PC=" + Clib::decint( position ) );
+			throw std::runtime_error( "Symbol offset of " + Clib::decint( st.offset ) + " exceeds symbol store length of " + Clib::decint( symbols.length() ) + " at PC=" + Clib::decint( position ) );
 		  }
 		  token.dataptr = reinterpret_cast<const unsigned char*>( symbols.array() + st.offset );
 		  return 0;
 		case TOK_LONG:
 		  if ( st.offset >= symbols.length() )
 		  {
-			throw runtime_error( "Symbol offset of " + Clib::decint( st.offset ) + " exceeds symbol store length of " + Clib::decint( symbols.length() ) + " at PC=" + Clib::decint( position ) );
+			throw std::runtime_error( "Symbol offset of " + Clib::decint( st.offset ) + " exceeds symbol store length of " + Clib::decint( symbols.length() ) + " at PC=" + Clib::decint( position ) );
 		  }
 		  token.lval = *(int *)( symbols.array() + st.offset );
 		  return 0;
 		case TOK_DOUBLE:
 		  if ( st.offset >= symbols.length() )
 		  {
-			throw runtime_error( "Symbol offset of " + Clib::decint( st.offset ) + " exceeds symbol store length of " + Clib::decint( symbols.length() ) + " at PC=" + Clib::decint( position ) );
+			throw std::runtime_error( "Symbol offset of " + Clib::decint( st.offset ) + " exceeds symbol store length of " + Clib::decint( symbols.length() ) + " at PC=" + Clib::decint( position ) );
 		  }
 		  token.dval = *(double *)( symbols.array() + st.offset );
 		  return 0;
@@ -233,7 +236,7 @@ namespace Pol {
 		  {
 			if ( st.offset >= symbols.length() )
 			{
-			  throw runtime_error( "Symbol offset of " + Clib::decint( st.offset ) + " exceeds symbol store length of " + Clib::decint( symbols.length() ) + " at PC=" + Clib::decint( position ) );
+			  throw std::runtime_error( "Symbol offset of " + Clib::decint( st.offset ) + " exceeds symbol store length of " + Clib::decint( symbols.length() ) + " at PC=" + Clib::decint( position ) );
 			  return -1;
 			}
 			DebugToken *dt = (DebugToken *)( symbols.array() + st.offset );
@@ -242,7 +245,7 @@ namespace Pol {
 
 			if ( dt->strOffset >= symbols.length() )
 			{
-			  throw runtime_error( "Symbol offset of " + Clib::decint( dt->strOffset ) + " exceeds symbol store length of " + Clib::decint( symbols.length() ) + " at PC=" + Clib::decint( position ) );
+			  throw std::runtime_error( "Symbol offset of " + Clib::decint( dt->strOffset ) + " exceeds symbol store length of " + Clib::decint( symbols.length() ) + " at PC=" + Clib::decint( position ) );
 			  return -1;
 			}
 			if ( dt->strOffset ) token.setStr( symbols.array() + dt->strOffset );
@@ -286,7 +289,7 @@ namespace Pol {
 		  {
 			if ( st.offset >= symbols.length() )
 			{
-			  throw runtime_error( "Symbol offset of " + Clib::decint( st.offset ) + " exceeds symbol store length of " + Clib::decint( symbols.length() ) + " at PC=" + Clib::decint( position ) );
+			  throw std::runtime_error( "Symbol offset of " + Clib::decint( st.offset ) + " exceeds symbol store length of " + Clib::decint( symbols.length() ) + " at PC=" + Clib::decint( position ) );
 			}
 			token.setStr( symbols.array() + st.offset );
 		  }
@@ -307,7 +310,7 @@ namespace Pol {
 		  {
 			if ( st.offset >= symbols.length() )
 			{
-			  throw runtime_error( "Symbol offset of " + Clib::decint( st.offset ) + " exceeds symbol store length of " + Clib::decint( symbols.length() ) + " at PC=" + Clib::decint( position ) );
+			  throw std::runtime_error( "Symbol offset of " + Clib::decint( st.offset ) + " exceeds symbol store length of " + Clib::decint( symbols.length() ) + " at PC=" + Clib::decint( position ) );
 			}
 			token.setStr( symbols.array() + st.offset );
 		  }
@@ -342,7 +345,7 @@ namespace Pol {
 		  res = -1;
 		  break;
 		}
-		globalvarnames.push_back( string( buffer ) );
+		globalvarnames.push_back( std::string( buffer ) );
 	  }
 	  delete[] buffer;
 	  buffer = NULL;
@@ -375,7 +378,7 @@ namespace Pol {
 	  if ( debug_loaded )
 		return 0;
 
-	  string mname = name;
+	  std::string mname = name;
 	  mname.replace( mname.size() - 3, 3, "dbg" );
 	  FILE* fp = fopen( mname.c_str(), "rb" );
 	  if ( !fp )

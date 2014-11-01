@@ -9,8 +9,8 @@ Notes
 
 */
 
+#include "decay.h"
 
-#include "../clib/stl_inc.h"
 #include "../clib/esignal.h"
 #include "../plib/realm.h"
 
@@ -28,7 +28,6 @@ Notes
 #include "uoscrobj.h"
 #include "uworld.h"
 
-#include "decay.h"
 namespace Pol {
   namespace Core {
 	size_t cycles_per_decay_worldzone;
@@ -95,9 +94,9 @@ namespace Pol {
 	{
 	  static unsigned wx = ~0u;
 	  static unsigned wy = 0;
-	  vector<Plib::Realm*>::iterator itr;
+
 	  Plib::Realm* realm;
-	  for ( itr = Realms->begin(); itr != Realms->end(); ++itr )
+	  for (auto itr = Realms->begin(); itr != Realms->end(); ++itr )
 	  {
 		realm = *itr;
 		if ( !--cycles_until_decay_worldzone )

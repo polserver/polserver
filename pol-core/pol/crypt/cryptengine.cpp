@@ -7,17 +7,15 @@ Notes
 
 */
 
-#include "../../clib/stl_inc.h"
+#include "cryptengine.h"
+#include "crypt.h"
+#include "cryptkey.h"
+
+#include "../polcfg.h"
 
 #include "../../clib/logfacility.h"
 #include "../../clib/strutil.h"
 
-#include "cryptengine.h"
-#include "crypt.h"
-
-#include "../polcfg.h"
-
-#include "cryptkey.h"
 namespace Pol {
   namespace Crypt {
 	CCryptBase* create_nocrypt_engine()

@@ -8,15 +8,13 @@ Notes
 
 */
 
-#include <math.h>
-
-#include "../clib/stl_inc.h"
-
-#include "bobject.h"
 #include "escrutil.h"
+#include "bobject.h"
 #include "impstr.h"
 
+#include <cmath>
 #include <climits>
+
 namespace Pol {
   namespace Bscript {
 	bool could_be_a_number( const char* s )
@@ -136,9 +134,9 @@ namespace Pol {
 	}
 
 
-	string normalize_ecl_filename( const string& filename )
+	std::string normalize_ecl_filename( const std::string& filename )
 	{
-	  if ( filename.find( ".ecl" ) == string::npos )
+        if (filename.find(".ecl") == std::string::npos)
 		return filename + ".ecl";
 	  else
 		return filename;

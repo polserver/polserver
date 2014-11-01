@@ -13,15 +13,6 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-
-#ifdef _MSC_VER
-#	pragma warning( disable: 4786 )
-#endif
-
-#include <iostream>
-#include <string>
-
 
 #include "../clib/endian.h"
 #include "../clib/fdump.h"
@@ -66,6 +57,9 @@ Notes
 #include "mobile/wornitems.h"
 
 #include "objecthash.h"
+
+#include <iostream>
+#include <string>
 
 namespace Pol {
   namespace Core {
@@ -295,7 +289,7 @@ namespace Pol {
 
 	  client->UOExpansionFlagClient = ctBEu32( msg->clientflag );
 
-	  string tmpstr( msg->Name, sizeof msg->Name );
+	  std::string tmpstr( msg->Name, sizeof msg->Name );
 	  const char *tstr = tmpstr.c_str();
 	  for ( unsigned int i = 0; i < strlen( tstr ); i++ )
 	  {
@@ -340,7 +334,7 @@ namespace Pol {
 	  unsigned int stat_total = msg->Strength + msg->Intelligence + msg->Dexterity;
 	  unsigned int stat_min, stat_max;
 	  char *maxpos;
-	  std::vector<string>::size_type sidx;
+	  std::vector<std::string>::size_type sidx;
 	  for ( sidx = 0; !valid_stats && sidx < ssopt.total_stats_at_creation.size(); ++sidx )
 	  {
 		const char *statstr = ssopt.total_stats_at_creation[sidx].c_str();
@@ -584,7 +578,7 @@ namespace Pol {
 
 	  chr->serial = GetNextSerialNumber();
 	  chr->serial_ext = ctBEu32( chr->serial );
-	  chr->realm = find_realm( string( "britannia" ) );
+	  chr->realm = find_realm( std::string( "britannia" ) );
 	  chr->x = chr->y = chr->z = chr->facing = 1;
 	  chr->wornitems.serial = chr->serial;
 	  chr->wornitems.serial_ext = chr->serial_ext;
@@ -650,7 +644,7 @@ namespace Pol {
 
 	  client->UOExpansionFlagClient = msg->flags;
 
-	  string tmpstr( msg->name, sizeof msg->name );
+	  std::string tmpstr( msg->name, sizeof msg->name );
 	  const char *tstr = tmpstr.c_str();
 	  for ( unsigned int i = 0; i < strlen( tstr ); i++ )
 	  {
@@ -695,7 +689,7 @@ namespace Pol {
 	  unsigned int stat_total = msg->strength + msg->intelligence + msg->dexterity;
 	  unsigned int stat_min, stat_max;
 	  char *maxpos;
-	  std::vector<string>::size_type sidx;
+	  std::vector<std::string>::size_type sidx;
 	  for ( sidx = 0; !valid_stats && sidx < ssopt.total_stats_at_creation.size(); ++sidx )
 	  {
 		const char *statstr = ssopt.total_stats_at_creation[sidx].c_str();
@@ -1036,7 +1030,7 @@ namespace Pol {
 
 	  client->UOExpansionFlagClient = ctBEu32( msg->clientflag );
 
-	  string tmpstr( msg->Name, sizeof msg->Name );
+	  std::string tmpstr( msg->Name, sizeof msg->Name );
 	  const char *tstr = tmpstr.c_str();
 	  for ( unsigned int i = 0; i < strlen( tstr ); i++ )
 	  {
@@ -1081,7 +1075,7 @@ namespace Pol {
 	  unsigned int stat_total = msg->Strength + msg->Intelligence + msg->Dexterity;
 	  unsigned int stat_min, stat_max;
 	  char *maxpos;
-	  std::vector<string>::size_type sidx;
+	  std::vector<std::string>::size_type sidx;
 	  for ( sidx = 0; !valid_stats && sidx < ssopt.total_stats_at_creation.size(); ++sidx )
 	  {
 		const char *statstr = ssopt.total_stats_at_creation[sidx].c_str();

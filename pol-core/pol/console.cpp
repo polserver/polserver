@@ -7,14 +7,6 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-
-#ifdef _WIN32
-#	include <conio.h>
-#else
-#	include "clib/kbhit.h"
-keyboard kb;
-#endif
 
 #include "../bscript/impstr.h"
 
@@ -30,6 +22,21 @@ keyboard kb;
 #include "scrdef.h"
 #include "scrsched.h"
 #include "scrstore.h"
+
+#ifdef _WIN32
+#	include <conio.h>
+#else
+#	include "clib/kbhit.h"
+keyboard kb;
+#endif
+
+#include <string>
+#include <stdexcept>
+
+#ifdef _MSC_VER
+#pragma warning(disable:4996) // POSIX deprecation warning getch()
+#endif
+
 namespace Pol {
   namespace Core {
 	class ConsoleCommand
@@ -40,8 +47,8 @@ namespace Pol {
 	  std::string showchar() const;
 
 	  char ch;
-	  string script;
-	  string description;
+	  std::string script;
+      std::string description;
 	};
 
 	std::vector< ConsoleCommand > console_commands;
@@ -51,7 +58,7 @@ namespace Pol {
     ConsoleCommand::ConsoleCommand( Clib::ConfigElem& elem, const std::string& cmd )
 	{
 	  ISTRINGSTREAM is( cmd );
-	  string charspec;
+      std::string charspec;
 	  if ( !( is >> charspec >> script ) )
 	  {
 		elem.throw_error( "Ill-formed console command desc: " + cmd );
@@ -78,7 +85,7 @@ namespace Pol {
 		unlock_char = ch;
 	}
 
-	string getcmdstr( char ch )
+    std::string getcmdstr(char ch)
 	{
 	  if ( iscntrl( ch ) )
 	  {
@@ -120,7 +127,7 @@ namespace Pol {
 
 	  while ( cf.read( elem ) )
 	  {
-		string tmp;
+        std::string tmp;
 		while ( elem.remove_prop( "CMD", &tmp ) )
 		{
 		  ConsoleCommand cmd( elem, tmp );
@@ -146,7 +153,7 @@ namespace Pol {
 		for ( unsigned i = 0; i < console_commands.size(); ++i )
 		{
 		  ConsoleCommand& cmd = console_commands[i];
-		  string sc = getcmdstr( cmd.ch );
+          std::string sc = getcmdstr(cmd.ch);
 		  if ( sc.size() == 1 ) tmp << " ";
           tmp << " " << sc << ": ";
           tmp << cmd.description << "\n";
@@ -202,7 +209,7 @@ namespace Pol {
 		return;
 	  }
 
-	  string filename = "scripts/console/" + cmd->script;
+      std::string filename = "scripts/console/" + cmd->script;
 	  try
 	  {
 		PolLock lck;
@@ -216,15 +223,15 @@ namespace Pol {
 	  {
         ERROR_PRINT << "Command aborted due to: " << msg << "\n";
 	  }
-	  catch ( string& str )
+	  catch ( std::string& str )
 	  {
         ERROR_PRINT << "Command aborted due to: " << str << "\n";
 	  }       // egcs has some trouble realizing 'exception' should catch
-	  catch ( runtime_error& re )   // runtime_errors, so...
+      catch (std::runtime_error& re)   // runtime_errors, so...
 	  {
         ERROR_PRINT << "Command aborted due to: " << re.what( ) << "\n";
 	  }
-	  catch ( exception& ex )
+      catch (std::exception& ex)
 	  {
         ERROR_PRINT << "Command aborted due to: " << ex.what( ) << "\n";
 	  }

@@ -9,30 +9,32 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
+#include "core.h"
 
+#include "realms.h"
 #include "../plib/realm.h"
 
 #include "mobile/charactr.h"
 #include "network/cgdata.h"
 #include "network/client.h"
-#include "core.h"
 #include "fnsearch.h"
 #include "item/itemdesc.h"
-#include "polsem.h"
+
 #include "module/polsystemmod.h"
 #include "multi/multi.h"
 #include "multi/house.h"
-#include "realms.h"
 #include "ufunc.h"
 #include "uworld.h"
+
+#include "polsem.h"
+
 namespace Pol {
   namespace Core {
 	void SetSysTrayPopupText( const char* text );
 #ifdef _WIN32
 	static Priority tipPriority = ToolTipPriorityNone;
 #endif
-	void CoreSetSysTrayToolTip( const string& text, Priority priority )
+	void CoreSetSysTrayToolTip( const std::string& text, Priority priority )
 	{
 #ifdef _WIN32
 	  if ( priority >= tipPriority )

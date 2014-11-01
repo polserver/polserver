@@ -8,15 +8,15 @@ Notes
 
 */
 
+#include "dice.h"
 
-#include "../clib/stl_inc.h"
 #include "../clib/stlutil.h"
 #include "../clib/logfacility.h"
 #include "../clib/rawtypes.h"
 #include "../clib/random.h"
 
-#include "dice.h"
 #include <cstring>
+#include <stdexcept>
 
 namespace Pol {
   namespace Core {
@@ -157,7 +157,7 @@ namespace Pol {
 		}
 		return true;
 	  }
-	  catch ( exception& ex )
+	  catch ( std::exception& ex )
 	  {
         ERROR_PRINT << "Uh, looks like I found damage of " << dicestr << " confusing.\n"
           << "Valid formats look like: 3D6+2, 2D8, D10, 4, 2d20-4\n"

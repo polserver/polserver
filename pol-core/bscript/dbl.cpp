@@ -7,28 +7,27 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-
-#include <math.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sstream>
+#include "bobject.h"
+#include "berror.h"
+#include "impstr.h"
 
 #include "../clib/stlutil.h"
 
-#include "berror.h"
-#include "bobject.h"
-#include "impstr.h"
+#include <cmath>
+#include <cstdlib>
+#include <cstring>
+#include <sstream>
+
 namespace Pol {
   namespace Bscript {
-	string Double::pack() const
+	std::string Double::pack() const
 	{
 	  OSTRINGSTREAM os;
 	  os << "r" << dval_;
 	  return OSTRINGSTREAM_STR( os );
 	}
 
-	void Double::packonto( ostream& os ) const
+    void Double::packonto(std::ostream& os) const
 	{
 	  os << "r" << dval_;
 	}
@@ -47,7 +46,7 @@ namespace Pol {
 	  }
 	}
 
-	BObjectImp* Double::unpack( istream& is )
+    BObjectImp* Double::unpack(std::istream& is)
 	{
 	  double dv;
 	  if ( is >> dv )
@@ -109,7 +108,7 @@ namespace Pol {
 	  return dval_ > val;
 	}
 
-	string Double::getStringRep() const
+    std::string Double::getStringRep() const
 	{
 	  OSTRINGSTREAM os;
 
@@ -142,7 +141,7 @@ namespace Pol {
 	{
 	  obj.setimp( selfPlusObj( objimp ) );
 	}
-	void Double::selfPlusObj( Double& objimp, BObject& obj )
+	void Double::selfPlusObj( Double& objimp, BObject& /*obj*/ )
 	{
 	  dval_ += objimp.dval_;
 	}
@@ -172,11 +171,11 @@ namespace Pol {
 	{
 	  objimp.selfMinusObj( *this, obj );
 	}
-	void Double::selfMinusObj( BLong& objimp, BObject& obj )
+	void Double::selfMinusObj( BLong& objimp, BObject& /*obj*/ )
 	{
 	  dval_ -= objimp.value();
 	}
-	void Double::selfMinusObj( Double& objimp, BObject& obj )
+	void Double::selfMinusObj( Double& objimp, BObject& /*obj*/ )
 	{
 	  dval_ -= objimp.value();
 	}
@@ -201,11 +200,11 @@ namespace Pol {
 	{
 	  objimp.selfTimesObj( *this, obj );
 	}
-	void Double::selfTimesObj( BLong& objimp, BObject& obj )
+	void Double::selfTimesObj( BLong& objimp, BObject& /*obj*/ )
 	{
 	  dval_ *= objimp.value();
 	}
-	void Double::selfTimesObj( Double& objimp, BObject& obj )
+	void Double::selfTimesObj( Double& objimp, BObject& /*obj*/ )
 	{
 	  dval_ *= objimp.value();
 	}

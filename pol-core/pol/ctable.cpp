@@ -7,8 +7,8 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
 #include "ctable.h"
+
 namespace Pol {
   namespace Core {
 	SVR_KEYDESC keydesc[257] = {

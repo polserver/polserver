@@ -12,6 +12,7 @@ Notes
 #define EQUIPDSC_H
 
 #include "item/itemdesc.h"
+
 namespace Pol {
   namespace Clib {
 	class ConfigElem;
