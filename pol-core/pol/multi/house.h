@@ -14,6 +14,7 @@ Notes
 
 #include "customhouses.h"
 #include "multi.h"
+#include "../reftypes.h"
 
 #include <list>
 #include <vector>

@@ -11,12 +11,9 @@ Notes
 
 */
 
-#include "../../clib/stl_inc.h"
-#include "../../clib/endian.h"
-
-#include "../gameclck.h"
 #include "item.h"
 #include "itemdesc.h"
+#include "../gameclck.h"
 #include "../layers.h"
 #include "../resource.h"
 #include "../objtype.h"
@@ -25,6 +22,7 @@ Notes
 #include "../uobjcnt.h"
 
 #include <climits>
+
 namespace Pol {
   namespace Items {
 	Item::Item( const ItemDesc& id, UOBJ_CLASS uobj_class ) :

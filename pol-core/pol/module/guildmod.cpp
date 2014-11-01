@@ -11,8 +11,10 @@ Notes
 
 */
 
+#include "guildmod.h"
 
-#include "../../clib/stl_inc.h"
+#include "uomod.h"
+
 #include "../../bscript/execmodl.h"
 #include "../../bscript/berror.h"
 #include "../../bscript/bobject.h"
@@ -30,13 +32,14 @@ Notes
 
 #include "../mobile/charactr.h"
 #include "../fnsearch.h"
-#include "guildmod.h"
 #include "../polcfg.h"
 #include "../proplist.h"
 #include "../ufunc.h"
 #include "../uobject.h"
-#include "uomod.h"
 #include "../uoscrobj.h"
+
+#include <map>
+
 namespace Pol {
 
   /// Guild Object
@@ -99,7 +102,7 @@ namespace Pol {
 	  virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin = false );
 	};
 
-	typedef map<unsigned int, GuildRef> Guilds;
+	typedef std::map<unsigned int, GuildRef> Guilds;
 
 	static Guilds guilds;
 	static unsigned int nextguildid = 1;
@@ -273,7 +276,7 @@ namespace Pol {
 
 	void read_guilds_dat()
 	{
-      string guildsfile = Core::config.world_data_path + "guilds.txt";
+      std::string guildsfile = Core::config.world_data_path + "guilds.txt";
 
       if ( !Clib::FileExists( guildsfile ) )
 		return;
@@ -519,7 +522,7 @@ namespace Pol {
 		return BObjectRef( UninitObject::create() );
 	}
 
-	BObjectImp* EGuildRefObjImp::call_method_id( const int id, Executor& ex, bool forcebuiltin )
+	BObjectImp* EGuildRefObjImp::call_method_id( const int id, Executor& ex, bool /*forcebuiltin*/ )
 	{
 	  if ( obj_->_disbanded )
 		return new BError( "Guild has disbanded" );

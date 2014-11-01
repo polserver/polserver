@@ -8,17 +8,18 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-
-#include <stddef.h>
-
-#include "../clib/fdump.h"
-#include "../clib/endian.h"
+#include "extcmd.h"
 
 #include "network/msghandl.h"
 #include "pktin.h"
 #include "uvars.h"
-#include "extcmd.h"
+
+#include "../clib/fdump.h"
+#include "../clib/endian.h"
+
+#include <cstddef>
+#include <stdexcept>
+
 namespace Pol {
   namespace Core {
 	struct ExtMsgHandler
@@ -35,7 +36,7 @@ namespace Pol {
 	  {
 		fprintf( stderr, "Extended Message Handler %d (0x%x) multiply defined.\n",
 				 submsgtype, submsgtype );
-		throw runtime_error( "Extended Message Handler multiply defined." );
+		throw std::runtime_error( "Extended Message Handler multiply defined." );
 	  }
 	  handler_table[submsgtype].func = func;
 	}

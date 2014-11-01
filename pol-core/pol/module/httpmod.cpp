@@ -6,23 +6,20 @@ Notes
 =======
 
 */
+#include "httpmod.h"
 
-#include "../../clib/stl_inc.h"
-#include "../../clib/logfacility.h"
+#include "../polcfg.h"
+#include "../scrsched.h"
 
 #include "../../bscript/impstr.h"
 #include "../../bscript/berror.h"
 
+#include "../../clib/logfacility.h"
 #include "../../clib/wnsckt.h"
 
-#include "../polcfg.h"
-#include "../scrsched.h"
-#include "../uoexec.h"
-
-#include "httpmod.h"
 namespace Pol {
   namespace Core {
-    string http_decodestr( const string& s );
+      std::string http_decodestr(const std::string& s);
   }
   namespace Bscript {
     using namespace Module;
@@ -55,7 +52,7 @@ namespace Pol {
 		// sleep for a bit and sends the rest later
 
 		unsigned nsent;
-		const string& s = str->value();
+        const std::string& s = str->value();
 		bool res = sck_.send_nowait( (void *)( s.c_str() + continuing_offset ),
 									 static_cast<unsigned int>( s.length() - continuing_offset ),
 									 &nsent );
@@ -96,7 +93,7 @@ namespace Pol {
 		// sleep for a bit and sends the rest later
 
 		unsigned nsent;
-		const string& s = str->value();
+        const std::string& s = str->value();
 		bool res = sck_.send_nowait( (void *)( s.c_str() + continuing_offset ),
 									 static_cast<unsigned int>( s.length() - continuing_offset ),
 									 &nsent );
@@ -163,20 +160,20 @@ namespace Pol {
 	
 
 	// query_string is everything after the '?'
-	void HttpExecutorModule::read_query_string( const string& query_string )
+    void HttpExecutorModule::read_query_string(const std::string& query_string)
 	{
 	  if ( !query_string.empty() )
 	  {
-		string::size_type brk;
-		string::size_type start = 0;
+        std::string::size_type brk;
+        std::string::size_type start = 0;
 		do
 		{
 		  brk = query_string.find( '&', start );
-		  string param = query_string.substr( start, ( brk == string::npos ) ? brk : brk - start );
+          std::string param = query_string.substr(start, (brk == std::string::npos) ? brk : brk - start);
 
-		  string name, value;
-		  string::size_type eq = param.find( '=' );
-		  if ( eq != string::npos )
+          std::string name, value;
+          std::string::size_type eq = param.find('=');
+          if (eq != std::string::npos)
 		  {
 			name = param.substr( 0, eq );
 			value = Core::http_decodestr( param.substr( eq + 1 ) );
@@ -192,7 +189,7 @@ namespace Pol {
             INFO_PRINT << "http-param: '" << param << "', '" << Core::http_decodestr( param ) << "'\n";
 
 		  start = brk + 1;
-		} while ( brk != string::npos );
+        } while (brk != std::string::npos);
 	  }
 	}
 

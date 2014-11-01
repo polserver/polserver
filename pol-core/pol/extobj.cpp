@@ -10,12 +10,13 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
+#include "extobj.h"
+
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/fileutil.h"
 #include "../clib/rawtypes.h"
-#include "extobj.h"
+
 namespace Pol {
   namespace Core {
 	ExternalObject extobj;

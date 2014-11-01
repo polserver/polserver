@@ -14,8 +14,7 @@ Notes
 
 */
 
-
-#include "../clib/stl_inc.h"
+#include "exscrobj.h"
 
 #include "../bscript/berror.h"
 #include "../bscript/dict.h"
@@ -23,15 +22,15 @@ Notes
 #include "../bscript/objmembers.h"
 #include "../bscript/objmethods.h"
 
-#include "../clib/strutil.h"
-
-#include "exscrobj.h"
-
-#include "polcfg.h"
+#include "module/uomod.h"
 #include "module/osmod.h"
 #include "uoexec.h"
-#include "module/uomod.h"
 #include "uoscrobj.h"
+
+#include "../clib/strutil.h"
+
+#include "polcfg.h"
+
 namespace Pol {
   namespace Core {
 	using namespace Bscript;
@@ -60,7 +59,7 @@ namespace Pol {
 	}
 
 
-	BObjectImp* ScriptExObjImp::call_method_id( const int id, Executor& ex, bool forcebuiltin )
+	BObjectImp* ScriptExObjImp::call_method_id( const int id, Executor& ex, bool /*forcebuiltin*/ )
 	{
 	  if ( !value().exists() )
 		return new BError( "Script has been destroyed" );
@@ -85,7 +84,7 @@ namespace Pol {
 			ret = ret->copy();
 			if ( ret->isa( OTUninit ) )
 			{
-			  string message = string( "Member " ) + string( mname->value() ) + string( " not found on that object" );
+              std::string message = std::string("Member ") + std::string(mname->value()) + std::string(" not found on that object");
 			  return new BError( message );
 			}
 			else

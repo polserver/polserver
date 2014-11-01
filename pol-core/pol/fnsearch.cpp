@@ -9,8 +9,6 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-
 #include "fnsearch.h"
 
 #include "../clib/stlutil.h"

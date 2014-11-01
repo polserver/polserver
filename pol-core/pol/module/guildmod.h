@@ -12,8 +12,17 @@ Notes
 #define GUILDS_H
 
 #include "../../bscript/execmodl.h"
+#include "../proplist.h"
 
 namespace Pol {
+    namespace Clib {
+        class ConfigElem;
+        class StreamWriter;
+    }
+    namespace Mobile {
+        class Character;
+    }
+
   namespace Module {
 	class SerialSet : public std::set<unsigned int>
 	{

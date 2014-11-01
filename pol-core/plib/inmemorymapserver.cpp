@@ -6,13 +6,11 @@ Notes
 =======
 
 */
-
-#include "../clib/stl_inc.h"
-
-#include "../clib/passert.h"
-#include "../clib/strutil.h"
-
 #include "inmemorymapserver.h"
+
+#include "../clib/strutil.h"
+#include "../clib/passert.h"
+
 namespace Pol {
   namespace Plib {
 	InMemoryMapServer::InMemoryMapServer( const RealmDescriptor& descriptor ) :
@@ -20,7 +18,7 @@ namespace Pol {
 	{
 	  unsigned n_blocks = ( _descriptor.width >> MAPBLOCK_SHIFT ) * ( _descriptor.height >> MAPBLOCK_SHIFT );
 
-	  Clib::BinaryFile mapfile( descriptor.path( "base.dat" ), ios::in );
+	  Clib::BinaryFile mapfile( descriptor.path( "base.dat" ), std::ios::in );
 
 	  _mapblocks.resize( n_blocks );
 

@@ -8,8 +8,6 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-
 #include "../bscript/berror.h"
 #include "../bscript/impstr.h"
 
@@ -28,6 +26,7 @@ Notes
 #include "sockio.h"
 #include "ufunc.h"
 #include "uoexec.h"
+
 namespace Pol {
   namespace Core {
     void send_prompt( Network::Client* client, u32 serial )

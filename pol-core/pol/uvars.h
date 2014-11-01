@@ -13,6 +13,8 @@ Notes
 
 #include "reftypes.h"
 
+#include <vector>
+
 namespace Pol {
   namespace Items {
 	class UWeapon;

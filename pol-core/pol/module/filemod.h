@@ -11,11 +11,22 @@ Notes
 
 #ifndef FILEACCESS_H
 #define FILEACCESS_H
+
+#include "../../bscript/execmodl.h"
+
+#include <vector>
+#include <set>
+#include <string>
+
 namespace Pol {
   namespace Bscript {
 	class ExecutorModule;
 	class Executor;
   }
+  namespace Clib {
+      class ConfigElem;
+  }
+
   namespace Module {
 	class FileAccessExecutorModule : public Bscript::TmplExecutorModule<FileAccessExecutorModule>
 	{
@@ -55,9 +66,9 @@ namespace Pol {
 	  bool AllDirectories; // not used
 	  bool AllExtensions;
 
-	  set<std::string, Clib::ci_cmp_pred> Packages;
-	  vector< std::string > Directories; // not used
-	  vector< std::string > Extensions;
+	  std::set<std::string, Clib::ci_cmp_pred> Packages;
+      std::vector< std::string > Directories; // not used
+      std::vector< std::string > Extensions;
 	};
 
 	bool HasWriteAccess( const Plib::Package* pkg, const Plib::Package* filepackage, const std::string& path );

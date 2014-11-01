@@ -7,26 +7,26 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
+#include "eprog.h"
+
 #include <iomanip>
 
-#include "eprog.h"
 namespace Pol {
   namespace Bscript {
-	void EScriptProgram::dump( ostream& os )
+	void EScriptProgram::dump( std::ostream& os )
 	{
 	  Token token;
 	  unsigned PC;
 	  if ( !exported_functions.empty() )
 	  {
-		os << "Exported Functions:" << endl;
-		os << "   PC  Args  Name" << endl;
+		os << "Exported Functions:" << std::endl;
+        os << "   PC  Args  Name" << std::endl;
 		for ( auto &elem : exported_functions )
 		{
 		  os << std::setw( 5 ) << elem.PC
 			<< std::setw( 6 ) << elem.nargs
 			<< "  " << elem.name
-			<< endl;
+            << std::endl;
 		}
 	  }
 	  unsigned nLines = tokens.length() / sizeof( StoredToken );
@@ -39,14 +39,14 @@ namespace Pol {
 		else
 		{
 		  if ( fileline.size() > PC && !fileline[PC].empty() )
-			os << fileline[PC] << endl;
+              os << fileline[PC] << std::endl;
 		  if ( program_PC == PC && !program_decl.empty() )
-			os << program_decl << endl;
+              os << program_decl << std::endl;
 		  if ( function_decls.size() > PC && !function_decls[PC].empty() )
-			os << function_decls[PC] << endl;
+              os << function_decls[PC] << std::endl;
 		  if ( sourcelines.size() > PC && !sourcelines[PC].empty() )
-			os << sourcelines[PC] << endl;
-		  os << PC << ": " << token << endl;
+              os << sourcelines[PC] << std::endl;
+          os << PC << ": " << token << std::endl;
 		  if ( token.id == INS_CASEJMP )
 		  {
 			dump_casejmp( os, token );
@@ -55,7 +55,7 @@ namespace Pol {
 	  }
 	}
 
-	void EScriptProgram::dump_casejmp( ostream& os, const Token& token )
+	void EScriptProgram::dump_casejmp( std::ostream& os, const Token& token )
 	{
 	  const unsigned char* dataptr = token.dataptr;
 	  for ( ;; )
@@ -68,16 +68,16 @@ namespace Pol {
 		{
 		  unsigned int lval = *(const unsigned int*)dataptr;
 		  dataptr += 4;
-		  os << "\t" << lval << ": @" << offset << endl;
+          os << "\t" << lval << ": @" << offset << std::endl;
 		}
 		else if ( type == CASE_TYPE_DEFAULT )
 		{
-		  os << "\tdefault: @" << offset << endl;
+            os << "\tdefault: @" << offset << std::endl;
 		  break;
 		}
 		else
 		{ // type is the length of the string, otherwise
-		  os << "\t\"" << string( (const char*)dataptr, type ) << "\": @" << offset << endl;
+            os << "\t\"" << std::string((const char*)dataptr, type) << "\": @" << offset << std::endl;
 		  dataptr += type;
 		}
 	  }

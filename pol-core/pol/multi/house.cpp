@@ -14,10 +14,8 @@ Notes
 
 */
 
-
-#include "../../clib/stl_inc.h"
-
-#include <assert.h>
+#include "house.h"
+#include "multidef.h"
 
 #include "../../bscript/berror.h"
 #include "../../bscript/executor.h"
@@ -32,15 +30,14 @@ Notes
 #include "../../clib/strutil.h"
 #include "../../clib/streamsaver.h"
 
-#include "../../plib/mapcell.h"
 #include "../../plib/realm.h"
+#include "../../plib/mapcell.h"
 #include "../../plib/mapshape.h"
 
 #include "../network/cgdata.h"
 #include "../core.h"
 #include "../fnsearch.h"
 #include "../item/itemdesc.h"
-#include "multidef.h"
 #include "../objtype.h"
 #include "../polcfg.h"
 #include "../realms.h"
@@ -56,7 +53,6 @@ Notes
 #include "../uvars.h"
 #include "../uworld.h"
 
-#include "house.h"
 
 #include "../objecthash.h"
 
@@ -318,9 +314,9 @@ namespace Pol {
 			//invalidate
 			//invalidate
 			WorkingDesign = CurrentDesign;
-			vector<u8> newvec;
+			std::vector<u8> newvec;
 			WorkingCompressed.swap( newvec );
-			vector<u8> newvec2;
+			std::vector<u8> newvec2;
 			CurrentCompressed.swap( newvec2 );
 			revision++;
 			CustomHousesSendFullToInRange( this, HOUSE_DESIGN_CURRENT, RANGE_VISUAL_LARGE_BUILDINGS );
@@ -350,9 +346,9 @@ namespace Pol {
 			{
 			  //invalidate
 			  WorkingDesign = CurrentDesign;
-			  vector<u8> newvec;
+			  std::vector<u8> newvec;
 			  WorkingCompressed.swap( newvec );
-			  vector<u8> newvec2;
+              std::vector<u8> newvec2;
 			  CurrentCompressed.swap( newvec2 );
 			  CustomHousesSendFullToInRange( this, HOUSE_DESIGN_CURRENT, RANGE_VISUAL_LARGE_BUILDINGS );
 			}
@@ -680,7 +676,7 @@ namespace Pol {
 
 	bool statics_cause_problems( unsigned short x1, unsigned short y1,
 								 unsigned short x2, unsigned short y2,
-								 s8 z, int flags, Plib::Realm* realm )
+								 s8 z, int /*flags*/, Plib::Realm* realm )
 	{
 	  for ( unsigned short x = x1; x <= x2; ++x )
 	  {
@@ -921,7 +917,7 @@ namespace Pol {
 		CurrentDesign = WorkingDesign;
 
 		//invalidate old packet
-		vector<u8> newvec;
+        std::vector<u8> newvec;
 		CurrentCompressed.swap( newvec );
 
 		CustomHouseStopEditing( chr, this );
