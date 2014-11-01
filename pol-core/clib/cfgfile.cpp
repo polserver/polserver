@@ -1107,8 +1107,8 @@ void ConfigFile::readraw( ConfigElem& elem )
 }
 
 void StubConfigSource::display_error( const std::string& msg, 
-                        bool show_curline,
-                        const ConfigElemBase* elem,
+                        bool /*show_curline*/,
+                        const ConfigElemBase* /*elem*/,
                         bool error ) const
 {
   ERROR_PRINT << ( error ? "Error" : "Warning" )

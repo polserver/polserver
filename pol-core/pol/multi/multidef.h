@@ -28,6 +28,11 @@ Notes
 
 #include "../udatfile.h"
 #include "../../clib/rawtypes.h"
+
+#include <map>
+#include <vector>
+#include <set>
+
 namespace Pol {
   namespace Clib {
 	class ConfigElem;
@@ -54,22 +59,22 @@ namespace Pol {
 	  u16 multiid;
 	  enum { UNKNOWN, BOAT, HOUSE, STAIRS } type;
 
-	  vector< MULTI_ELEM > elems;
+	  std::vector< MULTI_ELEM > elems;
 
 	  short xbase;          // x[0] is really x[xbase]
 	  short xsize;
 	  short ybase;
 	  short ysize;
 
-	  typedef vector<const MULTI_ELEM*> HullList;
+	  typedef std::vector<const MULTI_ELEM*> HullList;
 	  HullList hull;
 	  HullList internal_hull;
-	  typedef set<unsigned short> HullList2;
+      typedef std::set<unsigned short> HullList2;
 	  HullList2 hull2;
 	  HullList2 internal_hull2;
 
 	  typedef std::multimap<unsigned short, const MULTI_ELEM*> Components;
-	  typedef pair<Components::const_iterator, Components::const_iterator> ItrPair;
+	  typedef std::pair<Components::const_iterator, Components::const_iterator> ItrPair;
 
 	  short minrx, minry, minrz; // minimum relative distances
 	  short maxrx, maxry, maxrz;
@@ -108,7 +113,7 @@ namespace Pol {
 	  void init();
 	};
 
-	typedef map< u16, MultiDef* > MultiDefs;
+	typedef std::map< u16, MultiDef* > MultiDefs;
 
 	bool MultiDefByMultiIDExists( u16 multiid );
 	const MultiDef* MultiDefByMultiID( u16 multiid );

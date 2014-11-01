@@ -19,6 +19,7 @@ new Handler added to the core needs a new Version number here. As of 8/3/09 ther
 */
 
 #include "packethooks.h"
+#include "msghandl.h"
 
 #include "../../clib/cfgelem.h"
 #include "../../clib/cfgfile.h"
@@ -30,17 +31,20 @@ new Handler added to the core needs a new Version number here. As of 8/3/09 ther
 #include "../../bscript/bobject.h"
 #include "../../bscript/impstr.h"
 
-
 #include "../../plib/pkg.h"
 
 #include "../accounts/account.h"
 #include "../mobile/charactr.h"
 
-#include "msghandl.h"
 #include "../packetscrobj.h"
 #include "../uoscrobj.h"
 #include "../syshook.h"
 #include "../polsem.h"
+
+#ifdef _MSC_VER
+    #pragma warning(disable:4996) //deprecation warnings for stricmp
+#endif
+
 namespace Pol {
   namespace Network {
 	//stores information about each packet and its script & default handler
@@ -106,7 +110,7 @@ namespace Pol {
 	  if ( !phd->SubCommands.empty() )
 	  {
 		u32 subcmd = GetSubCmd( message, phd );
-		map<u32, PacketHookData*>::iterator itr;
+		std::map<u32, PacketHookData*>::iterator itr;
 		itr = phd->SubCommands.find( subcmd );
 		if ( itr != phd->SubCommands.end() )
 		{
@@ -226,8 +230,7 @@ namespace Pol {
 	  if ( !phd->SubCommands.empty() )
 	  {
 		u32 subcmd = GetSubCmd( message, phd );
-		map<u32, PacketHookData*>::iterator itr;
-		itr = phd->SubCommands.find( subcmd );
+		auto itr = phd->SubCommands.find( subcmd );
 		if ( itr != phd->SubCommands.end() )
 		{
 		  if ( itr->second->outgoing_function != NULL )
@@ -263,7 +266,7 @@ namespace Pol {
 
     static int load_packethook_length(Clib::ConfigElem& elem)
     {
-        string lengthstr;
+        std::string lengthstr;
         int length = 0;
 
         if (!elem.remove_prop("Length", &lengthstr))
@@ -311,7 +314,7 @@ namespace Pol {
 	  int length = 0;
 
       PacketVersion pktversion;
-	  string client_string;
+	  std::string client_string;
 	  VersionDetailStruct client_struct;
 
       Core::ExportedFunction* exfunc = ( Core::ExportedFunction* )NULL;
@@ -370,9 +373,9 @@ namespace Pol {
     static void packethook_assert_valid_parent(u8 id, const PacketHookData *parent, const Clib::ConfigElem& elem) {
         //validate that the parent packet has a definition and a SubCommandOffset
         if (!parent->sub_command_offset)
-            elem.throw_error(string("Parent packet " + Clib::hexint(id) + " does not define SubCommandOffset!"));
+            elem.throw_error(std::string("Parent packet " + Clib::hexint(id) + " does not define SubCommandOffset!"));
         if (!parent->sub_command_length)
-            elem.throw_error(string("Parent packet " + Clib::hexint(id) + " does not define SubCommandLength"));
+            elem.throw_error(std::string("Parent packet " + Clib::hexint(id) + " does not define SubCommandLength"));
     }
 
 	void load_subpacket_entries( const Plib::Package* pkg, Clib::ConfigElem& elem )
@@ -383,7 +386,7 @@ namespace Pol {
 	  Core::ExportedFunction* exoutfunc = ( Core::ExportedFunction* )NULL;
 
 	  PacketVersion pktversion;
-	  string client_string;
+	  std::string client_string;
 	  VersionDetailStruct client_struct;
 
 	  if ( elem.has_prop( "ReceiveFunction" ) )
@@ -416,7 +419,7 @@ namespace Pol {
       packethook_assert_valid_parent(id, parent, elem);
 
       if (parent->SubCommands.find(subid) != parent->SubCommands.end())
-          elem.throw_error(string("SubCommand " + Clib::hexint(subid) + " for packet " + Clib::hexint(id) + " multiply defined!"));
+          elem.throw_error(std::string("SubCommand " + Clib::hexint(subid) + " for packet " + Clib::hexint(id) + " multiply defined!"));
     
 	  PacketHookData* SubData = new PacketHookData();
 	  SubData->function = exfunc;
@@ -426,7 +429,7 @@ namespace Pol {
 	  SubData->version = pktversion;
 	  SubData->client_ver = client_struct;
 
-	  parent->SubCommands.insert( make_pair( subid, SubData ) );
+	  parent->SubCommands.insert( std::make_pair( subid, SubData ) );
 	}
 
 	//loads "uopacket.cfg" entries from packages
@@ -438,7 +441,7 @@ namespace Pol {
 
 	PacketHookData::~PacketHookData()
 	{
-	  map<u32, PacketHookData*>::iterator itr = SubCommands.begin(), end = SubCommands.end();
+	  std::map<u32, PacketHookData*>::iterator itr = SubCommands.begin(), end = SubCommands.end();
 	  for ( ; itr != end; ++itr )
 	  {
 		delete itr->second;
@@ -463,7 +466,7 @@ namespace Pol {
 		size_t dot1 = ver.find_first_of( '.', 0 );
 		size_t dot2 = ver.find_first_of( '.', dot1 + 1 );
 		size_t dot3 = ver.find_first_of( '.', dot2 + 1 );
-		if ( dot3 == string::npos )  // since 5.0.7 patch is digit
+		if ( dot3 == std::string::npos )  // since 5.0.7 patch is digit
 		{
 		  dot3 = dot2 + 1;
 		  while ( ( dot3 < ver.length() ) && ( isdigit( ver[dot3] ) ) )

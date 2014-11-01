@@ -143,7 +143,7 @@ namespace Pol {
 	  typedef std::vector< Traveller > Travellers;
 	  Travellers travellers_;
 
-	  vector<Items::Item*> Components;
+	  std::vector<Items::Item*> Components;
 	};
 
 	enum BOAT_COMPONENT

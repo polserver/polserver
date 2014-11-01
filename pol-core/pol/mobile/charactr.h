@@ -32,12 +32,6 @@ Notes
 #ifndef __CHARACTR_H
 #define __CHARACTR_H
 
-#ifdef _MSC_VER
-#	pragma warning( disable: 4786 )
-#endif
-
-#include <time.h>
-
 #include "../../clib/passert.h"
 #include "../gameclck.h"
 #include "../polclock.h"
@@ -51,6 +45,13 @@ Notes
 #include "../reftypes.h"
 
 #include "attribute.h"
+
+#include <ctime>
+
+#include <string>
+#include <vector>
+#include <map>
+#include <set>
 
 namespace Pol {
   namespace Bscript {
@@ -268,11 +269,11 @@ namespace Pol {
 
     struct ArmorZone
     {
-      string name;
+      std::string name;
       double chance;
-      vector<unsigned short> layers;
+      std::vector<unsigned short> layers;
     };
-    typedef vector<ArmorZone> ArmorZones;
+    typedef std::vector<ArmorZone> ArmorZones;
     extern ArmorZones armorzones;
 
 	struct reportable_t { u32 serial; Core::polclock_t polclock; };
@@ -300,7 +301,7 @@ namespace Pol {
 
 
 	  // types:
-	  typedef set<Character*> CharacterSet;
+	  typedef std::set<Character*> CharacterSet;
 
 
 	  void removal_cleanup();
@@ -724,8 +725,8 @@ namespace Pol {
 	  };
 	  unsigned char gotten_item_source;
 
-	  vector<AttributeValue> attributes;
-	  vector<VitalValue> vitals;
+	  std::vector<AttributeValue> attributes;
+	  std::vector<VitalValue> vitals;
 
 	  std::string uclang;
 
@@ -796,7 +797,7 @@ namespace Pol {
 
 	  Items::UWeapon* weapon;
 	  Items::UArmor* shield;
-	  vector<Items::UArmor*> armor_;
+	  std::vector<Items::UArmor*> armor_;
 
 	protected: // was private, but hey, NPC will be okay, I think.
 	  bool dead_;
@@ -808,7 +809,7 @@ namespace Pol {
 	  unsigned int mountedsteps_;
 
 	  //    vector< Item* > private_items_; // owns its objects
-	  vector< Core::ItemRef > remote_containers_; // does not own its objects
+	  std::vector< Core::ItemRef > remote_containers_; // does not own its objects
 
 	  Clib::StringSet privs;
 	  Clib::StringSet settings;
@@ -854,16 +855,16 @@ namespace Pol {
 	  mutable Core::gameclock_t deafened_until;
 
 	private: // REPUTATION SYSTEM DATA:
-	  typedef map< Core::CharacterRef, Core::polclock_t > MobileCont;
+	  typedef std::map< Core::CharacterRef, Core::polclock_t > MobileCont;
 	  mutable MobileCont aggressor_to_;
 	  mutable MobileCont lawfully_damaged_;
 	  Core::polclock_t criminal_until_;
 	  Core::OneShotTask* repsys_task_;
 
-	  typedef set<USERIAL> ToBeReportableList;
+	  typedef std::set<USERIAL> ToBeReportableList;
 	  ToBeReportableList to_be_reportable_;
 
-	  typedef set<reportable_t> ReportableList;
+	  typedef std::set<reportable_t> ReportableList;
 	  ReportableList reportable_;
 	  Bscript::ObjArray* GetReportables() const;
 	  Bscript::ObjArray* GetAggressorTo( ) const;

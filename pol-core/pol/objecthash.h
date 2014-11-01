@@ -13,6 +13,10 @@ Notes
 
 #include "reftypes.h"
 #include "../clib/rawtypes.h"
+
+#include <map>
+#include <unordered_set>
+
 namespace Pol {
   namespace Core {
 	/*
@@ -24,15 +28,9 @@ namespace Pol {
 	class ObjectHash
 	{
 	public:
-# if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3 )
-	  typedef unordered_set<u32> ds;
-	  //typedef unordered_map<u32,UObjectRef> hs;
-# else
-	  typedef unordered_set<u32> ds;
-	  //typedef hash_map<u32,UObjectRef> hs;
-# endif
-	  typedef pair<u32, UObjectRef> hashpair;
-	  typedef map<u32, UObjectRef> hs;
+	  typedef std::unordered_set<u32> ds;
+	  typedef std::pair<u32, UObjectRef> hashpair;
+      typedef std::map<u32, UObjectRef> hs;
 	  typedef hs::iterator OH_iterator;
 	  typedef hs::const_iterator OH_const_iterator;
 

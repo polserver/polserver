@@ -12,6 +12,10 @@ Notes
 #define ATTRIBUTE_H
 
 #include "../scrdef.h"
+
+#include <vector>
+#include <string>
+
 namespace Pol {
   namespace Clib {
 	class ConfigElem;
@@ -35,7 +39,7 @@ namespace Pol {
 	  std::string name;
 	  unsigned attrid;
 
-	  vector< std::string > aliases; // aliases[0] is always name
+	  std::vector< std::string > aliases; // aliases[0] is always name
 
 	  Attribute* next;
 
@@ -55,7 +59,7 @@ namespace Pol {
 	Attribute* FindAttribute( const std::string& str );
 	Attribute* FindAttribute( unsigned attrid );
 	void clean_attributes();
-	extern vector< Attribute* > attributes;
+	extern std::vector< Attribute* > attributes;
 	extern unsigned numAttributes;
 
 	const unsigned ATTRIBUTE_MIN_EFFECTIVE = 0;

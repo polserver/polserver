@@ -47,8 +47,7 @@ namespace Pol {
 	{
 	  if ( elem.has_prop( "Password" ) )
 	  {
-		string temppass;
-		temppass = elem.remove_string( "Password" );
+        std::string temppass = elem.remove_string("Password");
 		if ( Core::config.retain_cleartext_passwords )
 		{
 		  password_ = temppass;
@@ -70,7 +69,7 @@ namespace Pol {
 
 	  default_privs_.readfrom( elem.remove_string( "DefaultPrivs", "" ) );
 
-	  string cmdaccstr = elem.remove_string( "DefaultCmdLevel", "player" );
+	  std::string cmdaccstr = elem.remove_string( "DefaultCmdLevel", "player" );
 	  Core::CmdLevel* cmdlevel_search = Core::find_cmdlevel( cmdaccstr.c_str( ) );
 	  if ( cmdlevel_search != NULL )
 		default_cmdlevel_ = cmdlevel_search->cmdlevel;
@@ -202,17 +201,17 @@ namespace Pol {
 	  return name_.c_str();
 	}
 
-	const string Account::password() const
+	const std::string Account::password() const
 	{
 	  return password_;
 	}
 
-	const string Account::passwordhash() const
+	const std::string Account::passwordhash() const
 	{
 	  return passwordhash_;
 	}
 
-	const string Account::uo_expansion() const
+	const std::string Account::uo_expansion() const
 	{
 	  switch ( uo_expansion_ )
 	  {
@@ -234,22 +233,24 @@ namespace Pol {
 	}
 
 	u16 Account::convert_uo_expansion( const std::string& expansion )
-	{
-	  if ( expansion.find( "HSA" ) != string::npos )
+    {
+        const auto not_found = std::string::npos;
+
+	  if ( expansion.find( "HSA" ) != not_found )
 		return Network::HSA;
-	  else if ( expansion.find( "SA" ) != string::npos )
+      else if (expansion.find("SA") != not_found)
 		return Network::SA;
-	  else if ( expansion.find( "KR" ) != string::npos )
+      else if (expansion.find("KR") != not_found)
 		return Network::KR;
-	  else if ( expansion.find( "ML" ) != string::npos )
+      else if (expansion.find("ML") != not_found)
 		return Network::ML;
-	  else if ( expansion.find( "SE" ) != string::npos )
+      else if (expansion.find("SE") != not_found)
 		return Network::SE;
-	  else if ( expansion.find( "AOS" ) != string::npos )
+      else if (expansion.find("AOS") != not_found)
 		return Network::AOS;
-	  else if ( expansion.find( "LBR" ) != string::npos )
+      else if (expansion.find("LBR") != not_found)
 		return Network::LBR;
-	  else if ( expansion.find( "T2A" ) != string::npos )
+      else if (expansion.find("T2A") != not_found)
 		return Network::T2A;
 	  else
 		return 0;

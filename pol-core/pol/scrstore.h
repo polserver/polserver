@@ -20,7 +20,7 @@ Notes
 
 namespace Pol {
   namespace Core {
-	typedef map< std::string, ref_ptr<Bscript::EScriptProgram>, Clib::ci_cmp_pred > ScriptStorage;
+	typedef std::map< std::string, ref_ptr<Bscript::EScriptProgram>, Clib::ci_cmp_pred > ScriptStorage;
 
 	extern ScriptStorage scrstore;
 

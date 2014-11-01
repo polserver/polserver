@@ -9,11 +9,7 @@ Notes
 
 */
 
-#include "../../clib/stl_inc.h"
-
-#ifdef _MSC_VER
-#pragma warning( disable: 4786 )
-#endif
+#include "multi.h"
 
 #include "../../clib/passert.h"
 #include "../../clib/strutil.h"
@@ -30,9 +26,11 @@ Notes
 #include "../uobject.h"
 #include "../uofilei.h"
 #include "../uofile.h"
-#include "multi.h"
 #include "../ustruct.h"
 #include "../polcfg.h"
+
+#include <stdexcept>
+
 namespace Pol {
   namespace Multi {
 	UMulti::UMulti( const Items::ItemDesc& itemdesc )
@@ -43,7 +41,7 @@ namespace Pol {
 	  if ( !MultiDefByMultiIDExists( itemdesc.multiid ) )
 	  {
         ERROR_PRINT.Format( "Tried to create a Multi type 0x{:X}\n" ) << itemdesc.objtype;
-		throw runtime_error( "Unvalid Multi type" );
+		throw std::runtime_error( "Unvalid Multi type" );
 	  }
 	  ++Core::umulti_count;
 	}
@@ -53,11 +51,10 @@ namespace Pol {
 	  --Core::umulti_count;
 	}
 
-	void UMulti::double_click( Network::Client* client )
+	void UMulti::double_click( Network::Client* /*client*/)
 	{
       ERROR_PRINT << "Ack! You can't double-click a multi!\n";
-	  passert( 0 );
-	  throw runtime_error( "double_click() on a multi should not be possible." );
+	  throw std::runtime_error( "double_click() on a multi should not be possible." );
 	}
 
 	UBoat* UMulti::as_boat()
@@ -69,10 +66,10 @@ namespace Pol {
 	  return NULL;
 	}
 
-	void UMulti::register_object( UObject* obj )
+    void UMulti::register_object(UObject* /*obj*/)
 	{}
 
-	void UMulti::unregister_object( UObject* obj )
+	void UMulti::unregister_object( UObject* /*obj*/ )
 	{}
 
 	const char* UMulti::classname() const

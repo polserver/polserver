@@ -22,7 +22,7 @@ namespace Pol {
 	extern int umulti_count;
 	extern int uobj_count_echrref;
 
-	typedef set<Items::Item*> ItemSet;
+	typedef std::set<Items::Item*> ItemSet;
 	extern ItemSet existing_items;
   }
 }

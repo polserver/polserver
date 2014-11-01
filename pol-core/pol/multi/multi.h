@@ -69,8 +69,8 @@ namespace Pol {
 	  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const;
 
 	  Bscript::BStruct* footprint() const;
-	  virtual bool readshapes( Plib::MapShapeList& vec, s16 rx, s16 ry, s16 zbase ) { return false; };
-	  virtual bool readobjects( Core::StaticList& vec, s16 rx, s16 ry, s16 zbase ) { return false; };
+	  virtual bool readshapes( Plib::MapShapeList& vec, s16 rx, s16 ry, s16 zbase );
+	  virtual bool readobjects( Core::StaticList& vec, s16 rx, s16 ry, s16 zbase );
 
       virtual ~UMulti();
       virtual size_t estimatedSize( ) const;
@@ -84,6 +84,11 @@ namespace Pol {
 
 	  //virtual void destroy(void);
 	};
+
+    /* Default implementations */
+    inline bool UMulti::readshapes(Plib::MapShapeList& /*vec*/, s16 /*rx*/, s16 /*ry*/, s16 /*zbase*/) { return false; };
+    inline bool UMulti::readobjects(Core::StaticList& /*vec*/, s16 /*rx*/, s16 /*ry*/, s16 /*zbase*/) { return false; };
+
   }
   namespace Core {
     void send_multi( Network::Client* client, const Multi::UMulti* multi );

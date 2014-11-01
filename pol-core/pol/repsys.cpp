@@ -36,6 +36,8 @@ Notes
 #include "uworld.h"
 #include "party.h"
 
+#include <string>
+
 // BUGS:
 //  it looks like you can restart someone's aggressor timer by toggling war mode and setting opponent.
 //
@@ -115,7 +117,7 @@ namespace Pol {
     }
     void load_repsys_cfg_hooks( Clib::ConfigElem& elem )
     {
-      string temp;
+      std::string temp;
       if ( elem.remove_prop( "NameColor", &temp ) )
         repsys_cfg.Hooks.NameColor = FindExportedFunction( elem, NULL, temp, 2 );
       if ( elem.remove_prop( "HighLightColor", &temp ) )
@@ -464,7 +466,7 @@ namespace Pol {
         {
           if ( combat_config.send_attack_msg )
           {
-            string msg = "*" + amy_attacker->name() + " is attacking you!*";
+            std::string msg = "*" + amy_attacker->name() + " is attacking you!*";
             private_say_above_ex( bob_defender, bob_defender, msg.c_str(), repsys_cfg.NameColoring.Murderer );
           }
           refresh = true;
