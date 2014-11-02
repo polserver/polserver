@@ -13,6 +13,8 @@ public:
 
 	/**
 	 * Returns a string containing the current stack trace
+	 *
+	 * @return the stack trace as multi-line string
 	 */
 	static std::string GetTrace();
 
