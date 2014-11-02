@@ -17,6 +17,10 @@ Notes
 
 #include <cmath>
 
+#ifdef _MSC_VER
+#pragma warning(disable:4996) // disable deprecation warning sprintf
+#endif
+
 namespace Pol {
   namespace Bscript {
       using namespace Module;

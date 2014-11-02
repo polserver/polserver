@@ -9,18 +9,18 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-
-#include "../clib/cfgelem.h"
+#include "uoclient.h"
 
 #include "mobile/attribute.h"
-#include "../plib/pkg.h"
 #include "skillid.h"
-#include "uoclient.h"
 #include "vital.h"
 #include "syshookscript.h"
 
 #include "crypt/cryptkey.h"
+
+#include "../plib/pkg.h"
+#include "../clib/cfgelem.h"
+
 
 namespace Pol {
   namespace Core {
@@ -41,7 +41,7 @@ namespace Pol {
 	{
 	  if ( !mapping.any )
 	  {
-		string name;
+		std::string name;
 		if ( elem.remove_prop( tag, &name ) )
 		{
 		  mapping.name = name;
@@ -58,7 +58,7 @@ namespace Pol {
 	{
 	  if ( !mapping.any )
 	  {
-		string name;
+		std::string name;
 		if ( elem.remove_prop( tag, &name ) )
 		{
 		  mapping.name = name;
@@ -110,12 +110,12 @@ namespace Pol {
 	  }
 	}
 
-    void load_protocol_entry( const Plib::Package* pkg, Clib::ConfigElem& elem )
+    void load_protocol_entry( const Plib::Package* /*pkg*/, Clib::ConfigElem& elem )
 	{
 	  uoclient_protocol.EnableFlowControlPackets = elem.remove_bool( "EnableFlowControlPackets" );
 	}
 
-    void load_listener_entry( const Plib::Package* pkg, Clib::ConfigElem& elem )
+    void load_listener_entry( const Plib::Package* /*pkg*/, Clib::ConfigElem& elem )
 	{
 	  uoclient_listeners.push_back( UoClientListener( elem ) );
 	}

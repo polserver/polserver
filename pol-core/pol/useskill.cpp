@@ -9,22 +9,23 @@ Notes
 
 */
 
+#include "uoskills.h"
+#include "skills.h"
 
-#include "../clib/stl_inc.h"
-
-#include "../bscript/eprog.h"
 #include "accounts/account.h"
 #include "mobile/attribute.h"
 #include "mobile/charactr.h"
 #include "network/client.h"
 #include "extcmd.h"
+
 #include "pktin.h"
 #include "polcfg.h"
-#include "polclock.h"
 #include "scrstore.h"
-#include "skills.h"
 #include "ufunc.h"
-#include "uoskills.h"
+#include "polclock.h"
+
+#include "../bscript/eprog.h"
+
 namespace Pol {
   namespace Core {
 	void handle_use_skill( Network::Client *client, PKTIN_12 *msg )
@@ -74,7 +75,7 @@ namespace Pol {
 		  return true;
 		}
 	  }
-	  string msg = "Unable to start skill script:";//+attrib->script_.c_str();
+	  std::string msg = "Unable to start skill script:";//+attrib->script_.c_str();
 	  msg += attrib->script_.c_str();
 	  send_sysmessage( client, msg.c_str() );
 

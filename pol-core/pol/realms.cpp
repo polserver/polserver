@@ -21,7 +21,6 @@ Notes
 #include "../plib/realm.h"
 #include "../plib/mapserver.h"
 
-#include "../clib/stl_inc.h"
 #include "../clib/dirlist.h"
 #include "../clib/passert.h"
 #include "../clib/strutil.h"
@@ -43,7 +42,7 @@ namespace Pol {
 	  int realm_counter = 0;
 	  for ( Clib::DirList dl( config.realm_data_path.c_str() ); !dl.at_end(); dl.next() )
 	  {
-		string realm_name = dl.name();
+		std::string realm_name = dl.name();
 		if ( realm_name[0] == '.' )
 		  continue;
 
@@ -59,7 +58,7 @@ namespace Pol {
 
 		//To-Fix - Nasty kludge assuming 'britannia' is the default realm
 		//May want to make this configurable in later core releases.
-		if ( realm_name == string( "britannia" ) )
+		if ( realm_name == "britannia" )
 		  main_realm = temprealm;
 	  }
 	  //	main_realm = new DummyRealm();
@@ -71,7 +70,7 @@ namespace Pol {
 		return false;
 	}
 
-	Plib::Realm* find_realm( const string& name )
+	Plib::Realm* find_realm( const std::string& name )
 	{
 	  for ( auto &realm : *Realms )
 	  {
@@ -81,7 +80,7 @@ namespace Pol {
 	  return NULL;
 	}
 
-	bool defined_realm( const string& name )
+    bool defined_realm(const std::string& name)
 	{
 	  for ( const auto &realm : *Realms )
 	  {
@@ -91,7 +90,7 @@ namespace Pol {
 	  return false;
 	}
 
-	void add_realm( const string& name, Plib::Realm* base )
+    void add_realm(const std::string& name, Plib::Realm* base)
 	{
 	  Plib::Realm* r = new Plib::Realm( name, base );
 	  r->shadowid = ++shadowrealm_count;
@@ -99,9 +98,9 @@ namespace Pol {
 	  Realms->push_back( r );
 	}
 
-	void remove_realm( const string& name )
+    void remove_realm(const std::string& name)
 	{
-	  vector<Plib::Realm*>::iterator itr;
+	  std::vector<Plib::Realm*>::iterator itr;
 	  for ( itr = Realms->begin(); itr != Realms->end(); ++itr )
 	  {
 		if ( ( *itr )->name() == name )

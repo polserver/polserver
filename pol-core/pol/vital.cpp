@@ -8,26 +8,29 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-#include <iostream>
-#include <map>
+#include "vital.h"
 
+//nclude "charactr.h"
+#include "checkpnt.h"
+#include "syshook.h"
+
+#include "../plib/pkg.h"
 
 #include "../clib/cfgelem.h"
 #include "../clib/maputil.h"
 #include "../clib/passert.h"
 
-//nclude "charactr.h"
-#include "checkpnt.h"
-#include "../plib/pkg.h"
-#include "syshook.h"
-#include "vital.h"
+#include <vector>
+#include <string>
+#include <iostream>
+#include <map>
+
 namespace Pol {
   namespace Core {
-	vector< Vital* > vitals;
+	std::vector< Vital* > vitals;
 	unsigned numVitals;
 
-	typedef map< string, Vital*, Clib::ci_cmp_pred > VitalsByName;
+    typedef std::map< std::string, Vital*, Clib::ci_cmp_pred > VitalsByName;
 	VitalsByName vitals_byname;
 
 	const Vital* pVitalLife;
@@ -46,7 +49,7 @@ namespace Pol {
 	  regen_while_dead( elem.remove_bool( "RegenWhileDead", false ) )
 	{
 	  aliases.push_back( name );
-	  string tmp;
+      std::string tmp;
 	  while ( elem.remove_prop( "Alias", &tmp ) )
 		aliases.push_back( tmp );
 

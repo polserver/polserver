@@ -11,15 +11,16 @@ Notes
 #ifndef WEAPON_H
 #define WEAPON_H
 
+
+#include "equipmnt.h"
+
+#include "../action.h"
+#include "../scrdef.h"
+
 #include <iosfwd>
 #include <memory>
 #include <string>
 
-#include "../action.h"
-
-#include "equipmnt.h"
-
-#include "../scrdef.h"
 
 namespace Pol {
   namespace Mobile {

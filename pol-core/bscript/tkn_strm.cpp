@@ -7,19 +7,18 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-
-#include <string.h>
-
-#include "modules.h"
-#include "tokens.h"
 #include "token.h"
+#include "tokens.h"
+#include "modules.h"
+
 #include "objmembers.h"
 #include "objmethods.h"
 
+#include <sstream>
+
 namespace Pol {
   namespace Bscript {
-	void Token::printOn( ostream& os ) const
+	void Token::printOn( std::ostream& os ) const
 	{
 
 	  switch ( id )
@@ -209,7 +208,7 @@ namespace Pol {
 	  }
 	}
 
-	ostream& operator << ( ostream& os, const Token& tok )
+    std::ostream& operator << (std::ostream& os, const Token& tok)
 	{
 	  tok.printOn( os );
 	  return os;
@@ -217,7 +216,7 @@ namespace Pol {
 
     fmt::Writer& operator << ( fmt::Writer& w, const Token& tok )
     {
-      ostringstream os;
+      std::ostringstream os;
       tok.printOn( os );
       w << os.str();
       return w;

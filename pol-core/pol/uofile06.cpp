@@ -7,10 +7,9 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-
-#include <stdio.h>
-#include <string.h>
+#include "uofile.h"
+#include "uofilei.h"
+#include "wrldsize.h"
 
 #include "polcfg.h"
 #include "polfile.h"
@@ -18,9 +17,9 @@ Notes
 #include "udatfile.h"
 #include "ustruct.h"
 
-#include "uofile.h"
-#include "uofilei.h"
-#include "wrldsize.h"
+#include <cstdio>
+#include <cstring>
+
 namespace Pol {
   namespace Core {
     inline bool flags_standable( unsigned int flags )
@@ -142,7 +141,7 @@ namespace Pol {
 
 
 
-    void statics_dropheight( StaticList& statics, unsigned short x, unsigned short y, short oldz, bool* result_inout, short* newz_inout )
+    void statics_dropheight( StaticList& statics, unsigned short /*x*/, unsigned short /*y*/, short oldz, bool* result_inout, short* newz_inout )
     {
       short z = *newz_inout;
       bool result = *result_inout;
@@ -217,7 +216,7 @@ namespace Pol {
 
 
 
-    void statics_standheight( StaticList& statics, unsigned short x, unsigned short y, short oldz, bool* result_inout, short* newz_inout )
+    void statics_standheight( StaticList& statics, unsigned short /*x*/, unsigned short /*y*/, short /*oldz*/, bool* result_inout, short* newz_inout )
     {
       short z = *newz_inout;
       bool result = *result_inout;

@@ -7,15 +7,14 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-#include "../clib/logfacility.h"
-
 #include "userfunc.h"
+
+#include "../clib/logfacility.h"
 
 namespace Pol {
   namespace Bscript {
 	unsigned int UserFunction::_instances;
-	set<UserFunction*> UserFunction::_instancelist;
+	std::set<UserFunction*> UserFunction::_instancelist;
 	void UserFunction::show_instances()
 	{
       fmt::Writer tmp;

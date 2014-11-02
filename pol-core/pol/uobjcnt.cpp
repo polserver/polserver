@@ -8,12 +8,9 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-#ifdef _MSC_VER
-#pragma warning( disable: 4786 )
-#endif
 
 #include "uobjcnt.h"
+
 namespace Pol {
   namespace Core {
 	int unreaped_orphans;

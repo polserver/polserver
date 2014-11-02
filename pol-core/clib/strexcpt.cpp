@@ -14,6 +14,7 @@ Notes
 #include "logfacility.h"
 
 #ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <eh.h>
 #include <stdio.h>

@@ -9,7 +9,15 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
+#include "uoclient.h"
+#include "network/client.h"
+#include "network/cliface.h"
+
+#include "core.h"
+#include "polsem.h"
+#include "sockio.h"
+#include "uvars.h"
+#include "polcfg.h"
 
 #include "../clib/esignal.h"
 #include "../clib/logfacility.h"
@@ -18,14 +26,9 @@ Notes
 #include "../clib/strutil.h"
 #include "../clib/threadhelp.h"
 
-#include "network/client.h"
-#include "network/cliface.h"
-#include "core.h"
-#include "uoclient.h"
-#include "polsem.h"
-#include "sockio.h"
-#include "uvars.h"
-#include "polcfg.h"
+#include <list>
+#include <string>
+
 namespace Pol {
   namespace Core {
 	class UoClientThread : public Clib::SocketClientThread
@@ -103,7 +106,7 @@ namespace Pol {
         << " (encryption: " << ls->encryption.eType << ",0x" << fmt::hexu( ls->encryption.uiKey1 ) << ",0x" << fmt::hexu( ls->encryption.uiKey2 ) << ")\n";
 
       Clib::SocketListener SL( ls->port, Clib::Socket::option( Clib::Socket::nonblocking | Clib::Socket::reuseaddr ) );
-	  list<UoClientThread *> login_clients;
+	  std::list<UoClientThread *> login_clients;
       while ( !Clib::exit_signalled )
 	  {
 		unsigned int timeout = 2;
@@ -125,7 +128,8 @@ namespace Pol {
 			thread->start();
 		  }
 		}
-		list<UoClientThread*>::iterator itr = login_clients.begin();
+
+		std::list<UoClientThread*>::iterator itr = login_clients.begin();
 		while ( itr != login_clients.end() )
 		{
 		  if ( ( *itr )->client != NULL && ( *itr )->client->isReallyConnected() )
@@ -159,7 +163,7 @@ namespace Pol {
 	  for ( unsigned i = 0; i < uoclient_listeners.size(); ++i )
 	  {
 		UoClientListener* ls = &uoclient_listeners[i];
-        string threadname = "UO Client Listener Port " + Clib::tostring( ls->port );
+        std::string threadname = "UO Client Listener Port " + Clib::tostring( ls->port );
 		threadhelp::start_thread( uo_client_listener_thread, threadname.c_str(), ls );
 	  }
 	}

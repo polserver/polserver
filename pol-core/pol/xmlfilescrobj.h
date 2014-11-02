@@ -11,9 +11,12 @@ Notes
 #ifndef XMLSCROBJ_H
 #define XMLSCROBJ_H
 
-#include "../../lib/tinyxml/tinyxml.h"
+#ifndef BSCRIPT_BOBJECT_H
 #include "../bscript/bobject.h"
+#endif
+
 #include "../bscript/contiter.h"
+#include "../../lib/tinyxml/tinyxml.h"
 
 namespace Pol {
   namespace Core {
@@ -82,19 +85,7 @@ namespace Pol {
 		return new BXmlNode( node->Clone() );
 	  }
 
-	  virtual std::string getStringRep() const
-	  {
-		if ( node->Type() == TiXmlNode::TINYXML_TEXT )
-		  return node->ToText()->Value();
-		else if ( node->Type() == TiXmlNode::TINYXML_DECLARATION )
-		{
-		  TiXmlDeclaration* dec = node->ToDeclaration();
-		  OSTRINGSTREAM os;
-		  os << "v:" << dec->Version() << " e:" << dec->Encoding() << " s:" << dec->Standalone();
-		  return OSTRINGSTREAM_STR( os );
-		}
-		return node->Value();
-	  }
+	  virtual std::string getStringRep() const;
 
 	  virtual const char* typeOf() const { return "XMLNode"; }
 	  virtual int typeOfInt() const { return OTXMLNode; }

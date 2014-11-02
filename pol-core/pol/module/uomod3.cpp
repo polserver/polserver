@@ -8,7 +8,8 @@ Notes
 =======
 
 */
-#include "../../clib/stl_inc.h"
+#include "uomod.h"
+
 #include "../../bscript/berror.h"
 #include "../../bscript/impstr.h"
 
@@ -17,7 +18,6 @@ Notes
 #include "../network/cliface.h"
 #include "../skills.h"
 #include "../statmsg.h"
-#include "uomod.h"
 
 // f'ed packing:
 #include "../vital.h"

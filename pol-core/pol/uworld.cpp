@@ -11,7 +11,16 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
+#include "uworld.h"
+
+#include "mobile/charactr.h"
+#include "item/item.h"
+#include "multi/multi.h"
+
+#include "realms.h"
+#include "uvars.h"
+
+#include "../plib/realm.h"
 
 #include "../clib/endian.h"
 #include "../clib/logfacility.h"
@@ -19,13 +28,6 @@ Notes
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
 
-#include "../plib/realm.h"
-#include "mobile/charactr.h"
-#include "item/item.h"
-#include "multi/multi.h"
-#include "realms.h"
-#include "uvars.h"
-#include "uworld.h"
 namespace Pol {
   namespace Core {
 	void add_item_to_world( Items::Item* item )

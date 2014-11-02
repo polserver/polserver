@@ -13,8 +13,7 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-#include "../clib/endian.h"
+#include "tooltips.h"
 
 #include "mobile/charactr.h"
 #include "network/client.h"
@@ -30,7 +29,6 @@ Notes
 #include "uvars.h"
 #include "uworld.h"
 
-#include "tooltips.h"
 namespace Pol {
   namespace Core {
 	using namespace Network::PktHelper;
@@ -135,7 +133,7 @@ namespace Pol {
 
     void SendAOSTooltip( Network::Client* client, UObject* obj, bool vendor_content )
 	{
-	  string desc;
+	  std::string desc;
 	  if ( obj->isa( UObject::CLASS_CHARACTER ) )
 	  {
 		Mobile::Character* chr = (Mobile::Character*)obj;

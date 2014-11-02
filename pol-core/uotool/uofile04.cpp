@@ -7,19 +7,16 @@ Notes
 
 */
 
-#ifdef _MSC_VER
-#pragma warning( disable: 4786 )
-#endif
-
-#include "../clib/stl_inc.h"
-#include "../clib/logfacility.h"
+#include "../pol/uofile.h"
+#include "../pol/uofilei.h"
 
 //#include "../pol/polcfg.h"
 #include "../pol/udatfile.h"
 #include "../pol/ustruct.h"
 
-#include "../pol/uofile.h"
-#include "../pol/uofilei.h"
+#include "../clib/logfacility.h"
+
+#include <set>
 
 namespace Pol {
   namespace Core {

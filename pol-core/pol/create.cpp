@@ -66,7 +66,7 @@ namespace Pol {
 	void start_client_char( Network::Client *client );
 	void run_logon_script( Mobile::Character* chr );
 
-	short validhaircolor( u16 color )
+	short validhaircolor( u16 /*color*/ )
 	{
 	  return 1;
 	}

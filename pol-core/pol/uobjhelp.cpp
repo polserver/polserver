@@ -8,18 +8,15 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-#ifdef _MSC_VER
-#pragma warning( disable: 4786 )
-#endif
-
-#include "../clib/stlutil.h"
+#include "uobjhelp.h"
 
 #include "ufunc.h"
 #include "ufuncstd.h"
-#include "uobjhelp.h"
 #include "uobject.h"
 #include "network/client.h"
+
+#include "../clib/stlutil.h"
+
 namespace Pol {
   namespace Core {
 	void UObjectHelper::ShowProperties( Network::Client* client, PropertyList& proplist )

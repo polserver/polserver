@@ -9,17 +9,16 @@ Notes
 
 */
 
-#include "stl_inc.h"
+#include "xmain.h"
+
+#include "Debugging/ExceptionParser.h"
 
 #include "clib.h"
 #include "logfacility.h"
 #include "strexcpt.h"
 
-#include "xmain.h"
-
-#include "Debugging/ExceptionParser.h"
-
 #ifdef _WIN32
+#   define WIN32_LEAN_AND_MEAN
 #	include <windows.h> // for GetModuleFileName
 #	include <crtdbg.h>
 #   include <psapi.h>
@@ -28,6 +27,8 @@ Notes
 #   include <unistd.h>
 #   include <sys/resource.h>
 #endif
+#include <stdexcept>
+#include <string>
 
 namespace Pol {
   unsigned int refptr_count;
@@ -62,17 +63,17 @@ int main( int argc, char *argv[] )
         ERROR_PRINT << "Execution aborted due to: " << msg << "\n";
         exitcode = 1;
     }
-    catch( string& str )
+    catch( std::string& str )
     {
       ERROR_PRINT << "Execution aborted due to: " << str << "\n";
         exitcode = 1;
     }       // egcs has some trouble realizing 'exception' should catch
-    catch( runtime_error& re )   // runtime_errors, so...
+    catch (std::runtime_error& re)   // runtime_errors, so...
     {
       ERROR_PRINT << "Execution aborted due to: " << re.what( ) << "\n";
         exitcode = 1;
     }
-    catch( exception& ex )
+    catch (std::exception& ex)
     {
       ERROR_PRINT << "Execution aborted due to: " << ex.what( ) << "\n";
         exitcode = 1;
@@ -95,22 +96,22 @@ int main( int argc, char *argv[] )
 }
 
 namespace Pol {
-  string xmain_exepath;
-  string xmain_exedir;
+  std::string xmain_exepath;
+  std::string xmain_exedir;
 
-  string fix_slashes( string pathname )
+  std::string fix_slashes(std::string pathname)
   {
-	string::size_type bslashpos;
-	while ( string::npos != ( bslashpos = pathname.find( '\\' ) ) )
+	std::string::size_type bslashpos;
+    while (std::string::npos != (bslashpos = pathname.find('\\')))
 	{
 	  pathname.replace( bslashpos, 1, 1, '/' );
 	}
 	return pathname;
   }
 
-  static void parse_args( int argc, char *argv[] )
+  static void parse_args( int /*argc*/, char *argv[] )
   {
-	string exe_path;
+	std::string exe_path;
 
 #ifdef _WIN32
 	// useless windows shell (cmd) usually doesn't tell us the whole path.  
@@ -127,8 +128,8 @@ namespace Pol {
 	xmain_exepath = fix_slashes( exe_path );
 	xmain_exedir = fix_slashes( exe_path );
 
-	string::size_type pos = xmain_exedir.find_last_of( "/" );
-	if ( pos != string::npos )
+    std::string::size_type pos = xmain_exedir.find_last_of("/");
+    if (pos != std::string::npos)
 	{
 	  xmain_exedir.erase( pos );
 	  xmain_exedir += "/";

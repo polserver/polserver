@@ -7,17 +7,15 @@ Notes
 
 */
 
-#include "stl_inc.h"
-
 #include "strutil.h"
-
-#include <errno.h>
-#include <stdio.h>
-#include <cstring>
-
 #include "logfacility.h"
 
+#include <cerrno>
+#include <cstdio>
+#include <cstring>
+
 #ifdef _WIN32
+#   define WIN32_LEAN_AND_MEAN
 #	include <windows.h>
 #	include <winsock.h>
 #	define SOCKET_ERRNO(x) WSA##x
@@ -44,6 +42,7 @@ Notes
 
 #include "esignal.h"
 #include "wnsckt.h"
+#include <stdexcept>
 
 #ifndef SCK_WATCH
 #define SCK_WATCH 0
@@ -103,7 +102,7 @@ namespace Pol {
 	  _peer = peer;
 	}
 
-	string Socket::getpeername() const
+	std::string Socket::getpeername() const
 	{
 	  struct sockaddr client_addr; // inet_addr
 	  socklen_t addrlen = sizeof client_addr;
@@ -179,7 +178,7 @@ namespace Pol {
 		int res = setsockopt( _sck, IPPROTO_TCP, TCP_NODELAY, (const char *) &tcp_nodelay, sizeof(tcp_nodelay) );
 		if (res < 0)
 		{
-			throw runtime_error("Unable to setsockopt (TCP_NODELAY) on socket, res=" + Clib::decint(res));
+            throw std::runtime_error("Unable to setsockopt (TCP_NODELAY) on socket, res=" + Clib::decint(res));
 		}
 	}
 
@@ -197,21 +196,21 @@ namespace Pol {
 #endif
 		if( res < 0 )
 		{
-		  throw runtime_error( "Unable to set listening socket to nonblocking mode, res=" + decint( res ) );
+		  throw std::runtime_error( "Unable to set listening socket to nonblocking mode, res=" + decint( res ) );
 		}
 	  }
 	}
 
 	void Socket::apply_prebind_socket_options( SOCKET sck )
 	{
-	  if( _options & reuseaddr )
+      if (sck != INVALID_SOCKET && _options & reuseaddr)
 	  {
 #ifndef WIN32
 		int reuse_opt = 1;
 		int res = setsockopt( sck, SOL_SOCKET, SO_REUSEADDR, (const char *) &reuse_opt, sizeof(reuse_opt) );
 		if (res < 0)
 		{
-		  throw runtime_error( "Unable to setsockopt (SO_REUSEADDR) on listening socket, res = " + decint(res) );
+		  throw std::runtime_error( "Unable to setsockopt (SO_REUSEADDR) on listening socket, res = " + decint(res) );
 		}
 #endif
 	  }
@@ -274,7 +273,7 @@ namespace Pol {
 	  return ( res > 0 && FD_ISSET( _sck, &fd ) );
 	}
 
-	bool Socket::accept( SOCKET *s, unsigned int mstimeout )
+	bool Socket::accept( SOCKET *s, unsigned int /*mstimeout*/ )
 	{
 	  *s = ::accept( _sck, NULL, NULL );
 	  if( *s != INVALID_SOCKET )
@@ -607,7 +606,7 @@ namespace Pol {
 	  return true;
 	}
 
-	void Socket::write( const string& s )
+    void Socket::write(const std::string& s)
 	{
 	  send( (void *)s.c_str(), static_cast<unsigned int>( s.length() ) );
 	}
@@ -630,7 +629,7 @@ namespace Pol {
 
 	bool Socket::is_local() const
 	{
-	  string s = getpeername();
+	  std::string s = getpeername();
 	  return ( s == "127.0.0.1" );
 	}
   }

@@ -9,12 +9,17 @@ Notes
 =======
 
 */
+#include "umap.h"
+#include "pktboth.h"
+#include "poltype.h"
+#include "sockio.h"
+#include "ufunc.h"
 
-#include "../clib/stl_inc.h"
-#include "../clib/cfgelem.h"
-#include "../clib/endian.h"
-#include "../clib/stlutil.h"
-#include "../clib/streamsaver.h"
+#include "network/client.h"
+#include "network/packets.h"
+#include "network/msghandl.h"
+#include "item/itemdesc.h"
+#include "fnsearch.h"
 
 #include "../bscript/bobject.h"
 #include "../bscript/bstruct.h"
@@ -23,16 +28,16 @@ Notes
 #include "../bscript/objmethods.h"
 
 #include "../plib/realm.h"
-#include "network/client.h"
-#include "network/packets.h"
-#include "fnsearch.h"
-#include "item/itemdesc.h"
-#include "pktboth.h"
-#include "poltype.h"
-#include "sockio.h"
-#include "umap.h"
-#include "ufunc.h"
-#include "network/msghandl.h"
+
+#include "../clib/cfgelem.h"
+#include "../clib/endian.h"
+#include "../clib/stlutil.h"
+#include "../clib/streamsaver.h"
+
+#ifdef _MSC_VER
+#pragma warning(disable:4996) // disable deprecation warning sprintf, sscanf
+#endif
+
 
 namespace Pol {
   namespace Core {
@@ -99,7 +104,7 @@ namespace Pol {
 	  editable = elem.remove_bool( "editable", 0 );
 
 	  unsigned short numpins = elem.remove_ushort( "NumPins", 0 );
-	  string pinval;
+	  std::string pinval;
 	  char search_string[6];
 	  int i, x, y;
 	  struct PinPoint pp;

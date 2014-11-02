@@ -14,6 +14,7 @@ Notes
 
 #include "crypt/cryptkey.h"
 
+#include <string>
 #include <vector>
 
 namespace Pol {

@@ -9,6 +9,9 @@ Notes
 */
 #ifndef __UOBJCNT_H
 #define __UOBJCNT_H
+
+#include <set>
+
 namespace Pol {
   namespace Items {
 	class Item;

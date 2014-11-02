@@ -8,17 +8,20 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-#include <vector>
-#include "../clib/logfacility.h"
+#include "uoskills.h"
+
+#include "skillid.h"
+#include "mobile/attribute.h"
+
+#include "../plib/pkg.h"
 
 #include "../clib/cfgelem.h"
 #include "../clib/stlutil.h"
+#include "../clib/logfacility.h"
 
-#include "mobile/attribute.h"
-#include "../plib/pkg.h"
-#include "uoskills.h"
-#include "skillid.h"
+#include <vector>
+#include <stdexcept>
+
 namespace Pol {
   namespace Core {
 	std::vector<UOSkill> uo_skills( SKILLID__COUNT );
@@ -28,7 +31,7 @@ namespace Pol {
 	  if ( skillid < uo_skills.size() )
 		return uo_skills[skillid];
 	  else
-		throw runtime_error( "Bad UO Skill ID" );
+		throw std::runtime_error( "Bad UO Skill ID" );
 	}
 
 	UOSkill::UOSkill( const Plib::Package* pkg, Clib::ConfigElem& elem ) :

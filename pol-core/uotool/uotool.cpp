@@ -10,24 +10,6 @@ Notes
 
 */
 
-#ifdef _WIN32
-#	pragma warning( disable: 4786 )
-#endif
-
-#include "../clib/stl_inc.h"
-
-#include <assert.h>
-
-#include "../clib/stlutil.h"
-#include "../clib/cfgelem.h"
-#include "../clib/cfgfile.h"
-#include "../clib/cmdargs.h"
-#include "../clib/fileutil.h"
-#include "../clib/logfacility.h"
-#include "../clib/fdump.h"
-#include "../clib/passert.h"
-#include "../clib/strutil.h"
-
 #include "../pol/uofile.h"
 #include "../pol/polcfg.h"
 #include "../pol/polfile.h"
@@ -38,10 +20,25 @@ Notes
 #include "../plib/realmdescriptor.h"
 #include "../plib/staticblock.h"
 
+#include "../clib/strutil.h"
+#include "../clib/stlutil.h"
+
+#include "../clib/cfgelem.h"
+#include "../clib/cfgfile.h"
+#include "../clib/cmdargs.h"
+#include "../clib/fileutil.h"
+#include "../clib/logfacility.h"
+#include "../clib/fdump.h"
+#include "../clib/passert.h"
+
+#ifdef _MSC_VER
+#pragma warning(disable:4996) // deprecation warning for fopen, sprintf, stricmp
+#endif
+
 namespace Pol {
   namespace Multi {
     void read_multidefs();
-    bool BoatShapeExists( unsigned short graphic )
+    bool BoatShapeExists( unsigned short /*graphic*/ )
     {
       return true;
     }
@@ -209,7 +206,7 @@ namespace Pol {
 	  return 0;
 	}
 
-	int vertile( int argc, char **argv )
+	int vertile( int /*argc*/, char ** /*argv*/ )
 	{
 	  Core::USTRUCT_TILE tile;
 
@@ -227,7 +224,7 @@ namespace Pol {
 	  return 0;
 	}
 
-	int verlandtile( int argc, char **argv )
+	int verlandtile( int /*argc*/, char ** /*argv*/ )
 	{
 	  Core::USTRUCT_LAND_TILE landtile;
 
@@ -251,14 +248,14 @@ namespace Pol {
 	  return 0;
 	}
 
-	int landtilehist( int argc, char **argv )
+	int landtilehist( int /*argc*/, char** /*argv*/ )
 	{
 	  Core::USTRUCT_LAND_TILE landtile;
 
       Core::open_uo_data_files( );
       Core::read_uo_data( );
 
-	  typedef map<string, unsigned> M;
+	  typedef std::map<std::string, unsigned> M;
 	  M tilecount;
 
 	  int i;
@@ -279,14 +276,14 @@ namespace Pol {
 	  return 0;
 	}
 
-	int landtilecfg( int argc, char **argv )
+	int landtilecfg( int /*argc*/, char** /*argv*/ )
 	{
 	  Core::USTRUCT_LAND_TILE landtile;
 
       Core::open_uo_data_files( );
       Core::read_uo_data( );
 
-	  typedef map<string, unsigned> M;
+	  typedef std::map<std::string, unsigned> M;
 	  M tilecount;
 
 	  int i;
@@ -369,7 +366,7 @@ namespace Pol {
 	  return 0;
 	}
 
-	int loschange( int argc, char **argv )
+	int loschange( int /*argc*/, char** /*argv*/ )
 	{
 	  Core::USTRUCT_TILE tile;
 
@@ -610,24 +607,24 @@ namespace Pol {
 	  return 0;
 	}
 
-	unsigned int read_ulong( istream& is )
+	unsigned int read_ulong( std::istream& is )
 	{
 	  unsigned char a[4];
 	  is.read( (char *)a, sizeof a );
 	  return ( a[3] << 24 ) | ( a[2] << 16 ) | ( a[1] << 8 ) | a[0];
 	}
 
-	int print_sndlist( int argc, char **argv )
+	int print_sndlist( int /*argc*/, char** /*argv*/ )
 	{
 	  unsigned int offset;
 	  unsigned int length;
 	  unsigned int serial;
 	  char filename[15];
 
-	  string soundidxname = Core::config.uo_datafile_root + "soundidx.mul";
-      string soundname = Core::config.uo_datafile_root + "sound.mul";
-	  ifstream soundidx( soundidxname.c_str(), ios::in | ios::binary );
-	  ifstream sound( soundname.c_str(), ios::in | ios::binary );
+	  std::string soundidxname = Core::config.uo_datafile_root + "soundidx.mul";
+      std::string soundname = Core::config.uo_datafile_root + "sound.mul";
+      std::ifstream soundidx(soundidxname.c_str(), std::ios::in | std::ios::binary);
+      std::ifstream sound(soundname.c_str(), std::ios::in | std::ios::binary);
 	  int i;
 	  i = 0;
 	  while ( soundidx.good() )
@@ -642,7 +639,7 @@ namespace Pol {
 		if ( offset == 0xFFffFFffLu )
 		  continue;
 
-		sound.seekg( offset, ios::beg );
+        sound.seekg(offset, std::ios::beg);
 		if ( !sound.good() )
 		  break;
 
@@ -801,7 +798,7 @@ namespace Pol {
         INFO_PRINT << ".";
 		for ( u16 y = 0; y < 4095; y += 8 )
 		{
-		  vector<Core::USTRUCT_STATIC> p;
+		  std::vector<Core::USTRUCT_STATIC> p;
 		  int count;
 
 		  readstaticblock( &p, &count, x, y );
@@ -891,7 +888,7 @@ namespace Pol {
 	  return false;
 	}
 
-	int water_search( int argc, char *argv[] )
+	int water_search( int /*argc*/, char** /*argv*/ )
 	{
 	  u16 wxl = 1420, wxh = 1480, wyl = 1760, wyh = 1780;
       Core::open_uo_data_files( );
@@ -928,18 +925,18 @@ namespace Pol {
       Core::open_uo_data_files( );
       Core::read_uo_data( );
 
-	  ofstream ofs( "mapdump.html" );
+	  std::ofstream ofs( "mapdump.html" );
 
-	  ofs << "<table border=1 cellpadding=5 cellspacing=0>" << endl;
+	  ofs << "<table border=1 cellpadding=5 cellspacing=0>" << std::endl;
 	  ofs << "<tr><td>&nbsp;</td>";
 	  for ( u16 x = wxl; x <= wxh; ++x )
 	  {
 		ofs << "<td align=center>" << x << "</td>";
 	  }
-	  ofs << "</tr>" << endl;
+      ofs << "</tr>" << std::endl;
 	  for ( u16 y = wyl; y <= wyh; ++y )
 	  {
-		ofs << "<tr><td valign=center>" << y << "</td>" << endl;
+          ofs << "<tr><td valign=center>" << y << "</td>" << std::endl;
 		for ( u16 x = wxl; x <= wxh; ++x )
 		{
 		  ofs << "<td align=left valign=top>";
@@ -957,8 +954,8 @@ namespace Pol {
 		  readallstatics( statics, x, y );
 		  if ( !statics.empty() )
 		  {
-			ofs << "<table border=1 cellpadding=5 cellspacing=0>" << endl;
-			ofs << "<tr><td>graphic</td><td>z</td><td>flags</td><td>ht</td>" << endl;
+              ofs << "<table border=1 cellpadding=5 cellspacing=0>" << std::endl;
+              ofs << "<tr><td>graphic</td><td>z</td><td>flags</td><td>ht</td>" << std::endl;
 			for ( const auto &rec : statics )
 			{
 			  ofs << "<tr>";
@@ -966,15 +963,15 @@ namespace Pol {
 			  ofs << "<td>" << int( rec.z ) << "</td>";
 			  ofs << "<td>" << Clib::hexint( rec.flags ) << "</td>";
 			  ofs << "<td>" << int( rec.height ) << "</td>";
-			  ofs << "</tr>" << endl;
+			  ofs << "</tr>" << std::endl;
 			}
-			ofs << "</table>" << endl;
+			ofs << "</table>" << std::endl;
 		  }
-		  ofs << "</td>" << endl;
+		  ofs << "</td>" << std::endl;
 		}
-		ofs << "</tr>" << endl;
+		ofs << "</tr>" << std::endl;
 	  }
-	  ofs << "</table>" << endl;
+	  ofs << "</table>" << std::endl;
       Core::clear_tiledata( );
 	  return 0;
 	}
@@ -984,7 +981,7 @@ namespace Pol {
 	  signed char z[6144][4096];
 	};
 
-	int contour( int argc, char **argv )
+	int contour( int /*argc*/, char** /*argv*/ )
 	{
       Core::open_uo_data_files( );
       Core::read_uo_data( );
@@ -1015,14 +1012,14 @@ namespace Pol {
 		}
 	  }
 
-	  ofstream ofs( "contour.dat", ios::trunc | ios::out | ios::binary );
+      std::ofstream ofs("contour.dat", std::ios::trunc | std::ios::out | std::ios::binary);
 	  ofs.write( reinterpret_cast<const char*>( mc ), sizeof( MapContour ) );
       Core::clear_tiledata( );
 	  delete mc;
 	  return 0;
 	}
 
-	int findlandtile( int argc, char **argv )
+	int findlandtile( int /*argc*/, char **argv )
 	{
 	  int landtile = strtoul( argv[1], NULL, 0 );
       Core::open_uo_data_files( );
@@ -1049,7 +1046,7 @@ namespace Pol {
 	  return 0;
 	}
 
-	int findgraphic( int argc, char **argv )
+	int findgraphic( int /*argc*/, char **argv )
 	{
 	  int graphic = strtoul( argv[1], NULL, 0 );
       INFO_PRINT << "Searching map for statics with graphic=0x" << fmt::hexu( graphic ) << "\n";
@@ -1076,7 +1073,7 @@ namespace Pol {
 	  return 0;
 	}
 
-	int findlandtileflags( int argc, char **argv )
+	int findlandtileflags( int /*argc*/, char **argv )
 	{
 	  unsigned int flags = strtoul( argv[1], NULL, 0 );
       Core::open_uo_data_files( );
@@ -1121,8 +1118,8 @@ namespace Pol {
       Core::open_uo_data_files( );
       Core::read_uo_data( );
 
-      string statidx = "staidx" + Clib::tostring( Core::uo_mapid ) + ".mul";
-      string statics = "statics" + Clib::tostring( Core::uo_mapid ) + ".mul";
+      std::string statidx = "staidx" + Clib::tostring(Core::uo_mapid) + ".mul";
+      std::string statics = "statics" + Clib::tostring(Core::uo_mapid) + ".mul";
 	  Clib::RemoveFile( statidx );
 	  Clib::RemoveFile( statics );
 
@@ -1140,9 +1137,9 @@ namespace Pol {
 		}
 		for ( u16 y = 0; y < descriptor.height; y += Plib::STATICBLOCK_CHUNK )
 		{
-		  vector<Core::USTRUCT_STATIC> pstat;
+            std::vector<Core::USTRUCT_STATIC> pstat;
 		  int num;
-		  vector<Core::USTRUCT_STATIC> tilelist;
+          std::vector<Core::USTRUCT_STATIC> tilelist;
 		  readstaticblock( &pstat, &num, x, y );
 		  if ( num>0 )
 		  {
@@ -1214,7 +1211,7 @@ namespace Pol {
 
 	int format_description( int argc, char **argv )
 	{
-	  string name = "";
+	  std::string name = "";
 	  for ( int i = 1; i < argc; ++i )
 	  {
 		name.append( argv[i] );
@@ -1227,7 +1224,7 @@ namespace Pol {
 	  {
 		const char *src = name.c_str();
 
-		string desc;
+        std::string desc;
 
 		if ( amount != 1 )
 		{

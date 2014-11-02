@@ -7,9 +7,6 @@ Notes
 
 */
 
-#include "stl_inc.h"
-
-#include <time.h>
 
 #include "wallclock.h"
 
@@ -17,6 +14,8 @@ Notes
 #include <sys/time.h>
 #include <unistd.h>
 #endif
+
+#include <ctime>
 
 namespace Pol {
   namespace Clib {

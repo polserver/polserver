@@ -132,7 +132,7 @@ namespace Pol {
 	writer.Format( "({},{},{})" ) << x << y << z;
     return writer.str();
   }
-  bool UOPathState::GetSuccessors( AStarSearch<UOPathState> *astarsearch, UOPathState *parent_node, bool doors_block )
+  bool UOPathState::GetSuccessors( AStarSearch<UOPathState> *astarsearch, UOPathState* /*parent_node*/, bool doors_block )
   {
     UOPathState * NewNode;
     short i, j;

@@ -10,38 +10,14 @@ Notes
 
 */
 
-#include "../../clib/stl_inc.h"
+#include "weapon.h"
+#include "wepntmpl.h"
 
-#ifdef _MSC_VER
-#	pragma warning( disable:4786 )
-#endif
-
-#include <algorithm>
-#include <iostream>
-#include <map>
-#include <string>
-
-#include <limits.h>
-
-#include "../../clib/cfgelem.h"
-#include "../../clib/cfgfile.h"
-#include "../../clib/endian.h"
-#include "../../clib/fileutil.h"
-#include "../../clib/logfacility.h"
-#include "../../clib/streamsaver.h"
-#include "../../clib/random.h"
-
-#include "../../bscript/bstruct.h"
-#include "../../bscript/impstr.h"
-#include "../../bscript/objmembers.h"
-
-#include "../../plib/pkg.h"
-#include "../../plib/realm.h"
+#include "../mobile/attribute.h"
+#include "../mobile/charactr.h"
 
 #include "../action.h"
 #include "../extobj.h"
-#include "../mobile/attribute.h"
-#include "../mobile/charactr.h"
 #include "../gflag.h"
 #include "../los.h"
 #include "../objecthash.h"
@@ -51,10 +27,31 @@ Notes
 #include "../ufunc.h"
 #include "../umanip.h"
 #include "../uvars.h"
-#include "wepntmpl.h"
 #include "../containr.h"
 
-#include "weapon.h"
+#include "../../bscript/bstruct.h"
+#include "../../bscript/impstr.h"
+#include "../../bscript/objmembers.h"
+
+#include "../../plib/pkg.h"
+#include "../../plib/realm.h"
+
+#include "../../clib/cfgelem.h"
+#include "../../clib/cfgfile.h"
+#include "../../clib/endian.h"
+#include "../../clib/fileutil.h"
+#include "../../clib/logfacility.h"
+#include "../../clib/streamsaver.h"
+#include "../../clib/random.h"
+
+#include <algorithm>
+#include <iostream>
+#include <map>
+#include <string>
+
+#include <climits>
+#include <stdexcept>
+
 namespace Pol {
   namespace Items {
 	/*
@@ -79,7 +76,7 @@ namespace Pol {
 	  }
 	  else
 	  {
-		elem.throw_error( string( name ) + " is out of range" );
+		elem.throw_error( std::string( name ) + " is out of range" );
         return Core::ACTION__LOWEST;
 	  }
 	}
@@ -92,7 +89,7 @@ namespace Pol {
 	  }
 	  else
 	  {
-		elem.throw_error( string( name ) + " is out of range" );
+		elem.throw_error( std::string( name ) + " is out of range" );
         return Core::ACTION__LOWEST;
 	  }
 	}
@@ -131,7 +128,7 @@ namespace Pol {
 	  else
 		speed = 35;
 
-	  string attrname = elem.remove_string( "Attribute", "" );
+	  std::string attrname = elem.remove_string( "Attribute", "" );
 	  if ( attrname.empty() )
 	  {
 		attrname = elem.remove_string( "SkillID", "" );
@@ -163,7 +160,7 @@ namespace Pol {
 		elem.throw_error( "Weapon has illegal MaxHP value (MaxHP must be positive)" );
 	  }
 
-	  string errmsg;
+	  std::string errmsg;
 	  if ( !damage_dice.load( elem.remove_string( "DAMAGE" ).c_str(), &errmsg ) )
 	  {
 		elem.throw_error( "Error parsing DAMAGE string for WeaponTemplate\n" + errmsg );
@@ -247,11 +244,11 @@ namespace Pol {
         + hit_script.estimatedSize();
     }
 
-	typedef std::map<string, UWeapon*> IntrinsicWeapons;
+	typedef std::map<std::string, UWeapon*> IntrinsicWeapons;
 	IntrinsicWeapons intrinsic_weapons;
 	void load_npc_weapon_templates();
 
-	UWeapon* find_intrinsic_weapon( const string& name )
+    UWeapon* find_intrinsic_weapon(const std::string& name)
 	{
 	  auto itr = intrinsic_weapons.find( name );
 	  if ( itr != intrinsic_weapons.end() )
@@ -307,7 +304,7 @@ namespace Pol {
 	{
       const ItemDesc& id = find_itemdesc( Core::extobj.wrestling );
 	  if ( id.save_on_exit )
-        throw runtime_error( "Wrestling weapon " + Clib::hexint( Core::extobj.wrestling ) + " must specify SaveOnExit 0" );
+          throw std::runtime_error("Wrestling weapon " + Clib::hexint(Core::extobj.wrestling) + " must specify SaveOnExit 0");
 
 	  if ( id.type == ItemDesc::WEAPONDESC )
 	  {
@@ -328,7 +325,7 @@ namespace Pol {
 
 	  // wrestling_weapon = find_intrinsic_weapon( "Wrestling" );
       if ( Core::wrestling_weapon == NULL )
-		throw runtime_error( "A WeaponTemplate for Wrestling is required in itemdesc.cfg" );
+          throw std::runtime_error("A WeaponTemplate for Wrestling is required in itemdesc.cfg");
 	}
 
 	void unload_intrinsic_weapons()
@@ -342,7 +339,7 @@ namespace Pol {
 
 	UWeapon* create_intrinsic_weapon_from_npctemplate( Clib::ConfigElem& elem, const Plib::Package* pkg )
 	{
-	  string tmp;
+      std::string tmp;
 	  if ( elem.remove_prop( "AttackSpeed", &tmp ) )
 	  {
 		// Construct a WeaponTemplate for this NPC template.
@@ -403,8 +400,7 @@ namespace Pol {
 	  }
 	  for ( const auto &pkg : Plib::packages )
 	  {
-
-		string filename = Plib::GetPackageCfgPath( pkg, "npcdesc.cfg" );
+        std::string filename = Plib::GetPackageCfgPath(pkg, "npcdesc.cfg");
 
         if ( Clib::FileExists( filename.c_str( ) ) )
 		{
@@ -412,7 +408,7 @@ namespace Pol {
           Clib::ConfigElem elem;
 		  while ( cf.read( elem ) )
 		  {
-			string newrest = ":" + pkg->name() + ":" + string( elem.rest() );
+			std::string newrest = ":" + pkg->name() + ":" + std::string( elem.rest() );
 			elem.set_rest( newrest.c_str() );
 			create_intrinsic_weapon_from_npctemplate( elem, pkg );
 		  }
@@ -643,7 +639,7 @@ namespace Pol {
 		set_hit_script( elem.remove_string( "HITSCRIPT" ) );
 	}
 
-	void UWeapon::set_hit_script( const string& scriptname )
+    void UWeapon::set_hit_script(const std::string& scriptname)
 	{
 	  if ( scriptname.empty() )
 	  {

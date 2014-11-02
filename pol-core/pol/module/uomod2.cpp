@@ -27,20 +27,19 @@ Notes
 
 */
 
-#include "../../clib/stl_inc.h"
-
 /*
 	UOEMOD2.CPP - a nice place for the Buy/Sell Interface Functions
 	*/
 
 #include "uomod.h"
+#include "osmod.h"
+#include "../uoexec.h"
 
-#include "../../bscript/berror.h"
 
 #ifdef MEMORYLEAK
 #	include "../../bscript/bobject.h"
 #endif
-
+#include "../../bscript/berror.h"
 #include "../../bscript/executor.h"
 #include "../../bscript/impstr.h"
 
@@ -97,14 +96,12 @@ Notes
 #include "../syshook.h"
 #include "../tooltips.h"
 #include "../ufunc.h"
-#include "../uoexec.h"
 #include "../uofile.h"
 #include "../uoscrobj.h"
 #include "../uvars.h"
 #include "../uworld.h"
 #include "../network/msghandl.h"
 #include "../containr.h"
-#include "osmod.h"
 #include "../accounts/account.h"
 #include "../accounts/accounts.h"
 #include "../accounts/acscrobj.h"
@@ -118,6 +115,11 @@ Notes
 #else
 #	include "../../../lib/zlib/zlib.h"
 #endif
+
+#ifdef _MSC_VER
+#pragma warning(disable:4996) // disable deprecation warning for stricmp
+#endif
+
 namespace Pol {
   namespace Core {
     bool validhair( u16 HairStyle );
@@ -184,7 +186,7 @@ namespace Pol {
 	  {
 		Item* item = ( *for_sale )[i];
 		// const ItemDesc& id = find_itemdesc( item->objtype_ );
-		string desc = item->merchant_description();
+		std::string desc = item->merchant_description();
 		size_t addlen = 5 + desc.size();
 		if ( msg->offset + addlen > sizeof msg->buffer )
 		{
@@ -333,7 +335,7 @@ namespace Pol {
 	  msg->Write<u8>( static_cast<u8>( PKTBI_3B::STATUS_NOTHING_BOUGHT ) );
 	  msg.Send( client );
 	}
-	unsigned int calculate_cost( Character* vendor, UContainer* for_sale, UContainer* bought, PKTBI_3B *msg )
+	unsigned int calculate_cost( Character* /*vendor*/, UContainer* for_sale, UContainer* bought, PKTBI_3B *msg )
 	{
 	  unsigned int amt = 0;
 
@@ -651,7 +653,7 @@ namespace Pol {
 		  unsigned int buyprice;
 		  if ( !item->getbuyprice( buyprice ) )
 			continue;
-		  string desc = item->merchant_description();
+          std::string desc = item->merchant_description();
 		  if ( msg->offset + desc.size() + 14 > sizeof msg->buffer )
 		  {
 			return false;
@@ -1231,7 +1233,7 @@ namespace Pol {
 	  return size;
 	}
 
-	string BIntHash::getStringRep() const
+    std::string BIntHash::getStringRep() const
 	{
 	  return "<inthash>";
 	}
@@ -1456,7 +1458,7 @@ namespace Pol {
             ERROR_PRINT << "Client (Account " << client->acct->name() << ", Character " << client->chr->name() << ") Blech! B1 message strings overflow message buffer!\n";
 			break;
 		  }
-		  string str;
+          std::string str;
 		  str = Clib::decint( cfBEu16( strentry->tag ) ) + ": ";
 		  str.reserve( length + str.size() );
 		  u8 c;
@@ -1596,7 +1598,7 @@ namespace Pol {
 	  return new PolCore;
 	}
 
-	string PolCore::getStringRep() const
+    std::string PolCore::getStringRep() const
 	{
 	  return "<polcore>";
 	}
@@ -1621,7 +1623,7 @@ namespace Pol {
 	  return arr.release();
 	}
 
-	void add_script( ObjArray* arr, UOExecutor* uoexec, const char* state )
+	void add_script( ObjArray* arr, UOExecutor* uoexec, const char* /*state*/ )
 	{
 	  arr->addElement( new ScriptExObjImp( uoexec ) );
 	}
@@ -1790,7 +1792,7 @@ namespace Pol {
         realmsize += realm->sizeEstimate();
       }
       realmsize += sizeof( Plib::Realm* ); // main_realm
-      realmsize += sizeof( vector<Plib::Realm*>* ); // Realm
+      realmsize += sizeof(std::vector<Plib::Realm*>*); // Realm
       realmsize += sizeof(unsigned int)* 2; // baserealm_count +shadowrealm_count
       // std::map estimate for shadowrealms_by_id
       realmsize += ( sizeof(int)+sizeof( Plib::Realm* ) + ( sizeof(void*)* 3 + 1 ) / 2 ) * shadowrealms_by_id.size();
@@ -1960,7 +1962,7 @@ namespace Pol {
 	  if ( stricmp( corevar, "queued_iostats" ) == 0 ) return GetQueuedIoStats();
 	  if ( stricmp( corevar, "pkt_status" ) == 0 ) return GetPktStatusObj();
 
-	  return new BError( string( "Unknown core variable " ) + corevar );
+      return new BError(std::string("Unknown core variable ") + corevar);
 	}
 
 	BObjectRef PolCore::get_member( const char* membername )
@@ -2249,8 +2251,8 @@ namespace Pol {
 	  {
 		return new BError( "book.GetNumLines() did not return an Integer" );
 	  }
-	  string title = book->call_custom_method( "gettitle" )->getStringRep();
-	  string author = book->call_custom_method( "getauthor" )->getStringRep();
+      std::string title = book->call_custom_method("gettitle")->getStringRep();
+      std::string author = book->call_custom_method("getauthor")->getStringRep();
 
 	  int npages = ( nlines + 7 ) / 8;
 
@@ -2300,7 +2302,7 @@ namespace Pol {
 		  for ( pagelines = 0; pagelines < 8 && linenum <= nlines; ++pagelines, ++linenum )
 		  {
 			const BObjectImp* line_imp = arr->imp_at( linenum );
-			string linetext;
+            std::string linetext;
 			if ( line_imp )
 			  linetext = line_imp->getStringRep();
 			if ( msg->offset + linetext.size() + 1 > sizeof msg->buffer )
@@ -2393,7 +2395,7 @@ namespace Pol {
 		int pagelines;
 		for ( pagelines = 0; pagelines < 8 && linenum <= nlines; ++pagelines, ++linenum )
 		{
-		  string linetext;
+          std::string linetext;
 
 		  BObjectImpRefVec params;
 		  params.push_back( ref_ptr<BObjectImp>( new BLong( linenum ) ) );
@@ -2421,7 +2423,7 @@ namespace Pol {
 		size_t bytesleft = msglen - offsetof( PKTBI_66, text );
 		for ( int i = 1; i <= 8; ++i )
 		{
-		  string line;
+          std::string line;
 		  while ( bytesleft )
 		  {
 			--bytesleft;
@@ -2465,8 +2467,8 @@ namespace Pol {
 	  //Dave changed this 12/19 from sizeof msg->title. The protocol defines garbage after the terminator for
 	  //the title and author strings, so we were writing this garbage into save files. This caused some
 	  //"No SERIAL property" bugs, because the parser barfed on the bad characters.
-	  string title( msg->title, strlen( msg->title ) );
-	  string author( msg->author, strlen( msg->author ) );
+	  std::string title( msg->title, strlen( msg->title ) );
+	  std::string author( msg->author, strlen( msg->author ) );
 
 	  //dave 1/20/3 cheaters insert cntrl chars into books causing severe problems
 	  std::transform( title.begin(), title.end(), title.begin(), strip_ctrl_chars );

@@ -1,12 +1,17 @@
+#include "ufacing.h"
 
-#include "../../clib/stl_inc.h"
-#include "../../clib/clib.h"
-#include "../../clib/random.h"
+#include "charactr.h"
+
 #include "../poltype.h"
 #include "../uobject.h"
 #include "../mdelta.h"
-#include "charactr.h"
-#include "ufacing.h"
+
+#include "../../clib/clib.h"
+#include "../../clib/random.h"
+
+#ifdef _MSC_VER
+#pragma warning(disable:4996) // disable deprecation warning for stricmp
+#endif
 
 namespace Pol {
   namespace Core {
