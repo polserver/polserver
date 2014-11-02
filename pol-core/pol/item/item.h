@@ -94,7 +94,9 @@ namespace Pol {
 
 	  std::string description() const;
 	  std::string merchant_description() const;
-	  std::string get_use_script_name() const;
+      
+
+      std::string get_use_script_name() const;
 	  unsigned int sellprice() const;
 	  unsigned int buyprice() const; //Dave added this 11/28
 	  bool getbuyprice( unsigned int& buyprice ) const;
@@ -112,6 +114,10 @@ namespace Pol {
 	  virtual unsigned int weight() const;
 
 	  virtual std::string name() const;
+
+      virtual std::string name_suffix() const;
+      virtual void name_suffix(const std::string& name);
+
 	  virtual UObject* owner();
 	  virtual const UObject* owner() const;
 	  virtual UObject* toplevel_owner();

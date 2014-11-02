@@ -7,8 +7,6 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-
 #include "../clib/strutil.h"
 #include "../clib/logfacility.h"
 
@@ -21,11 +19,15 @@ Notes
 #include "../plib/realm.h"
 #include "../plib/maptile.h"
 #include "../plib/maptileserver.h"
+
+#include <string>
+#include <fstream>
+
 namespace Pol {
   namespace Plib {
     void pol_walk_test();
-    string flagstr( unsigned int flags );
-    string flagdescs();
+    std::string flagstr( unsigned int flags );
+    std::string flagdescs();
   }
   namespace Poltool {
 
@@ -60,19 +62,19 @@ namespace Pol {
 		wyh = static_cast<short>( atoi( argv[4] ) );
 	  }
 
-	  ofstream ofs( "polmap.html" );
+      std::ofstream ofs("polmap.html");
 
-	  ofs << Plib::flagdescs() << endl;
-	  ofs << "<table border=1 cellpadding=5 cellspacing=0>" << endl;
+      ofs << Plib::flagdescs() << std::endl;
+      ofs << "<table border=1 cellpadding=5 cellspacing=0>" << std::endl;
 	  ofs << "<tr><td>&nbsp;</td>";
 	  for ( int x = wxl; x <= wxh; ++x )
 	  {
 		ofs << "<td align=center>" << x << "</td>";
 	  }
-	  ofs << "</tr>" << endl;
+      ofs << "</tr>" << std::endl;
 	  for ( unsigned short y = wyl; y <= wyh; ++y )
 	  {
-		ofs << "<tr><td valign=center>" << y << "</td>" << endl;
+          ofs << "<tr><td valign=center>" << y << "</td>" << std::endl;
 		for ( unsigned short x = wxl; x <= wxh; ++x )
 		{
 		  ofs << "<td align=left valign=top>";
@@ -95,11 +97,11 @@ namespace Pol {
               << "solid.flags=" << Plib::flagstr( mlist[i].flags );
 		  }
 
-		  ofs << "</td>" << endl;
+          ofs << "</td>" << std::endl;
 		}
-		ofs << "</tr>" << endl;
+        ofs << "</tr>" << std::endl;
 	  }
-	  ofs << "</table>" << endl;
+      ofs << "</table>" << std::endl;
 	  return 0;
 	}
   }
@@ -112,7 +114,7 @@ namespace Pol {
 	  return 1;
 	}
 
-	string cmd = argv[1];
+    std::string cmd = argv[1];
 	if ( cmd == "mapdump" )
 	{
 	  return Poltool::mapdump( argc - 1, argv + 1 );

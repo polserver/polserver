@@ -8,12 +8,6 @@ Notes
 =======
 
 */
-#include <iostream>
-#include "../../clib/stl_inc.h"
-
-#ifdef _MSC_VER
-#	pragma warning(disable:4786)
-#endif
 
 #include "../../clib/endian.h"
 #include "../../clib/logfacility.h"
@@ -26,9 +20,11 @@ Notes
 #include "../../bscript/execmodl.h"
 #include "../../bscript/impstr.h"
 
-#include "../accounts/account.h"
-#include "../network/cgdata.h"
+#include "../item/item.h"
 #include "../mobile/charactr.h"
+#include "../accounts/account.h"
+
+#include "../network/cgdata.h"
 #include "../network/client.h"
 #include "../network/msghandl.h"
 #include "../pktboth.h"
@@ -37,6 +33,9 @@ Notes
 
 #include "osmod.h"
 #include "unimod.h"
+
+#include <stdexcept>
+#include <iostream>
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -159,7 +158,7 @@ namespace Pol {
 	{
 		os_module = static_cast<OSExecutorModule*>( exec.findModule( "OS" ) );
 		if ( os_module == NULL )
-		  throw runtime_error( "UnicodeExecutorModule needs OS module!" );
+		  throw std::runtime_error( "UnicodeExecutorModule needs OS module!" );
 	  }
 
 	UnicodeExecutorModule::~UnicodeExecutorModule()

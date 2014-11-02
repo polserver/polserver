@@ -12,8 +12,7 @@ Notes
 
 */
 
-#include "stl_inc.h"
-
+#include "opnew.h"
 #include "logfacility.h"
 
 #include <stdexcept>
@@ -115,7 +114,7 @@ namespace Pol {
 	  }
 	  else
 	  {
-		throw runtime_error( "Out of memory" );
+		throw std::runtime_error( "Out of memory" );
 	  }
 	}
 
@@ -295,7 +294,7 @@ namespace Pol {
 	  }
 	  else
 	  {
-		throw runtime_error( "Out of memory" );
+		throw std::runtime_error( "Out of memory" );
 	  }
 	}
 

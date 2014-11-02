@@ -12,10 +12,13 @@ PacketsSingleton::PacketsSingleton() add queue for it
 PacketInterface* GetPacket(u8 id, u16 sub) add pkt create
 
 */
-#include "../../clib/stl_inc.h"
+
+#include "packets.h"
 
 #include "../../clib/rawtypes.h"
-#include "packets.h"
+
+#include <stdexcept>
+
 namespace Pol {
   namespace Network {
 	using namespace PktHelper;
@@ -137,7 +140,7 @@ namespace Pol {
 	  PacketQueueMap::iterator itr = packets.find( id );
 	  if ( itr != packets.end() )
 		return itr->second->GetNext( id, sub );
-	  throw runtime_error( "Request of undefined Packet: " + Clib::hexint( id ) + "-" + Clib::hexint( sub ) );
+	  throw std::runtime_error( "Request of undefined Packet: " + Clib::hexint( id ) + "-" + Clib::hexint( sub ) );
 	  return NULL;
 	}
 
@@ -385,7 +388,7 @@ namespace Pol {
 			  case Core::PKTBI_BF::TYPE_ACTIVATE_CUSTOM_HOUSE_TOOL: return new PktOut_BF_Sub20();
 			  case Core::PKTBI_BF::TYPE_DAMAGE:						return new PktOut_BF_Sub22();
 			  case Core::PKTBI_BF::TYPE_CHARACTER_RACE_CHANGER:		return new PktOut_BF_Sub2A();
-			  default: throw runtime_error( "Request of undefined Packet: " + Clib::hexint( id ) + "-" + Clib::hexint( sub ) ); return NULL;
+              default: throw std::runtime_error("Request of undefined Packet: " + Clib::hexint(id) + "-" + Clib::hexint(sub)); return NULL;
 			}
 		  }
 		  case PKTOUT_C1_ID: return new PktOut_C1();
@@ -401,7 +404,7 @@ namespace Pol {
 		  case PKTOUT_F5_ID: return new PktOut_F5();
 		  case PKTOUT_F6_ID: return new PktOut_F6();
 		  case PKTOUT_F7_ID: return new PktOut_F7();
-		  default: throw runtime_error( "Request of undefined Packet: " + Clib::hexint( id ) + "-" + Clib::hexint( sub ) ); return NULL;
+          default: throw std::runtime_error("Request of undefined Packet: " + Clib::hexint(id) + "-" + Clib::hexint(sub)); return NULL;
 		}
 	  }
 	}

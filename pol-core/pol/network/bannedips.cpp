@@ -7,13 +7,13 @@ Notes
 
 */
 
-#include "../../clib/stl_inc.h"
+#include "bannedips.h"
 
 #include "../../clib/cfgelem.h"
 #include "../../clib/cfgfile.h"
 #include "../../clib/fileutil.h"
 #include "../network/client.h"
-#include "bannedips.h"
+
 namespace Pol {
   namespace Network {
 	bool is_banned_ip( Client* client )
@@ -54,19 +54,19 @@ namespace Pol {
 	  while ( cf.read( elem ) )
 	  {
 		IPRule CurrentEntry;
-		string iptext = elem.remove_string( "IPMatch" );
-		string::size_type delim = iptext.find_first_of( "/" );
-		if ( delim != string::npos )
+		std::string iptext = elem.remove_string( "IPMatch" );
+		std::string::size_type delim = iptext.find_first_of( "/" );
+		if ( delim != std::string::npos )
 		{
-		  string ipaddr_str = iptext.substr( 0, delim );
-		  string ipmask_str = iptext.substr( delim + 1 );
+          std::string ipaddr_str = iptext.substr(0, delim);
+          std::string ipmask_str = iptext.substr(delim + 1);
 		  CurrentEntry.ipMatch = inet_addr( ipaddr_str.c_str() );
 		  CurrentEntry.ipMask = inet_addr( ipmask_str.c_str() );
 		  banned_ips.push_back( CurrentEntry );
 		}
 		else
 		{
-		  string ipmask_str = "255.255.255.255";
+          std::string ipmask_str = "255.255.255.255";
 		  CurrentEntry.ipMatch = inet_addr( iptext.c_str() );
 		  CurrentEntry.ipMask = inet_addr( ipmask_str.c_str() );
 		  banned_ips.push_back( CurrentEntry );

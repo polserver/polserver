@@ -8,15 +8,17 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
 
-#include <time.h>
+#include "gameclck.h"
+
+#include "gprops.h"
+#include "polclock.h"
 
 #include "../clib/stlutil.h"
 
-#include "gameclck.h"
-#include "gprops.h"
-#include "polclock.h"
+#include <ctime>
+#include <mutex>
+
 namespace Pol {
   namespace Core {
 	static gameclock_t gameclock;
@@ -28,7 +30,7 @@ namespace Pol {
 	void start_gameclock()
 	{
 	  std::lock_guard<std::mutex> lock( _gameclock_mutex );
-	  string gameclock_str;
+	  std::string gameclock_str;
 	  if ( global_properties.getprop( "gameclock", gameclock_str ) )
 	  {
 		char ch_s;

@@ -14,16 +14,13 @@ Notes
 #ifndef CFGREPOS_H
 #define CFGREPOS_H
 
-#ifdef _MSC_VER
-#pragma warning( disable: 4786 )
-#endif
+#include "../clib/maputil.h"
+#include "../clib/refptr.h"
+#include "../clib/boostutils.h"
 
 #include <map>
 #include <string>
 
-#include "../clib/maputil.h"
-#include "../clib/refptr.h"
-#include "../clib/boostutils.h"
 namespace Pol {
   namespace Bscript  {
 	class BObjectImp;

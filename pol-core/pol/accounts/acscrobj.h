@@ -13,6 +13,11 @@ Notes
 #define ACSCROBJ_H
 
 #include "../reftypes.h"
+
+#ifndef __BSCRIPT_BOBJECT_H
+#include "../../bscript/bobject.h"
+#endif
+
 namespace Pol {
   namespace Accounts {
 	class AccountPtrHolder

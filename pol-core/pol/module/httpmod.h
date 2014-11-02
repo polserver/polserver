@@ -9,6 +9,13 @@ Notes
 
 #ifndef __HTTPMOD_H
 #define __HTTPMOD_H
+
+#include "../../bscript/execmodl.h"
+#include "../../clib/wnsckt.h"
+#include "../uoexec.h"
+
+#include <string>
+
 namespace Pol {
   namespace Module {
 	class HttpExecutorModule : public Bscript::TmplExecutorModule<HttpExecutorModule>
@@ -26,7 +33,7 @@ namespace Pol {
       Bscript::BObjectImp* mf_QueryParam( );
       Bscript::BObjectImp* mf_QueryIP( );
 
-	  void read_query_string( const string& query_string );
+	  void read_query_string( const std::string& query_string );
 	  void read_query_ip();
 
 	  // TODO: clean up the socket ownership thing so these can be private again

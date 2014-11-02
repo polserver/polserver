@@ -9,10 +9,9 @@ Notes
 
 
 
-#include "../../clib/stl_inc.h"
+#include "charactr.h"
 
 #include "../../clib/logfacility.h"
-#include "../../clib/passert.h"
 #include "../module/cfgmod.h"
 #include "../module/osmod.h"
 #include "../module/uomod.h"
@@ -20,9 +19,10 @@ Notes
 #include "../scrsched.h"
 #include "../uoexec.h"
 #include "../uoscrobj.h"
-#include "charactr.h"
 #include "../item/itemdesc.h"
 #include "../scrstore.h"
+
+#include "../../clib/passert.h"
 
 namespace Pol {
   namespace Mobile {

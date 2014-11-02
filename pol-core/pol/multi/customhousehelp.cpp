@@ -208,7 +208,7 @@ namespace Pol {
 		size += 3 * sizeof( HouseFloor* ) + data.capacity() * sizeof( HouseFloor );
 		for (const auto& floor : data)
 		{
-			size += 3 * sizeof( list<CUSTOM_HOUSE_ELEMENT>* ) + floor.capacity() * sizeof( list<CUSTOM_HOUSE_ELEMENT> );
+			size += 3 * sizeof( std::list<CUSTOM_HOUSE_ELEMENT>* ) + floor.capacity() * sizeof( std::list<CUSTOM_HOUSE_ELEMENT> );
 			for (const auto& l : floor)
 			{
 				size += 3 * sizeof( CUSTOM_HOUSE_ELEMENT* ) + l.size() * sizeof( CUSTOM_HOUSE_ELEMENT );

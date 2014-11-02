@@ -17,7 +17,9 @@ Notes
 #include "multi.h"
 #include "../poltype.h"
 #include "../reftypes.h"
+
 #include <climits>
+#include <vector>
 
 namespace Pol {
   namespace Bscript {
@@ -143,7 +145,7 @@ namespace Pol {
 	  typedef std::vector< Traveller > Travellers;
 	  Travellers travellers_;
 
-	  vector<Items::Item*> Components;
+	  std::vector<Items::Item*> Components;
 	};
 
 	enum BOAT_COMPONENT

@@ -8,9 +8,8 @@ Notes
 
 */
 
-#include <string>
+#include "cmdlevel.h"
 
-#include "../clib/stl_inc.h"
 #include "../clib/cfgfile.h"
 #include "../clib/cfgelem.h"
 #include "../clib/dirlist.h"
@@ -23,7 +22,13 @@ Notes
 
 #include "../plib/pkg.h"
 
-#include "cmdlevel.h"
+#include <string>
+#include <memory>
+
+#ifdef _MSC_VER
+#pragma warning(disable:4996) // stricmp POSIX deprecation warning
+#endif
+
 namespace Pol {
   namespace Core {
 
@@ -32,7 +37,7 @@ namespace Pol {
 	  cmdlevel( static_cast<unsigned char>( cmdlevelnum ) )
 	{
       Clib::mklower( name );
-	  string tmp;
+	  std::string tmp;
 	  while ( elem.remove_prop( "DIR", &tmp ) )
 	  {
         Clib::mklower( tmp );
@@ -45,7 +50,7 @@ namespace Pol {
 	  }
 	}
 
-	bool CmdLevel::matches( const string& i_name ) const
+	bool CmdLevel::matches( const std::string& i_name ) const
 	{
       if ( Clib::stringicmp( i_name, name ) == 0 )
 		return true;
@@ -107,26 +112,26 @@ namespace Pol {
 	  {
 		CmdLevel::SearchDir* search_dir = &cmdlevel.searchlist[diridx];
         Plib::Package* pkg = search_dir->pkg;
-		string dir_name = search_dir->dir;
+		std::string dir_name = search_dir->dir;
 		if ( ( !pkg && m_pkg ) || ( pkg && !m_pkg ) )
 		  continue;
 		if ( pkg && m_pkg )
 		{
 		  if ( pkg != m_pkg )
 			continue;
-		  dir_name = string( pkg->dir().c_str() ) + dir_name;
+		  dir_name = std::string( pkg->dir().c_str() ) + dir_name;
 		}
 
 		for ( Clib::DirList dl( dir_name.c_str() ); !dl.at_end(); dl.next() )
 		{
-		  string name = dl.name(), ext;
+		  std::string name = dl.name(), ext;
 		  if ( name[0] == '.' ) continue;
 
-		  string::size_type pos = name.rfind( "." );
-		  if ( pos != string::npos )
+		  std::string::size_type pos = name.rfind( "." );
+		  if ( pos != std::string::npos )
 			ext = name.substr( pos );
 
-		  if ( pos != string::npos && ( !ext.compare( ".ecl" ) ) )
+		  if ( pos != std::string::npos && ( !ext.compare( ".ecl" ) ) )
 		  {
             std::unique_ptr<Bscript::BStruct> cmdinfo( new Bscript::BStruct );
             cmdinfo->addMember( "dir", new Bscript::String( search_dir->dir ) );
@@ -164,10 +169,10 @@ namespace Pol {
 		CmdLevel* cmdlevel = find_cmdlevel( elem.rest() );
 		if ( !cmdlevel )
 		{
-		  elem.throw_error( string( "Command Level " ) + elem.rest() + " not found." );
+		  elem.throw_error( std::string( "Command Level " ) + elem.rest() + " not found." );
 		}
 
-		string tmp;
+		std::string tmp;
 		while ( elem.remove_prop( "DIR", &tmp ) )
 		{
           Clib::mklower( tmp );
@@ -218,7 +223,7 @@ namespace Pol {
       for ( Plib::Packages::iterator itr = Plib::packages.begin( ); itr != Plib::packages.end( ); ++itr )
 	  {
         Plib::Package* pkg = ( *itr );
-        string filename = Plib::GetPackageCfgPath( pkg, "cmds.cfg" );
+        std::string filename = Plib::GetPackageCfgPath( pkg, "cmds.cfg" );
         if ( Clib::FileExists( filename.c_str( ) ) )
 		{
 		  process_package_cmds_cfg( pkg );

@@ -16,6 +16,10 @@ Notes
 #endif
 
 #include "../clib/maputil.h"
+
+#include <map>
+#include <string>
+
 namespace Pol {
   namespace Items {
 	class Item;
@@ -44,7 +48,7 @@ namespace Pol {
 	  std::string _name;
 
 	  // TODO: ref_ptr<Item> ?
-	  typedef map< std::string, Items::Item*, Clib::ci_cmp_pred > Cont;
+	  typedef std::map< std::string, Items::Item*, Clib::ci_cmp_pred > Cont;
 	  Cont _items; // owns its items.
 
 	  friend class StorageAreaImp;
@@ -66,7 +70,7 @@ namespace Pol {
 	private:
 	  // TODO: investigate if this could store objects. Does find() 
 	  // return object copies, or references?
-	  typedef map<std::string, StorageArea*> AreaCont;
+      typedef std::map<std::string, StorageArea*> AreaCont;
 	  AreaCont areas;
 
 	  friend class StorageAreasImp;

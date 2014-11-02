@@ -7,17 +7,20 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
+#include "compilercfg.h"
 
 #include "../clib/cfgfile.h"
 #include "../clib/cfgelem.h"
 #include "../clib/dirlist.h"
 #include "../clib/xmain.h"
 
-#include "compilercfg.h"
+#ifdef _MSC_VER
+#pragma warning(disable:4996) // POSIX deprecation warnings for stricmp, getenv
+#endif
+
 namespace Pol {
   namespace Bscript {
-	void CompilerConfig::Read( const string& path )
+	void CompilerConfig::Read( const std::string& path )
 	{
 	  Clib::ConfigFile cf( path.c_str() );
 	  Clib::ConfigElem elem;
@@ -26,7 +29,7 @@ namespace Pol {
 	  PackageRoot.clear();
 	  IncludeDirectory.clear();
 
-	  string tmp;
+      std::string tmp;
 	  while ( elem.remove_prop( "PackageRoot", &tmp ) )
 	  {
 		PackageRoot.push_back( Clib::normalized_dir_form( tmp ) );
@@ -57,7 +60,7 @@ namespace Pol {
 	  // This is where we TRY to validate full paths from what was provided in the
 	  // ecompile.cfg. Maybe Turley or Shini can find the best way to do this in *nix.
 #ifdef WIN32
-	  string MyPath = path.c_str();
+      std::string MyPath = path.c_str();
 	  // If it's just "ecompile.cfg", let's change it to the exe's path which it SHOULD be
 	  // with. 
 	  if ( stricmp( MyPath.c_str(), "ecompile.cfg" ) == 0 )
@@ -67,21 +70,21 @@ namespace Pol {
 		MyPath = xmain_exedir.substr( 0, xmain_exedir.length() - 1 );
 		MyPath = MyPath.substr( 0, MyPath.find_last_of( '/' ) + 1 );
 	  }
-	  if ( IncludeDirectory.find( ':' ) == string::npos )
+      if (IncludeDirectory.find(':') == std::string::npos)
 	  {
 		if ( IncludeDirectory.substr( 0, 1 ) != "." ) // Let's make sure they didn't try using this method
 		{
 		  IncludeDirectory = MyPath + IncludeDirectory;
 		}
 	  }
-	  if ( ModuleDirectory.find( ':' ) == string::npos )
+      if (ModuleDirectory.find(':') == std::string::npos)
 	  {
 		if ( ModuleDirectory.substr( 0, 1 ) != "." ) // Let's make sure they didn't try using this method
 		{
 		  ModuleDirectory = MyPath + ModuleDirectory;
 		}
 	  }
-	  if ( PolScriptRoot.find( ':' ) == string::npos )
+      if (PolScriptRoot.find(':') == std::string::npos)
 	  {
 		if ( PolScriptRoot.substr( 0, 1 ) != "." ) // Let's make sure they didn't try using this method
 		{
@@ -90,7 +93,7 @@ namespace Pol {
 	  }
 	  for ( unsigned pr = 0; pr < PackageRoot.size(); ++pr )
 	  {
-		if ( PackageRoot[pr].find( ':' ) == string::npos )
+          if (PackageRoot[pr].find(':') == std::string::npos)
 		{
 		  if ( PackageRoot[pr].substr( 0, 1 ) != "." ) // Let's make sure they didn't try using this method
 		  {

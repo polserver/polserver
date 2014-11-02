@@ -182,14 +182,14 @@ namespace Pol {
 	  return template_.alignment;
 	}
 
-	inline void npc_spoke( NPC& npc, Mobile::Character *chr, const char *text, int textlen, u8 texttype )
+	inline void npc_spoke( NPC& npc, Mobile::Character *chr, const char *text, int /*textlen*/, u8 texttype )
 	{
 	  // Not happy with this comparison style, but can't think of a better alternative.
 	  if ( npc.serial != chr->serial )
 		npc.on_pc_spoke( chr, text, texttype );
 	}
 
-    inline void npc_spoke( NPC& npc, Mobile::Character *chr, const char *text, int textlen, u8 texttype, const u16 *wtext, const char lang[4], int wtextlen, Bscript::ObjArray* speechtokens = NULL )
+    inline void npc_spoke( NPC& npc, Mobile::Character *chr, const char *text, int /*textlen*/, u8 texttype, const u16 *wtext, const char lang[4], int /*wtextlen*/, Bscript::ObjArray* speechtokens = NULL )
 	{
 	  if ( npc.serial != chr->serial )
 		npc.on_pc_spoke( chr, text, texttype, wtext, lang, speechtokens );

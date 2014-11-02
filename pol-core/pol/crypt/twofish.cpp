@@ -228,6 +228,8 @@ namespace Pol {
 
 	void TwoFish::MakeKey( KeyInstance *key, unsigned char direction, int keyLen, char *keyMaterial )
 	{
+      passert_r(keyMaterial == NULL, "User supplied key-material is not implemented");
+      (void)keyMaterial;
 
 	  key->keySig = 0x48534946;
 	  key->direction = direction;

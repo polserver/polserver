@@ -23,7 +23,8 @@ tool. Should suffice.
 
 */
 
-#include "../../clib/stl_inc.h"
+#include "customhouses.h"
+
 #include "../../clib/cfgelem.h"
 #include "../../clib/endian.h"
 #include "../../clib/stlutil.h"
@@ -36,6 +37,7 @@ tool. Should suffice.
 #	include "../../../lib/zlib/zlib.h"
 #endif
 
+#include "../item/itemdesc.h"
 #include "../mobile/charactr.h"
 #include "../network/cgdata.h"
 #include "../network/client.h"
@@ -44,20 +46,23 @@ tool. Should suffice.
 #include "../core.h"
 #include "../uvars.h"
 #include "house.h"
-#include "customhouses.h"
-#include "../fnsearch.h"
 #include "multi.h"
 #include "multidef.h"
+#include "../fnsearch.h"
 #include "../polcfg.h"
 #include "../pktboth.h"
 #include "../ufunc.h"
 #include "../ustruct.h"
 #include "../uworld.h"
-#include "../item/itemdesc.h"
 #include "../syshook.h"
 #include "../mkscrobj.h"
 #include "../scrsched.h"
 #include "../clidata.h"
+#include "../uoscrobj.h"
+
+#include <string>
+#include <vector>
+
 namespace Pol {
   namespace Multi {
 	//bytes per tile - currently only mode 0 works, meaning we send u16 graphic, s8 x,y,z offsets
@@ -407,9 +412,9 @@ namespace Pol {
 	  }
 	}
 
-	void CustomHouseDesign::readProperties( Clib::ConfigElem& elem, const string& prefix )
+	void CustomHouseDesign::readProperties( Clib::ConfigElem& elem, const std::string& prefix )
 	{
-	  string line;
+	  std::string line;
 
 	  while ( elem.remove_prop( prefix.c_str(), &line ) )
 	  {
@@ -431,7 +436,7 @@ namespace Pol {
 	  }
 	}
 
-	void CustomHouseDesign::printProperties( Clib::StreamWriter& sw, const string& prefix ) const
+	void CustomHouseDesign::printProperties( Clib::StreamWriter& sw, const std::string& prefix ) const
 	{
 	  if ( !IsEmpty() )
 	  {
@@ -457,35 +462,35 @@ namespace Pol {
 	  }
 	}
 
-	//for testing, prints each floor's x,y,z rows
-	void CustomHouseDesign::testprint( ostream& os ) const
-	{
-	  if ( !IsEmpty() )
-	  {
-		for ( int i = 0; i < CUSTOM_HOUSE_NUM_PLANES; i++ )
-		{
-		  int x = 0, y = 0;
-		  for ( HouseFloor::const_iterator xitr = Elements[i].data.begin(),
-				xitrend = Elements[i].data.end();
-				xitr != xitrend; ++xitr, x++ )
-		  {
-			os << "X: " << x << endl;
-			for ( HouseFloorRow::const_iterator yitr = xitr->begin(),
-				  yitrend = xitr->end();
-				  yitr != yitrend; ++yitr, y++ )
-			{
-			  os << "\tY: " << y << endl;
-			  for ( HouseFloorZColumn::const_iterator zitr = yitr->begin(),
-					zitrend = yitr->end();
-					zitr != zitrend; ++zitr )
-			  {
-				os << "\t\t" << zitr->graphic << " " << zitr->xoffset << " " << zitr->yoffset << " " << (u16)zitr->z << endl;
-			  }
-			}
-		  }
-		}
-	  }
-	}
+    //for testing, prints each floor's x,y,z rows
+    void CustomHouseDesign::testprint(std::ostream& os) const
+    {
+        if (!IsEmpty())
+        {
+            for (int i = 0; i < CUSTOM_HOUSE_NUM_PLANES; i++)
+            {
+                int x = 0, y = 0;
+                for (HouseFloor::const_iterator xitr = Elements[i].data.begin(),
+                    xitrend = Elements[i].data.end();
+                    xitr != xitrend; ++xitr, x++)
+                {
+                    os << "X: " << x << std::endl;
+                    for (HouseFloorRow::const_iterator yitr = xitr->begin(),
+                        yitrend = xitr->end();
+                        yitr != yitrend; ++yitr, y++)
+                    {
+                        os << "\tY: " << y << std::endl;
+                        for (HouseFloorZColumn::const_iterator zitr = yitr->begin(),
+                            zitrend = yitr->end();
+                            zitr != zitrend; ++zitr)
+                        {
+                            os << "\t\t" << zitr->graphic << " " << zitr->xoffset << " " << zitr->yoffset << " " << (u16)zitr->z << std::endl;
+                        }
+                    }
+                }
+            }
+        }
+    }
 
 	void CustomHouseDesign::ClearComponents( UHouse* house )
 	{
@@ -654,7 +659,7 @@ namespace Pol {
 	  house->WorkingDesign.AddOrReplace( elem );
 
 	  //invalidate stored packet
-	  vector<u8> newvec;
+	  std::vector<u8> newvec;
 	  house->WorkingCompressed.swap( newvec );
 
 	  house->revision++;
@@ -683,7 +688,7 @@ namespace Pol {
 	  house->WorkingDesign.AddMultiAtOffset( itemID, x, y, z );
 
 	  //invalidate stored packet
-	  vector<u8> newvec;
+	  std::vector<u8> newvec;
 	  house->WorkingCompressed.swap( newvec );
 
 	  house->revision++;
@@ -719,7 +724,7 @@ namespace Pol {
 	  }
 
 	  //invalidate stored packet
-	  vector<u8> newvec;
+	  std::vector<u8> newvec;
 	  house->WorkingCompressed.swap( newvec );
 
       Mobile::Character* chr = Core::find_character( serial );
@@ -741,7 +746,7 @@ namespace Pol {
 	  house->WorkingDesign.Clear();
 
 	  //invalidate stored packet
-	  vector<u8> newvec;
+	  std::vector<u8> newvec;
 	  house->WorkingCompressed.swap( newvec );
 
 	  //add foundation back to design
@@ -829,7 +834,7 @@ namespace Pol {
 		return;
 
 	  house->WorkingDesign = house->BackupDesign;
-	  vector<u8> newvec;
+	  std::vector<u8> newvec;
 	  house->WorkingCompressed.swap( newvec );
 	  if ( chr != NULL && chr->client != NULL )
 		CustomHousesSendFull( house, chr->client, HOUSE_DESIGN_WORKING );
@@ -854,7 +859,7 @@ namespace Pol {
 		return;
 
 	  house->WorkingDesign = house->CurrentDesign;
-	  vector<u8> newvec;
+	  std::vector<u8> newvec;
 	  house->WorkingCompressed.swap( newvec );
       Mobile::Character* chr = Core::find_character( serial );
 	  if ( chr != NULL && chr->client != NULL )
@@ -881,7 +886,7 @@ namespace Pol {
 	  house->WorkingDesign.AddOrReplace( elem );
 
 	  //invalidate stored packet
-	  vector<u8> newvec;
+	  std::vector<u8> newvec;
 	  house->WorkingCompressed.swap( newvec );
 
 	  house->revision++;
@@ -906,7 +911,7 @@ namespace Pol {
 	  }
 
 	  //invalidate stored packet
-	  vector<u8> newvec;
+      std::vector<u8> newvec;
 	  house->WorkingCompressed.swap( newvec );
 
 	  house->revision++;
@@ -918,7 +923,7 @@ namespace Pol {
 	  u32 ulen;
 	  unsigned char* data;
 	  //unsigned char** stored_packet;
-	  vector<u8>* stored_packet;
+      std::vector<u8>* stored_packet;
 
 	  u32 planeheader = 0;
 	  u32 buffer_len = 0;
@@ -963,7 +968,7 @@ namespace Pol {
 	  sbuflen += planes*BYTES_PER_TILE; //for plane header dword
 	  sbuflen += 17; //for packet header
 
-	  vector<u8> packet( sbuflen );
+      std::vector<u8> packet(sbuflen);
 
 
       Core::PKTOUT_D8* msg = reinterpret_cast<Core::PKTOUT_D8*>( &packet[0] );
@@ -1048,10 +1053,10 @@ namespace Pol {
 
 	  CurrentDesign.AddMultiAtOffset( multiid, 0, 0, 0 );
 	  WorkingDesign = CurrentDesign;
-	  vector<u8> newvec;
+      std::vector<u8> newvec;
 	  WorkingCompressed.swap( newvec );
 
-	  vector<u8> newvec2;
+      std::vector<u8> newvec2;
 	  CurrentCompressed.swap( newvec2 );
 	}
 
@@ -1065,10 +1070,10 @@ namespace Pol {
 		WorkingDesign.FillComponents( this, false ); // keep in sync
 	  }
 	  revision++;
-	  vector<u8> newvec;
+      std::vector<u8> newvec;
 	  WorkingCompressed.swap( newvec );
 
-	  vector<u8> newvec2;
+      std::vector<u8> newvec2;
 	  CurrentCompressed.swap( newvec2 );
 
 	  if ( chr && chr->client )

@@ -8,9 +8,8 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-
 #include "gflag.h"
+
 namespace Pol {
   namespace Core {
 	bool gflag_enforce_container_limits = true;

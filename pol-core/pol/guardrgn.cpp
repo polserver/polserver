@@ -8,14 +8,11 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-#include "../clib/cfgelem.h"
-#include "../clib/fileutil.h"
+#include "guardrgn.h"
 
 #include "../bscript/impstr.h"
 
 #include "mobile/charactr.h"
-#include "guardrgn.h"
 #include "polcfg.h"
 #include "scrdef.h"
 #include "scrstore.h"
@@ -24,6 +21,10 @@ Notes
 
 #include "network/client.h"
 #include "network/cgdata.h"
+
+#include "../clib/cfgelem.h"
+#include "../clib/fileutil.h"
+
 namespace Pol {
   namespace Core {
 	JusticeRegion::JusticeRegion( Clib::ConfigElem& elem, RegionId id ) :

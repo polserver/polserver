@@ -161,6 +161,15 @@ Notes
 #include "corpse.h"
 #include "wornitems.h"
 
+#include "../npc.h" // TODO: Remove this abomination!
+
+#include <string>
+#include <set>
+
+#ifdef _MSC_VER
+#pragma warning(disable:4996) // stricmp deprecation warning
+#pragma warning(disable:4505) // unreferenced local function has been removed
+#endif
 
 namespace Pol {
   namespace Core {
@@ -182,7 +191,7 @@ namespace Pol {
 		}
 	  }
 	  ERROR_PRINT << "Couldn't find an Armor Zone in armrzone.cfg for layer " << layer << "\n";
-	  throw runtime_error( "Configuration file error" );
+	  throw std::runtime_error( "Configuration file error" );
 	  return 0;
 	}
 
@@ -202,7 +211,7 @@ namespace Pol {
 	  }
       ERROR_PRINT << "Couldn't find an armrzone.cfg config elem named '" << zname << "'\n";
 
-	  throw runtime_error( "Configuration file error" );
+	  throw std::runtime_error( "Configuration file error" );
 	  return 0;
 	}
 	void load_armor_zones()
@@ -236,7 +245,7 @@ namespace Pol {
               << "Valid range is " << Core::LOWEST_LAYER
               << " to " << Core::HIGHEST_LAYER
               << "\n";
-			throw runtime_error( "Configuration file error" );
+			throw std::runtime_error( "Configuration file error" );
 		  }
 		  az.layers.push_back( in_layer );
 		}
@@ -994,23 +1003,27 @@ namespace Pol {
 	  wornitems.print( sw_pc, sw_equip );
 	}
 
-    Core::MOVEMODE Character::decode_movemode( const string& str )
+    Core::MOVEMODE Character::decode_movemode( const std::string& str )
 	{
+      
+
       Core::MOVEMODE mm = Core::MOVEMODE_NONE;
-	  if ( str.find( 'L' ) != string::npos )
+      
+      const auto not_found = std::string::npos;
+      if (str.find('L') != not_found)
         mm = static_cast<Core::MOVEMODE>( mm + Core::MOVEMODE_LAND );
-	  if ( str.find( 'S' ) != string::npos )
+      if (str.find('S') != not_found)
         mm = static_cast<Core::MOVEMODE>( mm + Core::MOVEMODE_SEA );
-	  if ( str.find( 'A' ) != string::npos )
+      if (str.find('A') != not_found)
         mm = static_cast<Core::MOVEMODE>( mm + Core::MOVEMODE_AIR );
-	  if ( str.find( 'F' ) != string::npos )
+      if (str.find('F') != not_found)
         mm = static_cast<Core::MOVEMODE>( mm + Core::MOVEMODE_FLY );
 	  return mm;
 	}
 
-    string Character::encode_movemode( Core::MOVEMODE mm )
+    std::string Character::encode_movemode( Core::MOVEMODE mm )
 	{
-	  string res;
+	  std::string res;
       if ( mm & Core::MOVEMODE_LAND )
 		res += "L";
       if ( mm & Core::MOVEMODE_SEA )
@@ -1031,13 +1044,13 @@ namespace Pol {
         if ( Core::system_find_mobile( serial ) )
 		{
           ERROR_PRINT.Format( "Character 0x{:X} defined more than once.\n" ) << serial;
-		  throw runtime_error( "Data integrity error" );
+		  throw std::runtime_error( "Data integrity error" );
 		}
 	  }
 	  serial_ext = ctBEu32( serial );
       Core::UseCharSerialNumber( serial );
 
-	  string acctname;
+      std::string acctname;
 	  if ( elem.remove_prop( "ACCOUNT", &acctname ) )
 	  {
 		unsigned short charindex;
@@ -1049,14 +1062,14 @@ namespace Pol {
             << "CHARIDX of " << charindex
             << " is too high for character serial (0x" << fmt::hexu( serial ) << ")\n";
 
-		  throw runtime_error( "Data integrity error" );
+          throw std::runtime_error("Data integrity error");
 		}
 		Accounts::Account *search_acct = Accounts::find_account( acctname.c_str() );
 		if ( search_acct == NULL )
 		{
           ERROR_PRINT << "Character '" << name() << "': "
             << "Account '" << acctname << "' doesn't exist.\n";
-		  throw runtime_error( "Data integrity error" );
+		  throw std::runtime_error( "Data integrity error" );
 		}
 		if ( search_acct->get_character( charindex ) != NULL )
 		{
@@ -1064,7 +1077,7 @@ namespace Pol {
             << " has two characters with CHARIDX of "
             << charindex
             << "\n";
-		  throw runtime_error( "Data integrity error" );
+          throw std::runtime_error("Data integrity error");
 		}
 
 		acct.set( search_acct );
@@ -1081,13 +1094,13 @@ namespace Pol {
 	  if ( name_ == "" )
 	  {
         ERROR_PRINT << "Character '0x" << fmt::hexu( serial ) << "' has no name!\n";
-		throw runtime_error( "Data integrity error" );
+        throw std::runtime_error("Data integrity error");
 	  }
 	  wornitems.serial = serial;
 	  wornitems.serial_ext = serial_ext;
 	  position_changed();
 
-	  string cmdaccstr = elem.remove_string( "CMDLEVEL", "player" );
+      std::string cmdaccstr = elem.remove_string("CMDLEVEL", "player");
       Core::CmdLevel* cmdlevel_search = Core::find_cmdlevel( cmdaccstr.c_str( ) );
 	  if ( cmdlevel_search == NULL )
 		elem.throw_error( "Didn't understand cmdlevel of '" + cmdaccstr + "'" );
@@ -1145,7 +1158,7 @@ namespace Pol {
 	  //guildid_ = elem.remove_ulong( "GUILDID", 0 );
 	  murderer_ = elem.remove_bool( "MURDERER", false );
 	  party_can_loot_ = elem.remove_bool( "PARTYCANLOOT", false );
-	  string rt;
+      std::string rt;
 	  while ( elem.remove_prop( "REPORTABLE", &rt ) )
 	  {
 		ISTRINGSTREAM is( rt );
@@ -1382,17 +1395,17 @@ namespace Pol {
 	  refresh_cached_settings();
 	}
 
-	string Character::all_settings() const
+	std::string Character::all_settings() const
 	{
 	  return settings.extract();
 	}
 
-	string Character::all_privs() const
+    std::string Character::all_privs() const
 	{
 	  return privs.extract();
 	}
 
-	void Character::set_privs( const string& privlist )
+    void Character::set_privs(const std::string& privlist)
 	{
 	  set_dirty();
 	  privs.readfrom( privlist );
@@ -1427,7 +1440,7 @@ namespace Pol {
 	  }
 	}
 
-	bool Character::can_be_renamed_by( const Character* chr ) const
+	bool Character::can_be_renamed_by( const Character* /*chr*/ ) const
 	{
 	  // consider command levels?
 	  return false;
@@ -2727,7 +2740,7 @@ namespace Pol {
         Core::send_sysmessage( client, "Your armor coverage:" );
 		for ( unsigned i = 0; i < armor_.size(); ++i )
 		{
-		  string text = armorzones[i].name + ": ";
+		  std::string text = armorzones[i].name + ": ";
 		  if ( armor_[i] == NULL )
 			text += "Nothing";
 		  else
@@ -3053,12 +3066,12 @@ namespace Pol {
 	  }
 	}
 
-	void Character::on_swing_failure( Character* attacker )
+	void Character::on_swing_failure( Character* /*attacker*/ )
 	{
 	  // do nothing
 	}
 
-	void Character::inform_disengaged( Character* disengaged )
+	void Character::inform_disengaged( Character* /*disengaged*/ )
 	{
 	  // someone has just disengaged. If we don't have an explicit opponent,
 	  // pick one of those that has us targetted as the highlight character.
@@ -3066,7 +3079,7 @@ namespace Pol {
 		send_highlight();
 	}
 
-	void Character::inform_engaged( Character* engaged )
+	void Character::inform_engaged( Character* /*engaged*/ )
 	{
 	  // someone has targetted us.  If we don't have an explicit opponent,
 	  // pick one of those that has us targetted as the highlight character.
@@ -3074,26 +3087,26 @@ namespace Pol {
 		send_highlight();
 	}
 
-	void Character::inform_criminal( Character* moved )
+	void Character::inform_criminal( Character* /*moved*/ )
 	{
 	  // virtual that does nothing at character level, but fires event for NPCs
 	}
 
-	void Character::inform_leftarea( Character* wholeft )
+	void Character::inform_leftarea( Character* /*wholeft*/ )
 	{
 	  // virtual that does nothing at character level, but fires event for NPCs
 	}
 
-	void Character::inform_enteredarea( Character* whoentered )
+	void Character::inform_enteredarea( Character* /*whoentered*/ )
 	{
 	  // virtual that does nothing at character level, but fires event for NPCs
 	}
 
-	void Character::inform_moved( Character* moved )
+	void Character::inform_moved( Character* /*moved*/ )
 	{
 	  // consider moving PropagateMove here!
 	}
-	void Character::inform_imoved( Character* chr )
+	void Character::inform_imoved( Character* /*chr*/ )
 	{}
 
 	void Character::set_opponent( Character* new_opponent, bool inform_old_opponent )
@@ -3755,7 +3768,7 @@ namespace Pol {
 		We're sending the "78 create" _before_ the move-approve.
 		*/
 
-    bool Character::can_face( Core::UFACING i_facing )
+    bool Character::can_face( Core::UFACING /*i_facing*/ )
 	{
 	  if ( cached_settings.freemove )
 		return true;
@@ -4094,7 +4107,7 @@ namespace Pol {
 		opponent_->check_attack_after_move();
 
 	  // attacking can change the opponent_of array drastically.
-	  set<Character*> tmp( opponent_of );
+	  std::set<Character*> tmp( opponent_of );
       for (auto &chr : tmp)
       {
         chr->check_attack_after_move();

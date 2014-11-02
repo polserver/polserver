@@ -28,6 +28,7 @@ Notes
 
 #include <vector>
 #include <stack>
+#include <iosfwd>
 
 namespace Pol {
   namespace Bscript {
@@ -299,8 +300,8 @@ namespace Pol {
 
 	  virtual BObject operator-( ) const;
 
-	  virtual char /*BObjectRef */member( const BObject& obj ) const { return 0; }
-	  virtual char /*BObjectImp* */ str_member( const std::string& membername ) const { return 0; }
+      virtual char /*BObjectRef */member(const BObject& obj) const;
+      virtual char /*BObjectImp* */ str_member(const std::string& membername) const; 
 
 	  virtual BObjectImp* call_method( const char* methodname, Executor& ex );
 	  virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin = false );
@@ -332,6 +333,14 @@ namespace Pol {
 	  static std::mutex bobjectimp_mutex;
 #endif
 	};
+
+    inline char /*BObjectRef */BObjectImp::member(const BObject&) const {
+        return 0;
+    }
+    inline char /*BObjectImp* */ BObjectImp::str_member(const std::string&) const {
+        return 0;
+    }
+
 
 	inline bool BObjectImp::isa( BObjectType type ) const
 	{
@@ -395,7 +404,7 @@ namespace Pol {
 
 	extern Clib::fixed_allocator<sizeof( BObject ), 256> bobject_alloc;
 
-	inline void* BObject::operator new( std::size_t len )
+	inline void* BObject::operator new( std::size_t /*len*/ )
 	{
 	  return bobject_alloc.allocate();
 	}
@@ -476,7 +485,7 @@ namespace Pol {
 	};
 	extern Clib::fixed_allocator<sizeof( UninitObject ), 256> uninit_alloc;
 
-	inline void* UninitObject::operator new( std::size_t len )
+	inline void* UninitObject::operator new( std::size_t /*len*/ )
 	{
 	  return uninit_alloc.allocate();
 	}
@@ -673,6 +682,7 @@ namespace Pol {
 	extern Clib::fixed_allocator<sizeof( BLong ), 256> blong_alloc;
 	inline void* BLong::operator new( std::size_t len )
 	{
+        (void)len;
 	  passert_paranoid( len == sizeof( BLong ) );
 	  return blong_alloc.allocate();
 	}
@@ -680,7 +690,7 @@ namespace Pol {
 	{
 	  blong_alloc.deallocate( p );
 	}
-	inline void BLong::operator delete( void * p, size_t len )
+	inline void BLong::operator delete( void * p, size_t /*len*/ )
 	{
 	  blong_alloc.deallocate( p );
 	}
@@ -772,6 +782,7 @@ namespace Pol {
 	extern Clib::fixed_allocator<sizeof( Double ), 256> double_alloc;
 	inline void* Double::operator new( std::size_t len )
 	{
+        (void)len;
 	  passert_paranoid( len == sizeof( Double ) );
 	  return double_alloc.allocate();
 	}

@@ -8,8 +8,6 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-
 #include "escriptv.h"
 namespace Pol {
   namespace Bscript {

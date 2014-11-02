@@ -11,10 +11,7 @@ Notes
 
 */
 
-#include "../../clib/stl_inc.h"
-
-#include <fstream>
-
+#include "datastore.h"
 
 #include "../../bscript/berror.h"
 #include "../../bscript/impstr.h"
@@ -25,13 +22,15 @@ Notes
 #include "../../clib/fileutil.h"
 #include "../../clib/maputil.h"
 #include "../../clib/stlutil.h"
+#include "../../clib/streamsaver.h"
 
-#include "datastore.h"
 #include "../../plib/pkg.h"
+
 #include "../proplist.h"
 #include "../uoexhelp.h"
-#include "../../clib/streamsaver.h"
 #include "../polcfg.h"
+
+#include <fstream>
 
 namespace Pol {
 
@@ -87,13 +86,13 @@ namespace Pol {
 	  void save( Clib::StreamWriter& sw );
 
 	  Bscript::BObjectImp* methodCreateElement( int key );
-	  Bscript::BObjectImp* methodCreateElement( const string& key );
+	  Bscript::BObjectImp* methodCreateElement( const std::string& key );
 
 	  Bscript::BObjectImp* methodFindElement( int key );
-	  Bscript::BObjectImp* methodFindElement( const string& key );
+	  Bscript::BObjectImp* methodFindElement( const std::string& key );
 
 	  Bscript::BObjectImp* methodDeleteElement( int key );
-	  Bscript::BObjectImp* methodDeleteElement( const string& key );
+	  Bscript::BObjectImp* methodDeleteElement( const std::string& key );
 
 	  Bscript::BObjectImp* methodKeys() const;
 
@@ -167,10 +166,10 @@ namespace Pol {
 	  std::string filename( unsigned ver ) const;
 	  void printOn( Clib::StreamWriter& sw ) const;
 
-	  string descriptor;
-	  string name;
+	  std::string descriptor;
+      std::string name;
 
-	  string pkgname;
+      std::string pkgname;
 	  const Plib::Package* pkg;
 	  unsigned version;
 	  unsigned oldversion;
@@ -182,7 +181,7 @@ namespace Pol {
 	  DataFileContentsRef dfcontents;
 	};
 
-	typedef std::map< string, DataStoreFile*, Clib::ci_cmp_pred > DataStore;
+    typedef std::map< std::string, DataStoreFile*, Clib::ci_cmp_pred > DataStore;
 	DataStore datastore;
 
 	DataFileContents::DataFileContents( DataStoreFile* dsf ) :
@@ -253,7 +252,7 @@ namespace Pol {
 	  return new DataElemRefObjImp( DataFileContentsRef( this ), dfelem );
 	}
 
-	Bscript::BObjectImp* DataFileContents::methodCreateElement( const string& key )
+    Bscript::BObjectImp* DataFileContents::methodCreateElement(const std::string& key)
 	{
 	  ElementsByString::iterator itr = elements_by_string.find( key );
 	  DataFileElementRef dfelem;
@@ -285,7 +284,7 @@ namespace Pol {
 	  }
 	}
 
-	Bscript::BObjectImp* DataFileContents::methodFindElement( const string& key )
+    Bscript::BObjectImp* DataFileContents::methodFindElement(const std::string& key)
 	{
 	  ElementsByString::iterator itr = elements_by_string.find( key );
 	  if ( itr != elements_by_string.end() )
@@ -311,7 +310,7 @@ namespace Pol {
 		return new Bscript::BError( "Element not found" );
 	}
 
-	Bscript::BObjectImp* DataFileContents::methodDeleteElement( const string& key )
+    Bscript::BObjectImp* DataFileContents::methodDeleteElement(const std::string& key)
 	{
 	  if ( elements_by_string.erase( key ) )
 	  {
@@ -363,7 +362,7 @@ namespace Pol {
 	  return new DataFileRefObjImp( obj_ );
 	}
 
-	Bscript::BObjectImp* DataFileRefObjImp::call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin )
+	Bscript::BObjectImp* DataFileRefObjImp::call_method_id( const int id, Bscript::Executor& ex, bool /*forcebuiltin*/ )
 	{
 	  switch ( id )
 	  {
@@ -556,7 +555,7 @@ namespace Pol {
 	  return new DataElemRefObjImp( obj_.dfcontents, obj_.dfelem );
 	}
 
-	Bscript::BObjectImp* DataElemRefObjImp::call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin )
+	Bscript::BObjectImp* DataElemRefObjImp::call_method_id( const int id, Bscript::Executor& ex, bool /*forcebuiltin*/ )
 	{
 	  bool changed = false;
 	  Bscript::BObjectImp* res = CallPropertyListMethod_id( obj_.dfelem->proplist, id, ex, changed );
@@ -576,10 +575,10 @@ namespace Pol {
 
 	DataStoreFile* DataFileExecutorModule::GetDataStoreFile( const std::string& inspec )
 	{
-	  string descriptor;
+      std::string descriptor;
 
 	  const Plib::Package* spec_pkg = NULL;
-	  string spec_filename;
+      std::string spec_filename;
 	  if ( !Plib::pkgdef_split( inspec, exec.prog()->pkg,
 		&spec_pkg, &spec_filename ) )
 	  {
@@ -633,13 +632,13 @@ namespace Pol {
 	  {
 		try
 		{
-		  string descriptor;
-		  string directory;
-		  string d_ds;
-		  const string& inspec = strob->value();
+          std::string descriptor;
+          std::string directory;
+          std::string d_ds;
+          const std::string& inspec = strob->value();
 
 		  const Plib::Package* spec_pkg = NULL;
-		  string spec_filename;
+          std::string spec_filename;
 		  if ( !Plib::pkgdef_split( inspec, exec.prog()->pkg,
 			&spec_pkg, &spec_filename ) )
 		  {
@@ -687,7 +686,7 @@ namespace Pol {
 		}
 		catch ( std::exception& ex )
 		{
-		  string message = string( "An exception occurred: " ) + ex.what();
+          std::string message = std::string("An exception occurred: ") + ex.what();
 		  return new Bscript::BError( message );
 		}
 	  }
@@ -704,12 +703,12 @@ namespace Pol {
 	  {
 		try
 		{
-		  string descriptor;
+          std::string descriptor;
 		  //			string directory;
-		  const string& inspec = strob->value();
+          const std::string& inspec = strob->value();
 
 		  const Plib::Package* spec_pkg = NULL;
-		  string spec_filename;
+          std::string spec_filename;
 		  if ( !Plib::pkgdef_split( inspec, exec.prog()->pkg,
 			&spec_pkg, &spec_filename ) )
 		  {
@@ -740,9 +739,9 @@ namespace Pol {
 			return new Bscript::BError( "Datafile does not exist" );
 		  }
 		}
-		catch ( exception& ex )
+        catch (std::exception& ex)
 		{
-		  return new Bscript::BError( string( "An exception occurred" ) + ex.what( ) );
+            return new Bscript::BError(std::string("An exception occurred") + ex.what());
 		}
 	  }
 	  else
@@ -811,7 +810,7 @@ namespace Pol {
 
 	  dfcontents.set( new DataFileContents( this ) );
 
-	  string fn = filename();
+      std::string fn = filename();
 	  if ( Clib::FileExists( fn.c_str() ) )
 	  {
 		Clib::ConfigFile cf( filename().c_str(), "Element" );
@@ -848,7 +847,7 @@ namespace Pol {
 
 	std::string DataStoreFile::filename( unsigned ver ) const
 	{
-	  string tmp = Core::config.world_data_path + "ds/";
+      std::string tmp = Core::config.world_data_path + "ds/";
 	  if ( pkg != NULL )
 		tmp += pkg->name() + "/";
 	  tmp += name + "." + Clib::tostring( ver % 10 ) + ".txt";
@@ -862,8 +861,8 @@ namespace Pol {
 
 	void DataStoreFile::save() const
 	{
-	  string fname = filename();
-	  std::ofstream ofs( fname.c_str(), ios::out );
+      std::string fname = filename();
+      std::ofstream ofs(fname.c_str(), std::ios::out);
 	  Clib::OFStreamWriter sw( &ofs );
 	  dfcontents->save( sw );
 	}
@@ -884,7 +883,7 @@ namespace Pol {
 
 	void read_datastore_dat()
 	{
-	  string datastorefile = Core::config.world_data_path + "datastore.txt";
+      std::string datastorefile = Core::config.world_data_path + "datastore.txt";
 
 	  if ( !Clib::FileExists( datastorefile ) )
 		return;

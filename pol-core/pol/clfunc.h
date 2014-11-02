@@ -3,14 +3,15 @@
 #ifndef __CLFUNC_H
 #define __CLFUNC_H
 
-// this is for NULLs found..
-#include <stddef.h>
 
 #include "../clib/rawtypes.h"
 
 #include "ufunc.h"
 #include "uconst.h"
 #include "network/packets.h"
+
+// this is for NULLs found..
+#include <cstddef>
 namespace Pol {
   namespace Core {
 	/*

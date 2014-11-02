@@ -10,18 +10,20 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-
 #include "dict.h"
-#include "executor.h"
 
-#include "../clib/stlutil.h"
+#include "executor.h"
 
 #include "berror.h"
 #include "impstr.h"
 #include "contiter.h"
 #include "objmembers.h"
 #include "objmethods.h"
+
+#include "../clib/stlutil.h"
+
+#include <sstream>
+
 namespace Pol {
   namespace Bscript {
 	BDictionary::BDictionary() : BObjectImp( OTDictionary )
@@ -42,7 +44,7 @@ namespace Pol {
 	  }
 	}
 
-	BDictionary::BDictionary( istream& is, unsigned size, BObjectType type ) :
+	BDictionary::BDictionary( std::istream& is, unsigned size, BObjectType type ) :
 	  BObjectImp( type )
 	{
 	  for ( unsigned i = 0; i < size; ++i )
@@ -247,7 +249,7 @@ namespace Pol {
 	  contents_[key] = BObjectRef( valimp );
 	}
 
-	BObjectImp* BDictionary::call_method_id( const int id, Executor& ex, bool forcebuiltin )
+	BObjectImp* BDictionary::call_method_id( const int id, Executor& ex, bool /*forcebuiltin*/ )
 	{
 	  BObject* keyobj;
 	  BObject* valobj;
@@ -351,7 +353,7 @@ namespace Pol {
 	  return OTDictionary;
 	}
 
-	void BDictionary::packonto( ostream& os ) const
+	void BDictionary::packonto( std::ostream& os ) const
 	{
 	  os << packtype() << contents_.size() << ":";
 	  for ( const auto& content : contents_ )
@@ -365,7 +367,7 @@ namespace Pol {
 	}
 
 
-	BObjectImp* BDictionary::unpack( istream& is )
+	BObjectImp* BDictionary::unpack( std::istream& is )
 	{
 	  unsigned size;
 	  char colon;
@@ -384,7 +386,7 @@ namespace Pol {
 	  return new BDictionary( is, size );
 	}
 
-	string BDictionary::getStringRep() const
+	std::string BDictionary::getStringRep() const
 	{
 	  OSTRINGSTREAM os;
 	  os << typetag() << "{ ";
@@ -408,7 +410,7 @@ namespace Pol {
 	  return OSTRINGSTREAM_STR( os );
 	}
 
-	void BDictionary::FormatForStringRep( ostream& os,
+	void BDictionary::FormatForStringRep( std::ostream& os,
 										  const BObject& bkeyobj,
 										  const BObjectRef& bvalref ) const
 	{

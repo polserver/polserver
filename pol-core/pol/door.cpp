@@ -7,21 +7,17 @@ Notes
 =======
 
 */
-
-#include "../clib/stl_inc.h"
-#ifdef _MSC_VER
-#pragma warning( disable: 4786 )
-#endif
-
-#include "../clib/endian.h"
-#include "../clib/passert.h"
+#include "door.h"
 
 #include "network/client.h"
-#include "door.h"
 #include "item/itemdesc.h"
 #include "objtype.h"
 #include "ufunc.h"
 #include "uworld.h"
+
+#include "../clib/passert.h"
+
+
 namespace Pol {
   namespace Core {
 	UDoor::UDoor( const Items::DoorDesc& descriptor ) :

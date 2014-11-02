@@ -10,6 +10,9 @@ Notes
 
 #ifndef CLIDATA_H
 #define CLIDATA_H
+
+#include <string>
+
 namespace Pol {
   namespace Core {
 	bool groundheight( unsigned short x, unsigned short y, short* z );

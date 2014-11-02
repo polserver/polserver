@@ -7,19 +7,24 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-
 // EPROG compiler-only functions
+#include "eprog.h"
+#include "escriptv.h"
+#include "filefmt.h"
+#include "parser.h"
+#include "userfunc.h"
+
 #include "../clib/clib.h"
 #include "../clib/passert.h"
 #include "../clib/stlutil.h"
 #include "../clib/logfacility.h"
 
-#include "escriptv.h"
-#include "filefmt.h"
-#include "parser.h"
-#include "userfunc.h"
-#include "eprog.h"
+#include <stdexcept>
+
+#ifdef _MSC_VER
+#pragma warning(disable:4996) // deprecated POSIX fopen warning
+#endif
+
 namespace Pol {
   namespace Bscript {
 	extern int include_debug;
@@ -101,7 +106,7 @@ namespace Pol {
 	  unsigned tokpos = 0;
 	  if ( token.id > 255 )
 	  {
-		throw runtime_error( "Trying to write an illegal token" );
+		throw std::runtime_error( "Trying to write an illegal token" );
 	  }
 
 	  update_dbg_pos( token );
@@ -255,13 +260,13 @@ namespace Pol {
 
 			default:
               ERROR_PRINT << "AddToken: Can't handle TYP_CONTROL: " << token << "\n";
-			  throw runtime_error( "Unexpected token in AddToken() (1)" );
+			  throw std::runtime_error( "Unexpected token in AddToken() (1)" );
 			  break;
 		  }
 		  break;
 		default:
           ERROR_PRINT << "AddToken: Can't handle " << token << "\n";
-		  throw runtime_error( "Unexpected Token passed to AddToken() (2)" );
+          throw std::runtime_error("Unexpected Token passed to AddToken() (2)");
 		  break;
 	  }
 
@@ -389,7 +394,7 @@ namespace Pol {
 
 	  FILE* fptext = NULL;
 	  if ( gen_txt )
-		fptext = fopen( ( string( fname ) + ".txt" ).c_str(), "wt" );
+          fptext = fopen((std::string(fname) + ".txt").c_str(), "wt");
 
 	  u32 count;
 
@@ -466,7 +471,7 @@ namespace Pol {
 			fprintf( fptext, "  Local variables %u-%u: \n", varfirst, varlast );
 		  for ( unsigned j = 0; j < block.localvarnames.size(); ++j )
 		  {
-			string name = block.localvarnames[j];
+            std::string name = block.localvarnames[j];
 			if ( fptext )
 			  fprintf( fptext, "      %u: %s\n", varfirst + j, name.c_str() );
 
@@ -505,7 +510,7 @@ namespace Pol {
 	  return 0;
 	}
 
-	int EScriptProgram::add_dbg_filename( const string& filename )
+	int EScriptProgram::add_dbg_filename( const std::string& filename )
 	{
 	  for ( unsigned i = 0; i < dbg_filenames.size(); ++i )
 	  {
@@ -521,7 +526,7 @@ namespace Pol {
 	  return static_cast<int>( dbg_filenames.size() - 1 );
 	}
 
-	string EScriptProgram::dbg_get_instruction( size_t atPC ) const
+    std::string EScriptProgram::dbg_get_instruction(size_t atPC) const
 	{
 	  OSTRINGSTREAM os;
 	  os << instr[atPC].token;
@@ -575,11 +580,11 @@ namespace Pol {
 		}
 	  }
 	}
-	void EScriptProgram::addlocalvar( const string& localvarname )
+    void EScriptProgram::addlocalvar(const std::string& localvarname)
 	{
 	  blocks[curblock].localvarnames.push_back( localvarname );
 	}
-	void EScriptProgram::addfunction( string name, unsigned firstPC, unsigned lastPC )
+    void EScriptProgram::addfunction(std::string name, unsigned firstPC, unsigned lastPC)
 	{
 	  EPDbgFunction func;
 	  func.name = name;

@@ -9,12 +9,8 @@ Notes
 
 */
 
-#include "../../clib/stl_inc.h"
-
-#ifdef _MSC_VER
-#	pragma warning( disable: 4786 )
-#endif
-
+#include "cfgmod.h"
+#include "../cfgrepos.h"
 
 #include "../../bscript/berror.h"
 #include "../../bscript/bobject.h"
@@ -28,10 +24,12 @@ Notes
 #include "../../clib/rawtypes.h"
 #include "../../clib/strutil.h"
 
-#include "cfgmod.h"
 #include "../../plib/pkg.h"
 
-#include "../cfgrepos.h"
+#include <fstream>
+#include <string>
+#include <memory>
+
 namespace Pol {
   namespace Module {
 	class ConfigFileExecutorModule;
@@ -145,10 +143,10 @@ namespace Pol {
 	  return Bscript::BObjectRef( new Bscript::UninitObject );
 	}
 
-	bool ConfigFileExecutorModule::get_cfgfilename( const string& cfgdesc,
-													string* cfgfile,
-													string* errmsg,
-													string* allpkgbase )
+    bool ConfigFileExecutorModule::get_cfgfilename(const std::string& cfgdesc,
+        std::string* cfgfile,
+        std::string* errmsg,
+        std::string* allpkgbase)
 	{
 
 	  if ( allpkgbase )
@@ -165,23 +163,23 @@ namespace Pol {
 		  // Looks for ::regions/filename
 		  if ( cfgdesc.substr( 2, 8 ) == "regions/" )
 		  {
-			*cfgfile = cfgdesc.substr( 2, string::npos ) + ".cfg";
+              *cfgfile = cfgdesc.substr(2, std::string::npos) + ".cfg";
 			return true;
 		  }
 		  else
 		  {
 			// "::cfgfile" - core config file
-			*cfgfile = "config/" + cfgdesc.substr( 2, string::npos ) + ".cfg";
+              *cfgfile = "config/" + cfgdesc.substr(2, std::string::npos) + ".cfg";
 			return true;
 		  }
 		}
 		else	// ":pkgname:configfile" - config file in some package
 		{
-		  string::size_type second_colon = cfgdesc.find( ':', 2 );
-		  if ( second_colon != string::npos )
+            std::string::size_type second_colon = cfgdesc.find(':', 2);
+            if (second_colon != std::string::npos)
 		  {
-			string pkgname = cfgdesc.substr( 1, second_colon - 1 );
-			string cfgbase = cfgdesc.substr( second_colon + 1, string::npos );
+              std::string pkgname = cfgdesc.substr(1, second_colon - 1);
+              std::string cfgbase = cfgdesc.substr(second_colon + 1, std::string::npos);
 
 			if ( pkgname == "*" )
 			{
@@ -239,9 +237,9 @@ namespace Pol {
 	  if ( exec.getStringParam( 0, cfgdesc_str ) )
 	  {
 		const std::string& cfgdesc = cfgdesc_str->value();
-		string cfgfile;
-		string errmsg;
-		string allpkgbase;
+        std::string cfgfile;
+        std::string errmsg;
+        std::string allpkgbase;
 		if ( !get_cfgfilename( cfgdesc, &cfgfile, &errmsg, &allpkgbase ) )
 		{
 		  return new Bscript::BError( errmsg );
@@ -422,7 +420,7 @@ namespace Pol {
 	  if ( getStoredConfigElemParam( *this, 0, celem ) &&
 		   getStringParam( 1, propname_str ) )
 	  {
-		pair<Core::StoredConfigElem::const_iterator, Core::StoredConfigElem::const_iterator> pr = celem->equal_range( propname_str->data() );
+        std::pair<Core::StoredConfigElem::const_iterator, Core::StoredConfigElem::const_iterator> pr = celem->equal_range(propname_str->data());
 		Core::StoredConfigElem::const_iterator itr = pr.first;
 		Core::StoredConfigElem::const_iterator end = pr.second;
 
@@ -451,7 +449,7 @@ namespace Pol {
 
 	  if ( getStoredConfigElemParam( *this, 0, celem ) && getStringParam( 1, propname_str ) )
 	  {
-		pair<Core::StoredConfigElem::const_iterator, Core::StoredConfigElem::const_iterator> pr = celem->equal_range( propname_str->data() );
+        std::pair<Core::StoredConfigElem::const_iterator, Core::StoredConfigElem::const_iterator> pr = celem->equal_range(propname_str->data());
 		Core::StoredConfigElem::const_iterator itr = pr.first;
 		Core::StoredConfigElem::const_iterator end = pr.second;
 
@@ -460,7 +458,7 @@ namespace Pol {
 		{
 		  Bscript::BObjectImp* line = ( *itr ).second.get();
 
-		  string line_str = line->getStringRep();
+          std::string line_str = line->getStringRep();
 		  if ( line_str.length() < 1 )
 			continue;
 
@@ -472,7 +470,7 @@ namespace Pol {
 		   * }
 		   * dict "data"->"moredata more data", "stuff"->"morestuff stuffity stuff!"
 		   */
-		  string prop_name, prop_value;
+          std::string prop_name, prop_value;
 		  Clib::splitnamevalue( line_str, prop_name, prop_value );
 
 		  dict->addMember( new Bscript::String( prop_name ), new Bscript::String( prop_value ) );
@@ -536,7 +534,7 @@ namespace Pol {
 	  if ( getStoredConfigElemParam( *this, 0, celem ) &&
 		   getStringParam( 1, propname_str ) )
 	  {
-		pair<Core::StoredConfigElem::const_iterator, Core::StoredConfigElem::const_iterator> pr = celem->equal_range( propname_str->data() );
+        auto pr = celem->equal_range(propname_str->data());
 		Core::StoredConfigElem::const_iterator itr = pr.first;
 		Core::StoredConfigElem::const_iterator end = pr.second;
 
@@ -641,19 +639,19 @@ namespace Pol {
 	  {
 		return new Bscript::BError( "Invalid parameter type" );
 	  }
-	  string elemkey = getParamImp( 2 )->getStringRep();
+      std::string elemkey = getParamImp(2)->getStringRep();
 
-	  string pathname, errmsg;
+      std::string pathname, errmsg;
 	  const std::string& cfgdesc = filename->value();
 	  if ( !get_cfgfilename( cfgdesc, &pathname, &errmsg ) )
 	  {
 		return new Bscript::BError( errmsg );
 	  }
 
-	  ofstream ofs( pathname.c_str(), ios::app );
-	  ofs << endl
-		<< elemtype->value() << " " << elemkey << endl
-		<< "{" << endl;
+      std::ofstream ofs(pathname.c_str(), std::ios::app);
+      ofs << std::endl
+          << elemtype->value() << " " << elemkey << std::endl
+        << "{" << std::endl;
 	  for ( Bscript::ObjArray::const_iterator itr = objarr->ref_arr.begin(), end = objarr->ref_arr.end(); itr != end; ++itr )
 	  {
 		Bscript::BObject *bo = itr->get( );
@@ -669,9 +667,9 @@ namespace Pol {
 			  if ( nobj != NULL && nobj->isa( Bscript::BObjectImp::OTString ) && vobj != NULL )
 			  {
 				Bscript::String* namestr = static_cast<Bscript::String*>( nobj->impptr( ) );
-				string value = vobj->impptr()->getStringRep();
+                std::string value = vobj->impptr()->getStringRep();
 
-				ofs << "\t" << namestr->value() << "\t" << value << endl;
+                ofs << "\t" << namestr->value() << "\t" << value << std::endl;
 			  }
 			}
 		  }
@@ -683,14 +681,14 @@ namespace Pol {
 			if ( name_imp && name_imp->isa( Bscript::BObjectImp::OTString ) && value_imp )
 			{
 			  const Bscript::String* namestr = static_cast<const Bscript::String*>( name_imp );
-			  string value = value_imp->getStringRep();
+              std::string value = value_imp->getStringRep();
 
-			  ofs << "\t" << namestr->value() << "\t" << value << endl;
+              ofs << "\t" << namestr->value() << "\t" << value << std::endl;
 			}
 		  }
 		}
 	  }
-	  ofs << "}" << endl;
+      ofs << "}" << std::endl;
 
 	  Core::UnloadConfigFile( pathname );
 
@@ -703,9 +701,9 @@ namespace Pol {
 	  if ( getStringParam( 0, filename ) )
 	  {
 		const std::string& cfgdesc = filename->value();
-		string cfgfile;
-		string errmsg;
-		string allpkgbase;
+        std::string cfgfile;
+        std::string errmsg;
+        std::string allpkgbase;
 		if ( !get_cfgfilename( cfgdesc, &cfgfile, &errmsg, &allpkgbase ) )
 		{
 		  return new Bscript::BError( errmsg );

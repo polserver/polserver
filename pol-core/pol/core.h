@@ -20,6 +20,8 @@ Notes
 #ifndef CORE_H
 #define CORE_H
 
+#include <string>
+
 namespace Pol {
   namespace Items {
     class Item;

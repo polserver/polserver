@@ -10,14 +10,18 @@ Usage:
 POLLOG << "my text\n"
 POLLOG.Format("hello {}") << "world";
 */
+
+#include "logfacility.h"
+
 #include <fstream> 
 #include <chrono>
 #include <iomanip>
 #include <iostream>
 #include <memory.h>
 
-#include "stl_inc.h"
-#include "logfacility.h"
+#ifdef _MSC_VER
+    #pragma warning(disable:4996) // disable localtime() unsafe warning. use something else, perhaps? ;)
+#endif
 
 namespace Pol {
   namespace Clib {
@@ -131,7 +135,7 @@ namespace Pol {
               }
               catch ( std::exception& msg )
               {
-                std::cout << msg.what( ) << endl;
+                std::cout << msg.what( ) << std::endl;
               }
             }
           } );
@@ -197,7 +201,7 @@ namespace Pol {
           }
           catch ( std::exception& msg )
           {
-            std::cout << msg.what() << endl;
+              std::cout << msg.what() << std::endl;
           }
         } ) );
       }
@@ -382,7 +386,7 @@ namespace Pol {
         if ( open_timestamp )
         {
           printCurrentTimeStamp( _filestream );
-          _filestream << "Logfile opened." << endl;
+          _filestream << "Logfile opened." << std::endl;
         }
         time_t t_now = std::chrono::system_clock::to_time_t( std::chrono::system_clock::now() );
         _opened = *localtime( &t_now ); // mark current time for later possible rollover
@@ -431,7 +435,7 @@ namespace Pol {
           // roll the log file over
           char buffer[30];
           strftime( buffer, sizeof buffer, "%Y-%m-%d", &_opened );
-          string archive_name = _behaviour->basename + "-" + buffer + ".log";
+          std::string archive_name = _behaviour->basename + "-" + buffer + ".log";
           _filestream.flush();
           _filestream.close();
 
@@ -547,7 +551,7 @@ namespace Pol {
           itr->second->sink( msg );
         }
       }
-      void LogSink_flexlog::sink( fmt::Writer* msg )
+      void LogSink_flexlog::sink( fmt::Writer* /*msg*/ )
       {
         // empty
       }

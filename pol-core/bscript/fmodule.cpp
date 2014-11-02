@@ -6,17 +6,15 @@ Notes
 =======
 
 */
-
-#include "../clib/stl_inc.h"
-
-#include <stddef.h>
-
-#include "../clib/clib.h"
-
-#include "options.h"
 #include "fmodule.h"
 
 #include "userfunc.h" 
+#include "options.h"
+
+#include "../clib/clib.h"
+
+#include <cstddef>
+
 namespace Pol {
   namespace Bscript {
 	ModuleFunction::ModuleFunction( const char *fname,
@@ -81,7 +79,7 @@ namespace Pol {
 		  used_functions.push_back( mf );
 		  if ( old_funcidx != mf->funcidx )
 		  {
-			swap( functions[old_funcidx], functions[mf->funcidx] );
+			std::swap( functions[old_funcidx], functions[mf->funcidx] );
 			functions[old_funcidx]->funcidx = old_funcidx;
 		  }
 		}

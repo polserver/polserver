@@ -9,6 +9,9 @@ Notes
 */
 #ifndef __DECAY_H
 #define __DECAY_H
+
+#include <cstddef>
+
 namespace Pol {
   namespace Core {
 	void decay_items();

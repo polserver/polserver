@@ -9,7 +9,8 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
+#include "listenpt.h"
+
 #include "../clib/refptr.h"
 
 #include "mobile/charactr.h"
@@ -18,7 +19,8 @@ Notes
 #include "ufunc.h"
 #include "uoexec.h"
 #include "uoscrobj.h"
-#include "listenpt.h"
+
+#include <map>
 
 namespace Pol {
   namespace Core {
@@ -46,7 +48,7 @@ namespace Pol {
 	{}
 
 
-	typedef map<UOExecutor*, ListenPoint*> ListenPoints;
+	typedef std::map<UOExecutor*, ListenPoint*> ListenPoints;
 	ListenPoints listen_points;
 
 	//DAVE
@@ -61,9 +63,9 @@ namespace Pol {
 	  }
 	}
 
-	void sayto_listening_points( Mobile::Character* speaker, const char* p_text, int p_textlen, u8 texttype, //DAVE
-								 const u16* p_wtext /*NULL*/, const char* p_lang /*NULL*/,
-								 int p_wtextlen /*0*/, Bscript::ObjArray* speechtokens /*NULL*/ )
+	void sayto_listening_points( Mobile::Character* speaker, const char* p_text, int /*p_textlen*/, u8 texttype, //DAVE
+								 const u16* p_wtext /*=nullptr*/, const char* p_lang /*=nullptr*/,
+								 int p_wtextlen /*=0*/, Bscript::ObjArray* speechtokens /*=nullptr*/ )
 	{
 	  for ( ListenPoints::iterator itr = listen_points.begin(), end = listen_points.end(); itr != end; )
 	  {

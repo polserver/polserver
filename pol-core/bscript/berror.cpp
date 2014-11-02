@@ -7,11 +7,10 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-
 #include "berror.h"
 #include "impstr.h"
 #include "contiter.h"
+
 namespace Pol {
   namespace Bscript {
 	unsigned int BError::creations_ = 0;
@@ -32,7 +31,7 @@ namespace Pol {
 	  ++creations_;
 	}
 
-	BError::BError( istream& is, unsigned size ) :
+	BError::BError( std::istream& is, unsigned size ) :
 	  BStruct( is, size, OTError )
 	{
 	  ++creations_;
@@ -45,7 +44,7 @@ namespace Pol {
 	  addMember( "errortext", new String( err ) );
 	}
 
-	BError::BError( const string& err ) :
+	BError::BError( const std::string& err ) :
 	  BStruct( OTError )
 	{
 	  ++creations_;
@@ -78,7 +77,7 @@ namespace Pol {
 	  return OTError;
 	}
 
-	BObjectImp* BError::unpack( istream& is )
+    BObjectImp* BError::unpack(std::istream& is)
 	{
 	  unsigned size;
 	  char colon;
@@ -107,17 +106,17 @@ namespace Pol {
 	  return ( imp.isa( OTError ) || imp.isa( OTUninit ) );
 	}
 
-	ContIterator* BError::createIterator( BObject* pIterVal )
+	ContIterator* BError::createIterator( BObject* /*pIterVal*/ )
 	{
 	  return new ContIterator();
 	}
 
-	BObjectRef BError::OperSubscript( const BObject& obj )
+	BObjectRef BError::OperSubscript( const BObject& /*obj*/ )
 	{
 	  return BObjectRef( this );
 	}
 
-	BObjectImp* BError::array_assign( BObjectImp* /*idx*/, BObjectImp* /*target*/, bool copy )
+	BObjectImp* BError::array_assign( BObjectImp* /*idx*/, BObjectImp* /*target*/, bool /*copy*/ )
 	{
 	  return this;
 	}

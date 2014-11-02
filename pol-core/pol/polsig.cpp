@@ -8,15 +8,13 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-
-#include "../clib/esignal.h"
-#include "../clib/threadhelp.h"
+#include "polsig.h"
 
 #include "../bscript/eprog.h"
+#include "../clib/esignal.h"
+#include "../clib/threadhelp.h"
 #include "../clib/logfacility.h"
 
-#include "polsig.h"
 #ifndef _WIN32
 #include <signal.h>
 #endif

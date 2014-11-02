@@ -7,17 +7,8 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-
-#ifdef WIN32
-#	pragma warning(disable:4786)
-#endif
-
 #include "../clib/xmain.h"
 
-#include <string.h>
-#include <stdio.h>
-#include <memory>
 #include "../clib/clib.h"
 #include "../clib/dirlist.h"
 #include "../clib/fileutil.h"
@@ -36,9 +27,20 @@ Notes
 #include "../bscript/executor.h"
 #include "../bscript/userfunc.h"
 
+#include <cstring>
+#include <cstdio>
+#include <memory>
+#include <string>
+
+#include <stdexcept>
+
+#ifdef _MSC_VER
+#pragma warning(disable:4996) // deprecated POSIX getenv, strcpy warning
+#endif
+
 namespace Pol {
   namespace Bscript {
-	ExecInstrFunc Executor::GetInstrFunc( const Token& token )
+	ExecInstrFunc Executor::GetInstrFunc( const Token& /*token*/ )
 	{
 	  return NULL;
 	}
@@ -121,7 +123,7 @@ namespace Pol {
 	void generate_wordlist()
 	{
       INFO_PRINT << "Writing word list to wordlist.txt\n";
-	  ofstream ofs( "wordlist.txt", ios::out | ios::trunc );
+      std::ofstream ofs("wordlist.txt", std::ios::out | std::ios::trunc);
 	  Parser::write_words( ofs );
 	}
 
@@ -137,16 +139,16 @@ namespace Pol {
 	  int res = C.compileFile( path );
 
 	  if ( res )
-		throw runtime_error( "Error compiling file" );
+          throw std::runtime_error("Error compiling file");
 	}
 
 	bool compile_file( const char *path )
 	{
-	  string fname( path );
-	  string filename_src = fname, ext( "" );
+        std::string fname(path);
+        std::string filename_src = fname, ext("");
 
-	  string::size_type pos = fname.rfind( "." );
-	  if ( pos != string::npos )
+        std::string::size_type pos = fname.rfind(".");
+        if (pos != std::string::npos)
 		ext = fname.substr( pos );
 
 	  if ( !ext.compare( ".inc" ) )
@@ -161,12 +163,12 @@ namespace Pol {
 	  {
         INFO_PRINT << "Didn't find '.src', '.hsr', or '.asp' extension on source filename '"
           << path << "'!\n";
-		throw runtime_error( "Error in source filename" );
+        throw std::runtime_error("Error in source filename");
 	  }
-	  string filename_ecl = fname.replace( pos, 4, ".ecl" );
-	  string filename_lst = fname.replace( pos, 4, ".lst" );
-	  string filename_dep = fname.replace( pos, 4, ".dep" );
-	  string filename_dbg = fname.replace( pos, 4, ".dbg" );
+      std::string filename_ecl = fname.replace(pos, 4, ".ecl");
+      std::string filename_lst = fname.replace(pos, 4, ".lst");
+      std::string filename_dep = fname.replace(pos, 4, ".dep");
+      std::string filename_dbg = fname.replace(pos, 4, ".dbg");
 
 	  if ( compilercfg.OnlyCompileUpdatedScripts && !force_update )
 	  {
@@ -181,11 +183,11 @@ namespace Pol {
 
 		if ( all_old )
 		{
-		  ifstream ifs( filename_dep.c_str() );
+          std::ifstream ifs(filename_dep.c_str());
 		  // if the file doesn't exist, gotta build.
 		  if ( ifs.is_open() )
 		  {
-			string depname;
+            std::string depname;
 			while ( getline( ifs, depname ) )
 			{
               if ( Clib::GetFileTimestamp( depname.c_str( ) ) >= ecl_timestamp )
@@ -232,12 +234,12 @@ namespace Pol {
 		  }
 		  else
 		  {
-			throw runtime_error( "Compilation succeeded (-e indicates failure was expected)" );
+              throw std::runtime_error("Compilation succeeded (-e indicates failure was expected)");
 		  }
 		}
 
 		if ( res )
-		  throw runtime_error( "Error compiling file" );
+            throw std::runtime_error("Error compiling file");
 
 
 
@@ -246,14 +248,14 @@ namespace Pol {
 
 		if ( C.write( filename_ecl.c_str() ) )
 		{
-		  throw runtime_error( "Error writing output file" );
+            throw std::runtime_error("Error writing output file");
 		}
 
 		if ( compilercfg.GenerateListing )
 		{
 		  if ( !quiet )
             INFO_PRINT << "Writing:   " << filename_lst << "\n";
-		  ofstream ofs( filename_lst.c_str() );
+          std::ofstream ofs(filename_lst.c_str());
 		  C.dump( ofs );
 		}
         else if ( Clib::FileExists( filename_lst.c_str( ) ) )
@@ -491,7 +493,7 @@ namespace Pol {
 	  return 0;
 	}
 
-	void recurse_compile( const string basedir, vector<string>* files )
+    void recurse_compile(const std::string& basedir, std::vector<std::string>* files)
 	{
 	  int s_compiled, s_uptodate, s_errors;
 	  clock_t start, finish;
@@ -503,16 +505,16 @@ namespace Pol {
 	  start = clock();
       for ( Clib::DirList dl( basedir.c_str( ) ); !dl.at_end( ); dl.next( ) )
 	  {
-		string name = dl.name(), ext;
+          std::string name = dl.name(), ext;
 		if ( name[0] == '.' ) continue;
 
-		string::size_type pos = name.rfind( "." );
-		if ( pos != string::npos )
+        std::string::size_type pos = name.rfind(".");
+        if (pos != std::string::npos)
 		  ext = name.substr( pos );
 
 		try
 		{
-		  if ( pos != string::npos &&
+            if (pos != std::string::npos &&
 			   ( !ext.compare( ".src" ) ||
 			   !ext.compare( ".hsr" ) ||
 			   ( compilercfg.CompileAspPages && !ext.compare( ".asp" ) ) ) )
@@ -564,18 +566,18 @@ namespace Pol {
 		  << " had errors.\n";
 	  }
 	}
-	void recurse_compile_inc( const string basedir, vector<string>* files )
+    void recurse_compile_inc(const std::string& basedir, std::vector<std::string>* files)
 	{
       for ( Clib::DirList dl( basedir.c_str( ) ); !dl.at_end( ); dl.next( ) )
 	  {
-		string name = dl.name(), ext;
+        std::string name = dl.name(), ext;
 		if ( name[0] == '.' ) continue;
 
-		string::size_type pos = name.rfind( "." );
-		if ( pos != string::npos )
+        std::string::size_type pos = name.rfind(".");
+        if (pos != std::string::npos)
 		  ext = name.substr( pos );
 
-		if ( pos != string::npos && !ext.compare( ".inc" ) )
+        if (pos != std::string::npos && !ext.compare(".inc"))
 		{
 		  if ( files == NULL )
 			compile_file( ( basedir + name ).c_str() );
@@ -589,7 +591,7 @@ namespace Pol {
 	  }
 	}
 
-	void parallel_compile( const vector<string> &files )
+    void parallel_compile(const std::vector<std::string> &files)
 	{
 	  unsigned compiled_scripts = 0;
 	  unsigned uptodate_scripts = 0;
@@ -640,7 +642,7 @@ namespace Pol {
 	  compilercfg.OnlyCompileUpdatedScripts = compilercfg.UpdateOnlyOnAutoCompile;
 	  if ( compilercfg.ThreadedCompilation )
 	  {
-		vector<string> files;
+          std::vector<std::string> files;
         recurse_compile( Clib::normalized_dir_form( compilercfg.PolScriptRoot ), &files );
 		for ( const auto &pkg : Plib::packages )
 		{
@@ -690,7 +692,7 @@ namespace Pol {
 		  else if ( argv[i][1] == 'r' )
 		  {
 			any = true;
-			string dir( "." );
+            std::string dir(".");
 			bool compile_inc = ( argv[i][2] == 'i' ); // compile .inc files
 
 			++i;
@@ -699,7 +701,7 @@ namespace Pol {
 
 			if ( compilercfg.ThreadedCompilation )
 			{
-			  vector<string> files;
+                std::vector<std::string> files;
 			  if ( compile_inc )
                 recurse_compile_inc( Clib::normalized_dir_form( dir ), &files );
 			  else
@@ -773,9 +775,9 @@ namespace Pol {
 		  {
 			++i;
 			if ( i == argc )
-			  throw runtime_error( "-C specified without pathname" );
+                throw std::runtime_error("-C specified without pathname");
 
-			compilercfg.Read( string( argv[i] ) );
+            compilercfg.Read(std::string(argv[i]));
 			return;
 		  }
 		}
@@ -785,12 +787,12 @@ namespace Pol {
 	  const char* env_ecompile_cfg_path = getenv( "ECOMPILE_CFG_PATH" );
 	  if ( env_ecompile_cfg_path != NULL )
 	  {
-		compilercfg.Read( string( env_ecompile_cfg_path ) );
+          compilercfg.Read(std::string(env_ecompile_cfg_path));
 		return;
 	  }
 
 	  // no -C arg, so use binary path (hope it's right..sigh.)
-	  string cfgpath = xmain_exedir + "ecompile.cfg";
+      std::string cfgpath = xmain_exedir + "ecompile.cfg";
       if ( Clib::FileExists( "ecompile.cfg" ) )
 	  {
 		compilercfg.Read( "ecompile.cfg" );

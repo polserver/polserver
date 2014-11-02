@@ -11,15 +11,7 @@ Notes
 
 */
 
-
-#include "../../clib/stl_inc.h"
-
-#include <errno.h>
-#include <time.h>
-
-#ifdef __unix__
-#	include <unistd.h>
-#endif
+#include "filemod.h"
 
 #include "../../clib/cfgelem.h"
 #include "../../clib/cfgfile.h"
@@ -35,9 +27,20 @@ Notes
 #include "../../plib/pkg.h"
 
 #include "../core.h"
-#include "filemod.h"
 #include "../binaryfilescrobj.h"
 #include "../xmlfilescrobj.h"
+
+#include <cerrno>
+#include <ctime>
+
+#ifdef __unix__
+#	include <unistd.h>
+#endif
+
+#ifdef _MSC_VER
+#pragma warning(disable:4996) // deprecated POSIX strerror warning
+#endif
+
 
 namespace Pol {
   namespace Bscript {
@@ -129,7 +132,7 @@ namespace Pol {
 	  AllDirectories( false ),
 	  AllExtensions( false )
 	{
-	  string tmp;
+	  std::string tmp;
 	  while ( elem.remove_prop( "Package", &tmp ) )
 	  {
 		if ( tmp == "*" )
@@ -178,7 +181,7 @@ namespace Pol {
 	  return false;
 	}
 
-	bool FileAccess::AppliesToPath( const string& path ) const
+	bool FileAccess::AppliesToPath( const std::string& path ) const
 	{
 	  if ( AllExtensions )
 		return true;
@@ -190,15 +193,15 @@ namespace Pol {
 		if ( ch == '\0' )
 		  return false;
 	  }
-	  if ( path.find( ".." ) != string::npos )
+      if (path.find("..") != std::string::npos)
 		return false;
 
 	  for ( unsigned i = 0; i < Extensions.size(); ++i )
 	  {
-		string ext = Extensions[i];
+          std::string ext = Extensions[i];
 		if ( path.size() >= ext.size() )
 		{
-		  string path_ext = path.substr( path.size() - ext.size() );
+            std::string path_ext = path.substr(path.size() - ext.size());
 		  if ( Clib::stringicmp( path_ext, ext ) == 0 )
 		  {
 			return true;
@@ -208,11 +211,12 @@ namespace Pol {
 	  return false;
 	}
 
-	vector<FileAccess> file_access_rules;
+	std::vector<FileAccess> file_access_rules;
 
-    bool HasReadAccess( const Plib::Package* pkg, const Plib::Package* filepackage, const string& path )
+    bool HasReadAccess(const Plib::Package* pkg, const Plib::Package* filepackage, const std::string& path)
 	{
 #ifdef NOACCESS_CHECKS
+        (void)pkg; (void)filepackage; (void)path;
 	  return true;
 #else
 	  for ( unsigned i = 0; i < file_access_rules.size(); ++i )
@@ -229,9 +233,10 @@ namespace Pol {
 	  return false;
 #endif
 	}
-    bool HasWriteAccess( const Plib::Package* pkg, const Plib::Package* filepackage, const string& path )
+    bool HasWriteAccess(const Plib::Package* pkg, const Plib::Package* filepackage, const std::string& path)
 	{
 #ifdef NOACCESS_CHECKS
+        (void)pkg; (void)filepackage; (void)path;
 	  return true;
 #else
 	  for ( unsigned i = 0; i < file_access_rules.size(); ++i )
@@ -248,9 +253,10 @@ namespace Pol {
 	  return false;
 #endif
 	}
-    bool HasAppendAccess( const Plib::Package* pkg, const Plib::Package* filepackage, const string& path )
+    bool HasAppendAccess(const Plib::Package* pkg, const Plib::Package* filepackage, const std::string& path)
 	{
 #ifdef NOACCESS_CHECKS
+        (void)pkg; (void)filepackage; (void)path;
 	  return true;
 #else
 	  for ( unsigned i = 0; i < file_access_rules.size(); ++i )
@@ -280,14 +286,14 @@ namespace Pol {
 		return new BError( "Invalid parameter type." );
 
       const Plib::Package* outpkg;
-	  string path;
+      std::string path;
 	  if ( !pkgdef_split( filename->value(), exec.prog()->pkg, &outpkg, &path ) )
 		return new BError( "Error in filename descriptor." );
 
-	  if ( path.find( ".." ) != string::npos )
+      if (path.find("..") != std::string::npos)
 		return new BError( "No parent path traversal allowed." );
 
-	  string filepath;
+      std::string filepath;
 	  if ( outpkg == NULL )
 		filepath = path;
 	  else
@@ -303,29 +309,29 @@ namespace Pol {
 		return new BError( "Invalid parameter type" );
 
       const Plib::Package* outpkg;
-	  string path;
+      std::string path;
 	  if ( !pkgdef_split( filename->value(), exec.prog()->pkg, &outpkg, &path ) )
 		return new BError( "Error in filename descriptor" );
 
-	  if ( path.find( ".." ) != string::npos )
+      if (path.find("..") != std::string::npos)
 		return new BError( "No parent path traversal please." );
 
 	  if ( !HasReadAccess( exec.prog()->pkg, outpkg, path ) )
 		return new BError( "Access denied" );
 
-	  string filepath;
+      std::string filepath;
 	  if ( outpkg == NULL )
 		filepath = path;
 	  else
 		filepath = outpkg->dir() + path;
 
-	  ifstream ifs( filepath.c_str() );
+      std::ifstream ifs(filepath.c_str());
 	  if ( !ifs.is_open() )
 		return new BError( "File not found: " + filepath );
 
 	  std::unique_ptr<Bscript::ObjArray> arr( new Bscript::ObjArray() );
 
-	  string line;
+      std::string line;
 	  while ( getline( ifs, line ) )
 		arr->addElement( new String( line ) );
 
@@ -343,26 +349,26 @@ namespace Pol {
 	  }
 
       const Plib::Package* outpkg;
-	  string path;
+      std::string path;
 	  if ( !pkgdef_split( filename->value(), exec.prog()->pkg, &outpkg, &path ) )
 		return new BError( "Error in filename descriptor" );
 
-	  if ( path.find( ".." ) != string::npos )
+      if (path.find("..") != std::string::npos)
 		return new BError( "No parent path traversal please." );
 
 	  if ( !HasWriteAccess( exec.prog()->pkg, outpkg, path ) )
 		return new BError( "Access denied" );
 
-	  string filepath;
+      std::string filepath;
 	  if ( outpkg == NULL )
 		filepath = path;
 	  else
 		filepath = outpkg->dir() + path;
 
-	  string bakpath = filepath + ".bak";
-	  string tmppath = filepath + ".tmp";
+      std::string bakpath = filepath + ".bak";
+      std::string tmppath = filepath + ".tmp";
 
-	  ofstream ofs( tmppath.c_str(), ios::out | ios::trunc );
+      std::ofstream ofs(tmppath.c_str(), std::ios::out | std::ios::trunc);
 
 	  if ( !ofs.is_open() )
 		return new BError( "File not found: " + filepath );
@@ -375,7 +381,7 @@ namespace Pol {
 		{
 		  ofs << ( *obj )->getStringRep();
 		}
-		ofs << endl;
+        ofs << std::endl;
 	  }
 	  if ( ofs.fail() )
 		return new BError( "Error during write." );
@@ -386,7 +392,7 @@ namespace Pol {
 		if ( unlink( bakpath.c_str() ) )
 		{
 		  int err = errno;
-		  string message = "Unable to remove " + filepath + ": " + strerror( err );
+          std::string message = "Unable to remove " + filepath + ": " + strerror(err);
 
 		  return new BError( message );
 		}
@@ -396,14 +402,14 @@ namespace Pol {
 		if ( rename( filepath.c_str(), bakpath.c_str() ) )
 		{
 		  int err = errno;
-		  string message = "Unable to rename " + filepath + " to " + bakpath + ": " + strerror( err );
+          std::string message = "Unable to rename " + filepath + " to " + bakpath + ": " + strerror(err);
 		  return new BError( message );
 		}
 	  }
 	  if ( rename( tmppath.c_str(), filepath.c_str() ) )
 	  {
 		int err = errno;
-		string message = "Unable to rename " + tmppath + " to " + filepath + ": " + strerror( err );
+        std::string message = "Unable to rename " + tmppath + " to " + filepath + ": " + strerror(err);
 		return new BError( message );
 	  }
 
@@ -421,23 +427,23 @@ namespace Pol {
 	  }
 
       const Plib::Package* outpkg;
-	  string path;
+      std::string path;
 	  if ( !pkgdef_split( filename->value(), exec.prog()->pkg, &outpkg, &path ) )
 		return new BError( "Error in filename descriptor" );
 
-	  if ( path.find( ".." ) != string::npos )
+      if (path.find("..") != std::string::npos)
 		return new BError( "No parent path traversal please." );
 
 	  if ( !HasAppendAccess( exec.prog()->pkg, outpkg, path ) )
 		return new BError( "Access denied" );
 
-	  string filepath;
+      std::string filepath;
 	  if ( outpkg == NULL )
 		filepath = path;
 	  else
 		filepath = outpkg->dir() + path;
 
-	  ofstream ofs( filepath.c_str(), ios::out | ios::app );
+      std::ofstream ofs(filepath.c_str(), std::ios::out | std::ios::app);
 
 	  if ( !ofs.is_open() )
 		return new BError( "Unable to open file: " + filepath );
@@ -450,7 +456,7 @@ namespace Pol {
 		{
 		  ofs << ( *obj )->getStringRep();
 		}
-		ofs << endl;
+        ofs << std::endl;
 	  }
 	  if ( ofs.fail() )
 		return new BError( "Error during write." );
@@ -477,23 +483,23 @@ namespace Pol {
 		}
 
         const Plib::Package* outpkg;
-		string path;
+        std::string path;
 		if ( !pkgdef_split( filename->value(), exec.prog()->pkg, &outpkg, &path ) )
 		  return new BError( "Error in filename descriptor" );
 
-		if ( path.find( ".." ) != string::npos )
+        if (path.find("..") != std::string::npos)
 		  return new BError( "No parent path traversal please." );
 
 		if ( !HasAppendAccess( exec.prog()->pkg, outpkg, path ) )
 		  return new BError( "Access denied" );
 
-		string filepath;
+        std::string filepath;
 		if ( outpkg == NULL )
 		  filepath = path;
 		else
 		  filepath = outpkg->dir() + path;
 
-		ofstream ofs( filepath.c_str(), ios::out | ios::app );
+        std::ofstream ofs(filepath.c_str(), std::ios::out | std::ios::app);
 
 		if ( !ofs.is_open() )
 		  return new BError( "Unable to open file: " + filepath );
@@ -508,7 +514,7 @@ namespace Pol {
 			ofs << "[" << buffer << "] ";
 		}
 
-		ofs << textline->value() << endl;
+        ofs << textline->value() << std::endl;
 
 		if ( ofs.fail() )
 		  return new BError( "Error during write." );
@@ -529,11 +535,11 @@ namespace Pol {
 		   return new BError( "Invalid parameter type" );
 
       const Plib::Package* outpkg;
-	  string path;
+      std::string path;
 	  if ( !pkgdef_split( filename->value(), exec.prog()->pkg, &outpkg, &path ) )
 		return new BError( "Error in filename descriptor" );
 
-	  if ( path.find( ".." ) != string::npos )
+      if (path.find("..") != std::string::npos)
 		return new BError( "No parent path traversal please." );
 
 	  if ( mode & 0x01 )
@@ -547,7 +553,7 @@ namespace Pol {
 		  return new BError( "Access denied" );
 	  }
 
-	  string filepath;
+      std::string filepath;
 	  if ( outpkg == NULL )
 		filepath = path;
 	  else
@@ -564,10 +570,10 @@ namespace Pol {
 		return new BError( "Invalid parameter type" );
 
       const Plib::Package* outpkg;
-	  string path;
+      std::string path;
 	  if ( !pkgdef_split( dirname->value(), exec.prog()->pkg, &outpkg, &path ) )
 		return new BError( "Error in dirname descriptor" );
-	  if ( path.find( ".." ) != string::npos )
+      if (path.find("..") != std::string::npos)
 		return new BError( "No parent path traversal please." );
 
 	  if ( outpkg != NULL )
@@ -592,10 +598,10 @@ namespace Pol {
 		   return new BError( "Invalid parameter type" );
 
       const Plib::Package* outpkg;
-	  string path;
+      std::string path;
 	  if ( !pkgdef_split( dirname->value(), exec.prog()->pkg, &outpkg, &path ) )
 		return new BError( "Error in dirname descriptor" );
-	  if ( path.find( ".." ) != string::npos )
+      if (path.find("..") != std::string::npos)
 		return new BError( "No parent path traversal please." );
 
 	  if ( outpkg != NULL )
@@ -605,7 +611,7 @@ namespace Pol {
 		return new BError( "Directory not found." );
 	  bool asterisk = false;
 	  bool nofiles = false;
-	  if ( extension->getStringRep().find( '*', 0 ) != string::npos )
+      if (extension->getStringRep().find('*', 0) != std::string::npos)
 		asterisk = true;
 	  else if ( extension->length() == 0 )
 		nofiles = true;
@@ -614,7 +620,7 @@ namespace Pol {
 
       for ( Clib::DirList dl( path.c_str( ) ); !dl.at_end( ); dl.next( ) )
 	  {
-		string name = dl.name();
+          std::string name = dl.name();
 		if ( name[0] == '.' )
 		  continue;
 
@@ -627,8 +633,8 @@ namespace Pol {
 		  continue;
 		else if ( !asterisk )
 		{
-		  string::size_type extensionPointPos = name.rfind( '.' );
-		  if ( extensionPointPos == string::npos )
+            std::string::size_type extensionPointPos = name.rfind('.');
+            if (extensionPointPos == std::string::npos)
 			continue;
 		  if ( name.substr( extensionPointPos + 1 ) != extension->value() )
 			continue;
@@ -647,17 +653,17 @@ namespace Pol {
 		return new BError( "Invalid parameter type" );
 
       const Plib::Package* outpkg;
-	  string path;
+      std::string path;
 	  if ( !pkgdef_split( filename->value(), exec.prog()->pkg, &outpkg, &path ) )
 		return new BError( "Error in filename descriptor" );
 
-	  if ( path.find( ".." ) != string::npos )
+      if (path.find("..") != std::string::npos)
 		return new BError( "No parent path traversal please." );
 
 	  if ( !HasReadAccess( exec.prog()->pkg, outpkg, path ) )
 		return new BError( "Access denied" );
 
-	  string filepath;
+      std::string filepath;
 	  if ( outpkg == NULL )
 		filepath = path;
 	  else

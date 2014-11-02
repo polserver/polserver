@@ -9,10 +9,6 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-
-#include <assert.h>
-#include <stdio.h>
 
 #include "../bscript/bobject.h"
 
@@ -20,14 +16,17 @@ Notes
 #include "../clib/logfacility.h"
 
 #include "../plib/realm.h"
-#include "mobile/charactr.h"
 #include "network/client.h"
-#include "multi/multi.h"
 #include "network/msghandl.h"
+#include "mobile/charactr.h"
+#include "multi/multi.h"
 #include "pktin.h"
 #include "ufunc.h"
 #include "uofile.h"
 #include "uvars.h"
+
+#include <cstdio>
+
 namespace Pol {
   namespace Core {
 	void equip_item( Network::Client *client, PKTIN_13 *msg )

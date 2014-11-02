@@ -11,6 +11,10 @@ Notes
 #define BSCRIPT_BERROR_H
 
 #include "bstruct.h"
+
+#include <istream>
+#include <string>
+
 namespace Pol {
   namespace Bscript {
 

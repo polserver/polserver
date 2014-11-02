@@ -18,18 +18,10 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-
-#ifdef _MSC_VER
-#	pragma warning( disable: 4786 )
-#endif
-
-#include <limits.h>
-#include <stddef.h>
+#include "containr.h"
 
 #include "../bscript/objmembers.h"
 
-#include "../clib/endian.h"
 #include "../clib/cfgfile.h"
 #include "../clib/cfgelem.h"
 #include "../clib/logfacility.h"
@@ -59,7 +51,9 @@ Notes
 #include "scrsched.h"
 #include "uoscrobj.h"
 
-#include "containr.h"
+#include <climits>
+#include <cstddef>
+
 
 namespace Pol {
   namespace Core {
@@ -715,7 +709,7 @@ namespace Pol {
 	  }
 	}
 
-	bool UContainer::is_legal_posn( const Items::Item* item, u16 x, u16 y ) const
+	bool UContainer::is_legal_posn( const Items::Item* /*item*/, u16 x, u16 y ) const
 	{
 	  return ( x >= desc.minx && x <= desc.maxx &&
 			   y >= desc.miny && y <= desc.maxy );

@@ -8,15 +8,13 @@ Notes
 
 */
 
-
-#include "../clib/stl_inc.h"
+#include "../plib/mapfunc.h"
+#include "../plib/pkg.h"
 
 #include "../clib/cfgelem.h"
 #include "../clib/passert.h"
 #include "../clib/logfacility.h"
 
-#include "../plib/mapfunc.h"
-#include "../plib/pkg.h"
 namespace Pol {
   namespace Core {
 
@@ -29,7 +27,7 @@ namespace Pol {
 	LandTile landtiles[LANDTILE_COUNT];
 	bool landtiles_loaded = false;
 
-	void load_landtile_entry( const Plib::Package* pkg, Clib::ConfigElem& elem )
+	void load_landtile_entry( const Plib::Package* /*pkg*/, Clib::ConfigElem& elem )
 	{
 	  unsigned short graphic = static_cast<unsigned short>( strtoul( elem.rest(), NULL, 0 ) );
 	  passert_always( graphic < LANDTILE_COUNT );

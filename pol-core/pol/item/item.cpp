@@ -14,11 +14,8 @@ Notes
 
 */
 
-#ifdef _MSC_VER
-#	pragma warning( disable: 4786 )
-#endif
-
 #include "item.h"
+#include "armor.h"
 
 #include "../../clib/cfgelem.h"
 #include "../../clib/endian.h"
@@ -31,7 +28,6 @@ Notes
 
 #include "../../plib/mapcell.h"
 
-#include "armor.h"
 #include "../ustruct.h"
 #include "../uofile.h"
 #include "../containr.h"
@@ -45,7 +41,7 @@ Notes
 #include "../resource.h"
 #include "../scrsched.h"
 #include "../scrstore.h"
-#include "../stackcfg.h" //dave 1/26/3
+#include "../stackcfg.h" 
 #include "../tooltips.h"
 #include "../uoscrobj.h"
 #include "../ssopt.h"
@@ -128,12 +124,12 @@ namespace Pol {
       item->setElementDamageMod( Core::ELEMENTAL_PHYSICAL, getElementDamageMod( Core::ELEMENTAL_PHYSICAL ) );
 
       item->setmember<s16>( Bscript::MBR_MAXHP_MOD, this->getmember<s16>( Bscript::MBR_MAXHP_MOD ) );
-      item->setmember<string>( Bscript::MBR_NAME_SUFFIX, this->getmember<string>( Bscript::MBR_NAME_SUFFIX ) );
+      item->name_suffix( this->name_suffix() );
 
 	  return item;
 	}
 
-	string Item::name() const
+	std::string Item::name() const
 	{
 	  if ( !name_.get().empty() )
 	  {
@@ -149,6 +145,15 @@ namespace Pol {
 		  return id.desc;
 	  }
 	}
+
+    std::string Item::name_suffix() const
+    {
+        return getmember<std::string>(Bscript::MBR_NAME_SUFFIX);
+    }
+    void Item::name_suffix(const std::string &suffix)
+    {
+        setmember<std::string>(Bscript::MBR_NAME_SUFFIX, suffix);
+    }
 
 	const ItemDesc& Item::itemdesc() const
 	{
@@ -170,9 +175,9 @@ namespace Pol {
 		1 gold coin displays as "gold coin".  There must be a bit somewhere
 		that I just don't understand yet.
 		*/
-	string Item::description() const
+	std::string Item::description() const
 	{
-      std::string suffix = getmember<string>( Bscript::MBR_NAME_SUFFIX );
+      std::string suffix = name_suffix();
 	  if ( specific_name() )
 	  {
         return Core::format_description( 0, name( ), amount_, suffix ); //dave monkeyed with this 2/4/3
@@ -191,14 +196,14 @@ namespace Pol {
 	  }
 	}
 
-	string Item::get_use_script_name() const
+	std::string Item::get_use_script_name() const
 	{
 	  return on_use_script_;
 	}
 
-	string Item::merchant_description() const
+	std::string Item::merchant_description() const
 	{
-	  std::string suffix = getmember<string>( Bscript::MBR_NAME_SUFFIX );
+        std::string suffix = name_suffix();
 	  if ( specific_name() )
 	  {
 		return Core::format_description( 0, name(), 1, suffix );
@@ -360,7 +365,7 @@ namespace Pol {
 	  base::printProperties( sw );
 
       short maxhp_mod = getmember<s16>( Bscript::MBR_MAXHP_MOD );
-      string suffix = getmember<string>( Bscript::MBR_NAME_SUFFIX );
+      std::string suffix = name_suffix();
 
 	  if ( amount_ != 1 )
 		sw() << "\tAmount\t" << amount_ << pf_endl;
@@ -490,7 +495,7 @@ namespace Pol {
       setElementDamageMod( Core::ELEMENTAL_PHYSICAL, static_cast<s16>( elem.remove_int( "PHYSICALDAMAGEMOD", 0 ) ) );
 
 	  setmember<s16>( Bscript::MBR_MAXHP_MOD, static_cast<s16>( elem.remove_int( "MAXHP_MOD", 0 ) ) );
-	  setmember<string>( Bscript::MBR_NAME_SUFFIX, elem.remove_string( "NAMESUFFIX", "" ) );
+	  name_suffix( elem.remove_string( "NAMESUFFIX", "" ) );
 
 	}
 
@@ -794,7 +799,7 @@ namespace Pol {
 
 
 
-	void Item::set_use_script( const string& scriptname )
+	void Item::set_use_script( const std::string& scriptname )
 	{
 	  set_dirty();
 	  on_use_script_ = scriptname;
@@ -913,7 +918,7 @@ namespace Pol {
 	  }
 	}
 
-	void Item::spill_contents( Multi::UMulti* multi )
+	void Item::spill_contents( Multi::UMulti* /*multi*/ )
 	{}
 
 	unsigned int Item::weight_of( unsigned short amount ) const
@@ -997,7 +1002,7 @@ namespace Pol {
 	  }
 	  catch ( std::exception& ex )
 	  {
-		return new Bscript::BError( string( "Script descriptor error" ) + ex.what() );
+		return new Bscript::BError( std::string( "Script descriptor error" ) + ex.what() );
 	  }
 
 	  try
@@ -1009,7 +1014,7 @@ namespace Pol {
 	  }
 	  catch ( std::exception& ex )
 	  {
-        return new Bscript::BError( string( "Script execution error" ) + ex.what( ) );
+        return new Bscript::BError( std::string( "Script execution error" ) + ex.what( ) );
 	  }
 	}
 
@@ -1023,7 +1028,7 @@ namespace Pol {
 	  }
 	  catch ( std::exception& ex )
 	  {
-        return new Bscript::BError( string( "Script descriptor error: " ) + ex.what( ) );
+        return new Bscript::BError( std::string( "Script descriptor error: " ) + ex.what( ) );
 	  }
 
 	  try
@@ -1034,7 +1039,7 @@ namespace Pol {
 	  }
 	  catch ( std::exception& ex )
 	  {
-		return new Bscript::BError( string( "Script execution error:" ) + ex.what() );
+		return new Bscript::BError( std::string( "Script execution error:" ) + ex.what() );
 	  }
 	}
 
@@ -1166,7 +1171,7 @@ namespace Pol {
       return getBaseElementDamage( element ) + getElementDamageMod( element );
 	}
 
-    bool Item::has_resistance( Mobile::Character* chr )
+    bool Item::has_resistance( Mobile::Character* /*chr*/ )
 	{
       if ( ( calc_element_resist( Core::ELEMENTAL_FIRE ) != 0 ) || ( calc_element_resist( Core::ELEMENTAL_COLD ) != 0 ) ||
            ( calc_element_resist( Core::ELEMENTAL_ENERGY ) != 0 ) || ( calc_element_resist( Core::ELEMENTAL_POISON ) != 0 ) ||

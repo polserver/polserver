@@ -12,14 +12,14 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
+#include "cmbtcfg.h"
+#include "polcfg.h"
+
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
 
-#include "cmbtcfg.h"
-#include "polcfg.h"
 namespace Pol {
   namespace Core {
 	CombatConfig combat_config;

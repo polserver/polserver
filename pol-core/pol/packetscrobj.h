@@ -26,7 +26,7 @@ namespace Pol {
 	  BPacket( const unsigned char* data, unsigned short length, bool variable_len );
 	  ~BPacket();
 
-	  vector<unsigned char> buffer;
+	  std::vector<unsigned char> buffer;
 	  virtual Bscript::BObjectRef get_member( const char* membername );
 	  virtual Bscript::BObjectRef get_member_id( const int id ); //id test
 	  virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex );

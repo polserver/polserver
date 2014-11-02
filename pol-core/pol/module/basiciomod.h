@@ -15,7 +15,8 @@ Notes
 #	include "../../bscript/execmodl.h"
 #endif
 
-#include <iosfwd>
+#include <string>
+
 namespace Pol {
   namespace Module {
 	class BasicIoExecutorModule;

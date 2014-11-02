@@ -8,14 +8,17 @@ Notes
 =======
 
 */
-#include <iomanip>
-#include "stl_inc.h"
+
+#include "MD5.h"
 
 #include "stlutil.h"
-#include "MD5.h"
 #include "logfacility.h"
 
+#include <sstream>
+#include <iomanip>
+
 #ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
 #define _WIN32_WINNT 0x0400 // need this for wincrypt.h to be even looked at
 #include <windows.h>
 #include <wincrypt.h>
@@ -24,7 +27,7 @@ namespace Pol {
   namespace Clib {
 	HCRYPTPROV hProv = NULL;
 
-	bool MD5_Encrypt( const string& in, string& out )
+    bool MD5_Encrypt(const std::string& in, std::string& out)
 	{
 	  //bool bResult = true;
 
@@ -64,10 +67,10 @@ namespace Pol {
 		return false;
 	  }
 
-	  ostringstream os;
+      std::ostringstream os;
 	  for( unsigned int i = 0; i < len; i++ )
 	  {
-		os << std::setfill( '0' ) << std::setw( 2 ) << hex << (int)buf[i];
+          os << std::setfill('0') << std::setw(2) << std::hex << (int)buf[i];
 	  }
 	  out = os.str();
 
@@ -85,16 +88,16 @@ namespace Pol {
 #include <openssl/md5.h>
 namespace Pol {
   namespace Clib {
-bool MD5_Encrypt(const string& in, string& out)
+  bool MD5_Encrypt(const std::string& in, std::string& out)
 {
   unsigned char sum[16];
 
   MD5( reinterpret_cast<const unsigned char*>(in.c_str()), in.length(), sum );
 
-  ostringstream os;
+  std::ostringstream os;
   for(auto &elem : sum)
   {
-	os << std::setfill('0') << std::setw(2) <<  hex << (int)elem;
+      os << std::setfill('0') << std::setw(2) << std::hex << (int)elem;
   }
   out = os.str();
 
@@ -111,7 +114,7 @@ extern "C"{
 }
 namespace Pol {
   namespace Clib {
-bool MD5_Encrypt(const string& in, string& out)
+  bool MD5_Encrypt(const std::string& in, std::string& out)
 {
   struct md5_ctx ctx;
   unsigned char sum[16];
@@ -120,10 +123,10 @@ bool MD5_Encrypt(const string& in, string& out)
   __md5_process_bytes (in.c_str(), in.length(), &ctx);
   __md5_finish_ctx (&ctx, sum);
 
-  ostringstream os;
+  std::ostringstream os;
   for(unsigned int i=0; i<sizeof(sum); i++)
   {
-	os << std::setfill('0') << std::setw(2) <<  hex << (int)sum[i];
+      os << std::setfill('0') << std::setw(2) <<  std::hex << (int)sum[i];
   }
   out = os.str();
 
@@ -137,7 +140,7 @@ void MD5_Cleanup()
 
 #endif
 
-bool MD5_Compare( const string& a, const string& b )
+bool MD5_Compare(const std::string& a, const std::string& b)
 {
   bool ret = false;
   if( stringicmp( a, b ) == 0 )

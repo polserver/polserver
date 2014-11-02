@@ -1,14 +1,15 @@
 #ifndef CLIENTSEND_H
 #define CLIENTSEND_H
 
-#include <memory>
-#include <mutex>
-#include "../../clib/stl_inc.h"
 #include "../../clib/rawtypes.h"
-
 #include "../../clib/message_queue.h"
 
 #include <boost/noncopyable.hpp>
+
+#include <memory>
+#include <mutex>
+#include <vector>
+
 namespace Pol {
   namespace Network {
 	class Client;
@@ -17,7 +18,7 @@ namespace Pol {
 	{
 	  Client* client;
 	  int len;
-	  vector<u8> data;
+	  std::vector<u8> data;
 	  bool disconnects;
 
 	  TransmitData() : client( nullptr ), len( 0 ), disconnects( false ) {};

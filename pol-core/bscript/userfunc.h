@@ -11,13 +11,13 @@ Notes
 #define BSCRIPT_USERFUNC_H
 
 #include "options.h"
+#include "compctx.h"
+#include "token.h"
 
 #include <string>
 #include <vector>
 #include <set>
 
-#include "compctx.h"
-#include "token.h"
 namespace Pol {
   namespace Bscript {
 	class UserParam
@@ -38,10 +38,10 @@ namespace Pol {
 	  ~UserFunction();
 
 	  std::string name;
-	  typedef vector<UserParam> Parameters;
+	  typedef std::vector<UserParam> Parameters;
 	  Parameters parameters;
 	  unsigned position;
-	  typedef vector<unsigned> Addresses;
+	  typedef std::vector<unsigned> Addresses;
 	  Addresses forward_callers;
 
 	  CompilerContext ctx;
@@ -55,7 +55,7 @@ namespace Pol {
 	  static void show_instances();
 	protected:
 	  static unsigned int _instances;
-	  static set<UserFunction*> _instancelist;
+	  static std::set<UserFunction*> _instancelist;
 	  void register_instance();
 	  void unregister_instance();
 	};

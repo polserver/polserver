@@ -6,21 +6,18 @@ Notes
 =======
 
 */
-
-#include "../clib/stl_inc.h"
-
-#include <stdio.h>
-
-#include "../clib/stlutil.h"
-
-#include "filefmt.h"
-
 #include "eprog.h"
 #include "escriptv.h"
 #include "options.h"
 #include "executortype.h"
 
+#include "filefmt.h"
+
+#include "../clib/stlutil.h"
+
+#include <cstdio>
 #include <climits>
+
 namespace Pol {
   namespace Bscript {
 	EScriptProgram::EScriptProgram() :

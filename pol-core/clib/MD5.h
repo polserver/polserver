@@ -9,6 +9,9 @@ Notes
 
 #ifndef MD5_H
 #define MD5_H
+
+#include <string>
+
 namespace Pol {
   namespace Clib {
 	bool MD5_Encrypt( const std::string& in, std::string& out );

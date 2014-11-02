@@ -8,15 +8,17 @@ Notes
 
 */
 
-#include "../../clib/stl_inc.h"
-#include "../../clib/endian.h"
+//#include "../../clib/endian.h"
+
+#include "cliface.h"
+
+#include "client.h"
 
 #include "../mobile/attribute.h"
 #include "../mobile/charactr.h"
 #include "../network/packets.h"
 #include "../network/clienttransmit.h"
-#include "client.h"
-#include "cliface.h"
+
 #include "../party.h"
 #include "../pktboth.h"
 #include "../ssopt.h"
@@ -140,15 +142,15 @@ namespace Pol {
 	  if ( me->party() != NULL )
 		me->party()->on_stam_changed( me );
 	}
-    void send_uo_strength( Client* client, Mobile::Character* me, const Mobile::Attribute* attr )
+    void send_uo_strength( Client* client, Mobile::Character* me, const Mobile::Attribute* /*attr*/ )
 	{
 	  Core::send_full_statmsg( client, me );
 	}
-    void send_uo_dexterity( Client* client, Mobile::Character* me, const Mobile::Attribute* attr )
+    void send_uo_dexterity( Client* client, Mobile::Character* me, const Mobile::Attribute* /*attr*/ )
 	{
 	  Core::send_full_statmsg( client, me );
 	}
-    void send_uo_intelligence( Client* client, Mobile::Character* me, const Mobile::Attribute* attr )
+    void send_uo_intelligence( Client* client, Mobile::Character* me, const Mobile::Attribute* /*attr*/ )
 	{
 	  Core::send_full_statmsg( client, me );
 	}

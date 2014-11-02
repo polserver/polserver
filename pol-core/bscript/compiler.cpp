@@ -20,19 +20,7 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-
-#ifdef WIN32
-#	pragma warning(disable:4786)
-#endif
-
-#include <string.h>
-#include <stddef.h>
-#include <stdio.h>
-
-#ifdef __unix__
-#	include <unistd.h>
-#endif
+#include "compiler.h"
 
 #include "../clib/clib.h"
 #include "../clib/filecont.h"
@@ -53,11 +41,24 @@ Notes
 #include "verbtbl.h"
 #include "parser.h"
 #include "userfunc.h"
-#include "compiler.h"
 #include "filefmt.h"
 #include "../clib/xmain.h"
 
 #include "objmembers.h"
+
+#include <cstring>
+#include <cstddef>
+#include <cstdio>
+#include <stdexcept>
+#include <ostream>
+
+#ifdef __unix__
+#	include <unistd.h>
+#endif
+
+#ifdef _MSC_VER
+#pragma warning(disable:4996) // disable deprecation warning for stricmp, fopen
+#endif
 
 namespace Pol {
   namespace Bscript {
@@ -66,17 +67,17 @@ namespace Pol {
 
 	extern int include_debug;
 
-	string getpathof( const string& fname )
+	std::string getpathof( const std::string& fname )
 	{
-	  string::size_type pos = fname.find_last_of( "\\/" );
-	  if ( pos == string::npos )
+	  std::string::size_type pos = fname.find_last_of( "\\/" );
+	  if ( pos == std::string::npos )
 		return "./";
 	  else
 		return fname.substr( 0, pos + 1 );
 	}
 
 
-	bool Scope::varexists( const string& varname, unsigned& idx ) const
+	bool Scope::varexists( const std::string& varname, unsigned& idx ) const
 	{
 	  for ( int i = static_cast<int>( variables_.size() - 1 ); i >= 0; --i )
 	  {
@@ -90,7 +91,7 @@ namespace Pol {
 	  return false;
 	}
 
-	bool Scope::varexists( const string& varname ) const
+	bool Scope::varexists( const std::string& varname ) const
 	{
 	  for ( int i = static_cast<int>( variables_.size() - 1 ); i >= 0; --i )
 	  {
@@ -119,7 +120,7 @@ namespace Pol {
 		{
 		  INFO_PRINT << "Warning: local variable '" << bk.name << "' not used.\n";
 		  if ( compilercfg.ErrorOnWarning )
-			throw runtime_error( "Warnings treated as errors." );
+              throw std::runtime_error("Warnings treated as errors.");
 		  else
             INFO_PRINT << bk.ctx;
 		}
@@ -129,13 +130,13 @@ namespace Pol {
 	  if ( !varsOnly ) blockdescs_.pop_back();
 	}
 
-	void Scope::addvar( const string& varname, const CompilerContext& ctx, bool warn_on_notused )
+	void Scope::addvar( const std::string& varname, const CompilerContext& ctx, bool warn_on_notused )
 	{
 	  for ( size_t i = variables_.size() - blockdescs_.back().varcount; i < variables_.size(); ++i )
 	  {
 		if ( Clib::stringicmp( varname, variables_[i].name ) == 0 )
 		{
-		  throw runtime_error( "Variable " + varname + " is already in scope." );
+            throw std::runtime_error("Variable " + varname + " is already in scope.");
 		}
 	  }
 	  Variable newvar;
@@ -211,7 +212,7 @@ namespace Pol {
 		  break;
 		case TOK_DIV:
 		  if ( right->lval == 0 )
-			throw runtime_error( "Program would divide by zero" );
+              throw std::runtime_error("Program would divide by zero");
 		  lval = left->lval / right->lval;
 		  break;
 
@@ -285,7 +286,7 @@ namespace Pol {
 		  break;
 		case TOK_DIV:
 		  if ( right->dval == 0.0 )
-			throw runtime_error( "Program would divide by zero" );
+              throw std::runtime_error("Program would divide by zero");
 		  dval = left->dval / right->dval;
 		  break;
 
@@ -307,8 +308,8 @@ namespace Pol {
 		case TOK_ADD:
 		{
 					  ntoken = new Token( *left );
-					  string combined;
-					  combined = string( left->tokval() ) + string( right->tokval() );
+					  std::string combined;
+					  combined = std::string( left->tokval() ) + std::string( right->tokval() );
 					  ntoken->copyStr( combined.c_str() );
 		}
 		  break;
@@ -357,7 +358,7 @@ namespace Pol {
 	  }
 	  return ntoken;
 	}
-	Token* optimize_string_operation( Token* oper, Token* value )
+	Token* optimize_string_operation( Token* /*oper*/, Token* /*value*/ )
 	{
 	  return NULL;
 	}
@@ -372,7 +373,7 @@ namespace Pol {
 		  continue;
 		}
 		if ( i < 2 )
-		  throw runtime_error( "Unbalanced binary operator: " + Clib::tostring( *oper ) );
+            throw std::runtime_error("Unbalanced binary operator: " + Clib::tostring(*oper));
 
 		Token* left = tokens[i - 2];
 		Token* right = tokens[i - 1];
@@ -423,7 +424,7 @@ namespace Pol {
 		  continue;
 		}
 		if ( i < 1 )
-		  throw runtime_error( "Unbalanced unary operator: " + Clib::tostring( *oper ) );
+            throw std::runtime_error("Unbalanced unary operator: " + Clib::tostring(*oper));
 
 		Token* value = tokens[i - 1];
 
@@ -545,7 +546,7 @@ namespace Pol {
 		int left_idx = right_idx - get_num_tokens( i - 1 );
 		if ( right_idx < 0 || left_idx < 0 )
 		{
-		  throw runtime_error( "Unbalanced operator: " + Clib::tostring( *oper ) );
+            throw std::runtime_error("Unbalanced operator: " + Clib::tostring(*oper));
 		}
 		//Token* right = tokens[ right_idx ];
 		Token* left = tokens[left_idx];
@@ -874,7 +875,7 @@ namespace Pol {
 	}
 
 
-	bool Compiler::globalexists( const string& varname,
+	bool Compiler::globalexists( const std::string& varname,
 								 unsigned& idx,
 								 CompilerContext* ctx ) const
 	{
@@ -891,7 +892,7 @@ namespace Pol {
 	  return false;
 	}
 
-	bool Compiler::varexists( const string& varname ) const
+	bool Compiler::varexists( const std::string& varname ) const
 	{
 	  unsigned idx;
 	  if ( localscope.varexists( varname, idx ) )
@@ -913,7 +914,7 @@ namespace Pol {
           INFO_PRINT << "Warning! possible incorrect assignment.\n"
             << "Near: " << curLine << "\n";
 		  if ( compilercfg.ErrorOnWarning )
-			throw runtime_error( "Warnings treated as errors." );
+			throw std::runtime_error( "Warnings treated as errors." );
 		}
 	  }
 
@@ -930,21 +931,21 @@ namespace Pol {
 
 	int Compiler::isFunc( Token& token, ModuleFunction **pmf )
 	{
-	  typedef vector<Candidate> Candidates;
+	  typedef std::vector<Candidate> Candidates;
 	  Candidates candidates;
-	  string modulename;
-	  string funcname;
+	  std::string modulename;
+	  std::string funcname;
 
 	  if ( const char *colon = strchr( token.tokval(), ':' ) )
 	  {
-		string tmp( token.tokval(), colon );
+        std::string tmp(token.tokval(), colon);
 		if ( tmp.length() >= 9 )
 		{
           INFO_PRINT << "'" << tmp << "' is too long to be a module name.\n";
 		  return -1;
 		}
 		modulename = tmp;
-		funcname = string( colon + 2 );
+		funcname = std::string( colon + 2 );
 	  }
 	  else
 	  {
@@ -1424,7 +1425,7 @@ namespace Pol {
 	class ParamPassed
 	{
 	public:
-	ParamPassed( const string& name ) : name(name) {}
+	ParamPassed( const std::string& name ) : name(name) {}
 
 	string name;
 	Expression expr;
@@ -1436,9 +1437,9 @@ namespace Pol {
 	  int res;
 	  Token token;
 
-	  typedef map<string, Expression> ParamList;
+      typedef std::map<std::string, Expression> ParamList;
 	  ParamList params_passed;
-	  //vector<string> func_params;
+	  //std::vector<std::string> func_params;
 
 	  int any_named = 0;
 	  UserFunction *userfunc = userfunc_;
@@ -1454,7 +1455,7 @@ namespace Pol {
 
 	  for ( ;; )
 	  {
-		string varname;
+        std::string varname;
 		Token tk;
 
 		CompilerContext tctx( ctx );
@@ -1659,7 +1660,7 @@ namespace Pol {
 			<< " of " << ctx.filename << "\n";
 		  // warning only; doesn't bail out.
 		  if ( compilercfg.ErrorOnWarning )
-			throw runtime_error( "Warnings treated as errors." );
+			throw std::runtime_error( "Warnings treated as errors." );
 		}
 
 		if ( tkn->type == TYP_OPERATOR )
@@ -1667,13 +1668,13 @@ namespace Pol {
 		  int right_idx = i - 1;
 		  if ( right_idx < 0 )
 		  {
-			throw runtime_error( "Unbalanced operator: " + Clib::tostring( *tkn ) );
+			throw std::runtime_error( "Unbalanced operator: " + Clib::tostring( *tkn ) );
 		  }
 
 		  int left_idx = right_idx - expr.get_num_tokens( i - 1 );
 		  if ( left_idx < 0 )
 		  {
-			throw runtime_error( "Unbalanced operator: " + Clib::tostring( *tkn ) );
+			throw std::runtime_error( "Unbalanced operator: " + Clib::tostring( *tkn ) );
 		  }
 		}
 
@@ -1682,7 +1683,7 @@ namespace Pol {
 		  int operand_idx = i - 1;
 		  if ( operand_idx < 0 )
 		  {
-			throw runtime_error( "Unbalanced operator: " + Clib::tostring( *tkn ) );
+			throw std::runtime_error( "Unbalanced operator: " + Clib::tostring( *tkn ) );
 		  }
 		}
 	  }
@@ -1947,8 +1948,8 @@ namespace Pol {
 
 	  unsigned default_posn = 0;
 	  unsigned casecmp_posn = 0;
-	  vector<unsigned> jmpend;
-	  vector<unsigned char> caseblock;
+      std::vector<unsigned> jmpend;
+      std::vector<unsigned char> caseblock;
 
 	  program->append( StoredToken( Mod_Basic, INS_CASEJMP, TYP_RESERVED, 0 ), &casecmp_posn );
 
@@ -2145,7 +2146,7 @@ namespace Pol {
         INFO_PRINT << "Warning: CASE block only has a DEFAULT clause defined.\n"
 		 << "near: " << curLine << "\n";
 		if ( compilercfg.ErrorOnWarning )
-		  throw runtime_error( "Warnings treated as errors." );
+		  throw std::runtime_error( "Warnings treated as errors." );
 		else
           INFO_PRINT << ctx;
 	  }
@@ -2226,10 +2227,10 @@ namespace Pol {
 		  */
 	  program->addlocalvar( itrvar.tokval() );
 	  localscope.addvar( itrvar.tokval(), foreach_ctx );
-	  program->addlocalvar( "_" + string( itrvar.tokval() ) + "_expr" );
-	  localscope.addvar( "_" + string( itrvar.tokval() ) + "_expr", foreach_ctx, false );
-	  program->addlocalvar( "_" + string( itrvar.tokval() ) + "_counter" );
-	  localscope.addvar( "_" + string( itrvar.tokval() ) + "_iter", foreach_ctx, false );
+	  program->addlocalvar( "_" + std::string( itrvar.tokval() ) + "_expr" );
+	  localscope.addvar( "_" + std::string( itrvar.tokval() ) + "_expr", foreach_ctx, false );
+	  program->addlocalvar( "_" + std::string( itrvar.tokval() ) + "_counter" );
+	  localscope.addvar( "_" + std::string( itrvar.tokval() ) + "_iter", foreach_ctx, false );
 
 
 	  unsigned iter_posn = program->tokens.next();
@@ -2469,7 +2470,7 @@ namespace Pol {
 	  if ( res ) return res;
 	  if ( funcName.id != TOK_IDENT )
 	  {
-		throw runtime_error( "Tried to declare a non-identifier" );
+		throw std::runtime_error( "Tried to declare a non-identifier" );
 	  }
 	  Token lparen;
 	  res = getToken( ctx, lparen );
@@ -2613,7 +2614,7 @@ namespace Pol {
 	{
 	  CompilerContext save_ctx( ctx );
 
-	  vector<unsigned> jumpend;
+      std::vector<unsigned> jumpend;
 
 	  Token token;
       if ( !quiet ) INFO_PRINT << "if clause..\n";
@@ -2976,7 +2977,7 @@ namespace Pol {
             INFO_PRINT << "Warning: Local variable '" << tk_varname.tokval()
               << "' hides Global variable of same name.\n";
 			if ( compilercfg.ErrorOnWarning )
-			  throw runtime_error( "Warnings treated as errors." );
+			  throw std::runtime_error( "Warnings treated as errors." );
 			else
               INFO_PRINT << ctx;
 
@@ -3001,7 +3002,7 @@ namespace Pol {
 		  {
             INFO_PRINT << "Warning! Deprecated array-declaration syntax used.\n";
 			if ( compilercfg.ErrorOnWarning )
-			  throw runtime_error( "Warnings treated as errors." );
+			  throw std::runtime_error( "Warnings treated as errors." );
 			else
               INFO_PRINT << ctx;
 		  }
@@ -3225,17 +3226,17 @@ namespace Pol {
 
 	  std::unique_ptr<FunctionalityModule> compmodl( new FunctionalityModule( modulename ) );
 
-	  string filename_part = modulename;
+	  std::string filename_part = modulename;
 	  filename_part += ".em";
 
-	  string filename_full = current_file_path + filename_part;
+	  std::string filename_full = current_file_path + filename_part;
 
 	  if ( verbosity_level_ >= 10 )
         INFO_PRINT << "Searching for " << filename_full << "\n";
 
 	  if ( !Clib::FileExists( filename_full.c_str() ) )
 	  {
-		string try_filename_full = compilercfg.ModuleDirectory + filename_part;
+        std::string try_filename_full = compilercfg.ModuleDirectory + filename_part;
 		if ( verbosity_level_ >= 10 )
           INFO_PRINT << "Searching for " << try_filename_full << "\n";
 		if ( Clib::FileExists( try_filename_full.c_str() ) )
@@ -3265,7 +3266,7 @@ namespace Pol {
 	  mt = orig_mt;
 	  CompilerContext mod_ctx( filename_full, program->add_dbg_filename( filename_full ), mt );
 
-	  string save = current_file_path;
+	  std::string save = current_file_path;
 	  current_file_path = getpathof( filename_full );
 
 	  int res = -1;
@@ -3390,21 +3391,21 @@ namespace Pol {
 	  //	}
 	  //	cout << endl;
 
-	  string filename_part = modulename;
+	  std::string filename_part = modulename;
 	  filename_part += ".inc";
 
-	  string filename_full = current_file_path + filename_part;
+	  std::string filename_full = current_file_path + filename_part;
 
 	  if ( filename_part[0] == ':' )
 	  {
 		const Plib::Package* pkg = NULL;
-		string path;
+		std::string path;
 		if ( Plib::pkgdef_split( filename_part, NULL, &pkg, &path ) )
 		{
 		  if ( pkg != NULL )
 		  {
 			filename_full = pkg->dir() + path;
-			string try_filename_full = pkg->dir() + "include/" + path;
+            std::string try_filename_full = pkg->dir() + "include/" + path;
 
 			if ( verbosity_level_ >= 10 )
               INFO_PRINT << "Searching for " << filename_full << "\n";
@@ -3456,7 +3457,7 @@ namespace Pol {
 
 		if ( !Clib::FileExists( filename_full.c_str() ) )
 		{
-		  string try_filename_full = compilercfg.IncludeDirectory + filename_part;
+		  std::string try_filename_full = compilercfg.IncludeDirectory + filename_part;
 		  if ( verbosity_level_ >= 10 )
             INFO_PRINT << "Searching for " << try_filename_full << "\n";
 		  if ( Clib::FileExists( try_filename_full.c_str() ) )
@@ -3475,7 +3476,7 @@ namespace Pol {
 		}
 	  }
 
-	  string filename_check = Clib::FullPath( filename_full.c_str() );
+	  std::string filename_check = Clib::FullPath( filename_full.c_str() );
 	  if ( included.count( filename_check ) )
 		return 0;
 	  included.insert( filename_check );
@@ -3493,7 +3494,7 @@ namespace Pol {
 
 	  CompilerContext mod_ctx( filename_full, program->add_dbg_filename( filename_full ), orig_mt );
 
-	  string save = current_file_path;
+	  std::string save = current_file_path;
 	  current_file_path = getpathof( filename_full );
 
 	  int res = compileContext( mod_ctx );
@@ -3541,7 +3542,7 @@ namespace Pol {
 	}
 
 
-	int Compiler::insertBreak( const string& label )
+	int Compiler::insertBreak( const std::string& label )
 	{
 	  // Now, we've eaten the break; or break label; and 'label' contains the label, if any.
 	  // first, we must find the block level this refers to.
@@ -3592,7 +3593,7 @@ namespace Pol {
 	int Compiler::handleBreak( CompilerContext& ctx )
 	{
 	  Token tk;
-	  string label;
+	  std::string label;
 
 	  if ( getToken( ctx, tk ) ||
 		   ( ( tk.id != TOK_IDENT ) && ( tk.id != TOK_SEMICOLON ) ) )
@@ -3626,7 +3627,7 @@ namespace Pol {
 	int Compiler::handleContinue( CompilerContext& ctx )
 	{
 	  Token tk;
-	  string label;
+	  std::string label;
 
 	  if ( getToken( ctx, tk ) ||
 		   ( ( tk.id != TOK_IDENT ) && ( tk.id != TOK_SEMICOLON ) ) )
@@ -3753,8 +3754,8 @@ namespace Pol {
 		localscope.addvar( itrvar.tokval(), for_ctx );
 	  else
 		localscope.addvar( itrvar.tokval(), for_ctx, false );
-	  program->addlocalvar( "_" + string( itrvar.tokval() ) + "_end" );
-	  localscope.addvar( "_" + string( itrvar.tokval() ) + "_end", for_ctx, false );
+	  program->addlocalvar( "_" + std::string( itrvar.tokval() ) + "_end" );
+	  localscope.addvar( "_" + std::string( itrvar.tokval() ) + "_end", for_ctx, false );
 
 	  StoredTokenContainer* prog_tokens = &program->tokens;
 	  unsigned again_posn = prog_tokens->next();
@@ -3963,7 +3964,7 @@ namespace Pol {
 	}
 	void Compiler::emitFileLineIfFileChanged( CompilerContext& ctx )
 	{
-	  string last;
+	  std::string last;
 	  if ( program->fileline.size() )
 		last = program->fileline.back();
 
@@ -4029,7 +4030,7 @@ namespace Pol {
 		  << " on line " << ctx.line
 		  << " of " << ctx.filename << "\n";
 		if ( compilercfg.ErrorOnWarning )
-		  throw runtime_error( "Warnings treated as errors." );
+		  throw std::runtime_error( "Warnings treated as errors." );
 		// warning only; doesn't bail out.
 	  }
 
@@ -4160,7 +4161,7 @@ namespace Pol {
             INFO_PRINT << "Warning: Equals test result ignored.  Did you mean := for assign?\n"
               << "near: " << curLine << "\n";
 			if ( compilercfg.ErrorOnWarning )
-			  throw runtime_error( "Warnings treated as errors." );
+			  throw std::runtime_error( "Warnings treated as errors." );
 			else
               INFO_PRINT << ctx;
 		  }
@@ -4171,7 +4172,7 @@ namespace Pol {
               << "Token ID: " << tmptoken.id << "\n"
               << "near: " << curLine << "\n";
 			if ( compilercfg.ErrorOnWarning )
-			  throw runtime_error( "Warnings treated as errors." );
+			  throw std::runtime_error( "Warnings treated as errors." );
 			else
               INFO_PRINT << ctx;
 		  }
@@ -4454,7 +4455,7 @@ namespace Pol {
 	}
 
 	// pass 2 function: just skip past, to the ENDFUNCTION.
-	int Compiler::handleBracketedFunction2( CompilerContext& ctx, int level, int tokentype )
+	int Compiler::handleBracketedFunction2( CompilerContext& ctx, int /*level*/, int tokentype )
 	{
 	  CompilerContext save_ctx( ctx );
 	  int res = -1;
@@ -4507,7 +4508,7 @@ namespace Pol {
 	  return res;
 	}
 
-	int Compiler::handleProgram( CompilerContext& ctx, int level )
+	int Compiler::handleProgram( CompilerContext& ctx, int /*level*/ )
 	{
 	  Token tk_progname;
 	  int res;
@@ -4875,7 +4876,7 @@ namespace Pol {
 		{
 		  res = handleProgram2( program_ctx, 1 );
 		}
-		catch ( runtime_error& excep )
+        catch (std::runtime_error& excep)
 		{
           INFO_PRINT << excep.what( ) << "\n";
 		  res = -1;
@@ -4966,21 +4967,21 @@ namespace Pol {
 
 	bool Compiler::read_function_declarations_in_included_file( const char *modulename )
 	{
-	  string filename_part = modulename;
+	  std::string filename_part = modulename;
 	  filename_part += ".inc";
 
-	  string filename_full = current_file_path + filename_part;
+	  std::string filename_full = current_file_path + filename_part;
 
 	  if ( filename_part[0] == ':' )
 	  {
 		const Plib::Package* pkg = NULL;
-		string path;
+        std::string path;
 		if ( Plib::pkgdef_split( filename_part, NULL, &pkg, &path ) )
 		{
 		  if ( pkg != NULL )
 		  {
 			filename_full = pkg->dir() + path;
-			string try_filename_full = pkg->dir() + "include/" + path;
+            std::string try_filename_full = pkg->dir() + "include/" + path;
 
 			if ( verbosity_level_ >= 10 )
               INFO_PRINT << "Searching for " << filename_full << "\n";
@@ -5032,7 +5033,7 @@ namespace Pol {
 
 		if ( !Clib::FileExists( filename_full.c_str() ) )
 		{
-		  string try_filename_full = compilercfg.IncludeDirectory + filename_part;
+		  std::string try_filename_full = compilercfg.IncludeDirectory + filename_part;
 		  if ( verbosity_level_ >= 10 )
             INFO_PRINT << "Searching for " << try_filename_full << "\n";
 		  if ( Clib::FileExists( try_filename_full.c_str() ) )
@@ -5050,7 +5051,7 @@ namespace Pol {
 		}
 	  }
 
-	  string filename_check = Clib::FullPath( filename_full.c_str() );
+	  std::string filename_check = Clib::FullPath( filename_full.c_str() );
 	  if ( included.count( filename_check ) )
 		return true;
 	  included.insert( filename_check );
@@ -5065,7 +5066,7 @@ namespace Pol {
 
 	  CompilerContext mod_ctx( filename_full, program->add_dbg_filename( filename_full ), orig_mt );
 
-	  string save = current_file_path;
+	  std::string save = current_file_path;
 	  current_file_path = getpathof( filename_full );
 
 	  bool res = inner_read_function_declarations( mod_ctx );
@@ -5269,14 +5270,14 @@ namespace Pol {
 
 	void preprocess_web_script( Clib::FileContents& fc )
 	{
-	  string output;
+	  std::string output;
 	  output = "use http;";
 	  output += '\n';
 
 	  bool reading_html = true;
 	  bool source_is_emit = false;
 	  const char* s = fc.contents();
-	  string acc;
+	  std::string acc;
 	  while ( *s )
 	  {
 		if ( reading_html )
@@ -5367,7 +5368,7 @@ namespace Pol {
         INFO_PRINT << "Exception Detected:" << s << "\n";
 		res = -1;
 	  }
-	  catch ( exception& ex )
+      catch (std::exception& ex)
 	  {
         INFO_PRINT << "Exception Detected:\n"
           << ex.what( ) << "\n";
@@ -5402,15 +5403,15 @@ namespace Pol {
 
 	void Compiler::writeIncludedFilenames( const char* fname ) const
 	{
-	  ofstream ofs( fname, ios::out | ios::trunc );
+        std::ofstream ofs(fname, std::ios::out | std::ios::trunc);
 	  //	ofs << current_file_path << endl;
 	  for ( const auto &elem : referencedPathnames )
 	  {
-		ofs << elem << endl;
+          ofs << elem << std::endl;
 	  }
 	}
 
-	void Compiler::dump( ostream& os )
+    void Compiler::dump(std::ostream& os)
 	{
 	  program->dump( os );
 	}

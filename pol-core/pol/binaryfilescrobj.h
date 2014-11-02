@@ -13,16 +13,19 @@ Notes
 
 #include "../bscript/bobject.h"
 #include "../clib/rawtypes.h"
+
+#include <fstream>
+
 namespace Pol {
   namespace Core {
 	class BinFile
 	{
 	public:
 	  BinFile();
-	  BinFile( const std::string& filename, ios::openmode mode );
+      BinFile(const std::string& filename, std::ios::openmode mode);
 	  ~BinFile();
 
-	  bool Open( const std::string& filename, ios::openmode mode );
+      bool Open(const std::string& filename, std::ios::openmode mode);
 	  void Close();
 
 	  template<class T>
@@ -44,19 +47,19 @@ namespace Pol {
 	  }
 
 	  bool WriteString( const char* chr, unsigned len );
-	  bool Seek( fstream::pos_type abs_offset, ios::seekdir origin );
-	  fstream::pos_type FileSize( Bscript::Executor& exec );
-	  fstream::pos_type Tell();
+      bool Seek(std::fstream::pos_type abs_offset, std::ios::seekdir origin);
+      std::fstream::pos_type FileSize(Bscript::Executor& exec);
+      std::fstream::pos_type Tell();
 	  int Peek();
 	  void Flush();
 	  bool IsOpen();
 
 
 	private:
-	  bool ReadBuffer( void* buffer, streamsize length );
-	  bool WriteBuffer( void* buffer, streamsize length );
+        bool ReadBuffer(void* buffer, std::streamsize length);
+        bool WriteBuffer(void* buffer, std::streamsize length);
 
-	  fstream _file;
+      std::fstream _file;
 	};
 
 	class BBinaryfile : public Bscript::BObjectImp
@@ -80,7 +83,7 @@ namespace Pol {
 	private:
 	  mutable BinFile file;
 	  std::string _filename;
-	  ios::openmode openmode;
+      std::ios::openmode openmode;
 	  bool bigendian;
 	};
   }

@@ -7,13 +7,12 @@ Notes
 
 */
 
-#include "../../clib/stl_inc.h"
+#include "attribute.h"
 
 #include "../../clib/cfgelem.h"
 #include "../../clib/maputil.h"
 #include "../../clib/passert.h"
 
-#include "attribute.h"
 #include "../../plib/pkg.h"
 #include "../syshook.h"
 #include "../ssopt.h"
@@ -63,7 +62,7 @@ namespace Pol {
 	  script_( elem.remove_string( "SCRIPT", "" ), pkg, "scripts/skills/" )
 	{
 	  aliases.push_back( name );
-	  string tmp;
+	  std::string tmp;
 	  while ( elem.remove_prop( "Alias", &tmp ) )
 		aliases.push_back( tmp );
 

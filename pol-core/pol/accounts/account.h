@@ -19,6 +19,10 @@ Notes
 
 #include "../../clib/strset.h"
 #include "../../clib/refptr.h"
+
+#include <vector>
+#include <string>
+
 namespace Pol {
   namespace Mobile {
 	class Character;

@@ -12,30 +12,25 @@ Notes
 
 */
 
-#include "../../clib/stl_inc.h"
-
-#ifdef _MSC_VER
-#	pragma warning( disable: 4786 )
-#endif
-
-#include "../../clib/cfgfile.h"
-#include "../../clib/endian.h"
-#include "../../clib/logfacility.h"
-#include "../../clib/strutil.h"
-
+#include "item.h"
+#include "itemdesc.h"
+#include "weapon.h"
+#include "wepntmpl.h"
 #include "armor.h"
 #include "armrtmpl.h"
+
 #include "../multi/boat.h"
 #include "../multi/boatcomp.h"
+#include "../multi/house.h"
+
 #include "../mobile/charactr.h"
 #include "../mobile/corpse.h"
+
 #include "../network/client.h"
+
 #include "../containr.h"
 #include "../door.h"
 #include "../extobj.h"
-#include "../multi/house.h"
-#include "item.h"
-#include "itemdesc.h"
 #include "../lockable.h"
 #include "../umap.h"
 #include "../objecthash.h"
@@ -50,8 +45,13 @@ Notes
 #include "../ufunc.h"
 #include "../uofile.h"
 #include "../uoscrobj.h"
-#include "weapon.h"
-#include "wepntmpl.h"
+
+#include "../../clib/cfgfile.h"
+#include "../../clib/endian.h"
+#include "../../clib/logfacility.h"
+#include "../../clib/strutil.h"
+
+#include <stdexcept>
 
 namespace Pol {
   namespace Items {
@@ -74,7 +74,7 @@ namespace Pol {
         message.Format( "Objtype not defined : 0x{:X}" ) << objtype;
 
         if ( !Core::config.ignore_load_errors )
-		  throw runtime_error( message.str() );
+		  throw std::runtime_error( message.str() );
 		else
 		{
           ERROR_PRINT << message.c_str() << "\n";

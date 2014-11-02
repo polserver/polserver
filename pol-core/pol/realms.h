@@ -14,6 +14,10 @@ Notes
 
 #ifndef REALMS_H
 #define REALMS_H
+
+#include <map>
+#include <vector>
+
 namespace Pol {
   namespace Plib {
 	class Realm;

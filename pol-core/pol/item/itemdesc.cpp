@@ -16,16 +16,29 @@ Notes
 
 */
 
-#include "../../clib/stl_inc.h"
+#include "itemdesc.h"
 
-#ifdef _MSC_VER
-#	pragma warning( disable: 4786 )
-#endif
+#include "wepntmpl.h"
+#include "armrtmpl.h"
 
 #include "../../bscript/bstruct.h"
 #include "../../bscript/dict.h"
 #include "../../bscript/escrutil.h"
 #include "../../bscript/impstr.h"
+
+#include "../../plib/mapcell.h"
+#include "../../plib/pkg.h"
+
+#include "../cfgrepos.h"
+#include "../clidata.h"
+#include "../objtype.h"
+#include "../multi/multidef.h"
+#include "../resource.h"
+#include "../polcfg.h"
+#include "../ssopt.h"
+#include "../syshookscript.h"
+#include "../ucfg.h"
+#include "../ustruct.h"
 
 #include "../../clib/cfgelem.h"
 #include "../../clib/cfgfile.h"
@@ -37,26 +50,9 @@ Notes
 #include "../../clib/stlutil.h"
 #include "../../clib/strutil.h"
 
-#include "../../plib/mapcell.h"
-
-#include "../cfgrepos.h"
-#include "../clidata.h"
-#include "../objtype.h"
-#include "itemdesc.h"
-#include "../multi/multidef.h"
-#include "../../plib/pkg.h"
-#include "../resource.h"
-#include "../polcfg.h"
-#include "../ssopt.h"
-#include "../syshookscript.h"
-#include "wepntmpl.h"
-#include "armrtmpl.h"
-#include "../ucfg.h"
-#include "../ustruct.h"
-
 namespace Pol {
   namespace Items {
-	typedef std::map<string, u32, Clib::ci_cmp_pred> ObjtypeByNameMap;
+	typedef std::map<std::string, u32, Clib::ci_cmp_pred> ObjtypeByNameMap;
 	ObjtypeByNameMap objtype_byname;
 
 	ItemDesc empty_itemdesc( ItemDesc::ITEMDESC );
@@ -65,7 +61,7 @@ namespace Pol {
 	// another option is to create such ItemDesc objects on demand as needed, and keep them around.
 	ItemDesc temp_itemdesc( ItemDesc::ITEMDESC );
 
-	map<u32, ItemDesc*> desctable;
+	std::map<u32, ItemDesc*> desctable;
 
 	OldObjtypeConversions old_objtype_conversions;
 
@@ -104,7 +100,7 @@ namespace Pol {
 	  if ( rd == NULL )
 	  {
         ERROR_PRINT << "itemdesc.cfg: Resource '" << rname << "' not found\n";
-		throw runtime_error( "Configuration error" );
+        throw std::runtime_error("Configuration error");
 	  }
 	}
 
@@ -169,7 +165,7 @@ namespace Pol {
 	  }
 	  else
 	  {
-		elem.throw_error( string( "Unexpected element type: " ) + elem.type() );
+          elem.throw_error(std::string("Unexpected element type: ") + elem.type());
 	  }
 	  return descriptor;
 	}
@@ -256,7 +252,7 @@ namespace Pol {
 
 	  if ( tooltip.length() > PKTOUT_B7_MAX_CHARACTERS )
 	  {
-		tooltip.erase( PKTOUT_B7_MAX_CHARACTERS, string::npos );
+          tooltip.erase(PKTOUT_B7_MAX_CHARACTERS, std::string::npos);
 	  }
 
 	  unsigned short in_movable;
@@ -265,7 +261,7 @@ namespace Pol {
 		movable = in_movable ? MOVABLE : UNMOVABLE;
 	  }
 
-	  string weight_str;
+      std::string weight_str;
 	  if ( elem.remove_prop( "WEIGHT", &weight_str ) )
 	  {
 		const char* s = weight_str.c_str();
@@ -311,7 +307,7 @@ namespace Pol {
 		else
 		{
           ERROR_PRINT.Format( "itemdesc.cfg, objtype 0x{:X} : Resource '{}' is malformed.\n" ) << objtype << temp;
-		  throw runtime_error( "Configuration file error" );
+          throw std::runtime_error("Configuration file error");
 		}
 	  }
 
@@ -351,7 +347,7 @@ namespace Pol {
 	  if ( elem.remove_prop( "MethodScript", &temp ) )
 	  {
 		if ( pkg == NULL )
-		  throw runtime_error( "MethodScripts can only be specified in a package" );
+            throw std::runtime_error("MethodScripts can only be specified in a package");
 		if ( !temp.empty() )
 		{
           Core::ExportScript* shs = new Core::ExportScript( pkg, temp );
@@ -382,7 +378,7 @@ namespace Pol {
 	  if ( elem.remove_prop( "StackingIgnoresCProps", &temp ) )
 	  {
 		ISTRINGSTREAM is( temp );
-		string cprop_name;
+        std::string cprop_name;
 		while ( is >> cprop_name )
 		{
 		  ignore_cprops.insert( cprop_name );
@@ -393,7 +389,7 @@ namespace Pol {
 	  memset( &element_damage, 0, sizeof( element_damage ) );
       for ( unsigned resist = 0; resist <= Core::ELEMENTAL_TYPE_MAX; ++resist )
 	  {
-		string tmp;
+        std::string tmp;
 		bool passed = false;
 
 		switch ( resist )
@@ -408,11 +404,11 @@ namespace Pol {
 		if ( passed )
 		{
           Core::Dice dice;
-		  string errmsg;
+          std::string errmsg;
 		  if ( !dice.load( tmp.c_str(), &errmsg ) )
 		  {
             ERROR_PRINT << "Error loading itemdesc.cfg Elemental Resistances for " << objtype_description() << " : " << errmsg << "\n";
-			throw runtime_error( "Error loading Item Elemental Resistances" );
+            throw std::runtime_error("Error loading Item Elemental Resistances");
 		  }
 		  switch ( resist )
 		  {
@@ -427,7 +423,7 @@ namespace Pol {
 
       for ( unsigned edamage = 0; edamage <= Core::ELEMENTAL_TYPE_MAX; ++edamage )
 	  {
-		string tmp;
+        std::string tmp;
 		bool passed = false;
 
 		switch ( edamage )
@@ -442,11 +438,11 @@ namespace Pol {
 		if ( passed )
 		{
           Core::Dice dice;
-		  string errmsg;
+          std::string errmsg;
 		  if ( !dice.load( tmp.c_str(), &errmsg ) )
 		  {
 			ERROR_PRINT << "Error loading itemdesc.cfg elemental damages for " << objtype_description() << " : " << errmsg << "\n";
-			throw runtime_error( "Error loading Item Elemental Damages" );
+            throw std::runtime_error("Error loading Item Elemental Damages");
 		  }
 		  switch ( edamage )
 		  {
@@ -511,7 +507,7 @@ namespace Pol {
 	void ItemDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
 	{
       using namespace Bscript;
-	  string typestr;
+      std::string typestr;
 	  switch ( type )
 	  {
 		case ITEMDESC:			typestr = "Item"; break;
@@ -582,9 +578,9 @@ namespace Pol {
 	  descriptor->addMember( "StackingIgnoresCProps", ignorecp.release() );
 
 	  auto cpropdict = new BDictionary();
-	  vector<string> propnames;
+      std::vector<std::string> propnames;
 	  std::vector<std::string>::const_iterator vec_itr;
-	  string tempval;
+      std::string tempval;
 	  props.getpropnames( propnames );
 	  for ( vec_itr = propnames.begin(); vec_itr != propnames.end(); ++vec_itr )
 	  {
@@ -612,7 +608,7 @@ namespace Pol {
 	  }
 	}
 
-	string ItemDesc::objtype_description() const
+    std::string ItemDesc::objtype_description() const
 	{
       fmt::Writer tmp;
       if ( pkg )
@@ -893,7 +889,7 @@ namespace Pol {
 	  return *md;
 	}
 
-	vector< ItemDesc* > dynamic_item_descriptors;
+    std::vector< ItemDesc* > dynamic_item_descriptors;
 	const ItemDesc* CreateItemDescriptor( Bscript::BStruct* itemdesc_struct )
 	{
       Clib::ConfigElem elem;
@@ -904,7 +900,7 @@ namespace Pol {
       Bscript::BStruct::Contents::const_iterator itr;
 	  for ( itr = struct_cont.begin(); itr != struct_cont.end(); ++itr )
 	  {
-		const string& key = ( *itr ).first;
+          const std::string& key = (*itr).first;
         Bscript::BObjectImp* val_imp = ( *itr ).second->impptr( );
 
 		if ( key == "CProps" )
@@ -921,7 +917,7 @@ namespace Pol {
 		  }
 		  else
 		  {
-			throw runtime_error( "CreateItemDescriptor: CProps must be a dictionary, but is: " + string( val_imp->typeOf() ) );
+              throw std::runtime_error("CreateItemDescriptor: CProps must be a dictionary, but is: " + std::string(val_imp->typeOf()));
 		  }
 		}
 		else if ( key == "StackingIgnoresCProps" )
@@ -941,7 +937,7 @@ namespace Pol {
 		  }
 		  else
 		  {
-			throw runtime_error( "CreateItemDescriptor: StackingIgnoresCProps must be an array, but is: " + string( val_imp->typeOf() ) );
+              throw std::runtime_error("CreateItemDescriptor: StackingIgnoresCProps must be an array, but is: " + std::string(val_imp->typeOf()));
 		  }
 		}
 		else if ( key == "Coverage" ) //Dave 7/13 needs to be parsed out into individual lines
@@ -961,17 +957,17 @@ namespace Pol {
 		  }
 		  else
 		  {
-			throw runtime_error( "CreateItemDescriptor: Coverage must be an array, but is: " + string( val_imp->typeOf() ) );
+              throw std::runtime_error("CreateItemDescriptor: Coverage must be an array, but is: " + std::string(val_imp->typeOf()));
 		  }
 		}
 		else if ( key == "ObjClass" )
 		{
-		  string value = val_imp->getStringRep();
+            std::string value = val_imp->getStringRep();
 		  elem.set_type( value.c_str() );
 		}
 		else if ( key == "ObjType" )
 		{
-		  string value = val_imp->getStringRep();
+            std::string value = val_imp->getStringRep();
 		  elem.set_rest( value.c_str() );
 		}
 		else if ( Clib::strlower( key ) == "name" ||
@@ -988,7 +984,7 @@ namespace Pol {
 		}
 		else
 		{
-		  string value = val_imp->getStringRep();
+            std::string value = val_imp->getStringRep();
 		  elem.add_prop( key.c_str(), value.c_str() );
 		}
 	  }
@@ -1050,7 +1046,7 @@ namespace Pol {
     void load_package_itemdesc( Plib::Package* pkg )
 	{
 	  //string filename = pkg->dir() + "itemdesc.cfg";
-	  string filename = GetPackageCfgPath( pkg, "itemdesc.cfg" );
+        std::string filename = GetPackageCfgPath(pkg, "itemdesc.cfg");
 	  if ( Clib::FileExists( filename.c_str() ) )
 	  {
 		read_itemdesc_file( filename.c_str(), pkg );
@@ -1059,7 +1055,7 @@ namespace Pol {
 
 	void write_objtypes_txt()
 	{
-	  ofstream ofs( "objtypes.txt" );
+        std::ofstream ofs("objtypes.txt");
 	  unsigned int last_objtype = 0;
 	  for ( const auto &elem : desctable )
 	  {
@@ -1154,7 +1150,7 @@ namespace Pol {
 	  }
 	}
 
-	void remove_resources( u32 objtype, u16 amount )
+	void remove_resources( u32 objtype, u16 /*amount*/ )
 	{
 	  const ItemDesc& id = find_itemdesc( objtype );
 	  for ( const auto& rc : id.resources )
@@ -1163,7 +1159,7 @@ namespace Pol {
 	  }
 	}
 
-	void return_resources( u32 objtype, u16 amount )
+	void return_resources( u32 objtype, u16 /*amount*/ )
 	{
 	  // MuadDib Added 03/22/09. This can cause a crash in shutdown with orphaned/leaked items
 	  // after saving of data files, and clearing all objects. At this stage, there is no need

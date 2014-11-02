@@ -24,10 +24,6 @@ Notes
 #ifndef __CLIENT_H
 #define __CLIENT_H
 
-#include <memory>
-#include <string.h>
-#include <mutex>
-#include <queue>
 
 #include "../../clib/rawtypes.h"
 #include "../../clib/wallclock.h"
@@ -37,6 +33,11 @@ Notes
 #include "../sockets.h"
 #include "../ucfg.h"
 #include "../crypt/cryptkey.h"
+
+#include <memory>
+#include <cstring>
+#include <mutex>
+#include <queue>
 
 namespace Pol {
   namespace Bscript {

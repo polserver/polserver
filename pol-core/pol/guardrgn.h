@@ -11,10 +11,15 @@ Notes
 #ifndef GUARDRGN_H
 #define GUARDRGN_H
 
+#include "region.h"
+
 #include <string>
 
-#include "region.h"
 namespace Pol {
+    namespace Network {
+        class Client;
+    }
+
   namespace Core {
 
 	void read_justice_zones();

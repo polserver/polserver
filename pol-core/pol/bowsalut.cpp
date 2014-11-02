@@ -9,7 +9,7 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
+#include "action.h"
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
@@ -32,7 +32,10 @@ Notes
 #include "ufunc.h"
 #include "sockio.h"
 
-#include "action.h"
+#ifdef _MSC_VER
+#pragma warning(disable:4996) // stricmp deprecation warning
+#endif
+
 namespace Pol {
   namespace Core {
 	UACTION mount_action_xlate[ACTION__HIGHEST + 1];
@@ -77,7 +80,7 @@ namespace Pol {
 
 
 
-	UACTION str_to_action( Clib::ConfigElem& elem, const string& str )
+	UACTION str_to_action( Clib::ConfigElem& elem, const std::string& str )
 	{
 	  unsigned short tmp = static_cast<unsigned short>( strtoul( str.c_str(), NULL, 0 ) );
 
@@ -92,7 +95,7 @@ namespace Pol {
 	  }
 	}
 
-	void load_anim_xlate_cfg( bool reload )
+	void load_anim_xlate_cfg( bool /*reload*/ )
 	{
 	  memset( &mount_action_xlate, 0, sizeof( mount_action_xlate ) );
       animation_translates.clear();
@@ -105,7 +108,7 @@ namespace Pol {
 		{
           if ( elem.type_is("OnMount") )
           {
-            string from_str, to_str;
+            std::string from_str, to_str;
             while ( elem.remove_first_prop( &from_str, &to_str ) )
             {
               UACTION from = str_to_action( elem, from_str );
@@ -116,7 +119,7 @@ namespace Pol {
           else if ( elem.type_is( "MobileType" ) )
           {
             MobileTranslate mobiletype;
-            string key, value;
+            std::string key, value;
             while ( elem.has_prop( "Graphic" ) )
             {
               mobiletype.graphics.push_back( elem.remove_ushort( "Graphic" ) );
@@ -124,11 +127,11 @@ namespace Pol {
             std::sort( mobiletype.graphics.begin(), mobiletype.graphics.end() );
             mobiletype.supports_mount = elem.remove_bool( "MountTranslation", false );
 
-            auto split_str = [](const string &source) -> vector<string>
+            auto split_str = [](const std::string &source) -> std::vector<std::string>
             {
               ISTRINGSTREAM is( source );
-              string tmp;
-              vector<string> result;
+              std::string tmp;
+              std::vector<std::string> result;
               while ( is >> tmp )
               {
 				if (tmp.empty())
@@ -142,10 +145,10 @@ namespace Pol {
             };
 			for (int id = 0; id <= ACTION__HIGHEST;++id)
 			{
-			  string entry( "OldAnim" + std::to_string( id ) );
+                std::string entry("OldAnim" + std::to_string(id));
 			  if (elem.has_prop(entry.c_str()))
 			  {
-				vector<string> values = split_str(elem.remove_string( entry.c_str() ));
+                std::vector<std::string> values = split_str(elem.remove_string(entry.c_str()));
 				if ( !values.empty() )
 				{
                   mobiletype.old_anim[id].action = static_cast<u16>( strtoul( values[0].c_str(), NULL, 0 ) );
@@ -170,7 +173,7 @@ namespace Pol {
 			  entry = "NewAnim" + std::to_string( id );
 			  if (elem.has_prop(entry.c_str()))
 			  {
-				vector<string> values = split_str(elem.remove_string( entry.c_str() ));
+                std::vector<std::string> values = split_str(elem.remove_string(entry.c_str()));
 				if ( !values.empty() )
 				{
                   mobiletype.new_anim[id].anim = static_cast<u16>( strtoul( values[0].c_str(), NULL, 0 ) );

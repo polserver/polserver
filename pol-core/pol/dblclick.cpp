@@ -17,10 +17,6 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-
-#include <string.h>
-
 #include "../clib/clib.h"
 #include "../clib/endian.h"
 
@@ -46,6 +42,9 @@ Notes
 #include "objtype.h"
 #include "containr.h"
 
+#include <cstring>
+#include <string>
+
 namespace Pol {
   namespace Core {
 	void send_paperdoll( Network::Client *client, Mobile::Character *chr )
@@ -55,7 +54,7 @@ namespace Pol {
 
 	  if ( ( !ssopt.privacy_paperdoll ) || ( client->chr == chr ) )
 	  {
-		string name = ( chr->title_prefix.empty() ? "" : chr->title_prefix + " " ) +
+		std::string name = ( chr->title_prefix.empty() ? "" : chr->title_prefix + " " ) +
 		  chr->name() +
 		  ( chr->title_suffix.empty() ? "" : " " + chr->title_suffix );
 		if ( !chr->title_race.empty() )

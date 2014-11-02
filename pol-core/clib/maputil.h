@@ -12,6 +12,7 @@ Notes
 
 #include "clib.h"
 #include <cstring>
+#include <string>
 
 #ifdef _MSC_VER
     #pragma warning(push)

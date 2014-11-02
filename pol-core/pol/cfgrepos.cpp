@@ -15,13 +15,8 @@ Configuration File Repository
 
 */
 
-#include "../clib/stl_inc.h"
-
-#ifdef _MSC_VER
-#	pragma warning( disable: 4786 )
-#endif
-
-#include <sys/stat.h>
+#include "cfgrepos.h"
+#include "polcfg.h"
 
 #include "../bscript/bobject.h"
 #include "../bscript/escrutil.h"
@@ -34,14 +29,18 @@ Configuration File Repository
 #include "../clib/refptr.h"
 #include "../clib/strutil.h"
 
-#include "cfgrepos.h"
-#include "polcfg.h"
 #include "../plib/pkg.h"
+
+#include <sys/stat.h>
+
+#include <vector>
+#include <stdexcept>
+
 namespace Pol {
   namespace Core {
 	StoredConfigElem::StoredConfigElem( Clib::ConfigElem& elem )
 	{
-	  string propname, propval;
+	  std::string propname, propval;
 
 	  while ( elem.remove_first_prop( &propname, &propval ) )
 	  {
@@ -147,7 +146,7 @@ namespace Pol {
 		  elements_bynum_.insert( ElementsByNum::value_type( key, elemref ) );
 		}
 
-		string key( elem.rest() );
+		std::string key( elem.rest() );
 		elements_byname_.insert( ElementsByName::value_type( key, elemref ) );
 	  }
 	}
@@ -161,7 +160,7 @@ namespace Pol {
 		return ( *itr ).second;
 	}
 
-	StoredConfigFile::ElemRef StoredConfigFile::findelem( const string& key )
+    StoredConfigFile::ElemRef StoredConfigFile::findelem(const std::string& key)
 	{
 	  ElementsByName::const_iterator itr = elements_byname_.find( key );
 	  if ( itr == elements_byname_.end() )
@@ -190,22 +189,22 @@ namespace Pol {
 	}
 
 	//  From "[some stuff]" return "some stuff"
-	string extractkey( const string& istr )
+    std::string extractkey(const std::string& istr)
 	{
-	  string::size_type vstart = istr.find_first_not_of( " [" );
-	  string::size_type vend = istr.find_last_not_of( "] " );
+        std::string::size_type vstart = istr.find_first_not_of(" [");
+        std::string::size_type vend = istr.find_last_not_of("] ");
 	  return istr.substr( vstart, vend );
 	}
 
 	void StoredConfigFile::load_tus_scp( const std::string& filename )
 	{
-	  ifstream ifs( filename.c_str() );
+      std::ifstream ifs(filename.c_str());
 
 	  int count = 0;
 	  ElemRef elemref( new StoredConfigElem() );
 	  elements_bynum_.insert( ElementsByNum::value_type( count++, elemref ) );
 
-	  string strbuf;
+      std::string strbuf;
 	  while ( getline( ifs, strbuf ) )
 	  {
 		if ( strbuf[0] == '[' )
@@ -216,7 +215,7 @@ namespace Pol {
 		  elemref->addprop( "_key", Bscript::bobject_from_string( strbuf, 16 ) );
 		}
 		// FIXME: skip empty lines and comment lines (duh)
-		string propname, propvalue;
+        std::string propname, propvalue;
 		Clib::splitnamevalue( strbuf, propname, propvalue );
 
 		if ( propname == "" || propname.substr( 0, 2 ) == "//" )
@@ -247,13 +246,13 @@ namespace Pol {
 
 
 
-	typedef map<string, ConfigFileRef> CfgFiles;
-	typedef vector<string> OldCfgFiles; // we've multiple older instances
+    typedef std::map<std::string, ConfigFileRef> CfgFiles;
+    typedef std::vector<std::string> OldCfgFiles; // we've multiple older instances
 	CfgFiles cfgfiles;
 	OldCfgFiles oldcfgfiles;
 
 
-	ConfigFileRef FindConfigFile( const string& filename, const string& allpkgbase )
+    ConfigFileRef FindConfigFile(const std::string& filename, const std::string& allpkgbase)
 	{
 	  CfgFiles::iterator itr = cfgfiles.find( filename );
 	  if ( itr != cfgfiles.end() )
@@ -280,7 +279,7 @@ namespace Pol {
 		{
 		  bool any = false;
 		  ref_ptr<StoredConfigFile> scfg( new StoredConfigFile() );
-		  string main_cfg = "config/" + allpkgbase + ".cfg";
+          std::string main_cfg = "config/" + allpkgbase + ".cfg";
 		  if ( Clib::FileExists( main_cfg.c_str() ) )
 		  {
 			Clib::ConfigFile cf_main( main_cfg.c_str() );
@@ -291,7 +290,7 @@ namespace Pol {
 		  {
 			Plib::Package* pkg = ( *pitr );
 			//string pkgfilename = pkg->dir() + allpkgbase + ".cfg";
-			string pkgfilename = GetPackageCfgPath( pkg, allpkgbase + ".cfg" );
+            std::string pkgfilename = GetPackageCfgPath(pkg, allpkgbase + ".cfg");
 			if ( Clib::FileExists( pkgfilename.c_str() ) )
 			{
 			  Clib::ConfigFile cf( pkgfilename.c_str() );
@@ -323,7 +322,7 @@ namespace Pol {
 		  return scfg;
 		}
 	  }
-	  catch ( exception& ex )
+      catch (std::exception& ex)
 	  {
 		// There was some weird problem reading the config file.
         DEBUGLOG << "An exception was encountered while reading " << filename << ": " << ex.what() << "\n";
@@ -331,7 +330,7 @@ namespace Pol {
 	  }
 	}
 
-	ConfigFileRef LoadTusScpFile( const string& filename )
+    ConfigFileRef LoadTusScpFile(const std::string& filename)
 	{
 	  if ( !Clib::FileExists( filename.c_str() ) )
 	  {
@@ -343,13 +342,13 @@ namespace Pol {
 	  return scfg;
 	}
 
-	void CreateEmptyStoredConfigFile( const string& filename )
+    void CreateEmptyStoredConfigFile(const std::string& filename)
 	{
 	  ref_ptr<StoredConfigFile> scfg( new StoredConfigFile() );
 	  cfgfiles.insert( CfgFiles::value_type( filename, scfg ) );
 	}
 
-	int UnloadConfigFile( const string& filename )
+    int UnloadConfigFile(const std::string& filename)
 	{
 	  CfgFiles::iterator itr = cfgfiles.find( filename );
 	  if ( itr != cfgfiles.end() )

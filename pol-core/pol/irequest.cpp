@@ -9,17 +9,13 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-#include "../clib/endian.h"
-#include "../clib/fdump.h"
-#include "../clib/clib.h"
-#include "../clib/logfacility.h"
-
 #include "mobile/attribute.h"
 #include "mobile/charactr.h"
+
 #include "network/client.h"
 #include "network/clienttransmit.h"
 #include "network/msghandl.h"
+
 #include "pktboth.h"
 #include "pktin.h"
 #include "polcfg.h"
@@ -31,6 +27,11 @@ Notes
 #include "ufunc.h"
 #include "ssopt.h"
 #include "party.h"
+
+#include "../clib/endian.h"
+#include "../clib/fdump.h"
+#include "../clib/clib.h"
+#include "../clib/logfacility.h"
 
 namespace Pol {
   namespace Core {

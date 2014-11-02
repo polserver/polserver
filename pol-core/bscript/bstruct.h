@@ -12,8 +12,16 @@ Notes
 #ifndef BSCRIPT_BSTRUCT_H
 #define BSCRIPT_BSTRUCT_H
 
+#ifndef __BSCRIPT_BOBJECT_H
 #include "bobject.h"
+#endif
+
 #include "../clib/maputil.h"
+
+#include <map>
+#include <iosfwd>
+#include <string>
+
 namespace Pol {
   namespace Bscript {
 	class BStruct : public BObjectImp

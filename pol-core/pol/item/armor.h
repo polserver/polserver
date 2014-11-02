@@ -17,6 +17,9 @@ Notes
 
 #include "equipmnt.h"
 
+#include <set>
+#include <string>
+
 namespace Pol {
   namespace Items {
 	class ArmorDesc;

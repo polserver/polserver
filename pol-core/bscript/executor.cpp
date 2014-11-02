@@ -14,14 +14,7 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-
-#include "../clib/clib.h"
-#include "../clib/logfacility.h"
-#include "../clib/passert.h"
-#include "../clib/stlutil.h"
-#include "../clib/strutil.h"
-#include "../clib/mlog.h"
+#include "executor.h"
 
 #include "berror.h"
 #include "config.h"
@@ -37,20 +30,34 @@ Notes
 #include "eprog.h"
 #include "operator.h"
 #include "token.h"
-#include "executor.h"
 #include "contiter.h"
 #include "filefmt.h"
 
+#include "../clib/clib.h"
+#include "../clib/logfacility.h"
+#include "../clib/passert.h"
+#include "../clib/stlutil.h"
+#include "../clib/strutil.h"
+#include "../clib/mlog.h"
+
 #include <climits>
-#include <stdlib.h>
+#include <cstdlib>
+#include <stdexcept>
+#include <stack>
 
 #ifdef ESCRIPT_PROFILE
 #ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #else
 #include <sys/time.h>
 #endif
 #endif
+
+#ifdef _MSC_VER
+#pragma warning(disable:4996) // deprecated POSIX stricmp warning
+#endif
+
 
 namespace Pol {
   namespace Bscript {
@@ -321,7 +328,7 @@ namespace Pol {
 	  }
 	  else
 	  {
-		string report = "Invalid parameter type.  Expected param "
+		std::string report = "Invalid parameter type.  Expected param "
 		  + Clib::decint( param )
 		  + " as "
 		  + BObjectImp::typestr( type )
@@ -378,7 +385,7 @@ namespace Pol {
 		}
 		else
 		{
-		  string report = "Parameter " + Clib::decint( param ) + " value " + Clib::decint( value )
+            std::string report = "Parameter " + Clib::decint(param) + " value " + Clib::decint(value)
 			+ " out of expected range of [0.."
 			+ Clib::decint( maxval ) + "]";
 		  func_result_ = new BError( report );
@@ -405,7 +412,7 @@ namespace Pol {
 		}
 		else
 		{
-		  string report = "Parameter " + Clib::decint( param ) + " value " + Clib::decint( value )
+            std::string report = "Parameter " + Clib::decint(param) + " value " + Clib::decint(value)
 			+ " out of expected range of [" + Clib::decint( minval ) + ".."
 			+ Clib::decint( maxval ) + "]";
 		  func_result_ = new BError( report );
@@ -505,7 +512,7 @@ namespace Pol {
 		}
 		else
 		{
-		  string report = "Parameter " + Clib::decint( param ) + " value " + Clib::decint( longvalue ) + " out of expected range of [0.."
+            std::string report = "Parameter " + Clib::decint(param) + " value " + Clib::decint(longvalue) + " out of expected range of [0.."
 			+ Clib::decint( maxval ) + "]";
 		  func_result_ = new BError( report );
 		  return false;
@@ -536,7 +543,7 @@ namespace Pol {
 		}
 		else
 		{
-		  string report = "Parameter " + Clib::decint( param ) + " value " + Clib::decint( longvalue ) + " out of expected range of [" + Clib::decint( minval ) + ".."
+            std::string report = "Parameter " + Clib::decint(param) + " value " + Clib::decint(longvalue) + " out of expected range of [" + Clib::decint(minval) + ".."
 			+ Clib::decint( maxval ) + "]";
 		  func_result_ = new BError( report );
 		  return false;
@@ -563,7 +570,7 @@ namespace Pol {
 		}
 		else
 		{
-		  string report = "Parameter " + Clib::decint( param ) + " value " + Clib::decint( longvalue ) + " out of expected range of [0.."
+            std::string report = "Parameter " + Clib::decint(param) + " value " + Clib::decint(longvalue) + " out of expected range of [0.."
 			+ Clib::decint( USHRT_MAX ) + "]";
 		  func_result_ = new BError( report );
 		  return false;
@@ -589,7 +596,7 @@ namespace Pol {
 		}
 		else
 		{
-		  string report = "Parameter " + Clib::decint( param ) + " value " + Clib::decint( longvalue ) + " out of expected range of [0.."
+            std::string report = "Parameter " + Clib::decint(param) + " value " + Clib::decint(longvalue) + " out of expected range of [0.."
 			+ Clib::decint( INT_MAX ) + "]";
 		  func_result_ = new BError( report );
 		  return false;
@@ -616,7 +623,7 @@ namespace Pol {
 		}
 		else
 		{
-		  string report = "Parameter " + Clib::decint( param ) + " value " + Clib::decint( longvalue ) + " out of expected range of [" + Clib::decint( SHRT_MIN ) + ".."
+            std::string report = "Parameter " + Clib::decint(param) + " value " + Clib::decint(longvalue) + " out of expected range of [" + Clib::decint(SHRT_MIN) + ".."
 			+ Clib::decint( SHRT_MAX ) + "]";
 		  func_result_ = new BError( report );
 		  return false;
@@ -643,7 +650,7 @@ namespace Pol {
 		}
 		else
 		{
-		  string report = "Parameter " + Clib::decint( param ) + " value " + Clib::decint( longvalue ) + " out of expected range of [" + Clib::decint( SHRT_MIN ) + ".."
+            std::string report = "Parameter " + Clib::decint(param) + " value " + Clib::decint(longvalue) + " out of expected range of [" + Clib::decint(SHRT_MIN) + ".."
 			+ Clib::decint( maxval ) + "]";
 		  func_result_ = new BError( report );
 		  return false;
@@ -673,7 +680,7 @@ namespace Pol {
 		}
 		else
 		{
-		  string report = "Parameter " + Clib::decint( param ) + " value " + Clib::decint( longvalue ) + " out of expected range of [" + Clib::decint( minval ) + ".."
+            std::string report = "Parameter " + Clib::decint(param) + " value " + Clib::decint(longvalue) + " out of expected range of [" + Clib::decint(minval) + ".."
 			+ Clib::decint( maxval ) + "]";
 		  func_result_ = new BError( report );
 		  return false;
@@ -779,7 +786,7 @@ namespace Pol {
         DEBUGLOG << "Error in script '" << prog_->name.get() << "':\n"
           << "\tModule Function " << modfunc->name.get() << " was not found.\n";
 
-		throw runtime_error( "No implementation for function found." );
+		throw std::runtime_error( "No implementation for function found." );
 	  }
 
 	  ExecutorModule *em = execmodules[token.module];
@@ -790,7 +797,7 @@ namespace Pol {
 	  strm << em->functionName( modfunc->funcidx );
 	  if (!fparams.empty())
 		strm << " [" << fparams[0].get()->impptr()->typeOf() << "]";
-	  string name(strm.str());
+      std::string name(strm.str());
 	  unsigned long profile_start= GetTimeUs();
 #endif
 	  BObjectImp* resimp = em->execFunc( modfunc->funcidx );
@@ -822,7 +829,7 @@ namespace Pol {
 	}
 
 	// RSV_LOCAL
-	void Executor::ins_makeLocal( const Instruction& ins )
+	void Executor::ins_makeLocal( const Instruction& /*ins*/ )
 	{
 	  passert( Locals2 != NULL );
 
@@ -833,7 +840,7 @@ namespace Pol {
 	}
 
 	// RSV_DECLARE_ARRAY
-	void Executor::ins_declareArray( const Instruction& ins )
+	void Executor::ins_declareArray( const Instruction& /*ins*/ )
 	{
 	  BObjectRef objref = getObjRef();
 
@@ -851,7 +858,7 @@ namespace Pol {
 	  ValueStack.push_back( BObjectRef( objref ) );
 	}
 
-	void Executor::popParam( const Token& token )
+	void Executor::popParam( const Token& /*token*/ )
 	{
 	  BObjectRef objref = getObjRef();
 
@@ -859,14 +866,14 @@ namespace Pol {
 	  Locals2->back().set( new BObject( objref->impptr()->copy() ) );
 	}
 
-	void Executor::popParamByRef( const Token& token )
+	void Executor::popParamByRef( const Token& /*token*/ )
 	{
 	  BObjectRef objref = getObjRef();
 
 	  Locals2->push_back( BObjectRef( objref ) );
 	}
 
-	void Executor::getArg( const Token& token )
+	void Executor::getArg( const Token& /*token*/ )
 	{
 	  if ( ValueStack.empty() )
 	  {
@@ -935,7 +942,7 @@ namespace Pol {
 	{
 	  return sizeof( ContIterator );
 	}
-	string ContIterator::getStringRep() const
+	std::string ContIterator::getStringRep() const
 	{
 	  return "<iterator>";
 	}
@@ -977,7 +984,7 @@ namespace Pol {
 	  return elem;
 	}
 
-	ContIterator* BObjectImp::createIterator( BObject* pIterVal )
+	ContIterator* BObjectImp::createIterator( BObject* /*pIterVal*/ )
 	{
 	  return new ContIterator();
 	}
@@ -1143,7 +1150,7 @@ namespace Pol {
 
 	int Executor::ins_casejmp_findstring( const Token& token, String* bstringimp )
 	{
-	  const string& bstring = bstringimp->value();
+        const std::string& bstring = bstringimp->value();
 	  const unsigned char* dataptr = token.dataptr;
 	  for ( ;; )
 	  {
@@ -1256,7 +1263,7 @@ namespace Pol {
 	}
 
 	// case TOK_CONSUMER:
-	void Executor::ins_consume( const Instruction& ins )
+	void Executor::ins_consume( const Instruction& /*ins*/ )
 	{
 	  ValueStack.pop_back();
 	}
@@ -1437,7 +1444,7 @@ namespace Pol {
 	  strm << "MBR_" << leftref->impptr()->typeOf() << " ." << ins.token.tokval();
 	  if (!fparams.empty())
 		strm << " [" << fparams[0].get()->impptr()->typeOf() << "]";
-	  string name(strm.str());
+      std::string name(strm.str());
 	  unsigned long profile_start= GetTimeUs();
 #endif
 	  leftref = left->get_member( ins.token.tokval() );
@@ -1457,7 +1464,7 @@ namespace Pol {
 	  strm << "MBR_" << leftref->impptr()->typeOf() << " ." << ins.token.lval;
 	  if (!fparams.empty())
 		strm << " [" << fparams[0].get()->impptr()->typeOf() << "]";
-	  string name(strm.str());
+      std::string name(strm.str());
 	  unsigned long profile_start= GetTimeUs();
 #endif
 	  leftref = left->get_member_id( ins.token.lval );
@@ -1508,7 +1515,7 @@ namespace Pol {
 	}
 
 	// case INS_ASSIGN_CONSUME:
-	void Executor::ins_assign_consume( const Instruction& ins )
+	void Executor::ins_assign_consume( const Instruction& /*ins*/ )
 	{
 	  BObjectRef rightref = ValueStack.back();
 	  ValueStack.pop_back();
@@ -1530,7 +1537,7 @@ namespace Pol {
 	  ValueStack.pop_back();
 	}
 
-	void Executor::ins_assign( const Instruction& ins )
+	void Executor::ins_assign( const Instruction& /*ins*/ )
 	{
 	  /*
 		  These each take two operands, and replace them with one.
@@ -1556,7 +1563,7 @@ namespace Pol {
 	  }
 	}
 
-	void Executor::ins_array_assign( const Instruction& ins )
+	void Executor::ins_array_assign( const Instruction& /*ins*/ )
 	{
 	  /*
 		  on the value stack:
@@ -1583,7 +1590,7 @@ namespace Pol {
 
 	  x_ref.set( new BObject( result ) );
 	}
-	void Executor::ins_array_assign_consume( const Instruction& ins )
+	void Executor::ins_array_assign_consume( const Instruction& /*ins*/ )
 	{
 	  /*
 		  on the value stack:
@@ -1613,7 +1620,7 @@ namespace Pol {
 	}
 
 	// TOK_ADD:
-	void Executor::ins_add( const Instruction& ins )
+	void Executor::ins_add( const Instruction& /*ins*/ )
 	{
 	  /*
 		  These each take two operands, and replace them with one.
@@ -1631,7 +1638,7 @@ namespace Pol {
 	}
 
 	// TOK_SUBTRACT
-	void Executor::ins_subtract( const Instruction& ins )
+	void Executor::ins_subtract( const Instruction& /*ins*/ )
 	{
 	  /*
 		  These each take two operands, and replace them with one.
@@ -1649,7 +1656,7 @@ namespace Pol {
 	}
 
 	// TOK_MULT:
-	void Executor::ins_mult( const Instruction& ins )
+	void Executor::ins_mult( const Instruction& /*ins*/ )
 	{
 	  /*
 		  These each take two operands, and replace them with one.
@@ -1666,7 +1673,7 @@ namespace Pol {
 	  leftref.set( new BObject( right.impref().selfTimesObjImp( left.impref() ) ) );
 	}
 	// TOK_DIV:
-	void Executor::ins_div( const Instruction& ins )
+	void Executor::ins_div( const Instruction& /*ins*/ )
 	{
 	  /*
 		  These each take two operands, and replace them with one.
@@ -1683,7 +1690,7 @@ namespace Pol {
 	  leftref.set( new BObject( right.impref().selfDividedByObjImp( left.impref() ) ) );
 	}
 	// TOK_MODULUS:
-	void Executor::ins_modulus( const Instruction& ins )
+	void Executor::ins_modulus( const Instruction& /*ins*/ )
 	{
 	  /*
 		  These each take two operands, and replace them with one.
@@ -1700,7 +1707,7 @@ namespace Pol {
 	  leftref.set( new BObject( right.impref().selfModulusObjImp( left.impref() ) ) );
 	}
 	// TOK_BSRIGHT:
-	void Executor::ins_bitshift_right( const Instruction& ins )
+	void Executor::ins_bitshift_right( const Instruction& /*ins*/ )
 	{
 	  /*
 		  These each take two operands, and replace them with one.
@@ -1717,7 +1724,7 @@ namespace Pol {
 	  leftref.set( new BObject( right.impref().selfBitShiftRightObjImp( left.impref() ) ) );
 	}
 	// TOK_BSLEFT:
-	void Executor::ins_bitshift_left( const Instruction& ins )
+	void Executor::ins_bitshift_left( const Instruction& /*ins*/ )
 	{
 	  /*
 		  These each take two operands, and replace them with one.
@@ -1734,7 +1741,7 @@ namespace Pol {
 	  leftref.set( new BObject( right.impref().selfBitShiftLeftObjImp( left.impref() ) ) );
 	}
 	// TOK_BITAND:
-	void Executor::ins_bitwise_and( const Instruction& ins )
+	void Executor::ins_bitwise_and( const Instruction& /*ins*/ )
 	{
 	  /*
 		  These each take two operands, and replace them with one.
@@ -1751,7 +1758,7 @@ namespace Pol {
 	  leftref.set( new BObject( right.impref().selfBitAndObjImp( left.impref() ) ) );
 	}
 	// TOK_BITXOR:
-	void Executor::ins_bitwise_xor( const Instruction& ins )
+	void Executor::ins_bitwise_xor( const Instruction& /*ins*/ )
 	{
 	  /*
 		  These each take two operands, and replace them with one.
@@ -1768,7 +1775,7 @@ namespace Pol {
 	  leftref.set( new BObject( right.impref().selfBitXorObjImp( left.impref() ) ) );
 	}
 	// TOK_BITOR:
-	void Executor::ins_bitwise_or( const Instruction& ins )
+	void Executor::ins_bitwise_or( const Instruction& /*ins*/ )
 	{
 	  /*
 		  These each take two operands, and replace them with one.
@@ -1785,7 +1792,7 @@ namespace Pol {
 	  leftref.set( new BObject( right.impref().selfBitOrObjImp( left.impref() ) ) );
 	}
 
-	void Executor::ins_logical_and( const Instruction& ins )
+	void Executor::ins_logical_and( const Instruction& /*ins*/ )
 	{
 	  /*
 		  These each take two operands, and replace them with one.
@@ -1802,7 +1809,7 @@ namespace Pol {
 	  int _true = ( left.isTrue() && right.isTrue() );
 	  leftref.set( new BObject( new BLong( _true ) ) );
 	}
-	void Executor::ins_logical_or( const Instruction& ins )
+	void Executor::ins_logical_or( const Instruction& /*ins*/ )
 	{
 	  /*
 		  These each take two operands, and replace them with one.
@@ -1820,7 +1827,7 @@ namespace Pol {
 	  leftref.set( new BObject( new BLong( _true ) ) );
 	}
 
-	void Executor::ins_notequal( const Instruction& ins )
+	void Executor::ins_notequal( const Instruction& /*ins*/ )
 	{
 	  /*
 		  These each take two operands, and replace them with one.
@@ -1838,7 +1845,7 @@ namespace Pol {
 	  leftref.set( new BObject( new BLong( _true ) ) );
 	}
 
-	void Executor::ins_equal( const Instruction& ins )
+	void Executor::ins_equal( const Instruction& /*ins*/ )
 	{
 	  /*
 		  These each take two operands, and replace them with one.
@@ -1856,7 +1863,7 @@ namespace Pol {
 	  leftref.set( new BObject( new BLong( _true ) ) );
 	}
 
-	void Executor::ins_lessthan( const Instruction& ins )
+	void Executor::ins_lessthan( const Instruction& /*ins*/ )
 	{
 	  /*
 		  These each take two operands, and replace them with one.
@@ -1874,7 +1881,7 @@ namespace Pol {
 	  leftref.set( new BObject( new BLong( _true ) ) );
 	}
 
-	void Executor::ins_lessequal( const Instruction& ins )
+	void Executor::ins_lessequal( const Instruction& /*ins*/ )
 	{
 	  /*
 		  These each take two operands, and replace them with one.
@@ -1890,7 +1897,7 @@ namespace Pol {
 	  int _true = ( left->isLE( right.impref() ) );
 	  leftref.set( new BObject( new BLong( _true ) ) );
 	}
-	void Executor::ins_greaterthan( const Instruction& ins )
+	void Executor::ins_greaterthan( const Instruction& /*ins*/ )
 	{
 	  /*
 		  These each take two operands, and replace them with one.
@@ -1907,7 +1914,7 @@ namespace Pol {
 	  int _true = ( right->isLT( left.impref() ) );
 	  leftref.set( new BObject( new BLong( _true ) ) );
 	}
-	void Executor::ins_greaterequal( const Instruction& ins )
+	void Executor::ins_greaterequal( const Instruction& /*ins*/ )
 	{
 	  /*
 		  These each take two operands, and replace them with one.
@@ -1926,7 +1933,7 @@ namespace Pol {
 	}
 
 	// case TOK_ARRAY_SUBSCRIPT:
-	void Executor::ins_arraysubscript( const Instruction& ins )
+	void Executor::ins_arraysubscript( const Instruction& /*ins*/ )
 	{
 	  /*
 		  These each take two operands, and replace them with one.
@@ -1943,7 +1950,7 @@ namespace Pol {
 	void Executor::ins_multisubscript( const Instruction& ins )
 	{
 	  // the subscripts are on the value stack in right-to-left order, followed by the array itself
-	  stack<BObjectRef> indices;
+	  std::stack<BObjectRef> indices;
 	  for ( int i = 0; i < ins.token.lval; ++i )
 	  {
 		indices.push( ValueStack.back() );
@@ -1959,7 +1966,7 @@ namespace Pol {
 	  BObjectRef target_ref = ValueStack.back();
 	  ValueStack.pop_back();
 	  // the subscripts are on the value stack in right-to-left order, followed by the array itself
-	  stack<BObjectRef> indices;
+	  std::stack<BObjectRef> indices;
 	  for ( int i = 0; i < ins.token.lval; ++i )
 	  {
 		indices.push( ValueStack.back() );
@@ -1971,7 +1978,7 @@ namespace Pol {
 
 	}
 
-	void Executor::ins_addmember( const Instruction& ins )
+	void Executor::ins_addmember( const Instruction& /*ins*/ )
 	{
 	  /*
 		  These each take two operands, and replace them with one.
@@ -1988,7 +1995,7 @@ namespace Pol {
 	  leftref = addmember( left, right );
 	}
 
-	void Executor::ins_removemember( const Instruction& ins )
+	void Executor::ins_removemember( const Instruction& /*ins*/ )
 	{
 	  /*
 		  These each take two operands, and replace them with one.
@@ -2005,7 +2012,7 @@ namespace Pol {
 	  leftref = removemember( left, right );
 	}
 
-	void Executor::ins_checkmember( const Instruction& ins )
+	void Executor::ins_checkmember( const Instruction& /*ins*/ )
 	{
 	  /*
 		  These each take two operands, and replace them with one.
@@ -2056,7 +2063,7 @@ namespace Pol {
 	  // the struct is at the top of the stack
 	}
 
-	void Executor::ins_dictionary_addmember( const Instruction& ins )
+	void Executor::ins_dictionary_addmember( const Instruction& /*ins*/ )
 	{
 	  /*
 		  ENTRANCE: value stack:
@@ -2096,7 +2103,7 @@ namespace Pol {
 	  // the dictionary remains at the top of the stack.
 	}
 
-	void Executor::ins_in( const Instruction& ins )
+	void Executor::ins_in( const Instruction& /*ins*/ )
 	{
 	  /*
 		  These each take two operands, and replace them with one.
@@ -2113,7 +2120,7 @@ namespace Pol {
 	  leftref.set( new BObject( new BLong( right.impref().contains( left.impref() ) ) ) );
 	}
 
-	void Executor::ins_insert_into( const Instruction& ins )
+	void Executor::ins_insert_into( const Instruction& /*ins*/ )
 	{
 	  BObjectRef rightref = ValueStack.back();
 	  ValueStack.pop_back();
@@ -2125,7 +2132,7 @@ namespace Pol {
 	  left.impref().operInsertInto( left, right.impref() );
 	}
 
-	void Executor::ins_plusequal( const Instruction& ins )
+	void Executor::ins_plusequal( const Instruction& /*ins*/ )
 	{
 	  /*
 		  These each take two operands, and replace them with one.
@@ -2142,7 +2149,7 @@ namespace Pol {
 	  left.impref().operPlusEqual( left, right.impref() );
 	}
 
-	void Executor::ins_minusequal( const Instruction& ins )
+	void Executor::ins_minusequal( const Instruction& /*ins*/ )
 	{
 	  /*
 		  These each take two operands, and replace them with one.
@@ -2159,7 +2166,7 @@ namespace Pol {
 	  left.impref().operMinusEqual( left, right.impref() );
 	}
 
-	void Executor::ins_timesequal( const Instruction& ins )
+	void Executor::ins_timesequal( const Instruction& /*ins*/ )
 	{
 	  /*
 		  These each take two operands, and replace them with one.
@@ -2176,7 +2183,7 @@ namespace Pol {
 	  left.impref().operTimesEqual( left, right.impref() );
 	}
 
-	void Executor::ins_divideequal( const Instruction& ins )
+	void Executor::ins_divideequal( const Instruction& /*ins*/ )
 	{
 	  /*
 		  These each take two operands, and replace them with one.
@@ -2193,7 +2200,7 @@ namespace Pol {
 	  left.impref().operDivideEqual( left, right.impref() );
 	}
 
-	void Executor::ins_modulusequal( const Instruction& ins )
+	void Executor::ins_modulusequal( const Instruction& /*ins*/ )
 	{
 	  /*
 		  These each take two operands, and replace them with one.
@@ -2237,7 +2244,7 @@ namespace Pol {
 	  strm << "MTHID_" << objref->impptr()->typeOf() << " ." << ins.token.lval;
 	  if (!fparams.empty())
 		strm << " [" << fparams[0].get()->impptr()->typeOf() << "]";
-	  string name(strm.str());
+      std::string name(strm.str());
 	  unsigned long profile_start= GetTimeUs();
 #endif
 	  BObjectImp* imp = objref->impptr()->call_method_id( ins.token.lval, *this );
@@ -2279,7 +2286,7 @@ namespace Pol {
 	  strm << "MTH_" << objref->impptr()->typeOf() << " ." << ins.token.tokval();
 	  if (!fparams.empty())
 		strm << " [" << fparams[0].get()->impptr()->typeOf() << "]";
-	  string name(strm.str());
+      std::string name(strm.str());
 	  unsigned long profile_start= GetTimeUs();
 #endif
 	  BObjectImp* imp = objref->impptr()->call_method( ins.token.tokval(), *this );
@@ -2318,7 +2325,7 @@ namespace Pol {
 	}
 
 	// case CTRL_PROGEND: 
-	void Executor::ins_progend( const Instruction& ins )
+	void Executor::ins_progend( const Instruction& /*ins*/ )
 	{
 	  done = 1;
 	  run_ok_ = false;
@@ -2327,7 +2334,7 @@ namespace Pol {
 
 
 	// case CTRL_MAKELOCAL:
-	void Executor::ins_makelocal( const Instruction& ins )
+	void Executor::ins_makelocal( const Instruction& /*ins*/ )
 	{
 	  if ( Locals2 ) upperLocals2.push_back( Locals2 );
 	  Locals2 = new BObjectRefVec;
@@ -2401,7 +2408,7 @@ namespace Pol {
 	}
 
 	// case RSV_RETURN
-	void Executor::ins_return( const Instruction& ins )
+	void Executor::ins_return( const Instruction& /*ins*/ )
 	{
 	  if ( ControlStack.empty() )
 	  {
@@ -2427,7 +2434,7 @@ namespace Pol {
 	  }
 	}
 
-	void Executor::ins_exit( const Instruction& ins )
+	void Executor::ins_exit( const Instruction& /*ins*/ )
 	{
 	  done = 1;
 	  run_ok_ = false;
@@ -2441,33 +2448,33 @@ namespace Pol {
 	{
 	  ValueStack.push_back( BObjectRef( new BObject( new String( ins.token.tokval() ) ) ) );
 	}
-	void Executor::ins_error( const Instruction& ins )
+	void Executor::ins_error( const Instruction& /*ins*/ )
 	{
 	  ValueStack.push_back( BObjectRef( new BObject( new BError() ) ) );
 	}
-	void Executor::ins_struct( const Instruction& ins )
+	void Executor::ins_struct( const Instruction& /*ins*/ )
 	{
 	  ValueStack.push_back( BObjectRef( new BObject( new BStruct ) ) );
 	}
-	void Executor::ins_array( const Instruction& ins )
+	void Executor::ins_array( const Instruction& /*ins*/ )
 	{
 	  ValueStack.push_back( BObjectRef( new BObject( new ObjArray ) ) );
 	}
-	void Executor::ins_dictionary( const Instruction& ins )
+	void Executor::ins_dictionary( const Instruction& /*ins*/ )
 	{
 	  ValueStack.push_back( BObjectRef( new BObject( new BDictionary ) ) );
 	}
-	void Executor::ins_uninit( const Instruction& ins )
+	void Executor::ins_uninit( const Instruction& /*ins*/ )
 	{
 	  ValueStack.push_back( BObjectRef( new BObject( UninitObject::create() ) ) );
 	}
-	void Executor::ins_ident( const Instruction& ins )
+	void Executor::ins_ident( const Instruction& /*ins*/ )
 	{
 	  ValueStack.push_back( BObjectRef( new BObject( new BError( "Please recompile this script" ) ) ) );
 	}
 
 	// case TOK_UNMINUS:
-	void Executor::ins_unminus( const Instruction& ins )
+	void Executor::ins_unminus( const Instruction& /*ins*/ )
 	{
 	  BObjectRef ref = getObjRef();
 	  BObjectImp *newobj;
@@ -2477,7 +2484,7 @@ namespace Pol {
 	}
 
 	// case TOK_LOG_NOT:
-	void Executor::ins_logical_not( const Instruction& ins )
+	void Executor::ins_logical_not( const Instruction& /*ins*/ )
 	{
 	  BObjectRef ref = getObjRef();
 	  ValueStack.push_back( BObjectRef( new BObject( new BLong( (int)!ref->impptr()->isTrue() ) ) ) );
@@ -2485,7 +2492,7 @@ namespace Pol {
 	}
 
 	// case TOK_BITWISE_NOT:
-	void Executor::ins_bitwise_not( const Instruction& ins )
+	void Executor::ins_bitwise_not( const Instruction& /*ins*/ )
 	{
 	  BObjectRef ref = getObjRef();
 	  ValueStack.push_back( BObjectRef( new BObject( ref->impptr()->bitnot() ) ) );
@@ -3000,7 +3007,7 @@ namespace Pol {
 	  return;
 	}
 
-	void Executor::ins_nop( const Instruction& ins )
+	void Executor::ins_nop( const Instruction& /*ins*/ )
 	{}
 
 	ExecInstrFunc Executor::GetInstrFunc( const Token& token )
@@ -3209,7 +3216,7 @@ namespace Pol {
 
 		( this->*( ins.func ) )( ins );
 	  }
-	  catch ( exception& ex )
+	  catch ( std::exception& ex )
 	  {
         fmt::Writer tmp;
         tmp << "Exception in: "
@@ -3248,7 +3255,7 @@ namespace Pol {
 #endif
 	}
 
-	string Executor::dbg_get_instruction( size_t atPC ) const
+    std::string Executor::dbg_get_instruction(size_t atPC) const
 	{
 	  fmt::Writer os;
 	  os << ( ( atPC == PC ) ? ">" : " " )
@@ -3386,7 +3393,7 @@ namespace Pol {
 	}
 
 
-	ExecutorModule *Executor::findModule( const string& name )
+    ExecutorModule *Executor::findModule(const std::string& name)
 	{
 	  unsigned idx;
 	  for ( idx = 0; idx < availmodules.size(); idx++ )

@@ -70,11 +70,11 @@ namespace Pol {
 	  int get_num_tokens( int idx ) const;
 	  bool optimize_token( int i );
 
-	  typedef vector<Token*> Tokens;
+	  typedef std::vector<Token*> Tokens;
 	  Tokens tokens;
 	public:
-	  stack<Token*> TX;
-	  queue<Token*> CA;
+	  std::stack<Token*> TX;
+      std::queue<Token*> CA;
 	};
 
 
@@ -150,12 +150,12 @@ namespace Pol {
 	  SmartParser() : Parser(), modfunc_(nullptr), userfunc_(nullptr) {}
 	  SmartParser & operator=( const SmartParser & ) { return *this; }
 
-	  virtual int isLegal( Token& tok ) { return 1; }
+      virtual int isLegal(Token& tok);
 	  virtual int isOkay( const Token& token, BTokenType last_type );
 
 	  virtual int isFunc( Token& tok, ModuleFunction **v ) = 0;
 
-	  virtual int isUserFunc( Token& tok, UserFunction **userfunc ) { return 0; }
+      virtual int isUserFunc(Token& tok, UserFunction **userfunc);
 
 	  virtual int parseToken( CompilerContext& ctx, Expression& expr, Token * );
 	  int getToken( CompilerContext& ctx, Token& token, Expression* expr = NULL );
@@ -174,6 +174,9 @@ namespace Pol {
 	  int IP( Expression& expr, char *s );
 	  int IP( Expression& expr, CompilerContext& ctx );
 	};
+
+    inline int SmartParser::isLegal(Token&) { return 1; }
+    inline int SmartParser::isUserFunc(Token&, UserFunction**) { return 0; }
   }
 }
 #endif

@@ -8,10 +8,10 @@ Notes
 
 */
 
-#include "../../clib/stl_inc.h"
+#include "iostats.h"
+
 #include <string.h>
 
-#include "iostats.h"
 namespace Pol {
   namespace Network {
 	IOStats::IOStats()

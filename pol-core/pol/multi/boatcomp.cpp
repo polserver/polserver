@@ -10,8 +10,8 @@ Notes
 
 */
 
-#include "../../clib/stl_inc.h"
 #include "boatcomp.h"
+
 namespace Pol {
   namespace Multi {
 	UPlank::UPlank( const Items::ItemDesc& descriptor ) : Core::ULockable( descriptor, CLASS_ITEM )

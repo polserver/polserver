@@ -61,7 +61,7 @@
 #define ROUND(LL, R, S, P) LL ^= P; LL ^= ((S[(R >> 24)]  + S[0x0100 + ((R >> 16) & 0xff)]) ^ S[0x0200 + ((R >> 8) & 0xff)]) + S[0x0300 + ((R) & 0xff)]
 
 
-#include "../../clib/stl_inc.h"
+//#include "../../clib/stl_inc.h"
 #include "../sockets.h"
 #include "../ucfg.h"
 #include "../../clib/passert.h"
@@ -82,7 +82,10 @@ namespace Pol {
 	public:
 	  virtual int	Receive( void *buffer, int max_expected, SOCKET socket ) = 0;
 	  virtual void	Init( void *pvSeed, int type = typeAuto ) = 0;
-	  virtual void	Encrypt( void *pvIn, void *pvOut, int len ) {};
+	  virtual void	Encrypt( void *pvIn, void *pvOut, int len ) {
+          /* Do nothing. */
+          (void)pvIn; (void)pvOut; (void)len;
+      };
 	};
 
 	//crypt class

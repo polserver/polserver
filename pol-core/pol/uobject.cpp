@@ -35,6 +35,8 @@ Notes
 
 #include "objecthash.h"
 
+#include <stdexcept>
+
 namespace Pol {
   namespace Core {
 	std::set<UObject*> unreaped_orphan_instances;
@@ -193,17 +195,17 @@ namespace Pol {
 	  return proplist_;
 	}
 
-	string UObject::name() const
+	std::string UObject::name() const
 	{
 	  return name_;
 	}
 
-	string UObject::description() const
+    std::string UObject::description() const
 	{
 	  return name_;
 	}
 
-	void UObject::setname( const string& newname )
+    void UObject::setname(const std::string& newname)
 	{
 	  set_dirty();
 	  increv();
@@ -291,12 +293,12 @@ namespace Pol {
 	  color = elem.remove_ushort( "COLOR", 0 );
 
 
-	  string realmstr = elem.remove_string( "Realm", "britannia" );
+      std::string realmstr = elem.remove_string("Realm", "britannia");
 	  realm = find_realm( realmstr );
 	  if ( !realm )
 	  {
         ERROR_PRINT.Format( "{} '{}' (0x{:X}): has an invalid realm property '{}'.\n" ) << classname() << name() << serial << realmstr;
-		throw runtime_error( "Data integrity error" );
+		throw std::runtime_error( "Data integrity error" );
 	  }
 	  x = elem.remove_ushort( "X" );
 	  y = elem.remove_ushort( "Y" );
@@ -350,7 +352,7 @@ namespace Pol {
 	  return writer;
 	}
 
-	bool UObject::setgraphic( u16 newgraphic )
+	bool UObject::setgraphic( u16 /*newgraphic*/ )
 	{
       ERROR_PRINT.Format( "UOBject::SetGraphic used, object class does not have a graphic member! Object Serial: 0x{:X}\n" ) << serial;
 	  return false;

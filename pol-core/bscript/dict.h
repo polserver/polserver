@@ -18,6 +18,10 @@ Notes
 #ifndef BSCRIPT_BOBJECT_H
 #include "bobject.h"
 #endif
+
+#include <map>
+#include <iosfwd>
+
 namespace Pol {
   namespace Bscript {
 	class BDictionary : public BObjectImp
@@ -32,7 +36,7 @@ namespace Pol {
 	  void addMember( BObjectImp* key, BObjectImp* val );
 	  size_t mapcount() const;
 
-	  typedef map<BObject, BObjectRef> Contents;
+	  typedef std::map<BObject, BObjectRef> Contents;
 	  const Contents& contents() const;
 
 	protected:

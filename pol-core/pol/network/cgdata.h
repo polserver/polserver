@@ -12,12 +12,16 @@ Notes
 #define CGDATA_H
 
 #include "../../clib/refptr.h"
-
-#include "../npc.h"
 #include "../reftypes.h"
+#include "../../clib/rawtypes.h"
+
+#include <cstddef>
+#include <set>
+
 namespace Pol {
   namespace Module {
 	class UnicodeExecutorModule;
+    class UOExecutorModule;
   }
   namespace Core {
 	class JusticeRegion;

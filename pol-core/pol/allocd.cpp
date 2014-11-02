@@ -8,14 +8,14 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
+#include "allocd.h"
 
 #ifdef _WIN32
 #	include <malloc.h>
 #endif
 
-#include <stddef.h>
-#include <stdio.h>
+#include <cstddef>
+#include <cstdio>
 #include "../clib/logfacility.h"
 
 namespace Pol {

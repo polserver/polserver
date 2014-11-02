@@ -9,12 +9,7 @@ Notes
 
 */
 
-#include "../../clib/stl_inc.h"
 #include "corpse.h"
-
-#ifdef _MSC_VER
-#	pragma warning( disable: 4786 )
-#endif
 
 #include "../../clib/cfgelem.h"
 #include "../../clib/endian.h"

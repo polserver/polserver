@@ -8,19 +8,23 @@ Notes
 
 */
 
-#include "../../clib/stl_inc.h"
+
+#include "cgdata.h"
+#include "../fnsearch.h"
+
+#include "../containr.h"
+#include "../multi/house.h"
 
 #include "../../clib/unicode.h"
+
+#include "../npc.h"
 
 #include "../module/osmod.h"
 #include "../module/unimod.h"
 #include "../module/uomod.h"
 #include "../uoexec.h"
 
-#include "cgdata.h"
-#include "../fnsearch.h"
-#include "../multi/house.h"
-#include "../containr.h"
+#include <vector>
 
 namespace Pol {
   namespace Network {
@@ -117,10 +121,10 @@ namespace Pol {
 			house->CurrentDesign.FillComponents( house );
 			house->WorkingDesign.FillComponents( house, false ); // keep in sync
 			house->revision++;
-			vector<u8> newvec;
+			std::vector<u8> newvec;
 			house->WorkingCompressed.swap( newvec );
 
-			vector<u8> newvec2;
+            std::vector<u8> newvec2;
 			house->CurrentCompressed.swap( newvec2 );
 			house->editing = false;
 		  }

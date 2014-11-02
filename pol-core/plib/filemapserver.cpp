@@ -7,11 +7,10 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
+#include "filemapserver.h"
 
 #include "../clib/passert.h"
 
-#include "filemapserver.h"
 namespace Pol {
   namespace Plib {
 	FileMapServer::FileMapServer( const RealmDescriptor& descriptor ) :
@@ -19,9 +18,9 @@ namespace Pol {
 	  _mapfile(),
 	  _cur_mapblock_index( -1L )
 	{
-	  string filename = _descriptor.path( "base.dat" );
+	  std::string filename = _descriptor.path( "base.dat" );
 
-	  _mapfile.Open( filename, ios::in );
+	  _mapfile.Open( filename, std::ios::in );
 
 	  _mapfile.Read( _cur_mapblock );
 	  _cur_mapblock_index = 0;
@@ -40,7 +39,7 @@ namespace Pol {
 	  if ( block_index != _cur_mapblock_index )
 	  {
 		// read the existing block in
-		fstream::pos_type offset = block_index * sizeof( _cur_mapblock );
+        std::fstream::pos_type offset = block_index * sizeof(_cur_mapblock);
 		_mapfile.Seek( offset );
 		_mapfile.Read( _cur_mapblock );
 

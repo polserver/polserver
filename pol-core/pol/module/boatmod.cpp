@@ -10,11 +10,10 @@ Notes
 
 */
 
-#include "../../clib/stl_inc.h"
+#include "boatmod.h"
 
-#ifdef _MSC_VER
-#	pragma warning( disable: 4786 )
-#endif
+#include "../multi/boat.h"
+#include "../item/item.h"
 
 #include "../../bscript/berror.h"
 #include "../../bscript/bobject.h"
@@ -25,12 +24,10 @@ Notes
 #include "../../clib/rawtypes.h"
 #include "../../plib/realm.h"
 
-#include "../multi/boat.h"
-#include "boatmod.h"
-#include "../item/item.h"
 #include "../uoexhelp.h"
 #include "../uoscrobj.h"
 #include "../wrldsize.h"
+
 namespace Pol {
   namespace Bscript {
 	using namespace Module;

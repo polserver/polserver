@@ -10,13 +10,6 @@ Notes
 #ifndef POL_PACKETS_H
 #define POL_PACKETS_H
 
-#include <string.h>
-#include <mutex>
-#include <memory>
-#include <boost/noncopyable.hpp>
-
-#include "../../clib/stl_inc.h"
-
 #include "../../clib/endian.h"
 #include "../../clib/passert.h"
 #include "../../clib/rawtypes.h"
@@ -30,6 +23,19 @@ Notes
 #include "../ucfg.h"
 #include "client.h"
 #include "clienttransmit.h"
+
+#include <queue>
+#include <map>
+
+#include <string.h>
+#include <mutex>
+#include <memory>
+#include <boost/noncopyable.hpp>
+
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable:4996) // disable warning about strncpy
+#endif
 
 namespace Pol {
   namespace Network {
@@ -49,9 +55,9 @@ namespace Pol {
         virtual size_t estimateSize() const { return 0; }
       };
 
-      typedef queue<PacketInterface*> PacketInterfaceQueue;
+      typedef std::queue<PacketInterface*> PacketInterfaceQueue;
       typedef std::map<u16, PacketInterfaceQueue> PacketInterfaceQueueMap;
-      typedef pair<u16, PacketInterfaceQueue> PacketInterfaceQueuePair;
+      typedef std::pair<u16, PacketInterfaceQueue> PacketInterfaceQueuePair;
 
       // interface for the two different types of packetqueues ("normal" packets
       // and packets with subs)
@@ -62,8 +68,12 @@ namespace Pol {
         virtual ~PacketQueue(){};
 
        public:
-        virtual PacketInterface* GetNext(u8 id, u16 sub = 0) { return NULL; };
-        virtual void Add(PacketInterface* pkt){};
+        virtual PacketInterface* GetNext(u8 id, u16 sub = 0) { 
+            (void)id; (void)sub; /* unused variables */
+
+            return NULL;
+        };
+        virtual void Add(PacketInterface* pkt){ (void)pkt; /*do nothing*/  };
         virtual size_t Count() const { return 0; };
         virtual bool HasSubs() const { return false; };
         virtual PacketInterfaceQueueMap* GetSubs() { return NULL; };
@@ -108,7 +118,7 @@ namespace Pol {
         size_t estimateSize() const;
       };
 
-      typedef pair<u8, PacketQueue*> PacketQueuePair;
+      typedef std::pair<u8, PacketQueue*> PacketQueuePair;
       typedef std::map<u8, PacketQueue*> PacketQueueMap;
 
       // singleton "holder" of packets !EntryPoint!
@@ -520,5 +530,10 @@ namespace Pol {
 	// Packet defs end
 
   }
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
+
 }
 #endif
