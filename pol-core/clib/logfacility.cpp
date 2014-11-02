@@ -317,34 +317,6 @@ namespace Pol {
         return sink;
       }
 
-      // base sink construction register self for later deconstruction
-      LogSink::LogSink()
-      {
-        //global_logger->registerSink( this );
-      }
-
-      // helper function to print timestamp into stream
-      void LogSink::printCurrentTimeStamp( std::ostream &stream )
-      {
-        stream << getLoggingTimeStamp();
-      }
-
-      // formats and returns current time as std::string
-      // put_time is not yet implemented in gcc, and i dont like strftime :)
-      std::string LogSink::getLoggingTimeStamp()
-      {
-        using std::chrono::system_clock;
-        time_t now = system_clock::to_time_t( system_clock::now() );
-        struct tm* tm_now = localtime( &now );
-        fmt::Writer tmp; // write '[%m/%d %H:%M:%S] '
-        tmp << '[' <<
-          fmt::pad( tm_now->tm_mon+1, 2, '0' ) << '/' << fmt::pad( tm_now->tm_mday, 2, '0' ) << ' '
-          << fmt::pad( tm_now->tm_hour, 2, '0' ) << ':'
-          << fmt::pad( tm_now->tm_min, 2, '0' ) << ':'
-          << fmt::pad( tm_now->tm_sec, 2, '0' ) << "] ";
-        return tmp.str();
-      }
-
       // first construction also opens the file
       LogSinkGenericFile::LogSinkGenericFile( const LogFileBehaviour* behaviour ) : LogSink(),
 		_behaviour( behaviour ), _log_filename( behaviour->basename + ".log" ), _active_line( false )
