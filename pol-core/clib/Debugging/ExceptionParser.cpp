@@ -101,9 +101,9 @@ string ExceptionParser::GetTrace()
 				tStackTraceStep++;
 			}else{
 				if(tBeginBinaryName && strlen(tBeginBinaryName))
-					sprintf(tStringBuf, "#%02d 0x%016x in %s:[%s] from %s:[%s]\n", tStackTraceStep, tBinaryOffset, tBeginFuncName, tBeginFuncOffset, tBeginBinaryName);
+					sprintf(tStringBuf, "#%02d 0x%016x in %s:[%s] from %s\n", tStackTraceStep, tBinaryOffset, tBeginFuncName, tBeginFuncOffset, tBeginBinaryName);
 				else
-					sprintf(tStringBuf, "#%02d 0x%016x in %s:[%s] from %s\n", tStackTraceStep, tBinaryOffset, tBeginFuncName, tBeginFuncOffset);
+					sprintf(tStringBuf, "#%02d 0x%016x in %s:[%s]\n", tStackTraceStep, tBinaryOffset, tBeginFuncName, tBeginFuncOffset);
 				tStackTraceStep++;
 			}
 		}else{
