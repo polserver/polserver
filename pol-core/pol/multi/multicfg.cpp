@@ -8,18 +8,19 @@ Notes
 
 */
 
-#include "../../clib/stl_inc.h"
-#include "../../clib/cfgfile.h"
-#include "../../clib/fileutil.h"
+
+#include "../cfgrepos.h"
 
 #include "../../plib/pkg.h"
 
-#include "../cfgrepos.h"
+#include "../../clib/cfgfile.h"
+#include "../../clib/fileutil.h"
+
 namespace Pol {
   namespace Multi {
-	void load_special_storedconfig( string cfgname )
+	void load_special_storedconfig( std::string cfgname )
 	{
-	  string main_cfg = "config/" + cfgname + ".cfg";
+        std::string main_cfg = "config/" + cfgname + ".cfg";
 
 	  Core::CreateEmptyStoredConfigFile( main_cfg );
 	  ref_ptr<Core::StoredConfigFile> scfg = Core::FindConfigFile( main_cfg, "" );
@@ -33,7 +34,7 @@ namespace Pol {
 	  {
         Plib::Package* pkg = ( *itr );
 		//string filename = pkg->dir() + cfgname + ".cfg";
-        string filename = Plib::GetPackageCfgPath( pkg, cfgname + ".cfg" );
+        std::string filename = Plib::GetPackageCfgPath(pkg, cfgname + ".cfg");
         if ( Clib::FileExists( filename.c_str( ) ) )
 		{
           Clib::ConfigFile cf( filename.c_str( ) );

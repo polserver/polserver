@@ -12,7 +12,11 @@ Notes
 #define SAVEDATA_H
 
 #include "../clib/streamsaver.h"
+
 #include <future>
+#include <string>
+#include <iosfwd>
+
 namespace Pol {
   namespace Core {
 	class SaveContext : boost::noncopyable

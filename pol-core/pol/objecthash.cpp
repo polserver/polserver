@@ -9,19 +9,20 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
+#include "objecthash.h"
+
+#include "accounts/account.h"
+#include "mobile/charactr.h"
+
+#include "polcfg.h"
+#include "ufunc.h"
+#include "uobject.h"
 
 #include "../clib/endian.h"
 #include "../clib/passert.h"
 #include "../clib/logfacility.h"
 #include "../clib/streamsaver.h"
 
-#include "accounts/account.h"
-#include "objecthash.h"
-#include "polcfg.h"
-#include "ufunc.h"
-#include "uobject.h"
-#include "mobile/charactr.h"
 
 namespace Pol {
   namespace Core {
@@ -42,11 +43,11 @@ namespace Pol {
           POLLOG.Format( "ObjectHash insert failed for object serial 0x{:X}. (duplicate serial?)\n" ) << obj->serial;
 		return false;
 	  }
-	  hash.insert( hash.end(), make_pair( obj->serial, UObjectRef( obj ) ) );
+	  hash.insert( hash.end(), std::make_pair( obj->serial, UObjectRef( obj ) ) );
 	  return true;
 	}
 
-	bool ObjectHash::Remove( u32 serial )
+	bool ObjectHash::Remove( u32 /*serial*/ )
 	{
 	  //	unsigned int num_erased = hash.erase( serial );
 	  //	return (num_erased>0); 

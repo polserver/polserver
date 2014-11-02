@@ -7,11 +7,11 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
 #include "../pol/uconst.h"
 #include "../clib/logfacility.h"
 #include "realm.h"
 #include "mapserver.h"
+
 namespace Pol {
   namespace Plib {
 	void inc_successes();

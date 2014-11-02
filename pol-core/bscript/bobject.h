@@ -10,9 +10,8 @@ Notes
 
 */
 
-#ifndef __BSCRIPT_BOBJECT_H
-#define __BSCRIPT_BOBJECT_H
-#define __BOBJECT_H
+#ifndef BSCRIPT_BOBJECT_H
+#define BSCRIPT_BOBJECT_H
 
 #ifdef _MSC_VER
 	#pragma warning(disable:4786)

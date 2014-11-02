@@ -11,31 +11,34 @@ Notes
 
 */
 
+#include "realms.h"
+
+#include "storage.h"
+#include "uofile.h"
+#include "los.h"
+#include "polcfg.h"
+
+#include "../plib/realm.h"
+#include "../plib/mapserver.h"
+
 #include "../clib/stl_inc.h"
 #include "../clib/dirlist.h"
 #include "../clib/passert.h"
 #include "../clib/strutil.h"
-#include "../plib/realm.h"
-#include "uofile.h"
-#include "los.h"
-#include "polcfg.h"
-#include "realms.h"
-#include "storage.h"
+
 #include "../clib/timer.h"
-#include "../plib/mapserver.h"
 #include "../clib/logfacility.h"
 
 namespace Pol {
   namespace Core {
 	Plib::Realm* main_realm = NULL;
-	vector<Plib::Realm*>* Realms = new vector<Plib::Realm*>();
+	std::vector<Plib::Realm*>* Realms = new std::vector<Plib::Realm*>();
 	std::map<int, Plib::Realm*> shadowrealms_by_id;
 	unsigned int baserealm_count = 0;
 	unsigned int shadowrealm_count = 0;
 
 	bool load_realms()
 	{
-	  //string realm_dir = "realm/";
 	  Plib::Realm* temprealm;
 	  int realm_counter = 0;
 	  for ( Clib::DirList dl( config.realm_data_path.c_str() ); !dl.at_end(); dl.next() )

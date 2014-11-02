@@ -8,8 +8,8 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
 #include "skilladv.h"
+
 namespace Pol {
   namespace Core {
 	/* skill advancement:

@@ -11,12 +11,12 @@ Notes
 #ifndef SCRSTORE_H
 #define SCRSTORE_H
 
-#include <map>
-#include <string>
-
 #include "../bscript/eprog.h"
 #include "../clib/refptr.h"
 #include "../clib/maputil.h"
+
+#include <map>
+#include <string>
 
 namespace Pol {
   namespace Core {

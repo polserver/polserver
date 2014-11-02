@@ -13,6 +13,8 @@ Notes
 #define TILES_H
 
 #include "../clib/rawtypes.h"
+#include <string>
+
 namespace Pol {
   namespace Core {
 	class Tile

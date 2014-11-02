@@ -13,9 +13,8 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-#include "../clib/progver.h"
 #include "polver.h"
+#include "../clib/progver.h"
 
 namespace Pol {
   const char polverstr[] = "POL099-2013-09-03 Break Everything Even Rudder";

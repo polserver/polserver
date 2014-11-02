@@ -13,7 +13,6 @@ Notes
 
 #include "../../bscript/execmodl.h"
 #include "../uoexec.h"
-//#include "../sqlscrobj.h"
 
 namespace Pol {
   namespace Core {

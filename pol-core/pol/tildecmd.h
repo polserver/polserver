@@ -9,6 +9,9 @@ Notes
 */
 #ifndef __TILECMD_H
 #define __TILECMD_H
+
+#include "../clib/rawtypes.h"
+
 namespace Pol {
   namespace Network {
     class Client;

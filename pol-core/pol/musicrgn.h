@@ -11,9 +11,11 @@ Notes
 #ifndef MUSICRGN_H
 #define MUSICRGN_H
 
-#include <string>
-
 #include "region.h"
+
+#include <string>
+#include <vector>
+
 namespace Pol {
   namespace Core {
 	void read_music_zones();

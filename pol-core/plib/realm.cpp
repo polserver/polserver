@@ -10,18 +10,19 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-
 #include "realm.h"
+
 #include "realmdescriptor.h"
+
 #include "mapserver.h"
 #include "staticserver.h"
 #include "maptileserver.h"
+
 #include "../pol/uworld.h"
 
 namespace Pol {
   namespace Plib {
-	Realm::Realm( const string& realm_name, const string& realm_path ) :
+      Realm::Realm(const std::string& realm_name, const std::string& realm_path) :
 	  is_shadowrealm( false ),
 	  shadowid( 0 ),
 	  baserealm( nullptr ), 
@@ -48,7 +49,7 @@ namespace Pol {
 		zone[i] = new Core::Zone[gridheight];
 	}
 
-	Realm::Realm( const string& realm_name, Realm* realm ) :
+      Realm::Realm(const std::string& realm_name, Realm* realm) :
 	  is_shadowrealm( true ),
 	  shadowid( 0 ),
 	  baserealm( realm ),
@@ -139,7 +140,7 @@ namespace Pol {
 			   z >= -128 && z <= 127 );
 	}
 
-	const string Realm::name() const
+    const std::string Realm::name() const
 	{
 	  if ( is_shadowrealm )
 		return shadowname;

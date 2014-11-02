@@ -12,10 +12,6 @@ Notes
 #ifndef MULTIDEF_H
 #define MULTIDEF_H
 
-#ifdef _MSC_VER
-#pragma warning( disable: 4786 )
-#endif
-
 // also consider: multimap<unsigned int, unsigned int>
 // unsigned int is (x << 16) | y
 // unsigned int is z << 16 | objtype
@@ -24,7 +20,6 @@ Notes
 // (relative signed x/y, -128 to +127
 // unsigned int is z << 16 | objtype
 
-#include <stdio.h>
 
 #include "../udatfile.h"
 #include "../../clib/rawtypes.h"
@@ -32,6 +27,8 @@ Notes
 #include <map>
 #include <vector>
 #include <set>
+
+#include <cstdio>
 
 namespace Pol {
   namespace Clib {

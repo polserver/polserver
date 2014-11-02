@@ -54,13 +54,6 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-#ifdef _MSC_VER
-#pragma warning( disable: 4786 )
-#endif
-
-
-#include <assert.h>
 #ifndef __clang__
 #include <omp.h>
 #endif
@@ -176,6 +169,10 @@ Notes
 #ifdef __linux__
 #include <gnu/libc-version.h>
 #endif
+
+#include <string>
+#include <stdexcept>
+
 namespace Pol {
   namespace Bscript {
     void display_executor_instances();
@@ -374,7 +371,7 @@ namespace Pol {
     }
 
 
-    void call_chr_scripts( Mobile::Character* chr, const string& root_script_ecl, const string& pkg_script_ecl, bool offline = false )
+    void call_chr_scripts(Mobile::Character* chr, const std::string& root_script_ecl, const std::string& pkg_script_ecl, bool offline = false)
     {
       ScriptDef sd;
       sd.quickconfig( root_script_ecl );
@@ -528,7 +525,7 @@ namespace Pol {
     MESSAGE_HANDLER( PKTIN_5D, char_select );
 
     void send_client_char_data( Mobile::Character *chr, Network::Client *client );
-    void handle_resync_request( Network::Client* client, PKTBI_22_SYNC* msg )
+    void handle_resync_request( Network::Client* client, PKTBI_22_SYNC* /*msg*/ )
     {
       send_goxyz( client, client->chr );
 
@@ -1083,7 +1080,7 @@ namespace Pol {
             break;
         }
       }
-      catch ( string& str )
+      catch (std::string& str)
       {
         POLLOG_ERROR.Format( "Client#{}: Exception in i/o thread: {}! (checkpoint={})\n" )
           << client->instance_ << str << checkpoint;
@@ -1093,7 +1090,7 @@ namespace Pol {
         POLLOG_ERROR.Format( "Client#{}: Exception in i/o thread: {}! (checkpoint={})\n" )
           << client->instance_ << msg << checkpoint;
       }
-      catch ( exception& ex )
+      catch (std::exception& ex)
       {
         POLLOG_ERROR.Format( "Client#{}: Exception in i/o thread: {}! (checkpoint={})\n" )
           << client->instance_ << ex.what() << checkpoint;
@@ -1244,12 +1241,12 @@ namespace Pol {
         POLLOG.Format( "Tasks Thread exits due to exception: {}\n" ) << msg;
         throw;
       }
-      catch ( string& str )
+      catch (std::string& str)
       {
         POLLOG.Format( "Tasks Thread exits due to exception: {}\n" ) << str;
         throw;
       }
-      catch ( exception& ex )
+      catch (std::exception& ex)
       {
         POLLOG.Format( "Tasks Thread exits due to exception: {}\n" ) << ex.what();
         throw;
@@ -1503,10 +1500,10 @@ namespace Pol {
       if ( ssopt.decay_items )
       {
         checkpoint( "start decay thread" );
-        vector<Plib::Realm*>::iterator itr;
+        std::vector<Plib::Realm*>::iterator itr;
         for ( itr = Realms->begin(); itr != Realms->end(); ++itr )
         {
-          ostringstream thname;
+          std::ostringstream thname;
           thname << "Decay_" << ( *itr )->name();
           if ( ( *itr )->is_shadowrealm )
             threadhelp::start_thread( decay_thread_shadow, thname.str().c_str(), (void*)( *itr ) );
@@ -1656,7 +1653,7 @@ namespace Pol {
       Bscript::display_bobjectimp_instances( );
 #endif
       display_reftypes();
-      ofstream ofs;
+      std::ofstream ofs;
       Clib::OFStreamWriter sw( &ofs );
       sw.init( "leftovers.txt" );
       objecthash.PrintContents( sw );
@@ -1695,7 +1692,7 @@ namespace Pol {
       run_script_to_completion( "start" );
       for ( const auto &pkg : Plib::packages )
       {
-        string scriptname = pkg->dir() + "start.ecl";
+        std::string scriptname = pkg->dir() + "start.ecl";
 
         if ( Clib::FileExists( scriptname.c_str() ) )
         {
@@ -1848,7 +1845,7 @@ namespace Pol {
 #endif
   }
 
-  int xmain_inner( int argc, char *argv[] )
+  int xmain_inner( int argc, char** /*argv*/)
   {
 #ifdef _WIN32
     Clib::MiniDumper::Initialize();
@@ -1857,9 +1854,9 @@ namespace Pol {
     atexit( Core::ShutdownSystemTrayHandling );
 #else
 #ifdef __linux__
-    ofstream polpid;
+    std::ofstream polpid;
 
-    polpid.open( ( Core::config.pidfile_path + "pol.pid" ).c_str( ), ios::out | ios::trunc );
+    polpid.open( ( Core::config.pidfile_path + "pol.pid" ).c_str( ), std::ios::out | std::ios::trunc );
 
     if ( polpid.is_open( ) )
       polpid << Clib::decint( getpid( ) );
@@ -2042,7 +2039,7 @@ namespace Pol {
           << "+----------------------------------------------------------------------+\n"
           << "\n\n";
 
-        throw runtime_error( "ListenPort is no longer used for multithreading programs (Multithread == 1)." );
+        throw std::runtime_error("ListenPort is no longer used for multithreading programs (Multithread == 1).");
       }
       Core::checkpoint( "opening listen socket" );
       Core::listen_socket = Network::open_listen_socket( Core::config.listen_port );

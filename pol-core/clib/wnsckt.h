@@ -1,6 +1,8 @@
 #ifndef __WNSCKT_H__
 #define __WNSCKT_H__
 
+#include <string>
+
 #ifdef _WIN32
 #	include <winsock.h>
 #else

@@ -11,18 +11,14 @@ Notes
 #ifndef PROPLIST_H
 #define PROPLIST_H
 
-#ifdef _MSC_VER
-#pragma warning( disable: 4786 )
-#endif
+#include "../clib/boostutils.h"
+
+#include <boost/flyweight.hpp>
 
 #include <map>
 #include <string>
 #include <vector>
 #include <set>
-
-#include "../clib/boostutils.h"
-
-#include <boost/flyweight.hpp>
 
 namespace Pol {
   namespace Bscript {

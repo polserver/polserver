@@ -8,20 +8,20 @@ Notes
 
 */
 
-#ifndef __OSEMOD_H
-#define __OSEMOD_H
+#ifndef BSCRIPT_OSEMOD_H
+#define BSCRIPT_OSEMOD_H
 
-#include <queue>
-#include <map>
-#include <time.h>
-
-#ifndef __BSCRIPT_EXECMODL_H
+#ifndef BSCRIPT_EXECMODL_H
 #include "../../bscript/execmodl.h"
 #endif
 
 #include "../polclock.h"
-
 #include "../uoexhelp.h"
+
+#include <queue>
+#include <map>
+#include <ctime>
+
 namespace Pol {
   namespace Core {
 	class UOExecutor;

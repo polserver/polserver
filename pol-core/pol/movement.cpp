@@ -10,28 +10,29 @@ Notes
 
 */
 
-#include <functional>
-#include "../clib/stl_inc.h"
-
-#include "../clib/endian.h"
-#include "../clib/stlutil.h"
-
 #include "mobile/charactr.h"
-#include "network/client.h"
+
 #include "multi/customhouses.h"
 #include "multi/house.h"
+#include "multi/multi.h"
+
+#include "network/client.h"
 #include "network/msghandl.h"
+#include "network/packets.h"
+#include "network/clienttransmit.h"
+
 #include "pktin.h"
 #include "pktout.h"
 #include "pktboth.h"
 #include "uvars.h"
-#include "multi/multi.h"
 #include "ssopt.h"
 #include "ufunc.h"
 #include "uworld.h"
-#include "network/packets.h"
-#include "network/clienttransmit.h"
+
 #include "../clib/pkthelper.h"
+
+#include <functional>
+
 
 namespace Pol {
   namespace Core {

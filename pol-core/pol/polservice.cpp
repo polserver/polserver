@@ -8,21 +8,25 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-#include <windows.h>
-#include <process.h>
-
 #include "../clib/esignal.h"
-#include "../clib/ntservice.h"
 #include "../clib/progver.h"
 #include "../clib/threadhelp.h"
 #include "../clib/xmain.h"
 #include "../clib/logfacility.h"
 
+#include <windows.h>
+#include <process.h>
+
+#include "../clib/ntservice.h"
+
 #include "../plib/polver.h"
 #include "polresource.h"
 
-//#include "polver.h"
+#ifdef _MSC_VER
+#pragma warning(disable:4996)
+#pragma warning(disable:4189) // local variable is initialized but not referenced. TODO: check if TrackPopupMenu() returns an error on line 146. 
+#endif
+
 namespace Pol {
   namespace Core {
     int RunWindowsService( int argc, char** argv );

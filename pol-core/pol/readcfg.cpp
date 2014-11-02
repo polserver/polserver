@@ -8,16 +8,6 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-#ifdef _MSC_VER
-#pragma warning( disable: 4786 )
-#endif
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <ctype.h>
-
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/clib.h"
@@ -28,6 +18,14 @@ Notes
 #include "item/itemdesc.h"
 #include "menu.h"
 #include "polcfg.h"
+
+#include <stdexcept>
+#include <string>
+
+#ifdef _MSC_VER
+#pragma warning(disable:4996) // deprecation warning stricmp
+#endif
+
 namespace Pol {
   namespace Core {
 	void read_menus( void )
@@ -45,8 +43,8 @@ namespace Pol {
 
 	  while ( cf.read( elem ) )
 	  {
-		string menu_name;
-		string menu_title;
+		std::string menu_name;
+        std::string menu_title;
 		std::string propname;
 		std::string value;
 
@@ -68,9 +66,9 @@ namespace Pol {
 		  if ( stricmp( propname.c_str(), "SubMenu" ) == 0 ||
 			   stricmp( propname.c_str(), "Entry" ) == 0 )
 		  {
-			string submenu_name;
-			string objtype_str;
-			string title;
+			std::string submenu_name;
+            std::string objtype_str;
+            std::string title;
 
 			/*
 			char *submenu_name = NULL;
@@ -121,28 +119,28 @@ namespace Pol {
 			{
               ERROR_PRINT << "Entry in menu " << menu->name
                 << " must provide at least an object type\n";
-			  throw runtime_error( "Data error in MENUS.CFG" );
+			  throw std::runtime_error( "Data error in MENUS.CFG" );
 			}
 			u32 objtype = (u32)strtoul( objtype_str.c_str(), NULL, 0 );
 			if ( objtype == 0 ) // 0 specified, or text
 			{
               ERROR_PRINT << "Entry in menu " << menu->name
                 << " cannot specify [" << objtype_str << "] as an Object Type.\n";
-			  throw runtime_error( "Data error in MENUS.CFG" );
+			  throw std::runtime_error( "Data error in MENUS.CFG" );
 			}
 			if ( ( stricmp( propname.c_str(), "SubMenu" ) == 0 ) &&
 				 ( submenu_name == "" ) )
 			{
               ERROR_PRINT << "SubMenu in menu " << menu->name
                 << " needs format: Objtype, Title, SubMenuName [got '" << value << "']\n";
-			  throw runtime_error( "Data error in MENUS.CFG" );
+              throw std::runtime_error("Data error in MENUS.CFG");
 			}
 			if ( ( stricmp( propname.c_str(), "Entry" ) == 0 ) &&
 				 ( submenu_name != "" ) )
 			{
               ERROR_PRINT << "Entry in menu " << menu->name
                 << " must not specify SubMenuName [got '" << value << "']\n";
-			  throw runtime_error( "Data error in MENUS.CFG" );
+              throw std::runtime_error("Data error in MENUS.CFG");
 			}
 
 			menu->menuitems_.push_back( MenuItem() );
@@ -167,7 +165,7 @@ namespace Pol {
 		  else
 		  {
             ERROR_PRINT << "Unexpected property in menu " << menu->name << ": " << propname << "\n";
-			throw runtime_error( "Data error in MENUS.CFG" );
+            throw std::runtime_error("Data error in MENUS.CFG");
 		  }
 		}
 	  }

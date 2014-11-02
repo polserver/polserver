@@ -7,14 +7,17 @@ Notes
 =======
 
 */
+#include "reftypes.h"
 
-#include "../clib/stl_inc.h"
-#include "../clib/logfacility.h"
 #include "uobject.h"
 #include "mobile/charactr.h"
 #include "item/item.h"
 #include "npc.h"
-#include "reftypes.h"
+
+#include "../clib/logfacility.h"
+
+#include <map>
+
 namespace Pol {
   namespace Core {
 	int hits = 0;
@@ -23,7 +26,7 @@ namespace Pol {
 	int npcrefs;
 	int itemrefs;
 
-	typedef map<int, CharacterRef*> CharacterRefs;
+	typedef std::map<int, CharacterRef*> CharacterRefs;
 	CharacterRefs crefs;
 	unsigned int crefs_count;
 

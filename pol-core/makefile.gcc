@@ -128,7 +128,7 @@ cpp_sources = \
 	pol/spells.cpp pol/ssopt.cpp \
 	clib/socketsvc.cpp pol/stackcfg.cpp \
 	pol/startloc.cpp pol/statmsg.cpp pol/storage.cpp pol/syshook.cpp \
-	pol/systemhookscript.cpp \
+	pol/syshookscript.cpp \
 	pol/target.cpp pol/tasks.cpp plib/testenv.cpp pol/textcmd.cpp \
 	pol/tildecmd.cpp pol/tiles.cpp pol/tiplstwn.cpp \
 	pol/tips.cpp pol/tmpvars.cpp pol/tooltips.cpp \

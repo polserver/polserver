@@ -7,11 +7,10 @@ Notes
 
 */
 
-#ifndef __BSCRIPT_BASICIO_H
-#define __BSCRIPT_BASICIO_H
-#define __BASICIO_H
+#ifndef BSCRIPT_BASICIOMOD_H
+#define BSCRIPT_BASICIOMOD_H
 
-#ifndef __EXECMODL_H
+#ifndef BSCRIPT_EXECMODL_H
 #	include "../../bscript/execmodl.h"
 #endif
 

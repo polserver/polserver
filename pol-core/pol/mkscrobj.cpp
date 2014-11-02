@@ -8,9 +8,10 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
 #include "mkscrobj.h"
+
 #include "uoscrobj.h"
+
 namespace Pol {
   namespace Core {
 	Bscript::BObjectImp* make_mobileref( Mobile::Character* chr )

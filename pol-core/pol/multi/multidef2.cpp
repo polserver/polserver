@@ -9,33 +9,20 @@ Notes
 
 */
 
-#include "../../clib/stl_inc.h"
+#include "multidef.h"
 
-#ifdef _MSC_VER
-#	pragma warning( disable: 4786 )
-#endif
-
-#include <algorithm>
-#include <iostream>
-
-#include "../../clib/cfgelem.h"
-#include "../../clib/cfgfile.h"
-#include "../../clib/passert.h"
-#include "../../clib/stlutil.h"
-#include "../../clib/strutil.h"
-
-#include "../../plib/mapcell.h"
-#include "../../plib/mapshape.h"
+#include "../item/itemdesc.h"
 
 #include "../tiles.h"
-#include "../item/itemdesc.h"
 #include "../objtype.h"
 #include "../udatfile.h"
 #include "../uofilei.h"
 #include "../uofile.h"
-#include "multidef.h"
 #include "../ustruct.h"
-#include "../uofilei.h"
+
+#include "../../plib/mapcell.h"
+#include "../../plib/mapshape.h"
+
 namespace Pol {
   namespace Multi {
 	// 8/9/03 this seems to be used only by uofile03 -Syz

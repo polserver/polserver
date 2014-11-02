@@ -24,7 +24,13 @@ Notes
 #define SSOPT_H
 
 #include <string>
+#include <vector>
+
 namespace Pol {
+    namespace Clib {
+        class ConfigElem;
+    }
+
   namespace Core {
 	struct ServSpecOpt
 	{

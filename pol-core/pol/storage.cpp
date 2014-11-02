@@ -8,42 +8,39 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
+#include "storage.h"
 
-#ifdef _MSC_VER
-#pragma warning(disable:4786)
-#endif
+#include "item/item.h"
+#include "containr.h"
+#include "loaddata.h"
 
-#include <stdio.h>
-#include <time.h>
+#include "mkscrobj.h"
+#include "fnsearch.h"
+#include "gflag.h"
+#include "polcfg.h"
+#include "ufunc.h"
+
+#include "../bscript/contiter.h"
+#include "../bscript/impstr.h"
+#include "../bscript/berror.h"
 
 #include "../clib/logfacility.h"
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
-#include "../clib/clib.h"
-#include "../clib/stlutil.h"
-#include "../clib/strutil.h"
 #include "../clib/streamsaver.h"
 
-#include "fnsearch.h"
-#include "gflag.h"
-#include "item/item.h"
-#include "loaddata.h"
-#include "polcfg.h"
-#include "storage.h"
-#include "containr.h"
-#include "ufunc.h"
-#include "../bscript/contiter.h"
-#include "../bscript/impstr.h"
-#include "../bscript/berror.h"
-#include "mkscrobj.h"
+#include <stdexcept>
+
+#ifdef _MSC_VER
+#pragma warning(disable:4996) // deprecation warning for stricmp
+#endif
 
 namespace Pol {
   namespace Core {
 
     using namespace Bscript;
 
-	StorageArea::StorageArea( string name ) :
+	StorageArea::StorageArea( std::string name ) :
 	  _name( name )
 	{}
 
@@ -58,7 +55,7 @@ namespace Pol {
 	  }
 	}
 
-    Items::Item* StorageArea::find_root_item( const string& name )
+    Items::Item* StorageArea::find_root_item(const std::string& name)
 	{
 	  // LINEAR_SEARCH
 	  Cont::iterator itr = _items.find( name );
@@ -69,7 +66,7 @@ namespace Pol {
 	  return NULL;
 	}
 
-	bool StorageArea::delete_root_item( const string& name )
+    bool StorageArea::delete_root_item(const std::string& name)
 	{
 	  Cont::iterator itr = _items.find( name );
 	  if ( itr != _items.end() )
@@ -128,7 +125,7 @@ namespace Pol {
 		}
 	  }
 	}
-	StorageArea* Storage::find_area( const string& name )
+    StorageArea* Storage::find_area(const std::string& name)
 	{
 	  AreaCont::iterator itr = areas.find( name );
 	  if ( itr == areas.end() )
@@ -137,7 +134,7 @@ namespace Pol {
 		return ( *itr ).second;
 	}
 
-	StorageArea* Storage::create_area( const string& name )
+    StorageArea* Storage::create_area(const std::string& name)
 	{
 	  AreaCont::iterator itr = areas.find( name );
 	  if ( itr == areas.end() )
@@ -161,7 +158,7 @@ namespace Pol {
 	  }
 	  else
 	  {
-		string name = elem.remove_string( "NAME" );
+		std::string name = elem.remove_string( "NAME" );
 		return create_area( name );
 	  }
 	}
@@ -244,13 +241,13 @@ namespace Pol {
 		  else
 		  {
 			ERROR_PRINT << "Storage: Got an ITEM element, but don't have a StorageArea to put it.\n";
-			throw runtime_error( "Data file integrity error" );
+            throw std::runtime_error("Data file integrity error");
 		  }
 		}
 		else
 		{
 		  ERROR_PRINT << "Unexpected element type " << elem.type() << " in storage file.\n";
-		  throw runtime_error( "Data file integrity error" );
+		  throw std::runtime_error( "Data file integrity error" );
 		}
 		++nobjects;
 	  }
@@ -293,7 +290,7 @@ namespace Pol {
 	  virtual BObject* step();
 	private:
 	  BObject* m_pIterVal;
-	  string key;
+      std::string key;
 	  StorageArea* _area;
 	};
 
@@ -331,7 +328,7 @@ namespace Pol {
 		return new StorageAreaImp( _area );
 	  }
 
-	  virtual string getStringRep() const
+      virtual std::string getStringRep() const
 	  {
 		return _area->_name;
 	  }
@@ -378,7 +375,7 @@ namespace Pol {
 	  virtual BObject* step();
 	private:
 	  BObject* m_pIterVal;
-	  string key;
+      std::string key;
 	};
 
 	StorageAreasIterator::StorageAreasIterator( BObject* pIter ) :
@@ -413,7 +410,7 @@ namespace Pol {
 		return new StorageAreasImp();
 	  }
 
-	  virtual string getStringRep() const
+      virtual std::string getStringRep() const
 	  {
 		return "<StorageAreas>";
 	  }
@@ -452,7 +449,7 @@ namespace Pol {
 	  if ( obj.isa( OTString ) )
 	  {
 		String& rtstr = (String&)obj.impref();
-		string key = rtstr.value();
+        std::string key = rtstr.value();
 
 		Storage::AreaCont::iterator itr = storage.areas.find( key );
 		if ( itr != storage.areas.end() )

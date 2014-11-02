@@ -13,12 +13,17 @@ Notes
 =======
 
 */
-#include <iomanip>
-#include "../clib/stl_inc.h"
-#include "../clib/endian.h"
-#include "../clib/stlutil.h"
-#include "../clib/strutil.h"
-#include "../clib/unicode.h"
+
+#include "packetscrobj.h"
+
+#include "mobile/charactr.h"
+#include "network/client.h"
+#include "network/clienttransmit.h"
+
+#include "polsem.h"
+#include "realms.h"
+#include "uoexhelp.h"
+#include "uworld.h"
 
 #include "../bscript/executor.h"
 #include "../bscript/berror.h"
@@ -26,18 +31,13 @@ Notes
 #include "../bscript/objmembers.h"
 #include "../bscript/objmethods.h"
 
-#include "mobile/charactr.h"
-#include "network/client.h"
-#include "network/clienttransmit.h"
-#include "packetscrobj.h"
-#include "polsem.h"
-#include "realms.h"
-#include "uoexhelp.h"
-#include "ufunc.h"
-#include "uvars.h"
-#include "zone.h"
-#include "uoscrobj.h"
-#include "uworld.h"
+#include "../clib/endian.h"
+#include "../clib/stlutil.h"
+#include "../clib/strutil.h"
+#include "../clib/unicode.h"
+
+#include <iomanip>
+
 namespace Pol {
   namespace Core {
 
@@ -75,7 +75,7 @@ namespace Pol {
 	BPacket::~BPacket()
 	{}
 
-	BObjectRef BPacket::get_member_id( const int id )//id test
+	BObjectRef BPacket::get_member_id( const int /*id*/ )//id test
 	{
 	  return BObjectRef( new BLong( 0 ) );
 	}
@@ -88,7 +88,7 @@ namespace Pol {
 		return BObjectRef( UninitObject::create() );
 	}
 
-	BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool forcebuiltin )
+	BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool /*forcebuiltin*/ )
 	{
 	  switch ( id )
 	  {
@@ -519,13 +519,12 @@ namespace Pol {
 	std::string BPacket::getStringRep() const
 	{
 	  OSTRINGSTREAM os;
-	  vector<unsigned char>::const_iterator itr;
-	  for ( itr = buffer.begin(); itr != buffer.end(); ++itr )
-		os << std::setfill( '0' ) << std::setw( 2 ) << hex << static_cast<u16>( *itr );
+	  for (auto itr = buffer.begin(); itr != buffer.end(); ++itr )
+		os << std::setfill( '0' ) << std::setw( 2 ) << std::hex << static_cast<u16>( *itr );
 
 	  return OSTRINGSTREAM_STR( os );
-
 	}
+
 	bool BPacket::SetSize( u16 newsize )
 	{
 	  if ( !is_variable_length )
@@ -537,7 +536,7 @@ namespace Pol {
 	  return true;
 	}
 
-	BObjectImp* BPacket::SetSize( u16 newsize, bool giveReturn )
+	BObjectImp* BPacket::SetSize( u16 newsize, bool /*giveReturn*/ )
 	{
 	  if ( !is_variable_length )
 		return new BError( "Attempted to resize a fixed length packet" );

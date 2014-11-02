@@ -11,8 +11,6 @@ Notes
 */
 
 
-#include "../clib/stl_inc.h"
-
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/fileutil.h"
@@ -20,6 +18,16 @@ Notes
 #include "../clib/stlutil.h"
 
 #include "../plib/pkg.h"
+
+#include <stdexcept>
+#include <map>
+#include <string>
+
+#ifdef _MSC_VER
+#pragma warning(disable:4996) // deprecation warning for stricmp
+#endif
+
+
 namespace Pol {
   namespace Core {
 	class NpcTemplateConfigSource : public Clib::ConfigSource
@@ -32,7 +40,7 @@ namespace Pol {
                                   const Clib::ConfigElemBase* elem = NULL,
 								  bool error = true ) const;
 	private:
-	  string _filename;
+	  std::string _filename;
 	  unsigned _fileline;
 	};
     NpcTemplateConfigSource::NpcTemplateConfigSource( const Clib::ConfigFile& cf ) :
@@ -42,7 +50,7 @@ namespace Pol {
 	NpcTemplateConfigSource::NpcTemplateConfigSource() : _filename(""), _fileline(0)
 	{}
 	void NpcTemplateConfigSource::display_error( const std::string& msg,
-												 bool show_curline,
+												 bool /*show_curline*/,
                                                  const Clib::ConfigElemBase* elem,
 												 bool error ) const
 	{
@@ -98,12 +106,12 @@ namespace Pol {
 	  elem.set_source( &_source );
 	}
 
-    typedef map< string, NpcTemplateElem, Clib::ci_cmp_pred > NpcTemplates;
+    typedef std::map< std::string, NpcTemplateElem, Clib::ci_cmp_pred > NpcTemplates;
 	static NpcTemplates npc_templates;
 
     bool FindNpcTemplate( const char* template_name, Clib::ConfigElem& elem )
 	{
-	  NpcTemplates::const_iterator itr = npc_templates.find( template_name );
+	  auto itr = npc_templates.find( template_name );
 	  if ( itr != npc_templates.end() )
 	  {
 		const NpcTemplateElem& tm = ( *itr ).second;
@@ -122,11 +130,11 @@ namespace Pol {
 	  try
 	  {
 		const Plib::Package* pkg;
-		string npctemplate;
+        std::string npctemplate;
         if ( !Plib::pkgdef_split( template_name, NULL, &pkg, &npctemplate ) )
 		  return false;
 
-        string filename = Plib::GetPackageCfgPath( const_cast<Plib::Package*>( pkg ), "npcdesc.cfg" );
+        std::string filename = Plib::GetPackageCfgPath(const_cast<Plib::Package*>(pkg), "npcdesc.cfg");
 
 		cf.open( filename.c_str() );
 		while ( cf.read( elem ) )
@@ -134,10 +142,10 @@ namespace Pol {
 		  if ( !elem.type_is( "NpcTemplate" ) )
 			continue;
 
-		  string orig_rest = elem.rest();
+          std::string orig_rest = elem.rest();
 		  if ( pkg != NULL )
 		  {
-			string newrest = ":" + pkg->name() + ":" + npctemplate;
+            std::string newrest = ":" + pkg->name() + ":" + npctemplate;
 			elem.set_rest( newrest.c_str() );
 		  }
 		  const char* rest = elem.rest();
@@ -148,7 +156,7 @@ namespace Pol {
 		  }
 		  else
 		  {
-			string tname = elem.remove_string( "TemplateName" );
+              std::string tname = elem.remove_string("TemplateName");
 			if ( stricmp( tname.c_str(), npctemplate.c_str() ) == 0 )
 			  return true;
 		  }
@@ -159,15 +167,15 @@ namespace Pol {
 	  {
         ERROR_PRINT << "NPC Creation (" << template_name << ") Failed: " << msg << "\n";
 	  }
-	  catch ( string& str )
+      catch (std::string& str)
 	  {
         ERROR_PRINT << "NPC Creation (" << template_name << ") Failed: " << str << "\n";
 	  }	   // egcs has some trouble realizing 'exception' should catch
-	  catch ( runtime_error& re )   // runtime_errors, so...
+      catch (std::runtime_error& re)   // runtime_errors, so...
 	  {
         ERROR_PRINT << "NPC Creation (" << template_name << ") Failed: " << re.what( ) << "\n";
 	  }
-	  catch ( exception& ex )
+      catch (std::exception& ex)
 	  {
         ERROR_PRINT << "NPC Creation (" << template_name << ") Failed: " << ex.what() << "\n";
 	  }
@@ -181,7 +189,7 @@ namespace Pol {
 
     void read_npc_templates( Plib::Package* pkg )
 	{
-	  string filename = GetPackageCfgPath( pkg, "npcdesc.cfg" );
+        std::string filename = GetPackageCfgPath(pkg, "npcdesc.cfg");
 	  if ( !Clib::FileExists( filename ) )
 		return;
 
@@ -192,7 +200,7 @@ namespace Pol {
 		if ( elem.type_is( "NpcTemplate" ) )
 		{
 		  // first determine the NPC template name.
-		  string namebase;
+            std::string namebase;
 		  const char* rest = elem.rest();
 		  if ( rest != NULL && *rest != '\0' )
 		  {
@@ -202,7 +210,7 @@ namespace Pol {
 		  {
 			namebase = elem.remove_string( "TemplateName" );
 		  }
-		  string descname;
+          std::string descname;
 		  if ( pkg != NULL )
 		  {
 			descname = ":" + pkg->name() + ":" + namebase;

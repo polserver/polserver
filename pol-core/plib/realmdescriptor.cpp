@@ -7,19 +7,17 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
+#include "realmdescriptor.h"
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/strutil.h"
 
-#include "realmdescriptor.h"
-
 namespace Pol {
   namespace Plib {
-	RealmDescriptor RealmDescriptor::Load( const string& realm_name, const string& realm_path )
+      RealmDescriptor RealmDescriptor::Load(const std::string& realm_name, const std::string& realm_path)
 	{
-	  string realm_cfg_filename;
+	  std::string realm_cfg_filename;
 	  if ( realm_path == "" )
 		realm_cfg_filename = "realm/" + realm_name + "/realm.cfg";
 	  else
@@ -33,7 +31,7 @@ namespace Pol {
 	  return RealmDescriptor( realm_name, realm_path, elem );
 	}
 
-	RealmDescriptor::RealmDescriptor( const string& realm_name, const string& realm_path, Clib::ConfigElem& elem ) :
+      RealmDescriptor::RealmDescriptor(const std::string& realm_name, const std::string& realm_path, Clib::ConfigElem& elem) :
 	  name( realm_name ),
 	  file_path( realm_path ),
 	  width( elem.remove_ushort( "width" ) ),
@@ -65,7 +63,7 @@ namespace Pol {
       return size;
     }
 
-	string RealmDescriptor::path( const string& filename ) const
+    std::string RealmDescriptor::path(const std::string& filename) const
 	{
 	  if ( file_path == "" )
 		return "realm/" + name + "/" + filename;

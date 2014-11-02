@@ -22,30 +22,19 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-
 /* MISCMSG.CPP: Miscellaneous message handlers.  Handlers shouldn't stay here long, 
    only until they find a better home - but this is better than putting them in POL.CPP. */
 
-#include <stddef.h>
-
-#include "../clib/clib.h"
-#include "../clib/endian.h"
-#include "../clib/fdump.h"
-#include "../clib/logfacility.h"
-#include "../clib/strutil.h"
-
-#include "../clib/stlutil.h"
-#include "../clib/unicode.h"
-
-#include "accounts/account.h"
-#include "mobile/charactr.h"
-#include "network/client.h"
-#include "cmbtcfg.h"
 #include "multi/customhouses.h"
-#include "fnsearch.h"
-#include "network/msghandl.h"
 #include "multi/multi.h"
+
+#include "mobile/charactr.h"
+#include "accounts/account.h"
+#include "network/client.h"
+#include "network/msghandl.h"
+
+#include "fnsearch.h"
+#include "cmbtcfg.h"
 #include "pktboth.h"
 #include "pktin.h"
 #include "spells.h"
@@ -58,6 +47,17 @@ Notes
 #include "ssopt.h"
 #include "scrstore.h"
 #include "polcfg.h"
+
+#include "../clib/clib.h"
+#include "../clib/endian.h"
+#include "../clib/fdump.h"
+#include "../clib/logfacility.h"
+#include "../clib/strutil.h"
+#include "../clib/stlutil.h"
+#include "../clib/unicode.h"
+
+#include <cstddef>
+
 namespace Pol {
   namespace Module {
     void character_race_changer_handler( Network::Client* client, Core::PKTBI_BF* msg );
@@ -73,7 +73,7 @@ namespace Pol {
 	void OnQuestButton( Client* client );
 	void OnChatButton( Client* client );
 
-	void handle_bulletin_boards( Client* client, PKTBI_71* msg )
+	void handle_bulletin_boards( Client* client, PKTBI_71* /*msg*/ )
 	{
 	  handle_unknown_packet( client );
 	}
@@ -140,7 +140,7 @@ namespace Pol {
 	}
 	MESSAGE_HANDLER( PKTIN_75, handle_rename_char );
 
-	void handle_msg_B5( Client* client, PKTIN_B5* msg )
+	void handle_msg_B5( Client* client, PKTIN_B5* /*msg*/ )
 	{
 	  OnChatButton( client );
 	}
@@ -199,7 +199,7 @@ namespace Pol {
 	}
 	MESSAGE_HANDLER_VARLEN( PKTBI_B8_IN, handle_char_profile_request );
 
-	void handle_msg_BB( Client* client, PKTBI_BB* msg )
+	void handle_msg_BB( Client* client, PKTBI_BB* /*msg*/ )
 	{
 	  handle_unknown_packet( client );
 	}
@@ -212,7 +212,7 @@ namespace Pol {
 	  {
 		int c = 0;
 		char ch;
-		string ver2 = "";
+		std::string ver2 = "";
 		while ( c < len )
 		{
 		  ch = msg->version[c];
@@ -373,13 +373,13 @@ namespace Pol {
 	}
 	MESSAGE_HANDLER_VARLEN( PKTBI_BF, handle_msg_BF );
 
-	void handle_unknown_C4( Client* client, PKTOUT_C4* msg )
+	void handle_unknown_C4( Client* client, PKTOUT_C4* /*msg*/ )
 	{
 	  handle_unknown_packet( client );
 	}
 	MESSAGE_HANDLER( PKTOUT_C4, handle_unknown_C4 );
 
-	void handle_update_range_change( Client* client, PKTBI_C8* msg )
+	void handle_update_range_change( Client* client, PKTBI_C8* /*msg*/ )
 	{
 	  handle_unknown_packet( client );
 	}

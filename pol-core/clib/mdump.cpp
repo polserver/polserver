@@ -10,10 +10,6 @@ Notes
 */
 
 
-#include "stl_inc.h"
-#include <windows.h>
-#include <assert.h>
-#include <time.h>
 #include "mdump.h"
 #include "progver.h"
 #include "strexcpt.h"
@@ -21,6 +17,11 @@ Notes
 #include "logfacility.h"
 #include "threadhelp.h"
 #include "../../lib/StackWalker/StackWalker.h"
+
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include <assert.h>
+#include <time.h>
 
 	// FIXME: 2008 Upgrades needed here? Need to check dbg headers to ensure compatibility
 #if _MSC_VER < 1300
@@ -30,6 +31,11 @@ Notes
 #else
 	// VC7: ships with updated headers
 #	include "dbghelp.h"
+#endif
+
+#ifdef _MSC_VER
+#pragma warning(disable:4996) // deprecation warning for localtime, strcpy
+#pragma warning(disable:4100) // TODO: This file needs some serious rewrite, so I'm just ignoring the unreferenced parameters for now
 #endif
 
 // based on dbghelp.h
@@ -51,14 +57,14 @@ namespace Pol {
 	{
 	  HiddenMiniDumper::Initialize();
 	}
-	void MiniDumper::SetMiniDumpType( const string& dumptype )
+	void MiniDumper::SetMiniDumpType( const std::string& dumptype )
 	{
 	  HiddenMiniDumper::_MiniDumpType = dumptype;
 	}
 
 	bool HiddenMiniDumper::_Initialized;
 	unsigned HiddenMiniDumper::_DumpCount;
-	string HiddenMiniDumper::_MiniDumpType;
+    std::string HiddenMiniDumper::_MiniDumpType;
 	char HiddenMiniDumper::_StartTimestamp[32];
 
 	HMODULE hDbgHelpDll;

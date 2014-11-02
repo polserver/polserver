@@ -12,6 +12,9 @@ Notes
 
 #include "mapsolid.h"
 #include "realmdescriptor.h"
+
+#include <vector>
+
 namespace Pol {
   namespace Plib {
 	struct MAPCELL;

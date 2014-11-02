@@ -6,16 +6,31 @@ Notes
 =======
 
 */
+#include "osmod.h"
 
-#include "../../clib/stl_inc.h"
-
-#include <time.h>
+#include "uomod.h"
+#include "../uoexec.h"
 
 #include "../../bscript/berror.h"
 #include "../../bscript/eprog.h"
 #include "../../bscript/executor.h"
 #include "../../bscript/impstr.h"
 #include "../../bscript/bobject.h"
+
+#include "../network/auxclient.h"
+
+#include "../mobile/attribute.h"
+#include "../mobile/charactr.h"
+
+#include "../exscrobj.h"
+#include "../polcfg.h"
+#include "../poldbg.h"
+#include "../profile.h"
+#include "../scrsched.h"
+#include "../scrstore.h"
+#include "../skills.h"
+#include "../ufuncstd.h"
+
 #include "../../clib/endian.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/passert.h"
@@ -24,45 +39,13 @@ Notes
 #include "../../clib/unicode.h"
 #include "../../clib/sckutil.h"
 #include "../../clib/socketsvc.h"
-#include "../mobile/attribute.h"
-#include "../mobile/charactr.h"
-#include "../network/client.h"
-#include "../network/packets.h"
-#include "../network/clienttransmit.h"
-#include "../exscrobj.h"
-#include "../npc.h"
-#include "../party.h"
-#include "../polcfg.h"
-#include "../polclock.h"
-#include "../poldbg.h"
-#include "../polsig.h"
-#include "../profile.h"
-#include "../scrdef.h"
-#include "../scrsched.h"
-#include "../scrstore.h"
-#include "../skills.h"
-#include "../ufunc.h"
-#include "../uoexec.h"
-#include "../watch.h"
-#include "attributemod.h"
-#include "basiciomod.h"
-#include "basicmod.h"
-#include "boatmod.h"
-#include "cfgmod.h"
-#include "clmod.h"
-#include "datastore.h"
-#include "filemod.h"
-#include "guildmod.h"
-#include "mathmod.h"
-#include "npcmod.h"
-#include "osmod.h"
-#include "polsystemmod.h"
-#include "storagemod.h"
-#include "unimod.h"
-#include "uomod.h"
-#include "utilmod.h"
-#include "vitalmod.h"
-#include "../network/auxclient.h"
+
+#include <ctime>
+
+#ifdef _MSC_VER
+#pragma warning(disable:4996) // stricmp POSIX deprecation warning
+#endif
+
 namespace Pol {
   namespace Module {
 	using namespace Bscript;
@@ -374,7 +357,7 @@ namespace Pol {
 		  }
 		  else
 		  {
-			string msg = "Unable to start skill script:";
+			std::string msg = "Unable to start skill script:";
 			msg += script.c_str();
             Core::send_sysmessage( chr->client, msg.c_str( ) );
 

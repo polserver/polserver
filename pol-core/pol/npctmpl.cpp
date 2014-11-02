@@ -9,18 +9,21 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
 
+#include "npctmpl.h"
+
+#include "item/weapon.h"
+#include "syshookscript.h"
+
+#include "../plib/pkg.h"
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
 
-#include "npctmpl.h"
-#include "../plib/pkg.h"
-#include "item/weapon.h"
-#include "syshookscript.h"
+#include <stdexcept>
+
 namespace Pol {
   namespace Core {
 	struct TRANSLATION
@@ -44,7 +47,7 @@ namespace Pol {
 		tmp << "	" << table[i].name << "\n";
 	  }
       ERROR_PRINT << tmp.c_str();
-	  throw runtime_error( "Unable to translate value" );
+	  throw std::runtime_error( "Unable to translate value" );
 	  return 0;
 	}
 
@@ -127,7 +130,7 @@ namespace Pol {
       for ( Plib::Packages::iterator itr = Plib::packages.begin( ); itr != Plib::packages.end( ); ++itr )
 	  {
         Plib::Package* pkg = ( *itr );
-        string filename = Plib::GetPackageCfgPath( pkg, "npcdesc.cfg" );
+        std::string filename = Plib::GetPackageCfgPath( pkg, "npcdesc.cfg" );
 
         if ( Clib::FileExists( filename.c_str( ) ) )
 		{
@@ -151,14 +154,14 @@ namespace Pol {
 	  else
 	  {
         const Plib::Package* pkg;
-		string path;
+		std::string path;
         if ( Plib::pkgdef_split( elem.rest( ), NULL, &pkg, &path ) )
 		{
 		  return create_npc_template( elem, pkg );
 		}
 		else
 		{
-		  throw runtime_error( string( "Error reading NPC template name " ) + elem.rest() );
+            throw std::runtime_error(std::string("Error reading NPC template name ") + elem.rest());
 		}
 	  }
 	}

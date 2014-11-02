@@ -11,19 +11,15 @@ Notes
 #ifndef TIPLIST_H
 #define TIPLIST_H
 
-#ifdef _MSC_VER
-#pragma warning( disable: 4786 )
-#endif
-
 #include <vector>
-
+#include <string>
 
 namespace Pol {
   namespace Network {
     class Client;
   }
   namespace Core {
-	typedef vector<std::string> TipFilenames;
+	typedef std::vector<std::string> TipFilenames;
 	extern TipFilenames tipfilenames;
 
 	void load_tips();

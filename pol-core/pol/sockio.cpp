@@ -8,10 +8,8 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
 
-#include <stdio.h>
-#include <string.h>
+#include "sockio.h"
 
 #include "sockets.h"
 
@@ -20,12 +18,14 @@ Notes
 #include "../clib/strutil.h"
 #include "../clib/logfacility.h"
 
-#include "sockio.h"
-
 #ifdef __unix__
 #include <sys/utsname.h>
 struct utsname my_utsname;
 #endif
+
+#include <cstdio>
+#include <cstring>
+
 namespace Pol {
   namespace Network {
 	char hostname[64];
@@ -129,7 +129,7 @@ namespace Pol {
 		int res = setsockopt( sck, IPPROTO_TCP, TCP_NODELAY, (const char *) &tcp_nodelay, sizeof(tcp_nodelay) );
 		if (res < 0)
 		{
-			throw runtime_error("Unable to setsockopt (TCP_NODELAY) on listening socket, res=" + Clib::decint(res));
+            throw std::runtime_error("Unable to setsockopt (TCP_NODELAY) on listening socket, res=" + Clib::decint(res));
 		}
 	}
 
@@ -145,7 +145,7 @@ namespace Pol {
 #endif
 	  if ( res < 0 )
 	  {
-		throw runtime_error( "Unable to set socket to nonblocking mode, res=" + Clib::decint( res ) );
+          throw std::runtime_error("Unable to set socket to nonblocking mode, res=" + Clib::decint(res));
 	  }
 	}
 	SOCKET open_listen_socket( unsigned short port )
@@ -156,7 +156,7 @@ namespace Pol {
 	  sck = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP );
 	  if ( sck == INVALID_SOCKET )
 	  {
-		throw runtime_error( "Unable to create listening socket" );
+          throw std::runtime_error("Unable to create listening socket");
 		return INVALID_SOCKET;
 	  }
 
@@ -167,7 +167,7 @@ namespace Pol {
 	  res = setsockopt( sck, SOL_SOCKET, SO_REUSEADDR, (const char *) &reuse_opt, sizeof(reuse_opt) );
 	  if (res < 0)
 	  {
-		throw runtime_error( "Unable to setsockopt (SO_REUSEADDR) on listening socket, res = " + Clib::decint(res) );
+          throw std::runtime_error( "Unable to setsockopt (SO_REUSEADDR) on listening socket, res = " + Clib::decint(res) );
 	  }
 #endif
 
@@ -187,14 +187,14 @@ namespace Pol {
 	  {
 		// Aug. 16, 2006. Austin
 		//   Added the port number that failed.
-		string tmp_error = "Unable to bind listening socket. Port(" + Clib::decint( port ) + ") Res=" + Clib::decint( res );
-		throw runtime_error( tmp_error );
+		std::string tmp_error = "Unable to bind listening socket. Port(" + Clib::decint( port ) + ") Res=" + Clib::decint( res );
+		throw std::runtime_error( tmp_error );
 	  }
 
 	  res = listen( sck, SOMAXCONN );
 	  if ( res < 0 )
 	  {
-		throw runtime_error( "Listen failed, res=" + Clib::decint( res ) );
+          throw std::runtime_error("Listen failed, res=" + Clib::decint(res));
 	  }
 
 	  return sck;

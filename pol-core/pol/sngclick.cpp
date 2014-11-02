@@ -9,15 +9,11 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-
-#include <stdio.h>
-
-#include "../clib/endian.h"
-
-#include "mobile/charactr.h"
 #include "network/client.h"
 #include "network/msghandl.h"
+
+#include "mobile/charactr.h"
+
 #include "pktin.h"
 #include "uconst.h"
 #include "ufunc.h"
@@ -27,6 +23,9 @@ Notes
 #include "uworld.h"
 #include "ssopt.h"
 #include "containr.h"
+
+#include <cstdio>
+
 namespace Pol {
   namespace Core {
 	Items::Item* find_legal_singleclick_item( Mobile::Character* chr, u32 serial )
@@ -93,7 +92,8 @@ namespace Pol {
 		  if ( !chr->title_guild.empty() && ( ssopt.core_handled_tags & 0x1 ) )
 			send_nametext( client, chr, "[" + chr->title_guild + "]" );
 		  send_nametext( client, chr, chr->name() );
-		  string tags;
+
+		  std::string tags;
 		  if ( chr->frozen() && ( ssopt.core_handled_tags & 0x2 ) )
 			tags = "[frozen] ";
 		  if ( chr->paralyzed() && ( ssopt.core_handled_tags & 0x4 ) )

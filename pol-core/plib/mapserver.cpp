@@ -7,19 +7,21 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
+#include "mapserver.h"
+
+#include "filemapserver.h"
+#include "inmemorymapserver.h"
+#include "mapblock.h"
+#include "mapshape.h"
+#include "mapsolid.h"
+#include "realmdescriptor.h"
 
 #include "../clib/binaryfile.h"
 #include "../clib/passert.h"
 #include "../clib/strutil.h"
 
-#include "filemapserver.h"
-#include "inmemorymapserver.h"
-#include "mapblock.h"
-#include "mapserver.h"
-#include "mapshape.h"
-#include "mapsolid.h"
-#include "realmdescriptor.h"
+#include <stdexcept>
+
 namespace Pol {
   namespace Plib {
 	MapServer::MapServer( const RealmDescriptor& descriptor ) :
@@ -38,24 +40,24 @@ namespace Pol {
 
 	void MapServer::LoadSolids()
 	{
-	  string filename = _descriptor.path( "solids.dat" );
+	  std::string filename = _descriptor.path( "solids.dat" );
 
-	  Clib::BinaryFile infile( filename, ios::in );
+      Clib::BinaryFile infile(filename, std::ios::in);
 	  infile.ReadVector( _shapedata );
 	}
 
 	void MapServer::LoadSecondLevelIndex()
 	{
-	  string filename = _descriptor.path( "solidx2.dat" );
+      std::string filename = _descriptor.path("solidx2.dat");
 
-	  Clib::BinaryFile infile( filename, ios::in );
-	  fstream::pos_type filesize = infile.FileSize();
-	  if ( filesize < fstream::pos_type( SOLIDX2_FILLER_SIZE ) )
-		throw runtime_error( filename + " must have size of at least " + Clib::decint( SOLIDX2_FILLER_SIZE ) + " bytes." );
+      Clib::BinaryFile infile(filename, std::ios::in);
+      std::fstream::pos_type filesize = infile.FileSize();
+      if (filesize < std::fstream::pos_type(SOLIDX2_FILLER_SIZE))
+          throw std::runtime_error(filename + " must have size of at least " + Clib::decint(SOLIDX2_FILLER_SIZE) + " bytes.");
 
-	  fstream::pos_type databytes = filesize - fstream::pos_type( SOLIDX2_FILLER_SIZE );
+      std::fstream::pos_type databytes = filesize - std::fstream::pos_type(SOLIDX2_FILLER_SIZE);
 	  if ( ( databytes % sizeof( SOLIDX2_ELEM ) ) != 0 )
-		throw runtime_error( filename + " does not contain an integral number of elements." );
+          throw std::runtime_error(filename + " does not contain an integral number of elements.");
 
 	  size_t count = static_cast<size_t>( databytes / sizeof( SOLIDX2_ELEM ) );
 	  _index2.resize( count );
@@ -80,9 +82,9 @@ namespace Pol {
 
 	void MapServer::LoadFirstLevelIndex()
 	{
-	  string filename = _descriptor.path( "solidx1.dat" );
+      std::string filename = _descriptor.path("solidx1.dat");
 
-	  Clib::BinaryFile infile( filename, ios::in );
+      Clib::BinaryFile infile(filename, std::ios::in);
 
 	  size_t n_blocks = ( _descriptor.width / SOLIDX_X_SIZE ) * ( _descriptor.height / SOLIDX_Y_SIZE );
 	  _index1.resize( n_blocks );
@@ -159,7 +161,7 @@ namespace Pol {
 	  }
 	  else
 	  {
-		throw runtime_error( "Undefined mapserver type: " + descriptor.mapserver_type );
+          throw std::runtime_error("Undefined mapserver type: " + descriptor.mapserver_type);
 	  }
 	}
 

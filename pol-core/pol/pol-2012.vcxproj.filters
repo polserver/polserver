@@ -305,7 +305,7 @@
     <ClCompile Include="syshook.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="systemhookscript.cpp">
+    <ClCompile Include="syshookscript.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="target.cpp">

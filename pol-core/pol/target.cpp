@@ -10,35 +10,36 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-
-#include <stdio.h>
-
-#include "../clib/endian.h"
-#include "../clib/logfacility.h"
-
-#include "../plib/realm.h"
+#include "target.h"
 
 #include "accounts/account.h"
 #include "mobile/charactr.h"
-#include "network/client.h"
-#include "network/clienttransmit.h"
-#include "fnsearch.h"
+
 #include "item/itemdesc.h"
-#include "los.h"
+#include "multi/multi.h"
+
+#include "network/client.h"
+#include "network/cgdata.h"
+#include "network/clienttransmit.h"
 #include "network/msghandl.h"
+
+#include "../plib/realm.h"
+
+#include "fnsearch.h"
+#include "los.h"
 #include "objtype.h"
 #include "pktboth.h"
 #include "realms.h"
 #include "ufunc.h"
 #include "uvars.h"
-#include "multi/multi.h"
-
-#include "target.h"
 #include "polclass.h"
 
 #include "guardrgn.h"
-#include "network/cgdata.h"
+
+#include "../clib/endian.h"
+#include "../clib/logfacility.h"
+
+#include <stdexcept>
 
 #define MAX_CURSORS 500
 namespace Pol {
@@ -128,7 +129,7 @@ namespace Pol {
 	{
 	  if ( cursorid_count >= MAX_CURSORS )
 	  {
-		throw runtime_error( "Too many targetting cursors!" );
+		throw std::runtime_error( "Too many targetting cursors!" );
 	  }
 
 	  cursorid_ = cursorid_count;

@@ -7,17 +7,16 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
+#include "maptileserver.h"
 
 #include "maptile.h"
-#include "maptileserver.h"
 #include "realmdescriptor.h"
 
 namespace Pol {
   namespace Plib {
 	MapTileServer::MapTileServer( const RealmDescriptor& descriptor ) :
 	  _descriptor( descriptor ),
-	  _file( _descriptor.path( "maptile.dat" ), ios::in ),
+	  _file( _descriptor.path( "maptile.dat" ), std::ios::in ),
 	  _cur_block_index( -1L )
 	{
 	  _file.Read( _cur_block );

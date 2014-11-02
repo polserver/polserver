@@ -8,11 +8,7 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-#ifdef _MSC_VER
-#pragma warning( disable: 4786 )
-#endif
-
+#include "proplist.h"
 
 #include "../clib/cfgelem.h"
 #include "../clib/stlutil.h"
@@ -26,7 +22,7 @@ Notes
 #include "../bscript/impstr.h"
 #include "../bscript/objmethods.h"
 
-#include "proplist.h"
+#include <memory>
 
 #define pf_endl '\n'
 namespace Pol {
@@ -47,7 +43,7 @@ namespace Pol {
       return size;
     }
 
-	bool PropertyList::getprop( const string& propname, string& propval ) const
+	bool PropertyList::getprop( const std::string& propname, std::string& propval ) const
 	{
       Properties::const_iterator itr = properties.find( boost_utils::cprop_name_flystring( propname ) );
 	  if ( itr == properties.end() )
@@ -97,7 +93,7 @@ namespace Pol {
 	{
 	  for ( const auto &prop : properties )
 	  {
-		const string& first = prop.first;
+		const std::string& first = prop.first;
 		if ( first[0] != '#' )
 		{
 		  sw() << "\tCProp\t" << first << " " << prop.second.get() << pf_endl;
@@ -108,7 +104,7 @@ namespace Pol {
 	{
 	  for ( const auto &prop : properties )
 	  {
-		const string& first = prop.first;
+		const std::string& first = prop.first;
 		if ( first[0] != '#' )
 		{
 		  elem.add_prop( "CProp", ( first + "\t" + prop.second.get() ).c_str() );
@@ -120,7 +116,7 @@ namespace Pol {
 	{
 	  for ( const auto &prop : properties )
 	  {
-		const string& first = prop.first;
+		const std::string& first = prop.first;
 		if ( first[0] != '#' )
 		{
 		  sw() << "\t" << first << " " << prop.second.get() << pf_endl;
@@ -130,11 +126,11 @@ namespace Pol {
 
     void PropertyList::readProperties( Clib::ConfigElem& elem )
 	{
-	  string tempstr;
+	  std::string tempstr;
 	  while ( elem.remove_prop( "StrProp", &tempstr ) )
 	  {
-		string propname;
-		string propvalue;
+		std::string propname;
+        std::string propvalue;
 
         Clib::splitnamevalue( tempstr, propname, propvalue );
 
@@ -142,8 +138,8 @@ namespace Pol {
 	  }
 	  while ( elem.remove_prop( "CProp", &tempstr ) )
 	  {
-		string propname;
-		string propvalue;
+		std::string propname;
+        std::string propvalue;
 
         Clib::splitnamevalue( tempstr, propname, propvalue );
 
@@ -153,7 +149,7 @@ namespace Pol {
 
     void PropertyList::readRemainingPropertiesAsStrings( Clib::ConfigElem& elem )
 	{
-	  string propname, propvalue;
+	 std:: string propname, propvalue;
 	  while ( elem.remove_first_prop( &propname, &propvalue ) )
 	  {
 		setprop( propname, propvalue );
@@ -215,7 +211,7 @@ namespace Pol {
 		  {
             POLLOG.Format( "wtf, setprop w/ an error '{}' PC:{}\n" ) << ex.scriptname().c_str() << ex.PC;
 		  }
-		  string propname = propname_str->value();
+          std::string propname = propname_str->value();
 		  proplist.setprop( propname, propval->pack() );
 		  if ( propname[0] != '#' )
 			changed = true;
@@ -229,7 +225,7 @@ namespace Pol {
 		  const String* propname_str;
 		  if ( !ex.getStringParam( 0, propname_str ) )
 			return new BError( "Invalid parameter type" );
-		  string propname = propname_str->value();
+          std::string propname = propname_str->value();
 		  proplist.eraseprop( propname );
 		  if ( propname[0] != '#' )
 			changed = true;
@@ -238,7 +234,7 @@ namespace Pol {
 
 		case MTH_PROPNAMES:
 		{
-		  vector<string> propnames;
+		  std::vector<std::string> propnames;
 		  proplist.getpropnames( propnames );
 		  std::unique_ptr<ObjArray> arr( new ObjArray );
 		  for ( const auto& name : propnames)

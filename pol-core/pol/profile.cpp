@@ -8,8 +8,8 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
 #include "profile.h"
+
 namespace Pol {
   namespace Core {
 	size_t rotations;

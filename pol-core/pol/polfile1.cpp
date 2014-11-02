@@ -11,13 +11,18 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
+#include "polfile.h"
 
-#include <stdio.h>
+#include "polcfg.h"
+#include "profile.h"
+#include "uofilei.h"
+#include "uofile.h"
 
-#ifdef __unix__
-#include <unistd.h>
-#endif
+#include "../plib/realmdescriptor.h"
+#include "../plib/staticblock.h"
+
+#include "item/itemdesc.h"
+#include "ustruct.h"
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
@@ -29,24 +34,18 @@ Notes
 #include "../clib/wallclock.h"
 #include "../clib/logfacility.h"
 
-#include "../plib/realmdescriptor.h"
-#include "../plib/staticblock.h"
+#ifdef __unix__
+#include <unistd.h>
+#endif
 
-#include "item/itemdesc.h"
-#include "ustruct.h"
-
-#include "polcfg.h"
-#include "polfile.h"
-#include "profile.h"
-#include "uofilei.h"
-#include "uofile.h"
+#include <cstdio>
 
 namespace Pol {
   namespace Core {
 
     bool cfg_show_illegal_graphic_warning = 1;
 
-    bool newstat_dont_add( vector<Plib::STATIC_ENTRY>& vec, USTRUCT_STATIC* pstat )
+    bool newstat_dont_add( std::vector<Plib::STATIC_ENTRY>& vec, USTRUCT_STATIC* pstat )
     {
       char pheight = tileheight( pstat->graphic );
 
@@ -69,7 +68,7 @@ namespace Pol {
       return false;
     }
 
-    int write_pol_static_files( const string& realm )
+    int write_pol_static_files( const std::string& realm )
     {
       unsigned int duplicates = 0;
       unsigned int illegales = 0;
@@ -78,11 +77,12 @@ namespace Pol {
       unsigned int nonempties = 0;
       unsigned int maxcount = 0;
 
-      string directory = "realm/" + realm + "/";
-      string statidx_dat = directory + "statidx.dat";
-      string statics_dat = directory + "statics.dat";
-      string statidx_tmp = directory + "statidx.tmp";
-      string statics_tmp = directory + "statics.tmp";
+      std::string directory = "realm/" + realm + "/";
+
+      std::string statidx_dat = directory + "statidx.dat";
+      std::string statics_dat = directory + "statics.dat";
+      std::string statidx_tmp = directory + "statidx.tmp";
+      std::string statics_tmp = directory + "statics.tmp";
       Clib::RemoveFile( statidx_dat );
       Clib::RemoveFile( statics_dat );
       Clib::RemoveFile( statidx_tmp );
@@ -109,9 +109,9 @@ namespace Pol {
           idx.index = index;
           fwrite( &idx, sizeof idx, 1, fidx );
 
-          vector<USTRUCT_STATIC> pstat;
+          std::vector<USTRUCT_STATIC> pstat;
           int num;
-          vector<Plib::STATIC_ENTRY> vec;
+          std::vector<Plib::STATIC_ENTRY> vec;
           readstaticblock( &pstat, &num, x, y );
           for ( int i = 0; i < num; ++i )
           {

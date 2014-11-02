@@ -8,17 +8,17 @@ Notes
 
 */
 
-
-#include "../clib/stl_inc.h"
-#include "../clib/cfgelem.h"
-
-#include "../plib/realm.h"
+#include "miscrgn.h"
 
 #include "region.h"
-#include "miscrgn.h"
 #include "ufunc.h"
 #include "realms.h"
 #include "uworld.h"
+
+#include "../plib/realm.h"
+
+#include "../clib/cfgelem.h"
+
 namespace Pol {
   namespace Core {
 	NoCastRegion::NoCastRegion( Clib::ConfigElem& elem, RegionId id ) :
@@ -85,7 +85,7 @@ namespace Pol {
             zone[i][j] = 0;
           }
         }
-        default_regionrealms.insert( make_pair( realm, zone ) );
+        default_regionrealms.insert( std::make_pair( realm, zone ) );
       }
 	}
 

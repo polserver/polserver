@@ -16,12 +16,48 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
+#include "scrsched.h"
 
-#include <time.h>
+#include "scrdef.h"
+#include "scrstore.h"
 
+#include "network/client.h"
+#include "mobile/charactr.h"
+#include "npc.h"
+
+#include "exscrobj.h"
+#include "polcfg.h"
+#include "polclock.h"
+#include "poldbg.h"
+#include "polsig.h"
+#include "profile.h"
+
+#include "watch.h"
+
+#include "uoexec.h"
+#include "module/uomod.h"
+#include "module/osmod.h"
+
+// The ones below are required for the add_common_exmods(). Can't we move this somewhere else...?
+#include "module/attributemod.h"
 #include "module/basiciomod.h"
 #include "module/basicmod.h"
+#include "module/boatmod.h"
+#include "module/cfgmod.h"
+#include "module/clmod.h"
+#include "module/datastore.h"
+#include "module/filemod.h"
+#include "module/guildmod.h"
+#include "module/mathmod.h"
+#include "module/npcmod.h"
+#include "module/partymod.h"
+#include "module/polsystemmod.h"
+#include "module/storagemod.h"
+#include "module/sqlmod.h"
+#include "module/unimod.h"
+#include "module/utilmod.h"
+#include "module/vitalmod.h"
+
 #include "../bscript/bobject.h"
 #include "../bscript/berror.h"
 #include "../bscript/eprog.h"
@@ -35,42 +71,9 @@ Notes
 #include "../clib/strutil.h"
 #include "../clib/unicode.h"
 
-#include "module/attributemod.h"
-#include "module/boatmod.h"
-#include "module/cfgmod.h"
-#include "module/clmod.h"
-#include "mobile/charactr.h"
-#include "module/datastore.h"
-#include "module/sqlmod.h"
-#include "exscrobj.h"
-#include "module/filemod.h"
-#include "module/guildmod.h"
-#include "module/mathmod.h"
-#include "npc.h"
-#include "module/npcmod.h"
-#include "module/osmod.h"
-#include "polcfg.h"
-#include "polclock.h"
-#include "poldbg.h"
-#include "polsig.h"
-#include "module/polsystemmod.h"
-#include "profile.h"
-#include "scrdef.h"
-#include "scrstore.h"
-#include "module/storagemod.h"
-#include "module/unimod.h"
-#include "module/uomod.h"
-#include "uoexec.h"
-#include "module/utilmod.h"
-#include "module/vitalmod.h"
-#include "watch.h"
+#include <ctime>
+#include <stdexcept>
 
-#include "mobile/charactr.h"
-#include "network/client.h"
-
-#include "scrsched.h"
-
-#include "module/partymod.h"
 namespace Pol {
   namespace Core {
     bool find_uoexec( unsigned int pid, UOExecutor** pp_uoexec )
@@ -582,7 +585,7 @@ namespace Pol {
 	  if ( program.get() == NULL )
 	  {
         ERROR_PRINT << "Error reading script " << filename << "\n";
-		throw runtime_error( "Error starting script" );
+		throw std::runtime_error( "Error starting script" );
 	  }
 
 	  UOExecutor* ex = create_script_executor();
@@ -597,7 +600,7 @@ namespace Pol {
 	  ex->addModule( new Module::UOExecutorModule( *ex ) );
 
 	  if ( !ex->setProgram( program.get() ) )
-		throw runtime_error( "Error starting script." );
+		throw std::runtime_error( "Error starting script." );
 
 	  ex->setDebugLevel( Bscript::Executor::NONE );
 
@@ -703,7 +706,7 @@ namespace Pol {
 	  ex->addModule( uoemod );
 
 	  if ( !ex->setProgram( program.get() ) )
-		throw runtime_error( "Error starting script." );
+		throw std::runtime_error( "Error starting script." );
 
       ex->setDebugLevel( Bscript::Executor::NONE );
 

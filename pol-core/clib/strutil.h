@@ -11,6 +11,7 @@ Notes
 #define CLIB_STRUTIL
 
 #include <string>
+
 namespace Pol {
   namespace Clib {
 	std::string hexint( unsigned short v );

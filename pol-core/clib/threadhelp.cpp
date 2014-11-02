@@ -14,10 +14,9 @@ Notes
 
 */
 
-#include "stl_inc.h"
+#include "threadhelp.h"
 
 #include "passert.h"
-#include "threadhelp.h"
 #include "logfacility.h"
 #include "esignal.h"
 
@@ -27,11 +26,15 @@ Notes
 #include <windows.h>
 #include <process.h>
 #else
-#include <assert.h>
 #include <pthread.h>
 #include <unistd.h>
 #include <errno.h>
 #endif
+
+#ifdef _MSC_VER
+#pragma warning(disable:4996) // disable warning for strcpy, strerror
+#endif
+
 namespace Pol {
   namespace threadhelp {
 
@@ -194,7 +197,7 @@ namespace Pol {
     }
 #endif
 
-    void inc_child_thread_count( bool need_lock )
+    void inc_child_thread_count( bool /*need_lock*/ )
     {
       //if (need_lock)
       threadsem_lock();
@@ -204,7 +207,7 @@ namespace Pol {
       //if (need_lock)
       threadsem_unlock();
     }
-    void dec_child_thread_count( bool need_lock )
+    void dec_child_thread_count( bool /*need_lock*/ )
     {
       //if (need_lock)
       threadsem_lock();
@@ -251,7 +254,7 @@ namespace Pol {
     class ThreadData
     {
     public:
-      string name;
+      std::string name;
       void( *entry )( void* );
       void( *entry_noparam )( void );
       void* arg;
@@ -365,10 +368,10 @@ namespace Pol {
       return itr->second;
     }
 #endif
-    void ThreadMap::Register( size_t pid, const string& name )
+    void ThreadMap::Register( size_t pid, const std::string& name )
     {
       threadmap_lock();
-      _contents.insert( make_pair( pid, name ) );
+      _contents.insert( std::make_pair( pid, name ) );
 #ifdef _WIN32
       HANDLE hThread = 0;
       if ( !DuplicateHandle(
@@ -384,7 +387,7 @@ namespace Pol {
         ERROR_PRINT << "failed to duplicate thread handle\n";
         return;
       }
-      _handles.insert( make_pair( pid, hThread ) );
+      _handles.insert( std::make_pair( pid, hThread ) );
 #endif
       threadmap_unlock();
     }

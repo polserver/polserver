@@ -11,13 +11,11 @@ Notes
 =======
 
 */
-#include "../clib/stl_inc.h"
+#include "spelbook.h"
 
-#include "../clib/cfgelem.h"
-#include "../clib/logfacility.h"
-#include "../clib/streamsaver.h"
-#include "../clib/endian.h"
 #include "item/itemdesc.h"
+#include "spells.h"
+
 #include "mobile/charactr.h"
 #include "network/packets.h"
 #include "network/clienttransmit.h"
@@ -26,10 +24,15 @@ Notes
 #include "pktboth.h"
 #include "polcfg.h"
 #include "polclass.h"
-#include "spelbook.h"
-#include "spells.h"
 #include "ssopt.h"
 #include "ufunc.h"
+
+#include "../clib/cfgelem.h"
+#include "../clib/logfacility.h"
+#include "../clib/streamsaver.h"
+#include "../clib/endian.h"
+
+#include <sstream>
 
 namespace Pol {
   namespace Core {
@@ -279,7 +282,7 @@ namespace Pol {
 	void Spellbook::readProperties( Clib::ConfigElem& elem )
 	{
 	  base::readProperties( elem );
-	  ostringstream os;
+	  std::ostringstream os;
 	  for ( int i = 0; i < 8; ++i )
 	  {
 		os << "Spellbits" << i;

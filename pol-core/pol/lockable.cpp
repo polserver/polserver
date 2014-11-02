@@ -8,10 +8,11 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
+#include "lockable.h"
+
 #include "../clib/cfgelem.h"
 #include "../clib/streamsaver.h"
-#include "lockable.h"
+
 namespace Pol {
   namespace Core {
 	ULockable::ULockable( const Items::ItemDesc& itemdesc, UOBJ_CLASS uobj_class ) :

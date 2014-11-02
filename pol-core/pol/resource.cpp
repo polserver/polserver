@@ -8,7 +8,21 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
+#include "resource.h"
+
+#include "../plib/maptile.h"
+#include "../plib/realm.h"
+
+#include "item/itemdesc.h"
+#include "polcfg.h"
+#include "polclock.h"
+#include "polsig.h"
+#include "proplist.h"
+#include "realms.h"
+#include "schedule.h"
+#include "udatfile.h"
+#include "uofile.h"
+#include "udatfile.h"
 
 #include "../bscript/berror.h"
 #include "../bscript/bobject.h"
@@ -23,20 +37,7 @@ Notes
 #include "../clib/stlutil.h"
 #include "../clib/streamsaver.h"
 
-#include "../plib/maptile.h"
-#include "../plib/realm.h"
-
-#include "item/itemdesc.h"
-#include "polcfg.h"
-#include "polclock.h"
-#include "polsig.h"
-#include "proplist.h"
-#include "realms.h"
-#include "resource.h"
-#include "schedule.h"
-#include "udatfile.h"
-#include "uofile.h"
-#include "udatfile.h"
+#include <stdexcept>
 
 ///$TITLE=Resource Management
 namespace Pol {
@@ -311,7 +312,7 @@ namespace Pol {
 
     Bscript::BObjectImp* get_region_string( const char* resource,
                                    xcoord x, ycoord y, Plib::Realm* realm,
-								   const string& propname )
+								   const std::string& propname )
 	{
 	  ResourceDefs::iterator itr = resourcedefs.find( resource );
 	  if ( itr == resourcedefs.end() )
@@ -343,7 +344,7 @@ namespace Pol {
 
 	void read_resource_cfg( const char* resource )
 	{
-	  std::string filename = string( "regions/" ) + resource + string( ".cfg" );
+        std::string filename = std::string("regions/") + resource + std::string(".cfg");
       Clib::ConfigFile cf( filename.c_str( ), "GLOBAL REGION" );
       Clib::ConfigElem elem;
 
@@ -377,7 +378,7 @@ namespace Pol {
       Clib::ConfigElem elem;
 	  while ( cf.read( elem ) )
 	  {
-		string resourcename;
+		std::string resourcename;
 		while ( elem.remove_prop( "ResourceType", &resourcename ) )
 		{
 		  read_resource_cfg( resourcename.c_str() );
@@ -396,7 +397,7 @@ namespace Pol {
 	  if ( rd == NULL )
 	  {
         ERROR_PRINT << "Error reading RESOURCE.DAT: Unable to find resource type " << elem.rest( ) << "\n";
-		throw runtime_error( "Data file error" );
+        throw std::runtime_error("Data file error");
 	  }
 
 	  rd->read_data( elem );
@@ -407,21 +408,21 @@ namespace Pol {
 	  if ( rd == NULL )
 	  {
         ERROR_PRINT << "Error reading RESOURCE.DAT: Unable to find resource type " << elem.rest( ) << "\n";
-		throw runtime_error( "Data file error" );
+        throw std::runtime_error("Data file error");
 	  }
 	  std::string regionname = elem.remove_string( "Name" );
 	  ResourceRegion* rgn = rd->getregion( regionname );
 	  if ( rgn == NULL )
 	  {
         ERROR_PRINT << "Error reading RESOURCE.DAT: Unable to find region " << regionname << " in resource " << elem.rest( ) << "\n";
-		throw runtime_error( "Data file error" );
+        throw std::runtime_error("Data file error");
 	  }
 	  rgn->read_data( elem );
 	}
 
 	void read_resources_dat()
 	{
-	  string resourcefile = config.world_data_path + "resource.dat";
+	  std::string resourcefile = config.world_data_path + "resource.dat";
 
 	  if ( Clib::FileExists( resourcefile ) )
 	  {

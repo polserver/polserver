@@ -11,14 +11,10 @@ Notes
 #ifndef POLFILE_H
 #define POLFILE_H
 
-#ifdef _MSC_VER
-#pragma warning( disable: 4786 )
-#endif
+#include "udatfile.h"
 
 #include <map>
 #include <vector>
-
-#include "udatfile.h"
 
 namespace Pol {
   namespace Core {

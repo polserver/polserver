@@ -11,7 +11,7 @@ Notes
 #define H_BSCRIPT_IMPSTR_H
 #define H_IMPSTR_H
 
-#ifndef H_BOBJECT_H
+#ifndef BSCRIPT_BOBJECT_H
 #include "bobject.h"
 #endif
 

@@ -13,27 +13,16 @@ Notes
 =======
 
 */
-#include <iomanip>
-#include <iostream>
-#include "../clib/stl_inc.h"
-
-#include <stddef.h>
-#include <ctype.h>
-#include <wctype.h>
-
-#include "../clib/endian.h"
-#include "../clib/clib.h"
-#include "../clib/random.h"
-#include "../clib/strutil.h"
-#include "../clib/logfacility.h"
 
 #include "accounts/account.h"
 #include "network/client.h"
 #include "network/packets.h"
+#include "network/msghandl.h"
+
+#include "npc.h"
+
 #include "listenpt.h"
 #include "mkscrobj.h"
-#include "network/msghandl.h"
-#include "npc.h"
 #include "pktin.h"
 #include "pktout.h"
 #include "polcfg.h"
@@ -48,28 +37,42 @@ Notes
 
 #include "module/guildmod.h"
 
-#include "../clib/fdump.h"
 #include "../bscript/impstr.h"
+
+#include "../clib/endian.h"
+#include "../clib/clib.h"
+#include "../clib/random.h"
+#include "../clib/strutil.h"
+#include "../clib/logfacility.h"
+#include "../clib/fdump.h"
+
+#include <cstddef>
+#include <cctype>
+#include <cwctype>
+
+#include <iomanip>
+#include <iostream>
+
 namespace Pol {
   namespace Core {
     using namespace Network;
 
 	// ASCII-ONLY VERSIONS
-	void pc_spoke( NPC& npc, Mobile::Character *chr, const char *text, int textlen, u8 texttype ) //DAVE
+	void pc_spoke( NPC& npc, Mobile::Character *chr, const char *text, int /*textlen*/, u8 texttype ) //DAVE
 	{
 	  npc.on_pc_spoke( chr, text, texttype );
 	}
-    void ghost_pc_spoke( NPC& npc, Mobile::Character* chr, const char* text, int textlen, u8 texttype ) //DAVE
+    void ghost_pc_spoke( NPC& npc, Mobile::Character* chr, const char* text, int /*textlen*/, u8 texttype ) //DAVE
 	{
 	  npc.on_ghost_pc_spoke( chr, text, texttype );
 	}
 
 	// UNICODE VERSIONS
-    void pc_spoke( NPC& npc, Mobile::Character *chr, const char *text, int textlen, u8 texttype, const u16 *wtext, const char lang[4], int wtextlen, Bscript::ObjArray* speechtokens = NULL )
+    void pc_spoke( NPC& npc, Mobile::Character *chr, const char *text, int /*textlen*/, u8 texttype, const u16 *wtext, const char lang[4], int /*wtextlen*/, Bscript::ObjArray* speechtokens = NULL )
 	{
 	  npc.on_pc_spoke( chr, text, texttype, wtext, lang, speechtokens );
 	}
-    void ghost_pc_spoke( NPC& npc, Mobile::Character* chr, const char *text, int textlen, u8 texttype, const u16 *wtext, const char lang[4], int wtextlen, Bscript::ObjArray* speechtokens = NULL )
+    void ghost_pc_spoke( NPC& npc, Mobile::Character* chr, const char *text, int /*textlen*/, u8 texttype, const u16 *wtext, const char lang[4], int /*wtextlen*/, Bscript::ObjArray* speechtokens = NULL )
 	{
 	  npc.on_ghost_pc_spoke( chr, text, texttype, wtext, lang, speechtokens );
 	}
@@ -92,7 +95,7 @@ namespace Pol {
 	  if ( textbuf[0] == '.' || textbuf[0] == '=' )
 	  {
 		if ( !process_command( client, textbuf ) )
-		  send_sysmessage( client, string( "Unknown command: " ) + textbuf );
+		  send_sysmessage( client, std::string( "Unknown command: " ) + textbuf );
 		return;
 	  }
 

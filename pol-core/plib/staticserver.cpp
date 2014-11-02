@@ -8,7 +8,9 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
+#include "staticserver.h"
+
+#include "staticblock.h"
 
 #include "../clib/binaryfile.h"
 #include "../clib/passert.h"
@@ -16,8 +18,8 @@ Notes
 #include "../clib/timer.h"
 #include "../clib/logfacility.h"
 
-#include "staticblock.h"
-#include "staticserver.h"
+#include <string>
+#include <stdexcept>
 
 namespace Pol {
   namespace Plib {
@@ -26,20 +28,20 @@ namespace Pol {
 	  _index(),
 	  _statics()
 	{
-	  Clib::BinaryFile index_file( _descriptor.path( "statidx.dat" ), ios::in );
+        Clib::BinaryFile index_file(_descriptor.path("statidx.dat"), std::ios::in);
 	  index_file.ReadVector( _index );
 	  if ( _index.empty() )
 	  {
-		string message = "Empty file: " + _descriptor.path( "statidx.dat" );
-		throw runtime_error( message );
+		std::string message = "Empty file: " + _descriptor.path( "statidx.dat" );
+		throw std::runtime_error( message );
 	  }
 
-	  Clib::BinaryFile statics_file( _descriptor.path( "statics.dat" ), ios::in );
+      Clib::BinaryFile statics_file(_descriptor.path("statics.dat"), std::ios::in);
 	  statics_file.ReadVector( _statics );
 	  if ( _statics.empty() )
 	  {
-		string message = "Empty file: " + _descriptor.path( "statics.dat" );
-		throw runtime_error( message );
+        std::string message = "Empty file: " + _descriptor.path("statics.dat");
+        throw std::runtime_error(message);
 	  }
 
 	  Validate();
@@ -70,15 +72,15 @@ namespace Pol {
 	  size_t block_index = y_block * ( _descriptor.width >> STATICBLOCK_SHIFT ) + x_block;
 	  if ( block_index + 1 >= _index.size() )
 	  {
-		string message = "statics integrity error(1): x=" + Clib::tostring( x ) + ", y=" + Clib::tostring( y );
-		throw runtime_error( message );
+		std::string message = "statics integrity error(1): x=" + Clib::tostring( x ) + ", y=" + Clib::tostring( y );
+        throw std::runtime_error(message);
 	  }
 	  unsigned int first_entry_index = _index[block_index].index;
 	  unsigned int num = _index[block_index + 1].index - first_entry_index;
 	  if ( first_entry_index + num > _statics.size() )
 	  {
-		string message = "statics integrity error(2): x=" + Clib::tostring( x ) + ", y=" + Clib::tostring( y );
-		throw runtime_error( message );
+		std::string message = "statics integrity error(2): x=" + Clib::tostring( x ) + ", y=" + Clib::tostring( y );
+        throw std::runtime_error(message);
 	  }
 	}
 

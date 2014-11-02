@@ -23,7 +23,7 @@ Notes
 #include "token.h"
 #endif
 
-#ifndef __BOBJECT_H
+#ifndef BSCRIPT_BOBJECT_H
 #include "bobject.h"
 #endif
 

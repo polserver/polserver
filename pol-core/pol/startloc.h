@@ -13,6 +13,7 @@ Notes
 
 #include <string>
 #include <vector>
+
 namespace Pol {
   namespace Plib {
 	class Realm;

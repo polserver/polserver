@@ -13,9 +13,16 @@ Notes
 =======
 
 */
+#include "poldbg.h"
 
-#include "../clib/stl_inc.h"
+#include "polcfg.h"
+#include "polsem.h"
+#include "scrdef.h"
+#include "scrsched.h"
+#include "scrstore.h"
 
+#include "module/uomod.h"
+#include "uoexec.h"
 
 #include "../bscript/berror.h"
 #include "../bscript/bobject.h"
@@ -28,14 +35,16 @@ Notes
 #include "../clib/strutil.h"
 #include "../clib/wnsckt.h"
 
-#include "polcfg.h"
-#include "poldbg.h"
-#include "polsem.h"
-#include "scrdef.h"
-#include "scrsched.h"
-#include "scrstore.h"
-#include "module/uomod.h"
-#include "uoexec.h"
+#include <string>
+#include <vector>
+#include <deque>
+#include <map>
+#include <fstream>
+
+#ifdef _MSC_VER
+#pragma warning(disable:4996) // stricmp deprecation warning
+#endif
+
 namespace Pol {
   namespace Core {
     using namespace Bscript;
@@ -83,46 +92,46 @@ namespace Pol {
 	  bool process( const std::string& cmd, Results& results );
 	  bool done() const { return _done; }
 	protected:
-	  string cmd_attach( unsigned pid );
-	  string cmd_kill( unsigned pid );
-	  string cmd_loadsym( unsigned pid );
-	  string cmd_detach();
-	  string cmd_quit();
-	  string cmd_start( const string& rest );
-	  string cmd_call( const string& rest, Results& results );
-	  string cmd_state();
-	  string cmd_pc();
-	  string cmd_ins( Results& results );
-	  string cmd_instrace();
-	  string cmd_stepinto();
-	  string cmd_stepover();
-	  string cmd_run();
-	  string cmd_break();
-	  string cmd_setbp( const string& rest );
-	  string cmd_clrbp( const string& rest );
-	  string cmd_clrallbp();
-	  string cmd_fileline( const string& rest );
-	  string cmd_files( Results& results );
-	  string cmd_stacktrace( Results& results );
-	  string cmd_filecont( const string& rest, Results& results );
-	  string cmd_funcprof( const string& rest, Results& results );
-	  string cmd_localvars( Results& results );
-	  string cmd_globalvars( Results& results );
-	  string cmd_localvar( const string& rest );
-	  string cmd_localvarmembers( const string& rest, Results& results );
-	  string cmd_inslist( const string& rest, Results& results );
-	  string cmd_pidlist( const string& rest, Results& results );
-	  string cmd_getlocalpacked( const string& rest );
-	  string cmd_getglobalpacked( const string& rest );
-	  string cmd_setlocalpacked( const string& rest );
-	  string cmd_setglobalpacked( const string& rest );
-	  string cmd_scriptlist( const string& rest, Results& results );
-	  string cmd_scriptprofile( const string& rest, Results& results );
-	  string cmd_scriptins( const string& rest, Results& results );
-	  string cmd_scriptsrc( const string& rest, Results& results );
-	  string cmd_srcprof( const string& rest, Results& results );
-	  string cmd_setscript( const string& rest, Results& results );
-	  string cmd_funclist( const string& rest, Results& results );
+	  std::string cmd_attach( unsigned pid );
+	  std::string cmd_kill( unsigned pid );
+	  std::string cmd_loadsym( unsigned pid );
+	  std::string cmd_detach();
+	  std::string cmd_quit();
+	  std::string cmd_start( const std::string& rest );
+	  std::string cmd_call( const std::string& rest, Results& results );
+	  std::string cmd_state();
+	  std::string cmd_pc();
+	  std::string cmd_ins( Results& results );
+	  std::string cmd_instrace();
+	  std::string cmd_stepinto();
+	  std::string cmd_stepover();
+	  std::string cmd_run();
+	  std::string cmd_break();
+	  std::string cmd_setbp( const std::string& rest );
+	  std::string cmd_clrbp( const std::string& rest );
+	  std::string cmd_clrallbp();
+	  std::string cmd_fileline( const std::string& rest );
+	  std::string cmd_files( Results& results );
+	  std::string cmd_stacktrace( Results& results );
+	  std::string cmd_filecont( const std::string& rest, Results& results );
+	  std::string cmd_funcprof( const std::string& rest, Results& results );
+	  std::string cmd_localvars( Results& results );
+	  std::string cmd_globalvars( Results& results );
+	  std::string cmd_localvar( const std::string& rest );
+	  std::string cmd_localvarmembers( const std::string& rest, Results& results );
+	  std::string cmd_inslist( const std::string& rest, Results& results );
+	  std::string cmd_pidlist( const std::string& rest, Results& results );
+	  std::string cmd_getlocalpacked( const std::string& rest );
+	  std::string cmd_getglobalpacked( const std::string& rest );
+	  std::string cmd_setlocalpacked( const std::string& rest );
+	  std::string cmd_setglobalpacked( const std::string& rest );
+	  std::string cmd_scriptlist( const std::string& rest, Results& results );
+	  std::string cmd_scriptprofile( const std::string& rest, Results& results );
+	  std::string cmd_scriptins( const std::string& rest, Results& results );
+	  std::string cmd_scriptsrc( const std::string& rest, Results& results );
+	  std::string cmd_srcprof( const std::string& rest, Results& results );
+	  std::string cmd_setscript( const std::string& rest, Results& results );
+	  std::string cmd_funclist( const std::string& rest, Results& results );
 
 	private:
 	  bool _authorized;
@@ -171,7 +180,7 @@ namespace Pol {
 		const String* str;
 		if ( ex.getStringParam( 0, str ) )
 		{
-		  vector<string> results;
+		  std::vector<std::string> results;
 		  value()->process( str->value(), results );
 		  std::unique_ptr<ObjArray> arr( new ObjArray );
 		  for ( unsigned i = 0; i < results.size(); ++i )
@@ -198,7 +207,7 @@ namespace Pol {
 	BObjectImp* create_debug_context()
 	{
 	  DebugContext* dctx = new DebugContext;
-	  vector<string> tmp;
+	  std::vector<std::string> tmp;
 	  dctx->process( "password " + config.debug_password, tmp );
 	  return new DebugContextObjImp( ref_ptr<DebugContext>( dctx ) );
 	}
@@ -214,7 +223,7 @@ namespace Pol {
 	  cmd_detach();
 	}
 
-	string DebugContext::prompt() const
+	std::string DebugContext::prompt() const
 	{
 	  if ( !_authorized )
 		return "Authorization required.";
@@ -251,21 +260,21 @@ namespace Pol {
 	///      scriptprofile
 	///      scriptins [filename]
 
-	bool DebugContext::process( const std::string& cmdline, vector<string>& results )
+	bool DebugContext::process( const std::string& cmdline, std::vector<std::string>& results )
 	{
 	  try
 	  {
 		results.clear();
-		string result;
+        std::string result;
 
-		string cmd, rest;
+        std::string cmd, rest;
 		Clib::splitnamevalue( cmdline, cmd, rest );
 		if ( !_authorized )
 		{
 		  if ( cmd == "password" )
 		  {
 			_authorized = ( rest == config.debug_password );
-			results.push_back( string( "Password" ) + ( _authorized ? "" : " not" ) + " recognized." );
+			results.push_back( std::string( "Password" ) + ( _authorized ? "" : " not" ) + " recognized." );
 		  }
 		  return _authorized;
 		}
@@ -317,16 +326,16 @@ namespace Pol {
 		}
 		return true;
 	  }
-	  catch ( exception& ex )
+      catch (std::exception& ex)
 	  {
-		string text = "Exception thrown while processing command: ";
+          std::string text = "Exception thrown while processing command: ";
 		text += ex.what();
 		results.push_back( text );
 		return false;
 	  }
 	}
 
-	string DebugContext::cmd_stacktrace( Results& results )
+    std::string DebugContext::cmd_stacktrace(Results& results)
 	{
 	  if ( !uoexec_wptr.exists() )
 		return "No script attached.";
@@ -374,7 +383,7 @@ namespace Pol {
         results.push_back( Clib::decint( prog->dbg_filenum[PC] ) );
         results.push_back( Clib::decint( prog->dbg_linenum[PC] ) );
 
-		vector<string> results2;
+		std::vector<std::string> results2;
 		unsigned block = prog->dbg_ins_blocks[PC];
 		while ( left )
 		{
@@ -391,13 +400,13 @@ namespace Pol {
 		}
         results.push_back( Clib::decint( results2.size( ) ) );
 
-		for ( vector<string>::iterator it = results2.begin(); it < results2.end(); ++it )
+		for ( std::vector<std::string>::iterator it = results2.begin(); it < results2.end(); ++it )
 		  results.push_back( *it );
 	  }
 	  return "";
 
 	}
-	string DebugContext::cmd_attach( unsigned pid )
+    std::string DebugContext::cmd_attach(unsigned pid)
 	{
 	  UOExecutor* uoexec;
 	  if ( find_uoexec( pid, &uoexec ) )
@@ -415,7 +424,7 @@ namespace Pol {
 	  }
 	}
 
-	string DebugContext::cmd_loadsym( unsigned pid )
+    std::string DebugContext::cmd_loadsym(unsigned pid)
 	{
 	  UOExecutor* uoexec;
 	  if ( find_uoexec( pid, &uoexec ) )
@@ -432,7 +441,7 @@ namespace Pol {
 	  }
 	}
 
-	string DebugContext::cmd_kill( unsigned pid )
+    std::string DebugContext::cmd_kill( unsigned pid )
 	{
 	  UOExecutor* uoexec;
 	  if ( find_uoexec( pid, &uoexec ) )
@@ -446,7 +455,7 @@ namespace Pol {
 	  }
 	}
 
-	string DebugContext::cmd_detach()
+	std::string DebugContext::cmd_detach()
 	{
 	  if ( !uoexec_wptr.exists() )
 		return "No script attached.";
@@ -460,15 +469,15 @@ namespace Pol {
 	  return "Detached.";
 	}
 
-	string DebugContext::cmd_quit()
+	std::string DebugContext::cmd_quit()
 	{
 	  _done = true;
 	  return "Bye.";
 	}
 
-	string DebugContext::cmd_start( const string& rest )
+	std::string DebugContext::cmd_start( const std::string& rest )
 	{
-	  string filename = rest;
+	  std::string filename = rest;
 	  ScriptDef sd;
 	  if ( !sd.config_nodie( filename, NULL, "scripts/" ) )
 		return "Error in script name.";
@@ -488,9 +497,9 @@ namespace Pol {
 
 	BObjectImp* run_executor_to_completion( UOExecutor& ex, const ScriptDef& script );
 
-	string DebugContext::cmd_call( const string& rest, Results& results )
+	std::string DebugContext::cmd_call( const std::string& rest, Results& /*results*/ )
 	{
-	  string filename, parameters_packed;
+	  std::string filename, parameters_packed;
       Clib::splitnamevalue( rest, filename, parameters_packed );
 
 	  ScriptDef sd;
@@ -525,14 +534,14 @@ namespace Pol {
 	  }
 	}
 
-	string DebugContext::cmd_pidlist( const std::string& rest, Results& results )
+	std::string DebugContext::cmd_pidlist( const std::string& rest, Results& results )
 	{
-      string match = Clib::strlower( rest );
+      std::string match = Clib::strlower( rest );
 
 	  for ( Module::PidList::const_iterator citr = Module::pidlist.begin(); citr != Module::pidlist.end(); ++citr )
 	  {
 		UOExecutor* uoexec = ( *citr ).second;
-        string name = Clib::strlower( uoexec->scriptname( ) );
+        std::string name = Clib::strlower( uoexec->scriptname( ) );
 		if ( strstr( name.c_str(), match.c_str() ) != NULL )
 		{
           results.push_back( Clib::decint( ( *citr ).first ) + " " + uoexec->scriptname( ) );
@@ -542,19 +551,19 @@ namespace Pol {
 	  return "";
 	}
 
-	string DebugContext::cmd_scriptlist( const std::string& rest, Results& results )
+	std::string DebugContext::cmd_scriptlist( const std::string& /*rest*/, Results& results )
 	{
 	  for ( ScriptStorage::const_iterator citr = scrstore.begin(); citr != scrstore.end(); ++citr )
 	  {
 		const char* nm = ( ( *citr ).first ).c_str();
 		EScriptProgram* eprog = ( ( *citr ).second ).get();
-		string scriptname = eprog->name;
+		std::string scriptname = eprog->name;
 		results.push_back( nm );
 	  }
 	  return "";
 	}
 
-	string DebugContext::cmd_setscript( const string& rest, Results& results )
+	std::string DebugContext::cmd_setscript( const std::string& rest, Results& /*results*/ )
 	{
 	  _script.clear();
 
@@ -572,7 +581,7 @@ namespace Pol {
 	  return "";
 	}
 
-	string DebugContext::cmd_funclist( const string& rest, Results& results )
+	std::string DebugContext::cmd_funclist( const std::string& /*rest*/, Results& results )
 	{
 	  if ( _script.get() == 0 )
 		return "use setscript first";
@@ -590,7 +599,7 @@ namespace Pol {
 		  cycles += ins.cycles;
 		}
 
-		string result = func.name + " "
+		std::string result = func.name + " "
           + Clib::decint( func.firstPC ) + " "
           + Clib::decint( func.lastPC ) + " "
           + Clib::decint( cycles );
@@ -600,7 +609,7 @@ namespace Pol {
 	  return "";
 	}
 
-	string DebugContext::cmd_srcprof( const string& rest, Results& results )
+	std::string DebugContext::cmd_srcprof( const std::string& rest, Results& results )
 	{
 	  if ( _script.get() == 0 )
 		return "use setscript first";
@@ -608,7 +617,7 @@ namespace Pol {
 	  // parameter: file#
 	  int fileno = atoi( rest.c_str() );
 
-	  typedef map< unsigned int, unsigned int > Cycles;
+      typedef std::map< unsigned int, unsigned int > Cycles;
 	  Cycles cycle_counts; // key is line#, val is cycles
 
 	  size_t count = _script->instr.size();
@@ -628,14 +637,14 @@ namespace Pol {
 	  {
 		unsigned int linenum = ( *itr ).first;
 		unsigned int cycles = ( *itr ).second;
-        string result = Clib::decint( linenum ) + " " + Clib::decint( cycles );
+        std::string result = Clib::decint( linenum ) + " " + Clib::decint( cycles );
 		results.push_back( result );
 	  }
 
 	  return "";
 	}
 
-	string DebugContext::cmd_funcprof( const string& rest, Results& results )
+	std::string DebugContext::cmd_funcprof( const std::string& /*rest*/, Results& /*results*/ )
 	{
 	  if ( _script.get() == 0 )
 		return "use setscript first";
@@ -643,7 +652,7 @@ namespace Pol {
 	  return "";
 	}
 
-	string DebugContext::cmd_scriptprofile( const string& rest, Results& results )
+	std::string DebugContext::cmd_scriptprofile( const std::string& rest, Results& results )
 	{
 	  ScriptStorage::iterator itr = scrstore.find( rest.c_str() );
 	  if ( itr == scrstore.end() )
@@ -655,13 +664,13 @@ namespace Pol {
 	  for ( size_t i = 0; i < count; ++i )
 	  {
 		const Instruction& ins = eprog->instr[i];
-        string result = Clib::decint( i ) + " " + Clib::decint( ins.cycles );
+        std::string result = Clib::decint( i ) + " " + Clib::decint( ins.cycles );
 		results.push_back( result );
 	  }
 	  return "";
 	}
 
-	string DebugContext::cmd_scriptins( const string& rest, Results& results )
+	std::string DebugContext::cmd_scriptins( const std::string& rest, Results& results )
 	{
 	  ScriptStorage::iterator itr = scrstore.find( rest.c_str() );
 	  if ( itr == scrstore.end() )
@@ -675,18 +684,18 @@ namespace Pol {
 	  size_t count = eprog->instr.size();
 	  for ( size_t i = 0; i < count; ++i )
 	  {
-        string result = Clib::decint( i ) + " " + eprog->dbg_get_instruction( i );
+        std::string result = Clib::decint( i ) + " " + eprog->dbg_get_instruction( i );
 		results.push_back( result );
 	  }
 	  return "";
 	}
 
-	string get_fileline( EScriptProgram* prog, int filenum, int linenum )
+    std::string get_fileline(EScriptProgram* prog, int filenum, int linenum)
 	{
 	  if ( filenum == 0 || filenum >= static_cast<int>( prog->dbg_filenames.size() ) )
 		return "";
-	  ifstream ifs( prog->dbg_filenames[filenum].c_str() );
-	  string tmp;
+      std::ifstream ifs(prog->dbg_filenames[filenum].c_str());
+	  std::string tmp;
 	  for ( int skip = 1; skip < linenum; ++skip )
 	  {
 		if ( !getline( ifs, tmp ) )
@@ -698,7 +707,7 @@ namespace Pol {
 		return "";
 	}
 
-	string DebugContext::cmd_scriptsrc( const string& rest, Results& results )
+	std::string DebugContext::cmd_scriptsrc( const std::string& rest, Results& results )
 	{
 	  ScriptStorage::iterator itr = scrstore.find( rest.c_str() );
 	  if ( itr == scrstore.end() )
@@ -719,7 +728,7 @@ namespace Pol {
 		if ( filenum == last_filenum && linenum == last_linenum )
 		  continue;
 
-		string result = get_fileline( eprog, filenum, linenum );
+        std::string result = get_fileline(eprog, filenum, linenum);
 		if ( result != "" )
           results.push_back( Clib::decint( ins ) + " " + result );
 
@@ -729,21 +738,21 @@ namespace Pol {
 	  return "";
 	}
 
-	string DebugContext::cmd_state()
+	std::string DebugContext::cmd_state()
 	{
 	  if ( !uoexec_wptr.exists() )
 		return "No script attached.";
 	  return uoexec_wptr.get_weakptr()->state();
 	}
 
-	string DebugContext::cmd_pc()
+	std::string DebugContext::cmd_pc()
 	{
 	  if ( !uoexec_wptr.exists() )
 		return "No script attached.";
       return Clib::tostring( uoexec_wptr.get_weakptr( )->PC );
 	}
 
-	string DebugContext::cmd_ins( vector<string>& results )
+	std::string DebugContext::cmd_ins( std::vector<std::string>& results )
 	{
 	  if ( !uoexec_wptr.exists() )
 		return "No script attached.";
@@ -759,7 +768,7 @@ namespace Pol {
 	  return "";
 	}
 
-	string DebugContext::cmd_instrace()
+	std::string DebugContext::cmd_instrace()
 	{
 	  if ( !uoexec_wptr.exists() )
 		return "No script attached.";
@@ -772,7 +781,7 @@ namespace Pol {
 	  return "Tracing.";
 	}
 
-	string DebugContext::cmd_stepinto()
+	std::string DebugContext::cmd_stepinto()
 	{
 	  if ( !uoexec_wptr.exists() )
 		return "No script attached.";
@@ -785,7 +794,7 @@ namespace Pol {
 	  return "Stepping In.";
 	}
 
-	string DebugContext::cmd_stepover()
+	std::string DebugContext::cmd_stepover()
 	{
 	  if ( !uoexec_wptr.exists() )
 		return "No script attached.";
@@ -883,7 +892,7 @@ namespace Pol {
 
 	  for ( unsigned i = 0; i < prog->dbg_filenames.size(); ++i )
 	  {
-        string tmp = Clib::decint( i ) + " " + prog->dbg_filenames[i];
+        std::string tmp = Clib::decint( i ) + " " + prog->dbg_filenames[i];
 		results.push_back( tmp );
 	  }
 	  return "";
@@ -916,8 +925,8 @@ namespace Pol {
 	  if ( filenum >= prog->dbg_filenames.size() )
 		return "File # out of range";
 
-	  ifstream ifs( prog->dbg_filenames[filenum].c_str() );
-	  string tmp;
+      std::ifstream ifs(prog->dbg_filenames[filenum].c_str());
+	  std::string tmp;
 	  for ( unsigned skip = 1; skip < firstline; ++skip )
 	  {
 		if ( !getline( ifs, tmp ) )
@@ -1000,11 +1009,11 @@ namespace Pol {
 		return "Error: Index out of range"; // vector
 	  BObjectImp& var = ( *uoexec->Locals2 )[varidx]->impref();
 
-	  string strrep = var.getStringRep();
+	  std::string strrep = var.getStringRep();
 	  const char* memname;
 	  int i;
 	  OSTRINGSTREAM os;
-	  if ( strrep.find( "ItemRef" ) != string::npos )
+	  if ( strrep.find( "ItemRef" ) != std::string::npos )
 	  {
 		for ( i = 0; i < 14; i++ ) // i = member count for poldbg_base_members
 		{
@@ -1025,7 +1034,7 @@ namespace Pol {
 		}
 	  }
 
-	  else if ( strrep.find( "MobileRef" ) != string::npos )
+	  else if ( strrep.find( "MobileRef" ) != std::string::npos )
 	  {
 		for ( i = 0; i < 14; i++ ) // i = member count for poldbg_base_members
 		{
@@ -1082,7 +1091,7 @@ namespace Pol {
 	  }
 	  return "";
 	}
-	string DebugContext::cmd_getlocalpacked( const std::string& rest )
+	std::string DebugContext::cmd_getlocalpacked( const std::string& rest )
 	{
 	  if ( !uoexec_wptr.exists() )
 		return "No script attached.";
@@ -1094,7 +1103,7 @@ namespace Pol {
 		return "Error: Index out of range";
 	  return "Value: " + ( *uoexec->Locals2 )[varidx]->impref().pack();
 	}
-	string DebugContext::cmd_getglobalpacked( const std::string& rest )
+	std::string DebugContext::cmd_getglobalpacked( const std::string& rest )
 	{
 	  if ( !uoexec_wptr.exists() )
 		return "No script attached.";
@@ -1106,7 +1115,7 @@ namespace Pol {
 		return "Error: Index out of range";
 	  return "Value: " + uoexec->Globals2[varidx]->impref().pack();
 	}
-	string DebugContext::cmd_setlocalpacked( const std::string& rest )
+	std::string DebugContext::cmd_setlocalpacked( const std::string& rest )
 	{
 	  if ( !uoexec_wptr.exists() )
 		return "No script attached.";
@@ -1119,9 +1128,9 @@ namespace Pol {
 	  if ( !( is >> varidx ) )
 		return "format: setlocalpacked [varidx] [packedvalue]";
 
-	  is.unsetf( ios::skipws );
+      is.unsetf(std::ios::skipws);
 	  is >> space;
-	  is.setf( ios::skipws );
+      is.setf(std::ios::skipws);
 
 	  if ( varidx >= uoexec->Locals2->size() )
 		return "Error: Index out of range";
@@ -1136,7 +1145,7 @@ namespace Pol {
 
 	  return "Value: " + ( *uoexec->Locals2 )[varidx]->impref().pack();
 	}
-	string DebugContext::cmd_setglobalpacked( const std::string& rest )
+	std::string DebugContext::cmd_setglobalpacked( const std::string& rest )
 	{
 	  if ( !uoexec_wptr.exists() )
 		return "No script attached.";
@@ -1147,9 +1156,9 @@ namespace Pol {
 	  char space;
 	  if ( !( is >> varidx ) )
 		return "format: setglobalpacked [varidx] [packedvalue]";
-	  is.unsetf( ios::skipws );
+      is.unsetf(std::ios::skipws);
 	  is >> space;
-	  is.setf( ios::skipws );
+      is.setf(std::ios::skipws);
 
 	  if ( varidx >= uoexec->Globals2.size() )
 		return "Error: Index out of range";
@@ -1185,8 +1194,8 @@ namespace Pol {
 		}
 	  }
 	  DebugContext dctx;
-	  string cmdline;
-	  vector<string> results;
+	  std::string cmdline;
+	  std::vector<std::string> results;
 	  while ( !dctx.done() )
 	  {
         Clib::writeline( _sck, dctx.prompt( ) );

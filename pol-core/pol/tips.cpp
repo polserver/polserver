@@ -8,20 +8,19 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-
-#include <stddef.h>
-
-#include "../clib/endian.h"
+#include "tiplist.h"
 
 #include "network/msghandl.h"
 #include "network/packets.h"
 #include "pktin.h"
 #include "pktout.h"
-#include "tiplist.h"
 #include "sockio.h"
 
+#include "../clib/endian.h"
+
 #include <cstring>
+#include <cstddef>
+
 namespace Pol {
   namespace Core {
 	TipFilenames tipfilenames;

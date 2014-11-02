@@ -14,6 +14,7 @@ Notes
 
 #include <map>
 #include <string>
+
 namespace Pol {
   namespace Clib {
 	class ConfigElem;

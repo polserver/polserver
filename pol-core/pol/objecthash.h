@@ -18,6 +18,10 @@ Notes
 #include <unordered_set>
 
 namespace Pol {
+    namespace Clib {
+        class StreamWriter;
+    }
+
   namespace Core {
 	/*
 	template <class _Key> struct myhash { };

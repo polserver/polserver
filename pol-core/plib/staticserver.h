@@ -12,10 +12,14 @@ Notes
 #define PLIB_STATICSERVER_H
 
 #include "realmdescriptor.h"
+#include <vector>
+
 namespace Pol {
   namespace Plib {
+
 	struct STATIC_INDEX;
 	struct STATIC_ENTRY;
+    class StaticEntryList;
 
 	class StaticServer
 	{
@@ -34,8 +38,8 @@ namespace Pol {
 	private:
 	  RealmDescriptor _descriptor;
 
-	  vector<STATIC_INDEX> _index;
-	  vector<STATIC_ENTRY> _statics;
+	  std::vector<STATIC_INDEX> _index;
+      std::vector<STATIC_ENTRY> _statics;
 	};
   }
 }

@@ -7,16 +7,15 @@ Notes
 
 */
 
-#include "stl_inc.h"
+#include "sckutil.h"
 
 #include "esignal.h"
-#include "sckutil.h"
 #include "wnsckt.h"
 
 namespace Pol {
   namespace Clib {
 	bool readline( Socket& sck,
-				   string& s,
+				   std::string& s,
 				   bool* timeout_exit,
 				   unsigned int timeout_secs,
 				   unsigned maxlen )
@@ -65,7 +64,7 @@ namespace Pol {
 	  sck.send( "\r\n", 2 );
 	}
 
-	bool readstring( Socket& sck, string& s, unsigned int interchar_secs, unsigned length )
+	bool readstring( Socket& sck, std::string& s, unsigned int interchar_secs, unsigned length )
 	{
 	  s = "";
 	  unsigned char ch;

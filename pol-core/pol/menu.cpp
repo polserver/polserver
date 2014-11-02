@@ -8,14 +8,13 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-#include <string.h>
-#include <assert.h>
+#include "menu.h"
 
 #include "../clib/clib.h"
 #include "../clib/passert.h"
 
-#include "menu.h"
+#include <cstring>
+
 namespace Pol {
   namespace Core {
 
@@ -64,6 +63,8 @@ namespace Pol {
 	}
 	*/
 
+    // TODO:: rewrite using std::find() and stlutil.h case insensitive string cmp
+    //         -- leaving the warning here as a reminder --
 	Menu *find_menu( const char *name )
 	{
 	  for ( unsigned idx = 0; idx < menus.size(); idx++ )

@@ -25,6 +25,8 @@ Notes
 
 #include "../clib/message_queue.h"
 
+#include <memory>
+
 namespace Pol {
   namespace Core {
     class BSQLResultSet;

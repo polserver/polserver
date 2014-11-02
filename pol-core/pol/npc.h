@@ -18,18 +18,13 @@ Notes
 #	include "mobile/charactr.h"
 #endif
 
-#ifdef _MSC_VER
-#	pragma warning(disable:4786)
-#endif
+#include "eventid.h"
+#include "npctmpl.h"
+#include "uoscrobj.h"
 
 #include <iosfwd>
 #include <map>
 #include <string>
-
-
-#include "eventid.h"
-#include "npctmpl.h"
-#include "uoscrobj.h"
 
 namespace Pol {
   namespace Clib {

@@ -9,53 +9,58 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-#ifdef _MSC_VER
- #pragma warning( disable: 4786 )
-#endif
 
+#include "spells.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-
-#include "../clib/cfgelem.h"
-#include "../clib/cfgfile.h"
-#include "../clib/endian.h"
-#include "../clib/fileutil.h"
-#include "../clib/logfacility.h"
-
-#include "action.h"
+#include "spelbook.h"
+#include "item/itemdesc.h"
 #include "mobile/charactr.h"
 #include "network/client.h"
+
+#include "polclass.h"
+
+#include "action.h"
 #include "extcmd.h"
-#include "item/itemdesc.h"
 #include "miscrgn.h"
 #include "mkscrobj.h"
 #include "objtype.h"
-#include "../plib/pkg.h"
 #include "pktin.h"
 #include "polcfg.h"
-#include "polclass.h"
 #include "polsig.h"
 #include "schedule.h"
 #include "scrstore.h"
-#include "sockio.h"
-#include "spelbook.h"
-#include "spells.h"
 #include "syshook.h"
 #include "target.h"
 #include "ufunc.h"
 #include "umanip.h"
 #include "vital.h"
+
+#include "../plib/pkg.h"
+
+#include "../clib/cfgelem.h"
+#include "../clib/cfgfile.h"
+#include "../clib/fileutil.h"
+#include "../clib/logfacility.h"
+
+#include <vector>
+#include <stdexcept>
+
 namespace Pol {
   namespace Core {
 	// Magery is repeated at array entry 3, because as of right now, NO spellbook
 	// on OSI uses the 301+ spellrange that we can find. 5/30/06 - MuadDib
 	// We use Mysticism at array entry 3 because Mysticism spellids are 678 -> 693 and this slot is free.
-	u32 spell_scroll_objtype_limits[8][2] = { { 0x1F2D, 0x1F6C }, { 0x2260, 0x226F },
-	{ 0x2270, 0x227C }, { 0x2D9E, 0x2DAD },
-	{ 0x238D, 0x2392 }, { 0x23A1, 0x23A8 }, { 0x2D51, 0x2D60 }, { 0x574B, 0x5750 } };
+      u32 spell_scroll_objtype_limits[8][2] = {
+              { 0x1F2D, 0x1F6C },
+              { 0x2260, 0x226F },
+              { 0x2270, 0x227C },
+              { 0x2D9E, 0x2DAD },
+              { 0x238D, 0x2392 },
+              { 0x23A1, 0x23A8 },
+              { 0x2D51, 0x2D60 },
+              { 0x574B, 0x5750 } 
+      };
+      // TODO: Comment those objtypes :D
 
 	static bool nocast_here( Mobile::Character* chr )
 	{
@@ -157,7 +162,7 @@ namespace Pol {
 
 
 
-	vector<SpellCircle*> spellcircles;
+	std::vector<SpellCircle*> spellcircles;
 
 	USpell::USpell( Clib::ConfigElem& elem, Plib::Package* pkg ) :
 	  pkg_( pkg ),
@@ -191,7 +196,7 @@ namespace Pol {
 		{
           ERROR_PRINT << "Error reading spell " << name_
             << ": Circle " << circle << " is not defined.\n";
-		  throw runtime_error( "Config file error" );
+		  throw std::runtime_error( "Config file error" );
 		}
 
 		params_ = spellcircles[circle - 1]->params;
@@ -283,7 +288,7 @@ namespace Pol {
 	  }
 	}
 
-    SpellTask::SpellTask( OneShotTask** handle, polclock_t run_when_clock, Mobile::Character* caster, USpell* spell, bool dummy ) :
+    SpellTask::SpellTask( OneShotTask** handle, polclock_t run_when_clock, Mobile::Character* caster, USpell* spell, bool /*dummy*/ ) :
 	  OneShotTask( handle, run_when_clock ),
 	  caster_( caster ),
 	  spell_( spell )
@@ -311,7 +316,7 @@ namespace Pol {
 	  THREAD_CHECKPOINT( tasks, 999 );
 	}
 
-	vector<USpell*> spells2;
+	std::vector<USpell*> spells2;
 
 
 	void do_cast( Network::Client *client, u16 spellid )
@@ -393,7 +398,7 @@ namespace Pol {
 	ExtendedMessageHandler spell_msg_handler1( EXTMSGID_CASTSPELL1, handle_cast_spell );
 	ExtendedMessageHandler spell_msg_handler2( EXTMSGID_CASTSPELL2, handle_cast_spell );
 
-    void handle_open_spellbook( Network::Client *client, PKTIN_12 *msg )
+    void handle_open_spellbook( Network::Client *client, PKTIN_12* /*msg*/ )
 	{
 	  if ( system_hooks.open_spellbook_hook != NULL )
 	  {
@@ -463,7 +468,7 @@ namespace Pol {
           tmp << "	Spell redefined in main\n";
 		}
         ERROR_PRINT << tmp.c_str();
-		throw runtime_error( "Spell ID multiply defined" );
+		throw std::runtime_error( "Spell ID multiply defined" );
 	  }
 
 	  spells2[spellid] = spell;
@@ -490,7 +495,7 @@ namespace Pol {
 		if ( index < 0 || index >= 100 )
 		{
           ERROR_PRINT << "Error in CIRCLES.CFG: Circle must fall between 1 and 100\n";
-		  throw runtime_error( "Config file error" );
+		  throw std::runtime_error( "Config file error" );
 		}
 
 		spellcircles.resize( index + 1, NULL );
@@ -498,7 +503,7 @@ namespace Pol {
 		if ( spellcircles[index] != NULL )
 		{
           ERROR_PRINT << "Error in CIRCLES.CFG: Circle " << index + 1 << " is multiply defined.\n";
-		  throw runtime_error( "Config file error" );
+		  throw std::runtime_error( "Config file error" );
 		}
 
 		spellcircles[index] = new SpellCircle( elem );
@@ -532,7 +537,7 @@ namespace Pol {
       for ( Plib::Packages::iterator itr = Plib::packages.begin( ); itr != Plib::packages.end( ); ++itr )
 	  {
         Plib::Package* pkg = ( *itr );
-        string filename = Plib::GetPackageCfgPath( pkg, "spells.cfg" );
+        std::string filename = Plib::GetPackageCfgPath( pkg, "spells.cfg" );
         if ( Clib::FileExists( filename.c_str( ) ) )
 		{
 		  load_spells_cfg( filename.c_str(), pkg );

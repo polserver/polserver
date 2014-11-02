@@ -10,12 +10,11 @@ Notes
 #ifndef STRSET_H
 #define STRSET_H
 
-#ifdef _MSC_VER
-#	pragma warning( disable: 4786 )
-#endif
+#include <cstddef>
 
 #include <set>
 #include <string>
+
 namespace Pol {
   namespace Clib {
 	class StringSet

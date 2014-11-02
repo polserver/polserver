@@ -14,10 +14,10 @@ Notes
 
 #include "msgfiltr.h"
 
-#include "../../clib/stl_inc.h"
-#include <string.h>
 #include "../pktboth.h"
 #include "../pktin.h"
+
+#include <cstring>
 
 namespace Pol {
   namespace Core {

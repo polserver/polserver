@@ -15,13 +15,15 @@ Notes
 =======
 
 */
-#include <iostream>
-#include "../clib/stl_inc.h"
+#include "party.h"
 
-#include "../bscript/berror.h"
-#ifdef MEMORYLEAK
-#include "../bscript/bobject.h"
-#endif
+#include "mobile/charactr.h"
+#include "module/partymod.h"
+
+#include "network/client.h"
+#include "network/packets.h"
+#include "network/clienttransmit.h"
+
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/cfgsect.h"
@@ -33,20 +35,25 @@ Notes
 #include "../clib/logfacility.h"
 #include "../clib/streamsaver.h"
 #include "../plib/realm.h"
+
 #include "clfunc.h"
 #include "fnsearch.h"
-#include "mobile/charactr.h"
-#include "module/partymod.h"
-#include "network/client.h"
-#include "network/packets.h"
-#include "network/clienttransmit.h"
-#include "party.h"
 #include "pktboth.h"
 #include "polcfg.h"
 #include "schedule.h"
 #include "statmsg.h"
 #include "syshook.h"
 #include "target.h"
+
+#include "../bscript/berror.h"
+#ifdef MEMORYLEAK
+#include "../bscript/bobject.h"
+#endif
+
+#include <iostream>
+#include <string>
+#include <vector>
+
 namespace Pol {
   namespace Core {
     void handle_unknown_packet( Network::Client* client );
@@ -88,7 +95,7 @@ namespace Pol {
 		party_cfg.General.RejoinPartyOnLogon = elem.remove_bool( "RejoinPartyOnLogon", false );
 	  else
 		party_cfg.General.RejoinPartyOnLogon = false;
-	  string tmp = elem.remove_string( "PrivateMsgPrefix", "" );
+	  std::string tmp = elem.remove_string( "PrivateMsgPrefix", "" );
 	  if ( tmp.size() == 0 )
 		party_cfg.General.PrivateMsgPrefixLen = 0;
 	  else
@@ -111,7 +118,7 @@ namespace Pol {
 
     void load_party_cfg_hooks( Clib::ConfigElem& elem )
 	{
-	  string temp;
+	  std::string temp;
 	  if ( elem.remove_prop( "CanAddToParty", &temp ) )
 		party_cfg.Hooks.CanAddToParty = FindExportedFunction( elem, NULL, temp, 2 );
 	  if ( elem.remove_prop( "CanRemoveMember", &temp ) )
@@ -272,7 +279,7 @@ namespace Pol {
 
 	bool Party::register_with_members()
 	{
-	  vector<u32>::iterator itr = _member_serials.begin();
+      std::vector<u32>::iterator itr = _member_serials.begin();
 	  while ( itr != _member_serials.end() )
 	  {
 		Mobile::Character* chr = system_find_mobile( *itr );
@@ -392,7 +399,9 @@ namespace Pol {
 	  msg->offset += 4; //len+sub
 	  msg->Write<u8>( static_cast<u8>( PKTBI_BF_06::PARTYCMD_ADD ) );
 	  msg->offset++; //nummembers
-	  vector<u32>::iterator itr = _member_serials.begin();
+
+      // TODO: refactor the loop below to use std::remove_if() + extract a method
+	  auto itr = _member_serials.begin();
 	  while ( itr != _member_serials.end() )
 	  {
 		Mobile::Character* chr = system_find_mobile( *itr );
@@ -404,6 +413,7 @@ namespace Pol {
 		else
 		  itr = _member_serials.erase( itr );
 	  }
+
 	  u16 len = msg->offset;
 	  msg->offset = 6;
 	  msg->Write<u8>( static_cast<u8>( _member_serials.size() ) );
@@ -478,7 +488,8 @@ namespace Pol {
 		msg->offset++; // nummembers
 		msg->Write<u32>( remchr->serial_ext );
 
-		vector<u32>::iterator itr = _member_serials.begin();
+        // TODO: refactor the loop below to use std::remove_if() + extract a method
+		auto itr = _member_serials.begin();
 		while ( itr != _member_serials.end() )
 		{
 		  Mobile::Character* chr = system_find_mobile( *itr );
@@ -789,7 +800,7 @@ namespace Pol {
 
 	void read_party_dat()
 	{
-	  string partyfile = config.world_data_path + "parties.txt";
+	  std::string partyfile = config.world_data_path + "parties.txt";
 
 	  if ( !Clib::FileExists( partyfile ) )
 		return;
