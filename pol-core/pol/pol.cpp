@@ -496,7 +496,7 @@ namespace Pol {
       else
       {
         // logging in a character that's offline.
-        SetCharacterWorldPosition( chosen_char );
+        SetCharacterWorldPosition(chosen_char, Plib::WorldChangeReason::ClientEnter);
         chosen_char->logged_in = true;
       }
 

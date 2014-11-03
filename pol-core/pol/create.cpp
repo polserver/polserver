@@ -533,7 +533,7 @@ namespace Pol {
 	  client->acct->active_character = chr;
 
       POLLOG.Format( "Account {} created character 0x{:X}\n" ) << client->acct->name() << chr->serial;
-	  SetCharacterWorldPosition( chr );
+	  SetCharacterWorldPosition( chr, Plib::WorldChangeReason::ClientEnter );
 	  client->msgtype_filter = &game_filter;
 	  start_client_char( client );
 
@@ -909,7 +909,7 @@ namespace Pol {
 	  client->acct->active_character = chr;
 
       POLLOG.Format( "Account {} created character 0x{:X}\n" ) << client->acct->name() << chr->serial;
-	  SetCharacterWorldPosition( chr );
+      SetCharacterWorldPosition(chr, Plib::WorldChangeReason::ClientEnter);
 	  client->msgtype_filter = &game_filter;
 	  start_client_char( client );
 
@@ -1317,7 +1317,7 @@ namespace Pol {
 	  client->acct->active_character = chr;
 
       POLLOG.Format( "Account {} created character 0x{:X}\n" ) << client->acct->name() << chr->serial;
-	  SetCharacterWorldPosition( chr );
+      SetCharacterWorldPosition(chr, Plib::WorldChangeReason::ClientEnter);
 	  client->msgtype_filter = &game_filter;
 	  start_client_char( client );
 

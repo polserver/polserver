@@ -144,7 +144,7 @@ namespace Pol {
       {
         npc->readProperties( elem );
 
-        SetCharacterWorldPosition( npc.get() );
+        SetCharacterWorldPosition( npc.get(), Plib::WorldChangeReason::NpcLoad );
         npc->clear_dirty();
 
         ////HASH

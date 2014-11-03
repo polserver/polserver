@@ -13,17 +13,17 @@ Notes
 #ifndef UWORLD_H
 #define UWORLD_H
 
-#include <set>
-
-#include <assert.h>
-
-#include "../clib/passert.h"
-#include "../plib/realm.h"
 #include "mobile/charactr.h"
 #include "item/item.h"
 #include "multi/multi.h"
 #include "uvars.h"
 #include "zone.h"
+
+#include "../clib/passert.h"
+#include "../plib/realm.h"
+
+#include <set>
+
 namespace Pol {
   namespace Plib {
 	class Realm;
@@ -39,8 +39,8 @@ namespace Pol {
 							  unsigned short newx, unsigned short newy,
 							  Multi::UMulti* multi, Plib::Realm* oldrealm );
 
-	void SetCharacterWorldPosition( Mobile::Character* chr );
-	void ClrCharacterWorldPosition( Mobile::Character* chr, const char* reason );
+	void SetCharacterWorldPosition( Mobile::Character* chr, Plib::WorldChangeReason reason);
+	void ClrCharacterWorldPosition( Mobile::Character* chr, Plib::WorldChangeReason reason);
 	void MoveCharacterWorldPosition( unsigned short oldx, unsigned short oldy,
 									 unsigned short newx, unsigned short newy,
 									 Mobile::Character* chr, Plib::Realm* oldrealm );

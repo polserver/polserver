@@ -97,7 +97,7 @@ namespace Pol {
 
 	  objecthash.Insert( npc );
 
-	  SetCharacterWorldPosition( npc );
+	  SetCharacterWorldPosition( npc, WorldChangeReason::NpcCreate );
 	  return npc;
 	}
 
