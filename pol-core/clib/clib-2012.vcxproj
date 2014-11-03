@@ -222,7 +222,8 @@
     <ClCompile Include="cfgfile.cpp" />
     <ClCompile Include="cfgsect.cpp" />
     <ClCompile Include="cmdargs.cpp" />
-	<ClCompile Include="Debugging\ExceptionParser.h">
+	<ClCompile Include="Debugging\ExceptionParser.cpp" />
+	<ClCompile Include="Debugging\LogSink.cpp" />
     <ClCompile Include="dirfunc.cpp" />
     <ClCompile Include="dirlist.cpp" />
     <ClCompile Include="esignal.cpp" />
@@ -279,6 +280,7 @@
     <ClInclude Include="compileassert.h" />
     <ClInclude Include="compilerspecifics.h" />
 	<ClInclude Include="Debugging\ExceptionParser.h">
+	<ClInclude Include="Debugging\LogSink.h">
     <ClInclude Include="dirfunc.h" />
     <ClInclude Include="dirlist.h" />
     <ClInclude Include="endian.h" />

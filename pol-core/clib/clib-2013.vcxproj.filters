@@ -155,6 +155,9 @@
     <ClCompile Include="Debugging\ExceptionParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Debugging\LogSink.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="binaryfile.h">
@@ -332,6 +335,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Debugging\ExceptionParser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Debugging\LogSink.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
