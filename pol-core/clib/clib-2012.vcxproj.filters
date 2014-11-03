@@ -256,9 +256,6 @@
     <ClInclude Include="StdAfx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="stl_inc.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="stlutil.h">
       <Filter>Header Files</Filter>
     </ClInclude>

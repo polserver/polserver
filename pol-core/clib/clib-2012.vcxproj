@@ -219,12 +219,7 @@
     <ClCompile Include="..\..\lib\StackWalker\StackWalker.cpp" />
     <ClCompile Include="binaryfile.cpp" />
     <ClCompile Include="boostutils.cpp" />
-    <ClCompile Include="cfgfile.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">stl_inc.h</PrecompiledHeaderFile>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stl_inc.h</PrecompiledHeaderFile>
-    </ClCompile>
+    <ClCompile Include="cfgfile.cpp" />
     <ClCompile Include="cfgsect.cpp" />
     <ClCompile Include="cmdargs.cpp" />
 	<ClCompile Include="Debugging\ExceptionParser.h">
@@ -252,8 +247,6 @@
     <ClCompile Include="StdAfx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">stl_inc.h</PrecompiledHeaderFile>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stl_inc.h</PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="stracpy.cpp" />
     <ClCompile Include="streamsaver.cpp" />
@@ -315,7 +308,6 @@
     <ClInclude Include="sckutil.h" />
     <ClInclude Include="socketsvc.h" />
     <ClInclude Include="StdAfx.h" />
-    <ClInclude Include="stl_inc.h" />
     <ClInclude Include="stlutil.h" />
     <ClInclude Include="streamsaver.h" />
     <ClInclude Include="strexcpt.h" />
