@@ -9,6 +9,7 @@
 #include <fstream>
 #include <boost/noncopyable.hpp>
 #include "../../lib/format/format.h"
+#include "Debugging/LogSink.h"
 
 #include "message_queue.h"
 
@@ -21,21 +22,6 @@ namespace Pol {
 
     namespace Logging {
       struct LogFileBehaviour;
-
-      // the base class for the differrent sinks
-      class LogSink : boost::noncopyable
-      {
-      public:
-        LogSink();
-        virtual ~LogSink() {};
-        virtual void sink( fmt::Writer* msg) = 0;
-        virtual void sink( fmt::Writer* msg, std::string id ) = 0;
-        virtual void close( unsigned int ) {};
-        static void printCurrentTimeStamp( std::ostream &stream );
-        static std::string getLoggingTimeStamp();
-      };
-
-      
 
       // generic sink to log into a file
       class LogSinkGenericFile : public LogSink

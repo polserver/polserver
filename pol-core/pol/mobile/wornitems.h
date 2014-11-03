@@ -11,7 +11,6 @@ namespace Pol {
             typedef UContainer base;
         public:
             WornItemsContainer();
-            //explicit WornItemsContainer(u16 objtype);
             virtual ~WornItemsContainer() {};
             virtual size_t estimatedSize() const;
 

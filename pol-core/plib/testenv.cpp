@@ -8,10 +8,6 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-
-#include <assert.h>
-
 #include "../clib/cfgfile.h"
 #include "../clib/cfgelem.h"
 #include "../clib/passert.h"
@@ -26,6 +22,9 @@ Notes
 #include "../pol/ufunc.h"
 #include "../pol/uvars.h"
 #include "../pol/uworld.h"
+
+#include <string>
+
 namespace Pol {
   namespace Core {
     bool FindNpcTemplate( const char *template_name,
@@ -54,7 +53,7 @@ namespace Pol {
 	  item->x = x;
 	  item->y = y;
 	  item->z = static_cast<s8>( z );
-	  item->realm = find_realm( string( "britannia" ) );
+	  item->realm = find_realm( std::string( "britannia" ) );
 	  add_item_to_world( item );
 	  return item;
 	}
@@ -66,12 +65,12 @@ namespace Pol {
 	  multi->x = x;
 	  multi->y = y;
 	  multi->z = static_cast<s8>( z );
-	  multi->realm = find_realm( string( "britannia" ) );
+      multi->realm = find_realm(std::string("britannia"));
 	  add_multi_to_world( multi );
 	}
 	void add_multi( unsigned int objtype, unsigned short x, unsigned short y, short z, int flags )
 	{
-	  Realm* realm = find_realm( string( "britannia" ) );
+        Realm* realm = find_realm(std::string("britannia"));
 	  Bscript::BObject obj( Multi::UMulti::scripted_create( find_itemdesc( objtype ), x, y, static_cast<s8>( z ), realm, flags ) );
 	}
 
@@ -81,7 +80,7 @@ namespace Pol {
 	  Clib::ConfigElem elem;
 	  if ( !Core::FindNpcTemplate( npctype, cfile, elem ) )
 	  {
-		throw runtime_error( string( "NPC template '" ) + npctype + "' not found" );
+          throw std::runtime_error(std::string("NPC template '") + npctype + "' not found");
 	  }
 
 	  auto  npc = new NPC( elem.remove_ushort( "OBJTYPE" ), elem );

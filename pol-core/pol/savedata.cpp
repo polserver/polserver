@@ -8,13 +8,14 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
+#include "savedata.h"
 
-#ifdef __unix__
-#include <unistd.h>
-#endif
-
-#include <errno.h>
+#include "item/item.h"
+#include "item/itemdesc.h"
+#include "loaddata.h"
+#include "objecthash.h"
+#include "polcfg.h"
+#include "storage.h"
 
 #include "../clib/endian.h"
 #include "../clib/fileutil.h"
@@ -23,13 +24,17 @@ Notes
 #include "../clib/strutil.h"
 #include "../clib/timer.h"
 
-#include "item/item.h"
-#include "item/itemdesc.h"
-#include "loaddata.h"
-#include "objecthash.h"
-#include "polcfg.h"
-#include "storage.h"
-#include "savedata.h"
+#ifdef __unix__
+#include <unistd.h>
+#endif
+
+#include <cerrno>
+#include <fstream>
+
+#ifdef _MSC_VER
+#pragma warning(disable:4996) // disable deprecation warning for unlink, strerror 
+#endif
+
 namespace Pol {
   namespace Core {
     // incremental saves. yay.
@@ -58,8 +63,8 @@ namespace Pol {
     //
     // all data goes into this one file.
 
-    vector< u32 > modified_serials;
-    vector< u32 > deleted_serials;
+    std::vector< u32 > modified_serials;
+    std::vector< u32 > deleted_serials;
     static unsigned int clean_objects;
     static unsigned int dirty_objects;
     bool incremental_saves_disabled = false;
@@ -186,13 +191,13 @@ namespace Pol {
       objecthash.CleanDeleted();
     }
 
-    void write_index( ostream& ofs )
+    void write_index(std::ostream& ofs)
     {
       ofs << "Modified" << pf_endl
         << "{" << pf_endl;
       for ( unsigned i = 0; i < modified_serials.size(); ++i )
       {
-        ofs << "\t0x" << hex << modified_serials[i] << dec << pf_endl;
+          ofs << "\t0x" << std::hex << modified_serials[i] << std::dec << pf_endl;
       }
       ofs << "}" << pf_endl
         << pf_endl;
@@ -201,16 +206,16 @@ namespace Pol {
         << "{" << pf_endl;
       for ( unsigned i = 0; i < deleted_serials.size(); ++i )
       {
-        ofs << "\t0x" << hex << deleted_serials[i] << dec << pf_endl;
+          ofs << "\t0x" << std::hex << deleted_serials[i] << std::dec << pf_endl;
       }
       ofs << "}" << pf_endl
         << pf_endl;
     }
 
-    bool commit_incremental( const string& basename )
+    bool commit_incremental(const std::string& basename)
     {
-      string datfile = config.world_data_path + basename + ".txt";
-      string ndtfile = config.world_data_path + basename + ".ndt";
+      std::string datfile = config.world_data_path + basename + ".txt";
+      std::string ndtfile = config.world_data_path + basename + ".ndt";
 
       bool any = false;
 
@@ -246,7 +251,7 @@ namespace Pol {
       }
 
       if ( incremental_saves_disabled )
-        throw runtime_error( "Incremental saves are disabled until the next full save, due to a previous incremental save failure (dirty flags are inconsistent)" );
+        throw std::runtime_error( "Incremental saves are disabled until the next full save, due to a previous incremental save failure (dirty flags are inconsistent)" );
 
       try
       {
@@ -256,19 +261,19 @@ namespace Pol {
         modified_serials.clear();
         deleted_serials.clear();
 
-        ofstream ofs_data;
-        ofstream ofs_index;
+        std::ofstream ofs_data;
+        std::ofstream ofs_index;
 
         ofs_data.exceptions( std::ios_base::failbit | std::ios_base::badbit );
         ofs_index.exceptions( std::ios_base::failbit | std::ios_base::badbit );
 
         unsigned save_index = incremental_save_count + 1;
-        string data_basename = "incr-data-" + Clib::decint( save_index );
-        string index_basename = "incr-index-" + Clib::decint( save_index );
-        string data_pathname = config.world_data_path + data_basename + ".ndt";
-        string index_pathname = config.world_data_path + index_basename + ".ndt";
-        Clib::open_file( ofs_data, data_pathname, ios::out );
-        Clib::open_file( ofs_index, index_pathname, ios::out );
+        std::string data_basename = "incr-data-" + Clib::decint(save_index);
+        std::string index_basename = "incr-index-" + Clib::decint(save_index);
+        std::string data_pathname = config.world_data_path + data_basename + ".ndt";
+        std::string index_pathname = config.world_data_path + index_basename + ".ndt";
+        Clib::open_file(ofs_data, data_pathname, std::ios::out);
+        Clib::open_file(ofs_index, index_pathname, std::ios::out);
         Clib::OFStreamWriter sw_data( &ofs_data );
         write_system_data( sw_data );
         write_global_properties( sw_data );
@@ -311,8 +316,8 @@ namespace Pol {
     {
       for ( unsigned save_index = 1;; ++save_index )
       {
-        string data_basename = "incr-data-" + Clib::decint( save_index );
-        string index_basename = "incr-index-" + Clib::decint( save_index );
+        std::string data_basename = "incr-data-" + Clib::decint( save_index );
+        std::string index_basename = "incr-index-" + Clib::decint(save_index);
 
         bool res1 = commit( data_basename );
         bool res2 = commit( index_basename );

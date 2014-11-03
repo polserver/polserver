@@ -12,23 +12,22 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-#include "../clib/clib.h"
-#include "../clib/endian.h"
+#include "statmsg.h"
 
 #include "mobile/charactr.h"
 #include "network/client.h"
 #include "network/packets.h"
 #include "network/clienttransmit.h"
+
 #include "sockio.h"
 #include "pktboth.h"
 #include "ufunc.h"
 #include "uoclient.h"
 #include "uvars.h"
 
-#include "statmsg.h"
-
 #include "ssopt.h"
+
+
 namespace Pol {
   namespace Core {
 	using namespace Network::PktHelper;

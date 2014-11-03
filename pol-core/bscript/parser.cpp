@@ -41,22 +41,8 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
+#include "parser.h"
 
-
-#include <stdlib.h>
-#include <ctype.h>
-#include <string.h>
-#include <stddef.h>
-#include <stdio.h>
-
-#include "../clib/clib.h"
-#include "../clib/maputil.h"
-#include "../clib/strutil.h"
-#include "../clib/unittest.h"
-#include "../clib/logfacility.h"
-
-#include "compilercfg.h"
 #include "fmodule.h"
 #include "modules.h"
 #include "operator.h"
@@ -66,9 +52,32 @@ Notes
 #include "verbtbl.h"
 #include "userfunc.h"
 
-#include "parser.h"
+#include "compilercfg.h"
+
 #include "objmembers.h"
 #include "objmethods.h"
+
+#include "../clib/clib.h"
+#include "../clib/maputil.h"
+#include "../clib/strutil.h"
+#include "../clib/unittest.h"
+#include "../clib/logfacility.h"
+
+#include <cstdlib>
+#include <cctype>
+#include <cstring>
+#include <cstddef>
+#include <cstdio>
+
+#include <map>
+#include <stack>
+#include <string>
+
+#include <stdexcept>
+
+#ifdef _MSC_VER
+#pragma warning(disable:4996) // stricmp, strtok POSIX deprecation warning
+#endif
 
 namespace Pol {
   namespace Bscript {
@@ -865,7 +874,7 @@ namespace Pol {
 	};
 	unsigned n_reserved = sizeof reserved_words / sizeof reserved_words[0];
 
-	typedef map<string, ReservedWord*, Clib::ci_cmp_pred> ReservedWords;
+    typedef std::map<std::string, ReservedWord*, Clib::ci_cmp_pred> ReservedWords;
 	ReservedWords reservedWordsByName;
 	static void init_tables()
 	{
@@ -879,39 +888,39 @@ namespace Pol {
       } );
 	}
 
-	void Parser::write_words( ostream& os )
+	void Parser::write_words( std::ostream& os )
 	{
-	  os << "Reserved:" << endl;
+        os << "Reserved:" << std::endl;
 	  for ( unsigned i = 0; i < n_reserved; ++i )
 	  {
 		os << reserved_words[i].word
-		  << ( reserved_words[i].deprecated ? " (deprecated)" : "" ) << endl;
+            << (reserved_words[i].deprecated ? " (deprecated)" : "") << std::endl;
 	  }
-	  os << endl;
-	  os << "Binary:" << endl;
+      os << std::endl;
+      os << "Binary:" << std::endl;
 	  for ( int i = 0; i < n_operators; ++i )
 	  {
 		os << binary_operators[i].code
-		  << ( binary_operators[i].deprecated ? " (deprecated)" : "" ) << endl;
+            << (binary_operators[i].deprecated ? " (deprecated)" : "") << std::endl;
 	  }
-	  os << endl;
-	  os << "Unary:" << endl;
+      os << std::endl;
+      os << "Unary:" << std::endl;
 	  for ( int i = 0; i < n_unary; ++i )
 	  {
 		os << unary_operators[i].code
-		  << ( unary_operators[i].deprecated ? " (deprecated)" : "" ) << endl;
+            << (unary_operators[i].deprecated ? " (deprecated)" : "") << std::endl;
 	  }
-	  os << endl;
-	  os << "Methodlist:" << endl;
+      os << std::endl;
+      os << "Methodlist:" << std::endl;
 	  for ( int i = 0; i < n_objmethods; i++ )
 	  {
-		os << object_methods[i].id << " " << object_methods[i].code << endl;
+          os << object_methods[i].id << " " << object_methods[i].code << std::endl;
 	  }
-	  os << endl;
-	  os << "Memberlist:" << endl;
+      os << std::endl;
+      os << "Memberlist:" << std::endl;
 	  for ( int i = 0; i < n_objmembers; i++ )
 	  {
-		os << object_members[i].id << " " << object_members[i].code << endl;
+          os << object_members[i].id << " " << object_members[i].code << std::endl;
 	  }
 	}
 
@@ -1111,7 +1120,7 @@ namespace Pol {
 	  if ( ctx.s[0] == '\"' )
 	  {
 		const char* end = &ctx.s[1];
-		string lit;
+        std::string lit;
 		bool escnext = false;
 		for ( ;; )
 		{
@@ -1191,7 +1200,7 @@ namespace Pol {
 	  return 0;
 	}
 
-	int Parser::recognize_binary( Token& tok, const char *buf, const char **s )
+	int Parser::recognize_binary( Token& tok, const char *buf, const char** /*s*/ )
 	{
 	  for ( int i = 0; i < n_operators; i++ )
 	  {
@@ -1559,7 +1568,7 @@ namespace Pol {
         fmt::Writer _tmp;
         _tmp << "parseToken( " << *token << ")\n";
         _tmp << "  CA: ";
-		queue<Token*> ca( expr.CA );
+        std::queue<Token*> ca(expr.CA);
 		while ( !ca.empty() )
 		{
 		  Token* tk = ca.front();
@@ -1568,7 +1577,7 @@ namespace Pol {
 		}
         _tmp << "\n";
         _tmp << "  TX: ";
-		stack<Token*> tx( expr.TX );
+        std::stack<Token*> tx(expr.TX);
 		while ( !tx.empty() )
 		{
 		  Token* tk = tx.top();
@@ -1680,7 +1689,7 @@ namespace Pol {
                 ERROR_PRINT << "parseToken(): Not sure what to do.\n"
                   << "Token: " << *token << "\n"
                   << "Last:  " << *last << "\n";
-				throw runtime_error( "Error in parseToken() (1)" );
+				throw std::runtime_error( "Error in parseToken() (1)" );
 			}
 			break;
 
@@ -1719,7 +1728,7 @@ namespace Pol {
                 ERROR_PRINT << "parseToken(): Not sure what to do.\n"
                   << "Token: " << *token << "\n"
                   << "Last:  " << *last << "\n";
-				throw runtime_error( "Error in parseToken() (2)" );
+                throw std::runtime_error("Error in parseToken() (2)");
 			}
 			break;
 
@@ -2081,7 +2090,7 @@ namespace Pol {
 		{
           INFO_PRINT << "Warning: Using { } is inappropriate; please define array, struct or dictionary.\n";
 		  if ( compilercfg.ErrorOnWarning )
-			throw runtime_error( "Warnings treated as errors." );
+              throw std::runtime_error("Warnings treated as errors.");
 		  else
             INFO_PRINT << ctx;
 		}
@@ -2249,7 +2258,7 @@ namespace Pol {
 
 		  // grab the method name
 		  getToken( ctx, token, &expr );
-		  string methodName( token.tokval() );
+          std::string methodName(token.tokval());
 		  Clib::mklower( methodName );
 		  int nargs;
 		  res = getMethodArguments( expr, ctx, nargs );

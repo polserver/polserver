@@ -7,7 +7,9 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
+#include "pkg.h"
+#include "polver.h"
+
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/dirlist.h"
@@ -18,8 +20,12 @@ Notes
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
 
-#include "pkg.h"
-#include "polver.h"
+#ifdef _MSC_VER
+#pragma warning(disable:4996) // stricmp deprecation warning
+#endif
+
+#include <algorithm>
+#include <functional>
 
 namespace Pol {
   namespace Plib {
@@ -28,7 +34,7 @@ namespace Pol {
 	  return provides_system_home_page_;
 	}
 
-	typedef std::map<string, Package*, Clib::ci_cmp_pred> PackagesByName;
+	typedef std::map<std::string, Package*, Clib::ci_cmp_pred> PackagesByName;
 	PackagesByName packages_byname;
 	Package* find_package( const std::string& pkgname )
 	{
@@ -45,9 +51,13 @@ namespace Pol {
 
 	void remove_package( Package* pkg )
 	{
-	  auto last = remove_if( packages.begin(), packages.end(),
-							 bind2nd( equal_to<Package*>(), pkg ) );
-	  packages.erase( last );
+	  auto last = std::remove_if( packages.begin(), packages.end(),
+							 std::bind2nd( std::equal_to<Package*>(), pkg ) );
+	  packages.erase( last, packages.end() );
+
+      // TODO: Check this loop. It looks odd. 
+      //       Should the loop stop after removing the package? 
+      //       Is it possible to have more than one name for the same package?
 
 	  auto itr = packages_byname.begin();
 	  while ( itr != packages_byname.end() )
@@ -124,7 +134,7 @@ namespace Pol {
 
 	PackageList::PackageList( Clib::ConfigElem& elem, const char* tag )
 	{
-	  string tmp;
+	  std::string tmp;
 	  while ( elem.remove_prop( tag, &tmp ) )
 	  {
 		Clib::mklower( tmp );
@@ -153,7 +163,7 @@ namespace Pol {
 	  Clib::mklower( name_ );
 	  // CoreRequired can either be a number (94,,95 etc)
 	  // or a version string (POL095-2003-01-28)
-	  string tmp = elem.read_string( "CoreRequired", "0" );
+	  std::string tmp = elem.read_string( "CoreRequired", "0" );
 	  if ( isdigit( tmp[0] ) )
 	  {
 		// the first kind - a number.
@@ -165,7 +175,7 @@ namespace Pol {
 	  }
 	}
 
-	string Package::desc() const
+    std::string Package::desc() const
 	{
 	  return name() + " (" + dir() + ")";
 	}
@@ -197,7 +207,7 @@ namespace Pol {
           ERROR_PRINT << "Error in package " << desc() << ":\n"
             << "  Core version " << core_required_
             << " is required, but version " << polver << " is running.\n";
-		  throw runtime_error( "Package requires a newer core version" );
+          throw std::runtime_error("Package requires a newer core version");
 		}
 	  }
 	  else if ( !core_versionstring_required_.empty() )
@@ -208,7 +218,7 @@ namespace Pol {
           ERROR_PRINT << "Error in package " << desc() << ":\n"
             << "  Core version " << core_versionstring_required_
             << " is required, but version " << polverstr << " is running.\n";
-		  throw runtime_error( "Package requires a newer core version" );
+          throw std::runtime_error("Package requires a newer core version");
 		}
 	  }
 	  for ( const auto &elem : requires_.elems )
@@ -218,7 +228,7 @@ namespace Pol {
 		{
           ERROR_PRINT << "Error in package '" << name_ << "' (" << dir_ << "):\n"
             << "	Package '" << elem.pkgname << "' is required, but is not installed.\n";
-		  throw runtime_error( "Package dependency error" );
+          throw std::runtime_error("Package dependency error");
 		}
 		else
 		{
@@ -227,7 +237,7 @@ namespace Pol {
             ERROR_PRINT << "Error in package '" << name_ << "' (" << dir_ << "):\n"
               << "	Package '" << elem.pkgname << "' version " << elem.version
               << " is required, but version " << found->version_ << " was found\n";
-			throw runtime_error( "Package dependency error" );
+            throw std::runtime_error("Package dependency error");
 		  }
 		}
 	  }
@@ -242,7 +252,7 @@ namespace Pol {
 		{
           ERROR_PRINT << "Error in package " << desc() << ":\n"
             << "	Package conflicts with package " << found->desc() << "\n";
-		  throw runtime_error( "Package dependency error" );
+          throw std::runtime_error("Package dependency error");
 		}
 	  }
 	}
@@ -272,7 +282,7 @@ namespace Pol {
 		{
           ERROR_PRINT << "Error in package " << pkg->desc() << ":\n"
             << "	Package by same name already found in " << existing_pkg->desc() << "\n";
-		  throw runtime_error( "Duplicate package found" );
+          throw std::runtime_error("Duplicate package found");
 		}
 		else
 		{
@@ -293,17 +303,17 @@ namespace Pol {
 	}
 
 
-	void load_packages( const string &basedir, bool quiet )
+    void load_packages(const std::string &basedir, bool quiet)
 	{
 
 	  for ( Clib::DirList dl( basedir.c_str( ) ); !dl.at_end( ); dl.next( ) )
 	  {
-		string dirname = dl.name();
+        std::string dirname = dl.name();
 		if ( dirname[0] == '.' ) continue;
 		if ( dirname == "template" ) continue;
 
-		string pkg_dir = basedir + dirname + "/";
-		string pkg_cfg = pkg_dir + "pkg.cfg";
+        std::string pkg_dir = basedir + dirname + "/";
+        std::string pkg_cfg = pkg_dir + "pkg.cfg";
 
 		if ( Clib::FileExists( pkg_cfg.c_str( ) ) )
 		{
@@ -311,8 +321,8 @@ namespace Pol {
 		  Clib::ConfigElem elem;
 
 		  cf.readraw( elem );
-		  string enabled_pkg = pkg_dir + "enabled.pkg";
-		  string disabled_pkg = pkg_dir + "disabled.pkg";
+          std::string enabled_pkg = pkg_dir + "enabled.pkg";
+          std::string disabled_pkg = pkg_dir + "disabled.pkg";
 
 		  if ( ( elem.remove_bool( "Enabled" ) == true ||
 			Clib::FileExists( enabled_pkg.c_str( ) ) ) &&
@@ -402,23 +412,23 @@ namespace Pol {
 	  packages_byname.clear();
 	}
 
-	bool pkgdef_split( const string& spec, const Package* inpkg,
-					   const Package** outpkg, string* path )
+    bool pkgdef_split(const std::string& spec, const Package* inpkg,
+        const Package** outpkg, std::string* path)
 	{
 	  if ( spec[0] == ':' )
 	  {
 		if ( spec[1] == ':' ) // '::corefile'  -- a core file
 		{
 		  *outpkg = NULL;
-		  *path = spec.substr( 2, string::npos );
+          *path = spec.substr(2, std::string::npos);
 		}
 		else				// ':pkgname:pkgfile'  -- a packaged file
 		{
-		  string::size_type second_colon = spec.find( ':', 2 );
-		  if ( second_colon != string::npos )
+            std::string::size_type second_colon = spec.find(':', 2);
+            if (second_colon != std::string::npos)
 		  {
-			string pkgname = spec.substr( 1, second_colon - 1 );
-			string pkgfile = spec.substr( second_colon + 1, string::npos );
+              std::string pkgname = spec.substr(1, second_colon - 1);
+              std::string pkgfile = spec.substr(second_colon + 1, std::string::npos);
 			Package* dstpkg = find_package( pkgname );
 			if ( dstpkg != NULL )
 			{
@@ -453,7 +463,7 @@ namespace Pol {
 	{
 	  for ( const auto &pkg : packages)
 	  {
-		string filename = GetPackageCfgPath( pkg, cfgname );
+          std::string filename = GetPackageCfgPath(pkg, cfgname);
 		if ( Clib::FileExists( filename.c_str( ) ) )
 		{
 		  Clib::ConfigFile cf( filename.c_str( ), taglist );
@@ -471,7 +481,7 @@ namespace Pol {
 						const char* taglist,
 						void( *loadentry )( const Package*, Clib::ConfigElem& ) )
 	{
-	  string filename = string( "config/" ) + cfgname;
+        std::string filename = std::string("config/") + cfgname;
 	  if ( Clib::FileExists( filename ) )
 	  {
 		Clib::ConfigFile cf( filename.c_str( ), taglist );
@@ -486,9 +496,9 @@ namespace Pol {
 	}
 
 
-	string GetPackageCfgPath( const Package* pkg, const string filename )
+    std::string GetPackageCfgPath(const Package* pkg, const std::string filename)
 	{
-	  string filepath;
+        std::string filepath;
 	  if ( pkg == NULL )
 	  {	// If no package is sent, assume pol/config/file.xxx
 		filepath = "config/" + filename;

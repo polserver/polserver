@@ -6,19 +6,18 @@ Notes
 =======
 
 */
+#include "sqlmod.h"
 
-#include "../../clib/stl_inc.h"
+#include "../sqlscrobj.h"
+#include "../uoexec.h"
+#include "../polsem.h"
+#include "osmod.h"
 
 #include "../../bscript/bobject.h"
 #include "../../bscript/berror.h"
 #include "../../bscript/impstr.h"
 #include "../../clib/logfacility.h"
 
-#include "../uoexec.h"
-#include "osmod.h"
-#include "../polsem.h"
-#include "../sqlscrobj.h"
-#include "sqlmod.h"
 
 namespace Pol {
   namespace Bscript {

@@ -6,8 +6,8 @@ Notes
 =======
 
 */
+#include "testenv.h"
 
-#include "../clib/stl_inc.h"
 #include "../clib/logfacility.h"
 #include "../pol/uconst.h"
 #include "../pol/uobject.h"
@@ -17,7 +17,6 @@ Notes
 
 #include "realm.h"
 #include "mapserver.h"
-#include "testenv.h"
 namespace Pol {
   namespace Plib {
 	void inc_successes();

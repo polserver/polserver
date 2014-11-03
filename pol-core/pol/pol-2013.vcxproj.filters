@@ -305,9 +305,6 @@
     <ClCompile Include="syshook.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="systemhookscript.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="target.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -658,6 +655,9 @@
     </ClCompile>
     <ClCompile Include="network\msgfiltr.cpp">
       <Filter>network</Filter>
+    </ClCompile>
+    <ClCompile Include="syshookscript.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -14,7 +14,12 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
+
+#include "polwww.h"
+
+#include "module/httpmod.h"
+#include "module/uomod.h"
+#include "uoexec.h"
 
 #include "../bscript/berror.h"
 
@@ -39,25 +44,22 @@ Notes
 #include "scrsched.h"
 #include "scrstore.h"
 #include "sockio.h"
-#include "uoexec.h"
-#include "module/uomod.h"
-
-#include "polwww.h"
-#include "module/httpmod.h"
 
 #ifdef _WIN32
 #include <process.h>
-#endif
-#ifndef _WIN32
+#else
 #include <pthread.h>
 #endif
+
+#include <map>
+#include <string>
 
 namespace Pol {
   namespace Core {
 	using namespace threadhelp;
 
 	static Plib::Package* wwwroot_pkg = NULL;
-	static map<string, string> mime_types;
+    static std::map<std::string, std::string> mime_types;
 
 	void load_mime_config( void )
 	{
@@ -88,7 +90,7 @@ namespace Pol {
         Clib::ConfigElem elem;
 		while ( cf.read( elem ) )
 		{
-		  string ext, mime;
+          std::string ext, mime;
 		  elem.remove_prop( "Extension", &ext );
 		  elem.remove_prop( "MIME", &mime );
 		  mime_types[ext] = mime;
@@ -169,7 +171,7 @@ namespace Pol {
 	  http_writeline( sck, "</BODY></HTML>" );
 	}
 
-    void http_forbidden( Clib::Socket& sck, const string& filename )
+    void http_forbidden(Clib::Socket& sck, const std::string& filename)
 	{
 	  http_writeline( sck, "HTTP/1.1 403 Forbidden" );
 	  http_writeline( sck, "Content-Type: text/html" );
@@ -180,7 +182,7 @@ namespace Pol {
 	  http_writeline( sck, "</BODY></HTML>" );
 	}
 
-    void http_not_authorized( Clib::Socket& sck, const string& filename )
+    void http_not_authorized(Clib::Socket& sck, const std::string& /*filename*/)
 	{
 	  http_writeline( sck, "HTTP/1.1 401 Unauthorized" );
 	  http_writeline( sck, "WWW-Authenticate: Basic realm=\"pol\"" );
@@ -192,7 +194,7 @@ namespace Pol {
 	  http_writeline( sck, "</BODY></HTML>" );
 	}
 
-    void http_not_found( Clib::Socket& sck, const string& filename )
+    void http_not_found( Clib::Socket& sck, const std::string& filename )
 	{
 	  http_writeline( sck, "HTTP/1.1 404 Not Found" );
 	  http_writeline( sck, "Content-Type: text/html" );
@@ -203,7 +205,7 @@ namespace Pol {
 	  http_writeline( sck, "</BODY></HTML>" );
 	}
 
-    void http_redirect( Clib::Socket& sck, const string& new_url )
+    void http_redirect( Clib::Socket& sck, const std::string& new_url )
 	{
 	  // cerr << "http: redirecting to " << new_url << endl;
 
@@ -221,9 +223,9 @@ namespace Pol {
 	//	'+'   ->   ' '
 	//	%HH   ->   (hex value)
 	//	other ->   itself
-	string http_decodestr( const string& s )
+    std::string http_decodestr(const std::string& s)
 	{
-	  string decoded;
+      std::string decoded;
 	  const char* t = s.c_str();
 	  while ( t != NULL && *t != '\0' )
 	  {
@@ -285,9 +287,9 @@ namespace Pol {
 		return 0x80; // error
 	}
 
-	string decode_base64( const std::string& b64s )
+    std::string decode_base64(const std::string& b64s)
 	{
-	  string s;
+      std::string s;
 	  const char* t = b64s.c_str();
 	  char c[4];
 	  char x[3];
@@ -315,7 +317,7 @@ namespace Pol {
 	  return s;
 	}
 
-	bool legal_pagename( const string& page )
+	bool legal_pagename( const std::string& page )
 	{
 	  // make sure the page isn't going to go visit our hard disk
 	  for ( const char* t = page.c_str(); *t; ++t )
@@ -338,15 +340,15 @@ namespace Pol {
 	}
 
 	// get_pagetype: extract the extension, basically
-	string get_pagetype( const string& page )
+    std::string get_pagetype(const std::string& page)
 	{
-	  string::size_type lastslash = page.rfind( '/' );
-	  string::size_type dotpos = page.rfind( '.' );
+	  std::string::size_type lastslash = page.rfind( '/' );
+      std::string::size_type dotpos = page.rfind('.');
 
-	  if ( lastslash != string::npos && dotpos != string::npos && lastslash > dotpos )
+	  if ( lastslash != std::string::npos && dotpos != std::string::npos && lastslash > dotpos )
 		return "";
 
-	  if ( dotpos != string::npos )
+	  if ( dotpos != std::string::npos )
 	  {
 		return page.substr( dotpos + 1 );
 	  }
@@ -356,15 +358,15 @@ namespace Pol {
 	  }
 	}
 
-	bool get_script_page_filename( const string& page, ScriptDef& sd )
+	bool get_script_page_filename( const std::string& page, ScriptDef& sd )
 	{
 	  if ( page.substr( 0, 5 ) == "/pkg/" )
 	  {
 		// cerr << "package page script: " << page << endl;
-		string::size_type pkgname_end = page.find_first_of( '/', 5 );
-		if ( pkgname_end != string::npos )
+		auto pkgname_end = page.find_first_of( '/', 5 );
+		if ( pkgname_end != std::string::npos )
 		{
-		  string pkg_name = page.substr( 5, pkgname_end - 5 );
+		  std::string pkg_name = page.substr( 5, pkgname_end - 5 );
 		  // cerr << "pkg name: " << pkg_name << endl;
           Plib::Package* pkg = Plib::find_package( pkg_name );
 		  if ( pkg != NULL )
@@ -393,9 +395,9 @@ namespace Pol {
 	// socket, through the Socket copy-constructor..  But sometimes, after we've
 	// built it, we need to send data (on errors).
     bool start_http_script( Clib::Socket& sck,
-							const string& page,
-                            Plib::Package* pkg, const string& file_ecl,
-							const string& query_string )
+							const std::string& page,
+                            Plib::Package* pkg, const std::string& file_ecl,
+							const std::string& query_string )
 	{
 	  bool res = true;
 
@@ -458,29 +460,29 @@ namespace Pol {
 	  return res;
 	}
 
-	string get_page_filename( const string& page )
+    std::string get_page_filename(const std::string& page)
 	{
-	  string filename = "scripts/www" + page;
+      std::string filename = "scripts/www" + page;
 	  return filename;
 	}
 
-	bool decode_page( const string& ipage,
+	bool decode_page( const std::string& ipage,
                       Plib::Package** ppkg,
-					  string* pfilename,
-					  string* ppagetype,
-					  string* redirect_to )
+                      std::string* pfilename,
+                      std::string* ppagetype,
+                      std::string* redirect_to)
 	{
-	  string page = ipage;
+      std::string page = ipage;
       Plib::Package* pkg = NULL;
-	  string filedir;
-	  string retdir;
+      std::string filedir;
+      std::string retdir;
 
 	  if ( page.substr( 0, 5 ) == "/pkg/" )
 	  {
 		// cerr << "package page: " << page << endl;
-		string::size_type pkgname_end = page.find_first_of( '/', 5 );
-		string pkgname;
-		if ( pkgname_end != string::npos )
+        std::string::size_type pkgname_end = page.find_first_of('/', 5);
+        std::string pkgname;
+        if (pkgname_end != std::string::npos)
 		{
 		  pkgname = page.substr( 5, pkgname_end - 5 );
 		  page = page.substr( pkgname_end );
@@ -512,9 +514,9 @@ namespace Pol {
 		}
 	  }
 
-	  string filename = filedir + page;
+      std::string filename = filedir + page;
 
-	  string pagetype = get_pagetype( page );
+      std::string pagetype = get_pagetype(page);
 
 	  if ( pagetype == "" ) // didn't specify, so assume it's a directory.
 	  {				   // have to redirect...
@@ -525,7 +527,7 @@ namespace Pol {
 		  //filename += "/";
 		}
 
-		string test;
+        std::string test;
 		test = filename + "index.ecl";
         if ( Clib::FileExists( test.c_str( ) ) )
 		{
@@ -558,15 +560,15 @@ namespace Pol {
 	  return true;
 	}
 
-    void send_html( Clib::Socket& sck, const string& page, const string& filename )
+    void send_html( Clib::Socket& sck, const std::string& page, const std::string& filename )
 	{
-	  ifstream ifs( filename.c_str() );
+      std::ifstream ifs(filename.c_str());
 	  if ( ifs.is_open() )
 	  {
 		http_writeline( sck, "HTTP/1.1 200 OK" );
 		http_writeline( sck, "Content-Type: text/html" );
 		http_writeline( sck, "" );
-		string t;
+        std::string t;
 		while ( getline( ifs, t ) )
 		{
 		  http_writeline( sck, t );
@@ -578,11 +580,11 @@ namespace Pol {
 	  }
 	}
 
-    void send_binary( Clib::Socket& sck, const string& page, const string& filename, const string& content_type )
+    void send_binary( Clib::Socket& sck, const std::string& page, const std::string& filename, const std::string& content_type )
 	{
 	  //string filename = get_page_filename( page );
 	  unsigned int fsize = Clib::filesize( filename.c_str() );
-	  ifstream ifs( filename.c_str(), ios::binary );
+      std::ifstream ifs(filename.c_str(), std::ios::binary);
 	  if ( ifs.is_open() )
 	  {
 		http_writeline( sck, "HTTP/1.1 200 OK" );
@@ -611,10 +613,10 @@ namespace Pol {
     void http_func( SOCKET client_socket )
 	{
       Clib::Socket sck( client_socket );
-	  string get;
-	  string auth;
-	  string tmpstr;
-	  string host;
+	  std::string get;
+	  std::string auth;
+	  std::string tmpstr;
+	  std::string host;
 
 	  if ( config.web_server_local_only )
 	  {
@@ -642,11 +644,11 @@ namespace Pol {
 
 	  ISTRINGSTREAM is( get );
 
-	  string cmd;	 // GET, POST  (we only handle GET)
-	  string url;	 // The whole URL (xx.ecl?a=b&c=d)
-	  string proto;   // HTTP/1.1
-	  string page;	// xx.ecl
-	  string query_string;  // a=b&c=d
+      std::string cmd;	 // GET, POST  (we only handle GET)
+      std::string url;	 // The whole URL (xx.ecl?a=b&c=d)
+      std::string proto;   // HTTP/1.1
+      std::string page;	// xx.ecl
+      std::string query_string;  // a=b&c=d
 
 	  is >> cmd >> url >> proto;
 
@@ -662,9 +664,9 @@ namespace Pol {
 	  //		url = "/index.htm";
 
 	  // spliturl( url, page, params ); ??
-	  string::size_type ques = url.find( '?' );
+	  std::string::size_type ques = url.find( '?' );
 
-	  if ( ques == string::npos )
+	  if ( ques == std::string::npos )
 	  {
 		page = url;
 		query_string = "";
@@ -687,7 +689,7 @@ namespace Pol {
 		if ( !auth.empty() )
 		{
 		  ISTRINGSTREAM is2( auth );
-		  string _auth, type, coded_unpw, unpw;
+          std::string _auth, type, coded_unpw, unpw;
 		  is2 >> _auth >> type >> coded_unpw;
 		  unpw = decode_base64( coded_unpw );
 		  if ( config.web_server_debug )
@@ -718,9 +720,9 @@ namespace Pol {
 
 
       Plib::Package* pkg;
-	  string filename;
-	  string pagetype;
-	  string redirect_to;
+      std::string filename;
+      std::string pagetype;
+      std::string redirect_to;
 	  if ( !decode_page( page, &pkg, &filename, &pagetype, &redirect_to ) )
 	  {
 		http_not_found( sck, page );
@@ -746,7 +748,7 @@ namespace Pol {
 	  }
 	  else
 	  {
-		string type = mime_types[pagetype];
+        std::string type = mime_types[pagetype];
 		if ( type.length() > 0 )
 		{
 		  send_binary( sck, page, filename, type );
@@ -776,12 +778,12 @@ namespace Pol {
                       Plib::Package* pkg_expected,
 					  const char* filename_expected,
 					  const char* pagetype_expected,
-					  const char* redirect_to_expected )
+					  const char* /*redirect_to_expected*/ )
 	{
       Plib::Package* pkg;
-	  string filename;
-	  string pagetype;
-	  string redirect_to;
+      std::string filename;
+      std::string pagetype;
+      std::string redirect_to;
 	  bool result;
 
 	  result = decode_page( page, &pkg, &filename, &pagetype, &redirect_to );
@@ -875,7 +877,7 @@ namespace Pol {
 
 		  Network::apply_socket_options( client_socket );
 
-		  string addrstr = Network::AddressToString( &client_addr );
+          std::string addrstr = Network::AddressToString(&client_addr);
 		  INFO_PRINT << "HTTP client connected from " << addrstr << "\n";
 
           worker_threads.push( [=]() { http_func( client_socket ); } ); // copy socket into queue to keep it valid

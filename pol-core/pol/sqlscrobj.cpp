@@ -9,7 +9,8 @@ Notes
 
 #ifdef HAVE_MYSQL
 
-#include "../clib/stl_inc.h"
+#include "sqlscrobj.h"
+
 #include "../clib/strutil.h"
 #include "../clib/stlutil.h"
 #include "../clib/endian.h"
@@ -17,8 +18,6 @@ Notes
 #include "../clib/logfacility.h"
 #include "../clib/esignal.h"
 #include "../clib/message_queue.h"
-
-#include "sqlscrobj.h"
 
 #include "../bscript/executor.h"
 #include "../bscript/execmodl.h"
@@ -29,7 +28,8 @@ Notes
 #include "../bscript/objmethods.h"
 
 #include "../plib/pkg.h"
-#include "module/filemod.h"
+//#include "module/filemod.h"
+
 namespace Pol {
   namespace Core {
     using namespace Bscript;
@@ -144,7 +144,7 @@ namespace Pol {
 	{
 	  return true;
 	}
-	string BSQLResultSet::getStringRep() const
+	std::string BSQLResultSet::getStringRep() const
 	{
 	  return "SQLResultSet";
 	}
@@ -263,7 +263,7 @@ namespace Pol {
 	}
 
 
-	BObjectRef BSQLConnection::get_member_id( const int id )//id test
+	BObjectRef BSQLConnection::get_member_id( const int /*id*/ )//id test
 	{
 	  return BObjectRef( UninitObject::create() );
 	  //switch(id)
@@ -290,7 +290,7 @@ namespace Pol {
 		return NULL;
 	}
 
-	Bscript::BObjectImp* BSQLConnection::call_method_id( const int id, Executor& ex, bool forcebuiltin )
+	Bscript::BObjectImp* BSQLConnection::call_method_id( const int /*id*/, Executor& /*ex*/, bool /*forcebuiltin*/ )
 	{
 	  return new BLong( 0 );
 	}
@@ -345,12 +345,12 @@ namespace Pol {
         POLLOG.Format( "SQL Thread exits due to exception: {}\n" ) << msg;
         throw;
       }
-      catch ( string& str )
+      catch ( std::string& str )
       {
         POLLOG.Format( "SQL Thread exits due to exception: {}\n" ) << str;
         throw;
       }
-      catch ( exception& ex )
+      catch ( std::exception& ex )
       {
         POLLOG.Format( "SQL Thread exits due to exception: {}\n" ) << ex.what( );
         throw;

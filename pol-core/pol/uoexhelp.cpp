@@ -9,8 +9,17 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-#include "../clib/stlutil.h"
+#include "uoexhelp.h"
+
+#include "item/itemdesc.h"
+#include "mobile/attribute.h"
+
+#include "fnsearch.h"
+#include "polcfg.h"
+#include "ssopt.h"
+#include "uoscrobj.h"
+#include "ufunc.h"
+#include "vital.h"
 
 #include "../bscript/berror.h"
 #include "../bscript/execmodl.h"
@@ -20,16 +29,10 @@ Notes
 
 #include "../clib/logfacility.h"
 #include "../clib/strutil.h"
+#include "../clib/stlutil.h"
 
-#include "fnsearch.h"
-#include "item/itemdesc.h"
-#include "polcfg.h"
-#include "ssopt.h"
-#include "uoscrobj.h"
-#include "ufunc.h"
-#include "uoexhelp.h"
-#include "mobile/attribute.h"
-#include "vital.h"
+#include <string>
+
 namespace Pol {
   namespace Core {
     using namespace Bscript;
@@ -427,7 +430,7 @@ namespace Pol {
 		  }
 		  else
 		  {
-			exec.setFunctionResult( new BError( string( "Objtype not defined: " ) + pstring->data() ) );
+			exec.setFunctionResult( new BError( std::string( "Objtype not defined: " ) + pstring->data() ) );
 
 			return false;
 		  }
@@ -505,7 +508,7 @@ namespace Pol {
 		  }
 		  else
 		  {
-			exec.setFunctionResult( new BError( string( "Objtype not defined: " ) + pstring->data() ) );
+              exec.setFunctionResult(new BError(std::string("Objtype not defined: ") + pstring->data()));
 
 			return false;
 		  }
@@ -526,7 +529,7 @@ namespace Pol {
 		}
 		catch ( std::exception& ex )
 		{
-		  string message = string( "Unable to create item descriptor: " ) + ex.what();
+		  std::string message = std::string( "Unable to create item descriptor: " ) + ex.what();
 		  exec.setFunctionResult( new BError( message ) );
 		  return false;
 		}

@@ -18,6 +18,8 @@ Notes
 #include "clidata.h"
 #include "uconst.h"
 
+#include <vector>
+
 namespace Pol {
 #define MAX_STATICS_PER_BLOCK 10000
   namespace Mobile {

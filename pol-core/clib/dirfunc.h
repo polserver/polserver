@@ -3,6 +3,7 @@
 #define __DIRFUNC_H
 
 #ifdef _MSC_VER
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <stdlib.h>
 #define MAXDRIVE _MAX_DRIVE

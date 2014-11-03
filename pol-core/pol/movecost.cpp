@@ -10,7 +10,12 @@ Notes
 */
 
 
-#include "../clib/stl_inc.h"
+#include "movecost.h"
+
+#include "mobile/charactr.h"
+
+#include "polcfg.h"
+#include "ssopt.h"
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
@@ -19,10 +24,6 @@ Notes
 #include "../clib/strutil.h"
 #include "../clib/logfacility.h"
 
-#include "mobile/charactr.h"
-#include "movecost.h"
-#include "polcfg.h"
-#include "ssopt.h"
 namespace Pol {
   namespace Core {
 #define MAX_CARRY_PERC 200
@@ -55,7 +56,7 @@ namespace Pol {
 
 	  int last_perc = -1;
 	  double last_mult = 0.0;
-	  string perc_str, mult_str;
+	  std::string perc_str, mult_str;
 	  int perc;
 	  double mult;
 	  while ( elem.remove_first_prop( &perc_str, &mult_str ) )
@@ -68,7 +69,7 @@ namespace Pol {
 		  {
 			elem.throw_error( "Max carrying capacity percentage is " + Clib::decint( MAX_CARRY_PERC ) );
 		  }
-		  Costs.insert( pair<int, double>( perc, mult ) );
+		  Costs.insert( std::pair<int, double>( perc, mult ) );
 		}
 		else
 		{

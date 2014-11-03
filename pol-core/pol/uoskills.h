@@ -16,6 +16,9 @@ namespace Pol {
   namespace Plib {
 	class Package;
   }
+  namespace Clib {
+      class ConfigElem;
+  }
   namespace Mobile {
 	class Attribute;
   }

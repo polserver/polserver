@@ -10,11 +10,7 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-#include <string.h>
-
-#include "../clib/endian.h"
-#include "../clib/clib.h"
+#include "ufunc.h"
 
 #include "network/client.h"
 #include "network/packets.h"
@@ -23,11 +19,15 @@ Notes
 #include "menu.h"
 #include "pktout.h"
 #include "tooltips.h"
-#include "ufunc.h"
 #include "uworld.h"
 #include "npc.h"
 #include "uvars.h"
 #include "containr.h"
+
+#include "../clib/endian.h"
+#include "../clib/clib.h"
+
+#include <cstring>
 
 namespace Pol {
   namespace Core {

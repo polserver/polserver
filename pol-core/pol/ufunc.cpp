@@ -36,33 +36,29 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
 
-#include <assert.h>
-#include <stddef.h>
 
-#include "../clib/clib.h"
-#include "../clib/endian.h"
-#include "../clib/logfacility.h"
-#include "../clib/passert.h"
-#include "../clib/pkthelper.h"
-#include "../clib/stlutil.h"
-#include "../clib/strutil.h"
-
-#include "../plib/mapcell.h"
-#include "../plib/realm.h"
+#include "ufunc.h"
 
 #include "accounts/account.h"
+
 #include "mobile/charactr.h"
+#include "mobile/corpse.h"
+#include "item/equipmnt.h"
+#include "multi/multi.h"
+
+#include "containr.h"
+
 #include "network/client.h"
 #include "network/packets.h"
 #include "network/clienttransmit.h"
-#include "item/equipmnt.h"
+#include "network/packetdefs.h"
+
+#include "pktout.h"
 #include "fnsearch.h"
 #include "layers.h"
 #include "lightlvl.h"
 #include "objtype.h"
-#include "pktout.h"
 #include "polcfg.h"
 #include "polclass.h"
 #include "realms.h"
@@ -73,8 +69,6 @@ Notes
 #include "tmpvars.h"
 #include "tooltips.h"
 #include "uconst.h"
-#include "ufunc.h"
-#include "multi/multi.h"
 #include "uobject.h"
 #include "uoclient.h"
 #include "uofile.h"
@@ -82,16 +76,33 @@ Notes
 #include "uvars.h"
 #include "uworld.h"
 #include "mdelta.h"
-#include "multi/multi.h"
-#include "../bscript/impstr.h"
 #include "zone.h"
 #include "miscrgn.h"
 #include "network/cgdata.h"
-#include "containr.h"
-#include "mobile/corpse.h"
-#include "network/packetdefs.h"
 
 #include "objecthash.h"
+
+
+#include "../plib/mapcell.h"
+#include "../plib/realm.h"
+
+#include "../bscript/impstr.h"
+
+#include "../clib/clib.h"
+#include "../clib/endian.h"
+#include "../clib/logfacility.h"
+#include "../clib/passert.h"
+#include "../clib/pkthelper.h"
+#include "../clib/stlutil.h"
+#include "../clib/strutil.h"
+
+#include <cstddef>
+#include <string>
+
+#ifdef _MSC_VER
+#pragma warning(disable:4996) // disable deprecation warning for sprintf
+#endif
+
 namespace Pol {
   namespace Core {
     using namespace Network;
@@ -1991,7 +2002,7 @@ namespace Pol {
 
 
 
-	void update_lightregion( Client* client, LightRegion* lightregion )
+	void update_lightregion( Client* client, LightRegion* /*lightregion*/ )
 	{
 	  if ( !client->ready )
 		return;
@@ -2109,9 +2120,9 @@ namespace Pol {
 		1 gold coin displays as "gold coin".  There must be a bit somewhere
 		that I just don't understand yet.
 		*/
-	string format_description( unsigned int polflags, const string& descdef, unsigned short amount, const std::string suffix )
+    std::string format_description(unsigned int polflags, const std::string& descdef, unsigned short amount, const std::string suffix)
 	{
-	  string desc;
+	  std::string desc;
 
 	  if ( amount != 1 )
 	  {

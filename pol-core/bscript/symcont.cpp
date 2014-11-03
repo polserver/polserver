@@ -8,17 +8,24 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+#include "symcont.h"
+
+#include "tokens.h"
 
 #include "../clib/strutil.h"
 #include "../clib/logfacility.h"
 
-#include "tokens.h"
-#include "symcont.h"
+#include <cstdio>
+#include <cstring>
+#include <cstdlib>
+
+#include <stdexcept>
+
+#ifdef _MSC_VER
+#pragma warning(disable:4996) // deprecation warning for strcpy, fopen
+#endif
+
 namespace Pol {
   namespace Bscript {
 	SymbolContainer::SymbolContainer( int PgrowBy )
@@ -56,7 +63,7 @@ namespace Pol {
 		  if ( t )
 			s = t;
 		  else
-			throw runtime_error( "allocation failure in SymbolContainer::resize(" + Clib::decint( allocLen ) + ")" );
+			throw std::runtime_error( "allocation failure in SymbolContainer::resize(" + Clib::decint( allocLen ) + ")" );
 		}
 	  }
 	}
@@ -116,9 +123,9 @@ namespace Pol {
 	void SymbolContainer::write( FILE *fp )
 	{
 	  if ( fwrite( &usedLen, sizeof usedLen, 1, fp ) != 1 )
-		throw runtime_error( "SymbolContainer::write failed" );
+		throw std::runtime_error( "SymbolContainer::write failed" );
 	  if ( fwrite( s, usedLen, 1, fp ) != 1 )
-		throw runtime_error( "SymbolContainer::write failed" );
+		throw std::runtime_error( "SymbolContainer::write failed" );
 	}
 
 	unsigned int SymbolContainer::get_write_length() const
@@ -130,7 +137,7 @@ namespace Pol {
 	void SymbolContainer::write( char *fname )
 	{
 	  FILE *fp = fopen( fname, "wb" );
-	  if ( !fp ) throw runtime_error( string( "Unable to open " ) + fname + " for writing." );
+	  if ( !fp ) throw std::runtime_error( std::string( "Unable to open " ) + fname + " for writing." );
 	  write( fp );
 	  fclose( fp );
 	}
@@ -139,13 +146,13 @@ namespace Pol {
 	{
 	  size_t fread_res = fread( &usedLen, sizeof usedLen, 1, fp );
 	  if ( fread_res != 1 )
-		throw runtime_error( "failed to read in SymbolContainer::read()." );
+		throw std::runtime_error( "failed to read in SymbolContainer::read()." );
 	  char *new_s = (char *)realloc( s, usedLen );
-	  if ( !new_s ) throw runtime_error( "allocation failure in SymbolContainer::read()." );
+	  if ( !new_s ) throw std::runtime_error( "allocation failure in SymbolContainer::read()." );
 	  s = new_s;
 	  fread_res = fread( s, usedLen, 1, fp );
 	  if ( fread_res != 1 )
-		throw runtime_error( "failed to read in SymbolContainer::read()." );
+		throw std::runtime_error( "failed to read in SymbolContainer::read()." );
 	  allocLen = usedLen;
 	}
 
@@ -158,7 +165,7 @@ namespace Pol {
 	void SymbolContainer::read( char *fname )
 	{
 	  FILE *fp = fopen( fname, "rb" );
-	  if ( !fp ) throw runtime_error( string( "Unable to open " ) + fname + " for reading." );
+	  if ( !fp ) throw std::runtime_error( std::string( "Unable to open " ) + fname + " for reading." );
 	  read( fp );
 	  fclose( fp );
 	}
@@ -175,7 +182,7 @@ namespace Pol {
 	void StoredTokenContainer::atPut1( const StoredToken& sToken, unsigned position )
 	{
 	  if ( position >= count() )
-		throw runtime_error( "Assigning token at invalid position " + Clib::decint( position ) + ", range is 0.." + Clib::decint( count() - 1 ) );
+		throw std::runtime_error( "Assigning token at invalid position " + Clib::decint( position ) + ", range is 0.." + Clib::decint( count() - 1 ) );
 
 	  char *dst = s + position * sizeof( StoredToken );
 	  StoredToken *st = (StoredToken*)dst;
@@ -185,7 +192,7 @@ namespace Pol {
 	void StoredTokenContainer::atGet1( unsigned position, StoredToken& sToken ) const
 	{
 	  if ( position >= count() )
-		throw runtime_error( "Retrieving token at invalid position " + Clib::decint( position ) + ", range is 0.." + Clib::decint( count() - 1 ) );
+		throw std::runtime_error( "Retrieving token at invalid position " + Clib::decint( position ) + ", range is 0.." + Clib::decint( count() - 1 ) );
 
 	  char *src = s + position * sizeof( StoredToken );
 	  StoredToken *st = (StoredToken*)src;
@@ -225,7 +232,7 @@ namespace Pol {
 	  {
         ERROR_PRINT << "Data segment overflowed.\n"
           << "Flog the programmer for using 2-byte offsets in datafiles.\n";
-		throw runtime_error( "Data segment overflowed" );
+		throw std::runtime_error( "Data segment overflowed" );
 	  }
 	}
   }

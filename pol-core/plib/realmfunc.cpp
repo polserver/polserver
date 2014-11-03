@@ -15,9 +15,8 @@ In standingheight checks there is a nasty bug. Items NOT locked down
 
 */
 
-#include "../clib/stl_inc.h"
-
 #include "realm.h"
+
 #include "realmdescriptor.h"
 #include "mapcell.h"
 #include "mapserver.h"
@@ -28,7 +27,6 @@ In standingheight checks there is a nasty bug. Items NOT locked down
 #include "../pol/tiles.h"
 #include "../pol/mobile/charactr.h"
 #include "../pol/network/cgdata.h"
-#include "../pol/multi/customhouses.h"
 #include "../pol/fnsearch.h"
 #include "../pol/ssopt.h"
 #include "../pol/uvars.h"
@@ -38,9 +36,12 @@ In standingheight checks there is a nasty bug. Items NOT locked down
 #include "../pol/item/itemdesc.h"
 #include "../pol/multi/multi.h"
 #include "../pol/multi/house.h"
+#include "../pol/multi/customhouses.h"
 #include "../pol/uconst.h"
 #include "../pol/clidata.h"
 #include "../pol/objtype.h"
+
+#include <vector>
 
 #define HULL_HEIGHT_BUFFER 2
 namespace Pol {
@@ -70,7 +71,7 @@ namespace Pol {
 							 short oldz,
 							 bool* result_out, short * newz_out, short* gradual_boost )
 	{
-	  static vector<const MapShape*> possible_shapes;
+	  static std::vector<const MapShape*> possible_shapes;
 	  possible_shapes.clear();
 	  bool land_ok = ( movemode & Core::MOVEMODE_LAND ) ? true : false;
 	  bool sea_ok = ( movemode & Core::MOVEMODE_SEA ) ? true : false;

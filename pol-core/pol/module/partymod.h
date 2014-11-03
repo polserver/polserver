@@ -12,7 +12,11 @@ Notes
 #define PARTYMOD_H
 
 #include "../../bscript/execmodl.h"
+
 namespace Pol {
+    namespace Core {
+        class Party;
+    }
   namespace Module {
 	class PartyExecutorModule : public Bscript::TmplExecutorModule<PartyExecutorModule>
 	{

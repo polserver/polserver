@@ -9,18 +9,8 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-
-#ifdef _MSC_VER
-#	pragma warning( disable: 4786 )
-#endif
-
-
-#include <assert.h>
-#include <stdio.h>
-#include <string.h>
-
-#include "../clib/passert.h"
+#include "uofile.h"
+#include "uofilei.h"
 
 #include "../plib/mapfunc.h"
 
@@ -33,8 +23,13 @@ Notes
 #include "ustruct.h"
 #include "wrldsize.h"
 
-#include "uofile.h"
-#include "uofilei.h"
+#include "../clib/passert.h"
+
+#include <cstdio>
+#include <cstring>
+#include <map>
+#include <stdexcept>
+
 namespace Pol {
   namespace Plib {
     unsigned int num_map_patches = 0;
@@ -59,7 +54,7 @@ namespace Pol {
       Plib::num_map_patches = index;
     }
 
-    static vector<USTRUCT_MAPINFO_BLOCK> rawmap_buffer_vec;
+    static std::vector<USTRUCT_MAPINFO_BLOCK> rawmap_buffer_vec;
     static bool rawmap_init = false;
 
     signed char rawmapinfo( unsigned short x, unsigned short y, USTRUCT_MAPINFO* gi )
@@ -96,10 +91,10 @@ namespace Pol {
           unsigned dif_index = ( *citr ).second;
           unsigned int file_offset = dif_index * sizeof( USTRUCT_MAPINFO_BLOCK );
           if ( fseek( mapdif_file, file_offset, SEEK_SET ) != 0 )
-            throw runtime_error( "rawmapinfo: fseek(mapdif_file) failure" );
+            throw std::runtime_error( "rawmapinfo: fseek(mapdif_file) failure" );
 
           if ( fread( &buffer, sizeof buffer, 1, mapdif_file ) != 1 )
-            throw runtime_error( "rawmapinfo: fread(mapdif_file) failure" );
+            throw std::runtime_error( "rawmapinfo: fread(mapdif_file) failure" );
           rawmap_buffer_vec.push_back( buffer );
         }
         ++block;

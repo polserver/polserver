@@ -11,6 +11,7 @@ Notes
 #define PLIB_REALMDESCRIPTOR_H
 
 #include <string>
+#include <cstddef>
 
 namespace Pol {
   namespace Clib {

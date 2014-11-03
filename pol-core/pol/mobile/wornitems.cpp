@@ -1,13 +1,11 @@
-#include "../../clib/stl_inc.h"
 
 #include "wornitems.h"
 
+#include "charactr.h"
 #include "../item/itemdesc.h"
+
 #include "../extobj.h"
 #include "../../clib/streamsaver.h"
-
-#include "charactr.h"
-
 
 namespace Pol {
     namespace Core {
@@ -18,11 +16,6 @@ namespace Pol {
         {
             contents_.resize(HIGHEST_LAYER + 1, EMPTY_ELEM);
         }
-        //WornItemsContainer::WornItemsContainer(u16 objtype) : 
-        //    UContainer(objtype), 
-        //    chr_owner(NULL)
-        //{
-        //}
 
         size_t WornItemsContainer::estimatedSize() const
         {

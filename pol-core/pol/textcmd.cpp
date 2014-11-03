@@ -13,11 +13,52 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
+#include "textcmd.h"
 
-#ifdef _MSC_VER
-#pragma warning( disable: 4786 )
-#endif
+#include "../plib/realm.h"
+
+#include "accounts/account.h"
+#include "mobile/charactr.h"
+#include "network/client.h"
+#include "cmdlevel.h"
+
+#include "item/armor.h"
+#include "item/weapon.h"
+#include "item/itemdesc.h"
+
+#include "module/uomod.h"
+#include "module/osmod.h"
+#include "uoexec.h"
+
+#include "action.h"
+#include "allocd.h"
+#include "los.h"
+#include "menu.h"
+#include "npc.h"
+#include "pktboth.h"
+#include "polcfg.h"
+#include "polclock.h"
+#include "polsem.h"
+#include "profile.h"
+#include "realms.h"
+#include "schedule.h"
+#include "scrsched.h"
+#include "scrstore.h"
+#include "target.h"
+#include "tmpvars.h"
+#include "uobject.h"
+#include "ufunc.h"
+#include "ufuncstd.h"
+#include "uobjcnt.h"
+#include "uobjhelp.h"
+#include "uofile.h"
+#include "uoscrobj.h"
+#include "uvars.h"
+#include "uworld.h"
+#include "repsys.h"
+#include "fnsearch.h"
+
+#include "../plib/pkg.h"
 
 #include "../bscript/berror.h"
 #include "../bscript/impstr.h"
@@ -34,66 +75,33 @@ Notes
 #include "../clib/threadhelp.h"
 #include "../clib/unicode.h"
 
-#include "../plib/realm.h"
+#include <map>
+#include <string>
+#include <functional>
 
-#include "accounts/account.h"
-#include "action.h"
-#include "allocd.h"
-#include "item/armor.h"
-#include "mobile/charactr.h"
-#include "network/client.h"
-#include "cmdlevel.h"
-#include "item/itemdesc.h"
-#include "los.h"
-#include "menu.h"
-#include "npc.h"
-#include "module/osmod.h"
-#include "pktboth.h"
-#include "../plib/pkg.h"
-#include "polcfg.h"
-#include "polclock.h"
-#include "polsem.h"
-#include "profile.h"
-#include "realms.h"
-#include "schedule.h"
-#include "scrsched.h"
-#include "scrstore.h"
-#include "target.h"
-#include "tmpvars.h"
-#include "uobject.h"
-#include "ufunc.h"
-#include "ufuncstd.h"
-#include "uobjcnt.h"
-#include "uobjhelp.h"
-#include "module/uomod.h"
-#include "uoexec.h"
-#include "uofile.h"
-#include "uoscrobj.h"
-#include "uvars.h"
-#include "uworld.h"
-#include "item/weapon.h"
-#include "repsys.h"
-#include "fnsearch.h"
+#ifdef _MSC_VER
+#pragma warning(disable:4996) // disable warning for asctime, localtime, sprintf, strnicmp
+#endif
 
 namespace Pol {
   namespace Core {
 	typedef void( *TextCmdFunc )( Network::Client* );
-    typedef map<string, TextCmdFunc, Clib::ci_cmp_pred> TextCmds;
+    typedef std::map<std::string, TextCmdFunc, Clib::ci_cmp_pred> TextCmds;
 	TextCmds textcmds;
 
-	class wordicmp : public less<string>
+    class wordicmp : public std::less<std::string>
 	{
 	public:
-	  bool operator()( const string& lhs, const string& rhs ) const;
+        bool operator()(const std::string& lhs, const std::string& rhs) const;
 	};
-	bool wordicmp::operator ()( const string& lhs, const string& rhs ) const
+    bool wordicmp::operator ()(const std::string& lhs, const std::string& rhs) const
 	{
 	  size_t len = std::min( lhs.size(), rhs.size() );
 
 	  return ( strnicmp( lhs.c_str(), rhs.c_str(), len ) < 0 );
 	}
 	typedef void( *ParamTextCmdFunc )( Network::Client*, const char* );
-	typedef map<string, ParamTextCmdFunc, wordicmp> ParamTextCmds;
+    typedef std::map<std::string, ParamTextCmdFunc, wordicmp> ParamTextCmds;
 	//wordicmp p_wordicmp;
 	ParamTextCmds paramtextcmds;
 
@@ -144,7 +152,7 @@ namespace Pol {
 			  elem.remove_prop( "Armor", &tmp ) )
 	  {
 		ISTRINGSTREAM is( tmp );
-		string objtype_str;
+        std::string objtype_str;
 		if ( is >> objtype_str )
 		{
 		  unsigned int objtype;
@@ -162,7 +170,7 @@ namespace Pol {
 			  continue;
 			}
 		  }
-		  string color_str;
+          std::string color_str;
 		  unsigned short color = 0;
 		  if ( is >> color_str )
 		  {
@@ -222,7 +230,7 @@ namespace Pol {
       Core::WorldIterator<Core::MobileFilter>::InVisualRange( client->chr, [&]( Mobile::Character* zonechr ) { send_client_char_data( zonechr, client ); } );
 	}
 
-    void textcmd_shutdown( Network::Client* client )
+    void textcmd_shutdown( Network::Client* /*client*/ )
 	{
 	  Clib::exit_signalled = 1;
 	}
@@ -343,7 +351,7 @@ namespace Pol {
 	  {
 		if ( mob->client->fpLog.empty() )
 		{
-		  string filename = "log/";
+		  std::string filename = "log/";
 		  filename += mob->client->acct->name();
 		  filename += ".log";
           mob->client->fpLog = OPEN_FLEXLOG( filename, true );
@@ -371,7 +379,7 @@ namespace Pol {
 	  {
 		if ( client->fpLog.empty() )
 		{
-		  string filename = "log/";
+		  std::string filename = "log/";
 		  filename += client->acct->name();
 		  filename += ".log";
           client->fpLog = OPEN_FLEXLOG( filename, true );
@@ -473,7 +481,7 @@ namespace Pol {
 	  send_sysmessage( client, "Script profile written to logfile and cleared" );
 	}
 
-    void textcmd_heapcheck( Network::Client* client )
+    void textcmd_heapcheck( Network::Client* /*client*/ )
 	{
 	  PrintAllocationData();
       Clib::PrintHeapData( );
@@ -481,7 +489,7 @@ namespace Pol {
 
     void textcmd_threads( Network::Client* client )
 	{
-      string s = "Child threads: " + Clib::decint( threadhelp::child_threads );
+      std::string s = "Child threads: " + Clib::decint( threadhelp::child_threads );
 	  send_sysmessage( client, s );
 	}
 
@@ -521,12 +529,12 @@ namespace Pol {
 		send_sysmessage( client, "Item integrity problems detected.  Check logfile" );
 	}
 	void check_character_integrity();
-    void textcmd_integ_chr( Network::Client* client )
+    void textcmd_integ_chr( Network::Client* /*client*/ )
 	{
 	  check_character_integrity();
 	}
 
-    string get_textcmd_help( Mobile::Character* chr, const char* cmd )
+    std::string get_textcmd_help(Mobile::Character* chr, const char* cmd)
 	{
 	  const char* t = cmd;
 	  while ( *t )
@@ -539,7 +547,7 @@ namespace Pol {
 		++t;
 	  }
 
-	  string upp( cmd );
+      std::string upp(cmd);
 	  Clib::mkupper( upp );
 	  if ( upp == "AUX" || upp == "CON" || upp == "PRN" || upp == "NUL" )
 		return "";
@@ -549,10 +557,10 @@ namespace Pol {
 		CmdLevel& cmdlevel = cmdlevels2[i];
 		for ( unsigned diridx = 0; diridx < cmdlevel.searchlist.size(); ++diridx )
 		{
-		  string filename;
+		  std::string filename;
 
 		  Plib::Package* pkg = cmdlevel.searchlist[diridx].pkg;
-		  filename = cmdlevel.searchlist[diridx].dir + cmd + string( ".txt" );
+          filename = cmdlevel.searchlist[diridx].dir + cmd + std::string(".txt");
 		  if ( pkg )
 			filename = pkg->dir() + filename;
 
@@ -560,8 +568,8 @@ namespace Pol {
 		  if ( Clib::FileExists( filename.c_str() ) )
 		  {
 			// cout << "Found " << filename << endl;
-			string result;
-			ifstream ifs( filename.c_str(), ios::binary );
+			std::string result;
+            std::ifstream ifs(filename.c_str(), std::ios::binary);
 			char temp[64];
 			do
 			{
@@ -579,12 +587,12 @@ namespace Pol {
     bool start_textcmd_script( Network::Client* client, const char *text,
 							   const u16* wtext = NULL, const char* lang = NULL )
 	{
-	  string scriptname;
-	  string params;
+	  std::string scriptname;
+      std::string params;
 	  const char* t = strchr( text, ' ' );
 	  if ( t != NULL )
 	  {
-		scriptname = string( text, t );
+		scriptname = std::string( text, t );
 		params = t + 1;
 	  }
 	  else
@@ -606,7 +614,7 @@ namespace Pol {
 		++t;
 	  }
 
-	  string upp( scriptname );
+      std::string upp(scriptname);
 	  Clib::mkupper( upp );
 	  if ( upp == "AUX" || upp == "CON" || upp == "PRN" || upp == "NUL" )
 		return false;

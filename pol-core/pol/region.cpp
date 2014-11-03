@@ -7,8 +7,11 @@ Notes
 =======
 
 */
+#include "region.h"
 
-#include "../clib/stl_inc.h"
+#include "realms.h"
+#include "uworld.h"
+
 #include "../bscript/berror.h"
 #include "../bscript/impstr.h"
 
@@ -17,9 +20,6 @@ Notes
 #include "../clib/fileutil.h"
 #include "../clib/stlutil.h"
 
-#include "realms.h"
-#include "region.h"
-#include "uworld.h"
 namespace Pol {
   namespace Core {
 	Region::Region( Clib::ConfigElem& elem, RegionId id ) :
@@ -35,9 +35,9 @@ namespace Pol {
 	  proplist_.readRemainingPropertiesAsStrings( elem );
 	}
 
-	Bscript::BObjectImp* Region::get_region_string( const string& propname )
+	Bscript::BObjectImp* Region::get_region_string( const std::string& propname )
 	{
-	  string propvalue;
+	  std::string propvalue;
 	  if ( proplist_.getprop( propname, propvalue ) )
 	  {
         return new Bscript::String( propvalue );
@@ -75,7 +75,7 @@ namespace Pol {
 			zone[i][j] = 0;
 		  }
 		}
-		regionrealms.insert( make_pair( realm, zone ) );
+        regionrealms.insert(std::make_pair(realm, zone));
 	  }
 	}
 	RegionGroupBase::~RegionGroupBase()
@@ -104,7 +104,7 @@ namespace Pol {
 
     void RegionGroupBase::paint_zones( Clib::ConfigElem& elem, RegionId ridx )
 	{
-	  string zonestr, strrealm;
+      std::string zonestr, strrealm;
 
 	  strrealm = elem.remove_string( "Realm", "britannia" );
       Plib::Realm* realm = find_realm( strrealm );

@@ -10,23 +10,23 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-
-#include <stdio.h>
-#include <string.h>
-
-#include "../clib/passert.h"
-#include "../clib/stlutil.h"
-#include "../clib/logfacility.h"
+#include "uofile.h"
+#include "uofilei.h"
+#include "wrldsize.h"
 
 #include "polcfg.h"
 #include "polfile.h"
 #include "udatfile.h"
 #include "ustruct.h"
 
-#include "uofile.h"
-#include "uofilei.h"
-#include "wrldsize.h"
+#include "../clib/passert.h"
+#include "../clib/stlutil.h"
+#include "../clib/logfacility.h"
+
+#include <cstdio>
+#include <cstring>
+#include <stdexcept>
+
 
 namespace Pol {
   namespace Plib {
@@ -51,10 +51,10 @@ namespace Pol {
 
     struct USTRUCT_STATIC_BUFFER
     {
-      vector<USTRUCT_STATIC> statics;
+      std::vector<USTRUCT_STATIC> statics;
       int count;
     };
-    static vector<USTRUCT_STATIC_BUFFER> rawstatic_buffer_vec;
+    static std::vector<USTRUCT_STATIC_BUFFER> rawstatic_buffer_vec;
     static bool rawstatic_init = false;
 
     void read_static_diffs()
@@ -102,7 +102,7 @@ namespace Pol {
           {
             if ( fseek( statfile, idx.offset, SEEK_SET ) != 0 )
             {
-              throw runtime_error( "readstaticblock: fseek(statfile) to " + Clib::tostring( idx.offset ) + " failed." );
+              throw std::runtime_error( "readstaticblock: fseek(statfile) to " + Clib::tostring( idx.offset ) + " failed." );
             }
             srec_count = idx.length / sizeof srecs[0];
             int x = block / uo_map_width; // FIXME is this correct?
@@ -115,7 +115,7 @@ namespace Pol {
             //dave 9/8/3, Austin's statics had a normal offset but a length of 0. badly written tool?
             if ( idx.length != 0 && fread( srecs, idx.length, 1, statfile ) != 1 )
             {
-              throw runtime_error( "readstaticblock: fread(statfile) failed." + Clib::tostring( block ) );
+                throw std::runtime_error("readstaticblock: fread(statfile) failed." + Clib::tostring(block));
             }
 
 
@@ -137,19 +137,19 @@ namespace Pol {
           int offset = dif_index * sizeof idx;
           if ( fseek( stadifi_file, offset, SEEK_SET ) != 0 )
           {
-            throw runtime_error( "readstaticblock: fseek(stadifi) to " + Clib::tostring( offset ) + " failed." );
+            throw std::runtime_error( "readstaticblock: fseek(stadifi) to " + Clib::tostring( offset ) + " failed." );
           }
 
           if ( fread( &idx, sizeof idx, 1, stadifi_file ) != 1 )
           {
-            throw runtime_error( "readstaticblock: fread(stadifi) failed." );
+            throw std::runtime_error( "readstaticblock: fread(stadifi) failed." );
           }
 
           if ( idx.length != 0xFFffFFffLu )
           {
             if ( fseek( stadif_file, idx.offset, SEEK_SET ) != 0 )
             {
-              throw runtime_error( "readstaticblock: fseek(stadif) to " + Clib::tostring( idx.offset ) + " failed." );
+              throw std::runtime_error( "readstaticblock: fseek(stadif) to " + Clib::tostring( idx.offset ) + " failed." );
             }
 
             srec_count = idx.length / sizeof srecs[0];
@@ -162,7 +162,7 @@ namespace Pol {
 
             if ( fread( srecs, idx.length, 1, stadif_file ) != 1 )
             {
-              throw runtime_error( "readstaticblock: fread(stadif) failed." );
+              throw std::runtime_error( "readstaticblock: fread(stadif) failed." );
             }
 
             if ( srec_count > cfg_warning_statics_per_block )

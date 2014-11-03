@@ -7,13 +7,12 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-#include "../clib/strutil.h"
-#include "../clib/stlutil.h"
-#include "../clib/endian.h"
-#include <memory>
 
 #include "xmlfilescrobj.h"
+
+#include "module/filemod.h"
+
+#include "../plib/pkg.h"
 
 #include "../bscript/executor.h"
 #include "../bscript/execmodl.h"
@@ -23,8 +22,12 @@ Notes
 #include "../bscript/objmembers.h"
 #include "../bscript/objmethods.h"
 
-#include "../plib/pkg.h"
-#include "module/filemod.h"
+#include "../clib/strutil.h"
+#include "../clib/stlutil.h"
+#include "../clib/endian.h"
+
+#include <memory>
+
 namespace Pol {
   namespace Core {
     using namespace Bscript;
@@ -33,7 +36,7 @@ namespace Pol {
 	  _filename( "" )
 	{}
 
-	BXMLfile::BXMLfile( string filename ) : Bscript::BObjectImp( OTXMLFile ),
+	BXMLfile::BXMLfile( std::string filename ) : Bscript::BObjectImp( OTXMLFile ),
 	  file( filename.c_str() ),
 	  _filename( filename )
 	{
@@ -44,7 +47,7 @@ namespace Pol {
 	BXMLfile::~BXMLfile()
 	{}
 
-	BObjectRef BXMLfile::get_member_id( const int id )//id test
+	BObjectRef BXMLfile::get_member_id( const int /*id*/ )//id test
 	{
 	  return BObjectRef( UninitObject::create() );
 	  //switch(id)
@@ -71,7 +74,7 @@ namespace Pol {
 		return NULL;
 	}
 
-	Bscript::BObjectImp* BXMLfile::call_method_id( const int id, Executor& ex, bool forcebuiltin )
+	Bscript::BObjectImp* BXMLfile::call_method_id( const int id, Executor& ex, bool /*forcebuiltin*/ )
 	{
 	  switch ( id )
 	  {
@@ -118,7 +121,7 @@ namespace Pol {
 			  {
 				for ( BStruct::Contents::const_iterator citr = attr->contents().begin(), end = attr->contents().end(); citr != end; ++citr )
 				{
-				  const string& name = ( *citr ).first;
+				  const std::string& name = ( *citr ).first;
 				  Bscript::BObjectImp* ref = ( *citr ).second->impptr();
 				  if ( ref->isa( Bscript::BObjectImp::OTLong ) )
 					elem->SetAttribute( name, static_cast<BLong*>( ref )->value() );
@@ -187,17 +190,17 @@ namespace Pol {
 		  if ( ex.getStringParam( 0, pstr ) )
 		  {
 			const Plib::Package* outpkg;
-			string path;
+            std::string path;
 			if ( !pkgdef_split( pstr->value(), ex.prog()->pkg, &outpkg, &path ) )
 			  return new BError( "Error in filename descriptor" );
 
-			if ( path.find( ".." ) != string::npos )
+            if (path.find("..") != std::string::npos)
 			  return new BError( "No parent path traversal please." );
 
             if ( !Module::HasWriteAccess( ex.prog( )->pkg, outpkg, path ) )
 			  return new BError( "Access denied" );
 
-			string filepath;
+            std::string filepath;
 			if ( outpkg == NULL )
 			  filepath = path;
 			else
@@ -209,7 +212,7 @@ namespace Pol {
 		}
 		case MTH_XMLTOSTRING:
 		{
-		  string indent = "\t";
+		  std::string indent = "\t";
 		  if ( ex.hasParams( 1 ) )
 		  {
 			const String* pstr;
@@ -322,7 +325,7 @@ namespace Pol {
 		return NULL;
 	}
 
-	Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool forcebuiltin )
+	Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool /*forcebuiltin*/ )
 	{
 	  switch ( id )
 	  {
@@ -391,7 +394,7 @@ namespace Pol {
 			  {
 				for ( BStruct::Contents::const_iterator citr = attr->contents().begin(), end = attr->contents().end(); citr != end; ++citr )
 				{
-				  const string& name = ( *citr ).first;
+				  const std::string& name = ( *citr ).first;
 				  Bscript::BObjectImp* ref = ( *citr ).second->impptr();
 				  if ( ref->isa( Bscript::BObjectImp::OTLong ) )
 					elem->SetAttribute( name, static_cast<BLong*>( ref )->value() );
@@ -432,7 +435,7 @@ namespace Pol {
 			TiXmlElement* elem = node->ToElement();
 			for ( BStruct::Contents::const_iterator citr = attr->contents().begin(), end = attr->contents().end(); citr != end; ++citr )
 			{
-			  const string& name = ( *citr ).first;
+			  const std::string& name = ( *citr ).first;
 			  Bscript::BObjectImp* ref = ( *citr ).second->impptr();
 			  if ( ref->isa( Bscript::BObjectImp::OTLong ) )
 				elem->SetAttribute( name, static_cast<BLong*>( ref )->value() );
@@ -542,6 +545,20 @@ namespace Pol {
 	  }
 	}
 
+    std::string BXmlNode::getStringRep() const
+    {
+        if (node->Type() == TiXmlNode::TINYXML_TEXT)
+            return node->ToText()->Value();
+        else if (node->Type() == TiXmlNode::TINYXML_DECLARATION)
+        {
+            TiXmlDeclaration* dec = node->ToDeclaration();
+            OSTRINGSTREAM os;
+            os << "v:" << dec->Version() << " e:" << dec->Encoding() << " s:" << dec->Standalone();
+            return OSTRINGSTREAM_STR(os);
+        }
+        return node->Value();
+    }
+
 	Bscript::BObjectImp* BXmlAttribute::call_method( const char* methodname, Executor& ex )
 	{
 	  ObjMethod* objmethod = getKnownObjMethod( methodname );
@@ -551,7 +568,7 @@ namespace Pol {
 		return NULL;
 	}
 
-	Bscript::BObjectImp* BXmlAttribute::call_method_id( const int id, Executor& ex, bool forcebuiltin )
+	Bscript::BObjectImp* BXmlAttribute::call_method_id( const int id, Executor& /*ex*/, bool /*forcebuiltin*/ )
 	{
 	  if ( !node )
 		return NULL;
@@ -578,7 +595,7 @@ namespace Pol {
 	  if ( obj->isa( OTString ) )
 	  {
 		const String* keystr = static_cast<const String*>( obj.impptr() );
-		const string* attrib = node->Attribute( keystr->value() );
+        const std::string* attrib = node->Attribute(keystr->value());
 		if ( attrib )
 		  return BObjectRef( new String( attrib->c_str() ) );
 		else

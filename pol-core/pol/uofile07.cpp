@@ -7,13 +7,6 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-
-#include <stdio.h>
-#include <string.h>
-
-#include "../clib/passert.h"
-
 #include "polcfg.h"
 #include "polfile.h"
 #include "udatfile.h"
@@ -23,6 +16,13 @@ Notes
 #include "uofilei.h"
 #include "wrldsize.h"
 
+#include "../clib/passert.h"
+
+#include <cstdio>
+#include <cstring>
+
+#include <vector>
+
 namespace Pol {
   namespace Core {
     extern bool static_debug_on;
@@ -31,7 +31,7 @@ namespace Pol {
 
     void readstatics( StaticList& vec, unsigned short x, unsigned short y )
     {
-      vector<USTRUCT_STATIC> srecarr;
+      std::vector<USTRUCT_STATIC> srecarr;
       int nrec;
 
       readstaticblock( &srecarr, &nrec, x, y );
@@ -66,7 +66,7 @@ namespace Pol {
     }
     void readstatics( StaticList& vec, unsigned short x, unsigned short y, unsigned int flags )
     {
-      vector<USTRUCT_STATIC> srecarr;
+      std::vector<USTRUCT_STATIC> srecarr;
       int nrec;
 
       readstaticblock( &srecarr, &nrec, x, y );
@@ -101,7 +101,7 @@ namespace Pol {
     }
     void readallstatics( StaticList& vec, unsigned short x, unsigned short y )
     {
-      vector<USTRUCT_STATIC> srecarr;
+      std::vector<USTRUCT_STATIC> srecarr;
       int nrec;
 
       readstaticblock( &srecarr, &nrec, x, y );

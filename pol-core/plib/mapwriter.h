@@ -12,13 +12,19 @@ Notes
 #define PLIB_MAPWRITER_H
 
 #include "maptile.h"
+#include "mapblock.h"
 
-struct SOLIDS_ELEM;
-struct SOLIDX2_ELEM;
-struct MAPTILE_CELL;
+#include <string>
+#include <fstream>
 
 namespace Pol {
   namespace Plib {
+
+      struct SOLIDS_ELEM;
+      struct SOLIDX2_ELEM;
+      struct MAPCELL;
+      struct MAPTILE_CELL;
+
 	class MapWriter
 	{
 	public:
@@ -34,11 +40,11 @@ namespace Pol {
 	  void OpenExistingFiles( const std::string& realm_name );
 	  void WriteConfigFile();
 
-	  void CreateBaseDat( const string& realm_name, const string& directory );
-	  void CreateSolidx1Dat( const string& realm_name, const string& directory );
-	  void CreateSolidx2Dat( const string& realm_name, const string& directory );
-	  void CreateSolidsDat( const string& realm_name, const string& directory );
-	  void CreateMaptileDat( const string& realm_name, const string& directory );
+      void CreateBaseDat(const std::string& realm_name, const std::string& directory);
+	  void CreateSolidx1Dat( const std::string& realm_name, const std::string& directory );
+	  void CreateSolidx2Dat( const std::string& realm_name, const std::string& directory );
+	  void CreateSolidsDat( const std::string& realm_name, const std::string& directory );
+	  void CreateMaptileDat( const std::string& realm_name, const std::string& directory );
 
 	  unsigned int NextSolidIndex();
 	  unsigned int NextSolidOffset();
@@ -65,15 +71,15 @@ namespace Pol {
 	  std::string _realm_name;
 	  unsigned short _width;
 	  unsigned short _height;
-	  fstream _ofs_base;
+	  std::fstream _ofs_base;
 	  int _cur_mapblock_index;
 	  MAPBLOCK _block;
 
-	  fstream _ofs_solidx1;
-	  fstream _ofs_solidx2;
-	  fstream _ofs_solids;
+      std::fstream _ofs_solidx1;
+      std::fstream _ofs_solidx2;
+      std::fstream _ofs_solids;
 
-	  fstream _ofs_maptile;
+      std::fstream _ofs_maptile;
 	  int _cur_maptile_index;
 	  MAPTILE_BLOCK _maptile_block;
 	  size_t solidx2_offset;

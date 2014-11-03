@@ -13,14 +13,10 @@ Notes
 
 */
 
-#include "../../clib/stl_inc.h"
-#include "../../clib/dirlist.h"
-#include "../../clib/fileutil.h"
-#include "../../clib/MD5.h"
-#include "../../clib/strutil.h"
-#include "../../clib/threadhelp.h"
+#include "polsystemmod.h"
 
 #include "../../bscript/bobject.h"
+
 #include "../../bscript/berror.h"
 #include "../../bscript/dict.h"
 #include "../../bscript/execmodl.h"
@@ -34,7 +30,6 @@ Notes
 #include "../item/item.h"
 #include "../item/itemdesc.h"
 #include "../listenpt.h"
-#include "polsystemmod.h"
 #include "../polclock.h"
 #include "../realms.h"
 #include "../uoexhelp.h"
@@ -42,6 +37,16 @@ Notes
 #include "../uobject.h"
 #include "../tooltips.h"
 #include "../ssopt.h"
+
+#include "../../clib/dirlist.h"
+#include "../../clib/fileutil.h"
+#include "../../clib/MD5.h"
+#include "../../clib/strutil.h"
+#include "../../clib/threadhelp.h"
+
+#ifdef _MSC_VER
+#pragma warning(disable:4996) // deprecation warning for stricmp
+#endif
 
 namespace Pol {
   namespace Core {
@@ -123,7 +128,7 @@ namespace Pol {
 	{
 	  return new PackageObjImp( obj_ );
 	}
-	BObjectImp* PackageObjImp::call_method( const char* methodname, Executor& ex )
+	BObjectImp* PackageObjImp::call_method( const char* /*methodname*/, Executor& /*ex*/ )
 	{
 	  return new BError( "undefined method" );
 	}
@@ -145,7 +150,7 @@ namespace Pol {
 	  else if ( stricmp( membername, "npcdesc" ) == 0 )
 	  {
         Plib::Package* pkg = value( ).Ptr( );
-        string filepath = Plib::GetPackageCfgPath( pkg, "npcdesc.cfg" );
+        std::string filepath = Plib::GetPackageCfgPath( pkg, "npcdesc.cfg" );
 		return BObjectRef( new BLong( Clib::FileExists( filepath ) ) );
 	  }
 	  else
@@ -312,7 +317,7 @@ namespace Pol {
 	  }
 	  else
 	  {
-		return new BError( string( "Parameter must be a String or empty, got " ) + BObjectImp::typestr( imp->type() ) );
+          return new BError(std::string("Parameter must be a String or empty, got ") + BObjectImp::typestr(imp->type()));
 	  }
 
 	  if ( realm_name->length() > 0 )
@@ -326,7 +331,7 @@ namespace Pol {
 	  else
 	  {
 		BDictionary* dict = new BDictionary;
-        vector<Plib::Realm*>::iterator itr;
+        std::vector<Plib::Realm*>::iterator itr;
         for ( itr = Core::Realms->begin( ); itr != Core::Realms->end( ); ++itr )
 		{
 		  dict->addMember( ( *itr )->name().c_str(), SetupRealmDetails( *itr ) );
@@ -420,7 +425,7 @@ namespace Pol {
       Core::add_realm( realm_name->value( ), baserealm );
       if ( Core::ssopt.decay_items )
 	  {
-		ostringstream thname;
+        std::ostringstream thname;
 		thname << "Decay_" << realm_name->value();
         threadhelp::start_thread( Core::decay_thread_shadow, thname.str( ).c_str( ), (void*)Core::find_realm( realm_name->value( ) ) );
 	  }

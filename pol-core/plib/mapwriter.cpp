@@ -7,20 +7,21 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
+#include "mapwriter.h"
+
+#include "mapblock.h"
+#include "mapserver.h"
+#include "mapsolid.h"
+#include "maptile.h"
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/fileutil.h"
 #include "../clib/iohelp.h"
 
-#include "mapblock.h"
-#include "mapserver.h"
-#include "mapwriter.h"
-#include "mapsolid.h"
-#include "maptile.h"
-
 #include "../pol/uofile.h"
+
+#include <stdexcept>
 
 namespace Pol {
   namespace Plib {
@@ -50,28 +51,30 @@ namespace Pol {
 
 	void MapWriter::WriteConfigFile()
 	{
-	  string filename = "realm/" + _realm_name + "/realm.cfg";
-	  ofstream ofs_cfg;
+	  std::string filename = "realm/" + _realm_name + "/realm.cfg";
+	  std::ofstream ofs_cfg;
 	  ofs_cfg.exceptions( std::ios_base::failbit | std::ios_base::badbit );
 
-	  Clib::open_file( ofs_cfg, filename, ios::trunc | ios::out );
+	  Clib::open_file( ofs_cfg, filename, std::ios::trunc | std::ios::out );
 
-	  ofs_cfg << "Realm " << _realm_name << endl;
-	  ofs_cfg << "{" << endl;
-	  ofs_cfg << "    width " << _width << endl;
-	  ofs_cfg << "    height " << _height << endl;
-	  ofs_cfg << "    mapserver memory" << endl;
-	  ofs_cfg << "    uomapid " << Core::uo_mapid << endl;
-	  ofs_cfg << "    uodif " << Core::uo_usedif << endl;
-	  ofs_cfg << "    num_static_patches " << num_static_patches << endl;
-	  ofs_cfg << "    num_map_patches " << num_map_patches << endl;
-	  ofs_cfg << "    season 1" << endl;
-	  ofs_cfg << "}" << endl;
+	  ofs_cfg << "Realm " << _realm_name << std::endl;
+      ofs_cfg << "{" << std::endl;
+      ofs_cfg << "    width " << _width << std::endl;
+      ofs_cfg << "    height " << _height << std::endl;
+      ofs_cfg << "    mapserver memory" << std::endl;
+      ofs_cfg << "    uomapid " << Core::uo_mapid << std::endl;
+      ofs_cfg << "    uodif " << Core::uo_usedif << std::endl;
+      ofs_cfg << "    num_static_patches " << num_static_patches << std::endl;
+      ofs_cfg << "    num_map_patches " << num_map_patches << std::endl;
+      ofs_cfg << "    season 1" << std::endl;
+      ofs_cfg << "}" << std::endl;
 	}
 
-	void MapWriter::CreateBaseDat( const string& realm_name, const string& directory )
+    void MapWriter::CreateBaseDat(const std::string& /*realm_name*/, const std::string& directory)
 	{
-	  string filename = directory + "base.dat";
+        using std::ios;
+
+	  std::string filename = directory + "base.dat";
 	  Clib::open_file( _ofs_base, filename, ios::trunc | ios::in | ios::out | ios::binary );
 	  MAPBLOCK empty;
 	  memset( &empty, 0, sizeof empty );
@@ -80,9 +83,11 @@ namespace Pol {
 		_ofs_base.write( reinterpret_cast<const char*>( &empty ), sizeof empty );
 	  }
 	}
-	void MapWriter::CreateSolidx1Dat( const string& realm_name, const string& directory )
+	void MapWriter::CreateSolidx1Dat( const std::string& /*realm_name*/, const std::string& directory )
 	{
-	  string filename = directory + "solidx1.dat";
+        using std::ios;
+
+	  std::string filename = directory + "solidx1.dat";
 	  Clib::open_file( _ofs_solidx1, filename, ios::trunc | ios::in | ios::out | ios::binary );
 	  SOLIDX1_ELEM elem;
 	  elem.offset = 0;
@@ -91,23 +96,28 @@ namespace Pol {
 		_ofs_solidx1.write( reinterpret_cast<const char*>( &elem ), sizeof elem );
 	  }
 	}
-	void MapWriter::CreateSolidx2Dat( const string& realm_name, const string& directory )
+	void MapWriter::CreateSolidx2Dat( const std::string& /*realm_name*/, const std::string& directory )
 	{
-	  string filename = directory + "solidx2.dat";
+        using std::ios;
+	  std::string filename = directory + "solidx2.dat";
 	  Clib::open_file( _ofs_solidx2, filename, ios::trunc | ios::in | ios::out | ios::binary );
 	  _ofs_solidx2.write( "fill", 4 );
 	  solidx2_offset = 4;
 	}
-	void MapWriter::CreateSolidsDat( const string& realm_name, const string& directory )
+    void MapWriter::CreateSolidsDat(const std::string& /*realm_name*/, const std::string& directory)
 	{
-	  string filename = directory + "solids.dat";
+        using std::ios;
+
+      std::string filename = directory + "solids.dat";
 	  Clib::open_file( _ofs_solids, filename, ios::trunc | ios::in | ios::out | ios::binary );
 	  _ofs_solids.write( "filler", 6 ); // multiple of 3
 	  solids_offset = 6;
 	}
-	void MapWriter::CreateMaptileDat( const string& realm_name, const string& directory )
+    void MapWriter::CreateMaptileDat(const std::string& /*realm_name*/, const std::string& directory)
 	{
-	  string filename = directory + "maptile.dat";
+        using std::ios;
+
+      std::string filename = directory + "maptile.dat";
 	  Clib::open_file( _ofs_maptile, filename, ios::trunc | ios::in | ios::out | ios::binary );
 	  MAPTILE_BLOCK maptile_empty;
 	  memset( &maptile_empty, 0, sizeof maptile_empty );
@@ -117,13 +127,13 @@ namespace Pol {
 	  }
 	}
 
-	void MapWriter::CreateNewFiles( const string& realm_name, unsigned short width, unsigned short height )
+	void MapWriter::CreateNewFiles( const std::string& realm_name, unsigned short width, unsigned short height )
 	{
 	  _realm_name = realm_name;
 	  _width = width;
 	  _height = height;
 
-	  string directory = "realm/" + _realm_name + "/";
+      std::string directory = "realm/" + _realm_name + "/";
 	  Clib::make_dir( directory.c_str( ) );
 
 	  CreateBaseDat( realm_name, directory );
@@ -137,21 +147,23 @@ namespace Pol {
 	  CreateMaptileDat( realm_name, directory );
 	}
 
-	void MapWriter::OpenExistingFiles( const string& realm_name )
+    void MapWriter::OpenExistingFiles(const std::string& realm_name)
 	{
+        using std::ios;
+
 	  _realm_name = realm_name;
 
-	  string directory = "realm/" + _realm_name + "/";
+      std::string directory = "realm/" + _realm_name + "/";
 
-	  string realm_cfg_filename = directory + "realm.cfg";
+      std::string realm_cfg_filename = directory + "realm.cfg";
 	  Clib::ConfigFile cf( realm_cfg_filename, "REALM" );
 	  Clib::ConfigElem elem;
 	  if ( !cf.read( elem ) )
-		throw runtime_error( "Unable to read realm from " + realm_cfg_filename );
+          throw std::runtime_error("Unable to read realm from " + realm_cfg_filename);
 	  _width = elem.remove_ushort( "width" );
 	  _height = elem.remove_ushort( "height" );
 
-	  string filename = directory + "base.dat";
+      std::string filename = directory + "base.dat";
 	  Clib::open_file( _ofs_base, filename, ios::in | ios::out | ios::binary );
 
 

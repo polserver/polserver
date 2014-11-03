@@ -16,6 +16,8 @@ Notes
 #include "zone.h"
 
 #include <map>
+#include <string>
+
 namespace Pol {
   namespace Bscript {
 	class BObjectImp;

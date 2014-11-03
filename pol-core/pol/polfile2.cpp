@@ -9,14 +9,18 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-
-#include "../clib/passert.h"
-
-#include "../plib/mapcell.h"
+// TODO: consider joining this file with landtile.cpp, tiles.cpp and clidata.h and renaming it all to something consistent.
+// TODO: encapsulate the tile[] vector here
+#include "clidata.h"
 
 #include "tiles.h"
 #include "polcfg.h"
+
+#include "../clib/passert.h"
+#include "../plib/mapcell.h"
+
+#include <string>
+
 namespace Pol {
   namespace Core {
 	unsigned char tilelayer( unsigned short tilenum )
@@ -70,7 +74,7 @@ namespace Pol {
 	  }
 	}
 
-	string tile_desc( unsigned short tilenum )
+	std::string tile_desc( unsigned short tilenum )
 	{
 	  if ( tilenum <= config.max_tile_id )
 	  {

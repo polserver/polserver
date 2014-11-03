@@ -8,23 +8,19 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-#ifdef _MSC_VER
-#pragma warning( disable: 4786 )
-#endif
+#include "scrstore.h"
 
-
+#include "scrdef.h"
 #include "../bscript/eprog.h"
+
+#include "polcfg.h"
+#include "profile.h"
 
 #include "../clib/logfacility.h"
 #include "../clib/refptr.h"
 #include "../clib/strutil.h"
 
-#include "polcfg.h"
-#include "profile.h"
-#include "scrdef.h"
 
-#include "scrstore.h"
 namespace Pol {
   namespace Items {
     void preload_test_scripts( );
@@ -59,9 +55,9 @@ namespace Pol {
 	  }
 
       ref_ptr<Bscript::EScriptProgram> program( new Bscript::EScriptProgram );
-	  string pathname = "scripts/";
+	  std::string pathname = "scripts/";
 	  pathname += name.c_str();
-	  if ( name.find( ".ecl" ) == string::npos )
+      if (name.find(".ecl") == std::string::npos)
 		pathname += ".ecl";
 
 	  if ( program->read( pathname.c_str() ) != 0 )
@@ -75,7 +71,7 @@ namespace Pol {
 
 	  if ( cache_script )
 	  {
-		string tmpname = name;
+		std::string tmpname = name;
         Clib::mklower( tmpname );
 		scrstore.insert( ScriptStorage::value_type( tmpname.c_str(), program ) );
 	  }
@@ -107,7 +103,7 @@ namespace Pol {
 
 	  if ( cache_script )
 	  {
-		string tmpname = script.name();
+		std::string tmpname = script.name();
         Clib::mklower( tmpname );
 		scrstore.insert( ScriptStorage::value_type( tmpname.c_str(), program ) );
 	  }
@@ -116,7 +112,7 @@ namespace Pol {
 	}
 
 	
-	int unload_script( const string& name_in )
+    int unload_script(const std::string& name_in)
 	{
 	  int n = 0;
 	  ScriptStorage::iterator itr = scrstore.begin();
@@ -125,7 +121,7 @@ namespace Pol {
 		ScriptStorage::iterator cur = itr;
 		++itr;
 
-		const string& nm = ( *cur ).first;
+        const std::string& nm = (*cur).first;
 		const char* nm_cstr = nm.c_str();
 		if ( strstr( nm_cstr, name_in.c_str() ) )
 		{
@@ -137,13 +133,13 @@ namespace Pol {
 		  //auto-reload, put the names in a data structure :P
 		  if ( strstr( nm_cstr, "unequiptest.ecl" ) )
 		  {
-			Items::preload_test_scripts( string( "unequiptest.ecl" ) );
+              Items::preload_test_scripts(std::string("unequiptest.ecl"));
 			continue;
 		  }
 
 		  if ( strstr( nm_cstr, "equiptest.ecl" ) )
 		  {
-            Items::preload_test_scripts( string( "equiptest.ecl" ) );
+              Items::preload_test_scripts(std::string("equiptest.ecl"));
 			continue;
 		  }
 		}

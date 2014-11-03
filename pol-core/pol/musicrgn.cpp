@@ -8,12 +8,11 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
+#include "musicrgn.h"
 
 #include "../clib/cfgelem.h"
 #include "../clib/random.h"
 
-#include "musicrgn.h"
 namespace Pol {
   namespace Core {
 	MusicRegion::MusicRegion( Clib::ConfigElem& elem, RegionId id ) :

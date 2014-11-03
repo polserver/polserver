@@ -8,8 +8,9 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
+#include "scrdef.h"
 
+#include "scrstore.h"
 #include "../bscript/eprog.h"
 #include "../bscript/escrutil.h"
 
@@ -18,11 +19,10 @@ Notes
 #include "../clib/refptr.h"
 
 #include "../plib/pkg.h"
-#include "scrdef.h"
-#include "scrstore.h"
+
 namespace Pol {
   namespace Core {
-	string full_scriptname( const string& spec, const Plib::Package* pkg, const char* mainpfx )
+      std::string full_scriptname(const std::string& spec, const Plib::Package* pkg, const char* mainpfx)
 	{
 	  if ( spec.empty() )
 		return spec;
@@ -30,7 +30,7 @@ namespace Pol {
 	  if ( pkg != NULL )
         return Bscript::normalize_ecl_filename( pkg->dir( ) + spec );
 
-	  if ( spec.find( '/' ) == string::npos )
+      if (spec.find('/') == std::string::npos)
         return Bscript::normalize_ecl_filename( mainpfx + spec );
 	  else
         return Bscript::normalize_ecl_filename( "scripts/" + spec );
@@ -65,12 +65,12 @@ namespace Pol {
 							const char* mainpfx,
 							bool warn_if_not_found )
 	{
-	  string path;
+        std::string path;
       const Plib::Package* npkg;
       if ( !Plib::pkgdef_split( iname, ipkg, &npkg, &path ) )
 	  {
         ERROR_PRINT << "Error reading script descriptor '" << iname << "'\n";
-		throw runtime_error( "Error reading script descriptor" );
+        throw std::runtime_error("Error reading script descriptor");
 	  }
 
 	  localname_ = path;
@@ -96,7 +96,7 @@ namespace Pol {
                                   const Plib::Package* ipkg,
 								  const char* mainpfx )
 	{
-	  string path;
+	  std::string path;
       const Plib::Package* npkg;
       if ( !Plib::pkgdef_split( iname, ipkg, &npkg, &path ) )
 	  {
@@ -111,7 +111,7 @@ namespace Pol {
 	  return true;
 	}
 
-    string ScriptDef::relativename( const Plib::Package* pkg ) const
+    std::string ScriptDef::relativename( const Plib::Package* pkg ) const
 	{
 	  if ( name_ == "" )
 		return "";

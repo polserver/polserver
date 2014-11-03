@@ -12,6 +12,7 @@ Notes
 #define __UFACING_H
 
 #include "../poltype.h"
+#include "../uconst.h"
 
 namespace Pol {
   namespace Core {

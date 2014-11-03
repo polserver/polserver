@@ -22,28 +22,17 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
 
-#ifdef _MSC_VER
-#	pragma warning( disable: 4786 )
-#endif
-
-#include "../clib/stlutil.h"
-#include "../clib/MD5.h"
-
-#include <string.h>
-
-#include "../clib/clib.h"
-#include "../clib/endian.h"
-#include "../clib/logfacility.h"
-#include "../clib/fdump.h"
+#include "network/client.h"
+#include "network/packets.h"
+#include "network/msghandl.h"
+#include "network/clienttransmit.h"
+#include "crypt/cryptengine.h"
 
 #include "accounts/account.h"
 #include "mobile/charactr.h"
-#include "network/client.h"
-#include "network/packets.h"
+
 #include "core.h"
-#include "network/msghandl.h"
 #include "pktin.h"
 #include "polcfg.h"
 #include "startloc.h"
@@ -52,8 +41,16 @@ Notes
 #include "sockio.h"
 #include "ssopt.h"
 #include "ufunc.h"
-#include "crypt/cryptengine.h"
-#include "network/clienttransmit.h"
+
+#include "../clib/stlutil.h"
+#include "../clib/MD5.h"
+#include "../clib/clib.h"
+#include "../clib/endian.h"
+#include "../clib/logfacility.h"
+#include "../clib/fdump.h"
+
+#include <cstring>
+
 namespace Pol {
   namespace Network {
     bool is_banned_ip( Client* client );
@@ -70,6 +67,8 @@ namespace Pol {
 	  msg.Send( client );
 	}
 
+    // TODO: rewrite this loop to use stl algorithms + stlutil.h case insensitive compare function
+    //        -- and I'm leaving the warning here to remember that --
     bool acct_check( Network::Client* client, int i )
 	{
 	  if ( servers[i]->acct_match.empty() )
@@ -133,9 +132,9 @@ namespace Pol {
 
 	  bool correct_password = false;
 
-	  string msgpass = msg->password;
-	  string acctname = acct->name();
-	  string temp;
+	  std::string msgpass = msg->password;
+      std::string acctname = acct->name();
+      std::string temp;
 	  Clib::MD5_Encrypt( acctname + msgpass, temp ); //MD5
 	  correct_password = Clib::MD5_Compare( acct->passwordhash(), temp );
 
@@ -228,11 +227,11 @@ namespace Pol {
 	}
 	MESSAGE_HANDLER( PKTIN_80, loginserver_login );
 
-    void handle_A4( Network::Client *client, PKTIN_A4 *msg )
+    void handle_A4( Network::Client* /*client*/, PKTIN_A4* /*msg*/ )
 	{}
 	MESSAGE_HANDLER( PKTIN_A4, handle_A4 );
 
-    void handle_D9( Network::Client *client, PKTIN_D9 *msg )
+    void handle_D9( Network::Client *client, PKTIN_D9* msg )
 	{
 	  PKTIN_D9 _msg; // got crashes here under *nix -> modify a new local instance
 	  // Transform Little-Endian <-> Big-Endian
@@ -413,9 +412,9 @@ namespace Pol {
 	  bool correct_password = false;
 
 	  //dave changed 6/5/3, always authenticate with hashed user+pass
-	  string msgpass = msg->password;
-	  string acctname = acct->name();
-	  string temp;
+      std::string msgpass = msg->password;
+      std::string acctname = acct->name();
+      std::string temp;
       Clib::MD5_Encrypt( acctname + msgpass, temp ); //MD5
       correct_password = Clib::MD5_Compare( acct->passwordhash( ), temp );
 
@@ -520,7 +519,7 @@ namespace Pol {
 	}
 	MESSAGE_HANDLER( PKTIN_83, handle_delete_character );
 
-	void KR_Verifier_Response( Network::Client *client, PKTIN_E4 *msg )
+	void KR_Verifier_Response( Network::Client* /*client*/, PKTIN_E4* /*msg*/ )
 	{
 	  //
 	}

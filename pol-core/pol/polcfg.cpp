@@ -14,12 +14,13 @@ Notes
 
 */
 
+#include "polcfg.h"
 
-#include "../clib/stl_inc.h"
-
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/stat.h>
+#include "core.h"
+#include "objtype.h"
+#include "polsig.h"
+#include "schedule.h"
+#include "tasks.h"
 
 #include "../bscript/config.h"
 
@@ -31,14 +32,10 @@ Notes
 #include "../clib/strutil.h"
 #include "../clib/logfacility.h"
 
-#include "core.h"
-#include "objtype.h"
-#include "polcfg.h"
-#include "polsig.h"
-#include "schedule.h"
-#include "tasks.h"
+#include <cstdio>
+#include <sys/types.h>
+#include <sys/stat.h>
 
-#include "crypt/cryptkey.h"
 namespace Pol {
   namespace Core {
 	PolConfig config;
@@ -133,7 +130,7 @@ namespace Pol {
       Clib::passert_disabled = !elem.remove_bool( "EnableAssertions", true );
       Clib::passert_dump_stack = elem.remove_bool( "DumpStackOnAssertionFailure", false );
 
-	  string tmp = elem.remove_string( "AssertionFailureAction", "abort" );
+	  std::string tmp = elem.remove_string( "AssertionFailureAction", "abort" );
       if ( Clib::strlower( tmp ) == "abort" )
 	  {
         Clib::passert_shutdown = false;

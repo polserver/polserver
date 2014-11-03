@@ -8,21 +8,19 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-#include <assert.h>
-
-#include "../clib/clib.h"
-#include "../clib/endian.h"
-#include "../clib/logfacility.h"
-#include "../clib/passert.h"
+#include "menu.h"
 
 #include "accounts/account.h"
 #include "mobile/charactr.h"
 #include "network/client.h"
 #include "network/msghandl.h"
 #include "pktin.h"
-#include "menu.h"
 #include "ufunc.h"
+
+#include "../clib/clib.h"
+#include "../clib/endian.h"
+#include "../clib/logfacility.h"
+#include "../clib/passert.h"
 
 namespace Pol {
   namespace Core {

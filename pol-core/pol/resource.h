@@ -11,12 +11,15 @@ Notes
 #ifndef RESOURCE_H
 #define RESOURCE_H
 
-#include <iosfwd>
-#include <set>
-
 #include "poltype.h"
 #include "proplist.h"
 #include "region.h"
+
+#include <iosfwd>
+#include <set>
+#include <string>
+#include <map>
+
 namespace Pol {
   namespace Items {
     void remove_resources( u32 objtype, u16 amount );

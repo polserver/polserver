@@ -11,11 +11,18 @@ Notes
 #ifndef UMAP_H
 #define UMAP_H
 
+#ifndef ITEM_H
 #include "item/item.h"
+#endif
+
 #include "pktboth.h"
+
 namespace Pol {
   namespace Bscript {
 	class BObjectImp;
+  }
+  namespace Items {
+      class MapDesc;
   }
   namespace Core {
 	

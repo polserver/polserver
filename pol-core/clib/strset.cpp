@@ -6,10 +6,12 @@ Notes
 =======
 
 */
-#include <sstream>
-#include "stl_inc.h"
-#include "stlutil.h"
 #include "strset.h"
+
+#include "stlutil.h"
+
+#include <sstream>
+
 namespace Pol {
   namespace Clib {
 	bool StringSet::contains( const char* str ) const

@@ -11,11 +11,9 @@ Notes
 
 */
 
-#include "../../clib/stl_inc.h"
+#include "vitalmod.h"
 
-#include "../../bscript/bobject.h"
-#include "../../bscript/berror.h"
-#include "../../bscript/impstr.h"
+#include "../vital.h"
 
 #include "../mobile/charactr.h"
 #include "../mobile/attribute.h"
@@ -24,12 +22,14 @@ Notes
 #include "../statmsg.h"
 #include "../ufunc.h"
 #include "../cmbtcfg.h"
-#include "uomod.h"
 #include "../uoexhelp.h"
-#include "../vital.h"
-#include "vitalmod.h"
+
+#include "../../bscript/bobject.h"
+#include "../../bscript/berror.h"
+#include "../../bscript/impstr.h"
 
 #include <climits>
+
 namespace Pol {
   namespace Bscript {
     using namespace Module;

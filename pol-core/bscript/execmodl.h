@@ -8,10 +8,13 @@ Notes
 
 */
 
-#ifndef __EXECMODL_H
-#define __EXECMODL_H
+#ifndef BSCRIPT_EXECMODL_H
+#define BSCRIPT_EXECMODL_H
 
+#ifndef BSCRIPT_BOBJECT_H
 #include "bobject.h"
+#endif
+
 #include "executor.h"
 #include "../clib/boostutils.h"
 

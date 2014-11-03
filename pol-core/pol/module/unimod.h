@@ -11,7 +11,7 @@ Notes
 #ifndef H_UNIEMOD_H
 #define H_UNIEMOD_H
 
-#ifndef __BSCRIPT_EXECMODL_H
+#ifndef BSCRIPT_EXECMODL_H
 #	include "../../bscript/execmodl.h"
 #endif
 

@@ -20,16 +20,23 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
+#include "ssopt.h"
+#include "pktdef.h"
+
+#include "mobile/attribute.h"
+
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/fileutil.h"
 #include "../clib/rawtypes.h"
 #include "../clib/logfacility.h"
-#include "ssopt.h"
-#include "pktdef.h"
 
-#include "mobile/attribute.h"
+#include <cstring>
+
+#ifdef _MSC_VER
+#pragma warning(disable:4996) // deprecation warning for sprintf, strtok
+#endif
+
 namespace Pol {
   namespace Core {
 	ServSpecOpt ssopt;

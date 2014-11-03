@@ -14,6 +14,10 @@ Notes
 #define NPCEMOD_H
 
 #include "../../bscript/execmodl.h"
+#include "../reftypes.h"
+#include "../uconst.h"
+
+#include <string>
 
 namespace Pol {
   namespace Bscript {

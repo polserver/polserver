@@ -7,8 +7,8 @@ Notes
 
 */
 
-#include "berror.h"
 #include "bobject.h"
+#include "berror.h"
 #include "impstr.h"
 
 #include "../clib/stlutil.h"

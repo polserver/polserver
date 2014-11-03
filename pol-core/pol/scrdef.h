@@ -11,8 +11,9 @@ Notes
 #ifndef SCRDEF_H
 #define SCRDEF_H
 
-#include <string>
 #include "../clib/boostutils.h"
+#include <string>
+
 namespace Pol {
   namespace Plib {
 	class Package;

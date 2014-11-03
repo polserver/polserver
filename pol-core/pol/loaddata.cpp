@@ -11,15 +11,6 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-
-#include "../clib/cfgfile.h"
-#include "../clib/cfgelem.h"
-#include "../clib/fileutil.h"
-#include "../clib/strutil.h"
-#include "../clib/timer.h"
-#include "../clib/logfacility.h"
-
 #include "mobile/charactr.h"
 #include "clidata.h"
 #include "gflag.h"
@@ -33,14 +24,25 @@ Notes
 #include "spelbook.h"
 #include "uobject.h"
 
+#include "../clib/cfgfile.h"
+#include "../clib/cfgelem.h"
+#include "../clib/fileutil.h"
+#include "../clib/strutil.h"
+#include "../clib/timer.h"
+#include "../clib/logfacility.h"
+
 #include <climits>
+#include <map>
+#include <unordered_map>
+#include <stdexcept>
+
 namespace Pol {
   namespace Core {
 	unsigned incremental_save_count = 0;
 	unsigned current_incremental_save = 0;
 
 	// if index is UINT_MAX, has been deleted
-	typedef unordered_map<pol_serial_t, unsigned> SerialIndexMap;
+	typedef std::unordered_map<pol_serial_t, unsigned> SerialIndexMap;
 
 	SerialIndexMap incremental_serial_index;
 
@@ -49,7 +51,7 @@ namespace Pol {
 	  for ( ;; )
 	  {
 		unsigned next_incremental_counter = incremental_save_count + 1;
-		string filename = config.world_data_path + "incr-index-" + Clib::decint( next_incremental_counter ) + ".txt";
+        std::string filename = config.world_data_path + "incr-index-" + Clib::decint(next_incremental_counter) + ".txt";
         if ( !Clib::FileExists( filename ) )
 		  break;
 
@@ -64,7 +66,7 @@ namespace Pol {
 		  else
 			index = UINT_MAX;
 
-		  string name, value;
+          std::string name, value;
 		  while ( elem.remove_first_prop( &name, &value ) )
 		  {
 			pol_serial_t serial = strtoul( name.c_str(), NULL, 0 );
@@ -87,7 +89,7 @@ namespace Pol {
 	{
 	  for ( unsigned i = 1; i <= incremental_save_count; ++i )
 	  {
-        string filename = config.world_data_path + "incr-data-" + Clib::decint( i ) + ".txt";
+        std::string filename = config.world_data_path + "incr-data-" + Clib::decint(i) + ".txt";
 		current_incremental_save = i;
 
 		slurp( filename.c_str(), "CHARACTER NPC ITEM GLOBALPROPERTIES SYSTEM MULTI STORAGEAREA" );
@@ -118,7 +120,7 @@ namespace Pol {
 	DeferList deferred_insertions;
 	void defer_item_insertion( Items::Item* item, pol_serial_t container_serial )
 	{
-	  deferred_insertions.insert( make_pair( container_serial, item ) );
+        deferred_insertions.insert(std::make_pair(container_serial, item));
 	}
 
 	void insert_deferred_items()
@@ -159,7 +161,7 @@ namespace Pol {
 			// Austin - Aug. 10, 2006
 			// Removes the object if ignore_load_errors is enabled and the character can't be found.
 			if ( !config.ignore_load_errors )
-			  throw runtime_error( "Data file integrity error" );
+                throw std::runtime_error("Data file integrity error");
 			else
 			{
               ERROR_PRINT << "Ignore load errors enabled. Removing object.\n";
@@ -185,7 +187,7 @@ namespace Pol {
 			// Austin - Aug. 10, 2006
 			// Removes the object if ignore_load_errors is enabled and the character can't be found.
 			if ( !config.ignore_load_errors )
-			  throw runtime_error( "Data file integrity error" );
+                throw std::runtime_error("Data file integrity error");
 			else
 			{
               ERROR_PRINT << "Ignore load errors enabled. Removing object.\n";
@@ -248,7 +250,7 @@ namespace Pol {
           ERROR_PRINT << "Tried to put it in the character's backpack, "
             << "but there isn't one.  That's naughty...\n";
 		}
-		throw runtime_error( "Data file integrity error" );
+        throw std::runtime_error("Data file integrity error");
 	  }
 	}
 
@@ -289,7 +291,7 @@ namespace Pol {
 		{
           ERROR_PRINT << "Can't add Item 0x" << fmt::hexu( item->serial )
             << " to container 0x" << fmt::hexu( cont->serial ) << "\n";
-		  throw runtime_error( "Data file error" );
+          throw std::runtime_error("Data file error");
 		}
 
 		if ( !add_to_slot || !item->slot_index( slotIndex ) )
@@ -297,7 +299,7 @@ namespace Pol {
           ERROR_PRINT << "Can't add Item 0x" << fmt::hexu( item->serial )
             << " to container 0x" << fmt::hexu( cont->serial )
             << " at slot 0x" << fmt::hexu( slotIndex ) << "\n";
-		  throw runtime_error( "Data file error" );
+          throw std::runtime_error("Data file error");
 		}
 
 		cont->add( item );
@@ -314,7 +316,7 @@ namespace Pol {
 	  {
         INFO_PRINT << "Container type 0x" << fmt::hexu( cont_item->objtype_ )
 		  << " contains items, but is not a container class\n";
-		throw runtime_error( "Config file error" );
+        throw std::runtime_error("Config file error");
 	  }
 	}
 

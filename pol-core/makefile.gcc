@@ -128,7 +128,7 @@ cpp_sources = \
 	pol/spells.cpp pol/ssopt.cpp \
 	clib/socketsvc.cpp pol/stackcfg.cpp \
 	pol/startloc.cpp pol/statmsg.cpp pol/storage.cpp pol/syshook.cpp \
-	pol/systemhookscript.cpp \
+	pol/syshookscript.cpp \
 	pol/target.cpp pol/tasks.cpp plib/testenv.cpp pol/textcmd.cpp \
 	pol/tildecmd.cpp pol/tiles.cpp pol/tiplstwn.cpp \
 	pol/tips.cpp pol/tmpvars.cpp pol/tooltips.cpp \
@@ -181,6 +181,7 @@ cpp_sources = \
 	clib/xmain.cpp \
 	clib/unicode.cpp \
 	clib/pkthelper.cpp \
+	clib/Debugging/LogSink.cpp \
 	clib/logfacility.cpp \
 	pol/xmlfilescrobj.cpp \
 	pol/network/packetdefs.cpp
@@ -204,6 +205,7 @@ ecompile_sources=ecompile/ecompile.cpp \
 	clib/fdump.cpp clib/stracpy.cpp \
 	clib/random.cpp clib/cmdargs.cpp \
 	clib/strexcpt.cpp  clib/wallclock.cpp clib/threadhelp.cpp \
+	clib/Debugging/LogSink.cpp \
 	clib/logfacility.cpp
 	#clib/wallclock.cpp
 
@@ -235,6 +237,7 @@ runecl_sources=runecl/runecl.cpp \
 	clib/random.cpp clib/cmdargs.cpp clib/dirlist.cpp \
 	clib/progver.cpp \
 	clib/mlog.cpp  clib/xmain.cpp clib/strexcpt.cpp clib/threadhelp.cpp \
+	clib/Debugging/LogSink.cpp \
 	clib/wallclock.cpp clib/logfacility.cpp
 
 uoconvert_sources=uoconvert/uoconvert.cpp  \
@@ -247,6 +250,7 @@ uoconvert_sources=uoconvert/uoconvert.cpp  \
 	clib/cfgfile.cpp clib/cmdargs.cpp clib/strutil.cpp \
 	clib/Debugging/ExceptionParser.cpp \
 	clib/fileutil.cpp clib/passert.cpp clib/dirlist.cpp clib/iohelp.cpp \
+	clib/Debugging/LogSink.cpp \
 	clib/logfacility.cpp \
 	clib/progver.cpp clib/esignal.cpp clib/random.cpp clib/strexcpt.cpp \
 	clib/wallclock.cpp clib/threadhelp.cpp \
@@ -263,6 +267,7 @@ uotool_sources=uotool/uotool.cpp \
 	clib/cfgfile.cpp clib/cmdargs.cpp clib/strutil.cpp \
 	clib/Debugging/ExceptionParser.cpp \
 	clib/fileutil.cpp clib/passert.cpp clib/dirlist.cpp clib/iohelp.cpp \
+	clib/Debugging/LogSink.cpp \
 	clib/fdump.cpp clib/logfacility.cpp clib/threadhelp.cpp \
 	clib/progver.cpp clib/esignal.cpp clib/strexcpt.cpp \
 	clib/xmain.cpp
@@ -375,7 +380,7 @@ gzipfile: bin/pol bin/ecompile bin/runecl bin/uoconvert bin/uotool #bin/poltool
 	(cd dist ; \
 	tar -cvf pol-$(POL_BUILDNAME)-$(POL_BUILDPLATFORM)bin-$(POL_RELEASE)-`date +%Y-%m-%d`-$(POL_BUILDTAG).tar \
 	pol uoconvert uotool core-changes.txt uoconvert.txt uoconvert.cfg boats.cfg extobj.cfg animxlate.cfg packethooks.txt packets.zip scripts ; \
-	gzip -9 pol-$(POL_BUILDNAME)-$(POL_BUILDPLATFORM)bin-$(POL_RELEASE)-`date +%Y-%m-%d`-$(POL_BUILDTAG).tar )
+	gzip -f -9 pol-$(POL_BUILDNAME)-$(POL_BUILDPLATFORM)bin-$(POL_RELEASE)-`date +%Y-%m-%d`-$(POL_BUILDTAG).tar )
 	rm -f dist/core-changes.txt dist/pol dist/uoconvert dist/uotool
 	rm -f dist/packethooks.txt
 	rm -f dist/packets.zip
@@ -402,7 +407,7 @@ gzipfile-dynamic: bin/pol-dynamic bin/ecompile-dynamic bin/runecl-dynamic bin/uo
 	cp support/boats.cfg dist
 	cp support/extobj.cfg dist
 	cp support/animxlate.cfg dist
-	(cd dist ; tar -cvfu pol-$(POL_BUILDNAME)-$(POL_BUILDPLATFORM)bin-$(POL_RELEASE)-`date +%Y-%m-%d`-$(POL_BUILDTAG)-dynamic.tar pol uoconvert uotool core-changes.txt uoconvert.txt uoconvert.cfg boats.cfg extobj.cfg animxlate.cfg packethooks.txt packets.zip scripts ; gzip -9 pol-$(POL_BUILDNAME)-$(POL_BUILDPLATFORM)bin-$(POL_RELEASE)-`date +%Y-%m-%d`-$(POL_BUILDTAG)-dynamic.tar )
+	(cd dist ; tar -cvf pol-$(POL_BUILDNAME)-$(POL_BUILDPLATFORM)bin-$(POL_RELEASE)-`date +%Y-%m-%d`-$(POL_BUILDTAG)-dynamic.tar pol uoconvert uotool core-changes.txt uoconvert.txt uoconvert.cfg boats.cfg extobj.cfg animxlate.cfg packethooks.txt packets.zip scripts ; gzip -9 pol-$(POL_BUILDNAME)-$(POL_BUILDPLATFORM)bin-$(POL_RELEASE)-`date +%Y-%m-%d`-$(POL_BUILDTAG)-dynamic.tar )
 	rm -f dist/core-changes.txt dist/pol dist/uoconvert dist/uotool
 	rm -f dist/packethooks.txt
 	rm -f dist/packets.zip

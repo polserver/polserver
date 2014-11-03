@@ -10,22 +10,24 @@ Notes
 
 */
 
-#include <time.h>
+#include "utilmod.h"
 
-#include "../../clib/stl_inc.h"
-#include "../../clib/random.h"
-#include "../../clib/rawtypes.h"
+#include "../dice.h"
 
 #include "../../bscript/berror.h"
 #include "../../bscript/execmodl.h"
 #include "../../bscript/executor.h"
 #include "../../bscript/impstr.h"
 
-#include "../dice.h"
+#include "../../clib/random.h"
+#include "../../clib/rawtypes.h"
 
-#include "utilmod.h"
-
+#include <ctime>
 #include <climits>
+
+#ifdef _MSC_VER
+#pragma warning(disable:4996) // disable deprecation warning for localtime()
+#endif
 
 namespace Pol {
   namespace Bscript {
@@ -100,7 +102,7 @@ namespace Pol {
 	  const String* dicestr;
 	  if ( exec.getStringParam( 0, dicestr ) )
 	  {
-		string errormsg;
+		std::string errormsg;
 		Core::Dice dice;
 		if ( dice.load( dicestr->data(), &errormsg ) )
 		{

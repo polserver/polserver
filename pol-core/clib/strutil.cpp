@@ -9,10 +9,9 @@ Notes
 
 */
 
-#include "stl_inc.h"
+#include "strutil.h"
 
 #include "stlutil.h"
-#include "strutil.h"
 #include "unittest.h"
 #include "logfacility.h"
 
@@ -20,74 +19,75 @@ Notes
 
 namespace Pol {
   namespace Clib {
-	string hexint( unsigned short v )
+	std::string hexint( unsigned short v )
 	{
 	  OSTRINGSTREAM os;
-	  os << "0x" << hex << v;
+	  os << "0x" << std::hex << v;
 	  return OSTRINGSTREAM_STR( os );
 	}
 
-	string hexint( signed int v )
+	std::string hexint( signed int v )
 	{
 	  OSTRINGSTREAM os;
-	  os << "0x" << hex << v;
+	  os << "0x" << std::hex << v;
 	  return OSTRINGSTREAM_STR( os );
 	}
-	string hexint( unsigned int v )
+	std::string hexint( unsigned int v )
 	{
 	  OSTRINGSTREAM os;
-	  os << "0x" << hex << v;
+	  os << "0x" << std::hex << v;
 	  return OSTRINGSTREAM_STR( os );
 	}
 
-	string hexint( signed long v )
+	std::string hexint( signed long v )
 	{
 	  OSTRINGSTREAM os;
-	  os << "0x" << hex << v;
+	  os << "0x" << std::hex << v;
 	  return OSTRINGSTREAM_STR( os );
 	}
-	string hexint( unsigned long v )
+	std::string hexint( unsigned long v )
 	{
 	  OSTRINGSTREAM os;
-	  os << "0x" << hex << v;
+	  os << "0x" << std::hex << v;
 	  return OSTRINGSTREAM_STR( os );
 	}
 #ifdef _WIN64
-	string hexint( size_t v )
+	std::string hexint( size_t v )
 	{
 	  OSTRINGSTREAM os;
-	  os << "0x" << hex << v;
+	  os << "0x" << std::hex << v;
 	  return OSTRINGSTREAM_STR( os );
 	}
 #endif
-	string decint( unsigned short v )
+
+	std::string decint( unsigned short v )
 	{
 	  OSTRINGSTREAM os;
 	  os << v;
 	  return OSTRINGSTREAM_STR( os );
 	}
 
-	string decint( signed int v )
+	std::string decint( signed int v )
 	{
 	  OSTRINGSTREAM os;
 	  os << v;
 	  return OSTRINGSTREAM_STR( os );
 	}
 
-	string decint( unsigned int v )
+	std::string decint( unsigned int v )
 	{
 	  OSTRINGSTREAM os;
 	  os << v;
 	  return OSTRINGSTREAM_STR( os );
 	}
 
-	string decint( signed long v )
+	std::string decint( signed long v )
 	{
 	  OSTRINGSTREAM os;
 	  os << v;
 	  return OSTRINGSTREAM_STR( os );
 	}
-	string decint( unsigned long v )
+	std::string decint( unsigned long v )
 	{
 	  OSTRINGSTREAM os;
 	  os << v;
@@ -95,57 +95,58 @@ namespace Pol {
 	}
 
 #ifdef _WIN64
-	string decint( size_t v )
+	std::string decint( size_t v )
 	{
 	  OSTRINGSTREAM os;
 	  os << v;
 	  return OSTRINGSTREAM_STR( os );
 	}
 #endif
-	void splitnamevalue( const string& istr,
-						 string& propname,
-						 string& propvalue )
-	{
-	  string::size_type start = istr.find_first_not_of( " \t\r\n" );
-	  if( start != string::npos )
-	  {
-		string::size_type delimpos = istr.find_first_of( " \t\r\n=", start + 1 );
-		if( delimpos != string::npos )
-		{
-		  string::size_type valuestart = istr.find_first_not_of( " \t\r\n", delimpos + 1 );
-		  string::size_type valueend = istr.find_last_not_of( " \t\r\n" );
-		  propname = istr.substr( start, delimpos - start );
-		  if( valuestart != string::npos && valueend != string::npos )
-		  {
-			propvalue = istr.substr( valuestart, valueend - valuestart + 1 );
-		  }
-		  else
-		  {
-			propvalue = "";
-		  }
-		}
-		else
-		{
-		  propname = istr.substr( start, string::npos );
-		  propvalue = "";
-		}
-	  }
-	  else
-	  {
-		propname = "";
-		propvalue = "";
-	  }
-	}
 
-	void test_splitnamevalue( const string& istr, const string& exp_pn, const string& exp_pv )
-	{
-	  string pn, pv;
-	  splitnamevalue( istr, pn, pv );
-	  if( pn != exp_pn || pv != exp_pv )
-	  {
-        INFO_PRINT << "splitnamevalue( \"" << istr << "\" ) fails!\n";
-	  }
-	}
+    void splitnamevalue(const std::string& istr,
+        std::string& propname,
+        std::string& propvalue)
+    {
+        std::string::size_type start = istr.find_first_not_of(" \t\r\n");
+        if (start != std::string::npos)
+        {
+            std::string::size_type delimpos = istr.find_first_of(" \t\r\n=", start + 1);
+            if (delimpos != std::string::npos)
+            {
+                std::string::size_type valuestart = istr.find_first_not_of(" \t\r\n", delimpos + 1);
+                std::string::size_type valueend = istr.find_last_not_of(" \t\r\n");
+                propname = istr.substr(start, delimpos - start);
+                if (valuestart != std::string::npos && valueend != std::string::npos)
+                {
+                    propvalue = istr.substr(valuestart, valueend - valuestart + 1);
+                }
+                else
+                {
+                    propvalue = "";
+                }
+            }
+            else
+            {
+                propname = istr.substr(start, std::string::npos);
+                propvalue = "";
+            }
+        }
+        else
+        {
+            propname = "";
+            propvalue = "";
+        }
+    }
+
+    void test_splitnamevalue(const std::string& istr, const std::string& exp_pn, const std::string& exp_pv)
+    {
+        std::string pn, pv;
+        splitnamevalue(istr, pn, pv);
+        if (pn != exp_pn || pv != exp_pv)
+        {
+            INFO_PRINT << "splitnamevalue( \"" << istr << "\" ) fails!\n";
+        }
+    }
 
 	void test_splitnamevalue()
 	{
@@ -163,9 +164,9 @@ namespace Pol {
 	}
 	UnitTest test_splitnamevalue_obj( test_splitnamevalue );
 
-	void decodequotedstring( string& str )
+    void decodequotedstring(std::string& str)
 	{
-	  string tmp;
+	  std::string tmp;
 	  tmp.swap( str );
 	  const char* s = tmp.c_str();
 	  str.reserve( tmp.size() );
@@ -200,9 +201,9 @@ namespace Pol {
 		}
 	  }
 	}
-	void encodequotedstring( string& str )
+    void encodequotedstring(std::string& str)
 	{
-	  string tmp;
+	  std::string tmp;
 	  tmp.swap( str );
 	  const char* s = tmp.c_str();
 	  str.reserve( tmp.size() + 2 );
@@ -230,15 +231,16 @@ namespace Pol {
 
 	  str += "\"";
 	}
-	string getencodedquotedstring( const string& in )
+
+    std::string getencodedquotedstring(const std::string& in)
 	{
-	  string tmp = in;
+	  std::string tmp = in;
 	  encodequotedstring( tmp );
 	  return tmp;
 	}
-	void test_dqs( const string& in, const string& out )
+    void test_dqs(const std::string& in, const std::string& out)
 	{
-	  string tmp = in;
+	  std::string tmp = in;
 	  decodequotedstring( tmp );
 	  if( tmp != out )
 	  {
@@ -261,22 +263,22 @@ namespace Pol {
 	UnitTest test_convertquotedstring_obj( test_convertquotedstring );
 
 	// If we have boost, I think we should use it...
-	void mklower( string& str )
+    void mklower(std::string& str)
 	{
 		boost::to_lower(str);
 	}
 
-	void mkupper( string& str )
+    void mkupper(std::string& str)
 	{
 		boost::to_upper(str);
 	}
 
-	string strlower( const string& str )
+    std::string strlower(const std::string& str)
 	{
 		return boost::to_lower_copy(str);
 	}
 
-	string strupper( const string& str )
+    std::string strupper(const std::string& str)
 	{
 		return boost::to_upper_copy(str);
 	}

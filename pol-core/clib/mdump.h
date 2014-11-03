@@ -10,6 +10,8 @@ Notes
 #ifndef __MDUMP_H
 #define __MDUMP_H
 
+#include <string>
+
 namespace Pol {
   namespace Clib {
 	class MiniDumper

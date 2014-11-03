@@ -16,6 +16,7 @@ Notes
 #include "../bscript/bobject.h"
 #include "../bscript/contiter.h"
 #ifdef _WIN32
+#   define WIN32_LEAN_AND_MEAN
 #	include <windows.h>
 #	include <winsock.h>
 #	include <mysql.h>
@@ -24,6 +25,8 @@ Notes
 #endif
 
 #include "../clib/message_queue.h"
+
+#include <memory>
 
 namespace Pol {
   namespace Core {

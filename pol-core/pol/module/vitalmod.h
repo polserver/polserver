@@ -14,6 +14,7 @@ Notes
 #define VITALEMOD_H
 
 #include "../../bscript/execmodl.h"
+#include "uomod.h"
 
 namespace Pol {
   namespace Mobile {

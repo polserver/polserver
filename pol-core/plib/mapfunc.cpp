@@ -10,7 +10,7 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
+#include "mapserver.h"
 
 #include "../clib/cfgelem.h"
 #include "../clib/passert.h"
@@ -23,16 +23,15 @@ Notes
 #include "../pol/uconst.h"
 #include "../pol/ustruct.h"
 
-#include "mapserver.h"
 namespace Pol {
   namespace Core {
     bool cfg_show_roof_and_platform_warning = 1;
   }
   namespace Plib {
 
-	string flagstr( unsigned int flags )
+	std::string flagstr( unsigned int flags )
 	{
-	  string tmp;
+      std::string tmp;
 	  if ( flags & FLAG::MOVELAND )
 		tmp += "L";
 	  if ( flags & FLAG::MOVESEA )
@@ -59,9 +58,9 @@ namespace Pol {
 		tmp += "E";
 	  return tmp;
 	}
-	string flagdescs()
+    std::string flagdescs()
 	{
-	  static string out = "L=move land, S=move sea, V=block sight, f=overflight, d=allow drop, g=gradual, +=more solids, B=blocking, S=stackable, M=movable, E=equippable";
+      static std::string out = "L=move land, S=move sea, V=block sight, f=overflight, d=allow drop, g=gradual, +=more solids, B=blocking, S=stackable, M=movable, E=equippable";
 	  return out;
 	}
 

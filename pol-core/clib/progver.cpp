@@ -7,10 +7,9 @@ Notes
 =======
 
 */
-
-#include "stl_inc.h"
 #include "progver.h"
 #include "../svn_version.h"
+
 namespace Pol {
 	const char compiledate[] = __DATE__;
 #ifdef _SVNVER

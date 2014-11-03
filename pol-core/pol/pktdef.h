@@ -13,6 +13,8 @@ This is for all general packet #define/enum that don't fit anywhere else or go t
 #ifndef __PKTDEFH
 #define __PKTDEFH
 
+#include "../clib/rawtypes.h"
+
 namespace Pol {
   namespace Core {
 #define LAYER_VENDOR_FOR_SALE	  0x1A

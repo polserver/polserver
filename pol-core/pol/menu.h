@@ -11,11 +11,13 @@ Notes
 #ifndef __MENU_H
 #define __MENU_H
 
-#include <vector>
-
 #ifndef __CLIB_RAWTYPES_H
 #	include "../clib/rawtypes.h"
 #endif
+
+#include <vector>
+#include <cstddef>
+
 namespace Pol {
   namespace Core {
 	// FIXME these are horribly wasteful.  Probably should be using <string> or something.

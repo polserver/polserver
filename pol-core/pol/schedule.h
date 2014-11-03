@@ -12,8 +12,10 @@ Notes
 #ifndef __SCHEDULE_H
 #define __SCHEDULE_H
 
-#include <time.h>
 #include "polclock.h"
+
+#include <ctime>
+
 namespace Pol {
   namespace Core {
 	class TaskScheduler

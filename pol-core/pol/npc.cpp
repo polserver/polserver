@@ -23,12 +23,59 @@ Notes
 =======
 
 */
+#include "npc.h"
+#include "npctmpl.h"
+#include "module/npcmod.h"
 
-#include "../clib/stl_inc.h"
+#include "mobile/attribute.h"
+#include "mobile/wornitems.h" // refresh_ar() is the only one which needs this include...
 
-#ifdef _MSC_VER
-#	pragma warning(disable:4786)
-#endif
+#include "item/weapon.h"
+#include "item/armor.h"
+#include "multi/house.h"
+
+#include "module/osmod.h"
+#include "module/uomod.h"
+#include "module/unimod.h"
+
+#include "containr.h"
+#include "network/client.h"
+#include "dice.h"
+#include "eventid.h"
+#include "fnsearch.h"
+#include "realms.h"
+#include "scrsched.h"
+#include "listenpt.h"
+#include "poltype.h"
+#include "pktout.h"
+#include "ufunc.h"
+#include "ufuncinl.h"
+#include "scrstore.h"
+#include "skilladv.h"
+#include "skills.h"
+#include "sockio.h"
+#include "ssopt.h"
+#include "uvars.h"
+#include "uoexec.h"
+#include "objtype.h"
+#include "ufunc.h"
+#include "uoexhelp.h"
+#include "uoscrobj.h"
+#include "watch.h"
+#include "wrldsize.h"
+#include "mdelta.h"
+#include "uofile.h"
+#include "uworld.h"
+
+#include "../bscript/berror.h"
+#include "../bscript/eprog.h"
+#include "../bscript/executor.h"
+#include "../bscript/execmodl.h"
+#include "../bscript/modules.h"
+#include "../bscript/impstr.h"
+#include "../bscript/objmembers.h"
+
+#include "../plib/realm.h"
 
 #include "../clib/cfgelem.h"
 #include "../clib/clib.h"
@@ -42,56 +89,7 @@ Notes
 #include "../clib/unicode.h"
 #include "../clib/streamsaver.h"
 
-#include "../bscript/berror.h"
-#include "../bscript/eprog.h"
-#include "../bscript/executor.h"
-#include "../bscript/execmodl.h"
-#include "../bscript/modules.h"
-#include "../bscript/impstr.h"
-#include "../bscript/objmembers.h"
-
-#include "../plib/realm.h"
-
-#include "item/armor.h"
-#include "mobile/attribute.h"
-#include "network/client.h"
-#include "dice.h"
-#include "eventid.h"
-#include "fnsearch.h"
-#include "realms.h"
-#include "scrsched.h"
-#include "listenpt.h"
-#include "npc.h"
-#include "module/npcmod.h"
-#include "npctmpl.h"
-#include "poltype.h"
-#include "pktout.h"
-#include "ufunc.h"
-#include "ufuncinl.h"
-#include "scrstore.h"
-#include "skilladv.h"
-#include "skills.h"
-#include "sockio.h"
-#include "ssopt.h"
-#include "uvars.h"
-#include "module/osmod.h"
-#include "uoexec.h"
-#include "module/uomod.h"
-#include "objtype.h"
-#include "ufunc.h"
-#include "module/unimod.h"
-#include "uoexhelp.h"
-#include "uoscrobj.h"
-#include "watch.h"
-#include "item/weapon.h"
-#include "wrldsize.h"
-#include "multi/house.h"
-#include "mdelta.h"
-#include "uofile.h"
-#include "uworld.h"
-#include "containr.h"
-
-#include "mobile/wornitems.h" // refresh_ar() is the only one which needs this include...
+#include <stdexcept>
 
 /* An area definition is as follows:
    pt: (x,y)
@@ -400,7 +398,7 @@ namespace Pol {
 
 		if ( template_name.get().empty() )
 		{
-		  string tmp;
+		  std::string tmp;
 		  if ( getprop( "template", tmp ) )
 		  {
 			template_name = tmp.c_str() + 1;
@@ -433,7 +431,7 @@ namespace Pol {
 	// This now handles all resistances, including AR to simplify the code.
     void NPC::loadResistances( int resistanceType, Clib::ConfigElem& elem )
 	{
-	  string tmp;
+      std::string tmp;
 	  bool passed = false;
 	  // 0 = AR
 	  // 1 = Fire
@@ -454,7 +452,7 @@ namespace Pol {
 	  if ( passed )
 	  {
 		Dice dice;
-		string errmsg;
+        std::string errmsg;
 		if ( !dice.load( tmp.c_str(), &errmsg ) )
 		{
 		  switch ( resistanceType )
@@ -592,7 +590,7 @@ namespace Pol {
 	// This now handles all resistances, including AR to simplify the code.
     void NPC::loadDamages( int damageType, Clib::ConfigElem& elem )
 	{
-	  string tmp;
+      std::string tmp;
 	  bool passed = false;
 	  // 1 = Fire
 	  // 2 = Cold
@@ -611,7 +609,7 @@ namespace Pol {
 	  if ( passed )
 	  {
 		Dice dice;
-		string errmsg;
+        std::string errmsg;
 		if ( !dice.load( tmp.c_str(), &errmsg ) )
 		{
 		  switch ( damageType )
@@ -740,7 +738,7 @@ namespace Pol {
 
 	  if ( template_name.get().empty() )
 	  {
-		string tmp;
+          std::string tmp;
 		if ( getprop( "template", tmp ) )
 		{
 		  template_name = tmp.c_str() + 1;
@@ -752,9 +750,9 @@ namespace Pol {
 
     void NPC::readNewNpcAttributes( Clib::ConfigElem& elem )
 	{
-	  string diestring;
+        std::string diestring;
 	  Dice dice;
-	  string errmsg;
+      std::string errmsg;
 
       for ( Mobile::Attribute* pAttr = Mobile::FindAttribute( 0 ); pAttr; pAttr = pAttr->next )
 	  {
@@ -847,7 +845,7 @@ namespace Pol {
 	  {
         ERROR_PRINT << "Unable to read script " << sd.name()
           << " for NPC " << name() << "(0x" << fmt::hexu( serial ) << ")\n";
-		throw runtime_error( "Error loading NPCs" );
+        throw std::runtime_error("Error loading NPCs");
 	  }
 
 	  ex = create_script_executor();
@@ -858,7 +856,7 @@ namespace Pol {
 	  {
         ERROR_PRINT << "There was an error running script " << script.get()<< " for NPC "
           << name() << "(0x" << fmt::hexu( serial ) << ")\n";
-		throw runtime_error( "Error loading NPCs" );
+        throw std::runtime_error("Error loading NPCs");
 	  }
 
 	  uoemod->attached_npc_ = this;

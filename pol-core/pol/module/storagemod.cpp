@@ -8,18 +8,19 @@ Notes
 
 */
 
-#include "../../clib/stl_inc.h"
+#include "storagemod.h"
 
 #include "../../bscript/bobject.h"
 #include "../../bscript/berror.h"
 #include "../../bscript/impstr.h"
 
-#include "storagemod.h"
-
 #include "../realms.h"
 #include "../storage.h"
 #include "../uoexhelp.h"
 #include "../uoscrobj.h"
+
+#include <string>
+
 namespace Pol {
   namespace Bscript {
     using namespace Module;
@@ -119,7 +120,7 @@ namespace Pol {
 	  item->setname( name->value() );
 
 	  if ( item->realm == NULL )
-		item->realm = Core::find_realm( string( "britannia" ) );
+		item->realm = Core::find_realm( std::string( "britannia" ) );
 
 	  area->insert_root_item( item );
 

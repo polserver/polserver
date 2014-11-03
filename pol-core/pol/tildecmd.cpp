@@ -7,16 +7,17 @@ Notes
 =======
 
 */
-#include <iomanip>
-#include <iostream>
-#include "../clib/stl_inc.h"
+
+#include "tildecmd.h"
+
+#include "polcfg.h"
+#include "spells.h"
 
 #include "../clib/endian.h"
 #include "../clib/logfacility.h"
 
-#include "polcfg.h"
-#include "spells.h"
-#include "tildecmd.h"
+#include <iostream>
+
 namespace Pol {
   namespace Core {
 

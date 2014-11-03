@@ -15,16 +15,6 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-
-#include "../clib/stlutil.h"
-#include "../clib/cfgelem.h"
-#include "../clib/cfgfile.h"
-#include "../clib/cmdargs.h"
-#include "../clib/fileutil.h"
-#include "../clib/logfacility.h"
-#include "../clib/passert.h"
-#include "../clib/timer.h"
 
 #include "../pol/uofile.h"
 #include "../pol/objtype.h"
@@ -42,9 +32,28 @@ Notes
 #include "../plib/mapwriter.h"
 #include "../plib/realmdescriptor.h"
 
+#include "../clib/stlutil.h"
+#include "../clib/cfgelem.h"
+#include "../clib/cfgfile.h"
+#include "../clib/cmdargs.h"
+#include "../clib/fileutil.h"
+#include "../clib/logfacility.h"
+#include "../clib/passert.h"
+#include "../clib/timer.h"
+
+#include <string>
+#include <set>
+#include <vector>
+#include <stdexcept>
+#include <limits>
+
+#ifdef _MSC_VER
+#pragma warning(disable:4996) // deprecation warning for fopen
+#endif
+
 namespace Pol {
   namespace Plib {
-    string flagstr( unsigned char flags );
+    std::string flagstr( unsigned char flags );
   }
   namespace Core{
     PolConfig config;
@@ -68,13 +77,13 @@ namespace Pol {
 	
 	
 	void generate_map();
-	void create_map( const string& realm, unsigned short width, unsigned short height );
-	void update_map( const string& realm, unsigned short x, unsigned short y );
+    void create_map(const std::string& realm, unsigned short width, unsigned short height);
+    void update_map(const std::string& realm, unsigned short x, unsigned short y);
 	
 	void create_multis_cfg();
 	void create_tiles_cfg();
 	void create_landtiles_cfg();
-	void create_maptile( const string& realmname );
+    void create_maptile(const std::string& realmname);
 
 	void display_flags()
 	{
@@ -122,7 +131,7 @@ namespace Pol {
 	}
 
 
-	void create_maptile( const string& realmname )
+    void create_maptile(const std::string& realmname)
 	{
 	  Plib::RealmDescriptor descriptor = Plib::RealmDescriptor::Load( realmname );
 	  uo_map_height = static_cast<unsigned short>( descriptor.height );
@@ -210,7 +219,7 @@ namespace Pol {
 	unsigned total_statics = 0;
 	unsigned with_more_solids = 0;
 
-	void update_map( const string& realm, unsigned short x, unsigned short y )
+    void update_map(const std::string& realm, unsigned short x, unsigned short y)
 	{
 	  auto mapwriter = new MapWriter();
 	  mapwriter->OpenExistingFiles( realm );
@@ -226,7 +235,7 @@ namespace Pol {
         << "total statics=" << total_statics << "\n";
 	}
 
-	void create_map( const string& realm, unsigned short width, unsigned short height )
+    void create_map(const std::string& realm, unsigned short width, unsigned short height)
 	{
 	  auto mapwriter = new MapWriter();
       INFO_PRINT << "Creating map base and solids files.\n"
@@ -582,7 +591,7 @@ namespace Pol {
 		  sort( statics.begin(), statics.end(), StaticsByZ() );
 		  reverse( statics.begin(), statics.end() );
 
-		  vector<MapShape> shapes;
+          std::vector<MapShape> shapes;
 
 		  // try to consolidate like shapes, and discard ones we don't care about.
 		  while ( !statics.empty() )
@@ -755,7 +764,7 @@ namespace Pol {
 
 			unsigned int addindex = mapwriter.NextSolidIndex() - idx2_elem.baseindex;
 			if ( addindex > std::numeric_limits<unsigned short>::max() )
-			  throw runtime_error( "addoffset overflow" );
+                throw std::runtime_error("addoffset overflow");
 			idx2_elem.addindex[x_add][y_add] = static_cast<unsigned short>( addindex );
 			int count = static_cast<int>( shapes.size() );
 			for ( int j = 0; j < count; ++j )
@@ -803,7 +812,7 @@ namespace Pol {
 	  else
 		count = length / sizeof elem;
 
-	  string type, mytype;
+      std::string type, mytype;
 	  if ( BoatTypes.count( id ) )
 		type = "Boat";
 	  else if ( HouseTypes.count( id ) )
@@ -822,7 +831,7 @@ namespace Pol {
 
       if (fseek(multi_mul, offset, SEEK_SET) != 0)
       {
-          throw runtime_error("write_multi(): fseek() failed");
+          throw std::runtime_error("write_multi(): fseek() failed");
       }
 
 
@@ -830,12 +839,12 @@ namespace Pol {
 	  while ( count-- )
 	  {
           if (fread(&elem, sizeof elem, 1, multi_mul) != sizeof(elem)) {
-              throw runtime_error("write_multi(): fread() failed");
+              throw std::runtime_error("write_multi(): fread() failed");
           }
 
           if (cfg_use_new_hsa_format) {
               if (fseek(multi_mul, 4, SEEK_CUR) != 0)
-                  throw runtime_error("write_multi(): fseek() failed");
+                  throw std::runtime_error("write_multi(): fseek() failed");
           }
 
 		if ( elem.graphic == GRAPHIC_NODRAW )
@@ -852,7 +861,7 @@ namespace Pol {
 		  if ( first && elem.graphic != 1 )
 			type = "static";
 		}
-		string comment;
+        std::string comment;
 		if ( cfg_use_new_hsa_format )
 		{
 		  USTRUCT_TILE_HSA tile;
@@ -875,7 +884,7 @@ namespace Pol {
 	void create_multis_cfg( FILE* multi_idx, FILE* multi_mul, FILE* multis_cfg )
 	{
 	  if ( fseek( multi_idx, 0, SEEK_SET ) != 0 )
-		throw runtime_error( "create_multis_cfg: fseek failed" );
+          throw std::runtime_error("create_multis_cfg: fseek failed");
 	  unsigned count = 0;
 	  USTRUCT_IDX idxrec;
 	  for ( int i = 0; fread( &idxrec, sizeof idxrec, 1, multi_idx ) == 1; ++i )
@@ -1073,10 +1082,10 @@ namespace Pol {
     }
 
 
-    string main_cfg = "uoconvert.cfg";
+    std::string main_cfg = "uoconvert.cfg";
     if ( Clib::FileExists( main_cfg.c_str( ) ) )
     {
-      string temp;
+      std::string temp;
       Clib::ConfigElem elem;
       INFO_PRINT << "Reading uoconvert.cfg.\n";
       Clib::ConfigFile cf_main( main_cfg.c_str( ) );
@@ -1086,7 +1095,7 @@ namespace Pol {
         {
           temp = elem.remove_string( "Boats" );
           ISTRINGSTREAM is_boats( temp );
-          string graphicnum;
+          std::string graphicnum;
           while ( is_boats >> graphicnum )
             UOConvert::BoatTypes.insert( strtoul( graphicnum.c_str( ), NULL, 0 ) );
 
@@ -1110,7 +1119,7 @@ namespace Pol {
         }
         else if ( elem.type_is( "Mounts" ) )
         {
-          string graphicnum;
+          std::string graphicnum;
           temp = elem.remove_string( "Tiles" );
           ISTRINGSTREAM is_mounts( temp );
           while ( is_mounts >> graphicnum )
@@ -1163,7 +1172,7 @@ namespace Pol {
       }
     }
 
-    string command = "map";
+    std::string command = "map";
     if ( argc > 1 )
     {
       command = argv[1];

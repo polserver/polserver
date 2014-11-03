@@ -12,7 +12,7 @@ Notes
 #ifndef BSCRIPT_BSTRUCT_H
 #define BSCRIPT_BSTRUCT_H
 
-#ifndef __BSCRIPT_BOBJECT_H
+#ifndef BSCRIPT_BOBJECT_H
 #include "bobject.h"
 #endif
 

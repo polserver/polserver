@@ -7,27 +7,28 @@ Notes
 
 */
 
-#include "stl_inc.h"
 
-#ifdef _WIN32
-#include <windows.h> // for HANDLE
-#include <process.h>
-#endif
+#include "socketsvc.h"
 
 #include "passert.h"
 #include "strutil.h"
 #include "threadhelp.h"
 
-#include "socketsvc.h"
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h> // for HANDLE
+#include <process.h>
+#endif
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
+
 namespace Pol {
   namespace Clib {
 	SocketListener::SocketListener( unsigned short port ) :
 	  _listen_sck()
 	{
 	  if( !_listen_sck.listen( port ) )
-		throw runtime_error( "Unable to open listen port " + decint( port ) );
+		throw std::runtime_error( "Unable to open listen port " + decint( port ) );
 	}
 
 	SocketListener::SocketListener( unsigned short port, Socket::option opt ) :
@@ -36,7 +37,7 @@ namespace Pol {
 	  _listen_sck.set_options( opt );
 
 	  if( !_listen_sck.listen( port ) )
-		throw runtime_error( "Unable to open listen port " + decint( port ) );
+          throw std::runtime_error("Unable to open listen port " + decint(port));
 	}
 
 	bool SocketListener::GetConnection( unsigned int timeout_sec )
@@ -61,7 +62,7 @@ namespace Pol {
 
 	static void _thread_stub2( void *arg )
 	{
-	  boost::shared_ptr<SocketClientThread> sct( static_cast<SocketClientThread*>( arg ) );
+	  std::unique_ptr<SocketClientThread> sct( static_cast<SocketClientThread*>( arg ) );
 	  sct->run();
 	}
 

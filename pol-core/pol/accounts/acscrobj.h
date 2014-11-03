@@ -14,7 +14,7 @@ Notes
 
 #include "../reftypes.h"
 
-#ifndef __BSCRIPT_BOBJECT_H
+#ifndef BSCRIPT_BOBJECT_H
 #include "../../bscript/bobject.h"
 #endif
 

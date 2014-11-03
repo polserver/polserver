@@ -14,15 +14,8 @@ Notes
   Handles moving objects within a realm and from realm to realm.
 */
 
-#include "../../clib/stl_inc.h"
-#include "../../clib/strutil.h"
-#include "../../clib/stlutil.h"
-
-#include "../../bscript/berror.h"
-#include "../../bscript/executor.h"
-#include "../../bscript/impstr.h"
-
 #include "uomod.h"
+
 #include "../core.h"
 #include "../exscrobj.h"
 #include "../polclass.h"
@@ -31,6 +24,14 @@ Notes
 #include "../uoscrobj.h"
 #include "../uworld.h"
 #include "../containr.h"
+
+#include "../../bscript/berror.h"
+#include "../../bscript/executor.h"
+#include "../../bscript/impstr.h"
+
+#include "../../clib/strutil.h"
+#include "../../clib/stlutil.h"
+
 namespace Pol {
   namespace Module {
     using namespace Bscript;
@@ -179,7 +180,7 @@ namespace Pol {
 	  if ( !item->realm->valid( x, y, z ) )
 	  {	// Should probably have checked this already.
 		item->realm = oldrealm;
-        string message = "Location (" + Clib::tostring( x ) + "," + Clib::tostring( y ) + "," + Clib::tostring( z ) + ") is out of bounds";
+        std::string message = "Location (" + Clib::tostring( x ) + "," + Clib::tostring( y ) + "," + Clib::tostring( z ) + ") is out of bounds";
 		return new BError( message );
 	  }
 

@@ -17,7 +17,7 @@ Notes
 // set_se_handler
 namespace Pol {
   namespace Clib {
-	class structured_exception : public runtime_error
+	class structured_exception : public std::runtime_error
 	{
 	public:
 	  unsigned int nSE;

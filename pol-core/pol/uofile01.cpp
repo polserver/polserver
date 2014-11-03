@@ -8,19 +8,8 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-
-#ifdef _MSC_VER
-#	pragma warning( disable: 4786 )
-#endif
-
-
-#include <assert.h>
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
-
-#include "../clib/passert.h"
+#include "uofile.h"
+#include "uofilei.h"
 
 #include "../plib/mapfunc.h"
 
@@ -32,8 +21,15 @@ Notes
 #include "ustruct.h"
 #include "wrldsize.h"
 
-#include "uofile.h"
-#include "uofilei.h"
+#include "../clib/passert.h"
+#include <cstdio>
+#include <cstring>
+#include <cmath>
+
+#ifdef _MSC_VER
+#pragma warning(disable:4996) // deprecation warning for sprintf
+#endif
+
 namespace Pol {
   namespace Core {
 #define VERFILE_TILEDATA 0x1E
@@ -60,7 +56,7 @@ namespace Pol {
 
     struct VerdataIndexes
     {
-      typedef map<unsigned int, Core::USTRUCT_VERSION> VRecList;
+      typedef std::map<unsigned int, Core::USTRUCT_VERSION> VRecList;
       VRecList vrecs; // key is the block
 
       void insert( const Core::USTRUCT_VERSION& vrec );

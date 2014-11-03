@@ -11,11 +11,12 @@ Notes
 #ifndef SYSHOOKSCRIPT_H
 #define SYSHOOKSCRIPT_H
 
+#include "scrdef.h"
+#include "uoexec.h"
+
 #include <string>
 #include <vector>
 
-#include "scrdef.h"
-#include "uoexec.h"
 namespace Pol {
   namespace Plib {
 	class Package;

@@ -12,6 +12,7 @@ Notes
 #define __SOCKIO_H
 
 #include "sockets.h"
+
 namespace Pol {
   namespace Network {
 	extern char ipaddr_str[64];

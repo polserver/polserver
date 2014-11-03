@@ -7,24 +7,6 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-
-#ifdef _WIN32
-#	include <windows.h>
-#endif
-
-#include <string.h>
-
-#ifdef WIN32
-#	include <process.h>
-#endif
-
-#include <stdio.h>
-#include <time.h>
-
-#include <iostream>
-#include <iomanip>
-
 #include "../clib/clib.h"
 #include "../clib/progver.h"
 #include "../clib/logfacility.h"
@@ -56,6 +38,18 @@ Notes
 
 #include "../clib/timer.h"
 
+#include <cstring>
+#include <cstdio>
+#include <ctime>
+
+#include <iostream>
+#include <iomanip>
+
+#ifdef _MSC_VER
+#pragma warning(disable:4996) // disable deprecation warning strcpy 
+#endif
+
+
 namespace Pol {
   namespace Core {
     PolConfig config; // needed but not really used def
@@ -83,7 +77,7 @@ namespace Pol {
         << "            -p    Profile\n";
     }
 
-    void DumpCaseJmp( ostream& os, const Token& token, EScriptProgram* prog )
+    void DumpCaseJmp( std::ostream& os, const Token& token, EScriptProgram* /*prog*/ )
     {
       const unsigned char* dataptr = token.dataptr;
       for ( ;; )
@@ -96,16 +90,16 @@ namespace Pol {
         {
           unsigned int lval = *(const unsigned int*)dataptr;
           dataptr += 4;
-          os << "\t" << lval << ": @" << offset << endl;
+          os << "\t" << lval << ": @" << offset << std::endl;
         }
         else if ( type == CASE_TYPE_DEFAULT )
         {
-          os << "\tdefault: @" << offset << endl;
+            os << "\tdefault: @" << offset << std::endl;
           break;
         }
         else
         { // type is the length of the string, otherwise
-          os << "\t\"" << string( (const char*)dataptr, type ) << "\": @" << offset << endl;
+            os << "\t\"" << std::string((const char*)dataptr, type) << "\": @" << offset << std::endl;
           dataptr += type;
         }
       }
@@ -130,7 +124,7 @@ namespace Pol {
 
     void DumpScript( const char *path )
     {
-      string fname( path );
+        std::string fname(path);
       if ( fname.size() >= 4 )
         fname.replace( fname.size() - 4, 4, ".ecl" );
 
@@ -180,7 +174,7 @@ namespace Pol {
     
     int exec_script( const char *path )
     {
-      string fname( path );
+        std::string fname(path);
       // TODO: autoconvert to .ecl ?
 
       Executor E;

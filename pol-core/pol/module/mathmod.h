@@ -18,7 +18,7 @@ namespace Pol {
 	{
 	public:
       MathExecutorModule( Bscript::Executor& exec ) :
-		TmplExecutorModule<MathExecutorModule>( "math", exec ) {};
+		Bscript::TmplExecutorModule<MathExecutorModule>( "math", exec ) {};
 
 	  Bscript::BObjectImp* mf_Sin();
 	  Bscript::BObjectImp* mf_ASin();

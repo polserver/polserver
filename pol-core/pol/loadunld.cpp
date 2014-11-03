@@ -10,18 +10,9 @@ Notes
 
 */
 
+#include "loadunld.h"
 
-#include "../clib/stl_inc.h"
-
-#ifdef _MSC_VER
-#	pragma warning( disable: 4786 )
-#endif
-
-#include "../clib/cfgelem.h"
-#include "../clib/cfgfile.h"
-#include "../clib/fileutil.h"
-#include "../clib/stlutil.h"
-#include "../clib/strutil.h"
+#include "objecthash.h"
 
 #include "item/armor.h"
 #include "checkpnt.h"
@@ -35,10 +26,16 @@ Notes
 #include "item/weapon.h"
 #include "item/wepntmpl.h"
 
-#include "loadunld.h"
-#include "objecthash.h"
-
 #include "../plib/pkg.h"
+
+#include "../clib/cfgelem.h"
+#include "../clib/cfgfile.h"
+#include "../clib/fileutil.h"
+#include "../clib/stlutil.h"
+#include "../clib/strutil.h"
+
+#include <stdexcept>
+#include <string>
 
 namespace Pol {
   namespace Plib {
@@ -56,7 +53,7 @@ namespace Pol {
     void load_attributes_cfg( );
   }
   namespace Multi {
-    void load_special_storedconfig( string cfgname );
+    void load_special_storedconfig( std::string cfgname );
     void read_multidefs( );
     void read_boat_cfg( );
   }
@@ -125,23 +122,23 @@ namespace Pol {
 	  {
         const Items::ItemDesc& stid = Items::find_itemdesc( extobj.secure_trade_container );
         if ( stid.type != Items::ItemDesc::CONTAINERDESC )
-		  throw runtime_error( "Secure trade container (" + Clib::hexint( extobj.secure_trade_container ) + ") must be defined in itemdesc.cfg as a container." );
+		  throw std::runtime_error( "Secure trade container (" + Clib::hexint( extobj.secure_trade_container ) + ") must be defined in itemdesc.cfg as a container." );
 	  }
 
 	  // Make sure backpack container is defined.
       const Items::ItemDesc& backpackid = Items::find_itemdesc( UOBJ_BACKPACK );
       if ( backpackid.type != Items::ItemDesc::CONTAINERDESC )
-		throw runtime_error( "Backpack container (" + Clib::hexint( UOBJ_BACKPACK ) + ") must be defined in itemdesc.cfg as a container." );
+          throw std::runtime_error("Backpack container (" + Clib::hexint(UOBJ_BACKPACK) + ") must be defined in itemdesc.cfg as a container.");
 
 	  // Make sure corpse container is defined.
       const Items::ItemDesc& corpseid = Items::find_itemdesc( UOBJ_CORPSE );
       if ( corpseid.type != Items::ItemDesc::CONTAINERDESC )
-		throw runtime_error( "Corpse container (" + Clib::hexint( UOBJ_CORPSE ) + ") must be defined in itemdesc.cfg as a container." );
+          throw std::runtime_error("Corpse container (" + Clib::hexint(UOBJ_CORPSE) + ") must be defined in itemdesc.cfg as a container.");
 
 	  // Make sure the WornItems container is defined.
       const Items::ItemDesc& wic_id = Items::find_itemdesc( extobj.wornitems_container );
       if ( wic_id.type != Items::ItemDesc::CONTAINERDESC )
-		throw runtime_error( "WornItems container (" + Clib::hexint( extobj.wornitems_container ) + ") must be defined in itemdesc.cfg as a container." );
+          throw std::runtime_error("WornItems container (" + Clib::hexint(extobj.wornitems_container) + ") must be defined in itemdesc.cfg as a container.");
 
       const Items::ContainerDesc& cd = Items::find_container_desc( extobj.wornitems_container );
       Items::getgraphic( cd.objtype );

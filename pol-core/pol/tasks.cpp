@@ -11,17 +11,11 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-
-#include "../bscript/berror.h"
-#include "../bscript/escriptv.h"
-
-#include "../clib/endian.h"
-#include "../clib/logfacility.h"
-#include "../plib/realm.h"
+#include "tasks.h"
 
 #include "mobile/charactr.h"
 #include "network/client.h"
+
 #include "cmbtcfg.h"
 #include "decay.h"
 #include "polcfg.h"
@@ -34,11 +28,18 @@ Notes
 #include "scrsched.h"
 #include "sockio.h"
 #include "statmsg.h"
-#include "tasks.h"
 #include "ufunc.h"
 #include "uvars.h"
 #include "uworld.h"
 #include "vital.h"
+
+#include "../plib/realm.h"
+
+#include "../bscript/berror.h"
+#include "../bscript/escriptv.h"
+
+#include "../clib/endian.h"
+#include "../clib/logfacility.h"
 
 namespace Pol {
   namespace Accounts {

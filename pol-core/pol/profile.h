@@ -11,8 +11,10 @@ Notes
 #ifndef PROFILE_H
 #define PROFILE_H
 
-#include <time.h>
 #include "../clib/rawtypes.h"
+#include <cstddef>
+#include <ctime>
+
 namespace Pol {
   namespace Core {
 #define DEF_PROFILEVAR( counter ) \

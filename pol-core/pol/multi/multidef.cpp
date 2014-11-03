@@ -9,14 +9,18 @@ Notes
 
 */
 
-#include "../../clib/stl_inc.h"
+#include "multidef.h"
 
-#ifdef _MSC_VER
-#	pragma warning( disable: 4786 )
-#endif
+#include "../item/itemdesc.h"
+#include "../objtype.h"
+#include "../udatfile.h"
+#include "../uofilei.h"
+#include "../uofile.h"
+#include "../ustruct.h"
+#include "../uofilei.h"
 
-#include <algorithm>
-#include <iostream>
+#include "../../plib/mapcell.h"
+#include "../../plib/mapshape.h"
 
 #include "../../clib/cfgelem.h"
 #include "../../clib/cfgfile.h"
@@ -24,17 +28,9 @@ Notes
 #include "../../clib/stlutil.h"
 #include "../../clib/strutil.h"
 
-#include "../../plib/mapcell.h"
-#include "../../plib/mapshape.h"
+#include <algorithm>
+#include <sstream>
 
-#include "../item/itemdesc.h"
-#include "../objtype.h"
-#include "../udatfile.h"
-#include "../uofilei.h"
-#include "../uofile.h"
-#include "multidef.h"
-#include "../ustruct.h"
-#include "../uofilei.h"
 namespace Pol {
   namespace Multi {
 	bool BoatShapeExists( u16 graphic );
@@ -73,34 +69,34 @@ namespace Pol {
 		type = STAIRS;
 	  }
 
-	  string tmp;
+	  std::string tmp;
 	  while ( elem.remove_prop( "static", &tmp ) )
 	  {
-		istringstream is( tmp );
+        std::istringstream is(tmp);
 		MULTI_ELEM multielem;
 		multielem.is_static = true;
-		if ( is >> hex >> multielem.objtype >> dec >> multielem.x >> multielem.y >> multielem.z )
+        if (is >> std::hex >> multielem.objtype >> std::dec >> multielem.x >> multielem.y >> multielem.z)
 		{
 		  elems.push_back( multielem );
 		}
 		else
 		{
-		  string message = "Badly formed static directive: '" + tmp + "'";
+          std::string message = "Badly formed static directive: '" + tmp + "'";
 		  elem.throw_error( message );
 		}
 	  }
 	  while ( elem.remove_prop( "dynamic", &tmp ) )
 	  {
-		istringstream is( tmp );
+        std::istringstream is(tmp);
 		MULTI_ELEM multielem;
 		multielem.is_static = false;
-		if ( is >> hex >> multielem.objtype >> dec >> multielem.x >> multielem.y >> multielem.z )
+        if (is >> std::hex >> multielem.objtype >> std::dec >> multielem.x >> multielem.y >> multielem.z)
 		{
 		  elems.push_back( multielem );
 		}
 		else
 		{
-		  string message = "Badly formed dynamic directive: '" + tmp + "'";
+            std::string message = "Badly formed dynamic directive: '" + tmp + "'";
 		  elem.throw_error( message );
 		}
 	  }

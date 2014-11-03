@@ -10,16 +10,21 @@ Notes
 
 */
 
-#include "../../clib/stl_inc.h"
-
-#include <math.h>
-
-#include "../../bscript/berror.h"
-#include "../../bscript/impstr.h"
 #include "mathmod.h"
+
+#include "../../bscript/impstr.h"
+#include "../../bscript/berror.h"
+
+#include <cmath>
+
+#ifdef _MSC_VER
+#pragma warning(disable:4996) // disable deprecation warning sprintf
+#endif
+
 namespace Pol {
   namespace Bscript {
-    using namespace Module;
+      using namespace Module;
+
     template<>
     TmplExecutorModule<MathExecutorModule>::FunctionDef
       TmplExecutorModule<MathExecutorModule>::function_table[] =

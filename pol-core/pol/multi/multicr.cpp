@@ -8,15 +8,6 @@ Notes
 =======
 
 */
-
-#include "../../clib/stl_inc.h"
-
-#include "../../bscript/berror.h"
-
-#include "../../clib/endian.h"
-#include "../../clib/strutil.h"
-#include "../../clib/logfacility.h"
-
 #include "boat.h"
 #include "house.h"
 #include "../item/itemdesc.h"
@@ -25,6 +16,13 @@ Notes
 #include "../uworld.h"
 #include "../uoscrobj.h"
 #include "../objecthash.h"
+
+#include "../../bscript/berror.h"
+
+#include "../../clib/endian.h"
+#include "../../clib/strutil.h"
+#include "../../clib/logfacility.h"
+
 namespace Pol {
   namespace Multi {
 	bool isboat( u32 objtype )

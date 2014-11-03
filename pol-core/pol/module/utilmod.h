@@ -8,6 +8,8 @@ Notes
 
 */
 
+#include "../../bscript/execmodl.h"
+
 #ifndef __UTILMOD_H
 #define __UTILMOD_H
 namespace Pol {

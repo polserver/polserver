@@ -10,7 +10,7 @@ Notes
 #ifndef __SYMCONT_H
 #define __SYMCONT_H
 
-#include <stdio.h>
+#include <cstdio>
 
 #include "../clib/passert.h"
 #include "../clib/rawtypes.h"

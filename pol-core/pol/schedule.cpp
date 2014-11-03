@@ -8,23 +8,26 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-#include <time.h>
-
-#include "../clib/passert.h"
-#include "../clib/tracebuf.h"
-#include "../clib/logfacility.h"
+#include "schedule.h"
 
 #include "polclock.h"
 #include "polcfg.h"
 #include "polsig.h"
 #include "profile.h"
-#include "schedule.h"
+
+#include "../clib/passert.h"
+#include "../clib/tracebuf.h"
+#include "../clib/logfacility.h"
+
+#include <ctime>
+#include <functional>
+#include <vector>
+#include <queue>
 
 namespace Pol {
   namespace Core {
 
-	class SchComparer : public less<ScheduledTask*>
+	class SchComparer : public std::less<ScheduledTask*>
 	{
 	public:
 	  bool operator()( const ScheduledTask* x, const ScheduledTask* y ) const;
@@ -38,7 +41,7 @@ namespace Pol {
 		return x->next_run_clock_ > y->next_run_clock_;
 	}
 
-	typedef priority_queue< ScheduledTask*, vector<ScheduledTask*>, SchComparer > TASK_QUEUE;
+	typedef std::priority_queue< ScheduledTask*, std::vector<ScheduledTask*>, SchComparer > TASK_QUEUE;
 
 	static TASK_QUEUE task_queue;
 	bool TaskScheduler::dirty_ = false;
@@ -158,7 +161,7 @@ namespace Pol {
 		*handle = NULL;
 	  handle = NULL;
 	}
-	void OneShotTask::execute( polclock_t now_clock )
+	void OneShotTask::execute( polclock_t /*now_clock*/ )
 	{
 	  if ( !cancelled )
 	  {

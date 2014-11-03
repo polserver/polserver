@@ -164,7 +164,7 @@ namespace Pol {
       return size;
     }
 
-    PacketInterface* PacketQueueSingle::GetNext(u8 id, u16 sub)
+    PacketInterface* PacketQueueSingle::GetNext(u8 id, u16 /*sub*/)
     {
       // critical start
       std::lock_guard<std::mutex> lock(_PacketQueueSingleMutex);

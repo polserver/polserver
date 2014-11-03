@@ -380,7 +380,7 @@
     <ClCompile Include="statmsg.cpp" />
     <ClCompile Include="storage.cpp" />
     <ClCompile Include="syshook.cpp" />
-    <ClCompile Include="systemhookscript.cpp" />
+    <ClCompile Include="syshookscript.cpp" />
     <ClCompile Include="target.cpp" />
     <ClCompile Include="tasks.cpp" />
     <ClCompile Include="textcmd.cpp" />

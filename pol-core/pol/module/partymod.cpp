@@ -8,7 +8,8 @@ Notes
 
 */
 
-#include "../../clib/stl_inc.h"
+#include "partymod.h"
+#include "../party.h"
 
 #ifdef MEMORYLEAK
 #include "../../bscript/bobject.h"
@@ -23,11 +24,11 @@ Notes
 #include "../network/client.h"
 #include "../fnsearch.h"
 #include "../proplist.h"
-#include "../party.h"
 #include "../clfunc.h"
 #include "../uoscrobj.h"
 #include "../uoexhelp.h"
-#include "partymod.h"
+
+#include <memory>
 
 namespace Pol {
   namespace Bscript {
@@ -127,7 +128,7 @@ namespace Pol {
 		case MBR_MEMBERS:
 		{
 						  std::unique_ptr<ObjArray> arr( new ObjArray );
-						  vector<u32>::iterator itr = obj_->_member_serials.begin();
+						  auto itr = obj_->_member_serials.begin();
 						  while ( itr != obj_->_member_serials.end() )
 						  {
                             Mobile::Character* chr = Core::system_find_mobile( *itr );
@@ -154,7 +155,7 @@ namespace Pol {
 		case MBR_CANDIDATES:
 		{
 							 std::unique_ptr<ObjArray> arr( new ObjArray );
-							 vector<u32>::iterator itr = obj_->_candidates_serials.begin();
+							 auto itr = obj_->_candidates_serials.begin();
 							 while ( itr != obj_->_candidates_serials.end() )
 							 {
                                Mobile::Character* chr = Core::system_find_mobile( *itr );
@@ -186,7 +187,7 @@ namespace Pol {
 	  }
 	}
 
-	BObjectImp* EPartyRefObjImp::call_method_id( const int id, Executor& ex, bool forcebuiltin )
+	BObjectImp* EPartyRefObjImp::call_method_id( const int id, Executor& ex, bool /*forcebuiltin*/ )
 	{
 	  switch ( id )
 	  {

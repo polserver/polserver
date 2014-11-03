@@ -9,8 +9,15 @@ Notes
 =======
 
 */
+#include "syshook.h"
 
-#include "../clib/stl_inc.h"
+#include "syshookscript.h"
+#include "scrdef.h"
+#include "scrsched.h"
+#include "scrstore.h"
+#include "uoexec.h"
+
+#include "../plib/pkg.h"
 
 #include "../bscript/eprog.h"
 
@@ -19,13 +26,7 @@ Notes
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
 
-#include "scrdef.h"
-#include "scrsched.h"
-#include "scrstore.h"
-#include "syshook.h"
-#include "syshookscript.h"
-#include "../plib/pkg.h"
-#include "uoexec.h"
+#include <string>
 
 /// SystemHookScript functions:
 ///	CheckSkill( who, skillid, difficulty, points )
@@ -119,7 +120,7 @@ namespace Pol {
 	std::vector<ExportScript*> export_scripts;
 	SystemHooks system_hooks;
 
-	void hook( ExportScript* shs, const string& hookname, const string& exfuncname )
+    void hook(ExportScript* shs, const std::string& hookname, const std::string& exfuncname)
 	{
 	  ExportedFunction** pphook = NULL;
 	  unsigned nargs;
@@ -246,7 +247,7 @@ namespace Pol {
 	  {
         Plib::Package* pkg = ( *citr );
 		//string fname = pkg->dir() + "syshook.cfg";
-        string fname = Plib::GetPackageCfgPath( pkg, "syshook.cfg" );
+        std::string fname = Plib::GetPackageCfgPath(pkg, "syshook.cfg");
 		if ( Clib::FileExists( fname.c_str() ) )
 		{
           Clib::ConfigFile cf( fname.c_str( ), "SystemHookScript" );
@@ -257,7 +258,7 @@ namespace Pol {
 			if ( shs->Initialize() )
 			{
 			  export_scripts.push_back( shs );
-			  string hookname, exfuncname;
+              std::string hookname, exfuncname;
 			  while ( elem.remove_first_prop( &hookname, &exfuncname ) )
 			  {
 				if ( exfuncname.empty() )
@@ -348,12 +349,12 @@ namespace Pol {
 											bool complain_if_missing )
 	{
 	  // first, split up script and functionname
-	  string::size_type colon_pos = descriptor.find_last_of( ':' );
-	  if ( colon_pos == string::npos )
+      auto colon_pos = descriptor.find_last_of(':');
+	  if ( colon_pos == std::string::npos )
 		elem.throw_error( "Expected ':' in exported function descriptor (" + descriptor + ")" );
 
-	  string scriptname = descriptor.substr( 0, colon_pos );
-	  string functionname = descriptor.substr( colon_pos + 1, string::npos );
+      std::string scriptname = descriptor.substr(0, colon_pos);
+      std::string functionname = descriptor.substr(colon_pos + 1, std::string::npos);
 
 	  ScriptDef sd( scriptname, pkg, "" );
 

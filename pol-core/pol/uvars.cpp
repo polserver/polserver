@@ -14,19 +14,7 @@ Notes
 =======
 
 */
-
-#include "../clib/stl_inc.h"
-#ifdef _MSC_VER
-#pragma warning( disable: 4786 )
-#endif
-
-
-#include "../clib/cfgelem.h"
-#include "../clib/clib.h"
-#include "../clib/fileutil.h"
-#include "../clib/stlutil.h"
-#include "../clib/cfgfile.h"
-#include "../clib/logfacility.h"
+#include "uvars.h"
 
 #include "accounts/account.h"
 #include "mobile/attribute.h"
@@ -50,12 +38,22 @@ Notes
 #include "storage.h"
 #include "ufunc.h"
 #include "uoskills.h"
-#include "uvars.h"
 #include "uworld.h"
 #include "watch.h"
 
 #include "vital.h"
 #include "multi/multidef.h"
+
+#include "../clib/cfgfile.h"
+#include "../clib/cfgelem.h"
+#include "../clib/clib.h"
+#include "../clib/fileutil.h"
+#include "../clib/stlutil.h"
+#include "../clib/logfacility.h"
+
+#ifdef _MSC_VER
+#pragma warning(disable:4505) // '...': unreferenced local function has been removed (because of region.h)
+#endif
 
 namespace Pol {
   namespace Core {

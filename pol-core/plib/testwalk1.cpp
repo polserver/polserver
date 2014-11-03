@@ -7,7 +7,6 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
 #include "../clib/logfacility.h"
 #include "../pol/uconst.h"
 #include "../pol/uobject.h"
@@ -47,7 +46,7 @@ namespace Pol {
 
 	Realm* p_test_realm;
 
-	static void test_walk( unsigned short oldx, unsigned short oldy, short oldz,
+	static void test_walk( unsigned short /*oldx*/, unsigned short /*oldy*/, short oldz,
 						   unsigned short newx, unsigned short newy, bool exp_result, short exp_z )
 	{
 	  RealmDescriptor r1 = RealmDescriptor::Load( "britannia" );
@@ -83,7 +82,7 @@ namespace Pol {
 	  inc_successes();
       INFO_PRINT << "Ok!\n";
 	}
-	static void test_walk2( unsigned short oldx, unsigned short oldy, short oldz,
+	static void test_walk2( unsigned short /*oldx*/, unsigned short /*oldy*/, short oldz,
 							unsigned short newx, unsigned short newy, bool doors_block, MOVEMODE movemode, bool exp_result, short exp_z )
 	{
 	  if ( p_test_realm == NULL )

@@ -7,30 +7,11 @@ Notes
 =======
 
 */
-#include <iostream>
-#include "../../clib/stl_inc.h"
+#include "npcmod.h"
 
-#ifdef _MSC_VER
-#	pragma warning(disable:4786)
-#endif
-
-#include "../../clib/cfgelem.h"
-#include "../../clib/clib.h"
-#include "../../clib/endian.h"
-#include "../../clib/fileutil.h"
-#include "../../clib/logfacility.h"
-#include "../../clib/passert.h"
-#include "../../clib/random.h"
-#include "../../clib/stlutil.h"
-#include "../../clib/strutil.h"
-#include "../../clib/unicode.h"
-
-#include "../../bscript/berror.h"
-#include "../../bscript/eprog.h"
-#include "../../bscript/executor.h"
-#include "../../bscript/execmodl.h"
-#include "../../bscript/modules.h"
-#include "../../bscript/impstr.h"
+#include "osmod.h"
+#include "unimod.h"
+#include "uomod.h"
 
 #include "../../plib/realm.h"
 
@@ -67,10 +48,32 @@ Notes
 #include "../wrldsize.h"
 #include "../uworld.h"
 #include "../containr.h"
-#include "npcmod.h"
-#include "osmod.h"
-#include "unimod.h"
-#include "uomod.h"
+
+#include "../../bscript/berror.h"
+#include "../../bscript/eprog.h"
+#include "../../bscript/executor.h"
+#include "../../bscript/execmodl.h"
+#include "../../bscript/modules.h"
+#include "../../bscript/impstr.h"
+
+#include "../../clib/cfgelem.h"
+#include "../../clib/clib.h"
+#include "../../clib/endian.h"
+#include "../../clib/fileutil.h"
+#include "../../clib/logfacility.h"
+#include "../../clib/passert.h"
+#include "../../clib/random.h"
+#include "../../clib/stlutil.h"
+#include "../../clib/strutil.h"
+#include "../../clib/unicode.h"
+
+#include <stdexcept>
+#include <iostream>
+
+#ifdef _MSC_VER
+#pragma warning(disable:4996) // deprecation warning for stricmp
+#endif
+ 
 namespace Pol {
   namespace Module {
     using namespace Bscript;
@@ -81,7 +84,7 @@ namespace Pol {
 	{
 	  os_module = static_cast<OSExecutorModule*>( exec.findModule( "OS" ) );
 	  if ( os_module == NULL )
-		throw runtime_error( "NPCExecutorModule needs OS module!" );
+		throw std::runtime_error( "NPCExecutorModule needs OS module!" );
 	}
 
 	NPCExecutorModule::~NPCExecutorModule()
@@ -728,7 +731,7 @@ namespace Pol {
 		npc.unhide();
 
 	  const char* text = exec.paramAsString( 0 );
-	  string texttype_str = Clib::strlower( exec.paramAsString( 1 ) );
+      std::string texttype_str = Clib::strlower(exec.paramAsString(1));
 	  int doevent; exec.getParam( 2, doevent );
 	  u8 texttype;
 	  if ( texttype_str == "default" )
@@ -792,7 +795,7 @@ namespace Pol {
 		   getStringParam( 2, lang ) &&
 		   getParam( 3, doevent ) )
 	  {
-		string texttype_str = Clib::strlower( exec.paramAsString( 1 ) );
+          std::string texttype_str = Clib::strlower(exec.paramAsString(1));
 		if ( texttype_str != "default" &&
 			 texttype_str != "whisper" &&
 			 texttype_str != "yell" )
@@ -808,7 +811,7 @@ namespace Pol {
 		if ( !Clib::convertArrayToUC( oText, gwtext, textlenucc ) )
 		  return new BError( "Invalid value in Unicode array." );
 
-		string languc = Clib::strupper( lang->value() );
+        std::string languc = Clib::strupper(lang->value());
 		unsigned textlen = 0;
 
 		//textlen = wcslen((const wchar_t*)wtext) + 1;
@@ -895,7 +898,7 @@ namespace Pol {
 	  const String* propname_str;
 	  if ( exec.getStringParam( 0, propname_str ) )
 	  {
-		string val;
+          std::string val;
 		if ( npc.getprop( propname_str->value(), val ) )
 		{
 		  return BObjectImp::unpack( val.c_str() );

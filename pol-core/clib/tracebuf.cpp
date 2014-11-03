@@ -7,9 +7,9 @@ Notes
 
 */
 
-#include "stl_inc.h"
-#include "logfacility.h"
 #include "tracebuf.h"
+#include "logfacility.h"
+
 namespace Pol {
   namespace Clib {
 #ifndef NDEBUG

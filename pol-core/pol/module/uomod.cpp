@@ -59,31 +59,12 @@ Notes
 
 */
 
-#include "../../clib/stl_inc.h"
 
-#ifdef _MSC_VER
-#	pragma warning(disable:4786)
-#endif
+#include "uomod.h"
 
-
-#include <stddef.h>
-#include <stdio.h>
-#include <string.h>
-#include <limits.h>
-#include <math.h>
-
-#include "../../clib/cfgelem.h"
-#include "../../clib/cfgfile.h"
-#include "../../clib/clib.h"
-#include "../../clib/endian.h"
-#include "../../clib/esignal.h"
-#include "../../clib/logfacility.h"
-#include "../../clib/passert.h"
-#include "../../clib/random.h"
-#include "../../clib/stlutil.h"
-#include "../../clib/strutil.h"
-#include "../../clib/unicode.h"
-#include "../../clib/weakptr.h"
+#include "cfgmod.h"
+#include "osmod.h"
+#include "../uoexec.h"
 
 #include "../../bscript/berror.h"
 #include "../../bscript/bobject.h"
@@ -138,16 +119,12 @@ Notes
 #include "../udatfile.h"
 #include "../ufunc.h"
 #include "../umanip.h"
-#include "../uoexec.h"
 #include "../uofile.h"
 #include "../uopathnode.h"
 #include "../uoscrobj.h"
 #include "../ustruct.h"
 #include "../uvars.h"
 #include "../uworld.h"
-#include "cfgmod.h"
-#include "osmod.h"
-#include "uomod.h"
 #include "../gprops.h"
 #include "../uimport.h"
 #include "../gameclck.h"
@@ -159,6 +136,26 @@ Notes
 #include "../multi/house.h"
 #include "../mobile/ufacing.h"
 #include "../containr.h"
+
+#include "../../clib/cfgelem.h"
+#include "../../clib/cfgfile.h"
+#include "../../clib/clib.h"
+#include "../../clib/endian.h"
+#include "../../clib/esignal.h"
+#include "../../clib/logfacility.h"
+#include "../../clib/passert.h"
+#include "../../clib/random.h"
+#include "../../clib/stlutil.h"
+#include "../../clib/strutil.h"
+#include "../../clib/unicode.h"
+#include "../../clib/weakptr.h"
+
+#include <cstddef>
+#include <cstdio>
+#include <cstring>
+#include <climits>
+#include <cmath>
+
 
 namespace Pol {
   namespace Core {
@@ -2332,7 +2329,7 @@ namespace Pol {
 	  return NULL;
 	}
 
-    void UOExecutorModule::internal_InBoxAreaChecks( unsigned short &x1, unsigned short &y1, short &z1, unsigned short &x2, unsigned short &y2, short &z2, Plib::Realm* realm )
+    void UOExecutorModule::internal_InBoxAreaChecks( unsigned short& /*x1*/, unsigned short& /*y1*/, short &z1, unsigned short &x2, unsigned short &y2, short &z2, Plib::Realm* realm )
 	{
 	  if ( z1 < WORLD_MIN_Z )
 		z1 = WORLD_MIN_Z;

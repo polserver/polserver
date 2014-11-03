@@ -9,25 +9,24 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
+#include "tiles.h"
+#include "polcfg.h"
+
+#include "../plib/mapcell.h"
+#include "../plib/mapfunc.h"
+#include "../plib/pkg.h"
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/passert.h"
 #include "../clib/logfacility.h"
 
-#include "../plib/mapcell.h"
-#include "../plib/mapfunc.h"
-#include "../plib/pkg.h"
-
-#include "tiles.h"
-#include "polcfg.h"
 namespace Pol {
   namespace Core {
 	bool tiles_loaded = false;
 	Tile *tile;
 
-	void load_tile_entry( const Plib::Package* pkg, Clib::ConfigElem& elem )
+	void load_tile_entry( const Plib::Package* /*pkg*/, Clib::ConfigElem& elem )
 	{
 	  unsigned short graphic = static_cast<unsigned short>( strtoul( elem.rest(), NULL, 0 ) );
 	  passert_always( graphic < ( config.max_tile_id + 1 ) );

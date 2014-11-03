@@ -35,6 +35,9 @@
 	<ClCompile Include="Debugging\ExceptionParser.cpp">
 	  <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Debugging\LogSink.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="dirfunc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -256,9 +259,6 @@
     <ClInclude Include="StdAfx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="stl_inc.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="stlutil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -331,10 +331,13 @@
     <ClInclude Include="compilerspecifics.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="boostutils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
 	<ClInclude Include="Debugging\ExceptionParser.h">
 	  <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="boostutils.h">
+    <ClInclude Include="Debugging\LogSink.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

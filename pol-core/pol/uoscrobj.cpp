@@ -47,27 +47,7 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-#ifdef _MSC_VER
-#pragma warning( disable: 4786 )
-#endif
-
-
-#include "../bscript/berror.h"
-#include "../bscript/dict.h"
-#include "../bscript/escrutil.h"
-#include "../bscript/execmodl.h"
-#include "../bscript/impstr.h"
-#include "../bscript/objmembers.h"
-#include "../bscript/objmethods.h"
-#include "../bscript/bobject.h"
-
-#include "../clib/endian.h"
-#include "../clib/stlutil.h"
-#include "../clib/strutil.h"
-#include "../clib/unicode.h"
-
-#include "../plib/realm.h"
+#include "uoscrobj.h"
 
 #include "accounts/account.h"
 #include "accounts/acscrobj.h"
@@ -108,7 +88,22 @@ Notes
 #include "network/clienttransmit.h"
 #include "eventid.h"
 
-#include "uoscrobj.h"
+#include "../bscript/berror.h"
+#include "../bscript/dict.h"
+#include "../bscript/escrutil.h"
+#include "../bscript/execmodl.h"
+#include "../bscript/impstr.h"
+#include "../bscript/objmembers.h"
+#include "../bscript/objmethods.h"
+#include "../bscript/bobject.h"
+
+#include "../plib/realm.h"
+
+#include "../clib/endian.h"
+#include "../clib/stlutil.h"
+#include "../clib/strutil.h"
+#include "../clib/unicode.h"
+
 namespace Pol {
   namespace Module {
 	using namespace Bscript;
@@ -154,7 +149,7 @@ namespace Pol {
 		return BObjectRef( UninitObject::create() );
 	}
 
-	BObjectRef ECharacterRefObjImp::set_member_id( const int id, BObjectImp* value, bool copy )
+	BObjectRef ECharacterRefObjImp::set_member_id( const int id, BObjectImp* value, bool /*copy*/ )
 	{
 	  BObjectImp* result = NULL;
 	  if ( value->isa( BObjectImp::OTLong ) )
@@ -333,7 +328,7 @@ namespace Pol {
 		return BObjectRef( UninitObject::create() );
 	}
 
-	BObjectRef EItemRefObjImp::set_member_id( const int id, BObjectImp* value, bool copy )
+	BObjectRef EItemRefObjImp::set_member_id( const int id, BObjectImp* value, bool /*copy*/ )
 	{
 	  BObjectImp* result = NULL;
 	  if ( value->isa( BObjectImp::OTLong ) )
@@ -493,7 +488,7 @@ namespace Pol {
 		return BObjectRef( UninitObject::create() );
 	}
 
-	BObjectRef EUBoatRefObjImp::set_member_id( const int id, BObjectImp* value, bool copy )
+	BObjectRef EUBoatRefObjImp::set_member_id( const int id, BObjectImp* value, bool /*copy*/ )
 	{
 	  BObjectImp* result = NULL;
 	  if ( value->isa( BObjectImp::OTLong ) )
@@ -526,7 +521,7 @@ namespace Pol {
 		return BObjectRef( UninitObject::create() );
 	}
 
-	BObjectImp* EUBoatRefObjImp::call_method_id( const int id, Executor& ex, bool forcebuiltin )
+	BObjectImp* EUBoatRefObjImp::call_method_id( const int id, Executor& ex, bool /*forcebuiltin*/ )
 	{
 	  if ( !obj_->orphan() )
 	  {
@@ -656,7 +651,7 @@ namespace Pol {
 		return BObjectRef( UninitObject::create() );
 	}
 
-	BObjectRef EMultiRefObjImp::set_member_id( const int id, BObjectImp* value, bool copy )
+	BObjectRef EMultiRefObjImp::set_member_id( const int id, BObjectImp* value, bool /*copy*/ )
 	{
 	  BObjectImp* result = NULL;
 	  if ( value->isa( BObjectImp::OTLong ) )
@@ -826,7 +821,7 @@ namespace Pol {
 		return NULL;
 	}
 
-	BObjectImp* UObject::set_script_member_id_double( const int id, double value )
+	BObjectImp* UObject::set_script_member_id_double( const int /*id*/, double /*value*/ )
 	{
 	  set_dirty();
 	  return NULL;
@@ -911,7 +906,7 @@ namespace Pol {
 		case MBR_HP: return new BLong( hp_ ); break;
 		case MBR_MAXHP_MOD: return new BLong( getmember<s16>( MBR_MAXHP_MOD ) ); break;
 		case MBR_MAXHP: return new BLong( static_cast<int>( maxhp() * quality_ ) ); break;
-		case MBR_NAME_SUFFIX: return new String( getmember<string>( MBR_NAME_SUFFIX ) ); break;
+		case MBR_NAME_SUFFIX: return new String( name_suffix() ); break;
 		default: return NULL;
 	  }
 	}
@@ -946,8 +941,9 @@ namespace Pol {
 		  set_dirty();
 		  increv();
 		  send_object_cache_to_inrange( this );
-		  setmember<string>( MBR_NAME_SUFFIX, value );
+		  name_suffix( value );
 		  return new String( value );
+
 		default: return NULL;
 	  }
 	}
@@ -1433,11 +1429,11 @@ namespace Pol {
 		  return id.method_script->call( PC, new Module::EItemRefObjImp( this ), pmore );
 		else
 		{
-		  string message;
+		  std::string message;
 		  message = "Method script for objtype "
 			+ id.objtype_description()
 			+ " does not export function "
-			+ string( methodname )
+			+ std::string( methodname )
 			+ " taking "
 			+ Clib::decint( pmore.size() + 1 )
 			+ " parameters";
@@ -1652,7 +1648,7 @@ namespace Pol {
 		  break;
 		case MBR_MOVEMODE:
 		{
-		  string mode = "";
+		  std::string mode = "";
 		  if ( movemode & Core::MOVEMODE_LAND )
 			mode = "L";
 		  if ( movemode & Core::MOVEMODE_SEA )
@@ -2207,7 +2203,7 @@ namespace Pol {
 		{
 		  std::unique_ptr<BDictionary> dict( new BDictionary );
 		  ISTRINGSTREAM istrm( all_privs() );
-		  string tmp;
+		  std::string tmp;
 		  while ( istrm >> tmp )
 		  {
 			dict->addMember( new String( tmp ), new BLong( setting_enabled( tmp.c_str() ) ) );
@@ -3004,7 +3000,7 @@ namespace Pol {
           if ( cp != NULL )
             return new Module::EItemRefObjImp( cp );
           else
-            return new BError( string( "This ship doesn't have that component" ) );
+            return new BError( std::string( "This ship doesn't have that component" ) );
           break;
         }
         case MBR_PORTPLANK:
@@ -3013,7 +3009,7 @@ namespace Pol {
           if ( cp != NULL )
             return new Module::EItemRefObjImp( cp );
           else
-            return new BError( string( "This ship doesn't have that component" ) );
+              return new BError(std::string("This ship doesn't have that component"));
           break;
         }
         case MBR_STARBOARDPLANK:
@@ -3022,7 +3018,7 @@ namespace Pol {
 		  if ( cp != NULL )
 			return new Module::EItemRefObjImp( cp );
 		  else
-			return new BError( string( "This ship doesn't have that component" ) );
+              return new BError(std::string("This ship doesn't have that component"));
 		  break;
         }
         case MBR_HOLD:
@@ -3031,7 +3027,7 @@ namespace Pol {
           if ( cp != NULL )
             return new Module::EItemRefObjImp( cp );
           else
-            return new BError( string( "This ship doesn't have that component" ) );
+              return new BError(std::string("This ship doesn't have that component"));
           break;
         }
         case MBR_ROPE: return component_list( COMPONENT_ROPE ); break;
@@ -3261,7 +3257,7 @@ namespace Pol {
               return ret;
             else
             {
-              string message = string( "Member " ) + string( mname->value() ) + string( " not found on that object" );
+                std::string message = std::string("Member ") + std::string(mname->value()) + std::string(" not found on that object");
               return new BError( message );
             }
 
@@ -3281,7 +3277,7 @@ namespace Pol {
               return ret;
             else
             {
-              string message = string( "Member " ) + string( mname->value() ) + string( " not found on that object" );
+              std::string message = std::string( "Member " ) + std::string( mname->value() ) + std::string( " not found on that object" );
               return new BError( message );
             }
           }
@@ -3723,7 +3719,7 @@ namespace Pol {
         return BObjectRef( UninitObject::create() );
     }
 
-    BObjectRef EClientRefObjImp::set_member_id( const int id, BObjectImp* value, bool copy )
+    BObjectRef EClientRefObjImp::set_member_id( const int /*id*/, BObjectImp* /*value*/, bool /*copy*/ )
     {
       if ( ( obj_.ConstPtr() == NULL ) || ( !obj_->isConnected() ) )
         return BObjectRef( new BError( "Client not ready or disconnected" ) );
@@ -3740,7 +3736,7 @@ namespace Pol {
       return NULL;
     }
 
-    BObjectImp* EClientRefObjImp::call_method_id( const int id, Executor& ex, bool forcebuiltin )
+    BObjectImp* EClientRefObjImp::call_method_id( const int id, Executor& ex, bool /*forcebuiltin*/ )
     {
       if ( ( obj_.ConstPtr() == NULL ) || ( !obj_->isConnected() ) )
         return new BError( "Client not ready or disconnected" );

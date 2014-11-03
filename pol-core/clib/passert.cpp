@@ -10,13 +10,12 @@ Notes
 
 */
 
-#include "stl_inc.h"
+#include "passert.h"
 
 #include "Debugging/ExceptionParser.h"
 
 #include "esignal.h"
 #include "logfacility.h"
-#include "passert.h"
 #include "progver.h"
 #include "stlutil.h"
 #include "threadhelp.h"
@@ -31,7 +30,6 @@ Notes
 #include <execinfo.h>
 #include <iostream>
 #include <cstdlib>
-#include <stdlib.h>
 #include <signal.h>
 #include <pthread.h>
 #endif
@@ -45,11 +43,11 @@ namespace Pol {
 	bool passert_nosave = false;
 	bool passert_shutdown_due_to_assertion = false;
 
-	string scripts_thread_script;
+	std::string scripts_thread_script;
 	unsigned scripts_thread_scriptPC;
 
 #ifdef _WIN32    
-    void force_backtrace( bool complete )
+    void force_backtrace( bool /*complete*/ )
 	{
 	  __try
 	  {
@@ -64,7 +62,7 @@ namespace Pol {
 
     void force_backtrace(bool complete)
 	{
-      string stack_trace = Clib::ExceptionParser::GetTrace();
+      std::string stack_trace = Clib::ExceptionParser::GetTrace();
       fmt::Writer tmp;
       tmp << "=== Stack Backtrace ===\nBuild: " << progverstr << " (" << buildtagstr << ")\nStack Backtrace:\n";
 	  tmp << stack_trace;
@@ -117,13 +115,13 @@ namespace Pol {
 		abort();
 	  }
 
-	  throw runtime_error( "Assertion Failed: "
-						   + string( expr ) + ", "
-						   + string( file ) + ", line "
+	  throw std::runtime_error( "Assertion Failed: "
+						   + std::string( expr ) + ", "
+                           + std::string(file) + ", line "
 						   + tostring( line ) );
 	}
 
-	void passert_failed( const char *expr, const string& reason, const char *file, unsigned line )
+    void passert_failed(const char *expr, const std::string& reason, const char *file, unsigned line)
 	{
       POLLOG_ERROR << "Assertion Failed: " << expr << " (" << reason << "), " << file << ", line " << line << "\n";
 
@@ -151,11 +149,11 @@ namespace Pol {
 		abort();
 	  }
 
-	  throw runtime_error( "Assertion Failed: "
-						   + string( expr ) + " ("
-						   + string( reason ) + "), "
-						   + string( file ) + ", line "
-						   + tostring( line ) );
+      throw std::runtime_error("Assertion Failed: "
+          + std::string(expr) + " ("
+          + std::string(reason) + "), "
+          + std::string(file) + ", line "
+          + tostring(line));
 	}
 
 
@@ -171,7 +169,7 @@ namespace Pol {
         return;
 
       fmt::Writer tmp;
-      string stack_trace = Clib::ExceptionParser::GetTrace();
+      std::string stack_trace = Clib::ExceptionParser::GetTrace();
       threadhelp::ThreadMap::Contents contents;
       threadhelp::threadmap.CopyContents( contents );
       tmp << "Thread ID " << pthread_self() << " (" << contents[pthread_self()] << ")\n";

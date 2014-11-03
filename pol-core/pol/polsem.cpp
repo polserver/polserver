@@ -8,23 +8,22 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
+#include "polsem.h"
+
+#include "checkpnt.h"
+
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"
 #include "../clib/strexcpt.h"
 #include "../clib/threadhelp.h"
 #include "../clib/tracebuf.h"
 
-#include "checkpnt.h"
-#include "polsem.h"
-
-#ifndef _WIN32
-#include <pthread.h>
-#include <sys/time.h>
-#include <unistd.h>
-#endif
 #ifdef _WIN32
-#include <process.h>
+#   include <process.h>
+#else
+#   include <pthread.h>
+#   include <sys/time.h>
+#   include <unistd.h>
 #endif
 
 namespace Pol {
@@ -75,12 +74,7 @@ namespace Pol {
 
 #endif
 
-
-	//static void (*tmp_thread_func1)(void);
-	//static void (*tmp_thread_func2)(void*);
-	//static const char* tmp_thread_name;
-	//static void* tmp_thread_arg;
-
+    
 #ifdef _WIN32
 	CRITICAL_SECTION cs;
 	HANDLE hEvPulse;

@@ -9,16 +9,14 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
+#include "poltest.h"
+
 #include "../clib/logfacility.h"
-
-
-#include <assert.h>
-
 #include "../clib/passert.h"
 
 #include "../plib/maptile.h"
 #include "../plib/realm.h"
+#include "../plib/testenv.h"
 
 #include "realms.h"
 
@@ -30,9 +28,7 @@ Notes
 #include "udatfile.h"
 #include "uvars.h"
 #include "skilladv.h"
-#include "../plib/testenv.h"
 
-#include "poltest.h"
 namespace Pol {
   namespace Plib {
     void pol_walk_test();

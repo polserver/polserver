@@ -11,21 +11,20 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
+#include "impstr.h"
 
-#include <stdlib.h>
-#include <string.h>
+#include "berror.h"
+#include "bobject.h"
+#include "objmethods.h"
+#include "executor.h"
+#include "../clib/stlutil.h"
+
+#include <cstdlib>
+#include <cstring>
 
 #ifdef __GNUG__
 #	include <streambuf>
 #endif
-
-#include "berror.h"
-#include "bobject.h"
-#include "impstr.h"
-#include "objmethods.h"
-#include "executor.h"
-#include "../clib/stlutil.h"
 
 #ifdef _MSC_VER
 #	pragma warning( disable: 4244 )
@@ -49,13 +48,13 @@ namespace Pol {
 
 	String *String::ETrim( const char* CRSet, int type )
 	{
-	  string tmp = value_;
+	  std::string tmp = value_;
 
 	  if ( type == 1 ) // This is for Leading Only.
 	  {
 		// Find the first character position after excluding leading blank spaces 
 		size_t startpos = tmp.find_first_not_of( CRSet );
-		if ( string::npos != startpos )
+		if ( std::string::npos != startpos )
 		  tmp = tmp.substr( startpos );
 		else
 		  tmp = "";
@@ -65,7 +64,7 @@ namespace Pol {
 	  {
 		// Find the first character position from reverse 
 		size_t endpos = tmp.find_last_not_of( CRSet );
-		if ( string::npos != endpos )
+        if (std::string::npos != endpos)
 		  tmp = tmp.substr( 0, endpos + 1 );
 		else
 		  tmp = "";
@@ -79,7 +78,7 @@ namespace Pol {
 		size_t endpos = tmp.find_last_not_of( CRSet );
 
 		// if all spaces or empty return on empty string  
-		if ( ( string::npos == startpos ) || ( string::npos == endpos ) )
+        if ((std::string::npos == startpos) || (std::string::npos == endpos))
 		  tmp = "";
 		else
 		  tmp = tmp.substr( startpos, endpos - startpos + 1 );
@@ -91,8 +90,8 @@ namespace Pol {
 
 	void String::EStrReplace( String* str1, String* str2 )
 	{
-	  string::size_type valpos = 0;
-      while ( string::npos != ( valpos = value_.find( str1->value_, valpos ) ) )
+        std::string::size_type valpos = 0;
+        while (std::string::npos != (valpos = value_.find(str1->value_, valpos)))
 	  {
 		value_.replace( valpos, str1->length(), str2->value_ );
         valpos += str2->length();
@@ -104,16 +103,16 @@ namespace Pol {
 	  value_.replace( index - 1, len, replace_with->value_ );
 	}
 
-	string String::pack() const
+    std::string String::pack() const
 	{
 	  return "s" + value_;
 	}
 
-	void String::packonto( ostream& os ) const
+    void String::packonto(std::ostream& os) const
 	{
 	  os << "S" << value_.size() << ":" << value_;
 	}
-	void String::packonto( ostream& os, const string& value )
+    void String::packonto(std::ostream& os, const std::string& value)
 	{
 	  os << "S" << value.size() << ":" << value;
 	}
@@ -123,15 +122,15 @@ namespace Pol {
 	  return new String( pstr );
 	}
 
-	BObjectImp* String::unpack( istream& is )
+    BObjectImp* String::unpack(std::istream& is)
 	{
-	  string tmp;
+      std::string tmp;
 	  getline( is, tmp );
 
 	  return new String( tmp );
 	}
 
-	BObjectImp* String::unpackWithLen( istream& is )
+    BObjectImp* String::unpackWithLen(std::istream& is)
 	{
 	  unsigned len;
 	  char colon;
@@ -148,8 +147,8 @@ namespace Pol {
 		return new BError( "Unable to unpack string length. Bad format. Colon not found!" );
 	  }
 
-	  is.unsetf( ios::skipws );
-	  string tmp;
+      is.unsetf(std::ios::skipws);
+      std::string tmp;
 	  tmp.reserve( len );
 	  while ( len-- )
 	  {
@@ -161,7 +160,7 @@ namespace Pol {
 		tmp += ch;
 	  }
 
-	  is.setf( ios::skipws );
+      is.setf(std::ios::skipws);
 	  return new String( tmp );
 	}
 
@@ -178,9 +177,9 @@ namespace Pol {
 	int String::find( int begin, const char *target )
 	{
 	  // TODO: check what happens in string if begin position is out of range
-	  string::size_type pos;
+        std::string::size_type pos;
 	  pos = value_.find( target, begin );
-	  if ( pos == string::npos )
+      if (pos == std::string::npos)
 		return -1;
 	  else
 		return static_cast<int>( pos );
@@ -222,7 +221,7 @@ namespace Pol {
 
 	void String::reverse( void )
 	{
-	  ::reverse( value_.begin(), value_.end() );
+        std::reverse(value_.begin(), value_.end());
 	}
 
 	void String::set( char *newstr )
@@ -260,23 +259,23 @@ namespace Pol {
 	{
 	  objimp.selfPlusObj( *this, obj );
 	}
-	void String::selfPlusObj( BObjectImp& objimp, BObject& obj )
+	void String::selfPlusObj( BObjectImp& objimp, BObject& /*obj*/ )
 	{
 	  value_ += objimp.getStringRep();
 	}
-	void String::selfPlusObj( BLong& objimp, BObject& obj )
+	void String::selfPlusObj( BLong& objimp, BObject& /*obj*/ )
 	{
 	  value_ += objimp.getStringRep();
 	}
-	void String::selfPlusObj( Double& objimp, BObject& obj )
+	void String::selfPlusObj( Double& objimp, BObject& /*obj*/ )
 	{
 	  value_ += objimp.getStringRep();
 	}
-	void String::selfPlusObj( String& objimp, BObject& obj )
+	void String::selfPlusObj( String& objimp, BObject& /*obj*/ )
 	{
 	  value_ += objimp.getStringRep();
 	}
-	void String::selfPlusObj( ObjArray& objimp, BObject& obj )
+	void String::selfPlusObj( ObjArray& objimp, BObject& /*obj*/ )
 	{
 	  value_ += objimp.getStringRep();
 	}
@@ -285,8 +284,9 @@ namespace Pol {
 	void String::remove( const char *rm )
 	{
 	  size_t len = strlen( rm );
-	  string::size_type pos = value_.find( rm );
-	  if ( pos != string::npos )
+
+      auto pos = value_.find(rm);
+      if (pos != std::string::npos)
 		value_.erase( pos, len );
 	}
 
@@ -328,23 +328,23 @@ namespace Pol {
 	{
 	  objimp.selfMinusObj( *this, obj );
 	}
-	void String::selfMinusObj( BObjectImp& objimp, BObject& obj )
+	void String::selfMinusObj( BObjectImp& objimp, BObject& /*obj*/ )
 	{
 	  remove( objimp.getStringRep().data() );
 	}
-	void String::selfMinusObj( BLong& objimp, BObject& obj )
+	void String::selfMinusObj( BLong& objimp, BObject& /*obj*/ )
 	{
 	  remove( objimp.getStringRep().data() );
 	}
-	void String::selfMinusObj( Double& objimp, BObject& obj )
+	void String::selfMinusObj( Double& objimp, BObject& /*obj*/ )
 	{
 	  remove( objimp.getStringRep().data() );
 	}
-	void String::selfMinusObj( String& objimp, BObject& obj )
+	void String::selfMinusObj( String& objimp, BObject& /*obj*/ )
 	{
 	  remove( objimp.value_.data() );
 	}
-	void String::selfMinusObj( ObjArray& objimp, BObject& obj )
+	void String::selfMinusObj( ObjArray& objimp, BObject& /*obj*/ )
 	{
 	  remove( objimp.getStringRep().data() );
 	}
@@ -400,10 +400,9 @@ namespace Pol {
 	  }
 	}
 
-	BObjectImp* String::array_assign( BObjectImp* idx, BObjectImp* target, bool copy )
+	BObjectImp* String::array_assign( BObjectImp* idx, BObjectImp* target, bool /*copy*/ )
 	{
-	  (void)copy;
-	  string::size_type pos, len;
+      std::string::size_type pos, len;
 
 	  // first, determine position and length.
 	  if ( idx->isa( OTString ) )
@@ -421,7 +420,7 @@ namespace Pol {
 	  else if ( idx->isa( OTDouble ) )
 	  {
 		Double& dbl = (Double&)*idx;
-		pos = static_cast<string::size_type>( dbl.value() );
+        pos = static_cast<std::string::size_type>(dbl.value());
 		len = 1;
 	  }
 	  else
@@ -429,7 +428,7 @@ namespace Pol {
 		return UninitObject::create();
 	  }
 
-	  if ( pos != string::npos )
+      if (pos != std::string::npos)
 	  {
 		if ( target->isa( OTString ) )
 		{
@@ -444,7 +443,7 @@ namespace Pol {
 	  }
 	}
 
-	BObjectRef String::OperMultiSubscriptAssign( stack<BObjectRef>& indices, BObjectImp* target )
+    BObjectRef String::OperMultiSubscriptAssign(std::stack<BObjectRef>& indices, BObjectImp* target)
 	{
 	  BObjectRef start_ref = indices.top();
 	  indices.pop();
@@ -470,8 +469,8 @@ namespace Pol {
 	  else if ( start.isa( OTString ) )
 	  {
 		String& rtstr = (String&)start;
-		string::size_type pos = value_.find( rtstr.value_ );
-		if ( pos != string::npos )
+        std::string::size_type pos = value_.find(rtstr.value_);
+        if (pos != std::string::npos)
 		  index = static_cast<unsigned int>( pos + 1 );
 		else
 		  return BObjectRef( new UninitObject );
@@ -514,7 +513,7 @@ namespace Pol {
 	}
 
 
-	BObjectRef String::OperMultiSubscript( stack<BObjectRef>& indices )
+    BObjectRef String::OperMultiSubscript(std::stack<BObjectRef>& indices)
 	{
 	  BObjectRef start_ref = indices.top();
 	  indices.pop();
@@ -540,8 +539,8 @@ namespace Pol {
 	  else if ( start.isa( OTString ) )
 	  {
 		String& rtstr = (String&)start;
-		string::size_type pos = value_.find( rtstr.value_ );
-		if ( pos != string::npos )
+        std::string::size_type pos = value_.find(rtstr.value_);
+        if (pos != std::string::npos)
 		  index = static_cast<unsigned int>( pos + 1 );
 		else
 		  return BObjectRef( new UninitObject );
@@ -602,8 +601,8 @@ namespace Pol {
 	  else if ( right.isa( OTString ) )
 	  {
 		String& rtstr = (String&)right;
-		string::size_type pos = value_.find( rtstr.value_ );
-		if ( pos != string::npos )
+        auto pos = value_.find(rtstr.value_);
+        if (pos != std::string::npos)
 		  return BObjectRef( new BObject( new String( value_, pos, 1 ) ) );
 		else
 		  return BObjectRef( new UninitObject );
@@ -616,7 +615,7 @@ namespace Pol {
 
 	// -- format related stuff --
 
-	bool s_parse_int( int &i, string const &s )
+    bool s_parse_int(int &i, std::string const &s)
 	{
 	  if ( s.empty() )
 		return false;
@@ -635,7 +634,7 @@ namespace Pol {
 	}
 
 	// remove leading/trailing spaces
-	void s_trim( string &s )
+    void s_trim(std::string &s)
 	{
 	  std::stringstream trimmer;
 	  trimmer << s;
@@ -660,7 +659,7 @@ namespace Pol {
 	  }
 	}
 
-	bool try_to_format( std::stringstream &to_stream, BObjectImp *what, string& frmt )
+    bool try_to_format(std::stringstream &to_stream, BObjectImp *what, std::string& frmt)
 	{
 	  if ( frmt.empty() )
 	  {
@@ -668,7 +667,7 @@ namespace Pol {
 		return false;
 	  }
 
-	  if ( frmt.find( 'b' ) != string::npos )
+      if (frmt.find('b') != std::string::npos)
 	  {
 		if ( !what->isa( BObjectImp::OTLong ) )
 		{
@@ -677,11 +676,11 @@ namespace Pol {
 		}
 		BLong* plong = static_cast<BLong*>( what );
 		int n = plong->value();
-		if ( frmt.find( '#' ) != string::npos )
+        if (frmt.find('#') != std::string::npos)
 		  to_stream << ( ( n < 0 ) ? "-" : "" ) << "0b";
 		int_to_binstr( n, to_stream );
 	  }
-	  else if ( frmt.find( 'x' ) != string::npos )
+      else if (frmt.find('x') != std::string::npos)
 	  {
 		if ( !what->isa( BObjectImp::OTLong ) )
 		{
@@ -690,11 +689,11 @@ namespace Pol {
 		}
 		BLong* plong = static_cast<BLong*>( what );
 		int n = plong->value();
-		if ( frmt.find( '#' ) != string::npos )
+        if (frmt.find('#') != std::string::npos)
 		  to_stream << "0x";
 		to_stream << std::hex << n;
 	  }
-	  else if ( frmt.find( 'o' ) != string::npos )
+      else if (frmt.find('o') != std::string::npos)
 	  {
 		if ( !what->isa( BObjectImp::OTLong ) )
 		{
@@ -703,11 +702,11 @@ namespace Pol {
 		}
 		BLong* plong = static_cast<BLong*>( what );
 		int n = plong->value();
-		if ( frmt.find( '#' ) != string::npos )
+        if (frmt.find('#') != std::string::npos)
 		  to_stream << "0o";
 		to_stream << std::oct << n;
 	  }
-	  else if ( frmt.find( 'd' ) != string::npos )
+      else if (frmt.find('d') != std::string::npos)
 	  {
 		int n;
 		if ( what->isa( BObjectImp::OTLong ) )
@@ -746,7 +745,7 @@ namespace Pol {
 	  else
 		return NULL;
 	}
-	BObjectImp* String::call_method_id( const int id, Executor& ex, bool forcebuiltin )
+	BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuiltin*/ )
 	{
 	  switch ( id )
 	  {
@@ -795,7 +794,7 @@ namespace Pol {
 						 if ( ex.numParams() > 0 )
 						 {
 
-						   string s = this->getStringRep(); // string itself
+                           std::string s = this->getStringRep(); // string itself
 						   std::stringstream result;
 
 						   size_t tag_start_pos; // the position of tag's start "{"
@@ -806,34 +805,34 @@ namespace Pol {
 						   size_t str_pos = 0; // current string position		
 						   unsigned int next_param_idx = 0; // next index of .format() parameter
 
-						   while ( ( tag_start_pos = s.find( "{", str_pos ) ) != string::npos )
+                           while ((tag_start_pos = s.find("{", str_pos)) != std::string::npos)
 						   {
-							 if ( ( tag_stop_pos = s.find( "}", tag_start_pos ) ) != string::npos )
+                               if ((tag_stop_pos = s.find("}", tag_start_pos)) != std::string::npos)
 							 {
 
 							   result << s.substr( str_pos, tag_start_pos - str_pos );
 							   str_pos = tag_stop_pos + 1;
 
-							   string tag_body = s.substr( tag_start_pos + 1, ( tag_stop_pos - tag_start_pos ) - 1 );
+                               std::string tag_body = s.substr(tag_start_pos + 1, (tag_stop_pos - tag_start_pos) - 1);
 							   s_trim( tag_body ); // trim the tag of whitespaces
 
-							   string frmt;
+                               std::string frmt;
 							   size_t formatter_pos = tag_body.find( ':' );
 
-							   if ( formatter_pos != string::npos )
+                               if (formatter_pos != std::string::npos)
 							   {
-								 frmt = tag_body.substr( formatter_pos + 1, string::npos ); //
+                                   frmt = tag_body.substr(formatter_pos + 1, std::string::npos); //
 								 tag_body = tag_body.substr( 0, formatter_pos ); // remove property from the tag
 							   }
 
-							   string prop_name;
+                               std::string prop_name;
 							   // parsing {1.this_part}
 							   tag_dot_pos = tag_body.find( ".", 0 );
 
 							   // '.' is found within the tag, there is a property name
-							   if ( tag_dot_pos != string::npos )
+                               if (tag_dot_pos != std::string::npos)
 							   {
-								 prop_name = tag_body.substr( tag_dot_pos + 1, string::npos ); //
+								 prop_name = tag_body.substr( tag_dot_pos + 1, std::string::npos ); //
 								 tag_body = tag_body.substr( 0, tag_dot_pos ); // remove property from the tag
 
 								 // if s_tag_body is numeric then use it as an index
@@ -892,7 +891,7 @@ namespace Pol {
 
 						   if ( str_pos < s.length() )
 						   {
-							 result << s.substr( str_pos, string::npos );
+                               result << s.substr(str_pos, std::string::npos);
 						   }
 
 						   return new String( result.str() );

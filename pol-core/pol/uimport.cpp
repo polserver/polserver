@@ -14,42 +14,15 @@ Notes
 
 */
 
-#include "../clib/stl_inc.h"
-#ifdef _MSC_VER
-#pragma warning( disable: 4786 )
-#endif
-
-#ifndef __clang__ 
-#include <omp.h>
-#endif
-#include <stdio.h>
-#include <string.h>
-#include <errno.h>
-#include <future>
-
-#include "../clib/cfgelem.h"
-#include "../clib/cfgfile.h"
-#include "../clib/endian.h"
-#include "../clib/esignal.h"
-#include "../clib/fileutil.h"
-#include "../clib/logfacility.h"
-#include "../clib/progver.h"
-#include "../clib/stlutil.h"
-#include "../clib/strutil.h"
-#include "../clib/timer.h"
-#include "../clib/threadhelp.h"
-
-#include "../plib/polver.h"
-#include "../plib/realm.h"
-
+#include "loaddata.h"
 #include "accounts/account.h"
 #include "accounts/accounts.h"
 #include "mobile/charactr.h"
+#include "item/itemdesc.h"
+
 #include "fnsearch.h"
 #include "gflag.h"
 #include "gprops.h"
-#include "item/itemdesc.h"
-#include "loaddata.h"
 #include "objtype.h"
 #include "npc.h"
 #include "polcfg.h"
@@ -72,6 +45,39 @@ Notes
 ////HASH
 #include "objecthash.h"
 ////
+
+#include "../plib/polver.h"
+#include "../plib/realm.h"
+
+#include "../clib/cfgelem.h"
+#include "../clib/cfgfile.h"
+#include "../clib/endian.h"
+#include "../clib/esignal.h"
+#include "../clib/fileutil.h"
+#include "../clib/logfacility.h"
+#include "../clib/progver.h"
+#include "../clib/stlutil.h"
+#include "../clib/strutil.h"
+#include "../clib/timer.h"
+#include "../clib/threadhelp.h"
+
+#ifndef __clang__ 
+#include <omp.h>
+#endif
+
+#include <cstdio>
+#include <cstring>
+#include <cerrno>
+
+#include <future>
+
+#include <string>
+#include <stdexcept>
+
+#ifdef _MSC_VER
+#pragma warning(disable:4996) // disable warning deprecation of stricmp
+#endif
+
 namespace Pol {
   namespace Module {
     void commit_datastore();
@@ -114,7 +120,7 @@ namespace Pol {
         // readProperties gets the serial, so we can't add to the objecthash until now.
         objecthash.Insert( chr.get() );
       }
-      catch ( exception& )
+      catch ( std::exception& )
       {
         if ( chr.get() != NULL )
           chr->destroy();
@@ -145,7 +151,7 @@ namespace Pol {
         objecthash.Insert( npc.get() );
         ////
       }
-      catch ( exception& )
+      catch (std::exception&)
       {
         if ( npc.get() != NULL )
           npc->destroy();
@@ -176,7 +182,7 @@ namespace Pol {
         {
           ERROR_PRINT.Format( "Duplicate item read from datafiles (Serial=0x{:X})\n" )
             << serial;
-          throw runtime_error( "Data integrity error" );
+          throw std::runtime_error("Data integrity error");
         }
       }
       if ( elem.remove_prop( "OBJTYPE", &objtype ) == false )
@@ -192,11 +198,11 @@ namespace Pol {
       {
         ERROR_PRINT.Format( "Unable to create item: objtype=0x{:X}, serial=0x{:X}" ) << objtype << serial;
         if ( !config.ignore_load_errors )
-          throw runtime_error( "Item::create failed!" );
+            throw std::runtime_error("Item::create failed!");
         else
           return NULL;
       }
-      item->realm = find_realm( string( "britannia" ) );
+      item->realm = find_realm( "britannia" );
 
       item->readProperties( elem );
 
@@ -210,7 +216,7 @@ namespace Pol {
     typedef std::stack<UContainer*> ContStack;
     static ContStack parent_conts;
 
-    void read_global_item( Clib::ConfigElem& elem, int sysfind_flags )
+    void read_global_item( Clib::ConfigElem& elem, int /*sysfind_flags*/ )
     {
       // if this object is modified in a subsequent incremental save,
       // don't load it now. 
@@ -319,13 +325,13 @@ namespace Pol {
       if ( elem.remove_prop( "SERIAL", &serial ) == false )
       {
         ERROR_PRINT << "A Multi has no SERIAL property.\n";
-        throw runtime_error( "Config File error." );
+        throw std::runtime_error("Config File error.");
       }
       if ( system_find_multi( serial ) || system_find_item( serial ) )
       {
         ERROR_PRINT.Format( "Duplicate item read from datafiles (Serial=0x{:X})\n" )
           << serial;
-        throw runtime_error( "Data integrity error" );
+        throw std::runtime_error("Data integrity error");
       }
       if ( elem.remove_prop( "OBJTYPE", &objtype ) == false )
       {
@@ -339,14 +345,14 @@ namespace Pol {
       if ( multi == NULL )
       {
         ERROR_PRINT.Format( "Unable to create multi: objtype=0x{:X}, serial=0x{:X}\n" ) << objtype << serial;
-        throw runtime_error( "Multi::create failed!" );
+        throw std::runtime_error("Multi::create failed!");
       }
       multi->readProperties( elem );
 
       add_multi_to_world( multi );
     }
 
-    string elapsed( clock_t start, clock_t end )
+    std::string elapsed(clock_t start, clock_t end)
     {
       size_t ms = static_cast<size_t>( ( end - start ) * 1000.0 / CLOCKS_PER_SEC );
       return Clib::decint( ms ) + " ms";
@@ -391,7 +397,7 @@ namespace Pol {
               StorageArea* storage_area = storage.create_area( elem );
               // this will be followed by an item
               if (!cf.read(elem))
-                  throw runtime_error("Expected an item to exist after the storagearea.");
+                  throw std::runtime_error("Expected an item to exist after the storagearea.");
 
               storage_area->load_item( elem );
             }
@@ -415,7 +421,7 @@ namespace Pol {
 
     void read_pol_dat()
     {
-      string polfile = config.world_data_path + "pol.txt";
+      std::string polfile = config.world_data_path + "pol.txt";
 
       slurp( polfile.c_str(), "GLOBALPROPERTIES SYSTEM REALM" );
 
@@ -428,7 +434,7 @@ namespace Pol {
           << "	CoreVersion 99\n"
           << "}\n\n"
           << "Ensure that the CoreVersion matches the version that created your data files!\n";
-        throw runtime_error( "Data file error" );
+        throw std::runtime_error("Data file error");
       }
     }
 
@@ -483,7 +489,7 @@ namespace Pol {
 
     void read_storage_dat()
     {
-      string storagefile = config.world_data_path + "storage.txt";
+      std::string storagefile = config.world_data_path + "storage.txt";
 
       if ( Clib::FileExists( storagefile ) )
       {
@@ -521,7 +527,7 @@ namespace Pol {
       if ( objtype > config.max_tile_id )
       {
         ERROR_PRINT.Format( "Importing file: 0x{:X} is out of range.\n" ) << objtype;
-        throw runtime_error( "Error while importing file." );
+        throw std::runtime_error("Error while importing file.");
       }
 
       Items::Item* item = Items::Item::create( objtype, 0x40000000 ); // dummy serial
@@ -529,7 +535,7 @@ namespace Pol {
       if ( item == NULL )
       {
         ERROR_PRINT.Format( "Unable to import item: objtype=0x{:X}\n" ) << objtype;
-        throw runtime_error( "Item::create failed!" );
+        throw std::runtime_error("Item::create failed!");
       }
 
       item->readProperties( elem );
@@ -554,7 +560,7 @@ namespace Pol {
 
     void import_new_data()
     {
-      string importfile = config.world_data_path + "import.txt";
+      std::string importfile = config.world_data_path + "import.txt";
 
       if ( Clib::FileExists( importfile ) )
       {
@@ -569,10 +575,10 @@ namespace Pol {
       }
     }
 
-    void rndat( const string& basename )
+    void rndat(const std::string& basename)
     {
-      string datname = config.world_data_path + basename + ".dat";
-      string txtname = config.world_data_path + basename + ".txt";
+      std::string datname = config.world_data_path + basename + ".dat";
+      std::string txtname = config.world_data_path + basename + ".txt";
 
       if ( Clib::FileExists( datname.c_str() ) )
       {
@@ -628,8 +634,8 @@ namespace Pol {
 
     int read_data()
     {
-      string objectsndtfile = config.world_data_path + "objects.ndt";
-      string storagendtfile = config.world_data_path + "storage.ndt";
+      std::string objectsndtfile = config.world_data_path + "objects.ndt";
+      std::string storagendtfile = config.world_data_path + "storage.ndt";
 
       gflag_in_system_load = true;
       if ( Clib::FileExists( objectsndtfile ) )
@@ -639,7 +645,7 @@ namespace Pol {
           << "'" << objectsndtfile << " exists.  This probably means the system\n"
           << "exited while writing its state.  To avoid loss of data,\n"
           << "forcing human intervention.\n";
-        throw runtime_error( "Human intervention required." );
+        throw std::runtime_error("Human intervention required.");
       }
       if ( Clib::FileExists( storagendtfile ) )
       {
@@ -647,7 +653,7 @@ namespace Pol {
           << "'" << storagendtfile << " exists.  This probably means the system\n"
           << "exited while writing its state.  To avoid loss of data,\n"
           << "forcing human intervention.\n";
-        throw runtime_error( "Human intervention required." );
+        throw std::runtime_error("Human intervention required.");
       }
 
       rename_dat_files();
@@ -1048,11 +1054,11 @@ namespace Pol {
       }
     }
 
-    bool commit( const string& basename )
+    bool commit(const std::string& basename)
     {
-      string bakfile = config.world_data_path + basename + ".bak";
-      string datfile = config.world_data_path + basename + ".txt";
-      string ndtfile = config.world_data_path + basename + ".ndt";
+      std::string bakfile = config.world_data_path + basename + ".bak";
+      std::string datfile = config.world_data_path + basename + ".txt";
+      std::string ndtfile = config.world_data_path + basename + ".ndt";
       const char* bakfile_c = bakfile.c_str();
       const char* datfile_c = datfile.c_str();
       const char* ndtfile_c = ndtfile.c_str();
@@ -1351,7 +1357,7 @@ namespace Pol {
         if ( stricmp( elem.type(), "StartingLocation" ) != 0 )
         {
           ERROR_PRINT << "Unknown element type in startloc.cfg: " << elem.type() << "\n";
-          throw runtime_error( "Error in configuration file." );
+          throw std::runtime_error("Error in configuration file.");
         }
 
         std::unique_ptr<StartingLocation> loc( new StartingLocation );
@@ -1361,7 +1367,7 @@ namespace Pol {
         loc->cliloc_desc = elem.remove_unsigned( "CLILOC", 1075072 );
 		loc->realm = find_realm( elem.remove_string( "REALM", "britannia" ));
 
-        string coord;
+        std::string coord;
         while ( elem.remove_prop( "Coordinate", &coord ) )
         {
           int x, y, z;
@@ -1378,7 +1384,7 @@ namespace Pol {
               << ", description "
               << loc->desc
               << "\n";
-            throw runtime_error( "Configuration file error in startloc.cfg." );
+            throw std::runtime_error("Configuration file error in startloc.cfg.");
           }
         }
         if ( loc->coords.size() == 0 )
@@ -1389,13 +1395,13 @@ namespace Pol {
             << loc->desc
             << ") has no Coordinate properties."
             << "\n";
-          throw runtime_error( "Configuration file error." );
+          throw std::runtime_error("Configuration file error.");
         }
         startlocations.push_back( loc.release() );
       }
 
       if ( startlocations.empty() )
-        throw runtime_error( "STARTLOC.CFG: No starting locations found.  Clients will crash on character creation." );
+          throw std::runtime_error("STARTLOC.CFG: No starting locations found.  Clients will crash on character creation.");
     }
 
     ServerDescription::ServerDescription() :
@@ -1408,7 +1414,7 @@ namespace Pol {
 
     void read_gameservers()
     {
-      string accttext;
+      std::string accttext;
 
       Clib::ConfigFile cf( "config/servers.cfg" );
 
@@ -1422,7 +1428,7 @@ namespace Pol {
 
         svr->name = elem.remove_string( "NAME" );
 
-        string iptext;
+        std::string iptext;
         int ip0, ip1, ip2, ip3;
         iptext = elem.remove_string( "IP" );
         if ( iptext == "--ip--" )
@@ -1453,7 +1459,7 @@ namespace Pol {
               << ") for GameServer '"
               << svr->name
               << "'.\n";
-            throw runtime_error( "Configuration file error." );
+            throw std::runtime_error("Configuration file error.");
           }
           svr->ip[0] = static_cast<unsigned char>( ip3 );
           svr->ip[1] = static_cast<unsigned char>( ip2 );
@@ -1500,11 +1506,11 @@ namespace Pol {
 
         while ( elem.remove_prop( "IPMATCH", &iptext ) )
         {
-          string::size_type delim = iptext.find_first_of( "/" );
-          if ( delim != string::npos )
+          auto delim = iptext.find_first_of( "/" );
+          if (delim != std::string::npos)
           {
-            string ipaddr_str = iptext.substr( 0, delim );
-            string ipmask_str = iptext.substr( delim + 1 );
+            std::string ipaddr_str = iptext.substr(0, delim);
+            std::string ipmask_str = iptext.substr(delim + 1);
             unsigned int ipaddr = inet_addr( ipaddr_str.c_str() );
             unsigned int ipmask = inet_addr( ipmask_str.c_str() );
             svr->ip_match.push_back( ipaddr );
@@ -1526,7 +1532,7 @@ namespace Pol {
         servers.push_back( svr.release() );
       }
       if ( servers.empty() )
-        throw runtime_error( "There must be at least one GameServer in SERVERS.CFG." );
+        throw std::runtime_error( "There must be at least one GameServer in SERVERS.CFG." );
     }
 
 

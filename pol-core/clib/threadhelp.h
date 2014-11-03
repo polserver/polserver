@@ -11,6 +11,7 @@ Notes
 #ifndef THREADHELP_H
 #define THREADHELP_H
 
+#include <vector>
 #include <thread>
 #include <future>
 #include <map>

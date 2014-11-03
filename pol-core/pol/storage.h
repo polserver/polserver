@@ -24,6 +24,9 @@ namespace Pol {
   namespace Items {
 	class Item;
   }
+  namespace Plib{
+      class Realm;
+  }
   namespace Clib {
 	class ConfigFile;
 	class ConfigElem;
