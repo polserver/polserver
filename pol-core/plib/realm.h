@@ -18,6 +18,8 @@ Notes
 #include "../pol/uconst.h" // for MOVEMODE under gcc, bleh
 #include "../pol/udatfile.h"
 
+#include "WorldChangeReasons.h"
+
 #include <set>
 #include <memory>
 
@@ -66,6 +68,9 @@ namespace Pol {
 
 	  bool valid( unsigned short x, unsigned short y, short z ) const;
 	  const std::string name() const;
+
+      void add_mobile(const Mobile::Character& chr, WorldChangeReason reason);
+      void remove_mobile(const Mobile::Character& chr, WorldChangeReason reason);
 
 	  bool walkheight( unsigned short x, unsigned short y, short oldz,
 					   short* newz,

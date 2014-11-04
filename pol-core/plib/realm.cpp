@@ -19,6 +19,8 @@ Notes
 #include "maptileserver.h"
 
 #include "../pol/uworld.h"
+#include "WorldChangeReasons.h"
+#include "../clib/logfacility.h"
 
 namespace Pol {
   namespace Plib {
@@ -146,5 +148,16 @@ namespace Pol {
 		return shadowname;
 	  return _descriptor.name;
 	}
+
+
+    void Realm::add_mobile(const Mobile::Character& chr, WorldChangeReason reason)
+    {
+        ++mobile_count;
+    }
+
+    void Realm::remove_mobile(const Mobile::Character& chr, WorldChangeReason reason)
+    {
+        --mobile_count;
+    }
   }
 }

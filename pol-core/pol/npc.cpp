@@ -817,7 +817,7 @@ namespace Pol {
 	  if ( Clib::FileExists( "scripts/misc/death.ecl" ) )
 		Core::start_script( "misc/death", new Module::EItemRefObjImp( corpse ) );
 
-	  ClrCharacterWorldPosition( this, "NPC death" );
+	  ClrCharacterWorldPosition( this, Plib::WorldChangeReason::NpcDeath );
 	  if ( ex != NULL )
 	  {
 		// this will force the execution engine to stop running this script immediately

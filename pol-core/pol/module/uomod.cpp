@@ -1359,7 +1359,7 @@ namespace Pol {
 
 
 		//characters.push_back( npc.get() );
-		SetCharacterWorldPosition( npc.get() );
+        SetCharacterWorldPosition(npc.get(), Plib::WorldChangeReason::NpcCreate);
         WorldIterator<PlayerFilter>::InVisualRange( npc.get( ), [&]( Character *zonechr )
         {
           if ( !zonechr->has_active_client() )

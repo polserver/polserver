@@ -136,5 +136,8 @@
     <ClInclude Include="uoexpansion.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+	<ClInclude Include="WorldChangeReasons.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

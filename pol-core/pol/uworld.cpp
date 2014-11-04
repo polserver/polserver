@@ -118,14 +118,14 @@ namespace Pol {
 	//4-17-04 Rac destroyed the world! in favor of splitting its duties amongst the realms
 	//World world;
 
-    void SetCharacterWorldPosition( Mobile::Character* chr )
+    void SetCharacterWorldPosition( Mobile::Character* chr, Plib::WorldChangeReason reason )
     {
       Zone& zone = getzone( chr->x, chr->y, chr->realm );
 
       auto set_pos = [&]( ZoneCharacters &set )
       {
         passert( std::find( set.begin(), set.end(), chr ) == set.end() );
-        ++chr->realm->mobile_count;
+        chr->realm->add_mobile(*chr, reason);
         set.push_back( chr );
       };
 
@@ -133,51 +133,26 @@ namespace Pol {
         set_pos( zone.npcs );
       else
         set_pos( zone.characters );
+
     }
 
-	void ClrCharacterWorldPosition( Mobile::Character* chr, const char* reason )
+    // Function for reporting the whereabouts of chars which are not in their expected zone 
+    // (hopefully will never be called)
+    static void find_missing_char_in_zone(Mobile::Character* chr, Plib::WorldChangeReason reason);
+
+    void ClrCharacterWorldPosition( Mobile::Character* chr, Plib::WorldChangeReason reason )
 	{
 	  Zone& zone = getzone( chr->x, chr->y, chr->realm );
-	  unsigned wgridx = chr->realm->width() / WGRID_SIZE;
-	  unsigned wgridy = chr->realm->height() / WGRID_SIZE;
-
-	  // Tokuno-Fix
-	  if ( wgridx * WGRID_SIZE < chr->realm->width() )
-		wgridx++;
-	  if ( wgridy * WGRID_SIZE < chr->realm->height() )
-		wgridy++;
 
       auto clear_pos = [&]( ZoneCharacters &set )
       {
         auto itr = std::find( set.begin(), set.end(), chr );
         if ( itr == set.end() )
         {
-          POLLOG_ERROR.Format( "ClrCharacterWorldPosition({}): mob (0x{:X},0x{:X}) supposedly at ({},{}) isn't in correct zone\n" )
-            << reason << chr->serial << chr->serial_ext << chr->x << chr->y;
-          bool is_npc = chr->isa( Core::UObject::CLASS_NPC );
-          for ( unsigned zonex = 0; zonex < wgridx; ++zonex )
-          {
-            for ( unsigned zoney = 0; zoney < wgridy; ++zoney )
-            {
-              bool found = false;
-              if ( is_npc )
-              {
-                auto _z = chr->realm->zone[zonex][zoney].npcs;
-                found = std::find( _z.begin(), _z.end(), chr ) != _z.end();
-              }
-              else
-              {
-                auto _z = chr->realm->zone[zonex][zoney].characters;
-                found = std::find( _z.begin(), _z.end(), chr ) != _z.end();
-              }
-              if ( found )
-                POLLOG_ERROR.Format( "ClrCharacterWorldPosition: Found mob in zone ({},{})\n" )
-                << zonex << zoney;
-            }
-          }
-          passert( itr != set.end() );
+            find_missing_char_in_zone(chr, reason); // Uh-oh, char was not in the expected zone. Find it and report.
+            passert(itr != set.end());
         }
-        --chr->realm->mobile_count;
+        chr->realm->remove_mobile(*chr, reason);
         set.erase( itr );
       };
 
@@ -193,6 +168,7 @@ namespace Pol {
 	{
 	  if ( oldrealm == NULL )
 		oldrealm = chr->realm;
+
 	  Zone& oldzone = getzone( oldx, oldy, oldrealm );
 	  Zone& newzone = getzone( newx, newy, chr->realm );
 
@@ -200,18 +176,24 @@ namespace Pol {
 	  {
         auto move_pos = [&]( ZoneCharacters &oldset, ZoneCharacters &newset )
         {
-          passert( std::find( oldset.begin(), oldset.end(), chr ) != oldset.end() );
+          auto oldset_itr = std::find(oldset.begin(), oldset.end(), chr);
+
+          // ensure it's found in the old realm
+          passert( oldset_itr != oldset.end() );
+
+          // and that it's not yet in the new realm
           passert( std::find( newset.begin(), newset.end(), chr ) == newset.end() );
 
-          oldset.erase( std::find( oldset.begin(), oldset.end(), chr ) );
-
+          oldset.erase(oldset_itr);
           newset.push_back( chr );
+
           if ( chr->realm != oldrealm )
           {
-            --oldrealm->mobile_count;
-            ++chr->realm->mobile_count;
+              oldrealm->remove_mobile(*chr, Plib::WorldChangeReason::Moved); 
+              chr->realm->add_mobile(*chr, Plib::WorldChangeReason::Moved);
           }
         };
+
         if ( !chr->isa( Core::UObject::CLASS_NPC ) )
           move_pos( oldzone.characters, newzone.characters );
         else
@@ -246,6 +228,51 @@ namespace Pol {
 	  }
 	}
 
+    // If the ClrCharacterWorldPosition() fails, this function will find the actual char position and report
+    // TODO: check if this is really needed...
+    void find_missing_char_in_zone(Mobile::Character* chr, Plib::WorldChangeReason reason) {
+        unsigned wgridx = chr->realm->width() / WGRID_SIZE;
+        unsigned wgridy = chr->realm->height() / WGRID_SIZE;
+
+        // Tokuno-Fix
+        if (wgridx * WGRID_SIZE < chr->realm->width())
+            wgridx++;
+        if (wgridy * WGRID_SIZE < chr->realm->height())
+            wgridy++;
+
+        std::string msgreason = "unknown reason";
+        switch (reason) {
+        case Plib::WorldChangeReason::ClientExit:
+            msgreason = "Client Exit"; break;
+        case Plib::WorldChangeReason::NpcDeath:
+            msgreason = "NPC death"; break;
+        }
+
+        POLLOG_ERROR.Format("ClrCharacterWorldPosition({}): mob (0x{:X},0x{:X}) supposedly at ({},{}) isn't in correct zone\n")
+            << msgreason << chr->serial << chr->serial_ext << chr->x << chr->y;
+
+        bool is_npc = chr->isa(Core::UObject::CLASS_NPC);
+        for (unsigned zonex = 0; zonex < wgridx; ++zonex)
+        {
+            for (unsigned zoney = 0; zoney < wgridy; ++zoney)
+            {
+                bool found = false;
+                if (is_npc)
+                {
+                    auto _z = chr->realm->zone[zonex][zoney].npcs;
+                    found = std::find(_z.begin(), _z.end(), chr) != _z.end();
+                }
+                else
+                {
+                    auto _z = chr->realm->zone[zonex][zoney].characters;
+                    found = std::find(_z.begin(), _z.end(), chr) != _z.end();
+                }
+                if (found)
+                    POLLOG_ERROR.Format("ClrCharacterWorldPosition: Found mob in zone ({},{})\n")
+                    << zonex << zoney;
+            }
+        }
+    }
 	// Dave added this for debugging a single zone
 
 	bool check_single_zone_item_integrity( int x, int y, Plib::Realm* realm )

@@ -266,6 +266,7 @@
     <ClInclude Include="stlastar.h" />
     <ClInclude Include="testenv.h" />
     <ClInclude Include="uoexpansion.h" />
+    <ClInclude Include="WorldChangeReasons.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
