@@ -4,12 +4,16 @@
 namespace Pol {
     namespace Plib {
         enum class WorldChangeReason {
-            ClientEnter,
-            ClientExit,
-            NpcCreate,
             NpcLoad,
+            NpcCreate,
             NpcDeath,
-            Moved,
+
+            PlayerLoad,
+            PlayerEnter,
+            PlayerExit,
+            PlayerDeleted,
+
+            Moved
         };
     }
 }

@@ -115,8 +115,12 @@ namespace Pol {
       {
         // note chr->logged_in is true..
         chr->readProperties( elem );
-        chr->clear_dirty();
 
+        // Allows the realm to recognize this char as offline
+        chr->realm->add_mobile(*chr, Plib::WorldChangeReason::PlayerLoad);
+
+        chr->clear_dirty();
+        
         // readProperties gets the serial, so we can't add to the objecthash until now.
         objecthash.Insert( chr.get() );
       }

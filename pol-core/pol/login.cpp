@@ -480,7 +480,7 @@ namespace Pol {
 
 		chr->acct.clear();
 		acct->clear_character( charidx );
-
+        chr->on_delete_from_account();
 		chr->destroy();
 	  }
 	}

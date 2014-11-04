@@ -29,7 +29,7 @@ namespace Pol {
 	  shadowid( 0 ),
 	  baserealm( nullptr ), 
 	  toplevel_item_count( 0 ),
-	  mobile_count( 0 ),
+	  _mobile_count( 0 ),
 	  _descriptor( RealmDescriptor::Load( realm_name, realm_path ) ),
 	  _mapserver( MapServer::Create( _descriptor ) ),
 	  _staticserver( new StaticServer( _descriptor ) ),
@@ -57,7 +57,7 @@ namespace Pol {
 	  baserealm( realm ),
 	  shadowname( realm_name ),
 	  toplevel_item_count( 0 ),
-	  mobile_count( 0 ),
+	  _mobile_count( 0 ),
 	  _descriptor()
 	{
 	  size_t gridwidth = width( ) / Core::WGRID_SIZE;
@@ -149,15 +149,94 @@ namespace Pol {
 	  return _descriptor.name;
 	}
 
-
+    // This function will be called whenever:
+    //
+    //      - a npc is created,
+    //      - a npc is loaded from npcs.txt,
+    //      - a player character is created,
+    //      - a player character is loaded from pcs.txt,
+    //      - a player character connects,
+    //      - a player or npc gets moved from one realm to another
+    //
     void Realm::add_mobile(const Mobile::Character& chr, WorldChangeReason reason)
     {
-        ++mobile_count;
+        switch (reason) {
+        case WorldChangeReason::Moved:
+            if (!chr.logged_in)
+                add_to_offline_list(chr.serial);
+            break;
+
+        case WorldChangeReason::PlayerLoad: 
+            add_to_offline_list(chr.serial);
+            break;
+
+        case WorldChangeReason::PlayerEnter: 
+            remove_from_offline_list(chr.serial);         
+            break;
+
+        default: break;
+        }
+
+        // For some reason, characters are loaded with logged_in = true by default.
+        // This only changes AFTER they are added here in read_data()...
+        //
+        // Of course, to make life harder, when PlayerEnter calls here the logged_in is still false. Yay!
+        //
+        if (reason != WorldChangeReason::PlayerLoad &&
+            (reason == WorldChangeReason::PlayerEnter || chr.logged_in))
+            ++_mobile_count;
     }
 
+    // This function will be called whenever:
+    //
+    //      - a npc is killed,
+    //      - a player character disconnects,
+    //      - a player character is deleted
+    //      - a player or npc gets moved from one realm to another
+    //
     void Realm::remove_mobile(const Mobile::Character& chr, WorldChangeReason reason)
     {
-        --mobile_count;
+        switch (reason) {
+        case WorldChangeReason::PlayerExit:
+            add_to_offline_list(chr.serial);
+            break;
+
+        case WorldChangeReason::Moved:
+        case WorldChangeReason::PlayerDeleted:
+            if (!chr.logged_in) {
+                remove_from_offline_list(chr.serial);
+            }
+            break;
+
+        default: break;
+        }
+        
+        if (chr.logged_in)
+            --_mobile_count;
+    }
+
+    // Returns false if player was already on the list
+    bool Realm::add_to_offline_list(u32 serial)
+    {
+        auto itr = find(_offlinePlayers.begin(), _offlinePlayers.end(), serial);
+        if (itr == _offlinePlayers.end())
+            _offlinePlayers.push_back(serial);
+        else
+            return false;
+
+        return true;
+    }
+
+    // Returns false if player was not on the list
+    bool Realm::remove_from_offline_list(u32 serial)
+    {
+        auto itr = find(_offlinePlayers.begin(), _offlinePlayers.end(), serial);
+        if (itr != _offlinePlayers.end())
+            _offlinePlayers.erase(itr);
+        else
+            return false;
+        
+        return true;
     }
   }
 }

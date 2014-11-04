@@ -4445,5 +4445,12 @@ namespace Pol {
       return size;
 
     }
+
+    void Character::on_delete_from_account()
+    {
+        if (realm)
+            realm->remove_mobile(*this, Plib::WorldChangeReason::PlayerDeleted);
+    }
+
   }
 }

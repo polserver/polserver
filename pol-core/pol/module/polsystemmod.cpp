@@ -301,7 +301,8 @@ namespace Pol {
 	  details->addMember( "season", new BLong( realm->season() ) );
 	  details->addMember( "mapid", new BLong( realm->getUOMapID() ) );
 	  details->addMember( "toplevel_item_count", new BLong( realm->toplevel_item_count ) );
-	  details->addMember( "mobile_count", new BLong( realm->mobile_count ) );
+	  details->addMember( "mobile_count", new BLong( realm->mobile_count() ) );
+      details->addMember( "offline_mobs_count", new BLong( realm->offline_mobile_count() ) );
 
 	  return details.release();
 	}
@@ -437,15 +438,20 @@ namespace Pol {
 	  const String* realm_name;
 	  if ( !( getStringParam( 0, realm_name ) ) )
 		return new BError( "Invalid parameter" );
+
       Plib::Realm* realm = Core::find_realm( realm_name->value( ) );
+
 	  if ( !realm )
 		return new BError( "Realm not found." );
 	  if ( !realm->is_shadowrealm )
 		return new BError( "Realm is not a ShadowRealm." );
-	  if ( realm->mobile_count > 0 )
+	  if ( realm->mobile_count() > 0 )
 		return new BError( "Mobiles in Realm." );
+      if (realm->offline_mobile_count() > 0)
+          return new BError("Offline characters in Realm");
 	  if ( realm->toplevel_item_count > 0 )
 		return new BError( "Items in Realm." );
+
       Core::remove_realm( realm_name->value( ) );
 	  return new BLong( 1 );
 	}
