@@ -256,6 +256,18 @@ namespace Pol {
           << "  MOB: " << get_mobile_count()
           << "  TLI: " << get_toplevel_item_count()
           << "\n";
+
+        if (config.show_realm_info) {
+            INFO_PRINT << "\nRealm info: \n";
+            for (auto x : *Realms) {
+                INFO_PRINT << "    - " << x->name()
+                    << " (mob: " << x->mobile_count()
+                    << ", off: " << x->offline_mobile_count()
+                    << ", tli: " << x->toplevel_item_count()
+                    << ", mlt: 0"
+                    << ")\n";
+            }
+        }
 	  }
 	  else
 	  {

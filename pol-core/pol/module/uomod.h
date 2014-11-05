@@ -233,6 +233,7 @@ namespace Pol {
 	  Bscript::BObjectImp* mf_ListItemsNearLocationWithFlag();	//DAVE - flag is a tiledata.mul flag
 	  Bscript::BObjectImp* mf_ListStaticsAtLocation(/* x, y, flags, realm */ );
 	  Bscript::BObjectImp* mf_ListStaticsNearLocation(/* x, y, range, flags, realm */ );
+      Bscript::BObjectImp* mf_ListOfflineMobilesInRealm(/*realm*/);
 
 	  Bscript::BObjectImp* mf_PerformAction();			// character, action
 	  Bscript::BObjectImp* mf_PlayAnimation();

@@ -83,6 +83,7 @@ namespace Pol {
 	  bool use_single_thread_login;
 	  
 	  bool disable_nagle;
+      bool show_realm_info;
 	};
 
 	extern PolConfig config;

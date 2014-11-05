@@ -262,11 +262,6 @@ namespace Pol {
 	  {
 		multi->register_object( item );
 	  }
-	  if ( item->realm != oldrealm )
-	  {
-		++item->realm->toplevel_item_count;
-		--oldrealm->toplevel_item_count;
-	  }
 	  return new BLong( 1 );
 	}
   }

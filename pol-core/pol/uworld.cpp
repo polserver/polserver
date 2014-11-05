@@ -36,7 +36,7 @@ namespace Pol {
 
       passert( std::find( zone.items.begin(), zone.items.end(), item ) == zone.items.end() );
 
-	  ++item->realm->toplevel_item_count;
+	  item->realm->add_toplevel_item(*item);
 	  zone.items.push_back( item );
 	}
 
@@ -62,7 +62,7 @@ namespace Pol {
 		passert( itr != zone.items.end() );
 	  }
 
-	  --item->realm->toplevel_item_count;
+      item->realm->remove_toplevel_item(*item);
 	  zone.items.erase( itr );
 	}
 
@@ -70,6 +70,7 @@ namespace Pol {
 	{
 	  Zone& zone = getzone( multi->x, multi->y, multi->realm );
 	  zone.multis.push_back( multi );
+      multi->realm->add_multi(*multi);
 	}
 
 	void remove_multi_from_world( Multi::UMulti* multi )
@@ -78,7 +79,8 @@ namespace Pol {
       ZoneMultis::iterator itr = std::find( zone.multis.begin(), zone.multis.end(), multi );
 
 	  passert( itr != zone.multis.end() );
-
+      
+      multi->realm->remove_multi(*multi);
 	  zone.multis.erase( itr );
 	}
 
@@ -93,17 +95,22 @@ namespace Pol {
 	  {
         ZoneMultis::iterator itr = std::find( oldzone.multis.begin( ), oldzone.multis.end( ), multi );
 		passert( itr != oldzone.multis.end() );
-		oldzone.multis.erase( itr );
-
+		
+        oldzone.multis.erase( itr );
 		newzone.multis.push_back( multi );
 	  }
+
+      if (multi->realm != oldrealm) {
+          oldrealm->remove_multi(*multi);
+          multi->realm->add_multi(*multi);
+      }
 	}
 
 	int get_toplevel_item_count()
 	{
 	  int count = 0;
 	  for ( const auto &realm : *Realms)
-        count += realm->toplevel_item_count;
+        count += realm->toplevel_item_count();
 	  return count;
 	}
 
@@ -125,7 +132,6 @@ namespace Pol {
       auto set_pos = [&]( ZoneCharacters &set )
       {
         passert( std::find( set.begin(), set.end(), chr ) == set.end() );
-        chr->realm->add_mobile(*chr, reason);
         set.push_back( chr );
       };
 
@@ -134,6 +140,7 @@ namespace Pol {
       else
         set_pos( zone.characters );
 
+      chr->realm->add_mobile(*chr, reason);
     }
 
     // Function for reporting the whereabouts of chars which are not in their expected zone 
@@ -232,6 +239,11 @@ namespace Pol {
         passert( std::find( newzone.items.begin(), newzone.items.end(), item ) == newzone.items.end() );
 		newzone.items.push_back( item );
 	  }
+
+      if (oldrealm != item->realm) {
+          oldrealm->remove_toplevel_item(*item);
+          item->realm->add_toplevel_item(*item);
+      }
 	}
 
     // If the ClrCharacterWorldPosition() fails, this function will find the actual char position and report
