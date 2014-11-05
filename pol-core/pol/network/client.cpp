@@ -163,7 +163,7 @@ namespace Pol {
 		if ( acct->active_character->logged_in )
 		{
 		  Mobile::Character* tchr = acct->active_character;
-		  ClrCharacterWorldPosition( tchr, Plib::WorldChangeReason::ClientExit );
+		  ClrCharacterWorldPosition( tchr, Plib::WorldChangeReason::PlayerExit );
 		  send_remove_character_to_nearby( tchr );
 		  tchr->logged_in = false;
 

@@ -323,6 +323,8 @@ namespace Pol {
 
 	  bool on_mount() const;
 
+      virtual void on_delete_from_account();
+
 	  bool has_active_client() const;
 	  bool has_active_prompt() const;
 	  bool has_active_gump() const;

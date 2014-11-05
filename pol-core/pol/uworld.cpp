@@ -111,7 +111,7 @@ namespace Pol {
 	{
 	  int count = 0;
       for ( const auto &realm : *Realms )
-        count += realm->mobile_count;
+        count += realm->mobile_count();
 	  return count;
 	}
 
@@ -162,50 +162,56 @@ namespace Pol {
         clear_pos( zone.npcs );
 	}
 
-	void MoveCharacterWorldPosition( unsigned short oldx, unsigned short oldy,
-									 unsigned short newx, unsigned short newy,
-                                     Mobile::Character* chr, Plib::Realm* oldrealm )
-	{
-	  if ( oldrealm == NULL )
-		oldrealm = chr->realm;
+    void MoveCharacterWorldPosition(unsigned short oldx, unsigned short oldy,
+        unsigned short newx, unsigned short newy,
+        Mobile::Character* chr, Plib::Realm* oldrealm)
+    {
+        if (oldrealm == NULL)
+            oldrealm = chr->realm;
 
-	  Zone& oldzone = getzone( oldx, oldy, oldrealm );
-	  Zone& newzone = getzone( newx, newy, chr->realm );
+        // If the char is logged in (logged_in is always true for NPCs), update its position
+        // in the world zones
+        if (chr->logged_in) {
+            Zone& oldzone = getzone(oldx, oldy, oldrealm);
+            Zone& newzone = getzone(newx, newy, chr->realm);
 
-	  if ( &oldzone != &newzone )
-	  {
-        auto move_pos = [&]( ZoneCharacters &oldset, ZoneCharacters &newset )
+            if (&oldzone != &newzone)
+            {
+                auto move_pos = [&](ZoneCharacters &oldset, ZoneCharacters &newset)
+                {
+                    auto oldset_itr = std::find(oldset.begin(), oldset.end(), chr);
+
+                    // ensure it's found in the old realm
+                    passert(oldset_itr != oldset.end());
+                    // and that it's not yet in the new realm
+                    passert(std::find(newset.begin(), newset.end(), chr) == newset.end());
+
+                    oldset.erase(oldset_itr);
+                    newset.push_back(chr);
+                };
+
+                if (!chr->isa(Core::UObject::CLASS_NPC))
+                    move_pos(oldzone.characters, newzone.characters);
+                else
+                    move_pos(oldzone.npcs, newzone.npcs);
+            }
+
+        }
+
+        // Regardless of online or not, tell the realms that we've left
+        if (chr->realm != oldrealm)
         {
-          auto oldset_itr = std::find(oldset.begin(), oldset.end(), chr);
-
-          // ensure it's found in the old realm
-          passert( oldset_itr != oldset.end() );
-
-          // and that it's not yet in the new realm
-          passert( std::find( newset.begin(), newset.end(), chr ) == newset.end() );
-
-          oldset.erase(oldset_itr);
-          newset.push_back( chr );
-
-          if ( chr->realm != oldrealm )
-          {
-              oldrealm->remove_mobile(*chr, Plib::WorldChangeReason::Moved); 
-              chr->realm->add_mobile(*chr, Plib::WorldChangeReason::Moved);
-          }
-        };
-
-        if ( !chr->isa( Core::UObject::CLASS_NPC ) )
-          move_pos( oldzone.characters, newzone.characters );
-        else
-          move_pos( oldzone.npcs, newzone.npcs );
-	  }
-	}
+            oldrealm->remove_mobile(*chr, Plib::WorldChangeReason::Moved);
+            chr->realm->add_mobile(*chr, Plib::WorldChangeReason::Moved);
+        }
+    }
 
 	void MoveItemWorldPosition( unsigned short oldx, unsigned short oldy,
                                 Items::Item* item, Plib::Realm* oldrealm )
 	{
 	  if ( oldrealm == NULL )
 		oldrealm = item->realm;
+
 	  Zone& oldzone = getzone( oldx, oldy, oldrealm );
 	  Zone& newzone = getzone( item->x, item->y, item->realm );
 
@@ -242,7 +248,7 @@ namespace Pol {
 
         std::string msgreason = "unknown reason";
         switch (reason) {
-        case Plib::WorldChangeReason::ClientExit:
+        case Plib::WorldChangeReason::PlayerExit:
             msgreason = "Client Exit"; break;
         case Plib::WorldChangeReason::NpcDeath:
             msgreason = "NPC death"; break;

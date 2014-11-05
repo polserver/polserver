@@ -89,11 +89,8 @@ namespace Pol {
 		chr->lasty = chr->y;
 		chr->lastz = chr->z;
 	  }
-	  // probably easier and safer to just check if (chr->logged_in)
-	  if ( chr->isa( UObject::CLASS_NPC ) || chr->client ) //dave 3/26/3 otherwise exception trying to move offline mobile not found in characters list
-	  {
-		MoveCharacterWorldPosition( chr->x, chr->y, x, y, chr, oldrealm );
-	  }
+	  
+      MoveCharacterWorldPosition( chr->x, chr->y, x, y, chr, oldrealm );
 	  chr->x = x;
 	  chr->y = y;
 	  chr->z = static_cast<s8>( newz );
