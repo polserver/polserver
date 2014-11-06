@@ -76,15 +76,17 @@ namespace Pol {
       void add_mobile(const Mobile::Character& chr, WorldChangeReason reason);
       void remove_mobile(const Mobile::Character& chr, WorldChangeReason reason);
 
-    /*  void add_toplevel_item(const Items::Item& item);
+      void add_toplevel_item(const Items::Item& item);
       void remove_toplevel_item(const Items::Item& item);
 
       void add_multi(const Multi::UMulti& multi);
-      void remove_multi(const Multi::UMulti& multi);*/
+      void remove_multi(const Multi::UMulti& multi);
 
       unsigned int mobile_count();
       unsigned int offline_mobile_count();
-      
+      unsigned int toplevel_item_count();
+      unsigned int multi_count();
+
 	  bool walkheight( unsigned short x, unsigned short y, short oldz,
 					   short* newz,
 					   Multi::UMulti** pmulti, Items::Item** pwalkon,
@@ -130,7 +132,6 @@ namespace Pol {
 
 	  Core::Zone** zone;
 	  std::set<unsigned int> global_hulls; //xy-smashed together
-	  unsigned int toplevel_item_count;
 	  unsigned getUOMapID() { return _Descriptor().uomapid; };
 	  unsigned getNumStaticPatches() { return _Descriptor().num_static_patches; };
 	  unsigned getNumMapPatches() { return _Descriptor().num_map_patches; };
@@ -173,11 +174,10 @@ namespace Pol {
 
 	private:
 	  RealmDescriptor _descriptor;
-      std::vector<u32> _offlinePlayers;
       unsigned int _mobile_count;
-
-      bool add_to_offline_list(u32 serial);
-      bool remove_from_offline_list(u32 serial);
+      unsigned int _offline_count;
+      unsigned int _toplevel_item_count;
+      unsigned int _multi_count;
 
 	public:
 	  std::unique_ptr<MapServer> _mapserver;
@@ -203,8 +203,29 @@ namespace Pol {
         return _mobile_count;
     }
     inline unsigned int Realm::offline_mobile_count() {
-        return static_cast<unsigned int>(_offlinePlayers.size());
+        return _offline_count;
+    } 
+    inline unsigned int Realm::toplevel_item_count() {
+        return _toplevel_item_count;
     }
+    inline unsigned int Realm::multi_count() {
+        return _multi_count;
+    }
+
+    inline void Realm::add_toplevel_item(const Items::Item& /*item*/) {
+        ++_toplevel_item_count;
+    }
+    inline void Realm::remove_toplevel_item(const Items::Item& /*item*/) {
+        --_toplevel_item_count;
+    }
+
+    inline void Realm::add_multi(const Multi::UMulti& /*multi*/) {
+        ++_multi_count;
+    }
+    inline void Realm::remove_multi(const Multi::UMulti& /*multi*/) {
+        --_multi_count;
+    }
+
   }
 }
 #endif

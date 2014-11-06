@@ -216,6 +216,7 @@ namespace Pol {
       Clib::LogfileTimestampEveryLine = elem.remove_bool( "TimestampEveryLine", false ); // clib/logfacility.h bool
 	  config.use_single_thread_login = elem.remove_bool( "UseSingleThreadLogin", false );
 	  config.disable_nagle = elem.remove_bool( "DisableNagle", false );
+      config.show_realm_info = elem.remove_bool("ShowRealmInfo", false);
 
 #ifdef _WIN32
       Clib::MiniDumper::SetMiniDumpType( config.minidump_type );

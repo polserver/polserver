@@ -300,9 +300,10 @@ namespace Pol {
 	  details->addMember( "height", new BLong( realm->height() ) );
 	  details->addMember( "season", new BLong( realm->season() ) );
 	  details->addMember( "mapid", new BLong( realm->getUOMapID() ) );
-	  details->addMember( "toplevel_item_count", new BLong( realm->toplevel_item_count ) );
+	  details->addMember( "toplevel_item_count", new BLong( realm->toplevel_item_count() ) );
 	  details->addMember( "mobile_count", new BLong( realm->mobile_count() ) );
       details->addMember( "offline_mobs_count", new BLong( realm->offline_mobile_count() ) );
+      details->addMember( "multi_count", new BLong( realm->multi_count() ) );
 
 	  return details.release();
 	}
@@ -449,8 +450,10 @@ namespace Pol {
 		return new BError( "Mobiles in Realm." );
       if (realm->offline_mobile_count() > 0)
           return new BError("Offline characters in Realm");
-	  if ( realm->toplevel_item_count > 0 )
+	  if ( realm->toplevel_item_count() > 0 )
 		return new BError( "Items in Realm." );
+      if (realm->multi_count() > 0)
+          return new BError("Multis in Realm.");
 
       Core::remove_realm( realm_name->value( ) );
 	  return new BLong( 1 );

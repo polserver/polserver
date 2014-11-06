@@ -28,8 +28,10 @@ namespace Pol {
 	  is_shadowrealm( false ),
 	  shadowid( 0 ),
 	  baserealm( nullptr ), 
-	  toplevel_item_count( 0 ),
+	  _toplevel_item_count( 0 ),
 	  _mobile_count( 0 ),
+      _offline_count( 0 ),
+      _multi_count( 0 ),
 	  _descriptor( RealmDescriptor::Load( realm_name, realm_path ) ),
 	  _mapserver( MapServer::Create( _descriptor ) ),
 	  _staticserver( new StaticServer( _descriptor ) ),
@@ -56,8 +58,10 @@ namespace Pol {
 	  shadowid( 0 ),
 	  baserealm( realm ),
 	  shadowname( realm_name ),
-	  toplevel_item_count( 0 ),
+	  _toplevel_item_count( 0 ),
 	  _mobile_count( 0 ),
+      _offline_count( 0 ),
+      _multi_count( 0 ),
 	  _descriptor()
 	{
 	  size_t gridwidth = width( ) / Core::WGRID_SIZE;
@@ -163,15 +167,15 @@ namespace Pol {
         switch (reason) {
         case WorldChangeReason::Moved:
             if (!chr.logged_in)
-                add_to_offline_list(chr.serial);
+                ++_offline_count;
             break;
 
         case WorldChangeReason::PlayerLoad: 
-            add_to_offline_list(chr.serial);
+            ++_offline_count;
             break;
 
         case WorldChangeReason::PlayerEnter: 
-            remove_from_offline_list(chr.serial);         
+            --_offline_count;
             break;
 
         default: break;
@@ -198,13 +202,13 @@ namespace Pol {
     {
         switch (reason) {
         case WorldChangeReason::PlayerExit:
-            add_to_offline_list(chr.serial);
+            ++_offline_count;
             break;
 
         case WorldChangeReason::Moved:
         case WorldChangeReason::PlayerDeleted:
             if (!chr.logged_in) {
-                remove_from_offline_list(chr.serial);
+                --_offline_count;
             }
             break;
 
@@ -213,30 +217,6 @@ namespace Pol {
         
         if (chr.logged_in)
             --_mobile_count;
-    }
-
-    // Returns false if player was already on the list
-    bool Realm::add_to_offline_list(u32 serial)
-    {
-        auto itr = find(_offlinePlayers.begin(), _offlinePlayers.end(), serial);
-        if (itr == _offlinePlayers.end())
-            _offlinePlayers.push_back(serial);
-        else
-            return false;
-
-        return true;
-    }
-
-    // Returns false if player was not on the list
-    bool Realm::remove_from_offline_list(u32 serial)
-    {
-        auto itr = find(_offlinePlayers.begin(), _offlinePlayers.end(), serial);
-        if (itr != _offlinePlayers.end())
-            _offlinePlayers.erase(itr);
-        else
-            return false;
-        
-        return true;
     }
   }
 }

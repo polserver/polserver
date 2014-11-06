@@ -315,6 +315,7 @@ ListItemsNearLocationWithFlag( x,y,z, range, flags, realm := _DEFAULT_REALM );
 ListMobilesInLineOfSight( object, range );
 ListMobilesNearLocation( x, y, z, range, realm := _DEFAULT_REALM );
 ListMobilesNearLocationEx( x,y,z, range, flags, realm := _DEFAULT_REALM );
+ListOfflineMobilesInRealm(realm := _DEFAULT_REALM);
 ListMultisInBox( x1,y1,z1, x2,y2,z2, realm := _DEFAULT_REALM );
 ListObjectsInBox( x1,y1,z1, x2,y2,z2, realm := _DEFAULT_REALM );
 ListStaticsAtLocation( x, y, z, flags := 0, realm := _DEFAULT_REALM );

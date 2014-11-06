@@ -2853,6 +2853,37 @@ namespace Pol {
 	  }
 	}
 
+    BObjectImp* UOExecutorModule::mf_ListOfflineMobilesInRealm(/*realm*/)
+    {
+        const String* strrealm = nullptr;
+        Plib::Realm* realm = nullptr;
+
+        if (getStringParam(0, strrealm))
+        {
+            realm = find_realm(strrealm->value());
+            if (!realm)
+                return new BError("Realm not found");
+
+            std::unique_ptr<ObjArray> newarr(new ObjArray());
+            
+            for (const auto &objitr : Pol::Core::objecthash) {
+                UObject* obj = objitr.second.get();
+                if (!obj->ismobile() || obj->isa(UObject::CLASS_NPC))
+                    continue;
+
+                Character* chr = static_cast<Character*>(obj);
+                if (chr->logged_in || chr->realm != realm || chr->orphan())
+                    continue;
+
+                newarr->addElement(new EOfflineCharacterRefObjImp(chr));
+            }
+            return newarr.release();
+        }
+        else {
+            return new BError("Invalid parameter");
+        }
+    }
+
 	// keep this in sync with UO.EM
 	const int LH_FLAG_LOS = 1;			 // only include those in LOS
 	const int LH_FLAG_INCLUDE_HIDDEN = 2;  // include hidden characters
@@ -5821,7 +5852,8 @@ namespace Pol {
 	  { "CheckLosBetween", &UOExecutorModule::mf_CheckLosBetween },
 	  { "CanWalk", &UOExecutorModule::mf_CanWalk },
 	  { "SendCharProfile", &UOExecutorModule::mf_SendCharProfile },
-	  { "SendOverallSeason", &UOExecutorModule::mf_SendOverallSeason }
+	  { "SendOverallSeason", &UOExecutorModule::mf_SendOverallSeason },
+      { "ListOfflineMobilesInRealm", &UOExecutorModule::mf_ListOfflineMobilesInRealm }
 	};
 
 	typedef map< string, int, Clib::ci_cmp_pred > FuncIdxMap;

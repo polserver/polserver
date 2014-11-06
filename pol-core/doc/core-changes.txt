@@ -1,4 +1,17 @@
 ﻿-- POL099 --
+11-05-2014 Nando:
+  Added:    polsys::Realms() will now report how many offline mobiles and multis there are.
+  Added:    "ShowRealmInfo" option in pol.cfg (default to false). Will report every once in a while 
+	        the number of items, mobiles and multis per realm. 
+  Added:    uo::ListOfflineMobilesInRealm(realm) method to return the list of offline mobiles in a 
+            specific realm. Useful for moving the offline mobiles out of a shadow realm before 
+			deleting it.
+  Fixed:    Crash bug when deleting shadow realms while an offline mobile or a multi were still in it.
+  Fixed:    Top-level items were not properly counted when moved between realms.
+ 
+10-29-2014 Nando:
+  Fixed:    Crash bug when deleting item directly from a corpse.
+  
 10-19-2014 Turley:
   Added:    AnimXlate.cfg for newer clients
   Added:    example animxlate.cfg:
@@ -7,8 +20,8 @@
 			see cfg for description of possible entries.
 
 09-23-2014 Nando:
-  Changed:  Corpses will no longer send the full list of contents before being open. Only the equipped items will be shown. This
-            should decrease slowdowns in areas with many full corpses.
+  Changed:  Corpses will no longer send the full list of contents before being open. Only the equipped
+            items will be shown. This should decrease slowdowns in areas with many corpses.
 
 09-21-2014 Nando:
   Fixed:    Corpses will now equip items that are placed on them, even if they don't have an OnInsert script.
