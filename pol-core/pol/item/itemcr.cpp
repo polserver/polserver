@@ -193,7 +193,7 @@ namespace Pol {
 	  item->copyprops( id.props );
 
 #ifdef PERGON
-	  string value_self;
+	  std::string value_self;
 	  if (!item->getprop( "ct", value_self )) // Pergon: Check if Prop still exist - prevents Overwrite on Server-Restart
         item->setprop("ct", "i" + Clib::decint( Core::read_gameclock() )); // Pergon: Init Property CreateTime for a new Item
 #endif

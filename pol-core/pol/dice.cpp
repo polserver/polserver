@@ -31,7 +31,8 @@ namespace Pol {
 	  int total = 0;
 	  for ( unsigned i = 0; i < die_count; i++ )
 	  {
-    	total += Clib::random_int( die_type );
+		// random_int produces [0,die_type]
+    	total += Clib::random_int( die_type-1 )+1;
 	  }
 	  total += plus_damage;
 

@@ -88,6 +88,28 @@ namespace Pol {
     // returns the current process size in bytes
     size_t getCurrentMemoryUsage();
 
+
+	template <typename T>
+	void sanitize_upperlimit(T* value, const T max)
+	{
+	  if (*value > max)
+		*value = max;
+	}
+	template <typename T>
+	void sanitize_lowerlimit(T* value, const T min)
+	{
+	  if (*value < min)
+		*value = min;
+	}
+	template <typename T>
+	void sanitize_bounds(T* value, const T min, const T max)
+	{
+	  if (*value > max)
+		*value = max;
+	  else if (*value < min)
+		*value = min;
+	}
+
   }
 #define strzcpy Clib::stracpy
 

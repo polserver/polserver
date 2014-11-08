@@ -807,6 +807,8 @@ namespace Pol {
 
 	  unsigned int cost = 0;
 	  int num_items = cfBEu16( msg->num_items );
+	  Clib::sanitize_upperlimit( &num_items, (0xFFFF - 9) / 6 );
+
 	  for ( int i = 0; i < num_items; ++i )
 	  {
 		u32 serial = cfBEu32( msg->items[i].serial );
@@ -910,8 +912,7 @@ namespace Pol {
 
 	  int num_items = cfBEu16( msg->num_items );
 	  std::unique_ptr<ObjArray> items_sold( new ObjArray );
-	  if (num_items > 0x2AA9) // max size of pkt
-		num_items = 0x2AA9;
+	  Clib::sanitize_upperlimit( &num_items, (0xFFFF - 9) / 6 );
 	  for ( int i = 0; i < num_items; ++i )
 	  {
 		u32 serial = cfBEu32( msg->items[i].serial );

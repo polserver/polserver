@@ -615,7 +615,7 @@ namespace Pol {
 	void Item::ct_merge_stacks_pergon( Item*& item_sub )
 	{
 	  int time_self, time_sub, time;
-	  string value_self, value_sub;
+	  std::string value_self, value_sub;
 
 	  // get "ct" of first stack - if error, init
 	  if (getprop( "ct", value_self ))
@@ -663,7 +663,7 @@ namespace Pol {
 	void Item::ct_merge_stacks_pergon( u16 amount_sub )
 	{
 	  int time_self, time_sub, time;
-	  string value_self;
+	  std::string value_self;
 
 	  // get "ct" of first stack - if error, init
 	  if (getprop( "ct", value_self ))
