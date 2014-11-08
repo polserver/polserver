@@ -152,7 +152,7 @@ namespace Pol {
 	{}
 
 	template<class T>
-	int TmplExecutorModule<T>::functionIndex( const char *name )
+	inline int TmplExecutorModule<T>::functionIndex( const char *name )
 	{
 	  for ( int idx = 0; idx < function_table_size; idx++ )
 	  {
@@ -163,7 +163,7 @@ namespace Pol {
 	}
 
 	template<class T>
-	BObjectImp* TmplExecutorModule<T>::execFunc( unsigned funcidx )
+	inline BObjectImp* TmplExecutorModule<T>::execFunc( unsigned funcidx )
 	{
 	  T* derived = static_cast<T*>( this );
 
@@ -171,7 +171,7 @@ namespace Pol {
 	};
 
 	template<class T>
-	std::string TmplExecutorModule<T>::functionName( unsigned idx )
+	inline std::string TmplExecutorModule<T>::functionName( unsigned idx )
 	{
 	  return function_table[idx].funcname;
 	}

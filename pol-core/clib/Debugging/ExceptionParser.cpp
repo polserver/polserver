@@ -209,14 +209,12 @@ void GetSignalDescription(int pSignal, string &pSignalName, string &pSignalDescr
     }
 }
 
+#ifndef _WIN32
 static int GetTId()
 {
-#ifndef _WIN32
 	return syscall(__NR_gettid);
-#endif
 }
 
-#ifndef _WIN32
 static void SignalHandler(int pSignal, siginfo_t *pSignalInfo, void *pArg)
 {
     string tSignalName;

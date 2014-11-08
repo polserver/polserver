@@ -880,7 +880,7 @@ namespace Pol {
 	{}
 
 	template<class T>
-	size_t BApplicObj<T>::sizeEstimate() const
+	inline size_t BApplicObj<T>::sizeEstimate() const
 	{
 	  return sizeof( BApplicObj<T> );
 	}
