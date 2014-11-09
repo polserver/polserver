@@ -869,24 +869,24 @@ namespace Pol {
 	void UContainer::printProperties( Clib::StreamWriter& sw ) const
 	{
 	  base::printProperties( sw );
-      short max_items_mod = getmember<s16>( Bscript::MBR_MAX_ITEMS_MOD );
-      short max_weight_mod = getmember<s16>( Bscript::MBR_MAX_WEIGHT_MOD );
-      s8 max_slots_mod = getmember<s8>( Bscript::MBR_MAX_SLOTS_MOD );
+      short max_items_mod_ = this->max_items_mod();
+      short max_weight_mod_ = this->max_weight_mod();
+      s8 max_slots_mod_ = this->max_slots_mod();
 
-	  if ( max_items_mod )
-		sw() << "\tMax_Items_mod\t" << max_items_mod << pf_endl;
-	  if ( max_weight_mod )
-		sw() << "\tMax_Weight_mod\t" << max_weight_mod << pf_endl;
-	  if ( max_slots_mod )
-		sw() << "\tMax_Slots_mod\t" << max_slots_mod << pf_endl;
+	  if ( max_items_mod_ )
+		sw() << "\tMax_Items_mod\t" << max_items_mod_ << pf_endl;
+	  if ( max_weight_mod_ )
+		sw() << "\tMax_Weight_mod\t" << max_weight_mod_ << pf_endl;
+	  if ( max_slots_mod_ )
+		sw() << "\tMax_Slots_mod\t" << max_slots_mod_ << pf_endl;
 	}
 
 	void UContainer::readProperties( Clib::ConfigElem& elem )
 	{
 	  base::readProperties( elem );
-      setmember<s16>( Bscript::MBR_MAX_ITEMS_MOD, static_cast<s16>( elem.remove_int( "MAX_ITEMS_MOD", 0 ) ) );
-      setmember<s16>( Bscript::MBR_MAX_WEIGHT_MOD, static_cast<s16>( elem.remove_int( "MAX_WEIGHT_MOD", 0 ) ) );
-      setmember<s8>( Bscript::MBR_MAX_SLOTS_MOD, static_cast<s8>( elem.remove_int( "MAX_SLOTS_MOD", 0 ) ) );
+      this->max_items_mod( static_cast<s16>( elem.remove_int( "MAX_ITEMS_MOD", 0 ) ));
+      this->max_weight_mod( static_cast<s16>( elem.remove_int( "MAX_WEIGHT_MOD", 0 ) ));
+      this->max_slots_mod( static_cast<s8>( elem.remove_int( "MAX_SLOTS_MOD", 0 ) ));
 	}
 
 	unsigned int UContainer::find_sumof_objtype_noninuse( u32 objtype, u32 amtToGet, Contents& saveItemsTo, int flags ) const
@@ -925,16 +925,16 @@ namespace Pol {
 	{
 	  UContainer* item = static_cast<UContainer*>( base::clone() );
 
-      item->setmember<s16>( Bscript::MBR_MAX_ITEMS_MOD, this->getmember<s16>( Bscript::MBR_MAX_ITEMS_MOD ) );
-      item->setmember<s16>( Bscript::MBR_MAX_WEIGHT_MOD, this->getmember<s16>( Bscript::MBR_MAX_WEIGHT_MOD ) );
-      item->setmember<s8>( Bscript::MBR_MAX_SLOTS_MOD, this->getmember<s8>( Bscript::MBR_MAX_SLOTS_MOD ) );
+      item->max_items_mod(this->max_items_mod());
+      item->max_weight_mod(this->max_weight_mod());
+      item->max_slots_mod(this->max_slots_mod());
 
 	  return item;
 	}
 
 	unsigned short UContainer::max_items() const
 	{
-      int max_items = desc.max_items + getmember<s16>( Bscript::MBR_MAX_ITEMS_MOD );
+      int max_items = desc.max_items + max_items_mod();
 
 	  if ( max_items < 1 )
 		return 1;
@@ -946,7 +946,7 @@ namespace Pol {
 
 	unsigned short UContainer::max_weight() const
 	{
-      int max_weight = desc.max_weight + getmember<s16>( Bscript::MBR_MAX_WEIGHT_MOD );
+      int max_weight = desc.max_weight + max_weight_mod();
 
 	  if ( max_weight < 1 )
 		return USHRT_MAX;
@@ -958,7 +958,7 @@ namespace Pol {
 
 	u8 UContainer::max_slots() const
 	{
-      short max_slots = desc.max_slots + getmember<s8>( Bscript::MBR_MAX_SLOTS_MOD );
+      short max_slots = desc.max_slots + max_slots_mod();
 
 	  if ( max_slots < 0 )
 		return 0;

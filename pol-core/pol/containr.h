@@ -141,7 +141,8 @@ namespace Pol {
 	  virtual void readProperties( Clib::ConfigElem& elem );
 	  virtual Bscript::BObjectImp* get_script_member( const char* membername ) const;
 	  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const; ///id test
-	  virtual Bscript::BObjectImp* set_script_member( const char* membername, int value );
+
+      virtual Bscript::BObjectImp* set_script_member(const char* membername, int value);
 	  virtual Bscript::BObjectImp* set_script_member_id( const int id, int value ); //id test
 
 	  bool can_insert_increase_stack( Mobile::Character* mob, MoveType move, Items::Item* existing_item, unsigned short amt_to_add, Items::Item* adding_item );
@@ -174,6 +175,15 @@ namespace Pol {
 	  unsigned short max_items() const;
 	  unsigned short max_weight() const;
 	  u8 max_slots() const;
+
+      s16 max_items_mod() const;
+      void max_items_mod(s16 newvalue);
+
+      s8 max_slots_mod() const;
+      void max_slots_mod(s8 newvalue);
+
+      s16 max_weight_mod() const;
+      void max_weight_mod(s16 newvalue);
 
 	protected:
 	  Contents contents_;
@@ -221,6 +231,31 @@ namespace Pol {
 	{
 	  return ITEM_ELEM_PTR( contents_[idx] );
 	}
+
+    inline s16 UContainer::max_items_mod() const {
+        return getmember<s16>(Bscript::MBR_MAX_ITEMS_MOD);
+    }
+    inline void UContainer::max_items_mod(s16 newvalue) {
+        setmember<s16>(Bscript::MBR_MAX_ITEMS_MOD, newvalue);
+    }
+
+    inline s8 UContainer::max_slots_mod() const
+    {
+        return getmember<s8>(Bscript::MBR_MAX_SLOTS_MOD);
+    }
+    inline void UContainer::max_slots_mod(s8 newvalue)
+    {
+        setmember<s8>(Bscript::MBR_MAX_SLOTS_MOD, newvalue);
+    }
+
+    inline s16 UContainer::max_weight_mod() const
+    {
+        return getmember<s16>(Bscript::MBR_MAX_WEIGHT_MOD);
+    }
+    inline void UContainer::max_weight_mod(s16 newvalue)
+    {
+        setmember<s16>(Bscript::MBR_MAX_WEIGHT_MOD, newvalue);
+    }
   }
 }
 #endif

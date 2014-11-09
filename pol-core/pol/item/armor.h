@@ -37,6 +37,9 @@ namespace Pol {
 
 	  void set_onhitscript( const std::string& scriptname );
 	  std::set<unsigned short> tmplzones();
+      
+      s16 ar_mod() const;
+      void ar_mod(s16 newvalue);
 
 	protected:
 
@@ -44,7 +47,8 @@ namespace Pol {
 	  virtual void readProperties( Clib::ConfigElem& elem );
 	  virtual Bscript::BObjectImp* get_script_member( const char *membername ) const;
 	  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const; ///id test
-	  virtual Bscript::BObjectImp* set_script_member( const char *membername, const std::string& value );
+
+      virtual Bscript::BObjectImp* set_script_member(const char *membername, const std::string& value);
 	  virtual Bscript::BObjectImp* set_script_member( const char *membername, int value );
 	  virtual Bscript::BObjectImp* set_script_member_id( const int id, const std::string& value ); //id test
 	  virtual Bscript::BObjectImp* set_script_member_id( const int id, int value );//id test
@@ -63,6 +67,16 @@ namespace Pol {
 
 	  Core::ScriptDef onhitscript_;
 	};
+
+    inline s16 UArmor::ar_mod() const
+    {
+        return getmember<s16>(Bscript::MBR_AR_MOD);
+    }
+    inline void UArmor::ar_mod(s16 newvalue)
+    {
+        setmember<s16>(Bscript::MBR_AR_MOD, newvalue);
+    }
+
 
 	void load_armor_templates();
 	void unload_armor_templates();

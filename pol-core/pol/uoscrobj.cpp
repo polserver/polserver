@@ -904,7 +904,7 @@ namespace Pol {
 		}
 		case MBR_QUALITY: return new Double( quality_ ); break;
 		case MBR_HP: return new BLong( hp_ ); break;
-		case MBR_MAXHP_MOD: return new BLong( getmember<s16>( MBR_MAXHP_MOD ) ); break;
+		case MBR_MAXHP_MOD: return new BLong( maxhp_mod() ); break;
 		case MBR_MAXHP: return new BLong( static_cast<int>( maxhp() * quality_ ) ); break;
 		case MBR_NAME_SUFFIX: return new String( name_suffix() ); break;
 		default: return NULL;
@@ -1097,7 +1097,7 @@ namespace Pol {
 		  }
 		  return new BLong( hp_ );
 		case MBR_MAXHP_MOD:
-		  this->setmember<s16>( MBR_MAXHP_MOD, static_cast<s16>( value ) );
+		  this->maxhp_mod( static_cast<s16>( value ) );
 		  if ( this->isa( CLASS_ARMOR ) )
 		  {
 			if ( container != NULL )
@@ -2819,9 +2819,9 @@ namespace Pol {
 
       switch ( id )
       {
-        case MBR_MAX_ITEMS_MOD: return new BLong( getmember<s16>( MBR_MAX_ITEMS_MOD ) ); break;
-        case MBR_MAX_WEIGHT_MOD: return new BLong( getmember<s16>( MBR_MAX_WEIGHT_MOD ) ); break;
-        case MBR_MAX_SLOTS_MOD: return new BLong( getmember<s8>( MBR_MAX_SLOTS_MOD ) ); break;
+      case MBR_MAX_ITEMS_MOD: return new BLong(max_items_mod()); break;
+      case MBR_MAX_WEIGHT_MOD: return new BLong(max_weight_mod()); break;
+      case MBR_MAX_SLOTS_MOD: return new BLong(max_slots_mod()); break;
         default: return NULL;
       }
     }
@@ -2842,9 +2842,9 @@ namespace Pol {
         return imp;
       switch ( id )
       {
-        case MBR_MAX_ITEMS_MOD: setmember<s16>( MBR_MAX_ITEMS_MOD, static_cast<short>( value ) ); break;
-        case MBR_MAX_WEIGHT_MOD: setmember<s16>( MBR_MAX_WEIGHT_MOD, static_cast<short>( value ) ); break;
-        case MBR_MAX_SLOTS_MOD: setmember<s16>( MBR_MAX_SLOTS_MOD, static_cast<short>( value ) ); break;
+        case MBR_MAX_ITEMS_MOD: max_items_mod( static_cast<s16>( value ) ); break;
+        case MBR_MAX_WEIGHT_MOD: max_weight_mod( static_cast<s16>( value ) ); break;
+        case MBR_MAX_SLOTS_MOD: max_slots_mod( static_cast<s8>( value ) ); break;
         default: return NULL;
       }
       return new BLong( value );
@@ -3449,8 +3449,8 @@ namespace Pol {
 
       switch ( id )
       {
-        case MBR_DMG_MOD: return new BLong( getmember<s16>( MBR_DMG_MOD ) ); break;
-        case MBR_SPEED_MOD:	return new BLong( getmember<s16>( MBR_SPEED_MOD ) ); break;
+      case MBR_DMG_MOD: return new BLong(damage_mod()); break;
+      case MBR_SPEED_MOD:	return new BLong(speed_mod()); break;
         case MBR_ATTRIBUTE: return new String( attribute().name ); break;
         case MBR_HITSCRIPT: return new String( hit_script_.relativename( tmpl->pkg ) ); break;
         case MBR_INTRINSIC: return new BLong( is_intrinsic() ); break;
@@ -3498,8 +3498,8 @@ namespace Pol {
 
       switch ( id )
       {
-        case MBR_DMG_MOD: setmember<s16>( MBR_DMG_MOD, static_cast<short>( value ) ); break;
-        case MBR_SPEED_MOD: setmember<s16>( MBR_SPEED_MOD, static_cast<short>( value ) ); break;
+        case MBR_DMG_MOD: damage_mod( static_cast<s16>( value ) ); break;
+        case MBR_SPEED_MOD: speed_mod( static_cast<s16>( value ) ); break;
         default: return NULL;
       }
       return new BLong( value );
@@ -3538,7 +3538,7 @@ namespace Pol {
 
       switch ( id )
       {
-        case MBR_AR_MOD: return new BLong( getmember<s16>( MBR_AR_MOD ) ); break;
+      case MBR_AR_MOD: return new BLong(ar_mod()); break;
         case MBR_AR: return new BLong( ar() ); break;
         case MBR_AR_BASE: return new BLong( tmpl->ar ); break;
         case MBR_ONHIT_SCRIPT: return new String( onhitscript_.relativename( tmpl->pkg ) ); break;
@@ -3585,7 +3585,7 @@ namespace Pol {
       switch ( id )
       {
         case MBR_AR_MOD:
-          setmember<s16>( MBR_AR_MOD, static_cast<short>( value ) );
+          this->ar_mod( static_cast<s16>( value ) );
           if ( container != NULL )
           {
             if ( Core::IsCharacter( container->serial ) )

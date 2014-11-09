@@ -130,7 +130,7 @@ namespace Pol {
 
 	unsigned short UArmor::ar() const
 	{
-	  short ar_mod = getmember<s16>( Bscript::MBR_AR_MOD );
+      short ar_mod = this->ar_mod();
 	  int ar = tmpl->ar * hp_ / maxhp();
 	  if ( ar_mod != 0 )
 	  {
@@ -154,7 +154,7 @@ namespace Pol {
 	Item* UArmor::clone() const
 	{
 	  UArmor* armor = static_cast<UArmor*>( base::clone() );
-	  armor->setmember<s16>( Bscript::MBR_AR_MOD, this->getmember<s16>( Bscript::MBR_AR_MOD ) );
+	  armor->ar_mod( this->ar_mod() );
 	  armor->onhitscript_ = onhitscript_;
 	  armor->tmpl = tmpl;
 	  return armor;
@@ -163,7 +163,7 @@ namespace Pol {
 	void UArmor::printProperties( Clib::StreamWriter& sw ) const
 	{
 	  base::printProperties( sw );
-	  short ar_mod_ = getmember<s16>( Bscript::MBR_AR_MOD );
+      short ar_mod_ = ar_mod();
 	  if ( ar_mod_ )
 		sw() << "\tAR_mod\t" << ar_mod_ << pf_endl;
 	  if ( tmpl != NULL && onhitscript_ != tmpl->on_hit_script )
@@ -173,7 +173,7 @@ namespace Pol {
 	void UArmor::readProperties( Clib::ConfigElem& elem )
 	{
 	  base::readProperties( elem );
-	  setmember<s16>( Bscript::MBR_AR_MOD, static_cast<short>( elem.remove_int( "AR_MOD", 0 ) ) );
+	  this->ar_mod(static_cast<s16>( elem.remove_int( "AR_MOD", 0 ) ) );
 	  set_onhitscript( elem.remove_string( "ONHITSCRIPT", "" ) );
 	}
 

@@ -40,7 +40,12 @@ namespace Pol {
 
 	  unsigned short speed() const;
 	  unsigned short delay() const;
-	  unsigned short damage_mod() const;
+      s16 damage_mod() const;
+      void damage_mod(s16 newvalue);
+
+      s16 speed_mod() const;
+      void speed_mod(s16 newvalue);
+
 	  const Mobile::Attribute& attribute() const;
 	  unsigned short get_random_damage() const;
 	  bool is_projectile() const;
@@ -60,7 +65,7 @@ namespace Pol {
 	  const Core::ScriptDef& hit_script( ) const;
 	  void set_hit_script( const std::string& scriptname );
 
-	  virtual Item* clone() const;
+      virtual Item* clone() const;
       virtual size_t estimatedSize() const;
 
 	protected:
@@ -69,7 +74,8 @@ namespace Pol {
 	  //BObjectImp* script_member( const char *membername );
 	  virtual Bscript::BObjectImp* get_script_member( const char *membername ) const;
 	  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const; ///id test
-	  virtual Bscript::BObjectImp* set_script_member( const char *membername, const std::string& value );
+
+      virtual Bscript::BObjectImp* set_script_member(const char *membername, const std::string& value);
 	  virtual Bscript::BObjectImp* set_script_member( const char *membername, int value );
 	  virtual Bscript::BObjectImp* set_script_member_double( const char *membername, double value );
 	  virtual Bscript::BObjectImp* set_script_member_id( const int id, const std::string& value ); //id test
@@ -83,7 +89,7 @@ namespace Pol {
 	  friend void load_weapon_templates();
 	  friend void load_intrinsic_weapons();
 
-	private:
+    private:
 
 	  /*
 		  max repair % in template
@@ -107,6 +113,25 @@ namespace Pol {
 	  return hit_script_;
 	}
 
+
+
+    inline s16 UWeapon::damage_mod() const
+    {
+        return getmember<s16>(Bscript::MBR_DMG_MOD);
+    }
+    inline void UWeapon::damage_mod(s16 newvalue)
+    {
+        setmember<s16>(Bscript::MBR_DMG_MOD, newvalue);
+    }
+
+    inline s16 UWeapon::speed_mod() const
+    {
+        return getmember<s16>(Bscript::MBR_SPEED_MOD);
+    }
+    inline void UWeapon::speed_mod(s16 newvalue)
+    {
+        setmember<s16>(Bscript::MBR_SPEED_MOD, newvalue);
+    }
 
 	void load_weapon_templates();
 	void unload_weapon_templates();

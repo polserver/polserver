@@ -473,7 +473,7 @@ namespace Pol {
 
 	unsigned short UWeapon::speed() const
 	{
-	  int speed_ = tmpl->speed + getmember<s16>( Bscript::MBR_SPEED_MOD );
+	  int speed_ = tmpl->speed + speed_mod();
 
 	  if ( speed_ < 0 )
 		return 0;
@@ -487,22 +487,16 @@ namespace Pol {
 	{
 	  return tmpl->delay;
 	}
-
-	unsigned short UWeapon::damage_mod() const
-	{
-      return getmember<s16>( Bscript::MBR_DMG_MOD );
-	}
-
+    
 	const Mobile::Attribute& UWeapon::attribute() const
 	{
 	  return *( tmpl->pAttr );
 	}
 
-
 	unsigned short UWeapon::get_random_damage() const
 	{
 	  int dmg = int( tmpl->get_random_damage() ) * hp_ / maxhp();
-      dmg += getmember<s16>( Bscript::MBR_DMG_MOD );
+      dmg += damage_mod();
 	  if ( dmg < 0 )
 		return 0;
 	  else if ( dmg <= USHRT_MAX )
@@ -607,8 +601,9 @@ namespace Pol {
 	{
 	  UWeapon* wpn = static_cast<UWeapon*>( base::clone() );
 	  wpn->hit_script_ = hit_script_;
-      wpn->setmember<s16>( Bscript::MBR_DMG_MOD, this->getmember<s16>( Bscript::MBR_DMG_MOD ) );
-      wpn->setmember<s16>( Bscript::MBR_SPEED_MOD, this->getmember<s16>( Bscript::MBR_SPEED_MOD ) );
+      wpn->damage_mod(this->damage_mod());
+      wpn->speed_mod(this->speed_mod());
+
 	  return wpn;
 	}
 
@@ -616,13 +611,13 @@ namespace Pol {
 	{
 	  base::printProperties( sw );
 
-      short speed_mod = getmember<s16>( Bscript::MBR_SPEED_MOD );
-      short dmg_mod = getmember<s16>( Bscript::MBR_DMG_MOD );
+      short speed_mod_ = speed_mod();
+      short dmg_mod = damage_mod();
 
 	  if ( dmg_mod )
 		sw() << "\tdmg_mod\t" << dmg_mod << pf_endl;
-	  if ( speed_mod )
-		sw() << "tspeed_mod\t" << speed_mod << pf_endl;
+	  if ( speed_mod_ )
+		sw() << "tspeed_mod\t" << speed_mod_ << pf_endl;
 	  if ( !( hit_script_ == tmpl->hit_script ) )
 		sw() << "\tHitScript\t" << hit_script_.relativename( tmpl->pkg ) << pf_endl;
 	}
@@ -631,8 +626,8 @@ namespace Pol {
 	{
 	  base::readProperties( elem );
 
-      setmember<s16>( Bscript::MBR_DMG_MOD, static_cast<short>( elem.remove_int( "DMG_MOD", 0 ) ) );
-      setmember<s16>( Bscript::MBR_SPEED_MOD, static_cast<s16>( elem.remove_int( "SPEED_MOD", 0 ) ) );
+      damage_mod( static_cast<s16>( elem.remove_int( "DMG_MOD", 0 ) ) );
+      speed_mod( static_cast<s16>( elem.remove_int( "SPEED_MOD", 0 ) ) );
 
 	  // if the HITSCRIPT is not specified in the data file, keep the value from the template.
 	  if ( elem.has_prop( "HITSCRIPT" ) )
