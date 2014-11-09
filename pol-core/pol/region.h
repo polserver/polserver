@@ -117,19 +117,19 @@ namespace Pol {
 	{}
 
 	template<class T>
-	T* RegionGroup<T>::getregion( xcoord x, ycoord y, Plib::Realm* realm )
+	inline T* RegionGroup<T>::getregion( xcoord x, ycoord y, Plib::Realm* realm )
 	{
 	  return static_cast<T*>( getregion_byloc( x, y, realm ) );
 	}
 
 	template<class T>
-	T* RegionGroup<T>::getregion( const std::string& regionname )
+	inline T* RegionGroup<T>::getregion( const std::string& regionname )
 	{
 	  return static_cast<T*>( getregion_byname( regionname ) );
 	}
 
 	template<class T>
-	Region* RegionGroup<T>::create_region( Clib::ConfigElem& elem, RegionId id ) const
+	inline Region* RegionGroup<T>::create_region( Clib::ConfigElem& elem, RegionId id ) const
 	{
 	  return new T( elem, id );
 	}
