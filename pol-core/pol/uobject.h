@@ -25,6 +25,8 @@ Notes
 
 #include "../clib/boostutils.h"
 
+#include "../bscript/objmembers.h" // needed for knowing the definitions of MBR_...
+
 #include <boost/any.hpp>
 #include <boost/flyweight.hpp>
 
@@ -222,18 +224,7 @@ namespace Pol {
 	  void copyprops( const PropertyList& proplist );
 	  void getpropnames( std::vector< std::string >& propnames ) const;
 	  const PropertyList& getprops() const;
-
-	  template <typename T>
-	  T getmember( unsigned short member ) const
-	  {
-		return MemberHelper<T>::getmember( dynmap, member );
-	  }
-	  template <typename T>
-	  void setmember( unsigned short member, T value )
-	  {
-		MemberHelper<T>::setmember( dynmap, member, value );
-	  }
-
+      
 	  bool orphan() const;
 
 	  virtual void destroy();
@@ -364,12 +355,22 @@ namespace Pol {
 
 	protected:
       boost_utils::object_name_flystring name_;
+      
+      template <typename T>
+      T getmember(unsigned short member) const
+      {
+          return MemberHelper<T>::getmember(dynmap, member);
+      }
+      template <typename T>
+      void setmember(unsigned short member, T value)
+      {
+          MemberHelper<T>::setmember(dynmap, member, value);
+      }
+
 	private:
 	  PropertyList proplist_;
 	  std::map<unsigned short, boost::any> dynmap;
-
-
-
+      
 	private: // not implemented:
 	  UObject( const UObject& );
 	  UObject& operator=( const UObject& );

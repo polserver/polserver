@@ -123,7 +123,7 @@ namespace Pol {
       item->setElementDamageMod( Core::ELEMENTAL_POISON, getElementDamageMod( Core::ELEMENTAL_POISON ) );
       item->setElementDamageMod( Core::ELEMENTAL_PHYSICAL, getElementDamageMod( Core::ELEMENTAL_PHYSICAL ) );
 
-      item->setmember<s16>( Bscript::MBR_MAXHP_MOD, this->getmember<s16>( Bscript::MBR_MAXHP_MOD ) );
+      item->maxhp_mod( this->maxhp_mod() );
       item->name_suffix( this->name_suffix() );
 
 	  return item;
@@ -146,16 +146,7 @@ namespace Pol {
 	  }
 	}
 
-    std::string Item::name_suffix() const
-    {
-        return getmember<std::string>(Bscript::MBR_NAME_SUFFIX);
-    }
-    void Item::name_suffix(const std::string &suffix)
-    {
-        setmember<std::string>(Bscript::MBR_NAME_SUFFIX, suffix);
-    }
-
-	const ItemDesc& Item::itemdesc() const
+   	const ItemDesc& Item::itemdesc() const
 	{
 	  if ( _itemdesc == nullptr )
 		_itemdesc = &find_itemdesc( objtype_ );
@@ -348,7 +339,7 @@ namespace Pol {
 
 	unsigned short Item::maxhp() const
 	{
-	  int maxhp = itemdesc().maxhp + getmember<s16>( Bscript::MBR_MAXHP_MOD );
+	  int maxhp = itemdesc().maxhp + maxhp_mod();
 
 	  if ( maxhp < 1 )
 		return 1;
@@ -364,7 +355,7 @@ namespace Pol {
 
 	  base::printProperties( sw );
 
-      short maxhp_mod = getmember<s16>( Bscript::MBR_MAXHP_MOD );
+      short maxhp_mod_ = maxhp_mod();
       std::string suffix = name_suffix();
 
 	  if ( amount_ != 1 )
@@ -435,8 +426,8 @@ namespace Pol {
 	  if ( newbie_ != default_newbie() )
 		sw() << "\tNewbie\t" << newbie_ << pf_endl;
 
-	  if ( maxhp_mod )
-		sw() << "\tMaxHp_mod\t" << maxhp_mod << pf_endl;
+	  if ( maxhp_mod_ )
+		sw() << "\tMaxHp_mod\t" << maxhp_mod_ << pf_endl;
 	  if ( hp_ != itemdesc().maxhp )
 		sw() << "\tHp\t" << hp_ << pf_endl;
 	  if ( quality_ != itemdesc().quality )

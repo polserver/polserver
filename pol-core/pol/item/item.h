@@ -217,6 +217,9 @@ namespace Pol {
 	  u8 tile_layer;
 	  unsigned short hp_;
 	  unsigned short maxhp() const;
+      s16 maxhp_mod() const;
+      void maxhp_mod(s16 newvalue);
+
 	  double quality_;
 
 	  s16 calc_element_resist( Core::ElementalType element ) const;
@@ -314,6 +317,22 @@ namespace Pol {
 	  }
 	  return true;
 	}
+
+    inline s16 Item::maxhp_mod() const {
+        return getmember<s16>(Bscript::MBR_MAXHP_MOD);
+    }
+    inline void Item::maxhp_mod(s16 newvalue) {
+        setmember<s16>(Bscript::MBR_MAXHP_MOD, newvalue);
+    }
+
+    inline std::string Item::name_suffix() const
+    {
+        return getmember<std::string>(Bscript::MBR_NAME_SUFFIX);
+    }
+    inline void Item::name_suffix(const std::string &suffix)
+    {
+        setmember<std::string>(Bscript::MBR_NAME_SUFFIX, suffix);
+    }
 
     inline bool valid_equip_layer(int layer) {
         extern const u8 lowest_valid_layer, highest_valid_layer;
