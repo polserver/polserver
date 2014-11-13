@@ -808,8 +808,11 @@ namespace Pol {
 
 	bool Item::setgraphic( u16 newgraphic )
 	{
-      if ( layer && layer != Core::LAYER_MOUNT )
-		return false;
+        // Can't set the graphic of an equipped item, unless it's a mount and the new graphic is also a mount.
+        if (layer && (layer != Core::LAYER_MOUNT || layer != Core::tilelayer(newgraphic)))
+        {
+            return false;
+        }
 
       if ( graphic <= Core::config.max_tile_id && newgraphic <= Core::config.max_tile_id )
 	  {

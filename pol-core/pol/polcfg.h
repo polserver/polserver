@@ -84,6 +84,7 @@ namespace Pol {
 	  
 	  bool disable_nagle;
       bool show_realm_info;
+      bool enforce_mount_objtype;
 	};
 
 	extern PolConfig config;

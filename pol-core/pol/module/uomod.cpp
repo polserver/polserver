@@ -3825,14 +3825,7 @@ namespace Pol {
 		  return new BError( "Item was destroyed in EquipTest script" );
 		}
 
-		if ( item->objtype_ != extobj.mount )
-		{
-		  item->layer = tilelayer( item->graphic );
-		}
-		else
-		{
-		  item->layer = LAYER_MOUNT;
-		}
+		item->layer = tilelayer( item->graphic );
 
 		if ( item->has_equip_script() )
 		{
