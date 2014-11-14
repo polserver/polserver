@@ -656,6 +656,9 @@
     <ClCompile Include="network\msgfiltr.cpp">
       <Filter>network</Filter>
     </ClCompile>
+    <ClCompile Include="network\clientthread.cpp">
+      <Filter>network</Filter>
+    </ClCompile>
     <ClCompile Include="syshookscript.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1271,6 +1274,9 @@
       <Filter>network</Filter>
     </ClInclude>
     <ClInclude Include="network\msghandl.h">
+      <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="network\clientthread.h">
       <Filter>network</Filter>
     </ClInclude>
   </ItemGroup>

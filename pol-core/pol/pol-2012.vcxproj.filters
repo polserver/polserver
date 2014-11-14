@@ -659,6 +659,9 @@
     <ClCompile Include="network\msgfiltr.cpp">
       <Filter>network</Filter>
     </ClCompile>
+    <ClCompile Include="network\clientthread.cpp">
+      <Filter>network</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="action.h">
@@ -1271,6 +1274,9 @@
       <Filter>mobile</Filter>
     </ClInclude>
     <ClInclude Include="network\msgfiltr.h">
+      <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="network\clientthread.h">
       <Filter>network</Filter>
     </ClInclude>
   </ItemGroup>

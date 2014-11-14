@@ -107,6 +107,7 @@ cpp_sources = \
 	pol/miscrgn.cpp pol/mkscrobj.cpp \
 	pol/sqlscrobj.cpp \
 	pol/movecost.cpp pol/movement.cpp pol/network/msgfiltr.cpp pol/network/msghandl.cpp \
+	pol/network/clientthread.cpp \
 	pol/multi/multicfg.cpp pol/multi/multicr.cpp pol/multi/multidef.cpp pol/multi/multis.cpp \
 	pol/multi/multidef2.cpp \
 	pol/musicrgn.cpp \
