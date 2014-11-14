@@ -218,6 +218,8 @@ namespace Pol {
 	  config.disable_nagle = elem.remove_bool( "DisableNagle", false );
       config.show_realm_info = elem.remove_bool("ShowRealmInfo", false);
 
+      config.enforce_mount_objtype = elem.remove_bool("EnforceMountObjtype", false);
+
 #ifdef _WIN32
       Clib::MiniDumper::SetMiniDumpType( config.minidump_type );
 #endif

@@ -1,11 +1,20 @@
 ﻿-- POL099 --
+11-13-2014 Nando:
+  Added:    EnforceMountObjtype property in pol.cfg. Will enforce that only items with the mount
+            objtype (as defined in extobj.cfg, default 0x1F021) can be mounted.
+  Fixed:    Inconsistency when handling mount objects that would trigger an assertion for equipping
+            items with the mount objtype but a bad graphic.
+   Note:    To be equipped as a mount, the item must be in the mount tiles list of uoconvert.cfg. 
+            This ensures that the item has layer 25 and the equippable flag, otherwise it won't
+			be considered equippable.
+            
 11-05-2014 Nando:
   Added:    polsys::Realms() will now report how many offline mobiles and multis there are.
   Added:    "ShowRealmInfo" option in pol.cfg (default to false). Will report every once in a while 
-	        the number of items, mobiles and multis per realm. 
+            the number of items, mobiles and multis per realm. 
   Added:    uo::ListOfflineMobilesInRealm(realm) method to return the list of offline mobiles in a 
             specific realm. Useful for moving the offline mobiles out of a shadow realm before 
-			deleting it.
+            deleting it.
   Fixed:    Crash bug when deleting shadow realms while an offline mobile or a multi were still in it.
   Fixed:    Top-level items were not properly counted when moved between realms.
  
@@ -17,7 +26,7 @@
   Added:    example animxlate.cfg:
             defines which graphics support mount translation
             and per graphic type how to translate animation from older clients to newer (7.0.9.0)
-			see cfg for description of possible entries.
+            see cfg for description of possible entries.
 
 09-23-2014 Nando:
   Changed:  Corpses will no longer send the full list of contents before being open. Only the equipped
