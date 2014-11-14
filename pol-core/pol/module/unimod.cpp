@@ -49,7 +49,7 @@ namespace Pol {
     void send_unicode_prompt( Client* client, u32 serial )
     {
       PktHelper::PacketOut<PktOut_C2> msg;
-      msg->WriteFlipped<u16>( static_cast<u16>( Core::PKTBI_C2::SERVER_MSGLEN ) );
+      msg->WriteFlipped<u16>( Core::PKTBI_C2::SERVER_MSGLEN );
       msg->Write<u32>( serial ); //serial
       msg->Write<u32>( serial ); //msg_id  Server-"decided" message ID. o_O
       msg->offset += 10; // 10x u8 unk

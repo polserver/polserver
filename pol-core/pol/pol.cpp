@@ -233,7 +233,7 @@ namespace Pol {
       msg->Write<s8>( chr->z );
       msg->Write<u8>( chr->facing );
       msg->offset += 3; //u8 unk18,unk19,unk20
-      msg->Write<u8>( static_cast<u8>( 0x7F ) );
+      msg->Write<u8>( 0x7Fu );
       msg->offset++; // u8 unk22
       msg->offset += 4; // u16 map_startx, map_starty
       msg->WriteFlipped<u16>( client->chr->realm->width() );
@@ -786,32 +786,32 @@ namespace Pol {
               INFO_PRINT.Format( "UOKR Seed Message Received: Type 0x{:X}\n" ) << (int)cstype;
             }
             Network::PktHelper::PacketOut<Network::PktOut_E3> msg;
-            msg->WriteFlipped<u16>( static_cast<u16>( 77 ) );
-            msg->WriteFlipped<u32>( static_cast<u32>( 0x03 ) );
-            msg->Write<u8>( static_cast<u8>( 0x02 ) );	msg->Write<u8>( static_cast<u8>( 0x01 ) );	msg->Write<u8>( static_cast<u8>( 0x03 ) );
-            msg->WriteFlipped<u32>( static_cast<u32>( 0x13 ) );
-            msg->Write<u8>( static_cast<u8>( 0x02 ) );	msg->Write<u8>( static_cast<u8>( 0x11 ) );	msg->Write<u8>( static_cast<u8>( 0x00 ) );
-            msg->Write<u8>( static_cast<u8>( 0xfc ) );	msg->Write<u8>( static_cast<u8>( 0x2f ) );	msg->Write<u8>( static_cast<u8>( 0xe3 ) );
-            msg->Write<u8>( static_cast<u8>( 0x81 ) );	msg->Write<u8>( static_cast<u8>( 0x93 ) );	msg->Write<u8>( static_cast<u8>( 0xcb ) );
-            msg->Write<u8>( static_cast<u8>( 0xaf ) );	msg->Write<u8>( static_cast<u8>( 0x98 ) );	msg->Write<u8>( static_cast<u8>( 0xdd ) );
-            msg->Write<u8>( static_cast<u8>( 0x83 ) );	msg->Write<u8>( static_cast<u8>( 0x13 ) );	msg->Write<u8>( static_cast<u8>( 0xd2 ) );
-            msg->Write<u8>( static_cast<u8>( 0x9e ) );	msg->Write<u8>( static_cast<u8>( 0xea ) );	msg->Write<u8>( static_cast<u8>( 0xe4 ) );
-            msg->Write<u8>( static_cast<u8>( 0x13 ) );
-            msg->WriteFlipped<u32>( static_cast<u32>( 0x10 ) );
-            msg->Write<u8>( static_cast<u8>( 0x78 ) );	msg->Write<u8>( static_cast<u8>( 0x13 ) );	msg->Write<u8>( static_cast<u8>( 0xb7 ) );
-            msg->Write<u8>( static_cast<u8>( 0x7b ) );	msg->Write<u8>( static_cast<u8>( 0xce ) );	msg->Write<u8>( static_cast<u8>( 0xa8 ) );
-            msg->Write<u8>( static_cast<u8>( 0xd7 ) );	msg->Write<u8>( static_cast<u8>( 0xbc ) );	msg->Write<u8>( static_cast<u8>( 0x52 ) );
-            msg->Write<u8>( static_cast<u8>( 0xde ) );	msg->Write<u8>( static_cast<u8>( 0x38 ) );	msg->Write<u8>( static_cast<u8>( 0x30 ) );
-            msg->Write<u8>( static_cast<u8>( 0xea ) );	msg->Write<u8>( static_cast<u8>( 0xe9 ) );	msg->Write<u8>( static_cast<u8>( 0x1e ) );
-            msg->Write<u8>( static_cast<u8>( 0xa3 ) );
-            msg->WriteFlipped<u32>( static_cast<u32>( 0x20 ) );
-            msg->WriteFlipped<u32>( static_cast<u32>( 0x10 ) );
-            msg->Write<u8>( static_cast<u8>( 0x5a ) );	msg->Write<u8>( static_cast<u8>( 0xce ) );	msg->Write<u8>( static_cast<u8>( 0x3e ) );
-            msg->Write<u8>( static_cast<u8>( 0xe3 ) );	msg->Write<u8>( static_cast<u8>( 0x97 ) );	msg->Write<u8>( static_cast<u8>( 0x92 ) );
-            msg->Write<u8>( static_cast<u8>( 0xe4 ) );	msg->Write<u8>( static_cast<u8>( 0x8a ) );	msg->Write<u8>( static_cast<u8>( 0xf1 ) );
-            msg->Write<u8>( static_cast<u8>( 0x9a ) );	msg->Write<u8>( static_cast<u8>( 0xd3 ) );	msg->Write<u8>( static_cast<u8>( 0x04 ) );
-            msg->Write<u8>( static_cast<u8>( 0x41 ) );	msg->Write<u8>( static_cast<u8>( 0x03 ) );	msg->Write<u8>( static_cast<u8>( 0xcb ) );
-            msg->Write<u8>( static_cast<u8>( 0x53 ) );
+            msg->WriteFlipped<u16>( 77u );
+            msg->WriteFlipped<u32>( 0x03u );
+            msg->Write<u8>( 0x02u );	msg->Write<u8>( 0x01u );	msg->Write<u8>( 0x03u );
+            msg->WriteFlipped<u32>( 0x13u );
+            msg->Write<u8>( 0x02u );	msg->Write<u8>( 0x11u );	msg->Write<u8>( 0x00u );
+            msg->Write<u8>( 0xfcu );	msg->Write<u8>( 0x2fu );	msg->Write<u8>( 0xe3u );
+            msg->Write<u8>( 0x81u );	msg->Write<u8>( 0x93u );	msg->Write<u8>( 0xcbu );
+            msg->Write<u8>( 0xafu );	msg->Write<u8>( 0x98u );	msg->Write<u8>( 0xddu );
+            msg->Write<u8>( 0x83u );	msg->Write<u8>( 0x13u );	msg->Write<u8>( 0xd2u );
+            msg->Write<u8>( 0x9eu );	msg->Write<u8>( 0xeau );	msg->Write<u8>( 0xe4u );
+            msg->Write<u8>( 0x13u );
+            msg->WriteFlipped<u32>( 0x10u );
+            msg->Write<u8>( 0x78u );	msg->Write<u8>( 0x13u );	msg->Write<u8>( 0xb7u );
+            msg->Write<u8>( 0x7bu );	msg->Write<u8>( 0xceu );	msg->Write<u8>( 0xa8u );
+            msg->Write<u8>( 0xd7u );	msg->Write<u8>( 0xbcu );	msg->Write<u8>( 0x52u );
+            msg->Write<u8>( 0xdeu );	msg->Write<u8>( 0x38u );	msg->Write<u8>( 0x30u );
+            msg->Write<u8>( 0xeau );	msg->Write<u8>( 0xe9u );	msg->Write<u8>( 0x1eu );
+            msg->Write<u8>( 0xa3u );
+            msg->WriteFlipped<u32>( 0x20u );
+            msg->WriteFlipped<u32>( 0x10u );
+            msg->Write<u8>( 0x5au );	msg->Write<u8>( 0xceu );	msg->Write<u8>( 0x3eu );
+            msg->Write<u8>( 0xe3u );	msg->Write<u8>( 0x97u );	msg->Write<u8>( 0x92u );
+            msg->Write<u8>( 0xe4u );	msg->Write<u8>( 0x8au );	msg->Write<u8>( 0xf1u );
+            msg->Write<u8>( 0x9au );	msg->Write<u8>( 0xd3u );	msg->Write<u8>( 0x04u );
+            msg->Write<u8>( 0x41u );	msg->Write<u8>( 0x03u );	msg->Write<u8>( 0xcbu );
+            msg->Write<u8>( 0x53u );
             client->recv_state = Network::Client::RECV_STATE_MSGTYPE_WAIT;
             client->setClientType( Network::CLIENTTYPE_UOKR ); // UO:KR logging in				
             msg.Send( client );
@@ -972,7 +972,7 @@ namespace Pol {
                 CLIENT_CHECKPOINT( 4 );
                 PolLock lck; //multithread
                 Network::PktHelper::PacketOut<Network::PktOut_53> msg;
-                msg->Write<u8>( static_cast<u8>( PKTOUT_53_WARN_CHARACTER_IDLE ) );
+                msg->Write<u8>( PKTOUT_53_WARN_CHARACTER_IDLE );
                 CLIENT_CHECKPOINT( 5 );
                 msg.Send( client );
                 CLIENT_CHECKPOINT( 18 );

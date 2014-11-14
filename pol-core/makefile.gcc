@@ -52,7 +52,7 @@ POL_BUILDPLATFORM=x86
 endif
 
 
-CXX_OPTS=-fno-strict-aliasing  -Wno-unused-result -DINC_PASSERT=1 -DTIXML_USE_STL -Wall $(CXX_MORE_OPTS) $(INC_STL) -I../lib/boost_1_55_0
+CXX_OPTS=-fno-strict-aliasing  -Wno-unused-result -DNOMINMAX -DINC_PASSERT=1 -DTIXML_USE_STL -Wall $(CXX_MORE_OPTS) $(INC_STL) -I../lib/boost_1_55_0
 
 CXX_RELEASE_OPTS=$(CXX_OPTS)
 

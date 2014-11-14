@@ -655,7 +655,7 @@ namespace Pol {
 		  if ( urllen > URL_MAX_LEN )
 			urllen = URL_MAX_LEN;
 
-		  msg->WriteFlipped<u16>( static_cast<u16>( urllen + 4 ) );
+		  msg->WriteFlipped<u16>( urllen + 4u );
 		  msg->Write( url, static_cast<u16>( urllen + 1 ) );
 		  msg.Send( chr->client );
 		  return new BLong( 1 );

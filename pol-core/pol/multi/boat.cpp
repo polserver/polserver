@@ -304,8 +304,8 @@ namespace Pol {
 		msg->Write<u32>( serial_ext );
 		msg->Write<u8>( speed );
 
-		msg->Write<u8>( static_cast<u8>(move_dir) );
-		msg->Write<u8>( static_cast<u8>(facing) );
+		msg->Write<u8>( move_dir );
+		msg->Write<u8>( facing );
 
 		msg->WriteFlipped<u16>( newx );
 		msg->WriteFlipped<u16>( newy );
@@ -322,9 +322,9 @@ namespace Pol {
 			if ( !obj->orphan() )
 			{
 				msg->Write<u32>( obj->serial_ext );
-				msg->WriteFlipped<u16>( ( obj->x + xmod ) );
-				msg->WriteFlipped<u16>( ( obj->y + ymod ) );
-				msg->WriteFlipped<u16>( ( obj->z < 0 ) ? static_cast<u16>( 0x10000 + obj->z ) : static_cast<u16>( obj->z ) );
+				msg->WriteFlipped<u16>( static_cast<u16>( obj->x + xmod ) );
+				msg->WriteFlipped<u16>( static_cast<u16>( obj->y + ymod ) );
+				msg->WriteFlipped<u16>( static_cast<u16>(( obj->z < 0 ) ? ( 0x10000 + obj->z ) : ( obj->z )) );
 			}
 		}
 
@@ -333,9 +333,9 @@ namespace Pol {
 			if ( component != NULL && !component->orphan() )
 			{
 				msg->Write<u32>( component->serial_ext );
-				msg->WriteFlipped<u16>( ( component->x + xmod ) );
-				msg->WriteFlipped<u16>( ( component->y + ymod ) );
-				msg->WriteFlipped<u16>( ( component->z < 0 ) ? static_cast<u16>( 0x10000 + component->z ) : static_cast<u16>( component->z ) );
+				msg->WriteFlipped<u16>( static_cast<u16>( component->x + xmod ) );
+				msg->WriteFlipped<u16>( static_cast<u16>( component->y + ymod ) );
+				msg->WriteFlipped<u16>( static_cast<u16>(( component->z < 0 ) ? ( 0x10000 + component->z ) : ( component->z )) );
 			}
 		}
 
@@ -372,14 +372,14 @@ namespace Pol {
 
 		// Build boat part
 
-		msg->Write<u8>( 0xF3 );
-		msg->WriteFlipped<u16>( static_cast<u16>( 0x1 ) );
-		msg->Write<u8>( 0x2 ); // MultiData flag
+		msg->Write<u8>( 0xF3u );
+		msg->WriteFlipped<u16>( 0x1u );
+		msg->Write<u8>( 0x2u ); // MultiData flag
 		msg->Write<u32>( this->serial_ext );
 		msg->WriteFlipped<u16>( this->multidef().multiid );
 		msg->offset++; // ID offset, TODO CHECK IF NEED THESE
-		msg->WriteFlipped<u16>( static_cast<u16>( 0x1 ) ); // Amount
-		msg->WriteFlipped<u16>( static_cast<u16>( 0x1 ) ); // Amount
+		msg->WriteFlipped<u16>( 0x1u ); // Amount
+		msg->WriteFlipped<u16>( 0x1u ); // Amount
 		msg->WriteFlipped<u16>( this->x );
 		msg->WriteFlipped<u16>( this->y );
 		msg->Write<s8>( this->z );
@@ -396,13 +396,13 @@ namespace Pol {
 
 			if ( !obj->orphan() )
 			{
-				msg->Write<u8>( 0xF3 );
-				msg->WriteFlipped<u16>( static_cast<u16>( 0x1 ) );
+				msg->Write<u8>( 0xF3u );
+				msg->WriteFlipped<u16>( 0x1u );
 
 				if ( obj->ismobile() )
-					msg->Write<u8>( 0x1 ); // CharData flag
+					msg->Write<u8>( 0x1u ); // CharData flag
 				else
-					msg->Write<u8>( 0x0 ); // ItemData flag
+					msg->Write<u8>( 0x0u ); // ItemData flag
 
 				msg->Write<u32>( obj->serial_ext );
 				msg->WriteFlipped<u16>( obj->graphic );
@@ -412,8 +412,8 @@ namespace Pol {
 				{
 					flags = 0;
 
-					msg->WriteFlipped<u16>( static_cast<u16>( 0x1 ) ); // Amount
-					msg->WriteFlipped<u16>( static_cast<u16>( 0x1 ) ); // Amount
+					msg->WriteFlipped<u16>( 0x1u ); // Amount
+					msg->WriteFlipped<u16>( 0x1u ); // Amount
 				}
 				else
 				{
@@ -428,8 +428,8 @@ namespace Pol {
 					if ( client->chr->can_move( item ) )
 						flags |= ITEM_FLAG_FORCE_MOVABLE;
 
-					msg->WriteFlipped<u16>( static_cast<u16>( item->get_senditem_amount() ) ); // Amount
-					msg->WriteFlipped<u16>( static_cast<u16>( item->get_senditem_amount() ) ); // Amount
+					msg->WriteFlipped<u16>( item->get_senditem_amount() ); // Amount
+					msg->WriteFlipped<u16>( item->get_senditem_amount() ); // Amount
 				}
 
 				msg->WriteFlipped<u16>( obj->x );
@@ -447,14 +447,14 @@ namespace Pol {
 		{
 			if ( component != NULL && !component->orphan() )
 			{
-				msg->Write<u8>( 0xF3 );
-				msg->WriteFlipped<u16>( static_cast<u16>( 0x1 ) );
-				msg->Write<u8>( 0x0 ); // ItemData flag
+				msg->Write<u8>( 0xF3u );
+				msg->WriteFlipped<u16>( 0x1u );
+				msg->Write<u8>( 0x0u ); // ItemData flag
 				msg->Write<u32>( component->serial_ext );
 				msg->WriteFlipped<u16>( component->graphic );
 				msg->offset++; // ID offset, TODO CHECK IF NEED THESE
-				msg->WriteFlipped<u16>( static_cast<u16>( component->get_senditem_amount() ) ); // Amount
-				msg->WriteFlipped<u16>( static_cast<u16>( component->get_senditem_amount() ) ); // Amount
+				msg->WriteFlipped<u16>( component->get_senditem_amount() ); // Amount
+				msg->WriteFlipped<u16>( component->get_senditem_amount() ); // Amount
 				msg->WriteFlipped<u16>( component->x );
 				msg->WriteFlipped<u16>( component->y );
 				msg->Write<s8>( component->z );
@@ -476,13 +476,13 @@ namespace Pol {
 	void UBoat::send_boat_newly_inrange( Network::Client* client )
 	{
 		Network::PktHelper::PacketOut<Network::PktOut_F3> msg;
-		msg->WriteFlipped<u16>( static_cast<u16>( 0x1 ) );
-		msg->Write<u8>( static_cast<u8>( 0x02 ) );
+		msg->WriteFlipped<u16>( 0x1u );
+		msg->Write<u8>( 0x02u );
 		msg->Write<u32>( serial_ext );
 		msg->WriteFlipped<u16>( multidef().multiid );
 		msg->offset++; // 0;
-		msg->WriteFlipped<u16>( static_cast<u16>( 0x1 ) ); //amount
-		msg->WriteFlipped<u16>( static_cast<u16>( 0x1 ) ); //amount2
+		msg->WriteFlipped<u16>( 0x1u ); //amount
+		msg->WriteFlipped<u16>( 0x1u ); //amount2
 		msg->WriteFlipped<u16>( x );
 		msg->WriteFlipped<u16>( y );
 		msg->Write<s8>( z );
@@ -550,13 +550,13 @@ namespace Pol {
 	{
 	  // Client >= 7.0.0.0 ( SA )
 	  Network::PktHelper::PacketOut<Network::PktOut_F3> msg2;
-	  msg2->WriteFlipped<u16>( static_cast<u16>( 0x1 ) );
-	  msg2->Write<u8>( static_cast<u8>( 0x02 ) );
+	  msg2->WriteFlipped<u16>( 0x1u );
+	  msg2->Write<u8>( 0x02u );
 	  msg2->Write<u32>( this->serial_ext );
 	  msg2->WriteFlipped<u16>( this->multidef().multiid );
 	  msg2->offset++; // 0;
-	  msg2->WriteFlipped<u16>( static_cast<u16>( 0x1 ) ); //amount
-	  msg2->WriteFlipped<u16>( static_cast<u16>( 0x1 ) ); //amount2
+	  msg2->WriteFlipped<u16>( 0x1u ); //amount
+	  msg2->WriteFlipped<u16>( 0x1u ); //amount2
 	  msg2->WriteFlipped<u16>( this->x );
 	  msg2->WriteFlipped<u16>( this->y );
 	  msg2->Write<s8>( this->z );

@@ -50,7 +50,7 @@ namespace Pol {
 			msg->Write<u32>( item->serial_ext );
 			const char* string = id.tooltip.c_str();
 			while ( *string ) //unicode
-			  msg->Write<u16>( static_cast<u16>( ( *string++ ) << 8 ) );
+			  msg->Write<u16>( static_cast<u16>(( *string++ ) << 8) );
 			msg->offset += 2; //nullterm
 			u16 len = msg->offset;
 			msg->offset = 1;
@@ -77,7 +77,7 @@ namespace Pol {
 		else
 		{
           PacketOut<Network::PktOut_BF_Sub10> msgbf10;
-		  msgbf10->WriteFlipped<u16>( 0xD );
+		  msgbf10->WriteFlipped<u16>( 0xDu );
 		  msgbf10->offset += 2; //sub
 		  msgbf10->Write<u32>( obj->serial_ext );
 		  msgbf10->WriteFlipped<u32>( obj->rev() );
@@ -118,7 +118,7 @@ namespace Pol {
             {
               if ( msgbf10->offset == 1 )
               {
-                msgbf10->WriteFlipped<u16>( 0xD );
+                msgbf10->WriteFlipped<u16>( 0xDu );
                 msgbf10->offset += 2; //sub
                 msgbf10->Write<u32>( obj->serial_ext );
                 msgbf10->WriteFlipped<u32>( obj->rev() );
@@ -155,25 +155,25 @@ namespace Pol {
 
       PacketOut<Network::PktOut_D6> msg;
 	  msg->offset += 2;
-	  msg->WriteFlipped<u16>( 1 ); //u16 unk1
+	  msg->WriteFlipped<u16>( 1u ); //u16 unk1
 	  msg->Write<u32>( obj->serial_ext );
 	  msg->offset += 2; // u8 unk2,unk3
 	  msg->WriteFlipped<u32>( obj->rev() );
 	  if ( obj->isa( UObject::CLASS_CHARACTER ) )
-		msg->WriteFlipped<u32>( 1050045 );   //1 text argument only
+		msg->WriteFlipped<u32>( 1050045u );   //1 text argument only
 	  else
-		msg->WriteFlipped<u32>( 1042971 );   //1 text argument only
+		msg->WriteFlipped<u32>( 1042971u );   //1 text argument only
 
 	  u16 textlen = static_cast<u16>( desc.size() );
 	  if ( ( textlen * 2 ) > ( 0xFFFF - 22 ) )
 	  {
 		textlen = 0xFFFF / 2 - 22;
 	  }
-	  msg->WriteFlipped<u16>( static_cast<u16>( textlen * 2 ) );
+	  msg->WriteFlipped<u16>( textlen * 2u );
 	  const char* string = desc.c_str();
 
 	  while ( *string && textlen-- ) //unicode
-		msg->Write<u16>( static_cast<u16>( *string++ ) );
+		msg->Write<u16>( static_cast<u16>(*string++) );
 	  msg->offset += 4; // indicates end of property list
 	  u16 len = msg->offset;
 	  msg->offset = 1;

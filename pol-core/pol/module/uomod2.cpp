@@ -193,7 +193,7 @@ namespace Pol {
 		  return false;
 		}
 		msg->WriteFlipped<u32>( item->sellprice() );
-		msg->Write<u8>( static_cast<u8>( desc.size() + 1 ) ); //Don't forget the NULL
+		msg->Write<u8>( desc.size() + 1 ); //Don't forget the NULL
 		msg->Write( desc.c_str(), static_cast<u16>( desc.size() + 1 ) );
 		++num_items;
 
@@ -313,9 +313,9 @@ namespace Pol {
 	  //This looks good
 	  PktHelper::PacketOut<PktOut_24> open_window;
 	  open_window->Write<u32>( merchant->serial_ext );
-	  open_window->WriteFlipped<u16>( static_cast<u16>( 0x0030 ) ); // FIXME: Serial of buy gump needs #define or enum?
+	  open_window->WriteFlipped<u16>( 0x0030u ); // FIXME: Serial of buy gump needs #define or enum?
 	  if ( chr->client->ClientType & CLIENTTYPE_7090 )
-		open_window->WriteFlipped<u16>( static_cast<u16>( 0x00 ) );
+		open_window->WriteFlipped<u16>( 0x00u );
 	  open_window.Send( chr->client );
 
 	  // Tell the client how much gold the character has, I guess
@@ -330,9 +330,9 @@ namespace Pol {
 	void send_clear_vendorwindow( Client* client, Character* vendor )
 	{
 	  PktHelper::PacketOut<PktOut_3B> msg;
-	  msg->WriteFlipped<u16>( static_cast<u16>( sizeof msg->buffer ) );
+	  msg->WriteFlipped<u16>( sizeof msg->buffer );
 	  msg->Write<u32>( vendor->serial_ext );
-	  msg->Write<u8>( static_cast<u8>( PKTBI_3B::STATUS_NOTHING_BOUGHT ) );
+	  msg->Write<u8>( PKTBI_3B::STATUS_NOTHING_BOUGHT );
 	  msg.Send( client );
 	}
 	unsigned int calculate_cost( Character* /*vendor*/, UContainer* for_sale, UContainer* bought, PKTBI_3B *msg )
@@ -674,8 +674,8 @@ namespace Pol {
 		  msg->WriteFlipped<u16>( item->graphic );
 		  msg->WriteFlipped<u16>( item->color );
 		  msg->WriteFlipped<u16>( item->getamount() );
-		  msg->WriteFlipped<u16>( static_cast<u16>( buyprice ) );
-		  msg->WriteFlipped<u16>( static_cast<u16>( desc.size() ) );
+		  msg->WriteFlipped<u16>( buyprice );
+		  msg->WriteFlipped<u16>( desc.size() );
 		  msg->Write( desc.c_str(), static_cast<u16>( desc.size() ), false ); //No null term
 		  ++num_items;
 
@@ -990,8 +990,8 @@ namespace Pol {
 	  msg->offset += 2;
 	  msg->Write<u32>( chr->serial_ext );
 	  msg->WriteFlipped<u32>( this->uoexec.os_module->pid() );
-	  msg->WriteFlipped<u32>( x );
-	  msg->WriteFlipped<u32>( y );
+	  msg->WriteFlipped<u32>( static_cast<u32>(x) );
+	  msg->WriteFlipped<u32>( static_cast<u32>(y) );
 	  u16 pos = msg->offset;
 	  msg->offset += 2; //layoutlen
 	  size_t layoutlen = 0;
@@ -1023,7 +1023,7 @@ namespace Pol {
 
 	  u16 len = msg->offset;
 	  msg->offset = pos;
-	  msg->WriteFlipped<u16>( static_cast<u16>( layoutlen ) );
+	  msg->WriteFlipped<u16>( layoutlen );
 	  msg->offset = len;
 
 	  pos = msg->offset;
@@ -1052,10 +1052,10 @@ namespace Pol {
 		  return new BError( "Buffer length exceeded" );
 		}
 
-		msg->WriteFlipped<u16>( static_cast<u16>( textlen ) );
+		msg->WriteFlipped<u16>( textlen );
 
 		while ( *string ) //unicode
-		  msg->Write<u16>( static_cast<u16>( ( *string++ ) << 8 ) );
+		  msg->Write<u16>( static_cast<u16>(( *string++ ) << 8 ));
 	  }
 
 	  if ( msg->offset + 1 > static_cast<int>( sizeof msg->buffer ) )
@@ -1085,8 +1085,8 @@ namespace Pol {
 	  msg->offset += 2;
 	  msg->Write<u32>( chr->serial_ext );
 	  msg->WriteFlipped<u32>( this->uoexec.os_module->pid() );
-	  msg->WriteFlipped<u32>( x );
-	  msg->WriteFlipped<u32>( y );
+	  msg->WriteFlipped<u32>( static_cast<u16>(x) );
+	  msg->WriteFlipped<u32>( static_cast<u16>(y) );
 	  msg->offset += 8; //u32 layout_clen,layout_dlen
 
 	  u32 layoutdlen = 0;
@@ -1127,7 +1127,7 @@ namespace Pol {
 		return new BError( "Compression error" );
 	  }
 	  msg->offset -= 8;
-	  msg->WriteFlipped<u32>( static_cast<u32>( cbuflen + 4 ) );
+	  msg->WriteFlipped<u32>( cbuflen + 4 );
 	  msg->WriteFlipped<u32>( layoutdlen );
 	  msg->offset += static_cast<u16>( cbuflen );
 
@@ -1152,9 +1152,9 @@ namespace Pol {
 		  return new BError( "Buffer length exceeded" );
 		}
 		datadlen += static_cast<u32>( addlen );
-		bfr->WriteFlipped<u16>( static_cast<u16>( s.length() ) );
+		bfr->WriteFlipped<u16>( s.length() );
 		while ( *string ) //unicode
-		  bfr->Write<u16>( static_cast<u16>( ( *string++ ) << 8 ) );
+		  bfr->Write<u16>( static_cast<u16>(( *string++ ) << 8) );
 	  }
 	  msg->WriteFlipped<u32>( numlines );
 	  if ( numlines != 0 )
@@ -1172,12 +1172,12 @@ namespace Pol {
 		}
 
 		msg->offset -= 8;
-		msg->WriteFlipped<u32>( static_cast<u32>( cbuflen + 4 ) );
+		msg->WriteFlipped<u32>( cbuflen + 4 );
 		msg->WriteFlipped<u32>( datadlen );
 		msg->offset += static_cast<u16>( cbuflen );
 	  }
 	  else
-		msg->Write<u32>( 0 );
+		msg->Write<u32>( 0u );
 	  u16 len = msg->offset;
 	  msg->offset = 1;
 	  msg->WriteFlipped<u16>( len );
@@ -1322,7 +1322,7 @@ namespace Pol {
 	  }
 
 	  PktHelper::PacketOut<PktOut_BF_Sub4> msg;
-	  msg->WriteFlipped<u16>( static_cast<u16>( 13 ) );
+	  msg->WriteFlipped<u16>( 13u );
 	  msg->offset += 2;
 	  msg->WriteFlipped<u32>( pid );
 	  msg->offset += 4; //buttonid
@@ -1361,7 +1361,7 @@ namespace Pol {
 		return new BError( "Invalid type" );
 
 	  PktHelper::PacketOut<PktOut_BF_Sub16> msg;
-	  msg->WriteFlipped<u16>( static_cast<u16>( 13 ) );
+	  msg->WriteFlipped<u16>( 13u );
 	  msg->offset += 2; //sub
 	  msg->WriteFlipped<u32>( type );
 	  msg->Write<u32>( obj->serial_ext );
@@ -1510,16 +1510,16 @@ namespace Pol {
 	  size_t numbytes = line1->length() + 1;
 	  if ( numbytes > 256 )
 		numbytes = 256;
-	  msg->WriteFlipped<u16>( static_cast<u16>( numbytes ) );
+	  msg->WriteFlipped<u16>( numbytes );
 	  msg->Write( line1->data(), static_cast<u16>( numbytes ) ); // null-terminated
 
-	  msg->Write<u8>( static_cast<u8>( cancel ) );
-	  msg->Write<u8>( static_cast<u8>( style ) );
+	  msg->Write<u8>( static_cast<u8>(cancel) );
+	  msg->Write<u8>( static_cast<u8>(style) );
 	  msg->WriteFlipped<s32>( maximum );
 	  numbytes = line2->length() + 1;
 	  if ( numbytes > 256 )
 		numbytes = 256;
-	  msg->WriteFlipped<u16>( static_cast<u16>( numbytes ) );
+	  msg->WriteFlipped<u16>( numbytes );
 	  msg->Write( line2->data(), static_cast<u16>( numbytes ) ); // null-terminated
 	  u16 len = msg->offset;
 	  msg->offset = 1;
@@ -2159,7 +2159,7 @@ namespace Pol {
 		return new BError( "Client busy with another instares dialog" );
 
 	  PktHelper::PacketOut<PktOut_2C> msg;
-	  msg->Write<u8>( static_cast<u8>( RESURRECT_CHOICE_SELECT ) );
+	  msg->Write<u8>( RESURRECT_CHOICE_SELECT );
 	  msg.Send( chr->client );
 	  chr->client->gd->resurrect_uoemod = this;
 	  resurrect_chr = chr;
@@ -2272,9 +2272,9 @@ namespace Pol {
 
 	  PktHelper::PacketOut<PktOut_93> msg93;
 	  msg93->Write<u32>( book->serial_ext );
-	  msg93->Write<u8>( static_cast<u8>( writable ? 1 : 0 ) );
-	  msg93->Write<u8>( static_cast<u8>( 1 ) );
-	  msg93->WriteFlipped<u16>( static_cast<u16>( npages ) );
+	  msg93->Write<u8>( writable ? 1u : 0u );
+	  msg93->Write<u8>( 1u );
+	  msg93->WriteFlipped<u16>( static_cast<u16>(npages) );
 	  msg93->Write( title.c_str(), 60, false );
 	  msg93->Write( author.c_str(), 30, false );
 	  msg93.Send( chr->client );
@@ -2284,7 +2284,7 @@ namespace Pol {
 		PktHelper::PacketOut<PktOut_66> msg;
 		msg->offset += 2;
 		msg->Write<u32>( book->serial_ext );
-		msg->WriteFlipped<u16>( static_cast<u16>( npages ) );
+		msg->WriteFlipped<u16>( static_cast<u16>(npages) );
 
 		ObjArray* arr = static_cast<ObjArray*>( contents_ob.impptr() );
 
@@ -2295,7 +2295,7 @@ namespace Pol {
 		  {
 			return new BError( "Buffer overflow" );
 		  }
-		  msg->WriteFlipped<u16>( static_cast<u16>( page ) );
+		  msg->WriteFlipped<u16>( static_cast<u16>(page) );
 		  u16 offset = msg->offset;
 		  msg->offset += 2;
 
@@ -2314,7 +2314,7 @@ namespace Pol {
 		  }
 		  u16 len = msg->offset;
 		  msg->offset = offset;
-		  msg->WriteFlipped<u16>( static_cast<u16>( pagelines ) );
+		  msg->WriteFlipped<u16>( static_cast<u16>(pagelines) );
 		  msg->offset = len;
 		}
 
@@ -2385,11 +2385,11 @@ namespace Pol {
 		PktHelper::PacketOut<PktOut_66> msgOut;
 		msgOut->offset += 2;
 		msgOut->Write<u32>( book->serial_ext );
-		msgOut->WriteFlipped<u16>( static_cast<u16>( 1 ) );
+		msgOut->WriteFlipped<u16>( 1u );
 
 		int linenum = ( page - 1 ) * 8 + 1;
 
-		msgOut->WriteFlipped<u16>( static_cast<u16>( page ) );
+		msgOut->WriteFlipped<u16>( page );
 		u16 offset = msgOut->offset;
 		msgOut->offset += 2;
 
@@ -2412,7 +2412,7 @@ namespace Pol {
 
 		u16 len = msgOut->offset;
 		msgOut->offset = offset;
-		msgOut->WriteFlipped<u16>( static_cast<u16>( pagelines ) );
+		msgOut->WriteFlipped<u16>( static_cast<u16>(pagelines) );
 		msgOut->offset = 1;
 		msgOut->WriteFlipped<u16>( len );
 		msgOut.Send( client, len );
@@ -2529,13 +2529,13 @@ namespace Pol {
 
 	  {
 		PktHelper::PacketOut<PktOut_BF_Sub20> msg;
-		msg->WriteFlipped<u16>( static_cast<u16>( 17 ) );
+		msg->WriteFlipped<u16>( 17u );
 		msg->offset += 2; //sub
 		msg->Write<u32>( house->serial_ext );
-		msg->Write<u8>( static_cast<u8>( 0x4 ) ); //begin
+		msg->Write<u8>( 0x4u ); //begin
 		msg->offset += 2; // u16 unk2 FIXME what's the meaning
-		msg->Write<u32>( 0xFFFFFFFF ); // fixme
-		msg->Write<u8>( 0xFF ); // fixme
+		msg->Write<u32>( 0xFFFFFFFFu ); // fixme
+		msg->Write<u8>( 0xFFu ); // fixme
 		msg.Send( chr->client );
 	  }
 	  move_character_to( chr, house->x, house->y, house->z + 7, MOVEITEM_FORCELOCATION, NULL );
@@ -2578,10 +2578,10 @@ namespace Pol {
 	  if ( getCharacterParam( exec, 0, chr ) )
 	  {
 		PktHelper::PacketOut<PktOut_BF_Sub2A> msg;
-		msg->WriteFlipped<u16>( static_cast<u16>( 7 ) );
+		msg->WriteFlipped<u16>( 7u );
 		msg->offset += 2; //sub
-		msg->Write<u8>( static_cast<u8>( chr->gender ) );
-		msg->Write<u8>( static_cast<u8>( chr->race + 1 ) );
+		msg->Write<u8>( chr->gender );
+		msg->Write<u8>( chr->race + 1u );
 		msg.Send( chr->client );
 		return new BLong( 1 );
 	  }

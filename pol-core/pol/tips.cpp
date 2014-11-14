@@ -31,11 +31,11 @@ namespace Pol {
 	  if ( textlen > 0 && unsigned( textlen ) <= 9999 )
 	  {
         Network::PktHelper::PacketOut<Network::PktOut_A6> msg;
-		msg->WriteFlipped<u16>( static_cast<u16>( textlen + 11 ) );
-		msg->Write<u8>( static_cast<u8>( PKTOUT_A6_TYPE_TIP ) );
+		msg->WriteFlipped<u16>( textlen + 11 );
+		msg->Write<u8>( PKTOUT_A6_TYPE_TIP );
 		msg->offset += 2; //unk4,5
 		msg->WriteFlipped<u16>( tipnum );
-		msg->WriteFlipped<u16>( static_cast<u16>( textlen + 1 ) );
+		msg->WriteFlipped<u16>( textlen + 1 );
 		msg->Write( tipname, static_cast<u16>( textlen + 1 ) );
 		msg.Send( client );
 		return true;
@@ -53,11 +53,11 @@ namespace Pol {
 		textlen = 9999;
 
       Network::PktHelper::PacketOut<Network::PktOut_A6> msg;
-	  msg->WriteFlipped<u16>( static_cast<u16>( textlen + 11 ) );
-	  msg->Write<u8>( static_cast<u8>( PKTOUT_A6_TYPE_TIP ) );
+	  msg->WriteFlipped<u16>( textlen + 11 );
+	  msg->Write<u8>( PKTOUT_A6_TYPE_TIP );
 	  msg->offset += 2; //unk4,5
 	  msg->offset += 2; //tipnum
-	  msg->WriteFlipped<u16>( static_cast<u16>( textlen + 1 ) );
+	  msg->WriteFlipped<u16>( textlen + 1 );
 	  msg->Write( tiptext.c_str(), static_cast<u16>( textlen + 1 ) );
 	  msg.Send( client );
 	}

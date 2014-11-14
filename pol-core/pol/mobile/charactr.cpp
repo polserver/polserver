@@ -1568,7 +1568,7 @@ namespace Pol {
 	  if ( !Items::valid_equip_layer( item ) )
 	  {
           if (item->objtype_ == Core::extobj.mount) {
-              POLLOG_INFO.Format("\nWarning: Character 0x{:X} tried to mount Item 0x{:X}, but it doesn't have a mount graphic (current graphic: 0x{:X}). Check that the list of mounts in uoconvert.cfg is correct and re-run uoconvert if necessary.\n", this->serial, item->serial, item->graphic);
+              POLLOG_INFO.Format("\nWarning: Character 0x{:X} tried to mount Item 0x{:X}, but it doesn't have a mount graphic (current graphic: 0x{:X}). Check that the list of mounts in uoconvert.cfg is correct and re-run uoconvert if necessary.\n") << this->serial << item->serial << item->graphic;
           }
 
 		return false;
@@ -1587,7 +1587,7 @@ namespace Pol {
           && Core::config.enforce_mount_objtype
           && item->objtype_ != Core::extobj.mount)
       {
-          POLLOG_INFO.Format("\nWarning: Character 0x{:X} tried to mount Item 0x{:X}, but it doesn't have the mount objtype (as defined in extobj.cfg) and EnforceMountObjtype in pol.cfg is true.\n", this->serial, item->serial);
+          POLLOG_INFO.Format("\nWarning: Character 0x{:X} tried to mount Item 0x{:X}, but it doesn't have the mount objtype (as defined in extobj.cfg) and EnforceMountObjtype in pol.cfg is true.\n") << this->serial << item->serial;
           return false;
       }
 
@@ -1902,11 +1902,11 @@ namespace Pol {
 		if ( !poisoned() )
 		{
 		  Network::PktHelper::PacketOut<Network::PktOut_17> msg;
-		  msg->WriteFlipped<u16>( static_cast<u16>( sizeof msg->buffer ) );
+		  msg->WriteFlipped<u16>( sizeof msg->buffer );
 		  msg->Write<u32>( this->serial_ext );
-		  msg->WriteFlipped<u16>( static_cast<u16>( 1 ) ); //unk
-		  msg->WriteFlipped<u16>( static_cast<u16>( 1 ) ); // 1 = Green, 2 = Yellow, 3 = Red
-		  msg->Write<u8>( static_cast<u8>( 0 ) ); //flag
+		  msg->WriteFlipped<u16>( 1u ); //unk
+		  msg->WriteFlipped<u16>( 1u ); // 1 = Green, 2 = Yellow, 3 = Red
+		  msg->Write<u8>( 0u ); //flag
 		  transmit_to_inrange( this, &msg->buffer, msg->offset, false, true );
 		}
 	  }
@@ -2215,9 +2215,9 @@ namespace Pol {
 	void Character::send_warmode()
 	{
 	  Network::PktHelper::PacketOut<Network::PktOut_72> msg;
-	  msg->Write<u8>( warmode ? 1 : 0 );
+	  msg->Write<u8>( warmode ? 1u : 0u );
 	  msg->offset++; // u8 unk2
-	  msg->Write<u8>( 0x32 );
+	  msg->Write<u8>( 0x32u );
 	  msg->offset++; // u8 unk4
 	  msg.Send( client );
 	}
