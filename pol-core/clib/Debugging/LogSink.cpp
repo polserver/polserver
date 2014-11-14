@@ -2,6 +2,10 @@
 
 #include <chrono>
 
+#ifdef _MSC_VER
+#pragma warning(disable:4996) // localtime() deprecation warning
+#endif
+
 namespace Pol{ namespace Clib{ namespace Logging{
 using namespace std;
 using std::chrono::system_clock;
