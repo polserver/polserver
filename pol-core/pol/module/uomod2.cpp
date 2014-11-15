@@ -1305,7 +1305,7 @@ namespace Pol {
 
 	  if ( !( getCharacterParam( exec, 0, chr ) &&
 		exec.getParam( 1, pid ) &&
-		( resp = exec.getParamImp( 2 ) ) ) )
+		( getParamImp( 2, resp ) ) ) )
 	  {
 		return new BError( "Invalid parameter" );
 	  }

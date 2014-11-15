@@ -40,67 +40,36 @@ namespace Pol {
 	public:
 	  virtual ~ExecutorModule() {};
 
-	  BObjectImp* getParamImp( unsigned param ) { return exec.getParamImp( param ); }
-	  BObjectImp* getParamImp( unsigned param, BObjectImp::BObjectType type ) { return exec.getParamImp( param, type ); }
-	  const String* getStringParam( unsigned param ) { return exec.getStringParam( param ); }
-	  void* getApplicPtrParam( unsigned param, const BApplicObjType* pointer_type ) { return exec.getApplicPtrParam( param, pointer_type ); }
-	  BApplicObjBase* getApplicObjParam( unsigned param, const BApplicObjType* object_type ) { return exec.getApplicObjParam( param, object_type ); }
-	  bool getStringParam( unsigned param, const String*& pstr ) { return exec.getStringParam( param, pstr ); }
-	  bool getRealParam( unsigned param, double& value ) { return exec.getRealParam( param, value ); }
-	  bool getObjArrayParam( unsigned param, ObjArray*& pobjarr ) { return exec.getObjArrayParam( param, pobjarr ); }
+	  BObjectImp* getParamImp( unsigned param );
+	  BObjectImp* getParamImp( unsigned param, BObjectImp::BObjectType type );
+	  bool getParamImp( unsigned param, BObjectImp*& imp );
 
-	  bool getParam( unsigned param, int& value )
-	  {
-		return exec.getParam( param, value );
-	  }
-	  bool getParam( unsigned param, int& value, int maxval )
-	  {
-		return exec.getParam( param, value, maxval );
-	  }
-	  bool getParam( unsigned param, int& value, int minval, int maxval )
-	  {
-		return exec.getParam( param, value, minval, maxval );
-	  }
+	  const String* getStringParam( unsigned param );
+	  void* getApplicPtrParam( unsigned param, const BApplicObjType* pointer_type );
+	  BApplicObjBase* getApplicObjParam( unsigned param, const BApplicObjType* object_type );
+	  bool getStringParam( unsigned param, const String*& pstr );
+	  bool getRealParam( unsigned param, double& value );
+	  bool getObjArrayParam( unsigned param, ObjArray*& pobjarr );
 
-	  bool getParam( unsigned param, unsigned& value )
-	  {
-		return exec.getParam( param, value );
-	  }
+	  bool getParam( unsigned param, int& value );
+	  bool getParam( unsigned param, int& value, int maxval );
+	  bool getParam( unsigned param, int& value, int minval, int maxval );
 
-	  bool getParam( unsigned param, short& value )
-	  {
-		return exec.getParam( param, value );
-	  }
-	  bool getParam( unsigned param, short& value, short maxval )
-	  {
-		return exec.getParam( param, value, maxval );
-	  }
-	  bool getParam( unsigned param, short& value, short minval, short maxval )
-	  {
-		return exec.getParam( param, value, minval, maxval );
-	  }
+	  bool getParam( unsigned param, unsigned& value );
 
-	  bool getParam( unsigned param, unsigned short& value )
-	  {
-		return exec.getParam( param, value );
-	  }
-	  bool getParam( unsigned param, unsigned short& value, unsigned short maxval )
-	  {
-		return exec.getParam( param, value, maxval );
-	  }
-	  bool getParam( unsigned param, unsigned short& value, unsigned short minval, unsigned short maxval )
-	  {
-		return exec.getParam( param, value, minval, maxval );
-	  }
+	  bool getParam( unsigned param, short& value );
+	  bool getParam( unsigned param, short& value, short maxval );
+	  bool getParam( unsigned param, short& value, short minval, short maxval );
+
+	  bool getParam( unsigned param, unsigned short& value );
+	  bool getParam( unsigned param, unsigned short& value, unsigned short maxval );
+	  bool getParam( unsigned param, unsigned short& value, unsigned short minval, unsigned short maxval );
 
 	  const std::string& scriptname() const;
 	  Executor& exec;
 
 	protected:
-	  ExecutorModule( const char* moduleName, Executor& iExec ) :
-		exec( iExec ),
-		moduleName( moduleName )
-	  {}
+	  ExecutorModule( const char* moduleName, Executor& iExec );
 
 	  boost_utils::function_name_flystring moduleName;
 
