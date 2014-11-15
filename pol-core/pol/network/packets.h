@@ -14,6 +14,7 @@ Notes
 #include "../../clib/passert.h"
 #include "../../clib/rawtypes.h"
 #include "../../clib/strutil.h"
+#include "../../clib/logfacility.h"
 #include "../layers.h"
 #include "../pktboth.h"
 #include "../pktbothid.h"
@@ -267,9 +268,16 @@ namespace Pol {
         {
 		  static_assert(std::is_integral<N>::value || std::is_enum<N>::value, "Invalid argument type integral type is needed!");
 		  static_assert(std::is_signed<T>::value == std::is_signed<N>::value, "Signed/Unsigned missmatch!");
-		  passert_always_r((std::numeric_limits<T>::max() >= x), "Number is bigger then desired type!" );
-          passert_always_r(offset + sizeof(T) <= _size, "pkt " + Clib::hexint(_id));
-          PktWriterTemplateSpecs::WriteHelper<T>::Write(static_cast<T>(x), buffer, offset);
+		  //passert_always_r((std::numeric_limits<T>::max() >= x), "Number is bigger then desired type!" );
+		  passert_always_r(offset + sizeof(T) <= _size, "pkt " + Clib::hexint(_id));
+		  if (std::numeric_limits<T>::max() < x) // dont let the shard crash, a warning is better
+		  {
+			POLLOG_ERROR.Format( "ERROR: Write: trying to write {} on offset {} for pkt 0x{:X}/0x{:X} and only {} is allowed!\n" )
+			<< x << offset << (int)_id << _sub << std::numeric_limits<T>::max();
+			PktWriterTemplateSpecs::WriteHelper<T>::Write(std::numeric_limits<T>::max(), buffer, offset);
+		  }
+		  else
+			PktWriterTemplateSpecs::WriteHelper<T>::Write(static_cast<T>(x), buffer, offset);
         };
 
         template <class T, typename N>
@@ -287,9 +295,16 @@ namespace Pol {
         {
 		  static_assert(std::is_integral<N>::value || std::is_enum<N>::value, "Invalid argument type integral type is needed!");
 		  static_assert(std::is_signed<T>::value == std::is_signed<N>::value, "Signed/Unsigned missmatch!");
-		  passert_always_r((std::numeric_limits<T>::max() >= x), "Number is bigger then desired type!" );
+		  //passert_always_r((std::numeric_limits<T>::max() >= x), "Number is bigger then desired type!" );
           passert_always_r(offset + sizeof(T) <= _size, "pkt " + Clib::hexint(_id));
-          PktWriterTemplateSpecs::WriteHelper<T>::WriteFlipped(static_cast<T>(x), buffer, offset);
+		  if (std::numeric_limits<T>::max() < x) // dont let the shard crash, a warning is better
+		  {
+			POLLOG_ERROR.Format( "ERROR: WriteFlipped: trying to write {} on offset {} for pkt 0x{:X}/0x{:X} and only {} is allowed!\n" )
+			<< x << offset << (int)_id << _sub << std::numeric_limits<T>::max();
+			PktWriterTemplateSpecs::WriteHelper<T>::WriteFlipped(std::numeric_limits<T>::max(), buffer, offset);
+		  }
+		  else
+			PktWriterTemplateSpecs::WriteHelper<T>::WriteFlipped(static_cast<T>(x), buffer, offset);
         };
 
         void Write(const char* x, u16 len, bool nullterm = true)
