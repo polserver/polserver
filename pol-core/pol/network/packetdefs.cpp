@@ -49,20 +49,20 @@ namespace Pol {
       // transmit item info
       _p_old->offset += 2;
       // If the 0x80000000 is left out, the item won't show up. 
-      _p_old->WriteFlipped<u32>( static_cast<u32>( 0x80000000 | _serial ) ); // bit 0x80000000 enables piles
+      _p_old->WriteFlipped<u32>( 0x80000000u | _serial ); // bit 0x80000000 enables piles
       _p_old->WriteFlipped<u16>( _graphic );
       _p_old->WriteFlipped<u16>( _amount );
       if ( _facing == 0 )
       {
         _p_old->WriteFlipped<u16>( _x );
         // bits 0x80 and 0x40 are Dye and Move (dunno which is which)
-        _p_old->WriteFlipped<u16>( static_cast<u16>( 0xC000 | _y ) ); // dyeable and moveable?
+        _p_old->WriteFlipped<u16>( 0xC000u | _y ); // dyeable and moveable?
       }
       else
       {
-        _p_old->WriteFlipped<u16>( static_cast<u16>( 0x8000 | _x ) );
+        _p_old->WriteFlipped<u16>( 0x8000u | _x );
         // bits 0x80 and 0x40 are Dye and Move (dunno which is which)
-        _p_old->WriteFlipped<u16>( static_cast<u16>( 0xC000 | _y ) ); // dyeable and moveable?
+        _p_old->WriteFlipped<u16>( 0xC000u | _y ); // dyeable and moveable?
         _p_old->Write<u8>( _facing );
       }
       _p_old->Write<s8>( _z );
@@ -75,11 +75,11 @@ namespace Pol {
     void SendWorldItem::buildF3( )
     {
       _p->offset = 1;
-      _p->WriteFlipped<u16>( 0x1 );
+      _p->WriteFlipped<u16>( 0x1u );
       _p->offset++; // datatype
       _p->WriteFlipped<u32>( _serial );
       _p->WriteFlipped<u16>( _graphic );
-      _p->Write<u8>( 0 );
+      _p->Write<u8>( 0u );
       _p->WriteFlipped<u16>( _amount );
       _p->WriteFlipped<u16>( _amount );
       _p->WriteFlipped<u16>( _x );
@@ -127,7 +127,7 @@ namespace Pol {
       _p_old->offset = 1;
       _p_old->offset += 2;
       _p_old->Write<u32>( _serial_ext );
-      _p_old->WriteFlipped<u16>( _graphic | 0x4000 );
+      _p_old->WriteFlipped<u16>( _graphic | 0x4000u );
       _p_old->WriteFlipped<u16>( _x );
       _p_old->WriteFlipped<u16>( _y );
       _p_old->Write<s8>( _z );
@@ -139,19 +139,19 @@ namespace Pol {
     void SendWorldMulti::buildF3( )
     {
       _p->offset = 1;
-      _p->WriteFlipped<u16>( 0x1 );
-      _p->Write<u8>( static_cast<u8>( 0x02 ) );
+      _p->WriteFlipped<u16>( 0x1u );
+      _p->Write<u8>( 0x02u );
       _p->Write<u32>( _serial_ext );
       _p->WriteFlipped<u16>( _graphic );
-      _p->Write<u8>( 0 );
-      _p->WriteFlipped<u16>( static_cast<u16>( 0x1 ) ); //amount
-      _p->WriteFlipped<u16>( static_cast<u16>( 0x1 ) ); //amount
+      _p->Write<u8>( 0u );
+      _p->WriteFlipped<u16>( 0x1u ); //amount
+      _p->WriteFlipped<u16>( 0x1u ); //amount
       _p->WriteFlipped<u16>( _x );
       _p->WriteFlipped<u16>( _y );
       _p->Write<s8>( _z );
-      _p->Write<u8>( 0 ); // facing
+      _p->Write<u8>( 0u ); // facing
       _p->WriteFlipped<u16>( _color );
-      _p->Write<u8>( 0 ); // flags
+      _p->Write<u8>( 0u ); // flags
     }
 
     void SendWorldMulti::Send( Client* client )

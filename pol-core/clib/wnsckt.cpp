@@ -7,6 +7,9 @@ Notes
 
 */
 
+#include "wnsckt.h"
+
+#include "esignal.h"
 #include "strutil.h"
 #include "logfacility.h"
 
@@ -40,9 +43,11 @@ Notes
 
 #endif
 
-#include "esignal.h"
-#include "wnsckt.h"
 #include <stdexcept>
+
+#ifdef _MSC_VER
+#pragma warning(disable: 4127) // conditional expression is constant (needed because of FD_SET)
+#endif
 
 #ifndef SCK_WATCH
 #define SCK_WATCH 0

@@ -22,7 +22,7 @@ Notes
 namespace Pol {
   namespace Plib {
 	const int los_range = 20;
-	const int z_los_range = 60; // unused as yet
+	//const int z_los_range = 60; // unused as yet
 
 	/*
 		To determine LOS, a 3D line is drawn from the top of the attacker

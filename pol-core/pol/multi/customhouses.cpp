@@ -612,13 +612,13 @@ namespace Pol {
 	void CustomHouseStopEditing( Mobile::Character* chr, UHouse* house )
 	{
 	  Network::PktHelper::PacketOut<Network::PktOut_BF_Sub20> msg;
-	  msg->WriteFlipped<u16>( static_cast<u16>( 17 ) );
+	  msg->WriteFlipped<u16>( 17u );
 	  msg->offset += 2; //sub
 	  msg->Write<u32>( house->serial_ext );
-	  msg->Write<u8>( static_cast<u8>( 0x5 ) ); //end
+	  msg->Write<u8>( 0x5u ); //end
 	  msg->offset += 2; // u16 unk2 FIXME what's the meaning
-	  msg->Write<u32>( static_cast<u32>( 0xFFFFFFFF ) ); // fixme
-	  msg->Write<u8>( static_cast<u8>( 0xFF ) ); // fixme
+	  msg->Write<u32>( 0xFFFFFFFFu ); // fixme
+	  msg->Write<u8>( 0xFFu ); // fixme
 	  msg.Send( chr->client );
 
 	  const MultiDef& def = house->multidef();
@@ -1022,7 +1022,7 @@ namespace Pol {
 	void CustomHousesSendShort( UHouse* house, Network::Client* client )
 	{
 	  Network::PktHelper::PacketOut<Network::PktOut_BF_Sub1D> msg;
-	  msg->WriteFlipped<u16>( static_cast<u16>( 13 ) );
+	  msg->WriteFlipped<u16>( 13u );
 	  msg->offset += 2;
 	  msg->Write<u32>( house->serial_ext );
 	  msg->WriteFlipped<u32>( house->revision );

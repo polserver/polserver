@@ -2127,8 +2127,8 @@ namespace Pol {
 			if ( client && client->getversiondetail().major >= 1 )
 			{
 			  Network::PktHelper::PacketOut<Network::PktOut_BC> msg;
-			  msg->Write<u8>( static_cast<u8>( season_id ) );
-			  msg->Write<u8>( static_cast<u8>( playsound ) );
+			  msg->Write<u8>( static_cast<u16>(season_id) );
+			  msg->Write<u8>( static_cast<u16>(playsound) );
 			  msg.Send( client );
 			  return new BLong( 1 );
 			}

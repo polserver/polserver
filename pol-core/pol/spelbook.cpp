@@ -134,17 +134,17 @@ namespace Pol {
 		send_open_gump( client, *this );
 
         Network::PktHelper::PacketOut<Network::PktOut_BF_Sub1B> msg;
-		msg->WriteFlipped<u16>( 23 );
+		msg->WriteFlipped<u16>( 23u );
 		msg->offset += 2; //sub
-		msg->WriteFlipped<u16>( 1 );
+		msg->WriteFlipped<u16>( 1u );
 		msg->Write<u32>( serial_ext );
 		msg->WriteFlipped<u16>( graphic );
 
 		// Check Mysticism spell here
 		if ( spell_school == 3 )
-		  msg->WriteFlipped<u16>( 678 );
+		  msg->WriteFlipped<u16>( 678u );
 		else
-		  msg->WriteFlipped<u16>( static_cast<u16>( ( spell_school * 100 ) + 1 ) );
+		  msg->WriteFlipped<u16>( ( spell_school * 100u ) + 1u );
 
 		msg->Write( bitwise_contents, 8 );
 		msg.Send( client );
@@ -389,16 +389,16 @@ namespace Pol {
 		if ( spellpos == 0 ) spellpos = 8;
 		if ( ( ( spellbook.bitwise_contents[( ( spellnumber - 1 ) >> 3 )] ) & ( 1 << ( spellpos - 1 ) ) ) != 0 )
 		{
-		  msg->Write<u32>( static_cast<u32>( 0x7FFFFFFF - spellnumber ) );
-		  msg->WriteFlipped<u16>( static_cast<u16>( objtype ) );
+		  msg->Write<u32>( 0x7FFFFFFFu - spellnumber );
+		  msg->WriteFlipped<u16>( objtype );
 		  msg->offset++; //unk6
 		  msg->WriteFlipped<u16>( spellnumber ); //amount
-		  msg->WriteFlipped<u16>( 1 ); //x
-		  msg->WriteFlipped<u16>( 1 ); //y
+		  msg->WriteFlipped<u16>( 1u ); //x
+		  msg->WriteFlipped<u16>( 1u ); //y
           if ( client->ClientType & Network::CLIENTTYPE_6017 )
-			msg->Write<u8>( 0 ); //slotindex
+			msg->Write<u8>( 0u ); //slotindex
 		  msg->Write<u32>( spellbook.serial_ext );
-		  msg->WriteFlipped<u16>( 0 ); //color
+		  msg->WriteFlipped<u16>( 0u ); //color
 		  ++count;
 		}
 	  }

@@ -149,9 +149,9 @@ namespace Pol {
 	  if ( !client->chr->target_cursor_busy() )
 	  {
         Network::PktHelper::PacketOut<Network::PktOut_6C> msg;
-		msg->Write<u8>( static_cast<u8>( PKTBI_6C::UNK1_00 ) );
+		msg->Write<u8>( PKTBI_6C::UNK1_00 );
 		msg->WriteFlipped<u32>( cursorid_ );
-		msg->Write<u8>( static_cast<u8>( crstype ) );
+		msg->Write<u8>( crstype );
 		// rest 0
 		msg.Send( client, sizeof msg->buffer );
 		client->chr->tcursor2 = this;
@@ -349,9 +349,9 @@ namespace Pol {
 	  if ( !client->chr->target_cursor_busy() )
 	  {
         Network::PktHelper::PacketOut<Network::PktOut_6C> msg;
-		msg->Write<u8>( static_cast<u8>( PKTBI_6C::UNK1_01 ) );
+		msg->Write<u8>( PKTBI_6C::UNK1_01 );
 		msg->WriteFlipped<u32>( cursorid_ );
-		msg->Write<u8>( static_cast<u8>( PKTBI_6C::CURSOR_TYPE_NEUTRAL ) );
+		msg->Write<u8>( PKTBI_6C::CURSOR_TYPE_NEUTRAL );
 		// rest 0
 		msg.Send( client, sizeof msg->buffer );
 		client->chr->tcursor2 = this;
@@ -379,7 +379,7 @@ namespace Pol {
     void MultiPlacementCursor::send_placemulti( Network::Client* client, unsigned int objtype, int flags, s16 xoffset, s16 yoffset, u32 hue )
 	{
       Network::PktHelper::PacketOut<Network::PktOut_99> msg;
-	  msg->Write<u8>( 0x1 );
+	  msg->Write<u8>( 0x1u );
 	  msg->WriteFlipped<u32>( cursorid_ );
 	  msg->offset += 12; // 12x u8 unk
 	  u16 multiid = Items::find_multidesc( objtype ).multiid;

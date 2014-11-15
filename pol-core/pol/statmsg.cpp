@@ -43,7 +43,7 @@ namespace Pol {
 		int v = chr->vital( uoclient_general.hits.id ).current_ones();
 		if ( v > 0xFFFF )
 		  v = 0xFFFF;
-		msg->WriteFlipped<u16>( static_cast<u16>( v ) ); // hits
+		msg->WriteFlipped<u16>( static_cast<u16>(v) ); // hits
 		v = chr->vital(uoclient_general.hits.id).maximum_ones();
 		if (v > 0xFFFF)
 			v = 0xFFFF;
@@ -51,70 +51,70 @@ namespace Pol {
 	  }
 	  else
 	  {
-		  msg->WriteFlipped<u16>(0);  // hits
-		  msg->WriteFlipped<u16>(0);  // max_hits
+		  msg->WriteFlipped<u16>(0u);  // hits
+		  msg->WriteFlipped<u16>(0u);  // max_hits
 	  }
-	  msg->Write<u8>(0); // (client->chr->can_rename( chr ) ? 0xFF : 0);
+	  msg->Write<u8>(0u); // (client->chr->can_rename( chr ) ? 0xFF : 0);
       if ( client->ClientType & Network::CLIENTTYPE_70300 )
-		  msg->Write<u8>(6); // New entries for classic client
+		  msg->Write<u8>(6u); // New entries for classic client
       else if ( ( client->UOExpansionFlag & Network::ML ) && ( client->ClientType & Network::CLIENTTYPE_5000 ) )
-		  msg->Write<u8>(5); // Set to ML level
+		  msg->Write<u8>(5u); // Set to ML level
       else if ( ( client->UOExpansionFlag & Network::AOS ) )
-		  msg->Write<u8>(4); // Set to AOS level statbar for full info
+		  msg->Write<u8>(4u); // Set to AOS level statbar for full info
 	  else
-		  msg->Write<u8>(1); // Set to oldschool statbar info.
+		  msg->Write<u8>(1u); // Set to oldschool statbar info.
 
 	  //if (chr->race == RACE_ELF)
 	  //  msg->Write(static_cast<u8>(chr->gender | FLAG_RACE));
 	  //else
-	  msg->Write<u8>( static_cast<u8>( chr->gender ) ); // GENDER_MALE or GENDER_FEMALE (see uconst.h)
+	  msg->Write<u8>( chr->gender ); // GENDER_MALE or GENDER_FEMALE (see uconst.h)
 
 	  if ( uoclient_general.strength.any )
 	  {
 		int v = chr->attribute( uoclient_general.strength.id ).effective();
 		if ( v > 0xFFFF )
 		  v = 0xFFFF;
-		msg->WriteFlipped<u16>( static_cast<u16>( v ) );
+		msg->WriteFlipped<u16>( static_cast<u16>(v) );
 	  }
 	  else
-		msg->WriteFlipped<u16>( 0 );
+		msg->WriteFlipped<u16>( 0u );
 
 	  if ( uoclient_general.dexterity.any )
 	  {
 		int v = chr->attribute( uoclient_general.dexterity.id ).effective();
 		if ( v > 0xFFFF )
 		  v = 0xFFFF;
-		msg->WriteFlipped<u16>( static_cast<u16>( v ) );
+		msg->WriteFlipped<u16>( static_cast<u16>(v) );
 	  }
 	  else
-		msg->WriteFlipped<u16>( 0 );
+		msg->WriteFlipped<u16>( 0u );
 
 	  if ( uoclient_general.intelligence.any )
 	  {
 		int v = chr->attribute( uoclient_general.intelligence.id ).effective();
 		if ( v > 0xFFFF )
 		  v = 0xFFFF;
-		msg->WriteFlipped<u16>( static_cast<u16>( v ) );
+		msg->WriteFlipped<u16>( static_cast<u16>(v) );
 	  }
 	  else
-		msg->WriteFlipped<u16>( 0 );
+		msg->WriteFlipped<u16>( 0u );
 
 	  if ( uoclient_general.stamina.any )
 	  {
 		int v = chr->vital( uoclient_general.stamina.id ).current_ones();
 		if ( v > 0xFFFF )
 		  v = 0xFFFF;
-		msg->WriteFlipped<u16>( static_cast<u16>( v ) );
+		msg->WriteFlipped<u16>( static_cast<u16>(v) );
 
 		v = chr->vital( uoclient_general.stamina.id ).maximum_ones();
 		if ( v > 0xFFFF )
 		  v = 0xFFFF;
-		msg->WriteFlipped<u16>( static_cast<u16>( v ) );
+		msg->WriteFlipped<u16>( static_cast<u16>(v) );
 	  }
 	  else
 	  {
-		msg->WriteFlipped<u16>( 0 );
-		msg->WriteFlipped<u16>( 0 );
+		msg->WriteFlipped<u16>( 0u );
+		msg->WriteFlipped<u16>( 0u );
 	  }
 
 	  if ( uoclient_general.mana.any )
@@ -122,17 +122,17 @@ namespace Pol {
 		int v = chr->vital( uoclient_general.mana.id ).current_ones();
 		if ( v > 0xFFFF )
 		  v = 0xFFFF;
-		msg->WriteFlipped<u16>( static_cast<u16>( v ) );
+		msg->WriteFlipped<u16>( static_cast<u16>(v) );
 
 		v = chr->vital( uoclient_general.mana.id ).maximum_ones();
 		if ( v > 0xFFFF )
 		  v = 0xFFFF;
-		msg->WriteFlipped<u16>( static_cast<u16>( v ) );
+		msg->WriteFlipped<u16>( static_cast<u16>(v) );
 	  }
 	  else
 	  {
-		msg->WriteFlipped<u16>( 0 );
-		msg->WriteFlipped<u16>( 0 );
+		msg->WriteFlipped<u16>( 0u );
+		msg->WriteFlipped<u16>( 0u );
 	  }
 
 	  msg->WriteFlipped<u32>( chr->gold_carried() );
@@ -140,21 +140,21 @@ namespace Pol {
       if ( ( client->UOExpansionFlag & Network::AOS ) && client->aosresist )
       {
         s16 value = chr->getBaseResistance( Core::ELEMENTAL_PHYSICAL );
-        msg->WriteFlipped<u16>( ( value < 0 ) ?
-                                static_cast<u16>( 0x10000 + value ) :
-                                static_cast<u16>( value ) );
+        msg->WriteFlipped<u16>( static_cast<u16>(( value < 0 ) ?
+                                ( 0x10000 + value ) :
+                                value ));
       }
 	  else
 		msg->WriteFlipped<u16>( chr->ar() );
 
-	  msg->WriteFlipped<u16>( static_cast<u16>( chr->weight() ) );
+	  msg->WriteFlipped<u16>( chr->weight() );
 
 
 	  // moreinfo 5
 	  if ( ( client->UOExpansionFlag & Network::ML ) && ( client->ClientType & Network::CLIENTTYPE_5000 ) )
 	  {
 		msg->WriteFlipped<u16>( chr->carrying_capacity() );
-		msg->Write<u8>( static_cast<u8>( chr->race + 1 ) );
+		msg->Write<u8>( chr->race + 1u );
 	  }
 
 	  // moreinfo 3 start
@@ -165,21 +165,21 @@ namespace Pol {
 		msg->Write<s8>( chr->expanded_statbar.followers_max );
 		// moreinfo 4 start
         s16 value = chr->getBaseResistance( Core::ELEMENTAL_FIRE );
-        msg->WriteFlipped<u16>( ( value < 0 ) ?
-                                static_cast<u16>( 0x10000 + value ) :
-                                static_cast<u16>( value ) );
+        msg->WriteFlipped<u16>( static_cast<u16>(( value < 0 ) ?
+                                ( 0x10000 + value ) :
+                                value ));
         value = chr->getBaseResistance( Core::ELEMENTAL_COLD );
-        msg->WriteFlipped<u16>( ( value < 0 ) ?
-                                static_cast<u16>( 0x10000 + value ) :
-                                static_cast<u16>( value ) );
+        msg->WriteFlipped<u16>( static_cast<u16>(( value < 0 ) ?
+                                ( 0x10000 + value ) :
+                                 value ));
         value = chr->getBaseResistance( Core::ELEMENTAL_POISON );
-        msg->WriteFlipped<u16>( ( value < 0 ) ?
-                                static_cast<u16>( 0x10000 + value ) :
-                                static_cast<u16>( value ) );
+        msg->WriteFlipped<u16>( static_cast<u16>(( value < 0 ) ?
+                                ( 0x10000 + value ) :
+                                value ));
         value = chr->getBaseResistance( Core::ELEMENTAL_ENERGY );
-        msg->WriteFlipped<u16>( ( value < 0 ) ?
-                                static_cast<u16>( 0x10000 + value ) :
-                                static_cast<u16>( value ) );
+        msg->WriteFlipped<u16>( static_cast<u16>(( value < 0 ) ?
+                                ( 0x10000 + value ) :
+                                value ));
 		msg->WriteFlipped<s16>( chr->expanded_statbar.luck );
 		msg->WriteFlipped<u16>( chr->min_weapon_damage() );
 		msg->WriteFlipped<u16>( chr->max_weapon_damage() );
@@ -231,9 +231,9 @@ namespace Pol {
 	  lockbit |= chr->attribute( uoclient_general.intelligence.id ).lock();
 
 	  PacketOut<Network::PktOut_BF_Sub19> msg;
-	  msg->WriteFlipped<u16>( 12 );
+	  msg->WriteFlipped<u16>( 12u );
 	  msg->offset += 2; //sub
-	  msg->Write<u8>( 0x02 ); // 2D Client = 0x02, KR = 0x05
+	  msg->Write<u8>( 0x02u ); // 2D Client = 0x02, KR = 0x05
 	  msg->Write<u32>( chr->serial_ext );
 	  msg->offset++; //unk
 	  msg->Write<u8>( lockbit );
@@ -257,16 +257,16 @@ namespace Pol {
 		if ( mh > 0xFFFF )
 		  mh = 0xFFFF;
 
-		msg->WriteFlipped<u16>( static_cast<u16>( h * 1000 / mh ) );
-		msg->WriteFlipped<u16>( 1000 ); // max_hits
+		msg->WriteFlipped<u16>( static_cast<u16>(h * 1000 / mh) );
+		msg->WriteFlipped<u16>( 1000u ); // max_hits
 	  }
 	  else
 	  {
-		msg->WriteFlipped<u16>( 0 );  // hits
-		msg->WriteFlipped<u16>( 0 );  // max_hits
+		msg->WriteFlipped<u16>( 0u );  // hits
+		msg->WriteFlipped<u16>( 0u );  // max_hits
 	  }
-	  msg->Write<u8>( client->chr->can_rename( chr ) ? 0xFF : 0 );
-	  msg->Write<u8>( 0 ); //moreinfo
+	  msg->Write<u8>( client->chr->can_rename( chr ) ? 0xFFu : 0u );
+	  msg->Write<u8>( 0u ); //moreinfo
 
 	  u16 len = msg->offset;
 	  msg->offset = 1;
@@ -288,8 +288,8 @@ namespace Pol {
 		int mh = chr->vital( uoclient_general.hits.id ).maximum_ones();
 		if ( mh > 0xFFFF )
 		  mh = 0xFFFF;
-		msg->WriteFlipped<u16>( static_cast<u16>( mh ) );
-		msg->WriteFlipped<u16>( static_cast<u16>( h ) );
+		msg->WriteFlipped<u16>( static_cast<u16>(mh) );
+		msg->WriteFlipped<u16>( static_cast<u16>(h) );
 
 		// Send proper data to self (if we exist?)
 		if ( chr->client && chr->client->ready )
@@ -297,8 +297,8 @@ namespace Pol {
 
 		// To stop "HP snooping"...
 		msg->offset = 5;
-		msg->WriteFlipped<u16>( 1000 );
-		msg->WriteFlipped<u16>( static_cast<u16>( h * 1000 / mh ) );
+		msg->WriteFlipped<u16>( 1000u );
+		msg->WriteFlipped<u16>( static_cast<u16>(h * 1000 / mh) );
 	  }
 	  else
 	  {

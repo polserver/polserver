@@ -486,6 +486,7 @@
     <ClCompile Include="network\cgdata.cpp" />
     <ClCompile Include="network\client.cpp" />
     <ClCompile Include="network\clientio.cpp" />
+    <ClCompile Include="network\clientthread.cpp" />
     <ClCompile Include="network\cliface.cpp" />
     <ClCompile Include="network\iostats.cpp" />
     <ClCompile Include="network\packethooks.cpp" />
@@ -531,6 +532,7 @@
     <ClInclude Include="checkpnt.h" />
     <ClInclude Include="clfunc.h" />
     <ClInclude Include="clidata.h" />
+    <ClInclude Include="network\clientthread.h" />
     <ClInclude Include="cmbtcfg.h" />
     <ClInclude Include="cmdlevel.h" />
     <ClInclude Include="config.h" />

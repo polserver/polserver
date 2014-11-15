@@ -171,7 +171,7 @@ namespace Pol {
 
       Network::PktHelper::PacketOut<Network::PktOut_A8> msgA8;
 	  msgA8->offset += 2;
-	  msgA8->Write<u8>( static_cast<u8>( 0xFF ) );
+	  msgA8->Write<u8>( 0xFFu );
 	  msgA8->offset += 2; //servcount
 
 	  unsigned short servcount = 0;
@@ -205,9 +205,9 @@ namespace Pol {
 		if ( server_applies( client, idx ) )
 		{
 		  ++servcount;
-		  msgA8->WriteFlipped<u16>( static_cast<u16>( idx + 1 ) );
+		  msgA8->WriteFlipped<u16>( idx + 1u );
 		  msgA8->Write( server->name.c_str(), 30 );
-		  msgA8->WriteFlipped<u16>( static_cast<u16>( idx + 1 ) );
+		  msgA8->WriteFlipped<u16>( idx + 1u );
 		  msgA8->offset += 2; //u8 percentfull, s8 timezone
 		  msgA8->Write( server->ip, 4 );
 		}
@@ -341,11 +341,11 @@ namespace Pol {
 		  msg->offset += 60;
 	  }
 
-	  msg->Write<u8>( static_cast<u8>( startlocations.size() ) );
+	  msg->Write<u8>( startlocations.size() );
 
 	  for ( i = 0; i < startlocations.size(); i++ )
 	  {
-		msg->Write<u8>( static_cast<u8>( i ) );
+		msg->Write<u8>( i );
         if ( client->ClientType & Network::CLIENTTYPE_70130 )
 		{
 		  msg->Write( startlocations[i]->city.c_str(), 32, false );
@@ -353,11 +353,11 @@ namespace Pol {
 
 		  Coordinate coord = startlocations[i]->coords[0];
 
-		  msg->WriteFlipped<u32>( static_cast<u32>( coord.x ) );
-		  msg->WriteFlipped<u32>( static_cast<u32>( coord.y ) );
-		  msg->WriteFlipped<s32>( static_cast<s32>( coord.z ) );
-		  msg->WriteFlipped<u32>( static_cast<u32>( startlocations[i]->mapid ) ); // MapID
-		  msg->WriteFlipped<u32>( static_cast<u32>( startlocations[i]->cliloc_desc ) ); // Cliloc Description
+		  msg->WriteFlipped<u32>( coord.x );
+		  msg->WriteFlipped<u32>( coord.y );
+		  msg->WriteFlipped<s32>( coord.z );
+		  msg->WriteFlipped<u32>( startlocations[i]->mapid ); // MapID
+		  msg->WriteFlipped<u32>( startlocations[i]->cliloc_desc ); // Cliloc Description
 		  msg->offset += 4;
 		}
 		else

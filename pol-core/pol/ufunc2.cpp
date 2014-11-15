@@ -46,9 +46,9 @@ namespace Pol {
 	  size_t stringlen = strlen( menu->title );
 	  if ( stringlen > 80 )
 		stringlen = 80;
-	  msg->Write<u8>( static_cast<u8>( stringlen ) );// NOTE null-term not included!
+	  msg->Write<u8>( stringlen );// NOTE null-term not included!
 	  msg->Write( menu->title, static_cast<u16>( stringlen ), false );
-	  msg->Write<u8>( static_cast<u8>( menu->menuitems_.size() ) );
+	  msg->Write<u8>( menu->menuitems_.size() );
 
 	  for ( unsigned idx = 0; idx < menu->menuitems_.size(); idx++ )
 	  {
@@ -62,7 +62,7 @@ namespace Pol {
 		stringlen = strlen( mi->title );
 		if ( stringlen > 80 )
 		  stringlen = 80;
-		msg->Write<u8>( static_cast<u8>( stringlen ) );// NOTE null-term not included!
+		msg->Write<u8>( stringlen );// NOTE null-term not included!
 		msg->Write( mi->title, static_cast<u16>( stringlen ), false );
 	  }
 	  u16 len = msg->offset;
@@ -145,7 +145,7 @@ namespace Pol {
 	  msg->Write<u32>( cont.serial_ext );
 	  msg->WriteFlipped<u16>( cont.gump() );
 	  if ( client->ClientType & CLIENTTYPE_7090 )
-		msg->WriteFlipped<u16>( static_cast<u16>( 0x7D ) );
+		msg->WriteFlipped<u16>( 0x7Du );
 	  msg.Send( client );
 	}
 

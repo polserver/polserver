@@ -131,8 +131,8 @@ namespace Pol {
 		{
           Network::PktHelper::PacketOut<Network::PktOut_F5> msgF5;
 		  msgF5->Write<u32>( serial_ext );
-		  msgF5->Write<u8>( 0x13 );
-		  msgF5->Write<u8>( 0x9d );
+		  msgF5->Write<u8>( 0x13u );
+		  msgF5->Write<u8>( 0x9du );
 		  msgF5->WriteFlipped<u16>( xwest );
 		  msgF5->WriteFlipped<u16>( ynorth );
 		  msgF5->WriteFlipped<u16>( xeast );
@@ -146,8 +146,8 @@ namespace Pol {
 		{
           Network::PktHelper::PacketOut<Network::PktOut_90> msg90;
 		  msg90->Write<u32>( serial_ext );
-		  msg90->Write<u8>( 0x13 );
-		  msg90->Write<u8>( 0x9d );
+		  msg90->Write<u8>( 0x13u );
+		  msg90->Write<u8>( 0x9du );
 		  msg90->WriteFlipped<u16>( xwest );
 		  msg90->WriteFlipped<u16>( ynorth );
 		  msg90->WriteFlipped<u16>( xeast );
@@ -402,8 +402,8 @@ namespace Pol {
 		  my_map->plotting = my_map->plotting ? 0 : 1;
           Network::PktHelper::PacketOut<Network::PktOut_56> msg56;
 		  msg56->Write<u32>( msg->serial );
-		  msg56->Write<u8>( static_cast<u8>( PKTBI_56::TYPE_TOGGLE_RESPONSE ) );
-		  msg56->Write<u8>( static_cast<u8>( my_map->plotting ) );
+		  msg56->Write<u8>( PKTBI_56::TYPE_TOGGLE_RESPONSE );
+		  msg56->Write<u8>( my_map->plotting ? 1u : 0u );
 		  msg56->Write<u16>( msg->pinx );
 		  msg56->Write<u16>( msg->piny );
 		  msg56.Send( client );

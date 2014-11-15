@@ -45,9 +45,9 @@ namespace Pol {
 	  if ( textlen > ( SPEECH_MAX_LEN ) )
 		textlen = SPEECH_MAX_LEN;
 
-	  msg->Write<u32>( static_cast<u32>( 0xFFFFFFFF ) ); // serial
-	  msg->Write<u16>( static_cast<u16>( 0xFFFF ) );     // body
-	  msg->Write<u8>( static_cast<u8>( 6 ) );           // type 6 lower left, 7 on player
+	  msg->Write<u32>( 0xFFFFFFFFu ); // serial
+	  msg->Write<u16>( 0xFFFFu );     // body
+	  msg->Write<u8>( 6u );           // type 6 lower left, 7 on player
 	  msg->WriteFlipped<u16>( color );
 	  msg->WriteFlipped<u16>( font );
 	  msg->WriteFlipped<u32>( cliloc_num );
@@ -81,7 +81,7 @@ namespace Pol {
 
 	  msg->Write<u32>( obj->serial_ext );
 	  msg->WriteFlipped<u16>( obj->graphic );     // body
-	  msg->Write<u8>( static_cast<u8>( 7 ) );           // type 6 lower left, 7 on player
+	  msg->Write<u8>( 7u );           // type 6 lower left, 7 on player
 	  msg->WriteFlipped<u16>( color );
 	  msg->WriteFlipped<u16>( font );
 	  msg->WriteFlipped<u32>( cliloc_num );
@@ -116,7 +116,7 @@ namespace Pol {
 
 	  msg->Write<u32>( obj->serial_ext );
 	  msg->WriteFlipped<u16>( obj->graphic );     // body
-	  msg->Write<u8>( static_cast<u8>( 7 ) );           // type 6 lower left, 7 on player
+	  msg->Write<u8>( 7u );           // type 6 lower left, 7 on player
 	  msg->WriteFlipped<u16>( color );
 	  msg->WriteFlipped<u16>( font );
 	  msg->WriteFlipped<u32>( cliloc_num );
@@ -152,13 +152,13 @@ namespace Pol {
 	  if ( textlen > ( SPEECH_MAX_LEN ) )
 		textlen = SPEECH_MAX_LEN;
 
-	  msg->Write<u32>( static_cast<u32>( 0xFFFFFFFF ) ); // serial
-	  msg->Write<u16>( static_cast<u16>( 0xFFFF ) );     // body
-	  msg->Write<u8>( static_cast<u8>( 6 ) );           // type 6 lower left, 7 on player
+	  msg->Write<u32>( 0xFFFFFFFFu ); // serial
+	  msg->Write<u16>( 0xFFFFu );     // body
+	  msg->Write<u8>( 6u );           // type 6 lower left, 7 on player
 	  msg->WriteFlipped<u16>( color );
 	  msg->WriteFlipped<u16>( font );
 	  msg->WriteFlipped<u32>( cliloc_num );
-	  msg->Write<u8>( static_cast<u8>( ( prepend ) ? 1 : 0 ) );
+	  msg->Write<u8>( ( prepend ) ? 1u : 0u );
 	  msg->Write( "System", 30, false );
 	  msg->Write( affix, static_cast<u16>( affix_len ) );
 	  if ( arguments != NULL )
@@ -193,11 +193,11 @@ namespace Pol {
 
 	  msg->Write<u32>( obj->serial_ext ); // serial
 	  msg->WriteFlipped<u16>( obj->graphic );     // body
-	  msg->Write<u8>( static_cast<u8>( 7 ) );           // type 6 lower left, 7 on player
+	  msg->Write<u8>( 7u );           // type 6 lower left, 7 on player
 	  msg->WriteFlipped<u16>( color );
 	  msg->WriteFlipped<u16>( font );
 	  msg->WriteFlipped<u32>( cliloc_num );
-	  msg->Write<u8>( static_cast<u8>( ( prepend ) ? 1 : 0 ) );
+	  msg->Write<u8>( ( prepend ) ? 1u : 0u );
 	  msg->Write( "System", 30, false );
 	  msg->Write( affix, static_cast<u16>( affix_len ) );
 	  if ( arguments != NULL )
@@ -234,11 +234,11 @@ namespace Pol {
 
 	  msg->Write<u32>( obj->serial_ext ); // serial
 	  msg->WriteFlipped<u16>( obj->graphic );     // body
-	  msg->Write<u8>( static_cast<u8>( 7 ) );           // type 6 lower left, 7 on player
+	  msg->Write<u8>( 7u );           // type 6 lower left, 7 on player
 	  msg->WriteFlipped<u16>( color );
 	  msg->WriteFlipped<u16>( font );
 	  msg->WriteFlipped<u32>( cliloc_num );
-	  msg->Write<u8>( static_cast<u8>( ( prepend ) ? 1 : 0 ) );
+	  msg->Write<u8>( ( prepend ) ? 1u : 0u );
 	  msg->Write( "System", 30, false );
 	  msg->Write( affix, static_cast<u16>( affix_len ) );
 	  if ( arguments != NULL )
@@ -267,9 +267,9 @@ namespace Pol {
 	  if ( textlen > ( SPEECH_MAX_LEN ) )
 		textlen = SPEECH_MAX_LEN;
 
-	  msg->Write<u32>( static_cast<u32>( 0xFFFFFFFF ) ); // serial
-	  msg->Write<u16>( static_cast<u16>( 0xFFFF ) );     // body
-	  msg->Write<u8>( static_cast<u8>( 6 ) );           // type 6 lower left, 7 on player
+	  msg->Write<u32>( 0xFFFFFFFFu ); // serial
+	  msg->Write<u16>( 0xFFFFu );     // body
+	  msg->Write<u8>( 6u );           // type 6 lower left, 7 on player
 	  msg->WriteFlipped<u16>( color );
 	  msg->WriteFlipped<u16>( font );
 	  msg->WriteFlipped<u32>( cliloc_num );
@@ -303,13 +303,13 @@ namespace Pol {
 	  if ( textlen > ( SPEECH_MAX_LEN ) )
 		textlen = SPEECH_MAX_LEN;
 
-	  msg->Write<u32>( static_cast<u32>( 0xFFFFFFFF ) ); // serial
-	  msg->Write<u16>( static_cast<u16>( 0xFFFF ) );     // body
-	  msg->Write<u8>( static_cast<u8>( 6 ) );           // type 6 lower left, 7 on player
+	  msg->Write<u32>( 0xFFFFFFFu ); // serial
+	  msg->Write<u16>( 0xFFFFu );     // body
+	  msg->Write<u8>( 6u );           // type 6 lower left, 7 on player
 	  msg->WriteFlipped<u16>( color );
 	  msg->WriteFlipped<u16>( font );
 	  msg->WriteFlipped<u32>( cliloc_num );
-	  msg->Write<u8>( static_cast<u8>( ( prepend ) ? 1 : 0 ) );
+	  msg->Write<u8>( ( prepend ) ? 1u : 0u );
 	  msg->Write( "System", 30, false );
 	  msg->Write( affix, static_cast<u16>( affix_len ) );
 	  if ( arguments != NULL )

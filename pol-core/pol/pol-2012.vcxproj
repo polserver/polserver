@@ -317,6 +317,7 @@
     <ClCompile Include="network\msghandl.cpp" />
     <ClCompile Include="musicrgn.cpp" />
     <ClCompile Include="network\clienttransmit.cpp" />
+    <ClCompile Include="network\clientthread.cpp" />
     <ClCompile Include="network\packetdefs.cpp" />
     <ClCompile Include="npc.cpp" />
     <ClCompile Include="npctemplates.cpp" />
@@ -519,6 +520,7 @@
     <ClInclude Include="checkpnt.h" />
     <ClInclude Include="clfunc.h" />
     <ClInclude Include="clidata.h" />
+	<ClInclude Include="network\clientthread.h" />
     <ClInclude Include="cmbtcfg.h" />
     <ClInclude Include="cmdlevel.h" />
     <ClInclude Include="config.h" />

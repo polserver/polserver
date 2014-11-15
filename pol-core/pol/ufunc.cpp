@@ -178,7 +178,7 @@ namespace Pol {
 	  msg->WriteFlipped<u16>( chr->x );
 	  msg->WriteFlipped<u16>( chr->y );
 	  msg->offset += 2; //unk15,16
-	  msg->Write<u8>( static_cast<u8>( 0x80 | chr->facing ) ); // is it always right to set this flag?
+	  msg->Write<u8>( 0x80u | chr->facing ); // is it always right to set this flag?
 	  msg->Write<s8>( chr->z );
 	  msg.Send( client );
 
@@ -202,7 +202,7 @@ namespace Pol {
 	  msg->WriteFlipped<u16>( chr->x );
 	  msg->WriteFlipped<u16>( chr->y );
 	  msg->Write<s8>( chr->z );
-	  msg->Write<u8>( static_cast<u8>( ( chr->dir & 0x80 ) | chr->facing ) );// NOTE, this only includes mask 0x07 of the last MOVE message 
+	  msg->Write<u8>( ( chr->dir & 0x80u ) | chr->facing );// NOTE, this only includes mask 0x07 of the last MOVE message 
 	  msg->WriteFlipped<u16>( chr->color );
 	  msg->Write<u8>( chr->get_flag1( client ) );
 	  msg->Write<u8>( chr->hilite_color_idx( client->chr ) );
@@ -234,48 +234,48 @@ namespace Pol {
 	  msg->WriteFlipped<u16>( chr->x );
 	  msg->WriteFlipped<u16>( chr->y );
 	  msg->Write<s8>( chr->z );
-	  msg->Write<u8>( static_cast<u8>( ( chr->dir & 0x80 ) | chr->facing ) );// NOTE, this only includes mask 0x07 of the last MOVE message 
+	  msg->Write<u8>(( chr->dir & 0x80u ) | chr->facing );// NOTE, this only includes mask 0x07 of the last MOVE message 
 	  msg->WriteFlipped<u16>( chr->color );
 	}
 
 	void send_poisonhealthbar( Client *client, const Character *chr )
 	{
 	  PktHelper::PacketOut<PktOut_17> msg;
-	  msg->WriteFlipped<u16>( static_cast<u16>( sizeof msg->buffer ) );
+	  msg->WriteFlipped<u16>( sizeof msg->buffer );
 	  msg->Write<u32>( chr->serial_ext );
-	  msg->WriteFlipped<u16>( 1 ); //unk
-	  msg->WriteFlipped<u16>( 1 ); // 1 = Green, 2 = Yellow
-	  msg->Write<u8>( ( chr->poisoned() ) ? 1 : 0 ); //flag
+	  msg->WriteFlipped<u16>( 1u ); //unk
+	  msg->WriteFlipped<u16>( 1u ); // 1 = Green, 2 = Yellow
+	  msg->Write<u8>( ( chr->poisoned() ) ? 1u : 0u ); //flag
 	  msg.Send( client );
 	}
 
 	void send_invulhealthbar( Client *client, const Character *chr )
 	{
 	  PktHelper::PacketOut<PktOut_17> msg;
-	  msg->WriteFlipped<u16>( static_cast<u16>( sizeof msg->buffer ) );
+	  msg->WriteFlipped<u16>( sizeof msg->buffer );
 	  msg->Write<u32>( chr->serial_ext );
-	  msg->WriteFlipped<u16>( 1 ); //unk
-	  msg->WriteFlipped<u16>( 2 ); // 1 = Green, 2 = Yellow
-	  msg->Write<u8>( ( chr->invul() ) ? 1 : 0 ); //flag
+	  msg->WriteFlipped<u16>( 1u ); //unk
+	  msg->WriteFlipped<u16>( 2u ); // 1 = Green, 2 = Yellow
+	  msg->Write<u8>( ( chr->invul() ) ? 1u : 0u ); //flag
 	  msg.Send( client );
 	}
 
 	void build_poisonhealthbar( const Character *chr, PktOut_17* msg )
 	{
-	  msg->WriteFlipped<u16>( static_cast<u16>( sizeof msg->buffer ) );
+	  msg->WriteFlipped<u16>( sizeof msg->buffer );
 	  msg->Write<u32>( chr->serial_ext );
-	  msg->WriteFlipped<u16>( 1 ); //unk
-	  msg->WriteFlipped<u16>( 1 ); // 1 = Green, 2 = Yellow
-	  msg->Write<u8>( ( chr->poisoned() ) ? 1 : 0 ); //flag
+	  msg->WriteFlipped<u16>( 1u ); //unk
+	  msg->WriteFlipped<u16>( 1u ); // 1 = Green, 2 = Yellow
+	  msg->Write<u8>( ( chr->poisoned() ) ? 1u : 0u ); //flag
 	}
 
 	void build_invulhealthbar( const Character *chr, PktOut_17* msg )
 	{
-	  msg->WriteFlipped<u16>( static_cast<u16>( sizeof msg->buffer ) );
+	  msg->WriteFlipped<u16>( sizeof msg->buffer );
 	  msg->Write<u32>( chr->serial_ext );
-	  msg->WriteFlipped<u16>( 1 ); //unk
-	  msg->WriteFlipped<u16>( 2 ); // 1 = Green, 2 = Yellow
-	  msg->Write<u8>( ( chr->invul() ) ? 1 : 0 ); //flag
+	  msg->WriteFlipped<u16>( 1u ); //unk
+	  msg->WriteFlipped<u16>( 2u ); // 1 = Green, 2 = Yellow
+	  msg->Write<u8>( ( chr->invul() ) ? 1u : 0u ); //flag
 	}
 
 	void send_owncreate( Client *client, const Character *chr )
@@ -306,21 +306,21 @@ namespace Pol {
         {
           owncreate->Write<u32>( item->serial_ext );
           owncreate->WriteFlipped<u16>( item->graphic );
-          owncreate->Write<u8>( static_cast<u8>( layer ) );
+          owncreate->Write<u8>( static_cast<u8>(layer) );
           owncreate->WriteFlipped<u16>( item->color );
         }
         else if ( item->color )
 		{
 		  owncreate->Write<u32>( item->serial_ext );
-		  owncreate->WriteFlipped<u16>( static_cast<u16>( 0x8000 | item->graphic ) );
-		  owncreate->Write<u8>( static_cast<u8>( layer ) );
+		  owncreate->WriteFlipped<u16>( 0x8000u | item->graphic );
+		  owncreate->Write<u8>( static_cast<u8>(layer) );
 		  owncreate->WriteFlipped<u16>( item->color );
 		}
 		else
 		{
 		  owncreate->Write<u32>( item->serial_ext );
 		  owncreate->WriteFlipped<u16>( item->graphic );
-		  owncreate->Write<u8>( static_cast<u8>( layer ) );
+		  owncreate->Write<u8>( static_cast<u8>(layer) );
 		}
 	  }
 	  owncreate->offset += 4; //items nullterm
@@ -383,21 +383,21 @@ namespace Pol {
         {
           owncreate->Write<u32>( item->serial_ext );
           owncreate->WriteFlipped<u16>( item->graphic );
-          owncreate->Write<u8>( static_cast<u8>( layer ) );
+          owncreate->Write<u8>( static_cast<u16>(layer) );
           owncreate->WriteFlipped<u16>( item->color );
         }
         else if ( item->color )
 		{
 		  owncreate->Write<u32>( item->serial_ext );
-  	      owncreate->WriteFlipped<u16>( static_cast<u16>( 0x8000 | item->graphic ) );
-		  owncreate->Write<u8>( static_cast<u8>( layer ) );
+  	      owncreate->WriteFlipped<u16>( 0x8000u | item->graphic );
+		  owncreate->Write<u8>( static_cast<u8>(layer) );
 		  owncreate->WriteFlipped<u16>( item->color );
 		}
 		else
 		{
 		  owncreate->Write<u32>( item->serial_ext );
 		  owncreate->WriteFlipped<u16>( item->graphic );
-		  owncreate->Write<u8>( static_cast<u8>( layer ) );
+		  owncreate->Write<u8>( static_cast<u8>(layer) );
 		}
 	  }
 	  owncreate->offset += 4; //items nullterm
@@ -851,7 +851,7 @@ namespace Pol {
 	  if ( VALID_LIGHTLEVEL( lightlevel ) )
 	  {
 		PktHelper::PacketOut<PktOut_4F> msg;
-		msg->Write<u8>( static_cast<u8>( lightlevel ) );
+		msg->Write<u8>( static_cast<u8>(lightlevel) );
 		msg.Send( client );
 	  }
 	}
@@ -1099,10 +1099,10 @@ namespace Pol {
 	void play_sound_effect( const UObject *center, u16 effect )
 	{
 	  PktHelper::PacketOut<PktOut_54> msg;
-	  msg->Write<u8>( static_cast<u8>( PKTOUT_54_FLAG_SINGLEPLAY ) );
-	  msg->WriteFlipped<u16>( static_cast<u16>( effect - 1 ) ); // SOUND_EFFECT_XX, see sfx.h
+	  msg->Write<u8>( PKTOUT_54_FLAG_SINGLEPLAY );
+	  msg->WriteFlipped<u16>( effect - 1u ); // SOUND_EFFECT_XX, see sfx.h
 	  msg->offset += 2; //volume
-	  //msg->WriteFlipped(static_cast<u16>(0));
+	  //msg->WriteFlipped(0);
 	  msg->WriteFlipped<u16>( center->x );
 	  msg->WriteFlipped<u16>( center->y );
 	  msg->offset += 2;
@@ -1114,13 +1114,13 @@ namespace Pol {
 	void play_sound_effect_xyz( u16 cx, u16 cy, s8 cz, u16 effect, Plib::Realm* realm )
 	{
 	  PktHelper::PacketOut<PktOut_54> msg;
-	  msg->Write<u8>( static_cast<u8>( PKTOUT_54_FLAG_SINGLEPLAY ) );
-	  msg->WriteFlipped<u16>( static_cast<u16>( effect - 1 ) ); // SOUND_EFFECT_XX, see sfx.h
+	  msg->Write<u8>( PKTOUT_54_FLAG_SINGLEPLAY );
+	  msg->WriteFlipped<u16>( effect - 1u ); // SOUND_EFFECT_XX, see sfx.h
 	  msg->offset += 2; //volume
-	  //msg->WriteFlipped(static_cast<u16>(0));
+	  //msg->WriteFlipped(0);
 	  msg->WriteFlipped<u16>( cx );
 	  msg->WriteFlipped<u16>( cy );
-	  msg->WriteFlipped<s16>( static_cast<s16>( cz ) );
+	  msg->WriteFlipped<s16>( cz );
 
       WorldIterator<PlayerFilter>::InRange( cx, cy, realm, RANGE_VISUAL, [&]( Character *zonechr )
       {
@@ -1135,10 +1135,10 @@ namespace Pol {
 	  if ( forchr->client )
 	  {
 		PktHelper::PacketOut<PktOut_54> msg;
-		msg->Write<u8>( static_cast<u8>( PKTOUT_54_FLAG_SINGLEPLAY ) );
-		msg->WriteFlipped<u16>( static_cast<u16>( effect - 1 ) ); // SOUND_EFFECT_XX, see sfx.h
+		msg->Write<u8>( PKTOUT_54_FLAG_SINGLEPLAY );
+		msg->WriteFlipped<u16>( effect - 1u ); // SOUND_EFFECT_XX, see sfx.h
 		msg->offset += 2; //volume
-		//msg->WriteFlipped(static_cast<u16>(0));
+		//msg->WriteFlipped(0);
 		msg->WriteFlipped<u16>( center->x );
 		msg->WriteFlipped<u16>( center->y );
 		msg->offset += 2;
@@ -1154,16 +1154,16 @@ namespace Pol {
 							 u8 explode )
 	{
 	  PktHelper::PacketOut<PktOut_70> msg;
-	  msg->Write<u8>( static_cast<u8>( EFFECT_TYPE_MOVING ) );
+	  msg->Write<u8>( EFFECT_TYPE_MOVING );
 	  msg->Write<u32>( src->serial_ext );
 	  msg->Write<u32>( dst->serial_ext );
 	  msg->WriteFlipped<u16>( effect );
 	  msg->WriteFlipped<u16>( src->x );
 	  msg->WriteFlipped<u16>( src->y );
-	  msg->Write<s8>( static_cast<s8>( src->z + src->height ) );
+	  msg->Write<s8>( src->z + src->height );
 	  msg->WriteFlipped<u16>( dst->x );
 	  msg->WriteFlipped<u16>( dst->y );
-	  msg->Write<s8>( static_cast<s8>( dst->z + dst->height ) );
+	  msg->Write<s8>( dst->z + dst->height );
 	  msg->Write<u8>( speed );
 	  msg->Write<u8>( loop );
 	  msg->offset += 3; //unk24,unk25,unk26
@@ -1193,7 +1193,7 @@ namespace Pol {
 							  Plib::Realm* realm )
 	{
 	  PktHelper::PacketOut<PktOut_70> msg;
-	  msg->Write<u8>( static_cast<u8>( EFFECT_TYPE_MOVING ) );
+	  msg->Write<u8>( EFFECT_TYPE_MOVING );
 	  msg->offset += 8; // src+dst serial
 	  msg->WriteFlipped<u16>( effect );
 	  msg->WriteFlipped<u16>( xs );
@@ -1226,7 +1226,7 @@ namespace Pol {
 	void play_lightning_bolt_effect( const UObject* center )
 	{
 	  PktHelper::PacketOut<PktOut_70> msg;
-	  msg->Write<u8>( static_cast<u8>( EFFECT_TYPE_LIGHTNING_BOLT ) );
+	  msg->Write<u8>( EFFECT_TYPE_LIGHTNING_BOLT );
 	  msg->Write<u32>( center->serial_ext );
 	  msg->offset += 6; // dst serial + effect
 	  msg->WriteFlipped<u16>( center->x );
@@ -1242,7 +1242,7 @@ namespace Pol {
 									  u8 loop )
 	{
 	  PktHelper::PacketOut<PktOut_70> msg;
-	  msg->Write<u8>( static_cast<u8>( EFFECT_TYPE_FOLLOW_OBJ ) );
+	  msg->Write<u8>( EFFECT_TYPE_FOLLOW_OBJ );
 	  msg->Write<u32>( center->serial_ext );
 	  msg->offset += 4; // dst serial
 	  msg->WriteFlipped<u16>( effect );
@@ -1259,7 +1259,7 @@ namespace Pol {
     void play_stationary_effect( u16 x, u16 y, s8 z, u16 effect, u8 speed, u8 loop, u8 explode, Plib::Realm* realm )
 	{
 	  PktHelper::PacketOut<PktOut_70> msg;
-	  msg->Write<u8>( static_cast<u8>( EFFECT_TYPE_STATIONARY_XYZ ) );
+	  msg->Write<u8>( EFFECT_TYPE_STATIONARY_XYZ );
 	  msg->offset += 8; // src,dst serial
 	  msg->WriteFlipped<u16>( effect );
 	  msg->WriteFlipped<u16>( x );
@@ -1269,7 +1269,7 @@ namespace Pol {
 	  msg->Write<u8>( speed );
 	  msg->Write<u8>( loop );
 	  msg->offset += 2; //unk24,unk25
-	  msg->Write<u8>( static_cast<u8>( 1 ) ); // this is right for teleport, anyway
+	  msg->Write<u8>( 1u ); // this is right for teleport, anyway
 	  msg->Write<u8>( explode );
 
       WorldIterator<PlayerFilter>::InRange( x, y, realm, RANGE_VISUAL, [&]( Character *zonechr )
@@ -1415,9 +1415,9 @@ namespace Pol {
 		textlen = SPEECH_MAX_LEN + 1;
 
 	  msg->offset += 2;
-	  msg->Write<u32>( static_cast<u32>( 0x01010101 ) );
-	  msg->Write<u16>( static_cast<u16>( 0x0101 ) );
-	  msg->Write<u8>( static_cast<u8>( TEXTTYPE_NORMAL ) );
+	  msg->Write<u32>( 0x01010101u );
+	  msg->Write<u16>( 0x0101u );
+	  msg->Write<u8>( TEXTTYPE_NORMAL );
 	  msg->WriteFlipped<u16>( color );
 	  msg->WriteFlipped<u16>( font );
 	  msg->Write( "System", 30 );
@@ -1442,9 +1442,9 @@ namespace Pol {
 
 	  PktHelper::PacketOut<PktOut_AE> msg;
 	  msg->offset += 2;
-	  msg->Write<u32>( static_cast<u32>( 0x01010101 ) );
-	  msg->Write<u16>( static_cast<u16>( 0x0101 ) );
-	  msg->Write<u8>( static_cast<u8>( TEXTTYPE_NORMAL ) );
+	  msg->Write<u32>( 0x01010101u );
+	  msg->Write<u16>( 0x0101u );
+	  msg->Write<u8>( TEXTTYPE_NORMAL );
 	  msg->WriteFlipped<u16>( color );
 	  msg->WriteFlipped<u16>( font );
 	  msg->Write( lang, 4 );
@@ -1503,10 +1503,10 @@ namespace Pol {
 
 	  msg->offset += 2;
 	  msg->Write<u32>( chr->serial_ext );
-	  msg->Write<u16>( static_cast<u16>( 0x0101 ) );
-	  msg->Write<u8>( static_cast<u8>( TEXTTYPE_YOU_SEE ) );
+	  msg->Write<u16>( 0x0101u );
+	  msg->Write<u8>( TEXTTYPE_YOU_SEE );
 	  msg->WriteFlipped<u16>( chr->name_color( client->chr ) ); // 0x03B2
-	  msg->WriteFlipped<u16>( static_cast<u16>( 3 ) );
+	  msg->WriteFlipped<u16>( 3u );
 	  msg->Write( str.c_str(), 30 );
 	  msg->Write( str.c_str(), textlen );
 	  u16 len = msg->offset;
@@ -1529,7 +1529,7 @@ namespace Pol {
 	  msg->offset += 2;
 	  msg->Write<u32>( obj->serial_ext );
 	  msg->WriteFlipped<u16>( obj->graphic );
-	  msg->Write<u8>( static_cast<u8>( TEXTTYPE_NORMAL ) );
+	  msg->Write<u8>( TEXTTYPE_NORMAL );
 	  msg->WriteFlipped<u16>( color );
 	  msg->WriteFlipped<u16>( font );
 	  switch ( journal_print )
@@ -1569,7 +1569,7 @@ namespace Pol {
 	  msg->offset += 2;
 	  msg->Write<u32>( obj->serial_ext );
 	  msg->WriteFlipped<u16>( obj->graphic );
-	  msg->Write<u8>( static_cast<u8>( TEXTTYPE_NORMAL ) );
+	  msg->Write<u8>( TEXTTYPE_NORMAL );
 	  msg->WriteFlipped<u16>( color );
 	  msg->WriteFlipped<u16>( font );
 	  msg->Write( lang, 4 );
@@ -1609,7 +1609,7 @@ namespace Pol {
 	  msg->offset += 2;
 	  msg->Write<u32>( obj->serial_ext );
 	  msg->WriteFlipped<u16>( obj->graphic );
-	  msg->Write<u8>( static_cast<u8>( TEXTTYPE_NORMAL ) );
+	  msg->Write<u8>( TEXTTYPE_NORMAL );
 	  msg->WriteFlipped<u16>( color );
 	  msg->WriteFlipped<u16>( font );
 	  switch ( journal_print )
@@ -1651,7 +1651,7 @@ namespace Pol {
 	  msg->offset += 2;
 	  msg->Write<u32>( obj->serial_ext );
 	  msg->WriteFlipped<u16>( obj->graphic );
-	  msg->Write<u8>( static_cast<u8>( TEXTTYPE_NORMAL ) );
+	  msg->Write<u8>( TEXTTYPE_NORMAL );
 	  msg->WriteFlipped<u16>( color );
 	  msg->WriteFlipped<u16>( font );
 	  msg->Write( lang, 4 );
@@ -1688,9 +1688,9 @@ namespace Pol {
 	  msg->offset += 2;
 	  msg->Write<u32>( obj->serial_ext );
 	  msg->WriteFlipped<u16>( obj->graphic );
-	  msg->Write<u8>( static_cast<u8>( TEXTTYPE_NORMAL ) );
+	  msg->Write<u8>( TEXTTYPE_NORMAL );
 	  msg->WriteFlipped<u16>( color );
-	  msg->WriteFlipped<u16>( static_cast<u16>( 3 ) );
+	  msg->WriteFlipped<u16>( 3u );
 	  msg->Write( obj->description().c_str(), 30 );
 	  msg->Write( text, textlen );
 	  u16 len = msg->offset;
@@ -1709,9 +1709,9 @@ namespace Pol {
 	  msg->offset += 2;
 	  msg->Write<u32>( item->serial_ext );
 	  msg->WriteFlipped<u16>( item->graphic );
-	  msg->Write<u8>( static_cast<u8>( TEXTTYPE_YOU_SEE ) );
-	  msg->WriteFlipped<u16>( static_cast<u16>( 0x03B2 ) );
-	  msg->WriteFlipped<u16>( static_cast<u16>( 3 ) );
+	  msg->Write<u8>( TEXTTYPE_YOU_SEE );
+	  msg->WriteFlipped<u16>( 0x03B2u );
+	  msg->WriteFlipped<u16>( 3u );
 	  msg->Write( "System", 30 );
 	  msg->Write( item->description().c_str(), textlen );
 	  u16 len = msg->offset;
@@ -1732,12 +1732,12 @@ namespace Pol {
 		int v = chr->vital( uoclient_general.mana.id ).maximum_ones();
 		if ( v > 0xFFFF )
 		  v = 0xFFFF;
-		msg->WriteFlipped<u16>( static_cast<u16>( v ) );
+		msg->WriteFlipped<u16>( static_cast<u16>(v) );
 
 		v = chr->vital( uoclient_general.mana.id ).current_ones();
 		if ( v > 0xFFFF )
 		  v = 0xFFFF;
-		msg->WriteFlipped<u16>( static_cast<u16>( v ) );
+		msg->WriteFlipped<u16>( static_cast<u16>(v) );
 	  }
 	  else
 	  {
@@ -1758,12 +1758,12 @@ namespace Pol {
 		int v = chr->vital( uoclient_general.mana.id ).maximum_ones();
 		if ( v > 0xFFFF )
 		  v = 0xFFFF;
-		msg->WriteFlipped<u16>( static_cast<u16>( v ) );
+		msg->WriteFlipped<u16>( static_cast<u16>(v) );
 
 		v = chr->vital( uoclient_general.mana.id ).current_ones();
 		if ( v > 0xFFFF )
 		  v = 0xFFFF;
-		msg->WriteFlipped<u16>( static_cast<u16>( v ) );
+		msg->WriteFlipped<u16>( static_cast<u16>(v) );
 	  }
 	  else
 	  {
@@ -2014,7 +2014,7 @@ namespace Pol {
 	{
 	  lightregion->lightlevel = lightlevel;
 	  PktHelper::PacketOut<PktOut_4F> msg;
-	  msg->Write<u8>( static_cast<u8>( lightlevel ) );
+	  msg->Write<u8>( static_cast<u8>(lightlevel) );
 	  for ( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
 	  {
 		Client *client = *itr;
@@ -2052,10 +2052,10 @@ namespace Pol {
 			if ( newlightlevel != lightlevel )
 			{
 			  msg->offset = 1;
-			  msg->Write<u8>( static_cast<u8>( newlightlevel ) );
+			  msg->Write<u8>( static_cast<u8>(newlightlevel) );
 			  msg.Send( client );
 			  msg->offset = 1;
-			  msg->Write<u8>( static_cast<u8>( lightlevel ) );
+			  msg->Write<u8>( static_cast<u16>(lightlevel) );
 			}
 			else
 			  msg.Send( client );
@@ -2373,16 +2373,16 @@ namespace Pol {
 	  if ( client->ClientType & CLIENTTYPE_60142 )
 		msg->WriteFlipped<u32>( clientflag );
 	  else
-		msg->WriteFlipped<u16>( static_cast<u16>( clientflag ) );
+		msg->WriteFlipped<u16>( clientflag );
 	  msg.Send( client );
 	}
 
 	void send_realm_change( Client* client, Plib::Realm* realm )
 	{
 	  PktHelper::PacketOut<PktOut_BF_Sub8> msg;
-	  msg->WriteFlipped<u16>( static_cast<u16>( 6 ) );
+	  msg->WriteFlipped<u16>( 6u );
 	  msg->offset += 2; //sub
-	  msg->Write<u8>( static_cast<u8>( realm->getUOMapID() ) );
+	  msg->Write<u8>( realm->getUOMapID() );
 	  msg.Send( client );
 	}
 
@@ -2409,8 +2409,8 @@ namespace Pol {
 	  if ( client->getversiondetail().major >= 1 )
 	  {
 		PktHelper::PacketOut<PktOut_BC> msg;
-		msg->Write<u8>( static_cast<u8>( client->chr->realm->season() ) );
-		msg->Write<u8>( static_cast<u8>( PKTOUT_BC::PLAYSOUND_YES ) );
+		msg->Write<u8>( client->chr->realm->season() );
+		msg->Write<u8>( PKTOUT_BC::PLAYSOUND_YES );
 		msg.Send( client );
 
 		// Sending Season info resets light level in client, this fixes it during login
@@ -2429,7 +2429,7 @@ namespace Pol {
 	  PktHelper::PacketOut<PktOut_76> msg;
 	  msg->WriteFlipped<u16>( client->chr->x );
 	  msg->WriteFlipped<u16>( client->chr->y );
-	  msg->WriteFlipped<u16>( static_cast<u16>( client->chr->z ) );
+	  msg->WriteFlipped<u16>( static_cast<u16>(client->chr->z) );
 	  msg->offset += 5; //unk0,x1,y2
 	  msg->WriteFlipped<u16>( client->chr->realm->width() );
 	  msg->WriteFlipped<u16>( client->chr->realm->height() );
@@ -2474,14 +2474,14 @@ namespace Pol {
 	void send_damage_old( Client* client, Character* defender, u16 damage )
 	{
 	  PktHelper::PacketOut<PktOut_BF_Sub22> msg;
-	  msg->WriteFlipped<u16>( static_cast<u16>( 11 ) );
+	  msg->WriteFlipped<u16>( 11u );
 	  msg->offset += 2; //sub
-	  msg->Write<u8>( static_cast<u8>( 1 ) );
+	  msg->Write<u8>( 1u );
 	  msg->Write<u32>( defender->serial_ext );
 	  if ( damage > 0xFF )
-		msg->Write<u8>( static_cast<u8>( 0xFF ) );
+		msg->Write<u8>( 0xFFu );
 	  else
-		msg->Write<u8>( static_cast<u8>( damage ) );
+		msg->Write<u8>( damage );
 	  msg.Send( client );
 	}
 

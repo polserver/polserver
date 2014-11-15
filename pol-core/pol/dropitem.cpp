@@ -543,12 +543,12 @@ namespace Pol {
 	  send_trade_container( dropon->client, client->chr, client->chr->trade_container() );
 
 	  Network::PktHelper::PacketOut<Network::PktOut_6F> msg;
-	  msg->WriteFlipped<u16>( static_cast<u16>( sizeof msg->buffer ) );
-	  msg->Write<u8>( static_cast<u8>( PKTBI_6F::ACTION_INIT ) );
+	  msg->WriteFlipped<u16>( sizeof msg->buffer );
+	  msg->Write<u8>( PKTBI_6F::ACTION_INIT );
 	  msg->Write<u32>( dropon->serial_ext );
 	  msg->Write<u32>( client->chr->trade_container()->serial_ext );
 	  msg->Write<u32>( dropon->trade_container()->serial_ext );
-	  msg->Write<u8>( static_cast<u8>( 1 ) );
+	  msg->Write<u8>( 1u );
 	  msg->Write( dropon->name().c_str(), 30, false );
 
 	  msg.Send( client );
@@ -958,8 +958,8 @@ namespace Pol {
 	  if ( chr1->client )
 	  {
         Network::PktHelper::PacketOut<Network::PktOut_6F> msg;
-		msg->WriteFlipped<u16>( static_cast<u16>( 17 ) ); // no name
-		msg->Write<u8>( static_cast<u8>( PKTBI_6F::ACTION_CANCEL ) );
+		msg->WriteFlipped<u16>( 17u ); // no name
+		msg->Write<u8>( PKTBI_6F::ACTION_CANCEL );
 		msg->Write<u32>( chr1->trade_container()->serial_ext );
 		msg->offset += 9; // u32 cont1_serial, cont2_serial, u8 havename
 		msg.Send( chr1->client );
@@ -973,8 +973,8 @@ namespace Pol {
 		if ( chr2->client )
 		{
           Network::PktHelper::PacketOut<Network::PktOut_6F> msg;
-		  msg->WriteFlipped<u16>( static_cast<u16>( 17 ) ); // no name
-		  msg->Write<u8>( static_cast<u8>( PKTBI_6F::ACTION_CANCEL ) );
+		  msg->WriteFlipped<u16>( 17u ); // no name
+		  msg->Write<u8>( PKTBI_6F::ACTION_CANCEL );
 		  msg->Write<u32>( chr2->trade_container()->serial_ext );
 		  msg->offset += 9; // u32 cont1_serial, cont2_serial, u8 havename
 		  msg.Send( chr2->client );
@@ -989,8 +989,8 @@ namespace Pol {
 	  unsigned int stat2 = chr->trading_with->trade_accepted ? 1 : 0;
 
       Network::PktHelper::PacketOut<Network::PktOut_6F> msg;
-	  msg->WriteFlipped<u16>( static_cast<u16>( 17 ) ); // no name
-	  msg->Write<u8>( static_cast<u8>( PKTBI_6F::ACTION_STATUS ) );
+	  msg->WriteFlipped<u16>( 17u ); // no name
+	  msg->Write<u8>( PKTBI_6F::ACTION_STATUS );
 	  msg->Write<u32>( chr->trade_container()->serial_ext );
 	  msg->WriteFlipped<u32>( stat1 );
 	  msg->WriteFlipped<u32>( stat2 );

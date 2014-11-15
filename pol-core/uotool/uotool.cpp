@@ -1321,7 +1321,6 @@ namespace Pol {
 		  ++invisitems;
 		  unsigned int itemcount = idxrec.length / sizeof elem;
 		  --itemcount;
-		  bool found = false;
 		  while ( itemcount-- )
 		  {
 			fread( &elem, sizeof elem, 1, multi_mul );
@@ -1329,7 +1328,6 @@ namespace Pol {
 			{
               INFO_PRINT << "Warning: Found invis tile as center, but could use 0x" << fmt::hexu( elem.graphic ) << " at 0 0 0 MultiID: 0x" << fmt::hexu( i ) << "\n";
 			  ++warnings;
-			  found = true;
 			  break;
 			}
 		  }

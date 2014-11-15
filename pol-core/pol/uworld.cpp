@@ -264,6 +264,8 @@ namespace Pol {
             msgreason = "Client Exit"; break;
         case Plib::WorldChangeReason::NpcDeath:
             msgreason = "NPC death"; break;
+		default:
+		  break;
         }
 
         POLLOG_ERROR.Format("ClrCharacterWorldPosition({}): mob (0x{:X},0x{:X}) supposedly at ({},{}) isn't in correct zone\n")

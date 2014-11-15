@@ -30,6 +30,8 @@ Notes
 #include <string.h>
 #include <mutex>
 #include <memory>
+#include <limits>
+#include <type_traits>
 #include <boost/noncopyable.hpp>
 
 #ifdef _MSC_VER
@@ -220,18 +222,18 @@ namespace Pol {
         static void Write(u8 x, char buffer[], u16& offset) { buffer[offset++] = x; }
         static void WriteFlipped(u8 x, char buffer[], u16& offset) { buffer[offset++] = x; }
       };
-        template<>
-		struct WriteHelper<s8>
+      template<>
+	  struct WriteHelper<s8>
+	  {
+		static void Write( s8 x, char buffer[], u16& offset )
 		{
-		  static void Write( s8 x, char buffer[], u16& offset )
-		  {
-			buffer[offset++] = x;
-		  };
-		  static void WriteFlipped( s8 x, char buffer[], u16& offset )
-		  {
-			buffer[offset++] = x;
-		  };
+		  buffer[offset++] = x;
 		};
+		static void WriteFlipped( s8 x, char buffer[], u16& offset )
+		{
+		  buffer[offset++] = x;
+		};
+	  };
 	  }
 
 	  // "writer"class
@@ -247,24 +249,47 @@ namespace Pol {
         inline u8 getID() const { return _id; };
         size_t estimateSize() const { return _size + sizeof(PacketInterface); };
 
-        // will generate LNK2019 if undefined type is used
-        // will generate C2660 if no <...> is given
-        template <typename T>
-        struct identity
+		// ---- Buffer Write Methods ----
+		// N is the argument which will be static_cast to T
+		// Two versions exists: T equals N only check if its integer or enum
+		// T != N same check as above plus signed compare and during runtime max check
+		// Todo instead of disallowing signed differences perform more magic to safely check the limits?
+        template <class T, typename N>
+        typename std::enable_if<std::is_same<T, N>::value, void>::type 
+		  Write(N x)
         {
-          typedef T type;
-        };  // non deducible context
-        template <typename T>
-        void Write(typename identity<T>::type x)
-        {
+		  static_assert(std::is_integral<N>::value || std::is_enum<N>::value, "Invalid argument type integral type is needed!");
           passert_always_r(offset + sizeof(T) <= _size, "pkt " + Clib::hexint(_id));
           PktWriterTemplateSpecs::WriteHelper<T>::Write(x, buffer, offset);
         };
-        template <typename T>
-        void WriteFlipped(typename identity<T>::type x)
+		template <class T, typename N>
+        typename std::enable_if<!std::is_same<T, N>::value, void>::type Write(N x)
         {
+		  static_assert(std::is_integral<N>::value || std::is_enum<N>::value, "Invalid argument type integral type is needed!");
+		  static_assert(std::is_signed<T>::value == std::is_signed<N>::value, "Signed/Unsigned missmatch!");
+		  passert_always_r((std::numeric_limits<T>::max() >= x), "Number is bigger then desired type!" );
+          passert_always_r(offset + sizeof(T) <= _size, "pkt " + Clib::hexint(_id));
+          PktWriterTemplateSpecs::WriteHelper<T>::Write(static_cast<T>(x), buffer, offset);
+        };
+
+        template <class T, typename N>
+        typename std::enable_if<std::is_same<T, N>::value, void>::type
+		  WriteFlipped(N x)
+        {
+		  static_assert(std::is_integral<N>::value || std::is_enum<N>::value, "Invalid argument type integral type is needed!");
           passert_always_r(offset + sizeof(T) <= _size, "pkt " + Clib::hexint(_id));
           PktWriterTemplateSpecs::WriteHelper<T>::WriteFlipped(x, buffer, offset);
+        };
+
+		template <class T, typename N>
+        typename std::enable_if<!std::is_same<T, N>::value, void>::type
+		  WriteFlipped(N x)
+        {
+		  static_assert(std::is_integral<N>::value || std::is_enum<N>::value, "Invalid argument type integral type is needed!");
+		  static_assert(std::is_signed<T>::value == std::is_signed<N>::value, "Signed/Unsigned missmatch!");
+		  passert_always_r((std::numeric_limits<T>::max() >= x), "Number is bigger then desired type!" );
+          passert_always_r(offset + sizeof(T) <= _size, "pkt " + Clib::hexint(_id));
+          PktWriterTemplateSpecs::WriteHelper<T>::WriteFlipped(static_cast<T>(x), buffer, offset);
         };
 
         void Write(const char* x, u16 len, bool nullterm = true)

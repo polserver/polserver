@@ -397,7 +397,7 @@ namespace Pol {
 	{
       Network::PktHelper::PacketOut<Network::PktOut_BF_Sub6> msg;
 	  msg->offset += 4; //len+sub
-	  msg->Write<u8>( static_cast<u8>( PKTBI_BF_06::PARTYCMD_ADD ) );
+	  msg->Write<u8>( PKTBI_BF_06::PARTYCMD_ADD );
 	  msg->offset++; //nummembers
 
       // TODO: refactor the loop below to use std::remove_if() + extract a method
@@ -416,7 +416,7 @@ namespace Pol {
 
 	  u16 len = msg->offset;
 	  msg->offset = 6;
-	  msg->Write<u8>( static_cast<u8>( _member_serials.size() ) );
+	  msg->Write<u8>( _member_serials.size() );
 	  msg->offset = 1;
 	  msg->WriteFlipped<u16>( len );
 
@@ -484,7 +484,7 @@ namespace Pol {
 	  {
         Network::PktHelper::PacketOut<Network::PktOut_BF_Sub6> msg;
 		msg->offset += 4; //len+sub
-		msg->Write<u8>( static_cast<u8>( PKTBI_BF_06::PARTYCMD_REMOVE ) );
+		msg->Write<u8>( PKTBI_BF_06::PARTYCMD_REMOVE );
 		msg->offset++; // nummembers
 		msg->Write<u32>( remchr->serial_ext );
 
@@ -503,7 +503,7 @@ namespace Pol {
 		}
 		u16 len = msg->offset;
 		msg->offset = 6;
-		msg->Write<u8>( static_cast<u8>( _member_serials.size() ) );
+		msg->Write<u8>( _member_serials.size() );
 		msg->offset = 1;
 		msg->WriteFlipped<u16>( len );
 
@@ -602,8 +602,8 @@ namespace Pol {
 	  mh = chr->vital( uoclient_general.mana.id ).maximum_ones();
 	  if ( mh > 0xFFFF )
 		mh = 0xFFFF;
-	  msg->WriteFlipped<u16>( static_cast<u16>( 1000 ) );
-	  msg->WriteFlipped<u16>( static_cast<u16>( h * 1000 / mh ) );
+	  msg->WriteFlipped<u16>( 1000u );
+	  msg->WriteFlipped<u16>( static_cast<u16>(h * 1000 / mh) );
 
       for ( const auto& serial : _member_serials )
 	  {
@@ -630,8 +630,8 @@ namespace Pol {
 	  mh = chr->vital( uoclient_general.mana.id ).maximum_ones();
 	  if ( mh > 0xFFFF )
 		mh = 0xFFFF;
-	  msg->WriteFlipped<u16>( static_cast<u16>( 1000 ) );
-	  msg->WriteFlipped<u16>( static_cast<u16>( h * 1000 / mh ) );
+	  msg->WriteFlipped<u16>( 1000u );
+	  msg->WriteFlipped<u16>( static_cast<u16>(h * 1000 / mh) );
 
       for ( const auto& serial : _member_serials )
 	  {
@@ -651,7 +651,7 @@ namespace Pol {
 	{
       Network::PktHelper::PacketOut<Network::PktOut_BF_Sub6> msg;
 	  msg->offset += 4; //len+sub
-	  msg->Write<u8>( static_cast<u8>( PKTBI_BF_06::PARTYCMD_PARTY_MSG ) );
+	  msg->Write<u8>( PKTBI_BF_06::PARTYCMD_PARTY_MSG );
 	  msg->Write<u32>( chr->serial_ext );
 
 	  if ( party_cfg.Hooks.ChangePublicChat )
@@ -698,7 +698,7 @@ namespace Pol {
 		return;
       Network::PktHelper::PacketOut<Network::PktOut_BF_Sub6> msg;
 	  msg->offset += 4; //len+sub
-	  msg->Write<u8>( static_cast<u8>( PKTBI_BF_06::PARTYCMD_MEMBER_MSG ) );
+	  msg->Write<u8>( PKTBI_BF_06::PARTYCMD_MEMBER_MSG );
 	  msg->Write<u32>( chr->serial_ext );
 
 	  if ( party_cfg.Hooks.ChangePrivateChat )
@@ -764,9 +764,9 @@ namespace Pol {
 	  if ( chr != NULL && chr->has_active_client() )
 	  {
         Network::PktHelper::PacketOut<Network::PktOut_BF_Sub6> msg;
-		msg->WriteFlipped<u16>( static_cast<u16>( 11 ) );
+		msg->WriteFlipped<u16>( 11u );
 		msg->offset += 2; //sub
-		msg->Write<u8>( static_cast<u8>( PKTBI_BF_06::PARTYCMD_REMOVE ) );
+		msg->Write<u8>( PKTBI_BF_06::PARTYCMD_REMOVE );
 		msg->offset++; //nummembers
 		msg->Write<u32>( chr->serial_ext );
 		msg.Send( chr->client );
@@ -1357,9 +1357,9 @@ namespace Pol {
 	void send_invite( Mobile::Character* member, Mobile::Character* leader )
 	{
 	  Network::PktHelper::PacketOut<Network::PktOut_BF_Sub6> msg;
-	  msg->WriteFlipped<u16>( static_cast<u16>( 10 ) );
+	  msg->WriteFlipped<u16>( 10u );
 	  msg->offset += 2; //sub
-	  msg->Write<u8>( static_cast<u8>( PKTBI_BF_06::PARTYCMD_INVITE_MEMBER ) );
+	  msg->Write<u8>( PKTBI_BF_06::PARTYCMD_INVITE_MEMBER );
 	  msg->Write<u32>( leader->serial_ext );
 	  msg.Send( member->client );
 
@@ -1380,8 +1380,8 @@ namespace Pol {
 	  mh = bob->vital( uoclient_general.hits.id ).maximum_ones();
 	  if ( mh > 0xFFFF )
 		mh = 0xFFFF;
-	  msg->WriteFlipped<u16>( static_cast<u16>( 1000 ) );
-	  msg->WriteFlipped<u16>( static_cast<u16>( h * 1000 / mh ) );
+	  msg->WriteFlipped<u16>( 1000u );
+	  msg->WriteFlipped<u16>( static_cast<u16>(h * 1000 / mh) );
 
 	  h = bob->vital( uoclient_general.mana.id ).current_ones();
 	  if ( h > 0xFFFF )
@@ -1389,8 +1389,8 @@ namespace Pol {
 	  mh = bob->vital( uoclient_general.mana.id ).maximum_ones();
 	  if ( mh > 0xFFFF )
 		mh = 0xFFFF;
-	  msg->WriteFlipped<u16>( static_cast<u16>( 1000 ) );
-	  msg->WriteFlipped<u16>( static_cast<u16>( h * 1000 / mh ) );
+	  msg->WriteFlipped<u16>( 1000u );
+	  msg->WriteFlipped<u16>( static_cast<u16>(h * 1000 / mh) );
 
 	  h = bob->vital( uoclient_general.stamina.id ).current_ones();
 	  if ( h > 0xFFFF )
@@ -1398,8 +1398,8 @@ namespace Pol {
 	  mh = bob->vital( uoclient_general.stamina.id ).maximum_ones();
 	  if ( mh > 0xFFFF )
 		mh = 0xFFFF;
-	  msg->WriteFlipped<u16>( static_cast<u16>( 1000 ) );
-	  msg->WriteFlipped<u16>( static_cast<u16>( h * 1000 / mh ) );
+	  msg->WriteFlipped<u16>( 1000u );
+	  msg->WriteFlipped<u16>( static_cast<u16>(h * 1000 / mh) );
 
 	  msg.Send( chr->client );
 	}
