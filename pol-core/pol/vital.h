@@ -51,7 +51,7 @@ namespace Pol {
 	const int VITAL_LOWEST_REGENRATE = -30000;
 	const int VITAL_HIGHEST_REGENRATE = 30000;
 
-	const unsigned VITAL_MIN_VALUE = 0;
+	//const unsigned VITAL_MIN_VALUE = 0; // currently not needed
 	const unsigned VITAL_MAX_VALUE = 100000L;
 
 	const unsigned int VITAL_MAX_HUNDREDTHS = 10000000L; // 10,000,000 hundredths = 100,000.00

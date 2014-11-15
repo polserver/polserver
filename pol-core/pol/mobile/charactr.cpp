@@ -1237,7 +1237,7 @@ namespace Pol {
 				lock = (unsigned char)strtoul( pdot + 1, NULL, 10 );
 
 			}
-			if ( base < ATTRIBUTE_MIN_BASE ||
+			if ( /*base < ATTRIBUTE_MIN_BASE ||*/ // ATTRIBUTE_MIN_BASE is currently 0
 				 base > ATTRIBUTE_MAX_BASE )
 				 elem.throw_error( "Character " + Clib::hexint( serial )
 				 + " attribute "
@@ -1245,7 +1245,7 @@ namespace Pol {
 				 + " is out of range" );
 			av.base( static_cast<unsigned short>( base ) );
 
-			if ( cap < ATTRIBUTE_MIN_BASE ||
+			if ( /*cap < ATTRIBUTE_MIN_BASE ||*/ // ATTRIBUTE_MIN_BASE is currently 0
 				 cap > ATTRIBUTE_MAX_BASE )
 				 elem.throw_error( "Character " + Clib::hexint( serial )
 				 + " attribute cap from "
@@ -1277,7 +1277,7 @@ namespace Pol {
 		  {
 			// read
 			// these are always just stored as points
-            if ( temp < Core::VITAL_MIN_VALUE ||
+            if ( /*temp < Core::VITAL_MIN_VALUE ||*/ //VITAL_MIN_VALUE is currently 0
                  temp > Core::VITAL_MAX_VALUE )
 				 elem.throw_error( "Character " + Clib::hexint( serial )
 				 + " vital "

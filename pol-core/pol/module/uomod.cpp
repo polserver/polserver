@@ -752,8 +752,8 @@ namespace Pol {
 	  }
 	}
 
+	// const int TGTOPT_NOCHECK_LOS = 0x0000; // currently unused
 	const int TGTOPT_CHECK_LOS = 0x0001;
-	const int TGTOPT_NOCHECK_LOS = 0x0000;
 	const int TGTOPT_HARMFUL = 0x0002;
 	const int TGTOPT_HELPFUL = 0x0004;
 

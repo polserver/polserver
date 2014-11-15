@@ -73,7 +73,7 @@ namespace Pol {
 	};
 	typedef ref_ptr<DataFileElement> DataFileElementRef;
 
-	const int DF_KEYTYPE_STRING = 0x00;
+	//const int DF_KEYTYPE_STRING = 0x00; // currently unneeded
 	const int DF_KEYTYPE_INTEGER = 0x01;
 
 	class DataFileContents : public ref_counted

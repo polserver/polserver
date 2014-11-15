@@ -24,15 +24,15 @@ Notes
 
 namespace Pol {
   namespace Plib {
-      Realm::Realm(const std::string& realm_name, const std::string& realm_path) :
+    Realm::Realm(const std::string& realm_name, const std::string& realm_path) :
 	  is_shadowrealm( false ),
 	  shadowid( 0 ),
 	  baserealm( nullptr ), 
-	  _toplevel_item_count( 0 ),
-	  _mobile_count( 0 ),
-      _offline_count( 0 ),
-      _multi_count( 0 ),
 	  _descriptor( RealmDescriptor::Load( realm_name, realm_path ) ),
+	  _mobile_count( 0 ),
+	  _offline_count( 0 ),
+	  _toplevel_item_count( 0 ),
+	  _multi_count( 0 ),
 	  _mapserver( MapServer::Create( _descriptor ) ),
 	  _staticserver( new StaticServer( _descriptor ) ),
 	  _maptileserver( new MapTileServer( _descriptor ) )
@@ -53,16 +53,16 @@ namespace Pol {
 		zone[i] = new Core::Zone[gridheight];
 	}
 
-      Realm::Realm(const std::string& realm_name, Realm* realm) :
+    Realm::Realm(const std::string& realm_name, Realm* realm) :
 	  is_shadowrealm( true ),
 	  shadowid( 0 ),
 	  baserealm( realm ),
 	  shadowname( realm_name ),
-	  _toplevel_item_count( 0 ),
+	  _descriptor(),
 	  _mobile_count( 0 ),
       _offline_count( 0 ),
-      _multi_count( 0 ),
-	  _descriptor()
+	  _toplevel_item_count( 0 ),
+      _multi_count( 0 )
 	{
 	  size_t gridwidth = width( ) / Core::WGRID_SIZE;
 	  size_t gridheight = height( ) / Core::WGRID_SIZE;
