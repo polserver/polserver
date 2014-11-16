@@ -14,6 +14,8 @@ Notes
 
 #include "statmsg.h"
 
+#include "../clib/clib.h"
+
 #include "mobile/charactr.h"
 #include "network/client.h"
 #include "network/packets.h"
@@ -147,8 +149,9 @@ namespace Pol {
 	  else
 		msg->WriteFlipped<u16>( chr->ar() );
 
-	  msg->WriteFlipped<u16>( chr->weight() );
-
+	  unsigned int weight = chr->weight();
+	  Clib::sanitize_upperlimit( &weight, 0xFFFFu );
+	  msg->WriteFlipped<u16>( weight );
 
 	  // moreinfo 5
 	  if ( ( client->UOExpansionFlag & Network::ML ) && ( client->ClientType & Network::CLIENTTYPE_5000 ) )
