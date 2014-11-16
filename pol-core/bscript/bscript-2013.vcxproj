@@ -203,6 +203,9 @@
       <CompileAs>Default</CompileAs>
       <AdditionalOptions>/Zo %(AdditionalOptions)</AdditionalOptions>
       <ExceptionHandling>Async</ExceptionHandling>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <ForcedIncludeFiles>StdAfx.h</ForcedIncludeFiles>
+      <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -237,7 +240,9 @@
     <ClCompile Include="object.cpp" />
     <ClCompile Include="objstrm.cpp" />
     <ClCompile Include="parser.cpp" />
-    <ClCompile Include="StdAfx.cpp" />
+    <ClCompile Include="StdAfx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="str.cpp" />
     <ClCompile Include="symcont.cpp" />
     <ClCompile Include="tkn_strm.cpp" />

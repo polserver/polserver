@@ -4,8 +4,7 @@ History
 
 Notes
 =======
-stdafx.cpp : source file that includes just the standard includes
-clib.pch will be the pre-compiled header
-stdafx.obj will contain the pre-compiled type information
-
+This is the PCH build file, just includes the header file
 */
+
+#include "StdAfx.h"

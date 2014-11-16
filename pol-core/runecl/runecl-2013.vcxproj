@@ -241,8 +241,7 @@
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderOutputFile>.\Release/x64/runecl.pch</PrecompiledHeaderOutputFile>
       <AssemblerListingLocation>.\Release/x64/</AssemblerListingLocation>
       <ObjectFileName>.\Release/x64/</ObjectFileName>
@@ -253,6 +252,7 @@
       <CompileAs>Default</CompileAs>
       <AdditionalOptions>/Zo %(AdditionalOptions)</AdditionalOptions>
       <ExceptionHandling>Async</ExceptionHandling>
+      <ForcedIncludeFiles>StdAfx.h</ForcedIncludeFiles>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -291,6 +291,9 @@
     <ClCompile Include="..\pol\proplist.cpp" />
     <ClCompile Include="..\pol\xmlfilescrobj.cpp" />
     <ClCompile Include="runecl.cpp" />
+    <ClCompile Include="StdAfx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\plib\pkg.h" />
@@ -307,6 +310,7 @@
     <ClInclude Include="..\pol\module\utilmod.h" />
     <ClInclude Include="..\pol\proplist.h" />
     <ClInclude Include="..\pol\xmlfilescrobj.h" />
+    <ClInclude Include="StdAfx.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\bscript\bscript-2013.vcxproj">

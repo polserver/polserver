@@ -662,6 +662,9 @@
     <ClCompile Include="syshookscript.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="StdAfx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="action.h">
@@ -1278,6 +1281,9 @@
     </ClInclude>
     <ClInclude Include="network\clientthread.h">
       <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="StdAfx.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
