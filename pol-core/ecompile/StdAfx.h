@@ -21,6 +21,7 @@ The pch needs also to be created and thats why the additional cpp file exists, i
 #define _ECOMPILE_STDAFX_H
 
 #define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
+#include <windows.h>
 
 // System Includes
 #include <string>
