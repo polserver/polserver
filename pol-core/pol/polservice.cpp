@@ -14,13 +14,16 @@ Notes
 #include "../clib/xmain.h"
 #include "../clib/logfacility.h"
 
+#include "../plib/polver.h"
+
+#include "polresource.h"
+
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <process.h>
+#include <shellapi.h>
 
-#include "../clib/ntservice.h"
-
-#include "../plib/polver.h"
-#include "polresource.h"
+#include "../clib/ntservice.h" // This needs to be after the windows includes, otherwise it'll complain about windows types.
 
 #ifdef _MSC_VER
 #pragma warning(disable:4996)
