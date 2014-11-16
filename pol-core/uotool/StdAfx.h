@@ -53,5 +53,7 @@ The pch needs also to be created and thats why the additional cpp file exists, i
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
 #include "../clib/rawtypes.h"
+#include "../clib/fixalloc.h"
+#include "../clib/refptr.h"
 
 #endif
