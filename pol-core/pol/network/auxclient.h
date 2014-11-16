@@ -8,7 +8,10 @@
 #ifndef AUXCLIENT_H_
 #define AUXCLIENT_H_
 
+
+#ifndef BSCRIPT_BOBJECT_H
 #include "../../bscript/bobject.h"
+#endif
 
 #include "../../clib/socketsvc.h"
 #include "../../clib/threadhelp.h"

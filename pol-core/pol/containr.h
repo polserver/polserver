@@ -11,21 +11,25 @@ Notes
 
 */
 
-#ifndef __CONTAINR_H
-#define __CONTAINR_H
+#ifndef CONTAINR_H
+#define CONTAINR_H
 
-#ifndef __LOCKABLE_H
+#ifndef ITEM_H
+#include "item/item.h"
+#endif
+
+#ifndef LOCKABLE_H
 #include "lockable.h"
 #endif
 
-#ifndef _UCFG_H
+#ifndef UCFG_H
 #include "ucfg.h"
 #endif
 
 #include "layers.h"
 #include "objtype.h"
 #include "reftypes.h"
-#include "item/item.h"
+
 
 #define CONTAINER_STORES_ITEMREF 0
 

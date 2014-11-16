@@ -8,13 +8,16 @@ Notes
 
 */
 
-#ifndef __DOOR_H
-#define __DOOR_H
+#ifndef DOOR_H
+#define DOOR_H
 
-#ifndef __ITEM_H
-#	include "lockable.h"
+#ifndef LOCKABLE_H
+#include "lockable.h"
 #endif
+
+#ifndef ITEM_H
 #include "item/item.h"
+#endif
 
 namespace Pol {
   namespace Network {

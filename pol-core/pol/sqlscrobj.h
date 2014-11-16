@@ -13,7 +13,11 @@ Notes
 #ifndef SQLSCROBJ_H
 #define SQLSCROBJ_H
 
+
+#ifndef BSCRIPT_BOBJECT_H
 #include "../bscript/bobject.h"
+#endif
+
 #include "../bscript/contiter.h"
 #ifdef _WIN32
 #   define WIN32_LEAN_AND_MEAN

@@ -12,7 +12,11 @@ Notes
 #ifndef PACKETSCROBJ_H
 #define PACKETSCROBJ_H
 
+
+#ifndef BSCRIPT_BOBJECT_H
 #include "../bscript/bobject.h"
+#endif
+
 #include "../clib/rawtypes.h"
 
 namespace Pol {

@@ -13,7 +13,11 @@ Notes
 
 #include <string>
 
+
+#ifndef BSCRIPT_BOBJECT_H
 #include "../bscript/bobject.h"
+#endif
+
 #include "../pol/utype.h"
 namespace Pol {
   namespace Clib {

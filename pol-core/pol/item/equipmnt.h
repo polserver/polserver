@@ -13,7 +13,10 @@ Notes
 
 #include <iosfwd>
 
+#ifndef ITEM_H
 #include "item.h"
+#endif
+
 namespace Pol {
   namespace Bscript {
 	class BObjectImp;

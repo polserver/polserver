@@ -14,7 +14,11 @@ Notes
 #define UWORLD_H
 
 #include "mobile/charactr.h"
+
+#ifndef ITEM_H
 #include "item/item.h"
+#endif
+
 #include "multi/multi.h"
 #include "uvars.h"
 #include "zone.h"
