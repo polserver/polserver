@@ -46,5 +46,7 @@ The pch needs also to be created and thats why the additional cpp file exists, i
 // Project Includes (be really really carefull what to include!)
 #include "../clib/passert.h"
 #include "../clib/logfacility.h"
+#include "../clib/stlutil.h"
+#include "../clib/strutil.h"
 
 #endif
