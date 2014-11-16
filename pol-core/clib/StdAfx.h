@@ -27,6 +27,9 @@ The pch needs also to be created and thats why the additional cpp file exists, i
 #include <string>
 #include <cstring>
 #include <vector>
+#include <stack>
+#include <deque>
+#include <queue>
 #include <map>
 #include <set>
 #include <iostream>
@@ -49,5 +52,6 @@ The pch needs also to be created and thats why the additional cpp file exists, i
 #include "logfacility.h"
 #include "stlutil.h"
 #include "strutil.h"
+#include "rawtypes.h"
 
 #endif
