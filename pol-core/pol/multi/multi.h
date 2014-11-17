@@ -23,7 +23,10 @@ Notes
 // (relative signed x/y, -128 to +127
 // unsigned int is z << 16 | objtype
 
+#ifndef ITEM_H
 #include "../item/item.h"
+#endif
+
 namespace Pol {
   namespace Bscript {
     class BObjectImp;

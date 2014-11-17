@@ -151,8 +151,7 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderOutputFile>.\Release/x64/uoconvert.pch</PrecompiledHeaderOutputFile>
       <AssemblerListingLocation>.\Release/x64/</AssemblerListingLocation>
       <ObjectFileName>.\Release/x64/</ObjectFileName>
@@ -162,6 +161,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <AdditionalOptions>/Zo %(AdditionalOptions)</AdditionalOptions>
       <ExceptionHandling>Async</ExceptionHandling>
+      <ForcedIncludeFiles>StdAfx.h</ForcedIncludeFiles>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -288,6 +288,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\pol\polfile1.cpp" />
+    <ClCompile Include="StdAfx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="uoconvert.cpp" />
     <ClCompile Include="..\pol\uofile00.cpp" />
     <ClCompile Include="..\pol\uofile01.cpp" />
@@ -297,6 +300,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
+    <ClInclude Include="StdAfx.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\clib\clib-2013.vcxproj">

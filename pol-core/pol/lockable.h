@@ -11,7 +11,9 @@ Notes
 #ifndef LOCKABLE_H
 #define LOCKABLE_H
 
+#ifndef ITEM_H
 #include "item/item.h"
+#endif
 
 namespace Pol {
   namespace Items {

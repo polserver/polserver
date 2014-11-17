@@ -165,6 +165,8 @@
       <OpenMPSupport>true</OpenMPSupport>
       <AdditionalOptions>/Zo %(AdditionalOptions)</AdditionalOptions>
       <ExceptionHandling>Async</ExceptionHandling>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <ForcedIncludeFiles>StdAfx.h</ForcedIncludeFiles>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -378,6 +380,9 @@
     <ClCompile Include="stackcfg.cpp" />
     <ClCompile Include="startloc.cpp" />
     <ClCompile Include="statmsg.cpp" />
+    <ClCompile Include="StdAfx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="storage.cpp" />
     <ClCompile Include="syshook.cpp" />
     <ClCompile Include="syshookscript.cpp" />
@@ -453,12 +458,36 @@
     <ClCompile Include="crypt\logincrypt.cpp" />
     <ClCompile Include="crypt\md5.cpp" />
     <ClCompile Include="crypt\twofish.cpp" />
-    <ClCompile Include="..\..\lib\zlib\adler32.c" />
-    <ClCompile Include="..\..\lib\zlib\compress.c" />
-    <ClCompile Include="..\..\lib\zlib\crc32.c" />
-    <ClCompile Include="..\..\lib\zlib\deflate.c" />
-    <ClCompile Include="..\..\lib\zlib\trees.c" />
-    <ClCompile Include="..\..\lib\zlib\zutil.c" />
+    <ClCompile Include="..\..\lib\zlib\adler32.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="..\..\lib\zlib\compress.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="..\..\lib\zlib\crc32.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="..\..\lib\zlib\deflate.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="..\..\lib\zlib\trees.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="..\..\lib\zlib\zutil.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </ForcedIncludeFiles>
+    </ClCompile>
     <ClCompile Include="accounts\account.cpp" />
     <ClCompile Include="accounts\accounts.cpp" />
     <ClCompile Include="accounts\acscrobj.cpp" />
@@ -626,6 +655,7 @@
     <ClInclude Include="ssopt.h" />
     <ClInclude Include="startloc.h" />
     <ClInclude Include="statmsg.h" />
+    <ClInclude Include="StdAfx.h" />
     <ClInclude Include="storage.h" />
     <ClInclude Include="stubdata.h" />
     <ClInclude Include="syshook.h" />

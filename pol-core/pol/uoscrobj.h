@@ -14,14 +14,21 @@ Notes
 #ifndef UOSCROBJ_H
 #define UOSCROBJ_H
 
+#ifndef BSCRIPT_BOBJECT_H
 #include "../bscript/bobject.h"
+#endif
+
 #include "../bscript/bstruct.h"
 #include "../bscript/parser.h"
 #include "../clib/passert.h"
 
 #include "mobile/charactr.h"
 #include "network/client.h"
+
+#ifndef ITEM_H
 #include "item/item.h"
+#endif
+
 #include "multi/boat.h"
 #include "uobjcnt.h"
 #include "eventid.h"

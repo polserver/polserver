@@ -10,12 +10,17 @@ Notes
 
 */
 
-#ifndef __ITEM_H
-#define __ITEM_H
+#ifndef ITEM_H
 #define ITEM_H
+#define __ITEM_H
 
 #include "../uobject.h"
+
+
+#ifndef BSCRIPT_BOBJECT_H
 #include "../../bscript/bobject.h"
+#endif
+
 #include "../ssopt.h"
 namespace Pol {
   namespace Core {

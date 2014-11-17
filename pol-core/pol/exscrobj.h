@@ -12,7 +12,11 @@ Notes
 #ifndef EXSCROBJ_H
 #define EXSCROBJ_H
 
+
+#ifndef BSCRIPT_BOBJECT_H
 #include "../bscript/bobject.h"
+#endif
+
 #include "../clib/weakptr.h"
 namespace Pol {
   namespace Core {

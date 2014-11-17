@@ -1,32 +1,59 @@
 /*
 History
 =======
-2009/09/01 MuadDib:   Formatting
 
 Notes
 =======
-
-*/
-
-/*
 stdafx.h : include file for standard system include files,
            or project specific include files that are used frequently, but
            are changed infrequently
+HowTo:
+Add a normal Header file which includes everything you want in the pch.
+Add a normal cpp which only includes this header.
+
+In the project settings C/C++ Precompiled header: Use /Yu
+And since the pch header file needs to be included everywhere also use /FI (forced include file) in the advanced section.
+
+The pch needs also to be created and thats why the additional cpp file exists, in the properties of this file instead of "Use /Yu" set it to "Create /Yc"
 */
 
-#if !defined(AFX_STDAFX_H__A572F903_DA2C_11D6_BC99_00AA006409CA__INCLUDED_)
-#	define AFX_STDAFX_H__A572F903_DA2C_11D6_BC99_00AA006409CA__INCLUDED_
+#if !defined(_CLIB_STDAFX_H)
+#define _CLIB_STDAFX_H
 
-#	if _MSC_VER > 1000
-#		pragma once
-#	endif // _MSC_VER > 1000
+#define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
+#include <windows.h>
 
-#	define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
+// System Includes
+#include <string>
+#include <cstring>
+#include <vector>
+#include <stack>
+#include <deque>
+#include <queue>
+#include <map>
+#include <set>
+#include <iostream>
+#include <memory>
+#include <mutex>
+#include <thread>
+#include <assert.h>
+#include <stddef.h>
+#include <stdlib.h>
 
+// 3rd Party Includes
+#include <boost/flyweight.hpp>
+#include <boost/noncopyable.hpp>
+#include <boost/any.hpp>
+#include <boost/algorithm/string/case_conv.hpp>
+#include "../../lib/format/format.h"
 
-// TODO: reference additional headers your program requires here
+// Project Includes (be really really carefull what to include!)
+#include "passert.h"
+#include "logfacility.h"
+#include "stlutil.h"
+#include "strutil.h"
+#include "rawtypes.h"
+#include "fixalloc.h"
+#include "refptr.h"
 
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-
-#	endif // !defined(AFX_STDAFX_H__A572F903_DA2C_11D6_BC99_00AA006409CA__INCLUDED_)
+#endif

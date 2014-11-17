@@ -5,7 +5,9 @@ History
 
 Notes
 =======
-
+ATTENTION:
+This header is part of the PCH
+Remove the include in all StdAfx.h files or live with the consequences :)
 */
 
 #ifndef __CLIB_RAWTYPES_H

@@ -4,13 +4,7 @@ History
 
 Notes
 =======
-
+This is the PCH build file, just includes the header file
 */
 
-/*
-	stdafx.cpp : source file that includes just the standard includes
-	bscript_executor.pch will be the pre-compiled header
-	stdafx.obj will contain the pre-compiled type information
-*/
-
-
+#include "StdAfx.h"

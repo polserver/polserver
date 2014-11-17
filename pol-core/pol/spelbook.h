@@ -14,7 +14,7 @@ Notes
 #ifndef __SPELBOOK_H
 #define __SPELBOOK_H
 
-#ifndef __CONTAINR_H
+#ifndef CONTAINR_H
 #	include "containr.h"
 #endif
 

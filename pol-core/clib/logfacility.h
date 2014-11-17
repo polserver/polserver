@@ -1,3 +1,8 @@
+/*
+ATTENTION:
+This header is part of the PCH
+Remove the include in all StdAfx.h files or live with the consequences :)
+*/
 
 #ifndef LOGFACILITY_H
 #define LOGFACILITY_H

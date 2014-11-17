@@ -24,9 +24,11 @@
     <ClCompile Include="..\pol\uofile02.cpp" />
     <ClCompile Include="..\pol\uofile07.cpp" />
     <ClCompile Include="..\pol\uofile08.cpp" />
+    <ClCompile Include="StdAfx.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
+    <ClInclude Include="StdAfx.h" />
   </ItemGroup>
   <ItemGroup>
     <MASM Include="..\clib\win2kcompat.masm" />

@@ -18,11 +18,11 @@ Notes
 #include <iomanip>
 
 #ifdef _WIN32
+
 #define WIN32_LEAN_AND_MEAN
-#define _WIN32_WINNT 0x0400 // need this for wincrypt.h to be even looked at
 #include <windows.h>
 #include <wincrypt.h>
-#undef _WIN32_WINNT
+
 namespace Pol {
   namespace Clib {
 	HCRYPTPROV hProv = NULL;
