@@ -765,10 +765,8 @@ namespace Pol {
         range = Core::ssopt.yell_range;
       else
         range = Core::ssopt.speech_range;
-      Core::WorldIterator<Core::PlayerFilter>::InRange( npc.x, npc.y, npc.realm, range, [&]( Mobile::Character *chr )
+      Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( npc.x, npc.y, npc.realm, range, [&]( Mobile::Character *chr )
       {
-        if ( !chr->has_active_client() )
-          return;
         if ( !chr->is_visible_to_me( &npc ) )
           return;
         msg.Send( chr->client, len );
@@ -849,11 +847,9 @@ namespace Pol {
           range = Core::ssopt.yell_range;
         else
           range = Core::ssopt.speech_range;
-        Core::WorldIterator<Core::PlayerFilter>::InRange( npc.x, npc.y, npc.realm, range, [&]( Mobile::Character *chr )
+        Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( npc.x, npc.y, npc.realm, range, [&]( Mobile::Character *chr )
         {
-          if ( !chr->has_active_client() )
-            return;
-          else if ( !chr->is_visible_to_me( &npc ) )
+          if ( !chr->is_visible_to_me( &npc ) )
             return;
           talkmsg.Send( chr->client, len );
         } );

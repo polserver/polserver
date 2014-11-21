@@ -202,10 +202,8 @@ namespace Pol {
 	{
       bool build = false;
       Network::MobileAnimationMsg msg( obj->serial_ext );
-      WorldIterator<PlayerFilter>::InVisualRange( obj, [&]( Mobile::Character *zonechr )
+      WorldIterator<OnlinePlayerFilter>::InVisualRange( obj, [&]( Mobile::Character *zonechr )
       {
-        if ( !zonechr->has_active_client( ) )
-          return;
         if ( !build ) // only build if client in range
         {
           MobileTranslate::OldAnimDef oldanim;

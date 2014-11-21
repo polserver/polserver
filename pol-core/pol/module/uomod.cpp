@@ -1360,10 +1360,8 @@ namespace Pol {
 
 		//characters.push_back( npc.get() );
         SetCharacterWorldPosition(npc.get(), Plib::WorldChangeReason::NpcCreate);
-        WorldIterator<PlayerFilter>::InVisualRange( npc.get( ), [&]( Character *zonechr )
+        WorldIterator<OnlinePlayerFilter>::InVisualRange( npc.get( ), [&]( Character *zonechr )
         {
-          if ( !zonechr->has_active_client() )
-            return;
           send_char_data( zonechr->client, npc.get() );
         } );
 
@@ -3557,7 +3555,7 @@ namespace Pol {
 	{
       Network::PktHelper::PacketOut<Network::PktOut_1D> msgremove;
       msgremove->Write<u32>( item->serial_ext );
-      WorldIterator<PlayerFilter>::InVisualRange( item, [&]( Character *zonechr )
+      WorldIterator<OnlinePlayerFilter>::InVisualRange( item, [&]( Character *zonechr )
       {
         send_remove_object( zonechr->client, msgremove.Get( ) );
       } );

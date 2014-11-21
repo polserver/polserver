@@ -96,10 +96,8 @@ namespace Pol {
         PacketOut<Network::PktOut_DC> msgdc;
         PacketOut<Network::PktOut_BF_Sub10> msgbf10;
 
-        WorldIterator<PlayerFilter>::InVisualRange( obj->toplevel_owner(), [&]( Mobile::Character *chr )
+        WorldIterator<OnlinePlayerFilter>::InVisualRange( obj->toplevel_owner(), [&]( Mobile::Character *chr )
         {
-          if ( !chr->has_active_client( ) )
-            return;
           Network::Client *client = chr->client;
           // FIXME need to check character's additional_legal_items.
           if ( client->UOExpansionFlag & Network::AOS )

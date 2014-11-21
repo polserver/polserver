@@ -452,7 +452,7 @@ namespace Pol {
 		if ( chr->client != NULL )
 		  send_move( chr->client, chr );
 
-		if ( in_range_chr->client && in_range_chr->client->ready )
+		if ( in_range_chr->has_active_client() )
 		{
 		  if ( in_range_chr != chr && in_range_chr->is_visible_to_me( chr ) )
 		  {
@@ -469,7 +469,7 @@ namespace Pol {
 			send_invulhealthbar( chr->client, chr );
 		}
 
-		if ( in_range_chr->client && in_range_chr->client->ready )
+		if ( in_range_chr->has_active_client() )
 		{
 		  if ( in_range_chr != chr && in_range_chr->is_visible_to_me( chr ) )
 		  {
@@ -2827,10 +2827,8 @@ namespace Pol {
 	  build_invulhealthbar( chr, msginvul.Get() );
 	  build_owncreate( chr, msgcreate.Get() );
 
-      Core::WorldIterator<Core::PlayerFilter>::InVisualRange( chr, [&]( Character* zonechr )
+      Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange( chr, [&]( Character* zonechr )
       {
-        if ( !zonechr->has_active_client() )
-          return;
         Client *client = zonechr->client;
         if ( zonechr == chr )
           return;
@@ -2878,10 +2876,8 @@ namespace Pol {
       } );
 
       // iter over all old in range players and send remove
-      Core::WorldIterator<Core::PlayerFilter>::InRange( chr->lastx, chr->lasty, chr->realm, RANGE_VISUAL, [&]( Character* zonechr )
+      Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( chr->lastx, chr->lasty, chr->realm, RANGE_VISUAL, [&]( Character* zonechr )
       {
-        if ( !zonechr->has_active_client() )
-          return;
         Client *client = zonechr->client;
         if ( !zonechr->is_visible_to_me( chr ) )
           return;
@@ -3222,10 +3218,8 @@ namespace Pol {
 	  }
 	  else
 	  {
-        Core::WorldIterator<Core::PlayerFilter>::InVisualRange( this, [&]( Character* chr )
+        Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange( this, [&]( Character* chr )
         {
-          if ( !chr->has_active_client() )
-            return;
           if ( chr == this )
             return;
           send_move( chr->client, this );
@@ -3721,10 +3715,8 @@ namespace Pol {
 	  {
 		if ( client != NULL )
 		  send_owncreate( client, this );
-        Core::WorldIterator<Core::PlayerFilter>::InVisualRange( this, [&]( Character* chr )
+        Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange( this, [&]( Character* chr )
         {
-          if ( !chr->has_active_client() )
-            return;
           if ( chr == this )
             return;
           if ( !chr->is_visible_to_me( this ) )

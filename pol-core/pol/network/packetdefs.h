@@ -115,6 +115,21 @@ namespace Pol {
       PktHelper::PacketOut<PktOut_6E> _p_old;
       PktHelper::PacketOut<PktOut_E2> _p;
     };
+
+	class PlaySoundPkt : public PktSender
+	{
+	public:
+	  PlaySoundPkt( u8 type, u16 effect, u16 xcenter, u16 ycenter, s16 zcenter );
+	  virtual void Send( Client* client );
+	private:
+	  void build();
+	  u8 _type;
+	  u16 _effect;
+	  u16 _xcenter;
+	  u16 _ycenter;
+	  s16 _zcenter;
+	  PktHelper::PacketOut<PktOut_54> _p;
+	};
   }
 }
 #endif

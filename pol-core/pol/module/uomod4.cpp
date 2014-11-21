@@ -131,7 +131,7 @@ namespace Pol {
       {
         Network::PktHelper::PacketOut<Network::PktOut_1D> msgremove;
         msgremove->Write<u32>( boat->serial_ext );
-        WorldIterator<PlayerFilter>::InVisualRange( boat, [&]( Character *zonechr )
+        WorldIterator<OnlinePlayerFilter>::InVisualRange( boat, [&]( Character *zonechr )
         {
           send_remove_object( zonechr->client, msgremove.Get() );
         } );

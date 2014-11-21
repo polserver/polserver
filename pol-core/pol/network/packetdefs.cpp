@@ -329,5 +329,35 @@ namespace Pol {
         _p_old.Send( client, 14 );
       }
     }
+
+
+	PlaySoundPkt::PlaySoundPkt(u8 type, u16 effect, u16 xcenter, u16 ycenter, s16 zcenter)
+	  : _type(type),
+	  _effect(effect),
+	  _xcenter(xcenter),
+	  _ycenter(ycenter),
+	  _zcenter(zcenter),
+	  _p()
+	{
+	}
+
+	void PlaySoundPkt::Send( Client* client )
+	{
+	  if ( _p->offset == 1 )
+        build();
+      _p.Send( client, 12 );
+	}
+
+	void PlaySoundPkt::build()
+	{
+	  _p->offset = 1;
+	  _p->Write<u8>( _type );
+	  _p->WriteFlipped<u16>( _effect );
+	  _p->offset += 2; //volume
+	  _p->WriteFlipped<u16>( _xcenter );
+	  _p->WriteFlipped<u16>( _ycenter );
+	  _p->WriteFlipped<s16>( _zcenter );
+	}
+
   }
 }
