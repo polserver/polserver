@@ -367,9 +367,9 @@ namespace Pol {
         PacketTemplate() { ReSetBuffer(); };
         void ReSetBuffer()
         {
-		  memset( PacketWriter<ID, SIZE>::buffer, 0, SIZE );
-		  PacketWriter<ID, SIZE>::buffer[0] = ID;
-		  PacketWriter<ID, SIZE>::offset = 1;
+		  memset( PacketWriter<_id, _size>::buffer, 0, _size );
+		  PacketWriter<_id, _size>::buffer[0] = _id;
+		  PacketWriter<_id, _size>::offset = 1;
 		};
 	  };
 
@@ -378,14 +378,13 @@ namespace Pol {
 	  class PacketTemplateSub : public PacketWriter<_id, _size, _sub>
 	  {
 	  public:
-		static const u16 SUBOFF = _suboff;
 		PacketTemplateSub() { ReSetBuffer(); };
 		void ReSetBuffer()
 		{
-		  memset( PacketWriter<ID, SIZE, SUB>::buffer, 0, SIZE );
-		  PacketWriter<ID, SIZE, SUB>::buffer[0] = ID;
-		  ( *(u16*)(void*)&PacketWriter<ID, SIZE, SUB>::buffer[SUBOFF] ) = cfBEu16( SUB );
-		  PacketWriter<ID, SIZE, SUB>::offset = 1;
+		  memset( PacketWriter<_id, _size, _sub>::buffer, 0, _size );
+		  PacketWriter<_id, _size, _sub>::buffer[0] = _id;
+		  ( *(u16*)(void*)&PacketWriter<_id, _size, _sub>::buffer[_suboff] ) = cfBEu16( _sub );
+		  PacketWriter<_id, _size, _sub>::offset = 1;
 		};
 		inline u16 getSubID() const { return _sub; };
 	  };
