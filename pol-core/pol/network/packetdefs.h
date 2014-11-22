@@ -130,6 +130,18 @@ namespace Pol {
 	  s16 _zcenter;
 	  PktHelper::PacketOut<PktOut_54> _p;
 	};
+
+	class RemoveObjectPkt : public PktSender
+	{
+	public:
+	  RemoveObjectPkt( u32 serial );
+	  virtual void Send( Client* client );
+	  void update( u32 serial );
+	private:
+	  void build();
+	  u32 _serial;
+	  PktHelper::PacketOut<PktOut_1D> _p;
+	};
   }
 }
 #endif

@@ -3553,13 +3553,7 @@ namespace Pol {
 	// FIXME : Should we do an Orphan check here as well? Ugh.
 	void true_extricate( Item* item )
 	{
-      Network::PktHelper::PacketOut<Network::PktOut_1D> msgremove;
-      msgremove->Write<u32>( item->serial_ext );
-      WorldIterator<OnlinePlayerFilter>::InVisualRange( item, [&]( Character *zonechr )
-      {
-        send_remove_object( zonechr->client, msgremove.Get( ) );
-      } );
-
+	  send_remove_object_to_inrange( item );
 	  if ( item->container != NULL )
 	  {
 		item->extricate();

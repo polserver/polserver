@@ -143,12 +143,7 @@ namespace Pol {
 
 	  UObject* my_owner = item->toplevel_owner();
 
-      Network::PktHelper::PacketOut<Network::PktOut_1D> msgremove;
-      msgremove->Write<u32>( item->serial_ext );
-      Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange( item, [&]( Mobile::Character* chr )
-      {
-        send_remove_object( chr->client, msgremove.Get() );
-      } );
+	  send_remove_object_to_inrange( item );
 
 	  UContainer* orig_container = item->container;
 	  u16 orig_x = item->x, orig_y = item->y;

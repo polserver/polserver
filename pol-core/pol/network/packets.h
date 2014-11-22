@@ -245,10 +245,11 @@ namespace Pol {
 
 		static const u8 ID = _id;
 		static const u16 SUB = _sub;
-		char buffer[_size];
+		static const u16 SIZE = _size;
+		char buffer[SIZE];
         char* getBuffer() { return &buffer[offset]; };
-        inline u8 getID() const { return _id; };
-        size_t estimateSize() const { return _size + sizeof(PacketInterface); };
+        inline u8 getID() const { return ID; };
+        size_t estimateSize() const { return SIZE + sizeof(PacketInterface); };
 
 		// ---- Buffer Write Methods ----
 		// N is the argument which will be static_cast to T
@@ -260,7 +261,7 @@ namespace Pol {
 		  Write(N x)
         {
 		  static_assert(std::is_integral<N>::value || std::is_enum<N>::value, "Invalid argument type integral type is needed!");
-          passert_always_r(offset + sizeof(T) <= _size, "pkt " + Clib::hexint(_id));
+          passert_always_r(offset + sizeof(T) <= SIZE, "pkt " + Clib::hexint(ID));
           PktWriterTemplateSpecs::WriteHelper<T>::Write(x, buffer, offset);
         };
 		template <class T, typename N>
@@ -269,11 +270,11 @@ namespace Pol {
 		  static_assert(std::is_integral<N>::value || std::is_enum<N>::value, "Invalid argument type integral type is needed!");
 		  static_assert(std::is_signed<T>::value == std::is_signed<N>::value, "Signed/Unsigned missmatch!");
 		  //passert_always_r((std::numeric_limits<T>::max() >= x), "Number is bigger then desired type!" );
-		  passert_always_r(offset + sizeof(T) <= _size, "pkt " + Clib::hexint(_id));
+		  passert_always_r(offset + sizeof(T) <= SIZE, "pkt " + Clib::hexint(ID));
 		  if (std::numeric_limits<T>::max() < x) // dont let the shard crash, a warning is better
 		  {
 			POLLOG_ERROR.Format( "ERROR: Write: trying to write {} on offset {} for pkt 0x{:X}/0x{:X} and only {} is allowed!\n" )
-			<< x << offset << (int)_id << _sub << std::numeric_limits<T>::max();
+			<< x << offset << (int)ID << SUB << std::numeric_limits<T>::max();
 			PktWriterTemplateSpecs::WriteHelper<T>::Write(std::numeric_limits<T>::max(), buffer, offset);
 		  }
 		  else
@@ -285,7 +286,7 @@ namespace Pol {
 		  WriteFlipped(N x)
         {
 		  static_assert(std::is_integral<N>::value || std::is_enum<N>::value, "Invalid argument type integral type is needed!");
-          passert_always_r(offset + sizeof(T) <= _size, "pkt " + Clib::hexint(_id));
+          passert_always_r(offset + sizeof(T) <= SIZE, "pkt " + Clib::hexint(ID));
           PktWriterTemplateSpecs::WriteHelper<T>::WriteFlipped(x, buffer, offset);
         };
 
@@ -296,11 +297,11 @@ namespace Pol {
 		  static_assert(std::is_integral<N>::value || std::is_enum<N>::value, "Invalid argument type integral type is needed!");
 		  static_assert(std::is_signed<T>::value == std::is_signed<N>::value, "Signed/Unsigned missmatch!");
 		  //passert_always_r((std::numeric_limits<T>::max() >= x), "Number is bigger then desired type!" );
-          passert_always_r(offset + sizeof(T) <= _size, "pkt " + Clib::hexint(_id));
+          passert_always_r(offset + sizeof(T) <= SIZE, "pkt " + Clib::hexint(_id));
 		  if (std::numeric_limits<T>::max() < x) // dont let the shard crash, a warning is better
 		  {
 			POLLOG_ERROR.Format( "ERROR: WriteFlipped: trying to write {} on offset {} for pkt 0x{:X}/0x{:X} and only {} is allowed!\n" )
-			<< x << offset << (int)_id << _sub << std::numeric_limits<T>::max();
+			<< x << offset << (int)ID << SUB << std::numeric_limits<T>::max();
 			PktWriterTemplateSpecs::WriteHelper<T>::WriteFlipped(std::numeric_limits<T>::max(), buffer, offset);
 		  }
 		  else
@@ -311,7 +312,7 @@ namespace Pol {
         {
           if (len < 1)
             return;
-          passert_always_r(offset + len <= _size, "pkt " + Clib::hexint(_id));
+          passert_always_r(offset + len <= SIZE, "pkt " + Clib::hexint(ID));
           strncpy(&buffer[offset], x, nullterm ? len - 1 : len);
           offset += len;
         };
@@ -319,13 +320,13 @@ namespace Pol {
         {
           if (len < 1)
             return;
-          passert_always_r(offset + len <= _size, "pkt " + Clib::hexint(_id));
+          passert_always_r(offset + len <= SIZE, "pkt " + Clib::hexint(ID));
           memcpy(&buffer[offset], x, len);
           offset += len;
         };
         void Write(const u16* x, u16 len, bool nullterm = true)
         {
-          passert_always_r(offset + len * 2 <= _size, "pkt " + Clib::hexint(_id));
+          passert_always_r(offset + len * 2 <= SIZE, "pkt " + Clib::hexint(ID));
           u16* _buffer = ((u16*)(void*) & buffer[offset]);
           offset += len * 2;
           s32 signedlen = static_cast<s32>(len);
@@ -335,13 +336,13 @@ namespace Pol {
           }
           if (nullterm)
           {
-            passert_always_r(offset + 2 <= _size, "pkt " + Clib::hexint(_id));
+            passert_always_r(offset + 2 <= SIZE, "pkt " + Clib::hexint(ID));
             offset += 2;
           }
         };
         void WriteFlipped(const u16* x, u16 len, bool nullterm = true)
         {
-          passert_always_r(offset + len * 2 <= _size, "pkt " + Clib::hexint(_id));
+          passert_always_r(offset + len * 2 <= SIZE, "pkt " + Clib::hexint(ID));
           u16* _buffer = ((u16*)(void*) & buffer[offset]);
           offset += len * 2;
           s32 signedlen = static_cast<s32>(len);
@@ -352,7 +353,7 @@ namespace Pol {
           }
           if (nullterm)
           {
-            passert_always_r(offset + 2 <= _size, "pkt " + Clib::hexint(_id));
+            passert_always_r(offset + 2 <= SIZE, "pkt " + Clib::hexint(ID));
             offset += 2;
           }
         };
@@ -366,9 +367,9 @@ namespace Pol {
         PacketTemplate() { ReSetBuffer(); };
         void ReSetBuffer()
         {
-		  memset( PacketWriter<_id, _size>::buffer, 0, _size );
-		  PacketWriter<_id, _size>::buffer[0] = _id;
-		  PacketWriter<_id, _size>::offset = 1;
+		  memset( PacketWriter<ID, SIZE>::buffer, 0, SIZE );
+		  PacketWriter<ID, SIZE>::buffer[0] = ID;
+		  PacketWriter<ID, SIZE>::offset = 1;
 		};
 	  };
 
@@ -377,13 +378,14 @@ namespace Pol {
 	  class PacketTemplateSub : public PacketWriter<_id, _size, _sub>
 	  {
 	  public:
+		static const u16 SUBOFF = _suboff;
 		PacketTemplateSub() { ReSetBuffer(); };
 		void ReSetBuffer()
 		{
-		  memset( PacketWriter<_id, _size, _sub>::buffer, 0, _size );
-		  PacketWriter<_id, _size, _sub>::buffer[0] = _id;
-		  ( *(u16*)(void*)&PacketWriter<_id, _size, _sub>::buffer[_suboff] ) = cfBEu16( _sub );
-		  PacketWriter<_id, _size, _sub>::offset = 1;
+		  memset( PacketWriter<ID, SIZE, SUB>::buffer, 0, SIZE );
+		  PacketWriter<ID, SIZE, SUB>::buffer[0] = ID;
+		  ( *(u16*)(void*)&PacketWriter<ID, SIZE, SUB>::buffer[SUBOFF] ) = cfBEu16( SUB );
+		  PacketWriter<ID, SIZE, SUB>::offset = 1;
 		};
 		inline u16 getSubID() const { return _sub; };
 	  };
@@ -395,15 +397,16 @@ namespace Pol {
 	  public:
 		static const u8 ID = _id;
 		static const u8 SUB = 0;
+		static const u16 SIZE = _size;
 		EmptyBufferTemplate() { ReSetBuffer(); };
-		char buffer[_size];
+		char buffer[SIZE];
 		void ReSetBuffer()
 		{
-		  memset( buffer, 0, _size );
+		  memset( buffer, 0, SIZE );
 		  offset = 0;
 		};
         char* getBuffer() { return &buffer[offset]; };
-        inline u8 getID() const { return _id; };
+        inline u8 getID() const { return ID; };
 	  };
 
 	}

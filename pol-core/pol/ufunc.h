@@ -23,6 +23,7 @@ Notes
 #include "uconst.h"
 #include "pktout.h"
 #include "network/packets.h"
+#include "network/packetdefs.h"
 
 #include "core.h"
 namespace Pol {
@@ -123,16 +124,17 @@ namespace Pol {
 	void setrealm( Items::Item* item, void* arg );
 	void setrealmif( Items::Item* item, void* arg );
 
-	void send_remove_character( Network::Client *client, const Mobile::Character *chr, Network::PktOut_1D* buffer = nullptr, bool build = true );
+	// TODO: 9 global functions for remove pkt???
+	void send_remove_character( Network::Client *client, const Mobile::Character *chr, Network::RemoveObjectPkt& pkt );
+	void send_remove_character( Network::Client *client, const Mobile::Character *chr );
 	void send_remove_object_if_inrange( Network::Client *client, const Items::Item *obj );
 	void send_remove_object_to_inrange( const UObject *centerObject );
-    void send_remove_object( Network::Client *client, Network::PktOut_1D* buffer );
-    void send_remove_object( Network::Client *client, const UObject *item, Network::PktOut_1D* buffer );
+    void send_remove_object( Network::Client *client, const UObject *item, Network::RemoveObjectPkt& pkt );
     void send_remove_object( Network::Client *client, const UObject *obj );
-
 	void send_remove_character_to_nearby( const Mobile::Character* chr );
 	void send_remove_character_to_nearby_cantsee( const Mobile::Character* chr );
-	void send_char_data_to_nearby_ghosts( Mobile::Character* chr );
+	void remove_objects_inrange( Network::Client* client );
+
 
 	void send_goxyz( Network::Client *client, const Mobile::Character *chr );
 	void send_light( Network::Client *client, int lightlevel );
@@ -261,7 +263,6 @@ namespace Pol {
 	void send_item_if_newly_inrange( Items::Item *item, Network::Client *client );
 	void send_objects_newly_inrange( Network::Client* client );
 	void send_objects_newly_inrange_on_boat( Network::Client* client, u32 serial );
-	void remove_objects_inrange( Network::Client* client );
 
 	void send_create_mobile_if_nearby_cansee( Network::Client* client, const Mobile::Character* chr );
 	void send_create_mobile_to_nearby_cansee( const Mobile::Character* chr );

@@ -129,12 +129,7 @@ namespace Pol {
       }
       if ( newrealm != boat->realm ) //boat->move_xy removes on xy change so only realm change check is needed
       {
-        Network::PktHelper::PacketOut<Network::PktOut_1D> msgremove;
-        msgremove->Write<u32>( boat->serial_ext );
-        WorldIterator<OnlinePlayerFilter>::InVisualRange( boat, [&]( Character *zonechr )
-        {
-          send_remove_object( zonechr->client, msgremove.Get() );
-        } );
+		send_remove_object_to_inrange( boat );
       }
 	  boat->realm = newrealm;
 

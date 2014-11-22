@@ -428,7 +428,7 @@ namespace Pol {
 		ADDTOSENDQUEUE( client, &invulbuffer->buffer, invulbuffer->offset );
 	}
 
-	void send_remove_character( Client *client, const Character *chr, PktOut_1D* buffer, bool build )
+	void send_remove_character( Client *client, const Character *chr)
 	{
 	  if ( !client->ready )     /* if a client is just connecting, don't bother him. */
 		return;
@@ -436,29 +436,24 @@ namespace Pol {
 	  /* Don't remove myself */
 	  if ( client->chr == chr )
 		return;
+	  Network::RemoveObjectPkt msgremove( chr->serial_ext );
+	  msgremove.Send( client );
+	}
 
-      if ( buffer == nullptr )
-      {
-        PktHelper::PacketOut<PktOut_1D> msgremove;
-        msgremove->Write<u32>( chr->serial_ext );
-        msgremove.Send( client );
-      }
-      else
-      {
-        if ( build )
-        {
-          buffer->offset = 1;
-          buffer->Write<u32>( chr->serial_ext );
-        }
+	void send_remove_character( Network::Client *client, const Mobile::Character *chr, Network::RemoveObjectPkt& pkt )
+	{
+	  if ( !client->ready )     /* if a client is just connecting, don't bother him. */
+		return;
 
-        ADDTOSENDQUEUE( client, &buffer->buffer, buffer->offset );
-      }
+	  /* Don't remove myself */
+	  if ( client->chr == chr )
+		return;
+	  pkt.Send( client );
 	}
 
 	void send_remove_character_to_nearby( const Character* chr )
 	{
-	  PktHelper::PacketOut<PktOut_1D> msgremove;
-	  msgremove->Write<u32>( chr->serial_ext );
+	  Network::RemoveObjectPkt msgremove( chr->serial_ext );
       WorldIterator<OnlinePlayerFilter>::InVisualRange( chr, [&]( Character *zonechr )
       {
         if ( zonechr == chr )
@@ -469,9 +464,7 @@ namespace Pol {
 
 	void send_remove_character_to_nearby_cantsee( const Character* chr )
 	{
-	  PktHelper::PacketOut<PktOut_1D> msgremove;
-	  msgremove->Write<u32>( chr->serial_ext );
-
+	  Network::RemoveObjectPkt msgremove( chr->serial_ext );
       WorldIterator<OnlinePlayerFilter>::InVisualRange( chr, [&]( Character *zonechr )
       {
         if ( zonechr == chr )
@@ -483,8 +476,7 @@ namespace Pol {
 
     void send_remove_character_to_nearby_cansee( const Character* chr )
 	{
-	  PktHelper::PacketOut<PktOut_1D> msgremove;
-	  msgremove->Write<u32>( chr->serial_ext );
+	  Network::RemoveObjectPkt msgremove( chr->serial_ext );
       WorldIterator<OnlinePlayerFilter>::InVisualRange( chr, [&]( Character* _chr )
       {
         if ( _chr != chr &&
@@ -500,47 +492,33 @@ namespace Pol {
 
 	  if ( !inrange( client->chr, item ) )
 		return;
-
-	  PktHelper::PacketOut<PktOut_1D> msgremove;
-	  msgremove->Write<u32>( item->serial_ext );
-	  msgremove.Send( client );
+	  Network::RemoveObjectPkt msgremove( item->serial_ext );
+      msgremove.Send( client );
 	}
 
     void send_remove_object( Client* client, const UObject *object )
     {
       if ( client == NULL || !client->ready )
         return;
-      PktHelper::PacketOut<PktOut_1D> msgremove;
-      msgremove->Write<u32>( object->serial_ext );
+	  Network::RemoveObjectPkt msgremove( object->serial_ext );
       msgremove.Send( client );
     }
 
 	void send_remove_object_to_inrange( const UObject *centerObject )
 	{
-	  PktHelper::PacketOut<PktOut_1D> msgremove;
-	  msgremove->Write<u32>( centerObject->serial_ext );
-
-      WorldIterator<OnlinePlayerFilter>::InVisualRange( centerObject, [&]( Character *zonechr )
+	  Network::RemoveObjectPkt msgremove( centerObject->serial_ext );
+      Core::WorldIterator<OnlinePlayerFilter>::InVisualRange( centerObject, [&]( Character* chr )
       {
-        // FIXME need to check character's additional_legal_items.
-        msgremove.Send( zonechr->client );
+		msgremove.Send( chr->client );
       } );
 	}
 
-    void send_remove_object( Client *client, PktOut_1D* buffer )
-    {
-      if ( client == NULL || !client->ready )     /* if a client is just connecting, don't bother him. */
-        return;
-      ADDTOSENDQUEUE( client, &buffer->buffer, buffer->offset );
-    }
-
-    void send_remove_object( Client *client, const UObject *item, PktOut_1D* buffer )
+    void send_remove_object( Client *client, const UObject *item, RemoveObjectPkt& pkt )
 	{
       if ( !client->ready )     /* if a client is just connecting, don't bother him. */
         return;
-      buffer->offset = 1;
-      buffer->Write<u32>( item->serial_ext );
-      ADDTOSENDQUEUE( client, &buffer->buffer, buffer->offset );
+	  pkt.update( item->serial_ext );
+	  pkt.Send( client );
 	}
 
 	bool inrangex( const Character *c1, const Character *c2, int maxdist )
@@ -932,9 +910,7 @@ namespace Pol {
 	{
 	  if ( chr != NULL )
 	  {
-		PktHelper::PacketOut<PktOut_1D> msgremove;
-		msgremove->Write<u32>( item->serial_ext );
-		transmit_to_inrange( item, &msgremove->buffer, msgremove->offset, false, false );
+		send_remove_object_to_inrange( item );
 
 		PktHelper::PacketOut<PktOut_2E> msg;
 		msg->Write<u32>( item->serial_ext );
@@ -1798,12 +1774,7 @@ namespace Pol {
 			*/
 		item->set_dirty();
 
-        PktHelper::PacketOut<PktOut_1D> msgremove;
-        msgremove->Write<u32>( item->serial_ext );
-        WorldIterator<OnlinePlayerFilter>::InVisualRange( item, [&]( Mobile::Character *zonechr )
-        {
-          send_remove_object( zonechr->client, msgremove.Get() );
-        } );
+		send_remove_object_to_inrange( item );
 
 		if ( item->container == NULL ) // on ground, easy.
 		{
@@ -1876,13 +1847,11 @@ namespace Pol {
 	  item->restart_decay_timer();
 	  MoveItemWorldPosition( oldx, oldy, item, NULL );
 
-	  PktHelper::PacketOut<PktOut_1D> msgremove;
-	  msgremove->Write<u32>( item->serial_ext );
-
       WorldIterator<OnlinePlayerFilter>::InVisualRange( item, [&]( Character *zonechr )
       {
         send_item( zonechr->client, item );
       } );
+	  Network::RemoveObjectPkt msgremove( item->serial_ext );
       WorldIterator<OnlinePlayerFilter>::InRange( oldx, oldy, item->realm, RANGE_VISUAL, [&]( Character *zonechr )
       {
         if ( !inrange(zonechr, item ) )// not in range.  If old loc was in range, send a delete.
@@ -1909,13 +1878,11 @@ namespace Pol {
 	  item->restart_decay_timer();
 	  MoveItemWorldPosition( oldx, oldy, item, oldrealm );
 
-	  PktHelper::PacketOut<PktOut_1D> msgremove;
-	  msgremove->Write<u32>( item->serial_ext );
-
       WorldIterator<OnlinePlayerFilter>::InVisualRange( item, [&]( Character *zonechr )
       {
         send_item( zonechr->client, item );
       } );
+	  Network::RemoveObjectPkt msgremove( item->serial_ext );
       WorldIterator<OnlinePlayerFilter>::InRange( oldx, oldy, oldrealm, RANGE_VISUAL, [&]( Character *zonechr )
       {
         if ( !inrange( zonechr, item ) )// not in range.  If old loc was in range, send a delete.
@@ -2220,10 +2187,8 @@ namespace Pol {
 		if ( item->layer && chr_owner->is_equipped( item ) )
 		{
 		  item->check_unequiptest_scripts();
-		  item->check_unequip_script();			
-		  PktHelper::PacketOut<PktOut_1D> msgremove;
-		  msgremove->Write<u32>( item->serial_ext );
-		  transmit_to_inrange( item, &msgremove->buffer, msgremove->offset, false, false );
+		  item->check_unequip_script();		
+		  send_remove_object_to_inrange( item );
 		}
 	  }
 	}
