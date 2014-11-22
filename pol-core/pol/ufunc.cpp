@@ -459,10 +459,8 @@ namespace Pol {
 	{
 	  PktHelper::PacketOut<PktOut_1D> msgremove;
 	  msgremove->Write<u32>( chr->serial_ext );
-      WorldIterator<PlayerFilter>::InVisualRange( chr, [&]( Character *zonechr )
+      WorldIterator<OnlinePlayerFilter>::InVisualRange( chr, [&]( Character *zonechr )
       {
-        if ( !zonechr->has_active_client() )
-          return;
         if ( zonechr == chr )
           return;
         msgremove.Send( zonechr->client );
@@ -474,10 +472,8 @@ namespace Pol {
 	  PktHelper::PacketOut<PktOut_1D> msgremove;
 	  msgremove->Write<u32>( chr->serial_ext );
 
-      WorldIterator<PlayerFilter>::InVisualRange( chr, [&]( Character *zonechr )
+      WorldIterator<OnlinePlayerFilter>::InVisualRange( chr, [&]( Character *zonechr )
       {
-        if ( !zonechr->has_active_client() )
-          return;
         if ( zonechr == chr )
           return;
         if ( !zonechr->is_visible_to_me( chr ) )
@@ -489,10 +485,9 @@ namespace Pol {
 	{
 	  PktHelper::PacketOut<PktOut_1D> msgremove;
 	  msgremove->Write<u32>( chr->serial_ext );
-      WorldIterator<PlayerFilter>::InVisualRange( chr, [&]( Character* _chr )
+      WorldIterator<OnlinePlayerFilter>::InVisualRange( chr, [&]( Character* _chr )
       {
-        if ( _chr->has_active_client() &&
-             _chr != chr &&
+        if ( _chr != chr &&
              _chr->is_visible_to_me( chr ) )
              msgremove.Send( _chr->client );
       } );
@@ -525,10 +520,8 @@ namespace Pol {
 	  PktHelper::PacketOut<PktOut_1D> msgremove;
 	  msgremove->Write<u32>( centerObject->serial_ext );
 
-      WorldIterator<PlayerFilter>::InVisualRange( centerObject, [&]( Character *zonechr )
+      WorldIterator<OnlinePlayerFilter>::InVisualRange( centerObject, [&]( Character *zonechr )
       {
-        if ( !zonechr->has_active_client() )
-          return;
         // FIXME need to check character's additional_legal_items.
         msgremove.Send( zonechr->client );
       } );
@@ -809,10 +802,8 @@ namespace Pol {
 	  // However, could build main part of packet before for/loop, then
 	  // adjust per client. Would this be a better solution?
 
-      WorldIterator<PlayerFilter>::InVisualRange( item, [&]( Character *zonechr )
+      WorldIterator<OnlinePlayerFilter>::InVisualRange( item, [&]( Character *zonechr )
       {
-        if ( !zonechr->has_active_client() )
-          return;
         send_item( zonechr->client, item );
       } );
 	}
@@ -1098,34 +1089,23 @@ namespace Pol {
 
 	void play_sound_effect( const UObject *center, u16 effect )
 	{
-	  PktHelper::PacketOut<PktOut_54> msg;
-	  msg->Write<u8>( PKTOUT_54_FLAG_SINGLEPLAY );
-	  msg->WriteFlipped<u16>( effect - 1u ); // SOUND_EFFECT_XX, see sfx.h
-	  msg->offset += 2; //volume
-	  //msg->WriteFlipped(0);
-	  msg->WriteFlipped<u16>( center->x );
-	  msg->WriteFlipped<u16>( center->y );
-	  msg->offset += 2;
-	  //msg->WriteFlipped(z);
+	  Network::PlaySoundPkt msg( PKTOUT_54_FLAG_SINGLEPLAY,
+		effect - 1u,
+		center->x, center->y, 0 );
 	  // FIXME hearing range check perhaps?
-	  transmit_to_inrange( center, &msg->buffer, msg->offset, false, false );
+	  WorldIterator<OnlinePlayerFilter>::InVisualRange( center, [&]( Character *zonechr )
+      {
+        msg.Send( zonechr->client );
+      } );
 	}
 
 	void play_sound_effect_xyz( u16 cx, u16 cy, s8 cz, u16 effect, Plib::Realm* realm )
 	{
-	  PktHelper::PacketOut<PktOut_54> msg;
-	  msg->Write<u8>( PKTOUT_54_FLAG_SINGLEPLAY );
-	  msg->WriteFlipped<u16>( effect - 1u ); // SOUND_EFFECT_XX, see sfx.h
-	  msg->offset += 2; //volume
-	  //msg->WriteFlipped(0);
-	  msg->WriteFlipped<u16>( cx );
-	  msg->WriteFlipped<u16>( cy );
-	  msg->WriteFlipped<s16>( cz );
-
-      WorldIterator<PlayerFilter>::InRange( cx, cy, realm, RANGE_VISUAL, [&]( Character *zonechr )
+	  Network::PlaySoundPkt msg( PKTOUT_54_FLAG_SINGLEPLAY,
+		effect - 1u,
+		cx, cy, cz );
+      WorldIterator<OnlinePlayerFilter>::InRange( cx, cy, realm, RANGE_VISUAL, [&]( Character *zonechr )
       {
-        if ( !zonechr->has_active_client() )
-          return;
         msg.Send( zonechr->client );
       } );
 	}
@@ -1134,15 +1114,9 @@ namespace Pol {
 	{
 	  if ( forchr->client )
 	  {
-		PktHelper::PacketOut<PktOut_54> msg;
-		msg->Write<u8>( PKTOUT_54_FLAG_SINGLEPLAY );
-		msg->WriteFlipped<u16>( effect - 1u ); // SOUND_EFFECT_XX, see sfx.h
-		msg->offset += 2; //volume
-		//msg->WriteFlipped(0);
-		msg->WriteFlipped<u16>( center->x );
-		msg->WriteFlipped<u16>( center->y );
-		msg->offset += 2;
-		//msg->WriteFlipped(z);
+		Network::PlaySoundPkt msg( PKTOUT_54_FLAG_SINGLEPLAY,
+		  effect - 1u,
+		  center->x, center->y, 0 );
 		msg.Send( forchr->client );
 	  }
 	}
@@ -1169,16 +1143,12 @@ namespace Pol {
 	  msg->offset += 3; //unk24,unk25,unk26
 	  msg->Write<u8>( explode );
 
-      WorldIterator<PlayerFilter>::InVisualRange( src->toplevel_owner(), [&]( Character *zonechr )
+      WorldIterator<OnlinePlayerFilter>::InVisualRange( src->toplevel_owner(), [&]( Character *zonechr )
       {
-        if ( !zonechr->has_active_client() )
-          return;
         msg.Send( zonechr->client );
       } );
-      WorldIterator<PlayerFilter>::InVisualRange( dst->toplevel_owner(), [&]( Character *zonechr )
+      WorldIterator<OnlinePlayerFilter>::InVisualRange( dst->toplevel_owner(), [&]( Character *zonechr )
       {
-        if ( !zonechr->has_active_client() )
-          return;
         if ( !inrange( zonechr, src ) ) // send to char only in range of dst
           msg.Send( zonechr->client );
       } );
@@ -1207,16 +1177,12 @@ namespace Pol {
 	  msg->offset += 3; //unk24,unk25,unk26
 	  msg->Write<u8>( explode );
 
-      WorldIterator<PlayerFilter>::InRange( xs, ys, realm, RANGE_VISUAL, [&]( Character *zonechr )
+      WorldIterator<OnlinePlayerFilter>::InRange( xs, ys, realm, RANGE_VISUAL, [&]( Character *zonechr )
       {
-        if ( !zonechr->has_active_client() )
-          return;
         msg.Send( zonechr->client );
       } );
-      WorldIterator<PlayerFilter>::InRange( xd, yd, realm, RANGE_VISUAL, [&]( Character *zonechr )
+      WorldIterator<OnlinePlayerFilter>::InRange( xd, yd, realm, RANGE_VISUAL, [&]( Character *zonechr )
       {
-        if ( !zonechr->has_active_client() )
-          return;
         if ( !inrange( zonechr, xs, ys ) ) // send to chrs only in range of dest
           msg.Send( zonechr->client );
       } );
@@ -1272,10 +1238,8 @@ namespace Pol {
 	  msg->Write<u8>( 1u ); // this is right for teleport, anyway
 	  msg->Write<u8>( explode );
 
-      WorldIterator<PlayerFilter>::InRange( x, y, realm, RANGE_VISUAL, [&]( Character *zonechr )
+      WorldIterator<OnlinePlayerFilter>::InRange( x, y, realm, RANGE_VISUAL, [&]( Character *zonechr )
       {
-        if ( !zonechr->has_active_client() )
-          return;
         msg.Send( zonechr->client );
       } );
 	}
@@ -1290,10 +1254,8 @@ namespace Pol {
 					   hue, render, effect3d, 1, 0,
 					   0, 0xFF );
 
-      WorldIterator<PlayerFilter>::InRange( x, y, realm, RANGE_VISUAL, [&]( Character *zonechr )
+      WorldIterator<OnlinePlayerFilter>::InRange( x, y, realm, RANGE_VISUAL, [&]( Character *zonechr )
       {
-        if ( !zonechr->has_active_client() )
-          return;
         msg.Send( zonechr->client );
       } );
 	}
@@ -1327,16 +1289,12 @@ namespace Pol {
 					   effect3d, effect3dexplode, effect3dsound,
 					   0, 0xFF );
 
-      WorldIterator<PlayerFilter>::InVisualRange( src, [&]( Character *zonechr )
+      WorldIterator<OnlinePlayerFilter>::InVisualRange( src, [&]( Character *zonechr )
       {
-        if ( !zonechr->has_active_client() )
-          return;
         msg.Send( zonechr->client );
       } );
-      WorldIterator<PlayerFilter>::InVisualRange( dst, [&]( Character *zonechr )
+      WorldIterator<OnlinePlayerFilter>::InVisualRange( dst, [&]( Character *zonechr )
       {
-        if ( !zonechr->has_active_client() )
-          return;
         if ( !inrange(zonechr, src ) ) // send to chrs only in range of dst
           msg.Send( zonechr->client );
       } );
@@ -1355,16 +1313,12 @@ namespace Pol {
 					   effect3d, effect3dexplode, effect3dsound,
 					   0, 0xFF );
 
-      WorldIterator<PlayerFilter>::InRange( xs, ys, realm, RANGE_VISUAL, [&]( Character *zonechr )
+      WorldIterator<OnlinePlayerFilter>::InRange( xs, ys, realm, RANGE_VISUAL, [&]( Character *zonechr )
       {
-        if ( !zonechr->has_active_client() )
-          return;
         msg.Send( zonechr->client );
       } );
-      WorldIterator<PlayerFilter>::InRange( xd, yd, realm, RANGE_VISUAL, [&]( Character *zonechr )
+      WorldIterator<OnlinePlayerFilter>::InRange( xd, yd, realm, RANGE_VISUAL, [&]( Character *zonechr )
       {
-        if ( !zonechr->has_active_client() )
-          return;
         if ( !inrange(zonechr, xs, ys ) ) // send to chrs only in range of dst
           msg.Send( zonechr->client );
       } );
@@ -1779,10 +1733,8 @@ namespace Pol {
 	  msg->Write<u32>( corpse->serial_ext );
 	  msg->offset += 4; // u32 unk4_zero
 
-      WorldIterator<PlayerFilter>::InVisualRange( corpse, [&]( Character *zonechr )
+      WorldIterator<OnlinePlayerFilter>::InVisualRange( corpse, [&]( Character *zonechr )
       {
-        if ( !zonechr->has_active_client() )
-          return;
         if ( zonechr== chr_died )
           return;
         msg.Send( zonechr->client );
@@ -1791,10 +1743,8 @@ namespace Pol {
 
 	void transmit_to_inrange( const UObject* center, const void* msg, unsigned msglen, bool is_6017, bool is_UOKR )
 	{
-      WorldIterator<PlayerFilter>::InVisualRange( center, [&]( Character *zonechr )
+      WorldIterator<OnlinePlayerFilter>::InVisualRange( center, [&]( Character *zonechr )
       {
-        if ( !zonechr->has_active_client() )
-          return;
         Client* client = zonechr->client;
         if ( is_6017 && ( !( client->ClientType & CLIENTTYPE_6017 ) ) )
           return;
@@ -1806,10 +1756,8 @@ namespace Pol {
 
 	void transmit_to_others_inrange( Character* center, const void* msg, unsigned msglen, bool is_6017, bool is_UOKR )
 	{
-      WorldIterator<PlayerFilter>::InVisualRange( center, [&]( Character *zonechr )
+      WorldIterator<OnlinePlayerFilter>::InVisualRange( center, [&]( Character *zonechr )
       {
-        if ( !zonechr->has_active_client() )
-          return;
         Client* client = zonechr->client;
         if ( is_6017 && ( !( client->ClientType & CLIENTTYPE_6017 ) ) )
           return;
@@ -1852,7 +1800,7 @@ namespace Pol {
 
         PktHelper::PacketOut<PktOut_1D> msgremove;
         msgremove->Write<u32>( item->serial_ext );
-        WorldIterator<PlayerFilter>::InVisualRange( item, [&]( Mobile::Character *zonechr )
+        WorldIterator<OnlinePlayerFilter>::InVisualRange( item, [&]( Mobile::Character *zonechr )
         {
           send_remove_object( zonechr->client, msgremove.Get() );
         } );
@@ -1931,16 +1879,12 @@ namespace Pol {
 	  PktHelper::PacketOut<PktOut_1D> msgremove;
 	  msgremove->Write<u32>( item->serial_ext );
 
-      WorldIterator<PlayerFilter>::InVisualRange( item, [&]( Character *zonechr )
+      WorldIterator<OnlinePlayerFilter>::InVisualRange( item, [&]( Character *zonechr )
       {
-        if ( !zonechr->has_active_client() )
-          return;
         send_item( zonechr->client, item );
       } );
-      WorldIterator<PlayerFilter>::InRange( oldx, oldy, item->realm, RANGE_VISUAL, [&]( Character *zonechr )
+      WorldIterator<OnlinePlayerFilter>::InRange( oldx, oldy, item->realm, RANGE_VISUAL, [&]( Character *zonechr )
       {
-        if ( !zonechr->has_active_client() )
-          return;
         if ( !inrange(zonechr, item ) )// not in range.  If old loc was in range, send a delete.
           msgremove.Send( zonechr->client );
       } );
@@ -1968,16 +1912,12 @@ namespace Pol {
 	  PktHelper::PacketOut<PktOut_1D> msgremove;
 	  msgremove->Write<u32>( item->serial_ext );
 
-      WorldIterator<PlayerFilter>::InVisualRange( item, [&]( Character *zonechr )
+      WorldIterator<OnlinePlayerFilter>::InVisualRange( item, [&]( Character *zonechr )
       {
-        if ( !zonechr->has_active_client() )
-          return;
         send_item( zonechr->client, item );
       } );
-      WorldIterator<PlayerFilter>::InRange( oldx, oldy, oldrealm, RANGE_VISUAL, [&]( Character *zonechr )
+      WorldIterator<OnlinePlayerFilter>::InRange( oldx, oldy, oldrealm, RANGE_VISUAL, [&]( Character *zonechr )
       {
-        if ( !zonechr->has_active_client() )
-          return;
         if ( !inrange( zonechr, item ) )// not in range.  If old loc was in range, send a delete.
           msgremove.Send( zonechr->client );
       } );
@@ -1992,10 +1932,8 @@ namespace Pol {
     void send_multi_to_inrange( const Multi::UMulti* multi )
 	{
       auto pkt = SendWorldMulti( multi->serial_ext, multi->multidef( ).multiid, multi->x, multi->y, multi->z, multi->color );
-      WorldIterator<PlayerFilter>::InVisualRange( multi, [&]( Character *zonechr )
+      WorldIterator<OnlinePlayerFilter>::InVisualRange( multi, [&]( Character *zonechr )
       {
-        if ( !zonechr->has_active_client( ) )
-          return;
         pkt.Send( zonechr->client );
       } );
 	}
@@ -2243,10 +2181,8 @@ namespace Pol {
 
 	void send_create_mobile_to_nearby_cansee( const Character* chr )
 	{
-      WorldIterator<PlayerFilter>::InVisualRange( chr, [&]( Character *zonechr )
+      WorldIterator<OnlinePlayerFilter>::InVisualRange( chr, [&]( Character *zonechr )
       {
-        if ( !zonechr->has_active_client() )
-          return;
         if ( zonechr == chr )
           return;
         if ( zonechr->is_visible_to_me( chr ) )
@@ -2256,10 +2192,8 @@ namespace Pol {
 
 	void send_move_mobile_to_nearby_cansee( const Character* chr )
 	{
-      WorldIterator<PlayerFilter>::InVisualRange( chr, [&]( Character *zonechr )
+      WorldIterator<OnlinePlayerFilter>::InVisualRange( chr, [&]( Character *zonechr )
       {
-        if ( !zonechr->has_active_client() )
-          return;
         if ( zonechr == chr )
           return;
         if ( zonechr->is_visible_to_me( chr ) )

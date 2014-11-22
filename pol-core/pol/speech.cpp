@@ -162,10 +162,8 @@ namespace Pol {
         range = Core::ssopt.yell_range;
       else
         range = Core::ssopt.speech_range;
-      Core::WorldIterator<Core::PlayerFilter>::InRange( client->chr->x, client->chr->y, client->chr->realm, range, [&]( Mobile::Character *chr )
+      Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( client->chr->x, client->chr->y, client->chr->realm, range, [&]( Mobile::Character *chr )
       {
-        if ( !chr->has_active_client() )
-          return;
         Network::Client* client2 = chr->client;
         if ( client == client2 ) return;
         if ( !client2->chr->is_visible_to_me( client->chr ) ) return;
@@ -341,10 +339,8 @@ namespace Pol {
           range = Core::ssopt.yell_range;
         else
           range = Core::ssopt.speech_range;
-        Core::WorldIterator<Core::PlayerFilter>::InRange( client->chr->x, client->chr->y, client->chr->realm, range, [&]( Mobile::Character *chr )
+        Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( client->chr->x, client->chr->y, client->chr->realm, range, [&]( Mobile::Character *chr )
         {
-          if ( !chr->has_active_client() )
-            return;
           Network::Client* client2 = chr->client;
           if ( client == client2 ) return;
           if ( !client2->chr->is_visible_to_me( client->chr ) ) return;

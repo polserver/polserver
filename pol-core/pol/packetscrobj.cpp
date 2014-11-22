@@ -139,10 +139,8 @@ namespace Pol {
 			if ( !realm->valid( x, y, 0 ) ) return new BError( "Invalid Coordinates for realm" );
 
 			unsigned short num_sent_to = 0;
-            Core::WorldIterator<Core::PlayerFilter>::InRange( x, y, realm, range, [&]( Mobile::Character *chr )
+            Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( x, y, realm, range, [&]( Mobile::Character *chr )
             {
-              if ( !chr->has_active_client() )
-                return;
               ADDTOSENDQUEUE( chr->client, (void*)( &buffer[0] ), static_cast<int>( buffer.size( ) ) );
               num_sent_to++;
             } );

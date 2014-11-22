@@ -349,10 +349,8 @@ namespace Pol {
 
 	void UBoat::send_smooth_move_to_inrange( Core::UFACING move_dir, u8 speed, u16 newx, u16 newy, bool relative )
 	{
-	       Core::WorldIterator<Core::PlayerFilter>::InRange( newx, newy, realm, RANGE_VISUAL_LARGE_BUILDINGS, [&]( Mobile::Character* zonechr )
+	  Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( newx, newy, realm, RANGE_VISUAL_LARGE_BUILDINGS, [&]( Mobile::Character* zonechr )
         {
-          if ( !zonechr->has_active_client() )
-            return;
           Network::Client* client = zonechr->client;
 
           if ( inrange( client->chr, this ) && client->ClientType & Network::CLIENTTYPE_7090 ) // send this only to those who see the old location aswell
@@ -520,11 +518,8 @@ namespace Pol {
 
 	void UBoat::send_display_boat_to_inrange( u16 oldx, u16 oldy )
 	{
-		Core::WorldIterator<Core::PlayerFilter>::InRange( x, y, realm, RANGE_VISUAL_LARGE_BUILDINGS, [&]( Mobile::Character* zonechr )
+		Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( x, y, realm, RANGE_VISUAL_LARGE_BUILDINGS, [&]( Mobile::Character* zonechr )
 		{
-          if ( !zonechr->has_active_client() )
-            return;
-
 		  Network::Client* client = zonechr->client;
 
 		  if ( client->ClientType & Network::CLIENTTYPE_7090 )
@@ -535,10 +530,8 @@ namespace Pol {
 		    send_boat_old( client );		  
 		} );	
 
-        Core::WorldIterator<Core::PlayerFilter>::InRange( oldx, oldy, this->realm, RANGE_VISUAL_LARGE_BUILDINGS, [&]( Mobile::Character* zonechr )
+        Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( oldx, oldy, this->realm, RANGE_VISUAL_LARGE_BUILDINGS, [&]( Mobile::Character* zonechr )
         {
-          if ( !zonechr->has_active_client() )
-            return;
           Network::Client* client = zonechr->client;
 
 		  if ( !inrange( client->chr, this ) ) // send remove to chrs only seeing the old loc
@@ -846,22 +839,16 @@ namespace Pol {
 			MoveItemWorldPosition( oldx, oldy, item, NULL );
 		  }
 
-		  Core::WorldIterator<Core::PlayerFilter>::InRange( item->x, item->y, realm, RANGE_VISUAL, [&]( Mobile::Character* zonechr )
+		  Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( item->x, item->y, realm, RANGE_VISUAL, [&]( Mobile::Character* zonechr )
 		  {
-			if ( !zonechr->has_active_client() )
-				return;
-
 			Network::Client* client = zonechr->client;
 
 			if ( !( client->ClientType & Network::CLIENTTYPE_7090 ) )
 				send_item( client, item );
 		  } );
 
-		  Core::WorldIterator<Core::PlayerFilter>::InRange( oldx, oldy, oldrealm, RANGE_VISUAL, [&]( Mobile::Character *zonechr )
+		  Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( oldx, oldy, oldrealm, RANGE_VISUAL, [&]( Mobile::Character *zonechr )
 		  {
-			if ( !zonechr->has_active_client() )
-				return;
-
 			Network::Client* client = zonechr->client;
 
 			if ( !inrange( client->chr, item ) ) // not in range.  If old loc was in range, send a delete.
@@ -1002,22 +989,16 @@ namespace Pol {
 
 			MoveItemWorldPosition( oldx, oldy, item, NULL );
 
-		  Core::WorldIterator<Core::PlayerFilter>::InRange( item->x, item->y, realm, RANGE_VISUAL, [&]( Mobile::Character* zonechr )
+		  Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( item->x, item->y, realm, RANGE_VISUAL, [&]( Mobile::Character* zonechr )
 		  {
-			if ( !zonechr->has_active_client() )
-				return;
-
 			Network::Client* client = zonechr->client;
 
 			if ( ! ( client->ClientType & Network::CLIENTTYPE_7090 ) )
 				send_item( client, item );
 		  } );
 
-		  Core::WorldIterator<Core::PlayerFilter>::InRange( oldx, oldy, realm, RANGE_VISUAL, [&]( Mobile::Character *zonechr )
+		  Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( oldx, oldy, realm, RANGE_VISUAL, [&]( Mobile::Character *zonechr )
 		  {
-			if ( !zonechr->has_active_client() )
-				return;
-
 			Network::Client* client = zonechr->client;
 
 			if ( !inrange( client->chr, item ) ) // not in range.  If old loc was in range, send a delete.
@@ -1276,11 +1257,8 @@ namespace Pol {
 		move_travellers( move_dir, bc, x, y, realm );
 		move_components( realm );
 
-		Core::WorldIterator<Core::PlayerFilter>::InRange( x, y, realm, RANGE_VISUAL_LARGE_BUILDINGS, [&]( Mobile::Character* zonechr )
+		Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( x, y, realm, RANGE_VISUAL_LARGE_BUILDINGS, [&]( Mobile::Character* zonechr )
 		{
-          if ( !zonechr->has_active_client() )
-            return;
-
 		  Network::Client* client = zonechr->client;
 
 		  if ( client->ClientType & Network::CLIENTTYPE_7090 )
@@ -1299,10 +1277,8 @@ namespace Pol {
 		  }			  
 		} );
 
-        Core::WorldIterator<Core::PlayerFilter>::InRange( oldx, oldy, realm, RANGE_VISUAL_LARGE_BUILDINGS, [&]( Mobile::Character* zonechr )
+        Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( oldx, oldy, realm, RANGE_VISUAL_LARGE_BUILDINGS, [&]( Mobile::Character* zonechr )
         {
-          if ( !zonechr->has_active_client() )
-            return;
           Network::Client* client = zonechr->client;
 
           if ( !inrange( client->chr, this ) ) // send remove to chrs only seeing the old loc
@@ -1378,22 +1354,16 @@ namespace Pol {
 
 				MoveItemWorldPosition( oldx, oldy, item, oldrealm );
 
-			  Core::WorldIterator<Core::PlayerFilter>::InRange( item->x, item->y, realm, RANGE_VISUAL, [&]( Mobile::Character* zonechr )
+			  Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( item->x, item->y, realm, RANGE_VISUAL, [&]( Mobile::Character* zonechr )
 			  {
-				if ( !zonechr->has_active_client() )
-					return;
-
 				Network::Client* client = zonechr->client;
 
 				if ( !( client->ClientType & Network::CLIENTTYPE_7090 ) )
 					send_item( client, item );
 			  } );
 
-			  Core::WorldIterator<Core::PlayerFilter>::InRange( oldx, oldy, oldrealm, RANGE_VISUAL, [&]( Mobile::Character *zonechr )
+			  Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( oldx, oldy, oldrealm, RANGE_VISUAL, [&]( Mobile::Character *zonechr )
 			  {
-				if ( !zonechr->has_active_client() )
-					return;
-
 				Network::Client* client = zonechr->client;
 
 				if ( !inrange( client->chr, item ) ) // not in range.  If old loc was in range, send a delete.
@@ -1432,22 +1402,16 @@ namespace Pol {
 
 		  MoveItemWorldPosition( oldx, oldy, item, oldrealm );
 
-		  Core::WorldIterator<Core::PlayerFilter>::InRange( item->x, item->y, realm, RANGE_VISUAL, [&]( Mobile::Character* zonechr )
+		  Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( item->x, item->y, realm, RANGE_VISUAL, [&]( Mobile::Character* zonechr )
 		  {
-			if ( !zonechr->has_active_client() )
-				return;
-
 			Network::Client* client = zonechr->client;
 
 			if ( !( client->ClientType & Network::CLIENTTYPE_7090 ) )
 				send_item( client, item );
 		  } );
 
-		  Core::WorldIterator<Core::PlayerFilter>::InRange( oldx, oldy, oldrealm, RANGE_VISUAL, [&]( Mobile::Character *zonechr )
+		  Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( oldx, oldy, oldrealm, RANGE_VISUAL, [&]( Mobile::Character *zonechr )
 		  {
-			if ( !zonechr->has_active_client() )
-				return;
-
 			Network::Client* client = zonechr->client;
 
 			if ( !inrange( client->chr, item ) ) // not in range.  If old loc was in range, send a delete.
@@ -1802,10 +1766,8 @@ namespace Pol {
 	  boat->destroy_components();
 	  boat->unregself();
 
-      Core::WorldIterator<Core::PlayerFilter>::InVisualRange( boat, [&]( Mobile::Character *zonechr )
+      Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange( boat, [&]( Mobile::Character *zonechr )
       {
-        if ( !zonechr->has_active_client() )
-          return;
         Core::send_remove_object( zonechr->client, boat );
       } );
 	  remove_multi_from_world( boat );

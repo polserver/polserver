@@ -119,7 +119,7 @@ namespace Pol {
 	  client->pause();
       Network::PktHelper::PacketOut<Network::PktOut_1D> msgremove;
       msgremove->Write<u32>( item->serial_ext );
-      Core::WorldIterator<Core::PlayerFilter>::InVisualRange( item, [&]( Mobile::Character* chr )
+      Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange( item, [&]( Mobile::Character* chr )
       {
         send_remove_object( chr->client, msgremove.Get() );
       } );
@@ -222,7 +222,7 @@ namespace Pol {
 
       Network::PktHelper::PacketOut<Network::PktOut_1D> msgremove;
       msgremove->Write<u32>( item->serial_ext );
-      Core::WorldIterator<Core::PlayerFilter>::InVisualRange( item, [&]( Mobile::Character* chr )
+      Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange( item, [&]( Mobile::Character* chr )
       {
         send_remove_object( chr->client, msgremove.Get( ) );
       } );
@@ -275,7 +275,7 @@ namespace Pol {
 		   */
       Network::PktHelper::PacketOut<Network::PktOut_1D> msgremove;
       msgremove->Write<u32>( item->serial_ext );
-      Core::WorldIterator<Core::PlayerFilter>::InVisualRange( item, [&]( Mobile::Character* chr )
+      Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange( item, [&]( Mobile::Character* chr )
       {
         send_remove_object( chr->client, msgremove.Get( ) );
       } );
@@ -628,7 +628,7 @@ namespace Pol {
 
       Network::PktHelper::PacketOut<Network::PktOut_1D> msgremove;
       msgremove->Write<u32>( item->serial_ext );
-      Core::WorldIterator<Core::PlayerFilter>::InVisualRange( item, [&]( Mobile::Character* chr )
+      Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange( item, [&]( Mobile::Character* chr )
       {
         send_remove_object( chr->client, msgremove.Get( ) );
       } );

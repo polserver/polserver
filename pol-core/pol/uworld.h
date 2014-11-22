@@ -251,6 +251,25 @@ namespace Pol {
       }
     };
 
+	// iterator over online player
+    struct OnlinePlayerFilter
+    {
+      friend struct WorldIterator<OnlinePlayerFilter>;
+    protected:
+      template <typename F>
+      static void call( Core::Zone &zone, const WorldIteratorHelper::Coords &coords, F &&f )
+      {
+        for ( auto &chr : zone.characters )
+        {
+		  if ( chr->has_active_client() )
+		  {
+			if ( WorldIteratorHelper::inRange( chr, coords ) )
+			  f( chr );
+		  }
+        }
+      }
+    };
+
     // iterator over npcs 
     struct NPCFilter
     {
