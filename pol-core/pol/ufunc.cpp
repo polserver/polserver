@@ -2270,9 +2270,9 @@ namespace Pol {
 
 	  PktHelper::PacketOut<PktOut_B9> msg;
 	  if ( client->ClientType & CLIENTTYPE_60142 )
-		msg->WriteFlipped<u32>( clientflag );
+		msg->WriteFlipped<u32>( clientflag & 0xFFFFFFFFu );
 	  else
-		msg->WriteFlipped<u16>( clientflag );
+		msg->WriteFlipped<u16>( clientflag & 0xFFFFu );
 	  msg.Send( client );
 	}
 
