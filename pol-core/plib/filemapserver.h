@@ -10,6 +10,7 @@ Notes
 #ifndef PLIB_FILEMAPSERVER_H
 #define PLIB_FILEMAPSERVER_H
 
+#include "../clib/compilerspecifics.h"
 #include "../clib/binaryfile.h"
 
 #include "mapblock.h"
@@ -25,8 +26,8 @@ namespace Pol {
 	  explicit FileMapServer( const RealmDescriptor& descriptor );
 	  virtual ~FileMapServer() {}
 
-	  virtual MAPCELL GetMapCell( unsigned short x, unsigned short y ) const;
-      virtual size_t sizeEstimate( ) const;
+	  virtual MAPCELL GetMapCell( unsigned short x, unsigned short y ) const POL_OVERRIDE;
+      virtual size_t sizeEstimate( ) const POL_OVERRIDE;
 	protected:
 	  mutable Clib::BinaryFile _mapfile;
 	  mutable int _cur_mapblock_index;

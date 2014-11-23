@@ -144,7 +144,7 @@ namespace Pol {
 	{
 	public:
 	  SpellTask( OneShotTask** handle, polclock_t run_when, Mobile::Character* caster, USpell* spell, bool dummy );
-	  virtual void on_run();
+	  virtual void on_run() POL_OVERRIDE;
 
 	private:
 	  CharacterRef caster_;

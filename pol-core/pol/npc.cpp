@@ -870,10 +870,6 @@ namespace Pol {
 	  return ( master_.get() == chr );
 	}
 
-	void NPC::on_give_item()
-	{}
-
-
 
 	void NPC::on_pc_spoke( Character* src_chr, const char* speech, u8 texttype )
 	{

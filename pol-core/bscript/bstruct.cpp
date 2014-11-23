@@ -128,7 +128,7 @@ namespace Pol {
 	{
 	public:
 	  BStructIterator( BStruct* pDict, BObject* pIterVal );
-	  virtual BObject* step();
+	  virtual BObject* step() POL_OVERRIDE;
 
 	private:
 	  BObject m_StructObj;

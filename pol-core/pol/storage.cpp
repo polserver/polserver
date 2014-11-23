@@ -287,7 +287,7 @@ namespace Pol {
 	{
 	public:
 	  StorageAreaIterator( StorageArea* area, BObject* pIter );
-	  virtual BObject* step();
+	  virtual BObject* step() POL_OVERRIDE;
 	private:
 	  BObject* m_pIterVal;
       std::string key;
@@ -323,27 +323,27 @@ namespace Pol {
 	public:
 	  StorageAreaImp( StorageArea* area ) : BObjectImp( BObjectImp::OTUnknown ), _area( area ) {}
 
-	  virtual BObjectImp* copy() const
+	  virtual BObjectImp* copy() const POL_OVERRIDE
 	  {
 		return new StorageAreaImp( _area );
 	  }
 
-      virtual std::string getStringRep() const
+      virtual std::string getStringRep() const POL_OVERRIDE
 	  {
 		return _area->_name;
 	  }
 
-	  virtual size_t sizeEstimate() const
+	  virtual size_t sizeEstimate() const POL_OVERRIDE
 	  {
 		return sizeof( *this );
 	  }
 
-	  ContIterator* createIterator( BObject* pIterVal )
+	  ContIterator* createIterator( BObject* pIterVal ) POL_OVERRIDE
 	  {
 		return new StorageAreaIterator( _area, pIterVal );
 	  }
 
-	  BObjectRef get_member( const char* membername );
+	  BObjectRef get_member( const char* membername ) POL_OVERRIDE;
 
 	private:
 	  StorageArea* _area;
@@ -372,7 +372,7 @@ namespace Pol {
 	{
 	public:
 	  StorageAreasIterator( BObject* pIter );
-	  virtual BObject* step();
+	  virtual BObject* step() POL_OVERRIDE;
 	private:
 	  BObject* m_pIterVal;
       std::string key;
@@ -405,29 +405,29 @@ namespace Pol {
 	public:
 	  StorageAreasImp() : BObjectImp( BObjectImp::OTUnknown ) {}
 
-	  virtual BObjectImp* copy() const
+	  virtual BObjectImp* copy() const POL_OVERRIDE
 	  {
 		return new StorageAreasImp();
 	  }
 
-      virtual std::string getStringRep() const
+      virtual std::string getStringRep() const POL_OVERRIDE
 	  {
 		return "<StorageAreas>";
 	  }
 
-	  virtual size_t sizeEstimate() const
+	  virtual size_t sizeEstimate() const POL_OVERRIDE
 	  {
 		return sizeof( *this );
 	  }
 
-	  ContIterator* createIterator( BObject* pIterVal )
+	  ContIterator* createIterator( BObject* pIterVal ) POL_OVERRIDE
 	  {
 		return new StorageAreasIterator( pIterVal );
 	  }
 
-	  BObjectRef get_member( const char* membername );
+	  BObjectRef get_member( const char* membername ) POL_OVERRIDE;
 
-	  BObjectRef OperSubscript( const BObject& obj );
+	  BObjectRef OperSubscript( const BObject& obj ) POL_OVERRIDE;
 
 	};
 

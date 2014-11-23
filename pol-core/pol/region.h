@@ -11,6 +11,7 @@ Notes
 #ifndef REGION_H
 #define REGION_H
 
+#include "../clib/compilerspecifics.h"
 #include "poltype.h"
 #include "proplist.h"
 #include "zone.h"
@@ -106,7 +107,7 @@ namespace Pol {
 	  virtual T* getregion( const std::string& regionname );
 
 	protected:
-	  virtual Region* create_region( Clib::ConfigElem& elem, RegionId id ) const;
+	  virtual Region* create_region( Clib::ConfigElem& elem, RegionId id ) const POL_OVERRIDE;
 
 
 	};

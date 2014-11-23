@@ -49,12 +49,12 @@ namespace Pol {
 	  bool stackable() const;
 
 	  virtual ~Item();
-      virtual size_t estimatedSize( ) const;
+      virtual size_t estimatedSize( ) const POL_OVERRIDE;
 
 	  virtual void double_click( Network::Client* client );
 	  virtual void builtin_on_use( Network::Client* client );
 	  virtual void walk_on( Mobile::Character* chr );
-	  virtual u8 los_height() const;
+	  virtual u8 los_height() const POL_OVERRIDE;
 
 	  const ItemDesc& itemdesc() const;
 
@@ -80,8 +80,8 @@ namespace Pol {
 	  void invisible( bool newvalue );
 	  void on_invisible_changed();
 
-	  virtual bool saveonexit() const;
-	  virtual void saveonexit( bool newvalue );
+	  virtual bool saveonexit() const POL_OVERRIDE;
+	  virtual void saveonexit( bool newvalue ) POL_OVERRIDE;
 
 	  void set_decay_after( unsigned int seconds );
 	  bool should_decay( unsigned int gameclock ) const;
@@ -89,13 +89,13 @@ namespace Pol {
 	  void disable_decay();
 
 	  bool setlayer( unsigned char layer );
-	  virtual bool setgraphic( u16 newobjtype );
-	  virtual bool setcolor( u16 newcolor );
-	  virtual void on_color_changed();
+	  virtual bool setgraphic( u16 newobjtype ) POL_OVERRIDE;
+	  virtual bool setcolor( u16 newcolor ) POL_OVERRIDE;
+	  virtual void on_color_changed() POL_OVERRIDE;
 	  virtual void spill_contents( Multi::UMulti* supporting_multi );
 
-	  virtual void setfacing( u8 newfacing );
-	  virtual void on_facing_changed();
+	  virtual void setfacing( u8 newfacing ) POL_OVERRIDE;
+	  virtual void on_facing_changed() POL_OVERRIDE;
 
 	  std::string description() const;
 	  std::string merchant_description() const;
@@ -116,34 +116,34 @@ namespace Pol {
 
 	  virtual unsigned int item_count() const;
 	  unsigned int weight_of( unsigned short amount ) const;
-	  virtual unsigned int weight() const;
+	  virtual unsigned int weight() const POL_OVERRIDE;
 
-	  virtual std::string name() const;
+	  virtual std::string name() const POL_OVERRIDE;
 
-      virtual std::string name_suffix() const;
-      virtual void name_suffix(const std::string& name);
+      std::string name_suffix() const;
+      void name_suffix(const std::string& name);
 
-	  virtual UObject* owner();
-	  virtual const UObject* owner() const;
-	  virtual UObject* toplevel_owner();
-	  virtual const UObject* toplevel_owner() const;
+	  virtual UObject* owner() POL_OVERRIDE;
+	  virtual const UObject* owner() const POL_OVERRIDE;
+	  virtual UObject* toplevel_owner() POL_OVERRIDE;
+	  virtual const UObject* toplevel_owner() const POL_OVERRIDE;
 
 	  bool can_add_to_self( unsigned short amount ) const;
-	  virtual bool can_add_to_self( const Item& item ) const;
+	  bool can_add_to_self( const Item& item ) const;
 	  bool has_only_default_cprops( const ItemDesc* compare = NULL ) const;
-	  virtual void add_to_self( Item*& item ); // deletes the item passed
+	  void add_to_self( Item*& item ); // deletes the item passed
 
 #ifdef PERGON
-	  virtual void ct_merge_stacks_pergon( Item*& item_sub ); // Pergon: Re-Calculate Property CreateTime after Merging of two Stacks
-	  virtual void ct_merge_stacks_pergon( u16 amount_sub );  // Pergon: Re-Calculate Property CreateTime after Adding Items to a Stack
+	  void ct_merge_stacks_pergon( Item*& item_sub ); // Pergon: Re-Calculate Property CreateTime after Merging of two Stacks
+	   void ct_merge_stacks_pergon( u16 amount_sub );  // Pergon: Re-Calculate Property CreateTime after Adding Items to a Stack
 #endif
 
-	  virtual bool amount_to_remove_is_partial( u16 amount_to_remove ) const;
+	  bool amount_to_remove_is_partial( u16 amount_to_remove ) const;
 
 	  // NOTE: this_item_amount is the amount that this item
 	  //	  will have.  A new item will be created, whos amount
 	  //		is the remainder. This is the returned item.
-	  virtual Item* slice_stacked_item( u16 this_item_new_amount );
+	  Item* slice_stacked_item( u16 this_item_new_amount );
 
 	  Item* remove_part_of_stack( u16 amount_to_remove );
 
@@ -169,31 +169,31 @@ namespace Pol {
 	  // If no serial passed, one will be generated.
 	  static Item* create( u32 objtype, u32 serial = 0 );
 	  static Item* create( const ItemDesc& itemdesc, u32 serial = 0 );
-	  virtual void readProperties( Clib::ConfigElem& elem );
+	  virtual void readProperties( Clib::ConfigElem& elem ) POL_OVERRIDE;
 	  virtual Item* clone() const;
 	  //virtual class BObjectImp* script_member( const char *membername );
-	  virtual Bscript::BObjectImp* make_ref( );
-	  virtual Bscript::BObjectImp* get_script_member( const char *membername ) const;
-	  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const; ///id test
-	  virtual Bscript::BObjectImp* set_script_member( const char *membername, const std::string& value );
-	  virtual Bscript::BObjectImp* set_script_member( const char *membername, int value );
-	  virtual Bscript::BObjectImp* set_script_member_id( const int id, const std::string& value );///id test
-	  virtual Bscript::BObjectImp* set_script_member_id( const int id, int value );///id test
-	  virtual Bscript::BObjectImp* set_script_member_double( const char *membername, double value );
-	  virtual Bscript::BObjectImp* set_script_member_id_double( const int id, double value ); //id test
-	  virtual Bscript::BObjectImp* script_method( const char *methodname, Bscript::Executor& ex );
-	  virtual Bscript::BObjectImp* script_method_id( const int id, Bscript::Executor& ex );
+	  virtual Bscript::BObjectImp* make_ref( ) POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* get_script_member( const char *membername ) const POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const POL_OVERRIDE; ///id test
+	  virtual Bscript::BObjectImp* set_script_member( const char *membername, const std::string& value ) POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* set_script_member( const char *membername, int value ) POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* set_script_member_id( const int id, const std::string& value ) POL_OVERRIDE;///id test
+	  virtual Bscript::BObjectImp* set_script_member_id( const int id, int value ) POL_OVERRIDE;///id test
+	  virtual Bscript::BObjectImp* set_script_member_double( const char *membername, double value ) POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* set_script_member_id_double( const int id, double value ) POL_OVERRIDE; //id test
+	  virtual Bscript::BObjectImp* script_method( const char *methodname, Bscript::Executor& ex ) POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* script_method_id( const int id, Bscript::Executor& ex ) POL_OVERRIDE;
 
-	  virtual bool script_isa( unsigned isatype ) const;
-	  virtual const char* target_tag() const;
-	  virtual const char* classname() const;
-	  virtual Bscript::BObjectImp* custom_script_method( const char* methodname, Bscript::Executor& ex );
+	  virtual bool script_isa( unsigned isatype ) const POL_OVERRIDE;
+	  virtual const char* target_tag() const POL_OVERRIDE;
+	  virtual const char* classname() const POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* custom_script_method( const char* methodname, Bscript::Executor& ex ) POL_OVERRIDE;
 	  Bscript::BObject call_custom_method( const char* methodname, Bscript::BObjectImpRefVec& pmore );
 	  Bscript::BObject call_custom_method( const char* methodname );
 
 	protected: // only derived classes need the constructor
-	  virtual void printProperties( Clib::StreamWriter& sw ) const;
-	  virtual void printDebugProperties( Clib::StreamWriter& sw ) const;
+	  virtual void printProperties( Clib::StreamWriter& sw ) const POL_OVERRIDE;
+	  virtual void printDebugProperties( Clib::StreamWriter& sw ) const POL_OVERRIDE;
 
 	  Item( const ItemDesc& itemdesc, UOBJ_CLASS uobj_class );
 

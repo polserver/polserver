@@ -110,9 +110,9 @@ namespace Pol {
 	  static int function_table_size;
 
 	private:
-	  virtual int functionIndex( const char *funcname );
-	  virtual BObjectImp* execFunc( unsigned idx );
-	  virtual std::string functionName( unsigned idx );
+	  virtual int functionIndex( const char *funcname ) POL_OVERRIDE;
+	  virtual BObjectImp* execFunc( unsigned idx ) POL_OVERRIDE;
+	  virtual std::string functionName( unsigned idx ) POL_OVERRIDE;
 	};
 
 	template<class T>

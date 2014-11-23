@@ -22,7 +22,7 @@ namespace Pol {
 	  explicit InMemoryMapServer( const RealmDescriptor& descriptor );
 	  virtual ~InMemoryMapServer();
 
-	  virtual MAPCELL GetMapCell( unsigned short x, unsigned short y ) const;
+	  virtual MAPCELL GetMapCell( unsigned short x, unsigned short y ) const POL_OVERRIDE;
       size_t sizeEstimate() const;
 	private:
       std::vector<MAPBLOCK> _mapblocks;

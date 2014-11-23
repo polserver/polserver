@@ -30,7 +30,7 @@ namespace Pol {
 	  Module::OSExecutorModule* os_module;
 	  UOExecutor();
 	  virtual ~UOExecutor();
-      virtual size_t sizeEstimate() const;
+      virtual size_t sizeEstimate() const POL_OVERRIDE;
 
 	  std::string state();
 

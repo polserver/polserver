@@ -72,10 +72,10 @@ namespace Pol {
 	  bool read_properties( VectorConfigElem& elem );
 	  bool _read( ConfigElem& elem );
 	  bool _read( VectorConfigElem& elem );
-	  void display_error( const std::string& msg,
+	  virtual void display_error( const std::string& msg,
 						  bool show_curline = true,
 						  const ConfigElemBase* elem = NULL,
-						  bool error = true ) const;
+						  bool error = true ) const POL_OVERRIDE;
 	  POL_NORETURN void display_and_rethrow_exception();
 	  void register_allowed_type( const char* allowed_type );
 
@@ -101,7 +101,7 @@ namespace Pol {
 	  virtual void display_error( const std::string& msg,
 								  bool show_curline,
 								  const ConfigElemBase* elem,
-								  bool error ) const;
+								  bool error ) const POL_OVERRIDE;
 	};
   }
 }

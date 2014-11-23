@@ -89,16 +89,16 @@ namespace Pol {
 	public:
 	  StoredToken *ST;
 	  explicit StoredTokenContainer( int growBy = 512 ) : SymbolContainer( growBy ), ST( NULL ) {}
-	  virtual void pack( void );
-	  virtual void *detach( void );
-	  virtual void resize( unsigned lengthToAdd );
+	  virtual void pack( void ) POL_OVERRIDE;
+	  virtual void *detach( void ) POL_OVERRIDE;
+	  virtual void resize( unsigned lengthToAdd ) POL_OVERRIDE;
 	  void setcount( unsigned newCount ) { usedLen = newCount * sizeof( StoredToken ); }
 	  unsigned count( void ) const { return usedLen / sizeof( StoredToken ); }
 	  void append_tok( const StoredToken& token, unsigned *position = NULL );
 	  void atPut1( const StoredToken& token, unsigned position );
 	  void atGet1( unsigned position, StoredToken& token ) const;
 	  unsigned next( void ) { return length() / sizeof( StoredToken ); }
-	  virtual void read( FILE *fp );
+	  virtual void read( FILE *fp ) POL_OVERRIDE;
 	};
   }
 }

@@ -12,6 +12,7 @@ Notes
 #ifndef __SCHEDULE_H
 #define __SCHEDULE_H
 
+#include "../clib/compilerspecifics.h"
 #include "polclock.h"
 
 #include <ctime>
@@ -71,7 +72,7 @@ namespace Pol {
 
 	  void set_secs( int n_secs );
 
-	  virtual void execute( polclock_t now );
+	  virtual void execute( polclock_t now ) POL_OVERRIDE;
 	  void start();
 
 	private:
@@ -85,12 +86,12 @@ namespace Pol {
 	{
 	public:
 	  OneShotTask( OneShotTask** handle, polclock_t run_when );
-	  virtual void cancel( void );
+	  virtual void cancel( void ) POL_OVERRIDE;
 
 	protected:
 	  // oneshots can't be deleted, only cancelled.
 	  virtual ~OneShotTask();
-	  virtual void execute( polclock_t now );
+	  virtual void execute( polclock_t now ) POL_OVERRIDE;
 
 	  virtual void on_run() = 0;
 	private:
@@ -106,7 +107,7 @@ namespace Pol {
 		OneShotTask( handle, run_when ), data_( data ), f_( f )
 	  {}
 
-	  virtual void on_run();
+	  virtual void on_run() POL_OVERRIDE;
 	private:
 	  T data_;
 	  void( *f_ )( T data );

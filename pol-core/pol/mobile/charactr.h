@@ -297,7 +297,7 @@ namespace Pol {
 	public:
 	  explicit Character( u32 objtype, UOBJ_CLASS uobj_class = CLASS_CHARACTER );
 	  virtual ~Character();
-      virtual size_t estimatedSize( ) const;
+      virtual size_t estimatedSize( ) const POL_OVERRIDE;
 
 
 	  // types:
@@ -307,10 +307,10 @@ namespace Pol {
 	  void removal_cleanup();
 	  void disconnect_cleanup();
 
-	  virtual void destroy();
+	  virtual void destroy() POL_OVERRIDE;
 
-	  virtual u8 los_height() const;
-	  virtual unsigned int weight() const;
+	  virtual u8 los_height() const POL_OVERRIDE;
+	  virtual unsigned int weight() const POL_OVERRIDE;
 	  unsigned short carrying_capacity() const;
 	  bool layer_is_equipped( int layer ) const;
 
@@ -403,14 +403,14 @@ namespace Pol {
       s16 calc_element_resist( Core::ElementalType resist ) const;
       s16 calc_element_damage( Core::ElementalType element ) const;
 
-	  virtual bool setgraphic( u16 newobjtype );
-	  virtual void on_color_changed();
+	  virtual bool setgraphic( u16 newobjtype ) POL_OVERRIDE;
+	  virtual void on_color_changed() POL_OVERRIDE;
 	  virtual void on_poison_changed(); //dave 12-24
 	  virtual void on_hidden_changed();
 	  virtual void on_concealed_changed();
       void on_cmdlevel_changed();
-	  virtual void setfacing( u8 newfacing );
-	  virtual void on_facing_changed();
+	  virtual void setfacing( u8 newfacing ) POL_OVERRIDE;
+	  virtual void on_facing_changed() POL_OVERRIDE;
 	  void on_aos_ext_stat_changed();
 
 	  u8 get_flag1( Network::Client *client ) const;
@@ -615,26 +615,26 @@ namespace Pol {
 	  void schedule_spell( Core::USpell* );
 	  bool casting_spell() const;
 
-	  virtual void readProperties( Clib::ConfigElem& elem );
+	  virtual void readProperties( Clib::ConfigElem& elem ) POL_OVERRIDE;
 	  void readCommonProperties( Clib::ConfigElem& elem );
 	  void readAttributesAndVitals( Clib::ConfigElem& elem );
 	  //virtual BObjectImp* script_member( const char *membername );
-	  virtual Bscript::BObjectImp* make_ref();
+	  virtual Bscript::BObjectImp* make_ref() POL_OVERRIDE;
 	  virtual Bscript::BObjectImp* make_offline_ref( );
-	  virtual Bscript::BObjectImp* get_script_member( const char *membername ) const;
-	  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const; //id test
+	  virtual Bscript::BObjectImp* get_script_member( const char *membername ) const POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const POL_OVERRIDE; //id test
 
-	  virtual Bscript::BObjectImp* set_script_member( const char *membername, const std::string& value );
-	  virtual Bscript::BObjectImp* set_script_member( const char *membername, int value );
-	  virtual Bscript::BObjectImp* set_script_member_id( const int id, const std::string& value );//id test
-	  virtual Bscript::BObjectImp* set_script_member_id( const int id, int value );//id test
-	  virtual Bscript::BObjectImp* set_script_member_id_double( const int id, double value );
+	  virtual Bscript::BObjectImp* set_script_member( const char *membername, const std::string& value ) POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* set_script_member( const char *membername, int value ) POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* set_script_member_id( const int id, const std::string& value ) POL_OVERRIDE;//id test
+	  virtual Bscript::BObjectImp* set_script_member_id( const int id, int value ) POL_OVERRIDE;//id test
+	  virtual Bscript::BObjectImp* set_script_member_id_double( const int id, double value ) POL_OVERRIDE;
 
-	  virtual Bscript::BObjectImp* script_method( const char* methodname, Bscript::Executor& ex );
-	  virtual Bscript::BObjectImp* script_method_id( const int id, Bscript::Executor& ex );
-	  virtual Bscript::BObjectImp* custom_script_method( const char* methodname, Bscript::Executor& ex );
-	  virtual bool script_isa( unsigned isatype ) const;
-	  virtual const char* target_tag() const;
+	  virtual Bscript::BObjectImp* script_method( const char* methodname, Bscript::Executor& ex ) POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* script_method_id( const int id, Bscript::Executor& ex ) POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* custom_script_method( const char* methodname, Bscript::Executor& ex ) POL_OVERRIDE;
+	  virtual bool script_isa( unsigned isatype ) const POL_OVERRIDE;
+	  virtual const char* target_tag() const POL_OVERRIDE;
 
 	  bool skill_ex_active() const;
 	  bool start_script( Bscript::EScriptProgram* prog,
@@ -655,11 +655,11 @@ namespace Pol {
 
 	  void printWornItems( Clib::StreamWriter& sw_pc, Clib::StreamWriter& sw_equip ) const;
 
-	  virtual const char *classname() const;
-	  virtual void printOn( Clib::StreamWriter& sw ) const;
-	  virtual void printSelfOn( Clib::StreamWriter& sw ) const;
-	  virtual void printProperties( Clib::StreamWriter& sw ) const;
-	  virtual void printDebugProperties( Clib::StreamWriter& sw ) const;
+	  virtual const char *classname() const POL_OVERRIDE;
+	  virtual void printOn( Clib::StreamWriter& sw ) const POL_OVERRIDE;
+	  virtual void printSelfOn( Clib::StreamWriter& sw ) const POL_OVERRIDE;
+	  virtual void printProperties( Clib::StreamWriter& sw ) const POL_OVERRIDE;
+	  virtual void printDebugProperties( Clib::StreamWriter& sw ) const POL_OVERRIDE;
 
 	private:
 	  void schedule_attack();

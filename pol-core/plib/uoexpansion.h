@@ -146,21 +146,21 @@ public:
         
 	}
     
-	u32 A9Flags() const { return m_A9Flag; }
-    u32 B9Flags() const { return m_B9Flag; }
+	virtual u32 A9Flags() const POL_OVERRIDE { return m_A9Flag; }
+    virtual u32 B9Flags() const POL_OVERRIDE { return m_B9Flag; }
 
-	bool hasFeature(A9Feature x) const { 
+	virtual bool hasFeature(A9Feature x) const POL_OVERRIDE { 
         return (m_A9Flag & static_cast<u32>(x)) != 0;
     }
-	bool hasFeature(B9Feature x) const { 
+	virtual bool hasFeature(B9Feature x) const POL_OVERRIDE { 
         return (m_B9Flag & static_cast<u32>(x)) != 0;
     }
 	
-    ExpansionVersion version() const {
+    virtual ExpansionVersion version() const POL_OVERRIDE {
         return m_version;
     }
 
-	int characterSlots() const { 
+	virtual int characterSlots() const POL_OVERRIDE { 
         return m_slots;
     }
 };

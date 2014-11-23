@@ -49,8 +49,8 @@ namespace Pol {
 	{
 	public:
 	  PolService();
-	  virtual void Run();
-	  virtual void OnStop();
+	  virtual void Run() POL_OVERRIDE;
+	  virtual void OnStop() POL_OVERRIDE;
 	};
 
 	PolService::PolService()

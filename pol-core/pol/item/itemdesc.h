@@ -129,9 +129,9 @@ namespace Pol {
 	  typedef ItemDesc base;
 	public:
 	  ContainerDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg );
-	  virtual void PopulateStruct( Bscript::BStruct* descriptor ) const;
+	  virtual void PopulateStruct( Bscript::BStruct* descriptor ) const POL_OVERRIDE;
       virtual ~ContainerDesc() {};
-      virtual size_t estimatedSize( ) const;
+      virtual size_t estimatedSize( ) const POL_OVERRIDE;
 
 	  // string name;
 	  // u16 objtype;
@@ -155,9 +155,9 @@ namespace Pol {
 	  typedef ItemDesc base;
 	public:
 	  DoorDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg );
-	  virtual void PopulateStruct( Bscript::BStruct* descriptor ) const;
+	  virtual void PopulateStruct( Bscript::BStruct* descriptor ) const POL_OVERRIDE;
       virtual ~DoorDesc( ) {};
-      virtual size_t estimatedSize( ) const;
+      virtual size_t estimatedSize( ) const POL_OVERRIDE;
 	  s16 xmod;
 	  s16 ymod;
 	  u16 open_graphic;
@@ -168,9 +168,9 @@ namespace Pol {
 	  typedef ContainerDesc base;
 	public:
 	  SpellbookDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg );
-	  virtual void PopulateStruct( Bscript::BStruct* descriptor ) const;
+	  virtual void PopulateStruct( Bscript::BStruct* descriptor ) const POL_OVERRIDE;
       virtual ~SpellbookDesc( ) {};
-      virtual size_t estimatedSize( ) const;
+      virtual size_t estimatedSize( ) const POL_OVERRIDE;
 
 	  std::string spelltype;
 	};
@@ -180,9 +180,9 @@ namespace Pol {
 	  typedef ItemDesc base;
 	public:
 	  SpellScrollDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg );
-	  virtual void PopulateStruct( Bscript::BStruct* descriptor ) const;
+	  virtual void PopulateStruct( Bscript::BStruct* descriptor ) const POL_OVERRIDE;
       virtual ~SpellScrollDesc() {};
-      virtual size_t estimatedSize( ) const;
+      virtual size_t estimatedSize( ) const POL_OVERRIDE;
 
 	  std::string spelltype;
 	};
@@ -192,9 +192,9 @@ namespace Pol {
 	  typedef ItemDesc base;
 	public:
 	  MultiDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::Package* pkg );
-	  virtual void PopulateStruct( Bscript::BStruct* descriptor ) const;
+	  virtual void PopulateStruct( Bscript::BStruct* descriptor ) const POL_OVERRIDE;
       virtual ~MultiDesc() {};
-      virtual size_t estimatedSize( ) const;
+      virtual size_t estimatedSize( ) const POL_OVERRIDE;
 	};
 
     class BoatDesc : public MultiDesc
@@ -202,9 +202,9 @@ namespace Pol {
       typedef MultiDesc base;
     public:
       BoatDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg );
-      virtual void PopulateStruct( Bscript::BStruct* descriptor ) const;
+      virtual void PopulateStruct( Bscript::BStruct* descriptor ) const POL_OVERRIDE;
       virtual ~BoatDesc() {};
-      virtual size_t estimatedSize() const;
+      virtual size_t estimatedSize() const POL_OVERRIDE;
     };
 
     class HouseDesc : public MultiDesc
@@ -212,9 +212,9 @@ namespace Pol {
       typedef MultiDesc base;
     public:
       HouseDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg );
-      virtual void PopulateStruct( Bscript::BStruct* descriptor ) const;
+      virtual void PopulateStruct( Bscript::BStruct* descriptor ) const POL_OVERRIDE;
       virtual ~HouseDesc() {};
-      virtual size_t estimatedSize() const;
+      virtual size_t estimatedSize() const POL_OVERRIDE;
     };
 
     class MapDesc : public ItemDesc
@@ -222,9 +222,9 @@ namespace Pol {
       typedef ItemDesc base;
     public:
       MapDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg );
-      virtual void PopulateStruct( Bscript::BStruct* descriptor ) const;
+      virtual void PopulateStruct( Bscript::BStruct* descriptor ) const POL_OVERRIDE;
       virtual ~MapDesc( ) {};
-      virtual size_t estimatedSize() const;
+      virtual size_t estimatedSize() const POL_OVERRIDE;
       bool editable;
     };
 

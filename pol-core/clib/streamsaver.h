@@ -30,9 +30,9 @@ namespace Pol {
     public:
       FMTStreamWriter() : StreamWriter() {};
       virtual ~FMTStreamWriter() {};
-      virtual void init( const std::string& ) {}; // argument is not used
-      virtual void flush() {};
-      virtual void flush_file() {};
+      virtual void init( const std::string& ) POL_OVERRIDE {}; // argument is not used
+      virtual void flush() POL_OVERRIDE {};
+      virtual void flush_file() POL_OVERRIDE {};
     };
 
 	class OFStreamWriter : public StreamWriter
@@ -41,9 +41,9 @@ namespace Pol {
 	  OFStreamWriter();
 	  OFStreamWriter( std::ofstream *stream );
 	  virtual ~OFStreamWriter();
-	  virtual void init( const std::string &filepath );
-	  virtual void flush();
-	  virtual void flush_file();
+	  virtual void init( const std::string &filepath ) POL_OVERRIDE;
+	  virtual void flush() POL_OVERRIDE;
+	  virtual void flush_file() POL_OVERRIDE;
 	private:
 	  std::ofstream *_stream;
       Tools::HighPerfTimer::time_mu _fs_time;
@@ -56,9 +56,9 @@ namespace Pol {
 	  OStreamWriter();
 	  OStreamWriter( std::ostream *stream );
 	  virtual ~OStreamWriter();
-	  virtual void init( const std::string &filepath );
-	  virtual void flush();
-	  virtual void flush_file();
+	  virtual void init( const std::string &filepath ) POL_OVERRIDE;
+	  virtual void flush() POL_OVERRIDE;
+	  virtual void flush_file() POL_OVERRIDE;
 	private:
 	  std::ostream* _stream;
 	};
@@ -72,9 +72,9 @@ namespace Pol {
 	  ThreadedOFStreamWriter();
 	  ThreadedOFStreamWriter( std::ofstream *stream );
 	  virtual ~ThreadedOFStreamWriter();
-	  virtual void init( const std::string &filepath );
-	  virtual void flush();
-	  virtual void flush_file();
+	  virtual void init( const std::string &filepath ) POL_OVERRIDE;
+	  virtual void flush() POL_OVERRIDE;
+	  virtual void flush_file() POL_OVERRIDE;
 	private:
 	  void start_worker();
 	  std::ofstream *_stream;

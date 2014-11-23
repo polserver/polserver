@@ -8,10 +8,11 @@ Notes
 
 */
 
-#include "../../bscript/execmodl.h"
-
 #ifndef __UTILMOD_H
 #define __UTILMOD_H
+
+#include "../../bscript/execmodl.h"
+
 namespace Pol {
   namespace Module {
 	class UtilExecutorModule : public Bscript::TmplExecutorModule<UtilExecutorModule>

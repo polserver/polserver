@@ -56,10 +56,10 @@ namespace Pol {
 	{
 	public:
 	  EConfigFileRefObjImp( ref_ptr<Core::StoredConfigFile> rcfile );
-	  virtual Bscript::BObjectRef OperSubscript( const Bscript::BObject& obj );
-	  virtual const char* typeOf() const;
-	  virtual int typeOfInt() const;
-	  virtual Bscript::BObjectImp* copy() const;
+	  virtual Bscript::BObjectRef OperSubscript( const Bscript::BObject& obj ) POL_OVERRIDE;
+	  virtual const char* typeOf() const POL_OVERRIDE;
+	  virtual int typeOfInt() const POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* copy() const POL_OVERRIDE;
 	};
 
 
@@ -70,11 +70,11 @@ namespace Pol {
 	{
 	public:
 	  EConfigElemRefObjImp( ref_ptr<Core::StoredConfigElem> rcelem );
-	  virtual Bscript::BObjectRef get_member( const char* membername );
-	  virtual Bscript::BObjectRef get_member_id( const int id ); //id test
-	  virtual const char* typeOf() const;
-	  virtual int typeOfInt() const;
-	  virtual Bscript::BObjectImp* copy() const;
+	  virtual Bscript::BObjectRef get_member( const char* membername ) POL_OVERRIDE;
+	  virtual Bscript::BObjectRef get_member_id( const int id ) POL_OVERRIDE; //id test
+	  virtual const char* typeOf() const POL_OVERRIDE;
+	  virtual int typeOfInt() const POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* copy() const POL_OVERRIDE;
 	};
 
 

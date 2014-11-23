@@ -150,11 +150,11 @@ namespace Pol {
 	{
 	public:
 	  explicit DebugContextObjImp( ref_ptr<DebugContext> rcdctx );
-	  virtual const char* typeOf() const;
-	  virtual int typeOfInt() const;
-	  virtual BObjectImp* copy() const;
-	  virtual BObjectImp* call_method( const char* methodname, Executor& ex );
-	  virtual BObjectRef get_member( const char* membername );
+	  virtual const char* typeOf() const POL_OVERRIDE;
+	  virtual int typeOfInt() const POL_OVERRIDE;
+	  virtual BObjectImp* copy() const POL_OVERRIDE;
+	  virtual BObjectImp* call_method( const char* methodname, Executor& ex ) POL_OVERRIDE;
+	  virtual BObjectRef get_member( const char* membername ) POL_OVERRIDE;
 	};
 	DebugContextObjImp::DebugContextObjImp( ref_ptr<DebugContext> rcdctx ) :
 	  DebugContextObjImpBase( &debugcontextobjimp_type, rcdctx )
@@ -1180,7 +1180,7 @@ namespace Pol {
 	{
 	public:
       DebugClientThread( Clib::SocketListener& SL ) : Clib::SocketClientThread( SL ) {}
-	  virtual void run();
+	  virtual void run() POL_OVERRIDE;
 	};
 
 	void DebugClientThread::run()
