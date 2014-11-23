@@ -1,7 +1,8 @@
 #ifndef PLIB_UOEXPANSION_H
 #define PLIB_UOEXPANSION_H
 
-#include "..\clib\rawtypes.h"
+#include "../clib/rawtypes.h"
+#include "../clib/compilerspecifics.h"
 
 namespace Pol {
 	namespace Plib {

@@ -30,6 +30,10 @@ Notes
 #include <istream>
 #include <ostream>
 
+#if BOBJECTIMP_DEBUG
+#include <unordered_map>
+#endif
+
 #ifdef _MSC_VER
 #pragma warning(disable:4996) // deprecation warning for stricmp
 #endif

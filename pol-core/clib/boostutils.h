@@ -18,6 +18,8 @@
   #include <boost/mpl/aux_/lambda_support.hpp>
   #include <boost/mpl/if.hpp>
   #include <boost/foreach.hpp>
+
+  #include "compilerspecifics.h"
 #endif
 #include <boost/flyweight.hpp>
 

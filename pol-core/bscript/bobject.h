@@ -29,6 +29,10 @@ Notes
 #include <stack>
 #include <iosfwd>
 
+#ifndef NDEBUG
+#include <mutex>
+#endif
+
 namespace Pol {
   namespace Bscript {
 	class BObjectImp;
