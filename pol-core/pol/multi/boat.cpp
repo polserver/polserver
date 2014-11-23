@@ -582,10 +582,7 @@ namespace Pol {
 
 	void UBoat::send_remove_boat( Network::Client* client )
 	{
-		Network::PktHelper::PacketOut<Network::PktOut_1D> msgremove;
-		msgremove->Write<u32>( this->serial_ext );
-
-		msgremove.Send( client );
+	  send_remove_object( client, this );
 	}
 
 	void unpause_paused()

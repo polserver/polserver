@@ -2816,8 +2816,7 @@ namespace Pol {
 	{
       using namespace Network;
 	  if ( chr == NULL ) return;
-	  PktHelper::PacketOut<PktOut_1D> msgremove;
-	  msgremove->Write<u32>( chr->serial_ext );
+	  RemoveObjectPkt msgremove( chr->serial_ext );
 	  PktHelper::PacketOut<PktOut_77> msgmove;
 	  PktHelper::PacketOut<PktOut_17> msgpoison;
 	  PktHelper::PacketOut<PktOut_17> msginvul;
@@ -2858,7 +2857,7 @@ namespace Pol {
 				// but basically makes it very difficult to talk while the ship
 				// is moving.
 				#ifdef PERGON
-					send_remove_character( client, chr, msgremove.Get( ), false );
+					send_remove_character( client, chr, msgremove );
 				#else
 						//send_remove_character( client, chr );
 				#endif
@@ -2886,7 +2885,7 @@ namespace Pol {
           return;
         // if we just walked out of range of this character, send its
         // client a remove object, or else a ghost character will remain.
-        send_remove_character( client, chr, msgremove.Get(), false );
+        send_remove_character( client, chr, msgremove );
       } );
 	}
 

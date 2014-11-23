@@ -137,19 +137,19 @@ namespace Pol {
     void remove_objects_inrange( Network::Client* client )
     {
       Mobile::Character* chr = client->chr;
-      Network::PktHelper::PacketOut<Network::PktOut_1D> msgremove;
+	  Network::RemoveObjectPkt msgremove( chr->serial_ext );
 
       WorldIterator<MobileFilter>::InVisualRange( chr, [&]( Mobile::Character* zonechar )
       {
-        send_remove_character( client, zonechar, msgremove.Get() );
+        send_remove_character( client, zonechar, msgremove );
       } );
       WorldIterator<ItemFilter>::InVisualRange( chr, [&]( Items::Item *item )
       {
-        send_remove_object( client, item, msgremove.Get() );
+        send_remove_object( client, item, msgremove );
       } );
       WorldIterator<MultiFilter>::InRange( chr->x, chr->y, chr->realm, RANGE_VISUAL_LARGE_BUILDINGS, [&]( Multi::UMulti *multi )
       {
-        send_remove_object( client, multi, msgremove.Get() );
+        send_remove_object( client, multi, msgremove );
       } );
 	}
 

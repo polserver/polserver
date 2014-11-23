@@ -220,13 +220,13 @@ namespace Pol {
       {
         if ( _p->offset == 1 )
           build();
-        _p.Send( client, 21 );
+        _p.Send( client, _p->SIZE );
       }
       else
       {
         if ( _p_old->offset == 1 )
           buildLegacy();
-        _p_old.Send( client, 20 );
+        _p_old.Send( client, _p->SIZE-1 );
       }
     }
 
@@ -318,7 +318,7 @@ namespace Pol {
           return;
         if ( _p->offset == 1 )
           build();
-        _p.Send( client, 10 );
+        _p.Send( client, _p->SIZE );
       }
       else
       {
@@ -326,7 +326,7 @@ namespace Pol {
           return;
         if ( _p_old->offset == 1 )
           build6E();
-        _p_old.Send( client, 14 );
+        _p_old.Send( client, _p_old->SIZE );
       }
     }
 
@@ -345,7 +345,7 @@ namespace Pol {
 	{
 	  if ( _p->offset == 1 )
         build();
-      _p.Send( client, 12 );
+      _p.Send( client, _p->SIZE );
 	}
 
 	void PlaySoundPkt::build()
@@ -357,6 +357,32 @@ namespace Pol {
 	  _p->WriteFlipped<u16>( _xcenter );
 	  _p->WriteFlipped<u16>( _ycenter );
 	  _p->WriteFlipped<s16>( _zcenter );
+	}
+
+	RemoveObjectPkt::RemoveObjectPkt(u32 serial_ext)
+	  : _serial(serial_ext),
+	  _p()
+	{
+	}
+
+	void RemoveObjectPkt::update( u32 serial )
+	{
+	  _serial = serial;
+	  if (_p->offset != 1)
+		build();
+	}
+
+	void RemoveObjectPkt::Send( Client* client )
+	{
+	  if ( _p->offset == 1 )
+        build();
+      _p.Send( client, _p->SIZE );
+	}
+
+	void RemoveObjectPkt::build()
+	{
+	  _p->offset = 1;
+      _p->Write<u32>( _serial );
 	}
 
   }

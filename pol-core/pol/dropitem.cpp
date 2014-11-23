@@ -117,12 +117,7 @@ namespace Pol {
 	  item->set_dirty();
 
 	  client->pause();
-      Network::PktHelper::PacketOut<Network::PktOut_1D> msgremove;
-      msgremove->Write<u32>( item->serial_ext );
-      Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange( item, [&]( Mobile::Character* chr )
-      {
-        send_remove_object( chr->client, msgremove.Get() );
-      } );
+	  send_remove_object_to_inrange( item );
 
 	  item->x = x;
 	  item->y = y;
@@ -220,12 +215,7 @@ namespace Pol {
 	  dropon->trade_accepted = false;
 	  send_trade_statuses( client->chr );
 
-      Network::PktHelper::PacketOut<Network::PktOut_1D> msgremove;
-      msgremove->Write<u32>( item->serial_ext );
-      Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange( item, [&]( Mobile::Character* chr )
-      {
-        send_remove_object( chr->client, msgremove.Get( ) );
-      } );
+	  send_remove_object_to_inrange( item );
 
 	  item->x = x;
 	  item->y = y;
@@ -273,12 +263,8 @@ namespace Pol {
 		   We don't know: (FIXME)
 		   if a container that the target_item is in will overfill from this
 		   */
-      Network::PktHelper::PacketOut<Network::PktOut_1D> msgremove;
-      msgremove->Write<u32>( item->serial_ext );
-      Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange( item, [&]( Mobile::Character* chr )
-      {
-        send_remove_object( chr->client, msgremove.Get( ) );
-      } );
+
+	  send_remove_object_to_inrange( item );
 
 	  u16 amtadded = item->getamount();
 
@@ -626,12 +612,7 @@ namespace Pol {
 
 	  client->pause();
 
-      Network::PktHelper::PacketOut<Network::PktOut_1D> msgremove;
-      msgremove->Write<u32>( item->serial_ext );
-      Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange( item, [&]( Mobile::Character* chr )
-      {
-        send_remove_object( chr->client, msgremove.Get( ) );
-      } );
+	  send_remove_object_to_inrange( item );
 
 	  u16 rx, ry;
 	  cont->get_random_location( &rx, &ry );

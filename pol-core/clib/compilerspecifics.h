@@ -45,4 +45,27 @@
 #	endif
 #endif
 
+// override and final makros
+#ifndef POL_OVERRIDE
+#	ifdef _MSC_VER
+#		define POL_OVERRIDE override
+#		define POL_FINAL final
+#	else
+#       ifdef __GNUC__
+#           define POL__GCC_VERSION (__GNUC__ * 100 + __GNUC_MINOR__)
+#           if POL__GCC_VERSION < 407
+#				define POL_OVERRIDE 
+#				define POL_FINAL 
+#           else
+#				define POL_OVERRIDE override
+#				define POL_FINAL final
+#           endif
+#           undef POL__GCC_VERSION
+#       else
+#			define POL_OVERRIDE override
+#			define POL_FINAL final
+#       endif
+#	endif
+#endif
+
 #endif

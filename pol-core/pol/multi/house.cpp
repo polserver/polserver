@@ -816,12 +816,7 @@ namespace Pol {
 	  MobileList chr_contents;
 	  UHouse::list_contents( house, item_contents, chr_contents );
 
-      Network::PktHelper::PacketOut<Network::PktOut_1D> msgremove;
-      msgremove->Write<u32>( house->serial_ext );
-      Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange( house, [&]( Mobile::Character* chr )
-      {
-        Core::send_remove_object( chr->client, msgremove.Get( ) );
-      } );
+	  send_remove_object_to_inrange( house );
 	  remove_multi_from_world( house );
 
 	  while ( !item_contents.empty() )
