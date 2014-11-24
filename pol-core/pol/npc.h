@@ -44,43 +44,42 @@ namespace Pol {
 	public:
 	  explicit NPC( u32 objtype, const Clib::ConfigElem& elem );
       virtual ~NPC();
-      virtual size_t estimatedSize() const;
+      virtual size_t estimatedSize() const POL_OVERRIDE;
 
-	  virtual void on_death( Items::Item* corpse );
-	  virtual void on_give_item();
+	  virtual void on_death( Items::Item* corpse ) POL_OVERRIDE;
 
 	  // Speech: ASCII versions
-	  virtual void on_pc_spoke( Mobile::Character *src_chr, const char *speech, u8 texttype );
-	  virtual void on_ghost_pc_spoke( Mobile::Character* src_chr, const char* speech, u8 texttype );
+	  void on_pc_spoke( Mobile::Character *src_chr, const char *speech, u8 texttype );
+	  void on_ghost_pc_spoke( Mobile::Character* src_chr, const char* speech, u8 texttype );
 
 	  // Speech: Unicode (and ASCII) versions
-	  virtual void on_pc_spoke( Mobile::Character *src_chr, const char *speech, u8 texttype,
+	  void on_pc_spoke( Mobile::Character *src_chr, const char *speech, u8 texttype,
 								const u16* wspeech, const char lang[4], Bscript::ObjArray* speechtokens = NULL );
-	  virtual void on_ghost_pc_spoke( Mobile::Character* src_chr, const char* speech, u8 texttype,
+	  void on_ghost_pc_spoke( Mobile::Character* src_chr, const char* speech, u8 texttype,
                                       const u16* wspeech, const char lang[4], Bscript::ObjArray* speechtokens = NULL );
 
-	  virtual unsigned short ar() const;
-	  virtual void refresh_ar();
+	  virtual unsigned short ar() const POL_OVERRIDE;
+	  virtual void refresh_ar() POL_OVERRIDE;
 
-	  virtual void apply_raw_damage_hundredths( unsigned int damage, Mobile::Character* source, bool userepsys = true, bool send_damage_packet = false );
-	  virtual void inform_engaged( Mobile::Character* engaged );
-	  virtual void inform_disengaged( Mobile::Character* disengaged );
-	  virtual void inform_criminal( Mobile::Character* thecriminal );
-	  virtual void inform_leftarea( Mobile::Character* wholeft );
-	  virtual void inform_enteredarea( Mobile::Character* whoentered );
-	  virtual void inform_moved( Mobile::Character* moved );
-	  virtual void inform_imoved( Mobile::Character* chr );
-	  virtual bool can_be_renamed_by( const Mobile::Character* chr ) const;
+	  virtual void apply_raw_damage_hundredths( unsigned int damage, Mobile::Character* source, bool userepsys = true, bool send_damage_packet = false ) POL_OVERRIDE;
+	  virtual void inform_engaged( Mobile::Character* engaged ) POL_OVERRIDE;
+	  virtual void inform_disengaged( Mobile::Character* disengaged ) POL_OVERRIDE;
+	  virtual void inform_criminal( Mobile::Character* thecriminal ) POL_OVERRIDE;
+	  virtual void inform_leftarea( Mobile::Character* wholeft ) POL_OVERRIDE;
+	  virtual void inform_enteredarea( Mobile::Character* whoentered ) POL_OVERRIDE;
+	  virtual void inform_moved( Mobile::Character* moved ) POL_OVERRIDE;
+	  virtual void inform_imoved( Mobile::Character* chr ) POL_OVERRIDE;
+	  virtual bool can_be_renamed_by( const Mobile::Character* chr ) const POL_OVERRIDE;
 	  bool can_accept_event( EVENTID eventid );
 	  Bscript::BObjectImp* send_event_script( Bscript::BObjectImp* event );
 	  bool send_event( Bscript::BObjectImp* event );
 	  Mobile::Character* master( ) const;
 
-	  virtual double armor_absorb_damage( double damage );
+	  virtual double armor_absorb_damage( double damage ) POL_OVERRIDE;
 	  virtual void get_hitscript_params( double damage,
 										 Items::UArmor** parmor,
-										 unsigned short* rawdamage );
-	  virtual Items::UWeapon* intrinsic_weapon();
+										 unsigned short* rawdamage ) POL_OVERRIDE;
+	  virtual Items::UWeapon* intrinsic_weapon() POL_OVERRIDE;
 
 	  void restart_script();
 	  void start_script();
@@ -89,30 +88,30 @@ namespace Pol {
 	  bool anchor_allows_move( UFACING dir ) const;
 	  bool npc_path_blocked( UFACING dir ) const;
 
-	  virtual Bscript::BObjectImp* get_script_member( const char *membername ) const;
-	  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const; ///id test
-	  virtual Bscript::BObjectImp* set_script_member( const char *membername, int value );
-	  virtual Bscript::BObjectImp* set_script_member( const char *membername, const std::string& );
-	  virtual Bscript::BObjectImp* set_script_member_id( const int id, int value );//id test
-	  virtual Bscript::BObjectImp* set_script_member_id( const int id, const std::string& );//id test
-	  virtual Bscript::BObjectImp* script_method( const char* methodname, Bscript::Executor& ex );
-	  virtual Bscript::BObjectImp* script_method_id( const int id, Bscript::Executor& ex );
-	  virtual Bscript::BObjectImp* custom_script_method( const char* methodname, Bscript::Executor& ex );
-	  virtual bool script_isa( unsigned isatype ) const;
+	  virtual Bscript::BObjectImp* get_script_member( const char *membername ) const POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const POL_OVERRIDE; ///id test
+	  virtual Bscript::BObjectImp* set_script_member( const char *membername, int value ) POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* set_script_member( const char *membername, const std::string& ) POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* set_script_member_id( const int id, int value ) POL_OVERRIDE;//id test
+	  virtual Bscript::BObjectImp* set_script_member_id( const int id, const std::string& ) POL_OVERRIDE;//id test
+	  virtual Bscript::BObjectImp* script_method( const char* methodname, Bscript::Executor& ex ) POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* script_method_id( const int id, Bscript::Executor& ex ) POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* custom_script_method( const char* methodname, Bscript::Executor& ex ) POL_OVERRIDE;
+	  virtual bool script_isa( unsigned isatype ) const POL_OVERRIDE;
 
-	  virtual const char *classname() const;
-	  virtual void printOn( Clib::StreamWriter& sw ) const;
-	  virtual void printSelfOn( Clib::StreamWriter& sw ) const;
-	  virtual void printProperties( Clib::StreamWriter& sw ) const;
-	  virtual void printDebugProperties( Clib::StreamWriter& sw ) const;
+	  virtual const char *classname() const POL_OVERRIDE;
+	  virtual void printOn( Clib::StreamWriter& sw ) const POL_OVERRIDE;
+	  virtual void printSelfOn( Clib::StreamWriter& sw ) const POL_OVERRIDE;
+	  virtual void printProperties( Clib::StreamWriter& sw ) const POL_OVERRIDE;
+	  virtual void printDebugProperties( Clib::StreamWriter& sw ) const POL_OVERRIDE;
 
-	  virtual void readProperties( Clib::ConfigElem& elem );
+	  virtual void readProperties( Clib::ConfigElem& elem ) POL_OVERRIDE;
 	  void readNpcProperties( Clib::ConfigElem& elem );
 	  void loadResistances( int resistanceType, Clib::ConfigElem& elem );
 	  void loadDamages( int damageType, Clib::ConfigElem& elem );
 	  void readNewNpcAttributes( Clib::ConfigElem& elem );
 	  void readPropertiesForNewNPC( Clib::ConfigElem& elem );
-	  virtual void destroy();
+	  virtual void destroy() POL_OVERRIDE;
 
 	  NpcTemplate::ALIGNMENT alignment() const;
 
@@ -129,12 +128,12 @@ namespace Pol {
 	  friend class ref_ptr<NPC>;
 
 	private: // REPUTATION SYSTEM:
-	  virtual void repsys_on_attack( Mobile::Character* defender );
-	  virtual void repsys_on_damage( Mobile::Character* defender );
-	  virtual void repsys_on_help( Mobile::Character* recipient );
+	  virtual void repsys_on_attack( Mobile::Character* defender ) POL_OVERRIDE;
+	  virtual void repsys_on_damage( Mobile::Character* defender ) POL_OVERRIDE;
+	  virtual void repsys_on_help( Mobile::Character* recipient ) POL_OVERRIDE;
 
-	  virtual unsigned char hilite_color_idx( const Mobile::Character* seen_by ) const;
-	  virtual unsigned short name_color( const Mobile::Character* seen_by ) const;
+	  virtual unsigned char hilite_color_idx( const Mobile::Character* seen_by ) const POL_OVERRIDE;
+	  virtual unsigned short name_color( const Mobile::Character* seen_by ) const POL_OVERRIDE;
 	  friend class RepSystem;
 
 	private:

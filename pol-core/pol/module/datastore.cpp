@@ -116,12 +116,12 @@ namespace Pol {
 	public:
 	  explicit DataFileRefObjImp( DataFileContentsRef dfref );
 
-	  virtual const char* typeOf() const;
-	  virtual int typeOfInt() const;
-	  virtual Bscript::BObjectImp* copy() const;
+	  virtual const char* typeOf() const POL_OVERRIDE;
+	  virtual int typeOfInt() const POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* copy() const POL_OVERRIDE;
 
-	  virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex );
-	  virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false );
+	  virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex ) POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false ) POL_OVERRIDE;
 
 	};
 
@@ -142,12 +142,12 @@ namespace Pol {
 	{
 	public:
 	  DataElemRefObjImp( DataFileContentsRef dfcontents, DataFileElementRef dflem );
-	  virtual const char* typeOf() const;
-	  virtual int typeOfInt() const;
-	  virtual Bscript::BObjectImp* copy() const;
+	  virtual const char* typeOf() const POL_OVERRIDE;
+	  virtual int typeOfInt() const POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* copy() const POL_OVERRIDE;
 
-	  virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex );
-	  virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false );
+	  virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex ) POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false ) POL_OVERRIDE;
 	};
 
 	class DataStoreFile

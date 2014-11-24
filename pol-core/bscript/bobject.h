@@ -29,6 +29,10 @@ Notes
 #include <stack>
 #include <iosfwd>
 
+#ifndef NDEBUG
+#include <mutex>
+#endif
+
 namespace Pol {
   namespace Bscript {
 	class BObjectImp;
@@ -460,14 +464,14 @@ namespace Pol {
 	  static UninitObject* SharedInstance;
 	  static ref_ptr<BObjectImp> SharedInstanceOwner;
 
-	  virtual BObjectImp *copy() const;
-	  virtual size_t sizeEstimate() const;
-	  virtual std::string getStringRep() const { return "<uninitialized object>"; }
-	  virtual void printOn( std::ostream& os ) const;
+	  virtual BObjectImp *copy() const POL_OVERRIDE;
+	  virtual size_t sizeEstimate() const POL_OVERRIDE;
+	  virtual std::string getStringRep() const POL_OVERRIDE { return "<uninitialized object>"; }
+	  virtual void printOn( std::ostream& os ) const POL_OVERRIDE;
 
-	  virtual bool isTrue() const;
-	  virtual bool isEqual( const BObjectImp& objimp ) const;
-	  virtual bool isLessThan( const BObjectImp& objimp ) const;
+	  virtual bool isTrue() const POL_OVERRIDE;
+	  virtual bool isEqual( const BObjectImp& objimp ) const POL_OVERRIDE;
+	  virtual bool isLessThan( const BObjectImp& objimp ) const POL_OVERRIDE;
 
 	  void* operator new( std::size_t len );
 	  void operator delete( void * );
@@ -510,46 +514,46 @@ namespace Pol {
 	  ObjArray();
 	  ObjArray( const ObjArray& i ); // copy constructor 
 
-	  virtual void packonto( std::ostream& os ) const;
+	  virtual void packonto( std::ostream& os ) const POL_OVERRIDE;
 	  static BObjectImp* unpack( std::istream& is );
-	  virtual size_t sizeEstimate() const;
-	  virtual BObjectImp *copy() const;
+	  virtual size_t sizeEstimate() const POL_OVERRIDE;
+	  virtual BObjectImp *copy() const POL_OVERRIDE;
 
-	  virtual BObjectRef operDotPlus( const char* name );
-	  virtual long contains( const BObjectImp& imp ) const;
-	  virtual void operInsertInto( BObject& obj, const BObjectImp& objimp );
-	  virtual BObjectImp* selfPlusObjImp( const BObjectImp& other ) const;
-	  virtual BObjectImp* selfPlusObj( const BObjectImp& objimp ) const;
-	  virtual BObjectImp* selfPlusObj( const BLong& objimp ) const;
-	  virtual BObjectImp* selfPlusObj( const Double& objimp ) const;
-	  virtual BObjectImp* selfPlusObj( const String& objimp ) const;
-	  virtual BObjectImp* selfPlusObj( const ObjArray& objimp ) const;
-	  virtual void selfPlusObjImp( BObjectImp& objimp, BObject& obj );
-	  virtual void selfPlusObj( BObjectImp& objimp, BObject& obj );
-	  virtual void selfPlusObj( BLong& objimp, BObject& obj );
-	  virtual void selfPlusObj( Double& objimp, BObject& obj );
-	  virtual void selfPlusObj( String& objimp, BObject& obj );
-	  virtual void selfPlusObj( ObjArray& objimp, BObject& obj );
+	  virtual BObjectRef operDotPlus( const char* name ) POL_OVERRIDE;
+	  virtual long contains( const BObjectImp& imp ) const POL_OVERRIDE;
+	  virtual void operInsertInto( BObject& obj, const BObjectImp& objimp ) POL_OVERRIDE;
+	  virtual BObjectImp* selfPlusObjImp( const BObjectImp& other ) const POL_OVERRIDE;
+	  virtual BObjectImp* selfPlusObj( const BObjectImp& objimp ) const POL_OVERRIDE;
+	  virtual BObjectImp* selfPlusObj( const BLong& objimp ) const POL_OVERRIDE;
+	  virtual BObjectImp* selfPlusObj( const Double& objimp ) const POL_OVERRIDE;
+	  virtual BObjectImp* selfPlusObj( const String& objimp ) const POL_OVERRIDE;
+	  virtual BObjectImp* selfPlusObj( const ObjArray& objimp ) const POL_OVERRIDE;
+	  virtual void selfPlusObjImp( BObjectImp& objimp, BObject& obj ) POL_OVERRIDE;
+	  virtual void selfPlusObj( BObjectImp& objimp, BObject& obj ) POL_OVERRIDE;
+	  virtual void selfPlusObj( BLong& objimp, BObject& obj ) POL_OVERRIDE;
+	  virtual void selfPlusObj( Double& objimp, BObject& obj ) POL_OVERRIDE;
+	  virtual void selfPlusObj( String& objimp, BObject& obj ) POL_OVERRIDE;
+	  virtual void selfPlusObj( ObjArray& objimp, BObject& obj ) POL_OVERRIDE;
 
-	  virtual BObjectImp* call_method( const char* methodname, Executor& ex );
-	  virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin = false );
-	  virtual BObjectRef set_member( const char* membername, BObjectImp* value, bool copy );
-	  virtual BObjectRef get_member( const char* membername );
+	  virtual BObjectImp* call_method( const char* methodname, Executor& ex ) POL_OVERRIDE;
+	  virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin = false ) POL_OVERRIDE;
+	  virtual BObjectRef set_member( const char* membername, BObjectImp* value, bool copy ) POL_OVERRIDE;
+	  virtual BObjectRef get_member( const char* membername ) POL_OVERRIDE;
 
 	  void addElement( BObjectImp* imp );
 
 	  const BObjectImp* imp_at( unsigned index ) const; // 1-based
 
-	  virtual std::string getStringRep() const;
-	  virtual void printOn( std::ostream& os ) const;
+	  virtual std::string getStringRep() const POL_OVERRIDE;
+	  virtual void printOn( std::ostream& os ) const POL_OVERRIDE;
 
-	  virtual BObjectImp* array_assign( BObjectImp* idx, BObjectImp* target, bool copy );
-	  virtual BObjectRef OperSubscript( const BObject& obj );
-	  virtual BObjectRef OperMultiSubscript( std::stack<BObjectRef>& indices );
+	  virtual BObjectImp* array_assign( BObjectImp* idx, BObjectImp* target, bool copy ) POL_OVERRIDE;
+	  virtual BObjectRef OperSubscript( const BObject& obj ) POL_OVERRIDE;
+	  virtual BObjectRef OperMultiSubscript( std::stack<BObjectRef>& indices ) POL_OVERRIDE;
 
-	  virtual bool isEqual( const BObjectImp& objimp ) const;
+	  virtual bool isEqual( const BObjectImp& objimp ) const POL_OVERRIDE;
 
-	  virtual ContIterator* createIterator( BObject* pIterVal );
+	  virtual ContIterator* createIterator( BObject* pIterVal ) POL_OVERRIDE;
 	protected:
 	  explicit ObjArray( BObjectType type );
 	  void deepcopy();
@@ -582,97 +586,97 @@ namespace Pol {
 
 	  static BObjectImp* unpack( const char* pstr );
 	  static BObjectImp* unpack( std::istream& is );
-	  virtual std::string pack() const;
+	  virtual std::string pack() const POL_OVERRIDE;
 	  static std::string pack( int val );
-	  virtual void packonto( std::ostream& os ) const;
-	  virtual size_t sizeEstimate() const;
+	  virtual void packonto( std::ostream& os ) const POL_OVERRIDE;
+	  virtual size_t sizeEstimate() const POL_OVERRIDE;
 
 	  int value() const { return lval_; }
 	  int increment() { return ++lval_; }
 
 	public: // Class Machinery
-	  virtual BObjectImp *copy() const;
-	  virtual BObjectImp* inverse() const { return new BLong( -lval_ ); }
+	  virtual BObjectImp *copy() const POL_OVERRIDE;
+	  virtual BObjectImp* inverse() const POL_OVERRIDE { return new BLong( -lval_ ); }
 	  void copyvalue( const BLong& ni ) { lval_ = ni.lval_; }
 
 
-	  virtual bool isTrue() const;
-	  virtual bool isEqual( const BObjectImp& objimp ) const;
-	  virtual bool isLessThan( const BObjectImp& objimp ) const;
+	  virtual bool isTrue() const POL_OVERRIDE;
+	  virtual bool isEqual( const BObjectImp& objimp ) const POL_OVERRIDE;
+	  virtual bool isLessThan( const BObjectImp& objimp ) const POL_OVERRIDE;
 
-	  virtual bool isLE( const BObjectImp& objimp ) const;
-	  virtual bool isLT( const BObjectImp& objimp ) const;
-	  virtual bool isGT( int val ) const;
-	  virtual bool isGE( int val ) const;
+	  virtual bool isLE( const BObjectImp& objimp ) const POL_OVERRIDE;
+	  virtual bool isLT( const BObjectImp& objimp ) const POL_OVERRIDE;
+	  virtual bool isGT( int val ) const POL_OVERRIDE;
+	  virtual bool isGE( int val ) const POL_OVERRIDE;
 
-	  virtual BObjectImp* selfPlusObjImp( const BObjectImp& objimp ) const;
-	  virtual BObjectImp* selfPlusObj( const BLong& objimp ) const;
-	  virtual BObjectImp* selfPlusObj( const Double& objimp ) const;
-	  virtual BObjectImp* selfPlusObj( const String& objimp ) const;
-	  virtual void selfPlusObjImp( BObjectImp& objimp, BObject& obj );
-	  virtual void selfPlusObj( BLong& objimp, BObject& obj );
-	  virtual void selfPlusObj( Double& objimp, BObject& obj );
-	  virtual void selfPlusObj( String& objimp, BObject& obj );
+	  virtual BObjectImp* selfPlusObjImp( const BObjectImp& objimp ) const POL_OVERRIDE;
+	  virtual BObjectImp* selfPlusObj( const BLong& objimp ) const POL_OVERRIDE;
+	  virtual BObjectImp* selfPlusObj( const Double& objimp ) const POL_OVERRIDE;
+	  virtual BObjectImp* selfPlusObj( const String& objimp ) const POL_OVERRIDE;
+	  virtual void selfPlusObjImp( BObjectImp& objimp, BObject& obj ) POL_OVERRIDE;
+	  virtual void selfPlusObj( BLong& objimp, BObject& obj ) POL_OVERRIDE;
+	  virtual void selfPlusObj( Double& objimp, BObject& obj ) POL_OVERRIDE;
+	  virtual void selfPlusObj( String& objimp, BObject& obj ) POL_OVERRIDE;
 
-	  virtual BObjectImp* selfMinusObjImp( const BObjectImp& objimp ) const;
-	  virtual BObjectImp* selfMinusObj( const BLong& objimp ) const;
-	  virtual BObjectImp* selfMinusObj( const Double& objimp ) const;
-	  virtual BObjectImp* selfMinusObj( const String& objimp ) const;
-	  virtual void selfMinusObjImp( BObjectImp& objimp, BObject& obj );
-	  virtual void selfMinusObj( BLong& objimp, BObject& obj );
-	  virtual void selfMinusObj( Double& objimp, BObject& obj );
-	  virtual void selfMinusObj( String& objimp, BObject& obj );
+	  virtual BObjectImp* selfMinusObjImp( const BObjectImp& objimp ) const POL_OVERRIDE;
+	  virtual BObjectImp* selfMinusObj( const BLong& objimp ) const POL_OVERRIDE;
+	  virtual BObjectImp* selfMinusObj( const Double& objimp ) const POL_OVERRIDE;
+	  virtual BObjectImp* selfMinusObj( const String& objimp ) const POL_OVERRIDE;
+	  virtual void selfMinusObjImp( BObjectImp& objimp, BObject& obj ) POL_OVERRIDE;
+	  virtual void selfMinusObj( BLong& objimp, BObject& obj ) POL_OVERRIDE;
+	  virtual void selfMinusObj( Double& objimp, BObject& obj ) POL_OVERRIDE;
+	  virtual void selfMinusObj( String& objimp, BObject& obj ) POL_OVERRIDE;
 
-	  virtual BObjectImp* selfTimesObjImp( const BObjectImp& objimp ) const;
-	  virtual BObjectImp* selfTimesObj( const BLong& objimp ) const;
-	  virtual BObjectImp* selfTimesObj( const Double& objimp ) const;
-	  virtual void selfTimesObjImp( BObjectImp& objimp, BObject& obj );
-	  virtual void selfTimesObj( BLong& objimp, BObject& obj );
-	  virtual void selfTimesObj( Double& objimp, BObject& obj );
+	  virtual BObjectImp* selfTimesObjImp( const BObjectImp& objimp ) const POL_OVERRIDE;
+	  virtual BObjectImp* selfTimesObj( const BLong& objimp ) const POL_OVERRIDE;
+	  virtual BObjectImp* selfTimesObj( const Double& objimp ) const POL_OVERRIDE;
+	  virtual void selfTimesObjImp( BObjectImp& objimp, BObject& obj ) POL_OVERRIDE;
+	  virtual void selfTimesObj( BLong& objimp, BObject& obj ) POL_OVERRIDE;
+	  virtual void selfTimesObj( Double& objimp, BObject& obj ) POL_OVERRIDE;
 
-	  virtual BObjectImp* selfDividedByObjImp( const BObjectImp& objimp ) const;
-	  virtual BObjectImp* selfDividedByObj( const BLong& objimp ) const;
-	  virtual BObjectImp* selfDividedByObj( const Double& objimp ) const;
-	  virtual void selfDividedByObjImp( BObjectImp& objimp, BObject& obj );
-	  virtual void selfDividedByObj( BLong& objimp, BObject& obj );
-	  virtual void selfDividedByObj( Double& objimp, BObject& obj );
+	  virtual BObjectImp* selfDividedByObjImp( const BObjectImp& objimp ) const POL_OVERRIDE;
+	  virtual BObjectImp* selfDividedByObj( const BLong& objimp ) const POL_OVERRIDE;
+	  virtual BObjectImp* selfDividedByObj( const Double& objimp ) const POL_OVERRIDE;
+	  virtual void selfDividedByObjImp( BObjectImp& objimp, BObject& obj ) POL_OVERRIDE;
+	  virtual void selfDividedByObj( BLong& objimp, BObject& obj ) POL_OVERRIDE;
+	  virtual void selfDividedByObj( Double& objimp, BObject& obj ) POL_OVERRIDE;
 
-	  virtual BObjectImp* selfModulusObjImp( const BObjectImp& objimp ) const;
-	  virtual BObjectImp* selfModulusObj( const BLong& objimp ) const;
-	  virtual BObjectImp* selfModulusObj( const Double& objimp ) const;
-	  virtual void selfModulusObjImp( BObjectImp& objimp, BObject& obj );
-	  virtual void selfModulusObj( BLong& objimp, BObject& obj );
-	  virtual void selfModulusObj( Double& objimp, BObject& obj );
+	  virtual BObjectImp* selfModulusObjImp( const BObjectImp& objimp ) const POL_OVERRIDE;
+	  virtual BObjectImp* selfModulusObj( const BLong& objimp ) const POL_OVERRIDE;
+	  virtual BObjectImp* selfModulusObj( const Double& objimp ) const POL_OVERRIDE;
+	  virtual void selfModulusObjImp( BObjectImp& objimp, BObject& obj ) POL_OVERRIDE;
+	  virtual void selfModulusObj( BLong& objimp, BObject& obj ) POL_OVERRIDE;
+	  virtual void selfModulusObj( Double& objimp, BObject& obj ) POL_OVERRIDE;
 
-	  virtual BObjectImp* selfBitShiftRightObjImp( const BObjectImp& objimp ) const;
-	  virtual BObjectImp* selfBitShiftRightObj( const BLong& objimp ) const;
-	  virtual void selfBitShiftRightObjImp( BObjectImp& objimp, BObject& obj );
-	  virtual void selfBitShiftRightObj( BLong& objimp, BObject& obj );
+	  virtual BObjectImp* selfBitShiftRightObjImp( const BObjectImp& objimp ) const POL_OVERRIDE;
+	  virtual BObjectImp* selfBitShiftRightObj( const BLong& objimp ) const POL_OVERRIDE;
+	  virtual void selfBitShiftRightObjImp( BObjectImp& objimp, BObject& obj ) POL_OVERRIDE;
+	  virtual void selfBitShiftRightObj( BLong& objimp, BObject& obj ) POL_OVERRIDE;
 
-	  virtual BObjectImp* selfBitShiftLeftObjImp( const BObjectImp& objimp ) const;
-	  virtual BObjectImp* selfBitShiftLeftObj( const BLong& objimp ) const;
-	  virtual void selfBitShiftLeftObjImp( BObjectImp& objimp, BObject& obj );
-	  virtual void selfBitShiftLeftObj( BLong& objimp, BObject& obj );
+	  virtual BObjectImp* selfBitShiftLeftObjImp( const BObjectImp& objimp ) const POL_OVERRIDE;
+	  virtual BObjectImp* selfBitShiftLeftObj( const BLong& objimp ) const POL_OVERRIDE;
+	  virtual void selfBitShiftLeftObjImp( BObjectImp& objimp, BObject& obj ) POL_OVERRIDE;
+	  virtual void selfBitShiftLeftObj( BLong& objimp, BObject& obj ) POL_OVERRIDE;
 
-	  virtual BObjectImp* selfBitAndObjImp( const BObjectImp& objimp ) const;
-	  virtual BObjectImp* selfBitAndObj( const BLong& objimp ) const;
-	  virtual void selfBitAndObjImp( BObjectImp& objimp, BObject& obj );
-	  virtual void selfBitAndObj( BLong& objimp, BObject& obj );
+	  virtual BObjectImp* selfBitAndObjImp( const BObjectImp& objimp ) const POL_OVERRIDE;
+	  virtual BObjectImp* selfBitAndObj( const BLong& objimp ) const POL_OVERRIDE;
+	  virtual void selfBitAndObjImp( BObjectImp& objimp, BObject& obj ) POL_OVERRIDE;
+	  virtual void selfBitAndObj( BLong& objimp, BObject& obj ) POL_OVERRIDE;
 
-	  virtual BObjectImp* selfBitXorObjImp( const BObjectImp& objimp ) const;
-	  virtual BObjectImp* selfBitXorObj( const BLong& objimp ) const;
-	  virtual void selfBitXorObjImp( BObjectImp& objimp, BObject& obj );
-	  virtual void selfBitXorObj( BLong& objimp, BObject& obj );
+	  virtual BObjectImp* selfBitXorObjImp( const BObjectImp& objimp ) const POL_OVERRIDE;
+	  virtual BObjectImp* selfBitXorObj( const BLong& objimp ) const POL_OVERRIDE;
+	  virtual void selfBitXorObjImp( BObjectImp& objimp, BObject& obj ) POL_OVERRIDE;
+	  virtual void selfBitXorObj( BLong& objimp, BObject& obj ) POL_OVERRIDE;
 
-	  virtual BObjectImp* selfBitOrObjImp( const BObjectImp& objimp ) const;
-	  virtual BObjectImp* selfBitOrObj( const BLong& objimp ) const;
-	  virtual void selfBitOrObjImp( BObjectImp& objimp, BObject& obj );
-	  virtual void selfBitOrObj( BLong& objimp, BObject& obj );
+	  virtual BObjectImp* selfBitOrObjImp( const BObjectImp& objimp ) const POL_OVERRIDE;
+	  virtual BObjectImp* selfBitOrObj( const BLong& objimp ) const POL_OVERRIDE;
+	  virtual void selfBitOrObjImp( BObjectImp& objimp, BObject& obj ) POL_OVERRIDE;
+	  virtual void selfBitOrObj( BLong& objimp, BObject& obj ) POL_OVERRIDE;
 
-	  virtual BObjectImp* bitnot() const;
+	  virtual BObjectImp* bitnot() const POL_OVERRIDE;
 
-	  virtual std::string getStringRep() const;
-	  virtual void printOn( std::ostream& ) const;
+	  virtual std::string getStringRep() const POL_OVERRIDE;
+	  virtual void printOn( std::ostream& ) const POL_OVERRIDE;
 
 	protected:
 	  int lval_;
@@ -717,63 +721,62 @@ namespace Pol {
 
 	  static BObjectImp* unpack( const char* pstr );
 	  static BObjectImp* unpack( std::istream& is );
-	  virtual std::string pack() const;
-	  virtual void packonto( std::ostream& os ) const;
-	  virtual size_t sizeEstimate() const;
+	  virtual std::string pack() const POL_OVERRIDE;
+	  virtual void packonto( std::ostream& os ) const POL_OVERRIDE;
+	  virtual size_t sizeEstimate() const POL_OVERRIDE;
 
 	  double value() const { return dval_; }
 	  void copyvalue( const Double& dbl ) { dval_ = dbl.dval_; }
 	  double increment() { return ++dval_; }
 
 	public:    // Class Machinery
-	  virtual bool isTrue() const { return ( dval_ != 0.0 ); }
+	  virtual bool isTrue() const POL_OVERRIDE { return ( dval_ != 0.0 ); }
 
-	  virtual BObjectImp *copy() const
+	  virtual BObjectImp *copy() const POL_OVERRIDE
 	  {
 		return new Double( *this );
 	  }
-	  virtual bool isEqual( const BObjectImp& objimp ) const;
-	  virtual bool isLessThan( const BObjectImp& objimp ) const;
-	  virtual bool isGT( int val ) const;
-	  virtual bool isGE( int val ) const;
+	  virtual bool isEqual( const BObjectImp& objimp ) const POL_OVERRIDE;
+	  virtual bool isLessThan( const BObjectImp& objimp ) const POL_OVERRIDE;
+	  virtual bool isGT( int val ) const POL_OVERRIDE;
+	  virtual bool isGE( int val ) const POL_OVERRIDE;
 
-	  virtual BObjectImp* selfPlusObjImp( const BObjectImp& objimp ) const;
-	  virtual BObjectImp* selfPlusObj( const BLong& objimp ) const;
-	  virtual BObjectImp* selfPlusObj( const Double& objimp ) const;
-	  virtual BObjectImp* selfPlusObj( const String& objimp ) const;
-	  virtual void selfPlusObjImp( BObjectImp& objimp, BObject& obj );
-	  virtual void selfPlusObj( BLong& objimp, BObject& obj );
-	  virtual void selfPlusObj( Double& objimp, BObject& obj );
-	  virtual void selfPlusObj( String& objimp, BObject& obj );
+	  virtual BObjectImp* selfPlusObjImp( const BObjectImp& objimp ) const POL_OVERRIDE;
+	  virtual BObjectImp* selfPlusObj( const BLong& objimp ) const POL_OVERRIDE;
+	  virtual BObjectImp* selfPlusObj( const Double& objimp ) const POL_OVERRIDE;
+	  virtual BObjectImp* selfPlusObj( const String& objimp ) const POL_OVERRIDE;
+	  virtual void selfPlusObjImp( BObjectImp& objimp, BObject& obj ) POL_OVERRIDE;
+	  virtual void selfPlusObj( BLong& objimp, BObject& obj ) POL_OVERRIDE;
+	  virtual void selfPlusObj( Double& objimp, BObject& obj ) POL_OVERRIDE;
+	  virtual void selfPlusObj( String& objimp, BObject& obj ) POL_OVERRIDE;
 
-	  virtual BObjectImp* selfMinusObjImp( const BObjectImp& objimp ) const;
-	  virtual BObjectImp* selfMinusObj( const BLong& objimp ) const;
-	  virtual BObjectImp* selfMinusObj( const Double& objimp ) const;
-	  virtual BObjectImp* selfMinusObj( const String& objimp ) const;
-	  virtual void selfMinusObjImp( BObjectImp& objimp, BObject& obj );
-	  virtual void selfMinusObj( BLong& objimp, BObject& obj );
-	  virtual void selfMinusObj( Double& objimp, BObject& obj );
-	  virtual void selfMinusObj( String& objimp, BObject& obj );
+	  virtual BObjectImp* selfMinusObjImp( const BObjectImp& objimp ) const POL_OVERRIDE;
+	  virtual BObjectImp* selfMinusObj( const BLong& objimp ) const POL_OVERRIDE;
+	  virtual BObjectImp* selfMinusObj( const Double& objimp ) const POL_OVERRIDE;
+	  virtual BObjectImp* selfMinusObj( const String& objimp ) const POL_OVERRIDE;
+	  virtual void selfMinusObjImp( BObjectImp& objimp, BObject& obj ) POL_OVERRIDE;
+	  virtual void selfMinusObj( BLong& objimp, BObject& obj ) POL_OVERRIDE;
+	  virtual void selfMinusObj( Double& objimp, BObject& obj ) POL_OVERRIDE;
+	  virtual void selfMinusObj( String& objimp, BObject& obj ) POL_OVERRIDE;
 
-	  virtual BObjectImp* selfTimesObjImp( const BObjectImp& objimp ) const;
-	  virtual BObjectImp* selfTimesObj( const BLong& objimp ) const;
-	  virtual BObjectImp* selfTimesObj( const Double& objimp ) const;
-	  virtual void selfTimesObjImp( BObjectImp& objimp, BObject& obj );
-	  virtual void selfTimesObj( BLong& objimp, BObject& obj );
-	  virtual void selfTimesObj( Double& objimp, BObject& obj );
+	  virtual BObjectImp* selfTimesObjImp( const BObjectImp& objimp ) const POL_OVERRIDE;
+	  virtual BObjectImp* selfTimesObj( const BLong& objimp ) const POL_OVERRIDE;
+	  virtual BObjectImp* selfTimesObj( const Double& objimp ) const POL_OVERRIDE;
+	  virtual void selfTimesObjImp( BObjectImp& objimp, BObject& obj ) POL_OVERRIDE;
+	  virtual void selfTimesObj( BLong& objimp, BObject& obj ) POL_OVERRIDE;
+	  virtual void selfTimesObj( Double& objimp, BObject& obj ) POL_OVERRIDE;
 
-	  virtual BObjectImp* selfDividedByObjImp( const BObjectImp& objimp ) const;
-	  virtual BObjectImp* selfDividedByObj( const BLong& objimp ) const;
-	  virtual BObjectImp* selfDividedByObj( const Double& objimp ) const;
-	  virtual void selfDividedByObjImp( BObjectImp& objimp, BObject& obj );
-	  virtual void selfDividedByObj( BLong& objimp, BObject& obj );
-	  virtual void selfDividedByObj( Double& objimp, BObject& obj );
+	  virtual BObjectImp* selfDividedByObjImp( const BObjectImp& objimp ) const POL_OVERRIDE;
+	  virtual BObjectImp* selfDividedByObj( const BLong& objimp ) const POL_OVERRIDE;
+	  virtual BObjectImp* selfDividedByObj( const Double& objimp ) const POL_OVERRIDE;
+	  virtual void selfDividedByObjImp( BObjectImp& objimp, BObject& obj ) POL_OVERRIDE;
+	  virtual void selfDividedByObj( BLong& objimp, BObject& obj ) POL_OVERRIDE;
+	  virtual void selfDividedByObj( Double& objimp, BObject& obj ) POL_OVERRIDE;
 
-	  virtual void unary_minus() { dval_ = -dval_; }
-	  virtual BObjectImp* inverse() const { return new Double( -dval_ ); }
+	  virtual BObjectImp* inverse() const POL_OVERRIDE { return new Double( -dval_ ); }
 
-	  virtual std::string getStringRep() const;
-	  virtual void printOn( std::ostream& ) const;
+	  virtual std::string getStringRep() const POL_OVERRIDE;
+	  virtual void printOn( std::ostream& ) const POL_OVERRIDE;
 	private:
 	  double dval_;
 	};
@@ -808,11 +811,11 @@ namespace Pol {
 	  void *ptr() const;
 
 	public: // Class Machinery
-	  virtual BObjectImp *copy() const;
+	  virtual BObjectImp *copy() const POL_OVERRIDE;
 
-	  virtual std::string getStringRep() const;
-	  virtual void printOn( std::ostream& ) const;
-	  virtual size_t sizeEstimate() const;
+	  virtual std::string getStringRep() const POL_OVERRIDE;
+	  virtual void printOn( std::ostream& ) const POL_OVERRIDE;
+	  virtual size_t sizeEstimate() const POL_OVERRIDE;
 
 	private:
 	  void *ptr_;
@@ -829,8 +832,8 @@ namespace Pol {
 	public: // Class Machinery
 	  virtual BObjectImp* copy() const = 0;
 
-	  virtual std::string getStringRep() const;
-	  virtual void printOn( std::ostream& ) const;
+	  virtual std::string getStringRep() const POL_OVERRIDE;
+	  virtual void printOn( std::ostream& ) const POL_OVERRIDE;
 	  virtual size_t sizeEstimate() const = 0;
 
 	private:
@@ -862,7 +865,7 @@ namespace Pol {
 	  virtual const char* typeOf() const = 0;
 	  virtual int typeOfInt() const = 0;
 	  virtual BObjectImp* copy() const = 0;
-	  virtual size_t sizeEstimate() const;
+	  virtual size_t sizeEstimate() const POL_OVERRIDE;
 
 	protected:
 	  T obj_;

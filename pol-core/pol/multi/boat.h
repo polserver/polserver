@@ -58,9 +58,9 @@ namespace Pol {
         ~BoatMoveGuard( ) { if ( _boat != nullptr ) _boat->regself( ); };
       };
 
-	  virtual UBoat* as_boat();
+	  virtual UBoat* as_boat() POL_OVERRIDE;
       virtual ~UBoat() {};
-      virtual size_t estimatedSize( ) const;
+      virtual size_t estimatedSize( ) const POL_OVERRIDE;
 
 	  bool move( Core::UFACING dir, u8 speed, bool relative );
 	  bool move_xy( unsigned short x, unsigned short y, int flags, Plib::Realm* oldrealm );
@@ -68,8 +68,8 @@ namespace Pol {
       enum RELATIVE_DIR { NO_TURN, RIGHT, AROUND, LEFT };
 	  bool turn( RELATIVE_DIR dir );
 
-	  virtual void register_object( Core::UObject* obj );
-	  virtual void unregister_object( Core::UObject* obj );
+	  virtual void register_object( Core::UObject* obj ) POL_OVERRIDE;
+	  virtual void unregister_object( Core::UObject* obj ) POL_OVERRIDE;
 	  Core::UFACING boat_facing() const;
 
 	  void send_smooth_move( Network::Client* client, Core::UFACING move_dir, u8 speed, u16 newx, u16 newy, bool relative );
@@ -92,12 +92,12 @@ namespace Pol {
 
 	  static Bscript::BObjectImp* scripted_create( const Items::ItemDesc& descriptor, u16 x, u16 y, s8 z, Plib::Realm* realm, int flags );
 
-	  virtual Bscript::BObjectImp* make_ref();
+	  virtual Bscript::BObjectImp* make_ref() POL_OVERRIDE;
 	  static bool navigable( const MultiDef&, unsigned short x, unsigned short y, short z, Plib::Realm* realm );
 	  void realm_changed();
 	  void adjust_traveller_z( s8 delta_z );
 
-	  virtual void on_color_changed();
+	  virtual void on_color_changed() POL_OVERRIDE;
 
 
 	  // Should these be arrays instead to support customizable boats with certain component choises ?
@@ -124,15 +124,15 @@ namespace Pol {
 	  void move_components( Plib::Realm* oldrealm );
 
 	  explicit UBoat( const Items::ItemDesc& descriptor );
-	  virtual void readProperties( Clib::ConfigElem& elem );
-	  virtual void printProperties( Clib::StreamWriter& sw ) const;
+	  virtual void readProperties( Clib::ConfigElem& elem ) POL_OVERRIDE;
+	  virtual void printProperties( Clib::StreamWriter& sw ) const POL_OVERRIDE;
 	  friend class UMulti;
 
-	  virtual Bscript::BObjectImp* get_script_member( const char *membername ) const;
-	  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const; ///id test
-	  virtual Bscript::BObjectImp* script_method( const char *methodname, Bscript::Executor& ex );
-	  virtual Bscript::BObjectImp* script_method_id( const int id, Bscript::Executor& ex );
-	  virtual bool script_isa( unsigned isatype ) const;
+	  virtual Bscript::BObjectImp* get_script_member( const char *membername ) const POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const POL_OVERRIDE; ///id test
+	  virtual Bscript::BObjectImp* script_method( const char *methodname, Bscript::Executor& ex ) POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* script_method_id( const int id, Bscript::Executor& ex ) POL_OVERRIDE;
+	  virtual bool script_isa( unsigned isatype ) const POL_OVERRIDE;
 	  Bscript::BObjectImp* items_list() const;
 	  Bscript::BObjectImp* mobiles_list() const;
 	  Bscript::BObjectImp* component_list( unsigned char type ) const;

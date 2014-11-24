@@ -22,7 +22,7 @@ namespace Pol {
     {
     public:
       SendWorldItem( u32 serial, u16 graphic, u16 amount, u16 x, u16 y, s8 z, u8 facing, u16 color, u8 flags );
-      virtual void Send( Client* client );
+      virtual void Send( Client* client ) POL_OVERRIDE;
       void updateFlags( u8 flags );
     private:
       void buildF3();
@@ -45,7 +45,7 @@ namespace Pol {
     {
     public:
       SendWorldMulti( u32 serial_ext, u16 graphic, u16 x, u16 y, s8 z, u16 color );
-      virtual void Send( Client* client );
+      virtual void Send( Client* client ) POL_OVERRIDE;
     private:
       void buildF3();
       void build1A();
@@ -64,7 +64,7 @@ namespace Pol {
     {
     public:
       AddItemContainerMsg( u32 serial_ext, u16 graphic, u16 amount, u16 x, u16 y, u8 slotindex, u32 containerserial_ext, u16 color );
-      virtual void Send( Client* client );
+      virtual void Send( Client* client ) POL_OVERRIDE;
     private:
       void buildLegacy();
       void build();
@@ -91,7 +91,7 @@ namespace Pol {
                           DIRECTION_FLAG_OLD backward_old, REPEAT_FLAG_OLD repeat_flag_old, u8 delay_old,
                           bool oldanim_valid, bool newanim_valid);
       MobileAnimationMsg( u32 serial_ext );
-      virtual void Send( Client* client );
+      virtual void Send( Client* client ) POL_OVERRIDE;
       void update( u16 anim, u16 action, u8 subaction,
                    u16 action_old, u16 framecount_old, u16 repeat_old,
                    DIRECTION_FLAG_OLD backward_old, REPEAT_FLAG_OLD repeat_flag_old, u8 delay_old,
@@ -120,7 +120,7 @@ namespace Pol {
 	{
 	public:
 	  PlaySoundPkt( u8 type, u16 effect, u16 xcenter, u16 ycenter, s16 zcenter );
-	  virtual void Send( Client* client );
+	  virtual void Send( Client* client ) POL_OVERRIDE;
 	private:
 	  void build();
 	  u8 _type;
@@ -135,7 +135,7 @@ namespace Pol {
 	{
 	public:
 	  RemoveObjectPkt( u32 serial );
-	  virtual void Send( Client* client );
+	  virtual void Send( Client* client ) POL_OVERRIDE;
 	  void update( u32 serial );
 	private:
 	  void build();

@@ -192,20 +192,20 @@ namespace Pol {
 	  void addModule( FunctionalityModule* module );
 	  int useModule( const char *modulename );
 	  int includeModule( const std::string& modulename );
-	  virtual int isFunc( Token& tok, ModuleFunction **v );
-	  virtual int isUserFunc( Token& tok, UserFunction **userfunc );
+	  virtual int isFunc( Token& tok, ModuleFunction **v ) POL_OVERRIDE;
+	  virtual int isUserFunc( Token& tok, UserFunction **userfunc ) POL_OVERRIDE;
 
 	  void patchoffset( unsigned instruc, unsigned newoffset );
 	  void addToken( Token& tok );
 
 	  int isLegal( Token& tok );
 
-	  virtual int getUserArgs( Expression& ex, CompilerContext& ctx, bool inject_jsr );
-	  virtual int getArrayElements( Expression& expr, CompilerContext& ctx );
-	  virtual int getNewArrayElements( Expression& expr, CompilerContext& ctx );
-	  virtual int getStructMembers( Expression& expr, CompilerContext& ctx );
-	  virtual int getDictionaryMembers( Expression& expr, CompilerContext& ctx );
-	  virtual int getMethodArguments( Expression& expr, CompilerContext& ctx, int& nargs );
+	  virtual int getUserArgs( Expression& ex, CompilerContext& ctx, bool inject_jsr ) POL_OVERRIDE;
+	  virtual int getArrayElements( Expression& expr, CompilerContext& ctx ) POL_OVERRIDE;
+	  virtual int getNewArrayElements( Expression& expr, CompilerContext& ctx ) POL_OVERRIDE;
+	  virtual int getStructMembers( Expression& expr, CompilerContext& ctx ) POL_OVERRIDE;
+	  virtual int getDictionaryMembers( Expression& expr, CompilerContext& ctx ) POL_OVERRIDE;
+	  virtual int getMethodArguments( Expression& expr, CompilerContext& ctx, int& nargs ) POL_OVERRIDE;
 
 	  int eatToken( CompilerContext& ctx, BTokenId tokenid );
 	  int getExpr( CompilerContext& ctx,
@@ -256,7 +256,7 @@ namespace Pol {
 	  int getStatement( CompilerContext& ctx /*char **s */, int level );
 	  int _getStatement( CompilerContext& ctx /*char **s */, int level );
 
-	  virtual int getFileContents( const char *filename, char **contents );
+	  int getFileContents( const char *filename, char **contents );
 	  int compileFile( const char *fname );
 	  int compileContext( CompilerContext& ctx );
 	  int compile( CompilerContext& ctx /* char *s */ );

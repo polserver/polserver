@@ -11,6 +11,7 @@ Notes
 #ifndef __TARGET_H
 #define __TARGET_H
 
+#include "../clib/compilerspecifics.h"
 #include "../clib/rawtypes.h"
 
 #include "pktboth.h"
@@ -52,7 +53,7 @@ namespace Pol {
       FullMsgTargetCursor( void( *func )( Mobile::Character*, PKTBI_6C* ) );
 	  virtual ~FullMsgTargetCursor() {};
 
-      virtual void on_target_cursor( Mobile::Character* targetter, PKTBI_6C* msg );
+      virtual void on_target_cursor( Mobile::Character* targetter, PKTBI_6C* msg ) POL_OVERRIDE;
 	private:
       void( *func )( Mobile::Character* targetter, PKTBI_6C* msg );
 	};
@@ -67,7 +68,7 @@ namespace Pol {
 							  bool inform_on_cancel = false );
 	  virtual ~LosCheckedTargetCursor() {};
 
-      virtual void on_target_cursor( Mobile::Character*, PKTBI_6C* msg );
+      virtual void on_target_cursor( Mobile::Character*, PKTBI_6C* msg ) POL_OVERRIDE;
 	private:
       void( *func )( Mobile::Character*, UObject* targetted );
 	};
@@ -83,7 +84,7 @@ namespace Pol {
 								bool inform_on_cancel = false );
 	  virtual ~NoLosCheckedTargetCursor() {};
 
-      virtual void on_target_cursor( Mobile::Character*, PKTBI_6C* msg );
+      virtual void on_target_cursor( Mobile::Character*, PKTBI_6C* msg ) POL_OVERRIDE;
 	private:
       void( *func )( Mobile::Character*, UObject* targetted );
 	};
@@ -100,7 +101,7 @@ namespace Pol {
 	  virtual ~LosCheckedCoordCursor() {};
 
 	  bool send_coord_cursor( Network::Client* client );
-      virtual void on_target_cursor( Mobile::Character*, PKTBI_6C* msg );
+      virtual void on_target_cursor( Mobile::Character*, PKTBI_6C* msg ) POL_OVERRIDE;
 	private:
       void( *func_ )( Mobile::Character*, PKTBI_6C* );
 	};
@@ -115,8 +116,8 @@ namespace Pol {
       MultiPlacementCursor( void( *func )( Mobile::Character*, PKTBI_6C* msg ) );
 	  virtual ~MultiPlacementCursor() {};
 
-	  virtual void send_placemulti( Network::Client* client, unsigned int objtype, int flags, s16 xoffset, s16 yoffset, u32 hue );
-      virtual void on_target_cursor( Mobile::Character*, PKTBI_6C* msg );
+	  void send_placemulti( Network::Client* client, unsigned int objtype, int flags, s16 xoffset, s16 yoffset, u32 hue );
+      virtual void on_target_cursor( Mobile::Character*, PKTBI_6C* msg ) POL_OVERRIDE;
 	private:
       void( *func_ )( Mobile::Character*, PKTBI_6C* );
 	};
@@ -132,7 +133,7 @@ namespace Pol {
 	public:
       NoLosCharacterCursor( void( *func )( Mobile::Character* targetter, Mobile::Character* targetted ) );
 	  virtual ~NoLosCharacterCursor() {};
-      virtual void on_target_cursor( Mobile::Character*, PKTBI_6C* msg );
+      virtual void on_target_cursor( Mobile::Character*, PKTBI_6C* msg ) POL_OVERRIDE;
 	private:
       void( *func )( Mobile::Character* targetter, Mobile::Character* targetted );
 	};
@@ -148,7 +149,7 @@ namespace Pol {
       NoLosUObjectCursor( void( *func )( Mobile::Character*, UObject* ),
 						  bool inform_on_cancel = false );
 	  virtual ~NoLosUObjectCursor() {};
-      virtual void on_target_cursor( Mobile::Character* chr, PKTBI_6C* msg );
+      virtual void on_target_cursor( Mobile::Character* chr, PKTBI_6C* msg ) POL_OVERRIDE;
 	private:
       void( *func )( Mobile::Character*, UObject* obj );
 	};

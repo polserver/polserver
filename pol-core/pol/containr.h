@@ -71,35 +71,35 @@ namespace Pol {
 	public:
 	  typedef ULockable base;
 	  virtual ~UContainer();
-      virtual size_t estimatedSize( ) const;
+      virtual size_t estimatedSize( ) const POL_OVERRIDE;
 
-	  virtual void destroy();
+	  virtual void destroy() POL_OVERRIDE;
 	  void destroy_contents();
 	  typedef std::vector<Items::Item*> Contents;
 	  typedef Contents::iterator iterator;
 	  typedef Contents::const_iterator const_iterator;
 
-	  virtual void builtin_on_use( Network::Client *client );
+	  virtual void builtin_on_use( Network::Client *client ) POL_OVERRIDE;
 
 	  // can_add(): doesn't look for matching stacks to add to.
 	  virtual bool can_add( const Items::Item& item ) const;
 	  virtual bool can_add( unsigned short more_weight ) const;
 
-	  virtual void spill_contents( Multi::UMulti* supporting_multi );
+	  virtual void spill_contents( Multi::UMulti* supporting_multi ) POL_OVERRIDE;
 
 	  virtual void add( Items::Item *item ); // NOTE: points item->container to self on insertion
 	  void add_at_random_location( Items::Item* item );
 	  unsigned count() const;
 
-	  virtual unsigned int item_count() const;
-	  virtual unsigned int weight() const;
+	  virtual unsigned int item_count() const POL_OVERRIDE;
+	  virtual unsigned int weight() const POL_OVERRIDE;
 
 	  bool can_add_bulk( int tli_diff, int item_count_diff, int weight_diff ) const;
 	  virtual void add_bulk( int item_count_delta, int weight_delta );
 	  void add_bulk( const Items::Item* item );
 	  void remove_bulk( const Items::Item* item );
 
-	  virtual bool can_add_to_slot( u8& slotIndex );
+	  bool can_add_to_slot( u8& slotIndex );
 	  bool is_slot_empty( u8& slotIndex );
 	  bool find_empty_slot( u8& slotIndex );
 
@@ -116,8 +116,8 @@ namespace Pol {
 
 	  virtual void for_each_item( void( *f )( Item* item, void* a ), void* arg );
 
-	  virtual bool script_isa( unsigned isatype ) const;
-	  virtual Items::Item* clone( ) const;
+	  virtual bool script_isa( unsigned isatype ) const POL_OVERRIDE;
+	  virtual Items::Item* clone( ) const POL_OVERRIDE;
 
 	  unsigned int find_sumof_objtype_noninuse( u32 objtype ) const;
 	  unsigned int find_sumof_objtype_noninuse( u32 objtype, u32 amtToGet, Contents& saveItemsTo, int flags ) const;
@@ -141,13 +141,13 @@ namespace Pol {
 	  // TODO: rework these too.
 	  bool check_can_remove_script( Mobile::Character* chr, Items::Item* item, MoveType move = MT_PLAYER );
 	  void on_remove( Mobile::Character* chr, Items::Item* item, MoveType move = MT_PLAYER );
-	  virtual void printProperties( Clib::StreamWriter& sw ) const;
-	  virtual void readProperties( Clib::ConfigElem& elem );
-	  virtual Bscript::BObjectImp* get_script_member( const char* membername ) const;
-	  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const; ///id test
+	  virtual void printProperties( Clib::StreamWriter& sw ) const POL_OVERRIDE;
+	  virtual void readProperties( Clib::ConfigElem& elem ) POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* get_script_member( const char* membername ) const POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const POL_OVERRIDE; ///id test
 
-      virtual Bscript::BObjectImp* set_script_member(const char* membername, int value);
-	  virtual Bscript::BObjectImp* set_script_member_id( const int id, int value ); //id test
+      virtual Bscript::BObjectImp* set_script_member(const char* membername, int value) POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* set_script_member_id( const int id, int value ) POL_OVERRIDE; //id test
 
 	  bool can_insert_increase_stack( Mobile::Character* mob, MoveType move, Items::Item* existing_item, unsigned short amt_to_add, Items::Item* adding_item );
 	  bool can_insert_add_item( Mobile::Character* mob, MoveType move, Items::Item* new_item );
@@ -215,8 +215,8 @@ namespace Pol {
 	  //DAVE added this 11/17 so WornItemsContainer could pass up its class to UObject constructor
 	  UContainer( u32 objtype, UOBJ_CLASS pol_class );
 	  // uses Items::classname()
-	  virtual void printOn( Clib::StreamWriter& sw ) const;
-	  virtual void printSelfOn( Clib::StreamWriter& sw ) const;
+	  virtual void printOn( Clib::StreamWriter& sw ) const POL_OVERRIDE;
+	  virtual void printSelfOn( Clib::StreamWriter& sw ) const POL_OVERRIDE;
 	  void printContents( Clib::StreamWriter& sw ) const;
 	};
 

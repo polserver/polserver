@@ -44,13 +44,13 @@ namespace Pol {
 		_ip( ip )
 	  {}
 
-	  virtual Bscript::BObjectImp* copy( ) const;
-	  virtual bool isTrue() const;
-	  virtual std::string getStringRep() const;
-	  virtual size_t sizeEstimate() const;
+	  virtual Bscript::BObjectImp* copy( ) const POL_OVERRIDE;
+	  virtual bool isTrue() const POL_OVERRIDE;
+	  virtual std::string getStringRep() const POL_OVERRIDE;
+	  virtual size_t sizeEstimate() const POL_OVERRIDE;
 
-	  virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex );
-	  virtual Bscript::BObjectRef get_member( const char *membername );
+	  virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex ) POL_OVERRIDE;
+	  virtual Bscript::BObjectRef get_member( const char *membername ) POL_OVERRIDE;
 
 	  void disconnect();
 
@@ -79,7 +79,7 @@ namespace Pol {
 	public:
 	  AuxClientThread( AuxService* auxsvc, Clib::SocketListener& listener );
 	  AuxClientThread( Core::ScriptDef scriptdef, Clib::Socket& sock );
-	  virtual void run();
+	  virtual void run() POL_OVERRIDE;
 	  void transmit( const Bscript::BObjectImp* imp );
 	  Bscript::BObjectImp* get_ip( );
 

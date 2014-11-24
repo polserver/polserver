@@ -25,7 +25,7 @@ namespace Pol {
 	public:
       BXMLNodeIterator( TiXmlDocument* file, Bscript::BObject* pIter );
       BXMLNodeIterator( TiXmlNode* node, Bscript::BObject* pIter );
-      virtual Bscript::BObject* step( );
+      virtual Bscript::BObject* step( ) POL_OVERRIDE;
 	private:
 	  TiXmlNode* node;
 	  TiXmlDocument* _file;
@@ -38,7 +38,7 @@ namespace Pol {
 	{
 	public:
       BXMLAttributeIterator( TiXmlElement* node, Bscript::BObject* pIter );
-      virtual Bscript::BObject* step( );
+      virtual Bscript::BObject* step( ) POL_OVERRIDE;
 	private:
 	  TiXmlElement* node;
 	  TiXmlAttribute* nodeAttrib;
@@ -52,17 +52,17 @@ namespace Pol {
 	  BXMLfile();
 	  BXMLfile( std::string filename );
 	  ~BXMLfile();
-      virtual Bscript::BObjectRef get_member( const char* membername );
-      virtual Bscript::BObjectRef get_member_id( const int id ); //id test
-      virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex );
-      virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false );
-	  virtual Bscript::BObjectImp* copy() const;
-	  virtual std::string getStringRep() const;
-      virtual size_t sizeEstimate( ) const { return sizeof( *this ) + _filename.capacity(); }
-	  virtual const char* typeOf() const { return "XMLFile"; }
-	  virtual int typeOfInt() const { return OTXMLFile; }
-	  virtual bool isTrue() const;
-      virtual Bscript::BObjectRef OperSubscript( const Bscript::BObject& obj );
+      virtual Bscript::BObjectRef get_member( const char* membername ) POL_OVERRIDE;
+      virtual Bscript::BObjectRef get_member_id( const int id ) POL_OVERRIDE; //id test
+      virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex ) POL_OVERRIDE;
+      virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false ) POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* copy() const POL_OVERRIDE;
+	  virtual std::string getStringRep() const POL_OVERRIDE;
+      virtual size_t sizeEstimate( ) const POL_OVERRIDE { return sizeof( *this ) + _filename.capacity(); }
+	  virtual const char* typeOf() const POL_OVERRIDE { return "XMLFile"; }
+	  virtual int typeOfInt() const POL_OVERRIDE { return OTXMLFile; }
+	  virtual bool isTrue() const POL_OVERRIDE;
+      virtual Bscript::BObjectRef OperSubscript( const Bscript::BObject& obj ) POL_OVERRIDE;
       Bscript::ContIterator* createIterator( Bscript::BObject* pIterVal )
 	  {
 		return new BXMLNodeIterator( &file, pIterVal );
@@ -80,17 +80,17 @@ namespace Pol {
 	public:
 	  BXmlNode( TiXmlNode* _node ) : Bscript::BObjectImp( Bscript::BObjectImp::OTXMLNode ), node( _node ) {}
 
-	  virtual Bscript::BObjectImp* copy() const
+	  virtual Bscript::BObjectImp* copy() const POL_OVERRIDE
 	  {
 		return new BXmlNode( node->Clone() );
 	  }
 
-	  virtual std::string getStringRep() const;
+	  virtual std::string getStringRep() const POL_OVERRIDE;
 
-	  virtual const char* typeOf() const { return "XMLNode"; }
-	  virtual int typeOfInt() const { return OTXMLNode; }
+	  virtual const char* typeOf() const POL_OVERRIDE { return "XMLNode"; }
+	  virtual int typeOfInt() const POL_OVERRIDE { return OTXMLNode; }
 
-	  virtual size_t sizeEstimate() const
+	  virtual size_t sizeEstimate() const POL_OVERRIDE
 	  {
         return sizeof( *this ) + sizeof( TiXmlNode );
 	  }
@@ -99,11 +99,11 @@ namespace Pol {
 		return new BXMLNodeIterator( node, pIterVal );
 	  }
 
-      virtual Bscript::BObjectRef get_member( const char* membername );
-      virtual Bscript::BObjectRef get_member_id( const int id ); //id test
-      virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex );
-      virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false );
-      virtual Bscript::BObjectRef OperSubscript( const Bscript::BObject& obj );
+      virtual Bscript::BObjectRef get_member( const char* membername ) POL_OVERRIDE;
+      virtual Bscript::BObjectRef get_member_id( const int id ) POL_OVERRIDE; //id test
+      virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex ) POL_OVERRIDE;
+      virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false ) POL_OVERRIDE;
+      virtual Bscript::BObjectRef OperSubscript( const Bscript::BObject& obj ) POL_OVERRIDE;
 	  TiXmlNode* getNode() const { return node; }
 
 	private:
@@ -115,27 +115,27 @@ namespace Pol {
 	public:
 	  BXmlAttribute( TiXmlNode* _node ) : Bscript::BObjectImp( Bscript::BObjectImp::OTXMLAttributes ), node( _node->ToElement() ) {}
 
-	  virtual Bscript::BObjectImp* copy() const
+	  virtual Bscript::BObjectImp* copy() const POL_OVERRIDE
 	  {
 		return new BXmlAttribute( node->Clone() );
 	  }
 
-	  virtual std::string getStringRep() const
+	  virtual std::string getStringRep() const POL_OVERRIDE
 	  {
 		return "XMLAttributes";
 	  }
 
-	  virtual const char* typeOf() const { return "XMLAttributes"; }
-	  virtual int typeOfInt() const { return OTXMLAttributes; }
-	  virtual size_t sizeEstimate() const { return sizeof( *this ); }
+	  virtual const char* typeOf() const POL_OVERRIDE { return "XMLAttributes"; }
+	  virtual int typeOfInt() const POL_OVERRIDE { return OTXMLAttributes; }
+	  virtual size_t sizeEstimate() const POL_OVERRIDE { return sizeof( *this ); }
 
       Bscript::ContIterator* createIterator( Bscript::BObject* pIterVal )
 	  {
 		return new BXMLAttributeIterator( node, pIterVal );
 	  }
-      virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex );
-      virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false );
-      virtual Bscript::BObjectRef OperSubscript( const Bscript::BObject& obj );
+      virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex ) POL_OVERRIDE;
+      virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false ) POL_OVERRIDE;
+      virtual Bscript::BObjectRef OperSubscript( const Bscript::BObject& obj ) POL_OVERRIDE;
 
 	private:
 	  TiXmlElement* node;

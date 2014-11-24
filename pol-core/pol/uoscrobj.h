@@ -59,19 +59,19 @@ namespace Pol {
 		}
 	  virtual ~ECharacterRefObjImp( ) { --Core::uobj_count_echrref; }
 
-	  virtual const char* typeOf() const;
-	  virtual int typeOfInt() const;
-	  virtual Bscript::BObjectImp* copy( ) const;
-	  virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex );
-	  virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false );
-	  virtual Bscript::BObjectRef get_member( const char* membername );
-	  virtual Bscript::BObjectRef get_member_id( const int id ); ///id test
-	  virtual Bscript::BObjectRef set_member( const char* membername, Bscript::BObjectImp* value, bool copy );
-	  virtual Bscript::BObjectRef set_member_id( const int id, Bscript::BObjectImp* value, bool copy );//id test
+	  virtual const char* typeOf() const POL_OVERRIDE;
+	  virtual int typeOfInt() const POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* copy( ) const POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex ) POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false ) POL_OVERRIDE;
+	  virtual Bscript::BObjectRef get_member( const char* membername ) POL_OVERRIDE;
+	  virtual Bscript::BObjectRef get_member_id( const int id ) POL_OVERRIDE; ///id test
+	  virtual Bscript::BObjectRef set_member( const char* membername, Bscript::BObjectImp* value, bool copy ) POL_OVERRIDE;
+	  virtual Bscript::BObjectRef set_member_id( const int id, Bscript::BObjectImp* value, bool copy ) POL_OVERRIDE;//id test
 
-	  virtual bool isTrue() const;
-	  virtual bool isEqual( const Bscript::BObjectImp& objimp ) const;
-	  virtual bool isLessThan( const Bscript::BObjectImp& objimp ) const;
+	  virtual bool isTrue() const POL_OVERRIDE;
+	  virtual bool isEqual( const Bscript::BObjectImp& objimp ) const POL_OVERRIDE;
+	  virtual bool isLessThan( const Bscript::BObjectImp& objimp ) const POL_OVERRIDE;
 
 	  virtual bool offline_access_ok() const { return false; }
 	};
@@ -83,12 +83,12 @@ namespace Pol {
 		ECharacterRefObjImp( chr )
 	  {}
 
-	  virtual const char* typeOf() const;
-	  virtual int typeOfInt() const;
-	  virtual Bscript::BObjectImp* copy( ) const;
+	  virtual const char* typeOf() const POL_OVERRIDE;
+	  virtual int typeOfInt() const POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* copy( ) const POL_OVERRIDE;
 
-	  virtual bool isTrue() const;
-	  virtual bool offline_access_ok() const { return true; }
+	  virtual bool isTrue() const POL_OVERRIDE;
+	  virtual bool offline_access_ok() const POL_OVERRIDE { return true; }
 	};
 
 	class ECharacterEquipObjImp : public Bscript::BApplicObj< Core::CharacterRef >
@@ -99,8 +99,8 @@ namespace Pol {
 		BApplicObj< Core::CharacterRef >( &echaracterequipobjimp_type, Core::CharacterRef( chr ) )
 	  {}
 
-	  virtual Bscript::BObjectImp* copy( ) const;
-	  virtual Bscript::BObjectRef OperSubscript( const Bscript::BObject& obj );
+	  virtual Bscript::BObjectImp* copy( ) const POL_OVERRIDE;
+	  virtual Bscript::BObjectRef OperSubscript( const Bscript::BObject& obj ) POL_OVERRIDE;
 	};
 
 
@@ -112,19 +112,19 @@ namespace Pol {
 		BApplicObj< Core::ItemRef >( &eitemrefobjimp_type, Core::ItemRef( item ) )
 	  {}
 
-	  virtual const char* typeOf() const;
-	  virtual int typeOfInt() const;
-	  virtual Bscript::BObjectImp* copy( ) const;
-	  virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex );
-	  virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false );
-	  virtual Bscript::BObjectRef get_member( const char* membername );
-	  virtual Bscript::BObjectRef get_member_id( const int id ); //id test
-	  virtual Bscript::BObjectRef set_member( const char* membername, Bscript::BObjectImp* value, bool copy );
-	  virtual Bscript::BObjectRef set_member_id( const int id, Bscript::BObjectImp* value, bool copy ); //id test
+	  virtual const char* typeOf() const POL_OVERRIDE;
+	  virtual int typeOfInt() const POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* copy( ) const POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex ) POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false ) POL_OVERRIDE;
+	  virtual Bscript::BObjectRef get_member( const char* membername ) POL_OVERRIDE;
+	  virtual Bscript::BObjectRef get_member_id( const int id ) POL_OVERRIDE; //id test
+	  virtual Bscript::BObjectRef set_member( const char* membername, Bscript::BObjectImp* value, bool copy ) POL_OVERRIDE;
+	  virtual Bscript::BObjectRef set_member_id( const int id, Bscript::BObjectImp* value, bool copy ) POL_OVERRIDE; //id test
 
-	  virtual bool isTrue() const;
-	  virtual bool isEqual( const Bscript::BObjectImp& objimp ) const;
-	  virtual bool isLessThan( const Bscript::BObjectImp& objimp ) const;
+	  virtual bool isTrue() const POL_OVERRIDE;
+	  virtual bool isEqual( const Bscript::BObjectImp& objimp ) const POL_OVERRIDE;
+	  virtual bool isLessThan( const Bscript::BObjectImp& objimp ) const POL_OVERRIDE;
 	};
 
 
@@ -136,18 +136,18 @@ namespace Pol {
 		Bscript::BApplicObj< ref_ptr<Multi::UBoat> >( &euboatrefobjimp_type, ref_ptr<Multi::UBoat>( boat ) )
 	  {}
 
-	  virtual const char* typeOf() const;
-	  virtual int typeOfInt() const;
-	  virtual Bscript::BObjectImp* copy( ) const;
-	  virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex );
-	  virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false );
-	  virtual Bscript::BObjectRef get_member( const char* membername );
-	  virtual Bscript::BObjectRef get_member_id( const int id ); //id test
-	  virtual Bscript::BObjectRef set_member( const char* membername, Bscript::BObjectImp* value, bool copy );
-	  virtual Bscript::BObjectRef set_member_id( const int id, Bscript::BObjectImp* value, bool copy ); //id test
+	  virtual const char* typeOf() const POL_OVERRIDE;
+	  virtual int typeOfInt() const POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* copy( ) const POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex ) POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false ) POL_OVERRIDE;
+	  virtual Bscript::BObjectRef get_member( const char* membername ) POL_OVERRIDE;
+	  virtual Bscript::BObjectRef get_member_id( const int id ) POL_OVERRIDE; //id test
+	  virtual Bscript::BObjectRef set_member( const char* membername, Bscript::BObjectImp* value, bool copy ) POL_OVERRIDE;
+	  virtual Bscript::BObjectRef set_member_id( const int id, Bscript::BObjectImp* value, bool copy ) POL_OVERRIDE; //id test
 
-	  virtual bool isTrue() const;
-	  virtual bool isEqual( const Bscript::BObjectImp& objimp ) const;
+	  virtual bool isTrue() const POL_OVERRIDE;
+	  virtual bool isEqual( const Bscript::BObjectImp& objimp ) const POL_OVERRIDE;
 	};
 
 
@@ -159,17 +159,17 @@ namespace Pol {
 		BApplicObj< ref_ptr<Multi::UMulti> >( &emultirefobjimp_type, ref_ptr<Multi::UMulti>( multi ) )
 	  {}
 
-	  virtual const char* typeOf() const;
-	  virtual int typeOfInt() const;
-	  virtual Bscript::BObjectImp* copy( ) const;
-	  virtual Bscript::BObjectRef get_member( const char* membername );
-	  virtual Bscript::BObjectRef get_member_id( const int id ); //id test
-	  virtual Bscript::BObjectRef set_member( const char* membername, Bscript::BObjectImp* value, bool copy );
-	  virtual Bscript::BObjectRef set_member_id( const int id, Bscript::BObjectImp* value, bool copy ); //test id
-	  virtual bool isTrue() const;
-	  virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex );
-	  virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false );
-	  virtual bool isEqual( const Bscript::BObjectImp& objimp ) const;
+	  virtual const char* typeOf() const POL_OVERRIDE;
+	  virtual int typeOfInt() const POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* copy( ) const POL_OVERRIDE;
+	  virtual Bscript::BObjectRef get_member( const char* membername ) POL_OVERRIDE;
+	  virtual Bscript::BObjectRef get_member_id( const int id ) POL_OVERRIDE; //id test
+	  virtual Bscript::BObjectRef set_member( const char* membername, Bscript::BObjectImp* value, bool copy ) POL_OVERRIDE;
+	  virtual Bscript::BObjectRef set_member_id( const int id, Bscript::BObjectImp* value, bool copy ) POL_OVERRIDE; //test id
+	  virtual bool isTrue() const POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex ) POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false ) POL_OVERRIDE;
+	  virtual bool isEqual( const Bscript::BObjectImp& objimp ) const POL_OVERRIDE;
 	};
 
 	class ClientPtrHolder
@@ -199,18 +199,18 @@ namespace Pol {
 	  virtual ~EClientRefObjImp() {};
 
 
-	  virtual const char* typeOf() const;
-	  virtual int typeOfInt() const;
-	  virtual Bscript::BObjectImp* copy( ) const;
-	  virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex );
-	  virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false );
-	  virtual Bscript::BObjectRef get_member( const char* membername );
-	  virtual Bscript::BObjectRef get_member_id( const int id ); //id test
-	  virtual Bscript::BObjectRef set_member( const char* membername, Bscript::BObjectImp* value, bool copy );
-	  virtual Bscript::BObjectRef set_member_id( const int id, Bscript::BObjectImp* value, bool copy ); //id test
+	  virtual const char* typeOf() const POL_OVERRIDE;
+	  virtual int typeOfInt() const POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* copy( ) const POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex ) POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false ) POL_OVERRIDE;
+	  virtual Bscript::BObjectRef get_member( const char* membername ) POL_OVERRIDE;
+	  virtual Bscript::BObjectRef get_member_id( const int id ) POL_OVERRIDE; //id test
+	  virtual Bscript::BObjectRef set_member( const char* membername, Bscript::BObjectImp* value, bool copy ) POL_OVERRIDE;
+	  virtual Bscript::BObjectRef set_member_id( const int id, Bscript::BObjectImp* value, bool copy ) POL_OVERRIDE; //id test
 
-	  virtual bool isTrue() const;
-	  virtual bool isEqual( const Bscript::BObjectImp& objimp ) const;
+	  virtual bool isTrue() const POL_OVERRIDE;
+	  virtual bool isEqual( const Bscript::BObjectImp& objimp ) const POL_OVERRIDE;
 	};
 
 	// EMenuObjImp defined on UOEMOD.CPP

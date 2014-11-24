@@ -70,7 +70,7 @@ namespace Pol {
 	{
 	public:
 	  BDictionaryIterator( BDictionary* pDict, BObject* pIterVal );
-	  virtual BObject* step();
+	  virtual BObject* step() POL_OVERRIDE;
 
 	private:
 	  BObject m_DictObj;

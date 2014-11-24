@@ -1196,11 +1196,11 @@ namespace Pol {
 	  BIntHash();
 	  BIntHash( const BIntHash& );
 	  void add( int key, BObjectImp* value );
-	  virtual BObjectRef get_member( const char* membername );
-	  virtual BObjectRef OperSubscript( const BObject& obj );
-	  virtual BObjectImp* copy() const;
-	  virtual std::string getStringRep() const;
-	  virtual size_t sizeEstimate() const;
+	  virtual BObjectRef get_member( const char* membername ) POL_OVERRIDE;
+	  virtual BObjectRef OperSubscript( const BObject& obj ) POL_OVERRIDE;
+	  virtual BObjectImp* copy() const POL_OVERRIDE;
+	  virtual std::string getStringRep() const POL_OVERRIDE;
+	  virtual size_t sizeEstimate() const POL_OVERRIDE;
 	private:
 	  typedef std::map<int, BObjectRef> Contents;
 	  Contents contents_;
@@ -1579,13 +1579,13 @@ namespace Pol {
 	{
 	public:
 	  PolCore();
-	  virtual BObjectRef get_member( const char* membername );
-	  virtual BObjectImp* call_method( const char* methodname, Executor& ex );
-	  virtual BObjectImp* copy() const;
-	  virtual std::string getStringRep() const;
-	  virtual size_t sizeEstimate() const { return sizeof( PolCore ); }
-	  virtual const char* typeOf() const;
-	  virtual int typeOfInt() const;
+	  virtual BObjectRef get_member( const char* membername ) POL_OVERRIDE;
+	  virtual BObjectImp* call_method( const char* methodname, Executor& ex ) POL_OVERRIDE;
+	  virtual BObjectImp* copy() const POL_OVERRIDE;
+	  virtual std::string getStringRep() const POL_OVERRIDE;
+	  virtual size_t sizeEstimate() const POL_OVERRIDE { return sizeof( PolCore ); }
+	  virtual const char* typeOf() const POL_OVERRIDE;
+	  virtual int typeOfInt() const POL_OVERRIDE;
 	private:
 	  // not implemented:
 	  PolCore& operator=( const PolCore& );

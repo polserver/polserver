@@ -71,17 +71,17 @@ namespace Pol {
 	  BBinaryfile();
 	  BBinaryfile( std::string filename, unsigned short mode, bool _bigendian );
 	  ~BBinaryfile();
-	  virtual Bscript::BObjectRef get_member( const char* membername );
-	  virtual Bscript::BObjectRef get_member_id( const int id ); //id test
-	  virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex );
-	  virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false );
-	  virtual Bscript::BObjectImp* copy() const;
-	  virtual std::string getStringRep() const;
-      virtual size_t sizeEstimate() const;
-	  virtual const char* typeOf() const { return "BinaryFile"; }
-	  virtual int typeOfInt() const { return OTBinaryFile; }
-	  virtual bool isTrue() const;
-	  virtual bool isEqual( const Bscript::BObjectImp& objimp ) const;
+	  virtual Bscript::BObjectRef get_member( const char* membername ) POL_OVERRIDE;
+	  virtual Bscript::BObjectRef get_member_id( const int id ) POL_OVERRIDE; //id test
+	  virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex ) POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false ) POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* copy() const POL_OVERRIDE;
+	  virtual std::string getStringRep() const POL_OVERRIDE;
+      virtual size_t sizeEstimate() const POL_OVERRIDE;
+	  virtual const char* typeOf() const POL_OVERRIDE { return "BinaryFile"; }
+	  virtual int typeOfInt() const POL_OVERRIDE { return OTBinaryFile; }
+	  virtual bool isTrue() const POL_OVERRIDE;
+	  virtual bool isEqual( const Bscript::BObjectImp& objimp ) const POL_OVERRIDE;
 
 	private:
 	  mutable BinFile file;

@@ -18,6 +18,8 @@
   #include <boost/mpl/aux_/lambda_support.hpp>
   #include <boost/mpl/if.hpp>
   #include <boost/foreach.hpp>
+
+  #include "compilerspecifics.h"
 #endif
 #include <boost/flyweight.hpp>
 
@@ -96,10 +98,10 @@ namespace Pol {
 
       typedef std::size_t size_type;
 
-      virtual size_type bucket_count()const { return cont.bucket_count(); }
-      virtual size_type max_bucket_count()const { return cont.max_bucket_count(); }
-      virtual size_type bucket_size( size_type n )const { return cont.bucket_size( n ); }
-      virtual size_type estimateSize() const
+      virtual size_type bucket_count()const POL_OVERRIDE { return cont.bucket_count(); }
+      virtual size_type max_bucket_count()const POL_OVERRIDE { return cont.max_bucket_count(); }
+      virtual size_type bucket_size( size_type n )const POL_OVERRIDE { return cont.bucket_size( n ); }
+      virtual size_type estimateSize() const POL_OVERRIDE
       {
         size_type size = 0;
         BOOST_FOREACH( const Entry& e, cont )

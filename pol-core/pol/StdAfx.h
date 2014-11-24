@@ -20,8 +20,10 @@ The pch needs also to be created and thats why the additional cpp file exists, i
 #if !defined(_POL_STDAFX_H)
 #define _POL_STDAFX_H
 
-#define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
-#include <windows.h>
+#ifdef _MSC_VER
+#	define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
+#	include <windows.h>
+#endif
 
 // System Includes
 #include <string>

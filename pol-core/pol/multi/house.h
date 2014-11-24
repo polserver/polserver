@@ -51,10 +51,10 @@ namespace Pol {
 	  int editing_floor_num;
 	  u32 revision;
 
-	  virtual void register_object( Core::UObject* obj );
-	  virtual void unregister_object( Core::UObject* obj );
+	  virtual void register_object( Core::UObject* obj ) POL_OVERRIDE;
+	  virtual void unregister_object( Core::UObject* obj ) POL_OVERRIDE;
 
-	  virtual void walk_on( Mobile::Character* chr );
+	  virtual void walk_on( Mobile::Character* chr ) POL_OVERRIDE;
 
 	  void ClearSquatters();
 	  void add_component( Items::Item* item, s32 xoff, s32 yoff, u8 zoff );
@@ -65,22 +65,22 @@ namespace Pol {
 	  void CustomHousesQuit( Mobile::Character* chr, bool drop_changes );
 
       virtual ~UHouse() {};
-      virtual size_t estimatedSize() const;
+      virtual size_t estimatedSize() const POL_OVERRIDE;
 
 	protected:
 	  explicit UHouse( const Items::ItemDesc& itemdesc );
 	  void create_components();
 
-	  virtual void readProperties( Clib::ConfigElem& elem );
-	  virtual void printProperties( Clib::StreamWriter& sw ) const;
-	  virtual Bscript::BObjectImp* script_method( const char* membername, Bscript::Executor& ex );
-	  virtual Bscript::BObjectImp* script_method_id( const int id, Bscript::Executor& ex );
-	  virtual Bscript::BObjectImp* get_script_member( const char *membername ) const;
-	  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const; ///id test
-	  virtual bool script_isa( unsigned isatype ) const;
-	  virtual class UHouse* as_house();
-      virtual bool readshapes( Plib::MapShapeList& vec, short x, short y, short zbase );
-	  virtual bool readobjects( Core::StaticList& vec, short x, short y, short zbase );
+	  virtual void readProperties( Clib::ConfigElem& elem ) POL_OVERRIDE;
+	  virtual void printProperties( Clib::StreamWriter& sw ) const POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* script_method( const char* membername, Bscript::Executor& ex ) POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* script_method_id( const int id, Bscript::Executor& ex ) POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* get_script_member( const char *membername ) const POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const POL_OVERRIDE; ///id test
+	  virtual bool script_isa( unsigned isatype ) const POL_OVERRIDE;
+	  virtual class UHouse* as_house() POL_OVERRIDE;
+      virtual bool readshapes( Plib::MapShapeList& vec, short x, short y, short zbase ) POL_OVERRIDE;
+	  virtual bool readobjects( Core::StaticList& vec, short x, short y, short zbase ) POL_OVERRIDE;
 	  Bscript::ObjArray* component_list() const;
 	  Bscript::ObjArray* items_list( ) const;
 	  Bscript::ObjArray* mobiles_list( ) const;

@@ -88,17 +88,17 @@ namespace Pol {
       {
        public:
         PacketQueueSingle(){};
-        ~PacketQueueSingle();
+        virtual ~PacketQueueSingle();
 
        private:
         PacketInterfaceQueue packets;
         mutable std::mutex _PacketQueueSingleMutex;
 
        public:
-        PacketInterface* GetNext(u8 id, u16 sub = 0);
-        void Add(PacketInterface* pkt);
-        size_t Count() const { return packets.size(); };
-        size_t estimateSize() const;
+        virtual PacketInterface* GetNext(u8 id, u16 sub = 0) POL_OVERRIDE;
+        virtual void Add(PacketInterface* pkt) POL_OVERRIDE;
+        virtual size_t Count() const POL_OVERRIDE { return packets.size(); };
+        virtual size_t estimateSize() const POL_OVERRIDE;
       };
 
       // packet with subs queue
@@ -106,19 +106,19 @@ namespace Pol {
       {
        public:
         PacketQueueSubs(){};
-        ~PacketQueueSubs();
+        virtual ~PacketQueueSubs();
 
        private:
         PacketInterfaceQueueMap packets;
         mutable std::mutex _PacketQueueSubsMutex;
 
        public:
-        PacketInterface* GetNext(u8 id, u16 sub = 0);
-        void Add(PacketInterface* pkt);
-        size_t Count() const;
-        bool HasSubs() const { return true; };
-		PacketInterfaceQueueMap* GetSubs() { return &packets; };
-        size_t estimateSize() const;
+        virtual PacketInterface* GetNext(u8 id, u16 sub = 0) POL_OVERRIDE;
+        virtual void Add(PacketInterface* pkt) POL_OVERRIDE;
+        virtual size_t Count() const POL_OVERRIDE;
+        virtual bool HasSubs() const POL_OVERRIDE { return true; };
+		virtual PacketInterfaceQueueMap* GetSubs() POL_OVERRIDE { return &packets; };
+        virtual size_t estimateSize() const POL_OVERRIDE;
       };
 
       typedef std::pair<u8, PacketQueue*> PacketQueuePair;

@@ -157,9 +157,9 @@ namespace Pol {
 	public:
       BoundingBoxObjImp( ) : BApplicObj<Mobile::BoundingBox>( &bounding_box_type ) {}
       explicit BoundingBoxObjImp( const Mobile::BoundingBox& b ) : BApplicObj<Mobile::BoundingBox>( &bounding_box_type, b ) {}
-	  virtual const char* typeOf() const { return "BoundingBox"; }
-	  virtual int typeOfInt() const { return OTBoundingBox; }
-	  virtual BObjectImp* copy() const { return new BoundingBoxObjImp( value() ); }
+	  virtual const char* typeOf() const POL_OVERRIDE { return "BoundingBox"; }
+	  virtual int typeOfInt() const POL_OVERRIDE { return OTBoundingBox; }
+	  virtual BObjectImp* copy() const POL_OVERRIDE { return new BoundingBoxObjImp( value() ); }
 
 	};
 

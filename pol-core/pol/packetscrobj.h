@@ -31,17 +31,17 @@ namespace Pol {
 	  ~BPacket();
 
 	  std::vector<unsigned char> buffer;
-	  virtual Bscript::BObjectRef get_member( const char* membername );
-	  virtual Bscript::BObjectRef get_member_id( const int id ); //id test
-	  virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex );
-	  virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false );
-	  virtual Bscript::BObjectImp* copy( ) const;
-	  virtual std::string getStringRep() const;
+	  virtual Bscript::BObjectRef get_member( const char* membername ) POL_OVERRIDE;
+	  virtual Bscript::BObjectRef get_member_id( const int id ) POL_OVERRIDE; //id test
+	  virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex ) POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false ) POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* copy( ) const POL_OVERRIDE;
+	  virtual std::string getStringRep() const POL_OVERRIDE;
 	  bool SetSize( u16 newsize );
 	  Bscript::BObjectImp* SetSize( u16 newsize, bool giveReturn );
-      virtual size_t sizeEstimate( ) const { return sizeof( *this ) + 3 * sizeof(void*) * buffer.capacity( ) * sizeof( unsigned char ); }
-	  virtual const char* typeOf() const { return "Packet"; }
-	  virtual int typeOfInt() const { return OTPacket; }
+      virtual size_t sizeEstimate( ) const POL_OVERRIDE { return sizeof( *this ) + 3 * sizeof(void*) * buffer.capacity( ) * sizeof( unsigned char ); }
+	  virtual const char* typeOf() const POL_OVERRIDE { return "Packet"; }
+	  virtual int typeOfInt() const POL_OVERRIDE { return OTPacket; }
 
 	  bool is_variable_length;
 	};

@@ -62,16 +62,16 @@ namespace Pol {
       //virtual BObjectRef get_member_id( const int id ); //id test
       //virtual Bscript::BObjectImp* call_method( const char* methodname, Executor& ex );
       //virtual Bscript::BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin=false );
-      virtual Bscript::BObjectImp* copy() const
+      virtual Bscript::BObjectImp* copy() const POL_OVERRIDE
       {
         return new BSQLRow( _result, _row, _fields );
       }
-      virtual std::string getStringRep() const { return "SQLRow"; }
-      virtual size_t sizeEstimate( ) const { return sizeof( *this ) + sizeof(MYSQL_FIELD); }
-      virtual const char* typeOf() const { return "SQLRow"; }
-      virtual int typeOfInt() const { return OTSQLRow; }
-      virtual bool isTrue() const { return _row != 0; };
-      virtual Bscript::BObjectRef OperSubscript( const Bscript::BObject& obj );
+      virtual std::string getStringRep() const POL_OVERRIDE { return "SQLRow"; }
+      virtual size_t sizeEstimate( ) const POL_OVERRIDE { return sizeof( *this ) + sizeof(MYSQL_FIELD); }
+      virtual const char* typeOf() const POL_OVERRIDE { return "SQLRow"; }
+      virtual int typeOfInt() const POL_OVERRIDE { return OTSQLRow; }
+      virtual bool isTrue() const POL_OVERRIDE { return _row != 0; };
+      virtual Bscript::BObjectRef OperSubscript( const Bscript::BObject& obj ) POL_OVERRIDE;
 
     private:
       MYSQL_ROW _row;
@@ -94,16 +94,16 @@ namespace Pol {
         if ( !_result ) return 0;
         return static_cast<int>( mysql_num_rows( _result->ptr() ) );
       };
-      virtual Bscript::BObjectImp* copy() const
+      virtual Bscript::BObjectImp* copy() const POL_OVERRIDE
       {
         if ( _affected_rows ) return new BSQLResultSet( _affected_rows );
         else return new BSQLResultSet( _result, _fields );
       };
-      virtual std::string getStringRep() const;
-      virtual size_t sizeEstimate( ) const { return sizeof( *this ) + sizeof( MYSQL_FIELD); }
-      virtual const char* typeOf() const { return "SQLResultSet"; }
-      virtual int typeOfInt() const { return OTSQLResultSet; }
-      virtual bool isTrue() const;
+      virtual std::string getStringRep() const POL_OVERRIDE;
+      virtual size_t sizeEstimate( ) const POL_OVERRIDE { return sizeof( *this ) + sizeof( MYSQL_FIELD); }
+      virtual const char* typeOf() const POL_OVERRIDE { return "SQLResultSet"; }
+      virtual int typeOfInt() const POL_OVERRIDE { return OTSQLResultSet; }
+      virtual bool isTrue() const POL_OVERRIDE;
       // virtual BObjectRef OperSubscript( const BObject& obj );
 
       friend class BSQLRow;
@@ -131,16 +131,16 @@ namespace Pol {
       int getLastErrNo() const { return _errno; };
       std::shared_ptr<ConnectionWrapper> getConnection() const { return _conn; };
 
-      virtual Bscript::BObjectRef get_member( const char* membername );
-      virtual Bscript::BObjectRef get_member_id( const int id ); //id test
-      virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex );
-      virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false );
-      virtual Bscript::BObjectImp* copy() const;
-      virtual std::string getStringRep() const;
-      virtual size_t sizeEstimate() const { return sizeof( *this )+_error.capacity(); }
-      virtual const char* typeOf() const { return "SQLConnection"; }
-      virtual int typeOfInt() const { return OTSQLConnection; }
-      virtual bool isTrue() const;
+      virtual Bscript::BObjectRef get_member( const char* membername ) POL_OVERRIDE;
+      virtual Bscript::BObjectRef get_member_id( const int id ) POL_OVERRIDE; //id test
+      virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex ) POL_OVERRIDE;
+      virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false ) POL_OVERRIDE;
+      virtual Bscript::BObjectImp* copy() const POL_OVERRIDE;
+      virtual std::string getStringRep() const POL_OVERRIDE;
+      virtual size_t sizeEstimate() const POL_OVERRIDE { return sizeof( *this )+_error.capacity(); }
+      virtual const char* typeOf() const POL_OVERRIDE { return "SQLConnection"; }
+      virtual int typeOfInt() const POL_OVERRIDE { return OTSQLConnection; }
+      virtual bool isTrue() const POL_OVERRIDE;
       // virtual BObjectRef OperSubscript( const BObject& obj );
 
     private:

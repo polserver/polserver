@@ -11,6 +11,7 @@ Notes
 #ifndef CLIFACE_H
 #define CLIFACE_H
 
+#include "../../clib/compilerspecifics.h"
 #include <vector>
 namespace Pol {
   namespace Mobile {
@@ -72,11 +73,11 @@ namespace Pol {
 	class UOClientInterface : public ClientInterface
 	{
 	public:
-	  void Initialize();
+	  virtual void Initialize() POL_OVERRIDE;
 
 	protected:
 	  friend class ClientInterface;
-	  virtual void bcast_vital_changed( Mobile::Character* who, const Core::Vital* vital ) const;
+	  virtual void bcast_vital_changed( Mobile::Character* who, const Core::Vital* vital ) const POL_OVERRIDE;
 	};
 	extern UOClientInterface uo_client_interface;
   }

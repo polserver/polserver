@@ -315,9 +315,9 @@ namespace Pol {
 
 	  // class machinery
 	protected:
-	  virtual Bscript::BObjectImp* execFunc( unsigned idx );
-	  virtual int functionIndex( const char *func );
-	  virtual std::string functionName( unsigned idx );
+	  virtual Bscript::BObjectImp* execFunc( unsigned idx ) POL_OVERRIDE;
+	  virtual int functionIndex( const char *func ) POL_OVERRIDE;
+	  virtual std::string functionName( unsigned idx ) POL_OVERRIDE;
 	  static UOFunctionDef function_table[];
 	  Bscript::BObjectImp* internal_MoveItem( Items::Item* item, Core::xcoord x, Core::ycoord y, Core::zcoord z, int flags, Plib::Realm* newrealm );
 	  Bscript::BObjectImp* internal_MoveCharacter( Mobile::Character* chr, Core::xcoord x, Core::ycoord y, Core::zcoord z, int flags, Plib::Realm* newrealm );

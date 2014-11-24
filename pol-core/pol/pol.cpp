@@ -143,6 +143,10 @@ Notes
 #include "../clib/timer.h"
 #include "../clib/tracebuf.h"
 
+#ifndef NDEBUG
+#include "npc.h"
+#endif
+
 #ifdef _WIN32
 #include "../clib/mdump.h"
 #include <process.h>

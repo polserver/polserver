@@ -15,6 +15,8 @@ Notes
 #include <string>
 #include <iosfwd>
 
+#include "../clib/compilerspecifics.h"
+
 #ifndef __TOKEN_H
 #include "token.h"
 #endif
@@ -140,7 +142,7 @@ namespace Pol {
 	public:
 	  virtual ~SmartParser() {}
 	protected:
-	  virtual int tryLiteral( Token& tok, CompilerContext& ctx );
+	  virtual int tryLiteral( Token& tok, CompilerContext& ctx ) POL_OVERRIDE;
 
 	  class ModuleFunction* modfunc_;
 	  UserFunction *userfunc_;
@@ -157,7 +159,7 @@ namespace Pol {
 
       virtual int isUserFunc(Token& tok, UserFunction **userfunc);
 
-	  virtual int parseToken( CompilerContext& ctx, Expression& expr, Token * );
+	  virtual int parseToken( CompilerContext& ctx, Expression& expr, Token * ) POL_OVERRIDE;
 	  int getToken( CompilerContext& ctx, Token& token, Expression* expr = NULL );
 
 	  bool callingMethod( CompilerContext& ctx );

@@ -13,8 +13,8 @@ namespace Pol {
             typedef UContainer base;
         public:
             virtual ~UCorpse() {};
-            virtual size_t estimatedSize() const;
-            virtual u16 get_senditem_amount() const;
+            virtual size_t estimatedSize() const POL_OVERRIDE;
+            virtual u16 get_senditem_amount() const POL_OVERRIDE;
 
 			virtual void add( Item *item ) POL_OVERRIDE;
 			virtual void remove( iterator itr ) POL_OVERRIDE;
@@ -30,16 +30,16 @@ namespace Pol {
             void PutItemOnLayer(Items::Item* item);
 
             explicit UCorpse(const Items::ContainerDesc& desc);
-            virtual void spill_contents(Multi::UMulti* supporting_multi);
-            virtual void printProperties(Clib::StreamWriter& sw) const;
-            virtual void readProperties(Clib::ConfigElem& elem);
+            virtual void spill_contents(Multi::UMulti* supporting_multi) POL_OVERRIDE;
+            virtual void printProperties(Clib::StreamWriter& sw) const POL_OVERRIDE;
+            virtual void readProperties(Clib::ConfigElem& elem) POL_OVERRIDE;
             friend Items::Item* Items::Item::create(const Items::ItemDesc& itemdesc, u32 serial);
             //virtual Bscript::BObjectImp* script_member( const char *membername );
-            virtual Bscript::BObjectImp* get_script_member(const char *membername) const;
-            virtual Bscript::BObjectImp* get_script_member_id(const int id) const; ///id test
+            virtual Bscript::BObjectImp* get_script_member(const char *membername) const POL_OVERRIDE;
+            virtual Bscript::BObjectImp* get_script_member_id(const int id) const POL_OVERRIDE; ///id test
             //virtual Bscript::BObjectImp* set_script_member( const char *membername, const std::string& value );
             //virtual Bscript::BObjectImp* set_script_member( const char *membername, int value );
-            virtual bool script_isa(unsigned isatype) const;
+            virtual bool script_isa(unsigned isatype) const POL_OVERRIDE;
             Contents layer_list_;
         };
 

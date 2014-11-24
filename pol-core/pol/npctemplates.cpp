@@ -38,7 +38,7 @@ namespace Pol {
 	  virtual void display_error( const std::string& msg,
 								  bool show_curline = true,
                                   const Clib::ConfigElemBase* elem = NULL,
-								  bool error = true ) const;
+								  bool error = true ) const POL_OVERRIDE;
 	private:
 	  std::string _filename;
 	  unsigned _fileline;

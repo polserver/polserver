@@ -75,11 +75,11 @@ namespace Pol {
       typedef PackageObjImpBase base;
     public:
       explicit PackageObjImp( const PackagePtrHolder& other );
-      virtual const char* typeOf() const;
-      virtual int typeOfInt() const;
-      virtual Bscript::BObjectImp* copy() const;
-      virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex );
-      virtual Bscript::BObjectRef get_member( const char* membername );
+      virtual const char* typeOf() const POL_OVERRIDE;
+      virtual int typeOfInt() const POL_OVERRIDE;
+      virtual Bscript::BObjectImp* copy() const POL_OVERRIDE;
+      virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex ) POL_OVERRIDE;
+      virtual Bscript::BObjectRef get_member( const char* membername ) POL_OVERRIDE;
     };
     PackageObjImp::PackageObjImp( const PackagePtrHolder& other ) :
       PackageObjImpBase( &packageobjimp_type, other )

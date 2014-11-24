@@ -778,7 +778,7 @@ namespace Pol {
                       Plib::Package* pkg_expected,
 					  const char* filename_expected,
 					  const char* pagetype_expected,
-					  const char* /*redirect_to_expected*/ )
+					  const char* redirect_to_expected )
 	{
       Plib::Package* pkg;
       std::string filename;
@@ -791,6 +791,7 @@ namespace Pol {
 	  if ( result )
 	  {
 		assert( redirect_to == redirect_to_expected );
+		(void)redirect_to_expected;
 		if ( redirect_to.empty() )
 		{
 		  passert_always( pkg == pkg_expected );

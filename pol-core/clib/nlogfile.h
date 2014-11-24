@@ -22,8 +22,8 @@ namespace Pol {
 	  void set_streambuf( streambuf* isb );
 
 	protected:
-	  virtual int overflow( int ch );
-	  virtual int sync();
+	  virtual int overflow( int ch ) POL_OVERRIDE;
+	  virtual int sync() POL_OVERRIDE;
 
 	private:
 	  streambuf* sb;

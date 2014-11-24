@@ -207,14 +207,14 @@ namespace Pol {
       fmt::Writer _log;
     protected:
       // no output
-      virtual void OnSymInit( LPCSTR szSearchPath, DWORD symOptions, LPCSTR szUserName ) {}
-      virtual void OnLoadModule( LPCSTR img, LPCSTR mod, DWORD64 baseAddr, DWORD size, DWORD result, LPCSTR symType, LPCSTR pdbName, ULONGLONG fileVersion ) { }
-      virtual void OnDbgHelpErr( LPCSTR szFuncName, DWORD gle, DWORD64 addr ) {};
-      virtual void OnOutput( LPCSTR szText )
+      virtual void OnSymInit( LPCSTR szSearchPath, DWORD symOptions, LPCSTR szUserName ) POL_OVERRIDE {}
+      virtual void OnLoadModule( LPCSTR img, LPCSTR mod, DWORD64 baseAddr, DWORD size, DWORD result, LPCSTR symType, LPCSTR pdbName, ULONGLONG fileVersion ) POL_OVERRIDE { }
+      virtual void OnDbgHelpErr( LPCSTR szFuncName, DWORD gle, DWORD64 addr ) POL_OVERRIDE {};
+      virtual void OnOutput( LPCSTR szText ) POL_OVERRIDE
       {
         _log << szText;
       }
-      virtual void OnCallstackEntry( CallstackEntryType eType, CallstackEntry &entry )
+      virtual void OnCallstackEntry( CallstackEntryType eType, CallstackEntry &entry ) POL_OVERRIDE
       {
         try
         {

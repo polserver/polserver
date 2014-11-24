@@ -33,17 +33,17 @@ namespace Pol {
 	  BError( const BError& i );
 	  BError( std::istream& is, unsigned size );
 
-	  virtual BObjectImp* copy() const;
-	  virtual BObjectRef OperSubscript( const BObject& obj );
-	  virtual BObjectImp* array_assign( BObjectImp* idx, BObjectImp* target, bool copy );
+	  virtual BObjectImp* copy() const POL_OVERRIDE;
+	  virtual BObjectRef OperSubscript( const BObject& obj ) POL_OVERRIDE;
+	  virtual BObjectImp* array_assign( BObjectImp* idx, BObjectImp* target, bool copy ) POL_OVERRIDE;
 
-	  virtual char packtype() const;
-	  virtual const char* typetag() const;
-	  virtual const char* typeOf() const;
-	  virtual int typeOfInt() const;
+	  virtual char packtype() const POL_OVERRIDE;
+	  virtual const char* typetag() const POL_OVERRIDE;
+	  virtual const char* typeOf() const POL_OVERRIDE;
+	  virtual int typeOfInt() const POL_OVERRIDE;
 
-	  virtual bool isEqual( const BObjectImp& objimp ) const;
-	  virtual bool isTrue() const;
+	  virtual bool isEqual( const BObjectImp& objimp ) const POL_OVERRIDE;
+	  virtual bool isTrue() const POL_OVERRIDE;
 
 	  ContIterator* createIterator( BObject* pIterVal );
 

@@ -53,16 +53,16 @@ namespace Pol {
 	{
 	public:
 	  EPartyRefObjImp( Core::PartyRef pref );
-	  virtual const char* typeOf() const;
-	  virtual int typeOfInt() const;
-	  virtual BObjectImp* copy() const;
-	  virtual bool isTrue() const;
-	  virtual bool isEqual( const BObjectImp& objimp ) const;
+	  virtual const char* typeOf() const POL_OVERRIDE;
+	  virtual int typeOfInt() const POL_OVERRIDE;
+	  virtual BObjectImp* copy() const POL_OVERRIDE;
+	  virtual bool isTrue() const POL_OVERRIDE;
+	  virtual bool isEqual( const BObjectImp& objimp ) const POL_OVERRIDE;
 
-	  virtual BObjectRef get_member( const char* membername );
-	  virtual BObjectRef get_member_id( const int id ); //id test
-	  virtual BObjectImp* call_method( const char* methodname, Executor& ex );
-	  virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin = false );
+	  virtual BObjectRef get_member( const char* membername ) POL_OVERRIDE;
+	  virtual BObjectRef get_member_id( const int id ) POL_OVERRIDE; //id test
+	  virtual BObjectImp* call_method( const char* methodname, Executor& ex ) POL_OVERRIDE;
+	  virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin = false ) POL_OVERRIDE;
 	};
 	BApplicObjType party_type;
     EPartyRefObjImp::EPartyRefObjImp( Core::PartyRef pref ) : BApplicObj<Core::PartyRef>( &party_type, pref )

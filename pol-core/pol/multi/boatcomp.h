@@ -28,14 +28,14 @@ namespace Pol {
 	public:
 	  void setboat( UBoat* boat );
       virtual ~UPlank() {};
-      virtual size_t estimatedSize( ) const;
+      virtual size_t estimatedSize( ) const POL_OVERRIDE;
 	protected:
 	  explicit UPlank( const Items::ItemDesc& descriptor );
 	  friend Items::Item* Items::Item::create( const Items::ItemDesc& descriptor, u32 serial );
 
-	  virtual void destroy();
-	  virtual Bscript::BObjectImp* get_script_member( const char* membername ) const;
-	  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const; ///id test
+	  virtual void destroy() POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* get_script_member( const char* membername ) const POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const POL_OVERRIDE; ///id test
 
 	private:
 	  ref_ptr<UBoat> boat_;

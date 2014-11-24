@@ -38,7 +38,7 @@ namespace Pol {
         Clib::SocketClientThread( SL ), _def( *def ), client( NULL )
 	  {}
       UoClientThread( UoClientThread& copy ) : Clib::SocketClientThread( copy._sck ), _def( copy._def ), client( copy.client ) {}
-	  virtual void run();
+	  virtual void run() POL_OVERRIDE;
 	  void create();
 	  ~UoClientThread() {}
 

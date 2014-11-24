@@ -98,9 +98,9 @@ namespace Pol {
 
 	  Bscript::BObjectImp* move_self( Core::UFACING facing, bool run, bool adjust_ok = false );
 	  // class machinery 
-	  virtual Bscript::BObjectImp* execFunc( unsigned idx );
-	  virtual int functionIndex( const char* func );
-	  virtual std::string functionName( unsigned idx );
+	  virtual Bscript::BObjectImp* execFunc( unsigned idx ) POL_OVERRIDE;
+	  virtual int functionIndex( const char* func ) POL_OVERRIDE;
+	  virtual std::string functionName( unsigned idx ) POL_OVERRIDE;
 	  static NPCFunctionDef function_table[];
 
 	  inline bool _internal_move( Core::UFACING facing, int run ); //DAVE

@@ -29,8 +29,8 @@ namespace Pol {
 	  EquipDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::Package* pkg );
 	  EquipDesc(); // for dummy template
       virtual ~EquipDesc() {};
-	  virtual void PopulateStruct( Bscript::BStruct* descriptor ) const;
-      virtual size_t estimatedSize() const;
+	  virtual void PopulateStruct( Bscript::BStruct* descriptor ) const POL_OVERRIDE;
+      virtual size_t estimatedSize() const POL_OVERRIDE;
 	};
   }
 }

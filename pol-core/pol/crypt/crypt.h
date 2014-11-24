@@ -46,12 +46,12 @@ namespace Pol {
 
 	  // Member Functions
 	public:
-	  virtual int		Receive( void *buffer, int max_expected, SOCKET socket );
-	  virtual void	Init( void *pvSeed, int type = CCryptBase::typeAuto );
-	  virtual void	SetMasterKeys( unsigned int masterKey1, unsigned int masterKey2 );
+	  virtual int		Receive( void *buffer, int max_expected, SOCKET socket ) POL_OVERRIDE;
+	  virtual void	Init( void *pvSeed, int type = CCryptBase::typeAuto ) POL_OVERRIDE;
+	  virtual void	SetMasterKeys( unsigned int masterKey1, unsigned int masterKey2 ) POL_OVERRIDE;
 
 	protected:
-	  virtual void	Decrypt( void *pvIn, void *pvOut, int len );
+	  virtual void	Decrypt( void *pvIn, void *pvOut, int len ) POL_OVERRIDE;
 	};
 
 	// BLOWFISH OLD
