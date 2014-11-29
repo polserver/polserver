@@ -174,41 +174,53 @@ namespace Pol {
     
     int exec_script( const char *path )
     {
-        std::string fname(path);
+      std::string fname(path);
       // TODO: autoconvert to .ecl ?
-
-      Executor E;
-      E.addModule( new BasicExecutorModule( E ) );
-      E.addModule( new BasicIoExecutorModule( E ) );
-      E.addModule( new MathExecutorModule( E ) );
-      //E.addModule( new SQLExecutorModule( E ) );
-      E.addModule( new UtilExecutorModule( E ) );
-      E.addModule( new FileAccessExecutorModule( E ) );
-      E.addModule( new ConfigFileExecutorModule( E ) );
-      E.addModule( new DataFileExecutorModule( E ) );
-
-      ref_ptr<EScriptProgram> program( new EScriptProgram );
-      if ( program->read( fname.c_str() ) )
-      {
-        ERROR_PRINT << "Error reading " << fname << "\n";
-        return 1;
-      }
-      E.setProgram( program.get() );
-
-      E.setDebugLevel( debug ? Executor::INSTRUCTIONS : Executor::NONE );
-      clock_t start = clock();
+	  bool exres;
+	  double seconds;
+	  size_t memory_used;
+	  clock_t clocks;
 #ifdef _WIN32
-      FILETIME dummy;
-      FILETIME kernelStart, userStart;
-      GetThreadTimes( GetCurrentThread(), &dummy, &dummy, &kernelStart, &userStart );
+	  FILETIME dummy;
+	  FILETIME kernelStart, userStart;
+	  FILETIME kernelEnd, userEnd;
 #endif
-      bool exres = E.exec();
+
+	  {
+		Executor E;
+		E.addModule( new BasicExecutorModule( E ) );
+		E.addModule( new BasicIoExecutorModule( E ) );
+		E.addModule( new MathExecutorModule( E ) );
+		//E.addModule( new SQLExecutorModule( E ) );
+		E.addModule( new UtilExecutorModule( E ) );
+		E.addModule( new FileAccessExecutorModule( E ) );
+		E.addModule( new ConfigFileExecutorModule( E ) );
+		E.addModule( new DataFileExecutorModule( E ) );
+
+		ref_ptr<EScriptProgram> program( new EScriptProgram );
+		if ( program->read( fname.c_str() ) )
+		{
+		  ERROR_PRINT << "Error reading " << fname << "\n";
+		  return 1;
+		}
+		E.setProgram( program.get() );
+
+		E.setDebugLevel( debug ? Executor::INSTRUCTIONS : Executor::NONE );
+		clock_t start = clock();
 #ifdef _WIN32
-      FILETIME kernelEnd, userEnd;
-      GetThreadTimes( GetCurrentThread(), &dummy, &dummy, &kernelEnd, &userEnd );
+		GetThreadTimes( GetCurrentThread(), &dummy, &dummy, &kernelStart, &userStart );
 #endif
-      clock_t clocks = clock() - start;
-      double seconds = static_cast<double>( clocks ) / CLOCKS_PER_SEC;
+
+		exres = E.exec();
+	  
+#ifdef _WIN32
+		GetThreadTimes( GetCurrentThread(), &dummy, &dummy, &kernelEnd, &userEnd );
+#endif
+		clocks = clock() - start;
+		seconds = static_cast<double>( clocks ) / CLOCKS_PER_SEC;
+
+		memory_used = E.sizeEstimate();
+	  }
 
       if ( profile )
       {
@@ -224,7 +236,7 @@ namespace Pol {
           << "\tKernel Time: " << ( *(__int64*)&kernelEnd ) - ( *(__int64*)&kernelStart ) << "\n"
           << "\tUser Time:   " << ( *(__int64*)&userEnd ) - ( *(__int64*)&userStart ) << "\n"
 #endif
-          << "\tSpace used: " << E.sizeEstimate() << "\n\n"
+          << "\tSpace used: " << memory_used << "\n\n"
 
           << "\tCycles Per Second: " << escript_instr_cycles / seconds << "\n"
           << "\tCycles Per Minute: " << 60.0 * escript_instr_cycles / seconds << "\n"
