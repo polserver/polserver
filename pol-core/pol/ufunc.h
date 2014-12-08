@@ -97,7 +97,10 @@ namespace Pol {
 	void send_owncreate( Network::Client *client, const Mobile::Character *chr, Network::PktOut_78* owncreate, Network::PktOut_17* poisonbuffer, Network::PktOut_17* invulbuffer );
 	void build_owncreate( const Mobile::Character *chr, Network::PktOut_78* msg );
 
-	void send_item( Network::Client *client, const Items::Item *item );
+    void send_item(Network::Client *client, const Items::Item *item);
+    void send_corpse(Network::Client *client, const Items::Item *item);
+    void send_full_corpse(Network::Client *client, const Items::Item *item);
+
 	void send_wornitem( Network::Client *client, const Mobile::Character *chr, const Items::Item *item );
 
 	void send_move( Network::Client *client, const Mobile::Character *chr );
@@ -116,6 +119,7 @@ namespace Pol {
 	void send_put_in_container_to_inrange( const Items::Item *item );
 	void send_wornitem_to_inrange( const Mobile::Character *chr, const Items::Item *item );
 	void update_wornitem_to_inrange( const Mobile::Character *chr, const Items::Item *item );
+    void send_corpse_equip_inrange(const Items::Item *item);
 
 	void send_midi( Network::Client* client, unsigned short midi );
 	Mobile::Character *find_character( u32 serial );

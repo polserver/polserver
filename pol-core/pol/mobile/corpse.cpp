@@ -151,7 +151,7 @@ namespace Pol {
             Item* item_on_layer = corpse->GetItemOnLayer(new_item->tile_layer);
             if (item_on_layer != NULL && item_on_layer->serial == new_item->serial)
             {
-                send_item_to_inrange(static_cast<Item*>(this));
+                send_corpse_equip_inrange(corpse);
             }
         }
         

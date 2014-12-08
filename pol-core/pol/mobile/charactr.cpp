@@ -2343,9 +2343,15 @@ namespace Pol {
 
 		client->pause();
 		send_warmode();
-
-		send_goxyz( client, this );
+        
+        // Sends the complete corpse to the client itself, so he knows where his
+        // items went.
+        send_full_corpse(client, corpse);
+        
+        send_goxyz( client, this );
         Core::WorldIterator<Core::MobileFilter>::InVisualRange( client->chr, [&]( Character* zonechr ) { send_create_ghost( zonechr, client ); } );
+        
+        client->restart();
 	  }
 
 	  // change self to ghost for ghosts, remove self for living
