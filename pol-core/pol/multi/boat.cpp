@@ -556,8 +556,7 @@ namespace Pol {
 	  msg2->offset++; // u8 facing
 	  msg2->WriteFlipped<u16>( this->color ); // u16 color
 	  msg2->offset++; // u8 flags
-	  msg2->offset += 2;
-
+	  
 	  msg2.Send( client );
 	}
 

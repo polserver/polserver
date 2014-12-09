@@ -1,4 +1,8 @@
 ﻿-- POL099 --
+09-12-2014 Nando:
+  Fixed:    Client crash with clients older than 7.0.9.0 but newer than 7.0.0.0, because of wrong size in
+              boat movement packets.
+  
 07-12-2014 Nando:
   Fixed:    Items were not disappearing from the character's backpack after being moved to the corpse.
   Fixed:    Items were disappearing from the corpse when an equippable item was moved/inserted into it.
