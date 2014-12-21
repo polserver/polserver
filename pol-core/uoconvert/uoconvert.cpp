@@ -838,7 +838,7 @@ namespace Pol {
 	  bool first = true;
 	  while ( count-- )
 	  {
-          if (fread(&elem, sizeof elem, 1, multi_mul) != sizeof(elem)) {
+          if (fread(&elem, sizeof elem, 1, multi_mul) != 1) {
               throw std::runtime_error("write_multi(): fread() failed");
           }
 
