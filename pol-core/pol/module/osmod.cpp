@@ -9,6 +9,8 @@ Notes
 #include "osmod.h"
 
 #include "uomod.h"
+#include "npcmod.h" // necessary for reporting which npc is discarding events when the queue is full
+
 #include "../uoexec.h"
 
 #include "../../bscript/berror.h"
@@ -21,6 +23,7 @@ Notes
 
 #include "../mobile/attribute.h"
 #include "../mobile/charactr.h"
+#include "../npc.h" // needed only for reporting the NPC's position when the event queue is full - should refactor to decouple
 
 #include "../exscrobj.h"
 #include "../polcfg.h"
@@ -535,7 +538,7 @@ namespace Pol {
 
 
 
-	BObjectImp* OSExecutorModule::mf_unload_scripts()
+    BObjectImp* OSExecutorModule::mf_unload_scripts()
 	{
 	  const String* str;
 	  if ( getStringParam( 0, str ) )
@@ -553,7 +556,225 @@ namespace Pol {
 	  }
 	}
 
-	const int SCRIPTOPT_NO_INTERRUPT = 1;
+    BObjectImp* OSExecutorModule::clear_event_queue() //DAVE
+    {
+        while (!events_.empty())
+        {
+            BObject ob(events_.front());
+            events_.pop();
+        }
+        return new BLong(1);
+    }
+
+    BObjectImp* OSExecutorModule::mf_set_event_queue_size() //DAVE 11/24
+    {
+        unsigned short param;
+        if (getParam(0, param))
+        {
+            unsigned short oldsize = max_eventqueue_size;
+            max_eventqueue_size = param;
+            return new BLong(oldsize);
+        }
+        else
+            return new BError("Invalid parameter type");
+    }
+
+    BObjectImp* OSExecutorModule::mf_OpenURL()
+    {
+        Mobile::Character* chr;
+        const String* str;
+        if (getCharacterParam(0, chr) &&
+            ((str = getStringParam(1)) != NULL))
+        {
+            if (chr->has_active_client())
+            {
+                Network::PktHelper::PacketOut<Network::PktOut_A5> msg;
+                unsigned urllen;
+                const char *url = str->data();
+
+                urllen = static_cast<unsigned int>(strlen(url));
+                if (urllen > URL_MAX_LEN)
+                    urllen = URL_MAX_LEN;
+
+                msg->WriteFlipped<u16>(urllen + 4u);
+                msg->Write(url, static_cast<u16>(urllen + 1));
+                msg.Send(chr->client);
+                return new BLong(1);
+            }
+            else
+            {
+                return new BError("No client attached");
+            }
+        }
+        else
+        {
+            return new BError("Invalid parameter type");
+        }
+    }
+
+
+    BObjectImp* OSExecutorModule::mf_OpenConnection()
+    {
+        UOExecutorModule* this_uoemod = static_cast<UOExecutorModule*>(exec.findModule("uo"));
+        Core::UOExecutor* this_uoexec = static_cast<Core::UOExecutor*>(&this_uoemod->exec);
+
+        if (this_uoexec->pChild == NULL)
+        {
+            const String* host;
+            const String* scriptname_str;
+            unsigned short port;
+            if ((host = getStringParam(0)) != NULL && getParam(1, port) && (scriptname_str = getStringParam(2)) != NULL)
+            {
+                // FIXME needs to inherit available modules?
+                Core::ScriptDef sd;// = new ScriptDef();
+                INFO_PRINT << "Starting connection script " << scriptname_str->value() << "\n";
+                if (!sd.config_nodie(scriptname_str->value(), exec.prog()->pkg, "scripts/"))
+                {
+                    return new BError("Error in script name");
+                }
+                if (!sd.exists())
+                {
+                    return new BError("Script " + sd.name() + " does not exist.");
+                }
+
+                //Socket* s = new Socket();
+                //bool success_open = s->open(host->value().c_str(),30);
+                Clib::Socket s;
+                bool success_open = s.open(host->value().c_str(), port);
+
+                if (!success_open)
+                {
+                    //delete s;
+                    return new BError("Error connecting to client");
+                }
+                Clib::SocketClientThread* clientthread = new Network::AuxClientThread(sd, s);
+                clientthread->start();
+
+                return new BLong(1);
+            }
+            else
+            {
+                return new BError("Invalid parameter type");
+            }
+        }
+
+        return new BError("Invalid parameter type");
+    }
+
+    bool OSExecutorModule::signal_event(BObjectImp* imp)
+    {
+        INC_PROFILEVAR(events);
+
+        if (blocked_ && (wait_type == WAIT_EVENT)) // already being waited for
+        {
+            /* Now, the tricky part.  The value to return on an error or
+            completion condition has already been pushed onto the value
+            stack - so, we need to replace it with the real result.
+            */
+            exec.ValueStack.back().set(new BObject(imp));
+            /* This executor will get moved to the run queue at the
+            next step_scripts(), where blocked is checked looking
+            for timed out or completed operations. */
+
+            revive();
+        }
+        else        // not being waited for, so queue for later.
+        {
+            if (events_.size() < max_eventqueue_size)
+            {
+                events_.push(imp);
+            }
+            else
+            {
+                if (Core::config.discard_old_events)
+                {
+                    BObject ob(events_.front());
+                    events_.pop();
+                    events_.push(imp);
+                }
+                else
+                {
+                    BObject ob(imp);
+                    if (Core::config.loglevel >= 11)
+                    {
+                        INFO_PRINT << "Event queue for " << exec.scriptname() << " is full, discarding event.\n";
+                        ExecutorModule* em = exec.findModule("npc");
+                        if (em)
+                        {
+                            NPCExecutorModule* npcemod = static_cast<NPCExecutorModule*>(em);
+                            INFO_PRINT << "NPC Serial: " << fmt::hexu(npcemod->npc.serial) <<
+                                " (" << npcemod->npc.x << " " << npcemod->npc.y << " " << npcemod->npc.z << ")\n";
+                        }
+
+                        INFO_PRINT << "Event: " << ob->getStringRep() << "\n";
+                    }
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    void OSExecutorModule::SleepFor(int nsecs)
+    {
+        if (nsecs)
+        {
+            blocked_ = true;
+            wait_type = WAIT_SLEEP;
+            sleep_until_clock_ = Core::polclock() + nsecs * Core::POLCLOCKS_PER_SEC;
+        }
+    }
+
+    void OSExecutorModule::SleepForMs(int msecs)
+    {
+        if (msecs)
+        {
+            blocked_ = true;
+            wait_type = WAIT_SLEEP;
+            sleep_until_clock_ = Core::polclock() + msecs * Core::POLCLOCKS_PER_SEC / 1000;
+        }
+    }
+
+    void OSExecutorModule::suspend()
+    {
+        blocked_ = true;
+        wait_type = WAIT_SLEEP;
+        sleep_until_clock_ = 0; // wait forever
+    }
+
+    void OSExecutorModule::revive()
+    {
+        blocked_ = false;
+        if (in_hold_list_ == TIMEOUT_LIST)
+        {
+            Core::holdlist.erase(hold_itr_);
+            in_hold_list_ = NO_LIST;
+            Core::runlist.push_back(static_cast<Core::UOExecutor*>(&exec));
+        }
+        else if (in_hold_list_ == NOTIMEOUT_LIST)
+        {
+            Core::notimeoutholdlist.erase(static_cast<Core::UOExecutor*>(&exec));
+            in_hold_list_ = NO_LIST;
+            Core::runlist.push_back(static_cast<Core::UOExecutor*>(&exec));
+        }
+        else if (in_hold_list_ == DEBUGGER_LIST)
+        {
+            // stays right where it is.
+        }
+    }
+    bool OSExecutorModule::in_debugger_holdlist() const
+    {
+        return (in_hold_list_ == DEBUGGER_LIST);
+    }
+    void OSExecutorModule::revive_debugged()
+    {
+        Core::debuggerholdlist.erase(static_cast<Core::UOExecutor*>(&exec));
+        in_hold_list_ = NO_LIST;
+        Core::runlist.push_back(static_cast<Core::UOExecutor*>(&exec));
+    }
+
+    const int SCRIPTOPT_NO_INTERRUPT = 1;
 	const int SCRIPTOPT_DEBUG = 2;
 	const int SCRIPTOPT_NO_RUNAWAY = 3;
 	const int SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES = 4;
@@ -615,109 +836,5 @@ namespace Pol {
 
 	int max_eventqueue_size = 0;
 
-	BObjectImp* OSExecutorModule::clear_event_queue() //DAVE
-	{
-	  while ( !events_.empty() )
-	  {
-		BObject ob( events_.front() );
-		events_.pop();
-	  }
-	  return new BLong( 1 );
-	}
-
-	BObjectImp* OSExecutorModule::mf_set_event_queue_size() //DAVE 11/24
-	{
-	  unsigned short param;
-	  if ( getParam( 0, param ) )
-	  {
-		unsigned short oldsize = max_eventqueue_size;
-		max_eventqueue_size = param;
-		return new BLong( oldsize );
-	  }
-	  else
-		return new BError( "Invalid parameter type" );
-	}
-
-	BObjectImp* OSExecutorModule::mf_OpenURL()
-	{
-	  Mobile::Character* chr;
-	  const String* str;
-	  if ( getCharacterParam( 0, chr ) &&
-		   ( ( str = getStringParam( 1 ) ) != NULL ) )
-	  {
-		if ( chr->has_active_client() )
-		{
-		  Network::PktHelper::PacketOut<Network::PktOut_A5> msg;
-		  unsigned urllen;
-		  const char *url = str->data();
-
-		  urllen = static_cast<unsigned int>( strlen( url ) );
-		  if ( urllen > URL_MAX_LEN )
-			urllen = URL_MAX_LEN;
-
-		  msg->WriteFlipped<u16>( urllen + 4u );
-		  msg->Write( url, static_cast<u16>( urllen + 1 ) );
-		  msg.Send( chr->client );
-		  return new BLong( 1 );
-		}
-		else
-		{
-		  return new BError( "No client attached" );
-		}
-	  }
-	  else
-	  {
-		return new BError( "Invalid parameter type" );
-	  }
-	}
-
-
-	BObjectImp* OSExecutorModule::mf_OpenConnection()
-	{
-	  UOExecutorModule* this_uoemod = static_cast<UOExecutorModule*>( exec.findModule( "uo" ) );
-      Core::UOExecutor* this_uoexec = static_cast<Core::UOExecutor*>( &this_uoemod->exec );
-
-	  if ( this_uoexec->pChild == NULL )
-	  {
-		const String* host;
-		const String* scriptname_str;
-		unsigned short port;
-		if ( ( host = getStringParam( 0 ) ) != NULL && getParam( 1, port ) && ( scriptname_str = getStringParam( 2 ) ) != NULL )
-		{
-		  // FIXME needs to inherit available modules?
-          Core::ScriptDef sd;// = new ScriptDef();
-		  INFO_PRINT << "Starting connection script " << scriptname_str->value() << "\n";
-		  if ( !sd.config_nodie( scriptname_str->value(), exec.prog()->pkg, "scripts/" ) )
-		  {
-			return new BError( "Error in script name" );
-		  }
-		  if ( !sd.exists() )
-		  {
-			return new BError( "Script " + sd.name() + " does not exist." );
-		  }
-
-		  //Socket* s = new Socket();
-		  //bool success_open = s->open(host->value().c_str(),30);
-          Clib::Socket s;
-		  bool success_open = s.open( host->value().c_str(), port );
-
-		  if ( !success_open )
-		  {
-			//delete s;
-			return new BError( "Error connecting to client" );
-		  }
-          Clib::SocketClientThread* clientthread = new Network::AuxClientThread( sd, s );
-		  clientthread->start();
-
-		  return new BLong( 1 );
-		}
-		else
-		{
-		  return new BError( "Invalid parameter type" );
-		}
-	  }
-
-	  return new BError( "Invalid parameter type" );
-	}
   }
 }
