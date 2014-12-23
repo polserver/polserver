@@ -137,7 +137,7 @@ cpp_sources = \
 	pol/umap.cpp pol/module/unimod.cpp \
 	pol/uobjcnt.cpp pol/uobject.cpp pol/uobjhelp.cpp pol/uoclient.cpp \
 	pol/module/uomod.cpp pol/module/uomod2.cpp \
-	pol/module/uomod3.cpp pol/module/uomod4.cpp pol/uoexhelp.cpp \
+	pol/module/uomod3.cpp pol/module/uomod4.cpp pol/uoexhelp.cpp pol/uoexec.cpp \
 	pol/uolisten.cpp \
 	pol/uoscrobj.cpp pol/uoskills.cpp pol/useskill.cpp \
 	pol/module/utilmod.cpp pol/module/sqlmod.cpp \
