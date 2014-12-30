@@ -722,7 +722,7 @@ namespace Pol {
 	  }
 
 
-      Plib::Package* pkg;
+      Plib::Package* pkg = nullptr;
       std::string filename;
       std::string pagetype;
       std::string redirect_to;
