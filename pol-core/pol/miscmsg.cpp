@@ -39,7 +39,7 @@ Notes
 #include "pktin.h"
 #include "spells.h"
 #include "tooltips.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 #include "ufunc.h"
 #include "uoscrobj.h"
 #include "sockio.h"

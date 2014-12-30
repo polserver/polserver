@@ -17,7 +17,7 @@ Notes
 #include "../clib/fileutil.h"
 #include "../clib/rawtypes.h"
 
-#include "uvars.h"
+#include "globals/uvars.h"
 
 namespace Pol {
   namespace Core {

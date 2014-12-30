@@ -12,7 +12,7 @@ Notes
 
 #include "checkpnt.h"
 #include "syshook.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 
 #include "../plib/pkg.h"
 

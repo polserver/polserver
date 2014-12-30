@@ -22,7 +22,7 @@ Notes
 #include "../plib/systemstate.h"
 
 #include "item/itemdesc.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 
 #include <cstring>
 

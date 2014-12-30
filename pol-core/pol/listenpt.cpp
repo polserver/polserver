@@ -19,7 +19,7 @@ Notes
 #include "ufunc.h"
 #include "uoexec.h"
 #include "uoscrobj.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 
 #include <map>
 

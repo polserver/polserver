@@ -12,7 +12,7 @@ Notes
 #include "gameclck.h"
 
 #include "polclock.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 
 #include "../clib/stlutil.h"
 

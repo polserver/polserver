@@ -23,7 +23,7 @@ Notes
 #include "pktin.h"
 #include "ufunc.h"
 #include "uofile.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 
 #include <cstdio>
 

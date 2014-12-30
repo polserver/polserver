@@ -35,7 +35,7 @@ Notes
 #include "../polcfg.h"
 #include "../polsig.h"
 #include "../schedule.h"
-#include "../uvars.h"
+#include "../globals/uvars.h"
 
 namespace Pol {
   namespace Accounts {

@@ -21,7 +21,7 @@ Notes
 #include "scrdef.h"
 #include "schedule.h"
 #include "reftypes.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 
 namespace Pol {
   namespace Clib {

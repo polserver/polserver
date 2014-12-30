@@ -25,7 +25,7 @@ Notes
 #include "scrdef.h"
 #include "scrsched.h"
 #include "scrstore.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 
 #ifdef _WIN32
 #	include <conio.h>

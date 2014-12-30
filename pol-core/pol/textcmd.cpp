@@ -53,7 +53,7 @@ Notes
 #include "uobjhelp.h"
 #include "uofile.h"
 #include "uoscrobj.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 #include "uworld.h"
 #include "repsys.h"
 #include "fnsearch.h"

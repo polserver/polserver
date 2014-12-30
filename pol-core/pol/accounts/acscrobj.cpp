@@ -48,7 +48,7 @@ Notes
 #include "../ufunc.h"
 #include "../uoscrobj.h"
 #include "../uoexhelp.h"
-#include "../uvars.h"
+#include "../globals/uvars.h"
 
 namespace Pol {
   namespace Core {

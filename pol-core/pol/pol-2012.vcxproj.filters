@@ -374,9 +374,6 @@
     <ClCompile Include="useskill.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="uvars.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="uworld.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -650,7 +647,14 @@
     <ClCompile Include="uoexec.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-	<ClCompile Include="ucfg.cpp">
+    <ClCompile Include="globals\ucfg.cpp">
+      <Filter>globals</Filter>
+    </ClCompile>
+    <ClCompile Include="globals\uvars.cpp">
+      <Filter>globals</Filter>
+    </ClCompile>
+    <ClCompile Include="globals\multidefs.cpp">
+      <Filter>globals</Filter>
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -958,9 +962,6 @@
     <ClInclude Include="tooltips.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ucfg.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="uconst.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1019,9 +1020,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="utype.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="uvars.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="uworld.h">
@@ -1266,6 +1264,15 @@
     </ClInclude>
     <ClInclude Include="console.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+	<ClInclude Include="globals\ucfg.h">
+      <Filter>globals</Filter>
+    </ClInclude>
+    <ClInclude Include="globals\uvars.h">
+      <Filter>globals</Filter>
+    </ClInclude>
+    <ClInclude Include="globals\multidefs.h">
+      <Filter>globals</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -42,7 +42,7 @@ Notes
 #include "ssopt.h"
 #include "objtype.h"
 #include "containr.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 
 #include <cstring>
 #include <string>

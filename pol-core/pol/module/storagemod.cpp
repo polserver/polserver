@@ -17,7 +17,7 @@ Notes
 #include "../realms.h"
 #include "../uoexhelp.h"
 #include "../uoscrobj.h"
-#include "../uvars.h"
+#include "../globals/uvars.h"
 
 #include <string>
 

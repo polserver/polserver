@@ -17,7 +17,7 @@ Notes
 #include "uofile.h"
 #include "los.h"
 #include "polcfg.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 
 #include "../plib/realm.h"
 #include "../plib/mapserver.h"

@@ -20,7 +20,7 @@ Notes
 #include "polcfg.h"
 #include "stackcfg.h"
 #include "ufunc.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 #include "item/weapon.h"
 #include "item/wepntmpl.h"
 

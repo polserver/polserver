@@ -14,7 +14,7 @@ Notes
 #include "../clib/esignal.h"
 #include "../clib/threadhelp.h"
 #include "../clib/logfacility.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 
 #ifndef _WIN32
 #include <signal.h>

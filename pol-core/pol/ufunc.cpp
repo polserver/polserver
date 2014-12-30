@@ -73,7 +73,7 @@ Notes
 #include "uoclient.h"
 #include "uofile.h"
 #include "ustruct.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 #include "uworld.h"
 #include "mdelta.h"
 #include "zone.h"

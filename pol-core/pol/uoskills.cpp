@@ -12,7 +12,7 @@ Notes
 
 #include "skillid.h"
 #include "mobile/attribute.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 
 #include "../plib/pkg.h"
 

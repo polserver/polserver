@@ -15,7 +15,7 @@ Notes
 
 #include "../../plib/pkg.h"
 #include "../syshook.h"
-#include "../uvars.h"
+#include "../globals/uvars.h"
 
 namespace Pol {
   namespace Mobile {

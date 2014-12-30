@@ -16,7 +16,7 @@ Notes
 #include "scrsched.h"
 #include "scrstore.h"
 #include "uoexec.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 
 #include "../plib/pkg.h"
 #include "../plib/systemstate.h"

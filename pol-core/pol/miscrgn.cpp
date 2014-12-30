@@ -14,7 +14,7 @@ Notes
 #include "ufunc.h"
 #include "realms.h"
 #include "uworld.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 
 #include "../plib/realm.h"
 

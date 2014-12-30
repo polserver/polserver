@@ -22,7 +22,7 @@ Notes
 
 #include "ssopt.h"
 #include "pktdef.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 
 #include "mobile/attribute.h"
 

@@ -28,7 +28,7 @@ Notes
 #include "../bscript/objmethods.h"
 
 #include "../plib/pkg.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 //#include "module/filemod.h"
 
 namespace Pol {

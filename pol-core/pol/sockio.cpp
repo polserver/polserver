@@ -18,7 +18,7 @@ Notes
 #include "../clib/strutil.h"
 #include "../clib/logfacility.h"
 
-#include "uvars.h"
+#include "globals/uvars.h"
 
 #ifdef __unix__
 #include <sys/utsname.h>

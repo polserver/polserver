@@ -20,7 +20,7 @@ Notes
 
 #include "../clib/passert.h"
 
-#include "uvars.h"
+#include "globals/uvars.h"
 
 
 namespace Pol {

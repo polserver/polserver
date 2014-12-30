@@ -54,11 +54,11 @@ FIXME: Does STW use slots with KR or newest 2d? If so, we must do slot checks th
 #include "statmsg.h"
 #include "storage.h"
 #include "syshook.h"
-#include "ucfg.h"
+#include "globals/ucfg.h"
 #include "ufunc.h"
 #include "uofile.h"
 #include "uoscrobj.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 #include "uworld.h"
 #include "containr.h"
 

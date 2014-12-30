@@ -23,7 +23,7 @@ Notes
 #include "../ufunc.h"
 #include "../cmbtcfg.h"
 #include "../uoexhelp.h"
-#include "../uvars.h"
+#include "../globals/uvars.h"
 
 #include "../../bscript/bobject.h"
 #include "../../bscript/berror.h"

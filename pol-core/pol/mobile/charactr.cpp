@@ -145,7 +145,7 @@ Notes
 #include "../uoexec.h"
 #include "../uofile.h"
 #include "../uoscrobj.h"
-#include "../uvars.h"
+#include "../globals/uvars.h"
 #include "../uworld.h"
 #include "../vital.h"
 #include "../watch.h"

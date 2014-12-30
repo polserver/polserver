@@ -2,7 +2,7 @@
 #define __PACKETHELPER_H
 
 #include "packets.h"
-#include "../uvars.h"
+#include "../globals/uvars.h"
 
 namespace Pol {
   namespace Network {

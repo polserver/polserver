@@ -23,7 +23,7 @@ Notes
 #include "scrstore.h"
 #include "statmsg.h"
 #include "uoskills.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 #include "ufunc.h"
 #include "ssopt.h"
 #include "party.h"

@@ -13,7 +13,7 @@ Notes
 #include "../clib/cfgelem.h"
 #include "../clib/random.h"
 
-#include "uvars.h"
+#include "globals/uvars.h"
 
 namespace Pol {
   namespace Core {

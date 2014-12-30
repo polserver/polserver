@@ -32,7 +32,7 @@ Notes
 #include "ssopt.h"
 #include "syshook.h"
 #include "ufunc.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 #include "uworld.h"
 #include "party.h"
 

@@ -22,7 +22,7 @@ Notes
 #endif
 
 #include "../layers.h"
-#include "../uvars.h"
+#include "../globals/uvars.h"
 
 namespace Pol {
   namespace Core {

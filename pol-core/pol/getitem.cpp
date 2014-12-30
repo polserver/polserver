@@ -28,7 +28,7 @@ Notes
 #include "pktin.h"
 #include "realms.h"
 #include "statmsg.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 #include "ufunc.h"
 #include "uofile.h"
 #include "uobject.h"

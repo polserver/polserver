@@ -26,7 +26,7 @@ Notes
 #include "pktin.h"
 #include "pktdef.h"
 #include "uobject.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 #include "uworld.h"
 #include "ufunc.h"
 #include "sockio.h"

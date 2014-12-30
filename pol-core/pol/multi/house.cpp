@@ -51,7 +51,7 @@ Notes
 #include "../module/uomod.h"
 #include "../uoscrobj.h"
 #include "../ustruct.h"
-#include "../uvars.h"
+#include "../globals/uvars.h"
 #include "../uworld.h"
 
 

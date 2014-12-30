@@ -140,7 +140,7 @@ cpp_sources = \
 	pol/uolisten.cpp \
 	pol/uoscrobj.cpp pol/uoskills.cpp pol/useskill.cpp \
 	pol/module/utilmod.cpp pol/module/sqlmod.cpp \
-	pol/uvars.cpp pol/uworld.cpp pol/ucfg.cpp \
+	pol/globals/uvars.cpp pol/uworld.cpp pol/globals/ucfg.cpp pol/globals/multidefs.cpp \
 	pol/vital.cpp \
 	pol/item/weapon.cpp \
 	pol/zone.cpp \
@@ -221,7 +221,7 @@ runecl_sources=runecl/runecl.cpp \
 	pol/module/filemod.cpp pol/binaryfilescrobj.cpp pol/xmlfilescrobj.cpp \
 	pol/module/cfgmod.cpp pol/module/datastore.cpp \
 	pol/cfgrepos.cpp pol/proplist.cpp \
-	plib/pkg.cpp plib/polver.cpp plib/systemstate.cpp pol/ucfg.cpp \
+	plib/pkg.cpp plib/polver.cpp plib/systemstate.cpp pol/globals/ucfg.cpp \
 	bscript/blong.cpp bscript/bstruct.cpp bscript/compctx.cpp \
 	bscript/dict.cpp bscript/eprog.cpp bscript/eprog2.cpp \
 	bscript/eprog3.cpp bscript/eprog_read.cpp bscript/escript_config.cpp \
@@ -263,7 +263,7 @@ uotool_sources=uotool/uotool.cpp \
 	uotool/uofile04.cpp uotool/uofile05.cpp \
 	pol/uofile00.cpp pol/uofile01.cpp pol/uofile02.cpp \
 	pol/uofile06.cpp pol/uofile07.cpp pol/uofile08.cpp \
-	pol/polfile1.cpp  pol/multi/multidef.cpp \
+	pol/polfile1.cpp  pol/multi/multidef.cpp pol/globals/multidefs.cpp \
 	plib/mapfunc.cpp plib/mapwriter.cpp plib/realmdescriptor.cpp \
 	plib/systemstate.cpp \
 	clib/cfgfile.cpp clib/cmdargs.cpp clib/strutil.cpp \

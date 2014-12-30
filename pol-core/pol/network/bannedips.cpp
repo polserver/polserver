@@ -13,7 +13,7 @@ Notes
 #include "../../clib/cfgfile.h"
 #include "../../clib/fileutil.h"
 #include "client.h"
-#include "../uvars.h"
+#include "../globals/uvars.h"
 
 namespace Pol {
   namespace Network {

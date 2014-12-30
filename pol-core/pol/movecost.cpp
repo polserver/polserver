@@ -14,7 +14,7 @@ Notes
 
 #include "mobile/charactr.h"
 
-#include "uvars.h"
+#include "globals/uvars.h"
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"

@@ -122,7 +122,7 @@ Notes
 #include "../uopathnode.h"
 #include "../uoscrobj.h"
 #include "../ustruct.h"
-#include "../uvars.h"
+#include "../globals/uvars.h"
 #include "../uworld.h"
 #include "../uimport.h"
 #include "../gameclck.h"

@@ -19,7 +19,7 @@ Notes
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 
-#include "uvars.h"
+#include "globals/uvars.h"
 
 #include <sstream>
 

@@ -1,7 +1,7 @@
 
 #include "ucfg.h"
 
-#include "../pol/cfgrepos.h"
+#include "../cfgrepos.h"
 namespace Pol {
   namespace Core {
 

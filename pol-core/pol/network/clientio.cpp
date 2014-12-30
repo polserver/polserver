@@ -17,7 +17,7 @@ Notes
 #include "clienttransmit.h"
 
 #include "../ctable.h"
-#include "../uvars.h"
+#include "../globals/uvars.h"
 #include "../sockio.h"
 #include "../sockets.h"
 
@@ -28,7 +28,7 @@ Notes
 #include "../crypt/cryptengine.h"
 #include "../polsig.h"
 #include "../polstats.h"
-#include "../ucfg.h"
+#include "../globals/ucfg.h"
 #include "../packetscrobj.h"
 
 #include "../polsem.h"

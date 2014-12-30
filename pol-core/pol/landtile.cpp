@@ -16,7 +16,7 @@ Notes
 #include "../clib/logfacility.h"
 
 #include "clidata.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 
 namespace Pol {
   namespace Core {

@@ -55,7 +55,7 @@ Notes
 #include "skills.h"
 #include "sockio.h"
 #include "ssopt.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 #include "uoexec.h"
 #include "objtype.h"
 #include "ufunc.h"

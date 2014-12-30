@@ -308,6 +308,9 @@
     <ClCompile Include="gameclck.cpp" />
     <ClCompile Include="getitem.cpp" />
     <ClCompile Include="getmsg.cpp" />
+    <ClCompile Include="globals\multidefs.cpp" />
+    <ClCompile Include="globals\ucfg.cpp" />
+    <ClCompile Include="globals\uvars.cpp" />
     <ClCompile Include="guardrgn.cpp" />
     <ClCompile Include="help.cpp" />
     <ClCompile Include="irequest.cpp" />
@@ -390,7 +393,6 @@
     <ClCompile Include="tips.cpp" />
     <ClCompile Include="tmpvars.cpp" />
     <ClCompile Include="tooltips.cpp" />
-    <ClCompile Include="ucfg.cpp" />
     <ClCompile Include="ufunc.cpp" />
     <ClCompile Include="ufunc2.cpp" />
     <ClCompile Include="uimport.cpp" />
@@ -441,7 +443,6 @@
     <ClCompile Include="uoscrobj.cpp" />
     <ClCompile Include="uoskills.cpp" />
     <ClCompile Include="useskill.cpp" />
-    <ClCompile Include="uvars.cpp" />
     <ClCompile Include="uworld.cpp" />
     <ClCompile Include="vital.cpp" />
     <ClCompile Include="mobile\wornitems.cpp" />
@@ -559,6 +560,9 @@
     <ClInclude Include="clfunc.h" />
     <ClInclude Include="clidata.h" />
     <ClInclude Include="console.h" />
+    <ClInclude Include="globals\multidefs.h" />
+    <ClInclude Include="globals\ucfg.h" />
+    <ClInclude Include="globals\uvars.h" />
     <ClInclude Include="network\clientthread.h" />
     <ClInclude Include="cmbtcfg.h" />
     <ClInclude Include="cmdlevel.h" />
@@ -664,7 +668,6 @@
     <ClInclude Include="tiplist.h" />
     <ClInclude Include="tmpvars.h" />
     <ClInclude Include="tooltips.h" />
-    <ClInclude Include="ucfg.h" />
     <ClInclude Include="uconst.h" />
     <ClInclude Include="udatfile.h" />
     <ClInclude Include="ufunc.h" />
@@ -686,7 +689,6 @@
     <ClInclude Include="uoskills.h" />
     <ClInclude Include="ustruct.h" />
     <ClInclude Include="utype.h" />
-    <ClInclude Include="uvars.h" />
     <ClInclude Include="uworld.h" />
     <ClInclude Include="vital.h" />
     <ClInclude Include="watch.h" />

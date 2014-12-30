@@ -23,7 +23,7 @@ Notes
 #include "../skillid.h"
 #include "../ufunc.h"
 #include "../umanip.h"
-#include "../uvars.h"
+#include "../globals/uvars.h"
 #include "../containr.h"
 
 #include "../../bscript/bstruct.h"

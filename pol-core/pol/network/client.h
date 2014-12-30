@@ -31,7 +31,7 @@ Notes
 
 #include "../pktin.h"
 #include "../sockets.h"
-#include "../ucfg.h"
+#include "../globals/ucfg.h"
 #include "../crypt/cryptkey.h"
 
 #include <memory>

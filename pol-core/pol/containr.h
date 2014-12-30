@@ -23,7 +23,7 @@ Notes
 #endif
 
 #ifndef UCFG_H
-#include "ucfg.h"
+#include "globals/ucfg.h"
 #endif
 
 #include "layers.h"

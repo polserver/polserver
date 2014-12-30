@@ -26,7 +26,7 @@ Notes
 #include "uofile.h"
 #include "polcfg.h"
 #include "udatfile.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 #include "skilladv.h"
 
 namespace Pol {

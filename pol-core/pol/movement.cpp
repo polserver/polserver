@@ -24,7 +24,7 @@ Notes
 #include "pktin.h"
 #include "pktout.h"
 #include "pktboth.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 #include "ssopt.h"
 #include "ufunc.h"
 #include "uworld.h"

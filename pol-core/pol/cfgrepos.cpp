@@ -32,7 +32,7 @@ Configuration File Repository
 #include "../plib/pkg.h"
 #include "../plib/systemstate.h"
 
-#include "ucfg.h"
+#include "globals/ucfg.h"
 
 #include <sys/stat.h>
 #if !defined(_WIN32)

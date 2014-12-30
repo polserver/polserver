@@ -43,7 +43,7 @@ Notes
 #include "../uoexec.h"
 #include "../uoexhelp.h"
 #include "../uoscrobj.h"
-#include "../uvars.h"
+#include "../globals/uvars.h"
 #include "../watch.h"
 #include "../wrldsize.h"
 #include "../uworld.h"

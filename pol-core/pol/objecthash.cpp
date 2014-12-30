@@ -17,7 +17,7 @@ Notes
 #include "polcfg.h"
 #include "ufunc.h"
 #include "uobject.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 
 #include "../clib/endian.h"
 #include "../clib/passert.h"

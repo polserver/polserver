@@ -31,7 +31,7 @@ Notes
 #include "pktboth.h"
 #include "realms.h"
 #include "ufunc.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 #include "polclass.h"
 
 #include "guardrgn.h"

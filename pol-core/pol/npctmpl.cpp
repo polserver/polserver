@@ -14,7 +14,7 @@ Notes
 
 #include "item/weapon.h"
 #include "syshookscript.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 
 #include "../plib/pkg.h"
 #include "../plib/systemstate.h"

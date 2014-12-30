@@ -24,7 +24,7 @@ Notes
 #include "udatfile.h"
 #include "uofile.h"
 #include "udatfile.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 
 #include "../bscript/berror.h"
 #include "../bscript/bobject.h"

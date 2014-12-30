@@ -87,7 +87,7 @@ Notes
 #include "module/partymod.h"
 #include "network/clienttransmit.h"
 #include "eventid.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 
 #include "../bscript/berror.h"
 #include "../bscript/dict.h"

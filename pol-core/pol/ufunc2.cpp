@@ -21,7 +21,7 @@ Notes
 #include "tooltips.h"
 #include "uworld.h"
 #include "npc.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 #include "containr.h"
 
 #include "../clib/endian.h"

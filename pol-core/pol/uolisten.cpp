@@ -16,7 +16,7 @@ Notes
 #include "core.h"
 #include "polsem.h"
 #include "sockio.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 #include "polcfg.h"
 
 #include "../clib/esignal.h"

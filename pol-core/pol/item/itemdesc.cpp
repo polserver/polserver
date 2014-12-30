@@ -38,9 +38,9 @@ Notes
 #include "../polcfg.h"
 #include "../ssopt.h"
 #include "../syshookscript.h"
-#include "../ucfg.h"
+#include "../globals/ucfg.h"
 #include "../ustruct.h"
-#include "../uvars.h"
+#include "../globals/uvars.h"
 
 #include "../../clib/cfgelem.h"
 #include "../../clib/cfgfile.h"

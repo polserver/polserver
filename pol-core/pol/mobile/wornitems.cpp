@@ -4,7 +4,7 @@
 #include "charactr.h"
 #include "../item/itemdesc.h"
 
-#include "../uvars.h"
+#include "../globals/uvars.h"
 #include "../../clib/streamsaver.h"
 
 namespace Pol {

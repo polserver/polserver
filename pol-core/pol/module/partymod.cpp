@@ -27,7 +27,7 @@ Notes
 #include "../clfunc.h"
 #include "../uoscrobj.h"
 #include "../uoexhelp.h"
-#include "../uvars.h"
+#include "../globals/uvars.h"
 
 #include <memory>
 

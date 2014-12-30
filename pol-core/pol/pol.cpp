@@ -116,7 +116,7 @@ Notes
 #include "uobjcnt.h"
 #include "uofile.h"
 #include "uoscrobj.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 #include "uworld.h"
 
 #include "stubdata.h"

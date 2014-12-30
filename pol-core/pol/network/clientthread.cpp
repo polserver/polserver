@@ -21,7 +21,7 @@
 #include "../schedule.h"
 #include "../scrsched.h"
 #include "../uoscrobj.h" // Needed for running the logoff script
-#include "../uvars.h"
+#include "../globals/uvars.h"
 #include "../uworld.h"
 
 #include "../../clib/esignal.h"

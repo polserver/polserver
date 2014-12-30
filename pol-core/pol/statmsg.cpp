@@ -25,7 +25,7 @@ Notes
 #include "pktboth.h"
 #include "ufunc.h"
 #include "uoclient.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 
 #include "ssopt.h"
 

@@ -32,7 +32,7 @@ Notes
 #include "target.h"
 #include "ufunc.h"
 #include "umanip.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 #include "vital.h"
 
 #include "../plib/pkg.h"

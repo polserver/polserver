@@ -45,7 +45,7 @@ Notes
 #include "uconst.h"
 #include "ufunc.h"
 #include "uoskills.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 #include "uworld.h"
 
 #include "../bscript/bobject.h"

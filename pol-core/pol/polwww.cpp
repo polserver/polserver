@@ -45,7 +45,7 @@ Notes
 #include "scrsched.h"
 #include "scrstore.h"
 #include "sockio.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 
 #ifdef _WIN32
 #include <process.h>

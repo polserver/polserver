@@ -15,7 +15,7 @@ Notes
 
 #include "polcfg.h"
 #include "profile.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 
 #include "../clib/logfacility.h"
 #include "../clib/refptr.h"

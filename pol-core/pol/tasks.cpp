@@ -29,7 +29,7 @@ Notes
 #include "sockio.h"
 #include "statmsg.h"
 #include "ufunc.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 #include "uworld.h"
 #include "vital.h"
 

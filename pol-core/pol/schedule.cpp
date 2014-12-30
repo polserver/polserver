@@ -14,7 +14,7 @@ Notes
 #include "polcfg.h"
 #include "polsig.h"
 #include "profile.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 
 #include "../clib/passert.h"
 #include "../clib/tracebuf.h"

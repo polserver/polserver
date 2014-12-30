@@ -26,7 +26,7 @@ Notes
 #include "ufunc.h"
 #include "uofile.h"
 #include "uoscrobj.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 #include "uworld.h"
 
 namespace Pol {

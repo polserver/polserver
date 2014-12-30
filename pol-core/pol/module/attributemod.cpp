@@ -18,7 +18,7 @@ Notes
 #include "../network/cliface.h"
 #include "../skilladv.h"
 #include "../uoexhelp.h"
-#include "../uvars.h"
+#include "../globals/uvars.h"
 
 namespace Pol {
   

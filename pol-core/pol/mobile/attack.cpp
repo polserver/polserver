@@ -23,7 +23,7 @@ Notes
 
 #include "../cmbtcfg.h"
 #include "../guardrgn.h"
-#include "../uvars.h"
+#include "../globals/uvars.h"
 
 #include "../../clib/endian.h"
 

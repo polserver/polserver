@@ -18,7 +18,7 @@ Notes
 #include "fnsearch.h"
 #include "polcfg.h"
 #include "ufunc.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 
 #include "../bscript/contiter.h"
 #include "../bscript/impstr.h"

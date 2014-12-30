@@ -16,7 +16,7 @@ Notes
 
 #include "../pktboth.h"
 #include "../pktin.h"
-#include "../uvars.h"
+#include "../globals/uvars.h"
 
 #include <cstring>
 

@@ -43,7 +43,7 @@ Notes
 #include "../ssopt.h"
 #include "../module/unimod.h"
 #include "../uoclient.h"
-#include "../uvars.h"
+#include "../globals/uvars.h"
 #include "../uworld.h"
 #include "../xbuffer.h"
 #include "../uoscrobj.h"

@@ -18,7 +18,7 @@ Notes
 #include "scrstore.h"
 #include "scrsched.h"
 #include "uoscrobj.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 
 #include "network/client.h"
 #include "network/cgdata.h"

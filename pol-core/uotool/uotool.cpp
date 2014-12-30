@@ -15,6 +15,7 @@ Notes
 #include "../pol/polfile.h"
 #include "../pol/uofilei.h"
 #include "../pol/multi/multidef.h"
+#include "../pol/globals/multidefs.h"
 #include "../pol/objtype.h"
 
 #include "../plib/realmdescriptor.h"

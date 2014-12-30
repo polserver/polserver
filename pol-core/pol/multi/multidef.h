@@ -121,24 +121,6 @@ namespace Pol {
 	  unsigned short key = ( crx << 8 ) | cry;
 	  return key;
 	}
-
-	typedef std::map< u16, MultiDef* > MultiDefs;
-
-	// used for POL and uotool
-	class MultiDefBuffer : boost::noncopyable
-	{
-	  public:
-		MultiDefBuffer();
-		~MultiDefBuffer();
-
-		void deinitialize();
-
-		MultiDefs multidefs_by_multiid;
-		
-	  private:
-	};
-
-	extern MultiDefBuffer multidef_buffer;
   }
 }
 #endif

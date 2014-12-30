@@ -282,6 +282,7 @@
     <ClCompile Include="..\pol\binaryfilescrobj.cpp" />
     <ClCompile Include="..\pol\cfgrepos.cpp" />
     <ClCompile Include="..\pol\dice.cpp" />
+    <ClCompile Include="..\pol\globals\ucfg.cpp" />
     <ClCompile Include="..\pol\module\basiciomod.cpp" />
     <ClCompile Include="..\pol\module\basicmod.cpp" />
     <ClCompile Include="..\pol\module\cfgmod.cpp" />
@@ -290,7 +291,6 @@
     <ClCompile Include="..\pol\module\mathmod.cpp" />
     <ClCompile Include="..\pol\module\utilmod.cpp" />
     <ClCompile Include="..\pol\proplist.cpp" />
-    <ClCompile Include="..\pol\ucfg.cpp" />
     <ClCompile Include="..\pol\xmlfilescrobj.cpp" />
     <ClCompile Include="runecl.cpp" />
     <ClCompile Include="StdAfx.cpp">
@@ -304,6 +304,7 @@
     <ClInclude Include="..\pol\binaryfilescrobj.h" />
     <ClInclude Include="..\pol\cfgrepos.h" />
     <ClInclude Include="..\pol\dice.h" />
+    <ClInclude Include="..\pol\globals\ucfg.h" />
     <ClInclude Include="..\pol\module\basiciomod.h" />
     <ClInclude Include="..\pol\module\basicmod.h" />
     <ClInclude Include="..\pol\module\cfgmod.h" />
@@ -312,7 +313,6 @@
     <ClInclude Include="..\pol\module\mathmod.h" />
     <ClInclude Include="..\pol\module\utilmod.h" />
     <ClInclude Include="..\pol\proplist.h" />
-    <ClInclude Include="..\pol\ucfg.h" />
     <ClInclude Include="..\pol\xmlfilescrobj.h" />
     <ClInclude Include="StdAfx.h" />
   </ItemGroup>

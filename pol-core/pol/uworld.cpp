@@ -18,7 +18,7 @@ Notes
 #include "multi/multi.h"
 
 #include "realms.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 
 #include "../plib/realm.h"
 

@@ -4,7 +4,7 @@
 #include "polcfg.h"
 
 #include "module/osmod.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 
 #include "../clib/logfacility.h"
 #include "../plib/systemstate.h"

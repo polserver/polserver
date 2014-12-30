@@ -31,7 +31,7 @@ In standingheight checks there is a nasty bug. Items NOT locked down
 #include "../pol/network/client.h"
 #include "../pol/fnsearch.h"
 #include "../pol/ssopt.h"
-#include "../pol/uvars.h"
+#include "../pol/globals/uvars.h"
 #include "../pol/uworld.h"
 #include "../pol/item/item.h"
 #include "../pol/item/itemdesc.h"

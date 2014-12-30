@@ -29,7 +29,7 @@ Notes
 #include "profile.h"
 
 #include "watch.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 
 #include "uoexec.h"
 #include "module/uomod.h"

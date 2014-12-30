@@ -46,7 +46,7 @@ tool. Should suffice.
 #include "../network/packets.h"
 #include "../network/clienttransmit.h"
 #include "../core.h"
-#include "../uvars.h"
+#include "../globals/uvars.h"
 #include "house.h"
 #include "multi.h"
 #include "multidef.h"

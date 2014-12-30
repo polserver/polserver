@@ -16,7 +16,7 @@ Notes
 #include "pktin.h"
 #include "pktout.h"
 #include "sockio.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 
 #include "../clib/endian.h"
 

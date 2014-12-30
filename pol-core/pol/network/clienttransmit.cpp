@@ -1,6 +1,6 @@
 #include "clienttransmit.h"
 #include "client.h"
-#include "../uvars.h"
+#include "../globals/uvars.h"
 #include "../../clib/esignal.h"
 
 namespace Pol {

@@ -100,7 +100,7 @@ Notes
 #include "../ufunc.h"
 #include "../uofile.h"
 #include "../uoscrobj.h"
-#include "../uvars.h"
+#include "../globals/uvars.h"
 #include "../uworld.h"
 #include "../network/msghandl.h"
 #include "../containr.h"

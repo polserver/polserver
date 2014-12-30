@@ -21,7 +21,7 @@ Notes
 #include "loaddata.h"
 #include "spelbook.h"
 #include "uobject.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 
 #include "../clib/cfgfile.h"
 #include "../clib/cfgelem.h"

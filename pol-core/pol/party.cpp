@@ -45,7 +45,7 @@ Notes
 #include "statmsg.h"
 #include "syshook.h"
 #include "target.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 
 #include "../bscript/berror.h"
 #ifdef MEMORYLEAK

@@ -20,7 +20,7 @@ Notes
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
 
-#include "uvars.h"
+#include "globals/uvars.h"
 
 namespace Pol {
   namespace Core {

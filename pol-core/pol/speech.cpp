@@ -30,7 +30,7 @@ Notes
 #include "syshook.h"
 #include "textcmd.h"
 #include "tildecmd.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 #include "ufunc.h"
 #include "ufuncstd.h"
 #include "uworld.h"

@@ -22,7 +22,7 @@ Notes
 #include "scrstore.h"
 #include "ufunc.h"
 #include "polclock.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 
 #include "../bscript/eprog.h"
 #include "../plib/systemstate.h"

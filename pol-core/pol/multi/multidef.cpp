@@ -18,7 +18,8 @@ Notes
 #include "../uofile.h"
 #include "../ustruct.h"
 #include "../uofilei.h"
-#include "../uvars.h"
+#include "../globals/uvars.h"
+#include "../globals/multidefs.h"
 
 #include "../../plib/mapcell.h"
 #include "../../plib/mapshape.h"
@@ -35,27 +36,6 @@ Notes
 
 namespace Pol {
   namespace Multi {
-	MultiDefBuffer multidef_buffer;
-
-	MultiDefBuffer::MultiDefBuffer() :
-	  multidefs_by_multiid()
-	{
-	}
-	MultiDefBuffer::~MultiDefBuffer()
-	{}
-
-	void MultiDefBuffer::deinitialize()
-	{
-	  Multi::MultiDefs::iterator iter = multidefs_by_multiid.begin();
-		for ( ; iter != multidefs_by_multiid.end(); ++iter )
-		{
-		  if ( iter->second != NULL )
-			delete iter->second;
-		  iter->second = NULL;
-		}
-		multidefs_by_multiid.clear();
-	}
-
 	bool BoatShapeExists( u16 graphic );
 
 	MultiDef::MultiDef( Clib::ConfigElem& elem, u16 multiid ) :

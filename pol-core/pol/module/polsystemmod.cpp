@@ -38,7 +38,7 @@ Notes
 #include "../uobject.h"
 #include "../tooltips.h"
 #include "../ssopt.h"
-#include "../uvars.h"
+#include "../globals/uvars.h"
 
 #include "../../clib/dirlist.h"
 #include "../../clib/fileutil.h"

@@ -34,7 +34,7 @@ Notes
 #include "../scrstore.h"
 #include "../skills.h"
 #include "../ufuncstd.h"
-#include "../uvars.h"
+#include "../globals/uvars.h"
 
 #include "../../clib/endian.h"
 #include "../../clib/logfacility.h"

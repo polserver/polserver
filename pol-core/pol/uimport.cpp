@@ -33,7 +33,7 @@ Notes
 #include "startloc.h"
 #include "storage.h"
 #include "stubdata.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 #include "ufunc.h"
 #include "uworld.h"
 #include "multi/multi.h"

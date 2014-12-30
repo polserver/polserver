@@ -43,7 +43,7 @@ Notes
 #include "../ufunc.h"
 #include "../uofile.h"
 #include "../uoscrobj.h"
-#include "../uvars.h"
+#include "../globals/uvars.h"
 
 #include "../../clib/cfgfile.h"
 #include "../../clib/endian.h"

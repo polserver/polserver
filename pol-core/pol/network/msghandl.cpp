@@ -4,7 +4,7 @@
 #include "../../clib/endian.h"
 #include "../../clib/logfacility.h"
 #include "client.h"
-#include "../uvars.h"
+#include "../globals/uvars.h"
 #include "../pktin.h"
 #include "../pktinid.h"
 

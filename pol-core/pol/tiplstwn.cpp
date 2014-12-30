@@ -12,7 +12,7 @@ Notes
 #include "tiplist.h"
 
 #include "../clib/dirlist.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 
 #include <string>
 

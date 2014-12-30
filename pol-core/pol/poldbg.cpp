@@ -23,7 +23,7 @@ Notes
 
 #include "module/uomod.h"
 #include "uoexec.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 
 #include "../bscript/berror.h"
 #include "../bscript/bobject.h"

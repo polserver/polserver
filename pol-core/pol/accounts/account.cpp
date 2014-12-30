@@ -18,7 +18,7 @@ Notes
 #include "../../clib/MD5.h"
 #include "../../clib/streamsaver.h"
 
-#include "../uvars.h"
+#include "../globals/uvars.h"
 #include "../../plib/systemstate.h"
 
 #include "../mobile/charactr.h"

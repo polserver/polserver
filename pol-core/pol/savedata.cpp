@@ -15,7 +15,7 @@ Notes
 #include "loaddata.h"
 #include "polcfg.h"
 #include "storage.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 
 #include "../clib/endian.h"
 #include "../clib/fileutil.h"

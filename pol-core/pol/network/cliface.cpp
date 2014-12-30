@@ -26,7 +26,7 @@ Notes
 #include "../ufunc.h"
 #include "../uoclient.h"
 #include "../uoskills.h"
-#include "../uvars.h"
+#include "../globals/uvars.h"
 #include "../vital.h"
 namespace Pol {
   namespace Network {

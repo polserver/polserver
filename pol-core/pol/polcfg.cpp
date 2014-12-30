@@ -21,7 +21,7 @@ Notes
 #include "polsig.h"
 #include "schedule.h"
 #include "tasks.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 
 
 #include "../bscript/config.h"

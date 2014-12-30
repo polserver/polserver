@@ -21,7 +21,7 @@ Notes
 #include "../pktdef.h"
 #include "../pktoutid.h"
 #include "../realms.h"
-#include "../ucfg.h"
+#include "../globals/ucfg.h"
 #include "client.h"
 #include "clienttransmit.h"
 #include "packetinterface.h"

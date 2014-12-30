@@ -36,7 +36,7 @@ Notes
 #include "pktin.h"
 #include "polcfg.h"
 #include "startloc.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 #include "servdesc.h"
 #include "sockio.h"
 #include "ssopt.h"

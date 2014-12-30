@@ -15,7 +15,7 @@ Notes
 #include "skillid.h"
 #include "vital.h"
 #include "syshookscript.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 
 #include "crypt/cryptkey.h"
 
