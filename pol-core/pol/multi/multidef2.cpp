@@ -22,6 +22,7 @@ Notes
 
 #include "../../plib/mapcell.h"
 #include "../../plib/mapshape.h"
+#include "../../plib/systemstate.h"
 
 namespace Pol {
   namespace Multi {
@@ -78,7 +79,7 @@ namespace Pol {
 				Plib::MapShape shape;
 				shape.z = elem->z + zbase;
 				shape.height = Core::tileheight( graphic );
-				shape.flags = Core::tile[graphic].flags; // pol_flags_by_tile( graphic );
+				shape.flags = Plib::systemstate.tile[graphic].flags; // pol_flags_by_tile( graphic );
 				if ( !shape.height )
 				{
 				  ++shape.height;

@@ -11,6 +11,7 @@ Notes
 #include "stackcfg.h"
 
 #include "../plib/pkg.h"
+#include "../plib/systemstate.h"
 
 #include "../clib/fileutil.h"
 #include "../clib/stlutil.h"
@@ -18,12 +19,12 @@ Notes
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 
+#include "uvars.h"
+
 #include <sstream>
 
 namespace Pol {
   namespace Core {
-	PropSet Global_Ignore_CProps;
-
 	void read_stacking_cfg( Clib::ConfigFile& cf )
 	{
       Clib::ConfigElem elem;
@@ -35,7 +36,7 @@ namespace Pol {
 		  ISTRINGSTREAM is( temp );
           std::string cprop_name;
 		  while ( is >> cprop_name )
-			Global_Ignore_CProps.insert( cprop_name );
+			gamestate.Global_Ignore_CProps.insert( cprop_name );
 		}
 	  }
 	}
@@ -49,7 +50,7 @@ namespace Pol {
         Clib::ConfigFile cf_main( main_cfg.c_str( ) );
 		read_stacking_cfg( cf_main );
 	  }
-      for ( Plib::Packages::iterator itr = Plib::packages.begin( ); itr != Plib::packages.end( ); ++itr )
+      for ( Plib::Packages::iterator itr = Plib::systemstate.packages.begin( ); itr != Plib::systemstate.packages.end( ); ++itr )
 	  {
         Plib::Package* pkg = ( *itr );
 		//string filename = pkg->dir() + cfgname + ".cfg";

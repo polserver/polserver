@@ -12,7 +12,6 @@ Notes
 #define REPSYS_H
 
 #include "polclock.h"
-#include "npc.h"
 
 namespace Pol {
   namespace Mobile {
@@ -24,9 +23,43 @@ namespace Pol {
   namespace Core {
 	class NPC;
 	class Party;
+	class ExportedFunction;
+
+	struct RepSys_Cfg
+    {
+      struct
+      {
+        unsigned short Murderer;
+        unsigned short Criminal;
+        unsigned short Attackable;
+        unsigned short Innocent;
+        unsigned short GuildAlly;
+        unsigned short GuildEnemy;
+        unsigned short Invulnerable;
+      } NameColoring;
+
+      struct
+      {
+        unsigned short CriminalFlagInterval;
+        unsigned short AggressorFlagTimeout;
+        bool PartyHelpFullCountsAsCriminal;
+      } General;
+
+      struct
+      {
+        ExportedFunction* NameColor;
+        ExportedFunction* HighLightColor;
+        ExportedFunction* OnAttack;
+        ExportedFunction* OnDamage;
+        ExportedFunction* OnHelp;
+      } Hooks;
+
+    };
 
 	class RepSystem
 	{
+	  friend class NPC;
+	  friend class Mobile::Character;
 	private:
 
 	  static void on_pc_attacks_pc( Mobile::Character* attacker, Mobile::Character* defender );
@@ -43,22 +76,6 @@ namespace Pol {
 	  static void schedule_repsys_task( Mobile::Character* chr, polclock_t runat );
 
 	  static void show_repdata( Network::Client* client, Mobile::Character* mob );
-
-
-	  friend void Mobile::Character::make_criminal( int level );
-	  friend void Mobile::Character::make_murderer( bool newval );
-	  friend void Mobile::Character::make_aggressor_to( Mobile::Character* chr );
-	  friend void Mobile::Character::make_lawfullydamaged_to( Mobile::Character* chr );
-
-
-	  friend void Mobile::Character::repsys_on_attack( Mobile::Character* defender );
-	  friend void Mobile::Character::repsys_on_damage( Mobile::Character* defender );
-	  friend void Mobile::Character::repsys_on_help( Mobile::Character* helper );
-
-	  friend unsigned char Mobile::Character::hilite_color_idx( const Mobile::Character* seen_by ) const;
-	  friend unsigned short Mobile::Character::name_color( const Mobile::Character* seen_by ) const;
-	  friend unsigned char NPC::hilite_color_idx( const Mobile::Character* seen_by ) const;
-	  friend unsigned short NPC::name_color( const Mobile::Character* seen_by ) const;
 
 	  friend void show_repdata( Mobile::Character* looker, Mobile::Character* mob );
 	};

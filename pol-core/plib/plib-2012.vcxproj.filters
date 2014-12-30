@@ -68,6 +68,9 @@
     <ClCompile Include="uoexpansion.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+	<ClCompile Include="systemstate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="filemapserver.h">
@@ -137,6 +140,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
 	<ClInclude Include="WorldChangeReasons.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+	<ClInclude Include="systemstate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

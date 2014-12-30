@@ -240,6 +240,7 @@
     <ClCompile Include="StdAfx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="systemstate.cpp" />
     <ClCompile Include="testdrop1.cpp" />
     <ClCompile Include="testenv.cpp" />
     <ClCompile Include="testlos1.cpp" />
@@ -268,6 +269,7 @@
     <ClInclude Include="staticserver.h" />
     <ClInclude Include="StdAfx.h" />
     <ClInclude Include="stlastar.h" />
+    <ClInclude Include="systemstate.h" />
     <ClInclude Include="testenv.h" />
     <ClInclude Include="uoexpansion.h" />
     <ClInclude Include="WorldChangeReasons.h" />

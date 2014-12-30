@@ -33,6 +33,7 @@ Notes
 #include "../../plib/realm.h"
 #include "../../plib/mapcell.h"
 #include "../../plib/mapshape.h"
+#include "../../plib/systemstate.h"
 
 #include "../network/cgdata.h"
 #include "../core.h"
@@ -53,8 +54,6 @@ Notes
 #include "../uvars.h"
 #include "../uworld.h"
 
-
-#include "../objecthash.h"
 
 namespace Pol {
   namespace Multi {
@@ -475,11 +474,11 @@ namespace Pol {
 	  while ( !components_.empty() )
 	  {
 		Items::Item* item = components_.back().get();
-        if ( Core::config.loglevel >= 5 )
+        if ( Plib::systemstate.config.loglevel >= 5 )
           POLLOG.Format( "Destroying component 0x{:X}, serial=0x{:X}\n" ) << item->objtype_ << item->serial;
 		if ( !item->orphan() )
 		  Core::destroy_item( item );
-        if ( Core::config.loglevel >= 5 )
+        if ( Plib::systemstate.config.loglevel >= 5 )
           POLLOG << "Component destroyed\n";
 		components_.pop_back();
 	  }
@@ -755,7 +754,7 @@ namespace Pol {
 	  house->create_components();
 
 	  ////Hash
-      Core::objecthash.Insert( house );
+      Core::gamestate.objecthash.Insert( house );
 	  ////
 
 	  return house->make_ref();
@@ -877,7 +876,7 @@ namespace Pol {
         ref_ptr<Bscript::EScriptProgram> prog;
 		prog = find_script2( itemdesc.walk_on_script,
 							 true, // complain if not found
-                             Core::config.cache_interactive_scripts );
+                             Plib::systemstate.config.cache_interactive_scripts );
 		if ( prog.get() != NULL )
 		{
           std::unique_ptr<Core::UOExecutor> ex( Core::create_script_executor( ) );

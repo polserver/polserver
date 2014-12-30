@@ -85,6 +85,7 @@ Notes
 
 #include "../plib/mapcell.h"
 #include "../plib/realm.h"
+#include "../plib/systemstate.h"
 
 #include "../bscript/impstr.h"
 
@@ -109,62 +110,59 @@ namespace Pol {
         using namespace Mobile;
         using namespace Items;
 
-        u32 itemserialnumber = ITEMSERIAL_START;
-        u32 charserialnumber = CHARACTERSERIAL_START;
-
         //Dave added 3/9/3
         void SetCurrentItemSerialNumber(u32 serial)
         {
-            itemserialnumber = serial;
+            gamestate.itemserialnumber = serial;
         }
 
         //Dave added 3/9/3
         void SetCurrentCharSerialNumber(u32 serial)
         {
-            charserialnumber = serial;
+            gamestate.charserialnumber = serial;
         }
 
         //Dave added 3/8/3
         u32 GetCurrentItemSerialNumber(void)
         {
-            return itemserialnumber;
+            return gamestate.itemserialnumber;
         }
 
         //Dave added 3/8/3
         u32 GetCurrentCharSerialNumber(void)
         {
-            return charserialnumber;
+            return gamestate.charserialnumber;
         }
 
         //Dave changed 3/8/3 to use objecthash
         u32 GetNextSerialNumber(void)
         {
-            u32 nextserial = objecthash.GetNextUnusedCharSerial();
-            charserialnumber = nextserial;
-            return charserialnumber;
+            u32 nextserial = gamestate.objecthash.GetNextUnusedCharSerial();
+            gamestate.charserialnumber = nextserial;
+            return gamestate.charserialnumber;
         }
 
         u32 UseCharSerialNumber(u32 serial)
         {
-            if (serial > charserialnumber)
-                charserialnumber = serial + 1;
+            if (serial > gamestate.charserialnumber)
+                gamestate.charserialnumber = serial + 1;
             return serial;
         }
 
         //Dave changed 3/8/3
         u32 UseItemSerialNumber(u32 serial)
         {
-            if (serial > itemserialnumber)
-                itemserialnumber = serial + 1;
+            if (serial > gamestate.itemserialnumber)
+                gamestate.itemserialnumber = serial + 1;
             return serial;
         }
 
         //Dave changed 3/8/3 to use objecthash
         u32 GetNewItemSerialNumber(void)
         {
-            u32 nextserial = objecthash.GetNextUnusedItemSerial();
-            itemserialnumber = nextserial;
-            return itemserialnumber;
+            u32 nextserial = gamestate.objecthash.GetNextUnusedItemSerial();
+            gamestate.itemserialnumber = nextserial;
+            return gamestate.itemserialnumber;
         }
 
         void send_goxyz(Client *client, const Character *chr)
@@ -220,11 +218,14 @@ namespace Pol {
             movebuffer->offset = 15;
             movebuffer->Write<u8>(chr->get_flag1(client));
             movebuffer->Write<u8>(chr->hilite_color_idx(client->chr));
-            ADDTOSENDQUEUE(client, &movebuffer->buffer, movebuffer->offset);
-            if ((client->ClientType & CLIENTTYPE_UOKR) && (chr->poisoned())) //if poisoned send 0x17 for newer clients
-                ADDTOSENDQUEUE(client, &poisonbuffer->buffer, poisonbuffer->offset);
-            if ((client->ClientType & CLIENTTYPE_UOKR) && (chr->invul())) //if invul send 0x17 for newer clients
-                ADDTOSENDQUEUE(client, &invulbuffer->buffer, invulbuffer->offset);
+            Core::gamestate.clientTransmit->AddToQueue(client, &movebuffer->buffer, movebuffer->offset);
+            if (client->ClientType & CLIENTTYPE_UOKR)
+			{
+			  if (chr->poisoned()) //if poisoned send 0x17 for newer clients
+                Core::gamestate.clientTransmit->AddToQueue(client, &poisonbuffer->buffer, poisonbuffer->offset);
+			  if (chr->invul()) //if invul send 0x17 for newer clients
+                Core::gamestate.clientTransmit->AddToQueue(client, &invulbuffer->buffer, invulbuffer->offset);
+			}
         }
 
         void build_send_move(const Character *chr, PktOut_77* msg)
@@ -299,7 +300,7 @@ namespace Pol {
                     continue;
 
                 // Dont send faces if older client or ssopt
-                if ((layer == LAYER_FACE) && ((ssopt.support_faces == 0) || (~client->ClientType & CLIENTTYPE_UOKR)))
+                if ((layer == LAYER_FACE) && ((gamestate.ssopt.support_faces == 0) || (~client->ClientType & CLIENTTYPE_UOKR)))
                     continue;
 
                 if (client->ClientType & CLIENTTYPE_70331)
@@ -376,7 +377,7 @@ namespace Pol {
                     continue;
 
                 // Dont send faces if older client or ssopt
-                if ((layer == LAYER_FACE) && ((ssopt.support_faces == 0) || (~client->ClientType & CLIENTTYPE_UOKR)))
+                if ((layer == LAYER_FACE) && ((gamestate.ssopt.support_faces == 0) || (~client->ClientType & CLIENTTYPE_UOKR)))
                     continue;
 
                 if (client->ClientType & CLIENTTYPE_70331)
@@ -405,7 +406,7 @@ namespace Pol {
             owncreate->offset = 1;
             owncreate->WriteFlipped<u16>(len);
 
-            ADDTOSENDQUEUE(client, &owncreate->buffer, len);
+            Core::gamestate.clientTransmit->AddToQueue(client, &owncreate->buffer, len);
 
             if (client->UOExpansionFlag & AOS)
             {
@@ -422,10 +423,13 @@ namespace Pol {
                 }
             }
 
-            if ((client->ClientType & CLIENTTYPE_UOKR) && (chr->poisoned())) //if poisoned send 0x17 for newer clients
-                ADDTOSENDQUEUE(client, &poisonbuffer->buffer, poisonbuffer->offset);
-            if ((client->ClientType & CLIENTTYPE_UOKR) && (chr->invul())) //if invul send 0x17 for newer clients
-                ADDTOSENDQUEUE(client, &invulbuffer->buffer, invulbuffer->offset);
+            if (client->ClientType & CLIENTTYPE_UOKR)
+			{
+			  if (chr->poisoned()) //if poisoned send 0x17 for newer clients
+                Core::gamestate.clientTransmit->AddToQueue(client, &poisonbuffer->buffer, poisonbuffer->offset);
+			  if (chr->invul()) //if invul send 0x17 for newer clients
+                Core::gamestate.clientTransmit->AddToQueue(client, &invulbuffer->buffer, invulbuffer->offset);
+			}
         }
 
         void send_remove_character(Client *client, const Character *chr)
@@ -588,15 +592,15 @@ namespace Pol {
 
         bool in_say_range(const Character *c1, const Character *c2)
         {
-            return inrangex(c1, c2, ssopt.speech_range);
+            return inrangex(c1, c2, gamestate.ssopt.speech_range);
         }
         bool in_yell_range(const Character *c1, const Character *c2)
         {
-            return inrangex(c1, c2, ssopt.yell_range);
+            return inrangex(c1, c2, gamestate.ssopt.yell_range);
         }
         bool in_whisper_range(const Character *c1, const Character *c2)
         {
-            return inrangex(c1, c2, ssopt.whisper_range);
+            return inrangex(c1, c2, gamestate.ssopt.whisper_range);
         }
 
         bool inrange(unsigned short x1, unsigned short y1,
@@ -630,7 +634,7 @@ namespace Pol {
                 item->x, item->y, item->slot_index(), item->container->serial_ext, item->color);
 
             // FIXME mightsee also checks remote containers thus the ForEachPlayer functions cannot be used
-            for (auto &client2 : clients)
+            for (auto &client2 : gamestate.clients)
             {
                 if (!client2->ready)
                     continue;
@@ -1420,7 +1424,7 @@ namespace Pol {
 
 	void broadcast( const char *text, unsigned short font, unsigned short color )
 	{
-	  for ( auto &client : clients )
+	  for ( auto &client : gamestate.clients )
 	  {
 		if ( !client->ready )
 		  continue;
@@ -1432,7 +1436,7 @@ namespace Pol {
 	void broadcast( const u16 *wtext, const char lang[4],
 					unsigned short font, unsigned short color )
 	{
-      for ( auto &client : clients )
+      for ( auto &client : gamestate.clients )
 	  {
 		if ( !client->ready )
 		  continue;
@@ -1674,14 +1678,14 @@ namespace Pol {
 	  PktHelper::PacketOut<PktOut_A3> msg;
 	  msg->Write<u32>( chr->serial_ext );
 
-	  if ( uoclient_general.stamina.any )
+	  if ( gamestate.uoclient_general.stamina.any )
 	  {
-		int v = chr->vital( uoclient_general.mana.id ).maximum_ones();
+		int v = chr->vital( gamestate.uoclient_general.mana.id ).maximum_ones();
 		if ( v > 0xFFFF )
 		  v = 0xFFFF;
 		msg->WriteFlipped<u16>( static_cast<u16>(v) );
 
-		v = chr->vital( uoclient_general.mana.id ).current_ones();
+		v = chr->vital( gamestate.uoclient_general.mana.id ).current_ones();
 		if ( v > 0xFFFF )
 		  v = 0xFFFF;
 		msg->WriteFlipped<u16>( static_cast<u16>(v) );
@@ -1700,14 +1704,14 @@ namespace Pol {
 	  PktHelper::PacketOut<PktOut_A2> msg;
 	  msg->Write<u32>( chr->serial_ext );
 
-	  if ( uoclient_general.mana.any )
+	  if ( gamestate.uoclient_general.mana.any )
 	  {
-		int v = chr->vital( uoclient_general.mana.id ).maximum_ones();
+		int v = chr->vital( gamestate.uoclient_general.mana.id ).maximum_ones();
 		if ( v > 0xFFFF )
 		  v = 0xFFFF;
 		msg->WriteFlipped<u16>( static_cast<u16>(v) );
 
-		v = chr->vital( uoclient_general.mana.id ).current_ones();
+		v = chr->vital( gamestate.uoclient_general.mana.id ).current_ones();
 		if ( v > 0xFFFF )
 		  v = 0xFFFF;
 		msg->WriteFlipped<u16>( static_cast<u16>(v) );
@@ -1743,7 +1747,7 @@ namespace Pol {
           return;
         if ( is_UOKR && ( !( client->ClientType & CLIENTTYPE_UOKR ) ) )
           return;
-        ADDTOSENDQUEUE( client, msg, msglen );
+        Core::gamestate.clientTransmit->AddToQueue( client, msg, msglen );
       } );
 	}
 
@@ -1758,7 +1762,7 @@ namespace Pol {
           return;
         if ( zonechr == center )
           return;
-        ADDTOSENDQUEUE( client, msg, msglen );
+        Core::gamestate.clientTransmit->AddToQueue( client, msg, msglen );
       } );
 	}
 
@@ -1937,7 +1941,7 @@ namespace Pol {
 	  lightregion->lightlevel = lightlevel;
 	  PktHelper::PacketOut<PktOut_4F> msg;
 	  msg->Write<u8>( static_cast<u8>(lightlevel) );
-	  for ( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
+	  for ( Clients::iterator itr = gamestate.clients.begin(), end = gamestate.clients.end(); itr != end; ++itr )
 	  {
 		Client *client = *itr;
 		if ( !client->ready )
@@ -1960,11 +1964,11 @@ namespace Pol {
 		else
 		{
 		  //dave 12-22 check for no regions
-		  LightRegion* light_region = lightdef->getregion( client->chr->x, client->chr->y, client->chr->realm );
+		  LightRegion* light_region = gamestate.lightdef->getregion( client->chr->x, client->chr->y, client->chr->realm );
 		  if ( light_region != NULL )
 			newlightlevel = light_region->lightlevel;
 		  else
-			newlightlevel = ssopt.default_light_level;
+			newlightlevel = gamestate.ssopt.default_light_level;
 		}
 
 		if ( newlightlevel != client->gd->lightlevel )
@@ -2011,7 +2015,7 @@ namespace Pol {
 	  weatherregion->aux = static_cast<unsigned char>( aux );
 	  weatherregion->lightoverride = lightoverride;
 
-      for ( auto &client : clients )
+      for ( auto &client : gamestate.clients )
       {
         update_weatherregion( client, weatherregion );
       }
@@ -2019,7 +2023,7 @@ namespace Pol {
 
 	void update_all_weatherregions()
 	{
-      for ( auto &client : clients )
+      for ( auto &client : gamestate.clients )
       {
         if ( !client->ready )
           return;
@@ -2053,7 +2057,7 @@ namespace Pol {
 		desc = s;
 	  }
 	  else
-	  if ( ssopt.use_tile_flag_prefix )
+	  if ( gamestate.ssopt.use_tile_flag_prefix )
 	  {
 		if ( polflags & Plib::FLAG::DESC_PREPEND_AN )
 		{
@@ -2266,12 +2270,12 @@ namespace Pol {
 	  // Change flag according to the number of CharacterSlots
 	  if ( client->UOExpansionFlag & AOS )
 	  {
-		if ( config.character_slots == 7 )
+		if ( Plib::systemstate.config.character_slots == 7 )
 		{
 		  clientflag |= 0x1000; // 7th & 6th character flag (B9 Packet)
 		  clientflag &= ~0x0004; // Disable Third Dawn?
 		}
-		else if ( config.character_slots == 6 )
+		else if ( Plib::systemstate.config.character_slots == 6 )
 		{
 		  clientflag |= 0x0020; // 6th character flag (B9 Packet)
 		  clientflag &= ~0x0004;
@@ -2281,7 +2285,7 @@ namespace Pol {
 	  // Roleplay faces?
 	  if ( client->UOExpansionFlag & KR )
 	  {
-		if ( ssopt.support_faces == 2 )
+		if ( gamestate.ssopt.support_faces == 2 )
 		  clientflag |= 0x2000;
 	  }
 
@@ -2306,11 +2310,11 @@ namespace Pol {
 	{
 	  PktHelper::PacketOut<PktOut_BF_Sub18> msg;
 	  msg->offset += 4; //len+sub
-	  msg->WriteFlipped<u32>( baserealm_count );
-	  for ( unsigned int i = 0; i < baserealm_count; i++ )
+	  msg->WriteFlipped<u32>( gamestate.baserealm_count );
+	  for ( unsigned int i = 0; i < gamestate.baserealm_count; i++ )
 	  {
-		msg->WriteFlipped<u32>( Realms->at( i )->getNumStaticPatches() );
-		msg->WriteFlipped<u32>( Realms->at( i )->getNumMapPatches() );
+		msg->WriteFlipped<u32>( gamestate.Realms.at( i )->getNumStaticPatches() );
+		msg->WriteFlipped<u32>( gamestate.Realms.at( i )->getNumMapPatches() );
 	  }
 	  u16 len = msg->offset;
 	  msg->offset = 1;

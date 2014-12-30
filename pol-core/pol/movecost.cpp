@@ -14,8 +14,7 @@ Notes
 
 #include "mobile/charactr.h"
 
-#include "polcfg.h"
-#include "ssopt.h"
+#include "uvars.h"
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
@@ -24,20 +23,10 @@ Notes
 #include "../clib/strutil.h"
 #include "../clib/logfacility.h"
 
+#include "../plib/systemstate.h"
+
 namespace Pol {
   namespace Core {
-#define MAX_CARRY_PERC 200
-
-	struct MovementCost
-	{
-	  double cost[MAX_CARRY_PERC + 1];
-	  double over;
-	};
-
-	MovementCost movecost_walking;
-	MovementCost movecost_running;
-	MovementCost movecost_walking_mounted;
-	MovementCost movecost_running_mounted;
 
 	//dave messed with this function 1/26/3 - remove_first_prop was reading carrying percentages in lexographic order, not 
 	//numerical order so it would interpolate first 1 to 100, then to 25, etc. costs were processed in this kind of 
@@ -101,12 +90,12 @@ namespace Pol {
 	  double costmod;
 	  if ( mounted )
 	  {
-		mc = running ? &movecost_running_mounted : &movecost_walking_mounted;
+		mc = running ? &gamestate.movecost_running_mounted : &gamestate.movecost_walking_mounted;
 		costmod = running ? chr->movement_cost.run_mounted : chr->movement_cost.walk_mounted;
 	  }
 	  else
 	  {
-		mc = running ? &movecost_running : &movecost_walking;
+		mc = running ? &gamestate.movecost_running : &gamestate.movecost_walking;
 		costmod = running ? chr->movement_cost.run : chr->movement_cost.walk;
 	  }
 
@@ -123,11 +112,11 @@ namespace Pol {
 
 	void load_movecost( bool reload )
 	{
-	  if ( !ssopt.movement_uses_stamina )
+	  if ( !gamestate.ssopt.movement_uses_stamina )
 		return;
 	  else if ( !Clib::FileExists( "config/movecost.cfg" ) )
 	  {
-		if ( !reload && config.loglevel > 0 )
+		if ( !reload && Plib::systemstate.config.loglevel > 0 )
           INFO_PRINT << "File config/movecost.cfg not found, skipping.\n";
 		return;
 	  }
@@ -142,33 +131,33 @@ namespace Pol {
 	  {
 		if ( elem.type_is( "MovementCost" ) )
 		{
-		  read_movecost( elem, movecost_running );
-		  memcpy( &movecost_walking, &movecost_running, sizeof movecost_walking );
+		  read_movecost( elem, gamestate.movecost_running );
+		  memcpy( &gamestate.movecost_walking, &gamestate.movecost_running, sizeof gamestate.movecost_walking );
 		}
 		else if ( elem.type_is( "Walking" ) )
 		{
-		  read_movecost( elem, movecost_walking );
+		  read_movecost( elem, gamestate.movecost_walking );
 		}
 		else if ( elem.type_is( "Running" ) )
 		{
-		  read_movecost( elem, movecost_running );
+		  read_movecost( elem, gamestate.movecost_running );
 		}
 		else if ( elem.type_is( "Walking_Mounted" ) )
 		{
-		  read_movecost( elem, movecost_walking_mounted );
+		  read_movecost( elem, gamestate.movecost_walking_mounted );
 		  walking_mounted_set = true;
 		}
 		else if ( elem.type_is( "Running_Mounted" ) )
 		{
-		  read_movecost( elem, movecost_running_mounted );
+		  read_movecost( elem, gamestate.movecost_running_mounted );
 		  running_mounted_set = true;
 		}
 	  }
 
 	  if ( !walking_mounted_set )
-		memcpy( &movecost_walking_mounted, &movecost_walking, sizeof movecost_walking );
+		memcpy( &gamestate.movecost_walking_mounted, &gamestate.movecost_walking, sizeof gamestate.movecost_walking );
 	  if ( !running_mounted_set )
-		memcpy( &movecost_running_mounted, &movecost_running, sizeof movecost_running );
+		memcpy( &gamestate.movecost_running_mounted, &gamestate.movecost_running, sizeof gamestate.movecost_running );
 	}
   }
 }

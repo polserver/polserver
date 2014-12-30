@@ -18,6 +18,9 @@
     <Filter Include="stackwalker">
       <UniqueIdentifier>{ec9834bc-ae82-496c-b6f3-4fb73fb3c57b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Debugging">
+      <UniqueIdentifier>{de79a169-ffb0-4c0a-9e53-71afb0638fbd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="binaryfile.cpp">
@@ -30,12 +33,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="cmdargs.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-	<ClCompile Include="Debugging\ExceptionParser.cpp">
-	  <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Debugging\LogSink.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="dirfunc.cpp">
@@ -157,6 +154,12 @@
     </ClCompile>
     <ClCompile Include="boostutils.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Debugging\ExceptionParser.cpp">
+      <Filter>Debugging</Filter>
+    </ClCompile>
+    <ClCompile Include="Debugging\LogSink.cpp">
+      <Filter>Debugging</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -335,10 +338,10 @@
       <Filter>Header Files</Filter>
     </ClInclude>
 	<ClInclude Include="Debugging\ExceptionParser.h">
-	  <Filter>Header Files</Filter>
+	  <Filter>Debugging</Filter>
     </ClInclude>
     <ClInclude Include="Debugging\LogSink.h">
-      <Filter>Header Files</Filter>
+      <Filter>Debugging</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

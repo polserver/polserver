@@ -254,8 +254,6 @@ namespace Pol {
 	  }
 	}
 
-	MESSAGE_HANDLER( PKTIN_07, get_item );
-
 
 	/*
 	  undo_get_item:

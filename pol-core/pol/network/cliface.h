@@ -79,7 +79,6 @@ namespace Pol {
 	  friend class ClientInterface;
 	  virtual void bcast_vital_changed( Mobile::Character* who, const Core::Vital* vital ) const POL_OVERRIDE;
 	};
-	extern UOClientInterface uo_client_interface;
   }
 }
 #endif

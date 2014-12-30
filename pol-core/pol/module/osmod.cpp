@@ -20,6 +20,7 @@ Notes
 #include "../../bscript/bobject.h"
 
 #include "../network/auxclient.h"
+#include "../network/packethelper.h"
 
 #include "../mobile/attribute.h"
 #include "../mobile/charactr.h"
@@ -33,6 +34,7 @@ Notes
 #include "../scrstore.h"
 #include "../skills.h"
 #include "../ufuncstd.h"
+#include "../uvars.h"
 
 #include "../../clib/endian.h"
 #include "../../clib/logfacility.h"
@@ -42,6 +44,8 @@ Notes
 #include "../../clib/unicode.h"
 #include "../../clib/sckutil.h"
 #include "../../clib/socketsvc.h"
+
+#include "../../plib/systemstate.h"
 
 #include <ctime>
 
@@ -53,25 +57,22 @@ namespace Pol {
   namespace Module {
 	using namespace Bscript;
 
-	PidList pidlist;
-	unsigned int next_pid = 0;
-
 	unsigned int getnewpid( Core::UOExecutor* uoexec )
 	{
 	  for ( ;; )
 	  {
-		unsigned int newpid = ++next_pid;
+		unsigned int newpid = ++Core::gamestate.next_pid;
 		if ( newpid != 0 &&
-			 pidlist.find( newpid ) == pidlist.end() )
+			 Core::gamestate.pidlist.find( newpid ) == Core::gamestate.pidlist.end() )
 		{
-		  pidlist[newpid] = uoexec;
+		  Core::gamestate.pidlist[newpid] = uoexec;
 		  return newpid;
 		}
 	  }
 	}
 	void freepid( unsigned int pid )
 	{
-	  pidlist.erase( pid );
+	  Core::gamestate.pidlist.erase( pid );
 	}
 
 	OSExecutorModule::OSExecutorModule( Bscript::Executor& exec ) :
@@ -332,7 +333,7 @@ namespace Pol {
 			  return new BError( "No script defined for attribute " + attr->name + "." );
 		  }
 
-          ref_ptr<EScriptProgram> prog = find_script2( script, true, /* complain if not found */ Core::config.cache_interactive_scripts );
+          ref_ptr<EScriptProgram> prog = find_script2( script, true, /* complain if not found */ Plib::systemstate.config.cache_interactive_scripts );
 
 		  if ( prog.get() != NULL )
 		  {
@@ -517,7 +518,7 @@ namespace Pol {
 
 	BObjectImp* OSExecutorModule::mf_system_rpm()
 	{
-      return new BLong( static_cast<int>( Core::last_rpm ) );
+      return new BLong( static_cast<int>( Core::gamestate.profilevars.last_rpm ) );
 	}
 
 	BObjectImp* OSExecutorModule::mf_set_priority()
@@ -686,7 +687,7 @@ namespace Pol {
             }
             else
             {
-                if (Core::config.discard_old_events)
+                if (Plib::systemstate.config.discard_old_events)
                 {
                     BObject ob(events_.front());
                     events_.pop();
@@ -695,7 +696,7 @@ namespace Pol {
                 else
                 {
                     BObject ob(imp);
-                    if (Core::config.loglevel >= 11)
+                    if (Plib::systemstate.config.loglevel >= 11)
                     {
                         INFO_PRINT << "Event queue for " << exec.scriptname() << " is full, discarding event.\n";
                         ExecutorModule* em = exec.findModule("npc");
@@ -748,15 +749,15 @@ namespace Pol {
         blocked_ = false;
         if (in_hold_list_ == TIMEOUT_LIST)
         {
-            Core::holdlist.erase(hold_itr_);
+            Core::gamestate.holdlist.erase(hold_itr_);
             in_hold_list_ = NO_LIST;
-            Core::runlist.push_back(static_cast<Core::UOExecutor*>(&exec));
+            Core::gamestate.runlist.push_back(static_cast<Core::UOExecutor*>(&exec));
         }
         else if (in_hold_list_ == NOTIMEOUT_LIST)
         {
-            Core::notimeoutholdlist.erase(static_cast<Core::UOExecutor*>(&exec));
+            Core::gamestate.notimeoutholdlist.erase(static_cast<Core::UOExecutor*>(&exec));
             in_hold_list_ = NO_LIST;
-            Core::runlist.push_back(static_cast<Core::UOExecutor*>(&exec));
+            Core::gamestate.runlist.push_back(static_cast<Core::UOExecutor*>(&exec));
         }
         else if (in_hold_list_ == DEBUGGER_LIST)
         {
@@ -769,9 +770,9 @@ namespace Pol {
     }
     void OSExecutorModule::revive_debugged()
     {
-        Core::debuggerholdlist.erase(static_cast<Core::UOExecutor*>(&exec));
+        Core::gamestate.debuggerholdlist.erase(static_cast<Core::UOExecutor*>(&exec));
         in_hold_list_ = NO_LIST;
-        Core::runlist.push_back(static_cast<Core::UOExecutor*>(&exec));
+        Core::gamestate.runlist.push_back(static_cast<Core::UOExecutor*>(&exec));
     }
 
     const int SCRIPTOPT_NO_INTERRUPT = 1;
@@ -833,8 +834,5 @@ namespace Pol {
 	{
 	  return( clear_event_queue() );
 	}
-
-	int max_eventqueue_size = 0;
-
   }
 }

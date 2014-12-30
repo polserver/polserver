@@ -18,6 +18,9 @@ Notes
 #include "../../clib/MD5.h"
 #include "../../clib/streamsaver.h"
 
+#include "../uvars.h"
+#include "../../plib/systemstate.h"
+
 #include "../mobile/charactr.h"
 #include "../network/client.h"
 #include "../cmdlevel.h"
@@ -37,7 +40,7 @@ namespace Pol {
 	{
 	  // If too low, will cause the client to freeze and the console to report 
 	  // Exception in message handler 0x91: vector
-	  for ( int i = 0; i < Core::config.character_slots; i++ )
+	  for ( int i = 0; i < Plib::systemstate.config.character_slots; i++ )
 		characters_.push_back( Core::CharacterRef( NULL ) );
 
 	  readfrom( elem );
@@ -48,13 +51,13 @@ namespace Pol {
 	  if ( elem.has_prop( "Password" ) )
 	  {
         std::string temppass = elem.remove_string("Password");
-		if ( Core::config.retain_cleartext_passwords )
+		if ( Plib::systemstate.config.retain_cleartext_passwords )
 		{
 		  password_ = temppass;
 		}
 		if ( !Clib::MD5_Encrypt( name_ + temppass, passwordhash_ ) )	//MD5
 		  elem.throw_error( "Failed to encrypt password for " + name_ );
-		accounts_txt_dirty = true;
+		Plib::systemstate.accounts_txt_dirty = true;
 	  }
 	  else if ( elem.has_prop( "PasswordHash" ) )
 	  {
@@ -87,7 +90,7 @@ namespace Pol {
 		<< "\tName\t" << name_ << pf_endl;
 
 	  //dave 6/5/3 don't write cleartext unless configured to
-	  if ( Core::config.retain_cleartext_passwords && !password_.empty( ) )
+	  if ( Plib::systemstate.config.retain_cleartext_passwords && !password_.empty( ) )
 		sw() << "\tPassword\t" << password_ << pf_endl;
 
 	  sw() << "\tPasswordHash\t" << passwordhash_ << pf_endl;  //MD5
@@ -101,7 +104,7 @@ namespace Pol {
 	  }
 	  if ( default_cmdlevel_ )
 	  {
-		sw( ) << "\tDefaultCmdLevel\t" << Core::cmdlevels2[default_cmdlevel_].name.c_str( ) << pf_endl;
+		sw( ) << "\tDefaultCmdLevel\t" << Core::gamestate.cmdlevels[default_cmdlevel_].name.c_str( ) << pf_endl;
 	  }
 	  if ( uo_expansion_ )
 	  {
@@ -119,7 +122,7 @@ namespace Pol {
 	  elem.add_prop( "Name", name_.c_str() );
 
 	  //dave 6/5/3 don't write cleartext unless configured to
-	  if ( Core::config.retain_cleartext_passwords && !password_.empty( ) )
+	  if ( Plib::systemstate.config.retain_cleartext_passwords && !password_.empty( ) )
 		elem.add_prop( "Password", password_.c_str() );
 
 	  elem.add_prop( "PasswordHash", passwordhash_.c_str() );
@@ -133,7 +136,7 @@ namespace Pol {
 	  }
 	  if ( default_cmdlevel_ )
 	  {
-		elem.add_prop( "DefaultCmdLevel", Core::cmdlevels2[default_cmdlevel_].name.c_str( ) );
+		elem.add_prop( "DefaultCmdLevel", Core::gamestate.cmdlevels[default_cmdlevel_].name.c_str( ) );
 	  }
 	  if ( uo_expansion_ )
 	  {
@@ -160,7 +163,7 @@ namespace Pol {
 		active_character = NULL;
 	  }
 
-	  for ( int i = 0; i < Core::config.character_slots; i++ )
+	  for ( int i = 0; i < Plib::systemstate.config.character_slots; i++ )
 	  {
 		if ( characters_[i].get() )
 		{
@@ -281,7 +284,7 @@ namespace Pol {
 	int Account::numchars() const
 	{
 	  int num = 0;
-	  for ( int i = 0; i < Core::config.character_slots; i++ )
+	  for ( int i = 0; i < Plib::systemstate.config.character_slots; i++ )
 	  if ( characters_[i].get() )
 		++num;
 	  return num;
@@ -289,7 +292,7 @@ namespace Pol {
 
 	int Account::getnextfreeslot() const
 	{
-	  for ( int i = 0; i < Core::config.character_slots; i++ )
+	  for ( int i = 0; i < Plib::systemstate.config.character_slots; i++ )
 	  if ( !characters_[i].get() )
 		return ( i + 1 );
 	  return -1;

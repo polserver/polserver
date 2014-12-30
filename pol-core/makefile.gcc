@@ -69,7 +69,7 @@ cpp_sources = \
 	../lib/tinyxml/tinyxmlerror.cpp ../lib/tinyxml/tinyxmlparser.cpp \
 	../lib/format/format.cc \
 	clib/boostutils.cpp clib/streamsaver.cpp \
-	clib/progver.cpp plib/polver.cpp \
+	clib/progver.cpp plib/polver.cpp plib/systemstate.cpp \
 	pol/accounts/account.cpp pol/accounts/accounts.cpp pol/accounts/acscrobj.cpp pol/allocd.cpp \
 	pol/item/armor.cpp pol/mobile/attack.cpp pol/mobile/ufacing.cpp \
 	pol/mobile/attribute.cpp pol/network/auxclient.cpp pol/network/packets.cpp \
@@ -90,10 +90,9 @@ cpp_sources = \
 	pol/door.cpp pol/dropitem.cpp \
 	pol/eqpitem.cpp pol/equipdsc.cpp pol/item/equipmnt.cpp clib/esignal.cpp \
 	pol/exscrobj.cpp \
-	pol/extcmd.cpp \
 	pol/extobj.cpp \
 	pol/module/filemod.cpp pol/fnsearch.cpp \
-	pol/gameclck.cpp pol/getitem.cpp pol/getmsg.cpp pol/gflag.cpp \
+	pol/gameclck.cpp pol/getitem.cpp pol/getmsg.cpp \
 	pol/guardrgn.cpp\
 	pol/module/guildmod.cpp \
 	pol/module/basiciomod.cpp pol/module/basicmod.cpp \
@@ -117,9 +116,9 @@ cpp_sources = \
 	pol/pol.cpp pol/polcfg.cpp pol/polclock.cpp pol/poldbg.cpp \
 	pol/polfile2.cpp pol/polsem.cpp pol/polsig.cpp pol/polstats.cpp \
 	pol/module/polsystemmod.cpp \
-	pol/poltest.cpp pol/polvar.cpp pol/polwww.cpp pol/module/httpmod.cpp pol/profile.cpp \
+	pol/poltest.cpp pol/polwww.cpp pol/module/httpmod.cpp \
 	pol/proplist.cpp \
-	pol/reftypes.cpp pol/readcfg.cpp pol/region.cpp pol/repsys.cpp \
+	pol/reftypes.cpp pol/region.cpp pol/repsys.cpp \
 	pol/resource.cpp \
 	pol/realms.cpp \
 	pol/savedata.cpp \
@@ -141,7 +140,7 @@ cpp_sources = \
 	pol/uolisten.cpp \
 	pol/uoscrobj.cpp pol/uoskills.cpp pol/useskill.cpp \
 	pol/module/utilmod.cpp pol/module/sqlmod.cpp \
-	pol/uvars.cpp pol/uworld.cpp \
+	pol/uvars.cpp pol/uworld.cpp pol/ucfg.cpp \
 	pol/vital.cpp \
 	pol/item/weapon.cpp \
 	pol/zone.cpp \
@@ -191,7 +190,7 @@ cpp_sources = \
 ecompile_sources=ecompile/ecompile.cpp \
     ../lib/format/format.cc \
   clib/boostutils.cpp \
-	plib/polver.cpp plib/pkg.cpp \
+	plib/polver.cpp plib/pkg.cpp plib/systemstate.cpp \
 	bscript/compilercfg.cpp bscript/compiler.cpp bscript/parser.cpp \
 	bscript/token.cpp bscript/symcont.cpp \
 	bscript/compctx.cpp bscript/tkn_strm.cpp \
@@ -222,7 +221,7 @@ runecl_sources=runecl/runecl.cpp \
 	pol/module/filemod.cpp pol/binaryfilescrobj.cpp pol/xmlfilescrobj.cpp \
 	pol/module/cfgmod.cpp pol/module/datastore.cpp \
 	pol/cfgrepos.cpp pol/proplist.cpp \
-	plib/pkg.cpp plib/polver.cpp \
+	plib/pkg.cpp plib/polver.cpp plib/systemstate.cpp pol/ucfg.cpp \
 	bscript/blong.cpp bscript/bstruct.cpp bscript/compctx.cpp \
 	bscript/dict.cpp bscript/eprog.cpp bscript/eprog2.cpp \
 	bscript/eprog3.cpp bscript/eprog_read.cpp bscript/escript_config.cpp \
@@ -248,6 +247,7 @@ uoconvert_sources=uoconvert/uoconvert.cpp  \
 	pol/uofile07.cpp pol/uofile08.cpp \
 	pol/polfile1.cpp \
 	plib/mapfunc.cpp plib/mapwriter.cpp plib/realmdescriptor.cpp \
+	plib/systemstate.cpp \
 	clib/cfgfile.cpp clib/cmdargs.cpp clib/strutil.cpp \
 	clib/Debugging/ExceptionParser.cpp \
 	clib/fileutil.cpp clib/passert.cpp clib/dirlist.cpp clib/iohelp.cpp \
@@ -265,6 +265,7 @@ uotool_sources=uotool/uotool.cpp \
 	pol/uofile06.cpp pol/uofile07.cpp pol/uofile08.cpp \
 	pol/polfile1.cpp  pol/multi/multidef.cpp \
 	plib/mapfunc.cpp plib/mapwriter.cpp plib/realmdescriptor.cpp \
+	plib/systemstate.cpp \
 	clib/cfgfile.cpp clib/cmdargs.cpp clib/strutil.cpp \
 	clib/Debugging/ExceptionParser.cpp \
 	clib/fileutil.cpp clib/passert.cpp clib/dirlist.cpp clib/iohelp.cpp \
@@ -353,12 +354,12 @@ clean:
 	
 	
 modernize:
-	clang-modernize-3.4 -loop-convert -use-auto -pass-by-value -replace-auto_ptr -summary -final-syntax-check  $(cpp_sources)       -- $(CXX_OPTS) -std=c++11
-	clang-modernize-3.4 -loop-convert -use-auto -pass-by-value -replace-auto_ptr -summary -final-syntax-check  $(ecompile_sources)  -- $(CXX_OPTS) -std=c++11
-	clang-modernize-3.4 -loop-convert -use-auto -pass-by-value -replace-auto_ptr -summary -final-syntax-check  $(runecl_sources)    -- $(CXX_OPTS) -std=c++11
-	clang-modernize-3.4 -loop-convert -use-auto -pass-by-value -replace-auto_ptr -summary -final-syntax-check  $(uoconvert_sources) -- $(CXX_OPTS) -std=c++11
-	clang-modernize-3.4 -loop-convert -use-auto -pass-by-value -replace-auto_ptr -summary -final-syntax-check  $(uotool_sources)    -- $(CXX_OPTS) -std=c++11
-	clang-modernize-3.4 -loop-convert -use-auto -pass-by-value -replace-auto_ptr -summary -final-syntax-check  $(poltool_sources)   -- $(CXX_OPTS) -std=c++11
+	clang-modernize-3.6 -add-override -override-macros -summary -final-syntax-check  $(cpp_sources)       -- $(CXX_OPTS) -DPOL_OVERRIDE=override -std=c++11
+	clang-modernize-3.6 -add-override -override-macros -summary -final-syntax-check  $(ecompile_sources)  -- $(CXX_OPTS) -DPOL_OVERRIDE=override -std=c++11
+	clang-modernize-3.6 -add-override -override-macros -summary -final-syntax-check  $(runecl_sources)    -- $(CXX_OPTS) -DPOL_OVERRIDE=override -std=c++11
+	clang-modernize-3.6 -add-override -override-macros -summary -final-syntax-check  $(uoconvert_sources) -- $(CXX_OPTS) -DPOL_OVERRIDE=override -std=c++11
+	clang-modernize-3.6 -add-override -override-macros -summary -final-syntax-check  $(uotool_sources)    -- $(CXX_OPTS) -DPOL_OVERRIDE=override -std=c++11
+	clang-modernize-3.6 -add-override -override-macros -summary -final-syntax-check  $(poltool_sources)   -- $(CXX_OPTS) -DPOL_OVERRIDE=override -std=c++11
 	
 
 gzipfile: bin/pol bin/ecompile bin/runecl bin/uoconvert bin/uotool #bin/poltool

@@ -25,6 +25,7 @@ Notes
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
 #include "../clib/threadhelp.h"
+#include "../plib/systemstate.h"
 
 #include <list>
 #include <string>
@@ -53,7 +54,7 @@ namespace Pol {
 	void UoClientThread::run()
 	{
 		
-	  if ( !config.use_single_thread_login )
+	  if ( !Plib::systemstate.config.use_single_thread_login )
 	  {
 		create();
 	  }
@@ -64,7 +65,7 @@ namespace Pol {
 	void UoClientThread::create()
 	{
 	  {
-        if ( config.disable_nagle )
+        if ( Plib::systemstate.config.disable_nagle )
         {
           _sck.disable_nagle( );
         }
@@ -73,7 +74,7 @@ namespace Pol {
 		socklen_t host_addrlen = sizeof host_addr;
 
 		PolLock lck;
-        client = new Network::Client( Network::uo_client_interface, _def.encryption );
+        client = new Network::Client( *Core::gamestate.uo_client_interface.get(), _def.encryption );
 		client->csocket = _sck.release_handle(); // client cleans up its socket.
 		if ( _def.sticky )
 		  client->listen_port = _def.port;
@@ -83,13 +84,13 @@ namespace Pol {
 		client->acct = NULL;
 		memcpy( &client->ipaddr, &client_addr, sizeof client->ipaddr );
 
-		clients.push_back( client );
-		CoreSetSysTrayToolTip( Clib::tostring( clients.size() ) + " clients connected", ToolTipPrioritySystem );
+		gamestate.clients.push_back( client );
+		CoreSetSysTrayToolTip( Clib::tostring( gamestate.clients.size() ) + " clients connected", ToolTipPrioritySystem );
         fmt::Writer tmp;
         tmp.Format( "Client#{} connected from {} ({} connections)" )
           << client->instance_
           << Network::AddressToString( &client_addr )
-          << clients.size();
+          << gamestate.clients.size();
 		if ( getsockname( client->csocket, &host_addr, &host_addrlen ) == 0 )
 		{
           tmp << " on interface " << Network::AddressToString( &host_addr );
@@ -115,7 +116,7 @@ namespace Pol {
 		if ( SL.GetConnection( timeout ) )
 		{
 		  // create an appropriate Client object
-		  if ( config.use_single_thread_login )
+		  if ( Plib::systemstate.config.use_single_thread_login )
 		  {
 			UoClientThread* thread = new UoClientThread( ls, SL );
 			login_clients.push_back( thread );
@@ -160,9 +161,9 @@ namespace Pol {
 
 	void start_uo_client_listeners( void )
 	{
-	  for ( unsigned i = 0; i < uoclient_listeners.size(); ++i )
+	  for ( unsigned i = 0; i < gamestate.uoclient_listeners.size(); ++i )
 	  {
-		UoClientListener* ls = &uoclient_listeners[i];
+		UoClientListener* ls = &gamestate.uoclient_listeners[i];
         std::string threadname = "UO Client Listener Port " + Clib::tostring( ls->port );
 		threadhelp::start_thread( uo_client_listener_thread, threadname.c_str(), ls );
 	  }

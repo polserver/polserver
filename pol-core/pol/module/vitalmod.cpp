@@ -23,10 +23,12 @@ Notes
 #include "../ufunc.h"
 #include "../cmbtcfg.h"
 #include "../uoexhelp.h"
+#include "../uvars.h"
 
 #include "../../bscript/bobject.h"
 #include "../../bscript/berror.h"
 #include "../../bscript/impstr.h"
+
 
 #include <climits>
 
@@ -68,7 +70,7 @@ namespace Pol {
 		   damage >= 0 &&
 		   damage <= USHRT_MAX )
 	  {
-		bool send_dmg = send_damage_packet == 2 ? Core::combat_config.send_damage_packet : ( send_damage_packet > 0 ? true : false );
+		bool send_dmg = send_damage_packet == 2 ? Core::gamestate.combat_config.send_damage_packet : ( send_damage_packet > 0 ? true : false );
 		chr->apply_raw_damage_hundredths( static_cast<unsigned int>( damage * 100 ), GetUOController(), userepsys > 0 ? true : false, send_dmg );
 		return new BLong( 1 );
 	  }
@@ -89,7 +91,7 @@ namespace Pol {
 	  {
 		if ( damage >= 0.0 && damage <= 30000.0 )
 		{
-		  bool send_dmg = send_damage_packet == 2 ? Core::combat_config.send_damage_packet : ( send_damage_packet > 0 ? true : false );
+		  bool send_dmg = send_damage_packet == 2 ? Core::gamestate.combat_config.send_damage_packet : ( send_damage_packet > 0 ? true : false );
 		  damage = chr->apply_damage( static_cast<unsigned short>( damage ), GetUOController(), userepsys > 0 ? true : false, send_dmg );
 		  return new BLong( static_cast<int>( damage ) );
 		}
@@ -131,7 +133,7 @@ namespace Pol {
         if ( !Core::VALID_SPELL_ID( spellid ) )
 		  return new BError( "Spell ID out of range" );
 
-        Core::USpell* spell = Core::spells2[spellid];
+        Core::USpell* spell = Core::gamestate.spells[spellid];
 		if ( spell == NULL )
 		  return new BError( "No such spell" );
 		else if ( spell->check_mana( chr ) == false )
@@ -260,7 +262,7 @@ namespace Pol {
 		  else if ( param1->isa( BObjectImp::OTString ) )
 		  {
 			String* attrname = static_cast<String*>( param1 );
-            Mobile::Attribute* attr = Mobile::FindAttribute( attrname->value( ) );
+            Mobile::Attribute* attr = Mobile::Attribute::FindAttribute( attrname->value( ) );
 			if ( attr == NULL )
 			  return new BError( "Attribute not defined: " + attrname->value() );
 			chr->calc_single_attribute( attr );

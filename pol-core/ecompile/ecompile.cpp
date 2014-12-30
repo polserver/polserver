@@ -18,6 +18,7 @@ Notes
 #include "../clib/timer.h"
 
 #include "../plib/pkg.h"
+#include "../plib/systemstate.h"
 
 #include "../bscript/compilercfg.h"
 #include "../bscript/filefmt.h"
@@ -644,7 +645,7 @@ namespace Pol {
 	  {
           std::vector<std::string> files;
         recurse_compile( Clib::normalized_dir_form( compilercfg.PolScriptRoot ), &files );
-		for ( const auto &pkg : Plib::packages )
+		for ( const auto &pkg : Plib::systemstate.packages )
 		{
           recurse_compile( Clib::normalized_dir_form( pkg->dir( ) ), &files );
 		}
@@ -653,7 +654,7 @@ namespace Pol {
 	  else
 	  {
         recurse_compile( Clib::normalized_dir_form( compilercfg.PolScriptRoot ), NULL );
-		for ( const auto &pkg : Plib::packages )
+		for ( const auto &pkg : Plib::systemstate.packages )
 		{
 		  recurse_compile( Clib::normalized_dir_form( pkg->dir() ), NULL );
 		}
@@ -741,7 +742,7 @@ namespace Pol {
 
 	  timer.stop();
 
-	  Plib::unload_packages();
+	  Plib::systemstate.deinitialize();
 
 	  if ( any && compilercfg.DisplaySummary && !quiet )
 	  {

@@ -50,36 +50,6 @@ Notes
 /// This file is re-read on a config reload.
 namespace Pol {
   namespace Core {
-    struct RepSys_Cfg
-    {
-      struct
-      {
-        unsigned short Murderer;
-        unsigned short Criminal;
-        unsigned short Attackable;
-        unsigned short Innocent;
-        unsigned short GuildAlly;
-        unsigned short GuildEnemy;
-        unsigned short Invulnerable;
-      } NameColoring;
-
-      struct
-      {
-        unsigned short CriminalFlagInterval;
-        unsigned short AggressorFlagTimeout;
-        bool PartyHelpFullCountsAsCriminal;
-      } General;
-
-      struct
-      {
-        ExportedFunction* NameColor;
-        ExportedFunction* HighLightColor;
-        ExportedFunction* OnAttack;
-        ExportedFunction* OnDamage;
-        ExportedFunction* OnHelp;
-      } Hooks;
-
-    } repsys_cfg;
 
     /// [1.1] General Configuration
     ///  Settings are defined in the General section:
@@ -101,62 +71,62 @@ namespace Pol {
 
     void load_repsys_cfg_namecoloring( Clib::ConfigElem& elem )
     {
-      repsys_cfg.NameColoring.Murderer = elem.remove_ushort( "Murderer" );
-      repsys_cfg.NameColoring.Criminal = elem.remove_ushort( "Criminal" );
-      repsys_cfg.NameColoring.Attackable = elem.remove_ushort( "Attackable" );
-      repsys_cfg.NameColoring.Innocent = elem.remove_ushort( "Innocent" );
-      repsys_cfg.NameColoring.GuildAlly = elem.remove_ushort( "GuildAlly" );
-      repsys_cfg.NameColoring.GuildEnemy = elem.remove_ushort( "GuildEnemy" );
-      repsys_cfg.NameColoring.Invulnerable = elem.remove_ushort( "Invulnerable" );
+      gamestate.repsys_cfg.NameColoring.Murderer = elem.remove_ushort( "Murderer" );
+      gamestate.repsys_cfg.NameColoring.Criminal = elem.remove_ushort( "Criminal" );
+      gamestate.repsys_cfg.NameColoring.Attackable = elem.remove_ushort( "Attackable" );
+      gamestate.repsys_cfg.NameColoring.Innocent = elem.remove_ushort( "Innocent" );
+      gamestate.repsys_cfg.NameColoring.GuildAlly = elem.remove_ushort( "GuildAlly" );
+      gamestate.repsys_cfg.NameColoring.GuildEnemy = elem.remove_ushort( "GuildEnemy" );
+      gamestate.repsys_cfg.NameColoring.Invulnerable = elem.remove_ushort( "Invulnerable" );
     }
     void load_repsys_cfg_general( Clib::ConfigElem& elem )
     {
-      repsys_cfg.General.CriminalFlagInterval = elem.remove_ushort( "CriminalFlagInterval" );
-      repsys_cfg.General.AggressorFlagTimeout = elem.remove_ushort( "AggressorFlagTimeout" );
-      repsys_cfg.General.PartyHelpFullCountsAsCriminal = elem.remove_bool( "PartyHelpFullCountsAsCriminal", false );
+      gamestate.repsys_cfg.General.CriminalFlagInterval = elem.remove_ushort( "CriminalFlagInterval" );
+      gamestate.repsys_cfg.General.AggressorFlagTimeout = elem.remove_ushort( "AggressorFlagTimeout" );
+      gamestate.repsys_cfg.General.PartyHelpFullCountsAsCriminal = elem.remove_bool( "PartyHelpFullCountsAsCriminal", false );
     }
     void load_repsys_cfg_hooks( Clib::ConfigElem& elem )
     {
       std::string temp;
       if ( elem.remove_prop( "NameColor", &temp ) )
-        repsys_cfg.Hooks.NameColor = FindExportedFunction( elem, NULL, temp, 2 );
+        gamestate.repsys_cfg.Hooks.NameColor = FindExportedFunction( elem, NULL, temp, 2 );
       if ( elem.remove_prop( "HighLightColor", &temp ) )
-        repsys_cfg.Hooks.HighLightColor = FindExportedFunction( elem, NULL, temp, 2 );
+        gamestate.repsys_cfg.Hooks.HighLightColor = FindExportedFunction( elem, NULL, temp, 2 );
 
       if ( elem.remove_prop( "OnAttack", &temp ) )
-        repsys_cfg.Hooks.OnAttack = FindExportedFunction( elem, NULL, temp, 2 );
+        gamestate.repsys_cfg.Hooks.OnAttack = FindExportedFunction( elem, NULL, temp, 2 );
       if ( elem.remove_prop( "OnDamage", &temp ) )
-        repsys_cfg.Hooks.OnDamage = FindExportedFunction( elem, NULL, temp, 2 );
+        gamestate.repsys_cfg.Hooks.OnDamage = FindExportedFunction( elem, NULL, temp, 2 );
       if ( elem.remove_prop( "OnHelp", &temp ) )
-        repsys_cfg.Hooks.OnHelp = FindExportedFunction( elem, NULL, temp, 2 );
+        gamestate.repsys_cfg.Hooks.OnHelp = FindExportedFunction( elem, NULL, temp, 2 );
     }
 
     void unload_repsys_cfg_hooks()
     {
-      if ( repsys_cfg.Hooks.NameColor != NULL )
+      if ( gamestate.repsys_cfg.Hooks.NameColor != NULL )
       {
-        delete repsys_cfg.Hooks.NameColor;
-        repsys_cfg.Hooks.NameColor = NULL;
+        delete gamestate.repsys_cfg.Hooks.NameColor;
+        gamestate.repsys_cfg.Hooks.NameColor = NULL;
       }
-      if ( repsys_cfg.Hooks.HighLightColor != NULL )
+      if ( gamestate.repsys_cfg.Hooks.HighLightColor != NULL )
       {
-        delete repsys_cfg.Hooks.HighLightColor;
-        repsys_cfg.Hooks.HighLightColor = NULL;
+        delete gamestate.repsys_cfg.Hooks.HighLightColor;
+        gamestate.repsys_cfg.Hooks.HighLightColor = NULL;
       }
-      if ( repsys_cfg.Hooks.OnAttack != NULL )
+      if ( gamestate.repsys_cfg.Hooks.OnAttack != NULL )
       {
-        delete repsys_cfg.Hooks.OnAttack;
-        repsys_cfg.Hooks.OnAttack = NULL;
+        delete gamestate.repsys_cfg.Hooks.OnAttack;
+        gamestate.repsys_cfg.Hooks.OnAttack = NULL;
       }
-      if ( repsys_cfg.Hooks.OnDamage != NULL )
+      if ( gamestate.repsys_cfg.Hooks.OnDamage != NULL )
       {
-        delete repsys_cfg.Hooks.OnDamage;
-        repsys_cfg.Hooks.OnDamage = NULL;
+        delete gamestate.repsys_cfg.Hooks.OnDamage;
+        gamestate.repsys_cfg.Hooks.OnDamage = NULL;
       }
-      if ( repsys_cfg.Hooks.OnHelp != NULL )
+      if ( gamestate.repsys_cfg.Hooks.OnHelp != NULL )
       {
-        delete repsys_cfg.Hooks.OnHelp;
-        repsys_cfg.Hooks.OnHelp = NULL;
+        delete gamestate.repsys_cfg.Hooks.OnHelp;
+        gamestate.repsys_cfg.Hooks.OnHelp = NULL;
       }
     }
 
@@ -446,8 +416,8 @@ namespace Pol {
       bool refresh = false;
 
       polclock_t now = polclock();
-      polclock_t crim_timeout_at = now + repsys_cfg.General.CriminalFlagInterval * POLCLOCKS_PER_SEC;
-      polclock_t aggr_timeout_at = now + repsys_cfg.General.AggressorFlagTimeout * POLCLOCKS_PER_SEC;
+      polclock_t crim_timeout_at = now + gamestate.repsys_cfg.General.CriminalFlagInterval * POLCLOCKS_PER_SEC;
+      polclock_t aggr_timeout_at = now + gamestate.repsys_cfg.General.AggressorFlagTimeout * POLCLOCKS_PER_SEC;
 
       if ( bob_defender->is_innocent_to( amy_attacker ) )
       {
@@ -464,10 +434,10 @@ namespace Pol {
       {
         if ( !amy_attacker->is_aggressor_to( bob_defender ) )
         {
-          if ( combat_config.send_attack_msg )
+          if ( gamestate.combat_config.send_attack_msg )
           {
             std::string msg = "*" + amy_attacker->name() + " is attacking you!*";
-            private_say_above_ex( bob_defender, bob_defender, msg.c_str(), repsys_cfg.NameColoring.Murderer );
+            private_say_above_ex( bob_defender, bob_defender, msg.c_str(), gamestate.repsys_cfg.NameColoring.Murderer );
           }
           refresh = true;
         }
@@ -510,7 +480,7 @@ namespace Pol {
     {
       if ( amy == bob )
         return;
-      polclock_t aggr_timeout_at = polclock() + repsys_cfg.General.AggressorFlagTimeout * POLCLOCKS_PER_SEC;
+      polclock_t aggr_timeout_at = polclock() + gamestate.repsys_cfg.General.AggressorFlagTimeout * POLCLOCKS_PER_SEC;
 
       on_pc_attacks_pc( amy, bob );
 
@@ -544,7 +514,7 @@ namespace Pol {
     {
       if ( ( amy != bob ) && bob->is_criminal() )
       {
-        if ( !repsys_cfg.General.PartyHelpFullCountsAsCriminal )
+        if ( !gamestate.repsys_cfg.General.PartyHelpFullCountsAsCriminal )
         {
           if ( ( amy->party() != NULL ) && ( amy->party()->is_member( bob->serial ) ) )
             return;
@@ -588,14 +558,14 @@ namespace Pol {
     unsigned char RepSystem::hilite_color_idx( const Mobile::Character* amy, const Mobile::Character* bob )
     {
 
-      if ( repsys_cfg.Hooks.HighLightColor )
+      if ( gamestate.repsys_cfg.Hooks.HighLightColor )
       {
         Mobile::Character* t_amy = const_cast<Mobile::Character*>( amy );
         Mobile::Character* t_bob = const_cast<Mobile::Character*>( bob );
-        return (unsigned char)( repsys_cfg.Hooks.HighLightColor->call_long( t_bob->make_ref(), t_amy->make_ref() ) );
+        return (unsigned char)( gamestate.repsys_cfg.Hooks.HighLightColor->call_long( t_bob->make_ref(), t_amy->make_ref() ) );
       }
 
-      if ( ( ssopt.invul_tag == 2 ) && bob->invul() )
+      if ( ( gamestate.ssopt.invul_tag == 2 ) && bob->invul() )
         return CHAR_HILITE_INVUL;
       if ( bob->is_murderer() )
         return CHAR_HILITE_MURDERER;
@@ -618,30 +588,30 @@ namespace Pol {
      */
     unsigned short RepSystem::name_color( const Mobile::Character* amy, const Mobile::Character* bob )
     {
-      if ( repsys_cfg.Hooks.NameColor )
+      if ( gamestate.repsys_cfg.Hooks.NameColor )
       {
         Mobile::Character* t_amy = const_cast<Mobile::Character*>( amy );
         Mobile::Character* t_bob = const_cast<Mobile::Character*>( bob );
-        return (unsigned short)( repsys_cfg.Hooks.NameColor->call_long( t_bob->make_ref(), t_amy->make_ref() ) );
+        return (unsigned short)( gamestate.repsys_cfg.Hooks.NameColor->call_long( t_bob->make_ref(), t_amy->make_ref() ) );
       }
 
-      if ( ssopt.invul_tag == 2 )
+      if ( gamestate.ssopt.invul_tag == 2 )
       {
         if ( bob->invul() )
-          return repsys_cfg.NameColoring.Invulnerable;
+          return gamestate.repsys_cfg.NameColoring.Invulnerable;
       }
       if ( bob->is_murderer() )
-        return repsys_cfg.NameColoring.Murderer;
+        return gamestate.repsys_cfg.NameColoring.Murderer;
       if ( bob->is_criminal() )
-        return repsys_cfg.NameColoring.Criminal;
+        return gamestate.repsys_cfg.NameColoring.Criminal;
       else if ( bob->is_guild_ally( amy ) )
-        return repsys_cfg.NameColoring.GuildAlly;
+        return gamestate.repsys_cfg.NameColoring.GuildAlly;
       else if ( bob->is_aggressor_to( amy ) || amy->has_lawfully_damaged( bob ) )
-        return repsys_cfg.NameColoring.Attackable;
+        return gamestate.repsys_cfg.NameColoring.Attackable;
       else if ( bob->is_guild_enemy( amy ) )
-        return repsys_cfg.NameColoring.GuildEnemy;
+        return gamestate.repsys_cfg.NameColoring.GuildEnemy;
       else
-        return repsys_cfg.NameColoring.Innocent;
+        return gamestate.repsys_cfg.NameColoring.Innocent;
     }
   }
   namespace Mobile {
@@ -826,9 +796,9 @@ namespace Pol {
     ///
     void Character::repsys_on_attack( Character* defender )
     {
-      if ( Core::repsys_cfg.Hooks.OnAttack )
+      if ( Core::gamestate.repsys_cfg.Hooks.OnAttack )
       {
-        if ( Core::repsys_cfg.Hooks.OnAttack->call( this->make_ref( ), defender->make_ref( ) ) )
+        if ( Core::gamestate.repsys_cfg.Hooks.OnAttack->call( this->make_ref( ), defender->make_ref( ) ) )
           return;
       }
 
@@ -862,9 +832,9 @@ namespace Pol {
     ///
     void NPC::repsys_on_attack( Character* defender )
     {
-      if ( repsys_cfg.Hooks.OnAttack )
+      if ( gamestate.repsys_cfg.Hooks.OnAttack )
       {
-        if ( repsys_cfg.Hooks.OnAttack->call( this->make_ref(), defender->make_ref() ) )
+        if ( gamestate.repsys_cfg.Hooks.OnAttack->call( this->make_ref(), defender->make_ref() ) )
           return;
       }
 
@@ -893,9 +863,9 @@ namespace Pol {
     ///
     void Character::repsys_on_damage( Character* defender )
     {
-      if ( Core::repsys_cfg.Hooks.OnDamage )
+      if ( Core::gamestate.repsys_cfg.Hooks.OnDamage )
       {
-        if ( Core::repsys_cfg.Hooks.OnDamage->call( this->make_ref(), defender->make_ref() ) )
+        if ( Core::gamestate.repsys_cfg.Hooks.OnDamage->call( this->make_ref(), defender->make_ref() ) )
           return;
       }
 
@@ -928,9 +898,9 @@ namespace Pol {
     ///
     void NPC::repsys_on_damage( Character* defender )
     {
-      if ( repsys_cfg.Hooks.OnDamage )
+      if ( gamestate.repsys_cfg.Hooks.OnDamage )
       {
-        if ( repsys_cfg.Hooks.OnDamage->call( this->make_ref(), defender->make_ref() ) )
+        if ( gamestate.repsys_cfg.Hooks.OnDamage->call( this->make_ref(), defender->make_ref() ) )
           return;
       }
 
@@ -955,9 +925,9 @@ namespace Pol {
 
     void Character::repsys_on_help( Character* helped )
     {
-      if ( Core::repsys_cfg.Hooks.OnHelp )
+      if ( Core::gamestate.repsys_cfg.Hooks.OnHelp )
       {
-        if ( Core::repsys_cfg.Hooks.OnHelp->call( this->make_ref(), helped->make_ref() ) )
+        if ( Core::gamestate.repsys_cfg.Hooks.OnHelp->call( this->make_ref(), helped->make_ref() ) )
           return;
       }
 
@@ -990,9 +960,9 @@ namespace Pol {
     ///
     void NPC::repsys_on_help( Character* helped )
     {
-      if ( repsys_cfg.Hooks.OnHelp )
+      if ( gamestate.repsys_cfg.Hooks.OnHelp )
       {
-        if ( repsys_cfg.Hooks.OnHelp->call( this->make_ref(), helped->make_ref() ) )
+        if ( gamestate.repsys_cfg.Hooks.OnHelp->call( this->make_ref(), helped->make_ref() ) )
           return;
       }
 
@@ -1029,15 +999,15 @@ namespace Pol {
     ///
     unsigned char NPC::hilite_color_idx( const Character* seen_by ) const
     {
-      if ( repsys_cfg.Hooks.HighLightColor )
+      if ( gamestate.repsys_cfg.Hooks.HighLightColor )
       {
         NPC* t_amy = const_cast<NPC*>( this );
         Character* t_bob = const_cast<Character*>( seen_by );
-        int tmp = repsys_cfg.Hooks.HighLightColor->call_long( t_amy->make_ref(), t_bob->make_ref() );
+        int tmp = gamestate.repsys_cfg.Hooks.HighLightColor->call_long( t_amy->make_ref(), t_bob->make_ref() );
         return (unsigned char)( tmp );
       }
 
-      if ( ssopt.invul_tag == 2 )
+      if ( gamestate.ssopt.invul_tag == 2 )
       {
         if ( invul() )
           return CHAR_HILITE_INVUL;
@@ -1068,17 +1038,17 @@ namespace Pol {
 
     unsigned short NPC::name_color( const Character* seen_by ) const
     {
-      if ( repsys_cfg.Hooks.NameColor )
+      if ( gamestate.repsys_cfg.Hooks.NameColor )
       {
         NPC* t_amy = const_cast<NPC*>( this );
         Character* t_bob = const_cast<Character*>( seen_by );
-        return (unsigned short)( repsys_cfg.Hooks.NameColor->call_long( t_amy->make_ref(), t_bob->make_ref() ) );
+        return (unsigned short)( gamestate.repsys_cfg.Hooks.NameColor->call_long( t_amy->make_ref(), t_bob->make_ref() ) );
       }
 
-      if ( ssopt.invul_tag == 2 )
+      if ( gamestate.ssopt.invul_tag == 2 )
       {
         if ( this->invul() )
-          return repsys_cfg.NameColoring.Invulnerable;
+          return gamestate.repsys_cfg.NameColoring.Invulnerable;
       }
       if ( master() )
       {
@@ -1089,19 +1059,19 @@ namespace Pol {
         switch ( template_.alignment )
         {
           case NpcTemplate::NEUTRAL:
-            return repsys_cfg.NameColoring.Attackable;
+            return gamestate.repsys_cfg.NameColoring.Attackable;
           case NpcTemplate::GOOD:
             if ( is_murderer() )
-              return repsys_cfg.NameColoring.Murderer;
+              return gamestate.repsys_cfg.NameColoring.Murderer;
             else if ( is_criminal() )
-              return repsys_cfg.NameColoring.Criminal;
+              return gamestate.repsys_cfg.NameColoring.Criminal;
             else
-              return repsys_cfg.NameColoring.Innocent;
+              return gamestate.repsys_cfg.NameColoring.Innocent;
           case NpcTemplate::EVIL:
-            return repsys_cfg.NameColoring.Murderer;
+            return gamestate.repsys_cfg.NameColoring.Murderer;
         }
 
-        return repsys_cfg.NameColoring.Attackable;
+        return gamestate.repsys_cfg.NameColoring.Attackable;
       }
     }
   }
@@ -1122,7 +1092,7 @@ namespace Pol {
 
 	  if ( level )
 	  {
-        Core::polclock_t timeout_at = Core::polclock( ) + level * Core::repsys_cfg.General.CriminalFlagInterval * Core::POLCLOCKS_PER_SEC;
+        Core::polclock_t timeout_at = Core::polclock( ) + level * Core::gamestate.repsys_cfg.General.CriminalFlagInterval * Core::POLCLOCKS_PER_SEC;
 
 		restart_criminal_timer( timeout_at );
         Core::RepSystem::schedule_repsys_task( this, timeout_at + 1 );
@@ -1157,7 +1127,7 @@ namespace Pol {
 
 	void Character::make_aggressor_to( Character* chr )
 	{
-      Core::polclock_t aggr_timeout_at = Core::polclock( ) + Core::repsys_cfg.General.AggressorFlagTimeout * Core::POLCLOCKS_PER_SEC;
+      Core::polclock_t aggr_timeout_at = Core::polclock( ) + Core::gamestate.repsys_cfg.General.AggressorFlagTimeout * Core::POLCLOCKS_PER_SEC;
 	  restart_aggressor_timer( chr, aggr_timeout_at );
 
 	  // Changed to update!
@@ -1168,7 +1138,7 @@ namespace Pol {
 
 	void Character::make_lawfullydamaged_to( Character* chr )
 	{
-      Core::polclock_t aggr_timeout_at = Core::polclock( ) + Core::repsys_cfg.General.AggressorFlagTimeout * Core::POLCLOCKS_PER_SEC;
+      Core::polclock_t aggr_timeout_at = Core::polclock( ) + Core::gamestate.repsys_cfg.General.AggressorFlagTimeout * Core::POLCLOCKS_PER_SEC;
 	  restart_lawfully_damaged_timer( chr, aggr_timeout_at );
 
 	  // Changed to update!

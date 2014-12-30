@@ -113,7 +113,7 @@ namespace Pol {
 			{
 			  if ( client->isConnected() )
 			  {
-				ADDTOSENDQUEUE( client, (void*)( &buffer[0] ), static_cast<int>( buffer.size() ) );
+				Core::gamestate.clientTransmit->AddToQueue( client, (void*)( &buffer[0] ), static_cast<int>( buffer.size() ) );
 				return new BLong( 1 );
 			  }
 			  else
@@ -141,7 +141,7 @@ namespace Pol {
 			unsigned short num_sent_to = 0;
             Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( x, y, realm, range, [&]( Mobile::Character *chr )
             {
-              ADDTOSENDQUEUE( chr->client, (void*)( &buffer[0] ), static_cast<int>( buffer.size( ) ) );
+              Core::gamestate.clientTransmit->AddToQueue( chr->client, (void*)( &buffer[0] ), static_cast<int>( buffer.size( ) ) );
               num_sent_to++;
             } );
 			return new BLong( num_sent_to );

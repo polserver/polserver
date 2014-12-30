@@ -50,9 +50,6 @@ namespace Pol {
 	  Aliases aliases;
 	};
 
-	typedef std::vector< CmdLevel > CmdLevels;
-	extern CmdLevels cmdlevels2;
-
 	CmdLevel* find_cmdlevel( const char* name );
 	CmdLevel* FindCmdLevelByAlias( const std::string& str );
 

@@ -234,15 +234,7 @@ namespace Pol {
 	const DoorDesc& fast_find_doordesc( u32 objtype );
 	const MultiDesc& find_multidesc( u32 objtype );
 
-	extern ItemDesc empty_itemdesc;
-	extern ItemDesc temp_itemdesc;
-
-	extern std::map<u32, ItemDesc*> desctable;
-
-	inline bool has_itemdesc( u32 objtype )
-	{
-	  return desctable.count( objtype ) > 0;
-	}
+	bool has_itemdesc( u32 objtype );
 
 	unsigned short getgraphic( unsigned int objtype );
 	unsigned short getcolor( unsigned int objtype );
@@ -253,11 +245,7 @@ namespace Pol {
 
 	void load_itemdesc( Clib::ConfigElem& elem );
 
-	typedef std::map<unsigned int, unsigned int> OldObjtypeConversions;
-	extern OldObjtypeConversions old_objtype_conversions;
-
 	const ItemDesc* CreateItemDescriptor( Bscript::BStruct* itemdesc_struct );
-	extern std::vector< ItemDesc* > dynamic_item_descriptors;
 
     size_t itemdescSizeEstimate(size_t *count);
   }

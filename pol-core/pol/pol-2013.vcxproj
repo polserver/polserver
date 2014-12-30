@@ -303,13 +303,11 @@
     <ClCompile Include="eqpitem.cpp" />
     <ClCompile Include="equipdsc.cpp" />
     <ClCompile Include="exscrobj.cpp" />
-    <ClCompile Include="extcmd.cpp" />
     <ClCompile Include="extobj.cpp" />
     <ClCompile Include="fnsearch.cpp" />
     <ClCompile Include="gameclck.cpp" />
     <ClCompile Include="getitem.cpp" />
     <ClCompile Include="getmsg.cpp" />
-    <ClCompile Include="gflag.cpp" />
     <ClCompile Include="guardrgn.cpp" />
     <ClCompile Include="help.cpp" />
     <ClCompile Include="irequest.cpp" />
@@ -354,11 +352,8 @@
     <ClCompile Include="polsig.cpp" />
     <ClCompile Include="polstats.cpp" />
     <ClCompile Include="poltest.cpp" />
-    <ClCompile Include="polvar.cpp" />
     <ClCompile Include="polwww.cpp" />
-    <ClCompile Include="profile.cpp" />
     <ClCompile Include="proplist.cpp" />
-    <ClCompile Include="readcfg.cpp" />
     <ClCompile Include="realms.cpp" />
     <ClCompile Include="reftypes.cpp" />
     <ClCompile Include="region.cpp" />
@@ -395,6 +390,7 @@
     <ClCompile Include="tips.cpp" />
     <ClCompile Include="tmpvars.cpp" />
     <ClCompile Include="tooltips.cpp" />
+    <ClCompile Include="ucfg.cpp" />
     <ClCompile Include="ufunc.cpp" />
     <ClCompile Include="ufunc2.cpp" />
     <ClCompile Include="uimport.cpp" />
@@ -562,6 +558,7 @@
     <ClInclude Include="checkpnt.h" />
     <ClInclude Include="clfunc.h" />
     <ClInclude Include="clidata.h" />
+    <ClInclude Include="console.h" />
     <ClInclude Include="network\clientthread.h" />
     <ClInclude Include="cmbtcfg.h" />
     <ClInclude Include="cmdlevel.h" />
@@ -576,13 +573,10 @@
     <ClInclude Include="equipdsc.h" />
     <ClInclude Include="eventid.h" />
     <ClInclude Include="exscrobj.h" />
-    <ClInclude Include="extcmd.h" />
     <ClInclude Include="extobj.h" />
     <ClInclude Include="fnsearch.h" />
     <ClInclude Include="gameclck.h" />
     <ClInclude Include="getitem.h" />
-    <ClInclude Include="gflag.h" />
-    <ClInclude Include="gprops.h" />
     <ClInclude Include="guardrgn.h" />
     <ClInclude Include="layers.h" />
     <ClInclude Include="lightlvl.h" />
@@ -601,6 +595,8 @@
     <ClInclude Include="musicrgn.h" />
     <ClInclude Include="network\clienttransmit.h" />
     <ClInclude Include="network\packetdefs.h" />
+    <ClInclude Include="network\packethelper.h" />
+    <ClInclude Include="network\packetinterface.h" />
     <ClInclude Include="npc.h" />
     <ClInclude Include="npctmpl.h" />
     <ClInclude Include="objecthash.h" />
@@ -632,7 +628,6 @@
     <ClInclude Include="profile.h" />
     <ClInclude Include="property.h" />
     <ClInclude Include="proplist.h" />
-    <ClInclude Include="readcfg.h" />
     <ClInclude Include="realms.h" />
     <ClInclude Include="reftypes.h" />
     <ClInclude Include="region.h" />

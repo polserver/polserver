@@ -46,6 +46,8 @@ Notes
 #include "../clib/logfacility.h"
 #include "../clib/fdump.h"
 
+#include "../plib/systemstate.h"
+
 #include <cstddef>
 #include <cctype>
 #include <cwctype>
@@ -111,7 +113,7 @@ namespace Pol {
 	  if ( client->chr->hidden() )
 		client->chr->unhide();
 
-	  if ( config.show_speech_colors )
+	  if ( Plib::systemstate.config.show_speech_colors )
 	  {
         INFO_PRINT << client->chr->name( ) << " speaking w/ color 0x"
 		  << fmt::hexu( cfBEu16( color ) ) << "\n";
@@ -157,11 +159,11 @@ namespace Pol {
 	  // send to those nearby
       u16 range;
       if ( type == Core::TEXTTYPE_WHISPER )
-        range = Core::ssopt.whisper_range;
+        range = Core::gamestate.ssopt.whisper_range;
       else if ( type == Core::TEXTTYPE_YELL )
-        range = Core::ssopt.yell_range;
+        range = Core::gamestate.ssopt.yell_range;
       else
-        range = Core::ssopt.speech_range;
+        range = Core::gamestate.ssopt.speech_range;
       Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( client->chr->x, client->chr->y, client->chr->realm, range, [&]( Mobile::Character *chr )
       {
         Network::Client* client2 = chr->client;
@@ -224,8 +226,6 @@ namespace Pol {
 	  handle_processed_speech( client, textbuf, textbuflen, mymsg->text[0], mymsg->type, mymsg->color, mymsg->font );
 	}
 
-	MESSAGE_HANDLER_VARLEN( PKTIN_03, SpeechHandler );
-
     void SendUnicodeSpeech( Client *client, PKTIN_AD *msgin, u16* wtext, size_t wtextlen, char* ntext, size_t ntextlen, Bscript::ObjArray* speechtokens )
 	{
       // validate text color
@@ -264,7 +264,7 @@ namespace Pol {
 	  if ( client->chr->hidden() )
 		client->chr->unhide();
 
-	  if ( config.show_speech_colors )
+	  if ( Plib::systemstate.config.show_speech_colors )
 	  {
         INFO_PRINT << client->chr->name( ) << " speaking w/ color 0x"
 		  << fmt::hexu( cfBEu16( msgin->color ) ) << "\n";
@@ -288,10 +288,10 @@ namespace Pol {
 
 	  if ( msgin->type == 0x0d )
 	  {
-		if ( ssopt.core_sends_guildmsgs && client->chr->guildid() > 0 )
-		for ( unsigned cli = 0; cli < clients.size(); cli++ )
+		if ( gamestate.ssopt.core_sends_guildmsgs && client->chr->guildid() > 0 )
+		for ( unsigned cli = 0; cli < gamestate.clients.size(); cli++ )
 		{
-		  Client *client2 = clients[cli];
+		  Client *client2 = gamestate.clients[cli];
 		  if ( !client2->ready ) continue;
 		  if ( client->chr->guildid() == client2->chr->guildid() )
 			talkmsg.Send( client2, len );
@@ -299,10 +299,10 @@ namespace Pol {
 	  }
 	  else if ( msgin->type == 0x0e )
 	  {
-		if ( ssopt.core_sends_guildmsgs && client->chr->guildid() > 0 )
-		for ( unsigned cli = 0; cli < clients.size(); cli++ )
+		if ( gamestate.ssopt.core_sends_guildmsgs && client->chr->guildid() > 0 )
+		for ( unsigned cli = 0; cli < gamestate.clients.size(); cli++ )
 		{
-		  Client *client2 = clients[cli];
+		  Client *client2 = gamestate.clients[cli];
 		  if ( !client2->ready ) continue;
 		  if ( client->chr->guildid() == client2->chr->guildid() || ( client2->chr->guild() > 0 && client->chr->guild()->hasAlly( client2->chr->guild() ) ) )
 			talkmsg.Send( client2, len );
@@ -334,11 +334,11 @@ namespace Pol {
 		// send to those nearby
         u16 range;
         if ( msgin->type == Core::TEXTTYPE_WHISPER )
-          range = Core::ssopt.whisper_range;
+          range = Core::gamestate.ssopt.whisper_range;
         else if ( msgin->type == Core::TEXTTYPE_YELL )
-          range = Core::ssopt.yell_range;
+          range = Core::gamestate.ssopt.yell_range;
         else
-          range = Core::ssopt.speech_range;
+          range = Core::gamestate.ssopt.speech_range;
         Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( client->chr->x, client->chr->y, client->chr->realm, range, [&]( Mobile::Character *chr )
         {
           Network::Client* client2 = chr->client;
@@ -495,16 +495,14 @@ namespace Pol {
           atoken = new Bscript::BLong( Get12BitNumber( (u8 *)( msgin->wtext ), j + 1 ) );
 		  speechtokens->addElement( atoken );
 		}
-		if ( system_hooks.speechmul_hook != NULL )
+		if ( gamestate.system_hooks.speechmul_hook != NULL )
 		{
-          system_hooks.speechmul_hook->call( make_mobileref( client->chr ), new Bscript::ObjArray( *speechtokens.get( ) ), new Bscript::String( ntextbuf ) );
+          gamestate.system_hooks.speechmul_hook->call( make_mobileref( client->chr ), new Bscript::ObjArray( *speechtokens.get( ) ), new Bscript::String( ntextbuf ) );
 		}
 		msgin->type &= ( ~0xC0 );  // Client won't accept C0 text type messages, so must set to 0
 	  }
 
 	  SendUnicodeSpeech( client, msgin, wtextbuf, wtextbuflen, ntextbuf, ntextbuflen, speechtokens.release() );
 	}
-
-	MESSAGE_HANDLER_VARLEN( PKTIN_AD, UnicodeSpeechHandler );
   }
 }

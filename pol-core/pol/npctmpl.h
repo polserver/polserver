@@ -12,6 +12,9 @@ Notes
 #ifndef NPCTMPL_H
 #define NPCTMPL_H
 
+#include "../clib/cfgfile.h"
+#include "../clib/cfgelem.h"
+
 #include <map>
 #include <string>
 
@@ -46,11 +49,33 @@ namespace Pol {
 	  ~NpcTemplate();
 	};
 
-	typedef std::map< std::string, NpcTemplate* > NpcTemplates;
-
-	extern NpcTemplates npc_templates;
-
 	const NpcTemplate& find_npc_template( const Clib::ConfigElem& elem );
+
+	class NpcTemplateConfigSource : public Clib::ConfigSource
+	{
+	public:
+	  NpcTemplateConfigSource();
+      NpcTemplateConfigSource( const Clib::ConfigFile& cf );
+	  virtual void display_error( const std::string& msg,
+								  bool show_curline = true,
+                                  const Clib::ConfigElemBase* elem = NULL,
+								  bool error = true ) const POL_OVERRIDE;
+	private:
+	  std::string _filename;
+	  unsigned _fileline;
+	};
+
+	class NpcTemplateElem
+	{
+	public:
+	  NpcTemplateElem();
+      NpcTemplateElem( const Clib::ConfigFile& cf, const Clib::ConfigElem& elem );
+
+      void copyto( Clib::ConfigElem& elem ) const;
+	private:
+	  NpcTemplateConfigSource _source;
+      Clib::ConfigElem _elem;
+	};
   }
 }
 #endif

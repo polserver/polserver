@@ -18,6 +18,7 @@ Notes
 #include "../network/cliface.h"
 #include "../skilladv.h"
 #include "../uoexhelp.h"
+#include "../uvars.h"
 
 namespace Pol {
   
@@ -272,7 +273,7 @@ namespace Pol {
 		if ( eff != av.effective_tenths() )
 		{
 		  Network::ClientInterface::tell_attribute_changed( chr, attr );
-		  if ( attr->attrid == pAttrParry->attrid )
+		  if ( attr->attrid == Core::gamestate.pAttrParry->attrid )
 		  {
 			if ( chr->has_shield() )
 			  chr->refresh_ar();
@@ -304,7 +305,7 @@ namespace Pol {
 		if ( eff != av.effective_tenths() )
 		{
 		  Network::ClientInterface::tell_attribute_changed( chr, attr );
-		  if ( attr->attrid == pAttrParry->attrid )
+		  if ( attr->attrid == Core::gamestate.pAttrParry->attrid )
 		  {
 			if ( chr->has_shield() )
 			  chr->refresh_ar();
@@ -341,7 +342,7 @@ namespace Pol {
 		if ( eff != av.effective_tenths() )
 		{
 		  Network::ClientInterface::tell_attribute_changed( chr, attr );
-		  if ( attr->attrid == pAttrParry->attrid )
+		  if ( attr->attrid == Core::gamestate.pAttrParry->attrid )
 		  {
 			if ( chr->has_shield() )
 			  chr->refresh_ar();

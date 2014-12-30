@@ -30,9 +30,7 @@ namespace Pol {
 	class ClientTransmit : boost::noncopyable
 	{
      public:
-      static ClientTransmit& get();
-
-     public:
+	   ClientTransmit();
       ~ClientTransmit();
 
       void AddToQueue(Client* client, const void* data, int len);
@@ -42,16 +40,10 @@ namespace Pol {
       TransmitDataSPtr NextQueueEntry();
 
      private:
-      ClientTransmit();
-      static std::unique_ptr<ClientTransmit> _instance;
-      static std::once_flag _onceFlag;
       ClientTransmitQueue _transmitqueue;
     };
 
-    typedef ClientTransmit ClientTransmitSingleton;
-
     void ClientTransmitThread();
   }
-#define ADDTOSENDQUEUE(_client, _data, _len) Network::ClientTransmitSingleton::get().AddToQueue(_client, _data, _len)
 }
 #endif

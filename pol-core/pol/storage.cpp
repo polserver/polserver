@@ -16,9 +16,9 @@ Notes
 
 #include "mkscrobj.h"
 #include "fnsearch.h"
-#include "gflag.h"
 #include "polcfg.h"
 #include "ufunc.h"
+#include "uvars.h"
 
 #include "../bscript/contiter.h"
 #include "../bscript/impstr.h"
@@ -28,6 +28,8 @@ Notes
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/streamsaver.h"
+
+#include "../plib/systemstate.h"
 
 #include <stdexcept>
 
@@ -94,7 +96,7 @@ namespace Pol {
 	  // don't load it yet. 
 	  pol_serial_t serial = 0;
 	  elem.get_prop( "SERIAL", &serial );
-	  if ( get_save_index( serial ) > current_incremental_save )
+	  if ( get_save_index( serial ) > gamestate.current_incremental_save )
 		return;
 
       u32 container_serial = 0;                                 // defaults to item at storage root,
@@ -234,7 +236,7 @@ namespace Pol {
 			}
 			catch ( std::exception& )
 			{
-			  if ( !config.ignore_load_errors )
+			  if ( !Plib::systemstate.config.ignore_load_errors )
 				throw;
 			}
 		  }
@@ -280,8 +282,6 @@ namespace Pol {
 		areas.erase( areas.begin() );
 	  }
 	}
-	Storage storage;
-
 
 	class StorageAreaIterator : public ContIterator
 	{
@@ -385,13 +385,13 @@ namespace Pol {
 
 	BObject* StorageAreasIterator::step()
 	{
-	  Storage::AreaCont::iterator itr = storage.areas.lower_bound( key );
-	  if ( !key.empty() && itr != storage.areas.end() )
+	  Storage::AreaCont::iterator itr = gamestate.storage.areas.lower_bound( key );
+	  if ( !key.empty() && itr != gamestate.storage.areas.end() )
 	  {
 		++itr;
 	  }
 
-	  if ( itr == storage.areas.end() )
+	  if ( itr == gamestate.storage.areas.end() )
 		return NULL;
 
 	  key = ( *itr ).first;
@@ -440,7 +440,7 @@ namespace Pol {
 	{
 	  if ( stricmp( membername, "count" ) == 0 )
 	  {
-		return BObjectRef( new BLong( static_cast<int>( storage.areas.size() ) ) );
+		return BObjectRef( new BLong( static_cast<int>( gamestate.storage.areas.size() ) ) );
 	  }
 	  return BObjectRef( UninitObject::create() );
 	}
@@ -451,8 +451,8 @@ namespace Pol {
 		String& rtstr = (String&)obj.impref();
         std::string key = rtstr.value();
 
-		Storage::AreaCont::iterator itr = storage.areas.find( key );
-		if ( itr != storage.areas.end() )
+		Storage::AreaCont::iterator itr = gamestate.storage.areas.find( key );
+		if ( itr != gamestate.storage.areas.end() )
 		{
 		  return BObjectRef( new BObject( new StorageAreaImp( ( *itr ).second ) ) );
 		}

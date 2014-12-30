@@ -23,6 +23,7 @@ Notes
 #include "../scrstore.h"
 
 #include "../../clib/passert.h"
+#include "../../plib/systemstate.h"
 
 namespace Pol {
   namespace Mobile {
@@ -96,7 +97,7 @@ namespace Pol {
 		ref_ptr<Bscript::EScriptProgram> prog;
 		prog = find_script2( itemdesc.walk_on_script,
 							 true, // complain if not found
-							 Core::config.cache_interactive_scripts );
+							 Plib::systemstate.config.cache_interactive_scripts );
 		if ( prog.get() != NULL )
 		{
 		  std::unique_ptr<Core::UOExecutor> ex( Core::create_script_executor() );

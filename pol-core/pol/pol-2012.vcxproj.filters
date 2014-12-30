@@ -104,9 +104,6 @@
     <ClCompile Include="exscrobj.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="extcmd.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="fnsearch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -117,9 +114,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="getmsg.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gflag.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="guardrgn.cpp">
@@ -224,19 +218,10 @@
     <ClCompile Include="poltest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="polvar.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="polwww.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="profile.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="proplist.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="readcfg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="realms.cpp">
@@ -303,9 +288,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="syshook.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="syshookscript.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="target.cpp">
@@ -662,7 +644,13 @@
     <ClCompile Include="network\clientthread.cpp">
       <Filter>network</Filter>
     </ClCompile>
+	<ClCompile Include="syshookscript.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="uoexec.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+	<ClCompile Include="ucfg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -727,9 +715,6 @@
     <ClInclude Include="exscrobj.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="extcmd.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="fnsearch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -737,12 +722,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="getitem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="gflag.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="gprops.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="guardrgn.h">
@@ -875,9 +854,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="proplist.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="readcfg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="realms.h">
@@ -1267,9 +1243,6 @@
     <ClInclude Include="network\packetdefs.h">
       <Filter>network</Filter>
     </ClInclude>
-	<ClInclude Include="network\msghandl.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="mobile\corpse.h">
       <Filter>mobile</Filter>
     </ClInclude>
@@ -1279,8 +1252,20 @@
     <ClInclude Include="network\msgfiltr.h">
       <Filter>network</Filter>
     </ClInclude>
+	<ClInclude Include="network\msghandl.h">
+      <Filter>network</Filter>
+    </ClInclude>
     <ClInclude Include="network\clientthread.h">
       <Filter>network</Filter>
+    </ClInclude>
+	<ClInclude Include="network\packethelper.h">
+      <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="network\packetinterface.h">
+      <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="console.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

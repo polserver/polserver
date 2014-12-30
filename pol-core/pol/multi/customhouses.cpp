@@ -31,6 +31,8 @@ tool. Should suffice.
 #include "../../clib/logfacility.h"
 #include "../../clib/streamsaver.h"
 
+#include "../../plib/systemstate.h"
+
 #ifdef USE_SYSTEM_ZLIB
 #	include <zlib.h>
 #else
@@ -398,7 +400,7 @@ namespace Pol {
 			++itr )
 	  {
 		const MULTI_ELEM* m_elem = itr->second;
-        if ( ( ( m_elem->objtype ) & Core::config.max_tile_id ) == 1 ) //don't add the invisible multi tile
+        if ( ( ( m_elem->objtype ) & Plib::systemstate.config.max_tile_id ) == 1 ) //don't add the invisible multi tile
 		  continue;
 		//cout << "0x" << hex << m_elem->graphic
 		//     << " 0x" << hex << m_elem->flags 
@@ -942,7 +944,7 @@ namespace Pol {
 		  }
 		  else //send stored packet
 		  {
-			ADDTOSENDQUEUE( client, &house->CurrentCompressed[0], ctBEu16( *( reinterpret_cast<u16*>( &house->CurrentCompressed[1] ) ) ) );
+			Core::gamestate.clientTransmit->AddToQueue( client, &house->CurrentCompressed[0], ctBEu16( *( reinterpret_cast<u16*>( &house->CurrentCompressed[1] ) ) ) );
 			return;
 		  }
 		  break;
@@ -954,7 +956,7 @@ namespace Pol {
 		  }
 		  else //send stored packet
 		  {
-			ADDTOSENDQUEUE( client, &house->WorkingCompressed[0], ctBEu16( *( reinterpret_cast<u16*>( &house->WorkingCompressed[1] ) ) ) );
+			Core::gamestate.clientTransmit->AddToQueue( client, &house->WorkingCompressed[0], ctBEu16( *( reinterpret_cast<u16*>( &house->WorkingCompressed[1] ) ) ) );
 			return;
 		  }
 		  break;
@@ -1006,7 +1008,7 @@ namespace Pol {
 	  msg->msglen = ctBEu16( static_cast<u16>(buffer_len)+data_offset );
 	  msg->planebuffer_len = ctBEu16( static_cast<u16>( buffer_len ) );
 
-	  ADDTOSENDQUEUE( client, &packet[0], cfBEu16( msg->msglen ) );
+	  Core::gamestate.clientTransmit->AddToQueue( client, &packet[0], cfBEu16( msg->msglen ) );
 	  stored_packet->swap( packet );
 	}
 
@@ -1079,9 +1081,9 @@ namespace Pol {
 	  {
 		CustomHouseStopEditing( chr, this );
 		CustomHousesSendFull( this, chr->client, HOUSE_DESIGN_CURRENT );
-        if ( Core::system_hooks.close_customhouse_hook != NULL )
+        if ( Core::gamestate.system_hooks.close_customhouse_hook != NULL )
 		{
-          Core::system_hooks.close_customhouse_hook->call( make_mobileref( chr ), new Module::EMultiRefObjImp( this ) );
+          Core::gamestate.system_hooks.close_customhouse_hook->call( make_mobileref( chr ), new Module::EMultiRefObjImp( this ) );
 		}
 	  }
 	}

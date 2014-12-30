@@ -65,7 +65,6 @@ namespace Pol {
 
 	bool commit( const std::string& basename );
 	void commit_incremental_saves();
-	extern bool incremental_saves_disabled;
 	bool should_write_data();
   }
 }

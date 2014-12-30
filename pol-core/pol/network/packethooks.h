@@ -56,10 +56,10 @@ namespace Pol {
       PacketVersion version;
 	  VersionDetailStruct client_ver;
 	  std::map<u32, PacketHookData*>SubCommands;
+
+	  static void initializeGameData(std::vector<std::unique_ptr<PacketHookData>> *data);
 	};
 
-	extern std::vector<PacketHookData> packet_hook_data;
-	extern std::vector<PacketHookData> packet_hook_data_v2;
 	void load_packet_hooks();
 	void ExportedPacketHookHandler( Client* client, void* data );
 	void CallOutgoingPacketExportedFunction( Client* client, const void*& data, int& inlength, ref_ptr<Core::BPacket>& outpacket, PacketHookData* phd, bool& handled );

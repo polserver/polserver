@@ -63,8 +63,6 @@ namespace Pol {
 	class ClientInterface;
 	class UOClientInterface;
 
-	extern UOClientInterface uo_client_interface;
-
 	const u16 T2A = 0x01;
 	const u16 LBR = 0x02;
 	const u16 AOS = 0x04;

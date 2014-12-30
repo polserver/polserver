@@ -199,7 +199,7 @@ namespace Pol {
   // log only into std::cout
 #define INFO_PRINT Clib::Logging::Message<Clib::Logging::LogSink_cout>(LOG_PRINT_CALLER_INFO).message()
   // log only into std::cout if level is equal or higher
-#define INFO_PRINT_TRACE(n) if ( Core::config.debug_level >= n ) INFO_PRINT
+#define INFO_PRINT_TRACE(n) if ( Plib::systemstate.config.debug_level >= n ) INFO_PRINT
   // log only into std::cerr
 #define ERROR_PRINT Clib::Logging::Message<Clib::Logging::LogSink_cerr>(LOG_PRINT_CALLER_INFO).message()
 

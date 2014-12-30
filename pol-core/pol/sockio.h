@@ -15,9 +15,6 @@ Notes
 
 namespace Pol {
   namespace Network {
-	extern char ipaddr_str[64];
-	extern char lanaddr_str[64];
-
 	int init_sockets_library( void );
 	int deinit_sockets_library( void );
 
@@ -32,6 +29,18 @@ namespace Pol {
 
 	const char *AddressToString( struct sockaddr *addr );
 
+	struct PolSocket 
+	{
+	  PolSocket();
+	  SOCKET listen_socket;
+	  fd_set listen_fd;
+	  struct timeval listen_timeout;
+
+	  fd_set recv_fd;
+	  fd_set err_fd;
+	  fd_set send_fd;
+	  struct timeval select_timeout;
+	};
   }
 }
 #endif

@@ -34,6 +34,8 @@ The pch needs also to be created and thats why the additional cpp file exists, i
 #include <queue>
 #include <map>
 #include <set>
+#include <array>
+#include <unordered_map>
 #include <iostream>
 #include <memory>
 #include <mutex>

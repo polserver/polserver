@@ -39,9 +39,6 @@ Notes
 
 namespace Pol {
   namespace Network {
-#ifdef PERGON
-    std::unique_ptr<threadhelp::DynTaskThreadPool> auxthreadpool( new threadhelp::DynTaskThreadPool("AuxPool") );
-#endif
 	Bscript::BObjectImp* AuxConnection::copy() const
 	{
 	  return const_cast<AuxConnection*>( this );
@@ -254,12 +251,12 @@ namespace Pol {
 #ifdef PERGON
 		  ERROR_PRINT << "Aux Listener (" << _scriptdef.relativename() << ", port " << _port << ") - add task\n";
           AuxClientThread* client( new AuxClientThread( this, listener ) );
-          auxthreadpool->push( [client]()
+          Core::gamestate.auxthreadpool->push( [client]()
           {
             std::unique_ptr<AuxClientThread> _clientptr( client );
             _clientptr->run();
           } );
-          ERROR_PRINT << "AuxWorkerSize: " << auxthreadpool->threadpoolsize() << "\n";
+          ERROR_PRINT << "AuxWorkerSize: " << Core::gamestate.auxthreadpool->threadpoolsize() << "\n";
 #else
 		  Clib::SocketClientThread* clientthread = new AuxClientThread( this, listener );
 		  clientthread->start();
@@ -269,10 +266,6 @@ namespace Pol {
 	  }
 	}
 
-
-    typedef std::vector< AuxService* > AuxServices;
-	AuxServices auxservices;
-
 	void aux_service_thread_stub( void* arg )
 	{
 	  AuxService* as = static_cast<AuxService*>( arg );
@@ -281,29 +274,20 @@ namespace Pol {
 
 	void start_aux_services()
 	{
-	  for ( unsigned i = 0; i < auxservices.size(); ++i )
+	  for ( unsigned i = 0; i < Core::gamestate.auxservices.size(); ++i )
 	  {
-		threadhelp::start_thread( aux_service_thread_stub, "AuxService", auxservices[i] );
+		threadhelp::start_thread( aux_service_thread_stub, "AuxService", Core::gamestate.auxservices[i] );
 	  }
 	}
 
 	void load_auxservice_entry( const Plib::Package* pkg, Clib::ConfigElem& elem )
 	{
-	  auxservices.push_back( new AuxService( pkg, elem ) );
+	  Core::gamestate.auxservices.push_back( new AuxService( pkg, elem ) );
 	}
 
 	void load_aux_services()
 	{
 	  load_packaged_cfgs( "auxsvc.cfg", "AuxService", load_auxservice_entry );
 	}
-
-	void unload_aux_services()
-	{
-	  Clib::delete_all( auxservices );
-#ifdef PERGON
-      auxthreadpool.release();
-#endif
-	}
-
   }
 }

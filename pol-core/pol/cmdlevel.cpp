@@ -21,6 +21,9 @@ Notes
 #include "../bscript/bstruct.h"
 
 #include "../plib/pkg.h"
+#include "../plib/systemstate.h"
+
+#include "uvars.h"
 
 #include <string>
 #include <memory>
@@ -76,23 +79,21 @@ namespace Pol {
 	  searchlist.insert( searchlist.begin(), sdir );
 	}
 
-	CmdLevels cmdlevels2;
-
 	CmdLevel* find_cmdlevel( const char* name )
 	{
-	  for ( unsigned i = 0; i < cmdlevels2.size(); ++i )
+	  for ( unsigned i = 0; i < gamestate.cmdlevels.size(); ++i )
 	  {
-		if ( stricmp( name, cmdlevels2[i].name.c_str() ) == 0 )
-		  return &cmdlevels2[i];
+		if ( stricmp( name, gamestate.cmdlevels[i].name.c_str() ) == 0 )
+		  return &gamestate.cmdlevels[i];
 	  }
 	  return NULL;
 	}
 
 	CmdLevel* FindCmdLevelByAlias( const std::string& str )
 	{
-	  for ( unsigned i = 0; i < cmdlevels2.size(); ++i )
+	  for ( unsigned i = 0; i < gamestate.cmdlevels.size(); ++i )
 	  {
-		CmdLevel* cmdlvl = &cmdlevels2[i];
+		CmdLevel* cmdlvl = &gamestate.cmdlevels[i];
 		if ( cmdlvl->matches( str ) )
 		  return cmdlvl;
 	  }
@@ -101,10 +102,10 @@ namespace Pol {
 
 	Bscript::ObjArray* GetCommandsInPackage( Plib::Package* m_pkg, int cmdlvl_num )
 	{
-	  if ( cmdlvl_num >= static_cast<int>( cmdlevels2.size() ) )
-		cmdlvl_num = static_cast<int>( cmdlevels2.size() - 1 );
+	  if ( cmdlvl_num >= static_cast<int>( gamestate.cmdlevels.size() ) )
+		cmdlvl_num = static_cast<int>( gamestate.cmdlevels.size() - 1 );
 
-	  CmdLevel& cmdlevel = cmdlevels2[cmdlvl_num];
+	  CmdLevel& cmdlevel = gamestate.cmdlevels[cmdlvl_num];
 
       std::unique_ptr<Bscript::ObjArray> script_names( new Bscript::ObjArray );
 
@@ -153,8 +154,8 @@ namespace Pol {
 
 	  while ( cf.read( elem ) )
 	  {
-		CmdLevel cmdlevel( elem, static_cast<int>( cmdlevels2.size() ) );
-		cmdlevels2.push_back( cmdlevel );
+		CmdLevel cmdlevel( elem, static_cast<int>( gamestate.cmdlevels.size() ) );
+		gamestate.cmdlevels.push_back( cmdlevel );
 	  }
 
 	}
@@ -184,9 +185,9 @@ namespace Pol {
 	// look for a "textcmd/cmdlevel" or "commands/cmdlevel" directory for each name and alias
 	void implicit_package_cmds_cfg( Plib::Package* pkg )
 	{
-	  for ( unsigned i = 0; i < cmdlevels2.size(); ++i )
+	  for ( unsigned i = 0; i < gamestate.cmdlevels.size(); ++i )
 	  {
-		CmdLevel& cmdlevel = cmdlevels2[i];
+		CmdLevel& cmdlevel = gamestate.cmdlevels[i];
 		std::string dir, part;
 
 		// first check for the package name
@@ -220,7 +221,7 @@ namespace Pol {
 
 	void load_package_cmdlevels()
 	{
-      for ( Plib::Packages::iterator itr = Plib::packages.begin( ); itr != Plib::packages.end( ); ++itr )
+      for ( Plib::Packages::iterator itr = Plib::systemstate.packages.begin( ); itr != Plib::systemstate.packages.end( ); ++itr )
 	  {
         Plib::Package* pkg = ( *itr );
         std::string filename = Plib::GetPackageCfgPath( pkg, "cmds.cfg" );

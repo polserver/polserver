@@ -95,7 +95,7 @@ namespace Pol {
 	  elem.add_prop( "Z", z );
 	  npc->readPropertiesForNewNPC( elem );
 
-	  objecthash.Insert( npc );
+	  gamestate.objecthash.Insert( npc );
 
 	  SetCharacterWorldPosition( npc, WorldChangeReason::NpcCreate );
 	  return npc;

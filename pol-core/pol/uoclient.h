@@ -51,14 +51,12 @@ namespace Pol {
 	  ExportScript* method_script;
 	};
 
-	extern UoClientGeneral uoclient_general;
-
 	class UoClientProtocol
 	{
 	public:
+	  UoClientProtocol();
 	  bool EnableFlowControlPackets;
 	};
-	extern UoClientProtocol uoclient_protocol;
 
 	class UoClientListener
 	{
@@ -70,10 +68,6 @@ namespace Pol {
 	  bool aosresist;
 	  bool sticky;
 	};
-
-	typedef std::vector< UoClientListener > UoClientListeners;
-
-	extern UoClientListeners uoclient_listeners;
   }
 }
 #endif

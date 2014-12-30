@@ -35,6 +35,7 @@ Notes
 #include "../clib/logfacility.h"
 #include "../clib/streamsaver.h"
 #include "../plib/realm.h"
+#include "../plib/systemstate.h"
 
 #include "clfunc.h"
 #include "fnsearch.h"
@@ -44,6 +45,7 @@ Notes
 #include "statmsg.h"
 #include "syshook.h"
 #include "target.h"
+#include "uvars.h"
 
 #include "../bscript/berror.h"
 #ifdef MEMORYLEAK
@@ -57,9 +59,6 @@ Notes
 namespace Pol {
   namespace Core {
     void handle_unknown_packet( Network::Client* client );
-
-	Parties parties;
-	Party_Cfg party_cfg;
 
 	Party::Party( u32 serial ) :
 	  _member_serials(),
@@ -87,17 +86,17 @@ namespace Pol {
 
     void load_party_cfg_general( Clib::ConfigElem& elem )
 	{
-	  party_cfg.General.MaxPartyMembers = elem.remove_ushort( "MaxPartyMembers", 10 );
-	  party_cfg.General.TreatNoAsPrivate = elem.remove_bool( "TreatNoAsPrivate", false );
-	  party_cfg.General.DeclineTimeout = elem.remove_ushort( "DeclineTimeout", 10 );
-	  party_cfg.General.RemoveMemberOnLogoff = elem.remove_bool( "RemoveMemberOnLogoff", false );
-	  if ( party_cfg.General.RemoveMemberOnLogoff )
-		party_cfg.General.RejoinPartyOnLogon = elem.remove_bool( "RejoinPartyOnLogon", false );
+	  gamestate.party_cfg.General.MaxPartyMembers = elem.remove_ushort( "MaxPartyMembers", 10 );
+	  gamestate.party_cfg.General.TreatNoAsPrivate = elem.remove_bool( "TreatNoAsPrivate", false );
+	  gamestate.party_cfg.General.DeclineTimeout = elem.remove_ushort( "DeclineTimeout", 10 );
+	  gamestate.party_cfg.General.RemoveMemberOnLogoff = elem.remove_bool( "RemoveMemberOnLogoff", false );
+	  if ( gamestate.party_cfg.General.RemoveMemberOnLogoff )
+		gamestate.party_cfg.General.RejoinPartyOnLogon = elem.remove_bool( "RejoinPartyOnLogon", false );
 	  else
-		party_cfg.General.RejoinPartyOnLogon = false;
+		gamestate.party_cfg.General.RejoinPartyOnLogon = false;
 	  std::string tmp = elem.remove_string( "PrivateMsgPrefix", "" );
 	  if ( tmp.size() == 0 )
-		party_cfg.General.PrivateMsgPrefixLen = 0;
+		gamestate.party_cfg.General.PrivateMsgPrefixLen = 0;
 	  else
 	  {
         std::unique_ptr<Bscript::ObjArray> arr( new Bscript::ObjArray );
@@ -106,13 +105,13 @@ namespace Pol {
 		{
           arr->addElement( new Bscript::BLong( static_cast<unsigned char>( tmp[i] ) ) );
 		}
-		party_cfg.General.PrivateMsgPrefixLen = (unsigned char)arr->ref_arr.size();
-		if ( party_cfg.General.PrivateMsgPrefixLen>SPEECH_MAX_LEN )
-		  party_cfg.General.PrivateMsgPrefixLen = SPEECH_MAX_LEN;
+		gamestate.party_cfg.General.PrivateMsgPrefixLen = (unsigned char)arr->ref_arr.size();
+		if ( gamestate.party_cfg.General.PrivateMsgPrefixLen>SPEECH_MAX_LEN )
+		  gamestate.party_cfg.General.PrivateMsgPrefixLen = SPEECH_MAX_LEN;
 
         Bscript::ObjArray* arrPtr = arr.get( );
-		if ( !Clib::convertArrayToUC( arrPtr, party_cfg.General.PrivateMsgPrefix, party_cfg.General.PrivateMsgPrefixLen, true ) )
-		  party_cfg.General.PrivateMsgPrefixLen = 0;
+		if ( !Clib::convertArrayToUC( arrPtr, gamestate.party_cfg.General.PrivateMsgPrefix, gamestate.party_cfg.General.PrivateMsgPrefixLen, true ) )
+		  gamestate.party_cfg.General.PrivateMsgPrefixLen = 0;
 	  }
 	}
 
@@ -120,42 +119,42 @@ namespace Pol {
 	{
 	  std::string temp;
 	  if ( elem.remove_prop( "CanAddToParty", &temp ) )
-		party_cfg.Hooks.CanAddToParty = FindExportedFunction( elem, NULL, temp, 2 );
+		gamestate.party_cfg.Hooks.CanAddToParty = FindExportedFunction( elem, NULL, temp, 2 );
 	  if ( elem.remove_prop( "CanRemoveMember", &temp ) )
-		party_cfg.Hooks.CanRemoveMember = FindExportedFunction( elem, NULL, temp, 2 );
+		gamestate.party_cfg.Hooks.CanRemoveMember = FindExportedFunction( elem, NULL, temp, 2 );
 	  if ( elem.remove_prop( "CanLeaveParty", &temp ) )
-		party_cfg.Hooks.CanLeaveParty = FindExportedFunction( elem, NULL, temp, 1 );
+		gamestate.party_cfg.Hooks.CanLeaveParty = FindExportedFunction( elem, NULL, temp, 1 );
 	  if ( elem.remove_prop( "OnPublicChat", &temp ) )
-		party_cfg.Hooks.OnPublicChat = FindExportedFunction( elem, NULL, temp, 2 );
+		gamestate.party_cfg.Hooks.OnPublicChat = FindExportedFunction( elem, NULL, temp, 2 );
 	  if ( elem.remove_prop( "OnPrivateChat", &temp ) )
-		party_cfg.Hooks.OnPrivateChat = FindExportedFunction( elem, NULL, temp, 3 );
+		gamestate.party_cfg.Hooks.OnPrivateChat = FindExportedFunction( elem, NULL, temp, 3 );
 	  if ( elem.remove_prop( "OnDisband", &temp ) )
-		party_cfg.Hooks.OnDisband = FindExportedFunction( elem, NULL, temp, 1 );
+		gamestate.party_cfg.Hooks.OnDisband = FindExportedFunction( elem, NULL, temp, 1 );
 	  if ( elem.remove_prop( "ChangePublicChat", &temp ) )
-		party_cfg.Hooks.ChangePublicChat = FindExportedFunction( elem, NULL, temp, 2 );
+		gamestate.party_cfg.Hooks.ChangePublicChat = FindExportedFunction( elem, NULL, temp, 2 );
 	  if ( elem.remove_prop( "ChangePrivateChat", &temp ) )
-		party_cfg.Hooks.ChangePrivateChat = FindExportedFunction( elem, NULL, temp, 3 );
+		gamestate.party_cfg.Hooks.ChangePrivateChat = FindExportedFunction( elem, NULL, temp, 3 );
 	  if ( elem.remove_prop( "OnLeaveParty", &temp ) )
-		party_cfg.Hooks.OnLeaveParty = FindExportedFunction( elem, NULL, temp, 2 );
+		gamestate.party_cfg.Hooks.OnLeaveParty = FindExportedFunction( elem, NULL, temp, 2 );
 	  if ( elem.remove_prop( "OnAddToParty", &temp ) )
-		party_cfg.Hooks.OnAddToParty = FindExportedFunction( elem, NULL, temp, 1 );
+		gamestate.party_cfg.Hooks.OnAddToParty = FindExportedFunction( elem, NULL, temp, 1 );
 	  if ( elem.remove_prop( "OnPartyCreate", &temp ) )
-		party_cfg.Hooks.OnPartyCreate = FindExportedFunction( elem, NULL, temp, 1 );
+		gamestate.party_cfg.Hooks.OnPartyCreate = FindExportedFunction( elem, NULL, temp, 1 );
 	  if ( elem.remove_prop( "OnDecline", &temp ) )
-		party_cfg.Hooks.OnDecline = FindExportedFunction( elem, NULL, temp, 1 );
+		gamestate.party_cfg.Hooks.OnDecline = FindExportedFunction( elem, NULL, temp, 1 );
 	  if ( elem.remove_prop( "OnLootPermChange", &temp ) )
-		party_cfg.Hooks.OnLootPermChange = FindExportedFunction( elem, NULL, temp, 1 );
+		gamestate.party_cfg.Hooks.OnLootPermChange = FindExportedFunction( elem, NULL, temp, 1 );
 	}
 	void load_party_cfg( bool reload )
 	{
 	  if ( !Clib::FileExists( "config/party.cfg" ) )
 	  {
-		party_cfg.General.MaxPartyMembers = 10;
-		party_cfg.General.TreatNoAsPrivate = false;
-		party_cfg.General.DeclineTimeout = 10;
-		party_cfg.General.PrivateMsgPrefixLen = 0;
-		party_cfg.General.RemoveMemberOnLogoff = false;
-		party_cfg.General.RejoinPartyOnLogon = false;
+		gamestate.party_cfg.General.MaxPartyMembers = 10;
+		gamestate.party_cfg.General.TreatNoAsPrivate = false;
+		gamestate.party_cfg.General.DeclineTimeout = 10;
+		gamestate.party_cfg.General.PrivateMsgPrefixLen = 0;
+		gamestate.party_cfg.General.RemoveMemberOnLogoff = false;
+		gamestate.party_cfg.General.RejoinPartyOnLogon = false;
 	  }
 	  else
 	  {
@@ -178,81 +177,81 @@ namespace Pol {
 
 	void unload_party_hooks()
 	{
-	  if ( party_cfg.Hooks.CanAddToParty != NULL )
+	  if ( gamestate.party_cfg.Hooks.CanAddToParty != NULL )
 	  {
-		delete party_cfg.Hooks.CanAddToParty;
-		party_cfg.Hooks.CanAddToParty = NULL;
+		delete gamestate.party_cfg.Hooks.CanAddToParty;
+		gamestate.party_cfg.Hooks.CanAddToParty = NULL;
 	  }
-	  if ( party_cfg.Hooks.CanRemoveMember != NULL )
+	  if ( gamestate.party_cfg.Hooks.CanRemoveMember != NULL )
 	  {
-		delete party_cfg.Hooks.CanRemoveMember;
-		party_cfg.Hooks.CanRemoveMember = NULL;
+		delete gamestate.party_cfg.Hooks.CanRemoveMember;
+		gamestate.party_cfg.Hooks.CanRemoveMember = NULL;
 	  }
-	  if ( party_cfg.Hooks.CanLeaveParty != NULL )
+	  if ( gamestate.party_cfg.Hooks.CanLeaveParty != NULL )
 	  {
-		delete party_cfg.Hooks.CanLeaveParty;
-		party_cfg.Hooks.CanLeaveParty = NULL;
+		delete gamestate.party_cfg.Hooks.CanLeaveParty;
+		gamestate.party_cfg.Hooks.CanLeaveParty = NULL;
 	  }
-	  if ( party_cfg.Hooks.OnPublicChat != NULL )
+	  if ( gamestate.party_cfg.Hooks.OnPublicChat != NULL )
 	  {
-		delete party_cfg.Hooks.OnPublicChat;
-		party_cfg.Hooks.OnPublicChat = NULL;
+		delete gamestate.party_cfg.Hooks.OnPublicChat;
+		gamestate.party_cfg.Hooks.OnPublicChat = NULL;
 	  }
-	  if ( party_cfg.Hooks.OnPrivateChat != NULL )
+	  if ( gamestate.party_cfg.Hooks.OnPrivateChat != NULL )
 	  {
-		delete party_cfg.Hooks.OnPrivateChat;
-		party_cfg.Hooks.OnPrivateChat = NULL;
+		delete gamestate.party_cfg.Hooks.OnPrivateChat;
+		gamestate.party_cfg.Hooks.OnPrivateChat = NULL;
 	  }
-	  if ( party_cfg.Hooks.OnDisband != NULL )
+	  if ( gamestate.party_cfg.Hooks.OnDisband != NULL )
 	  {
-		delete party_cfg.Hooks.OnDisband;
-		party_cfg.Hooks.OnDisband = NULL;
+		delete gamestate.party_cfg.Hooks.OnDisband;
+		gamestate.party_cfg.Hooks.OnDisband = NULL;
 	  }
-	  if ( party_cfg.Hooks.ChangePublicChat != NULL )
+	  if ( gamestate.party_cfg.Hooks.ChangePublicChat != NULL )
 	  {
-		delete party_cfg.Hooks.ChangePublicChat;
-		party_cfg.Hooks.ChangePublicChat = NULL;
+		delete gamestate.party_cfg.Hooks.ChangePublicChat;
+		gamestate.party_cfg.Hooks.ChangePublicChat = NULL;
 	  }
-	  if ( party_cfg.Hooks.ChangePrivateChat != NULL )
+	  if ( gamestate.party_cfg.Hooks.ChangePrivateChat != NULL )
 	  {
-		delete party_cfg.Hooks.ChangePrivateChat;
-		party_cfg.Hooks.ChangePrivateChat = NULL;
+		delete gamestate.party_cfg.Hooks.ChangePrivateChat;
+		gamestate.party_cfg.Hooks.ChangePrivateChat = NULL;
 	  }
-	  if ( party_cfg.Hooks.OnLeaveParty != NULL )
+	  if ( gamestate.party_cfg.Hooks.OnLeaveParty != NULL )
 	  {
-		delete party_cfg.Hooks.OnLeaveParty;
-		party_cfg.Hooks.OnLeaveParty = NULL;
+		delete gamestate.party_cfg.Hooks.OnLeaveParty;
+		gamestate.party_cfg.Hooks.OnLeaveParty = NULL;
 	  }
-	  if ( party_cfg.Hooks.OnAddToParty != NULL )
+	  if ( gamestate.party_cfg.Hooks.OnAddToParty != NULL )
 	  {
-		delete party_cfg.Hooks.OnAddToParty;
-		party_cfg.Hooks.OnAddToParty = NULL;
+		delete gamestate.party_cfg.Hooks.OnAddToParty;
+		gamestate.party_cfg.Hooks.OnAddToParty = NULL;
 	  }
-	  if ( party_cfg.Hooks.OnPartyCreate != NULL )
+	  if ( gamestate.party_cfg.Hooks.OnPartyCreate != NULL )
 	  {
-		delete party_cfg.Hooks.OnPartyCreate;
-		party_cfg.Hooks.OnPartyCreate = NULL;
+		delete gamestate.party_cfg.Hooks.OnPartyCreate;
+		gamestate.party_cfg.Hooks.OnPartyCreate = NULL;
 	  }
-	  if ( party_cfg.Hooks.OnDecline != NULL )
+	  if ( gamestate.party_cfg.Hooks.OnDecline != NULL )
 	  {
-		delete party_cfg.Hooks.OnDecline;
-		party_cfg.Hooks.OnDecline = NULL;
+		delete gamestate.party_cfg.Hooks.OnDecline;
+		gamestate.party_cfg.Hooks.OnDecline = NULL;
 	  }
-	  if ( party_cfg.Hooks.OnLootPermChange != NULL )
+	  if ( gamestate.party_cfg.Hooks.OnLootPermChange != NULL )
 	  {
-		delete party_cfg.Hooks.OnLootPermChange;
-		party_cfg.Hooks.OnLootPermChange = NULL;
+		delete gamestate.party_cfg.Hooks.OnLootPermChange;
+		gamestate.party_cfg.Hooks.OnLootPermChange = NULL;
 	  }
 	}
 	void unload_party()
 	{
 	  unload_party_hooks();
 
-	  for ( auto &party : parties )
+	  for ( auto &party : gamestate.parties )
 	  {
 		party->cleanup();
 	  }
-	  parties.clear();
+	  gamestate.parties.clear();
 	}
 
 	void Party::cleanup()
@@ -316,7 +315,7 @@ namespace Pol {
 
 	bool Party::add_candidate( u32 serial )
 	{
-	  if ( ( _member_serials.size() + _candidates_serials.size() ) >= party_cfg.General.MaxPartyMembers )
+	  if ( ( _member_serials.size() + _candidates_serials.size() ) >= gamestate.party_cfg.General.MaxPartyMembers )
 		return false;
 	  _candidates_serials.push_back( serial );
 	  return true;
@@ -324,7 +323,7 @@ namespace Pol {
 
 	bool Party::add_member( u32 serial )
 	{
-	  if ( ( _member_serials.size() + _candidates_serials.size() ) >= party_cfg.General.MaxPartyMembers )
+	  if ( ( _member_serials.size() + _candidates_serials.size() ) >= gamestate.party_cfg.General.MaxPartyMembers )
 		return false;
 	  _member_serials.push_back( serial );
 	  return true;
@@ -388,7 +387,7 @@ namespace Pol {
 
 	bool Party::can_add() const
 	{
-	  if ( ( _member_serials.size() + _candidates_serials.size() ) >= party_cfg.General.MaxPartyMembers )
+	  if ( ( _member_serials.size() + _candidates_serials.size() ) >= gamestate.party_cfg.General.MaxPartyMembers )
 		return false;
 	  return true;
 	}
@@ -438,8 +437,8 @@ namespace Pol {
 
 	void Party::disband()
 	{
-	  if ( party_cfg.Hooks.OnDisband )
-		party_cfg.Hooks.OnDisband->call( Module::CreatePartyRefObjImp( this ) );
+	  if ( gamestate.party_cfg.Hooks.OnDisband )
+		gamestate.party_cfg.Hooks.OnDisband->call( Module::CreatePartyRefObjImp( this ) );
 
       for ( const auto& serial : _member_serials )
 	  {
@@ -596,10 +595,10 @@ namespace Pol {
 	  msg->Write<u32>( chr->serial_ext );
 
 	  int h, mh;
-	  h = chr->vital( uoclient_general.mana.id ).current_ones();
+	  h = chr->vital( gamestate.uoclient_general.mana.id ).current_ones();
 	  if ( h > 0xFFFF )
 		h = 0xFFFF;
-	  mh = chr->vital( uoclient_general.mana.id ).maximum_ones();
+	  mh = chr->vital( gamestate.uoclient_general.mana.id ).maximum_ones();
 	  if ( mh > 0xFFFF )
 		mh = 0xFFFF;
 	  msg->WriteFlipped<u16>( 1000u );
@@ -624,10 +623,10 @@ namespace Pol {
 	  msg->Write<u32>( chr->serial_ext );
 
 	  int h, mh;
-	  h = chr->vital( uoclient_general.mana.id ).current_ones();
+	  h = chr->vital( gamestate.uoclient_general.mana.id ).current_ones();
 	  if ( h > 0xFFFF )
 		h = 0xFFFF;
-	  mh = chr->vital( uoclient_general.mana.id ).maximum_ones();
+	  mh = chr->vital( gamestate.uoclient_general.mana.id ).maximum_ones();
 	  if ( mh > 0xFFFF )
 		mh = 0xFFFF;
 	  msg->WriteFlipped<u16>( 1000u );
@@ -654,12 +653,12 @@ namespace Pol {
 	  msg->Write<u8>( PKTBI_BF_06::PARTYCMD_PARTY_MSG );
 	  msg->Write<u32>( chr->serial_ext );
 
-	  if ( party_cfg.Hooks.ChangePublicChat )
+	  if ( gamestate.party_cfg.Hooks.ChangePublicChat )
 	  {
 		Bscript::ObjArray* arr;
 		if ( !Clib::convertUCtoArray( wtext, arr, static_cast<unsigned int>( wtextlen ), true ) ) // convert back with ctBEu16()
 		  return;
-        Bscript::BObject obj = party_cfg.Hooks.ChangePublicChat->call_object( chr->make_ref( ), arr );
+        Bscript::BObject obj = gamestate.party_cfg.Hooks.ChangePublicChat->call_object( chr->make_ref( ), arr );
         if ( obj->isa( Bscript::BObjectImp::OTArray ) )
 		{
           arr = static_cast<Bscript::ObjArray*>( obj.impptr( ) );
@@ -701,12 +700,12 @@ namespace Pol {
 	  msg->Write<u8>( PKTBI_BF_06::PARTYCMD_MEMBER_MSG );
 	  msg->Write<u32>( chr->serial_ext );
 
-	  if ( party_cfg.Hooks.ChangePrivateChat )
+	  if ( gamestate.party_cfg.Hooks.ChangePrivateChat )
 	  {
         Bscript::ObjArray* arr;
 		if ( !Clib::convertUCtoArray( wtext, arr, static_cast<unsigned int>( wtextlen ), true ) ) // convert back with ctBEu16()
 		  return;
-        Bscript::BObject obj = party_cfg.Hooks.ChangePrivateChat->call_object( chr->make_ref( ), tochr->make_ref( ), arr );
+        Bscript::BObject obj = gamestate.party_cfg.Hooks.ChangePrivateChat->call_object( chr->make_ref( ), tochr->make_ref( ), arr );
         if ( obj->isa( Bscript::BObjectImp::OTArray ) )
 		{
           arr = static_cast<Bscript::ObjArray*>( obj.impptr( ) );
@@ -723,10 +722,10 @@ namespace Pol {
 			return;
 		}
 	  }
-	  if ( ( wtextlen + party_cfg.General.PrivateMsgPrefixLen ) > SPEECH_MAX_LEN )
-		wtextlen = SPEECH_MAX_LEN - party_cfg.General.PrivateMsgPrefixLen;
-	  if ( party_cfg.General.PrivateMsgPrefixLen )
-		msg->Write( &party_cfg.General.PrivateMsgPrefix[0], party_cfg.General.PrivateMsgPrefixLen, false );
+	  if ( ( wtextlen + gamestate.party_cfg.General.PrivateMsgPrefixLen ) > SPEECH_MAX_LEN )
+		wtextlen = SPEECH_MAX_LEN - gamestate.party_cfg.General.PrivateMsgPrefixLen;
+	  if ( gamestate.party_cfg.General.PrivateMsgPrefixLen )
+		msg->Write( &gamestate.party_cfg.General.PrivateMsgPrefix[0], gamestate.party_cfg.General.PrivateMsgPrefixLen, false );
 
 	  msg->Write( &wtext[0], static_cast<u16>( wtextlen ), false );
 	  u16 len = msg->offset;
@@ -775,13 +774,13 @@ namespace Pol {
 
 	void register_party_members()
 	{
-	  Parties::iterator itr = parties.begin();
-	  while ( itr != parties.end() )
+	  Parties::iterator itr = gamestate.parties.begin();
+	  while ( itr != gamestate.parties.end() )
 	  {
 		if ( !( *itr )->register_with_members() )
 		{
 		  ( *itr )->disband();
-		  itr = parties.erase( itr );
+		  itr = gamestate.parties.erase( itr );
 		}
 		else
 		  ++itr;
@@ -790,21 +789,21 @@ namespace Pol {
 
 	void disband_party( u32 leader )
 	{
-      auto itr = std::find_if( parties.begin(), parties.end(), [&]( PartyRef &party ) { return party->is_leader( leader ); } );
-	  if (itr != parties.end() )
+      auto itr = std::find_if( gamestate.parties.begin(), gamestate.parties.end(), [&]( PartyRef &party ) { return party->is_leader( leader ); } );
+	  if (itr != gamestate.parties.end() )
 	  {
 		( *itr )->disband();
-		parties.erase( itr );
+		gamestate.parties.erase( itr );
 	  }
 	}
 
 	void read_party_dat()
 	{
-	  std::string partyfile = config.world_data_path + "parties.txt";
+	  std::string partyfile = Plib::systemstate.config.world_data_path + "parties.txt";
 
 	  if ( !Clib::FileExists( partyfile ) )
 		return;
-	  if ( party_cfg.General.RemoveMemberOnLogoff )
+	  if ( gamestate.party_cfg.General.RemoveMemberOnLogoff )
 		return;
 
       INFO_PRINT << "  " << partyfile << ":";
@@ -821,21 +820,21 @@ namespace Pol {
 		  num_until_dot = 1000;
 		}
 		if ( sect_party.matches( elem ) )
-		  parties.push_back( ref_ptr<Party>( new Party( elem ) ) );
+		  gamestate.parties.push_back( ref_ptr<Party>( new Party( elem ) ) );
 	  }
 	  clock_t end = clock();
 	  int ms = static_cast<int>( ( end - start ) * 1000.0 / CLOCKS_PER_SEC );
 
-      INFO_PRINT << " " << parties.size() << " elements in " << ms << " ms.\n";
+      INFO_PRINT << " " << gamestate.parties.size() << " elements in " << ms << " ms.\n";
 
 	  register_party_members();
 	}
 
 	void write_party( Clib::StreamWriter& sw )
 	{
-	  if ( party_cfg.General.RemoveMemberOnLogoff )
+	  if ( gamestate.party_cfg.General.RemoveMemberOnLogoff )
 		return;
-	  for ( const auto &party : parties )
+	  for ( const auto &party : gamestate.parties )
 	  {
 		party->printOn( sw );
 	  }
@@ -845,7 +844,7 @@ namespace Pol {
 	{
 	  if ( chr->party() != NULL )
 	  {
-		if ( party_cfg.General.RemoveMemberOnLogoff )
+		if ( gamestate.party_cfg.General.RemoveMemberOnLogoff )
 		{
 		  Party* party = chr->party();
 		  if ( party->remove_member( chr->serial ) )
@@ -866,14 +865,14 @@ namespace Pol {
 			else
 			  party->send_remove_member( chr, &disband );
 			chr->party( NULL );
-			if ( party_cfg.Hooks.OnLeaveParty )
-			  party_cfg.Hooks.OnLeaveParty->call( chr->make_ref(), chr->make_ref() );
+			if ( gamestate.party_cfg.Hooks.OnLeaveParty )
+			  gamestate.party_cfg.Hooks.OnLeaveParty->call( chr->make_ref(), chr->make_ref() );
 
 			if ( disband )
 			  disband_party( party->leader() );
 			else
 			{
-			  if ( party_cfg.General.RejoinPartyOnLogon )
+			  if ( gamestate.party_cfg.General.RejoinPartyOnLogon )
 			  {
 				party->add_offline_mem( chr->serial );
 				chr->offline_mem_of( party );
@@ -944,7 +943,7 @@ namespace Pol {
 		  handle_unknown_packet( client );
 	  }
 	}
-	FullMsgTargetCursor add_member_cursor( handle_add_member_cursor );
+	
 	void handle_add_member_cursor( Mobile::Character* chr, PKTBI_6C* msgin )
 	{
 	  if ( chr->client != NULL )
@@ -959,7 +958,7 @@ namespace Pol {
 	  if ( msg->partydata.partyadd.memberid == 0x0 )
 	  {
 		send_sysmessage_cl( client, CLP_Who_To_Add ); //Who would you like to add to your party?
-		add_member_cursor.send_object_cursor( client );
+		gamestate.target_cursors.add_member_cursor.send_object_cursor( client );
 	  }
 	  else
 	  {
@@ -967,7 +966,7 @@ namespace Pol {
 		add_candidate( member, client->chr );
 	  }
 	}
-	FullMsgTargetCursor remove_member_cursor( handle_remove_member_cursor );
+	
 	void handle_remove_member_cursor( Mobile::Character* chr, PKTBI_6C* msgin )
 	{
 	  if ( chr->client != NULL )
@@ -982,9 +981,9 @@ namespace Pol {
 			send_sysmessage_cl( chr->client, CLP_Cannot_Remove_Self ); //You may only remove yourself from a party if you are not the leader.
 		  else
 		  {
-			if ( party_cfg.Hooks.CanRemoveMember )
+			if ( gamestate.party_cfg.Hooks.CanRemoveMember )
 			{
-			  if ( !party_cfg.Hooks.CanRemoveMember->call( chr->make_ref(), rem->make_ref() ) )
+			  if ( !gamestate.party_cfg.Hooks.CanRemoveMember->call( chr->make_ref(), rem->make_ref() ) )
 			  {
 				party->send_member_list( chr ); //resend list
 				return;
@@ -995,8 +994,8 @@ namespace Pol {
 			  bool disband;
 			  party->send_remove_member( rem, &disband );
 			  rem->party( NULL );
-			  if ( party_cfg.Hooks.OnLeaveParty )
-				party_cfg.Hooks.OnLeaveParty->call( rem->make_ref(), chr->make_ref() );
+			  if ( gamestate.party_cfg.Hooks.OnLeaveParty )
+				gamestate.party_cfg.Hooks.OnLeaveParty->call( rem->make_ref(), chr->make_ref() );
 
 			  send_sysmessage_cl( rem->client, CLP_Removed ); //You have been removed from the party.
 			  send_empty_party( rem );
@@ -1021,16 +1020,16 @@ namespace Pol {
 	  if ( ( party->is_leader( client->chr->serial ) ) && ( member == NULL ) )
 	  {
 		send_sysmessage_cl( client, CLP_Who_to_Remove ); //Who would you like to remove from your party?
-		remove_member_cursor.send_object_cursor( client );
+		gamestate.target_cursors.remove_member_cursor.send_object_cursor( client );
 	  }
 	  // leader kicks member, or member kicks himself
 	  else if ( ( ( party->is_leader( client->chr->serial ) ) || ( client->chr == member ) ) && ( party->is_member( member->serial ) ) )
 	  {
 		if ( client->chr == member )
 		{
-		  if ( party_cfg.Hooks.CanLeaveParty )
+		  if ( gamestate.party_cfg.Hooks.CanLeaveParty )
 		  {
-			if ( !party_cfg.Hooks.CanLeaveParty->call( client->chr->make_ref() ) )
+			if ( !gamestate.party_cfg.Hooks.CanLeaveParty->call( client->chr->make_ref() ) )
 			{
 			  party->send_member_list( client->chr ); //resend list
 			  return;
@@ -1039,9 +1038,9 @@ namespace Pol {
 		}
 		else
 		{
-		  if ( party_cfg.Hooks.CanRemoveMember )
+		  if ( gamestate.party_cfg.Hooks.CanRemoveMember )
 		  {
-			if ( !party_cfg.Hooks.CanRemoveMember->call( client->chr->make_ref(), member->make_ref() ) )
+			if ( !gamestate.party_cfg.Hooks.CanRemoveMember->call( client->chr->make_ref(), member->make_ref() ) )
 			{
 			  party->send_member_list( client->chr ); //resend list
 			  return;
@@ -1053,8 +1052,8 @@ namespace Pol {
 		  bool disband;
 		  member->party( NULL );
 		  party->send_remove_member( member, &disband );
-		  if ( party_cfg.Hooks.OnLeaveParty )
-			party_cfg.Hooks.OnLeaveParty->call( member->make_ref(), client->chr->make_ref() );
+		  if ( gamestate.party_cfg.Hooks.OnLeaveParty )
+			gamestate.party_cfg.Hooks.OnLeaveParty->call( member->make_ref(), client->chr->make_ref() );
 		  if ( member->has_active_client() )
 		  {
 			send_sysmessage_cl( member->client, CLP_Removed ); //You have been removed from the party.
@@ -1106,11 +1105,11 @@ namespace Pol {
 		  }
 		  wtextbuf[wtextbuflen++] = (u16)0;
 
-		  if ( party_cfg.Hooks.OnPrivateChat )
+		  if ( gamestate.party_cfg.Hooks.OnPrivateChat )
 		  {
             Bscript::ObjArray* arr;
             if ( Clib::convertUCtoArray( wtextbuf, arr, wtextbuflen, true ) ) // convert back with ctBEu16()
-			  party_cfg.Hooks.OnPrivateChat->call( client->chr->make_ref(), member->make_ref(), arr );
+			  gamestate.party_cfg.Hooks.OnPrivateChat->call( client->chr->make_ref(), member->make_ref(), arr );
 		  }
 
 		  party->send_member_msg_private( client->chr, member, wtextbuf, wtextbuflen );
@@ -1148,7 +1147,7 @@ namespace Pol {
 
 		wtextbuflen = 0;
 		starti = 0;
-		if ( party_cfg.General.TreatNoAsPrivate )
+		if ( gamestate.party_cfg.General.TreatNoAsPrivate )
 		{
 		  char no_c = wcout.narrow( (wchar_t)cfBEu16( themsg[0] ), '?' );
 		  if ( ( isdigit( no_c ) ) && ( cfBEu16( themsg[1] ) == L' ' ) )
@@ -1179,21 +1178,21 @@ namespace Pol {
 
 		if ( starti == 2 ) //private chat
 		{
-		  if ( party_cfg.Hooks.OnPrivateChat )
+		  if ( gamestate.party_cfg.Hooks.OnPrivateChat )
 		  {
 			Bscript::ObjArray* arr;
             if ( Clib::convertUCtoArray( wtextbuf, arr, wtextbuflen, true ) ) // convert back with ctBEu16()
-			  party_cfg.Hooks.OnPrivateChat->call( client->chr->make_ref(), member->make_ref(), arr );
+			  gamestate.party_cfg.Hooks.OnPrivateChat->call( client->chr->make_ref(), member->make_ref(), arr );
 		  }
 		  client->chr->party()->send_member_msg_private( client->chr, member, wtextbuf, wtextbuflen );
 		}
 		else
 		{
-		  if ( party_cfg.Hooks.OnPublicChat )
+		  if ( gamestate.party_cfg.Hooks.OnPublicChat )
 		  {
 			Bscript::ObjArray* arr;
             if ( Clib::convertUCtoArray( wtextbuf, arr, wtextbuflen, true ) ) // convert back with ctBEu16()
-			  party_cfg.Hooks.OnPublicChat->call( client->chr->make_ref(), arr );
+			  gamestate.party_cfg.Hooks.OnPublicChat->call( client->chr->make_ref(), arr );
 		  }
 
 		  client->chr->party()->send_member_msg_public( client->chr, wtextbuf, wtextbuflen );
@@ -1211,8 +1210,8 @@ namespace Pol {
 	  {
 		bool loot = msg->partydata.partylootperm.canloot ? true : false;
 		client->chr->set_party_can_loot( loot );
-		if ( party_cfg.Hooks.OnLootPermChange )
-		  party_cfg.Hooks.OnLootPermChange->call( client->chr->make_ref() );
+		if ( gamestate.party_cfg.Hooks.OnLootPermChange )
+		  gamestate.party_cfg.Hooks.OnLootPermChange->call( client->chr->make_ref() );
 		//You have chosen to allow your party to loot your corpse.
 		//You have chosen to prevent your party from looting your corpse.
 		send_sysmessage_cl( client, loot ? CLP_Allow_Loot : CLP_Prevent_Loot );
@@ -1234,8 +1233,8 @@ namespace Pol {
 			if ( party->add_member( client->chr->serial ) )
 			{
 			  client->chr->party( party );
-			  if ( party_cfg.Hooks.OnAddToParty )
-				party_cfg.Hooks.OnAddToParty->call( client->chr->make_ref() );
+			  if ( gamestate.party_cfg.Hooks.OnAddToParty )
+				gamestate.party_cfg.Hooks.OnAddToParty->call( client->chr->make_ref() );
 			  send_sysmessage_cl( client, CLP_Added ); // You have been added to the party.
 
 			  party->send_msg_to_all( CLP_Joined, client->chr->name().c_str(), client->chr );//  : joined the party.
@@ -1264,8 +1263,8 @@ namespace Pol {
 			send_sysmessage_cl( client, CLP_Decline ); // You notify them that you do not wish to join the party.
 			if ( leader->has_active_client() )
 			  send_sysmessage_cl_affix( leader->client, CLP_Notify_Decline, client->chr->name().c_str(), true ); //: Does not wish to join the party.
-			if ( party_cfg.Hooks.OnDecline )
-			  party_cfg.Hooks.OnDecline->call( client->chr->make_ref() );
+			if ( gamestate.party_cfg.Hooks.OnDecline )
+			  gamestate.party_cfg.Hooks.OnDecline->call( client->chr->make_ref() );
 			if ( !party->test_size() )
 			  disband_party( leader->serial );
 		  }
@@ -1303,21 +1302,21 @@ namespace Pol {
 		  send_sysmessage_cl( leader->client, CLP_Already_in_a_Party ); //This person is already in a party!
 		else
 		{
-		  if ( party_cfg.Hooks.CanAddToParty )
+		  if ( gamestate.party_cfg.Hooks.CanAddToParty )
 		  {
-			if ( !party_cfg.Hooks.CanAddToParty->call( leader->make_ref(), member->make_ref() ) )
+			if ( !gamestate.party_cfg.Hooks.CanAddToParty->call( leader->make_ref(), member->make_ref() ) )
 			  return;
 		  }
-		  if ( party_cfg.General.DeclineTimeout > 0 )
+		  if ( gamestate.party_cfg.General.DeclineTimeout > 0 )
 			member->set_party_invite_timeout();
 
 		  if ( leader->party() == NULL )
 		  {
 			Party* party = new Party( leader->serial );
-			parties.push_back( ref_ptr<Party>( party ) );
+			gamestate.parties.push_back( ref_ptr<Party>( party ) );
 			leader->party( party );
-			if ( party_cfg.Hooks.OnPartyCreate )
-			  party_cfg.Hooks.OnPartyCreate->call( Module::CreatePartyRefObjImp( party ) );
+			if ( gamestate.party_cfg.Hooks.OnPartyCreate )
+			  gamestate.party_cfg.Hooks.OnPartyCreate->call( Module::CreatePartyRefObjImp( party ) );
 		  }
 		  if ( leader->party()->add_candidate( member->serial ) )
 		  {
@@ -1340,8 +1339,8 @@ namespace Pol {
 		  if ( mem->has_active_client() )
 			send_sysmessage_cl( mem->client, CLP_Decline ); // You notify them that you do not wish to join the party.
 		  Mobile::Character* leader = system_find_mobile( party->leader() );
-		  if ( party_cfg.Hooks.OnDecline )
-			party_cfg.Hooks.OnDecline->call( mem->make_ref() );
+		  if ( gamestate.party_cfg.Hooks.OnDecline )
+			gamestate.party_cfg.Hooks.OnDecline->call( mem->make_ref() );
 		  if ( leader != NULL )
 		  {
 			if ( leader->has_active_client() )
@@ -1374,28 +1373,28 @@ namespace Pol {
 	  msg->Write<u32>( bob->serial_ext );
 	  int h, mh;
 
-	  h = bob->vital( uoclient_general.hits.id ).current_ones();
+	  h = bob->vital( gamestate.uoclient_general.hits.id ).current_ones();
 	  if ( h > 0xFFFF )
 		h = 0xFFFF;
-	  mh = bob->vital( uoclient_general.hits.id ).maximum_ones();
+	  mh = bob->vital( gamestate.uoclient_general.hits.id ).maximum_ones();
 	  if ( mh > 0xFFFF )
 		mh = 0xFFFF;
 	  msg->WriteFlipped<u16>( 1000u );
 	  msg->WriteFlipped<u16>( static_cast<u16>(h * 1000 / mh) );
 
-	  h = bob->vital( uoclient_general.mana.id ).current_ones();
+	  h = bob->vital( gamestate.uoclient_general.mana.id ).current_ones();
 	  if ( h > 0xFFFF )
 		h = 0xFFFF;
-	  mh = bob->vital( uoclient_general.mana.id ).maximum_ones();
+	  mh = bob->vital( gamestate.uoclient_general.mana.id ).maximum_ones();
 	  if ( mh > 0xFFFF )
 		mh = 0xFFFF;
 	  msg->WriteFlipped<u16>( 1000u );
 	  msg->WriteFlipped<u16>( static_cast<u16>(h * 1000 / mh) );
 
-	  h = bob->vital( uoclient_general.stamina.id ).current_ones();
+	  h = bob->vital( gamestate.uoclient_general.stamina.id ).current_ones();
 	  if ( h > 0xFFFF )
 		h = 0xFFFF;
-	  mh = bob->vital( uoclient_general.stamina.id ).maximum_ones();
+	  mh = bob->vital( gamestate.uoclient_general.stamina.id ).maximum_ones();
 	  if ( mh > 0xFFFF )
 		mh = 0xFFFF;
 	  msg->WriteFlipped<u16>( 1000u );
@@ -1450,7 +1449,7 @@ namespace Pol {
       {
         if ( this->party_decline_timeout_ != NULL )
           this->party_decline_timeout_->cancel();
-        Core::polclock_t timeout = Core::polclock( ) + Core::party_cfg.General.DeclineTimeout*Core::POLCLOCKS_PER_SEC;
+        Core::polclock_t timeout = Core::polclock( ) + Core::gamestate.party_cfg.General.DeclineTimeout*Core::POLCLOCKS_PER_SEC;
         new Core::OneShotTaskInst<Character*>( &this->party_decline_timeout_,
                                          timeout,
                                          Core::invite_timeout,

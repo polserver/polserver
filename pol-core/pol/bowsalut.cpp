@@ -23,7 +23,6 @@ Notes
 #include "network/client.h"
 #include "network/packets.h"
 #include "network/packetdefs.h"
-#include "extcmd.h"
 #include "pktin.h"
 #include "pktdef.h"
 #include "uobject.h"
@@ -38,46 +37,32 @@ Notes
 
 namespace Pol {
   namespace Core {
-	UACTION mount_action_xlate[ACTION__HIGHEST + 1];
-    struct MobileTranslate
+	MobileTranslate::OldAnimDef::OldAnimDef() :
+	  valid( false ), 
+	  action( 0 ), 
+	  framecount( 0 ), 
+	  repeatcount( 0 ), 
+	  backward( 0 ), 
+	  repeatflag( 0 ), 
+	  delay( 0 )
+        {}
+	MobileTranslate::NewAnimDef::NewAnimDef() :
+	  valid( false ),
+	  anim( 0 ),
+	  action( 0 ),
+	  subaction( 0 )
+	{
+	}
+	MobileTranslate::MobileTranslate() :
+	  graphics(), supports_mount(false)
+	{
+	  memset( &old_anim, 0, sizeof( old_anim ) );
+	  memset( &new_anim, 0, sizeof( new_anim ) );
+    }
+	bool MobileTranslate::has_graphic( u16 graphic ) const
     {
-      struct OldAnimDef
-      {
-        bool valid;
-        u16 action;
-        u16 framecount;
-        u16 repeatcount;
-        u8 backward;
-        u8 repeatflag;
-        u8 delay;
-        OldAnimDef() :valid( false ), action( 0 ), framecount( 0 ), repeatcount( 0 ), backward( 0 ), repeatflag( 0 ), delay( 0 )
-        {};
-      };
-      struct NewAnimDef
-      {
-        bool valid;
-        u16 anim;
-        u16 action;
-        u8 subaction;
-        NewAnimDef( ) :valid( false ), anim( 0 ), action( 0 ), subaction( 0 )
-        {};
-      };
-      std::vector<u16> graphics;
-      OldAnimDef old_anim[ACTION__HIGHEST + 1];
-      NewAnimDef new_anim[ACTION__HIGHEST + 1];
-      bool supports_mount;
-	  MobileTranslate() : graphics(), supports_mount(false)
-      {
-		memset( &old_anim, 0, sizeof( old_anim ) );
-		memset( &new_anim, 0, sizeof( new_anim ) );
-      }
-      bool has_graphic( u16 graphic ) const
-      {
-        return std::find( graphics.begin(), graphics.end(), graphic ) != graphics.end();
-      }
-    };
-    std::map<std::string, MobileTranslate> animation_translates;
-
+      return std::find( graphics.begin(), graphics.end(), graphic ) != graphics.end();
+    }
 
 
 	UACTION str_to_action( Clib::ConfigElem& elem, const std::string& str )
@@ -97,8 +82,8 @@ namespace Pol {
 
 	void load_anim_xlate_cfg( bool /*reload*/ )
 	{
-	  memset( &mount_action_xlate, 0, sizeof( mount_action_xlate ) );
-      animation_translates.clear();
+	  memset( &Core::gamestate.mount_action_xlate, 0, sizeof( Core::gamestate.mount_action_xlate ) );
+      Core::gamestate.animation_translates.clear();
 
 	  if ( Clib::FileExists( "config/animxlate.cfg" ) )
 	  {
@@ -113,7 +98,7 @@ namespace Pol {
             {
               UACTION from = str_to_action( elem, from_str );
               UACTION to = str_to_action( elem, to_str );
-              mount_action_xlate[from] = to;
+              Core::gamestate.mount_action_xlate[from] = to;
             }
           }
           else if ( elem.type_is( "MobileType" ) )
@@ -187,7 +172,7 @@ namespace Pol {
                   mobiletype.new_anim[id].subaction = static_cast<u8>( strtoul( values[2].c_str(), NULL, 0 ) );
 			  }
 			}
-            animation_translates[elem.rest()] = mobiletype;
+            Core::gamestate.animation_translates[elem.rest()] = mobiletype;
           }
 		}
 	  }
@@ -196,8 +181,8 @@ namespace Pol {
 	void send_action_to_inrange( const Mobile::Character* obj, UACTION action,
 								 unsigned short framecount /*=0x05*/,
 								 unsigned short repeatcount /*=0x01*/,
-                                 Network::MobileAnimationMsg::DIRECTION_FLAG_OLD backward /*=PKTOUT_6E::FORWARD*/,
-                                 Network::MobileAnimationMsg::REPEAT_FLAG_OLD repeatflag /*=PKTOUT_6E::NOREPEAT*/,
+                                 DIRECTION_FLAG_OLD backward /*=PKTOUT_6E::FORWARD*/,
+                                 REPEAT_FLAG_OLD repeatflag /*=PKTOUT_6E::NOREPEAT*/,
 								 unsigned char delay /*=0x01*/ )
 	{
       bool build = false;
@@ -218,7 +203,7 @@ namespace Pol {
           bool supports_mount = true;
           build = true;
           MobileTranslate const* translate = nullptr;
-          for ( const auto& translates : animation_translates )
+          for ( const auto& translates : Core::gamestate.animation_translates )
           {
             if ( translates.second.has_graphic( obj->graphic ) )
             {
@@ -232,7 +217,7 @@ namespace Pol {
           {
             if ( action < ACTION_RIDINGHORSE1 || action > ACTION_RIDINGHORSE7 )
             {
-              UACTION new_action = mount_action_xlate[action];
+              UACTION new_action = Core::gamestate.mount_action_xlate[action];
               if ( new_action == 0 )
                 return;
               action = new_action;
@@ -252,8 +237,8 @@ namespace Pol {
           msg.update(
             newanim.anim, newanim.action, newanim.subaction,
             oldanim.action, oldanim.framecount, oldanim.repeatcount,
-            static_cast<Network::MobileAnimationMsg::DIRECTION_FLAG_OLD>( oldanim.backward ),
-            static_cast<Network::MobileAnimationMsg::REPEAT_FLAG_OLD>( oldanim.repeatflag ), oldanim.delay,
+            static_cast<DIRECTION_FLAG_OLD>( oldanim.backward ),
+            static_cast<REPEAT_FLAG_OLD>( oldanim.repeatflag ), oldanim.delay,
             oldanim.valid, newanim.valid );
         }
 
@@ -269,6 +254,6 @@ namespace Pol {
 		send_action_to_inrange( client->chr, ACTION_SALUTE );
 	}
 
-	ExtendedMessageHandler action_handler( EXTMSGID_ACTION, handle_action );
+	
   }
 }

@@ -3,7 +3,9 @@
 #define POL_PACKETDEFS_H
 
 #include "packets.h"
+#include "packethelper.h"
 #include "../../clib/rawtypes.h"
+#include "../action.h"
 
 namespace Pol {
   namespace Mobile {
@@ -83,18 +85,15 @@ namespace Pol {
     class MobileAnimationMsg : public PktSender
     {
     public:
-      enum DIRECTION_FLAG_OLD { BACKWARD = 1, FORWARD = 0 };
-      enum REPEAT_FLAG_OLD { REPEAT = 1, NOREPEAT = 0 };
-
       MobileAnimationMsg( u32 serial_ext, u16 anim, u16 action, u8 subaction,
                           u16 action_old, u16 framecount_old, u16 repeat_old,
-                          DIRECTION_FLAG_OLD backward_old, REPEAT_FLAG_OLD repeat_flag_old, u8 delay_old,
+                          Core::DIRECTION_FLAG_OLD backward_old, Core::REPEAT_FLAG_OLD repeat_flag_old, u8 delay_old,
                           bool oldanim_valid, bool newanim_valid);
       MobileAnimationMsg( u32 serial_ext );
       virtual void Send( Client* client ) POL_OVERRIDE;
       void update( u16 anim, u16 action, u8 subaction,
                    u16 action_old, u16 framecount_old, u16 repeat_old,
-                   DIRECTION_FLAG_OLD backward_old, REPEAT_FLAG_OLD repeat_flag_old, u8 delay_old,
+                   Core::DIRECTION_FLAG_OLD backward_old, Core::REPEAT_FLAG_OLD repeat_flag_old, u8 delay_old,
                    bool oldanim_valid, bool newanim_valid );
     private:
       u32 _serial_ext;

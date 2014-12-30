@@ -85,11 +85,6 @@ namespace Pol {
 	  PropertyList _proplist;
 	};
 
-	typedef ref_ptr<Party> PartyRef;
-
-    typedef std::vector <PartyRef> Parties;
-	extern Parties parties;
-
 	struct Party_Cfg
 	{
 	  struct
@@ -121,7 +116,6 @@ namespace Pol {
 	  } Hooks;
 
 	};
-	extern Party_Cfg party_cfg;
 
 	const int CLP_Rejoined = 1005437; // You have rejoined the party.
 	const int CLP_Add_Yourself = 1005439; // You cannot add yourself to a party.
@@ -154,8 +148,6 @@ namespace Pol {
 
 
 	void send_invite( Mobile::Character* member, Mobile::Character* leader );
-	void handle_add_member_cursor( Mobile::Character* chr, PKTBI_6C* msgin );
-	void handle_remove_member_cursor( Mobile::Character* chr, PKTBI_6C* msgin );
 	void add_candidate( Mobile::Character* member, Mobile::Character* leader );
 	void disband_party( u32 leader );
 	void send_empty_party( Mobile::Character* chr );

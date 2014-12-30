@@ -18,6 +18,8 @@ Notes
 #include "../clib/logfacility.h"
 #include "../clib/stlutil.h"
 
+#include "../plib/systemstate.h"
+
 #include <cstdio>
 #include <cstring>
 
@@ -40,12 +42,12 @@ namespace Pol {
 
     FILE *open_uo_file( const std::string& filename_part )
     {
-      std::string filename = config.uo_datafile_root + filename_part;
+      std::string filename = Plib::systemstate.config.uo_datafile_root + filename_part;
       FILE *fp = fopen( filename.c_str(), "rb" );
       if ( !fp )
       {
         ERROR_PRINT << "Unable to open UO datafile: " << filename << "\n"
-          << "POL.CFG specifies UODataFileRoot as '" << config.uo_datafile_root << "'.  Is this correct?\n"
+          << "POL.CFG specifies UODataFileRoot as '" << Plib::systemstate.config.uo_datafile_root << "'.  Is this correct?\n"
           << "  The following files must be present in that directory:\n"
           << "      map0.mul\n"
           << "      multi.idx\n"
@@ -65,7 +67,7 @@ namespace Pol {
       std::string filename;
 
       filename = name + Clib::tostring( map_id ) + ".mul";
-      if ( uo_mapid == 1 && !Clib::FileExists( config.uo_datafile_root + filename ) )
+      if ( uo_mapid == 1 && !Clib::FileExists( Plib::systemstate.config.uo_datafile_root + filename ) )
       {
         ERROR_PRINT << "Unable to find UO file: " << filename << ", reading " + name + "0.mul instead.\n";
         filename = name + "0.mul";
@@ -87,7 +89,7 @@ namespace Pol {
       sidxfile = open_map_file( "staidx", uo_mapid );
       statfile = open_map_file( "statics", uo_mapid );
 
-      if ( Clib::FileExists( ( config.uo_datafile_root + "verdata.mul" ).c_str( ) ) )
+      if ( Clib::FileExists( ( Plib::systemstate.config.uo_datafile_root + "verdata.mul" ).c_str( ) ) )
       {
         verfile = open_uo_file( "verdata.mul" );
       }
@@ -100,7 +102,7 @@ namespace Pol {
       if ( uo_usedif )
       {
         filename = "stadifl" + Clib::tostring( uo_mapid ) + ".mul";
-        if ( Clib::FileExists( config.uo_datafile_root + filename ) )
+        if ( Clib::FileExists( Plib::systemstate.config.uo_datafile_root + filename ) )
         {
           stadifl_file = open_uo_file( filename );
           filename = "stadifi" + Clib::tostring( uo_mapid ) + ".mul";
@@ -109,7 +111,7 @@ namespace Pol {
           stadif_file = open_uo_file( filename );
         }
         filename = "mapdifl" + Clib::tostring( uo_mapid ) + ".mul";
-        if ( Clib::FileExists( config.uo_datafile_root + filename ) )
+        if ( Clib::FileExists( Plib::systemstate.config.uo_datafile_root + filename ) )
         {
           mapdifl_file = open_uo_file( filename );
           filename = "mapdif" + Clib::tostring( uo_mapid ) + ".mul";

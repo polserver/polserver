@@ -27,7 +27,7 @@ Notes
 #include <map>
 #include <vector>
 #include <set>
-
+#include <boost/noncopyable.hpp>
 #include <cstdio>
 
 namespace Pol {
@@ -110,15 +110,8 @@ namespace Pol {
 	  void init();
 	};
 
-	typedef std::map< u16, MultiDef* > MultiDefs;
-
 	bool MultiDefByMultiIDExists( u16 multiid );
 	const MultiDef* MultiDefByMultiID( u16 multiid );
-	//extern MultiDefs multishapes_by_graphic;
-
-	extern MultiDefs multidefs_by_multiid;
-
-	void clean_multidefs();
 
 	inline unsigned short MultiDef::getkey( short rx, short ry )
 	{
@@ -128,6 +121,24 @@ namespace Pol {
 	  unsigned short key = ( crx << 8 ) | cry;
 	  return key;
 	}
+
+	typedef std::map< u16, MultiDef* > MultiDefs;
+
+	// used for POL and uotool
+	class MultiDefBuffer : boost::noncopyable
+	{
+	  public:
+		MultiDefBuffer();
+		~MultiDefBuffer();
+
+		void deinitialize();
+
+		MultiDefs multidefs_by_multiid;
+		
+	  private:
+	};
+
+	extern MultiDefBuffer multidef_buffer;
   }
 }
 #endif

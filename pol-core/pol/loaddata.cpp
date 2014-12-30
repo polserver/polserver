@@ -13,16 +13,15 @@ Notes
 
 #include "mobile/charactr.h"
 #include "clidata.h"
-#include "gflag.h"
 #include "fnsearch.h"
 #include "item/item.h"
-#include "objecthash.h"
 #include "polcfg.h"
 #include "polclass.h"
 #include "poltype.h"
 #include "loaddata.h"
 #include "spelbook.h"
 #include "uobject.h"
+#include "uvars.h"
 
 #include "../clib/cfgfile.h"
 #include "../clib/cfgelem.h"
@@ -31,6 +30,8 @@ Notes
 #include "../clib/timer.h"
 #include "../clib/logfacility.h"
 
+#include "../plib/systemstate.h"
+
 #include <climits>
 #include <map>
 #include <unordered_map>
@@ -38,31 +39,25 @@ Notes
 
 namespace Pol {
   namespace Core {
-	unsigned incremental_save_count = 0;
-	unsigned current_incremental_save = 0;
-
-	// if index is UINT_MAX, has been deleted
-	typedef std::unordered_map<pol_serial_t, unsigned> SerialIndexMap;
-
-	SerialIndexMap incremental_serial_index;
+	
 
 	void load_incremental_indexes() // indices is such a stupid word
 	{
 	  for ( ;; )
 	  {
-		unsigned next_incremental_counter = incremental_save_count + 1;
-        std::string filename = config.world_data_path + "incr-index-" + Clib::decint(next_incremental_counter) + ".txt";
+		unsigned next_incremental_counter = gamestate.incremental_save_count + 1;
+        std::string filename = Plib::systemstate.config.world_data_path + "incr-index-" + Clib::decint(next_incremental_counter) + ".txt";
         if ( !Clib::FileExists( filename ) )
 		  break;
 
-		++incremental_save_count;
+		++gamestate.incremental_save_count;
         Clib::ConfigFile cf( filename, "MODIFIED DELETED" );
         Clib::ConfigElem elem;
 		while ( cf.read( elem ) )
 		{
 		  unsigned index;
 		  if ( elem.type_is( "Modified" ) )
-			index = incremental_save_count;
+			index = gamestate.incremental_save_count;
 		  else
 			index = UINT_MAX;
 
@@ -70,7 +65,7 @@ namespace Pol {
 		  while ( elem.remove_first_prop( &name, &value ) )
 		  {
 			pol_serial_t serial = strtoul( name.c_str(), NULL, 0 );
-			incremental_serial_index[serial] = index;
+			gamestate.incremental_serial_index[serial] = index;
 		  }
 		}
 	  }
@@ -78,8 +73,8 @@ namespace Pol {
 
 	unsigned get_save_index( pol_serial_t serial )
 	{
-	  SerialIndexMap::iterator itr = incremental_serial_index.find( serial );
-	  if ( itr != incremental_serial_index.end() )
+	  SerialIndexMap::iterator itr = gamestate.incremental_serial_index.find( serial );
+	  if ( itr != gamestate.incremental_serial_index.end() )
 		return ( *itr ).second;
 	  else
 		return 0;
@@ -87,10 +82,10 @@ namespace Pol {
 
 	void read_incremental_saves()
 	{
-	  for ( unsigned i = 1; i <= incremental_save_count; ++i )
+	  for ( unsigned i = 1; i <= gamestate.incremental_save_count; ++i )
 	  {
-        std::string filename = config.world_data_path + "incr-data-" + Clib::decint(i) + ".txt";
-		current_incremental_save = i;
+        std::string filename = Plib::systemstate.config.world_data_path + "incr-data-" + Clib::decint(i) + ".txt";
+		gamestate.current_incremental_save = i;
 
 		slurp( filename.c_str(), "CHARACTER NPC ITEM GLOBALPROPERTIES SYSTEM MULTI STORAGEAREA" );
 
@@ -102,30 +97,29 @@ namespace Pol {
 	  // we have to store the deleted serials as 'clean deletes' so that we don't start
 	  // creating objects with the same serials.
 	  // after a full save, these will be cleared.
-	  for ( SerialIndexMap::const_iterator citr = incremental_serial_index.begin(); citr != incremental_serial_index.end(); ++citr )
+	  for ( SerialIndexMap::const_iterator citr = gamestate.incremental_serial_index.begin(); citr != gamestate.incremental_serial_index.end(); ++citr )
 	  {
 		pol_serial_t serial = ( *citr ).first;
 		unsigned index = ( *citr ).second;
 		if ( index == UINT_MAX )
-		  objecthash.RegisterCleanDeletedSerial( serial );
+		  gamestate.objecthash.RegisterCleanDeletedSerial( serial );
 	  }
 	}
 
 	void clear_save_index()
 	{
-	  incremental_serial_index.clear();
+	  gamestate.incremental_serial_index.clear();
 	}
 
-	typedef std::multimap<pol_serial_t, UObject*> DeferList;
-	DeferList deferred_insertions;
+	
 	void defer_item_insertion( Items::Item* item, pol_serial_t container_serial )
 	{
-        deferred_insertions.insert(std::make_pair(container_serial, item));
+        gamestate.deferred_insertions.insert(std::make_pair(container_serial, item));
 	}
 
 	void insert_deferred_items()
 	{
-	  if ( deferred_insertions.empty() )
+	  if ( gamestate.deferred_insertions.empty() )
 		return;
 
 	  int num_until_dot = 1000;
@@ -134,7 +128,7 @@ namespace Pol {
 
 	  INFO_PRINT << "  deferred inserts:";
 
-	  for ( DeferList::iterator itr = deferred_insertions.begin(); itr != deferred_insertions.end(); ++itr )
+	  for ( DeferList::iterator itr = gamestate.deferred_insertions.begin(); itr != gamestate.deferred_insertions.end(); ++itr )
 	  {
 		if ( --num_until_dot == 0 )
 		{
@@ -160,7 +154,7 @@ namespace Pol {
 
 			// Austin - Aug. 10, 2006
 			// Removes the object if ignore_load_errors is enabled and the character can't be found.
-			if ( !config.ignore_load_errors )
+			if ( !Plib::systemstate.config.ignore_load_errors )
                 throw std::runtime_error("Data file integrity error");
 			else
 			{
@@ -186,7 +180,7 @@ namespace Pol {
 
 			// Austin - Aug. 10, 2006
 			// Removes the object if ignore_load_errors is enabled and the character can't be found.
-			if ( !config.ignore_load_errors )
+			if ( !Plib::systemstate.config.ignore_load_errors )
                 throw std::runtime_error("Data file integrity error");
 			else
 			{
@@ -200,7 +194,7 @@ namespace Pol {
 	  timer.stop();
       INFO_PRINT << " " << nobjects << " elements in " << timer.ellapsed() << " ms.\n";
 
-	  deferred_insertions.clear();
+	  gamestate.deferred_insertions.clear();
 	}
 
 	void equip_loaded_item( Mobile::Character* chr, Items::Item* item )
@@ -226,7 +220,7 @@ namespace Pol {
 		UContainer* bp = chr->backpack();
 		if ( bp )
 		{
-		  gflag_enforce_container_limits = false;
+		  gamestate.gflag_enforce_container_limits = false;
 		  bool canadd = bp->can_add( *item );
 		  u8 slotIndex = item->slot_index();
 		  bool add_to_slot = bp->can_add_to_slot( slotIndex );
@@ -234,13 +228,13 @@ namespace Pol {
 		  {
 			bp->add_at_random_location( item );
 			// leaving dirty
-			gflag_enforce_container_limits = true;
+			gamestate.gflag_enforce_container_limits = true;
             ERROR_PRINT << "I'm so cool, I put it in the character's backpack!\n";
 			return;
 		  }
 		  else
 		  {
-			gflag_enforce_container_limits = true;
+			gamestate.gflag_enforce_container_limits = true;
             ERROR_PRINT << "Tried to put it in the character's backpack, "
               << "but it wouldn't fit.\n";
 		  }
@@ -253,8 +247,6 @@ namespace Pol {
         throw std::runtime_error("Data file integrity error");
 	  }
 	}
-
-	extern u16 spell_scroll_objtype_limits[7][2];
 
 	void add_loaded_item( Items::Item* cont_item, Items::Item* item )
 	{
@@ -283,7 +275,7 @@ namespace Pol {
 		  return;
 		}
 
-		gflag_enforce_container_limits = false;
+		gamestate.gflag_enforce_container_limits = false;
 		bool canadd = cont->can_add( *item );
 		u8 slotIndex = item->slot_index();
 		bool add_to_slot = cont->can_add_to_slot( slotIndex );
@@ -305,7 +297,7 @@ namespace Pol {
 		cont->add( item );
 		item->clear_dirty(); // adding sets dirty
 
-		gflag_enforce_container_limits = true;
+		gamestate.gflag_enforce_container_limits = true;
 
 		//if (new_parent_cont)
 		//	parent_conts.push( cont );

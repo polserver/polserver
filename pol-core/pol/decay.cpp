@@ -26,13 +26,11 @@ Notes
 #include "ufunc.h"
 #include "uofile.h"
 #include "uoscrobj.h"
+#include "uvars.h"
 #include "uworld.h"
 
 namespace Pol {
   namespace Core {
-	size_t cycles_per_decay_worldzone;
-	size_t cycles_until_decay_worldzone;
-
 	///
 	/// [1] Item Decay Criteria
 	///     An Item is allowed to decay if ALL of the following are true:
@@ -61,9 +59,9 @@ namespace Pol {
 		if ( item->should_decay( now ) )
 		{
 		  // check the CanDecay syshook first if it returns 1 go over to other checks
-		  if ( system_hooks.can_decay )
+		  if ( gamestate.system_hooks.can_decay )
 		  {
-			if ( !system_hooks.can_decay->call( new Module::EItemRefObjImp( item ) ) )
+			if ( !gamestate.system_hooks.can_decay->call( new Module::EItemRefObjImp( item ) ) )
 			  continue;
 		  }
 
@@ -96,12 +94,12 @@ namespace Pol {
 	  static unsigned wy = 0;
 
 	  Plib::Realm* realm;
-	  for (auto itr = Realms->begin(); itr != Realms->end(); ++itr )
+	  for (auto itr = gamestate.Realms.begin(); itr != gamestate.Realms.end(); ++itr )
 	  {
 		realm = *itr;
-		if ( !--cycles_until_decay_worldzone )
+		if ( !--gamestate.cycles_until_decay_worldzone )
 		{
-		  cycles_until_decay_worldzone = cycles_per_decay_worldzone;
+		  gamestate.cycles_until_decay_worldzone = gamestate.cycles_per_decay_worldzone;
 
 		  unsigned int gridwidth = realm->width() / WGRID_SIZE;
 		  unsigned int gridheight = realm->height() / WGRID_SIZE;
@@ -181,10 +179,10 @@ namespace Pol {
 	  unsigned wy = 0;
       unsigned id = static_cast<Plib::Realm*>( arg )->shadowid;
 
-	  if ( shadowrealms_by_id[id] == NULL )
+	  if ( gamestate.shadowrealms_by_id[id] == NULL )
 		return;
-	  unsigned width = shadowrealms_by_id[id]->width();
-	  unsigned height = shadowrealms_by_id[id]->height();
+	  unsigned width = gamestate.shadowrealms_by_id[id]->width();
+	  unsigned height = gamestate.shadowrealms_by_id[id]->height();
 
 	  unsigned gridx = ( width / WGRID_SIZE );
 	  unsigned gridy = ( height / WGRID_SIZE );
@@ -201,9 +199,9 @@ namespace Pol {
 		{
 		  PolLock lck;
 		  polclock_checkin();
-		  if ( shadowrealms_by_id[id] == NULL ) // is realm still there?
+		  if ( gamestate.shadowrealms_by_id[id] == NULL ) // is realm still there?
 			break;
-		  decay_single_zone( shadowrealms_by_id[id], gridx, gridy, wx, wy );
+		  decay_single_zone( gamestate.shadowrealms_by_id[id], gridx, gridy, wx, wy );
 		  restart_all_clients();
 		}
 		// sweep entire world every 10 minutes

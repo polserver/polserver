@@ -37,6 +37,7 @@ Notes
 #include "../clib/threadhelp.h"
 
 #include "../plib/pkg.h"
+#include "../plib/systemstate.h"
 
 #include "polcfg.h"
 #include "polsem.h"
@@ -44,6 +45,7 @@ Notes
 #include "scrsched.h"
 #include "scrstore.h"
 #include "sockio.h"
+#include "uvars.h"
 
 #ifdef _WIN32
 #include <process.h>
@@ -54,12 +56,13 @@ Notes
 #include <map>
 #include <string>
 
+#ifdef _MSC_VER
+#pragma warning(disable: 4127) // conditional expression is constant (needed because of FD_SET)
+#endif
+
 namespace Pol {
   namespace Core {
 	using namespace threadhelp;
-
-	static Plib::Package* wwwroot_pkg = NULL;
-    static std::map<std::string, std::string> mime_types;
 
 	void load_mime_config( void )
 	{
@@ -69,12 +72,12 @@ namespace Pol {
 	  {
 		if ( last_load )
 		{
-		  mime_types.clear();
+		  gamestate.mime_types.clear();
 		  last_load = 0;
 		}
-		mime_types["jpg"] = "image/jpeg";
-		mime_types["jpeg"] = "image/jpeg";
-		mime_types["gif"] = "image/gif";
+		gamestate.mime_types["jpg"] = "image/jpeg";
+		gamestate.mime_types["jpeg"] = "image/jpeg";
+		gamestate.mime_types["gif"] = "image/gif";
 		return;
 	  }
 
@@ -86,14 +89,14 @@ namespace Pol {
 		  return;
 		}
 		last_load = cf.modified();
-		mime_types.clear();
+		gamestate.mime_types.clear();
         Clib::ConfigElem elem;
 		while ( cf.read( elem ) )
 		{
           std::string ext, mime;
 		  elem.remove_prop( "Extension", &ext );
 		  elem.remove_prop( "MIME", &mime );
-		  mime_types[ext] = mime;
+		  gamestate.mime_types[ext] = mime;
 		}
 	  }
 	  catch ( ... )
@@ -104,19 +107,19 @@ namespace Pol {
 
 	void config_web_server()
 	{
-      for ( Plib::Packages::iterator itr = Plib::packages.begin( ); itr != Plib::packages.end( ); ++itr )
+      for ( Plib::Packages::iterator itr = Plib::systemstate.packages.begin( ); itr != Plib::systemstate.packages.end( ); ++itr )
 	  {
         Plib::Package* pkg = ( *itr );
 		if ( pkg->provides_system_home_page() )
 		{
-		  if ( wwwroot_pkg != NULL )
+		  if ( gamestate.wwwroot_pkg != nullptr )
 		  {
             POLLOG.Format( "Package {} also provides a wwwroot, ignoring\n" ) << pkg->desc();
 		  }
 		  else
 		  {
             POLLOG.Format( "wwwroot package is {}\n" ) << pkg->desc();
-			wwwroot_pkg = pkg;
+			gamestate.wwwroot_pkg = pkg;
 		  }
 		}
 	  }
@@ -416,7 +419,7 @@ namespace Pol {
 
 	  PolLock2 lck;
 
-	  ref_ptr<Bscript::EScriptProgram> program = find_script2( page_sd, true, config.cache_interactive_scripts );
+	  ref_ptr<Bscript::EScriptProgram> program = find_script2( page_sd, true, Plib::systemstate.config.cache_interactive_scripts );
 	  //find_script( filename, true, config.cache_interactive_scripts );
 	  if ( program.get() == NULL )
 	  {
@@ -502,10 +505,10 @@ namespace Pol {
 	  }
 	  else
 	  {
-		if ( wwwroot_pkg != NULL )
+		if (gamestate.wwwroot_pkg != nullptr )
 		{
-		  filedir = wwwroot_pkg->dir() + "www";
-		  retdir = wwwroot_pkg->dir() + "www";
+		  filedir = gamestate.wwwroot_pkg->dir() + "www";
+		  retdir = gamestate.wwwroot_pkg->dir() + "www";
 		}
 		else
 		{
@@ -618,7 +621,7 @@ namespace Pol {
 	  std::string tmpstr;
 	  std::string host;
 
-	  if ( config.web_server_local_only )
+	  if ( Plib::systemstate.config.web_server_local_only )
 	  {
 		if ( !sck.is_local() )
 		{
@@ -629,7 +632,7 @@ namespace Pol {
 
 	  while ( sck.connected() && http_readline( sck, tmpstr ) )
 	  {
-        if ( config.web_server_debug )
+        if ( Plib::systemstate.config.web_server_debug )
           INFO_PRINT << "http(" << sck.handle() << "): '" << tmpstr << "'\n";
 		if ( tmpstr.empty() ) break;
 		if ( strncmp( tmpstr.c_str(), "GET", 3 ) == 0 )
@@ -652,7 +655,7 @@ namespace Pol {
 
 	  is >> cmd >> url >> proto;
 
-	  if ( config.web_server_debug )
+	  if ( Plib::systemstate.config.web_server_debug )
 	  {
         INFO_PRINT << "http-cmd:   '" << cmd << "'\n"
           << "http-host:  '" << host << "'\n"
@@ -677,14 +680,14 @@ namespace Pol {
 		query_string = url.substr( ques + 1 );
 	  }
 
-	  if ( config.web_server_debug )
+	  if ( Plib::systemstate.config.web_server_debug )
 	  {
         INFO_PRINT << "http-page:   '" << page << "'\n"
           << "http-params: '" << query_string << "'\n"
           << "http-decode: '" << http_decodestr( query_string ) << "'\n";
 	  }
 
-	  if ( !config.web_server_password.empty() )
+	  if ( !Plib::systemstate.config.web_server_password.empty() )
 	  {
 		if ( !auth.empty() )
 		{
@@ -692,12 +695,12 @@ namespace Pol {
           std::string _auth, type, coded_unpw, unpw;
 		  is2 >> _auth >> type >> coded_unpw;
 		  unpw = decode_base64( coded_unpw );
-		  if ( config.web_server_debug )
+		  if ( Plib::systemstate.config.web_server_debug )
 		  {
             INFO_PRINT << "http-pw: '" << coded_unpw << "'\n"
               << "http-pw-decoded: '" << unpw << "'\n";
 		  }
-		  if ( config.web_server_password != unpw )
+		  if ( Plib::systemstate.config.web_server_password != unpw )
 		  {
 			http_not_authorized( sck, url );
 			return;
@@ -734,7 +737,7 @@ namespace Pol {
 		return;
 	  }
 
-	  if ( config.web_server_debug )
+	  if ( Plib::systemstate.config.web_server_debug )
 		INFO_PRINT << "Page type: " << pagetype << "\n";
 
 	  if ( pagetype == "ecl" )
@@ -748,7 +751,7 @@ namespace Pol {
 	  }
 	  else
 	  {
-        std::string type = mime_types[pagetype];
+        std::string type = gamestate.mime_types[pagetype];
 		if ( type.length() > 0 )
 		{
 		  send_binary( sck, page, filename, type );
@@ -829,9 +832,9 @@ namespace Pol {
 	  init_http_thread_support();
 
 	  //if (1)
-	  INFO_PRINT << "Listening for HTTP requests on port " << Core::config.web_server_port << "\n";
+	  INFO_PRINT << "Listening for HTTP requests on port " << Plib::systemstate.config.web_server_port << "\n";
 
-      SOCKET http_socket = Network::open_listen_socket( Core::config.web_server_port );
+      SOCKET http_socket = Network::open_listen_socket( Plib::systemstate.config.web_server_port );
 	  if ( http_socket == INVALID_SOCKET )
 	  {
         ERROR_PRINT << "Unable to listen on socket: " << http_socket << "\n";
@@ -867,7 +870,7 @@ namespace Pol {
 
 		if ( FD_ISSET( http_socket, &listen_fd ) )
 		{
-          if ( config.web_server_debug )
+          if ( Plib::systemstate.config.web_server_debug )
             INFO_PRINT << "Accepting connection..\n";
 
 		  struct sockaddr client_addr; // inet_addr
@@ -884,7 +887,7 @@ namespace Pol {
           worker_threads.push( [=]() { http_func( client_socket ); } ); // copy socket into queue to keep it valid
 		}
 	  }
-	  mime_types.clear(); // cleanup on exit
+	  gamestate.mime_types.clear(); // cleanup on exit
 #ifdef _WIN32
 	  closesocket( http_socket );
 #else

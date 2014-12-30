@@ -77,7 +77,7 @@ namespace Pol {
         }
       };
       
-      Core::sql_service.push( std::move(msg) );
+      Core::gamestate.sql_service->push( std::move(msg) );
       uoexec.os_module->suspend();
       return new BLong( 0 );
     }
@@ -110,7 +110,7 @@ namespace Pol {
           uoexec.os_module->revive();
         }
       };
-      Core::sql_service.push( std::move( msg ) );
+      Core::gamestate.sql_service->push( std::move( msg ) );
       uoexec.os_module->suspend();
       return new BLong( 0 );
     }
@@ -144,7 +144,7 @@ namespace Pol {
           uoexec.os_module->revive( );
         }
       };
-      Core::sql_service.push( std::move( msg ) );
+      Core::gamestate.sql_service->push( std::move( msg ) );
       uoexec.os_module->suspend();
       return new BLong( 0 );
     }

@@ -11,8 +11,8 @@ Notes
 
 #include "gameclck.h"
 
-#include "gprops.h"
 #include "polclock.h"
+#include "uvars.h"
 
 #include "../clib/stlutil.h"
 
@@ -31,7 +31,7 @@ namespace Pol {
 	{
 	  std::lock_guard<std::mutex> lock( _gameclock_mutex );
 	  std::string gameclock_str;
-	  if ( global_properties.getprop( "gameclock", gameclock_str ) )
+	  if ( gamestate.global_properties->getprop( "gameclock", gameclock_str ) )
 	  {
 		char ch_s;
 		ISTRINGSTREAM is( gameclock_str );
@@ -49,7 +49,7 @@ namespace Pol {
 	{
 	  OSTRINGSTREAM os;
 	  os << "s" << read_gameclock();
-	  global_properties.setprop( "gameclock", OSTRINGSTREAM_STR( os ) );
+	  gamestate.global_properties->setprop( "gameclock", OSTRINGSTREAM_STR( os ) );
 	}
 
 	void stop_gameclock()

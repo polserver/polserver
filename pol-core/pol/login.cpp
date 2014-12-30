@@ -49,6 +49,8 @@ Notes
 #include "../clib/logfacility.h"
 #include "../clib/fdump.h"
 
+#include "../plib/systemstate.h"
+
 #include <cstring>
 
 namespace Pol {
@@ -71,12 +73,12 @@ namespace Pol {
     //        -- and I'm leaving the warning here to remember that --
     bool acct_check( Network::Client* client, int i )
 	{
-	  if ( servers[i]->acct_match.empty() )
+	  if ( gamestate.servers[i]->acct_match.empty() )
 		return true;
 
-	  for ( unsigned j = 0; j < servers[i]->acct_match.size(); ++j )
+	  for ( unsigned j = 0; j < gamestate.servers[i]->acct_match.size(); ++j )
 	  {
-		if ( stricmp( servers[i]->acct_match[j].c_str(), client->acct->name() ) == 0 )
+		if ( stricmp( gamestate.servers[i]->acct_match[j].c_str(), client->acct->name() ) == 0 )
 		  return true;
 	  }
 
@@ -85,19 +87,19 @@ namespace Pol {
 
     bool server_applies( Network::Client* client, int i )
 	{
-	  if ( servers[i]->ip_match.empty() )
+	  if ( gamestate.servers[i]->ip_match.empty() )
 		return acct_check( client, i );
 
-	  for ( unsigned j = 0; j < servers[i]->ip_match.size(); ++j )
+	  for ( unsigned j = 0; j < gamestate.servers[i]->ip_match.size(); ++j )
 	  {
 		unsigned int addr1part, addr2part;
 		struct sockaddr_in* sockin = reinterpret_cast<struct sockaddr_in*>( &client->ipaddr );
 
-		addr1part = servers[i]->ip_match[j] & servers[i]->ip_match_mask[j];
+		addr1part = gamestate.servers[i]->ip_match[j] & gamestate.servers[i]->ip_match_mask[j];
 #ifdef _WIN32
-		addr2part = sockin->sin_addr.S_un.S_addr & servers[i]->ip_match_mask[j];
+		addr2part = sockin->sin_addr.S_un.S_addr & gamestate.servers[i]->ip_match_mask[j];
 #else
-		addr2part = sockin->sin_addr.s_addr      & servers[i]->ip_match_mask[j];
+		addr2part = sockin->sin_addr.s_addr      & gamestate.servers[i]->ip_match_mask[j];
 #endif
 		if ( addr1part == addr2part )
 		  return true;
@@ -123,7 +125,7 @@ namespace Pol {
 		client->Disconnect();
 		return;
 	  }
-	  else if ( config.min_cmdlevel_to_login > acct->default_cmdlevel() )
+	  else if ( Plib::systemstate.config.min_cmdlevel_to_login > acct->default_cmdlevel() )
 	  {
 		  send_login_error( client, LOGIN_ERROR_MISC );
 		  client->Disconnect();
@@ -149,7 +151,7 @@ namespace Pol {
 	  }
 	  else
 	  {
-		if ( config.retain_cleartext_passwords )
+		if ( Plib::systemstate.config.retain_cleartext_passwords )
 		{
 		  if ( acct->password().empty() )
 			acct->set_password( msgpass );
@@ -178,9 +180,9 @@ namespace Pol {
 
 
 
-	  for ( idx = 0; idx < servers.size(); idx++ )
+	  for ( idx = 0; idx < gamestate.servers.size(); idx++ )
 	  {
-		ServerDescription* server = servers[idx];
+		ServerDescription* server = gamestate.servers[idx];
 
 		if ( !server->hostname.empty() )
 		{
@@ -225,11 +227,9 @@ namespace Pol {
         POLLOG.Format( "No applicable servers for client connecting from {}\n" ) << Network::AddressToString( &client->ipaddr );
 	  }
 	}
-	MESSAGE_HANDLER( PKTIN_80, loginserver_login );
 
     void handle_A4( Network::Client* /*client*/, PKTIN_A4* /*msg*/ )
 	{}
-	MESSAGE_HANDLER( PKTIN_A4, handle_A4 );
 
     void handle_D9( Network::Client *client, PKTIN_D9* msg )
 	{
@@ -261,19 +261,18 @@ namespace Pol {
 
 	  client->setclientinfo( &_msg );
 	}
-	MESSAGE_HANDLER( PKTIN_D9, handle_D9 );
 
     void select_server( Network::Client *client, PKTIN_A0 *msg ) // Relay player to a certain IP
 	{
 	  unsigned servernum = cfBEu16( msg->servernum ) - 1;
 
-	  if ( servernum >= servers.size() )
+	  if ( servernum >= gamestate.servers.size() )
 	  {
 		client->forceDisconnect();
 		return;
 	  }
 
-	  ServerDescription *svr = servers[servernum];
+	  ServerDescription *svr = gamestate.servers[servernum];
 
       Network::PktHelper::PacketOut<Network::PktOut_8C> rsp;
 	  rsp->Write<u8>( svr->ip[3] );
@@ -297,8 +296,6 @@ namespace Pol {
 	  client->cryptengine->Init( &nseed, Crypt::CCryptBase::typeGame );
 	}
 
-	MESSAGE_HANDLER( PKTIN_A0, select_server );
-
     void send_start( Network::Client *client )
 	{
 	  send_feature_enable( client ); // Shinigami: moved from start_client_char() to send before char selection
@@ -308,7 +305,7 @@ namespace Pol {
 	  unsigned char char_slots; // number of slots according to expansion, avoids crashing people
 	  unsigned char char_count; // number of chars to send: Max(char_slots, 5)
 
-	  char_slots = static_cast<u8>( config.character_slots ); // sets it first to be the number defined in the config
+	  char_slots = static_cast<u8>( Plib::systemstate.config.character_slots ); // sets it first to be the number defined in the config
 	  // TODO: Per account character slots? (With the actual character_slots defining maximum)
 
 	  // If more than 6 chars and no AOS, only send 5. Client is so boring sometimes...
@@ -341,33 +338,33 @@ namespace Pol {
 		  msg->offset += 60;
 	  }
 
-	  msg->Write<u8>( startlocations.size() );
+	  msg->Write<u8>( gamestate.startlocations.size() );
 
-	  for ( i = 0; i < startlocations.size(); i++ )
+	  for ( i = 0; i < gamestate.startlocations.size(); i++ )
 	  {
 		msg->Write<u8>( i );
         if ( client->ClientType & Network::CLIENTTYPE_70130 )
 		{
-		  msg->Write( startlocations[i]->city.c_str(), 32, false );
-		  msg->Write( startlocations[i]->desc.c_str(), 32, false );
+		  msg->Write( gamestate.startlocations[i]->city.c_str(), 32, false );
+		  msg->Write( gamestate.startlocations[i]->desc.c_str(), 32, false );
 
-		  Coordinate coord = startlocations[i]->coords[0];
+		  Coordinate coord = gamestate.startlocations[i]->coords[0];
 
 		  msg->WriteFlipped<u32>( coord.x );
 		  msg->WriteFlipped<u32>( coord.y );
 		  msg->WriteFlipped<s32>( coord.z );
-		  msg->WriteFlipped<u32>( startlocations[i]->mapid ); // MapID
-		  msg->WriteFlipped<u32>( startlocations[i]->cliloc_desc ); // Cliloc Description
+		  msg->WriteFlipped<u32>( gamestate.startlocations[i]->mapid ); // MapID
+		  msg->WriteFlipped<u32>( gamestate.startlocations[i]->cliloc_desc ); // Cliloc Description
 		  msg->offset += 4;
 		}
 		else
 		{
-		  msg->Write( startlocations[i]->city.c_str(), 31, false );
-		  msg->Write( startlocations[i]->desc.c_str(), 31, false );
+		  msg->Write( gamestate.startlocations[i]->city.c_str(), 31, false );
+		  msg->Write( gamestate.startlocations[i]->desc.c_str(), 31, false );
 		}
 	  }
 
-	  clientflag = ssopt.uo_feature_enable; // 'default' flags. Maybe auto-enable them according to the expansion?
+	  clientflag = gamestate.ssopt.uo_feature_enable; // 'default' flags. Maybe auto-enable them according to the expansion?
 
 	  clientflag |= PKTOUT_A9::FLAG_SEND_UO3D_TYPE; // Let UO3D (KR,SA) send 0xE1 packet
 
@@ -430,7 +427,7 @@ namespace Pol {
 	  else
 	  {
 		//write out cleartext if necessary
-		if ( config.retain_cleartext_passwords )
+		if ( Plib::systemstate.config.retain_cleartext_passwords )
 		{
 		  if ( acct->password().empty() )
 			acct->set_password( msgpass );
@@ -470,8 +467,6 @@ namespace Pol {
 	  send_start( client );
 	}
 
-	MESSAGE_HANDLER( PKTIN_91, login2 );
-
 	void delete_character( Accounts::Account* acct, Mobile::Character* chr, int charidx )
 	{
 	  if ( !chr->logged_in )
@@ -490,7 +485,7 @@ namespace Pol {
 	{
 	  u32 charidx = cfBEu32( msg->charidx );
 
-	  if ( ( charidx >= config.character_slots ) ||
+	  if ( ( charidx >= Plib::systemstate.config.character_slots ) ||
 		   ( client->acct == NULL ) ||
 		   ( client->acct->get_character( charidx ) == NULL ) )
 	  {
@@ -517,12 +512,11 @@ namespace Pol {
 
 	  send_start( client );
 	}
-	MESSAGE_HANDLER( PKTIN_83, handle_delete_character );
 
 	void KR_Verifier_Response( Network::Client* /*client*/, PKTIN_E4* /*msg*/ )
 	{
 	  //
 	}
-	MESSAGE_HANDLER_VARLEN( PKTIN_E4, KR_Verifier_Response );
+	
   }
 }

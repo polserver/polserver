@@ -70,7 +70,7 @@ namespace Pol {
 	  MenuItem* mi = &menu->menuitems_[choice - 1];
 	  if ( mi->submenu_id )
 	  {
-		client->chr->menu = find_menu( mi->submenu_id );
+		client->chr->menu = Menu::find_menu( mi->submenu_id );
 		send_menu( client, client->chr->menu );
 	  }
 	  else
@@ -81,7 +81,5 @@ namespace Pol {
 		client->chr->on_menu_selection( client, mi, msg );
 	  }
 	}
-
-	MESSAGE_HANDLER( PKTIN_7D, handle_menu_selection );
   }
 }

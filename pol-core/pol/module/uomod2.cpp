@@ -67,6 +67,8 @@ Notes
 
 #include "../../plib/pkg.h"
 #include "../../plib/polver.h"
+#include "../../plib/systemstate.h"
+
 #include "../core.h"
 #include "../exscrobj.h"
 #include "../fnsearch.h"
@@ -105,9 +107,7 @@ Notes
 #include "../accounts/account.h"
 #include "../accounts/accounts.h"
 #include "../accounts/acscrobj.h"
-#include "../objecthash.h"
 #include "../cfgrepos.h"
-#include "../gprops.h"
 #include "../menu.h"
 
 #ifdef USE_SYSTEM_ZLIB
@@ -552,7 +552,7 @@ namespace Pol {
 
 	void buyhandler( Client* client, PKTBI_3B* msg )
 	{
-	  if ( !ssopt.scripted_merchant_handlers )
+	  if ( !gamestate.ssopt.scripted_merchant_handlers )
 	  {
 		oldBuyHandler( client, msg );
 		return;
@@ -621,8 +621,6 @@ namespace Pol {
 
 	  send_clear_vendorwindow( client, vendor );
 	}
-	MESSAGE_HANDLER_VARLEN( PKTBI_3B, buyhandler );
-
 
 	bool send_vendorsell( Client* client, NPC* merchant, UContainer* sellfrom, UContainer* buyable, bool send_aos_tooltip )
 	{
@@ -891,7 +889,7 @@ namespace Pol {
 
 	void sellhandler( Client* client, PKTIN_9F* msg )
 	{
-	  if ( !ssopt.scripted_merchant_handlers )
+	  if ( !gamestate.ssopt.scripted_merchant_handlers )
 	  {
 		oldSellHandler( client, msg );
 		return;
@@ -941,8 +939,6 @@ namespace Pol {
 
 	  send_clear_vendorwindow( client, vendor );
 	}
-
-	MESSAGE_HANDLER_VARLEN( PKTIN_9F, sellhandler );
 
 	//
 	//  "GUMP" Functions
@@ -1393,7 +1389,7 @@ namespace Pol {
 			  {
 				ref_ptr<EScriptProgram> prog = find_script( "misc/virtuebutton",
 															true,
-															config.cache_interactive_scripts );
+															Plib::systemstate.config.cache_interactive_scripts );
 				if ( prog.get() != NULL )
 				  client->chr->start_script( prog.get(), false );
 				return;
@@ -1477,7 +1473,6 @@ namespace Pol {
 
 	  clear_gumphandler( client, uoemod );
 	}
-	MESSAGE_HANDLER_VARLEN( PKTIN_B1, gumpbutton_handler );
 
 	BObjectImp* UOExecutorModule::mf_SendTextEntryGump()
 	{
@@ -1570,10 +1565,6 @@ namespace Pol {
 	  client->gd->textentry_uoemod = NULL;
 
 	}
-	MESSAGE_HANDLER_VARLEN( PKTIN_AC, handle_textentry );
-
-
-
 
 	class PolCore : public BObjectImp
 	{
@@ -1616,7 +1607,7 @@ namespace Pol {
 	BObjectImp* GetPackageList()
 	{
 	  std::unique_ptr<ObjArray> arr( new ObjArray );
-      for ( Plib::Packages::iterator itr = Plib::packages.begin( ); itr != Plib::packages.end( ); ++itr )
+      for ( Plib::Packages::iterator itr = Plib::systemstate.packages.begin( ); itr != Plib::systemstate.packages.end( ); ++itr )
 	  {
         Plib::Package* pkg = ( *itr );
 		arr->addElement( new String( pkg->name() ) );
@@ -1632,11 +1623,11 @@ namespace Pol {
 	BObjectImp* GetRunningScriptList()
 	{
 	  ObjArray* arr = new ObjArray;
-	  for ( ExecList::iterator itr = ranlist.begin(); itr != ranlist.end(); ++itr )
+	  for ( ExecList::iterator itr = gamestate.ranlist.begin(); itr != gamestate.ranlist.end(); ++itr )
 	  {
 		add_script( arr, *itr, "Running" );
 	  }
-	  for ( ExecList::iterator itr = runlist.begin(); itr != runlist.end(); ++itr )
+	  for ( ExecList::iterator itr = gamestate.runlist.begin(); itr != gamestate.runlist.end(); ++itr )
 	  {
 		add_script( arr, *itr, "Running" );
 	  }
@@ -1646,19 +1637,19 @@ namespace Pol {
 	BObjectImp* GetAllScriptList()
 	{
 	  ObjArray* arr = new ObjArray;
-	  for ( ExecList::iterator itr = ranlist.begin(); itr != ranlist.end(); ++itr )
+	  for ( ExecList::iterator itr = gamestate.ranlist.begin(); itr != gamestate.ranlist.end(); ++itr )
 	  {
 		add_script( arr, *itr, "Running" );
 	  }
-	  for ( ExecList::iterator itr = runlist.begin(); itr != runlist.end(); ++itr )
+	  for ( ExecList::iterator itr = gamestate.runlist.begin(); itr != gamestate.runlist.end(); ++itr )
 	  {
 		add_script( arr, *itr, "Running" );
 	  }
-	  for ( HoldList::iterator itr = holdlist.begin(); itr != holdlist.end(); ++itr )
+	  for ( HoldList::iterator itr = gamestate.holdlist.begin(); itr != gamestate.holdlist.end(); ++itr )
 	  {
 		add_script( arr, ( *itr ).second, "Sleeping" );
 	  }
-	  for ( NoTimeoutHoldList::iterator itr = notimeoutholdlist.begin(); itr != notimeoutholdlist.end(); ++itr )
+	  for ( NoTimeoutHoldList::iterator itr = gamestate.notimeoutholdlist.begin(); itr != gamestate.notimeoutholdlist.end(); ++itr )
 	  {
 		add_script( arr, *itr, "Sleeping" );
 	  }
@@ -1669,7 +1660,7 @@ namespace Pol {
 	{
 	  std::unique_ptr<ObjArray> arr( new ObjArray );
 
-	  ScriptStorage::iterator itr = scrstore.begin(), end = scrstore.end();
+	  ScriptStorage::iterator itr = gamestate.scrstore.begin(), end = gamestate.scrstore.end();
 	  u64 total_instr = 0;
 	  for ( ; itr != end; ++itr )
 	  {
@@ -1677,8 +1668,8 @@ namespace Pol {
 		total_instr += eprog->instr_cycles;
 	  }
 
-	  itr = scrstore.begin();
-	  end = scrstore.end();
+	  itr = gamestate.scrstore.begin();
+	  end = gamestate.scrstore.end();
 
 	  for ( ; itr != end; ++itr )
 	  {
@@ -1733,19 +1724,19 @@ namespace Pol {
 
 	BObjectImp* GetIoStats()
 	{
-	  return GetIoStatsObj( iostats );
+	  return GetIoStatsObj( Core::gamestate.iostats );
 	}
 
 	BObjectImp* GetQueuedIoStats()
 	{
-	  return GetIoStatsObj( queuedmode_iostats );
+	  return GetIoStatsObj( Core::gamestate.queuedmode_iostats );
 	}
 
 	BObjectImp* GetPktStatusObj()
 	{
 	  using namespace PacketWriterDefs;
 	  std::unique_ptr<ObjArray> pkts( new ObjArray );
-	  PacketQueueMap* map = Packets::get().getPackets();
+	  PacketQueueMap* map = gamestate.packetsSingleton->getPackets();
 	  for ( PacketQueueMap::iterator it = map->begin(); it != map->end(); ++it )
 	  {
 		std::unique_ptr<BStruct> elem( new BStruct );
@@ -1787,8 +1778,8 @@ namespace Pol {
 #endif
         FLEXLOG( log ) << "\n";
       }
-      size_t realmsize = 3 * sizeof(void*)+Core::Realms->capacity() * sizeof( void* );
-      for ( const auto &realm : (*Core::Realms) )
+      size_t realmsize = 3 * sizeof(void*)+Core::gamestate.Realms.capacity() * sizeof( void* );
+      for ( const auto &realm : Core::gamestate.Realms )
       {
         realmsize += realm->sizeEstimate();
       }
@@ -1796,10 +1787,10 @@ namespace Pol {
       realmsize += sizeof(std::vector<Plib::Realm*>*); // Realm
       realmsize += sizeof(unsigned int)* 2; // baserealm_count +shadowrealm_count
       // std::map estimate for shadowrealms_by_id
-      realmsize += ( sizeof(int)+sizeof( Plib::Realm* ) + ( sizeof(void*)* 3 + 1 ) / 2 ) * shadowrealms_by_id.size();
+      realmsize += ( sizeof(int)+sizeof( Plib::Realm* ) + ( sizeof(void*)* 3 + 1 ) / 2 ) * gamestate.shadowrealms_by_id.size();
 
       
-      ObjectHash::OH_const_iterator hs_citr = objecthash.begin(), hs_cend = objecthash.end();
+      ObjectHash::OH_const_iterator hs_citr = gamestate.objecthash.begin(), hs_cend = gamestate.objecthash.end();
       size_t objsize = 0;
       size_t objcount = std::distance( hs_citr, hs_cend );
 
@@ -1861,16 +1852,16 @@ namespace Pol {
         }
       }
 
-      size_t accountsize = 3 * sizeof(AccountRef*)+Core::accounts.capacity() * sizeof( AccountRef );
-      size_t accountcount = Core::accounts.size();
-      for ( const auto& acc : Core::accounts )
+      size_t accountsize = 3 * sizeof(AccountRef*)+Core::gamestate.accounts.capacity() * sizeof( AccountRef );
+      size_t accountcount = Core::gamestate.accounts.size();
+      for ( const auto& acc : Core::gamestate.accounts )
       {
         accountsize += acc->estimatedSize();
       }
 
-      size_t clientsize = 3 * sizeof( Network::Client** ) + Core::clients.capacity() * sizeof( Network::Client* );
-      size_t clientcount = Core::clients.size();
-      for ( const auto& client : Core::clients )
+      size_t clientsize = 3 * sizeof( Network::Client** ) + Core::gamestate.clients.capacity() * sizeof( Network::Client* );
+      size_t clientcount = Core::gamestate.clients.size();
+      for ( const auto& client : Core::gamestate.clients )
       {
         clientsize += client->estimatedSize();
       }
@@ -1884,14 +1875,14 @@ namespace Pol {
       size_t itemdesccount = 0;
       size_t itemdescsize = Items::itemdescSizeEstimate( &itemdesccount );
 
-	  size_t miscsize = Core::global_properties.estimatedSize()
-		+ Core::estimateMenuSize();
+	  size_t miscsize = Core::gamestate.global_properties->estimatedSize()
+		+ Core::Menu::estimateMenuSize();
 
 
 	  FLEXLOG( log ) << GET_LOG_FILESTAMP << ";"
 		<< Clib::getCurrentMemoryUsage() << " ;"
 		<< realmsize << " ;"
-		<< PacketWriterDefs::Packets::get().estimateSize() << " ;"
+		<< gamestate.packetsSingleton->estimateSize() << " ;"
 		<< miscsize << " ;"
         << scriptcount << " ;" << scriptsize << " ;"
         << scriptstoragecount << " ;" << scriptstoragesize << " ;"
@@ -1928,12 +1919,12 @@ namespace Pol {
 	  if ( stricmp( corevar, "itemcount" ) == 0 ) return new BLong( get_toplevel_item_count() );
 	  if ( stricmp( corevar, "mobilecount" ) == 0 ) return new BLong( get_mobile_count() );
 
-	  if ( stricmp( corevar, "bytes_sent" ) == 0 ) return new Double( static_cast<double>( polstats.bytes_sent ) );
-	  if ( stricmp( corevar, "bytes_received" ) == 0 ) return new Double( static_cast<double>( polstats.bytes_received ) );
+	  if ( stricmp( corevar, "bytes_sent" ) == 0 ) return new Double( static_cast<double>( gamestate.polstats.bytes_sent ) );
+	  if ( stricmp( corevar, "bytes_received" ) == 0 ) return new Double( static_cast<double>( gamestate.polstats.bytes_received ) );
 
 	  LONG_COREVAR( uptime, polclock() / POLCLOCKS_PER_SEC );
-	  LONG_COREVAR( sysload, last_sysload );
-	  LONG_COREVAR( sysload_severity, last_sysload_nprocs );
+	  LONG_COREVAR( sysload, gamestate.profilevars.last_sysload );
+	  LONG_COREVAR( sysload_severity, gamestate.profilevars.last_sysload_nprocs );
 	  //	LONG_COREVAR( bytes_sent, polstats.bytes_sent );
 	  //	LONG_COREVAR( bytes_received, polstats.bytes_received );
 	  LONG_COREVAR( version, polver );
@@ -1950,8 +1941,8 @@ namespace Pol {
 	  LONG_COREVAR( scripts_late_per_min, GET_PROFILEVAR_PER_MIN( scripts_late ) );
 	  LONG_COREVAR( scripts_ontime_per_min, GET_PROFILEVAR_PER_MIN( scripts_ontime ) );
 
-	  LONG_COREVAR( instr_per_min, last_sipm );
-	  LONG_COREVAR( priority_divide, priority_divide );
+	  LONG_COREVAR( instr_per_min, gamestate.profilevars.last_sipm );
+	  LONG_COREVAR( gamestate.priority_divide, gamestate.priority_divide );
 	  if ( stricmp( corevar, "verstr" ) == 0 ) return new String( progverstr );
 	  if ( stricmp( corevar, "compiledate" ) == 0 ) return new String( compiledate );
 	  if ( stricmp( corevar, "compiletime" ) == 0 ) return new String( compiletime );
@@ -1992,7 +1983,7 @@ namespace Pol {
 		int div;
 		if ( ex.getParam( 0, div, 1, 1000 ) )
 		{
-		  priority_divide = div;
+		  gamestate.priority_divide = div;
 		  return new BLong( 1 );
 		}
 		else
@@ -2121,9 +2112,9 @@ namespace Pol {
 	BObjectImp* UOExecutorModule::mf_ListAccounts()
 	{
 	  std::unique_ptr<ObjArray> arr( new ObjArray );
-	  for ( unsigned idx = 0; idx < accounts.size(); idx++ )
+	  for ( unsigned idx = 0; idx < gamestate.accounts.size(); idx++ )
 	  {
-		arr->addElement( new String( accounts[idx]->name() ) );
+		arr->addElement( new String( gamestate.accounts[idx]->name() ) );
 	  }
 	  return arr.release();
 	}
@@ -2146,7 +2137,6 @@ namespace Pol {
 		client->gd->resurrect_uoemod = NULL;
 	  }
 	}
-	MESSAGE_HANDLER( PKTBI_2C, handle_resurrect_menu );
 
 	BObjectImp* UOExecutorModule::mf_SendInstaResDialog()
 	{
@@ -2197,7 +2187,7 @@ namespace Pol {
 		client->gd->selcolor_uoemod = NULL;
 	  }
 	}
-	MESSAGE_HANDLER( PKTBI_95, handle_selcolor );
+	
 
 	BObjectImp* UOExecutorModule::mf_SelectColor()
 	{
@@ -2448,7 +2438,6 @@ namespace Pol {
 		}
 	  }
 	}
-	MESSAGE_HANDLER_VARLEN( PKTBI_66, read_book_page_handler );
 
 	char strip_ctrl_chars( char c )
 	{
@@ -2491,7 +2480,6 @@ namespace Pol {
 	  params[0].set( new String( author ) );
 	  book->call_custom_method( "setauthor", params );
 	}
-	MESSAGE_HANDLER( PKTBI_93, open_book_handler );
 
 	BObjectImp* UOExecutorModule::mf_SendHousingTool()
 	{

@@ -80,8 +80,6 @@ namespace Pol {
 	  friend class StorageAreasIterator;
 	  friend void write_dirty_storage( Clib::StreamWriter& );
 	};
-
-	extern Storage storage;
   }
 }
 #endif

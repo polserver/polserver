@@ -15,10 +15,12 @@ Notes
 
 #include "polcfg.h"
 #include "profile.h"
+#include "uvars.h"
 
 #include "../clib/logfacility.h"
 #include "../clib/refptr.h"
 #include "../clib/strutil.h"
+#include "../plib/systemstate.h"
 
 
 namespace Pol {
@@ -29,18 +31,16 @@ namespace Pol {
   namespace Core {
 	bool script_loaded( ScriptDef& sd )
 	{
-	  ScriptStorage::iterator itr = scrstore.find( sd.name().c_str() );
-	  return ( itr != scrstore.end() );
+	  ScriptStorage::iterator itr = gamestate.scrstore.find( sd.name().c_str() );
+	  return ( itr != gamestate.scrstore.end() );
 	}
-
-	ScriptStorage scrstore;
 
 	ref_ptr<Bscript::EScriptProgram> find_script( const std::string& name,
 										 bool complain_if_not_found,
 										 bool cache_script )
 	{
-	  ScriptStorage::iterator itr = scrstore.find( name.c_str() );
-	  if ( itr != scrstore.end() )
+	  ScriptStorage::iterator itr = gamestate.scrstore.find( name.c_str() );
+	  if ( itr != gamestate.scrstore.end() )
 	  {
 		if ( cache_script )
 		{
@@ -49,7 +49,7 @@ namespace Pol {
 		else
 		{
           ref_ptr<Bscript::EScriptProgram> res( ( *itr ).second );
-		  scrstore.erase( itr );
+		  gamestate.scrstore.erase( itr );
 		  return res;
 		}
 	  }
@@ -73,7 +73,7 @@ namespace Pol {
 	  {
 		std::string tmpname = name;
         Clib::mklower( tmpname );
-		scrstore.insert( ScriptStorage::value_type( tmpname.c_str(), program ) );
+		gamestate.scrstore.insert( ScriptStorage::value_type( tmpname.c_str(), program ) );
 	  }
 
 	  return program;
@@ -85,8 +85,8 @@ namespace Pol {
 										  bool complain_if_not_found,
 										  bool cache_script )
 	{
-	  ScriptStorage::iterator itr = scrstore.find( script.c_str() );
-	  if ( itr != scrstore.end() )
+	  ScriptStorage::iterator itr = gamestate.scrstore.find( script.c_str() );
+	  if ( itr != gamestate.scrstore.end() )
 		return ( *itr ).second;
 
       ref_ptr<Bscript::EScriptProgram> program( new Bscript::EScriptProgram );
@@ -105,7 +105,7 @@ namespace Pol {
 	  {
 		std::string tmpname = script.name();
         Clib::mklower( tmpname );
-		scrstore.insert( ScriptStorage::value_type( tmpname.c_str(), program ) );
+		gamestate.scrstore.insert( ScriptStorage::value_type( tmpname.c_str(), program ) );
 	  }
 
 	  return program;
@@ -115,8 +115,8 @@ namespace Pol {
     int unload_script(const std::string& name_in)
 	{
 	  int n = 0;
-	  ScriptStorage::iterator itr = scrstore.begin();
-	  while ( itr != scrstore.end() )
+	  ScriptStorage::iterator itr = gamestate.scrstore.begin();
+	  while ( itr != gamestate.scrstore.end() )
 	  {
 		ScriptStorage::iterator cur = itr;
 		++itr;
@@ -126,7 +126,7 @@ namespace Pol {
 		if ( strstr( nm_cstr, name_in.c_str() ) )
 		{
           INFO_PRINT << "Unloading " << nm_cstr << "\n";
-		  scrstore.erase( cur );
+		  gamestate.scrstore.erase( cur );
 		  ++n;
 
 		  //dave added 1/30/3, FIXME: if in the future we have to add any other scripts to 
@@ -149,8 +149,8 @@ namespace Pol {
 
 	int unload_all_scripts()
 	{
-	  int n = static_cast<int>( scrstore.size() );
-	  scrstore.clear();
+	  int n = static_cast<int>( gamestate.scrstore.size() );
+	  gamestate.scrstore.clear();
       Items::preload_test_scripts( ); //dave added 1/30/3, no other time do we reload unequiptest and equiptest
 	  return n;
 	}
@@ -158,25 +158,25 @@ namespace Pol {
 	void log_all_script_cycle_counts( bool clear_counters )
 	{
 	  u64 total_instr = 0;
-      for ( const auto &scr : scrstore )
+      for ( const auto &scr : gamestate.scrstore )
 	  {
         total_instr += scr.second->instr_cycles;
 	  }
 
-	  if ( config.multithread )
+	  if ( Plib::systemstate.config.multithread )
 	  {
         POLLOG.Format( "Scheduler passes: {}\nScript passes:    {}\n" )
           << ( GET_PROFILEVAR( scheduler_passes ) )
-          << script_passes;
+          << gamestate.profilevars.script_passes;
 	  }
 	  else
 	  {
-        POLLOG.Format( "Total gameloop iterations: {}\n" ) << rotations;
+        POLLOG.Format( "Total gameloop iterations: {}\n" ) << gamestate.profilevars.rotations;
 	  }
 
       fmt::Writer tmp;
       tmp.Format( "{:<38} {:>12} {:>6} {:>12} {:>6}\n" ) << "Script" << "cycles" << "incov" << "cyc/invoc" << "%";
-      for ( const auto &scr : scrstore )
+      for ( const auto &scr : gamestate.scrstore )
 	  {
         Bscript::EScriptProgram* eprog = scr.second.get();
         double cycle_percent = total_instr != 0 ?
@@ -203,7 +203,7 @@ namespace Pol {
 
 	void clear_script_profile_counters()
 	{
-      for ( const auto &scr : scrstore )
+      for ( const auto &scr : gamestate.scrstore )
 	  {
         Bscript::EScriptProgram* eprog = scr.second.get();
 		eprog->instr_cycles = 0;

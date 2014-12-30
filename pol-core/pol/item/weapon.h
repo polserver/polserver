@@ -134,7 +134,6 @@ namespace Pol {
     }
 
 	void load_weapon_templates();
-	void unload_weapon_templates();
 	bool isa_weapon( u32 objtype );
 
 	UWeapon* find_intrinsic_weapon( const std::string& name );

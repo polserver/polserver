@@ -21,12 +21,14 @@ In standingheight checks there is a nasty bug. Items NOT locked down
 #include "mapcell.h"
 #include "mapserver.h"
 #include "staticserver.h"
+#include "systemstate.h"
 #include "mapshape.h"
 #include "maptileserver.h"
 
 #include "../pol/tiles.h"
 #include "../pol/mobile/charactr.h"
 #include "../pol/network/cgdata.h"
+#include "../pol/network/client.h"
 #include "../pol/fnsearch.h"
 #include "../pol/ssopt.h"
 #include "../pol/uvars.h"
@@ -308,7 +310,7 @@ namespace Pol {
 			  MapShape shape;
 			  shape.z = item->z;
 			  shape.height = item->height;
-			  shape.flags = Core::tile[item->graphic].flags;
+			  shape.flags = Plib::systemstate.tile[item->graphic].flags;
 			  vec.push_back( shape );
 			}
 		  }

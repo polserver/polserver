@@ -16,6 +16,7 @@ Notes
 
 #include "../pktboth.h"
 #include "../pktin.h"
+#include "../uvars.h"
 
 #include <cstring>
 
@@ -40,45 +41,50 @@ namespace Pol {
 	  }
 	}
 
-	int login_exceptions[] =
+	void MessageTypeFilter::createMessageFilter()
 	{
-	  PKTIN_00_ID,
-	  PKTIN_5D_ID,
-	  PKTBI_73_ID,
-	  PKTIN_80_ID,
-	  PKTIN_83_ID,
-	  PKTIN_91_ID,
-	  PKTIN_A0_ID,
-	  PKTIN_A4_ID,
-	  PKTIN_D9_ID,
-	  PKTIN_E1_ID, // Used by UO:KR & SA
-	  PKTIN_E4_ID, // Used by UO:KR
-	  PKTIN_8D_ID,
-	  PKTIN_F8_ID,
-	  -1
-	};
-	MessageTypeFilter login_filter( MessageTypeFilter::NormallyDisabled, login_exceptions );
+	  int login_exceptions[] =
+	  {
+		PKTIN_00_ID,
+		PKTIN_5D_ID,
+		PKTBI_73_ID,
+		PKTIN_80_ID,
+		PKTIN_83_ID,
+		PKTIN_91_ID,
+		PKTIN_A0_ID,
+		PKTIN_A4_ID,
+		PKTIN_D9_ID,
+		PKTIN_E1_ID, // Used by UO:KR & SA
+		PKTIN_E4_ID, // Used by UO:KR
+		PKTIN_8D_ID,
+		PKTIN_F8_ID,
+		-1
+	  };
+	  gamestate.login_filter = std::unique_ptr<MessageTypeFilter>(new MessageTypeFilter( MessageTypeFilter::NormallyDisabled, login_exceptions ));
 
-	int game_exceptions[] =
-	{
-	  PKTIN_00_ID,
-	  PKTIN_5D_ID,
-	  PKTIN_80_ID,
-	  PKTIN_83_ID,
-	  PKTIN_91_ID,
-	  PKTIN_A0_ID,
-	  PKTIN_A4_ID,
-	  PKTIN_D9_ID,
-	  PKTIN_8D_ID,
-	  PKTIN_F8_ID,
-	  -1
-	};
-	MessageTypeFilter game_filter( MessageTypeFilter::NormallyEnabled, game_exceptions );
+	  int game_exceptions[] =
+	  {
+		PKTIN_00_ID,
+		PKTIN_5D_ID,
+		PKTIN_80_ID,
+		PKTIN_83_ID,
+		PKTIN_91_ID,
+		PKTIN_A0_ID,
+		PKTIN_A4_ID,
+		PKTIN_D9_ID,
+		PKTIN_8D_ID,
+		PKTIN_F8_ID,
+		-1
+	  };
+	  gamestate.game_filter = std::unique_ptr<MessageTypeFilter>(new MessageTypeFilter( MessageTypeFilter::NormallyEnabled, game_exceptions ));
 
-	int no_exceptions[] =
-	{
-	  -1
-	};
-	MessageTypeFilter disconnected_filter( MessageTypeFilter::NormallyDisabled, no_exceptions );
+	  int no_exceptions[] =
+	  {
+		-1
+	  };
+	  gamestate.disconnected_filter = std::unique_ptr<MessageTypeFilter>(new MessageTypeFilter( MessageTypeFilter::NormallyDisabled, no_exceptions ));
+	}
+
+	
   }
 }

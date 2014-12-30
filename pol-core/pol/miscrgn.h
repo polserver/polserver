@@ -34,11 +34,6 @@ namespace Pol {
 	  return nocast_;
 	}
 
-	typedef RegionGroup<NoCastRegion> NoCastDef;
-
-	extern NoCastDef* nocastdef;
-
-
 
 	class LightRegion : public Region
 	{
@@ -47,10 +42,6 @@ namespace Pol {
       LightRegion( Clib::ConfigElem& elem, RegionId id );
 	  unsigned lightlevel;
 	};
-
-	typedef RegionGroup<LightRegion> LightDef;
-	extern LightDef* lightdef;
-
 
 
 	class WeatherRegion : public Region
@@ -82,7 +73,7 @@ namespace Pol {
 	  RegionRealms default_regionrealms;
 	  //RegionId default_regionidx_[ZONE_X][ZONE_Y]; // 1-based
 	};
-	extern WeatherDef* weatherdef;
+	
   }
 }
 

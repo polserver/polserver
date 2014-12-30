@@ -148,7 +148,5 @@ namespace Pol {
 	  send_wornitem_to_inrange( equip_on, item );
 	}
 
-	MESSAGE_HANDLER( PKTIN_13, equip_item );
-
   }
 }

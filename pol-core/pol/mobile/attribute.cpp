@@ -15,35 +15,24 @@ Notes
 
 #include "../../plib/pkg.h"
 #include "../syshook.h"
-#include "../ssopt.h"
+#include "../uvars.h"
 
 namespace Pol {
   namespace Mobile {
 
-	std::vector< Attribute* > attributes;
-	unsigned numAttributes;
-	typedef std::map< std::string, Attribute*, Clib::ci_cmp_pred > AttributesByName;
-	AttributesByName attributes_byname;
-
-	const Attribute* pAttrStrength;
-	const Attribute* pAttrIntelligence;
-	const Attribute* pAttrDexterity;
-	const Attribute* pAttrParry;
-	const Attribute* pAttrTactics;
-
-	Attribute* FindAttribute( const std::string& str )
+	Attribute* Attribute::FindAttribute( const std::string& str )
 	{
-	  AttributesByName::const_iterator citr = attributes_byname.find( str );
-	  if ( citr != attributes_byname.end() )
+	  Core::AttributesByName::const_iterator citr = Core::gamestate.attributes_byname.find( str );
+	  if ( citr != Core::gamestate.attributes_byname.end() )
 		return ( *citr ).second;
 	  else
 		return NULL;
 	}
 
-	Attribute* FindAttribute( unsigned attrid )
+	Attribute* Attribute::FindAttribute( unsigned attrid )
 	{
-	  if ( attrid < attributes.size() )
-		return attributes[attrid];
+	  if ( attrid < Core::gamestate.attributes.size() )
+		return Core::gamestate.attributes[attrid];
 	  else
 		return NULL;
 	}
@@ -58,7 +47,7 @@ namespace Pol {
 	  delay_seconds( elem.remove_ushort( "DELAY", 0 ) ),
 	  unhides( elem.remove_bool( "UNHIDES", true ) ),
 	  disable_core_checks( elem.remove_bool( "DisableCoreChecks", false ) ),
-	  default_cap( elem.remove_ushort( "DefaultCap", Core::ssopt.default_attribute_cap ) ),
+	  default_cap( elem.remove_ushort( "DefaultCap", Core::gamestate.ssopt.default_attribute_cap ) ),
 	  script_( elem.remove_string( "SCRIPT", "" ), pkg, "scripts/skills/" )
 	{
 	  aliases.push_back( name );
@@ -81,51 +70,51 @@ namespace Pol {
 	{
 	  auto attr = new Attribute( pkg, elem );
 
-	  const Attribute* existing = FindAttribute( attr->name );
+	  const Attribute* existing = Attribute::FindAttribute( attr->name );
 	  if ( existing )
 	  {
 		elem.throw_error( "Attribute " + attr->name + " already defined by "
 						  + existing->pkg->desc() );
 	  }
-	  attr->attrid = static_cast<unsigned int>( attributes.size() );
-	  if ( !attributes.empty() )
-		attributes.back()->next = attr;
-	  attributes.push_back( attr );
+	  attr->attrid = static_cast<unsigned int>( Core::gamestate.attributes.size() );
+	  if ( !Core::gamestate.attributes.empty() )
+		Core::gamestate.attributes.back()->next = attr;
+	  Core::gamestate.attributes.push_back( attr );
 	  for ( unsigned i = 0; i < attr->aliases.size(); ++i )
 	  {
-		attributes_byname[attr->aliases[i]] = attr;
+		Core::gamestate.attributes_byname[attr->aliases[i]] = attr;
 	  }
 	}
 
 	void load_attributes_cfg()
 	{
 	  load_packaged_cfgs( "attributes.cfg", "Attribute", load_attribute_entry );
-	  numAttributes = static_cast<unsigned int>( attributes.size() );
+	  Core::gamestate.numAttributes = static_cast<unsigned int>( Core::gamestate.attributes.size() );
 
-	  pAttrStrength = FindAttribute( "Strength" );
-	  pAttrIntelligence = FindAttribute( "Intelligence" );
-	  pAttrDexterity = FindAttribute( "Dexterity" );
+	  Core::gamestate.pAttrStrength = Attribute::FindAttribute( "Strength" );
+	  Core::gamestate.pAttrIntelligence = Attribute::FindAttribute( "Intelligence" );
+	  Core::gamestate.pAttrDexterity = Attribute::FindAttribute( "Dexterity" );
 
-	  pAttrParry = FindAttribute( "Parry" );
-	  pAttrTactics = FindAttribute( "Tactics" );
+	  Core::gamestate.pAttrParry = Attribute::FindAttribute( "Parry" );
+	  Core::gamestate.pAttrTactics = Attribute::FindAttribute( "Tactics" );
 
-	  passert_always( pAttrStrength );
-	  passert_always( pAttrIntelligence );
-	  passert_always( pAttrDexterity );
-	  passert_always( pAttrParry );
-	  passert_always( pAttrTactics );
+	  passert_always( Core::gamestate.pAttrStrength );
+	  passert_always( Core::gamestate.pAttrIntelligence );
+	  passert_always( Core::gamestate.pAttrDexterity );
+	  passert_always( Core::gamestate.pAttrParry );
+	  passert_always( Core::gamestate.pAttrTactics );
 	}
 
 	void clean_attributes()
 	{
-	  auto iter = attributes.begin();
-	  for ( ; iter != attributes.end(); ++iter )
+	  auto iter = Core::gamestate.attributes.begin();
+	  for ( ; iter != Core::gamestate.attributes.end(); ++iter )
 	  {
 		delete *iter;
 		*iter = NULL;
 	  }
-	  attributes.clear();
-	  attributes_byname.clear();
+	  Core::gamestate.attributes.clear();
+	  Core::gamestate.attributes_byname.clear();
 	}
 
   }

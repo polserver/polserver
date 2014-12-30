@@ -70,8 +70,6 @@ namespace Pol {
 	  ds dirty_deleted;
 	  ds clean_deleted;
 	};
-
-	extern ObjectHash objecthash;
   }
 }
 #endif

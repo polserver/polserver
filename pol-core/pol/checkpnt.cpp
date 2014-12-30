@@ -9,16 +9,17 @@ Notes
 
 #include "checkpnt.h"
 
-#include "polcfg.h"
+#include "../plib/systemstate.h"
 #include "../clib/logfacility.h"
+
+#include "uvars.h"
 
 namespace Pol {
   namespace Core {
-	const char* last_checkpoint = "";
 	void checkpoint( const char* msg, unsigned short minlvl /* = 11 */ )
 	{
-	  last_checkpoint = msg;
-	  if ( config.loglevel >= minlvl )
+	  Core::gamestate.last_checkpoint = msg;
+	  if ( Plib::systemstate.config.loglevel >= minlvl )
 	  {
         POLLOG_INFO << "checkpoint: " << msg << "\n";
 	  }

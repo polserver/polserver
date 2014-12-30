@@ -27,6 +27,7 @@ Notes
 #include "../../bscript/objmembers.h"
 
 #include "../../plib/mapcell.h"
+#include "../../plib/systemstate.h"
 
 #include "../ustruct.h"
 #include "../uofile.h"
@@ -46,16 +47,7 @@ Notes
 #include "../uoscrobj.h"
 #include "../ssopt.h"
 #include "../gameclck.h"
-/*
-#include "clib/endian.h"
 
-#include "armor.h"
-#include "multi/boat.h"
-#include "door.h"
-#include "objtype.h"
-#include "spelbook.h"
-#include "weapon.h"
-*/
 namespace Pol {
   namespace Items {
 
@@ -446,7 +438,7 @@ namespace Pol {
 	  base::readProperties( elem );
 
 	  // Changed from Valid Color Mask to cfg mask in ssopt.
-      color &= Core::ssopt.item_color_mask;
+      color &= Core::gamestate.ssopt.item_color_mask;
 
 	  amount_ = elem.remove_ushort( "AMOUNT", 1 );
 	  layer = static_cast<unsigned char>( elem.remove_ushort( "LAYER", 0 ) );
@@ -516,13 +508,13 @@ namespace Pol {
 		Core::ScriptDef sd( on_use_script_, NULL, "" );
 		prog = find_script2( sd,
 							 true, // complain if not found
-                             Core::config.cache_interactive_scripts );
+                             Plib::systemstate.config.cache_interactive_scripts );
 	  }
 	  else if ( !itemdesc.on_use_script.empty() )
 	  {
 		prog = find_script2( itemdesc.on_use_script,
 							 true,
-                             Core::config.cache_interactive_scripts );
+                             Plib::systemstate.config.cache_interactive_scripts );
 	  }
 
 	  if ( prog.get() != NULL )
@@ -718,11 +710,11 @@ namespace Pol {
 		//NOTE! this logic is copied in Item::has_only_default_cprops(), so make any necessary changes there too
         Core::PropertyList myprops( getprops( ) ); //make a copy :(
 		myprops -= itemdesc().ignore_cprops;
-		myprops -= Core::Global_Ignore_CProps;
+		myprops -= Core::gamestate.Global_Ignore_CProps;
 
         Core::PropertyList yourprops( item.getprops( ) ); //make a copy :(
 		yourprops -= item.itemdesc().ignore_cprops;
-        yourprops -= Core::Global_Ignore_CProps;
+        yourprops -= Core::gamestate.Global_Ignore_CProps;
 
 		res = ( myprops == yourprops );
 
@@ -738,11 +730,11 @@ namespace Pol {
 	  //logic same as Item::can_add_to_self()
       Core::PropertyList myprops( getprops( ) ); //make a copy :(
 	  myprops -= itemdesc().ignore_cprops;
-      myprops -= Core::Global_Ignore_CProps;
+      myprops -= Core::gamestate.Global_Ignore_CProps;
 
       Core::PropertyList yourprops( compare->props ); //make a copy :(
 	  yourprops -= compare->ignore_cprops;
-      yourprops -= Core::Global_Ignore_CProps;
+      yourprops -= Core::gamestate.Global_Ignore_CProps;
 
 	  return ( myprops == yourprops );
 	}
@@ -814,7 +806,7 @@ namespace Pol {
             return false;
         }
 
-      if ( graphic <= Core::config.max_tile_id && newgraphic <= Core::config.max_tile_id )
+      if ( graphic <= Plib::systemstate.config.max_tile_id && newgraphic <= Plib::systemstate.config.max_tile_id )
 	  {
 		set_dirty();
 		graphic = newgraphic;
@@ -843,7 +835,7 @@ namespace Pol {
 	{
 	  // return false if the color is invalid (high nibble set)
 	  bool res = true;
-      u16  theMask = (u16)Core::ssopt.item_color_mask;
+      u16  theMask = (u16)Core::gamestate.ssopt.item_color_mask;
 	  if ( ( newcolor & ( ~theMask ) ) != 0 )
 		res = false;
 
@@ -1078,7 +1070,7 @@ namespace Pol {
 	  {
 		find_script2( sd, true, true );
 	  }
-	  for ( const auto &pkg : Plib::packages )
+	  for ( const auto &pkg : Plib::systemstate.packages )
 	  {
 		sd.quickconfig( pkg, script_ecl );
 		if ( sd.exists() )
@@ -1109,7 +1101,7 @@ namespace Pol {
 		if ( !res )
 		  return false;
 	  }
-	  for ( const auto &pkg : Plib::packages )
+	  for ( const auto &pkg : Plib::systemstate.packages )
 	  {
 		sd.quickconfig( pkg, script_ecl );
 		if ( script_loaded( sd ) )
@@ -1217,9 +1209,5 @@ namespace Pol {
 	{
 	  return "item";
 	}
-
-    
-    extern const u8 lowest_valid_layer = Core::LAYER_INFO::LOWEST_LAYER;
-    extern const u8 highest_valid_layer = Core::LAYER_INFO::HIGHEST_LAYER;
   }
 }

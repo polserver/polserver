@@ -27,10 +27,9 @@ namespace Pol {
 	  bool send_damage_packet;
 	  bool attack_while_frozen;
 	  bool send_attack_msg;
-	};
 
-	extern CombatConfig combat_config;
-	void read_combat_config();
+	  static void read_combat_config();
+	};
   }
 }
 #endif

@@ -20,6 +20,7 @@ Notes
 
 #include "../plib/realmdescriptor.h"
 #include "../plib/staticblock.h"
+#include "../plib/systemstate.h"
 
 #include "item/itemdesc.h"
 #include "ustruct.h"
@@ -56,7 +57,7 @@ namespace Pol {
       for ( unsigned i = 0; i < vec.size(); ++i )
       {
         Plib::STATIC_ENTRY& prec = vec[i];
-        passert_always( prec.objtype <= config.max_tile_id );
+        passert_always( prec.objtype <= Plib::systemstate.config.max_tile_id );
         char height = tileheight( prec.objtype ); // TODO read from itemdesc?
         unsigned char xy = ( pstat->x_offset << 4 ) | pstat->y_offset;
         if (// flags == pflags &&
@@ -119,7 +120,7 @@ namespace Pol {
           readstaticblock( &pstat, &num, x, y );
           for ( int i = 0; i < num; ++i )
           {
-            if ( pstat[i].graphic <= config.max_tile_id )
+            if ( pstat[i].graphic <= Plib::systemstate.config.max_tile_id )
             {
               if ( !newstat_dont_add( vec, &pstat[i] ) )
               {

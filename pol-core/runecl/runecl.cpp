@@ -51,9 +51,6 @@ Notes
 
 
 namespace Pol {
-  namespace Core {
-    PolConfig config; // needed but not really used def
-  }
   namespace Bscript {
     void display_bobjectimp_instances();
   }

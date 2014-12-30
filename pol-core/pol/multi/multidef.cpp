@@ -18,9 +18,11 @@ Notes
 #include "../uofile.h"
 #include "../ustruct.h"
 #include "../uofilei.h"
+#include "../uvars.h"
 
 #include "../../plib/mapcell.h"
 #include "../../plib/mapshape.h"
+#include "../../plib/systemstate.h"
 
 #include "../../clib/cfgelem.h"
 #include "../../clib/cfgfile.h"
@@ -33,6 +35,27 @@ Notes
 
 namespace Pol {
   namespace Multi {
+	MultiDefBuffer multidef_buffer;
+
+	MultiDefBuffer::MultiDefBuffer() :
+	  multidefs_by_multiid()
+	{
+	}
+	MultiDefBuffer::~MultiDefBuffer()
+	{}
+
+	void MultiDefBuffer::deinitialize()
+	{
+	  Multi::MultiDefs::iterator iter = multidefs_by_multiid.begin();
+		for ( ; iter != multidefs_by_multiid.end(); ++iter )
+		{
+		  if ( iter->second != NULL )
+			delete iter->second;
+		  iter->second = NULL;
+		}
+		multidefs_by_multiid.clear();
+	}
+
 	bool BoatShapeExists( u16 graphic );
 
 	MultiDef::MultiDef( Clib::ConfigElem& elem, u16 multiid ) :
@@ -267,9 +290,6 @@ namespace Pol {
 	  computehull();
 	}
 
-	static MultiDefs my_multidefs_by_multiid;
-	MultiDefs multidefs_by_multiid;
-
     short MultiDef::global_minrx;
     short MultiDef::global_minry;
     short MultiDef::global_minrz;
@@ -279,32 +299,19 @@ namespace Pol {
 
 	bool MultiDefByMultiIDExists( u16 multiid )
 	{
-	  return my_multidefs_by_multiid.count( multiid ) != 0;
+	  return multidef_buffer.multidefs_by_multiid.count( multiid ) != 0;
 	}
 	const MultiDef* MultiDefByMultiID( u16 multiid )
 	{
-	  passert( my_multidefs_by_multiid.count( multiid ) != 0 );
+	  passert( multidef_buffer.multidefs_by_multiid.count( multiid ) != 0 );
 
-	  MultiDefs::const_iterator citr = my_multidefs_by_multiid.find( multiid );
-	  if ( citr != my_multidefs_by_multiid.end() )
+	  MultiDefs::const_iterator citr = multidef_buffer.multidefs_by_multiid.find( multiid );
+	  if ( citr != multidef_buffer.multidefs_by_multiid.end() )
 		return ( *citr ).second;
 	  else
 		return NULL;
 	}
 
-
-	void clean_multidefs()
-	{
-	  MultiDefs::iterator iter = my_multidefs_by_multiid.begin();
-	  for ( ; iter != my_multidefs_by_multiid.end(); ++iter )
-	  {
-		if ( iter->second != NULL )
-		  delete iter->second;
-		iter->second = NULL;
-	  }
-	  my_multidefs_by_multiid.clear();
-	  multidefs_by_multiid.clear();
-	}
 
 	void read_multidefs()
 	{
@@ -317,8 +324,7 @@ namespace Pol {
 		MultiDef* mdef = new MultiDef( elem, multiid );
 		mdef->init();
 
-		my_multidefs_by_multiid[mdef->multiid] = mdef;
-		multidefs_by_multiid[mdef->multiid] = mdef;
+		multidef_buffer.multidefs_by_multiid[mdef->multiid] = mdef;
 	  }
 	}
   }

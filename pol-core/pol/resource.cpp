@@ -12,6 +12,7 @@ Notes
 
 #include "../plib/maptile.h"
 #include "../plib/realm.h"
+#include "../plib/systemstate.h"
 
 #include "item/itemdesc.h"
 #include "polcfg.h"
@@ -23,6 +24,7 @@ Notes
 #include "udatfile.h"
 #include "uofile.h"
 #include "udatfile.h"
+#include "uvars.h"
 
 #include "../bscript/berror.h"
 #include "../bscript/bobject.h"
@@ -200,7 +202,7 @@ namespace Pol {
 	  unsigned int tilecount = 0;
 
       std::vector<Plib::Realm*>::iterator itr;
-	  for ( itr = Realms->begin(); itr != Realms->end(); ++itr )
+	  for ( itr = gamestate.Realms.begin(); itr != gamestate.Realms.end(); ++itr )
 	  {
 		for ( unsigned short x = 0; x < ( *itr )->width(); ++x )
 		{
@@ -245,14 +247,11 @@ namespace Pol {
 	  current_units_ += amount;
 	}
 
-	typedef std::map<std::string, ResourceDef*> ResourceDefs;
-	ResourceDefs resourcedefs;
-
 	void regen_resources()
 	{
 	  THREAD_CHECKPOINT( tasks, 700 );
 	  time_t now = poltime();
-	  for ( ResourceDefs::iterator itr = resourcedefs.begin(), end = resourcedefs.end(); itr != end; ++itr )
+	  for ( ResourceDefs::iterator itr = gamestate.resourcedefs.begin(), end = gamestate.resourcedefs.end(); itr != end; ++itr )
 	  {
 		( *itr ).second->regenerate( now );
 	  }
@@ -260,13 +259,11 @@ namespace Pol {
 	}
 	void count_resource_tiles()
 	{
-	  for ( ResourceDefs::iterator itr = resourcedefs.begin(), end = resourcedefs.end(); itr != end; ++itr )
+	  for ( ResourceDefs::iterator itr = gamestate.resourcedefs.begin(), end = gamestate.resourcedefs.end(); itr != end; ++itr )
 	  {
 		( *itr ).second->counttiles();
 	  }
 	}
-	// regenerate resources every 10 minutes
-	PeriodicTask regen_resources_task( regen_resources, 10, 60 * 10, "RsrcRegen" );
 
     Bscript::BObjectImp* get_harvest_difficulty( const char* resource,
 										xcoord x,
@@ -274,8 +271,8 @@ namespace Pol {
                                         Plib::Realm* realm,
 										unsigned short marker )
 	{
-	  ResourceDefs::iterator itr = resourcedefs.find( resource );
-	  if ( itr == resourcedefs.end() )
+	  ResourceDefs::iterator itr = gamestate.resourcedefs.find( resource );
+	  if ( itr == gamestate.resourcedefs.end() )
         return new Bscript::BError( "No resource by that name" );
 
 	  ResourceDef* rd = ( *itr ).second;
@@ -293,8 +290,8 @@ namespace Pol {
                                   xcoord x, ycoord y, Plib::Realm* realm,
 								  int b, int n )
 	{
-	  ResourceDefs::iterator itr = resourcedefs.find( resource );
-	  if ( itr == resourcedefs.end() )
+	  ResourceDefs::iterator itr = gamestate.resourcedefs.find( resource );
+	  if ( itr == gamestate.resourcedefs.end() )
         return new Bscript::BError( "No resource by that name" );
 
 	  ResourceDef* rd = ( *itr ).second;
@@ -314,8 +311,8 @@ namespace Pol {
                                    xcoord x, ycoord y, Plib::Realm* realm,
 								   const std::string& propname )
 	{
-	  ResourceDefs::iterator itr = resourcedefs.find( resource );
-	  if ( itr == resourcedefs.end() )
+	  ResourceDefs::iterator itr = gamestate.resourcedefs.find( resource );
+	  if ( itr == gamestate.resourcedefs.end() )
         return new Bscript::BError( "No resource by that name" );
 
 	  ResourceDef* rd = ( *itr ).second;
@@ -330,8 +327,8 @@ namespace Pol {
 
 	ResourceDef* find_resource_def( const std::string& rname )
 	{
-	  ResourceDefs::iterator itr = resourcedefs.find( rname );
-	  if ( itr == resourcedefs.end() )
+	  ResourceDefs::iterator itr = gamestate.resourcedefs.find( rname );
+	  if ( itr == gamestate.resourcedefs.end() )
 	  {
 		return NULL;
 	  }
@@ -362,14 +359,14 @@ namespace Pol {
 		}
 	  }
 
-	  resourcedefs[resource] = rd.release();
+	  gamestate.resourcedefs[resource] = rd.release();
 	}
 
 	void load_resource_cfg()
 	{
       if ( !Clib::FileExists( "regions/resource.cfg" ) )
 	  {
-		if ( config.loglevel > 1 )
+		if ( Plib::systemstate.config.loglevel > 1 )
           INFO_PRINT << "File regions/resource.cfg not found, skipping.\n";
 		return;
 	  }
@@ -384,7 +381,7 @@ namespace Pol {
 		  read_resource_cfg( resourcename.c_str() );
 		}
 	  }
-	  if ( config.count_resource_tiles )
+	  if ( Plib::systemstate.config.count_resource_tiles )
 		count_resource_tiles();
 	}
 
@@ -422,7 +419,7 @@ namespace Pol {
 
 	void read_resources_dat()
 	{
-	  std::string resourcefile = config.world_data_path + "resource.dat";
+	  std::string resourcefile = Plib::systemstate.config.world_data_path + "resource.dat";
 
 	  if ( Clib::FileExists( resourcefile ) )
 	  {
@@ -472,7 +469,7 @@ namespace Pol {
     void write_resources_dat( Clib::StreamWriter& sw_resource )
 	{
 
-	  for ( const auto & resdef : resourcedefs )
+	  for ( const auto & resdef : gamestate.resourcedefs )
 	  {
 		resdef.second->write( sw_resource );
 	  }
@@ -481,11 +478,11 @@ namespace Pol {
 
 	void clean_resources()
 	{
-	  for ( const auto & resdef : resourcedefs )
+	  for ( const auto & resdef : gamestate.resourcedefs )
 	  {
 		delete resdef.second;
 	  }
-	  resourcedefs.clear();
+	  gamestate.resourcedefs.clear();
 	}
 
   }

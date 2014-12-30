@@ -88,7 +88,7 @@ namespace Pol {
 	  message_length( 0 ),
 	  cryptengine( create_crypt_engine( encryption ) ),
 	  encrypt_server_stream( 0 ),
-	  msgtype_filter( &Core::login_filter ),
+	  msgtype_filter( Core::gamestate.login_filter.get() ),
 	  fpLog( "" ),
 	  pause_count( 0 ),
 	  first_xmit_buffer( NULL ),
@@ -108,7 +108,7 @@ namespace Pol {
 	  paused_( false )
 	{
 	  // For bypassing cryptseed packet
-	  if ( Core::ssopt.use_edit_server )
+	  if ( Core::gamestate.ssopt.use_edit_server )
 	  {
 		recv_state = RECV_STATE_MSGTYPE_WAIT;
 	  }
@@ -508,7 +508,7 @@ namespace Pol {
 		THREAD_CHECKPOINT( active_client, 210 );
 		datalen -= static_cast<unsigned short>( nsent );
 		counters.bytes_transmitted += nsent;
-		Core::polstats.bytes_sent += nsent;
+		Core::gamestate.polstats.bytes_sent += nsent;
 		if ( datalen )	// anything left? if so, queue for later.
 		{
 		  THREAD_CHECKPOINT( active_client, 211 );
@@ -559,7 +559,7 @@ namespace Pol {
 		  xbuffer->nsent += static_cast<unsigned short>( nsent );
 		  xbuffer->lenleft -= static_cast<unsigned short>( nsent );
 		  counters.bytes_transmitted += nsent;
-		  Core::polstats.bytes_sent += nsent;
+		  Core::gamestate.polstats.bytes_sent += nsent;
 		  if ( xbuffer->lenleft == 0 )
 		  {
 			first_xmit_buffer = first_xmit_buffer->next;
@@ -583,7 +583,7 @@ namespace Pol {
 
 	void Client::send_pause()
 	{
-	  if (Core::uoclient_protocol.EnableFlowControlPackets && !paused_ )
+	  if (Core::gamestate.uoclient_protocol.EnableFlowControlPackets && !paused_ )
 	  {
 #ifndef PRE_ENCRYPT
 		PKTOUT_33 msg;

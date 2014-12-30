@@ -23,6 +23,7 @@ Notes
 
 #include "module/uomod.h"
 #include "uoexec.h"
+#include "uvars.h"
 
 #include "../bscript/berror.h"
 #include "../bscript/bobject.h"
@@ -34,6 +35,8 @@ Notes
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
 #include "../clib/wnsckt.h"
+
+#include "../plib/systemstate.h"
 
 #include <string>
 #include <vector>
@@ -208,12 +211,12 @@ namespace Pol {
 	{
 	  DebugContext* dctx = new DebugContext;
 	  std::vector<std::string> tmp;
-	  dctx->process( "password " + config.debug_password, tmp );
+	  dctx->process( "password " + Plib::systemstate.config.debug_password, tmp );
 	  return new DebugContextObjImp( ref_ptr<DebugContext>( dctx ) );
 	}
 
 	DebugContext::DebugContext() :
-	  _authorized( config.debug_password.empty() ),
+	  _authorized( Plib::systemstate.config.debug_password.empty() ),
 	  _done( false ),
 	  uoexec_wptr( 0 )
 	{}
@@ -273,7 +276,7 @@ namespace Pol {
 		{
 		  if ( cmd == "password" )
 		  {
-			_authorized = ( rest == config.debug_password );
+			_authorized = ( rest == Plib::systemstate.config.debug_password );
 			results.push_back( std::string( "Password" ) + ( _authorized ? "" : " not" ) + " recognized." );
 		  }
 		  return _authorized;
@@ -538,7 +541,7 @@ namespace Pol {
 	{
       std::string match = Clib::strlower( rest );
 
-	  for ( Module::PidList::const_iterator citr = Module::pidlist.begin(); citr != Module::pidlist.end(); ++citr )
+	  for ( PidList::const_iterator citr = gamestate.pidlist.begin(); citr != gamestate.pidlist.end(); ++citr )
 	  {
 		UOExecutor* uoexec = ( *citr ).second;
         std::string name = Clib::strlower( uoexec->scriptname( ) );
@@ -553,7 +556,7 @@ namespace Pol {
 
 	std::string DebugContext::cmd_scriptlist( const std::string& /*rest*/, Results& results )
 	{
-	  for ( ScriptStorage::const_iterator citr = scrstore.begin(); citr != scrstore.end(); ++citr )
+	  for ( ScriptStorage::const_iterator citr = gamestate.scrstore.begin(); citr != gamestate.scrstore.end(); ++citr )
 	  {
 		const char* nm = ( ( *citr ).first ).c_str();
 		EScriptProgram* eprog = ( ( *citr ).second ).get();
@@ -568,8 +571,8 @@ namespace Pol {
 	  _script.clear();
 
 	  //const char* fn = rest.c_str();
-	  ScriptStorage::iterator itr = scrstore.find( rest );
-	  if ( itr == scrstore.end() )
+	  ScriptStorage::iterator itr = gamestate.scrstore.find( rest );
+	  if ( itr == gamestate.scrstore.end() )
 		return "No such script.";
 
 	  ref_ptr<EScriptProgram> res( ( *itr ).second );
@@ -654,8 +657,8 @@ namespace Pol {
 
 	std::string DebugContext::cmd_scriptprofile( const std::string& rest, Results& results )
 	{
-	  ScriptStorage::iterator itr = scrstore.find( rest.c_str() );
-	  if ( itr == scrstore.end() )
+	  ScriptStorage::iterator itr = gamestate.scrstore.find( rest.c_str() );
+	  if ( itr == gamestate.scrstore.end() )
 		return "No such script.";
 
 	  ref_ptr<EScriptProgram> res( ( *itr ).second );
@@ -672,8 +675,8 @@ namespace Pol {
 
 	std::string DebugContext::cmd_scriptins( const std::string& rest, Results& results )
 	{
-	  ScriptStorage::iterator itr = scrstore.find( rest.c_str() );
-	  if ( itr == scrstore.end() )
+	  ScriptStorage::iterator itr = gamestate.scrstore.find( rest.c_str() );
+	  if ( itr == gamestate.scrstore.end() )
 		return "No such script.";
 
 	  ref_ptr<EScriptProgram> res( ( *itr ).second );
@@ -709,8 +712,8 @@ namespace Pol {
 
 	std::string DebugContext::cmd_scriptsrc( const std::string& rest, Results& results )
 	{
-	  ScriptStorage::iterator itr = scrstore.find( rest.c_str() );
-	  if ( itr == scrstore.end() )
+	  ScriptStorage::iterator itr = gamestate.scrstore.find( rest.c_str() );
+	  if ( itr == gamestate.scrstore.end() )
 		return "No such script.";
 
 	  ref_ptr<EScriptProgram> res( ( *itr ).second );
@@ -1185,7 +1188,7 @@ namespace Pol {
 
 	void DebugClientThread::run()
 	{
-	  if ( config.debug_local_only )
+	  if ( Plib::systemstate.config.debug_local_only )
 	  {
 		if ( !_sck.is_local() )
 		{
@@ -1216,9 +1219,9 @@ namespace Pol {
 
 	void debug_listen_thread( void )
 	{
-	  if ( config.debug_port )
+	  if ( Plib::systemstate.config.debug_port )
 	  {
-        Clib::SocketListener SL( config.debug_port );
+        Clib::SocketListener SL( Plib::systemstate.config.debug_port );
         while ( !Clib::exit_signalled )
 		{
 		  if ( SL.GetConnection( 5 ) )

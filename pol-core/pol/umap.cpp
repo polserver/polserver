@@ -476,9 +476,6 @@ namespace Pol {
 		  break;
 
 	  }
-
-
 	}
-	MESSAGE_HANDLER( PKTBI_56, handle_map_pin );
   }
 }

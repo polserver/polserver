@@ -54,10 +54,10 @@ namespace Pol {
 	  explicit ECharacterRefObjImp( Mobile::Character* chr ) :
 		BApplicObj< Core::CharacterRef >( &echaracterrefobjimp_type, Core::CharacterRef( chr ) )
 	  {
-		  ++Core::uobj_count_echrref;
+		  ++Core::gamestate.uobjcount.uobj_count_echrref;
 		  passert( obj_->ref_counted_count() > 1 );
 		}
-	  virtual ~ECharacterRefObjImp( ) { --Core::uobj_count_echrref; }
+	  virtual ~ECharacterRefObjImp( ) { --Core::gamestate.uobjcount.uobj_count_echrref; }
 
 	  virtual const char* typeOf() const POL_OVERRIDE;
 	  virtual int typeOfInt() const POL_OVERRIDE;
