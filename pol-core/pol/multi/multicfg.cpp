@@ -12,6 +12,7 @@ Notes
 #include "../cfgrepos.h"
 
 #include "../../plib/pkg.h"
+#include "../../plib/systemstate.h"
 
 #include "../../clib/cfgfile.h"
 #include "../../clib/fileutil.h"
@@ -30,7 +31,7 @@ namespace Pol {
 		scfg->load( cf_main );
 	  }
 
-      for ( Plib::Packages::iterator itr = Plib::packages.begin( ); itr != Plib::packages.end( ); ++itr )
+      for ( Plib::Packages::iterator itr = Plib::systemstate.packages.begin( ); itr != Plib::systemstate.packages.end( ); ++itr )
 	  {
         Plib::Package* pkg = ( *itr );
 		//string filename = pkg->dir() + cfgname + ".cfg";

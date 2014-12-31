@@ -20,7 +20,7 @@ Notes
 #include "../pol/objecthash.h"
 #include "../pol/realms.h"
 #include "../pol/ufunc.h"
-#include "../pol/uvars.h"
+#include "../pol/globals/uvars.h"
 #include "../pol/uworld.h"
 
 #include <string>
@@ -95,7 +95,7 @@ namespace Pol {
 	  elem.add_prop( "Z", z );
 	  npc->readPropertiesForNewNPC( elem );
 
-	  objecthash.Insert( npc );
+	  gamestate.objecthash.Insert( npc );
 
 	  SetCharacterWorldPosition( npc, WorldChangeReason::NpcCreate );
 	  return npc;

@@ -21,7 +21,9 @@ Notes
 #include "../../bscript/bobject.h"
 #endif
 
-#include "../ssopt.h"
+#include "../layers.h"
+#include "../globals/uvars.h"
+
 namespace Pol {
   namespace Core {
 	struct USTRUCT_TILE;
@@ -310,9 +312,9 @@ namespace Pol {
 
 	inline bool Item::slot_index( u8 newvalue )
 	{
-	  if ( Core::ssopt.use_slot_index )
+	  if ( Core::gamestate.ssopt.use_slot_index )
 	  {
-		if ( newvalue < Core::ssopt.default_max_slots )
+		if ( newvalue < Core::gamestate.ssopt.default_max_slots )
 		{
 		  slot_index_ = newvalue;
 		  return true;
@@ -340,8 +342,7 @@ namespace Pol {
     }
 
     inline bool valid_equip_layer(int layer) {
-        extern const u8 lowest_valid_layer, highest_valid_layer;
-        return layer >= lowest_valid_layer && layer <= highest_valid_layer;
+        return layer >= Core::LAYER_INFO::LOWEST_LAYER && layer <= Core::LAYER_INFO::HIGHEST_LAYER;
     }
 
     inline bool valid_equip_layer(const Item* item) {

@@ -23,7 +23,7 @@ Notes
 #include "scrstore.h"
 #include "statmsg.h"
 #include "uoskills.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 #include "ufunc.h"
 #include "ssopt.h"
 #include "party.h"
@@ -32,6 +32,8 @@ Notes
 #include "../clib/fdump.h"
 #include "../clib/clib.h"
 #include "../clib/logfacility.h"
+
+#include "../plib/systemstate.h"
 
 namespace Pol {
   namespace Core {
@@ -59,12 +61,12 @@ namespace Pol {
 	{
       Network::PktHelper::PacketOut<Network::PktOut_3A> msg;
 	  msg->offset += 2;
-	  if ( ssopt.core_sends_caps )
+	  if ( gamestate.ssopt.core_sends_caps )
 		msg->Write<u8>( PKTBI_3A_VALUES::FULL_LIST_CAP );
 	  else
 		msg->Write<u8>( PKTBI_3A_VALUES::FULL_LIST );
 
-	  for ( unsigned short i = 0; i <= uoclient_general.maxskills; ++i )
+	  for ( unsigned short i = 0; i <= gamestate.uoclient_general.maxskills; ++i )
 	  {
 		const UOSkill& uoskill = GetUOSkill( i );
 		msg->WriteFlipped<u16>( static_cast<u16>( i + 1 ) ); // for some reason, we send this 1-based
@@ -82,18 +84,18 @@ namespace Pol {
 			value = 0xFFFF;
 		  msg->WriteFlipped<u16>( static_cast<u16>(value) );
 		  msg->Write<u8>( av.lock() );
-		  if ( ssopt.core_sends_caps )
+		  if ( gamestate.ssopt.core_sends_caps )
 			msg->WriteFlipped<u16>( av.cap() );
 		}
 		else
 		{
 		  msg->offset += 4; // u16 value/value_unmod
 		  msg->Write<u8>( PKTBI_3A_VALUES::LOCK_DOWN );
-		  if ( ssopt.core_sends_caps )
-			msg->WriteFlipped<u16>( ssopt.default_attribute_cap );
+		  if ( gamestate.ssopt.core_sends_caps )
+			msg->WriteFlipped<u16>( gamestate.ssopt.default_attribute_cap );
 		}
 	  }
-	  if ( !ssopt.core_sends_caps )
+	  if ( !gamestate.ssopt.core_sends_caps )
 		msg->offset += 2; // u16 nullterm
 	  u16 len = msg->offset;
 	  msg->offset = 1;
@@ -103,10 +105,10 @@ namespace Pol {
 
     void handle_skill_lock( Network::Client *client, PKTBI_3A_LOCKS *msg )
 	{
-	  if ( ssopt.core_handled_locks )
+	  if ( gamestate.ssopt.core_handled_locks )
 	  {
 		unsigned int skillid = cfBEu16( msg->skillid );
-		if ( skillid > uoclient_general.maxskills )
+		if ( skillid > gamestate.uoclient_general.maxskills )
 		  return;
 
 		const UOSkill& uoskill = GetUOSkill( skillid );
@@ -119,7 +121,6 @@ namespace Pol {
           INFO_PRINT << "Client " << client->chr->name() << " tried to set an illegal lock state.\n";
 	  }
 	}
-	MESSAGE_HANDLER( PKTBI_3A_LOCKS, handle_skill_lock );
 
     void skillrequest( Network::Client *client, u32 serial )
 	{
@@ -132,7 +133,7 @@ namespace Pol {
 		  ref_ptr<Bscript::EScriptProgram> prog;
 		  prog = find_script2( sd,
 							   false, // complain if not found
-							   config.cache_interactive_scripts );
+							   Plib::systemstate.config.cache_interactive_scripts );
 		  if ( prog.get() != NULL &&
 			   client->chr->start_script( prog.get(), false ) )
 		  {
@@ -168,6 +169,5 @@ namespace Pol {
 	  else if ( msg->stattype == STATTYPE_SKILLWINDOW )
 		skillrequest( client, serial );
 	}
-	MESSAGE_HANDLER( PKTIN_34, srequest );
   }
 }

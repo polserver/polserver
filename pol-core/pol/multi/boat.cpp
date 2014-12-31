@@ -35,6 +35,7 @@ Notes
 #include "../../clib/streamsaver.h"
 
 #include "../../plib/realm.h"
+#include "../../plib/systemstate.h"
 
 #include "../mobile/charactr.h"
 #include "../network/client.h"
@@ -56,11 +57,10 @@ Notes
 #include "../uconst.h"
 #include "../uofile.h"
 #include "../ustruct.h"
-#include "../uvars.h"
+#include "../globals/uvars.h"
 #include "../uworld.h"
 #include "../containr.h"
 
-#include "../objecthash.h"
 
 #include <algorithm>
 #include <set>
@@ -202,29 +202,29 @@ namespace Pol {
 
 	bool BoatShape::objtype_is_component( unsigned int objtype )
 	{
-	  if ( objtype == Core::extobj.tillerman )
+	  if ( objtype == Core::gamestate.extobj.tillerman )
 		return true;
-	  else if ( objtype == Core::extobj.port_plank )
+	  else if ( objtype == Core::gamestate.extobj.port_plank )
 		return true;
-	  else if ( objtype == Core::extobj.starboard_plank )
+	  else if ( objtype == Core::gamestate.extobj.starboard_plank )
 		return true;
-	  else if ( objtype == Core::extobj.hold )
+	  else if ( objtype == Core::gamestate.extobj.hold )
 		return true;
-	  else if ( objtype == Core::extobj.rope )
+	  else if ( objtype == Core::gamestate.extobj.rope )
 		return true;
-	  else if ( objtype == Core::extobj.wheel )
+	  else if ( objtype == Core::gamestate.extobj.wheel )
 		return true;
-	  else if ( objtype == Core::extobj.hull )
+	  else if ( objtype == Core::gamestate.extobj.hull )
 		return true;
-	  else if ( objtype == Core::extobj.tiller )
+	  else if ( objtype == Core::gamestate.extobj.tiller )
 		return true;
-	  else if ( objtype == Core::extobj.rudder )
+	  else if ( objtype == Core::gamestate.extobj.rudder )
 		return true;
-	  else if ( objtype == Core::extobj.sails )
+	  else if ( objtype == Core::gamestate.extobj.sails )
 		return true;
-	  else if ( objtype == Core::extobj.storage )
+	  else if ( objtype == Core::gamestate.extobj.storage )
 		return true;
-	  else if ( objtype == Core::extobj.weaponslot )
+	  else if ( objtype == Core::gamestate.extobj.weaponslot )
 		return true;
 	  else
 		return false;
@@ -234,24 +234,21 @@ namespace Pol {
 	{
 	  switch ( type )
 	  {
-		case COMPONENT_TILLERMAN: return Core::extobj.tillerman;
-		case COMPONENT_PORT_PLANK: return Core::extobj.port_plank;
-		case COMPONENT_STARBOARD_PLANK: return Core::extobj.starboard_plank;
-		case COMPONENT_HOLD: return Core::extobj.hold;
-		case COMPONENT_ROPE: return Core::extobj.rope;
-		case COMPONENT_WHEEL: return Core::extobj.wheel;
-		case COMPONENT_HULL: return Core::extobj.hull;
-		case COMPONENT_TILLER: return Core::extobj.tiller;
-		case COMPONENT_RUDDER: return Core::extobj.rudder;
-		case COMPONENT_SAILS: return Core::extobj.sails;
-		case COMPONENT_STORAGE: return Core::extobj.storage;
-		case COMPONENT_WEAPONSLOT: return Core::extobj.weaponslot;
+		case COMPONENT_TILLERMAN: return Core::gamestate.extobj.tillerman;
+		case COMPONENT_PORT_PLANK: return Core::gamestate.extobj.port_plank;
+		case COMPONENT_STARBOARD_PLANK: return Core::gamestate.extobj.starboard_plank;
+		case COMPONENT_HOLD: return Core::gamestate.extobj.hold;
+		case COMPONENT_ROPE: return Core::gamestate.extobj.rope;
+		case COMPONENT_WHEEL: return Core::gamestate.extobj.wheel;
+		case COMPONENT_HULL: return Core::gamestate.extobj.hull;
+		case COMPONENT_TILLER: return Core::gamestate.extobj.tiller;
+		case COMPONENT_RUDDER: return Core::gamestate.extobj.rudder;
+		case COMPONENT_SAILS: return Core::gamestate.extobj.sails;
+		case COMPONENT_STORAGE: return Core::gamestate.extobj.storage;
+		case COMPONENT_WEAPONSLOT: return Core::gamestate.extobj.weaponslot;
 		default: return 0;
 	  }
 	}
-
-	typedef std::map< u16 /* graphic */, BoatShape* > BoatShapes;
-	BoatShapes boatshapes;
 
 	void read_boat_cfg( void )
 	{
@@ -262,7 +259,7 @@ namespace Pol {
 		unsigned short multiid = elem.remove_ushort( "MultiID" );
 		try
 		{
-		  boatshapes[multiid] = new BoatShape( elem );
+		  Core::gamestate.boatshapes[multiid] = new BoatShape( elem );
 		}
 		catch ( std::exception& )
 		{
@@ -274,19 +271,19 @@ namespace Pol {
 
 	void clean_boatshapes()
 	{
-	  BoatShapes::iterator iter = boatshapes.begin();
-	  for ( ; iter != boatshapes.end(); ++iter )
+	  Core::BoatShapes::iterator iter = Core::gamestate.boatshapes.begin();
+	  for ( ; iter != Core::gamestate.boatshapes.end(); ++iter )
 	  {
 		if ( iter->second != NULL )
 		  delete iter->second;
 		iter->second = NULL;
 	  }
-	  boatshapes.clear();
+	  Core::gamestate.boatshapes.clear();
 	}
 
 	bool BoatShapeExists( u16 multiid )
 	{
-	  return boatshapes.count( multiid ) != 0;
+	  return Core::gamestate.boatshapes.count( multiid ) != 0;
 	}
 
 	void UBoat::send_smooth_move( Network::Client* client, Core::UFACING move_dir, u8 speed, u16 newx, u16 newy, bool relative )
@@ -596,7 +593,7 @@ namespace Pol {
 
 	UBoat::UBoat( const Items::ItemDesc& descriptor ) : UMulti( descriptor )
 	{
-	  passert( boatshapes.count( multiid ) != 0 );
+	  passert( Core::gamestate.boatshapes.count( multiid ) != 0 );
 	  tillerman = NULL;
 	  hold = NULL;
 	  portplank = NULL;
@@ -678,7 +675,7 @@ namespace Pol {
 		  return false;
 		}
 
-		if ( !realm->navigable( ax, ay, az, Core::tile[( *itr )->objtype].height ) )
+		if ( !realm->navigable( ax, ay, az, Plib::systemstate.tile[( *itr )->objtype].height ) )
 		  return false;
 
 	  }
@@ -1311,8 +1308,8 @@ namespace Pol {
 
 	const BoatShape& UBoat::boatshape() const
 	{
-	  passert( boatshapes.count( multiid ) != 0 );
-	  return *boatshapes[multiid];
+	  passert( Core::gamestate.boatshapes.count( multiid ) != 0 );
+	  return *Core::gamestate.boatshapes[multiid];
 	}
 
 
@@ -1334,9 +1331,9 @@ namespace Pol {
 					continue;
 
 				item->set_dirty();
-				if ( item->objtype_ == Core::extobj.port_plank && item->graphic == old_itr->altgraphic )
+				if ( item->objtype_ == Core::gamestate.extobj.port_plank && item->graphic == old_itr->altgraphic )
 					item->graphic = itr2->altgraphic;
-				else if ( item->objtype_ == Core::extobj.starboard_plank && item->graphic == old_itr->altgraphic )
+				else if ( item->objtype_ == Core::gamestate.extobj.starboard_plank && item->graphic == old_itr->altgraphic )
 					item->graphic = itr2->altgraphic;
 				else
 					item->graphic = itr2->graphic;
@@ -1492,13 +1489,13 @@ namespace Pol {
 		if ( component == NULL )
 		  continue;
 		// check boat members here
-		if ( component->objtype_ == Core::extobj.tillerman && tillerman == NULL )
+		if ( component->objtype_ == Core::gamestate.extobj.tillerman && tillerman == NULL )
 		  tillerman = component;
-		if ( component->objtype_ == Core::extobj.port_plank && portplank == NULL )
+		if ( component->objtype_ == Core::gamestate.extobj.port_plank && portplank == NULL )
 		  portplank = component;
-		if ( component->objtype_ == Core::extobj.starboard_plank && starboardplank == NULL )
+		if ( component->objtype_ == Core::gamestate.extobj.starboard_plank && starboardplank == NULL )
 		  starboardplank = component;
-		if ( component->objtype_ == Core::extobj.hold && hold == NULL )
+		if ( component->objtype_ == Core::gamestate.extobj.hold && hold == NULL )
 		  hold = component;
 	  }
 	}
@@ -1598,7 +1595,7 @@ namespace Pol {
 						   + Clib::hexint( descriptor.objtype ) + ", multiid="
 						   + Clib::hexint( multiid ) );
 	  }
-	  if ( !boatshapes.count( descriptor.multiid ) )
+	  if ( !Core::gamestate.boatshapes.count( descriptor.multiid ) )
 	  {
 		return new Bscript::BError( "No boatshape for Boat in boats.cfg, objtype="
 						   + Clib::hexint( descriptor.objtype ) + ", multiid="
@@ -1628,7 +1625,7 @@ namespace Pol {
 	  boat->regself();
 
 	  ////hash
-	  Core::objecthash.Insert( boat );
+	  Core::gamestate.objecthash.Insert( boat );
 	  ////
 
 	  Core::start_script( "misc/boat", make_boatref( boat ) );
@@ -1644,13 +1641,13 @@ namespace Pol {
 		if ( component == NULL )
 		  continue;
 		// check boat members here
-		if ( component->objtype_ == Core::extobj.tillerman && tillerman == NULL )
+		if ( component->objtype_ == Core::gamestate.extobj.tillerman && tillerman == NULL )
 		  tillerman = component;
-		if ( component->objtype_ == Core::extobj.port_plank && portplank == NULL )
+		if ( component->objtype_ == Core::gamestate.extobj.port_plank && portplank == NULL )
 		  portplank = component;
-		if ( component->objtype_ == Core::extobj.starboard_plank && starboardplank == NULL )
+		if ( component->objtype_ == Core::gamestate.extobj.starboard_plank && starboardplank == NULL )
 		  starboardplank = component;
-		if ( component->objtype_ == Core::extobj.hold && hold == NULL )
+		if ( component->objtype_ == Core::gamestate.extobj.hold && hold == NULL )
 		  hold = component;
 
 		component->graphic = itr->graphic;

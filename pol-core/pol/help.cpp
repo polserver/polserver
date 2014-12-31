@@ -8,11 +8,11 @@ Notes
 
 */
 
+#include "../plib/systemstate.h"
 #include "mobile/charactr.h"
 #include "network/client.h"
 #include "network/msghandl.h"
 #include "pktin.h"
-#include "polcfg.h"
 #include "scrstore.h"
 
 namespace Pol {
@@ -21,12 +21,11 @@ namespace Pol {
 	{
 	  ref_ptr<Bscript::EScriptProgram> prog = find_script( "misc/help",
 												  true,
-												  config.cache_interactive_scripts );
+												  Plib::systemstate.config.cache_interactive_scripts );
 	  if ( prog.get() != NULL )
 	  {
 		client->chr->start_script( prog.get(), false );
 	  }
 	}
-	MESSAGE_HANDLER( PKTIN_9B, handle_help );
   }
 }

@@ -26,7 +26,7 @@ Notes
 #include "uofile.h"
 #include "polcfg.h"
 #include "udatfile.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 #include "skilladv.h"
 
 namespace Pol {
@@ -53,7 +53,7 @@ namespace Pol {
 
 	void map_test()
 	{
-	  Plib::MAPTILE_CELL cell = main_realm->getmaptile( 1453, 1794 );
+	  Plib::MAPTILE_CELL cell = gamestate.main_realm->getmaptile( 1453, 1794 );
       INFO_PRINT << cell.landtile << " " << cell.z << "\n";
 	}
 
@@ -196,13 +196,12 @@ namespace Pol {
 	}
 
 
-	PolConfig config;
 	Items items;
 	Multis multis;
 
 	int main( int arc, char *argv[] )
 	{
-	  config.uo_datafile_root = "C:/Games/AoS2D/";
+	  Plib::systemstate.config.uo_datafile_root = "C:/Games/AoS2D/";
       INFO_PRINT << "Opening UO data files..\n";
 	  open_uo_data_files();
 	  read_uo_data();

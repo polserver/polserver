@@ -54,7 +54,7 @@ namespace Pol {
 	  name_( name )
 	{
 	  //memset( &regionidx_, 0, sizeof regionidx_ );
-	  for ( const auto& realm : *Realms)
+	  for ( const auto& realm : gamestate.Realms)
 	  {
         unsigned int gridwidth = realm->width( ) / ZONE_SIZE;
         unsigned int gridheight = realm->height( ) / ZONE_SIZE;

@@ -21,6 +21,7 @@ Notes
 #include "scrdef.h"
 #include "schedule.h"
 #include "reftypes.h"
+#include "globals/uvars.h"
 
 namespace Pol {
   namespace Clib {
@@ -38,8 +39,6 @@ namespace Pol {
   namespace Core {
 	class TargetCursor;
 	class USpell;
-
-	extern u32 spell_scroll_objtype_limits[8][2];
 
 	class USpellParams
 	{
@@ -129,12 +128,9 @@ namespace Pol {
 	  return spellid_;
 	}
 
-	//extern USpell *spells[ SPELLID__COUNT+1 ];
-
-	extern std::vector<USpell*> spells2;
 	inline bool VALID_SPELL_ID( int spellid )
 	{
-	  return ( spellid >= 1 && spellid <= int( spells2.size() ) );
+	  return ( spellid >= 1 && spellid <= int( gamestate.spells.size() ) );
 	}
 
 	void do_cast( Network::Client *client, u16 spellid );

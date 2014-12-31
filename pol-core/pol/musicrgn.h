@@ -30,11 +30,6 @@ namespace Pol {
 	private:
 	  std::vector<unsigned short> midilist_;
 	};
-
-
-	typedef RegionGroup<MusicRegion> MusicDef;
-
-	extern MusicDef* musicdef;
   }
 }
 #endif

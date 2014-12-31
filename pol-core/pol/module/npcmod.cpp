@@ -43,7 +43,7 @@ Notes
 #include "../uoexec.h"
 #include "../uoexhelp.h"
 #include "../uoscrobj.h"
-#include "../uvars.h"
+#include "../globals/uvars.h"
 #include "../watch.h"
 #include "../wrldsize.h"
 #include "../uworld.h"
@@ -760,11 +760,11 @@ namespace Pol {
 	  // send to those nearby
       u16 range;
       if ( texttype == Core::TEXTTYPE_WHISPER )
-        range = Core::ssopt.whisper_range;
+        range = Core::gamestate.ssopt.whisper_range;
       else if ( texttype == Core::TEXTTYPE_YELL )
-        range = Core::ssopt.yell_range;
+        range = Core::gamestate.ssopt.yell_range;
       else
-        range = Core::ssopt.speech_range;
+        range = Core::gamestate.ssopt.speech_range;
       Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( npc.x, npc.y, npc.realm, range, [&]( Mobile::Character *chr )
       {
         if ( !chr->is_visible_to_me( &npc ) )
@@ -842,11 +842,11 @@ namespace Pol {
 
         u16 range;
         if ( texttype == Core::TEXTTYPE_WHISPER )
-          range = Core::ssopt.whisper_range;
+          range = Core::gamestate.ssopt.whisper_range;
         else if ( texttype == Core::TEXTTYPE_YELL )
-          range = Core::ssopt.yell_range;
+          range = Core::gamestate.ssopt.yell_range;
         else
-          range = Core::ssopt.speech_range;
+          range = Core::gamestate.ssopt.speech_range;
         Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( npc.x, npc.y, npc.realm, range, [&]( Mobile::Character *chr )
         {
           if ( !chr->is_visible_to_me( &npc ) )

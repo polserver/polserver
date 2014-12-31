@@ -23,6 +23,7 @@ Notes
 
 #include "../cmbtcfg.h"
 #include "../guardrgn.h"
+#include "../globals/uvars.h"
 
 #include "../../clib/endian.h"
 
@@ -42,7 +43,7 @@ namespace Pol {
 	  Character *defender = Core::find_character( serial );
 	  if ( defender != NULL )
 	  {
-		if ( !( Core::combat_config.attack_self ) )
+		if ( !( Core::gamestate.combat_config.attack_self ) )
 		{
 		  if ( defender->serial == client->chr->serial )
 		  {
@@ -74,7 +75,5 @@ namespace Pol {
 		client->chr->select_opponent( serial );
 	  }
 	}
-	using namespace Core;
-	MESSAGE_HANDLER( PKTIN_05, handle_attack );
   }
 }

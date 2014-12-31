@@ -35,8 +35,6 @@ namespace Pol {
 	  unsigned int wornitems_container;
 	};
 
-	extern ExternalObject extobj;
-
 	void read_extobj();
   }
 }

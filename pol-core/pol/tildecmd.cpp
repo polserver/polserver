@@ -15,6 +15,7 @@ Notes
 
 #include "../clib/endian.h"
 #include "../clib/logfacility.h"
+#include "../plib/systemstate.h"
 
 #include <iostream>
 
@@ -54,7 +55,7 @@ namespace Pol {
 
 	  if ( wtextbuf[0] == ctBEu16( L'I' ) && wtextbuf[1] == ctBEu16( L'N' ) )
 	  {
-		if ( config.loglevel >= 6 )
+		if ( Plib::systemstate.config.loglevel >= 6 )
 		{
           fmt::Writer tmp;
           tmp << "INVOKE: ";

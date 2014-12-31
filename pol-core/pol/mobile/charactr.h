@@ -86,9 +86,12 @@ namespace Pol {
     class SaveContext;
     class Party;
     struct PKTIN_7D;
-    void ClientCreateChar( Network::Client* client, struct PKTIN_00* msg );
-    void ClientCreateCharKR( Network::Client* client, struct PKTIN_8D* msg );
-    void ClientCreateChar70160( Network::Client* client, struct PKTIN_F8* msg );
+	struct PKTIN_00;
+	struct PKTIN_8D;
+	struct PKTIN_F8;
+	void ClientCreateChar( Network::Client* client, PKTIN_00* msg );
+    void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg );
+    void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg );
     void createchar2( Accounts::Account* acct, unsigned index );
     void undo_get_item( Mobile::Character *chr, Items::Item *item );
     void write_characters( SaveContext& sc );
@@ -266,15 +269,6 @@ namespace Pol {
 	  unsigned int _maximum;
 	  int _regenrate; // in hundredths of points per minute
 	};
-
-    struct ArmorZone
-    {
-      std::string name;
-      double chance;
-      std::vector<unsigned short> layers;
-    };
-    typedef std::vector<ArmorZone> ArmorZones;
-    extern ArmorZones armorzones;
 
 	struct reportable_t { u32 serial; Core::polclock_t polclock; };
 	inline bool operator < ( const reportable_t& lhs, const reportable_t& rhs )
@@ -670,9 +664,9 @@ namespace Pol {
 
 	  void refresh_cached_settings( bool update = true );
 	  void load_default_elements();
-	  friend void Core::ClientCreateChar( Network::Client* client, struct Core::PKTIN_00* msg );
-      friend void Core::ClientCreateCharKR( Network::Client* client, struct Core::PKTIN_8D* msg );
-      friend void Core::ClientCreateChar70160( Network::Client* client, struct Core::PKTIN_F8* msg );
+	  friend void Core::ClientCreateChar( Network::Client* client, Core::PKTIN_00* msg );
+      friend void Core::ClientCreateCharKR( Network::Client* client, Core::PKTIN_8D* msg );
+      friend void Core::ClientCreateChar70160( Network::Client* client, Core::PKTIN_F8* msg );
       friend void Core::createchar2( Accounts::Account* acct, unsigned index );
 
 	private:

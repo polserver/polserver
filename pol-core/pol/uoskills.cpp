@@ -12,6 +12,7 @@ Notes
 
 #include "skillid.h"
 #include "mobile/attribute.h"
+#include "globals/uvars.h"
 
 #include "../plib/pkg.h"
 
@@ -24,12 +25,11 @@ Notes
 
 namespace Pol {
   namespace Core {
-	std::vector<UOSkill> uo_skills( SKILLID__COUNT );
 
 	const UOSkill& GetUOSkill( unsigned skillid )
 	{
-	  if ( skillid < uo_skills.size() )
-		return uo_skills[skillid];
+	  if ( skillid < gamestate.uo_skills.size() )
+		return gamestate.uo_skills[skillid];
 	  else
 		throw std::runtime_error( "Bad UO Skill ID" );
 	}
@@ -52,7 +52,7 @@ namespace Pol {
 		  required = true;
 		  attributename = attributename.substr( 1, std::string::npos );
 		}
-		pAttr = Mobile::FindAttribute( attributename );
+		pAttr = Mobile::Attribute::FindAttribute( attributename );
 		if ( !pAttr )
 		{
 		  if ( required )
@@ -82,28 +82,29 @@ namespace Pol {
 	{
 	  UOSkill uoskill( pkg, elem );
 
-	  if ( uoskill.skillid >= uo_skills.size() )
-		uo_skills.resize( uoskill.skillid + 1 );
+	  if ( uoskill.skillid >= gamestate.uo_skills.size() )
+		gamestate.uo_skills.resize( uoskill.skillid + 1 );
 
-	  if ( uo_skills[uoskill.skillid].inited )
+	  if ( gamestate.uo_skills[uoskill.skillid].inited )
 	  {
 		elem.throw_error( "UOSkill "
                           + fmt::FormatInt( uoskill.skillid ).str()
 						  + " already defined by "
-						  + uo_skills[uoskill.skillid].pkg->desc() );
+						  + gamestate.uo_skills[uoskill.skillid].pkg->desc() );
 	  }
 
-	  uo_skills[uoskill.skillid] = uoskill;
+	  gamestate.uo_skills[uoskill.skillid] = uoskill;
 	}
 
 	void load_uoskills_cfg()
 	{
+	  gamestate.uo_skills.reserve( SKILLID__COUNT );
 	  Plib::load_packaged_cfgs( "uoskills.cfg", "Skill", load_skill_entry );
 	}
 
 	void clean_skills()
 	{
-	  uo_skills.clear();
+	  gamestate.uo_skills.clear();
 	}
   }
 }

@@ -173,7 +173,6 @@ namespace Pol {
     private:
       msg_queue _msgs;
     };
-    extern SQLService sql_service;
     void start_sql_service();
   }
 }

@@ -92,6 +92,8 @@ int main( int argc, char *argv[] )
         exitcode = 2;
     }
 #endif    
+	Clib::Logging::global_logger->wait_for_empty_queue();
+
     return exitcode;
 }
 

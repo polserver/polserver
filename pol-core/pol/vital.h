@@ -45,8 +45,6 @@ namespace Pol {
 	Vital* FindVital( const std::string& vitalname );
 	Vital* FindVital( unsigned vitalid );
 	void clean_vitals();
-	extern std::vector< Vital* > vitals;
-	extern unsigned numVitals;
 
 	const int VITAL_LOWEST_REGENRATE = -30000;
 	const int VITAL_HIGHEST_REGENRATE = 30000;
@@ -58,12 +56,6 @@ namespace Pol {
 
 	const unsigned int VITAL_LOWEST_MAX_HUNDREDTHS = 100L; // 100 hundredths = 1.00
 	const unsigned int VITAL_HIGHEST_MAX_HUNDREDTHS = 10000000L; // 10,000,000 hundredths = 100,000.00
-
-	// max vital: 
-
-	extern const Vital* pVitalLife;
-	extern const Vital* pVitalStamina;
-	extern const Vital* pVitalMana;
   }
 }
 #endif

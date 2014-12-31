@@ -23,7 +23,7 @@ Notes
 #include "pktin.h"
 #include "ufunc.h"
 #include "uofile.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 
 #include <cstdio>
 
@@ -147,8 +147,6 @@ namespace Pol {
 	  equip_on->equip( item );
 	  send_wornitem_to_inrange( equip_on, item );
 	}
-
-	MESSAGE_HANDLER( PKTIN_13, equip_item );
 
   }
 }

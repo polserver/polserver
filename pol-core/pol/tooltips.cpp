@@ -26,7 +26,7 @@ Notes
 #include "pktin.h"
 #include "ssopt.h"
 #include "ufunc.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 #include "uworld.h"
 
 namespace Pol {
@@ -60,14 +60,13 @@ namespace Pol {
 		}
 	  }
 	}
-	MESSAGE_HANDLER( PKTIN_B6, handle_request_tooltip );
 
 	//needed if A9 flag is sent with 0x20, single click no longer works. see about text# 1042971 for 0xD6
     void send_object_cache( Network::Client* client, const UObject* obj )
 	{
-	  if ( ssopt.uo_feature_enable & PKTOUT_A9::FLAG_AOS_FEATURES )
+	  if ( gamestate.ssopt.uo_feature_enable & PKTOUT_A9::FLAG_AOS_FEATURES )
 	  {
-        if ( ( ssopt.force_new_objcache_packets ) || ( client->ClientType & Network::CLIENTTYPE_5000 ) )
+        if ( ( gamestate.ssopt.force_new_objcache_packets ) || ( client->ClientType & Network::CLIENTTYPE_5000 ) )
 		{
           PacketOut<Network::PktOut_DC> msgdc;
 		  msgdc->Write<u32>( obj->serial_ext );
@@ -88,7 +87,7 @@ namespace Pol {
 
 	void send_object_cache_to_inrange( const UObject* obj )
 	{
-	  if ( ssopt.uo_feature_enable & PKTOUT_A9::FLAG_AOS_FEATURES )
+	  if ( gamestate.ssopt.uo_feature_enable & PKTOUT_A9::FLAG_AOS_FEATURES )
 	  {
 		// Since this is an InRange function, at least 1 person. So it isn't too far
 		// fetched to build for AOS and UOKR both, since both could be used. At least
@@ -103,7 +102,7 @@ namespace Pol {
           if ( client->UOExpansionFlag & Network::AOS )
           {
             //send_object_cache(client2, obj);
-            if ( ( ssopt.force_new_objcache_packets ) || ( client->ClientType & Network::CLIENTTYPE_5000 ) )
+            if ( ( gamestate.ssopt.force_new_objcache_packets ) || ( client->ClientType & Network::CLIENTTYPE_5000 ) )
             {
               if ( msgdc->offset == 1 )
               {

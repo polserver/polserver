@@ -17,9 +17,11 @@ Notes
 #include "uofile.h"
 #include "los.h"
 #include "polcfg.h"
+#include "globals/uvars.h"
 
 #include "../plib/realm.h"
 #include "../plib/mapserver.h"
+#include "../plib/systemstate.h"
 
 #include "../clib/dirlist.h"
 #include "../clib/passert.h"
@@ -30,40 +32,34 @@ Notes
 
 namespace Pol {
   namespace Core {
-	Plib::Realm* main_realm = NULL;
-	std::vector<Plib::Realm*>* Realms = new std::vector<Plib::Realm*>();
-	std::map<int, Plib::Realm*> shadowrealms_by_id;
-	unsigned int baserealm_count = 0;
-	unsigned int shadowrealm_count = 0;
-
 	bool load_realms()
 	{
 	  Plib::Realm* temprealm;
 	  int realm_counter = 0;
-	  for ( Clib::DirList dl( config.realm_data_path.c_str() ); !dl.at_end(); dl.next() )
+	  for ( Clib::DirList dl( Plib::systemstate.config.realm_data_path.c_str() ); !dl.at_end(); dl.next() )
 	  {
 		std::string realm_name = dl.name();
 		if ( realm_name[0] == '.' )
 		  continue;
 
-		passert_r( Realms->size() < MAX_NUMER_REALMS,
+		passert_r( gamestate.Realms.size() < MAX_NUMER_REALMS,
 				   "You can't use more than " + Clib::decint( MAX_NUMER_REALMS ) + " realms" );
 
         POLLOG_INFO << "Loading Realm " << realm_name << ".\n";
 		Tools::Timer<> timer;
-		temprealm = new Plib::Realm( realm_name, config.realm_data_path + realm_name );
+		temprealm = new Plib::Realm( realm_name, Plib::systemstate.config.realm_data_path + realm_name );
         POLLOG_INFO << "Completed in " << timer.ellapsed( ) << " ms.\n";
-		Realms->push_back( temprealm );
+		gamestate.Realms.push_back( temprealm );
 		++realm_counter;
 
 		//To-Fix - Nasty kludge assuming 'britannia' is the default realm
 		//May want to make this configurable in later core releases.
 		if ( realm_name == "britannia" )
-		  main_realm = temprealm;
+		  gamestate.main_realm = temprealm;
 	  }
 	  //	main_realm = new DummyRealm();
-	  baserealm_count = realm_counter;
-	  shadowrealm_count = 0;
+	  gamestate.baserealm_count = realm_counter;
+	  gamestate.shadowrealm_count = 0;
 	  if ( realm_counter > 0 )
 		return true;
 	  else
@@ -72,7 +68,7 @@ namespace Pol {
 
 	Plib::Realm* find_realm( const std::string& name )
 	{
-	  for ( auto &realm : *Realms )
+	  for ( auto &realm : gamestate.Realms )
 	  {
 		if ( realm->name() == name )
 		  return realm;
@@ -82,7 +78,7 @@ namespace Pol {
 
     bool defined_realm(const std::string& name)
 	{
-	  for ( const auto &realm : *Realms )
+	  for ( const auto &realm : gamestate.Realms )
 	  {
 		if ( realm->name() == name )
 		  return true;
@@ -93,22 +89,22 @@ namespace Pol {
     void add_realm(const std::string& name, Plib::Realm* base)
 	{
 	  Plib::Realm* r = new Plib::Realm( name, base );
-	  r->shadowid = ++shadowrealm_count;
-	  shadowrealms_by_id[r->shadowid] = r;
-	  Realms->push_back( r );
+	  r->shadowid = ++gamestate.shadowrealm_count;
+	  gamestate.shadowrealms_by_id[r->shadowid] = r;
+	  gamestate.Realms.push_back( r );
 	}
 
     void remove_realm(const std::string& name)
 	{
 	  std::vector<Plib::Realm*>::iterator itr;
-	  for ( itr = Realms->begin(); itr != Realms->end(); ++itr )
+	  for ( itr = gamestate.Realms.begin(); itr != gamestate.Realms.end(); ++itr )
 	  {
 		if ( ( *itr )->name() == name )
 		{
-		  storage.on_delete_realm( *itr );
-		  shadowrealms_by_id[( *itr )->shadowid] = NULL; // used inside the decaythread
+		  gamestate.storage.on_delete_realm( *itr );
+		  gamestate.shadowrealms_by_id[( *itr )->shadowid] = NULL; // used inside the decaythread
 		  delete *itr;
-		  Realms->erase( itr );
+		  gamestate.Realms.erase( itr );
 		  break;
 		}
 	  }

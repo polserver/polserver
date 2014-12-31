@@ -13,6 +13,8 @@ Notes
 #include "../clib/cfgelem.h"
 #include "../clib/random.h"
 
+#include "globals/uvars.h"
+
 namespace Pol {
   namespace Core {
 	MusicRegion::MusicRegion( Clib::ConfigElem& elem, RegionId id ) :
@@ -38,12 +40,10 @@ namespace Pol {
 	  }
 	}
 
-	MusicDef* musicdef;
-
 	void read_music_zones()
 	{
-	  musicdef = new MusicDef( "Music" );
-	  read_region_data( *musicdef,
+	  gamestate.musicdef = new MusicDef( "Music" );
+	  read_region_data( *gamestate.musicdef,
 						"regions/music.cfg", // preferred
 						"regions/regions.cfg", // other
 						"MusicRegion Region" );

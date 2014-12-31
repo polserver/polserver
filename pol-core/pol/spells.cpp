@@ -20,7 +20,6 @@ Notes
 #include "polclass.h"
 
 #include "action.h"
-#include "extcmd.h"
 #include "miscrgn.h"
 #include "mkscrobj.h"
 #include "objtype.h"
@@ -33,9 +32,11 @@ Notes
 #include "target.h"
 #include "ufunc.h"
 #include "umanip.h"
+#include "globals/uvars.h"
 #include "vital.h"
 
 #include "../plib/pkg.h"
+#include "../plib/systemstate.h"
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
@@ -47,24 +48,9 @@ Notes
 
 namespace Pol {
   namespace Core {
-	// Magery is repeated at array entry 3, because as of right now, NO spellbook
-	// on OSI uses the 301+ spellrange that we can find. 5/30/06 - MuadDib
-	// We use Mysticism at array entry 3 because Mysticism spellids are 678 -> 693 and this slot is free.
-      u32 spell_scroll_objtype_limits[8][2] = {
-              { 0x1F2D, 0x1F6C },
-              { 0x2260, 0x226F },
-              { 0x2270, 0x227C },
-              { 0x2D9E, 0x2DAD },
-              { 0x238D, 0x2392 },
-              { 0x23A1, 0x23A8 },
-              { 0x2D51, 0x2D60 },
-              { 0x574B, 0x5750 } 
-      };
-      // TODO: Comment those objtypes :D
-
 	static bool nocast_here( Mobile::Character* chr )
 	{
-	  NoCastRegion* rgn = nocastdef->getregion( chr->x, chr->y, chr->realm );
+	  NoCastRegion* rgn = gamestate.nocastdef->getregion( chr->x, chr->y, chr->realm );
 	  if ( rgn == NULL )
 	  {
 		return false;
@@ -160,10 +146,6 @@ namespace Pol {
 	  params( elem )
 	{}
 
-
-
-	std::vector<SpellCircle*> spellcircles;
-
 	USpell::USpell( Clib::ConfigElem& elem, Plib::Package* pkg ) :
 	  pkg_( pkg ),
 	  spellid_( elem.remove_ushort( "SPELLID" ) ),
@@ -191,15 +173,15 @@ namespace Pol {
 	  unsigned short circle;
 	  if ( elem.remove_prop( "CIRCLE", &circle ) )
 	  {
-		if ( circle < 1 || circle > spellcircles.size() ||
-			 spellcircles[circle - 1] == NULL )
+		if ( circle < 1 || circle > gamestate.spellcircles.size() ||
+			 gamestate.spellcircles[circle - 1] == NULL )
 		{
           ERROR_PRINT << "Error reading spell " << name_
             << ": Circle " << circle << " is not defined.\n";
 		  throw std::runtime_error( "Config file error" );
 		}
 
-		params_ = spellcircles[circle - 1]->params;
+		params_ = gamestate.spellcircles[circle - 1]->params;
 	  }
 	  else
 	  {
@@ -228,7 +210,7 @@ namespace Pol {
 	  {
 		ref_ptr<Bscript::EScriptProgram> prog = find_script2( scriptdef_,
 													 true,
-													 config.cache_interactive_scripts );
+													 Plib::systemstate.config.cache_interactive_scripts );
 
 		if ( prog.get() != NULL )
 		{
@@ -263,7 +245,7 @@ namespace Pol {
 
     bool USpell::check_mana( Mobile::Character *chr )
 	{
-	  return ( chr->vital( pVitalMana->vitalid ).current_ones() >= manacost() );
+	  return ( chr->vital( gamestate.pVitalMana->vitalid ).current_ones() >= manacost() );
 	}
 
     bool USpell::check_skill( Mobile::Character *chr )
@@ -273,7 +255,7 @@ namespace Pol {
 
     void USpell::consume_mana( Mobile::Character *chr )
 	{
-	  chr->consume( pVitalMana, chr->vital( pVitalMana->vitalid ), manacost() * 100 );
+	  chr->consume( gamestate.pVitalMana, chr->vital( gamestate.pVitalMana->vitalid ), manacost() * 100 );
 	}
 
     void USpell::speak_power_words( Mobile::Character* chr, unsigned short font, unsigned short color )
@@ -316,21 +298,18 @@ namespace Pol {
 	  THREAD_CHECKPOINT( tasks, 999 );
 	}
 
-	std::vector<USpell*> spells2;
-
-
 	void do_cast( Network::Client *client, u16 spellid )
 	{
-	  if ( system_hooks.on_cast_hook != NULL )
+	  if ( gamestate.system_hooks.on_cast_hook != NULL )
 	  {
-		if ( system_hooks.on_cast_hook->call( make_mobileref( client->chr ), new Bscript::BLong( spellid ) ) )
+		if ( gamestate.system_hooks.on_cast_hook->call( make_mobileref( client->chr ), new Bscript::BLong( spellid ) ) )
 		  return;
 	  }
 	  // CHECKME should this look at spellnum, instead? static_cast behavior undefined if out of range.
-	  if ( spellid > spells2.size() )
+	  if ( spellid > gamestate.spells.size() )
 		return;
 
-	  USpell *spell = spells2[spellid];
+	  USpell *spell = gamestate.spells[spellid];
 	  if ( spell == NULL )
 	  {
         ERROR_PRINT << "Spell " << spellid << " is not implemented.\n";
@@ -372,7 +351,7 @@ namespace Pol {
 		return;
 	  }
 
-	  if ( config.require_spellbooks )
+	  if ( Plib::systemstate.config.require_spellbooks )
 	  {
 		if ( !knows_spell( client->chr, spellid ) )
 		{
@@ -395,14 +374,13 @@ namespace Pol {
 
 	  do_cast( client, spellnum );
 	}
-	ExtendedMessageHandler spell_msg_handler1( EXTMSGID_CASTSPELL1, handle_cast_spell );
-	ExtendedMessageHandler spell_msg_handler2( EXTMSGID_CASTSPELL2, handle_cast_spell );
+	
 
     void handle_open_spellbook( Network::Client *client, PKTIN_12* /*msg*/ )
 	{
-	  if ( system_hooks.open_spellbook_hook != NULL )
+	  if ( gamestate.system_hooks.open_spellbook_hook != NULL )
 	  {
-		if ( system_hooks.open_spellbook_hook->call( make_mobileref( client->chr ) ) )
+		if ( gamestate.system_hooks.open_spellbook_hook->call( make_mobileref( client->chr ) ) )
 		  return;
 	  }
 
@@ -435,18 +413,17 @@ namespace Pol {
 		spellbook->double_click( client );
 	  }
 	}
-	ExtendedMessageHandler open_spellbook_handler( EXTMSGID_SPELLBOOK, handle_open_spellbook );
 
 	void register_spell( USpell *spell, unsigned short spellid )
 	{
-	  if ( spellid >= spells2.size() )
+	  if ( spellid >= gamestate.spells.size() )
 	  {
-		spells2.resize( spellid + 1, 0 );
+		gamestate.spells.resize( spellid + 1, 0 );
 	  }
 
-	  if ( spells2[spellid] )
+	  if ( gamestate.spells[spellid] )
 	  {
-		USpell* origspell = spells2[spellid];
+		USpell* origspell = gamestate.spells[spellid];
         fmt::Writer tmp;
         tmp << "Spell ID " << spellid << " (" << origspell->name() << ") multiply defined\n";
 		if ( origspell->pkg_ != NULL )
@@ -471,7 +448,7 @@ namespace Pol {
 		throw std::runtime_error( "Spell ID multiply defined" );
 	  }
 
-	  spells2[spellid] = spell;
+	  gamestate.spells[spellid] = spell;
 	}
 
 
@@ -481,7 +458,7 @@ namespace Pol {
 	{
 	  if ( !Clib::FileExists( "config/circles.cfg" ) )
 	  {
-		if ( config.loglevel > 1 )
+		if ( Plib::systemstate.config.loglevel > 1 )
 		  INFO_PRINT << "File config/circles not found, skipping.\n";
 		return;
 	  }
@@ -498,15 +475,15 @@ namespace Pol {
 		  throw std::runtime_error( "Config file error" );
 		}
 
-		spellcircles.resize( index + 1, NULL );
+		gamestate.spellcircles.resize( index + 1, NULL );
 
-		if ( spellcircles[index] != NULL )
+		if ( gamestate.spellcircles[index] != NULL )
 		{
           ERROR_PRINT << "Error in CIRCLES.CFG: Circle " << index + 1 << " is multiply defined.\n";
 		  throw std::runtime_error( "Config file error" );
 		}
 
-		spellcircles[index] = new SpellCircle( elem );
+		gamestate.spellcircles[index] = new SpellCircle( elem );
 	  }
 	}
 
@@ -531,10 +508,10 @@ namespace Pol {
 
       if ( Clib::FileExists( "config/spells.cfg" ) )
 		load_spells_cfg( "config/spells.cfg", NULL );
-	  else if ( config.loglevel > 1 )
+	  else if ( Plib::systemstate.config.loglevel > 1 )
         INFO_PRINT << "File config/spells.cfg not found, skipping\n";
 
-      for ( Plib::Packages::iterator itr = Plib::packages.begin( ); itr != Plib::packages.end( ); ++itr )
+      for ( Plib::Packages::iterator itr = Plib::systemstate.packages.begin( ); itr != Plib::systemstate.packages.end( ); ++itr )
 	  {
         Plib::Package* pkg = ( *itr );
         std::string filename = Plib::GetPackageCfgPath( pkg, "spells.cfg" );
@@ -547,20 +524,20 @@ namespace Pol {
 
 	void clean_spells()
 	{
-	  std::vector<SpellCircle*>::iterator c_iter = spellcircles.begin();
-	  for ( ; c_iter != spellcircles.end(); ++c_iter )
+	  std::vector<SpellCircle*>::iterator c_iter = gamestate.spellcircles.begin();
+	  for ( ; c_iter != gamestate.spellcircles.end(); ++c_iter )
 	  {
 		delete *c_iter;
 		*c_iter = NULL;
 	  }
-	  spellcircles.clear();
-	  std::vector<USpell*>::iterator s_iter = spells2.begin();
-	  for ( ; s_iter != spells2.end(); ++s_iter )
+	  gamestate.spellcircles.clear();
+	  std::vector<USpell*>::iterator s_iter = gamestate.spells.begin();
+	  for ( ; s_iter != gamestate.spells.end(); ++s_iter )
 	  {
 		delete *s_iter;
 		*s_iter = NULL;
 	  }
-	  spells2.clear();
+	  gamestate.spells.clear();
 	}
 
   }

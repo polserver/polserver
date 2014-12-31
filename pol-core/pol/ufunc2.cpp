@@ -21,7 +21,7 @@ Notes
 #include "tooltips.h"
 #include "uworld.h"
 #include "npc.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 #include "containr.h"
 
 #include "../clib/endian.h"
@@ -80,9 +80,9 @@ namespace Pol {
 	  int range;
 	  switch ( texttype )
 	  {
-		case TEXTTYPE_WHISPER:  range = ssopt.whisper_range;  break;
-		case TEXTTYPE_YELL:     range = ssopt.yell_range;     break;
-		default:                range = ssopt.speech_range;   break;
+		case TEXTTYPE_WHISPER:  range = gamestate.ssopt.whisper_range;  break;
+		case TEXTTYPE_YELL:     range = gamestate.ssopt.yell_range;     break;
+		default:                range = gamestate.ssopt.speech_range;   break;
 	  }
 
 	  unsigned short wxL, wyL, wxH, wyH;
@@ -113,9 +113,9 @@ namespace Pol {
 	  int range;
 	  switch ( texttype )
 	  {
-		case TEXTTYPE_WHISPER:  range = ssopt.whisper_range;  break;
-		case TEXTTYPE_YELL:     range = ssopt.yell_range;     break;
-		default:                range = ssopt.speech_range;   break;
+		case TEXTTYPE_WHISPER:  range = gamestate.ssopt.whisper_range;  break;
+		case TEXTTYPE_YELL:     range = gamestate.ssopt.yell_range;     break;
+		default:                range = gamestate.ssopt.speech_range;   break;
 	  }
 
 	  unsigned short wxL, wyL, wxH, wyH;

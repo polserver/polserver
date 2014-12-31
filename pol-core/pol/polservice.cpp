@@ -57,9 +57,6 @@ namespace Pol {
       :Clib::CNTService( "POL" )
 	{}
 
-	extern char* whereami;
-	
-
 	void PolService::Run()
 	{
 	  // a technicality: a service generally starts with an ignorant current directory.

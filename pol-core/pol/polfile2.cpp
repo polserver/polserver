@@ -18,6 +18,7 @@ Notes
 
 #include "../clib/passert.h"
 #include "../plib/mapcell.h"
+#include "../plib/systemstate.h"
 
 #include <string>
 
@@ -25,9 +26,9 @@ namespace Pol {
   namespace Core {
 	unsigned char tilelayer( unsigned short tilenum )
 	{
-	  if ( tilenum <= config.max_tile_id )
+	  if ( tilenum <= Plib::systemstate.config.max_tile_id )
 	  {
-		return tile[tilenum].layer;
+		return Plib::systemstate.tile[tilenum].layer;
 	  }
 	  else
 	  {
@@ -37,10 +38,10 @@ namespace Pol {
 
 	char tileheight( unsigned short tilenum )
 	{
-	  if ( tilenum <= config.max_tile_id )
+	  if ( tilenum <= Plib::systemstate.config.max_tile_id )
 	  {
-		char height = tile[tilenum].height;
-		if ( tile[tilenum].flags & Plib::FLAG::GRADUAL )
+		char height = Plib::systemstate.tile[tilenum].height;
+		if ( Plib::systemstate.tile[tilenum].flags & Plib::FLAG::GRADUAL )
 		  height /= 2;
 		return height;
 	  }
@@ -52,9 +53,9 @@ namespace Pol {
 
 	u32 tile_flags( unsigned short tilenum )
 	{
-	  if ( tilenum <= config.max_tile_id )
+	  if ( tilenum <= Plib::systemstate.config.max_tile_id )
 	  {
-		return tile[tilenum].flags;
+		return Plib::systemstate.tile[tilenum].flags;
 	  }
 	  else
 	  {
@@ -64,9 +65,9 @@ namespace Pol {
 
 	u32 tile_uoflags( unsigned short tilenum )
 	{
-	  if ( tilenum <= config.max_tile_id )
+	  if ( tilenum <= Plib::systemstate.config.max_tile_id )
 	  {
-		return tile[tilenum].uoflags;
+		return Plib::systemstate.tile[tilenum].uoflags;
 	  }
 	  else
 	  {
@@ -76,9 +77,9 @@ namespace Pol {
 
 	std::string tile_desc( unsigned short tilenum )
 	{
-	  if ( tilenum <= config.max_tile_id )
+	  if ( tilenum <= Plib::systemstate.config.max_tile_id )
 	  {
-		return tile[tilenum].desc;
+		return Plib::systemstate.tile[tilenum].desc;
 	  }
 	  else // a multi, probably
 	  {
@@ -88,9 +89,9 @@ namespace Pol {
 
 	unsigned short tileweight( unsigned short tilenum )
 	{
-	  if ( tilenum <= config.max_tile_id )
+	  if ( tilenum <= Plib::systemstate.config.max_tile_id )
 	  {
-		return tile[tilenum].weight;
+		return Plib::systemstate.tile[tilenum].weight;
 	  }
 	  else
 	  {

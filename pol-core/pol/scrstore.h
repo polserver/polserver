@@ -13,16 +13,12 @@ Notes
 
 #include "../bscript/eprog.h"
 #include "../clib/refptr.h"
-#include "../clib/maputil.h"
 
-#include <map>
 #include <string>
 
 namespace Pol {
   namespace Core {
-	typedef std::map< std::string, ref_ptr<Bscript::EScriptProgram>, Clib::ci_cmp_pred > ScriptStorage;
-
-	extern ScriptStorage scrstore;
+	
 
 	class ScriptDef;
 

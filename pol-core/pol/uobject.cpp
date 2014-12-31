@@ -20,6 +20,8 @@ Notes
 #include "../bscript/objmembers.h"
 
 #include "../plib/realm.h"
+#include "../plib/systemstate.h"
+
 #include "item/item.h"
 #include "item/itemdesc.h"
 #include "objtype.h"
@@ -32,8 +34,6 @@ Notes
 #include "uobjcnt.h"
 #include "uofile.h"
 #include "zone.h"
-
-#include "objecthash.h"
 
 #include <stdexcept>
 
@@ -88,7 +88,7 @@ namespace Pol {
 	  graphic = Items::getgraphic( objtype );
 
 	  height = tileheight( graphic );
-	  ++uobject_count;
+	  ++gamestate.uobjcount.uobject_count;
 	}
 
 	UObject::~UObject()
@@ -100,9 +100,9 @@ namespace Pol {
 	  passert( ref_counted::count() == 0 );
 	  if ( serial == 0 )
 	  {
-		--unreaped_orphans;
+		--gamestate.uobjcount.unreaped_orphans;
 	  }
-	  --uobject_count;
+	  --gamestate.uobjcount.uobject_count;
 	}
 
     size_t UObject::estimatedSize() const
@@ -135,7 +135,7 @@ namespace Pol {
 		serial = 0; // used to set serial_ext to 0.  This way, if debugging, one can find out the old serial
 		passert( ref_counted::count() >= 1 );
 
-		++unreaped_orphans;
+		++gamestate.uobjcount.unreaped_orphans;
 	  }
 	}
 
@@ -285,7 +285,7 @@ namespace Pol {
 
 	  // serial, objtype extracted by caller
 	  graphic = elem.remove_ushort( "GRAPHIC", static_cast<u16>( objtype_ ) );
-	  if ( graphic > ( config.max_tile_id ) )
+	  if ( graphic > ( Plib::systemstate.config.max_tile_id ) )
 		graphic = GRAPHIC_NODRAW;
 
 	  height = tileheight( graphic );

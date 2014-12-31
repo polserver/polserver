@@ -28,7 +28,7 @@ Notes
 #include "pktin.h"
 #include "realms.h"
 #include "statmsg.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 #include "ufunc.h"
 #include "uofile.h"
 #include "uobject.h"
@@ -253,8 +253,6 @@ namespace Pol {
 		send_full_statmsg( client, client->chr );
 	  }
 	}
-
-	MESSAGE_HANDLER( PKTIN_07, get_item );
 
 
 	/*

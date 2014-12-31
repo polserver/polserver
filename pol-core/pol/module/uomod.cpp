@@ -99,7 +99,6 @@ Notes
 #include "../network/cgdata.h"
 #include "../network/packets.h"
 #include "../npc.h"
-#include "../objecthash.h"
 #include "../objtype.h"
 #include "../pktboth.h"
 #include "../pktin.h"
@@ -123,9 +122,8 @@ Notes
 #include "../uopathnode.h"
 #include "../uoscrobj.h"
 #include "../ustruct.h"
-#include "../uvars.h"
+#include "../globals/uvars.h"
 #include "../uworld.h"
-#include "../gprops.h"
 #include "../uimport.h"
 #include "../gameclck.h"
 #include "../zone.h"
@@ -149,6 +147,8 @@ Notes
 #include "../../clib/strutil.h"
 #include "../../clib/unicode.h"
 #include "../../clib/weakptr.h"
+
+#include "../../plib/systemstate.h"
 
 #include <cstddef>
 #include <cstdio>
@@ -314,7 +314,7 @@ namespace Pol {
 
 	static bool item_create_params_ok( u32 objtype, int amount )
 	{
-	  return ( objtype >= UOBJ_ITEM__LOWEST && objtype <= config.max_objtype ) &&
+	  return ( objtype >= UOBJ_ITEM__LOWEST && objtype <= Plib::systemstate.config.max_objtype ) &&
 		amount > 0 &&
 		amount <= 60000L;
 	}
@@ -787,9 +787,6 @@ namespace Pol {
 	  }
 	}
 
-	LosCheckedTargetCursor los_checked_script_cursor( &handle_script_cursor, true );
-	NoLosCheckedTargetCursor nolos_checked_script_cursor( &handle_script_cursor, true );
-
 
 	BObjectImp* UOExecutorModule::mf_Target()
 	{
@@ -813,20 +810,22 @@ namespace Pol {
 			  crstype = PKTBI_6C::CURSOR_TYPE_NEUTRAL;
 
 			if ( ( target_options & TGTOPT_CHECK_LOS ) && !chr->ignores_line_of_sight() )
-			if ( los_checked_script_cursor.send_object_cursor( chr->client, crstype ) )
 			{
-			  chr->client->gd->target_cursor_uoemod = this;
-			  target_cursor_chr = chr;
-			  uoexec.os_module->suspend();
-			  return new BLong( 0 );
+			  if ( gamestate.target_cursors.los_checked_script_cursor.send_object_cursor( chr->client, crstype ) )
+			  {
+				chr->client->gd->target_cursor_uoemod = this;
+				target_cursor_chr = chr;
+				uoexec.os_module->suspend();
+				return new BLong( 0 );
+			  }
+			  else
+			  {
+				return new BError( "Client has an active target cursor" );
+			  }
 			}
 			else
 			{
-			  return new BError( "Client has an active target cursor" );
-			}
-			else
-			{
-			  if ( nolos_checked_script_cursor.send_object_cursor( chr->client, crstype ) )
+			  if ( gamestate.target_cursors.nolos_checked_script_cursor.send_object_cursor( chr->client, crstype ) )
 			  {
 				chr->client->gd->target_cursor_uoemod = this;
 				target_cursor_chr = chr;
@@ -931,7 +930,6 @@ namespace Pol {
 	  }
 	}
 
-	LosCheckedCoordCursor script_cursor2( &handle_coord_cursor, true );
 	BObjectImp* UOExecutorModule::mf_TargetCoordinates()
 	{
 	  Character* chr;
@@ -941,7 +939,7 @@ namespace Pol {
 		{
 		  if ( !chr->target_cursor_busy() )
 		  {
-			if ( script_cursor2.send_coord_cursor( chr->client ) )
+			if ( gamestate.target_cursors.script_cursor2.send_coord_cursor( chr->client ) )
 			{
 			  chr->client->gd->target_cursor_uoemod = this;
 			  target_cursor_chr = chr;
@@ -969,8 +967,7 @@ namespace Pol {
 		return new BError( "Invalid parameter type" );
 	  }
 	}
-
-	MultiPlacementCursor multi_placement_cursor( &handle_coord_cursor );
+	
 	BObjectImp* UOExecutorModule::mf_TargetMultiPlacement()
 	{
 	  Character* chr;
@@ -1006,7 +1003,7 @@ namespace Pol {
 
 	  chr->client->gd->target_cursor_uoemod = this;
 	  target_cursor_chr = chr;
-	  multi_placement_cursor.send_placemulti( chr->client, objtype, flags, (s16)xoffset, (s16)yoffset, hue );
+	  gamestate.target_cursors.multi_placement_cursor.send_placemulti( chr->client, objtype, flags, (s16)xoffset, (s16)yoffset, hue );
 	  uoexec.os_module->suspend();
 	  return new BLong( 0 );
 	}
@@ -1353,7 +1350,7 @@ namespace Pol {
 		npc->readPropertiesForNewNPC( elem );
 
 		////HASH
-		objecthash.Insert( npc.get() );
+		gamestate.objecthash.Insert( npc.get() );
 		////
 
 
@@ -1483,8 +1480,8 @@ namespace Pol {
 		send_action_to_inrange( chr, action,
 								framecount,
 								repeatcount,
-                                static_cast<Network::MobileAnimationMsg::DIRECTION_FLAG_OLD>( backward ),
-                                static_cast<Network::MobileAnimationMsg::REPEAT_FLAG_OLD>( repeatflag ),
+                                static_cast<DIRECTION_FLAG_OLD>( backward ),
+                                static_cast<REPEAT_FLAG_OLD>( repeatflag ),
 								static_cast<unsigned char>( delay ) );
 		return new BLong( 1 );
 	  }
@@ -1621,7 +1618,7 @@ namespace Pol {
 	  if ( imp->isa( BObjectImp::OTString ) )
 	  {
 		String* pmenuname = static_cast<String*>( imp );
-		menu = find_menu( pmenuname->data() );
+		menu = Menu::find_menu( pmenuname->data() );
 		return ( menu != NULL );
 	  }
 	  else if ( imp->isa( BObjectImp::OTApplicObj ) )
@@ -1687,7 +1684,7 @@ namespace Pol {
 		  // Code Analyze: Commented out and replaced with tmp_menu due to hiding
 		  // menu passed to function. 
 		  //			Menu* menu = find_menu( mi->submenu_id );
-		  Menu* tmp_menu = find_menu( mi->submenu_id );
+		  Menu* tmp_menu = Menu::find_menu( mi->submenu_id );
 		  if ( tmp_menu != NULL )
 			append_objtypes( objarr, tmp_menu );
 		}
@@ -1789,7 +1786,7 @@ namespace Pol {
 		mi->objtype_ = objtype;
 		mi->graphic_ = getgraphic( objtype );
 		strzcpy( mi->title, text->data(), sizeof mi->title );
-		mi->color_ = color & ssopt.item_color_mask;
+		mi->color_ = color & gamestate.ssopt.item_color_mask;
 		return new BLong( 1 );
 	  }
 	  else
@@ -1880,7 +1877,7 @@ namespace Pol {
 	  if ( getStringParam( 0, propname_str ) )
 	  {
 		std::string val;
-		if ( global_properties.getprop( propname_str->value(), val ) )
+		if ( gamestate.global_properties->getprop( propname_str->value(), val ) )
 		{
 		  return BObjectImp::unpack( val.c_str() );
 		}
@@ -1901,7 +1898,7 @@ namespace Pol {
 	  if ( exec.getStringParam( 0, propname_str ) )
 	  {
 		BObjectImp* propval = exec.getParamImp( 1 );
-		global_properties.setprop( propname_str->value(), propval->pack() );
+		gamestate.global_properties->setprop( propname_str->value(), propval->pack() );
 		return new BLong( 1 );
 	  }
 	  else
@@ -1915,7 +1912,7 @@ namespace Pol {
 	  const String* propname_str;
 	  if ( getStringParam( 0, propname_str ) )
 	  {
-		global_properties.eraseprop( propname_str->value() );
+		gamestate.global_properties->eraseprop( propname_str->value() );
 		return new BLong( 1 );
 	  }
 	  else
@@ -1927,7 +1924,7 @@ namespace Pol {
 	BObjectImp* UOExecutorModule::mf_GetGlobalPropertyNames()
 	{
 	  vector<string> propnames;
-	  global_properties.getpropnames( propnames );
+	  gamestate.global_properties->getpropnames( propnames );
 	  std::unique_ptr<ObjArray> arr( new ObjArray );
 	  for ( unsigned i = 0; i < propnames.size(); ++i )
 	  {
@@ -2864,7 +2861,7 @@ namespace Pol {
 
             std::unique_ptr<ObjArray> newarr(new ObjArray());
             
-            for (const auto &objitr : Pol::Core::objecthash) {
+            for (const auto &objitr : Pol::Core::gamestate.objecthash) {
                 UObject* obj = objitr.second.get();
                 if (!obj->ismobile() || obj->isa(UObject::CLASS_NPC))
                     continue;
@@ -3088,7 +3085,7 @@ namespace Pol {
 	{
 	  std::unique_ptr<ObjArray> newarr( new ObjArray );
 
-	  for ( Clients::const_iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
+	  for ( Clients::const_iterator itr = gamestate.clients.begin(), end = gamestate.clients.end(); itr != end; ++itr )
 	  {
 		if ( ( *itr )->chr != NULL )
 		{
@@ -3320,7 +3317,7 @@ namespace Pol {
 		return new BError( "Light Level is out of range" );
 	  }
 
-	  LightRegion* lightregion = lightdef->getregion( region_name_str->value() );
+	  LightRegion* lightregion = gamestate.lightdef->getregion( region_name_str->value() );
 	  if ( lightregion == NULL )
 	  {
 		return new BError( "Light region not found" );
@@ -3346,7 +3343,7 @@ namespace Pol {
 		return new BError( "Invalid Parameter type" );
 	  }
 
-	  WeatherRegion* weatherregion = weatherdef->getregion( region_name_str->value() );
+	  WeatherRegion* weatherregion = gamestate.weatherdef->getregion( region_name_str->value() );
 	  if ( weatherregion == NULL )
 	  {
 		return new BError( "Weather region not found" );
@@ -3376,7 +3373,7 @@ namespace Pol {
 	  if ( !realm->valid( xwest, ynorth, 0 ) ) return new BError( "Invalid Coordinates for realm" );
 	  if ( !realm->valid( xeast, ysouth, 0 ) ) return new BError( "Invalid Coordinates for realm" );
 
-	  bool res = weatherdef->assign_zones_to_region( region_name_str->data(),
+	  bool res = gamestate.weatherdef->assign_zones_to_region( region_name_str->data(),
 													 xwest, ynorth,
 													 xeast, ysouth,
 													 realm );
@@ -3940,10 +3937,10 @@ namespace Pol {
 		  if ( chr->logged_in )
 			justice_region = chr->client->gd->justice_region;
 		  else
-			justice_region = justicedef->getregion( chr->x, chr->y, chr->realm );
+			justice_region = gamestate.justicedef->getregion( chr->x, chr->y, chr->realm );
 		}
 		else
-		  justice_region = justicedef->getregion( obj->x, obj->y, obj->realm );
+		  justice_region = gamestate.justicedef->getregion( obj->x, obj->y, obj->realm );
 
 		if ( justice_region == NULL )
 		  return new BError( "No Region defined at this Location" );
@@ -3969,7 +3966,7 @@ namespace Pol {
 		if ( !realm->valid( x, y, 0 ) )
 		  return new BError( "Invalid Coordinates for realm" );
 
-		JusticeRegion* justice_region = justicedef->getregion( x, y, realm );
+		JusticeRegion* justice_region = gamestate.justicedef->getregion( x, y, realm );
 		if ( justice_region == NULL )
 		  return new BError( "No Region defined at this Location" );
 		else
@@ -4018,12 +4015,12 @@ namespace Pol {
 		  return new BError( "Realm not found" );
 		if ( !realm->valid( x, y, 0 ) )
 		  return new BError( "Invalid Coordinates for realm" );
-		LightRegion* light_region = lightdef->getregion( x, y, realm );
+		LightRegion* light_region = gamestate.lightdef->getregion( x, y, realm );
 		int lightlevel;
 		if ( light_region != NULL )
 		  lightlevel = light_region->lightlevel;
 		else
-		  lightlevel = ssopt.default_light_level;
+		  lightlevel = gamestate.ssopt.default_light_level;
 		return new BLong( lightlevel );
 	  }
 	  else
@@ -4202,7 +4199,7 @@ namespace Pol {
 		{
 		  return new BError( "Spell ID out of range" );
 		}
-		USpell* spell = spells2[spellid];
+		USpell* spell = gamestate.spells[spellid];
 		if ( spell == NULL )
 		{
 		  return new BError( "No such spell" );
@@ -4227,7 +4224,7 @@ namespace Pol {
 		{
 		  return new BError( "Spell ID out of range" );
 		}
-		USpell* spell = spells2[spellid];
+		USpell* spell = gamestate.spells[spellid];
 		if ( spell == NULL )
 		{
 		  return new BError( "No such spell" );
@@ -4250,7 +4247,7 @@ namespace Pol {
 		{
 		  return new BError( "Spell ID out of range" );
 		}
-		USpell* spell = spells2[spellid];
+		USpell* spell = gamestate.spells[spellid];
 		if ( spell == NULL )
 		{
 		  return new BError( "No such spell" );
@@ -4279,7 +4276,7 @@ namespace Pol {
 		{
 		  return new BError( "Spell ID out of range" );
 		}
-		USpell* spell = spells2[spellid];
+		USpell* spell = gamestate.spells[spellid];
 		if ( spell == NULL )
 		{
 		  return new BError( "No such spell" );
@@ -5201,7 +5198,7 @@ namespace Pol {
 		   getParam( 5, z2, WORLD_MIN_Z, WORLD_MAX_Z ) &&
 		   getStringParam( 6, strrealm ))
 	  {
-		if ( pol_distance( x1, y1, x2, y2 ) > ssopt.max_pathfind_range )
+		if ( pol_distance( x1, y1, x2, y2 ) > gamestate.ssopt.max_pathfind_range )
 		  return new BError( "Beyond Max Range." );
 
 		short theSkirt;
@@ -5256,7 +5253,7 @@ namespace Pol {
 		if ( yH >= realm->height() )
 		  yH = realm->height() - 1;
 
-		if ( config.loglevel >= 12 )
+		if ( Plib::systemstate.config.loglevel >= 12 )
 		{
           POLLOG.Format( "[FindPath] Calling FindPath({}, {}, {}, {}, {}, {}, {}, 0x{:X}, {})\n" )
             << x1 << y1 << z1 << x2 << y2 << z2 << strrealm->data() << flags << theSkirt;
@@ -5271,7 +5268,7 @@ namespace Pol {
           {
             theBlockers.AddBlocker( chr->x, chr->y, chr->z );
 
-            if ( config.loglevel >= 12 )
+            if ( Plib::systemstate.config.loglevel >= 12 )
               POLLOG.Format( "[FindPath]	 add Blocker {} at {} {} {}\n" )
                 << chr->name() << chr->x << chr->y << chr->z;
           } );
@@ -5280,7 +5277,7 @@ namespace Pol {
 		// passed via GetSuccessors to realm->walkheight
 		bool doors_block = ( flags & FP_IGNORE_DOORS ) ? false : true;
 
-		if ( config.loglevel >= 12 )
+		if ( Plib::systemstate.config.loglevel >= 12 )
 		{
           POLLOG.Format( "[FindPath]   use StartNode {} {} {}\n" ) << x1 << y1 << z1;
           POLLOG.Format( "[FindPath]   use EndNode {} {} {}\n" ) << x2 << y2 << z2;
@@ -5373,13 +5370,13 @@ namespace Pol {
 		  ScriptDef sd( on_use_script, NULL, "" );
 		  prog = find_script2( sd,
 							   true, // complain if not found
-							   config.cache_interactive_scripts );
+							   Plib::systemstate.config.cache_interactive_scripts );
 		}
 		else if ( !itemdesc.on_use_script.empty() )
 		{
 		  prog = find_script2( itemdesc.on_use_script,
 							   true,
-							   config.cache_interactive_scripts );
+							   Plib::systemstate.config.cache_interactive_scripts );
 		}
 
 		if ( prog.get() != NULL )
@@ -5654,7 +5651,7 @@ namespace Pol {
 		msg->Write<u8>( static_cast<u16>(season_id) );
 		msg->Write<u8>( static_cast<u16>(playsound) );
 
-		for ( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
+		for ( Clients::iterator itr = gamestate.clients.begin(), end = gamestate.clients.end(); itr != end; ++itr )
 		{
           Network::Client* client = *itr;
 		  if ( !client->chr->logged_in || client->getversiondetail().major < 1 )

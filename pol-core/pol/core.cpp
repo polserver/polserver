@@ -158,7 +158,7 @@ namespace Pol {
 
 	  return true;
 	}
-
+	
 	/* For us to care, the item must:
 	   1) be directly under the current position
 	   2) have a "walk on" script

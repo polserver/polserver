@@ -17,6 +17,8 @@ Notes
 #include "../../clib/logfacility.h"
 #include "../../clib/wnsckt.h"
 
+#include "../../plib/systemstate.h"
+
 namespace Pol {
   namespace Core {
       std::string http_decodestr(const std::string& s);
@@ -185,7 +187,7 @@ namespace Pol {
 		  }
 		  params_[name.c_str()] = value;
 
-          if ( Core::config.web_server_debug )
+          if ( Plib::systemstate.config.web_server_debug )
             INFO_PRINT << "http-param: '" << param << "', '" << Core::http_decodestr( param ) << "'\n";
 
 		  start = brk + 1;

@@ -30,6 +30,8 @@ Notes
 #include "../../clib/stlutil.h"
 #include "../../clib/streamsaver.h"
 
+#include "../../plib/systemstate.h"
+
 #include "../mobile/charactr.h"
 #include "../fnsearch.h"
 #include "../polcfg.h"
@@ -276,7 +278,7 @@ namespace Pol {
 
 	void read_guilds_dat()
 	{
-      std::string guildsfile = Core::config.world_data_path + "guilds.txt";
+      std::string guildsfile = Plib::systemstate.config.world_data_path + "guilds.txt";
 
       if ( !Clib::FileExists( guildsfile ) )
 		return;

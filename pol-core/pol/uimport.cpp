@@ -21,8 +21,6 @@ Notes
 #include "item/itemdesc.h"
 
 #include "fnsearch.h"
-#include "gflag.h"
-#include "gprops.h"
 #include "objtype.h"
 #include "npc.h"
 #include "polcfg.h"
@@ -35,19 +33,16 @@ Notes
 #include "startloc.h"
 #include "storage.h"
 #include "stubdata.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 #include "ufunc.h"
 #include "uworld.h"
 #include "multi/multi.h"
 #include "multi/house.h"
 #include "containr.h"
 
-////HASH
-#include "objecthash.h"
-////
-
 #include "../plib/polver.h"
 #include "../plib/realm.h"
+#include "../plib/systemstate.h"
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
@@ -92,12 +87,6 @@ namespace Pol {
 
     std::shared_future<bool> SaveContext::finished;
 
-    typedef std::vector<Items::Item*> ContItemArr;
-    ContItemArr contained_items;
-
-    typedef std::vector<unsigned int> ContSerArr;
-    ContSerArr  container_serials;
-
     /****************** POL Native Files *******************/
     //Dave changed 3/8/3 to use objecthash
     void read_character( Clib::ConfigElem& elem )
@@ -106,7 +95,7 @@ namespace Pol {
       // don't load it now. 
       pol_serial_t serial = 0;
       elem.get_prop( "SERIAL", &serial );
-      if ( get_save_index( serial ) > current_incremental_save )
+      if ( get_save_index( serial ) > gamestate.current_incremental_save )
         return;
 
       CharacterRef chr( new Mobile::Character( elem.remove_ushort( "OBJTYPE" ) ) );
@@ -122,7 +111,7 @@ namespace Pol {
         chr->clear_dirty();
         
         // readProperties gets the serial, so we can't add to the objecthash until now.
-        objecthash.Insert( chr.get() );
+        gamestate.objecthash.Insert( chr.get() );
       }
       catch ( std::exception& )
       {
@@ -139,7 +128,7 @@ namespace Pol {
       // don't load it now. 
       pol_serial_t serial = 0;
       elem.get_prop( "SERIAL", &serial );
-      if ( get_save_index( serial ) > current_incremental_save )
+      if ( get_save_index( serial ) > gamestate.current_incremental_save )
         return;
 
       NPCRef npc( new NPC( elem.remove_ushort( "OBJTYPE" ), elem ) );
@@ -152,7 +141,7 @@ namespace Pol {
         npc->clear_dirty();
 
         ////HASH
-        objecthash.Insert( npc.get() );
+        gamestate.objecthash.Insert( npc.get() );
         ////
       }
       catch (std::exception&)
@@ -180,7 +169,7 @@ namespace Pol {
         return NULL;
       }
 
-      if ( config.check_integrity )
+      if ( Plib::systemstate.config.check_integrity )
       {
         if ( system_find_item( serial ) )
         {
@@ -194,14 +183,14 @@ namespace Pol {
         ERROR_PRINT.Format( "Item (Serial 0x{:X}) has no OBJTYPE property, omitting." ) << serial;
         return NULL;
       }
-      if ( Items::old_objtype_conversions.count( objtype ) )
-        objtype = Items::old_objtype_conversions[objtype];
+      if ( gamestate.old_objtype_conversions.count( objtype ) )
+        objtype = gamestate.old_objtype_conversions[objtype];
 
       Items::Item* item = Items::Item::create( objtype, serial );
       if ( item == NULL )
       {
         ERROR_PRINT.Format( "Unable to create item: objtype=0x{:X}, serial=0x{:X}" ) << objtype << serial;
-        if ( !config.ignore_load_errors )
+        if ( !Plib::systemstate.config.ignore_load_errors )
             throw std::runtime_error("Item::create failed!");
         else
           return NULL;
@@ -226,7 +215,7 @@ namespace Pol {
       // don't load it now. 
       pol_serial_t serial = 0;
       elem.get_prop( "SERIAL", &serial );
-      if ( get_save_index( serial ) > current_incremental_save )
+      if ( get_save_index( serial ) > gamestate.current_incremental_save )
         return;
 
 
@@ -299,9 +288,9 @@ namespace Pol {
 
     void read_system_vars( Clib::ConfigElem& elem )
     {
-      polvar.DataWrittenBy = elem.remove_ushort( "CoreVersion" );
-      stored_last_item_serial = elem.remove_ulong( "LastItemSerialNumber", UINT_MAX ); //dave 3/9/3
-      stored_last_char_serial = elem.remove_ulong( "LastCharSerialNumber", UINT_MAX ); //dave 3/9/3
+      gamestate.polvar.DataWrittenBy = elem.remove_ushort( "CoreVersion" );
+      gamestate.stored_last_item_serial = elem.remove_ulong( "LastItemSerialNumber", UINT_MAX ); //dave 3/9/3
+      gamestate.stored_last_char_serial = elem.remove_ulong( "LastCharSerialNumber", UINT_MAX ); //dave 3/9/3
     }
 
     void read_shadow_realms( Clib::ConfigElem& elem )
@@ -322,7 +311,7 @@ namespace Pol {
       // don't load it now. 
       pol_serial_t serial = 0;
       elem.get_prop( "SERIAL", &serial );
-      if ( get_save_index( serial ) > current_incremental_save )
+      if ( get_save_index( serial ) > gamestate.current_incremental_save )
         return;
 
       u32 objtype;
@@ -342,8 +331,8 @@ namespace Pol {
         ERROR_PRINT.Format( "Multi (Serial 0x{:X}) has no OBJTYPE property, omitting." ) << serial;
         return;
       }
-      if ( Items::old_objtype_conversions.count( objtype ) )
-        objtype = Items::old_objtype_conversions[objtype];
+      if ( gamestate.old_objtype_conversions.count( objtype ) )
+        objtype = gamestate.old_objtype_conversions[objtype];
 
       Multi::UMulti* multi = Multi::UMulti::create( Items::find_itemdesc( objtype ), serial );
       if ( multi == NULL )
@@ -391,14 +380,14 @@ namespace Pol {
             else if ( stricmp( elem.type(), "ITEM" ) == 0 )
               read_global_item( elem, sysfind_flags );
             else if ( stricmp( elem.type(), "GLOBALPROPERTIES" ) == 0 )
-              global_properties.readProperties( elem );
+              gamestate.global_properties->readProperties( elem );
             else if ( elem.type_is( "SYSTEM" ) )
               read_system_vars( elem );
             else if ( elem.type_is( "MULTI" ) )
               read_multi( elem );
             else if ( elem.type_is( "STORAGEAREA" ) )
             {
-              StorageArea* storage_area = storage.create_area( elem );
+              StorageArea* storage_area = gamestate.storage.create_area( elem );
               // this will be followed by an item
               if (!cf.read(elem))
                   throw std::runtime_error("Expected an item to exist after the storagearea.");
@@ -411,7 +400,7 @@ namespace Pol {
           }
           catch ( std::exception& )
           {
-            if ( !config.ignore_load_errors )
+            if ( !Plib::systemstate.config.ignore_load_errors )
               throw;
           }
           ++nobjects;
@@ -425,11 +414,11 @@ namespace Pol {
 
     void read_pol_dat()
     {
-      std::string polfile = config.world_data_path + "pol.txt";
+      std::string polfile = Plib::systemstate.config.world_data_path + "pol.txt";
 
       slurp( polfile.c_str(), "GLOBALPROPERTIES SYSTEM REALM" );
 
-      if ( polvar.DataWrittenBy == 0 )
+      if ( gamestate.polvar.DataWrittenBy == 0 )
       {
         ERROR_PRINT << "CoreVersion not found in " << polfile << "\n\n"
           << polfile << " must contain a section similar to: \n"
@@ -444,37 +433,37 @@ namespace Pol {
 
     void read_objects_dat()
     {
-      slurp( ( config.world_data_path + "objects.txt" ).c_str(), "CHARACTER NPC ITEM GLOBALPROPERTIES" );
+      slurp( ( Plib::systemstate.config.world_data_path + "objects.txt" ).c_str(), "CHARACTER NPC ITEM GLOBALPROPERTIES" );
     }
 
     void read_pcs_dat()
     {
-      slurp( ( config.world_data_path + "pcs.txt" ).c_str(), "CHARACTER ITEM", SYSFIND_SKIP_WORLD );
+      slurp( ( Plib::systemstate.config.world_data_path + "pcs.txt" ).c_str(), "CHARACTER ITEM", SYSFIND_SKIP_WORLD );
     }
 
     void read_pcequip_dat()
     {
-      slurp( ( config.world_data_path + "pcequip.txt" ).c_str(), "ITEM", SYSFIND_SKIP_WORLD );
+      slurp( ( Plib::systemstate.config.world_data_path + "pcequip.txt" ).c_str(), "ITEM", SYSFIND_SKIP_WORLD );
     }
 
     void read_npcs_dat()
     {
-      slurp( ( config.world_data_path + "npcs.txt" ).c_str(), "NPC ITEM", SYSFIND_SKIP_WORLD );
+      slurp( ( Plib::systemstate.config.world_data_path + "npcs.txt" ).c_str(), "NPC ITEM", SYSFIND_SKIP_WORLD );
     }
 
     void read_npcequip_dat()
     {
-      slurp( ( config.world_data_path + "npcequip.txt" ).c_str(), "ITEM", SYSFIND_SKIP_WORLD );
+      slurp( ( Plib::systemstate.config.world_data_path + "npcequip.txt" ).c_str(), "ITEM", SYSFIND_SKIP_WORLD );
     }
 
     void read_items_dat()
     {
-      slurp( ( config.world_data_path + "items.txt" ).c_str(), "ITEM" );
+      slurp( ( Plib::systemstate.config.world_data_path + "items.txt" ).c_str(), "ITEM" );
     }
 
     void read_multis_dat()
     {
-      slurp( ( config.world_data_path + "multis.txt" ).c_str(), "MULTI" );
+      slurp( ( Plib::systemstate.config.world_data_path + "multis.txt" ).c_str(), "MULTI" );
       //	string multisfile = config.world_data_path + "multis.txt";
       //	if (FileExists( multisfile ))
       //	{
@@ -493,13 +482,13 @@ namespace Pol {
 
     void read_storage_dat()
     {
-      std::string storagefile = config.world_data_path + "storage.txt";
+      std::string storagefile = Plib::systemstate.config.world_data_path + "storage.txt";
 
       if ( Clib::FileExists( storagefile ) )
       {
         INFO_PRINT << "  " << storagefile << ":";
         Clib::ConfigFile cf2( storagefile );
-        storage.read( cf2 );
+        gamestate.storage.read( cf2 );
       }
     }
 
@@ -528,7 +517,7 @@ namespace Pol {
     {
       u32 objtype;
       objtype = elem.remove_unsigned( "OBJTYPE" );
-      if ( objtype > config.max_tile_id )
+      if ( objtype > Plib::systemstate.config.max_tile_id )
       {
         ERROR_PRINT.Format( "Importing file: 0x{:X} is out of range.\n" ) << objtype;
         throw std::runtime_error("Error while importing file.");
@@ -564,7 +553,7 @@ namespace Pol {
 
     void import_new_data()
     {
-      std::string importfile = config.world_data_path + "import.txt";
+      std::string importfile = Plib::systemstate.config.world_data_path + "import.txt";
 
       if ( Clib::FileExists( importfile ) )
       {
@@ -581,8 +570,8 @@ namespace Pol {
 
     void rndat(const std::string& basename)
     {
-      std::string datname = config.world_data_path + basename + ".dat";
-      std::string txtname = config.world_data_path + basename + ".txt";
+      std::string datname = Plib::systemstate.config.world_data_path + basename + ".dat";
+      std::string txtname = Plib::systemstate.config.world_data_path + basename + ".txt";
 
       if ( Clib::FileExists( datname.c_str() ) )
       {
@@ -608,7 +597,7 @@ namespace Pol {
 
     void for_all_mobiles( void( *f )( Mobile::Character* chr ) )
     {
-      for ( const auto &realm : *Realms )
+      for ( const auto &realm : gamestate.Realms )
       {
         unsigned wgridx = realm->width() / WGRID_SIZE;
         unsigned wgridy = realm->height() / WGRID_SIZE;
@@ -638,10 +627,10 @@ namespace Pol {
 
     int read_data()
     {
-      std::string objectsndtfile = config.world_data_path + "objects.ndt";
-      std::string storagendtfile = config.world_data_path + "storage.ndt";
+      std::string objectsndtfile = Plib::systemstate.config.world_data_path + "objects.ndt";
+      std::string storagendtfile = Plib::systemstate.config.world_data_path + "storage.ndt";
 
-      gflag_in_system_load = true;
+      gamestate.gflag_in_system_load = true;
       if ( Clib::FileExists( objectsndtfile ) )
       {
         // Display reads "Reading data files..."
@@ -692,15 +681,15 @@ namespace Pol {
       //	import_wsc();
 
       //dave 3/9/3
-      if ( stored_last_item_serial < GetCurrentItemSerialNumber() )
-        SetCurrentItemSerialNumber( stored_last_item_serial );
-      if ( stored_last_char_serial < GetCurrentCharSerialNumber() )
-        SetCurrentCharSerialNumber( stored_last_char_serial );
+      if ( gamestate.stored_last_item_serial < GetCurrentItemSerialNumber() )
+        SetCurrentItemSerialNumber( gamestate.stored_last_item_serial );
+      if ( gamestate.stored_last_char_serial < GetCurrentCharSerialNumber() )
+        SetCurrentCharSerialNumber( gamestate.stored_last_char_serial );
 
       while ( !parent_conts.empty() )
         parent_conts.pop();
 
-      for ( ObjectHash::hs::const_iterator citr = objecthash.begin(), citrend = objecthash.end(); citr != citrend; ++citr )
+      for ( ObjectHash::hs::const_iterator citr = gamestate.objecthash.begin(), citrend = gamestate.objecthash.end(); citr != citrend; ++citr )
       {
         UObject* obj = ( *citr ).second.get();
         if ( obj->ismobile() )
@@ -712,7 +701,7 @@ namespace Pol {
         }
       }
 
-      gflag_in_system_load = false;
+      gamestate.gflag_in_system_load = false;
       return 0;
     }
 
@@ -746,19 +735,19 @@ namespace Pol {
       datastore( &_datastore ),
       party( &_party )
     {
-      pol.init( config.world_data_path + "pol.ndt" );
-      objects.init( config.world_data_path + "objects.ndt" );
-      pcs.init( config.world_data_path + "pcs.ndt" );
-      pcequip.init( config.world_data_path + "pcequip.ndt" );
-      npcs.init( config.world_data_path + "npcs.ndt" );
-      npcequip.init( config.world_data_path + "npcequip.ndt" );
-      items.init( config.world_data_path + "items.ndt" );
-      multis.init( config.world_data_path + "multis.ndt" );
-      storage.init( config.world_data_path + "storage.ndt" );
-      resource.init( config.world_data_path + "resource.ndt" );
-      guilds.init( config.world_data_path + "guilds.ndt" );
-      datastore.init( config.world_data_path + "datastore.ndt" );
-      party.init( config.world_data_path + "parties.ndt" );
+      pol.init( Plib::systemstate.config.world_data_path + "pol.ndt" );
+      objects.init( Plib::systemstate.config.world_data_path + "objects.ndt" );
+      pcs.init( Plib::systemstate.config.world_data_path + "pcs.ndt" );
+      pcequip.init( Plib::systemstate.config.world_data_path + "pcequip.ndt" );
+      npcs.init( Plib::systemstate.config.world_data_path + "npcs.ndt" );
+      npcequip.init( Plib::systemstate.config.world_data_path + "npcequip.ndt" );
+      items.init( Plib::systemstate.config.world_data_path + "items.ndt" );
+      multis.init( Plib::systemstate.config.world_data_path + "multis.ndt" );
+      storage.init( Plib::systemstate.config.world_data_path + "storage.ndt" );
+      resource.init( Plib::systemstate.config.world_data_path + "resource.ndt" );
+      guilds.init( Plib::systemstate.config.world_data_path + "guilds.ndt" );
+      datastore.init( Plib::systemstate.config.world_data_path + "datastore.ndt" );
+      party.init( Plib::systemstate.config.world_data_path + "parties.ndt" );
 
       pcs()
         << "#" << pf_endl
@@ -878,7 +867,7 @@ namespace Pol {
       sw()
         << "GlobalProperties" << pf_endl
         << "{" << pf_endl;
-      global_properties.printProperties( sw );
+      gamestate.global_properties->printProperties( sw );
       sw()
         << "}" << pf_endl
         << pf_endl;
@@ -903,7 +892,7 @@ namespace Pol {
 
     void write_shadow_realms( Clib::StreamWriter& sw )
     {
-      for ( const auto &realm : *Realms )
+      for ( const auto &realm : gamestate.Realms )
       {
         if ( realm->is_shadowrealm )
         {
@@ -937,7 +926,7 @@ namespace Pol {
 
     void write_characters( Core::SaveContext& sc )
     {
-      for ( const auto &objitr : objecthash )
+      for ( const auto &objitr : gamestate.objecthash )
       {
         UObject* obj = objitr.second.get();
         if ( obj->ismobile() && !obj->orphan() )
@@ -955,7 +944,7 @@ namespace Pol {
 
     void write_npcs( Core::SaveContext& sc )
     {
-      for ( const auto &objitr : objecthash )
+      for ( const auto &objitr : gamestate.objecthash )
       {
         UObject* obj = objitr.second.get();
         if ( obj->ismobile() && !obj->orphan() )
@@ -976,7 +965,7 @@ namespace Pol {
 
     void write_items( Clib::StreamWriter& sw_items )
     {
-      for ( const auto &realm : *Realms )
+      for ( const auto &realm : gamestate.Realms )
       {
         unsigned wgridx = realm->width() / WGRID_SIZE;
         unsigned wgridy = realm->height() / WGRID_SIZE;
@@ -1003,7 +992,7 @@ namespace Pol {
         }
       }
 
-      for ( const auto &objitr : objecthash )
+      for ( const auto &objitr : gamestate.objecthash )
       {
         UObject* obj = objitr.second.get();
         if ( obj->ismobile() && !obj->orphan() )
@@ -1021,7 +1010,7 @@ namespace Pol {
 
     void write_multis( Clib::StreamWriter& ofs )
     {
-      for ( const auto &realm : *Realms )
+      for ( const auto &realm : gamestate.Realms )
       {
         unsigned wgridx = realm->width() / WGRID_SIZE;
         unsigned wgridy = realm->height() / WGRID_SIZE;
@@ -1060,9 +1049,9 @@ namespace Pol {
 
     bool commit(const std::string& basename)
     {
-      std::string bakfile = config.world_data_path + basename + ".bak";
-      std::string datfile = config.world_data_path + basename + ".txt";
-      std::string ndtfile = config.world_data_path + basename + ".ndt";
+      std::string bakfile = Plib::systemstate.config.world_data_path + basename + ".bak";
+      std::string datfile = Plib::systemstate.config.world_data_path + basename + ".txt";
+      std::string ndtfile = Plib::systemstate.config.world_data_path + basename + ".ndt";
       const char* bakfile_c = bakfile.c_str();
       const char* datfile_c = datfile.c_str();
       const char* ndtfile_c = ndtfile.c_str();
@@ -1104,7 +1093,7 @@ namespace Pol {
 
     bool should_write_data()
     {
-      if ( config.inhibit_saves )
+      if ( Plib::systemstate.config.inhibit_saves )
         return false;
       if ( Clib::passert_shutdown_due_to_assertion && Clib::passert_nosave )
         return false;
@@ -1237,7 +1226,7 @@ namespace Pol {
               threadhelp::ThreadRegister register_thread( "SaveSection: storage" );
               try
               {
-                storage.print( sc.storage );
+                gamestate.storage.print( sc.storage );
               }
               catch ( ... )
               {
@@ -1330,15 +1319,15 @@ namespace Pol {
       } ) );
       critical_future.wait();  // wait for end of critical part
 
-      if ( Accounts::accounts_txt_dirty ) // write accounts extra, since it uses extra thread for io operations would be to many threads working
+      if ( Plib::systemstate.accounts_txt_dirty ) // write accounts extra, since it uses extra thread for io operations would be to many threads working
       {
         Accounts::write_account_data();
       }
 
       commit_incremental_saves();
-      incremental_save_count = 0;
+      gamestate.incremental_save_count = 0;
       timer.stop();
-      objecthash.ClearDeleted();
+      gamestate.objecthash.ClearDeleted();
       //optimize_zones(); // shrink zone vectors TODO this takes way to much time!
 
       // cout << "Clean: " << UObject::clean_writes << " Dirty: " <<
@@ -1347,7 +1336,7 @@ namespace Pol {
       dirty_writes = UObject::dirty_writes;
       elapsed_ms = timer.ellapsed();
 
-      incremental_saves_disabled = false;
+      gamestate.incremental_saves_disabled = false;
       return 0;
     }
 
@@ -1401,10 +1390,10 @@ namespace Pol {
             << "\n";
           throw std::runtime_error("Configuration file error.");
         }
-        startlocations.push_back( loc.release() );
+        gamestate.startlocations.push_back( loc.release() );
       }
 
-      if ( startlocations.empty() )
+      if ( gamestate.startlocations.empty() )
           throw std::runtime_error("STARTLOC.CFG: No starting locations found.  Clients will crash on character creation.");
     }
 
@@ -1437,7 +1426,7 @@ namespace Pol {
         iptext = elem.remove_string( "IP" );
         if ( iptext == "--ip--" )
         {
-          iptext = Network::ipaddr_str;
+          iptext = gamestate.ipaddr_str;
           if ( iptext == "" )
           {
             INFO_PRINT << "Skipping server " << svr->name << " because there is no Internet IP address.\n";
@@ -1446,7 +1435,7 @@ namespace Pol {
         }
         else if ( iptext == "--lan--" )
         {
-          iptext = Network::lanaddr_str;
+          iptext = gamestate.lanaddr_str;
           if ( iptext == "" )
           {
             INFO_PRINT << "Skipping server " << svr->name << " because there is no LAN IP address.\n";
@@ -1533,9 +1522,9 @@ namespace Pol {
           svr->acct_match.push_back( accttext );
         }
 
-        servers.push_back( svr.release() );
+        gamestate.servers.push_back( svr.release() );
       }
-      if ( servers.empty() )
+      if ( gamestate.servers.empty() )
         throw std::runtime_error( "There must be at least one GameServer in SERVERS.CFG." );
     }
 

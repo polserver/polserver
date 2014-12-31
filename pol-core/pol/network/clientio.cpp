@@ -13,10 +13,11 @@ Notes
 #include "iostats.h"
 #include "packethooks.h"
 #include "packets.h"
+#include "packethelper.h"
 #include "clienttransmit.h"
 
 #include "../ctable.h"
-#include "../uvars.h"
+#include "../globals/uvars.h"
 #include "../sockio.h"
 #include "../sockets.h"
 
@@ -27,7 +28,7 @@ Notes
 #include "../crypt/cryptengine.h"
 #include "../polsig.h"
 #include "../polstats.h"
-#include "../ucfg.h"
+#include "../globals/ucfg.h"
 #include "../packetscrobj.h"
 
 #include "../polsem.h"
@@ -58,7 +59,7 @@ namespace Pol {
 
 		bytes_received += count;
 		counters.bytes_received += count;
-		Core::polstats.bytes_received += count;
+		Core::gamestate.polstats.bytes_received += count;
 	  }
 	  else if ( count == 0 ) // graceful close
 	  {
@@ -86,7 +87,7 @@ namespace Pol {
 	  {
 		bytes_received += count;
 		counters.bytes_received += count;
-		Core::polstats.bytes_received += count;
+		Core::gamestate.polstats.bytes_received += count;
 	  }
 	  else if ( count == 0 ) // graceful close
 	  {
@@ -238,11 +239,11 @@ namespace Pol {
 
 	  if ( last_xmit_buffer )
 	  {
-		queuedmode_iostats.sent[msgtype].count++;
-		queuedmode_iostats.sent[msgtype].bytes += len;
+		Core::gamestate.queuedmode_iostats.sent[msgtype].count++;
+		Core::gamestate.queuedmode_iostats.sent[msgtype].bytes += len;
 	  }
-	  iostats.sent[msgtype].count++;
-	  iostats.sent[msgtype].bytes += len;
+	  Core::gamestate.iostats.sent[msgtype].count++;
+	  Core::gamestate.iostats.sent[msgtype].bytes += len;
 
 	  if ( encrypt_server_stream )
 	  {
@@ -280,7 +281,7 @@ namespace Pol {
 
 	void transmit( Client* client, const void *data, int len )
 	{
-	  ADDTOSENDQUEUE( client, data, len );
+	  Core::gamestate.clientTransmit->AddToQueue( client, data, len );
 	}
 
 	void Client::Disconnect()
@@ -288,7 +289,7 @@ namespace Pol {
 	  if ( this->isConnected() )
 	  {
 		this->preDisconnect = true;
-		ClientTransmitSingleton::get().QueueDisconnection( this );
+		Core::gamestate.clientTransmit->QueueDisconnection( this );
 	  }
 	}
   }

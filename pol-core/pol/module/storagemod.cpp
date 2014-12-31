@@ -15,9 +15,9 @@ Notes
 #include "../../bscript/impstr.h"
 
 #include "../realms.h"
-#include "../storage.h"
 #include "../uoexhelp.h"
 #include "../uoscrobj.h"
+#include "../globals/uvars.h"
 
 #include <string>
 
@@ -56,7 +56,7 @@ namespace Pol {
 	  const String* str = getStringParam( 0 );
 	  if ( str != NULL )
 	  {
-        Core::StorageArea *area = Core::storage.find_area( str->value( ) );
+        Core::StorageArea *area = Core::gamestate.storage.find_area( str->value( ) );
 
 		if ( area )
 		  return new BApplicPtr( &storage_area_type, area );
@@ -69,7 +69,7 @@ namespace Pol {
 	  String* name = EXPLICIT_CAST( String*, BObjectImp* )( getParamImp( 0, BObjectImp::OTString ) );
 	  if ( name )
 	  {
-        Core::StorageArea *area = Core::storage.create_area( name->value( ) );
+        Core::StorageArea *area = Core::gamestate.storage.create_area( name->value( ) );
 		if ( area )
 		  return new BApplicPtr( &storage_area_type, area );
 	  }

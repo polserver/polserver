@@ -14,6 +14,7 @@ Notes
 #include "ufunc.h"
 #include "realms.h"
 #include "uworld.h"
+#include "globals/uvars.h"
 
 #include "../plib/realm.h"
 
@@ -26,12 +27,10 @@ namespace Pol {
 	  nocast_( elem.remove_bool( "nocast", false ) )
 	{}
 
-	NoCastDef* nocastdef;
-
 	void read_nocast_zones()
 	{
-	  nocastdef = new NoCastDef( "nocast" );
-	  read_region_data( *nocastdef,
+	  gamestate.nocastdef = new NoCastDef( "nocast" );
+	  read_region_data( *gamestate.nocastdef,
 						"regions/nocast.cfg",
 						"regions/regions.cfg",
 						"NoCastRegion Region" );
@@ -42,12 +41,10 @@ namespace Pol {
 	  lightlevel( elem.remove_ushort( "LightLevel", 0 ) )
 	{}
 
-	LightDef* lightdef;
-
 	void read_light_zones()
 	{
-	  lightdef = new LightDef( "light" );
-	  read_region_data( *lightdef,
+	  gamestate.lightdef = new LightDef( "light" );
+	  read_region_data( *gamestate.lightdef,
 						"regions/light.cfg",
 						"regions/regions.cfg",
 						"LightRegion Region" );
@@ -64,7 +61,7 @@ namespace Pol {
 
 	WeatherDef::WeatherDef( const char *name ) : RegionGroup<WeatherRegion>( name )
 	{
-      for ( auto const &realm : *Realms )
+      for ( auto const &realm : gamestate.Realms )
       {
         unsigned int gridwidth = realm->width() / WGRID_SIZE;
         unsigned int gridheight = realm->height() / WGRID_SIZE;
@@ -180,17 +177,15 @@ namespace Pol {
 	  return true;
 	}
 
-	WeatherDef* weatherdef;
-
 	void read_weather_zones()
 	{
-	  weatherdef = new WeatherDef( "weather" );
-	  read_region_data( *weatherdef,
+	  gamestate.weatherdef = new WeatherDef( "weather" );
+	  read_region_data( *gamestate.weatherdef,
 						"regions/weather.cfg",
 						"regions/regions.cfg",
 						"WeatherRegion Region" );
 
-	  weatherdef->copy_default_regions();
+	  gamestate.weatherdef->copy_default_regions();
 	}
   }
 }

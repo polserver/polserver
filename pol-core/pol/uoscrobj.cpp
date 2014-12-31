@@ -87,6 +87,7 @@ Notes
 #include "module/partymod.h"
 #include "network/clienttransmit.h"
 #include "eventid.h"
+#include "globals/uvars.h"
 
 #include "../bscript/berror.h"
 #include "../bscript/dict.h"
@@ -1544,7 +1545,7 @@ namespace Pol {
 			return new BError( "Not attached to an account" );
 		  break;
 		case MBR_CMDLEVEL:    return new BLong( cmdlevel() ); break;
-		case MBR_CMDLEVELSTR: return new String( Core::cmdlevels2[cmdlevel()].name ); break;
+		case MBR_CMDLEVELSTR: return new String( Core::gamestate.cmdlevels[cmdlevel()].name ); break;
 		case MBR_CRIMINAL: return new BLong( is_criminal() ? 1 : 0 ); break;
 		case MBR_TEMPORALLY_CRIMINAL: return new BLong( is_temporally_criminal() ? 1 : 0 ); break;
 		case MBR_IP:
@@ -1838,8 +1839,8 @@ namespace Pol {
 		case MBR_MOUNTEDSTEPS:
 		  return new BLong( mountedsteps_ = static_cast<unsigned int>( value ) );
 		case MBR_CMDLEVEL:
-			if ( value >= static_cast<int>( Core::cmdlevels2.size() ) )
-				cmdlevel( static_cast<unsigned char>( Core::cmdlevels2.size() ) - 1, true );
+			if ( value >= static_cast<int>( Core::gamestate.cmdlevels.size() ) )
+				cmdlevel( static_cast<unsigned char>( Core::gamestate.cmdlevels.size() ) - 1, true );
 			else
 				cmdlevel( static_cast<unsigned char>( value ), true );
 			return new BLong( cmdlevel() );
@@ -2531,11 +2532,11 @@ namespace Pol {
 
 	BObjectImp* Character::custom_script_method( const char* methodname, Executor& ex )
 	{
-	  if ( Core::uoclient_general.method_script != NULL )
+	  if ( Core::gamestate.uoclient_general.method_script != NULL )
 	  {
 		unsigned PC;
-        if ( Core::uoclient_general.method_script->FindExportedFunction( methodname, static_cast<unsigned int>( ex.numParams( ) + 1 ), PC ) )
-          return Core::uoclient_general.method_script->call( PC, make_ref( ), ex.fparams );
+        if ( Core::gamestate.uoclient_general.method_script->FindExportedFunction( methodname, static_cast<unsigned int>( ex.numParams( ) + 1 ), PC ) )
+          return Core::gamestate.uoclient_general.method_script->call( PC, make_ref( ), ex.fparams );
 	  }
 	  return NULL;
 	}

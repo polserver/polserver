@@ -15,6 +15,14 @@ namespace Pol {
     class Character;
   }
   namespace Core {
+	#define MAX_CARRY_PERC 200
+
+	struct MovementCost
+	{
+	  double cost[MAX_CARRY_PERC + 1];
+	  double over;
+	};
+
 	unsigned short movecost( const Mobile::Character* chr, int carry_perc, bool running, bool mounted );
   }
 }

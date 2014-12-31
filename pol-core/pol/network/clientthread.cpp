@@ -5,6 +5,7 @@
 #include "msgfiltr.h" // Client could also have a method client->is_msg_allowed(), for example. Then this is not needed here.
 #include "iostats.h"
 #include "msghandl.h"
+#include "packethelper.h"
 
 #include "../accounts/account.h"
 #include "../mobile/charactr.h" // This is mostly needed to check for the chr cmdlevel in the timeout, could also make a client->has_cmdlevel()?
@@ -20,13 +21,15 @@
 #include "../schedule.h"
 #include "../scrsched.h"
 #include "../uoscrobj.h" // Needed for running the logoff script
-#include "../uvars.h"
+#include "../globals/uvars.h"
 #include "../uworld.h"
 
 #include "../../clib/esignal.h"
 #include "../../clib/fdump.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/stlutil.h"
+
+#include "../../plib/systemstate.h"
 
 #define CLIENT_CHECKPOINT(x) client->checkpoint = x
 
@@ -53,7 +56,7 @@ namespace Pol
             polclock_t last_packet_at = polclock();
             if (!login)
             {
-                if (config.loglevel >= 11)
+                if (Plib::systemstate.config.loglevel >= 11)
                 {
                     POLLOG.Format("Network::Client#{} i/o thread starting\n") << client->instance_;
                 }
@@ -66,7 +69,7 @@ namespace Pol
             }
             if (!login)
             {
-                if (config.loglevel >= 11)
+                if (Plib::systemstate.config.loglevel >= 11)
                 {
                     POLLOG.Format("Client#{} i/o thread past initial lock\n") << client->instance_;
                 }
@@ -96,7 +99,7 @@ namespace Pol
                         if (login)
                         {
                             c_select_timeout.tv_sec = 0;
-                            c_select_timeout.tv_usec = config.select_timeout_usecs;
+                            c_select_timeout.tv_usec = Plib::systemstate.config.select_timeout_usecs;
                         }
                         else
                         {
@@ -117,11 +120,11 @@ namespace Pol
                     }
                     else if (res == 0)
                     {
-                        if ((!client->chr || client->chr->cmdlevel() < config.min_cmdlvl_ignore_inactivity) &&
-                            config.inactivity_warning_timeout && config.inactivity_disconnect_timeout)
+                        if ((!client->chr || client->chr->cmdlevel() < Plib::systemstate.config.min_cmdlvl_ignore_inactivity) &&
+                            Plib::systemstate.config.inactivity_warning_timeout && Plib::systemstate.config.inactivity_disconnect_timeout)
                         {
                             ++nidle;
-                            if (nidle == 30 * config.inactivity_warning_timeout)
+                            if (nidle == 30 * Plib::systemstate.config.inactivity_warning_timeout)
                             {
                                 CLIENT_CHECKPOINT(4);
                                 PolLock lck; //multithread
@@ -133,7 +136,7 @@ namespace Pol
                                 if (client->pause_count)
                                     client->restart();
                             }
-                            else if (nidle == 30 * config.inactivity_disconnect_timeout)
+                            else if (nidle == 30 * Plib::systemstate.config.inactivity_disconnect_timeout)
                             {
                                 client->forceDisconnect();
                             }
@@ -265,13 +268,13 @@ namespace Pol
                 {
                     CLIENT_CHECKPOINT(9);
                     PolLock lck;
-                    clients.erase(std::find(clients.begin(), clients.end(), client));
+                    gamestate.clients.erase(std::find(gamestate.clients.begin(), gamestate.clients.end(), client));
                     std::lock_guard<std::mutex> lock(client->_SocketMutex);
                     client->closeConnection();
                     INFO_PRINT << "Client disconnected from " << Network::AddressToString(&client->ipaddr)
-                        << " (" << clients.size() << " connections)\n";
+                        << " (" << gamestate.clients.size() << " connections)\n";
 
-                    CoreSetSysTrayToolTip(Clib::tostring(clients.size()) + " clients connected", ToolTipPrioritySystem);
+                    CoreSetSysTrayToolTip(Clib::tostring(gamestate.clients.size()) + " clients connected", ToolTipPrioritySystem);
                 }
 
                 checkpoint = 8;
@@ -371,7 +374,7 @@ namespace Pol
 
                 unsigned char msgtype = client->buffer[0];
                 client->last_msgtype = msgtype; //CNXBUG
-                if (config.verbose)
+                if (Plib::systemstate.config.verbose)
                     INFO_PRINT.Format("Incoming msg type: 0x{:X}\n") << (int)msgtype;
 
                 if (!Network::PacketRegistry::is_defined(msgtype))
@@ -431,8 +434,8 @@ namespace Pol
                 if (client->bytes_received == client->message_length) // we have the whole message
                 {
                     unsigned char msgtype = client->buffer[0];
-                    Network::iostats.received[msgtype].count++;
-                    Network::iostats.received[msgtype].bytes += client->message_length;
+                    gamestate.iostats.received[msgtype].count++;
+                    gamestate.iostats.received[msgtype].bytes += client->message_length;
                     if (!client->fpLog.empty())
                     {
                         fmt::Writer tmp;
@@ -441,7 +444,7 @@ namespace Pol
                         FLEXLOG(client->fpLog) << tmp.c_str() << "\n";
                     }
 
-                    if (config.verbose)
+                    if (Plib::systemstate.config.verbose)
                         INFO_PRINT.Format("Message Received: Type 0x{:X}, Length {} bytes\n") << (int)msgtype << client->message_length;
 
                     PolLock lck; //multithread
@@ -451,7 +454,7 @@ namespace Pol
                         if (client->msgtype_filter->msgtype_allowed[msgtype])
                         {
                             //region Speedhack
-                            if ((ssopt.speedhack_prevention) && (msgtype == PKTIN_02_ID))
+                            if ((gamestate.ssopt.speedhack_prevention) && (msgtype == PKTIN_02_ID))
                             {
                                 if (!client->SpeedHackPrevention())
                                 {
@@ -516,7 +519,7 @@ namespace Pol
 
                     if ((client->buffer[0] == 0xff) && (client->buffer[1] == 0xff) && (client->buffer[2] == 0xff) && (client->buffer[3] == 0xff))
                     {
-                        if (config.verbose)
+                        if (Plib::systemstate.config.verbose)
                         {
                             INFO_PRINT.Format("UOKR Seed Message Received: Type 0x{:X}\n") << (int)cstype;
                         }
@@ -553,7 +556,7 @@ namespace Pol
                     }
                     else if (client->buffer[0] == PKTIN_EF_ID)  // new seed since 6.0.5.0 (0xef should never appear in normal ipseed)
                     {
-                        if (config.verbose)
+                        if (Plib::systemstate.config.verbose)
                         {
                             INFO_PRINT.Format("6.0.5.0+ Crypt Seed Message Received: Type 0x{:X}\n") << (int)cstype;
                         }
@@ -610,7 +613,7 @@ namespace Pol
 
         void handle_unknown_packet(Network::Client* client)
         {
-            if (config.display_unknown_packets)
+            if (Plib::systemstate.config.display_unknown_packets)
             {
                 fmt::Writer tmp;
                 tmp.Format("Unknown packet type 0x{:X}: {} bytes (IP:{}, Account:{})\n")

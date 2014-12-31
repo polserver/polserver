@@ -25,6 +25,14 @@ namespace Pol {
 
 	unsigned int landtile_uoflags( unsigned short landtile );
 	unsigned int landtile_flags( unsigned short landtile );
+
+	const unsigned LANDTILE_COUNT = 0x4000;
+	struct LandTile
+	{
+	  unsigned int uoflags;
+	  unsigned int flags;
+	};
+	
   }
 }
 #endif

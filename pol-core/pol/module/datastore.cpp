@@ -25,6 +25,7 @@ Notes
 #include "../../clib/streamsaver.h"
 
 #include "../../plib/pkg.h"
+#include "../../plib/systemstate.h"
 
 #include "../proplist.h"
 #include "../uoexhelp.h"
@@ -648,14 +649,14 @@ namespace Pol {
 		  {
 			// ::filename
 			descriptor = "::" + spec_filename;
-			directory = Core::config.world_data_path + "ds/";
+			directory = Plib::systemstate.config.world_data_path + "ds/";
 		  }
 		  else
 		  {
 			// :somepkg:filename
 			descriptor = ":" + spec_pkg->name() + ":" + spec_filename;
-			d_ds = Core::config.world_data_path + "ds/";
-			directory = Core::config.world_data_path + "ds/" + spec_pkg->name() + "/";
+			d_ds = Plib::systemstate.config.world_data_path + "ds/";
+			directory = Plib::systemstate.config.world_data_path + "ds/" + spec_pkg->name() + "/";
 		  }
 		  if ( !Clib::FileExists( directory.c_str() ) )
 		  {
@@ -847,7 +848,7 @@ namespace Pol {
 
 	std::string DataStoreFile::filename( unsigned ver ) const
 	{
-      std::string tmp = Core::config.world_data_path + "ds/";
+      std::string tmp = Plib::systemstate.config.world_data_path + "ds/";
 	  if ( pkg != NULL )
 		tmp += pkg->name() + "/";
 	  tmp += name + "." + Clib::tostring( ver % 10 ) + ".txt";
@@ -883,7 +884,7 @@ namespace Pol {
 
 	void read_datastore_dat()
 	{
-      std::string datastorefile = Core::config.world_data_path + "datastore.txt";
+      std::string datastorefile = Plib::systemstate.config.world_data_path + "datastore.txt";
 
 	  if ( !Clib::FileExists( datastorefile ) )
 		return;

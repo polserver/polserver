@@ -28,6 +28,7 @@ Notes
 #include "../bscript/objmethods.h"
 
 #include "../plib/pkg.h"
+#include "globals/uvars.h"
 //#include "module/filemod.h"
 
 namespace Pol {
@@ -333,12 +334,11 @@ namespace Pol {
     }
 
 
-    SQLService sql_service;
     void sql_service_thread_stub()
     {
       try
       {
-        sql_service.start();
+        gamestate.sql_service->start();
       }
       catch ( const char* msg )
       {

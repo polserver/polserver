@@ -26,14 +26,13 @@ Notes
 #include "../ufunc.h"
 #include "../uoclient.h"
 #include "../uoskills.h"
+#include "../globals/uvars.h"
 #include "../vital.h"
 namespace Pol {
   namespace Network {
-	UOClientInterface uo_client_interface;
-
 	void initialize_client_interfaces()
 	{
-	  uo_client_interface.Initialize();
+	  Core::gamestate.uo_client_interface->Initialize();
 	}
 
 	ClientVitalUpdaters::ClientVitalUpdaters() :
@@ -75,7 +74,7 @@ namespace Pol {
 	  }
 
 	  // on all the client interfaces, for their connected clients, possibly tell them 
-	  uo_client_interface.bcast_vital_changed( who, vital );
+	  Core::gamestate.uo_client_interface->bcast_vital_changed( who, vital );
 	}
     void ClientInterface::tell_attribute_changed( Mobile::Character* who, const Mobile::Attribute* attr )
 	{
@@ -160,7 +159,7 @@ namespace Pol {
 
 	  PktHelper::PacketOut<PktOut_3A> msg;
 	  msg->offset += 2;
-	  if ( !Core::ssopt.core_sends_caps )
+	  if ( !Core::gamestate.ssopt.core_sends_caps )
 		msg->Write<u8>( Core::PKTBI_3A_VALUES::SINGLE_SKILL );
 	  else
 		msg->Write<u8>( Core::PKTBI_3A_VALUES::SINGLE_SKILL_CAP );
@@ -169,7 +168,7 @@ namespace Pol {
 	  msg->WriteFlipped<u16>( static_cast<u16>(av.effective_tenths()) ); //value
 	  msg->WriteFlipped<u16>( static_cast<u16>(av.base()) ); //value_unmod base is always in tenths...
 	  msg->Write<u8>( av.lock() );
-	  if ( Core::ssopt.core_sends_caps )
+	  if ( Core::gamestate.ssopt.core_sends_caps )
 		msg->WriteFlipped<u16>( av.cap() );
 	  u16 len = msg->offset;
 	  msg->offset = 1;
@@ -178,8 +177,8 @@ namespace Pol {
 	}
 	void ClientInterface::Initialize()
 	{
-	  vital_updaters.resize( Core::vitals.size() );
-	  attribute_updaters.resize( Mobile::attributes.size() );
+	  vital_updaters.resize( Core::gamestate.vitals.size() );
+	  attribute_updaters.resize( Core::gamestate.attributes.size() );
 	}
 
 	void UOClientInterface::Initialize()
@@ -187,34 +186,34 @@ namespace Pol {
 	  ClientInterface::Initialize();
 
 	  // tell a player's own client when his life changes
-	  if ( Core::uoclient_general.hits.any )
+	  if ( Core::gamestate.uoclient_general.hits.any )
 	  {
-        vital_updaters[Core::uoclient_general.hits.id].my_vital_changed = send_uo_hits;
-        vital_updaters[Core::uoclient_general.hits.id].others_vital_changed = send_uo_hits;
+        vital_updaters[Core::gamestate.uoclient_general.hits.id].my_vital_changed = send_uo_hits;
+        vital_updaters[Core::gamestate.uoclient_general.hits.id].others_vital_changed = send_uo_hits;
 	  }
-      if ( Core::uoclient_general.mana.any )
+      if ( Core::gamestate.uoclient_general.mana.any )
 	  {
-        vital_updaters[Core::uoclient_general.mana.id].my_vital_changed = send_uo_mana;
+        vital_updaters[Core::gamestate.uoclient_general.mana.id].my_vital_changed = send_uo_mana;
 	  }
-      if ( Core::uoclient_general.stamina.any )
+      if ( Core::gamestate.uoclient_general.stamina.any )
 	  {
-        vital_updaters[Core::uoclient_general.stamina.id].my_vital_changed = send_uo_stamina;
-	  }
-
-      if ( Core::uoclient_general.strength.any )
-	  {
-        attribute_updaters[Core::uoclient_general.strength.id].my_attr_changed = send_uo_strength;
-	  }
-      if ( Core::uoclient_general.intelligence.any )
-	  {
-        attribute_updaters[Core::uoclient_general.intelligence.id].my_attr_changed = send_uo_intelligence;
-	  }
-      if ( Core::uoclient_general.dexterity.any )
-	  {
-        attribute_updaters[Core::uoclient_general.dexterity.id].my_attr_changed = send_uo_dexterity;
+        vital_updaters[Core::gamestate.uoclient_general.stamina.id].my_vital_changed = send_uo_stamina;
 	  }
 
-      for ( unsigned short i = 0; i < Core::uoclient_general.maxskills + 1; ++i )
+      if ( Core::gamestate.uoclient_general.strength.any )
+	  {
+        attribute_updaters[Core::gamestate.uoclient_general.strength.id].my_attr_changed = send_uo_strength;
+	  }
+      if ( Core::gamestate.uoclient_general.intelligence.any )
+	  {
+        attribute_updaters[Core::gamestate.uoclient_general.intelligence.id].my_attr_changed = send_uo_intelligence;
+	  }
+      if ( Core::gamestate.uoclient_general.dexterity.any )
+	  {
+        attribute_updaters[Core::gamestate.uoclient_general.dexterity.id].my_attr_changed = send_uo_dexterity;
+	  }
+
+      for ( unsigned short i = 0; i < Core::gamestate.uoclient_general.maxskills + 1; ++i )
 	  {
         const Core::UOSkill& uoskill = Core::GetUOSkill( i );
 		if ( uoskill.inited && uoskill.pAttr )

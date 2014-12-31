@@ -12,9 +12,9 @@ Notes
 #include "uofilei.h"
 
 #include "../plib/mapfunc.h"
+#include "../plib/systemstate.h"
 
 #include "objtype.h"
-#include "polcfg.h"
 #include "polfile.h"
 #include "profile.h"
 #include "udatfile.h"
@@ -105,7 +105,7 @@ namespace Pol {
     {
         memset(tile, 0, sizeof *tile);
 
-      if ( tilenum > Core::config.max_tile_id )
+      if ( tilenum > Plib::systemstate.config.max_tile_id )
       {
         sprintf( tile->name, "multi" );
         tile->weight = 0xFF;
@@ -145,7 +145,7 @@ namespace Pol {
     {
         memset(tile, 0, sizeof *tile);
 
-      if ( tilenum > Core::config.max_tile_id )
+      if ( tilenum > Plib::systemstate.config.max_tile_id )
       {
         sprintf( tile->name, "multi" );
         tile->weight = 0xFF;
@@ -254,7 +254,7 @@ namespace Pol {
       u8 height;
       u32 flags;
 
-      if ( tilenum <= Core::config.max_tile_id )
+      if ( tilenum <= Plib::systemstate.config.max_tile_id )
       {
         height = tiledata[tilenum].height;
         flags = tiledata[tilenum].flags;
@@ -285,7 +285,7 @@ namespace Pol {
 
     unsigned char tilelayer( unsigned short tilenum )
     {
-      if ( tilenum <= Core::config.max_tile_id )
+      if ( tilenum <= Plib::systemstate.config.max_tile_id )
       {
         return tiledata[tilenum].layer;
       }
@@ -328,7 +328,7 @@ namespace Pol {
 
     u32 tile_uoflags( unsigned short tilenum )
     {
-      if ( tilenum <= Core::config.max_tile_id )
+      if ( tilenum <= Plib::systemstate.config.max_tile_id )
       {
         return tiledata[tilenum].flags;
       }
@@ -378,9 +378,9 @@ namespace Pol {
 
     static void read_tiledata()
     {
-      tiledata = new TileData[Core::config.max_tile_id + 1];
+      tiledata = new TileData[Plib::systemstate.config.max_tile_id + 1];
 
-      for ( u32 graphic_i = 0; graphic_i <= config.max_tile_id; ++graphic_i )
+      for ( u32 graphic_i = 0; graphic_i <= Plib::systemstate.config.max_tile_id; ++graphic_i )
       {
         u16 graphic = static_cast<u16>( graphic_i );
         if ( Core::cfg_use_new_hsa_format )

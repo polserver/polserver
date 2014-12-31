@@ -30,10 +30,8 @@ Notes
 
 #include "../containr.h"
 #include "../door.h"
-#include "../extobj.h"
 #include "../lockable.h"
 #include "../umap.h"
-#include "../objecthash.h"
 #include "../objtype.h"
 #include "../polcfg.h"
 #include "../resource.h"
@@ -45,11 +43,14 @@ Notes
 #include "../ufunc.h"
 #include "../uofile.h"
 #include "../uoscrobj.h"
+#include "../globals/uvars.h"
 
 #include "../../clib/cfgfile.h"
 #include "../../clib/endian.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/strutil.h"
+
+#include "../../plib/systemstate.h"
 
 #include <stdexcept>
 
@@ -58,22 +59,22 @@ namespace Pol {
 	Item* Item::create( u32 objtype, u32 serial )
 	{
 	  const ItemDesc& id = find_itemdesc( objtype );
-	  if ( &id != &empty_itemdesc )
+	  if ( &id != Core::gamestate.empty_itemdesc.get() )
 	  {
 		return create( id, serial );
 	  }
-	  else if ( objtype <= Core::config.max_tile_id )
+	  else if ( objtype <= Plib::systemstate.config.max_tile_id )
 	  {
-		temp_itemdesc.objtype = objtype;
-		temp_itemdesc.graphic = static_cast<u16>( objtype );
-		return create( temp_itemdesc, serial );
+		Core::gamestate.temp_itemdesc->objtype = objtype;
+		Core::gamestate.temp_itemdesc->graphic = static_cast<u16>( objtype );
+		return create( *(Core::gamestate.temp_itemdesc.get()), serial );
 	  }
 	  else
 	  {
         fmt::Writer message;
         message.Format( "Objtype not defined : 0x{:X}" ) << objtype;
 
-        if ( !Core::config.ignore_load_errors )
+        if ( !Plib::systemstate.config.ignore_load_errors )
 		  throw std::runtime_error( message.str() );
 		else
 		{
@@ -104,12 +105,12 @@ namespace Pol {
 		// still created with create_multi
 		return NULL;
 	  }
-      else if ( ( objtype >= Core::spell_scroll_objtype_limits[0][0] &&
-        objtype <= Core::spell_scroll_objtype_limits[0][1] ) ||
-        ( objtype >= Core::spell_scroll_objtype_limits[1][0] &&
-        objtype <= Core::spell_scroll_objtype_limits[1][1] ) ||
-        ( objtype >= Core::spell_scroll_objtype_limits[2][0] &&
-        objtype <= Core::spell_scroll_objtype_limits[2][1] ) )
+      else if ( ( objtype >= Core::gamestate.spell_scroll_objtype_limits[0][0] &&
+        objtype <= Core::gamestate.spell_scroll_objtype_limits[0][1] ) ||
+        ( objtype >= Core::gamestate.spell_scroll_objtype_limits[1][0] &&
+        objtype <= Core::gamestate.spell_scroll_objtype_limits[1][1] ) ||
+        ( objtype >= Core::gamestate.spell_scroll_objtype_limits[2][0] &&
+        objtype <= Core::gamestate.spell_scroll_objtype_limits[2][1] ) )
 	  {
         item = new Core::USpellScroll( id );
 	  }
@@ -141,7 +142,7 @@ namespace Pol {
 	  {
         item = new Core::Map( static_cast<const MapDesc&>( id ) );
 	  }
-      else if ( objtype == Core::extobj.port_plank || objtype == Core::extobj.starboard_plank )// ITEMDESCTODO make new ItemDesc type
+      else if ( objtype == Core::gamestate.extobj.port_plank || objtype == Core::gamestate.extobj.starboard_plank )// ITEMDESCTODO make new ItemDesc type
 	  {
 		item = new Multi::UPlank( id );
 	  }
@@ -181,7 +182,7 @@ namespace Pol {
 	  }
 
 	  ////HASH
-      Core::objecthash.Insert( item );
+      Core::gamestate.objecthash.Insert( item );
 	  ////
 
 	  item->serial_ext = ctBEu32( item->serial );

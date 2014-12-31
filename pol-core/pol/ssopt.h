@@ -87,12 +87,10 @@ namespace Pol {
 	  bool seperate_speechtoken;
 	  bool core_sends_guildmsgs;
 	  bool mobiles_block_npc_movement;
+
+	  static void read_servspecopt();
+	  static void ssopt_parse_totalstats( Clib::ConfigElem& elem );
 	};
-
-	extern ServSpecOpt ssopt;
-
-	void read_servspecopt();
-	void ssopt_parse_totalstats( Clib::ConfigElem& elem );
   }
 }
 #endif

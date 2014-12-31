@@ -30,25 +30,26 @@ Notes
 #include "../../clib/logfacility.h"
 #include "../../clib/streamsaver.h"
 
+#include "../../plib/systemstate.h"
+
 #include "../polcfg.h"
 #include "../polsig.h"
 #include "../schedule.h"
-#include "../uvars.h"
+#include "../globals/uvars.h"
 
 namespace Pol {
   namespace Accounts {
-	struct stat accounts_txt_stat;
-	bool accounts_txt_dirty = false;
+	
 	void read_account_data()
 	{
 	  unsigned int naccounts = 0;
 	  static int num_until_dot = 1000;
 	  Tools::Timer<> timer;
 
-	  std::string accountsfile = Core::config.world_data_path + "accounts.txt";
+	  std::string accountsfile = Plib::systemstate.config.world_data_path + "accounts.txt";
 
 	  INFO_PRINT << "  " << accountsfile << ":";
-	  stat( accountsfile.c_str(), &accounts_txt_stat );
+	  stat( accountsfile.c_str(), &Plib::systemstate.accounts_txt_stat );
 
 	  {
 		Clib::ConfigFile cf( accountsfile, "Account" );
@@ -61,12 +62,12 @@ namespace Pol {
             INFO_PRINT << ".";
 			num_until_dot = 1000;
 		  }
-		  Core::accounts.push_back( Core::AccountRef( new Account( elem ) ) );
+		  Core::gamestate.accounts.push_back( Core::AccountRef( new Account( elem ) ) );
 		  naccounts++;
 		}
 	  }
 
-	  if ( accounts_txt_dirty )
+	  if ( Plib::systemstate.accounts_txt_dirty )
 	  {
 		write_account_data();
 	  }
@@ -76,9 +77,9 @@ namespace Pol {
 
 	void write_account_data()
 	{
-	  std::string accountstxtfile = Core::config.world_data_path + "accounts.txt";
-      std::string accountsbakfile = Core::config.world_data_path + "accounts.bak";
-      std::string accountsndtfile = Core::config.world_data_path + "accounts.ndt";
+	  std::string accountstxtfile = Plib::systemstate.config.world_data_path + "accounts.txt";
+      std::string accountsbakfile = Plib::systemstate.config.world_data_path + "accounts.bak";
+      std::string accountsndtfile = Plib::systemstate.config.world_data_path + "accounts.ndt";
 	  const char *accountstxtfile_c = accountstxtfile.c_str();
 	  const char *accountsbakfile_c = accountsbakfile.c_str();
 	  const char *accountsndtfile_c = accountsndtfile.c_str();
@@ -90,7 +91,7 @@ namespace Pol {
       {
         std::ofstream ofs(accountsndtfile_c, std::ios::trunc | std::ios::out);
         Clib::OFStreamWriter sw( &ofs );
-        for ( const auto &account : Core::accounts )
+        for ( const auto &account : Core::gamestate.accounts )
         {
           Account* acct = account.get();
           acct->writeto( sw );
@@ -107,8 +108,8 @@ namespace Pol {
 
 	  struct stat newst;
 	  stat( accountstxtfile_c, &newst );
-	  memcpy( &accounts_txt_stat, &newst, sizeof accounts_txt_stat );
-	  accounts_txt_dirty = false;
+	  memcpy( &Plib::systemstate.accounts_txt_stat, &newst, sizeof Plib::systemstate.accounts_txt_stat );
+	  Plib::systemstate.accounts_txt_dirty = false;
 	}
 
     Account* create_new_account(const std::string& acctname, const std::string& password, bool enabled)
@@ -121,11 +122,11 @@ namespace Pol {
 
 	  elem.add_prop( "enabled", ( (unsigned int)( enabled ? 1 : 0 ) ) );
 	  auto acct = new Account( elem );
-	  Core::accounts.push_back( Core::AccountRef( acct ) );
-	  if ( Core::config.account_save == -1 )
+	  Core::gamestate.accounts.push_back( Core::AccountRef( acct ) );
+	  if ( Plib::systemstate.config.account_save == -1 )
 		write_account_data();
 	  else
-		accounts_txt_dirty = true;
+		Plib::systemstate.accounts_txt_dirty = true;
 	  return acct;
 	}
 
@@ -142,11 +143,11 @@ namespace Pol {
 		elem.add_prop( "name", newacctname.c_str() );
 
 		auto acct = new Account( elem );
-		Core::accounts.push_back( Core::AccountRef( acct ) );
-		if ( Core::config.account_save == -1 )
+		Core::gamestate.accounts.push_back( Core::AccountRef( acct ) );
+		if ( Plib::systemstate.config.account_save == -1 )
 		  write_account_data();
 		else
-		  accounts_txt_dirty = true;
+		  Plib::systemstate.accounts_txt_dirty = true;
 		return acct;
 	  }
 	  return NULL;
@@ -154,7 +155,7 @@ namespace Pol {
 
 	Account* find_account( const char* acctname )
 	{
-	  for ( auto &account : Core::accounts )
+	  for ( auto &account : Core::gamestate.accounts )
 	  {
 		if ( stricmp( account->name(), acctname ) == 0 )
 		{
@@ -166,18 +167,18 @@ namespace Pol {
 
 	int delete_account( const char* acctname )
 	{
-	  for ( auto itr = Core::accounts.begin( ), end = Core::accounts.end( ); itr != end; ++itr )
+	  for ( auto itr = Core::gamestate.accounts.begin( ), end = Core::gamestate.accounts.end( ); itr != end; ++itr )
 	  {
 		Account* account = ( *itr ).get();
 		if ( stricmp( account->name(), acctname ) == 0 )
 		{
 		  if ( account->numchars() == 0 )
 		  {
-			Core::accounts.erase( itr );
-			if ( Core::config.account_save == -1 )
+			Core::gamestate.accounts.erase( itr );
+			if ( Plib::systemstate.config.account_save == -1 )
 			  write_account_data();
 			else
-			  accounts_txt_dirty = true;
+			  Plib::systemstate.accounts_txt_dirty = true;
 			return 1;
 		  }
 		  else
@@ -198,7 +199,7 @@ namespace Pol {
 	  else
 	  {
 		elem.add_prop( "NAME", name.c_str() );
-		Core::accounts.push_back( Core::AccountRef( new Account( elem ) ) );
+		Core::gamestate.accounts.push_back( Core::AccountRef( new Account( elem ) ) );
 	  }
 	}
 
@@ -207,15 +208,15 @@ namespace Pol {
 	  THREAD_CHECKPOINT( tasks, 500 );
 	  try
 	  {
-        std::string accountsfile = Core::config.world_data_path + "accounts.txt";
+        std::string accountsfile = Plib::systemstate.config.world_data_path + "accounts.txt";
 
 		struct stat newst;
 		stat( accountsfile.c_str(), &newst );
-		if ( ( newst.st_mtime != accounts_txt_stat.st_mtime ) &&
+		if ( ( newst.st_mtime != Plib::systemstate.accounts_txt_stat.st_mtime ) &&
 			 ( newst.st_mtime < time( NULL ) - 10 ) )
 		{
 		  INFO_PRINT << "Reloading accounts.txt...";
-		  memcpy( &accounts_txt_stat, &newst, sizeof accounts_txt_stat );
+		  memcpy( &Plib::systemstate.accounts_txt_stat, &newst, sizeof Plib::systemstate.accounts_txt_stat );
 
 		  {
 			Clib::ConfigFile cf( accountsfile, "Account" );
@@ -226,7 +227,7 @@ namespace Pol {
 			}
             INFO_PRINT << "Done!\n";
 		  }
-		  if ( accounts_txt_dirty )
+		  if ( Plib::systemstate.accounts_txt_dirty )
 		  {
 			write_account_data();
 		  }
@@ -241,7 +242,7 @@ namespace Pol {
 
 	void write_account_data_task( void )
 	{
-	  if ( accounts_txt_dirty )
+	  if ( Plib::systemstate.accounts_txt_dirty )
 		write_account_data();
 	}
 	

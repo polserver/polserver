@@ -89,21 +89,21 @@ namespace Pol {
 
 		if ( chr != NULL && inrange( client->chr, chr ) && !client->chr->is_concealed_from_me( chr ) )
 		{
-		  if ( !chr->title_guild.empty() && ( ssopt.core_handled_tags & 0x1 ) )
+		  if ( !chr->title_guild.empty() && ( gamestate.ssopt.core_handled_tags & 0x1 ) )
 			send_nametext( client, chr, "[" + chr->title_guild + "]" );
 		  send_nametext( client, chr, chr->name() );
 
 		  std::string tags;
-		  if ( chr->frozen() && ( ssopt.core_handled_tags & 0x2 ) )
+		  if ( chr->frozen() && ( gamestate.ssopt.core_handled_tags & 0x2 ) )
 			tags = "[frozen] ";
-		  if ( chr->paralyzed() && ( ssopt.core_handled_tags & 0x4 ) )
+		  if ( chr->paralyzed() && ( gamestate.ssopt.core_handled_tags & 0x4 ) )
 			tags += "[paralyzed] ";
-		  if ( chr->squelched() && ( ssopt.core_handled_tags & 0x8 ) )
+		  if ( chr->squelched() && ( gamestate.ssopt.core_handled_tags & 0x8 ) )
 			tags += "[squelched] ";
-		  if ( chr->deafened() && ( ssopt.core_handled_tags & 0x10 ) )
+		  if ( chr->deafened() && ( gamestate.ssopt.core_handled_tags & 0x10 ) )
 			tags += "[deafened] ";
 
-		  if ( ssopt.invul_tag == 1 )
+		  if ( gamestate.ssopt.invul_tag == 1 )
 		  {
 			if ( chr->invul() )
 			  tags += "[invulnerable]";
@@ -121,7 +121,5 @@ namespace Pol {
 		}
 	  }
 	}
-
-	MESSAGE_HANDLER( PKTIN_09, singleclick );
   }
 }

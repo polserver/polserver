@@ -15,10 +15,12 @@ Notes
 #include "../pol/polfile.h"
 #include "../pol/uofilei.h"
 #include "../pol/multi/multidef.h"
+#include "../pol/globals/multidefs.h"
 #include "../pol/objtype.h"
 
 #include "../plib/realmdescriptor.h"
 #include "../plib/staticblock.h"
+#include "../plib/systemstate.h"
 
 #include "../clib/strutil.h"
 #include "../clib/stlutil.h"
@@ -44,16 +46,11 @@ namespace Pol {
     }
   }
   namespace Core {
-    PolConfig config;
     void safe_getmapinfo( unsigned short x, unsigned short y, short* z, USTRUCT_MAPINFO* mi );
     void staticsmax();
     void readwater();
   }
   namespace Uotool {
-
-	size_t mapcache_misses;
-	size_t mapcache_hits;
-	
 
 	int keyid[] = {
 	  0x0002, 0x01f5, 0x0226, 0x0347, 0x0757, 0x0286, 0x03b6, 0x0327,
@@ -621,8 +618,8 @@ namespace Pol {
 	  unsigned int serial;
 	  char filename[15];
 
-	  std::string soundidxname = Core::config.uo_datafile_root + "soundidx.mul";
-      std::string soundname = Core::config.uo_datafile_root + "sound.mul";
+	  std::string soundidxname = Plib::systemstate.config.uo_datafile_root + "soundidx.mul";
+      std::string soundname = Plib::systemstate.config.uo_datafile_root + "sound.mul";
       std::ifstream soundidx(soundidxname.c_str(), std::ios::in | std::ios::binary);
       std::ifstream sound(soundname.c_str(), std::ios::in | std::ios::binary);
 	  int i;
@@ -656,8 +653,8 @@ namespace Pol {
 		return;
 
 	  Core::USTRUCT_TILE tile;
-      read_objinfo( static_cast<u16>( i + ( Core::config.max_tile_id + 1 ) ), tile );
-      INFO_PRINT << "Multi 0x" << fmt::hexu (i + i + ( Core::config.max_tile_id + 1 ) )
+      read_objinfo( static_cast<u16>( i + ( Plib::systemstate.config.max_tile_id + 1 ) ), tile );
+      INFO_PRINT << "Multi 0x" << fmt::hexu (i + i + ( Plib::systemstate.config.max_tile_id + 1 ) )
 		<< " -- " << tile.name << ":\n";
       fmt::Writer tmp;
 	  for ( short y = multi->minry; y <= multi->maxry; ++y )
@@ -692,8 +689,8 @@ namespace Pol {
 		return;
 
 	  Core::USTRUCT_TILE tile;
-      read_objinfo( static_cast<u16>( i + ( Core::config.max_tile_id + 1 ) ), tile );
-      INFO_PRINT << "Multi 0x" << fmt::hexu( i + ( Core::config.max_tile_id + 1 ) )
+      read_objinfo( static_cast<u16>( i + ( Plib::systemstate.config.max_tile_id + 1 ) ), tile );
+      INFO_PRINT << "Multi 0x" << fmt::hexu( i + ( Plib::systemstate.config.max_tile_id + 1 ) )
 		<< " -- " << tile.name << ":\n";
       fmt::Writer tmp;
 	  for ( short y = multi->minry; y <= multi->maxry; ++y )
@@ -722,8 +719,8 @@ namespace Pol {
 		return;
 
 	  Core::USTRUCT_TILE tile;
-      read_objinfo( static_cast<u16>( i + ( Core::config.max_tile_id + 1 ) ), tile );
-      INFO_PRINT << "Multi 0x" << fmt::hexu( i + ( Core::config.max_tile_id + 1 ) )
+      read_objinfo( static_cast<u16>( i + ( Plib::systemstate.config.max_tile_id + 1 ) ), tile );
+      INFO_PRINT << "Multi 0x" << fmt::hexu( i + ( Plib::systemstate.config.max_tile_id + 1 ) )
         << " -- " << tile.name << ":\n";
       fmt::Writer tmp;
 	  for ( const auto &_itr : multi->components )
@@ -745,10 +742,10 @@ namespace Pol {
 
 	  for ( u16 i = 0; i < 0x1000; ++i )
 	  {
-		if ( Multi::multidefs_by_multiid[i] )
+		if ( Multi::multidef_buffer.multidefs_by_multiid[i] )
 		{
-		  print_multihull( i, Multi::multidefs_by_multiid[i] );
-		  print_multidata( i, Multi::multidefs_by_multiid[i] );
+		  print_multihull( i, Multi::multidef_buffer.multidefs_by_multiid[i] );
+		  print_multidata( i, Multi::multidef_buffer.multidefs_by_multiid[i] );
 		}
 	  }
       Core::clear_tiledata( );
@@ -1350,22 +1347,22 @@ namespace Pol {
 
 	cf.readraw( elem );
 
-    Core::config.uo_datafile_root = elem.remove_string( "UoDataFileRoot" );
-    Core::config.uo_datafile_root = Clib::normalized_dir_form( Core::config.uo_datafile_root );
+    Plib::systemstate.config.uo_datafile_root = elem.remove_string( "UoDataFileRoot" );
+    Plib::systemstate.config.uo_datafile_root = Clib::normalized_dir_form( Plib::systemstate.config.uo_datafile_root );
 
 	unsigned short max_tile = elem.remove_ushort( "MaxTileID", UOBJ_DEFAULT_MAX );
 
     if ( max_tile != UOBJ_DEFAULT_MAX && max_tile != UOBJ_SA_MAX && max_tile != UOBJ_HSA_MAX )
-      Core::config.max_tile_id = UOBJ_DEFAULT_MAX;
+      Plib::systemstate.config.max_tile_id = UOBJ_DEFAULT_MAX;
 	else
-      Core::config.max_tile_id = max_tile;
+      Plib::systemstate.config.max_tile_id = max_tile;
 
 	if ( argc <= 1 )
 	  return Uotool::Usage( 1 );
 
 	if ( argv[1][0] == '/' || argv[1][1] == ':' )
 	{
-      Core::config.uo_datafile_root = argv[1];
+      Plib::systemstate.config.uo_datafile_root = argv[1];
 	  --argc;
 	  ++argv;
 	}

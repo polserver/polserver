@@ -52,7 +52,6 @@ namespace Pol {
 
 	polclock_t polclock();
 	time_t poltime();
-	extern clock_t polclock_paused_at;
 
 	inline polticks_t polticks_t_to_ms( polticks_t ticks )
 	{

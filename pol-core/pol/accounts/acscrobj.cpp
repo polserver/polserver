@@ -36,6 +36,8 @@ Notes
 #include "../../bscript/objmembers.h"
 #include "../../bscript/objmethods.h"
 
+#include "../../plib/systemstate.h"
+
 #include "../mobile/charactr.h"
 #include "../network/client.h"
 #include "../cmdlevel.h"
@@ -46,6 +48,7 @@ Notes
 #include "../ufunc.h"
 #include "../uoscrobj.h"
 #include "../uoexhelp.h"
+#include "../globals/uvars.h"
 
 namespace Pol {
   namespace Core {
@@ -173,7 +176,7 @@ namespace Pol {
 			const String* pwstr;
 			if ( ex.getStringParam( 0, pwstr ) )
 			{
-			  if ( Core::config.retain_cleartext_passwords )
+			  if ( Plib::systemstate.config.retain_cleartext_passwords )
 				obj_->password_ = pwstr->value();
 
 			  std::string temp;
@@ -223,7 +226,7 @@ namespace Pol {
 		  ///
 		case MTH_SETNAME:
 		  //passed only new account name, and cleartext password is saved
-		  if ( ( ex.numParams() == 1 ) && Core::config.retain_cleartext_passwords )
+		  if ( ( ex.numParams() == 1 ) && Plib::systemstate.config.retain_cleartext_passwords )
 		  {
 			const String* nmstr;
 			if ( ex.getStringParam( 0, nmstr ) )
@@ -253,7 +256,7 @@ namespace Pol {
 				return new BError( "Account name must not be empty." );
 			  obj_->name_ = nmstr->value();
 			  //this is the same as the "setpassword" code above
-			  if ( Core::config.retain_cleartext_passwords )
+			  if ( Plib::systemstate.config.retain_cleartext_passwords )
 				obj_->password_ = pwstr->value();
 
 			  std::string temp;
@@ -265,7 +268,7 @@ namespace Pol {
 			  return new BError( "Invalid parameter type" );
 			}
 		  }
-		  else if ( ( ex.numParams() == 1 ) && !Core::config.retain_cleartext_passwords )
+		  else if ( ( ex.numParams() == 1 ) && !Plib::systemstate.config.retain_cleartext_passwords )
 			return new BError( "Usage: account.SetName(name,pass) if RetainCleartextPasswords is off." );
 		  else
 			return new BError( "account.SetName needs at least 1 parameter." );
@@ -302,8 +305,8 @@ namespace Pol {
 		  int cmdlevel;
 		  if ( !ex.getParam( 0, cmdlevel ) )
 			return new BError( "Invalid parameter type." );
-		  else if ( cmdlevel >= static_cast<int>( Core::cmdlevels2.size() ) )
-			cmdlevel = static_cast<int>( Core::cmdlevels2.size() - 1 );
+		  else if ( cmdlevel >= static_cast<int>( Core::gamestate.cmdlevels.size() ) )
+			cmdlevel = static_cast<int>( Core::gamestate.cmdlevels.size() - 1 );
 
 		  obj_->default_cmdlevel_ = char( cmdlevel );
 
@@ -317,7 +320,7 @@ namespace Pol {
 		  if ( ex.numParams() != 1 )
 			return new BError( "account.GetCharacter(index) requires a parameter." );
 		  int index;
-		  if ( !ex.getParam( 0, index, 1, Core::config.character_slots ) )
+		  if ( !ex.getParam( 0, index, 1, Plib::systemstate.config.character_slots ) )
 			return NULL;
 		  Mobile::Character* chr = obj_->get_character( index - 1 );
 
@@ -334,7 +337,7 @@ namespace Pol {
 		  if ( ex.numParams() != 1 )
 			return new BError( "account.DeleteCharacter(index) requires a parameter." );
 		  int index;
-		  if ( !ex.getParam( 0, index, 1, Core::config.character_slots ) )
+		  if ( !ex.getParam( 0, index, 1, Plib::systemstate.config.character_slots ) )
 			return NULL;
 		  Mobile::Character* chr = obj_->get_character( index - 1 );
 
@@ -403,7 +406,7 @@ namespace Pol {
 			const String* acctname;
 			int index;
 			if ( ex.getStringParam( 0, acctname ) &&
-				 ex.getParam( 1, index, 1, Core::config.character_slots ) )
+				 ex.getParam( 1, index, 1, Plib::systemstate.config.character_slots ) )
 			{
 			  if ( acctname->value().empty() )
 				return new BError( "Account name must not be empty." );
@@ -443,7 +446,7 @@ namespace Pol {
 			const String* acctname;
 			int index;
 			if ( ex.getStringParam( 0, acctname ) &&
-				 ex.getParam( 1, index, 1, Core::config.character_slots ) )
+				 ex.getParam( 1, index, 1, Plib::systemstate.config.character_slots ) )
 			{
 			  if ( acctname->value().empty() )
 				return new BError( "Account name must not be empty." );
@@ -478,7 +481,7 @@ namespace Pol {
 		case MTH_ADD_CHARACTER:
 		{
 		  int index;
-		  if ( !ex.getParam( 0, index, 0, Core::config.character_slots ) )
+		  if ( !ex.getParam( 0, index, 0, Plib::systemstate.config.character_slots ) )
 			return new BError( "Account.AddCharacter() requires one parameter." );
 
 		  if ( index <= 0 )
@@ -511,10 +514,10 @@ namespace Pol {
 	  }
 
 	  // if any of the methods hit & worked, we'll come here
-	  if ( Core::config.account_save == -1 )
+	  if ( Plib::systemstate.config.account_save == -1 )
 		write_account_data();
 	  else
-		accounts_txt_dirty = true;
+		Plib::systemstate.accounts_txt_dirty = true;
 	  return result ? result : new BLong( 1 );
 	}
 

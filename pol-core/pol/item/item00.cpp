@@ -50,11 +50,10 @@ namespace Pol {
 	  equip_script_ = id.equip_script;
 	  unequip_script_ = id.unequip_script;
 
-	  ++Core::uitem_count;
+	  ++Core::gamestate.uobjcount.uitem_count;
 
 	  // hmm, doesn't quite work right with items created on startup..
       decayat_gameclock_ = Core::read_gameclock( ) + id.decay_time * 60;
-	  //existing_items.insert( this );
 
 	  // FIXME : Need to change this to it's own function like Character Class does.
 	  // Let's build the resistances defaults.
@@ -83,9 +82,8 @@ namespace Pol {
 
 	Item::~Item()
 	{
-      --Core::uitem_count;
+      --Core::gamestate.uobjcount.uitem_count;
       return_resources( objtype_, amount_ );
-	  //existing_items.erase( this );
 	}
 
     size_t Item::estimatedSize() const

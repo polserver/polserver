@@ -15,6 +15,7 @@ Notes
 #include "skillid.h"
 #include "vital.h"
 #include "syshookscript.h"
+#include "globals/uvars.h"
 
 #include "crypt/cryptkey.h"
 
@@ -24,9 +25,10 @@ Notes
 
 namespace Pol {
   namespace Core {
-	UoClientGeneral uoclient_general;
-	UoClientProtocol uoclient_protocol;
-	UoClientListeners uoclient_listeners;
+	UoClientProtocol::UoClientProtocol() :
+	  EnableFlowControlPackets(false)
+	  {}
+
 
 	UoClientListener::UoClientListener( Clib::ConfigElem& elem ) :
 	  port( elem.remove_ushort( "PORT" ) ),
@@ -46,7 +48,7 @@ namespace Pol {
 		{
 		  mapping.name = name;
 		  mapping.any = true;
-		  Mobile::Attribute* pAttr = Mobile::FindAttribute( name );
+		  Mobile::Attribute* pAttr = Mobile::Attribute::FindAttribute( name );
 		  if ( pAttr )
 			mapping.id = pAttr->attrid;
 		  else
@@ -77,25 +79,25 @@ namespace Pol {
     void load_general_entry( const Plib::Package* pkg, Clib::ConfigElem& elem )
 	{
 	  checka( elem,
-			  uoclient_general.strength,
+			  gamestate.uoclient_general.strength,
 			  "Strength" );
 	  checka( elem,
-			  uoclient_general.intelligence,
+			  gamestate.uoclient_general.intelligence,
 			  "Intelligence" );
 	  checka( elem,
-			  uoclient_general.dexterity,
+			  gamestate.uoclient_general.dexterity,
 			  "Dexterity" );
 	  checkv( elem,
-			  uoclient_general.hits,
+			  gamestate.uoclient_general.hits,
 			  "Hits" );
 	  checkv( elem,
-			  uoclient_general.stamina,
+			  gamestate.uoclient_general.stamina,
 			  "Stamina" );
 	  checkv( elem,
-			  uoclient_general.mana,
+			  gamestate.uoclient_general.mana,
 			  "Mana" );
 	  //dave changed 3/15/03, support configurable max skillid
-	  uoclient_general.maxskills = elem.remove_ushort( "MaxSkillID", SKILLID__HIGHEST );
+	  gamestate.uoclient_general.maxskills = elem.remove_ushort( "MaxSkillID", SKILLID__HIGHEST );
 	  std::string temp;
 	  if ( elem.remove_prop( "MethodScript", &temp ) )
 	  {
@@ -103,7 +105,7 @@ namespace Pol {
 		{
 		  ExportScript* shs = new ExportScript( pkg, temp );
 		  if ( shs->Initialize() )
-			uoclient_general.method_script = shs;
+			gamestate.uoclient_general.method_script = shs;
 		  else
 			delete shs;
 		}
@@ -112,12 +114,12 @@ namespace Pol {
 
     void load_protocol_entry( const Plib::Package* /*pkg*/, Clib::ConfigElem& elem )
 	{
-	  uoclient_protocol.EnableFlowControlPackets = elem.remove_bool( "EnableFlowControlPackets" );
+	  gamestate.uoclient_protocol.EnableFlowControlPackets = elem.remove_bool( "EnableFlowControlPackets" );
 	}
 
     void load_listener_entry( const Plib::Package* /*pkg*/, Clib::ConfigElem& elem )
 	{
-	  uoclient_listeners.push_back( UoClientListener( elem ) );
+	  gamestate.uoclient_listeners.push_back( UoClientListener( elem ) );
 	}
 
     void load_uoclient_entry( const Plib::Package* pkg, Clib::ConfigElem& elem )

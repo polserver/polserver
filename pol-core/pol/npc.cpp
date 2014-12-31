@@ -55,7 +55,7 @@ Notes
 #include "skills.h"
 #include "sockio.h"
 #include "ssopt.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 #include "uoexec.h"
 #include "objtype.h"
 #include "ufunc.h"
@@ -124,13 +124,13 @@ namespace Pol {
 	  anchor.y = 0;
 	  anchor.dstart = 0;
 	  anchor.psub = 0;
-	  ++npc_count;
+	  ++gamestate.uobjcount.npc_count;
 	}
 
 	NPC::~NPC()
 	{
 	  stop_scripts();
-	  --npc_count;
+	  --gamestate.uobjcount.npc_count;
 	}
 
 	void NPC::stop_scripts()
@@ -230,7 +230,7 @@ namespace Pol {
 
 	bool NPC::npc_path_blocked( UFACING dir ) const
 	{
-	  if ( cached_settings.freemove || ( !this->master() && !ssopt.mobiles_block_npc_movement ) )
+	  if ( cached_settings.freemove || ( !this->master() && !gamestate.ssopt.mobiles_block_npc_movement ) )
 		return false;
 
 	  unsigned short newx = x + move_delta[dir].xmove;
@@ -239,7 +239,7 @@ namespace Pol {
 	  unsigned short wx, wy;
 	  zone_convert_clip( newx, newy, realm, wx, wy );
 
-      if ( ssopt.mobiles_block_npc_movement )
+      if ( gamestate.ssopt.mobiles_block_npc_movement )
       {
         for ( const auto &chr : realm->zone[wx][wy].characters )
         {
@@ -261,7 +261,7 @@ namespace Pol {
              chr->z >= z - 10 && chr->z <= z + 10 )
         {
           // Check first with the ssopt false to now allow npcs of same master running on top of each other
-          if ( !ssopt.mobiles_block_npc_movement )
+          if ( !gamestate.ssopt.mobiles_block_npc_movement )
           {
 			  if ( chr->acct == NULL )
 			  {
@@ -754,7 +754,7 @@ namespace Pol {
 	  Dice dice;
       std::string errmsg;
 
-      for ( Mobile::Attribute* pAttr = Mobile::FindAttribute( 0 ); pAttr; pAttr = pAttr->next )
+      for ( Mobile::Attribute* pAttr = Mobile::Attribute::FindAttribute( 0 ); pAttr; pAttr = pAttr->next )
 	  {
         Mobile::AttributeValue& av = attribute( pAttr->attrid );
 		for ( unsigned i = 0; i < pAttr->aliases.size(); ++i )
@@ -885,7 +885,7 @@ namespace Pol {
 			 inrangex( this, src_chr, ex->speech_size ) &&
 			 !deafened() )
 		{
-		  if ( ( !ssopt.event_visibility_core_checks ) || is_visible_to_me( src_chr ) )
+		  if ( ( !gamestate.ssopt.event_visibility_core_checks ) || is_visible_to_me( src_chr ) )
             ex->os_module->signal_event( new Module::SpeechEvent( src_chr, speech,
 			TextTypeToString( texttype ) ) ); //DAVE added texttype
 		}
@@ -900,7 +900,7 @@ namespace Pol {
 			 inrangex( this, src_chr, ex->speech_size ) &&
 			 !deafened() )
 		{
-		  if ( ( !ssopt.event_visibility_core_checks ) || is_visible_to_me( src_chr ) )
+		  if ( ( !gamestate.ssopt.event_visibility_core_checks ) || is_visible_to_me( src_chr ) )
             ex->os_module->signal_event( new Module::SpeechEvent( src_chr, speech,
 			TextTypeToString( texttype ) ) ); //DAVE added texttype
 		}
@@ -912,7 +912,7 @@ namespace Pol {
 	{
 	  if ( ex != NULL )
 	  {
-		if ( ssopt.seperate_speechtoken )
+		if ( gamestate.ssopt.seperate_speechtoken )
 		{
 		  if ( speechtokens != NULL && ( ( ex->eventmask & EVID_TOKEN_SPOKE ) == 0 ) )
 			return;
@@ -923,7 +923,7 @@ namespace Pol {
 			 inrangex( this, src_chr, ex->speech_size ) &&
 			 !deafened() )
 		{
-		  if ( ( !ssopt.event_visibility_core_checks ) || is_visible_to_me( src_chr ) )
+		  if ( ( !gamestate.ssopt.event_visibility_core_checks ) || is_visible_to_me( src_chr ) )
 		  {
 			ex->os_module->signal_event( new Module::UnicodeSpeechEvent( src_chr, speech,
 			  TextTypeToString( texttype ),
@@ -938,7 +938,7 @@ namespace Pol {
 	{
 	  if ( ex != NULL )
 	  {
-		if ( ssopt.seperate_speechtoken )
+		if ( gamestate.ssopt.seperate_speechtoken )
 		{
 		  if ( speechtokens != NULL && ( ( ex->eventmask & EVID_TOKEN_GHOST_SPOKE ) == 0 ) )
 			return;
@@ -949,7 +949,7 @@ namespace Pol {
 			 inrangex( this, src_chr, ex->speech_size ) &&
 			 !deafened() )
 		{
-		  if ( ( !ssopt.event_visibility_core_checks ) || is_visible_to_me( src_chr ) )
+		  if ( ( !gamestate.ssopt.event_visibility_core_checks ) || is_visible_to_me( src_chr ) )
 		  {
             ex->os_module->signal_event( new Module::UnicodeSpeechEvent( src_chr, speech,
 			  TextTypeToString( texttype ),
@@ -991,7 +991,7 @@ namespace Pol {
 	  {
 		if ( ( ex->eventmask & ( EVID_GONE_CRIMINAL ) ) && inrangex( this, thecriminal, ex->area_size ) )
 		{
-		  if ( ( !ssopt.event_visibility_core_checks ) || is_visible_to_me( thecriminal ) )
+		  if ( ( !gamestate.ssopt.event_visibility_core_checks ) || is_visible_to_me( thecriminal ) )
             ex->os_module->signal_event( new Module::SourcedEvent( EVID_GONE_CRIMINAL, thecriminal ) );
 		}
 	  }
@@ -1005,7 +1005,7 @@ namespace Pol {
 		{
 		  if ( pol_distance( this, wholeft ) <= ex->area_size )
 		  {
-			if ( ( !ssopt.event_visibility_core_checks ) || is_visible_to_me( wholeft ) )
+			if ( ( !gamestate.ssopt.event_visibility_core_checks ) || is_visible_to_me( wholeft ) )
               ex->os_module->signal_event( new Module::SourcedEvent( EVID_LEFTAREA, wholeft ) );
 		  }
 		}
@@ -1020,7 +1020,7 @@ namespace Pol {
 		{
 		  if ( pol_distance( this, whoentered ) <= ex->area_size )
 		  {
-			if ( ( !ssopt.event_visibility_core_checks ) || is_visible_to_me( whoentered ) )
+			if ( ( !gamestate.ssopt.event_visibility_core_checks ) || is_visible_to_me( whoentered ) )
               ex->os_module->signal_event( new Module::SourcedEvent( EVID_ENTEREDAREA, whoentered ) );
 		  }
 		}
@@ -1048,7 +1048,7 @@ namespace Pol {
 		  bool were_inrange = ( abs( x - moved->lastx ) <= ex->area_size ) &&
 			( abs( y - moved->lasty ) <= ex->area_size );
 
-		  if ( ( !ssopt.event_visibility_core_checks ) || is_visible_to_me( moved ) )
+		  if ( ( !gamestate.ssopt.event_visibility_core_checks ) || is_visible_to_me( moved ) )
 		  {
 			if ( are_inrange && !were_inrange && ( ex->eventmask & ( EVID_ENTEREDAREA ) ) )
 			{
@@ -1067,7 +1067,7 @@ namespace Pol {
 		{
 		  if ( ( moved == opponent_ ) && ( ex->eventmask & ( EVID_OPPONENT_MOVED ) ) )
 		  {
-			if ( ( !ssopt.event_visibility_core_checks ) || is_visible_to_me( moved ) )
+			if ( ( !gamestate.ssopt.event_visibility_core_checks ) || is_visible_to_me( moved ) )
               ex->os_module->signal_event( new Module::SourcedEvent( EVID_OPPONENT_MOVED, moved ) );
 		  }
 		}
@@ -1095,7 +1095,7 @@ namespace Pol {
 		  bool were_inrange = ( abs( lastx - chr->x ) <= ex->area_size ) &&
 			( abs( lasty - chr->y ) <= ex->area_size );
 
-		  if ( ( !ssopt.event_visibility_core_checks ) || is_visible_to_me( chr ) )
+		  if ( ( !gamestate.ssopt.event_visibility_core_checks ) || is_visible_to_me( chr ) )
 		  {
 			if ( are_inrange && !were_inrange && ( ex->eventmask & ( EVID_ENTEREDAREA ) ) )
               ex->os_module->signal_event( new Module::SourcedEvent( EVID_ENTEREDAREA, chr ) );
@@ -1181,7 +1181,7 @@ namespace Pol {
 
 		blocked -= absorbed;
         absorbed += Clib::random_int( blocked );
-        if ( watch.combat ) INFO_PRINT << absorbed << " hits absorbed by NPC armor.\n";
+        if ( gamestate.watch.combat ) INFO_PRINT << absorbed << " hits absorbed by NPC armor.\n";
 		damage -= absorbed;
 		if ( damage < 0 )
 		  damage = 0;
@@ -1208,7 +1208,7 @@ namespace Pol {
 	  if ( template_.intrinsic_weapon )
 		return template_.intrinsic_weapon;
 	  else
-		return wrestling_weapon;
+		return gamestate.wrestling_weapon;
 	}
 
 	void NPC::refresh_ar()
@@ -1242,7 +1242,7 @@ namespace Pol {
 		return;
 	  }
 
-	  for ( unsigned zone = 0; zone < Mobile::armorzones.size(); ++zone )
+	  for ( unsigned zone = 0; zone < gamestate.armorzones.size(); ++zone )
 		armor_[zone] = NULL;
 	  // we need to reset each resist to 0, then add the base back using calc.
 	  for ( unsigned element = 0; element <= ELEMENTAL_TYPE_MAX; ++element )
@@ -1274,12 +1274,12 @@ namespace Pol {
 	  }
 
 	  double new_ar = 0.0;
-      for ( unsigned zone = 0; zone < Mobile::armorzones.size( ); ++zone )
+      for ( unsigned zone = 0; zone < gamestate.armorzones.size( ); ++zone )
 	  {
 		Items::UArmor* armor = armor_[zone];
 		if ( armor != NULL )
 		{
-          new_ar += armor->ar( ) * Mobile::armorzones[zone].chance;
+          new_ar += armor->ar( ) * gamestate.armorzones[zone].chance;
 		}
 	  }
 
@@ -1287,7 +1287,7 @@ namespace Pol {
 	  // FIXME: Should we allow this to be adjustable via a prop? Hrmmmmm
 	  if ( shield != NULL )
 	  {
-		double add = 0.5 * 0.01 * shield->ar() * attribute( Mobile::pAttrParry->attrid ).effective();
+		double add = 0.5 * 0.01 * shield->ar() * attribute( gamestate.pAttrParry->attrid ).effective();
 		if ( add > 1.0 )
 		  new_ar += add;
 		else

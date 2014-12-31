@@ -20,8 +20,6 @@ namespace Pol {
 	  u64 bytes_received;
 	  u64 bytes_sent;
 	};
-
-	extern PolStats polstats;
 	//extern PolStats auxstats; (Not yet... -- Nando)
 	//extern PolStats webstats;
   }

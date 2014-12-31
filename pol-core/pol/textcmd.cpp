@@ -53,12 +53,13 @@ Notes
 #include "uobjhelp.h"
 #include "uofile.h"
 #include "uoscrobj.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 #include "uworld.h"
 #include "repsys.h"
 #include "fnsearch.h"
 
 #include "../plib/pkg.h"
+#include "../plib/systemstate.h"
 
 #include "../bscript/berror.h"
 #include "../bscript/impstr.h"
@@ -85,33 +86,22 @@ Notes
 
 namespace Pol {
   namespace Core {
-	typedef void( *TextCmdFunc )( Network::Client* );
-    typedef std::map<std::string, TextCmdFunc, Clib::ci_cmp_pred> TextCmds;
-	TextCmds textcmds;
-
-    class wordicmp : public std::less<std::string>
-	{
-	public:
-        bool operator()(const std::string& lhs, const std::string& rhs) const;
-	};
+    
     bool wordicmp::operator ()(const std::string& lhs, const std::string& rhs) const
 	{
 	  size_t len = std::min( lhs.size(), rhs.size() );
 
 	  return ( strnicmp( lhs.c_str(), rhs.c_str(), len ) < 0 );
 	}
-	typedef void( *ParamTextCmdFunc )( Network::Client*, const char* );
-    typedef std::map<std::string, ParamTextCmdFunc, wordicmp> ParamTextCmds;
-	//wordicmp p_wordicmp;
-	ParamTextCmds paramtextcmds;
+	
 
 	void register_command( const char *cmd, TextCmdFunc f )
 	{
-	  textcmds.insert( TextCmds::value_type( cmd, f ) );
+	  gamestate.textcmds.insert( TextCmds::value_type( cmd, f ) );
 	}
 	void register_command( const char *cmd, ParamTextCmdFunc f )
 	{
-	  paramtextcmds.insert( ParamTextCmds::value_type( cmd, f ) );
+	  gamestate.paramtextcmds.insert( ParamTextCmds::value_type( cmd, f ) );
 	}
 
 	bool FindEquipTemplate( const char* template_name,
@@ -247,11 +237,11 @@ namespace Pol {
 		send_sysmessage( chr->client, s );
 	  }
 	}
-	FullMsgTargetCursor ident_cursor( handle_ident_cursor );
+	
     void textcmd_ident( Network::Client* client )
 	{
 	  send_sysmessage( client, "Select something to identify." );
-	  ident_cursor.send_object_cursor( client );
+	  gamestate.target_cursors.ident_cursor.send_object_cursor( client );
 	}
 
     void textcmd_listarmor( Network::Client* client )
@@ -337,12 +327,12 @@ namespace Pol {
 	{
 	  RepSystem::show_repdata( looker->client, mob );
 	}
-	NoLosCharacterCursor repdata_cursor( show_repdata );
+	
 
     void textcmd_repdata( Network::Client* client )
 	{
 	  send_sysmessage( client, "Please target a mobile to display repdata for." );
-	  repdata_cursor.send_object_cursor( client );
+	  gamestate.target_cursors.repdata_cursor.send_object_cursor( client );
 	}
 
     void start_packetlog( Mobile::Character* looker, Mobile::Character* mob )
@@ -366,14 +356,13 @@ namespace Pol {
 		}
 	  }
 	}
-	NoLosCharacterCursor startlog_cursor( start_packetlog );
 
     void textcmd_startlog( Network::Client* client )
 	{
 	  if ( client->chr->can_plogany() )
 	  {
 		send_sysmessage( client, "Please target a player to start packet logging for." );
-		startlog_cursor.send_object_cursor( client );
+		gamestate.target_cursors.startlog_cursor.send_object_cursor( client );
 	  }
 	  else
 	  {
@@ -413,14 +402,13 @@ namespace Pol {
 		}
 	  }
 	}
-	NoLosCharacterCursor stoplog_cursor( stop_packetlog );
 
     void textcmd_stoplog( Network::Client* client )
 	{
 	  if ( client->chr->can_plogany() )
 	  {
 		send_sysmessage( client, "Please target a player to stop packet logging for." );
-		stoplog_cursor.send_object_cursor( client );
+		gamestate.target_cursors.stoplog_cursor.send_object_cursor( client );
 	  }
 	  else
 	  {
@@ -442,12 +430,12 @@ namespace Pol {
     void textcmd_orphans( Network::Client* client )
 	{
 	  OSTRINGSTREAM os;
-	  os << "Unreaped orphans: " << unreaped_orphans;
+	  os << "Unreaped orphans: " << gamestate.uobjcount.unreaped_orphans;
 
 	  send_sysmessage( client, OSTRINGSTREAM_STR( os ) );
 
 	  OSTRINGSTREAM os2;
-	  os2 << "EChrRef count: " << uobj_count_echrref;
+	  os2 << "EChrRef count: " << gamestate.uobjcount.uobj_count_echrref;
 	  send_sysmessage( client, OSTRINGSTREAM_STR( os2 ) );
 	}
 
@@ -465,8 +453,8 @@ namespace Pol {
 	{
 	  send_sysmessage( client, "Process Information:" );
 
-      send_sysmessage( client, "Running: " + Clib::decint( (unsigned int)( runlist.size( ) ) ) );
-      send_sysmessage( client, "Blocked: " + Clib::decint( (unsigned int)( holdlist.size( ) ) ) );
+      send_sysmessage( client, "Running: " + Clib::decint( (unsigned int)( gamestate.runlist.size( ) ) ) );
+      send_sysmessage( client, "Blocked: " + Clib::decint( (unsigned int)( gamestate.holdlist.size( ) ) ) );
 	}
 
     void textcmd_log_profile( Network::Client* client )
@@ -497,7 +485,7 @@ namespace Pol {
 	{
 	  int i = 0;
 	  send_sysmessage( client, "Connection statuses:" );
-	  for ( Clients::const_iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
+	  for ( Clients::const_iterator itr = gamestate.clients.begin(), end = gamestate.clients.end(); itr != end; ++itr )
 	  {
 		OSTRINGSTREAM os;
 		os << i << ": " << ( *itr )->status() << " ";
@@ -554,7 +542,7 @@ namespace Pol {
 
 	  for ( int i = chr->cmdlevel(); i >= 0; --i )
 	  {
-		CmdLevel& cmdlevel = cmdlevels2[i];
+		CmdLevel& cmdlevel = gamestate.cmdlevels[i];
 		for ( unsigned diridx = 0; diridx < cmdlevel.searchlist.size(); ++diridx )
 		{
 		  std::string filename;
@@ -622,7 +610,7 @@ namespace Pol {
 	  for ( int i = client->chr->cmdlevel(); i >= 0; --i )
 	  {
 		// cout << "checking cmdlevel " << i << endl;
-		CmdLevel& cmdlevel = cmdlevels2[i];
+		CmdLevel& cmdlevel = gamestate.cmdlevels[i];
 		for ( unsigned diridx = 0; diridx < cmdlevel.searchlist.size(); ++diridx )
 		{
 		  ScriptDef sd;
@@ -637,7 +625,7 @@ namespace Pol {
 		  // cout << "Searching for " << sd.name() << endl;
 		  ref_ptr<Bscript::EScriptProgram> prog = find_script2( sd,
 													   false, // don't complain if not found
-													   config.cache_interactive_scripts );
+													   Plib::systemstate.config.cache_interactive_scripts );
 		  if ( prog.get() != NULL )
 		  {
 			// Unicode stuff
@@ -731,18 +719,18 @@ namespace Pol {
 		return true;
 
 	  //cout << "checking for builtin commands" << endl;
-	  if ( client->chr->cmdlevel() >= cmdlevels2.size() - 2 )
+	  if ( client->chr->cmdlevel() >= gamestate.cmdlevels.size() - 2 )
 	  {
-		TextCmds::iterator itr2 = textcmds.find( text );
-		if ( itr2 != textcmds.end() )
+		TextCmds::iterator itr2 = gamestate.textcmds.find( text );
+		if ( itr2 != gamestate.textcmds.end() )
 		{
 		  TextCmdFunc f = ( *itr2 ).second;
 		  ( *f )( client );
 		  return true;
 		}
 
-		ParamTextCmds::iterator itr1 = paramtextcmds.find( text );
-		if ( itr1 != paramtextcmds.end() )
+		ParamTextCmds::iterator itr1 = gamestate.paramtextcmds.find( text );
+		if ( itr1 != gamestate.paramtextcmds.end() )
 		{
 		  ParamTextCmdFunc f = ( *itr1 ).second;
 		  ( *f )( client, text + ( *itr1 ).first.size() );

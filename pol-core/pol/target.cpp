@@ -31,7 +31,7 @@ Notes
 #include "pktboth.h"
 #include "realms.h"
 #include "ufunc.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 #include "polclass.h"
 
 #include "guardrgn.h"
@@ -41,11 +41,8 @@ Notes
 
 #include <stdexcept>
 
-#define MAX_CURSORS 500
 namespace Pol {
   namespace Core {
-	TargetCursor* target_cursors[MAX_CURSORS];
-	static u32 cursorid_count;
 
 	void handle_target_cursor( Network::Client *client, PKTBI_6C *msg )
 	{
@@ -53,12 +50,12 @@ namespace Pol {
 	  u32 target_cursor_serial = cfBEu32( msg->target_cursor_serial );
 
 	  // does target cursor even exist?
-	  if ( target_cursor_serial >= cursorid_count )
+	  if ( target_cursor_serial >= gamestate.target_cursors._cursorid_count )
 	  {
 		return;
 	  }
 
-	  TargetCursor* tcursor = target_cursors[target_cursor_serial];
+	  TargetCursor* tcursor = gamestate.target_cursors._target_cursors[target_cursor_serial];
 	  if ( tcursor != targetter->tcursor2 )
 	  {
         POLLOG_ERROR << targetter->acct->name() << "/" << targetter->name() << " used out of sequence cursor.\n";
@@ -71,7 +68,6 @@ namespace Pol {
 	  tcursor->handle_target_cursor( targetter, msg );
 	}
 
-	MESSAGE_HANDLER( PKTBI_6C, handle_target_cursor );
 	/*
 	Target Cursor messages come in different forms:
 	1) Item selected:
@@ -127,16 +123,16 @@ namespace Pol {
 	TargetCursor::TargetCursor( bool inform_on_cancel ) :
 	  inform_on_cancel_( inform_on_cancel )
 	{
-	  if ( cursorid_count >= MAX_CURSORS )
+	  if ( gamestate.target_cursors._cursorid_count >= gamestate.target_cursors._target_cursors.size() )
 	  {
 		throw std::runtime_error( "Too many targetting cursors!" );
 	  }
 
-	  cursorid_ = cursorid_count;
+	  cursorid_ = gamestate.target_cursors._cursorid_count;
 
-	  target_cursors[cursorid_] = this;
+	  gamestate.target_cursors._target_cursors[cursorid_] = this;
 
-	  cursorid_count++;
+	  gamestate.target_cursors._cursorid_count++;
 	}
 
 	// FIXME we need something like is done for item menus, where we check
@@ -442,5 +438,21 @@ namespace Pol {
 		( *func )( targetter, NULL );
 	  }
 	}
+
+	Cursors::Cursors() :
+	  _target_cursors(),
+	  _cursorid_count(0), // array and index needs to be initialized before registering the cursors
+	  los_checked_script_cursor( Module::handle_script_cursor, true ),
+	  nolos_checked_script_cursor( Module::handle_script_cursor, true ),
+
+	  add_member_cursor( handle_add_member_cursor ),
+	  remove_member_cursor( handle_remove_member_cursor ),
+	  ident_cursor( handle_ident_cursor ),
+	  script_cursor2( Module::handle_coord_cursor, true ),
+	  multi_placement_cursor( Module::handle_coord_cursor ),
+	  repdata_cursor( show_repdata ),
+	  startlog_cursor( start_packetlog ),
+	  stoplog_cursor( stop_packetlog )
+	{}
   }
 }

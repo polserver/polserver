@@ -12,21 +12,20 @@ Notes
 
 #include "loadunld.h"
 
-#include "objecthash.h"
-
 #include "item/armor.h"
 #include "checkpnt.h"
 #include "cmbtcfg.h"
-#include "extobj.h"
+#include "console.h"
 #include "objtype.h"
 #include "polcfg.h"
-#include "stackcfg.h" //dave 1/26/3
+#include "stackcfg.h"
 #include "ufunc.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 #include "item/weapon.h"
 #include "item/wepntmpl.h"
 
 #include "../plib/pkg.h"
+#include "../plib/systemstate.h"
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
@@ -44,7 +43,6 @@ namespace Pol {
   namespace Items {
     void preload_test_scripts( );
     void unload_itemdesc( );
-    void unload_intrinsic_weapons( );
     void load_itemdesc( );
   }
   namespace Mobile {
@@ -81,7 +79,6 @@ namespace Pol {
 	
 	void load_cmdlevels();
 	void load_package_cmdlevels();
-	void load_console_commands();
 	void load_tips();
 	
 	
@@ -106,23 +103,17 @@ namespace Pol {
 
 	void load_movecost( bool reload );
 
-	void unload_tiles();
-
-    void UnloadAllConfigFiles( );
-
-    void unload_system_hooks( );
     void unload_party( );
-    void read_pol_config( bool initial_load );
     void read_npc_templates( );
 
 	void check_config()
 	{
 	  // Check if secure trading is enabled and that the container for it is setup.
-	  if ( config.enable_secure_trading )
+	  if ( Plib::systemstate.config.enable_secure_trading )
 	  {
-        const Items::ItemDesc& stid = Items::find_itemdesc( extobj.secure_trade_container );
+        const Items::ItemDesc& stid = Items::find_itemdesc( gamestate.extobj.secure_trade_container );
         if ( stid.type != Items::ItemDesc::CONTAINERDESC )
-		  throw std::runtime_error( "Secure trade container (" + Clib::hexint( extobj.secure_trade_container ) + ") must be defined in itemdesc.cfg as a container." );
+		  throw std::runtime_error( "Secure trade container (" + Clib::hexint( gamestate.extobj.secure_trade_container ) + ") must be defined in itemdesc.cfg as a container." );
 	  }
 
 	  // Make sure backpack container is defined.
@@ -136,11 +127,11 @@ namespace Pol {
           throw std::runtime_error("Corpse container (" + Clib::hexint(UOBJ_CORPSE) + ") must be defined in itemdesc.cfg as a container.");
 
 	  // Make sure the WornItems container is defined.
-      const Items::ItemDesc& wic_id = Items::find_itemdesc( extobj.wornitems_container );
+      const Items::ItemDesc& wic_id = Items::find_itemdesc( gamestate.extobj.wornitems_container );
       if ( wic_id.type != Items::ItemDesc::CONTAINERDESC )
-          throw std::runtime_error("WornItems container (" + Clib::hexint(extobj.wornitems_container) + ") must be defined in itemdesc.cfg as a container.");
+          throw std::runtime_error("WornItems container (" + Clib::hexint(gamestate.extobj.wornitems_container) + ") must be defined in itemdesc.cfg as a container.");
 
-      const Items::ContainerDesc& cd = Items::find_container_desc( extobj.wornitems_container );
+      const Items::ContainerDesc& cd = Items::find_container_desc( gamestate.extobj.wornitems_container );
       Items::getgraphic( cd.objtype );
 	}
 
@@ -168,7 +159,7 @@ namespace Pol {
 	  load_cmdlevels();
 
 	  checkpoint( "read_combat_config" );
-	  read_combat_config();
+	  CombatConfig::read_combat_config();
 
 	  checkpoint( "read_boat_cfg" );
 	  Multi::read_boat_cfg();
@@ -261,7 +252,7 @@ namespace Pol {
 
 	  //#ifdef _WIN32
 	  checkpoint( "load console commands" );
-	  load_console_commands();
+	  ConsoleCommand::load_console_commands();
 	  //#endif
 
 	  Module::load_fileaccess_cfg();
@@ -273,26 +264,17 @@ namespace Pol {
 
 	void reload_configuration()
 	{
-	  read_pol_config( false );
+	  PolConfig::read_pol_config( false );
 	  Network::read_bannedips_config( false );
 	  load_npc_templates();
 	  read_npc_templates(); //dave 1/12/3 npc template data wasn't actually being read, just names.
-	  load_console_commands();
+	  ConsoleCommand::load_console_commands();
 	  Module::load_fileaccess_cfg();
-	}
-
-	void unload_other_objects()
-	{
-	  Items::unload_intrinsic_weapons();
-      Items::unload_weapon_templates( );
 	}
 
 	void unload_data()
 	{
 	  Mobile::unload_armor_zones();
-
-	  //Turley 2012-08-27: moved before objecthash due to npc-method_script cleanup
-	  //unload_npc_templates();  //quick and nasty fix until npcdesc usage is rewritten 
 
 	  unload_repsys_cfg(); // Any better place?
 
@@ -301,8 +283,6 @@ namespace Pol {
 	  unload_party();
 
 	  Module::unload_datastore();
-
-	  unload_tiles();
 	}
   }
 }

@@ -18,6 +18,7 @@ Notes
 #include "scrstore.h"
 #include "scrsched.h"
 #include "uoscrobj.h"
+#include "globals/uvars.h"
 
 #include "network/client.h"
 #include "network/cgdata.h"
@@ -37,12 +38,11 @@ namespace Pol {
 	  enter_script_( elem.remove_string( "EnterScript", "" ) ),
 	  leave_script_( elem.remove_string( "LeaveScript", "" ) )
 	{}
-	JusticeDef* justicedef;
 
 	void read_justice_zones()
 	{
-	  justicedef = new JusticeDef( "Justice" );
-	  read_region_data( *justicedef,
+	  gamestate.justicedef = new JusticeDef( "Justice" );
+	  read_region_data( *gamestate.justicedef,
 						"regions/justice.cfg", // preferred
 						"regions/regions.cfg", // other
 						"JusticeRegion Region" );

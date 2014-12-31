@@ -31,6 +31,8 @@ Notes
 #include "../clib/strutil.h"
 #include "../clib/stlutil.h"
 
+#include "../plib/systemstate.h"
+
 #include <string>
 
 namespace Pol {
@@ -450,7 +452,7 @@ namespace Pol {
 		return false;
 	  }
 
-	  if ( ( objtype_long > config.max_tile_id ) && ( objtype_long <= config.max_objtype ) )
+	  if ( ( objtype_long > Plib::systemstate.config.max_tile_id ) && ( objtype_long <= Plib::systemstate.config.max_objtype ) )
 	  {
 		objtype = objtype_long;
 		if ( Items::has_itemdesc( objtype ) )
@@ -464,7 +466,7 @@ namespace Pol {
 		}
 
 	  }
-	  else if ( objtype_long <= config.max_tile_id )
+	  else if ( objtype_long <= Plib::systemstate.config.max_tile_id )
 	  {
 		objtype = objtype_long;
 		return true;
@@ -474,7 +476,7 @@ namespace Pol {
         DEBUGLOG << "Script Error in '" << exec.scriptname() << "' PC=" << exec.PC << ": \n"
           << "\tCall to function " << exec.current_module_function->name.get() << ":\n"
           << "\tParameter " << param << ": Value " << objtype_long << " is out of range for an objtype\n";
-        exec.setFunctionResult( new BError( "Objtype is out of range ( acceptable: 0 - " + Clib::hexint( config.max_objtype ) + " )" ) );
+        exec.setFunctionResult( new BError( "Objtype is out of range ( acceptable: 0 - " + Clib::hexint( Plib::systemstate.config.max_objtype ) + " )" ) );
 		return false;
 	  }
 	}
@@ -544,11 +546,11 @@ namespace Pol {
 	  }
 
 	  // we get here if the value passed was an integer - either a BLong, or a String containing a number.
-	  if ( ( objtype_long > config.max_tile_id ) && ( objtype_long <= config.max_objtype ) )
+	  if ( ( objtype_long > Plib::systemstate.config.max_tile_id ) && ( objtype_long <= Plib::systemstate.config.max_objtype ) )
 	  {
         const Items::ItemDesc* itemdesc = &Items::find_itemdesc( objtype_long );
 
-        if ( itemdesc != &Items::empty_itemdesc )
+        if ( itemdesc != Core::gamestate.empty_itemdesc.get() )
 		{
 		  itemdesc_out = itemdesc;
 		  return true;
@@ -560,18 +562,18 @@ namespace Pol {
 		}
 
 	  }
-	  else if ( objtype_long <= config.max_tile_id )
+	  else if ( objtype_long <= Plib::systemstate.config.max_tile_id )
 	  {
 		unsigned int objtype = objtype_long;
         itemdesc_out = &Items::find_itemdesc( objtype );
-        if ( itemdesc_out == &Items::empty_itemdesc )
+        if ( itemdesc_out == Core::gamestate.empty_itemdesc.get() )
 		{
 		  // return a temporary item descriptor initialized with the objtype and graphic.
-          itemdesc_out = &Items::temp_itemdesc;
-          Items::temp_itemdesc.objtype = objtype;
-          Items::temp_itemdesc.graphic = static_cast<u16>( objtype );
-          Items::temp_itemdesc.decay_time = ssopt.default_decay_time;
-          Items::temp_itemdesc.doubleclick_range = ssopt.default_doubleclick_range;
+          itemdesc_out = Core::gamestate.temp_itemdesc.get();
+          Core::gamestate.temp_itemdesc->objtype = objtype;
+          Core::gamestate.temp_itemdesc->graphic = static_cast<u16>( objtype );
+          Core::gamestate.temp_itemdesc->decay_time = gamestate.ssopt.default_decay_time;
+          Core::gamestate.temp_itemdesc->doubleclick_range = gamestate.ssopt.default_doubleclick_range;
 		}
 
 		return true;
@@ -589,7 +591,7 @@ namespace Pol {
 	bool getSkillIdParam( Executor& exec, unsigned param, USKILLID& skillid )
 	{
 	  int skillval;
-	  if ( exec.getParam( param, skillval, SKILLID__LOWEST, uoclient_general.maxskills ) )
+	  if ( exec.getParam( param, skillval, SKILLID__LOWEST, gamestate.uoclient_general.maxskills ) )
 	  {
 		skillid = static_cast<USKILLID>( skillval );
 		return true;
@@ -607,7 +609,7 @@ namespace Pol {
 	  if ( !exec.getStringParam( param, attrname ) )
 		return false;
 
-      attr = Mobile::FindAttribute( attrname->value( ) );
+      attr = Mobile::Attribute::FindAttribute( attrname->value( ) );
 	  if ( !attr )
 	  {
 		exec.setFunctionResult( new BError( "Attribute not defined: " + attrname->value() ) );

@@ -1,23 +1,13 @@
 #include "clienttransmit.h"
 #include "client.h"
+#include "../globals/uvars.h"
 #include "../../clib/esignal.h"
+
 namespace Pol {
   namespace Network {
-	std::unique_ptr<ClientTransmit> ClientTransmit::_instance;
-	std::once_flag ClientTransmit::_onceFlag;
-
 	ClientTransmit::ClientTransmit() : _transmitqueue() {}
 
 	ClientTransmit::~ClientTransmit() {}
-
-	ClientTransmit& ClientTransmit::get()
-	{
-		std::call_once( _onceFlag, []()
-		{
-			_instance.reset( new ClientTransmit );
-		} );
-		return *_instance.get();
-	}
 
 	void ClientTransmit::Cancel()
 	{
@@ -51,11 +41,12 @@ namespace Pol {
 
 	void ClientTransmitThread()
 	{
+	  ClientTransmit* transmit_instance = Core::gamestate.clientTransmit.get();
 	  while ( !Clib::exit_signalled )
 	  {
 		try
 		{
-		  auto data = ClientTransmitSingleton::get().NextQueueEntry();
+		  auto data = transmit_instance->NextQueueEntry();
 		  if ( data->client != nullptr )
 		  {
 			if ( data->disconnects )

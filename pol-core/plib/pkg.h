@@ -68,8 +68,6 @@ namespace Pol {
 	  Package& operator=( const Package& );
 	};
 
-	typedef std::vector<Package*> Packages;
-	extern Packages packages;
 
 	inline const std::string& Package::dir() const
 	{
@@ -98,7 +96,6 @@ namespace Pol {
 	void load_packages( const std::string &basedir, bool quiet = false );
 	void replace_packages();
 	void check_package_deps();
-	void unload_packages();
 	std::string GetPackageCfgPath( const Package* pkg, const std::string filename );
   }
 }

@@ -14,6 +14,7 @@ Notes
 #include "../clib/esignal.h"
 #include "../clib/threadhelp.h"
 #include "../clib/logfacility.h"
+#include "globals/uvars.h"
 
 #ifndef _WIN32
 #include <signal.h>
@@ -21,14 +22,16 @@ Notes
 
 namespace Pol {
   namespace Core {
-	volatile bool reload_configuration_signalled = false;
-	unsigned scripts_thread_checkpoint;
-	unsigned tasks_thread_checkpoint;
-	unsigned active_client_thread_checkpoint;
-	unsigned check_attack_after_move_function_checkpoint;
-	volatile bool report_status_signalled = false;
 
-	ref_ptr<Bscript::EScriptProgram> scripts_thread_last_script;
+	PolSig::PolSig() :
+	  reload_configuration_signalled(false),
+	  report_status_signalled(false),
+	  scripts_thread_checkpoint(0),
+	  tasks_thread_checkpoint(0),
+	  active_client_thread_checkpoint(0),
+	  check_attack_after_move_function_checkpoint(0)
+	{}
+
 #ifdef _WIN32
 
 	void install_signal_handlers()
@@ -49,12 +52,12 @@ namespace Pol {
 
 	void handle_HUP( int x )
 	{
-	  reload_configuration_signalled = true;
+	  gamestate.polsig.reload_configuration_signalled = true;
 	}
 
 	void handle_SIGUSR1( int x )//LINUXTEST
 	{
-	  report_status_signalled = true;
+	  gamestate.polsig.report_status_signalled = true;
 	}
 
 	void null_handler( int x )
@@ -137,11 +140,11 @@ namespace Pol {
 		{
 		  case SIGHUP: 
             ERROR_PRINT << "SIGHUP: reload configuration.\n";
-			reload_configuration_signalled = true;
+			gamestate.polsig.reload_configuration_signalled = true;
 			break;
 		  case SIGUSR1: 
             ERROR_PRINT << "SIGUSR1: report thread status.\n";
-			report_status_signalled = true;
+			gamestate.polsig.report_status_signalled = true;
 			break;
 		  case SIGINT: 
             ERROR_PRINT << "SIGINT: exit.\n";

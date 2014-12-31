@@ -10,6 +10,7 @@ Notes
 
 */
 
+#include "npctmpl.h"
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
@@ -18,6 +19,9 @@ Notes
 #include "../clib/stlutil.h"
 
 #include "../plib/pkg.h"
+#include "../plib/systemstate.h"
+
+#include "globals/uvars.h"
 
 #include <stdexcept>
 #include <map>
@@ -30,19 +34,7 @@ Notes
 
 namespace Pol {
   namespace Core {
-	class NpcTemplateConfigSource : public Clib::ConfigSource
-	{
-	public:
-	  NpcTemplateConfigSource();
-      NpcTemplateConfigSource( const Clib::ConfigFile& cf );
-	  virtual void display_error( const std::string& msg,
-								  bool show_curline = true,
-                                  const Clib::ConfigElemBase* elem = NULL,
-								  bool error = true ) const POL_OVERRIDE;
-	private:
-	  std::string _filename;
-	  unsigned _fileline;
-	};
+	
     NpcTemplateConfigSource::NpcTemplateConfigSource( const Clib::ConfigFile& cf ) :
 	  _filename( cf.filename() ),
 	  _fileline( cf.element_line_start() )
@@ -82,17 +74,6 @@ namespace Pol {
 	}
 
 
-	class NpcTemplateElem
-	{
-	public:
-	  NpcTemplateElem();
-      NpcTemplateElem( const Clib::ConfigFile& cf, const Clib::ConfigElem& elem );
-
-      void copyto( Clib::ConfigElem& elem ) const;
-	private:
-	  NpcTemplateConfigSource _source;
-      Clib::ConfigElem _elem;
-	};
 	NpcTemplateElem::NpcTemplateElem()
 	{}
     NpcTemplateElem::NpcTemplateElem( const Clib::ConfigFile& cf, const Clib::ConfigElem& elem ) :
@@ -106,13 +87,10 @@ namespace Pol {
 	  elem.set_source( &_source );
 	}
 
-    typedef std::map< std::string, NpcTemplateElem, Clib::ci_cmp_pred > NpcTemplates;
-	static NpcTemplates npc_templates;
-
     bool FindNpcTemplate( const char* template_name, Clib::ConfigElem& elem )
 	{
-	  auto itr = npc_templates.find( template_name );
-	  if ( itr != npc_templates.end() )
+	  auto itr = gamestate.npc_template_elems.find( template_name );
+	  if ( itr != gamestate.npc_template_elems.end() )
 	  {
 		const NpcTemplateElem& tm = ( *itr ).second;
 		tm.copyto( elem );
@@ -219,16 +197,16 @@ namespace Pol {
 		  else
 			descname = namebase;
 
-		  npc_templates[descname] = NpcTemplateElem( cf, elem );
+		  gamestate.npc_template_elems[descname] = NpcTemplateElem( cf, elem );
 		}
 	  }
 	}
 
 	void read_npc_templates()
 	{
-	  npc_templates.clear();
+	  gamestate.npc_template_elems.clear();
 	  read_npc_templates( NULL );
-      for (auto &pkg : Plib::packages )
+      for (auto &pkg : Plib::systemstate.packages )
       {
         read_npc_templates( pkg );
       }

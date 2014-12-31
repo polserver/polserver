@@ -62,10 +62,6 @@ namespace Pol {
 	{
 	  return leavetext_;
 	}
-
-	typedef RegionGroup<JusticeRegion> JusticeDef;
-
-	extern JusticeDef* justicedef;
   }
 }
 #endif

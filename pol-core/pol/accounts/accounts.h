@@ -26,7 +26,8 @@ namespace Pol {
 	Account* find_account( const char* acctname );
 	int delete_account( const char* acctname );
 	void write_account_data();
-	extern bool accounts_txt_dirty;
+	void reload_account_data();
+    void write_account_data_task();
   }
 }
 #endif

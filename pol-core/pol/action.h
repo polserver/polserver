@@ -12,7 +12,9 @@ Notes
 #ifndef ACTION_H
 #define ACTION_H
 
-#include "network/packetdefs.h"
+#include <vector>
+
+#include "../clib/rawtypes.h"
 
 namespace Pol {
   namespace Mobile {
@@ -69,12 +71,43 @@ namespace Pol {
 	  return ( action <= ACTION__HIGHEST );
 	}
 	
+	enum DIRECTION_FLAG_OLD { BACKWARD = 1, FORWARD = 0 };
+    enum REPEAT_FLAG_OLD { REPEAT = 1, NOREPEAT = 0 };
 	void send_action_to_inrange( const Mobile::Character* obj, UACTION action,
 								 unsigned short framecount = 0x05,
 								 unsigned short repeatcount = 0x01,
-                                 Network::MobileAnimationMsg::DIRECTION_FLAG_OLD backward = Network::MobileAnimationMsg::FORWARD,
-                                 Network::MobileAnimationMsg::REPEAT_FLAG_OLD repeatflag = Network::MobileAnimationMsg::NOREPEAT,
+                                 DIRECTION_FLAG_OLD backward = FORWARD,
+                                 REPEAT_FLAG_OLD repeatflag = NOREPEAT,
 								 unsigned char delay = 0x01 );
+
+    struct MobileTranslate
+    {
+      struct OldAnimDef
+      {
+        bool valid;
+        u16 action;
+        u16 framecount;
+        u16 repeatcount;
+        u8 backward;
+        u8 repeatflag;
+        u8 delay;
+		OldAnimDef();
+      };
+      struct NewAnimDef
+      {
+        bool valid;
+        u16 anim;
+        u16 action;
+        u8 subaction;
+		NewAnimDef();
+      };
+      std::vector<u16> graphics;
+      OldAnimDef old_anim[ACTION__HIGHEST + 1];
+      NewAnimDef new_anim[ACTION__HIGHEST + 1];
+      bool supports_mount;
+	  MobileTranslate();
+	  bool has_graphic( u16 graphic ) const;
+    };
 
   }
 }

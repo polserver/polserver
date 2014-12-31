@@ -289,13 +289,14 @@
     <ClCompile Include="eqpitem.cpp" />
     <ClCompile Include="equipdsc.cpp" />
     <ClCompile Include="exscrobj.cpp" />
-    <ClCompile Include="extcmd.cpp" />
     <ClCompile Include="extobj.cpp" />
     <ClCompile Include="fnsearch.cpp" />
     <ClCompile Include="gameclck.cpp" />
     <ClCompile Include="getitem.cpp" />
     <ClCompile Include="getmsg.cpp" />
-    <ClCompile Include="gflag.cpp" />
+	<ClCompile Include="globals\multidefs.cpp" />
+    <ClCompile Include="globals\ucfg.cpp" />
+    <ClCompile Include="globals\uvars.cpp" />
     <ClCompile Include="guardrgn.cpp" />
     <ClCompile Include="help.cpp" />
     <ClCompile Include="irequest.cpp" />
@@ -317,7 +318,6 @@
     <ClCompile Include="network\msghandl.cpp" />
     <ClCompile Include="musicrgn.cpp" />
     <ClCompile Include="network\clienttransmit.cpp" />
-    <ClCompile Include="network\clientthread.cpp" />
     <ClCompile Include="network\packetdefs.cpp" />
     <ClCompile Include="npc.cpp" />
     <ClCompile Include="npctemplates.cpp" />
@@ -341,11 +341,8 @@
     <ClCompile Include="polsig.cpp" />
     <ClCompile Include="polstats.cpp" />
     <ClCompile Include="poltest.cpp" />
-    <ClCompile Include="polvar.cpp" />
     <ClCompile Include="polwww.cpp" />
-    <ClCompile Include="profile.cpp" />
     <ClCompile Include="proplist.cpp" />
-    <ClCompile Include="readcfg.cpp" />
     <ClCompile Include="realms.cpp" />
     <ClCompile Include="reftypes.cpp" />
     <ClCompile Include="region.cpp" />
@@ -429,7 +426,6 @@
     <ClCompile Include="uoscrobj.cpp" />
     <ClCompile Include="uoskills.cpp" />
     <ClCompile Include="useskill.cpp" />
-    <ClCompile Include="uvars.cpp" />
     <ClCompile Include="uworld.cpp" />
     <ClCompile Include="vital.cpp" />
     <ClCompile Include="mobile\wornitems.cpp" />
@@ -476,6 +472,7 @@
     <ClCompile Include="network\cgdata.cpp" />
     <ClCompile Include="network\client.cpp" />
     <ClCompile Include="network\clientio.cpp" />
+	<ClCompile Include="network\clientthread.cpp" />
     <ClCompile Include="network\cliface.cpp" />
     <ClCompile Include="network\iostats.cpp" />
     <ClCompile Include="network\packethooks.cpp" />
@@ -521,6 +518,10 @@
     <ClInclude Include="checkpnt.h" />
     <ClInclude Include="clfunc.h" />
     <ClInclude Include="clidata.h" />
+	<ClInclude Include="console.h" />
+	<ClInclude Include="globals\multidefs.h" />
+    <ClInclude Include="globals\ucfg.h" />
+    <ClInclude Include="globals\uvars.h" />
 	<ClInclude Include="network\clientthread.h" />
     <ClInclude Include="cmbtcfg.h" />
     <ClInclude Include="cmdlevel.h" />
@@ -535,13 +536,10 @@
     <ClInclude Include="equipdsc.h" />
     <ClInclude Include="eventid.h" />
     <ClInclude Include="exscrobj.h" />
-    <ClInclude Include="extcmd.h" />
     <ClInclude Include="extobj.h" />
     <ClInclude Include="fnsearch.h" />
     <ClInclude Include="gameclck.h" />
     <ClInclude Include="getitem.h" />
-    <ClInclude Include="gflag.h" />
-    <ClInclude Include="gprops.h" />
     <ClInclude Include="guardrgn.h" />
     <ClInclude Include="layers.h" />
     <ClInclude Include="lightlvl.h" />
@@ -560,6 +558,8 @@
     <ClInclude Include="musicrgn.h" />
     <ClInclude Include="network\clienttransmit.h" />
     <ClInclude Include="network\packetdefs.h" />
+	<ClInclude Include="network\packethelper.h" />
+    <ClInclude Include="network\packetinterface.h" />
     <ClInclude Include="npc.h" />
     <ClInclude Include="npctmpl.h" />
     <ClInclude Include="objecthash.h" />
@@ -591,7 +591,6 @@
     <ClInclude Include="profile.h" />
     <ClInclude Include="property.h" />
     <ClInclude Include="proplist.h" />
-    <ClInclude Include="readcfg.h" />
     <ClInclude Include="realms.h" />
     <ClInclude Include="reftypes.h" />
     <ClInclude Include="region.h" />
@@ -627,7 +626,6 @@
     <ClInclude Include="tiplist.h" />
     <ClInclude Include="tmpvars.h" />
     <ClInclude Include="tooltips.h" />
-    <ClInclude Include="ucfg.h" />
     <ClInclude Include="uconst.h" />
     <ClInclude Include="udatfile.h" />
     <ClInclude Include="ufunc.h" />
@@ -649,7 +647,6 @@
     <ClInclude Include="uoskills.h" />
     <ClInclude Include="ustruct.h" />
     <ClInclude Include="utype.h" />
-    <ClInclude Include="uvars.h" />
     <ClInclude Include="uworld.h" />
     <ClInclude Include="vital.h" />
     <ClInclude Include="watch.h" />

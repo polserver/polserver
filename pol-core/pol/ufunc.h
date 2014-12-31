@@ -54,16 +54,6 @@ namespace Pol {
 	class Menu;
 	enum UFACING;
 
-
-	const u32 CHARACTERSERIAL_START = 0x00000001Lu;
-	const u32 CHARACTERSERIAL_END = 0x3FFFFFFFLu;
-	const u32 ITEMSERIAL_START = 0x40000000Lu;
-	const u32 ITEMSERIAL_END = 0x7FffFFffLu;
-
-	extern u32 itemserialnumber;
-	extern u32 nonsaveditemserialnumber;
-	extern u32 charserialnumber;
-
 	void SetCurrentItemSerialNumber( u32 serial );
 	void SetCurrentCharSerialNumber( u32 serial );
 	u32 GetNextSerialNumber();
