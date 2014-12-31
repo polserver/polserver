@@ -19,6 +19,7 @@ Notes
 #define MAX_STACK_ITEMS		60000L
 #define MAX_WEIGHT          65535L
 
+#include "../../clib/maputil.h"
 #include "../../clib/refptr.h"
 
 #include <boost/noncopyable.hpp>
@@ -27,6 +28,9 @@ Notes
 #include <string>
 
 namespace Pol {
+  namespace Module {
+	class DataStoreFile;
+  }
   namespace Core {
   class StoredConfigFile;
   typedef ref_ptr<StoredConfigFile> ConfigFileRef;
@@ -34,6 +38,7 @@ namespace Pol {
   typedef std::map<std::string, ConfigFileRef> CfgFiles;
   typedef std::vector<std::string> OldCfgFiles; // we've multiple older instances
 
+  typedef std::map< std::string, Module::DataStoreFile*, Clib::ci_cmp_pred > DataStore;
   // used for Pol and RunEcl
 
   class ConfigurationBuffer : boost::noncopyable
@@ -44,8 +49,9 @@ namespace Pol {
 
 	  void deinialize();
 
-	  Core::CfgFiles cfgfiles;
-	  Core::OldCfgFiles oldcfgfiles;
+	  CfgFiles cfgfiles;
+	  OldCfgFiles oldcfgfiles;
+	  DataStore datastore;
 	private:
   };
 

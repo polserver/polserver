@@ -245,7 +245,6 @@ namespace Pol {
 	  paramtextcmds(),
 	  uo_skills(),
 	  polsocket()
-	  
 	{
 	  memset( ipaddr_str, 0, sizeof ipaddr_str );
 	  memset( lanaddr_str, 0, sizeof lanaddr_str );
@@ -258,7 +257,11 @@ namespace Pol {
 	  Network::PacketRegistry::initialize_msg_handlers();
 	}
 	GameState::~GameState()
-	{}
+	{
+	  // FIXME: since deconstruction of externs has a more or less random order
+	  // everything should be cleared before.
+	  // or make sure that the globals get deconstructed before eg the flyweight string container
+	}
 
 	void display_leftover_objects();
 
@@ -324,6 +327,22 @@ namespace Pol {
 	  checkpoint( "misc cleanup" );
 
 	  scrstore.clear();
+
+	  global_properties->clear();
+	  menus.clear();
+	  incremental_serial_index.clear();
+	  deferred_insertions.clear();
+	  modified_serials.clear();
+	  deleted_serials.clear();
+
+	  textcmds.clear();
+	  paramtextcmds.clear();
+	  Global_Ignore_CProps.clear();
+	  mime_types.clear();
+	  console_commands.clear();
+	  animation_translates.clear();
+	  banned_ips.clear();
+	  tipfilenames.clear();
 
 #ifdef _WIN32
 	  closesocket( polsocket.listen_socket );
@@ -457,6 +476,8 @@ namespace Pol {
 	  clean_resources();
 
 	  Clib::delete_all( Realms );
+	  shadowrealms_by_id.clear();
+	  main_realm = nullptr;
 
 	  //delete_all(vitals);
 	  clean_vitals();
@@ -538,6 +559,8 @@ namespace Pol {
 		templates.second = NULL;
 	  }
 	  npc_templates.clear();
+
+	  npc_template_elems.clear();
 	}
 
 

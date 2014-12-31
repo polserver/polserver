@@ -39,6 +39,9 @@
     <Filter Include="item">
       <UniqueIdentifier>{b093dcf4-0c75-4235-85ce-ede14f290c56}</UniqueIdentifier>
     </Filter>
+	<Filter Include="globals">
+      <UniqueIdentifier>{9974fe35-eaa2-4dd0-a1d4-11b9e0cd72b7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="allocd.cpp">
@@ -655,7 +658,6 @@
     </ClCompile>
     <ClCompile Include="globals\multidefs.cpp">
       <Filter>globals</Filter>
-      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1273,6 +1275,9 @@
     </ClInclude>
     <ClInclude Include="globals\multidefs.h">
       <Filter>globals</Filter>
+    </ClInclude>
+	<ClInclude Include="module\datastoreimp.h">
+      <Filter>module</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

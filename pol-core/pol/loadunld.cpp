@@ -60,7 +60,6 @@ namespace Pol {
     void initialize_client_interfaces( );
   }
   namespace Module {
-    void unload_datastore( );
     void load_fileaccess_cfg( );
   }
   namespace Core {
@@ -281,8 +280,6 @@ namespace Pol {
 	  Items::unload_itemdesc();
 
 	  unload_party();
-
-	  Module::unload_datastore();
 	}
   }
 }

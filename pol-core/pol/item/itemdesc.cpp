@@ -1132,6 +1132,11 @@ namespace Pol {
 
 	  Core::gamestate.objtype_byname.clear();
 	  Core::gamestate.old_objtype_conversions.clear();
+	  for ( auto &item : Core::gamestate.dynamic_item_descriptors )
+      {
+        delete item;
+      }
+      Core::gamestate.dynamic_item_descriptors.clear();
 
 	}
 
