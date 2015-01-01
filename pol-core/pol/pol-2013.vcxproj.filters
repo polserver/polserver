@@ -1282,6 +1282,9 @@
     <ClInclude Include="globals\multidefs.h">
       <Filter>globals</Filter>
     </ClInclude>
+    <ClInclude Include="module\datastoreimp.h">
+      <Filter>module</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="pol.rc">

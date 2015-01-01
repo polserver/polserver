@@ -1942,7 +1942,7 @@ namespace Pol {
 	  LONG_COREVAR( scripts_ontime_per_min, GET_PROFILEVAR_PER_MIN( scripts_ontime ) );
 
 	  LONG_COREVAR( instr_per_min, gamestate.profilevars.last_sipm );
-	  LONG_COREVAR( gamestate.priority_divide, gamestate.priority_divide );
+	  LONG_COREVAR( priority_divide, gamestate.priority_divide );
 	  if ( stricmp( corevar, "verstr" ) == 0 ) return new String( progverstr );
 	  if ( stricmp( corevar, "compiledate" ) == 0 ) return new String( compiledate );
 	  if ( stricmp( corevar, "compiletime" ) == 0 ) return new String( compiletime );

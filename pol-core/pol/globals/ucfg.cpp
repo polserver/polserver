@@ -2,6 +2,8 @@
 #include "ucfg.h"
 
 #include "../cfgrepos.h"
+#include "../module/datastoreimp.h"
+
 namespace Pol {
   namespace Core {
 
@@ -9,7 +11,8 @@ namespace Pol {
 
 	ConfigurationBuffer::ConfigurationBuffer() :
 	  cfgfiles(),
-	  oldcfgfiles()
+	  oldcfgfiles(),
+	  datastore()
 	{
 	}
 
@@ -21,6 +24,14 @@ namespace Pol {
 	  // ToDo: we have to think over... it's a problem with script-inside references
 	  oldcfgfiles.clear();
 	  cfgfiles.clear();
+
+	  for ( Core::DataStore::iterator itr = datastore.begin(); itr != datastore.end(); ++itr )
+	  {
+		Module::DataStoreFile* dsf = ( *itr ).second;
+		delete dsf;
+
+	  }
+	  datastore.clear();
 	}
   }
 }
