@@ -20,7 +20,7 @@ namespace Pol {
 	ConfigurationBuffer::~ConfigurationBuffer()
 	{}
 
-	void ConfigurationBuffer::deinialize()
+	void ConfigurationBuffer::deinitialize()
 	{
 	  // ToDo: we have to think over... it's a problem with script-inside references
 	  oldcfgfiles.clear();

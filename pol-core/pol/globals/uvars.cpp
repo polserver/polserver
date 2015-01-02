@@ -21,6 +21,7 @@ Notes
 #include "settings.h"
 #include "state.h"
 #include "object_storage.h"
+#include "ucfg.h"
 
 #include "../../clib/clib.h"
 #include "../../clib/logfacility.h"
@@ -214,7 +215,7 @@ namespace Pol {
 
 	  system_hooks.unload_system_hooks();
 
-	  configurationbuffer.deinialize();
+	  configurationbuffer.deinitialize();
 
 	  Plib::systemstate.deinitialize();
 	  Multi::multidef_buffer.deinitialize();

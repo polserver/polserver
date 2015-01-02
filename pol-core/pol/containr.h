@@ -22,14 +22,7 @@ Notes
 #include "lockable.h"
 #endif
 
-#ifndef UCFG_H
-#include "globals/ucfg.h"
-#endif
-
-#include "layers.h"
-#include "objtype.h"
 #include "reftypes.h"
-
 
 #define CONTAINER_STORES_ITEMREF 0
 

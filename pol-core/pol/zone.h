@@ -26,16 +26,6 @@ namespace Pol {
 	const unsigned WORLD_MIN_Y = 0;
 	const unsigned WORLD_MAX_Y = 4094;
 
-	inline bool VALID_WORLD_LOC( unsigned short x, unsigned short y, Plib::Realm* realm )
-	{
-	  return realm->valid( x, y, 0 );
-	}
-	inline bool VALID_WORLD_LOC( unsigned short x, unsigned short y, short z, Plib::Realm* realm )
-	{
-	  return realm->valid( x, y, z );
-	}
-
-
 	const unsigned ZONE_SIZE = 4;
 	const unsigned ZONE_SHIFT = 2;
 

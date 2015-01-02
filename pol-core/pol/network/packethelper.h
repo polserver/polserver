@@ -17,47 +17,80 @@ namespace Pol {
         return static_cast<T*>(Core::networkManager.packetsSingleton->getPacket(id, sub));
       };
 
-      inline void ReAddPacket(PacketInterface* msg) { Core::networkManager.packetsSingleton->ReAddPacket(msg); };
+	  inline void ReAddPacket( PacketInterface* msg )
+	  { 
+		Core::networkManager.packetsSingleton->ReAddPacket(msg); 
+	  };
 
       template <class T>
       class PacketOut
       {
        private:
-        T* pkt;
+         T* pkt;
 
        public:
-        PacketOut() { pkt = RequestPacket<T>(T::ID, T::SUB); };
-        ~PacketOut()
-        {
-          if (pkt != 0)
-            ReAddPacket(pkt);
-        };
-        void Release()
-        {
-          ReAddPacket(pkt);
-          pkt = 0;
-        };
-        void Send(Client* client, int len = -1) const
-        {
-          if (pkt == 0)
-            return;
-          if (len == -1)
-            len = pkt->offset;
-          Core::networkManager.clientTransmit->AddToQueue(client, &pkt->buffer, len);
-        };
-        // be really really careful with this function
-        // needs PolLock
-        void SendDirect(Client* client, int len = -1) const
-        {
-          if (pkt == 0)
-            return;
-          if (len == -1)
-            len = pkt->offset;
-          client->transmit(&pkt->buffer, len);
-        };
-        T* operator->(void) const { return pkt; };
-        T* Get() { return pkt; };
+		 PacketOut();
+		 ~PacketOut();
+		 void Release();
+		 void Send( Client* client, int len = -1 ) const;
+         // be really really careful with this function
+         // needs PolLock
+		 void SendDirect( Client* client, int len = -1 ) const;
+		 T* operator->(void) const;
+		 T* Get();
       };
+
+	  template <class T>
+	  PacketOut<T>::PacketOut() 
+	  { 
+		pkt = RequestPacket<T>(T::ID, T::SUB);
+	  }
+
+      template <class T>
+	  PacketOut<T>::~PacketOut()
+      {
+        if (pkt != 0)
+          ReAddPacket(pkt);
+      }
+
+	  template <class T>
+      void PacketOut<T>::Release()
+      {
+        ReAddPacket(pkt);
+        pkt = 0;
+      }
+
+	  template <class T>
+      void PacketOut<T>::Send(Client* client, int len = -1) const
+      {
+        if (pkt == 0)
+          return;
+        if (len == -1)
+          len = pkt->offset;
+        Core::networkManager.clientTransmit->AddToQueue(client, &pkt->buffer, len);
+      }
+
+	  template <class T>
+      void PacketOut<T>::SendDirect(Client* client, int len = -1) const
+      {
+        if (pkt == 0)
+          return;
+        if (len == -1)
+          len = pkt->offset;
+        client->transmit(&pkt->buffer, len);
+      }
+
+	  template <class T>
+      T* PacketOut<T>::operator->(void) const 
+	  { 
+		return pkt;
+	  }
+
+	  template <class T>
+      T* PacketOut<T>::Get() 
+	  { 
+		return pkt;
+	  }
     }
   }
 }

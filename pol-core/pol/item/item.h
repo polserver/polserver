@@ -12,7 +12,6 @@ Notes
 
 #ifndef ITEM_H
 #define ITEM_H
-#define __ITEM_H
 
 #include "../uobject.h"
 
@@ -234,8 +233,6 @@ namespace Pol {
 	  bool has_resistance( Mobile::Character* chr );
 	  bool has_element_damage();
 	};
-
-	//typedef ref_ptr<Item> ItemRefPtr;
 
 	inline u16 Item::getamount() const
 	{

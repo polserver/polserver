@@ -32,17 +32,7 @@ namespace Pol {
 	class PacketHookData
 	{
 	public:
-	  PacketHookData() :
-		length( 0 ),
-		function( NULL ),
-		outgoing_function( NULL ),
-		default_handler( NULL ),
-		sub_command_offset( 0 ),
-		sub_command_length( 0 ),
-        version(PacketVersion::Default)
-	  {
-		memset( &client_ver, 0, sizeof( client_ver ) );
-	  };
+	  PacketHookData();
 	  ~PacketHookData();
 
 	  int length; // if MSGLEN_2BYTELEN_DATA, variable length

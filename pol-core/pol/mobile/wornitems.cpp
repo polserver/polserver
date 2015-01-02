@@ -3,7 +3,7 @@
 
 #include "charactr.h"
 #include "../item/itemdesc.h"
-
+#include "../objtype.h"
 #include "../globals/uvars.h"
 #include "../../clib/streamsaver.h"
 
