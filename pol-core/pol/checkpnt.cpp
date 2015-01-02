@@ -12,13 +12,13 @@ Notes
 #include "../plib/systemstate.h"
 #include "../clib/logfacility.h"
 
-#include "globals/uvars.h"
+#include "globals/state.h"
 
 namespace Pol {
   namespace Core {
 	void checkpoint( const char* msg, unsigned short minlvl /* = 11 */ )
 	{
-	  Core::gamestate.last_checkpoint = msg;
+	  Core::stateManager.last_checkpoint = msg;
 	  if ( Plib::systemstate.config.loglevel >= minlvl )
 	  {
         POLLOG_INFO << "checkpoint: " << msg << "\n";

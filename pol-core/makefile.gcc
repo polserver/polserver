@@ -94,7 +94,7 @@ cpp_sources = \
 	pol/module/filemod.cpp pol/fnsearch.cpp \
 	pol/gameclck.cpp pol/getitem.cpp pol/getmsg.cpp \
 	pol/guardrgn.cpp\
-	pol/module/guildmod.cpp \
+	pol/guilds.cpp pol/module/guildmod.cpp \
 	pol/module/basiciomod.cpp pol/module/basicmod.cpp \
 	pol/help.cpp pol/multi/house.cpp \
 	pol/network/iostats.cpp pol/irequest.cpp pol/item/item.cpp pol/item/item00.cpp \
@@ -140,8 +140,10 @@ cpp_sources = \
 	pol/uolisten.cpp \
 	pol/uoscrobj.cpp pol/uoskills.cpp pol/useskill.cpp \
 	pol/module/utilmod.cpp pol/module/sqlmod.cpp \
-	pol/globals/uvars.cpp pol/uworld.cpp pol/globals/ucfg.cpp pol/globals/multidefs.cpp \
-	pol/vital.cpp \
+	pol/globals/uvars.cpp pol/globals/ucfg.cpp pol/globals/multidefs.cpp \
+	pol/globals/network.cpp pol/globals/script_internals.cpp pol/globals/settings.cpp \
+	pol/globals/state.cpp pol/globals/object_storage.cpp \
+	pol/uworld.cpp pol/vital.cpp \
 	pol/item/weapon.cpp \
 	pol/zone.cpp \
 	pol/module/attributemod.cpp pol/module/clmod.cpp pol/clfunc.cpp pol/module/storagemod.cpp pol/module/vitalmod.cpp \

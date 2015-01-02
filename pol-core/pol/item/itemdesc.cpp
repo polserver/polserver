@@ -36,11 +36,11 @@ Notes
 #include "../multi/multidef.h"
 #include "../resource.h"
 #include "../polcfg.h"
-#include "../ssopt.h"
 #include "../syshookscript.h"
 #include "../globals/ucfg.h"
 #include "../ustruct.h"
 #include "../globals/uvars.h"
+#include "../globals/settings.h"
 
 #include "../../clib/cfgelem.h"
 #include "../../clib/cfgfile.h"
@@ -165,7 +165,7 @@ namespace Pol {
 	  objtype( objtype ),
 	  graphic( elem.remove_ushort( "GRAPHIC", 0 ) ),
 	  // Changed from Valid Color Mask to cfg mask in ssopt.
-      color( elem.remove_ushort( "COLOR", 0 ) & Core::gamestate.ssopt.item_color_mask ),
+      color( elem.remove_ushort( "COLOR", 0 ) & Core::settingsManager.ssopt.item_color_mask ),
 	  facing( static_cast<unsigned char>( elem.remove_ushort( "FACING", 127 ) ) ),
 	  desc( elem.remove_string( "DESC", "" ) ),
 	  tooltip( elem.remove_string( "TOOLTIP", "" ) ),
@@ -180,9 +180,9 @@ namespace Pol {
 	  lockable( elem.remove_bool( "LOCKABLE", false ) ),
 	  vendor_sells_for( elem.remove_ulong( "VENDORSELLSFOR", 0 ) ),
 	  vendor_buys_for( elem.remove_ulong( "VENDORBUYSFOR", 0 ) ),
-      decay_time( elem.remove_ulong( "DECAYTIME", Core::gamestate.ssopt.default_decay_time ) ),
+      decay_time( elem.remove_ulong( "DECAYTIME", Core::settingsManager.ssopt.default_decay_time ) ),
 	  movable( DEFAULT ),
-      doubleclick_range( elem.remove_ushort( "DoubleclickRange", Core::gamestate.ssopt.default_doubleclick_range ) ),
+      doubleclick_range( elem.remove_ushort( "DoubleclickRange", Core::settingsManager.ssopt.default_doubleclick_range ) ),
 	  use_requires_los( elem.remove_bool( "UseRequiresLOS", true ) ), //Dave 11/24
 	  ghosts_can_use( elem.remove_bool( "GhostsCanUse", false ) ), //Dave 11/24
 	  can_use_while_paralyzed( elem.remove_bool( "CanUseWhileParalyzed", false ) ),
@@ -465,9 +465,9 @@ namespace Pol {
 	  lockable( false ),
 	  vendor_sells_for( 0 ),
 	  vendor_buys_for( 0 ),
-      decay_time( Core::gamestate.ssopt.default_decay_time ),
+      decay_time( Core::settingsManager.ssopt.default_decay_time ),
 	  movable( DEFAULT ),
-      doubleclick_range( Core::gamestate.ssopt.default_doubleclick_range ),
+      doubleclick_range( Core::settingsManager.ssopt.default_doubleclick_range ),
 	  use_requires_los( true ),
 	  ghosts_can_use( false ),
 	  can_use_while_paralyzed ( false ),
@@ -641,9 +641,9 @@ namespace Pol {
 	  maxx( elem.remove_ushort( "MAXX" ) ),
 	  miny( elem.remove_ushort( "MINY" ) ),
 	  maxy( elem.remove_ushort( "MAXY" ) ),
-	  max_weight( elem.remove_ushort( "MAXWEIGHT", Core::gamestate.ssopt.default_container_max_weight ) ),
-	  max_items( elem.remove_ushort( "MAXITEMS", Core::gamestate.ssopt.default_container_max_items ) ),
-	  max_slots( static_cast<u8>( elem.remove_ushort( "MAXSLOTS", Core::gamestate.ssopt.default_max_slots ) ) ),
+	  max_weight( elem.remove_ushort( "MAXWEIGHT", Core::settingsManager.ssopt.default_container_max_weight ) ),
+	  max_items( elem.remove_ushort( "MAXITEMS", Core::settingsManager.ssopt.default_container_max_items ) ),
+	  max_slots( static_cast<u8>( elem.remove_ushort( "MAXSLOTS", Core::settingsManager.ssopt.default_max_slots ) ) ),
 	  can_insert_script( elem.remove_string( "CANINSERTSCRIPT", "" ), pkg, "scripts/control/" ),
 	  on_insert_script( elem.remove_string( "ONINSERTSCRIPT", "" ), pkg, "scripts/control/" ),
 	  can_remove_script( elem.remove_string( "CANREMOVESCRIPT", "" ), pkg, "scripts/control/" ),

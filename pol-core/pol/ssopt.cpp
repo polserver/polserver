@@ -22,7 +22,7 @@ Notes
 
 #include "ssopt.h"
 #include "pktdef.h"
-#include "globals/uvars.h"
+#include "globals/settings.h"
 
 #include "mobile/attribute.h"
 
@@ -56,53 +56,53 @@ namespace Pol {
 		cf.readraw( elem );
 	  }
 
-	  gamestate.ssopt.allow_secure_trading_in_warmode = elem.remove_bool( "AllowSecureTradingInWarMode", false );
-	  gamestate.ssopt.dblclick_wait = elem.remove_ulong( "DoubleClickWait", 0 );
-	  gamestate.ssopt.decay_items = elem.remove_bool( "DecayItems", true );
-	  gamestate.ssopt.default_decay_time = elem.remove_ulong( "DefaultDecayTime", 10 );
-	  gamestate.ssopt.default_doubleclick_range = elem.remove_ushort( "DefaultDoubleclickRange", 2 );
-	  gamestate.ssopt.default_light_level = elem.remove_ushort( "DefaultLightLevel", 10 );
-	  gamestate.ssopt.event_visibility_core_checks = elem.remove_bool( "EventVisibilityCoreChecks", false );
-	  gamestate.ssopt.max_pathfind_range = elem.remove_ulong( "MaxPathFindRange", 50 );
-	  gamestate.ssopt.movement_uses_stamina = elem.remove_bool( "MovementUsesStamina", false );
-	  gamestate.ssopt.use_tile_flag_prefix = elem.remove_bool( "UseTileFlagPrefix", true );
-	  gamestate.ssopt.default_container_max_items = elem.remove_ushort( "DefaultContainerMaxItems", 125 );
-	  gamestate.ssopt.default_container_max_weight = elem.remove_ushort( "DefaultContainerMaxWeight", 250 );
-	  gamestate.ssopt.hidden_turns_count = elem.remove_bool( "HiddenTurnsCount", true );
-	  gamestate.ssopt.invul_tag = elem.remove_ushort( "InvulTag", 1 );
-	  gamestate.ssopt.uo_feature_enable = elem.remove_ushort( "UOFeatureEnable", 0 );
-	  gamestate.ssopt.starting_gold = elem.remove_ushort( "StartingGold", 100 );
-	  gamestate.ssopt.item_color_mask = elem.remove_ushort( "ItemColorMask", 0xFFF );
-	  gamestate.ssopt.use_win_lfh = elem.remove_bool( "UseWinLFH", false );
-	  gamestate.ssopt.privacy_paperdoll = elem.remove_bool( "PrivacyPaperdoll", false );
-	  gamestate.ssopt.force_new_objcache_packets = elem.remove_bool( "ForceNewObjCachePackets", false );
-	  gamestate.ssopt.allow_moving_trade = elem.remove_bool( "AllowMovingTrade", false );
-	  gamestate.ssopt.core_handled_locks = elem.remove_bool( "CoreHandledLocks", false );
-	  gamestate.ssopt.default_attribute_cap = elem.remove_ushort( "DefaultAttributeCap", 1000 ); // 100.0
-	  gamestate.ssopt.default_max_slots = static_cast<unsigned char>( elem.remove_ushort( "MaxContainerSlots", 125 ) ); // this is fine as is, yeah we cast it but 0-255 what we want.
-	  gamestate.ssopt.use_slot_index = elem.remove_bool( "UseContainerSlots", false );
-	  gamestate.ssopt.use_edit_server = elem.remove_bool( "EditServer", false );
-	  gamestate.ssopt.carrying_capacity_mod = elem.remove_double( "CarryingCapacityMod", 1.0 );
-	  gamestate.ssopt.core_sends_caps = elem.remove_bool( "CoreSendsCaps", false );
-	  gamestate.ssopt.send_stat_locks = elem.remove_bool( "SendStatLocks", false );
-	  gamestate.ssopt.speech_range = elem.remove_ushort( "SpeechRange", 12 );
-	  gamestate.ssopt.whisper_range = elem.remove_ushort( "WhisperRange", 2 );
-	  gamestate.ssopt.yell_range = elem.remove_ushort( "YellRange", 25 );
-	  gamestate.ssopt.core_sends_season = elem.remove_bool( "CoreSendsSeason", true );
-	  gamestate.ssopt.core_handled_tags = elem.remove_ushort( "CoreHandledTags", 0xFFFF );
-	  gamestate.ssopt.support_faces = static_cast<unsigned char>( elem.remove_ushort( "SupportFaces", 0 ) );
-	  gamestate.ssopt.newbie_starting_equipment = elem.remove_bool( "NewbieStartingEquipment", true );
-	  gamestate.ssopt.speedhack_prevention = elem.remove_bool( "SpeedhackPrevention", false );
-	  gamestate.ssopt.scripted_merchant_handlers = elem.remove_bool( "ScriptedMerchantHandlers", false );
-	  gamestate.ssopt.honor_unequip_script_on_death = elem.remove_bool( "HonorUnequipScriptOnDeath", false );
+	  settingsManager.ssopt.allow_secure_trading_in_warmode = elem.remove_bool( "AllowSecureTradingInWarMode", false );
+	  settingsManager.ssopt.dblclick_wait = elem.remove_ulong( "DoubleClickWait", 0 );
+	  settingsManager.ssopt.decay_items = elem.remove_bool( "DecayItems", true );
+	  settingsManager.ssopt.default_decay_time = elem.remove_ulong( "DefaultDecayTime", 10 );
+	  settingsManager.ssopt.default_doubleclick_range = elem.remove_ushort( "DefaultDoubleclickRange", 2 );
+	  settingsManager.ssopt.default_light_level = elem.remove_ushort( "DefaultLightLevel", 10 );
+	  settingsManager.ssopt.event_visibility_core_checks = elem.remove_bool( "EventVisibilityCoreChecks", false );
+	  settingsManager.ssopt.max_pathfind_range = elem.remove_ulong( "MaxPathFindRange", 50 );
+	  settingsManager.ssopt.movement_uses_stamina = elem.remove_bool( "MovementUsesStamina", false );
+	  settingsManager.ssopt.use_tile_flag_prefix = elem.remove_bool( "UseTileFlagPrefix", true );
+	  settingsManager.ssopt.default_container_max_items = elem.remove_ushort( "DefaultContainerMaxItems", 125 );
+	  settingsManager.ssopt.default_container_max_weight = elem.remove_ushort( "DefaultContainerMaxWeight", 250 );
+	  settingsManager.ssopt.hidden_turns_count = elem.remove_bool( "HiddenTurnsCount", true );
+	  settingsManager.ssopt.invul_tag = elem.remove_ushort( "InvulTag", 1 );
+	  settingsManager.ssopt.uo_feature_enable = elem.remove_ushort( "UOFeatureEnable", 0 );
+	  settingsManager.ssopt.starting_gold = elem.remove_ushort( "StartingGold", 100 );
+	  settingsManager.ssopt.item_color_mask = elem.remove_ushort( "ItemColorMask", 0xFFF );
+	  settingsManager.ssopt.use_win_lfh = elem.remove_bool( "UseWinLFH", false );
+	  settingsManager.ssopt.privacy_paperdoll = elem.remove_bool( "PrivacyPaperdoll", false );
+	  settingsManager.ssopt.force_new_objcache_packets = elem.remove_bool( "ForceNewObjCachePackets", false );
+	  settingsManager.ssopt.allow_moving_trade = elem.remove_bool( "AllowMovingTrade", false );
+	  settingsManager.ssopt.core_handled_locks = elem.remove_bool( "CoreHandledLocks", false );
+	  settingsManager.ssopt.default_attribute_cap = elem.remove_ushort( "DefaultAttributeCap", 1000 ); // 100.0
+	  settingsManager.ssopt.default_max_slots = static_cast<unsigned char>( elem.remove_ushort( "MaxContainerSlots", 125 ) ); // this is fine as is, yeah we cast it but 0-255 what we want.
+	  settingsManager.ssopt.use_slot_index = elem.remove_bool( "UseContainerSlots", false );
+	  settingsManager.ssopt.use_edit_server = elem.remove_bool( "EditServer", false );
+	  settingsManager.ssopt.carrying_capacity_mod = elem.remove_double( "CarryingCapacityMod", 1.0 );
+	  settingsManager.ssopt.core_sends_caps = elem.remove_bool( "CoreSendsCaps", false );
+	  settingsManager.ssopt.send_stat_locks = elem.remove_bool( "SendStatLocks", false );
+	  settingsManager.ssopt.speech_range = elem.remove_ushort( "SpeechRange", 12 );
+	  settingsManager.ssopt.whisper_range = elem.remove_ushort( "WhisperRange", 2 );
+	  settingsManager.ssopt.yell_range = elem.remove_ushort( "YellRange", 25 );
+	  settingsManager.ssopt.core_sends_season = elem.remove_bool( "CoreSendsSeason", true );
+	  settingsManager.ssopt.core_handled_tags = elem.remove_ushort( "CoreHandledTags", 0xFFFF );
+	  settingsManager.ssopt.support_faces = static_cast<unsigned char>( elem.remove_ushort( "SupportFaces", 0 ) );
+	  settingsManager.ssopt.newbie_starting_equipment = elem.remove_bool( "NewbieStartingEquipment", true );
+	  settingsManager.ssopt.speedhack_prevention = elem.remove_bool( "SpeedhackPrevention", false );
+	  settingsManager.ssopt.scripted_merchant_handlers = elem.remove_bool( "ScriptedMerchantHandlers", false );
+	  settingsManager.ssopt.honor_unequip_script_on_death = elem.remove_bool( "HonorUnequipScriptOnDeath", false );
 
-	  gamestate.ssopt.speedhack_mountrundelay = elem.remove_ushort( "SpeedHack_MountRunDelay", PKTIN_02_MOUNT_RUN );
-	  gamestate.ssopt.speedhack_mountwalkdelay = elem.remove_ushort( "SpeedHack_MountWalkDelay", PKTIN_02_MOUNT_WALK );
-	  gamestate.ssopt.speedhack_footrundelay = elem.remove_ushort( "SpeedHack_FootRunDelay", PKTIN_02_FOOT_RUN );
-	  gamestate.ssopt.speedhack_footwalkdelay = elem.remove_ushort( "SpeedHack_FootWalkDelay", PKTIN_02_FOOT_WALK );
-	  gamestate.ssopt.seperate_speechtoken = elem.remove_bool( "SeperateSpeechTokens", false );
-	  gamestate.ssopt.core_sends_guildmsgs = elem.remove_bool( "CoreGuildMessages", true );
-	  gamestate.ssopt.mobiles_block_npc_movement = elem.remove_bool( "MobilesBlockNpcMovement", true );
+	  settingsManager.ssopt.speedhack_mountrundelay = elem.remove_ushort( "SpeedHack_MountRunDelay", PKTIN_02_MOUNT_RUN );
+	  settingsManager.ssopt.speedhack_mountwalkdelay = elem.remove_ushort( "SpeedHack_MountWalkDelay", PKTIN_02_MOUNT_WALK );
+	  settingsManager.ssopt.speedhack_footrundelay = elem.remove_ushort( "SpeedHack_FootRunDelay", PKTIN_02_FOOT_RUN );
+	  settingsManager.ssopt.speedhack_footwalkdelay = elem.remove_ushort( "SpeedHack_FootWalkDelay", PKTIN_02_FOOT_WALK );
+	  settingsManager.ssopt.seperate_speechtoken = elem.remove_bool( "SeperateSpeechTokens", false );
+	  settingsManager.ssopt.core_sends_guildmsgs = elem.remove_bool( "CoreGuildMessages", true );
+	  settingsManager.ssopt.mobiles_block_npc_movement = elem.remove_bool( "MobilesBlockNpcMovement", true );
 	  ssopt_parse_totalstats( elem );
 
 	  // Turley 2009/11/06 u8 range...
@@ -132,7 +132,7 @@ namespace Pol {
 	  // <max> must be higher than <min>
 
 	  bool valok = true;
-	  gamestate.ssopt.total_stats_at_creation.clear();
+	  settingsManager.ssopt.total_stats_at_creation.clear();
 	  token = strtok( tmpcopy, "," );
 	  while ( token != NULL && valok )
 	  {
@@ -155,16 +155,16 @@ namespace Pol {
 		}
 		else
 		  sprintf( tmp, "%lu", static_cast<unsigned long>( statmin ) );
-		gamestate.ssopt.total_stats_at_creation.push_back( tmp );
+		settingsManager.ssopt.total_stats_at_creation.push_back( tmp );
 		valok = true;
 		token = strtok( NULL, "," );
 	  }
 
-	  if ( !valok || gamestate.ssopt.total_stats_at_creation.empty() )
+	  if ( !valok || settingsManager.ssopt.total_stats_at_creation.empty() )
 	  {
-		gamestate.ssopt.total_stats_at_creation.clear();
-		gamestate.ssopt.total_stats_at_creation.push_back( "65" );
-		gamestate.ssopt.total_stats_at_creation.push_back( "80" );
+		settingsManager.ssopt.total_stats_at_creation.clear();
+		settingsManager.ssopt.total_stats_at_creation.push_back( "65" );
+		settingsManager.ssopt.total_stats_at_creation.push_back( "80" );
         POLLOG_ERROR << "Invalid TotalStatsAtCreation value '"
 		  << total_stats << "', using '65,80'\n";
 	  }

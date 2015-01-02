@@ -23,7 +23,9 @@ Notes
 #include "../skillid.h"
 #include "../ufunc.h"
 #include "../umanip.h"
+#include "../globals/state.h"
 #include "../globals/uvars.h"
+#include "../globals/object_storage.h"
 #include "../containr.h"
 
 #include "../../bscript/bstruct.h"
@@ -265,13 +267,13 @@ namespace Pol {
 
 		wpn->serial = Core::GetNewItemSerialNumber();
 		wpn->serial_ext = ctBEu32( wpn->serial );
-		Core::gamestate.objecthash.Insert( wpn );
+		Core::objStorageManager.objecthash.Insert( wpn );
 	  }
 	}
 
 	UWeapon* create_intrinsic_weapon( const char* name, Clib::ConfigElem& elem, const Plib::Package* pkg )
 	{
-	  auto tmpl = new WeaponDesc( Core::gamestate.extobj.wrestling, elem, pkg );
+	  auto tmpl = new WeaponDesc( Core::settingsManager.extobj.wrestling, elem, pkg );
 	  tmpl->is_intrinsic = true;
 	  auto wpn = new UWeapon( *tmpl, tmpl );
 	  wpn->tmpl = tmpl;
@@ -280,11 +282,11 @@ namespace Pol {
 
 	  // during system startup, defer serial allocation in order to avoid clashes with 
 	  // saved items.
-      if ( !Core::gamestate.gflag_in_system_startup )
+      if ( !Core::stateManager.gflag_in_system_startup )
 	  {
         wpn->serial = Core::GetNewItemSerialNumber( );
 		wpn->serial_ext = ctBEu32( wpn->serial );
-        Core::gamestate.objecthash.Insert( wpn );
+        Core::objStorageManager.objecthash.Insert( wpn );
 	  }
 
 	  Core::gamestate.intrinsic_weapons.insert( Core::IntrinsicWeapons::value_type( name, wpn ) );
@@ -298,9 +300,9 @@ namespace Pol {
 
 	void load_intrinsic_weapons()
 	{
-      const ItemDesc& id = find_itemdesc( Core::gamestate.extobj.wrestling );
+      const ItemDesc& id = find_itemdesc( Core::settingsManager.extobj.wrestling );
 	  if ( id.save_on_exit )
-          throw std::runtime_error("Wrestling weapon " + Clib::hexint(Core::gamestate.extobj.wrestling) + " must specify SaveOnExit 0");
+          throw std::runtime_error("Wrestling weapon " + Clib::hexint(Core::settingsManager.extobj.wrestling) + " must specify SaveOnExit 0");
 
 	  if ( id.type == ItemDesc::WEAPONDESC )
 	  {

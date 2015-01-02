@@ -22,7 +22,7 @@ Notes
 #endif
 
 #include "../layers.h"
-#include "../globals/uvars.h"
+#include "../globals/settings.h"
 
 namespace Pol {
   namespace Core {
@@ -312,9 +312,9 @@ namespace Pol {
 
 	inline bool Item::slot_index( u8 newvalue )
 	{
-	  if ( Core::gamestate.ssopt.use_slot_index )
+	  if ( Core::settingsManager.ssopt.use_slot_index )
 	  {
-		if ( newvalue < Core::gamestate.ssopt.default_max_slots )
+		if ( newvalue < Core::settingsManager.ssopt.default_max_slots )
 		{
 		  slot_index_ = newvalue;
 		  return true;

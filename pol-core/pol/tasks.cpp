@@ -21,8 +21,6 @@ Notes
 #include "polcfg.h"
 #include "polclock.h"
 #include "polfile.h"
-#include "polsig.h"
-#include "profile.h"
 #include "realms.h"
 #include "schedule.h"
 #include "scrsched.h"
@@ -30,6 +28,7 @@ Notes
 #include "statmsg.h"
 #include "ufunc.h"
 #include "globals/uvars.h"
+#include "globals/state.h"
 #include "uworld.h"
 #include "vital.h"
 
@@ -78,7 +77,7 @@ namespace Pol {
 
         // If in warmode, don't regenerate.
         // If regeneration is currently disabled, don't do it either.
-        if ( ( chr->warmode && gamestate.combat_config.warmode_inhibits_regen ) ||
+        if ( ( chr->warmode && settingsManager.combat_config.warmode_inhibits_regen ) ||
              ( now <= chr->disable_regeneration_until ) )
         {
           return;
@@ -151,24 +150,24 @@ namespace Pol {
 	  __int64 kt = *(__int64*)&k;
 	  __int64 ut = *(__int64*)&u;
 	  __int64 tot = ( kt + ut ) / 10; // convert to microseconds
-	  gamestate.profilevars.last_cputime = 0;
-	  gamestate.profilevars.last_cpu_total = tot;
+	  stateManager.profilevars.last_cputime = 0;
+	  stateManager.profilevars.last_cpu_total = tot;
 #endif
 	}
 
 	void update_rpm( void )
 	{
 	  THREAD_CHECKPOINT( tasks, 300 );
-	  gamestate.profilevars.last_sipm = static_cast<unsigned int>( Bscript::escript_instr_cycles - gamestate.profilevars.last_instructions );
-	  gamestate.profilevars.last_instructions = Bscript::escript_instr_cycles;
+	  stateManager.profilevars.last_sipm = static_cast<unsigned int>( Bscript::escript_instr_cycles - stateManager.profilevars.last_instructions );
+	  stateManager.profilevars.last_instructions = Bscript::escript_instr_cycles;
 
-	  gamestate.profilevars.last_scpm = static_cast<unsigned int>( gamestate.profilevars.sleep_cycles - gamestate.profilevars.last_sleep_cycles );
-	  gamestate.profilevars.last_sleep_cycles = gamestate.profilevars.sleep_cycles;
+	  stateManager.profilevars.last_scpm = static_cast<unsigned int>( stateManager.profilevars.sleep_cycles - stateManager.profilevars.last_sleep_cycles );
+	  stateManager.profilevars.last_sleep_cycles = stateManager.profilevars.sleep_cycles;
 
-	  gamestate.profilevars.last_script_passes_activity = gamestate.profilevars.script_passes_activity;
-	  gamestate.profilevars.script_passes_activity = 0;
-	  gamestate.profilevars.last_script_passes_noactivity = gamestate.profilevars.script_passes_noactivity;
-	  gamestate.profilevars.script_passes_noactivity = 0;
+	  stateManager.profilevars.last_script_passes_activity = stateManager.profilevars.script_passes_activity;
+	  stateManager.profilevars.script_passes_activity = 0;
+	  stateManager.profilevars.last_script_passes_noactivity = stateManager.profilevars.script_passes_noactivity;
+	  stateManager.profilevars.script_passes_noactivity = 0;
 
 	  TICK_PROFILEVAR( events );
 	  TICK_PROFILEVAR( skill_checks );
@@ -202,57 +201,57 @@ namespace Pol {
 	  __int64 kt = *(__int64*)&k;
 	  __int64 ut = *(__int64*)&u;
 	  __int64 tot = ( kt + ut ) / 10; // convert to microseconds
-	  gamestate.profilevars.last_cputime = static_cast<unsigned int>( tot - gamestate.profilevars.last_cpu_total );
-	  gamestate.profilevars.last_cpu_total = tot;
+	  stateManager.profilevars.last_cputime = static_cast<unsigned int>( tot - stateManager.profilevars.last_cpu_total );
+	  stateManager.profilevars.last_cpu_total = tot;
 #endif
 
-	  gamestate.profilevars.last_busy_sysload_cycles = gamestate.profilevars.busy_sysload_cycles;
-	  gamestate.profilevars.last_nonbusy_sysload_cycles = gamestate.profilevars.nonbusy_sysload_cycles;
-	  size_t total_cycles = gamestate.profilevars.busy_sysload_cycles + gamestate.profilevars.nonbusy_sysload_cycles;
+	  stateManager.profilevars.last_busy_sysload_cycles = stateManager.profilevars.busy_sysload_cycles;
+	  stateManager.profilevars.last_nonbusy_sysload_cycles = stateManager.profilevars.nonbusy_sysload_cycles;
+	  size_t total_cycles = stateManager.profilevars.busy_sysload_cycles + stateManager.profilevars.nonbusy_sysload_cycles;
 	  if ( total_cycles )
 	  {
-		gamestate.profilevars.last_sysload = gamestate.profilevars.busy_sysload_cycles * 100 / total_cycles;
-		gamestate.profilevars.last_sysload_nprocs = gamestate.profilevars.sysload_nprocs * 10 / total_cycles;
+		stateManager.profilevars.last_sysload = stateManager.profilevars.busy_sysload_cycles * 100 / total_cycles;
+		stateManager.profilevars.last_sysload_nprocs = stateManager.profilevars.sysload_nprocs * 10 / total_cycles;
 	  }
 	  // else don't adjust
-	  gamestate.profilevars.busy_sysload_cycles = 0;
-	  gamestate.profilevars.nonbusy_sysload_cycles = 0;
-	  gamestate.profilevars.sysload_nprocs = 0;
+	  stateManager.profilevars.busy_sysload_cycles = 0;
+	  stateManager.profilevars.nonbusy_sysload_cycles = 0;
+	  stateManager.profilevars.sysload_nprocs = 0;
       if ( Plib::systemstate.config.watch_sysload )
-        INFO_PRINT.Format( "sysload={} ({}) cputime={}\n" ) << gamestate.profilevars.last_sysload << gamestate.profilevars.last_sysload_nprocs << gamestate.profilevars.last_cputime;
+        INFO_PRINT.Format( "sysload={} ({}) cputime={}\n" ) << stateManager.profilevars.last_sysload << stateManager.profilevars.last_sysload_nprocs << stateManager.profilevars.last_cputime;
 	  if ( Plib::systemstate.config.log_sysload )
-        POLLOG.Format( "sysload={} ({}) cputime={}\n" ) << gamestate.profilevars.last_sysload << gamestate.profilevars.last_sysload_nprocs << gamestate.profilevars.last_cputime;
+        POLLOG.Format( "sysload={} ({}) cputime={}\n" ) << stateManager.profilevars.last_sysload << stateManager.profilevars.last_sysload_nprocs << stateManager.profilevars.last_cputime;
 	  //cout << "npc_searches:" << GET_PROFILEVAR_PER_MIN( npc_searches ) << " in " << GET_PROFILECLOCK_MS( npc_search ) << " ms" << endl;
 	  //cout << "container_adds:" << GET_PROFILEVAR_PER_MIN( container_adds ) << endl;
 	  //cout << "container_removes:" << GET_PROFILEVAR_PER_MIN( container_removes ) << endl;
 
 #ifndef NDEBUG
-      INFO_PRINT << "activity: " << gamestate.profilevars.last_script_passes_activity
-        << "  noactivity: " << gamestate.profilevars.last_script_passes_noactivity
+      INFO_PRINT << "activity: " << stateManager.profilevars.last_script_passes_activity
+        << "  noactivity: " << stateManager.profilevars.last_script_passes_noactivity
         << "\n";
 #endif
-	  gamestate.profilevars.last_mapcache_hits = gamestate.profilevars.mapcache_hits;
-	  gamestate.profilevars.last_mapcache_misses = gamestate.profilevars.mapcache_misses;
+	  stateManager.profilevars.last_mapcache_hits = stateManager.profilevars.mapcache_hits;
+	  stateManager.profilevars.last_mapcache_misses = stateManager.profilevars.mapcache_misses;
       if ( Plib::systemstate.config.watch_mapcache )
-        INFO_PRINT << "mapcache: hits=" << gamestate.profilevars.mapcache_hits << ", misses=" << gamestate.profilevars.mapcache_misses
-        << ", rate=" << ( gamestate.profilevars.mapcache_hits ? ( gamestate.profilevars.mapcache_hits * 100 / ( gamestate.profilevars.mapcache_hits + gamestate.profilevars.mapcache_misses ) ) : 0 ) << "%\n";
-	  gamestate.profilevars.mapcache_hits = 0;
-	  gamestate.profilevars.mapcache_misses = 0;
+        INFO_PRINT << "mapcache: hits=" << stateManager.profilevars.mapcache_hits << ", misses=" << stateManager.profilevars.mapcache_misses
+        << ", rate=" << ( stateManager.profilevars.mapcache_hits ? ( stateManager.profilevars.mapcache_hits * 100 / ( stateManager.profilevars.mapcache_hits + stateManager.profilevars.mapcache_misses ) ) : 0 ) << "%\n";
+	  stateManager.profilevars.mapcache_hits = 0;
+	  stateManager.profilevars.mapcache_misses = 0;
 
 	  if ( Plib::systemstate.config.multithread )
 	  {
-		gamestate.profilevars.last_sppm = static_cast<unsigned int>( gamestate.profilevars.script_passes - gamestate.profilevars.last_script_passes );
-		gamestate.profilevars.last_script_passes = gamestate.profilevars.script_passes;
+		stateManager.profilevars.last_sppm = static_cast<unsigned int>( stateManager.profilevars.script_passes - stateManager.profilevars.last_script_passes );
+		stateManager.profilevars.last_script_passes = stateManager.profilevars.script_passes;
 
 		TICK_PROFILEVAR( scheduler_passes );
 		TICK_PROFILEVAR( noactivity_scheduler_passes );
 
         if ( Plib::systemstate.config.watch_rpm )
-          INFO_PRINT << "scpt: " << gamestate.profilevars.last_sppm
+          INFO_PRINT << "scpt: " << stateManager.profilevars.last_sppm
           << "  task: " << ( GET_PROFILEVAR_PER_MIN( scheduler_passes ) )
           << "(" << ( GET_PROFILEVAR_PER_MIN( noactivity_scheduler_passes ) ) << ")"
-          << "  scin: " << gamestate.profilevars.last_sipm
-          << "  scsl: " << gamestate.profilevars.last_scpm
+          << "  scin: " << stateManager.profilevars.last_sipm
+          << "  scsl: " << stateManager.profilevars.last_scpm
           << "  MOB: " << get_mobile_count()
           << "  TLI: " << get_toplevel_item_count()
           << "\n";
@@ -271,21 +270,21 @@ namespace Pol {
 	  }
 	  else
 	  {
-		gamestate.profilevars.last_rpm = gamestate.profilevars.rotations - gamestate.profilevars.last_rotations;
-		gamestate.profilevars.last_rotations = gamestate.profilevars.rotations;
+		stateManager.profilevars.last_rpm = stateManager.profilevars.rotations - stateManager.profilevars.last_rotations;
+		stateManager.profilevars.last_rotations = stateManager.profilevars.rotations;
 
 		//fixme realms
-		gamestate.cycles_per_decay_worldzone = gamestate.profilevars.last_rpm / ( WGRID_X * WGRID_Y / 10 );
-		if ( gamestate.cycles_per_decay_worldzone < 1 )
-		  gamestate.cycles_per_decay_worldzone = 1;
-		gamestate.cycles_until_decay_worldzone = gamestate.cycles_per_decay_worldzone;
+		stateManager.cycles_per_decay_worldzone = stateManager.profilevars.last_rpm / ( WGRID_X * WGRID_Y / 10 );
+		if ( stateManager.cycles_per_decay_worldzone < 1 )
+		  stateManager.cycles_per_decay_worldzone = 1;
+		stateManager.cycles_until_decay_worldzone = stateManager.cycles_per_decay_worldzone;
 
 		if ( Plib::systemstate.config.watch_rpm )
-          INFO_PRINT << "RPM: " << gamestate.profilevars.last_rpm
-		  << "   SIPM: " << gamestate.profilevars.last_sipm
-		  << "   SCPM: " << gamestate.profilevars.last_scpm
-		  << "   SI/R: " << ( gamestate.profilevars.last_rpm ? ( gamestate.profilevars.last_sipm / gamestate.profilevars.last_rpm ) : 0 )
-		  << "   SC/R: " << ( gamestate.profilevars.last_rpm ? ( gamestate.profilevars.last_scpm / gamestate.profilevars.last_rpm ) : 0 )
+          INFO_PRINT << "RPM: " << stateManager.profilevars.last_rpm
+		  << "   SIPM: " << stateManager.profilevars.last_sipm
+		  << "   SCPM: " << stateManager.profilevars.last_scpm
+		  << "   SI/R: " << ( stateManager.profilevars.last_rpm ? ( stateManager.profilevars.last_sipm / stateManager.profilevars.last_rpm ) : 0 )
+		  << "   SC/R: " << ( stateManager.profilevars.last_rpm ? ( stateManager.profilevars.last_scpm / stateManager.profilevars.last_rpm ) : 0 )
 		  << "\n";
 	  }
 	  THREAD_CHECKPOINT( tasks, 399 );
@@ -294,14 +293,14 @@ namespace Pol {
 	void update_sysload()
 	{
 	  THREAD_CHECKPOINT( tasks, 201 );
-	  if ( gamestate.runlist.empty() )
+	  if ( scriptEngineInternalManager.runlist.empty() )
 	  {
-		++gamestate.profilevars.nonbusy_sysload_cycles;
+		++stateManager.profilevars.nonbusy_sysload_cycles;
 	  }
 	  else
 	  {
-		++gamestate.profilevars.busy_sysload_cycles;
-		gamestate.profilevars.sysload_nprocs += gamestate.runlist.size();
+		++stateManager.profilevars.busy_sysload_cycles;
+		stateManager.profilevars.sysload_nprocs += scriptEngineInternalManager.runlist.size();
 	  }
 	  THREAD_CHECKPOINT( tasks, 299 );
 	}

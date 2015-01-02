@@ -13,16 +13,16 @@ Notes
 #include "../../clib/cfgfile.h"
 #include "../../clib/fileutil.h"
 #include "client.h"
-#include "../globals/uvars.h"
+#include "../globals/network.h"
 
 namespace Pol {
   namespace Network {
 	bool is_banned_ip( Client* client )
 	{
-	  if ( Core::gamestate.banned_ips.empty() )
+	  if ( Core::networkManager.banned_ips.empty() )
 		return false;
 
-	  for ( std::vector<IPRule>::iterator itr = Core::gamestate.banned_ips.begin(); itr != Core::gamestate.banned_ips.end(); ++itr )
+	  for ( std::vector<IPRule>::iterator itr = Core::networkManager.banned_ips.begin(); itr != Core::networkManager.banned_ips.end(); ++itr )
 	  {
 		unsigned int addr1part, addr2part;
 		struct sockaddr_in* sockin = reinterpret_cast<struct sockaddr_in*>( &client->ipaddr );
@@ -44,7 +44,7 @@ namespace Pol {
 	{
 	  if ( !initial_load )
 	  {
-		Core::gamestate.banned_ips.clear();
+		Core::networkManager.banned_ips.clear();
 	  }
 	  if ( !Clib::FileExists( "config/bannedips.cfg" ) )
 		return;
@@ -63,14 +63,14 @@ namespace Pol {
           std::string ipmask_str = iptext.substr(delim + 1);
 		  CurrentEntry.ipMatch = inet_addr( ipaddr_str.c_str() );
 		  CurrentEntry.ipMask = inet_addr( ipmask_str.c_str() );
-		  Core::gamestate.banned_ips.push_back( CurrentEntry );
+		  Core::networkManager.banned_ips.push_back( CurrentEntry );
 		}
 		else
 		{
           std::string ipmask_str = "255.255.255.255";
 		  CurrentEntry.ipMatch = inet_addr( iptext.c_str() );
 		  CurrentEntry.ipMask = inet_addr( ipmask_str.c_str() );
-		  Core::gamestate.banned_ips.push_back( CurrentEntry );
+		  Core::networkManager.banned_ips.push_back( CurrentEntry );
 		}
 	  }
 	}

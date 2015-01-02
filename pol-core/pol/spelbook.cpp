@@ -24,7 +24,6 @@ Notes
 #include "pktboth.h"
 #include "polcfg.h"
 #include "polclass.h"
-#include "ssopt.h"
 #include "ufunc.h"
 
 #include "../clib/cfgelem.h"
@@ -124,7 +123,7 @@ namespace Pol {
 		// must have AOS Features Enabled on an acct with AOS Expansion to view Magery book.
 		// All newer spellbooks will bug out if you use this method though.
         if ( ( client->UOExpansionFlag & Network::AOS ) && ( spell_school == 0 )
-			 && !( gamestate.ssopt.uo_feature_enable & PKTOUT_A9::FLAG_AOS_FEATURES ) )
+			 && !( settingsManager.ssopt.uo_feature_enable & PKTOUT_A9::FLAG_AOS_FEATURES ) )
 		{
 		  if ( Plib::systemstate.config.loglevel > 1 )
             INFO_PRINT << "Client with AOS Expansion Account using spellbook without UOFeatureEnable 0x20 Bitflag.\n";

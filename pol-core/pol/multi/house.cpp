@@ -51,7 +51,7 @@ Notes
 #include "../module/uomod.h"
 #include "../uoscrobj.h"
 #include "../ustruct.h"
-#include "../globals/uvars.h"
+#include "../globals/object_storage.h"
 #include "../uworld.h"
 
 
@@ -754,7 +754,7 @@ namespace Pol {
 	  house->create_components();
 
 	  ////Hash
-      Core::gamestate.objecthash.Insert( house );
+      Core::objStorageManager.objecthash.Insert( house );
 	  ////
 
 	  return house->make_ref();

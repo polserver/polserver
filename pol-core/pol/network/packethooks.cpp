@@ -40,7 +40,7 @@ new Handler added to the core needs a new Version number here. As of 8/3/09 ther
 #include "../uoscrobj.h"
 #include "../syshook.h"
 #include "../polsem.h"
-#include "../globals/uvars.h"
+#include "../globals/network.h"
 
 #ifdef _MSC_VER
     #pragma warning(disable:4996) //deprecation warnings for stricmp
@@ -71,9 +71,9 @@ namespace Pol {
     // Gets the packet hook for a specific packet version
     PacketHookData* get_packethook(u8 msgid, PacketVersion version = PacketVersion::Default) {
         if (version == PacketVersion::V2)
-            return Core::gamestate.packet_hook_data_v2.at(msgid).get();
+            return Core::networkManager.packet_hook_data_v2.at(msgid).get();
         
-        return Core::gamestate.packet_hook_data.at(msgid).get();
+        return Core::networkManager.packet_hook_data.at(msgid).get();
     }
 
     // Gets the packet hook according to the client version
@@ -461,8 +461,8 @@ namespace Pol {
 
 	void clean_packethooks()
 	{
-	  Core::gamestate.packet_hook_data.clear();
-	  Core::gamestate.packet_hook_data_v2.clear();
+	  Core::networkManager.packet_hook_data.clear();
+	  Core::networkManager.packet_hook_data_v2.clear();
 	}
 
 	void SetVersionDetailStruct( const std::string& ver, VersionDetailStruct& detail )

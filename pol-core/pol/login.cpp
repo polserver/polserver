@@ -37,9 +37,9 @@ Notes
 #include "polcfg.h"
 #include "startloc.h"
 #include "globals/uvars.h"
+#include "globals/settings.h"
 #include "servdesc.h"
 #include "sockio.h"
-#include "ssopt.h"
 #include "ufunc.h"
 
 #include "../clib/stlutil.h"
@@ -73,12 +73,12 @@ namespace Pol {
     //        -- and I'm leaving the warning here to remember that --
     bool acct_check( Network::Client* client, int i )
 	{
-	  if ( gamestate.servers[i]->acct_match.empty() )
+	  if ( networkManager.servers[i]->acct_match.empty() )
 		return true;
 
-	  for ( unsigned j = 0; j < gamestate.servers[i]->acct_match.size(); ++j )
+	  for ( unsigned j = 0; j < networkManager.servers[i]->acct_match.size(); ++j )
 	  {
-		if ( stricmp( gamestate.servers[i]->acct_match[j].c_str(), client->acct->name() ) == 0 )
+		if ( stricmp( networkManager.servers[i]->acct_match[j].c_str(), client->acct->name() ) == 0 )
 		  return true;
 	  }
 
@@ -87,19 +87,19 @@ namespace Pol {
 
     bool server_applies( Network::Client* client, int i )
 	{
-	  if ( gamestate.servers[i]->ip_match.empty() )
+	  if ( networkManager.servers[i]->ip_match.empty() )
 		return acct_check( client, i );
 
-	  for ( unsigned j = 0; j < gamestate.servers[i]->ip_match.size(); ++j )
+	  for ( unsigned j = 0; j < networkManager.servers[i]->ip_match.size(); ++j )
 	  {
 		unsigned int addr1part, addr2part;
 		struct sockaddr_in* sockin = reinterpret_cast<struct sockaddr_in*>( &client->ipaddr );
 
-		addr1part = gamestate.servers[i]->ip_match[j] & gamestate.servers[i]->ip_match_mask[j];
+		addr1part = networkManager.servers[i]->ip_match[j] & networkManager.servers[i]->ip_match_mask[j];
 #ifdef _WIN32
-		addr2part = sockin->sin_addr.S_un.S_addr & gamestate.servers[i]->ip_match_mask[j];
+		addr2part = sockin->sin_addr.S_un.S_addr & networkManager.servers[i]->ip_match_mask[j];
 #else
-		addr2part = sockin->sin_addr.s_addr      & gamestate.servers[i]->ip_match_mask[j];
+		addr2part = sockin->sin_addr.s_addr      & networkManager.servers[i]->ip_match_mask[j];
 #endif
 		if ( addr1part == addr2part )
 		  return true;
@@ -180,9 +180,9 @@ namespace Pol {
 
 
 
-	  for ( idx = 0; idx < gamestate.servers.size(); idx++ )
+	  for ( idx = 0; idx < networkManager.servers.size(); idx++ )
 	  {
-		ServerDescription* server = gamestate.servers[idx];
+		ServerDescription* server = networkManager.servers[idx];
 
 		if ( !server->hostname.empty() )
 		{
@@ -266,13 +266,13 @@ namespace Pol {
 	{
 	  unsigned servernum = cfBEu16( msg->servernum ) - 1;
 
-	  if ( servernum >= gamestate.servers.size() )
+	  if ( servernum >= networkManager.servers.size() )
 	  {
 		client->forceDisconnect();
 		return;
 	  }
 
-	  ServerDescription *svr = gamestate.servers[servernum];
+	  ServerDescription *svr = networkManager.servers[servernum];
 
       Network::PktHelper::PacketOut<Network::PktOut_8C> rsp;
 	  rsp->Write<u8>( svr->ip[3] );
@@ -364,7 +364,7 @@ namespace Pol {
 		}
 	  }
 
-	  clientflag = gamestate.ssopt.uo_feature_enable; // 'default' flags. Maybe auto-enable them according to the expansion?
+	  clientflag = settingsManager.ssopt.uo_feature_enable; // 'default' flags. Maybe auto-enable them according to the expansion?
 
 	  clientflag |= PKTOUT_A9::FLAG_SEND_UO3D_TYPE; // Let UO3D (KR,SA) send 0xE1 packet
 

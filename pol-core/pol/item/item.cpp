@@ -45,8 +45,8 @@ Notes
 #include "../stackcfg.h" 
 #include "../tooltips.h"
 #include "../uoscrobj.h"
-#include "../ssopt.h"
 #include "../gameclck.h"
+#include "../globals/uvars.h"
 
 namespace Pol {
   namespace Items {
@@ -438,7 +438,7 @@ namespace Pol {
 	  base::readProperties( elem );
 
 	  // Changed from Valid Color Mask to cfg mask in ssopt.
-      color &= Core::gamestate.ssopt.item_color_mask;
+      color &= Core::settingsManager.ssopt.item_color_mask;
 
 	  amount_ = elem.remove_ushort( "AMOUNT", 1 );
 	  layer = static_cast<unsigned char>( elem.remove_ushort( "LAYER", 0 ) );
@@ -835,7 +835,7 @@ namespace Pol {
 	{
 	  // return false if the color is invalid (high nibble set)
 	  bool res = true;
-      u16  theMask = (u16)Core::gamestate.ssopt.item_color_mask;
+      u16  theMask = (u16)Core::settingsManager.ssopt.item_color_mask;
 	  if ( ( newcolor & ( ~theMask ) ) != 0 )
 		res = false;
 

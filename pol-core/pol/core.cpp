@@ -14,6 +14,7 @@ Notes
 #include "realms.h"
 #include "../plib/realm.h"
 
+#include "globals/uvars.h"
 #include "mobile/charactr.h"
 #include "network/cgdata.h"
 #include "network/client.h"

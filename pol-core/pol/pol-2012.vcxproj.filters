@@ -659,6 +659,24 @@
     <ClCompile Include="globals\multidefs.cpp">
       <Filter>globals</Filter>
     </ClCompile>
+	<ClCompile Include="globals\network.cpp">
+      <Filter>globals</Filter>
+    </ClCompile>
+    <ClCompile Include="globals\script_internals.cpp">
+      <Filter>globals</Filter>
+    </ClCompile>
+    <ClCompile Include="globals\settings.cpp">
+      <Filter>globals</Filter>
+    </ClCompile>
+    <ClCompile Include="globals\state.cpp">
+      <Filter>globals</Filter>
+    </ClCompile>
+    <ClCompile Include="globals\object_storage.cpp">
+      <Filter>globals</Filter>
+    </ClCompile>
+    <ClCompile Include="guilds.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="action.h">
@@ -1278,6 +1296,30 @@
     </ClInclude>
 	<ClInclude Include="module\datastoreimp.h">
       <Filter>module</Filter>
+    </ClInclude>
+	<ClInclude Include="globals\network.h">
+      <Filter>globals</Filter>
+    </ClInclude>
+    <ClInclude Include="globals\script_internals.h">
+      <Filter>globals</Filter>
+    </ClInclude>
+    <ClInclude Include="party_cfg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="globals\settings.h">
+      <Filter>globals</Filter>
+    </ClInclude>
+    <ClInclude Include="globals\state.h">
+      <Filter>globals</Filter>
+    </ClInclude>
+    <ClInclude Include="repsys_cfg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="globals\object_storage.h">
+      <Filter>globals</Filter>
+    </ClInclude>
+    <ClInclude Include="guilds.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

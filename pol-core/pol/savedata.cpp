@@ -16,6 +16,7 @@ Notes
 #include "polcfg.h"
 #include "storage.h"
 #include "globals/uvars.h"
+#include "globals/object_storage.h"
 
 #include "../clib/endian.h"
 #include "../clib/fileutil.h"
@@ -85,8 +86,8 @@ namespace Pol {
             continue;
           }
 
-          ++gamestate.dirty_objects;
-          --gamestate.clean_objects; // because this will be counted again
+          ++objStorageManager.dirty_objects;
+          --objStorageManager.clean_objects; // because this will be counted again
 
           if ( !item->orphan() )
           {
@@ -97,11 +98,11 @@ namespace Pol {
               << pf_endl;
 
             item->printSelfOn( sw_data );
-            gamestate.modified_serials.push_back( item->serial );
+            objStorageManager.modified_serials.push_back( item->serial );
           }
           else
           {
-            gamestate.deleted_serials.push_back( cfBEu32( item->serial_ext ) );
+            objStorageManager.deleted_serials.push_back( cfBEu32( item->serial_ext ) );
           }
           item->clear_dirty();
         }
@@ -128,12 +129,12 @@ namespace Pol {
 
         if ( owner->dirty() )
         {
-          ++gamestate.dirty_objects;
+          ++objStorageManager.dirty_objects;
           // this will get counted again as we iterate through the objecthash
-          --gamestate.clean_objects;
+          --objStorageManager.clean_objects;
 
           owner->printSelfOn( sw_data );
-          gamestate.modified_serials.push_back( owner->serial );
+          objStorageManager.modified_serials.push_back( owner->serial );
           owner->clear_dirty();
         }
       }
@@ -144,7 +145,7 @@ namespace Pol {
       // iterate over the object hash, writing dirty elements.
       // the only tricky bit here is we want to write dirty containers first.
       // this includes Characters.
-      ObjectHash::hs::const_iterator citr = gamestate.objecthash.begin(), end = gamestate.objecthash.end();
+      ObjectHash::hs::const_iterator citr = objStorageManager.objecthash.begin(), end = objStorageManager.objecthash.end();
       for ( ; citr != end; ++citr )
       {
         const UObjectRef& ref = ( *citr ).second;
@@ -156,7 +157,7 @@ namespace Pol {
 
         if ( !obj->dirty() )
         {
-          ++gamestate.clean_objects;
+          ++objStorageManager.clean_objects;
           continue;
         }
 
@@ -165,44 +166,44 @@ namespace Pol {
         if ( has_nonsaved_owner )
           continue;
 
-        ++gamestate.dirty_objects;
+        ++objStorageManager.dirty_objects;
         if ( !obj->orphan() )
         {
           obj->printSelfOn( sw_data );
-          gamestate.modified_serials.push_back( obj->serial );
+          objStorageManager.modified_serials.push_back( obj->serial );
         }
         else
         {
-          gamestate.deleted_serials.push_back( cfBEu32( obj->serial_ext ) );
+          objStorageManager.deleted_serials.push_back( cfBEu32( obj->serial_ext ) );
         }
         obj->clear_dirty();
       }
 
-      ObjectHash::ds::const_iterator deleted_citr = gamestate.objecthash.dirty_deleted_begin(), deleted_end = gamestate.objecthash.dirty_deleted_end();
+      ObjectHash::ds::const_iterator deleted_citr = objStorageManager.objecthash.dirty_deleted_begin(), deleted_end = objStorageManager.objecthash.dirty_deleted_end();
       for ( ; deleted_citr != deleted_end; ++deleted_citr )
       {
         u32 serial = ( *deleted_citr );
-        gamestate.deleted_serials.push_back( serial );
+        objStorageManager.deleted_serials.push_back( serial );
       }
-      gamestate.objecthash.CleanDeleted();
+      objStorageManager.objecthash.CleanDeleted();
     }
 
     void write_index(std::ostream& ofs)
     {
       ofs << "Modified" << pf_endl
         << "{" << pf_endl;
-      for ( unsigned i = 0; i < gamestate.modified_serials.size(); ++i )
+      for ( unsigned i = 0; i < objStorageManager.modified_serials.size(); ++i )
       {
-          ofs << "\t0x" << std::hex << gamestate.modified_serials[i] << std::dec << pf_endl;
+          ofs << "\t0x" << std::hex << objStorageManager.modified_serials[i] << std::dec << pf_endl;
       }
       ofs << "}" << pf_endl
         << pf_endl;
 
       ofs << "Deleted" << pf_endl
         << "{" << pf_endl;
-      for ( unsigned i = 0; i < gamestate.deleted_serials.size(); ++i )
+      for ( unsigned i = 0; i < objStorageManager.deleted_serials.size(); ++i )
       {
-          ofs << "\t0x" << std::hex << gamestate.deleted_serials[i] << std::dec << pf_endl;
+          ofs << "\t0x" << std::hex << objStorageManager.deleted_serials[i] << std::dec << pf_endl;
       }
       ofs << "}" << pf_endl
         << pf_endl;
@@ -246,16 +247,16 @@ namespace Pol {
         return -1;
       }
 
-      if ( gamestate.incremental_saves_disabled )
+      if ( objStorageManager.incremental_saves_disabled )
         throw std::runtime_error( "Incremental saves are disabled until the next full save, due to a previous incremental save failure (dirty flags are inconsistent)" );
 
       try
       {
         Tools::Timer<> timer;
-        gamestate.clean_objects = gamestate.dirty_objects = 0;
+        objStorageManager.clean_objects = objStorageManager.dirty_objects = 0;
 
-        gamestate.modified_serials.clear();
-        gamestate.deleted_serials.clear();
+        objStorageManager.modified_serials.clear();
+        objStorageManager.deleted_serials.clear();
 
         std::ofstream ofs_data;
         std::ofstream ofs_index;
@@ -263,7 +264,7 @@ namespace Pol {
         ofs_data.exceptions( std::ios_base::failbit | std::ios_base::badbit );
         ofs_index.exceptions( std::ios_base::failbit | std::ios_base::badbit );
 
-        unsigned save_index = gamestate.incremental_save_count + 1;
+        unsigned save_index = objStorageManager.incremental_save_count + 1;
         std::string data_basename = "incr-data-" + Clib::decint(save_index);
         std::string index_basename = "incr-index-" + Clib::decint(save_index);
         std::string data_pathname = Plib::systemstate.config.world_data_path + data_basename + ".ndt";
@@ -287,22 +288,22 @@ namespace Pol {
         ofs_data.close();
         ofs_index.close();
 
-        gamestate.modified_serials.clear();
-        gamestate.deleted_serials.clear();
+        objStorageManager.modified_serials.clear();
+        objStorageManager.deleted_serials.clear();
 
         commit_incremental( data_basename );
         commit_incremental( index_basename );
-        ++gamestate.incremental_save_count;
+        ++objStorageManager.incremental_save_count;
 
         timer.stop();
-        dirty = gamestate.dirty_objects;
-        clean = gamestate.clean_objects;
+        dirty = objStorageManager.dirty_objects;
+        clean = objStorageManager.clean_objects;
         elapsed_ms = timer.ellapsed();
       }
       catch ( std::exception& ex )
       {
         POLLOG_ERROR.Format( "Exception during incremental save: {}\n" ) << ex.what();
-        gamestate.incremental_saves_disabled = true;
+        objStorageManager.incremental_saves_disabled = true;
         throw;
       }
       return 0;

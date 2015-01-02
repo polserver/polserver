@@ -29,12 +29,12 @@ Notes
 #include "../exscrobj.h"
 #include "../polcfg.h"
 #include "../poldbg.h"
-#include "../profile.h"
 #include "../scrsched.h"
 #include "../scrstore.h"
 #include "../skills.h"
 #include "../ufuncstd.h"
-#include "../globals/uvars.h"
+#include "../globals/state.h"
+#include "../globals/script_internals.h"
 
 #include "../../clib/endian.h"
 #include "../../clib/logfacility.h"
@@ -61,18 +61,18 @@ namespace Pol {
 	{
 	  for ( ;; )
 	  {
-		unsigned int newpid = ++Core::gamestate.next_pid;
+		unsigned int newpid = ++Core::scriptEngineInternalManager.next_pid;
 		if ( newpid != 0 &&
-			 Core::gamestate.pidlist.find( newpid ) == Core::gamestate.pidlist.end() )
+			 Core::scriptEngineInternalManager.pidlist.find( newpid ) == Core::scriptEngineInternalManager.pidlist.end() )
 		{
-		  Core::gamestate.pidlist[newpid] = uoexec;
+		  Core::scriptEngineInternalManager.pidlist[newpid] = uoexec;
 		  return newpid;
 		}
 	  }
 	}
 	void freepid( unsigned int pid )
 	{
-	  Core::gamestate.pidlist.erase( pid );
+	  Core::scriptEngineInternalManager.pidlist.erase( pid );
 	}
 
 	OSExecutorModule::OSExecutorModule( Bscript::Executor& exec ) :
@@ -518,7 +518,7 @@ namespace Pol {
 
 	BObjectImp* OSExecutorModule::mf_system_rpm()
 	{
-      return new BLong( static_cast<int>( Core::gamestate.profilevars.last_rpm ) );
+      return new BLong( static_cast<int>( Core::stateManager.profilevars.last_rpm ) );
 	}
 
 	BObjectImp* OSExecutorModule::mf_set_priority()
@@ -749,15 +749,15 @@ namespace Pol {
         blocked_ = false;
         if (in_hold_list_ == TIMEOUT_LIST)
         {
-            Core::gamestate.holdlist.erase(hold_itr_);
+            Core::scriptEngineInternalManager.holdlist.erase(hold_itr_);
             in_hold_list_ = NO_LIST;
-            Core::gamestate.runlist.push_back(static_cast<Core::UOExecutor*>(&exec));
+            Core::scriptEngineInternalManager.runlist.push_back(static_cast<Core::UOExecutor*>(&exec));
         }
         else if (in_hold_list_ == NOTIMEOUT_LIST)
         {
-            Core::gamestate.notimeoutholdlist.erase(static_cast<Core::UOExecutor*>(&exec));
+            Core::scriptEngineInternalManager.notimeoutholdlist.erase(static_cast<Core::UOExecutor*>(&exec));
             in_hold_list_ = NO_LIST;
-            Core::gamestate.runlist.push_back(static_cast<Core::UOExecutor*>(&exec));
+            Core::scriptEngineInternalManager.runlist.push_back(static_cast<Core::UOExecutor*>(&exec));
         }
         else if (in_hold_list_ == DEBUGGER_LIST)
         {
@@ -770,9 +770,9 @@ namespace Pol {
     }
     void OSExecutorModule::revive_debugged()
     {
-        Core::gamestate.debuggerholdlist.erase(static_cast<Core::UOExecutor*>(&exec));
+        Core::scriptEngineInternalManager.debuggerholdlist.erase(static_cast<Core::UOExecutor*>(&exec));
         in_hold_list_ = NO_LIST;
-        Core::gamestate.runlist.push_back(static_cast<Core::UOExecutor*>(&exec));
+        Core::scriptEngineInternalManager.runlist.push_back(static_cast<Core::UOExecutor*>(&exec));
     }
 
     const int SCRIPTOPT_NO_INTERRUPT = 1;

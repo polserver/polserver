@@ -24,7 +24,6 @@ Notes
 #include "objtype.h"
 #include "npc.h"
 #include "polcfg.h"
-#include "polvar.h"
 #include "realms.h"
 #include "resource.h"
 #include "savedata.h"
@@ -34,6 +33,9 @@ Notes
 #include "storage.h"
 #include "stubdata.h"
 #include "globals/uvars.h"
+#include "globals/object_storage.h"
+#include "globals/state.h"
+#include "globals/settings.h"
 #include "ufunc.h"
 #include "uworld.h"
 #include "multi/multi.h"
@@ -78,12 +80,12 @@ namespace Pol {
     void commit_datastore();
     void read_datastore_dat();
     void write_datastore( Clib::StreamWriter& sw );
-    void read_guilds_dat();
-    void write_guilds( Clib::StreamWriter& sw );
   }
   namespace Core {
     void read_party_dat();
     void write_party( Clib::StreamWriter& sw );
+	void read_guilds_dat();
+    void write_guilds( Clib::StreamWriter& sw );
 
     std::shared_future<bool> SaveContext::finished;
 
@@ -95,7 +97,7 @@ namespace Pol {
       // don't load it now. 
       pol_serial_t serial = 0;
       elem.get_prop( "SERIAL", &serial );
-      if ( get_save_index( serial ) > gamestate.current_incremental_save )
+      if ( get_save_index( serial ) > objStorageManager.current_incremental_save )
         return;
 
       CharacterRef chr( new Mobile::Character( elem.remove_ushort( "OBJTYPE" ) ) );
@@ -111,7 +113,7 @@ namespace Pol {
         chr->clear_dirty();
         
         // readProperties gets the serial, so we can't add to the objecthash until now.
-        gamestate.objecthash.Insert( chr.get() );
+        objStorageManager.objecthash.Insert( chr.get() );
       }
       catch ( std::exception& )
       {
@@ -128,7 +130,7 @@ namespace Pol {
       // don't load it now. 
       pol_serial_t serial = 0;
       elem.get_prop( "SERIAL", &serial );
-      if ( get_save_index( serial ) > gamestate.current_incremental_save )
+      if ( get_save_index( serial ) > objStorageManager.current_incremental_save )
         return;
 
       NPCRef npc( new NPC( elem.remove_ushort( "OBJTYPE" ), elem ) );
@@ -141,7 +143,7 @@ namespace Pol {
         npc->clear_dirty();
 
         ////HASH
-        gamestate.objecthash.Insert( npc.get() );
+        objStorageManager.objecthash.Insert( npc.get() );
         ////
       }
       catch (std::exception&)
@@ -215,7 +217,7 @@ namespace Pol {
       // don't load it now. 
       pol_serial_t serial = 0;
       elem.get_prop( "SERIAL", &serial );
-      if ( get_save_index( serial ) > gamestate.current_incremental_save )
+      if ( get_save_index( serial ) > objStorageManager.current_incremental_save )
         return;
 
 
@@ -288,9 +290,9 @@ namespace Pol {
 
     void read_system_vars( Clib::ConfigElem& elem )
     {
-      gamestate.polvar.DataWrittenBy = elem.remove_ushort( "CoreVersion" );
-      gamestate.stored_last_item_serial = elem.remove_ulong( "LastItemSerialNumber", UINT_MAX ); //dave 3/9/3
-      gamestate.stored_last_char_serial = elem.remove_ulong( "LastCharSerialNumber", UINT_MAX ); //dave 3/9/3
+      settingsManager.polvar.DataWrittenBy = elem.remove_ushort( "CoreVersion" );
+      stateManager.stored_last_item_serial = elem.remove_ulong( "LastItemSerialNumber", UINT_MAX ); //dave 3/9/3
+      stateManager.stored_last_char_serial = elem.remove_ulong( "LastCharSerialNumber", UINT_MAX ); //dave 3/9/3
     }
 
     void read_shadow_realms( Clib::ConfigElem& elem )
@@ -311,7 +313,7 @@ namespace Pol {
       // don't load it now. 
       pol_serial_t serial = 0;
       elem.get_prop( "SERIAL", &serial );
-      if ( get_save_index( serial ) > gamestate.current_incremental_save )
+      if ( get_save_index( serial ) > objStorageManager.current_incremental_save )
         return;
 
       u32 objtype;
@@ -418,7 +420,7 @@ namespace Pol {
 
       slurp( polfile.c_str(), "GLOBALPROPERTIES SYSTEM REALM" );
 
-      if ( gamestate.polvar.DataWrittenBy == 0 )
+      if ( settingsManager.polvar.DataWrittenBy == 0 )
       {
         ERROR_PRINT << "CoreVersion not found in " << polfile << "\n\n"
           << polfile << " must contain a section similar to: \n"
@@ -630,7 +632,7 @@ namespace Pol {
       std::string objectsndtfile = Plib::systemstate.config.world_data_path + "objects.ndt";
       std::string storagendtfile = Plib::systemstate.config.world_data_path + "storage.ndt";
 
-      gamestate.gflag_in_system_load = true;
+      stateManager.gflag_in_system_load = true;
       if ( Clib::FileExists( objectsndtfile ) )
       {
         // Display reads "Reading data files..."
@@ -667,7 +669,7 @@ namespace Pol {
       read_multis_dat();
       read_storage_dat();
       read_resources_dat();
-      Module::read_guilds_dat();
+      read_guilds_dat();
       Module::read_datastore_dat();
       read_party_dat();
 
@@ -681,15 +683,15 @@ namespace Pol {
       //	import_wsc();
 
       //dave 3/9/3
-      if ( gamestate.stored_last_item_serial < GetCurrentItemSerialNumber() )
-        SetCurrentItemSerialNumber( gamestate.stored_last_item_serial );
-      if ( gamestate.stored_last_char_serial < GetCurrentCharSerialNumber() )
-        SetCurrentCharSerialNumber( gamestate.stored_last_char_serial );
+      if ( stateManager.stored_last_item_serial < GetCurrentItemSerialNumber() )
+        SetCurrentItemSerialNumber( stateManager.stored_last_item_serial );
+      if ( stateManager.stored_last_char_serial < GetCurrentCharSerialNumber() )
+        SetCurrentCharSerialNumber( stateManager.stored_last_char_serial );
 
       while ( !parent_conts.empty() )
         parent_conts.pop();
 
-      for ( ObjectHash::hs::const_iterator citr = gamestate.objecthash.begin(), citrend = gamestate.objecthash.end(); citr != citrend; ++citr )
+      for ( ObjectHash::hs::const_iterator citr = objStorageManager.objecthash.begin(), citrend = objStorageManager.objecthash.end(); citr != citrend; ++citr )
       {
         UObject* obj = ( *citr ).second.get();
         if ( obj->ismobile() )
@@ -701,7 +703,7 @@ namespace Pol {
         }
       }
 
-      gamestate.gflag_in_system_load = false;
+      stateManager.gflag_in_system_load = false;
       return 0;
     }
 
@@ -926,7 +928,7 @@ namespace Pol {
 
     void write_characters( Core::SaveContext& sc )
     {
-      for ( const auto &objitr : gamestate.objecthash )
+      for ( const auto &objitr : objStorageManager.objecthash )
       {
         UObject* obj = objitr.second.get();
         if ( obj->ismobile() && !obj->orphan() )
@@ -944,7 +946,7 @@ namespace Pol {
 
     void write_npcs( Core::SaveContext& sc )
     {
-      for ( const auto &objitr : gamestate.objecthash )
+      for ( const auto &objitr : objStorageManager.objecthash )
       {
         UObject* obj = objitr.second.get();
         if ( obj->ismobile() && !obj->orphan() )
@@ -992,7 +994,7 @@ namespace Pol {
         }
       }
 
-      for ( const auto &objitr : gamestate.objecthash )
+      for ( const auto &objitr : objStorageManager.objecthash )
       {
         UObject* obj = objitr.second.get();
         if ( obj->ismobile() && !obj->orphan() )
@@ -1254,7 +1256,7 @@ namespace Pol {
               threadhelp::ThreadRegister register_thread( "SaveSection: guilds" );
               try
               {
-                Module::write_guilds( sc.guilds );
+                write_guilds( sc.guilds );
               }
               catch ( ... )
               {
@@ -1325,9 +1327,9 @@ namespace Pol {
       }
 
       commit_incremental_saves();
-      gamestate.incremental_save_count = 0;
+      objStorageManager.incremental_save_count = 0;
       timer.stop();
-      gamestate.objecthash.ClearDeleted();
+      objStorageManager.objecthash.ClearDeleted();
       //optimize_zones(); // shrink zone vectors TODO this takes way to much time!
 
       // cout << "Clean: " << UObject::clean_writes << " Dirty: " <<
@@ -1336,7 +1338,7 @@ namespace Pol {
       dirty_writes = UObject::dirty_writes;
       elapsed_ms = timer.ellapsed();
 
-      gamestate.incremental_saves_disabled = false;
+      objStorageManager.incremental_saves_disabled = false;
       return 0;
     }
 
@@ -1426,7 +1428,7 @@ namespace Pol {
         iptext = elem.remove_string( "IP" );
         if ( iptext == "--ip--" )
         {
-          iptext = gamestate.ipaddr_str;
+          iptext = networkManager.ipaddr_str;
           if ( iptext == "" )
           {
             INFO_PRINT << "Skipping server " << svr->name << " because there is no Internet IP address.\n";
@@ -1435,7 +1437,7 @@ namespace Pol {
         }
         else if ( iptext == "--lan--" )
         {
-          iptext = gamestate.lanaddr_str;
+          iptext = networkManager.lanaddr_str;
           if ( iptext == "" )
           {
             INFO_PRINT << "Skipping server " << svr->name << " because there is no LAN IP address.\n";
@@ -1522,9 +1524,9 @@ namespace Pol {
           svr->acct_match.push_back( accttext );
         }
 
-        gamestate.servers.push_back( svr.release() );
+        networkManager.servers.push_back( svr.release() );
       }
-      if ( gamestate.servers.empty() )
+      if ( networkManager.servers.empty() )
         throw std::runtime_error( "There must be at least one GameServer in SERVERS.CFG." );
     }
 

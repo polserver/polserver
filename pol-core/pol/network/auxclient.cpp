@@ -30,6 +30,7 @@ Notes
 #include "../scrsched.h"
 #include "../sockets.h"
 #include "../module/uomod.h"
+#include "../globals/network.h"
 
 #include <memory>
 
@@ -251,12 +252,12 @@ namespace Pol {
 #ifdef PERGON
 		  ERROR_PRINT << "Aux Listener (" << _scriptdef.relativename() << ", port " << _port << ") - add task\n";
           AuxClientThread* client( new AuxClientThread( this, listener ) );
-          Core::gamestate.auxthreadpool->push( [client]()
+          Core::networkManager.auxthreadpool->push( [client]()
           {
             std::unique_ptr<AuxClientThread> _clientptr( client );
             _clientptr->run();
           } );
-          ERROR_PRINT << "AuxWorkerSize: " << Core::gamestate.auxthreadpool->threadpoolsize() << "\n";
+          ERROR_PRINT << "AuxWorkerSize: " << Core::networkManager.auxthreadpool->threadpoolsize() << "\n";
 #else
 		  Clib::SocketClientThread* clientthread = new AuxClientThread( this, listener );
 		  clientthread->start();
@@ -274,15 +275,15 @@ namespace Pol {
 
 	void start_aux_services()
 	{
-	  for ( unsigned i = 0; i < Core::gamestate.auxservices.size(); ++i )
+	  for ( unsigned i = 0; i < Core::networkManager.auxservices.size(); ++i )
 	  {
-		threadhelp::start_thread( aux_service_thread_stub, "AuxService", Core::gamestate.auxservices[i] );
+		threadhelp::start_thread( aux_service_thread_stub, "AuxService", Core::networkManager.auxservices[i] );
 	  }
 	}
 
 	void load_auxservice_entry( const Plib::Package* pkg, Clib::ConfigElem& elem )
 	{
-	  Core::gamestate.auxservices.push_back( new AuxService( pkg, elem ) );
+	  Core::networkManager.auxservices.push_back( new AuxService( pkg, elem ) );
 	}
 
 	void load_aux_services()

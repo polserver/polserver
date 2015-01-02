@@ -18,7 +18,6 @@ Notes
 #include "objtype.h"
 #include "polcfg.h"
 #include "polfile.h"
-#include "profile.h"
 #include "udatfile.h"
 #include "ustruct.h"
 #include "wrldsize.h"

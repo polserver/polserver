@@ -20,7 +20,6 @@ Notes
 #endif
 
 #include "multi/multi.h"
-#include "globals/uvars.h"
 #include "zone.h"
 
 #include "../clib/passert.h"

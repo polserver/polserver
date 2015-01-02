@@ -37,13 +37,12 @@ Notes
 #include "msgfiltr.h"
 #include "../pktin.h"
 #include "../polcfg.h"
-#include "../polsig.h"
 #include "../polstats.h"
 #include "../sockio.h"
-#include "../ssopt.h"
 #include "../module/unimod.h"
 #include "../uoclient.h"
 #include "../globals/uvars.h"
+#include "../globals/state.h"
 #include "../uworld.h"
 #include "../xbuffer.h"
 #include "../uoscrobj.h"
@@ -88,7 +87,7 @@ namespace Pol {
 	  message_length( 0 ),
 	  cryptengine( create_crypt_engine( encryption ) ),
 	  encrypt_server_stream( 0 ),
-	  msgtype_filter( Core::gamestate.login_filter.get() ),
+	  msgtype_filter( Core::networkManager.login_filter.get() ),
 	  fpLog( "" ),
 	  pause_count( 0 ),
 	  first_xmit_buffer( NULL ),
@@ -108,7 +107,7 @@ namespace Pol {
 	  paused_( false )
 	{
 	  // For bypassing cryptseed packet
-	  if ( Core::gamestate.ssopt.use_edit_server )
+	  if ( Core::settingsManager.ssopt.use_edit_server )
 	  {
 		recv_state = RECV_STATE_MSGTYPE_WAIT;
 	  }
@@ -508,7 +507,7 @@ namespace Pol {
 		THREAD_CHECKPOINT( active_client, 210 );
 		datalen -= static_cast<unsigned short>( nsent );
 		counters.bytes_transmitted += nsent;
-		Core::gamestate.polstats.bytes_sent += nsent;
+		Core::networkManager.polstats.bytes_sent += nsent;
 		if ( datalen )	// anything left? if so, queue for later.
 		{
 		  THREAD_CHECKPOINT( active_client, 211 );
@@ -559,7 +558,7 @@ namespace Pol {
 		  xbuffer->nsent += static_cast<unsigned short>( nsent );
 		  xbuffer->lenleft -= static_cast<unsigned short>( nsent );
 		  counters.bytes_transmitted += nsent;
-		  Core::gamestate.polstats.bytes_sent += nsent;
+		  Core::networkManager.polstats.bytes_sent += nsent;
 		  if ( xbuffer->lenleft == 0 )
 		  {
 			first_xmit_buffer = first_xmit_buffer->next;
@@ -583,7 +582,7 @@ namespace Pol {
 
 	void Client::send_pause()
 	{
-	  if (Core::gamestate.uoclient_protocol.EnableFlowControlPackets && !paused_ )
+	  if (Core::networkManager.uoclient_protocol.EnableFlowControlPackets && !paused_ )
 	  {
 #ifndef PRE_ENCRYPT
 		PKTOUT_33 msg;

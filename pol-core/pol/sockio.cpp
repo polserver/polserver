@@ -18,7 +18,7 @@ Notes
 #include "../clib/strutil.h"
 #include "../clib/logfacility.h"
 
-#include "globals/uvars.h"
+#include "globals/network.h"
 
 #ifdef __unix__
 #include <sys/utsname.h>
@@ -32,13 +32,13 @@ namespace Pol {
   namespace Network {
 	void set_ip_address( const char* ip )
 	{
-	  strzcpy( Core::gamestate.ipaddr_str, ip, sizeof Core::gamestate.ipaddr_str );
-	  POLLOG_INFO << "Internet IP address is " << Core::gamestate.ipaddr_str << "\n";
+	  strzcpy( Core::networkManager.ipaddr_str, ip, sizeof Core::networkManager.ipaddr_str );
+	  POLLOG_INFO << "Internet IP address is " << Core::networkManager.ipaddr_str << "\n";
 	}
 	void set_lan_address( const char* ip )
 	{
-	  strzcpy( Core::gamestate.lanaddr_str, ip, sizeof Core::gamestate.lanaddr_str );
-      POLLOG_INFO << "LAN IP address is " << Core::gamestate.lanaddr_str << "\n";
+	  strzcpy( Core::networkManager.lanaddr_str, ip, sizeof Core::networkManager.lanaddr_str );
+      POLLOG_INFO << "LAN IP address is " << Core::networkManager.lanaddr_str << "\n";
 	}
 
 	void search_name( const char* hostname )
@@ -58,7 +58,7 @@ namespace Pol {
 			 strncmp( adstr, "172.16.", 7 ) == 0 ||
 			 strncmp( adstr, "172.32.", 7 ) == 0 )
 		{
-		  if ( !Core::gamestate.lanaddr_str[0] )
+		  if ( !Core::networkManager.lanaddr_str[0] )
 			set_lan_address( adstr );
 		}
 		else if ( strncmp( adstr, "127.", 4 ) == 0 )
@@ -67,7 +67,7 @@ namespace Pol {
 		}
 		else
 		{
-		  if ( !Core::gamestate.ipaddr_str[0] )
+		  if ( !Core::networkManager.ipaddr_str[0] )
 			set_ip_address( adstr );
 		}
 	  }
@@ -92,11 +92,11 @@ namespace Pol {
 	  }
 #endif
 
-	  if ( gethostname( Core::gamestate.hostname, sizeof Core::gamestate.hostname ) )
+	  if ( gethostname( Core::networkManager.hostname, sizeof Core::networkManager.hostname ) )
 	  {
         POLLOG_ERROR << "gethostname failed: " << socket_errno << "\n";
 	  }
-	  search_name( Core::gamestate.hostname );
+	  search_name( Core::networkManager.hostname );
 
 #ifdef __unix__
 	  uname( &my_utsname );

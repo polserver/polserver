@@ -110,9 +110,9 @@ namespace Pol {
 	  // Check if secure trading is enabled and that the container for it is setup.
 	  if ( Plib::systemstate.config.enable_secure_trading )
 	  {
-        const Items::ItemDesc& stid = Items::find_itemdesc( gamestate.extobj.secure_trade_container );
+        const Items::ItemDesc& stid = Items::find_itemdesc( settingsManager.extobj.secure_trade_container );
         if ( stid.type != Items::ItemDesc::CONTAINERDESC )
-		  throw std::runtime_error( "Secure trade container (" + Clib::hexint( gamestate.extobj.secure_trade_container ) + ") must be defined in itemdesc.cfg as a container." );
+		  throw std::runtime_error( "Secure trade container (" + Clib::hexint( settingsManager.extobj.secure_trade_container ) + ") must be defined in itemdesc.cfg as a container." );
 	  }
 
 	  // Make sure backpack container is defined.
@@ -126,11 +126,11 @@ namespace Pol {
           throw std::runtime_error("Corpse container (" + Clib::hexint(UOBJ_CORPSE) + ") must be defined in itemdesc.cfg as a container.");
 
 	  // Make sure the WornItems container is defined.
-      const Items::ItemDesc& wic_id = Items::find_itemdesc( gamestate.extobj.wornitems_container );
+      const Items::ItemDesc& wic_id = Items::find_itemdesc( settingsManager.extobj.wornitems_container );
       if ( wic_id.type != Items::ItemDesc::CONTAINERDESC )
-          throw std::runtime_error("WornItems container (" + Clib::hexint(gamestate.extobj.wornitems_container) + ") must be defined in itemdesc.cfg as a container.");
+          throw std::runtime_error("WornItems container (" + Clib::hexint(settingsManager.extobj.wornitems_container) + ") must be defined in itemdesc.cfg as a container.");
 
-      const Items::ContainerDesc& cd = Items::find_container_desc( gamestate.extobj.wornitems_container );
+      const Items::ContainerDesc& cd = Items::find_container_desc( settingsManager.extobj.wornitems_container );
       Items::getgraphic( cd.objtype );
 	}
 

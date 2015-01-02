@@ -1,6 +1,6 @@
 #include "clienttransmit.h"
 #include "client.h"
-#include "../globals/uvars.h"
+#include "../globals/network.h"
 #include "../../clib/esignal.h"
 
 namespace Pol {
@@ -41,7 +41,7 @@ namespace Pol {
 
 	void ClientTransmitThread()
 	{
-	  ClientTransmit* transmit_instance = Core::gamestate.clientTransmit.get();
+	  ClientTransmit* transmit_instance = Core::networkManager.clientTransmit.get();
 	  while ( !Clib::exit_signalled )
 	  {
 		try

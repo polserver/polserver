@@ -64,7 +64,6 @@ Notes
 #include "realms.h"
 #include "repsys.h"
 #include "sockio.h"
-#include "ssopt.h"
 #include "statmsg.h"
 #include "tmpvars.h"
 #include "tooltips.h"
@@ -74,6 +73,8 @@ Notes
 #include "uofile.h"
 #include "ustruct.h"
 #include "globals/uvars.h"
+#include "globals/state.h"
+#include "globals/object_storage.h"
 #include "uworld.h"
 #include "mdelta.h"
 #include "zone.h"
@@ -113,56 +114,56 @@ namespace Pol {
         //Dave added 3/9/3
         void SetCurrentItemSerialNumber(u32 serial)
         {
-            gamestate.itemserialnumber = serial;
+            stateManager.itemserialnumber = serial;
         }
 
         //Dave added 3/9/3
         void SetCurrentCharSerialNumber(u32 serial)
         {
-            gamestate.charserialnumber = serial;
+            stateManager.charserialnumber = serial;
         }
 
         //Dave added 3/8/3
         u32 GetCurrentItemSerialNumber(void)
         {
-            return gamestate.itemserialnumber;
+            return stateManager.itemserialnumber;
         }
 
         //Dave added 3/8/3
         u32 GetCurrentCharSerialNumber(void)
         {
-            return gamestate.charserialnumber;
+            return stateManager.charserialnumber;
         }
 
         //Dave changed 3/8/3 to use objecthash
         u32 GetNextSerialNumber(void)
         {
-            u32 nextserial = gamestate.objecthash.GetNextUnusedCharSerial();
-            gamestate.charserialnumber = nextserial;
-            return gamestate.charserialnumber;
+            u32 nextserial = objStorageManager.objecthash.GetNextUnusedCharSerial();
+            stateManager.charserialnumber = nextserial;
+            return stateManager.charserialnumber;
         }
 
         u32 UseCharSerialNumber(u32 serial)
         {
-            if (serial > gamestate.charserialnumber)
-                gamestate.charserialnumber = serial + 1;
+            if (serial > stateManager.charserialnumber)
+                stateManager.charserialnumber = serial + 1;
             return serial;
         }
 
         //Dave changed 3/8/3
         u32 UseItemSerialNumber(u32 serial)
         {
-            if (serial > gamestate.itemserialnumber)
-                gamestate.itemserialnumber = serial + 1;
+            if (serial > stateManager.itemserialnumber)
+                stateManager.itemserialnumber = serial + 1;
             return serial;
         }
 
         //Dave changed 3/8/3 to use objecthash
         u32 GetNewItemSerialNumber(void)
         {
-            u32 nextserial = gamestate.objecthash.GetNextUnusedItemSerial();
-            gamestate.itemserialnumber = nextserial;
-            return gamestate.itemserialnumber;
+            u32 nextserial = objStorageManager.objecthash.GetNextUnusedItemSerial();
+            stateManager.itemserialnumber = nextserial;
+            return stateManager.itemserialnumber;
         }
 
         void send_goxyz(Client *client, const Character *chr)
@@ -218,13 +219,13 @@ namespace Pol {
             movebuffer->offset = 15;
             movebuffer->Write<u8>(chr->get_flag1(client));
             movebuffer->Write<u8>(chr->hilite_color_idx(client->chr));
-            Core::gamestate.clientTransmit->AddToQueue(client, &movebuffer->buffer, movebuffer->offset);
+            Core::networkManager.clientTransmit->AddToQueue(client, &movebuffer->buffer, movebuffer->offset);
             if (client->ClientType & CLIENTTYPE_UOKR)
 			{
 			  if (chr->poisoned()) //if poisoned send 0x17 for newer clients
-                Core::gamestate.clientTransmit->AddToQueue(client, &poisonbuffer->buffer, poisonbuffer->offset);
+                Core::networkManager.clientTransmit->AddToQueue(client, &poisonbuffer->buffer, poisonbuffer->offset);
 			  if (chr->invul()) //if invul send 0x17 for newer clients
-                Core::gamestate.clientTransmit->AddToQueue(client, &invulbuffer->buffer, invulbuffer->offset);
+                Core::networkManager.clientTransmit->AddToQueue(client, &invulbuffer->buffer, invulbuffer->offset);
 			}
         }
 
@@ -300,7 +301,7 @@ namespace Pol {
                     continue;
 
                 // Dont send faces if older client or ssopt
-                if ((layer == LAYER_FACE) && ((gamestate.ssopt.support_faces == 0) || (~client->ClientType & CLIENTTYPE_UOKR)))
+                if ((layer == LAYER_FACE) && ((settingsManager.ssopt.support_faces == 0) || (~client->ClientType & CLIENTTYPE_UOKR)))
                     continue;
 
                 if (client->ClientType & CLIENTTYPE_70331)
@@ -377,7 +378,7 @@ namespace Pol {
                     continue;
 
                 // Dont send faces if older client or ssopt
-                if ((layer == LAYER_FACE) && ((gamestate.ssopt.support_faces == 0) || (~client->ClientType & CLIENTTYPE_UOKR)))
+                if ((layer == LAYER_FACE) && ((settingsManager.ssopt.support_faces == 0) || (~client->ClientType & CLIENTTYPE_UOKR)))
                     continue;
 
                 if (client->ClientType & CLIENTTYPE_70331)
@@ -406,7 +407,7 @@ namespace Pol {
             owncreate->offset = 1;
             owncreate->WriteFlipped<u16>(len);
 
-            Core::gamestate.clientTransmit->AddToQueue(client, &owncreate->buffer, len);
+            Core::networkManager.clientTransmit->AddToQueue(client, &owncreate->buffer, len);
 
             if (client->UOExpansionFlag & AOS)
             {
@@ -426,9 +427,9 @@ namespace Pol {
             if (client->ClientType & CLIENTTYPE_UOKR)
 			{
 			  if (chr->poisoned()) //if poisoned send 0x17 for newer clients
-                Core::gamestate.clientTransmit->AddToQueue(client, &poisonbuffer->buffer, poisonbuffer->offset);
+                Core::networkManager.clientTransmit->AddToQueue(client, &poisonbuffer->buffer, poisonbuffer->offset);
 			  if (chr->invul()) //if invul send 0x17 for newer clients
-                Core::gamestate.clientTransmit->AddToQueue(client, &invulbuffer->buffer, invulbuffer->offset);
+                Core::networkManager.clientTransmit->AddToQueue(client, &invulbuffer->buffer, invulbuffer->offset);
 			}
         }
 
@@ -592,15 +593,15 @@ namespace Pol {
 
         bool in_say_range(const Character *c1, const Character *c2)
         {
-            return inrangex(c1, c2, gamestate.ssopt.speech_range);
+            return inrangex(c1, c2, settingsManager.ssopt.speech_range);
         }
         bool in_yell_range(const Character *c1, const Character *c2)
         {
-            return inrangex(c1, c2, gamestate.ssopt.yell_range);
+            return inrangex(c1, c2, settingsManager.ssopt.yell_range);
         }
         bool in_whisper_range(const Character *c1, const Character *c2)
         {
-            return inrangex(c1, c2, gamestate.ssopt.whisper_range);
+            return inrangex(c1, c2, settingsManager.ssopt.whisper_range);
         }
 
         bool inrange(unsigned short x1, unsigned short y1,
@@ -634,7 +635,7 @@ namespace Pol {
                 item->x, item->y, item->slot_index(), item->container->serial_ext, item->color);
 
             // FIXME mightsee also checks remote containers thus the ForEachPlayer functions cannot be used
-            for (auto &client2 : gamestate.clients)
+            for (auto &client2 : networkManager.clients)
             {
                 if (!client2->ready)
                     continue;
@@ -1424,7 +1425,7 @@ namespace Pol {
 
 	void broadcast( const char *text, unsigned short font, unsigned short color )
 	{
-	  for ( auto &client : gamestate.clients )
+	  for ( auto &client : networkManager.clients )
 	  {
 		if ( !client->ready )
 		  continue;
@@ -1436,7 +1437,7 @@ namespace Pol {
 	void broadcast( const u16 *wtext, const char lang[4],
 					unsigned short font, unsigned short color )
 	{
-      for ( auto &client : gamestate.clients )
+      for ( auto &client : networkManager.clients )
 	  {
 		if ( !client->ready )
 		  continue;
@@ -1678,14 +1679,14 @@ namespace Pol {
 	  PktHelper::PacketOut<PktOut_A3> msg;
 	  msg->Write<u32>( chr->serial_ext );
 
-	  if ( gamestate.uoclient_general.stamina.any )
+	  if ( networkManager.uoclient_general.stamina.any )
 	  {
-		int v = chr->vital( gamestate.uoclient_general.mana.id ).maximum_ones();
+		int v = chr->vital( networkManager.uoclient_general.mana.id ).maximum_ones();
 		if ( v > 0xFFFF )
 		  v = 0xFFFF;
 		msg->WriteFlipped<u16>( static_cast<u16>(v) );
 
-		v = chr->vital( gamestate.uoclient_general.mana.id ).current_ones();
+		v = chr->vital( networkManager.uoclient_general.mana.id ).current_ones();
 		if ( v > 0xFFFF )
 		  v = 0xFFFF;
 		msg->WriteFlipped<u16>( static_cast<u16>(v) );
@@ -1704,14 +1705,14 @@ namespace Pol {
 	  PktHelper::PacketOut<PktOut_A2> msg;
 	  msg->Write<u32>( chr->serial_ext );
 
-	  if ( gamestate.uoclient_general.mana.any )
+	  if ( networkManager.uoclient_general.mana.any )
 	  {
-		int v = chr->vital( gamestate.uoclient_general.mana.id ).maximum_ones();
+		int v = chr->vital( networkManager.uoclient_general.mana.id ).maximum_ones();
 		if ( v > 0xFFFF )
 		  v = 0xFFFF;
 		msg->WriteFlipped<u16>( static_cast<u16>(v) );
 
-		v = chr->vital( gamestate.uoclient_general.mana.id ).current_ones();
+		v = chr->vital( networkManager.uoclient_general.mana.id ).current_ones();
 		if ( v > 0xFFFF )
 		  v = 0xFFFF;
 		msg->WriteFlipped<u16>( static_cast<u16>(v) );
@@ -1747,7 +1748,7 @@ namespace Pol {
           return;
         if ( is_UOKR && ( !( client->ClientType & CLIENTTYPE_UOKR ) ) )
           return;
-        Core::gamestate.clientTransmit->AddToQueue( client, msg, msglen );
+        Core::networkManager.clientTransmit->AddToQueue( client, msg, msglen );
       } );
 	}
 
@@ -1762,7 +1763,7 @@ namespace Pol {
           return;
         if ( zonechr == center )
           return;
-        Core::gamestate.clientTransmit->AddToQueue( client, msg, msglen );
+        Core::networkManager.clientTransmit->AddToQueue( client, msg, msglen );
       } );
 	}
 
@@ -1941,7 +1942,7 @@ namespace Pol {
 	  lightregion->lightlevel = lightlevel;
 	  PktHelper::PacketOut<PktOut_4F> msg;
 	  msg->Write<u8>( static_cast<u8>(lightlevel) );
-	  for ( Clients::iterator itr = gamestate.clients.begin(), end = gamestate.clients.end(); itr != end; ++itr )
+	  for ( Clients::iterator itr = networkManager.clients.begin(), end = networkManager.clients.end(); itr != end; ++itr )
 	  {
 		Client *client = *itr;
 		if ( !client->ready )
@@ -1968,7 +1969,7 @@ namespace Pol {
 		  if ( light_region != NULL )
 			newlightlevel = light_region->lightlevel;
 		  else
-			newlightlevel = gamestate.ssopt.default_light_level;
+			newlightlevel = settingsManager.ssopt.default_light_level;
 		}
 
 		if ( newlightlevel != client->gd->lightlevel )
@@ -2015,7 +2016,7 @@ namespace Pol {
 	  weatherregion->aux = static_cast<unsigned char>( aux );
 	  weatherregion->lightoverride = lightoverride;
 
-      for ( auto &client : gamestate.clients )
+      for ( auto &client : networkManager.clients )
       {
         update_weatherregion( client, weatherregion );
       }
@@ -2023,7 +2024,7 @@ namespace Pol {
 
 	void update_all_weatherregions()
 	{
-      for ( auto &client : gamestate.clients )
+      for ( auto &client : networkManager.clients )
       {
         if ( !client->ready )
           return;
@@ -2057,7 +2058,7 @@ namespace Pol {
 		desc = s;
 	  }
 	  else
-	  if ( gamestate.ssopt.use_tile_flag_prefix )
+	  if ( settingsManager.ssopt.use_tile_flag_prefix )
 	  {
 		if ( polflags & Plib::FLAG::DESC_PREPEND_AN )
 		{
@@ -2285,7 +2286,7 @@ namespace Pol {
 	  // Roleplay faces?
 	  if ( client->UOExpansionFlag & KR )
 	  {
-		if ( gamestate.ssopt.support_faces == 2 )
+		if ( settingsManager.ssopt.support_faces == 2 )
 		  clientflag |= 0x2000;
 	  }
 

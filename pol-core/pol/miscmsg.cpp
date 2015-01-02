@@ -44,7 +44,6 @@ Notes
 #include "uoscrobj.h"
 #include "sockio.h"
 
-#include "ssopt.h"
 #include "scrstore.h"
 #include "polcfg.h"
 
@@ -89,7 +88,7 @@ namespace Pol {
 	  }
 	  else
 	  {
-		client->chr->warmode_wait = read_gameclock() + gamestate.combat_config.warmode_delay;
+		client->chr->warmode_wait = read_gameclock() + settingsManager.combat_config.warmode_delay;
 	  }
 
 	  bool msg_warmode = msg->warmode ? true : false;
@@ -245,7 +244,7 @@ namespace Pol {
 		else if ( client->compareVersion( CLIENT_VER_4000 ) )
 		  client->setClientType( CLIENTTYPE_4000 );
 
-		if ( gamestate.ssopt.core_sends_season )
+		if ( settingsManager.ssopt.core_sends_season )
 		  send_season_info( client );	// Scott 10/11/2007 added for login fixes and handling 1.x clients.
 		// Season info needs to check client version to keep from crashing 1.x
 		// version not set until shortly after login complete.
@@ -263,7 +262,7 @@ namespace Pol {
 
 	void ext_stats_in( Client* client, PKTBI_BF* msg )
 	{
-	  if ( gamestate.ssopt.core_handled_locks )
+	  if ( settingsManager.ssopt.core_handled_locks )
 	  {
         const Mobile::Attribute *attrib = NULL;
 		switch ( msg->extstatin.stat )

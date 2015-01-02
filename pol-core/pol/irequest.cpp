@@ -23,9 +23,10 @@ Notes
 #include "scrstore.h"
 #include "statmsg.h"
 #include "uoskills.h"
-#include "globals/uvars.h"
+#include "globals/network.h"
+#include "globals/state.h"
+#include "globals/settings.h"
 #include "ufunc.h"
-#include "ssopt.h"
 #include "party.h"
 
 #include "../clib/endian.h"
@@ -61,12 +62,12 @@ namespace Pol {
 	{
       Network::PktHelper::PacketOut<Network::PktOut_3A> msg;
 	  msg->offset += 2;
-	  if ( gamestate.ssopt.core_sends_caps )
+	  if ( settingsManager.ssopt.core_sends_caps )
 		msg->Write<u8>( PKTBI_3A_VALUES::FULL_LIST_CAP );
 	  else
 		msg->Write<u8>( PKTBI_3A_VALUES::FULL_LIST );
 
-	  for ( unsigned short i = 0; i <= gamestate.uoclient_general.maxskills; ++i )
+	  for ( unsigned short i = 0; i <= networkManager.uoclient_general.maxskills; ++i )
 	  {
 		const UOSkill& uoskill = GetUOSkill( i );
 		msg->WriteFlipped<u16>( static_cast<u16>( i + 1 ) ); // for some reason, we send this 1-based
@@ -84,18 +85,18 @@ namespace Pol {
 			value = 0xFFFF;
 		  msg->WriteFlipped<u16>( static_cast<u16>(value) );
 		  msg->Write<u8>( av.lock() );
-		  if ( gamestate.ssopt.core_sends_caps )
+		  if ( settingsManager.ssopt.core_sends_caps )
 			msg->WriteFlipped<u16>( av.cap() );
 		}
 		else
 		{
 		  msg->offset += 4; // u16 value/value_unmod
 		  msg->Write<u8>( PKTBI_3A_VALUES::LOCK_DOWN );
-		  if ( gamestate.ssopt.core_sends_caps )
-			msg->WriteFlipped<u16>( gamestate.ssopt.default_attribute_cap );
+		  if ( settingsManager.ssopt.core_sends_caps )
+			msg->WriteFlipped<u16>( settingsManager.ssopt.default_attribute_cap );
 		}
 	  }
-	  if ( !gamestate.ssopt.core_sends_caps )
+	  if ( !settingsManager.ssopt.core_sends_caps )
 		msg->offset += 2; // u16 nullterm
 	  u16 len = msg->offset;
 	  msg->offset = 1;
@@ -105,10 +106,10 @@ namespace Pol {
 
     void handle_skill_lock( Network::Client *client, PKTBI_3A_LOCKS *msg )
 	{
-	  if ( gamestate.ssopt.core_handled_locks )
+	  if ( settingsManager.ssopt.core_handled_locks )
 	  {
 		unsigned int skillid = cfBEu16( msg->skillid );
-		if ( skillid > gamestate.uoclient_general.maxskills )
+		if ( skillid > networkManager.uoclient_general.maxskills )
 		  return;
 
 		const UOSkill& uoskill = GetUOSkill( skillid );

@@ -80,9 +80,9 @@ namespace Pol {
 	  int range;
 	  switch ( texttype )
 	  {
-		case TEXTTYPE_WHISPER:  range = gamestate.ssopt.whisper_range;  break;
-		case TEXTTYPE_YELL:     range = gamestate.ssopt.yell_range;     break;
-		default:                range = gamestate.ssopt.speech_range;   break;
+		case TEXTTYPE_WHISPER:  range = settingsManager.ssopt.whisper_range;  break;
+		case TEXTTYPE_YELL:     range = settingsManager.ssopt.yell_range;     break;
+		default:                range = settingsManager.ssopt.speech_range;   break;
 	  }
 
 	  unsigned short wxL, wyL, wxH, wyH;
@@ -113,9 +113,9 @@ namespace Pol {
 	  int range;
 	  switch ( texttype )
 	  {
-		case TEXTTYPE_WHISPER:  range = gamestate.ssopt.whisper_range;  break;
-		case TEXTTYPE_YELL:     range = gamestate.ssopt.yell_range;     break;
-		default:                range = gamestate.ssopt.speech_range;   break;
+		case TEXTTYPE_WHISPER:  range = settingsManager.ssopt.whisper_range;  break;
+		case TEXTTYPE_YELL:     range = settingsManager.ssopt.yell_range;     break;
+		default:                range = settingsManager.ssopt.speech_range;   break;
 	  }
 
 	  unsigned short wxL, wyL, wxH, wyH;

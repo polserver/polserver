@@ -40,12 +40,13 @@ Notes
 #include "scrdef.h"
 #include "skilladv.h"
 #include "sockio.h"
-#include "ssopt.h"
 #include "startloc.h"
 #include "uconst.h"
 #include "ufunc.h"
 #include "uoskills.h"
 #include "globals/uvars.h"
+#include "globals/object_storage.h"
+#include "globals/network.h"
 #include "uworld.h"
 
 #include "../bscript/bobject.h"
@@ -191,11 +192,11 @@ namespace Pol {
 		*/
 	bool validface( u16 FaceStyle )
 	{
-	  if ( gamestate.ssopt.support_faces > 0 )
+	  if ( settingsManager.ssopt.support_faces > 0 )
 	  {
 		if ( ( 0x3B44 <= FaceStyle ) && ( FaceStyle <= 0x3B4D ) )
 		  return true;
-		if ( gamestate.ssopt.support_faces == 2 )
+		if ( settingsManager.ssopt.support_faces == 2 )
 		{
 		  if ( ( 0x3B4E <= FaceStyle ) && ( FaceStyle <= 0x3B57 ) )
 			return true;
@@ -334,9 +335,9 @@ namespace Pol {
 	  unsigned int stat_min, stat_max;
 	  char *maxpos;
 	  std::vector<std::string>::size_type sidx;
-	  for ( sidx = 0; !valid_stats && sidx < gamestate.ssopt.total_stats_at_creation.size(); ++sidx )
+	  for ( sidx = 0; !valid_stats && sidx < settingsManager.ssopt.total_stats_at_creation.size(); ++sidx )
 	  {
-		const char *statstr = gamestate.ssopt.total_stats_at_creation[sidx].c_str();
+		const char *statstr = settingsManager.ssopt.total_stats_at_creation[sidx].c_str();
 		stat_max = ( stat_min = strtoul( statstr, &maxpos, 0 ) );
 		if ( *( maxpos++ ) == '-' )
 		  stat_max = strtoul( maxpos, 0, 0 );
@@ -349,11 +350,11 @@ namespace Pol {
         tmp << "Create Character: Stats sum to "
 		  << stat_total << ".\n"
 		  << "Valid values/ranges are: ";
-		for ( sidx = 0; sidx < gamestate.ssopt.total_stats_at_creation.size(); ++sidx )
+		for ( sidx = 0; sidx < settingsManager.ssopt.total_stats_at_creation.size(); ++sidx )
 		{
 		  if ( sidx > 0 )
             tmp << ",";
-          tmp << gamestate.ssopt.total_stats_at_creation[sidx];
+          tmp << settingsManager.ssopt.total_stats_at_creation[sidx];
 		}
         ERROR_PRINT << tmp.c_str() << "\n";
 		client->forceDisconnect();
@@ -377,9 +378,9 @@ namespace Pol {
       if ( gamestate.pAttrDexterity )
         chr->attribute( gamestate.pAttrDexterity->attrid ).base( msg->Dexterity * 10 );
 
-	  if ( msg->SkillNumber1 > gamestate.uoclient_general.maxskills ||
-		   msg->SkillNumber2 > gamestate.uoclient_general.maxskills ||
-		   msg->SkillNumber3 > gamestate.uoclient_general.maxskills )
+	  if ( msg->SkillNumber1 > networkManager.uoclient_general.maxskills ||
+		   msg->SkillNumber2 > networkManager.uoclient_general.maxskills ||
+		   msg->SkillNumber3 > networkManager.uoclient_general.maxskills )
 	  {
         ERROR_PRINT << "Create Character: A skill number was out of range\n";
 		client->forceDisconnect();
@@ -398,7 +399,7 @@ namespace Pol {
 
 	  ////HASH
 	  //moved down here, after all error checking passes, else we get a half-created PC in the save.
-	  gamestate.objecthash.Insert( chr );
+	  objStorageManager.objecthash.Insert( chr );
 	  ////
 
 	  if ( !noskills )
@@ -454,10 +455,10 @@ namespace Pol {
 	  backpack->realm = chr->realm;
 	  chr->equip( backpack );
 
-	  if ( gamestate.ssopt.starting_gold != 0 )
+	  if ( settingsManager.ssopt.starting_gold != 0 )
 	  {
         tmpitem = Items::Item::create( 0x0EED );
-		tmpitem->setamount( gamestate.ssopt.starting_gold );
+		tmpitem->setamount( settingsManager.ssopt.starting_gold );
 		tmpitem->x = 46;
 		tmpitem->y = 91;
 		tmpitem->z = 0;
@@ -479,14 +480,14 @@ namespace Pol {
 	  if ( chr->race == RACE_HUMAN || chr->race == RACE_ELF ) // Gargoyles dont have shirts, pants, shoes and daggers.
 	  {
         tmpitem = Items::Item::create( 0x170F );
-		tmpitem->newbie( gamestate.ssopt.newbie_starting_equipment );
+		tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
 		tmpitem->layer = LAYER_SHOES;
 		tmpitem->color = 0x021F;
 		tmpitem->realm = chr->realm;
 		chr->equip( tmpitem );
 
         tmpitem = Items::Item::create( 0xF51 );
-		tmpitem->newbie( gamestate.ssopt.newbie_starting_equipment );
+		tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
 		tmpitem->layer = LAYER_HAND1;
 		tmpitem->realm = chr->realm;
 		chr->equip( tmpitem );
@@ -504,14 +505,14 @@ namespace Pol {
 		}
 
         tmpitem = Items::Item::create( pantstype );
-		tmpitem->newbie( gamestate.ssopt.newbie_starting_equipment );
+		tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
 		tmpitem->layer = tilelayer( pantstype );
 		tmpitem->color = cfBEu16( msg->pantscolor ); // 0x0284;
 		tmpitem->realm = chr->realm;
 		chr->equip( tmpitem );
 
         tmpitem = Items::Item::create( shirttype );
-		tmpitem->newbie( gamestate.ssopt.newbie_starting_equipment );
+		tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
 		tmpitem->layer = tilelayer( shirttype );
 		tmpitem->color = cfBEu16( msg->shirtcolor );
 		tmpitem->realm = chr->realm;
@@ -520,7 +521,7 @@ namespace Pol {
 	  else if ( chr->race == RACE_GARGOYLE ) // Gargoyles have Robes.
 	  {
 		tmpitem = Items::Item::create( 0x1F03 );
-		tmpitem->newbie( gamestate.ssopt.newbie_starting_equipment );
+		tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
 		tmpitem->layer = LAYER_ROBE_DRESS;
 		tmpitem->color = cfBEu16( msg->shirtcolor );
 		tmpitem->realm = chr->realm;
@@ -533,7 +534,7 @@ namespace Pol {
 
       POLLOG.Format( "Account {} created character 0x{:X}\n" ) << client->acct->name() << chr->serial;
 	  SetCharacterWorldPosition( chr, Plib::WorldChangeReason::PlayerEnter );
-	  client->msgtype_filter = gamestate.game_filter.get();
+	  client->msgtype_filter = networkManager.game_filter.get();
 	  start_client_char( client );
 
 	  // FIXME : Shouldn't this be triggered at the end of creation?
@@ -588,7 +589,7 @@ namespace Pol {
 	  chr->truecolor = chr->color;
 	  chr->created_at = read_gameclock();
 
-	  gamestate.objecthash.Insert( chr );
+	  objStorageManager.objecthash.Insert( chr );
 	}
 
 
@@ -688,9 +689,9 @@ namespace Pol {
 	  unsigned int stat_min, stat_max;
 	  char *maxpos;
 	  std::vector<std::string>::size_type sidx;
-	  for ( sidx = 0; !valid_stats && sidx < gamestate.ssopt.total_stats_at_creation.size(); ++sidx )
+	  for ( sidx = 0; !valid_stats && sidx < settingsManager.ssopt.total_stats_at_creation.size(); ++sidx )
 	  {
-		const char *statstr = gamestate.ssopt.total_stats_at_creation[sidx].c_str();
+		const char *statstr = settingsManager.ssopt.total_stats_at_creation[sidx].c_str();
 		stat_max = ( stat_min = strtoul( statstr, &maxpos, 0 ) );
 		if ( *( maxpos++ ) == '-' )
 		  stat_max = strtoul( maxpos, 0, 0 );
@@ -703,11 +704,11 @@ namespace Pol {
 		tmp << "Create Character: Stats sum to "
 		  << stat_total << ".\n"
 		  << "Valid values/ranges are: ";
-		for ( sidx = 0; sidx < gamestate.ssopt.total_stats_at_creation.size(); ++sidx )
+		for ( sidx = 0; sidx < settingsManager.ssopt.total_stats_at_creation.size(); ++sidx )
 		{
 		  if ( sidx > 0 )
 			tmp << ",";
-		  tmp << gamestate.ssopt.total_stats_at_creation[sidx];
+		  tmp << settingsManager.ssopt.total_stats_at_creation[sidx];
 		}
         ERROR_PRINT << tmp.c_str() << "\n";
 		client->forceDisconnect();
@@ -732,10 +733,10 @@ namespace Pol {
         chr->attribute( gamestate.pAttrDexterity->attrid ).base( msg->dexterity * 10 );
 
 
-	  if ( msg->skillnumber1 > gamestate.uoclient_general.maxskills ||
-		   msg->skillnumber2 > gamestate.uoclient_general.maxskills ||
-		   msg->skillnumber3 > gamestate.uoclient_general.maxskills ||
-		   msg->skillnumber4 > gamestate.uoclient_general.maxskills )
+	  if ( msg->skillnumber1 > networkManager.uoclient_general.maxskills ||
+		   msg->skillnumber2 > networkManager.uoclient_general.maxskills ||
+		   msg->skillnumber3 > networkManager.uoclient_general.maxskills ||
+		   msg->skillnumber4 > networkManager.uoclient_general.maxskills )
 	  {
         ERROR_PRINT << "Create Character: A skill number was out of range\n";
 		client->forceDisconnect();
@@ -756,7 +757,7 @@ namespace Pol {
 
 	  ////HASH
 	  //moved down here, after all error checking passes, else we get a half-created PC in the save.
-	  gamestate.objecthash.Insert( chr );
+	  objStorageManager.objecthash.Insert( chr );
 	  ////
 
 	  if ( !noskills )
@@ -829,10 +830,10 @@ namespace Pol {
 	  backpack->realm = chr->realm;
 	  chr->equip( backpack );
 
-	  if ( gamestate.ssopt.starting_gold != 0 )
+	  if ( settingsManager.ssopt.starting_gold != 0 )
 	  {
         tmpitem = Items::Item::create( 0x0EED );
-		tmpitem->setamount( gamestate.ssopt.starting_gold );
+		tmpitem->setamount( settingsManager.ssopt.starting_gold );
 		tmpitem->x = 46;
 		tmpitem->y = 91;
 		tmpitem->z = 0;
@@ -854,14 +855,14 @@ namespace Pol {
 	  if ( chr->race == RACE_HUMAN || chr->race == RACE_ELF ) // Gargoyles dont have shirts, pants, shoes and daggers.
 	  {
         tmpitem = Items::Item::create( 0x170F );
-		tmpitem->newbie( gamestate.ssopt.newbie_starting_equipment );
+		tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
 		tmpitem->layer = LAYER_SHOES;
 		tmpitem->color = 0x021F;
 		tmpitem->realm = chr->realm;
 		chr->equip( tmpitem );
 
         tmpitem = Items::Item::create( 0xF51 );
-		tmpitem->newbie( gamestate.ssopt.newbie_starting_equipment );
+		tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
 		tmpitem->layer = LAYER_HAND1;
 		tmpitem->realm = chr->realm;
 		chr->equip( tmpitem );
@@ -879,14 +880,14 @@ namespace Pol {
 		}
 
         tmpitem = Items::Item::create( pantstype );
-		tmpitem->newbie( gamestate.ssopt.newbie_starting_equipment );
+		tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
 		tmpitem->layer = tilelayer( pantstype );
 		tmpitem->color = cfBEu16( msg->pantscolor ); // 0x0284;
 		tmpitem->realm = chr->realm;
 		chr->equip( tmpitem );
 
         tmpitem = Items::Item::create( shirttype );
-		tmpitem->newbie( gamestate.ssopt.newbie_starting_equipment );
+		tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
 		tmpitem->layer = tilelayer( shirttype );
 		tmpitem->color = cfBEu16( msg->shirtcolor );
 		tmpitem->realm = chr->realm;
@@ -895,7 +896,7 @@ namespace Pol {
 	  else if ( chr->race == RACE_GARGOYLE ) // Gargoyles have Robes.
 	  {
         tmpitem = Items::Item::create( 0x1F03 );
-		tmpitem->newbie( gamestate.ssopt.newbie_starting_equipment );
+		tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
 		tmpitem->layer = LAYER_ROBE_DRESS;
 		tmpitem->color = cfBEu16( msg->shirtcolor );
 		tmpitem->realm = chr->realm;
@@ -908,7 +909,7 @@ namespace Pol {
 
       POLLOG.Format( "Account {} created character 0x{:X}\n" ) << client->acct->name() << chr->serial;
       SetCharacterWorldPosition(chr, Plib::WorldChangeReason::PlayerEnter);
-	  client->msgtype_filter = gamestate.game_filter.get();
+	  client->msgtype_filter = networkManager.game_filter.get();
 	  start_client_char( client );
 
 	  // FIXME : Shouldn't this be triggered at the end of creation?
@@ -1073,9 +1074,9 @@ namespace Pol {
 	  unsigned int stat_min, stat_max;
 	  char *maxpos;
 	  std::vector<std::string>::size_type sidx;
-	  for ( sidx = 0; !valid_stats && sidx < gamestate.ssopt.total_stats_at_creation.size(); ++sidx )
+	  for ( sidx = 0; !valid_stats && sidx < settingsManager.ssopt.total_stats_at_creation.size(); ++sidx )
 	  {
-		const char *statstr = gamestate.ssopt.total_stats_at_creation[sidx].c_str();
+		const char *statstr = settingsManager.ssopt.total_stats_at_creation[sidx].c_str();
 		stat_max = ( stat_min = strtoul( statstr, &maxpos, 0 ) );
 		if ( *( maxpos++ ) == '-' )
 		  stat_max = strtoul( maxpos, 0, 0 );
@@ -1088,11 +1089,11 @@ namespace Pol {
         tmp << "Create Character: Stats sum to "
 		  << stat_total << ".\n"
 		  << "Valid values/ranges are: ";
-		for ( sidx = 0; sidx < gamestate.ssopt.total_stats_at_creation.size(); ++sidx )
+		for ( sidx = 0; sidx < settingsManager.ssopt.total_stats_at_creation.size(); ++sidx )
 		{
 		  if ( sidx > 0 )
 			tmp << ",";
-		  tmp << gamestate.ssopt.total_stats_at_creation[sidx];
+		  tmp << settingsManager.ssopt.total_stats_at_creation[sidx];
 		}
         ERROR_PRINT << tmp.c_str() << "\n";
 		client->forceDisconnect();
@@ -1153,10 +1154,10 @@ namespace Pol {
 	  }
 
 
-	  if ( msg->SkillNumber1 > gamestate.uoclient_general.maxskills ||
-		   msg->SkillNumber2 > gamestate.uoclient_general.maxskills ||
-		   msg->SkillNumber3 > gamestate.uoclient_general.maxskills ||
-		   msg->SkillNumber4 > gamestate.uoclient_general.maxskills )
+	  if ( msg->SkillNumber1 > networkManager.uoclient_general.maxskills ||
+		   msg->SkillNumber2 > networkManager.uoclient_general.maxskills ||
+		   msg->SkillNumber3 > networkManager.uoclient_general.maxskills ||
+		   msg->SkillNumber4 > networkManager.uoclient_general.maxskills )
 	  {
         ERROR_PRINT << "Create Character: A skill number was out of range\n";
 		client->forceDisconnect();
@@ -1178,7 +1179,7 @@ namespace Pol {
 
 	  ////HASH
 	  //moved down here, after all error checking passes, else we get a half-created PC in the save.
-	  gamestate.objecthash.Insert( chr );
+	  objStorageManager.objecthash.Insert( chr );
 	  ////
 
 	  if ( !noskills )
@@ -1236,10 +1237,10 @@ namespace Pol {
 	  backpack->realm = chr->realm;
 	  chr->equip( backpack );
 
-	  if ( gamestate.ssopt.starting_gold != 0 )
+	  if ( settingsManager.ssopt.starting_gold != 0 )
 	  {
         tmpitem = Items::Item::create( 0x0EED );
-		tmpitem->setamount( gamestate.ssopt.starting_gold );
+		tmpitem->setamount( settingsManager.ssopt.starting_gold );
 		tmpitem->x = 46;
 		tmpitem->y = 91;
 		tmpitem->z = 0;
@@ -1261,14 +1262,14 @@ namespace Pol {
 	  if ( chr->race == RACE_HUMAN || chr->race == RACE_ELF ) // Gargoyles dont have shirts, pants, shoes and daggers.
 	  {
         tmpitem = Items::Item::create( 0x170F );
-		tmpitem->newbie( gamestate.ssopt.newbie_starting_equipment );
+		tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
 		tmpitem->layer = LAYER_SHOES;
 		tmpitem->color = 0x021F;
 		tmpitem->realm = chr->realm;
 		chr->equip( tmpitem );
 
         tmpitem = Items::Item::create( 0xF51 );
-		tmpitem->newbie( gamestate.ssopt.newbie_starting_equipment );
+		tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
 		tmpitem->layer = LAYER_HAND1;
 		tmpitem->realm = chr->realm;
 		chr->equip( tmpitem );
@@ -1286,14 +1287,14 @@ namespace Pol {
 		}
 
         tmpitem = Items::Item::create( pantstype );
-		tmpitem->newbie( gamestate.ssopt.newbie_starting_equipment );
+		tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
 		tmpitem->layer = tilelayer( pantstype );
 		tmpitem->color = cfBEu16( msg->pantscolor ); // 0x0284;
 		tmpitem->realm = chr->realm;
 		chr->equip( tmpitem );
 
         tmpitem = Items::Item::create( shirttype );
-		tmpitem->newbie( gamestate.ssopt.newbie_starting_equipment );
+		tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
 		tmpitem->layer = tilelayer( shirttype );
 		tmpitem->color = cfBEu16( msg->shirtcolor );
 		tmpitem->realm = chr->realm;
@@ -1302,7 +1303,7 @@ namespace Pol {
 	  else if ( chr->race == RACE_GARGOYLE ) // Gargoyles have Robes.
 	  {
         tmpitem = Items::Item::create( 0x1F03 );
-		tmpitem->newbie( gamestate.ssopt.newbie_starting_equipment );
+		tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
 		tmpitem->layer = LAYER_ROBE_DRESS;
 		tmpitem->color = cfBEu16( msg->shirtcolor );
 		tmpitem->realm = chr->realm;
@@ -1315,7 +1316,7 @@ namespace Pol {
 
       POLLOG.Format( "Account {} created character 0x{:X}\n" ) << client->acct->name() << chr->serial;
       SetCharacterWorldPosition(chr, Plib::WorldChangeReason::PlayerEnter);
-	  client->msgtype_filter = gamestate.game_filter.get();
+	  client->msgtype_filter = networkManager.game_filter.get();
 	  start_client_char( client );
 
 	  // FIXME : Shouldn't this be triggered at the end of creation?

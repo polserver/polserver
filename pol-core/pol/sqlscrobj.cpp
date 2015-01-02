@@ -28,8 +28,7 @@ Notes
 #include "../bscript/objmethods.h"
 
 #include "../plib/pkg.h"
-#include "globals/uvars.h"
-//#include "module/filemod.h"
+#include "globals/network.h"
 
 namespace Pol {
   namespace Core {
@@ -338,7 +337,7 @@ namespace Pol {
     {
       try
       {
-        gamestate.sql_service->start();
+        networkManager.sql_service->start();
       }
       catch ( const char* msg )
       {

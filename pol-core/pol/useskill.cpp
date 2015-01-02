@@ -34,7 +34,7 @@ namespace Pol {
 	  char *params;
 	  unsigned int skillnum = (int)strtoul( (char *)msg->data, &params, 10 );
 
-	  if ( skillnum < SKILLID__CLIENT_LOWEST || skillnum > gamestate.uoclient_general.maxskills )
+	  if ( skillnum < SKILLID__CLIENT_LOWEST || skillnum > networkManager.uoclient_general.maxskills )
 		return;
 
 	  const UOSkill& uoskill = GetUOSkill( skillnum );

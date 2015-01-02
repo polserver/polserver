@@ -14,7 +14,7 @@ Notes
 
 #include "mobile/charactr.h"
 
-#include "globals/uvars.h"
+#include "globals/settings.h"
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
@@ -90,12 +90,12 @@ namespace Pol {
 	  double costmod;
 	  if ( mounted )
 	  {
-		mc = running ? &gamestate.movecost_running_mounted : &gamestate.movecost_walking_mounted;
+		mc = running ? &settingsManager.movecost_running_mounted : &settingsManager.movecost_walking_mounted;
 		costmod = running ? chr->movement_cost.run_mounted : chr->movement_cost.walk_mounted;
 	  }
 	  else
 	  {
-		mc = running ? &gamestate.movecost_running : &gamestate.movecost_walking;
+		mc = running ? &settingsManager.movecost_running : &settingsManager.movecost_walking;
 		costmod = running ? chr->movement_cost.run : chr->movement_cost.walk;
 	  }
 
@@ -112,7 +112,7 @@ namespace Pol {
 
 	void load_movecost( bool reload )
 	{
-	  if ( !gamestate.ssopt.movement_uses_stamina )
+	  if ( !settingsManager.ssopt.movement_uses_stamina )
 		return;
 	  else if ( !Clib::FileExists( "config/movecost.cfg" ) )
 	  {
@@ -131,33 +131,33 @@ namespace Pol {
 	  {
 		if ( elem.type_is( "MovementCost" ) )
 		{
-		  read_movecost( elem, gamestate.movecost_running );
-		  memcpy( &gamestate.movecost_walking, &gamestate.movecost_running, sizeof gamestate.movecost_walking );
+		  read_movecost( elem, settingsManager.movecost_running );
+		  memcpy( &settingsManager.movecost_walking, &settingsManager.movecost_running, sizeof settingsManager.movecost_walking );
 		}
 		else if ( elem.type_is( "Walking" ) )
 		{
-		  read_movecost( elem, gamestate.movecost_walking );
+		  read_movecost( elem, settingsManager.movecost_walking );
 		}
 		else if ( elem.type_is( "Running" ) )
 		{
-		  read_movecost( elem, gamestate.movecost_running );
+		  read_movecost( elem, settingsManager.movecost_running );
 		}
 		else if ( elem.type_is( "Walking_Mounted" ) )
 		{
-		  read_movecost( elem, gamestate.movecost_walking_mounted );
+		  read_movecost( elem, settingsManager.movecost_walking_mounted );
 		  walking_mounted_set = true;
 		}
 		else if ( elem.type_is( "Running_Mounted" ) )
 		{
-		  read_movecost( elem, gamestate.movecost_running_mounted );
+		  read_movecost( elem, settingsManager.movecost_running_mounted );
 		  running_mounted_set = true;
 		}
 	  }
 
 	  if ( !walking_mounted_set )
-		memcpy( &gamestate.movecost_walking_mounted, &gamestate.movecost_walking, sizeof gamestate.movecost_walking );
+		memcpy( &settingsManager.movecost_walking_mounted, &settingsManager.movecost_walking, sizeof settingsManager.movecost_walking );
 	  if ( !running_mounted_set )
-		memcpy( &gamestate.movecost_running_mounted, &gamestate.movecost_running, sizeof gamestate.movecost_running );
+		memcpy( &settingsManager.movecost_running_mounted, &settingsManager.movecost_running, sizeof settingsManager.movecost_running );
 	}
   }
 }

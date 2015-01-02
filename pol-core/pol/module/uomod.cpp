@@ -84,7 +84,6 @@ Notes
 #include "../action.h"
 #include "../cfgrepos.h"
 #include "../core.h"
-#include "../extobj.h"
 #include "../eventid.h"
 #include "../fnsearch.h"
 #include "../guardrgn.h"
@@ -104,16 +103,13 @@ Notes
 #include "../pktin.h"
 #include "../polcfg.h"
 #include "../polclass.h"
-#include "../polsig.h"
 #include "../poltype.h"
-#include "../profile.h"
 #include "../realms.h"
 #include "../savedata.h"
 #include "../scrsched.h"
 #include "../scrstore.h"
 #include "../skilladv.h"
 #include "../spells.h"
-#include "../ssopt.h"
 #include "../target.h"
 #include "../udatfile.h"
 #include "../ufunc.h"
@@ -134,6 +130,8 @@ Notes
 #include "../multi/house.h"
 #include "../mobile/ufacing.h"
 #include "../containr.h"
+#include "../globals/state.h"
+#include "../globals/object_storage.h"
 
 #include "../../clib/cfgelem.h"
 #include "../../clib/cfgfile.h"
@@ -1350,7 +1348,7 @@ namespace Pol {
 		npc->readPropertiesForNewNPC( elem );
 
 		////HASH
-		gamestate.objecthash.Insert( npc.get() );
+		objStorageManager.objecthash.Insert( npc.get() );
 		////
 
 
@@ -1786,7 +1784,7 @@ namespace Pol {
 		mi->objtype_ = objtype;
 		mi->graphic_ = getgraphic( objtype );
 		strzcpy( mi->title, text->data(), sizeof mi->title );
-		mi->color_ = color & gamestate.ssopt.item_color_mask;
+		mi->color_ = color & settingsManager.ssopt.item_color_mask;
 		return new BLong( 1 );
 	  }
 	  else
@@ -2861,7 +2859,7 @@ namespace Pol {
 
             std::unique_ptr<ObjArray> newarr(new ObjArray());
             
-            for (const auto &objitr : Pol::Core::gamestate.objecthash) {
+            for (const auto &objitr : Pol::Core::objStorageManager.objecthash) {
                 UObject* obj = objitr.second.get();
                 if (!obj->ismobile() || obj->isa(UObject::CLASS_NPC))
                     continue;
@@ -3085,7 +3083,7 @@ namespace Pol {
 	{
 	  std::unique_ptr<ObjArray> newarr( new ObjArray );
 
-	  for ( Clients::const_iterator itr = gamestate.clients.begin(), end = gamestate.clients.end(); itr != end; ++itr )
+	  for ( Clients::const_iterator itr = networkManager.clients.begin(), end = networkManager.clients.end(); itr != end; ++itr )
 	  {
 		if ( ( *itr )->chr != NULL )
 		{
@@ -4020,7 +4018,7 @@ namespace Pol {
 		if ( light_region != NULL )
 		  lightlevel = light_region->lightlevel;
 		else
-		  lightlevel = gamestate.ssopt.default_light_level;
+		  lightlevel = settingsManager.ssopt.default_light_level;
 		return new BLong( lightlevel );
 	  }
 	  else
@@ -5198,7 +5196,7 @@ namespace Pol {
 		   getParam( 5, z2, WORLD_MIN_Z, WORLD_MAX_Z ) &&
 		   getStringParam( 6, strrealm ))
 	  {
-		if ( pol_distance( x1, y1, x2, y2 ) > gamestate.ssopt.max_pathfind_range )
+		if ( pol_distance( x1, y1, x2, y2 ) > settingsManager.ssopt.max_pathfind_range )
 		  return new BError( "Beyond Max Range." );
 
 		short theSkirt;
@@ -5651,7 +5649,7 @@ namespace Pol {
 		msg->Write<u8>( static_cast<u16>(season_id) );
 		msg->Write<u8>( static_cast<u16>(playsound) );
 
-		for ( Clients::iterator itr = gamestate.clients.begin(), end = gamestate.clients.end(); itr != end; ++itr )
+		for ( Clients::iterator itr = networkManager.clients.begin(), end = networkManager.clients.end(); itr != end; ++itr )
 		{
           Network::Client* client = *itr;
 		  if ( !client->chr->logged_in || client->getversiondetail().major < 1 )

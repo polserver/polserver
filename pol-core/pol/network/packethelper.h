@@ -2,7 +2,7 @@
 #define __PACKETHELPER_H
 
 #include "packets.h"
-#include "../globals/uvars.h"
+#include "../globals/network.h"
 
 namespace Pol {
   namespace Network {
@@ -14,10 +14,10 @@ namespace Pol {
 	  template <class T>
 	  inline T* RequestPacket( u8 id, u16 sub = 0 )
 	  {
-        return static_cast<T*>(Core::gamestate.packetsSingleton->getPacket(id, sub));
+        return static_cast<T*>(Core::networkManager.packetsSingleton->getPacket(id, sub));
       };
 
-      inline void ReAddPacket(PacketInterface* msg) { Core::gamestate.packetsSingleton->ReAddPacket(msg); };
+      inline void ReAddPacket(PacketInterface* msg) { Core::networkManager.packetsSingleton->ReAddPacket(msg); };
 
       template <class T>
       class PacketOut
@@ -43,7 +43,7 @@ namespace Pol {
             return;
           if (len == -1)
             len = pkt->offset;
-          Core::gamestate.clientTransmit->AddToQueue(client, &pkt->buffer, len);
+          Core::networkManager.clientTransmit->AddToQueue(client, &pkt->buffer, len);
         };
         // be really really careful with this function
         // needs PolLock

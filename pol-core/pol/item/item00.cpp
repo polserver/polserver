@@ -19,7 +19,7 @@ Notes
 #include "../objtype.h"
 #include "../uofile.h"
 #include "../ustruct.h"
-#include "../uobjcnt.h"
+#include "../globals/state.h"
 
 #include <climits>
 
@@ -50,7 +50,7 @@ namespace Pol {
 	  equip_script_ = id.equip_script;
 	  unequip_script_ = id.unequip_script;
 
-	  ++Core::gamestate.uobjcount.uitem_count;
+	  ++Core::stateManager.uobjcount.uitem_count;
 
 	  // hmm, doesn't quite work right with items created on startup..
       decayat_gameclock_ = Core::read_gameclock( ) + id.decay_time * 60;
@@ -82,7 +82,7 @@ namespace Pol {
 
 	Item::~Item()
 	{
-      --Core::gamestate.uobjcount.uitem_count;
+      --Core::stateManager.uobjcount.uitem_count;
       return_resources( objtype_, amount_ );
 	}
 

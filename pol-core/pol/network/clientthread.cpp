@@ -268,13 +268,13 @@ namespace Pol
                 {
                     CLIENT_CHECKPOINT(9);
                     PolLock lck;
-                    gamestate.clients.erase(std::find(gamestate.clients.begin(), gamestate.clients.end(), client));
+                    networkManager.clients.erase(std::find(networkManager.clients.begin(), networkManager.clients.end(), client));
                     std::lock_guard<std::mutex> lock(client->_SocketMutex);
                     client->closeConnection();
                     INFO_PRINT << "Client disconnected from " << Network::AddressToString(&client->ipaddr)
-                        << " (" << gamestate.clients.size() << " connections)\n";
+                        << " (" << networkManager.clients.size() << " connections)\n";
 
-                    CoreSetSysTrayToolTip(Clib::tostring(gamestate.clients.size()) + " clients connected", ToolTipPrioritySystem);
+                    CoreSetSysTrayToolTip(Clib::tostring(networkManager.clients.size()) + " clients connected", ToolTipPrioritySystem);
                 }
 
                 checkpoint = 8;
@@ -434,8 +434,8 @@ namespace Pol
                 if (client->bytes_received == client->message_length) // we have the whole message
                 {
                     unsigned char msgtype = client->buffer[0];
-                    gamestate.iostats.received[msgtype].count++;
-                    gamestate.iostats.received[msgtype].bytes += client->message_length;
+                    networkManager.iostats.received[msgtype].count++;
+                    networkManager.iostats.received[msgtype].bytes += client->message_length;
                     if (!client->fpLog.empty())
                     {
                         fmt::Writer tmp;
@@ -454,7 +454,7 @@ namespace Pol
                         if (client->msgtype_filter->msgtype_allowed[msgtype])
                         {
                             //region Speedhack
-                            if ((gamestate.ssopt.speedhack_prevention) && (msgtype == PKTIN_02_ID))
+                            if ((settingsManager.ssopt.speedhack_prevention) && (msgtype == PKTIN_02_ID))
                             {
                                 if (!client->SpeedHackPrevention())
                                 {

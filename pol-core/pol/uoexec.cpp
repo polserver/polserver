@@ -4,7 +4,7 @@
 #include "polcfg.h"
 
 #include "module/osmod.h"
-#include "globals/uvars.h"
+#include "globals/settings.h"
 
 #include "../clib/logfacility.h"
 #include "../plib/systemstate.h"
@@ -36,7 +36,7 @@ namespace Pol {
         {
             // note, the os_module isn't deleted here because
             // the Executor deletes its ExecutorModules.
-            if ((instr_cycles >= 500) && gamestate.watch.profile_scripts)
+            if ((instr_cycles >= 500) && settingsManager.watch.profile_scripts)
             {
                 int elapsed = static_cast<int>(poltime() - start_time); // Doh! A script can't run more than 68 years, for this to work.
                 POLLOG_ERROR.Format("Script {}: {} instr cycles, {} sleep cycles, {} seconds\n")

@@ -33,9 +33,9 @@ Notes
 #include "../../plib/systemstate.h"
 
 #include "../polcfg.h"
-#include "../polsig.h"
 #include "../schedule.h"
 #include "../globals/uvars.h"
+#include "../globals/state.h"
 
 namespace Pol {
   namespace Accounts {

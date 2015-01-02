@@ -17,7 +17,6 @@ Notes
 #include "item/itemdesc.h"
 #include "polcfg.h"
 #include "polclock.h"
-#include "polsig.h"
 #include "proplist.h"
 #include "realms.h"
 #include "schedule.h"
@@ -25,6 +24,7 @@ Notes
 #include "uofile.h"
 #include "udatfile.h"
 #include "globals/uvars.h"
+#include "globals/state.h"
 
 #include "../bscript/berror.h"
 #include "../bscript/bobject.h"

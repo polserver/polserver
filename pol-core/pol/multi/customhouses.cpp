@@ -944,7 +944,7 @@ namespace Pol {
 		  }
 		  else //send stored packet
 		  {
-			Core::gamestate.clientTransmit->AddToQueue( client, &house->CurrentCompressed[0], ctBEu16( *( reinterpret_cast<u16*>( &house->CurrentCompressed[1] ) ) ) );
+			Core::networkManager.clientTransmit->AddToQueue( client, &house->CurrentCompressed[0], ctBEu16( *( reinterpret_cast<u16*>( &house->CurrentCompressed[1] ) ) ) );
 			return;
 		  }
 		  break;
@@ -956,7 +956,7 @@ namespace Pol {
 		  }
 		  else //send stored packet
 		  {
-			Core::gamestate.clientTransmit->AddToQueue( client, &house->WorkingCompressed[0], ctBEu16( *( reinterpret_cast<u16*>( &house->WorkingCompressed[1] ) ) ) );
+			Core::networkManager.clientTransmit->AddToQueue( client, &house->WorkingCompressed[0], ctBEu16( *( reinterpret_cast<u16*>( &house->WorkingCompressed[1] ) ) ) );
 			return;
 		  }
 		  break;
@@ -1008,7 +1008,7 @@ namespace Pol {
 	  msg->msglen = ctBEu16( static_cast<u16>(buffer_len)+data_offset );
 	  msg->planebuffer_len = ctBEu16( static_cast<u16>( buffer_len ) );
 
-	  Core::gamestate.clientTransmit->AddToQueue( client, &packet[0], cfBEu16( msg->msglen ) );
+	  Core::networkManager.clientTransmit->AddToQueue( client, &packet[0], cfBEu16( msg->msglen ) );
 	  stored_packet->swap( packet );
 	}
 

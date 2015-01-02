@@ -27,6 +27,7 @@ Notes
 #include "uofile.h"
 #include "uoscrobj.h"
 #include "globals/uvars.h"
+#include "globals/state.h"
 #include "uworld.h"
 
 namespace Pol {
@@ -97,9 +98,9 @@ namespace Pol {
 	  for (auto itr = gamestate.Realms.begin(); itr != gamestate.Realms.end(); ++itr )
 	  {
 		realm = *itr;
-		if ( !--gamestate.cycles_until_decay_worldzone )
+		if ( !--stateManager.cycles_until_decay_worldzone )
 		{
-		  gamestate.cycles_until_decay_worldzone = gamestate.cycles_per_decay_worldzone;
+		  stateManager.cycles_until_decay_worldzone = stateManager.cycles_per_decay_worldzone;
 
 		  unsigned int gridwidth = realm->width() / WGRID_SIZE;
 		  unsigned int gridheight = realm->height() / WGRID_SIZE;

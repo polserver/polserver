@@ -1564,7 +1564,7 @@ namespace Pol {
 		case MBR_GUILDID: return new BLong( guildid() ); break;
 		case MBR_GUILD:
 		  if ( guild_ != NULL )
-			return CreateGuildRefObjImp( guild_ );
+			return Module::GuildExecutorModule::CreateGuildRefObjImp( guild_ );
 		  else
 			return new BError( "Not a member of a guild" );
 		  break;
@@ -2532,11 +2532,11 @@ namespace Pol {
 
 	BObjectImp* Character::custom_script_method( const char* methodname, Executor& ex )
 	{
-	  if ( Core::gamestate.uoclient_general.method_script != NULL )
+	  if ( Core::networkManager.uoclient_general.method_script != NULL )
 	  {
 		unsigned PC;
-        if ( Core::gamestate.uoclient_general.method_script->FindExportedFunction( methodname, static_cast<unsigned int>( ex.numParams( ) + 1 ), PC ) )
-          return Core::gamestate.uoclient_general.method_script->call( PC, make_ref( ), ex.fparams );
+        if ( Core::networkManager.uoclient_general.method_script->FindExportedFunction( methodname, static_cast<unsigned int>( ex.numParams( ) + 1 ), PC ) )
+          return Core::networkManager.uoclient_general.method_script->call( PC, make_ref( ), ex.fparams );
 	  }
 	  return NULL;
 	}

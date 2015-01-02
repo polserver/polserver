@@ -25,7 +25,6 @@ Notes
 #include "objtype.h"
 #include "pktin.h"
 #include "polcfg.h"
-#include "polsig.h"
 #include "schedule.h"
 #include "scrstore.h"
 #include "syshook.h"
@@ -33,6 +32,7 @@ Notes
 #include "ufunc.h"
 #include "umanip.h"
 #include "globals/uvars.h"
+#include "globals/state.h"
 #include "vital.h"
 
 #include "../plib/pkg.h"

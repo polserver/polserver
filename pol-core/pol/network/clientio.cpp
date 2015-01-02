@@ -17,7 +17,6 @@ Notes
 #include "clienttransmit.h"
 
 #include "../ctable.h"
-#include "../globals/uvars.h"
 #include "../sockio.h"
 #include "../sockets.h"
 
@@ -26,9 +25,9 @@ Notes
 #include "../config.h"
 
 #include "../crypt/cryptengine.h"
-#include "../polsig.h"
 #include "../polstats.h"
 #include "../globals/ucfg.h"
+#include "../globals/state.h"
 #include "../packetscrobj.h"
 
 #include "../polsem.h"
@@ -59,7 +58,7 @@ namespace Pol {
 
 		bytes_received += count;
 		counters.bytes_received += count;
-		Core::gamestate.polstats.bytes_received += count;
+		Core::networkManager.polstats.bytes_received += count;
 	  }
 	  else if ( count == 0 ) // graceful close
 	  {
@@ -87,7 +86,7 @@ namespace Pol {
 	  {
 		bytes_received += count;
 		counters.bytes_received += count;
-		Core::gamestate.polstats.bytes_received += count;
+		Core::networkManager.polstats.bytes_received += count;
 	  }
 	  else if ( count == 0 ) // graceful close
 	  {
@@ -239,11 +238,11 @@ namespace Pol {
 
 	  if ( last_xmit_buffer )
 	  {
-		Core::gamestate.queuedmode_iostats.sent[msgtype].count++;
-		Core::gamestate.queuedmode_iostats.sent[msgtype].bytes += len;
+		Core::networkManager.queuedmode_iostats.sent[msgtype].count++;
+		Core::networkManager.queuedmode_iostats.sent[msgtype].bytes += len;
 	  }
-	  Core::gamestate.iostats.sent[msgtype].count++;
-	  Core::gamestate.iostats.sent[msgtype].bytes += len;
+	  Core::networkManager.iostats.sent[msgtype].count++;
+	  Core::networkManager.iostats.sent[msgtype].bytes += len;
 
 	  if ( encrypt_server_stream )
 	  {
@@ -281,7 +280,7 @@ namespace Pol {
 
 	void transmit( Client* client, const void *data, int len )
 	{
-	  Core::gamestate.clientTransmit->AddToQueue( client, data, len );
+	  Core::networkManager.clientTransmit->AddToQueue( client, data, len );
 	}
 
 	void Client::Disconnect()
@@ -289,7 +288,7 @@ namespace Pol {
 	  if ( this->isConnected() )
 	  {
 		this->preDisconnect = true;
-		Core::gamestate.clientTransmit->QueueDisconnection( this );
+		Core::networkManager.clientTransmit->QueueDisconnection( this );
 	  }
 	}
   }

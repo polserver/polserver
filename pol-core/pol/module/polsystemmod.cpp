@@ -37,7 +37,6 @@ Notes
 #include "../packetscrobj.h"
 #include "../uobject.h"
 #include "../tooltips.h"
-#include "../ssopt.h"
 #include "../globals/uvars.h"
 
 #include "../../clib/dirlist.h"
@@ -427,7 +426,7 @@ namespace Pol {
       if ( Core::defined_realm( realm_name->value( ) ) )
 		return new BError( "Realmname already defined." );
       Core::add_realm( realm_name->value( ), baserealm );
-      if ( Core::gamestate.ssopt.decay_items )
+      if ( Core::settingsManager.ssopt.decay_items )
 	  {
         std::ostringstream thname;
 		thname << "Decay_" << realm_name->value();

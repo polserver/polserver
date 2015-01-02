@@ -85,6 +85,7 @@ namespace Pol {
 	class Vital;
     class SaveContext;
     class Party;
+	class Guild;
     struct PKTIN_7D;
 	struct PKTIN_00;
 	struct PKTIN_8D;
@@ -99,7 +100,6 @@ namespace Pol {
   }
   namespace Module {
 	class UOExecutorModule;
-    class Guild;
   }
   namespace Mobile {
 	
@@ -542,8 +542,8 @@ namespace Pol {
 	  virtual unsigned char hilite_color_idx( const Character* seen_by ) const;
 	  virtual unsigned short name_color( const Character* seen_by ) const;
 
-	  Module::Guild* guild() const;
-	  void guild( Module::Guild* );
+	  Core::Guild* guild() const;
+	  void guild( Core::Guild* );
 	  unsigned int guildid() const;
 	  //void guildid( unsigned int gid );
 
@@ -866,8 +866,7 @@ namespace Pol {
 	  Bscript::ObjArray* GetAggressorTo( ) const;
 	  Bscript::ObjArray* GetLawFullyDamaged( ) const;
 
-	  //    USERIAL guildid_;
-	  Module::Guild* guild_;
+	  Core::Guild* guild_;
 	  Core::Party* party_;
 	  Core::Party* candidate_of_;
 	  Core::Party* offline_mem_of_;

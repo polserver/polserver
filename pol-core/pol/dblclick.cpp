@@ -39,7 +39,6 @@ Notes
 #include "ufunc.h"
 #include "uoscrobj.h"
 #include "multi/multi.h"
-#include "ssopt.h"
 #include "objtype.h"
 #include "containr.h"
 #include "globals/uvars.h"
@@ -54,7 +53,7 @@ namespace Pol {
       Network::PktHelper::PacketOut<Network::PktOut_88> msg;
 	  msg->Write<u32>( chr->serial_ext );
 
-	  if ( ( !gamestate.ssopt.privacy_paperdoll ) || ( client->chr == chr ) )
+	  if ( ( !settingsManager.ssopt.privacy_paperdoll ) || ( client->chr == chr ) )
 	  {
 		std::string name = ( chr->title_prefix.empty() ? "" : chr->title_prefix + " " ) +
 		  chr->name() +
@@ -120,7 +119,7 @@ namespace Pol {
 		return;
 	  }
 	  else
-		client->chr->dblclick_wait = read_gameclock() + gamestate.ssopt.dblclick_wait;
+		client->chr->dblclick_wait = read_gameclock() + settingsManager.ssopt.dblclick_wait;
 
 	  if ( IsCharacter( serial ) )
 	  {
