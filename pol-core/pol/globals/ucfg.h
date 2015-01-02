@@ -22,6 +22,8 @@ Notes
 #include "../../clib/maputil.h"
 #include "../../clib/refptr.h"
 
+#include "../module/fileaccess.h"
+
 #include <boost/noncopyable.hpp>
 #include <vector>
 #include <map>
@@ -52,6 +54,7 @@ namespace Pol {
 	  CfgFiles cfgfiles;
 	  OldCfgFiles oldcfgfiles;
 	  DataStore datastore;
+	  std::vector<Module::FileAccess> file_access_rules;
 	private:
   };
 

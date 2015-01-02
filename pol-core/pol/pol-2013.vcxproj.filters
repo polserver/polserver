@@ -1327,6 +1327,9 @@
     <ClInclude Include="guilds.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="module\fileaccess.h">
+      <Filter>module</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="pol.rc">

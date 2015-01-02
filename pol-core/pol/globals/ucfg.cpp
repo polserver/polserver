@@ -12,7 +12,8 @@ namespace Pol {
 	ConfigurationBuffer::ConfigurationBuffer() :
 	  cfgfiles(),
 	  oldcfgfiles(),
-	  datastore()
+	  datastore(),
+	  file_access_rules()
 	{
 	}
 
@@ -32,6 +33,7 @@ namespace Pol {
 
 	  }
 	  datastore.clear();
+	  file_access_rules.clear();
 	}
   }
 }

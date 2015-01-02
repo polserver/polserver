@@ -535,6 +535,7 @@
     <ClInclude Include="globals\uvars.h" />
 	<ClInclude Include="guilds.h" />
 	<ClInclude Include="module\datastoreimp.h" />
+	<ClInclude Include="module\fileaccess.h" />
 	<ClInclude Include="network\clientthread.h" />
     <ClInclude Include="cmbtcfg.h" />
     <ClInclude Include="cmdlevel.h" />
