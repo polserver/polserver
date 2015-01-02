@@ -642,8 +642,8 @@ namespace Pol {
 	bool UBoat::navigable( const MultiDef& md, unsigned short x, unsigned short y, short z, Plib::Realm* realm )
 	{
 
-	  if ( int( x + md.minrx ) < int( Core::WORLD_MIN_X ) || int( x + md.maxrx ) > int( realm->width() ) ||
-		   int( y + md.minry ) < int( Core::WORLD_MIN_Y ) || int( y + md.maxry ) > int( realm->height() ) )
+	  if ( int( x + md.minrx ) < 0 || int( x + md.maxrx ) > int( realm->width() ) ||
+		   int( y + md.minry ) < 0 || int( y + md.maxry ) > int( realm->height() ) )
 	  {
 #ifdef DEBUG_BOATS
         INFO_PRINT << "Location " << x << "," << y << " impassable, location is off the map\n";

@@ -274,7 +274,10 @@ namespace Pol {
 		stateManager.profilevars.last_rotations = stateManager.profilevars.rotations;
 
 		//fixme realms
-		stateManager.cycles_per_decay_worldzone = stateManager.profilevars.last_rpm / ( WGRID_X * WGRID_Y / 10 );
+		// fixme max realm size?
+		unsigned int grid_x = gamestate.main_realm->width() / WGRID_SIZE;
+		unsigned int grid_y = gamestate.main_realm->height() / WGRID_SIZE;
+		stateManager.cycles_per_decay_worldzone = stateManager.profilevars.last_rpm / ( grid_x * grid_y / 10 );
 		if ( stateManager.cycles_per_decay_worldzone < 1 )
 		  stateManager.cycles_per_decay_worldzone = 1;
 		stateManager.cycles_until_decay_worldzone = stateManager.cycles_per_decay_worldzone;

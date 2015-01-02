@@ -73,9 +73,6 @@ namespace Pol {
 	const unsigned WGRID_SIZE = 64;
 	const unsigned WGRID_SHIFT = 6;
 
-	const unsigned WGRID_X = WORLD_X / WGRID_SIZE; // 6144 / 64 = 96
-	const unsigned WGRID_Y = WORLD_Y / WGRID_SIZE; // 4096 / 64 = 64
-
     inline void zone_convert( unsigned short x, unsigned short y, unsigned short& wx, unsigned short& wy, const Plib::Realm* realm )
 	{
 	  passert( x < realm->width() );
@@ -108,6 +105,9 @@ namespace Pol {
 	  return realm->zone[x >> WGRID_SHIFT][y >> WGRID_SHIFT];
 	}
 
+	namespace {
+	  struct CoordsArea;
+	}
     // Helper functions to iterator over world items in given realm an range
     // takes any function with only one open parameter
     // its recommended to use lambdas even if std::bind can also be used, but a small benchmark showed
@@ -115,102 +115,19 @@ namespace Pol {
     // Usage:
     // WorldIterator<PlayerFilter>::InRange(...)
 
-    namespace {
-      // template independent code
-      struct WorldIteratorHelper
-      {
-        struct Coords
-        {
-          u16 wxL;
-          u16 wyL;
-          u16 wxH;
-          u16 wyH;
-          int xL;
-          int yL;
-          int xH;
-          int yH;
-        };
-        static bool inRange( const UObject *obj, const Coords& coords )
-        {
-          return ( obj->x >= coords.xL && obj->x <= coords.xH &&
-                   obj->y >= coords.yL && obj->y <= coords.yH );
-        }
-
-        static bool validateParams( u16 x, u16 y, const Plib::Realm* realm, unsigned range, Coords* coords )
-        {
-          if ( realm == nullptr )
-            return false;
-          zone_convert_clip( x - range, y - range, realm, coords->wxL, coords->wyL );
-          zone_convert_clip( x + range, y + range, realm, coords->wxH, coords->wyH );
-          passert( coords->wxL <= coords->wxH );
-          passert( coords->wyL <= coords->wyH );
-          coords->xL = x - range;
-          if ( coords->xL < 0 )
-            coords->xL = 0;
-          coords->yL = y - range;
-          if ( coords->yL < 0 )
-            coords->yL = 0;
-          coords->xH = x + range;
-          coords->yH = y + range;
-          return true;
-        }
-
-        static bool validateParams( u16 x1, u16 y1, u16 x2, u16 y2, const Plib::Realm* realm, Coords* coords )
-        {
-          if ( realm == nullptr )
-            return false;
-          zone_convert_clip( x1, y1, realm, coords->wxL, coords->wyL );
-          zone_convert_clip( x2, y2, realm, coords->wxH, coords->wyH );
-          passert( coords->wxL <= coords->wxH );
-          passert( coords->wyL <= coords->wyH );
-          coords->xL = x1;
-          coords->yL = y1;
-          coords->xH = x2;
-          coords->yH = y2;
-          return true;
-        }
-      };
-    }
-
-
     // main struct, define as template param which filter to use
     template <class Filter>
     struct WorldIterator
     {
       template <typename F>
-      static void InRange( u16 x, u16 y, const Plib::Realm* realm, unsigned range, F &&f )
-      {
-        WorldIteratorHelper::Coords coords;
-        if ( !WorldIteratorHelper::validateParams( x, y, realm, range, &coords ) )
-          return;
-        _forEach( coords, realm, std::forward<F>( f ) );
-      }
+	  static void InRange( u16 x, u16 y, const Plib::Realm* realm, unsigned range, F &&f );
       template <typename F>
-      static void InVisualRange( const UObject* obj, F &&f )
-      {
-        InRange( obj->toplevel_owner()->x, obj->toplevel_owner()->y, obj->toplevel_owner()->realm, RANGE_VISUAL, std::forward<F>( f ) );
-      }
+	  static void InVisualRange( const UObject* obj, F &&f );
       template <typename F>
-      static void InBox( u16 x1, u16 y1, u16 x2, u16 y2, const Plib::Realm* realm, F &&f )
-      {
-        WorldIteratorHelper::Coords coords;
-        if ( !WorldIteratorHelper::validateParams( x1, y1, x2, y2, realm, &coords ) )
-          return;
-        _forEach( coords, realm, std::forward<F>( f ) );
-      }
+	  static void InBox( u16 x1, u16 y1, u16 x2, u16 y2, const Plib::Realm* realm, F &&f );
     protected:
       template <typename F>
-      static void _forEach( const WorldIteratorHelper::Coords &coords,
-                            const Plib::Realm* realm, F &&f )
-      {
-        for ( u16 wx = coords.wxL; wx <= coords.wxH; ++wx )
-        {
-          for ( u16 wy = coords.wyL; wy <= coords.wyH; ++wy )
-          {
-            Filter::call( realm->zone[wx][wy], coords, f );
-          }
-        }
-      }
+	  static void _forEach( const CoordsArea &coords, const Plib::Realm* realm, F &&f );
     };
 
     // iterator over npcs and players
@@ -219,19 +136,7 @@ namespace Pol {
       friend struct WorldIterator<MobileFilter>;
     protected:
       template <typename F>
-      static void call( Core::Zone &zone, const WorldIteratorHelper::Coords &coords, F &&f )
-      {
-        for ( auto &chr : zone.characters )
-        {
-          if ( WorldIteratorHelper::inRange( chr, coords ) )
-            f( chr );
-        }
-        for ( auto &chr : zone.npcs )
-        {
-          if ( WorldIteratorHelper::inRange( chr, coords ) )
-            f( chr );
-        }
-      }
+	  static void call( Core::Zone &zone, const CoordsArea &coords, F &&f );
     };
 
     // iterator over player
@@ -240,49 +145,25 @@ namespace Pol {
       friend struct WorldIterator<PlayerFilter>;
     protected:
       template <typename F>
-      static void call( Core::Zone &zone, const WorldIteratorHelper::Coords &coords, F &&f )
-      {
-        for ( auto &chr : zone.characters )
-        {
-          if ( WorldIteratorHelper::inRange( chr, coords ) )
-            f( chr );
-        }
-      }
+	  static void call( Core::Zone &zone, const CoordsArea &coords, F &&f );
     };
-
+	
 	// iterator over online player
     struct OnlinePlayerFilter
     {
       friend struct WorldIterator<OnlinePlayerFilter>;
     protected:
       template <typename F>
-      static void call( Core::Zone &zone, const WorldIteratorHelper::Coords &coords, F &&f )
-      {
-        for ( auto &chr : zone.characters )
-        {
-		  if ( chr->has_active_client() )
-		  {
-			if ( WorldIteratorHelper::inRange( chr, coords ) )
-			  f( chr );
-		  }
-        }
-      }
+	  static void call( Core::Zone &zone, const CoordsArea &coords, F &&f );
     };
-
+	
     // iterator over npcs 
     struct NPCFilter
     {
       friend struct WorldIterator<NPCFilter>;
     protected:
       template <typename F>
-      static void call( Core::Zone &zone, const WorldIteratorHelper::Coords &coords, F &&f )
-      {
-        for ( auto &npc : zone.npcs )
-        {
-          if ( WorldIteratorHelper::inRange( npc, coords ) )
-            f( npc );
-        }
-      }
+	  static void call( Core::Zone &zone, const CoordsArea &coords, F &&f );
     };
 
     // iterator over items
@@ -291,15 +172,8 @@ namespace Pol {
       friend struct WorldIterator<ItemFilter>;
     protected:
       template <typename F>
-      static void call( Core::Zone &zone, const WorldIteratorHelper::Coords &coords, F &&f )
-      {
-        for ( auto &item : zone.items )
-        {
-          if ( WorldIteratorHelper::inRange( item, coords ) )
-            f( item );
-        }
-      }
-    };
+	  static void call( Core::Zone &zone, const CoordsArea &coords, F &&f );
+	};
 
     // iterator over multis
     struct MultiFilter
@@ -307,15 +181,183 @@ namespace Pol {
       friend struct WorldIterator<MultiFilter>;
     protected:
       template <typename F>
-      static void call( Core::Zone &zone, const WorldIteratorHelper::Coords &coords, F &&f )
+	  static void call( Core::Zone &zone, const CoordsArea &coords, F &&f );
+    };
+
+
+
+	namespace {
+      // template independent code
+	  struct CoordsArea
       {
-        for ( auto &multi : zone.multis )
+		// shifted coords
+        u16 wxL;
+        u16 wyL;
+        u16 wxH;
+        u16 wyH;
+		// plain coords
+        int xL;
+        int yL;
+        int xH;
+        int yH;
+      };
+      struct WorldIteratorHelper
+      {
+		static bool inRange( const UObject *obj, const CoordsArea& coords );
+		static bool validateParams( u16 x, u16 y, const Plib::Realm* realm, unsigned range, CoordsArea* coords );
+		static bool validateParams( u16 x1, u16 y1, u16 x2, u16 y2, const Plib::Realm* realm, CoordsArea* coords );
+      };
+    }
+	///////////////
+	// imp
+	namespace {
+	  bool WorldIteratorHelper::inRange( const UObject *obj, const CoordsArea& coords )
+	  {
+		return ( obj->x >= coords.xL && obj->x <= coords.xH &&
+				  obj->y >= coords.yL && obj->y <= coords.yH );
+	  }
+
+	  bool WorldIteratorHelper::validateParams( u16 x, u16 y, const Plib::Realm* realm, unsigned range, CoordsArea* coords )
+	  {
+		if ( realm == nullptr )
+		  return false;
+		zone_convert_clip( x - range, y - range, realm, coords->wxL, coords->wyL );
+		zone_convert_clip( x + range, y + range, realm, coords->wxH, coords->wyH );
+		passert( coords->wxL <= coords->wxH );
+		passert( coords->wyL <= coords->wyH );
+		coords->xL = x - range;
+		if ( coords->xL < 0 )
+		  coords->xL = 0;
+		coords->yL = y - range;
+		if ( coords->yL < 0 )
+		  coords->yL = 0;
+		coords->xH = x + range;
+		coords->yH = y + range;
+		return true;
+	  }
+
+	  bool WorldIteratorHelper::validateParams( u16 x1, u16 y1, u16 x2, u16 y2, const Plib::Realm* realm, CoordsArea* coords )
+	  {
+		if ( realm == nullptr )
+		  return false;
+		zone_convert_clip( x1, y1, realm, coords->wxL, coords->wyL );
+		zone_convert_clip( x2, y2, realm, coords->wxH, coords->wyH );
+		passert( coords->wxL <= coords->wxH );
+		passert( coords->wyL <= coords->wyH );
+		coords->xL = x1;
+		coords->yL = y1;
+		coords->xH = x2;
+		coords->yH = y2;
+		return true;
+	  }
+	} // namespace
+
+	template <class Filter>
+	template <typename F>
+    void WorldIterator<Filter>::InRange( u16 x, u16 y, const Plib::Realm* realm, unsigned range, F &&f )
+    {
+      CoordsArea coords;
+      if ( !WorldIteratorHelper::validateParams( x, y, realm, range, &coords ) )
+        return;
+      _forEach( coords, realm, std::forward<F>( f ) );
+    }
+    template <class Filter>
+	template <typename F>
+    void WorldIterator<Filter>::InVisualRange( const UObject* obj, F &&f )
+    {
+      InRange( obj->toplevel_owner()->x, obj->toplevel_owner()->y, obj->toplevel_owner()->realm, RANGE_VISUAL, std::forward<F>( f ) );
+    }
+    template <class Filter>
+	template <typename F>
+    void WorldIterator<Filter>::InBox( u16 x1, u16 y1, u16 x2, u16 y2, const Plib::Realm* realm, F &&f )
+    {
+      CoordsArea coords;
+      if ( !WorldIteratorHelper::validateParams( x1, y1, x2, y2, realm, &coords ) )
+        return;
+      _forEach( coords, realm, std::forward<F>( f ) );
+    }
+
+	template <class Filter>
+	template <typename F>
+    void WorldIterator<Filter>::_forEach( const CoordsArea &coords,
+                          const Plib::Realm* realm, F &&f )
+    {
+      for ( u16 wx = coords.wxL; wx <= coords.wxH; ++wx )
+      {
+        for ( u16 wy = coords.wyL; wy <= coords.wyH; ++wy )
         {
-          if ( WorldIteratorHelper::inRange( multi, coords ) )
-            f( multi );
+          Filter::call( realm->zone[wx][wy], coords, f );
         }
       }
-    };
+    }
+
+	template <typename F>
+    void MobileFilter::call( Core::Zone &zone, const CoordsArea &coords, F &&f )
+    {
+      for ( auto &chr : zone.characters )
+      {
+        if ( WorldIteratorHelper::inRange( chr, coords ) )
+          f( chr );
+      }
+      for ( auto &chr : zone.npcs )
+      {
+        if ( WorldIteratorHelper::inRange( chr, coords ) )
+          f( chr );
+      }
+    }
+
+	template <typename F>
+	void PlayerFilter::call( Core::Zone &zone, const CoordsArea &coords, F &&f )
+    {
+      for ( auto &chr : zone.characters )
+      {
+        if ( WorldIteratorHelper::inRange( chr, coords ) )
+          f( chr );
+      }
+    }
+
+	template <typename F>
+    void OnlinePlayerFilter::call( Core::Zone &zone, const CoordsArea &coords, F &&f )
+    {
+      for ( auto &chr : zone.characters )
+      {
+		if ( chr->has_active_client() )
+		{
+		  if ( WorldIteratorHelper::inRange( chr, coords ) )
+			f( chr );
+		}
+      }
+    }
+
+	template <typename F>
+    void NPCFilter::call( Core::Zone &zone, const CoordsArea &coords, F &&f )
+    {
+      for ( auto &npc : zone.npcs )
+      {
+        if ( WorldIteratorHelper::inRange( npc, coords ) )
+          f( npc );
+      }
+    }
+
+	template <typename F>
+    void ItemFilter::call( Core::Zone &zone, const CoordsArea &coords, F &&f )
+    {
+      for ( auto &item : zone.items )
+      {
+        if ( WorldIteratorHelper::inRange( item, coords ) )
+          f( item );
+      }
+    }
+
+	template <typename F>
+    void MultiFilter::call( Core::Zone &zone, const CoordsArea &coords, F &&f )
+    {
+      for ( auto &multi : zone.multis )
+      {
+        if ( WorldIteratorHelper::inRange( multi, coords ) )
+          f( multi );
+      }
+    }
   }
 }
 #endif
