@@ -15,7 +15,7 @@ Notes
 
 #include <future>
 #include <string>
-#include <iosfwd>
+#include <fstream>
 
 namespace Pol {
   namespace Core {

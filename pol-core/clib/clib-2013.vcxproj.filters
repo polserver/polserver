@@ -161,6 +161,9 @@
     <ClCompile Include="Debugging\LogSink.cpp">
       <Filter>Debugging</Filter>
     </ClCompile>
+    <ClCompile Include="timer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="binaryfile.h">
