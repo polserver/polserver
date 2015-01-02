@@ -61,7 +61,7 @@ namespace Pol {
       }
 
 	  template <class T>
-      void PacketOut<T>::Send(Client* client, int len = -1) const
+      void PacketOut<T>::Send(Client* client, int len) const
       {
         if (pkt == 0)
           return;
@@ -71,7 +71,7 @@ namespace Pol {
       }
 
 	  template <class T>
-      void PacketOut<T>::SendDirect(Client* client, int len = -1) const
+      void PacketOut<T>::SendDirect(Client* client, int len) const
       {
         if (pkt == 0)
           return;
