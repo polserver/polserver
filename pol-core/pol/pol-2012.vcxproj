@@ -295,9 +295,15 @@
     <ClCompile Include="getitem.cpp" />
     <ClCompile Include="getmsg.cpp" />
 	<ClCompile Include="globals\multidefs.cpp" />
+    <ClCompile Include="globals\network.cpp" />
+    <ClCompile Include="globals\object_storage.cpp" />
+    <ClCompile Include="globals\script_internals.cpp" />
+    <ClCompile Include="globals\settings.cpp" />
+    <ClCompile Include="globals\state.cpp" />
     <ClCompile Include="globals\ucfg.cpp" />
     <ClCompile Include="globals\uvars.cpp" />
     <ClCompile Include="guardrgn.cpp" />
+	<ClCompile Include="guilds.cpp" />
     <ClCompile Include="help.cpp" />
     <ClCompile Include="irequest.cpp" />
     <ClCompile Include="landtile.cpp" />
@@ -520,9 +526,16 @@
     <ClInclude Include="clidata.h" />
 	<ClInclude Include="console.h" />
 	<ClInclude Include="globals\multidefs.h" />
+	<ClInclude Include="globals\network.h" />
+    <ClInclude Include="globals\object_storage.h" />
+    <ClInclude Include="globals\script_internals.h" />
+    <ClInclude Include="globals\settings.h" />
+    <ClInclude Include="globals\state.h" />
     <ClInclude Include="globals\ucfg.h" />
     <ClInclude Include="globals\uvars.h" />
+	<ClInclude Include="guilds.h" />
 	<ClInclude Include="module\datastoreimp.h" />
+	<ClInclude Include="module\fileaccess.h" />
 	<ClInclude Include="network\clientthread.h" />
     <ClInclude Include="cmbtcfg.h" />
     <ClInclude Include="cmdlevel.h" />
@@ -567,6 +580,7 @@
     <ClInclude Include="objtype.h" />
     <ClInclude Include="packetscrobj.h" />
     <ClInclude Include="party.h" />
+	<ClInclude Include="party_cfg.h" />
     <ClInclude Include="pktboth.h" />
     <ClInclude Include="pktbothid.h" />
     <ClInclude Include="pktdef.h" />
@@ -596,6 +610,7 @@
     <ClInclude Include="reftypes.h" />
     <ClInclude Include="region.h" />
     <ClInclude Include="repsys.h" />
+	<ClInclude Include="repsys_cfg.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="savedata.h" />
     <ClInclude Include="schedule.h" />
@@ -652,7 +667,6 @@
     <ClInclude Include="vital.h" />
     <ClInclude Include="watch.h" />
     <ClInclude Include="mobile\wornitems.h" />
-    <ClInclude Include="wrldsize.h" />
     <ClInclude Include="wthrtype.h" />
     <ClInclude Include="xbuffer.h" />
     <ClInclude Include="xmlfilescrobj.h" />

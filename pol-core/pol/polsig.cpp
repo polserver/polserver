@@ -14,7 +14,7 @@ Notes
 #include "../clib/esignal.h"
 #include "../clib/threadhelp.h"
 #include "../clib/logfacility.h"
-#include "globals/uvars.h"
+#include "globals/state.h"
 
 #ifndef _WIN32
 #include <signal.h>
@@ -52,12 +52,12 @@ namespace Pol {
 
 	void handle_HUP( int x )
 	{
-	  gamestate.polsig.reload_configuration_signalled = true;
+	  stateManager.polsig.reload_configuration_signalled = true;
 	}
 
 	void handle_SIGUSR1( int x )//LINUXTEST
 	{
-	  gamestate.polsig.report_status_signalled = true;
+	  stateManager.polsig.report_status_signalled = true;
 	}
 
 	void null_handler( int x )
@@ -140,11 +140,11 @@ namespace Pol {
 		{
 		  case SIGHUP: 
             ERROR_PRINT << "SIGHUP: reload configuration.\n";
-			gamestate.polsig.reload_configuration_signalled = true;
+			stateManager.polsig.reload_configuration_signalled = true;
 			break;
 		  case SIGUSR1: 
             ERROR_PRINT << "SIGUSR1: report thread status.\n";
-			gamestate.polsig.report_status_signalled = true;
+			stateManager.polsig.report_status_signalled = true;
 			break;
 		  case SIGINT: 
             ERROR_PRINT << "SIGINT: exit.\n";

@@ -18,6 +18,7 @@ Notes
 #include "ufunc.h"
 #include "uobject.h"
 #include "globals/uvars.h"
+#include "globals/state.h"
 
 #include "../clib/endian.h"
 #include "../clib/passert.h"

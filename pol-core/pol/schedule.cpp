@@ -12,9 +12,8 @@ Notes
 
 #include "polclock.h"
 #include "polcfg.h"
-#include "polsig.h"
-#include "profile.h"
 #include "globals/uvars.h"
+#include "globals/state.h"
 
 #include "../clib/passert.h"
 #include "../clib/tracebuf.h"

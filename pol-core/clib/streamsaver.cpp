@@ -6,6 +6,7 @@
 #include "../../lib/format/format.h"
 #include "message_queue.h"
 #include "streamsaver.h"
+#include "logfacility.h"
 
 namespace Pol {
   namespace Clib {

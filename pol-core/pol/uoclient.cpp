@@ -15,7 +15,7 @@ Notes
 #include "skillid.h"
 #include "vital.h"
 #include "syshookscript.h"
-#include "globals/uvars.h"
+#include "globals/network.h"
 
 #include "crypt/cryptkey.h"
 
@@ -79,25 +79,25 @@ namespace Pol {
     void load_general_entry( const Plib::Package* pkg, Clib::ConfigElem& elem )
 	{
 	  checka( elem,
-			  gamestate.uoclient_general.strength,
+			  networkManager.uoclient_general.strength,
 			  "Strength" );
 	  checka( elem,
-			  gamestate.uoclient_general.intelligence,
+			  networkManager.uoclient_general.intelligence,
 			  "Intelligence" );
 	  checka( elem,
-			  gamestate.uoclient_general.dexterity,
+			  networkManager.uoclient_general.dexterity,
 			  "Dexterity" );
 	  checkv( elem,
-			  gamestate.uoclient_general.hits,
+			  networkManager.uoclient_general.hits,
 			  "Hits" );
 	  checkv( elem,
-			  gamestate.uoclient_general.stamina,
+			  networkManager.uoclient_general.stamina,
 			  "Stamina" );
 	  checkv( elem,
-			  gamestate.uoclient_general.mana,
+			  networkManager.uoclient_general.mana,
 			  "Mana" );
 	  //dave changed 3/15/03, support configurable max skillid
-	  gamestate.uoclient_general.maxskills = elem.remove_ushort( "MaxSkillID", SKILLID__HIGHEST );
+	  networkManager.uoclient_general.maxskills = elem.remove_ushort( "MaxSkillID", SKILLID__HIGHEST );
 	  std::string temp;
 	  if ( elem.remove_prop( "MethodScript", &temp ) )
 	  {
@@ -105,7 +105,7 @@ namespace Pol {
 		{
 		  ExportScript* shs = new ExportScript( pkg, temp );
 		  if ( shs->Initialize() )
-			gamestate.uoclient_general.method_script = shs;
+			networkManager.uoclient_general.method_script = shs;
 		  else
 			delete shs;
 		}
@@ -114,12 +114,12 @@ namespace Pol {
 
     void load_protocol_entry( const Plib::Package* /*pkg*/, Clib::ConfigElem& elem )
 	{
-	  gamestate.uoclient_protocol.EnableFlowControlPackets = elem.remove_bool( "EnableFlowControlPackets" );
+	  networkManager.uoclient_protocol.EnableFlowControlPackets = elem.remove_bool( "EnableFlowControlPackets" );
 	}
 
     void load_listener_entry( const Plib::Package* /*pkg*/, Clib::ConfigElem& elem )
 	{
-	  gamestate.uoclient_listeners.push_back( UoClientListener( elem ) );
+	  networkManager.uoclient_listeners.push_back( UoClientListener( elem ) );
 	}
 
     void load_uoclient_entry( const Plib::Package* pkg, Clib::ConfigElem& elem )

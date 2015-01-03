@@ -210,8 +210,8 @@ namespace Pol {
 							if ( obj_->add_member( chr->serial ) )
 							{
 							  chr->party( obj_.get() );
-                              if ( Core::gamestate.party_cfg.Hooks.OnAddToParty )
-                                Core::gamestate.party_cfg.Hooks.OnAddToParty->call( chr->make_ref( ) );
+                              if ( Core::settingsManager.party_cfg.Hooks.OnAddToParty )
+                                Core::settingsManager.party_cfg.Hooks.OnAddToParty->call( chr->make_ref( ) );
 							  if ( chr->has_active_client() )
                                 Core::send_sysmessage_cl( chr->client, Core::CLP_Added );// You have been added to the party.
                               obj_->send_msg_to_all( Core::CLP_Joined, chr->name( ).c_str( ), chr );//  : joined the party.
@@ -239,8 +239,8 @@ namespace Pol {
 								 bool disband;
 								 obj_->send_remove_member( chr, &disband );
 								 chr->party( NULL );
-                                 if ( Core::gamestate.party_cfg.Hooks.OnLeaveParty )
-                                   Core::gamestate.party_cfg.Hooks.OnLeaveParty->call( chr->make_ref( ), new BLong( 0 ) );
+                                 if ( Core::settingsManager.party_cfg.Hooks.OnLeaveParty )
+                                   Core::settingsManager.party_cfg.Hooks.OnLeaveParty->call( chr->make_ref( ), new BLong( 0 ) );
 								 if ( chr->has_active_client() )
 								 {
                                    Core::send_sysmessage_cl( chr->client, Core::CLP_Removed ); //You have been removed from the party.
@@ -289,7 +289,7 @@ namespace Pol {
 							   if ( !chr->has_active_client() )
 								 return new BError( "Character is offline" );
 
-                               if ( Core::gamestate.party_cfg.General.DeclineTimeout > 0 )
+                               if ( Core::settingsManager.party_cfg.General.DeclineTimeout > 0 )
 								 chr->set_party_invite_timeout();
 
 							   if ( obj_->add_candidate( chr->serial ) )
@@ -396,8 +396,8 @@ namespace Pol {
 		if ( party->add_member( firstmem->serial ) )
 		{
 		  firstmem->party( party );
-          if ( Core::gamestate.party_cfg.Hooks.OnPartyCreate )
-            Core::gamestate.party_cfg.Hooks.OnPartyCreate->call( CreatePartyRefObjImp( party ) );
+          if ( Core::settingsManager.party_cfg.Hooks.OnPartyCreate )
+            Core::settingsManager.party_cfg.Hooks.OnPartyCreate->call( CreatePartyRefObjImp( party ) );
           party->send_msg_to_all( Core::CLP_Added );// You have been added to the party.
 		  if ( leader->has_active_client() )
             Core::send_sysmessage_cl_affix( leader->client, Core::CLP_Joined, firstmem->name( ).c_str( ), true );//  : joined the party.
@@ -444,8 +444,8 @@ namespace Pol {
           if ( !Clib::convertArrayToUC( oText, gwtext, textlen, true ) )
 			return new BError( "Invalid value in Unicode array." );
 
-          if ( Core::gamestate.party_cfg.Hooks.OnPublicChat )
-            Core::gamestate.party_cfg.Hooks.OnPublicChat->call( chr->make_ref( ), oText );
+          if ( Core::settingsManager.party_cfg.Hooks.OnPublicChat )
+            Core::settingsManager.party_cfg.Hooks.OnPublicChat->call( chr->make_ref( ), oText );
 
 		  party->send_member_msg_public( chr, gwtext, textlen );
 		  return new BLong( 1 );
@@ -477,8 +477,8 @@ namespace Pol {
 		  if ( !Clib::convertArrayToUC( oText, gwtext, textlen, true ) )
 			return new BError( "Invalid value in Unicode array." );
 
-          if ( Core::gamestate.party_cfg.Hooks.OnPrivateChat )
-            Core::gamestate.party_cfg.Hooks.OnPrivateChat->call( chr->make_ref( ), tochr->make_ref( ), oText );
+          if ( Core::settingsManager.party_cfg.Hooks.OnPrivateChat )
+            Core::settingsManager.party_cfg.Hooks.OnPrivateChat->call( chr->make_ref( ), tochr->make_ref( ), oText );
 
 		  party->send_member_msg_private( chr, tochr, gwtext, textlen );
 		  return new BLong( 1 );

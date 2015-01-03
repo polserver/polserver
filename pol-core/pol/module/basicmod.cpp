@@ -432,12 +432,6 @@ namespace Pol {
 	  }
 	}
 
-	int bpx;
-	void bphelp()
-	{
-	  ++bpx;
-	}
-
 	Bscript::BObjectImp* BasicExecutorModule::mf_SplitWords()
 	{
 	  Bscript::BObjectImp* bimp_split = exec.getParamImp( 0 );

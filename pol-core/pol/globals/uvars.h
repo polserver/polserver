@@ -17,41 +17,20 @@ Notes
 
 #include "../action.h"
 #include "../clidata.h"
-#include "../cmbtcfg.h"
 #include "../cmdlevel.h"
-#include "../extobj.h"
 #include "../layers.h"
 #include "../menu.h"
-#include "../movecost.h"
-#include "../objecthash.h"
-#include "../party.h"
-#include "../polclock.h"
-#include "../polsig.h"
-#include "../polstats.h"
-#include "../poltype.h"
-#include "../polvar.h"
-#include "../profile.h"
 #include "../region.h"
-#include "../repsys.h"
 #include "../schedule.h"
-#include "../sockio.h"
-#include "../ssopt.h"
 #include "../storage.h"
 #include "../syshook.h"
 #include "../textcmd.h"
 #include "../target.h"
-#include "../uobjcnt.h"
-#include "../uoclient.h"
 #include "../uoskills.h"
-#include "../watch.h"
 
-#include "../network/iostats.h"
-#include "../network/msghandl.h"
-#include "../network/bannedips.h"
 
 #include <boost/noncopyable.hpp>
 #include <vector>
-#include <unordered_map>
 #include <map>
 #include <queue>
 #include <set>
@@ -74,21 +53,12 @@ namespace Pol {
   }
   namespace Network {
 	class Client;
-	class UOClientInterface;
-	class AuxService;
-	class PacketHookData;
-	class PacketsSingleton;
-	class ClientTransmit;
-  }
-  namespace threadhelp {
-	class DynTaskThreadPool;
   }
   namespace Multi {
 	class UMulti;
 	struct BoatShape;
   }
   namespace Core {
-	class ServerDescription;
 	class StartingLocation;
 	class UObject;
 	class PropertyList;
@@ -99,23 +69,21 @@ namespace Pol {
 	class WeatherDef;
 	class MusicRegion;
 	class PeriodicTask;
-	class UOExecutor;
-	class SQLService;
 	class USpell;
 	class SpellCircle;
 	class Vital;
 	class ResourceDef;
-	class MessageTypeFilter;
 	class NpcTemplateElem;
 	class ConsoleCommand;
 	class ListenPoint;
+	class Party;
+	class Guild;
 
 	typedef std::vector< Core::CmdLevel > CmdLevels;
 
 	typedef std::vector<AccountRef>           AccountsVector;
 	class ItemsVector : public std::vector<Items::Item*> {};
-    typedef std::vector<Network::Client*>            Clients;
-    typedef std::vector<ServerDescription*> Servers;
+    
     typedef std::vector<StartingLocation*>  StartingLocations;
 	typedef RegionGroup<JusticeRegion> JusticeDef;
 	typedef RegionGroup<NoCastRegion> NoCastDef;
@@ -125,20 +93,13 @@ namespace Pol {
 	typedef std::map< std::string, NpcTemplateElem, Clib::ci_cmp_pred > NpcTemplatesElems;
 	typedef std::map< std::string, NpcTemplate* > NpcTemplates;
 
-	// if index is UINT_MAX, has been deleted
-	typedef std::unordered_map<pol_serial_t, unsigned> SerialIndexMap;
-	typedef std::multimap<pol_serial_t, UObject*> DeferList;
-
 	typedef ref_ptr<Party> PartyRef;
     typedef std::vector <PartyRef> Parties;
+	typedef ref_ptr<Guild> GuildRef;
+	typedef std::map<unsigned int, GuildRef> Guilds;
 
 	typedef std::map< std::string, Mobile::Attribute*, Clib::ci_cmp_pred > AttributesByName;
 
-	typedef std::deque<UOExecutor*> ExecList;
-	typedef std::set<UOExecutor*> NoTimeoutHoldList;
-	typedef std::multimap<Core::polclock_t, Core::UOExecutor*> HoldList;
-	typedef std::map< std::string, ref_ptr<Bscript::EScriptProgram>, Clib::ci_cmp_pred > ScriptStorage;
-	typedef std::map<unsigned int, UOExecutor*> PidList;
 	typedef std::vector<ArmorZone> ArmorZones;
 	typedef std::map< std::string, Vital*, Clib::ci_cmp_pred > VitalsByName;
 	typedef std::map<unsigned int, unsigned int> OldObjtypeConversions;
@@ -154,13 +115,7 @@ namespace Pol {
     typedef std::map<std::string, TextCmdFunc, Clib::ci_cmp_pred> TextCmds;
 	typedef void( *ParamTextCmdFunc )( Network::Client*, const char* );
     typedef std::map<std::string, ParamTextCmdFunc, wordicmp> ParamTextCmds;
-	
 
-	const u32 CHARACTERSERIAL_START = 0x00000001Lu;
-	const u32 CHARACTERSERIAL_END = 0x3FFFFFFFLu;
-	const u32 ITEMSERIAL_START = 0x40000000Lu;
-	const u32 ITEMSERIAL_END = 0x7FffFFffLu;
-	
 
 	class GameState : boost::noncopyable
 	{
@@ -169,11 +124,6 @@ namespace Pol {
 	  ~GameState();
 
 	  void deinitialize();
-	  void kill_disconnected_clients();
-
-	  const char* last_checkpoint;
-
-	  Core::CombatConfig combat_config;
 
 	  CmdLevels cmdlevels;
 	  
@@ -183,23 +133,9 @@ namespace Pol {
 	  std::unique_ptr<Core::PropertyList> global_properties;
 
 	  AccountsVector accounts;
-	  Clients clients;
-	  Servers servers;
 	  StartingLocations startlocations;
 	  Items::UWeapon* wrestling_weapon;
 
-	  Watch watch;
-
-	  ExternalObject extobj;
-
-	  size_t cycles_per_decay_worldzone;
-	  size_t cycles_until_decay_worldzone;
-
-	  bool gflag_enforce_container_limits;
-	  bool gflag_in_system_load;
-	  bool gflag_in_system_startup;
-
-	  
   	  JusticeDef* justicedef;
 	  NoCastDef* nocastdef;
 	  LightDef* lightdef;
@@ -208,33 +144,11 @@ namespace Pol {
 
 	  std::vector<Menu> menus;
 
-	  unsigned incremental_save_count;
-	  unsigned current_incremental_save;
-	  SerialIndexMap incremental_serial_index;
-	  DeferList deferred_insertions;
-	  std::vector< u32 > modified_serials;
-	  std::vector< u32 > deleted_serials;
-	  unsigned int clean_objects;
-	  unsigned int dirty_objects;
-	  bool incremental_saves_disabled;
-	  
-	  ObjectHash objecthash;
-
 	  Storage storage;
 
 	  Parties parties;
-	  Party_Cfg party_cfg;
-
-	  ServSpecOpt ssopt;
-
-	  clock_t polclock_paused_at;
-
-	  PolVar polvar;
-	  unsigned int stored_last_item_serial;
-	  unsigned int stored_last_char_serial;
-
-	  PolStats polstats;
-	  ProfileVars profilevars;
+	  Guilds guilds;
+	  unsigned int nextguildid;
 
 	  Plib::Realm* main_realm;
 	  std::vector<Plib::Realm*> Realms;
@@ -259,18 +173,6 @@ namespace Pol {
 	  const Mobile::Attribute* pAttrParry;
 	  const Mobile::Attribute* pAttrTactics;
 
-	  ExecList runlist;
-	  ExecList ranlist;
-	  HoldList holdlist;
-	  NoTimeoutHoldList notimeoutholdlist;
-	  NoTimeoutHoldList debuggerholdlist;
-	  int priority_divide;
-	  ScriptStorage scrstore;
-	  PidList pidlist;
-	  unsigned int next_pid;
-#ifdef HAVE_MYSQL
-	  std::unique_ptr<SQLService> sql_service;
-#endif
 	  std::array<std::array<u32, 2>, 8> spell_scroll_objtype_limits;
 	  std::vector<USpell*> spells;
 	  std::vector<SpellCircle*> spellcircles;
@@ -279,11 +181,6 @@ namespace Pol {
 	  SystemHooks system_hooks;
 
 	  std::vector<std::string> tipfilenames;
-
-	  UObjCount uobjcount;
-
-	  u32 itemserialnumber;
-	  u32 charserialnumber;
 
 	  ArmorZones armorzones;
 	  double armor_zone_chance_sum;
@@ -304,53 +201,9 @@ namespace Pol {
 
 	  ResourceDefs resourcedefs;
 
-	  std::unique_ptr<Network::UOClientInterface> uo_client_interface;
-
-	  std::vector< Network::AuxService* > auxservices;
-
-	  UoClientGeneral uoclient_general;
-	  UoClientProtocol uoclient_protocol;
-	  std::vector< UoClientListener > uoclient_listeners;
-
-	  PolSig polsig;
-
-	  Network::IOStats iostats;
-	  Network::IOStats queuedmode_iostats;
-	  std::unique_ptr<MessageTypeFilter> login_filter;
-	  std::unique_ptr<MessageTypeFilter> game_filter;
-	  std::unique_ptr<MessageTypeFilter> disconnected_filter;
-
-	  //stores information about each packet and its script & default handler
-	  std::vector<std::unique_ptr<Network::PacketHookData>> packet_hook_data;
-	  std::vector<std::unique_ptr<Network::PacketHookData>> packet_hook_data_v2;
-	  // handler[] is used for storing the core MSG_HANDLER calls.
-      std::array<Network::MSG_HANDLER,256> handler;
-      /*
-      handler_v2[] is used for storing the core MSG_HANDLER calls for packets that
-      were changed in client 6.0.1.7 (or any newer version where a second handler is
-      required due to changed incoming packet structure).
-      */
-      std::array<Network::MSG_HANDLER,256> handler_v2;
-
-	  std::array<Network::ExtMsgHandler,256> ext_handler_table;
-
-	  char ipaddr_str[64];
-	  char lanaddr_str[64];
-	  char hostname[64];
-
-	  std::unique_ptr<Network::PacketsSingleton> packetsSingleton;
-
-	  std::unique_ptr<Network::ClientTransmit> clientTransmit;
-
 	  IntrinsicWeapons intrinsic_weapons;
 
 	  BoatShapes boatshapes;
-
-#ifdef PERGON
-	  std::unique_ptr<threadhelp::DynTaskThreadPool> auxthreadpool;
-#endif
-
-	  std::vector< Network::IPRule > banned_ips;
 
 	  UACTION mount_action_xlate[ACTION__HIGHEST + 1];
 	  std::map<std::string, MobileTranslate> animation_translates;
@@ -362,15 +215,8 @@ namespace Pol {
 
 	  ListenPoints listen_points;
 
-	  MovementCost movecost_walking;
-	  MovementCost movecost_running;
-	  MovementCost movecost_walking_mounted;
-	  MovementCost movecost_running_mounted;
-
 	  Plib::Package* wwwroot_pkg;
 	  std::map<std::string, std::string> mime_types;
-
-	  RepSys_Cfg repsys_cfg;
 
 	  TaskQueue task_queue;
 
@@ -382,8 +228,6 @@ namespace Pol {
 	  ParamTextCmds paramtextcmds;
 
 	  std::vector<UOSkill> uo_skills;
-
-	  Network::PolSocket polsocket;
 
 	private:
 	  void cleanup_vars();

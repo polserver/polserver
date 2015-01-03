@@ -35,7 +35,7 @@ Notes
 #include "ufuncstd.h"
 #include "uworld.h"
 
-#include "module/guildmod.h"
+#include "guilds.h"
 
 #include "../bscript/impstr.h"
 
@@ -159,11 +159,11 @@ namespace Pol {
 	  // send to those nearby
       u16 range;
       if ( type == Core::TEXTTYPE_WHISPER )
-        range = Core::gamestate.ssopt.whisper_range;
+        range = Core::settingsManager.ssopt.whisper_range;
       else if ( type == Core::TEXTTYPE_YELL )
-        range = Core::gamestate.ssopt.yell_range;
+        range = Core::settingsManager.ssopt.yell_range;
       else
-        range = Core::gamestate.ssopt.speech_range;
+        range = Core::settingsManager.ssopt.speech_range;
       Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( client->chr->x, client->chr->y, client->chr->realm, range, [&]( Mobile::Character *chr )
       {
         Network::Client* client2 = chr->client;
@@ -288,10 +288,10 @@ namespace Pol {
 
 	  if ( msgin->type == 0x0d )
 	  {
-		if ( gamestate.ssopt.core_sends_guildmsgs && client->chr->guildid() > 0 )
-		for ( unsigned cli = 0; cli < gamestate.clients.size(); cli++ )
+		if ( settingsManager.ssopt.core_sends_guildmsgs && client->chr->guildid() > 0 )
+		for ( unsigned cli = 0; cli < networkManager.clients.size(); cli++ )
 		{
-		  Client *client2 = gamestate.clients[cli];
+		  Client *client2 = networkManager.clients[cli];
 		  if ( !client2->ready ) continue;
 		  if ( client->chr->guildid() == client2->chr->guildid() )
 			talkmsg.Send( client2, len );
@@ -299,10 +299,10 @@ namespace Pol {
 	  }
 	  else if ( msgin->type == 0x0e )
 	  {
-		if ( gamestate.ssopt.core_sends_guildmsgs && client->chr->guildid() > 0 )
-		for ( unsigned cli = 0; cli < gamestate.clients.size(); cli++ )
+		if ( settingsManager.ssopt.core_sends_guildmsgs && client->chr->guildid() > 0 )
+		for ( unsigned cli = 0; cli < networkManager.clients.size(); cli++ )
 		{
-		  Client *client2 = gamestate.clients[cli];
+		  Client *client2 = networkManager.clients[cli];
 		  if ( !client2->ready ) continue;
 		  if ( client->chr->guildid() == client2->chr->guildid() || ( client2->chr->guild() > 0 && client->chr->guild()->hasAlly( client2->chr->guild() ) ) )
 			talkmsg.Send( client2, len );
@@ -334,11 +334,11 @@ namespace Pol {
 		// send to those nearby
         u16 range;
         if ( msgin->type == Core::TEXTTYPE_WHISPER )
-          range = Core::gamestate.ssopt.whisper_range;
+          range = Core::settingsManager.ssopt.whisper_range;
         else if ( msgin->type == Core::TEXTTYPE_YELL )
-          range = Core::gamestate.ssopt.yell_range;
+          range = Core::settingsManager.ssopt.yell_range;
         else
-          range = Core::gamestate.ssopt.speech_range;
+          range = Core::settingsManager.ssopt.speech_range;
         Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( client->chr->x, client->chr->y, client->chr->realm, range, [&]( Mobile::Character *chr )
         {
           Network::Client* client2 = chr->client;

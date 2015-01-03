@@ -52,7 +52,7 @@ POL_BUILDPLATFORM=x86
 endif
 
 
-CXX_OPTS=-fno-strict-aliasing  -Wno-unused-result -DNOMINMAX -DINC_PASSERT=1 -DTIXML_USE_STL -Wall $(CXX_MORE_OPTS) $(INC_STL) -I../lib/boost_1_55_0
+CXX_OPTS=-fno-strict-aliasing -Wno-unused-result -DNOMINMAX -DINC_PASSERT=1 -DTIXML_USE_STL -Wall $(CXX_MORE_OPTS) $(INC_STL) -I../lib/boost_1_55_0
 
 CXX_RELEASE_OPTS=$(CXX_OPTS)
 
@@ -68,7 +68,7 @@ cpp_sources = \
 	../lib/tinyxml/tinystr.cpp ../lib/tinyxml/tinyxml.cpp \
 	../lib/tinyxml/tinyxmlerror.cpp ../lib/tinyxml/tinyxmlparser.cpp \
 	../lib/format/format.cc \
-	clib/boostutils.cpp clib/streamsaver.cpp \
+	clib/boostutils.cpp clib/streamsaver.cpp clib/timer.cpp \
 	clib/progver.cpp plib/polver.cpp plib/systemstate.cpp \
 	pol/accounts/account.cpp pol/accounts/accounts.cpp pol/accounts/acscrobj.cpp pol/allocd.cpp \
 	pol/item/armor.cpp pol/mobile/attack.cpp pol/mobile/ufacing.cpp \
@@ -94,7 +94,7 @@ cpp_sources = \
 	pol/module/filemod.cpp pol/fnsearch.cpp \
 	pol/gameclck.cpp pol/getitem.cpp pol/getmsg.cpp \
 	pol/guardrgn.cpp\
-	pol/module/guildmod.cpp \
+	pol/guilds.cpp pol/module/guildmod.cpp \
 	pol/module/basiciomod.cpp pol/module/basicmod.cpp \
 	pol/help.cpp pol/multi/house.cpp \
 	pol/network/iostats.cpp pol/irequest.cpp pol/item/item.cpp pol/item/item00.cpp \
@@ -140,8 +140,10 @@ cpp_sources = \
 	pol/uolisten.cpp \
 	pol/uoscrobj.cpp pol/uoskills.cpp pol/useskill.cpp \
 	pol/module/utilmod.cpp pol/module/sqlmod.cpp \
-	pol/globals/uvars.cpp pol/uworld.cpp pol/globals/ucfg.cpp pol/globals/multidefs.cpp \
-	pol/vital.cpp \
+	pol/globals/uvars.cpp pol/globals/ucfg.cpp pol/globals/multidefs.cpp \
+	pol/globals/network.cpp pol/globals/script_internals.cpp pol/globals/settings.cpp \
+	pol/globals/state.cpp pol/globals/object_storage.cpp \
+	pol/uworld.cpp pol/vital.cpp \
 	pol/item/weapon.cpp \
 	pol/zone.cpp \
 	pol/module/attributemod.cpp pol/module/clmod.cpp pol/clfunc.cpp pol/module/storagemod.cpp pol/module/vitalmod.cpp \
@@ -189,7 +191,7 @@ cpp_sources = \
 
 ecompile_sources=ecompile/ecompile.cpp \
     ../lib/format/format.cc \
-  clib/boostutils.cpp \
+  clib/boostutils.cpp clib/timer.cpp\
 	plib/polver.cpp plib/pkg.cpp plib/systemstate.cpp \
 	bscript/compilercfg.cpp bscript/compiler.cpp bscript/parser.cpp \
 	bscript/token.cpp bscript/symcont.cpp \
@@ -214,7 +216,7 @@ runecl_sources=runecl/runecl.cpp \
 	../lib/tinyxml/tinystr.cpp ../lib/tinyxml/tinyxml.cpp \
 	../lib/tinyxml/tinyxmlerror.cpp ../lib/tinyxml/tinyxmlparser.cpp \
 	../lib/format/format.cc \
-	clib/boostutils.cpp clib/streamsaver.cpp \
+	clib/boostutils.cpp clib/streamsaver.cpp clib/timer.cpp\
 	bscript/executor.cpp bscript/execmodl.cpp bscript/dbl.cpp \
 	pol/module/basiciomod.cpp pol/module/basicmod.cpp bscript/berror.cpp \
 	pol/module/utilmod.cpp pol/dice.cpp \
@@ -242,7 +244,7 @@ runecl_sources=runecl/runecl.cpp \
 
 uoconvert_sources=uoconvert/uoconvert.cpp  \
     ../lib/format/format.cc \
-  clib/boostutils.cpp \
+  clib/boostutils.cpp clib/timer.cpp\
 	pol/uofile00.cpp pol/uofile01.cpp pol/uofile02.cpp \
 	pol/uofile07.cpp pol/uofile08.cpp \
 	pol/polfile1.cpp \
@@ -259,7 +261,7 @@ uoconvert_sources=uoconvert/uoconvert.cpp  \
 
 uotool_sources=uotool/uotool.cpp \
     ../lib/format/format.cc \
-  clib/boostutils.cpp \
+  clib/boostutils.cpp clib/timer.cpp\
 	uotool/uofile04.cpp uotool/uofile05.cpp \
 	pol/uofile00.cpp pol/uofile01.cpp pol/uofile02.cpp \
 	pol/uofile06.cpp pol/uofile07.cpp pol/uofile08.cpp \

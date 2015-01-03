@@ -12,6 +12,7 @@ Notes
 */
 
 #include "filemod.h"
+#include "fileaccess.h"
 
 #include "../../clib/cfgelem.h"
 #include "../../clib/cfgfile.h"
@@ -29,6 +30,7 @@ Notes
 #include "../core.h"
 #include "../binaryfilescrobj.h"
 #include "../xmlfilescrobj.h"
+#include "../globals/ucfg.h"
 
 #include <cerrno>
 #include <ctime>
@@ -211,17 +213,15 @@ namespace Pol {
 	  return false;
 	}
 
-	std::vector<FileAccess> file_access_rules;
-
     bool HasReadAccess(const Plib::Package* pkg, const Plib::Package* filepackage, const std::string& path)
 	{
 #ifdef NOACCESS_CHECKS
         (void)pkg; (void)filepackage; (void)path;
 	  return true;
 #else
-	  for ( unsigned i = 0; i < file_access_rules.size(); ++i )
+	  for ( unsigned i = 0; i < Core::configurationbuffer.file_access_rules.size(); ++i )
 	  {
-		const FileAccess& fa = file_access_rules[i];
+		const FileAccess& fa = Core::configurationbuffer.file_access_rules[i];
 		if ( fa.AllowRead &&
 			 fa.AllowsAccessTo( pkg, filepackage ) &&
 			 fa.AppliesToPackage( pkg ) &&
@@ -239,9 +239,9 @@ namespace Pol {
         (void)pkg; (void)filepackage; (void)path;
 	  return true;
 #else
-	  for ( unsigned i = 0; i < file_access_rules.size(); ++i )
+	  for ( unsigned i = 0; i < Core::configurationbuffer.file_access_rules.size(); ++i )
 	  {
-		const FileAccess& fa = file_access_rules[i];
+		const FileAccess& fa = Core::configurationbuffer.file_access_rules[i];
 		if ( fa.AllowWrite &&
 			 fa.AllowsAccessTo( pkg, filepackage ) &&
 			 fa.AppliesToPackage( pkg ) &&
@@ -259,9 +259,9 @@ namespace Pol {
         (void)pkg; (void)filepackage; (void)path;
 	  return true;
 #else
-	  for ( unsigned i = 0; i < file_access_rules.size(); ++i )
+	  for ( unsigned i = 0; i < Core::configurationbuffer.file_access_rules.size(); ++i )
 	  {
-		const FileAccess& fa = file_access_rules[i];
+		const FileAccess& fa = Core::configurationbuffer.file_access_rules[i];
 		if ( fa.AllowAppend &&
 			 fa.AllowsAccessTo( pkg, filepackage ) &&
 			 fa.AppliesToPackage( pkg ) &&
@@ -679,7 +679,7 @@ namespace Pol {
 
 	void load_fileaccess_cfg()
 	{
-	  file_access_rules.clear();
+	  Core::configurationbuffer.file_access_rules.clear();
 
       if ( !Clib::FileExists( "config/fileaccess.cfg" ) )
 		return;
@@ -691,7 +691,7 @@ namespace Pol {
 	  while ( cf.read( elem ) )
 	  {
 		FileAccess fa( elem );
-		file_access_rules.push_back( fa );
+		Core::configurationbuffer.file_access_rules.push_back( fa );
 	  }
 	}
 

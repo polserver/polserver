@@ -24,6 +24,7 @@ Notes
 #include "realms.h"
 #include "uoexhelp.h"
 #include "uworld.h"
+#include "globals/network.h"
 
 #include "../bscript/executor.h"
 #include "../bscript/berror.h"
@@ -113,7 +114,7 @@ namespace Pol {
 			{
 			  if ( client->isConnected() )
 			  {
-				Core::gamestate.clientTransmit->AddToQueue( client, (void*)( &buffer[0] ), static_cast<int>( buffer.size() ) );
+				Core::networkManager.clientTransmit->AddToQueue( client, (void*)( &buffer[0] ), static_cast<int>( buffer.size() ) );
 				return new BLong( 1 );
 			  }
 			  else
@@ -141,7 +142,7 @@ namespace Pol {
 			unsigned short num_sent_to = 0;
             Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( x, y, realm, range, [&]( Mobile::Character *chr )
             {
-              Core::gamestate.clientTransmit->AddToQueue( chr->client, (void*)( &buffer[0] ), static_cast<int>( buffer.size( ) ) );
+              Core::networkManager.clientTransmit->AddToQueue( chr->client, (void*)( &buffer[0] ), static_cast<int>( buffer.size( ) ) );
               num_sent_to++;
             } );
 			return new BLong( num_sent_to );

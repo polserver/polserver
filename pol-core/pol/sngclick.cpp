@@ -21,7 +21,6 @@ Notes
 #include "ustruct.h"
 #include "uofile.h"
 #include "uworld.h"
-#include "ssopt.h"
 #include "containr.h"
 
 #include <cstdio>
@@ -36,8 +35,8 @@ namespace Pol {
 
 	  // search equipment of nearby mobiles
 	  unsigned short wxL, wyL, wxH, wyH;
-	  zone_convert_clip( chr->x - RANGE_VISUAL, chr->y - RANGE_VISUAL, chr->realm, wxL, wyL );
-	  zone_convert_clip( chr->x + RANGE_VISUAL, chr->y + RANGE_VISUAL, chr->realm, wxH, wyH );
+	  zone_convert_clip( chr->x - RANGE_VISUAL, chr->y - RANGE_VISUAL, chr->realm, &wxL, &wyL );
+	  zone_convert_clip( chr->x + RANGE_VISUAL, chr->y + RANGE_VISUAL, chr->realm, &wxH, &wyH );
 	  for ( unsigned short wx = wxL; wx <= wxH; ++wx )
 	  {
 		for ( unsigned short wy = wyL; wy <= wyH; ++wy )
@@ -89,21 +88,21 @@ namespace Pol {
 
 		if ( chr != NULL && inrange( client->chr, chr ) && !client->chr->is_concealed_from_me( chr ) )
 		{
-		  if ( !chr->title_guild.empty() && ( gamestate.ssopt.core_handled_tags & 0x1 ) )
+		  if ( !chr->title_guild.empty() && ( settingsManager.ssopt.core_handled_tags & 0x1 ) )
 			send_nametext( client, chr, "[" + chr->title_guild + "]" );
 		  send_nametext( client, chr, chr->name() );
 
 		  std::string tags;
-		  if ( chr->frozen() && ( gamestate.ssopt.core_handled_tags & 0x2 ) )
+		  if ( chr->frozen() && ( settingsManager.ssopt.core_handled_tags & 0x2 ) )
 			tags = "[frozen] ";
-		  if ( chr->paralyzed() && ( gamestate.ssopt.core_handled_tags & 0x4 ) )
+		  if ( chr->paralyzed() && ( settingsManager.ssopt.core_handled_tags & 0x4 ) )
 			tags += "[paralyzed] ";
-		  if ( chr->squelched() && ( gamestate.ssopt.core_handled_tags & 0x8 ) )
+		  if ( chr->squelched() && ( settingsManager.ssopt.core_handled_tags & 0x8 ) )
 			tags += "[squelched] ";
-		  if ( chr->deafened() && ( gamestate.ssopt.core_handled_tags & 0x10 ) )
+		  if ( chr->deafened() && ( settingsManager.ssopt.core_handled_tags & 0x10 ) )
 			tags += "[deafened] ";
 
-		  if ( gamestate.ssopt.invul_tag == 1 )
+		  if ( settingsManager.ssopt.invul_tag == 1 )
 		  {
 			if ( chr->invul() )
 			  tags += "[invulnerable]";

@@ -25,7 +25,6 @@ Notes
 #include "pktout.h"
 #include "pktboth.h"
 #include "globals/uvars.h"
-#include "ssopt.h"
 #include "ufunc.h"
 #include "uworld.h"
 
@@ -180,7 +179,7 @@ namespace Pol {
 		{
 		  // If facing is dir they are walking, check to see if already 4 tiles away
 		  // from the person trading with. If so, cancel trading!!!!
-		  if ( !gamestate.ssopt.allow_moving_trade )
+		  if ( !settingsManager.ssopt.allow_moving_trade )
 		  {
 			if ( chr->is_trading() )
 			{
@@ -214,12 +213,12 @@ namespace Pol {
 		  if ( oldfacing == ( msg02->dir & PKTIN_02_FACING_MASK ) )
 		  {
 			if ( client->chr->on_mount() )
-			  client->next_movement += ( msg02->dir & PKTIN_02_DIR_RUNNING_BIT ) ? gamestate.ssopt.speedhack_mountrundelay : gamestate.ssopt.speedhack_mountwalkdelay;
+			  client->next_movement += ( msg02->dir & PKTIN_02_DIR_RUNNING_BIT ) ? settingsManager.ssopt.speedhack_mountrundelay : settingsManager.ssopt.speedhack_mountwalkdelay;
 			else
-			  client->next_movement += ( msg02->dir & PKTIN_02_DIR_RUNNING_BIT ) ? gamestate.ssopt.speedhack_footrundelay : gamestate.ssopt.speedhack_footwalkdelay;
+			  client->next_movement += ( msg02->dir & PKTIN_02_DIR_RUNNING_BIT ) ? settingsManager.ssopt.speedhack_footrundelay : settingsManager.ssopt.speedhack_footwalkdelay;
 		  }
 		  else // changing only facing is fast
-			client->next_movement += gamestate.ssopt.speedhack_mountrundelay;
+			client->next_movement += settingsManager.ssopt.speedhack_mountrundelay;
 		}
 		else
 		{

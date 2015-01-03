@@ -21,11 +21,11 @@ Notes
 
 #include "polcfg.h"
 #include "polsem.h"
-#include "polsig.h"
 #include "scrdef.h"
 #include "scrsched.h"
 #include "scrstore.h"
 #include "globals/uvars.h"
+#include "globals/state.h"
 
 #ifdef _WIN32
 #	include <conio.h>
@@ -185,7 +185,7 @@ namespace Pol {
 	  }
 	  if ( cmd->script == "[threadstatus]" )
 	  {
-		gamestate.polsig.report_status_signalled = true;
+		stateManager.polsig.report_status_signalled = true;
 		return;
 	  }
 	  if ( cmd->script == "[crash]" )

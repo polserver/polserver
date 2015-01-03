@@ -10,7 +10,7 @@ Notes
 
 #include "xmlfilescrobj.h"
 
-#include "module/filemod.h"
+#include "module/fileaccess.h"
 
 #include "../plib/pkg.h"
 

@@ -23,7 +23,7 @@ Notes
 #include "../ufunc.h"
 #include "../cmbtcfg.h"
 #include "../uoexhelp.h"
-#include "../globals/uvars.h"
+#include "../globals/settings.h"
 
 #include "../../bscript/bobject.h"
 #include "../../bscript/berror.h"
@@ -70,7 +70,7 @@ namespace Pol {
 		   damage >= 0 &&
 		   damage <= USHRT_MAX )
 	  {
-		bool send_dmg = send_damage_packet == 2 ? Core::gamestate.combat_config.send_damage_packet : ( send_damage_packet > 0 ? true : false );
+		bool send_dmg = send_damage_packet == 2 ? Core::settingsManager.combat_config.send_damage_packet : ( send_damage_packet > 0 ? true : false );
 		chr->apply_raw_damage_hundredths( static_cast<unsigned int>( damage * 100 ), GetUOController(), userepsys > 0 ? true : false, send_dmg );
 		return new BLong( 1 );
 	  }
@@ -91,7 +91,7 @@ namespace Pol {
 	  {
 		if ( damage >= 0.0 && damage <= 30000.0 )
 		{
-		  bool send_dmg = send_damage_packet == 2 ? Core::gamestate.combat_config.send_damage_packet : ( send_damage_packet > 0 ? true : false );
+		  bool send_dmg = send_damage_packet == 2 ? Core::settingsManager.combat_config.send_damage_packet : ( send_damage_packet > 0 ? true : false );
 		  damage = chr->apply_damage( static_cast<unsigned short>( damage ), GetUOController(), userepsys > 0 ? true : false, send_dmg );
 		  return new BLong( static_cast<int>( damage ) );
 		}

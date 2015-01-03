@@ -23,6 +23,9 @@ namespace Pol {
   namespace Bscript {
 	class BObjectImp;
   }
+  namespace Plib {
+	class Realm;
+  }
   namespace Core {
 	class RegionGroupBase;
 
@@ -78,7 +81,6 @@ namespace Pol {
 	  Region* getregion_byloc( xcoord x, ycoord y, Plib::Realm* realm );
 
 	  std::vector<Region*> regions_;
-	  //RegionId **regionidx_;//[ZONE_X][ZONE_Y]; // 1-based
 
 	  typedef std::map<Plib::Realm*, RegionId**> RegionRealms;
 	  RegionRealms regionrealms;

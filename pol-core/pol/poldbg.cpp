@@ -541,7 +541,7 @@ namespace Pol {
 	{
       std::string match = Clib::strlower( rest );
 
-	  for ( PidList::const_iterator citr = gamestate.pidlist.begin(); citr != gamestate.pidlist.end(); ++citr )
+	  for ( PidList::const_iterator citr = scriptEngineInternalManager.pidlist.begin(); citr != scriptEngineInternalManager.pidlist.end(); ++citr )
 	  {
 		UOExecutor* uoexec = ( *citr ).second;
         std::string name = Clib::strlower( uoexec->scriptname( ) );
@@ -556,7 +556,7 @@ namespace Pol {
 
 	std::string DebugContext::cmd_scriptlist( const std::string& /*rest*/, Results& results )
 	{
-	  for ( ScriptStorage::const_iterator citr = gamestate.scrstore.begin(); citr != gamestate.scrstore.end(); ++citr )
+	  for ( ScriptStorage::const_iterator citr = scriptEngineInternalManager.scrstore.begin(); citr != scriptEngineInternalManager.scrstore.end(); ++citr )
 	  {
 		const char* nm = ( ( *citr ).first ).c_str();
 		EScriptProgram* eprog = ( ( *citr ).second ).get();
@@ -571,8 +571,8 @@ namespace Pol {
 	  _script.clear();
 
 	  //const char* fn = rest.c_str();
-	  ScriptStorage::iterator itr = gamestate.scrstore.find( rest );
-	  if ( itr == gamestate.scrstore.end() )
+	  ScriptStorage::iterator itr = scriptEngineInternalManager.scrstore.find( rest );
+	  if ( itr == scriptEngineInternalManager.scrstore.end() )
 		return "No such script.";
 
 	  ref_ptr<EScriptProgram> res( ( *itr ).second );
@@ -657,8 +657,8 @@ namespace Pol {
 
 	std::string DebugContext::cmd_scriptprofile( const std::string& rest, Results& results )
 	{
-	  ScriptStorage::iterator itr = gamestate.scrstore.find( rest.c_str() );
-	  if ( itr == gamestate.scrstore.end() )
+	  ScriptStorage::iterator itr = scriptEngineInternalManager.scrstore.find( rest.c_str() );
+	  if ( itr == scriptEngineInternalManager.scrstore.end() )
 		return "No such script.";
 
 	  ref_ptr<EScriptProgram> res( ( *itr ).second );
@@ -675,8 +675,8 @@ namespace Pol {
 
 	std::string DebugContext::cmd_scriptins( const std::string& rest, Results& results )
 	{
-	  ScriptStorage::iterator itr = gamestate.scrstore.find( rest.c_str() );
-	  if ( itr == gamestate.scrstore.end() )
+	  ScriptStorage::iterator itr = scriptEngineInternalManager.scrstore.find( rest.c_str() );
+	  if ( itr == scriptEngineInternalManager.scrstore.end() )
 		return "No such script.";
 
 	  ref_ptr<EScriptProgram> res( ( *itr ).second );
@@ -712,8 +712,8 @@ namespace Pol {
 
 	std::string DebugContext::cmd_scriptsrc( const std::string& rest, Results& results )
 	{
-	  ScriptStorage::iterator itr = gamestate.scrstore.find( rest.c_str() );
-	  if ( itr == gamestate.scrstore.end() )
+	  ScriptStorage::iterator itr = scriptEngineInternalManager.scrstore.find( rest.c_str() );
+	  if ( itr == scriptEngineInternalManager.scrstore.end() )
 		return "No such script.";
 
 	  ref_ptr<EScriptProgram> res( ( *itr ).second );

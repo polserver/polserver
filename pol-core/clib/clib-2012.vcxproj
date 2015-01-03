@@ -255,6 +255,7 @@
     <ClCompile Include="strset.cpp" />
     <ClCompile Include="strutil.cpp" />
     <ClCompile Include="threadhelp.cpp" />
+	 <ClCompile Include="timer.cpp" />
     <ClCompile Include="tracebuf.cpp" />
     <ClCompile Include="unicode.cpp" />
     <ClCompile Include="wallclock.cpp" />

@@ -4,7 +4,7 @@
 #include "../../clib/endian.h"
 #include "../../clib/logfacility.h"
 #include "client.h"
-#include "../globals/uvars.h"
+#include "../globals/network.h"
 #include "../pktin.h"
 #include "../pktinid.h"
 
@@ -17,27 +17,27 @@ namespace Pol {
 
         MSG_HANDLER PacketRegistry::find_handler(unsigned char msgid, const Client* client) {
             if (client->might_use_v2_handler() && PacketRegistry::msglen_v2(msgid))
-                return Core::gamestate.handler_v2[msgid];
+                return Core::networkManager.handler_v2[msgid];
             
-            return Core::gamestate.handler[msgid];
+            return Core::networkManager.handler[msgid];
         }
 
         PktHandlerFunc PacketRegistry::get_callback(unsigned char msgid, PacketVersion version /*= PacketVersion::V1*/)
         {
             if (version == PacketVersion::V1)
-                return Core::gamestate.handler[msgid].func;
+                return Core::networkManager.handler[msgid].func;
 
-            return Core::gamestate.handler_v2[msgid].func;
+            return Core::networkManager.handler_v2[msgid].func;
         }
 
         int PacketRegistry::msglen(unsigned char msgid)
         {
-            return Core::gamestate.handler[msgid].msglen;
+            return Core::networkManager.handler[msgid].msglen;
         }
 
         int PacketRegistry::msglen_v2(unsigned char msgid)
         {
-            return Core::gamestate.handler_v2[msgid].msglen;
+            return Core::networkManager.handler_v2[msgid].msglen;
         }
 
         void PacketRegistry::set_handler(unsigned char msgid, int len, PktHandlerFunc func, PacketVersion version /*= PacketVersion::V1*/)
@@ -46,18 +46,18 @@ namespace Pol {
 
             if (version == PacketVersion::V1)
             {
-                Core::gamestate.handler[msgid].func = func;
-                Core::gamestate.handler[msgid].msglen = len;
+                Core::networkManager.handler[msgid].func = func;
+                Core::networkManager.handler[msgid].msglen = len;
             }
             else {
-                Core::gamestate.handler_v2[msgid].func = func;
-                Core::gamestate.handler_v2[msgid].msglen = len;
+                Core::networkManager.handler_v2[msgid].func = func;
+                Core::networkManager.handler_v2[msgid].msglen = len;
             }
         }
 
         bool PacketRegistry::is_defined(unsigned char msgid)
         {
-            return Core::gamestate.handler[msgid].msglen || Core::gamestate.handler_v2[msgid].msglen;
+            return Core::networkManager.handler[msgid].msglen || Core::networkManager.handler_v2[msgid].msglen;
         }
 
 		void PacketRegistry::handle_extended_cmd( Client *client, Core::PKTIN_12 *msg )
@@ -69,20 +69,20 @@ namespace Pol {
 		  if ( msg->data[msglen - offsetof( Core::PKTIN_12, data ) - 1] != '\0' ) // the string must be null-terminated.
 			return;
 
-		  if ( Core::gamestate.ext_handler_table[msg->submsgtype].func )
-			Core::gamestate.ext_handler_table[msg->submsgtype].func( client, msg );
+		  if ( Core::networkManager.ext_handler_table[msg->submsgtype].func )
+			Core::networkManager.ext_handler_table[msg->submsgtype].func( client, msg );
 		}
 
 		void PacketRegistry::set_extended_handler( UEXTMSGID submsgtype,
                                                     void( *func )( Client *client, Core::PKTIN_12 *msg ) )
 		{
-		  if ( Core::gamestate.ext_handler_table[submsgtype].func )
+		  if ( Core::networkManager.ext_handler_table[submsgtype].func )
 		  {
 			ERROR_PRINT.Format( "Extended Message Handler {} (0x{:X}) multiply defined.\n" )
 			  << submsgtype << submsgtype;
 			throw std::runtime_error( "Extended Message Handler multiply defined." );
 		  }
-		  Core::gamestate.ext_handler_table[submsgtype].func = func;
+		  Core::networkManager.ext_handler_table[submsgtype].func = func;
 		}
 
 // Preprocessor macros for registering message handlers:

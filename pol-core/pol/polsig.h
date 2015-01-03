@@ -46,7 +46,7 @@ namespace Pol {
 	  unsigned check_attack_after_move_function_checkpoint;
 	};
   }
-#define THREAD_CHECKPOINT(thread,check) Core::gamestate.polsig.thread##_thread_checkpoint = check
-#define FUNCTION_CHECKPOINT(func,check) Core::gamestate.polsig.func##_function_checkpoint = check
+#define THREAD_CHECKPOINT(thread,check) Core::stateManager.polsig.thread##_thread_checkpoint = check
+#define FUNCTION_CHECKPOINT(func,check) Core::stateManager.polsig.func##_function_checkpoint = check
 }
 #endif

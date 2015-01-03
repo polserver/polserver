@@ -66,7 +66,6 @@ Notes
 #include "console.h"
 #include "core.h"
 #include "decay.h"
-#include "extobj.h"
 #include "fnsearch.h"
 #include "gameclck.h"
 #include "guardrgn.h"
@@ -98,10 +97,8 @@ Notes
 #include "poldbg.h"
 #include "polfile.h"
 #include "polsem.h"
-#include "polsig.h"
 #include "poltest.h"
 #include "polwww.h"
-#include "profile.h"
 #include "realms.h"
 #include "savedata.h"
 #include "schedule.h"
@@ -110,13 +107,14 @@ Notes
 #include "scrstore.h"
 #include "sockets.h"
 #include "sockio.h"
-#include "ssopt.h"
 #include "tasks.h"
 #include "ufunc.h"
-#include "uobjcnt.h"
 #include "uofile.h"
 #include "uoscrobj.h"
 #include "globals/uvars.h"
+#include "globals/network.h"
+#include "globals/state.h"
+#include "globals/object_storage.h"
 #include "uworld.h"
 
 #include "stubdata.h"
@@ -297,7 +295,7 @@ namespace Pol {
       send_realm_change( client, client->chr->realm );
       send_map_difs( client );
 
-      if ( gamestate.ssopt.core_sends_season )
+      if ( settingsManager.ssopt.core_sends_season )
         send_season_info( client );
 
       client->chr->lastx = client->chr->lasty = client->chr->lastz = 0;
@@ -315,7 +313,7 @@ namespace Pol {
 
       client->chr->check_weather_region_change( true );
 
-      if ( gamestate.ssopt.core_sends_season )
+      if ( settingsManager.ssopt.core_sends_season )
         send_season_info( client );
 
       send_objects_newly_inrange( client );
@@ -420,7 +418,7 @@ namespace Pol {
       }
 
       //Dave moved this from login.cpp so client cmdlevel can be checked before denying login
-      if ( ( ( std::count_if( gamestate.clients.begin(), gamestate.clients.end(), clientHasCharacter ) ) >= Plib::systemstate.config.max_clients ) &&
+      if ( ( ( std::count_if( networkManager.clients.begin(), networkManager.clients.end(), clientHasCharacter ) ) >= Plib::systemstate.config.max_clients ) &&
            ( chosen_char->cmdlevel() < Plib::systemstate.config.max_clients_bypass_cmdlevel ) )
       {
         POLLOG.Format( "To much clients connected. Check MaximumClients and/or MaximumClientsBypassCmdLevel in pol.cfg.\nAccount {} with character {} Client disconnected by Core.\n" )
@@ -449,7 +447,7 @@ namespace Pol {
           chosen_char->client->gd->clear();
           chosen_char->client->forceDisconnect();
           chosen_char->client->ready = 0;
-          chosen_char->client->msgtype_filter = gamestate.disconnected_filter.get();
+          chosen_char->client->msgtype_filter = networkManager.disconnected_filter.get();
 
 
           // disassociate the objects from each other.
@@ -474,7 +472,7 @@ namespace Pol {
 
       client->UOExpansionFlagClient = cfBEu32( msg->clientflags );
 
-      client->msgtype_filter = gamestate.game_filter.get();
+      client->msgtype_filter = networkManager.game_filter.get();
       start_client_char( client );
 
       if ( !chosen_char->lastx && !chosen_char->lasty )
@@ -512,9 +510,9 @@ namespace Pol {
     
     void restart_all_clients()
     {
-      if ( !gamestate.uoclient_protocol.EnableFlowControlPackets )
+      if ( !networkManager.uoclient_protocol.EnableFlowControlPackets )
         return;
-      for ( Clients::iterator itr = gamestate.clients.begin(), end = gamestate.clients.end();
+      for ( Clients::iterator itr = networkManager.clients.begin(), end = networkManager.clients.end();
             itr != end;
             ++itr )
       {
@@ -600,7 +598,7 @@ namespace Pol {
           PolLock lck;
           polclock_checkin();
           TRACEBUF_ADDELEM( "scripts thread now", polclock() );
-          ++gamestate.profilevars.script_passes;
+          ++stateManager.profilevars.script_passes;
           THREAD_CHECKPOINT( scripts, 1 );
 
           step_scripts( &sleeptime, &activity );
@@ -621,11 +619,11 @@ namespace Pol {
 
         if ( activity )
         {
-          ++gamestate.profilevars.script_passes_activity;
+          ++stateManager.profilevars.script_passes_activity;
         }
         else
         {
-          ++gamestate.profilevars.script_passes_noactivity;
+          ++stateManager.profilevars.script_passes_noactivity;
         }
 
         if ( sleeptime )
@@ -648,7 +646,7 @@ namespace Pol {
       polclock_t now;
       while ( !Clib::exit_signalled )
       {
-        ++gamestate.profilevars.script_passes;
+        ++stateManager.profilevars.script_passes;
         do
         {
           PolLock lck;
@@ -694,7 +692,7 @@ namespace Pol {
         {
           PolLock lck;
           polclock_checkin();
-          gamestate.objecthash.Reap();
+          objStorageManager.objecthash.Reap();
           for ( auto &item : gamestate.dynamic_item_descriptors )
           {
             delete item;
@@ -714,18 +712,18 @@ namespace Pol {
       // we want this thread to be the last out, so that it can report stuff at shutdown.
       while ( !Clib::exit_signalled || threadhelp::child_threads > 1 )
       {
-        if ( !gamestate.polclock_paused_at )
+        if ( !stateManager.polclock_paused_at )
         {
           polclock_t now = polclock();
           if ( now >= checkin_clock_times_out_at )
           {
             ERROR_PRINT << "No clock movement in 30 seconds.  Dumping thread status.\n";
-            gamestate.polsig.report_status_signalled = true;
+            stateManager.polsig.report_status_signalled = true;
             checkin_clock_times_out_at = now + 30 * POLCLOCKS_PER_SEC;
           }
         }
 
-        if ( gamestate.polsig.report_status_signalled )
+        if ( stateManager.polsig.report_status_signalled )
         {
           fmt::Writer tmp;
           tmp << "*Thread Info*\n";
@@ -744,13 +742,13 @@ namespace Pol {
 
           free( strings );
 #endif
-          tmp << "Scripts Thread Checkpoint: " << gamestate.polsig.scripts_thread_checkpoint << "\n";
+          tmp << "Scripts Thread Checkpoint: " << stateManager.polsig.scripts_thread_checkpoint << "\n";
           tmp << "Last Script: " << Clib::scripts_thread_script << " PC: " << Clib::scripts_thread_scriptPC << "\n";
           tmp << "Escript Instruction Cycles: " << Bscript::escript_instr_cycles << "\n";
-          tmp << "Tasks Thread Checkpoint: " << gamestate.polsig.tasks_thread_checkpoint << "\n";
-          tmp << "Active Client Thread Checkpoint: " << gamestate.polsig.active_client_thread_checkpoint << "\n";
-          if ( gamestate.polsig.check_attack_after_move_function_checkpoint )
-            tmp << "check_attack_after_move() Checkpoint: " << gamestate.polsig.check_attack_after_move_function_checkpoint << "\n";
+          tmp << "Tasks Thread Checkpoint: " << stateManager.polsig.tasks_thread_checkpoint << "\n";
+          tmp << "Active Client Thread Checkpoint: " << stateManager.polsig.active_client_thread_checkpoint << "\n";
+          if ( stateManager.polsig.check_attack_after_move_function_checkpoint )
+            tmp << "check_attack_after_move() Checkpoint: " << stateManager.polsig.check_attack_after_move_function_checkpoint << "\n";
           tmp << "Current Threads:" << "\n";
           ThreadMap::Contents contents;
           threadmap.CopyContents( contents );
@@ -760,7 +758,7 @@ namespace Pol {
           }
           tmp << "Child threads (child_threads): " << threadhelp::child_threads << "\n";
           tmp << "Registered threads (ThreadMap): " << contents.size() << "\n";
-          gamestate.polsig.report_status_signalled = false;
+          stateManager.polsig.report_status_signalled = false;
           ERROR_PRINT << tmp.c_str();
         }
         if ( Clib::exit_signalled )
@@ -769,9 +767,9 @@ namespace Pol {
           {
             send_pulse();
             wake_tasks_thread();
-            gamestate.clientTransmit->Cancel();
+            networkManager.clientTransmit->Cancel();
 #ifdef HAVE_MYSQL
-            gamestate.sql_service->stop();
+            networkManager.sql_service->stop();
 #endif
             sent_wakeups = true;
           }
@@ -800,11 +798,11 @@ namespace Pol {
 
         ConsoleCommand::check_console_commands();
 #ifndef _WIN32
-        if ( gamestate.polsig.reload_configuration_signalled )
+        if ( stateManager.polsig.reload_configuration_signalled )
         {
           PolLock lck;
           INFO_PRINT << "Reloading configuration...";
-          gamestate.polsig.reload_configuration_signalled = false;
+          stateManager.polsig.reload_configuration_signalled = false;
           reload_configuration( );
           INFO_PRINT << "Done.\n";
         }
@@ -832,7 +830,7 @@ namespace Pol {
         threadhelp::start_thread( combined_thread, "Combined" );
       }
 
-      if ( gamestate.ssopt.decay_items )
+      if ( settingsManager.ssopt.decay_items )
       {
         checkpoint( "start decay thread" );
         std::vector<Plib::Realm*>::iterator itr;
@@ -878,23 +876,23 @@ namespace Pol {
     {
       unsigned cli;
       SOCKET nfds = 0;
-      FD_ZERO( &gamestate.polsocket.recv_fd );
-      FD_ZERO( &gamestate.polsocket.err_fd );
-      FD_ZERO( &gamestate.polsocket.send_fd );
+      FD_ZERO( &networkManager.polsocket.recv_fd );
+      FD_ZERO( &networkManager.polsocket.err_fd );
+      FD_ZERO( &networkManager.polsocket.send_fd );
 
-      FD_SET( gamestate.polsocket.listen_socket, &gamestate.polsocket.recv_fd );
+      FD_SET( networkManager.polsocket.listen_socket, &networkManager.polsocket.recv_fd );
 #ifndef _WIN32
-      nfds = gamestate.polsocket.listen_socket + 1;
+      nfds = networkManager.polsocket.listen_socket + 1;
 #endif
 
-      for ( cli = 0; cli < gamestate.clients.size(); cli++ )
+      for ( cli = 0; cli < networkManager.clients.size(); cli++ )
       {
-        Network::Client *client = gamestate.clients[cli];
+        Network::Client *client = networkManager.clients[cli];
 
-        FD_SET( client->csocket, &gamestate.polsocket.recv_fd );
-        FD_SET( client->csocket, &gamestate.polsocket.err_fd );
+        FD_SET( client->csocket, &networkManager.polsocket.recv_fd );
+        FD_SET( client->csocket, &networkManager.polsocket.err_fd );
         if ( client->have_queued_data() )
-          FD_SET( client->csocket, &gamestate.polsocket.send_fd );
+          FD_SET( client->csocket, &networkManager.polsocket.send_fd );
 
         if ( (SOCKET)( client->csocket + 1 ) > nfds )
           nfds = client->csocket + 1;
@@ -903,45 +901,45 @@ namespace Pol {
       int res;
       do
       {
-        gamestate.polsocket.select_timeout.tv_sec = 0;
-        gamestate.polsocket.select_timeout.tv_usec = Plib::systemstate.config.select_timeout_usecs;
-        res = select( static_cast<int>( nfds ), &gamestate.polsocket.recv_fd, &gamestate.polsocket.send_fd, &gamestate.polsocket.err_fd, &gamestate.polsocket.select_timeout );
+        networkManager.polsocket.select_timeout.tv_sec = 0;
+        networkManager.polsocket.select_timeout.tv_usec = Plib::systemstate.config.select_timeout_usecs;
+        res = select( static_cast<int>( nfds ), &networkManager.polsocket.recv_fd, &networkManager.polsocket.send_fd, &networkManager.polsocket.err_fd, &networkManager.polsocket.select_timeout );
       } while ( res < 0 && !Clib::exit_signalled && socket_errno == SOCKET_ERRNO( EINTR ) );
 
 
       if ( res <= 0 )
         return;
 
-      for ( cli = 0; cli < gamestate.clients.size(); cli++ )
+      for ( cli = 0; cli < networkManager.clients.size(); cli++ )
       {
-        Network::Client *client = gamestate.clients[cli];
+        Network::Client *client = networkManager.clients[cli];
 
         if ( !client->isReallyConnected() )
           continue;
 
-        if ( FD_ISSET( client->csocket, &gamestate.polsocket.err_fd ) )
+        if ( FD_ISSET( client->csocket, &networkManager.polsocket.err_fd ) )
         {
           client->forceDisconnect();
         }
 
-        if ( FD_ISSET( client->csocket, &gamestate.polsocket.recv_fd ) )
+        if ( FD_ISSET( client->csocket, &networkManager.polsocket.recv_fd ) )
         {
           process_data( client );
         }
 
-        if ( client->have_queued_data() && FD_ISSET( client->csocket, &gamestate.polsocket.send_fd ) )
+        if ( client->have_queued_data() && FD_ISSET( client->csocket, &networkManager.polsocket.send_fd ) )
         {
           client->send_queued_data();
         }
       }
 
-      gamestate.kill_disconnected_clients();
+      networkManager.kill_disconnected_clients();
 
-      if ( FD_ISSET( gamestate.polsocket.listen_socket, &gamestate.polsocket.recv_fd ) )
+      if ( FD_ISSET( networkManager.polsocket.listen_socket, &networkManager.polsocket.recv_fd ) )
       {
         struct sockaddr client_addr; // inet_addr
         socklen_t addrlen = sizeof client_addr;
-        SOCKET client_socket = accept( gamestate.polsocket.listen_socket, &client_addr, &addrlen );
+        SOCKET client_socket = accept( networkManager.polsocket.listen_socket, &client_addr, &addrlen );
         if ( client_socket == INVALID_SOCKET )
           return;
 
@@ -957,14 +955,14 @@ namespace Pol {
         if ( Plib::systemstate.config.loglevel >= 2 )
           POLLOG << tmp.c_str();
 
-        Network::Client *client = new Network::Client( *Core::gamestate.uo_client_interface.get(), Plib::systemstate.config.client_encryption_version );
+        Network::Client *client = new Network::Client( *Core::networkManager.uo_client_interface.get(), Plib::systemstate.config.client_encryption_version );
         client->csocket = client_socket;
         memcpy( &client->ipaddr, &client_addr, sizeof client->ipaddr );
         // Added null setting for pre-char selection checks using NULL validation
         client->acct = NULL;
 
-        gamestate.clients.push_back( client );
-        INFO_PRINT << "Client connected (Total: " << gamestate.clients.size() << ")\n";
+        networkManager.clients.push_back( client );
+        INFO_PRINT << "Client connected (Total: " << networkManager.clients.size() << ")\n";
       }
     }
 #if REFPTR_DEBUG
@@ -986,22 +984,22 @@ namespace Pol {
       std::ofstream ofs;
       Clib::OFStreamWriter sw( &ofs );
       sw.init( "leftovers.txt" );
-      gamestate.objecthash.PrintContents( sw );
+      objStorageManager.objecthash.PrintContents( sw );
       fmt::Writer tmp;
-      if ( gamestate.uobjcount.uobject_count != 0 )
-        tmp << "Remaining UObjects: " << gamestate.uobjcount.uobject_count << "\n";
-      if ( gamestate.uobjcount.ucharacter_count != 0 )
-        tmp << "Remaining Mobiles: " << gamestate.uobjcount.ucharacter_count << "\n";
-      if ( gamestate.uobjcount.npc_count != 0 )
-        tmp << "Remaining NPCs: " << gamestate.uobjcount.npc_count << "\n";
-      if ( gamestate.uobjcount.uitem_count != 0 )
-        tmp << "Remaining Items: " << gamestate.uobjcount.uitem_count << "\n";
-      if ( gamestate.uobjcount.umulti_count != 0 )
-        tmp << "Remaining Multis: " << gamestate.uobjcount.umulti_count << "\n";
-      if ( gamestate.uobjcount.unreaped_orphans != 0 )
-        tmp << "Unreaped orphans: " << gamestate.uobjcount.unreaped_orphans << "\n";
-      if ( gamestate.uobjcount.uobj_count_echrref != 0 )
-        tmp << "Remaining EChrRef objects: " << gamestate.uobjcount.uobj_count_echrref << "\n";
+      if ( stateManager.uobjcount.uobject_count != 0 )
+        tmp << "Remaining UObjects: " << stateManager.uobjcount.uobject_count << "\n";
+      if ( stateManager.uobjcount.ucharacter_count != 0 )
+        tmp << "Remaining Mobiles: " << stateManager.uobjcount.ucharacter_count << "\n";
+      if ( stateManager.uobjcount.npc_count != 0 )
+        tmp << "Remaining NPCs: " << stateManager.uobjcount.npc_count << "\n";
+      if ( stateManager.uobjcount.uitem_count != 0 )
+        tmp << "Remaining Items: " << stateManager.uobjcount.uitem_count << "\n";
+      if ( stateManager.uobjcount.umulti_count != 0 )
+        tmp << "Remaining Multis: " << stateManager.uobjcount.umulti_count << "\n";
+      if ( stateManager.uobjcount.unreaped_orphans != 0 )
+        tmp << "Unreaped orphans: " << stateManager.uobjcount.unreaped_orphans << "\n";
+      if ( stateManager.uobjcount.uobj_count_echrref != 0 )
+        tmp << "Remaining EChrRef objects: " << stateManager.uobjcount.uobj_count_echrref << "\n";
       if ( Bscript::executor_count )
         tmp << "Remaining Executors: " << Bscript::executor_count << "\n";
       if ( Bscript::eobject_imp_count )
@@ -1036,7 +1034,7 @@ namespace Pol {
 
     const char* Use_low_fragmentation_Heap()
     {
-      if ( gamestate.ssopt.use_win_lfh )
+      if ( settingsManager.ssopt.use_win_lfh )
       {
         HINSTANCE hKernel32;
 
@@ -1175,7 +1173,7 @@ namespace Pol {
 
     POLLOG_INFO << "Reading Configuration.\n";
 
-    Core::gamestate.gflag_in_system_startup = true;
+    Core::stateManager.gflag_in_system_startup = true;
 
     Core::checkpoint( "reading pol.cfg" );
     Core::PolConfig::read_pol_config( true );
@@ -1199,8 +1197,8 @@ namespace Pol {
 #endif
 
     Core::checkpoint( "init default itemdesc defaults" );
-    Core::gamestate.empty_itemdesc->doubleclick_range = Core::gamestate.ssopt.default_doubleclick_range;
-    Core::gamestate.empty_itemdesc->decay_time = Core::gamestate.ssopt.default_decay_time;
+    Core::gamestate.empty_itemdesc->doubleclick_range = Core::settingsManager.ssopt.default_doubleclick_range;
+    Core::gamestate.empty_itemdesc->decay_time = Core::settingsManager.ssopt.default_decay_time;
 
     Core::checkpoint( "loading POL map file" );
     if ( !Core::load_realms() )
@@ -1273,7 +1271,7 @@ namespace Pol {
 
 
     Items::allocate_intrinsic_weapon_serials();
-    Core::gamestate.gflag_in_system_startup = false;
+    Core::stateManager.gflag_in_system_startup = false;
 
     // PrintAllocationData();
 
@@ -1302,8 +1300,8 @@ namespace Pol {
         throw std::runtime_error("ListenPort is no longer used for multithreading programs (Multithread == 1).");
       }
       Core::checkpoint( "opening listen socket" );
-      Core::gamestate.polsocket.listen_socket = Network::open_listen_socket( Plib::systemstate.config.listen_port );
-      if ( Core::gamestate.polsocket.listen_socket == INVALID_SOCKET )
+      Core::networkManager.polsocket.listen_socket = Network::open_listen_socket( Plib::systemstate.config.listen_port );
+      if ( Core::networkManager.polsocket.listen_socket == INVALID_SOCKET )
       {
         POLLOG_ERROR << "Unable to listen on socket " << Plib::systemstate.config.listen_port << "\n";
         return 1;
@@ -1370,22 +1368,22 @@ namespace Pol {
       bool activity;
       while ( !Clib::exit_signalled )
       {
-		Core::gamestate.last_checkpoint = "receiving TCP/IP data";
+		Core::stateManager.last_checkpoint = "receiving TCP/IP data";
         Core::check_incoming_data();
-        Core::gamestate.last_checkpoint = "running scheduled tasks";
+        Core::stateManager.last_checkpoint = "running scheduled tasks";
         Core::check_scheduled_tasks( &sleeptime, &activity );
-        Core::gamestate.last_checkpoint = "stepping scripts";
+        Core::stateManager.last_checkpoint = "stepping scripts";
         Core::step_scripts( &sleeptime, &activity );
-        Core::gamestate.last_checkpoint = "performing decay";
-        if ( Core::gamestate.ssopt.decay_items )
+        Core::stateManager.last_checkpoint = "performing decay";
+        if ( Core::settingsManager.ssopt.decay_items )
           Core::decay_items();
-        Core::gamestate.last_checkpoint = "reaping objects";
-        Core::gamestate.objecthash.Reap();
-        Core::gamestate.last_checkpoint = "restarting clients";
+        Core::stateManager.last_checkpoint = "reaping objects";
+        Core::objStorageManager.objecthash.Reap();
+        Core::stateManager.last_checkpoint = "restarting clients";
 
         Core::restart_all_clients();
 
-        ++Core::gamestate.profilevars.rotations;
+        ++Core::stateManager.profilevars.rotations;
       }
     }
     Core::cancel_all_trades();
@@ -1437,9 +1435,9 @@ namespace Pol {
     }
     catch ( std::exception& )
     {
-      if ( Core::gamestate.last_checkpoint != NULL )
+      if ( Core::stateManager.last_checkpoint != NULL )
       {
-        POLLOG_INFO << "Server Shutdown: " << Core::gamestate.last_checkpoint << "\n";
+        POLLOG_INFO << "Server Shutdown: " << Core::stateManager.last_checkpoint << "\n";
         //pol_sleep_ms( 10000 );
       }
       Core::gamestate.deinitialize();

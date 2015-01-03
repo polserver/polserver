@@ -25,11 +25,8 @@ Notes
 #include "polcfg.h"
 #include "polclock.h"
 #include "poldbg.h"
-#include "polsig.h"
-#include "profile.h"
 
-#include "watch.h"
-#include "globals/uvars.h"
+#include "globals/state.h"
 
 #include "uoexec.h"
 #include "module/uomod.h"
@@ -77,8 +74,8 @@ namespace Pol {
   namespace Core {
     bool find_uoexec( unsigned int pid, UOExecutor** pp_uoexec )
     {
-      std::map<unsigned int, UOExecutor*>::iterator itr = gamestate.pidlist.find( pid );
-      if ( itr != gamestate.pidlist.end() )
+      std::map<unsigned int, UOExecutor*>::iterator itr = scriptEngineInternalManager.pidlist.find( pid );
+      if ( itr != scriptEngineInternalManager.pidlist.end() )
       {
         *pp_uoexec = ( *itr ).second;
         return true;
@@ -94,39 +91,39 @@ namespace Pol {
     {
       size_t size = 0;
       *count = 0;
-      size += 3 * sizeof(UOExecutor**)+gamestate.runlist.size() * sizeof( UOExecutor* );
-      for ( const auto& exec : gamestate.runlist )
+      size += 3 * sizeof(UOExecutor**)+scriptEngineInternalManager.runlist.size() * sizeof( UOExecutor* );
+      for ( const auto& exec : scriptEngineInternalManager.runlist )
       {
         size += exec->sizeEstimate();
       }
-      *count += gamestate.runlist.size();
+      *count += scriptEngineInternalManager.runlist.size();
 
-      size += 3 * sizeof(UOExecutor**)+gamestate.ranlist.size() * sizeof( UOExecutor* );
-      for ( const auto& exec : gamestate.ranlist )
+      size += 3 * sizeof(UOExecutor**)+scriptEngineInternalManager.ranlist.size() * sizeof( UOExecutor* );
+      for ( const auto& exec : scriptEngineInternalManager.ranlist )
       {
         size += exec->sizeEstimate();
       }
-      *count += gamestate.ranlist.size();
+      *count += scriptEngineInternalManager.ranlist.size();
 
-      for ( const auto& hold : gamestate.holdlist )
+      for ( const auto& hold : scriptEngineInternalManager.holdlist )
       {
         size += sizeof( Core::polclock_t ) + hold.second->sizeEstimate() + ( sizeof(void*)* 3 + 1 ) / 2;
       }
-      *count += gamestate.holdlist.size();
+      *count += scriptEngineInternalManager.holdlist.size();
 
       size += 3 * sizeof( void* );
-      for ( const auto& hold : gamestate.notimeoutholdlist )
+      for ( const auto& hold : scriptEngineInternalManager.notimeoutholdlist )
       {
         size += hold->sizeEstimate( ) + 3 * sizeof( void* );
       }
-      *count += gamestate.notimeoutholdlist.size();
+      *count += scriptEngineInternalManager.notimeoutholdlist.size();
 
       size += 3 * sizeof( void* );
-      for ( const auto& hold : gamestate.debuggerholdlist )
+      for ( const auto& hold : scriptEngineInternalManager.debuggerholdlist )
       {
         size += hold->sizeEstimate( ) + 3 * sizeof( void* );
       }
-      *count += gamestate.debuggerholdlist.size();
+      *count += scriptEngineInternalManager.debuggerholdlist.size();
 
       return size;
     }
@@ -135,13 +132,13 @@ namespace Pol {
     {
       size_t size = 0;
       *count = 0;
-      for ( const auto& script : gamestate.scrstore )
+      for ( const auto& script : scriptEngineInternalManager.scrstore )
       {
         size += ( sizeof(void*)* 3 + 1 ) / 2;
         size += script.first.capacity();
         size += script.second->sizeEstimate();
       }
-      *count += gamestate.scrstore.size();
+      *count += scriptEngineInternalManager.scrstore.size();
       return size;
     }
 
@@ -149,16 +146,16 @@ namespace Pol {
 	void run_ready()
 	{
 	  THREAD_CHECKPOINT( scripts, 110 );
-	  while ( !gamestate.runlist.empty() )
+	  while ( !scriptEngineInternalManager.runlist.empty() )
 	  {
-		ExecList::iterator itr = gamestate.runlist.begin();
+		ExecList::iterator itr = scriptEngineInternalManager.runlist.begin();
 		UOExecutor* ex = *itr;
-		gamestate.runlist.pop_front(); // remove it directly, since itr can get invalid during execution
+		scriptEngineInternalManager.runlist.pop_front(); // remove it directly, since itr can get invalid during execution
         Module::OSExecutorModule* os_module = ex->os_module;
 		Clib::scripts_thread_script = ex->scriptname();
 		int inscount = 0;
 		int totcount = 0;
-		int insleft = os_module->priority / gamestate.priority_divide;
+		int insleft = os_module->priority / scriptEngineInternalManager.priority_divide;
 		if ( insleft == 0 )
 		  insleft = 1;
 
@@ -229,7 +226,7 @@ namespace Pol {
 
 			if ( ( ex->pParent != NULL ) && ex->pParent->runnable() )
 			{
-			  gamestate.ranlist.push_back( ex );
+			  scriptEngineInternalManager.ranlist.push_back( ex );
 			  //ranlist.splice( ranlist.end(), runlist, itr );
 			  ex->pParent->os_module->revive();
 			}
@@ -251,7 +248,7 @@ namespace Pol {
 
 			//runlist.erase( itr );
 			ex->os_module->in_hold_list_ = Module::OSExecutorModule::DEBUGGER_LIST;
-			gamestate.debuggerholdlist.insert( ex );
+			scriptEngineInternalManager.debuggerholdlist.insert( ex );
 			continue;
 		  }
 		}
@@ -263,29 +260,29 @@ namespace Pol {
 		  if ( ex->os_module->sleep_until_clock_ )
 		  {
             ex->os_module->in_hold_list_ = Module::OSExecutorModule::TIMEOUT_LIST;
-			ex->os_module->hold_itr_ = gamestate.holdlist.insert( HoldList::value_type( ex->os_module->sleep_until_clock_, ex ) );
+			ex->os_module->hold_itr_ = scriptEngineInternalManager.holdlist.insert( HoldList::value_type( ex->os_module->sleep_until_clock_, ex ) );
 		  }
 		  else
 		  {
             ex->os_module->in_hold_list_ = Module::OSExecutorModule::NOTIMEOUT_LIST;
-			gamestate.notimeoutholdlist.insert( ex );
+			scriptEngineInternalManager.notimeoutholdlist.insert( ex );
 		  }
 
 		  //runlist.erase( itr );
 		  --ex->sleep_cycles; // it'd get counted twice otherwise
-		  --gamestate.profilevars.sleep_cycles;
+		  --stateManager.profilevars.sleep_cycles;
 
 		  THREAD_CHECKPOINT( scripts, 117 );
 		}
 		else
 		{
-		  gamestate.ranlist.push_back( ex );
+		  scriptEngineInternalManager.ranlist.push_back( ex );
 		  //ranlist.splice( ranlist.end(), runlist, itr );
 		}
 	  }
 	  THREAD_CHECKPOINT( scripts, 118 );
 
-	  gamestate.runlist.swap( gamestate.ranlist );
+	  scriptEngineInternalManager.runlist.swap( scriptEngineInternalManager.ranlist );
 	  THREAD_CHECKPOINT( scripts, 119 );
 	}
 
@@ -293,14 +290,14 @@ namespace Pol {
 	void check_blocked( polclock_t* pclocksleft )
 	{
 	  polclock_t now_clock = polclock();
-	  gamestate.profilevars.sleep_cycles += gamestate.holdlist.size() + gamestate.notimeoutholdlist.size();
+	  stateManager.profilevars.sleep_cycles += scriptEngineInternalManager.holdlist.size() + scriptEngineInternalManager.notimeoutholdlist.size();
 	  polclock_t clocksleft = POLCLOCKS_PER_SEC * 60;
 	  for ( ;; )
 	  {
 		THREAD_CHECKPOINT( scripts, 131 );
 
-        HoldList::iterator itr = gamestate.holdlist.begin( );
-		if ( itr == gamestate.holdlist.end() )
+        HoldList::iterator itr = scriptEngineInternalManager.holdlist.begin( );
+		if ( itr == scriptEngineInternalManager.holdlist.end() )
 		  break;
 
 		UOExecutor* ex = ( *itr ).second;
@@ -331,13 +328,13 @@ namespace Pol {
 
 	polclock_t calc_script_clocksleft( polclock_t now )
 	{
-	  if ( !gamestate.runlist.empty() )
+	  if ( !scriptEngineInternalManager.runlist.empty() )
 	  {
 		return 0; // we want to run immediately
 	  }
-	  else if ( !gamestate.holdlist.empty() )
+	  else if ( !scriptEngineInternalManager.holdlist.empty() )
 	  {
-        HoldList::iterator itr = gamestate.holdlist.begin( );
+        HoldList::iterator itr = scriptEngineInternalManager.holdlist.begin( );
 		UOExecutor* ex = ( *itr ).second;
 		polclock_t clocksleft = ex->os_module->sleep_until_clock_ - now;
 		if ( clocksleft >= 0 )
@@ -355,7 +352,7 @@ namespace Pol {
 	void step_scripts( polclock_t* clocksleft, bool* pactivity )
 	{
 	  THREAD_CHECKPOINT( scripts, 102 );
-	  *pactivity = ( !gamestate.runlist.empty() );
+	  *pactivity = ( !scriptEngineInternalManager.runlist.empty() );
 	  THREAD_CHECKPOINT( scripts, 103 );
 
 	  run_ready();
@@ -364,7 +361,7 @@ namespace Pol {
 
 	  check_blocked( clocksleft );
 	  THREAD_CHECKPOINT( scripts, 105 );
-	  if ( !gamestate.runlist.empty() )
+	  if ( !scriptEngineInternalManager.runlist.empty() )
 		*clocksleft = 0;
 	  THREAD_CHECKPOINT( scripts, 106 );
 	}
@@ -400,7 +397,7 @@ namespace Pol {
 	  ex->setDebugLevel( Bscript::Executor::NONE );
 
 
-	  gamestate.runlist.push_back( ex );
+	  scriptEngineInternalManager.runlist.push_back( ex );
 	}
 	// EXACTLY the same as start_script, except uses find_script2
     Module::UOExecutorModule* start_script( const ScriptDef& script, Bscript::BObjectImp* param )
@@ -432,7 +429,7 @@ namespace Pol {
       ex->setDebugLevel( Bscript::Executor::NONE );
 
 
-	  gamestate.runlist.push_back( ex.release() );
+	  scriptEngineInternalManager.runlist.push_back( ex.release() );
 
 	  return uoemod;
 	}
@@ -481,7 +478,7 @@ namespace Pol {
       ex->setDebugLevel( Bscript::Executor::NONE );
 
 
-	  gamestate.runlist.push_back( ex.release() );
+	  scriptEngineInternalManager.runlist.push_back( ex.release() );
 
 	  return uoemod;
 	}
@@ -505,7 +502,7 @@ namespace Pol {
 
       ex->setDebugLevel( Bscript::Executor::NONE );
 
-	  gamestate.runlist.push_back( ex );
+	  scriptEngineInternalManager.runlist.push_back( ex );
 
 	  return uoemod;
 	}
@@ -919,7 +916,7 @@ namespace Pol {
 
 	  if ( ex->runnable() )
 	  {
-		gamestate.runlist.push_back( ex );
+		scriptEngineInternalManager.runlist.push_back( ex );
 	  }
 	  else
 	  {
@@ -933,19 +930,19 @@ namespace Pol {
 
 	void deschedule_executor( UOExecutor* ex )
 	{
-	  for ( ExecList::iterator itr = gamestate.runlist.begin(), itrend = gamestate.runlist.end(); itr != itrend; ++itr )
+	  for ( ExecList::iterator itr = scriptEngineInternalManager.runlist.begin(), itrend = scriptEngineInternalManager.runlist.end(); itr != itrend; ++itr )
 	  {
 		if ( *itr == ex )
 		{
-		  gamestate.runlist.erase( itr );
+		  scriptEngineInternalManager.runlist.erase( itr );
 		  break;
 		}
 	  }
-	  for ( ExecList::iterator itr = gamestate.ranlist.begin(), itrend = gamestate.ranlist.end(); itr != itrend; ++itr )
+	  for ( ExecList::iterator itr = scriptEngineInternalManager.ranlist.begin(), itrend = scriptEngineInternalManager.ranlist.end(); itr != itrend; ++itr )
 	  {
 		if ( *itr == ex )
 		{
-		  gamestate.ranlist.erase( itr );
+		  scriptEngineInternalManager.ranlist.erase( itr );
 		  break;
 		}
 	  }
@@ -953,18 +950,18 @@ namespace Pol {
 	  {
 		if ( ex->os_module->in_hold_list_ == Module::OSExecutorModule::TIMEOUT_LIST )
 		{
-		  gamestate.holdlist.erase( ex->os_module->hold_itr_ );
+		  scriptEngineInternalManager.holdlist.erase( ex->os_module->hold_itr_ );
           ex->os_module->in_hold_list_ = Module::OSExecutorModule::NO_LIST;
 		}
         else if ( ex->os_module->in_hold_list_ == Module::OSExecutorModule::NOTIMEOUT_LIST )
 		{
-		  gamestate.notimeoutholdlist.erase( ex );
+		  scriptEngineInternalManager.notimeoutholdlist.erase( ex );
           ex->os_module->in_hold_list_ = Module::OSExecutorModule::NO_LIST;
 		}
 	  }
       if ( ex->os_module->in_hold_list_ == Module::OSExecutorModule::DEBUGGER_LIST )
 	  {
-		gamestate.debuggerholdlist.erase( ex );
+		scriptEngineInternalManager.debuggerholdlist.erase( ex );
         ex->os_module->in_hold_list_ = Module::OSExecutorModule::NO_LIST;
 	  }
 	}
@@ -997,9 +994,9 @@ namespace Pol {
 
 	void list_scripts()
 	{
-	  list_scripts( "running", gamestate.runlist );
+	  list_scripts( "running", scriptEngineInternalManager.runlist );
 	  // list_scripts( "holding", holdlist );
-	  list_scripts( "ran", gamestate.ranlist );
+	  list_scripts( "ran", scriptEngineInternalManager.ranlist );
 	}
 
 	void list_crit_script( UOExecutor* uoexec )
@@ -1018,9 +1015,9 @@ namespace Pol {
 
 	void list_crit_scripts()
 	{
-	  list_crit_scripts( "running", gamestate.runlist );
+	  list_crit_scripts( "running", scriptEngineInternalManager.runlist );
 	  //list_crit_scripts( "holding", holdlist );
-	  list_crit_scripts( "ran", gamestate.ranlist );
+	  list_crit_scripts( "ran", scriptEngineInternalManager.ranlist );
 	}
   }
 }

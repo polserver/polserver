@@ -16,6 +16,7 @@ Notes
 #include "../../plib/pkg.h"
 #include "../syshook.h"
 #include "../globals/uvars.h"
+#include "../globals/settings.h"
 
 namespace Pol {
   namespace Mobile {
@@ -47,7 +48,7 @@ namespace Pol {
 	  delay_seconds( elem.remove_ushort( "DELAY", 0 ) ),
 	  unhides( elem.remove_bool( "UNHIDES", true ) ),
 	  disable_core_checks( elem.remove_bool( "DisableCoreChecks", false ) ),
-	  default_cap( elem.remove_ushort( "DefaultCap", Core::gamestate.ssopt.default_attribute_cap ) ),
+	  default_cap( elem.remove_ushort( "DefaultCap", Core::settingsManager.ssopt.default_attribute_cap ) ),
 	  script_( elem.remove_string( "SCRIPT", "" ), pkg, "scripts/skills/" )
 	{
 	  aliases.push_back( name );

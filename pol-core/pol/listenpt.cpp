@@ -67,7 +67,7 @@ namespace Pol {
 		{
 		  if ( !speaker->dead() || ( lp->flags&LISTENPT_HEAR_GHOSTS ) )
 		  {
-			if ( gamestate.ssopt.seperate_speechtoken )
+			if ( settingsManager.ssopt.seperate_speechtoken )
 			{
 			  if ( speechtokens != NULL && ( ( lp->flags & LISTENPT_HEAR_TOKENS ) == 0 ) )
 			  {

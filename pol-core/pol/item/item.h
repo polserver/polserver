@@ -12,7 +12,6 @@ Notes
 
 #ifndef ITEM_H
 #define ITEM_H
-#define __ITEM_H
 
 #include "../uobject.h"
 
@@ -22,7 +21,7 @@ Notes
 #endif
 
 #include "../layers.h"
-#include "../globals/uvars.h"
+#include "../globals/settings.h"
 
 namespace Pol {
   namespace Core {
@@ -235,8 +234,6 @@ namespace Pol {
 	  bool has_element_damage();
 	};
 
-	//typedef ref_ptr<Item> ItemRefPtr;
-
 	inline u16 Item::getamount() const
 	{
 	  return amount_;
@@ -312,9 +309,9 @@ namespace Pol {
 
 	inline bool Item::slot_index( u8 newvalue )
 	{
-	  if ( Core::gamestate.ssopt.use_slot_index )
+	  if ( Core::settingsManager.ssopt.use_slot_index )
 	  {
-		if ( newvalue < Core::gamestate.ssopt.default_max_slots )
+		if ( newvalue < Core::settingsManager.ssopt.default_max_slots )
 		{
 		  slot_index_ = newvalue;
 		  return true;

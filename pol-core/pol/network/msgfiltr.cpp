@@ -16,7 +16,7 @@ Notes
 
 #include "../pktboth.h"
 #include "../pktin.h"
-#include "../globals/uvars.h"
+#include "../globals/network.h"
 
 #include <cstring>
 
@@ -60,7 +60,7 @@ namespace Pol {
 		PKTIN_F8_ID,
 		-1
 	  };
-	  gamestate.login_filter = std::unique_ptr<MessageTypeFilter>(new MessageTypeFilter( MessageTypeFilter::NormallyDisabled, login_exceptions ));
+	  networkManager.login_filter = std::unique_ptr<MessageTypeFilter>(new MessageTypeFilter( MessageTypeFilter::NormallyDisabled, login_exceptions ));
 
 	  int game_exceptions[] =
 	  {
@@ -76,13 +76,13 @@ namespace Pol {
 		PKTIN_F8_ID,
 		-1
 	  };
-	  gamestate.game_filter = std::unique_ptr<MessageTypeFilter>(new MessageTypeFilter( MessageTypeFilter::NormallyEnabled, game_exceptions ));
+	  networkManager.game_filter = std::unique_ptr<MessageTypeFilter>(new MessageTypeFilter( MessageTypeFilter::NormallyEnabled, game_exceptions ));
 
 	  int no_exceptions[] =
 	  {
 		-1
 	  };
-	  gamestate.disconnected_filter = std::unique_ptr<MessageTypeFilter>(new MessageTypeFilter( MessageTypeFilter::NormallyDisabled, no_exceptions ));
+	  networkManager.disconnected_filter = std::unique_ptr<MessageTypeFilter>(new MessageTypeFilter( MessageTypeFilter::NormallyDisabled, no_exceptions ));
 	}
 
 	

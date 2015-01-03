@@ -80,14 +80,14 @@ namespace Pol {
 	  int range;
 	  switch ( texttype )
 	  {
-		case TEXTTYPE_WHISPER:  range = gamestate.ssopt.whisper_range;  break;
-		case TEXTTYPE_YELL:     range = gamestate.ssopt.yell_range;     break;
-		default:                range = gamestate.ssopt.speech_range;   break;
+		case TEXTTYPE_WHISPER:  range = settingsManager.ssopt.whisper_range;  break;
+		case TEXTTYPE_YELL:     range = settingsManager.ssopt.yell_range;     break;
+		default:                range = settingsManager.ssopt.speech_range;   break;
 	  }
 
 	  unsigned short wxL, wyL, wxH, wyH;
-	  zone_convert_clip( p_chr->x - range, p_chr->y - range, p_chr->realm, wxL, wyL );
-	  zone_convert_clip( p_chr->x + range, p_chr->y + range, p_chr->realm, wxH, wyH );
+	  zone_convert_clip( p_chr->x - range, p_chr->y - range, p_chr->realm, &wxL, &wyL );
+	  zone_convert_clip( p_chr->x + range, p_chr->y + range, p_chr->realm, &wxH, &wyH );
 	  for ( unsigned short wx = wxL; wx <= wxH; ++wx )
 	  {
 		for ( unsigned short wy = wyL; wy <= wyH; ++wy )
@@ -113,14 +113,14 @@ namespace Pol {
 	  int range;
 	  switch ( texttype )
 	  {
-		case TEXTTYPE_WHISPER:  range = gamestate.ssopt.whisper_range;  break;
-		case TEXTTYPE_YELL:     range = gamestate.ssopt.yell_range;     break;
-		default:                range = gamestate.ssopt.speech_range;   break;
+		case TEXTTYPE_WHISPER:  range = settingsManager.ssopt.whisper_range;  break;
+		case TEXTTYPE_YELL:     range = settingsManager.ssopt.yell_range;     break;
+		default:                range = settingsManager.ssopt.speech_range;   break;
 	  }
 
 	  unsigned short wxL, wyL, wxH, wyH;
-	  zone_convert_clip( p_chr->x - range, p_chr->y - range, p_chr->realm, wxL, wyL );
-	  zone_convert_clip( p_chr->x + range, p_chr->y + range, p_chr->realm, wxH, wyH );
+	  zone_convert_clip( p_chr->x - range, p_chr->y - range, p_chr->realm, &wxL, &wyL );
+	  zone_convert_clip( p_chr->x + range, p_chr->y + range, p_chr->realm, &wxH, &wyH );
 	  for ( unsigned short wx = wxL; wx <= wxH; ++wx )
 	  {
 		for ( unsigned short wy = wyL; wy <= wyH; ++wy )

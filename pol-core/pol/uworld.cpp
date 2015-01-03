@@ -304,7 +304,7 @@ namespace Pol {
         for ( const auto &item : witem )
         {
           unsigned short wx, wy;
-          zone_convert( item->x, item->y, wx, wy, realm );
+          zone_convert( item->x, item->y, &wx, &wy, realm );
           if ( wx != x || wy != y )
           {
             POLLOG_ERROR.Format( "Item 0x{:X} in zone ({},{}) but location is ({},{}) (zone {},{})\n" )
@@ -378,7 +378,7 @@ namespace Pol {
         auto check_zone = []( Mobile::Character* chr, unsigned y, unsigned x )
         {
           unsigned short wx, wy;
-          zone_convert( chr->x, chr->y, wx, wy, chr->realm );
+          zone_convert( chr->x, chr->y, &wx, &wy, chr->realm );
           if ( wx != x || wy != y )
             INFO_PRINT << "Character 0x" << fmt::hexu( chr->serial ) << " in a zone, but elsewhere\n";
         };

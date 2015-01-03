@@ -11,6 +11,7 @@ Notes
 
 #include "realms.h"
 #include "uworld.h"
+#include "globals/uvars.h"
 
 #include "../bscript/berror.h"
 #include "../bscript/impstr.h"

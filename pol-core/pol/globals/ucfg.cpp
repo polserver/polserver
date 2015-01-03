@@ -12,14 +12,15 @@ namespace Pol {
 	ConfigurationBuffer::ConfigurationBuffer() :
 	  cfgfiles(),
 	  oldcfgfiles(),
-	  datastore()
+	  datastore(),
+	  file_access_rules()
 	{
 	}
 
 	ConfigurationBuffer::~ConfigurationBuffer()
 	{}
 
-	void ConfigurationBuffer::deinialize()
+	void ConfigurationBuffer::deinitialize()
 	{
 	  // ToDo: we have to think over... it's a problem with script-inside references
 	  oldcfgfiles.clear();
@@ -32,6 +33,7 @@ namespace Pol {
 
 	  }
 	  datastore.clear();
+	  file_access_rules.clear();
 	}
   }
 }

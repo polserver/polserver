@@ -19,6 +19,7 @@ Notes
 #include "polcfg.h"
 #include "ufunc.h"
 #include "globals/uvars.h"
+#include "globals/object_storage.h"
 
 #include "../bscript/contiter.h"
 #include "../bscript/impstr.h"
@@ -96,7 +97,7 @@ namespace Pol {
 	  // don't load it yet. 
 	  pol_serial_t serial = 0;
 	  elem.get_prop( "SERIAL", &serial );
-	  if ( get_save_index( serial ) > gamestate.current_incremental_save )
+	  if ( get_save_index( serial ) > objStorageManager.current_incremental_save )
 		return;
 
       u32 container_serial = 0;                                 // defaults to item at storage root,

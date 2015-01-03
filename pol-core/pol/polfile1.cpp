@@ -14,7 +14,6 @@ Notes
 #include "polfile.h"
 
 #include "polcfg.h"
-#include "profile.h"
 #include "uofilei.h"
 #include "uofile.h"
 

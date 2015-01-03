@@ -14,13 +14,6 @@ Notes
 #include "../clib/rawtypes.h"
 namespace Pol {
   namespace Core {
-	// X, Y minimums will always be zero.
-	const short XCOORD_MIN = 0;
-	const short XCOORD_MAX = 6143;
-
-	const short YCOORD_MIN = 0;
-	const short YCOORD_MAX = 4095;
-
 	const short ZCOORD_MIN = -128;
 	const short ZCOORD_MAX = +127;
 

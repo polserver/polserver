@@ -99,17 +99,14 @@ Notes
 #include "../clidata.h"
 #include "../cmbtcfg.h"
 #include "../cmdlevel.h"
-#include "../extobj.h"
 #include "../fnsearch.h"
 #include "../item/armor.h"
 #include "../item/weapon.h"
 #include "../item/wepntmpl.h"
 #include "../los.h"
 #include "../mkscrobj.h"
-#include "../module/guildmod.h"
 #include "../module/osmod.h"
 #include "../module/uomod.h"
-#include "../movecost.h"
 #include "../multi/boat.h"
 #include "../multi/house.h"
 #include "../network/cgdata.h"
@@ -123,8 +120,6 @@ Notes
 #include "../polcfg.h"
 #include "../polclass.h"
 #include "../polclock.h"
-#include "../polsig.h"
-#include "../profile.h"
 #include "../realms.h"
 #include "../schedule.h"
 #include "../scrsched.h"
@@ -133,7 +128,6 @@ Notes
 #include "../skilladv.h"
 #include "../skills.h"
 #include "../spelbook.h"
-#include "../ssopt.h"
 #include "../statmsg.h"
 #include "../syshook.h"
 #include "../target.h"
@@ -141,14 +135,13 @@ Notes
 #include "../ufunc.h"
 #include "../ufuncstd.h"
 #include "../umanip.h"
-#include "../uobjcnt.h"
 #include "../uoexec.h"
 #include "../uofile.h"
 #include "../uoscrobj.h"
 #include "../globals/uvars.h"
+#include "../globals/state.h"
 #include "../uworld.h"
 #include "../vital.h"
-#include "../watch.h"
 #include "../lightlvl.h"
 #include "../guardrgn.h"
 #include "../miscrgn.h"
@@ -156,6 +149,7 @@ Notes
 #include "../network/cgdata.h"
 #include "../syshook.h"
 #include "../mdelta.h"
+#include "../guilds.h"
 #include "attribute.h"
 #include "ufacing.h"
 
@@ -598,7 +592,7 @@ namespace Pol {
 
 	  // vector
 	  refresh_cached_settings( false );
-      ++Core::gamestate.uobjcount.ucharacter_count;
+      ++Core::stateManager.uobjcount.ucharacter_count;
 	}
 
 	Character::~Character()
@@ -643,7 +637,7 @@ namespace Pol {
 	  if ( party_decline_timeout_ != NULL )
 		party_decline_timeout_->cancel();
 
-      --Core::gamestate.uobjcount.ucharacter_count;
+      --Core::stateManager.uobjcount.ucharacter_count;
 	}
 
 	void Character::removal_cleanup()
@@ -769,7 +763,7 @@ namespace Pol {
 	///
 	unsigned short Character::carrying_capacity() const
 	{
-      return static_cast<u16>( floor( ( 40 + strength( ) * 7 / 2 + carrying_capacity_mod_ ) * Core::gamestate.ssopt.carrying_capacity_mod ) );
+      return static_cast<u16>( floor( ( 40 + strength( ) * 7 / 2 + carrying_capacity_mod_ ) * Core::settingsManager.ssopt.carrying_capacity_mod ) );
 	}
 
 	int Character::charindex() const
@@ -1151,7 +1145,7 @@ namespace Pol {
 
 	  unsigned int tmp_guildid;
 	  if ( elem.remove_prop( "GUILDID", &tmp_guildid ) )
-		guild_ = Module::FindOrCreateGuild( tmp_guildid, serial );
+		guild_ = Core::Guild::FindOrCreateGuild( tmp_guildid, serial );
 	  //guildid_ = elem.remove_ulong( "GUILDID", 0 );
 	  murderer_ = elem.remove_bool( "MURDERER", false );
 	  party_can_loot_ = elem.remove_bool( "PARTYCANLOOT", false );
@@ -1196,15 +1190,15 @@ namespace Pol {
 			unsigned int base;
 			unsigned int cap = pAttr->default_cap;
 			unsigned char lock = 0;
-            if ( Core::gamestate.polvar.DataWrittenBy == 93 &&
-                 Core::gamestate.gflag_in_system_load )
+            if ( Core::settingsManager.polvar.DataWrittenBy == 93 &&
+                 Core::stateManager.gflag_in_system_load )
 			{
 			  unsigned int raw = strtoul( temp.c_str(), NULL, 10 );
               base = Core::raw_to_base( raw );
 			}
 			else
 			{
-              if ( !Core::gamestate.polvar.DataWrittenBy && Core::gamestate.gflag_in_system_load )
+              if ( !Core::settingsManager.polvar.DataWrittenBy && Core::stateManager.gflag_in_system_load )
 			  {
 				elem.throw_error( "Pol.txt 'System' element needs to specify CoreVersion" );
 			  }
@@ -1564,7 +1558,7 @@ namespace Pol {
 	{
 	  if ( !Items::valid_equip_layer( item ) )
 	  {
-          if (item->objtype_ == Core::gamestate.extobj.mount) {
+          if (item->objtype_ == Core::settingsManager.extobj.mount) {
               POLLOG_INFO.Format("\nWarning: Character 0x{:X} tried to mount Item 0x{:X}, but it doesn't have a mount graphic (current graphic: 0x{:X}). Check that the list of mounts in uoconvert.cfg is correct and re-run uoconvert if necessary.\n") << this->serial << item->serial << item->graphic;
           }
 
@@ -1582,7 +1576,7 @@ namespace Pol {
       // Only allow mounts if they have the mount objtype as defined in extobj.cfg
       if (item->tile_layer == Core::LAYER_MOUNT
           && Plib::systemstate.config.enforce_mount_objtype
-          && item->objtype_ != Core::gamestate.extobj.mount)
+          && item->objtype_ != Core::settingsManager.extobj.mount)
       {
           POLLOG_INFO.Format("\nWarning: Character 0x{:X} tried to mount Item 0x{:X}, but it doesn't have the mount objtype (as defined in extobj.cfg) and EnforceMountObjtype in pol.cfg is true.\n") << this->serial << item->serial;
           return false;
@@ -1979,7 +1973,7 @@ namespace Pol {
         flag1 |= Core::CHAR_FLAG1_POISONED;
       if ( ( movemode & Core::MOVEMODE_FLY ) && ( client->ClientType & Network::CLIENTTYPE_7000 ) )
         flag1 |= Core::CHAR_FLAG1_FLYING;
-      if ( ( Core::gamestate.ssopt.invul_tag == 2 ) && ( invul( ) ) )
+      if ( ( Core::settingsManager.ssopt.invul_tag == 2 ) && ( invul( ) ) )
         flag1 |= Core::CHAR_FLAG1_YELLOWHEALTH;
 	  if ( warmode )
         flag1 |= Core::CHAR_FLAG1_WARMODE;
@@ -2082,7 +2076,7 @@ namespace Pol {
 	double Character::apply_damage( double damage, Character* source, bool userepsys, bool send_damage_packet )
 	{
 	  damage = armor_absorb_damage( damage );
-      if ( Core::gamestate.watch.combat ) INFO_PRINT << "Final damage: " << damage << "\n";
+      if ( Core::settingsManager.watch.combat ) INFO_PRINT << "Final damage: " << damage << "\n";
 	  do_imhit_effects();
 	  apply_raw_damage_hundredths( static_cast<unsigned int>( damage * 100 ), source, userepsys, send_damage_packet );
 
@@ -2498,7 +2492,7 @@ namespace Pol {
 		}
 		if ( item->newbie() )
 		  continue;
-        else if ( Core::gamestate.ssopt.honor_unequip_script_on_death )
+        else if ( Core::settingsManager.ssopt.honor_unequip_script_on_death )
 		{
 		  if ( !item->check_unequip_script() || !item->check_unequiptest_scripts() )
 			continue;
@@ -2595,7 +2589,7 @@ namespace Pol {
 			continue;
           if ( item->layer == Core::LAYER_BEARD || item->layer == Core::LAYER_HAIR || item->layer == Core::LAYER_FACE )
 			continue;
-          if ( Core::gamestate.ssopt.honor_unequip_script_on_death )
+          if ( Core::settingsManager.ssopt.honor_unequip_script_on_death )
 		  {
 			if ( !item->check_unequip_script() || !item->check_unequiptest_scripts() )
 			  continue;
@@ -3005,7 +2999,7 @@ namespace Pol {
 	bool Character::is_attackable( Character* who ) const
 	{
 	  passert( who != NULL );
-      if ( Core::gamestate.combat_config.scripted_attack_checks )
+      if ( Core::settingsManager.combat_config.scripted_attack_checks )
 	  {
         INFO_PRINT_TRACE( 21 ) << "is_attackable(0x" << fmt::hexu( this->serial ) << ",0x" << fmt::hexu(who->serial) << "): will be handled by combat hook.\n";
 		return true;
@@ -3325,7 +3319,7 @@ namespace Pol {
 
 	void Character::do_imhit_effects()
 	{
-      if ( Core::gamestate.combat_config.core_hit_sounds )
+      if ( Core::settingsManager.combat_config.core_hit_sounds )
 	  {
 		u16 sfx = 0;
 		if ( this->isa( UObject::CLASS_NPC ) )
@@ -3357,7 +3351,7 @@ namespace Pol {
 		  return;
 	  }
 
-      if ( Core::gamestate.watch.combat )
+      if ( Core::settingsManager.watch.combat )
         INFO_PRINT << name( ) << " attacks " << opponent->name( ) << "\n";
 
 	  if ( weapon->is_projectile() )
@@ -3411,18 +3405,18 @@ namespace Pol {
 	  double hit_chance = ( weapon_attribute().effective() + 50.0 ) / ( 2.0 * ( opponent->weapon_attribute().effective() + 50.0 ) );
 	  hit_chance += hitchance_mod_ * 0.001f;
 	  hit_chance -= opponent->evasionchance_mod_ * 0.001f;
-      if ( Core::gamestate.watch.combat )
+      if ( Core::settingsManager.watch.combat )
         INFO_PRINT << "Chance to hit: " << hit_chance << ": ";
 	  if ( Clib::random_double( 1.0 ) < hit_chance )
 	  {
-        if ( Core::gamestate.watch.combat )
+        if ( Core::settingsManager.watch.combat )
           INFO_PRINT << "Hit!\n";
 		do_hit_success_effects();
 
 		double damage = random_weapon_damage();
 		damage_weapon();
 
-        if ( Core::gamestate.watch.combat ) INFO_PRINT << "Base damage: " << damage << "\n";
+        if ( Core::settingsManager.watch.combat ) INFO_PRINT << "Base damage: " << damage << "\n";
 
 		double damage_multiplier = attribute( Core::gamestate.pAttrTactics->attrid ).effective() + 50;
 		damage_multiplier += strength() * 0.20f;
@@ -3430,7 +3424,7 @@ namespace Pol {
 
 		damage *= damage_multiplier;
 
-        if ( Core::gamestate.watch.combat )
+        if ( Core::settingsManager.watch.combat )
           INFO_PRINT << "Damage multiplier due to tactics/STR: " << damage_multiplier << " Result: " << damage << "\n";
 
 		if ( opponent->shield != NULL )
@@ -3444,12 +3438,12 @@ namespace Pol {
 		  }
 
 		  double parry_chance = opponent->attribute( Core::gamestate.pAttrParry->attrid ).effective() / 200.0;
-          if ( Core::gamestate.watch.combat ) INFO_PRINT << "Parry Chance: " << parry_chance << ": ";
+          if ( Core::settingsManager.watch.combat ) INFO_PRINT << "Parry Chance: " << parry_chance << ": ";
           if ( Clib::random_double( 1.0 ) < parry_chance )
 		  {
-            if ( Core::gamestate.watch.combat )
+            if ( Core::settingsManager.watch.combat )
               INFO_PRINT << opponent->shield->ar() << " hits deflected\n";
-            if ( Core::gamestate.combat_config.display_parry_success_messages && opponent->client )
+            if ( Core::settingsManager.combat_config.display_parry_success_messages && opponent->client )
               Core::send_sysmessage( opponent->client, "You successfully parried the attack!" );
 
 			damage -= opponent->shield->ar();
@@ -3458,12 +3452,12 @@ namespace Pol {
 		  }
 		  else
 		  {
-            if ( Core::gamestate.watch.combat ) INFO_PRINT << "failed.\n";
+            if ( Core::settingsManager.watch.combat ) INFO_PRINT << "failed.\n";
 		  }
 		}
 		if ( weapon->hit_script().empty() )
 		{
-          opponent->apply_damage( damage, this, true, Core::gamestate.combat_config.send_damage_packet );
+          opponent->apply_damage( damage, this, true, Core::settingsManager.combat_config.send_damage_packet );
 		}
 		else
 		{
@@ -3472,7 +3466,7 @@ namespace Pol {
 	  }
 	  else
 	  {
-        if ( Core::gamestate.watch.combat )
+        if ( Core::settingsManager.watch.combat )
           INFO_PRINT << "Miss!\n";
 		opponent->on_swing_failure( this );
 		do_hit_failure_effects();
@@ -3493,7 +3487,7 @@ namespace Pol {
       INFO_PRINT_TRACE( 20 ) << "check_attack_after_move(0x" << fmt::hexu( this->serial ) << "): opponent is 0x" << fmt::hexu( opponent->serial ) << "\n";
 	  if ( opponent != NULL &&				   // and I have an opponent
 		   !dead_ &&							 // If I'm not dead
-           ( Core::gamestate.combat_config.attack_while_frozen ||
+           ( Core::settingsManager.combat_config.attack_while_frozen ||
 		   ( !paralyzed() &&
 		   !frozen() ) ) )
 	  {
@@ -3501,7 +3495,7 @@ namespace Pol {
 		if ( ready_to_swing )				 // and I can swing now,
 		{								   // do so.
 		  FUNCTION_CHECKPOINT( check_attack_after_move, 4 );
-          if ( Core::gamestate.combat_config.send_swing_packet && client != NULL )
+          if ( Core::settingsManager.combat_config.send_swing_packet && client != NULL )
 			send_fight_occuring( client, opponent );
 		  attack( opponent );
 		  FUNCTION_CHECKPOINT( check_attack_after_move, 5 );
@@ -3543,7 +3537,7 @@ namespace Pol {
 		if ( light_region != NULL )
 		  newlightlevel = light_region->lightlevel;
 		else
-          newlightlevel = Core::gamestate.ssopt.default_light_level;
+          newlightlevel = Core::settingsManager.ssopt.default_light_level;
 	  }
 
 	  if ( newlightlevel != client->gd->lightlevel )
@@ -3788,7 +3782,7 @@ namespace Pol {
 		return false;
 	  }
 
-      if ( Core::gamestate.ssopt.movement_uses_stamina &&
+      if ( Core::settingsManager.ssopt.movement_uses_stamina &&
            vital( Core::gamestate.pVitalStamina->vitalid ).current_ones( ) == 0 &&
 		   !dead() )
 	  {
@@ -3812,9 +3806,9 @@ namespace Pol {
 	  {
 		setfacing( static_cast<u8>( i_facing ) );
 
-        if ( Core::gamestate.combat_config.reset_swing_onturn && !cached_settings.firewhilemoving && weapon->is_projectile( ) )
+        if ( Core::settingsManager.combat_config.reset_swing_onturn && !cached_settings.firewhilemoving && weapon->is_projectile( ) )
 		  reset_swing_timer();
-        if ( hidden( ) && ( Core::gamestate.ssopt.hidden_turns_count ) )
+        if ( hidden( ) && ( Core::settingsManager.ssopt.hidden_turns_count ) )
 		{
 		  if ( stealthsteps_ == 0 )
 			unhide();
@@ -3934,7 +3928,7 @@ namespace Pol {
 		if ( !CheckPushthrough() )
 		  return false;
 
-        if ( !cached_settings.freemove && Core::gamestate.ssopt.movement_uses_stamina && !dead( ) )
+        if ( !cached_settings.freemove && Core::settingsManager.ssopt.movement_uses_stamina && !dead( ) )
 		{
 		  int carry_perc = weight() * 100 / carrying_capacity();
 		  unsigned short tmv = movecost( this, carry_perc, ( i_dir&PKTIN_02_DIR_RUNNING_BIT ) ? true : false, on_mount() );
@@ -4045,7 +4039,7 @@ namespace Pol {
 		//these are important to keep here in this order
         Core::send_realm_change( client, realm );
         Core::send_map_difs( client );
-        if ( Core::gamestate.ssopt.core_sends_season )
+        if ( Core::settingsManager.ssopt.core_sends_season )
           Core::send_season_info( client );
         Core::send_short_statmsg( client, this );
         Core::send_feature_enable( client );
@@ -4236,8 +4230,8 @@ namespace Pol {
 		return NULL;
 	  }
 	  unsigned short wxL, wyL, wxH, wyH;
-      Core::zone_convert_clip( x - 3, y - 3, realm, wxL, wyL );
-      Core::zone_convert_clip( x + 3, y + 3, realm, wxH, wyH );
+      Core::zone_convert_clip( x - 3, y - 3, realm, &wxL, &wyL );
+      Core::zone_convert_clip( x + 3, y + 3, realm, &wxH, &wyH );
 	  for ( unsigned short wx = wxL; wx <= wxH; ++wx )
 	  {
 		for ( unsigned short wy = wyL; wy <= wyH; ++wy )
@@ -4314,7 +4308,7 @@ namespace Pol {
 	{
 	  if ( trading_cont.get() == NULL )	 // FIXME hardcoded
 	  {
-        Items::Item* cont = Items::Item::create( Core::gamestate.extobj.secure_trade_container );
+        Items::Item* cont = Items::Item::create( Core::settingsManager.extobj.secure_trade_container );
 		cont->realm = realm;
         trading_cont.set( static_cast<Core::UContainer*>( cont ) );
 	  }
@@ -4352,6 +4346,19 @@ namespace Pol {
     void Character::last_textcolor( u16 color )
     {
       _last_textcolor = color;
+    }
+
+	Core::Guild* Character::guild( ) const
+    {
+      return guild_;
+    }
+    void Character::guild( Core::Guild* g )
+    {
+      guild_ = g;
+    }
+    unsigned int Character::guildid( ) const
+    {
+      return guild_ ? guild_->guildid( ) : 0;
     }
 
     size_t Character::estimatedSize() const
@@ -4422,7 +4429,7 @@ namespace Pol {
         + sizeof( Core::gameclock_t )/*deafened_until*/
         + sizeof( Core::polclock_t )/*criminal_until_*/
         + sizeof( Core::OneShotTask* )/*repsys_task_*/
-        + sizeof( Module::Guild* )/*guild_*/
+        + sizeof( Core::Guild* )/*guild_*/
         + sizeof( Core::Party* )/*party_*/
         + sizeof( Core::Party* )/*candidate_of_*/
         + sizeof( Core::Party* )/*offline_mem_of_*/

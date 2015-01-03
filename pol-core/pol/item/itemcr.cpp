@@ -44,6 +44,7 @@ Notes
 #include "../uofile.h"
 #include "../uoscrobj.h"
 #include "../globals/uvars.h"
+#include "../globals/object_storage.h"
 
 #include "../../clib/cfgfile.h"
 #include "../../clib/endian.h"
@@ -142,7 +143,7 @@ namespace Pol {
 	  {
         item = new Core::Map( static_cast<const MapDesc&>( id ) );
 	  }
-      else if ( objtype == Core::gamestate.extobj.port_plank || objtype == Core::gamestate.extobj.starboard_plank )// ITEMDESCTODO make new ItemDesc type
+      else if ( objtype == Core::settingsManager.extobj.port_plank || objtype == Core::settingsManager.extobj.starboard_plank )// ITEMDESCTODO make new ItemDesc type
 	  {
 		item = new Multi::UPlank( id );
 	  }
@@ -182,7 +183,7 @@ namespace Pol {
 	  }
 
 	  ////HASH
-      Core::gamestate.objecthash.Insert( item );
+      Core::objStorageManager.objecthash.Insert( item );
 	  ////
 
 	  item->serial_ext = ctBEu32( item->serial );

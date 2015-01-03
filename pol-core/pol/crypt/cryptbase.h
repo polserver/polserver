@@ -62,7 +62,7 @@
 
 
 #include "../sockets.h"
-#include "../globals/ucfg.h"
+#include "../uconst.h"
 #include "../../clib/passert.h"
 #include "logincrypt.h"
 namespace Pol {

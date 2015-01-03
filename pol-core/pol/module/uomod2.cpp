@@ -89,7 +89,6 @@ Notes
 #include "../polclass.h"
 #include "../polstats.h"
 #include "../poltimer.h"
-#include "../profile.h"
 #include "../realms.h"
 #include "../scrsched.h"
 #include "../scrstore.h"
@@ -101,6 +100,8 @@ Notes
 #include "../uofile.h"
 #include "../uoscrobj.h"
 #include "../globals/uvars.h"
+#include "../globals/state.h"
+#include "../globals/object_storage.h"
 #include "../uworld.h"
 #include "../network/msghandl.h"
 #include "../containr.h"
@@ -552,7 +553,7 @@ namespace Pol {
 
 	void buyhandler( Client* client, PKTBI_3B* msg )
 	{
-	  if ( !gamestate.ssopt.scripted_merchant_handlers )
+	  if ( !settingsManager.ssopt.scripted_merchant_handlers )
 	  {
 		oldBuyHandler( client, msg );
 		return;
@@ -889,7 +890,7 @@ namespace Pol {
 
 	void sellhandler( Client* client, PKTIN_9F* msg )
 	{
-	  if ( !gamestate.ssopt.scripted_merchant_handlers )
+	  if ( !settingsManager.ssopt.scripted_merchant_handlers )
 	  {
 		oldSellHandler( client, msg );
 		return;
@@ -1623,11 +1624,11 @@ namespace Pol {
 	BObjectImp* GetRunningScriptList()
 	{
 	  ObjArray* arr = new ObjArray;
-	  for ( ExecList::iterator itr = gamestate.ranlist.begin(); itr != gamestate.ranlist.end(); ++itr )
+	  for ( ExecList::iterator itr = scriptEngineInternalManager.ranlist.begin(); itr != scriptEngineInternalManager.ranlist.end(); ++itr )
 	  {
 		add_script( arr, *itr, "Running" );
 	  }
-	  for ( ExecList::iterator itr = gamestate.runlist.begin(); itr != gamestate.runlist.end(); ++itr )
+	  for ( ExecList::iterator itr = scriptEngineInternalManager.runlist.begin(); itr != scriptEngineInternalManager.runlist.end(); ++itr )
 	  {
 		add_script( arr, *itr, "Running" );
 	  }
@@ -1637,19 +1638,19 @@ namespace Pol {
 	BObjectImp* GetAllScriptList()
 	{
 	  ObjArray* arr = new ObjArray;
-	  for ( ExecList::iterator itr = gamestate.ranlist.begin(); itr != gamestate.ranlist.end(); ++itr )
+	  for ( ExecList::iterator itr = scriptEngineInternalManager.ranlist.begin(); itr != scriptEngineInternalManager.ranlist.end(); ++itr )
 	  {
 		add_script( arr, *itr, "Running" );
 	  }
-	  for ( ExecList::iterator itr = gamestate.runlist.begin(); itr != gamestate.runlist.end(); ++itr )
+	  for ( ExecList::iterator itr = scriptEngineInternalManager.runlist.begin(); itr != scriptEngineInternalManager.runlist.end(); ++itr )
 	  {
 		add_script( arr, *itr, "Running" );
 	  }
-	  for ( HoldList::iterator itr = gamestate.holdlist.begin(); itr != gamestate.holdlist.end(); ++itr )
+	  for ( HoldList::iterator itr = scriptEngineInternalManager.holdlist.begin(); itr != scriptEngineInternalManager.holdlist.end(); ++itr )
 	  {
 		add_script( arr, ( *itr ).second, "Sleeping" );
 	  }
-	  for ( NoTimeoutHoldList::iterator itr = gamestate.notimeoutholdlist.begin(); itr != gamestate.notimeoutholdlist.end(); ++itr )
+	  for ( NoTimeoutHoldList::iterator itr = scriptEngineInternalManager.notimeoutholdlist.begin(); itr != scriptEngineInternalManager.notimeoutholdlist.end(); ++itr )
 	  {
 		add_script( arr, *itr, "Sleeping" );
 	  }
@@ -1660,7 +1661,7 @@ namespace Pol {
 	{
 	  std::unique_ptr<ObjArray> arr( new ObjArray );
 
-	  ScriptStorage::iterator itr = gamestate.scrstore.begin(), end = gamestate.scrstore.end();
+	  ScriptStorage::iterator itr = scriptEngineInternalManager.scrstore.begin(), end = scriptEngineInternalManager.scrstore.end();
 	  u64 total_instr = 0;
 	  for ( ; itr != end; ++itr )
 	  {
@@ -1668,8 +1669,8 @@ namespace Pol {
 		total_instr += eprog->instr_cycles;
 	  }
 
-	  itr = gamestate.scrstore.begin();
-	  end = gamestate.scrstore.end();
+	  itr = scriptEngineInternalManager.scrstore.begin();
+	  end = scriptEngineInternalManager.scrstore.end();
 
 	  for ( ; itr != end; ++itr )
 	  {
@@ -1724,19 +1725,19 @@ namespace Pol {
 
 	BObjectImp* GetIoStats()
 	{
-	  return GetIoStatsObj( Core::gamestate.iostats );
+	  return GetIoStatsObj( Core::networkManager.iostats );
 	}
 
 	BObjectImp* GetQueuedIoStats()
 	{
-	  return GetIoStatsObj( Core::gamestate.queuedmode_iostats );
+	  return GetIoStatsObj( Core::networkManager.queuedmode_iostats );
 	}
 
 	BObjectImp* GetPktStatusObj()
 	{
 	  using namespace PacketWriterDefs;
 	  std::unique_ptr<ObjArray> pkts( new ObjArray );
-	  PacketQueueMap* map = gamestate.packetsSingleton->getPackets();
+	  PacketQueueMap* map = networkManager.packetsSingleton->getPackets();
 	  for ( PacketQueueMap::iterator it = map->begin(); it != map->end(); ++it )
 	  {
 		std::unique_ptr<BStruct> elem( new BStruct );
@@ -1790,7 +1791,7 @@ namespace Pol {
       realmsize += ( sizeof(int)+sizeof( Plib::Realm* ) + ( sizeof(void*)* 3 + 1 ) / 2 ) * gamestate.shadowrealms_by_id.size();
 
       
-      ObjectHash::OH_const_iterator hs_citr = gamestate.objecthash.begin(), hs_cend = gamestate.objecthash.end();
+      ObjectHash::OH_const_iterator hs_citr = objStorageManager.objecthash.begin(), hs_cend = objStorageManager.objecthash.end();
       size_t objsize = 0;
       size_t objcount = std::distance( hs_citr, hs_cend );
 
@@ -1859,9 +1860,9 @@ namespace Pol {
         accountsize += acc->estimatedSize();
       }
 
-      size_t clientsize = 3 * sizeof( Network::Client** ) + Core::gamestate.clients.capacity() * sizeof( Network::Client* );
-      size_t clientcount = Core::gamestate.clients.size();
-      for ( const auto& client : Core::gamestate.clients )
+      size_t clientsize = 3 * sizeof( Network::Client** ) + Core::networkManager.clients.capacity() * sizeof( Network::Client* );
+      size_t clientcount = Core::networkManager.clients.size();
+      for ( const auto& client : Core::networkManager.clients )
       {
         clientsize += client->estimatedSize();
       }
@@ -1882,7 +1883,7 @@ namespace Pol {
 	  FLEXLOG( log ) << GET_LOG_FILESTAMP << ";"
 		<< Clib::getCurrentMemoryUsage() << " ;"
 		<< realmsize << " ;"
-		<< gamestate.packetsSingleton->estimateSize() << " ;"
+		<< networkManager.packetsSingleton->estimateSize() << " ;"
 		<< miscsize << " ;"
         << scriptcount << " ;" << scriptsize << " ;"
         << scriptstoragecount << " ;" << scriptstoragesize << " ;"
@@ -1919,12 +1920,12 @@ namespace Pol {
 	  if ( stricmp( corevar, "itemcount" ) == 0 ) return new BLong( get_toplevel_item_count() );
 	  if ( stricmp( corevar, "mobilecount" ) == 0 ) return new BLong( get_mobile_count() );
 
-	  if ( stricmp( corevar, "bytes_sent" ) == 0 ) return new Double( static_cast<double>( gamestate.polstats.bytes_sent ) );
-	  if ( stricmp( corevar, "bytes_received" ) == 0 ) return new Double( static_cast<double>( gamestate.polstats.bytes_received ) );
+	  if ( stricmp( corevar, "bytes_sent" ) == 0 ) return new Double( static_cast<double>( networkManager.polstats.bytes_sent ) );
+	  if ( stricmp( corevar, "bytes_received" ) == 0 ) return new Double( static_cast<double>( networkManager.polstats.bytes_received ) );
 
 	  LONG_COREVAR( uptime, polclock() / POLCLOCKS_PER_SEC );
-	  LONG_COREVAR( sysload, gamestate.profilevars.last_sysload );
-	  LONG_COREVAR( sysload_severity, gamestate.profilevars.last_sysload_nprocs );
+	  LONG_COREVAR( sysload, stateManager.profilevars.last_sysload );
+	  LONG_COREVAR( sysload_severity, stateManager.profilevars.last_sysload_nprocs );
 	  //	LONG_COREVAR( bytes_sent, polstats.bytes_sent );
 	  //	LONG_COREVAR( bytes_received, polstats.bytes_received );
 	  LONG_COREVAR( version, polver );
@@ -1941,8 +1942,8 @@ namespace Pol {
 	  LONG_COREVAR( scripts_late_per_min, GET_PROFILEVAR_PER_MIN( scripts_late ) );
 	  LONG_COREVAR( scripts_ontime_per_min, GET_PROFILEVAR_PER_MIN( scripts_ontime ) );
 
-	  LONG_COREVAR( instr_per_min, gamestate.profilevars.last_sipm );
-	  LONG_COREVAR( priority_divide, gamestate.priority_divide );
+	  LONG_COREVAR( instr_per_min, stateManager.profilevars.last_sipm );
+	  LONG_COREVAR( priority_divide, scriptEngineInternalManager.priority_divide );
 	  if ( stricmp( corevar, "verstr" ) == 0 ) return new String( progverstr );
 	  if ( stricmp( corevar, "compiledate" ) == 0 ) return new String( compiledate );
 	  if ( stricmp( corevar, "compiletime" ) == 0 ) return new String( compiletime );
@@ -1983,7 +1984,7 @@ namespace Pol {
 		int div;
 		if ( ex.getParam( 0, div, 1, 1000 ) )
 		{
-		  gamestate.priority_divide = div;
+		  scriptEngineInternalManager.priority_divide = div;
 		  return new BLong( 1 );
 		}
 		else

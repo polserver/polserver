@@ -42,7 +42,6 @@ Notes
 #include "../network/packets.h"
 #include "../network/clienttransmit.h"
 #include "../core.h"
-#include "../extobj.h"
 #include "../fnsearch.h"
 #include "../item/itemdesc.h"
 #include "../mdelta.h"
@@ -58,6 +57,7 @@ Notes
 #include "../uofile.h"
 #include "../ustruct.h"
 #include "../globals/uvars.h"
+#include "../globals/object_storage.h"
 #include "../uworld.h"
 #include "../containr.h"
 
@@ -202,29 +202,29 @@ namespace Pol {
 
 	bool BoatShape::objtype_is_component( unsigned int objtype )
 	{
-	  if ( objtype == Core::gamestate.extobj.tillerman )
+	  if ( objtype == Core::settingsManager.extobj.tillerman )
 		return true;
-	  else if ( objtype == Core::gamestate.extobj.port_plank )
+	  else if ( objtype == Core::settingsManager.extobj.port_plank )
 		return true;
-	  else if ( objtype == Core::gamestate.extobj.starboard_plank )
+	  else if ( objtype == Core::settingsManager.extobj.starboard_plank )
 		return true;
-	  else if ( objtype == Core::gamestate.extobj.hold )
+	  else if ( objtype == Core::settingsManager.extobj.hold )
 		return true;
-	  else if ( objtype == Core::gamestate.extobj.rope )
+	  else if ( objtype == Core::settingsManager.extobj.rope )
 		return true;
-	  else if ( objtype == Core::gamestate.extobj.wheel )
+	  else if ( objtype == Core::settingsManager.extobj.wheel )
 		return true;
-	  else if ( objtype == Core::gamestate.extobj.hull )
+	  else if ( objtype == Core::settingsManager.extobj.hull )
 		return true;
-	  else if ( objtype == Core::gamestate.extobj.tiller )
+	  else if ( objtype == Core::settingsManager.extobj.tiller )
 		return true;
-	  else if ( objtype == Core::gamestate.extobj.rudder )
+	  else if ( objtype == Core::settingsManager.extobj.rudder )
 		return true;
-	  else if ( objtype == Core::gamestate.extobj.sails )
+	  else if ( objtype == Core::settingsManager.extobj.sails )
 		return true;
-	  else if ( objtype == Core::gamestate.extobj.storage )
+	  else if ( objtype == Core::settingsManager.extobj.storage )
 		return true;
-	  else if ( objtype == Core::gamestate.extobj.weaponslot )
+	  else if ( objtype == Core::settingsManager.extobj.weaponslot )
 		return true;
 	  else
 		return false;
@@ -234,18 +234,18 @@ namespace Pol {
 	{
 	  switch ( type )
 	  {
-		case COMPONENT_TILLERMAN: return Core::gamestate.extobj.tillerman;
-		case COMPONENT_PORT_PLANK: return Core::gamestate.extobj.port_plank;
-		case COMPONENT_STARBOARD_PLANK: return Core::gamestate.extobj.starboard_plank;
-		case COMPONENT_HOLD: return Core::gamestate.extobj.hold;
-		case COMPONENT_ROPE: return Core::gamestate.extobj.rope;
-		case COMPONENT_WHEEL: return Core::gamestate.extobj.wheel;
-		case COMPONENT_HULL: return Core::gamestate.extobj.hull;
-		case COMPONENT_TILLER: return Core::gamestate.extobj.tiller;
-		case COMPONENT_RUDDER: return Core::gamestate.extobj.rudder;
-		case COMPONENT_SAILS: return Core::gamestate.extobj.sails;
-		case COMPONENT_STORAGE: return Core::gamestate.extobj.storage;
-		case COMPONENT_WEAPONSLOT: return Core::gamestate.extobj.weaponslot;
+		case COMPONENT_TILLERMAN: return Core::settingsManager.extobj.tillerman;
+		case COMPONENT_PORT_PLANK: return Core::settingsManager.extobj.port_plank;
+		case COMPONENT_STARBOARD_PLANK: return Core::settingsManager.extobj.starboard_plank;
+		case COMPONENT_HOLD: return Core::settingsManager.extobj.hold;
+		case COMPONENT_ROPE: return Core::settingsManager.extobj.rope;
+		case COMPONENT_WHEEL: return Core::settingsManager.extobj.wheel;
+		case COMPONENT_HULL: return Core::settingsManager.extobj.hull;
+		case COMPONENT_TILLER: return Core::settingsManager.extobj.tiller;
+		case COMPONENT_RUDDER: return Core::settingsManager.extobj.rudder;
+		case COMPONENT_SAILS: return Core::settingsManager.extobj.sails;
+		case COMPONENT_STORAGE: return Core::settingsManager.extobj.storage;
+		case COMPONENT_WEAPONSLOT: return Core::settingsManager.extobj.weaponslot;
 		default: return 0;
 	  }
 	}
@@ -642,8 +642,8 @@ namespace Pol {
 	bool UBoat::navigable( const MultiDef& md, unsigned short x, unsigned short y, short z, Plib::Realm* realm )
 	{
 
-	  if ( int( x + md.minrx ) < int( Core::WORLD_MIN_X ) || int( x + md.maxrx ) > int( realm->width() ) ||
-		   int( y + md.minry ) < int( Core::WORLD_MIN_Y ) || int( y + md.maxry ) > int( realm->height() ) )
+	  if ( int( x + md.minrx ) < 0 || int( x + md.maxrx ) > int( realm->width() ) ||
+		   int( y + md.minry ) < 0 || int( y + md.maxry ) > int( realm->height() ) )
 	  {
 #ifdef DEBUG_BOATS
         INFO_PRINT << "Location " << x << "," << y << " impassable, location is off the map\n";
@@ -1331,9 +1331,9 @@ namespace Pol {
 					continue;
 
 				item->set_dirty();
-				if ( item->objtype_ == Core::gamestate.extobj.port_plank && item->graphic == old_itr->altgraphic )
+				if ( item->objtype_ == Core::settingsManager.extobj.port_plank && item->graphic == old_itr->altgraphic )
 					item->graphic = itr2->altgraphic;
-				else if ( item->objtype_ == Core::gamestate.extobj.starboard_plank && item->graphic == old_itr->altgraphic )
+				else if ( item->objtype_ == Core::settingsManager.extobj.starboard_plank && item->graphic == old_itr->altgraphic )
 					item->graphic = itr2->altgraphic;
 				else
 					item->graphic = itr2->graphic;
@@ -1489,13 +1489,13 @@ namespace Pol {
 		if ( component == NULL )
 		  continue;
 		// check boat members here
-		if ( component->objtype_ == Core::gamestate.extobj.tillerman && tillerman == NULL )
+		if ( component->objtype_ == Core::settingsManager.extobj.tillerman && tillerman == NULL )
 		  tillerman = component;
-		if ( component->objtype_ == Core::gamestate.extobj.port_plank && portplank == NULL )
+		if ( component->objtype_ == Core::settingsManager.extobj.port_plank && portplank == NULL )
 		  portplank = component;
-		if ( component->objtype_ == Core::gamestate.extobj.starboard_plank && starboardplank == NULL )
+		if ( component->objtype_ == Core::settingsManager.extobj.starboard_plank && starboardplank == NULL )
 		  starboardplank = component;
-		if ( component->objtype_ == Core::gamestate.extobj.hold && hold == NULL )
+		if ( component->objtype_ == Core::settingsManager.extobj.hold && hold == NULL )
 		  hold = component;
 	  }
 	}
@@ -1625,7 +1625,7 @@ namespace Pol {
 	  boat->regself();
 
 	  ////hash
-	  Core::gamestate.objecthash.Insert( boat );
+	  Core::objStorageManager.objecthash.Insert( boat );
 	  ////
 
 	  Core::start_script( "misc/boat", make_boatref( boat ) );
@@ -1641,13 +1641,13 @@ namespace Pol {
 		if ( component == NULL )
 		  continue;
 		// check boat members here
-		if ( component->objtype_ == Core::gamestate.extobj.tillerman && tillerman == NULL )
+		if ( component->objtype_ == Core::settingsManager.extobj.tillerman && tillerman == NULL )
 		  tillerman = component;
-		if ( component->objtype_ == Core::gamestate.extobj.port_plank && portplank == NULL )
+		if ( component->objtype_ == Core::settingsManager.extobj.port_plank && portplank == NULL )
 		  portplank = component;
-		if ( component->objtype_ == Core::gamestate.extobj.starboard_plank && starboardplank == NULL )
+		if ( component->objtype_ == Core::settingsManager.extobj.starboard_plank && starboardplank == NULL )
 		  starboardplank = component;
-		if ( component->objtype_ == Core::gamestate.extobj.hold && hold == NULL )
+		if ( component->objtype_ == Core::settingsManager.extobj.hold && hold == NULL )
 		  hold = component;
 
 		component->graphic = itr->graphic;

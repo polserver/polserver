@@ -19,6 +19,7 @@ Notes
 #include "maptileserver.h"
 
 #include "../pol/uworld.h"
+#include "../pol/mobile/charactr.h"
 #include "WorldChangeReasons.h"
 #include "../clib/logfacility.h"
 

@@ -13,10 +13,10 @@ Notes
 
 #include "item/itemdesc.h"
 #include "mobile/attribute.h"
+#include "globals/uvars.h"
 
 #include "fnsearch.h"
 #include "polcfg.h"
-#include "ssopt.h"
 #include "uoscrobj.h"
 #include "ufunc.h"
 #include "vital.h"
@@ -572,8 +572,8 @@ namespace Pol {
           itemdesc_out = Core::gamestate.temp_itemdesc.get();
           Core::gamestate.temp_itemdesc->objtype = objtype;
           Core::gamestate.temp_itemdesc->graphic = static_cast<u16>( objtype );
-          Core::gamestate.temp_itemdesc->decay_time = gamestate.ssopt.default_decay_time;
-          Core::gamestate.temp_itemdesc->doubleclick_range = gamestate.ssopt.default_doubleclick_range;
+          Core::gamestate.temp_itemdesc->decay_time = settingsManager.ssopt.default_decay_time;
+          Core::gamestate.temp_itemdesc->doubleclick_range = settingsManager.ssopt.default_doubleclick_range;
 		}
 
 		return true;
@@ -591,7 +591,7 @@ namespace Pol {
 	bool getSkillIdParam( Executor& exec, unsigned param, USKILLID& skillid )
 	{
 	  int skillval;
-	  if ( exec.getParam( param, skillval, SKILLID__LOWEST, gamestate.uoclient_general.maxskills ) )
+	  if ( exec.getParam( param, skillval, SKILLID__LOWEST, networkManager.uoclient_general.maxskills ) )
 	  {
 		skillid = static_cast<USKILLID>( skillval );
 		return true;

@@ -17,7 +17,7 @@ Notes
 
 #include "../polclock.h"
 #include "../uoexhelp.h"
-#include "../globals/uvars.h"
+#include "../globals/script_internals.h"
 
 #include <queue>
 #include <map>

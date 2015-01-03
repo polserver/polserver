@@ -39,7 +39,6 @@ Notes
 #include "polcfg.h"
 #include "polclock.h"
 #include "polsem.h"
-#include "profile.h"
 #include "realms.h"
 #include "schedule.h"
 #include "scrsched.h"
@@ -49,11 +48,11 @@ Notes
 #include "uobject.h"
 #include "ufunc.h"
 #include "ufuncstd.h"
-#include "uobjcnt.h"
 #include "uobjhelp.h"
 #include "uofile.h"
 #include "uoscrobj.h"
 #include "globals/uvars.h"
+#include "globals/state.h"
 #include "uworld.h"
 #include "repsys.h"
 #include "fnsearch.h"
@@ -430,12 +429,12 @@ namespace Pol {
     void textcmd_orphans( Network::Client* client )
 	{
 	  OSTRINGSTREAM os;
-	  os << "Unreaped orphans: " << gamestate.uobjcount.unreaped_orphans;
+	  os << "Unreaped orphans: " << stateManager.uobjcount.unreaped_orphans;
 
 	  send_sysmessage( client, OSTRINGSTREAM_STR( os ) );
 
 	  OSTRINGSTREAM os2;
-	  os2 << "EChrRef count: " << gamestate.uobjcount.uobj_count_echrref;
+	  os2 << "EChrRef count: " << stateManager.uobjcount.uobj_count_echrref;
 	  send_sysmessage( client, OSTRINGSTREAM_STR( os2 ) );
 	}
 
@@ -453,8 +452,8 @@ namespace Pol {
 	{
 	  send_sysmessage( client, "Process Information:" );
 
-      send_sysmessage( client, "Running: " + Clib::decint( (unsigned int)( gamestate.runlist.size( ) ) ) );
-      send_sysmessage( client, "Blocked: " + Clib::decint( (unsigned int)( gamestate.holdlist.size( ) ) ) );
+      send_sysmessage( client, "Running: " + Clib::decint( (unsigned int)( scriptEngineInternalManager.runlist.size( ) ) ) );
+      send_sysmessage( client, "Blocked: " + Clib::decint( (unsigned int)( scriptEngineInternalManager.holdlist.size( ) ) ) );
 	}
 
     void textcmd_log_profile( Network::Client* client )
@@ -485,7 +484,7 @@ namespace Pol {
 	{
 	  int i = 0;
 	  send_sysmessage( client, "Connection statuses:" );
-	  for ( Clients::const_iterator itr = gamestate.clients.begin(), end = gamestate.clients.end(); itr != end; ++itr )
+	  for ( Clients::const_iterator itr = networkManager.clients.begin(), end = networkManager.clients.end(); itr != end; ++itr )
 	  {
 		OSTRINGSTREAM os;
 		os << i << ": " << ( *itr )->status() << " ";
@@ -499,7 +498,7 @@ namespace Pol {
     void textcmd_singlezone_integ_item( Network::Client* client )
 	{
 	  unsigned short wx, wy;
-	  zone_convert( client->chr->x, client->chr->y, wx, wy, client->chr->realm );
+	  zone_convert( client->chr->x, client->chr->y, &wx, &wy, client->chr->realm );
 	  bool ok = check_single_zone_item_integrity( wx, wy, client->chr->realm );
 	  if ( ok )
 		send_sysmessage( client, "Item integrity checks out OK!" );

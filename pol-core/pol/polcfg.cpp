@@ -18,9 +18,9 @@ Notes
 
 #include "core.h"
 #include "objtype.h"
-#include "polsig.h"
 #include "schedule.h"
 #include "tasks.h"
+#include "globals/state.h"
 #include "globals/uvars.h"
 
 

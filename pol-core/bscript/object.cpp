@@ -152,11 +152,8 @@ namespace Pol {
 
 	////////////////////// BObjectImp //////////////////////
 #if BOBJECTIMP_DEBUG
-# if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3 )
-    typedef std::unordered_map<unsigned int, BObjectImp*> bobjectimps;
-# else
-    typedef std::unordered_map<unsigned int, BObjectImp*> bobjectimps;
-# endif
+	typedef std::unordered_map<unsigned int, BObjectImp*> bobjectimps;
+
 
 	bobjectimps bobjectimp_instances;
 	int display_bobjectimp_instance( BObjectImp* imp )

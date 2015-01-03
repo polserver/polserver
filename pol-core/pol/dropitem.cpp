@@ -50,7 +50,6 @@ FIXME: Does STW use slots with KR or newest 2d? If so, we must do slot checks th
 #include "realms.h"
 #include "sfx.h"
 #include "sockio.h"
-#include "ssopt.h"
 #include "statmsg.h"
 #include "storage.h"
 #include "syshook.h"
@@ -436,7 +435,7 @@ namespace Pol {
 		return false;
 	  }
 
-	  if ( !gamestate.ssopt.allow_secure_trading_in_warmode )
+	  if ( !settingsManager.ssopt.allow_secure_trading_in_warmode )
 	  {
 		if ( dropon->warmode )
 		{
@@ -480,7 +479,7 @@ namespace Pol {
 		return new Bscript::BError( "Secure trading is unavailable." );
 	  }
 
-	  if ( !gamestate.ssopt.allow_secure_trading_in_warmode )
+	  if ( !settingsManager.ssopt.allow_secure_trading_in_warmode )
 	  {
 		if ( dropon->warmode )
 		{
@@ -1042,7 +1041,7 @@ namespace Pol {
 
 	void cancel_all_trades()
 	{
-	  for ( auto &client : gamestate.clients )
+	  for ( auto &client : networkManager.clients )
 	  {
 		if ( client->ready && client->chr )
 		{

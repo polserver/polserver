@@ -16,15 +16,17 @@ Notes
 */
 #include "uvars.h"
 #include "multidefs.h"
+#include "script_internals.h"
+#include "network.h"
+#include "settings.h"
+#include "state.h"
+#include "object_storage.h"
+#include "ucfg.h"
 
-#include "../../clib/cfgelem.h"
-#include "../../clib/cfgfile.h"
 #include "../../clib/clib.h"
-#include "../../clib/fileutil.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/MD5.h"
 #include "../../clib/stlutil.h"
-#include "../../clib/threadhelp.h"
 
 #include "../../plib/systemstate.h"
 
@@ -34,6 +36,7 @@ Notes
 #include "../cmdlevel.h"
 #include "../console.h"
 #include "../guardrgn.h"
+#include "../guilds.h"
 #include "../item/item.h"
 #include "../item/itemdesc.h"
 #include "../item/weapon.h"
@@ -45,25 +48,15 @@ Notes
 #include "../multi/boat.h"
 #include "../multi/multi.h"
 #include "../musicrgn.h"
-#include "../network/auxclient.h"
-#include "../network/client.h"
-#include "../network/clienttransmit.h"
-#include "../network/cliface.h"
-#include "../network/msgfiltr.h"
-#include "../network/packethooks.h"
-#include "../network/packetinterface.h"
-#include "../network/packets.h"
 #include "../npctmpl.h"
-#include "../polcfg.h"
+#include "../party.h"
 #include "../polsem.h"
 #include "../proplist.h"
 #include "../realms.h"
 #include "../resource.h"
 #include "../scrstore.h"
-#include "../servdesc.h"
 #include "../sockio.h"
 #include "../spells.h"
-#include "../sqlscrobj.h"
 #include "../startloc.h"
 #include "../storage.h"
 #include "../target.h"
@@ -72,7 +65,6 @@ Notes
 #include "../uoskills.h"
 #include "../uworld.h"
 #include "../vital.h"
-#include "../watch.h"
 
 #ifdef _MSC_VER
 #pragma warning(disable:4505) // '...': unreferenced local function has been removed (because of region.h)
@@ -85,50 +77,23 @@ namespace Pol {
 
 
 	GameState::GameState() :
-	  last_checkpoint(),
-	  combat_config(),
 	  cmdlevels(),
 	  npc_templates(),
 	  npc_template_elems(),
 	  global_properties(new Core::PropertyList),
 	  accounts(),
-	  clients(),
-	  servers(),
 	  startlocations(),
 	  wrestling_weapon(nullptr),
-	  watch(),
-	  extobj(),
-	  cycles_per_decay_worldzone(0),
-	  cycles_until_decay_worldzone(0),
-	  gflag_enforce_container_limits(true),
-	  gflag_in_system_load(false),
-	  gflag_in_system_startup(false),
 	  justicedef(nullptr),
 	  nocastdef(nullptr),
 	  lightdef(nullptr),
 	  weatherdef(nullptr),
 	  musicdef(nullptr),
 	  menus(),
-	  incremental_save_count(0),
-	  current_incremental_save(0),
-	  incremental_serial_index(),
-	  deferred_insertions(),
-	  modified_serials(),
-	  deleted_serials(),
-	  clean_objects(0),
-	  dirty_objects(0),
-	  incremental_saves_disabled(false),
-	  objecthash(),
 	  storage(),
 	  parties(),
-	  party_cfg(),
-	  ssopt(),
-	  polclock_paused_at(0),
-	  polvar(),
-	  stored_last_item_serial(0),
-	  stored_last_char_serial(0),
-	  polstats(),
-	  profilevars(),
+	  guilds(),
+	  nextguildid(1),
 	  main_realm(nullptr),
 	  Realms(),
 	  shadowrealms_by_id(),
@@ -152,18 +117,6 @@ namespace Pol {
 	  pAttrParry(nullptr),
 	  pAttrTactics(nullptr),
 
-	  runlist(),
-	  ranlist(),
-	  holdlist(),
-	  notimeoutholdlist(),
-	  debuggerholdlist(),
-	  priority_divide(1),
-	  scrstore(),
-	  pidlist(),
-	  next_pid(0),
-#ifdef HAVE_MYSQL
-	  sql_service(new SQLService),
-#endif
 	  // Magery is repeated at array entry 3, because as of right now, NO spellbook
 	  // on OSI uses the 301+ spellrange that we can find. 5/30/06 - MuadDib
 	  // We use Mysticism at array entry 3 because Mysticism spellids are 678 -> 693 and this slot is free.
@@ -182,9 +135,6 @@ namespace Pol {
 	  export_scripts(),
 	  system_hooks(),
 	  tipfilenames(),
-	  uobjcount(),
-	  itemserialnumber(ITEMSERIAL_START),
-	  charserialnumber(CHARACTERSERIAL_START),
 	  armorzones(),
 	  armor_zone_chance_sum(0),
 	  vitals(),
@@ -202,59 +152,25 @@ namespace Pol {
 	  empty_itemdesc(new Items::ItemDesc(Items::ItemDesc::ITEMDESC)),
 	  temp_itemdesc(new Items::ItemDesc(Items::ItemDesc::ITEMDESC)),
 	  resourcedefs(),
-	  uo_client_interface(new Network::UOClientInterface()),
-	  auxservices(),
-	  uoclient_general(),
-	  uoclient_protocol(),
-	  uoclient_listeners(),
-	  polsig(),
-	  iostats(),
-	  queuedmode_iostats(),
-	  login_filter(nullptr),
-	  game_filter(nullptr),
-	  disconnected_filter(nullptr),
-	  packet_hook_data(),
-	  packet_hook_data_v2(),
-	  handler(),
-	  handler_v2(),
-	  ext_handler_table(),
-	  packetsSingleton(new Network::PacketsSingleton()),
-	  clientTransmit(new Network::ClientTransmit()),
+	  
 	  intrinsic_weapons(),
 	  boatshapes(),
-#ifdef PERGON
-	  auxthreadpool(new threadhelp::DynTaskThreadPool("AuxPool")),  // TODO: seems to work activate by default? maybe add a cfg entry for max number of threads
-#endif
-	  banned_ips(),
+
 	  animation_translates(),
 	  console_commands(),
 	  landtiles(),
 	  landtiles_loaded(false),
 	  listen_points(),
-	  movecost_walking(),
-	  movecost_running(),
-	  movecost_walking_mounted(),
-	  movecost_running_mounted(),
 	  wwwroot_pkg(nullptr),
 	  mime_types(),
-	  repsys_cfg(),
 	  task_queue(),
 	  Global_Ignore_CProps(),
 	  target_cursors(),
 	  textcmds(),
 	  paramtextcmds(),
-	  uo_skills(),
-	  polsocket()
+	  uo_skills()
 	{
-	  memset( ipaddr_str, 0, sizeof ipaddr_str );
-	  memset( lanaddr_str, 0, sizeof lanaddr_str );
-	  memset( hostname, 0, sizeof hostname );
 	  memset( &mount_action_xlate, 0, sizeof( mount_action_xlate ) );
-	  MessageTypeFilter::createMessageFilter();
-	  Network::PacketHookData::initializeGameData( &packet_hook_data );
-	  Network::PacketHookData::initializeGameData( &packet_hook_data_v2 );
-
-	  Network::PacketRegistry::initialize_msg_handlers();
 	}
 	GameState::~GameState()
 	{
@@ -269,12 +185,7 @@ namespace Pol {
 	{
 	  INFO_PRINT << "Initiating POL Cleanup....\n";
 
-	  for ( auto &client : clients )
-	  {
-		client->forceDisconnect();
-	  }
-	  kill_disconnected_clients();
-
+	  networkManager.deinialize();
 	  deinit_ipc_vars();
 
 	  if ( Plib::systemstate.config.log_script_cycles )
@@ -290,11 +201,7 @@ namespace Pol {
 	  checkpoint( "cleaning listen points" );
 	  clear_listen_points();
 
-	  // unload_aux_service
-	  Clib::delete_all( auxservices );
-#ifdef PERGON
-      auxthreadpool.release();
-#endif
+	  
 
 	  // unload_other_objects
 	  unload_intrinsic_weapons();
@@ -308,7 +215,7 @@ namespace Pol {
 
 	  system_hooks.unload_system_hooks();
 
-	  configurationbuffer.deinialize();
+	  configurationbuffer.deinitialize();
 
 	  Plib::systemstate.deinitialize();
 	  Multi::multidef_buffer.deinitialize();
@@ -316,24 +223,19 @@ namespace Pol {
 	  unload_npc_templates();  //quick and nasty fix until npcdesc usage is rewritten Turley 2012-08-27: moved before objecthash due to npc-method_script cleanup
 
 	  Bscript::UninitObject::ReleaseSharedInstance();
-	  objecthash.Clear();
+	  objStorageManager.deinitialize();
 	  display_leftover_objects();
 
 	  checkpoint( "unloading data" );
 	  unload_data();
+	  guilds.clear();
 
 	  Clib::MD5_Cleanup();
 
 	  checkpoint( "misc cleanup" );
 
-	  scrstore.clear();
-
 	  global_properties->clear();
 	  menus.clear();
-	  incremental_serial_index.clear();
-	  deferred_insertions.clear();
-	  modified_serials.clear();
-	  deleted_serials.clear();
 
 	  textcmds.clear();
 	  paramtextcmds.clear();
@@ -341,15 +243,8 @@ namespace Pol {
 	  mime_types.clear();
 	  console_commands.clear();
 	  animation_translates.clear();
-	  banned_ips.clear();
+	  
 	  tipfilenames.clear();
-
-#ifdef _WIN32
-	  closesocket( polsocket.listen_socket );
-#else
-	  close( polsocket.listen_socket ); // shutdown( polsocket.listen_socket, 2 ); ??
-#endif
-	  Network::deinit_sockets_library();
 
 	  checkpoint( "end of xmain2" );
 
@@ -358,42 +253,10 @@ namespace Pol {
 #endif
 	}
 
-	void GameState::kill_disconnected_clients()
-    {
-      Clients::iterator itr = clients.begin();
-      while ( itr != clients.end() )
-      {
-        Network::Client* client = *itr;
-        if ( !client->isReallyConnected() )
-        {
-          fmt::Writer tmp;
-          tmp.Format( "Disconnecting Client#{} ({}/{})" )
-            << client->instance_
-            << ( client->acct ? client->acct->name() : "[no account]" )
-            << ( client->chr ? client->chr->name() : "[no character]" );
-          ERROR_PRINT << tmp.c_str() << "\n";
-          if ( Plib::systemstate.config.loglevel >= 4 )
-            POLLOG << tmp.c_str() << "\n";
-
-          Network::Client::Delete( client );
-          client = NULL;
-          itr = clients.erase( itr );
-        }
-        else
-        {
-          ++itr;
-        }
-      }
-    }
+	
 
 	void GameState::cleanup_vars()
 	{
-      for (auto &client : clients)
-      {
-        Network::Client::Delete( client );
-      }
-	  clients.clear();
-
 	  //dave added 9/27/03: accounts and player characters have a mutual reference that prevents them getting cleaned up
 	  //  properly. So clear the references now.
       for ( auto &account : accounts )
@@ -459,10 +322,9 @@ namespace Pol {
 
 	  // dave renamed this 9/27/03, so we only have to traverse the objhash once, to clear out account references and delete.
 	  // and Nando placed it outside the Realms' loop in 2009-01-18. 
-	  objecthash.ClearCharacterAccountReferences();
+	  objStorageManager.objecthash.ClearCharacterAccountReferences();
 
 	  accounts.clear();
-	  Clib::delete_all( servers );
 	  Clib::delete_all( startlocations );
 
 	  storage.clear();
@@ -487,7 +349,6 @@ namespace Pol {
 	  cmdlevels.clear();
 	  clean_spells();
 	  clean_skills();
-	  Network::clean_packethooks();
 	}
 
 	// Note, when the program exits, each executor in these queues
@@ -497,22 +358,7 @@ namespace Pol {
 
 	void GameState::cleanup_scripts()
 	{
-	  Clib::delete_all( runlist );
-	  while ( !holdlist.empty() )
-	  {
-		delete ( ( *holdlist.begin() ).second );
-		holdlist.erase( holdlist.begin() );
-	  }
-	  while ( !notimeoutholdlist.empty() )
-	  {
-		delete ( *notimeoutholdlist.begin() );
-		notimeoutholdlist.erase( notimeoutholdlist.begin() );
-	  }
-	  while ( !debuggerholdlist.empty() )
-	  {
-		delete ( *debuggerholdlist.begin() );
-		debuggerholdlist.erase( debuggerholdlist.begin() );
-	  }
+	  scriptEngineInternalManager.deinitialize();
 	}
 
 	void GameState::clear_listen_points()
@@ -563,23 +409,5 @@ namespace Pol {
 	  npc_template_elems.clear();
 	}
 
-
-
-
-	void set_watch_vars()
-	{
-	  Clib::ConfigFile cf;
-	  Clib::ConfigElem elem;
-	  if ( Clib::FileExists( "config/watch.cfg" ) )
-	  {
-		cf.open( "config/watch.cfg" );
-		cf.readraw( elem );
-	  }
-	  else if ( Plib::systemstate.config.loglevel > 1 )
-        INFO_PRINT << "File config/watch.cfg not found, skipping.\n";
-
-	  gamestate.watch.combat = elem.remove_bool( "COMBAT", false );
-	  gamestate.watch.profile_scripts = elem.remove_bool( "ProfileScripts", false );
-	}
   }
 }
