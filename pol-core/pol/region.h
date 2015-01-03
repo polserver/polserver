@@ -23,6 +23,9 @@ namespace Pol {
   namespace Bscript {
 	class BObjectImp;
   }
+  namespace Plib {
+	class Realm;
+  }
   namespace Core {
 	class RegionGroupBase;
 

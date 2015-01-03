@@ -2324,15 +2324,15 @@ namespace Pol {
 
     void UOExecutorModule::internal_InBoxAreaChecks( unsigned short& /*x1*/, unsigned short& /*y1*/, short &z1, unsigned short &x2, unsigned short &y2, short &z2, Plib::Realm* realm )
 	{
-	  if ( z1 < WORLD_MIN_Z )
-		z1 = WORLD_MIN_Z;
+	  if ( z1 < ZCOORD_MIN )
+		z1 = ZCOORD_MIN;
 
 	  if ( x2 >= realm->width() )
 		x2 = ( realm->width() - 1 );
 	  if ( y2 >= realm->height() )
 		y2 = ( realm->height() - 1 );
-	  if ( z2 > WORLD_MAX_Z )
-		z2 = WORLD_MAX_Z;
+	  if ( z2 > ZCOORD_MAX )
+		z2 = ZCOORD_MAX;
 	}
 
 	BObjectImp* UOExecutorModule::mf_ListObjectsInBox(/* x1, y1, z1, x2, y2, z2, realm */ )
@@ -5190,10 +5190,10 @@ namespace Pol {
 
 	  if ( getParam( 0, x1 ) &&
 		   getParam( 1, y1 ) &&
-		   getParam( 2, z1, WORLD_MIN_Z, WORLD_MAX_Z ) &&
+		   getParam( 2, z1, ZCOORD_MIN, ZCOORD_MAX ) &&
 		   getParam( 3, x2 ) &&
 		   getParam( 4, y2 ) &&
-		   getParam( 5, z2, WORLD_MIN_Z, WORLD_MAX_Z ) &&
+		   getParam( 5, z2, ZCOORD_MIN, ZCOORD_MAX ) &&
 		   getStringParam( 6, strrealm ))
 	  {
 		if ( pol_distance( x1, y1, x2, y2 ) > settingsManager.ssopt.max_pathfind_range )

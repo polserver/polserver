@@ -18,7 +18,6 @@ Notes
 #include "polfile.h"
 #include "udatfile.h"
 #include "ustruct.h"
-#include "wrldsize.h"
 
 #include "../clib/passert.h"
 #include <cstdio>

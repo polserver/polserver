@@ -1054,9 +1054,6 @@
     <ClInclude Include="watch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="wrldsize.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="wthrtype.h">
       <Filter>Header Files</Filter>
     </ClInclude>

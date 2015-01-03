@@ -29,6 +29,7 @@ Notes
 #include "ufunc.h"
 #include "globals/uvars.h"
 #include "globals/state.h"
+#include "globals/settings.h"
 #include "uworld.h"
 #include "vital.h"
 

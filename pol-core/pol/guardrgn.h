@@ -19,6 +19,9 @@ namespace Pol {
     namespace Network {
         class Client;
     }
+	namespace Mobile {
+	  class Character;
+	}
 
   namespace Core {
 

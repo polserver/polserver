@@ -61,7 +61,6 @@ Notes
 #include "ufunc.h"
 #include "uoexhelp.h"
 #include "uoscrobj.h"
-#include "wrldsize.h"
 #include "mdelta.h"
 #include "uofile.h"
 #include "uworld.h"
@@ -236,7 +235,7 @@ namespace Pol {
 	  unsigned short newy = y + move_delta[dir].ymove;
 
 	  unsigned short wx, wy;
-	  zone_convert_clip( newx, newy, realm, wx, wy );
+	  zone_convert_clip( newx, newy, realm, &wx, &wy );
 
       if ( settingsManager.ssopt.mobiles_block_npc_movement )
       {

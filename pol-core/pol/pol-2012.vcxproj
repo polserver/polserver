@@ -667,7 +667,6 @@
     <ClInclude Include="vital.h" />
     <ClInclude Include="watch.h" />
     <ClInclude Include="mobile\wornitems.h" />
-    <ClInclude Include="wrldsize.h" />
     <ClInclude Include="wthrtype.h" />
     <ClInclude Include="xbuffer.h" />
     <ClInclude Include="xmlfilescrobj.h" />

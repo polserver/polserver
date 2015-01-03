@@ -15,7 +15,6 @@ Notes
 #include "../plib/realm.h"
 
 #include "realms.h"
-#include "wrldsize.h"
 
 namespace Pol {
   namespace Core {

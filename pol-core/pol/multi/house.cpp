@@ -581,8 +581,8 @@ namespace Pol {
 	{
 	  unsigned short wxL, wyL, wxH, wyH;
 
-      Core::zone_convert_clip( mywest - 100, mynorth - 100, realm, wxL, wyL );
-      Core::zone_convert_clip( myeast + 100, mysouth + 100, realm, wxH, wyH );
+      Core::zone_convert_clip( mywest - 100, mynorth - 100, realm, &wxL, &wyL );
+      Core::zone_convert_clip( myeast + 100, mysouth + 100, realm, &wxH, &wyH );
 	  for ( unsigned short wx = wxL; wx <= wxH; ++wx )
 	  {
 		for ( unsigned short wy = wyL; wy <= wyH; ++wy )
@@ -641,8 +641,8 @@ namespace Pol {
 	bool objects_exist_in( unsigned short x1, unsigned short y1, unsigned short x2, unsigned short y2, Plib::Realm* realm )
 	{
 	  unsigned short wxL, wyL, wxH, wyH;
-      Core::zone_convert_clip( x1, y1, realm, wxL, wyL );
-      Core::zone_convert_clip( x2, y2, realm, wxH, wyH );
+      Core::zone_convert_clip( x1, y1, realm, &wxL, &wyL );
+      Core::zone_convert_clip( x2, y2, realm, &wxH, &wyH );
       auto includes = [&]( const Core::UObject *obj )
       {
         if ( obj->x >= x1 && obj->x <= x2 &&

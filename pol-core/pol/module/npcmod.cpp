@@ -43,7 +43,6 @@ Notes
 #include "../uoexhelp.h"
 #include "../uoscrobj.h"
 #include "../globals/uvars.h"
-#include "../wrldsize.h"
 #include "../uworld.h"
 #include "../containr.h"
 

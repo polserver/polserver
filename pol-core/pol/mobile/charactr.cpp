@@ -4230,8 +4230,8 @@ namespace Pol {
 		return NULL;
 	  }
 	  unsigned short wxL, wyL, wxH, wyH;
-      Core::zone_convert_clip( x - 3, y - 3, realm, wxL, wyL );
-      Core::zone_convert_clip( x + 3, y + 3, realm, wxH, wyH );
+      Core::zone_convert_clip( x - 3, y - 3, realm, &wxL, &wyL );
+      Core::zone_convert_clip( x + 3, y + 3, realm, &wxH, &wyH );
 	  for ( unsigned short wx = wxL; wx <= wxH; ++wx )
 	  {
 		for ( unsigned short wy = wyL; wy <= wyH; ++wy )

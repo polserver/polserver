@@ -11,12 +11,7 @@ Notes
 #ifndef ZONE_H
 #define ZONE_H
 
-#include "../plib/realm.h"
 #include "poltype.h"
-#include "wrldsize.h"
-
-#include <string>
-#include <vector>
 
 namespace Pol {
   namespace Core {

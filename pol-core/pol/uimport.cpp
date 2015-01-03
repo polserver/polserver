@@ -497,7 +497,7 @@ namespace Pol {
     Items::Item* find_existing_item( u32 objtype, u16 x, u16 y, s8 z, Plib::Realm* realm )
     {
       unsigned short wx, wy;
-      zone_convert( x, y, wx, wy, realm );
+      zone_convert( x, y, &wx, &wy, realm );
       for ( auto &item : realm->zone[wx][wy].items )
       {
         // FIXME won't find doors which have been perturbed

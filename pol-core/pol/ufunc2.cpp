@@ -86,8 +86,8 @@ namespace Pol {
 	  }
 
 	  unsigned short wxL, wyL, wxH, wyH;
-	  zone_convert_clip( p_chr->x - range, p_chr->y - range, p_chr->realm, wxL, wyL );
-	  zone_convert_clip( p_chr->x + range, p_chr->y + range, p_chr->realm, wxH, wyH );
+	  zone_convert_clip( p_chr->x - range, p_chr->y - range, p_chr->realm, &wxL, &wyL );
+	  zone_convert_clip( p_chr->x + range, p_chr->y + range, p_chr->realm, &wxH, &wyH );
 	  for ( unsigned short wx = wxL; wx <= wxH; ++wx )
 	  {
 		for ( unsigned short wy = wyL; wy <= wyH; ++wy )
@@ -119,8 +119,8 @@ namespace Pol {
 	  }
 
 	  unsigned short wxL, wyL, wxH, wyH;
-	  zone_convert_clip( p_chr->x - range, p_chr->y - range, p_chr->realm, wxL, wyL );
-	  zone_convert_clip( p_chr->x + range, p_chr->y + range, p_chr->realm, wxH, wyH );
+	  zone_convert_clip( p_chr->x - range, p_chr->y - range, p_chr->realm, &wxL, &wyL );
+	  zone_convert_clip( p_chr->x + range, p_chr->y + range, p_chr->realm, &wxH, &wyH );
 	  for ( unsigned short wx = wxL; wx <= wxH; ++wx )
 	  {
 		for ( unsigned short wy = wyL; wy <= wyH; ++wy )
