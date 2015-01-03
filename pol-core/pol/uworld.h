@@ -81,8 +81,8 @@ namespace Pol {
 	  passert( x < realm->width() );
 	  passert( y < realm->height() );
 
-	  *wx = x >> WGRID_SHIFT;
-	  *wy = y >> WGRID_SHIFT;
+	  (*wx) = x >> WGRID_SHIFT;
+	  (*wy) = y >> WGRID_SHIFT;
 	}
 
 	inline void zone_convert_clip( int x, int y, const Plib::Realm* realm, unsigned short* wx, unsigned short* wy )
@@ -96,8 +96,8 @@ namespace Pol {
 	  if ( (unsigned)y >= realm->height() )
 		y = realm->height() - 1;
 
-	  *wx = static_cast<unsigned short>( x >> WGRID_SHIFT );
-	  *wy = static_cast<unsigned short>( y >> WGRID_SHIFT );
+	  (*wx) = static_cast<unsigned short>( x >> WGRID_SHIFT );
+	  (*wy) = static_cast<unsigned short>( y >> WGRID_SHIFT );
 	}
 
 	inline Zone& getzone( unsigned short x, unsigned short y, Plib::Realm* realm )

@@ -212,5 +212,85 @@ namespace Pol {
 	  }
 	}
 
+	void calc_grid_count(const Plib::Realm* realm, unsigned *gridx, unsigned *gridy)
+	{
+	  (*gridx) = ( realm->width() / WGRID_SIZE );
+	  (*gridy) = ( realm->height() / WGRID_SIZE );
+	  // Tokuno-Fix
+	  if ( (*gridx) * WGRID_SIZE < realm->width() )
+		(*gridx)++;
+	  if ( (*gridy) * WGRID_SIZE < realm->height() )
+		(*gridy)++;
+	}
+
+	bool should_switch_realm(size_t index, unsigned x, unsigned y, unsigned *gridx, unsigned *gridy)
+	{
+	  (void)x;
+	  if (index >= gamestate.Realms.size())
+		return true;
+	  Plib::Realm* realm = gamestate.Realms[index];
+	  if (realm == nullptr)
+		return true;
+
+	  calc_grid_count( realm, gridx, gridy );
+
+	  // check if ++y would result in reset
+	  if (y + 1 >= (*gridy))
+		return true;
+	  return false;
+	}
+
+	void decay_single_thread( void* arg ) 
+	{
+	  (void)arg;
+	  // calculate total grid count, based on current realms
+	  unsigned total_grid_count = 0;
+	  for (const auto& realm : gamestate.Realms)
+	  {
+		unsigned _gridx, _gridy;
+		calc_grid_count( realm, &_gridx, &_gridy );
+		total_grid_count += (_gridx*_gridy);
+	  }
+	  // sweep every realm ~10minutes -> 36ms for 6 realms
+	  unsigned sleeptime = ( 60 * 10L * 1000 ) / total_grid_count;
+	  sleeptime = std::max( sleeptime, 30u ); // limit to 30ms
+	  size_t realm_index=~0u;
+	  unsigned wx = 0;
+	  unsigned wy = 0;
+	  unsigned gridx = 0;
+	  unsigned gridy = 0;
+	  while ( !Clib::exit_signalled )
+	  {
+		{
+		  PolLock lck;
+		  polclock_checkin();
+		  // check if realm_index is still valid and if y is still in valid range
+		  if (should_switch_realm(realm_index, wx, wy, &gridx, &gridy))
+		  {
+			++realm_index;
+			if (realm_index >= gamestate.Realms.size())
+			  realm_index = 0;
+			wx = 0;
+			wy = 0;
+		  }
+		  else
+		  {
+			if ( ++wx >= gridx )
+			{
+			  wx = 0;
+			  if ( ++wy >= gridy )
+			  {
+				POLLOG_ERROR << "SHOULD NEVER HAPPEN\n";
+				wy = 0;
+			  }
+			}
+		  }
+		  decay_worldzone( wx, wy, gamestate.Realms[realm_index] );
+		  restart_all_clients();
+		}
+		pol_sleep_ms( sleeptime );
+	  }
+	}
+
   }
 }
