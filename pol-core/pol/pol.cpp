@@ -668,6 +668,7 @@ namespace Pol {
 
     void decay_thread( void* );
     void decay_thread_shadow( void* );
+	void decay_single_thread( void*);
 
     template<class T>
     inline void Delete( T* p )
@@ -833,6 +834,9 @@ namespace Pol {
       if ( settingsManager.ssopt.decay_items )
       {
         checkpoint( "start decay thread" );
+#ifdef PERGON
+		threadhelp::start_thread( decay_single_thread, "Decay", nullptr );
+#else
         std::vector<Plib::Realm*>::iterator itr;
         for ( itr = gamestate.Realms.begin(); itr != gamestate.Realms.end(); ++itr )
         {
@@ -843,6 +847,7 @@ namespace Pol {
           else
             threadhelp::start_thread( decay_thread, thname.str().c_str(), (void*)( *itr ) );
         }
+#endif
       }
       else
       {

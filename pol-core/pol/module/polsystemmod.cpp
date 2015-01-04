@@ -428,9 +428,11 @@ namespace Pol {
       Core::add_realm( realm_name->value( ), baserealm );
       if ( Core::settingsManager.ssopt.decay_items )
 	  {
+#ifndef PERGON
         std::ostringstream thname;
 		thname << "Decay_" << realm_name->value();
         threadhelp::start_thread( Core::decay_thread_shadow, thname.str( ).c_str( ), (void*)Core::find_realm( realm_name->value( ) ) );
+#endif
 	  }
 	  return new BLong( 1 );
 	}
