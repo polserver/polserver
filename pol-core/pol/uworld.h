@@ -16,7 +16,15 @@ Notes
 #ifndef __UOBJECT_H
 #include "uobject.h"
 #endif
-
+#ifndef ITEM_H
+#include "item/item.h"
+#endif
+#ifndef MULTI_H
+#include "multi/multi.h"
+#endif
+#ifndef __CHARACTR_H
+#include "mobile/charactr.h"
+#endif
 #include "zone.h"
 
 #include "../clib/passert.h"
