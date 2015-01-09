@@ -20,6 +20,7 @@ Notes
 
 #include "../pol/uworld.h"
 #include "../pol/mobile/charactr.h"
+#include "../pol/poltype.h"
 #include "WorldChangeReasons.h"
 #include "../clib/logfacility.h"
 
@@ -38,15 +39,8 @@ namespace Pol {
 	  _staticserver( new StaticServer( _descriptor ) ),
 	  _maptileserver( new MapTileServer( _descriptor ) )
 	{
-
-	  size_t gridwidth = width( ) / Core::WGRID_SIZE;
-	  size_t gridheight = height( ) / Core::WGRID_SIZE;
-
-	  // Tokuno-Fix
-	  if ( gridwidth * Core::WGRID_SIZE < width( ) )
-		gridwidth++;
-	  if ( gridheight * Core::WGRID_SIZE < height( ) )
-		gridheight++;
+	  size_t gridwidth = grid_width();
+      size_t gridheight = grid_height();
 
 	  zone = new Core::Zone*[gridwidth];
 
@@ -59,20 +53,14 @@ namespace Pol {
 	  shadowid( 0 ),
 	  baserealm( realm ),
 	  shadowname( realm_name ),
-	  _descriptor(),
+	  _descriptor(realm->_descriptor),
 	  _mobile_count( 0 ),
       _offline_count( 0 ),
 	  _toplevel_item_count( 0 ),
       _multi_count( 0 )
 	{
-	  size_t gridwidth = width( ) / Core::WGRID_SIZE;
-	  size_t gridheight = height( ) / Core::WGRID_SIZE;
-
-	  // Tokuno-Fix
-	  if ( gridwidth * Core::WGRID_SIZE < width( ) )
-		gridwidth++;
-	  if ( gridheight * Core::WGRID_SIZE < height( ) )
-		gridheight++;
+	  size_t gridwidth = grid_width();
+      size_t gridheight = grid_height();
 
 	  zone = new Core::Zone*[gridwidth];
 
@@ -82,12 +70,7 @@ namespace Pol {
 
 	Realm::~Realm()
 	{
-	  size_t gridwidth = width() / Core::WGRID_SIZE;
-
-	  // Tokuno-Fix
-	  if ( gridwidth * Core::WGRID_SIZE < width( ) )
-		gridwidth++;
-
+	  size_t gridwidth = grid_width();
 	  for ( size_t i = 0; i < gridwidth; i++ )
 		delete[] zone[i];
 	  delete[] zone;
@@ -98,14 +81,9 @@ namespace Pol {
       size_t size = sizeof( *this );
       size += shadowname.capacity();
       // zone **
-      unsigned int gridwidth = width() / Core::WGRID_SIZE;
-      unsigned int gridheight = height() / Core::WGRID_SIZE;
+	  unsigned gridwidth = grid_width();
+      unsigned gridheight = grid_height();
 
-      // Tokuno-Fix
-      if ( gridwidth * Core::WGRID_SIZE < width() )
-        gridwidth++;
-      if ( gridheight * Core::WGRID_SIZE < height() )
-        gridheight++;
       for ( unsigned x = 0; x < gridwidth; ++x )
       {
         for ( unsigned y = 0; y < gridheight; ++y )
@@ -126,25 +104,24 @@ namespace Pol {
       return size;
     }
 
-	unsigned short Realm::width() const
+	unsigned short Realm::grid_width() const
 	{
-	  return _Descriptor().width;
+	  return _descriptor.grid_width;        
 	}
-
-	unsigned short Realm::height() const
+	unsigned short Realm::grid_height() const
 	{
-	  return _Descriptor().height;
+	  return _descriptor.grid_height;
 	}
 
 	unsigned Realm::season() const
 	{
-	  return _Descriptor().season;
+	  return _descriptor.season;
 	}
 
 	bool Realm::valid( unsigned short x, unsigned short y, short z ) const
 	{
-	  return ( x < _Descriptor().width && y < _Descriptor().height &&
-			   z >= -128 && z <= 127 );
+	  return ( x < width() && y < height() &&
+			   z >= Core::ZCOORD_MIN && z <= Core::ZCOORD_MAX );
 	}
 
     const std::string Realm::name() const

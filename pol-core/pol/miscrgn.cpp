@@ -63,14 +63,8 @@ namespace Pol {
 	{
       for ( auto const &realm : gamestate.Realms )
       {
-        unsigned int gridwidth = realm->width() / WGRID_SIZE;
-        unsigned int gridheight = realm->height() / WGRID_SIZE;
-
-        // Tokuno-Fix
-        if ( gridwidth * WGRID_SIZE < realm->width() )
-          gridwidth++;
-        if ( gridheight * WGRID_SIZE < realm->height() )
-          gridheight++;
+		unsigned int gridwidth = realm->grid_width();
+		unsigned int gridheight = realm->grid_height();
 
         RegionId** zone = new RegionId*[gridwidth];
 
@@ -90,11 +84,7 @@ namespace Pol {
 	{
 	  for ( auto &realmregion : default_regionrealms )
 	  {
-        unsigned int gridwidth = realmregion.first->width() / WGRID_SIZE;
-
-		// Tokuno-Fix
-        if ( gridwidth * WGRID_SIZE < realmregion.first->width() )
-		  gridwidth++;
+		unsigned int gridwidth = realmregion.first->grid_width();
 
 		for ( unsigned int i = 0; i < gridwidth; i++ )
           delete[] realmregion.second[i];
@@ -108,14 +98,8 @@ namespace Pol {
       for ( auto &realmregion : regionrealms )
 	  {
         Plib::Realm* realm = realmregion.first;
-		unsigned int gridwidth = realm->width() / WGRID_SIZE;
-		unsigned int gridheight = realm->height() / WGRID_SIZE;
-
-		// Tokuno-Fix
-		if ( gridwidth * WGRID_SIZE < realm->width() )
-		  gridwidth++;
-		if ( gridheight * WGRID_SIZE < realm->height() )
-		  gridheight++;
+		unsigned int gridwidth = realm->grid_width();
+		unsigned int gridheight = realm->grid_height();
 
 		//RegionId** zone = new RegionId*[gridwidth];
 

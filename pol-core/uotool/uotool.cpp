@@ -17,6 +17,7 @@ Notes
 #include "../pol/multi/multidef.h"
 #include "../pol/globals/multidefs.h"
 #include "../pol/objtype.h"
+#include "../pol/poltype.h"
 
 #include "../plib/realmdescriptor.h"
 #include "../plib/staticblock.h"
@@ -769,7 +770,7 @@ namespace Pol {
 		  Core::USTRUCT_MAPINFO mi;
 		  short z;
 		  getmapinfo( x, y, &z, &mi );
-		  assert( z >= -128 && z <= 127 );
+		  assert( z >= Core::ZCOORD_MIN && z <= Core::ZCOORD_MAX );
 		  ++zcount[z + 128];
 		}
 	  }
