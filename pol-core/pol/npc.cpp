@@ -103,25 +103,27 @@ namespace Pol {
   namespace Core {
 	NPC::NPC( u32 objtype, const Clib::ConfigElem& elem ) :
 	  Character( objtype, CLASS_NPC ),
-	  damaged_sound( 0 ),
-	  use_adjustments( true ),
-	  run_speed( dexterity() ),
-	  ex( NULL ),
-	  give_item_ex( NULL ),
-	  script( "" ),
+	  // UOBJECT INTERFACE
+	  // NPC INTERFACE
 	  npc_ar_( 0 ),
-	  master_( NULL ),
-	  template_( find_npc_template( elem ) ),
+	  // MOVEMENT
+	  run_speed( dexterity() ),
+	  use_adjustments( true ),
+	  anchor(),
+	  // EVENTS
 	  speech_color_( DEFAULT_TEXT_COLOR ),
-	  speech_font_( DEFAULT_TEXT_FONT )
+	  speech_font_( DEFAULT_TEXT_FONT ),
+	  // SCRIPT
+	  script( "" ),
+	  ex( NULL ),
+	  // MISC
+	  damaged_sound( 0 ),
+	  template_name(),
+	  master_( NULL ),
+	  template_( find_npc_template( elem ) )
 	{
 	  connected = 1;
 	  logged_in = true;
-	  anchor.enabled = false;
-	  anchor.x = 0;
-	  anchor.y = 0;
-	  anchor.dstart = 0;
-	  anchor.psub = 0;
 	  ++stateManager.uobjcount.npc_count;
 	}
 
@@ -1157,13 +1159,6 @@ namespace Pol {
 	  base::apply_raw_damage_hundredths( damage, source, userepsys, send_damage_packet );
 	}
 
-	/*
-	void NPC::on_swing_failure( Character* attacker )
-	{
-	base::on_swing_failure(attacker);
-	}
-	*/
-
 	// keep this in sync with Character::armor_absorb_damage
 	double NPC::armor_absorb_damage( double damage )
 	{
@@ -1319,7 +1314,6 @@ namespace Pol {
         +sizeof(bool)/*use_adjustments*/
         +sizeof(unsigned short)/*run_speed*/
         +sizeof(UOExecutor*)/*ex*/
-        +sizeof(UOExecutor*)/*give_item_ex*/
         +sizeof(unsigned short)/*npc_ar_*/
         +sizeof(CharacterRef)/*master_*/
         +sizeof(anchor)/*anchor*/
@@ -1375,5 +1369,12 @@ namespace Pol {
         case ELEMENTAL_PHYSICAL: return setmember<s16>( Bscript::MBR_PHYSICAL_DAMAGE + 1000, value );
       }
     }
+
+	u16 NPC::get_damaged_sound() const
+	{
+	  if (damaged_sound != 0)
+		return damaged_sound;
+	  return base::get_damaged_sound();
+	}
   }
 }

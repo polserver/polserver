@@ -277,6 +277,55 @@ namespace Pol {
 		( lhs.serial == rhs.serial && lhs.polclock < rhs.polclock );
 	}
 
+	struct CachedSettings
+	{
+	  CachedSettings() :
+		all( false ),
+		moveany( false ),
+		moveanydist( false ),
+		renameany( false ),
+		clotheany( false ),
+		invul( false ),
+		seehidden( false ),
+		seeghosts( false ),
+		hearghosts( false ),
+		seeinvisitems( false ),
+		dblclickany( false ),
+		losany( false ),
+		ignoredoors( false ),
+		freemove( false ),
+		firewhilemoving( false ),
+		attackhidden( false ),
+		hiddenattack( false ),
+		plogany( false ),
+		canbeheardasghost( false ),
+		runwhilestealth( false ),
+		speedhack( false )
+	  {
+	  };
+	  bool all;
+	  bool moveany;    // should everything be moveable?
+	  bool moveanydist;
+	  bool renameany;  // should everything be renameable?
+	  bool clotheany;
+	  bool invul;
+	  bool seehidden;
+	  bool seeghosts;
+	  bool hearghosts;
+	  bool seeinvisitems;
+	  bool dblclickany;
+	  bool losany;    // all targetting ignore LOS?
+	  bool ignoredoors;
+	  bool freemove;
+	  bool firewhilemoving;
+	  bool attackhidden;
+	  bool hiddenattack;
+	  bool plogany;
+	  bool canbeheardasghost;
+	  bool runwhilestealth;
+	  bool speedhack;
+	};
+
 
 	// NOTES:
 	//  The location of the wornitems container MUST be updated whenever the character
@@ -287,24 +336,91 @@ namespace Pol {
 
 	class Character : public Core::UObject
 	{
+	  // types:
 	  typedef UObject base;
+	  typedef std::set<Character*> CharacterSet;
+
 	public:
 	  explicit Character( u32 objtype, UOBJ_CLASS uobj_class = CLASS_CHARACTER );
 	  virtual ~Character();
+	private:
+	  // non-implemented functions:
+	  Character( const Character& );
+	  Character& operator=( const Character& );
+
+	// UOBJECT INTERFACE
+	public:
       virtual size_t estimatedSize( ) const POL_OVERRIDE;
-
-
-	  // types:
-	  typedef std::set<Character*> CharacterSet;
-
-
-	  void removal_cleanup();
-	  void disconnect_cleanup();
-
+	  
 	  virtual void destroy() POL_OVERRIDE;
-
 	  virtual u8 los_height() const POL_OVERRIDE;
 	  virtual unsigned int weight() const POL_OVERRIDE;
+	  
+	  virtual bool setgraphic( u16 newobjtype ) POL_OVERRIDE;
+	  virtual void on_color_changed() POL_OVERRIDE;
+	  virtual void setfacing( u8 newfacing ) POL_OVERRIDE;
+	  virtual void on_facing_changed() POL_OVERRIDE;
+	  
+	  virtual void readProperties( Clib::ConfigElem& elem ) POL_OVERRIDE;
+	  
+	  virtual Bscript::BObjectImp* make_ref() POL_OVERRIDE;
+
+	  virtual Bscript::BObjectImp* get_script_member( const char *membername ) const POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const POL_OVERRIDE; //id test
+	  virtual Bscript::BObjectImp* set_script_member( const char *membername, const std::string& value ) POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* set_script_member( const char *membername, int value ) POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* set_script_member_id( const int id, const std::string& value ) POL_OVERRIDE;//id test
+	  virtual Bscript::BObjectImp* set_script_member_id( const int id, int value ) POL_OVERRIDE;//id test
+	  virtual Bscript::BObjectImp* set_script_member_id_double( const int id, double value ) POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* script_method( const char* methodname, Bscript::Executor& ex ) POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* script_method_id( const int id, Bscript::Executor& ex ) POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* custom_script_method( const char* methodname, Bscript::Executor& ex ) POL_OVERRIDE;
+	  virtual bool script_isa( unsigned isatype ) const POL_OVERRIDE;
+	  virtual const char* target_tag() const POL_OVERRIDE;
+	protected:
+	  virtual const char *classname() const POL_OVERRIDE;
+	  virtual void printOn( Clib::StreamWriter& sw ) const POL_OVERRIDE;
+	  virtual void printSelfOn( Clib::StreamWriter& sw ) const POL_OVERRIDE;
+	  virtual void printProperties( Clib::StreamWriter& sw ) const POL_OVERRIDE;
+	  virtual void printDebugProperties( Clib::StreamWriter& sw ) const POL_OVERRIDE;
+
+	public:
+	  Bscript::BObjectImp* make_offline_ref();
+
+	// NPC INTERFACE
+	public:
+	  virtual Items::UWeapon* intrinsic_weapon( );
+
+	  virtual void inform_disengaged( Character* disengaged );
+	  virtual void inform_engaged( Character* engaged );
+	  virtual void inform_criminal( Character* thecriminal );
+	  virtual void inform_leftarea( Character* wholeft );
+	  virtual void inform_enteredarea( Character* whoentered );
+	  virtual void inform_moved( Character* moved );
+	  virtual void inform_imoved( Character* chr );
+	  virtual double armor_absorb_damage( double damage );
+	  virtual void get_hitscript_params( double damage,
+										 Items::UArmor** parmor,
+										 unsigned short* rawdamage );
+	  virtual unsigned short ar() const;
+	  virtual void refresh_ar();
+
+	  virtual void apply_raw_damage_hundredths( unsigned int damage, Character* source, bool userepsys = true, bool send_damage_packet = false );
+	  void on_swing_failure( Character* attacker );
+	  virtual void on_death( Items::Item* corpse );
+
+	  virtual bool can_be_renamed_by( const Character* chr ) const;
+
+	  virtual void repsys_on_attack( Character* defender );
+	  virtual void repsys_on_damage( Character* defender );
+	  virtual void repsys_on_help( Character* recipient );
+	  virtual unsigned char hilite_color_idx( const Character* seen_by ) const;
+	  virtual unsigned short name_color( const Character* seen_by ) const;
+	protected:
+	  virtual u16 get_damaged_sound() const;
+
+	// EQUIPMENT / ITEMS
+	public:
 	  unsigned short carrying_capacity() const;
 	  bool layer_is_equipped( int layer ) const;
 
@@ -313,16 +429,6 @@ namespace Pol {
 	  bool is_equipped( const Items::Item* item ) const;
 	  void equip( Items::Item *item ); // You MUST check equippable() before calling this
 	  void unequip( Items::Item *item );
-	  virtual Items::UWeapon* intrinsic_weapon( );
-
-	  bool on_mount() const;
-
-      virtual void on_delete_from_account();
-
-	  bool has_active_client() const;
-	  bool has_active_prompt() const;
-	  bool has_active_gump() const;
-	  bool is_house_editing() const;
 
 	  Core::Spellbook* spellbook( u8 school ) const;
 	  Core::UContainer *backpack( ) const;
@@ -330,29 +436,47 @@ namespace Pol {
 	  unsigned int gold_carried() const;
 	  void spend_gold( unsigned int amount );
 
-	  const CharacterSet& hostiles() const;
-
 	  void clear_gotten_item();
 
-	  bool target_cursor_busy() const;
+	  void add_remote_container( Items::Item* );
+	  Items::Item* search_remote_containers( u32 serial, bool* isRemoteContainer ) const;
+	  bool mightsee( const Items::Item *item ) const;
+	  Items::Item* get_from_ground( u32 serial, Core::UContainer** found_in );
 
-	protected:
-	  friend void Core::undo_get_item( Character *chr, Items::Item *item ); // this just gets uglier and uglier.
+	  Items::Item *find_wornitem( u32 serial ) const;
+	  bool has_shield() const;
+	  Items::UArmor* get_shield() const;
 
+	// MOVEMENT
 	public:
+	  bool on_mount() const;
+	  static Core::MOVEMODE decode_movemode( const std::string& str );
+	  static std::string encode_movemode( Core::MOVEMODE movemode );
+	  // if a move were made, what would the new position be?
+	  void getpos_ifmove( Core::UFACING i_facing, unsigned short* px, unsigned short* py );
+	  bool can_face( Core::UFACING i_facing );
+	  bool face( Core::UFACING i_facing, int flags = 0 );
+	  bool move( unsigned char dir );
+	  bool CustomHousingMove( unsigned char i_dir );
+	  void tellmove( void );
+	  void check_region_changes();
+	  void check_weather_region_change( bool force = false );
+	  void check_light_region_change();
+	  void check_justice_region_change();
+	  void check_music_region_change();
+	  void realm_changed();
 
-	  //    COMBAT FUNCTIONS
-	  void disable_regeneration_for( int seconds );
+	  bool CheckPushthrough();
+	  // KLUDGE - a more foolproof way is needed to keep this in sync.
+	  void position_changed( void );
+
+	// COMBAT
+	public:
+	  void select_opponent( u32 serial );
 	  void set_opponent( Character* opponent, bool inform_old_opponent = true );
-	  virtual void inform_disengaged( Character* disengaged );
-	  virtual void inform_engaged( Character* engaged );
-	  virtual void inform_criminal( Character* thecriminal );
-	  virtual void inform_leftarea( Character* wholeft );
-	  virtual void inform_enteredarea( Character* whoentered );
-	  virtual void inform_moved( Character* moved );
-	  virtual void inform_imoved( Character* chr );
+	  
 	  void clear_opponent_of();
-	  unsigned int warmode_wait;
+
 	  void send_warmode();
 	  unsigned short get_weapon_skill() const;
 	  Core::USKILLID weapon_skillid() const;
@@ -373,10 +497,7 @@ namespace Pol {
 	  Character* get_attackable_opponent() const;
 
 	  Items::UArmor* choose_armor( ) const;
-	  virtual double armor_absorb_damage( double damage );
-	  virtual void get_hitscript_params( double damage,
-										 Items::UArmor** parmor,
-										 unsigned short* rawdamage );
+	  
 	  void showarmor() const;
 
 	  void reset_swing_timer();
@@ -385,47 +506,22 @@ namespace Pol {
 	  void send_highlight() const;
 	  bool manual_set_swing_timer( int time );
 
-	  //void find_armor();
-	  //void calculate_ar();
+	  const CharacterSet& hostiles() const;
+	  void run_hit_script( Character* defender, double damage );
 
-	  virtual unsigned short ar() const;
-	  virtual s16 ar_mod() const;
-	  virtual s16 ar_mod( s16 new_value );
-	  virtual void refresh_ar();
+	  s16 ar_mod() const;
+	  s16 ar_mod( s16 new_value );
+	private:
+	  void schedule_attack();
+	  static void swing_task_func( Character* chr );
+
+	// ATTRIBUTES / VITALS
+	public:
+	  void disable_regeneration_for( int seconds );
 	  void refresh_element( Core::ElementalType element );
       void update_element( Core::ElementalType element, Items::Item *item );
       s16 calc_element_resist( Core::ElementalType resist ) const;
       s16 calc_element_damage( Core::ElementalType element ) const;
-
-	  virtual bool setgraphic( u16 newobjtype ) POL_OVERRIDE;
-	  virtual void on_color_changed() POL_OVERRIDE;
-	  virtual void on_poison_changed(); //dave 12-24
-	  virtual void on_hidden_changed();
-	  virtual void on_concealed_changed();
-      void on_cmdlevel_changed();
-	  virtual void setfacing( u8 newfacing ) POL_OVERRIDE;
-	  virtual void on_facing_changed() POL_OVERRIDE;
-	  void on_aos_ext_stat_changed();
-
-	  u8 get_flag1( Network::Client *client ) const;
-
-	  static Core::MOVEMODE decode_movemode( const std::string& str );
-	  static std::string encode_movemode( Core::MOVEMODE movemode );
-
-	  void unhide();
-	  void set_warmode( bool warmode );
-	  void select_opponent( u32 serial );
-	  void set_stealthsteps( unsigned short newval );
-
-	  bool is_visible_to_me( const Character* chr ) const;
-	  bool is_concealed_from_me( const Character* chr ) const;
-	  bool doors_block() const;
-
-	  // Settings
-	  bool ignores_line_of_sight() const;
-
-
-	  // on_menu_selection MUST be set if menu_id is nonzero.
 
 	  u16 strength() const;
 	  u16 intelligence() const;
@@ -436,88 +532,51 @@ namespace Pol {
 	  u16 max_mana() const;
 	  u16 max_stamina() const;
 
-
 	  void set_strength( u16 strength );
 	  void set_intelligence( u16 intelligence );
 	  void set_dexterity( u16 dexterity );
 	  void validate_stat_ranges();
 
-	  virtual void apply_raw_damage_hundredths( unsigned int damage, Character* source, bool userepsys = true, bool send_damage_packet = false );
 	  double apply_damage( double damage, Character* source = NULL, bool userepsys = true, bool send_damage_packet = false );
 	  void heal_damage_hundredths( unsigned int damage );
-	  virtual void on_swing_failure( Character* attacker );
-	  void run_hit_script( Character* defender, double damage );
 
 	  void resurrect();
-
-	  virtual void on_death( Items::Item* corpse );
 	  void die();
 	  bool dead() const;
+	  bool check_skill( Core::USKILLID skillid, int difficulty, unsigned short pointvalue );
+	  void award_raw_skillpoints( Core::USKILLID skillid, unsigned short points );
+	  unsigned short get_skill( Core::USKILLID skillid ) const;
+	  unsigned short get_base_skill( Core::USKILLID skillid ) const;
+	  unsigned int get_raw_skill( Core::USKILLID skillid ) const;
+	  void set_raw_skill( Core::USKILLID skillid, unsigned int raw_value );
 
-	  bool is_visible() const; // meant to combine "hiding", "concealed", "invisible" etc.
-	  bool hidden() const;
-	  void hidden( bool value );
-	  unsigned char concealed() const;
-	  void concealed( unsigned char value );
-	  bool invul() const;
-	  bool frozen() const;
-	  bool paralyzed() const;
-	  bool squelched() const;
-	  bool deafened() const;
-	  bool poisoned() const;
-	  void poisoned( bool value );
-	  unsigned char cmdlevel() const;
-	  void cmdlevel( unsigned char value, bool update_on_change = true );
+	  void recalc_skill( int skillnum );
 
-	  // if a move were made, what would the new position be?
-	  void getpos_ifmove( Core::UFACING i_facing, unsigned short* px, unsigned short* py );
+	  const AttributeValue& attribute( unsigned attrid ) const;
+	  AttributeValue& attribute( unsigned attrid );
+	  void set_caps_to_default();
 
-	  bool can_face( Core::UFACING i_facing );
-	  bool face( Core::UFACING i_facing, int flags = 0 );
-	  bool move( unsigned char dir );
-	  bool CustomHousingMove( unsigned char i_dir );
-	  void tellmove( void );
-	  void check_region_changes();
-	  void check_weather_region_change( bool force = false );
-	  void check_light_region_change();
-	  void check_justice_region_change();
-	  void check_music_region_change();
-	  void realm_changed();
+	  const VitalValue& vital( unsigned vitalid ) const;
+	  VitalValue& vital( unsigned vitalid );
+	  void regen_vital( const Core::Vital* ); // throw()
+	  void calc_vital_stuff( bool i_mod = true, bool v_mod = true ); // throw()
+	  void calc_single_vital( const Core::Vital* pVital );
+	  void calc_single_attribute( const Attribute* pAttr );
+	  void set_vitals_to_maximum(); // throw();
+	  void produce( const Core::Vital* pVital, VitalValue& vv, unsigned int amt );
+	  bool consume( const Core::Vital* pVital, VitalValue& vv, unsigned int amt );
+	  void set_current_ones( const Core::Vital* pVital, VitalValue& vv, unsigned int ones );
+	  void set_current( const Core::Vital* pVital, VitalValue& vv, unsigned int ones );
+	private:
+	  void load_default_elements();
 
-	  void add_remote_container( Items::Item* );
-	  Items::Item* search_remote_containers( u32 serial, bool* isRemoteContainer ) const;
-	  bool mightsee( const Items::Item *item ) const;
-	  Items::Item* get_from_ground( u32 serial, Core::UContainer** found_in );
-	  //	get_legal_item not being used, removed - MuadDib
-	  //	Item* get_legal_item( u32 serial, UContainer** found_in );
-
-	  bool can_move( const Items::Item* item ) const;
-	  bool can_rename( const Character* chr ) const;
-	  virtual bool can_be_renamed_by( const Character* chr ) const;
-	  bool can_clothe( const Character* chr ) const;
-	  bool can_hearghosts() const;
-	  bool can_be_heard_as_ghost() const;
-	  bool can_seeinvisitems() const;
-	  bool can_dblclickany() const;
-	  bool can_moveanydist() const;
-	  bool can_plogany() const;
-	  bool can_speedhack() const;
-
-	  bool has_privilege( const char* priv ) const;
-	  bool setting_enabled( const char* setting ) const;
-	  void grant_privilege( const char* priv );
-	  void revoke_privilege( const char* priv );
-	  void set_setting( const char* setting, bool value );
-	  std::string all_settings() const;
-	  std::string all_privs() const;
-	  void set_privs( const std::string& privlist );
-
-	  bool CheckPushthrough();
-
-      u16 last_textcolor() const;
-      void last_textcolor( u16 color );
-	public: // REPUTATION SYSTEM
+	// REPUTATION
+	public:
 	  friend class Core::RepSystem;
+
+	  Bscript::ObjArray* GetReportables() const;
+	  Bscript::ObjArray* GetAggressorTo( ) const;
+	  Bscript::ObjArray* GetLawFullyDamaged( ) const;
 
 	  bool is_aggressor_to( const Character* chr ) const;
 	  void restart_aggressor_timer( Character* chr, Core::polclock_t until );
@@ -534,34 +593,6 @@ namespace Pol {
 
 	  bool is_murderer() const;
 	  bool is_innocent_to( const Character* chr ) const;
-
-	  virtual void repsys_on_attack( Character* defender );
-	  virtual void repsys_on_damage( Character* defender );
-	  virtual void repsys_on_help( Character* recipient );
-
-	  virtual unsigned char hilite_color_idx( const Character* seen_by ) const;
-	  virtual unsigned short name_color( const Character* seen_by ) const;
-
-	  Core::Guild* guild() const;
-	  void guild( Core::Guild* );
-	  unsigned int guildid() const;
-	  //void guildid( unsigned int gid );
-
-	  bool is_guild_ally( const Character* chr ) const;
-	  bool is_guild_enemy( const Character* chr ) const;
-
-	  Core::Party* party() const;
-	  void party( Core::Party* );
-	  Core::Party* candidate_of( ) const;
-	  void candidate_of( Core::Party* );
-	  Core::Party* offline_mem_of( ) const;
-	  void offline_mem_of( Core::Party* );
-	  bool party_can_loot() const;
-	  void set_party_can_loot( bool );
-	  void set_party_invite_timeout();
-	  bool has_party_invite_timeout() const;
-	  void cancel_party_invite_timeout();
-
 	  void make_criminal( int level = 1 );
 	  void make_murderer( bool newlval = true );
 	  void make_aggressor_to( Character* chr );
@@ -580,56 +611,38 @@ namespace Pol {
 	  void on_aggressor_changed();
 	  void on_lawfullydamaged_changed();
 
-	public: // SECURE TRADING
+	// GUILD
+	public:
+	  Core::Guild* guild() const;
+	  void guild( Core::Guild* );
+	  unsigned int guildid() const;
+	  bool is_guild_ally( const Character* chr ) const;
+	  bool is_guild_enemy( const Character* chr ) const;
+
+	// PARTY
+	public:
+	  Core::Party* party() const;
+	  void party( Core::Party* );
+	  Core::Party* candidate_of( ) const;
+	  void candidate_of( Core::Party* );
+	  Core::Party* offline_mem_of( ) const;
+	  void offline_mem_of( Core::Party* );
+	  bool party_can_loot() const;
+	  void set_party_can_loot( bool );
+	  void set_party_invite_timeout();
+	  bool has_party_invite_timeout() const;
+	  void cancel_party_invite_timeout();
+
+    // SECURE TRADING
+	public:
 	  bool is_trading() const;
 	  void create_trade_container();
 	  Core::UContainer* trade_container( );
-	  ref_ptr<Core::UContainer> trading_cont;
-	  Core::CharacterRef trading_with;
-	  bool trade_accepted;
 
+	// SCRIPT
 	public:
-	  /* Item * wornitem( int layer ) const { return wornitems[ layer ]; } */
-	  Items::Item *find_wornitem( u32 serial ) const;
-
-	  // KLUDGE - a more foolproof way is needed to keep this in sync.
-	  void position_changed( void );
-
-	  //bool check_skill( USKILLID skillid );
-	  bool check_skill( Core::USKILLID skillid, int difficulty, unsigned short pointvalue );
-	  void award_raw_skillpoints( Core::USKILLID skillid, unsigned short points );
-	  unsigned short get_skill( Core::USKILLID skillid ) const;
-	  unsigned short get_base_skill( Core::USKILLID skillid ) const;
-	  unsigned int get_raw_skill( Core::USKILLID skillid ) const;
-	  void set_raw_skill( Core::USKILLID skillid, unsigned int raw_value );
-
-	  void recalc_skill( int skillnum );
-	  int charindex() const; // find account character index, or -1 if not found.
-
 	  void schedule_spell( Core::USpell* );
 	  bool casting_spell() const;
-
-	  virtual void readProperties( Clib::ConfigElem& elem ) POL_OVERRIDE;
-	  void readCommonProperties( Clib::ConfigElem& elem );
-	  void readAttributesAndVitals( Clib::ConfigElem& elem );
-	  //virtual BObjectImp* script_member( const char *membername );
-	  virtual Bscript::BObjectImp* make_ref() POL_OVERRIDE;
-	  virtual Bscript::BObjectImp* make_offline_ref( );
-	  virtual Bscript::BObjectImp* get_script_member( const char *membername ) const POL_OVERRIDE;
-	  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const POL_OVERRIDE; //id test
-
-	  virtual Bscript::BObjectImp* set_script_member( const char *membername, const std::string& value ) POL_OVERRIDE;
-	  virtual Bscript::BObjectImp* set_script_member( const char *membername, int value ) POL_OVERRIDE;
-	  virtual Bscript::BObjectImp* set_script_member_id( const int id, const std::string& value ) POL_OVERRIDE;//id test
-	  virtual Bscript::BObjectImp* set_script_member_id( const int id, int value ) POL_OVERRIDE;//id test
-	  virtual Bscript::BObjectImp* set_script_member_id_double( const int id, double value ) POL_OVERRIDE;
-
-	  virtual Bscript::BObjectImp* script_method( const char* methodname, Bscript::Executor& ex ) POL_OVERRIDE;
-	  virtual Bscript::BObjectImp* script_method_id( const int id, Bscript::Executor& ex ) POL_OVERRIDE;
-	  virtual Bscript::BObjectImp* custom_script_method( const char* methodname, Bscript::Executor& ex ) POL_OVERRIDE;
-	  virtual bool script_isa( unsigned isatype ) const POL_OVERRIDE;
-	  virtual const char* target_tag() const POL_OVERRIDE;
-
 	  bool skill_ex_active() const;
 	  bool start_script( Bscript::EScriptProgram* prog,
 						 bool start_attached,
@@ -639,80 +652,124 @@ namespace Pol {
 	  bool start_skill_script( Bscript::EScriptProgram* prog );
 	  bool start_itemuse_script( Bscript::EScriptProgram* prog, Items::Item* item, bool start_attached );
 	  bool start_spell_script( Bscript::EScriptProgram* prog, Core::USpell* spell );
+	  void cancel_menu();
+	private:
+	  friend void handle_script_cursor( Character* chr, UObject* obj );
+	  friend void menu_selection_made( Network::Client* client, Core::MenuItem* mi, Core::PKTIN_7D* msg );
+	  friend class Module::UOExecutorModule;
+	  void stop_skill_script();
+
+	// CLIENT 
+	public:
+	  bool has_active_client() const;
+	  bool has_active_prompt() const;
+	  bool has_active_gump() const;
+	  bool is_house_editing() const;
+	  bool target_cursor_busy() const;
+	  u16 last_textcolor() const;
+      void last_textcolor( u16 color );
+
+	  u8 get_flag1( Network::Client *client ) const;
+
+	// PRIVS SETTINGS STATUS
+	public:
+	  void on_aos_ext_stat_changed();
+	  void on_cmdlevel_changed();
+	  void on_poison_changed();
+	  void on_hidden_changed();
+	  void on_concealed_changed();
+
+	  void set_warmode( bool warmode );
+	  void set_stealthsteps( unsigned short newval );
+	  bool doors_block() const;
+	  bool ignores_line_of_sight() const;
+
+	  bool is_visible() const; // meant to combine "hiding", "concealed", "invisible" etc.
+	  bool is_visible_to_me( const Character* chr ) const;
+	  bool hidden() const;
+	  void hidden( bool value );
+	  void unhide();
+	  unsigned char concealed() const;
+	  void concealed( unsigned char value );
+	  bool is_concealed_from_me( const Character* chr ) const;
+	  bool invul() const;
+	  bool frozen() const;
+	  bool paralyzed() const;
+	  bool squelched() const;
+	  bool deafened() const;
+	  bool poisoned() const;
+	  void poisoned( bool value );
+	  unsigned char cmdlevel() const;
+	  void cmdlevel( unsigned char value, bool update_on_change = true );
+
+	  bool can_move( const Items::Item* item ) const;
+	  bool can_rename( const Character* chr ) const;
+	  bool can_clothe( const Character* chr ) const;
+	  bool can_hearghosts() const;
+	  bool can_be_heard_as_ghost() const;
+	  bool can_seeinvisitems() const;
+	  bool can_dblclickany() const;
+	  bool can_moveanydist() const;
+	  bool can_plogany() const;
+	  bool can_speedhack() const;
+
+	  bool has_privilege( const char* priv ) const;
+	  bool setting_enabled( const char* setting ) const;
+	  void grant_privilege( const char* priv );
+	  void revoke_privilege( const char* priv );
+	  void set_setting( const char* setting, bool value );
+	  std::string all_settings() const;
+	  std::string all_privs() const;
+	  void set_privs( const std::string& privlist );
 
 	  void check_concealment_level();
-	protected:
+	private:
+	  void refresh_cached_settings( bool update = true );
 
-	  // friend void read_character( ConfigElem& elem );
+	// SERIALIZATION
+	public:
+	  void readCommonProperties( Clib::ConfigElem& elem );
+	  void readAttributesAndVitals( Clib::ConfigElem& elem );
+	protected:
 	  friend void Core::write_characters( Core::SaveContext& sc );
 	  friend void Core::write_npcs( Core::SaveContext& sc );
 
 	  void printWornItems( Clib::StreamWriter& sw_pc, Clib::StreamWriter& sw_equip ) const;
 
-	  virtual const char *classname() const POL_OVERRIDE;
-	  virtual void printOn( Clib::StreamWriter& sw ) const POL_OVERRIDE;
-	  virtual void printSelfOn( Clib::StreamWriter& sw ) const POL_OVERRIDE;
-	  virtual void printProperties( Clib::StreamWriter& sw ) const POL_OVERRIDE;
-	  virtual void printDebugProperties( Clib::StreamWriter& sw ) const POL_OVERRIDE;
-
+	// CREATION
 	private:
-	  void schedule_attack();
-
-	  static void swing_task_func( Character* chr );
-
-
-
-	  void refresh_cached_settings( bool update = true );
-	  void load_default_elements();
 	  friend void Core::ClientCreateChar( Network::Client* client, Core::PKTIN_00* msg );
       friend void Core::ClientCreateCharKR( Network::Client* client, Core::PKTIN_8D* msg );
       friend void Core::ClientCreateChar70160( Network::Client* client, Core::PKTIN_F8* msg );
       friend void Core::createchar2( Accounts::Account* acct, unsigned index );
-
-	private:
-	  friend void handle_script_cursor( Character* chr, UObject* obj );
-	  friend void menu_selection_made( Network::Client* client, Core::MenuItem* mi, Core::PKTIN_7D* msg );
-
-	  friend class Module::UOExecutorModule;
-	  void stop_skill_script();
-
+	
+	// MISC
 	public:
-	  void cancel_menu();
+	  void removal_cleanup();
+	  void disconnect_cleanup();
+	  int charindex() const; // find account character index, or -1 if not found.
+	  void on_delete_from_account();
+	protected:
+	  friend void Core::undo_get_item( Character *chr, Items::Item *item ); // this just gets uglier and uglier.
 
+	// ==========================================================
+	// DATA:
+	// ==========================================================
+	// UOBJECT INTERFACE
 
-	  // DATA:
+	// NPC INTERFACE
+	protected:
+	// EQUIPMENT / ITEMS
+	protected:
+	  s16 carrying_capacity_mod_;
+	  Items::UWeapon* weapon;
+	  Items::UArmor* shield;
+	  std::vector<Items::UArmor*> armor_;
+
+	  ref_ptr<Core::WornItemsContainer> wornitems_ref;
+	  Core::WornItemsContainer& wornitems;
 	public:
-	  Core::AccountRef acct;
-	  Network::Client* client;
-
-	  u32 registered_house;
-
-	  unsigned char cmdlevel_;
-	  u8 dir;				// the entire 'dir' from their last MSG02_WALK 
-	  bool warmode;
-	  bool logged_in;		// for NPCs, this is always true.
-	  bool connected;
-
-	  u16 lastx, lasty;	// position before their last MSG02_WALK 
-	  s8 lastz;
-
-	  enum { WALKED = 0, OTHER = 0, MULTIMOVE = 1 } move_reason;
-	  Core::MOVEMODE movemode;
-
-	  time_t disable_regeneration_until;
-	  time_t disable_skills_until;
-
-	  u16 truecolor;
-	  u32 trueobjtype;
-	  Core::UGENDER gender;
-	  Core::URACE race;
-	  bool poisoned_;
-	  short  gradual_boost;
-
-	  u32 last_corpse;
-	  unsigned int dblclick_wait;
 	  Items::Item* gotten_item;
-
 	  enum
 	  {
 		GOTTEN_ITEM_ON_GROUND,
@@ -721,200 +778,128 @@ namespace Pol {
 	  };
 	  unsigned char gotten_item_source;
 
-	  std::vector<AttributeValue> attributes;
-	  std::vector<VitalValue> vitals;
+	  std::vector< Core::ItemRef > remote_containers_; // does not own its objects
+	// MOVEMENT
+	public:
+	  u8 dir;				// the entire 'dir' from their last MSG02_WALK 
+	  short  gradual_boost;
+	  u16 lastx, lasty;	// position before their last MSG02_WALK 
+	  s8 lastz;
 
-	  std::string uclang;
-
-	  bool has_shield() const
-	  {
-		if ( shield != NULL )
-		  return true;
-		else
-		  return false;
-	  }
-
-	  Items::UArmor* get_shield() const
-	  {
-		if ( shield != NULL )
-		  return shield;
-		else
-		  return NULL;
-	  }
-	  // FIXME these should be moved into the protected section
-	  // these are in hundredths of points
-	  //    s32 hits_;
-	  //    s32 mana_;
-	  //    s32 stamina_;
-
-	  //    signed short hits_regen_rate_;
-	  //    signed short mana_regen_rate_;
-	  //    signed short stamina_regen_rate_;
-
-	  //    void set_hits( u16 hits ) { hits_ = hits * 100L; }
-	  //    void set_mana( u16 mana ) { mana_ = mana * 100L; }
-	  //    void set_stamina( u16 stam ) { stamina_ = stam * 100L; }
-
-	  //    void add_mana_hundredths( int add );
-	  //    void add_stamina_hundredths( int add );
-
-	  //    u16 get_hits() const { return hits_ / 100; }
-	  //    u16 get_mana() const { return mana_ / 100; }
-	  //    u16 get_stamina() const { return stamina_ / 100; }
-
-	  Core::TargetCursor* tcursor2;
-	  Core::Menu* menu;
-	  void( *on_menu_selection )( Network::Client *client, Core::MenuItem *mi, Core::PKTIN_7D *msg );
-
+	  enum { WALKED = 0, OTHER = 0, MULTIMOVE = 1 } move_reason;
+	  Core::MOVEMODE movemode;
 	  int lightoverride;
 	  Core::gameclock_t lightoverride_until;
-
-	  std::string title_prefix;
-	  std::string title_suffix;
-	  std::string title_guild;
-	  std::string title_race;
-
-	  Core::Expanded_Statbar expanded_statbar;
-	  u16 skillcap_;
 	  Core::MovementCost_Mod movement_cost;
-    private:
-      u16 _last_textcolor;
-
+	// COMBAT
+	public:
+	  u32 warmode_wait;
 	protected:
-	  ref_ptr<Core::WornItemsContainer> wornitems_ref;
-	  Core::WornItemsContainer& wornitems;
-
-	  unsigned short ar_;
+	  u16 ar_;
 	  s16 ar_mod_;
 	  s16 delay_mod_;
 	  s16 hitchance_mod_;
 	  s16 evasionchance_mod_;
-	  s16 carrying_capacity_mod_;
-
-	  Items::UWeapon* weapon;
-	  Items::UArmor* shield;
-	  std::vector<Items::UArmor*> armor_;
-
-	protected: // was private, but hey, NPC will be okay, I think.
-	  bool dead_;
-	  bool hidden_;
-	  unsigned char concealed_; // 0 to cmdlevel
-	  bool frozen_;
-	  bool paralyzed_;
-	  unsigned short stealthsteps_;
-	  unsigned int mountedsteps_;
-
-	  //    vector< Item* > private_items_; // owns its objects
-	  std::vector< Core::ItemRef > remote_containers_; // does not own its objects
-
-	  Clib::StringSet privs;
-	  Clib::StringSet settings;
-
-	  struct
-	  {
-		bool all;
-		bool moveany;    // should everything be moveable?
-		bool moveanydist;
-		bool renameany;  // should everything be renameable?
-		bool clotheany;
-		bool invul;
-		bool seehidden;
-		bool seeghosts;
-		bool hearghosts;
-		bool seeinvisitems;
-		bool dblclickany;
-		bool losany;    // all targetting ignore LOS?
-		bool ignoredoors;
-		bool freemove;
-		bool firewhilemoving;
-		bool attackhidden;
-		bool hiddenattack;
-		bool plogany;
-		bool canbeheardasghost;
-		bool runwhilestealth;
-		bool speedhack;
-	  } cached_settings;
-
-	  Core::UOExecutor* script_ex;
 
 	  Character* opponent_;
 	  CharacterSet opponent_of;
 	  Core::polclock_t swing_timer_start_clock_;
 	  bool ready_to_swing;
-
 	  Core::OneShotTask* swing_task;
-	  Core::OneShotTask* spell_task;
-
-
-	  Core::gameclock_t created_at;
-	  mutable Core::gameclock_t squelched_until;
-	  mutable Core::gameclock_t deafened_until;
-
-	private: // REPUTATION SYSTEM DATA:
+	// ATTRIBUTES / VITALS
+	public:
+	  time_t disable_regeneration_until;
+	  std::vector<AttributeValue> attributes;
+	  std::vector<VitalValue> vitals;
+	// REPUTATION
+	private: 
 	  typedef std::map< Core::CharacterRef, Core::polclock_t > MobileCont;
+	  typedef std::set<reportable_t> ReportableList;
+	  typedef std::set<USERIAL> ToBeReportableList;
+	  bool murderer_;
+	  
 	  mutable MobileCont aggressor_to_;
 	  mutable MobileCont lawfully_damaged_;
 	  Core::polclock_t criminal_until_;
 	  Core::OneShotTask* repsys_task_;
-
-	  typedef std::set<USERIAL> ToBeReportableList;
 	  ToBeReportableList to_be_reportable_;
-
-	  typedef std::set<reportable_t> ReportableList;
 	  ReportableList reportable_;
-	  Bscript::ObjArray* GetReportables() const;
-	  Bscript::ObjArray* GetAggressorTo( ) const;
-	  Bscript::ObjArray* GetLawFullyDamaged( ) const;
-
+	// GUILD
+	private: 
 	  Core::Guild* guild_;
+	// PARTY
+	private: 
 	  Core::Party* party_;
 	  Core::Party* candidate_of_;
 	  Core::Party* offline_mem_of_;
 	  bool party_can_loot_;
 	  Core::OneShotTask* party_decline_timeout_;
-	  bool murderer_;
-
-	  // Language stuff:
-	  //    unsigned langid_;
-
+    // SECURE TRADING
 	public:
-	  const AttributeValue& attribute( unsigned attrid ) const
-	  {
-		passert( attrid < attributes.size() );
-		return attributes[attrid];
-	  }
-	  AttributeValue& attribute( unsigned attrid )
-	  {
-		passert( attributes.size() > attrid );
-		return attributes[attrid];
-	  }
-	  void set_caps_to_default();
-
-	  /* VITALS */
-	  const VitalValue& vital( unsigned vitalid ) const
-	  {
-		passert( vitals.size() > vitalid );
-		return vitals[vitalid];
-	  }
-	  VitalValue& vital( unsigned vitalid )
-	  {
-		passert( vitalid < vitals.size() );
-		return vitals[vitalid];
-	  }
-	  void regen_vital( const Core::Vital* ); // throw()
-	  void calc_vital_stuff( bool i_mod = true, bool v_mod = true ); // throw()
-	  void calc_single_vital( const Core::Vital* pVital );
-	  void calc_single_attribute( const Attribute* pAttr );
-	  void set_vitals_to_maximum(); // throw();
-	  void produce( const Core::Vital* pVital, VitalValue& vv, unsigned int amt );
-	  bool consume( const Core::Vital* pVital, VitalValue& vv, unsigned int amt );
-	  void set_current_ones( const Core::Vital* pVital, VitalValue& vv, unsigned int ones );
-	  void set_current( const Core::Vital* pVital, VitalValue& vv, unsigned int ones );
-
+	  ref_ptr<Core::UContainer> trading_cont;
+	  Core::CharacterRef trading_with;
+	  bool trade_accepted;
+	// SCRIPT
+	public:
+	  time_t disable_skills_until;
+	  Core::TargetCursor* tcursor2;
+	  Core::Menu* menu;
+	  void( *on_menu_selection )( Network::Client *client, Core::MenuItem *mi, Core::PKTIN_7D *msg );
+	protected:
+	  Core::UOExecutor* script_ex;
+	  Core::OneShotTask* spell_task;
+	// CLIENT 
+	public:
+	  Network::Client* client;
+	  bool logged_in;		// for NPCs, this is always true.
+	  bool connected;
+	  std::string uclang;
 	private:
-	  // non-implemented functions:
-	  Character( const Character& );
-	  Character& operator=( const Character& );
+	  u16 _last_textcolor;
+	// PRIVS SETTINGS STATUS
+	public:
+	  u8 cmdlevel_;
+	  bool warmode;
+	  bool poisoned_;
+	  Core::Expanded_Statbar expanded_statbar;
+	  u16 skillcap_;
+	protected:
+	  bool dead_;
+	  bool hidden_;
+	  u8 concealed_; // 0 to cmdlevel
+	  bool frozen_;
+	  bool paralyzed_;
+	  u16 stealthsteps_;
+	  u32 mountedsteps_;
+
+	  Clib::StringSet privs;
+	  Clib::StringSet settings;
+	  CachedSettings cached_settings;
+	  
+	  mutable Core::gameclock_t squelched_until;
+	  mutable Core::gameclock_t deafened_until;
+	private:
+	  static const u16 default_skillcap = 700;
+	// SERIALIZATION
+
+	// CREATION
+	protected:
+	  Core::gameclock_t created_at;
+	// MISC
+	public:
+	  Core::AccountRef acct;
+	  u32 registered_house;
+	  u16 truecolor;
+	  u32 trueobjtype;
+	  Core::UGENDER gender;
+	  Core::URACE race;
+	  u32 last_corpse;
+	  unsigned int dblclick_wait;
+
+	  std::string title_prefix;
+	  std::string title_suffix;
+	  std::string title_guild;
+	  std::string title_race;
 	};
 
 
@@ -1039,6 +1024,44 @@ namespace Pol {
 	{
 	  return cached_settings.dblclickany;
 	}
+
+	inline bool Character::has_shield() const
+	{
+	  if ( shield != NULL )
+		return true;
+	  else
+		return false;
+	}
+
+	inline Items::UArmor* Character::get_shield() const
+	{
+	  if ( shield != NULL )
+		return shield;
+	  else
+		return NULL;
+	}
+
+	inline const AttributeValue& Character::attribute( unsigned attrid ) const
+	{
+	  passert( attrid < attributes.size() );
+	  return attributes[attrid];
+	}
+	inline AttributeValue& Character::attribute( unsigned attrid )
+	{
+	  passert( attributes.size() > attrid );
+	  return attributes[attrid];
+	}
+	inline const VitalValue& Character::vital( unsigned vitalid ) const
+	{
+	  passert( vitals.size() > vitalid );
+	  return vitals[vitalid];
+	}
+	inline VitalValue& Character::vital( unsigned vitalid )
+	{
+	  passert( vitalid < vitals.size() );
+	  return vitals[vitalid];
+	}
+
 	//dave moved this here from .cpp 2/3/3 so i can use it in uoemod.cpp
 	inline void NpcPropagateMove( Character* chr, Character* moved )
 	{

@@ -128,6 +128,23 @@ namespace Pol {
 
 	struct Expanded_Statbar
 	{
+	  static const s16 default_statcap = 225;
+	  static const s16 default_luck = 0;
+	  static const s8 default_followers = 0;
+	  static const s8 default_followers_max = 0;
+	  static const s16 default_dmg_min = 0;
+	  static const s16 default_dmg_max = 0;
+	  static const s32 default_tithing = 0;
+	  Expanded_Statbar() :
+		statcap( default_statcap ),
+		luck( default_luck ),
+		followers( default_followers ),
+		followers_max( default_followers_max ),
+		dmg_min( default_dmg_min ),
+		dmg_max( default_dmg_max ),
+		tithing( default_tithing )
+	  {
+	  };
 	  s16 statcap;
 	  s16 luck;
 	  s8 followers;
@@ -139,6 +156,13 @@ namespace Pol {
 
 	struct MovementCost_Mod
 	{
+	  MovementCost_Mod() :
+		walk( 1.0 ),
+		run( 1.0 ),
+		walk_mounted( 1.0 ),
+		run_mounted( 1.0 )
+	  {
+	  };
 	  double walk;
 	  double run;
 	  double walk_mounted;
