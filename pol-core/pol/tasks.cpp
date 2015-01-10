@@ -104,14 +104,8 @@ namespace Pol {
 
 	  for ( auto &realm : gamestate.Realms)
 	  {
-		wgridx = realm->width() / WGRID_SIZE;
-		wgridy = realm->height() / WGRID_SIZE;
-
-		// Tokuno-Fix
-		if ( wgridx * WGRID_SIZE < realm->width() )
-		  wgridx++;
-		if ( wgridy * WGRID_SIZE < realm->height() )
-		  wgridy++;
+		wgridx = realm->grid_width();
+		wgridy = realm->grid_height();
 
 		for ( unsigned wx = 0; wx < wgridx; ++wx )
 		{
@@ -276,8 +270,8 @@ namespace Pol {
 
 		//fixme realms
 		// fixme max realm size?
-		unsigned int grid_x = gamestate.main_realm->width() / WGRID_SIZE;
-		unsigned int grid_y = gamestate.main_realm->height() / WGRID_SIZE;
+		unsigned int grid_x = gamestate.main_realm->grid_width();
+		unsigned int grid_y = gamestate.main_realm->grid_height();
 		stateManager.cycles_per_decay_worldzone = stateManager.profilevars.last_rpm / ( grid_x * grid_y / 10 );
 		if ( stateManager.cycles_per_decay_worldzone < 1 )
 		  stateManager.cycles_per_decay_worldzone = 1;

@@ -249,14 +249,8 @@ namespace Pol {
     // If the ClrCharacterWorldPosition() fails, this function will find the actual char position and report
     // TODO: check if this is really needed...
     void find_missing_char_in_zone(Mobile::Character* chr, Plib::WorldChangeReason reason) {
-        unsigned wgridx = chr->realm->width() / WGRID_SIZE;
-        unsigned wgridy = chr->realm->height() / WGRID_SIZE;
-
-        // Tokuno-Fix
-        if (wgridx * WGRID_SIZE < chr->realm->width())
-            wgridx++;
-        if (wgridy * WGRID_SIZE < chr->realm->height())
-            wgridy++;
+        unsigned wgridx = chr->realm->grid_width();
+        unsigned wgridy = chr->realm->grid_height();
 
         std::string msgreason = "unknown reason";
         switch (reason) {
@@ -330,14 +324,8 @@ namespace Pol {
 	  bool ok = true;
 	  for ( auto &realm : gamestate.Realms )
 	  {
-		unsigned int gridwidth = realm->width() / WGRID_SIZE;
-		unsigned int gridheight = realm->height() / WGRID_SIZE;
-
-		// Tokuno-Fix
-		if ( gridwidth * WGRID_SIZE < realm->width() )
-		  gridwidth++;
-		if ( gridheight * WGRID_SIZE < realm->height() )
-		  gridheight++;
+		unsigned int gridwidth = realm->grid_width();
+		unsigned int gridheight = realm->grid_height();
 
 		for ( unsigned x = 0; x < gridwidth; ++x )
 		{
@@ -366,14 +354,8 @@ namespace Pol {
 	  //}
 	  for ( auto &realm : gamestate.Realms )
 	  {
-		unsigned int gridwidth = realm->width() / WGRID_SIZE;
-		unsigned int gridheight = realm->height() / WGRID_SIZE;
-
-		// Tokuno-Fix
-		if ( gridwidth * WGRID_SIZE < realm->width() )
-		  gridwidth++;
-		if ( gridheight * WGRID_SIZE < realm->height() )
-		  gridheight++;
+		unsigned int gridwidth = realm->grid_width();
+		unsigned int gridheight = realm->grid_height();
 
         auto check_zone = []( Mobile::Character* chr, unsigned y, unsigned x )
         {
@@ -401,14 +383,8 @@ namespace Pol {
     {
       for ( auto &realm : gamestate.Realms )
       {
-        unsigned int gridwidth = realm->width( ) / WGRID_SIZE;
-        unsigned int gridheight = realm->height( ) / WGRID_SIZE;
-
-        // Tokuno-Fix
-        if ( gridwidth * WGRID_SIZE < realm->width( ) )
-          gridwidth++;
-        if ( gridheight * WGRID_SIZE < realm->height( ) )
-          gridheight++;
+        unsigned int gridwidth = realm->grid_width( );
+        unsigned int gridheight = realm->grid_height( );
 
         for ( unsigned x = 0; x < gridwidth; ++x )
         {

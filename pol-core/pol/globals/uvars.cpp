@@ -267,14 +267,8 @@ namespace Pol {
 
 	  for ( auto &realm : Realms)
 	  {
-		unsigned wgridx = realm->width() / WGRID_SIZE;
-		unsigned wgridy = realm->height() / WGRID_SIZE;
-
-		// Tokuno-Fix
-		if ( wgridx * WGRID_SIZE < realm->width() )
-		  wgridx++;
-		if ( wgridy * WGRID_SIZE < realm->height() )
-		  wgridy++;
+		unsigned wgridx = realm->grid_width();
+		unsigned wgridy = realm->grid_height();
 
 		for ( unsigned wx = 0; wx < wgridx; ++wx )
 		{

@@ -36,7 +36,7 @@ namespace Pol {
 	  void ValidateBlock( unsigned short x, unsigned short y ) const;
 
 	private:
-	  RealmDescriptor _descriptor;
+	  const RealmDescriptor _descriptor;
 
 	  std::vector<STATIC_INDEX> _index;
       std::vector<STATIC_ENTRY> _statics;

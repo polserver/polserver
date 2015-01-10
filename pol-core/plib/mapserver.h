@@ -34,7 +34,7 @@ namespace Pol {
 	protected:
 	  explicit MapServer( const RealmDescriptor& descriptor );
 
-	  RealmDescriptor _descriptor;
+	  const RealmDescriptor _descriptor;
 
 	private:
 	  // the indexes and shape data are always loaded into memory.

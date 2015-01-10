@@ -81,16 +81,13 @@ namespace Pol {
 	  ZoneMultis multis;
 	};
 
-	const unsigned WGRID_SIZE = 64;
-	const unsigned WGRID_SHIFT = 6;
-
     inline void zone_convert( unsigned short x, unsigned short y, unsigned short* wx, unsigned short* wy, const Plib::Realm* realm )
 	{
 	  passert( x < realm->width() );
 	  passert( y < realm->height() );
 
-	  (*wx) = x >> WGRID_SHIFT;
-	  (*wy) = y >> WGRID_SHIFT;
+	  (*wx) = x >> Plib::WGRID_SHIFT;
+	  (*wy) = y >> Plib::WGRID_SHIFT;
 	}
 
 	inline void zone_convert_clip( int x, int y, const Plib::Realm* realm, unsigned short* wx, unsigned short* wy )
@@ -104,8 +101,8 @@ namespace Pol {
 	  if ( (unsigned)y >= realm->height() )
 		y = realm->height() - 1;
 
-	  (*wx) = static_cast<unsigned short>( x >> WGRID_SHIFT );
-	  (*wy) = static_cast<unsigned short>( y >> WGRID_SHIFT );
+	  (*wx) = static_cast<unsigned short>( x >> Plib::WGRID_SHIFT );
+	  (*wy) = static_cast<unsigned short>( y >> Plib::WGRID_SHIFT );
 	}
 
 	inline Zone& getzone( unsigned short x, unsigned short y, Plib::Realm* realm )
@@ -113,7 +110,7 @@ namespace Pol {
 	  passert( x < realm->width() );
 	  passert( y < realm->height() );
 
-	  return realm->zone[x >> WGRID_SHIFT][y >> WGRID_SHIFT];
+	  return realm->zone[x >> Plib::WGRID_SHIFT][y >> Plib::WGRID_SHIFT];
 	}
 
 	namespace {
