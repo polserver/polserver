@@ -575,6 +575,7 @@
     <ClInclude Include="globals\ucfg.h" />
     <ClInclude Include="globals\uvars.h" />
     <ClInclude Include="guilds.h" />
+    <ClInclude Include="mobile\privupdater.h" />
     <ClInclude Include="module\datastoreimp.h" />
     <ClInclude Include="module\fileaccess.h" />
     <ClInclude Include="network\clientthread.h" />

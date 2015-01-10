@@ -155,6 +155,7 @@ Notes
 
 #include "corpse.h"
 #include "wornitems.h"
+#include "privupdater.h"
 
 #include "../npc.h" // TODO: Remove this abomination!
 
@@ -251,169 +252,6 @@ namespace Pol {
 	  Core::gamestate.armorzones.clear();
 	  Core::gamestate.armor_zone_chance_sum = 0;
 	}
-
-	class PrivUpdater
-	{
-	public:
-		static void on_change_see_hidden(Character* chr, bool enable)
-		{ 
-			if (!is_active_or_npc(chr)) return; // don't do useless work
-			
-			if (enable) {
-				Core::WorldIterator<Core::MobileFilter>::InVisualRange(chr, [&](Character* zonechr) { enable_see_hidden(zonechr, chr); });
-			}
-			else
-			{
-				Core::WorldIterator<Core::MobileFilter>::InVisualRange(chr, [&](Character* zonechr) { disable_see_hidden(zonechr, chr); });
-			}
-		}
-		static void on_change_see_ghosts(Character* chr, bool enable)
-		{
-			if (!is_active_or_npc(chr)) return; // don't do useless work
-
-			if (enable)
-			{
-				Core::WorldIterator<Core::MobileFilter>::InVisualRange(chr, [&](Character* zonechr) { enable_see_ghosts(zonechr, chr); });
-			}
-			else
-			{
-				Core::WorldIterator<Core::MobileFilter>::InVisualRange(chr, [&](Character* zonechr) { disable_see_ghosts(zonechr, chr); });
-			}
-		}
-		static void on_change_see_invis_items(Character* chr, bool enable)
-		{
-			// NPCs don't care about invisible items, so we only need to check for active clients.
-			if (chr == NULL || !chr->has_active_client()) return;
-
-			if (enable)
-			{
-				Core::WorldIterator<Core::ItemFilter>::InVisualRange(chr, [&](Items::Item* zoneitem) { enable_see_invis_items(zoneitem, chr); });
-			}
-			else
-			{
-				Core::WorldIterator<Core::ItemFilter>::InVisualRange(chr, [&](Items::Item* zoneitem) { disable_see_invis_items(zoneitem, chr); });
-			}
-		}
-		static void on_change_invul(Character* chr, bool enable)
-		{
-			if (!is_active_or_npc(chr)) return; // don't do useless work
-
-			if (chr->has_active_client()) {
-				send_move(chr->client, chr); // tells itself if player
-
-				// Needs to update the healthbar, because send_move only sends if invul() == true.
-				if (chr->client->ClientType & Network::CLIENTTYPE_UOKR)
-					send_invulhealthbar(chr->client, chr);
-			}
-
-			if (enable)
-			{
-				Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange(chr, [&](Character* zonechr) { enable_invul(zonechr, chr); });
-			}
-			else
-			{
-				Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange(chr, [&](Character* zonechr) { disable_invul(zonechr, chr); });
-			}
-		}
-
-	private:
-		static bool is_active_or_npc(Character* chr) {
-			return chr != NULL && (chr->has_active_client() || chr->isa(Core::UObject::CLASS_NPC));
-		}
-
-	  static void enable_see_hidden( Character* in_range_chr, Character* chr )
-	  {
-		if ( in_range_chr->hidden() && in_range_chr != chr )
-		{
-		  if ( chr->client )
-			send_owncreate( chr->client, in_range_chr );
-          else if ( chr->isa( Core::UObject::CLASS_NPC ) )
-		  {
-            Core::NPC* npc = static_cast<Core::NPC*>( chr );
-            if ( npc->can_accept_event( Core::EVID_ENTEREDAREA ) )
-              npc->send_event( new Module::SourcedEvent( Core::EVID_ENTEREDAREA, in_range_chr ) );
-		  }
-		}
-	  }
-	  static void disable_see_hidden( Character* in_range_chr, Character* chr )
-	  {
-		if ( in_range_chr->hidden() && in_range_chr != chr )
-		{
-		  if ( chr->client )
-			send_remove_character( chr->client, in_range_chr );
-          else if ( chr->isa( Core::UObject::CLASS_NPC ) )
-		  {
-            Core::NPC* npc = static_cast<Core::NPC*>( chr );
-            if ( npc->can_accept_event( Core::EVID_LEFTAREA ) )
-              npc->send_event( new Module::SourcedEvent( Core::EVID_LEFTAREA, in_range_chr ) );
-		  }
-		}
-	  }
-
-	  static void enable_see_ghosts( Character* in_range_chr, Character* chr )
-	  {
-		if ( in_range_chr->dead() && in_range_chr != chr )
-		{
-		  if ( chr->client )
-			send_owncreate( chr->client, in_range_chr );
-          else if ( chr->isa( Core::UObject::CLASS_NPC ) )
-		  {
-            Core::NPC* npc = static_cast<Core::NPC*>( chr );
-            if ( npc->can_accept_event( Core::EVID_ENTEREDAREA ) )
-              npc->send_event( new Module::SourcedEvent( Core::EVID_ENTEREDAREA, in_range_chr ) );
-		  }
-		}
-	  }
-	  static void disable_see_ghosts( Character* in_range_chr, Character* chr )
-	  {
-		if ( in_range_chr->dead() && in_range_chr != chr )
-		{
-		  if ( chr->client )
-			send_remove_character( chr->client, in_range_chr );
-          else if ( chr->isa( Core::UObject::CLASS_NPC ) )
-		  {
-            Core::NPC* npc = static_cast<Core::NPC*>( chr );
-            if ( npc->can_accept_event( Core::EVID_LEFTAREA ) )
-              npc->send_event( new Module::SourcedEvent( Core::EVID_LEFTAREA, in_range_chr ) );
-		  }
-		}
-	  }
-
-	  static void enable_see_invis_items( Items::Item* in_range_item, Character* chr )
-	  {
-		if ( in_range_item->invisible() && chr->client != NULL )
-		{
-			send_item( chr->client, in_range_item );
-		}
-	  }
-	  static void disable_see_invis_items( Items::Item* in_range_item, Character* chr )
-	  {
-		if ( in_range_item->invisible() && chr->client != NULL )
-		{
-			send_remove_object( chr->client, in_range_item );
-		}
-	  }
-
-	  static void enable_invul(Character* in_range_chr, Character* chr)
-	  {
-		  if (in_range_chr != chr && in_range_chr->is_visible_to_me(chr))
-		  {
-			  send_owncreate(in_range_chr->client, chr);
-		  }
-	  }
-	  static void disable_invul(Character* in_range_chr, Character* chr)
-	  {
-		  if (in_range_chr != chr && in_range_chr->is_visible_to_me(chr))
-		  {
-			  send_owncreate(in_range_chr->client, chr);
-
-			  // Needs to update the healthbar, because send_owncreate only sends if invul() == true.
-			  if (in_range_chr->client->ClientType & Network::CLIENTTYPE_UOKR)
-				  send_invulhealthbar(in_range_chr->client, chr);
-		  }
-	  }
-
-	};
 
 	Character::Character( u32 objtype, UOBJ_CLASS uobj_class ) :
 	  UObject( objtype, uobj_class ),
@@ -4388,6 +4226,7 @@ namespace Pol {
         if (realm)
             realm->remove_mobile(*this, Plib::WorldChangeReason::PlayerDeleted);
     }
+
 
   }
 }
