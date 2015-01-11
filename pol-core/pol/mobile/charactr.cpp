@@ -155,6 +155,7 @@ Notes
 
 #include "corpse.h"
 #include "wornitems.h"
+#include "privupdater.h"
 
 #include "../npc.h" // TODO: Remove this abomination!
 
@@ -252,341 +253,117 @@ namespace Pol {
 	  Core::gamestate.armor_zone_chance_sum = 0;
 	}
 
-	class PrivUpdater
-	{
-	public:
-
-	  static void on_change_see_hidden( Character* chr, bool enable )
-	  {
-		if ( enable )
-		{
-		  if ( chr->has_active_client() )
-			on_enable_see_hidden( chr );
-          else if ( chr->isa( Core::UObject::CLASS_NPC ) )
-			on_enable_see_hidden( chr );
-		}
-		else
-		{
-          if ( chr->has_active_client() )
-			on_disable_see_hidden( chr );
-          else if ( chr->isa( Core::UObject::CLASS_NPC ) )
-			on_disable_see_hidden( chr );
-		}
-	  }
-	  static void on_change_see_ghosts( Character* chr, bool enable )
-	  {
-		if ( enable )
-		{
-          if ( chr->has_active_client() )
-			on_enable_see_ghosts( chr );
-          else if ( chr->isa( Core::UObject::CLASS_NPC ) )
-			on_enable_see_ghosts( chr );
-		}
-		else
-		{
-          if ( chr->has_active_client() )
-			on_disable_see_ghosts( chr );
-          else if ( chr->isa( Core::UObject::CLASS_NPC ) )
-			on_disable_see_ghosts( chr );
-		}
-	  }
-	  static void on_change_see_invis_items( Character* chr, bool enable )
-	  {
-		if ( enable )
-		{
-          if ( chr->has_active_client() )
-			on_enable_see_invis_items( chr );
-		}
-		else
-		{
-          if ( chr->has_active_client() )
-			on_disable_see_invis_items( chr );
-		}
-	  }
-	  static void on_change_invul( Character* chr, bool enable )
-	  {
-		if ( enable )
-		{
-          if ( chr->has_active_client() )
-			on_enable_invul( chr );
-          else if ( chr->isa( Core::UObject::CLASS_NPC ) )
-			on_enable_invul( chr );
-		}
-		else
-		{
-          if ( chr->has_active_client() )
-			on_disable_invul( chr );
-          else if ( chr->isa( Core::UObject::CLASS_NPC ) )
-			on_disable_invul( chr );
-		}
-	  }
-
-	private:
-
-	  static void on_enable_see_hidden( Character* chr )
-	  {
-		if ( chr != NULL )
-          Core::WorldIterator<Core::MobileFilter>::InVisualRange( chr, [&]( Character* zonechr ) { enable_see_hidden( zonechr, chr ); } );
-	  }
-	  static void on_disable_see_hidden( Character* chr )
-	  {
-		if ( chr != NULL )
-          Core::WorldIterator<Core::MobileFilter>::InVisualRange( chr, [&]( Character* zonechr ) { disable_see_hidden( zonechr, chr ); } );
-	  }
-	  static void enable_see_hidden( Character* in_range_chr, Character* chr )
-	  {
-		if ( in_range_chr->hidden() && in_range_chr != chr )
-		{
-		  if ( chr->client )
-			send_owncreate( chr->client, in_range_chr );
-          else if ( chr->isa( Core::UObject::CLASS_NPC ) )
-		  {
-            Core::NPC* npc = static_cast<Core::NPC*>( chr );
-            if ( npc->can_accept_event( Core::EVID_ENTEREDAREA ) )
-              npc->send_event( new Module::SourcedEvent( Core::EVID_ENTEREDAREA, in_range_chr ) );
-		  }
-		}
-	  }
-	  static void disable_see_hidden( Character* in_range_chr, Character* chr )
-	  {
-		if ( in_range_chr->hidden() && in_range_chr != chr )
-		{
-		  if ( chr->client )
-			send_remove_character( chr->client, in_range_chr );
-          else if ( chr->isa( Core::UObject::CLASS_NPC ) )
-		  {
-            Core::NPC* npc = static_cast<Core::NPC*>( chr );
-            if ( npc->can_accept_event( Core::EVID_LEFTAREA ) )
-              npc->send_event( new Module::SourcedEvent( Core::EVID_LEFTAREA, in_range_chr ) );
-		  }
-		}
-	  }
-
-	  static void on_enable_see_ghosts( Character* chr )
-	  {
-		if ( chr != NULL )
-          Core::WorldIterator<Core::MobileFilter>::InVisualRange( chr, [&]( Character* zonechr ) { enable_see_ghosts( zonechr, chr ); } );
-	  }
-	  static void on_disable_see_ghosts( Character* chr )
-	  {
-		if ( chr != NULL )
-          Core::WorldIterator<Core::MobileFilter>::InVisualRange( chr, [&]( Character* zonechr ) { disable_see_ghosts( zonechr, chr ); } );
-	  }
-	  static void enable_see_ghosts( Character* in_range_chr, Character* chr )
-	  {
-		if ( in_range_chr->dead() && in_range_chr != chr )
-		{
-		  if ( chr->client )
-			send_owncreate( chr->client, in_range_chr );
-          else if ( chr->isa( Core::UObject::CLASS_NPC ) )
-		  {
-            Core::NPC* npc = static_cast<Core::NPC*>( chr );
-            if ( npc->can_accept_event( Core::EVID_ENTEREDAREA ) )
-              npc->send_event( new Module::SourcedEvent( Core::EVID_ENTEREDAREA, in_range_chr ) );
-		  }
-		}
-	  }
-	  static void disable_see_ghosts( Character* in_range_chr, Character* chr )
-	  {
-		if ( in_range_chr->dead() && in_range_chr != chr )
-		{
-		  if ( chr->client )
-			send_remove_character( chr->client, in_range_chr );
-          else if ( chr->isa( Core::UObject::CLASS_NPC ) )
-		  {
-            Core::NPC* npc = static_cast<Core::NPC*>( chr );
-            if ( npc->can_accept_event( Core::EVID_LEFTAREA ) )
-              npc->send_event( new Module::SourcedEvent( Core::EVID_LEFTAREA, in_range_chr ) );
-		  }
-		}
-	  }
-
-	  static void on_enable_see_invis_items( Character* chr )
-	  {
-		if ( chr != NULL )
-          Core::WorldIterator<Core::ItemFilter>::InVisualRange( chr, [&]( Items::Item* zoneitem ) { enable_see_invis_items( zoneitem, chr ); } );
-	  }
-	  static void on_disable_see_invis_items( Character* chr )
-	  {
-		if ( chr != NULL )
-          Core::WorldIterator<Core::ItemFilter>::InVisualRange( chr, [&]( Items::Item* zoneitem ) { disable_see_invis_items( zoneitem, chr ); } );
-	  }
-	  static void enable_see_invis_items( Items::Item* in_range_item, Character* chr )
-	  {
-		if ( in_range_item->invisible() )
-		{
-		  if ( chr->client )
-			send_item( chr->client, in_range_item );
-		}
-	  }
-	  static void disable_see_invis_items( Items::Item* in_range_item, Character* chr )
-	  {
-		if ( in_range_item->invisible() )
-		{
-		  if ( chr->client )
-			send_remove_object( chr->client, in_range_item );
-		}
-	  }
-
-	  static void on_enable_invul( Character* chr )
-	  {
-        if ( chr != NULL )
-          Core::WorldIterator<Core::PlayerFilter>::InVisualRange( chr, [&]( Character* zonechr ) { enable_invul( zonechr, chr ); } );
-	  }
-	  static void on_disable_invul( Character* chr )
-	  {
-		if ( chr != NULL )
-          Core::WorldIterator<Core::PlayerFilter>::InVisualRange( chr, [&]( Character* zonechr ) { disable_invul( zonechr, chr ); } );
-	  }
-	  static void enable_invul( Character* in_range_chr, Character* chr )
-	  {
-		if ( chr->client != NULL )
-		  send_move( chr->client, chr );
-
-		if ( in_range_chr->has_active_client() )
-		{
-		  if ( in_range_chr != chr && in_range_chr->is_visible_to_me( chr ) )
-		  {
-			send_owncreate( in_range_chr->client, chr );
-		  }
-		}
-	  }
-	  static void disable_invul( Character* in_range_chr, Character* chr )
-	  {
-		if ( chr->client != NULL )
-		{
-		  send_move( chr->client, chr );
-		  if ( chr->client->ClientType & Network::CLIENTTYPE_UOKR )
-			send_invulhealthbar( chr->client, chr );
-		}
-
-		if ( in_range_chr->has_active_client() )
-		{
-		  if ( in_range_chr != chr && in_range_chr->is_visible_to_me( chr ) )
-		  {
-			send_owncreate( in_range_chr->client, chr );
-			if ( in_range_chr->client->ClientType & Network::CLIENTTYPE_UOKR )
-			  send_invulhealthbar( in_range_chr->client, chr );
-		  }
-		}
-	  }
-	};
-
 	Character::Character( u32 objtype, UOBJ_CLASS uobj_class ) :
 	  UObject( objtype, uobj_class ),
-	  warmode_wait( 0 ),
-	  trading_with( NULL ),
-	  trade_accepted( false ),
-	  acct( NULL ),
-	  client( NULL ),
-	  registered_house( 0 ),
-	  cmdlevel_( 0 ),
+	  // NPC
+	  // EQUIPMENT / ITEMS
+	  carrying_capacity_mod_( 0 ),
+	  weapon( Core::gamestate.wrestling_weapon ),
+	  shield( NULL ),
+	  armor_( Core::gamestate.armorzones.size() ),
+	  wornitems_ref( new Core::WornItemsContainer ),// default objtype is in containr.cpp, WornItemsContainer class
+	  wornitems( *wornitems_ref ),
+	  gotten_item( NULL ),
+	  gotten_item_source( 0 ),
+	  remote_containers_(),
+	  //MOVEMENT
 	  dir( 0 ),
-	  warmode( false ),
-	  logged_in( true ), // so initialization scripts etc can see
-	  connected( false ), // but EScript "check"value false
+	  gradual_boost( 0 ),
 	  lastx( 0 ),
 	  lasty( 0 ),
 	  lastz( 0 ),
 	  move_reason( OTHER ),
       movemode( Core::MOVEMODE_LAND ),
+	  lightoverride( -1 ),
+	  lightoverride_until( 0 ),
+	  movement_cost(),
+	  // COMBAT
+	  warmode_wait( 0 ),
+	  ar_( 0 ),
+	  ar_mod_( 0 ),
+	  delay_mod_( 0 ),
+	  hitchance_mod_( 0 ),
+	  evasionchance_mod_( 0 ),
+	  opponent_( NULL ),
+	  opponent_of(),
+	  swing_timer_start_clock_( 0 ),
+	  ready_to_swing( false ),
+	  swing_task( NULL ),
+	  // ATTRIBUTES / VITALS
 	  disable_regeneration_until( 0 ),
+	  attributes( Core::gamestate.numAttributes ),
+      vitals( Core::gamestate.numVitals ),
+	  // REPUTATION
+	  murderer_( false ),
+	  aggressor_to_(),
+	  lawfully_damaged_(),
+	  criminal_until_( 0 ),
+	  repsys_task_( NULL ),
+	  to_be_reportable_(),
+	  reportable_(),
+	  // GUILD
+	  guild_( NULL ),
+	  // PARTY
+	  party_( NULL ),
+	  candidate_of_( NULL ),
+	  offline_mem_of_( NULL ),
+	  party_can_loot_( false ),
+	  party_decline_timeout_( NULL ),
+	  // SECURE TRADING
+	  trading_cont(),
+	  trading_with( NULL ),
+	  trade_accepted( false ),
+	  // SCRIPT
 	  disable_skills_until( 0 ),
+	  tcursor2( NULL ),
+	  menu( NULL ),
+	  on_menu_selection( NULL ),
+	  script_ex( NULL ),
+	  spell_task( NULL ),
+	  // CLIENT
+	  client( NULL ),
+	  logged_in( true ), // so initialization scripts etc can see
+	  connected( false ), // but EScript "check"value false
+	  uclang( "enu" ),
+	  _last_textcolor( 0 ),
+	  // PRIVS SETTINGS STATUS
+	  cmdlevel_( 0 ),
+	  warmode( false ),
+	  poisoned_( false ),
+	  expanded_statbar(),
+	  skillcap_( default_skillcap ),
+	  dead_( false ),
+	  hidden_( false ),
+	  concealed_( 0 ),
+	  frozen_( false ),
+	  paralyzed_( false ),
+	  stealthsteps_( 0 ),
+	  mountedsteps_( 0 ),
+	  privs(),
+	  settings(),
+	  cached_settings(),
+	  squelched_until( 0 ),
+	  deafened_until( 0 ),
+	  // SERIALIZATION
+	  // CREATION
+	  created_at( 0 ),
+	  // MISC
+	  acct( NULL ),
+	  registered_house( 0 ),
 	  truecolor( 0 ),
 	  trueobjtype( 0 ),
 	  // Note, Item uses the named constructor idiom, but here, it is not used.
 	  // this is probably okay, but something to keep in mind.
       gender( Core::GENDER_MALE ),
       race( Core::RACE_HUMAN ),
-	  poisoned_( false ),
 	  last_corpse( 0 ),
-	  dblclick_wait( 0 ),
-	  gotten_item( NULL ),
-	  gotten_item_source( 0 ),
-	  attributes( Core::gamestate.numAttributes ),
-      vitals( Core::gamestate.numVitals ),
-
-	  //target_cursor_uoemod(NULL),
-	  //menu_selection_uoemod(NULL),
-	  //prompt_uoemod(NULL),
-	  uclang( "enu" ),
-	  tcursor2( NULL ),
-	  menu( NULL ),
-	  on_menu_selection( NULL ),
-	  lightoverride( -1 ),
-	  lightoverride_until( 0 ),
-
-	  skillcap_( 700 ),
-      _last_textcolor( 0 ),
-
-      wornitems_ref( new Core::WornItemsContainer ),// default objtype is in containr.cpp, WornItemsContainer class
-	  wornitems( *wornitems_ref ),
-
-	  ar_( 0 ),
-	  ar_mod_( 0 ),
-	  delay_mod_( 0 ),
-	  hitchance_mod_( 0 ),
-	  evasionchance_mod_( 0 ),
-	  carrying_capacity_mod_( 0 ),
-
-      weapon( Core::gamestate.wrestling_weapon ),
-	  shield( NULL ),
-	  armor_( Core::gamestate.armorzones.size() ),
-
-	  dead_( false ),
-	  hidden_( false ),
-	  concealed_( 0 ), //Dave 11/25 changed from "false" - concealed_ is a char not bool
-	  frozen_( false ),
-	  paralyzed_( false ),
-
-	  stealthsteps_( 0 ),
-	  mountedsteps_( 0 ),
-
-	  // private_items_ default
-	  // additional_legal_items default
-	  // privs default
-	  // settings default
-	  // cached_settings struct
-
-	  script_ex( NULL ),
-	  opponent_( NULL ),
-	  // opponent_of default
-
-	  swing_timer_start_clock_( 0 ),
-	  ready_to_swing( false ),
-	  swing_task( NULL ),
-	  spell_task( NULL ),
-	  created_at( 0 ),
-	  squelched_until( 0 ),
-	  deafened_until( 0 ),
-
-	  criminal_until_( 0 ),
-	  repsys_task_( NULL ),
-	  to_be_reportable_(),
-	  reportable_(),
-	  guild_( NULL ),
-	  party_( NULL ),
-	  candidate_of_( NULL ),
-	  offline_mem_of_( NULL ),
-	  party_can_loot_( false ),
-	  party_decline_timeout_( NULL ),
-	  murderer_( false )
-
-	  //	langid_(0)
+	  dblclick_wait( 0 )
 	{
-	  gradual_boost = 0;
+	  
 	  height = PLAYER_CHARACTER_HEIGHT; //this gets overwritten in UObject::readProperties!
 	  wornitems.chr_owner = this; //FIXME, dangerous.
 
 	  set_caps_to_default();
-
-	  expanded_statbar.statcap = 225;
-	  expanded_statbar.luck = 0;
-	  expanded_statbar.dmg_min = 0;
-	  expanded_statbar.dmg_max = 0;
-	  expanded_statbar.followers_max = 0;
-	  expanded_statbar.tithing = 0;
-	  expanded_statbar.followers = 0;
 
 	  load_default_elements();
 
@@ -901,7 +678,7 @@ namespace Pol {
 		}
 	  }
 
-	  if ( skillcap_ != 0 )
+	  if ( skillcap_ != default_skillcap)
 		sw() << "\tSkillcap\t" << static_cast<int>( skillcap_ ) << pf_endl;
 
 	  // output Vitals
@@ -914,7 +691,7 @@ namespace Pol {
 		}
 	  }
 
-	  if ( expanded_statbar.statcap != 0 )
+	  if ( expanded_statbar.statcap != Core::Expanded_Statbar::default_statcap )
 		sw() << "\tStatcap\t" << static_cast<int>( expanded_statbar.statcap ) << pf_endl;
 
 	  if ( expanded_statbar.luck != 0 )
@@ -1161,12 +938,12 @@ namespace Pol {
 	  }
 
 	  uclang = elem.remove_string( "UCLang", "enu" );
-	  expanded_statbar.statcap = static_cast<s16>( elem.remove_int( "STATCAP", 225 ) );
-	  skillcap_ = static_cast<u16>( elem.remove_int( "SKILLCAP", 700 ) );
-	  expanded_statbar.luck = static_cast<s16>( elem.remove_int( "LUCK", 0 ) );
-	  expanded_statbar.followers = static_cast<s8>( elem.remove_int( "FOLLOWERS", 0 ) );
-	  expanded_statbar.followers_max = static_cast<s8>( elem.remove_int( "FOLLOWERSMAX", 0 ) );
-	  expanded_statbar.tithing = elem.remove_int( "TITHING", 0 );
+	  expanded_statbar.statcap = static_cast<s16>( elem.remove_int( "STATCAP", Core::Expanded_Statbar::default_statcap ) );
+	  skillcap_ = static_cast<u16>( elem.remove_int( "SKILLCAP", default_skillcap ) );
+	  expanded_statbar.luck = static_cast<s16>( elem.remove_int( "LUCK", Core::Expanded_Statbar::default_luck ) );
+	  expanded_statbar.followers = static_cast<s8>( elem.remove_int( "FOLLOWERS", Core::Expanded_Statbar::default_followers ) );
+	  expanded_statbar.followers_max = static_cast<s8>( elem.remove_int( "FOLLOWERSMAX", Core::Expanded_Statbar::default_followers_max ) );
+	  expanded_statbar.tithing = elem.remove_int( "TITHING", Core::Expanded_Statbar::default_tithing );
 
 	  privs.readfrom( elem.remove_string( "Privs", "" ) );
 	  settings.readfrom( elem.remove_string( "Settings", "" ) );
@@ -1327,12 +1104,6 @@ namespace Pol {
       setElementDamageMod( Core::ELEMENTAL_ENERGY, 0 );
       setElementDamageMod( Core::ELEMENTAL_POISON, 0 );
       setElementDamageMod( Core::ELEMENTAL_PHYSICAL, 0 );
-
-	  //Movementcost defaults
-	  movement_cost.walk = 1.0;
-	  movement_cost.run = 1.0;
-	  movement_cost.walk_mounted = 1.0;
-	  movement_cost.run_mounted = 1.0;
 	}
 
 	void Character::refresh_cached_settings( bool update )
@@ -3317,24 +3088,18 @@ namespace Pol {
 		play_sound_effect( this, sound );
 	}
 
+	u16 Character::get_damaged_sound() const
+	{
+	  if ( gender == Core::GENDER_MALE )
+		return SOUND_EFFECT_MALE_DEFENSE;
+	  return SOUND_EFFECT_FEMALE_DEFENSE;
+	}
+
 	void Character::do_imhit_effects()
 	{
       if ( Core::settingsManager.combat_config.core_hit_sounds )
 	  {
-		u16 sfx = 0;
-		if ( this->isa( UObject::CLASS_NPC ) )
-		{
-          Core::NPC* npc = static_cast<Core::NPC*>( this );
-		  sfx = npc->damaged_sound;
-		}
-		if ( !sfx )
-		{
-          if ( gender == Core::GENDER_MALE )
-			sfx = SOUND_EFFECT_MALE_DEFENSE;
-		  else
-			sfx = SOUND_EFFECT_FEMALE_DEFENSE;
-		}
-		play_sound_effect( this, sfx );
+		play_sound_effect( this, get_damaged_sound() );
 	  }
 	  if ( objtype_ >= UOBJ_HUMAN_MALE )
         send_action_to_inrange( this, Core::ACTION_GOT_HIT );
@@ -4461,6 +4226,7 @@ namespace Pol {
         if (realm)
             realm->remove_mobile(*this, Plib::WorldChangeReason::PlayerDeleted);
     }
+
 
   }
 }
