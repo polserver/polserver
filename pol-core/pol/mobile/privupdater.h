@@ -87,14 +87,6 @@ namespace Pol {
 		{
 			if (!is_active_or_npc(chr)) return; // don't do useless work
 
-			if (chr->has_active_client()) {
-				send_move(chr->client, chr); // tells itself if player
-
-				// Needs to update the healthbar, because send_move only sends if invul() == true.
-				if (chr->client->ClientType & Network::CLIENTTYPE_UOKR)
-					send_invulhealthbar(chr->client, chr);
-			}
-
 			if (enable)
 			{
 				Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange(chr, [&](Character* zonechr) { enable_invul(zonechr, chr); });
@@ -188,21 +180,37 @@ namespace Pol {
 
 		void PrivUpdater::enable_invul(Character* in_range_chr, Character* chr)
 		{
-			if (in_range_chr != chr && in_range_chr->is_visible_to_me(chr))
-			{
-				send_owncreate(in_range_chr->client, chr);
+			if (in_range_chr != chr) {
+				if (in_range_chr->is_visible_to_me(chr))
+				{
+					send_owncreate(in_range_chr->client, chr);
+				}
+			}
+			else {
+				// If it's the same, it can't be a NPC and must be active because of the OnlinePlayerFilter,
+				// so it tells itself.
+				send_move(chr->client, chr); 
 			}
 		}
 
 		void PrivUpdater::disable_invul(Character* in_range_chr, Character* chr)
 		{
-			if (in_range_chr != chr && in_range_chr->is_visible_to_me(chr))
-			{
-				send_owncreate(in_range_chr->client, chr);
+			if (in_range_chr != chr) {
+				if (in_range_chr->is_visible_to_me(chr))
+				{
+					send_owncreate(in_range_chr->client, chr);
 
-				// Needs to update the healthbar, because send_owncreate only sends if invul() == true.
-				if (in_range_chr->client->ClientType & Network::CLIENTTYPE_UOKR)
-					send_invulhealthbar(in_range_chr->client, chr);
+					// Needs to update the healthbar, because send_owncreate only sends if invul() == true.
+					if (in_range_chr->client->ClientType & Network::CLIENTTYPE_UOKR)
+						send_invulhealthbar(in_range_chr->client, chr);
+				}
+			}
+			else {
+				send_move(chr->client, chr); // tells itself if player (same justification as in enable_invul)
+
+				// Needs to update the healthbar to the player as well
+				if (chr->client->ClientType & Network::CLIENTTYPE_UOKR)
+					send_invulhealthbar(chr->client, chr);
 			}
 		}
 	}
