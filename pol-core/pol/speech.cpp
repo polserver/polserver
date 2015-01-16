@@ -19,7 +19,7 @@ Notes
 #include "network/packets.h"
 #include "network/msghandl.h"
 
-#include "npc.h"
+#include "mobile/npc.h"
 
 #include "listenpt.h"
 #include "mkscrobj.h"
@@ -59,26 +59,6 @@ namespace Pol {
   namespace Core {
     using namespace Network;
 
-	// ASCII-ONLY VERSIONS
-	void pc_spoke( NPC& npc, Mobile::Character *chr, const char *text, int /*textlen*/, u8 texttype ) //DAVE
-	{
-	  npc.on_pc_spoke( chr, text, texttype );
-	}
-    void ghost_pc_spoke( NPC& npc, Mobile::Character* chr, const char* text, int /*textlen*/, u8 texttype ) //DAVE
-	{
-	  npc.on_ghost_pc_spoke( chr, text, texttype );
-	}
-
-	// UNICODE VERSIONS
-    void pc_spoke( NPC& npc, Mobile::Character *chr, const char *text, int /*textlen*/, u8 texttype, const u16 *wtext, const char lang[4], int /*wtextlen*/, Bscript::ObjArray* speechtokens = NULL )
-	{
-	  npc.on_pc_spoke( chr, text, texttype, wtext, lang, speechtokens );
-	}
-    void ghost_pc_spoke( NPC& npc, Mobile::Character* chr, const char *text, int /*textlen*/, u8 texttype, const u16 *wtext, const char lang[4], int /*wtextlen*/, Bscript::ObjArray* speechtokens = NULL )
-	{
-	  npc.on_ghost_pc_spoke( chr, text, texttype, wtext, lang, speechtokens );
-	}
-
 	void handle_processed_speech( Client* client, char* textbuf, int textbuflen, char firstchar, u8 type, u16 color, u16 font )
 	{
 	  // ENHANCE: if (intextlen+1) != textbuflen, then the input line was 'dirty'.  May want to log this fact.
@@ -86,13 +66,15 @@ namespace Pol {
 	  if ( textbuflen == 1 )
 		return;
 
+      Mobile::Character* chr = client->chr;
+
       // validate text color
       u16 textcol = cfBEu16( color );
       if ( textcol < 2 || textcol > 1001 )
       {
         textcol = 1001;
       }
-      client->chr->last_textcolor( textcol );
+      chr->last_textcolor( textcol );
 
 	  if ( textbuf[0] == '.' || textbuf[0] == '=' )
 	  {
@@ -107,15 +89,15 @@ namespace Pol {
 		return;
 	  }
 
-	  if ( client->chr->squelched() )
+	  if ( chr->squelched() )
 		return;
 
-	  if ( client->chr->hidden() )
-		client->chr->unhide();
+	  if ( chr->hidden() )
+		chr->unhide();
 
 	  if ( Plib::systemstate.config.show_speech_colors )
 	  {
-        INFO_PRINT << client->chr->name( ) << " speaking w/ color 0x"
+        INFO_PRINT << chr->name( ) << " speaking w/ color 0x"
 		  << fmt::hexu( cfBEu16( color ) ) << "\n";
 	  }
 
@@ -125,12 +107,12 @@ namespace Pol {
 
 	  PktHelper::PacketOut<PktOut_1C> talkmsg;
 	  talkmsg->offset += 2;
-	  talkmsg->Write<u32>( client->chr->serial_ext );
-	  talkmsg->WriteFlipped<u16>( client->chr->graphic );
+	  talkmsg->Write<u32>( chr->serial_ext );
+	  talkmsg->WriteFlipped<u16>( chr->graphic );
 	  talkmsg->Write<u8>( type ); // FIXME authorize
 	  talkmsg->WriteFlipped<u16>( textcol );
 	  talkmsg->WriteFlipped<u16>( font );
-	  talkmsg->Write( client->chr->name().c_str(), 30 );
+	  talkmsg->Write( chr->name().c_str(), 30 );
 	  talkmsg->Write( textbuf, textlen );
 	  u16 len = talkmsg->offset;
 	  talkmsg->offset = 1;
@@ -138,7 +120,7 @@ namespace Pol {
 	  talkmsg.Send( client, len );
 
 	  PktHelper::PacketOut<PktOut_1C> ghostmsg;
-	  if ( client->chr->dead() && !client->chr->can_be_heard_as_ghost() )
+	  if ( chr->dead() && !chr->can_be_heard_as_ghost() )
 	  {
 		memcpy( &ghostmsg->buffer, &talkmsg->buffer, sizeof ghostmsg->buffer );
 		ghostmsg->offset = 44;
@@ -164,17 +146,17 @@ namespace Pol {
         range = Core::settingsManager.ssopt.yell_range;
       else
         range = Core::settingsManager.ssopt.speech_range;
-      Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( client->chr->x, client->chr->y, client->chr->realm, range, [&]( Mobile::Character *chr )
+      Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( chr->x, chr->y, chr->realm, range, [&]( Mobile::Character *other_chr )
       {
-        Network::Client* client2 = chr->client;
+        Network::Client* client2 = other_chr->client;
         if ( client == client2 ) return;
-        if ( !client2->chr->is_visible_to_me( client->chr ) ) return;
-        if ( client2->chr->deafened( ) ) return;
+        if ( !other_chr->is_visible_to_me( chr ) ) return;
+        if ( other_chr->deafened( ) ) return;
 
-        if ( !client->chr->dead() ||
-             client2->chr->dead() ||
-             client2->chr->can_hearghosts() ||
-             client->chr->can_be_heard_as_ghost() )
+        if ( !chr->dead() ||
+             other_chr->dead() ||
+             other_chr->can_hearghosts() ||
+             chr->can_be_heard_as_ghost() )
         {
           talkmsg.Send( client2, len );
         }
@@ -184,10 +166,22 @@ namespace Pol {
         }
       } );
 
-	  if ( !client->chr->dead() )
-		for_nearby_npcs( pc_spoke, client->chr, textbuf, textbuflen, type );
-	  else
-		for_nearby_npcs( ghost_pc_spoke, client->chr, textbuf, textbuflen, type );
+	  if ( !chr->dead() )
+      {
+        Core::WorldIterator<Core::NPCFilter>::InRange( chr->x, chr->y, chr->realm, range, [&]( Mobile::Character *otherchr )
+        {
+          Mobile::NPC* npc = static_cast<Mobile::NPC*>( otherchr );
+          npc->on_pc_spoke( chr, textbuf, type );
+        } );
+      }
+      else
+      {
+        Core::WorldIterator<Core::NPCFilter>::InRange( chr->x, chr->y, chr->realm, range, [&]( Mobile::Character *otherchr )
+        {
+          Mobile::NPC* npc = static_cast<Mobile::NPC*>( otherchr );
+          npc->on_ghost_pc_spoke( chr, textbuf, type );
+        } );
+      }
 
 	  sayto_listening_points( client->chr, textbuf, textbuflen, type );
 	}
@@ -235,7 +229,10 @@ namespace Pol {
         // 3/8/2009 MuadDib Changed to default color instead of complain.
         textcol = 1001;
       }
-      client->chr->last_textcolor( textcol );
+
+      Mobile::Character* chr = client->chr;
+
+      chr->last_textcolor( textcol );
 
 	  using std::wstring;
 
@@ -258,28 +255,28 @@ namespace Pol {
 		return;
 	  }
 
-	  if ( client->chr->squelched() )
+	  if ( chr->squelched() )
 		return;
 
-	  if ( client->chr->hidden() )
-		client->chr->unhide();
+	  if ( chr->hidden() )
+		chr->unhide();
 
 	  if ( Plib::systemstate.config.show_speech_colors )
 	  {
-        INFO_PRINT << client->chr->name( ) << " speaking w/ color 0x"
+        INFO_PRINT << chr->name( ) << " speaking w/ color 0x"
 		  << fmt::hexu( cfBEu16( msgin->color ) ) << "\n";
 	  }
 
 	  PktHelper::PacketOut<PktOut_AE> ghostmsg;
 	  PktHelper::PacketOut<PktOut_AE> talkmsg;
 	  talkmsg->offset += 2;
-	  talkmsg->Write<u32>( client->chr->serial_ext );
-	  talkmsg->WriteFlipped<u16>( client->chr->graphic );
+	  talkmsg->Write<u32>( chr->serial_ext );
+	  talkmsg->WriteFlipped<u16>( chr->graphic );
 	  talkmsg->Write<u8>( msgin->type ); // FIXME authorize
 	  talkmsg->WriteFlipped<u16>( textcol );
 	  talkmsg->WriteFlipped<u16>( msgin->font );
 	  talkmsg->Write( msgin->lang, 4 );
-	  talkmsg->Write( client->chr->name().c_str(), 30 );
+	  talkmsg->Write( chr->name().c_str(), 30 );
 	  talkmsg->Write( &wtext[0], static_cast<u16>( wtextlen ), false ); //nullterm already included
 	  u16 len = talkmsg->offset;
 	  talkmsg->offset = 1;
@@ -293,7 +290,7 @@ namespace Pol {
 		{
 		  Client *client2 = networkManager.clients[cli];
 		  if ( !client2->ready ) continue;
-		  if ( client->chr->guildid() == client2->chr->guildid() )
+		  if ( chr->guildid() == client2->chr->guildid() )
 			talkmsg.Send( client2, len );
 		}
 	  }
@@ -304,14 +301,14 @@ namespace Pol {
 		{
 		  Client *client2 = networkManager.clients[cli];
 		  if ( !client2->ready ) continue;
-		  if ( client->chr->guildid() == client2->chr->guildid() || ( client2->chr->guild() > 0 && client->chr->guild()->hasAlly( client2->chr->guild() ) ) )
+		  if ( chr->guildid() == client2->chr->guildid() || ( client2->chr->guild() > 0 && chr->guild()->hasAlly( client2->chr->guild() ) ) )
 			talkmsg.Send( client2, len );
 		}
 	  }
 	  else
 	  {
 		talkmsg.Send( client, len ); // self
-		if ( client->chr->dead() && !client->chr->can_be_heard_as_ghost() )
+		if ( chr->dead() && !chr->can_be_heard_as_ghost() )
 		{
 		  memcpy( &ghostmsg->buffer, &talkmsg->buffer, sizeof ghostmsg->buffer );
 
@@ -339,17 +336,17 @@ namespace Pol {
           range = Core::settingsManager.ssopt.yell_range;
         else
           range = Core::settingsManager.ssopt.speech_range;
-        Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( client->chr->x, client->chr->y, client->chr->realm, range, [&]( Mobile::Character *chr )
+        Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( chr->x, chr->y, chr->realm, range, [&]( Mobile::Character *otherchr )
         {
-          Network::Client* client2 = chr->client;
+          Network::Client* client2 = otherchr->client;
           if ( client == client2 ) return;
-          if ( !client2->chr->is_visible_to_me( client->chr ) ) return;
-          if ( client2->chr->deafened() ) return;
+          if ( !otherchr->is_visible_to_me( chr ) ) return;
+          if ( otherchr->deafened() ) return;
 
-          if ( !client->chr->dead( ) ||
-               client2->chr->dead( ) ||
-               client2->chr->can_hearghosts( ) ||
-               client->chr->can_be_heard_as_ghost( ) )
+          if ( !chr->dead( ) ||
+               otherchr->dead( ) ||
+               otherchr->can_hearghosts( ) ||
+               chr->can_be_heard_as_ghost( ) )
           {
             talkmsg.Send( client2, len );
           }
@@ -359,13 +356,22 @@ namespace Pol {
           }
         } );
 
-		if ( !client->chr->dead() )
-		  for_nearby_npcs( pc_spoke, client->chr, ntext, static_cast<int>( ntextlen ), msgin->type,
-		  wtext, msgin->lang, static_cast<int>( wtextlen ), speechtokens );
-		else
-		  for_nearby_npcs( ghost_pc_spoke, client->chr, ntext, static_cast<int>( ntextlen ), msgin->type,
-		  wtext, msgin->lang, static_cast<int>( wtextlen ), speechtokens );
-
+		if ( !chr->dead() )
+        {
+         Core::WorldIterator<Core::NPCFilter>::InRange( chr->x, chr->y, chr->realm, range, [&]( Mobile::Character *otherchr )
+          {
+            Mobile::NPC* npc = static_cast<Mobile::NPC*>( otherchr );
+            npc->on_pc_spoke( chr, ntext, msgin->type, wtext, msgin->lang, speechtokens );
+          } );
+        }
+        else
+        {
+          Core::WorldIterator<Core::NPCFilter>::InRange( chr->x, chr->y, chr->realm, range, [&]( Mobile::Character *otherchr )
+          {
+            Mobile::NPC* npc = static_cast<Mobile::NPC*>( otherchr );
+            npc->on_ghost_pc_spoke( chr, ntext, msgin->type, wtext, msgin->lang, speechtokens );
+          } );
+        }
 		sayto_listening_points( client->chr, ntext, static_cast<int>( ntextlen ), msgin->type,
 								wtext, msgin->lang, static_cast<int>( wtextlen ), speechtokens );
 	  }

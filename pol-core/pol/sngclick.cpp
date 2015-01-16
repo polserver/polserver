@@ -13,6 +13,7 @@ Notes
 #include "network/msghandl.h"
 
 #include "mobile/charactr.h"
+#include "mobile/npc.h"
 
 #include "pktin.h"
 #include "uconst.h"

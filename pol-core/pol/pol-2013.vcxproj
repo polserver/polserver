@@ -339,7 +339,7 @@
     <ClCompile Include="musicrgn.cpp" />
     <ClCompile Include="network\clienttransmit.cpp" />
     <ClCompile Include="network\packetdefs.cpp" />
-    <ClCompile Include="npc.cpp" />
+    <ClCompile Include="mobile\npc.cpp" />
     <ClCompile Include="npctemplates.cpp" />
     <ClCompile Include="npctmpl.cpp" />
     <ClCompile Include="objecthash.cpp" />
@@ -616,7 +616,7 @@
     <ClInclude Include="network\packetdefs.h" />
     <ClInclude Include="network\packethelper.h" />
     <ClInclude Include="network\packetinterface.h" />
-    <ClInclude Include="npc.h" />
+    <ClInclude Include="mobile\npc.h" />
     <ClInclude Include="npctmpl.h" />
     <ClInclude Include="objecthash.h" />
     <ClInclude Include="objtype.h" />

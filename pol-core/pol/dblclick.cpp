@@ -31,7 +31,7 @@ Notes
 #include "network/msghandl.h"
 #include "mobile/charactr.h"
 #include "los.h"
-#include "npc.h"
+#include "mobile/npc.h"
 #include "pktin.h"
 #include "polcfg.h"
 #include "realms.h"
@@ -131,7 +131,7 @@ namespace Pol {
 
 		if ( chr->isa( UObject::CLASS_NPC ) )
 		{
-		  NPC* npc = static_cast<NPC*>( chr );
+		  Mobile::NPC* npc = static_cast<Mobile::NPC*>( chr );
 		  if ( npc->can_accept_event( EVID_DOUBLECLICKED ) )
 		  {
 			npc->send_event( new Module::SourcedEvent( EVID_DOUBLECLICKED, client->chr ) );

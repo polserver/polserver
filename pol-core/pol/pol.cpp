@@ -142,7 +142,7 @@ Notes
 #include "../plib/systemstate.h"
 
 #ifndef NDEBUG
-#include "npc.h"
+#include "mobile/npc.h"
 #endif
 
 #ifdef _WIN32
@@ -1140,7 +1140,7 @@ namespace Pol {
 
     POLLOG_INFO << progverstr << " (" << polbuildtag << ")"
       << "\ncompiled on " << compiledate << " " << compiletime
-      << "\nCopyright (C) 1993-2014 Eric N. Swanson"
+      << "\nCopyright (C) 1993-2015 Eric N. Swanson"
       << "\n\n";
 
 #ifndef NDEBUG
@@ -1150,7 +1150,7 @@ namespace Pol {
       << "   UContainer: " << sizeof( Core::UContainer ) << "\n"
       << "   Character:  " << sizeof( Mobile::Character ) << "\n"
       << "   Client:     " << sizeof( Network::Client ) << "\n"
-      << "   NPC:        " << sizeof( Core::NPC ) << "\n";
+      << "   NPC:        " << sizeof( Mobile::NPC ) << "\n";
 
 #ifdef __unix__
 #ifdef PTHREAD_THREADS_MAX

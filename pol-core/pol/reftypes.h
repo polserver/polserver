@@ -21,7 +21,7 @@ namespace Pol {
   }
   namespace Mobile {
 	class Character;
-	
+	class NPC;
   }
   namespace Items {
 	class Item;
@@ -37,14 +37,13 @@ namespace Pol {
 #endif
 
 	class UObject;
-	class NPC;
-	
+
 
 #if !REFTYPE_DEBUG
 	typedef ref_ptr<UObject> UObjectRef;
 	typedef ref_ptr<Mobile::Character> CharacterRef;
 	typedef ref_ptr<Items::Item> ItemRef;
-	typedef ref_ptr<NPC> NPCRef; // TODO: rename NpcRef
+	typedef ref_ptr<Mobile::NPC> NPCRef; // TODO: rename NpcRef
 	typedef ref_ptr<Accounts::Account> AccountRef;
 	typedef ref_ptr<Network::Client> ClientRef;
 #else
@@ -78,10 +77,10 @@ namespace Pol {
 	  ~ItemRef();
 	};
 
-	class NPCRef : public ref_ptr<NPC>
+	class NPCRef : public ref_ptr<Mobile::NPC>
 	{
 	public:
-	  explicit NPCRef( NPC* npc = 0 );
+	  explicit NPCRef( Mobile::NPC* npc = 0 );
 	  NPCRef( const NPCRef& rptr );
 	  ~NPCRef();
 	};

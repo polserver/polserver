@@ -24,17 +24,17 @@ Notes
 
 #include "../mobile/attribute.h"
 #include "../mobile/charactr.h"
-#include "../npc.h" // needed only for reporting the NPC's position when the event queue is full - should refactor to decouple
+#include "../mobile/npc.h" // needed only for reporting the NPC's position when the event queue is full - should refactor to decouple
 
 #include "../exscrobj.h"
+#include "../globals/script_internals.h"
+#include "../globals/state.h"
 #include "../polcfg.h"
 #include "../poldbg.h"
 #include "../scrsched.h"
 #include "../scrstore.h"
 #include "../skills.h"
 #include "../ufuncstd.h"
-#include "../globals/state.h"
-#include "../globals/script_internals.h"
 
 #include "../../clib/endian.h"
 #include "../../clib/logfacility.h"

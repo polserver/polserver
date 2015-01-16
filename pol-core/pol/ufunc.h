@@ -35,6 +35,7 @@ namespace Pol {
   }
   namespace Mobile {
 	class Character;
+	class NPC;
   }
   namespace Items {
 	class Item;
@@ -48,7 +49,6 @@ namespace Pol {
 
   namespace Core {
 	class UContainer;
-	class NPC;
 	class UObject;
 	struct USTRUCT_TILE;
 	class Menu;
@@ -238,11 +238,6 @@ namespace Pol {
 	void send_container_contents( Network::Client *client, const UContainer& cont );
 
 	void send_char_data( Network::Client *client, Mobile::Character *chr );
-
-	void for_nearby_npcs( void( *f )( NPC& npc, Mobile::Character *chr, const char *text, int textlen, u8 texttype ),
-						  Mobile::Character *p_chr, const char *p_text, int p_textlen, u8 texttype );
-	void for_nearby_npcs( void( *f )( NPC& npc, Mobile::Character *chr, const char *text, int textlen, u8 texttype, const u16 *wtext, const char lang[4], int wtextlen, Bscript::ObjArray* speechtokens ),
-						  Mobile::Character *p_chr, const char *p_text, int p_textlen, u8 texttype, const u16 *p_wtext, const char p_lang[4], int p_wtextlen, Bscript::ObjArray* speechtokens = NULL );
 
 	void transmit_to_inrange( const UObject* center, const void* msg, unsigned msglen, bool is_6017, bool is_UOKR );
 	void transmit_to_others_inrange( Mobile::Character* center, const void* msg, unsigned msglen, bool is_6017, bool is_UOKR );

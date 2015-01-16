@@ -25,7 +25,7 @@ Notes
 #include "mobile/charactr.h"
 #include "fnsearch.h"
 #include "guilds.h"
-#include "npc.h"
+#include "mobile/npc.h"
 #include "npctmpl.h"
 #include "polclock.h"
 #include "schedule.h"
@@ -809,7 +809,7 @@ namespace Pol {
       }
       else
       {
-        Core::NPC* npc = static_cast<Core::NPC*>( defender );
+        NPC* npc = static_cast<NPC*>( defender );
         if ( npc->master() )
         {
           Core::RepSystem::on_pc_attacks_pc( this, npc->master( ) );
@@ -820,8 +820,6 @@ namespace Pol {
         }
       }
     }
-  }
-  namespace Core {
 
     ///
     /// [13.2] NPC (MA) Attacks Mobile (MB)
@@ -832,9 +830,9 @@ namespace Pol {
     ///
     void NPC::repsys_on_attack( Character* defender )
     {
-      if ( settingsManager.repsys_cfg.Hooks.OnAttack )
+      if ( Core::settingsManager.repsys_cfg.Hooks.OnAttack )
       {
-        if ( settingsManager.repsys_cfg.Hooks.OnAttack->call( this->make_ref(), defender->make_ref() ) )
+        if ( Core::settingsManager.repsys_cfg.Hooks.OnAttack->call( this->make_ref(), defender->make_ref() ) )
           return;
       }
 
@@ -843,10 +841,6 @@ namespace Pol {
         master_->Character::repsys_on_attack( defender );
       }
     }
-  }
-
-  namespace Mobile {
-
 
     ///
     /// [14] Mobile (MA) Damages Mobile (MB)
@@ -875,7 +869,7 @@ namespace Pol {
       }
       else
       {
-        Core::NPC* npc = static_cast<Core::NPC*>( defender );
+        NPC* npc = static_cast<NPC*>( defender );
         if ( npc->master() )
         {
           Core::RepSystem::on_pc_damages_pc( this, npc->master( ) );
@@ -886,8 +880,6 @@ namespace Pol {
         }
       }
     }
-  }
-  namespace Core {
 
     ///
     /// [14.2] NPC (MA) Damages Mobile (MB)
@@ -898,17 +890,15 @@ namespace Pol {
     ///
     void NPC::repsys_on_damage( Character* defender )
     {
-      if ( settingsManager.repsys_cfg.Hooks.OnDamage )
+      if ( Core::settingsManager.repsys_cfg.Hooks.OnDamage )
       {
-        if ( settingsManager.repsys_cfg.Hooks.OnDamage->call( this->make_ref(), defender->make_ref() ) )
+        if ( Core::settingsManager.repsys_cfg.Hooks.OnDamage->call( this->make_ref(), defender->make_ref() ) )
           return;
       }
 
       if ( master() )
         master_->Character::repsys_on_damage( defender );
     }
-  }
-  namespace Mobile {
 
     ///
     /// [15] Mobile (MA) Helps Mobile (MB)
@@ -938,7 +928,7 @@ namespace Pol {
       }
       else
       {
-        Core::NPC* npc = static_cast<Core::NPC*>( helped );
+        NPC* npc = static_cast<NPC*>( helped );
         if ( npc->master() )
         {
           Core::RepSystem::on_pc_helps_pc( this, npc->master( ) );
@@ -949,8 +939,7 @@ namespace Pol {
         }
       }
     }
-  }
-  namespace Core {
+
     ///
     ///   [15.2] NPC (MA) Helps Mobile (MB)
     ///	   If MA has a Master (Amy),
@@ -960,9 +949,9 @@ namespace Pol {
     ///
     void NPC::repsys_on_help( Character* helped )
     {
-      if ( settingsManager.repsys_cfg.Hooks.OnHelp )
+      if ( Core::settingsManager.repsys_cfg.Hooks.OnHelp )
       {
-        if ( settingsManager.repsys_cfg.Hooks.OnHelp->call( this->make_ref(), helped->make_ref() ) )
+        if ( Core::settingsManager.repsys_cfg.Hooks.OnHelp->call( this->make_ref(), helped->make_ref() ) )
           return;
       }
 
@@ -970,9 +959,6 @@ namespace Pol {
       if ( master() )
         master_->Character::repsys_on_help( helped );
     }
-
-  }
-  namespace Mobile {
 
     unsigned char Character::hilite_color_idx( const Character* seen_by ) const
     {
@@ -982,9 +968,6 @@ namespace Pol {
     {
       return Core::RepSystem::name_color( seen_by, this );
     }
-  }
-  namespace Core {
-
 
     ///
     /// [16] NPC Highlighting
@@ -999,15 +982,15 @@ namespace Pol {
     ///
     unsigned char NPC::hilite_color_idx( const Character* seen_by ) const
     {
-      if ( settingsManager.repsys_cfg.Hooks.HighLightColor )
+      if ( Core::settingsManager.repsys_cfg.Hooks.HighLightColor )
       {
         NPC* t_amy = const_cast<NPC*>( this );
         Character* t_bob = const_cast<Character*>( seen_by );
-        int tmp = settingsManager.repsys_cfg.Hooks.HighLightColor->call_long( t_amy->make_ref(), t_bob->make_ref() );
+        int tmp = Core::settingsManager.repsys_cfg.Hooks.HighLightColor->call_long( t_amy->make_ref(), t_bob->make_ref() );
         return (unsigned char)( tmp );
       }
 
-      if ( settingsManager.ssopt.invul_tag == 2 )
+      if ( Core::settingsManager.ssopt.invul_tag == 2 )
       {
         if ( invul() )
           return CHAR_HILITE_INVUL;
@@ -1020,16 +1003,16 @@ namespace Pol {
       {
         switch ( template_.alignment )
         {
-          case NpcTemplate::NEUTRAL:
+          case Core::NpcTemplate::NEUTRAL:
             return CHAR_HILITE_ATTACKABLE;
-          case NpcTemplate::GOOD:
+          case Core::NpcTemplate::GOOD:
             if ( is_murderer() )
               return CHAR_HILITE_MURDERER;
             else if ( is_criminal() )
               return CHAR_HILITE_ATTACKABLE;
             else
               return CHAR_HILITE_INNOCENT;
-          case NpcTemplate::EVIL:
+          case Core::NpcTemplate::EVIL:
             return CHAR_HILITE_MURDERER;
         }
         return CHAR_HILITE_ATTACKABLE;
@@ -1038,44 +1021,43 @@ namespace Pol {
 
     unsigned short NPC::name_color( const Character* seen_by ) const
     {
-      if ( settingsManager.repsys_cfg.Hooks.NameColor )
+      if ( Core::settingsManager.repsys_cfg.Hooks.NameColor )
       {
         NPC* t_amy = const_cast<NPC*>( this );
         Character* t_bob = const_cast<Character*>( seen_by );
-        return (unsigned short)( settingsManager.repsys_cfg.Hooks.NameColor->call_long( t_amy->make_ref(), t_bob->make_ref() ) );
+        return (unsigned short)( Core::settingsManager.repsys_cfg.Hooks.NameColor->call_long( t_amy->make_ref(), t_bob->make_ref() ) );
       }
 
-      if ( settingsManager.ssopt.invul_tag == 2 )
+      if ( Core::settingsManager.ssopt.invul_tag == 2 )
       {
         if ( this->invul() )
-          return settingsManager.repsys_cfg.NameColoring.Invulnerable;
+          return Core::settingsManager.repsys_cfg.NameColoring.Invulnerable;
       }
       if ( master() )
       {
-        return RepSystem::name_color( seen_by, master( ) );
+        return Core::RepSystem::name_color( seen_by, master( ) );
       }
       else
       {
         switch ( template_.alignment )
         {
-          case NpcTemplate::NEUTRAL:
-            return settingsManager.repsys_cfg.NameColoring.Attackable;
-          case NpcTemplate::GOOD:
+          case Core::NpcTemplate::NEUTRAL:
+            return Core::settingsManager.repsys_cfg.NameColoring.Attackable;
+          case Core::NpcTemplate::GOOD:
             if ( is_murderer() )
-              return settingsManager.repsys_cfg.NameColoring.Murderer;
+              return Core::settingsManager.repsys_cfg.NameColoring.Murderer;
             else if ( is_criminal() )
-              return settingsManager.repsys_cfg.NameColoring.Criminal;
+              return Core::settingsManager.repsys_cfg.NameColoring.Criminal;
             else
-              return settingsManager.repsys_cfg.NameColoring.Innocent;
-          case NpcTemplate::EVIL:
-            return settingsManager.repsys_cfg.NameColoring.Murderer;
+              return Core::settingsManager.repsys_cfg.NameColoring.Innocent;
+          case Core::NpcTemplate::EVIL:
+            return Core::settingsManager.repsys_cfg.NameColoring.Murderer;
         }
 
-        return settingsManager.repsys_cfg.NameColoring.Attackable;
+        return Core::settingsManager.repsys_cfg.NameColoring.Attackable;
       }
     }
-  }
-  namespace Mobile {
+
 	///
 	/// To Set Amy Criminal (For a LevelOfOffense)
 	///

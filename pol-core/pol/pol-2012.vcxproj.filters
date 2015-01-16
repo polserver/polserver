@@ -170,8 +170,8 @@
     <ClCompile Include="musicrgn.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="npc.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="mobile\npc.cpp">
+      <Filter>mobile</Filter>
     </ClCompile>
     <ClCompile Include="npctemplates.cpp">
       <Filter>Source Files</Filter>
@@ -790,8 +790,8 @@
     <ClInclude Include="musicrgn.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="npc.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="mobile\npc.h">
+      <Filter>mobile</Filter>
     </ClInclude>
     <ClInclude Include="npctmpl.h">
       <Filter>Header Files</Filter>

@@ -16,16 +16,16 @@ Notes
 namespace Pol {
   namespace Mobile {
 	class Character;
+	class NPC;
   }
   namespace Network {
 	class Client;
   }
   namespace Core {
-	class NPC;
 
 	class RepSystem
 	{
-	  friend class NPC;
+	  friend class Mobile::NPC;
 	  friend class Mobile::Character;
 	private:
 

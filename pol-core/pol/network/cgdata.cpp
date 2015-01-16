@@ -17,7 +17,7 @@ Notes
 
 #include "../../clib/unicode.h"
 
-#include "../npc.h"
+#include "../mobile/npc.h"
 
 #include "../module/osmod.h"
 #include "../module/unimod.h"
