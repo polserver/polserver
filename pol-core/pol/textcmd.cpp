@@ -34,7 +34,7 @@ Notes
 #include "allocd.h"
 #include "los.h"
 #include "menu.h"
-#include "npc.h"
+#include "mobile/npc.h"
 #include "pktboth.h"
 #include "polcfg.h"
 #include "polclock.h"

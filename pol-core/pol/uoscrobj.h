@@ -266,7 +266,7 @@ namespace Pol {
 	class ItemGivenEvent : public SourcedEvent
 	{
 	public:
-	  ItemGivenEvent( Mobile::Character* chr_givenby, Items::Item* item_given, Core::NPC* chr_givento );
+	  ItemGivenEvent( Mobile::Character* chr_givenby, Items::Item* item_given, Mobile::NPC* chr_givento );
 	  virtual ~ItemGivenEvent();
 
 	private:

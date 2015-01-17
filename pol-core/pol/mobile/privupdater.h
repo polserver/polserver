@@ -6,7 +6,7 @@
 #endif
 
 #ifndef H_NPC_H
-#include "../npc.h" // At some point, npc.h should be removed. The only dependence is to send leftarea/enteredarea events.
+#include "npc.h" // At some point, npc.h should be removed. The only dependence is to send leftarea/enteredarea events.
 #endif
 
 #include "../uworld.h"
@@ -110,7 +110,7 @@ namespace Pol {
 					send_owncreate(chr->client, in_range_chr);
 				else if (chr->isa(Core::UObject::CLASS_NPC))
 				{
-					Core::NPC* npc = static_cast<Core::NPC*>(chr);
+					NPC* npc = static_cast<NPC*>(chr);
 					if (npc->can_accept_event(Core::EVID_ENTEREDAREA))
 						npc->send_event(new Module::SourcedEvent(Core::EVID_ENTEREDAREA, in_range_chr));
 				}
@@ -125,7 +125,7 @@ namespace Pol {
 					send_remove_character(chr->client, in_range_chr);
 				else if (chr->isa(Core::UObject::CLASS_NPC))
 				{
-					Core::NPC* npc = static_cast<Core::NPC*>(chr);
+					NPC* npc = static_cast<NPC*>(chr);
 					if (npc->can_accept_event(Core::EVID_LEFTAREA))
 						npc->send_event(new Module::SourcedEvent(Core::EVID_LEFTAREA, in_range_chr));
 				}
@@ -140,7 +140,7 @@ namespace Pol {
 					send_owncreate(chr->client, in_range_chr);
 				else if (chr->isa(Core::UObject::CLASS_NPC))
 				{
-					Core::NPC* npc = static_cast<Core::NPC*>(chr);
+					NPC* npc = static_cast<NPC*>(chr);
 					if (npc->can_accept_event(Core::EVID_ENTEREDAREA))
 						npc->send_event(new Module::SourcedEvent(Core::EVID_ENTEREDAREA, in_range_chr));
 				}
@@ -155,7 +155,7 @@ namespace Pol {
 					send_remove_character(chr->client, in_range_chr);
 				else if (chr->isa(Core::UObject::CLASS_NPC))
 				{
-					Core::NPC* npc = static_cast<Core::NPC*>(chr);
+					NPC* npc = static_cast<NPC*>(chr);
 					if (npc->can_accept_event(Core::EVID_LEFTAREA))
 						npc->send_event(new Module::SourcedEvent(Core::EVID_LEFTAREA, in_range_chr));
 				}

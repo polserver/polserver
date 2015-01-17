@@ -59,13 +59,13 @@ namespace Pol {
   }
   namespace Mobile {
 	class Character;
+	class NPC;
   }
   namespace Multi {
 	class UMulti;
 	class UBoat;
   }
   namespace Core {
-	class NPC;
 	class UContainer;
 	class WornItemsContainer;
 
@@ -345,7 +345,7 @@ namespace Pol {
 	  friend class ref_ptr<Items::Item>;
 	  friend class ref_ptr<Multi::UBoat>;
 	  friend class ref_ptr<Multi::UMulti>;
-	  friend class ref_ptr<NPC>;
+	  friend class ref_ptr<Mobile::NPC>;
 	  friend class ref_ptr<UContainer>;
 	  friend class ref_ptr<Items::UWeapon>;
 	  friend class ref_ptr<Items::UArmor>;

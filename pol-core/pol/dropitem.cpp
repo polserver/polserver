@@ -42,7 +42,7 @@ FIXME: Does STW use slots with KR or newest 2d? If so, we must do slot checks th
 #include "network/packets.h"
 #include "network/packetdefs.h"
 #include "network/clienttransmit.h"
-#include "npc.h"
+#include "mobile/npc.h"
 #include "objtype.h"
 #include "pktboth.h"
 #include "pktin.h"
@@ -590,7 +590,7 @@ namespace Pol {
 		return res;
 	  }
 
-	  NPC* npc = static_cast<NPC*>( dropon );
+	  Mobile::NPC* npc = static_cast<Mobile::NPC*>( dropon );
 	  if ( !npc->can_accept_event( EVID_ITEM_GIVEN ) )
 	  {
 		send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );

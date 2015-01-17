@@ -22,7 +22,7 @@ Notes
 
 #include "item/item.h"
 #include "los.h"
-#include "npc.h"
+#include "mobile/npc.h"
 #include "uofile.h"
 #include "polcfg.h"
 #include "udatfile.h"
@@ -46,10 +46,10 @@ namespace Pol {
   namespace Core {
 	extern bool static_debug_on;
 
-	extern NPC* test_banker;
+	extern Mobile::NPC* test_banker;
 	extern Items::Item* test_guard_door;
-	extern NPC* test_water_elemental;
-	extern NPC* test_seaserpent;
+	extern Mobile::NPC* test_water_elemental;
+	extern Mobile::NPC* test_seaserpent;
 
 	void map_test()
 	{

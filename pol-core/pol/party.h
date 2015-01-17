@@ -30,7 +30,6 @@ namespace Pol {
   }
 
   namespace Core {
-	class NPC;
     struct PKTBI_BF;
     struct PKTBI_6C;
 

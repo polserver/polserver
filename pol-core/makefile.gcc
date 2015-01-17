@@ -110,7 +110,7 @@ cpp_sources = \
 	pol/multi/multicfg.cpp pol/multi/multicr.cpp pol/multi/multidef.cpp pol/multi/multis.cpp \
 	pol/multi/multidef2.cpp \
 	pol/musicrgn.cpp \
-	pol/npc.cpp pol/npctmpl.cpp pol/npctemplates.cpp pol/module/npcmod.cpp \
+	pol/mobile/npc.cpp pol/npctmpl.cpp pol/npctemplates.cpp pol/module/npcmod.cpp \
 	pol/objecthash.cpp pol/module/osmod.cpp \
 	pol/network/packethooks.cpp pol/packetscrobj.cpp pol/party.cpp pol/module/partymod.cpp \
 	pol/pol.cpp pol/polcfg.cpp pol/polclock.cpp pol/poldbg.cpp \

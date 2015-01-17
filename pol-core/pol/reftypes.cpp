@@ -12,7 +12,7 @@ Notes
 #include "uobject.h"
 #include "mobile/charactr.h"
 #include "item/item.h"
-#include "npc.h"
+#include "mobile/npc.h"
 
 #include "../clib/logfacility.h"
 
@@ -147,7 +147,7 @@ namespace Pol {
 	}
 
 
-	NPCRef::NPCRef( NPC* ptr ) : ref_ptr<NPC>(ptr)
+	NPCRef::NPCRef( Mobile::NPC* ptr ) : ref_ptr<Mobile::NPC>(ptr)
 	{
 	  if (get() && get()->serial_ext == 0x619d1300)
 	  {
@@ -155,7 +155,7 @@ namespace Pol {
 	  }
 	  ++npcrefs;
 	}
-	NPCRef::NPCRef( const NPCRef& rptr ) : ref_ptr<NPC>(rptr)
+	NPCRef::NPCRef( const NPCRef& rptr ) : ref_ptr<Mobile::NPC>(rptr)
 	{
 	  if (get() && get()->serial_ext == 0x619d1300)
 	  {

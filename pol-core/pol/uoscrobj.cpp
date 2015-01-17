@@ -68,7 +68,7 @@ Notes
 #include "multi/house.h"
 #include "item/item.h"
 #include "umap.h"
-#include "npc.h"
+#include "mobile/npc.h"
 #include "objtype.h"
 #include "polclass.h"
 #include "realms.h"
@@ -2614,9 +2614,6 @@ namespace Pol {
 	  }
 	  return arr.release();
 	}
-  }
-  namespace Core {
-    using namespace Bscript;
 
     BObjectImp* NPC::get_script_member_id( const int id ) const
     {
@@ -2640,7 +2637,7 @@ namespace Pol {
 
         case MBR_PROCESS:
           if ( ex )
-            return new ScriptExObjImp( ex );
+            return new Core::ScriptExObjImp( ex );
           else
             return new BError( "No script running" );
           break;
@@ -2769,6 +2766,10 @@ namespace Pol {
       return NULL;
     }
 
+}
+  namespace Core {
+    using namespace Bscript;
+    
     BObjectImp* ULockable::get_script_member_id( const int id ) const
     {
       BObjectImp* imp = Item::get_script_member_id( id );
@@ -3833,7 +3834,7 @@ namespace Pol {
       addMember( "damage", new BLong( damage ) );
     }
 
-    ItemGivenEvent::ItemGivenEvent( Mobile::Character* chr_givenby, Items::Item* item_given, Core::NPC* chr_givento ) :
+    ItemGivenEvent::ItemGivenEvent( Mobile::Character* chr_givenby, Items::Item* item_given, Mobile::NPC* chr_givento ) :
       SourcedEvent( Core::EVID_ITEM_GIVEN, chr_givenby ),
       given_by_( NULL )
     {
@@ -3912,11 +3913,6 @@ namespace Pol {
       return ( isatype == POLCLASS_OBJECT );
     }
 
-    bool NPC::script_isa( unsigned isatype ) const
-    {
-      return ( isatype == POLCLASS_NPC ) || base::script_isa( isatype );
-    }
-
     bool ULockable::script_isa( unsigned isatype ) const
     {
       return ( isatype == POLCLASS_LOCKABLE ) || base::script_isa( isatype );
@@ -3974,6 +3970,11 @@ namespace Pol {
     bool Character::script_isa( unsigned isatype ) const
     {
       return ( isatype == Core::POLCLASS_MOBILE ) || base::script_isa( isatype );
+    }
+    
+    bool NPC::script_isa( unsigned isatype ) const
+    {
+      return ( isatype == Core::POLCLASS_NPC ) || base::script_isa( isatype );
     }
   }
   namespace Multi {

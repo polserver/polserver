@@ -170,9 +170,6 @@
     <ClCompile Include="musicrgn.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="npc.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="npctemplates.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -680,6 +677,9 @@
     <ClCompile Include="guilds.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="mobile\npc.cpp">
+      <Filter>mobile</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="action.h">
@@ -791,9 +791,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="musicrgn.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="npc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="npctmpl.h">
@@ -1329,6 +1326,9 @@
     </ClInclude>
     <ClInclude Include="mobile\privupdater.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mobile\npc.h">
+      <Filter>mobile</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

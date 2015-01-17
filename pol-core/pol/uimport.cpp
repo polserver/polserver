@@ -22,7 +22,7 @@ Notes
 
 #include "fnsearch.h"
 #include "objtype.h"
-#include "npc.h"
+#include "mobile/npc.h"
 #include "polcfg.h"
 #include "realms.h"
 #include "resource.h"
@@ -133,7 +133,7 @@ namespace Pol {
       if ( get_save_index( serial ) > objStorageManager.current_incremental_save )
         return;
 
-      NPCRef npc( new NPC( elem.remove_ushort( "OBJTYPE" ), elem ) );
+      NPCRef npc( new Mobile::NPC( elem.remove_ushort( "OBJTYPE" ), elem ) );
 
       try
       {
@@ -595,30 +595,6 @@ namespace Pol {
       rndat( "resource" );
       rndat( "guilds" );
       rndat( "parties" );
-    }
-
-    void for_all_mobiles( void( *f )( Mobile::Character* chr ) )
-    {
-      for ( const auto &realm : gamestate.Realms )
-      {
-        unsigned wgridx = realm->grid_width();
-        unsigned wgridy = realm->grid_height();
-
-        for ( unsigned wx = 0; wx < wgridx; ++wx )
-        {
-          for ( unsigned wy = 0; wy < wgridy; ++wy )
-          {
-            for ( auto &z_chr : realm->zone[wx][wy].characters )
-            {
-              ( *f )( z_chr );
-            }
-            for ( auto &z_chr : realm->zone[wx][wy].npcs )
-            {
-              ( *f )( z_chr );
-            }
-          }
-        }
-      }
     }
 
     int read_data()

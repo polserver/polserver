@@ -24,68 +24,66 @@ Notes
 
 */
 #include "npc.h"
-#include "npctmpl.h"
-#include "module/npcmod.h"
+#include "../npctmpl.h"
+#include "../module/npcmod.h"
 
-#include "mobile/attribute.h"
-#include "mobile/wornitems.h" // refresh_ar() is the only one which needs this include...
+#include "attribute.h"
+#include "wornitems.h" // refresh_ar() is the only one which needs this include...
 
-#include "item/weapon.h"
-#include "item/armor.h"
-#include "multi/house.h"
+#include "../containr.h"
+#include "../dice.h"
+#include "../eventid.h"
+#include "../fnsearch.h"
+#include "../globals/state.h"
+#include "../globals/uvars.h"
+#include "../item/armor.h"
+#include "../item/weapon.h"
+#include "../listenpt.h"
+#include "../mdelta.h"
+#include "../module/osmod.h"
+#include "../module/unimod.h"
+#include "../module/uomod.h"
+#include "../multi/house.h"
+#include "../network/client.h"
+#include "../objtype.h"
+#include "../pktout.h"
+#include "../poltype.h"
+#include "../realms.h"
+#include "../scrsched.h"
+#include "../scrstore.h"
+#include "../skilladv.h"
+#include "../skills.h"
+#include "../sockio.h"
+#include "../ufunc.h"
+#include "../ufunc.h"
+#include "../ufuncinl.h"
+#include "../uoexec.h"
+#include "../uoexhelp.h"
+#include "../uofile.h"
+#include "../uoscrobj.h"
+#include "../uworld.h"
 
-#include "module/osmod.h"
-#include "module/uomod.h"
-#include "module/unimod.h"
+#include "../../bscript/berror.h"
+#include "../../bscript/eprog.h"
+#include "../../bscript/execmodl.h"
+#include "../../bscript/executor.h"
+#include "../../bscript/impstr.h"
+#include "../../bscript/modules.h"
+#include "../../bscript/objmembers.h"
 
-#include "containr.h"
-#include "network/client.h"
-#include "dice.h"
-#include "eventid.h"
-#include "fnsearch.h"
-#include "realms.h"
-#include "scrsched.h"
-#include "listenpt.h"
-#include "poltype.h"
-#include "pktout.h"
-#include "ufunc.h"
-#include "ufuncinl.h"
-#include "scrstore.h"
-#include "skilladv.h"
-#include "skills.h"
-#include "sockio.h"
-#include "globals/uvars.h"
-#include "globals/state.h"
-#include "uoexec.h"
-#include "objtype.h"
-#include "ufunc.h"
-#include "uoexhelp.h"
-#include "uoscrobj.h"
-#include "mdelta.h"
-#include "uofile.h"
-#include "uworld.h"
+#include "../../plib/realm.h"
 
-#include "../bscript/berror.h"
-#include "../bscript/eprog.h"
-#include "../bscript/executor.h"
-#include "../bscript/execmodl.h"
-#include "../bscript/modules.h"
-#include "../bscript/impstr.h"
-#include "../bscript/objmembers.h"
-
-#include "../plib/realm.h"
-
-#include "../clib/cfgelem.h"
-#include "../clib/clib.h"
-#include "../clib/endian.h"
-#include "../clib/fileutil.h"
-#include "../clib/logfacility.h"
-#include "../clib/passert.h"
-#include "../clib/random.h"
-#include "../clib/stlutil.h"
-#include "../clib/strutil.h"
-#include "../clib/unicode.h"
-#include "../clib/streamsaver.h"
+#include "../../clib/cfgelem.h"
+#include "../../clib/clib.h"
+#include "../../clib/endian.h"
+#include "../../clib/fileutil.h"
+#include "../../clib/logfacility.h"
+#include "../../clib/passert.h"
+#include "../../clib/random.h"
+#include "../../clib/stlutil.h"
+#include "../../clib/streamsaver.h"
+#include "../../clib/strutil.h"
+#include "../../clib/unicode.h"
 
 #include <stdexcept>
 
@@ -99,8 +97,7 @@ Notes
 namespace Pol {
   namespace Mobile {
     unsigned short calc_thru_damage( double damage, unsigned short ar );
-  }
-  namespace Core {
+
 	NPC::NPC( u32 objtype, const Clib::ConfigElem& elem ) :
 	  Character( objtype, CLASS_NPC ),
 	  // UOBJECT INTERFACE
@@ -111,8 +108,8 @@ namespace Pol {
 	  use_adjustments( true ),
 	  anchor(),
 	  // EVENTS
-	  speech_color_( DEFAULT_TEXT_COLOR ),
-	  speech_font_( DEFAULT_TEXT_FONT ),
+		speech_color_(Core::DEFAULT_TEXT_COLOR),
+		speech_font_(Core::DEFAULT_TEXT_FONT),
 	  // SCRIPT
 	  script( "" ),
 	  ex( NULL ),
@@ -120,17 +117,17 @@ namespace Pol {
 	  damaged_sound( 0 ),
 	  template_name(),
 	  master_( NULL ),
-	  template_( find_npc_template( elem ) )
+	  template_( Core::find_npc_template( elem ) )
 	{
 	  connected = 1;
 	  logged_in = true;
-	  ++stateManager.uobjcount.npc_count;
+		++Core::stateManager.uobjcount.npc_count;
 	}
 
 	NPC::~NPC()
 	{
 	  stop_scripts();
-	  --stateManager.uobjcount.npc_count;
+		--Core::stateManager.uobjcount.npc_count;
 	}
 
 	void NPC::stop_scripts()
@@ -152,7 +149,7 @@ namespace Pol {
 	  wornitems.destroy_contents();
 	  if ( registered_house > 0 )
 	  {
-		Multi::UMulti* multi = system_find_multi( registered_house );
+			Multi::UMulti* multi = Core::system_find_multi(registered_house);
 		if ( multi != NULL )
 		{
 			multi->unregister_object( ( UObject* )this );
@@ -173,31 +170,31 @@ namespace Pol {
 	//									unsigned short x2, unsigned short y2 )
 	// to ufunc.cpp
 
-	bool NPC::anchor_allows_move( UFACING dir ) const
+	bool NPC::anchor_allows_move(Core::UFACING dir) const
 	{
-	  unsigned short newx = x + move_delta[dir].xmove;
-	  unsigned short newy = y + move_delta[dir].ymove;
+		unsigned short newx = x + Core::move_delta[dir].xmove;
+		unsigned short newy = y + Core::move_delta[dir].ymove;
 
 	  if ( anchor.enabled && !warmode )
 	  {
-		unsigned short curdist = pol_distance( x, y, anchor.x, anchor.y );
-		unsigned short newdist = pol_distance( newx, newy, anchor.x, anchor.y );
-		if ( newdist > curdist ) // if we're moving further away, see if we can
-		{
-		  if ( newdist > anchor.dstart )
-		  {
-			int perc = 100 - ( newdist - anchor.dstart )*anchor.psub;
-			if ( perc < 5 )
-			  perc = 5;
-            if ( Clib::random_int( 99 ) > perc )
-			  return false;
-		  }
-		}
+			unsigned short curdist = Core::pol_distance(x, y, anchor.x, anchor.y);
+			unsigned short newdist = Core::pol_distance(newx, newy, anchor.x, anchor.y);
+			if ( newdist > curdist ) // if we're moving further away, see if we can
+			{
+				if ( newdist > anchor.dstart )
+				{
+					int perc = 100 - ( newdist - anchor.dstart )*anchor.psub;
+					if ( perc < 5 )
+						perc = 5;
+					if ( Clib::random_int( 99 ) > perc )
+						return false;
+				}
+			}
 	  }
 	  return true;
 	}
 
-	bool NPC::could_move( UFACING dir ) const
+	bool NPC::could_move(Core::UFACING dir) const
 	{
 	  short newz;
 	  Multi::UMulti* supporting_multi;
@@ -206,40 +203,40 @@ namespace Pol {
 	  if ( dir & 1 ) // check if diagonal movement is allowed -- Nando (2009-02-26)
 	  {
 		u8 tmp_facing = ( dir + 1 ) & 0x7;
-		unsigned short tmp_newx = x + move_delta[tmp_facing].xmove;
-		unsigned short tmp_newy = y + move_delta[tmp_facing].ymove;
+		unsigned short tmp_newx = x + Core::move_delta[tmp_facing].xmove;
+		unsigned short tmp_newy = y + Core::move_delta[tmp_facing].ymove;
 
 		// needs to save because if only one direction is blocked, it shouldn't block ;)
 		short current_boost = gradual_boost;
 		bool walk1 = realm->walkheight( this, tmp_newx, tmp_newy, z, &newz, &supporting_multi, &walkon_item, &current_boost );
 
 		tmp_facing = ( dir - 1 ) & 0x7;
-		tmp_newx = x + move_delta[tmp_facing].xmove;
-		tmp_newy = y + move_delta[tmp_facing].ymove;
+		tmp_newx = x + Core::move_delta[tmp_facing].xmove;
+		tmp_newy = y + Core::move_delta[tmp_facing].ymove;
 		current_boost = gradual_boost;
 		if ( !walk1 && !realm->walkheight( this, tmp_newx, tmp_newy, z, &newz, &supporting_multi, &walkon_item, &current_boost ) )
 		  return false;
 	  }
-	  unsigned short newx = x + move_delta[dir].xmove;
-	  unsigned short newy = y + move_delta[dir].ymove;
+	  unsigned short newx = x + Core::move_delta[dir].xmove;
+	  unsigned short newy = y + Core::move_delta[dir].ymove;
 	  short current_boost = gradual_boost;
 	  return realm->walkheight( this, newx, newy, z, &newz, &supporting_multi, &walkon_item, &current_boost ) &&
 		!npc_path_blocked( dir ) &&
 		anchor_allows_move( dir );
 	}
 
-	bool NPC::npc_path_blocked( UFACING dir ) const
+	bool NPC::npc_path_blocked(Core::UFACING dir) const
 	{
-	  if ( cached_settings.freemove || ( !this->master() && !settingsManager.ssopt.mobiles_block_npc_movement ) )
+		if (cached_settings.freemove || (!this->master() && !Core::settingsManager.ssopt.mobiles_block_npc_movement))
 		return false;
 
-	  unsigned short newx = x + move_delta[dir].xmove;
-	  unsigned short newy = y + move_delta[dir].ymove;
+		unsigned short newx = x + Core::move_delta[dir].xmove;
+		unsigned short newy = y + Core::move_delta[dir].ymove;
 
 	  unsigned short wx, wy;
-	  zone_convert_clip( newx, newy, realm, &wx, &wy );
+	  Core::zone_convert_clip(newx, newy, realm, &wx, &wy);
 
-      if ( settingsManager.ssopt.mobiles_block_npc_movement )
+	  if (Core::settingsManager.ssopt.mobiles_block_npc_movement)
       {
         for ( const auto &chr : realm->zone[wx][wy].characters )
         {
@@ -261,14 +258,11 @@ namespace Pol {
              chr->z >= z - 10 && chr->z <= z + 10 )
         {
           // Check first with the ssopt false to now allow npcs of same master running on top of each other
-          if ( !settingsManager.ssopt.mobiles_block_npc_movement )
+		  if (!Core::settingsManager.ssopt.mobiles_block_npc_movement)
           {
-			  if ( chr->acct == NULL )
-			  {
-				NPC* npc = static_cast<NPC*>( chr );
-				if ( npc->master() && this->master() == npc->master() && !npc->dead() && is_visible_to_me( npc ) )
-					return true;
-			  }
+			NPC* npc = static_cast<NPC*>( chr );
+			if ( npc->master() && this->master() == npc->master() && !npc->dead() && is_visible_to_me( npc ) )
+				return true;
           }
           else
           {
@@ -313,10 +307,10 @@ namespace Pol {
 	  if ( master_.get() != NULL )
 		sw() << "\tmaster\t" << master_->serial << pf_endl;
 
-	  if ( speech_color_ != DEFAULT_TEXT_COLOR )
+      if (speech_color_ != Core::DEFAULT_TEXT_COLOR)
 		sw() << "\tSpeechColor\t" << speech_color_ << pf_endl;
 
-	  if ( speech_font_ != DEFAULT_TEXT_FONT )
+	  if ( speech_font_ != Core::DEFAULT_TEXT_FONT )
 		sw() << "\tSpeechFont\t" << speech_font_ << pf_endl;
 
 	  if ( run_speed != dexterity() )
@@ -409,7 +403,7 @@ namespace Pol {
 	  unsigned int master_serial;
 	  if ( elem.remove_prop( "MASTER", &master_serial ) )
 	  {
-		Character* chr = system_find_mobile( master_serial );
+		Character* chr = Core::system_find_mobile( master_serial );
 		if ( chr != NULL )
 		  master_.set( chr );
 	  }
@@ -418,8 +412,8 @@ namespace Pol {
       if ( !script.get().empty( ) )
 		start_script();
 
-	  speech_color_ = elem.remove_ushort( "SpeechColor", DEFAULT_TEXT_COLOR );
-	  speech_font_ = elem.remove_ushort( "SpeechFont", DEFAULT_TEXT_FONT );
+	  speech_color_ = elem.remove_ushort( "SpeechColor", Core::DEFAULT_TEXT_COLOR );
+	  speech_font_ = elem.remove_ushort( "SpeechFont", Core::DEFAULT_TEXT_FONT );
 	  saveonexit_ = elem.remove_bool( "SaveOnExit", true );
 
 	  use_adjustments = elem.remove_bool( "UseAdjustments", true );
@@ -451,7 +445,7 @@ namespace Pol {
 
 	  if ( passed )
 	  {
-		Dice dice;
+		Core::Dice dice;
         std::string errmsg;
 		if ( !dice.load( tmp.c_str(), &errmsg ) )
 		{
@@ -461,36 +455,36 @@ namespace Pol {
             case 1:
             {
                     s16 value = static_cast<s16>( atoi( tmp.c_str() ) );
-                    setCurrentResistance( ELEMENTAL_FIRE, value );
-                    setBaseResistance( ELEMENTAL_FIRE, value );
+                    setCurrentResistance( Core::ELEMENTAL_FIRE, value );
+                    setBaseResistance( Core::ELEMENTAL_FIRE, value );
                     break;
             }
 			case 2: 
             {
                     s16 value = static_cast<s16>( atoi( tmp.c_str( ) ) );
-                    setCurrentResistance( ELEMENTAL_COLD, value );
-                    setBaseResistance( ELEMENTAL_COLD, value );
+                    setCurrentResistance( Core::ELEMENTAL_COLD, value );
+                    setBaseResistance( Core::ELEMENTAL_COLD, value );
                     break;
             }
 			case 3: 
             {
                     s16 value = static_cast<s16>( atoi( tmp.c_str( ) ) );
-                    setCurrentResistance( ELEMENTAL_ENERGY, value );
-                    setBaseResistance( ELEMENTAL_ENERGY, value );
+                    setCurrentResistance( Core::ELEMENTAL_ENERGY, value );
+                    setBaseResistance( Core::ELEMENTAL_ENERGY, value );
                     break;
             }
 			case 4: 
             {
                     s16 value = static_cast<s16>( atoi( tmp.c_str( ) ) );
-                    setCurrentResistance( ELEMENTAL_POISON, value );
-                    setBaseResistance( ELEMENTAL_POISON, value );
+                    setCurrentResistance( Core::ELEMENTAL_POISON, value );
+                    setBaseResistance( Core::ELEMENTAL_POISON, value );
                     break;
             }
 			case 5: 
             {
                     s16 value = static_cast<s16>( atoi( tmp.c_str( ) ) );
-                    setCurrentResistance( ELEMENTAL_PHYSICAL, value );
-                    setBaseResistance( ELEMENTAL_PHYSICAL, value );
+                    setCurrentResistance( Core::ELEMENTAL_PHYSICAL, value );
+                    setBaseResistance( Core::ELEMENTAL_PHYSICAL, value );
                     break;
             }
 		  }
@@ -503,36 +497,36 @@ namespace Pol {
 			case 1: 
             {
                     s16 value = dice.roll( );
-                    setCurrentResistance( ELEMENTAL_FIRE, value );
-                    setBaseResistance( ELEMENTAL_FIRE, value );
+                    setCurrentResistance( Core::ELEMENTAL_FIRE, value );
+                    setBaseResistance( Core::ELEMENTAL_FIRE, value );
                     break;
             }
 			case 2:
             {
                     s16 value = dice.roll( );
-                    setCurrentResistance( ELEMENTAL_COLD, value );
-                    setBaseResistance( ELEMENTAL_COLD, value );
+                    setCurrentResistance( Core::ELEMENTAL_COLD, value );
+                    setBaseResistance( Core::ELEMENTAL_COLD, value );
                     break;
             }
 			case 3:
             {
                     s16 value = dice.roll( );
-                    setCurrentResistance( ELEMENTAL_ENERGY, value );
-                    setBaseResistance( ELEMENTAL_ENERGY, value );
+                    setCurrentResistance( Core::ELEMENTAL_ENERGY, value );
+                    setBaseResistance( Core::ELEMENTAL_ENERGY, value );
                     break;
             }
 			case 4:
             {
                     s16 value = dice.roll( );
-                    setCurrentResistance( ELEMENTAL_POISON, value );
-                    setBaseResistance( ELEMENTAL_POISON, value );
+                    setCurrentResistance( Core::ELEMENTAL_POISON, value );
+                    setBaseResistance( Core::ELEMENTAL_POISON, value );
                     break;
             }
 			case 5:
             {
                     s16 value = dice.roll( );
-                    setCurrentResistance( ELEMENTAL_PHYSICAL, value );
-                    setBaseResistance( ELEMENTAL_PHYSICAL, value );
+                    setCurrentResistance( Core::ELEMENTAL_PHYSICAL, value );
+                    setBaseResistance( Core::ELEMENTAL_PHYSICAL, value );
                     break;
             }
 		  }
@@ -544,24 +538,24 @@ namespace Pol {
 		{
 		  case 0: npc_ar_ = 0; break;
 		  case 1: 
-            setCurrentResistance( ELEMENTAL_FIRE, 0 );
-            setBaseResistance( ELEMENTAL_FIRE, 0 );
+            setCurrentResistance( Core::ELEMENTAL_FIRE, 0 );
+            setBaseResistance( Core::ELEMENTAL_FIRE, 0 );
             break;
 		  case 2: 
-            setCurrentResistance( ELEMENTAL_COLD, 0 );
-            setBaseResistance( ELEMENTAL_COLD, 0 );
+            setCurrentResistance( Core::ELEMENTAL_COLD, 0 );
+            setBaseResistance( Core::ELEMENTAL_COLD, 0 );
             break;
 		  case 3: 
-            setCurrentResistance( ELEMENTAL_ENERGY, 0 );
-            setBaseResistance( ELEMENTAL_ENERGY, 0 );
+            setCurrentResistance( Core::ELEMENTAL_ENERGY, 0 );
+            setBaseResistance( Core::ELEMENTAL_ENERGY, 0 );
             break;
 		  case 4: 
-            setCurrentResistance( ELEMENTAL_POISON, 0 );
-            setBaseResistance( ELEMENTAL_POISON, 0 );
+            setCurrentResistance( Core::ELEMENTAL_POISON, 0 );
+            setBaseResistance( Core::ELEMENTAL_POISON, 0 );
             break;
 		  case 5: 
-            setCurrentResistance( ELEMENTAL_PHYSICAL, 0 );
-            setBaseResistance( ELEMENTAL_PHYSICAL, 0 );
+            setCurrentResistance( Core::ELEMENTAL_PHYSICAL, 0 );
+            setBaseResistance( Core::ELEMENTAL_PHYSICAL, 0 );
             break;
 		}
 	  }
@@ -570,19 +564,19 @@ namespace Pol {
 	  {
 		case 0: break; // ArMod isnt saved
 		case 1: 
-          setBaseResistance( ELEMENTAL_FIRE, getBaseResistance( ELEMENTAL_FIRE ) + getResistanceMod( ELEMENTAL_FIRE ) );
+          setBaseResistance( Core::ELEMENTAL_FIRE, getBaseResistance( Core::ELEMENTAL_FIRE ) + getResistanceMod( Core::ELEMENTAL_FIRE ) );
           break;
 		case 2: 
-          setBaseResistance( ELEMENTAL_COLD, getBaseResistance( ELEMENTAL_COLD ) + getResistanceMod( ELEMENTAL_COLD ) );
+          setBaseResistance( Core::ELEMENTAL_COLD, getBaseResistance( Core::ELEMENTAL_COLD ) + getResistanceMod( Core::ELEMENTAL_COLD ) );
           break;
 		case 3: 
-          setBaseResistance( ELEMENTAL_ENERGY, getBaseResistance( ELEMENTAL_ENERGY ) + getResistanceMod( ELEMENTAL_ENERGY ) );
+          setBaseResistance( Core::ELEMENTAL_ENERGY, getBaseResistance( Core::ELEMENTAL_ENERGY ) + getResistanceMod( Core::ELEMENTAL_ENERGY ) );
           break;
 		case 4: 
-          setBaseResistance( ELEMENTAL_POISON, getBaseResistance( ELEMENTAL_POISON ) + getResistanceMod( ELEMENTAL_POISON ) );
+          setBaseResistance( Core::ELEMENTAL_POISON, getBaseResistance( Core::ELEMENTAL_POISON ) + getResistanceMod( Core::ELEMENTAL_POISON ) );
           break;
 		case 5: 
-          setBaseResistance( ELEMENTAL_PHYSICAL, getBaseResistance( ELEMENTAL_PHYSICAL ) + getResistanceMod( ELEMENTAL_PHYSICAL ) );
+          setBaseResistance( Core::ELEMENTAL_PHYSICAL, getBaseResistance( Core::ELEMENTAL_PHYSICAL ) + getResistanceMod( Core::ELEMENTAL_PHYSICAL ) );
           break;
 	  }
 	}
@@ -608,7 +602,7 @@ namespace Pol {
 
 	  if ( passed )
 	  {
-		Dice dice;
+		Core::Dice dice;
         std::string errmsg;
 		if ( !dice.load( tmp.c_str(), &errmsg ) )
 		{
@@ -617,36 +611,36 @@ namespace Pol {
 			case 1: 
             {
                     s16 value = static_cast<s16>( atoi( tmp.c_str( ) ) );
-                    setCurrentElementDamage( ELEMENTAL_FIRE, value );
-                    setBaseElementDamage( ELEMENTAL_FIRE, value );
+                    setCurrentElementDamage( Core::ELEMENTAL_FIRE, value );
+                    setBaseElementDamage( Core::ELEMENTAL_FIRE, value );
                     break;
             }
 			case 2: 
             {
                     s16 value = static_cast<s16>( atoi( tmp.c_str( ) ) );
-                    setCurrentElementDamage( ELEMENTAL_COLD, value );
-                    setBaseElementDamage( ELEMENTAL_COLD, value );
+                    setCurrentElementDamage( Core::ELEMENTAL_COLD, value );
+                    setBaseElementDamage( Core::ELEMENTAL_COLD, value );
                     break;
             }
 			case 3: 
             {
                     s16 value = static_cast<s16>( atoi( tmp.c_str( ) ) );
-                    setCurrentElementDamage( ELEMENTAL_ENERGY, value );
-                    setBaseElementDamage( ELEMENTAL_ENERGY, value );
+                    setCurrentElementDamage( Core::ELEMENTAL_ENERGY, value );
+                    setBaseElementDamage( Core::ELEMENTAL_ENERGY, value );
                     break;
             }
 			case 4: 
             {
                     s16 value = static_cast<s16>( atoi( tmp.c_str( ) ) );
-                    setCurrentElementDamage( ELEMENTAL_POISON, value );
-                    setBaseElementDamage( ELEMENTAL_POISON, value );
+                    setCurrentElementDamage( Core::ELEMENTAL_POISON, value );
+                    setBaseElementDamage( Core::ELEMENTAL_POISON, value );
                     break;
             }
 			case 5: 
             {
                     s16 value = static_cast<s16>( atoi( tmp.c_str( ) ) );
-                    setCurrentElementDamage( ELEMENTAL_PHYSICAL, value );
-                    setBaseElementDamage( ELEMENTAL_PHYSICAL, value );
+                    setCurrentElementDamage( Core::ELEMENTAL_PHYSICAL, value );
+                    setBaseElementDamage( Core::ELEMENTAL_PHYSICAL, value );
                     break;
             }
 		  }
@@ -658,36 +652,36 @@ namespace Pol {
 			case 1:
             {
                     s16 value = dice.roll( );
-                    setCurrentElementDamage( ELEMENTAL_FIRE, value );
-                    setBaseElementDamage( ELEMENTAL_FIRE, value );
+                    setCurrentElementDamage( Core::ELEMENTAL_FIRE, value );
+                    setBaseElementDamage( Core::ELEMENTAL_FIRE, value );
                     break;
             }
 			case 2: 
             {
                     s16 value = dice.roll( );
-                    setCurrentElementDamage( ELEMENTAL_COLD, value );
-                    setBaseElementDamage( ELEMENTAL_COLD, value );
+                    setCurrentElementDamage( Core::ELEMENTAL_COLD, value );
+                    setBaseElementDamage( Core::ELEMENTAL_COLD, value );
                     break;
             }
 			case 3:
             {
                     s16 value = dice.roll( );
-                    setCurrentElementDamage( ELEMENTAL_ENERGY, value );
-                    setBaseElementDamage( ELEMENTAL_ENERGY, value );
+                    setCurrentElementDamage( Core::ELEMENTAL_ENERGY, value );
+                    setBaseElementDamage( Core::ELEMENTAL_ENERGY, value );
                     break;
             }
 			case 4: 
             {
                     s16 value = dice.roll( );
-                    setCurrentElementDamage( ELEMENTAL_POISON, value );
-                    setBaseElementDamage( ELEMENTAL_POISON, value );
+                    setCurrentElementDamage( Core::ELEMENTAL_POISON, value );
+                    setBaseElementDamage( Core::ELEMENTAL_POISON, value );
                     break;
             }
 			case 5:
             {
                     s16 value = dice.roll( );
-                    setCurrentElementDamage( ELEMENTAL_PHYSICAL, value );
-                    setBaseElementDamage( ELEMENTAL_PHYSICAL, value );
+                    setCurrentElementDamage( Core::ELEMENTAL_PHYSICAL, value );
+                    setBaseElementDamage( Core::ELEMENTAL_PHYSICAL, value );
                     break;
             }
 		  }
@@ -698,35 +692,35 @@ namespace Pol {
 		switch ( damageType )
 		{
 		  case 1: 
-            setCurrentElementDamage( ELEMENTAL_FIRE, 0 );
-            setBaseElementDamage( ELEMENTAL_FIRE, 0 );
+            setCurrentElementDamage( Core::ELEMENTAL_FIRE, 0 );
+            setBaseElementDamage( Core::ELEMENTAL_FIRE, 0 );
             break;
           case 2: 
-            setCurrentElementDamage( ELEMENTAL_COLD, 0 );
-            setBaseElementDamage( ELEMENTAL_COLD, 0 );
+            setCurrentElementDamage( Core::ELEMENTAL_COLD, 0 );
+            setBaseElementDamage( Core::ELEMENTAL_COLD, 0 );
             break;
 		  case 3: 
-            setCurrentElementDamage( ELEMENTAL_ENERGY, 0 );
-            setBaseElementDamage( ELEMENTAL_ENERGY, 0 );
+            setCurrentElementDamage( Core::ELEMENTAL_ENERGY, 0 );
+            setBaseElementDamage( Core::ELEMENTAL_ENERGY, 0 );
             break;
 		  case 4: 
-            setCurrentElementDamage( ELEMENTAL_POISON, 0 );
-            setBaseElementDamage( ELEMENTAL_POISON, 0 );
+            setCurrentElementDamage( Core::ELEMENTAL_POISON, 0 );
+            setBaseElementDamage( Core::ELEMENTAL_POISON, 0 );
             break;
 		  case 5:
-            setCurrentElementDamage( ELEMENTAL_PHYSICAL, 0 );
-            setBaseElementDamage( ELEMENTAL_PHYSICAL, 0 );
+            setCurrentElementDamage( Core::ELEMENTAL_PHYSICAL, 0 );
+            setBaseElementDamage( Core::ELEMENTAL_PHYSICAL, 0 );
             break;
 		}
 	  }
 
 	  switch ( damageType )
 	  {
-        case 1: setBaseElementDamage( ELEMENTAL_FIRE, getBaseElementDamage( ELEMENTAL_FIRE ) + getElementDamageMod( ELEMENTAL_FIRE ) ); break;
-        case 2: setBaseElementDamage( ELEMENTAL_COLD, getBaseElementDamage( ELEMENTAL_COLD ) + getElementDamageMod( ELEMENTAL_COLD ) ); break;
-        case 3: setBaseElementDamage( ELEMENTAL_ENERGY, getBaseElementDamage( ELEMENTAL_ENERGY ) + getElementDamageMod( ELEMENTAL_ENERGY ) ); break;
-        case 4: setBaseElementDamage( ELEMENTAL_POISON, getBaseElementDamage( ELEMENTAL_POISON ) + getElementDamageMod( ELEMENTAL_POISON ) ); break;
-        case 5: setBaseElementDamage( ELEMENTAL_PHYSICAL, getBaseElementDamage( ELEMENTAL_PHYSICAL ) + getElementDamageMod( ELEMENTAL_PHYSICAL ) ); break;
+        case 1: setBaseElementDamage( Core::ELEMENTAL_FIRE, getBaseElementDamage( Core::ELEMENTAL_FIRE ) + getElementDamageMod( Core::ELEMENTAL_FIRE ) ); break;
+        case 2: setBaseElementDamage( Core::ELEMENTAL_COLD, getBaseElementDamage( Core::ELEMENTAL_COLD ) + getElementDamageMod( Core::ELEMENTAL_COLD ) ); break;
+        case 3: setBaseElementDamage( Core::ELEMENTAL_ENERGY, getBaseElementDamage( Core::ELEMENTAL_ENERGY ) + getElementDamageMod( Core::ELEMENTAL_ENERGY ) ); break;
+        case 4: setBaseElementDamage( Core::ELEMENTAL_POISON, getBaseElementDamage( Core::ELEMENTAL_POISON ) + getElementDamageMod( Core::ELEMENTAL_POISON ) ); break;
+        case 5: setBaseElementDamage( Core::ELEMENTAL_PHYSICAL, getBaseElementDamage( Core::ELEMENTAL_PHYSICAL ) + getElementDamageMod( Core::ELEMENTAL_PHYSICAL ) ); break;
 	  }
 	}
 
@@ -751,12 +745,12 @@ namespace Pol {
     void NPC::readNewNpcAttributes( Clib::ConfigElem& elem )
 	{
         std::string diestring;
-	  Dice dice;
+	  Core::Dice dice;
       std::string errmsg;
 
-      for ( Mobile::Attribute* pAttr = Mobile::Attribute::FindAttribute( 0 ); pAttr; pAttr = pAttr->next )
+      for ( Attribute* pAttr = Attribute::FindAttribute( 0 ); pAttr; pAttr = pAttr->next )
 	  {
-        Mobile::AttributeValue& av = attribute( pAttr->attrid );
+        AttributeValue& av = attribute( pAttr->attrid );
 		for ( unsigned i = 0; i < pAttr->aliases.size(); ++i )
 		{
 		  if ( elem.remove_prop( pAttr->aliases[i].c_str(), &diestring ) )
@@ -768,8 +762,8 @@ namespace Pol {
 								": " + errmsg );
 			}
 			int base = dice.roll() * 10;
-            if ( base > static_cast<int>( Mobile::ATTRIBUTE_MAX_BASE ) )
-              base = Mobile::ATTRIBUTE_MAX_BASE;
+            if ( base > static_cast<int>( ATTRIBUTE_MAX_BASE ) )
+              base = ATTRIBUTE_MAX_BASE;
 
 			av.base( static_cast<unsigned short>( base ) );
 
@@ -835,10 +829,10 @@ namespace Pol {
 	{
 	  passert( ex == NULL );
       passert( !script.get().empty( ) );
-	  ScriptDef sd( script, template_.pkg, "scripts/ai/" );
+	  Core::ScriptDef sd( script, template_.pkg, "scripts/ai/" );
 	  // Log( "NPC script starting: %s\n", sd.name().c_str() );
 
-	  ref_ptr<Bscript::EScriptProgram> prog = find_script2( sd );
+	  ref_ptr<Bscript::EScriptProgram> prog = Core::find_script2( sd );
 	  // find_script( "ai/" + script );
 
 	  if ( prog.get() == NULL )
@@ -848,7 +842,7 @@ namespace Pol {
         throw std::runtime_error("Error loading NPCs");
 	  }
 
-	  ex = create_script_executor();
+	  ex = Core::create_script_executor();
 	  ex->addModule( new Module::NPCExecutorModule( *ex, *this ) );
       Module::UOExecutorModule* uoemod = new Module::UOExecutorModule( *ex );
 	  ex->addModule( uoemod );
@@ -881,13 +875,13 @@ namespace Pol {
 
 	  if ( ex != NULL )
 	  {
-		if ( ( ex->eventmask & EVID_SPOKE ) &&
+		if ( ( ex->eventmask & Core::EVID_SPOKE ) &&
 			 inrangex( this, src_chr, ex->speech_size ) &&
 			 !deafened() )
 		{
-		  if ( ( !settingsManager.ssopt.event_visibility_core_checks ) || is_visible_to_me( src_chr ) )
+		  if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) || is_visible_to_me( src_chr ) )
             ex->os_module->signal_event( new Module::SpeechEvent( src_chr, speech,
-			TextTypeToString( texttype ) ) ); //DAVE added texttype
+			Core::TextTypeToString( texttype ) ) ); //DAVE added texttype
 		}
 	  }
 	}
@@ -896,37 +890,37 @@ namespace Pol {
 	{
 	  if ( ex != NULL )
 	  {
-		if ( ( ex->eventmask & EVID_GHOST_SPEECH ) &&
+		if ( ( ex->eventmask & Core::EVID_GHOST_SPEECH ) &&
 			 inrangex( this, src_chr, ex->speech_size ) &&
 			 !deafened() )
 		{
-		  if ( ( !settingsManager.ssopt.event_visibility_core_checks ) || is_visible_to_me( src_chr ) )
+		  if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) || is_visible_to_me( src_chr ) )
             ex->os_module->signal_event( new Module::SpeechEvent( src_chr, speech,
-			TextTypeToString( texttype ) ) ); //DAVE added texttype
+			Core::TextTypeToString( texttype ) ) ); //DAVE added texttype
 		}
 	  }
 	}
 
-	void NPC::on_pc_spoke( Mobile::Character *src_chr, const char *speech, u8 texttype,
+	void NPC::on_pc_spoke( Character *src_chr, const char *speech, u8 texttype,
 						   const u16* wspeech, const char lang[4], Bscript::ObjArray* speechtokens )
 	{
 	  if ( ex != NULL )
 	  {
-		if ( settingsManager.ssopt.seperate_speechtoken )
+		if ( Core::settingsManager.ssopt.seperate_speechtoken )
 		{
-		  if ( speechtokens != NULL && ( ( ex->eventmask & EVID_TOKEN_SPOKE ) == 0 ) )
+		  if ( speechtokens != NULL && ( ( ex->eventmask & Core::EVID_TOKEN_SPOKE ) == 0 ) )
 			return;
-		  else if ( speechtokens == NULL && ( ( ex->eventmask & EVID_SPOKE ) == 0 ) )
+		  else if ( speechtokens == NULL && ( ( ex->eventmask & Core::EVID_SPOKE ) == 0 ) )
 			return;
 		}
-		if ( ( ( ex->eventmask & EVID_SPOKE ) || ( ex->eventmask & EVID_TOKEN_SPOKE ) ) &&
+		if ( ( ( ex->eventmask & Core::EVID_SPOKE ) || ( ex->eventmask & Core::EVID_TOKEN_SPOKE ) ) &&
 			 inrangex( this, src_chr, ex->speech_size ) &&
 			 !deafened() )
 		{
-		  if ( ( !settingsManager.ssopt.event_visibility_core_checks ) || is_visible_to_me( src_chr ) )
+		  if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) || is_visible_to_me( src_chr ) )
 		  {
 			ex->os_module->signal_event( new Module::UnicodeSpeechEvent( src_chr, speech,
-			  TextTypeToString( texttype ),
+			  Core::TextTypeToString( texttype ),
 			  wspeech, lang, speechtokens ) );
 		  }
 		}
@@ -938,21 +932,21 @@ namespace Pol {
 	{
 	  if ( ex != NULL )
 	  {
-		if ( settingsManager.ssopt.seperate_speechtoken )
+		if ( Core::settingsManager.ssopt.seperate_speechtoken )
 		{
-		  if ( speechtokens != NULL && ( ( ex->eventmask & EVID_TOKEN_GHOST_SPOKE ) == 0 ) )
+		  if ( speechtokens != NULL && ( ( ex->eventmask & Core::EVID_TOKEN_GHOST_SPOKE ) == 0 ) )
 			return;
-		  else if ( speechtokens == NULL && ( ( ex->eventmask & EVID_GHOST_SPEECH ) == 0 ) )
+		  else if ( speechtokens == NULL && ( ( ex->eventmask & Core::EVID_GHOST_SPEECH ) == 0 ) )
 			return;
 		}
-		if ( ( ( ex->eventmask & EVID_GHOST_SPEECH ) || ( ex->eventmask & EVID_TOKEN_GHOST_SPOKE ) ) &&
+		if ( ( ( ex->eventmask & Core::EVID_GHOST_SPEECH ) || ( ex->eventmask & Core::EVID_TOKEN_GHOST_SPOKE ) ) &&
 			 inrangex( this, src_chr, ex->speech_size ) &&
 			 !deafened() )
 		{
-		  if ( ( !settingsManager.ssopt.event_visibility_core_checks ) || is_visible_to_me( src_chr ) )
+		  if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) || is_visible_to_me( src_chr ) )
 		  {
             ex->os_module->signal_event( new Module::UnicodeSpeechEvent( src_chr, speech,
-			  TextTypeToString( texttype ),
+			  Core::TextTypeToString( texttype ),
 			  wspeech, lang, speechtokens ) );
 		  }
 		}
@@ -964,7 +958,7 @@ namespace Pol {
 	  // someone has targetted us. Create an event if appropriate.
 	  if ( ex != NULL )
 	  {
-		if ( ex->eventmask & EVID_ENGAGED )
+		if ( ex->eventmask & Core::EVID_ENGAGED )
 		{
           ex->os_module->signal_event( new Module::EngageEvent( engaged ) );
 		}
@@ -977,7 +971,7 @@ namespace Pol {
 	  // someone has targetted us. Create an event if appropriate.
 	  if ( ex != NULL )
 	  {
-		if ( ex->eventmask & EVID_DISENGAGED )
+		if ( ex->eventmask & Core::EVID_DISENGAGED )
 		{
           ex->os_module->signal_event( new Module::DisengageEvent( disengaged ) );
 		}
@@ -989,10 +983,10 @@ namespace Pol {
 	{
 	  if ( ex != NULL )
 	  {
-		if ( ( ex->eventmask & ( EVID_GONE_CRIMINAL ) ) && inrangex( this, thecriminal, ex->area_size ) )
+		if ( ( ex->eventmask & ( Core::EVID_GONE_CRIMINAL ) ) && inrangex( this, thecriminal, ex->area_size ) )
 		{
-		  if ( ( !settingsManager.ssopt.event_visibility_core_checks ) || is_visible_to_me( thecriminal ) )
-            ex->os_module->signal_event( new Module::SourcedEvent( EVID_GONE_CRIMINAL, thecriminal ) );
+		  if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) || is_visible_to_me( thecriminal ) )
+            ex->os_module->signal_event( new Module::SourcedEvent( Core::EVID_GONE_CRIMINAL, thecriminal ) );
 		}
 	  }
 	}
@@ -1001,12 +995,12 @@ namespace Pol {
 	{
 	  if ( ex != NULL )
 	  {
-		if ( ex->eventmask & ( EVID_LEFTAREA ) )
+		if ( ex->eventmask & ( Core::EVID_LEFTAREA ) )
 		{
 		  if ( pol_distance( this, wholeft ) <= ex->area_size )
 		  {
-			if ( ( !settingsManager.ssopt.event_visibility_core_checks ) || is_visible_to_me( wholeft ) )
-              ex->os_module->signal_event( new Module::SourcedEvent( EVID_LEFTAREA, wholeft ) );
+			if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) || is_visible_to_me( wholeft ) )
+              ex->os_module->signal_event( new Module::SourcedEvent( Core::EVID_LEFTAREA, wholeft ) );
 		  }
 		}
 	  }
@@ -1016,12 +1010,12 @@ namespace Pol {
 	{
 	  if ( ex != NULL )
 	  {
-		if ( ex->eventmask & ( EVID_ENTEREDAREA ) )
+		if ( ex->eventmask & ( Core::EVID_ENTEREDAREA ) )
 		{
 		  if ( pol_distance( this, whoentered ) <= ex->area_size )
 		  {
-			if ( ( !settingsManager.ssopt.event_visibility_core_checks ) || is_visible_to_me( whoentered ) )
-              ex->os_module->signal_event( new Module::SourcedEvent( EVID_ENTEREDAREA, whoentered ) );
+			if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) || is_visible_to_me( whoentered ) )
+              ex->os_module->signal_event( new Module::SourcedEvent( Core::EVID_ENTEREDAREA, whoentered ) );
 		  }
 		}
 	  }
@@ -1038,7 +1032,7 @@ namespace Pol {
 		bool signaled = false;
 		passert( this != NULL );
 		passert( moved != NULL );
-		if ( ex->eventmask & ( EVID_ENTEREDAREA | EVID_LEFTAREA ) )
+		if ( ex->eventmask & ( Core::EVID_ENTEREDAREA | Core::EVID_LEFTAREA ) )
 		{
 		  // egcs may have a compiler bug when calling these as inlines
 		  bool are_inrange = ( abs( x - moved->x ) <= ex->area_size ) &&
@@ -1048,16 +1042,16 @@ namespace Pol {
 		  bool were_inrange = ( abs( x - moved->lastx ) <= ex->area_size ) &&
 			( abs( y - moved->lasty ) <= ex->area_size );
 
-		  if ( ( !settingsManager.ssopt.event_visibility_core_checks ) || is_visible_to_me( moved ) )
+		  if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) || is_visible_to_me( moved ) )
 		  {
-			if ( are_inrange && !were_inrange && ( ex->eventmask & ( EVID_ENTEREDAREA ) ) )
+			if ( are_inrange && !were_inrange && ( ex->eventmask & ( Core::EVID_ENTEREDAREA ) ) )
 			{
-              ex->os_module->signal_event( new Module::SourcedEvent( EVID_ENTEREDAREA, moved ) );
+              ex->os_module->signal_event( new Module::SourcedEvent( Core::EVID_ENTEREDAREA, moved ) );
 			  signaled = true;
 			}
-			else if ( !are_inrange && were_inrange && ( ex->eventmask & ( EVID_LEFTAREA ) ) )
+			else if ( !are_inrange && were_inrange && ( ex->eventmask & ( Core::EVID_LEFTAREA ) ) )
 			{
-              ex->os_module->signal_event( new Module::SourcedEvent( EVID_LEFTAREA, moved ) );
+              ex->os_module->signal_event( new Module::SourcedEvent( Core::EVID_LEFTAREA, moved ) );
 			  signaled = true;
 			}
 		  }
@@ -1065,10 +1059,10 @@ namespace Pol {
 
 		if ( !signaled ) // only send moved event if left/enteredarea wasnt send
 		{
-		  if ( ( moved == opponent_ ) && ( ex->eventmask & ( EVID_OPPONENT_MOVED ) ) )
+		  if ( ( moved == opponent_ ) && ( ex->eventmask & ( Core::EVID_OPPONENT_MOVED ) ) )
 		  {
-			if ( ( !settingsManager.ssopt.event_visibility_core_checks ) || is_visible_to_me( moved ) )
-              ex->os_module->signal_event( new Module::SourcedEvent( EVID_OPPONENT_MOVED, moved ) );
+			if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) || is_visible_to_me( moved ) )
+              ex->os_module->signal_event( new Module::SourcedEvent( Core::EVID_OPPONENT_MOVED, moved ) );
 		  }
 		}
 	  }
@@ -1085,7 +1079,7 @@ namespace Pol {
 	  {
 		passert( this != NULL );
 		passert( chr != NULL );
-		if ( ex->eventmask & ( EVID_ENTEREDAREA | EVID_LEFTAREA ) )
+		if ( ex->eventmask & ( Core::EVID_ENTEREDAREA | Core::EVID_LEFTAREA ) )
 		{
 		  // egcs may have a compiler bug when calling these as inlines
 		  bool are_inrange = ( abs( x - chr->x ) <= ex->area_size ) &&
@@ -1095,18 +1089,18 @@ namespace Pol {
 		  bool were_inrange = ( abs( lastx - chr->x ) <= ex->area_size ) &&
 			( abs( lasty - chr->y ) <= ex->area_size );
 
-		  if ( ( !settingsManager.ssopt.event_visibility_core_checks ) || is_visible_to_me( chr ) )
+		  if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) || is_visible_to_me( chr ) )
 		  {
-			if ( are_inrange && !were_inrange && ( ex->eventmask & ( EVID_ENTEREDAREA ) ) )
-              ex->os_module->signal_event( new Module::SourcedEvent( EVID_ENTEREDAREA, chr ) );
-			else if ( !are_inrange && were_inrange && ( ex->eventmask & ( EVID_LEFTAREA ) ) )
-              ex->os_module->signal_event( new Module::SourcedEvent( EVID_LEFTAREA, chr ) );
+			if ( are_inrange && !were_inrange && ( ex->eventmask & ( Core::EVID_ENTEREDAREA ) ) )
+              ex->os_module->signal_event( new Module::SourcedEvent( Core::EVID_ENTEREDAREA, chr ) );
+			else if ( !are_inrange && were_inrange && ( ex->eventmask & ( Core::EVID_LEFTAREA ) ) )
+              ex->os_module->signal_event( new Module::SourcedEvent( Core::EVID_LEFTAREA, chr ) );
 		  }
 		}
 	  }
 	}
 
-	bool NPC::can_accept_event( EVENTID eventid )
+	bool NPC::can_accept_event( Core::EVENTID eventid )
 	{
 	  if ( ex == NULL )
 		return false;
@@ -1150,7 +1144,7 @@ namespace Pol {
 	{
 	  if ( ex != NULL )
 	  {
-		if ( ex->eventmask & EVID_DAMAGED )
+		if ( ex->eventmask & Core::EVID_DAMAGED )
 		{
           ex->os_module->signal_event( new Module::DamageEvent( source, static_cast<unsigned short>( damage / 100 ) ) );
 		}
@@ -1174,7 +1168,7 @@ namespace Pol {
 
 		blocked -= absorbed;
         absorbed += Clib::random_int( blocked );
-        if ( settingsManager.watch.combat ) INFO_PRINT << absorbed << " hits absorbed by NPC armor.\n";
+        if ( Core::settingsManager.watch.combat ) INFO_PRINT << absorbed << " hits absorbed by NPC armor.\n";
 		damage -= absorbed;
 		if ( damage < 0 )
 		  damage = 0;
@@ -1192,7 +1186,7 @@ namespace Pol {
 	  }
 	  else
 	  {
-		*rawdamage = static_cast<unsigned short>( Mobile::calc_thru_damage( damage, npc_ar_ + ar_mod() ) );
+		*rawdamage = static_cast<unsigned short>( calc_thru_damage( damage, npc_ar_ + ar_mod() ) );
 	  }
 	}
 
@@ -1201,7 +1195,7 @@ namespace Pol {
 	  if ( template_.intrinsic_weapon )
 		return template_.intrinsic_weapon;
 	  else
-		return gamestate.wrestling_weapon;
+		return Core::gamestate.wrestling_weapon;
 	}
 
 	void NPC::refresh_ar()
@@ -1209,14 +1203,14 @@ namespace Pol {
 	  // This is an npc, we need to check to see if any armor is being wore
 	  // otherwise we just reset this to the base values from their template.
 	  bool hasArmor = false;
-	  for ( unsigned layer = LAYER_EQUIP__LOWEST; layer <= LAYER_EQUIP__HIGHEST; ++layer )
+	  for ( unsigned layer = Core::LAYER_EQUIP__LOWEST; layer <= Core::LAYER_EQUIP__HIGHEST; ++layer )
 	  {
         Items::Item *item = wornitems.GetItemOnLayer( layer );
 		if ( item == NULL )
 		  continue;
-		for ( unsigned element = 0; element <= ELEMENTAL_TYPE_MAX; ++element )
+		for ( unsigned element = 0; element <= Core::ELEMENTAL_TYPE_MAX; ++element )
 		{
-          if ( item->calc_element_resist( (ElementalType)element ) != 0 || item->calc_element_damage( (ElementalType)element ) != 0 )
+          if ( item->calc_element_resist( (Core::ElementalType)element ) != 0 || item->calc_element_damage( (Core::ElementalType)element ) != 0 )
 		  {
 			hasArmor = true;
 			break;
@@ -1227,31 +1221,31 @@ namespace Pol {
 	  if ( !hasArmor )
 	  {
 		ar_ = 0;
-		for ( unsigned element = 0; element <= ELEMENTAL_TYPE_MAX; ++element )
+		for ( unsigned element = 0; element <= Core::ELEMENTAL_TYPE_MAX; ++element )
 		{
-          reset_element_resist( (ElementalType)element );
-          reset_element_damage( (ElementalType)element );
+          reset_element_resist( (Core::ElementalType)element );
+          reset_element_damage( (Core::ElementalType)element );
 		}
 		return;
 	  }
 
-	  for ( unsigned zone = 0; zone < gamestate.armorzones.size(); ++zone )
+	  for ( unsigned zone = 0; zone < Core::gamestate.armorzones.size(); ++zone )
 		armor_[zone] = NULL;
 	  // we need to reset each resist to 0, then add the base back using calc.
-	  for ( unsigned element = 0; element <= ELEMENTAL_TYPE_MAX; ++element )
+	  for ( unsigned element = 0; element <= Core::ELEMENTAL_TYPE_MAX; ++element )
 	  {
-        refresh_element( (ElementalType)element );
+        refresh_element( (Core::ElementalType)element );
 	  }
 
-	  for ( unsigned layer = LAYER_EQUIP__LOWEST; layer <= LAYER_EQUIP__HIGHEST; ++layer )
+	  for ( unsigned layer = Core::LAYER_EQUIP__LOWEST; layer <= Core::LAYER_EQUIP__HIGHEST; ++layer )
 	  {
         Items::Item *item = wornitems.GetItemOnLayer( layer );
 		if ( item == NULL )
 		  continue;
 		// Let's check all items as base, and handle their element_resists.
-		for ( unsigned element = 0; element <= ELEMENTAL_TYPE_MAX; ++element )
+		for ( unsigned element = 0; element <= Core::ELEMENTAL_TYPE_MAX; ++element )
 		{
-          update_element( (ElementalType)element, item );
+          update_element( (Core::ElementalType)element, item );
 		}
 		if ( item->isa( CLASS_ARMOR ) )
 		{
@@ -1267,12 +1261,12 @@ namespace Pol {
 	  }
 
 	  double new_ar = 0.0;
-      for ( unsigned zone = 0; zone < gamestate.armorzones.size( ); ++zone )
+      for ( unsigned zone = 0; zone < Core::gamestate.armorzones.size( ); ++zone )
 	  {
 		Items::UArmor* armor = armor_[zone];
 		if ( armor != NULL )
 		{
-          new_ar += armor->ar( ) * gamestate.armorzones[zone].chance;
+          new_ar += armor->ar( ) * Core::gamestate.armorzones[zone].chance;
 		}
 	  }
 
@@ -1280,7 +1274,7 @@ namespace Pol {
 	  // FIXME: Should we allow this to be adjustable via a prop? Hrmmmmm
 	  if ( shield != NULL )
 	  {
-		double add = 0.5 * 0.01 * shield->ar() * attribute( gamestate.pAttrParry->attrid ).effective();
+		double add = 0.5 * 0.01 * shield->ar() * attribute( Core::gamestate.pAttrParry->attrid ).effective();
 		if ( add > 1.0 )
 		  new_ar += add;
 		else
@@ -1297,12 +1291,12 @@ namespace Pol {
 
 	}
 
-    void NPC::reset_element_resist( ElementalType resist )
+    void NPC::reset_element_resist( Core::ElementalType resist )
 	{
       setBaseResistance( resist, getCurrentResistance( resist ) + getResistanceMod( resist ) );
 	}
 
-    void NPC::reset_element_damage( ElementalType damage )
+    void NPC::reset_element_damage( Core::ElementalType damage )
 	{
       setBaseElementDamage( damage, getCurrentElementDamage( damage ) + getElementDamageMod( damage ) );
 	}
@@ -1313,9 +1307,9 @@ namespace Pol {
         + sizeof(unsigned short)/*damaged_sound*/
         +sizeof(bool)/*use_adjustments*/
         +sizeof(unsigned short)/*run_speed*/
-        +sizeof(UOExecutor*)/*ex*/
+        +sizeof(Core::UOExecutor*)/*ex*/
         +sizeof(unsigned short)/*npc_ar_*/
-        +sizeof(CharacterRef)/*master_*/
+        +sizeof(Core::CharacterRef)/*master_*/
         +sizeof(anchor)/*anchor*/
         +sizeof(unsigned short)/*speech_color_*/
         +sizeof(unsigned short)/*speech_font_*/
@@ -1323,50 +1317,50 @@ namespace Pol {
         + sizeof( boost_utils::npctemplate_name_flystring ); /*template_name*/
     }
 
-    s16 NPC::getCurrentResistance( ElementalType type ) const
+    s16 NPC::getCurrentResistance( Core::ElementalType type ) const
     {
       switch ( type )
       {
-        case ELEMENTAL_FIRE: return getmember<s16>( Bscript::MBR_FIRE_RESIST + 1000 );
-        case ELEMENTAL_COLD: return getmember<s16>( Bscript::MBR_COLD_RESIST + 1000 );
-        case ELEMENTAL_ENERGY: return getmember<s16>( Bscript::MBR_ENERGY_RESIST + 1000 );
-        case ELEMENTAL_POISON: return getmember<s16>( Bscript::MBR_POISON_RESIST + 1000 );
-        case ELEMENTAL_PHYSICAL: return getmember<s16>( Bscript::MBR_PHYSICAL_RESIST + 1000 );
+        case Core::ELEMENTAL_FIRE: return getmember<s16>( Bscript::MBR_FIRE_RESIST + 1000 );
+        case Core::ELEMENTAL_COLD: return getmember<s16>( Bscript::MBR_COLD_RESIST + 1000 );
+        case Core::ELEMENTAL_ENERGY: return getmember<s16>( Bscript::MBR_ENERGY_RESIST + 1000 );
+        case Core::ELEMENTAL_POISON: return getmember<s16>( Bscript::MBR_POISON_RESIST + 1000 );
+        case Core::ELEMENTAL_PHYSICAL: return getmember<s16>( Bscript::MBR_PHYSICAL_RESIST + 1000 );
       }
       return 0;
     }
-    void NPC::setCurrentResistance( ElementalType type, s16 value )
+    void NPC::setCurrentResistance( Core::ElementalType type, s16 value )
     {
       switch ( type )
       {
-        case ELEMENTAL_FIRE: return setmember<s16>( Bscript::MBR_FIRE_RESIST + 1000, value );
-        case ELEMENTAL_COLD: return setmember<s16>( Bscript::MBR_COLD_RESIST + 1000, value );
-        case ELEMENTAL_ENERGY: return setmember<s16>( Bscript::MBR_ENERGY_RESIST + 1000, value );
-        case ELEMENTAL_POISON: return setmember<s16>( Bscript::MBR_POISON_RESIST + 1000, value );
-        case ELEMENTAL_PHYSICAL: return setmember<s16>( Bscript::MBR_PHYSICAL_RESIST + 1000, value );
+        case Core::ELEMENTAL_FIRE: return setmember<s16>( Bscript::MBR_FIRE_RESIST + 1000, value );
+        case Core::ELEMENTAL_COLD: return setmember<s16>( Bscript::MBR_COLD_RESIST + 1000, value );
+        case Core::ELEMENTAL_ENERGY: return setmember<s16>( Bscript::MBR_ENERGY_RESIST + 1000, value );
+        case Core::ELEMENTAL_POISON: return setmember<s16>( Bscript::MBR_POISON_RESIST + 1000, value );
+        case Core::ELEMENTAL_PHYSICAL: return setmember<s16>( Bscript::MBR_PHYSICAL_RESIST + 1000, value );
       }
     }
-    s16 NPC::getCurrentElementDamage( ElementalType type ) const
+    s16 NPC::getCurrentElementDamage( Core::ElementalType type ) const
     {
       switch ( type )
       {
-        case ELEMENTAL_FIRE: return getmember<s16>( Bscript::MBR_FIRE_DAMAGE + 1000 );
-        case ELEMENTAL_COLD: return getmember<s16>( Bscript::MBR_COLD_DAMAGE + 1000 );
-        case ELEMENTAL_ENERGY: return getmember<s16>( Bscript::MBR_ENERGY_DAMAGE + 1000 );
-        case ELEMENTAL_POISON: return getmember<s16>( Bscript::MBR_POISON_DAMAGE + 1000 );
-        case ELEMENTAL_PHYSICAL: return getmember<s16>( Bscript::MBR_PHYSICAL_DAMAGE + 1000 );
+        case Core::ELEMENTAL_FIRE: return getmember<s16>( Bscript::MBR_FIRE_DAMAGE + 1000 );
+        case Core::ELEMENTAL_COLD: return getmember<s16>( Bscript::MBR_COLD_DAMAGE + 1000 );
+        case Core::ELEMENTAL_ENERGY: return getmember<s16>( Bscript::MBR_ENERGY_DAMAGE + 1000 );
+        case Core::ELEMENTAL_POISON: return getmember<s16>( Bscript::MBR_POISON_DAMAGE + 1000 );
+        case Core::ELEMENTAL_PHYSICAL: return getmember<s16>( Bscript::MBR_PHYSICAL_DAMAGE + 1000 );
       }
       return 0;
     }
-    void NPC::setCurrentElementDamage( ElementalType type, s16 value )
+    void NPC::setCurrentElementDamage( Core::ElementalType type, s16 value )
     {
       switch ( type )
       {
-        case ELEMENTAL_FIRE: return setmember<s16>( Bscript::MBR_FIRE_DAMAGE + 1000, value );
-        case ELEMENTAL_COLD: return setmember<s16>( Bscript::MBR_COLD_DAMAGE + 1000, value );
-        case ELEMENTAL_ENERGY: return setmember<s16>( Bscript::MBR_ENERGY_DAMAGE + 1000, value );
-        case ELEMENTAL_POISON: return setmember<s16>( Bscript::MBR_POISON_DAMAGE + 1000, value );
-        case ELEMENTAL_PHYSICAL: return setmember<s16>( Bscript::MBR_PHYSICAL_DAMAGE + 1000, value );
+        case Core::ELEMENTAL_FIRE: return setmember<s16>( Bscript::MBR_FIRE_DAMAGE + 1000, value );
+        case Core::ELEMENTAL_COLD: return setmember<s16>( Bscript::MBR_COLD_DAMAGE + 1000, value );
+        case Core::ELEMENTAL_ENERGY: return setmember<s16>( Bscript::MBR_ENERGY_DAMAGE + 1000, value );
+        case Core::ELEMENTAL_POISON: return setmember<s16>( Bscript::MBR_POISON_DAMAGE + 1000, value );
+        case Core::ELEMENTAL_PHYSICAL: return setmember<s16>( Bscript::MBR_PHYSICAL_DAMAGE + 1000, value );
       }
     }
 

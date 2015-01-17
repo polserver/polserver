@@ -23,7 +23,7 @@ namespace Pol {
   namespace Bscript {
 	class BObjectImp;
   }
-  namespace Core {
+  namespace Mobile {
     class NPC;
   }
 
@@ -53,11 +53,11 @@ namespace Pol {
 	class NPCExecutorModule : public Bscript::ExecutorModule
 	{
 	public:
-      NPCExecutorModule( Bscript::Executor& ex, Core::NPC& npc );
+      NPCExecutorModule( Bscript::Executor& ex, Mobile::NPC& npc );
 	  virtual ~NPCExecutorModule();
 
 	  Core::NPCRef npcref;
-	  Core::NPC& npc;
+	  Mobile::NPC& npc;
 
 	protected:
 	  OSExecutorModule* os_module;
