@@ -108,6 +108,8 @@ namespace Pol {
 	  void fill_hull2();
 
 	  void init();
+
+      size_t estimateSize() const;
 	};
 
 	bool MultiDefByMultiIDExists( u16 multiid );

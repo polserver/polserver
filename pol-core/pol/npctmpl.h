@@ -45,7 +45,7 @@ namespace Pol {
 	  ExportScript* method_script;
 
 	  NpcTemplate( const Clib::ConfigElem& elem, const Plib::Package* pkg );
-
+      size_t estimateSize() const;
 	  ~NpcTemplate();
 	};
 
@@ -56,6 +56,7 @@ namespace Pol {
 	public:
 	  NpcTemplateConfigSource();
       NpcTemplateConfigSource( const Clib::ConfigFile& cf );
+      size_t estimateSize() const;
 	  virtual void display_error( const std::string& msg,
 								  bool show_curline = true,
                                   const Clib::ConfigElemBase* elem = NULL,
@@ -70,7 +71,7 @@ namespace Pol {
 	public:
 	  NpcTemplateElem();
       NpcTemplateElem( const Clib::ConfigFile& cf, const Clib::ConfigElem& elem );
-
+      size_t estimateSize() const;
       void copyto( Clib::ConfigElem& elem ) const;
 	private:
 	  NpcTemplateConfigSource _source;

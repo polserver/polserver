@@ -22,7 +22,7 @@ namespace Pol {
 	  typedef Region base;
 	public:
 	  NoCastRegion( Clib::ConfigElem& elem, RegionId id );
-
+      virtual size_t estimateSize() const POL_OVERRIDE;
 	  bool nocast() const;
 
 	private:
@@ -40,6 +40,7 @@ namespace Pol {
 	  typedef Region base;
 	public:
       LightRegion( Clib::ConfigElem& elem, RegionId id );
+      virtual size_t estimateSize() const POL_OVERRIDE;
 	  unsigned lightlevel;
 	};
 
@@ -49,6 +50,7 @@ namespace Pol {
 	  typedef Region base;
 	public:
       WeatherRegion( Clib::ConfigElem& elem, RegionId id );
+      virtual size_t estimateSize() const POL_OVERRIDE;
 	  void setweather( unsigned char weathertype,
 					   unsigned char severity,
 					   unsigned char aux );
@@ -64,6 +66,7 @@ namespace Pol {
 	  WeatherDef( const char* name );
 	  virtual ~WeatherDef();
 	  void copy_default_regions();
+      virtual size_t estimateSize() const POL_OVERRIDE;
 
 	  bool assign_zones_to_region( const char* regionname,
 								   unsigned short x1, unsigned short y1,
@@ -71,7 +74,6 @@ namespace Pol {
 								   Plib::Realm* realm );
 	private:
 	  RegionRealms default_regionrealms;
-	  //RegionId default_regionidx_[ZONE_X][ZONE_Y]; // 1-based
 	};
 	
   }

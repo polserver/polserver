@@ -680,6 +680,9 @@
     <ClCompile Include="mobile\npc.cpp">
       <Filter>mobile</Filter>
     </ClCompile>
+    <ClCompile Include="globals\memoryusage.cpp">
+      <Filter>globals</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="action.h">
@@ -1325,10 +1328,13 @@
       <Filter>module</Filter>
     </ClInclude>
     <ClInclude Include="mobile\privupdater.h">
-      <Filter>Header Files</Filter>
+      <Filter>mobile</Filter>
     </ClInclude>
     <ClInclude Include="mobile\npc.h">
       <Filter>mobile</Filter>
+    </ClInclude>
+    <ClInclude Include="globals\memoryusage.h">
+      <Filter>globals</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -73,6 +73,7 @@ namespace Pol {
 	  void printOn( Clib::StreamWriter& sw ) const;
 	  u32 get_member_at( unsigned short pos ) const;
 	  void cleanup();
+      size_t estimateSize() const;
 
 	  friend class Module::EPartyRefObjImp;
 

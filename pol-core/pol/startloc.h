@@ -49,6 +49,7 @@ namespace Pol {
 	  std::vector<Coordinate> coords;
 
 	  Coordinate select_coordinate() const;
+      size_t estimateSize() const;
 	};
   }
 }

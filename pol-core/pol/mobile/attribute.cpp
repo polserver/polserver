@@ -67,6 +67,17 @@ namespace Pol {
 		delete getintrinsicmod_func;
 	}
 
+    size_t Attribute::estimateSize() const
+    {
+      size_t size = sizeof(Attribute);
+      size += name.capacity();
+      for (const auto& alias : aliases)
+        size += alias.capacity();
+      size += sizeof(Core::ExportedFunction);
+      size += script_.estimatedSize();
+      return size;
+    }
+
 	void load_attribute_entry( const Plib::Package* pkg, Clib::ConfigElem& elem )
 	{
 	  auto attr = new Attribute( pkg, elem );

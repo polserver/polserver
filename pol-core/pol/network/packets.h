@@ -182,9 +182,9 @@ namespace Pol {
 		static const u16 SUB = _sub;
 		static const u16 SIZE = _size;
 		char buffer[SIZE];
-        char* getBuffer() { return &buffer[offset]; };
-        inline u8 getID() const { return ID; };
-        size_t estimateSize() const { return SIZE + sizeof(PacketInterface); };
+        virtual char* getBuffer() POL_OVERRIDE { return &buffer[offset]; };
+        virtual inline u8 getID() const POL_OVERRIDE { return ID; };
+        virtual size_t estimateSize() const POL_OVERRIDE { return SIZE + sizeof(PacketInterface); };
 
 		// ---- Buffer Write Methods ----
 		// N is the argument which will be static_cast to T
@@ -200,7 +200,8 @@ namespace Pol {
           PktWriterTemplateSpecs::WriteHelper<T>::Write(x, buffer, offset);
         };
 		template <class T, typename N>
-        typename std::enable_if<!std::is_same<T, N>::value, void>::type Write(N x)
+        typename std::enable_if<!std::is_same<T, N>::value, void>::type
+          Write(N x)
         {
 		  static_assert(std::is_integral<N>::value || std::is_enum<N>::value, "Invalid argument type integral type is needed!");
 		  static_assert(std::is_signed<T>::value == std::is_signed<N>::value, "Signed/Unsigned missmatch!");
@@ -300,7 +301,7 @@ namespace Pol {
       {
        public:
         PacketTemplate() { ReSetBuffer(); };
-        void ReSetBuffer()
+        virtual void ReSetBuffer() POL_OVERRIDE
         {
 		  memset( PacketWriter<_id, _size>::buffer, 0, _size );
 		  PacketWriter<_id, _size>::buffer[0] = _id;
@@ -314,14 +315,14 @@ namespace Pol {
 	  {
 	  public:
 		PacketTemplateSub() { ReSetBuffer(); };
-		void ReSetBuffer()
+		virtual void ReSetBuffer() POL_OVERRIDE
 		{
 		  memset( PacketWriter<_id, _size, _sub>::buffer, 0, _size );
 		  PacketWriter<_id, _size, _sub>::buffer[0] = _id;
 		  ( *(u16*)(void*)&PacketWriter<_id, _size, _sub>::buffer[_suboff] ) = cfBEu16( _sub );
 		  PacketWriter<_id, _size, _sub>::offset = 1;
 		};
-		inline u16 getSubID() const { return _sub; };
+		virtual inline u16 getSubID() const POL_OVERRIDE { return _sub; };
 	  };
 
 	  //special def for encrypted buffer
@@ -334,13 +335,14 @@ namespace Pol {
 		static const u16 SIZE = _size;
 		EmptyBufferTemplate() { ReSetBuffer(); };
 		char buffer[SIZE];
-		void ReSetBuffer()
+		virtual void ReSetBuffer() POL_OVERRIDE
 		{
 		  memset( buffer, 0, SIZE );
 		  offset = 0;
 		};
-        char* getBuffer() { return &buffer[offset]; };
-        inline u8 getID() const { return ID; };
+        virtual char* getBuffer() POL_OVERRIDE { return &buffer[offset]; };
+        virtual inline u8 getID() const POL_OVERRIDE { return ID; };
+        virtual size_t estimateSize() const POL_OVERRIDE { return SIZE + sizeof(PacketInterface); };
 	  };
 
 	}

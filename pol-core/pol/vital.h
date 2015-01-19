@@ -29,6 +29,7 @@ namespace Pol {
 	public:
 	  Vital( const Plib::Package* pkg, Clib::ConfigElem& elem );
 	  ~Vital();
+      size_t estimateSize() const;
 
 	  const Plib::Package* pkg;
 	  std::string name;

@@ -28,6 +28,7 @@ namespace Pol {
 	{
 	public:
 	  void check( std::string& var, const char* tag, const char* deflt );
+      size_t estimateSize() const;
 
 	public:
 	  ~UoClientGeneral();
@@ -38,6 +39,7 @@ namespace Pol {
 		bool any;
 		std::string name;
 		unsigned id;
+        size_t estimateSize() const;
 	  };
 
 	  Mapping strength;
@@ -55,6 +57,7 @@ namespace Pol {
 	{
 	public:
 	  UoClientProtocol();
+      size_t estimateSize() const;
 	  bool EnableFlowControlPackets;
 	};
 
@@ -62,6 +65,7 @@ namespace Pol {
 	{
 	public:
 	  UoClientListener( Clib::ConfigElem& elem );
+      size_t estimateSize() const;
 
 	  Crypt::TCryptInfo encryption;
 	  unsigned short port;

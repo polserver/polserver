@@ -50,6 +50,18 @@ namespace Pol {
 
 	}
 
+    size_t JusticeRegion::estimateSize() const
+    {
+      size_t size = Region::estimateSize();
+      size += 2* sizeof(bool); /*guarded_ nocombat_*/
+      size += region_name_.capacity()
+        + entertext_.capacity()
+        + leavetext_.capacity()
+        + enter_script_.capacity()
+        + leave_script_.capacity();
+      return size;
+    }
+
 	bool JusticeRegion::RunEnterScript( Mobile::Character* chr )
 	{
 	  if ( enter_script_.empty() )

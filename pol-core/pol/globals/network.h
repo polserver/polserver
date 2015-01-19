@@ -43,6 +43,9 @@ namespace Core {
 	  void deinialize();
 	  void kill_disconnected_clients();
 
+      struct Memory;
+      Memory estimateSize() const;
+
 	  Clients clients;
 	  Servers servers;
 
@@ -95,6 +98,13 @@ namespace Core {
 
 	  Network::PolSocket polsocket;
 
+
+      struct Memory
+      {
+        size_t client_size;
+        size_t client_count;
+        size_t misc;
+      };
 	private:
   };
 

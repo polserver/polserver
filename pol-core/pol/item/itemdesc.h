@@ -246,8 +246,6 @@ namespace Pol {
 	void load_itemdesc( Clib::ConfigElem& elem );
 
 	const ItemDesc* CreateItemDescriptor( Bscript::BStruct* itemdesc_struct );
-
-    size_t itemdescSizeEstimate(size_t *count);
   }
 }
 #endif

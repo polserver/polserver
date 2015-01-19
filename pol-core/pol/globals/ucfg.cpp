@@ -35,5 +35,37 @@ namespace Pol {
 	  datastore.clear();
 	  file_access_rules.clear();
 	}
+
+    ConfigurationBuffer::Memory ConfigurationBuffer::estimateSize() const
+    {
+      Memory usage;
+      memset( &usage, 0, sizeof( usage ) );
+
+      usage.misc = 3 * sizeof(std::string*);
+      for (const auto& oldcfg : oldcfgfiles)
+        usage.misc += oldcfg.capacity();
+      usage.misc += 3 * sizeof(Module::FileAccess*);
+      for (const auto& rule : file_access_rules)
+        usage.misc += rule.estimateSize();
+
+
+      usage.cfg_count = cfgfiles.size();
+      for ( const auto& pair : cfgfiles )
+      {
+        size_t cfgsize = 0;
+        if ( pair.second.get() != nullptr )
+          cfgsize += pair.second->estimateSize();
+        usage.cfg_size += ( pair.first.capacity( ) + cfgsize ) + ( sizeof(void*)* 3 + 1 ) / 2;
+      }
+
+      usage.datastore_count = datastore.size();
+      for (const auto& data : datastore)
+      {
+        usage.datastore_size += ( data.first.capacity() +sizeof( Module::DataStoreFile* ) + ( sizeof(void*) * 3 + 1 ) / 2 );
+        if (data.second != nullptr)
+          usage.datastore_size += data.second->estimateSize();
+      }
+      return usage;
+    }
   }
 }

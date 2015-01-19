@@ -23,6 +23,7 @@ namespace Core {
 	  ~SettingsManager();
 
 	  void deinitialize();
+      size_t estimateSize() const;
 
 	  CombatConfig combat_config;
 	  Watch watch;

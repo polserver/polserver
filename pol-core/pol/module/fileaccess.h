@@ -32,6 +32,7 @@ namespace Pol {
 	  bool AllowsAccessTo( const Plib::Package* pkg, const Plib::Package* filepackage ) const;
 	  bool AppliesToPackage( const Plib::Package* pkg ) const;
 	  bool AppliesToPath( const std::string& path ) const;
+      size_t estimateSize() const;
 
 	  bool AllowWrite;
 	  bool AllowAppend;

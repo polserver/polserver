@@ -760,6 +760,15 @@ namespace Pol {
 	  //sw.flush();
 	}
 
+    size_t Party::estimateSize() const
+    {
+      return 3 * sizeof(u32*) + _member_serials.capacity() * sizeof( u32 )
+        + 3 * sizeof(u32*) + _candidates_serials.capacity() * sizeof( u32 )
+        + 3 * sizeof(u32*) + _offlinemember_serials.capacity() * sizeof( u32 )
+        + sizeof(u32) /*_leaderserial*/
+        + _proplist.estimatedSize();
+    }
+
     void send_empty_party( Mobile::Character* chr )
 	{
 	  if ( chr != NULL && chr->has_active_client() )

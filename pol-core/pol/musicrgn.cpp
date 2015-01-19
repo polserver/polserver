@@ -27,6 +27,12 @@ namespace Pol {
 	  }
 	}
 
+    size_t MusicRegion::estimateSize() const
+    {
+      return base::estimateSize()
+        + 3 * sizeof(unsigned short*) + midilist_.capacity() * sizeof( unsigned short );
+    }
+
 	unsigned short MusicRegion::getmidi() const
 	{
 	  if ( !midilist_.empty() )

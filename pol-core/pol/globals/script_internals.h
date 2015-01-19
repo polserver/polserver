@@ -27,6 +27,8 @@ namespace Core {
   public:
 	  ScriptEngineInternalManager();
 	  ~ScriptEngineInternalManager();
+      struct Memory;
+      Memory estimateSize() const;
 
 	  void deinitialize();
 
@@ -39,6 +41,14 @@ namespace Core {
 	  ScriptStorage scrstore;
 	  PidList pidlist;
 	  unsigned int next_pid;
+
+      struct Memory
+      {
+        size_t script_count;
+        size_t script_size;
+        size_t scriptstorage_count;
+        size_t scriptstorage_size;
+      };
   };
 
   extern ScriptEngineInternalManager scriptEngineInternalManager;

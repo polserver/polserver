@@ -57,12 +57,26 @@ namespace Pol {
 	  //unsigned short magery_auto_success_; 
 	};
 
+    class SpellCircle
+	{
+	public:
+	  SpellCircle( Clib::ConfigElem& elem );
+
+	public:
+	  USpellParams params;
+
+	private:
+	  // not implemented:
+	  SpellCircle( const SpellCircle& );
+	  SpellCircle& operator=( const SpellCircle& );
+	};
+
 
 	class USpell
 	{
 	public:
 	  USpell( Clib::ConfigElem& elem, Plib::Package* pkg );
-
+      size_t estimateSize() const;
 	  const unsigned short spell_id() const;
 	  const std::string& name() const;
 

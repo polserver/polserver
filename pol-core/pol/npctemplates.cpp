@@ -41,6 +41,10 @@ namespace Pol {
 	{};
 	NpcTemplateConfigSource::NpcTemplateConfigSource() : _filename(""), _fileline(0)
 	{}
+    size_t NpcTemplateConfigSource::estimateSize() const
+    {
+      return _filename.capacity() + sizeof(unsigned int);
+    }
 	void NpcTemplateConfigSource::display_error( const std::string& msg,
 												 bool /*show_curline*/,
                                                  const Clib::ConfigElemBase* elem,
@@ -86,6 +90,16 @@ namespace Pol {
 	  elem = _elem;
 	  elem.set_source( &_source );
 	}
+
+    size_t NpcTemplateElem::estimateSize() const
+    {
+      size_t size = sizeof(NpcTemplateElem)
+        + _source.estimateSize()
+        + _elem.estimateSize();
+      return size;
+    }
+
+	  
 
     bool FindNpcTemplate( const char* template_name, Clib::ConfigElem& elem )
 	{

@@ -61,8 +61,6 @@ namespace Pol {
 	  static void read_menus();
 	  static Menu *find_menu( const char *name );
 	  static Menu *find_menu( unsigned short menu_id );
-
-	  static size_t estimateMenuSize();
 	};
   }
 }

@@ -64,6 +64,7 @@ namespace Pol {
 	public:
 	  AuxService( const Plib::Package* pkg, Clib::ConfigElem& elem );
 	  void run();
+      size_t estimateSize() const;
 
 	  const Core::ScriptDef& scriptdef() const { return _scriptdef; }
 	  std::vector<unsigned int> _aux_ip_match;

@@ -1365,6 +1365,20 @@ namespace Pol {
       memset( ip, 0, sizeof ip );
     }
 
+    size_t ServerDescription::estimateSize() const
+    {
+      size_t size = name.capacity()
+        + 4*sizeof(unsigned char) /*ip*/
+        + sizeof(unsigned short) /*port*/
+        + 3 * sizeof(unsigned int*) + ip_match.capacity() * sizeof( unsigned int )
+        + 3 * sizeof(unsigned int*) + ip_match_mask.capacity() * sizeof( unsigned int )
+        + 3 * sizeof (std::string*)
+        + hostname.capacity();
+      for (const auto &s : acct_match)
+        size += s.capacity();
+      return size;
+    }
+
     void read_gameservers()
     {
       std::string accttext;

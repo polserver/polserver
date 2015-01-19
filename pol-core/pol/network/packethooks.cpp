@@ -471,6 +471,20 @@ namespace Pol {
 	  }
 	}
 
+    size_t PacketHookData::estimateSize() const
+    {
+      size_t size = sizeof(PacketHookData)
+        + 2* sizeof(Core::ExportedFunction);
+      for (const auto& subs : SubCommands)
+      {
+        size += ( sizeof(u32)+sizeof( PacketHookData* ) + ( sizeof(void*) * 3 + 1 ) / 2 );
+        if (subs.second != nullptr)
+          size += subs.second->estimateSize();
+      }
+      return size;
+    }
+
+
 	void clean_packethooks()
 	{
 	  Core::networkManager.packet_hook_data.clear();

@@ -29,6 +29,7 @@ namespace Pol {
 	{
 	public:
 	  CmdLevel( Clib::ConfigElem& elem, int cmdlevelnum );
+      size_t estimateSize() const;
 
 	  bool matches( const std::string& name ) const;
 	  void add_searchdir( Plib::Package* pkg, const std::string& dir );

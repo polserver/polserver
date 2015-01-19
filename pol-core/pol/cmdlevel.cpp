@@ -79,6 +79,22 @@ namespace Pol {
 	  searchlist.insert( searchlist.begin(), sdir );
 	}
 
+    size_t CmdLevel::estimateSize() const
+    {
+      size_t size = name.capacity()
+        + sizeof(unsigned char); /*cmdlevel*/
+
+      size+= 3 * sizeof(SearchDir*);
+      for (const auto& ele : searchlist)
+        size += sizeof(Plib::Package*) + ele.dir.capacity();
+      size+= 3 * sizeof(std::string*);
+      for (const auto& ele : aliases)
+        size += ele.capacity();
+      return size;
+    }
+
+
+
 	CmdLevel* find_cmdlevel( const char* name )
 	{
 	  for ( unsigned i = 0; i < gamestate.cmdlevels.size(); ++i )

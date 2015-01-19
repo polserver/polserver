@@ -59,6 +59,7 @@ Notes
 #include "../spells.h"
 #include "../startloc.h"
 #include "../storage.h"
+#include "../syshookscript.h"
 #include "../target.h"
 #include "../tasks.h"
 #include "../ufunc.h"
@@ -402,6 +403,192 @@ namespace Pol {
 
 	  npc_template_elems.clear();
 	}
+
+
+    GameState::Memory GameState::estimateSize() const
+    {
+      Memory usage;
+      memset( &usage, 0, sizeof( usage ) );
+
+      usage.misc = sizeof(GameState);
+      for (const auto& ele : cmdlevels)
+        usage.misc += ele.estimateSize();
+
+      for (const auto& ele : npc_templates )
+      {
+        usage.misc += ele.first.capacity() +sizeof( NpcTemplate* ) + ( sizeof(void*) * 3 + 1 ) / 2;
+        if (ele.second != nullptr)
+          usage.misc += ele.second->estimateSize();
+      }
+
+      for (const auto& ele : npc_template_elems )
+      {
+        usage.misc += ele.first.capacity() + ele.second.estimateSize()+ ( sizeof(void*) * 3 + 1 ) / 2;
+      }
+
+      usage.misc += sizeof(std::unique_ptr<Core::PropertyList>) + global_properties->estimatedSize();
+
+
+      usage.account_count = accounts.size();
+      usage.account_size += 3 * sizeof(AccountRef*)+accounts.capacity() * sizeof( AccountRef );
+      for ( const auto& acc : accounts )
+      {
+        if (acc.get() != nullptr)
+          usage.account_size += acc->estimatedSize();
+      }
+
+      for ( const auto& loc : startlocations )
+      {
+        if (loc != nullptr)
+          usage.misc += loc->estimateSize();
+      }
+
+      if (justicedef != nullptr)
+        usage.misc += justicedef->estimateSize();
+      if (nocastdef != nullptr)
+        usage.misc += nocastdef->estimateSize();
+      if (lightdef != nullptr)
+        usage.misc += lightdef->estimateSize();
+      if (weatherdef != nullptr)
+        usage.misc += weatherdef->estimateSize();
+      if (musicdef != nullptr)
+        usage.misc += musicdef->estimateSize();
+
+      for (const auto& menu : menus)
+        usage.misc += menu.estimateSize();
+
+      usage.misc += storage.estimateSize();
+
+      for (const auto& party : parties)
+        if (party.get() != nullptr)
+          usage.misc+=party->estimateSize();
+
+      for (const auto& guild : guilds)
+        if (guild.second.get() != nullptr)
+          usage.misc += sizeof(unsigned int) + guild.second->estimateSize() + ( sizeof(void*) * 3 + 1 ) / 2;
+
+      for ( const auto &realm : Realms )
+      {
+        if (realm != nullptr)
+          usage.realm_size += realm->sizeEstimate();
+      }
+      usage.realm_size += ( sizeof(int)+sizeof( Plib::Realm* ) + ( sizeof(void*)* 3 + 1 ) / 2 ) * gamestate.shadowrealms_by_id.size();
+
+      for ( const auto &attr : attributes )
+      {
+        if (attr != nullptr)
+          usage.misc += attr->estimateSize();
+      }
+
+      for ( const auto &attr : attributes_byname )
+      {
+        usage.misc += attr.first.capacity() +sizeof( Mobile::Attribute* ) + ( sizeof(void*) * 3 + 1 ) / 2;
+      }
+
+      usage.misc += 3 * sizeof(USpell**) + spells.capacity() * sizeof( USpell* );
+      for ( const auto &spell : spells )
+      {
+        if (spell != nullptr)
+         usage.misc += spell->estimateSize();
+      }
+      usage.misc += 3 * sizeof(SpellCircle**) + spellcircles.capacity() * (sizeof( SpellCircle* )+sizeof(SpellCircle));
+
+      usage.misc += 3 * sizeof(ExportScript**) + export_scripts.capacity() * sizeof( ExportScript* );
+      for ( const auto &script : export_scripts )
+      {
+        if (script != nullptr)
+          usage.misc += script->estimateSize();
+      }
+
+      for ( const auto &name : tipfilenames )
+      {
+        usage.misc += name.capacity();
+      }
+
+      for ( const auto &zone : armorzones )
+      {
+        usage.misc += zone.name.capacity() + sizeof(double)
+          + 3 * sizeof(unsigned short*) + zone.layers.capacity() * sizeof( unsigned short );
+      }
+
+      usage.misc += 3 * sizeof(Vital**) + vitals.capacity() * sizeof( Vital* );
+      for ( const auto &vital : vitals )
+      {
+        if (vital != nullptr)
+          usage.misc += vital->estimateSize();
+      }
+      for (const auto &vital : vitals_byname)
+        usage.misc += vital.first.capacity()+sizeof( Vital* ) + ( sizeof(void*) * 3 + 1 ) / 2;
+
+
+      usage.misc += ( sizeof(u32)+sizeof(Items::ItemDesc*)+( sizeof(void*)* 3 + 1 ) / 2 ) * desctable.size();
+      for ( const auto &elem : desctable )
+      {
+        if ( elem.second != nullptr )
+          usage.misc += elem.second->estimatedSize();
+      }
+	  for (const auto &elem : dynamic_item_descriptors)
+	  {
+		if (elem != nullptr)
+		  usage.misc += elem->estimatedSize();
+	  }
+      usage.misc += ( sizeof(unsigned int)+sizeof( unsigned int ) + ( sizeof(void*) * 3 + 1 ) / 2 ) * old_objtype_conversions.size();
+
+      for (const auto &elem : objtype_byname)
+        usage.misc += elem.first.capacity() +sizeof( u32 ) + ( sizeof(void*) * 3 + 1 ) / 2;
+
+      for (const auto &elem : resourcedefs)
+      {
+        usage.misc += elem.first.capacity() +sizeof( ResourceDef* ) + ( sizeof(void*) * 3 + 1 ) / 2;
+        if (elem.second != nullptr)
+          usage.misc += elem.second->estimateSize();
+      }
+      for (const auto &elem : intrinsic_weapons)
+      {
+        usage.misc += elem.first.capacity() +sizeof( Items::UWeapon* ) + ( sizeof(void*) * 3 + 1 ) / 2;
+      }
+      for (const auto &elem : boatshapes)
+      {
+        usage.misc += sizeof(u16) +sizeof( Multi::BoatShape* ) + ( sizeof(void*) * 3 + 1 ) / 2;
+        if (elem.second != nullptr)
+          usage.misc += elem.second->estimateSize();
+      }
+
+      for (const auto &elem : animation_translates)
+      {
+        usage.misc += elem.first.capacity() +elem.second.estimateSize() + ( sizeof(void*) * 3 + 1 ) / 2;
+      }
+
+      for (const auto &elem : console_commands)
+      {
+        usage.misc += elem.estimateSize();
+      }
+      usage.misc += (sizeof(UOExecutor*)+sizeof(ListenPoint*)+sizeof(ListenPoint)  + ( sizeof(void*) * 3 + 1 ) / 2) * listen_points.size();
+      for (const auto &elem : mime_types)
+      {
+        usage.misc += elem.first.capacity() +elem.second.capacity() + ( sizeof(void*) * 3 + 1 ) / 2;
+      }
+
+      usage.misc+=task_queue.size() * (sizeof(ScheduledTask*)+sizeof(ScheduledTask));
+
+      for (const auto& elem : Global_Ignore_CProps)
+        usage.misc+= elem.capacity()+3 * sizeof( void* );
+
+      for (const auto &elem : textcmds)
+      {
+        usage.misc += elem.first.capacity() +sizeof(elem.second) + ( sizeof(void*) * 3 + 1 ) / 2;
+      }
+      for (const auto &elem : paramtextcmds)
+      {
+        usage.misc += elem.first.capacity() +sizeof(elem.second) + ( sizeof(void*) * 3 + 1 ) / 2;
+      }
+
+      for (const auto &elem : uo_skills)
+      {
+        usage.misc += elem.estimateSize();
+      }
+      return usage;
+    }
 
   }
 }

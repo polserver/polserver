@@ -262,6 +262,16 @@ namespace Core {
 
 	return guild;
   }
+
+  size_t Guild::estimateSize() const
+  {
+    return sizeof(unsigned int) /*_guildid*/
+      + 3 * sizeof( void* ) + _member_serials.size() * ( sizeof(unsigned int)+3 * sizeof( void* ) )
+      + 3 * sizeof( void* ) + _allyguild_serials.size() * ( sizeof(unsigned int)+3 * sizeof( void* ) )
+      + 3 * sizeof( void* ) + _enemyguild_serials.size() * ( sizeof(unsigned int)+3 * sizeof( void* ) )
+      + _proplist.estimatedSize()
+      + sizeof(bool); /*_disbanded*/
+  }
 }
 
 

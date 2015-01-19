@@ -87,62 +87,6 @@ namespace Pol {
       }
     }
 
-    size_t sizeEstimate_scripts(size_t* count)
-    {
-      size_t size = 0;
-      *count = 0;
-      size += 3 * sizeof(UOExecutor**)+scriptEngineInternalManager.runlist.size() * sizeof( UOExecutor* );
-      for ( const auto& exec : scriptEngineInternalManager.runlist )
-      {
-        size += exec->sizeEstimate();
-      }
-      *count += scriptEngineInternalManager.runlist.size();
-
-      size += 3 * sizeof(UOExecutor**)+scriptEngineInternalManager.ranlist.size() * sizeof( UOExecutor* );
-      for ( const auto& exec : scriptEngineInternalManager.ranlist )
-      {
-        size += exec->sizeEstimate();
-      }
-      *count += scriptEngineInternalManager.ranlist.size();
-
-      for ( const auto& hold : scriptEngineInternalManager.holdlist )
-      {
-        size += sizeof( Core::polclock_t ) + hold.second->sizeEstimate() + ( sizeof(void*)* 3 + 1 ) / 2;
-      }
-      *count += scriptEngineInternalManager.holdlist.size();
-
-      size += 3 * sizeof( void* );
-      for ( const auto& hold : scriptEngineInternalManager.notimeoutholdlist )
-      {
-        size += hold->sizeEstimate( ) + 3 * sizeof( void* );
-      }
-      *count += scriptEngineInternalManager.notimeoutholdlist.size();
-
-      size += 3 * sizeof( void* );
-      for ( const auto& hold : scriptEngineInternalManager.debuggerholdlist )
-      {
-        size += hold->sizeEstimate( ) + 3 * sizeof( void* );
-      }
-      *count += scriptEngineInternalManager.debuggerholdlist.size();
-
-      return size;
-    }
-
-    size_t sizeEstimate_scriptStorage( size_t* count )
-    {
-      size_t size = 0;
-      *count = 0;
-      for ( const auto& script : scriptEngineInternalManager.scrstore )
-      {
-        size += ( sizeof(void*)* 3 + 1 ) / 2;
-        size += script.first.capacity();
-        size += script.second->sizeEstimate();
-      }
-      *count += scriptEngineInternalManager.scrstore.size();
-      return size;
-    }
-
-
 	void run_ready()
 	{
 	  THREAD_CHECKPOINT( scripts, 110 );

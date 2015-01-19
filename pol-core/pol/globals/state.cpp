@@ -33,5 +33,10 @@ namespace Core {
   {
 
   }
+
+  size_t StateManager::estimateSize() const
+  {
+    return sizeof(StateManager);
+  }
 }
 }

@@ -267,6 +267,16 @@ namespace Pol {
 	  }
 	}
 
+    size_t AuxService::estimateSize() const
+    {
+      size_t size = sizeof(Plib::Package*)
+        +_scriptdef.estimatedSize()
+        + sizeof(unsigned short) /*_port*/
+        + 3 * sizeof(unsigned int*) + _aux_ip_match.capacity() * sizeof( unsigned int )
+        + 3 * sizeof(unsigned int*) + _aux_ip_match_mask.capacity() * sizeof( unsigned int );
+      return size;
+    }
+
 	void aux_service_thread_stub( void* arg )
 	{
 	  AuxService* as = static_cast<AuxService*>( arg );

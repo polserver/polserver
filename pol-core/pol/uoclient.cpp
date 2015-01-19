@@ -28,6 +28,10 @@ namespace Pol {
 	UoClientProtocol::UoClientProtocol() :
 	  EnableFlowControlPackets(false)
 	  {}
+    size_t UoClientProtocol::estimateSize() const
+    {
+      return sizeof(UoClientProtocol);
+    }
 
 
 	UoClientListener::UoClientListener( Clib::ConfigElem& elem ) :
@@ -38,6 +42,11 @@ namespace Pol {
 	{
 	  CalculateCryptKeys( elem.remove_string( "ENCRYPTION", "none" ), encryption );
 	}
+
+     size_t UoClientListener::estimateSize() const
+     {
+      return sizeof(UoClientListener);
+     }
 
     void checka( Clib::ConfigElem& elem, UoClientGeneral::Mapping& mapping, const char* tag )
 	{
@@ -147,5 +156,26 @@ namespace Pol {
 		method_script = NULL;
 	  }
 	}
+
+    size_t UoClientGeneral::Mapping::estimateSize() const
+    {
+      return sizeof(bool)
+        + name.capacity()
+        + sizeof(unsigned);
+    }
+    size_t UoClientGeneral::estimateSize() const
+    {
+      size_t size = strength.estimateSize()
+        + intelligence.estimateSize()
+        + dexterity.estimateSize()
+        + hits.estimateSize()
+        + stamina.estimateSize()
+        + mana.estimateSize()
+        + sizeof(unsigned short) /*maxskills*/
+        + sizeof(ExportScript*);
+      if (method_script != nullptr)
+        size += method_script->estimateSize();
+      return size;
+    }
   }
 }

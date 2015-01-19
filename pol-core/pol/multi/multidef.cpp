@@ -270,6 +270,20 @@ namespace Pol {
 	  computehull();
 	}
 
+    size_t MultiDef::estimateSize() const
+    {
+      size_t size = sizeof(MultiDef);
+      size += 3 * sizeof(MULTI_ELEM*) + elems.capacity() * sizeof( MULTI_ELEM);
+      size += 3 * sizeof(MULTI_ELEM**) + hull.capacity() * sizeof( MULTI_ELEM*);
+      size += 3 * sizeof(MULTI_ELEM**) + internal_hull.capacity() * sizeof( MULTI_ELEM*);
+
+      size +=  3 * sizeof( void* ) + hull2.size() * ( sizeof(unsigned short)+3 * sizeof( void* ) );
+      size +=  3 * sizeof( void* ) + internal_hull2.size() * ( sizeof(unsigned short)+3 * sizeof( void* ) );
+
+      size += ( sizeof(unsigned short)+sizeof( MULTI_ELEM* ) + ( sizeof(void*) * 3 + 1 ) / 2 ) * components.size();
+      return size;
+    }
+
     short MultiDef::global_minrx;
     short MultiDef::global_minry;
     short MultiDef::global_minrz;

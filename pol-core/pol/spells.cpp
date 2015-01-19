@@ -128,19 +128,6 @@ namespace Pol {
 	  delay( elem.remove_ushort( "DELAY" ) )
 	{}
 
-	class SpellCircle
-	{
-	public:
-	  SpellCircle( Clib::ConfigElem& elem );
-
-	public:
-	  USpellParams params;
-
-	private:
-	  // not implemented:
-	  SpellCircle( const SpellCircle& );
-	  SpellCircle& operator=( const SpellCircle& );
-	};
 
 	SpellCircle::SpellCircle( Clib::ConfigElem& elem ) :
 	  params( elem )
@@ -196,6 +183,19 @@ namespace Pol {
 		reglist_.push_back( reagent );
 	  }
 	}
+
+    size_t USpell::estimateSize() const
+    {
+      size_t size = sizeof(Plib::Package*) /*pkg_*/
+        + sizeof(unsigned short) /*spellid_*/
+        + name_.capacity()
+        + power_words_.capacity()
+        + sizeof(UACTION) /*action_*/
+        + 3 * sizeof(unsigned int*) + reglist_.capacity() * sizeof( unsigned int )
+        + sizeof (USpellParams) /*params_*/
+        + scriptdef_.estimatedSize();
+      return size;
+    }
 
     void USpell::cast( Mobile::Character* chr )
 	{

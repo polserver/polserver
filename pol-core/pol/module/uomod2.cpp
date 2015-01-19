@@ -77,6 +77,7 @@ Notes
 #include "../core.h"
 #include "../exscrobj.h"
 #include "../fnsearch.h"
+#include "../globals/memoryusage.h"
 #include "../globals/object_storage.h"
 #include "../globals/state.h"
 #include "../globals/uvars.h"
@@ -1760,159 +1761,6 @@ namespace Pol {
 	  return pkts.release();
 	}
 
-    void logMemoryUsage()
-    {
-      // std::string footprint is ~ string.capacity()
-      // std::vector footprint is ~ 3 * sizeof(T*) + vector.capacity() * sizeof( T );
-      // std::set footprint is ~ 3 * sizeof( void* ) + set.size() * ( sizeof(T)+3 * sizeof( void* ) );
-      // std::map footprint is ~ ( sizeof(K)+sizeof( V ) + ( sizeof(void*) * 3 + 1 ) / 2 ) * map.size();
-      bool needs_header = !Clib::FileExists( "log/memoryusage.log" );
-      auto log = OPEN_FLEXLOG( "log/memoryusage.log", false );
-      if ( needs_header )
-      {
-		FLEXLOG( log ) << "Time ;ProcessSize ;RealmSize ;PacketSize ;Misc ;ScriptCount ;ScriptSize ;ScriptStoreCount ;ScriptStoreSize ;ObjCount ;ObjSize ;AccountCount ;AccountSize ;ClientCount ;ClientSize ;"
-          << "ObjItemCount ;ObjItemSize ;ObjContCount ;ObjContSize ;ObjCharCount ;ObjCharSize ;ObjNpcCount ;ObjNpcSize ;ObjWeaponCount ;ObjWeaponSize ; ObjArmorCount ;ObjArmorSize ;ObjMultiCount ;ObjMultiSize ;"
-          << "ConfigCount ;ConfigSize ;ItemdescCount ;ItemdescSize";
-#ifdef DEBUG_FLYWEIGHT
-        for ( int i = 0; i < boost_utils::debug_flyweight_queries.size(); ++i )
-          FLEXLOG( log ) << " ;FlyWeightBucket" << i << "Count ;FlyWeightBucket"<<i<<"Size";
-#endif
-        FLEXLOG( log ) << "\n";
-      }
-      size_t realmsize = 3 * sizeof(void*)+Core::gamestate.Realms.capacity() * sizeof( void* );
-      for ( const auto &realm : Core::gamestate.Realms )
-      {
-        realmsize += realm->sizeEstimate();
-      }
-      realmsize += sizeof( Plib::Realm* ); // main_realm
-      realmsize += sizeof(std::vector<Plib::Realm*>*); // Realm
-      realmsize += sizeof(unsigned int)* 2; // baserealm_count +shadowrealm_count
-      // std::map estimate for shadowrealms_by_id
-      realmsize += ( sizeof(int)+sizeof( Plib::Realm* ) + ( sizeof(void*)* 3 + 1 ) / 2 ) * gamestate.shadowrealms_by_id.size();
-
-      
-      ObjectHash::OH_const_iterator hs_citr = objStorageManager.objecthash.begin(), hs_cend = objStorageManager.objecthash.end();
-      size_t objsize = 0;
-      size_t objcount = std::distance( hs_citr, hs_cend );
-
-      size_t obj_item_size = 0;
-      size_t obj_cont_size = 0;
-      size_t obj_char_size = 0;
-      size_t obj_npc_size = 0;
-      size_t obj_weapon_size = 0;
-      size_t obj_armor_size = 0;
-      size_t obj_multi_size = 0;
-      size_t obj_item_count = 0;
-      size_t obj_cont_count = 0;
-      size_t obj_char_count = 0;
-      size_t obj_npc_count = 0;
-      size_t obj_weapon_count = 0;
-      size_t obj_armor_count = 0;
-      size_t obj_multi_count = 0;
-
-      for ( ; hs_citr != hs_cend; ++hs_citr )
-      {
-        size_t size = ( sizeof(void*)* 3 + 1 ) / 2;
-        const UObjectRef& ref = ( *hs_citr ).second;
-        size += ref->estimatedSize();
-        objsize += size;
-        if ( ref->isa( UObject::CLASS_ITEM ) )
-        {
-          obj_item_size += size;
-          obj_item_count++;
-        }
-        else if ( ref->isa( UObject::CLASS_CONTAINER ) )
-        {
-          obj_cont_size += size;
-          obj_cont_count++;
-        }
-        else if ( ref->isa( UObject::CLASS_CHARACTER ) )
-        {
-          obj_char_size += size;
-          obj_char_count++;
-        }
-        else if ( ref->isa( UObject::CLASS_NPC ) )
-        {
-          obj_npc_size += size;
-          obj_npc_count++;
-        }
-        else if ( ref->isa( UObject::CLASS_WEAPON ) )
-        {
-          obj_weapon_size += size;
-          obj_weapon_count++;
-        }
-        else if ( ref->isa( UObject::CLASS_ARMOR ) )
-        {
-          obj_armor_size += size;
-          obj_armor_count++;
-        }
-        else if ( ref->isa( UObject::CLASS_MULTI ) )
-        {
-          obj_multi_size += size;
-          obj_multi_count++;
-        }
-      }
-
-      size_t accountsize = 3 * sizeof(AccountRef*)+Core::gamestate.accounts.capacity() * sizeof( AccountRef );
-      size_t accountcount = Core::gamestate.accounts.size();
-      for ( const auto& acc : Core::gamestate.accounts )
-      {
-        accountsize += acc->estimatedSize();
-      }
-
-      size_t clientsize = 3 * sizeof( Network::Client** ) + Core::networkManager.clients.capacity() * sizeof( Network::Client* );
-      size_t clientcount = Core::networkManager.clients.size();
-      for ( const auto& client : Core::networkManager.clients )
-      {
-        clientsize += client->estimatedSize();
-      }
-
-      size_t scriptcount = 0;
-      size_t scriptsize = sizeEstimate_scripts(&scriptcount);
-      size_t scriptstoragecount = 0;
-      size_t scriptstoragesize = sizeEstimate_scriptStorage( &scriptstoragecount );
-      size_t configcount = 0;
-      size_t configsize = Core::configfileEstimateSize( &configcount );
-      size_t itemdesccount = 0;
-      size_t itemdescsize = Items::itemdescSizeEstimate( &itemdesccount );
-
-	  size_t miscsize = Core::gamestate.global_properties->estimatedSize()
-		+ Core::Menu::estimateMenuSize();
-
-
-	  FLEXLOG( log ) << GET_LOG_FILESTAMP << ";"
-		<< Clib::getCurrentMemoryUsage() << " ;"
-		<< realmsize << " ;"
-		<< networkManager.packetsSingleton->estimateSize() << " ;"
-		<< miscsize << " ;"
-        << scriptcount << " ;" << scriptsize << " ;"
-        << scriptstoragecount << " ;" << scriptstoragesize << " ;"
-        << objcount << " ;" << objsize << " ;"
-        << accountcount << " ;" << accountsize << " ;"
-        << clientcount << " ;" << clientsize << " ;"
-        << obj_item_count << " ;" << obj_item_size << " ;"
-        << obj_cont_count << " ;" << obj_cont_size << " ;"
-        << obj_char_count << " ;" << obj_char_size << " ;"
-        << obj_npc_count << " ;" << obj_npc_size << " ;"
-        << obj_weapon_count << " ;" << obj_weapon_size << " ;"
-        << obj_armor_count << " ;" << obj_armor_size << " ;"
-        << obj_multi_count << " ;" << obj_multi_size << " ;"
-        << configcount << " ;" << configsize << " ;"
-        << itemdesccount << " ;" << itemdescsize;
-
-#ifdef DEBUG_FLYWEIGHT
-      for ( const auto& ptr : boost_utils::debug_flyweight_queries )
-      {
-        if ( ptr != 0 )
-        {
-          FLEXLOG( log ) << " ;" << ptr->bucket_count() << " ;" << ptr->estimateSize();
-        }
-      }
-#endif
-      FLEXLOG( log ) << "\n";
-      CLOSE_FLEXLOG( log );
-    }
-
 	BObjectImp* GetCoreVariable( const char* corevar )
 	{
 #define LONG_COREVAR(name,expr) if (stricmp( corevar, #name ) == 0) return new BLong( static_cast<int>(expr) );
@@ -2033,7 +1881,7 @@ namespace Pol {
 #endif
           if ( type == 2 )
           {
-            logMemoryUsage();
+            Core::MemoryUsage::log();
           }
 		  return new BLong( 1 );
 		}

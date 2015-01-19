@@ -64,6 +64,12 @@ namespace Pol {
       return std::find( graphics.begin(), graphics.end(), graphic ) != graphics.end();
     }
 
+    size_t MobileTranslate::estimateSize() const
+    {
+      return sizeof(MobileTranslate)
+        + 3 * sizeof(u16*) + graphics.capacity() * sizeof( u16 );
+    }
+
 
 	UACTION str_to_action( Clib::ConfigElem& elem, const std::string& str )
 	{

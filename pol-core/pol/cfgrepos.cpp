@@ -370,19 +370,5 @@ namespace Pol {
 	  LEAKLOG << Core::configurationbuffer.cfgfiles.size() << ";" << Core::configurationbuffer.oldcfgfiles.size() << ";";
 	}
 #endif
-
-    size_t configfileEstimateSize(size_t* count)
-    {
-      size_t size = 0;
-      *count = Core::configurationbuffer.cfgfiles.size();
-      for ( const auto& pair : Core::configurationbuffer.cfgfiles )
-      {
-        size_t cfgsize = 0;
-        if ( pair.second.get() != nullptr )
-          cfgsize += pair.second->estimateSize();
-        size += ( pair.first.capacity( ) + cfgsize ) + ( sizeof(void*)* 3 + 1 ) / 2;
-      }
-      return size;
-    }
   }
 }

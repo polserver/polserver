@@ -32,8 +32,28 @@ namespace Pol {
     class EUBoatRefObjImp;
   }
   namespace Multi {
-	struct BoatShape;
 	class MultiDef;
+
+    struct BoatShape
+	{
+	  struct ComponentShape
+	  {
+		unsigned int objtype;
+		unsigned short graphic;
+		unsigned short altgraphic;
+		unsigned short xdelta;
+		unsigned short ydelta;
+		signed short zdelta;
+        ComponentShape(const std::string& str, const std::string& altstr, unsigned char type);
+        ComponentShape(const std::string& str, unsigned char type);
+	  };
+      std::vector<ComponentShape> Componentshapes;
+
+	  static bool objtype_is_component( unsigned int objtype );
+	  BoatShape( Clib::ConfigElem& elem );
+	  BoatShape();
+      size_t estimateSize() const;
+	};
 	
 
 	class UBoat : public UMulti

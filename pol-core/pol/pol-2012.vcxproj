@@ -525,6 +525,7 @@
     <ClInclude Include="clfunc.h" />
     <ClInclude Include="clidata.h" />
 	<ClInclude Include="console.h" />
+	<ClInclude Include="globals\memoryusage.h" />
 	<ClInclude Include="globals\multidefs.h" />
 	<ClInclude Include="globals\network.h" />
     <ClInclude Include="globals\object_storage.h" />
@@ -534,6 +535,7 @@
     <ClInclude Include="globals\ucfg.h" />
     <ClInclude Include="globals\uvars.h" />
 	<ClInclude Include="guilds.h" />
+	<ClInclude Include="mobile\privupdater.h" />
 	<ClInclude Include="module\datastoreimp.h" />
 	<ClInclude Include="module\fileaccess.h" />
 	<ClInclude Include="network\clientthread.h" />

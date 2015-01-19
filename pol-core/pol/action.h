@@ -13,6 +13,7 @@ Notes
 #define ACTION_H
 
 #include <vector>
+#include <cstddef>
 
 #include "../clib/rawtypes.h"
 
@@ -107,6 +108,7 @@ namespace Pol {
       bool supports_mount;
 	  MobileTranslate();
 	  bool has_graphic( u16 graphic ) const;
+      size_t estimateSize() const;
     };
 
   }

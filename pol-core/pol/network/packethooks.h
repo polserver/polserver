@@ -34,6 +34,7 @@ namespace Pol {
 	public:
 	  PacketHookData();
 	  ~PacketHookData();
+      size_t estimateSize() const;
 
 	  int length; // if MSGLEN_2BYTELEN_DATA, variable length
 	  Core::ExportedFunction* function;

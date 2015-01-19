@@ -65,6 +65,17 @@ namespace Pol {
 	  this->underflow_func = NULL;
 	  this->get_regenrate_func = NULL;
 	}
+
+    size_t Vital::estimateSize() const
+    {
+      size_t size = sizeof(Vital)
+        + name.capacity()
+        + 3*sizeof(ExportedFunction);
+      for (const auto& alias : aliases)
+        size += alias.capacity();
+      return size;
+    }
+
 	void clean_vitals()
 	{
 	  std::vector<Vital*>::iterator iter = gamestate.vitals.begin();
