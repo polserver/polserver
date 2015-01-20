@@ -1163,25 +1163,5 @@ namespace Pol {
 		}
 	  }
 	}
-
-    size_t itemdescSizeEstimate( size_t *count )
-    {
-      size_t size = ( sizeof(u32)+sizeof(ItemDesc*)+( sizeof(void*)* 3 + 1 ) / 2 ) * Core::gamestate.desctable.size();
-      *count = Core::gamestate.desctable.size();
-      for ( const auto &elem : Core::gamestate.desctable )
-      {
-        if ( elem.second != nullptr )
-        {
-          size += elem.second->estimatedSize();
-        }
-      }
-	  for (const auto &elem : Core::gamestate.dynamic_item_descriptors)
-	  {
-		if (elem != nullptr)
-		  size += elem->estimatedSize();
-	  }
-
-      return size;
-    }
   }
 }

@@ -123,5 +123,65 @@ namespace Core {
 	Network::deinit_sockets_library();
 	Network::clean_packethooks();
   }
+
+  NetworkManager::Memory NetworkManager::estimateSize() const
+  {
+    Memory usage;
+    memset( &usage, 0, sizeof( usage ) );
+    usage.misc = sizeof(NetworkManager);
+
+    usage.client_size = 3 * sizeof( Network::Client** ) + clients.capacity() * sizeof( Network::Client* );
+    usage.client_count = clients.size();
+    for ( const auto& client : clients )
+    {
+      if (client != nullptr)
+        usage.client_size += client->estimatedSize();
+    }
+
+    usage.misc += 3 * sizeof(ServerDescription**) + servers.capacity() * sizeof( ServerDescription* ); 
+    for (const auto& server : servers)
+      if (server != nullptr)
+        usage.misc+=server->estimateSize();
+
+#ifdef HAVE_MYSQL
+    usage.misc += sizeof(SQLService); /* sql_service */
+#endif
+    usage.misc += sizeof(Network::UOClientInterface); /*uo_client_interface*/
+    usage.misc += 3 * sizeof(Network::AuxService**) + auxservices.capacity() * sizeof( Network::AuxService* );
+    for (const auto& aux : auxservices)
+      if (aux != nullptr)
+        usage.misc += aux->estimateSize();
+
+    usage.misc += uoclient_general.estimateSize();
+    usage.misc += uoclient_protocol.estimateSize();
+    usage.misc += 3 * sizeof(UoClientListener*);
+    for (const auto& listener : uoclient_listeners)
+      usage.misc += listener.estimateSize();
+
+    usage.misc += 3*(sizeof(MessageTypeFilter)); /*login_filter, game_filter, disconnected_filter*/
+
+    usage.misc += 3 * sizeof(std::unique_ptr<Network::PacketHookData>*) + packet_hook_data.capacity() * sizeof( std::unique_ptr<Network::PacketHookData> );
+    usage.misc += 3 * sizeof(std::unique_ptr<Network::PacketHookData>*) + packet_hook_data_v2.capacity() * sizeof( std::unique_ptr<Network::PacketHookData> );
+    for (const auto& hook : packet_hook_data)
+    {
+      if (hook != nullptr)
+        usage.misc+=hook->estimateSize();
+    }
+    for (const auto& hook : packet_hook_data_v2)
+    {
+      if (hook != nullptr)
+        usage.misc+=hook->estimateSize();
+    }
+
+    usage.misc += packetsSingleton->estimateSize();
+    usage.misc += sizeof(Network::ClientTransmit);
+#ifdef PERGON
+    usage.misc += sizeof(threadhelp::DynTaskThreadPool);
+#endif
+
+    usage.misc += 3 * sizeof(Network::IPRule*) + banned_ips.capacity() * sizeof( Network::IPRule );
+
+    return usage;
+  }
 }
 }

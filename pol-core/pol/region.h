@@ -35,6 +35,7 @@ namespace Pol {
 	  Bscript::BObjectImp* get_region_string( const std::string& propname );
 	  const std::string& name() const;
 	  RegionId regionid() const;
+      virtual size_t estimateSize() const;
 
 	protected:
 	  explicit Region( Clib::ConfigElem& elem, RegionId id );
@@ -71,6 +72,7 @@ namespace Pol {
 	public:
 	  explicit RegionGroupBase( const char* name );
 	  virtual ~RegionGroupBase();
+      virtual size_t estimateSize() const;
 
 	  void read_region( Clib::ConfigElem& elem );
 	  void create_bgnd_region( Clib::ConfigElem& elem );

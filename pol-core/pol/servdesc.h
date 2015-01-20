@@ -19,6 +19,7 @@ namespace Pol {
 	{
 	public:
 	  ServerDescription();
+      size_t estimateSize() const;
 
 	  std::string name;
 	  unsigned char ip[4];

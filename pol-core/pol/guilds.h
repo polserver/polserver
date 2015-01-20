@@ -50,6 +50,7 @@ namespace Core {
 	  void addMember( unsigned int serial );
 
 	  void registerWithMembers();
+      size_t estimateSize() const;
 
 	  static bool AreAllies( Guild* g1, Guild* g2 );
 	  static bool AreEnemies( Guild* g1, Guild* g2 );

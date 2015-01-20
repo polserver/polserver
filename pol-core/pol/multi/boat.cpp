@@ -74,27 +74,6 @@ namespace Pol {
 
 	std::vector<Network::Client*> boat_sent_to;
 
-	struct BoatShape
-	{
-
-	  struct ComponentShape
-	  {
-		unsigned int objtype;
-		unsigned short graphic;
-		unsigned short altgraphic;
-		unsigned short xdelta;
-		unsigned short ydelta;
-		signed short zdelta;
-        ComponentShape(const std::string& str, const std::string& altstr, unsigned char type);
-        ComponentShape(const std::string& str, unsigned char type);
-	  };
-      std::vector<ComponentShape> Componentshapes;
-
-	  static bool objtype_is_component( unsigned int objtype );
-	  BoatShape( Clib::ConfigElem& elem );
-	  BoatShape();
-	};
-
     BoatShape::ComponentShape::ComponentShape(const std::string& str, unsigned char type)
 	{
 	  altgraphic = 0;
@@ -229,6 +208,11 @@ namespace Pol {
 	  else
 		return false;
 	}
+
+    size_t BoatShape::estimateSize() const
+    {
+      return 3 * sizeof(ComponentShape*) + Componentshapes.capacity() * sizeof( ComponentShape );
+    }
 
 	unsigned int get_component_objtype( unsigned char type )
 	{

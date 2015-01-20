@@ -36,6 +36,14 @@ namespace Core {
 
   }
 
+  size_t SettingsManager::estimateSize() const
+  {
+    size_t size = sizeof(SettingsManager);
+    return size;
+  }
+
+	  
+
   void set_watch_vars()
   {
 	Clib::ConfigFile cf;

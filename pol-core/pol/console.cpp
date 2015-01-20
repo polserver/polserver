@@ -77,6 +77,13 @@ namespace Pol {
 		ConsoleCommand::unlock_char = ch;
 	}
 
+    size_t ConsoleCommand::estimateSize() const
+    {
+      return sizeof(char)
+        + script.capacity()
+        + description.capacity();
+    }
+
     std::string getcmdstr(char ch)
 	{
 	  if ( iscntrl( ch ) )

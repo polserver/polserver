@@ -13,7 +13,7 @@ namespace Pol {
 	{
 	public:
 	  ConsoleCommand( Clib::ConfigElem& elem, const std::string& cmd );
-
+      size_t estimateSize() const;
 	  std::string showchar() const;
 
 	  char ch;

@@ -78,6 +78,12 @@ namespace Pol {
 	  pkg( NULL )
 	{}
 
+    size_t UOSkill::estimateSize() const
+    {
+      return sizeof(UOSkill)
+        +attributename.capacity();
+    }
+
     void load_skill_entry( const Plib::Package* pkg, Clib::ConfigElem& elem )
 	{
 	  UOSkill uoskill( pkg, elem );

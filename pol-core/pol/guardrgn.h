@@ -41,6 +41,8 @@ namespace Pol {
 	  bool RunLeaveScript( Mobile::Character* chr );
 	  static bool RunNoCombatCheck( Network::Client* client );
 
+      virtual size_t estimateSize() const POL_OVERRIDE;
+
 	private:
 	  bool guarded_;
 	  bool nocombat_;

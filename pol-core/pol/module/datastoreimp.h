@@ -48,6 +48,7 @@ namespace Pol {
 	public:
 	  DataFileContents( DataStoreFile* dsf );
 	  virtual ~DataFileContents();
+      size_t estimateSize() const;
 
 	  void load( Clib::ConfigFile& cf );
 	  void save( Clib::StreamWriter& sw );
@@ -126,6 +127,7 @@ namespace Pol {
 					 const std::string& name,
 					 int flags );
 	  virtual ~DataStoreFile();
+      size_t estimateSize() const;
 	  bool loaded() const;
 	  void load();
 	  void save() const;

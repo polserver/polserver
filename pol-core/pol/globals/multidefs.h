@@ -30,6 +30,7 @@ namespace Pol {
 		~MultiDefBuffer();
 
 		void deinitialize();
+        size_t estimateSize() const;
 
 		MultiDefs multidefs_by_multiid;
 		

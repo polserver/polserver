@@ -213,6 +213,19 @@ namespace Pol {
 	  return false;
 	}
 
+    size_t FileAccess::estimateSize() const
+    {
+      size_t size = sizeof(FileAccess);
+      for (const auto& pkg : Packages)
+        size += ( pkg.capacity() +3 * sizeof( void* ) );
+
+      for (const auto& d : Directories)
+        size += d.capacity();
+      for (const auto& e : Extensions)
+        size += e.capacity();
+      return size;
+    }
+
     bool HasReadAccess(const Plib::Package* pkg, const Plib::Package* filepackage, const std::string& path)
 	{
 #ifdef NOACCESS_CHECKS

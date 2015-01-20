@@ -27,6 +27,12 @@ namespace Pol {
 	  nocast_( elem.remove_bool( "nocast", false ) )
 	{}
 
+    size_t NoCastRegion::estimateSize() const
+    {
+      return base::estimateSize()
+        + sizeof(bool);/*nocast_*/
+    }
+
 	void read_nocast_zones()
 	{
 	  gamestate.nocastdef = new NoCastDef( "nocast" );
@@ -40,6 +46,12 @@ namespace Pol {
 	  Region( elem, id ),
 	  lightlevel( elem.remove_ushort( "LightLevel", 0 ) )
 	{}
+
+    size_t LightRegion::estimateSize() const
+    {
+      return base::estimateSize()
+        + sizeof(unsigned);/*lightlevel*/
+    }
 
 	void read_light_zones()
 	{
@@ -59,24 +71,31 @@ namespace Pol {
 	  lightoverride( elem.remove_int( "LightOverride", -1 ) )
 	{}
 
+    size_t WeatherRegion::estimateSize() const
+    {
+      return base::estimateSize()
+        + 3* sizeof(unsigned char) /*weathertype severity aux*/
+        + sizeof(int); /*lightoverride*/
+    }
+
 	WeatherDef::WeatherDef( const char *name ) : RegionGroup<WeatherRegion>( name )
 	{
       for ( auto const &realm : gamestate.Realms )
       {
-		unsigned int gridwidth = realm->grid_width();
-		unsigned int gridheight = realm->grid_height();
+        unsigned int gridwidth = realm->width( ) / ZONE_SIZE;
+        unsigned int gridheight = realm->height( ) / ZONE_SIZE;
 
-        RegionId** zone = new RegionId*[gridwidth];
+		RegionId** zone = new RegionId*[gridwidth];
 
-        for ( unsigned int i = 0; i < gridwidth; i++ )
-        {
-          zone[i] = new RegionId[gridheight];
-          for ( unsigned int j = 0; j < gridheight; j++ )
-          {
-            zone[i][j] = 0;
-          }
-        }
-        default_regionrealms.insert( std::make_pair( realm, zone ) );
+		for ( unsigned int i = 0; i < gridwidth; i++ )
+		{
+		  zone[i] = new RegionId[gridheight];
+		  for ( unsigned int j = 0; j < gridheight; j++ )
+		  {
+			zone[i][j] = 0;
+		  }
+		}
+        default_regionrealms.insert(std::make_pair(realm, zone));
       }
 	}
 
@@ -84,7 +103,7 @@ namespace Pol {
 	{
 	  for ( auto &realmregion : default_regionrealms )
 	  {
-		unsigned int gridwidth = realmregion.first->grid_width();
+		unsigned int gridwidth = realmregion.first->width() / ZONE_SIZE;
 
 		for ( unsigned int i = 0; i < gridwidth; i++ )
           delete[] realmregion.second[i];
@@ -92,16 +111,25 @@ namespace Pol {
 	  }
 	}
 
+    size_t WeatherDef::estimateSize() const
+    {
+      size_t size = RegionGroup<WeatherRegion>::estimateSize();
+
+      for ( const auto &realm : default_regionrealms)
+	  {
+		unsigned int gridwidth = realm.first->width() / ZONE_SIZE;
+        size+=gridwidth*sizeof(RegionId) + sizeof(Plib::Realm*)+ ( sizeof(void*) * 3 + 1 ) / 2;
+	  }
+      return size;
+    }
+
 	void WeatherDef::copy_default_regions()
 	{
-	  //memcpy( &default_regionidx_, regionidx_, sizeof default_regionidx_ );
       for ( auto &realmregion : regionrealms )
 	  {
         Plib::Realm* realm = realmregion.first;
-		unsigned int gridwidth = realm->grid_width();
-		unsigned int gridheight = realm->grid_height();
-
-		//RegionId** zone = new RegionId*[gridwidth];
+		unsigned int gridwidth = realm->width() / ZONE_SIZE;
+        unsigned int gridheight = realm->height() / ZONE_SIZE;
 
 		for ( unsigned int i = 0; i < gridwidth; i++ )
 		{

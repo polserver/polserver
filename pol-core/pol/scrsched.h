@@ -119,8 +119,6 @@ namespace Pol {
 					  Bscript::BObjectImp* param6,
 					  Bscript::BObjectImp* param7 );
 
-    size_t sizeEstimate_scripts(size_t* count);
-    size_t sizeEstimate_scriptStorage( size_t* count );
 	bool find_uoexec( unsigned int pid, UOExecutor** pp_uoexec );
   }
 }

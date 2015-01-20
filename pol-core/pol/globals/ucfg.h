@@ -40,6 +40,8 @@ namespace Pol {
 	public:
 	  ConfigurationBuffer();
 	  ~ConfigurationBuffer();
+      struct Memory;
+      Memory estimateSize() const;
 
 	  void deinitialize();
 
@@ -47,6 +49,15 @@ namespace Pol {
 	  OldCfgFiles oldcfgfiles;
 	  DataStore datastore;
 	  std::vector<Module::FileAccess> file_access_rules;
+
+      struct Memory
+      {
+        size_t cfg_count;
+        size_t cfg_size;
+        size_t datastore_count;
+        size_t datastore_size;
+        size_t misc;
+      };
 	private:
   };
 

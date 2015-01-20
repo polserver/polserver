@@ -108,6 +108,15 @@ namespace Pol {
 	  }
 	}
 
+    size_t NpcTemplate::estimateSize() const
+    {
+      size_t size = sizeof(NpcTemplate);
+      size += name.capacity();
+      if (method_script != nullptr)
+        size += method_script->estimateSize();
+      return size;
+    }
+
 	const NpcTemplate& create_npc_template( const Clib::ConfigElem& elem, const Plib::Package* pkg )
 	{
 	  NpcTemplate* tmpl = new NpcTemplate( elem, pkg );

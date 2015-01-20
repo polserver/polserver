@@ -677,6 +677,9 @@
     <ClCompile Include="guilds.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+	<ClCompile Include="globals\memoryusage.cpp">
+      <Filter>globals</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="action.h">
@@ -1320,6 +1323,12 @@
     </ClInclude>
 	<ClInclude Include="module\fileaccess.h">
       <Filter>module</Filter>
+    </ClInclude>
+	<ClInclude Include="mobile\privupdater.h">
+      <Filter>mobile</Filter>
+    </ClInclude>
+	<ClInclude Include="globals\memoryusage.h">
+      <Filter>globals</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

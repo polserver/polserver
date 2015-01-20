@@ -641,5 +641,10 @@ namespace Pol {
 		}
 	  }
 	}
+
+    size_t ExportScript::estimateSize() const
+    {
+      return sd.estimatedSize() + uoexec.sizeEstimate();
+    }
   }
 }

@@ -21,6 +21,7 @@ namespace Core {
   public:
 	  StateManager();
 	  ~StateManager();
+      size_t estimateSize() const;
 
 	  void deinitialize();
 

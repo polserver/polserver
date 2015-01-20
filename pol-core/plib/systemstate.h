@@ -43,6 +43,8 @@ namespace Pol {
 	  Core::Tile *tile;
 	  bool tiles_loaded;
 
+      size_t estimatedSize() const;
+
 	private:
 	
 	};

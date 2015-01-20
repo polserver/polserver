@@ -56,18 +56,6 @@ namespace Pol {
 	  return size;
 	}
 
-	size_t Menu::estimateMenuSize()
-	{
-	  size_t size = 3 * sizeof( Menu* );
-	  for ( const auto& menu : gamestate.menus)
-	  {
-		size += menu.estimateSize();
-	  }
-	  return size;
-	}
-
-
-
 	/*
 	u16 GetMenuId( void )
 	{

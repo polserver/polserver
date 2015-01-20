@@ -25,6 +25,8 @@ namespace Pol {
 	  typedef Region base;
 	public:
 	  MusicRegion( Clib::ConfigElem& elem, RegionId id );
+      virtual size_t estimateSize() const POL_OVERRIDE;
+
 
 	  unsigned short getmidi() const;
 	private:

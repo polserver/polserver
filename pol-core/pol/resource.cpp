@@ -454,6 +454,17 @@ namespace Pol {
 	  }
 	}
 
+    size_t ResourceDef::estimateSize() const
+    {
+      size_t size = RegionGroup<ResourceRegion>::estimateSize()
+        + sizeof(unsigned int) /*initial_units_*/
+        + sizeof(int) /*current_units_*/
+        + 3 * sizeof( void* ) + landtiles_.size() * ( sizeof(unsigned short)+3 * sizeof( void* ) )
+        + 3 * sizeof( void* ) + tiles_.size() * ( sizeof(unsigned short)+3 * sizeof( void* ) );
+      return size;
+    }
+
+
     void ResourceRegion::write( Clib::StreamWriter& sw, const std::string& resource_name ) const
 	{
 	  sw() << "RegionalResourcePool " << resource_name << '\n'
@@ -465,6 +476,15 @@ namespace Pol {
 		<< '\n';
 	  //sw.flush();
 	}
+
+    size_t ResourceRegion::estimateSize() const
+    {
+      size_t size = Region::estimateSize()
+        + 5* sizeof(unsigned int) /*tilecount_ units_per_area_ seconds_per_regrow_ capacity_ units_*/
+        + sizeof(time_t) /*last_regen_*/
+        + ( sizeof(unsigned int)+sizeof( unsigned short ) + ( sizeof(void*) * 3 + 1 ) / 2 ) * depletions_.size();
+      return size;
+    }
 
     void write_resources_dat( Clib::StreamWriter& sw_resource )
 	{

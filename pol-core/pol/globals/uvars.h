@@ -124,6 +124,8 @@ namespace Pol {
 	  ~GameState();
 
 	  void deinitialize();
+      struct Memory;
+      Memory estimateSize() const;
 
 	  CmdLevels cmdlevels;
 	  
@@ -229,6 +231,13 @@ namespace Pol {
 
 	  std::vector<UOSkill> uo_skills;
 
+      struct Memory
+      {
+        size_t account_size;
+        size_t account_count;
+        size_t realm_size;
+        size_t misc;
+      };
 	private:
 	  void cleanup_vars();
 	  void cleanup_scripts();

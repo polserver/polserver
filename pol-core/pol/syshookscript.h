@@ -59,6 +59,7 @@ namespace Pol {
 	  void SaveStack( Bscript::BackupStruct& backup );
 	  void LoadStack( Bscript::BackupStruct& backup );
 
+      size_t estimateSize() const;
 	  friend class SystemHook;
 
 	private:

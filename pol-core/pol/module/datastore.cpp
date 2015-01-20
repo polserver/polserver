@@ -78,6 +78,21 @@ namespace Pol {
 	  elements_by_string.clear();
 	}
 
+    size_t DataFileContents::estimateSize() const
+    {
+      size_t size = sizeof(DataStoreFile*) /*dsf*/
+        + sizeof(bool); /*dirty*/
+
+      for (const auto& ele : elements_by_string)
+      {
+        size += ele.first.capacity() +sizeof( DataFileElementRef ) + ( sizeof(void*) * 3 + 1 ) / 2;
+        if (ele.second.get() != nullptr)
+          size += ele.second->proplist.estimatedSize();
+      }
+      size += ( sizeof(int)+sizeof( DataFileElementRef ) + ( sizeof(void*) * 3 + 1 ) / 2 ) * elements_by_integer.size();
+      return size;
+    }
+
 	void DataFileContents::load( Clib::ConfigFile& cf )
 	{
 	  Clib::ConfigElem elem;
@@ -666,6 +681,24 @@ namespace Pol {
 	  Clib::OFStreamWriter sw( &ofs );
 	  dfcontents->save( sw );
 	}
+
+    size_t DataStoreFile::estimateSize() const
+    {
+      size_t size = descriptor.capacity()
+        + name.capacity()
+        + pkgname.capacity()
+        + sizeof(Plib::Package*) /*pkg*/
+        + 3 * sizeof(unsigned) /*version oldversion delversion*/
+        + sizeof(int) /*flags*/
+        + sizeof (bool) /*unload*/
+        + sizeof(DataFileContentsRef);
+      if (dfcontents.get())
+        size += dfcontents->estimateSize();
+      return size;
+    }
+
+
+	  
 
 	DataFileElement::DataFileElement() :
 	  proplist()

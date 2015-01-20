@@ -23,7 +23,7 @@ namespace Pol {
 	private:
 	  friend class Package;
 	  PackageList( Clib::ConfigElem& elem, const char* tag );
-
+      size_t sizeEstimate() const;
 	  struct Elem
 	  {
 		std::string pkgname;
@@ -47,6 +47,8 @@ namespace Pol {
 	  bool check_replacements() const;
 	  void check_dependencies() const;
 	  void check_conflicts() const;
+
+      size_t estimateSize() const;
 
 	private:
 	  std::string dir_;
