@@ -480,7 +480,6 @@ namespace Pol {
 		Items::Item* item = gotten_item;
 		gotten_item = NULL;
 		item->inuse( false );
-		item->gotten_by = NULL;
 		if ( connected )
           Core::send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
 		undo_get_item( this, item );

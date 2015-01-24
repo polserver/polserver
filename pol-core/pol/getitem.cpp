@@ -165,8 +165,7 @@ namespace Pol {
 
 	  client->chr->gotten_item = item;
 	  item->inuse( true );
-	  item->is_gotten( true );
-	  item->gotten_by = client->chr;
+	  item->set_gotten( client->chr );
 	  item->x = item->y = item->z = 0; // don't let a boat carry it around
 
 	  if ( orig_container != NULL )
@@ -274,8 +273,7 @@ namespace Pol {
 	  ItemRef itemref( item ); //dave 1/28/3 prevent item from being destroyed before function ends
 	  item->restart_decay_timer();  // MuadDib: moved to top to help with instant decay.
 
-	  item->is_gotten( false );
-	  item->gotten_by = NULL;
+	  item->set_gotten( nullptr );
       if ( chr->gotten_item_source == Mobile::Character::GOTTEN_ITEM_EQUIPPED_ON_SELF )
 	  {
 		if ( chr->equippable( item ) &&

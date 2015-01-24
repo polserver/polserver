@@ -51,6 +51,9 @@ Notes
 namespace Pol {
   namespace Items {
 
+    const u32 Item::SELLPRICE_DEFAULT = UINT_MAX;
+    const u32 Item::BUYPRICE_DEFAULT = UINT_MAX;
+
 	/* This is a pretty good clone.  Somewhat inefficient, but does
 	   work for derived classes that do not have data.
 	   (since it calls Item::create, virtual tables are copied)
@@ -69,8 +72,11 @@ namespace Pol {
 	  item->layer = layer;
 	  item->tile_layer = tile_layer;
 	  item->container = NULL; // was container
-	  item->sellprice_ = sellprice_;
-	  item->buyprice_ = buyprice_;
+      u32 price;
+      if (getmember<u32>(Bscript::MBR_SELLPRICE, &price))
+        item->setmember<u32>(Bscript::MBR_SELLPRICE, price);
+      if (getmember<u32>(Bscript::MBR_BUYPRICE, &price))
+        item->setmember<u32>(Bscript::MBR_BUYPRICE, price);
 	  item->newbie_ = newbie_;
 
 	  item->invisible_ = invisible_;	//dave 12-20
@@ -207,14 +213,10 @@ namespace Pol {
 
 	unsigned int Item::sellprice() const
 	{
-	  if ( sellprice_ < UINT_MAX ) //dave changed 1/15/3 so 0 means 0, not default to itemdesc value
-	  {
-		return sellprice_;
-	  }
-	  else
-	  {
-		return itemdesc().vendor_sells_for;
-	  }
+      u32 price;
+      if (getmember<u32>(Bscript::MBR_SELLPRICE,&price))
+        return price;
+      return itemdesc().vendor_sells_for;
 	}
 
 	//Dave add buyprice() 11/28. Dont know wtf getbuyprice() is trying to do.
@@ -223,14 +225,10 @@ namespace Pol {
 	//   -Eric
 	unsigned int Item::buyprice() const
 	{
-	  if ( buyprice_ < UINT_MAX ) //dave changed 1/15/3 so 0 means 0, not default to itemdesc value
-	  {
-		return buyprice_;
-	  }
-	  else
-	  {
-		return itemdesc().vendor_buys_for;
-	  }
+      u32 price;
+      if (getmember<u32>(Bscript::MBR_BUYPRICE,&price))
+        return price;
+      return itemdesc().vendor_buys_for;
 	}
 
 	bool Item::getbuyprice( unsigned int& bp ) const
@@ -240,25 +238,6 @@ namespace Pol {
 		return true;
 	  else
 		return false;
-	  //dave ripped out the below, was wrong with the above buyprice() changes.
-	  /*
-		  if (buyprice_ > 0)
-		  {
-		  buyprice = static_cast<unsigned int>(buyprice_);
-		  return true;
-		  }
-		  else
-		  {
-		  buyprice = 0;
-		  return false;
-		  }
-		  }
-		  else
-		  {
-		  buyprice = itemdesc().vendor_buys_for;
-		  return (buyprice > 0);
-		  }
-		  */
 	}
 
 	u8 Item::los_height() const
@@ -409,11 +388,11 @@ namespace Pol {
 	  if ( decayat_gameclock_ != 0 )
 		sw() << "\tDecayAt\t" << decayat_gameclock_ << pf_endl;
 
-	  if ( sellprice_ != UINT_MAX ) // recall that UINT_MAX means use default
-		sw() << "\tSellPrice\t" << sellprice_ << pf_endl;
-
-	  if ( buyprice_ != UINT_MAX ) // recall that UINT_MAX means use default
-		sw() << "\tBuyPrice\t" << buyprice_ << pf_endl;
+      u32 price;
+	  if ( getmember<u32>(Bscript::MBR_SELLPRICE, &price) ) 
+		sw() << "\tSellPrice\t" << price << pf_endl;
+      if ( getmember<u32>(Bscript::MBR_SELLPRICE, &price) ) 
+		sw() << "\tBuyPrice\t" << price << pf_endl;
 
 	  if ( newbie_ != default_newbie() )
 		sw() << "\tNewbie\t" << newbie_ << pf_endl;
@@ -452,15 +431,15 @@ namespace Pol {
 	  unequip_script_ = elem.remove_string( "UNEQUIPSCRIPT", unequip_script_.get().c_str() );
 
 	  decayat_gameclock_ = elem.remove_ulong( "DECAYAT", 0 );
-	  sellprice_ = elem.remove_ulong( "SELLPRICE", UINT_MAX );
-	  buyprice_ = elem.remove_ulong( "BUYPRICE", UINT_MAX );
+	  setmember<u32>(Bscript::MBR_SELLPRICE, elem.remove_ulong( "SELLPRICE", SELLPRICE_DEFAULT ), SELLPRICE_DEFAULT);
+      setmember<u32>(Bscript::MBR_BUYPRICE, elem.remove_ulong( "BUYPRICE", BUYPRICE_DEFAULT ), BUYPRICE_DEFAULT);
 
 	  // buyprice used to be read in with remove_int (which was wrong).
 	  // the UINT_MAX values used to be written out (which was wrong).
 	  // when UINT_MAX is read in by atoi, it returned 2147483647 (0x7FFFFFFF)
 	  // correct for this.
-	  if ( buyprice_ == 2147483647 )
-		buyprice_ = UINT_MAX;
+	  if ( getmember<u32>(Bscript::MBR_BUYPRICE) == 2147483647 )
+		setmember<u32>(Bscript::MBR_BUYPRICE, BUYPRICE_DEFAULT, BUYPRICE_DEFAULT);
 	  newbie_ = elem.remove_bool( "NEWBIE", default_newbie() );
 	  hp_ = elem.remove_ushort( "HP", itemdesc().maxhp );
 	  quality_ = elem.remove_double( "QUALITY", itemdesc().quality );

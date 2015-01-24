@@ -28,21 +28,18 @@ namespace Pol {
 	Item::Item( const ItemDesc& id, UOBJ_CLASS uobj_class ) :
 	  UObject( id.objtype, uobj_class ),
 	  container( NULL ),
-	  gotten_by( NULL ),
 	  decayat_gameclock_( 0 ),
-	  sellprice_( UINT_MAX ), //dave changed 1/15/3 so 0 means 0, not default to itemdesc value
-	  buyprice_( UINT_MAX ),  //dave changed 1/15/3 so 0 means 0, not default to itemdesc value
 	  amount_( 1 ),
 	  newbie_( id.newbie ),
 	  movable_( id.default_movable() ),
 	  inuse_( false ),
-	  is_gotten_( 0 ),
 	  invisible_( id.invisible ),
 	  slot_index_( 0 ),
 	  _itemdesc( nullptr ),
 	  layer( 0 ),
 	  hp_( id.maxhp ),
-	  quality_( id.quality )
+	  quality_( id.quality ),
+      gotten_by_ ( nullptr )
 	{
 	  graphic = id.graphic;
 	  color = id.color;
@@ -90,15 +87,12 @@ namespace Pol {
     {
       return base::estimatedSize()
         + sizeof( Core::UContainer* )/* container*/
-        + sizeof( Mobile::Character* )/* gotten_by*/
+        + sizeof( Mobile::Character* )/* gotten_by_*/
         + sizeof(int)/* decayat_gameclock_*/
-        +sizeof(int)/* sellprice_*/
-        +sizeof(int)/* buyprice_*/
         +sizeof(u16)/* amount_*/
         +sizeof(bool)/* newbie_*/
         +sizeof(bool)/* movable_*/
         +sizeof(bool)/* inuse_*/
-        +sizeof(bool)/* is_gotten_*/
         +sizeof(bool)/* invisible_*/
         +sizeof(u8)/* slot_index_*/
         +sizeof(const ItemDesc *)/* _itemdesc*/
