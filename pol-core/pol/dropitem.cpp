@@ -757,11 +757,11 @@ namespace Pol {
           << client->chr->serial
           << item_serial
           << item->serial;
-		item->gotten_by = NULL;
+		item->set_gotten(nullptr);
 		return;
 	  }
 	  client->chr->gotten_item->inuse( false );
-	  client->chr->gotten_item->gotten_by = NULL;
+	  client->chr->gotten_item->set_gotten(nullptr);
 	  client->chr->gotten_item = NULL;
 
 	  bool res;
@@ -790,8 +790,7 @@ namespace Pol {
 		  undo_get_item( client->chr, item );
 		}
 		item->inuse( false );
-		item->is_gotten( false );
-		item->gotten_by = NULL;
+		item->set_gotten( nullptr );
 	  }
 	  send_full_statmsg( client, client->chr );
 	}
@@ -828,11 +827,11 @@ namespace Pol {
           << client->chr->serial
           << item_serial
           << item->serial;
-		item->gotten_by = NULL;
+		item->set_gotten(nullptr);
 		return;
 	  }
 	  client->chr->gotten_item->inuse( false );
-	  client->chr->gotten_item->gotten_by = NULL;
+	  client->chr->gotten_item->set_gotten(nullptr);
 	  client->chr->gotten_item = NULL;
 
 	  bool res;
@@ -861,8 +860,7 @@ namespace Pol {
 		  undo_get_item( client->chr, item );
 		}
 		item->inuse( false );
-		item->is_gotten( false );
-		item->gotten_by = NULL;
+		item->set_gotten( nullptr );
 	  }
 
       Network::PktHelper::PacketOut<Network::PktOut_29> drop_msg;

@@ -173,49 +173,17 @@ namespace Pol {
 #else
 #	pragma pack()
 #endif
-
+    typedef std::map<unsigned short, boost::any> AnyMemberMap;
 	template<typename T>
 	struct MemberHelper
 	{
 	public:
-	  static T getmember( const std::map<unsigned short, boost::any> &_map, unsigned short member )
-	  {
-		auto itr = _map.find( member );
-
-		if ( itr == _map.end() )
-		  return 0;
-		else
-		  return boost::any_cast<T>( ( *itr ).second );
-	  };
-	  static void setmember( std::map<unsigned short, boost::any> &_map, unsigned short member, T value )
-	  {
-		if ( value == 0 )
-		  _map.erase( member );
-		else
-		  _map[member] = value;
-	  };
-	};
-	template<>
-	struct MemberHelper<std::string>
-	{
-	public:
-	  static std::string getmember( const std::map<unsigned short, boost::any> &_map, unsigned short member )
-	  {
-		auto itr = _map.find( member );
-
-		if ( itr == _map.end() )
-		  return "";
-		else
-		  return boost::any_cast<std::string>( ( *itr ).second );
-	  };
-      static void setmember(std::map<unsigned short, boost::any> &_map, unsigned short member, std::string value)
-	  {
-		if ( value.empty() )
-		  _map.erase( member );
-		else
-		  _map[member] = value;
-	  };
-	};
+      
+      static bool getmember( const AnyMemberMap &map, unsigned short member, T* value );
+      static T getmember( const AnyMemberMap &map, unsigned short member );
+      static void setmember( AnyMemberMap &map, unsigned short member, const T& value, const T& defaultvalue );
+	  static void setmember( AnyMemberMap &map, unsigned short member, const T& value );
+    };
 
 	/* NOTES:
 			if you add fields, be sure to update Items::create().
@@ -381,19 +349,17 @@ namespace Pol {
       boost_utils::object_name_flystring name_;
       
       template <typename T>
-      T getmember(unsigned short member) const
-      {
-          return MemberHelper<T>::getmember(dynmap, member);
-      }
+      T getmember(unsigned short member) const;
       template <typename T>
-      void setmember(unsigned short member, T value)
-      {
-          MemberHelper<T>::setmember(dynmap, member, value);
-      }
+      bool getmember(unsigned short member, T* value) const;
+      template <typename T>
+      void setmember(unsigned short member, const T& value);
+      template <typename T>
+      void setmember(unsigned short member, const T& value, const T& defaultvalue);
 
 	private:
 	  PropertyList proplist_;
-	  std::map<unsigned short, boost::any> dynmap;
+	  AnyMemberMap dynmap;
       
 	private: // not implemented:
 	  UObject( const UObject& );
@@ -456,6 +422,75 @@ namespace Pol {
 	{
 	  return ( serial & 0x40000000Lu ) ? true : false;
 	}
+
+    //////////////////////
+    // MemberHelper Imp
+    template<typename T>
+	inline bool MemberHelper<T>::getmember( const AnyMemberMap &map, unsigned short member, T* value )
+	{
+	  auto itr = map.find( member );
+	  if ( itr == map.end() )
+      	return false;
+      *value = boost::any_cast<T>( ( *itr ).second );
+      return true;
+	};
+    template<typename T>
+    inline T MemberHelper<T>::getmember( const AnyMemberMap &map, unsigned short member )
+	{
+      T value;
+      if (getmember(map,member,&value))
+        return value;
+      return 0;
+	};
+    template<typename T>
+    inline void MemberHelper<T>::setmember( AnyMemberMap &map, unsigned short member, const T& value, const T& defaultvalue )
+    {
+      if ( value == defaultvalue )
+		map.erase( member );
+	  else
+		map[member] = value;
+    }
+    template<typename T>
+    inline void MemberHelper<T>::setmember( AnyMemberMap &map, unsigned short member, const T& value )
+	{
+      setmember(map, member, value, 0);
+	};
+
+    template<>
+	inline std::string MemberHelper<std::string>::getmember( const AnyMemberMap &map, unsigned short member )
+    {
+      std::string value;
+      if (getmember(map,member,&value))
+        return value;
+      return "";
+    }
+    template<>
+	inline void MemberHelper<std::string>::setmember( AnyMemberMap &map, unsigned short member, const std::string& value )
+	{
+      setmember(map, member, value, "");
+	}
+
+
+    template <typename T>
+    inline T UObject::getmember(unsigned short member) const
+    {
+        return MemberHelper<T>::getmember(dynmap, member);
+    }
+    template <typename T>
+    inline bool UObject::getmember(unsigned short member, T* value) const
+    {
+        return MemberHelper<T>::getmember(dynmap, member, value);
+    }
+    template <typename T>
+    inline void UObject::setmember(unsigned short member, const T& value)
+    {
+        MemberHelper<T>::setmember(dynmap, member, value);
+    }
+    template <typename T>
+    inline void UObject::setmember(unsigned short member, const T& value, const T& defaultvalue)
+    {
+      MemberHelper<T>::setmember(dynmap, member, value, defaultvalue);
+    }
   }
 }
 

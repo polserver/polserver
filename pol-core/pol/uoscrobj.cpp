@@ -892,8 +892,8 @@ namespace Pol {
         case MBR_POISON_DAMAGE_MOD: return new BLong( getElementDamageMod( Core::ELEMENTAL_POISON ) ); break;
         case MBR_PHYSICAL_DAMAGE_MOD: return new BLong( getElementDamageMod( Core::ELEMENTAL_PHYSICAL ) ); break;
 		case MBR_GETGOTTENBY:
-		  if ( this->is_gotten() )
-			return new Module::ECharacterRefObjImp( this->gotten_by );
+		  if ( is_gotten() )
+			return new Module::ECharacterRefObjImp( get_gotten() );
 		  else
 			return new BError( "Gotten By NULL" );
 		  break;
@@ -980,9 +980,11 @@ namespace Pol {
 		  decayat_gameclock_ = value;
 		  return new BLong( decayat_gameclock_ );
 		case MBR_SELLPRICE:
-		  return new BLong( sellprice_ = value );
+          setmember<u32>(Bscript::MBR_SELLPRICE,value,SELLPRICE_DEFAULT);
+		  return new BLong( value );
 		case MBR_BUYPRICE:
-		  return new BLong( buyprice_ = value );
+          setmember<u32>(Bscript::MBR_BUYPRICE,value,BUYPRICE_DEFAULT);
+		  return new BLong( value );
 		case MBR_NEWBIE:
 		  restart_decay_timer();
 		  newbie( value ? true : false );

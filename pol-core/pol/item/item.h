@@ -75,7 +75,8 @@ namespace Pol {
 	  void inuse( bool newvalue );
 
 	  bool is_gotten() const;
-	  void is_gotten( bool newvalue );
+	  void set_gotten( Mobile::Character* by_char );
+      Mobile::Character* get_gotten() const;
 
 	  bool invisible() const;
 	  void invisible( bool newvalue );
@@ -200,16 +201,12 @@ namespace Pol {
 
 	public:
 	  Core::UContainer* container;
-	  Mobile::Character* gotten_by;
 	protected:
 	  unsigned int decayat_gameclock_;
-	  unsigned int sellprice_;
-	  unsigned int buyprice_;
 	  u16 amount_;
 	  bool newbie_;
 	  bool movable_;
 	  bool inuse_;
-	  bool is_gotten_;
 	  bool invisible_;
 
 	  u8 slot_index_;
@@ -232,6 +229,13 @@ namespace Pol {
       s16 calc_element_damage( Core::ElementalType element ) const;
 	  bool has_resistance( Mobile::Character* chr );
 	  bool has_element_damage();
+
+    private:
+        Mobile::Character* gotten_by_;
+
+    protected:
+      static const u32 SELLPRICE_DEFAULT; // means use the itemdesc value
+      static const u32 BUYPRICE_DEFAULT;
 	};
 
 	inline u16 Item::getamount() const
@@ -265,13 +269,18 @@ namespace Pol {
 
 	inline bool Item::is_gotten() const
 	{
-	  return is_gotten_;
+	  return gotten_by_ != nullptr;
 	}
 
-	inline void Item::is_gotten( bool newvalue )
+	inline void Item::set_gotten( Mobile::Character* by_char )
 	{
-		is_gotten_ = newvalue;
+		gotten_by_ = by_char;
 	}
+
+    inline Mobile::Character* Item::get_gotten() const
+    {
+      return gotten_by_;
+    }
 
 	inline bool Item::invisible() const
 	{
