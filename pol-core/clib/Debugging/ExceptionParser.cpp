@@ -250,14 +250,14 @@ static void HandleSignalLinux(int pSignal, siginfo_t *pSignalInfo, void *pArg)
     	if(pSignal == SIGSEGV)
 		{
 			if(pSignalInfo->si_addr != NULL)
-				printf("Segmentation fault detected - faulty memory reference at location: %p", pSignalInfo->si_addr);
+				printf("Segmentation fault detected - faulty memory reference at location: %p\n", pSignalInfo->si_addr);
 			else
-				printf("Segmentation fault detected - null pointer reference");
+				printf("Segmentation fault detected - null pointer reference\n");
 		}
         if (pSignalInfo->si_errno != 0)
-        	printf("This signal occurred because \"%s\"(%d)", strerror(pSignalInfo->si_errno), pSignalInfo->si_errno);
+        	printf("This signal occurred because \"%s\"(%d)\n", strerror(pSignalInfo->si_errno), pSignalInfo->si_errno);
         if (pSignalInfo->si_code != 0)
-        	printf("Signal code is %d", pSignalInfo->si_code);
+        	printf("Signal code is %d\n", pSignalInfo->si_code);
     }
 	HandleExceptionSignal(pSignal);
 }
