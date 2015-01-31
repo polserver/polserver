@@ -50,7 +50,7 @@ namespace Pol {
 	  if ( !( getUObjectParam( exec, 0, obj ) &&
 		getParam( 1, x ) &&
 		getParam( 2, y ) &&
-		getParam( 3, z, WORLD_MIN_Z, WORLD_MAX_Z ) &&
+		getParam( 3, z, ZCOORD_MIN, ZCOORD_MAX ) &&
 		getStringParam( 4, realm_name ) &&
 		getParam( 5, flags ) ) )
 	  {

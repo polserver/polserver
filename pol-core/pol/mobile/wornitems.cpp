@@ -3,15 +3,15 @@
 
 #include "charactr.h"
 #include "../item/itemdesc.h"
-
-#include "../extobj.h"
+#include "../objtype.h"
+#include "../globals/uvars.h"
 #include "../../clib/streamsaver.h"
 
 namespace Pol {
     namespace Core {
 
         WornItemsContainer::WornItemsContainer() :
-            UContainer(Items::find_container_desc(extobj.wornitems_container)),
+            UContainer(Items::find_container_desc(settingsManager.extobj.wornitems_container)),
             chr_owner(NULL)
         {
             contents_.resize(HIGHEST_LAYER + 1, EMPTY_ELEM);

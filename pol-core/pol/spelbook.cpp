@@ -24,13 +24,13 @@ Notes
 #include "pktboth.h"
 #include "polcfg.h"
 #include "polclass.h"
-#include "ssopt.h"
 #include "ufunc.h"
 
 #include "../clib/cfgelem.h"
 #include "../clib/logfacility.h"
 #include "../clib/streamsaver.h"
 #include "../clib/endian.h"
+#include "../plib/systemstate.h"
 
 #include <sstream>
 
@@ -123,9 +123,9 @@ namespace Pol {
 		// must have AOS Features Enabled on an acct with AOS Expansion to view Magery book.
 		// All newer spellbooks will bug out if you use this method though.
         if ( ( client->UOExpansionFlag & Network::AOS ) && ( spell_school == 0 )
-			 && !( ssopt.uo_feature_enable & PKTOUT_A9::FLAG_AOS_FEATURES ) )
+			 && !( settingsManager.ssopt.uo_feature_enable & PKTOUT_A9::FLAG_AOS_FEATURES ) )
 		{
-		  if ( config.loglevel > 1 )
+		  if ( Plib::systemstate.config.loglevel > 1 )
             INFO_PRINT << "Client with AOS Expansion Account using spellbook without UOFeatureEnable 0x20 Bitflag.\n";
 		  send_book_old( client );
 		  return;
@@ -237,8 +237,8 @@ namespace Pol {
 	  // note: item count maximums are implicitly checked for.
 
 	  // you can only add scrolls to spellbooks
-	  if ( item.objtype_ < spell_scroll_objtype_limits[spell_school][0] ||
-		   item.objtype_ > spell_scroll_objtype_limits[spell_school][1] )
+	  if ( item.objtype_ < gamestate.spell_scroll_objtype_limits[spell_school][0] ||
+		   item.objtype_ > gamestate.spell_scroll_objtype_limits[spell_school][1] )
 	  {
 		return false;
 	  }
@@ -329,7 +329,7 @@ namespace Pol {
 
 	u16 USpellScroll::convert_objtype_to_spellnum( u32 objtype, u8 school )
 	{
-	  u16 spellnum = static_cast<u16>( objtype - spell_scroll_objtype_limits[school][0] + 1 );
+	  u16 spellnum = static_cast<u16>( objtype - gamestate.spell_scroll_objtype_limits[school][0] + 1 );
 	  if ( school == 0 ) //weirdness in order of original spells
 	  {
 		if ( spellnum == 1 )
@@ -383,7 +383,7 @@ namespace Pol {
 	  u16 count = 0;
 	  for ( u16 i = 0; i < 64; ++i )
 	  {
-		u32 objtype = spell_scroll_objtype_limits[0][0] + i;
+		u32 objtype = gamestate.spell_scroll_objtype_limits[0][0] + i;
 		u16 spellnumber = USpellScroll::convert_objtype_to_spellnum( objtype, spellbook.spell_school );
 		u8  spellpos = spellnumber & 7; // spellpos is the spell's position it it's circle's array.
 		if ( spellpos == 0 ) spellpos = 8;

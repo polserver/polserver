@@ -9,6 +9,7 @@ Notes
 
 #include "pkg.h"
 #include "polver.h"
+#include "systemstate.h"
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
@@ -34,12 +35,11 @@ namespace Pol {
 	  return provides_system_home_page_;
 	}
 
-	typedef std::map<std::string, Package*, Clib::ci_cmp_pred> PackagesByName;
-	PackagesByName packages_byname;
+	
 	Package* find_package( const std::string& pkgname )
 	{
-	  auto itr = packages_byname.find( pkgname );
-	  if ( itr != packages_byname.end() )
+	  auto itr = systemstate.packages_byname.find( pkgname );
+	  if ( itr != systemstate.packages_byname.end() )
 	  {
 		return ( *itr ).second;
 	  }
@@ -51,21 +51,21 @@ namespace Pol {
 
 	void remove_package( Package* pkg )
 	{
-	  auto last = std::remove_if( packages.begin(), packages.end(),
+	  auto last = std::remove_if( systemstate.packages.begin(), systemstate.packages.end(),
 							 std::bind2nd( std::equal_to<Package*>(), pkg ) );
-	  packages.erase( last, packages.end() );
+	  systemstate.packages.erase( last, systemstate.packages.end() );
 
       // TODO: Check this loop. It looks odd. 
       //       Should the loop stop after removing the package? 
       //       Is it possible to have more than one name for the same package?
 
-	  auto itr = packages_byname.begin();
-	  while ( itr != packages_byname.end() )
+	  auto itr = systemstate.packages_byname.begin();
+	  while ( itr != systemstate.packages_byname.end() )
 	  {
 		auto tempitr = itr;
 		++itr;
 		if ( ( *tempitr ).second == pkg )
-		  packages_byname.erase( tempitr );
+		  systemstate.packages_byname.erase( tempitr );
 	  }
 	}
 
@@ -129,8 +129,6 @@ namespace Pol {
 	  passert( check_version2( "1.1", "1.2.3" ) == false );
 	  passert( check_version2( "1.3", "1.2.3" ) == true );
 	}
-	Packages packages;
-
 
 	PackageList::PackageList( Clib::ConfigElem& elem, const char* tag )
 	{
@@ -149,6 +147,13 @@ namespace Pol {
 		}
 	  }
 	}
+    size_t PackageList::sizeEstimate() const
+    {
+      size_t size = sizeof(PackageList);
+      for (const auto& elem : elems)
+        size += elem.pkgname.capacity() + elem.version.capacity();
+      return size;
+    }
 
 	Package::Package( const std::string& pkg_dir, Clib::ConfigElem& elem ) :
 	  dir_( pkg_dir ),
@@ -257,6 +262,21 @@ namespace Pol {
 	  }
 	}
 
+    size_t Package::estimateSize() const
+    {
+      size_t size = dir_.capacity()
+        + name_.capacity()
+        + version_.capacity()
+        + sizeof(unsigned short) /*core_required*/
+        + core_versionstring_required_.capacity()
+        + requires_.sizeEstimate()
+        + conflicts_.sizeEstimate()
+        + replaces_.sizeEstimate()
+        + sizeof(bool) /*provides_system_home_page_*/
+        ;
+      return size;
+    }
+
 	void load_package( const std::string& pkg_dir, Clib::ConfigElem& elem, bool quiet )
 	{
 	  std::unique_ptr<Package> pkg( new Package( pkg_dir, elem ) );
@@ -297,9 +317,9 @@ namespace Pol {
 		}
 	  }
 
-	  packages.push_back( pkg.get() );
+	  systemstate.packages.push_back( pkg.get() );
 	  Package* ppkg = pkg.release();
-	  packages_byname.insert( PackagesByName::value_type( ppkg->name(), ppkg ) );
+	  systemstate.packages_byname.insert( PackagesByName::value_type( ppkg->name(), ppkg ) );
 	}
 
 
@@ -360,7 +380,7 @@ namespace Pol {
 	  {
 		done = true;
 
-		for ( const auto& pkg : packages )
+		for ( const auto& pkg : systemstate.packages )
 		{
 		  bool change = pkg->check_replacements();
 		  if ( change )
@@ -375,7 +395,7 @@ namespace Pol {
 
 	void check_package_deps()
 	{
-      for ( const auto &pkg : packages )
+      for ( const auto &pkg : systemstate.packages )
         check_deps_for_package( pkg );
 	}
 
@@ -404,12 +424,6 @@ namespace Pol {
 	  replace_packages();
 
 	  check_package_deps();
-	}
-
-	void unload_packages()
-	{
-	  Clib::delete_all( packages );
-	  packages_byname.clear();
 	}
 
     bool pkgdef_split(const std::string& spec, const Package* inpkg,
@@ -461,7 +475,7 @@ namespace Pol {
 							 const char* taglist,
 							 void( *loadentry )( const Package*, Clib::ConfigElem& ) )
 	{
-	  for ( const auto &pkg : packages)
+	  for ( const auto &pkg : systemstate.packages)
 	  {
           std::string filename = GetPackageCfgPath(pkg, cfgname);
 		if ( Clib::FileExists( filename.c_str( ) ) )

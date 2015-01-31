@@ -12,6 +12,7 @@ Notes
 #define DATASTORE_H
 
 #include "../../bscript/execmodl.h"
+
 namespace Pol {
   namespace Module {
 	class DataStoreFile;

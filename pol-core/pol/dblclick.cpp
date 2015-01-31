@@ -21,6 +21,7 @@ Notes
 #include "../clib/endian.h"
 
 #include "../plib/realm.h"
+#include "../plib/systemstate.h"
 
 #include "network/client.h"
 #include "network/packets.h"
@@ -30,7 +31,7 @@ Notes
 #include "network/msghandl.h"
 #include "mobile/charactr.h"
 #include "los.h"
-#include "npc.h"
+#include "mobile/npc.h"
 #include "pktin.h"
 #include "polcfg.h"
 #include "realms.h"
@@ -38,9 +39,9 @@ Notes
 #include "ufunc.h"
 #include "uoscrobj.h"
 #include "multi/multi.h"
-#include "ssopt.h"
 #include "objtype.h"
 #include "containr.h"
+#include "globals/uvars.h"
 
 #include <cstring>
 #include <string>
@@ -52,7 +53,7 @@ namespace Pol {
       Network::PktHelper::PacketOut<Network::PktOut_88> msg;
 	  msg->Write<u32>( chr->serial_ext );
 
-	  if ( ( !ssopt.privacy_paperdoll ) || ( client->chr == chr ) )
+	  if ( ( !settingsManager.ssopt.privacy_paperdoll ) || ( client->chr == chr ) )
 	  {
 		std::string name = ( chr->title_prefix.empty() ? "" : chr->title_prefix + " " ) +
 		  chr->name() +
@@ -101,7 +102,7 @@ namespace Pol {
 		  if ( sd.exists() )
 		  {
 			ref_ptr<Bscript::EScriptProgram> prog;
-			prog = find_script2( sd, false, config.cache_interactive_scripts );
+			prog = find_script2( sd, false, Plib::systemstate.config.cache_interactive_scripts );
 			if ( prog.get() != NULL && client->chr->start_script( prog.get(), false ) )
 			{
 			  return;
@@ -118,7 +119,7 @@ namespace Pol {
 		return;
 	  }
 	  else
-		client->chr->dblclick_wait = read_gameclock() + ssopt.dblclick_wait;
+		client->chr->dblclick_wait = read_gameclock() + settingsManager.ssopt.dblclick_wait;
 
 	  if ( IsCharacter( serial ) )
 	  {
@@ -130,7 +131,7 @@ namespace Pol {
 
 		if ( chr->isa( UObject::CLASS_NPC ) )
 		{
-		  NPC* npc = static_cast<NPC*>( chr );
+		  Mobile::NPC* npc = static_cast<Mobile::NPC*>( chr );
 		  if ( npc->can_accept_event( EVID_DOUBLECLICKED ) )
 		  {
 			npc->send_event( new Module::SourcedEvent( EVID_DOUBLECLICKED, client->chr ) );
@@ -144,7 +145,7 @@ namespace Pol {
 		if ( sd.exists() )
 		{
 		  ref_ptr<Bscript::EScriptProgram> prog;
-		  prog = find_script2( sd, false, config.cache_interactive_scripts );
+		  prog = find_script2( sd, false, Plib::systemstate.config.cache_interactive_scripts );
 		  if ( prog.get() != NULL )
 			script_ran = client->chr->start_script( prog.get(), false, new Module::ECharacterRefObjImp( chr ) );
 		}
@@ -223,7 +224,7 @@ namespace Pol {
 		  if ( sd.exists() )
 		  {
 			ref_ptr<Bscript::EScriptProgram> prog;
-			prog = find_script2( sd, false, config.cache_interactive_scripts );
+			prog = find_script2( sd, false, Plib::systemstate.config.cache_interactive_scripts );
 			if ( prog.get() != NULL )
 			  client->chr->start_script( prog.get(), false, new Module::EItemRefObjImp( item ) );
 		  }
@@ -249,7 +250,5 @@ namespace Pol {
 		}
 	  }
 	}
-
-	MESSAGE_HANDLER( PKTIN_06, doubleclick );
   }
 }

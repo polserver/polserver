@@ -64,7 +64,6 @@ Notes
 #include "realms.h"
 #include "repsys.h"
 #include "sockio.h"
-#include "ssopt.h"
 #include "statmsg.h"
 #include "tmpvars.h"
 #include "tooltips.h"
@@ -73,7 +72,9 @@ Notes
 #include "uoclient.h"
 #include "uofile.h"
 #include "ustruct.h"
-#include "uvars.h"
+#include "globals/uvars.h"
+#include "globals/state.h"
+#include "globals/object_storage.h"
 #include "uworld.h"
 #include "mdelta.h"
 #include "zone.h"
@@ -85,6 +86,7 @@ Notes
 
 #include "../plib/mapcell.h"
 #include "../plib/realm.h"
+#include "../plib/systemstate.h"
 
 #include "../bscript/impstr.h"
 
@@ -104,643 +106,663 @@ Notes
 #endif
 
 namespace Pol {
-  namespace Core {
-    using namespace Network;
-    using namespace Mobile;
-    using namespace Items;
+    namespace Core {
+        using namespace Network;
+        using namespace Mobile;
+        using namespace Items;
 
-	u32 itemserialnumber = ITEMSERIAL_START;
-	u32 charserialnumber = CHARACTERSERIAL_START;
-
-	//Dave added 3/9/3
-	void SetCurrentItemSerialNumber( u32 serial )
-	{
-	  itemserialnumber = serial;
-	}
-
-	//Dave added 3/9/3
-	void SetCurrentCharSerialNumber( u32 serial )
-	{
-	  charserialnumber = serial;
-	}
-
-	//Dave added 3/8/3
-	u32 GetCurrentItemSerialNumber( void )
-	{
-	  return itemserialnumber;
-	}
-
-	//Dave added 3/8/3
-	u32 GetCurrentCharSerialNumber( void )
-	{
-	  return charserialnumber;
-	}
-
-	//Dave changed 3/8/3 to use objecthash
-	u32 GetNextSerialNumber( void )
-	{
-	  u32 nextserial = objecthash.GetNextUnusedCharSerial();
-	  charserialnumber = nextserial;
-	  return charserialnumber;
-	}
-
-	u32 UseCharSerialNumber( u32 serial )
-	{
-	  if ( serial > charserialnumber )
-		charserialnumber = serial + 1;
-	  return serial;
-	}
-
-	//Dave changed 3/8/3
-	u32 UseItemSerialNumber( u32 serial )
-	{
-	  if ( serial > itemserialnumber )
-		itemserialnumber = serial + 1;
-	  return serial;
-	}
-
-	//Dave changed 3/8/3 to use objecthash
-	u32 GetNewItemSerialNumber( void )
-	{
-	  u32 nextserial = objecthash.GetNextUnusedItemSerial();
-	  itemserialnumber = nextserial;
-	  return itemserialnumber;
-	}
-
-	void send_goxyz( Client *client, const Character *chr )
-	{
-	  PktHelper::PacketOut<PktOut_20> msg;
-	  msg->Write<u32>( chr->serial_ext );
-	  msg->WriteFlipped<u16>( chr->graphic );
-	  msg->offset++; //unk7
-	  msg->WriteFlipped<u16>( chr->color );
-	  msg->Write<u8>( chr->get_flag1( client ) );
-	  msg->WriteFlipped<u16>( chr->x );
-	  msg->WriteFlipped<u16>( chr->y );
-	  msg->offset += 2; //unk15,16
-	  msg->Write<u8>( 0x80u | chr->facing ); // is it always right to set this flag?
-	  msg->Write<s8>( chr->z );
-	  msg.Send( client );
-
-	  if ( ( client->ClientType & CLIENTTYPE_UOKR ) && ( chr->poisoned() ) ) //if poisoned send 0x17 for newer clients
-		send_poisonhealthbar( client, chr );
-
-	  if ( ( client->ClientType & CLIENTTYPE_UOKR ) && ( chr->invul() ) ) //if invul send 0x17 for newer clients
-		send_invulhealthbar( client, chr );
-	}
-
-	// Character chr has moved.  Tell a client about it.
-	// FIXME: Use of this packet needs optimized. Other functions for
-	// sending to in range etc, call this function for each client.
-	// Even with the independant flags, we should be able to
-	// optimize this out to reduce build amounts
-	void send_move( Client *client, const Character *chr )
-	{
-	  PktHelper::PacketOut<PktOut_77> msg;
-	  msg->Write<u32>( chr->serial_ext );
-	  msg->WriteFlipped<u16>( chr->graphic );
-	  msg->WriteFlipped<u16>( chr->x );
-	  msg->WriteFlipped<u16>( chr->y );
-	  msg->Write<s8>( chr->z );
-	  msg->Write<u8>( ( chr->dir & 0x80u ) | chr->facing );// NOTE, this only includes mask 0x07 of the last MOVE message 
-	  msg->WriteFlipped<u16>( chr->color );
-	  msg->Write<u8>( chr->get_flag1( client ) );
-	  msg->Write<u8>( chr->hilite_color_idx( client->chr ) );
-	  msg.Send( client );
-
-	  if ( ( client->ClientType & CLIENTTYPE_UOKR ) && ( chr->poisoned() ) ) //if poisoned send 0x17 for newer clients
-		send_poisonhealthbar( client, chr );
-
-	  if ( ( client->ClientType & CLIENTTYPE_UOKR ) && ( chr->invul() ) ) //if invul send 0x17 for newer clients
-		send_invulhealthbar( client, chr );
-	}
-
-	void send_move( Client *client, const Character *chr, PktOut_77* movebuffer, PktOut_17* poisonbuffer, PktOut_17* invulbuffer )
-	{
-	  movebuffer->offset = 15;
-	  movebuffer->Write<u8>( chr->get_flag1( client ) );
-	  movebuffer->Write<u8>( chr->hilite_color_idx( client->chr ) );
-	  ADDTOSENDQUEUE( client, &movebuffer->buffer, movebuffer->offset );
-	  if ( ( client->ClientType & CLIENTTYPE_UOKR ) && ( chr->poisoned() ) ) //if poisoned send 0x17 for newer clients
-		ADDTOSENDQUEUE( client, &poisonbuffer->buffer, poisonbuffer->offset );
-	  if ( ( client->ClientType & CLIENTTYPE_UOKR ) && ( chr->invul() ) ) //if invul send 0x17 for newer clients
-		ADDTOSENDQUEUE( client, &invulbuffer->buffer, invulbuffer->offset );
-	}
-
-	void build_send_move( const Character *chr, PktOut_77* msg )
-	{
-	  msg->Write<u32>( chr->serial_ext );
-	  msg->WriteFlipped<u16>( chr->graphic );
-	  msg->WriteFlipped<u16>( chr->x );
-	  msg->WriteFlipped<u16>( chr->y );
-	  msg->Write<s8>( chr->z );
-	  msg->Write<u8>(( chr->dir & 0x80u ) | chr->facing );// NOTE, this only includes mask 0x07 of the last MOVE message 
-	  msg->WriteFlipped<u16>( chr->color );
-	}
-
-	void send_poisonhealthbar( Client *client, const Character *chr )
-	{
-	  PktHelper::PacketOut<PktOut_17> msg;
-	  msg->WriteFlipped<u16>( sizeof msg->buffer );
-	  msg->Write<u32>( chr->serial_ext );
-	  msg->WriteFlipped<u16>( 1u ); //unk
-	  msg->WriteFlipped<u16>( 1u ); // 1 = Green, 2 = Yellow
-	  msg->Write<u8>( ( chr->poisoned() ) ? 1u : 0u ); //flag
-	  msg.Send( client );
-	}
-
-	void send_invulhealthbar( Client *client, const Character *chr )
-	{
-	  PktHelper::PacketOut<PktOut_17> msg;
-	  msg->WriteFlipped<u16>( sizeof msg->buffer );
-	  msg->Write<u32>( chr->serial_ext );
-	  msg->WriteFlipped<u16>( 1u ); //unk
-	  msg->WriteFlipped<u16>( 2u ); // 1 = Green, 2 = Yellow
-	  msg->Write<u8>( ( chr->invul() ) ? 1u : 0u ); //flag
-	  msg.Send( client );
-	}
-
-	void build_poisonhealthbar( const Character *chr, PktOut_17* msg )
-	{
-	  msg->WriteFlipped<u16>( sizeof msg->buffer );
-	  msg->Write<u32>( chr->serial_ext );
-	  msg->WriteFlipped<u16>( 1u ); //unk
-	  msg->WriteFlipped<u16>( 1u ); // 1 = Green, 2 = Yellow
-	  msg->Write<u8>( ( chr->poisoned() ) ? 1u : 0u ); //flag
-	}
-
-	void build_invulhealthbar( const Character *chr, PktOut_17* msg )
-	{
-	  msg->WriteFlipped<u16>( sizeof msg->buffer );
-	  msg->Write<u32>( chr->serial_ext );
-	  msg->WriteFlipped<u16>( 1u ); //unk
-	  msg->WriteFlipped<u16>( 2u ); // 1 = Green, 2 = Yellow
-	  msg->Write<u8>( ( chr->invul() ) ? 1u : 0u ); //flag
-	}
-
-	void send_owncreate( Client *client, const Character *chr )
-	{
-	  PktHelper::PacketOut<PktOut_78> owncreate;
-	  owncreate->offset += 2;
-	  owncreate->Write<u32>( chr->serial_ext );
-	  owncreate->WriteFlipped<u16>( chr->graphic );
-	  owncreate->WriteFlipped<u16>( chr->x );
-	  owncreate->WriteFlipped<u16>( chr->y );
-	  owncreate->Write<s8>( chr->z );
-	  owncreate->Write<u8>( chr->facing );
-	  owncreate->WriteFlipped<u16>( chr->color );
-	  owncreate->Write<u8>( chr->get_flag1( client ) );
-	  owncreate->Write<u8>( chr->hilite_color_idx( client->chr ) );
-
-	  for ( int layer = LAYER_EQUIP__LOWEST; layer <= LAYER_EQUIP__HIGHEST; ++layer )
-	  {
-		const Item *item = chr->wornitem( layer );
-		if ( item == NULL )
-		  continue;
-
-		// Dont send faces if older client or ssopt
-		if ( ( layer == LAYER_FACE ) && ( ( ssopt.support_faces == 0 ) || ( ~client->ClientType & CLIENTTYPE_UOKR ) ) )
-		  continue;
-
-        if ( client->ClientType & CLIENTTYPE_70331 )
+        //Dave added 3/9/3
+        void SetCurrentItemSerialNumber(u32 serial)
         {
-          owncreate->Write<u32>( item->serial_ext );
-          owncreate->WriteFlipped<u16>( item->graphic );
-          owncreate->Write<u8>( static_cast<u8>(layer) );
-          owncreate->WriteFlipped<u16>( item->color );
-        }
-        else if ( item->color )
-		{
-		  owncreate->Write<u32>( item->serial_ext );
-		  owncreate->WriteFlipped<u16>( 0x8000u | item->graphic );
-		  owncreate->Write<u8>( static_cast<u8>(layer) );
-		  owncreate->WriteFlipped<u16>( item->color );
-		}
-		else
-		{
-		  owncreate->Write<u32>( item->serial_ext );
-		  owncreate->WriteFlipped<u16>( item->graphic );
-		  owncreate->Write<u8>( static_cast<u8>(layer) );
-		}
-	  }
-	  owncreate->offset += 4; //items nullterm
-	  u16 len = owncreate->offset;
-	  owncreate->offset = 1;
-	  owncreate->WriteFlipped<u16>( len );
-
-	  owncreate.Send( client, len );
-
-	  if ( client->UOExpansionFlag & AOS )
-	  {
-		send_object_cache( client, dynamic_cast<const UObject*>( chr ) );
-		// 07/11/09 Turley: moved to bottom first the client needs to know the item then we can send revision
-		for ( int layer = LAYER_EQUIP__LOWEST; layer <= LAYER_EQUIP__HIGHEST; ++layer )
-		{
-		  const Item *item = chr->wornitem( layer );
-		  if ( item == NULL )
-			continue;
-		  if ( layer == LAYER_FACE )
-			continue;
-		  send_object_cache( client, dynamic_cast<const UObject*>( item ) );
-		}
-	  }
-
-	  if ( ( client->ClientType & CLIENTTYPE_UOKR ) && ( chr->poisoned() ) ) //if poisoned send 0x17 for newer clients
-		send_poisonhealthbar( client, chr );
-
-	  if ( ( client->ClientType & CLIENTTYPE_UOKR ) && ( chr->invul() ) ) //if invul send 0x17 for newer clients
-		send_invulhealthbar( client, chr );
-	}
-
-	void build_owncreate( const Character *chr, PktOut_78* owncreate )
-	{
-	  owncreate->offset += 2;
-	  owncreate->Write<u32>( chr->serial_ext );
-	  owncreate->WriteFlipped<u16>( chr->graphic );
-	  owncreate->WriteFlipped<u16>( chr->x );
-	  owncreate->WriteFlipped<u16>( chr->y );
-	  owncreate->Write<s8>( chr->z );
-	  owncreate->Write<u8>( chr->facing );
-	  owncreate->WriteFlipped<u16>( chr->color );//17
-	}
-	void send_owncreate( Client *client, const Character *chr, PktOut_78* owncreate, PktOut_17* poisonbuffer, PktOut_17* invulbuffer )
-	{
-	  owncreate->offset = 17;
-	  owncreate->Write<u8>( chr->get_flag1( client ) );
-	  owncreate->Write<u8>( chr->hilite_color_idx( client->chr ) );
-
-	  for ( int layer = LAYER_EQUIP__LOWEST; layer <= LAYER_EQUIP__HIGHEST; ++layer )
-	  {
-		const Item *item = chr->wornitem( layer );
-		if ( item == NULL )
-		  continue;
-
-		// Dont send faces if older client or ssopt
-		if ( ( layer == LAYER_FACE ) && ( ( ssopt.support_faces == 0 ) || ( ~client->ClientType & CLIENTTYPE_UOKR ) ) )
-		  continue;
-
-        if ( client->ClientType & CLIENTTYPE_70331 )
-        {
-          owncreate->Write<u32>( item->serial_ext );
-          owncreate->WriteFlipped<u16>( item->graphic );
-          owncreate->Write<u8>( static_cast<u16>(layer) );
-          owncreate->WriteFlipped<u16>( item->color );
-        }
-        else if ( item->color )
-		{
-		  owncreate->Write<u32>( item->serial_ext );
-  	      owncreate->WriteFlipped<u16>( 0x8000u | item->graphic );
-		  owncreate->Write<u8>( static_cast<u8>(layer) );
-		  owncreate->WriteFlipped<u16>( item->color );
-		}
-		else
-		{
-		  owncreate->Write<u32>( item->serial_ext );
-		  owncreate->WriteFlipped<u16>( item->graphic );
-		  owncreate->Write<u8>( static_cast<u8>(layer) );
-		}
-	  }
-	  owncreate->offset += 4; //items nullterm
-	  u16 len = owncreate->offset;
-	  owncreate->offset = 1;
-	  owncreate->WriteFlipped<u16>( len );
-
-	  ADDTOSENDQUEUE( client, &owncreate->buffer, len );
-
-	  if ( client->UOExpansionFlag & AOS )
-	  {
-		send_object_cache( client, dynamic_cast<const UObject*>( chr ) );
-		// 07/11/09 Turley: moved to bottom first the client needs to know the item then we can send revision
-		for ( int layer = LAYER_EQUIP__LOWEST; layer <= LAYER_EQUIP__HIGHEST; ++layer )
-		{
-		  const Item *item = chr->wornitem( layer );
-		  if ( item == NULL )
-			continue;
-		  if ( layer == LAYER_FACE )
-			continue;
-		  send_object_cache( client, dynamic_cast<const UObject*>( item ) );
-		}
-	  }
-
-	  if ( ( client->ClientType & CLIENTTYPE_UOKR ) && ( chr->poisoned() ) ) //if poisoned send 0x17 for newer clients
-		ADDTOSENDQUEUE( client, &poisonbuffer->buffer, poisonbuffer->offset );
-	  if ( ( client->ClientType & CLIENTTYPE_UOKR ) && ( chr->invul() ) ) //if invul send 0x17 for newer clients
-		ADDTOSENDQUEUE( client, &invulbuffer->buffer, invulbuffer->offset );
-	}
-
-	void send_remove_character( Client *client, const Character *chr)
-	{
-	  if ( !client->ready )     /* if a client is just connecting, don't bother him. */
-		return;
-
-	  /* Don't remove myself */
-	  if ( client->chr == chr )
-		return;
-	  Network::RemoveObjectPkt msgremove( chr->serial_ext );
-	  msgremove.Send( client );
-	}
-
-	void send_remove_character( Network::Client *client, const Mobile::Character *chr, Network::RemoveObjectPkt& pkt )
-	{
-	  if ( !client->ready )     /* if a client is just connecting, don't bother him. */
-		return;
-
-	  /* Don't remove myself */
-	  if ( client->chr == chr )
-		return;
-	  pkt.Send( client );
-	}
-
-	void send_remove_character_to_nearby( const Character* chr )
-	{
-	  Network::RemoveObjectPkt msgremove( chr->serial_ext );
-      WorldIterator<OnlinePlayerFilter>::InVisualRange( chr, [&]( Character *zonechr )
-      {
-        if ( zonechr == chr )
-          return;
-        msgremove.Send( zonechr->client );
-      } );
-	}
-
-	void send_remove_character_to_nearby_cantsee( const Character* chr )
-	{
-	  Network::RemoveObjectPkt msgremove( chr->serial_ext );
-      WorldIterator<OnlinePlayerFilter>::InVisualRange( chr, [&]( Character *zonechr )
-      {
-        if ( zonechr == chr )
-          return;
-        if ( !zonechr->is_visible_to_me( chr ) )
-          msgremove.Send( zonechr->client );
-      } );
-	}
-
-    void send_remove_character_to_nearby_cansee( const Character* chr )
-	{
-	  Network::RemoveObjectPkt msgremove( chr->serial_ext );
-      WorldIterator<OnlinePlayerFilter>::InVisualRange( chr, [&]( Character* _chr )
-      {
-        if ( _chr != chr &&
-             _chr->is_visible_to_me( chr ) )
-             msgremove.Send( _chr->client );
-      } );
-	}
-
-	void send_remove_object_if_inrange( Client *client, const Item *item )
-	{
-	  if ( !client->ready )     /* if a client is just connecting, don't bother him. */
-		return;
-
-	  if ( !inrange( client->chr, item ) )
-		return;
-	  Network::RemoveObjectPkt msgremove( item->serial_ext );
-      msgremove.Send( client );
-	}
-
-    void send_remove_object( Client* client, const UObject *object )
-    {
-      if ( client == NULL || !client->ready )
-        return;
-	  Network::RemoveObjectPkt msgremove( object->serial_ext );
-      msgremove.Send( client );
-    }
-
-	void send_remove_object_to_inrange( const UObject *centerObject )
-	{
-	  Network::RemoveObjectPkt msgremove( centerObject->serial_ext );
-      Core::WorldIterator<OnlinePlayerFilter>::InVisualRange( centerObject, [&]( Character* chr )
-      {
-		msgremove.Send( chr->client );
-      } );
-	}
-
-    void send_remove_object( Client *client, const UObject *item, RemoveObjectPkt& pkt )
-	{
-      if ( !client->ready )     /* if a client is just connecting, don't bother him. */
-        return;
-	  pkt.update( item->serial_ext );
-	  pkt.Send( client );
-	}
-
-	bool inrangex( const Character *c1, const Character *c2, int maxdist )
-	{
-	  return ( ( c1->realm == c2->realm ) &&
-			   ( abs( c1->x - c2->x ) <= maxdist ) &&
-			   ( abs( c1->y - c2->y ) <= maxdist ) );
-	}
-
-	bool inrangex( const UObject *c1, unsigned short x, unsigned short y, int maxdist )
-	{
-	  return ( ( abs( c1->x - x ) <= maxdist ) &&
-			   ( abs( c1->y - y ) <= maxdist ) );
-	}
-
-	bool inrange( const UObject *c1, unsigned short x, unsigned short y )
-	{
-	  return ( ( abs( c1->x - x ) <= RANGE_VISUAL ) &&
-			   ( abs( c1->y - y ) <= RANGE_VISUAL ) );
-	}
-
-    bool inrange( const Mobile::Character *c1, const Mobile::Character *c2 )
-	{
-	  // note, these are unsigned.  abs converts to signed, so everything _should_ be okay.
-	  return ( ( c1->realm == c2->realm ) &&
-			   ( abs( c1->x - c2->x ) <= RANGE_VISUAL ) &&
-			   ( abs( c1->y - c2->y ) <= RANGE_VISUAL ) );
-	}
-
-    bool inrange( const Mobile::Character *c1, const UObject *obj )
-	{
-	  obj = obj->toplevel_owner();
-
-	  return ( ( c1->realm == obj->realm ) &&
-			   ( abs( c1->x - obj->x ) <= RANGE_VISUAL ) &&
-			   ( abs( c1->y - obj->y ) <= RANGE_VISUAL ) );
-	}
-
-    bool multi_inrange( const Mobile::Character *c1, const Multi::UMulti *obj )
-	{
-	  return ( ( c1->realm == obj->realm ) &&
-			   ( abs( c1->x - obj->x ) <= RANGE_VISUAL_LARGE_BUILDINGS ) &&
-			   ( abs( c1->y - obj->y ) <= RANGE_VISUAL_LARGE_BUILDINGS ) );
-	}
-
-	unsigned short pol_distance( unsigned short x1, unsigned short y1, unsigned short x2, unsigned short y2 )
-	{
-	  int xd = abs( x1 - x2 );
-	  int yd = abs( y1 - y2 );
-	  if ( xd > yd )
-		return static_cast<unsigned short>( xd );
-	  else
-		return static_cast<unsigned short>( yd );
-	}
-
-    unsigned short pol_distance( const Mobile::Character* c1, const UObject* obj )
-	{
-	  obj = obj->toplevel_owner();
-
-	  int xd = abs( c1->x - obj->x );
-	  int yd = abs( c1->y - obj->y );
-	  if ( xd > yd )
-		return static_cast<unsigned short>( xd );
-	  else
-		return static_cast<unsigned short>( yd );
-	}
-
-	bool in_say_range( const Character *c1, const Character *c2 )
-	{
-	  return inrangex( c1, c2, ssopt.speech_range );
-	}
-	bool in_yell_range( const Character *c1, const Character *c2 )
-	{
-	  return inrangex( c1, c2, ssopt.yell_range );
-	}
-	bool in_whisper_range( const Character *c1, const Character *c2 )
-	{
-	  return inrangex( c1, c2, ssopt.whisper_range );
-	}
-
-	bool inrange( unsigned short x1, unsigned short y1,
-				  unsigned short x2, unsigned short y2 )
-	{
-	  return ( ( abs( x1 - x2 ) <= RANGE_VISUAL ) &&
-			   ( abs( y1 - y2 ) <= RANGE_VISUAL ) );
-	}
-
-	bool multi_inrange( unsigned short x1, unsigned short y1,
-						unsigned short x2, unsigned short y2 )
-	{
-	  return ( ( abs( x1 - x2 ) <= RANGE_VISUAL_LARGE_BUILDINGS ) &&
-			   ( abs( y1 - y2 ) <= RANGE_VISUAL_LARGE_BUILDINGS ) );
-	}
-
-	void send_put_in_container( Client* client, const Item* item )
-	{
-
-      auto msg = Network::AddItemContainerMsg( item->serial_ext, item->graphic, item->get_senditem_amount(),
-                                               item->x, item->y, item->slot_index(), item->container->serial_ext, item->color );
-      msg.Send( client );
-
-	  if ( client->UOExpansionFlag & AOS )
-		send_object_cache( client, dynamic_cast<const UObject*>( item ) );
-	}
-
-	void send_put_in_container_to_inrange( const Item *item )
-	{
-      auto msg = Network::AddItemContainerMsg( item->serial_ext, item->graphic, item->get_senditem_amount( ),
-                                               item->x, item->y, item->slot_index( ), item->container->serial_ext, item->color );
-
-      // FIXME mightsee also checks remote containers thus the ForEachPlayer functions cannot be used
-	  for ( auto &client2 : clients )
-	  {
-		if ( !client2->ready )
-		  continue;
-		// FIXME need to check character's additional_legal_items.
-		// looks like inrange should be a Character member function.
-		if ( client2->chr->mightsee( item->container ) )
-		{
-		  // FIXME if the container has an owner, and I'm not it, don't tell me?
-          msg.Send( client2 );
-		  if ( client2->UOExpansionFlag & AOS )
-		  {
-			send_object_cache( client2, dynamic_cast<const UObject*>( item ) );
-		  }
-		}
-	  }
-	}
-
-    // An item is visible on a corpse if:
-    //   - it's visible
-    //   - or the chr has seeinvisitems() privilege
-    //   - it's hair or beard
-    bool can_see_on_corpse(const Client *client, const Item *item) {
-        bool invisible = (item->invisible() &&
-            !client->chr->can_seeinvisitems() &&
-            item->layer != Core::LAYER_HAIR &&
-            item->layer != Core::LAYER_BEARD && 
-            item->layer != Core::LAYER_FACE);
-
-        return !invisible;
-    }
-
-    // Helper function for send_corpse_items(). Sends packet 0x89 containing information
-    // of equipped items on the corpse.
-    void send_corpse_equip(Client *client, const UCorpse *corpse) {
-        PktHelper::PacketOut<PktOut_89> msg;
-        msg->offset += 2;
-        msg->Write<u32>(corpse->serial_ext);
-
-        for (unsigned layer = Core::LOWEST_LAYER; layer <= Core::HIGHEST_LAYER; ++layer)
-        {
-            Item *item2 = corpse->GetItemOnLayer(layer);
-
-            if (!item2)
-                continue;
-
-            if (!can_see_on_corpse(client, item2))
-                continue;
-
-            msg->Write<u8>(item2->layer);
-            msg->Write<u32>(item2->serial_ext);
+            stateManager.itemserialnumber = serial;
         }
 
-        msg->offset += 1; // nullterm byte
-        u16 len = msg->offset;
-        msg->offset = 1;
-        msg->WriteFlipped<u16>(len);
-
-        msg.Send(client, len);
-    }
-
-    // Helper function for send_corpse_items(). No need to send the full corpse contents,
-    // just the equipped items. Uses packet 0x3C.
-    void send_corpse_contents(Client *client, const UCorpse *corpse) {
-        PktHelper::PacketOut<PktOut_3C> msg;
-        msg->offset += 4; //msglen+count
-        u16 count = 0;
-
-        for (unsigned layer = Core::LOWEST_LAYER; layer <= Core::HIGHEST_LAYER; ++layer)
+        //Dave added 3/9/3
+        void SetCurrentCharSerialNumber(u32 serial)
         {
-            const Items::Item* item = corpse->GetItemOnLayer(layer);
+            stateManager.charserialnumber = serial;
+        }
 
-            if (!item)
-                continue;
+        //Dave added 3/8/3
+        u32 GetCurrentItemSerialNumber(void)
+        {
+            return stateManager.itemserialnumber;
+        }
 
-            if (!can_see_on_corpse(client, item))
-                continue;
+        //Dave added 3/8/3
+        u32 GetCurrentCharSerialNumber(void)
+        {
+            return stateManager.charserialnumber;
+        }
 
-            msg->Write<u32>(item->serial_ext);
-            msg->WriteFlipped<u16>(item->graphic);
-            msg->offset++; //unk6
-            msg->WriteFlipped<u16>(item->get_senditem_amount());
-            msg->WriteFlipped<u16>(item->x);
-            msg->WriteFlipped<u16>(item->y);
-            if (client->ClientType & CLIENTTYPE_6017)
-                msg->Write<u8>(item->slot_index());
+        //Dave changed 3/8/3 to use objecthash
+        u32 GetNextSerialNumber(void)
+        {
+            u32 nextserial = objStorageManager.objecthash.GetNextUnusedCharSerial();
+            stateManager.charserialnumber = nextserial;
+            return stateManager.charserialnumber;
+        }
+
+        u32 UseCharSerialNumber(u32 serial)
+        {
+            if (serial > stateManager.charserialnumber)
+                stateManager.charserialnumber = serial + 1;
+            return serial;
+        }
+
+        //Dave changed 3/8/3
+        u32 UseItemSerialNumber(u32 serial)
+        {
+            if (serial > stateManager.itemserialnumber)
+                stateManager.itemserialnumber = serial + 1;
+            return serial;
+        }
+
+        //Dave changed 3/8/3 to use objecthash
+        u32 GetNewItemSerialNumber(void)
+        {
+            u32 nextserial = objStorageManager.objecthash.GetNextUnusedItemSerial();
+            stateManager.itemserialnumber = nextserial;
+            return stateManager.itemserialnumber;
+        }
+
+        void send_goxyz(Client *client, const Character *chr)
+        {
+            PktHelper::PacketOut<PktOut_20> msg;
+            msg->Write<u32>(chr->serial_ext);
+            msg->WriteFlipped<u16>(chr->graphic);
+            msg->offset++; //unk7
+            msg->WriteFlipped<u16>(chr->color);
+            msg->Write<u8>(chr->get_flag1(client));
+            msg->WriteFlipped<u16>(chr->x);
+            msg->WriteFlipped<u16>(chr->y);
+            msg->offset += 2; //unk15,16
+            msg->Write<u8>(0x80u | chr->facing); // is it always right to set this flag?
+            msg->Write<s8>(chr->z);
+            msg.Send(client);
+
+            if ((client->ClientType & CLIENTTYPE_UOKR) && (chr->poisoned())) //if poisoned send 0x17 for newer clients
+                send_poisonhealthbar(client, chr);
+
+            if ((client->ClientType & CLIENTTYPE_UOKR) && (chr->invul())) //if invul send 0x17 for newer clients
+                send_invulhealthbar(client, chr);
+        }
+
+        // Character chr has moved.  Tell a client about it.
+        // FIXME: Use of this packet needs optimized. Other functions for
+        // sending to in range etc, call this function for each client.
+        // Even with the independant flags, we should be able to
+        // optimize this out to reduce build amounts
+        void send_move(Client *client, const Character *chr)
+        {
+            PktHelper::PacketOut<PktOut_77> msg;
+            msg->Write<u32>(chr->serial_ext);
+            msg->WriteFlipped<u16>(chr->graphic);
+            msg->WriteFlipped<u16>(chr->x);
+            msg->WriteFlipped<u16>(chr->y);
+            msg->Write<s8>(chr->z);
+            msg->Write<u8>((chr->dir & 0x80u) | chr->facing);// NOTE, this only includes mask 0x07 of the last MOVE message 
+            msg->WriteFlipped<u16>(chr->color);
+            msg->Write<u8>(chr->get_flag1(client));
+            msg->Write<u8>(chr->hilite_color_idx(client->chr));
+            msg.Send(client);
+
+            if ((client->ClientType & CLIENTTYPE_UOKR) && (chr->poisoned())) //if poisoned send 0x17 for newer clients
+                send_poisonhealthbar(client, chr);
+
+            if ((client->ClientType & CLIENTTYPE_UOKR) && (chr->invul())) //if invul send 0x17 for newer clients
+                send_invulhealthbar(client, chr);
+        }
+
+        void send_move(Client *client, const Character *chr, PktOut_77* movebuffer, PktOut_17* poisonbuffer, PktOut_17* invulbuffer)
+        {
+            movebuffer->offset = 15;
+            movebuffer->Write<u8>(chr->get_flag1(client));
+            movebuffer->Write<u8>(chr->hilite_color_idx(client->chr));
+            Core::networkManager.clientTransmit->AddToQueue(client, &movebuffer->buffer, movebuffer->offset);
+            if (client->ClientType & CLIENTTYPE_UOKR)
+			{
+			  if (chr->poisoned()) //if poisoned send 0x17 for newer clients
+                Core::networkManager.clientTransmit->AddToQueue(client, &poisonbuffer->buffer, poisonbuffer->offset);
+			  if (chr->invul()) //if invul send 0x17 for newer clients
+                Core::networkManager.clientTransmit->AddToQueue(client, &invulbuffer->buffer, invulbuffer->offset);
+			}
+        }
+
+        void build_send_move(const Character *chr, PktOut_77* msg)
+        {
+            msg->Write<u32>(chr->serial_ext);
+            msg->WriteFlipped<u16>(chr->graphic);
+            msg->WriteFlipped<u16>(chr->x);
+            msg->WriteFlipped<u16>(chr->y);
+            msg->Write<s8>(chr->z);
+            msg->Write<u8>((chr->dir & 0x80u) | chr->facing);// NOTE, this only includes mask 0x07 of the last MOVE message 
+            msg->WriteFlipped<u16>(chr->color);
+        }
+
+        void send_poisonhealthbar(Client *client, const Character *chr)
+        {
+            PktHelper::PacketOut<PktOut_17> msg;
+            msg->WriteFlipped<u16>(sizeof msg->buffer);
+            msg->Write<u32>(chr->serial_ext);
+            msg->WriteFlipped<u16>(1u); //unk
+            msg->WriteFlipped<u16>(1u); // 1 = Green, 2 = Yellow
+            msg->Write<u8>((chr->poisoned()) ? 1u : 0u); //flag
+            msg.Send(client);
+        }
+
+        void send_invulhealthbar(Client *client, const Character *chr)
+        {
+            PktHelper::PacketOut<PktOut_17> msg;
+            msg->WriteFlipped<u16>(sizeof msg->buffer);
+            msg->Write<u32>(chr->serial_ext);
+            msg->WriteFlipped<u16>(1u); //unk
+            msg->WriteFlipped<u16>(2u); // 1 = Green, 2 = Yellow
+            msg->Write<u8>((chr->invul()) ? 1u : 0u); //flag
+            msg.Send(client);
+        }
+
+        void build_poisonhealthbar(const Character *chr, PktOut_17* msg)
+        {
+            msg->WriteFlipped<u16>(sizeof msg->buffer);
+            msg->Write<u32>(chr->serial_ext);
+            msg->WriteFlipped<u16>(1u); //unk
+            msg->WriteFlipped<u16>(1u); // 1 = Green, 2 = Yellow
+            msg->Write<u8>((chr->poisoned()) ? 1u : 0u); //flag
+        }
+
+        void build_invulhealthbar(const Character *chr, PktOut_17* msg)
+        {
+            msg->WriteFlipped<u16>(sizeof msg->buffer);
+            msg->Write<u32>(chr->serial_ext);
+            msg->WriteFlipped<u16>(1u); //unk
+            msg->WriteFlipped<u16>(2u); // 1 = Green, 2 = Yellow
+            msg->Write<u8>((chr->invul()) ? 1u : 0u); //flag
+        }
+
+        void send_owncreate(Client *client, const Character *chr)
+        {
+            PktHelper::PacketOut<PktOut_78> owncreate;
+            owncreate->offset += 2;
+            owncreate->Write<u32>(chr->serial_ext);
+            owncreate->WriteFlipped<u16>(chr->graphic);
+            owncreate->WriteFlipped<u16>(chr->x);
+            owncreate->WriteFlipped<u16>(chr->y);
+            owncreate->Write<s8>(chr->z);
+            owncreate->Write<u8>(chr->facing);
+            owncreate->WriteFlipped<u16>(chr->color);
+            owncreate->Write<u8>(chr->get_flag1(client));
+            owncreate->Write<u8>(chr->hilite_color_idx(client->chr));
+
+            for (int layer = LAYER_EQUIP__LOWEST; layer <= LAYER_EQUIP__HIGHEST; ++layer)
+            {
+                const Item *item = chr->wornitem(layer);
+                if (item == NULL)
+                    continue;
+
+                // Dont send faces if older client or ssopt
+                if ((layer == LAYER_FACE) && ((settingsManager.ssopt.support_faces == 0) || (~client->ClientType & CLIENTTYPE_UOKR)))
+                    continue;
+
+                if (client->ClientType & CLIENTTYPE_70331)
+                {
+                    owncreate->Write<u32>(item->serial_ext);
+                    owncreate->WriteFlipped<u16>(item->graphic);
+                    owncreate->Write<u8>(static_cast<u8>(layer));
+                    owncreate->WriteFlipped<u16>(item->color);
+                }
+                else if (item->color)
+                {
+                    owncreate->Write<u32>(item->serial_ext);
+                    owncreate->WriteFlipped<u16>(0x8000u | item->graphic);
+                    owncreate->Write<u8>(static_cast<u8>(layer));
+                    owncreate->WriteFlipped<u16>(item->color);
+                }
+                else
+                {
+                    owncreate->Write<u32>(item->serial_ext);
+                    owncreate->WriteFlipped<u16>(item->graphic);
+                    owncreate->Write<u8>(static_cast<u8>(layer));
+                }
+            }
+            owncreate->offset += 4; //items nullterm
+            u16 len = owncreate->offset;
+            owncreate->offset = 1;
+            owncreate->WriteFlipped<u16>(len);
+
+            owncreate.Send(client, len);
+
+            if (client->UOExpansionFlag & AOS)
+            {
+                send_object_cache(client, dynamic_cast<const UObject*>(chr));
+                // 07/11/09 Turley: moved to bottom first the client needs to know the item then we can send revision
+                for (int layer = LAYER_EQUIP__LOWEST; layer <= LAYER_EQUIP__HIGHEST; ++layer)
+                {
+                    const Item *item = chr->wornitem(layer);
+                    if (item == NULL)
+                        continue;
+                    if (layer == LAYER_FACE)
+                        continue;
+                    send_object_cache(client, dynamic_cast<const UObject*>(item));
+                }
+            }
+
+            if ((client->ClientType & CLIENTTYPE_UOKR) && (chr->poisoned())) //if poisoned send 0x17 for newer clients
+                send_poisonhealthbar(client, chr);
+
+            if ((client->ClientType & CLIENTTYPE_UOKR) && (chr->invul())) //if invul send 0x17 for newer clients
+                send_invulhealthbar(client, chr);
+        }
+
+        void build_owncreate(const Character *chr, PktOut_78* owncreate)
+        {
+            owncreate->offset += 2;
+            owncreate->Write<u32>(chr->serial_ext);
+            owncreate->WriteFlipped<u16>(chr->graphic);
+            owncreate->WriteFlipped<u16>(chr->x);
+            owncreate->WriteFlipped<u16>(chr->y);
+            owncreate->Write<s8>(chr->z);
+            owncreate->Write<u8>(chr->facing);
+            owncreate->WriteFlipped<u16>(chr->color);//17
+        }
+        void send_owncreate(Client *client, const Character *chr, PktOut_78* owncreate, PktOut_17* poisonbuffer, PktOut_17* invulbuffer)
+        {
+            owncreate->offset = 17;
+            owncreate->Write<u8>(chr->get_flag1(client));
+            owncreate->Write<u8>(chr->hilite_color_idx(client->chr));
+
+            for (int layer = LAYER_EQUIP__LOWEST; layer <= LAYER_EQUIP__HIGHEST; ++layer)
+            {
+                const Item *item = chr->wornitem(layer);
+                if (item == NULL)
+                    continue;
+
+                // Dont send faces if older client or ssopt
+                if ((layer == LAYER_FACE) && ((settingsManager.ssopt.support_faces == 0) || (~client->ClientType & CLIENTTYPE_UOKR)))
+                    continue;
+
+                if (client->ClientType & CLIENTTYPE_70331)
+                {
+                    owncreate->Write<u32>(item->serial_ext);
+                    owncreate->WriteFlipped<u16>(item->graphic);
+                    owncreate->Write<u8>(static_cast<u16>(layer));
+                    owncreate->WriteFlipped<u16>(item->color);
+                }
+                else if (item->color)
+                {
+                    owncreate->Write<u32>(item->serial_ext);
+                    owncreate->WriteFlipped<u16>(0x8000u | item->graphic);
+                    owncreate->Write<u8>(static_cast<u8>(layer));
+                    owncreate->WriteFlipped<u16>(item->color);
+                }
+                else
+                {
+                    owncreate->Write<u32>(item->serial_ext);
+                    owncreate->WriteFlipped<u16>(item->graphic);
+                    owncreate->Write<u8>(static_cast<u8>(layer));
+                }
+            }
+            owncreate->offset += 4; //items nullterm
+            u16 len = owncreate->offset;
+            owncreate->offset = 1;
+            owncreate->WriteFlipped<u16>(len);
+
+            Core::networkManager.clientTransmit->AddToQueue(client, &owncreate->buffer, len);
+
+            if (client->UOExpansionFlag & AOS)
+            {
+                send_object_cache(client, dynamic_cast<const UObject*>(chr));
+                // 07/11/09 Turley: moved to bottom first the client needs to know the item then we can send revision
+                for (int layer = LAYER_EQUIP__LOWEST; layer <= LAYER_EQUIP__HIGHEST; ++layer)
+                {
+                    const Item *item = chr->wornitem(layer);
+                    if (item == NULL)
+                        continue;
+                    if (layer == LAYER_FACE)
+                        continue;
+                    send_object_cache(client, dynamic_cast<const UObject*>(item));
+                }
+            }
+
+            if (client->ClientType & CLIENTTYPE_UOKR)
+			{
+			  if (chr->poisoned()) //if poisoned send 0x17 for newer clients
+                Core::networkManager.clientTransmit->AddToQueue(client, &poisonbuffer->buffer, poisonbuffer->offset);
+			  if (chr->invul()) //if invul send 0x17 for newer clients
+                Core::networkManager.clientTransmit->AddToQueue(client, &invulbuffer->buffer, invulbuffer->offset);
+			}
+        }
+
+        void send_remove_character(Client *client, const Character *chr)
+        {
+            if (!client->ready)     /* if a client is just connecting, don't bother him. */
+                return;
+
+            /* Don't remove myself */
+            if (client->chr == chr)
+                return;
+            Network::RemoveObjectPkt msgremove(chr->serial_ext);
+            msgremove.Send(client);
+        }
+
+        void send_remove_character(Network::Client *client, const Mobile::Character *chr, Network::RemoveObjectPkt& pkt)
+        {
+            if (!client->ready)     /* if a client is just connecting, don't bother him. */
+                return;
+
+            /* Don't remove myself */
+            if (client->chr == chr)
+                return;
+            pkt.Send(client);
+        }
+
+        void send_remove_character_to_nearby(const Character* chr)
+        {
+            Network::RemoveObjectPkt msgremove(chr->serial_ext);
+            WorldIterator<OnlinePlayerFilter>::InVisualRange(chr, [&](Character *zonechr)
+            {
+                if (zonechr == chr)
+                    return;
+                msgremove.Send(zonechr->client);
+            });
+        }
+
+        void send_remove_character_to_nearby_cantsee(const Character* chr)
+        {
+            Network::RemoveObjectPkt msgremove(chr->serial_ext);
+            WorldIterator<OnlinePlayerFilter>::InVisualRange(chr, [&](Character *zonechr)
+            {
+                if (zonechr == chr)
+                    return;
+                if (!zonechr->is_visible_to_me(chr))
+                    msgremove.Send(zonechr->client);
+            });
+        }
+
+        void send_remove_character_to_nearby_cansee(const Character* chr)
+        {
+            Network::RemoveObjectPkt msgremove(chr->serial_ext);
+            WorldIterator<OnlinePlayerFilter>::InVisualRange(chr, [&](Character* _chr)
+            {
+                if (_chr != chr &&
+                    _chr->is_visible_to_me(chr))
+                    msgremove.Send(_chr->client);
+            });
+        }
+
+        void send_remove_object_if_inrange(Client *client, const Item *item)
+        {
+            if (!client->ready)     /* if a client is just connecting, don't bother him. */
+                return;
+
+            if (!inrange(client->chr, item))
+                return;
+            Network::RemoveObjectPkt msgremove(item->serial_ext);
+            msgremove.Send(client);
+        }
+
+        void send_remove_object(Client* client, const UObject *object)
+        {
+            if (client == NULL || !client->ready)
+                return;
+            Network::RemoveObjectPkt msgremove(object->serial_ext);
+            msgremove.Send(client);
+        }
+
+        void send_remove_object_to_inrange(const UObject *centerObject)
+        {
+            Network::RemoveObjectPkt msgremove(centerObject->serial_ext);
+            Core::WorldIterator<OnlinePlayerFilter>::InVisualRange(centerObject, [&](Character* chr)
+            {
+                msgremove.Send(chr->client);
+            });
+        }
+
+        void send_remove_object(Client *client, const UObject *item, RemoveObjectPkt& pkt)
+        {
+            if (!client->ready)     /* if a client is just connecting, don't bother him. */
+                return;
+            pkt.update(item->serial_ext);
+            pkt.Send(client);
+        }
+
+        bool inrangex(const Character *c1, const Character *c2, int maxdist)
+        {
+            return ((c1->realm == c2->realm) &&
+                (abs(c1->x - c2->x) <= maxdist) &&
+                (abs(c1->y - c2->y) <= maxdist));
+        }
+
+        bool inrangex(const UObject *c1, unsigned short x, unsigned short y, int maxdist)
+        {
+            return ((abs(c1->x - x) <= maxdist) &&
+                (abs(c1->y - y) <= maxdist));
+        }
+
+        bool inrange(const UObject *c1, unsigned short x, unsigned short y)
+        {
+            return ((abs(c1->x - x) <= RANGE_VISUAL) &&
+                (abs(c1->y - y) <= RANGE_VISUAL));
+        }
+
+        bool inrange(const Mobile::Character *c1, const Mobile::Character *c2)
+        {
+            // note, these are unsigned.  abs converts to signed, so everything _should_ be okay.
+            return ((c1->realm == c2->realm) &&
+                (abs(c1->x - c2->x) <= RANGE_VISUAL) &&
+                (abs(c1->y - c2->y) <= RANGE_VISUAL));
+        }
+
+        bool inrange(const Mobile::Character *c1, const UObject *obj)
+        {
+            obj = obj->toplevel_owner();
+
+            return ((c1->realm == obj->realm) &&
+                (abs(c1->x - obj->x) <= RANGE_VISUAL) &&
+                (abs(c1->y - obj->y) <= RANGE_VISUAL));
+        }
+
+        bool multi_inrange(const Mobile::Character *c1, const Multi::UMulti *obj)
+        {
+            return ((c1->realm == obj->realm) &&
+                (abs(c1->x - obj->x) <= RANGE_VISUAL_LARGE_BUILDINGS) &&
+                (abs(c1->y - obj->y) <= RANGE_VISUAL_LARGE_BUILDINGS));
+        }
+
+        unsigned short pol_distance(unsigned short x1, unsigned short y1, unsigned short x2, unsigned short y2)
+        {
+            int xd = abs(x1 - x2);
+            int yd = abs(y1 - y2);
+            if (xd > yd)
+                return static_cast<unsigned short>(xd);
+            else
+                return static_cast<unsigned short>(yd);
+        }
+
+        unsigned short pol_distance(const Mobile::Character* c1, const UObject* obj)
+        {
+            obj = obj->toplevel_owner();
+
+            int xd = abs(c1->x - obj->x);
+            int yd = abs(c1->y - obj->y);
+            if (xd > yd)
+                return static_cast<unsigned short>(xd);
+            else
+                return static_cast<unsigned short>(yd);
+        }
+
+        bool in_say_range(const Character *c1, const Character *c2)
+        {
+            return inrangex(c1, c2, settingsManager.ssopt.speech_range);
+        }
+        bool in_yell_range(const Character *c1, const Character *c2)
+        {
+            return inrangex(c1, c2, settingsManager.ssopt.yell_range);
+        }
+        bool in_whisper_range(const Character *c1, const Character *c2)
+        {
+            return inrangex(c1, c2, settingsManager.ssopt.whisper_range);
+        }
+
+        bool inrange(unsigned short x1, unsigned short y1,
+            unsigned short x2, unsigned short y2)
+        {
+            return ((abs(x1 - x2) <= RANGE_VISUAL) &&
+                (abs(y1 - y2) <= RANGE_VISUAL));
+        }
+
+        bool multi_inrange(unsigned short x1, unsigned short y1,
+            unsigned short x2, unsigned short y2)
+        {
+            return ((abs(x1 - x2) <= RANGE_VISUAL_LARGE_BUILDINGS) &&
+                (abs(y1 - y2) <= RANGE_VISUAL_LARGE_BUILDINGS));
+        }
+
+        void send_put_in_container(Client* client, const Item* item)
+        {
+
+            auto msg = Network::AddItemContainerMsg(item->serial_ext, item->graphic, item->get_senditem_amount(),
+                item->x, item->y, item->slot_index(), item->container->serial_ext, item->color);
+            msg.Send(client);
+
+            if (client->UOExpansionFlag & AOS)
+                send_object_cache(client, dynamic_cast<const UObject*>(item));
+        }
+
+        void send_put_in_container_to_inrange(const Item *item)
+        {
+            auto msg = Network::AddItemContainerMsg(item->serial_ext, item->graphic, item->get_senditem_amount(),
+                item->x, item->y, item->slot_index(), item->container->serial_ext, item->color);
+
+            // FIXME mightsee also checks remote containers thus the ForEachPlayer functions cannot be used
+            for (auto &client2 : networkManager.clients)
+            {
+                if (!client2->ready)
+                    continue;
+                // FIXME need to check character's additional_legal_items.
+                // looks like inrange should be a Character member function.
+                if (client2->chr->mightsee(item->container))
+                {
+                    // FIXME if the container has an owner, and I'm not it, don't tell me?
+                    msg.Send(client2);
+                    if (client2->UOExpansionFlag & AOS)
+                    {
+                        send_object_cache(client2, dynamic_cast<const UObject*>(item));
+                    }
+                }
+            }
+        }
+
+        // An item is visible on a corpse if:
+        //   - it's visible
+        //   - or the chr has seeinvisitems() privilege
+        //   - it's hair or beard
+        bool can_see_on_corpse(const Client *client, const Item *item) {
+            bool invisible = (item->invisible() &&
+                !client->chr->can_seeinvisitems() &&
+                item->layer != Core::LAYER_HAIR &&
+                item->layer != Core::LAYER_BEARD &&
+                item->layer != Core::LAYER_FACE);
+
+            return !invisible;
+        }
+
+        // Helper function for send_corpse_items(). Sends packet 0x89 containing information
+        // of equipped items on the corpse.
+        void send_corpse_equip(Client *client, const UCorpse *corpse) {
+            PktHelper::PacketOut<PktOut_89> msg;
+            msg->offset += 2;
             msg->Write<u32>(corpse->serial_ext);
-            msg->WriteFlipped<u16>(item->color); //color
-            ++count;
+
+            for (unsigned layer = Core::LOWEST_LAYER; layer <= Core::HIGHEST_LAYER; ++layer)
+            {
+                Item *item2 = corpse->GetItemOnLayer(layer);
+
+                if (!item2)
+                    continue;
+
+                if (!can_see_on_corpse(client, item2))
+                    continue;
+
+                msg->Write<u8>(item2->layer);
+                msg->Write<u32>(item2->serial_ext);
+            }
+
+            msg->offset += 1; // nullterm byte
+            u16 len = msg->offset;
+            msg->offset = 1;
+            msg->WriteFlipped<u16>(len);
+
+            msg.Send(client, len);
         }
 
-        u16 len = msg->offset;
-        msg->offset = 1;
-        msg->WriteFlipped<u16>(len);
-        msg->WriteFlipped<u16>(count);
-        msg.Send(client, len);
-    }
+        // Helper function for send_corpse_items(). No need to send the full corpse contents,
+        // just the equipped items. Uses packet 0x3C.
+        void send_corpse_contents(Client *client, const UCorpse *corpse) {
+            PktHelper::PacketOut<PktOut_3C> msg;
+            msg->offset += 4; //msglen+count
+            u16 count = 0;
 
-	// FIXME it would be better to compose this message once and
-	// send to multiple clients.
-	// 
-    // The corpse requires a packet (0x89) to say which items are equipped and another (0x3C)
-    // to describe the equipped items (similar packet as in the send_container_contents(), but
-    // just the outside items).
-    
-    void send_corpse_items(Client *client, const Item *item)
-    {
-        const UCorpse *corpse = static_cast<const UCorpse *>(item);
-        send_corpse_equip(client, corpse);
-        send_corpse_contents(client, corpse);
-    }
+            for (unsigned layer = Core::LOWEST_LAYER; layer <= Core::HIGHEST_LAYER; ++layer)
+            {
+                const Items::Item* item = corpse->GetItemOnLayer(layer);
+
+                if (!item)
+                    continue;
+
+                if (!can_see_on_corpse(client, item))
+                    continue;
+
+                msg->Write<u32>(item->serial_ext);
+                msg->WriteFlipped<u16>(item->graphic);
+                msg->offset++; //unk6
+                msg->WriteFlipped<u16>(item->get_senditem_amount());
+                msg->WriteFlipped<u16>(item->x);
+                msg->WriteFlipped<u16>(item->y);
+                if (client->ClientType & CLIENTTYPE_6017)
+                    msg->Write<u8>(item->slot_index());
+                msg->Write<u32>(corpse->serial_ext);
+                msg->WriteFlipped<u16>(item->color); //color
+                ++count;
+            }
+
+            u16 len = msg->offset;
+            msg->offset = 1;
+            msg->WriteFlipped<u16>(len);
+            msg->WriteFlipped<u16>(count);
+            msg.Send(client, len);
+        }
+
+        // FIXME it would be better to compose this message once and
+        // send to multiple clients.
+        // 
+        // The corpse requires a packet (0x89) to say which items are equipped and another (0x3C)
+        // to describe the equipped items (similar packet as in the send_container_contents(), but
+        // just the outside items).
+
+        void send_corpse(Client *client, const Item *item)
+        {
+            const UCorpse *corpse = static_cast<const UCorpse *>(item);
+            send_corpse_equip(client, corpse);
+            send_corpse_contents(client, corpse);
+        }
+        
+        // This function sends every item in the corpse, not only the equipped items. It's mainly
+        // used to tell the player that he's now dead and his items are in the corpse.
+        void send_full_corpse(Client *client, const Item *item)
+        {
+            const UCorpse *corpse = static_cast<const UCorpse *>(item);
+            send_corpse_equip(client, corpse);
+            send_container_contents(client, *corpse);
+        }
+
+        void send_corpse_equip_inrange(const Item *item) {
+            const UCorpse* corpse = static_cast<const UCorpse *>(item);
+
+            WorldIterator<OnlinePlayerFilter>::InVisualRange(corpse, [&](Character *chr){
+                send_corpse_equip(chr->client, corpse);
+            });
+        }
 
    	// Item::sendto( Client* ) ??
 	void send_item( Client *client, const Item *item )
@@ -761,7 +783,7 @@ namespace Pol {
 	  // if the item is a corpse, transmit items contained by it
 	  if ( item->objtype_ == UOBJ_CORPSE )
 	  {
-		send_corpse_items( client, item );
+		send_corpse( client, item );
 	  }
 
 	  if ( client->UOExpansionFlag & AOS )
@@ -977,8 +999,8 @@ namespace Pol {
 	  // not in the backpack, or in a subpack.  check global items and subpacks.
 	  // FIXME doesn't check range?
 	  unsigned short wxL, wyL, wxH, wyH;
-	  zone_convert_clip( chr->x - 8, chr->y - 8, chr->realm, wxL, wyL );
-	  zone_convert_clip( chr->x + 8, chr->y + 8, chr->realm, wxH, wyH );
+	  zone_convert_clip( chr->x - 8, chr->y - 8, chr->realm, &wxL, &wyL );
+	  zone_convert_clip( chr->x + 8, chr->y + 8, chr->realm, &wxH, &wyH );
 	  for ( unsigned short wx = wxL; wx <= wxH; ++wx )
 	  {
 		for ( unsigned short wy = wyL; wy <= wyH; ++wy )
@@ -1033,8 +1055,8 @@ namespace Pol {
 
 	  // check items on the ground
 	  unsigned short wxL, wyL, wxH, wyH;
-	  zone_convert_clip( chr->x - 8, chr->y - 8, chr->realm, wxL, wyL );
-	  zone_convert_clip( chr->x + 8, chr->y + 8, chr->realm, wxH, wyH );
+	  zone_convert_clip( chr->x - 8, chr->y - 8, chr->realm, &wxL, &wyL );
+	  zone_convert_clip( chr->x + 8, chr->y + 8, chr->realm, &wxH, &wyH );
 	  for ( unsigned short wx = wxL; wx <= wxH; ++wx )
 	  {
 		for ( unsigned short wy = wyL; wy <= wyH; ++wy )
@@ -1403,7 +1425,7 @@ namespace Pol {
 
 	void broadcast( const char *text, unsigned short font, unsigned short color )
 	{
-	  for ( auto &client : clients )
+	  for ( auto &client : networkManager.clients )
 	  {
 		if ( !client->ready )
 		  continue;
@@ -1415,7 +1437,7 @@ namespace Pol {
 	void broadcast( const u16 *wtext, const char lang[4],
 					unsigned short font, unsigned short color )
 	{
-      for ( auto &client : clients )
+      for ( auto &client : networkManager.clients )
 	  {
 		if ( !client->ready )
 		  continue;
@@ -1657,14 +1679,14 @@ namespace Pol {
 	  PktHelper::PacketOut<PktOut_A3> msg;
 	  msg->Write<u32>( chr->serial_ext );
 
-	  if ( uoclient_general.stamina.any )
+	  if ( networkManager.uoclient_general.stamina.any )
 	  {
-		int v = chr->vital( uoclient_general.mana.id ).maximum_ones();
+		int v = chr->vital( networkManager.uoclient_general.mana.id ).maximum_ones();
 		if ( v > 0xFFFF )
 		  v = 0xFFFF;
 		msg->WriteFlipped<u16>( static_cast<u16>(v) );
 
-		v = chr->vital( uoclient_general.mana.id ).current_ones();
+		v = chr->vital( networkManager.uoclient_general.mana.id ).current_ones();
 		if ( v > 0xFFFF )
 		  v = 0xFFFF;
 		msg->WriteFlipped<u16>( static_cast<u16>(v) );
@@ -1683,14 +1705,14 @@ namespace Pol {
 	  PktHelper::PacketOut<PktOut_A2> msg;
 	  msg->Write<u32>( chr->serial_ext );
 
-	  if ( uoclient_general.mana.any )
+	  if ( networkManager.uoclient_general.mana.any )
 	  {
-		int v = chr->vital( uoclient_general.mana.id ).maximum_ones();
+		int v = chr->vital( networkManager.uoclient_general.mana.id ).maximum_ones();
 		if ( v > 0xFFFF )
 		  v = 0xFFFF;
 		msg->WriteFlipped<u16>( static_cast<u16>(v) );
 
-		v = chr->vital( uoclient_general.mana.id ).current_ones();
+		v = chr->vital( networkManager.uoclient_general.mana.id ).current_ones();
 		if ( v > 0xFFFF )
 		  v = 0xFFFF;
 		msg->WriteFlipped<u16>( static_cast<u16>(v) );
@@ -1726,7 +1748,7 @@ namespace Pol {
           return;
         if ( is_UOKR && ( !( client->ClientType & CLIENTTYPE_UOKR ) ) )
           return;
-        ADDTOSENDQUEUE( client, msg, msglen );
+        Core::networkManager.clientTransmit->AddToQueue( client, msg, msglen );
       } );
 	}
 
@@ -1741,7 +1763,7 @@ namespace Pol {
           return;
         if ( zonechr == center )
           return;
-        ADDTOSENDQUEUE( client, msg, msglen );
+        Core::networkManager.clientTransmit->AddToQueue( client, msg, msglen );
       } );
 	}
 
@@ -1920,7 +1942,7 @@ namespace Pol {
 	  lightregion->lightlevel = lightlevel;
 	  PktHelper::PacketOut<PktOut_4F> msg;
 	  msg->Write<u8>( static_cast<u8>(lightlevel) );
-	  for ( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
+	  for ( Clients::iterator itr = networkManager.clients.begin(), end = networkManager.clients.end(); itr != end; ++itr )
 	  {
 		Client *client = *itr;
 		if ( !client->ready )
@@ -1943,11 +1965,11 @@ namespace Pol {
 		else
 		{
 		  //dave 12-22 check for no regions
-		  LightRegion* light_region = lightdef->getregion( client->chr->x, client->chr->y, client->chr->realm );
+		  LightRegion* light_region = gamestate.lightdef->getregion( client->chr->x, client->chr->y, client->chr->realm );
 		  if ( light_region != NULL )
 			newlightlevel = light_region->lightlevel;
 		  else
-			newlightlevel = ssopt.default_light_level;
+			newlightlevel = settingsManager.ssopt.default_light_level;
 		}
 
 		if ( newlightlevel != client->gd->lightlevel )
@@ -1994,7 +2016,7 @@ namespace Pol {
 	  weatherregion->aux = static_cast<unsigned char>( aux );
 	  weatherregion->lightoverride = lightoverride;
 
-      for ( auto &client : clients )
+      for ( auto &client : networkManager.clients )
       {
         update_weatherregion( client, weatherregion );
       }
@@ -2002,7 +2024,7 @@ namespace Pol {
 
 	void update_all_weatherregions()
 	{
-      for ( auto &client : clients )
+      for ( auto &client : networkManager.clients )
       {
         if ( !client->ready )
           return;
@@ -2036,7 +2058,7 @@ namespace Pol {
 		desc = s;
 	  }
 	  else
-	  if ( ssopt.use_tile_flag_prefix )
+	  if ( settingsManager.ssopt.use_tile_flag_prefix )
 	  {
 		if ( polflags & Plib::FLAG::DESC_PREPEND_AN )
 		{
@@ -2249,12 +2271,12 @@ namespace Pol {
 	  // Change flag according to the number of CharacterSlots
 	  if ( client->UOExpansionFlag & AOS )
 	  {
-		if ( config.character_slots == 7 )
+		if ( Plib::systemstate.config.character_slots == 7 )
 		{
 		  clientflag |= 0x1000; // 7th & 6th character flag (B9 Packet)
 		  clientflag &= ~0x0004; // Disable Third Dawn?
 		}
-		else if ( config.character_slots == 6 )
+		else if ( Plib::systemstate.config.character_slots == 6 )
 		{
 		  clientflag |= 0x0020; // 6th character flag (B9 Packet)
 		  clientflag &= ~0x0004;
@@ -2264,7 +2286,7 @@ namespace Pol {
 	  // Roleplay faces?
 	  if ( client->UOExpansionFlag & KR )
 	  {
-		if ( ssopt.support_faces == 2 )
+		if ( settingsManager.ssopt.support_faces == 2 )
 		  clientflag |= 0x2000;
 	  }
 
@@ -2289,11 +2311,11 @@ namespace Pol {
 	{
 	  PktHelper::PacketOut<PktOut_BF_Sub18> msg;
 	  msg->offset += 4; //len+sub
-	  msg->WriteFlipped<u32>( baserealm_count );
-	  for ( unsigned int i = 0; i < baserealm_count; i++ )
+	  msg->WriteFlipped<u32>( gamestate.baserealm_count );
+	  for ( unsigned int i = 0; i < gamestate.baserealm_count; i++ )
 	  {
-		msg->WriteFlipped<u32>( Realms->at( i )->getNumStaticPatches() );
-		msg->WriteFlipped<u32>( Realms->at( i )->getNumMapPatches() );
+		msg->WriteFlipped<u32>( gamestate.Realms.at( i )->getNumStaticPatches() );
+		msg->WriteFlipped<u32>( gamestate.Realms.at( i )->getNumMapPatches() );
 	  }
 	  u16 len = msg->offset;
 	  msg->offset = 1;

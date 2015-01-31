@@ -12,7 +12,7 @@ Notes
 #include "uobject.h"
 #include "mobile/charactr.h"
 #include "item/item.h"
-#include "npc.h"
+#include "mobile/npc.h"
 
 #include "../clib/logfacility.h"
 
@@ -20,6 +20,7 @@ Notes
 
 namespace Pol {
   namespace Core {
+#if REFTYPE_DEBUG
 	int hits = 0;
 	int uobjectrefs = 0;
 	int characterrefs;
@@ -29,15 +30,18 @@ namespace Pol {
 	typedef std::map<int, CharacterRef*> CharacterRefs;
 	CharacterRefs crefs;
 	unsigned int crefs_count;
+#endif
 
 	void display_reftypes()
 	{
+#if REFTYPE_DEBUG
       fmt::Writer tmp;
 	  for ( CharacterRefs::iterator itr = crefs.begin(); itr != crefs.end(); ++itr )
 	  {
         tmp << "cref " << ( *itr ).first << "=0x" << fmt::hexu(( *itr ).second->get()->serial )<< "\n";
 	  }
       INFO_PRINT << tmp.c_str();
+#endif
 	}
 #if REFTYPE_DEBUG
 	UObjectRef::UObjectRef( UObject* ptr ) : ref_ptr<UObject>(ptr)
@@ -143,7 +147,7 @@ namespace Pol {
 	}
 
 
-	NPCRef::NPCRef( NPC* ptr ) : ref_ptr<NPC>(ptr)
+	NPCRef::NPCRef( Mobile::NPC* ptr ) : ref_ptr<Mobile::NPC>(ptr)
 	{
 	  if (get() && get()->serial_ext == 0x619d1300)
 	  {
@@ -151,7 +155,7 @@ namespace Pol {
 	  }
 	  ++npcrefs;
 	}
-	NPCRef::NPCRef( const NPCRef& rptr ) : ref_ptr<NPC>(rptr)
+	NPCRef::NPCRef( const NPCRef& rptr ) : ref_ptr<Mobile::NPC>(rptr)
 	{
 	  if (get() && get()->serial_ext == 0x619d1300)
 	  {

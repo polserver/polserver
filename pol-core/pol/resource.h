@@ -50,6 +50,7 @@ namespace Pol {
 	{
 	public:
 	  explicit ResourceRegion( Clib::ConfigElem& elem, RegionId id );
+      virtual size_t estimateSize() const POL_OVERRIDE;
 
 	  void read_data( Clib::ConfigElem& elem );
 
@@ -87,6 +88,7 @@ namespace Pol {
 	  explicit ResourceDef( const char* name );
 	  void read_config( Clib::ConfigElem& elem );
 	  void read_data( Clib::ConfigElem& elem );
+      virtual size_t estimateSize() const POL_OVERRIDE;
 	  // void read_region( ConfigElem& elem );
 
 	  bool findmarker( xcoord x, ycoord y, Plib::Realm* realm, unsigned int objtype );

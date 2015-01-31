@@ -10,8 +10,9 @@ Notes
 =======
 
 */
+#ifndef BANNEDIPS_H
+#define BANNEDIPS_H
 
-#include <vector>
 namespace Pol {
   namespace Network {
 	struct IPRule
@@ -19,8 +20,7 @@ namespace Pol {
 	  unsigned int ipMatch;
 	  unsigned int ipMask;
 	};
-
-	std::vector< IPRule > banned_ips;
-
   }
 }
+
+#endif

@@ -23,6 +23,9 @@ namespace Pol {
   namespace Bscript {
 	class BObjectImp;
   }
+  namespace Plib {
+	class Realm;
+  }
   namespace Core {
 	class RegionGroupBase;
 
@@ -32,6 +35,7 @@ namespace Pol {
 	  Bscript::BObjectImp* get_region_string( const std::string& propname );
 	  const std::string& name() const;
 	  RegionId regionid() const;
+      virtual size_t estimateSize() const;
 
 	protected:
 	  explicit Region( Clib::ConfigElem& elem, RegionId id );
@@ -68,6 +72,7 @@ namespace Pol {
 	public:
 	  explicit RegionGroupBase( const char* name );
 	  virtual ~RegionGroupBase();
+      virtual size_t estimateSize() const;
 
 	  void read_region( Clib::ConfigElem& elem );
 	  void create_bgnd_region( Clib::ConfigElem& elem );
@@ -78,7 +83,6 @@ namespace Pol {
 	  Region* getregion_byloc( xcoord x, ycoord y, Plib::Realm* realm );
 
 	  std::vector<Region*> regions_;
-	  //RegionId **regionidx_;//[ZONE_X][ZONE_Y]; // 1-based
 
 	  typedef std::map<Plib::Realm*, RegionId**> RegionRealms;
 	  RegionRealms regionrealms;

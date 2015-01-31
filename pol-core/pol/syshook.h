@@ -57,7 +57,7 @@ namespace Pol {
 	{
 	public:
 	  SystemHooks();
-	  //void clear();
+	  void unload_system_hooks();
 
 	  ExportedFunction* check_skill_hook;
 	  ExportedFunction* open_spellbook_hook;
@@ -77,13 +77,13 @@ namespace Pol {
 	  ExportedFunction* warmode_change;
 	  ExportedFunction* can_trade;
 	};
-	extern SystemHooks system_hooks;
 
 	ExportedFunction* FindExportedFunction( Clib::ConfigElem& elem,
 											const Plib::Package* pkg,
 											const std::string& descriptor,
 											unsigned nargs,
 											bool complain_if_missing = true );
+
   }
 }
 #endif

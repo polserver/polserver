@@ -18,6 +18,7 @@ Notes
 #include "scrstore.h"
 #include "scrsched.h"
 #include "uoscrobj.h"
+#include "globals/uvars.h"
 
 #include "network/client.h"
 #include "network/cgdata.h"
@@ -37,18 +38,29 @@ namespace Pol {
 	  enter_script_( elem.remove_string( "EnterScript", "" ) ),
 	  leave_script_( elem.remove_string( "LeaveScript", "" ) )
 	{}
-	JusticeDef* justicedef;
 
 	void read_justice_zones()
 	{
-	  justicedef = new JusticeDef( "Justice" );
-	  read_region_data( *justicedef,
+	  gamestate.justicedef = new JusticeDef( "Justice" );
+	  read_region_data( *gamestate.justicedef,
 						"regions/justice.cfg", // preferred
 						"regions/regions.cfg", // other
 						"JusticeRegion Region" );
 
 
 	}
+
+    size_t JusticeRegion::estimateSize() const
+    {
+      size_t size = Region::estimateSize();
+      size += 2* sizeof(bool); /*guarded_ nocombat_*/
+      size += region_name_.capacity()
+        + entertext_.capacity()
+        + leavetext_.capacity()
+        + enter_script_.capacity()
+        + leave_script_.capacity();
+      return size;
+    }
 
 	bool JusticeRegion::RunEnterScript( Mobile::Character* chr )
 	{

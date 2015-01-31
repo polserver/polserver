@@ -26,7 +26,6 @@ Notes
 
 #include "../uoexhelp.h"
 #include "../uoscrobj.h"
-#include "../wrldsize.h"
 
 namespace Pol {
   namespace Bscript {

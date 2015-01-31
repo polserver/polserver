@@ -12,21 +12,21 @@ Notes
 #define REPSYS_H
 
 #include "polclock.h"
-#include "npc.h"
 
 namespace Pol {
   namespace Mobile {
 	class Character;
+	class NPC;
   }
   namespace Network {
 	class Client;
   }
   namespace Core {
-	class NPC;
-	class Party;
 
 	class RepSystem
 	{
+	  friend class Mobile::NPC;
+	  friend class Mobile::Character;
 	private:
 
 	  static void on_pc_attacks_pc( Mobile::Character* attacker, Mobile::Character* defender );
@@ -43,22 +43,6 @@ namespace Pol {
 	  static void schedule_repsys_task( Mobile::Character* chr, polclock_t runat );
 
 	  static void show_repdata( Network::Client* client, Mobile::Character* mob );
-
-
-	  friend void Mobile::Character::make_criminal( int level );
-	  friend void Mobile::Character::make_murderer( bool newval );
-	  friend void Mobile::Character::make_aggressor_to( Mobile::Character* chr );
-	  friend void Mobile::Character::make_lawfullydamaged_to( Mobile::Character* chr );
-
-
-	  friend void Mobile::Character::repsys_on_attack( Mobile::Character* defender );
-	  friend void Mobile::Character::repsys_on_damage( Mobile::Character* defender );
-	  friend void Mobile::Character::repsys_on_help( Mobile::Character* helper );
-
-	  friend unsigned char Mobile::Character::hilite_color_idx( const Mobile::Character* seen_by ) const;
-	  friend unsigned short Mobile::Character::name_color( const Mobile::Character* seen_by ) const;
-	  friend unsigned char NPC::hilite_color_idx( const Mobile::Character* seen_by ) const;
-	  friend unsigned short NPC::name_color( const Mobile::Character* seen_by ) const;
 
 	  friend void show_repdata( Mobile::Character* looker, Mobile::Character* mob );
 	};

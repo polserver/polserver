@@ -100,8 +100,6 @@ namespace Pol {
 	int UnloadConfigFile( const std::string& filename );
 	ConfigFileRef LoadTusScpFile( const std::string& filename );
 
-    size_t configfileEstimateSize(size_t* count);
-
 #ifdef MEMORYLEAK
 	void ConfigFiles_log_stuff();
 #endif

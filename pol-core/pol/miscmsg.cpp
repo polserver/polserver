@@ -39,12 +39,11 @@ Notes
 #include "pktin.h"
 #include "spells.h"
 #include "tooltips.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 #include "ufunc.h"
 #include "uoscrobj.h"
 #include "sockio.h"
 
-#include "ssopt.h"
 #include "scrstore.h"
 #include "polcfg.h"
 
@@ -55,6 +54,8 @@ Notes
 #include "../clib/strutil.h"
 #include "../clib/stlutil.h"
 #include "../clib/unicode.h"
+#include "../plib/systemstate.h"
+
 
 #include <cstddef>
 
@@ -77,7 +78,6 @@ namespace Pol {
 	{
 	  handle_unknown_packet( client );
 	}
-	MESSAGE_HANDLER_VARLEN( PKTBI_71, handle_bulletin_boards );
 
 	void handle_mode_set( Client *client, PKTBI_72 *msg )
 	{
@@ -88,7 +88,7 @@ namespace Pol {
 	  }
 	  else
 	  {
-		client->chr->warmode_wait = read_gameclock() + combat_config.warmode_delay;
+		client->chr->warmode_wait = read_gameclock() + settingsManager.combat_config.warmode_delay;
 	  }
 
 	  bool msg_warmode = msg->warmode ? true : false;
@@ -98,7 +98,6 @@ namespace Pol {
 
 	  client->chr->set_warmode( msg_warmode );
 	}
-	MESSAGE_HANDLER( PKTBI_72, handle_mode_set );
 
 	void handle_rename_char( Client* client, PKTIN_75* msg )
 	{
@@ -138,19 +137,17 @@ namespace Pol {
 		send_sysmessage( client, "I can't find that." );
 	  }
 	}
-	MESSAGE_HANDLER( PKTIN_75, handle_rename_char );
 
 	void handle_msg_B5( Client* client, PKTIN_B5* /*msg*/ )
 	{
 	  OnChatButton( client );
 	}
-	MESSAGE_HANDLER( PKTIN_B5, handle_msg_B5 );
 
 	void handle_char_profile_request( Client* client, PKTBI_B8_IN* msg )
 	{
       ref_ptr<Bscript::EScriptProgram> prog = find_script( "misc/charprofile",
 												  true,
-												  config.cache_interactive_scripts );
+												  Plib::systemstate.config.cache_interactive_scripts );
 	  if ( prog.get() != NULL )
 	  {
         Mobile::Character* mobile;
@@ -197,13 +194,11 @@ namespace Pol {
 		}
 	  }
 	}
-	MESSAGE_HANDLER_VARLEN( PKTBI_B8_IN, handle_char_profile_request );
 
 	void handle_msg_BB( Client* client, PKTBI_BB* /*msg*/ )
 	{
 	  handle_unknown_packet( client );
 	}
-	MESSAGE_HANDLER( PKTBI_BB, handle_msg_BB );
 
 	void handle_client_version( Client* client, PKTBI_BD* msg )
 	{
@@ -249,7 +244,7 @@ namespace Pol {
 		else if ( client->compareVersion( CLIENT_VER_4000 ) )
 		  client->setClientType( CLIENTTYPE_4000 );
 
-		if ( ssopt.core_sends_season )
+		if ( settingsManager.ssopt.core_sends_season )
 		  send_season_info( client );	// Scott 10/11/2007 added for login fixes and handling 1.x clients.
 		// Season info needs to check client version to keep from crashing 1.x
 		// version not set until shortly after login complete.
@@ -264,23 +259,22 @@ namespace Pol {
 		  POLLOG_INFO << "Suspect string length in PKTBI_BD packet: " << len << "\n";
 	  }
 	}
-	MESSAGE_HANDLER_VARLEN( PKTBI_BD, handle_client_version );
 
 	void ext_stats_in( Client* client, PKTBI_BF* msg )
 	{
-	  if ( ssopt.core_handled_locks )
+	  if ( settingsManager.ssopt.core_handled_locks )
 	  {
         const Mobile::Attribute *attrib = NULL;
 		switch ( msg->extstatin.stat )
 		{
 		  case PKTBI_BF_1A::STAT_STR:
-            attrib = Mobile::pAttrStrength;
+            attrib = gamestate.pAttrStrength;
 			break;
 		  case PKTBI_BF_1A::STAT_DEX:
-            attrib = Mobile::pAttrDexterity;
+            attrib = gamestate.pAttrDexterity;
 			break;
 		  case PKTBI_BF_1A::STAT_INT:
-            attrib = Mobile::pAttrIntelligence;
+            attrib = gamestate.pAttrIntelligence;
 			break;
 		  default: // sent an illegal stat. Should report to console?
 			return;
@@ -371,19 +365,16 @@ namespace Pol {
 		  handle_unknown_packet( client );
 	  }
 	}
-	MESSAGE_HANDLER_VARLEN( PKTBI_BF, handle_msg_BF );
 
 	void handle_unknown_C4( Client* client, PKTOUT_C4* /*msg*/ )
 	{
 	  handle_unknown_packet( client );
 	}
-	MESSAGE_HANDLER( PKTOUT_C4, handle_unknown_C4 );
 
 	void handle_update_range_change( Client* client, PKTBI_C8* /*msg*/ )
 	{
 	  handle_unknown_packet( client );
 	}
-	MESSAGE_HANDLER( PKTBI_C8, handle_update_range_change );
 
 	void handle_allnames( Client *client, PKTBI_98_IN *msg )
 	{
@@ -412,7 +403,6 @@ namespace Pol {
 		return;
 	  }
 	}
-	MESSAGE_HANDLER( PKTBI_98_IN, handle_allnames );
 
 	void handle_se_object_list( Client* client, PKTBI_D6_IN* msgin )
 	{
@@ -429,7 +419,6 @@ namespace Pol {
 		  SendAOSTooltip( client, obj );
 	  }
 	}
-	MESSAGE_HANDLER_VARLEN( PKTBI_D6_IN, handle_se_object_list );
 
 	void handle_ef_seed( Client *client, PKTIN_EF *msg )
 	{
@@ -467,7 +456,6 @@ namespace Pol {
 	  os << detail.major << "." << detail.minor << "." << detail.rev << "." << detail.patch;
 	  client->setversion( OSTRINGSTREAM_STR( os ) );
 	}
-	MESSAGE_HANDLER( PKTIN_EF, handle_ef_seed );
 
 	void handle_e1_clienttype( Client *client, PKTIN_E1 *msg )
 	{
@@ -484,7 +472,6 @@ namespace Pol {
 		  break;
 	  }
 	}
-	MESSAGE_HANDLER( PKTIN_E1, handle_e1_clienttype );
 
 
 	void handle_aos_commands( Client *client, PKTBI_D7* msg )
@@ -553,13 +540,12 @@ namespace Pol {
 		  handle_unknown_packet( client );
 	  }
 	}
-	MESSAGE_HANDLER_VARLEN( PKTBI_D7, handle_aos_commands );
 
 	void OnGuildButton( Client* client )
 	{
       ref_ptr<Bscript::EScriptProgram> prog = find_script( "misc/guildbutton",
 												  true,
-												  config.cache_interactive_scripts );
+												  Plib::systemstate.config.cache_interactive_scripts );
 	  if ( prog.get() != NULL )
 	  {
 		client->chr->start_script( prog.get(), false );
@@ -570,7 +556,7 @@ namespace Pol {
 	{
       ref_ptr<Bscript::EScriptProgram> prog = find_script( "misc/questbutton",
 												  true,
-												  config.cache_interactive_scripts );
+												  Plib::systemstate.config.cache_interactive_scripts );
 	  if ( prog.get() != NULL )
 	  {
 		client->chr->start_script( prog.get(), false );
@@ -581,7 +567,7 @@ namespace Pol {
 	{
 	  ref_ptr<Bscript::EScriptProgram> prog = find_script( "misc/chatbutton",
 												  true,
-												  config.cache_interactive_scripts );
+												  Plib::systemstate.config.cache_interactive_scripts );
 	  if ( prog.get() != NULL )
 	  {
 		client->chr->start_script( prog.get(), false );

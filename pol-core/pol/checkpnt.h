@@ -13,7 +13,6 @@ Notes
 
 namespace Pol {
   namespace Core {
-	extern const char* last_checkpoint;
 	void checkpoint( const char* msg, unsigned short minlvl = 11 );
 
 	class Checkpoint

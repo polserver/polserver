@@ -225,6 +225,7 @@
     <ClCompile Include="realmlos.cpp" />
     <ClCompile Include="realmlos2.cpp" />
     <ClCompile Include="staticserver.cpp" />
+	<ClCompile Include="systemstate.cpp" />
     <ClCompile Include="testdrop1.cpp" />
     <ClCompile Include="testenv.cpp" />
     <ClCompile Include="testlos1.cpp" />
@@ -252,6 +253,7 @@
     <ClInclude Include="staticblock.h" />
     <ClInclude Include="staticserver.h" />
     <ClInclude Include="stlastar.h" />
+	<ClInclude Include="systemstate.h" />
     <ClInclude Include="testenv.h" />
     <ClInclude Include="uoexpansion.h" />
 	<ClInclude Include="WorldChangeReasons.h" />

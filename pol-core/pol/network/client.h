@@ -31,7 +31,7 @@ Notes
 
 #include "../pktin.h"
 #include "../sockets.h"
-#include "../ucfg.h"
+#include "../uconst.h"
 #include "../crypt/cryptkey.h"
 
 #include <memory>
@@ -62,8 +62,6 @@ namespace Pol {
 	class ClientGameData;
 	class ClientInterface;
 	class UOClientInterface;
-
-	extern UOClientInterface uo_client_interface;
 
 	const u16 T2A = 0x01;
 	const u16 LBR = 0x02;

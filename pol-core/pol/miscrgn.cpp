@@ -14,6 +14,7 @@ Notes
 #include "ufunc.h"
 #include "realms.h"
 #include "uworld.h"
+#include "globals/uvars.h"
 
 #include "../plib/realm.h"
 
@@ -26,12 +27,16 @@ namespace Pol {
 	  nocast_( elem.remove_bool( "nocast", false ) )
 	{}
 
-	NoCastDef* nocastdef;
+    size_t NoCastRegion::estimateSize() const
+    {
+      return base::estimateSize()
+        + sizeof(bool);/*nocast_*/
+    }
 
 	void read_nocast_zones()
 	{
-	  nocastdef = new NoCastDef( "nocast" );
-	  read_region_data( *nocastdef,
+	  gamestate.nocastdef = new NoCastDef( "nocast" );
+	  read_region_data( *gamestate.nocastdef,
 						"regions/nocast.cfg",
 						"regions/regions.cfg",
 						"NoCastRegion Region" );
@@ -42,12 +47,16 @@ namespace Pol {
 	  lightlevel( elem.remove_ushort( "LightLevel", 0 ) )
 	{}
 
-	LightDef* lightdef;
+    size_t LightRegion::estimateSize() const
+    {
+      return base::estimateSize()
+        + sizeof(unsigned);/*lightlevel*/
+    }
 
 	void read_light_zones()
 	{
-	  lightdef = new LightDef( "light" );
-	  read_region_data( *lightdef,
+	  gamestate.lightdef = new LightDef( "light" );
+	  read_region_data( *gamestate.lightdef,
 						"regions/light.cfg",
 						"regions/regions.cfg",
 						"LightRegion Region" );
@@ -62,30 +71,31 @@ namespace Pol {
 	  lightoverride( elem.remove_int( "LightOverride", -1 ) )
 	{}
 
+    size_t WeatherRegion::estimateSize() const
+    {
+      return base::estimateSize()
+        + 3* sizeof(unsigned char) /*weathertype severity aux*/
+        + sizeof(int); /*lightoverride*/
+    }
+
 	WeatherDef::WeatherDef( const char *name ) : RegionGroup<WeatherRegion>( name )
 	{
-      for ( auto const &realm : *Realms )
+      for ( auto const &realm : gamestate.Realms )
       {
-        unsigned int gridwidth = realm->width() / WGRID_SIZE;
-        unsigned int gridheight = realm->height() / WGRID_SIZE;
+        unsigned int gridwidth = realm->width( ) / ZONE_SIZE;
+        unsigned int gridheight = realm->height( ) / ZONE_SIZE;
 
-        // Tokuno-Fix
-        if ( gridwidth * WGRID_SIZE < realm->width() )
-          gridwidth++;
-        if ( gridheight * WGRID_SIZE < realm->height() )
-          gridheight++;
+		RegionId** zone = new RegionId*[gridwidth];
 
-        RegionId** zone = new RegionId*[gridwidth];
-
-        for ( unsigned int i = 0; i < gridwidth; i++ )
-        {
-          zone[i] = new RegionId[gridheight];
-          for ( unsigned int j = 0; j < gridheight; j++ )
-          {
-            zone[i][j] = 0;
-          }
-        }
-        default_regionrealms.insert( std::make_pair( realm, zone ) );
+		for ( unsigned int i = 0; i < gridwidth; i++ )
+		{
+		  zone[i] = new RegionId[gridheight];
+		  for ( unsigned int j = 0; j < gridheight; j++ )
+		  {
+			zone[i][j] = 0;
+		  }
+		}
+        default_regionrealms.insert(std::make_pair(realm, zone));
       }
 	}
 
@@ -93,11 +103,7 @@ namespace Pol {
 	{
 	  for ( auto &realmregion : default_regionrealms )
 	  {
-        unsigned int gridwidth = realmregion.first->width() / WGRID_SIZE;
-
-		// Tokuno-Fix
-        if ( gridwidth * WGRID_SIZE < realmregion.first->width() )
-		  gridwidth++;
+		unsigned int gridwidth = realmregion.first->width() / ZONE_SIZE;
 
 		for ( unsigned int i = 0; i < gridwidth; i++ )
           delete[] realmregion.second[i];
@@ -105,22 +111,25 @@ namespace Pol {
 	  }
 	}
 
+    size_t WeatherDef::estimateSize() const
+    {
+      size_t size = RegionGroup<WeatherRegion>::estimateSize();
+
+      for ( const auto &realm : default_regionrealms)
+	  {
+		unsigned int gridwidth = realm.first->width() / ZONE_SIZE;
+        size+=gridwidth*sizeof(RegionId) + sizeof(Plib::Realm*)+ ( sizeof(void*) * 3 + 1 ) / 2;
+	  }
+      return size;
+    }
+
 	void WeatherDef::copy_default_regions()
 	{
-	  //memcpy( &default_regionidx_, regionidx_, sizeof default_regionidx_ );
       for ( auto &realmregion : regionrealms )
 	  {
         Plib::Realm* realm = realmregion.first;
-		unsigned int gridwidth = realm->width() / WGRID_SIZE;
-		unsigned int gridheight = realm->height() / WGRID_SIZE;
-
-		// Tokuno-Fix
-		if ( gridwidth * WGRID_SIZE < realm->width() )
-		  gridwidth++;
-		if ( gridheight * WGRID_SIZE < realm->height() )
-		  gridheight++;
-
-		//RegionId** zone = new RegionId*[gridwidth];
+		unsigned int gridwidth = realm->width() / ZONE_SIZE;
+        unsigned int gridheight = realm->height() / ZONE_SIZE;
 
 		for ( unsigned int i = 0; i < gridwidth; i++ )
 		{
@@ -180,17 +189,15 @@ namespace Pol {
 	  return true;
 	}
 
-	WeatherDef* weatherdef;
-
 	void read_weather_zones()
 	{
-	  weatherdef = new WeatherDef( "weather" );
-	  read_region_data( *weatherdef,
+	  gamestate.weatherdef = new WeatherDef( "weather" );
+	  read_region_data( *gamestate.weatherdef,
 						"regions/weather.cfg",
 						"regions/regions.cfg",
 						"WeatherRegion Region" );
 
-	  weatherdef->copy_default_regions();
+	  gamestate.weatherdef->copy_default_regions();
 	}
   }
 }

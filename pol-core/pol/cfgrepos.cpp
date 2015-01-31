@@ -30,8 +30,14 @@ Configuration File Repository
 #include "../clib/strutil.h"
 
 #include "../plib/pkg.h"
+#include "../plib/systemstate.h"
+
+#include "globals/ucfg.h"
 
 #include <sys/stat.h>
+#if !defined(_WIN32)
+#include <sys/types.h>
+#endif
 
 #include <vector>
 #include <stdexcept>
@@ -244,18 +250,10 @@ namespace Pol {
       return size;
     }
 
-
-
-    typedef std::map<std::string, ConfigFileRef> CfgFiles;
-    typedef std::vector<std::string> OldCfgFiles; // we've multiple older instances
-	CfgFiles cfgfiles;
-	OldCfgFiles oldcfgfiles;
-
-
     ConfigFileRef FindConfigFile(const std::string& filename, const std::string& allpkgbase)
 	{
-	  CfgFiles::iterator itr = cfgfiles.find( filename );
-	  if ( itr != cfgfiles.end() )
+	  CfgFiles::iterator itr = Core::configurationbuffer.cfgfiles.find( filename );
+	  if ( itr != Core::configurationbuffer.cfgfiles.end() )
 	  {
 		if ( ( *itr ).second->reload ) // check cfg file modification?
 		{
@@ -263,8 +261,8 @@ namespace Pol {
 		  stat( filename.c_str(), &newcfgstat );
 		  if ( ( *itr ).second->modified() != newcfgstat.st_mtime )
 		  {
-			oldcfgfiles.push_back( ( *itr ).first );
-			cfgfiles.erase( itr );
+			Core::configurationbuffer.oldcfgfiles.push_back( ( *itr ).first );
+			Core::configurationbuffer.cfgfiles.erase( itr );
 		  }
 		  else
 			return ( *itr ).second;
@@ -286,7 +284,7 @@ namespace Pol {
 			scfg->load( cf_main );
 			any = true;
 		  }
-		  for ( Plib::Packages::iterator pitr = Plib::packages.begin( ), pitrend = Plib::packages.end( ); pitr != pitrend; ++pitr )
+		  for ( Plib::Packages::iterator pitr = Plib::systemstate.packages.begin( ), pitrend = Plib::systemstate.packages.end( ); pitr != pitrend; ++pitr )
 		  {
 			Plib::Package* pkg = ( *pitr );
 			//string pkgfilename = pkg->dir() + allpkgbase + ".cfg";
@@ -300,14 +298,14 @@ namespace Pol {
 		  }
 		  if ( !any )
 			return ConfigFileRef( 0 );
-		  cfgfiles.insert( CfgFiles::value_type( filename, scfg ) );
+		  Core::configurationbuffer.cfgfiles.insert( CfgFiles::value_type( filename, scfg ) );
 		  return scfg;
 		}
 		else
 		{
 		  if ( !Clib::FileExists( filename.c_str() ) )
 		  {
-			if ( config.report_missing_configs )
+			if ( Plib::systemstate.config.report_missing_configs )
 			{
               DEBUGLOG << "Config File " << filename << " does not exist.\n";
 			}
@@ -318,7 +316,7 @@ namespace Pol {
 
 		  ref_ptr<StoredConfigFile> scfg( new StoredConfigFile() );
 		  scfg->load( cf );
-		  cfgfiles.insert( CfgFiles::value_type( filename, scfg ) );
+		  Core::configurationbuffer.cfgfiles.insert( CfgFiles::value_type( filename, scfg ) );
 		  return scfg;
 		}
 	  }
@@ -345,13 +343,13 @@ namespace Pol {
     void CreateEmptyStoredConfigFile(const std::string& filename)
 	{
 	  ref_ptr<StoredConfigFile> scfg( new StoredConfigFile() );
-	  cfgfiles.insert( CfgFiles::value_type( filename, scfg ) );
+	  Core::configurationbuffer.cfgfiles.insert( CfgFiles::value_type( filename, scfg ) );
 	}
 
     int UnloadConfigFile(const std::string& filename)
 	{
-	  CfgFiles::iterator itr = cfgfiles.find( filename );
-	  if ( itr != cfgfiles.end() )
+	  CfgFiles::iterator itr = Core::configurationbuffer.cfgfiles.find( filename );
+	  if ( itr != Core::configurationbuffer.cfgfiles.end() )
 	  {
 		( *itr ).second->reload = true; // check cfg file modification on FindConfigFile
 
@@ -366,32 +364,11 @@ namespace Pol {
 #ifdef MEMORYLEAK
 	void ConfigFiles_log_stuff()
 	{
-      DEBUGLOG << "ConfigFiles: " << cfgfiles.size() << " files loaded and "
-        << oldcfgfiles.size() << " files 'removed'\n";
+      DEBUGLOG << "ConfigFiles: " << Core::configurationbuffer.cfgfiles.size() << " files loaded and "
+        << Core::configurationbuffer.oldcfgfiles.size() << " files 'removed'\n";
 
-	  LEAKLOG << cfgfiles.size() << ";" << oldcfgfiles.size() << ";";
+	  LEAKLOG << Core::configurationbuffer.cfgfiles.size() << ";" << Core::configurationbuffer.oldcfgfiles.size() << ";";
 	}
 #endif
-
-    size_t configfileEstimateSize(size_t* count)
-    {
-      size_t size = 0;
-      *count = cfgfiles.size();
-      for ( const auto& pair : cfgfiles )
-      {
-        size_t cfgsize = 0;
-        if ( pair.second.get() != nullptr )
-          cfgsize += pair.second->estimateSize();
-        size += ( pair.first.capacity( ) + cfgsize ) + ( sizeof(void*)* 3 + 1 ) / 2;
-      }
-      return size;
-    }
-
-	// ToDo: we have to think over... it's a problem with script-inside references
-	void UnloadAllConfigFiles()
-	{
-	  oldcfgfiles.clear();
-	  cfgfiles.clear();
-	}
   }
 }

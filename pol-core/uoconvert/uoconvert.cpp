@@ -31,6 +31,7 @@ Notes
 #include "../plib/mapshape.h"
 #include "../plib/mapwriter.h"
 #include "../plib/realmdescriptor.h"
+#include "../plib/systemstate.h"
 
 #include "../clib/stlutil.h"
 #include "../clib/cfgelem.h"
@@ -56,15 +57,11 @@ namespace Pol {
     std::string flagstr( unsigned char flags );
   }
   namespace Core{
-    PolConfig config;
     void safe_getmapinfo( unsigned short x, unsigned short y, short* z, USTRUCT_MAPINFO* mi );
   }
   namespace UOConvert {
     using namespace Core;
     using namespace Plib;
-
-	size_t mapcache_misses;
-	size_t mapcache_hits;
 
 	bool cfg_use_no_shoot = 0;
 	bool cfg_LOS_through_windows = 0;
@@ -838,7 +835,7 @@ namespace Pol {
 	  bool first = true;
 	  while ( count-- )
 	  {
-          if (fread(&elem, sizeof elem, 1, multi_mul) != sizeof(elem)) {
+          if (fread(&elem, sizeof elem, 1, multi_mul) != 1) {
               throw std::runtime_error("write_multi(): fread() failed");
           }
 
@@ -945,7 +942,7 @@ namespace Pol {
 	  char name[21];
 
 	  unsigned count = 0;
-	  for ( unsigned int graphic_i = 0; graphic_i <= config.max_tile_id; ++graphic_i )
+	  for ( unsigned int graphic_i = 0; graphic_i <= Plib::systemstate.config.max_tile_id; ++graphic_i )
 	  {
 		u16 graphic = static_cast<u16>( graphic_i );
 		USTRUCT_TILE tile;
@@ -1051,12 +1048,12 @@ namespace Pol {
   {
 
     Clib::StoreCmdArgs( argc, argv );
-    UOConvert::config.max_tile_id = UOBJ_DEFAULT_MAX; //default
+    Plib::systemstate.config.max_tile_id = UOBJ_DEFAULT_MAX; //default
 
     if ( Clib::FindArg2( "uodata=" ) != NULL )
     {
-      UOConvert::config.uo_datafile_root = Clib::FindArg2( "uodata=" );
-      UOConvert::config.uo_datafile_root = Clib::normalized_dir_form( UOConvert::config.uo_datafile_root );
+      Plib::systemstate.config.uo_datafile_root = Clib::FindArg2( "uodata=" );
+      Plib::systemstate.config.uo_datafile_root = Clib::normalized_dir_form( Plib::systemstate.config.uo_datafile_root );
     }
     else
     {
@@ -1065,20 +1062,20 @@ namespace Pol {
       Clib::ConfigElem elem;
 
       cf.readraw( elem );
-      UOConvert::config.uo_datafile_root = elem.remove_string( "UoDataFileRoot" );
-      UOConvert::config.uo_datafile_root = Clib::normalized_dir_form( UOConvert::config.uo_datafile_root );
+      Plib::systemstate.config.uo_datafile_root = elem.remove_string( "UoDataFileRoot" );
+      Plib::systemstate.config.uo_datafile_root = Clib::normalized_dir_form( Plib::systemstate.config.uo_datafile_root );
 
       unsigned short max_tile = elem.remove_ushort( "MaxTileID", UOBJ_DEFAULT_MAX );
 
       if ( max_tile == UOBJ_DEFAULT_MAX || max_tile == UOBJ_SA_MAX || max_tile == UOBJ_HSA_MAX )
-        UOConvert::config.max_tile_id = max_tile;
+        Plib::systemstate.config.max_tile_id = max_tile;
     }
 
     if ( Clib::FindArg2( "maxtileid=" ) != NULL )
     {
       unsigned short max_tile = static_cast<unsigned short>( Clib::LongHexArg2( "maxtileid=", UOBJ_DEFAULT_MAX ) );
       if ( max_tile == UOBJ_DEFAULT_MAX || max_tile == UOBJ_SA_MAX || max_tile == UOBJ_HSA_MAX )
-        UOConvert::config.max_tile_id = max_tile;
+        Plib::systemstate.config.max_tile_id = max_tile;
     }
 
 

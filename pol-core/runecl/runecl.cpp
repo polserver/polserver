@@ -51,9 +51,6 @@ Notes
 
 
 namespace Pol {
-  namespace Core {
-    PolConfig config; // needed but not really used def
-  }
   namespace Bscript {
     void display_bobjectimp_instances();
   }
@@ -303,7 +300,7 @@ namespace Pol {
       // vX.YY
       double vernum = (double)progver + (double)( ESCRIPT_FILE_VER_CURRENT / 100.0f );
       ERROR_PRINT << "EScript Executor v" << vernum << "\n"
-      << "Copyright (C) 1993-2014 Eric N. Swanson\n\n";
+      << "Copyright (C) 1993-2015 Eric N. Swanson\n\n";
     }
 
     if ( argc == 1 )

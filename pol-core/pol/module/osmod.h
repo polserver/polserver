@@ -17,6 +17,7 @@ Notes
 
 #include "../polclock.h"
 #include "../uoexhelp.h"
+#include "../globals/script_internals.h"
 
 #include <queue>
 #include <map>
@@ -51,8 +52,6 @@ namespace Pol {
 #else
 #	pragma pack()
 #endif
-
-	typedef std::multimap<Core::polclock_t, Core::UOExecutor*> HoldList;
 
 	class OSExecutorModule : public Bscript::ExecutorModule
 	{
@@ -111,7 +110,7 @@ namespace Pol {
 	  Core::polclock_t sleep_until_clock_; // 0 if wait forever
 
 	  enum { NO_LIST, TIMEOUT_LIST, NOTIMEOUT_LIST, DEBUGGER_LIST } in_hold_list_;
-	  HoldList::iterator hold_itr_;
+	  Core::HoldList::iterator hold_itr_;
 
 	  unsigned int pid_;
 
@@ -150,9 +149,6 @@ namespace Pol {
 	{
 	  return Core::getCharacterParam( exec, param, chrptr );
 	}
-
-	typedef std::map<unsigned int, Core::UOExecutor*> PidList;
-	extern PidList pidlist;
   }
 }
 

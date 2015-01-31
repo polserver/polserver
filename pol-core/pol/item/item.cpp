@@ -27,6 +27,7 @@ Notes
 #include "../../bscript/objmembers.h"
 
 #include "../../plib/mapcell.h"
+#include "../../plib/systemstate.h"
 
 #include "../ustruct.h"
 #include "../uofile.h"
@@ -44,20 +45,14 @@ Notes
 #include "../stackcfg.h" 
 #include "../tooltips.h"
 #include "../uoscrobj.h"
-#include "../ssopt.h"
 #include "../gameclck.h"
-/*
-#include "clib/endian.h"
+#include "../globals/uvars.h"
 
-#include "armor.h"
-#include "multi/boat.h"
-#include "door.h"
-#include "objtype.h"
-#include "spelbook.h"
-#include "weapon.h"
-*/
 namespace Pol {
   namespace Items {
+
+    const u32 Item::SELLPRICE_DEFAULT = UINT_MAX;
+    const u32 Item::BUYPRICE_DEFAULT = UINT_MAX;
 
 	/* This is a pretty good clone.  Somewhat inefficient, but does
 	   work for derived classes that do not have data.
@@ -77,8 +72,11 @@ namespace Pol {
 	  item->layer = layer;
 	  item->tile_layer = tile_layer;
 	  item->container = NULL; // was container
-	  item->sellprice_ = sellprice_;
-	  item->buyprice_ = buyprice_;
+      u32 price;
+      if (getmember<u32>(Bscript::MBR_SELLPRICE, &price))
+        item->setmember<u32>(Bscript::MBR_SELLPRICE, price);
+      if (getmember<u32>(Bscript::MBR_BUYPRICE, &price))
+        item->setmember<u32>(Bscript::MBR_BUYPRICE, price);
 	  item->newbie_ = newbie_;
 
 	  item->invisible_ = invisible_;	//dave 12-20
@@ -213,60 +211,42 @@ namespace Pol {
 	  }
 	}
 
-	unsigned int Item::sellprice() const
+	u32 Item::sellprice() const
 	{
-	  if ( sellprice_ < UINT_MAX ) //dave changed 1/15/3 so 0 means 0, not default to itemdesc value
-	  {
-		return sellprice_;
-	  }
-	  else
-	  {
-		return itemdesc().vendor_sells_for;
-	  }
+      u32 price;
+      if (getmember<u32>(Bscript::MBR_SELLPRICE,&price))
+        return price;
+      return itemdesc().vendor_sells_for;
 	}
+    void Item::sellprice(u32 value)
+    {
+      setmember<u32>(Bscript::MBR_SELLPRICE,value,SELLPRICE_DEFAULT);
+    }
 
 	//Dave add buyprice() 11/28. Dont know wtf getbuyprice() is trying to do.
 	//  Dave, getbuyprice() was trying to return false if the vendor wasn't interested in buying.
 	//        it would return true if the vendor was interested in buying.
 	//   -Eric
-	unsigned int Item::buyprice() const
+	u32 Item::buyprice() const
 	{
-	  if ( buyprice_ < UINT_MAX ) //dave changed 1/15/3 so 0 means 0, not default to itemdesc value
-	  {
-		return buyprice_;
-	  }
-	  else
-	  {
-		return itemdesc().vendor_buys_for;
-	  }
+      u32 price;
+      if (getmember<u32>(Bscript::MBR_BUYPRICE,&price))
+        return price;
+      return itemdesc().vendor_buys_for;
 	}
 
-	bool Item::getbuyprice( unsigned int& bp ) const
+    void Item::buyprice(u32 value)
+    {
+      setmember<u32>(Bscript::MBR_BUYPRICE,value,BUYPRICE_DEFAULT);
+    }
+
+	bool Item::getbuyprice( u32& bp ) const
 	{
 	  bp = buyprice();
 	  if ( bp > 0 )
 		return true;
 	  else
 		return false;
-	  //dave ripped out the below, was wrong with the above buyprice() changes.
-	  /*
-		  if (buyprice_ > 0)
-		  {
-		  buyprice = static_cast<unsigned int>(buyprice_);
-		  return true;
-		  }
-		  else
-		  {
-		  buyprice = 0;
-		  return false;
-		  }
-		  }
-		  else
-		  {
-		  buyprice = itemdesc().vendor_buys_for;
-		  return (buyprice > 0);
-		  }
-		  */
 	}
 
 	u8 Item::los_height() const
@@ -417,11 +397,11 @@ namespace Pol {
 	  if ( decayat_gameclock_ != 0 )
 		sw() << "\tDecayAt\t" << decayat_gameclock_ << pf_endl;
 
-	  if ( sellprice_ != UINT_MAX ) // recall that UINT_MAX means use default
-		sw() << "\tSellPrice\t" << sellprice_ << pf_endl;
-
-	  if ( buyprice_ != UINT_MAX ) // recall that UINT_MAX means use default
-		sw() << "\tBuyPrice\t" << buyprice_ << pf_endl;
+      u32 price;
+	  if ( getmember<u32>(Bscript::MBR_SELLPRICE, &price) ) 
+		sw() << "\tSellPrice\t" << price << pf_endl;
+      if ( getmember<u32>(Bscript::MBR_SELLPRICE, &price) ) 
+		sw() << "\tBuyPrice\t" << price << pf_endl;
 
 	  if ( newbie_ != default_newbie() )
 		sw() << "\tNewbie\t" << newbie_ << pf_endl;
@@ -446,7 +426,7 @@ namespace Pol {
 	  base::readProperties( elem );
 
 	  // Changed from Valid Color Mask to cfg mask in ssopt.
-      color &= Core::ssopt.item_color_mask;
+      color &= Core::settingsManager.ssopt.item_color_mask;
 
 	  amount_ = elem.remove_ushort( "AMOUNT", 1 );
 	  layer = static_cast<unsigned char>( elem.remove_ushort( "LAYER", 0 ) );
@@ -460,15 +440,15 @@ namespace Pol {
 	  unequip_script_ = elem.remove_string( "UNEQUIPSCRIPT", unequip_script_.get().c_str() );
 
 	  decayat_gameclock_ = elem.remove_ulong( "DECAYAT", 0 );
-	  sellprice_ = elem.remove_ulong( "SELLPRICE", UINT_MAX );
-	  buyprice_ = elem.remove_ulong( "BUYPRICE", UINT_MAX );
+	  setmember<u32>(Bscript::MBR_SELLPRICE, elem.remove_ulong( "SELLPRICE", SELLPRICE_DEFAULT ), SELLPRICE_DEFAULT);
+      setmember<u32>(Bscript::MBR_BUYPRICE, elem.remove_ulong( "BUYPRICE", BUYPRICE_DEFAULT ), BUYPRICE_DEFAULT);
 
 	  // buyprice used to be read in with remove_int (which was wrong).
 	  // the UINT_MAX values used to be written out (which was wrong).
 	  // when UINT_MAX is read in by atoi, it returned 2147483647 (0x7FFFFFFF)
 	  // correct for this.
-	  if ( buyprice_ == 2147483647 )
-		buyprice_ = UINT_MAX;
+	  if ( getmember<u32>(Bscript::MBR_BUYPRICE) == 2147483647 )
+		setmember<u32>(Bscript::MBR_BUYPRICE, BUYPRICE_DEFAULT, BUYPRICE_DEFAULT);
 	  newbie_ = elem.remove_bool( "NEWBIE", default_newbie() );
 	  hp_ = elem.remove_ushort( "HP", itemdesc().maxhp );
 	  quality_ = elem.remove_double( "QUALITY", itemdesc().quality );
@@ -516,13 +496,13 @@ namespace Pol {
 		Core::ScriptDef sd( on_use_script_, NULL, "" );
 		prog = find_script2( sd,
 							 true, // complain if not found
-                             Core::config.cache_interactive_scripts );
+                             Plib::systemstate.config.cache_interactive_scripts );
 	  }
 	  else if ( !itemdesc.on_use_script.empty() )
 	  {
 		prog = find_script2( itemdesc.on_use_script,
 							 true,
-                             Core::config.cache_interactive_scripts );
+                             Plib::systemstate.config.cache_interactive_scripts );
 	  }
 
 	  if ( prog.get() != NULL )
@@ -718,11 +698,11 @@ namespace Pol {
 		//NOTE! this logic is copied in Item::has_only_default_cprops(), so make any necessary changes there too
         Core::PropertyList myprops( getprops( ) ); //make a copy :(
 		myprops -= itemdesc().ignore_cprops;
-		myprops -= Core::Global_Ignore_CProps;
+		myprops -= Core::gamestate.Global_Ignore_CProps;
 
         Core::PropertyList yourprops( item.getprops( ) ); //make a copy :(
 		yourprops -= item.itemdesc().ignore_cprops;
-        yourprops -= Core::Global_Ignore_CProps;
+        yourprops -= Core::gamestate.Global_Ignore_CProps;
 
 		res = ( myprops == yourprops );
 
@@ -738,11 +718,11 @@ namespace Pol {
 	  //logic same as Item::can_add_to_self()
       Core::PropertyList myprops( getprops( ) ); //make a copy :(
 	  myprops -= itemdesc().ignore_cprops;
-      myprops -= Core::Global_Ignore_CProps;
+      myprops -= Core::gamestate.Global_Ignore_CProps;
 
       Core::PropertyList yourprops( compare->props ); //make a copy :(
 	  yourprops -= compare->ignore_cprops;
-      yourprops -= Core::Global_Ignore_CProps;
+      yourprops -= Core::gamestate.Global_Ignore_CProps;
 
 	  return ( myprops == yourprops );
 	}
@@ -814,7 +794,7 @@ namespace Pol {
             return false;
         }
 
-      if ( graphic <= Core::config.max_tile_id && newgraphic <= Core::config.max_tile_id )
+      if ( graphic <= Plib::systemstate.config.max_tile_id && newgraphic <= Plib::systemstate.config.max_tile_id )
 	  {
 		set_dirty();
 		graphic = newgraphic;
@@ -843,7 +823,7 @@ namespace Pol {
 	{
 	  // return false if the color is invalid (high nibble set)
 	  bool res = true;
-      u16  theMask = (u16)Core::ssopt.item_color_mask;
+      u16  theMask = (u16)Core::settingsManager.ssopt.item_color_mask;
 	  if ( ( newcolor & ( ~theMask ) ) != 0 )
 		res = false;
 
@@ -1078,7 +1058,7 @@ namespace Pol {
 	  {
 		find_script2( sd, true, true );
 	  }
-	  for ( const auto &pkg : Plib::packages )
+	  for ( const auto &pkg : Plib::systemstate.packages )
 	  {
 		sd.quickconfig( pkg, script_ecl );
 		if ( sd.exists() )
@@ -1109,7 +1089,7 @@ namespace Pol {
 		if ( !res )
 		  return false;
 	  }
-	  for ( const auto &pkg : Plib::packages )
+	  for ( const auto &pkg : Plib::systemstate.packages )
 	  {
 		sd.quickconfig( pkg, script_ecl );
 		if ( script_loaded( sd ) )
@@ -1217,9 +1197,5 @@ namespace Pol {
 	{
 	  return "item";
 	}
-
-    
-    extern const u8 lowest_valid_layer = Core::LAYER_INFO::LOWEST_LAYER;
-    extern const u8 highest_valid_layer = Core::LAYER_INFO::HIGHEST_LAYER;
   }
 }

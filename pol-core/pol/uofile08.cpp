@@ -18,10 +18,9 @@ Notes
 #include "objtype.h"
 #include "polcfg.h"
 #include "polfile.h"
-#include "profile.h"
 #include "udatfile.h"
 #include "ustruct.h"
-#include "wrldsize.h"
+#include "poltype.h"
 
 #include "../clib/passert.h"
 
@@ -131,7 +130,7 @@ namespace Pol {
         *z = ( z2 + z4 ) / 2;
 
       if ( mi.landtile == 0x2 ) // it's a nodraw tile
-        *z = -128;
+        *z = Core::ZCOORD_MIN;
 
       return ( ( mi.landtile < 0x4000 ) &&
                ( ( landtile_uoflags( mi.landtile ) & USTRUCT_TILE::FLAG_BLOCKING ) == 0 ) );

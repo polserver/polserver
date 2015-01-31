@@ -27,19 +27,6 @@ namespace Pol {
 	class UOExecutor;
 	class ScriptDef;
 
-	typedef std::deque<UOExecutor*> ExecList;
-	extern ExecList runlist;
-	extern ExecList ranlist;
-	extern ExecList deadlist;
-
-	typedef std::set<UOExecutor*> NoTimeoutHoldList;
-
-	extern Module::HoldList holdlist;
-	extern NoTimeoutHoldList notimeoutholdlist;
-	extern NoTimeoutHoldList debuggerholdlist;
-
-	extern int priority_divide;
-
 	void step_scripts( polclock_t* clocksleft, bool* pactivity );
 	void start_script( const char *filename,
 					   Bscript::BObjectImp* param0,
@@ -131,9 +118,7 @@ namespace Pol {
 					  Bscript::BObjectImp* param5,
 					  Bscript::BObjectImp* param6,
 					  Bscript::BObjectImp* param7 );
-	void cleanup_scripts();
-    size_t sizeEstimate_scripts(size_t* count);
-    size_t sizeEstimate_scriptStorage( size_t* count );
+
 	bool find_uoexec( unsigned int pid, UOExecutor** pp_uoexec );
   }
 }

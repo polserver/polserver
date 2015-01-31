@@ -7,6 +7,7 @@
 #include <memory>
 #include <thread>
 #include "../../lib/format/format.h"
+#include "compilerspecifics.h"
 #include "message_queue.h"
 #include "timer.h"
 

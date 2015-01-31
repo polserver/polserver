@@ -10,7 +10,7 @@ Notes
 */
 
 #include "customhouses.h"
-#include "../polcfg.h"
+#include "../../plib/systemstate.h"
 namespace Pol {
   namespace Multi {
 	int BlockIDs[] = { 0x3EE, //Sandstone
@@ -50,7 +50,7 @@ namespace Pol {
 
 	bool CustomHouseDesign::IsStairBlock( u16 id )
 	{
-      id &= Core::config.max_tile_id;
+      id &= Plib::systemstate.config.max_tile_id;
 	  int delta = -1;
 
 	  for ( unsigned int i = 0; delta < 0 && ( i < ( sizeof BlockIDs ) / ( sizeof( int ) ) ); ++i )
@@ -61,7 +61,7 @@ namespace Pol {
 
 	bool CustomHouseDesign::IsStair( u16 id, int& dir )
 	{
-      id &= Core::config.max_tile_id;
+      id &= Plib::systemstate.config.max_tile_id;
 	  int delta = -4;
 
 	  for ( unsigned int i = 0; delta < -3 && ( i < ( sizeof StairSeqs ) / ( sizeof ( int ) ) ); ++i )

@@ -68,7 +68,7 @@ Notes
 #include "multi/house.h"
 #include "item/item.h"
 #include "umap.h"
-#include "npc.h"
+#include "mobile/npc.h"
 #include "objtype.h"
 #include "polclass.h"
 #include "realms.h"
@@ -87,6 +87,7 @@ Notes
 #include "module/partymod.h"
 #include "network/clienttransmit.h"
 #include "eventid.h"
+#include "globals/uvars.h"
 
 #include "../bscript/berror.h"
 #include "../bscript/dict.h"
@@ -891,8 +892,8 @@ namespace Pol {
         case MBR_POISON_DAMAGE_MOD: return new BLong( getElementDamageMod( Core::ELEMENTAL_POISON ) ); break;
         case MBR_PHYSICAL_DAMAGE_MOD: return new BLong( getElementDamageMod( Core::ELEMENTAL_PHYSICAL ) ); break;
 		case MBR_GETGOTTENBY:
-		  if ( this->is_gotten() )
-			return new Module::ECharacterRefObjImp( this->gotten_by );
+		  if ( is_gotten() )
+			return new Module::ECharacterRefObjImp( get_gotten() );
 		  else
 			return new BError( "Gotten By NULL" );
 		  break;
@@ -979,9 +980,11 @@ namespace Pol {
 		  decayat_gameclock_ = value;
 		  return new BLong( decayat_gameclock_ );
 		case MBR_SELLPRICE:
-		  return new BLong( sellprice_ = value );
+          sellprice(value);
+		  return new BLong( value );
 		case MBR_BUYPRICE:
-		  return new BLong( buyprice_ = value );
+          buyprice(value);
+		  return new BLong( value );
 		case MBR_NEWBIE:
 		  restart_decay_timer();
 		  newbie( value ? true : false );
@@ -1544,7 +1547,7 @@ namespace Pol {
 			return new BError( "Not attached to an account" );
 		  break;
 		case MBR_CMDLEVEL:    return new BLong( cmdlevel() ); break;
-		case MBR_CMDLEVELSTR: return new String( Core::cmdlevels2[cmdlevel()].name ); break;
+		case MBR_CMDLEVELSTR: return new String( Core::gamestate.cmdlevels[cmdlevel()].name ); break;
 		case MBR_CRIMINAL: return new BLong( is_criminal() ? 1 : 0 ); break;
 		case MBR_TEMPORALLY_CRIMINAL: return new BLong( is_temporally_criminal() ? 1 : 0 ); break;
 		case MBR_IP:
@@ -1563,7 +1566,7 @@ namespace Pol {
 		case MBR_GUILDID: return new BLong( guildid() ); break;
 		case MBR_GUILD:
 		  if ( guild_ != NULL )
-			return CreateGuildRefObjImp( guild_ );
+			return Module::GuildExecutorModule::CreateGuildRefObjImp( guild_ );
 		  else
 			return new BError( "Not a member of a guild" );
 		  break;
@@ -1838,8 +1841,8 @@ namespace Pol {
 		case MBR_MOUNTEDSTEPS:
 		  return new BLong( mountedsteps_ = static_cast<unsigned int>( value ) );
 		case MBR_CMDLEVEL:
-			if ( value >= static_cast<int>( Core::cmdlevels2.size() ) )
-				cmdlevel( static_cast<unsigned char>( Core::cmdlevels2.size() ) - 1, true );
+			if ( value >= static_cast<int>( Core::gamestate.cmdlevels.size() ) )
+				cmdlevel( static_cast<unsigned char>( Core::gamestate.cmdlevels.size() ) - 1, true );
 			else
 				cmdlevel( static_cast<unsigned char>( value ), true );
 			return new BLong( cmdlevel() );
@@ -2531,11 +2534,11 @@ namespace Pol {
 
 	BObjectImp* Character::custom_script_method( const char* methodname, Executor& ex )
 	{
-	  if ( Core::uoclient_general.method_script != NULL )
+	  if ( Core::networkManager.uoclient_general.method_script != NULL )
 	  {
 		unsigned PC;
-        if ( Core::uoclient_general.method_script->FindExportedFunction( methodname, static_cast<unsigned int>( ex.numParams( ) + 1 ), PC ) )
-          return Core::uoclient_general.method_script->call( PC, make_ref( ), ex.fparams );
+        if ( Core::networkManager.uoclient_general.method_script->FindExportedFunction( methodname, static_cast<unsigned int>( ex.numParams( ) + 1 ), PC ) )
+          return Core::networkManager.uoclient_general.method_script->call( PC, make_ref( ), ex.fparams );
 	  }
 	  return NULL;
 	}
@@ -2613,9 +2616,6 @@ namespace Pol {
 	  }
 	  return arr.release();
 	}
-  }
-  namespace Core {
-    using namespace Bscript;
 
     BObjectImp* NPC::get_script_member_id( const int id ) const
     {
@@ -2639,7 +2639,7 @@ namespace Pol {
 
         case MBR_PROCESS:
           if ( ex )
-            return new ScriptExObjImp( ex );
+            return new Core::ScriptExObjImp( ex );
           else
             return new BError( "No script running" );
           break;
@@ -2768,6 +2768,10 @@ namespace Pol {
       return NULL;
     }
 
+}
+  namespace Core {
+    using namespace Bscript;
+    
     BObjectImp* ULockable::get_script_member_id( const int id ) const
     {
       BObjectImp* imp = Item::get_script_member_id( id );
@@ -3832,7 +3836,7 @@ namespace Pol {
       addMember( "damage", new BLong( damage ) );
     }
 
-    ItemGivenEvent::ItemGivenEvent( Mobile::Character* chr_givenby, Items::Item* item_given, Core::NPC* chr_givento ) :
+    ItemGivenEvent::ItemGivenEvent( Mobile::Character* chr_givenby, Items::Item* item_given, Mobile::NPC* chr_givento ) :
       SourcedEvent( Core::EVID_ITEM_GIVEN, chr_givenby ),
       given_by_( NULL )
     {
@@ -3911,11 +3915,6 @@ namespace Pol {
       return ( isatype == POLCLASS_OBJECT );
     }
 
-    bool NPC::script_isa( unsigned isatype ) const
-    {
-      return ( isatype == POLCLASS_NPC ) || base::script_isa( isatype );
-    }
-
     bool ULockable::script_isa( unsigned isatype ) const
     {
       return ( isatype == POLCLASS_LOCKABLE ) || base::script_isa( isatype );
@@ -3973,6 +3972,11 @@ namespace Pol {
     bool Character::script_isa( unsigned isatype ) const
     {
       return ( isatype == Core::POLCLASS_MOBILE ) || base::script_isa( isatype );
+    }
+    
+    bool NPC::script_isa( unsigned isatype ) const
+    {
+      return ( isatype == Core::POLCLASS_NPC ) || base::script_isa( isatype );
     }
   }
   namespace Multi {

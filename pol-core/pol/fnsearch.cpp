@@ -13,19 +13,18 @@ Notes
 
 #include "../clib/stlutil.h"
 
+#include "globals/object_storage.h"
 #include "mobile/charactr.h"
 #include "item/item.h"
 #include "storage.h"
 #include "multi/multi.h"
 #include "uworld.h"
 
-#include "objecthash.h"
-
 namespace Pol {
   namespace Core {
 	UObject* system_find_object( u32 serial )
 	{
-	  UObject* obj = objecthash.Find( serial );
+	  UObject* obj = objStorageManager.objecthash.Find( serial );
 	  if ( obj != NULL && !obj->orphan() )
 		return obj;
 	  else
@@ -34,7 +33,7 @@ namespace Pol {
 
 	Mobile::Character* system_find_mobile( u32 serial /*, int sysfind_flags*/ )
 	{
-	  UObject* obj = objecthash.Find( serial );
+	  UObject* obj = objStorageManager.objecthash.Find( serial );
 	  if ( obj != NULL && obj->ismobile() && !obj->orphan() )
         return static_cast<Mobile::Character*>( obj );
 	  else
@@ -43,7 +42,7 @@ namespace Pol {
 
 	Items::Item *system_find_item( u32 serial/*, int sysfind_flags */ )
 	{
-	  UObject* obj = objecthash.Find( serial );
+	  UObject* obj = objStorageManager.objecthash.Find( serial );
 	  if ( obj != NULL && obj->isitem() && !obj->orphan() )
         return static_cast<Items::Item*>( obj );
 	  else
@@ -52,7 +51,7 @@ namespace Pol {
 
 	Multi::UMulti* system_find_multi( u32 serial )
 	{
-	  UObject* obj = objecthash.Find( serial );
+	  UObject* obj = objStorageManager.objecthash.Find( serial );
 	  if ( obj != NULL && obj->ismulti() && !obj->orphan() )
 		return static_cast<Multi::UMulti*>( obj );
 	  else

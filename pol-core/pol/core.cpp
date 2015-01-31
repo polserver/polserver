@@ -14,6 +14,7 @@ Notes
 #include "realms.h"
 #include "../plib/realm.h"
 
+#include "globals/uvars.h"
 #include "mobile/charactr.h"
 #include "network/cgdata.h"
 #include "network/client.h"
@@ -158,7 +159,7 @@ namespace Pol {
 
 	  return true;
 	}
-
+	
 	/* For us to care, the item must:
 	   1) be directly under the current position
 	   2) have a "walk on" script

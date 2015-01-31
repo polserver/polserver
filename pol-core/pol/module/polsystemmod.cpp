@@ -24,6 +24,7 @@ Notes
 
 #include "../../plib/pkg.h"
 #include "../../plib/realm.h"
+#include "../../plib/systemstate.h"
 
 #include "../core.h"
 #include "../cmdlevel.h"
@@ -36,7 +37,7 @@ Notes
 #include "../packetscrobj.h"
 #include "../uobject.h"
 #include "../tooltips.h"
-#include "../ssopt.h"
+#include "../globals/uvars.h"
 
 #include "../../clib/dirlist.h"
 #include "../../clib/fileutil.h"
@@ -183,10 +184,10 @@ namespace Pol {
 		return new BError( "Expected 1 parameter." );
 	  else if ( getParam( 0, cmdlevel_num ) )
 	  {
-		if ( cmdlevel_num >= static_cast<int>( Core::cmdlevels2.size() ) )
-		  cmdlevel_num = static_cast<int>( Core::cmdlevels2.size() - 1 );
+		if ( cmdlevel_num >= static_cast<int>( Core::gamestate.cmdlevels.size() ) )
+		  cmdlevel_num = static_cast<int>( Core::gamestate.cmdlevels.size() - 1 );
 
-        return new String( Core::cmdlevels2[cmdlevel_num].name );
+        return new String( Core::gamestate.cmdlevels[cmdlevel_num].name );
 	  }
 	  else if ( getStringParam( 0, cmdlevel_alias ) )
 	  {
@@ -217,9 +218,9 @@ namespace Pol {
 	BObjectImp* PolSystemExecutorModule::mf_Packages()
 	{
 	  std::unique_ptr<ObjArray> arr( new ObjArray );
-	  for ( unsigned i = 0; i < Plib::packages.size(); ++i )
+	  for ( unsigned i = 0; i < Plib::systemstate.packages.size(); ++i )
 	  {
-		PackageObjImp* imp = new PackageObjImp( PackagePtrHolder( Plib::packages[i] ) );
+		PackageObjImp* imp = new PackageObjImp( PackagePtrHolder( Plib::systemstate.packages[i] ) );
 		arr->addElement( imp );
 	  }
 	  return arr.release();
@@ -245,7 +246,7 @@ namespace Pol {
 	  // Sets up text commands not in a package.
 	  {
 		std::unique_ptr<BDictionary> cmd_lvl_list( new BDictionary );
-		for ( unsigned num = 0; num < Core::cmdlevels2.size(); ++num )
+		for ( unsigned num = 0; num < Core::gamestate.cmdlevels.size(); ++num )
 		{
 		  ObjArray* script_list = Core::GetCommandsInPackage( NULL, num );
 		  if ( script_list == NULL )
@@ -258,11 +259,11 @@ namespace Pol {
 	  }
 	  //
 	  // Sets up packaged text commands.
-      for ( Plib::Packages::iterator itr = Plib::packages.begin( ); itr != Plib::packages.end( ); ++itr )
+      for ( Plib::Packages::iterator itr = Plib::systemstate.packages.begin( ); itr != Plib::systemstate.packages.end( ); ++itr )
 	  {
         Plib::Package* pkg = ( *itr );
 		std::unique_ptr<BDictionary> cmd_lvl_list( new BDictionary );
-		for ( unsigned num = 0; num < Core::cmdlevels2.size(); ++num )
+		for ( unsigned num = 0; num < Core::gamestate.cmdlevels.size(); ++num )
 		{
           ObjArray* script_list = Core::GetCommandsInPackage( pkg, num );
 		  if ( script_list == NULL )
@@ -334,7 +335,7 @@ namespace Pol {
 	  {
 		BDictionary* dict = new BDictionary;
         std::vector<Plib::Realm*>::iterator itr;
-        for ( itr = Core::Realms->begin( ); itr != Core::Realms->end( ); ++itr )
+        for ( itr = Core::gamestate.Realms.begin( ); itr != Core::gamestate.Realms.end( ); ++itr )
 		{
 		  dict->addMember( ( *itr )->name().c_str(), SetupRealmDetails( *itr ) );
 		}
@@ -425,11 +426,13 @@ namespace Pol {
       if ( Core::defined_realm( realm_name->value( ) ) )
 		return new BError( "Realmname already defined." );
       Core::add_realm( realm_name->value( ), baserealm );
-      if ( Core::ssopt.decay_items )
+      if ( Core::settingsManager.ssopt.decay_items )
 	  {
+#ifndef PERGON
         std::ostringstream thname;
 		thname << "Decay_" << realm_name->value();
         threadhelp::start_thread( Core::decay_thread_shadow, thname.str( ).c_str( ), (void*)Core::find_realm( realm_name->value( ) ) );
+#endif
 	  }
 	  return new BLong( 1 );
 	}

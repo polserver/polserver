@@ -32,18 +32,9 @@ namespace Pol {
 	class PacketHookData
 	{
 	public:
-	  PacketHookData() :
-		length( 0 ),
-		function( NULL ),
-		outgoing_function( NULL ),
-		default_handler( NULL ),
-		sub_command_offset( 0 ),
-		sub_command_length( 0 ),
-        version(PacketVersion::Default)
-	  {
-		memset( &client_ver, 0, sizeof( client_ver ) );
-	  };
+	  PacketHookData();
 	  ~PacketHookData();
+      size_t estimateSize() const;
 
 	  int length; // if MSGLEN_2BYTELEN_DATA, variable length
 	  Core::ExportedFunction* function;
@@ -56,10 +47,10 @@ namespace Pol {
       PacketVersion version;
 	  VersionDetailStruct client_ver;
 	  std::map<u32, PacketHookData*>SubCommands;
+
+	  static void initializeGameData(std::vector<std::unique_ptr<PacketHookData>> *data);
 	};
 
-	extern std::vector<PacketHookData> packet_hook_data;
-	extern std::vector<PacketHookData> packet_hook_data_v2;
 	void load_packet_hooks();
 	void ExportedPacketHookHandler( Client* client, void* data );
 	void CallOutgoingPacketExportedFunction( Client* client, const void*& data, int& inlength, ref_ptr<Core::BPacket>& outpacket, PacketHookData* phd, bool& handled );

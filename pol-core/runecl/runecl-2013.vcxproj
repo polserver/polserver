@@ -278,9 +278,11 @@
   <ItemGroup>
     <ClCompile Include="..\plib\pkg.cpp" />
     <ClCompile Include="..\plib\polver.cpp" />
+    <ClCompile Include="..\plib\systemstate.cpp" />
     <ClCompile Include="..\pol\binaryfilescrobj.cpp" />
     <ClCompile Include="..\pol\cfgrepos.cpp" />
     <ClCompile Include="..\pol\dice.cpp" />
+    <ClCompile Include="..\pol\globals\ucfg.cpp" />
     <ClCompile Include="..\pol\module\basiciomod.cpp" />
     <ClCompile Include="..\pol\module\basicmod.cpp" />
     <ClCompile Include="..\pol\module\cfgmod.cpp" />
@@ -298,9 +300,11 @@
   <ItemGroup>
     <ClInclude Include="..\plib\pkg.h" />
     <ClInclude Include="..\plib\polver.h" />
+    <ClInclude Include="..\plib\systemstate.h" />
     <ClInclude Include="..\pol\binaryfilescrobj.h" />
     <ClInclude Include="..\pol\cfgrepos.h" />
     <ClInclude Include="..\pol\dice.h" />
+    <ClInclude Include="..\pol\globals\ucfg.h" />
     <ClInclude Include="..\pol\module\basiciomod.h" />
     <ClInclude Include="..\pol\module\basicmod.h" />
     <ClInclude Include="..\pol\module\cfgmod.h" />

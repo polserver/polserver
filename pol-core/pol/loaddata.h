@@ -20,9 +20,6 @@ namespace Pol {
 	class Item;
   }
   namespace Core {
-	extern unsigned incremental_save_count;
-	extern unsigned current_incremental_save;
-
 	void load_incremental_indexes();
 	unsigned get_save_index( pol_serial_t serial );
 

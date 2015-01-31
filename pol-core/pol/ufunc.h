@@ -35,6 +35,7 @@ namespace Pol {
   }
   namespace Mobile {
 	class Character;
+	class NPC;
   }
   namespace Items {
 	class Item;
@@ -48,21 +49,10 @@ namespace Pol {
 
   namespace Core {
 	class UContainer;
-	class NPC;
 	class UObject;
 	struct USTRUCT_TILE;
 	class Menu;
 	enum UFACING;
-
-
-	const u32 CHARACTERSERIAL_START = 0x00000001Lu;
-	const u32 CHARACTERSERIAL_END = 0x3FFFFFFFLu;
-	const u32 ITEMSERIAL_START = 0x40000000Lu;
-	const u32 ITEMSERIAL_END = 0x7FffFFffLu;
-
-	extern u32 itemserialnumber;
-	extern u32 nonsaveditemserialnumber;
-	extern u32 charserialnumber;
 
 	void SetCurrentItemSerialNumber( u32 serial );
 	void SetCurrentCharSerialNumber( u32 serial );
@@ -97,7 +87,10 @@ namespace Pol {
 	void send_owncreate( Network::Client *client, const Mobile::Character *chr, Network::PktOut_78* owncreate, Network::PktOut_17* poisonbuffer, Network::PktOut_17* invulbuffer );
 	void build_owncreate( const Mobile::Character *chr, Network::PktOut_78* msg );
 
-	void send_item( Network::Client *client, const Items::Item *item );
+    void send_item(Network::Client *client, const Items::Item *item);
+    void send_corpse(Network::Client *client, const Items::Item *item);
+    void send_full_corpse(Network::Client *client, const Items::Item *item);
+
 	void send_wornitem( Network::Client *client, const Mobile::Character *chr, const Items::Item *item );
 
 	void send_move( Network::Client *client, const Mobile::Character *chr );
@@ -116,6 +109,7 @@ namespace Pol {
 	void send_put_in_container_to_inrange( const Items::Item *item );
 	void send_wornitem_to_inrange( const Mobile::Character *chr, const Items::Item *item );
 	void update_wornitem_to_inrange( const Mobile::Character *chr, const Items::Item *item );
+    void send_corpse_equip_inrange(const Items::Item *item);
 
 	void send_midi( Network::Client* client, unsigned short midi );
 	Mobile::Character *find_character( u32 serial );
@@ -244,11 +238,6 @@ namespace Pol {
 	void send_container_contents( Network::Client *client, const UContainer& cont );
 
 	void send_char_data( Network::Client *client, Mobile::Character *chr );
-
-	void for_nearby_npcs( void( *f )( NPC& npc, Mobile::Character *chr, const char *text, int textlen, u8 texttype ),
-						  Mobile::Character *p_chr, const char *p_text, int p_textlen, u8 texttype );
-	void for_nearby_npcs( void( *f )( NPC& npc, Mobile::Character *chr, const char *text, int textlen, u8 texttype, const u16 *wtext, const char lang[4], int wtextlen, Bscript::ObjArray* speechtokens ),
-						  Mobile::Character *p_chr, const char *p_text, int p_textlen, u8 texttype, const u16 *p_wtext, const char p_lang[4], int p_wtextlen, Bscript::ObjArray* speechtokens = NULL );
 
 	void transmit_to_inrange( const UObject* center, const void* msg, unsigned msglen, bool is_6017, bool is_UOKR );
 	void transmit_to_others_inrange( Mobile::Character* center, const void* msg, unsigned msglen, bool is_6017, bool is_UOKR );

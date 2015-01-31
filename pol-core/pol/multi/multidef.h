@@ -27,7 +27,7 @@ Notes
 #include <map>
 #include <vector>
 #include <set>
-
+#include <boost/noncopyable.hpp>
 #include <cstdio>
 
 namespace Pol {
@@ -108,17 +108,12 @@ namespace Pol {
 	  void fill_hull2();
 
 	  void init();
-	};
 
-	typedef std::map< u16, MultiDef* > MultiDefs;
+      size_t estimateSize() const;
+	};
 
 	bool MultiDefByMultiIDExists( u16 multiid );
 	const MultiDef* MultiDefByMultiID( u16 multiid );
-	//extern MultiDefs multishapes_by_graphic;
-
-	extern MultiDefs multidefs_by_multiid;
-
-	void clean_multidefs();
 
 	inline unsigned short MultiDef::getkey( short rx, short ry )
 	{

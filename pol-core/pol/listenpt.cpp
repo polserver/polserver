@@ -19,23 +19,12 @@ Notes
 #include "ufunc.h"
 #include "uoexec.h"
 #include "uoscrobj.h"
+#include "globals/uvars.h"
 
 #include <map>
 
 namespace Pol {
   namespace Core {
-
-	class ListenPoint
-	{
-	public:
-	  ListenPoint( UObject* obj, UOExecutor* uoexec, int range, int flags );
-	  ~ListenPoint();
-
-	  UObjectRef object;
-	  UOExecutor* uoexec;
-	  int range;
-	  int flags;
-	};
 
 	ListenPoint::ListenPoint( UObject* obj, UOExecutor* uoexec, int range, int flags ) :
 	  object( obj ),
@@ -47,11 +36,6 @@ namespace Pol {
 	ListenPoint::~ListenPoint()
 	{}
 
-
-	typedef std::map<UOExecutor*, ListenPoint*> ListenPoints;
-	ListenPoints listen_points;
-
-	//DAVE
 	const char* TextTypeToString( u8 texttype )
 	{
 	  switch ( texttype )
@@ -67,23 +51,23 @@ namespace Pol {
 								 const u16* p_wtext /*=nullptr*/, const char* p_lang /*=nullptr*/,
 								 int p_wtextlen /*=0*/, Bscript::ObjArray* speechtokens /*=nullptr*/ )
 	{
-	  for ( ListenPoints::iterator itr = listen_points.begin(), end = listen_points.end(); itr != end; )
+	  for ( ListenPoints::iterator itr = gamestate.listen_points.begin(), end = gamestate.listen_points.end(); itr != end; )
 	  {
 		ListenPoint* lp = ( *itr ).second;
 		if ( lp->object->orphan() )
 		{
 		  ListenPoints::iterator next = itr;
 		  ++next;
-		  listen_points.erase( itr );
+		  gamestate.listen_points.erase( itr );
 		  delete lp;
 		  itr = next;
-		  end = listen_points.end();
+		  end = gamestate.listen_points.end();
 		}
 		else
 		{
 		  if ( !speaker->dead() || ( lp->flags&LISTENPT_HEAR_GHOSTS ) )
 		  {
-			if ( ssopt.seperate_speechtoken )
+			if ( settingsManager.ssopt.seperate_speechtoken )
 			{
 			  if ( speechtokens != NULL && ( ( lp->flags & LISTENPT_HEAR_TOKENS ) == 0 ) )
 			  {
@@ -116,45 +100,34 @@ namespace Pol {
 	void deregister_from_speech_events( UOExecutor* uoexec )
 	{
 	  //ListenPoint lp( NULL, uoexec, 0, 0 );
-	  ListenPoints::iterator itr = listen_points.find( uoexec );
-	  if ( itr != listen_points.end() ) // could have been cleaned up in sayto_listening_points
+	  ListenPoints::iterator itr = gamestate.listen_points.find( uoexec );
+	  if ( itr != gamestate.listen_points.end() ) // could have been cleaned up in sayto_listening_points
 	  {
 		ListenPoint* lp = ( *itr ).second;
-		listen_points.erase( uoexec );
+		gamestate.listen_points.erase( uoexec );
 		delete lp;
 	  }
 	}
 
 	void register_for_speech_events( UObject* obj, UOExecutor* uoexec, int range, int flags )
 	{
-	  listen_points[uoexec] = new ListenPoint( obj, uoexec, range, flags );
-	}
-
-	void clear_listen_points()
-	{
-	  for ( ListenPoints::iterator itr = listen_points.begin(); itr != listen_points.end(); ++itr )
-	  {
-		ListenPoint* lp = ( *itr ).second;
-		delete lp;
-		( *itr ).second = NULL;
-	  }
-	  listen_points.clear();
+	  gamestate.listen_points[uoexec] = new ListenPoint( obj, uoexec, range, flags );
 	}
 
 	Bscript::BObjectImp* GetListenPoints()
 	{
       Bscript::ObjArray* arr = new Bscript::ObjArray;
-	  for ( ListenPoints::iterator itr = listen_points.begin(), end = listen_points.end(); itr != end; )
+	  for ( ListenPoints::iterator itr = gamestate.listen_points.begin(), end = gamestate.listen_points.end(); itr != end; )
 	  {
 		ListenPoint* lp = ( *itr ).second;
 		if ( lp == NULL || lp->object->orphan() )
 		{
 		  ListenPoints::iterator next = itr;
 		  ++next;
-		  listen_points.erase( itr );
+		  gamestate.listen_points.erase( itr );
 		  delete lp;
 		  itr = next;
-		  end = listen_points.end();
+		  end = gamestate.listen_points.end();
 		}
 		else
 		{

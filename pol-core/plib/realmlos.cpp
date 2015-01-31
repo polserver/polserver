@@ -60,7 +60,7 @@ namespace Pol {
 										 unsigned short x, unsigned short y, short z ) const
 	{
       unsigned short wx, wy;
-      Core::zone_convert_clip( x, y, this, wx, wy );
+      Core::zone_convert_clip( x, y, this, &wx, &wy );
       Core::ZoneItems& witems = zone[wx][wy].items;
 
 	  for ( const auto &item : witems )

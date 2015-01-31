@@ -76,6 +76,10 @@ ConfigElemBase::ConfigElemBase() :
     _source(NULL)
 {
 }
+size_t ConfigElemBase::estimateSize() const
+{
+  return type_.capacity() + rest_.capacity()+sizeof(_source);
+}
 
 ConfigElem::ConfigElem() :
     ConfigElemBase()
@@ -84,6 +88,14 @@ ConfigElem::ConfigElem() :
 
 ConfigElem::~ConfigElem()
 {
+}
+
+size_t ConfigElem::estimateSize() const
+{
+  size_t size = ConfigElemBase::estimateSize();
+  for(const auto& ele : properties)
+    size += ele.first.capacity()+ele.second.capacity() + ( sizeof(void*) * 3 + 1 ) / 2;
+  return size;
 }
 
 

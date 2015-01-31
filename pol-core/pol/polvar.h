@@ -17,10 +17,6 @@ namespace Pol {
 	public:
 	  unsigned short DataWrittenBy;
 	};
-
-	extern PolVar polvar;
-	extern unsigned int stored_last_item_serial;
-	extern unsigned int stored_last_char_serial;
   }
 }
 #endif

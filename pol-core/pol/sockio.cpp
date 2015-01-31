@@ -18,6 +18,8 @@ Notes
 #include "../clib/strutil.h"
 #include "../clib/logfacility.h"
 
+#include "globals/network.h"
+
 #ifdef __unix__
 #include <sys/utsname.h>
 struct utsname my_utsname;
@@ -28,18 +30,15 @@ struct utsname my_utsname;
 
 namespace Pol {
   namespace Network {
-	char hostname[64];
-	char ipaddr_str[64];
-	char lanaddr_str[64];
 	void set_ip_address( const char* ip )
 	{
-	  strzcpy( ipaddr_str, ip, sizeof ipaddr_str );
-	  POLLOG_INFO << "Internet IP address is " << ipaddr_str << "\n";
+	  strzcpy( Core::networkManager.ipaddr_str, ip, sizeof Core::networkManager.ipaddr_str );
+	  POLLOG_INFO << "Internet IP address is " << Core::networkManager.ipaddr_str << "\n";
 	}
 	void set_lan_address( const char* ip )
 	{
-	  strzcpy( lanaddr_str, ip, sizeof lanaddr_str );
-      POLLOG_INFO << "LAN IP address is " << lanaddr_str << "\n";
+	  strzcpy( Core::networkManager.lanaddr_str, ip, sizeof Core::networkManager.lanaddr_str );
+      POLLOG_INFO << "LAN IP address is " << Core::networkManager.lanaddr_str << "\n";
 	}
 
 	void search_name( const char* hostname )
@@ -59,7 +58,7 @@ namespace Pol {
 			 strncmp( adstr, "172.16.", 7 ) == 0 ||
 			 strncmp( adstr, "172.32.", 7 ) == 0 )
 		{
-		  if ( !lanaddr_str[0] )
+		  if ( !Core::networkManager.lanaddr_str[0] )
 			set_lan_address( adstr );
 		}
 		else if ( strncmp( adstr, "127.", 4 ) == 0 )
@@ -68,7 +67,7 @@ namespace Pol {
 		}
 		else
 		{
-		  if ( !ipaddr_str[0] )
+		  if ( !Core::networkManager.ipaddr_str[0] )
 			set_ip_address( adstr );
 		}
 	  }
@@ -93,11 +92,11 @@ namespace Pol {
 	  }
 #endif
 
-	  if ( gethostname( hostname, sizeof hostname ) )
+	  if ( gethostname( Core::networkManager.hostname, sizeof Core::networkManager.hostname ) )
 	  {
         POLLOG_ERROR << "gethostname failed: " << socket_errno << "\n";
 	  }
-	  search_name( hostname );
+	  search_name( Core::networkManager.hostname );
 
 #ifdef __unix__
 	  uname( &my_utsname );
@@ -224,5 +223,10 @@ namespace Pol {
 		return "(display error)";
 #endif
 	}
+
+	PolSocket::PolSocket() :
+	  listen_timeout( { 0, 0 } ),
+	  select_timeout ({ 0, 0 })
+	{}
   }
 }

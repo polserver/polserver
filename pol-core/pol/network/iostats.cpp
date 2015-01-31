@@ -19,8 +19,5 @@ namespace Pol {
 	  memset( &sent, 0, sizeof sent );
 	  memset( &received, 0, sizeof received );
 	}
-
-	IOStats iostats;
-	IOStats queuedmode_iostats;
   }
 }

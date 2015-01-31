@@ -24,13 +24,6 @@ namespace Pol {
 	class Realm;
   }
   namespace Core {
-
-	extern Plib::Realm* main_realm;
-	extern std::vector<Plib::Realm*>* Realms;
-	extern std::map<int, Plib::Realm*> shadowrealms_by_id;
-	extern unsigned int baserealm_count;
-	extern unsigned int shadowrealm_count;
-
 	Plib::Realm* find_realm( const std::string& name );
 	void add_realm( const std::string& name, Plib::Realm* base );
 	bool defined_realm( const std::string& name );

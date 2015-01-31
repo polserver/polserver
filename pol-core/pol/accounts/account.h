@@ -13,7 +13,7 @@ Notes
 #ifndef ACCOUNT_H
 #define ACCOUNT_H
 
-#include "../ucfg.h"
+#include "../uconst.h"
 #include "../proplist.h"
 #include "../reftypes.h"
 

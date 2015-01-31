@@ -28,6 +28,7 @@ FIXME: Does STW use slots with KR or newest 2d? If so, we must do slot checks th
 #include "../bscript/berror.h"
 
 #include "../plib/realm.h"
+#include "../plib/systemstate.h"
 
 #include "fnsearch.h"
 #include "getitem.h"
@@ -41,7 +42,7 @@ FIXME: Does STW use slots with KR or newest 2d? If so, we must do slot checks th
 #include "network/packets.h"
 #include "network/packetdefs.h"
 #include "network/clienttransmit.h"
-#include "npc.h"
+#include "mobile/npc.h"
 #include "objtype.h"
 #include "pktboth.h"
 #include "pktin.h"
@@ -49,15 +50,14 @@ FIXME: Does STW use slots with KR or newest 2d? If so, we must do slot checks th
 #include "realms.h"
 #include "sfx.h"
 #include "sockio.h"
-#include "ssopt.h"
 #include "statmsg.h"
 #include "storage.h"
 #include "syshook.h"
-#include "ucfg.h"
+#include "globals/ucfg.h"
 #include "ufunc.h"
 #include "uofile.h"
 #include "uoscrobj.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 #include "uworld.h"
 #include "containr.h"
 
@@ -145,9 +145,9 @@ namespace Pol {
 		send_sysmessage( client, "Unable to complete trade" );
 		return false;
 	  }
-	  if ( system_hooks.can_trade )
+	  if ( gamestate.system_hooks.can_trade )
 	  {
-		if ( !system_hooks.can_trade->call( new Module::ECharacterRefObjImp( client->chr ), new Module::ECharacterRefObjImp( dropon ), new Module::EItemRefObjImp( item ) ) )
+		if ( !gamestate.system_hooks.can_trade->call( new Module::ECharacterRefObjImp( client->chr ), new Module::ECharacterRefObjImp( dropon ), new Module::EItemRefObjImp( item ) ) )
 		{
 		  send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
 		  return false;
@@ -179,9 +179,9 @@ namespace Pol {
 	  {
 		return new Bscript::BError( "Unable to complete trade" );
 	  }
-	  if ( system_hooks.can_trade )
+	  if ( gamestate.system_hooks.can_trade )
 	  {
-		if ( !system_hooks.can_trade->call( new Module::ECharacterRefObjImp( client->chr ), new Module::ECharacterRefObjImp( dropon ), new Module::EItemRefObjImp( item ) ) )
+		if ( !gamestate.system_hooks.can_trade->call( new Module::ECharacterRefObjImp( client->chr ), new Module::ECharacterRefObjImp( dropon ), new Module::EItemRefObjImp( item ) ) )
 		{
 		  send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
 		  return new Bscript::BError( "Could not insert item into container." );
@@ -384,7 +384,7 @@ namespace Pol {
 
 	UContainer* find_giveitem_container( Items::Item* item_to_add, u8 slotIndex )
 	{
-	  StorageArea* area = storage.create_area( "GivenItems" );
+	  StorageArea* area = gamestate.storage.create_area( "GivenItems" );
 	  passert( area != NULL );
 
 	  for ( unsigned short i = 0; i < 500; ++i )
@@ -429,13 +429,13 @@ namespace Pol {
 	bool do_open_trade_window( Network::Client* client, Items::Item* item, Mobile::Character* dropon );
 	bool open_trade_window( Network::Client* client, Items::Item* item, Mobile::Character* dropon )
 	{
-	  if ( !config.enable_secure_trading )
+	  if ( !Plib::systemstate.config.enable_secure_trading )
 	  {
 		send_sysmessage( client, "Secure trading is unavailable." );
 		return false;
 	  }
 
-	  if ( !ssopt.allow_secure_trading_in_warmode )
+	  if ( !settingsManager.ssopt.allow_secure_trading_in_warmode )
 	  {
 		if ( dropon->warmode )
 		{
@@ -474,12 +474,12 @@ namespace Pol {
 
 	Bscript::BObjectImp* open_trade_window( Network::Client* client, Mobile::Character* dropon )
 	{
-	  if ( !config.enable_secure_trading )
+	  if ( !Plib::systemstate.config.enable_secure_trading )
 	  {
 		return new Bscript::BError( "Secure trading is unavailable." );
 	  }
 
-	  if ( !ssopt.allow_secure_trading_in_warmode )
+	  if ( !settingsManager.ssopt.allow_secure_trading_in_warmode )
 	  {
 		if ( dropon->warmode )
 		{
@@ -576,9 +576,9 @@ namespace Pol {
 
 	  if ( !dropon->isa( UObject::CLASS_NPC ) )
 	  {
-		if ( system_hooks.can_trade )
+		if ( gamestate.system_hooks.can_trade )
 		{
-		  if ( !system_hooks.can_trade->call( new Module::ECharacterRefObjImp( client->chr ), new Module::ECharacterRefObjImp( dropon ), new Module::EItemRefObjImp( item ) ) )
+		  if ( !gamestate.system_hooks.can_trade->call( new Module::ECharacterRefObjImp( client->chr ), new Module::ECharacterRefObjImp( dropon ), new Module::EItemRefObjImp( item ) ) )
 		  {
 			send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
 			return false;
@@ -590,7 +590,7 @@ namespace Pol {
 		return res;
 	  }
 
-	  NPC* npc = static_cast<NPC*>( dropon );
+	  Mobile::NPC* npc = static_cast<Mobile::NPC*>( dropon );
 	  if ( !npc->can_accept_event( EVID_ITEM_GIVEN ) )
 	  {
 		send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
@@ -757,11 +757,11 @@ namespace Pol {
           << client->chr->serial
           << item_serial
           << item->serial;
-		item->gotten_by = NULL;
+		item->set_gotten(nullptr);
 		return;
 	  }
 	  client->chr->gotten_item->inuse( false );
-	  client->chr->gotten_item->gotten_by = NULL;
+	  client->chr->gotten_item->set_gotten(nullptr);
 	  client->chr->gotten_item = NULL;
 
 	  bool res;
@@ -790,13 +790,10 @@ namespace Pol {
 		  undo_get_item( client->chr, item );
 		}
 		item->inuse( false );
-		item->is_gotten( false );
-		item->gotten_by = NULL;
+		item->set_gotten( nullptr );
 	  }
 	  send_full_statmsg( client, client->chr );
 	}
-
-	MESSAGE_HANDLER( PKTIN_08_V1, drop_item );
 
 
 	/*
@@ -830,11 +827,11 @@ namespace Pol {
           << client->chr->serial
           << item_serial
           << item->serial;
-		item->gotten_by = NULL;
+		item->set_gotten(nullptr);
 		return;
 	  }
 	  client->chr->gotten_item->inuse( false );
-	  client->chr->gotten_item->gotten_by = NULL;
+	  client->chr->gotten_item->set_gotten(nullptr);
 	  client->chr->gotten_item = NULL;
 
 	  bool res;
@@ -863,8 +860,7 @@ namespace Pol {
 		  undo_get_item( client->chr, item );
 		}
 		item->inuse( false );
-		item->is_gotten( false );
-		item->gotten_by = NULL;
+		item->set_gotten( nullptr );
 	  }
 
       Network::PktHelper::PacketOut<Network::PktOut_29> drop_msg;
@@ -872,7 +868,6 @@ namespace Pol {
 
 	  send_full_statmsg( client, client->chr );
 	}
-	MESSAGE_HANDLER_V2( PKTIN_08_V2, drop_item_v2 );
 
 	void return_traded_items( Mobile::Character* chr )
 	{
@@ -1041,11 +1036,10 @@ namespace Pol {
 		  break;
 	  }
 	}
-	MESSAGE_HANDLER_VARLEN( PKTBI_6F, handle_secure_trade_msg );
 
 	void cancel_all_trades()
 	{
-	  for ( auto &client : clients )
+	  for ( auto &client : networkManager.clients )
 	  {
 		if ( client->ready && client->chr )
 		{

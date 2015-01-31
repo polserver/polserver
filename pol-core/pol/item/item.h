@@ -12,7 +12,6 @@ Notes
 
 #ifndef ITEM_H
 #define ITEM_H
-#define __ITEM_H
 
 #include "../uobject.h"
 
@@ -21,7 +20,9 @@ Notes
 #include "../../bscript/bobject.h"
 #endif
 
-#include "../ssopt.h"
+#include "../layers.h"
+#include "../globals/settings.h"
+
 namespace Pol {
   namespace Core {
 	struct USTRUCT_TILE;
@@ -74,7 +75,8 @@ namespace Pol {
 	  void inuse( bool newvalue );
 
 	  bool is_gotten() const;
-	  void is_gotten( bool newvalue );
+	  void set_gotten( Mobile::Character* by_char );
+      Mobile::Character* get_gotten() const;
 
 	  bool invisible() const;
 	  void invisible( bool newvalue );
@@ -102,9 +104,11 @@ namespace Pol {
       
 
       std::string get_use_script_name() const;
-	  unsigned int sellprice() const;
-	  unsigned int buyprice() const; //Dave added this 11/28
-	  bool getbuyprice( unsigned int& buyprice ) const;
+	  u32 sellprice() const;
+      void sellprice(u32);
+	  u32 buyprice() const;
+      void buyprice(u32);
+	  bool getbuyprice( u32& buyprice ) const;
 
 	  bool newbie() const;
 	  bool default_newbie() const;
@@ -199,16 +203,12 @@ namespace Pol {
 
 	public:
 	  Core::UContainer* container;
-	  Mobile::Character* gotten_by;
 	protected:
 	  unsigned int decayat_gameclock_;
-	  unsigned int sellprice_;
-	  unsigned int buyprice_;
 	  u16 amount_;
 	  bool newbie_;
 	  bool movable_;
 	  bool inuse_;
-	  bool is_gotten_;
 	  bool invisible_;
 
 	  u8 slot_index_;
@@ -231,9 +231,14 @@ namespace Pol {
       s16 calc_element_damage( Core::ElementalType element ) const;
 	  bool has_resistance( Mobile::Character* chr );
 	  bool has_element_damage();
-	};
 
-	//typedef ref_ptr<Item> ItemRefPtr;
+    private:
+        Mobile::Character* gotten_by_;
+
+    protected:
+      static const u32 SELLPRICE_DEFAULT; // means use the itemdesc value
+      static const u32 BUYPRICE_DEFAULT;
+	};
 
 	inline u16 Item::getamount() const
 	{
@@ -266,13 +271,18 @@ namespace Pol {
 
 	inline bool Item::is_gotten() const
 	{
-	  return is_gotten_;
+	  return gotten_by_ != nullptr;
 	}
 
-	inline void Item::is_gotten( bool newvalue )
+	inline void Item::set_gotten( Mobile::Character* by_char )
 	{
-		is_gotten_ = newvalue;
+		gotten_by_ = by_char;
 	}
+
+    inline Mobile::Character* Item::get_gotten() const
+    {
+      return gotten_by_;
+    }
 
 	inline bool Item::invisible() const
 	{
@@ -310,9 +320,9 @@ namespace Pol {
 
 	inline bool Item::slot_index( u8 newvalue )
 	{
-	  if ( Core::ssopt.use_slot_index )
+	  if ( Core::settingsManager.ssopt.use_slot_index )
 	  {
-		if ( newvalue < Core::ssopt.default_max_slots )
+		if ( newvalue < Core::settingsManager.ssopt.default_max_slots )
 		{
 		  slot_index_ = newvalue;
 		  return true;
@@ -340,8 +350,7 @@ namespace Pol {
     }
 
     inline bool valid_equip_layer(int layer) {
-        extern const u8 lowest_valid_layer, highest_valid_layer;
-        return layer >= lowest_valid_layer && layer <= highest_valid_layer;
+        return layer >= Core::LAYER_INFO::LOWEST_LAYER && layer <= Core::LAYER_INFO::HIGHEST_LAYER;
     }
 
     inline bool valid_equip_layer(const Item* item) {

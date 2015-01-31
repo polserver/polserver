@@ -17,16 +17,15 @@ Notes
 #include "../mobile/charactr.h"
 
 #include "../action.h"
-#include "../extobj.h"
-#include "../gflag.h"
 #include "../los.h"
-#include "../objecthash.h"
 #include "../polcfg.h"
 #include "../realms.h"
 #include "../skillid.h"
 #include "../ufunc.h"
 #include "../umanip.h"
-#include "../uvars.h"
+#include "../globals/state.h"
+#include "../globals/uvars.h"
+#include "../globals/object_storage.h"
 #include "../containr.h"
 
 #include "../../bscript/bstruct.h"
@@ -35,6 +34,7 @@ Notes
 
 #include "../../plib/pkg.h"
 #include "../../plib/realm.h"
+#include "../../plib/systemstate.h"
 
 #include "../../clib/cfgelem.h"
 #include "../../clib/cfgfile.h"
@@ -140,7 +140,7 @@ namespace Pol {
 		elem.warn( "Element specifies a SkillID instead of an Attribute" );
 	  }
 
-	  pAttr = Mobile::FindAttribute( attrname );
+	  pAttr = Mobile::Attribute::FindAttribute( attrname );
 	  if ( !pAttr )
 	  {
 		elem.throw_error( "Attribute " + attrname + " not found" );
@@ -244,14 +244,12 @@ namespace Pol {
         + hit_script.estimatedSize();
     }
 
-	typedef std::map<std::string, UWeapon*> IntrinsicWeapons;
-	IntrinsicWeapons intrinsic_weapons;
 	void load_npc_weapon_templates();
 
     UWeapon* find_intrinsic_weapon(const std::string& name)
 	{
-	  auto itr = intrinsic_weapons.find( name );
-	  if ( itr != intrinsic_weapons.end() )
+	  auto itr = Core::gamestate.intrinsic_weapons.find( name );
+	  if ( itr != Core::gamestate.intrinsic_weapons.end() )
 	  {
 		return ( *itr ).second;
 	  }
@@ -263,19 +261,19 @@ namespace Pol {
 
 	void allocate_intrinsic_weapon_serials()
 	{
-	  for ( const auto &intrinsic_weapon : intrinsic_weapons )
+	  for ( const auto &intrinsic_weapon : Core::gamestate.intrinsic_weapons )
 	  {
 		UWeapon* wpn = intrinsic_weapon.second;
 
 		wpn->serial = Core::GetNewItemSerialNumber();
 		wpn->serial_ext = ctBEu32( wpn->serial );
-		Core::objecthash.Insert( wpn );
+		Core::objStorageManager.objecthash.Insert( wpn );
 	  }
 	}
 
 	UWeapon* create_intrinsic_weapon( const char* name, Clib::ConfigElem& elem, const Plib::Package* pkg )
 	{
-	  auto tmpl = new WeaponDesc( Core::extobj.wrestling, elem, pkg );
+	  auto tmpl = new WeaponDesc( Core::settingsManager.extobj.wrestling, elem, pkg );
 	  tmpl->is_intrinsic = true;
 	  auto wpn = new UWeapon( *tmpl, tmpl );
 	  wpn->tmpl = tmpl;
@@ -284,14 +282,14 @@ namespace Pol {
 
 	  // during system startup, defer serial allocation in order to avoid clashes with 
 	  // saved items.
-      if ( !Core::gflag_in_system_startup )
+      if ( !Core::stateManager.gflag_in_system_startup )
 	  {
         wpn->serial = Core::GetNewItemSerialNumber( );
 		wpn->serial_ext = ctBEu32( wpn->serial );
-        Core::objecthash.Insert( wpn );
+        Core::objStorageManager.objecthash.Insert( wpn );
 	  }
 
-	  intrinsic_weapons.insert( IntrinsicWeapons::value_type( name, wpn ) );
+	  Core::gamestate.intrinsic_weapons.insert( Core::IntrinsicWeapons::value_type( name, wpn ) );
 	  return wpn;
 	}
 
@@ -302,14 +300,14 @@ namespace Pol {
 
 	void load_intrinsic_weapons()
 	{
-      const ItemDesc& id = find_itemdesc( Core::extobj.wrestling );
+      const ItemDesc& id = find_itemdesc( Core::settingsManager.extobj.wrestling );
 	  if ( id.save_on_exit )
-          throw std::runtime_error("Wrestling weapon " + Clib::hexint(Core::extobj.wrestling) + " must specify SaveOnExit 0");
+          throw std::runtime_error("Wrestling weapon " + Clib::hexint(Core::settingsManager.extobj.wrestling) + " must specify SaveOnExit 0");
 
 	  if ( id.type == ItemDesc::WEAPONDESC )
 	  {
 		const WeaponDesc* weapon_descriptor = static_cast<const WeaponDesc*>( &id );
-        Core::wrestling_weapon = new UWeapon( *weapon_descriptor, weapon_descriptor );
+        Core::gamestate.wrestling_weapon = new UWeapon( *weapon_descriptor, weapon_descriptor );
 
 		{
 		  // sets wrestling weapondesc as intrinsic
@@ -317,24 +315,15 @@ namespace Pol {
 		  wdesc->is_intrinsic = true;
 		  wdesc->is_pc_weapon = true;
 		}
-        Core::wrestling_weapon->inuse( true );
+        Core::gamestate.wrestling_weapon->inuse( true );
 
-        intrinsic_weapons.insert( IntrinsicWeapons::value_type( "PC_weapon", Core::wrestling_weapon ) );
+        Core::gamestate.intrinsic_weapons.insert( Core::IntrinsicWeapons::value_type( "PC_weapon", Core::gamestate.wrestling_weapon ) );
 
 	  }
 
 	  // wrestling_weapon = find_intrinsic_weapon( "Wrestling" );
-      if ( Core::wrestling_weapon == NULL )
+      if ( Core::gamestate.wrestling_weapon == NULL )
           throw std::runtime_error("A WeaponTemplate for Wrestling is required in itemdesc.cfg");
-	}
-
-	void unload_intrinsic_weapons()
-	{
-      if ( Core::wrestling_weapon != NULL )
-	  {
-        Core::wrestling_weapon->destroy( );
-        Core::wrestling_weapon = NULL;
-	  }
 	}
 
 	UWeapon* create_intrinsic_weapon_from_npctemplate( Clib::ConfigElem& elem, const Plib::Package* pkg )
@@ -398,7 +387,7 @@ namespace Pol {
 		  create_intrinsic_weapon_from_npctemplate( elem, NULL );
 		}
 	  }
-	  for ( const auto &pkg : Plib::packages )
+	  for ( const auto &pkg : Plib::systemstate.packages )
 	  {
         std::string filename = Plib::GetPackageCfgPath(pkg, "npcdesc.cfg");
 
@@ -414,20 +403,6 @@ namespace Pol {
 		  }
 		}
 	  }
-	}
-
-	void unload_weapon_templates()
-	{
-      for ( auto &weapon : intrinsic_weapons )
-      {
-        //	t.second->serial = 1; // just to force the delete to work.
-        if ( weapon.second != NULL )
-        {
-          weapon.second->destroy( );
-          weapon.second = NULL;
-        }
-      }
-	  intrinsic_weapons.clear();
 	}
 
 	UWeapon::UWeapon( const WeaponDesc& descriptor, const WeaponDesc* permanent_descriptor ) :

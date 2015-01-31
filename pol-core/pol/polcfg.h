@@ -16,6 +16,11 @@ Notes
 
 #include <string>
 #include "crypt/cryptkey.h"
+
+#if !defined(_WIN32)
+#include <sys/stat.h>
+#include <sys/types.h>
+#endif
 namespace Pol {
   namespace Core {
 	struct PolConfig
@@ -85,11 +90,11 @@ namespace Pol {
 	  bool disable_nagle;
       bool show_realm_info;
       bool enforce_mount_objtype;
+
+	  static void read_pol_config( bool initial_load );
+	  static struct stat pol_cfg_stat;
+	  static void reload_pol_cfg();
 	};
-
-	extern PolConfig config;
-
-	void read_pol_config( bool initial_load );
   }
 }
 #endif

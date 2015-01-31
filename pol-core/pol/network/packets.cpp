@@ -14,6 +14,7 @@ PacketInterface* GetPacket(u8 id, u16 sub) add pkt create
 */
 
 #include "packets.h"
+#include "packethelper.h"
 
 #include "../../clib/rawtypes.h"
 
@@ -24,17 +25,6 @@ namespace Pol {
 	using namespace PktHelper;
 	using namespace PacketWriterDefs;
 
-    std::unique_ptr<PacketsSingleton> PacketsSingleton::_instance;
-    std::once_flag PacketsSingleton::_onceFlag;
-
-    PacketsSingleton& PacketsSingleton::get()
-    {
-      std::call_once(_onceFlag, []()
-                     {
-        _instance.reset(new PacketsSingleton);
-      });
-      return *_instance.get();
-    }
     PacketsSingleton::PacketsSingleton()
     {
       using namespace Core;

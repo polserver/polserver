@@ -10,9 +10,9 @@ Notes
 
 #include "vital.h"
 
-//nclude "charactr.h"
 #include "checkpnt.h"
 #include "syshook.h"
+#include "globals/uvars.h"
 
 #include "../plib/pkg.h"
 
@@ -27,15 +27,6 @@ Notes
 
 namespace Pol {
   namespace Core {
-	std::vector< Vital* > vitals;
-	unsigned numVitals;
-
-    typedef std::map< std::string, Vital*, Clib::ci_cmp_pred > VitalsByName;
-	VitalsByName vitals_byname;
-
-	const Vital* pVitalLife;
-	const Vital* pVitalStamina;
-	const Vital* pVitalMana;
 
     Vital::Vital( const Plib::Package* pkg, Clib::ConfigElem& elem ) :
 	  pkg( pkg ),
@@ -74,22 +65,33 @@ namespace Pol {
 	  this->underflow_func = NULL;
 	  this->get_regenrate_func = NULL;
 	}
+
+    size_t Vital::estimateSize() const
+    {
+      size_t size = sizeof(Vital)
+        + name.capacity()
+        + 3*sizeof(ExportedFunction);
+      for (const auto& alias : aliases)
+        size += alias.capacity();
+      return size;
+    }
+
 	void clean_vitals()
 	{
-	  std::vector<Vital*>::iterator iter = vitals.begin();
-	  for ( ; iter != vitals.end(); ++iter )
+	  std::vector<Vital*>::iterator iter = gamestate.vitals.begin();
+	  for ( ; iter != gamestate.vitals.end(); ++iter )
 	  {
 		delete *iter;
 		*iter = NULL;
 	  }
-	  vitals.clear();
-	  vitals_byname.clear();
+	  gamestate.vitals.clear();
+	  gamestate.vitals_byname.clear();
 	}
 
 	Vital* FindVital( const std::string& str )
 	{
-	  VitalsByName::const_iterator citr = vitals_byname.find( str );
-	  if ( citr != vitals_byname.end() )
+	  VitalsByName::const_iterator citr = gamestate.vitals_byname.find( str );
+	  if ( citr != gamestate.vitals_byname.end() )
 		return ( *citr ).second;
 	  else
 		return NULL;
@@ -97,8 +99,8 @@ namespace Pol {
 
 	Vital* FindVital( unsigned vitalid )
 	{
-	  if ( vitalid < vitals.size() )
-		return vitals[vitalid];
+	  if ( vitalid < gamestate.vitals.size() )
+		return gamestate.vitals[vitalid];
 	  else
 		return NULL;
 	}
@@ -113,14 +115,14 @@ namespace Pol {
 		elem.throw_error( "Vital " + vital->name + " already defined by "
 						  + existing->pkg->desc() );
 	  }
-	  vital->vitalid = static_cast<unsigned int>( vitals.size() );
-	  if ( !vitals.empty() )
-		vitals.back()->next = vital;
-	  vitals.push_back( vital );
+	  vital->vitalid = static_cast<unsigned int>( gamestate.vitals.size() );
+	  if ( !gamestate.vitals.empty() )
+		gamestate.vitals.back()->next = vital;
+	  gamestate.vitals.push_back( vital );
 
 	  for ( unsigned i = 0; i < vital->aliases.size(); ++i )
 	  {
-		vitals_byname[vital->aliases[i]] = vital;
+		gamestate.vitals_byname[vital->aliases[i]] = vital;
 	  }
 	}
 
@@ -129,19 +131,19 @@ namespace Pol {
 	  checkpoint( "load_vitals_cfg: load_packed_cfgs" );
 	  load_packaged_cfgs( "vitals.cfg", "Vital", load_vital_entry );
 
-	  numVitals = static_cast<unsigned int>( vitals.size() );
+	  gamestate.numVitals = static_cast<unsigned int>( gamestate.vitals.size() );
 
 	  checkpoint( "load_vitals_cfg: find Life vital" );
-	  pVitalLife = FindVital( "Life" );
+	  gamestate.pVitalLife = FindVital( "Life" );
 	  checkpoint( "load_vitals_cfg: find Stamina vital" );
-	  pVitalStamina = FindVital( "Stamina" );
+	  gamestate.pVitalStamina = FindVital( "Stamina" );
 	  checkpoint( "load_vitals_cfg: find Mana vital" );
-	  pVitalMana = FindVital( "Mana" );
+	  gamestate.pVitalMana = FindVital( "Mana" );
 
 	  checkpoint( "load_vitals_cfg: verify vital vitals" );
-	  passert_always( pVitalLife );
-	  passert_always( pVitalStamina );
-	  passert_always( pVitalMana );
+	  passert_always( gamestate.pVitalLife );
+	  passert_always( gamestate.pVitalStamina );
+	  passert_always( gamestate.pVitalMana );
 	}
   }
 }

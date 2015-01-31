@@ -1,4 +1,22 @@
 ﻿-- POL099 --
+01-31-2015 Turley:
+  Added:   uo::ListMobilesInBox( x1,y1,z1, x2,y2,z2, realm := _DEFAULT_REALM )
+           like ListObjectsInBox but returns only mobiles.
+  Changed: uo::List*InBox functions accept as z parameters LIST_IGNORE_Z
+           Thx @ andenixa
+  Added:   uo::GetMidpointCircleCoords( xcenter, ycenter, radius )
+           based on given center coordinates and radius returns array of x,y structs which represent a circle
+		   Thx @ andenixa 
+		   The array of coordinates is sorted, which means that its easily possible to only use every second point
+
+09-12-2014 Nando:
+  Fixed:    Client crash with clients older than 7.0.9.0 but newer than 7.0.0.0, because of wrong size in
+              boat movement packets.
+  
+07-12-2014 Nando:
+  Fixed:    Items were not disappearing from the character's backpack after being moved to the corpse.
+  Fixed:    Items were disappearing from the corpse when an equippable item was moved/inserted into it.
+  
 11-13-2014 Nando:
   Added:    EnforceMountObjtype property in pol.cfg. Will enforce that only items with the mount
             objtype (as defined in extobj.cfg, default 0x1F021) can be mounted.
@@ -6,7 +24,7 @@
             items with the mount objtype but a bad graphic.
    Note:    To be equipped as a mount, the item must be in the mount tiles list of uoconvert.cfg. 
             This ensures that the item has layer 25 and the equippable flag, otherwise it won't
-			be considered equippable.
+            be considered equippable.
             
 11-05-2014 Nando:
   Added:    polsys::Realms() will now report how many offline mobiles and multis there are.
@@ -66,9 +84,9 @@
 		   Removed sql module from runecl, since it no more compatible.
 
 03-01-2014 Nando:
-	Added: Character.temporally_criminal is true when a criminal timer is running on the character. 
-	 Note: The old property chr.criminal stays the same: it is true when the character is temporally
-		   criminal or a murderer.
+    Added: Character.temporally_criminal is true when a criminal timer is running on the character. 
+     Note: The old property chr.criminal stays the same: it is true when the character is temporally
+           criminal or a murderer.
 
 02-27-2014 Tomi:
     Fixed:    changing cmdlevel now updates correctly which concealed characters you see
@@ -78,8 +96,8 @@
 02-25-2014 Tomi:
     Added:    Boat Smooth move for clients which support it ( HSA+ )
     Added:    boat.em flags ( These flags are ignored for boat movements sent to old than HSA clients )
-	      const BOAT_SPEED_ONE_TILE 	:= 1;
-	      const BOAT_SPEED_SLOW		:= 2;
+          const BOAT_SPEED_ONE_TILE 	:= 1;
+          const BOAT_SPEED_SLOW		:= 2;
               const BOAT_SPEED_MEDIUM 		:= 3;
               const BOAT_SPEED_FAST 		:= 4;
     Changed:  boat.em functions

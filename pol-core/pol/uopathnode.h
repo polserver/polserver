@@ -15,9 +15,9 @@ Notes
 #include "../plib/realm.h"
 
 #include "realms.h"
-#include "wrldsize.h"
 
 namespace Pol {
+  namespace Core {
 #define BORDER_SKIRT 5
   class AStarBlockers
   {
@@ -32,7 +32,7 @@ namespace Pol {
       short z;
     };
 
-    typedef vector< BlockNode * > BlockNodeVector;
+    typedef std::vector< BlockNode * > BlockNodeVector;
 
   public:
     AStarBlockers( short xL, short xH, short yL, short yH )
@@ -85,7 +85,7 @@ namespace Pol {
     short z;
     Plib::Realm* realm;
 
-	UOPathState() : theBlockers( nullptr ), x( 0 ), y( 0 ), z( 0 ), realm( Core::find_realm( string( "britannia" ) ) )
+	UOPathState() : theBlockers( nullptr ), x( 0 ), y( 0 ), z( 0 ), realm( Core::find_realm( std::string( "britannia" ) ) )
     {
     };
     UOPathState( short newx, short newy, short newz, Plib::Realm* newrealm, AStarBlockers * blockers )
@@ -98,7 +98,7 @@ namespace Pol {
     };
     float GoalDistanceEstimate( UOPathState &nodeGoal );
     bool IsGoal( UOPathState &nodeGoal );
-    bool GetSuccessors( AStarSearch<UOPathState> *astarsearch, UOPathState *parent_node, bool doors_block );
+    bool GetSuccessors( Plib::AStarSearch<UOPathState> *astarsearch, UOPathState *parent_node, bool doors_block );
     float GetCost( UOPathState &successor );
     bool IsSameState( UOPathState &rhs );
     std::string Name();
@@ -132,7 +132,7 @@ namespace Pol {
 	writer.Format( "({},{},{})" ) << x << y << z;
     return writer.str();
   }
-  bool UOPathState::GetSuccessors( AStarSearch<UOPathState> *astarsearch, UOPathState* /*parent_node*/, bool doors_block )
+  bool UOPathState::GetSuccessors( Plib::AStarSearch<UOPathState> *astarsearch, UOPathState* /*parent_node*/, bool doors_block )
   {
     UOPathState * NewNode;
     short i, j;
@@ -207,6 +207,7 @@ namespace Pol {
     return true;
   }
 
+}
 }
 #endif
 

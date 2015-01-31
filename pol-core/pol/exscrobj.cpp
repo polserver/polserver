@@ -28,8 +28,8 @@ Notes
 #include "uoscrobj.h"
 
 #include "../clib/strutil.h"
+#include "../plib/systemstate.h"
 
-#include "polcfg.h"
 
 namespace Pol {
   namespace Core {
@@ -183,7 +183,7 @@ namespace Pol {
 		{
 		  u64 consec_cycles = uoexec->instr_cycles
 			- ( uoexec->warn_runaway_on_cycle
-			- config.runaway_script_threshold )
+			- Plib::systemstate.config.runaway_script_threshold )
 			+ uoexec->runaway_cycles;
 		  return BObjectRef( new Double( static_cast<double>( consec_cycles ) ) );
 		}

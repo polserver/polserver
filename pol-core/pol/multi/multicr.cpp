@@ -15,7 +15,7 @@ Notes
 #include "../ufunc.h"
 #include "../uworld.h"
 #include "../uoscrobj.h"
-#include "../objecthash.h"
+#include "../globals/object_storage.h"
 
 #include "../../bscript/berror.h"
 
@@ -63,7 +63,7 @@ namespace Pol {
 	  multi->serial_ext = ctBEu32( multi->serial );
 
 	  ////HASH
-      Core::objecthash.Insert( multi );
+      Core::objStorageManager.objecthash.Insert( multi );
 	  ////
 
 	  return multi;

@@ -87,8 +87,11 @@ Notes
 #include "../../clib/random.h"
 #include "../../clib/stlutil.h"
 #include "../../clib/strutil.h"
+
 #include "../../plib/mapcell.h"
 #include "../../plib/realm.h"
+#include "../../plib/systemstate.h"
+
 #include "../accounts/account.h"
 #include "../action.h"
 #include "../anim.h"
@@ -96,20 +99,25 @@ Notes
 #include "../clidata.h"
 #include "../cmbtcfg.h"
 #include "../cmdlevel.h"
-#include "../extobj.h"
 #include "../fnsearch.h"
-#include "../gflag.h"
+#include "../globals/state.h"
+#include "../globals/uvars.h"
+#include "../guardrgn.h"
+#include "../guilds.h"
 #include "../item/armor.h"
 #include "../item/weapon.h"
 #include "../item/wepntmpl.h"
+#include "../lightlvl.h"
 #include "../los.h"
+#include "../mdelta.h"
+#include "../miscrgn.h"
 #include "../mkscrobj.h"
-#include "../module/guildmod.h"
 #include "../module/osmod.h"
 #include "../module/uomod.h"
-#include "../movecost.h"
 #include "../multi/boat.h"
 #include "../multi/house.h"
+#include "../musicrgn.h"
+#include "../network/cgdata.h"
 #include "../network/cgdata.h"
 #include "../network/client.h"
 #include "../network/cliface.h"
@@ -121,9 +129,6 @@ Notes
 #include "../polcfg.h"
 #include "../polclass.h"
 #include "../polclock.h"
-#include "../polsig.h"
-#include "../polvar.h"
-#include "../profile.h"
 #include "../realms.h"
 #include "../schedule.h"
 #include "../scrsched.h"
@@ -132,36 +137,27 @@ Notes
 #include "../skilladv.h"
 #include "../skills.h"
 #include "../spelbook.h"
-#include "../ssopt.h"
 #include "../statmsg.h"
+#include "../syshook.h"
 #include "../syshook.h"
 #include "../target.h"
 #include "../uconst.h"
 #include "../ufunc.h"
 #include "../ufuncstd.h"
 #include "../umanip.h"
-#include "../uobjcnt.h"
 #include "../uoexec.h"
 #include "../uofile.h"
 #include "../uoscrobj.h"
-#include "../uvars.h"
 #include "../uworld.h"
 #include "../vital.h"
-#include "../watch.h"
-#include "../lightlvl.h"
-#include "../guardrgn.h"
-#include "../miscrgn.h"
-#include "../musicrgn.h"
-#include "../network/cgdata.h"
-#include "../syshook.h"
-#include "../mdelta.h"
-#include "attribute.h"
-#include "ufacing.h"
 
+#include "attribute.h"
 #include "corpse.h"
+#include "privupdater.h"
+#include "ufacing.h"
 #include "wornitems.h"
 
-#include "../npc.h" // TODO: Remove this abomination!
+#include "npc.h" // TODO: Remove this abomination!
 
 #include <string>
 #include <set>
@@ -174,19 +170,15 @@ Notes
 namespace Pol {
   namespace Core {
     void cancel_trade( Mobile::Character* chr1 );
-    
   }
   namespace Mobile {
-	double armor_zone_chance_sum;
-    ArmorZones armorzones;
-
 	unsigned short layer_to_zone( unsigned short layer )
 	{
-	  for ( unsigned short zone = 0; zone < armorzones.size(); ++zone )
+	  for ( unsigned short zone = 0; zone < Core::gamestate.armorzones.size(); ++zone )
 	  {
-		for ( unsigned i = 0; i < armorzones[zone].layers.size(); ++i )
+		for ( unsigned i = 0; i < Core::gamestate.armorzones[zone].layers.size(); ++i )
 		{
-		  if ( armorzones[zone].layers[i] == layer )
+		  if ( Core::gamestate.armorzones[zone].layers[i] == layer )
 			return zone;
 		}
 	  }
@@ -197,14 +189,14 @@ namespace Pol {
 
 	const char* zone_to_zone_name( unsigned short zone )
 	{
-	  return armorzones[zone].name.c_str();
+	  return Core::gamestate.armorzones[zone].name.c_str();
 	}
 
 	unsigned short zone_name_to_zone( const char *zname )
 	{
-	  for ( unsigned short zone = 0; zone < armorzones.size(); ++zone )
+	  for ( unsigned short zone = 0; zone < Core::gamestate.armorzones.size(); ++zone )
 	  {
-		if ( stricmp( armorzones[zone].name.c_str(), zname ) == 0 )
+		if ( stricmp( Core::gamestate.armorzones[zone].name.c_str(), zname ) == 0 )
 		{
 		  return zone;
 		}
@@ -218,20 +210,20 @@ namespace Pol {
 	{
 	  if ( !Clib::FileExists( "config/armrzone.cfg" ) )
 	  {
-        if ( Core::config.loglevel > 1 )
+        if ( Plib::systemstate.config.loglevel > 1 )
           INFO_PRINT << "File config/armrzone.cfg not found, skipping.\n";
 		return;
 	  }
 	  Clib::ConfigFile cf( "config/armrzone.cfg" );
 	  Clib::ConfigElem elem;
 
-	  armor_zone_chance_sum = 0;
-	  armorzones.clear();
+	  Core::gamestate.armor_zone_chance_sum = 0;
+	  Core::gamestate.armorzones.clear();
 
 	  while ( cf.read( elem ) )
 	  {
 		// armorzones.push_back( ArmorZone( elem ) );
-		ArmorZone az;
+		Core::ArmorZone az;
 		az.name = elem.remove_string( "NAME" );
 		az.chance = static_cast<double>( elem.remove_ushort( "CHANCE" ) ) / 100.0;
 		unsigned short in_layer;
@@ -250,358 +242,134 @@ namespace Pol {
 		  az.layers.push_back( in_layer );
 		}
 
-		armorzones.push_back( az );
-		armor_zone_chance_sum += az.chance;
+		Core::gamestate.armorzones.push_back( az );
+		Core::gamestate.armor_zone_chance_sum += az.chance;
 	  }
 	}
 
 	void unload_armor_zones()
 	{
-	  armorzones.clear();
-	  armor_zone_chance_sum = 0;
+	  Core::gamestate.armorzones.clear();
+	  Core::gamestate.armor_zone_chance_sum = 0;
 	}
-
-	class PrivUpdater
-	{
-	public:
-
-	  static void on_change_see_hidden( Character* chr, bool enable )
-	  {
-		if ( enable )
-		{
-		  if ( chr->has_active_client() )
-			on_enable_see_hidden( chr );
-          else if ( chr->isa( Core::UObject::CLASS_NPC ) )
-			on_enable_see_hidden( chr );
-		}
-		else
-		{
-          if ( chr->has_active_client() )
-			on_disable_see_hidden( chr );
-          else if ( chr->isa( Core::UObject::CLASS_NPC ) )
-			on_disable_see_hidden( chr );
-		}
-	  }
-	  static void on_change_see_ghosts( Character* chr, bool enable )
-	  {
-		if ( enable )
-		{
-          if ( chr->has_active_client() )
-			on_enable_see_ghosts( chr );
-          else if ( chr->isa( Core::UObject::CLASS_NPC ) )
-			on_enable_see_ghosts( chr );
-		}
-		else
-		{
-          if ( chr->has_active_client() )
-			on_disable_see_ghosts( chr );
-          else if ( chr->isa( Core::UObject::CLASS_NPC ) )
-			on_disable_see_ghosts( chr );
-		}
-	  }
-	  static void on_change_see_invis_items( Character* chr, bool enable )
-	  {
-		if ( enable )
-		{
-          if ( chr->has_active_client() )
-			on_enable_see_invis_items( chr );
-		}
-		else
-		{
-          if ( chr->has_active_client() )
-			on_disable_see_invis_items( chr );
-		}
-	  }
-	  static void on_change_invul( Character* chr, bool enable )
-	  {
-		if ( enable )
-		{
-          if ( chr->has_active_client() )
-			on_enable_invul( chr );
-          else if ( chr->isa( Core::UObject::CLASS_NPC ) )
-			on_enable_invul( chr );
-		}
-		else
-		{
-          if ( chr->has_active_client() )
-			on_disable_invul( chr );
-          else if ( chr->isa( Core::UObject::CLASS_NPC ) )
-			on_disable_invul( chr );
-		}
-	  }
-
-	private:
-
-	  static void on_enable_see_hidden( Character* chr )
-	  {
-		if ( chr != NULL )
-          Core::WorldIterator<Core::MobileFilter>::InVisualRange( chr, [&]( Character* zonechr ) { enable_see_hidden( zonechr, chr ); } );
-	  }
-	  static void on_disable_see_hidden( Character* chr )
-	  {
-		if ( chr != NULL )
-          Core::WorldIterator<Core::MobileFilter>::InVisualRange( chr, [&]( Character* zonechr ) { disable_see_hidden( zonechr, chr ); } );
-	  }
-	  static void enable_see_hidden( Character* in_range_chr, Character* chr )
-	  {
-		if ( in_range_chr->hidden() && in_range_chr != chr )
-		{
-		  if ( chr->client )
-			send_owncreate( chr->client, in_range_chr );
-          else if ( chr->isa( Core::UObject::CLASS_NPC ) )
-		  {
-            Core::NPC* npc = static_cast<Core::NPC*>( chr );
-            if ( npc->can_accept_event( Core::EVID_ENTEREDAREA ) )
-              npc->send_event( new Module::SourcedEvent( Core::EVID_ENTEREDAREA, in_range_chr ) );
-		  }
-		}
-	  }
-	  static void disable_see_hidden( Character* in_range_chr, Character* chr )
-	  {
-		if ( in_range_chr->hidden() && in_range_chr != chr )
-		{
-		  if ( chr->client )
-			send_remove_character( chr->client, in_range_chr );
-          else if ( chr->isa( Core::UObject::CLASS_NPC ) )
-		  {
-            Core::NPC* npc = static_cast<Core::NPC*>( chr );
-            if ( npc->can_accept_event( Core::EVID_LEFTAREA ) )
-              npc->send_event( new Module::SourcedEvent( Core::EVID_LEFTAREA, in_range_chr ) );
-		  }
-		}
-	  }
-
-	  static void on_enable_see_ghosts( Character* chr )
-	  {
-		if ( chr != NULL )
-          Core::WorldIterator<Core::MobileFilter>::InVisualRange( chr, [&]( Character* zonechr ) { enable_see_ghosts( zonechr, chr ); } );
-	  }
-	  static void on_disable_see_ghosts( Character* chr )
-	  {
-		if ( chr != NULL )
-          Core::WorldIterator<Core::MobileFilter>::InVisualRange( chr, [&]( Character* zonechr ) { disable_see_ghosts( zonechr, chr ); } );
-	  }
-	  static void enable_see_ghosts( Character* in_range_chr, Character* chr )
-	  {
-		if ( in_range_chr->dead() && in_range_chr != chr )
-		{
-		  if ( chr->client )
-			send_owncreate( chr->client, in_range_chr );
-          else if ( chr->isa( Core::UObject::CLASS_NPC ) )
-		  {
-            Core::NPC* npc = static_cast<Core::NPC*>( chr );
-            if ( npc->can_accept_event( Core::EVID_ENTEREDAREA ) )
-              npc->send_event( new Module::SourcedEvent( Core::EVID_ENTEREDAREA, in_range_chr ) );
-		  }
-		}
-	  }
-	  static void disable_see_ghosts( Character* in_range_chr, Character* chr )
-	  {
-		if ( in_range_chr->dead() && in_range_chr != chr )
-		{
-		  if ( chr->client )
-			send_remove_character( chr->client, in_range_chr );
-          else if ( chr->isa( Core::UObject::CLASS_NPC ) )
-		  {
-            Core::NPC* npc = static_cast<Core::NPC*>( chr );
-            if ( npc->can_accept_event( Core::EVID_LEFTAREA ) )
-              npc->send_event( new Module::SourcedEvent( Core::EVID_LEFTAREA, in_range_chr ) );
-		  }
-		}
-	  }
-
-	  static void on_enable_see_invis_items( Character* chr )
-	  {
-		if ( chr != NULL )
-          Core::WorldIterator<Core::ItemFilter>::InVisualRange( chr, [&]( Items::Item* zoneitem ) { enable_see_invis_items( zoneitem, chr ); } );
-	  }
-	  static void on_disable_see_invis_items( Character* chr )
-	  {
-		if ( chr != NULL )
-          Core::WorldIterator<Core::ItemFilter>::InVisualRange( chr, [&]( Items::Item* zoneitem ) { disable_see_invis_items( zoneitem, chr ); } );
-	  }
-	  static void enable_see_invis_items( Items::Item* in_range_item, Character* chr )
-	  {
-		if ( in_range_item->invisible() )
-		{
-		  if ( chr->client )
-			send_item( chr->client, in_range_item );
-		}
-	  }
-	  static void disable_see_invis_items( Items::Item* in_range_item, Character* chr )
-	  {
-		if ( in_range_item->invisible() )
-		{
-		  if ( chr->client )
-			send_remove_object( chr->client, in_range_item );
-		}
-	  }
-
-	  static void on_enable_invul( Character* chr )
-	  {
-        if ( chr != NULL )
-          Core::WorldIterator<Core::PlayerFilter>::InVisualRange( chr, [&]( Character* zonechr ) { enable_invul( zonechr, chr ); } );
-	  }
-	  static void on_disable_invul( Character* chr )
-	  {
-		if ( chr != NULL )
-          Core::WorldIterator<Core::PlayerFilter>::InVisualRange( chr, [&]( Character* zonechr ) { disable_invul( zonechr, chr ); } );
-	  }
-	  static void enable_invul( Character* in_range_chr, Character* chr )
-	  {
-		if ( chr->client != NULL )
-		  send_move( chr->client, chr );
-
-		if ( in_range_chr->has_active_client() )
-		{
-		  if ( in_range_chr != chr && in_range_chr->is_visible_to_me( chr ) )
-		  {
-			send_owncreate( in_range_chr->client, chr );
-		  }
-		}
-	  }
-	  static void disable_invul( Character* in_range_chr, Character* chr )
-	  {
-		if ( chr->client != NULL )
-		{
-		  send_move( chr->client, chr );
-		  if ( chr->client->ClientType & Network::CLIENTTYPE_UOKR )
-			send_invulhealthbar( chr->client, chr );
-		}
-
-		if ( in_range_chr->has_active_client() )
-		{
-		  if ( in_range_chr != chr && in_range_chr->is_visible_to_me( chr ) )
-		  {
-			send_owncreate( in_range_chr->client, chr );
-			if ( in_range_chr->client->ClientType & Network::CLIENTTYPE_UOKR )
-			  send_invulhealthbar( in_range_chr->client, chr );
-		  }
-		}
-	  }
-	};
 
 	Character::Character( u32 objtype, UOBJ_CLASS uobj_class ) :
 	  UObject( objtype, uobj_class ),
-	  warmode_wait( 0 ),
-	  trading_with( NULL ),
-	  trade_accepted( false ),
-	  acct( NULL ),
-	  client( NULL ),
-	  registered_house( 0 ),
-	  cmdlevel_( 0 ),
+	  // NPC
+	  // EQUIPMENT / ITEMS
+	  carrying_capacity_mod_( 0 ),
+	  weapon( Core::gamestate.wrestling_weapon ),
+	  shield( NULL ),
+	  armor_( Core::gamestate.armorzones.size() ),
+	  wornitems_ref( new Core::WornItemsContainer ),// default objtype is in containr.cpp, WornItemsContainer class
+	  wornitems( *wornitems_ref ),
+	  gotten_item( NULL ),
+	  gotten_item_source( 0 ),
+	  remote_containers_(),
+	  //MOVEMENT
 	  dir( 0 ),
-	  warmode( false ),
-	  logged_in( true ), // so initialization scripts etc can see
-	  connected( false ), // but EScript "check"value false
+	  gradual_boost( 0 ),
 	  lastx( 0 ),
 	  lasty( 0 ),
 	  lastz( 0 ),
 	  move_reason( OTHER ),
       movemode( Core::MOVEMODE_LAND ),
+	  lightoverride( -1 ),
+	  lightoverride_until( 0 ),
+	  movement_cost(),
+	  // COMBAT
+	  warmode_wait( 0 ),
+	  ar_( 0 ),
+	  ar_mod_( 0 ),
+	  delay_mod_( 0 ),
+	  hitchance_mod_( 0 ),
+	  evasionchance_mod_( 0 ),
+	  opponent_( NULL ),
+	  opponent_of(),
+	  swing_timer_start_clock_( 0 ),
+	  ready_to_swing( false ),
+	  swing_task( NULL ),
+	  // ATTRIBUTES / VITALS
 	  disable_regeneration_until( 0 ),
+	  attributes( Core::gamestate.numAttributes ),
+      vitals( Core::gamestate.numVitals ),
+	  // REPUTATION
+	  murderer_( false ),
+	  aggressor_to_(),
+	  lawfully_damaged_(),
+	  criminal_until_( 0 ),
+	  repsys_task_( NULL ),
+	  to_be_reportable_(),
+	  reportable_(),
+	  // GUILD
+	  guild_( NULL ),
+	  // PARTY
+	  party_( NULL ),
+	  candidate_of_( NULL ),
+	  offline_mem_of_( NULL ),
+	  party_can_loot_( false ),
+	  party_decline_timeout_( NULL ),
+	  // SECURE TRADING
+	  trading_cont(),
+	  trading_with( NULL ),
+	  trade_accepted( false ),
+	  // SCRIPT
 	  disable_skills_until( 0 ),
+	  tcursor2( NULL ),
+	  menu( NULL ),
+	  on_menu_selection( NULL ),
+	  script_ex( NULL ),
+	  spell_task( NULL ),
+	  // CLIENT
+	  client( NULL ),
+	  logged_in( true ), // so initialization scripts etc can see
+	  connected( false ), // but EScript "check"value false
+	  uclang( "enu" ),
+	  _last_textcolor( 0 ),
+	  // PRIVS SETTINGS STATUS
+	  cmdlevel_( 0 ),
+	  warmode( false ),
+	  poisoned_( false ),
+	  expanded_statbar(),
+	  skillcap_( default_skillcap ),
+	  dead_( false ),
+	  hidden_( false ),
+	  concealed_( 0 ),
+	  frozen_( false ),
+	  paralyzed_( false ),
+	  stealthsteps_( 0 ),
+	  mountedsteps_( 0 ),
+	  privs(),
+	  settings(),
+	  cached_settings(),
+	  squelched_until( 0 ),
+	  deafened_until( 0 ),
+	  // SERIALIZATION
+	  // CREATION
+	  created_at( 0 ),
+	  // MISC
+	  acct( NULL ),
+	  registered_house( 0 ),
 	  truecolor( 0 ),
 	  trueobjtype( 0 ),
 	  // Note, Item uses the named constructor idiom, but here, it is not used.
 	  // this is probably okay, but something to keep in mind.
       gender( Core::GENDER_MALE ),
       race( Core::RACE_HUMAN ),
-	  poisoned_( false ),
 	  last_corpse( 0 ),
-	  dblclick_wait( 0 ),
-	  gotten_item( NULL ),
-	  gotten_item_source( 0 ),
-	  attributes( numAttributes ),
-      vitals( Core::numVitals ),
-
-	  //target_cursor_uoemod(NULL),
-	  //menu_selection_uoemod(NULL),
-	  //prompt_uoemod(NULL),
-	  uclang( "enu" ),
-	  tcursor2( NULL ),
-	  menu( NULL ),
-	  on_menu_selection( NULL ),
-	  lightoverride( -1 ),
-	  lightoverride_until( 0 ),
-
-	  skillcap_( 700 ),
-      _last_textcolor( 0 ),
-
-      wornitems_ref( new Core::WornItemsContainer ),// default objtype is in containr.cpp, WornItemsContainer class
-	  wornitems( *wornitems_ref ),
-
-	  ar_( 0 ),
-	  ar_mod_( 0 ),
-	  delay_mod_( 0 ),
-	  hitchance_mod_( 0 ),
-	  evasionchance_mod_( 0 ),
-	  carrying_capacity_mod_( 0 ),
-
-      weapon( Core::wrestling_weapon ),
-	  shield( NULL ),
-	  armor_( armorzones.size() ),
-
-	  dead_( false ),
-	  hidden_( false ),
-	  concealed_( 0 ), //Dave 11/25 changed from "false" - concealed_ is a char not bool
-	  frozen_( false ),
-	  paralyzed_( false ),
-
-	  stealthsteps_( 0 ),
-	  mountedsteps_( 0 ),
-
-	  // private_items_ default
-	  // additional_legal_items default
-	  // privs default
-	  // settings default
-	  // cached_settings struct
-
-	  script_ex( NULL ),
-	  opponent_( NULL ),
-	  // opponent_of default
-
-	  swing_timer_start_clock_( 0 ),
-	  ready_to_swing( false ),
-	  swing_task( NULL ),
-	  spell_task( NULL ),
-	  created_at( 0 ),
-	  squelched_until( 0 ),
-	  deafened_until( 0 ),
-
-	  criminal_until_( 0 ),
-	  repsys_task_( NULL ),
-	  to_be_reportable_(),
-	  reportable_(),
-	  guild_( NULL ),
-	  party_( NULL ),
-	  candidate_of_( NULL ),
-	  offline_mem_of_( NULL ),
-	  party_can_loot_( false ),
-	  party_decline_timeout_( NULL ),
-	  murderer_( false )
-
-	  //	langid_(0)
+	  dblclick_wait( 0 )
 	{
-	  gradual_boost = 0;
+	  
 	  height = PLAYER_CHARACTER_HEIGHT; //this gets overwritten in UObject::readProperties!
 	  wornitems.chr_owner = this; //FIXME, dangerous.
 
 	  set_caps_to_default();
 
-	  expanded_statbar.statcap = 225;
-	  expanded_statbar.luck = 0;
-	  expanded_statbar.dmg_min = 0;
-	  expanded_statbar.dmg_max = 0;
-	  expanded_statbar.followers_max = 0;
-	  expanded_statbar.tithing = 0;
-	  expanded_statbar.followers = 0;
-
 	  load_default_elements();
 
 	  // vector
 	  refresh_cached_settings( false );
-      ++Core::ucharacter_count;
+      ++Core::stateManager.uobjcount.ucharacter_count;
 	}
 
 	Character::~Character()
@@ -610,7 +378,7 @@ namespace Pol {
 	  {
 		if ( acct->active_character == this )
 		  acct->active_character = NULL;
-        for ( int i = 0; i < Core::config.character_slots; i++ )
+        for ( int i = 0; i < Plib::systemstate.config.character_slots; i++ )
 		{
 		  if ( acct->get_character( i ) == this )
 		  {
@@ -646,7 +414,7 @@ namespace Pol {
 	  if ( party_decline_timeout_ != NULL )
 		party_decline_timeout_->cancel();
 
-      --Core::ucharacter_count;
+      --Core::stateManager.uobjcount.ucharacter_count;
 	}
 
 	void Character::removal_cleanup()
@@ -712,7 +480,6 @@ namespace Pol {
 		Items::Item* item = gotten_item;
 		gotten_item = NULL;
 		item->inuse( false );
-		item->gotten_by = NULL;
 		if ( connected )
           Core::send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
 		undo_get_item( this, item );
@@ -772,7 +539,7 @@ namespace Pol {
 	///
 	unsigned short Character::carrying_capacity() const
 	{
-      return static_cast<u16>( floor( ( 40 + strength( ) * 7 / 2 + carrying_capacity_mod_ ) * Core::ssopt.carrying_capacity_mod ) );
+      return static_cast<u16>( floor( ( 40 + strength( ) * 7 / 2 + carrying_capacity_mod_ ) * Core::settingsManager.ssopt.carrying_capacity_mod ) );
 	}
 
 	int Character::charindex() const
@@ -780,7 +547,7 @@ namespace Pol {
 	  if ( acct == NULL )
 		return -1;
 
-      for ( int i = 0; i < Core::config.character_slots; i++ )
+      for ( int i = 0; i < Plib::systemstate.config.character_slots; i++ )
 	  {
 		if ( acct->get_character( i ) == this )
 		  return i;
@@ -806,7 +573,7 @@ namespace Pol {
 
 	  if ( cmdlevel_ )
 	  {
-        sw( ) << "\tCmdLevel\t" << Core::cmdlevels2[cmdlevel_].name << pf_endl;
+        sw( ) << "\tCmdLevel\t" << Core::gamestate.cmdlevels[cmdlevel_].name << pf_endl;
 	  }
 	  if ( concealed_ )
 	  {
@@ -879,7 +646,7 @@ namespace Pol {
 
 
 	  // output Attributes
-	  for ( Attribute* pAttr = FindAttribute( 0 ); pAttr != NULL; pAttr = pAttr->next )
+	  for ( Attribute* pAttr = Attribute::FindAttribute( 0 ); pAttr != NULL; pAttr = pAttr->next )
 	  {
 		const AttributeValue& av = attribute( pAttr->attrid );
 		short lock = av.lock();
@@ -910,7 +677,7 @@ namespace Pol {
 		}
 	  }
 
-	  if ( skillcap_ != 0 )
+	  if ( skillcap_ != default_skillcap)
 		sw() << "\tSkillcap\t" << static_cast<int>( skillcap_ ) << pf_endl;
 
 	  // output Vitals
@@ -923,7 +690,7 @@ namespace Pol {
 		}
 	  }
 
-	  if ( expanded_statbar.statcap != 0 )
+	  if ( expanded_statbar.statcap != Core::Expanded_Statbar::default_statcap )
 		sw() << "\tStatcap\t" << static_cast<int>( expanded_statbar.statcap ) << pf_endl;
 
 	  if ( expanded_statbar.luck != 0 )
@@ -1039,7 +806,7 @@ namespace Pol {
 	{
 	  serial = elem.remove_ulong( "SERIAL" );
 
-      if ( Core::config.check_integrity )
+      if ( Plib::systemstate.config.check_integrity )
 	  {
         if ( Core::system_find_mobile( serial ) )
 		{
@@ -1056,7 +823,7 @@ namespace Pol {
 		unsigned short charindex;
 		charindex = elem.remove_ushort( "CHARIDX" );
 
-        if ( charindex >= Core::config.character_slots )
+        if ( charindex >= Plib::systemstate.config.character_slots )
 		{
           ERROR_PRINT << "Account " << acctname << ": "
             << "CHARIDX of " << charindex
@@ -1154,7 +921,7 @@ namespace Pol {
 
 	  unsigned int tmp_guildid;
 	  if ( elem.remove_prop( "GUILDID", &tmp_guildid ) )
-		guild_ = Module::FindOrCreateGuild( tmp_guildid, serial );
+		guild_ = Core::Guild::FindOrCreateGuild( tmp_guildid, serial );
 	  //guildid_ = elem.remove_ulong( "GUILDID", 0 );
 	  murderer_ = elem.remove_bool( "MURDERER", false );
 	  party_can_loot_ = elem.remove_bool( "PARTYCANLOOT", false );
@@ -1170,12 +937,12 @@ namespace Pol {
 	  }
 
 	  uclang = elem.remove_string( "UCLang", "enu" );
-	  expanded_statbar.statcap = static_cast<s16>( elem.remove_int( "STATCAP", 225 ) );
-	  skillcap_ = static_cast<u16>( elem.remove_int( "SKILLCAP", 700 ) );
-	  expanded_statbar.luck = static_cast<s16>( elem.remove_int( "LUCK", 0 ) );
-	  expanded_statbar.followers = static_cast<s8>( elem.remove_int( "FOLLOWERS", 0 ) );
-	  expanded_statbar.followers_max = static_cast<s8>( elem.remove_int( "FOLLOWERSMAX", 0 ) );
-	  expanded_statbar.tithing = elem.remove_int( "TITHING", 0 );
+	  expanded_statbar.statcap = static_cast<s16>( elem.remove_int( "STATCAP", Core::Expanded_Statbar::default_statcap ) );
+	  skillcap_ = static_cast<u16>( elem.remove_int( "SKILLCAP", default_skillcap ) );
+	  expanded_statbar.luck = static_cast<s16>( elem.remove_int( "LUCK", Core::Expanded_Statbar::default_luck ) );
+	  expanded_statbar.followers = static_cast<s8>( elem.remove_int( "FOLLOWERS", Core::Expanded_Statbar::default_followers ) );
+	  expanded_statbar.followers_max = static_cast<s8>( elem.remove_int( "FOLLOWERSMAX", Core::Expanded_Statbar::default_followers_max ) );
+	  expanded_statbar.tithing = elem.remove_int( "TITHING", Core::Expanded_Statbar::default_tithing );
 
 	  privs.readfrom( elem.remove_string( "Privs", "" ) );
 	  settings.readfrom( elem.remove_string( "Settings", "" ) );
@@ -1186,7 +953,7 @@ namespace Pol {
 	void Character::readAttributesAndVitals( Clib::ConfigElem& elem )
 	{
 	  // read Attributes
-	  for ( Attribute* pAttr = FindAttribute( 0 ); pAttr != NULL; pAttr = pAttr->next )
+	  for ( Attribute* pAttr = Attribute::FindAttribute( 0 ); pAttr != NULL; pAttr = pAttr->next )
 	  {
 		AttributeValue& av = attribute( pAttr->attrid );
 
@@ -1199,15 +966,15 @@ namespace Pol {
 			unsigned int base;
 			unsigned int cap = pAttr->default_cap;
 			unsigned char lock = 0;
-            if ( Core::polvar.DataWrittenBy == 93 &&
-                 Core::gflag_in_system_load )
+            if ( Core::settingsManager.polvar.DataWrittenBy == 93 &&
+                 Core::stateManager.gflag_in_system_load )
 			{
 			  unsigned int raw = strtoul( temp.c_str(), NULL, 10 );
               base = Core::raw_to_base( raw );
 			}
 			else
 			{
-              if ( !Core::polvar.DataWrittenBy && Core::gflag_in_system_load )
+              if ( !Core::settingsManager.polvar.DataWrittenBy && Core::stateManager.gflag_in_system_load )
 			  {
 				elem.throw_error( "Pol.txt 'System' element needs to specify CoreVersion" );
 			  }
@@ -1336,12 +1103,6 @@ namespace Pol {
       setElementDamageMod( Core::ELEMENTAL_ENERGY, 0 );
       setElementDamageMod( Core::ELEMENTAL_POISON, 0 );
       setElementDamageMod( Core::ELEMENTAL_PHYSICAL, 0 );
-
-	  //Movementcost defaults
-	  movement_cost.walk = 1.0;
-	  movement_cost.run = 1.0;
-	  movement_cost.walk_mounted = 1.0;
-	  movement_cost.run_mounted = 1.0;
 	}
 
 	void Character::refresh_cached_settings( bool update )
@@ -1560,14 +1321,14 @@ namespace Pol {
 	bool Character::strong_enough_to_equip( const Items::Item* item ) const
 	{
 	  const Items::ItemDesc& desc = item->itemdesc();
-	  return ( attribute( pAttrStrength->attrid ).base() >= desc.base_str_req );
+	  return ( attribute( Core::gamestate.pAttrStrength->attrid ).base() >= desc.base_str_req );
 	}
 
 	bool Character::equippable( const Items::Item* item ) const
 	{
 	  if ( !Items::valid_equip_layer( item ) )
 	  {
-          if (item->objtype_ == Core::extobj.mount) {
+          if (item->objtype_ == Core::settingsManager.extobj.mount) {
               POLLOG_INFO.Format("\nWarning: Character 0x{:X} tried to mount Item 0x{:X}, but it doesn't have a mount graphic (current graphic: 0x{:X}). Check that the list of mounts in uoconvert.cfg is correct and re-run uoconvert if necessary.\n") << this->serial << item->serial << item->graphic;
           }
 
@@ -1584,8 +1345,8 @@ namespace Pol {
       
       // Only allow mounts if they have the mount objtype as defined in extobj.cfg
       if (item->tile_layer == Core::LAYER_MOUNT
-          && Core::config.enforce_mount_objtype
-          && item->objtype_ != Core::extobj.mount)
+          && Plib::systemstate.config.enforce_mount_objtype
+          && item->objtype_ != Core::settingsManager.extobj.mount)
       {
           POLLOG_INFO.Format("\nWarning: Character 0x{:X} tried to mount Item 0x{:X}, but it doesn't have the mount objtype (as defined in extobj.cfg) and EnforceMountObjtype in pol.cfg is true.\n") << this->serial << item->serial;
           return false;
@@ -1602,7 +1363,7 @@ namespace Pol {
 	  }
 
       const Items::ItemDesc& desc = item->itemdesc();
-	  if ( attribute( pAttrStrength->attrid ).base() < desc.base_str_req )
+	  if ( attribute( Core::gamestate.pAttrStrength->attrid ).base() < desc.base_str_req )
 	  {
 		return false;
 	  }
@@ -1663,7 +1424,7 @@ namespace Pol {
 
 	Items::UWeapon* Character::intrinsic_weapon()
 	{
-      return Core::wrestling_weapon;
+      return Core::gamestate.wrestling_weapon;
 	}
 
 	void Character::unequip( Items::Item *item )
@@ -1787,17 +1548,17 @@ namespace Pol {
 	{
 	  if ( i_mod )
 	  {
-		for ( unsigned ai = 0; ai < numAttributes; ++ai )
+		for ( unsigned ai = 0; ai < Core::gamestate.numAttributes; ++ai )
 		{
-		  calc_single_attribute( Mobile::attributes[ai] );
+		  calc_single_attribute( Core::gamestate.attributes[ai] );
 		}
 	  }
 
 	  if ( v_mod )
 	  {
-		for ( unsigned vi = 0; vi < Core::numVitals; ++vi )
+		for ( unsigned vi = 0; vi < Core::gamestate.numVitals; ++vi )
 		{
-		  calc_single_vital( Core::vitals[vi] );
+		  calc_single_vital( Core::gamestate.vitals[vi] );
 		}
 	  }
 	}
@@ -1852,12 +1613,12 @@ namespace Pol {
 	void Character::set_vitals_to_maximum() // throw()
 	{
 	  set_dirty();
-      for ( unsigned vi = 0; vi < Core::numVitals; ++vi )
+      for ( unsigned vi = 0; vi < Core::gamestate.numVitals; ++vi )
 	  {
 		VitalValue& vv = vital( vi );
 		vv.current( vv.maximum() );
 
-        Network::ClientInterface::tell_vital_changed( this, Core::vitals[vi] );
+        Network::ClientInterface::tell_vital_changed( this, Core::gamestate.vitals[vi] );
 	  }
 	}
 
@@ -1982,7 +1743,7 @@ namespace Pol {
         flag1 |= Core::CHAR_FLAG1_POISONED;
       if ( ( movemode & Core::MOVEMODE_FLY ) && ( client->ClientType & Network::CLIENTTYPE_7000 ) )
         flag1 |= Core::CHAR_FLAG1_FLYING;
-      if ( ( Core::ssopt.invul_tag == 2 ) && ( invul( ) ) )
+      if ( ( Core::settingsManager.ssopt.invul_tag == 2 ) && ( invul( ) ) )
         flag1 |= Core::CHAR_FLAG1_YELLOWHEALTH;
 	  if ( warmode )
         flag1 |= Core::CHAR_FLAG1_WARMODE;
@@ -2025,10 +1786,10 @@ namespace Pol {
 	  disable_regeneration_for( 2 );// FIXME depend on amount?
 
 	  // 0.xx is still 0
-      VitalValue& vv = vital( Core::pVitalLife->vitalid );
+      VitalValue& vv = vital( Core::gamestate.pVitalLife->vitalid );
 	  if ( vv.current() - amount <= 99 )
 		amount = vv.current(); // be greedy with that last point
-      consume( Core::pVitalLife, vv, amount );
+      consume( Core::gamestate.pVitalLife, vv, amount );
 
 	  if ( ( source ) && ( userepsys ) )
 		source->repsys_on_damage( this );
@@ -2085,7 +1846,7 @@ namespace Pol {
 	double Character::apply_damage( double damage, Character* source, bool userepsys, bool send_damage_packet )
 	{
 	  damage = armor_absorb_damage( damage );
-      if ( Core::watch.combat ) INFO_PRINT << "Final damage: " << damage << "\n";
+      if ( Core::settingsManager.watch.combat ) INFO_PRINT << "Final damage: " << damage << "\n";
 	  do_imhit_effects();
 	  apply_raw_damage_hundredths( static_cast<unsigned int>( damage * 100 ), source, userepsys, send_damage_packet );
 
@@ -2110,7 +1871,7 @@ namespace Pol {
 
 	void Character::run_hit_script( Character* defender, double damage )
 	{
-      ref_ptr<Bscript::EScriptProgram> prog = find_script2( weapon->hit_script( ), true, Core::config.cache_interactive_scripts );
+      ref_ptr<Bscript::EScriptProgram> prog = find_script2( weapon->hit_script( ), true, Plib::systemstate.config.cache_interactive_scripts );
 	  if ( prog.get() == NULL )
 		return;
 
@@ -2157,7 +1918,7 @@ namespace Pol {
 	///
 	void Character::check_undamaged()
 	{
-	  if ( vital( Core::pVitalLife->vitalid ).is_at_maximum() &&
+	  if ( vital( Core::gamestate.pVitalLife->vitalid ).is_at_maximum() &&
 		   !poisoned() &&
 		   !paralyzed() )
 	  {
@@ -2185,7 +1946,7 @@ namespace Pol {
 	  if ( amount == 0 )
 		return;
 
-	  produce( Core::pVitalLife, vital( Core::pVitalLife->vitalid ), amount );
+	  produce( Core::gamestate.pVitalLife, vital( Core::gamestate.pVitalLife->vitalid ), amount );
 
 	  check_undamaged();
 
@@ -2271,20 +2032,20 @@ namespace Pol {
 
 	  color = truecolor;
 
-	  if ( Core::pVitalLife->regen_while_dead )
+	  if ( Core::gamestate.pVitalLife->regen_while_dead )
 	  {
-        VitalValue& vv = vital( Core::pVitalLife->vitalid );
+        VitalValue& vv = vital( Core::gamestate.pVitalLife->vitalid );
 		if ( vv._current == 0 ) // set in die()
-          set_current_ones( Core::pVitalLife, vv, 1 );
+          set_current_ones( Core::gamestate.pVitalLife, vv, 1 );
 	  }
 	  else
-        set_current_ones( Core::pVitalLife, vital( Core::pVitalLife->vitalid ), 1 );
+        set_current_ones( Core::gamestate.pVitalLife, vital( Core::gamestate.pVitalLife->vitalid ), 1 );
 
-      if ( !Core::pVitalMana->regen_while_dead )
-        set_current_ones( Core::pVitalMana, vital( Core::pVitalMana->vitalid ), 0 );
+      if ( !Core::gamestate.pVitalMana->regen_while_dead )
+        set_current_ones( Core::gamestate.pVitalMana, vital( Core::gamestate.pVitalMana->vitalid ), 0 );
 
-      if ( !Core::pVitalStamina->regen_while_dead )
-        set_current_ones( Core::pVitalStamina, vital( Core::pVitalStamina->vitalid ), 1 );
+      if ( !Core::gamestate.pVitalStamina->regen_while_dead )
+        set_current_ones( Core::gamestate.pVitalStamina, vital( Core::gamestate.pVitalStamina->vitalid ), 1 );
 
 	  // replace the death shroud with a death robe
       if ( layer_is_equipped( Core::LAYER_ROBE_DRESS ) )
@@ -2343,9 +2104,15 @@ namespace Pol {
 
 		client->pause();
 		send_warmode();
-
-		send_goxyz( client, this );
+        
+        // Sends the complete corpse to the client itself, so he knows where his
+        // items went.
+        send_full_corpse(client, corpse);
+        
+        send_goxyz( client, this );
         Core::WorldIterator<Core::MobileFilter>::InVisualRange( client->chr, [&]( Character* zonechr ) { send_create_ghost( zonechr, client ); } );
+        
+        client->restart();
 	  }
 
 	  // change self to ghost for ghosts, remove self for living
@@ -2371,13 +2138,13 @@ namespace Pol {
 
 	void Character::die()
 	{
-      if ( Core::system_hooks.can_die != NULL )
+      if ( Core::gamestate.system_hooks.can_die != NULL )
 	  {
-        if ( !Core::system_hooks.can_die->call( make_mobileref( this ) ) )
+        if ( !Core::gamestate.system_hooks.can_die->call( make_mobileref( this ) ) )
 		  return;
 	  }
 
-      set_current_ones( Core::pVitalLife, vital( Core::pVitalLife->vitalid ), 0 );
+      set_current_ones( Core::gamestate.pVitalLife, vital( Core::gamestate.pVitalLife->vitalid ), 0 );
 	  clear_my_aggressors();
 	  clear_my_lawful_damagers();
 	  commit_to_reportables();
@@ -2495,7 +2262,7 @@ namespace Pol {
 		}
 		if ( item->newbie() )
 		  continue;
-        else if ( Core::ssopt.honor_unequip_script_on_death )
+        else if ( Core::settingsManager.ssopt.honor_unequip_script_on_death )
 		{
 		  if ( !item->check_unequip_script() || !item->check_unequiptest_scripts() )
 			continue;
@@ -2592,7 +2359,7 @@ namespace Pol {
 			continue;
           if ( item->layer == Core::LAYER_BEARD || item->layer == Core::LAYER_HAIR || item->layer == Core::LAYER_FACE )
 			continue;
-          if ( Core::ssopt.honor_unequip_script_on_death )
+          if ( Core::settingsManager.ssopt.honor_unequip_script_on_death )
 		  {
 			if ( !item->check_unequip_script() || !item->check_unequiptest_scripts() )
 			  continue;
@@ -2653,7 +2420,7 @@ namespace Pol {
 	  //   FIXME? NZONES * NLAYERS (5 * 24 = 124) iterations.
 	  // okay, reverse, for each wornitem, for each coverage area, upgrade.	
 	  // Turley: should be fixed now only iterators over armor's coverage zones instead of all zones
-	  for ( unsigned zone = 0; zone < armorzones.size(); ++zone )
+	  for ( unsigned zone = 0; zone < Core::gamestate.armorzones.size(); ++zone )
 		armor_[zone] = NULL;
 	  // we need to reset each resist to 0, then add the base back using calc.
       for ( unsigned element = 0; element <= Core::ELEMENTAL_TYPE_MAX; ++element )
@@ -2686,12 +2453,12 @@ namespace Pol {
 
 	  //	calculate_ar();	<-- MuadDib Commented out, mixed code within ported find_armor to reduce iter.
 	  double new_ar = 0.0;
-	  for ( unsigned zone = 0; zone < armorzones.size(); ++zone )
+	  for ( unsigned zone = 0; zone < Core::gamestate.armorzones.size(); ++zone )
 	  {
         Items::UArmor* armor = armor_[zone];
 		if ( armor != NULL )
 		{
-		  new_ar += armor->ar() * armorzones[zone].chance;
+		  new_ar += armor->ar() * Core::gamestate.armorzones[zone].chance;
 		}
 	  }
 
@@ -2699,7 +2466,7 @@ namespace Pol {
 	  // FIXME: Should we allow this to be adjustable via a prop? Hrmmmmm
 	  if ( shield != NULL )
 	  {
-		double add = 0.5 * 0.01 * shield->ar() * attribute( pAttrParry->attrid ).effective();
+		double add = 0.5 * 0.01 * shield->ar() * attribute( Core::gamestate.pAttrParry->attrid ).effective();
 		if ( add > 1.0 )
 		  new_ar += add;
 		else
@@ -2749,7 +2516,7 @@ namespace Pol {
         Core::send_sysmessage( client, "Your armor coverage:" );
 		for ( unsigned i = 0; i < armor_.size(); ++i )
 		{
-		  std::string text = armorzones[i].name + ": ";
+		  std::string text = Core::gamestate.armorzones[i].name + ": ";
 		  if ( armor_[i] == NULL )
 			text += "Nothing";
 		  else
@@ -2767,10 +2534,10 @@ namespace Pol {
 	{
 	  INC_PROFILEVAR( skill_checks );
 	  static bool in_here = false;
-	  if ( !in_here && Core::system_hooks.check_skill_hook != NULL )
+	  if ( !in_here && Core::gamestate.system_hooks.check_skill_hook != NULL )
 	  {
 		in_here = true;
-		bool res = Core::system_hooks.check_skill_hook->call( new Module::ECharacterRefObjImp( this ),
+		bool res = Core::gamestate.system_hooks.check_skill_hook->call( new Module::ECharacterRefObjImp( this ),
 														new Bscript::BLong( skillid ),
                                                         new Bscript::BLong( difficulty ),
                                                         new Bscript::BLong( pointvalue ) );
@@ -3002,7 +2769,7 @@ namespace Pol {
 	bool Character::is_attackable( Character* who ) const
 	{
 	  passert( who != NULL );
-      if ( Core::combat_config.scripted_attack_checks )
+      if ( Core::settingsManager.combat_config.scripted_attack_checks )
 	  {
         INFO_PRINT_TRACE( 21 ) << "is_attackable(0x" << fmt::hexu( this->serial ) << ",0x" << fmt::hexu(who->serial) << "): will be handled by combat hook.\n";
 		return true;
@@ -3188,8 +2955,8 @@ namespace Pol {
 
 	void Character::set_warmode( bool i_warmode )
 	{
-      if ( Core::system_hooks.warmode_change )
-        Core::system_hooks.warmode_change->call( new Module::ECharacterRefObjImp( this ), new Bscript::BLong( i_warmode ) );
+      if ( Core::gamestate.system_hooks.warmode_change )
+        Core::gamestate.system_hooks.warmode_change->call( new Module::ECharacterRefObjImp( this ), new Bscript::BLong( i_warmode ) );
 
 	  if ( warmode != i_warmode )
 	  {
@@ -3256,10 +3023,10 @@ namespace Pol {
 
 	Items::UArmor* Character::choose_armor() const
 	{
-	  double f = Clib::random_double( armor_zone_chance_sum );
-	  for ( unsigned zone = 0; zone < armorzones.size(); ++zone )
+	  double f = Clib::random_double( Core::gamestate.armor_zone_chance_sum );
+	  for ( unsigned zone = 0; zone < Core::gamestate.armorzones.size(); ++zone )
 	  {
-		f -= armorzones[zone].chance;
+		f -= Core::gamestate.armorzones[zone].chance;
 		if ( f <= 0.0 )
 		{
 		  return armor_[zone];
@@ -3320,24 +3087,18 @@ namespace Pol {
 		play_sound_effect( this, sound );
 	}
 
+	u16 Character::get_damaged_sound() const
+	{
+	  if ( gender == Core::GENDER_MALE )
+		return SOUND_EFFECT_MALE_DEFENSE;
+	  return SOUND_EFFECT_FEMALE_DEFENSE;
+	}
+
 	void Character::do_imhit_effects()
 	{
-      if ( Core::combat_config.core_hit_sounds )
+      if ( Core::settingsManager.combat_config.core_hit_sounds )
 	  {
-		u16 sfx = 0;
-		if ( this->isa( UObject::CLASS_NPC ) )
-		{
-          Core::NPC* npc = static_cast<Core::NPC*>( this );
-		  sfx = npc->damaged_sound;
-		}
-		if ( !sfx )
-		{
-          if ( gender == Core::GENDER_MALE )
-			sfx = SOUND_EFFECT_MALE_DEFENSE;
-		  else
-			sfx = SOUND_EFFECT_FEMALE_DEFENSE;
-		}
-		play_sound_effect( this, sfx );
+		play_sound_effect( this, get_damaged_sound() );
 	  }
 	  if ( objtype_ >= UOBJ_HUMAN_MALE )
         send_action_to_inrange( this, Core::ACTION_GOT_HIT );
@@ -3348,13 +3109,13 @@ namespace Pol {
 	{
 	  INC_PROFILEVAR( combat_operations );
 
-      if ( Core::system_hooks.attack_hook )
+      if ( Core::gamestate.system_hooks.attack_hook )
 	  {
-        if ( Core::system_hooks.attack_hook->call( new Module::ECharacterRefObjImp( this ), new Module::ECharacterRefObjImp( opponent ) ) )
+        if ( Core::gamestate.system_hooks.attack_hook->call( new Module::ECharacterRefObjImp( this ), new Module::ECharacterRefObjImp( opponent ) ) )
 		  return;
 	  }
 
-      if ( Core::watch.combat )
+      if ( Core::settingsManager.watch.combat )
         INFO_PRINT << name( ) << " attacks " << opponent->name( ) << "\n";
 
 	  if ( weapon->is_projectile() )
@@ -3398,9 +3159,9 @@ namespace Pol {
 
 	  do_attack_effects( opponent );
 
-      if ( Core::system_hooks.combat_advancement_hook )
+      if ( Core::gamestate.system_hooks.combat_advancement_hook )
 	  {
-        Core::system_hooks.combat_advancement_hook->call( new Module::ECharacterRefObjImp( this ),
+        Core::gamestate.system_hooks.combat_advancement_hook->call( new Module::ECharacterRefObjImp( this ),
                                                     new Module::EItemRefObjImp( weapon ),
                                                     new Module::ECharacterRefObjImp( opponent ) );
 	  }
@@ -3408,45 +3169,45 @@ namespace Pol {
 	  double hit_chance = ( weapon_attribute().effective() + 50.0 ) / ( 2.0 * ( opponent->weapon_attribute().effective() + 50.0 ) );
 	  hit_chance += hitchance_mod_ * 0.001f;
 	  hit_chance -= opponent->evasionchance_mod_ * 0.001f;
-      if ( Core::watch.combat )
+      if ( Core::settingsManager.watch.combat )
         INFO_PRINT << "Chance to hit: " << hit_chance << ": ";
 	  if ( Clib::random_double( 1.0 ) < hit_chance )
 	  {
-        if ( Core::watch.combat )
+        if ( Core::settingsManager.watch.combat )
           INFO_PRINT << "Hit!\n";
 		do_hit_success_effects();
 
 		double damage = random_weapon_damage();
 		damage_weapon();
 
-        if ( Core::watch.combat ) INFO_PRINT << "Base damage: " << damage << "\n";
+        if ( Core::settingsManager.watch.combat ) INFO_PRINT << "Base damage: " << damage << "\n";
 
-		double damage_multiplier = attribute( pAttrTactics->attrid ).effective() + 50;
+		double damage_multiplier = attribute( Core::gamestate.pAttrTactics->attrid ).effective() + 50;
 		damage_multiplier += strength() * 0.20f;
 		damage_multiplier *= 0.01f;
 
 		damage *= damage_multiplier;
 
-        if ( Core::watch.combat )
+        if ( Core::settingsManager.watch.combat )
           INFO_PRINT << "Damage multiplier due to tactics/STR: " << damage_multiplier << " Result: " << damage << "\n";
 
 		if ( opponent->shield != NULL )
 		{
-          if ( Core::system_hooks.parry_advancement_hook )
+          if ( Core::gamestate.system_hooks.parry_advancement_hook )
 		  {
-            Core::system_hooks.parry_advancement_hook->call( new Module::ECharacterRefObjImp( this ),
+            Core::gamestate.system_hooks.parry_advancement_hook->call( new Module::ECharacterRefObjImp( this ),
                                                        new Module::EItemRefObjImp( weapon ),
                                                        new Module::ECharacterRefObjImp( opponent ),
                                                        new Module::EItemRefObjImp( opponent->shield ) );
 		  }
 
-		  double parry_chance = opponent->attribute( pAttrParry->attrid ).effective() / 200.0;
-          if ( Core::watch.combat ) INFO_PRINT << "Parry Chance: " << parry_chance << ": ";
+		  double parry_chance = opponent->attribute( Core::gamestate.pAttrParry->attrid ).effective() / 200.0;
+          if ( Core::settingsManager.watch.combat ) INFO_PRINT << "Parry Chance: " << parry_chance << ": ";
           if ( Clib::random_double( 1.0 ) < parry_chance )
 		  {
-            if ( Core::watch.combat )
+            if ( Core::settingsManager.watch.combat )
               INFO_PRINT << opponent->shield->ar() << " hits deflected\n";
-            if ( Core::combat_config.display_parry_success_messages && opponent->client )
+            if ( Core::settingsManager.combat_config.display_parry_success_messages && opponent->client )
               Core::send_sysmessage( opponent->client, "You successfully parried the attack!" );
 
 			damage -= opponent->shield->ar();
@@ -3455,12 +3216,12 @@ namespace Pol {
 		  }
 		  else
 		  {
-            if ( Core::watch.combat ) INFO_PRINT << "failed.\n";
+            if ( Core::settingsManager.watch.combat ) INFO_PRINT << "failed.\n";
 		  }
 		}
 		if ( weapon->hit_script().empty() )
 		{
-          opponent->apply_damage( damage, this, true, Core::combat_config.send_damage_packet );
+          opponent->apply_damage( damage, this, true, Core::settingsManager.combat_config.send_damage_packet );
 		}
 		else
 		{
@@ -3469,13 +3230,13 @@ namespace Pol {
 	  }
 	  else
 	  {
-        if ( Core::watch.combat )
+        if ( Core::settingsManager.watch.combat )
           INFO_PRINT << "Miss!\n";
 		opponent->on_swing_failure( this );
 		do_hit_failure_effects();
-        if ( Core::system_hooks.hitmiss_hook )
+        if ( Core::gamestate.system_hooks.hitmiss_hook )
 		{
-          Core::system_hooks.hitmiss_hook->call( new Module::ECharacterRefObjImp( this ),
+          Core::gamestate.system_hooks.hitmiss_hook->call( new Module::ECharacterRefObjImp( this ),
 										   new Module::ECharacterRefObjImp( opponent ) );
 		}
 
@@ -3490,7 +3251,7 @@ namespace Pol {
       INFO_PRINT_TRACE( 20 ) << "check_attack_after_move(0x" << fmt::hexu( this->serial ) << "): opponent is 0x" << fmt::hexu( opponent->serial ) << "\n";
 	  if ( opponent != NULL &&				   // and I have an opponent
 		   !dead_ &&							 // If I'm not dead
-           ( Core::combat_config.attack_while_frozen ||
+           ( Core::settingsManager.combat_config.attack_while_frozen ||
 		   ( !paralyzed() &&
 		   !frozen() ) ) )
 	  {
@@ -3498,7 +3259,7 @@ namespace Pol {
 		if ( ready_to_swing )				 // and I can swing now,
 		{								   // do so.
 		  FUNCTION_CHECKPOINT( check_attack_after_move, 4 );
-          if ( Core::combat_config.send_swing_packet && client != NULL )
+          if ( Core::settingsManager.combat_config.send_swing_packet && client != NULL )
 			send_fight_occuring( client, opponent );
 		  attack( opponent );
 		  FUNCTION_CHECKPOINT( check_attack_after_move, 5 );
@@ -3536,11 +3297,11 @@ namespace Pol {
 	  else
 	  {
 		//dave 12-22 check for no regions
-        Core::LightRegion* light_region = Core::lightdef->getregion( x, y, realm );
+        Core::LightRegion* light_region = Core::gamestate.lightdef->getregion( x, y, realm );
 		if ( light_region != NULL )
 		  newlightlevel = light_region->lightlevel;
 		else
-          newlightlevel = Core::ssopt.default_light_level;
+          newlightlevel = Core::settingsManager.ssopt.default_light_level;
 	  }
 
 	  if ( newlightlevel != client->gd->lightlevel )
@@ -3553,7 +3314,7 @@ namespace Pol {
 	void Character::check_justice_region_change()
 	{
       Core::JusticeRegion* cur_justice_region = client->gd->justice_region;
-      Core::JusticeRegion* new_justice_region = Core::justicedef->getregion( x, y, client->chr->realm );
+      Core::JusticeRegion* new_justice_region = Core::gamestate.justicedef->getregion( x, y, client->chr->realm );
 
 	  if ( cur_justice_region != new_justice_region )
 	  {
@@ -3622,7 +3383,7 @@ namespace Pol {
 	void Character::check_music_region_change()
 	{
       Core::MusicRegion* cur_music_region = client->gd->music_region;
-      Core::MusicRegion* new_music_region = Core::musicdef->getregion( x, y, realm );
+      Core::MusicRegion* new_music_region = Core::gamestate.musicdef->getregion( x, y, realm );
 
 	  // may want to consider changing every n minutes, too, even if region didn't change
 	  if ( cur_music_region != new_music_region )
@@ -3643,7 +3404,7 @@ namespace Pol {
 	void Character::check_weather_region_change( bool force ) //dave changed 5/26/03 - use force boolean if current weather region changed type/intensity
 	{
       Core::WeatherRegion* cur_weather_region = client->gd->weather_region;
-      Core::WeatherRegion* new_weather_region = Core::weatherdef->getregion( x, y, realm );
+      Core::WeatherRegion* new_weather_region = Core::gamestate.weatherdef->getregion( x, y, realm );
 
 	  // eric 5/31/03: I don't think this is right.  it's possible to go from somewhere that has no weather region,
 	  // and to walk to somewhere that doesn't have a weather region.
@@ -3703,9 +3464,9 @@ namespace Pol {
 
 	void Character::unhide()
 	{
-      if ( Core::system_hooks.un_hide != NULL )
+      if ( Core::gamestate.system_hooks.un_hide != NULL )
 	  {
-        if ( !Core::system_hooks.un_hide->call( make_mobileref( this ) ) )
+        if ( !Core::gamestate.system_hooks.un_hide->call( make_mobileref( this ) ) )
 		  return;
 	  }
 
@@ -3785,8 +3546,8 @@ namespace Pol {
 		return false;
 	  }
 
-      if ( Core::ssopt.movement_uses_stamina &&
-           vital( Core::pVitalStamina->vitalid ).current_ones( ) == 0 &&
+      if ( Core::settingsManager.ssopt.movement_uses_stamina &&
+           vital( Core::gamestate.pVitalStamina->vitalid ).current_ones( ) == 0 &&
 		   !dead() )
 	  {
 		private_say_above( this, this, "You are too fatigued to move." );
@@ -3809,9 +3570,9 @@ namespace Pol {
 	  {
 		setfacing( static_cast<u8>( i_facing ) );
 
-        if ( Core::combat_config.reset_swing_onturn && !cached_settings.firewhilemoving && weapon->is_projectile( ) )
+        if ( Core::settingsManager.combat_config.reset_swing_onturn && !cached_settings.firewhilemoving && weapon->is_projectile( ) )
 		  reset_swing_timer();
-        if ( hidden( ) && ( Core::ssopt.hidden_turns_count ) )
+        if ( hidden( ) && ( Core::settingsManager.ssopt.hidden_turns_count ) )
 		{
 		  if ( stealthsteps_ == 0 )
 			unhide();
@@ -3931,13 +3692,13 @@ namespace Pol {
 		if ( !CheckPushthrough() )
 		  return false;
 
-        if ( !cached_settings.freemove && Core::ssopt.movement_uses_stamina && !dead( ) )
+        if ( !cached_settings.freemove && Core::settingsManager.ssopt.movement_uses_stamina && !dead( ) )
 		{
 		  int carry_perc = weight() * 100 / carrying_capacity();
 		  unsigned short tmv = movecost( this, carry_perc, ( i_dir&PKTIN_02_DIR_RUNNING_BIT ) ? true : false, on_mount() );
-          VitalValue& stamina = vital( Core::pVitalStamina->vitalid );
+          VitalValue& stamina = vital( Core::gamestate.pVitalStamina->vitalid );
 		  //u16 old_stamina = stamina.current_ones();
-		  if ( !consume( Core::pVitalStamina, stamina, tmv ) )
+		  if ( !consume( Core::gamestate.pVitalStamina, stamina, tmv ) )
 		  {
 			private_say_above( this, this, "You are too fatigued to move." );
 			return false;
@@ -3999,10 +3760,10 @@ namespace Pol {
 			--stealthsteps_;
 		}
 
-        if ( Core::system_hooks.ouch_hook != NULL )
+        if ( Core::gamestate.system_hooks.ouch_hook != NULL )
 		{
 		  if ( ( lastz - z ) > 21 )
-            Core::system_hooks.ouch_hook->call( make_mobileref( this ), new Bscript::BLong( lastx ), new Bscript::BLong( lasty ), new Bscript::BLong( lastz ) );
+            Core::gamestate.system_hooks.ouch_hook->call( make_mobileref( this ), new Bscript::BLong( lastx ), new Bscript::BLong( lasty ), new Bscript::BLong( lastz ) );
 		}
 	  }
 
@@ -4042,7 +3803,7 @@ namespace Pol {
 		//these are important to keep here in this order
         Core::send_realm_change( client, realm );
         Core::send_map_difs( client );
-        if ( Core::ssopt.core_sends_season )
+        if ( Core::settingsManager.ssopt.core_sends_season )
           Core::send_season_info( client );
         Core::send_short_statmsg( client, this );
         Core::send_feature_enable( client );
@@ -4051,7 +3812,7 @@ namespace Pol {
 
 	bool Character::CheckPushthrough()
 	{
-      if ( !cached_settings.freemove &&Core::system_hooks.pushthrough_hook != NULL )
+      if ( !cached_settings.freemove && Core::gamestate.system_hooks.pushthrough_hook != NULL )
 	  {
         unsigned short newx = x + Core::move_delta[facing].xmove;
         unsigned short newy = y + Core::move_delta[facing].ymove;
@@ -4071,7 +3832,7 @@ namespace Pol {
 
         if ( mobs )
 		{
-          return Core::system_hooks.pushthrough_hook->call( make_mobileref( this ), mobs.release() );
+          return Core::gamestate.system_hooks.pushthrough_hook->call( make_mobileref( this ), mobs.release() );
 		}
 		return true;
 
@@ -4211,15 +3972,15 @@ namespace Pol {
 
 	u16 Character::strength() const
 	{
-	  return static_cast<u16>( attribute( pAttrStrength->attrid ).effective() );
+	  return static_cast<u16>( attribute( Core::gamestate.pAttrStrength->attrid ).effective() );
 	}
 	u16 Character::dexterity() const
 	{
-	  return static_cast<u16>( attribute( pAttrDexterity->attrid ).effective() );
+	  return static_cast<u16>( attribute( Core::gamestate.pAttrDexterity->attrid ).effective() );
 	}
 	u16 Character::intelligence() const
 	{
-	  return static_cast<u16>( attribute( pAttrIntelligence->attrid ).effective() );
+	  return static_cast<u16>( attribute( Core::gamestate.pAttrIntelligence->attrid ).effective() );
 	}
 
 	// a bad thing about having this function be a member of Character
@@ -4233,8 +3994,8 @@ namespace Pol {
 		return NULL;
 	  }
 	  unsigned short wxL, wyL, wxH, wyH;
-      Core::zone_convert_clip( x - 3, y - 3, realm, wxL, wyL );
-      Core::zone_convert_clip( x + 3, y + 3, realm, wxH, wyH );
+      Core::zone_convert_clip( x - 3, y - 3, realm, &wxL, &wyL );
+      Core::zone_convert_clip( x + 3, y + 3, realm, &wxH, &wyH );
 	  for ( unsigned short wx = wxL; wx <= wxH; ++wx )
 	  {
 		for ( unsigned short wy = wyL; wy <= wyH; ++wy )
@@ -4311,7 +4072,7 @@ namespace Pol {
 	{
 	  if ( trading_cont.get() == NULL )	 // FIXME hardcoded
 	  {
-        Items::Item* cont = Items::Item::create( Core::extobj.secure_trade_container );
+        Items::Item* cont = Items::Item::create( Core::settingsManager.extobj.secure_trade_container );
 		cont->realm = realm;
         trading_cont.set( static_cast<Core::UContainer*>( cont ) );
 	  }
@@ -4331,9 +4092,9 @@ namespace Pol {
 
 	void Character::set_caps_to_default()
 	{
-	  for ( unsigned ai = 0; ai < numAttributes; ++ai )
+	  for ( unsigned ai = 0; ai < Core::gamestate.numAttributes; ++ai )
 	  {
-		Attribute* pAttr = Mobile::attributes[ai];
+		Attribute* pAttr = Core::gamestate.attributes[ai];
 		AttributeValue& av = attribute( ai );
 
 		av = attribute( ai );
@@ -4349,6 +4110,19 @@ namespace Pol {
     void Character::last_textcolor( u16 color )
     {
       _last_textcolor = color;
+    }
+
+	Core::Guild* Character::guild( ) const
+    {
+      return guild_;
+    }
+    void Character::guild( Core::Guild* g )
+    {
+      guild_ = g;
+    }
+    unsigned int Character::guildid( ) const
+    {
+      return guild_ ? guild_->guildid( ) : 0;
     }
 
     size_t Character::estimatedSize() const
@@ -4419,7 +4193,7 @@ namespace Pol {
         + sizeof( Core::gameclock_t )/*deafened_until*/
         + sizeof( Core::polclock_t )/*criminal_until_*/
         + sizeof( Core::OneShotTask* )/*repsys_task_*/
-        + sizeof( Module::Guild* )/*guild_*/
+        + sizeof( Core::Guild* )/*guild_*/
         + sizeof( Core::Party* )/*party_*/
         + sizeof( Core::Party* )/*candidate_of_*/
         + sizeof( Core::Party* )/*offline_mem_of_*/
@@ -4451,6 +4225,7 @@ namespace Pol {
         if (realm)
             realm->remove_mobile(*this, Plib::WorldChangeReason::PlayerDeleted);
     }
+
 
   }
 }

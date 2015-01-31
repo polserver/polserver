@@ -11,8 +11,20 @@ Notes
 
 #ifndef __LAYERS_H
 #define __LAYERS_H
+
+#include <string>
+#include <vector>
+
 namespace Pol {
   namespace Core {
+
+	struct ArmorZone
+    {
+      std::string name;
+      double chance;
+      std::vector<unsigned short> layers;
+    };
+
 	enum LAYER_INFO
 	{
 	  LOWEST_LAYER = 1,

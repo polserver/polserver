@@ -67,6 +67,8 @@ namespace Pol {
 
 	  unsigned short width() const;
 	  unsigned short height() const;
+	  unsigned short grid_width() const;
+	  unsigned short grid_height() const;
 
 	  unsigned season() const;
 
@@ -82,10 +84,10 @@ namespace Pol {
       void add_multi(const Multi::UMulti& multi);
       void remove_multi(const Multi::UMulti& multi);
 
-      unsigned int mobile_count();
-      unsigned int offline_mobile_count();
-      unsigned int toplevel_item_count();
-      unsigned int multi_count();
+      unsigned int mobile_count() const;
+      unsigned int offline_mobile_count() const;
+      unsigned int toplevel_item_count() const;
+      unsigned int multi_count() const;
 
 	  bool walkheight( unsigned short x, unsigned short y, short oldz,
 					   short* newz,
@@ -118,7 +120,7 @@ namespace Pol {
 
 	  bool navigable( unsigned short x, unsigned short y, short z, short height ) const;
 
-	  Multi::UMulti* find_supporting_multi( unsigned short x, unsigned short y, short z );
+	  Multi::UMulti* find_supporting_multi( unsigned short x, unsigned short y, short z ) const;
 
 	  bool lowest_standheight( unsigned short x, unsigned short y, short* z ) const;
 	  bool findstatic( unsigned short x, unsigned short y, unsigned short objtype ) const;
@@ -132,13 +134,10 @@ namespace Pol {
 
 	  Core::Zone** zone;
 	  std::set<unsigned int> global_hulls; //xy-smashed together
-	  unsigned getUOMapID() { return _Descriptor().uomapid; };
-	  unsigned getNumStaticPatches() { return _Descriptor().num_static_patches; };
-	  unsigned getNumMapPatches() { return _Descriptor().num_map_patches; };
-	  static inline unsigned int encode_global_hull( unsigned short ax, unsigned short ay )
-	  {
-		return ( static_cast<unsigned int>( ax ) << 16 ) | ay;
-	  }
+	  unsigned getUOMapID() const;
+	  unsigned getNumStaticPatches() const;
+	  unsigned getNumMapPatches() const;
+	  static unsigned int encode_global_hull( unsigned short ax, unsigned short ay );
 	protected:
 	  static void standheight( Core::MOVEMODE movemode,
 							   MapShapeList& shapes,
@@ -170,45 +169,37 @@ namespace Pol {
 	  bool los_blocked( const Core::LosObj& att, const Core::LosObj& target,
 						unsigned short x, unsigned short y, short z ) const;
 
-	  Multi::UMulti* find_supporting_multi( MultiList& mvec, short z );
+	  Multi::UMulti* find_supporting_multi( MultiList& mvec, short z ) const;
 
 	private:
-	  RealmDescriptor _descriptor;
+	  const RealmDescriptor _descriptor;
       unsigned int _mobile_count;
       unsigned int _offline_count;
       unsigned int _toplevel_item_count;
       unsigned int _multi_count;
-
-	public:
 	  std::unique_ptr<MapServer> _mapserver;
 	  std::unique_ptr<StaticServer> _staticserver;
 	  std::unique_ptr<MapTileServer> _maptileserver;
+
 	private:
 	  // not implemented:
 	  Realm& operator=( const Realm& );
 	  Realm( const Realm& );
-
 	public:
-	  inline RealmDescriptor _Descriptor() const
-	  {
-		if ( is_shadowrealm )
-		  return baserealm->_Descriptor();
-		return _descriptor;
-	  }
       size_t sizeEstimate() const;
 	};
 
 
-    inline unsigned int Realm::mobile_count() {
+    inline unsigned int Realm::mobile_count()  const {
         return _mobile_count;
     }
-    inline unsigned int Realm::offline_mobile_count() {
+    inline unsigned int Realm::offline_mobile_count()  const {
         return _offline_count;
     } 
-    inline unsigned int Realm::toplevel_item_count() {
+    inline unsigned int Realm::toplevel_item_count()  const {
         return _toplevel_item_count;
     }
-    inline unsigned int Realm::multi_count() {
+    inline unsigned int Realm::multi_count()  const {
         return _multi_count;
     }
 
@@ -225,6 +216,32 @@ namespace Pol {
     inline void Realm::remove_multi(const Multi::UMulti& /*multi*/) {
         --_multi_count;
     }
+
+	inline unsigned Realm::getUOMapID() const
+	{ 
+	  return _descriptor.uomapid; 
+	};
+	inline unsigned Realm::getNumStaticPatches() const
+	{ 
+	  return _descriptor.num_static_patches; 
+	};
+	inline unsigned Realm::getNumMapPatches() const
+	{ 
+	  return _descriptor.num_map_patches; 
+	};
+	inline unsigned int Realm::encode_global_hull( unsigned short ax, unsigned short ay )
+	{
+	  return ( static_cast<unsigned int>( ax ) << 16 ) | ay;
+	}
+
+	inline unsigned short Realm::width() const
+	{
+	  return _descriptor.width;
+	}
+	inline unsigned short Realm::height() const
+	{
+	  return _descriptor.height;
+	}
 
   }
 }

@@ -50,67 +50,68 @@ namespace Pol {
 	  DEF_PROFILEVAR( container_removes );
 
 	  CLOCK_PROFILEVAR( npc_search );
+
+      size_t rotations, last_rotations;
+      size_t last_rpm;
+
+	  //unsigned int instructions;
+	  u64 last_instructions;
+	  size_t last_sipm;
+
+	  u64 sleep_cycles;
+	  u64 last_sleep_cycles;
+	  size_t last_scpm;
+
+	  size_t busy_sysload_cycles, last_busy_sysload_cycles;
+	  size_t nonbusy_sysload_cycles, last_nonbusy_sysload_cycles;
+	  size_t sysload_nprocs, last_sysload_nprocs;
+	  size_t last_sysload;
+
+	  u64 last_cpu_total;
+	  size_t last_cputime;
+
+	  u64 script_passes;
+	  u64 last_script_passes;
+	  size_t last_sppm;
+
+	  //unsigned int scheduler_passes, last_scheduler_passes;
+	  //unsigned int last_schm;
+
+	  size_t script_passes_activity;
+	  size_t script_passes_noactivity;
+	  size_t last_script_passes_activity;
+	  size_t last_script_passes_noactivity;
+
+	  size_t mapcache_hits, last_mapcache_hits;
+	  size_t mapcache_misses, last_mapcache_misses;
 	};
-	extern ProfileVars profilevars;
 
-	extern size_t rotations, last_rotations;
-	extern size_t last_rpm;
-
-	//extern unsigned int instructions;
-	extern u64 last_instructions;
-	extern size_t last_sipm;
-
-	extern u64 sleep_cycles;
-	extern u64 last_sleep_cycles;
-	extern size_t last_scpm;
-
-	extern size_t busy_sysload_cycles, last_busy_sysload_cycles;
-	extern size_t nonbusy_sysload_cycles, last_nonbusy_sysload_cycles;
-	extern size_t sysload_nprocs, last_sysload_nprocs;
-	extern size_t last_sysload;
-
-	extern u64 last_cpu_total;
-	extern size_t last_cputime;
-
-	extern u64 script_passes;
-	extern u64 last_script_passes;
-	extern size_t last_sppm;
-
-	//extern unsigned int scheduler_passes, last_scheduler_passes;
-	//extern unsigned int last_schm;
-
-	extern size_t script_passes_activity;
-	extern size_t script_passes_noactivity;
-	extern size_t last_script_passes_activity;
-	extern size_t last_script_passes_noactivity;
-
-	extern size_t mapcache_hits, last_mapcache_hits;
-	extern size_t mapcache_misses, last_mapcache_misses;
+	
   }
-#define INC_PROFILEVAR( counter ) ++Core::profilevars.prf_##counter
-#define SET_PROFILEVAR( counter, newvalue ) Core::profilevars.prf_##counter = newvalue
-#define INC_PROFILEVAR_BY( counter, amount ) Core::profilevars.prf_##counter += amount
+#define INC_PROFILEVAR( counter ) ++Core::stateManager.profilevars.prf_##counter
+#define SET_PROFILEVAR( counter, newvalue ) Core::stateManager.profilevars.prf_##counter = newvalue
+#define INC_PROFILEVAR_BY( counter, amount ) Core::stateManager.profilevars.prf_##counter += amount
 
 #define TICK_PROFILEVAR( counter )                      \
   do \
   {  \
-  Core::profilevars.prf_last_##counter##_per_min = Core::profilevars.prf_##counter - Core::profilevars.prf_last_##counter;  \
-  Core::profilevars.prf_last_##counter = Core::profilevars.prf_##counter;                      \
+  Core::stateManager.profilevars.prf_last_##counter##_per_min = Core::stateManager.profilevars.prf_##counter - Core::stateManager.profilevars.prf_last_##counter;  \
+  Core::stateManager.profilevars.prf_last_##counter = Core::stateManager.profilevars.prf_##counter;                      \
   } while ( 0 )
 
-#define GET_PROFILEVAR( counter ) Core::profilevars.prf_##counter
-#define GET_PROFILEVAR_PER_MIN( counter ) Core::profilevars.prf_last_##counter##_per_min
+#define GET_PROFILEVAR( counter ) Core::stateManager.profilevars.prf_##counter
+#define GET_PROFILEVAR_PER_MIN( counter ) Core::stateManager.profilevars.prf_last_##counter##_per_min
 
-#define START_PROFILECLOCK( timer ) Core::profilevars.tmr_##timer##_clock_start = clock()
-#define STOP_PROFILECLOCK( timer )  Core::profilevars.tmr_##timer##_clocks_this_min += clock() - Core::profilevars.tmr_##timer##_clock_start
+#define START_PROFILECLOCK( timer ) Core::stateManager.profilevars.tmr_##timer##_clock_start = clock()
+#define STOP_PROFILECLOCK( timer )  Core::stateManager.profilevars.tmr_##timer##_clocks_this_min += clock() - Core::stateManager.profilevars.tmr_##timer##_clock_start
 #define ROLL_PROFILECLOCK( timer )  \
   do \
   { \
-  Core::profilevars.tmr_##timer##_clocks_last_min = Core::profilevars.tmr_##timer##_clocks_this_min; \
-  Core::profilevars.tmr_##timer##_clocks_this_min = 0; \
+  Core::stateManager.profilevars.tmr_##timer##_clocks_last_min = Core::stateManager.profilevars.tmr_##timer##_clocks_this_min; \
+  Core::stateManager.profilevars.tmr_##timer##_clocks_this_min = 0; \
   } while ( 0 )
-#define GET_PROFILECLOCK( timer ) Core::profilevars.tmr_##timer##_clocks_last_min
-#define GET_PROFILECLOCK_MS( timer ) ( static_cast<unsigned int>( Core::profilevars.tmr_##timer##_clocks_last_min * 1000.0 / Core::CLOCKS_PER_SEC ) )
+#define GET_PROFILECLOCK( timer ) Core::stateManager.profilevars.tmr_##timer##_clocks_last_min
+#define GET_PROFILECLOCK_MS( timer ) ( static_cast<unsigned int>( Core::stateManager.profilevars.tmr_##timer##_clocks_last_min * 1000.0 / Core::CLOCKS_PER_SEC ) )
 
 }
 #endif

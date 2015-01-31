@@ -25,9 +25,8 @@ Notes
 #include "pktboth.h"
 #include "ufunc.h"
 #include "uoclient.h"
-#include "uvars.h"
-
-#include "ssopt.h"
+#include "globals/settings.h"
+#include "globals/network.h"
 
 
 namespace Pol {
@@ -40,13 +39,13 @@ namespace Pol {
 	  msg->offset += 2; // msglen
 	  msg->Write<u32>( chr->serial_ext );
 	  msg->Write( chr->name().c_str(), 30, false );
-	  if ( uoclient_general.hits.any )
+	  if ( networkManager.uoclient_general.hits.any )
 	  {
-		int v = chr->vital( uoclient_general.hits.id ).current_ones();
+		int v = chr->vital( networkManager.uoclient_general.hits.id ).current_ones();
 		if ( v > 0xFFFF )
 		  v = 0xFFFF;
 		msg->WriteFlipped<u16>( static_cast<u16>(v) ); // hits
-		v = chr->vital(uoclient_general.hits.id).maximum_ones();
+		v = chr->vital(networkManager.uoclient_general.hits.id).maximum_ones();
 		if (v > 0xFFFF)
 			v = 0xFFFF;
 		msg->WriteFlipped<u16>( static_cast<u16>(v) ); // max_hits
@@ -71,9 +70,9 @@ namespace Pol {
 	  //else
 	  msg->Write<u8>( chr->gender ); // GENDER_MALE or GENDER_FEMALE (see uconst.h)
 
-	  if ( uoclient_general.strength.any )
+	  if ( networkManager.uoclient_general.strength.any )
 	  {
-		int v = chr->attribute( uoclient_general.strength.id ).effective();
+		int v = chr->attribute( networkManager.uoclient_general.strength.id ).effective();
 		if ( v > 0xFFFF )
 		  v = 0xFFFF;
 		msg->WriteFlipped<u16>( static_cast<u16>(v) );
@@ -81,9 +80,9 @@ namespace Pol {
 	  else
 		msg->WriteFlipped<u16>( 0u );
 
-	  if ( uoclient_general.dexterity.any )
+	  if ( networkManager.uoclient_general.dexterity.any )
 	  {
-		int v = chr->attribute( uoclient_general.dexterity.id ).effective();
+		int v = chr->attribute( networkManager.uoclient_general.dexterity.id ).effective();
 		if ( v > 0xFFFF )
 		  v = 0xFFFF;
 		msg->WriteFlipped<u16>( static_cast<u16>(v) );
@@ -91,9 +90,9 @@ namespace Pol {
 	  else
 		msg->WriteFlipped<u16>( 0u );
 
-	  if ( uoclient_general.intelligence.any )
+	  if ( networkManager.uoclient_general.intelligence.any )
 	  {
-		int v = chr->attribute( uoclient_general.intelligence.id ).effective();
+		int v = chr->attribute( networkManager.uoclient_general.intelligence.id ).effective();
 		if ( v > 0xFFFF )
 		  v = 0xFFFF;
 		msg->WriteFlipped<u16>( static_cast<u16>(v) );
@@ -101,14 +100,14 @@ namespace Pol {
 	  else
 		msg->WriteFlipped<u16>( 0u );
 
-	  if ( uoclient_general.stamina.any )
+	  if ( networkManager.uoclient_general.stamina.any )
 	  {
-		int v = chr->vital( uoclient_general.stamina.id ).current_ones();
+		int v = chr->vital( networkManager.uoclient_general.stamina.id ).current_ones();
 		if ( v > 0xFFFF )
 		  v = 0xFFFF;
 		msg->WriteFlipped<u16>( static_cast<u16>(v) );
 
-		v = chr->vital( uoclient_general.stamina.id ).maximum_ones();
+		v = chr->vital( networkManager.uoclient_general.stamina.id ).maximum_ones();
 		if ( v > 0xFFFF )
 		  v = 0xFFFF;
 		msg->WriteFlipped<u16>( static_cast<u16>(v) );
@@ -119,14 +118,14 @@ namespace Pol {
 		msg->WriteFlipped<u16>( 0u );
 	  }
 
-	  if ( uoclient_general.mana.any )
+	  if ( networkManager.uoclient_general.mana.any )
 	  {
-		int v = chr->vital( uoclient_general.mana.id ).current_ones();
+		int v = chr->vital( networkManager.uoclient_general.mana.id ).current_ones();
 		if ( v > 0xFFFF )
 		  v = 0xFFFF;
 		msg->WriteFlipped<u16>( static_cast<u16>(v) );
 
-		v = chr->vital( uoclient_general.mana.id ).maximum_ones();
+		v = chr->vital( networkManager.uoclient_general.mana.id ).maximum_ones();
 		if ( v > 0xFFFF )
 		  v = 0xFFFF;
 		msg->WriteFlipped<u16>( static_cast<u16>(v) );
@@ -218,7 +217,7 @@ namespace Pol {
 	  msg->WriteFlipped<u16>(len);
 	  msg.Send(client,len);
 
-	  if ( ssopt.send_stat_locks )
+	  if ( settingsManager.ssopt.send_stat_locks )
 		send_stat_locks( client, chr );
 	}
 
@@ -229,9 +228,9 @@ namespace Pol {
 
 	  u8 lockbit = 0;
 
-	  lockbit |= chr->attribute( uoclient_general.strength.id ).lock() << 4; //XX SS DD II (2 bits for each lock)
-	  lockbit |= chr->attribute( uoclient_general.dexterity.id ).lock() << 2;
-	  lockbit |= chr->attribute( uoclient_general.intelligence.id ).lock();
+	  lockbit |= chr->attribute( networkManager.uoclient_general.strength.id ).lock() << 4; //XX SS DD II (2 bits for each lock)
+	  lockbit |= chr->attribute( networkManager.uoclient_general.dexterity.id ).lock() << 2;
+	  lockbit |= chr->attribute( networkManager.uoclient_general.intelligence.id ).lock();
 
 	  PacketOut<Network::PktOut_BF_Sub19> msg;
 	  msg->WriteFlipped<u16>( 12u );
@@ -250,13 +249,13 @@ namespace Pol {
 	  msg->Write<u32>( chr->serial_ext );
 	  msg->Write( chr->name().c_str(), 30, false );
 
-	  if ( uoclient_general.hits.any )
+	  if ( networkManager.uoclient_general.hits.any )
 	  {
 		int h, mh;
-		h = chr->vital( uoclient_general.hits.id ).current_ones();
+		h = chr->vital( networkManager.uoclient_general.hits.id ).current_ones();
 		if ( h > 0xFFFF )
 		  h = 0xFFFF;
-		mh = chr->vital( uoclient_general.hits.id ).maximum_ones();
+		mh = chr->vital( networkManager.uoclient_general.hits.id ).maximum_ones();
 		if ( mh > 0xFFFF )
 		  mh = 0xFFFF;
 
@@ -283,12 +282,12 @@ namespace Pol {
 	  PacketOut<Network::PktOut_A1> msg;
 	  msg->Write<u32>( chr->serial_ext );
 
-	  if ( uoclient_general.hits.any )
+	  if ( networkManager.uoclient_general.hits.any )
 	  {
-		int h = chr->vital( uoclient_general.hits.id ).current_ones();
+		int h = chr->vital( networkManager.uoclient_general.hits.id ).current_ones();
 		if ( h > 0xFFFF )
 		  h = 0xFFFF;
-		int mh = chr->vital( uoclient_general.hits.id ).maximum_ones();
+		int mh = chr->vital( networkManager.uoclient_general.hits.id ).maximum_ones();
 		if ( mh > 0xFFFF )
 		  mh = 0xFFFF;
 		msg->WriteFlipped<u16>( static_cast<u16>(mh) );

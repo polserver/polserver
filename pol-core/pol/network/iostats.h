@@ -25,9 +25,6 @@ namespace Pol {
 	  Packet sent[256];
 	  Packet received[256];
 	};
-
-	extern IOStats iostats;
-	extern IOStats queuedmode_iostats;
   }
 }
 #endif

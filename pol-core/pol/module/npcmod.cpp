@@ -15,17 +15,19 @@ Notes
 
 #include "../../plib/realm.h"
 
+#include "../containr.h"
 #include "../dice.h"
 #include "../eventid.h"
 #include "../fnsearch.h"
+#include "../globals/uvars.h"
 #include "../item/weapon.h"
 #include "../listenpt.h"
 #include "../mobile/attribute.h"
 #include "../mobile/boundbox.h"
+#include "../mobile/npc.h"
 #include "../mobile/ufacing.h"
 #include "../network/client.h"
 #include "../network/packets.h"
-#include "../npc.h"
 #include "../npctmpl.h"
 #include "../objtype.h"
 #include "../pktout.h"
@@ -36,18 +38,13 @@ Notes
 #include "../skilladv.h"
 #include "../skills.h"
 #include "../sockio.h"
-#include "../ssopt.h"
 #include "../ufunc.h"
 #include "../ufunc.h"
 #include "../ufuncinl.h"
 #include "../uoexec.h"
 #include "../uoexhelp.h"
 #include "../uoscrobj.h"
-#include "../uvars.h"
-#include "../watch.h"
-#include "../wrldsize.h"
 #include "../uworld.h"
-#include "../containr.h"
 
 #include "../../bscript/berror.h"
 #include "../../bscript/eprog.h"
@@ -77,7 +74,7 @@ Notes
 namespace Pol {
   namespace Module {
     using namespace Bscript;
-	NPCExecutorModule::NPCExecutorModule( Executor& ex, Core::NPC& npc ) :
+	NPCExecutorModule::NPCExecutorModule( Executor& ex, Mobile::NPC& npc ) :
 	  ExecutorModule( "NPC", ex ),
 	  npcref( &npc ),
 	  npc( npc )
@@ -760,11 +757,11 @@ namespace Pol {
 	  // send to those nearby
       u16 range;
       if ( texttype == Core::TEXTTYPE_WHISPER )
-        range = Core::ssopt.whisper_range;
+        range = Core::settingsManager.ssopt.whisper_range;
       else if ( texttype == Core::TEXTTYPE_YELL )
-        range = Core::ssopt.yell_range;
+        range = Core::settingsManager.ssopt.yell_range;
       else
-        range = Core::ssopt.speech_range;
+        range = Core::settingsManager.ssopt.speech_range;
       Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( npc.x, npc.y, npc.realm, range, [&]( Mobile::Character *chr )
       {
         if ( !chr->is_visible_to_me( &npc ) )
@@ -773,7 +770,14 @@ namespace Pol {
       } );
 
 	  if ( doevent >= 1 )
-		for_nearby_npcs( Core::npc_spoke, &npc, text, static_cast<int>( strlen( text ) ), texttype );
+      {
+        Core::WorldIterator<Core::NPCFilter>::InRange( npc.x, npc.y, npc.realm, range, [&]( Mobile::Character *chr )
+        {
+          Mobile::NPC* othernpc = static_cast<Mobile::NPC*>( chr );
+          if (chr != &npc)
+            othernpc->on_pc_spoke( &npc, text, texttype );
+        } );
+      }
 
 	  return NULL;
 	}
@@ -842,11 +846,11 @@ namespace Pol {
 
         u16 range;
         if ( texttype == Core::TEXTTYPE_WHISPER )
-          range = Core::ssopt.whisper_range;
+          range = Core::settingsManager.ssopt.whisper_range;
         else if ( texttype == Core::TEXTTYPE_YELL )
-          range = Core::ssopt.yell_range;
+          range = Core::settingsManager.ssopt.yell_range;
         else
-          range = Core::ssopt.speech_range;
+          range = Core::settingsManager.ssopt.speech_range;
         Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( npc.x, npc.y, npc.realm, range, [&]( Mobile::Character *chr )
         {
           if ( !chr->is_visible_to_me( &npc ) )
@@ -863,7 +867,12 @@ namespace Pol {
 			ntextbuf[ntextbuflen++] = std::wcout.narrow( (wchar_t)gwtext[i], '?' );
 		  }
 		  ntextbuf[ntextbuflen++] = 0;
-		  for_nearby_npcs( Core::npc_spoke, &npc, ntextbuf, ntextbuflen, texttype, gwtext, languc.c_str(), textlen, NULL );
+          Core::WorldIterator<Core::NPCFilter>::InRange( npc.x, npc.y, npc.realm, range, [&]( Mobile::Character *chr )
+          {
+            Mobile::NPC* othernpc = static_cast<Mobile::NPC*>( chr );
+            if (othernpc != &npc)
+              othernpc->on_pc_spoke( &npc, ntextbuf, texttype, gwtext, languc.c_str(), NULL );
+          } );
 		}
 	  }
 	  else

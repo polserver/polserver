@@ -7,6 +7,7 @@ Notes
 
 */
 
+#include "console.h"
 
 #include "../bscript/impstr.h"
 
@@ -16,12 +17,15 @@ Notes
 #include "../clib/stlutil.h"
 #include "../clib/logfacility.h"
 
+#include "../plib/systemstate.h"
+
 #include "polcfg.h"
 #include "polsem.h"
-#include "polsig.h"
 #include "scrdef.h"
 #include "scrsched.h"
 #include "scrstore.h"
+#include "globals/uvars.h"
+#include "globals/state.h"
 
 #ifdef _WIN32
 #	include <conio.h>
@@ -39,21 +43,9 @@ keyboard kb;
 
 namespace Pol {
   namespace Core {
-	class ConsoleCommand
-	{
-	public:
-	  ConsoleCommand( Clib::ConfigElem& elem, const std::string& cmd );
 
-	  std::string showchar() const;
-
-	  char ch;
-	  std::string script;
-      std::string description;
-	};
-
-	std::vector< ConsoleCommand > console_commands;
-	bool console_locked = true;
-	char unlock_char;
+	bool ConsoleCommand::console_locked = true;
+	char ConsoleCommand::unlock_char;
 
     ConsoleCommand::ConsoleCommand( Clib::ConfigElem& elem, const std::string& cmd )
 	{
@@ -82,8 +74,15 @@ namespace Pol {
 	  }
 
 	  if ( script == "[unlock]" || script == "[lock/unlock]" )
-		unlock_char = ch;
+		ConsoleCommand::unlock_char = ch;
 	}
+
+    size_t ConsoleCommand::estimateSize() const
+    {
+      return sizeof(char)
+        + script.capacity()
+        + description.capacity();
+    }
 
     std::string getcmdstr(char ch)
 	{
@@ -104,18 +103,18 @@ namespace Pol {
 	  }
 	}
 
-	ConsoleCommand* find_console_command( char ch )
+	ConsoleCommand* ConsoleCommand::find_console_command( char ch )
 	{
-	  for ( unsigned i = 0; i < console_commands.size(); ++i )
+	  for ( unsigned i = 0; i < gamestate.console_commands.size(); ++i )
 	  {
-		ConsoleCommand& cmd = console_commands[i];
+		ConsoleCommand& cmd = gamestate.console_commands[i];
 		if ( cmd.ch == ch )
 		  return &cmd;
 	  }
 	  return NULL;
 	}
 
-	void load_console_commands()
+	void ConsoleCommand::load_console_commands()
 	{
       if ( !Clib::FileExists( "config/console.cfg" ) )
 		return;
@@ -123,7 +122,7 @@ namespace Pol {
       Clib::ConfigFile cf( "config/console.cfg", "Commands" );
       Clib::ConfigElem elem;
 
-	  console_commands.clear();
+	  gamestate.console_commands.clear();
 
 	  while ( cf.read( elem ) )
 	  {
@@ -131,12 +130,12 @@ namespace Pol {
 		while ( elem.remove_prop( "CMD", &tmp ) )
 		{
 		  ConsoleCommand cmd( elem, tmp );
-		  console_commands.push_back( cmd );
+		  gamestate.console_commands.push_back( cmd );
 		}
 	  }
 	}
 
-	void exec_console_cmd( char ch )
+	void ConsoleCommand::exec_console_cmd( char ch )
 	{
 #ifdef WIN32
 	  // cope with function keys.
@@ -150,9 +149,9 @@ namespace Pol {
 	  {
         fmt::Writer tmp;
         tmp << "Commands: \n";
-		for ( unsigned i = 0; i < console_commands.size(); ++i )
+		for ( unsigned i = 0; i < gamestate.console_commands.size(); ++i )
 		{
-		  ConsoleCommand& cmd = console_commands[i];
+		  ConsoleCommand& cmd = gamestate.console_commands[i];
           std::string sc = getcmdstr(cmd.ch);
 		  if ( sc.size() == 1 ) tmp << " ";
           tmp << " " << sc << ": ";
@@ -172,20 +171,20 @@ namespace Pol {
 	  }
 	  if ( cmd->script == "[lock]" )
 	  {
-		console_locked = true;
+		ConsoleCommand::console_locked = true;
         INFO_PRINT << "Console is now locked.\n";
 		return;
 	  }
 	  if ( cmd->script == "[unlock]" )
 	  {
-		console_locked = true;
+		ConsoleCommand::console_locked = true;
         INFO_PRINT << "Console is now unlocked.\n";
 		return;
 	  }
 	  if ( cmd->script == "[lock/unlock]" )
 	  {
-		console_locked = !console_locked;
-		if ( console_locked )
+		ConsoleCommand::console_locked = !ConsoleCommand::console_locked;
+		if ( ConsoleCommand::console_locked )
           INFO_PRINT << "Console is now locked.\n";
 		else
           INFO_PRINT << "Console is now unlocked.\n";
@@ -193,7 +192,7 @@ namespace Pol {
 	  }
 	  if ( cmd->script == "[threadstatus]" )
 	  {
-		report_status_signalled = true;
+		stateManager.polsig.report_status_signalled = true;
 		return;
 	  }
 	  if ( cmd->script == "[crash]" )
@@ -203,9 +202,9 @@ namespace Pol {
 		return;
 	  }
 
-	  if ( console_locked )
+	  if ( ConsoleCommand::console_locked )
 	  {
-        INFO_PRINT << "Console is locked.  Press '" << unlock_char << "' to unlock.\n";
+        INFO_PRINT << "Console is locked.  Press '" << ConsoleCommand::unlock_char << "' to unlock.\n";
 		return;
 	  }
 
@@ -215,7 +214,7 @@ namespace Pol {
 		PolLock lck;
 		ScriptDef sd;
 		sd.quickconfig( filename + ".ecl" );
-		ref_ptr<Bscript::EScriptProgram> prog = find_script2( sd, true, config.cache_interactive_scripts );
+		ref_ptr<Bscript::EScriptProgram> prog = find_script2( sd, true, Plib::systemstate.config.cache_interactive_scripts );
 		if ( prog.get() != NULL )
 		  start_script( prog, new Bscript::String( getcmdstr( ch ) ) );
 	  }
@@ -242,7 +241,7 @@ namespace Pol {
 	  return;
 	}
 
-	void check_console_commands()
+	void ConsoleCommand::check_console_commands()
 	{
 #ifdef _WIN32
 	  if ( kbhit() )

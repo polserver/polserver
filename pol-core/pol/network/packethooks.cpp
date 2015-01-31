@@ -40,6 +40,7 @@ new Handler added to the core needs a new Version number here. As of 8/3/09 ther
 #include "../uoscrobj.h"
 #include "../syshook.h"
 #include "../polsem.h"
+#include "../globals/network.h"
 
 #ifdef _MSC_VER
     #pragma warning(disable:4996) //deprecation warnings for stricmp
@@ -47,10 +48,6 @@ new Handler added to the core needs a new Version number here. As of 8/3/09 ther
 
 namespace Pol {
   namespace Network {
-	//stores information about each packet and its script & default handler
-	std::vector<PacketHookData> packet_hook_data( 256 );
-	std::vector<PacketHookData> packet_hook_data_v2( 256 );
-	std::vector<PacketHookData> packet_hook_data_v3( 256 );
 
 	u32 GetSubCmd( const unsigned char* message, PacketHookData* phd )
 	{
@@ -74,9 +71,9 @@ namespace Pol {
     // Gets the packet hook for a specific packet version
     PacketHookData* get_packethook(u8 msgid, PacketVersion version = PacketVersion::Default) {
         if (version == PacketVersion::V2)
-            return &packet_hook_data_v2.at(msgid);
+            return Core::networkManager.packet_hook_data_v2.at(msgid).get();
         
-        return &packet_hook_data.at(msgid);
+        return Core::networkManager.packet_hook_data.at(msgid).get();
     }
 
     // Gets the packet hook according to the client version
@@ -439,6 +436,18 @@ namespace Pol {
 	  Plib::load_packaged_cfgs( "uopacket.cfg", "packet subpacket", load_subpacket_entries );
 	}
 
+	PacketHookData::PacketHookData() :
+	  length( 0 ),
+	  function( NULL ),
+	  outgoing_function( NULL ),
+	  default_handler( NULL ),
+	  sub_command_offset( 0 ),
+	  sub_command_length( 0 ),
+      version(PacketVersion::Default)
+	{
+	  memset( &client_ver, 0, sizeof( client_ver ) );
+	};
+
 	PacketHookData::~PacketHookData()
 	{
 	  std::map<u32, PacketHookData*>::iterator itr = SubCommands.begin(), end = SubCommands.end();
@@ -452,11 +461,34 @@ namespace Pol {
 		delete outgoing_function;
 	}
 
+	void PacketHookData::initializeGameData(std::vector<std::unique_ptr<PacketHookData>> *data)
+	{
+	  data->clear();
+	  data->reserve( 256 );
+	  for (int i = 0; i < 256; ++i)
+	  {
+		data->emplace_back( new PacketHookData() );
+	  }
+	}
+
+    size_t PacketHookData::estimateSize() const
+    {
+      size_t size = sizeof(PacketHookData)
+        + 2* sizeof(Core::ExportedFunction);
+      for (const auto& subs : SubCommands)
+      {
+        size += ( sizeof(u32)+sizeof( PacketHookData* ) + ( sizeof(void*) * 3 + 1 ) / 2 );
+        if (subs.second != nullptr)
+          size += subs.second->estimateSize();
+      }
+      return size;
+    }
+
+
 	void clean_packethooks()
 	{
-	  packet_hook_data.clear();
-	  packet_hook_data_v2.clear();
-	  packet_hook_data_v3.clear();
+	  Core::networkManager.packet_hook_data.clear();
+	  Core::networkManager.packet_hook_data_v2.clear();
 	}
 
 	void SetVersionDetailStruct( const std::string& ver, VersionDetailStruct& detail )

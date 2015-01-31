@@ -12,6 +12,7 @@ Notes
 #include "../uoexec.h"
 #include "../polsem.h"
 #include "osmod.h"
+#include "../globals/network.h"
 
 #include "../../bscript/bobject.h"
 #include "../../bscript/berror.h"
@@ -77,7 +78,7 @@ namespace Pol {
         }
       };
       
-      Core::sql_service.push( std::move(msg) );
+      Core::networkManager.sql_service->push( std::move(msg) );
       uoexec.os_module->suspend();
       return new BLong( 0 );
     }
@@ -110,7 +111,7 @@ namespace Pol {
           uoexec.os_module->revive();
         }
       };
-      Core::sql_service.push( std::move( msg ) );
+      Core::networkManager.sql_service->push( std::move( msg ) );
       uoexec.os_module->suspend();
       return new BLong( 0 );
     }
@@ -144,7 +145,7 @@ namespace Pol {
           uoexec.os_module->revive( );
         }
       };
-      Core::sql_service.push( std::move( msg ) );
+      Core::networkManager.sql_service->push( std::move( msg ) );
       uoexec.os_module->suspend();
       return new BLong( 0 );
     }

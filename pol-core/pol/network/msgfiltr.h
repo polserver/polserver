@@ -16,14 +16,12 @@ namespace Pol {
 	public:
 	  enum MessageDefault { NormallyDisabled, NormallyEnabled };
 	  // terminate exceptions list with -1
+	private:
 	  MessageTypeFilter( MessageDefault def, int *exceptions );
-
+	public:
 	  unsigned char msgtype_allowed[256];
+	  static void createMessageFilter();
 	};
-
-	extern MessageTypeFilter login_filter;
-	extern MessageTypeFilter game_filter;
-	extern MessageTypeFilter disconnected_filter;
   }
 }
 #endif

@@ -21,15 +21,16 @@ In standingheight checks there is a nasty bug. Items NOT locked down
 #include "mapcell.h"
 #include "mapserver.h"
 #include "staticserver.h"
+#include "systemstate.h"
 #include "mapshape.h"
 #include "maptileserver.h"
 
 #include "../pol/tiles.h"
 #include "../pol/mobile/charactr.h"
 #include "../pol/network/cgdata.h"
+#include "../pol/network/client.h"
 #include "../pol/fnsearch.h"
-#include "../pol/ssopt.h"
-#include "../pol/uvars.h"
+#include "../pol/globals/uvars.h"
 #include "../pol/uworld.h"
 #include "../pol/item/item.h"
 #include "../pol/item/itemdesc.h"
@@ -40,6 +41,7 @@ In standingheight checks there is a nasty bug. Items NOT locked down
 #include "../pol/uconst.h"
 #include "../pol/clidata.h"
 #include "../pol/objtype.h"
+#include "../pol/poltype.h"
 
 #include <vector>
 
@@ -308,7 +310,7 @@ namespace Pol {
 			  MapShape shape;
 			  shape.z = item->z;
 			  shape.height = item->height;
-			  shape.flags = Core::tile[item->graphic].flags;
+			  shape.flags = Plib::systemstate.tile[item->graphic].flags;
 			  vec.push_back( shape );
 			}
 		  }
@@ -330,8 +332,8 @@ namespace Pol {
 							Core::MOVEMODE movemode,
 							short* gradual_boost )
 	{
-	  if ( x >= _Descriptor().width ||
-		   y >= _Descriptor().height )
+	  if ( x >= width() ||
+		   y >= height() )
 	  {
 		return false;
 	  }
@@ -386,7 +388,7 @@ namespace Pol {
 							Multi::UMulti** pmulti, Items::Item** pwalkon, short* gradual_boost )
 	{
 
-	  if ( x >= _Descriptor().width || y >= _Descriptor().height )
+	  if ( x >= width() || y >= height() )
 	  {
 		return false;
 	  }
@@ -462,8 +464,8 @@ namespace Pol {
 								   short* gradual_boost )
 	{
 
-	  if ( x >= _Descriptor().width ||
-		   y >= _Descriptor().height )
+	  if ( x >= width() ||
+		   y >= height() )
 	  {
 		return false;
 	  }
@@ -519,7 +521,7 @@ namespace Pol {
 							Multi::UMulti** pmulti )
 	{
 
-	  if ( dropx >= _Descriptor().width || dropy >= _Descriptor().height )
+	  if ( dropx >= width() || dropy >= height() )
 	  {
 		return false;
 	  }
@@ -556,7 +558,7 @@ namespace Pol {
 							short chrz,
 							short* newz )
 	{
-	  short z = -128;
+	  short z = Core::ZCOORD_MIN;
 	  bool result = false;
 
 	  for ( const auto &shape : shapes )
@@ -715,7 +717,7 @@ namespace Pol {
 	  return onwater;
 	}
 
-	Multi::UMulti* Realm::find_supporting_multi( unsigned short x, unsigned short y, short z )
+	Multi::UMulti* Realm::find_supporting_multi( unsigned short x, unsigned short y, short z ) const
 	{
 	  if ( !valid( x, y, z ) )
 	  {
@@ -734,7 +736,7 @@ namespace Pol {
 	/* The supporting multi is the highest multi that is below or equal
 	 * to the Z-coord of the supported object.
 	 */
-	Multi::UMulti* Realm::find_supporting_multi( MultiList& mvec, short z )
+	Multi::UMulti* Realm::find_supporting_multi( MultiList& mvec, short z ) const
 	{
 	  Multi::UMulti* found = NULL;
 	  for ( auto &multi : mvec )
@@ -773,7 +775,7 @@ namespace Pol {
 	  *z = cell.z;
 
 	  if ( cell.landtile == GRAPHIC_NODRAW ) // it's a nodraw tile
-		*z = -128;
+		*z = Core::ZCOORD_MIN;
 
 	  return ( ( cell.landtile < 0x4000 ) &&
 			   ( ( Core::landtile_flags( cell.landtile ) & FLAG::BLOCKING ) == 0 ) );

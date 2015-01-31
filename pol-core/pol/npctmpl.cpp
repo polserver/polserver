@@ -14,8 +14,10 @@ Notes
 
 #include "item/weapon.h"
 #include "syshookscript.h"
+#include "globals/uvars.h"
 
 #include "../plib/pkg.h"
+#include "../plib/systemstate.h"
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
@@ -106,12 +108,19 @@ namespace Pol {
 	  }
 	}
 
-	NpcTemplates npc_templates;
+    size_t NpcTemplate::estimateSize() const
+    {
+      size_t size = sizeof(NpcTemplate);
+      size += name.capacity();
+      if (method_script != nullptr)
+        size += method_script->estimateSize();
+      return size;
+    }
 
 	const NpcTemplate& create_npc_template( const Clib::ConfigElem& elem, const Plib::Package* pkg )
 	{
 	  NpcTemplate* tmpl = new NpcTemplate( elem, pkg );
-	  npc_templates[tmpl->name] = tmpl;
+	  gamestate.npc_templates[tmpl->name] = tmpl;
 	  return *tmpl;
 	}
 
@@ -127,7 +136,7 @@ namespace Pol {
 		}
 	  }
 
-      for ( Plib::Packages::iterator itr = Plib::packages.begin( ); itr != Plib::packages.end( ); ++itr )
+      for ( Plib::Packages::iterator itr = Plib::systemstate.packages.begin( ); itr != Plib::systemstate.packages.end( ); ++itr )
 	  {
         Plib::Package* pkg = ( *itr );
         std::string filename = Plib::GetPackageCfgPath( pkg, "npcdesc.cfg" );
@@ -146,8 +155,8 @@ namespace Pol {
 
     const NpcTemplate& find_npc_template( const Clib::ConfigElem& elem )
 	{
-	  NpcTemplates::const_iterator itr = npc_templates.find( elem.rest() );
-	  if ( itr != npc_templates.end() )
+	  NpcTemplates::const_iterator itr = gamestate.npc_templates.find( elem.rest() );
+	  if ( itr != gamestate.npc_templates.end() )
 	  {
 		return *( ( *itr ).second );
 	  }
@@ -166,17 +175,6 @@ namespace Pol {
 	  }
 	}
 
-	//quick and nasty fix until npcdesc usage is rewritten
-	void unload_npc_templates()
-	{
-	  NpcTemplates::iterator iter = npc_templates.begin();
-	  for ( ; iter != npc_templates.end(); ++iter )
-	  {
-		if ( iter->second != NULL )
-		  delete iter->second;
-		iter->second = NULL;
-	  }
-	  npc_templates.clear();
-	}
+	
   }
 }

@@ -274,6 +274,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\pol\globals\multidefs.cpp" />
     <ClCompile Include="..\pol\multi\multidef.cpp" />
     <ClCompile Include="..\pol\polfile1.cpp" />
     <ClCompile Include="..\pol\uofile00.cpp" />

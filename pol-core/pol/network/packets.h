@@ -21,9 +21,10 @@ Notes
 #include "../pktdef.h"
 #include "../pktoutid.h"
 #include "../realms.h"
-#include "../ucfg.h"
+#include "../uconst.h"
 #include "client.h"
 #include "clienttransmit.h"
+#include "packetinterface.h"
 
 #include <queue>
 #include <map>
@@ -44,44 +45,6 @@ namespace Pol {
   namespace Network {
 #define MAX_PACKETS_INSTANCES 100
 	namespace PacketWriterDefs {
-	  //interface for packets
-	  class PacketInterface
-	  {
-	  public:
-		PacketInterface() :offset( 0 ) {};
-		virtual ~PacketInterface() {};
-		u16 offset;
-		virtual void ReSetBuffer() {};
-        virtual char* getBuffer() { return NULL; };
-        virtual inline u8 getID() const { return 0; };
-        virtual inline u16 getSubID() const { return 0; };
-        virtual size_t estimateSize() const { return 0; }
-      };
-
-      typedef std::queue<PacketInterface*> PacketInterfaceQueue;
-      typedef std::map<u16, PacketInterfaceQueue> PacketInterfaceQueueMap;
-      typedef std::pair<u16, PacketInterfaceQueue> PacketInterfaceQueuePair;
-
-      // interface for the two different types of packetqueues ("normal" packets
-      // and packets with subs)
-      class PacketQueue
-      {
-       public:
-        PacketQueue(){};
-        virtual ~PacketQueue(){};
-
-       public:
-        virtual PacketInterface* GetNext(u8 id, u16 sub = 0) { 
-            (void)id; (void)sub; /* unused variables */
-
-            return NULL;
-        };
-        virtual void Add(PacketInterface* pkt){ (void)pkt; /*do nothing*/  };
-        virtual size_t Count() const { return 0; };
-        virtual bool HasSubs() const { return false; };
-        virtual PacketInterfaceQueueMap* GetSubs() { return NULL; };
-        virtual size_t estimateSize() const = 0;
-      };
 
       // "normal" packet queue
       class PacketQueueSingle : public PacketQueue
@@ -120,34 +83,6 @@ namespace Pol {
 		virtual PacketInterfaceQueueMap* GetSubs() POL_OVERRIDE { return &packets; };
         virtual size_t estimateSize() const POL_OVERRIDE;
       };
-
-      typedef std::pair<u8, PacketQueue*> PacketQueuePair;
-      typedef std::map<u8, PacketQueue*> PacketQueueMap;
-
-      // singleton "holder" of packets !EntryPoint!
-      class PacketsSingleton : boost::noncopyable
-      {
-       public:
-        static PacketsSingleton& get();
-        ~PacketsSingleton();
-
-       private:
-        PacketsSingleton();
-
-       private:
-        PacketQueueMap packets;
-        static std::unique_ptr<PacketsSingleton> _instance;
-        static std::once_flag _onceFlag;
-
-       public:
-        PacketInterface* getPacket(u8 id, u16 sub = 0);
-        void ReAddPacket(PacketInterface* pkt);
-        PacketQueueMap* getPackets() { return &packets; };
-        size_t estimateSize() const;
-      };
-
-      // the real definition
-      typedef PacketsSingleton Packets;
 
       // wierdo generic template definitions for packets
       namespace PktWriterTemplateSpecs
@@ -247,9 +182,9 @@ namespace Pol {
 		static const u16 SUB = _sub;
 		static const u16 SIZE = _size;
 		char buffer[SIZE];
-        char* getBuffer() { return &buffer[offset]; };
-        inline u8 getID() const { return ID; };
-        size_t estimateSize() const { return SIZE + sizeof(PacketInterface); };
+        virtual char* getBuffer() POL_OVERRIDE { return &buffer[offset]; };
+        virtual inline u8 getID() const POL_OVERRIDE { return ID; };
+        virtual size_t estimateSize() const POL_OVERRIDE { return SIZE + sizeof(PacketInterface); };
 
 		// ---- Buffer Write Methods ----
 		// N is the argument which will be static_cast to T
@@ -265,7 +200,8 @@ namespace Pol {
           PktWriterTemplateSpecs::WriteHelper<T>::Write(x, buffer, offset);
         };
 		template <class T, typename N>
-        typename std::enable_if<!std::is_same<T, N>::value, void>::type Write(N x)
+        typename std::enable_if<!std::is_same<T, N>::value, void>::type
+          Write(N x)
         {
 		  static_assert(std::is_integral<N>::value || std::is_enum<N>::value, "Invalid argument type integral type is needed!");
 		  static_assert(std::is_signed<T>::value == std::is_signed<N>::value, "Signed/Unsigned missmatch!");
@@ -365,7 +301,7 @@ namespace Pol {
       {
        public:
         PacketTemplate() { ReSetBuffer(); };
-        void ReSetBuffer()
+        virtual void ReSetBuffer() POL_OVERRIDE
         {
 		  memset( PacketWriter<_id, _size>::buffer, 0, _size );
 		  PacketWriter<_id, _size>::buffer[0] = _id;
@@ -379,14 +315,14 @@ namespace Pol {
 	  {
 	  public:
 		PacketTemplateSub() { ReSetBuffer(); };
-		void ReSetBuffer()
+		virtual void ReSetBuffer() POL_OVERRIDE
 		{
 		  memset( PacketWriter<_id, _size, _sub>::buffer, 0, _size );
 		  PacketWriter<_id, _size, _sub>::buffer[0] = _id;
 		  ( *(u16*)(void*)&PacketWriter<_id, _size, _sub>::buffer[_suboff] ) = cfBEu16( _sub );
 		  PacketWriter<_id, _size, _sub>::offset = 1;
 		};
-		inline u16 getSubID() const { return _sub; };
+		virtual inline u16 getSubID() const POL_OVERRIDE { return _sub; };
 	  };
 
 	  //special def for encrypted buffer
@@ -399,70 +335,18 @@ namespace Pol {
 		static const u16 SIZE = _size;
 		EmptyBufferTemplate() { ReSetBuffer(); };
 		char buffer[SIZE];
-		void ReSetBuffer()
+		virtual void ReSetBuffer() POL_OVERRIDE
 		{
 		  memset( buffer, 0, SIZE );
 		  offset = 0;
 		};
-        char* getBuffer() { return &buffer[offset]; };
-        inline u8 getID() const { return ID; };
+        virtual char* getBuffer() POL_OVERRIDE { return &buffer[offset]; };
+        virtual inline u8 getID() const POL_OVERRIDE { return ID; };
+        virtual size_t estimateSize() const POL_OVERRIDE { return SIZE + sizeof(PacketInterface); };
 	  };
 
 	}
 
-	namespace PktHelper {
-	  using namespace PacketWriterDefs;
-	  // creates new packets
-	  PacketInterface* GetPacket( u8 id, u16 sub = 0 );
-
-	  template <class T>
-	  inline T* RequestPacket( u8 id, u16 sub = 0 )
-	  {
-        return static_cast<T*>(Packets::get().getPacket(id, sub));
-      };
-
-      inline void ReAddPacket(PacketInterface* msg) { Packets::get().ReAddPacket(msg); };
-
-      template <class T>
-      class PacketOut
-      {
-       private:
-        T* pkt;
-
-       public:
-        PacketOut() { pkt = RequestPacket<T>(T::ID, T::SUB); };
-        ~PacketOut()
-        {
-          if (pkt != 0)
-            ReAddPacket(pkt);
-        };
-        void Release()
-        {
-          ReAddPacket(pkt);
-          pkt = 0;
-        };
-        void Send(Client* client, int len = -1) const
-        {
-          if (pkt == 0)
-            return;
-          if (len == -1)
-            len = pkt->offset;
-          ADDTOSENDQUEUE(client, &pkt->buffer, len);
-        };
-        // be really really careful with this function
-        // needs PolLock
-        void SendDirect(Client* client, int len = -1) const
-        {
-          if (pkt == 0)
-            return;
-          if (len == -1)
-            len = pkt->offset;
-          client->transmit(&pkt->buffer, len);
-        };
-        T* operator->(void) const { return pkt; };
-        T* Get() { return pkt; };
-      };
-      }
 
       // buffer for encrypted Data send with a dummy pktid
       // NOTE: redefine id if pkt 0x0 ever gets send

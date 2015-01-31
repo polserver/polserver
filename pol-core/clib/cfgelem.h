@@ -42,6 +42,7 @@ namespace Pol {
 	  bool type_is( const char* name ) const;
 	  const char *type() const;
 	  const char *rest() const;
+      virtual size_t estimateSize() const;
 	protected:
 	  ConfigElemBase();
 	protected:
@@ -56,7 +57,7 @@ namespace Pol {
 	public:
 	  ConfigElem();
 	  ~ConfigElem();
-
+      virtual size_t estimateSize() const POL_OVERRIDE;
 	  friend class ConfigFile;
 
 	  bool has_prop( const char* propname ) const;

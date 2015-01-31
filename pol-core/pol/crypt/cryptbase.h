@@ -61,9 +61,8 @@
 #define ROUND(LL, R, S, P) LL ^= P; LL ^= ((S[(R >> 24)]  + S[0x0100 + ((R >> 16) & 0xff)]) ^ S[0x0200 + ((R >> 8) & 0xff)]) + S[0x0300 + ((R) & 0xff)]
 
 
-//#include "../../clib/stl_inc.h"
 #include "../sockets.h"
-#include "../ucfg.h"
+#include "../uconst.h"
 #include "../../clib/passert.h"
 #include "logincrypt.h"
 namespace Pol {

@@ -26,13 +26,12 @@ Notes
 #include "ufunc.h"
 #include "uofile.h"
 #include "uoscrobj.h"
+#include "globals/uvars.h"
+#include "globals/state.h"
 #include "uworld.h"
 
 namespace Pol {
   namespace Core {
-	size_t cycles_per_decay_worldzone;
-	size_t cycles_until_decay_worldzone;
-
 	///
 	/// [1] Item Decay Criteria
 	///     An Item is allowed to decay if ALL of the following are true:
@@ -61,9 +60,9 @@ namespace Pol {
 		if ( item->should_decay( now ) )
 		{
 		  // check the CanDecay syshook first if it returns 1 go over to other checks
-		  if ( system_hooks.can_decay )
+		  if ( gamestate.system_hooks.can_decay )
 		  {
-			if ( !system_hooks.can_decay->call( new Module::EItemRefObjImp( item ) ) )
+			if ( !gamestate.system_hooks.can_decay->call( new Module::EItemRefObjImp( item ) ) )
 			  continue;
 		  }
 
@@ -96,21 +95,15 @@ namespace Pol {
 	  static unsigned wy = 0;
 
 	  Plib::Realm* realm;
-	  for (auto itr = Realms->begin(); itr != Realms->end(); ++itr )
+	  for (auto itr = gamestate.Realms.begin(); itr != gamestate.Realms.end(); ++itr )
 	  {
 		realm = *itr;
-		if ( !--cycles_until_decay_worldzone )
+		if ( !--stateManager.cycles_until_decay_worldzone )
 		{
-		  cycles_until_decay_worldzone = cycles_per_decay_worldzone;
+		  stateManager.cycles_until_decay_worldzone = stateManager.cycles_per_decay_worldzone;
 
-		  unsigned int gridwidth = realm->width() / WGRID_SIZE;
-		  unsigned int gridheight = realm->height() / WGRID_SIZE;
-
-		  // Tokuno-Fix
-		  if ( gridwidth * WGRID_SIZE < realm->width() )
-			gridwidth++;
-		  if ( gridheight * WGRID_SIZE < realm->height() )
-			gridheight++;
+		  unsigned gridwidth = realm->grid_width();
+		  unsigned gridheight = realm->grid_height();
 
 		  if ( ++wx >= gridwidth )
 		  {
@@ -150,22 +143,16 @@ namespace Pol {
 	  unsigned wy = 0;
       Plib::Realm* realm = static_cast<Plib::Realm*>( arg );
 
-	  unsigned gridx = ( realm->width() / WGRID_SIZE );
-	  unsigned gridy = ( realm->height() / WGRID_SIZE );
+	  unsigned gridwidth = realm->grid_width();
+	  unsigned gridheight = realm->grid_height();
 
-	  // Tokuno-Fix
-	  if ( gridx * WGRID_SIZE < realm->width() )
-		gridx++;
-	  if ( gridy * WGRID_SIZE < realm->height() )
-		gridy++;
-
-	  unsigned sleeptime = ( 60 * 10L * 1000 ) / ( gridx * gridy );
+	  unsigned sleeptime = ( 60 * 10L * 1000 ) / ( gridwidth * gridheight );
 	  while ( !Clib::exit_signalled )
 	  {
 		{
 		  PolLock lck;
 		  polclock_checkin();
-		  decay_single_zone( realm, gridx, gridy, wx, wy );
+		  decay_single_zone( realm, gridwidth, gridheight, wx, wy );
 		  restart_all_clients();
 		}
 		// sweep entire world every 10 minutes
@@ -181,34 +168,93 @@ namespace Pol {
 	  unsigned wy = 0;
       unsigned id = static_cast<Plib::Realm*>( arg )->shadowid;
 
-	  if ( shadowrealms_by_id[id] == NULL )
+	  if ( gamestate.shadowrealms_by_id[id] == NULL )
 		return;
-	  unsigned width = shadowrealms_by_id[id]->width();
-	  unsigned height = shadowrealms_by_id[id]->height();
+	  unsigned gridwidth = gamestate.shadowrealms_by_id[id]->grid_width();
+	  unsigned gridheight = gamestate.shadowrealms_by_id[id]->grid_height();
 
-	  unsigned gridx = ( width / WGRID_SIZE );
-	  unsigned gridy = ( height / WGRID_SIZE );
-
-	  // Tokuno-Fix
-	  if ( gridx * WGRID_SIZE < width )
-		gridx++;
-	  if ( gridy * WGRID_SIZE < height )
-		gridy++;
-
-	  unsigned sleeptime = ( 60 * 10L * 1000 ) / ( gridx * gridy );
+	  unsigned sleeptime = ( 60 * 10L * 1000 ) / ( gridwidth * gridheight );
 	  while ( !Clib::exit_signalled )
 	  {
 		{
 		  PolLock lck;
 		  polclock_checkin();
-		  if ( shadowrealms_by_id[id] == NULL ) // is realm still there?
+		  if ( gamestate.shadowrealms_by_id[id] == NULL ) // is realm still there?
 			break;
-		  decay_single_zone( shadowrealms_by_id[id], gridx, gridy, wx, wy );
+		  decay_single_zone( gamestate.shadowrealms_by_id[id], gridwidth, gridheight, wx, wy );
 		  restart_all_clients();
 		}
 		// sweep entire world every 10 minutes
 		// (60 * 10 * 1000) / (96 * 64) -> (600000 / 6144) -> 97 ms
 
+		pol_sleep_ms( sleeptime );
+	  }
+	}
+
+	bool should_switch_realm(size_t index, unsigned x, unsigned y, unsigned *gridx, unsigned *gridy)
+	{
+	  (void)x;
+	  if (index >= gamestate.Realms.size())
+		return true;
+	  Plib::Realm* realm = gamestate.Realms[index];
+	  if (realm == nullptr)
+		return true;
+
+	  (*gridx) = realm->grid_width();
+	  (*gridy) = realm->grid_height();
+
+	  // check if ++y would result in reset
+	  if (y + 1 >= (*gridy))
+		return true;
+	  return false;
+	}
+
+	void decay_single_thread( void* arg ) 
+	{
+	  (void)arg;
+	  // calculate total grid count, based on current realms
+	  unsigned total_grid_count = 0;
+	  for (const auto& realm : gamestate.Realms)
+	  {
+		total_grid_count += (realm->grid_width() * realm->grid_height());
+	  }
+	  // sweep every realm ~10minutes -> 36ms for 6 realms
+	  unsigned sleeptime = ( 60 * 10L * 1000 ) / total_grid_count;
+	  sleeptime = std::max( sleeptime, 30u ); // limit to 30ms
+	  size_t realm_index=~0u;
+	  unsigned wx = 0;
+	  unsigned wy = 0;
+	  unsigned gridx = 0;
+	  unsigned gridy = 0;
+	  while ( !Clib::exit_signalled )
+	  {
+		{
+		  PolLock lck;
+		  polclock_checkin();
+		  // check if realm_index is still valid and if y is still in valid range
+		  if (should_switch_realm(realm_index, wx, wy, &gridx, &gridy))
+		  {
+			++realm_index;
+			if (realm_index >= gamestate.Realms.size())
+			  realm_index = 0;
+			wx = 0;
+			wy = 0;
+		  }
+		  else
+		  {
+			if ( ++wx >= gridx )
+			{
+			  wx = 0;
+			  if ( ++wy >= gridy )
+			  {
+				POLLOG_ERROR << "SHOULD NEVER HAPPEN\n";
+				wy = 0;
+			  }
+			}
+		  }
+		  decay_worldzone( wx, wy, gamestate.Realms[realm_index] );
+		  restart_all_clients();
+		}
 		pol_sleep_ms( sleeptime );
 	  }
 	}

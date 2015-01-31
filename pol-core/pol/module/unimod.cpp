@@ -127,7 +127,6 @@ namespace Pol {
       uniemod->prompt_chr = NULL;
       client->gd->prompt_uniemod = NULL;
     }
-    MESSAGE_HANDLER_VARLEN( PKTBI_C2, handle_unicode_prompt );
 
     //////////////////////////////////////////////////////////////////////////
   }

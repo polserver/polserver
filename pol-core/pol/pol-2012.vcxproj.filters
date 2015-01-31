@@ -39,6 +39,9 @@
     <Filter Include="item">
       <UniqueIdentifier>{b093dcf4-0c75-4235-85ce-ede14f290c56}</UniqueIdentifier>
     </Filter>
+	<Filter Include="globals">
+      <UniqueIdentifier>{9974fe35-eaa2-4dd0-a1d4-11b9e0cd72b7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="allocd.cpp">
@@ -104,9 +107,6 @@
     <ClCompile Include="exscrobj.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="extcmd.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="fnsearch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -117,9 +117,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="getmsg.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gflag.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="guardrgn.cpp">
@@ -173,8 +170,8 @@
     <ClCompile Include="musicrgn.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="npc.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="mobile\npc.cpp">
+      <Filter>mobile</Filter>
     </ClCompile>
     <ClCompile Include="npctemplates.cpp">
       <Filter>Source Files</Filter>
@@ -224,19 +221,10 @@
     <ClCompile Include="poltest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="polvar.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="polwww.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="profile.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="proplist.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="readcfg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="realms.cpp">
@@ -303,9 +291,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="syshook.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="syshookscript.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="target.cpp">
@@ -390,9 +375,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="useskill.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="uvars.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="uworld.cpp">
@@ -662,6 +644,42 @@
     <ClCompile Include="network\clientthread.cpp">
       <Filter>network</Filter>
     </ClCompile>
+	<ClCompile Include="syshookscript.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="uoexec.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="globals\ucfg.cpp">
+      <Filter>globals</Filter>
+    </ClCompile>
+    <ClCompile Include="globals\uvars.cpp">
+      <Filter>globals</Filter>
+    </ClCompile>
+    <ClCompile Include="globals\multidefs.cpp">
+      <Filter>globals</Filter>
+    </ClCompile>
+	<ClCompile Include="globals\network.cpp">
+      <Filter>globals</Filter>
+    </ClCompile>
+    <ClCompile Include="globals\script_internals.cpp">
+      <Filter>globals</Filter>
+    </ClCompile>
+    <ClCompile Include="globals\settings.cpp">
+      <Filter>globals</Filter>
+    </ClCompile>
+    <ClCompile Include="globals\state.cpp">
+      <Filter>globals</Filter>
+    </ClCompile>
+    <ClCompile Include="globals\object_storage.cpp">
+      <Filter>globals</Filter>
+    </ClCompile>
+    <ClCompile Include="guilds.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+	<ClCompile Include="globals\memoryusage.cpp">
+      <Filter>globals</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="action.h">
@@ -724,9 +742,6 @@
     <ClInclude Include="exscrobj.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="extcmd.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="fnsearch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -734,12 +749,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="getitem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="gflag.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="gprops.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="guardrgn.h">
@@ -784,8 +793,8 @@
     <ClInclude Include="musicrgn.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="npc.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="mobile\npc.h">
+      <Filter>mobile</Filter>
     </ClInclude>
     <ClInclude Include="npctmpl.h">
       <Filter>Header Files</Filter>
@@ -872,9 +881,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="proplist.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="readcfg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="realms.h">
@@ -979,9 +985,6 @@
     <ClInclude Include="tooltips.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ucfg.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="uconst.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1042,9 +1045,6 @@
     <ClInclude Include="utype.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="uvars.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="uworld.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1052,9 +1052,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="watch.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="wrldsize.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="wthrtype.h">
@@ -1264,9 +1261,6 @@
     <ClInclude Include="network\packetdefs.h">
       <Filter>network</Filter>
     </ClInclude>
-	<ClInclude Include="network\msghandl.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="mobile\corpse.h">
       <Filter>mobile</Filter>
     </ClInclude>
@@ -1276,8 +1270,65 @@
     <ClInclude Include="network\msgfiltr.h">
       <Filter>network</Filter>
     </ClInclude>
+	<ClInclude Include="network\msghandl.h">
+      <Filter>network</Filter>
+    </ClInclude>
     <ClInclude Include="network\clientthread.h">
       <Filter>network</Filter>
+    </ClInclude>
+	<ClInclude Include="network\packethelper.h">
+      <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="network\packetinterface.h">
+      <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="console.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+	<ClInclude Include="globals\ucfg.h">
+      <Filter>globals</Filter>
+    </ClInclude>
+    <ClInclude Include="globals\uvars.h">
+      <Filter>globals</Filter>
+    </ClInclude>
+    <ClInclude Include="globals\multidefs.h">
+      <Filter>globals</Filter>
+    </ClInclude>
+	<ClInclude Include="module\datastoreimp.h">
+      <Filter>module</Filter>
+    </ClInclude>
+	<ClInclude Include="globals\network.h">
+      <Filter>globals</Filter>
+    </ClInclude>
+    <ClInclude Include="globals\script_internals.h">
+      <Filter>globals</Filter>
+    </ClInclude>
+    <ClInclude Include="party_cfg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="globals\settings.h">
+      <Filter>globals</Filter>
+    </ClInclude>
+    <ClInclude Include="globals\state.h">
+      <Filter>globals</Filter>
+    </ClInclude>
+    <ClInclude Include="repsys_cfg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="globals\object_storage.h">
+      <Filter>globals</Filter>
+    </ClInclude>
+    <ClInclude Include="guilds.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+	<ClInclude Include="module\fileaccess.h">
+      <Filter>module</Filter>
+    </ClInclude>
+	<ClInclude Include="mobile\privupdater.h">
+      <Filter>mobile</Filter>
+    </ClInclude>
+	<ClInclude Include="globals\memoryusage.h">
+      <Filter>globals</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

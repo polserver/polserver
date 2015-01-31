@@ -16,11 +16,11 @@ Notes
 #include "../pol/item/item.h"
 #include "../pol/item/itemdesc.h"
 #include "../pol/multi/multi.h"
-#include "../pol/npc.h"
+#include "../pol/mobile/npc.h"
 #include "../pol/objecthash.h"
 #include "../pol/realms.h"
 #include "../pol/ufunc.h"
-#include "../pol/uvars.h"
+#include "../pol/globals/object_storage.h"
 #include "../pol/uworld.h"
 
 #include <string>
@@ -34,16 +34,16 @@ namespace Pol {
   namespace Plib {
     using namespace Core;
     using namespace Items;
-	NPC* test_banker;
-	NPC* test_banker2;
-	NPC* test_banker3;
+	Mobile::NPC* test_banker;
+	Mobile::NPC* test_banker2;
+	Mobile::NPC* test_banker3;
 
 	Item* test_guard_door;
-	NPC* test_water_elemental;
-	NPC* test_seaserpent;
+	Mobile::NPC* test_water_elemental;
+	Mobile::NPC* test_seaserpent;
 	Item* test_chest1;
 	Item* test_chest2;
-	NPC* test_orclord;
+	Mobile::NPC* test_orclord;
 
 	Item* add_item( unsigned int objtype, unsigned short x, unsigned short y, short z )
 	{
@@ -74,7 +74,7 @@ namespace Pol {
 	  Bscript::BObject obj( Multi::UMulti::scripted_create( find_itemdesc( objtype ), x, y, static_cast<s8>( z ), realm, flags ) );
 	}
 
-	NPC* add_npc( const char* npctype, unsigned short x, unsigned short y, short z )
+	Mobile::NPC* add_npc( const char* npctype, unsigned short x, unsigned short y, short z )
 	{
 	  Clib::ConfigFile cfile;
 	  Clib::ConfigElem elem;
@@ -83,7 +83,7 @@ namespace Pol {
           throw std::runtime_error(std::string("NPC template '") + npctype + "' not found");
 	  }
 
-	  auto  npc = new NPC( elem.remove_ushort( "OBJTYPE" ), elem );
+	  auto  npc = new Mobile::NPC( elem.remove_ushort( "OBJTYPE" ), elem );
 	  elem.clear_prop( "Serial" );
 	  elem.clear_prop( "X" );
 	  elem.clear_prop( "Y" );
@@ -95,7 +95,7 @@ namespace Pol {
 	  elem.add_prop( "Z", z );
 	  npc->readPropertiesForNewNPC( elem );
 
-	  objecthash.Insert( npc );
+	  objStorageManager.objecthash.Insert( npc );
 
 	  SetCharacterWorldPosition( npc, WorldChangeReason::NpcCreate );
 	  return npc;

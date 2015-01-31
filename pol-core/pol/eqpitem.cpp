@@ -23,7 +23,7 @@ Notes
 #include "pktin.h"
 #include "ufunc.h"
 #include "uofile.h"
-#include "uvars.h"
+#include "globals/uvars.h"
 
 #include <cstdio>
 
@@ -58,7 +58,7 @@ namespace Pol {
           << serial
           << item->serial;
 		send_item_move_failure( client, MOVE_ITEM_FAILURE_ILLEGAL_EQUIP ); // 5
-		item->gotten_by = NULL;
+		item->set_gotten(nullptr);
 		return;
 	  }
 
@@ -66,8 +66,7 @@ namespace Pol {
 
 	  item->layer = item->tile_layer;
 	  client->chr->gotten_item->inuse( false );
-	  item->is_gotten( false );
-	  item->gotten_by = NULL;
+	  item->set_gotten(nullptr);
 	  client->chr->gotten_item = NULL;
 
 	  Mobile::Character* equip_on = NULL;
@@ -136,7 +135,7 @@ namespace Pol {
 	  }
 
 	  // Unregister the item if it is on a multi
-	  if ( item->container == NULL && item->gotten_by == NULL )
+	  if ( item->container == NULL && !item->is_gotten() )
 	  {
 		Multi::UMulti* multi = item->realm->find_supporting_multi( item->x, item->y, item->z );
 
@@ -147,8 +146,6 @@ namespace Pol {
 	  equip_on->equip( item );
 	  send_wornitem_to_inrange( equip_on, item );
 	}
-
-	MESSAGE_HANDLER( PKTIN_13, equip_item );
 
   }
 }

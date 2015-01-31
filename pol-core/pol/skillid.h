@@ -11,7 +11,6 @@ Notes
 #ifndef SKILLID_H
 #define SKILLID_H
 
-#include "uoclient.h"
 namespace Pol {
   namespace Core {
 	enum USKILLID
@@ -83,11 +82,6 @@ namespace Pol {
 	  SKILLID__HIGHEST = 57,
 	  SKILLID__COUNT // use for array sizes, etc.
 	};
-
-	inline bool USKILLID_IS_VALID( unsigned short skillid )
-	{
-	  return ( skillid <= uoclient_general.maxskills );
-	}
   }
 }
 #endif

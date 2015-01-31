@@ -154,6 +154,7 @@ namespace Pol {
         _worker->exit();
         for ( auto &sink : _registered_sinks )
           delete sink;
+		global_logger = nullptr;
       }
 
       // evil madness
@@ -297,7 +298,12 @@ namespace Pol {
       Message<Sink>::~Message()
       {
         if ( _formater->size() > 0 )
-          global_logger->save<Sink>( std::move( _formater ), _id );
+		{
+		  if (global_logger == nullptr)
+			printf( "%s",_formater->c_str() );
+		  else
+			global_logger->save<Sink>( std::move( _formater ), _id );
+		}
       }
 
 

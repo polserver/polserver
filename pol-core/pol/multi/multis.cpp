@@ -20,9 +20,9 @@ Notes
 
 #include "../item/itemdesc.h"
 #include "../objtype.h"
+#include "../globals/state.h"
 
 #include "../udatfile.h"
-#include "../uobjcnt.h"
 #include "../uobject.h"
 #include "../uofilei.h"
 #include "../uofile.h"
@@ -43,12 +43,12 @@ namespace Pol {
         ERROR_PRINT.Format( "Tried to create a Multi type 0x{:X}\n" ) << itemdesc.objtype;
 		throw std::runtime_error( "Unvalid Multi type" );
 	  }
-	  ++Core::umulti_count;
+	  ++Core::stateManager.uobjcount.umulti_count;
 	}
 
 	UMulti::~UMulti()
 	{
-	  --Core::umulti_count;
+	  --Core::stateManager.uobjcount.umulti_count;
 	}
 
 	void UMulti::double_click( Network::Client* /*client*/)

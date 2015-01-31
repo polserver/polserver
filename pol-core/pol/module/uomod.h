@@ -136,6 +136,7 @@ namespace Pol {
 	  Bscript::BObjectImp* mf_PlayStationaryEffect();
 	  Bscript::BObjectImp* mf_GetMapInfo();
 	  Bscript::BObjectImp* mf_ListObjectsInBox(/* x1, y1, z1, x2, y2, z2, realm */ );
+      Bscript::BObjectImp* mf_ListMobilesInBox(/* x1, y1, z1, x2, y2, z2, realm */);
 	  Bscript::BObjectImp* mf_ListMultisInBox(/* x1, y1, z1, x2, y2, z2, realm */ );
 	  Bscript::BObjectImp* mf_ListStaticsInBox(/* x1, y1, z1, x2, y2, z2, flags, realm */ );
 	  Bscript::BObjectImp* mf_ListEquippedItems();
@@ -277,6 +278,7 @@ namespace Pol {
 	  Bscript::BObjectImp* mf_CanWalk(/*movemode, x1, y1, z1, x2_or_dir, y2 := -1, realm := DEF*/ );
 	  Bscript::BObjectImp* mf_SendCharProfile(/*chr, of_who, title, uneditable_text := array, editable_text := array*/ );
 	  Bscript::BObjectImp* mf_SendOverallSeason(/*season_id, playsound := 1*/ );
+      Bscript::BObjectImp* mf_GetMidpointCircleCoords(/* xcenter, ycenter, radius */);
 
 	  Core::UOExecutor& uoexec;
 
@@ -323,7 +325,7 @@ namespace Pol {
 	  Bscript::BObjectImp* internal_MoveCharacter( Mobile::Character* chr, Core::xcoord x, Core::ycoord y, Core::zcoord z, int flags, Plib::Realm* newrealm );
 	  Bscript::BObjectImp* internal_MoveBoat( Multi::UBoat* boat, Core::xcoord x, Core::ycoord y, Core::zcoord z, int flags, Plib::Realm* newrealm );
 	  Bscript::BObjectImp* internal_MoveContainer( Core::UContainer* container, Core::xcoord x, Core::ycoord y, Core::zcoord z, int flags, Plib::Realm* newrealm );
-	  static void internal_InBoxAreaChecks( unsigned short &x1, unsigned short &y1, short &z1, unsigned short &x2, unsigned short &y2, short &z2, Plib::Realm* realm );
+	  static void internal_InBoxAreaChecks( unsigned short &x1, unsigned short &y1, int &z1, unsigned short &x2, unsigned short &y2, int &z2, Plib::Realm* realm );
 	  Bscript::BObjectImp* internal_SendUnCompressedGumpMenu( Mobile::Character* chr, Bscript::ObjArray* layout_arr, Bscript::ObjArray* data_arr, int x, int y );
 	  Bscript::BObjectImp* internal_SendCompressedGumpMenu( Mobile::Character* chr, Bscript::ObjArray* layout_arr, Bscript::ObjArray* data_arr, int x, int y );
 

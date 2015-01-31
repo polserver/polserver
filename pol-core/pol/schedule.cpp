@@ -12,12 +12,14 @@ Notes
 
 #include "polclock.h"
 #include "polcfg.h"
-#include "polsig.h"
-#include "profile.h"
+#include "globals/uvars.h"
+#include "globals/state.h"
 
 #include "../clib/passert.h"
 #include "../clib/tracebuf.h"
 #include "../clib/logfacility.h"
+
+#include "../plib/systemstate.h"
 
 #include <ctime>
 #include <functional>
@@ -27,12 +29,6 @@ Notes
 namespace Pol {
   namespace Core {
 
-	class SchComparer : public std::less<ScheduledTask*>
-	{
-	public:
-	  bool operator()( const ScheduledTask* x, const ScheduledTask* y ) const;
-	};
-
 	bool SchComparer::operator()( const ScheduledTask* x, const ScheduledTask* y ) const
 	{
 	  if ( x->next_run_clock_ == y->next_run_clock_ )
@@ -41,15 +37,12 @@ namespace Pol {
 		return x->next_run_clock_ > y->next_run_clock_;
 	}
 
-	typedef std::priority_queue< ScheduledTask*, std::vector<ScheduledTask*>, SchComparer > TASK_QUEUE;
-
-	static TASK_QUEUE task_queue;
 	bool TaskScheduler::dirty_ = false;
 
 	static void add_task( ScheduledTask *task )
 	{
 	  TaskScheduler::mark_dirty();
-	  task_queue.push( task );
+	  gamestate.task_queue.push( task );
 	}
 
 	ScheduledTask::ScheduledTask( polclock_t next_run_clock ) :
@@ -205,12 +198,12 @@ namespace Pol {
 	  polclock_t now_clock = polclock();
 	  TRACEBUF_ADDELEM( "check_scheduled_tasks now_clock", now_clock );
 	  bool activity = false;
-	  passert( !task_queue.empty() );
+	  passert( !gamestate.task_queue.empty() );
 	  THREAD_CHECKPOINT( tasks, 102 );
 	  for ( ;; )
 	  {
 		THREAD_CHECKPOINT( tasks, 103 );
-		ScheduledTask* task = task_queue.top();
+		ScheduledTask* task = gamestate.task_queue.top();
         TRACEBUF_ADDELEM( "check_scheduled_tasks toptask->nextrun", task->next_run_clock() );
 		THREAD_CHECKPOINT( tasks, 104 );
 		if ( !task->ready( now_clock ) )
@@ -233,7 +226,7 @@ namespace Pol {
 		}
 
 		THREAD_CHECKPOINT( tasks, 106 );
-		task_queue.pop();
+		gamestate.task_queue.pop();
 
 		THREAD_CHECKPOINT( tasks, 107 );
 		task->execute( now_clock );
@@ -249,7 +242,7 @@ namespace Pol {
 		else
 		{
 		  THREAD_CHECKPOINT( tasks, 110 );
-		  task_queue.push( task );
+		  gamestate.task_queue.push( task );
 		}
 		THREAD_CHECKPOINT( tasks, 111 );
 	  }
@@ -257,7 +250,7 @@ namespace Pol {
 
 	polclock_t calc_scheduler_clocksleft( polclock_t now )
 	{
-	  ScheduledTask* task = task_queue.top();
+	  ScheduledTask* task = gamestate.task_queue.top();
 	  if ( !task->ready( now ) )
 	  {
         INFO_PRINT_TRACE( 20 ) << "Task " << (long long)(reinterpret_cast<const void*>(task)) << ": " << task->clocksleft( now ) << " clocks left\n";

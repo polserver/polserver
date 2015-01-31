@@ -28,7 +28,7 @@ Notes
 #include "../bscript/objmethods.h"
 
 #include "../plib/pkg.h"
-//#include "module/filemod.h"
+#include "globals/network.h"
 
 namespace Pol {
   namespace Core {
@@ -107,6 +107,11 @@ namespace Pol {
 	BSQLRow::~BSQLRow()
 	{
 	}
+	Bscript::BObjectImp* BSQLRow::copy() const
+    {
+      return new BSQLRow( _result, _row, _fields );
+    }
+
 	BSQLResultSet::BSQLResultSet( RES_WRAPPER result ) : Bscript::BObjectImp( OTSQLResultSet ), _result( result ), _fields(nullptr), _affected_rows( 0 )
 	{
       if ( result->ptr() != nullptr )
@@ -127,6 +132,17 @@ namespace Pol {
 	  }
 	  return _fields[index - 1].name;
 	}
+	int BSQLResultSet::num_rows() const
+    {
+      if ( !_result ) return 0;
+      return static_cast<int>( mysql_num_rows( _result->ptr() ) );
+    };
+    Bscript::BObjectImp* BSQLResultSet::copy() const
+    {
+      if ( _affected_rows ) return new BSQLResultSet( _affected_rows );
+      else return new BSQLResultSet( _result, _fields );
+    };
+
 	int BSQLResultSet::num_fields() const
 	{
 	  if ( _result && _result->ptr() != nullptr)
@@ -262,6 +278,19 @@ namespace Pol {
 	  return true;
 	}
 
+	std::string BSQLConnection::getLastError() const 
+	{ 
+	  return _error; 
+	}
+    int BSQLConnection::getLastErrNo() const 
+	{
+	  return _errno; 
+	}
+    std::shared_ptr<BSQLConnection::ConnectionWrapper> BSQLConnection::getConnection() const
+	{ 
+	  return _conn; 
+	}
+
 
 	BObjectRef BSQLConnection::get_member_id( const int /*id*/ )//id test
 	{
@@ -314,6 +343,10 @@ namespace Pol {
         mysql_close( _conn );
       _conn = conn;
     }
+	 MYSQL* BSQLConnection::ConnectionWrapper::ptr() 
+	 { 
+	   return _conn; 
+	 };
 
     ResultWrapper::ResultWrapper( MYSQL_RES* res ) : _result( res )
     {}
@@ -331,14 +364,17 @@ namespace Pol {
         mysql_free_result( _result );
       _result = result;
     }
+	MYSQL_RES* ResultWrapper::ptr() 
+	{ 
+	  return _result; 
+	}
 
 
-    SQLService sql_service;
     void sql_service_thread_stub()
     {
       try
       {
-        sql_service.start();
+        networkManager.sql_service->start();
       }
       catch ( const char* msg )
       {

@@ -14,7 +14,6 @@ Notes
 
 #include "uofile.h"
 #include "uofilei.h"
-#include "wrldsize.h"
 
 #include "../clib/passert.h"
 

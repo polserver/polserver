@@ -33,17 +33,16 @@ Notes
 #include "network/client.h"
 #include "mobile/charactr.h"
 #include "core.h"
-#include "extobj.h"
 #include "item/equipmnt.h"
-#include "gflag.h"
 #include "item/itemdesc.h"
 #include "multi/multi.h"
-#include "profile.h"
 #include "statmsg.h"
-#include "ucfg.h"
+#include "globals/ucfg.h"
 #include "ufunc.h"
 #include "umanip.h"
-#include "uvars.h"
+#include "globals/uvars.h"
+#include "globals/settings.h"
+#include "globals/state.h"
 #include "uworld.h"
 #include "objtype.h"
 #include "ufunc.h"
@@ -130,9 +129,9 @@ namespace Pol {
 
 	bool UContainer::can_add_bulk( int tli_diff, int item_count_diff, int weight_diff ) const
 	{
-	  if ( gflag_enforce_container_limits )
+	  if ( stateManager.gflag_enforce_container_limits )
 	  {
-		if ( ssopt.use_slot_index )
+		if ( settingsManager.ssopt.use_slot_index )
 		{
 		  if ( contents_.size() + tli_diff >= MAX_SLOTS )
 			return false;
@@ -160,7 +159,7 @@ namespace Pol {
 	  }
 	  else
 	  {
-		if ( ssopt.use_slot_index )
+		if ( settingsManager.ssopt.use_slot_index )
 		{
 		  return ( ( contents_.size() < MAX_CONTAINER_ITEMS ) && ( contents_.size() < MAX_SLOTS ) );
 		}
@@ -183,7 +182,7 @@ namespace Pol {
 
 	bool UContainer::can_add_to_slot( u8& slotIndex )
 	{
-	  if ( ssopt.use_slot_index )
+	  if ( settingsManager.ssopt.use_slot_index )
 	  {
 		if ( slotIndex > max_slots() )
 		  return false;
@@ -222,7 +221,7 @@ namespace Pol {
 	{
 	  held_item_count_ += item_count_delta;
 
-	  // passert( !gflag_enforce_container_limits || (held_weight_ + weight_delta <= MAX_WEIGHT) );
+	  // passert( !stateManager.gflag_enforce_container_limits || (held_weight_ + weight_delta <= MAX_WEIGHT) );
 
 	  held_weight_ += static_cast<unsigned short>( weight_delta );
 	  if ( container != NULL )

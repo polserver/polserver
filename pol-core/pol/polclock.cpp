@@ -20,11 +20,11 @@ Notes
 
 #include "../clib/passert.h"
 
+#include "globals/state.h"
+
 
 namespace Pol {
   namespace Core {
-	clock_t polclock_paused_at;
-
 #ifdef _WIN32
 
 	void pol_sleep_ms( unsigned int millis )
@@ -41,15 +41,15 @@ namespace Pol {
 
 	void pause_polclock()
 	{
-	  polclock_paused_at = clock();
+	  stateManager.polclock_paused_at = clock();
 	}
 
 	void restart_polclock()
 	{
-	  clock_t polclock_diff = clock() - polclock_paused_at;
+	  clock_t polclock_diff = clock() - stateManager.polclock_paused_at;
 
 	  polclock_base += polclock_diff;
-	  polclock_paused_at = 0;
+	  stateManager.polclock_paused_at = 0;
 	}
 
 #ifndef POLCLOCK_STRETCH
@@ -89,7 +89,7 @@ namespace Pol {
 	  struct timeval tmv;
 	  struct timezone tz;
 	  gettimeofday( &tmv, &tz );
-	  polclock_paused_at = tmv.tv_sec;
+	  stateManager.polclock_paused_at = tmv.tv_sec;
 	}
 
 	void restart_polclock()
@@ -98,10 +98,10 @@ namespace Pol {
 	  struct timezone tz;
 	  gettimeofday( &tmv, &tz );
 
-	  int polclock_diff = tmv.tv_sec - polclock_paused_at;
+	  int polclock_diff = tmv.tv_sec - stateManager.polclock_paused_at;
 
 	  base_seconds += polclock_diff;
-	  polclock_paused_at = 0;
+	  stateManager.polclock_paused_at = 0;
 	}
 
 	polclock_t polclock()

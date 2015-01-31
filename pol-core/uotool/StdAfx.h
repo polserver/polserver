@@ -23,37 +23,7 @@ The pch needs also to be created and thats why the additional cpp file exists, i
 #define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
 #include <windows.h>
 
-// System Includes
-#include <string>
-#include <cstring>
-#include <vector>
-#include <stack>
-#include <deque>
-#include <queue>
-#include <map>
-#include <set>
-#include <iostream>
-#include <memory>
-#include <mutex>
-#include <thread>
-#include <assert.h>
-#include <stddef.h>
-#include <stdlib.h>
-
-// 3rd Party Includes
-#include <boost/flyweight.hpp>
-#include <boost/noncopyable.hpp>
-#include <boost/any.hpp>
-#include <boost/algorithm/string/case_conv.hpp>
-#include "../../lib/format/format.h"
-
-// Project Includes (be really really carefull what to include!)
-#include "../clib/passert.h"
-#include "../clib/logfacility.h"
-#include "../clib/stlutil.h"
-#include "../clib/strutil.h"
-#include "../clib/rawtypes.h"
-#include "../clib/fixalloc.h"
-#include "../clib/refptr.h"
+// include default pch
+#include "../clib/StdAfx.h"
 
 #endif

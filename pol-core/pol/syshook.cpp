@@ -16,8 +16,10 @@ Notes
 #include "scrsched.h"
 #include "scrstore.h"
 #include "uoexec.h"
+#include "globals/uvars.h"
 
 #include "../plib/pkg.h"
+#include "../plib/systemstate.h"
 
 #include "../bscript/eprog.h"
 
@@ -116,10 +118,6 @@ namespace Pol {
 	  can_trade( NULL )
 	{}
 
-
-	std::vector<ExportScript*> export_scripts;
-	SystemHooks system_hooks;
-
     void hook(ExportScript* shs, const std::string& hookname, const std::string& exfuncname)
 	{
 	  ExportedFunction** pphook = NULL;
@@ -127,87 +125,87 @@ namespace Pol {
 	  if ( hookname == "CheckSkill" )
 	  {
 		nargs = 4;
-		pphook = &system_hooks.check_skill_hook;
+		pphook = &gamestate.system_hooks.check_skill_hook;
 	  }
 	  else if ( hookname == "OpenSpellbook" )
 	  {
 		nargs = 1;
-		pphook = &system_hooks.open_spellbook_hook;
+		pphook = &gamestate.system_hooks.open_spellbook_hook;
 	  }
 	  else if ( hookname == "GetBookPage" )
 	  {
 		nargs = 2;
-		pphook = &system_hooks.get_book_page_hook;
+		pphook = &gamestate.system_hooks.get_book_page_hook;
 	  }
 	  else if ( hookname == "CombatAdvancement" )
 	  {
 		nargs = 3;
-		pphook = &system_hooks.combat_advancement_hook;
+		pphook = &gamestate.system_hooks.combat_advancement_hook;
 	  }
 	  else if ( hookname == "ParryAdvancement" )
 	  {
 		nargs = 4;
-		pphook = &system_hooks.parry_advancement_hook;
+		pphook = &gamestate.system_hooks.parry_advancement_hook;
 	  }
 	  else if ( hookname == "Attack" )
 	  {
 		nargs = 2;
-		pphook = &system_hooks.attack_hook;
+		pphook = &gamestate.system_hooks.attack_hook;
 	  }
 	  else if ( hookname == "Pushthrough" )
 	  {
 		nargs = 2;
-		pphook = &system_hooks.pushthrough_hook;
+		pphook = &gamestate.system_hooks.pushthrough_hook;
 	  }
 	  else if ( hookname == "SpeechMul" )
 	  {
 		nargs = 3;
-		pphook = &system_hooks.speechmul_hook;
+		pphook = &gamestate.system_hooks.speechmul_hook;
 	  }
 	  else if ( hookname == "HitMiss" )
 	  {
 		nargs = 2;
-		pphook = &system_hooks.hitmiss_hook;
+		pphook = &gamestate.system_hooks.hitmiss_hook;
 	  }
 	  else if ( hookname == "OnCast" )
 	  {
 		nargs = 2;
-		pphook = &system_hooks.on_cast_hook;
+		pphook = &gamestate.system_hooks.on_cast_hook;
 	  }
 	  else if ( hookname == "CanDecay" )
 	  {
 		nargs = 1;
-		pphook = &system_hooks.can_decay;
+		pphook = &gamestate.system_hooks.can_decay;
 	  }
 	  else if ( hookname == "Ouch" )
 	  {
 		nargs = 4;
-		pphook = &system_hooks.ouch_hook;
+		pphook = &gamestate.system_hooks.ouch_hook;
 	  }
 	  else if ( hookname == "CanDie" )
 	  {
 		nargs = 1;
-		pphook = &system_hooks.can_die;
+		pphook = &gamestate.system_hooks.can_die;
 	  }
 	  else if ( hookname == "UnHide" )
 	  {
 		nargs = 1;
-		pphook = &system_hooks.un_hide;
+		pphook = &gamestate.system_hooks.un_hide;
 	  }
 	  else if ( hookname == "CloseCustomHouse" )
 	  {
 		nargs = 2;
-		pphook = &system_hooks.close_customhouse_hook;
+		pphook = &gamestate.system_hooks.close_customhouse_hook;
 	  }
 	  else if ( hookname == "WarmodeChange" )
 	  {
 		nargs = 2;
-		pphook = &system_hooks.warmode_change;
+		pphook = &gamestate.system_hooks.warmode_change;
 	  }
 	  else if ( hookname == "CanTrade" )
 	  {
 		nargs = 3;
-		pphook = &system_hooks.can_trade;
+		pphook = &gamestate.system_hooks.can_trade;
 	  }
 	  else
 	  {
@@ -218,7 +216,7 @@ namespace Pol {
 	  if ( *pphook != NULL )
 	  {
         INFO_PRINT << "SystemHook " << hookname << " multiply defined\n"
-          << "  Already found in: " << system_hooks.check_skill_hook->scriptname() << "\n"
+          << "  Already found in: " << gamestate.system_hooks.check_skill_hook->scriptname() << "\n"
           << "  Also defined in:  " << shs->scriptname() << "\n";
 		return;
 	  }
@@ -243,7 +241,7 @@ namespace Pol {
 		  export_scripts.pop_back();
 		  }
 		  */
-      for ( Plib::Packages::const_iterator citr = Plib::packages.begin( ); citr != Plib::packages.end( ); ++citr )
+      for ( Plib::Packages::const_iterator citr = Plib::systemstate.packages.begin( ); citr != Plib::systemstate.packages.end( ); ++citr )
 	  {
         Plib::Package* pkg = ( *citr );
 		//string fname = pkg->dir() + "syshook.cfg";
@@ -257,7 +255,7 @@ namespace Pol {
 			ExportScript* shs = new ExportScript( pkg, elem.rest() );
 			if ( shs->Initialize() )
 			{
-			  export_scripts.push_back( shs );
+			  gamestate.export_scripts.push_back( shs );
               std::string hookname, exfuncname;
 			  while ( elem.remove_first_prop( &hookname, &exfuncname ) )
 			  {
@@ -275,55 +273,55 @@ namespace Pol {
 	  }
 	}
 
-	void unload_system_hooks()
+	void SystemHooks::unload_system_hooks()
 	{
-	  for ( unsigned i = 0; i < export_scripts.size(); ++i )
+	  for ( unsigned i = 0; i < gamestate.export_scripts.size(); ++i )
 	  {
-		ExportScript* ps = export_scripts[i];
+		ExportScript* ps = gamestate.export_scripts[i];
 		delete ps;
 	  }
-	  export_scripts.clear();
-	  if ( system_hooks.attack_hook != NULL )
-		delete system_hooks.attack_hook;
-	  if ( system_hooks.check_skill_hook != NULL )
-		delete system_hooks.check_skill_hook;
-	  if ( system_hooks.combat_advancement_hook != NULL )
-		delete system_hooks.combat_advancement_hook;
-	  if ( system_hooks.get_book_page_hook != NULL )
-		delete system_hooks.get_book_page_hook;
-	  if ( system_hooks.hitmiss_hook != NULL )
-		delete system_hooks.hitmiss_hook;
-	  if ( system_hooks.open_spellbook_hook != NULL )
-		delete system_hooks.open_spellbook_hook;
-	  if ( system_hooks.parry_advancement_hook != NULL )
-		delete system_hooks.parry_advancement_hook;
-	  if ( system_hooks.pushthrough_hook != NULL )
-		delete system_hooks.pushthrough_hook;
-	  if ( system_hooks.speechmul_hook != NULL )
-		delete system_hooks.speechmul_hook;
-	  if ( system_hooks.on_cast_hook != NULL )
-		delete system_hooks.on_cast_hook;
-	  if ( system_hooks.can_decay != NULL )
-		delete system_hooks.can_decay;
-	  if ( system_hooks.ouch_hook != NULL )
-		delete system_hooks.ouch_hook;
-	  if ( system_hooks.can_die != NULL )
-		delete system_hooks.can_die;
-	  if ( system_hooks.un_hide != NULL )
-		delete system_hooks.un_hide;
-	  if ( system_hooks.close_customhouse_hook != NULL )
-		delete system_hooks.close_customhouse_hook;
-	  if ( system_hooks.warmode_change != NULL )
-		delete system_hooks.warmode_change;
-	  if ( system_hooks.can_trade != NULL )
-		delete system_hooks.can_trade;
+	  gamestate.export_scripts.clear();
+	  if ( attack_hook != NULL )
+		delete attack_hook;
+	  if ( check_skill_hook != NULL )
+		delete check_skill_hook;
+	  if ( combat_advancement_hook != NULL )
+		delete combat_advancement_hook;
+	  if ( get_book_page_hook != NULL )
+		delete get_book_page_hook;
+	  if ( hitmiss_hook != NULL )
+		delete hitmiss_hook;
+	  if ( open_spellbook_hook != NULL )
+		delete open_spellbook_hook;
+	  if ( parry_advancement_hook != NULL )
+		delete parry_advancement_hook;
+	  if ( pushthrough_hook != NULL )
+		delete pushthrough_hook;
+	  if ( speechmul_hook != NULL )
+		delete speechmul_hook;
+	  if ( on_cast_hook != NULL )
+		delete on_cast_hook;
+	  if ( can_decay != NULL )
+		delete can_decay;
+	  if ( ouch_hook != NULL )
+		delete ouch_hook;
+	  if ( can_die != NULL )
+		delete can_die;
+	  if ( un_hide != NULL )
+		delete un_hide;
+	  if ( close_customhouse_hook != NULL )
+		delete close_customhouse_hook;
+	  if ( warmode_change != NULL )
+		delete warmode_change;
+	  if ( can_trade != NULL )
+		delete can_trade;
 	}
 
 	ExportScript* FindExportScript( const ScriptDef& sd )
 	{
-	  for ( unsigned i = 0; i < export_scripts.size(); ++i )
+	  for ( unsigned i = 0; i < gamestate.export_scripts.size(); ++i )
 	  {
-		ExportScript* ps = export_scripts[i];
+		ExportScript* ps = gamestate.export_scripts[i];
 		if ( ps->scriptname() == sd.name() )
 		  return ps;
 	  }
@@ -331,7 +329,7 @@ namespace Pol {
 	  ExportScript* ps = new ExportScript( sd );
 	  if ( ps->Initialize() )
 	  {
-		export_scripts.push_back( ps );
+		gamestate.export_scripts.push_back( ps );
 		return ps;
 	  }
 	  else

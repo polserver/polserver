@@ -21,7 +21,7 @@ This file is for packet structs who sent by client.
 #include "layers.h"
 #include "pktinid.h"
 #include "pktdef.h"
-#include "ucfg.h"
+#include "uconst.h"
 namespace Pol {
   namespace Core {
 #ifdef _MSC_VER

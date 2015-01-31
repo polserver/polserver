@@ -19,30 +19,32 @@ namespace Pol {
   }
   namespace Plib {
 
+	const unsigned WGRID_SIZE = 64;
+	const unsigned WGRID_SHIFT = 6;
+
 	class RealmDescriptor
 	{
 	public:
 	  static RealmDescriptor Load( const std::string& realm_name, const std::string& realm_path = "" );
-	  RealmDescriptor();
-	  // default copy ctor and operator= are okay.
 
-	  const std::string name;
-	  const std::string file_path;
-	  const unsigned short width;
-	  const unsigned short height;
-	  const unsigned uomapid;         // map[n].mul, need to be able to tell the client this.
-	  const bool uodif;               // use the *dif files?
-	  const unsigned num_map_patches;
-	  const unsigned num_static_patches;
-	  const unsigned season;
-	  const std::string mapserver_type;    // "memory" or "file"
+	  std::string name;
+	  std::string file_path;
+	  unsigned short width;
+	  unsigned short height;
+	  unsigned uomapid;         // map[n].mul, need to be able to tell the client this.
+	  bool uodif;               // use the *dif files?
+	  unsigned num_map_patches;
+	  unsigned num_static_patches;
+	  unsigned season;
+	  std::string mapserver_type;    // "memory" or "file"
+	  unsigned short grid_width;
+	  unsigned short grid_height;
 
 	  std::string path( const std::string& filename ) const;
 	  bool operator==( const RealmDescriptor& rdesc ) const
 	  {
 		return ( name == rdesc.name && uomapid == rdesc.uomapid );
 	  }
-	  RealmDescriptor & operator=( const RealmDescriptor & ) { return *this; }
       size_t sizeEstimate() const;
 	private:
 	  RealmDescriptor( const std::string& realm_name, const std::string& realm_path, Clib::ConfigElem& elem );

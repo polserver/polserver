@@ -19,9 +19,6 @@ namespace Pol {
     class Client;
   }
   namespace Core {
-	typedef std::vector<std::string> TipFilenames;
-	extern TipFilenames tipfilenames;
-
 	void load_tips();
 
 	bool send_tip( Network::Client* client, const char* tipname );

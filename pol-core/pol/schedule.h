@@ -16,9 +16,17 @@ Notes
 #include "polclock.h"
 
 #include <ctime>
+#include <functional>
 
 namespace Pol {
   namespace Core {
+	class ScheduledTask;
+	class SchComparer : public std::less<ScheduledTask*>
+	{
+	public:
+	  bool operator()( const ScheduledTask* x, const ScheduledTask* y ) const;
+	};
+
 	class TaskScheduler
 	{
 	public:

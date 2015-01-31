@@ -9,22 +9,15 @@ Notes
 
 */
 
-#ifndef FILEACCESS_H
-#define FILEACCESS_H
+#ifndef FILEMOD_H
+#define FILEMOD_H
 
 #include "../../bscript/execmodl.h"
-
-#include <vector>
-#include <set>
-#include <string>
 
 namespace Pol {
   namespace Bscript {
 	class ExecutorModule;
 	class Executor;
-  }
-  namespace Clib {
-      class ConfigElem;
   }
 
   namespace Module {
@@ -47,31 +40,6 @@ namespace Pol {
 	};
 
 	Bscript::ExecutorModule* CreateFileAccessExecutorModule( Bscript::Executor& exec );
-
-	class FileAccess
-	{
-	public:
-	  explicit FileAccess( Clib::ConfigElem& elem );
-	  bool AllowsAccessTo( const Plib::Package* pkg, const Plib::Package* filepackage ) const;
-	  bool AppliesToPackage( const Plib::Package* pkg ) const;
-	  bool AppliesToPath( const std::string& path ) const;
-
-	  bool AllowWrite;
-	  bool AllowAppend;
-	  bool AllowRead;
-
-	  bool AllowRemote;
-
-	  bool AllPackages;
-	  bool AllDirectories; // not used
-	  bool AllExtensions;
-
-	  std::set<std::string, Clib::ci_cmp_pred> Packages;
-      std::vector< std::string > Directories; // not used
-      std::vector< std::string > Extensions;
-	};
-
-	bool HasWriteAccess( const Plib::Package* pkg, const Plib::Package* filepackage, const std::string& path );
   }
 }
 #endif

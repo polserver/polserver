@@ -11,6 +11,7 @@ Notes
 
 #include "realms.h"
 #include "uworld.h"
+#include "globals/uvars.h"
 
 #include "../bscript/berror.h"
 #include "../bscript/impstr.h"
@@ -29,6 +30,13 @@ namespace Pol {
 
 	Region::~Region()
 	{}
+
+    size_t Region::estimateSize() const
+    {
+      return name_.capacity()
+        + sizeof(RegionId)
+        + proplist_.estimatedSize();
+    }
 
     void Region::read_custom_config( Clib::ConfigElem& elem )
 	{
@@ -54,16 +62,10 @@ namespace Pol {
 	  name_( name )
 	{
 	  //memset( &regionidx_, 0, sizeof regionidx_ );
-	  for ( const auto& realm : *Realms)
+	  for ( const auto& realm : gamestate.Realms)
 	  {
         unsigned int gridwidth = realm->width( ) / ZONE_SIZE;
         unsigned int gridheight = realm->height( ) / ZONE_SIZE;
-
-		// Tokuno-Fix removed Turley, 2009/09/08 (for ZONE_SIZE 4 not needed)
-		/*if (gridwidth * ZONE_SIZE < (*itr)->width())
-		  gridwidth++;
-		  if (gridheight * ZONE_SIZE < (*itr)->height())
-		  gridheight++;*/
 
 		RegionId** zone = new RegionId*[gridwidth];
 
@@ -196,6 +198,29 @@ namespace Pol {
 	  regions_byname_.insert( RegionsByName::value_type( "_background_", rgn ) );
 	  rgn->read_custom_config( elem );
 	}
+
+    size_t RegionGroupBase::estimateSize() const
+    {
+      size_t size = 0;
+	  for ( const auto &region : regions_ )
+	  {
+        size += region->estimateSize();
+	  }
+      for ( const auto &realm : regionrealms)
+	  {
+        if (realm.first != nullptr)
+        {
+		  unsigned int gridwidth = realm.first->width() / ZONE_SIZE;
+          size+=gridwidth*sizeof(RegionId) + sizeof(Plib::Realm*)+ ( sizeof(void*) * 3 + 1 ) / 2;
+        }
+	  }
+      size += name_.capacity();
+      for ( const auto &realm : regions_byname_)
+      {
+        size += realm.first.capacity() + sizeof(Region*) + ( sizeof(void*) * 3 + 1 ) / 2;
+      }
+      return size;
+    }
 
 	void read_region_data( RegionGroupBase& grp,
 						   const char* preferred_filename,

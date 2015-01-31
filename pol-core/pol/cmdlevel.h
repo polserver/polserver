@@ -29,6 +29,7 @@ namespace Pol {
 	{
 	public:
 	  CmdLevel( Clib::ConfigElem& elem, int cmdlevelnum );
+      size_t estimateSize() const;
 
 	  bool matches( const std::string& name ) const;
 	  void add_searchdir( Plib::Package* pkg, const std::string& dir );
@@ -49,9 +50,6 @@ namespace Pol {
 	  typedef std::vector< std::string > Aliases;
 	  Aliases aliases;
 	};
-
-	typedef std::vector< CmdLevel > CmdLevels;
-	extern CmdLevels cmdlevels2;
 
 	CmdLevel* find_cmdlevel( const char* name );
 	CmdLevel* FindCmdLevelByAlias( const std::string& str );

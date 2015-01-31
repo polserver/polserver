@@ -27,8 +27,6 @@ Notes
 #include <set>
 #include <vector>
 
-using namespace std;
-
 // fast fixed size memory allocator, used for fast node memory management
 #include "fsa.h"
 
@@ -41,6 +39,9 @@ using namespace std;
 #ifdef _MSC_VER
 #	pragma warning(disable:4786)
 #endif
+
+namespace Pol {
+  namespace Plib {
 
 // The AStar search class. UserState is the users state space type
 template <class UserState> class AStarSearch
@@ -85,7 +86,7 @@ public:
 	};
 
 
-	typedef vector<Node *> NodeVector;
+	typedef std::vector<Node *> NodeVector;
 	typedef typename NodeVector::iterator NodeVectorIterator;
 	// For sorting the heap the STL needs compare function that lets us compare
 	// the f value of two nodes
@@ -747,5 +748,8 @@ private: // data
 	bool m_CancelRequest;
 
 };
+
+}
+}
 
 #endif // defined STLASTAR_H

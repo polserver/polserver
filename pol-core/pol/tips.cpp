@@ -12,9 +12,11 @@ Notes
 
 #include "network/msghandl.h"
 #include "network/packets.h"
+#include "network/packethelper.h"
 #include "pktin.h"
 #include "pktout.h"
 #include "sockio.h"
+#include "globals/uvars.h"
 
 #include "../clib/endian.h"
 
@@ -23,7 +25,6 @@ Notes
 
 namespace Pol {
   namespace Core {
-	TipFilenames tipfilenames;
 
 	bool send_tip( Network::Client* client, const char* tipname, unsigned short tipnum )
 	{
@@ -65,25 +66,23 @@ namespace Pol {
     void handle_get_tip( Network::Client* client, PKTIN_A7* msg )
 	{
 	  u16 tipnum = cfBEu16( msg->lasttip );
-	  if ( !tipfilenames.empty() )
+	  if ( !gamestate.tipfilenames.empty() )
 	  {
 		if ( msg->prevnext )
 		{
 		  ++tipnum;
-		  if ( tipnum >= tipfilenames.size() )
+		  if ( tipnum >= gamestate.tipfilenames.size() )
 			tipnum = 0;
 		}
 		else
 		{
 		  --tipnum;
-		  if ( tipnum >= tipfilenames.size() )
-			tipnum = static_cast<u16>( tipfilenames.size() ) - 1;
+		  if ( tipnum >= gamestate.tipfilenames.size() )
+			tipnum = static_cast<u16>( gamestate.tipfilenames.size() ) - 1;
 		}
 
-		send_tip( client, tipfilenames[tipnum].c_str(), tipnum );
+		send_tip( client, gamestate.tipfilenames[tipnum].c_str(), tipnum );
 	  }
 	}
-
-	MESSAGE_HANDLER( PKTIN_A7, handle_get_tip );
   }
 }

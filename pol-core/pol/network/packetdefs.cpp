@@ -249,7 +249,7 @@ namespace Pol {
     {}
     MobileAnimationMsg::MobileAnimationMsg( u32 serial_ext, u16 anim, u16 action, u8 subaction,
                                             u16 action_old, u16 framecount_old, u16 repeat_old,
-                                            DIRECTION_FLAG_OLD backward_old, REPEAT_FLAG_OLD repeat_flag_old, u8 delay_old,
+                                            Core::DIRECTION_FLAG_OLD backward_old, Core::REPEAT_FLAG_OLD repeat_flag_old, u8 delay_old,
                                             bool oldanim_valid, bool newanim_valid )
         : PktSender(),
         _serial_ext( serial_ext ),
@@ -270,7 +270,7 @@ namespace Pol {
 
     void MobileAnimationMsg::update( u16 anim, u16 action, u8 subaction,
                                      u16 action_old, u16 framecount_old, u16 repeat_old,
-                                     DIRECTION_FLAG_OLD backward_old, REPEAT_FLAG_OLD repeat_flag_old, u8 delay_old,
+                                     Core::DIRECTION_FLAG_OLD backward_old, Core::REPEAT_FLAG_OLD repeat_flag_old, u8 delay_old,
                                      bool oldanim_valid, bool newanim_valid )
     {
       _anim = anim;

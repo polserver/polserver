@@ -22,6 +22,7 @@ Notes
 #include "../../clib/logfacility.h"
 #include "../../clib/streamsaver.h"
 #include "../../plib/pkg.h"
+#include "../../plib/systemstate.h"
 
 #include "../tiles.h"
 #include "../clidata.h"
@@ -73,7 +74,7 @@ namespace Pol {
 	  {
 		// No 'COVERAGE' entries existed.
 		// default coverage based on object type/layer
-		unsigned short layer = Core::tile[graphic].layer;
+		unsigned short layer = Plib::systemstate.tile[graphic].layer;
 		// special case for shields - they effectively have no coverage.
 		if ( layer != Core::LAYER_HAND1 && layer != Core::LAYER_HAND2 )
 		{

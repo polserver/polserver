@@ -13,9 +13,11 @@ Notes
 #include "../clib/cfgfile.h"
 #include "../clib/strutil.h"
 
+
+
 namespace Pol {
   namespace Plib {
-      RealmDescriptor RealmDescriptor::Load(const std::string& realm_name, const std::string& realm_path)
+    RealmDescriptor RealmDescriptor::Load(const std::string& realm_name, const std::string& realm_path)
 	{
 	  std::string realm_cfg_filename;
 	  if ( realm_path == "" )
@@ -31,7 +33,18 @@ namespace Pol {
 	  return RealmDescriptor( realm_name, realm_path, elem );
 	}
 
-      RealmDescriptor::RealmDescriptor(const std::string& realm_name, const std::string& realm_path, Clib::ConfigElem& elem) :
+	namespace {
+	  unsigned short calc_grid_size(const unsigned size)
+	  {
+		unsigned grid_size = size / WGRID_SIZE;
+		// Tokuno-Fix
+		if ( grid_size * WGRID_SIZE < size )
+		  grid_size++;
+		return static_cast<unsigned short>(grid_size);
+	  }
+	}
+
+    RealmDescriptor::RealmDescriptor(const std::string& realm_name, const std::string& realm_path, Clib::ConfigElem& elem) :
 	  name( realm_name ),
 	  file_path( realm_path ),
 	  width( elem.remove_ushort( "width" ) ),
@@ -41,20 +54,11 @@ namespace Pol {
 	  num_map_patches( elem.remove_unsigned( "num_map_patches", 0 ) ),
 	  num_static_patches( elem.remove_unsigned( "num_static_patches", 0 ) ),
 	  season( elem.remove_unsigned( "season", 1 ) ),
-	  mapserver_type( Clib::strlower( elem.remove_string( "mapserver", "memory" ) ) )
-	{}
-	RealmDescriptor::RealmDescriptor() :
-	  name( "" ),
-	  file_path( "" ),
-	  width( 0 ),
-	  height( 0 ),
-	  uomapid( 0 ),
-	  uodif( false ),
-	  num_map_patches( 0 ),
-	  num_static_patches( 0 ),
-	  season( 0 ),
-	  mapserver_type( "" )
-	{}
+	  mapserver_type( Clib::strlower( elem.remove_string( "mapserver", "memory" ) ) ),
+	  grid_width(calc_grid_size(width)),
+	  grid_height(calc_grid_size(height))
+	{
+	}
 
     size_t RealmDescriptor::sizeEstimate() const
     {

@@ -21,6 +21,7 @@ Notes
 #include "scrdef.h"
 #include "schedule.h"
 #include "reftypes.h"
+#include "globals/uvars.h"
 
 namespace Pol {
   namespace Clib {
@@ -39,8 +40,6 @@ namespace Pol {
 	class TargetCursor;
 	class USpell;
 
-	extern u32 spell_scroll_objtype_limits[8][2];
-
 	class USpellParams
 	{
 	public:
@@ -58,12 +57,26 @@ namespace Pol {
 	  //unsigned short magery_auto_success_; 
 	};
 
+    class SpellCircle
+	{
+	public:
+	  SpellCircle( Clib::ConfigElem& elem );
+
+	public:
+	  USpellParams params;
+
+	private:
+	  // not implemented:
+	  SpellCircle( const SpellCircle& );
+	  SpellCircle& operator=( const SpellCircle& );
+	};
+
 
 	class USpell
 	{
 	public:
 	  USpell( Clib::ConfigElem& elem, Plib::Package* pkg );
-
+      size_t estimateSize() const;
 	  const unsigned short spell_id() const;
 	  const std::string& name() const;
 
@@ -129,12 +142,9 @@ namespace Pol {
 	  return spellid_;
 	}
 
-	//extern USpell *spells[ SPELLID__COUNT+1 ];
-
-	extern std::vector<USpell*> spells2;
 	inline bool VALID_SPELL_ID( int spellid )
 	{
-	  return ( spellid >= 1 && spellid <= int( spells2.size() ) );
+	  return ( spellid >= 1 && spellid <= int( gamestate.spells.size() ) );
 	}
 
 	void do_cast( Network::Client *client, u16 spellid );

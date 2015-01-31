@@ -34,6 +34,7 @@ namespace Pol {
 	  Attribute( const Plib::Package* pkg, Clib::ConfigElem& elem );
 	  explicit Attribute( const std::string& name );
 	  ~Attribute();
+      size_t estimateSize() const;
 
 	  const Plib::Package* pkg;
 	  std::string name;
@@ -54,13 +55,13 @@ namespace Pol {
 	  unsigned short default_cap;
 
 	  Core::ScriptDef script_;
+
+	  static Attribute* FindAttribute( const std::string& str );
+	  static Attribute* FindAttribute( unsigned attrid );
 	};
 
-	Attribute* FindAttribute( const std::string& str );
-	Attribute* FindAttribute( unsigned attrid );
+	
 	void clean_attributes();
-	extern std::vector< Attribute* > attributes;
-	extern unsigned numAttributes;
 
 	const unsigned ATTRIBUTE_MIN_EFFECTIVE = 0;
 	const unsigned ATTRIBUTE_MAX_EFFECTIVE = 6000;
@@ -73,13 +74,6 @@ namespace Pol {
 
 	const short ATTRIBUTE_MIN_INTRINSIC_MOD = -30000;
 	const short ATTRIBUTE_MAX_INTRINSIC_MOD = +30000;
-
-	extern const Attribute* pAttrStrength;
-	extern const Attribute* pAttrIntelligence;
-	extern const Attribute* pAttrDexterity;
-
-	extern const Attribute* pAttrParry;
-	extern const Attribute* pAttrTactics;
   }
 }
 #endif

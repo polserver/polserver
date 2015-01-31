@@ -29,6 +29,7 @@ namespace Pol {
 	public:
 	  UOSkill( const Plib::Package* pkg, Clib::ConfigElem& elem );
 	  UOSkill();
+      size_t estimateSize() const;
 
 	  bool inited;
 	  unsigned skillid;

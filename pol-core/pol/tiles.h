@@ -27,8 +27,6 @@ namespace Pol {
 	  u8 height;
 	  u8 weight; // todo mult, div
 	};
-
-	extern Tile *tile;
   }
 }
 #endif

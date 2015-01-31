@@ -78,64 +78,59 @@ Notes
 #include "../../plib/maptile.h"
 #include "../../plib/realm.h"
 
-#include "../network/client.h"
-#include "../network/clienttransmit.h"
-
 #include "../action.h"
 #include "../cfgrepos.h"
+#include "../containr.h"
 #include "../core.h"
-#include "../extobj.h"
 #include "../eventid.h"
 #include "../fnsearch.h"
+#include "../gameclck.h"
+#include "../globals/object_storage.h"
+#include "../globals/state.h"
+#include "../globals/uvars.h"
 #include "../guardrgn.h"
 #include "../item/itemdesc.h"
+#include "../lightlvl.h"
 #include "../listenpt.h"
 #include "../los.h"
 #include "../mdelta.h"
 #include "../menu.h"
+#include "../miscrgn.h"
 #include "../mobile/charactr.h"
+#include "../mobile/npc.h"
+#include "../mobile/ufacing.h"
 #include "../multi/boat.h"
+#include "../multi/house.h"
 #include "../multi/multidef.h"
 #include "../network/cgdata.h"
+#include "../network/client.h"
+#include "../network/clienttransmit.h"
 #include "../network/packets.h"
-#include "../npc.h"
-#include "../objecthash.h"
 #include "../objtype.h"
 #include "../pktboth.h"
 #include "../pktin.h"
 #include "../polcfg.h"
 #include "../polclass.h"
-#include "../polsig.h"
 #include "../poltype.h"
-#include "../profile.h"
 #include "../realms.h"
+#include "../resource.h"
 #include "../savedata.h"
 #include "../scrsched.h"
 #include "../scrstore.h"
 #include "../skilladv.h"
 #include "../spells.h"
-#include "../ssopt.h"
 #include "../target.h"
 #include "../udatfile.h"
 #include "../ufunc.h"
+#include "../uimport.h"
 #include "../umanip.h"
 #include "../uofile.h"
 #include "../uopathnode.h"
 #include "../uoscrobj.h"
 #include "../ustruct.h"
-#include "../uvars.h"
 #include "../uworld.h"
-#include "../gprops.h"
-#include "../uimport.h"
-#include "../gameclck.h"
-#include "../zone.h"
-#include "../lightlvl.h"
-#include "../miscrgn.h"
 #include "../wthrtype.h"
-#include "../resource.h"
-#include "../multi/house.h"
-#include "../mobile/ufacing.h"
-#include "../containr.h"
+#include "../zone.h"
 
 #include "../../clib/cfgelem.h"
 #include "../../clib/cfgfile.h"
@@ -149,6 +144,8 @@ Notes
 #include "../../clib/strutil.h"
 #include "../../clib/unicode.h"
 #include "../../clib/weakptr.h"
+
+#include "../../plib/systemstate.h"
 
 #include <cstddef>
 #include <cstdio>
@@ -164,7 +161,7 @@ namespace Pol {
     Bscript::BObjectImp* place_item_in_secure_trade_container( Network::Client* client, Items::Item* item );
     Bscript::BObjectImp* open_trade_window( Network::Client* client, Mobile::Character* dropon );
     void send_tip( Network::Client* client, const std::string& tiptext );
-    string get_textcmd_help( Mobile::Character* chr, const char* cmd );
+    std::string get_textcmd_help( Mobile::Character* chr, const char* cmd );
     void send_paperdoll( Network::Client *client, Mobile::Character *chr );
     void send_skillmsg( Network::Client *client, const Mobile::Character *chr );
     Bscript::BObjectImp* equip_from_template( Mobile::Character* chr, const char* template_name );
@@ -314,7 +311,7 @@ namespace Pol {
 
 	static bool item_create_params_ok( u32 objtype, int amount )
 	{
-	  return ( objtype >= UOBJ_ITEM__LOWEST && objtype <= config.max_objtype ) &&
+	  return ( objtype >= UOBJ_ITEM__LOWEST && objtype <= Plib::systemstate.config.max_objtype ) &&
 		amount > 0 &&
 		amount <= 60000L;
 	}
@@ -787,9 +784,6 @@ namespace Pol {
 	  }
 	}
 
-	LosCheckedTargetCursor los_checked_script_cursor( &handle_script_cursor, true );
-	NoLosCheckedTargetCursor nolos_checked_script_cursor( &handle_script_cursor, true );
-
 
 	BObjectImp* UOExecutorModule::mf_Target()
 	{
@@ -813,20 +807,22 @@ namespace Pol {
 			  crstype = PKTBI_6C::CURSOR_TYPE_NEUTRAL;
 
 			if ( ( target_options & TGTOPT_CHECK_LOS ) && !chr->ignores_line_of_sight() )
-			if ( los_checked_script_cursor.send_object_cursor( chr->client, crstype ) )
 			{
-			  chr->client->gd->target_cursor_uoemod = this;
-			  target_cursor_chr = chr;
-			  uoexec.os_module->suspend();
-			  return new BLong( 0 );
+			  if ( gamestate.target_cursors.los_checked_script_cursor.send_object_cursor( chr->client, crstype ) )
+			  {
+				chr->client->gd->target_cursor_uoemod = this;
+				target_cursor_chr = chr;
+				uoexec.os_module->suspend();
+				return new BLong( 0 );
+			  }
+			  else
+			  {
+				return new BError( "Client has an active target cursor" );
+			  }
 			}
 			else
 			{
-			  return new BError( "Client has an active target cursor" );
-			}
-			else
-			{
-			  if ( nolos_checked_script_cursor.send_object_cursor( chr->client, crstype ) )
+			  if ( gamestate.target_cursors.nolos_checked_script_cursor.send_object_cursor( chr->client, crstype ) )
 			  {
 				chr->client->gd->target_cursor_uoemod = this;
 				target_cursor_chr = chr;
@@ -931,7 +927,6 @@ namespace Pol {
 	  }
 	}
 
-	LosCheckedCoordCursor script_cursor2( &handle_coord_cursor, true );
 	BObjectImp* UOExecutorModule::mf_TargetCoordinates()
 	{
 	  Character* chr;
@@ -941,7 +936,7 @@ namespace Pol {
 		{
 		  if ( !chr->target_cursor_busy() )
 		  {
-			if ( script_cursor2.send_coord_cursor( chr->client ) )
+			if ( gamestate.target_cursors.script_cursor2.send_coord_cursor( chr->client ) )
 			{
 			  chr->client->gd->target_cursor_uoemod = this;
 			  target_cursor_chr = chr;
@@ -969,8 +964,7 @@ namespace Pol {
 		return new BError( "Invalid parameter type" );
 	  }
 	}
-
-	MultiPlacementCursor multi_placement_cursor( &handle_coord_cursor );
+	
 	BObjectImp* UOExecutorModule::mf_TargetMultiPlacement()
 	{
 	  Character* chr;
@@ -1006,7 +1000,7 @@ namespace Pol {
 
 	  chr->client->gd->target_cursor_uoemod = this;
 	  target_cursor_chr = chr;
-	  multi_placement_cursor.send_placemulti( chr->client, objtype, flags, (s16)xoffset, (s16)yoffset, hue );
+	  gamestate.target_cursors.multi_placement_cursor.send_placemulti( chr->client, objtype, flags, (s16)xoffset, (s16)yoffset, hue );
 	  uoexec.os_module->suspend();
 	  return new BLong( 0 );
 	}
@@ -1201,7 +1195,7 @@ namespace Pol {
 	  short z;
 	  const ItemDesc* descriptor;
 	  int flags = 0;
-	  Plib::Realm* realm = find_realm( string( "britannia" ) );
+	  Plib::Realm* realm = find_realm( std::string( "britannia" ) );
 	  if ( !( getParam( 0, x ) &&
 		getParam( 1, y ) &&
 		getParam( 2, z, ZCOORD_MIN, ZCOORD_MAX ) &&
@@ -1242,7 +1236,7 @@ namespace Pol {
 	  for ( BStruct::Contents::const_iterator citr = custom->contents().begin(), end = custom->contents().end(); citr != end; ++citr )
 	  {
 
-		const string& name = ( *citr ).first;
+		const std::string& name = ( *citr ).first;
 		BObjectImp* ref = ( *citr ).second->impptr();
 
 		if ( name == "CProps" )
@@ -1259,7 +1253,7 @@ namespace Pol {
 		  }
 		  else
 		  {
-			throw runtime_error( "NPC override_properties: CProps must be a dictionary, but is: " + string( ref->typeOf() ) );
+			throw std::runtime_error( "NPC override_properties: CProps must be a dictionary, but is: " + std::string( ref->typeOf() ) );
 		  }
 		}
 		else
@@ -1276,7 +1270,7 @@ namespace Pol {
 	  unsigned short x, y;
 	  short z;
 	  const String* strrealm;
-	  Plib::Realm* realm = find_realm( string( "britannia" ) );
+	  Plib::Realm* realm = find_realm( std::string( "britannia" ) );
 
 	  if ( !( getStringParam( 0, tmplname ) &&
 		getParam( 1, x ) &&
@@ -1297,7 +1291,7 @@ namespace Pol {
 	  }
 	  else
 	  {
-		return new BError( string( "Parameter 4 must be a Struct or Integer(0), got " ) + BObjectImp::typestr( imp->type() ) );
+		return new BError( std::string( "Parameter 4 must be a Struct or Integer(0), got " ) + BObjectImp::typestr( imp->type() ) );
 	  }
 	  if ( exec.hasParams( 6 ) )
 	  {
@@ -1353,7 +1347,7 @@ namespace Pol {
 		npc->readPropertiesForNewNPC( elem );
 
 		////HASH
-		objecthash.Insert( npc.get() );
+		objStorageManager.objecthash.Insert( npc.get() );
 		////
 
 
@@ -1415,8 +1409,8 @@ namespace Pol {
 	  if ( getItemParam( exec, 0, item ) &&
 		   getParam( 1, amount, 1, item->itemdesc().stack_limit ) )
 	  {
-		if ( item->gotten_by != NULL )
-			item->gotten_by->clear_gotten_item();
+		if ( item->is_gotten() )
+			item->get_gotten()->clear_gotten_item();
 		else if ( item->inuse() && !is_reserved_to_me( item ) )
 	 		return new BError( "That item is being used." );
 		subtract_amount_from_item( item, amount );
@@ -1483,8 +1477,8 @@ namespace Pol {
 		send_action_to_inrange( chr, action,
 								framecount,
 								repeatcount,
-                                static_cast<Network::MobileAnimationMsg::DIRECTION_FLAG_OLD>( backward ),
-                                static_cast<Network::MobileAnimationMsg::REPEAT_FLAG_OLD>( repeatflag ),
+                                static_cast<DIRECTION_FLAG_OLD>( backward ),
+                                static_cast<REPEAT_FLAG_OLD>( repeatflag ),
 								static_cast<unsigned char>( delay ) );
 		return new BLong( 1 );
 	  }
@@ -1621,7 +1615,7 @@ namespace Pol {
 	  if ( imp->isa( BObjectImp::OTString ) )
 	  {
 		String* pmenuname = static_cast<String*>( imp );
-		menu = find_menu( pmenuname->data() );
+		menu = Menu::find_menu( pmenuname->data() );
 		return ( menu != NULL );
 	  }
 	  else if ( imp->isa( BObjectImp::OTApplicObj ) )
@@ -1687,7 +1681,7 @@ namespace Pol {
 		  // Code Analyze: Commented out and replaced with tmp_menu due to hiding
 		  // menu passed to function. 
 		  //			Menu* menu = find_menu( mi->submenu_id );
-		  Menu* tmp_menu = find_menu( mi->submenu_id );
+		  Menu* tmp_menu = Menu::find_menu( mi->submenu_id );
 		  if ( tmp_menu != NULL )
 			append_objtypes( objarr, tmp_menu );
 		}
@@ -1789,7 +1783,7 @@ namespace Pol {
 		mi->objtype_ = objtype;
 		mi->graphic_ = getgraphic( objtype );
 		strzcpy( mi->title, text->data(), sizeof mi->title );
-		mi->color_ = color & ssopt.item_color_mask;
+		mi->color_ = color & settingsManager.ssopt.item_color_mask;
 		return new BLong( 1 );
 	  }
 	  else
@@ -1858,7 +1852,7 @@ namespace Pol {
 	  UObject* uobj;
 	  if ( getUObjectParam( exec, 0, uobj ) )
 	  {
-		vector<string> propnames;
+		std::vector<std::string> propnames;
 		uobj->getpropnames( propnames );
 		std::unique_ptr<ObjArray> arr( new ObjArray );
 		for ( unsigned i = 0; i < propnames.size(); ++i )
@@ -1880,7 +1874,7 @@ namespace Pol {
 	  if ( getStringParam( 0, propname_str ) )
 	  {
 		std::string val;
-		if ( global_properties.getprop( propname_str->value(), val ) )
+		if ( gamestate.global_properties->getprop( propname_str->value(), val ) )
 		{
 		  return BObjectImp::unpack( val.c_str() );
 		}
@@ -1901,7 +1895,7 @@ namespace Pol {
 	  if ( exec.getStringParam( 0, propname_str ) )
 	  {
 		BObjectImp* propval = exec.getParamImp( 1 );
-		global_properties.setprop( propname_str->value(), propval->pack() );
+		gamestate.global_properties->setprop( propname_str->value(), propval->pack() );
 		return new BLong( 1 );
 	  }
 	  else
@@ -1915,7 +1909,7 @@ namespace Pol {
 	  const String* propname_str;
 	  if ( getStringParam( 0, propname_str ) )
 	  {
-		global_properties.eraseprop( propname_str->value() );
+		gamestate.global_properties->eraseprop( propname_str->value() );
 		return new BLong( 1 );
 	  }
 	  else
@@ -1926,8 +1920,8 @@ namespace Pol {
 
 	BObjectImp* UOExecutorModule::mf_GetGlobalPropertyNames()
 	{
-	  vector<string> propnames;
-	  global_properties.getpropnames( propnames );
+	  std::vector<std::string> propnames;
+	  gamestate.global_properties->getpropnames( propnames );
 	  std::unique_ptr<ObjArray> arr( new ObjArray );
 	  for ( unsigned i = 0; i < propnames.size(); ++i )
 	  {
@@ -2327,25 +2321,25 @@ namespace Pol {
 	  return NULL;
 	}
 
-    void UOExecutorModule::internal_InBoxAreaChecks( unsigned short& /*x1*/, unsigned short& /*y1*/, short &z1, unsigned short &x2, unsigned short &y2, short &z2, Plib::Realm* realm )
+    void UOExecutorModule::internal_InBoxAreaChecks( unsigned short& /*x1*/, unsigned short& /*y1*/, int &z1, unsigned short &x2, unsigned short &y2, int &z2, Plib::Realm* realm )
 	{
-	  if ( z1 < WORLD_MIN_Z )
-		z1 = WORLD_MIN_Z;
+	  if ( z1 < ZCOORD_MIN || z1 == LIST_IGNORE_Z)
+		z1 = ZCOORD_MIN;
 
 	  if ( x2 >= realm->width() )
 		x2 = ( realm->width() - 1 );
 	  if ( y2 >= realm->height() )
 		y2 = ( realm->height() - 1 );
-	  if ( z2 > WORLD_MAX_Z )
-		z2 = WORLD_MAX_Z;
+	  if ( z2 > ZCOORD_MAX || z2 == LIST_IGNORE_Z )
+		z2 = ZCOORD_MAX;
 	}
 
 	BObjectImp* UOExecutorModule::mf_ListObjectsInBox(/* x1, y1, z1, x2, y2, z2, realm */ )
 	{
 	  unsigned short x1, y1;
-	  short z1;
+	  int z1;
 	  unsigned short x2, y2;
-	  short z2;
+	  int z2;
 	  const String* strrealm;
 	  Plib::Realm* realm;
 
@@ -2365,11 +2359,11 @@ namespace Pol {
 		return new BError( "Realm not found" );
 
 	  if ( x1 > x2 )
-		swap( x1, x2 );
+		std::swap( x1, x2 );
 	  if ( y1 > y2 )
-		swap( y1, y2 );
-	  if ( z1 > z2 )
-		swap( z1, z2 );
+		std::swap( y1, y2 );
+	  if (( z1 > z2 ) && z1 != LIST_IGNORE_Z && z2 != LIST_IGNORE_Z)
+		std::swap( z1, z2 );
 	  // Disabled again: ShardAdmins "loves" this "bug" :o/
 	  // if ((!realm->valid(x1, y1, z1)) || (!realm->valid(x2, y2, z2)))
 	  //	 return new BError("Invalid Coordinates for realm");
@@ -2394,12 +2388,12 @@ namespace Pol {
 	  return newarr.release();
 	}
 
-	BObjectImp* UOExecutorModule::mf_ListMultisInBox(/* x1, y1, z1, x2, y2, z2, realm */ )
-	{
-	  unsigned short x1, y1;
-	  short z1;
+    BObjectImp* UOExecutorModule::mf_ListMobilesInBox(/* x1, y1, z1, x2, y2, z2, realm */)
+    {
+      unsigned short x1, y1;
+	  int z1;
 	  unsigned short x2, y2;
-	  short z2;
+	  int z2;
 	  const String* strrealm;
 	  Plib::Realm* realm;
 
@@ -2419,11 +2413,58 @@ namespace Pol {
 		return new BError( "Realm not found" );
 
 	  if ( x1 > x2 )
-		swap( x1, x2 );
+		std::swap( x1, x2 );
 	  if ( y1 > y2 )
-		swap( y1, y2 );
-	  if ( z1 > z2 )
-		swap( z1, z2 );
+		std::swap( y1, y2 );
+	  if (( z1 > z2 ) && z1 != LIST_IGNORE_Z && z2 != LIST_IGNORE_Z)
+		std::swap( z1, z2 );
+	  // Disabled again: ShardAdmins "loves" this "bug" :o/
+	  // if ((!realm->valid(x1, y1, z1)) || (!realm->valid(x2, y2, z2)))
+	  //	 return new BError("Invalid Coordinates for realm");
+	  internal_InBoxAreaChecks( x1, y1, z1, x2, y2, z2, realm );
+
+	  std::unique_ptr<ObjArray> newarr( new ObjArray );
+      WorldIterator<MobileFilter>::InBox( x1, y1, x2, y2, realm, [&]( Mobile::Character* chr )
+      {
+        if ( chr->z >= z1 && chr->z <= z2 )
+        {
+          newarr->addElement( chr->make_ref() );
+        }
+      } );
+
+	  return newarr.release();
+    }
+
+	BObjectImp* UOExecutorModule::mf_ListMultisInBox(/* x1, y1, z1, x2, y2, z2, realm */ )
+	{
+	  unsigned short x1, y1;
+	  int z1;
+	  unsigned short x2, y2;
+	  int z2;
+	  const String* strrealm;
+	  Plib::Realm* realm;
+
+	  if ( !( getParam( 0, x1 ) &&
+		getParam( 1, y1 ) &&
+		getParam( 2, z1 ) &&
+		getParam( 3, x2 ) &&
+		getParam( 4, y2 ) &&
+		getParam( 5, z2 ) &&
+		getStringParam( 6, strrealm ) ) )
+	  {
+		return new BError( "Invalid parameter" );
+	  }
+
+	  realm = find_realm( strrealm->value() );
+	  if ( !realm )
+		return new BError( "Realm not found" );
+
+	  if ( x1 > x2 )
+		std::swap( x1, x2 );
+	  if ( y1 > y2 )
+		std::swap( y1, y2 );
+	  if (( z1 > z2 ) && z1 != LIST_IGNORE_Z && z2 != LIST_IGNORE_Z)
+		std::swap( z1, z2 );
 	  // Disabled again: ShardAdmins "loves" this "bug" :o/
 	  // if ((!realm->valid(x1, y1, z1)) || (!realm->valid(x2, y2, z2)))
 	  //	 return new BError("Invalid Coordinates for realm");
@@ -2494,7 +2535,7 @@ namespace Pol {
 	{
 	  unsigned short x1, y1;
 	  unsigned short x2, y2;
-	  short z1, z2;
+	  int z1, z2;
 	  int flags;
 	  const String* strrealm;
 
@@ -2512,11 +2553,11 @@ namespace Pol {
 		  return new BError( "Realm not found" );
 
 		if ( x1 > x2 )
-		  swap( x1, x2 );
+		  std::swap( x1, x2 );
 		if ( y1 > y2 )
-		  swap( y1, y2 );
-		if ( z1 > z2 )
-		  swap( z1, z2 );
+		  std::swap( y1, y2 );
+		if (( z1 > z2 ) && z1 != LIST_IGNORE_Z && z2 != LIST_IGNORE_Z)
+		  std::swap( z1, z2 );
 		// Disabled again: ShardAdmins "loves" this "bug" :o/
 		// if ((!realm->valid(x1, y1, z1)) || (!realm->valid(x2, y2, z2)))
 		//	 return new BError("Invalid Coordinates for realm");
@@ -2864,7 +2905,7 @@ namespace Pol {
 
             std::unique_ptr<ObjArray> newarr(new ObjArray());
             
-            for (const auto &objitr : Pol::Core::objecthash) {
+            for (const auto &objitr : Pol::Core::objStorageManager.objecthash) {
                 UObject* obj = objitr.second.get();
                 if (!obj->ismobile() || obj->isa(UObject::CLASS_NPC))
                     continue;
@@ -2992,8 +3033,8 @@ namespace Pol {
 	  Item* item;
 	  if ( getItemParam( exec, 0, item ) )
 	  {
-		if ( item->gotten_by != NULL )
-			item->gotten_by->clear_gotten_item();
+		if ( item->is_gotten() )
+			item->get_gotten()->clear_gotten_item();
 		else if ( item->inuse() && !is_reserved_to_me( item ) )
 	 		return new BError( "That item is being used." );
 
@@ -3088,7 +3129,7 @@ namespace Pol {
 	{
 	  std::unique_ptr<ObjArray> newarr( new ObjArray );
 
-	  for ( Clients::const_iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
+	  for ( Clients::const_iterator itr = networkManager.clients.begin(), end = networkManager.clients.end(); itr != end; ++itr )
 	  {
 		if ( ( *itr )->chr != NULL )
 		{
@@ -3320,7 +3361,7 @@ namespace Pol {
 		return new BError( "Light Level is out of range" );
 	  }
 
-	  LightRegion* lightregion = lightdef->getregion( region_name_str->value() );
+	  LightRegion* lightregion = gamestate.lightdef->getregion( region_name_str->value() );
 	  if ( lightregion == NULL )
 	  {
 		return new BError( "Light region not found" );
@@ -3346,7 +3387,7 @@ namespace Pol {
 		return new BError( "Invalid Parameter type" );
 	  }
 
-	  WeatherRegion* weatherregion = weatherdef->getregion( region_name_str->value() );
+	  WeatherRegion* weatherregion = gamestate.weatherdef->getregion( region_name_str->value() );
 	  if ( weatherregion == NULL )
 	  {
 		return new BError( "Weather region not found" );
@@ -3376,7 +3417,7 @@ namespace Pol {
 	  if ( !realm->valid( xwest, ynorth, 0 ) ) return new BError( "Invalid Coordinates for realm" );
 	  if ( !realm->valid( xeast, ysouth, 0 ) ) return new BError( "Invalid Coordinates for realm" );
 
-	  bool res = weatherdef->assign_zones_to_region( region_name_str->data(),
+	  bool res = gamestate.weatherdef->assign_zones_to_region( region_name_str->data(),
 													 xwest, ynorth,
 													 xeast, ysouth,
 													 realm );
@@ -3940,10 +3981,10 @@ namespace Pol {
 		  if ( chr->logged_in )
 			justice_region = chr->client->gd->justice_region;
 		  else
-			justice_region = justicedef->getregion( chr->x, chr->y, chr->realm );
+			justice_region = gamestate.justicedef->getregion( chr->x, chr->y, chr->realm );
 		}
 		else
-		  justice_region = justicedef->getregion( obj->x, obj->y, obj->realm );
+		  justice_region = gamestate.justicedef->getregion( obj->x, obj->y, obj->realm );
 
 		if ( justice_region == NULL )
 		  return new BError( "No Region defined at this Location" );
@@ -3969,7 +4010,7 @@ namespace Pol {
 		if ( !realm->valid( x, y, 0 ) )
 		  return new BError( "Invalid Coordinates for realm" );
 
-		JusticeRegion* justice_region = justicedef->getregion( x, y, realm );
+		JusticeRegion* justice_region = gamestate.justicedef->getregion( x, y, realm );
 		if ( justice_region == NULL )
 		  return new BError( "No Region defined at this Location" );
 		else
@@ -4018,12 +4059,12 @@ namespace Pol {
 		  return new BError( "Realm not found" );
 		if ( !realm->valid( x, y, 0 ) )
 		  return new BError( "Invalid Coordinates for realm" );
-		LightRegion* light_region = lightdef->getregion( x, y, realm );
+		LightRegion* light_region = gamestate.lightdef->getregion( x, y, realm );
 		int lightlevel;
 		if ( light_region != NULL )
 		  lightlevel = light_region->lightlevel;
 		else
-		  lightlevel = ssopt.default_light_level;
+		  lightlevel = settingsManager.ssopt.default_light_level;
 		return new BLong( lightlevel );
 	  }
 	  else
@@ -4202,7 +4243,7 @@ namespace Pol {
 		{
 		  return new BError( "Spell ID out of range" );
 		}
-		USpell* spell = spells2[spellid];
+		USpell* spell = gamestate.spells[spellid];
 		if ( spell == NULL )
 		{
 		  return new BError( "No such spell" );
@@ -4227,7 +4268,7 @@ namespace Pol {
 		{
 		  return new BError( "Spell ID out of range" );
 		}
-		USpell* spell = spells2[spellid];
+		USpell* spell = gamestate.spells[spellid];
 		if ( spell == NULL )
 		{
 		  return new BError( "No such spell" );
@@ -4250,7 +4291,7 @@ namespace Pol {
 		{
 		  return new BError( "Spell ID out of range" );
 		}
-		USpell* spell = spells2[spellid];
+		USpell* spell = gamestate.spells[spellid];
 		if ( spell == NULL )
 		{
 		  return new BError( "No such spell" );
@@ -4279,7 +4320,7 @@ namespace Pol {
 		{
 		  return new BError( "Spell ID out of range" );
 		}
-		USpell* spell = spells2[spellid];
+		USpell* spell = gamestate.spells[spellid];
 		if ( spell == NULL )
 		{
 		  return new BError( "No such spell" );
@@ -4833,7 +4874,7 @@ namespace Pol {
 	  if ( getCharacterParam( exec, 0, chr ) &&
 		   getStringParam( 1, cmd ) )
 	  {
-		string help = get_textcmd_help( chr, cmd->value().c_str() );
+		std::string help = get_textcmd_help( chr, cmd->value().c_str() );
 		if ( !help.empty() )
 		{
 		  return new String( help );
@@ -5184,7 +5225,7 @@ namespace Pol {
 	//				  It is this class that encapsulates the necessary functionality to
 	//				  make the otherwise fairly generic stlastar class work.
 
-	typedef AStarSearch<UOPathState> UOSearch;
+	typedef Plib::AStarSearch<UOPathState> UOSearch;
 
 	BObjectImp* UOExecutorModule::mf_FindPath()
 	{
@@ -5195,13 +5236,13 @@ namespace Pol {
 
 	  if ( getParam( 0, x1 ) &&
 		   getParam( 1, y1 ) &&
-		   getParam( 2, z1, WORLD_MIN_Z, WORLD_MAX_Z ) &&
+		   getParam( 2, z1, ZCOORD_MIN, ZCOORD_MAX ) &&
 		   getParam( 3, x2 ) &&
 		   getParam( 4, y2 ) &&
-		   getParam( 5, z2, WORLD_MIN_Z, WORLD_MAX_Z ) &&
+		   getParam( 5, z2, ZCOORD_MIN, ZCOORD_MAX ) &&
 		   getStringParam( 6, strrealm ))
 	  {
-		if ( pol_distance( x1, y1, x2, y2 ) > ssopt.max_pathfind_range )
+		if ( pol_distance( x1, y1, x2, y2 ) > settingsManager.ssopt.max_pathfind_range )
 		  return new BError( "Beyond Max Range." );
 
 		short theSkirt;
@@ -5256,7 +5297,7 @@ namespace Pol {
 		if ( yH >= realm->height() )
 		  yH = realm->height() - 1;
 
-		if ( config.loglevel >= 12 )
+		if ( Plib::systemstate.config.loglevel >= 12 )
 		{
           POLLOG.Format( "[FindPath] Calling FindPath({}, {}, {}, {}, {}, {}, {}, 0x{:X}, {})\n" )
             << x1 << y1 << z1 << x2 << y2 << z2 << strrealm->data() << flags << theSkirt;
@@ -5271,7 +5312,7 @@ namespace Pol {
           {
             theBlockers.AddBlocker( chr->x, chr->y, chr->z );
 
-            if ( config.loglevel >= 12 )
+            if ( Plib::systemstate.config.loglevel >= 12 )
               POLLOG.Format( "[FindPath]	 add Blocker {} at {} {} {}\n" )
                 << chr->name() << chr->x << chr->y << chr->z;
           } );
@@ -5280,7 +5321,7 @@ namespace Pol {
 		// passed via GetSuccessors to realm->walkheight
 		bool doors_block = ( flags & FP_IGNORE_DOORS ) ? false : true;
 
-		if ( config.loglevel >= 12 )
+		if ( Plib::systemstate.config.loglevel >= 12 )
 		{
           POLLOG.Format( "[FindPath]   use StartNode {} {} {}\n" ) << x1 << y1 << z1;
           POLLOG.Format( "[FindPath]   use EndNode {} {} {}\n" ) << x2 << y2 << z2;
@@ -5373,13 +5414,13 @@ namespace Pol {
 		  ScriptDef sd( on_use_script, NULL, "" );
 		  prog = find_script2( sd,
 							   true, // complain if not found
-							   config.cache_interactive_scripts );
+							   Plib::systemstate.config.cache_interactive_scripts );
 		}
 		else if ( !itemdesc.on_use_script.empty() )
 		{
 		  prog = find_script2( itemdesc.on_use_script,
 							   true,
-							   config.cache_interactive_scripts );
+							   Plib::systemstate.config.cache_interactive_scripts );
 		}
 
 		if ( prog.get() != NULL )
@@ -5654,7 +5695,7 @@ namespace Pol {
 		msg->Write<u8>( static_cast<u16>(season_id) );
 		msg->Write<u8>( static_cast<u16>(playsound) );
 
-		for ( Clients::iterator itr = clients.begin(), end = clients.end(); itr != end; ++itr )
+		for ( Clients::iterator itr = networkManager.clients.begin(), end = networkManager.clients.end(); itr != end; ++itr )
 		{
           Network::Client* client = *itr;
 		  if ( !client->chr->logged_in || client->getversiondetail().major < 1 )
@@ -5666,6 +5707,61 @@ namespace Pol {
 	  else
 		return new BError( "Invalid parameter" );
 	}
+
+    // bresenham circle calculates the coords based on center coords and radius
+    BObjectImp* UOExecutorModule::mf_GetMidpointCircleCoords(/* xcenter, ycenter, radius */)
+    {
+      int xcenter, ycenter, radius;
+      if ( !(getParam(0, xcenter) && getParam(1, ycenter)
+			&& getParam(2, radius)) )
+	  {
+		  return new BError("Invalid parameter type");
+	  }
+      std::unique_ptr<ObjArray> coords( new ObjArray );
+
+      std::vector<std::tuple<int,int>> points;
+      auto add_point = [&coords](int x, int y)
+      {
+        std::unique_ptr<BStruct> point( new BStruct );
+		point->addMember( "x", new BLong( x ) );
+		point->addMember( "y", new BLong( y ) );
+		coords->addElement( point.release() );
+      };
+
+      if (radius == 0)
+      {
+        add_point(xcenter, ycenter);
+        return coords.release();
+      }
+
+      // inside of each quadrant the points are sorted,
+      // store the quadrands in seperated vectors and merge them later
+      // -> automatically sorted
+      std::vector<std::tuple<int,int>> q1,q2,q3,q4;
+      int x = -radius, y = 0, err = 2-2*radius; /* II. Quadrant */ 
+      do {
+        q1.emplace_back(xcenter-x, ycenter+y); /*   I. Quadrant */
+        q2.emplace_back(xcenter-y, ycenter-x); /*  II. Quadrant */
+        q3.emplace_back(xcenter+x, ycenter-y); /* III. Quadrant */
+        q4.emplace_back(xcenter+y, ycenter+x); /*  IV. Quadrant */
+        radius = err;
+        if (radius <= y) 
+          err += ++y*2+1;
+        if (radius > x || err > y)
+          err += ++x*2+1;
+      } while (x < 0);
+
+      for (const auto p: q1)
+        add_point(std::get<0>(p),std::get<1>(p));
+      for (const auto p: q2)
+        add_point(std::get<0>(p),std::get<1>(p));
+      for (const auto p: q3)
+        add_point(std::get<0>(p),std::get<1>(p));
+      for (const auto p: q4)
+        add_point(std::get<0>(p),std::get<1>(p));
+
+      return coords.release();
+    }
 
 
 	UOFunctionDef UOExecutorModule::function_table[] =
@@ -5838,10 +5934,12 @@ namespace Pol {
 	  { "CanWalk", &UOExecutorModule::mf_CanWalk },
 	  { "SendCharProfile", &UOExecutorModule::mf_SendCharProfile },
 	  { "SendOverallSeason", &UOExecutorModule::mf_SendOverallSeason },
-      { "ListOfflineMobilesInRealm", &UOExecutorModule::mf_ListOfflineMobilesInRealm }
+      { "ListOfflineMobilesInRealm", &UOExecutorModule::mf_ListOfflineMobilesInRealm },
+      { "ListMobilesInBox", &UOExecutorModule::mf_ListMobilesInBox },
+      { "GetMidpointCircleCoords", &UOExecutorModule::mf_GetMidpointCircleCoords }
 	};
 
-	typedef map< string, int, Clib::ci_cmp_pred > FuncIdxMap;
+	typedef std::map< std::string, int, Clib::ci_cmp_pred > FuncIdxMap;
 	FuncIdxMap funcmap;
 	bool funcmap_init = false;
 

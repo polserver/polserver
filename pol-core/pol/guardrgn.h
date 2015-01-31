@@ -19,6 +19,9 @@ namespace Pol {
     namespace Network {
         class Client;
     }
+	namespace Mobile {
+	  class Character;
+	}
 
   namespace Core {
 
@@ -37,6 +40,8 @@ namespace Pol {
 	  bool RunEnterScript( Mobile::Character* chr );
 	  bool RunLeaveScript( Mobile::Character* chr );
 	  static bool RunNoCombatCheck( Network::Client* client );
+
+      virtual size_t estimateSize() const POL_OVERRIDE;
 
 	private:
 	  bool guarded_;
@@ -62,10 +67,6 @@ namespace Pol {
 	{
 	  return leavetext_;
 	}
-
-	typedef RegionGroup<JusticeRegion> JusticeDef;
-
-	extern JusticeDef* justicedef;
   }
 }
 #endif

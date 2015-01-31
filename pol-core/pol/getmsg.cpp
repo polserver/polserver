@@ -70,7 +70,6 @@ namespace Pol {
       uoemod->prompt_chr = NULL;
       client->gd->prompt_uoemod = NULL;
     }
-    MESSAGE_HANDLER_VARLEN( PKTBI_9A, handle_prompt );
   }
   namespace Module {
     Bscript::BObjectImp* UOExecutorModule::mf_PromptInput( )

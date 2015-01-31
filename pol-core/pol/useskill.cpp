@@ -16,15 +16,16 @@ Notes
 #include "mobile/attribute.h"
 #include "mobile/charactr.h"
 #include "network/client.h"
-#include "extcmd.h"
 
 #include "pktin.h"
 #include "polcfg.h"
 #include "scrstore.h"
 #include "ufunc.h"
 #include "polclock.h"
+#include "globals/uvars.h"
 
 #include "../bscript/eprog.h"
+#include "../plib/systemstate.h"
 
 namespace Pol {
   namespace Core {
@@ -33,7 +34,7 @@ namespace Pol {
 	  char *params;
 	  unsigned int skillnum = (int)strtoul( (char *)msg->data, &params, 10 );
 
-	  if ( skillnum < SKILLID__CLIENT_LOWEST || skillnum > uoclient_general.maxskills )
+	  if ( skillnum < SKILLID__CLIENT_LOWEST || skillnum > networkManager.uoclient_general.maxskills )
 		return;
 
 	  const UOSkill& uoskill = GetUOSkill( skillnum );
@@ -54,12 +55,12 @@ namespace Pol {
 			  cerr << "Character " << client->chr->name() << " (acct: " << client->chr->acct->name() << "): No handler for skill " << int(skillnum) << endl;*/
 	  send_sysmessage( client, "That skill cannot be used directly." );
 	}
-	ExtendedMessageHandler skill_msg_handler( EXTMSGID_SKILL, handle_use_skill );
+	
 
     bool StartSkillScript( Network::Client *client, const Mobile::Attribute* attrib )
 	{
       Mobile::Character* chr = client->chr;
-	  ref_ptr<Bscript::EScriptProgram> prog = find_script2( attrib->script_, true, /* complain if not found */ config.cache_interactive_scripts );
+	  ref_ptr<Bscript::EScriptProgram> prog = find_script2( attrib->script_, true, /* complain if not found */ Plib::systemstate.config.cache_interactive_scripts );
 
 	  if ( prog.get() != NULL )
 	  {

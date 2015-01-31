@@ -28,6 +28,7 @@ namespace Pol {
 	{
 	public:
 	  void check( std::string& var, const char* tag, const char* deflt );
+      size_t estimateSize() const;
 
 	public:
 	  ~UoClientGeneral();
@@ -38,6 +39,7 @@ namespace Pol {
 		bool any;
 		std::string name;
 		unsigned id;
+        size_t estimateSize() const;
 	  };
 
 	  Mapping strength;
@@ -51,29 +53,25 @@ namespace Pol {
 	  ExportScript* method_script;
 	};
 
-	extern UoClientGeneral uoclient_general;
-
 	class UoClientProtocol
 	{
 	public:
+	  UoClientProtocol();
+      size_t estimateSize() const;
 	  bool EnableFlowControlPackets;
 	};
-	extern UoClientProtocol uoclient_protocol;
 
 	class UoClientListener
 	{
 	public:
 	  UoClientListener( Clib::ConfigElem& elem );
+      size_t estimateSize() const;
 
 	  Crypt::TCryptInfo encryption;
 	  unsigned short port;
 	  bool aosresist;
 	  bool sticky;
 	};
-
-	typedef std::vector< UoClientListener > UoClientListeners;
-
-	extern UoClientListeners uoclient_listeners;
   }
 }
 #endif

@@ -57,14 +57,11 @@ namespace Pol {
 
 	  std::vector<MenuItem> menuitems_;
 	  size_t estimateSize() const;
+
+	  static void read_menus();
+	  static Menu *find_menu( const char *name );
+	  static Menu *find_menu( unsigned short menu_id );
 	};
-
-	extern std::vector<Menu> menus;
-
-	Menu *find_menu( const char *name );
-	Menu *find_menu( unsigned short menu_id );
-
-	size_t estimateMenuSize();
   }
 }
 #endif

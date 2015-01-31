@@ -21,18 +21,12 @@ Notes
 #include "scrdef.h"
 #include "scrstore.h"
 
-#include "network/client.h"
-#include "mobile/charactr.h"
-#include "npc.h"
-
 #include "exscrobj.h"
 #include "polcfg.h"
 #include "polclock.h"
 #include "poldbg.h"
-#include "polsig.h"
-#include "profile.h"
 
-#include "watch.h"
+#include "globals/state.h"
 
 #include "uoexec.h"
 #include "module/uomod.h"
@@ -71,6 +65,8 @@ Notes
 #include "../clib/strutil.h"
 #include "../clib/unicode.h"
 
+#include "../plib/systemstate.h"
+
 #include <ctime>
 #include <stdexcept>
 
@@ -78,8 +74,8 @@ namespace Pol {
   namespace Core {
     bool find_uoexec( unsigned int pid, UOExecutor** pp_uoexec )
     {
-      std::map<unsigned int, UOExecutor*>::iterator itr = Module::pidlist.find( pid );
-      if ( itr != Module::pidlist.end() )
+      std::map<unsigned int, UOExecutor*>::iterator itr = scriptEngineInternalManager.pidlist.find( pid );
+      if ( itr != scriptEngineInternalManager.pidlist.end() )
       {
         *pp_uoexec = ( *itr ).second;
         return true;
@@ -90,280 +86,20 @@ namespace Pol {
         return false;
       }
     }
-  }
-  namespace Module {
-    using namespace Bscript;
-    bool OSExecutorModule::signal_event( BObjectImp* imp )
-    {
-      INC_PROFILEVAR( events );
-
-      if ( blocked_ && ( wait_type == WAIT_EVENT ) ) // already being waited for
-      {
-        /* Now, the tricky part.  The value to return on an error or
-        completion condition has already been pushed onto the value
-        stack - so, we need to replace it with the real result.
-        */
-        exec.ValueStack.back().set( new BObject( imp ) );
-        /* This executor will get moved to the run queue at the
-        next step_scripts(), where blocked is checked looking
-        for timed out or completed operations. */
-
-        revive();
-      }
-      else        // not being waited for, so queue for later.
-      {
-        if ( events_.size() < max_eventqueue_size )
-        {
-          events_.push( imp );
-        }
-        else
-        {
-          if ( Core::config.discard_old_events )
-          {
-            BObject ob( events_.front() );
-            events_.pop();
-            events_.push( imp );
-          }
-          else
-          {
-            BObject ob( imp );
-            if ( Core::config.loglevel >= 11 )
-            {
-              INFO_PRINT << "Event queue for " << exec.scriptname() << " is full, discarding event.\n";
-              ExecutorModule* em = exec.findModule( "npc" );
-              if ( em )
-              {
-                NPCExecutorModule* npcemod = static_cast<NPCExecutorModule*>( em );
-                INFO_PRINT << "NPC Serial: " << fmt::hexu( npcemod->npc.serial ) <<
-                  " (" << npcemod->npc.x << " " << npcemod->npc.y << " " << npcemod->npc.z << ")\n";
-              }
-
-              INFO_PRINT << "Event: " << ob->getStringRep() << "\n";
-            }
-            return false;
-          }
-        }
-      }
-
-      return true;
-    }
-
-    void OSExecutorModule::SleepFor( int nsecs )
-    {
-      if ( nsecs )
-      {
-        blocked_ = true;
-        wait_type = WAIT_SLEEP;
-        sleep_until_clock_ = Core::polclock() + nsecs * Core::POLCLOCKS_PER_SEC;
-      }
-    }
-
-    void OSExecutorModule::SleepForMs( int msecs )
-    {
-      if ( msecs )
-      {
-        blocked_ = true;
-        wait_type = WAIT_SLEEP;
-        sleep_until_clock_ = Core::polclock() + msecs * Core::POLCLOCKS_PER_SEC / 1000;
-      }
-    }
-
-    void OSExecutorModule::suspend()
-    {
-      blocked_ = true;
-      wait_type = WAIT_SLEEP;
-      sleep_until_clock_ = 0; // wait forever
-    }
-
-    void OSExecutorModule::revive()
-    {
-      blocked_ = false;
-      if ( in_hold_list_ == TIMEOUT_LIST )
-      {
-        Core::holdlist.erase( hold_itr_ );
-        in_hold_list_ = NO_LIST;
-        Core::runlist.push_back( static_cast<Core::UOExecutor*>( &exec ) );
-      }
-      else if ( in_hold_list_ == NOTIMEOUT_LIST )
-      {
-        Core::notimeoutholdlist.erase( static_cast<Core::UOExecutor*>( &exec ) );
-        in_hold_list_ = NO_LIST;
-        Core::runlist.push_back( static_cast<Core::UOExecutor*>( &exec ) );
-      }
-      else if ( in_hold_list_ == DEBUGGER_LIST )
-      {
-        // stays right where it is.
-      }
-    }
-    bool OSExecutorModule::in_debugger_holdlist() const
-    {
-      return ( in_hold_list_ == DEBUGGER_LIST );
-    }
-    void OSExecutorModule::revive_debugged()
-    {
-      Core::debuggerholdlist.erase( static_cast<Core::UOExecutor*>( &exec ) );
-      in_hold_list_ = NO_LIST;
-      Core::runlist.push_back( static_cast<Core::UOExecutor*>( &exec ) );
-    }
-  }
-  namespace Core {
-
-	UOExecutor::UOExecutor() :
-	  Executor(),
-	  os_module( NULL ),
-	  instr_cycles( 0 ),
-	  sleep_cycles( 0 ),
-	  start_time( poltime() ),
-	  warn_runaway_on_cycle( config.runaway_script_threshold ),
-	  runaway_cycles( 0 ),
-	  eventmask( 0 ),
-	  area_size( 0 ),
-	  speech_size( 1 ),
-	  can_access_offline_mobiles( false ),
-	  auxsvc_assume_string( false ),
-	  pParent( NULL ),
-	  pChild( NULL )
-	{
-	  weakptr.set( this );
-	  os_module = new Module::OSExecutorModule( *this );
-	  addModule( os_module );
-	}
-
-	UOExecutor::~UOExecutor()
-	{
-	  // note, the os_module isn't deleted here because
-	  // the Executor deletes its ExecutorModules.
-	  if ( ( instr_cycles >= 500 ) && watch.profile_scripts )
-	  {
-		int elapsed = static_cast<int>( poltime() - start_time ); // Doh! A script can't run more than 68 years, for this to work.
-        POLLOG_ERROR.Format( "Script {}: {} instr cycles, {} sleep cycles, {} seconds\n" )
-          << scriptname() << instr_cycles << sleep_cycles << elapsed;
-	  }
-
-	  pParent = NULL;
-	  pChild = NULL;
-	}
-
-	std::string UOExecutor::state()
-	{
-	  if ( halt() )
-		return "Debugging";
-	  else if ( os_module->blocked() )
-		return "Sleeping";
-	  else
-		return "Running";
-	}
-
-    size_t UOExecutor::sizeEstimate() const
-    {
-      return sizeof(UOExecutor)+base::sizeEstimate();
-    }
-
-
-	// Note, when the program exits, each executor in these queues
-	// will be deleted by cleanup_scripts()
-	// Therefore, any object that owns an executor must be destroyed 
-	// before cleanup_scripts() is called.
-
-	ExecList runlist;
-	ExecList ranlist;
-
-
-	Module::HoldList holdlist;
-	NoTimeoutHoldList notimeoutholdlist;
-	NoTimeoutHoldList debuggerholdlist;
-
-	int priority_divide = 1;
-
-	void cleanup_scripts()
-	{
-	  Clib::delete_all( runlist );
-	  while ( !holdlist.empty() )
-	  {
-		delete ( ( *holdlist.begin() ).second );
-		holdlist.erase( holdlist.begin() );
-	  }
-	  while ( !notimeoutholdlist.empty() )
-	  {
-		delete ( *notimeoutholdlist.begin() );
-		notimeoutholdlist.erase( notimeoutholdlist.begin() );
-	  }
-	  while ( !debuggerholdlist.empty() )
-	  {
-		delete ( *debuggerholdlist.begin() );
-		debuggerholdlist.erase( debuggerholdlist.begin() );
-	  }
-	}
-
-    size_t sizeEstimate_scripts(size_t* count)
-    {
-      size_t size = 0;
-      *count = 0;
-      size += 3 * sizeof(UOExecutor**)+runlist.size() * sizeof( UOExecutor* );
-      for ( const auto& exec : runlist )
-      {
-        size += exec->sizeEstimate();
-      }
-      *count += runlist.size();
-
-      size += 3 * sizeof(UOExecutor**)+ranlist.size() * sizeof( UOExecutor* );
-      for ( const auto& exec : ranlist )
-      {
-        size += exec->sizeEstimate();
-      }
-      *count += ranlist.size();
-
-      for ( const auto& hold : holdlist )
-      {
-        size += sizeof( Core::polclock_t ) + hold.second->sizeEstimate() + ( sizeof(void*)* 3 + 1 ) / 2;
-      }
-      *count += holdlist.size();
-
-      size += 3 * sizeof( void* );
-      for ( const auto& hold : notimeoutholdlist )
-      {
-        size += hold->sizeEstimate( ) + 3 * sizeof( void* );
-      }
-      *count += notimeoutholdlist.size();
-
-      size += 3 * sizeof( void* );
-      for ( const auto& hold : debuggerholdlist )
-      {
-        size += hold->sizeEstimate( ) + 3 * sizeof( void* );
-      }
-      *count += debuggerholdlist.size();
-
-      return size;
-    }
-
-    size_t sizeEstimate_scriptStorage( size_t* count )
-    {
-      size_t size = 0;
-      *count = 0;
-      for ( const auto& script : scrstore )
-      {
-        size += ( sizeof(void*)* 3 + 1 ) / 2;
-        size += script.first.capacity();
-        size += script.second->sizeEstimate();
-      }
-      *count += scrstore.size();
-      return size;
-    }
-
 
 	void run_ready()
 	{
 	  THREAD_CHECKPOINT( scripts, 110 );
-	  while ( !runlist.empty() )
+	  while ( !scriptEngineInternalManager.runlist.empty() )
 	  {
-		ExecList::iterator itr = runlist.begin();
+		ExecList::iterator itr = scriptEngineInternalManager.runlist.begin();
 		UOExecutor* ex = *itr;
-		runlist.pop_front(); // remove it directly, since itr can get invalid during execution
+		scriptEngineInternalManager.runlist.pop_front(); // remove it directly, since itr can get invalid during execution
         Module::OSExecutorModule* os_module = ex->os_module;
 		Clib::scripts_thread_script = ex->scriptname();
 		int inscount = 0;
 		int totcount = 0;
-		int insleft = os_module->priority / priority_divide;
+		int insleft = os_module->priority / scriptEngineInternalManager.priority_divide;
 		if ( insleft == 0 )
 		  insleft = 1;
 
@@ -380,14 +116,14 @@ namespace Pol {
 
 		  if ( os_module->blocked_ )
 		  {
-			ex->warn_runaway_on_cycle = ex->instr_cycles + config.runaway_script_threshold;
+			ex->warn_runaway_on_cycle = ex->instr_cycles + Plib::systemstate.config.runaway_script_threshold;
 			ex->runaway_cycles = 0;
 			break;
 		  }
 
 		  if ( ex->instr_cycles == ex->warn_runaway_on_cycle )
 		  {
-			ex->runaway_cycles += config.runaway_script_threshold;
+			ex->runaway_cycles += Plib::systemstate.config.runaway_script_threshold;
 			if ( os_module->warn_on_runaway )
 			{
               fmt::Writer tmp;
@@ -396,7 +132,7 @@ namespace Pol {
               ex->show_context( tmp, ex->PC );
               SCRIPTLOG << tmp.c_str();
 			}
-			ex->warn_runaway_on_cycle += config.runaway_script_threshold;
+			ex->warn_runaway_on_cycle += Plib::systemstate.config.runaway_script_threshold;
 		  }
 
 		  if ( os_module->critical )
@@ -406,7 +142,7 @@ namespace Pol {
 			if ( inscount > 1000 )
 			{
 			  inscount = 0;
-              if ( config.report_critical_scripts )
+              if ( Plib::systemstate.config.report_critical_scripts )
               {
                 fmt::Writer tmp;
                 tmp << "Critical script " << ex->scriptname() << " has run for " << totcount << " instructions\n";
@@ -434,7 +170,7 @@ namespace Pol {
 
 			if ( ( ex->pParent != NULL ) && ex->pParent->runnable() )
 			{
-			  ranlist.push_back( ex );
+			  scriptEngineInternalManager.ranlist.push_back( ex );
 			  //ranlist.splice( ranlist.end(), runlist, itr );
 			  ex->pParent->os_module->revive();
 			}
@@ -456,7 +192,7 @@ namespace Pol {
 
 			//runlist.erase( itr );
 			ex->os_module->in_hold_list_ = Module::OSExecutorModule::DEBUGGER_LIST;
-			debuggerholdlist.insert( ex );
+			scriptEngineInternalManager.debuggerholdlist.insert( ex );
 			continue;
 		  }
 		}
@@ -468,29 +204,29 @@ namespace Pol {
 		  if ( ex->os_module->sleep_until_clock_ )
 		  {
             ex->os_module->in_hold_list_ = Module::OSExecutorModule::TIMEOUT_LIST;
-			ex->os_module->hold_itr_ = holdlist.insert( Module::HoldList::value_type( ex->os_module->sleep_until_clock_, ex ) );
+			ex->os_module->hold_itr_ = scriptEngineInternalManager.holdlist.insert( HoldList::value_type( ex->os_module->sleep_until_clock_, ex ) );
 		  }
 		  else
 		  {
             ex->os_module->in_hold_list_ = Module::OSExecutorModule::NOTIMEOUT_LIST;
-			notimeoutholdlist.insert( ex );
+			scriptEngineInternalManager.notimeoutholdlist.insert( ex );
 		  }
 
 		  //runlist.erase( itr );
 		  --ex->sleep_cycles; // it'd get counted twice otherwise
-		  --sleep_cycles;
+		  --stateManager.profilevars.sleep_cycles;
 
 		  THREAD_CHECKPOINT( scripts, 117 );
 		}
 		else
 		{
-		  ranlist.push_back( ex );
+		  scriptEngineInternalManager.ranlist.push_back( ex );
 		  //ranlist.splice( ranlist.end(), runlist, itr );
 		}
 	  }
 	  THREAD_CHECKPOINT( scripts, 118 );
 
-	  runlist.swap( ranlist );
+	  scriptEngineInternalManager.runlist.swap( scriptEngineInternalManager.ranlist );
 	  THREAD_CHECKPOINT( scripts, 119 );
 	}
 
@@ -498,14 +234,14 @@ namespace Pol {
 	void check_blocked( polclock_t* pclocksleft )
 	{
 	  polclock_t now_clock = polclock();
-	  sleep_cycles += holdlist.size() + notimeoutholdlist.size();
+	  stateManager.profilevars.sleep_cycles += scriptEngineInternalManager.holdlist.size() + scriptEngineInternalManager.notimeoutholdlist.size();
 	  polclock_t clocksleft = POLCLOCKS_PER_SEC * 60;
 	  for ( ;; )
 	  {
 		THREAD_CHECKPOINT( scripts, 131 );
 
-        Module::HoldList::iterator itr = holdlist.begin( );
-		if ( itr == holdlist.end() )
+        HoldList::iterator itr = scriptEngineInternalManager.holdlist.begin( );
+		if ( itr == scriptEngineInternalManager.holdlist.end() )
 		  break;
 
 		UOExecutor* ex = ( *itr ).second;
@@ -536,13 +272,13 @@ namespace Pol {
 
 	polclock_t calc_script_clocksleft( polclock_t now )
 	{
-	  if ( !runlist.empty() )
+	  if ( !scriptEngineInternalManager.runlist.empty() )
 	  {
 		return 0; // we want to run immediately
 	  }
-	  else if ( !holdlist.empty() )
+	  else if ( !scriptEngineInternalManager.holdlist.empty() )
 	  {
-        Module::HoldList::iterator itr = holdlist.begin( );
+        HoldList::iterator itr = scriptEngineInternalManager.holdlist.begin( );
 		UOExecutor* ex = ( *itr ).second;
 		polclock_t clocksleft = ex->os_module->sleep_until_clock_ - now;
 		if ( clocksleft >= 0 )
@@ -560,7 +296,7 @@ namespace Pol {
 	void step_scripts( polclock_t* clocksleft, bool* pactivity )
 	{
 	  THREAD_CHECKPOINT( scripts, 102 );
-	  *pactivity = ( !runlist.empty() );
+	  *pactivity = ( !scriptEngineInternalManager.runlist.empty() );
 	  THREAD_CHECKPOINT( scripts, 103 );
 
 	  run_ready();
@@ -569,7 +305,7 @@ namespace Pol {
 
 	  check_blocked( clocksleft );
 	  THREAD_CHECKPOINT( scripts, 105 );
-	  if ( !runlist.empty() )
+	  if ( !scriptEngineInternalManager.runlist.empty() )
 		*clocksleft = 0;
 	  THREAD_CHECKPOINT( scripts, 106 );
 	}
@@ -605,7 +341,7 @@ namespace Pol {
 	  ex->setDebugLevel( Bscript::Executor::NONE );
 
 
-	  runlist.push_back( ex );
+	  scriptEngineInternalManager.runlist.push_back( ex );
 	}
 	// EXACTLY the same as start_script, except uses find_script2
     Module::UOExecutorModule* start_script( const ScriptDef& script, Bscript::BObjectImp* param )
@@ -637,7 +373,7 @@ namespace Pol {
       ex->setDebugLevel( Bscript::Executor::NONE );
 
 
-	  runlist.push_back( ex.release() );
+	  scriptEngineInternalManager.runlist.push_back( ex.release() );
 
 	  return uoemod;
 	}
@@ -686,7 +422,7 @@ namespace Pol {
       ex->setDebugLevel( Bscript::Executor::NONE );
 
 
-	  runlist.push_back( ex.release() );
+	  scriptEngineInternalManager.runlist.push_back( ex.release() );
 
 	  return uoemod;
 	}
@@ -710,7 +446,7 @@ namespace Pol {
 
       ex->setDebugLevel( Bscript::Executor::NONE );
 
-	  runlist.push_back( ex );
+	  scriptEngineInternalManager.runlist.push_back( ex );
 
 	  return uoemod;
 	}
@@ -749,7 +485,7 @@ namespace Pol {
 
 	  Clib::scripts_thread_script = ex.scriptname();
 
-	  if ( config.report_rtc_scripts )
+	  if ( Plib::systemstate.config.report_rtc_scripts )
         INFO_PRINT << "Script " << ex.scriptname( ) << " running..";
 
 	  while ( ex.runnable() )
@@ -831,7 +567,7 @@ namespace Pol {
 		  }
 		  else
 		  {
-			if ( config.report_rtc_scripts )
+			if ( Plib::systemstate.config.report_rtc_scripts )
 			{
               INFO_PRINT << "Script " << script.name( ) << " running.." << ex.PC;
 			  reported = true;
@@ -1124,7 +860,7 @@ namespace Pol {
 
 	  if ( ex->runnable() )
 	  {
-		runlist.push_back( ex );
+		scriptEngineInternalManager.runlist.push_back( ex );
 	  }
 	  else
 	  {
@@ -1138,19 +874,19 @@ namespace Pol {
 
 	void deschedule_executor( UOExecutor* ex )
 	{
-	  for ( ExecList::iterator itr = runlist.begin(), itrend = runlist.end(); itr != itrend; ++itr )
+	  for ( ExecList::iterator itr = scriptEngineInternalManager.runlist.begin(), itrend = scriptEngineInternalManager.runlist.end(); itr != itrend; ++itr )
 	  {
 		if ( *itr == ex )
 		{
-		  runlist.erase( itr );
+		  scriptEngineInternalManager.runlist.erase( itr );
 		  break;
 		}
 	  }
-	  for ( ExecList::iterator itr = ranlist.begin(), itrend = ranlist.end(); itr != itrend; ++itr )
+	  for ( ExecList::iterator itr = scriptEngineInternalManager.ranlist.begin(), itrend = scriptEngineInternalManager.ranlist.end(); itr != itrend; ++itr )
 	  {
 		if ( *itr == ex )
 		{
-		  ranlist.erase( itr );
+		  scriptEngineInternalManager.ranlist.erase( itr );
 		  break;
 		}
 	  }
@@ -1158,18 +894,18 @@ namespace Pol {
 	  {
 		if ( ex->os_module->in_hold_list_ == Module::OSExecutorModule::TIMEOUT_LIST )
 		{
-		  holdlist.erase( ex->os_module->hold_itr_ );
+		  scriptEngineInternalManager.holdlist.erase( ex->os_module->hold_itr_ );
           ex->os_module->in_hold_list_ = Module::OSExecutorModule::NO_LIST;
 		}
         else if ( ex->os_module->in_hold_list_ == Module::OSExecutorModule::NOTIMEOUT_LIST )
 		{
-		  notimeoutholdlist.erase( ex );
+		  scriptEngineInternalManager.notimeoutholdlist.erase( ex );
           ex->os_module->in_hold_list_ = Module::OSExecutorModule::NO_LIST;
 		}
 	  }
       if ( ex->os_module->in_hold_list_ == Module::OSExecutorModule::DEBUGGER_LIST )
 	  {
-		debuggerholdlist.erase( ex );
+		scriptEngineInternalManager.debuggerholdlist.erase( ex );
         ex->os_module->in_hold_list_ = Module::OSExecutorModule::NO_LIST;
 	  }
 	}
@@ -1202,9 +938,9 @@ namespace Pol {
 
 	void list_scripts()
 	{
-	  list_scripts( "running", runlist );
+	  list_scripts( "running", scriptEngineInternalManager.runlist );
 	  // list_scripts( "holding", holdlist );
-	  list_scripts( "ran", ranlist );
+	  list_scripts( "ran", scriptEngineInternalManager.ranlist );
 	}
 
 	void list_crit_script( UOExecutor* uoexec )
@@ -1223,9 +959,9 @@ namespace Pol {
 
 	void list_crit_scripts()
 	{
-	  list_crit_scripts( "running", runlist );
+	  list_crit_scripts( "running", scriptEngineInternalManager.runlist );
 	  //list_crit_scripts( "holding", holdlist );
-	  list_crit_scripts( "ran", ranlist );
+	  list_crit_scripts( "ran", scriptEngineInternalManager.ranlist );
 	}
   }
 }

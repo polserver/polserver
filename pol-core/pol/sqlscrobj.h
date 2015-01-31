@@ -43,7 +43,7 @@ namespace Pol {
       explicit ResultWrapper( MYSQL_RES* res);
       ~ResultWrapper();
       void set( MYSQL_RES* result );
-      MYSQL_RES* ptr() { return _result; }
+	  MYSQL_RES* ptr();
     private:
       MYSQL_RES* _result;
     };
@@ -62,10 +62,7 @@ namespace Pol {
       //virtual BObjectRef get_member_id( const int id ); //id test
       //virtual Bscript::BObjectImp* call_method( const char* methodname, Executor& ex );
       //virtual Bscript::BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin=false );
-      virtual Bscript::BObjectImp* copy() const POL_OVERRIDE
-      {
-        return new BSQLRow( _result, _row, _fields );
-      }
+	  virtual Bscript::BObjectImp* copy() const POL_OVERRIDE;
       virtual std::string getStringRep() const POL_OVERRIDE { return "SQLRow"; }
       virtual size_t sizeEstimate( ) const POL_OVERRIDE { return sizeof( *this ) + sizeof(MYSQL_FIELD); }
       virtual const char* typeOf() const POL_OVERRIDE { return "SQLRow"; }
@@ -89,16 +86,8 @@ namespace Pol {
       int num_fields() const;
       int affected_rows() const;
       const char *field_name( unsigned int index ) const;
-      int num_rows() const
-      {
-        if ( !_result ) return 0;
-        return static_cast<int>( mysql_num_rows( _result->ptr() ) );
-      };
-      virtual Bscript::BObjectImp* copy() const POL_OVERRIDE
-      {
-        if ( _affected_rows ) return new BSQLResultSet( _affected_rows );
-        else return new BSQLResultSet( _result, _fields );
-      };
+	  int num_rows() const;
+	  virtual Bscript::BObjectImp* copy() const POL_OVERRIDE;
       virtual std::string getStringRep() const POL_OVERRIDE;
       virtual size_t sizeEstimate( ) const POL_OVERRIDE { return sizeof( *this ) + sizeof( MYSQL_FIELD); }
       virtual const char* typeOf() const POL_OVERRIDE { return "SQLResultSet"; }
@@ -127,9 +116,9 @@ namespace Pol {
       bool close();
       Bscript::BObjectImp *getResultSet() const;
 
-      std::string getLastError() const { return _error; };
-      int getLastErrNo() const { return _errno; };
-      std::shared_ptr<ConnectionWrapper> getConnection() const { return _conn; };
+      std::string getLastError() const;
+      int getLastErrNo() const;
+      std::shared_ptr<ConnectionWrapper> getConnection() const;
 
       virtual Bscript::BObjectRef get_member( const char* membername ) POL_OVERRIDE;
       virtual Bscript::BObjectRef get_member_id( const int id ) POL_OVERRIDE; //id test
@@ -154,7 +143,7 @@ namespace Pol {
         ConnectionWrapper();
         ~ConnectionWrapper();
         void set( MYSQL* conn );
-        MYSQL* ptr() { return _conn; };
+		MYSQL* ptr();
       private:
         MYSQL* _conn;
       };
@@ -173,7 +162,6 @@ namespace Pol {
     private:
       msg_queue _msgs;
     };
-    extern SQLService sql_service;
     void start_sql_service();
   }
 }

@@ -15,6 +15,7 @@ Notes
 #include "skillid.h"
 #include "vital.h"
 #include "syshookscript.h"
+#include "globals/network.h"
 
 #include "crypt/cryptkey.h"
 
@@ -24,9 +25,14 @@ Notes
 
 namespace Pol {
   namespace Core {
-	UoClientGeneral uoclient_general;
-	UoClientProtocol uoclient_protocol;
-	UoClientListeners uoclient_listeners;
+	UoClientProtocol::UoClientProtocol() :
+	  EnableFlowControlPackets(false)
+	  {}
+    size_t UoClientProtocol::estimateSize() const
+    {
+      return sizeof(UoClientProtocol);
+    }
+
 
 	UoClientListener::UoClientListener( Clib::ConfigElem& elem ) :
 	  port( elem.remove_ushort( "PORT" ) ),
@@ -37,6 +43,11 @@ namespace Pol {
 	  CalculateCryptKeys( elem.remove_string( "ENCRYPTION", "none" ), encryption );
 	}
 
+     size_t UoClientListener::estimateSize() const
+     {
+      return sizeof(UoClientListener);
+     }
+
     void checka( Clib::ConfigElem& elem, UoClientGeneral::Mapping& mapping, const char* tag )
 	{
 	  if ( !mapping.any )
@@ -46,7 +57,7 @@ namespace Pol {
 		{
 		  mapping.name = name;
 		  mapping.any = true;
-		  Mobile::Attribute* pAttr = Mobile::FindAttribute( name );
+		  Mobile::Attribute* pAttr = Mobile::Attribute::FindAttribute( name );
 		  if ( pAttr )
 			mapping.id = pAttr->attrid;
 		  else
@@ -77,25 +88,25 @@ namespace Pol {
     void load_general_entry( const Plib::Package* pkg, Clib::ConfigElem& elem )
 	{
 	  checka( elem,
-			  uoclient_general.strength,
+			  networkManager.uoclient_general.strength,
 			  "Strength" );
 	  checka( elem,
-			  uoclient_general.intelligence,
+			  networkManager.uoclient_general.intelligence,
 			  "Intelligence" );
 	  checka( elem,
-			  uoclient_general.dexterity,
+			  networkManager.uoclient_general.dexterity,
 			  "Dexterity" );
 	  checkv( elem,
-			  uoclient_general.hits,
+			  networkManager.uoclient_general.hits,
 			  "Hits" );
 	  checkv( elem,
-			  uoclient_general.stamina,
+			  networkManager.uoclient_general.stamina,
 			  "Stamina" );
 	  checkv( elem,
-			  uoclient_general.mana,
+			  networkManager.uoclient_general.mana,
 			  "Mana" );
 	  //dave changed 3/15/03, support configurable max skillid
-	  uoclient_general.maxskills = elem.remove_ushort( "MaxSkillID", SKILLID__HIGHEST );
+	  networkManager.uoclient_general.maxskills = elem.remove_ushort( "MaxSkillID", SKILLID__HIGHEST );
 	  std::string temp;
 	  if ( elem.remove_prop( "MethodScript", &temp ) )
 	  {
@@ -103,7 +114,7 @@ namespace Pol {
 		{
 		  ExportScript* shs = new ExportScript( pkg, temp );
 		  if ( shs->Initialize() )
-			uoclient_general.method_script = shs;
+			networkManager.uoclient_general.method_script = shs;
 		  else
 			delete shs;
 		}
@@ -112,12 +123,12 @@ namespace Pol {
 
     void load_protocol_entry( const Plib::Package* /*pkg*/, Clib::ConfigElem& elem )
 	{
-	  uoclient_protocol.EnableFlowControlPackets = elem.remove_bool( "EnableFlowControlPackets" );
+	  networkManager.uoclient_protocol.EnableFlowControlPackets = elem.remove_bool( "EnableFlowControlPackets" );
 	}
 
     void load_listener_entry( const Plib::Package* /*pkg*/, Clib::ConfigElem& elem )
 	{
-	  uoclient_listeners.push_back( UoClientListener( elem ) );
+	  networkManager.uoclient_listeners.push_back( UoClientListener( elem ) );
 	}
 
     void load_uoclient_entry( const Plib::Package* pkg, Clib::ConfigElem& elem )
@@ -145,5 +156,26 @@ namespace Pol {
 		method_script = NULL;
 	  }
 	}
+
+    size_t UoClientGeneral::Mapping::estimateSize() const
+    {
+      return sizeof(bool)
+        + name.capacity()
+        + sizeof(unsigned);
+    }
+    size_t UoClientGeneral::estimateSize() const
+    {
+      size_t size = strength.estimateSize()
+        + intelligence.estimateSize()
+        + dexterity.estimateSize()
+        + hits.estimateSize()
+        + stamina.estimateSize()
+        + mana.estimateSize()
+        + sizeof(unsigned short) /*maxskills*/
+        + sizeof(ExportScript*);
+      if (method_script != nullptr)
+        size += method_script->estimateSize();
+      return size;
+    }
   }
 }

@@ -17,11 +17,15 @@ Notes
 #include "polcfg.h"
 #include "ufunc.h"
 #include "uobject.h"
+#include "globals/uvars.h"
+#include "globals/state.h"
 
 #include "../clib/endian.h"
 #include "../clib/passert.h"
 #include "../clib/logfacility.h"
 #include "../clib/streamsaver.h"
+
+#include "../plib/systemstate.h"
 
 
 namespace Pol {
@@ -39,7 +43,7 @@ namespace Pol {
 	  OH_iterator itr = hash.find( obj->serial );
 	  if ( itr != hash.end() )
 	  {
-        if ( config.loglevel >= 5 )
+        if (Plib::systemstate.config.loglevel >= 5 )
           POLLOG.Format( "ObjectHash insert failed for object serial 0x{:X}. (duplicate serial?)\n" ) << obj->serial;
 		return false;
 	  }
@@ -276,7 +280,5 @@ namespace Pol {
 	{
 	  clean_deleted.insert( serial );
 	}
-
-	ObjectHash objecthash;
   }
 }

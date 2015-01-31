@@ -22,14 +22,7 @@ Notes
 #include "lockable.h"
 #endif
 
-#ifndef UCFG_H
-#include "ucfg.h"
-#endif
-
-#include "layers.h"
-#include "objtype.h"
 #include "reftypes.h"
-
 
 #define CONTAINER_STORES_ITEMREF 0
 
@@ -205,7 +198,7 @@ namespace Pol {
 	  friend class UContainerIterator;
 	  //	friend class Character; // uses the [] operator for quick layer access.
 	  friend bool Module::send_vendorwindow_contents( Network::Client* client, UContainer* for_sale, bool send_aos_tooltip ); // also []
-	  friend bool send_vendorsell( Network::Client* client, NPC* merchant, UContainer* sellfrom, bool send_aos_tooltip );
+	  friend bool send_vendorsell( Network::Client* client, Mobile::NPC* merchant, UContainer* sellfrom, bool send_aos_tooltip );
 	  friend Items::Item* Items::Item::create( const Items::ItemDesc& itemdesc, u32 serial );
 	  friend class WornItemsContainer;
 	  //friend class Item;

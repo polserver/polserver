@@ -28,6 +28,7 @@ Notes
 
 #include "../../plib/mapcell.h"
 #include "../../plib/pkg.h"
+#include "../../plib/systemstate.h"
 
 #include "../cfgrepos.h"
 #include "../clidata.h"
@@ -35,10 +36,11 @@ Notes
 #include "../multi/multidef.h"
 #include "../resource.h"
 #include "../polcfg.h"
-#include "../ssopt.h"
 #include "../syshookscript.h"
-#include "../ucfg.h"
+#include "../globals/ucfg.h"
 #include "../ustruct.h"
+#include "../globals/uvars.h"
+#include "../globals/settings.h"
 
 #include "../../clib/cfgelem.h"
 #include "../../clib/cfgfile.h"
@@ -52,23 +54,10 @@ Notes
 
 namespace Pol {
   namespace Items {
-	typedef std::map<std::string, u32, Clib::ci_cmp_pred> ObjtypeByNameMap;
-	ObjtypeByNameMap objtype_byname;
-
-	ItemDesc empty_itemdesc( ItemDesc::ITEMDESC );
-
-	// The temp_itemdesc is used when something is created by graphic.
-	// another option is to create such ItemDesc objects on demand as needed, and keep them around.
-	ItemDesc temp_itemdesc( ItemDesc::ITEMDESC );
-
-	std::map<u32, ItemDesc*> desctable;
-
-	OldObjtypeConversions old_objtype_conversions;
-
 	unsigned int get_objtype_byname( const char* str )
 	{
-	  ObjtypeByNameMap::const_iterator itr = objtype_byname.find( str );
-	  if ( itr == objtype_byname.end() )
+	  auto itr = Core::gamestate.objtype_byname.find( str );
+	  if ( itr == Core::gamestate.objtype_byname.end() )
 		return 0;
 	  else
 		return ( *itr ).second;
@@ -113,10 +102,10 @@ namespace Pol {
 		elem.throw_error( "Element must have objtype specified" );
 	  }
 
-	  if ( old_objtype_conversions.count( objtype ) )
+	  if ( Core::gamestate.old_objtype_conversions.count( objtype ) )
 	  {
 		elem.throw_error( "Objtype is defined as an OldObjtype of "
-						  + find_itemdesc( old_objtype_conversions[objtype] ).objtype_description() );
+						  + find_itemdesc( Core::gamestate.old_objtype_conversions[objtype] ).objtype_description() );
 	  }
 
 	  ItemDesc* descriptor = NULL;
@@ -176,7 +165,7 @@ namespace Pol {
 	  objtype( objtype ),
 	  graphic( elem.remove_ushort( "GRAPHIC", 0 ) ),
 	  // Changed from Valid Color Mask to cfg mask in ssopt.
-      color( elem.remove_ushort( "COLOR", 0 ) & Core::ssopt.item_color_mask ),
+      color( elem.remove_ushort( "COLOR", 0 ) & Core::settingsManager.ssopt.item_color_mask ),
 	  facing( static_cast<unsigned char>( elem.remove_ushort( "FACING", 127 ) ) ),
 	  desc( elem.remove_string( "DESC", "" ) ),
 	  tooltip( elem.remove_string( "TOOLTIP", "" ) ),
@@ -191,9 +180,9 @@ namespace Pol {
 	  lockable( elem.remove_bool( "LOCKABLE", false ) ),
 	  vendor_sells_for( elem.remove_ulong( "VENDORSELLSFOR", 0 ) ),
 	  vendor_buys_for( elem.remove_ulong( "VENDORBUYSFOR", 0 ) ),
-      decay_time( elem.remove_ulong( "DECAYTIME", Core::ssopt.default_decay_time ) ),
+      decay_time( elem.remove_ulong( "DECAYTIME", Core::settingsManager.ssopt.default_decay_time ) ),
 	  movable( DEFAULT ),
-      doubleclick_range( elem.remove_ushort( "DoubleclickRange", Core::ssopt.default_doubleclick_range ) ),
+      doubleclick_range( elem.remove_ushort( "DoubleclickRange", Core::settingsManager.ssopt.default_doubleclick_range ) ),
 	  use_requires_los( elem.remove_bool( "UseRequiresLOS", true ) ), //Dave 11/24
 	  ghosts_can_use( elem.remove_bool( "GhostsCanUse", false ) ), //Dave 11/24
 	  can_use_while_paralyzed( elem.remove_bool( "CanUseWhileParalyzed", false ) ),
@@ -222,7 +211,7 @@ namespace Pol {
 	  {
 		if ( graphic == 0 )
 		{
-          if ( objtype <= Core::config.max_tile_id )
+          if ( objtype <= Plib::systemstate.config.max_tile_id )
 		  {
 			graphic = static_cast<u16>( objtype );
 		  }
@@ -315,15 +304,15 @@ namespace Pol {
 			  elem.remove_prop( "ObjtypeName", &temp ) )
 	  {
 
-		if ( objtype_byname.count( temp.c_str() ) )
+		if ( Core::gamestate.objtype_byname.count( temp.c_str() ) )
 		{
           ERROR_PRINT.Format( "Warning! objtype 0x{:X} : ObjtypeName '{}' is the same as objtype {:#X}\n" ) << objtype
-            << temp << objtype_byname[temp.c_str()];
+            << temp << Core::gamestate.objtype_byname[temp.c_str()];
 		  // throw runtime_error( "Configuration file error" );
 		}
 		else
 		{
-		  objtype_byname[temp.c_str()] = objtype;
+		  Core::gamestate.objtype_byname[temp.c_str()] = objtype;
 		}
 
 		if ( objtypename.empty() )
@@ -361,18 +350,18 @@ namespace Pol {
 	  unsigned int old_objtype;
 	  while ( elem.remove_prop( "OldObjtype", &old_objtype ) )
 	  {
-		if ( old_objtype_conversions.count( old_objtype ) )
+		if ( Core::gamestate.old_objtype_conversions.count( old_objtype ) )
 		{
 		  elem.throw_error( objtype_description() + " specifies OldObjtype " + Clib::hexint( old_objtype )
 							+ " which is already mapped to " +
-							find_itemdesc( old_objtype_conversions[old_objtype] ).objtype_description() );
+							find_itemdesc( Core::gamestate.old_objtype_conversions[old_objtype] ).objtype_description() );
 		}
 		if ( has_itemdesc( old_objtype ) )
 		{
 		  elem.throw_error( objtype_description() + " specifies OldObjtype " + Clib::hexint( old_objtype )
-							+ " which is already defined as " + find_itemdesc( old_objtype_conversions[objtype] ).objtype_description() );
+							+ " which is already defined as " + find_itemdesc( Core::gamestate.old_objtype_conversions[objtype] ).objtype_description() );
 		}
-		old_objtype_conversions[old_objtype] = objtype;
+		Core::gamestate.old_objtype_conversions[old_objtype] = objtype;
 	  }
 
 	  if ( elem.remove_prop( "StackingIgnoresCProps", &temp ) )
@@ -476,9 +465,9 @@ namespace Pol {
 	  lockable( false ),
 	  vendor_sells_for( 0 ),
 	  vendor_buys_for( 0 ),
-      decay_time( Core::ssopt.default_decay_time ),
+      decay_time( Core::settingsManager.ssopt.default_decay_time ),
 	  movable( DEFAULT ),
-      doubleclick_range( Core::ssopt.default_doubleclick_range ),
+      doubleclick_range( Core::settingsManager.ssopt.default_doubleclick_range ),
 	  use_requires_los( true ),
 	  ghosts_can_use( false ),
 	  can_use_while_paralyzed ( false ),
@@ -652,9 +641,9 @@ namespace Pol {
 	  maxx( elem.remove_ushort( "MAXX" ) ),
 	  miny( elem.remove_ushort( "MINY" ) ),
 	  maxy( elem.remove_ushort( "MAXY" ) ),
-	  max_weight( elem.remove_ushort( "MAXWEIGHT", Core::ssopt.default_container_max_weight ) ),
-	  max_items( elem.remove_ushort( "MAXITEMS", Core::ssopt.default_container_max_items ) ),
-	  max_slots( static_cast<u8>( elem.remove_ushort( "MAXSLOTS", Core::ssopt.default_max_slots ) ) ),
+	  max_weight( elem.remove_ushort( "MAXWEIGHT", Core::settingsManager.ssopt.default_container_max_weight ) ),
+	  max_items( elem.remove_ushort( "MAXITEMS", Core::settingsManager.ssopt.default_container_max_items ) ),
+	  max_slots( static_cast<u8>( elem.remove_ushort( "MAXSLOTS", Core::settingsManager.ssopt.default_max_slots ) ) ),
 	  can_insert_script( elem.remove_string( "CANINSERTSCRIPT", "" ), pkg, "scripts/control/" ),
 	  on_insert_script( elem.remove_string( "ONINSERTSCRIPT", "" ), pkg, "scripts/control/" ),
 	  can_remove_script( elem.remove_string( "CANREMOVESCRIPT", "" ), pkg, "scripts/control/" ),
@@ -822,6 +811,11 @@ namespace Pol {
       return sizeof(bool)/*editable*/+base::estimatedSize( );
     }
 
+	bool has_itemdesc( u32 objtype )
+	{
+	  return Core::gamestate.desctable.count( objtype ) > 0;
+	}
+
 	bool objtype_is_lockable( u32 objtype )
 	{
 	  const ItemDesc& id = find_itemdesc( objtype );
@@ -840,7 +834,7 @@ namespace Pol {
 	  {
 		return id.graphic;
 	  }
-      else if ( objtype <= Core::config.max_tile_id )
+      else if ( objtype <= Plib::systemstate.config.max_tile_id )
 	  {
 		return static_cast<u16>( objtype );
 	  }
@@ -860,11 +854,11 @@ namespace Pol {
 
 	const ItemDesc& find_itemdesc( unsigned int objtype )
 	{
-	  const auto &obj = desctable.find( objtype );
-	  if ( obj != desctable.end() )
+	  const auto &obj = Core::gamestate.desctable.find( objtype );
+	  if ( obj != Core::gamestate.desctable.end() )
 		return *( obj->second );
 	  else
-		return empty_itemdesc;
+		return *(Core::gamestate.empty_itemdesc.get());
 	}
 
 	const ContainerDesc& find_container_desc( u32 objtype )
@@ -889,7 +883,6 @@ namespace Pol {
 	  return *md;
 	}
 
-    std::vector< ItemDesc* > dynamic_item_descriptors;
 	const ItemDesc* CreateItemDescriptor( Bscript::BStruct* itemdesc_struct )
 	{
       Clib::ConfigElem elem;
@@ -992,7 +985,7 @@ namespace Pol {
 	  unsigned int objtype = static_cast<unsigned int>( strtoul( elem.rest(), NULL, 0 ) );
       ItemDesc* id = ItemDesc::create( elem, find_itemdesc( objtype ).pkg );
 
-      dynamic_item_descriptors.push_back( id );
+      Core::gamestate.dynamic_item_descriptors.push_back( id );
 
 	  return id;
 	}
@@ -1036,7 +1029,7 @@ namespace Pol {
 
 		  elem.throw_error( "ObjType " + Clib::hexint( descriptor->objtype ) + " defined more than once." );
 		}
-		desctable[descriptor->objtype] = descriptor;
+		Core::gamestate.desctable[descriptor->objtype] = descriptor;
 
 		// just make sure this will work later.
 		getgraphic( descriptor->objtype );
@@ -1057,7 +1050,7 @@ namespace Pol {
 	{
         std::ofstream ofs("objtypes.txt");
 	  unsigned int last_objtype = 0;
-	  for ( const auto &elem : desctable )
+	  for ( const auto &elem : Core::gamestate.desctable )
 	  {
 		const ItemDesc* itemdesc = elem.second;
 		unsigned int i = elem.first;
@@ -1076,7 +1069,7 @@ namespace Pol {
 		  }
 		}
 
-		if ( !old_objtype_conversions.count( i ) )
+		if ( !Core::gamestate.old_objtype_conversions.count( i ) )
 		{
           ofs << Clib::hexint( i ) << " ";
 		  if ( itemdesc->objtypename.empty() == false )
@@ -1091,17 +1084,17 @@ namespace Pol {
 		{
           ofs << "# " << Clib::hexint( i )
 			<< " converts to "
-            << Clib::hexint( (int)old_objtype_conversions[i] )
+            << Clib::hexint( (int)Core::gamestate.old_objtype_conversions[i] )
 			<< '\n';
 		}
 
 		last_objtype = i;
 	  }
 
-	  if ( last_objtype != Core::config.max_objtype )
+	  if ( last_objtype != Plib::systemstate.config.max_objtype )
 	  {
 		unsigned int first = last_objtype + 1;
-		unsigned int last = Core::config.max_objtype;
+		unsigned int last = Plib::systemstate.config.max_objtype;
 		if ( first == last )
 		{
           ofs << "# " << Clib::hexint( first ) << " unused\n";
@@ -1120,7 +1113,7 @@ namespace Pol {
 		read_itemdesc_file( "config/itemdesc.cfg" );
 	  //	read_itemdesc_file( "config/wepndesc.cfg" );
 	  //	read_itemdesc_file( "config/armrdesc.cfg" );
-      for (auto &pkg: Plib::packages )
+      for (auto &pkg: Plib::systemstate.packages )
         load_package_itemdesc(pkg);
 
 	  write_objtypes_txt();
@@ -1128,26 +1121,23 @@ namespace Pol {
 
 	void unload_itemdesc()
 	{
-	  for ( auto &elem : desctable )
+	  for ( auto &elem : Core::gamestate.desctable )
 	  {
-		if ( elem.second != &empty_itemdesc )
+		if ( elem.second != Core::gamestate.empty_itemdesc.get() )
 		{
 		  delete elem.second;
-		  elem.second = &empty_itemdesc;
+		  elem.second = Core::gamestate.empty_itemdesc.get();
 		}
 	  }
 
-	  objtype_byname.clear();
-	  old_objtype_conversions.clear();
+	  Core::gamestate.objtype_byname.clear();
+	  Core::gamestate.old_objtype_conversions.clear();
+	  for ( auto &item : Core::gamestate.dynamic_item_descriptors )
+      {
+        delete item;
+      }
+      Core::gamestate.dynamic_item_descriptors.clear();
 
-	}
-
-	void unload_itemdesc_scripts()
-	{
-	  for ( auto &elem : desctable )
-	  {
-		elem.second->unload_scripts();
-	  }
 	}
 
 	void remove_resources( u32 objtype, u16 /*amount*/ )
@@ -1173,25 +1163,5 @@ namespace Pol {
 		}
 	  }
 	}
-
-    size_t itemdescSizeEstimate( size_t *count )
-    {
-      size_t size = ( sizeof(u32)+sizeof(ItemDesc*)+( sizeof(void*)* 3 + 1 ) / 2 ) * desctable.size();
-      *count = desctable.size();
-      for ( const auto &elem : desctable )
-      {
-        if ( elem.second != nullptr )
-        {
-          size += elem.second->estimatedSize();
-        }
-      }
-	  for (const auto &elem : dynamic_item_descriptors)
-	  {
-		if (elem != nullptr)
-		  size += elem->estimatedSize();
-	  }
-
-      return size;
-    }
   }
 }

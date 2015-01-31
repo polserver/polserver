@@ -46,6 +46,7 @@ namespace Pol {
 
 	  void print( Clib::StreamWriter& sw ) const;
 	  void load_item( Clib::ConfigElem& elem );
+      size_t estimateSize() const;
 	private:
 
 	  std::string _name;
@@ -70,6 +71,7 @@ namespace Pol {
 	  void print( Clib::StreamWriter& sw ) const;
 	  void read( Clib::ConfigFile& cf );
 	  void clear();
+      size_t estimateSize() const;
 	private:
 	  // TODO: investigate if this could store objects. Does find() 
 	  // return object copies, or references?
@@ -80,8 +82,6 @@ namespace Pol {
 	  friend class StorageAreasIterator;
 	  friend void write_dirty_storage( Clib::StreamWriter& );
 	};
-
-	extern Storage storage;
   }
 }
 #endif

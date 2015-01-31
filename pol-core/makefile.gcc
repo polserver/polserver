@@ -52,7 +52,7 @@ POL_BUILDPLATFORM=x86
 endif
 
 
-CXX_OPTS=-fno-strict-aliasing  -Wno-unused-result -DNOMINMAX -DINC_PASSERT=1 -DTIXML_USE_STL -Wall $(CXX_MORE_OPTS) $(INC_STL) -I../lib/boost_1_55_0
+CXX_OPTS=-fno-strict-aliasing -Wno-unused-result -DNOMINMAX -DINC_PASSERT=1 -DTIXML_USE_STL -Wall $(CXX_MORE_OPTS) $(INC_STL) -I../lib/boost_1_55_0
 
 CXX_RELEASE_OPTS=$(CXX_OPTS)
 
@@ -68,8 +68,8 @@ cpp_sources = \
 	../lib/tinyxml/tinystr.cpp ../lib/tinyxml/tinyxml.cpp \
 	../lib/tinyxml/tinyxmlerror.cpp ../lib/tinyxml/tinyxmlparser.cpp \
 	../lib/format/format.cc \
-	clib/boostutils.cpp clib/streamsaver.cpp \
-	clib/progver.cpp plib/polver.cpp \
+	clib/boostutils.cpp clib/streamsaver.cpp clib/timer.cpp \
+	clib/progver.cpp plib/polver.cpp plib/systemstate.cpp \
 	pol/accounts/account.cpp pol/accounts/accounts.cpp pol/accounts/acscrobj.cpp pol/allocd.cpp \
 	pol/item/armor.cpp pol/mobile/attack.cpp pol/mobile/ufacing.cpp \
 	pol/mobile/attribute.cpp pol/network/auxclient.cpp pol/network/packets.cpp \
@@ -90,12 +90,11 @@ cpp_sources = \
 	pol/door.cpp pol/dropitem.cpp \
 	pol/eqpitem.cpp pol/equipdsc.cpp pol/item/equipmnt.cpp clib/esignal.cpp \
 	pol/exscrobj.cpp \
-	pol/extcmd.cpp \
 	pol/extobj.cpp \
 	pol/module/filemod.cpp pol/fnsearch.cpp \
-	pol/gameclck.cpp pol/getitem.cpp pol/getmsg.cpp pol/gflag.cpp \
+	pol/gameclck.cpp pol/getitem.cpp pol/getmsg.cpp \
 	pol/guardrgn.cpp\
-	pol/module/guildmod.cpp \
+	pol/guilds.cpp pol/module/guildmod.cpp \
 	pol/module/basiciomod.cpp pol/module/basicmod.cpp \
 	pol/help.cpp pol/multi/house.cpp \
 	pol/network/iostats.cpp pol/irequest.cpp pol/item/item.cpp pol/item/item00.cpp \
@@ -111,15 +110,15 @@ cpp_sources = \
 	pol/multi/multicfg.cpp pol/multi/multicr.cpp pol/multi/multidef.cpp pol/multi/multis.cpp \
 	pol/multi/multidef2.cpp \
 	pol/musicrgn.cpp \
-	pol/npc.cpp pol/npctmpl.cpp pol/npctemplates.cpp pol/module/npcmod.cpp \
+	pol/mobile/npc.cpp pol/npctmpl.cpp pol/npctemplates.cpp pol/module/npcmod.cpp \
 	pol/objecthash.cpp pol/module/osmod.cpp \
 	pol/network/packethooks.cpp pol/packetscrobj.cpp pol/party.cpp pol/module/partymod.cpp \
 	pol/pol.cpp pol/polcfg.cpp pol/polclock.cpp pol/poldbg.cpp \
 	pol/polfile2.cpp pol/polsem.cpp pol/polsig.cpp pol/polstats.cpp \
 	pol/module/polsystemmod.cpp \
-	pol/poltest.cpp pol/polvar.cpp pol/polwww.cpp pol/module/httpmod.cpp pol/profile.cpp \
+	pol/poltest.cpp pol/polwww.cpp pol/module/httpmod.cpp \
 	pol/proplist.cpp \
-	pol/reftypes.cpp pol/readcfg.cpp pol/region.cpp pol/repsys.cpp \
+	pol/reftypes.cpp pol/region.cpp pol/repsys.cpp \
 	pol/resource.cpp \
 	pol/realms.cpp \
 	pol/savedata.cpp \
@@ -137,12 +136,14 @@ cpp_sources = \
 	pol/umap.cpp pol/module/unimod.cpp \
 	pol/uobjcnt.cpp pol/uobject.cpp pol/uobjhelp.cpp pol/uoclient.cpp \
 	pol/module/uomod.cpp pol/module/uomod2.cpp \
-	pol/module/uomod3.cpp pol/module/uomod4.cpp pol/uoexhelp.cpp \
+	pol/module/uomod3.cpp pol/module/uomod4.cpp pol/uoexhelp.cpp pol/uoexec.cpp \
 	pol/uolisten.cpp \
 	pol/uoscrobj.cpp pol/uoskills.cpp pol/useskill.cpp \
 	pol/module/utilmod.cpp pol/module/sqlmod.cpp \
-	pol/uvars.cpp pol/uworld.cpp \
-	pol/vital.cpp \
+	pol/globals/uvars.cpp pol/globals/ucfg.cpp pol/globals/multidefs.cpp \
+	pol/globals/network.cpp pol/globals/script_internals.cpp pol/globals/settings.cpp \
+	pol/globals/state.cpp pol/globals/object_storage.cpp pol/globals/memoryusage.cpp \
+	pol/uworld.cpp pol/vital.cpp \
 	pol/item/weapon.cpp \
 	pol/zone.cpp \
 	pol/module/attributemod.cpp pol/module/clmod.cpp pol/clfunc.cpp pol/module/storagemod.cpp pol/module/vitalmod.cpp \
@@ -190,8 +191,8 @@ cpp_sources = \
 
 ecompile_sources=ecompile/ecompile.cpp \
     ../lib/format/format.cc \
-  clib/boostutils.cpp \
-	plib/polver.cpp plib/pkg.cpp \
+  clib/boostutils.cpp clib/timer.cpp\
+	plib/polver.cpp plib/pkg.cpp plib/systemstate.cpp \
 	bscript/compilercfg.cpp bscript/compiler.cpp bscript/parser.cpp \
 	bscript/token.cpp bscript/symcont.cpp \
 	bscript/compctx.cpp bscript/tkn_strm.cpp \
@@ -215,14 +216,14 @@ runecl_sources=runecl/runecl.cpp \
 	../lib/tinyxml/tinystr.cpp ../lib/tinyxml/tinyxml.cpp \
 	../lib/tinyxml/tinyxmlerror.cpp ../lib/tinyxml/tinyxmlparser.cpp \
 	../lib/format/format.cc \
-	clib/boostutils.cpp clib/streamsaver.cpp \
+	clib/boostutils.cpp clib/streamsaver.cpp clib/timer.cpp\
 	bscript/executor.cpp bscript/execmodl.cpp bscript/dbl.cpp \
 	pol/module/basiciomod.cpp pol/module/basicmod.cpp bscript/berror.cpp \
 	pol/module/utilmod.cpp pol/dice.cpp \
 	pol/module/filemod.cpp pol/binaryfilescrobj.cpp pol/xmlfilescrobj.cpp \
 	pol/module/cfgmod.cpp pol/module/datastore.cpp \
 	pol/cfgrepos.cpp pol/proplist.cpp \
-	plib/pkg.cpp plib/polver.cpp \
+	plib/pkg.cpp plib/polver.cpp plib/systemstate.cpp pol/globals/ucfg.cpp \
 	bscript/blong.cpp bscript/bstruct.cpp bscript/compctx.cpp \
 	bscript/dict.cpp bscript/eprog.cpp bscript/eprog2.cpp \
 	bscript/eprog3.cpp bscript/eprog_read.cpp bscript/escript_config.cpp \
@@ -243,11 +244,12 @@ runecl_sources=runecl/runecl.cpp \
 
 uoconvert_sources=uoconvert/uoconvert.cpp  \
     ../lib/format/format.cc \
-  clib/boostutils.cpp \
+  clib/boostutils.cpp clib/timer.cpp\
 	pol/uofile00.cpp pol/uofile01.cpp pol/uofile02.cpp \
 	pol/uofile07.cpp pol/uofile08.cpp \
 	pol/polfile1.cpp \
 	plib/mapfunc.cpp plib/mapwriter.cpp plib/realmdescriptor.cpp \
+	plib/systemstate.cpp plib/pkg.cpp plib/polver.cpp \
 	clib/cfgfile.cpp clib/cmdargs.cpp clib/strutil.cpp \
 	clib/Debugging/ExceptionParser.cpp \
 	clib/fileutil.cpp clib/passert.cpp clib/dirlist.cpp clib/iohelp.cpp \
@@ -259,12 +261,13 @@ uoconvert_sources=uoconvert/uoconvert.cpp  \
 
 uotool_sources=uotool/uotool.cpp \
     ../lib/format/format.cc \
-  clib/boostutils.cpp \
+  clib/boostutils.cpp clib/timer.cpp\
 	uotool/uofile04.cpp uotool/uofile05.cpp \
 	pol/uofile00.cpp pol/uofile01.cpp pol/uofile02.cpp \
 	pol/uofile06.cpp pol/uofile07.cpp pol/uofile08.cpp \
-	pol/polfile1.cpp  pol/multi/multidef.cpp \
+	pol/polfile1.cpp  pol/multi/multidef.cpp pol/globals/multidefs.cpp \
 	plib/mapfunc.cpp plib/mapwriter.cpp plib/realmdescriptor.cpp \
+	plib/systemstate.cpp plib/pkg.cpp plib/polver.cpp \
 	clib/cfgfile.cpp clib/cmdargs.cpp clib/strutil.cpp \
 	clib/Debugging/ExceptionParser.cpp \
 	clib/fileutil.cpp clib/passert.cpp clib/dirlist.cpp clib/iohelp.cpp \
@@ -353,12 +356,12 @@ clean:
 	
 	
 modernize:
-	clang-modernize-3.4 -loop-convert -use-auto -pass-by-value -replace-auto_ptr -summary -final-syntax-check  $(cpp_sources)       -- $(CXX_OPTS) -std=c++11
-	clang-modernize-3.4 -loop-convert -use-auto -pass-by-value -replace-auto_ptr -summary -final-syntax-check  $(ecompile_sources)  -- $(CXX_OPTS) -std=c++11
-	clang-modernize-3.4 -loop-convert -use-auto -pass-by-value -replace-auto_ptr -summary -final-syntax-check  $(runecl_sources)    -- $(CXX_OPTS) -std=c++11
-	clang-modernize-3.4 -loop-convert -use-auto -pass-by-value -replace-auto_ptr -summary -final-syntax-check  $(uoconvert_sources) -- $(CXX_OPTS) -std=c++11
-	clang-modernize-3.4 -loop-convert -use-auto -pass-by-value -replace-auto_ptr -summary -final-syntax-check  $(uotool_sources)    -- $(CXX_OPTS) -std=c++11
-	clang-modernize-3.4 -loop-convert -use-auto -pass-by-value -replace-auto_ptr -summary -final-syntax-check  $(poltool_sources)   -- $(CXX_OPTS) -std=c++11
+	clang-modernize-3.6 -add-override -override-macros -summary -final-syntax-check  $(cpp_sources)       -- $(CXX_OPTS) -DPOL_OVERRIDE=override -std=c++11
+	clang-modernize-3.6 -add-override -override-macros -summary -final-syntax-check  $(ecompile_sources)  -- $(CXX_OPTS) -DPOL_OVERRIDE=override -std=c++11
+	clang-modernize-3.6 -add-override -override-macros -summary -final-syntax-check  $(runecl_sources)    -- $(CXX_OPTS) -DPOL_OVERRIDE=override -std=c++11
+	clang-modernize-3.6 -add-override -override-macros -summary -final-syntax-check  $(uoconvert_sources) -- $(CXX_OPTS) -DPOL_OVERRIDE=override -std=c++11
+	clang-modernize-3.6 -add-override -override-macros -summary -final-syntax-check  $(uotool_sources)    -- $(CXX_OPTS) -DPOL_OVERRIDE=override -std=c++11
+	clang-modernize-3.6 -add-override -override-macros -summary -final-syntax-check  $(poltool_sources)   -- $(CXX_OPTS) -DPOL_OVERRIDE=override -std=c++11
 	
 
 gzipfile: bin/pol bin/ecompile bin/runecl bin/uoconvert bin/uotool #bin/poltool

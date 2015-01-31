@@ -20,8 +20,8 @@ Notes
 #include "pktout.h"
 #include "tooltips.h"
 #include "uworld.h"
-#include "npc.h"
-#include "uvars.h"
+#include "mobile/npc.h"
+#include "globals/uvars.h"
 #include "containr.h"
 
 #include "../clib/endian.h"
@@ -70,73 +70,6 @@ namespace Pol {
 	  msg->WriteFlipped<u16>( len );
 	  msg.Send( client, len );
 	  return true;
-	}
-
-
-	//DAVE added texttype, ranges
-    void for_nearby_npcs( void( *f )( NPC& npc, Mobile::Character *chr, const char *text, int textlen, u8 texttype ),
-						  Mobile::Character *p_chr, const char *p_text, int p_textlen, u8 texttype )
-	{
-	  int range;
-	  switch ( texttype )
-	  {
-		case TEXTTYPE_WHISPER:  range = ssopt.whisper_range;  break;
-		case TEXTTYPE_YELL:     range = ssopt.yell_range;     break;
-		default:                range = ssopt.speech_range;   break;
-	  }
-
-	  unsigned short wxL, wyL, wxH, wyH;
-	  zone_convert_clip( p_chr->x - range, p_chr->y - range, p_chr->realm, wxL, wyL );
-	  zone_convert_clip( p_chr->x + range, p_chr->y + range, p_chr->realm, wxH, wyH );
-	  for ( unsigned short wx = wxL; wx <= wxH; ++wx )
-	  {
-		for ( unsigned short wy = wyL; wy <= wyH; ++wy )
-		{
-          for ( auto &chr : p_chr->realm->zone[wx][wy].npcs )
-		  {
-			if ( chr->isa( UObject::CLASS_NPC ) )
-			{
-			  NPC* npc = static_cast<NPC*>( chr );
-
-			  if ( inrangex( npc, p_chr, range ) )
-				( *f )( *npc, p_chr, p_text, p_textlen, texttype );
-			}
-		  }
-		}
-	  }
-	}
-
-	// UNICODE version
-    void for_nearby_npcs( void( *f )( NPC& npc, Mobile::Character *chr, const char *text, int textlen, u8 texttype, const u16 *wtext, const char lang[4], int wtextlen, Bscript::ObjArray* speechtokens ),
-						  Mobile::Character *p_chr, const char *p_text, int p_textlen, u8 texttype, const u16 *p_wtext, const char p_lang[4], int p_wtextlen, Bscript::ObjArray* speechtokens )
-	{
-	  int range;
-	  switch ( texttype )
-	  {
-		case TEXTTYPE_WHISPER:  range = ssopt.whisper_range;  break;
-		case TEXTTYPE_YELL:     range = ssopt.yell_range;     break;
-		default:                range = ssopt.speech_range;   break;
-	  }
-
-	  unsigned short wxL, wyL, wxH, wyH;
-	  zone_convert_clip( p_chr->x - range, p_chr->y - range, p_chr->realm, wxL, wyL );
-	  zone_convert_clip( p_chr->x + range, p_chr->y + range, p_chr->realm, wxH, wyH );
-	  for ( unsigned short wx = wxL; wx <= wxH; ++wx )
-	  {
-		for ( unsigned short wy = wyL; wy <= wyH; ++wy )
-		{
-          for ( auto &chr : p_chr->realm->zone[wx][wy].npcs )
-		  {
-			if ( chr->isa( UObject::CLASS_NPC ) )
-			{
-			  NPC* npc = static_cast<NPC*>( chr );
-
-			  if ( inrangex( p_chr, npc, range ) )
-				( *f )( *npc, p_chr, p_text, p_textlen, texttype, p_wtext, p_lang, p_wtextlen, speechtokens );
-			}
-		  }
-		}
-	  }
 	}
 
 	void send_open_gump( Client *client, const UContainer& cont )

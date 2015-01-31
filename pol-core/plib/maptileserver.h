@@ -25,7 +25,7 @@ namespace Pol {
 	  MAPTILE_CELL GetMapTile( unsigned short x, unsigned short y );
       size_t sizeEstimate() const;
 	private:
-	  RealmDescriptor _descriptor;
+	  const RealmDescriptor _descriptor;
 
 	  Clib::BinaryFile _file;
 	  int _cur_block_index;
