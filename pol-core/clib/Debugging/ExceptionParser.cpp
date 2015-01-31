@@ -209,53 +209,63 @@ void GetSignalDescription(int pSignal, string &pSignalName, string &pSignalDescr
     }
 }
 
+void LogExceptionSignal(int pSignal)
+{
+    string tSignalName;
+    string tSignalDescription;
+
+    GetSignalDescription(pSignal, tSignalName, tSignalDescription);
+    printf("Signal \"%s\"(%d: %s) detected in thread %d\n", tSignalName.c_str(), pSignal, tSignalDescription.c_str(), GetTId());
+}
+
+void HandleExceptionSignal(int pSignal)
+{
+    switch(pSignal)
+    {
+        case SIGILL:
+        case SIGFPE:
+        case SIGSEGV:
+        case SIGTERM:
+    	case SIGABRT:
+            {
+            	printf("A segmentation fault was caused at memory location: %p\n", pSignalInfo->si_addr);
+                printf("POL will exit now. Please post the following on http://forums.polserver.com/tracker.php.\n");
+            	string tStackTrace = ExceptionParser::GetTrace();
+            	printf("Stack trace:\n%s", tStackTrace.c_str());
+                printf("\n");
+                printf("\n");
+                exit(1);
+            }
+            break;
+        default:
+            break;
+    }
+}
+
 #ifndef _WIN32
 static int GetTId()
 {
 	return syscall(__NR_gettid);
 }
 
-static void SignalHandler(int pSignal, siginfo_t *pSignalInfo, void *pArg)
+static void HandleSignalLinux(int pSignal, siginfo_t *pSignalInfo, void *pArg)
 {
-    string tSignalName;
-    string tSignalDescription;
-    GetSignalDescription(pSignal, tSignalName, tSignalDescription);
-    printf("Signal \"%s\"(%d: %s) detected in thread %d\n", tSignalName.c_str(), pSignal, tSignalDescription.c_str(), GetTId());
+	LogExceptionSignal(pSignal);
     if (pSignalInfo != NULL)
     {
-        switch(pSignal)
-        {
-            case SIGSEGV:
-                {
-                	printf("A segmentation fault was caused at memory location: %p\n", pSignalInfo->si_addr);
-                    printf("POL will exit now. Please post the following on http://forums.polserver.com/tracker.php.\n");
-                	string tStackTrace = ExceptionParser::GetTrace();
-                	printf("Stack trace:\n%s", tStackTrace.c_str());
-                    printf("\n");
-                    printf("\n");
-                    exit(1);
-                }
-                break;
-            case SIGINT:
-				{
-					printf("POL will exit now...\n");
-					exit(0);
-				}
-				break;
-            case SIGTERM:
-				{
-					printf("POL will exit now...\n");
-					exit(0);
-				}
-				break;
-            default:
-                break;
-        }
+    	if(pSignal == SIGSEGV)
+		{
+			if(pSignalInfo->si_addr != NULL)
+				printf("Segmentation fault detected - faulty memory reference at location: %p", pSignalInfo->si_addr);
+			else
+				printf("Segmentation fault detected - null pointer reference");
+		}
         if (pSignalInfo->si_errno != 0)
-        	printf("This signal occurred because \"%s\"(%d)\n", strerror(pSignalInfo->si_errno), pSignalInfo->si_errno);
+        	printf("This signal occurred because \"%s\"(%d)", strerror(pSignalInfo->si_errno), pSignalInfo->si_errno);
         if (pSignalInfo->si_code != 0)
-        	printf("Signal code is %d\n", pSignalInfo->si_code);
+        	printf("Signal code is %d", pSignalInfo->si_code);
     }
+	HandleExceptionSignal(pSignal);
 }
 #endif
 
@@ -266,7 +276,7 @@ void ExceptionParser::InitGlobalExceptionCatching()
     struct sigaction tSigAction;
     memset(&tSigAction, 0, sizeof(tSigAction));
     sigemptyset(&tSigAction.sa_mask);
-    tSigAction.sa_sigaction = SignalHandler;
+    tSigAction.sa_sigaction = HandleSignalLinux;
     tSigAction.sa_flags   = SA_SIGINFO; // Invoke signal-catching function with three arguments instead of one
     sigaction(SIGINT, &tSigAction, NULL);
     sigaction(SIGTERM, &tSigAction, NULL);
