@@ -1,4 +1,13 @@
 ﻿-- POL099 --
+01-31-2015 Turley:
+  Added:   uo::ListMobilesInBox( x1,y1,z1, x2,y2,z2, realm := _DEFAULT_REALM )
+           like ListObjectsInBox but returns only mobiles.
+  Changed: uo::List*InBox functions accept as z parameters LIST_IGNORE_Z
+           Thx @ andenixa
+  Added:   uo::GetMidpointCircleCoords( xcenter, ycenter, radius )
+           based on given center coordinates and radius returns array of x,y structs which represent a circle
+		   Thx @ andenixa 
+
 09-12-2014 Nando:
   Fixed:    Client crash with clients older than 7.0.9.0 but newer than 7.0.0.0, because of wrong size in
               boat movement packets.
