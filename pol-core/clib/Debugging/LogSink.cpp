@@ -22,18 +22,18 @@ LogSink::~LogSink()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void LogSink::printCurrentTimeStamp(ostream &pStream)
+void LogSink::AddTimeStamp(ostream &pStream)
 {
-	pStream << getLoggingTimeStamp();
+	pStream << GetTimeStamp();
 }
 
-// put_time is not yet implemented in gcc, and i dont like strftime
-string LogSink::getLoggingTimeStamp()
+string LogSink::GetTimeStamp()
 {
-	fmt::Writer tWrite; // write '[%m/%d %H:%M:%S] '
+	fmt::Writer tWrite;
 	time_t tClockTime = system_clock::to_time_t(system_clock::now());
 	struct tm* tTime = localtime(&tClockTime);
 
+	// write "[%m/%d %H:%M:%S] "
 	tWrite << '['
 		<< fmt::pad(tTime->tm_mon+1, 2, '0') << '/'
 		<< fmt::pad(tTime->tm_mday, 2, '0') << ' '
