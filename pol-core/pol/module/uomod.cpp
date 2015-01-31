@@ -5719,6 +5719,7 @@ namespace Pol {
 	  }
       std::unique_ptr<ObjArray> coords( new ObjArray );
 
+      std::vector<std::tuple<int,int>> points;
       auto add_point = [&coords](int x, int y)
       {
         std::unique_ptr<BStruct> point( new BStruct );
@@ -5733,36 +5734,32 @@ namespace Pol {
         return coords.release();
       }
 
-      int f = 1 - radius;
-      int ddF_x = 0;
-      int ddF_y = -2 * radius;
-      int x = 0;
-      int y = radius;
-      add_point(xcenter, ycenter + radius);
-      add_point(xcenter, ycenter - radius);
-      add_point(xcenter + radius, ycenter);
-      add_point(xcenter - radius, ycenter);
-      while(x < y)
-      {
-        if(f >= 0)
-        {
-          y--;
-          ddF_y += 2;
-          f += ddF_y;
-        }
-        x++;
-        ddF_x += 2;
-        f += ddF_x + 1;
- 
-        add_point(xcenter + x, ycenter + y);
-        add_point(xcenter - x, ycenter + y);
-        add_point(xcenter + x, ycenter - y);
-        add_point(xcenter - x, ycenter - y);
-        add_point(xcenter + y, ycenter + x);
-        add_point(xcenter - y, ycenter + x);
-        add_point(xcenter + y, ycenter - x);
-        add_point(xcenter - y, ycenter - x);
-      }
+      // inside of each quadrant the points are sorted,
+      // store the quadrands in seperated vectors and merge them later
+      // -> automatically sorted
+      std::vector<std::tuple<int,int>> q1,q2,q3,q4;
+      int x = -radius, y = 0, err = 2-2*radius; /* II. Quadrant */ 
+      do {
+        q1.emplace_back(xcenter-x, ycenter+y); /*   I. Quadrant */
+        q2.emplace_back(xcenter-y, ycenter-x); /*  II. Quadrant */
+        q3.emplace_back(xcenter+x, ycenter-y); /* III. Quadrant */
+        q4.emplace_back(xcenter+y, ycenter+x); /*  IV. Quadrant */
+        radius = err;
+        if (radius <= y) 
+          err += ++y*2+1;
+        if (radius > x || err > y)
+          err += ++x*2+1;
+      } while (x < 0);
+
+      for (const auto p: q1)
+        add_point(std::get<0>(p),std::get<1>(p));
+      for (const auto p: q2)
+        add_point(std::get<0>(p),std::get<1>(p));
+      for (const auto p: q3)
+        add_point(std::get<0>(p),std::get<1>(p));
+      for (const auto p: q4)
+        add_point(std::get<0>(p),std::get<1>(p));
+
       return coords.release();
     }
 
