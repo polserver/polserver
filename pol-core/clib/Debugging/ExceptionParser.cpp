@@ -215,7 +215,7 @@ void LogExceptionSignal(int pSignal)
     string tSignalDescription;
 
     GetSignalDescription(pSignal, tSignalName, tSignalDescription);
-    printf("Signal \"%s\"(%d: %s) detected in thread %d\n", tSignalName.c_str(), pSignal, tSignalDescription.c_str(), GetTId());
+    printf("Signal \"%s\"(%d: %s) detected.\n", tSignalName.c_str(), pSignal, tSignalDescription.c_str());
 }
 
 void HandleExceptionSignal(int pSignal)
@@ -228,7 +228,6 @@ void HandleExceptionSignal(int pSignal)
         case SIGTERM:
     	case SIGABRT:
             {
-            	printf("A segmentation fault was caused at memory location: %p\n", pSignalInfo->si_addr);
                 printf("POL will exit now. Please post the following on http://forums.polserver.com/tracker.php.\n");
             	string tStackTrace = ExceptionParser::GetTrace();
             	printf("Stack trace:\n%s", tStackTrace.c_str());
@@ -243,11 +242,6 @@ void HandleExceptionSignal(int pSignal)
 }
 
 #ifndef _WIN32
-static int GetTId()
-{
-	return syscall(__NR_gettid);
-}
-
 static void HandleSignalLinux(int pSignal, siginfo_t *pSignalInfo, void *pArg)
 {
 	LogExceptionSignal(pSignal);
