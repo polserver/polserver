@@ -211,19 +211,23 @@ namespace Pol {
 	  }
 	}
 
-	unsigned int Item::sellprice() const
+	u32 Item::sellprice() const
 	{
       u32 price;
       if (getmember<u32>(Bscript::MBR_SELLPRICE,&price))
         return price;
       return itemdesc().vendor_sells_for;
 	}
+    void Item::sellprice(u32 value)
+    {
+      setmember<u32>(Bscript::MBR_SELLPRICE,value,SELLPRICE_DEFAULT);
+    }
 
 	//Dave add buyprice() 11/28. Dont know wtf getbuyprice() is trying to do.
 	//  Dave, getbuyprice() was trying to return false if the vendor wasn't interested in buying.
 	//        it would return true if the vendor was interested in buying.
 	//   -Eric
-	unsigned int Item::buyprice() const
+	u32 Item::buyprice() const
 	{
       u32 price;
       if (getmember<u32>(Bscript::MBR_BUYPRICE,&price))
@@ -231,7 +235,12 @@ namespace Pol {
       return itemdesc().vendor_buys_for;
 	}
 
-	bool Item::getbuyprice( unsigned int& bp ) const
+    void Item::buyprice(u32 value)
+    {
+      setmember<u32>(Bscript::MBR_BUYPRICE,value,BUYPRICE_DEFAULT);
+    }
+
+	bool Item::getbuyprice( u32& bp ) const
 	{
 	  bp = buyprice();
 	  if ( bp > 0 )

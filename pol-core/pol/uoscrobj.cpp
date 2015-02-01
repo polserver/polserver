@@ -980,10 +980,10 @@ namespace Pol {
 		  decayat_gameclock_ = value;
 		  return new BLong( decayat_gameclock_ );
 		case MBR_SELLPRICE:
-          setmember<u32>(Bscript::MBR_SELLPRICE,value,SELLPRICE_DEFAULT);
+          sellprice(value);
 		  return new BLong( value );
 		case MBR_BUYPRICE:
-          setmember<u32>(Bscript::MBR_BUYPRICE,value,BUYPRICE_DEFAULT);
+          buyprice(value);
 		  return new BLong( value );
 		case MBR_NEWBIE:
 		  restart_decay_timer();

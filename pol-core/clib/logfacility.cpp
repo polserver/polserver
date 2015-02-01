@@ -198,7 +198,7 @@ namespace Pol {
         {
           try
           {
-            getSink<Sink>()->sink( moved._movable.get(), id );
+            getSink<Sink>()->AddMessage( moved._movable.get(), id );
           }
           catch ( std::exception& msg )
           {
@@ -358,12 +358,12 @@ namespace Pol {
         {
           fmt::Writer tmp;
           tmp << "failed to open logfile " << _log_filename << "\n";
-          getSink<LogSink_cerr>()->sink( &tmp );
+          getSink<LogSink_cerr>()->AddMessage( &tmp );
           return;
         }
         if ( open_timestamp )
         {
-          printCurrentTimeStamp( _filestream );
+          AddTimeStamp( _filestream );
           _filestream << "Logfile opened." << std::endl;
         }
         time_t t_now = std::chrono::system_clock::to_time_t( std::chrono::system_clock::now() );
@@ -372,7 +372,7 @@ namespace Pol {
       }
 
       // print given msg into filestream
-      void LogSinkGenericFile::sink( fmt::Writer* msg )
+      void LogSinkGenericFile::AddMessage( fmt::Writer* msg )
       {
         if ( !_filestream.is_open() )
           return;
@@ -388,18 +388,18 @@ namespace Pol {
             if ( !test_for_rollover( now ) )
               return;
             if ( _behaviour->timestamps )
-              printCurrentTimeStamp( _filestream );
+              AddTimeStamp( _filestream );
           }
           else if ( _behaviour->timestamps && Clib::LogfileTimestampEveryLine )
-            printCurrentTimeStamp( _filestream );
+            AddTimeStamp( _filestream );
         }
         _active_line = ( msg->data()[msg->size() - 1] != '\n' ); // is the last character a newline?
         _filestream << msg->c_str();
         _filestream.flush();
       }
-      void LogSinkGenericFile::sink( fmt::Writer* msg, std::string )
+      void LogSinkGenericFile::AddMessage( fmt::Writer* msg, std::string )
       {
-        sink( msg );
+        AddMessage( msg );
       }
 
       // check if a rollover is needed (new day)
@@ -432,27 +432,27 @@ namespace Pol {
       LogSink_cout::LogSink_cout() : LogSink()
       {}
       // print given msg into std::cout
-      void LogSink_cout::sink( fmt::Writer* msg)
+      void LogSink_cout::AddMessage( fmt::Writer* msg)
       {
         std::cout << msg->c_str();
         std::cout.flush();
       }
-      void LogSink_cout::sink( fmt::Writer* msg, std::string )
+      void LogSink_cout::AddMessage( fmt::Writer* msg, std::string )
       {
-        sink( msg );
+        AddMessage( msg );
       }
 
       LogSink_cerr::LogSink_cerr() : LogSink()
       {}
       // print given msg into std::cerr
-      void LogSink_cerr::sink( fmt::Writer* msg )
+      void LogSink_cerr::AddMessage( fmt::Writer* msg )
       {
         std::cerr << msg->c_str();
         std::cerr.flush();
       }
-      void LogSink_cerr::sink( fmt::Writer* msg, std::string )
+      void LogSink_cerr::AddMessage( fmt::Writer* msg, std::string )
       {
-        sink( msg );
+        AddMessage( msg );
       }
 
       // on construction this opens not pol.log instead start.log
@@ -488,14 +488,14 @@ namespace Pol {
         Disabled = true;
       }
       // only print the msg if not Disabled
-      void LogSink_debuglog::sink( fmt::Writer* msg )
+      void LogSink_debuglog::AddMessage( fmt::Writer* msg )
       {
         if ( !Disabled )
-          LogSinkGenericFile::sink( msg );
+          LogSinkGenericFile::AddMessage( msg );
       }
-      void LogSink_debuglog::sink( fmt::Writer* msg, std::string )
+      void LogSink_debuglog::AddMessage( fmt::Writer* msg, std::string )
       {
-        sink( msg );
+        AddMessage( msg );
       }
 
       // on construction opens leak.log
@@ -521,15 +521,15 @@ namespace Pol {
       }
 
       // sink msg into sink of given id
-      void LogSink_flexlog::sink( fmt::Writer* msg, std::string id )
+      void LogSink_flexlog::AddMessage( fmt::Writer* msg, std::string id )
       {
         auto itr = _logfiles.find( id );
         if ( itr != _logfiles.end() )
         {
-          itr->second->sink( msg );
+          itr->second->AddMessage( msg );
         }
       }
-      void LogSink_flexlog::sink( fmt::Writer* /*msg*/ )
+      void LogSink_flexlog::AddMessage( fmt::Writer* /*msg*/ )
       {
         // empty
       }
@@ -547,15 +547,15 @@ namespace Pol {
       {}
       // performs the sink with given msg for both sinks
       template <typename log1, typename log2>
-      void LogSink_dual<log1, log2>::sink( fmt::Writer* msg)
+      void LogSink_dual<log1, log2>::AddMessage( fmt::Writer* msg)
       {
-        getSink<log1>()->sink( msg );
-        getSink<log2>()->sink( msg );
+        getSink<log1>()->AddMessage( msg );
+        getSink<log2>()->AddMessage( msg );
       }
       template <typename log1, typename log2>
-      void LogSink_dual<log1, log2>::sink( fmt::Writer* msg, std::string )
+      void LogSink_dual<log1, log2>::AddMessage( fmt::Writer* msg, std::string )
       {
-        sink( msg );
+        AddMessage( msg );
       }
 
 

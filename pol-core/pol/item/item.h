@@ -104,9 +104,11 @@ namespace Pol {
       
 
       std::string get_use_script_name() const;
-	  unsigned int sellprice() const;
-	  unsigned int buyprice() const; //Dave added this 11/28
-	  bool getbuyprice( unsigned int& buyprice ) const;
+	  u32 sellprice() const;
+      void sellprice(u32);
+	  u32 buyprice() const;
+      void buyprice(u32);
+	  bool getbuyprice( u32& buyprice ) const;
 
 	  bool newbie() const;
 	  bool default_newbie() const;

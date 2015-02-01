@@ -2321,25 +2321,25 @@ namespace Pol {
 	  return NULL;
 	}
 
-    void UOExecutorModule::internal_InBoxAreaChecks( unsigned short& /*x1*/, unsigned short& /*y1*/, short &z1, unsigned short &x2, unsigned short &y2, short &z2, Plib::Realm* realm )
+    void UOExecutorModule::internal_InBoxAreaChecks( unsigned short& /*x1*/, unsigned short& /*y1*/, int &z1, unsigned short &x2, unsigned short &y2, int &z2, Plib::Realm* realm )
 	{
-	  if ( z1 < ZCOORD_MIN )
+	  if ( z1 < ZCOORD_MIN || z1 == LIST_IGNORE_Z)
 		z1 = ZCOORD_MIN;
 
 	  if ( x2 >= realm->width() )
 		x2 = ( realm->width() - 1 );
 	  if ( y2 >= realm->height() )
 		y2 = ( realm->height() - 1 );
-	  if ( z2 > ZCOORD_MAX )
+	  if ( z2 > ZCOORD_MAX || z2 == LIST_IGNORE_Z )
 		z2 = ZCOORD_MAX;
 	}
 
 	BObjectImp* UOExecutorModule::mf_ListObjectsInBox(/* x1, y1, z1, x2, y2, z2, realm */ )
 	{
 	  unsigned short x1, y1;
-	  short z1;
+	  int z1;
 	  unsigned short x2, y2;
-	  short z2;
+	  int z2;
 	  const String* strrealm;
 	  Plib::Realm* realm;
 
@@ -2362,7 +2362,7 @@ namespace Pol {
 		std::swap( x1, x2 );
 	  if ( y1 > y2 )
 		std::swap( y1, y2 );
-	  if ( z1 > z2 )
+	  if (( z1 > z2 ) && z1 != LIST_IGNORE_Z && z2 != LIST_IGNORE_Z)
 		std::swap( z1, z2 );
 	  // Disabled again: ShardAdmins "loves" this "bug" :o/
 	  // if ((!realm->valid(x1, y1, z1)) || (!realm->valid(x2, y2, z2)))
@@ -2388,12 +2388,12 @@ namespace Pol {
 	  return newarr.release();
 	}
 
-	BObjectImp* UOExecutorModule::mf_ListMultisInBox(/* x1, y1, z1, x2, y2, z2, realm */ )
-	{
-	  unsigned short x1, y1;
-	  short z1;
+    BObjectImp* UOExecutorModule::mf_ListMobilesInBox(/* x1, y1, z1, x2, y2, z2, realm */)
+    {
+      unsigned short x1, y1;
+	  int z1;
 	  unsigned short x2, y2;
-	  short z2;
+	  int z2;
 	  const String* strrealm;
 	  Plib::Realm* realm;
 
@@ -2416,7 +2416,54 @@ namespace Pol {
 		std::swap( x1, x2 );
 	  if ( y1 > y2 )
 		std::swap( y1, y2 );
-	  if ( z1 > z2 )
+	  if (( z1 > z2 ) && z1 != LIST_IGNORE_Z && z2 != LIST_IGNORE_Z)
+		std::swap( z1, z2 );
+	  // Disabled again: ShardAdmins "loves" this "bug" :o/
+	  // if ((!realm->valid(x1, y1, z1)) || (!realm->valid(x2, y2, z2)))
+	  //	 return new BError("Invalid Coordinates for realm");
+	  internal_InBoxAreaChecks( x1, y1, z1, x2, y2, z2, realm );
+
+	  std::unique_ptr<ObjArray> newarr( new ObjArray );
+      WorldIterator<MobileFilter>::InBox( x1, y1, x2, y2, realm, [&]( Mobile::Character* chr )
+      {
+        if ( chr->z >= z1 && chr->z <= z2 )
+        {
+          newarr->addElement( chr->make_ref() );
+        }
+      } );
+
+	  return newarr.release();
+    }
+
+	BObjectImp* UOExecutorModule::mf_ListMultisInBox(/* x1, y1, z1, x2, y2, z2, realm */ )
+	{
+	  unsigned short x1, y1;
+	  int z1;
+	  unsigned short x2, y2;
+	  int z2;
+	  const String* strrealm;
+	  Plib::Realm* realm;
+
+	  if ( !( getParam( 0, x1 ) &&
+		getParam( 1, y1 ) &&
+		getParam( 2, z1 ) &&
+		getParam( 3, x2 ) &&
+		getParam( 4, y2 ) &&
+		getParam( 5, z2 ) &&
+		getStringParam( 6, strrealm ) ) )
+	  {
+		return new BError( "Invalid parameter" );
+	  }
+
+	  realm = find_realm( strrealm->value() );
+	  if ( !realm )
+		return new BError( "Realm not found" );
+
+	  if ( x1 > x2 )
+		std::swap( x1, x2 );
+	  if ( y1 > y2 )
+		std::swap( y1, y2 );
+	  if (( z1 > z2 ) && z1 != LIST_IGNORE_Z && z2 != LIST_IGNORE_Z)
 		std::swap( z1, z2 );
 	  // Disabled again: ShardAdmins "loves" this "bug" :o/
 	  // if ((!realm->valid(x1, y1, z1)) || (!realm->valid(x2, y2, z2)))
@@ -2488,7 +2535,7 @@ namespace Pol {
 	{
 	  unsigned short x1, y1;
 	  unsigned short x2, y2;
-	  short z1, z2;
+	  int z1, z2;
 	  int flags;
 	  const String* strrealm;
 
@@ -2509,7 +2556,7 @@ namespace Pol {
 		  std::swap( x1, x2 );
 		if ( y1 > y2 )
 		  std::swap( y1, y2 );
-		if ( z1 > z2 )
+		if (( z1 > z2 ) && z1 != LIST_IGNORE_Z && z2 != LIST_IGNORE_Z)
 		  std::swap( z1, z2 );
 		// Disabled again: ShardAdmins "loves" this "bug" :o/
 		// if ((!realm->valid(x1, y1, z1)) || (!realm->valid(x2, y2, z2)))
@@ -5661,6 +5708,61 @@ namespace Pol {
 		return new BError( "Invalid parameter" );
 	}
 
+    // bresenham circle calculates the coords based on center coords and radius
+    BObjectImp* UOExecutorModule::mf_GetMidpointCircleCoords(/* xcenter, ycenter, radius */)
+    {
+      int xcenter, ycenter, radius;
+      if ( !(getParam(0, xcenter) && getParam(1, ycenter)
+			&& getParam(2, radius)) )
+	  {
+		  return new BError("Invalid parameter type");
+	  }
+      std::unique_ptr<ObjArray> coords( new ObjArray );
+
+      std::vector<std::tuple<int,int>> points;
+      auto add_point = [&coords](int x, int y)
+      {
+        std::unique_ptr<BStruct> point( new BStruct );
+		point->addMember( "x", new BLong( x ) );
+		point->addMember( "y", new BLong( y ) );
+		coords->addElement( point.release() );
+      };
+
+      if (radius == 0)
+      {
+        add_point(xcenter, ycenter);
+        return coords.release();
+      }
+
+      // inside of each quadrant the points are sorted,
+      // store the quadrands in seperated vectors and merge them later
+      // -> automatically sorted
+      std::vector<std::tuple<int,int>> q1,q2,q3,q4;
+      int x = -radius, y = 0, err = 2-2*radius; /* II. Quadrant */ 
+      do {
+        q1.emplace_back(xcenter-x, ycenter+y); /*   I. Quadrant */
+        q2.emplace_back(xcenter-y, ycenter-x); /*  II. Quadrant */
+        q3.emplace_back(xcenter+x, ycenter-y); /* III. Quadrant */
+        q4.emplace_back(xcenter+y, ycenter+x); /*  IV. Quadrant */
+        radius = err;
+        if (radius <= y) 
+          err += ++y*2+1;
+        if (radius > x || err > y)
+          err += ++x*2+1;
+      } while (x < 0);
+
+      for (const auto p: q1)
+        add_point(std::get<0>(p),std::get<1>(p));
+      for (const auto p: q2)
+        add_point(std::get<0>(p),std::get<1>(p));
+      for (const auto p: q3)
+        add_point(std::get<0>(p),std::get<1>(p));
+      for (const auto p: q4)
+        add_point(std::get<0>(p),std::get<1>(p));
+
+      return coords.release();
+    }
+
 
 	UOFunctionDef UOExecutorModule::function_table[] =
 	{
@@ -5832,7 +5934,9 @@ namespace Pol {
 	  { "CanWalk", &UOExecutorModule::mf_CanWalk },
 	  { "SendCharProfile", &UOExecutorModule::mf_SendCharProfile },
 	  { "SendOverallSeason", &UOExecutorModule::mf_SendOverallSeason },
-      { "ListOfflineMobilesInRealm", &UOExecutorModule::mf_ListOfflineMobilesInRealm }
+      { "ListOfflineMobilesInRealm", &UOExecutorModule::mf_ListOfflineMobilesInRealm },
+      { "ListMobilesInBox", &UOExecutorModule::mf_ListMobilesInBox },
+      { "GetMidpointCircleCoords", &UOExecutorModule::mf_GetMidpointCircleCoords }
 	};
 
 	typedef std::map< std::string, int, Clib::ci_cmp_pred > FuncIdxMap;
