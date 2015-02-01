@@ -1,9 +1,9 @@
 #include "ExceptionParser.h"
 
 #include <cstring>
+#include <signal.h>
 
 #ifndef _WIN32
-#include <signal.h>
 #include <execinfo.h>
 #include <cxxabi.h>
 #include <unistd.h>
