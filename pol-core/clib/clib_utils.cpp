@@ -8,6 +8,7 @@ Notes
 */
 
 #include "clib.h"
+#include <algorithm>
 
 namespace Pol {
   namespace Clib {

@@ -14,6 +14,7 @@ Notes
 #ifndef __STDDEF_H
 #	include "stddef.h"
 #endif
+#include "rawtypes.h"
 
     /* explicit cast: use instead of c-style (type) casts.
        Specify what you want to cast to, and 
